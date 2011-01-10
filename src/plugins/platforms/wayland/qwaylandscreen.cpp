@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2009 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -39,35 +39,5 @@
 **
 ****************************************************************************/
 
-#ifndef QPLATFORMINTEGRATION_WAYLAND_H
-#define QPLATFORMINTEGRATION_WAYLAND_H
+#include "qwaylandscreen.h"
 
-#include <QtGui/QPlatformIntegration>
-
-QT_BEGIN_NAMESPACE
-
-class QWaylandBuffer;
-class QWaylandDisplay;
-
-class QWaylandIntegration : public QPlatformIntegration
-{
-public:
-    QWaylandIntegration(bool useOpenGL = false);
-
-    QPixmapData *createPixmapData(QPixmapData::PixelType type) const;
-    QPlatformWindow *createPlatformWindow(QWidget *widget, WId winId) const;
-    QWindowSurface *createWindowSurface(QWidget *widget, WId winId) const;
-
-    QList<QPlatformScreen *> screens() const;
-
-    QPlatformFontDatabase *fontDatabase() const;
-
-private:
-    QPlatformFontDatabase *mFontDb;
-    QWaylandDisplay *mDisplay;
-    bool mUseOpenGL;
-};
-
-QT_END_NAMESPACE
-
-#endif

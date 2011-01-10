@@ -1,10 +1,10 @@
 /****************************************************************************
 **
-** Copyright (C) 2009 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
-** This file is part of the plugins of the Qt Toolkit.
+** This file is part of the config.tests of the Qt Toolkit.
 **
 ** $QT_BEGIN_LICENSE:LGPL$
 ** No Commercial Usage
@@ -39,35 +39,42 @@
 **
 ****************************************************************************/
 
-#ifndef QPLATFORMINTEGRATION_WAYLAND_H
-#define QPLATFORMINTEGRATION_WAYLAND_H
+#ifndef QWAYLANDWINDOW_H
+#define QWAYLANDWINDOW_H
 
-#include <QtGui/QPlatformIntegration>
+#include <QtGui/QPlatformWindow>
 
-QT_BEGIN_NAMESPACE
+#include <stdint.h>
 
-class QWaylandBuffer;
 class QWaylandDisplay;
+class QWaylandBuffer;
 
-class QWaylandIntegration : public QPlatformIntegration
+class QWaylandWindow : public QPlatformWindow
 {
 public:
-    QWaylandIntegration(bool useOpenGL = false);
+    QWaylandWindow(QWidget *window, QWaylandDisplay *display);
+    ~QWaylandWindow();
+    struct wl_surface *surface() { return mSurface; }
 
-    QPixmapData *createPixmapData(QPixmapData::PixelType type) const;
-    QPlatformWindow *createPlatformWindow(QWidget *widget, WId winId) const;
-    QWindowSurface *createWindowSurface(QWidget *widget, WId winId) const;
-
-    QList<QPlatformScreen *> screens() const;
-
-    QPlatformFontDatabase *fontDatabase() const;
+    void setVisible(bool visible);
+    void configure(uint32_t time, uint32_t edges,
+                   int32_t x, int32_t y, int32_t width, int32_t height);
+    WId winId() const;
+    void setParent(const QPlatformWindow *parent);
+    QPlatformGLContext *glContext() const;
+    void attach(QWaylandBuffer *buffer);
+    QWaylandBuffer *getBuffer(void) { return mBuffer; }
+    QWaylandWindow *getParentWindow(void) { return mParentWindow; }
 
 private:
-    QPlatformFontDatabase *mFontDb;
+    struct wl_surface *mSurface;
     QWaylandDisplay *mDisplay;
-    bool mUseOpenGL;
+    QPlatformGLContext *mGLContext;
+    WId mWindowId;
+
+    QWaylandBuffer *mBuffer;
+    QWaylandWindow *mParentWindow;
 };
 
-QT_END_NAMESPACE
 
-#endif
+#endif // QWAYLANDWINDOW_H

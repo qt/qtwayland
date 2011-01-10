@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2009 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -39,35 +39,26 @@
 **
 ****************************************************************************/
 
-#ifndef QPLATFORMINTEGRATION_WAYLAND_H
-#define QPLATFORMINTEGRATION_WAYLAND_H
+#ifndef QWAYLANDSCREEN_H
+#define QWAYLANDSCREEN_H
 
-#include <QtGui/QPlatformIntegration>
+#include <QtGui/QPlatformScreen>
 
-QT_BEGIN_NAMESPACE
-
-class QWaylandBuffer;
-class QWaylandDisplay;
-
-class QWaylandIntegration : public QPlatformIntegration
+class QWaylandScreen : public QPlatformScreen
 {
 public:
-    QWaylandIntegration(bool useOpenGL = false);
+    QWaylandScreen() {}
 
-    QPixmapData *createPixmapData(QPixmapData::PixelType type) const;
-    QPlatformWindow *createPlatformWindow(QWidget *widget, WId winId) const;
-    QWindowSurface *createWindowSurface(QWidget *widget, WId winId) const;
+    QRect geometry() const { return mGeometry; }
+    int depth() const { return mDepth; }
+    QImage::Format format() const { return mFormat; }
 
-    QList<QPlatformScreen *> screens() const;
-
-    QPlatformFontDatabase *fontDatabase() const;
-
-private:
-    QPlatformFontDatabase *mFontDb;
-    QWaylandDisplay *mDisplay;
-    bool mUseOpenGL;
+public:
+    QRect mGeometry;
+    int mDepth;
+    QImage::Format mFormat;
+    QSize mPhysicalSize;
+    struct wl_output *mOutput;
 };
 
-QT_END_NAMESPACE
-
-#endif
+#endif // QWAYLANDSCREEN_H

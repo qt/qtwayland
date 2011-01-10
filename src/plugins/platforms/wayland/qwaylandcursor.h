@@ -1,10 +1,10 @@
 /****************************************************************************
 **
-** Copyright (C) 2009 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
-** This file is part of the plugins of the Qt Toolkit.
+** This file is part of the QtOpenVG module of the Qt Toolkit.
 **
 ** $QT_BEGIN_LICENSE:LGPL$
 ** No Commercial Usage
@@ -39,35 +39,24 @@
 **
 ****************************************************************************/
 
-#ifndef QPLATFORMINTEGRATION_WAYLAND_H
-#define QPLATFORMINTEGRATION_WAYLAND_H
+#ifndef QWAYLANDCURSOR_H
+#define QWAYLANDCURSOR_H
 
-#include <QtGui/QPlatformIntegration>
+#include <QtGui/QPlatformCursor>
 
-QT_BEGIN_NAMESPACE
-
-class QWaylandBuffer;
+class QWaylandShmBuffer;
 class QWaylandDisplay;
 
-class QWaylandIntegration : public QPlatformIntegration
-{
+class QWaylandCursor : QPlatformCursor {
 public:
-    QWaylandIntegration(bool useOpenGL = false);
+    QWaylandCursor(QWaylandDisplay *display,
+                   QPlatformScreen *screen)
+        : QPlatformCursor(screen)
+        , mBuffer(0), mDisplay(display) { }
 
-    QPixmapData *createPixmapData(QPixmapData::PixelType type) const;
-    QPlatformWindow *createPlatformWindow(QWidget *widget, WId winId) const;
-    QWindowSurface *createWindowSurface(QWidget *widget, WId winId) const;
-
-    QList<QPlatformScreen *> screens() const;
-
-    QPlatformFontDatabase *fontDatabase() const;
-
-private:
-    QPlatformFontDatabase *mFontDb;
+    void changeCursor(QCursor *cursor, QWidget *widget);
+    QWaylandShmBuffer *mBuffer;
     QWaylandDisplay *mDisplay;
-    bool mUseOpenGL;
 };
 
-QT_END_NAMESPACE
-
-#endif
+#endif // QWAYLANDCURSOR_H

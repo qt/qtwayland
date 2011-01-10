@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2009 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -39,35 +39,34 @@
 **
 ****************************************************************************/
 
-#ifndef QPLATFORMINTEGRATION_WAYLAND_H
-#define QPLATFORMINTEGRATION_WAYLAND_H
+#ifndef QWAYLANDGLCONTEXT_H
+#define QWAYLANDGLCONTEXT_H
 
-#include <QtGui/QPlatformIntegration>
+#include <QtGui/QPlatformGLContext>
 
-QT_BEGIN_NAMESPACE
-
-class QWaylandBuffer;
 class QWaylandDisplay;
+class QWaylandWindow;
 
-class QWaylandIntegration : public QPlatformIntegration
-{
+#define GL_GLEXT_PROTOTYPES
+#include <GLES2/gl2.h>
+#include <GLES2/gl2ext.h>
+
+class QWaylandGLContext : public QPlatformGLContext {
 public:
-    QWaylandIntegration(bool useOpenGL = false);
-
-    QPixmapData *createPixmapData(QPixmapData::PixelType type) const;
-    QPlatformWindow *createPlatformWindow(QWidget *widget, WId winId) const;
-    QWindowSurface *createWindowSurface(QWidget *widget, WId winId) const;
-
-    QList<QPlatformScreen *> screens() const;
-
-    QPlatformFontDatabase *fontDatabase() const;
+    QWaylandGLContext(QWaylandDisplay *wd, QWaylandWindow *window, const QPlatformWindowFormat &format);
+    ~QWaylandGLContext();
+    void makeCurrent();
+    void doneCurrent();
+    void swapBuffers();
+    void* getProcAddress(const QString&);
+    QPlatformWindowFormat platformWindowFormat() const { return mFormat; }
 
 private:
-    QPlatformFontDatabase *mFontDb;
+    QPlatformWindowFormat mFormat;
     QWaylandDisplay *mDisplay;
-    bool mUseOpenGL;
+    QWaylandWindow *mWindow;
+    GLuint parentFbo, parentRbo;
 };
 
-QT_END_NAMESPACE
 
-#endif
+#endif // QWAYLANDGLCONTEXT_H

@@ -55,22 +55,6 @@ WL_EXPORT const struct wl_interface wl_compositor_interface = {
 	0, NULL,
 };
 
-static const struct wl_message drm_requests[] = {
-	{ "authenticate", "u" },
-	{ "create_buffer", "nuiiuo" },
-};
-
-static const struct wl_message drm_events[] = {
-	{ "device", "s" },
-	{ "authenticated", "" },
-};
-
-WL_EXPORT const struct wl_interface wl_drm_interface = {
-	"drm", 1,
-	ARRAY_LENGTH(drm_requests), drm_requests,
-	ARRAY_LENGTH(drm_events), drm_events,
-};
-
 static const struct wl_message shm_requests[] = {
 	{ "create_buffer", "nhiiuo" },
 };

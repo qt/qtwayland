@@ -36,7 +36,6 @@ struct wl_client;
 
 struct wl_display;
 struct wl_compositor;
-struct wl_drm;
 struct wl_shm;
 struct wl_buffer;
 struct wl_shell;
@@ -51,7 +50,6 @@ struct wl_visual;
 
 extern const struct wl_interface wl_display_interface;
 extern const struct wl_interface wl_compositor_interface;
-extern const struct wl_interface wl_drm_interface;
 extern const struct wl_interface wl_shm_interface;
 extern const struct wl_interface wl_buffer_interface;
 extern const struct wl_interface wl_shell_interface;
@@ -85,23 +83,6 @@ struct wl_compositor_interface {
 			       struct wl_compositor *compositor,
 			       uint32_t id);
 };
-
-struct wl_drm_interface {
-	void (*authenticate)(struct wl_client *client,
-			     struct wl_drm *drm,
-			     uint32_t id);
-	void (*create_buffer)(struct wl_client *client,
-			      struct wl_drm *drm,
-			      uint32_t id,
-			      uint32_t name,
-			      int width,
-			      int height,
-			      uint32_t stride,
-			      struct wl_visual *visual);
-};
-
-#define WL_DRM_DEVICE	0
-#define WL_DRM_AUTHENTICATED	1
 
 struct wl_shm_interface {
 	void (*create_buffer)(struct wl_client *client,

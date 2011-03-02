@@ -4,12 +4,16 @@ DEPENDPATH += .
 INCLUDEPATH += .
 INCLUDEPATH += ../3rdparty/wayland
 
-DESTDIR=$$PWD/../../bin/
+# comment out the following line to disable DRM
+CONFIG += wayland_drm
 
+DESTDIR=$$PWD/../../bin/
 
 LIBS += -L ../../lib
 
-LIBS += -lxcb-dri2 -lEGL
+wayland_drm  {
+  LIBS += -lxcb-dri2 -lEGL
+}
 include (qt-compositor.pri)
 
 # Input

@@ -45,7 +45,9 @@
 #include "wlsurface.h"
 #include "wldisplay.h"
 #include "wlshmbuffer.h"
-#include "wldrmbuffer.h"
+#ifdef QT_WAYLAND_DRM
+# include "wldrmbuffer.h"
+#endif
 
 #include <wayland-server.h>
 
@@ -102,8 +104,9 @@ private:
 
     /* shm/drm-Handler */
     ShmHandler m_shm;
+#ifdef QT_WAYLAND_DRM
     DrmHandler m_drm;
-
+#endif
     QList<Surface *> m_surfaces;
 
     /* Render state */

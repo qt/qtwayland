@@ -21,9 +21,12 @@ HEADERS += $$PWD/qtcompositor.h \
         $$PWD/wldisplay.h \
         $$PWD/wlobject.h
 
+INCLUDEPATH += $$PWD/../3rdparty/wayland
+
 wayland_drm  {
   SOURCES += $$PWD/wldrmbuffer.cpp
   HEADERS +=  $$PWD/wldrmbuffer.h
 
   DEFINES += QT_WAYLAND_DRM
+  LIBS += -lxcb-dri2 -lEGL
 }

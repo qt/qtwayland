@@ -9,24 +9,19 @@ SOURCES += $$PWD/qtcompositor.cpp \
         $$PWD/wlsurface.cpp \
         $$PWD/wloutput.cpp \
         $$PWD/wldisplay.cpp \
-        $$PWD/wlbuffer.cpp \
         $$PWD/wlshmbuffer.cpp 
 
 HEADERS += $$PWD/qtcompositor.h \
         $$PWD/wlcompositor.h \
         $$PWD/wlsurface.h \
         $$PWD/wloutput.h \
-        $$PWD/wlbuffer.h \
         $$PWD/wlshmbuffer.h \
         $$PWD/wldisplay.h \
         $$PWD/wlobject.h
 
 INCLUDEPATH += $$PWD/../3rdparty/wayland
 
-wayland_drm  {
-  SOURCES += $$PWD/wldrmbuffer.cpp
-  HEADERS +=  $$PWD/wldrmbuffer.h
-
-  DEFINES += QT_WAYLAND_DRM
-  LIBS += -lxcb-dri2 -lEGL
+wayland_egl  {
+  LIBS += -lEGL -lGLESv2
+  DEFINES += QT_COMPOSITOR_WAYLAND_EGL
 }

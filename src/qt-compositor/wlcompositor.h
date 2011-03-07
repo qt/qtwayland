@@ -42,18 +42,17 @@
 #define WL_COMPOSITOR_H
 
 #include "wloutput.h"
-#include "wlsurface.h"
 #include "wldisplay.h"
 #include "wlshmbuffer.h"
-#ifdef QT_WAYLAND_DRM
-# include "wldrmbuffer.h"
-#endif
 
 #include <wayland-server.h>
 
 class WaylandCompositor;
+class QWidget;
 
 namespace Wayland {
+
+class Surface;
 
 class Compositor : public QObject, public Object<struct wl_compositor>
 {
@@ -69,6 +68,7 @@ public:
     Surface *getSurfaceFromWinId(uint winId) const;
     struct wl_client *getClientFromWinId(uint winId) const;
     QImage image(uint winId) const;
+
 
     const struct wl_input_device *inputDevice() const { return &m_input; }
     struct wl_input_device *inputDevice() { return &m_input; }
@@ -88,6 +88,8 @@ public:
 
     uint currentTimeMsecs() const;
 
+    QWidget *topLevelWidget() const;
+
 private slots:
     void processWaylandEvents();
 
@@ -102,11 +104,8 @@ private:
 
     struct wl_object m_shell;
 
-    /* shm/drm-Handler */
+    /* shm/*/
     ShmHandler m_shm;
-#ifdef QT_WAYLAND_DRM
-    DrmHandler m_drm;
-#endif
     QList<Surface *> m_surfaces;
 
     /* Render state */

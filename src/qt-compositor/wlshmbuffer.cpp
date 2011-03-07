@@ -48,14 +48,13 @@ namespace Wayland {
 
 void shm_buffer_attach(struct wl_buffer *buffer, struct wl_surface *surface)
 {
-    wayland_cast<ShmBuffer *>(buffer)->attach(wayland_cast<Surface *>(surface));
+    wayland_cast<ShmBuffer *>(buffer)->attach(reinterpret_cast<Surface *>(surface));
 }
 
 void shm_buffer_damage(struct wl_buffer *buffer, struct wl_surface *surface, int x, int y, int width, int height)
 {
-    wayland_cast<ShmBuffer *>(buffer)->damage(wayland_cast<Surface *>(surface), QRect(x, y, width, height));
+    wayland_cast<ShmBuffer *>(buffer)->damage(reinterpret_cast<Surface *>(surface), QRect(x, y, width, height));
 }
-
 
 void shm_buffer_destroy(struct wl_resource *resource, struct wl_client *)
 {
@@ -95,8 +94,13 @@ ShmBuffer::ShmBuffer(int fd,
                      const QSize &size,
                      uint stride,
                      struct wl_visual *visual)
-    : Buffer(compositor,visual,size)
 {
+    base()->compositor = reinterpret_cast<wl_compositor *>(compositor);
+    base()->height = size.height();
+    base()->width = size.width();
+    base()->visual = visual;
+    base()->attach = shm_buffer_attach;
+    base()->damage = shm_buffer_damage;
     m_stride = stride;
     m_data = mmap(NULL, stride * size.height(), PROT_READ, MAP_SHARED, fd, 0);
     close(fd);

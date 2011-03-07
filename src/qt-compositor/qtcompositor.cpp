@@ -41,9 +41,11 @@
 #include "qtcompositor.h"
 
 #include "wlcompositor.h"
+#include "wlsurface.h"
 
-WaylandCompositor::WaylandCompositor()
+WaylandCompositor::WaylandCompositor(QWidget *topLevelWidget)
     : m_compositor(new Wayland::Compositor(this))
+    , m_toplevel_widget(topLevelWidget)
 {
 }
 
@@ -97,8 +99,30 @@ uint WaylandCompositor::directRenderWinId() const
     return 0;
 }
 
+bool WaylandCompositor::hasImage(uint winId) const
+{
+    return m_compositor->getSurfaceFromWinId(winId)->hasImage();
+}
+
 const QImage WaylandCompositor::image(uint winId) const
 {
     return m_compositor->image(winId);
+}
+
+#ifdef QT_COMPOSITOR_WAYLAND_EGL
+GLuint WaylandCompositor::textureId(uint winId) const
+{
+    return m_compositor->getSurfaceFromWinId(winId)->textureId();
+}
+
+bool WaylandCompositor::hasTexture(uint winId) const
+{
+    return m_compositor->getSurfaceFromWinId(winId)->hasTexture();
+}
+#endif
+
+QWidget * WaylandCompositor::topLevelWidget() const
+{
+    return m_toplevel_widget;
 }
 

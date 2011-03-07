@@ -39,18 +39,29 @@
 ****************************************************************************/
 
 #include "qtcompositor.h"
+
 #include <QApplication>
 #include <QWidget>
 #include <QTimer>
 #include <QPainter>
 #include <QMouseEvent>
 
+#ifdef QT_COMPOSITOR_WAYLAND_EGL
+#include <QGLContext>
+#include <QGLWidget>
+#include <GLES2/gl2.h>
+#endif
+
 #include <QDebug>
 
+#ifdef QT_COMPOSITOR_WAYLAND_EGL
+class QWidgetCompositor : public QGLWidget, public WaylandCompositor
+#else
 class QWidgetCompositor : public QWidget, public WaylandCompositor
+#endif
 {
 public:
-    QWidgetCompositor() : WaylandCompositor(), m_dragging(false) {
+    QWidgetCompositor() : WaylandCompositor(this), m_dragging(false) {
         setMouseTracking(true);
         m_background = QImage(QLatin1String("background.jpg"));
         //make sure we get the window id and create the glcontext
@@ -108,11 +119,29 @@ protected:
             p.drawPixmap(rect(), m_backgroundScaled);
 
         for (int i = 0; i < m_surfaces.size(); ++i) {
-            QImage img = image(m_surfaces.at(i).first);
-            p.drawImage(m_surfaces.at(i).second.topLeft(), img);
+            if (hasImage(m_surfaces.at(i).first)) {
+                QImage img = image(m_surfaces.at(i).first);
+                p.drawImage(m_surfaces.at(i).second.topLeft(), img);
+            }
+#ifdef QT_COMPOSITOR_WAYLAND_EGL
+            else {
+                QPlatformGLContext *glcontext = platformWindow()->glContext();
+                if (glcontext) {
+                    QGLContext *context = QGLContext::fromPlatformGLContext(glcontext);
+                    context->makeCurrent();
+                    context->drawTexture(m_surfaces.at(i).second,textureId(m_surfaces.at(i).first));
+                }
+            }
+#endif //QT_COMPOSITOR_WAYLAND_EGL
         }
 
         frameFinished();
+
+#ifdef QT_COMPOSITOR_WAYLAND_EGL
+        //jl:FIX FIX FIX:)
+        update();
+        glFinish();
+#endif
     }
 
     void resizeEvent(QResizeEvent *)

@@ -45,6 +45,14 @@
 #include <QImage>
 #include <QRect>
 
+#ifdef QT_COMPOSITOR_WAYLAND_EGL
+#define GL_GLEXT_PROTOTYPES
+#include <GLES2/gl2.h>
+#include <GLES2/gl2ext.h>
+#endif
+
+class QWidget;
+
 namespace Wayland
 {
     class Compositor;
@@ -53,7 +61,7 @@ namespace Wayland
 class WaylandCompositor
 {
 public:
-    WaylandCompositor();
+    WaylandCompositor(QWidget *topLevelWidget = 0);
     virtual ~WaylandCompositor();
 
     void sendMousePressEvent(uint winId, int x, int y, Qt::MouseButton button);
@@ -70,7 +78,15 @@ public:
     void setDirectRenderWinId(uint winId);
     uint directRenderWinId() const;
 
+    QWidget *topLevelWidget()const;
+
+    bool hasImage(uint winId) const;
     const QImage image(uint winId) const;
+
+#ifdef QT_COMPOSITOR_WAYLAND_EGL
+    bool hasTexture(uint winId) const;
+    GLuint textureId(uint winId) const;
+#endif
 
     virtual void surfaceCreated(uint winId) = 0;
     virtual void surfaceDestroyed(uint winId) = 0;
@@ -79,6 +95,8 @@ public:
 
 private:
     Wayland::Compositor *m_compositor;
+    QWidget  *m_toplevel_widget;
+
 };
 
 #endif // QTCOMP_H

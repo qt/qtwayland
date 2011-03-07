@@ -41,15 +41,18 @@
 #ifndef WL_SHMBUFFER_H
 #define WL_SHMBUFFER_H
 
-#include "wlbuffer.h"
-#include "wlsurface.h"
+#include "wlobject.h"
 
 #include <QtCore/QRect>
 #include <QtGui/QImage>
+
+
 namespace Wayland {
 
-struct Surface;
-class ShmBuffer : public Buffer
+class Surface;
+class Compositor;
+
+class ShmBuffer : public Object<struct wl_buffer>
 {
 public:
     ShmBuffer(int fd,
@@ -61,8 +64,6 @@ public:
 
     void attach(Surface *surface);
     void damage(Surface *surface, const QRect &rect);
-
-    Buffer::BufferType type() const {return Buffer::Shm;}
 
     QImage image() const;
     QSize size() const;

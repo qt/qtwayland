@@ -5,13 +5,20 @@ INCLUDEPATH += .
 INCLUDEPATH += ../../src/qt-compositor/
 
 # comment out the following line to disable DRM
-CONFIG += wayland_drm
+CONFIG += wayland_egl
+
+wayland_egl {
+    QT += opengl
+}
 
 DESTDIR=$$PWD/../../bin/
 
 LIBS += -L ../../lib
 
 include (../../src/qt-compositor/qt-compositor.pri)
+
+LIBS += -L/home/jlind/install/lib
+INCLUDEPATH += /home/jlind/install/include
 
 # Input
 SOURCES += main.cpp

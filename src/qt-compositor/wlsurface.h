@@ -42,42 +42,59 @@
 #define WL_SURFACE_H
 
 #include "wlobject.h"
+#include "wlshmbuffer.h"
 
 #include <QtCore/QRect>
 #include <QtGui/QImage>
+
+#include <QtCore/QTextStream>
+#include <QtCore/QMetaType>
+#include <QtGui/private/qapplication_p.h>
+
+#ifdef QT_COMPOSITOR_WAYLAND_EGL
+#define GL_GLEXT_PROTOTYPES
+#include <GLES2/gl2.h>
+#include <GLES2/gl2ext.h>
+#endif
 
 namespace Wayland {
 
 class Compositor;
 class Buffer;
+
+class SurfacePrivate;
+
 class Surface : public Object<struct wl_surface>
 {
+    Q_DECLARE_PRIVATE(Surface)
 public:
     Surface(struct wl_client *client, Compositor *compositor);
     ~Surface();
 
-    struct State {
-        Buffer *buffer;
-        QRect rect;
-    };
-
     uint id() const { return base()->resource.object.id; }
-    void attach(Buffer *buffer);
+#ifdef QT_COMPOSITOR_WAYLAND_EGL
+    void attachEgl(wl_buffer *egl_buffer);
+#endif
+    void attachShm(ShmBuffer *shm_buffer);
 
-    void mapTopLevel() { staged.rect = QRect(0, 0, 200, 200); }
+    void mapTopLevel();
 
-    void commit() { current = staged; }
+    void commit();
 
     void damage(const QRect &rect);
 
     QImage image() const;
+    bool hasImage() const;
 
+#ifdef QT_COMPOSITOR_WAYLAND_EGL
+    bool hasTexture() const;
+    GLuint textureId() const;
+#endif
+
+protected:
+    QScopedPointer<SurfacePrivate> d_ptr;
 private:
-    State current;
-    State staged;
-
-    struct wl_client *m_client;
-    Compositor *m_compositor;
+    Q_DISABLE_COPY(Surface)
 };
 
 void surface_destroy(struct wl_client *client, struct wl_surface *_surface);

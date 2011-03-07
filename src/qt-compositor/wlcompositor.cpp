@@ -43,6 +43,7 @@
 #include "wlobject.h"
 #include "wldisplay.h"
 #include "wlshmbuffer.h"
+#include "wlsurface.h"
 #include "qtcompositor.h"
 
 #include <QApplication>
@@ -66,6 +67,13 @@
 
 #include <wayland-server.h>
 
+#ifdef QT_COMPOSITOR_WAYLAND_EGL
+#include <private/qapplication_p.h>
+#include <QPlatformNativeInterface>
+#define EGL_EGLEXT_PROTOTYPES
+#include <EGL/egl.h>
+#include <EGL/eglext.h>
+#endif
 
 namespace Wayland {
 
@@ -165,9 +173,6 @@ const static struct wl_shell_interface shell_interface = {
 Compositor::Compositor(WaylandCompositor *qt_compositor)
     : m_display(new Display)
     , m_shm(this)
-#ifdef QT_WAYLAND_DRM
-    , m_drm(this)
-#endif
     , m_current_frame(0)
     , m_last_queued_buf(-1)
     , m_qt_compositor(qt_compositor)
@@ -182,9 +187,6 @@ Compositor::Compositor(WaylandCompositor *qt_compositor)
 
     m_display->addGlobalObject(m_output.base(), &wl_output_interface, 0, output_post_geometry);
     m_display->addGlobalObject(&m_shell, &wl_shell_interface, &shell_interface, 0);
-#ifdef QT_WAYLAND_DRM
-    m_display->addGlobalObject(m_drm.base(), &wl_drm_interface, &drm_interface, post_drm_device);
-#endif
     m_display->addGlobalObject(m_shm.base(), &wl_shm_interface, &shm_interface, 0);
 
     wl_input_device_init(&m_input, base());
@@ -194,6 +196,18 @@ Compositor::Compositor(WaylandCompositor *qt_compositor)
         fprintf(stderr, "Fatal: Failed to open server socket");
         exit(EXIT_FAILURE);
     }
+
+#ifdef QT_COMPOSITOR_WAYLAND_EGL
+    QPlatformNativeInterface *nativeInterface = QApplicationPrivate::platformIntegration()->nativeInterface();
+    if (nativeInterface) {
+        EGLDisplay m_egl_display = nativeInterface->nativeResourceForWidget("EglDisplay",0);
+        if (m_egl_display) {
+            eglBindWaylandDisplayWL(m_egl_display,m_display->handle());
+        } else {
+            fprintf(stderr, "Failed to initialize egl display");
+        }
+    }
+#endif //QT_COMPOSITOR_WAYLAND_EGL
 
     m_loop = wl_display_get_event_loop(m_display->handle());
 
@@ -367,4 +381,10 @@ void Compositor::sendKeyReleaseEvent(uint winId, uint code)
     }
 }
 
+QWidget * Compositor::topLevelWidget() const
+{
+    return m_qt_compositor->topLevelWidget();
 }
+
+}
+

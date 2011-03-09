@@ -46,15 +46,14 @@
 #include <QPainter>
 #include <QMouseEvent>
 
-#ifdef QT_COMPOSITOR_WAYLAND_EGL
+#ifdef QT_COMPOSITOR_WAYLAND_GL
 #include <QGLContext>
 #include <QGLWidget>
-#include <GLES2/gl2.h>
 #endif
 
 #include <QDebug>
 
-#ifdef QT_COMPOSITOR_WAYLAND_EGL
+#ifdef QT_COMPOSITOR_WAYLAND_GL
 class QWidgetCompositor : public QGLWidget, public WaylandCompositor
 #else
 class QWidgetCompositor : public QWidget, public WaylandCompositor
@@ -123,7 +122,7 @@ protected:
                 QImage img = image(m_surfaces.at(i).first);
                 p.drawImage(m_surfaces.at(i).second.topLeft(), img);
             }
-#ifdef QT_COMPOSITOR_WAYLAND_EGL
+#ifdef QT_COMPOSITOR_WAYLAND_GL
             else {
                 QPlatformGLContext *glcontext = platformWindow()->glContext();
                 if (glcontext) {
@@ -132,12 +131,12 @@ protected:
                     context->drawTexture(m_surfaces.at(i).second,textureId(m_surfaces.at(i).first));
                 }
             }
-#endif //QT_COMPOSITOR_WAYLAND_EGL
+#endif //QT_COMPOSITOR_WAYLAND_GL
         }
 
         frameFinished();
 
-#ifdef QT_COMPOSITOR_WAYLAND_EGL
+#ifdef QT_COMPOSITOR_WAYLAND_GL
         //jl:FIX FIX FIX:)
         update();
         glFinish();

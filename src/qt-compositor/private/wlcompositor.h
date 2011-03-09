@@ -48,6 +48,7 @@
 #include <wayland-server.h>
 
 class WaylandCompositor;
+class GraphicsHardwareIntegration;
 class QWidget;
 
 namespace Wayland {
@@ -89,6 +90,9 @@ public:
     uint currentTimeMsecs() const;
 
     QWidget *topLevelWidget() const;
+#ifdef QT_COMPOSITOR_WAYLAND_GL
+    GraphicsHardwareIntegration *gaphicsHWIntegration() const;
+#endif
 
 private slots:
     void processWaylandEvents();
@@ -115,6 +119,10 @@ private:
     wl_event_loop *m_loop;
 
     WaylandCompositor *m_qt_compositor;
+
+#ifdef QT_COMPOSITOR_WAYLAND_GL
+    GraphicsHardwareIntegration *m_graphics_hw_integration;
+#endif
 };
 
 }

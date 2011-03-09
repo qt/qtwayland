@@ -45,7 +45,7 @@
 #include <QImage>
 #include <QRect>
 
-#ifdef QT_COMPOSITOR_WAYLAND_EGL
+#ifdef QT_COMPOSITOR_WAYLAND_GL
 #define GL_GLEXT_PROTOTYPES
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
@@ -83,7 +83,7 @@ public:
     bool hasImage(uint winId) const;
     const QImage image(uint winId) const;
 
-#ifdef QT_COMPOSITOR_WAYLAND_EGL
+#ifdef QT_COMPOSITOR_WAYLAND_GL
     bool hasTexture(uint winId) const;
     GLuint textureId(uint winId) const;
 #endif

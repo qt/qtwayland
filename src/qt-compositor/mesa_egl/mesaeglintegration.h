@@ -38,91 +38,19 @@
 **
 ****************************************************************************/
 
-#include "qtcompositor.h"
+#ifndef MESAEGLINTEGRATION_H
+#define MESAEGLINTEGRATION_H
 
-#include "private/wlcompositor.h"
-#include "private/wlsurface.h"
+#include "../graphicshardwareintegration.h"
 
-WaylandCompositor::WaylandCompositor(QWidget *topLevelWidget)
-    : m_compositor(new Wayland::Compositor(this))
-    , m_toplevel_widget(topLevelWidget)
+class MesaEglIntegration : public GraphicsHardwareIntegration
 {
-}
+public:
+    MesaEglIntegration(WaylandCompositor *compositor);
 
-WaylandCompositor::~WaylandCompositor()
-{
-    delete m_compositor;
-}
+    void intializeHardware(wl_display *waylandDisplay);
 
-void WaylandCompositor::frameFinished()
-{
-    m_compositor->frameFinished();
-}
+    void bindBufferToTexture(wl_buffer *buffer, GLuint textureId);
+};
 
-void WaylandCompositor::setInputFocus(uint winId)
-{
-    m_compositor->setInputFocus(winId);
-}
-
-void WaylandCompositor::sendMousePressEvent(uint winId, int x, int y, Qt::MouseButton button)
-{
-    m_compositor->sendMousePressEvent(winId, x, y, button);
-}
-
-void WaylandCompositor::sendMouseReleaseEvent(uint winId, int x, int y, Qt::MouseButton button)
-{
-    m_compositor->sendMouseReleaseEvent(winId, x, y, button);
-}
-
-void WaylandCompositor::sendMouseMoveEvent(uint winId, int x, int y)
-{
-    m_compositor->sendMouseMoveEvent(winId, x, y);
-}
-
-void WaylandCompositor::sendKeyPressEvent(uint winId, uint code)
-{
-    m_compositor->sendKeyPressEvent(winId, code);
-}
-
-void WaylandCompositor::sendKeyReleaseEvent(uint winId, uint code)
-{
-    m_compositor->sendKeyReleaseEvent(winId, code);
-}
-
-void WaylandCompositor::setDirectRenderWinId(uint winId)
-{
-    Q_UNUSED(winId);
-}
-
-uint WaylandCompositor::directRenderWinId() const
-{
-    return 0;
-}
-
-bool WaylandCompositor::hasImage(uint winId) const
-{
-    return m_compositor->getSurfaceFromWinId(winId)->hasImage();
-}
-
-const QImage WaylandCompositor::image(uint winId) const
-{
-    return m_compositor->image(winId);
-}
-
-#ifdef QT_COMPOSITOR_WAYLAND_GL
-GLuint WaylandCompositor::textureId(uint winId) const
-{
-    return m_compositor->getSurfaceFromWinId(winId)->textureId();
-}
-
-bool WaylandCompositor::hasTexture(uint winId) const
-{
-    return m_compositor->getSurfaceFromWinId(winId)->hasTexture();
-}
-#endif
-
-QWidget * WaylandCompositor::topLevelWidget() const
-{
-    return m_toplevel_widget;
-}
-
+#endif // MESAEGLINTEGRATION_H

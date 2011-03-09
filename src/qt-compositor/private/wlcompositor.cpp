@@ -67,12 +67,8 @@
 
 #include <wayland-server.h>
 
-#ifdef QT_COMPOSITOR_WAYLAND_EGL
-#include <private/qapplication_p.h>
-#include <QPlatformNativeInterface>
-#define EGL_EGLEXT_PROTOTYPES
-#include <EGL/egl.h>
-#include <EGL/eglext.h>
+#ifdef QT_COMPOSITOR_MESA_EGL
+#include "../mesa_egl/mesaeglintegration.h"
 #endif
 
 namespace Wayland {
@@ -177,6 +173,9 @@ Compositor::Compositor(WaylandCompositor *qt_compositor)
     , m_last_queued_buf(-1)
     , m_qt_compositor(qt_compositor)
 {
+#ifdef QT_COMPOSITOR_MESA_EGL
+    m_graphics_hw_integration = new MesaEglIntegration(qt_compositor);
+#endif
 
     if (wl_compositor_init(base(), &compositor_interface, m_display->handle())) {
         fprintf(stderr, "Fatal: Error initializing compositor\n");
@@ -197,17 +196,9 @@ Compositor::Compositor(WaylandCompositor *qt_compositor)
         exit(EXIT_FAILURE);
     }
 
-#ifdef QT_COMPOSITOR_WAYLAND_EGL
-    QPlatformNativeInterface *nativeInterface = QApplicationPrivate::platformIntegration()->nativeInterface();
-    if (nativeInterface) {
-        EGLDisplay m_egl_display = nativeInterface->nativeResourceForWidget("EglDisplay",0);
-        if (m_egl_display) {
-            eglBindWaylandDisplayWL(m_egl_display,m_display->handle());
-        } else {
-            fprintf(stderr, "Failed to initialize egl display");
-        }
-    }
-#endif //QT_COMPOSITOR_WAYLAND_EGL
+#ifdef QT_COMPOSITOR_WAYLAND_GL
+    m_graphics_hw_integration->intializeHardware(m_display->handle());
+#endif //QT_COMPOSITOR_WAYLAND_GL
 
     m_loop = wl_display_get_event_loop(m_display->handle());
 
@@ -385,6 +376,13 @@ QWidget * Compositor::topLevelWidget() const
 {
     return m_qt_compositor->topLevelWidget();
 }
+
+#ifdef QT_COMPOSITOR_WAYLAND_GL
+GraphicsHardwareIntegration * Compositor::gaphicsHWIntegration() const
+{
+    return m_graphics_hw_integration;
+}
+#endif
 
 }
 

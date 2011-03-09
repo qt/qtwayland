@@ -38,89 +38,53 @@
 **
 ****************************************************************************/
 
-#ifndef WL_SURFACE_H
-#define WL_SURFACE_H
+#include "mesaeglintegration.h"
 
-#include "wlobject.h"
-#include "wlshmbuffer.h"
-
-#include <QtCore/QRect>
-#include <QtGui/QImage>
-
-#include <QtCore/QTextStream>
-#include <QtCore/QMetaType>
+#include <QtGui/QPlatformNativeInterface>
 #include <QtGui/private/qapplication_p.h>
 
-#ifdef QT_COMPOSITOR_WAYLAND_GL
+#define EGL_EGLEXT_PROTOTYPES
+#include <EGL/egl.h>
+#include <EGL/eglext.h>
 #define GL_GLEXT_PROTOTYPES
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
-#endif
 
-namespace Wayland {
-
-class Compositor;
-class Buffer;
-
-class SurfacePrivate;
-
-class Surface : public Object<struct wl_surface>
+MesaEglIntegration::MesaEglIntegration(WaylandCompositor *compositor)
+    : GraphicsHardwareIntegration(compositor)
 {
-    Q_DECLARE_PRIVATE(Surface)
-public:
-    Surface(struct wl_client *client, Compositor *compositor);
-    ~Surface();
-
-    uint id() const { return base()->resource.object.id; }
-#ifdef QT_COMPOSITOR_WAYLAND_GL
-    void attachHWBuffer(struct wl_buffer *buffer);
-#endif
-    void attachShm(ShmBuffer *shm_buffer);
-
-    void mapTopLevel();
-
-    void commit();
-
-    void damage(const QRect &rect);
-
-    QImage image() const;
-    bool hasImage() const;
-
-#ifdef QT_COMPOSITOR_WAYLAND_GL
-    bool hasTexture() const;
-    GLuint textureId() const;
-#endif
-
-protected:
-    QScopedPointer<SurfacePrivate> d_ptr;
-private:
-    Q_DISABLE_COPY(Surface)
-};
-
-void surface_destroy(struct wl_client *client, struct wl_surface *_surface);
-void surface_attach(struct wl_client *client, struct wl_surface *surface,
-                    struct wl_buffer *buffer, int x, int y);
-void surface_map_toplevel(struct wl_client *client,
-                          struct wl_surface *surface);
-void surface_map_transient(struct wl_client *client,
-                      struct wl_surface *surface,
-                      struct wl_surface *parent,
-                      int x,
-                      int y,
-                      uint32_t flags);
-void surface_map_fullscreen(struct wl_client *client,
-                       struct wl_surface *surface);
-void surface_damage(struct wl_client *client, struct wl_surface *_surface,
-               int32_t x, int32_t y, int32_t width, int32_t height);
-
-const static struct wl_surface_interface surface_interface = {
-    surface_destroy,
-    surface_attach,
-    surface_map_toplevel,
-    surface_map_transient,
-    surface_map_fullscreen,
-    surface_damage
-};
 }
 
-#endif //WL_SURFACE_H
+void MesaEglIntegration::intializeHardware(wl_display *waylandDisplay)
+{
+    QPlatformNativeInterface *nativeInterface = QApplicationPrivate::platformIntegration()->nativeInterface();
+    if (nativeInterface) {
+        EGLDisplay m_egl_display = nativeInterface->nativeResourceForWidget("EglDisplay",0);
+        if (m_egl_display) {
+            eglBindWaylandDisplayWL(m_egl_display,waylandDisplay);
+        } else {
+            fprintf(stderr, "Failed to initialize egl display");
+        }
+    }
+}
+
+void MesaEglIntegration::bindBufferToTexture(wl_buffer *buffer, GLuint textureId)
+{
+    QPlatformNativeInterface *nativeInterface = QApplicationPrivate::platformIntegration()->nativeInterface();
+    EGLDisplay eglDisplay = static_cast<EGLDisplay>(nativeInterface->nativeResourceForWidget("EglDisplay",m_compositor->topLevelWidget()));
+    EGLContext eglContext = static_cast<EGLContext>(nativeInterface->nativeResourceForWidget("EglContext",m_compositor->topLevelWidget()));
+    Q_ASSERT(eglDisplay);
+    Q_ASSERT(eglContext);
+
+    EGLImageKHR image = eglCreateImageKHR(eglDisplay, eglContext,
+                                          EGL_WAYLAND_BUFFER_WL,
+                                          buffer, NULL);
+
+    glBindTexture(GL_TEXTURE_2D, textureId);
+
+    glEGLImageTargetTexture2DOES(GL_TEXTURE_2D, image);
+
+    eglDestroyImageKHR(eglDisplay, image);
+
+
+}

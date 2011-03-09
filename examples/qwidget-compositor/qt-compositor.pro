@@ -4,12 +4,9 @@ DEPENDPATH += .
 INCLUDEPATH += .
 INCLUDEPATH += ../../src/qt-compositor/
 
-# comment out the following line to disable DRM
-CONFIG += wayland_egl
-
-wayland_egl {
-    QT += opengl
-}
+# comment out the following CONFIG lines to disable DRM
+CONFIG += wayland_gl
+CONFIG += mesa_egl
 
 DESTDIR=$$PWD/../../bin/
 

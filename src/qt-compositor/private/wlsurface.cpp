@@ -47,12 +47,9 @@
 
 #include <wayland-server.h>
 
-#ifdef QT_COMPOSITOR_WAYLAND_EGL
-#include <QtGui/QPlatformNativeInterface>
+#ifdef QT_COMPOSITOR_WAYLAND_GL
+#include "../graphicshardwareintegration.cpp"
 #include <QtGui/QPlatformGLContext>
-#define EGL_EGLEXT_PROTOTYPES
-#include <EGL/egl.h>
-#include <EGL/eglext.h>
 #endif
 
 namespace Wayland {
@@ -66,7 +63,7 @@ public:
     {
         current.type = State::Invalid;
         staged.type = State::Invalid;
-#ifdef QT_COMPOSITOR_WAYLAND_EGL
+#ifdef QT_COMPOSITOR_WAYLAND_GL
         if (QWidget *topLevel = m_compositor->topLevelWidget()) {
             if (topLevel->platformWindow() && topLevel->platformWindow()->glContext()) {
                 topLevel->platformWindow()->glContext()->makeCurrent();
@@ -87,7 +84,7 @@ public:
         BufferType type;
 
         ShmBuffer *shm_buffer;
-#ifdef QT_COMPOSITOR_WAYLAND_EGL
+#ifdef QT_COMPOSITOR_WAYLAND_GL
         GLuint texture_id;
 #endif
         QRect rect;
@@ -118,9 +115,9 @@ void surface_attach(struct wl_client *client, struct wl_surface *surface,
     if (buffer->attach) {
         wayland_cast<Surface *>(surface)->attachShm(wayland_cast<ShmBuffer *>(buffer));
     }
-#ifdef QT_COMPOSITOR_WAYLAND_EGL
+#ifdef QT_COMPOSITOR_WAYLAND_GL
     else {
-        wayland_cast<Surface *>(surface)->attachEgl(buffer);
+        wayland_cast<Surface *>(surface)->attachHWBuffer(buffer);
     }
 #endif //QT_COMPOSITOR_WAYLAND_EGL
 }
@@ -198,38 +195,21 @@ QImage Surface::image() const
     return QImage();
 }
 
-#ifdef QT_COMPOSITOR_WAYLAND_EGL
-void Surface::attachEgl(wl_buffer *egl_buffer)
+#ifdef QT_COMPOSITOR_WAYLAND_GL
+
+void Surface::attachHWBuffer(struct wl_buffer *buffer)
 {
     Q_D(Surface);
-    Q_ASSERT(d->m_compositor->topLevelWidget());
-    QPlatformNativeInterface *nativeInterface = QApplicationPrivate::platformIntegration()->nativeInterface();
-    Q_ASSERT(nativeInterface);
+    d->staged.type = SurfacePrivate::State::Texture;
+    d->current.type = d->staged.type;
+    d->current.texture_id = d->staged.texture_id;
 
     //make current for the topLevel. We could have used the eglContext,
     //but then we would need to handle eglSurfaces as well.
     d->m_compositor->topLevelWidget()->platformWindow()->glContext()->makeCurrent();
 
-    EGLDisplay eglDisplay = static_cast<EGLDisplay>(nativeInterface->nativeResourceForWidget("EglDisplay",d->m_compositor->topLevelWidget()));
-    EGLContext eglContext = static_cast<EGLContext>(nativeInterface->nativeResourceForWidget("EglContext",d->m_compositor->topLevelWidget()));
-    Q_ASSERT(eglDisplay);
-    Q_ASSERT(eglContext);
-
-    EGLImageKHR image = eglCreateImageKHR(eglDisplay, eglContext,
-                               EGL_WAYLAND_BUFFER_WL,
-                               egl_buffer, NULL);
-
-     glBindTexture(GL_TEXTURE_2D, d->staged.texture_id);
-
-     glEGLImageTargetTexture2DOES(GL_TEXTURE_2D, image);
-
-     eglDestroyImageKHR(eglDisplay, image);
-
-     d->staged.type = SurfacePrivate::State::Texture;
-     d->current.type = d->staged.type;
-     d->current.texture_id = d->staged.texture_id;
-
-     d->m_compositor->surfaceResized(this,QSize(egl_buffer->width,egl_buffer->height));
+    d->m_compositor->gaphicsHWIntegration()->bindBufferToTexture(buffer,d->current.texture_id);
+    d->m_compositor->surfaceResized(this,QSize(buffer->width,buffer->height));
 }
 
 bool Surface::hasTexture() const
@@ -243,7 +223,7 @@ GLuint Surface::textureId() const
     Q_D(const Surface);
     return d->current.texture_id;
 }
-#endif // QT_COMPOSITOR_WAYLAND_EGL
+#endif // QT_COMPOSITOR_WAYLAND_GL
 
 void Surface::attachShm(Wayland::ShmBuffer *shm_buffer)
 {

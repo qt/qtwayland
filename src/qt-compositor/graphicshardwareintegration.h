@@ -38,91 +38,28 @@
 **
 ****************************************************************************/
 
+#ifndef GRAPHICSHARDWAREINTEGRATION_H
+#define GRAPHICSHARDWAREINTEGRATION_H
+
+#include <QtOpenGL/qgl.h>
+#include <wayland-server.h>
+
 #include "qtcompositor.h"
 
-#include "private/wlcompositor.h"
-#include "private/wlsurface.h"
-
-WaylandCompositor::WaylandCompositor(QWidget *topLevelWidget)
-    : m_compositor(new Wayland::Compositor(this))
-    , m_toplevel_widget(topLevelWidget)
+class GraphicsHardwareIntegration
 {
-}
+public:
+    GraphicsHardwareIntegration(WaylandCompositor *compositor);
 
-WaylandCompositor::~WaylandCompositor()
-{
-    delete m_compositor;
-}
+    virtual void intializeHardware(struct wl_display *waylandDisplay) = 0;
 
-void WaylandCompositor::frameFinished()
-{
-    m_compositor->frameFinished();
-}
+    /** Bind the Wayland buffer to the textureId. The correct context is the current context,
+        so there is no need to do makeCurrent in this function.
+     **/
+    virtual void bindBufferToTexture(struct wl_buffer *buffer, GLuint textureId) = 0;
 
-void WaylandCompositor::setInputFocus(uint winId)
-{
-    m_compositor->setInputFocus(winId);
-}
+protected:
+    WaylandCompositor *m_compositor;
+};
 
-void WaylandCompositor::sendMousePressEvent(uint winId, int x, int y, Qt::MouseButton button)
-{
-    m_compositor->sendMousePressEvent(winId, x, y, button);
-}
-
-void WaylandCompositor::sendMouseReleaseEvent(uint winId, int x, int y, Qt::MouseButton button)
-{
-    m_compositor->sendMouseReleaseEvent(winId, x, y, button);
-}
-
-void WaylandCompositor::sendMouseMoveEvent(uint winId, int x, int y)
-{
-    m_compositor->sendMouseMoveEvent(winId, x, y);
-}
-
-void WaylandCompositor::sendKeyPressEvent(uint winId, uint code)
-{
-    m_compositor->sendKeyPressEvent(winId, code);
-}
-
-void WaylandCompositor::sendKeyReleaseEvent(uint winId, uint code)
-{
-    m_compositor->sendKeyReleaseEvent(winId, code);
-}
-
-void WaylandCompositor::setDirectRenderWinId(uint winId)
-{
-    Q_UNUSED(winId);
-}
-
-uint WaylandCompositor::directRenderWinId() const
-{
-    return 0;
-}
-
-bool WaylandCompositor::hasImage(uint winId) const
-{
-    return m_compositor->getSurfaceFromWinId(winId)->hasImage();
-}
-
-const QImage WaylandCompositor::image(uint winId) const
-{
-    return m_compositor->image(winId);
-}
-
-#ifdef QT_COMPOSITOR_WAYLAND_GL
-GLuint WaylandCompositor::textureId(uint winId) const
-{
-    return m_compositor->getSurfaceFromWinId(winId)->textureId();
-}
-
-bool WaylandCompositor::hasTexture(uint winId) const
-{
-    return m_compositor->getSurfaceFromWinId(winId)->hasTexture();
-}
-#endif
-
-QWidget * WaylandCompositor::topLevelWidget() const
-{
-    return m_toplevel_widget;
-}
-
+#endif // GRAPHICSHARDWAREINTEGRATION_H

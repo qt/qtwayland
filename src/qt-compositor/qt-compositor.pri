@@ -10,6 +10,13 @@ include (mesa_egl/mesa_egl.pri)
 DEFINES += QT_COMPOSITOR_MESA_EGL
 }
 
+use_pkgconfig {
+    QMAKE_CXXFLAGS += $$system(pkg-config --cflags glesv2)
+    #for some reason this is not included in the cflags line
+    INCLUDEPATH += $$system(pkg-config --variable=includedir glesv2)
+    LIBS += $$system(pkg-config --libs glesv2)
+}
+
 SOURCES += $$PWD/qtcompositor.cpp \
         $$PWD/graphicshardwareintegration.cpp \
         $$PWD/private/wlcompositor.cpp \

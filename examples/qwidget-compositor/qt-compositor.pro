@@ -8,14 +8,14 @@ INCLUDEPATH += ../../src/qt-compositor/
 CONFIG += wayland_gl
 CONFIG += mesa_egl
 
+# comment out the following to not use pkg-config in the pri files
+CONFIG += use_pkgconfig
+
 DESTDIR=$$PWD/../../bin/
 
 LIBS += -L ../../lib
 
 include (../../src/qt-compositor/qt-compositor.pri)
-
-LIBS += -L/home/jlind/install/lib
-INCLUDEPATH += /home/jlind/install/include
 
 # Input
 SOURCES += main.cpp

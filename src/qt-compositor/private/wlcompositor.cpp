@@ -378,7 +378,7 @@ QWidget * Compositor::topLevelWidget() const
 }
 
 #ifdef QT_COMPOSITOR_WAYLAND_GL
-GraphicsHardwareIntegration * Compositor::gaphicsHWIntegration() const
+GraphicsHardwareIntegration * Compositor::graphicsHWIntegration() const
 {
     return m_graphics_hw_integration;
 }

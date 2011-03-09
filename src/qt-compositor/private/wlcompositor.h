@@ -91,7 +91,7 @@ public:
 
     QWidget *topLevelWidget() const;
 #ifdef QT_COMPOSITOR_WAYLAND_GL
-    GraphicsHardwareIntegration *gaphicsHWIntegration() const;
+    GraphicsHardwareIntegration *graphicsHWIntegration() const;
 #endif
 
 private slots:

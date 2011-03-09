@@ -208,7 +208,7 @@ void Surface::attachHWBuffer(struct wl_buffer *buffer)
     //but then we would need to handle eglSurfaces as well.
     d->m_compositor->topLevelWidget()->platformWindow()->glContext()->makeCurrent();
 
-    d->m_compositor->gaphicsHWIntegration()->bindBufferToTexture(buffer,d->current.texture_id);
+    d->m_compositor->graphicsHWIntegration()->bindBufferToTexture(buffer,d->current.texture_id);
     d->m_compositor->surfaceResized(this,QSize(buffer->width,buffer->height));
 }
 

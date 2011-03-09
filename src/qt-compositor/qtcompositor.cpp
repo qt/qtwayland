@@ -40,8 +40,8 @@
 
 #include "qtcompositor.h"
 
-#include "wlcompositor.h"
-#include "wlsurface.h"
+#include "private/wlcompositor.h"
+#include "private/wlsurface.h"
 
 WaylandCompositor::WaylandCompositor(QWidget *topLevelWidget)
     : m_compositor(new Wayland::Compositor(this))

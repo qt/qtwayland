@@ -264,7 +264,6 @@ void Surface::commit()
 {
     Q_D(Surface);
     d->current = d->staged;
-    d->m_compositor->surfaceResized(this, buffer->size());
 }
 
 }

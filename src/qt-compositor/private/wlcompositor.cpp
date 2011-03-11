@@ -75,6 +75,8 @@
 #include "../dri2_xcb/dri2xcbhwintegration.h"
 #endif
 
+#include "graphicshardwareintegration.h"
+
 namespace Wayland {
 
 void input_device_attach(struct wl_client *client,
@@ -177,11 +179,12 @@ Compositor::Compositor(WaylandCompositor *qt_compositor)
     , m_last_queued_buf(-1)
     , m_qt_compositor(qt_compositor)
 {
-#ifdef QT_COMPOSITOR_MESA_EGL
+#if defined(QT_COMPOSITOR_MESA_EGL)
     m_graphics_hw_integration = new MesaEglIntegration(qt_compositor);
-#endif
-#ifdef QT_COMPOSITOR_DRI2_XCB
+#elif defined(QT_COMPOSITOR_DRI2_XCB)
     m_graphics_hw_integration = new Dri2XcbHWIntegration(qt_compositor);
+#else
+    m_graphics_hw_integration = GraphicsHardwareIntegration::createGraphicsHardwareIntegration(qt_compositor);
 #endif
 
     if (wl_compositor_init(base(), &compositor_interface, m_display->handle())) {

@@ -59,6 +59,8 @@ public:
      **/
     virtual GLuint createTextureFromBuffer(struct wl_buffer *buffer) = 0;
 
+    static GraphicsHardwareIntegration *createGraphicsHardwareIntegration(WaylandCompositor *compositor);
+
 protected:
     WaylandCompositor *m_compositor;
 };

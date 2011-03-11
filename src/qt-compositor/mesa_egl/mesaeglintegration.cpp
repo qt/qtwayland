@@ -88,12 +88,15 @@ void MesaEglIntegration::initializeHardware(Wayland::Display *waylandDisplay)
     }
 }
 
-void MesaEglIntegration::bindBufferToTexture(wl_buffer *buffer, GLuint textureId)
+GLuint MesaEglIntegration::createTextureFromBuffer(wl_buffer *buffer)
 {
     Q_D(MesaEglIntegration);
     EGLImageKHR image = eglCreateImageKHR(d->egl_display, d->egl_context,
                                           EGL_WAYLAND_BUFFER_WL,
                                           buffer, NULL);
+
+    GLuint textureId;
+    glGenTextures(1,&textureId);
 
     glBindTexture(GL_TEXTURE_2D, textureId);
 
@@ -101,5 +104,5 @@ void MesaEglIntegration::bindBufferToTexture(wl_buffer *buffer, GLuint textureId
 
     eglDestroyImageKHR(d->egl_display, image);
 
-
+    return textureId;
 }

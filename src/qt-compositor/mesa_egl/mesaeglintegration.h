@@ -54,7 +54,7 @@ public:
 
     void initializeHardware(Wayland::Display *waylandDisplay);
 
-    void bindBufferToTexture(wl_buffer *buffer, GLuint textureId);
+    GLuint createTextureFromBuffer(wl_buffer *buffer);
 
 private:
     Q_DISABLE_COPY(MesaEglIntegration)

@@ -111,11 +111,15 @@ void Dri2XcbHWIntegration::initializeHardware(Wayland::Display *waylandDisplay)
     waylandDisplay->addGlobalObject(m_drm_object->base(),&wl_drm_interface,&drm_interface,post_drm_device);
 }
 
-void Dri2XcbHWIntegration::bindBufferToTexture(wl_buffer *buffer, GLuint textureId)
+GLuint Dri2XcbHWIntegration::createTextureFromBuffer(wl_buffer *buffer)
 {
     Dri2XcbBuffer *dri2Buffer = Wayland::wayland_cast<Dri2XcbBuffer *>(buffer);
 
+    GLuint textureId = 0;
+    glGenTextures(1,&textureId);
     glBindTexture(GL_TEXTURE_2D, textureId);
 
     glEGLImageTargetTexture2DOES(GL_TEXTURE_2D, dri2Buffer->image());
+
+    return textureId;
 }

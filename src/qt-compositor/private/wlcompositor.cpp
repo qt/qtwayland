@@ -311,6 +311,7 @@ void Compositor::setInputFocus(uint winId)
 
 void Compositor::surfaceDamaged(Surface *surface, const QRect &rect)
 {
+    surface->commit();
     m_qt_compositor->surfaceDamaged(surface->id(), rect);
 }
 

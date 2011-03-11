@@ -64,13 +64,7 @@ public:
         current.type = State::Invalid;
         staged.type = State::Invalid;
 #ifdef QT_COMPOSITOR_WAYLAND_GL
-        if (QWidget *topLevel = m_compositor->topLevelWidget()) {
-            if (topLevel->platformWindow() && topLevel->platformWindow()->glContext()) {
-                topLevel->platformWindow()->glContext()->makeCurrent();
-                glGenTextures(1,&current.texture_id);
-                staged.texture_id = current.texture_id;
-            }
-        }
+        staged.texture_id = current.texture_id = 0;
 #endif
     }
 
@@ -202,13 +196,14 @@ void Surface::attachHWBuffer(struct wl_buffer *buffer)
     Q_D(Surface);
     d->staged.type = SurfacePrivate::State::Texture;
     d->current.type = d->staged.type;
-    d->current.texture_id = d->staged.texture_id;
 
     //make current for the topLevel. We could have used the eglContext,
     //but then we would need to handle eglSurfaces as well.
     d->m_compositor->topLevelWidget()->platformWindow()->glContext()->makeCurrent();
 
-    d->m_compositor->graphicsHWIntegration()->bindBufferToTexture(buffer,d->current.texture_id);
+    glDeleteTextures(1,&d->staged.texture_id);
+
+    d->staged.texture_id = d->m_compositor->graphicsHWIntegration()->createTextureFromBuffer(buffer);
     d->m_compositor->surfaceResized(this,QSize(buffer->width,buffer->height));
 }
 
@@ -243,7 +238,9 @@ void Surface::mapTopLevel()
 void Surface::commit()
 {
     Q_D(Surface);
+    SurfacePrivate::State tmpState = d->current;
     d->current = d->staged;
+    d->staged = tmpState;
 }
 
 }

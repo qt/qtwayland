@@ -57,7 +57,7 @@ public:
     /** Bind the Wayland buffer to the textureId. The correct context is the current context,
         so there is no need to do makeCurrent in this function.
      **/
-    virtual void bindBufferToTexture(struct wl_buffer *buffer, GLuint textureId) = 0;
+    virtual GLuint createTextureFromBuffer(struct wl_buffer *buffer) = 0;
 
 protected:
     WaylandCompositor *m_compositor;

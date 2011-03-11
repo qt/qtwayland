@@ -1,0 +1,3 @@
+This backend requires that you compile the xcb lighthouse plugin with the
+defined: XCB_USE_DRI2. Please see in the xcb.pro file for an easy way to
+enable it.

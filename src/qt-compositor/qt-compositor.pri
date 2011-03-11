@@ -10,6 +10,11 @@ include (mesa_egl/mesa_egl.pri)
 DEFINES += QT_COMPOSITOR_MESA_EGL
 }
 
+dri2_xcb {
+include (dri2_xcb/dri2_xcb.pri)
+DEFINES += QT_COMPOSITOR_DRI2_XCB
+}
+
 use_pkgconfig {
     QMAKE_CXXFLAGS += $$system(pkg-config --cflags glesv2)
     #for some reason this is not included in the cflags line

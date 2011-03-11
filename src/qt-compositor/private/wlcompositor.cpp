@@ -197,7 +197,7 @@ Compositor::Compositor(WaylandCompositor *qt_compositor)
     }
 
 #ifdef QT_COMPOSITOR_WAYLAND_GL
-    m_graphics_hw_integration->intializeHardware(m_display->handle());
+    m_graphics_hw_integration->initializeHardware(m_display);
 #endif //QT_COMPOSITOR_WAYLAND_GL
 
     m_loop = wl_display_get_event_loop(m_display->handle());

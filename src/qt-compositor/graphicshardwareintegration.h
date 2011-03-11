@@ -45,13 +45,14 @@
 #include <wayland-server.h>
 
 #include "qtcompositor.h"
+#include "private/wldisplay.h"
 
 class GraphicsHardwareIntegration
 {
 public:
     GraphicsHardwareIntegration(WaylandCompositor *compositor);
 
-    virtual void intializeHardware(struct wl_display *waylandDisplay) = 0;
+    virtual void initializeHardware(Wayland::Display *waylandDisplay) = 0;
 
     /** Bind the Wayland buffer to the textureId. The correct context is the current context,
         so there is no need to do makeCurrent in this function.

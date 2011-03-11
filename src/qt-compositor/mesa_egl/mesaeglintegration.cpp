@@ -55,7 +55,7 @@ MesaEglIntegration::MesaEglIntegration(WaylandCompositor *compositor)
 {
 }
 
-void MesaEglIntegration::intializeHardware(wl_display *waylandDisplay)
+void MesaEglIntegration::initializeHardware(Wayland::Display *waylandDisplay)
 {
     QPlatformNativeInterface *nativeInterface = QApplicationPrivate::platformIntegration()->nativeInterface();
     if (nativeInterface) {

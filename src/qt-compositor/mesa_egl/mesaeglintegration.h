@@ -48,7 +48,7 @@ class MesaEglIntegration : public GraphicsHardwareIntegration
 public:
     MesaEglIntegration(WaylandCompositor *compositor);
 
-    void intializeHardware(wl_display *waylandDisplay);
+    void initializeHardware(Wayland::Display *waylandDisplay);
 
     void bindBufferToTexture(wl_buffer *buffer, GLuint textureId);
 };

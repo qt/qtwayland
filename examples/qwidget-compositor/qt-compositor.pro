@@ -2,7 +2,6 @@ TEMPLATE = app
 TARGET = qt-compositor
 DEPENDPATH += .
 INCLUDEPATH += .
-INCLUDEPATH += ../../src/qt-compositor/
 
 # comment out the following CONFIG lines to disable DRM
 CONFIG += wayland_gl

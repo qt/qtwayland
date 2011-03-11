@@ -1,4 +1,5 @@
 LIBS += -lwayland-server -lffi
+INCLUDEPATH += $$PWD
 
 wayland_gl {
     QT += opengl
@@ -29,6 +30,7 @@ SOURCES += $$PWD/qtcompositor.cpp \
         $$PWD/private/wloutput.cpp \
         $$PWD/private/wldisplay.cpp \
         $$PWD/private/wlshmbuffer.cpp
+
 
 HEADERS += $$PWD/qtcompositor.h \
         $$PWD/graphicshardwareintegration.h \

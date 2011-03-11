@@ -93,6 +93,7 @@ public:
     virtual void surfaceMapped(uint winId, const QRect &rect) = 0;
     virtual void surfaceDamaged(uint winId, const QRect &rect) = 0;
 
+    Wayland::Compositor *handle() const;
 private:
     Wayland::Compositor *m_compositor;
     QWidget  *m_toplevel_widget;

@@ -44,9 +44,10 @@
 #include "private/wlsurface.h"
 
 WaylandCompositor::WaylandCompositor(QWidget *topLevelWidget)
-    : m_compositor(new Wayland::Compositor(this))
+    : m_compositor(0)
     , m_toplevel_widget(topLevelWidget)
 {
+    m_compositor = new Wayland::Compositor(this);
 }
 
 WaylandCompositor::~WaylandCompositor()
@@ -124,5 +125,10 @@ bool WaylandCompositor::hasTexture(uint winId) const
 QWidget * WaylandCompositor::topLevelWidget() const
 {
     return m_toplevel_widget;
+}
+
+Wayland::Compositor * WaylandCompositor::handle() const
+{
+    return m_compositor;
 }
 

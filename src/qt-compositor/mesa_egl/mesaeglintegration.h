@@ -42,15 +42,24 @@
 #define MESAEGLINTEGRATION_H
 
 #include "../graphicshardwareintegration.h"
+#include <QtCore/QScopedPointer>
+
+class MesaEglIntegrationPrivate;
 
 class MesaEglIntegration : public GraphicsHardwareIntegration
 {
+    Q_DECLARE_PRIVATE(MesaEglIntegration)
 public:
     MesaEglIntegration(WaylandCompositor *compositor);
 
     void initializeHardware(Wayland::Display *waylandDisplay);
 
     void bindBufferToTexture(wl_buffer *buffer, GLuint textureId);
+
+private:
+    Q_DISABLE_COPY(MesaEglIntegration)
+    QScopedPointer<MesaEglIntegrationPrivate> d_ptr;
+
 };
 
 #endif // MESAEGLINTEGRATION_H

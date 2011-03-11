@@ -46,37 +46,52 @@
 #define EGL_EGLEXT_PROTOTYPES
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
+
 #define GL_GLEXT_PROTOTYPES
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
 
+
+class MesaEglIntegrationPrivate
+{
+public:
+    MesaEglIntegrationPrivate()
+        : egl_display(EGL_NO_DISPLAY)
+        , egl_context(EGL_NO_CONTEXT)
+    { }
+    EGLDisplay egl_display;
+
+    EGLContext egl_context;
+};
+
 MesaEglIntegration::MesaEglIntegration(WaylandCompositor *compositor)
     : GraphicsHardwareIntegration(compositor)
+    , d_ptr(new MesaEglIntegrationPrivate)
 {
 }
 
 void MesaEglIntegration::initializeHardware(Wayland::Display *waylandDisplay)
 {
+    Q_D(MesaEglIntegration);
+    //We need a window id now :)
+    m_compositor->topLevelWidget()->winId();
+
     QPlatformNativeInterface *nativeInterface = QApplicationPrivate::platformIntegration()->nativeInterface();
     if (nativeInterface) {
-        EGLDisplay m_egl_display = nativeInterface->nativeResourceForWidget("EglDisplay",0);
-        if (m_egl_display) {
-            eglBindWaylandDisplayWL(m_egl_display,waylandDisplay);
+        d->egl_display = nativeInterface->nativeResourceForWidget("EglDisplay",m_compositor->topLevelWidget());
+        if (d->egl_display) {
+            eglBindWaylandDisplayWL(d->egl_display,waylandDisplay->handle());
         } else {
             fprintf(stderr, "Failed to initialize egl display");
         }
+        d->egl_context = nativeInterface->nativeResourceForWidget("EglContext",m_compositor->topLevelWidget());
     }
 }
 
 void MesaEglIntegration::bindBufferToTexture(wl_buffer *buffer, GLuint textureId)
 {
-    QPlatformNativeInterface *nativeInterface = QApplicationPrivate::platformIntegration()->nativeInterface();
-    EGLDisplay eglDisplay = static_cast<EGLDisplay>(nativeInterface->nativeResourceForWidget("EglDisplay",m_compositor->topLevelWidget()));
-    EGLContext eglContext = static_cast<EGLContext>(nativeInterface->nativeResourceForWidget("EglContext",m_compositor->topLevelWidget()));
-    Q_ASSERT(eglDisplay);
-    Q_ASSERT(eglContext);
-
-    EGLImageKHR image = eglCreateImageKHR(eglDisplay, eglContext,
+    Q_D(MesaEglIntegration);
+    EGLImageKHR image = eglCreateImageKHR(d->egl_display, d->egl_context,
                                           EGL_WAYLAND_BUFFER_WL,
                                           buffer, NULL);
 
@@ -84,7 +99,7 @@ void MesaEglIntegration::bindBufferToTexture(wl_buffer *buffer, GLuint textureId
 
     glEGLImageTargetTexture2DOES(GL_TEXTURE_2D, image);
 
-    eglDestroyImageKHR(eglDisplay, image);
+    eglDestroyImageKHR(d->egl_display, image);
 
 
 }

@@ -14,6 +14,11 @@
 #include <xcb/xcb.h>
 #include <xcb/dri2.h>
 
+GraphicsHardwareIntegration * GraphicsHardwareIntegration::createGraphicsHardwareIntegration(WaylandCompositor *compositor)
+{
+    return new Dri2XcbHWIntegration(compositor);
+}
+
 class DrmObject : public Wayland::Object<struct wl_object>
 {
 public:

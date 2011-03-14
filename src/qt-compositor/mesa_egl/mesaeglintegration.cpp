@@ -51,6 +51,10 @@
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
 
+GraphicsHardwareIntegration * GraphicsHardwareIntegration::createGraphicsHardwareIntegration(WaylandCompositor *compositor)
+{
+    return new MesaEglIntegration(compositor);
+}
 
 class MesaEglIntegrationPrivate
 {

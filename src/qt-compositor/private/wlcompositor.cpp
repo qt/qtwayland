@@ -178,11 +178,7 @@ Compositor::Compositor(WaylandCompositor *qt_compositor)
     , m_last_queued_buf(-1)
     , m_qt_compositor(qt_compositor)
 {
-#if defined(QT_COMPOSITOR_MESA_EGL)
-    m_graphics_hw_integration = new MesaEglIntegration(qt_compositor);
-#elif defined(QT_COMPOSITOR_DRI2_XCB)
-    m_graphics_hw_integration = new Dri2XcbHWIntegration(qt_compositor);
-#elif defined (QT_COMPOSITOR_WAYLAND_GL)
+#if defined (QT_COMPOSITOR_WAYLAND_GL)
     m_graphics_hw_integration = GraphicsHardwareIntegration::createGraphicsHardwareIntegration(qt_compositor);
 #endif
 

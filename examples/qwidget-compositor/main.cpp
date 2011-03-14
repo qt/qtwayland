@@ -62,7 +62,7 @@ class QWidgetCompositor : public QWidget, public WaylandCompositor
 #endif
 {
 public:
-    QWidgetCompositor() : WaylandCompositor(this), m_dragging(false) {
+    QWidgetCompositor() : WaylandCompositor(this), m_dragSurface(0) {
         setMouseTracking(true);
         m_background = QImage(QLatin1String("background.jpg"));
         //make sure we get the window id and create the glcontext
@@ -146,50 +146,47 @@ protected:
         }
     }
 
-    int raise(int index) {
-        setInputFocus(m_surfaces.at(index));
-        surfaceDamaged(m_surfaces.at(index), QRect(QPoint(), m_surfaces.at(index)->geometry().size()));
-        m_surfaces.append(m_surfaces.takeAt(index));
-        return m_surfaces.size() - 1;
+    void raise(WaylandSurface *surface) {
+        setInputFocus(surface);
+        surfaceDamaged(surface, QRect(QPoint(), surface->geometry().size()));
+        m_surfaces.removeOne(surface);
+        m_surfaces.append(surface);
     }
 
     void mousePressEvent(QMouseEvent *e) {
         QPoint local;
-        int index = surfaceIndex(e->pos(), &local);
-        if (index != -1) {
-            index = raise(index);
+        if (WaylandSurface *surface = surfaceAt(e->pos(), &local)) {
+            raise(surface);
             if (e->modifiers() & Qt::ControlModifier) {
-                m_dragging = true;
-                m_dragIndex = index;
+                m_dragSurface = surface;
                 m_dragOffset = local;
             } else {
-                setInputFocus(m_surfaces.at(index));
-                m_surfaces.at(index)->sendMousePressEvent(local.x(), local.y(), e->button());
+                surface->sendMousePressEvent(local.x(), local.y(), e->button());
             }
         }
     }
 
     void mouseMoveEvent(QMouseEvent *e) {
-        if (m_dragging) {
-            m_surfaces[m_dragIndex]->geometry().moveTo(e->pos() - m_dragOffset);
+        if (m_dragSurface) {
+            QRect geometry = m_dragSurface->geometry();
+            geometry.moveTo(e->pos() - m_dragOffset);
+            m_dragSurface->setGeometry(geometry);
             update();
             return;
         }
         QPoint local;
-        int index = surfaceIndex(e->pos(), &local);
-        if (index != -1)
-            m_surfaces.at(index)->sendMouseMoveEvent(local.x(), local.y());
+        if (WaylandSurface *surface = surfaceAt(e->pos(), &local))
+            surface->sendMouseMoveEvent(local.x(), local.y());
     }
 
     void mouseReleaseEvent(QMouseEvent *e) {
-        if (m_dragging) {
-            m_dragging = false;
+        if (m_dragSurface) {
+            m_dragSurface = 0;
             return;
         }
         QPoint local;
-        int index = surfaceIndex(e->pos(), &local);
-        if (index != -1)
-            m_surfaces.at(index)->sendMouseReleaseEvent(local.x(), local.y(), e->button());
+        if (WaylandSurface *surface = surfaceAt(e->pos(), &local))
+            surface->sendMouseReleaseEvent(local.x(), local.y(), e->button());
     }
 
     void keyPressEvent(QKeyEvent *event)
@@ -206,15 +203,15 @@ protected:
         m_surfaces.last()->sendKeyReleaseEvent(event->nativeScanCode());
     }
 
-    int surfaceIndex(const QPoint &point, QPoint *local = 0) {
+    WaylandSurface *surfaceAt(const QPoint &point, QPoint *local = 0) {
         for (int i = m_surfaces.size() - 1; i >= 0; --i) {
             if (m_surfaces.at(i)->geometry().contains(point)) {
                 if (local)
                     *local = point - m_surfaces.at(i)->geometry().topLeft();
-                return i;
+                return m_surfaces.at(i);
             }
         }
-        return -1;
+        return 0;
     }
 
 private:
@@ -223,8 +220,7 @@ private:
 
     QList<WaylandSurface *> m_surfaces;
 
-    bool m_dragging;
-    int m_dragIndex;
+    WaylandSurface *m_dragSurface;
     QPoint m_dragOffset;
 };
 

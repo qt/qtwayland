@@ -40,6 +40,8 @@
 
 #include "qtcompositor.h"
 
+#include "waylandsurface.h"
+
 #include <QApplication>
 #include <QWidget>
 #include <QTimer>
@@ -72,43 +74,36 @@ public:
     }
 
 protected:
-    int surfaceIndex(uint winId) {
-        for (int i = 0; i < m_surfaces.size(); ++i)
-            if (m_surfaces.at(i).first == winId)
-                return i;
-        return -1;
+
+    void surfaceCreated(WaylandSurface *) {
+        update();
     }
 
-    void surfaceCreated(uint) {
-    }
-
-    void surfaceDestroyed(uint winId) {
-        m_surfaces.removeAt(surfaceIndex(winId));
+    void surfaceDestroyed(WaylandSurface *surface) {
+        m_surfaces.removeAll(surface);
         if (m_surfaces.isEmpty())
             setInputFocus(0);
         update();
     }
 
-    void surfaceMapped(uint winId, const QRect &rect) {
+    void surfaceMapped(WaylandSurface *surface, const QRect &rect) {
         QPoint pos;
-        int index = surfaceIndex(winId);
+        int index = m_surfaces.indexOf(surface);
         if (index == -1) {
             uint px = 1 + (qrand() % (width() - rect.width() - 2));
             uint py = 1 + (qrand() % (height() - rect.height() - 2));
             pos = QPoint(px, py);
-            m_surfaces.append(qMakePair(winId, QRect(pos, rect.size())));
+            surface->setGeometry(QRect(pos, rect.size()));
+            m_surfaces.append(surface);
         } else {
-            m_surfaces[index].second.setSize(rect.size());
+            m_surfaces[index]->setGeometry(rect);
         }
-        setInputFocus(winId);
+        setInputFocus(surface);
         update();
     }
 
-    void surfaceDamaged(uint winId, const QRect &rect) {
-        int index = surfaceIndex(winId);
-        if (index != -1) {
-            update(rect.translated(m_surfaces.at(index).second.topLeft()));
-        }
+    void surfaceDamaged(WaylandSurface *surface, const QRect &rect) {
+        update(rect.translated(surface->geometry().topLeft()));
     }
 
     void paintEvent(QPaintEvent *) {
@@ -118,27 +113,27 @@ protected:
             p.drawPixmap(rect(), m_backgroundScaled);
 
         for (int i = 0; i < m_surfaces.size(); ++i) {
-            if (hasImage(m_surfaces.at(i).first)) {
-                QImage img = image(m_surfaces.at(i).first);
-                p.drawImage(m_surfaces.at(i).second.topLeft(), img);
-            }
+            if (m_surfaces.at(i)->type() == WaylandSurface::Texture) {
 #ifdef QT_COMPOSITOR_WAYLAND_GL
-            else {
                 QPlatformGLContext *glcontext = platformWindow()->glContext();
                 if (glcontext) {
                     QGLContext *context = QGLContext::fromPlatformGLContext(glcontext);
                     context->makeCurrent();
-                    context->drawTexture(m_surfaces.at(i).second,textureId(m_surfaces.at(i).first));
+                    context->drawTexture(m_surfaces.at(i)->geometry(),m_surfaces.at(i)->texture());
                 }
-            }
+                break;
 #endif //QT_COMPOSITOR_WAYLAND_GL
+            } else if (m_surfaces.at(i)->type() == WaylandSurface::Shm) {
+                QImage img = m_surfaces.at(i)->image();
+                p.drawImage(m_surfaces.at(i)->geometry(), img);
+            }
         }
 
         frameFinished();
 
 #ifdef QT_COMPOSITOR_WAYLAND_GL
         //jl:FIX FIX FIX:)
-        update();
+//        update();
         glFinish();
 #endif
     }
@@ -152,8 +147,8 @@ protected:
     }
 
     int raise(int index) {
-        setInputFocus(m_surfaces.at(index).first);
-        surfaceDamaged(m_surfaces.at(index).first, QRect(QPoint(), m_surfaces.at(index).second.size()));
+        setInputFocus(m_surfaces.at(index));
+        surfaceDamaged(m_surfaces.at(index), QRect(QPoint(), m_surfaces.at(index)->geometry().size()));
         m_surfaces.append(m_surfaces.takeAt(index));
         return m_surfaces.size() - 1;
     }
@@ -168,22 +163,22 @@ protected:
                 m_dragIndex = index;
                 m_dragOffset = local;
             } else {
-                setInputFocus(m_surfaces.at(index).first);
-                sendMousePressEvent(m_surfaces.at(index).first, local.x(), local.y(), e->button());
+                setInputFocus(m_surfaces.at(index));
+                m_surfaces.at(index)->sendMousePressEvent(local.x(), local.y(), e->button());
             }
         }
     }
 
     void mouseMoveEvent(QMouseEvent *e) {
         if (m_dragging) {
-            m_surfaces[m_dragIndex].second.moveTo(e->pos() - m_dragOffset);
+            m_surfaces[m_dragIndex]->geometry().moveTo(e->pos() - m_dragOffset);
             update();
             return;
         }
         QPoint local;
         int index = surfaceIndex(e->pos(), &local);
         if (index != -1)
-            sendMouseMoveEvent(m_surfaces.at(index).first, local.x(), local.y());
+            m_surfaces.at(index)->sendMouseMoveEvent(local.x(), local.y());
     }
 
     void mouseReleaseEvent(QMouseEvent *e) {
@@ -194,28 +189,28 @@ protected:
         QPoint local;
         int index = surfaceIndex(e->pos(), &local);
         if (index != -1)
-            sendMouseReleaseEvent(m_surfaces.at(index).first, local.x(), local.y(), e->button());
+            m_surfaces.at(index)->sendMouseReleaseEvent(local.x(), local.y(), e->button());
     }
 
     void keyPressEvent(QKeyEvent *event)
     {
         if (m_surfaces.isEmpty())
             return;
-        sendKeyPressEvent(m_surfaces.last().first, event->nativeScanCode());
+        m_surfaces.last()->sendKeyPressEvent(event->nativeScanCode());
     }
 
     void keyReleaseEvent(QKeyEvent *event)
     {
         if (m_surfaces.isEmpty())
             return;
-        sendKeyReleaseEvent(m_surfaces.last().first, event->nativeScanCode());
+        m_surfaces.last()->sendKeyReleaseEvent(event->nativeScanCode());
     }
 
     int surfaceIndex(const QPoint &point, QPoint *local = 0) {
         for (int i = m_surfaces.size() - 1; i >= 0; --i) {
-            if (m_surfaces.at(i).second.contains(point)) {
+            if (m_surfaces.at(i)->geometry().contains(point)) {
                 if (local)
-                    *local = point - m_surfaces.at(i).second.topLeft();
+                    *local = point - m_surfaces.at(i)->geometry().topLeft();
                 return i;
             }
         }
@@ -226,7 +221,7 @@ private:
     QImage m_background;
     QPixmap m_backgroundScaled;
 
-    QList<QPair<uint, QRect> > m_surfaces;
+    QList<WaylandSurface *> m_surfaces;
 
     bool m_dragging;
     int m_dragIndex;

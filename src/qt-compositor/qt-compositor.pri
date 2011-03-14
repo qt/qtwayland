@@ -25,6 +25,7 @@ use_pkgconfig {
 
 SOURCES += $$PWD/qtcompositor.cpp \
         $$PWD/graphicshardwareintegration.cpp \
+        $$PWD/waylandsurface.cpp \
         $$PWD/private/wlcompositor.cpp \
         $$PWD/private/wlsurface.cpp \
         $$PWD/private/wloutput.cpp \
@@ -34,6 +35,7 @@ SOURCES += $$PWD/qtcompositor.cpp \
 
 HEADERS += $$PWD/qtcompositor.h \
         $$PWD/graphicshardwareintegration.h \
+        $$PWD/waylandsurface.h \
         $$PWD/private/wlcompositor.h \
         $$PWD/private/wlsurface.h \
         $$PWD/private/wloutput.h \

@@ -40,12 +40,16 @@
 
 #include "wlsurface.h"
 
+#include "../waylandsurface.h"
+
 #include "wlcompositor.h"
 #include "wlshmbuffer.h"
 
 #include <QtCore/QDebug>
 
 #include <wayland-server.h>
+
+#include <linux/input.h>
 
 #ifdef QT_COMPOSITOR_WAYLAND_GL
 #include "../graphicshardwareintegration.cpp"
@@ -58,38 +62,25 @@ class SurfacePrivate
 {
 public:
     SurfacePrivate(struct wl_client *client, Compositor *compositor)
-        : m_client(client)
-        , m_compositor(compositor)
+        : client(client)
+        , compositor(compositor)
     {
-        current.type = State::Invalid;
-        staged.type = State::Invalid;
+        type = WaylandSurface::Invalid;
 #ifdef QT_COMPOSITOR_WAYLAND_GL
-        staged.texture_id = current.texture_id = 0;
+        texture_id = 0;
 #endif
     }
 
-    struct State {
-        enum BufferType {
-            Shm,
-            Texture,
-            Invalid
-        };
+    WaylandSurface::Type type;
+    QRect rect;
+    struct wl_client *client;
+    Compositor *compositor;
+    WaylandSurface *qtSurface;
 
-        BufferType type;
-
-        ShmBuffer *shm_buffer;
+    ShmBuffer *shm_buffer;
 #ifdef QT_COMPOSITOR_WAYLAND_GL
-        GLuint texture_id;
+    GLuint texture_id;
 #endif
-        QRect rect;
-
-    };
-
-    State current;
-    State staged;
-
-    struct wl_client *m_client;
-    Compositor *m_compositor;
 };
 
 
@@ -161,30 +152,33 @@ Surface::Surface(struct wl_client *client, Compositor *compositor)
 {
     base()->client = client;
     wl_list_init(&base()->destroy_listener_list);
+    d_ptr->qtSurface = new WaylandSurface(this);
+
 }
 
 Surface::~Surface()
 {
     Q_D(Surface);
-    d->m_compositor->surfaceDestroyed(this);
+    d->compositor->surfaceDestroyed(this);
 }
+
+WaylandSurface::Type Surface::type() const
+{
+    Q_D(const Surface);
+    return d->type;
+}
+
 void Surface::damage(const QRect &rect)
 {
     Q_D(Surface);
-    d->m_compositor->surfaceDamaged(this, rect);
-}
-
-bool Surface::hasImage() const
-{
-    Q_D(const Surface);
-    return d->current.type == SurfacePrivate::State::Shm;
+    d->compositor->surfaceDamaged(this, rect);
 }
 
 QImage Surface::image() const
 {
     Q_D(const Surface);
-    if (d->current.type == SurfacePrivate::State::Shm) {
-        return d->current.shm_buffer->image();
+    if (d->type == WaylandSurface::Shm) {
+        return d->shm_buffer->image();
     }
     return QImage();
 }
@@ -194,53 +188,109 @@ QImage Surface::image() const
 void Surface::attachHWBuffer(struct wl_buffer *buffer)
 {
     Q_D(Surface);
-    d->staged.type = SurfacePrivate::State::Texture;
-    d->current.type = d->staged.type;
+    d->type = WaylandSurface::Texture;
 
     //make current for the topLevel. We could have used the eglContext,
     //but then we would need to handle eglSurfaces as well.
-    d->m_compositor->topLevelWidget()->platformWindow()->glContext()->makeCurrent();
+    d->compositor->topLevelWidget()->platformWindow()->glContext()->makeCurrent();
 
-    glDeleteTextures(1,&d->staged.texture_id);
+    glDeleteTextures(1,&d->texture_id);
 
-    d->staged.texture_id = d->m_compositor->graphicsHWIntegration()->createTextureFromBuffer(buffer);
-    d->m_compositor->surfaceResized(this,QSize(buffer->width,buffer->height));
-}
-
-bool Surface::hasTexture() const
-{
-    Q_D(const Surface);
-    return (d->current.type == SurfacePrivate::State::Texture);
+    d->texture_id = d->compositor->graphicsHWIntegration()->createTextureFromBuffer(buffer);
+    d->compositor->surfaceResized(this,QSize(buffer->width,buffer->height));
 }
 
 GLuint Surface::textureId() const
 {
     Q_D(const Surface);
-    return d->current.texture_id;
+    return d->texture_id;
 }
 #endif // QT_COMPOSITOR_WAYLAND_GL
 
 void Surface::attachShm(Wayland::ShmBuffer *shm_buffer)
 {
     Q_D(Surface);
-    d->current.shm_buffer = d->current.shm_buffer = shm_buffer;
-    d->current.type = d->staged.type = SurfacePrivate::State::Shm;
-    d->m_compositor->surfaceResized(this, shm_buffer->size());
+    d->shm_buffer = shm_buffer;
+    d->type = WaylandSurface::Shm;
+    d->compositor->surfaceResized(this, shm_buffer->size());
 }
 
 
 void Surface::mapTopLevel()
 {
     Q_D(Surface);
-    d->staged.rect = QRect(0, 0, 200, 200);
+    d->rect = QRect(0, 0, 200, 200);
 }
 
-void Surface::commit()
+WaylandSurface * Surface::handle() const
+{
+    Q_D(const Surface);
+    return d->qtSurface;
+}
+
+uint32_t toWaylandButton(Qt::MouseButton button)
+{
+    switch (button) {
+    case Qt::LeftButton:
+        return BTN_LEFT;
+    case Qt::RightButton:
+        return BTN_RIGHT;
+    default:
+        return BTN_MIDDLE;
+    }
+}
+
+void Surface::sendMousePressEvent(int x, int y, Qt::MouseButton button)
 {
     Q_D(Surface);
-    SurfacePrivate::State tmpState = d->current;
-    d->current = d->staged;
-    d->staged = tmpState;
+    if (d->client) {
+        uint32_t time = d->compositor->currentTimeMsecs();
+        wl_client_post_event(d->client, &d->compositor->defaultInputDevice()->object,
+                             WL_INPUT_DEVICE_BUTTON, time, toWaylandButton(button), 1);
+    }
+    sendMouseMoveEvent(x, y);
+}
+
+void Surface::sendMouseReleaseEvent(int x, int y, Qt::MouseButton button)
+{
+    Q_D(Surface);
+    if (d->client)
+        wl_client_post_event(d->client, &d->compositor->defaultInputDevice()->object,
+                             WL_INPUT_DEVICE_BUTTON, d->compositor->currentTimeMsecs(), toWaylandButton(button), 0);
+    sendMouseMoveEvent(x, y);
+}
+
+void Surface::sendMouseMoveEvent(int x, int y)
+{
+    Q_D(Surface);
+    if (d->client) {
+        uint32_t time = d->compositor->currentTimeMsecs();
+        wl_input_device_set_pointer_focus(d->compositor->defaultInputDevice(),
+            base(), time, x, y, x, y);
+        wl_client_post_event(d->client, &d->compositor->defaultInputDevice()->object,
+             WL_INPUT_DEVICE_MOTION, time, x, y, x, y);
+    }
+}
+
+void Surface::sendKeyPressEvent(uint code)
+{
+    Q_D(Surface);
+    if (d->compositor->defaultInputDevice()->keyboard_focus != NULL) {
+        uint32_t time = d->compositor->currentTimeMsecs();
+        wl_client_post_event(d->client, &d->compositor->defaultInputDevice()->object,
+                             WL_INPUT_DEVICE_KEY, time, code - 8, 1);
+    }
+
+}
+
+void Surface::sendKeyReleaseEvent(uint code)
+{
+    Q_D(Surface);
+    if (d->compositor->defaultInputDevice()->keyboard_focus != NULL) {
+        uint32_t time = d->compositor->currentTimeMsecs();
+        wl_client_post_event(d->client, &d->compositor->defaultInputDevice()->object,
+                             WL_INPUT_DEVICE_KEY, time, code - 8, 0);
+    }
 }
 
 }

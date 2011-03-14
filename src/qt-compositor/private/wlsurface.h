@@ -51,6 +51,8 @@
 #include <QtCore/QMetaType>
 #include <QtGui/private/qapplication_p.h>
 
+#include "../waylandsurface.h"
+
 #ifdef QT_COMPOSITOR_WAYLAND_GL
 #define GL_GLEXT_PROTOTYPES
 #include <GLES2/gl2.h>
@@ -71,6 +73,8 @@ public:
     Surface(struct wl_client *client, Compositor *compositor);
     ~Surface();
 
+    WaylandSurface::Type type() const;
+
     uint id() const { return base()->resource.object.id; }
 #ifdef QT_COMPOSITOR_WAYLAND_GL
     void attachHWBuffer(struct wl_buffer *buffer);
@@ -79,18 +83,23 @@ public:
 
     void mapTopLevel();
 
-    void commit();
-
     void damage(const QRect &rect);
 
     QImage image() const;
-    bool hasImage() const;
 
 #ifdef QT_COMPOSITOR_WAYLAND_GL
-    bool hasTexture() const;
     GLuint textureId() const;
 #endif
 
+    void sendMousePressEvent(int x, int y, Qt::MouseButton button);
+    void sendMouseReleaseEvent(int x, int y, Qt::MouseButton button);
+    void sendMouseMoveEvent(int x, int y);
+
+    void sendKeyPressEvent(uint code);
+    void sendKeyReleaseEvent(uint code);
+
+
+    WaylandSurface *handle() const;
 protected:
     QScopedPointer<SurfacePrivate> d_ptr;
 private:

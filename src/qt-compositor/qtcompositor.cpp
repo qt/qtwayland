@@ -60,34 +60,10 @@ void WaylandCompositor::frameFinished()
     m_compositor->frameFinished();
 }
 
-void WaylandCompositor::setInputFocus(uint winId)
+void WaylandCompositor::setInputFocus(WaylandSurface *surface)
 {
-    m_compositor->setInputFocus(winId);
-}
-
-void WaylandCompositor::sendMousePressEvent(uint winId, int x, int y, Qt::MouseButton button)
-{
-    m_compositor->sendMousePressEvent(winId, x, y, button);
-}
-
-void WaylandCompositor::sendMouseReleaseEvent(uint winId, int x, int y, Qt::MouseButton button)
-{
-    m_compositor->sendMouseReleaseEvent(winId, x, y, button);
-}
-
-void WaylandCompositor::sendMouseMoveEvent(uint winId, int x, int y)
-{
-    m_compositor->sendMouseMoveEvent(winId, x, y);
-}
-
-void WaylandCompositor::sendKeyPressEvent(uint winId, uint code)
-{
-    m_compositor->sendKeyPressEvent(winId, code);
-}
-
-void WaylandCompositor::sendKeyReleaseEvent(uint winId, uint code)
-{
-    m_compositor->sendKeyReleaseEvent(winId, code);
+    Wayland::Surface *surfaceImpl = surface? surface->handle():0;
+    m_compositor->setInputFocus(surfaceImpl);
 }
 
 void WaylandCompositor::setDirectRenderWinId(uint winId)
@@ -99,28 +75,6 @@ uint WaylandCompositor::directRenderWinId() const
 {
     return 0;
 }
-
-bool WaylandCompositor::hasImage(uint winId) const
-{
-    return m_compositor->getSurfaceFromWinId(winId)->hasImage();
-}
-
-const QImage WaylandCompositor::image(uint winId) const
-{
-    return m_compositor->image(winId);
-}
-
-#ifdef QT_COMPOSITOR_WAYLAND_GL
-GLuint WaylandCompositor::textureId(uint winId) const
-{
-    return m_compositor->getSurfaceFromWinId(winId)->textureId();
-}
-
-bool WaylandCompositor::hasTexture(uint winId) const
-{
-    return m_compositor->getSurfaceFromWinId(winId)->hasTexture();
-}
-#endif
 
 QWidget * WaylandCompositor::topLevelWidget() const
 {

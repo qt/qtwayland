@@ -52,6 +52,7 @@
 #endif
 
 class QWidget;
+class WaylandSurface;
 
 namespace Wayland
 {
@@ -64,34 +65,19 @@ public:
     WaylandCompositor(QWidget *topLevelWidget = 0);
     virtual ~WaylandCompositor();
 
-    void sendMousePressEvent(uint winId, int x, int y, Qt::MouseButton button);
-    void sendMouseReleaseEvent(uint winId, int x, int y, Qt::MouseButton button);
-    void sendMouseMoveEvent(uint winId, int x, int y);
-
-    void sendKeyPressEvent(uint winId, uint code);
-    void sendKeyReleaseEvent(uint winId, uint code);
-
     void frameFinished();
 
-    void setInputFocus(uint winId);
+    void setInputFocus(WaylandSurface *surface);
 
     void setDirectRenderWinId(uint winId);
     uint directRenderWinId() const;
 
     QWidget *topLevelWidget()const;
 
-    bool hasImage(uint winId) const;
-    const QImage image(uint winId) const;
-
-#ifdef QT_COMPOSITOR_WAYLAND_GL
-    bool hasTexture(uint winId) const;
-    GLuint textureId(uint winId) const;
-#endif
-
-    virtual void surfaceCreated(uint winId) = 0;
-    virtual void surfaceDestroyed(uint winId) = 0;
-    virtual void surfaceMapped(uint winId, const QRect &rect) = 0;
-    virtual void surfaceDamaged(uint winId, const QRect &rect) = 0;
+    virtual void surfaceCreated(WaylandSurface *surface) = 0;
+    virtual void surfaceDestroyed(WaylandSurface *surface) = 0;
+    virtual void surfaceMapped(WaylandSurface *surface, const QRect &rect) = 0;
+    virtual void surfaceDamaged(WaylandSurface *surface, const QRect &rect) = 0;
 
     Wayland::Compositor *handle() const;
 private:

@@ -64,7 +64,7 @@ public:
     ~Compositor();
 
     void frameFinished();
-    void setInputFocus(uint winId);
+    void setInputFocus(Surface *surface);
 
     Surface *getSurfaceFromWinId(uint winId) const;
     struct wl_client *getClientFromWinId(uint winId) const;
@@ -80,13 +80,6 @@ public:
     void surfaceDestroyed(Surface *surface);
     void surfaceDamaged(Surface *surface, const QRect &rect);
 
-    void sendMousePressEvent(uint winId, int x, int y, Qt::MouseButton button);
-    void sendMouseReleaseEvent(uint winId, int x, int y, Qt::MouseButton button);
-    void sendMouseMoveEvent(uint winId, int x, int y);
-
-    void sendKeyPressEvent(uint winId, uint code);
-    void sendKeyReleaseEvent(uint winId, uint code);
-
     uint currentTimeMsecs() const;
 
     QWidget *topLevelWidget() const;
@@ -94,6 +87,7 @@ public:
     GraphicsHardwareIntegration *graphicsHWIntegration() const;
 #endif
 
+    wl_input_device *defaultInputDevice();
 private slots:
     void processWaylandEvents();
 

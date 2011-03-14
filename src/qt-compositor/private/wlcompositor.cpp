@@ -58,7 +58,6 @@
 #include <stddef.h>
 #include <errno.h>
 #include <fcntl.h>
-#include <linux/input.h>
 #include <unistd.h>
 
 #include <sys/mman.h>
@@ -236,7 +235,7 @@ void Compositor::createSurface(struct wl_client *client, int id)
     addClientResource(client, &surface->base()->resource, id, &wl_surface_interface,
             &surface_interface, destroy_surface);
 
-    m_qt_compositor->surfaceCreated(id);
+    m_qt_compositor->surfaceCreated(surface->handle());
 
     m_surfaces << surface;
 }
@@ -272,6 +271,7 @@ QImage Compositor::image(uint winId) const
     return QImage();
 }
 
+//XXX: sort this out. Static function?
 uint Compositor::currentTimeMsecs() const
 {
     //### we throw away the time information
@@ -291,19 +291,17 @@ void Compositor::processWaylandEvents()
 
 void Compositor::surfaceResized(Surface *surface, const QSize &size)
 {
-    m_qt_compositor->surfaceMapped(surface->id(), QRect(QPoint(), size));
+    m_qt_compositor->surfaceMapped(surface->handle(), QRect(QPoint(), size));
 }
 
 void Compositor::surfaceDestroyed(Surface *surface)
 {
     m_surfaces.removeOne(surface);
-    m_qt_compositor->surfaceDestroyed(surface->id());
+    m_qt_compositor->surfaceDestroyed(surface->handle());
 }
 
-void Compositor::setInputFocus(uint winId)
+void Compositor::setInputFocus(Surface *surface)
 {
-    Surface *surface = getSurfaceFromWinId(winId);
-
     wl_surface *base = surface ? surface->base() : 0;
 
     ulong time = currentTimeMsecs();
@@ -314,73 +312,7 @@ void Compositor::setInputFocus(uint winId)
 
 void Compositor::surfaceDamaged(Surface *surface, const QRect &rect)
 {
-    surface->commit();
-    m_qt_compositor->surfaceDamaged(surface->id(), rect);
-}
-
-uint32_t toWaylandButton(Qt::MouseButton button)
-{
-    switch (button) {
-    case Qt::LeftButton:
-        return BTN_LEFT;
-    case Qt::RightButton:
-        return BTN_RIGHT;
-    default:
-        return BTN_MIDDLE;
-    }
-}
-
-void Compositor::sendMousePressEvent(uint winId, int x, int y, Qt::MouseButton button)
-{
-    wl_client *client = getClientFromWinId(winId);
-    if (client) {
-        uint32_t time = currentTimeMsecs();
-        wl_client_post_event(client, &m_input.object,
-                             WL_INPUT_DEVICE_BUTTON, time, toWaylandButton(button), 1);
-    }
-    sendMouseMoveEvent(winId, x, y);
-}
-
-void Compositor::sendMouseReleaseEvent(uint winId, int x, int y, Qt::MouseButton button)
-{
-    wl_client *client = getClientFromWinId(winId);
-    if (client)
-        wl_client_post_event(client, &m_input.object,
-                             WL_INPUT_DEVICE_BUTTON, currentTimeMsecs(), toWaylandButton(button), 0);
-    sendMouseMoveEvent(winId, x, y);
-}
-
-void Compositor::sendMouseMoveEvent(uint winId, int x, int y)
-{
-    wl_client *client = getClientFromWinId(winId);
-
-    if (client) {
-        uint32_t time = currentTimeMsecs();
-        wl_input_device_set_pointer_focus(&m_input,
-            getSurfaceFromWinId(winId)->base(), time, x, y, x, y);
-        wl_client_post_event(client, &m_input.object,
-             WL_INPUT_DEVICE_MOTION, time, x, y, x, y);
-    }
-}
-
-void Compositor::sendKeyPressEvent(uint winId, uint code)
-{
-    wl_client *client = getClientFromWinId(winId);
-    if (m_input.keyboard_focus != NULL) {
-        uint32_t time = currentTimeMsecs();
-        wl_client_post_event(client, &m_input.object,
-                             WL_INPUT_DEVICE_KEY, time, code - 8, 1);
-    }
-}
-
-void Compositor::sendKeyReleaseEvent(uint winId, uint code)
-{
-    wl_client *client = getClientFromWinId(winId);
-    if (m_input.keyboard_focus != NULL) {
-        uint32_t time = currentTimeMsecs();
-        wl_client_post_event(client, &m_input.object,
-                             WL_INPUT_DEVICE_KEY, time, code - 8, 0);
-    }
+    m_qt_compositor->surfaceDamaged(surface->handle(), rect);
 }
 
 QWidget * Compositor::topLevelWidget() const
@@ -395,5 +327,10 @@ GraphicsHardwareIntegration * Compositor::graphicsHWIntegration() const
 }
 #endif
 
+}
+
+wl_input_device * Wayland::Compositor::defaultInputDevice()
+{
+    return &m_input;
 }
 

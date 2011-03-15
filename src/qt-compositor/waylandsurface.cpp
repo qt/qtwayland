@@ -57,22 +57,22 @@ Wayland::Surface * WaylandSurface::handle() const
     return d->surface;
 }
 
-void WaylandSurface::sendMousePressEvent(int x, int y, Qt::MouseButton button)
+void WaylandSurface::sendMousePressEvent(const QPoint &pos, Qt::MouseButton button)
 {
     Q_D(WaylandSurface);
-    d->surface->sendMousePressEvent(x,y,button);
+    d->surface->sendMousePressEvent(pos.x(), pos.y(), button);
 }
 
-void WaylandSurface::sendMouseReleaseEvent(int x, int y, Qt::MouseButton button)
+void WaylandSurface::sendMouseReleaseEvent(const QPoint &pos, Qt::MouseButton button)
 {
     Q_D(WaylandSurface);
-    d->surface->sendMouseReleaseEvent(x,y,button);
+    d->surface->sendMouseReleaseEvent(pos.x(), pos.y(), button);
 }
 
-void WaylandSurface::sendMouseMoveEvent(int x, int y)
+void WaylandSurface::sendMouseMoveEvent(const QPoint &pos)
 {
     Q_D(WaylandSurface);
-    d->surface->sendMouseMoveEvent(x,y);
+    d->surface->sendMouseMoveEvent(pos.x(), pos.y());
 }
 
 void WaylandSurface::sendKeyPressEvent(uint code)
@@ -85,5 +85,11 @@ void WaylandSurface::sendKeyReleaseEvent(uint code)
 {
     Q_D(WaylandSurface);
     d->surface->sendKeyReleaseEvent(code);
+}
+
+void WaylandSurface::setInputFocus()
+{
+    Q_D(WaylandSurface);
+    d->surface->setInputFocus();
 }
 

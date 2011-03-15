@@ -294,4 +294,13 @@ void Surface::sendKeyReleaseEvent(uint code)
     }
 }
 
+void Surface::setInputFocus()
+{
+    Q_D(Surface);
+    ulong time = d->compositor->currentTimeMsecs();
+
+    wl_input_device_set_keyboard_focus(d->compositor->defaultInputDevice(), base(), time);
+    wl_input_device_set_pointer_focus(d->compositor->defaultInputDevice(), base(), time, 0, 0, 0, 0);
+}
+
 }

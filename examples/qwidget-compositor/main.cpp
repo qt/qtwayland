@@ -178,7 +178,7 @@ protected:
                 m_dragSurface = surface;
                 m_dragOffset = local;
             } else {
-                surface->sendMousePressEvent(local.x(), local.y(), e->button());
+                surface->sendMousePressEvent(local, e->button());
             }
         }
     }
@@ -193,7 +193,7 @@ protected:
         }
         QPoint local;
         if (WaylandSurface *surface = surfaceAt(e->pos(), &local))
-            surface->sendMouseMoveEvent(local.x(), local.y());
+            surface->sendMouseMoveEvent(local);
     }
 
     void mouseReleaseEvent(QMouseEvent *e) {
@@ -203,7 +203,7 @@ protected:
         }
         QPoint local;
         if (WaylandSurface *surface = surfaceAt(e->pos(), &local))
-            surface->sendMouseReleaseEvent(local.x(), local.y(), e->button());
+            surface->sendMouseReleaseEvent(local, e->button());
     }
 
     void keyPressEvent(QKeyEvent *event)

@@ -37,12 +37,14 @@ public:
     GLuint texture() const;
 #endif
 
-    void sendMousePressEvent(int x, int y, Qt::MouseButton button);
-    void sendMouseReleaseEvent(int x, int y, Qt::MouseButton button);
-    void sendMouseMoveEvent(int x, int y);
+    void sendMousePressEvent(const QPoint &pos, Qt::MouseButton button);
+    void sendMouseReleaseEvent(const QPoint &pos, Qt::MouseButton button);
+    void sendMouseMoveEvent(const QPoint &pos);
 
     void sendKeyPressEvent(uint code);
     void sendKeyReleaseEvent(uint code);
+
+    void setInputFocus();
 
     Wayland::Surface *handle() const;
 

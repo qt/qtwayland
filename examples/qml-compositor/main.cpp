@@ -245,6 +245,7 @@ public:
 
 signals:
     void windowAdded(QVariant window);
+    void windowDestroyed(QVariant window);
 
 private slots:
     void surfaceMapped(const QRect &rect) {
@@ -252,11 +253,19 @@ private slots:
         surface->setGeometry(rect);
     }
 
+    void surfaceDestroyed(QObject *object) {
+        WindowItem *item = m_windowMap.take(object);
+        emit windowDestroyed(QVariant::fromValue(static_cast<QSGItem *>(item)));
+        delete item;
+    }
+
 protected:
     void surfaceCreated(WaylandSurface *surface) {
         WindowItem *item = new WindowItem(surface, rootObject());
         connect(surface, SIGNAL(mapped(const QRect &)), this, SLOT(surfaceMapped(const QRect &)));
+        connect(surface, SIGNAL(destroyed(QObject *)), this, SLOT(surfaceDestroyed(QObject *)));
         emit windowAdded(QVariant::fromValue(static_cast<QSGItem *>(item)));
+        m_windowMap[surface] = item;
     }
 
     void paintEvent(QPaintEvent *event) {
@@ -264,6 +273,9 @@ protected:
         frameFinished();
         glFinish();
     }
+
+private:
+    QMap<QObject *, WindowItem *> m_windowMap;
 };
 
 int main(int argc, char *argv[])
@@ -276,6 +288,7 @@ int main(int argc, char *argv[])
     compositor.rootContext()->setContextProperty("compositor", &compositor);
 
     QObject::connect(&compositor, SIGNAL(windowAdded(QVariant)), compositor.rootObject(), SLOT(windowAdded(QVariant)));
+    QObject::connect(&compositor, SIGNAL(windowDestroyed(QVariant)), compositor.rootObject(), SLOT(windowDestroyed(QVariant)));
 
     return app.exec();
 

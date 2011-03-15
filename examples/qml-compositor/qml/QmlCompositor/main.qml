@@ -63,10 +63,13 @@ Rectangle {
         windowContainer.x = spawnX;
         windowContainer.y = spawnY;
 
-        windowContainer.opacity = 1.0;
-
         spawnX -= 40;
         spawnY += 40;
+    }
+
+    function windowDestroyed(window) {
+        var windowContainer = window.parent;
+        windowContainer.destroy();
     }
 
     property int spawnX: width - 400;

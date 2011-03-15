@@ -61,6 +61,7 @@ class QWidgetCompositor : public QGLWidget, public WaylandCompositor
 class QWidgetCompositor : public QWidget, public WaylandCompositor
 #endif
 {
+    Q_OBJECT
 public:
     QWidgetCompositor() : WaylandCompositor(this), m_dragSurface(0) {
         setMouseTracking(true);
@@ -73,36 +74,39 @@ public:
         }
     }
 
-protected:
-
-    void surfaceCreated(WaylandSurface *) {
-        update();
-    }
-
-    void surfaceDestroyed(WaylandSurface *surface) {
+private slots:
+    void surfaceDestroyed(QObject *object) {
+        WaylandSurface *surface = qobject_cast<WaylandSurface *>(object);
         m_surfaces.removeAll(surface);
         if (m_surfaces.isEmpty())
             setInputFocus(0);
         update();
     }
 
-    void surfaceMapped(WaylandSurface *surface, const QRect &rect) {
+    void surfaceMapped(const QRect &rect) {
+        WaylandSurface *surface = qobject_cast<WaylandSurface *>(sender());
         QPoint pos;
-        int index = m_surfaces.indexOf(surface);
-        if (index == -1) {
+        if (!m_surfaces.contains(surface)) {
             uint px = 1 + (qrand() % (width() - rect.width() - 2));
             uint py = 1 + (qrand() % (height() - rect.height() - 2));
             pos = QPoint(px, py);
             surface->setGeometry(QRect(pos, rect.size()));
             m_surfaces.append(surface);
         } else {
-            m_surfaces[index]->setGeometry(rect);
+            surface->setGeometry(rect);
         }
         setInputFocus(surface);
         update();
     }
 
-    void surfaceDamaged(WaylandSurface *surface, const QRect &rect) {
+    void surfaceDamaged(const QRect &rect) {
+        WaylandSurface *surface = qobject_cast<WaylandSurface *>(sender());
+        surfaceDamaged(surface, rect);
+    }
+
+protected:
+    void surfaceDamaged(WaylandSurface *surface, const QRect &rect)
+    {
 #ifdef QT_COMPOSITOR_WAYLAND_GL
         Q_UNUSED(surface);
         Q_UNUSED(rect);
@@ -110,6 +114,13 @@ protected:
 #else
         update(rect.translated(surface->geometry().topLeft()));
 #endif
+    }
+
+    void surfaceCreated(WaylandSurface *surface) {
+        connect(surface, SIGNAL(destroyed(QObject *)), this, SLOT(surfaceDestroyed(QObject *)));
+        connect(surface, SIGNAL(mapped(const QRect &)), this, SLOT(surfaceMapped(const QRect &)));
+        connect(surface, SIGNAL(damaged(const QRect &)), this, SLOT(surfaceDamaged(const QRect &)));
+        update();
     }
 
     void paintEvent(QPaintEvent *) {
@@ -243,3 +254,4 @@ int main(int argc, char *argv[])
 
 }
 
+#include "main.moc"

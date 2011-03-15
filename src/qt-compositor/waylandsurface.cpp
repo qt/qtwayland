@@ -2,7 +2,7 @@
 
 #include "private/wlsurface.h"
 
-class WaylandSurfacePrivate
+class WaylandSurfacePrivate : public QObjectPrivate
 {
 public:
     WaylandSurfacePrivate(Wayland::Surface *srfc)
@@ -14,7 +14,7 @@ public:
 };
 
 WaylandSurface::WaylandSurface(Wayland::Surface *surface)
-    : d_ptr(new WaylandSurfacePrivate(surface))
+    : QObject(*new WaylandSurfacePrivate(surface))
 {
 
 }

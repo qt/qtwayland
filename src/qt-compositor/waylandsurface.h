@@ -14,11 +14,11 @@ namespace Wayland {
 class Surface;
 }
 
-class WaylandSurface
+class WaylandSurface : public QObject
 {
+    Q_OBJECT
     Q_DECLARE_PRIVATE(WaylandSurface)
 public:
-
     enum Type {
         Invalid,
         Shm,
@@ -45,10 +45,12 @@ public:
     void sendKeyReleaseEvent(uint code);
 
     Wayland::Surface *handle() const;
-protected:
-    QScopedPointer<WaylandSurfacePrivate> d_ptr;
-private:
-    Q_DISABLE_COPY(WaylandSurface)
+
+signals:
+    void mapped(const QRect &rect);
+    void damaged(const QRect &rect);
+
+    friend class Wayland::Surface;
 };
 
 #endif // WAYLANDSURFACE_H

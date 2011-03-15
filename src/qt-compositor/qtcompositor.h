@@ -75,9 +75,6 @@ public:
     QWidget *topLevelWidget()const;
 
     virtual void surfaceCreated(WaylandSurface *surface) = 0;
-    virtual void surfaceDestroyed(WaylandSurface *surface) = 0;
-    virtual void surfaceMapped(WaylandSurface *surface, const QRect &rect) = 0;
-    virtual void surfaceDamaged(WaylandSurface *surface, const QRect &rect) = 0;
 
     Wayland::Compositor *handle() const;
 private:

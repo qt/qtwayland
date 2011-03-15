@@ -75,10 +75,7 @@ public:
     struct wl_input_device *inputDevice() { return &m_input; }
 
     void createSurface(struct wl_client *client, int id);
-
-    void surfaceResized(Surface *surface, const QSize &size);
     void surfaceDestroyed(Surface *surface);
-    void surfaceDamaged(Surface *surface, const QRect &rect);
 
     uint currentTimeMsecs() const;
 

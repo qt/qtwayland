@@ -285,15 +285,9 @@ void Compositor::processWaylandEvents()
         fprintf(stderr, "wl_event_loop_dispatch error: %d\n", ret);
 }
 
-void Compositor::surfaceResized(Surface *surface, const QSize &size)
-{
-    m_qt_compositor->surfaceMapped(surface->handle(), QRect(QPoint(), size));
-}
-
 void Compositor::surfaceDestroyed(Surface *surface)
 {
     m_surfaces.removeOne(surface);
-    m_qt_compositor->surfaceDestroyed(surface->handle());
 }
 
 void Compositor::setInputFocus(Surface *surface)
@@ -304,11 +298,6 @@ void Compositor::setInputFocus(Surface *surface)
 
     wl_input_device_set_keyboard_focus(&m_input, base, time);
     wl_input_device_set_pointer_focus(&m_input, base, time, 0, 0, 0, 0);
-}
-
-void Compositor::surfaceDamaged(Surface *surface, const QRect &rect)
-{
-    m_qt_compositor->surfaceDamaged(surface->handle(), rect);
 }
 
 QWidget * Compositor::topLevelWidget() const

@@ -38,56 +38,48 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.0
+var windowList = null;
 
-Rectangle {
-    id: container
+function relayout() {
+    if (windowList.length == 0)
+        return;
 
-    x: -400;
-    y: 0;
-    opacity: 0
+    var dim = Math.ceil(Math.sqrt(windowList.length));
+    var w = root.width / dim;
+    var h = root.height / dim;
 
-    property variant child: null;
-    property bool animationsEnabled: false;
+    var cols = dim;
+    var rows = Math.floor(windowList.length / cols);
+    var i;
+    var ix = 0;
+    var iy = 0;
+    var lastDim = 1;
 
-    Behavior on x {
-        enabled: container.animationsEnabled;
-        NumberAnimation { easing.type: Easing.InCubic; duration: 200; }
-    }
-
-    Behavior on y {
-        enabled: container.animationsEnabled;
-        NumberAnimation { easing.type: Easing.InQuad; duration: 200; }
-    }
-
-    Behavior on scale {
-        enabled: container.animationsEnabled;
-        NumberAnimation { easing.type: Easing.InQuad; duration: 200; }
-    }
-
-    Behavior on opacity {
-        enabled: true;
-        NumberAnimation { easing.type: Easing.Linear; duration: 250; }
-    }
-
-    MouseArea {
-        anchors.fill: { if (child == null) parent; else child; }
-        z: 1
-        enabled: { if (child == null) true; else !child.focus; }
-        onClicked: {
-            child.takeFocus();
+    for (i = 0; i < windowList.length; ++i) {
+        if (i > 0) {
+            var currentDim = Math.ceil(Math.sqrt(i + 1));
+            if (currentDim == lastDim) {
+                if (iy < currentDim - 1) {
+                    ++iy;
+                    if (iy == currentDim - 1)
+                        ix = 0;
+                } else {
+                    ++ix;
+                }
+            } else {
+                iy = 0;
+                ix = currentDim - 1;
+            }
+            lastDim = currentDim;
         }
-    }
 
-    ShaderEffect {
-        source: child
-        anchors.fill: child
-        opacity: { if (child && child.focus) 0.0; else 0.8; }
-        z: 1
+        var cx = (ix + 0.5) * w;
+        var cy = (iy + 0.5) * h;
 
-        Behavior on opacity {
-            enabled: true;
-            NumberAnimation { easing.type: Easing.Linear; duration: 200; }
-        }
+        windowList[i].scale = 0.98 * Math.min(w / windowList[i].width, h / windowList[i].height);
+
+        windowList[i].x = (cx - windowList[i].width / 2);
+        windowList[i].y = (cy - windowList[i].height / 2);
     }
 }
+

@@ -39,12 +39,13 @@
 ****************************************************************************/
 
 import QtQuick 2.0
+import "compositor.js" as CompositorLogic
 
 Rectangle {
     id: root
 
-    width: 800
-    height: 640
+    width: 1024
+    height: 768
 
     Image {
         id: background
@@ -59,19 +60,32 @@ Rectangle {
         var windowContainer = windowComponent.createObject(root);
 
         window.parent = windowContainer;
+        windowContainer.width = window.width;
+        windowContainer.height = window.height;
+        windowContainer.child = window;
 
-        windowContainer.x = spawnX;
-        windowContainer.y = spawnY;
+        if (CompositorLogic.windowList == null)
+            CompositorLogic.windowList = new Array(0);
 
-        spawnX -= 40;
-        spawnY += 40;
+        CompositorLogic.windowList.push(windowContainer);
+        CompositorLogic.relayout();
+
+        windowContainer.opacity = 1
+        windowContainer.animationsEnabled = true;
     }
 
     function windowDestroyed(window) {
-        var windowContainer = window.parent;
-        windowContainer.destroy();
-    }
+        var i;
+        for (i = 0; i < CompositorLogic.windowList.length; ++i) {
+            if (CompositorLogic.windowList[i].child == window)
+                break;
+        }
 
-    property int spawnX: width - 400;
-    property int spawnY: 20;
+        var container = CompositorLogic.windowList[i];
+
+        CompositorLogic.windowList.splice(i, 1);
+        CompositorLogic.relayout();
+
+        container.destroy();
+    }
 }

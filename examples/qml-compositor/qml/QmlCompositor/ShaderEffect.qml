@@ -40,54 +40,18 @@
 
 import QtQuick 2.0
 
-Rectangle {
-    id: container
+ShaderEffectItem {
+    property variant source: null;
+    property color color: "#ffffff"
 
-    x: -400;
-    y: 0;
-    opacity: 0
-
-    property variant child: null;
-    property bool animationsEnabled: false;
-
-    Behavior on x {
-        enabled: container.animationsEnabled;
-        NumberAnimation { easing.type: Easing.InCubic; duration: 200; }
+    fragmentShader: "
+    uniform sampler2D source;
+    uniform float qt_Opacity;
+    uniform vec4 color;
+    varying highp vec2 qt_TexCoord0;
+    void main() {
+        vec4 sourceColor = texture2D(source, qt_TexCoord0);
+        gl_FragColor = qt_Opacity * vec4(color.rgb * dot(sourceColor.rgb, vec3(11, 16, 5) * (1. /  32.)), sourceColor.a);
     }
-
-    Behavior on y {
-        enabled: container.animationsEnabled;
-        NumberAnimation { easing.type: Easing.InQuad; duration: 200; }
-    }
-
-    Behavior on scale {
-        enabled: container.animationsEnabled;
-        NumberAnimation { easing.type: Easing.InQuad; duration: 200; }
-    }
-
-    Behavior on opacity {
-        enabled: true;
-        NumberAnimation { easing.type: Easing.Linear; duration: 250; }
-    }
-
-    MouseArea {
-        anchors.fill: { if (child == null) parent; else child; }
-        z: 1
-        enabled: { if (child == null) true; else !child.focus; }
-        onClicked: {
-            child.takeFocus();
-        }
-    }
-
-    ShaderEffect {
-        source: child
-        anchors.fill: child
-        opacity: { if (child && child.focus) 0.0; else 0.8; }
-        z: 1
-
-        Behavior on opacity {
-            enabled: true;
-            NumberAnimation { easing.type: Easing.Linear; duration: 200; }
-        }
-    }
+    "
 }

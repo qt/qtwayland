@@ -150,6 +150,9 @@ public:
     void keyPressEvent(QKeyEvent *event);
     void keyReleaseEvent(QKeyEvent *event);
 
+public slots:
+    void takeFocus();
+
 private slots:
     void surfaceMapped(const QRect &rect);
 
@@ -168,6 +171,9 @@ WindowItem::WindowItem(WaylandSurface *surface, QSGItem *parent)
     , m_surface(surface)
     , m_textureProvider(new WaylandSurfaceTextureProvider(surface))
 {
+    setWidth(surface->geometry().width());
+    setHeight(surface->geometry().height());
+
     setSmooth(true);
     setFlag(ItemHasContents);
     setAcceptedMouseButtons(Qt::LeftButton | Qt::RightButton);
@@ -182,29 +188,38 @@ WindowItem::~WindowItem()
 
 void WindowItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-    setFocus(true);
-    m_surface->setInputFocus();
-    m_surface->sendMousePressEvent(toSurface(event->pos()), event->button());
+    if (hasFocus())
+        m_surface->sendMousePressEvent(toSurface(event->pos()), event->button());
 }
 
 void WindowItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
-    m_surface->sendMouseMoveEvent(toSurface(event->pos()));
+    if (hasFocus())
+        m_surface->sendMouseMoveEvent(toSurface(event->pos()));
 }
 
 void WindowItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
-    m_surface->sendMouseReleaseEvent(toSurface(event->pos()), event->button());
+    if (hasFocus())
+        m_surface->sendMouseReleaseEvent(toSurface(event->pos()), event->button());
 }
 
 void WindowItem::keyPressEvent(QKeyEvent *event)
 {
-    m_surface->sendKeyPressEvent(event->nativeScanCode());
+    if (hasFocus())
+        m_surface->sendKeyPressEvent(event->nativeScanCode());
 }
 
 void WindowItem::keyReleaseEvent(QKeyEvent *event)
 {
-    m_surface->sendKeyReleaseEvent(event->nativeScanCode());
+    if (hasFocus())
+        m_surface->sendKeyReleaseEvent(event->nativeScanCode());
+}
+
+void WindowItem::takeFocus()
+{
+    setFocus(true);
+    m_surface->setInputFocus();
 }
 
 QPoint WindowItem::toSurface(const QPointF &pos) const
@@ -263,6 +278,15 @@ private slots:
     void surfaceMapped(const QRect &rect) {
         WaylandSurface *surface = qobject_cast<WaylandSurface *>(sender());
         surface->setGeometry(rect);
+
+        if (!m_windowMap.contains(surface)) {
+            WindowItem *item = new WindowItem(surface, rootObject());
+            connect(surface, SIGNAL(destroyed(QObject *)), this, SLOT(surfaceDestroyed(QObject *)));
+            emit windowAdded(QVariant::fromValue(static_cast<QSGItem *>(item)));
+            m_windowMap[surface] = item;
+
+            item->takeFocus();
+        }
     }
 
     void surfaceDestroyed(QObject *object) {
@@ -274,13 +298,7 @@ private slots:
 
 protected:
     void surfaceCreated(WaylandSurface *surface) {
-        WindowItem *item = new WindowItem(surface, rootObject());
-        item->setFocus(true);
-        surface->setInputFocus();
         connect(surface, SIGNAL(mapped(const QRect &)), this, SLOT(surfaceMapped(const QRect &)));
-        connect(surface, SIGNAL(destroyed(QObject *)), this, SLOT(surfaceDestroyed(QObject *)));
-        emit windowAdded(QVariant::fromValue(static_cast<QSGItem *>(item)));
-        m_windowMap[surface] = item;
     }
 
     void paintEvent(QPaintEvent *event) {

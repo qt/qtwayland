@@ -104,6 +104,8 @@ protected:
 
     void surfaceDamaged(WaylandSurface *surface, const QRect &rect) {
 #ifdef QT_COMPOSITOR_WAYLAND_GL
+        Q_UNUSED(surface);
+        Q_UNUSED(rect);
         update();
 #else
         update(rect.translated(surface->geometry().topLeft()));

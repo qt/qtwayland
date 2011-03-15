@@ -103,7 +103,11 @@ protected:
     }
 
     void surfaceDamaged(WaylandSurface *surface, const QRect &rect) {
+#ifdef QT_COMPOSITOR_WAYLAND_GL
+        update();
+#else
         update(rect.translated(surface->geometry().topLeft()));
+#endif
     }
 
     void paintEvent(QPaintEvent *) {

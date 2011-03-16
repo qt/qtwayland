@@ -82,7 +82,7 @@ Rectangle {
     ShaderEffect {
         source: child
         anchors.fill: child
-        opacity: { if (child && child.focus) 0.0; else 0.8; }
+        opacity: { if (child && child.focus) 0.0; else 0.9; }
         z: 1
 
         Behavior on opacity {

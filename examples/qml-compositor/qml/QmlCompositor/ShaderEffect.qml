@@ -51,7 +51,9 @@ ShaderEffectItem {
     varying highp vec2 qt_TexCoord0;
     void main() {
         vec4 sourceColor = texture2D(source, qt_TexCoord0);
-        gl_FragColor = qt_Opacity * vec4(color.rgb * dot(sourceColor.rgb, vec3(11, 16, 5) * (1. /  32.)), sourceColor.a);
+        vec3 delta = sourceColor.rgb - vec3(0.5);
+        vec3 lowerContrast = vec3(0.5) + 0.4 * delta;
+        gl_FragColor = qt_Opacity * vec4(color.rgb * dot(lowerContrast, vec3(11, 16, 5) * (1. /  32.)), sourceColor.a);
     }
     "
 }

@@ -72,12 +72,14 @@ Item {
     }
 
     ShaderEffect {
+        id: effect
         source: child
         anchors.fill: child
-        opacity: { if (child && child.focus) 0.0; else 0.8; }
+        blend: { if (child && child.focus) 0.0; else 1.0 }
+        opacity: 0.8
         z: 1
 
-        Behavior on opacity {
+        Behavior on blend {
             enabled: true;
             NumberAnimation { easing.type: Easing.Linear; duration: 200; }
         }

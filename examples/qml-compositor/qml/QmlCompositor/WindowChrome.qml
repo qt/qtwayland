@@ -46,8 +46,6 @@ Item {
 
     property variant window: parent;
 
-    opacity: { if (parent.focus) 1.0; else 0.1; }
-
     MouseArea {
         anchors.fill: parent
         enabled: !window.focus
@@ -59,13 +57,6 @@ Item {
     Binding {
         target: window
         property: "opacity"
-        value: chrome.opacity
-    }
-
-    Behavior on opacity {
-        NumberAnimation {
-            easing.type: Easing.Linear;
-            duration: 200;
-        }
+        value: 0.01
     }
 }

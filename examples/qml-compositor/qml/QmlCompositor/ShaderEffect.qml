@@ -43,17 +43,19 @@ import QtQuick 2.0
 ShaderEffectItem {
     property variant source: null;
     property color color: "#ffffff"
+    property real blend;
 
     fragmentShader: "
     uniform sampler2D source;
     uniform float qt_Opacity;
     uniform vec4 color;
+    uniform float blend;
     varying highp vec2 qt_TexCoord0;
     void main() {
         vec4 sourceColor = texture2D(source, qt_TexCoord0);
         vec3 delta = sourceColor.rgb - vec3(0.5);
         vec3 lowerContrast = vec3(0.5) + 0.4 * delta;
-        gl_FragColor = qt_Opacity * color * sourceColor.a * dot(lowerContrast, vec3(11, 16, 5) * (1. /  32.));
+        gl_FragColor = qt_Opacity * mix(sourceColor, color * sourceColor.a * dot(lowerContrast, vec3(11, 16, 5) * (1. /  32.)), blend);
     }
     "
 }

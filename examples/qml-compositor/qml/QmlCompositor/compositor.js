@@ -39,6 +39,7 @@
 ****************************************************************************/
 
 var windowList = null;
+var indexes = null;
 
 function relayout() {
     if (windowList.length == 0)
@@ -54,6 +55,8 @@ function relayout() {
     var ix = 0;
     var iy = 0;
     var lastDim = 1;
+
+    indexes = new Array(dim * dim);
 
     for (i = 0; i < windowList.length; ++i) {
         if (i > 0) {
@@ -73,6 +76,9 @@ function relayout() {
             lastDim = currentDim;
         }
 
+        indexes[iy * dim + ix] = i;
+        windowList[i].index = iy * dim + ix;
+
         var cx = (ix + 0.5) * w;
         var cy = (iy + 0.5) * h;
 
@@ -83,3 +89,67 @@ function relayout() {
     }
 }
 
+function addWindow(window)
+{
+    if (windowList == null)
+        windowList = new Array(0);
+
+    windowList.push(window);
+    relayout();
+}
+
+function removeWindow(window)
+{
+    var i;
+    for (i = 0; i < windowList.length; ++i) {
+        if (windowList[i] == window)
+            break;
+    }
+
+    var index = windowList[i].index;
+    var dim = Math.ceil(Math.sqrt(windowList.length));
+    var maxY = Math.floor((windowList.length-1) / dim);
+
+    var shrinking = Math.ceil(Math.sqrt(windowList.length - 1)) != dim;
+
+    while (true) {
+        var ix = index % dim;
+        var iy = Math.floor(index / dim);
+
+        console.log("index: " + ix + " " + iy);
+
+        if (shrinking) {
+            if (iy > 0)
+                --iy;
+            else if (++ix == dim)
+                break;
+        } else {
+            if (iy < maxY) {
+                if (ix > 0)
+                    --ix;
+                else
+                    ++iy;
+            } else {
+                ++ix;
+            }
+        }
+
+        var next = iy * dim + ix;
+
+        var currentIndex = indexes[index];
+        var nextIndex = indexes[next];
+
+        if (nextIndex == null)
+            break;
+
+        var temp = windowList[currentIndex];
+        windowList[currentIndex] = windowList[nextIndex];
+        windowList[currentIndex].index = currentIndex;
+        windowList[nextIndex] = temp;
+
+        index = next;
+    }
+
+    windowList.splice(indexes[index], 1);
+    relayout();
+}

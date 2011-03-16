@@ -49,6 +49,7 @@ Rectangle {
 
     property variant child: null;
     property bool animationsEnabled: false;
+    property int index;
 
     Behavior on x {
         enabled: container.animationsEnabled;

@@ -64,28 +64,15 @@ Rectangle {
         windowContainer.height = window.height;
         windowContainer.child = window;
 
-        if (CompositorLogic.windowList == null)
-            CompositorLogic.windowList = new Array(0);
-
-        CompositorLogic.windowList.push(windowContainer);
-        CompositorLogic.relayout();
+        CompositorLogic.addWindow(windowContainer);
 
         windowContainer.opacity = 1
         windowContainer.animationsEnabled = true;
     }
 
     function windowDestroyed(window) {
-        var i;
-        for (i = 0; i < CompositorLogic.windowList.length; ++i) {
-            if (CompositorLogic.windowList[i].child == window)
-                break;
-        }
+        CompositorLogic.removeWindow(window.parent);
 
-        var container = CompositorLogic.windowList[i];
-
-        CompositorLogic.windowList.splice(i, 1);
-        CompositorLogic.relayout();
-
-        container.destroy();
+        window.parent.destroy();
     }
 }

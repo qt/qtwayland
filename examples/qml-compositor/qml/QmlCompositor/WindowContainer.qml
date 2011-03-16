@@ -40,20 +40,46 @@
 
 import QtQuick 2.0
 
-ShaderEffectItem {
-    property variant source: null;
-    property color color: "#ffffff"
+Item {
+    id: container
 
-    fragmentShader: "
-    uniform sampler2D source;
-    uniform float qt_Opacity;
-    uniform vec4 color;
-    varying highp vec2 qt_TexCoord0;
-    void main() {
-        vec4 sourceColor = texture2D(source, qt_TexCoord0);
-        vec3 delta = sourceColor.rgb - vec3(0.5);
-        vec3 lowerContrast = vec3(0.5) + 0.4 * delta;
-        gl_FragColor = qt_Opacity * color * sourceColor.a * dot(lowerContrast, vec3(11, 16, 5) * (1. /  32.));
+    x: -400;
+    y: 0;
+    opacity: 0
+
+    property variant child: null;
+    property bool animationsEnabled: false;
+    property int index;
+
+    Behavior on x {
+        enabled: container.animationsEnabled;
+        NumberAnimation { easing.type: Easing.InCubic; duration: 200; }
     }
-    "
+
+    Behavior on y {
+        enabled: container.animationsEnabled;
+        NumberAnimation { easing.type: Easing.InQuad; duration: 200; }
+    }
+
+    Behavior on scale {
+        enabled: container.animationsEnabled;
+        NumberAnimation { easing.type: Easing.InQuad; duration: 200; }
+    }
+
+    Behavior on opacity {
+        enabled: true;
+        NumberAnimation { easing.type: Easing.Linear; duration: 250; }
+    }
+
+    ShaderEffect {
+        source: child
+        anchors.fill: child
+        opacity: { if (child && child.focus) 0.0; else 0.8; }
+        z: 1
+
+        Behavior on opacity {
+            enabled: true;
+            NumberAnimation { easing.type: Easing.Linear; duration: 200; }
+        }
+    }
 }

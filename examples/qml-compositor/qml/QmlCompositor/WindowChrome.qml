@@ -40,55 +40,32 @@
 
 import QtQuick 2.0
 
-Rectangle {
-    id: container
+Item {
+    id: chrome
+    anchors.fill: parent
 
-    x: -400;
-    y: 0;
-    opacity: 0
+    property variant window: parent;
 
-    property variant child: null;
-    property bool animationsEnabled: false;
-    property int index;
-
-    Behavior on x {
-        enabled: container.animationsEnabled;
-        NumberAnimation { easing.type: Easing.InCubic; duration: 200; }
-    }
-
-    Behavior on y {
-        enabled: container.animationsEnabled;
-        NumberAnimation { easing.type: Easing.InQuad; duration: 200; }
-    }
-
-    Behavior on scale {
-        enabled: container.animationsEnabled;
-        NumberAnimation { easing.type: Easing.InQuad; duration: 200; }
-    }
-
-    Behavior on opacity {
-        enabled: true;
-        NumberAnimation { easing.type: Easing.Linear; duration: 250; }
-    }
+    opacity: { if (parent.focus) 1.0; else 0.1; }
 
     MouseArea {
-        anchors.fill: { if (child == null) parent; else child; }
-        z: 1
-        enabled: { if (child == null) true; else !child.focus; }
+        anchors.fill: parent
+        enabled: !window.focus
         onClicked: {
-            child.takeFocus();
+            window.takeFocus();
         }
     }
 
-    ShaderEffect {
-        source: child
-        anchors.fill: child
-        opacity: { if (child && child.focus) 0.0; else 0.9; }
-        z: 1
+    Binding {
+        target: window
+        property: "opacity"
+        value: chrome.opacity
+    }
 
-        Behavior on opacity {
-            enabled: true;
-            NumberAnimation { easing.type: Easing.Linear; duration: 200; }
+    Behavior on opacity {
+        NumberAnimation {
+            easing.type: Easing.Linear;
+            duration: 200;
         }
     }
 }

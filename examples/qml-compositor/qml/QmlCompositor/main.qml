@@ -41,7 +41,7 @@
 import QtQuick 2.0
 import "compositor.js" as CompositorLogic
 
-Rectangle {
+Item {
     id: root
 
     width: 1024
@@ -56,13 +56,16 @@ Rectangle {
     }
 
     function windowAdded(window) {
-        var windowComponent = Qt.createComponent("Window.qml");
-        var windowContainer = windowComponent.createObject(root);
+        var windowContainerComponent = Qt.createComponent("WindowContainer.qml");
+        var windowContainer = windowContainerComponent.createObject(root);
 
         window.parent = windowContainer;
         windowContainer.width = window.width;
         windowContainer.height = window.height;
         windowContainer.child = window;
+
+        var windowChromeComponent = Qt.createComponent("WindowChrome.qml");
+        var windowChrome = windowChromeComponent.createObject(window);
 
         CompositorLogic.addWindow(windowContainer);
 

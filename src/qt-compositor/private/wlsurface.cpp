@@ -244,21 +244,23 @@ uint32_t toWaylandButton(Qt::MouseButton button)
 void Surface::sendMousePressEvent(int x, int y, Qt::MouseButton button)
 {
     Q_D(Surface);
+    sendMouseMoveEvent(x, y);
     if (d->client) {
         uint32_t time = d->compositor->currentTimeMsecs();
         wl_client_post_event(d->client, &d->compositor->defaultInputDevice()->object,
                              WL_INPUT_DEVICE_BUTTON, time, toWaylandButton(button), 1);
     }
-    sendMouseMoveEvent(x, y);
 }
 
 void Surface::sendMouseReleaseEvent(int x, int y, Qt::MouseButton button)
 {
     Q_D(Surface);
-    if (d->client)
-        wl_client_post_event(d->client, &d->compositor->defaultInputDevice()->object,
-                             WL_INPUT_DEVICE_BUTTON, d->compositor->currentTimeMsecs(), toWaylandButton(button), 0);
     sendMouseMoveEvent(x, y);
+    if (d->client) {
+        uint32_t time = d->compositor->currentTimeMsecs();
+        wl_client_post_event(d->client, &d->compositor->defaultInputDevice()->object,
+                             WL_INPUT_DEVICE_BUTTON, time, toWaylandButton(button), 0);
+    }
 }
 
 void Surface::sendMouseMoveEvent(int x, int y)

@@ -116,8 +116,6 @@ function removeWindow(window)
         var ix = index % dim;
         var iy = Math.floor(index / dim);
 
-        console.log("index: " + ix + " " + iy);
-
         if (shrinking) {
             if (iy > 0)
                 --iy;

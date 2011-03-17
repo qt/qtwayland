@@ -1,5 +1,15 @@
-LIBS += -lwayland-server -lffi
 INCLUDEPATH += $$PWD
+
+use_pkgconfig {
+    QMAKE_CXXFLAGS += $$system(pkg-config --cflags wayland-server)
+    #for some reason this is not included in the cflags line
+    INCLUDEPATH += $$system(pkg-config --variable=includedir wayland-server)
+    LIBS += $$system(pkg-config --libs wayland-server)
+} else {
+    INCLUDEPATH += $$PWD/../3rdparty/wayland
+    LIBS += -lwayland-server -lffi
+    LIBS += -L ../../lib
+}
 
 wayland_gl {
     system(echo "Qt-Compositor configured with openGL")
@@ -44,5 +54,3 @@ HEADERS += $$PWD/qtcompositor.h \
         $$PWD/private/wlshmbuffer.h \
         $$PWD/private/wldisplay.h \
         $$PWD/private/wlobject.h
-
-INCLUDEPATH += $$PWD/../3rdparty/wayland

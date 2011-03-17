@@ -1,0 +1,103 @@
+This document is heavily inspired by the Building Wayland document:
+http://wayland.freedesktop.org/building.html
+
+However, it is slightly more messy
+:) If you encounter things you find unclear, and know of a better way of
+expressing it, then please send a patch:)
+
+Qt-Compositor is meant as a toolbox for making new funky Wayland compositors.
+
+As of today(15 march, 2011) it is not trivial to get Wayland to
+work on all platforms. This document explains how to get Wayland and the
+Qt-Compositor examples running with a raster backend on a Ubuntu 10.10 system.
+
+Pre-requisites: Git
+
+1. To build wayland we need libffi + libffi headers
+# sudo apt-get install libffi libffi-dev
+
+Qt-Compositor contains a copy of the Wayland libraries. We have not changed
+them in any way, but they are provided for convenience so that you can compile
+everything using qmake. However, I suggest you use the official Wayland
+libraries. The only dependency they have is to ffi. The demos has some more
+dependencies, but we are not going to compile those.
+
+2. Clone Wayland from: git://anongit.freedesktop.org/wayland/wayland
+# git clone git://anongit.freedesktop.org/wayland/wayland
+
+3. Compile Wayland: #./autogen.sh -prefix=$HOME/install && make && make install
+
+4. Set your PKG_CONFIG_PATH so that the location of the Wayland libraries are
+picked up by Qt's configure. 
+# export PKG_CONFIG_PATH=$HOME/install/lib/pkgconfig/
+
+5. When Qt is configured it will check for pkg-config for GLES2. To figure out
+what version Qt will pick up, then do:
+# pkg-config --libs glesv2
+
+6. Set the library path to pick up the Wayland libraries
+# export LD_LIBRARY_PATH=$HOME/install/lib
+
+7. While we are at it export the runtime path as well
+# export XDG_RUNTIME_DIR=$HOME
+
+8. Get the build dependencies that you need for QtGui.
+# sudo apt-get build-dep libqt4-gui
+
+One of the dependencies that the wayland-demos compositor and client
+applications has is xkbcommon. The Qt-Lighthouse wayland plugin has code to
+read xkbcommon codes sent over the wayland protocol, so that Qt-Lighthouse
+clients on Wayland will get keyboard functionality in other compositors.
+However, Qt-Compositor doesn't have this requirement. The support for xkbcommon
+is picked up by configure. If it is not detected the Wayland plug-in will be
+compiled with the: QT_NO_WAYLAND_XKB.
+
+To be able to just compile xkbcommon on ubuntu without compiling xproto,
+kbproto, macros and libX11 I apply this patch to libxkbcommon:
+http://pastebin.com/YTcxFukh
+
+Its a good idea to use out of source builds when building Qt. A good setup
+could be: $HOME/dev/qt-src/lighthouse where lighthouse is where you have a
+complete checkout of the lighthouse repository.  Then you can have ie.:
+$HOME/dev/qt-builds/lighthouse-debug
+
+9. Clone Lighthouse from gitorious
+# git clone git@gitorious.org:+qt-developers/qt/lighthouse.git
+# $HOME/dev/qt-src/lighthouse
+(you might want to use git remote etc. if you already have a clone of
+qt-master)
+
+10. Configure and compile Qt-Lighthouse. So from
+$HOME/dev/qt-builds/lighthouse-debug do: ../../qt-src/lighthouse/configure -qpa
+-developer-build && make
+
+11. OK, now we have Lighthouse and Wayland libs on our system. To try Wayland
+out we want the compositor to render into a XWindow(this is for development).
+So we need to compile up a X back-end for lighthouse. They don't get built
+automatically (yet). The Wayland plug-in will be ma
+
+Go into the directory: $HOME/dev/qt-src/lighthouse/src/plugins/platforms/xcb
+# make
+
+12. When this is done, you are ready to compile the qwidget-compositor.  Enter
+the directory with $QT-COMPOSITOR-DIR/examples/qwidget-compositor #qmake &&
+make
+
+Makes generates a executable in $QT-COMPOSITOR-DIR/bin. Execute it and pass in
+-platform xcb
+# $QT-COMPOSITOR-DIR/bin/qt-compositor -platform xcb
+
+This should give you a blank window. If you now open a another terminal with
+LD_LIBRARY_PATH set and run a simple Qt example with the -platform Wayland, it
+should render into this window.
+
+This gives us the raster back-end. It is possible to run Qt with scenegraph and
+sending GL surfaces from clients to the compositor. However, it requires some
+more setup. Please follow the instructions on the Wayland
+page (http://wayland.freedesktop.org/building.html) closely. 
+
+At the time of writing, the Building Wayland instructions note that a patch is
+required for the linux kernel for using the Nouveau driver. On ubuntu systems
+its real easy to build new kernels (takes a bit of time thoguh). I followed
+these instructions:
+http://www.howtoforge.com/kernel_compilation_ubuntu

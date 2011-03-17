@@ -75,7 +75,7 @@ Item {
         id: effect
         source: child
         anchors.fill: child
-        blend: { if (child && child.focus) 0.0; else 1.0 }
+        blend: { if (child && child.focus) 0.0; else 0.6 }
         opacity: 0.8
         z: 1
 

@@ -316,6 +316,7 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
 
     QmlCompositor compositor;
+    compositor.setWindowTitle(QLatin1String("QML Compositor"));
     compositor.show();
 
     compositor.rootContext()->setContextProperty("compositor", &compositor);

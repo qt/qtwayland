@@ -38,64 +38,30 @@
 **
 ****************************************************************************/
 
-#ifndef WL_SHMBUFFER_H
-#define WL_SHMBUFFER_H
+#ifndef WL_OUTPUT_H
+#define WL_OUTPUT_H
 
-#include "wlobject.h"
+#include "waylandobject.h"
 
-#include <QtCore/QRect>
-#include <QtGui/QImage>
-
+#include <QtCore/QSize>
 
 namespace Wayland {
 
-class Surface;
-class Compositor;
-
-class ShmBuffer : public Object<struct wl_buffer>
+class Output : public Object<struct wl_object>
 {
 public:
-    ShmBuffer(int fd,
-              Compositor *compositor,
-              const QSize &size,
-              uint stride,
-              struct wl_visual *visual);
-    ~ShmBuffer();
+    Output();
 
-    void attach(Surface *surface);
-    void damage(Surface *surface, const QRect &rect);
-
-    QImage image() const;
-    QSize size() const;
+    QSize size() const { return m_size; }
 
 private:
-    int m_stride;
-    void *m_data;
+    QSize m_size;
+    int m_displayId;
+    int m_numQueued;
 };
 
-class ShmHandler : public Object<struct wl_object>
-{
-public:
-    ShmHandler(Compositor *compositor);
-
-    ShmBuffer *createBuffer(int fd, const QSize &size, uint32_t stride, struct wl_visual *visual);
-private:
-    Compositor *m_compositor;
-};
-
-void shm_create_buffer(struct wl_client *client,
-                       struct wl_shm *shm,
-                       uint32_t id,
-                       int fd,
-                       int width,
-                       int height,
-                       uint32_t stride,
-                       struct wl_visual *visual);
-
-const struct wl_shm_interface shm_interface = {
-    shm_create_buffer
-};
+void output_post_geometry(struct wl_client *client, struct wl_object *global);
 
 }
 
-#endif //WL_SHMBUFFER_H
+#endif //WL_OUTPUT_H

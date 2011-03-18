@@ -38,51 +38,31 @@
 **
 ****************************************************************************/
 
-#include "qtcompositor.h"
+#ifndef GRAPHICSHARDWAREINTEGRATION_H
+#define GRAPHICSHARDWAREINTEGRATION_H
 
-#include "private/wlcompositor.h"
-#include "private/wlsurface.h"
+#include <QtOpenGL/qgl.h>
+#include <wayland-server.h>
 
-WaylandCompositor::WaylandCompositor(QWidget *topLevelWidget)
-    : m_compositor(0)
-    , m_toplevel_widget(topLevelWidget)
+#include "waylandcompositor.h"
+#include "wayland_wrapper/wldisplay.h"
+
+class GraphicsHardwareIntegration
 {
-    m_compositor = new Wayland::Compositor(this);
-}
+public:
+    GraphicsHardwareIntegration(WaylandCompositor *compositor);
 
-WaylandCompositor::~WaylandCompositor()
-{
-    delete m_compositor;
-}
+    virtual void initializeHardware(Wayland::Display *waylandDisplay) = 0;
 
-void WaylandCompositor::frameFinished()
-{
-    m_compositor->frameFinished();
-}
+    /** Bind the Wayland buffer to the textureId. The correct context is the current context,
+        so there is no need to do makeCurrent in this function.
+     **/
+    virtual GLuint createTextureFromBuffer(struct wl_buffer *buffer) = 0;
 
-void WaylandCompositor::setInputFocus(WaylandSurface *surface)
-{
-    Wayland::Surface *surfaceImpl = surface? surface->handle():0;
-    m_compositor->setInputFocus(surfaceImpl);
-}
+    static GraphicsHardwareIntegration *createGraphicsHardwareIntegration(WaylandCompositor *compositor);
 
-void WaylandCompositor::setDirectRenderWinId(uint winId)
-{
-    Q_UNUSED(winId);
-}
+protected:
+    WaylandCompositor *m_compositor;
+};
 
-uint WaylandCompositor::directRenderWinId() const
-{
-    return 0;
-}
-
-QWidget * WaylandCompositor::topLevelWidget() const
-{
-    return m_toplevel_widget;
-}
-
-Wayland::Compositor * WaylandCompositor::handle() const
-{
-    return m_compositor;
-}
-
+#endif // GRAPHICSHARDWAREINTEGRATION_H

@@ -2,9 +2,9 @@
 
 #include "dri2xcbbuffer.h"
 
-#include "wlobject.h"
-#include "wldisplay.h"
-#include "wlcompositor.h"
+#include "waylandobject.h"
+#include "wayland_wrapper/wldisplay.h"
+#include "wayland_wrapper/wlcompositor.h"
 
 #include "wayland-server.h"
 #include "wayland-drm-server-protocol.h"

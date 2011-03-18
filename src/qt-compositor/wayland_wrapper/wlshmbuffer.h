@@ -38,28 +38,64 @@
 **
 ****************************************************************************/
 
-#ifndef MESAEGLINTEGRATION_H
-#define MESAEGLINTEGRATION_H
+#ifndef WL_SHMBUFFER_H
+#define WL_SHMBUFFER_H
 
-#include "../graphicshardwareintegration.h"
-#include <QtCore/QScopedPointer>
+#include "waylandobject.h"
 
-class MesaEglIntegrationPrivate;
+#include <QtCore/QRect>
+#include <QtGui/QImage>
 
-class MesaEglIntegration : public GraphicsHardwareIntegration
+
+namespace Wayland {
+
+class Surface;
+class Compositor;
+
+class ShmBuffer : public Object<struct wl_buffer>
 {
-    Q_DECLARE_PRIVATE(MesaEglIntegration)
 public:
-    MesaEglIntegration(WaylandCompositor *compositor);
+    ShmBuffer(int fd,
+              Compositor *compositor,
+              const QSize &size,
+              uint stride,
+              struct wl_visual *visual);
+    ~ShmBuffer();
 
-    void initializeHardware(Wayland::Display *waylandDisplay);
+    void attach(Surface *surface);
+    void damage(Surface *surface, const QRect &rect);
 
-    GLuint createTextureFromBuffer(wl_buffer *buffer);
+    QImage image() const;
+    QSize size() const;
 
 private:
-    Q_DISABLE_COPY(MesaEglIntegration)
-    QScopedPointer<MesaEglIntegrationPrivate> d_ptr;
-
+    int m_stride;
+    void *m_data;
 };
 
-#endif // MESAEGLINTEGRATION_H
+class ShmHandler : public Object<struct wl_object>
+{
+public:
+    ShmHandler(Compositor *compositor);
+
+    ShmBuffer *createBuffer(int fd, const QSize &size, uint32_t stride, struct wl_visual *visual);
+private:
+    Compositor *m_compositor;
+};
+
+void shm_create_buffer(struct wl_client *client,
+                       struct wl_shm *shm,
+                       uint32_t id,
+                       int fd,
+                       int width,
+                       int height,
+                       uint32_t stride,
+                       struct wl_visual *visual);
+
+const struct wl_shm_interface shm_interface = {
+    shm_create_buffer
+};
+
+}
+
+#endif //WL_SHMBUFFER_H

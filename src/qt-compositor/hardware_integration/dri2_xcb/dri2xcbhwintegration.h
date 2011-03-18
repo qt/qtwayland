@@ -1,7 +1,7 @@
 #ifndef DRI2XCBHWINTEGRATION_H
 #define DRI2XCBHWINTEGRATION_H
 
-#include "../graphicshardwareintegration.h"
+#include "hardware_integration/graphicshardwareintegration.h"
 
 class DrmObject;
 

@@ -40,11 +40,11 @@
 
 #include "wlcompositor.h"
 
-#include "wlobject.h"
+#include "waylandobject.h"
 #include "wldisplay.h"
 #include "wlshmbuffer.h"
 #include "wlsurface.h"
-#include "qtcompositor.h"
+#include "waylandcompositor.h"
 
 #include <QApplication>
 #include <QDesktopWidget>
@@ -66,15 +66,7 @@
 
 #include <wayland-server.h>
 
-#ifdef QT_COMPOSITOR_MESA_EGL
-#include "../mesa_egl/mesaeglintegration.h"
-#endif
-
-#ifdef QT_COMPOSITOR_DRI2_XCB
-#include "../dri2_xcb/dri2xcbhwintegration.h"
-#endif
-
-#include "graphicshardwareintegration.h"
+#include "hardware_integration/graphicshardwareintegration.h"
 
 namespace Wayland {
 

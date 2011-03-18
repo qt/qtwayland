@@ -40,7 +40,7 @@
 
 #include "wlsurface.h"
 
-#include "../waylandsurface.h"
+#include "waylandsurface.h"
 
 #include "wlcompositor.h"
 #include "wlshmbuffer.h"
@@ -52,7 +52,7 @@
 #include <linux/input.h>
 
 #ifdef QT_COMPOSITOR_WAYLAND_GL
-#include "../graphicshardwareintegration.cpp"
+#include "hardware_integration/graphicshardwareintegration.h"
 #include <QtGui/QPlatformGLContext>
 #endif
 

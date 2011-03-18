@@ -38,7 +38,7 @@
 **
 ****************************************************************************/
 
-#include "qtcompositor.h"
+#include "waylandcompositor.h"
 
 #include "waylandsurface.h"
 

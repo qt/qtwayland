@@ -1,6 +1,6 @@
 #include "dri2xcbbuffer.h"
 
-#include "wlobject.h"
+#include "waylandobject.h"
 
 #define EGL_EGLEXT_PROTOTYPES
 #include <EGL/egl.h>

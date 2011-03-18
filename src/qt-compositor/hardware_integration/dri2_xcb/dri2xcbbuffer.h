@@ -1,8 +1,8 @@
 #ifndef DRI2XCBBUFFER_H
 #define DRI2XCBBUFFER_H
 
-#include "wlobject.h"
-#include "wlcompositor.h"
+#include "waylandobject.h"
+#include "wayland_wrapper/wlcompositor.h"
 
 #include <wayland-server.h>
 

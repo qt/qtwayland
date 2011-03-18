@@ -41,8 +41,9 @@
 #ifndef WL_SURFACE_H
 #define WL_SURFACE_H
 
-#include "wlobject.h"
+#include "waylandobject.h"
 #include "wlshmbuffer.h"
+#include "waylandsurface.h"
 
 #include <QtCore/QRect>
 #include <QtGui/QImage>
@@ -50,8 +51,6 @@
 #include <QtCore/QTextStream>
 #include <QtCore/QMetaType>
 #include <QtGui/private/qapplication_p.h>
-
-#include "../waylandsurface.h"
 
 #ifdef QT_COMPOSITOR_WAYLAND_GL
 #define GL_GLEXT_PROTOTYPES

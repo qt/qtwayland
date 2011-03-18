@@ -38,30 +38,28 @@
 **
 ****************************************************************************/
 
-#ifndef WL_OUTPUT_H
-#define WL_OUTPUT_H
+#ifndef MESAEGLINTEGRATION_H
+#define MESAEGLINTEGRATION_H
 
-#include "wlobject.h"
+#include "hardware_integration/graphicshardwareintegration.h"
+#include <QtCore/QScopedPointer>
 
-#include <QtCore/QSize>
+class MesaEglIntegrationPrivate;
 
-namespace Wayland {
-
-class Output : public Object<struct wl_object>
+class MesaEglIntegration : public GraphicsHardwareIntegration
 {
+    Q_DECLARE_PRIVATE(MesaEglIntegration)
 public:
-    Output();
+    MesaEglIntegration(WaylandCompositor *compositor);
 
-    QSize size() const { return m_size; }
+    void initializeHardware(Wayland::Display *waylandDisplay);
+
+    GLuint createTextureFromBuffer(wl_buffer *buffer);
 
 private:
-    QSize m_size;
-    int m_displayId;
-    int m_numQueued;
+    Q_DISABLE_COPY(MesaEglIntegration)
+    QScopedPointer<MesaEglIntegrationPrivate> d_ptr;
+
 };
 
-void output_post_geometry(struct wl_client *client, struct wl_object *global);
-
-}
-
-#endif //WL_OUTPUT_H
+#endif // MESAEGLINTEGRATION_H

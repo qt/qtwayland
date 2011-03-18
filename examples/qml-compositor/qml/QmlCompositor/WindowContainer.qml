@@ -47,8 +47,8 @@ Item {
     y: 0;
     opacity: 0
 
-    property variant chrome: null;
     property variant child: null;
+    property variant chrome: null;
     property bool animationsEnabled: false;
     property int index;
 
@@ -84,5 +84,19 @@ Item {
             enabled: true;
             NumberAnimation { easing.type: Easing.Linear; duration: 200; }
         }
+    }
+
+    transform: Scale { id: scaleTransform; origin.x: container.width / 2; origin.y: container.height / 2; xScale: 1; yScale: 1 }
+
+    SequentialAnimation {
+        id: destroyAnimation
+        NumberAnimation { target: scaleTransform; property: "yScale"; easing.type: Easing.Linear; to: 0.01; duration: 200; }
+        NumberAnimation { target: scaleTransform; property: "xScale"; easing.type: Easing.Linear; to: 0.01; duration: 150; }
+        NumberAnimation { target: container; property: "opacity"; easing.type: Easing.Linear; to: 0.0; duration: 150; }
+        ScriptAction { script: container.parent.removeWindow(child); }
+    }
+
+    function runDestroyAnimation() {
+        destroyAnimation.start();
     }
 }

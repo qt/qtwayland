@@ -76,9 +76,15 @@ Item {
     }
 
     function windowDestroyed(window) {
-        CompositorLogic.removeWindow(window.parent);
         var windowContainer = window.parent;
+        windowContainer.runDestroyAnimation();
+    }
+
+    function removeWindow(window) {
+        var windowContainer = window.parent;
+        CompositorLogic.removeWindow(windowContainer);
         windowContainer.chrome.destroy();
         windowContainer.destroy();
+        compositor.destroyWindow(window);
     }
 }

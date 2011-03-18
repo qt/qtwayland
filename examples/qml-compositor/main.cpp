@@ -274,6 +274,11 @@ signals:
     void windowAdded(QVariant window);
     void windowDestroyed(QVariant window);
 
+public slots:
+    void destroyWindow(QVariant window) {
+        qvariant_cast<QObject *>(window)->deleteLater();
+    }
+
 private slots:
     void surfaceMapped(const QRect &rect) {
         WaylandSurface *surface = qobject_cast<WaylandSurface *>(sender());
@@ -292,7 +297,6 @@ private slots:
     void surfaceDestroyed(QObject *object) {
         WindowItem *item = m_windowMap.take(object);
         emit windowDestroyed(QVariant::fromValue(static_cast<QSGItem *>(item)));
-        item->deleteLater();
         setInputFocus(0);
     }
 

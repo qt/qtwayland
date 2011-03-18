@@ -47,6 +47,7 @@ Item {
     y: 0;
     opacity: 0
 
+    property variant chrome: null;
     property variant child: null;
     property bool animationsEnabled: false;
     property int index;

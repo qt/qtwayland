@@ -60,6 +60,7 @@ Item {
         var windowContainer = windowContainerComponent.createObject(root);
 
         window.parent = windowContainer;
+
         windowContainer.width = window.width;
         windowContainer.height = window.height;
         windowContainer.child = window;
@@ -71,11 +72,13 @@ Item {
 
         windowContainer.opacity = 1
         windowContainer.animationsEnabled = true;
+        windowContainer.chrome = windowChrome;
     }
 
     function windowDestroyed(window) {
         CompositorLogic.removeWindow(window.parent);
-
-        window.parent.destroy();
+        var windowContainer = window.parent;
+        windowContainer.chrome.destroy();
+        windowContainer.destroy();
     }
 }

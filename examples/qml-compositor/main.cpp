@@ -292,7 +292,7 @@ private slots:
     void surfaceDestroyed(QObject *object) {
         WindowItem *item = m_windowMap.take(object);
         emit windowDestroyed(QVariant::fromValue(static_cast<QSGItem *>(item)));
-        delete item;
+        item->deleteLater();
         setInputFocus(0);
     }
 

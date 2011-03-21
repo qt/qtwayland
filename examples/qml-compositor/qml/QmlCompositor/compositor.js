@@ -46,11 +46,13 @@ function relayout() {
         return;
 
     var dim = Math.ceil(Math.sqrt(windowList.length));
-    var w = root.width / dim;
-    var h = root.height / dim;
 
     var cols = dim;
-    var rows = Math.floor(windowList.length / cols);
+    var rows = Math.ceil(windowList.length / cols);
+
+    var w = root.width / dim;
+    var h = root.height / rows;
+
     var i;
     var ix = 0;
     var iy = 0;

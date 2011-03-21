@@ -38,7 +38,7 @@
 **
 ****************************************************************************/
 
-#include "qtcompositor.h"
+#include "waylandcompositor.h"
 
 #include "waylandsurface.h"
 
@@ -297,7 +297,6 @@ private slots:
     void surfaceDestroyed(QObject *object) {
         WindowItem *item = m_windowMap.take(object);
         emit windowDestroyed(QVariant::fromValue(static_cast<QSGItem *>(item)));
-        setInputFocus(0);
     }
 
 protected:

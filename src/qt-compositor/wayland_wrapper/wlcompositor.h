@@ -65,11 +65,12 @@ public:
 
     void frameFinished();
     void setInputFocus(Surface *surface);
+    void setKeyFocus(Surface *surface);
+    void setPointerFocus(Surface *surface, const QPoint &point = QPoint());
 
     Surface *getSurfaceFromWinId(uint winId) const;
     struct wl_client *getClientFromWinId(uint winId) const;
     QImage image(uint winId) const;
-
 
     const struct wl_input_device *inputDevice() const { return &m_input; }
     struct wl_input_device *inputDevice() { return &m_input; }
@@ -110,6 +111,9 @@ private:
     wl_event_loop *m_loop;
 
     WaylandCompositor *m_qt_compositor;
+
+    Surface *m_pointerFocusSurface;
+    Surface *m_keyFocusSurface;
 
 #ifdef QT_COMPOSITOR_WAYLAND_GL
     GraphicsHardwareIntegration *m_graphics_hw_integration;

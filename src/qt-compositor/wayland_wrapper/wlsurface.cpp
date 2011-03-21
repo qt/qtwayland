@@ -268,8 +268,7 @@ void Surface::sendMouseMoveEvent(int x, int y)
     Q_D(Surface);
     if (d->client) {
         uint32_t time = d->compositor->currentTimeMsecs();
-        wl_input_device_set_pointer_focus(d->compositor->defaultInputDevice(),
-            base(), time, x, y, x, y);
+        d->compositor->setPointerFocus(this, QPoint(x, y));
         wl_client_post_event(d->client, &d->compositor->defaultInputDevice()->object,
              WL_INPUT_DEVICE_MOTION, time, x, y, x, y);
     }
@@ -299,10 +298,7 @@ void Surface::sendKeyReleaseEvent(uint code)
 void Surface::setInputFocus()
 {
     Q_D(Surface);
-    ulong time = d->compositor->currentTimeMsecs();
-
-    wl_input_device_set_keyboard_focus(d->compositor->defaultInputDevice(), base(), time);
-    wl_input_device_set_pointer_focus(d->compositor->defaultInputDevice(), base(), time, 0, 0, 0, 0);
+    d->compositor->setInputFocus(this);
 }
 
 }

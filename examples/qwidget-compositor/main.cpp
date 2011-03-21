@@ -76,10 +76,8 @@ public:
 
 private slots:
     void surfaceDestroyed(QObject *object) {
-        WaylandSurface *surface = qobject_cast<WaylandSurface *>(object);
+        WaylandSurface *surface = static_cast<WaylandSurface *>(object);
         m_surfaces.removeAll(surface);
-        if (m_surfaces.isEmpty())
-            setInputFocus(0);
         update();
     }
 

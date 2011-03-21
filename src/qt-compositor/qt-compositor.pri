@@ -6,8 +6,8 @@ use_pkgconfig {
     LIBS += $$system(pkg-config --libs wayland-server)
 } else {
     INCLUDEPATH += $$PWD/../3rdparty/wayland
+    LIBS += -L$$PWD/../../lib
     LIBS += -lwayland-server -lffi
-    LIBS += -L ../../lib
 }
 
 wayland_gl {

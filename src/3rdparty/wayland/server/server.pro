@@ -1,6 +1,5 @@
 TEMPLATE = lib
 TARGET = wayland-server
-DESTDIR=$$PWD/../../../../lib/
 
 CONFIG -= qt
 CONFIG += shared

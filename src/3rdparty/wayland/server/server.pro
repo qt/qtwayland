@@ -4,11 +4,9 @@ DESTDIR=$$PWD/../../../../lib/
 
 CONFIG -= qt
 CONFIG += shared
+CONFIG += use_pkgconfig
 
-INCLUDEPATH += $$PWD/.. \
-               $$PWD/../../ffi
-
-LIBS += -L $$PWD/../../../../lib/ -lffi
+include(../shared.pri)
 
 SOURCES = ../event-loop.c \
           ../wayland-server.c \

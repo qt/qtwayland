@@ -68,6 +68,7 @@ public:
     void frameFinished();
 
     void setInputFocus(WaylandSurface *surface);
+    void destroyClientForSurface(WaylandSurface *surface);
 
     void setDirectRenderWinId(uint winId);
     uint directRenderWinId() const;

@@ -66,6 +66,11 @@ void WaylandCompositor::setInputFocus(WaylandSurface *surface)
     m_compositor->setInputFocus(surfaceImpl);
 }
 
+void WaylandCompositor::destroyClientForSurface(WaylandSurface *surface)
+{
+    m_compositor->destroyClientForSurface(surface->handle());
+}
+
 void WaylandCompositor::setDirectRenderWinId(uint winId)
 {
     Q_UNUSED(winId);

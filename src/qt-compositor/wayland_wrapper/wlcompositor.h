@@ -78,6 +78,8 @@ public:
     void createSurface(struct wl_client *client, int id);
     void surfaceDestroyed(Surface *surface);
 
+    void destroyClientForSurface(Surface *surface);
+
     uint currentTimeMsecs() const;
 
     QWidget *topLevelWidget() const;

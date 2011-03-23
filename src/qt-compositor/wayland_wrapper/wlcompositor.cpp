@@ -288,6 +288,14 @@ void Compositor::surfaceDestroyed(Surface *surface)
         setPointerFocus(0);
 }
 
+void Compositor::destroyClientForSurface(Surface *surface)
+{
+    wl_client *client = surface->base()->client;
+
+    if (client)
+        wl_client_destroy(client);
+}
+
 void Compositor::setInputFocus(Surface *surface)
 {
     wl_surface *base = surface ? surface->base() : 0;

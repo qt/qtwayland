@@ -49,7 +49,13 @@ GLuint WaylandSurface::texture() const
     Q_D(const WaylandSurface);
     return d->surface->textureId();
 }
-#endif //QT_COMPOSITOR_WAYLAND_GL
+#else //QT_COMPOSITOR_WAYLAND_GL
+uint WaylandSurface::texture() const
+{
+    return 0;
+}
+
+#endif
 
 Wayland::Surface * WaylandSurface::handle() const
 {

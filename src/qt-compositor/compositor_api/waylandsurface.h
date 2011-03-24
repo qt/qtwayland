@@ -35,6 +35,8 @@ public:
     QImage image() const;
 #ifdef QT_COMPOSITOR_WAYLAND_GL
     GLuint texture() const;
+#else
+    uint texture() const;
 #endif
 
     void sendMousePressEvent(const QPoint &pos, Qt::MouseButton button);

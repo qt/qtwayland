@@ -54,15 +54,15 @@
 #include <QGLWidget>
 #endif
 
-#include <QtDeclarative/adaptationlayer.h>
-#include <QSGContext>
 #include <QSGItem>
-#include <QSGTextureManager>
-#include <QSGTextureProvider>
 #include <QSGView>
 
+#include <private/qsgadaptationlayer_p.h>
+#include <private/qsgcontext_p.h>
 #include <private/qsgitem_p.h>
+#include <private/qsgtexture_p.h>
 #include <private/qsgrectangle_p.h>
+#include <private/qsgtextureprovider_p.h>
 
 class WaylandSurfaceTextureProvider : public QSGTextureProvider
 {
@@ -81,13 +81,13 @@ private slots:
 private:
     WaylandSurface *m_surface;
 
-    QSGTexture *m_texture;
+    QSGPlainTexture *m_texture;
     QSGTextureRef m_textureRef;
 };
 
 WaylandSurfaceTextureProvider::WaylandSurfaceTextureProvider(WaylandSurface *surface)
     : m_surface(surface)
-    , m_texture(new QSGTexture)
+    , m_texture(new QSGPlainTexture)
     , m_textureRef(m_texture)
 {
     connect(surface, SIGNAL(damaged(const QRect &)), this, SLOT(surfaceDamaged(const QRect &)));
@@ -101,9 +101,9 @@ void WaylandSurfaceTextureProvider::surfaceDamaged(const QRect &)
 {
     if (m_surface->type() == WaylandSurface::Texture) {
         m_texture->setTextureId(m_surface->texture());
-        m_texture->setAlphaChannel(false);
+        m_texture->setHasAlphaChannel(false);
     } else {
-        if (m_texture->status() == QSGTexture::Null) {
+        if (!m_texture->textureId()) {
             GLuint textureId;
             glGenTextures(1, &textureId);
             glBindTexture(GL_TEXTURE_2D, textureId);
@@ -119,13 +119,12 @@ void WaylandSurfaceTextureProvider::surfaceDamaged(const QRect &)
         glBindTexture(GL_TEXTURE_2D, m_texture->textureId());
         glTexImage2D(GL_TEXTURE_2D, 0, GL_BGRA_EXT, image.width(), image.height(), 0, GL_BGRA_EXT, GL_UNSIGNED_BYTE, image.bits());
 
-        m_texture->setAlphaChannel(image.hasAlphaChannel());
+        m_texture->setHasAlphaChannel(image.hasAlphaChannel());
     }
 
     m_texture->setTextureSize(m_surface->geometry().size());
     m_texture->setOwnsTexture(true);
     m_texture->setHasMipmaps(false);
-    m_texture->setStatus(QSGTexture::Ready);
 
     emit textureChanged();
 }
@@ -157,7 +156,7 @@ private slots:
     void surfaceMapped(const QRect &rect);
 
 protected:
-    Node *updatePaintNode(Node *oldNode, UpdatePaintNodeData *);
+    QSGNode *updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *);
 
 private:
     QPoint toSurface(const QPointF &pos) const;
@@ -235,12 +234,12 @@ void WindowItem::surfaceMapped(const QRect &rect)
     update();
 }
 
-Node *WindowItem::updatePaintNode(Node *oldNode, UpdatePaintNodeData *)
+QSGNode *WindowItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *)
 {
-    TextureNodeInterface *node = static_cast<TextureNodeInterface *>(oldNode);
+    QSGImageNode *node = static_cast<QSGImageNode *>(oldNode);
     if (!node) {
-        node = QSGContext::current->createTextureNode();
-        node->setFlag(Node::UsePreprocess, false);
+        node = QSGContext::current->createImageNode();
+        node->setFlag(QSGNode::UsePreprocess, false);
         node->setTexture(m_textureProvider);
     }
 

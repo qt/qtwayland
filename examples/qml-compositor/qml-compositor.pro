@@ -22,6 +22,7 @@ LIBS += -L ../../lib
 include (../../src/qt-compositor/qt-compositor.pri)
 
 QT += declarative
+QT += opengl
 
 # Input
 SOURCES += main.cpp

@@ -69,6 +69,7 @@ public:
 signals:
     void windowAdded(QVariant window);
     void windowDestroyed(QVariant window);
+    void windowResized(QVariant window);
 
 public slots:
     void destroyWindow(QVariant window) {
@@ -80,7 +81,12 @@ private slots:
         WaylandSurface *surface = qobject_cast<WaylandSurface *>(sender());
         surface->setGeometry(rect);
 
-        if (!m_windowMap.contains(surface)) {
+        if (m_windowMap.contains(surface)) {
+            WaylandSurfaceItem *item = m_windowMap.value(surface);
+            item->setWidth(rect.width());
+            item->setHeight(rect.height());
+            emit windowResized(QVariant::fromValue(static_cast<QSGItem *>(item)));
+        } else {
             WaylandSurfaceItem *item = new WaylandSurfaceItem(surface, rootObject());
             connect(surface, SIGNAL(destroyed(QObject *)), this, SLOT(surfaceDestroyed(QObject *)));
             emit windowAdded(QVariant::fromValue(static_cast<QSGItem *>(item)));
@@ -122,6 +128,7 @@ int main(int argc, char *argv[])
 
     QObject::connect(&compositor, SIGNAL(windowAdded(QVariant)), compositor.rootObject(), SLOT(windowAdded(QVariant)));
     QObject::connect(&compositor, SIGNAL(windowDestroyed(QVariant)), compositor.rootObject(), SLOT(windowDestroyed(QVariant)));
+    QObject::connect(&compositor, SIGNAL(windowResized(QVariant)), compositor.rootObject(), SLOT(windowResized(QVariant)));
 
     return app.exec();
 

@@ -75,6 +75,14 @@ Item {
         windowContainer.chrome = windowChrome;
     }
 
+    function windowResized(window) {
+        var windowContainer = window.parent;
+        windowContainer.width = window.width;
+        windowContainer.height = window.height;
+
+        CompositorLogic.relayout();
+    }
+
     function windowDestroyed(window) {
         var windowContainer = window.parent;
         windowContainer.runDestroyAnimation();

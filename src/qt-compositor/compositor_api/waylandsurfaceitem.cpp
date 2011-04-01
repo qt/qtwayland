@@ -167,8 +167,6 @@ void WaylandSurfaceItem::surfaceMapped(const QRect &rect)
 {
     setWidth(rect.width());
     setHeight(rect.height());
-
-    update();
 }
 
 QSGNode *WaylandSurfaceItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *)

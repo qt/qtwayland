@@ -38,63 +38,46 @@
 **
 ****************************************************************************/
 
-#ifndef WAYLANDSURFACE_H
-#define WAYLANDSURFACE_H
+#ifndef WAYLANDSURFACEITEM_H
+#define WAYLANDSURFACEITEM_H
 
-#include <QtCore/QScopedPointer>
-#include <QtGui/QImage>
+#include <QSGItem>
+#include <private/qsgtextureprovider_p.h>
 
-#ifdef QT_COMPOSITOR_WAYLAND_GL
-#include <QtOpenGL/QGLContext>
-#endif
+class WaylandSurface;
+class WaylandSurfaceTextureProvider;
 
-class WaylandSurfacePrivate;
-
-namespace Wayland {
-class Surface;
-}
-
-class WaylandSurface : public QObject
+class WaylandSurfaceItem : public QSGItem, public QSGTextureProviderInterface
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(WaylandSurface)
+    Q_INTERFACES(QSGTextureProviderInterface)
 public:
-    enum Type {
-        Invalid,
-        Shm,
-        Texture
-    };
+    WaylandSurfaceItem(WaylandSurface *surface, QSGItem *parent = 0);
+    ~WaylandSurfaceItem();
 
-    WaylandSurface(Wayland::Surface *surface);
+    QSGTextureProvider *textureProvider() const;
 
-    Type type() const;
+    void mousePressEvent(QGraphicsSceneMouseEvent *event);
+    void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
+    void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
 
-    void setGeometry(const QRect &geometry);
-    QRect geometry() const;
+    void keyPressEvent(QKeyEvent *event);
+    void keyReleaseEvent(QKeyEvent *event);
 
-    QImage image() const;
-#ifdef QT_COMPOSITOR_WAYLAND_GL
-    GLuint texture() const;
-#else
-    uint texture() const;
-#endif
+public slots:
+    void takeFocus();
 
-    void sendMousePressEvent(const QPoint &pos, Qt::MouseButton button);
-    void sendMouseReleaseEvent(const QPoint &pos, Qt::MouseButton button);
-    void sendMouseMoveEvent(const QPoint &pos);
+private slots:
+    void surfaceMapped(const QRect &rect);
 
-    void sendKeyPressEvent(uint code);
-    void sendKeyReleaseEvent(uint code);
+protected:
+    QSGNode *updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *);
 
-    void setInputFocus();
+private:
+    QPoint toSurface(const QPointF &pos) const;
 
-    Wayland::Surface *handle() const;
-
-signals:
-    void mapped(const QRect &rect);
-    void damaged(const QRect &rect);
-
-    friend class Wayland::Surface;
+    WaylandSurface *m_surface;
+    WaylandSurfaceTextureProvider *m_textureProvider;
 };
 
-#endif // WAYLANDSURFACE_H
+#endif

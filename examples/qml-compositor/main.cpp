@@ -39,206 +39,19 @@
 ****************************************************************************/
 
 #include "waylandcompositor.h"
-
 #include "waylandsurface.h"
+#include "waylandsurfaceitem.h"
 
 #include <QApplication>
 #include <QTimer>
 #include <QPainter>
 #include <QMouseEvent>
 
+#include <QDeclarativeContext>
 #include <QDeclarativeView>
-
-#ifdef QT_COMPOSITOR_WAYLAND_GL
-#include <QGLContext>
-#include <QGLWidget>
-#endif
 
 #include <QSGItem>
 #include <QSGView>
-
-#include <private/qsgadaptationlayer_p.h>
-#include <private/qsgcontext_p.h>
-#include <private/qsgitem_p.h>
-#include <private/qsgtexture_p.h>
-#include <private/qsgrectangle_p.h>
-#include <private/qsgtextureprovider_p.h>
-
-class WaylandSurfaceTextureProvider : public QSGTextureProvider
-{
-    Q_OBJECT
-public:
-    WaylandSurfaceTextureProvider(WaylandSurface *surface);
-    ~WaylandSurfaceTextureProvider();
-
-    QSGTextureRef texture() {
-        return m_textureRef;
-    }
-
-private slots:
-    void surfaceDamaged(const QRect &rect);
-
-private:
-    WaylandSurface *m_surface;
-
-    QSGPlainTexture *m_texture;
-    QSGTextureRef m_textureRef;
-};
-
-WaylandSurfaceTextureProvider::WaylandSurfaceTextureProvider(WaylandSurface *surface)
-    : m_surface(surface)
-    , m_texture(new QSGPlainTexture)
-    , m_textureRef(m_texture)
-{
-    connect(surface, SIGNAL(damaged(const QRect &)), this, SLOT(surfaceDamaged(const QRect &)));
-}
-
-WaylandSurfaceTextureProvider::~WaylandSurfaceTextureProvider()
-{
-}
-
-void WaylandSurfaceTextureProvider::surfaceDamaged(const QRect &)
-{
-    if (m_surface->type() == WaylandSurface::Texture) {
-        m_texture->setTextureId(m_surface->texture());
-        m_texture->setHasAlphaChannel(false);
-        m_texture->setTextureSize(m_surface->geometry().size());
-    } else {
-        m_texture->setImage(m_surface->image());
-    }
-
-    m_texture->setOwnsTexture(true);
-    m_texture->setHasMipmaps(false);
-
-    emit textureChanged();
-}
-
-class WindowItem : public QSGItem, public QSGTextureProviderInterface
-{
-    Q_OBJECT
-    Q_INTERFACES(QSGTextureProviderInterface)
-public:
-    WindowItem(WaylandSurface *surface, QSGItem *parent = 0);
-    ~WindowItem();
-
-    QSGTextureProvider *textureProvider() const
-    {
-        return m_textureProvider;
-    }
-
-    void mousePressEvent(QGraphicsSceneMouseEvent *event);
-    void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
-    void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
-
-    void keyPressEvent(QKeyEvent *event);
-    void keyReleaseEvent(QKeyEvent *event);
-
-public slots:
-    void takeFocus();
-
-private slots:
-    void surfaceMapped(const QRect &rect);
-
-protected:
-    QSGNode *updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *);
-
-private:
-    QPoint toSurface(const QPointF &pos) const;
-
-    WaylandSurface *m_surface;
-    WaylandSurfaceTextureProvider *m_textureProvider;
-};
-
-WindowItem::WindowItem(WaylandSurface *surface, QSGItem *parent)
-    : QSGItem(parent)
-    , m_surface(surface)
-    , m_textureProvider(new WaylandSurfaceTextureProvider(surface))
-{
-    setWidth(surface->geometry().width());
-    setHeight(surface->geometry().height());
-
-    setSmooth(true);
-    setFlag(ItemHasContents);
-    setAcceptedMouseButtons(Qt::LeftButton | Qt::RightButton);
-    connect(surface, SIGNAL(mapped(const QRect &)), this, SLOT(surfaceMapped(const QRect &)));
-    connect(m_textureProvider, SIGNAL(textureChanged()), this, SLOT(update()));
-}
-
-WindowItem::~WindowItem()
-{
-    delete m_textureProvider;
-}
-
-void WindowItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
-{
-    if (hasFocus())
-        m_surface->sendMousePressEvent(toSurface(event->pos()), event->button());
-}
-
-void WindowItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
-{
-    if (hasFocus())
-        m_surface->sendMouseMoveEvent(toSurface(event->pos()));
-}
-
-void WindowItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
-{
-    if (hasFocus())
-        m_surface->sendMouseReleaseEvent(toSurface(event->pos()), event->button());
-}
-
-void WindowItem::keyPressEvent(QKeyEvent *event)
-{
-    if (hasFocus())
-        m_surface->sendKeyPressEvent(event->nativeScanCode());
-}
-
-void WindowItem::keyReleaseEvent(QKeyEvent *event)
-{
-    if (hasFocus())
-        m_surface->sendKeyReleaseEvent(event->nativeScanCode());
-}
-
-void WindowItem::takeFocus()
-{
-    setFocus(true);
-    m_surface->setInputFocus();
-}
-
-QPoint WindowItem::toSurface(const QPointF &pos) const
-{
-    return pos.toPoint();
-}
-
-void WindowItem::surfaceMapped(const QRect &rect)
-{
-    setWidth(rect.width());
-    setHeight(rect.height());
-
-    update();
-}
-
-QSGNode *WindowItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *)
-{
-    QSGImageNode *node = static_cast<QSGImageNode *>(oldNode);
-    if (!node) {
-        node = QSGContext::current->createImageNode();
-        node->setFlag(QSGNode::UsePreprocess, false);
-        node->setTexture(m_textureProvider);
-    }
-
-    m_textureProvider->setHorizontalWrapMode(QSGTextureProvider::ClampToEdge);
-    m_textureProvider->setVerticalWrapMode(QSGTextureProvider::ClampToEdge);
-    m_textureProvider->setFiltering(QSGItemPrivate::get(this)->smooth
-                                    ? QSGTextureProvider::Linear : QSGTextureProvider::Nearest);
-
-    node->setTargetRect(QRectF(0, 0, width(), height()));
-    node->setSourceRect(QRectF(0, 0, 1, 1));
-    node->update();
-
-    return node;
-}
-
 
 class QmlCompositor : public QSGView, public WaylandCompositor
 {
@@ -268,7 +81,7 @@ private slots:
         surface->setGeometry(rect);
 
         if (!m_windowMap.contains(surface)) {
-            WindowItem *item = new WindowItem(surface, rootObject());
+            WaylandSurfaceItem *item = new WaylandSurfaceItem(surface, rootObject());
             connect(surface, SIGNAL(destroyed(QObject *)), this, SLOT(surfaceDestroyed(QObject *)));
             emit windowAdded(QVariant::fromValue(static_cast<QSGItem *>(item)));
             m_windowMap[surface] = item;
@@ -278,7 +91,7 @@ private slots:
     }
 
     void surfaceDestroyed(QObject *object) {
-        WindowItem *item = m_windowMap.take(object);
+        WaylandSurfaceItem *item = m_windowMap.take(object);
         emit windowDestroyed(QVariant::fromValue(static_cast<QSGItem *>(item)));
     }
 
@@ -294,7 +107,7 @@ protected:
     }
 
 private:
-    QMap<QObject *, WindowItem *> m_windowMap;
+    QMap<QObject *, WaylandSurfaceItem *> m_windowMap;
 };
 
 int main(int argc, char *argv[])

@@ -8,8 +8,8 @@ DEPENDPATH += .
 INCLUDEPATH += .
 
 # comment out the following CONFIG lines to disable DRM
-CONFIG += wayland_gl
-CONFIG += mesa_egl
+#CONFIG += wayland_gl
+#CONFIG += mesa_egl
 #CONFIG += dri2_xcb
 
 # comment out the following to not use pkg-config in the pri files
@@ -19,10 +19,10 @@ DESTDIR=$$PWD/../../bin/
 
 LIBS += -L ../../lib
 
-include (../../src/qt-compositor/qt-compositor.pri)
-
 QT += declarative
 QT += opengl
+
+include (../../src/qt-compositor/qt-compositor.pri)
 
 # Input
 SOURCES += main.cpp

@@ -1,5 +1,5 @@
 TEMPLATE = app
-TARGET = qt-compositor
+TARGET = qwidget-compositor
 DEPENDPATH += .
 INCLUDEPATH += .
 
@@ -12,6 +12,8 @@ INCLUDEPATH += .
 CONFIG += use_pkgconfig
 
 DESTDIR=$$PWD/../../bin/
+
+QT += opengl
 
 include (../../src/qt-compositor/qt-compositor.pri)
 

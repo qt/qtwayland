@@ -127,20 +127,17 @@ QSGTextureProvider *WaylandSurfaceItem::textureProvider() const
 
 void WaylandSurfaceItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-    if (hasFocus())
-        m_surface->sendMousePressEvent(toSurface(event->pos()), event->button());
+    m_surface->sendMousePressEvent(toSurface(event->pos()), event->button());
 }
 
 void WaylandSurfaceItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
-    if (hasFocus())
-        m_surface->sendMouseMoveEvent(toSurface(event->pos()));
+    m_surface->sendMouseMoveEvent(toSurface(event->pos()));
 }
 
 void WaylandSurfaceItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
-    if (hasFocus())
-        m_surface->sendMouseReleaseEvent(toSurface(event->pos()), event->button());
+    m_surface->sendMouseReleaseEvent(toSurface(event->pos()), event->button());
 }
 
 void WaylandSurfaceItem::keyPressEvent(QKeyEvent *event)

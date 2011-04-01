@@ -57,6 +57,7 @@ public:
 
     QSGTextureProvider *textureProvider() const;
 
+protected:
     void mousePressEvent(QGraphicsSceneMouseEvent *event);
     void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);

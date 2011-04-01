@@ -102,27 +102,11 @@ void WaylandSurfaceTextureProvider::surfaceDamaged(const QRect &)
     if (m_surface->type() == WaylandSurface::Texture) {
         m_texture->setTextureId(m_surface->texture());
         m_texture->setHasAlphaChannel(false);
+        m_texture->setTextureSize(m_surface->geometry().size());
     } else {
-        if (!m_texture->textureId()) {
-            GLuint textureId;
-            glGenTextures(1, &textureId);
-            glBindTexture(GL_TEXTURE_2D, textureId);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-            m_texture->setTextureId(textureId);
-        }
-
-        const QImage image = m_surface->image();
-
-        glBindTexture(GL_TEXTURE_2D, m_texture->textureId());
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_BGRA_EXT, image.width(), image.height(), 0, GL_BGRA_EXT, GL_UNSIGNED_BYTE, image.bits());
-
-        m_texture->setHasAlphaChannel(image.hasAlphaChannel());
+        m_texture->setImage(m_surface->image());
     }
 
-    m_texture->setTextureSize(m_surface->geometry().size());
     m_texture->setOwnsTexture(true);
     m_texture->setHasMipmaps(false);
 

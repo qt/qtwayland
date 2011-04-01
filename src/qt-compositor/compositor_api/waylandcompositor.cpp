@@ -43,11 +43,19 @@
 #include "wayland_wrapper/wlcompositor.h"
 #include "wayland_wrapper/wlsurface.h"
 
+#ifdef QT_COMPOSITOR_DECLARATIVE
+#include "waylandsurfaceitem.h"
+#endif
+
 WaylandCompositor::WaylandCompositor(QWidget *topLevelWidget)
     : m_compositor(0)
     , m_toplevel_widget(topLevelWidget)
 {
     m_compositor = new Wayland::Compositor(this);
+#ifdef QT_COMPOSITOR_DECLARATIVE
+    qmlRegisterType<WaylandSurfaceItem>("WaylandCompositor", 1, 0, "WaylandSurfaceItem");
+    qRegisterMetaType<WaylandSurface*>("WaylandSurface*");
+#endif
 }
 
 WaylandCompositor::~WaylandCompositor()

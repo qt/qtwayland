@@ -11,4 +11,6 @@ SOURCES += \
 contains(QT, declarative) {
     SOURCES += $$PWD/waylandsurfaceitem.cpp
     HEADERS += $$PWD/waylandsurfaceitem.h
+
+   DEFINES += QT_COMPOSITOR_DECLARATIVE
 }

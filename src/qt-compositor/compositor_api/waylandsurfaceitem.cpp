@@ -99,11 +99,28 @@ void WaylandSurfaceTextureProvider::surfaceDamaged(const QRect &)
     emit textureChanged();
 }
 
+WaylandSurfaceItem::WaylandSurfaceItem(QSGItem *parent)
+    : QSGItem(parent)
+    , m_surface(0)
+    , m_textureProvider(0)
+{
+}
+
 WaylandSurfaceItem::WaylandSurfaceItem(WaylandSurface *surface, QSGItem *parent)
     : QSGItem(parent)
-    , m_surface(surface)
-    , m_textureProvider(new WaylandSurfaceTextureProvider(surface))
+    , m_surface(0)
+    , m_textureProvider(0)
 {
+    init(surface);
+}
+
+void WaylandSurfaceItem::init(WaylandSurface *surface)
+{
+    if (!surface)
+        return;
+    m_surface = surface;
+    m_textureProvider = new WaylandSurfaceTextureProvider(surface);
+
     setWidth(surface->geometry().width());
     setHeight(surface->geometry().height());
 
@@ -119,6 +136,10 @@ WaylandSurfaceItem::~WaylandSurfaceItem()
     delete m_textureProvider;
 }
 
+void WaylandSurfaceItem::setSurface(WaylandSurface *surface)
+{
+    init(surface);
+}
 
 QSGTextureProvider *WaylandSurfaceItem::textureProvider() const
 {

@@ -46,14 +46,21 @@
 
 class WaylandSurface;
 class WaylandSurfaceTextureProvider;
+Q_DECLARE_METATYPE(WaylandSurface*)
 
 class WaylandSurfaceItem : public QSGItem, public QSGTextureProviderInterface
 {
     Q_OBJECT
     Q_INTERFACES(QSGTextureProviderInterface)
+    Q_PROPERTY(WaylandSurface* surface READ surface WRITE setSurface)
+
 public:
+    WaylandSurfaceItem(QSGItem *parent = 0);
     WaylandSurfaceItem(WaylandSurface *surface, QSGItem *parent = 0);
     ~WaylandSurfaceItem();
+
+    void setSurface(WaylandSurface *surface);
+    WaylandSurface *surface() const {return m_surface; }
 
     QSGTextureProvider *textureProvider() const;
 
@@ -76,6 +83,7 @@ protected:
 
 private:
     QPoint toSurface(const QPointF &pos) const;
+    void init(WaylandSurface *);
 
     WaylandSurface *m_surface;
     WaylandSurfaceTextureProvider *m_textureProvider;

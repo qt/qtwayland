@@ -198,7 +198,7 @@ void Surface::attachHWBuffer(struct wl_buffer *buffer)
     glDeleteTextures(1,&d->texture_id);
 
     d->texture_id = d->compositor->graphicsHWIntegration()->createTextureFromBuffer(buffer);
-    emit d->qtSurface->mapped(QRect(QPoint(), QSize(buffer->width, buffer->height)));
+    d->rect = QRect(QPoint(), QSize(buffer->width, buffer->height));
 }
 
 GLuint Surface::textureId() const
@@ -213,14 +213,14 @@ void Surface::attachShm(Wayland::ShmBuffer *shm_buffer)
     Q_D(Surface);
     d->shm_buffer = shm_buffer;
     d->type = WaylandSurface::Shm;
-    emit d->qtSurface->mapped(QRect(QPoint(), shm_buffer->size()));
+    d->rect = QRect(QPoint(), shm_buffer->size());
 }
 
 
 void Surface::mapTopLevel()
 {
     Q_D(Surface);
-    d->rect = QRect(0, 0, 200, 200);
+    emit d->qtSurface->mapped(d->rect);
 }
 
 WaylandSurface * Surface::handle() const

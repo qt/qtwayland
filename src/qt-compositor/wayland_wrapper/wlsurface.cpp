@@ -64,6 +64,7 @@ public:
     SurfacePrivate(struct wl_client *client, Compositor *compositor)
         : client(client)
         , compositor(compositor)
+        , needsMap(false)
     {
         type = WaylandSurface::Invalid;
 #ifdef QT_COMPOSITOR_WAYLAND_GL
@@ -81,6 +82,7 @@ public:
 #ifdef QT_COMPOSITOR_WAYLAND_GL
     GLuint texture_id;
 #endif
+    bool needsMap;
 };
 
 
@@ -111,7 +113,7 @@ void surface_map_toplevel(struct wl_client *client,
                           struct wl_surface *surface)
 {
     Q_UNUSED(client);
-    printf("surface_map_toplevel: %p, %p", client, surface);
+    printf("surface_map_toplevel: %p, %p\n", client, surface);
 
     wayland_cast<Surface *>(surface)->mapTopLevel();
 }
@@ -129,7 +131,7 @@ void surface_map_transient(struct wl_client *client,
     Q_UNUSED(x);
     Q_UNUSED(y);
     Q_UNUSED(flags);
-    printf("surface_map_transient: %p, %p", client, surface);
+    printf("surface_map_transient: %p, %p\n", client, surface);
 }
 
 void surface_map_fullscreen(struct wl_client *client,
@@ -137,7 +139,7 @@ void surface_map_fullscreen(struct wl_client *client,
 {
     Q_UNUSED(client);
     Q_UNUSED(surface);
-    printf("surface_map_fullscreen: %p, %p", client, surface);
+    printf("surface_map_fullscreen: %p, %p\n", client, surface);
 }
 
 void surface_damage(struct wl_client *client, struct wl_surface *surface,
@@ -195,10 +197,16 @@ void Surface::attachHWBuffer(struct wl_buffer *buffer)
     //but then we would need to handle eglSurfaces as well.
     d->compositor->topLevelWidget()->platformWindow()->glContext()->makeCurrent();
 
-    glDeleteTextures(1,&d->texture_id);
+    if (d->texture_id)
+        glDeleteTextures(1,&d->texture_id);
 
     d->texture_id = d->compositor->graphicsHWIntegration()->createTextureFromBuffer(buffer);
     d->rect = QRect(QPoint(), QSize(buffer->width, buffer->height));
+
+    if (d->needsMap) {
+        emit d->qtSurface->mapped(d->rect);
+        d->needsMap = false;
+    }
 }
 
 GLuint Surface::textureId() const
@@ -214,13 +222,21 @@ void Surface::attachShm(Wayland::ShmBuffer *shm_buffer)
     d->shm_buffer = shm_buffer;
     d->type = WaylandSurface::Shm;
     d->rect = QRect(QPoint(), shm_buffer->size());
+
+    if (d->needsMap) {
+        emit d->qtSurface->mapped(d->rect);
+        d->needsMap = false;
+    }
 }
 
 
 void Surface::mapTopLevel()
 {
     Q_D(Surface);
-    emit d->qtSurface->mapped(d->rect);
+    if (d->rect.isEmpty())
+        d->needsMap = true;
+    else
+        emit d->qtSurface->mapped(d->rect);
 }
 
 WaylandSurface * Surface::handle() const

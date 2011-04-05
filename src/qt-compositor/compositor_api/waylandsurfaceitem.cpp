@@ -57,6 +57,13 @@ public:
     WaylandSurfaceTextureProvider(WaylandSurface *surface);
     ~WaylandSurfaceTextureProvider();
 
+    WrapMode horizontalWrapMode() const { return ClampToEdge; }
+    WrapMode verticalWrapMode() const { return ClampToEdge; }
+    Filtering filtering() const { return m_filtering; }
+    Filtering mipmapFiltering() const { return None; }
+
+    void setFiltering(Filtering filtering) { m_filtering = filtering; }
+
     QSGTextureRef texture() {
         return m_textureRef;
     }
@@ -69,12 +76,15 @@ private:
 
     QSGPlainTexture *m_texture;
     QSGTextureRef m_textureRef;
+
+    Filtering m_filtering;
 };
 
 WaylandSurfaceTextureProvider::WaylandSurfaceTextureProvider(WaylandSurface *surface)
     : m_surface(surface)
     , m_texture(new QSGPlainTexture)
     , m_textureRef(m_texture)
+    , m_filtering(Linear)
 {
     connect(surface, SIGNAL(damaged(const QRect &)), this, SLOT(surfaceDamaged(const QRect &)));
 }
@@ -199,8 +209,6 @@ QSGNode *WaylandSurfaceItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeDa
         node->setTexture(m_textureProvider);
     }
 
-    m_textureProvider->setHorizontalWrapMode(QSGTextureProvider::ClampToEdge);
-    m_textureProvider->setVerticalWrapMode(QSGTextureProvider::ClampToEdge);
     m_textureProvider->setFiltering(QSGItemPrivate::get(this)->smooth
                                     ? QSGTextureProvider::Linear : QSGTextureProvider::Nearest);
 

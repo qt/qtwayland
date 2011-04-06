@@ -1,3 +1,6 @@
+#ifndef XLIBINCLUDE_H
+#define XLIBINCLUDE_H
+
 #include <QtCore/QEvent>
 #include <QtCore/QTextStream>
 #include <QtCore/QDataStream>
@@ -6,3 +9,28 @@
 #include <QtGui/QCursor>
 
 #include <X11/Xlib.h>
+
+enum {
+    XFocusOut = FocusOut,
+    XFocusIn = FocusIn,
+    XKeyPress = KeyPress,
+    XKeyRelease = KeyRelease,
+    XNone = None,
+    XRevertToParent = RevertToParent,
+    XGrayScale = GrayScale,
+    XCursorShape = CursorShape
+};
+#undef FocusOut
+#undef FocusIn
+#undef KeyPress
+#undef KeyRelease
+#undef None
+#undef RevertToParent
+#undef GrayScale
+#undef CursorShape
+
+#ifdef FontChange
+#undef FontChange
+#endif
+
+#endif //XLIBINCLUDE_H

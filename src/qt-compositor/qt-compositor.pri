@@ -20,12 +20,6 @@ wayland_gl {
     system(echo "Qt-Compositor configured with openGL")
     QT += opengl
     DEFINES += QT_COMPOSITOR_WAYLAND_GL
-    use_pkgconfig {
-        QMAKE_CXXFLAGS += $$system(pkg-config --cflags glesv2)
-        #for some reason this is not included in the cflags line
-        INCLUDEPATH += $$system(pkg-config --variable=includedir glesv2)
-        LIBS += $$system(pkg-config --libs glesv2)
-    }
 } else {
     system(echo "Qt-Compositor configured as raster only compositor")
 }

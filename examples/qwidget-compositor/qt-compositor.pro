@@ -7,13 +7,12 @@ INCLUDEPATH += .
 #CONFIG += wayland_gl
 #CONFIG += mesa_egl
 #CONFIG += dri2_xcb
+#CONFIG += xcomposite_glx
 
 # comment out the following to not use pkg-config in the pri files
 CONFIG += use_pkgconfig
 
 DESTDIR=$$PWD/../../bin/
-
-QT += opengl
 
 include (../../src/qt-compositor/qt-compositor.pri)
 

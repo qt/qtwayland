@@ -53,9 +53,7 @@
 #include <QtGui/private/qapplication_p.h>
 
 #ifdef QT_COMPOSITOR_WAYLAND_GL
-#define GL_GLEXT_PROTOTYPES
-#include <GLES2/gl2.h>
-#include <GLES2/gl2ext.h>
+#include <QtOpenGL/QGLContext>
 #endif
 
 namespace Wayland {

@@ -83,9 +83,9 @@ public:
     uint currentTimeMsecs() const;
 
     QWidget *topLevelWidget() const;
-#ifdef QT_COMPOSITOR_WAYLAND_GL
+
     GraphicsHardwareIntegration *graphicsHWIntegration() const;
-#endif
+    void initializeHardwareIntegration();
 
     wl_input_device *defaultInputDevice();
 private slots:

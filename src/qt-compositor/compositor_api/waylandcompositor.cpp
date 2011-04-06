@@ -56,6 +56,7 @@ WaylandCompositor::WaylandCompositor(QWidget *topLevelWidget)
     qmlRegisterType<WaylandSurfaceItem>("WaylandCompositor", 1, 0, "WaylandSurfaceItem");
     qRegisterMetaType<WaylandSurface*>("WaylandSurface*");
 #endif
+    m_compositor->initializeHardwareIntegration();
 }
 
 WaylandCompositor::~WaylandCompositor()

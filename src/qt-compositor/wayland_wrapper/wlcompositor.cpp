@@ -195,10 +195,6 @@ Compositor::Compositor(WaylandCompositor *qt_compositor)
         exit(EXIT_FAILURE);
     }
 
-#ifdef QT_COMPOSITOR_WAYLAND_GL
-    m_graphics_hw_integration->initializeHardware(m_display);
-#endif //QT_COMPOSITOR_WAYLAND_GL
-
     m_loop = wl_display_get_event_loop(m_display->handle());
 
     int fd = wl_event_loop_get_fd(m_loop);
@@ -325,12 +321,22 @@ QWidget * Compositor::topLevelWidget() const
     return m_qt_compositor->topLevelWidget();
 }
 
-#ifdef QT_COMPOSITOR_WAYLAND_GL
 GraphicsHardwareIntegration * Compositor::graphicsHWIntegration() const
 {
+#ifdef QT_COMPOSITOR_WAYLAND_GL
     return m_graphics_hw_integration;
-}
+#else
+    return 0;
 #endif
+}
+
+void Compositor::initializeHardwareIntegration()
+{
+#ifdef QT_COMPOSITOR_WAYLAND_GL
+    m_graphics_hw_integration->initializeHardware(m_display);
+#endif
+}
+
 
 }
 

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<protocol name="xcomposite">
+  <!-- XComposite support. This object is created by the server and published
+       using the display's global event. -->
+  <interface name="xcomposite" version="1">
+
+    <!-- Create a wayland buffer for X Window. -->
+    <request name="create_buffer">
+      <arg name="id" type="new_id" interface="buffer"/>
+      <arg name="x_window" type="uint"/>
+      <arg name="width" type="int"/>
+      <arg name="height" type="int"/>
+      <arg name="visual" type="object" interface="visual"/>
+    </request>
+
+    <!-- Notification of the root window to use for the X Window created
+         on the client side. Also passes in the Display name to use -->
+    <event name="root">
+      <arg name="display_name" type="string"/>
+      <arg name="root_window" type="uint"/>
+    </event>
+
+  </interface>
+
+</protocol>

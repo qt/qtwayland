@@ -4,6 +4,12 @@ use_pkgconfig {
     #for some reason this is not included in the cflags line
     INCLUDEPATH += $$system(pkg-config --variable=includedir wayland-server)
     LIBS += $$system(pkg-config --libs wayland-server)
+
+    #set the rpath
+    !isEmpty(QMAKE_LFLAGS_RPATH) {
+        WAYLAND_LIBDIR = $$system(pkg-config --variable=libdir wayland-server)
+        !isEmpty(WAYLAND_LIBDIR):QMAKE_LFLAGS += $${QMAKE_LFLAGS_RPATH}$${WAYLAND_LIBDIR}
+    }
 } else {
     INCLUDEPATH += $$PWD/../3rdparty/wayland
     LIBS += -L$$PWD/../../lib

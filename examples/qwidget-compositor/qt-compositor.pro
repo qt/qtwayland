@@ -8,6 +8,7 @@ INCLUDEPATH += .
 #CONFIG += mesa_egl
 #CONFIG += dri2_xcb
 #CONFIG += xcomposite_glx
+#CONFIG += xcomposite_egl
 
 # comment out the following to not use pkg-config in the pri files
 CONFIG += use_pkgconfig

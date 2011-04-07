@@ -18,6 +18,9 @@ wayland_gl{
                 include (dri2_xcb/dri2_xcb.pri)
                 DEFINES += QT_COMPOSITOR_DRI2_XCB
             }
+            xcomposite_egl {
+                include (xcomposite_egl/xcomposite_egl.pri)
+            }
         } else {
             xcomposite_glx {
                 include (xcomposite_glx/xcomposite_glx.pri)

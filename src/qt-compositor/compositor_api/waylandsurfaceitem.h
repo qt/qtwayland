@@ -77,6 +77,7 @@ public slots:
 
 private slots:
     void surfaceMapped(const QRect &rect);
+    void surfaceDestroyed(QObject *object);
 
 protected:
     QSGNode *updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *);

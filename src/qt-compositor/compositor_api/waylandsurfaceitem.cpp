@@ -138,6 +138,7 @@ void WaylandSurfaceItem::init(WaylandSurface *surface)
     setFlag(ItemHasContents);
     setAcceptedMouseButtons(Qt::LeftButton | Qt::RightButton);
     connect(surface, SIGNAL(mapped(const QRect &)), this, SLOT(surfaceMapped(const QRect &)));
+    connect(surface, SIGNAL(destroyed(QObject *)), this, SLOT(surfaceDestroyed(QObject *)));
     connect(m_textureProvider, SIGNAL(textureChanged()), this, SLOT(update()));
 }
 
@@ -158,35 +159,40 @@ QSGTextureProvider *WaylandSurfaceItem::textureProvider() const
 
 void WaylandSurfaceItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-    m_surface->sendMousePressEvent(toSurface(event->pos()), event->button());
+    if (m_surface)
+        m_surface->sendMousePressEvent(toSurface(event->pos()), event->button());
 }
 
 void WaylandSurfaceItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
-    m_surface->sendMouseMoveEvent(toSurface(event->pos()));
+    if (m_surface)
+        m_surface->sendMouseMoveEvent(toSurface(event->pos()));
 }
 
 void WaylandSurfaceItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
-    m_surface->sendMouseReleaseEvent(toSurface(event->pos()), event->button());
+    if (m_surface)
+        m_surface->sendMouseReleaseEvent(toSurface(event->pos()), event->button());
 }
 
 void WaylandSurfaceItem::keyPressEvent(QKeyEvent *event)
 {
-    if (hasFocus())
+    if (m_surface && hasFocus())
         m_surface->sendKeyPressEvent(event->nativeScanCode());
 }
 
 void WaylandSurfaceItem::keyReleaseEvent(QKeyEvent *event)
 {
-    if (hasFocus())
+    if (m_surface && hasFocus())
         m_surface->sendKeyReleaseEvent(event->nativeScanCode());
 }
 
 void WaylandSurfaceItem::takeFocus()
 {
     setFocus(true);
-    m_surface->setInputFocus();
+
+    if (m_surface)
+        m_surface->setInputFocus();
 }
 
 QPoint WaylandSurfaceItem::toSurface(const QPointF &pos) const
@@ -198,6 +204,11 @@ void WaylandSurfaceItem::surfaceMapped(const QRect &rect)
 {
     setWidth(rect.width());
     setHeight(rect.height());
+}
+
+void WaylandSurfaceItem::surfaceDestroyed(QObject *)
+{
+    m_surface = 0;
 }
 
 QSGNode *WaylandSurfaceItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *)

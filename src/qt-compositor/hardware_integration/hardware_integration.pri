@@ -1,28 +1,32 @@
 contains(QT_CONFIG, opengl) {
-HEADERS += \
-    $$PWD/graphicshardwareintegration.h
+    HEADERS += \
+        $$PWD/graphicshardwareintegration.h
 
-SOURCES += \
-    $$PWD/graphicshardwareintegration.cpp
+    SOURCES += \
+        $$PWD/graphicshardwareintegration.cpp
 
     DEFINES += QT_COMPOSITOR_WAYLAND_GL
     QT += opengl
 
     QT_WAYLAND_GL_CONFIG = $$(QT_WAYLAND_GL_CONFIG)
-    contains(QT_CONFIG, opengles2) {
-        isEqual(QT_WAYLAND_GL_CONFIG, wayland_egl) {
-            QT_WAYLAND_GL_INTEGRATION = $$QT_WAYLAND_GL_CONFIG
-            CONFIG += mesa_egl
-        } else:isEqual(QT_WAYLAND_GL_CONFIG,dri2_xcb) {
-            QT_WAYLAND_GL_INTEGRATION = $$QT_WAYLAND_GL_CONFIG
-            CONFIG += dri2_xcb
-        } else {
-            QT_WAYLAND_GL_INTEGRATION = xcomposite_egl
-            CONFIG += xcomposite_egl
-        }
+    isEqual(QT_WAYLAND_GL_CONFIG, custom) {
+        QT_WAYLAND_GL_INTEGRATION = $$QT_WAYLAND_GL_CONFIG
     } else {
-        QT_WAYLAND_GL_INTEGRATION = xcomposite_glx
-        CONFIG += xcomposite_glx
+        contains(QT_CONFIG, opengles2) {
+            isEqual(QT_WAYLAND_GL_CONFIG, wayland_egl) {
+                QT_WAYLAND_GL_INTEGRATION = $$QT_WAYLAND_GL_CONFIG
+                CONFIG += mesa_egl
+            } else:isEqual(QT_WAYLAND_GL_CONFIG,dri2_xcb) {
+                QT_WAYLAND_GL_INTEGRATION = $$QT_WAYLAND_GL_CONFIG
+                CONFIG += dri2_xcb
+            } else {
+                QT_WAYLAND_GL_INTEGRATION = xcomposite_egl
+                CONFIG += xcomposite_egl
+            }
+        } else {
+            QT_WAYLAND_GL_INTEGRATION = xcomposite_glx
+            CONFIG += xcomposite_glx
+        }
     }
     system(echo "Qt-Compositor configured with openGL: $$QT_WAYLAND_GL_INTEGRATION")
 } else {

@@ -16,14 +16,6 @@ use_pkgconfig {
     LIBS += -lwayland-server -lffi
 }
 
-wayland_gl {
-    system(echo "Qt-Compositor configured with openGL")
-    QT += opengl
-    DEFINES += QT_COMPOSITOR_WAYLAND_GL
-} else {
-    system(echo "Qt-Compositor configured as raster only compositor")
-}
-
 include ($$PWD/util/util.pri)
 include ($$PWD/wayland_wrapper/wayland_wrapper.pri)
 include ($$PWD/hardware_integration/hardware_integration.pri)

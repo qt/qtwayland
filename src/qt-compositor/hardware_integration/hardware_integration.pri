@@ -1,4 +1,6 @@
-contains(QT_CONFIG, opengl) {
+QT_WAYLAND_GL_CONFIG = $$(QT_WAYLAND_GL_CONFIG)
+
+contains(QT_CONFIG, opengl):!isEqual(QT_WAYLAND_GL_CONFIG,nogl) {
     HEADERS += \
         $$PWD/graphicshardwareintegration.h
 
@@ -8,7 +10,6 @@ contains(QT_CONFIG, opengl) {
     DEFINES += QT_COMPOSITOR_WAYLAND_GL
     QT += opengl
 
-    QT_WAYLAND_GL_CONFIG = $$(QT_WAYLAND_GL_CONFIG)
     isEqual(QT_WAYLAND_GL_CONFIG, custom) {
         QT_WAYLAND_GL_INTEGRATION = $$QT_WAYLAND_GL_CONFIG
     } else {

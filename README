@@ -11,10 +11,16 @@ As of today(15 march, 2011) it is not trivial to get Wayland to
 work on all platforms. This document explains how to get Wayland and the
 Qt-Compositor examples running with a raster backend on a Ubuntu 10.10 system.
 
-Pre-requisites: Git
-
-1. To build wayland we need libffi + libffi headers
-# sudo apt-get install libffi libffi-dev
+Pre-requisites on Linux (apt-get): git, autoconf, automake, libtool, libexpat1-dev
+Pre-requisites on Mac OSX Snow Leopard: git, latest Gnu autoconf, latest Gnu automake, latest Gnu libtool, latest pkg-config.
+Make sure you have /usr/local/bin on the $PATH before /usr/bin
+  
+1. To build wayland we need libffi + libffi headers on Linux. For Mac we need a special version of wayland/event-loop.c -- if you pull the distribution from the freedesktop.org, replace the event-loop.c with the one in this repo
+ 
+# sudo apt-get install libffi-dev
+On Mac ffi is part of the OS but you need to tell the the wayland configure
+export FFI_CFLAGS=-I/usr/include/ffi
+export FFI_LIBS-lffi
 
 Qt-Compositor contains a copy of the Wayland libraries. We have not changed
 them in any way, but they are provided for convenience so that you can compile
@@ -25,7 +31,7 @@ dependencies, but we are not going to compile those.
 2. Clone Wayland from: git://anongit.freedesktop.org/wayland/wayland
 # git clone git://anongit.freedesktop.org/wayland/wayland
 
-3. Compile Wayland: #./autogen.sh -prefix=$HOME/install && make && make install
+3. Compile Wayland: ./autogen.sh -prefix=$HOME/install && make && make install
 
 4. Set your PKG_CONFIG_PATH so that the location of the Wayland libraries are
 picked up by Qt's configure. 

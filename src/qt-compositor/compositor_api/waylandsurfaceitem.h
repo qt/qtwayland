@@ -42,16 +42,17 @@
 #define WAYLANDSURFACEITEM_H
 
 #include <QSGItem>
+#include <qsgtexture.h>
+
 #include <private/qsgtextureprovider_p.h>
 
 class WaylandSurface;
-class WaylandSurfaceTextureProvider;
 Q_DECLARE_METATYPE(WaylandSurface*)
 
-class WaylandSurfaceItem : public QSGItem, public QSGTextureProviderInterface
+class WaylandSurfaceItem : public QSGItem, public QSGTextureProvider
 {
     Q_OBJECT
-    Q_INTERFACES(QSGTextureProviderInterface)
+    Q_INTERFACES(QSGTextureProvider)
     Q_PROPERTY(WaylandSurface* surface READ surface WRITE setSurface)
 
 public:
@@ -62,7 +63,8 @@ public:
     void setSurface(WaylandSurface *surface);
     WaylandSurface *surface() const {return m_surface; }
 
-    QSGTextureProvider *textureProvider() const;
+    QSGTexture *texture() const;
+    const char *textureChangedSignal() const { return SIGNAL(textureChanged()); }
 
 protected:
     void mousePressEvent(QGraphicsSceneMouseEvent *event);
@@ -78,6 +80,10 @@ public slots:
 private slots:
     void surfaceMapped(const QRect &rect);
     void surfaceDestroyed(QObject *object);
+    void surfaceDamaged(const QRect &);
+
+signals:
+    void textureChanged();
 
 protected:
     QSGNode *updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *);
@@ -87,7 +93,7 @@ private:
     void init(WaylandSurface *);
 
     WaylandSurface *m_surface;
-    WaylandSurfaceTextureProvider *m_textureProvider;
+    QSGTexture *m_texture;
 };
 
 #endif

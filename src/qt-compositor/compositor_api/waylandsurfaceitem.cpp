@@ -41,70 +41,25 @@
 #include "waylandsurfaceitem.h"
 #include "waylandsurface.h"
 
-#include <private/qsgadaptationlayer_p.h>
-#include <private/qsgcontext_p.h>
+#include <qsgengine.h>
 #include <private/qsgitem_p.h>
-#include <private/qsgtexture_p.h>
-#include <private/qsgrectangle_p.h>
-#include <private/qsgtextureprovider_p.h>
 
 #include <QKeyEvent>
 
-class WaylandSurfaceTextureProvider : public QSGTextureProvider
+#include <qsgsimpletexturenode.h>
+
+void WaylandSurfaceItem::surfaceDamaged(const QRect &)
 {
-    Q_OBJECT
-public:
-    WaylandSurfaceTextureProvider(WaylandSurface *surface);
-    ~WaylandSurfaceTextureProvider();
+    if (m_texture)
+        delete m_texture;
 
-    WrapMode horizontalWrapMode() const { return ClampToEdge; }
-    WrapMode verticalWrapMode() const { return ClampToEdge; }
-    Filtering filtering() const { return m_filtering; }
-    Filtering mipmapFiltering() const { return None; }
-
-    void setFiltering(Filtering filtering) { m_filtering = filtering; }
-
-    QSGTextureRef texture() {
-        return m_textureRef;
-    }
-
-private slots:
-    void surfaceDamaged(const QRect &rect);
-
-private:
-    WaylandSurface *m_surface;
-
-    QSGPlainTexture *m_texture;
-    QSGTextureRef m_textureRef;
-
-    Filtering m_filtering;
-};
-
-WaylandSurfaceTextureProvider::WaylandSurfaceTextureProvider(WaylandSurface *surface)
-    : m_surface(surface)
-    , m_texture(new QSGPlainTexture)
-    , m_textureRef(m_texture)
-    , m_filtering(Linear)
-{
-    connect(surface, SIGNAL(damaged(const QRect &)), this, SLOT(surfaceDamaged(const QRect &)));
-}
-
-WaylandSurfaceTextureProvider::~WaylandSurfaceTextureProvider()
-{
-}
-
-void WaylandSurfaceTextureProvider::surfaceDamaged(const QRect &)
-{
     if (m_surface->type() == WaylandSurface::Texture) {
-        m_texture->setTextureId(m_surface->texture());
-        m_texture->setHasAlphaChannel(false);
-        m_texture->setTextureSize(m_surface->geometry().size());
+        m_texture = canvas()->sceneGraphEngine()->createTextureFromId(m_surface->texture(),
+                                                                      m_surface->geometry().size(),
+                                                                      QSGEngine::TextureOwnsGLTexture);
     } else {
-        m_texture->setImage(m_surface->image());
+        m_texture = canvas()->sceneGraphEngine()->createTextureFromImage(m_surface->image());
     }
-
-    m_texture->setOwnsTexture(true);
-    m_texture->setHasMipmaps(false);
 
     emit textureChanged();
 }
@@ -112,14 +67,14 @@ void WaylandSurfaceTextureProvider::surfaceDamaged(const QRect &)
 WaylandSurfaceItem::WaylandSurfaceItem(QSGItem *parent)
     : QSGItem(parent)
     , m_surface(0)
-    , m_textureProvider(0)
+    , m_texture(0)
 {
 }
 
 WaylandSurfaceItem::WaylandSurfaceItem(WaylandSurface *surface, QSGItem *parent)
     : QSGItem(parent)
     , m_surface(0)
-    , m_textureProvider(0)
+    , m_texture(0)
 {
     init(surface);
 }
@@ -128,8 +83,8 @@ void WaylandSurfaceItem::init(WaylandSurface *surface)
 {
     if (!surface)
         return;
+
     m_surface = surface;
-    m_textureProvider = new WaylandSurfaceTextureProvider(surface);
 
     setWidth(surface->geometry().width());
     setHeight(surface->geometry().height());
@@ -139,12 +94,13 @@ void WaylandSurfaceItem::init(WaylandSurface *surface)
     setAcceptedMouseButtons(Qt::LeftButton | Qt::RightButton);
     connect(surface, SIGNAL(mapped(const QRect &)), this, SLOT(surfaceMapped(const QRect &)));
     connect(surface, SIGNAL(destroyed(QObject *)), this, SLOT(surfaceDestroyed(QObject *)));
-    connect(m_textureProvider, SIGNAL(textureChanged()), this, SLOT(update()));
+    connect(this, SIGNAL(textureChanged()), this, SLOT(update()));
+    connect(this, SIGNAL(damaged(const QRect &)), this, SLOT(surfaceDamaged(const QRect &)));
 }
 
 WaylandSurfaceItem::~WaylandSurfaceItem()
 {
-    delete m_textureProvider;
+    delete m_texture;
 }
 
 void WaylandSurfaceItem::setSurface(WaylandSurface *surface)
@@ -152,9 +108,9 @@ void WaylandSurfaceItem::setSurface(WaylandSurface *surface)
     init(surface);
 }
 
-QSGTextureProvider *WaylandSurfaceItem::textureProvider() const
+QSGTexture *WaylandSurfaceItem::texture() const
 {
-    return m_textureProvider;
+    return m_texture;
 }
 
 void WaylandSurfaceItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
@@ -213,21 +169,17 @@ void WaylandSurfaceItem::surfaceDestroyed(QObject *)
 
 QSGNode *WaylandSurfaceItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *)
 {
-    QSGImageNode *node = static_cast<QSGImageNode *>(oldNode);
+    QSGSimpleTextureNode *node = static_cast<QSGSimpleTextureNode *>(oldNode);
     if (!node) {
-        node = QSGContext::current->createImageNode();
-        node->setFlag(QSGNode::UsePreprocess, false);
-        node->setTexture(m_textureProvider);
+        node = new QSGSimpleTextureNode();
+        node->setTexture(m_texture);
+        node->setSourceRect(QRectF(0, 0, 1, 1));
     }
 
-    m_textureProvider->setFiltering(QSGItemPrivate::get(this)->smooth
-                                    ? QSGTextureProvider::Linear : QSGTextureProvider::Nearest);
-
-    node->setTargetRect(QRectF(0, 0, width(), height()));
-    node->setSourceRect(QRectF(0, 0, 1, 1));
-    node->update();
+    node->setRect(QRectF(0, 0, width(), height()));
+    node->setFiltering(QSGItemPrivate::get(this)->smooth
+                       ? QSGTexture::Linear
+                       : QSGTexture::Nearest);
 
     return node;
 }
-
-#include "waylandsurfaceitem.moc"

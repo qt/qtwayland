@@ -95,7 +95,7 @@ void WaylandSurfaceItem::init(WaylandSurface *surface)
     connect(surface, SIGNAL(mapped(const QRect &)), this, SLOT(surfaceMapped(const QRect &)));
     connect(surface, SIGNAL(destroyed(QObject *)), this, SLOT(surfaceDestroyed(QObject *)));
     connect(this, SIGNAL(textureChanged()), this, SLOT(update()));
-    connect(this, SIGNAL(damaged(const QRect &)), this, SLOT(surfaceDamaged(const QRect &)));
+    connect(surface, SIGNAL(damaged(const QRect &)), this, SLOT(surfaceDamaged(const QRect &)));
 }
 
 WaylandSurfaceItem::~WaylandSurfaceItem()
@@ -170,6 +170,12 @@ void WaylandSurfaceItem::surfaceDestroyed(QObject *)
 QSGNode *WaylandSurfaceItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *)
 {
     QSGSimpleTextureNode *node = static_cast<QSGSimpleTextureNode *>(oldNode);
+
+    if (!m_texture) {
+        delete oldNode;
+        return 0;
+    }
+
     if (!node) {
         node = new QSGSimpleTextureNode();
         node->setTexture(m_texture);

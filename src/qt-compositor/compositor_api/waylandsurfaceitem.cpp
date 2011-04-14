@@ -173,7 +173,7 @@ QSGNode *WaylandSurfaceItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeDa
     if (!node) {
         node = new QSGSimpleTextureNode();
         node->setTexture(m_texture);
-        node->setSourceRect(QRectF(0, 0, 1, 1));
+        node->setSourceRect(QRectF(0, 0, width(), height()));
     }
 
     node->setRect(QRectF(0, 0, width(), height()));

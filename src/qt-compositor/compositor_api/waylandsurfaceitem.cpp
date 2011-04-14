@@ -110,6 +110,8 @@ void WaylandSurfaceItem::setSurface(WaylandSurface *surface)
 
 QSGTexture *WaylandSurfaceItem::texture() const
 {
+    if (m_texture)
+        m_texture->setFiltering(smooth() ? QSGTexture::Linear : QSGTexture::Nearest);
     return m_texture;
 }
 

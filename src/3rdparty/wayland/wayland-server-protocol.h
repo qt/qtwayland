@@ -68,6 +68,7 @@ struct wl_display_interface {
 		     uint32_t key);
 	void (*frame)(struct wl_client *client,
 		      struct wl_display *display,
+		      struct wl_surface *surface,
 		      uint32_t key);
 };
 

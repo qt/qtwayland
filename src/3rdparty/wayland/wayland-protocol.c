@@ -27,7 +27,7 @@
 
 static const struct wl_message display_requests[] = {
 	{ "sync", "u" },
-	{ "frame", "u" },
+	{ "frame", "ou" },
 };
 
 static const struct wl_message display_events[] = {

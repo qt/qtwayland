@@ -20,6 +20,8 @@
  * OF THIS SOFTWARE.
  */
 
+#define _GNU_SOURCE
+
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
@@ -33,6 +35,9 @@
 #include <dlfcn.h>
 #include <assert.h>
 #include <sys/time.h>
+#include <fcntl.h>
+#include <sys/file.h>
+#include <sys/stat.h>
 #include <ffi.h>
 
 #include "wayland-server.h"
@@ -41,7 +46,9 @@
 
 struct wl_socket {
 	int fd;
+	int fd_lock;
 	struct sockaddr_un addr;
+	char lock_addr[113];
 	struct wl_list link;
 };
 
@@ -71,6 +78,7 @@ struct wl_frame_listener {
 	struct wl_resource resource;
 	struct wl_client *client;
 	uint32_t key;
+	struct wl_surface *surface;
 	struct wl_list link;
 };
 
@@ -209,7 +217,7 @@ wl_display_post_range(struct wl_display *display, struct wl_client *client)
 	client->id_count += 256;
 }
 
-static struct wl_client *
+WL_EXPORT struct wl_client *
 wl_client_create(struct wl_display *display, int fd)
 {
 	struct wl_client *client;
@@ -226,6 +234,10 @@ wl_client_create(struct wl_display *display, int fd)
 					      wl_client_connection_data, client);
 	client->connection =
 		wl_connection_create(fd, wl_client_connection_update, client);
+	if (client->connection == NULL) {
+		free(client);
+		return NULL;
+	}
 
 	wl_list_init(&client->resource_list);
 
@@ -356,19 +368,21 @@ wl_input_device_set_pointer_focus(struct wl_input_device *device,
 				     &device->object,
 				     WL_INPUT_DEVICE_POINTER_FOCUS,
 				     time, NULL, 0, 0, 0, 0);
-	if (surface)
+	if (device->pointer_focus)
+		wl_list_remove(&device->pointer_focus_listener.link);
+
+	if (surface) {
 		wl_client_post_event(surface->client,
 				     &device->object,
 				     WL_INPUT_DEVICE_POINTER_FOCUS,
 				     time, surface, x, y, sx, sy);
+		wl_list_insert(surface->destroy_listener_list.prev,
+			       &device->pointer_focus_listener.link);
+	}
 
 	device->pointer_focus = surface;
 	device->pointer_focus_time = time;
 
-	wl_list_remove(&device->pointer_focus_listener.link);
-	if (surface)
-		wl_list_insert(surface->destroy_listener_list.prev,
-			       &device->pointer_focus_listener.link);
 }
 
 WL_EXPORT void
@@ -385,20 +399,20 @@ wl_input_device_set_keyboard_focus(struct wl_input_device *device,
 				     &device->object,
 				     WL_INPUT_DEVICE_KEYBOARD_FOCUS,
 				     time, NULL, &device->keys);
+	if (device->keyboard_focus)
+		wl_list_remove(&device->keyboard_focus_listener.link);
 
-	if (surface)
+	if (surface) {
 		wl_client_post_event(surface->client,
 				     &device->object,
 				     WL_INPUT_DEVICE_KEYBOARD_FOCUS,
 				     time, surface, &device->keys);
+		wl_list_insert(surface->destroy_listener_list.prev,
+			       &device->keyboard_focus_listener.link);
+	}
 
 	device->keyboard_focus = surface;
 	device->keyboard_focus_time = time;
-
-	wl_list_remove(&device->keyboard_focus_listener.link);
-	if (surface)
-		wl_list_insert(surface->destroy_listener_list.prev,
-			       &device->keyboard_focus_listener.link);
 }
 
 WL_EXPORT void
@@ -480,7 +494,9 @@ destroy_frame_listener(struct wl_resource *resource, struct wl_client *client)
 
 static void
 display_frame(struct wl_client *client,
-	      struct wl_display *display, uint32_t key)
+	      struct wl_display *display,
+	      struct wl_surface *surface,
+	      uint32_t key)
 {
 	struct wl_frame_listener *listener;
 
@@ -496,6 +512,7 @@ display_frame(struct wl_client *client,
 	listener->resource.object.id = 0;
 	listener->client = client;
 	listener->key = key;
+	listener->surface = surface;
 	wl_list_insert(client->resource_list.prev, &listener->resource.link);
 	wl_list_insert(display->frame_list.prev, &listener->link);
 }
@@ -528,6 +545,7 @@ wl_display_create(void)
 
 	display->objects = wl_hash_table_create();
 	if (display->objects == NULL) {
+		wl_event_loop_destroy(display->loop);
 		free(display);
 		return NULL;
 	}
@@ -543,6 +561,7 @@ wl_display_create(void)
 	display->object.implementation = (void (**)(void)) &display_interface;
 	wl_display_add_object(display, &display->object);
 	if (wl_display_add_global(display, &display->object, NULL)) {
+		wl_hash_table_destroy(display->objects);
 		wl_event_loop_destroy(display->loop);
 		free(display);
 		return NULL;
@@ -562,6 +581,8 @@ wl_display_destroy(struct wl_display *display)
 	wl_list_for_each_safe(s, next, &display->socket_list, link) {
 		close(s->fd);
 		unlink(s->addr.sun_path);
+		close(s->fd_lock);
+		unlink(s->lock_addr);
 		free(s);
 	}
 
@@ -593,11 +614,14 @@ wl_display_add_global(struct wl_display *display,
 }
 
 WL_EXPORT void
-wl_display_post_frame(struct wl_display *display, uint32_t time)
+wl_display_post_frame(struct wl_display *display, struct wl_surface *surface,
+		      uint32_t time)
 {
 	struct wl_frame_listener *listener, *next;
 
 	wl_list_for_each_safe(listener, next, &display->frame_list, link) {
+		if (listener->surface != surface)
+			continue;
 		wl_client_post_event(listener->client, &display->object,
 				     WL_DISPLAY_KEY, listener->key, time);
 		wl_resource_destroy(&listener->resource, listener->client);
@@ -634,11 +658,54 @@ socket_data(int fd, uint32_t mask, void *data)
 	int client_fd;
 
 	length = sizeof name;
-	client_fd = accept (fd, (struct sockaddr *) &name, &length);
+	client_fd =
+		accept4(fd, (struct sockaddr *) &name, &length, SOCK_CLOEXEC);
 	if (client_fd < 0)
 		fprintf(stderr, "failed to accept\n");
 
 	wl_client_create(display, client_fd);
+}
+
+static int
+get_socket_lock(struct wl_socket *socket, socklen_t name_size)
+{
+	struct stat socket_stat;
+	int lock_size = name_size + 5;
+
+	snprintf(socket->lock_addr, lock_size,
+		 "%s.lock", socket->addr.sun_path);
+
+	socket->fd_lock = open(socket->lock_addr, O_CREAT | O_CLOEXEC,
+			       (S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP));
+
+	if (socket->fd_lock < 0) {
+		fprintf(stderr,
+			"unable to open lockfile %s check permissions\n",
+			socket->lock_addr);
+		return -1;
+	}
+
+	if (flock(socket->fd_lock, LOCK_EX | LOCK_NB) < 0) {
+		fprintf(stderr,
+			"unable to lock lockfile %s, maybe another compositor is running\n",
+			socket->lock_addr);
+		close(socket->fd_lock);
+		return -1;
+	}
+
+	if (stat(socket->addr.sun_path, &socket_stat) < 0 ) {
+		if (errno != ENOENT) {
+			fprintf(stderr, "did not manage to stat file %s\n",
+				socket->addr.sun_path);
+			close(socket->fd_lock);
+			return -1;
+		}
+	} else if (socket_stat.st_mode & S_IWUSR ||
+		   socket_stat.st_mode & S_IWGRP) {
+		unlink(socket->addr.sun_path);
+	}
+
+	return 0;
 }
 
 WL_EXPORT int
@@ -652,9 +719,11 @@ wl_display_add_socket(struct wl_display *display, const char *name)
 	if (s == NULL)
 		return -1;
 
-	s->fd = socket(PF_LOCAL, SOCK_STREAM, 0);
-	if (s->fd < 0)
+	s->fd = socket(PF_LOCAL, SOCK_STREAM | SOCK_CLOEXEC, 0);
+	if (s->fd < 0) {
+		free(s);
 		return -1;
+	}
 
 	runtime_dir = getenv("XDG_RUNTIME_DIR");
 	if (runtime_dir == NULL) {
@@ -675,16 +744,34 @@ wl_display_add_socket(struct wl_display *display, const char *name)
 			     "%s/%s", runtime_dir, name) + 1;
 	fprintf(stderr, "using socket %s\n", s->addr.sun_path);
 
+	if (get_socket_lock(s,name_size) < 0) {
+		close(s->fd);
+		free(s);
+		return -1;
+	}
+
 	size = offsetof (struct sockaddr_un, sun_path) + name_size;
-	if (bind(s->fd, (struct sockaddr *) &s->addr, size) < 0)
+	if (bind(s->fd, (struct sockaddr *) &s->addr, size) < 0) {
+		close(s->fd);
+		free(s);
 		return -1;
+	}
 
-	if (listen(s->fd, 1) < 0)
+	if (listen(s->fd, 1) < 0) {
+		close(s->fd);
+		unlink(s->addr.sun_path);
+		free(s);
 		return -1;
+	}
 
-	wl_event_loop_add_fd(display->loop, s->fd,
-			     WL_EVENT_READABLE,
-			     socket_data, display);
+	if (wl_event_loop_add_fd(display->loop, s->fd,
+				 WL_EVENT_READABLE,
+				 socket_data, display) == NULL) {
+		close(s->fd);
+		unlink(s->addr.sun_path);
+		free(s);
+		return -1;
+	}
 	wl_list_insert(display->socket_list.prev, &s->link);
 
 	return 0;
@@ -704,23 +791,26 @@ wl_compositor_init(struct wl_compositor *compositor,
 	compositor->argb_visual.object.interface = &wl_visual_interface;
 	compositor->argb_visual.object.implementation = NULL;
 	wl_display_add_object(display, &compositor->argb_visual.object);
-	wl_display_add_global(display, &compositor->argb_visual.object, NULL);
+	if (wl_display_add_global(display, &compositor->argb_visual.object, NULL))
+		return -1;
 
 	compositor->premultiplied_argb_visual.object.interface =
 		&wl_visual_interface;
 	compositor->premultiplied_argb_visual.object.implementation = NULL;
 	wl_display_add_object(display,
 			      &compositor->premultiplied_argb_visual.object);
-	wl_display_add_global(display,
-			      &compositor->premultiplied_argb_visual.object,
-			      NULL);
+	if (wl_display_add_global(display,
+				  &compositor->premultiplied_argb_visual.object,
+				  NULL))
+		return -1;
 
 	compositor->rgb_visual.object.interface = &wl_visual_interface;
 	compositor->rgb_visual.object.implementation = NULL;
 	wl_display_add_object(display,
 			      &compositor->rgb_visual.object);
-	wl_display_add_global(display,
-			      &compositor->rgb_visual.object, NULL);
+	if (wl_display_add_global(display,
+				  &compositor->rgb_visual.object, NULL))
+		return -1;
 
 	return 0;
 }

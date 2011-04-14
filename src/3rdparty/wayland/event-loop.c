@@ -171,13 +171,10 @@ wl_event_source_timer_remove(struct wl_event_source *source)
 {
 	struct wl_event_source_timer *timer_source =
 		(struct wl_event_source_timer *) source;
-	struct wl_event_loop *loop = source->loop;
-	int fd;
 
-	fd = timer_source->fd;
+	close(timer_source->fd);
 	free(source);
-
-	return epoll_ctl(loop->epoll_fd, EPOLL_CTL_DEL, fd, NULL);
+	return 0;
 }
 
 struct wl_event_source_interface timer_source_interface = {
@@ -200,7 +197,7 @@ wl_event_loop_add_timer(struct wl_event_loop *loop,
 	source->base.interface = &timer_source_interface;
 	source->base.loop = loop;
 
-	source->fd = timerfd_create(CLOCK_MONOTONIC, 0);
+	source->fd = timerfd_create(CLOCK_MONOTONIC, TFD_CLOEXEC);
 	if (source->fd < 0) {
 		fprintf(stderr, "could not create timerfd\n: %m");
 		free(source);
@@ -215,6 +212,7 @@ wl_event_loop_add_timer(struct wl_event_loop *loop,
 	ep.data.ptr = source;
 
 	if (epoll_ctl(loop->epoll_fd, EPOLL_CTL_ADD, source->fd, &ep) < 0) {
+		close(source->fd);
 		free(source);
 		return NULL;
 	}
@@ -231,8 +229,8 @@ wl_event_source_timer_update(struct wl_event_source *source, int ms_delay)
 
 	its.it_interval.tv_sec = 0;
 	its.it_interval.tv_nsec = 0;
-	its.it_value.tv_sec = 0;
-	its.it_value.tv_nsec = ms_delay * 1000 * 1000;
+	its.it_value.tv_sec = ms_delay / 1000;
+	its.it_value.tv_nsec = (ms_delay % 1000) * 1000 * 1000;
 	if (timerfd_settime(timer_source->fd, 0, &its, NULL) < 0) {
 		fprintf(stderr, "could not set timerfd\n: %m");
 		return -1;
@@ -267,13 +265,10 @@ wl_event_source_signal_remove(struct wl_event_source *source)
 {
 	struct wl_event_source_signal *signal_source =
 		(struct wl_event_source_signal *) source;
-	struct wl_event_loop *loop = source->loop;
-	int fd;
 
-	fd = signal_source->fd;
+	close(signal_source->fd);
 	free(source);
-
-	return epoll_ctl(loop->epoll_fd, EPOLL_CTL_DEL, fd, NULL);
+	return 0;
 }
 
 struct wl_event_source_interface signal_source_interface = {
@@ -297,10 +292,11 @@ wl_event_loop_add_signal(struct wl_event_loop *loop,
 
 	source->base.interface = &signal_source_interface;
 	source->base.loop = loop;
+	source->signal_number = signal_number;
 
 	sigemptyset(&mask);
 	sigaddset(&mask, signal_number);
-	source->fd = signalfd(-1, &mask, 0);
+	source->fd = signalfd(-1, &mask, SFD_CLOEXEC);
 	if (source->fd < 0) {
 		fprintf(stderr, "could not create fd to watch signal\n: %m");
 		free(source);
@@ -316,6 +312,7 @@ wl_event_loop_add_signal(struct wl_event_loop *loop,
 	ep.data.ptr = source;
 
 	if (epoll_ctl(loop->epoll_fd, EPOLL_CTL_ADD, source->fd, &ep) < 0) {
+		close(source->fd);
 		free(source);
 		return NULL;
 	}
@@ -392,7 +389,7 @@ wl_event_loop_create(void)
 	if (loop == NULL)
 		return NULL;
 
-	loop->epoll_fd = epoll_create(16);
+	loop->epoll_fd = epoll_create1(EPOLL_CLOEXEC);
 	if (loop->epoll_fd < 0) {
 		free(loop);
 		return NULL;

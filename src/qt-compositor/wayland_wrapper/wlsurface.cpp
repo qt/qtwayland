@@ -174,6 +174,7 @@ WaylandSurface::Type Surface::type() const
 void Surface::damage(const QRect &rect)
 {
     Q_D(Surface);
+    d->compositor->markSurfaceAsDirty(this);
     emit d->qtSurface->damaged(rect);
 }
 
@@ -209,7 +210,7 @@ void Surface::attachHWBuffer(struct wl_buffer *buffer)
     }
 }
 
-GLuint Surface::textureId() const
+GLuint Surface::texture() const
 {
     Q_D(const Surface);
     return d->texture_id;

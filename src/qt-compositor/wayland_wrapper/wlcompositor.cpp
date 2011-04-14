@@ -210,7 +210,11 @@ Compositor::~Compositor()
 
 void Compositor::frameFinished()
 {
-    wl_display_post_frame(m_display->handle(), currentTimeMsecs());
+    QSet<Surface *>::iterator i;
+    for (i = m_dirty_surfaces.begin(); i != m_dirty_surfaces.end(); i++) {
+        wl_display_post_frame(m_display->handle(), (*i)->base(), currentTimeMsecs());
+    }
+    m_dirty_surfaces.clear();
 }
 
 void Compositor::createSurface(struct wl_client *client, int id)
@@ -282,6 +286,11 @@ void Compositor::surfaceDestroyed(Surface *surface)
         setKeyFocus(0);
     if (m_pointerFocusSurface == surface)
         setPointerFocus(0);
+}
+
+void Compositor::markSurfaceAsDirty(Wayland::Surface *surface)
+{
+    m_dirty_surfaces.insert(surface);
 }
 
 void Compositor::destroyClientForSurface(Surface *surface)

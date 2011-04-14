@@ -31,6 +31,7 @@
 #include <sys/un.h>
 #include <ctype.h>
 #include <assert.h>
+#include <fcntl.h>
 #include <sys/poll.h>
 
 #include "wayland-client-protocol.h"
@@ -61,6 +62,7 @@ struct wl_frame_handler {
 	wl_display_frame_func_t func;
 	uint32_t key;
 	void *data;
+	struct wl_surface *surface;
 	struct wl_list link;
 };
 
@@ -303,7 +305,8 @@ display_handle_key(void *data,
 	if (!wl_list_empty(&display->frame_list) &&
 	    frame_handler->key == key) {
 		wl_list_remove(&frame_handler->link);
-		frame_handler->func(frame_handler->data, time);
+		frame_handler->func(frame_handler->surface,
+				    frame_handler->data, time);
 		free(frame_handler);
 		return;
 	}
@@ -320,30 +323,17 @@ static const struct wl_display_listener display_listener = {
 	display_handle_key
 };
 
-WL_EXPORT struct wl_display *
-wl_display_connect(const char *name)
+static int
+connect_to_socket(struct wl_display *display, const char *name)
 {
-	struct wl_display *display;
 	struct sockaddr_un addr;
 	socklen_t size;
 	const char *runtime_dir;
-	const char *debug;
 	size_t name_size;
 
-	debug = getenv("WAYLAND_DEBUG");
-	if (debug)
-		wl_debug = 1;
-
-	display = malloc(sizeof *display);
-	if (display == NULL)
-		return NULL;
-
-	memset(display, 0, sizeof *display);
-	display->fd = socket(PF_LOCAL, SOCK_STREAM, 0);
-	if (display->fd < 0) {
-		free(display);
-		return NULL;
-	}
+	display->fd = socket(PF_LOCAL, SOCK_STREAM | SOCK_CLOEXEC, 0);
+	if (display->fd < 0)
+		return -1;
 
 	runtime_dir = getenv("XDG_RUNTIME_DIR");
 	if (runtime_dir == NULL) {
@@ -368,11 +358,50 @@ wl_display_connect(const char *name)
 
 	if (connect(display->fd, (struct sockaddr *) &addr, size) < 0) {
 		close(display->fd);
+		return -1;
+	}
+
+	return 0;
+}
+
+WL_EXPORT struct wl_display *
+wl_display_connect(const char *name)
+{
+	struct wl_display *display;
+	const char *debug;
+	char *connection, *end;
+	int flags;
+
+	debug = getenv("WAYLAND_DEBUG");
+	if (debug)
+		wl_debug = 1;
+
+	display = malloc(sizeof *display);
+	if (display == NULL)
+		return NULL;
+
+	memset(display, 0, sizeof *display);
+	connection = getenv("WAYLAND_SOCKET");
+	if (connection) {
+		display->fd = strtol(connection, &end, 0);
+		if (*end != '\0') {
+			free(display);
+			return NULL;
+		}
+		flags = fcntl(display->fd, F_GETFD);
+		if (flags != -1)
+			fcntl(display->fd, F_SETFD, flags | FD_CLOEXEC);
+	} else if (connect_to_socket(display, name) < 0) {
 		free(display);
 		return NULL;
 	}
 
 	display->objects = wl_hash_table_create();
+	if (display->objects == NULL) {
+		close(display->fd);
+		free(display);
+		return NULL;
+	}
 	wl_list_init(&display->global_listener_list);
 
 	display->proxy.object.interface = &wl_display_interface;
@@ -389,7 +418,12 @@ wl_display_connect(const char *name)
 	display->connection = wl_connection_create(display->fd,
 						   connection_update,
 						   display);
-
+	if (display->connection == NULL) {
+		wl_hash_table_destroy(display->objects);
+		close(display->fd);
+		free(display);
+		return NULL;
+	}
 	return display;
 }
 
@@ -397,6 +431,7 @@ WL_EXPORT void
 wl_display_destroy(struct wl_display *display)
 {
 	wl_connection_destroy(display->connection);
+	wl_hash_table_destroy(display->objects);
 	close(display->fd);
 	free(display);
 }
@@ -435,6 +470,7 @@ wl_display_sync_callback(struct wl_display *display,
 
 WL_EXPORT int
 wl_display_frame_callback(struct wl_display *display,
+			  struct wl_surface *surface,
 			  wl_display_frame_func_t func, void *data)
 {
 	struct wl_frame_handler *handler;
@@ -446,9 +482,10 @@ wl_display_frame_callback(struct wl_display *display,
 	handler->func = func;
 	handler->key = display->key++;
 	handler->data = data;
+	handler->surface = surface;
 
 	wl_list_insert(display->frame_list.prev, &handler->link);
-	wl_display_frame(display, handler->key);
+	wl_display_frame(display, handler->surface, handler->key);
 
 	return 0;
 }

@@ -41,6 +41,8 @@
 #ifndef WL_COMPOSITOR_H
 #define WL_COMPOSITOR_H
 
+#include <QtCore/QSet>
+
 #include "wloutput.h"
 #include "wldisplay.h"
 #include "wlshmbuffer.h"
@@ -77,6 +79,7 @@ public:
 
     void createSurface(struct wl_client *client, int id);
     void surfaceDestroyed(Surface *surface);
+    void markSurfaceAsDirty(Surface *surface);
 
     void destroyClientForSurface(Surface *surface);
 
@@ -105,6 +108,7 @@ private:
     /* shm/*/
     ShmHandler m_shm;
     QList<Surface *> m_surfaces;
+    QSet<Surface *> m_dirty_surfaces;
 
     /* Render state */
     uint32_t m_current_frame;

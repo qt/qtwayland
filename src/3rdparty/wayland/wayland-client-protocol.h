@@ -140,10 +140,10 @@ wl_display_sync(struct wl_display *display, uint32_t key)
 }
 
 static inline void
-wl_display_frame(struct wl_display *display, uint32_t key)
+wl_display_frame(struct wl_display *display, struct wl_surface *surface, uint32_t key)
 {
 	wl_proxy_marshal((struct wl_proxy *) display,
-			 WL_DISPLAY_FRAME, key);
+			 WL_DISPLAY_FRAME, surface, key);
 }
 
 #define WL_COMPOSITOR_CREATE_SURFACE	0

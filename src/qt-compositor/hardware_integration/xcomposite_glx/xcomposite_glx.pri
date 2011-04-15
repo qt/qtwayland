@@ -1,6 +1,6 @@
 include (../xcomposite_share/xcomposite_share.pri)
 
-LIBS += -lXcomposite
+LIBS += -lXcomposite -lX11
 
 HEADERS += \
     $$PWD/xcompositeglxintegration.h

@@ -1,6 +1,6 @@
 include (../xcomposite_share/xcomposite_share.pri)
 
-LIBS += -lXcomposite -lEGL
+LIBS += -lXcomposite -lX11 -lEGL
 
 HEADERS += \
     $$PWD/xcompositeeglintegration.h

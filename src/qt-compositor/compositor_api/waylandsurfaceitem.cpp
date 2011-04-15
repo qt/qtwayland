@@ -47,6 +47,7 @@
 #include <QKeyEvent>
 
 #include <qsgsimpletexturenode.h>
+#include <qsgsimplerectnode.h>
 
 void WaylandSurfaceItem::surfaceDamaged(const QRect &)
 {
@@ -55,8 +56,7 @@ void WaylandSurfaceItem::surfaceDamaged(const QRect &)
 
     if (m_surface->type() == WaylandSurface::Texture) {
         m_texture = canvas()->sceneGraphEngine()->createTextureFromId(m_surface->texture(),
-                                                                      m_surface->geometry().size(),
-                                                                      QSGEngine::TextureOwnsGLTexture);
+                                                                      m_surface->geometry().size());
     } else {
         m_texture = canvas()->sceneGraphEngine()->createTextureFromImage(m_surface->image());
     }
@@ -183,10 +183,8 @@ QSGNode *WaylandSurfaceItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeDa
         node->setTexture(m_texture);
     }
 
-    node->setRect(QRectF(0, 0, width(), height()));
-    node->setFiltering(QSGItemPrivate::get(this)->smooth
-                       ? QSGTexture::Linear
-                       : QSGTexture::Nearest);
+    node->setRect(QRectF(0, height(), width(), -height()));
+    node->setFiltering(smooth() ? QSGTexture::Linear : QSGTexture::Nearest);
 
     return node;
 }

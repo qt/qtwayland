@@ -55,6 +55,7 @@ void WaylandSurfaceItem::surfaceDamaged(const QRect &)
         delete m_texture;
 
     if (m_surface->type() == WaylandSurface::Texture) {
+        //qDebug() << "createTextureFromId" << m_surface->texture() << m_surface->geometry().size();
         m_texture = canvas()->sceneGraphEngine()->createTextureFromId(m_surface->texture(),
                                                                       m_surface->geometry().size());
     } else {
@@ -180,8 +181,8 @@ QSGNode *WaylandSurfaceItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeDa
 
     if (!node) {
         node = new QSGSimpleTextureNode();
-        node->setTexture(m_texture);
     }
+    node->setTexture(m_texture);
 
     node->setRect(QRectF(0, height(), width(), -height()));
     node->setFiltering(smooth() ? QSGTexture::Linear : QSGTexture::Nearest);

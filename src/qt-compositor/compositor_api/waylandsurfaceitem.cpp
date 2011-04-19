@@ -184,7 +184,7 @@ QSGNode *WaylandSurfaceItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeDa
     }
     node->setTexture(m_texture);
 
-    node->setRect(QRectF(0, height(), width(), -height()));
+    node->setRect(QRectF(0, 0, width(), height()));
     node->setFiltering(smooth() ? QSGTexture::Linear : QSGTexture::Nearest);
 
     return node;

@@ -659,9 +659,10 @@ socket_data(int fd, uint32_t mask, void *data)
 
 	length = sizeof name;
 	client_fd =
-		accept4(fd, (struct sockaddr *) &name, &length, SOCK_CLOEXEC);
+//		accept4(fd, (struct sockaddr *) &name, &length, SOCK_CLOEXEC);
+		accept (fd, (struct sockaddr *) &name, &length);
 	if (client_fd < 0)
-		fprintf(stderr, "failed to accept\n");
+		fprintf(stderr, "failed to accept: %m\n");
 
 	wl_client_create(display, client_fd);
 }

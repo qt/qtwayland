@@ -80,14 +80,15 @@ void WaylandCompositor::destroyClientForSurface(WaylandSurface *surface)
     m_compositor->destroyClientForSurface(surface->handle());
 }
 
-void WaylandCompositor::setDirectRenderWinId(uint winId)
+void WaylandCompositor::setDirectRenderSurface(WaylandSurface *surface)
 {
-    Q_UNUSED(winId);
+    m_compositor->setDirectRenderSurface(surface ? surface->handle() : 0);
 }
 
-uint WaylandCompositor::directRenderWinId() const
+WaylandSurface *WaylandCompositor::directRenderSurface() const
 {
-    return 0;
+    Wayland::Surface *surf = m_compositor->directRenderSurface();
+    return surf ? surf->handle() : 0;
 }
 
 QWidget * WaylandCompositor::topLevelWidget() const

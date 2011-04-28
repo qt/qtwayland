@@ -171,6 +171,7 @@ Compositor::Compositor(WaylandCompositor *qt_compositor)
     , m_qt_compositor(qt_compositor)
     , m_pointerFocusSurface(0)
     , m_keyFocusSurface(0)
+    , m_directRenderSurface(0)
 {
 #if defined (QT_COMPOSITOR_WAYLAND_GL)
     m_graphics_hw_integration = GraphicsHardwareIntegration::createGraphicsHardwareIntegration(qt_compositor);
@@ -344,6 +345,17 @@ void Compositor::initializeHardwareIntegration()
 #ifdef QT_COMPOSITOR_WAYLAND_GL
     m_graphics_hw_integration->initializeHardware(m_display);
 #endif
+}
+
+bool Compositor::setDirectRenderSurface(Surface *surface)
+{
+#ifdef QT_COMPOSITOR_WAYLAND_GL
+    if (m_graphics_hw_integration->setDirectRenderSurface(surface ? surface->handle() : 0)) {
+        m_directRenderSurface = surface;
+        return true;
+    }
+#endif
+    return false;
 }
 
 

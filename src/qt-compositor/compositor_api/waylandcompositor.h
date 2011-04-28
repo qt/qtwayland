@@ -68,8 +68,8 @@ public:
     void setInputFocus(WaylandSurface *surface);
     void destroyClientForSurface(WaylandSurface *surface);
 
-    void setDirectRenderWinId(uint winId);
-    uint directRenderWinId() const;
+    void setDirectRenderSurface(WaylandSurface *surface);
+    WaylandSurface *directRenderSurface() const;
 
     QWidget *topLevelWidget()const;
 

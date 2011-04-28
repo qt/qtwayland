@@ -89,8 +89,11 @@ public:
 
     GraphicsHardwareIntegration *graphicsHWIntegration() const;
     void initializeHardwareIntegration();
+    bool setDirectRenderSurface(Surface *surface);
+    Surface *directRenderSurface() const {return m_directRenderSurface;}
 
     wl_input_device *defaultInputDevice();
+    WaylandCompositor *qtCompositor() const { return m_qt_compositor; }
 private slots:
     void processWaylandEvents();
 
@@ -120,6 +123,7 @@ private:
 
     Surface *m_pointerFocusSurface;
     Surface *m_keyFocusSurface;
+    Surface *m_directRenderSurface;
 
 #ifdef QT_COMPOSITOR_WAYLAND_GL
     GraphicsHardwareIntegration *m_graphics_hw_integration;

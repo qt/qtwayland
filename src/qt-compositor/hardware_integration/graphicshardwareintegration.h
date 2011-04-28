@@ -59,6 +59,9 @@ public:
      **/
     virtual GLuint createTextureFromBuffer(struct wl_buffer *buffer) = 0;
 
+    virtual bool setDirectRenderSurface(WaylandSurface *surface) {return false;}
+    virtual bool postBuffer(struct wl_buffer *) {return false;}
+
     static GraphicsHardwareIntegration *createGraphicsHardwareIntegration(WaylandCompositor *compositor);
 
 protected:

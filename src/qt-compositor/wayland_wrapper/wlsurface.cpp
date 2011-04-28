@@ -65,6 +65,7 @@ public:
         : client(client)
         , compositor(compositor)
         , needsMap(false)
+        , directRenderBuffer(0)
     {
         type = WaylandSurface::Invalid;
 #ifdef QT_COMPOSITOR_WAYLAND_GL
@@ -83,6 +84,7 @@ public:
     GLuint texture_id;
 #endif
     bool needsMap;
+    wl_buffer *directRenderBuffer;
 };
 
 
@@ -174,6 +176,11 @@ WaylandSurface::Type Surface::type() const
 void Surface::damage(const QRect &rect)
 {
     Q_D(Surface);
+    if (d->directRenderBuffer) {
+        //qDebug() << "DIRECT RENDER";
+        if (d->compositor->graphicsHWIntegration()->postBuffer(d->directRenderBuffer))
+                return;
+    }
     d->compositor->markSurfaceAsDirty(this);
     emit d->qtSurface->damaged(rect);
 }
@@ -192,6 +199,18 @@ QImage Surface::image() const
 void Surface::attachHWBuffer(struct wl_buffer *buffer)
 {
     Q_D(Surface);
+
+    if (d->compositor->qtCompositor()->directRenderSurface() == handle()) {
+        d->directRenderBuffer = buffer;
+        if (d->texture_id) {
+            glDeleteTextures(1,&d->texture_id);
+            d->texture_id = 0;
+        }
+        //qDebug() << "        not creating texture";
+        return;
+    }
+    //qDebug() << "creating texture" << handle() << "direct" << d->compositor->qtCompositor()->directRenderSurface();
+    d->directRenderBuffer = 0;
     d->type = WaylandSurface::Texture;
 
     //make current for the topLevel. We could have used the eglContext,

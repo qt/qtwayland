@@ -60,7 +60,7 @@ private:
     int m_numQueued;
 };
 
-void output_post_geometry(struct wl_client *client, struct wl_object *global);
+void output_post_geometry(struct wl_client *client, struct wl_object *global, uint32_t version);
 
 }
 

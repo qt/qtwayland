@@ -62,7 +62,8 @@ public:
     enum Type {
         Invalid,
         Shm,
-        Texture
+        Texture,
+        Direct
     };
 
     WaylandSurface(Wayland::Surface *surface);

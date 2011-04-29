@@ -65,29 +65,53 @@ public:
         : client(client)
         , compositor(compositor)
         , needsMap(false)
+        , textureCreatedForBuffer(false)
         , directRenderBuffer(0)
+        , surfaceBuffer(0)
+        , surfaceType(WaylandSurface::Invalid)
     {
-        type = WaylandSurface::Invalid;
 #ifdef QT_COMPOSITOR_WAYLAND_GL
         texture_id = 0;
 #endif
     }
 
-    WaylandSurface::Type type;
-    QRect rect;
+    WaylandSurface::Type type() const {
+        if (surfaceType == WaylandSurface::Invalid) {
+            SurfacePrivate *that = const_cast<SurfacePrivate *>(this);
+            if (qtSurface->handle() == compositor->directRenderSurface()) {
+                that->surfaceType = WaylandSurface::Direct;
+            } else if (surfaceBuffer && wl_buffer_is_shm(surfaceBuffer)) {
+                that->surfaceType = WaylandSurface::Shm;
+            } else if (surfaceBuffer){
+                that->surfaceType = WaylandSurface::Texture;
+            }
+        }
+        return surfaceType;
+    }
+
+    void attach(struct wl_buffer *buffer) {
+        this->surfaceBuffer = buffer;
+        surfaceType = WaylandSurface::Invalid;
+        textureCreatedForBuffer = false;
+    }
+
+    inline struct wl_buffer *buffer() const { return surfaceBuffer; }
+
     struct wl_client *client;
     Compositor *compositor;
     WaylandSurface *qtSurface;
 
-    ShmBuffer *shm_buffer;
 #ifdef QT_COMPOSITOR_WAYLAND_GL
     GLuint texture_id;
 #endif
     bool needsMap;
+    bool textureCreatedForBuffer;
     wl_buffer *directRenderBuffer;
+
+private:
+    struct wl_buffer *surfaceBuffer;
+    WaylandSurface::Type surfaceType;
 };
-
-
 
 void surface_destroy(struct wl_client *client, struct wl_surface *surface)
 {
@@ -101,14 +125,7 @@ void surface_attach(struct wl_client *client, struct wl_surface *surface,
     Q_UNUSED(x);
     Q_UNUSED(y);
 
-    if (buffer->attach) {
-        wayland_cast<Surface *>(surface)->attachShm(wayland_cast<ShmBuffer *>(buffer));
-    }
-#ifdef QT_COMPOSITOR_WAYLAND_GL
-    else {
-        wayland_cast<Surface *>(surface)->attachHWBuffer(buffer);
-    }
-#endif //QT_COMPOSITOR_WAYLAND_EGL
+    wayland_cast<Surface *>(surface)->attach(buffer);
 }
 
 void surface_map_toplevel(struct wl_client *client,
@@ -164,99 +181,86 @@ Surface::~Surface()
 {
     Q_D(Surface);
     d->compositor->surfaceDestroyed(this);
+    glDeleteTextures(1,&d->texture_id);
     delete d->qtSurface;
 }
 
 WaylandSurface::Type Surface::type() const
 {
     Q_D(const Surface);
-    return d->type;
+    return d->type();
 }
 
 void Surface::damage(const QRect &rect)
 {
     Q_D(Surface);
-    if (d->directRenderBuffer) {
-        //qDebug() << "DIRECT RENDER";
+    if (d->type() == WaylandSurface::Direct) {
+        //should the texture be deleted here, or should we explicitly delete it
+        //when going into direct mode...
+        if (d->textureCreatedForBuffer) {
+            glDeleteTextures(1,&d->texture_id);
+            d->textureCreatedForBuffer = false;
+        }
         if (d->compositor->graphicsHWIntegration()->postBuffer(d->directRenderBuffer))
                 return;
     }
+
+    if (d->needsMap) {
+        QRect rect(0,0,d->buffer()->width,d->buffer()->height);
+        emit d->qtSurface->mapped(rect);
+        d->needsMap = false;
+    }
+
     d->compositor->markSurfaceAsDirty(this);
+
+    if (d->type() == WaylandSurface::Shm) {
+        static_cast<ShmBuffer *>(d->buffer()->user_data)->damage();
+    }
+
     emit d->qtSurface->damaged(rect);
 }
 
 QImage Surface::image() const
 {
     Q_D(const Surface);
-    if (d->type == WaylandSurface::Shm) {
-        return d->shm_buffer->image();
+    if (d->type() == WaylandSurface::Shm) {
+        ShmBuffer *shmBuffer = static_cast<ShmBuffer *>(d->buffer()->user_data);
+        return shmBuffer->image();
     }
     return QImage();
 }
 
 #ifdef QT_COMPOSITOR_WAYLAND_GL
-
-void Surface::attachHWBuffer(struct wl_buffer *buffer)
-{
-    Q_D(Surface);
-
-    if (d->compositor->qtCompositor()->directRenderSurface() == handle()) {
-        d->directRenderBuffer = buffer;
-        if (d->texture_id) {
-            glDeleteTextures(1,&d->texture_id);
-            d->texture_id = 0;
-        }
-        //qDebug() << "        not creating texture";
-        return;
-    }
-    //qDebug() << "creating texture" << handle() << "direct" << d->compositor->qtCompositor()->directRenderSurface();
-    d->directRenderBuffer = 0;
-    d->type = WaylandSurface::Texture;
-
-    //make current for the topLevel. We could have used the eglContext,
-    //but then we would need to handle eglSurfaces as well.
-    d->compositor->topLevelWidget()->platformWindow()->glContext()->makeCurrent();
-
-    if (d->texture_id)
-        glDeleteTextures(1,&d->texture_id);
-
-    d->texture_id = d->compositor->graphicsHWIntegration()->createTextureFromBuffer(buffer);
-    d->rect = QRect(QPoint(), QSize(buffer->width, buffer->height));
-
-    if (d->needsMap) {
-        emit d->qtSurface->mapped(d->rect);
-        d->needsMap = false;
-    }
-}
-
-GLuint Surface::texture() const
+GLuint Surface::textureId() const
 {
     Q_D(const Surface);
+    if (!d->texture_id
+            && d->type() == WaylandSurface::Texture
+            && !d->textureCreatedForBuffer) {
+        glDeleteTextures(1,&d->texture_id);
+        Surface *that = const_cast<Surface *>(this);
+        GraphicsHardwareIntegration *hwIntegration = d->compositor->graphicsHWIntegration();
+        that->d_func()->texture_id = hwIntegration->createTextureFromBuffer(d->buffer());
+        that->d_func()->textureCreatedForBuffer = true;
+    }
     return d->texture_id;
 }
 #endif // QT_COMPOSITOR_WAYLAND_GL
 
-void Surface::attachShm(Wayland::ShmBuffer *shm_buffer)
+void Surface::attach(struct wl_buffer *buffer)
 {
     Q_D(Surface);
-    d->shm_buffer = shm_buffer;
-    d->type = WaylandSurface::Shm;
-    d->rect = QRect(QPoint(), shm_buffer->size());
-
-    if (d->needsMap) {
-        emit d->qtSurface->mapped(d->rect);
-        d->needsMap = false;
-    }
+    d->attach(buffer);
 }
 
 
 void Surface::mapTopLevel()
 {
     Q_D(Surface);
-    if (d->rect.isEmpty())
+    if (!d->buffer())
         d->needsMap = true;
     else
-        emit d->qtSurface->mapped(d->rect);
+        emit d->qtSurface->mapped(QRect(0,0,d->buffer()->width, d->buffer()->height));
 }
 
 WaylandSurface * Surface::handle() const

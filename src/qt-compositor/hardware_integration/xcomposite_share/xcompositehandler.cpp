@@ -30,8 +30,9 @@ void XCompositeHandler::createBuffer(struct wl_client *client, uint32_t id, Wind
                                XCompositeBuffer::delete_resource);
 }
 
-void XCompositeHandler::send_root_information(struct wl_client *client, struct wl_object *global)
+void XCompositeHandler::send_root_information(struct wl_client *client, struct wl_object *global, uint32_t version)
 {
+    Q_UNUSED(version);
     XCompositeHandler *handler = Wayland::wayland_cast<XCompositeHandler *>(global);
     const char *displayString = XDisplayString(handler->mDisplay);
     wl_client_post_event(client, global, WL_XCOMPOSITE_ROOT, displayString, handler->mFakeRootWidget->winId());

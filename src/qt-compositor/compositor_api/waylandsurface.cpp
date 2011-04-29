@@ -47,7 +47,7 @@ QImage WaylandSurface::image() const
 GLuint WaylandSurface::texture() const
 {
     Q_D(const WaylandSurface);
-    return d->surface->texture();
+    return d->surface->textureId();
 }
 #else //QT_COMPOSITOR_WAYLAND_GL
 uint WaylandSurface::texture() const

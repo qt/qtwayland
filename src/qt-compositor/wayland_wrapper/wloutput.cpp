@@ -45,8 +45,9 @@
 
 namespace Wayland {
 
-void output_post_geometry(struct wl_client *client, struct wl_object *global)
+void output_post_geometry(struct wl_client *client, struct wl_object *global, uint32_t version)
 {
+    Q_UNUSED(version);
     Output *output = wayland_cast<Output *>(global);
 
     wl_client_post_event(client, global, WL_OUTPUT_GEOMETRY, 0, 0,

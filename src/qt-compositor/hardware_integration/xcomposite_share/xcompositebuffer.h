@@ -24,11 +24,18 @@ public:
     static struct wl_buffer_interface buffer_interface;
     static void delete_resource(struct wl_resource *resource,
                                         struct wl_client *client);
+
 private:
     Window mWindow;
 
     static void buffer_interface_destroy(struct wl_client *client,
                         struct wl_buffer *buffer);
+    static void buffer_interface_damage(struct wl_client *client,
+                   struct wl_buffer *wl_buffer,
+                   int x,
+                   int y,
+                   int width,
+                   int height);
 };
 
 #endif // XCOMPOSITORBUFFER_H

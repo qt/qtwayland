@@ -73,10 +73,7 @@ public:
     WaylandSurface::Type type() const;
 
     uint id() const { return base()->resource.object.id; }
-#ifdef QT_COMPOSITOR_WAYLAND_GL
-    void attachHWBuffer(struct wl_buffer *buffer);
-#endif
-    void attachShm(ShmBuffer *shm_buffer);
+    void attach(struct wl_buffer *buffer);
 
     void mapTopLevel();
 
@@ -85,7 +82,7 @@ public:
     QImage image() const;
 
 #ifdef QT_COMPOSITOR_WAYLAND_GL
-    GLuint texture() const;
+    GLuint textureId() const;
 #endif
 
     void sendMousePressEvent(int x, int y, Qt::MouseButton button);

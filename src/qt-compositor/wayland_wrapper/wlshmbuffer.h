@@ -50,52 +50,44 @@
 namespace Wayland {
 
 class Surface;
-class Compositor;
+class Display;
 
-class ShmBuffer : public Object<struct wl_buffer>
+class ShmBuffer
 {
 public:
-    ShmBuffer(int fd,
-              Compositor *compositor,
-              const QSize &size,
-              uint stride,
-              struct wl_visual *visual);
+    ShmBuffer(struct wl_buffer *buffer);
     ~ShmBuffer();
-
-    void attach(Surface *surface);
-    void damage(Surface *surface, const QRect &rect);
 
     QImage image() const;
     QSize size() const;
 
+    void damage();
+
 private:
+    struct wl_buffer *m_buffer;
     int m_stride;
     void *m_data;
+    QImage m_image;
 };
 
-class ShmHandler : public Object<struct wl_object>
+class ShmHandler
 {
 public:
-    ShmHandler(Compositor *compositor);
+    ShmHandler(Display *display);
+    ~ShmHandler();
 
-    ShmBuffer *createBuffer(int fd, const QSize &size, uint32_t stride, struct wl_visual *visual);
 private:
-    Compositor *m_compositor;
+    Display *m_display;
+    struct wl_shm *m_shm;
+
+    static struct wl_shm_callbacks shm_callbacks;
+    static void buffer_created_callback(struct wl_buffer *buffer);
+    static void buffer_damaged_callback(struct wl_buffer *buffer,
+                          int32_t x, int32_t y,
+                          int32_t width, int32_t height);
+    static void buffer_destroyed_callback(struct wl_buffer *buffer);
+
 };
-
-void shm_create_buffer(struct wl_client *client,
-                       struct wl_shm *shm,
-                       uint32_t id,
-                       int fd,
-                       int width,
-                       int height,
-                       uint32_t stride,
-                       struct wl_visual *visual);
-
-const struct wl_shm_interface shm_interface = {
-    shm_create_buffer
-};
-
 }
 
 #endif //WL_SHMBUFFER_H

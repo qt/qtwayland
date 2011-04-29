@@ -165,7 +165,7 @@ const static struct wl_shell_interface shell_interface = {
 
 Compositor::Compositor(WaylandCompositor *qt_compositor)
     : m_display(new Display)
-    , m_shm(this)
+    , m_shm(m_display)
     , m_current_frame(0)
     , m_last_queued_buf(-1)
     , m_qt_compositor(qt_compositor)
@@ -186,7 +186,6 @@ Compositor::Compositor(WaylandCompositor *qt_compositor)
 
     m_display->addGlobalObject(m_output.base(), &wl_output_interface, 0, output_post_geometry);
     m_display->addGlobalObject(&m_shell, &wl_shell_interface, &shell_interface, 0);
-    m_display->addGlobalObject(m_shm.base(), &wl_shm_interface, &shm_interface, 0);
 
     wl_input_device_init(&m_input, base());
     m_display->addGlobalObject(&m_input.object, &wl_input_device_interface, &input_device_interface, 0);

@@ -40,110 +40,88 @@
 
 #include "wlshmbuffer.h"
 
+#include "wldisplay.h"
+
 #include <QtCore/QDebug>
 
 #include <sys/mman.h>
 
 namespace Wayland {
 
-void shm_buffer_attach(struct wl_buffer *buffer, struct wl_surface *surface)
+ShmBuffer::ShmBuffer(struct wl_buffer *buffer)
+    : m_buffer(buffer)
 {
-    wayland_cast<ShmBuffer *>(buffer)->attach(reinterpret_cast<Surface *>(surface));
-}
+    m_buffer->user_data = this;
+    m_data = wl_shm_buffer_get_data(m_buffer);
+    m_stride = wl_shm_buffer_get_stride(m_buffer);
 
-void shm_buffer_damage(struct wl_buffer *buffer, struct wl_surface *surface, int x, int y, int width, int height)
-{
-    wayland_cast<ShmBuffer *>(buffer)->damage(reinterpret_cast<Surface *>(surface), QRect(x, y, width, height));
-}
-
-void shm_buffer_destroy(struct wl_resource *resource, struct wl_client *)
-{
-    delete wayland_cast<ShmBuffer *>((wl_buffer *)resource);
-}
-
-void buffer_interface_destroy(struct wl_client *client, struct wl_buffer *buffer)
-{
-    Q_UNUSED(client);
-    Q_UNUSED(buffer);
-    qDebug() << "buffer_interface_destroy()";
-}
-
-const struct wl_buffer_interface buffer_interface = {
-    buffer_interface_destroy
-};
-
-void shm_create_buffer(struct wl_client *client,
-                       struct wl_shm *shm,
-                       uint32_t id,
-                       int fd,
-                       int width,
-                       int height,
-                       uint32_t stride,
-                       struct wl_visual *visual)
-{
-    ShmHandler *shmHandler = reinterpret_cast<ShmHandler *>(shm);
-
-    ShmBuffer *buffer = shmHandler->createBuffer(fd,QSize(width,height),stride,visual);
-
-    addClientResource(client, &buffer->base()->resource, id, &wl_buffer_interface,
-            &buffer_interface, shm_buffer_destroy);
-}
-
-ShmBuffer::ShmBuffer(int fd,
-                     Compositor *compositor,
-                     const QSize &size,
-                     uint stride,
-                     struct wl_visual *visual)
-{
-    base()->compositor = reinterpret_cast<wl_compositor *>(compositor);
-    base()->height = size.height();
-    base()->width = size.width();
-    base()->visual = visual;
-    base()->attach = shm_buffer_attach;
-    base()->damage = shm_buffer_damage;
-    m_stride = stride;
-    m_data = mmap(NULL, stride * size.height(), PROT_READ, MAP_SHARED, fd, 0);
-    close(fd);
+    damage();
 }
 
 ShmBuffer::~ShmBuffer()
 {
-    munmap(m_data, m_stride * base()->height);
-}
-
-void ShmBuffer::attach(Surface *surface)
-{
-    printf("ShmBuffer::attach(%p)\n", surface);
-}
-
-void ShmBuffer::damage(Surface *surface, const QRect &rect)
-{
-    printf("ShmBuffer::damage(%p, QRect(%d %d - %dx%d))\n", surface, rect.x(), rect.y(),
-            rect.width(), rect.height());
 }
 
 QImage ShmBuffer::image() const
 {
-    if (m_data)
-        return QImage(static_cast<const uchar *>(m_data), base()->width, base()->height, m_stride, QImage::Format_ARGB32_Premultiplied);
-    return QImage();
+    return m_image;
 }
 
 QSize ShmBuffer::size() const
 {
-    return QSize(base()->width, base()->height);
+    return QSize(m_buffer->width, m_buffer->height);
 }
 
-ShmHandler::ShmHandler(Wayland::Compositor *compositor)
-    :m_compositor(compositor)
+void ShmBuffer::damage()
 {
+    QImage::Format imageFormat = QImage::Format_Invalid;
+    //jl: need to do depth check as well.
+    if (m_buffer->visual == &m_buffer->compositor->premultiplied_argb_visual) {
+        imageFormat = QImage::Format_ARGB32_Premultiplied;
+    } else if (m_buffer->visual == &m_buffer->compositor->rgb_visual) {
+        imageFormat = QImage::Format_RGB32;
+    } else if (m_buffer->visual == &m_buffer->compositor->argb_visual) {
+        imageFormat = QImage::Format_ARGB32;
+    } else {
+        imageFormat = QImage::Format_ARGB32_Premultiplied;
+    }
+
+    m_image = QImage(static_cast<uchar *>(m_data),m_buffer->width, m_buffer->height,m_stride,imageFormat);
 }
 
-
-ShmBuffer *ShmHandler::createBuffer(int fd, const QSize &size, uint32_t stride, struct wl_visual *visual)
+ShmHandler::ShmHandler(Display *display)
+    : m_display(display)
 {
-    ShmBuffer *buffer = new ShmBuffer(fd,m_compositor,size,stride,visual);
-    return buffer;
+    m_shm = wl_shm_init(m_display->handle(),&shm_callbacks);
+}
+
+ShmHandler::~ShmHandler()
+{
+    wl_shm_finish(m_shm);
+}
+
+struct wl_shm_callbacks ShmHandler::shm_callbacks = {
+    buffer_created_callback,
+    buffer_damaged_callback,
+    buffer_destroyed_callback
+};
+
+void ShmHandler::buffer_created_callback(struct wl_buffer *buffer)
+{
+    ShmBuffer *newBuffer = new ShmBuffer(buffer);
+}
+
+void ShmHandler::buffer_damaged_callback(struct wl_buffer *buffer,
+                      int32_t x, int32_t y,
+                      int32_t width, int32_t height)
+{
+    fprintf(stderr,"damage_callback\n");
+}
+
+void ShmHandler::buffer_destroyed_callback(struct wl_buffer *buffer)
+{
+    fprintf(stderr, "destory callback\n");
+    delete static_cast<ShmBuffer *>(buffer->user_data);
 }
 
 }

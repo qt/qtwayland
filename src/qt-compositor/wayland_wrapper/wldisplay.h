@@ -56,7 +56,7 @@ public:
 
     template <typename Implementation>
     void addGlobalObject(struct wl_object *object, const struct wl_interface *interface,
-                         Implementation implementation, wl_client_connect_func_t func = 0)
+                         Implementation implementation, wl_global_bind_func_t func = 0)
     {
         object->interface = interface;
         object->implementation = (void (**)())implementation;

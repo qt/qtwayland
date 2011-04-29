@@ -42,6 +42,8 @@
 
 #include <QtCore/QDebug>
 
+#include <wayland-server-protocol.h>
+
 namespace Wayland {
 
 Display::Display()

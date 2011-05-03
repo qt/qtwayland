@@ -38,9 +38,9 @@ enum {
 
 struct wl_event_loop;
 struct wl_event_source;
-typedef void (*wl_event_loop_fd_func_t)(int fd, uint32_t mask, void *data);
-typedef void (*wl_event_loop_timer_func_t)(void *data);
-typedef void (*wl_event_loop_signal_func_t)(int signal_number, void *data);
+typedef int (*wl_event_loop_fd_func_t)(int fd, uint32_t mask, void *data);
+typedef int (*wl_event_loop_timer_func_t)(void *data);
+typedef int (*wl_event_loop_signal_func_t)(int signal_number, void *data);
 typedef void (*wl_event_loop_idle_func_t)(void *data);
 
 struct wl_event_loop *wl_event_loop_create(void);
@@ -62,6 +62,7 @@ wl_event_loop_add_signal(struct wl_event_loop *loop,
 int wl_event_source_timer_update(struct wl_event_source *source,
 				 int ms_delay);
 int wl_event_source_remove(struct wl_event_source *source);
+void wl_event_source_check(struct wl_event_source *source);
 
 
 int wl_event_loop_dispatch(struct wl_event_loop *loop, int timeout);
@@ -81,11 +82,16 @@ int wl_display_add_socket(struct wl_display *display, const char *name);
 void wl_display_terminate(struct wl_display *display);
 void wl_display_run(struct wl_display *display);
 
-void wl_display_add_object(struct wl_display *display, struct wl_object *object);
+void wl_display_add_object(struct wl_display *display,
+			   struct wl_object *object);
 
-typedef void (*wl_client_connect_func_t)(struct wl_client *client, struct wl_object *global);
+typedef void (*wl_global_bind_func_t)(struct wl_client *client,
+				      struct wl_object *global,
+				      uint32_t version);
 
-int wl_display_add_global(struct wl_display *display, struct wl_object *object, wl_client_connect_func_t func);
+int wl_display_add_global(struct wl_display *display,
+			  struct wl_object *object,
+			  wl_global_bind_func_t func);
 
 struct wl_client *wl_client_create(struct wl_display *display, int fd);
 void wl_client_destroy(struct wl_client *client);
@@ -94,6 +100,16 @@ void wl_client_post_global(struct wl_client *client, struct wl_object *object);
 
 struct wl_visual {
 	struct wl_object object;
+};
+
+struct wl_shm_callbacks {
+	void (*buffer_created)(struct wl_buffer *buffer);
+
+	void (*buffer_damaged)(struct wl_buffer *buffer,
+			      int32_t x, int32_t y,
+			      int32_t width, int32_t height);
+
+	void (*buffer_destroyed)(struct wl_buffer *buffer);
 };
 
 struct wl_compositor {
@@ -115,10 +131,7 @@ struct wl_buffer {
 	struct wl_compositor *compositor;
 	struct wl_visual *visual;
 	int32_t width, height;
-	void (*attach)(struct wl_buffer *buffer, struct wl_surface *surface);
-	void (*damage)(struct wl_buffer *buffer,
-		       struct wl_surface *surface,
-		       int32_t x, int32_t y, int32_t width, int32_t height);
+	void *user_data;
 };
 
 struct wl_listener {
@@ -131,10 +144,6 @@ struct wl_surface {
 	struct wl_resource resource;
 	struct wl_client *client;
 	struct wl_list destroy_listener_list;
-};
-
-struct wl_shell {
-	struct wl_object object;
 };
 
 struct wl_grab;
@@ -254,6 +263,29 @@ int
 wl_input_device_update_grab(struct wl_input_device *device,
 			    struct wl_grab *grab,
 			    struct wl_surface *surface, uint32_t time);
+
+struct wl_shm;
+
+void *
+wl_shm_buffer_get_data(struct wl_buffer *buffer);
+
+int32_t
+wl_shm_buffer_get_stride(struct wl_buffer *buffer);
+
+struct wl_buffer *
+wl_shm_buffer_create(struct wl_shm *shm, int width, int height,
+		     int stride, struct wl_visual *visual,
+		     void *data);
+
+int
+wl_buffer_is_shm(struct wl_buffer *buffer);
+
+struct wl_shm *
+wl_shm_init(struct wl_display *display,
+	    const struct wl_shm_callbacks *callbacks);
+
+void
+wl_shm_finish(struct wl_shm *shm);
 
 int
 wl_compositor_init(struct wl_compositor *compositor,

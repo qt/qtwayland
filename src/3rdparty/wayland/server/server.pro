@@ -12,6 +12,7 @@ SOURCES = ../event-loop.c \
           ../wayland-protocol.c \
           ../connection.c \
           ../wayland-util.c \
-          ../wayland-hash.c
+          ../wayland-hash.c \
+          ../wayland-shm.c
 
 OBJECTS_DIR = .obj

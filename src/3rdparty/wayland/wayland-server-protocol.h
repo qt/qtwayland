@@ -63,11 +63,16 @@ extern const struct wl_interface wl_output_interface;
 extern const struct wl_interface wl_visual_interface;
 
 struct wl_display_interface {
+	void (*bind)(struct wl_client *client,
+		     struct wl_display *wl_display,
+		     uint32_t id,
+		     const char *interface,
+		     uint32_t version);
 	void (*sync)(struct wl_client *client,
-		     struct wl_display *display,
+		     struct wl_display *wl_display,
 		     uint32_t key);
 	void (*frame)(struct wl_client *client,
-		      struct wl_display *display,
+		      struct wl_display *wl_display,
 		      struct wl_surface *surface,
 		      uint32_t key);
 };
@@ -81,13 +86,13 @@ struct wl_display_interface {
 
 struct wl_compositor_interface {
 	void (*create_surface)(struct wl_client *client,
-			       struct wl_compositor *compositor,
+			       struct wl_compositor *wl_compositor,
 			       uint32_t id);
 };
 
 struct wl_shm_interface {
 	void (*create_buffer)(struct wl_client *client,
-			      struct wl_shm *shm,
+			      struct wl_shm *wl_shm,
 			      uint32_t id,
 			      int fd,
 			      int width,
@@ -97,8 +102,14 @@ struct wl_shm_interface {
 };
 
 struct wl_buffer_interface {
+	void (*damage)(struct wl_client *client,
+		       struct wl_buffer *wl_buffer,
+		       int x,
+		       int y,
+		       int width,
+		       int height);
 	void (*destroy)(struct wl_client *client,
-			struct wl_buffer *buffer);
+			struct wl_buffer *wl_buffer);
 };
 
 #ifndef WL_SHELL_RESIZE_ENUM
@@ -118,21 +129,21 @@ enum wl_shell_resize {
 
 struct wl_shell_interface {
 	void (*move)(struct wl_client *client,
-		     struct wl_shell *shell,
+		     struct wl_shell *wl_shell,
 		     struct wl_surface *surface,
 		     struct wl_input_device *input_device,
 		     uint32_t time);
 	void (*resize)(struct wl_client *client,
-		       struct wl_shell *shell,
+		       struct wl_shell *wl_shell,
 		       struct wl_surface *surface,
 		       struct wl_input_device *input_device,
 		       uint32_t time,
 		       uint32_t edges);
 	void (*create_drag)(struct wl_client *client,
-			    struct wl_shell *shell,
+			    struct wl_shell *wl_shell,
 			    uint32_t id);
 	void (*create_selection)(struct wl_client *client,
-				 struct wl_shell *shell,
+				 struct wl_shell *wl_shell,
 				 uint32_t id);
 };
 
@@ -140,14 +151,14 @@ struct wl_shell_interface {
 
 struct wl_selection_interface {
 	void (*offer)(struct wl_client *client,
-		      struct wl_selection *selection,
+		      struct wl_selection *wl_selection,
 		      const char *type);
 	void (*activate)(struct wl_client *client,
-			 struct wl_selection *selection,
+			 struct wl_selection *wl_selection,
 			 struct wl_input_device *input_device,
 			 uint32_t time);
 	void (*destroy)(struct wl_client *client,
-			struct wl_selection *selection);
+			struct wl_selection *wl_selection);
 };
 
 #define WL_SELECTION_SEND	0
@@ -155,7 +166,7 @@ struct wl_selection_interface {
 
 struct wl_selection_offer_interface {
 	void (*receive)(struct wl_client *client,
-			struct wl_selection_offer *selection_offer,
+			struct wl_selection_offer *wl_selection_offer,
 			const char *mime_type,
 			int fd);
 };
@@ -165,15 +176,15 @@ struct wl_selection_offer_interface {
 
 struct wl_drag_interface {
 	void (*offer)(struct wl_client *client,
-		      struct wl_drag *drag,
+		      struct wl_drag *wl_drag,
 		      const char *type);
 	void (*activate)(struct wl_client *client,
-			 struct wl_drag *drag,
+			 struct wl_drag *wl_drag,
 			 struct wl_surface *surface,
 			 struct wl_input_device *input_device,
 			 uint32_t time);
 	void (*destroy)(struct wl_client *client,
-			struct wl_drag *drag);
+			struct wl_drag *wl_drag);
 };
 
 #define WL_DRAG_TARGET	0
@@ -182,14 +193,14 @@ struct wl_drag_interface {
 
 struct wl_drag_offer_interface {
 	void (*accept)(struct wl_client *client,
-		       struct wl_drag_offer *drag_offer,
+		       struct wl_drag_offer *wl_drag_offer,
 		       uint32_t time,
 		       const char *type);
 	void (*receive)(struct wl_client *client,
-			struct wl_drag_offer *drag_offer,
+			struct wl_drag_offer *wl_drag_offer,
 			int fd);
 	void (*reject)(struct wl_client *client,
-		       struct wl_drag_offer *drag_offer);
+		       struct wl_drag_offer *wl_drag_offer);
 };
 
 #define WL_DRAG_OFFER_OFFER	0
@@ -199,24 +210,24 @@ struct wl_drag_offer_interface {
 
 struct wl_surface_interface {
 	void (*destroy)(struct wl_client *client,
-			struct wl_surface *surface);
+			struct wl_surface *wl_surface);
 	void (*attach)(struct wl_client *client,
-		       struct wl_surface *surface,
+		       struct wl_surface *wl_surface,
 		       struct wl_buffer *buffer,
 		       int x,
 		       int y);
 	void (*map_toplevel)(struct wl_client *client,
-			     struct wl_surface *surface);
+			     struct wl_surface *wl_surface);
 	void (*map_transient)(struct wl_client *client,
-			      struct wl_surface *surface,
+			      struct wl_surface *wl_surface,
 			      struct wl_surface *parent,
 			      int x,
 			      int y,
 			      uint32_t flags);
 	void (*map_fullscreen)(struct wl_client *client,
-			       struct wl_surface *surface);
+			       struct wl_surface *wl_surface);
 	void (*damage)(struct wl_client *client,
-		       struct wl_surface *surface,
+		       struct wl_surface *wl_surface,
 		       int x,
 		       int y,
 		       int width,
@@ -225,7 +236,7 @@ struct wl_surface_interface {
 
 struct wl_input_device_interface {
 	void (*attach)(struct wl_client *client,
-		       struct wl_input_device *input_device,
+		       struct wl_input_device *wl_input_device,
 		       uint32_t time,
 		       struct wl_buffer *buffer,
 		       int hotspot_x,

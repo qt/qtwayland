@@ -84,7 +84,7 @@ struct wl_frame_listener {
 
 struct wl_global {
 	struct wl_object *object;
-	wl_client_connect_func_t func;
+	wl_global_bind_func_t func;
 	struct wl_list link;
 };
 
@@ -113,7 +113,7 @@ wl_client_post_event(struct wl_client *client, struct wl_object *sender,
 	wl_closure_destroy(closure);
 }
 
-static void
+static int
 wl_client_connection_data(int fd, uint32_t mask, void *data)
 {
 	struct wl_client *client = data;
@@ -133,7 +133,7 @@ wl_client_connection_data(int fd, uint32_t mask, void *data)
 	len = wl_connection_data(connection, cmask);
 	if (len < 0) {
 		wl_client_destroy(client);
-		return;
+		return 1;
 	}
 
 	while (len >= sizeof p) {
@@ -185,6 +185,8 @@ wl_client_connection_data(int fd, uint32_t mask, void *data)
 
 		wl_closure_destroy(closure);
 	}
+
+	return 1;
 }
 
 static int
@@ -244,15 +246,7 @@ wl_client_create(struct wl_display *display, int fd)
 	wl_display_post_range(display, client);
 
 	wl_list_for_each(global, &display->global_list, link)
-		wl_client_post_event(client, &client->display->object,
-				     WL_DISPLAY_GLOBAL,
-				     global->object,
-				     global->object->interface->name,
-				     global->object->interface->version);
-
-	wl_list_for_each(global, &display->global_list, link)
-		if (global->func)
-			global->func(client, global->object);
+		wl_client_post_global(client, global->object);
 
 	return client;
 }
@@ -476,6 +470,18 @@ wl_input_device_update_grab(struct wl_input_device *device,
 }
 
 static void
+display_bind(struct wl_client *client,
+	     struct wl_display *display, uint32_t id,
+	     const char *interface, uint32_t version)
+{
+	struct wl_global *global;
+
+	wl_list_for_each(global, &display->global_list, link)
+                if (global->object->id == id && global->func)
+			global->func(client, global->object, version);
+}
+
+static void
 display_sync(struct wl_client *client,
 	       struct wl_display *display, uint32_t key)
 {
@@ -518,6 +524,7 @@ display_frame(struct wl_client *client,
 }
 
 struct wl_display_interface display_interface = {
+	display_bind,
 	display_sync,
 	display_frame
 };
@@ -598,7 +605,7 @@ wl_display_add_object(struct wl_display *display, struct wl_object *object)
 
 WL_EXPORT int
 wl_display_add_global(struct wl_display *display,
-		      struct wl_object *object, wl_client_connect_func_t func)
+		      struct wl_object *object, wl_global_bind_func_t func)
 {
 	struct wl_global *global;
 
@@ -610,7 +617,7 @@ wl_display_add_global(struct wl_display *display,
 	global->func = func;
 	wl_list_insert(display->global_list.prev, &global->link);
 
-	return 0;	
+	return 0;
 }
 
 WL_EXPORT void
@@ -649,7 +656,7 @@ wl_display_run(struct wl_display *display)
 		wl_event_loop_dispatch(display->loop, -1);
 }
 
-static void
+static int
 socket_data(int fd, uint32_t mask, void *data)
 {
 	struct wl_display *display = data;
@@ -665,6 +672,8 @@ socket_data(int fd, uint32_t mask, void *data)
 		fprintf(stderr, "failed to accept: %m\n");
 
 	wl_client_create(display, client_fd);
+
+	return 1;
 }
 
 static int

@@ -181,7 +181,9 @@ Surface::~Surface()
 {
     Q_D(Surface);
     d->compositor->surfaceDestroyed(this);
+#ifdef QT_COMPOSITOR_WAYLAND_GL
     glDeleteTextures(1,&d->texture_id);
+#endif
     delete d->qtSurface;
 }
 
@@ -194,6 +196,8 @@ WaylandSurface::Type Surface::type() const
 void Surface::damage(const QRect &rect)
 {
     Q_D(Surface);
+
+#ifdef QT_COMPOSITOR_WAYLAND_GL
     if (d->type() == WaylandSurface::Direct) {
         //should the texture be deleted here, or should we explicitly delete it
         //when going into direct mode...
@@ -204,6 +208,7 @@ void Surface::damage(const QRect &rect)
         if (d->compositor->graphicsHWIntegration()->postBuffer(d->directRenderBuffer))
                 return;
     }
+#endif
 
     if (d->needsMap) {
         QRect rect(0,0,d->buffer()->width,d->buffer()->height);

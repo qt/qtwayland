@@ -2,15 +2,15 @@
 <protocol name="xcomposite">
   <!-- XComposite support. This object is created by the server and published
        using the display's global event. -->
-  <interface name="xcomposite" version="1">
+  <interface name="wl_xcomposite" version="1">
 
     <!-- Create a wayland buffer for X Window. -->
     <request name="create_buffer">
-      <arg name="id" type="new_id" interface="buffer"/>
+      <arg name="id" type="new_id" interface="wl_buffer"/>
       <arg name="x_window" type="uint"/>
       <arg name="width" type="int"/>
       <arg name="height" type="int"/>
-      <arg name="visual" type="object" interface="visual"/>
+      <arg name="visual" type="object" interface="wl_visual"/>
     </request>
 
     <!-- Notification of the root window to use for the X Window created

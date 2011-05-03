@@ -40,7 +40,7 @@ extern const struct wl_interface wl_xcomposite_interface;
 
 struct wl_xcomposite_interface {
 	void (*create_buffer)(struct wl_client *client,
-			      struct wl_xcomposite *xcomposite,
+			      struct wl_xcomposite *wl_xcomposite,
 			      uint32_t id,
 			      uint32_t x_window,
 			      int width,

@@ -109,12 +109,18 @@ struct wl_shm_callbacks ShmHandler::shm_callbacks = {
 void ShmHandler::buffer_created_callback(struct wl_buffer *buffer)
 {
     ShmBuffer *newBuffer = new ShmBuffer(buffer);
+    Q_UNUSED(newBuffer);
 }
 
 void ShmHandler::buffer_damaged_callback(struct wl_buffer *buffer,
                       int32_t x, int32_t y,
                       int32_t width, int32_t height)
 {
+    Q_UNUSED(buffer);
+    Q_UNUSED(x);
+    Q_UNUSED(y);
+    Q_UNUSED(width);
+    Q_UNUSED(height);
     fprintf(stderr,"damage_callback\n");
 }
 

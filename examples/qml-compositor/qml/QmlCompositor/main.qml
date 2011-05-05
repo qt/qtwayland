@@ -49,8 +49,7 @@ Item {
 
     Image {
         id: background
-        width: parent.width
-        height: parent.height
+        anchors.fill: parent
         source: "background.jpg"
         smooth: true
     }
@@ -95,4 +94,7 @@ Item {
         windowContainer.destroy();
         compositor.destroyWindow(window);
     }
+
+    onHeightChanged: CompositorLogic.relayout();
+    onWidthChanged: CompositorLogic.relayout();
 }

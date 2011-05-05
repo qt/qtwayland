@@ -9,6 +9,7 @@
 #include <QtGui/QCursor>
 
 #include <X11/Xlib.h>
+#include "X11/extensions/Xcomposite.h"
 
 enum {
     XFocusOut = FocusOut,

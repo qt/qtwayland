@@ -186,6 +186,13 @@ QSGNode *WaylandSurfaceItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeDa
     if (!node) {
         node = new QSGSimpleTextureNode();
     }
+
+    if (surface()->isYInverted()) {
+        node->setRect(0, height(), width(), -height());
+    } else {
+        node->setRect(0, 0, width(), height());
+    }
+
     node->setTexture(m_texture);
 
     node->setFiltering(smooth() ? QSGTexture::Linear : QSGTexture::Nearest);

@@ -44,6 +44,7 @@
 #include "wldisplay.h"
 #include "wlshmbuffer.h"
 #include "wlsurface.h"
+#include "wlselection.h"
 #include "waylandcompositor.h"
 
 #include <QApplication>
@@ -150,10 +151,9 @@ void shell_selection(struct wl_client *client,
                      struct wl_shell *shell,
                      uint32_t id)
 {
-    Q_UNUSED(client);
-    Q_UNUSED(shell);
-    Q_UNUSED(id);
     qDebug() << "shellSelection";
+    Q_UNUSED(shell);
+    Selection::instance()->create(client, id);
 }
 
 const static struct wl_shell_interface shell_interface = {
@@ -162,6 +162,13 @@ const static struct wl_shell_interface shell_interface = {
     shell_drag,
     shell_selection
 };
+
+static Compositor *compositor;
+
+Compositor *Compositor::instance()
+{
+    return compositor;
+}
 
 Compositor::Compositor(WaylandCompositor *qt_compositor)
     : m_display(new Display)
@@ -173,6 +180,8 @@ Compositor::Compositor(WaylandCompositor *qt_compositor)
     , m_keyFocusSurface(0)
     , m_directRenderSurface(0)
 {
+    compositor = this;
+
 #if defined (QT_COMPOSITOR_WAYLAND_GL)
     m_graphics_hw_integration = GraphicsHardwareIntegration::createGraphicsHardwareIntegration(qt_compositor);
 #endif
@@ -227,7 +236,10 @@ void Compositor::createSurface(struct wl_client *client, int id)
 
     m_qt_compositor->surfaceCreated(surface->handle());
 
+    QList<struct wl_client *> prevClientList = clients();
     m_surfaces << surface;
+    if (!prevClientList.contains(client))
+        emit clientAdded(client);
 }
 
 struct wl_client *Compositor::getClientFromWinId(uint winId) const
@@ -357,6 +369,16 @@ bool Compositor::setDirectRenderSurface(Surface *surface)
     return false;
 }
 
+QList<struct wl_client *> Compositor::clients() const
+{
+    QList<struct wl_client *> list;
+    foreach (Surface *surface, m_surfaces) {
+        struct wl_client *client = surface->base()->client;
+        if (!list.contains(client))
+            list.append(client);
+    }
+    return list;
+}
 
 }
 
@@ -364,4 +386,3 @@ wl_input_device * Wayland::Compositor::defaultInputDevice()
 {
     return &m_input;
 }
-

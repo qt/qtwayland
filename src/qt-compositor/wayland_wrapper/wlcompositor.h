@@ -94,6 +94,16 @@ public:
 
     wl_input_device *defaultInputDevice();
     WaylandCompositor *qtCompositor() const { return m_qt_compositor; }
+
+    struct wl_display *wl_display() { return m_display->handle(); }
+
+    static Compositor *instance();
+
+    QList<struct wl_client *> clients() const;
+
+signals:
+    void clientAdded(wl_client *client);
+
 private slots:
     void processWaylandEvents();
 

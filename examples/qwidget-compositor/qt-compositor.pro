@@ -6,6 +6,8 @@ INCLUDEPATH += .
 # comment out the following to not use pkg-config in the pri files
 CONFIG += use_pkgconfig
 
+QT += core-private gui-private
+
 DESTDIR=$$PWD/../../bin/
 
 include (../../src/qt-compositor/qt-compositor.pri)

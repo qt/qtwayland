@@ -12,6 +12,8 @@ CONFIG += use_pkgconfig
 
 DESTDIR=$$PWD/../../bin/
 
+QT += core-private gui-private declarative-private opengl-private
+
 LIBS += -L ../../lib
 
 QT += declarative

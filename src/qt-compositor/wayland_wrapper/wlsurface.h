@@ -71,6 +71,7 @@ public:
     ~Surface();
 
     WaylandSurface::Type type() const;
+    bool isYInverted() const;
 
     uint id() const { return base()->resource.object.id; }
     void attach(struct wl_buffer *buffer);

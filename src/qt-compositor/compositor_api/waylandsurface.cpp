@@ -25,6 +25,12 @@ WaylandSurface::Type WaylandSurface::type() const
     return d->surface->type();
 }
 
+bool WaylandSurface::isYInverted() const
+{
+    Q_D(const WaylandSurface);
+    return d->surface->isYInverted();
+}
+
 QRect WaylandSurface::geometry() const
 {
     Q_D(const WaylandSurface);

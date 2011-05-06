@@ -193,6 +193,15 @@ WaylandSurface::Type Surface::type() const
     return d->type();
 }
 
+bool Surface::isYInverted() const
+{
+    Q_D(const Surface);
+    if (d->type() == WaylandSurface::Texture) {
+        return d->compositor->graphicsHWIntegration()->isYInverted(d->buffer());
+    }
+    return false;
+}
+
 void Surface::damage(const QRect &rect)
 {
     Q_D(Surface);

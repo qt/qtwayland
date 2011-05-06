@@ -58,6 +58,7 @@ public:
         so there is no need to do makeCurrent in this function.
      **/
     virtual GLuint createTextureFromBuffer(struct wl_buffer *buffer) = 0;
+    virtual bool isYInverted(struct wl_buffer *) const { return false; }
 
     virtual bool setDirectRenderSurface(WaylandSurface *) {return false;}
     virtual bool postBuffer(struct wl_buffer *) {return false;}

@@ -69,6 +69,7 @@ public:
     WaylandSurface(Wayland::Surface *surface);
 
     Type type() const;
+    bool isYInverted() const;
 
     void setGeometry(const QRect &geometry);
     QRect geometry() const;

@@ -63,6 +63,8 @@ public:
     void setSurface(WaylandSurface *surface);
     WaylandSurface *surface() const {return m_surface; }
 
+    Q_INVOKABLE bool isYInverted() const;
+
     QSGTexture *texture() const;
     const char *textureChangedSignal() const { return SIGNAL(textureChanged()); }
 

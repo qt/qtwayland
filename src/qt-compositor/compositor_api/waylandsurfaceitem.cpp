@@ -113,6 +113,11 @@ void WaylandSurfaceItem::setSurface(WaylandSurface *surface)
     init(surface);
 }
 
+bool WaylandSurfaceItem::isYInverted() const
+{
+    return m_surface->isYInverted();
+}
+
 QSGTexture *WaylandSurfaceItem::texture() const
 {
     if (m_texture)

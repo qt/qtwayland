@@ -96,8 +96,6 @@ private:
 
     WaylandSurface *m_surface;
     QSGTexture *m_texture;
-
-    bool m_texture_needs_flipping;
 };
 
 #endif

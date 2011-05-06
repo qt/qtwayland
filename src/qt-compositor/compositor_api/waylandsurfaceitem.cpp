@@ -55,13 +55,10 @@ void WaylandSurfaceItem::surfaceDamaged(const QRect &)
         delete m_texture;
 
     if (m_surface->type() == WaylandSurface::Texture) {
-        //qDebug() << "createTextureFromId" << m_surface->texture() << m_surface->geometry().size();
         m_texture = canvas()->sceneGraphEngine()->createTextureFromId(m_surface->texture(),
                                                                       m_surface->geometry().size());
-        m_texture_needs_flipping = true;
     } else {
         m_texture = canvas()->sceneGraphEngine()->createTextureFromImage(m_surface->image());
-        m_texture_needs_flipping = false;
     }
 
     emit textureChanged();
@@ -71,7 +68,6 @@ WaylandSurfaceItem::WaylandSurfaceItem(QSGItem *parent)
     : QSGItem(parent)
     , m_surface(0)
     , m_texture(0)
-    , m_texture_needs_flipping(false)
 {
 }
 
@@ -79,7 +75,6 @@ WaylandSurfaceItem::WaylandSurfaceItem(WaylandSurface *surface, QSGItem *parent)
     : QSGItem(parent)
     , m_surface(0)
     , m_texture(0)
-    , m_texture_needs_flipping(false)
 {
     init(surface);
 }
@@ -192,11 +187,6 @@ QSGNode *WaylandSurfaceItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeDa
         node = new QSGSimpleTextureNode();
     }
     node->setTexture(m_texture);
-
-    if (m_texture_needs_flipping)
-        node->setRect(0, height(), width(), -height());
-    else
-        node->setRect(0, 0, width(), height());
 
     node->setFiltering(smooth() ? QSGTexture::Linear : QSGTexture::Nearest);
 

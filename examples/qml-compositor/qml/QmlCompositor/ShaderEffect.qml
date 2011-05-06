@@ -45,6 +45,34 @@ ShaderEffectItem {
     property color color: "#ffffff"
     property real blend;
 
+    onSourceChanged: {
+        if (source != null) {
+            source.visible = false;
+            vertexShader = source.isYInverted() ? vShaderInvertedY : vShader;
+        }
+    }
+
+    property string vShader: "
+    uniform highp mat4 qt_ModelViewProjectionMatrix;
+    attribute highp vec4 qt_Vertex;
+    attribute highp vec2 qt_MultiTexCoord0;
+    varying highp vec2 qt_TexCoord0;
+    void main() {
+        qt_TexCoord0 = qt_MultiTexCoord0;
+        gl_Position = qt_ModelViewProjectionMatrix * qt_Vertex;
+    }
+    "
+    property string vShaderInvertedY: "
+    uniform highp mat4 qt_ModelViewProjectionMatrix;
+    attribute highp vec4 qt_Vertex;
+    attribute highp vec2 qt_MultiTexCoord0;
+    varying highp vec2 qt_TexCoord0;
+    void main() {
+        qt_TexCoord0 = vec2(0, 1) + qt_MultiTexCoord0 * vec2(1, -1);
+        gl_Position = qt_ModelViewProjectionMatrix * qt_Vertex;
+    }
+    "
+
     fragmentShader: "
     uniform sampler2D source;
     uniform float qt_Opacity;

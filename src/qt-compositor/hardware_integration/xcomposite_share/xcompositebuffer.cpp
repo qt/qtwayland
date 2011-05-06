@@ -2,6 +2,7 @@
 
 XCompositeBuffer::XCompositeBuffer(Wayland::Compositor *compositor, Window window, const QSize &size, struct wl_visual *visual)
     : mWindow(window)
+    , mInvertedY(false)
 {
     base()->compositor = compositor->base();
     base()->height = size.height();

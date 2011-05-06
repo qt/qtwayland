@@ -87,6 +87,11 @@ GLuint XCompositeGLXIntegration::createTextureFromBuffer(wl_buffer *buffer)
     attribList.append(GLX_TEXTURE_2D_EXT);
     attribList.append(0);
     GLXPixmap glxPixmap = glXCreatePixmap(mDisplay,*configs,pixmap,attribList.constData());
+
+    uint inverted;
+    glXQueryDrawable(mDisplay, glxPixmap, GLX_Y_INVERTED_EXT,&inverted);
+    compositorBuffer->setInvertedY(!inverted);
+
     XFree(configs);
 
     GLuint textureId;
@@ -97,4 +102,10 @@ GLuint XCompositeGLXIntegration::createTextureFromBuffer(wl_buffer *buffer)
     //The specification states that when deleting the texture the color buffer is deleted
 //    m_glxReleaseTexImageEXT(mDisplay,glxPixmap,GLX_FRONT_EXT);
     return textureId;
+}
+
+bool XCompositeGLXIntegration::isYInverted(wl_buffer *buffer) const
+{
+    XCompositeBuffer *compositorBuffer = Wayland::wayland_cast<XCompositeBuffer *>(buffer);
+    return compositorBuffer->isYInverted();
 }

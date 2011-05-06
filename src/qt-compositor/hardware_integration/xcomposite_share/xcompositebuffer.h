@@ -25,8 +25,11 @@ public:
     static void delete_resource(struct wl_resource *resource,
                                         struct wl_client *client);
 
+    bool isYInverted() const { return mInvertedY; }
+    void setInvertedY(bool inverted) { mInvertedY = inverted; }
 private:
     Window mWindow;
+    bool mInvertedY;
 
     static void buffer_interface_destroy(struct wl_client *client,
                         struct wl_buffer *buffer);

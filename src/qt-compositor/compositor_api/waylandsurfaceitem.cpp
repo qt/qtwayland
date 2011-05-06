@@ -68,6 +68,7 @@ WaylandSurfaceItem::WaylandSurfaceItem(QSGItem *parent)
     : QSGItem(parent)
     , m_surface(0)
     , m_texture(0)
+    , m_hidden(false)
 {
 }
 
@@ -75,6 +76,7 @@ WaylandSurfaceItem::WaylandSurfaceItem(WaylandSurface *surface, QSGItem *parent)
     : QSGItem(parent)
     , m_surface(0)
     , m_texture(0)
+    , m_hidden(false)
 {
     init(surface);
 }
@@ -174,11 +176,22 @@ void WaylandSurfaceItem::surfaceDestroyed(QObject *)
     m_surface = 0;
 }
 
+bool WaylandSurfaceItem::hidden() const
+{
+    return m_hidden;
+}
+
+void WaylandSurfaceItem::setHidden(bool h)
+{
+    m_hidden = h;
+    update();
+}
+
 QSGNode *WaylandSurfaceItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *)
 {
     QSGSimpleTextureNode *node = static_cast<QSGSimpleTextureNode *>(oldNode);
 
-    if (!m_texture) {
+    if (!m_texture || m_hidden) {
         delete oldNode;
         return 0;
     }

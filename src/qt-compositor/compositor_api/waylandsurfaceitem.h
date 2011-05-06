@@ -54,6 +54,7 @@ class WaylandSurfaceItem : public QSGItem, public QSGTextureProvider
     Q_OBJECT
     Q_INTERFACES(QSGTextureProvider)
     Q_PROPERTY(WaylandSurface* surface READ surface WRITE setSurface)
+    Q_PROPERTY(bool hidden READ hidden WRITE setHidden)
 
 public:
     WaylandSurfaceItem(QSGItem *parent = 0);
@@ -68,6 +69,8 @@ public:
     QSGTexture *texture() const;
     const char *textureChangedSignal() const { return SIGNAL(textureChanged()); }
 
+    bool hidden() const;
+
 protected:
     void mousePressEvent(QGraphicsSceneMouseEvent *event);
     void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
@@ -78,6 +81,7 @@ protected:
 
 public slots:
     void takeFocus();
+    void setHidden(bool hidden);
 
 private slots:
     void surfaceMapped(const QRect &rect);
@@ -96,6 +100,7 @@ private:
 
     WaylandSurface *m_surface;
     QSGTexture *m_texture;
+    bool m_hidden;
 };
 
 #endif

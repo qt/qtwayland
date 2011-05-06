@@ -47,7 +47,7 @@ ShaderEffectItem {
 
     onSourceChanged: {
         if (source != null) {
-            source.visible = false;
+            source.setHidden(true);
             vertexShader = source.isYInverted() ? vShaderInvertedY : vShader;
         }
     }

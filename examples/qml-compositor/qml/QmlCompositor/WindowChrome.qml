@@ -53,10 +53,4 @@ Item {
             window.takeFocus();
         }
     }
-
-    Binding {
-        target: window
-        property: "opacity"
-        value: 0.01
-    }
 }

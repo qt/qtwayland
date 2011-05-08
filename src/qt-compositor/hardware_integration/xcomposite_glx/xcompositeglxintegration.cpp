@@ -88,7 +88,7 @@ GLuint XCompositeGLXIntegration::createTextureFromBuffer(wl_buffer *buffer)
     attribList.append(0);
     GLXPixmap glxPixmap = glXCreatePixmap(mDisplay,*configs,pixmap,attribList.constData());
 
-    uint inverted;
+    uint inverted = 0;
     glXQueryDrawable(mDisplay, glxPixmap, GLX_Y_INVERTED_EXT,&inverted);
     compositorBuffer->setInvertedY(!inverted);
 

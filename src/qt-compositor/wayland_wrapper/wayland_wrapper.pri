@@ -4,7 +4,7 @@ HEADERS += \
     $$PWD/wloutput.h \
     $$PWD/wlshmbuffer.h \
     $$PWD/wlsurface.h \
-    ../../src/qt-compositor/wayland_wrapper/wlselection.h
+    $$PWD/wlselection.h
 
 SOURCES += \
     $$PWD/wlcompositor.cpp \
@@ -12,4 +12,4 @@ SOURCES += \
     $$PWD/wloutput.cpp \
     $$PWD/wlshmbuffer.cpp \
     $$PWD/wlsurface.cpp \
-    ../../src/qt-compositor/wayland_wrapper/wlselection.cpp
+    $$PWD/wlselection.cpp

@@ -115,7 +115,7 @@ private:
 
 void surface_destroy(struct wl_client *client, struct wl_surface *surface)
 {
-    wl_resource_destroy(&surface->resource, client);
+    wl_resource_destroy(&surface->resource, client, Compositor::currentTimeMsecs());
 }
 
 void surface_attach(struct wl_client *client, struct wl_surface *surface,
@@ -172,7 +172,6 @@ Surface::Surface(struct wl_client *client, Compositor *compositor)
     : d_ptr(new SurfacePrivate(client,compositor))
 {
     base()->client = client;
-    wl_list_init(&base()->destroy_listener_list);
     d_ptr->qtSurface = new WaylandSurface(this);
 
 }

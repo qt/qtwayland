@@ -121,7 +121,7 @@ void Selection::selActivate(struct wl_client *client,
 
 void Selection::selDestroy(struct wl_client *client, struct wl_selection *selection)
 {
-    wl_resource_destroy(&selection->resource, client);
+    wl_resource_destroy(&selection->resource, client, Compositor::currentTimeMsecs());
 }
 
 const struct wl_selection_interface Selection::selectionInterface = {

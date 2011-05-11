@@ -83,7 +83,7 @@ public:
 
     void destroyClientForSurface(Surface *surface);
 
-    uint currentTimeMsecs() const;
+    static uint currentTimeMsecs();
 
     QWidget *topLevelWidget() const;
 

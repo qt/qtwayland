@@ -273,8 +273,7 @@ QImage Compositor::image(uint winId) const
     return QImage();
 }
 
-//XXX: sort this out. Static function?
-uint Compositor::currentTimeMsecs() const
+uint Compositor::currentTimeMsecs()
 {
     //### we throw away the time information
     struct timeval tv;

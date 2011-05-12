@@ -51,8 +51,7 @@
 
 void WaylandSurfaceItem::surfaceDamaged(const QRect &)
 {
-    if (m_texture)
-        delete m_texture;
+    QSGTexture *oldTexture = m_texture;
 
     if (m_surface->type() == WaylandSurface::Texture) {
         m_texture = canvas()->sceneGraphEngine()->createTextureFromId(m_surface->texture(),
@@ -60,6 +59,8 @@ void WaylandSurfaceItem::surfaceDamaged(const QRect &)
     } else {
         m_texture = canvas()->sceneGraphEngine()->createTextureFromImage(m_surface->image());
     }
+
+    delete oldTexture;
 
     emit textureChanged();
 }

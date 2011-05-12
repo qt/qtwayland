@@ -252,8 +252,7 @@ QImage Surface::image() const
 GLuint Surface::textureId() const
 {
     Q_D(const Surface);
-    if (!d->texture_id
-            && d->type() == WaylandSurface::Texture
+    if ( d->type() == WaylandSurface::Texture
             && !d->textureCreatedForBuffer) {
         glDeleteTextures(1,&d->texture_id);
         Surface *that = const_cast<Surface *>(this);

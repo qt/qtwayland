@@ -42,6 +42,7 @@
 
 #include "wayland_wrapper/wlcompositor.h"
 #include "wayland_wrapper/wlsurface.h"
+#include "wayland_wrapper/wlselection.h"
 
 #ifdef QT_COMPOSITOR_DECLARATIVE
 #include "waylandsurfaceitem.h"
@@ -99,5 +100,22 @@ QWidget * WaylandCompositor::topLevelWidget() const
 Wayland::Compositor * WaylandCompositor::handle() const
 {
     return m_compositor;
+}
+
+void WaylandCompositor::setRetainedSelectionEnabled(bool enable)
+{
+    Wayland::Selection *sel = Wayland::Selection::instance();
+    sel->setRetainedSelection(enable);
+    sel->setRetainedSelectionWatcher(retainedSelectionChanged, this);
+}
+
+void WaylandCompositor::retainedSelectionChanged(QMimeData *mimeData, void *param)
+{
+    WaylandCompositor *self = static_cast<WaylandCompositor *>(param);
+    self->retainedSelectionReceived(mimeData);
+}
+
+void WaylandCompositor::retainedSelectionReceived(QMimeData *)
+{
 }
 

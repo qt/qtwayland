@@ -43,7 +43,12 @@
 
 #include <QtCore/QObject>
 #include <QtCore/QStringList>
+#include <QtCore/QMimeData>
 #include <wayland-server.h>
+
+QT_BEGIN_NAMESPACE
+class QSocketNotifier;
+QT_END_NAMESPACE
 
 namespace Wayland {
 
@@ -54,10 +59,15 @@ class Selection : public QObject
 public:
     static Selection *instance();
     Selection();
+    ~Selection();
     void create(struct wl_client *client, uint32_t id);
+    void setRetainedSelection(bool enable);
+    typedef void (*Watcher)(QMimeData*, void*);
+    void setRetainedSelectionWatcher(Watcher func, void *param);
 
 private slots:
     void onClientAdded(wl_client *client);
+    void readFromClient(int fd);
 
 private:
     static void destroySelection(struct wl_resource *resource, struct wl_client *client);
@@ -75,9 +85,20 @@ private:
                      const char *mime_type, int fd);
     static const struct wl_selection_offer_interface selectionOfferInterface;
 
+    void retain();
+    void finishReadFromClient();
+
     QStringList m_offerList;
     struct wl_selection *m_currentSelection;
     struct wl_selection_offer *m_currentOffer;
+    QMimeData m_retainedData;
+    QSocketNotifier *m_retainedReadNotifier;
+    int m_retainedReadIndex;
+    QByteArray m_retainedReadBuf;
+    struct wl_selection *m_retainedSelection;
+    bool m_retainedSelectionEnabled;
+    Watcher m_watchFunc;
+    void *m_watchFuncParam;
 };
 
 }

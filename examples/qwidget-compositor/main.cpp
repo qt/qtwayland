@@ -65,6 +65,7 @@ class QWidgetCompositor : public QWidget, public WaylandCompositor
 public:
     QWidgetCompositor() : WaylandCompositor(this), m_dragSurface(0) {
         setMouseTracking(true);
+        setRetainedSelectionEnabled(true);
         m_background = QImage(QLatin1String("background.jpg"));
         //make sure we get the window id and create the glcontext
         //so that clients can successfully initialize egl

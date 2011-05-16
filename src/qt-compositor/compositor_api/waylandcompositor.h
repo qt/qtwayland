@@ -50,6 +50,7 @@
 #endif
 
 class QWidget;
+class QMimeData;
 class WaylandSurface;
 
 namespace Wayland
@@ -76,7 +77,13 @@ public:
     virtual void surfaceCreated(WaylandSurface *surface) = 0;
 
     Wayland::Compositor *handle() const;
+
+    void setRetainedSelectionEnabled(bool enable);
+    virtual void retainedSelectionReceived(QMimeData *mimeData);
+
 private:
+    static void retainedSelectionChanged(QMimeData *mimeData, void *param);
+
     Wayland::Compositor *m_compositor;
     QWidget  *m_toplevel_widget;
 

@@ -194,7 +194,9 @@ WaylandSurface::Type Surface::type() const
 
 bool Surface::isYInverted() const
 {
+#ifdef QT_COMPOSITOR_WAYLAND_GL
     Q_D(const Surface);
+
     if (d->type() == WaylandSurface::Texture) {
         if (textureId()) {
             return d->compositor->graphicsHWIntegration()->isYInverted(d->buffer());
@@ -202,6 +204,7 @@ bool Surface::isYInverted() const
     } else if (d->type() == WaylandSurface::Direct) {
         return d->compositor->graphicsHWIntegration()->isYInverted(d->buffer());
     }
+#endif
     //shm surfaces are not flipped (in our "world")
     return false;
 }

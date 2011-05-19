@@ -70,9 +70,11 @@ public:
         //make sure we get the window id and create the glcontext
         //so that clients can successfully initialize egl
         winId();
+#ifdef QT_COMPOSITOR_WAYLAND_GL
         if (platformWindow()) {
             platformWindow()->glContext();
         }
+#endif
     }
 
 private slots:

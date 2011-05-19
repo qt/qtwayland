@@ -91,6 +91,7 @@ public:
     void setInputFocus();
 
     Wayland::Surface *handle() const;
+    qint64 processId() const;
 
 signals:
     void mapped(const QRect &rect);

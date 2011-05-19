@@ -68,6 +68,7 @@
 #include <wayland-server.h>
 
 #include "hardware_integration/graphicshardwareintegration.h"
+#include "waylandwindowmanagerintegration.h"
 
 namespace Wayland {
 
@@ -185,6 +186,7 @@ Compositor::Compositor(WaylandCompositor *qt_compositor)
 #if defined (QT_COMPOSITOR_WAYLAND_GL)
     m_graphics_hw_integration = GraphicsHardwareIntegration::createGraphicsHardwareIntegration(qt_compositor);
 #endif
+    m_windowManagerWaylandProtocol = new WindowManagerServerIntegration(this);
 
     if (wl_compositor_init(base(), &compositor_interface, m_display->handle())) {
         fprintf(stderr, "Fatal: Error initializing compositor\n");
@@ -234,6 +236,9 @@ void Compositor::createSurface(struct wl_client *client, int id)
     addClientResource(client, &surface->base()->resource, id, &wl_surface_interface,
             &surface_interface, destroy_surface);
 
+    quint32 processId = m_windowManagerWaylandProtocol->pidForClient(client);
+    // if there is no PID, the client does not support the protocol.
+    surface->setProcessId(processId);
     m_qt_compositor->surfaceCreated(surface->handle());
 
     QList<struct wl_client *> prevClientList = clients();
@@ -308,8 +313,10 @@ void Compositor::destroyClientForSurface(Surface *surface)
 {
     wl_client *client = surface->base()->client;
 
-    if (client)
+    if (client) {
+        m_windowManagerWaylandProtocol->removeClient(client);
         wl_client_destroy(client);
+    }
 }
 
 void Compositor::setInputFocus(Surface *surface)
@@ -355,6 +362,11 @@ void Compositor::initializeHardwareIntegration()
 #ifdef QT_COMPOSITOR_WAYLAND_GL
     m_graphics_hw_integration->initializeHardware(m_display);
 #endif
+}
+
+void Compositor::initializeWindowManagerProtocol()
+{
+    m_windowManagerWaylandProtocol->initialize(m_display);
 }
 
 bool Compositor::setDirectRenderSurface(Surface *surface)

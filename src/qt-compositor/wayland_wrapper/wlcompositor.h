@@ -52,6 +52,7 @@
 class WaylandCompositor;
 class GraphicsHardwareIntegration;
 class QWidget;
+class WindowManagerServerIntegration;
 
 namespace Wayland {
 
@@ -89,6 +90,7 @@ public:
 
     GraphicsHardwareIntegration *graphicsHWIntegration() const;
     void initializeHardwareIntegration();
+    void initializeWindowManagerProtocol();
     bool setDirectRenderSurface(Surface *surface);
     Surface *directRenderSurface() const {return m_directRenderSurface;}
 
@@ -138,6 +140,7 @@ private:
 #ifdef QT_COMPOSITOR_WAYLAND_GL
     GraphicsHardwareIntegration *m_graphics_hw_integration;
 #endif
+    WindowManagerServerIntegration *m_windowManagerWaylandProtocol;
 };
 
 }

@@ -67,6 +67,7 @@ public:
         , needsMap(false)
         , textureCreatedForBuffer(false)
         , directRenderBuffer(0)
+        , processId(0)
         , surfaceBuffer(0)
         , surfaceType(WaylandSurface::Invalid)
     {
@@ -107,6 +108,7 @@ public:
     bool needsMap;
     bool textureCreatedForBuffer;
     wl_buffer *directRenderBuffer;
+    qint64 processId;
 
 private:
     struct wl_buffer *surfaceBuffer;
@@ -287,6 +289,24 @@ WaylandSurface * Surface::handle() const
 {
     Q_D(const Surface);
     return d->qtSurface;
+}
+
+wl_client *Surface::clientHandle() const
+{
+    Q_D(const Surface);
+    return d->client;
+}
+
+qint64 Surface::processId() const
+{
+    Q_D(const Surface);
+    return d->processId;
+}
+
+void Surface::setProcessId(qint64 processId)
+{
+    Q_D(Surface);
+    d->processId = processId;
 }
 
 uint32_t toWaylandButton(Qt::MouseButton button)

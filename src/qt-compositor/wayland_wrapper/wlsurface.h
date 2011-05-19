@@ -96,6 +96,11 @@ public:
     void setInputFocus();
 
     WaylandSurface *handle() const;
+    wl_client *clientHandle() const;
+    qint64 processId() const;
+    void setProcessId(qint64 processId);
+    void setSurfaceCreationFinished(bool isCreated);
+
 protected:
     QScopedPointer<SurfacePrivate> d_ptr;
 private:

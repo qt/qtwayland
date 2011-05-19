@@ -69,6 +69,12 @@ Wayland::Surface * WaylandSurface::handle() const
     return d->surface;
 }
 
+qint64 WaylandSurface::processId() const
+{
+    Q_D(const WaylandSurface);
+    return d->surface->processId();
+}
+
 void WaylandSurface::sendMousePressEvent(const QPoint &pos, Qt::MouseButton button)
 {
     Q_D(WaylandSurface);

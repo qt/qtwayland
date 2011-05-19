@@ -58,6 +58,7 @@ WaylandCompositor::WaylandCompositor(QWidget *topLevelWidget)
     qRegisterMetaType<WaylandSurface*>("WaylandSurface*");
 #endif
     m_compositor->initializeHardwareIntegration();
+    m_compositor->initializeWindowManagerProtocol();
 }
 
 WaylandCompositor::~WaylandCompositor()

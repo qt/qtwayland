@@ -1,0 +1,18 @@
+<!--
+# /****************************************************************************
+# **
+# ** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+# ** Contact: Nokia Corporation (qt-info@nokia.com)
+# **
+# ** This file is part of qt-compositor.
+# **
+# ****************************************************************************/
+-->
+<protocol name="wayland_windowmanager">
+    <interface name="wl_windowmanager" version="1">
+        <request name="map_client_to_process">
+            <arg name="processid" type="uint" />
+        </request>
+    </interface>
+
+</protocol>

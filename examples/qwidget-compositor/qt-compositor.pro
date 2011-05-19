@@ -6,7 +6,9 @@ INCLUDEPATH += .
 # comment out the following to not use pkg-config in the pri files
 CONFIG += use_pkgconfig
 
+!isEmpty(QT.core.MAJOR_VERSION):greaterThan(QT.core.MAJOR_VERSION, 4) {
 QT += core-private gui-private
+}
 
 DESTDIR=$$PWD/../../bin/
 

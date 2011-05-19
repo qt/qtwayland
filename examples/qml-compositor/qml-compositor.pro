@@ -12,12 +12,14 @@ CONFIG += use_pkgconfig
 
 DESTDIR=$$PWD/../../bin/
 
-QT += core-private gui-private declarative-private opengl-private
-
 LIBS += -L ../../lib
 
 QT += declarative
 QT += opengl
+
+!isEmpty(QT.core.MAJOR_VERSION):greaterThan(QT.core.MAJOR_VERSION, 4) {
+    QT += core-private gui-private declarative-private opengl-private
+}
 
 include (../../src/qt-compositor/qt-compositor.pri)
 

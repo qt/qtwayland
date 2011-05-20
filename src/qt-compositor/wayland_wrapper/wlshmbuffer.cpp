@@ -52,6 +52,7 @@ ShmBuffer::ShmBuffer(struct wl_buffer *buffer)
     : m_buffer(buffer)
 {
     m_buffer->user_data = this;
+    m_buffer->compositor = NULL;
     m_data = wl_shm_buffer_get_data(m_buffer);
     m_stride = wl_shm_buffer_get_stride(m_buffer);
 
@@ -75,7 +76,12 @@ QSize ShmBuffer::size() const
 void ShmBuffer::damage()
 {
     QImage::Format imageFormat = QImage::Format_Invalid;
+
     //jl: need to do depth check as well.
+
+    if (!m_buffer->compositor)
+      return ;
+
     if (m_buffer->visual == &m_buffer->compositor->premultiplied_argb_visual) {
         imageFormat = QImage::Format_ARGB32_Premultiplied;
     } else if (m_buffer->visual == &m_buffer->compositor->rgb_visual) {

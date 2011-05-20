@@ -94,6 +94,7 @@ public:
         this->surfaceBuffer = buffer;
         surfaceType = WaylandSurface::Invalid;
         textureCreatedForBuffer = false;
+        buffer->compositor = compositor->base();
     }
 
     inline struct wl_buffer *buffer() const { return surfaceBuffer; }

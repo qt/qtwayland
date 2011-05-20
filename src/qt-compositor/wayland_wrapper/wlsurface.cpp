@@ -184,7 +184,8 @@ Surface::~Surface()
     Q_D(Surface);
     d->compositor->surfaceDestroyed(this);
 #ifdef QT_COMPOSITOR_WAYLAND_GL
-    glDeleteTextures(1,&d->texture_id);
+    if (d->compositor->graphicsHWIntegration())
+        glDeleteTextures(1,&d->texture_id);
 #endif
     delete d->qtSurface;
 }
@@ -200,12 +201,14 @@ bool Surface::isYInverted() const
 #ifdef QT_COMPOSITOR_WAYLAND_GL
     Q_D(const Surface);
 
-    if (d->type() == WaylandSurface::Texture) {
-        if (textureId()) {
+    if (d->compositor->graphicsHWIntegration()) {
+        if (d->type() == WaylandSurface::Texture) {
+            if (textureId()) {
+                return d->compositor->graphicsHWIntegration()->isYInverted(d->buffer());
+            }
+        } else if (d->type() == WaylandSurface::Direct) {
             return d->compositor->graphicsHWIntegration()->isYInverted(d->buffer());
         }
-    } else if (d->type() == WaylandSurface::Direct) {
-        return d->compositor->graphicsHWIntegration()->isYInverted(d->buffer());
     }
 #endif
     //shm surfaces are not flipped (in our "world")
@@ -217,7 +220,7 @@ void Surface::damage(const QRect &rect)
     Q_D(Surface);
 
 #ifdef QT_COMPOSITOR_WAYLAND_GL
-    if (d->type() == WaylandSurface::Direct) {
+    if (d->compositor->graphicsHWIntegration() && d->type() == WaylandSurface::Direct) {
         //should the texture be deleted here, or should we explicitly delete it
         //when going into direct mode...
         if (d->textureCreatedForBuffer) {
@@ -225,7 +228,7 @@ void Surface::damage(const QRect &rect)
             d->textureCreatedForBuffer = false;
         }
         if (d->compositor->graphicsHWIntegration()->postBuffer(d->directRenderBuffer))
-                return;
+            return;
     }
 #endif
 
@@ -258,8 +261,8 @@ QImage Surface::image() const
 GLuint Surface::textureId() const
 {
     Q_D(const Surface);
-    if ( d->type() == WaylandSurface::Texture
-            && !d->textureCreatedForBuffer) {
+    if (d->compositor->graphicsHWIntegration() && d->type() == WaylandSurface::Texture
+         && !d->textureCreatedForBuffer) {
         glDeleteTextures(1,&d->texture_id);
         Surface *that = const_cast<Surface *>(this);
         GraphicsHardwareIntegration *hwIntegration = d->compositor->graphicsHWIntegration();

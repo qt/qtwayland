@@ -203,7 +203,7 @@ Compositor::Compositor(WaylandCompositor *qt_compositor)
     wl_input_device_init(&m_input, base());
     m_display->addGlobalObject(&m_input.object, &wl_input_device_interface, &input_device_interface, 0);
 
-    if (wl_display_add_socket(m_display->handle(), 0)) {
+    if (wl_display_add_socket(m_display->handle(), qt_compositor->socketName())) {
         fprintf(stderr, "Fatal: Failed to open server socket\n");
         exit(EXIT_FAILURE);
     }

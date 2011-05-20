@@ -48,10 +48,17 @@
 #include "waylandsurfaceitem.h"
 #endif
 
-WaylandCompositor::WaylandCompositor(QWidget *topLevelWidget)
+WaylandCompositor::WaylandCompositor(QWidget *topLevelWidget, const char *socketName)
     : m_compositor(0)
     , m_toplevel_widget(topLevelWidget)
+    , m_socket_name(socketName)
 {
+    QStringList arguments = QCoreApplication::instance()->arguments();
+
+    int socketArg = arguments.indexOf(QLatin1String("--wayland-socket-name"));
+    if (socketArg != -1 && socketArg + 1 < arguments.size())
+        m_socket_name = arguments.at(socketArg + 1).toLocal8Bit();
+
     m_compositor = new Wayland::Compositor(this);
 #ifdef QT_COMPOSITOR_DECLARATIVE
     qmlRegisterType<WaylandSurfaceItem>("WaylandCompositor", 1, 0, "WaylandSurfaceItem");
@@ -121,3 +128,9 @@ void WaylandCompositor::retainedSelectionReceived(QMimeData *)
 {
 }
 
+const char *WaylandCompositor::socketName() const
+{
+    if (m_socket_name.isEmpty())
+        return 0;
+    return m_socket_name.constData();
+}

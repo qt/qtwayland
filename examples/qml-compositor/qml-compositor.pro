@@ -25,6 +25,7 @@ include (../../src/qt-compositor/qt-compositor.pri)
 
 # Input
 SOURCES += main.cpp
+RESOURCES = qml-compositor.qrc
 
 CONFIG += qt warn_on debug  create_prl link_prl
 OBJECTS_DIR = .obj/release-shared

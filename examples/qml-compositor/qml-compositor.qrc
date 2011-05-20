@@ -1,0 +1,11 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource>
+    <file>qml/QmlCompositor/main.qml</file>
+    <file>qml/QmlCompositor/background.jpg</file>
+    <file>qml/QmlCompositor/compositor.js</file>
+    <file>qml/QmlCompositor/ShaderEffect.qml</file>
+    <file>qml/QmlCompositor/WindowChrome.qml</file>
+    <file>qml/QmlCompositor/WindowContainer.qml</file>
+</qresource>
+</RCC>
+

@@ -59,7 +59,7 @@ class QmlCompositor : public QSGView, public WaylandCompositor
 public:
     QmlCompositor() : WaylandCompositor(this) {
         setMouseTracking(true);
-        setSource(QUrl(QLatin1String("qml/QmlCompositor/main.qml")));
+        setSource(QUrl(QLatin1String("qrc:qml/QmlCompositor/main.qml")));
         setResizeMode(QSGView::SizeRootObjectToView);
         winId();
         if (platformWindow()) {

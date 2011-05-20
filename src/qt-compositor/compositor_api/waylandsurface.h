@@ -88,6 +88,7 @@ public:
     void sendKeyPressEvent(uint code);
     void sendKeyReleaseEvent(uint code);
 
+    void frameFinished();
     void setInputFocus();
 
     Wayland::Surface *handle() const;

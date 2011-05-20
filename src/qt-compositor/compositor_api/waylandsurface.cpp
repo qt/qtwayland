@@ -105,6 +105,12 @@ void WaylandSurface::sendKeyReleaseEvent(uint code)
     d->surface->sendKeyReleaseEvent(code);
 }
 
+void WaylandSurface::frameFinished()
+{
+    Q_D(WaylandSurface);
+    d->surface->frameFinished();
+}
+
 void WaylandSurface::setInputFocus()
 {
     Q_D(WaylandSurface);

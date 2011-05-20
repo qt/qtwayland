@@ -66,9 +66,10 @@ WaylandCompositor::~WaylandCompositor()
     delete m_compositor;
 }
 
-void WaylandCompositor::frameFinished()
+void WaylandCompositor::frameFinished(WaylandSurface *surface)
 {
-    m_compositor->frameFinished();
+    Wayland::Surface *surfaceImpl = surface? surface->handle():0;
+    m_compositor->frameFinished(surfaceImpl);
 }
 
 void WaylandCompositor::setInputFocus(WaylandSurface *surface)

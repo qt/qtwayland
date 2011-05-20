@@ -375,6 +375,12 @@ void Surface::sendKeyReleaseEvent(uint code)
     }
 }
 
+void Surface::frameFinished()
+{
+    Q_D(Surface);
+    d->compositor->frameFinished(this);
+}
+
 void Surface::setInputFocus()
 {
     Q_D(Surface);

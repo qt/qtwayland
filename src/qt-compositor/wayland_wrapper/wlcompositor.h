@@ -66,7 +66,7 @@ public:
     Compositor(WaylandCompositor *qt_compositor);
     ~Compositor();
 
-    void frameFinished();
+    void frameFinished(Surface *surface = 0);
     void setInputFocus(Surface *surface);
     void setKeyFocus(Surface *surface);
     void setPointerFocus(Surface *surface, const QPoint &point = QPoint());

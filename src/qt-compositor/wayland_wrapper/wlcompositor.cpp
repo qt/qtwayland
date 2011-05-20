@@ -219,13 +219,16 @@ Compositor::~Compositor()
     delete m_display;
 }
 
-void Compositor::frameFinished()
+void Compositor::frameFinished(Surface *surface)
 {
-    QSet<Surface *>::iterator i;
-    for (i = m_dirty_surfaces.begin(); i != m_dirty_surfaces.end(); i++) {
-        wl_display_post_frame(m_display->handle(), (*i)->base(), currentTimeMsecs());
+    if (surface && m_dirty_surfaces.contains(surface)) {
+	wl_display_post_frame(m_display->handle(), surface->base(), currentTimeMsecs());
+	m_dirty_surfaces.remove(surface);
+    } else if (!surface) {
+	foreach (Surface *surface, m_dirty_surfaces)
+	    wl_display_post_frame(m_display->handle(), surface->base(), currentTimeMsecs());
+	m_dirty_surfaces.clear();
     }
-    m_dirty_surfaces.clear();
 }
 
 void Compositor::createSurface(struct wl_client *client, int id)

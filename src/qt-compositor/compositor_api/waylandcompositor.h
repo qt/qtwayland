@@ -64,7 +64,7 @@ public:
     WaylandCompositor(QWidget *topLevelWidget = 0);
     virtual ~WaylandCompositor();
 
-    void frameFinished();
+    void frameFinished(WaylandSurface *surface = 0);
 
     void setInputFocus(WaylandSurface *surface);
     void destroyClientForSurface(WaylandSurface *surface);

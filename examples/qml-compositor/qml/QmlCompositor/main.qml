@@ -50,7 +50,8 @@ Item {
     Image {
         id: background
         anchors.fill: parent
-        source: "background.jpg"
+        fillMode: Image.Tile
+        source: "../../background.jpg"
         smooth: true
     }
 

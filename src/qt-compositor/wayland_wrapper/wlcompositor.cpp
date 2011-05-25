@@ -241,9 +241,13 @@ void Compositor::createSurface(struct wl_client *client, int id)
     addClientResource(client, &surface->base()->resource, id, &wl_surface_interface,
             &surface_interface, destroy_surface);
 
-    quint32 processId = m_windowManagerWaylandProtocol->pidForClient(client);
-    // if there is no PID, the client does not support the protocol.
-    surface->setProcessId(processId);
+    WaylandManagedClient *managedClient = m_windowManagerWaylandProtocol->managedClient(client);
+    if (managedClient) {
+        // if there is no PID, the client does not support the protocol.
+        surface->setProcessId(managedClient->processId());
+        surface->setAuthenticationToken(managedClient->authenticationToken());
+    }
+
     m_qt_compositor->surfaceCreated(surface->handle());
 
     QList<struct wl_client *> prevClientList = clients();

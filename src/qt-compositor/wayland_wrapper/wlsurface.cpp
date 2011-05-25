@@ -110,6 +110,7 @@ public:
     bool textureCreatedForBuffer;
     wl_buffer *directRenderBuffer;
     qint64 processId;
+    QByteArray authenticationToken;
 
 private:
     struct wl_buffer *surfaceBuffer;
@@ -311,6 +312,18 @@ void Surface::setProcessId(qint64 processId)
 {
     Q_D(Surface);
     d->processId = processId;
+}
+
+QByteArray Surface::authenticationToken() const
+{
+    Q_D(const Surface);
+    return d->authenticationToken;
+}
+
+void Surface::setAuthenticationToken(const QByteArray &authenticationToken)
+{
+    Q_D(Surface);
+    d->authenticationToken = authenticationToken;
 }
 
 uint32_t toWaylandButton(Qt::MouseButton button)

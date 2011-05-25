@@ -40,8 +40,11 @@ extern const struct wl_interface wl_windowmanager_interface;
 
 struct wl_windowmanager_interface {
         void (*map_client_to_process)(struct wl_client *client,
-                                      struct wl_windowmanager *wl_windowmanager,
+                                      struct wl_windowmanager *windowmanager,
                                       uint32_t processid);
+        void (*authenticate_with_token)(struct wl_client *client,
+                                        struct wl_windowmanager *windowmanager,
+                                        const char *wl_authentication_token);
 };
 
 #ifdef  __cplusplus

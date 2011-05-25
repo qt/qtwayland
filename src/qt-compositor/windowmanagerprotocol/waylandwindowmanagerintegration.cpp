@@ -66,6 +66,11 @@ public:
         WindowManagerServerIntegration::instance()->mapClientToProcess(client, processId);
     }
 
+    void authenticateWithToken(wl_client *client, const char *authenticationToken)
+    {
+        WindowManagerServerIntegration::instance()->authenticateWithToken(client, authenticationToken);
+    }
+
 };
 
 void map_client_to_process(wl_client *client, struct wl_windowmanager *windowMgr, uint32_t processId)
@@ -73,8 +78,14 @@ void map_client_to_process(wl_client *client, struct wl_windowmanager *windowMgr
     reinterpret_cast<WindowManagerObject *>(windowMgr)->mapClientToProcess(client, processId);
 }
 
+void authenticate_with_token(wl_client *client, struct wl_windowmanager *windowMgr, const char *wl_authentication_token)
+{
+    reinterpret_cast<WindowManagerObject *>(windowMgr)->authenticateWithToken(client, wl_authentication_token);
+}
+
 const static struct wl_windowmanager_interface windowmanager_interface = {
-    map_client_to_process
+    map_client_to_process,
+    authenticate_with_token
 };
 
 WindowManagerServerIntegration *WindowManagerServerIntegration::m_instance = 0;
@@ -94,22 +105,50 @@ void WindowManagerServerIntegration::initialize(Wayland::Display *waylandDisplay
 
 void WindowManagerServerIntegration::removeClient(wl_client *client)
 {
-    m_clientToProcessId.remove(client);
+    WaylandManagedClient *managedClient = m_managedClients.take(client);
+    delete managedClient;
 }
 
 void WindowManagerServerIntegration::mapClientToProcess(wl_client *client, uint32_t processId)
 {
-    m_clientToProcessId.insert(client, processId);
-    emit clientMappedToProcess(client, processId);
+    WaylandManagedClient *managedClient = m_managedClients.value(client, new WaylandManagedClient);
+    managedClient->m_processId = processId;
+    m_managedClients.insert(client, managedClient);
 }
 
-
-qint64 WindowManagerServerIntegration::pidForClient(wl_client *client) const
+void WindowManagerServerIntegration::authenticateWithToken(wl_client *client, const char *token)
 {
-    return m_clientToProcessId.value(client, 0);
+    WaylandManagedClient *managedClient = m_managedClients.value(client, new WaylandManagedClient);
+    managedClient->m_authenticationToken = QByteArray(token);
+    m_managedClients.insert(client, managedClient);
+}
+
+WaylandManagedClient *WindowManagerServerIntegration::managedClient(wl_client *client) const
+{
+    return m_managedClients.value(client, 0);
 }
 
 WindowManagerServerIntegration *WindowManagerServerIntegration::instance()
 {
     return m_instance;
+}
+
+/// ///
+/// / WaylandManagedClient
+/// ///
+
+WaylandManagedClient::WaylandManagedClient()
+    : m_processId(0)
+{
+
+}
+
+qint64 WaylandManagedClient::processId() const
+{
+    return m_processId;
+}
+
+QByteArray WaylandManagedClient::authenticationToken() const
+{
+    return m_authenticationToken;
 }

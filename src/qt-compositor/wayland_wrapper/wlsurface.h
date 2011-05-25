@@ -100,6 +100,9 @@ public:
     wl_client *clientHandle() const;
     qint64 processId() const;
     void setProcessId(qint64 processId);
+    QByteArray authenticationToken() const;
+    void setAuthenticationToken(const QByteArray &authenticationToken);
+
     void setSurfaceCreationFinished(bool isCreated);
 
 protected:

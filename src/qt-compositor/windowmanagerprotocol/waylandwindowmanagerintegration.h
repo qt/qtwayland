@@ -53,6 +53,7 @@
 struct wl_client;
 
 class WindowManagerObject;
+class WaylandManagedClient;
 
 class WindowManagerServerIntegration : public QObject
 {
@@ -63,21 +64,33 @@ public:
     void initialize(Wayland::Display *waylandDisplay);
     void removeClient(wl_client *client);
 
-    qint64 pidForClient(wl_client *client) const;
-
-signals:
-    void clientMappedToProcess(wl_client *client, quint32 processId);
+    WaylandManagedClient *managedClient(wl_client *client) const;
 
 private:
     void mapClientToProcess(wl_client *client, uint32_t processId);
+    void authenticateWithToken(wl_client *client, const char *token);
 
 private:
-    QMap<wl_client*, qint64> m_clientToProcessId;
+    QMap<wl_client*, WaylandManagedClient*> m_managedClients;
     static WindowManagerServerIntegration *m_instance;
 
     WindowManagerObject *m_windowManagerObject;
 
     friend class WindowManagerObject;
+};
+
+class WaylandManagedClient
+{
+public:
+    WaylandManagedClient();
+    qint64 processId() const;
+    QByteArray authenticationToken() const;
+
+private:
+    qint64 m_processId;
+    QByteArray m_authenticationToken;
+
+    friend class WindowManagerServerIntegration;
 };
 
 #endif // WAYLANDWINDOWMANAGERINTEGRATION_H

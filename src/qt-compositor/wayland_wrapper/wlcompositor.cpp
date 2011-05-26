@@ -185,7 +185,8 @@ Compositor::Compositor(WaylandCompositor *qt_compositor)
     compositor = this;
 
 #if defined (QT_COMPOSITOR_WAYLAND_GL)
-    if (qt_compositor->topLevelWidget()->platformWindowFormat().windowApi() != QPlatformWindowFormat::Raster)
+    QWindow *window = qt_compositor->topLevelWidget()->windowHandle();
+    if (window && window->surfaceType() != QWindow::RasterSurface)
         m_graphics_hw_integration = GraphicsHardwareIntegration::createGraphicsHardwareIntegration(qt_compositor);
 #endif
     m_windowManagerWaylandProtocol = new WindowManagerServerIntegration(this);

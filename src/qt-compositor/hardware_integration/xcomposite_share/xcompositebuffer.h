@@ -10,7 +10,7 @@
 #include <QtCore/QDataStream>
 #include <QtCore/QMetaType>
 #include <QtCore/QVariant>
-#include <QtGui/QWidget>
+#include <QtWidgets/QWidget>
 
 #include <X11/X.h>
 

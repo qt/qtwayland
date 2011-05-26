@@ -40,8 +40,8 @@
 
 #include "wloutput.h"
 
-#include <QtGui/QApplication>
-#include <QtGui/QDesktopWidget>
+#include <QtWidgets/QApplication>
+#include <QtWidgets/QDesktopWidget>
 
 namespace Wayland {
 

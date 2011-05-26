@@ -5,8 +5,8 @@
 #include "wayland-xcomposite-server-protocol.h"
 
 #include <QtGui/QPlatformNativeInterface>
-#include <QtGui/QPlatformGLContext>
-#include <private/qapplication_p.h>
+#include <QtGui/QWindowContext>
+#include <QtGui/private/qguiapplication_p.h>
 
 #include "xcompositebuffer.h"
 #include "xcompositehandler.h"
@@ -43,9 +43,9 @@ XCompositeGLXIntegration::XCompositeGLXIntegration(WaylandCompositor *compositor
     : GraphicsHardwareIntegration(compositor)
     , mDisplay(0)
 {
-    QPlatformNativeInterface *nativeInterface = QApplicationPrivate::platformIntegration()->nativeInterface();
+    QPlatformNativeInterface *nativeInterface = QGuiApplicationPrivate::platformIntegration()->nativeInterface();
     if (nativeInterface) {
-        mDisplay = static_cast<Display *>(nativeInterface->nativeResourceForWidget("Display",m_compositor->topLevelWidget()));
+        mDisplay = static_cast<Display *>(nativeInterface->nativeResourceForWindow("Display",m_compositor->topLevelWidget()->windowHandle()));
         if (!mDisplay)
             qFatal("could not retireve Display from platform integration");
     } else {
@@ -59,7 +59,7 @@ void XCompositeGLXIntegration::initializeHardware(Wayland::Display *waylandDispl
     XCompositeHandler *handler = new XCompositeHandler(m_compositor->handle(),mDisplay,m_compositor->topLevelWidget());
     waylandDisplay->addGlobalObject(handler->base(), &wl_xcomposite_interface, &XCompositeHandler::xcomposite_interface,XCompositeHandler::send_root_information);
 
-    QPlatformGLContext *glContext = m_compositor->topLevelWidget()->platformWindow()->glContext();
+    QWindowContext *glContext = m_compositor->topLevelWidget()->windowHandle()->glContext();
 
     m_glxBindTexImageEXT = reinterpret_cast<PFNGLXBINDTEXIMAGEEXTPROC>(glContext->getProcAddress("glXBindTexImageEXT"));
     if (!m_glxBindTexImageEXT) {

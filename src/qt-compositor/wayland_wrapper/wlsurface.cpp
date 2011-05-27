@@ -49,7 +49,9 @@
 
 #include <wayland-server.h>
 
+#ifdef Q_OS_LINUX
 #include <linux/input.h>
+#endif
 
 #ifdef QT_COMPOSITOR_WAYLAND_GL
 #include "hardware_integration/graphicshardwareintegration.h"
@@ -276,6 +278,11 @@ void Surface::setAuthenticationToken(const QByteArray &authenticationToken)
 
 uint32_t toWaylandButton(Qt::MouseButton button)
 {
+#ifndef BTN_LEFT
+uint32_t BTN_LEFT = 0x110;
+uint32_t BTN_RIGHT = 0x111;
+uint32_t BTN_MIDDLE = 0x112;
+#endif
     switch (button) {
     case Qt::LeftButton:
         return BTN_LEFT;
@@ -284,6 +291,7 @@ uint32_t toWaylandButton(Qt::MouseButton button)
     default:
         return BTN_MIDDLE;
     }
+
 }
 
 void Surface::sendMousePressEvent(int x, int y, Qt::MouseButton button)

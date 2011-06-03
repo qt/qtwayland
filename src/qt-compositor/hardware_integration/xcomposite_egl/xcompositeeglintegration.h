@@ -15,6 +15,7 @@ public:
     void initializeHardware(Wayland::Display *waylandDisplay);
 
     GLuint createTextureFromBuffer(struct wl_buffer *buffer);
+    bool isYInverted(wl_buffer *) const;
 
 private:
     Display *mDisplay;

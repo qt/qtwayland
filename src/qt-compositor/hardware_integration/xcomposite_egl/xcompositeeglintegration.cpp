@@ -89,6 +89,9 @@ GLuint XCompositeEglIntegration::createTextureFromBuffer(wl_buffer *buffer)
     if (surface == EGL_NO_SURFACE) {
         qDebug() << "Failed to create eglsurface" << pixmap << compositorBuffer->window();
     }
+
+    compositorBuffer->setInvertedY(false);
+
     GLuint textureId;
     glGenTextures(1,&textureId);
     glBindTexture(GL_TEXTURE_2D, textureId);
@@ -100,5 +103,10 @@ GLuint XCompositeEglIntegration::createTextureFromBuffer(wl_buffer *buffer)
     //    eglDestroySurface(mEglDisplay,surface);
 
     return textureId;
+}
 
+bool XCompositeEglIntegration::isYInverted(wl_buffer *buffer) const
+{
+    XCompositeBuffer *compositorBuffer = Wayland::wayland_cast<XCompositeBuffer *>(buffer);
+    return compositorBuffer->isYInverted();
 }

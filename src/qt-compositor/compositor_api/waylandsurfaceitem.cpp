@@ -54,8 +54,11 @@ void WaylandSurfaceItem::surfaceDamaged(const QRect &)
     QSGTexture *oldTexture = m_texture;
 
     if (m_surface->type() == WaylandSurface::Texture) {
+        QSGEngine::TextureOption opt = useTextureAlpha() ? QSGEngine::TextureHasAlphaChannel : QSGEngine::TextureOption(0);
+
         m_texture = canvas()->sceneGraphEngine()->createTextureFromId(m_surface->texture(),
-                                                                      m_surface->geometry().size());
+                                                                      m_surface->geometry().size(),
+                                                                      opt);
     } else {
         m_texture = canvas()->sceneGraphEngine()->createTextureFromImage(m_surface->image());
     }
@@ -208,8 +211,13 @@ QSGNode *WaylandSurfaceItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeDa
     }
 
     node->setTexture(m_texture);
-
     node->setFiltering(smooth() ? QSGTexture::Linear : QSGTexture::Nearest);
 
     return node;
+}
+
+void WaylandSurfaceItem::setUseTextureAlpha(bool useTextureAlpha)
+{
+    m_useTextureAlpha = useTextureAlpha;
+    update();
 }

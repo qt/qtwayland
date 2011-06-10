@@ -5,8 +5,7 @@
 #include "wayland-xcomposite-server-protocol.h"
 
 #include <QtGui/QPlatformNativeInterface>
-#include <QtGui/QWindowContext>
-#include <QtGui/private/qguiapplication_p.h>
+#include <QtGui/QGuiGLContext>
 
 #include "xcompositebuffer.h"
 #include "xcompositehandler.h"
@@ -59,7 +58,7 @@ void XCompositeGLXIntegration::initializeHardware(Wayland::Display *waylandDispl
     XCompositeHandler *handler = new XCompositeHandler(m_compositor->handle(),mDisplay,m_compositor->topLevelWidget());
     waylandDisplay->addGlobalObject(handler->base(), &wl_xcomposite_interface, &XCompositeHandler::xcomposite_interface,XCompositeHandler::send_root_information);
 
-    QWindowContext *glContext = m_compositor->topLevelWidget()->windowHandle()->glContext();
+    QGuiGLContext *glContext = QGuiGLContext::currentContext();
 
     m_glxBindTexImageEXT = reinterpret_cast<PFNGLXBINDTEXIMAGEEXTPROC>(glContext->getProcAddress("glXBindTexImageEXT"));
     if (!m_glxBindTexImageEXT) {

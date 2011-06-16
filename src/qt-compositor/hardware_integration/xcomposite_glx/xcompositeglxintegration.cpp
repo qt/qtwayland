@@ -58,7 +58,7 @@ void XCompositeGLXIntegration::initializeHardware(Wayland::Display *waylandDispl
     XCompositeHandler *handler = new XCompositeHandler(m_compositor->handle(),mDisplay,m_compositor->topLevelWidget());
     waylandDisplay->addGlobalObject(handler->base(), &wl_xcomposite_interface, &XCompositeHandler::xcomposite_interface,XCompositeHandler::send_root_information);
 
-    QGuiGLContext *glContext = QGuiGLContext::currentContext();
+    QGuiGLContext *glContext = new QGuiGLContext(QGuiGLFormat());
 
     m_glxBindTexImageEXT = reinterpret_cast<PFNGLXBINDTEXIMAGEEXTPROC>(glContext->getProcAddress("glXBindTexImageEXT"));
     if (!m_glxBindTexImageEXT) {
@@ -68,6 +68,8 @@ void XCompositeGLXIntegration::initializeHardware(Wayland::Display *waylandDispl
     if (!m_glxReleaseTexImageEXT) {
         qDebug() << "Did not find glxReleaseTexImageExt";
     }
+
+    delete glContext;
 }
 
 GLuint XCompositeGLXIntegration::createTextureFromBuffer(wl_buffer *buffer)

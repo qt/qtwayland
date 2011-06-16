@@ -20,7 +20,8 @@ QVector<EGLint> eglbuildSpec()
 
     spec.append(EGL_SURFACE_TYPE); spec.append(EGL_PIXMAP_BIT);
     spec.append(EGL_RENDERABLE_TYPE); spec.append(EGL_OPENGL_ES2_BIT);
-    spec.append(EGL_BIND_TO_TEXTURE_RGB); spec.append(EGL_TRUE);
+    spec.append(EGL_BIND_TO_TEXTURE_RGBA); spec.append(EGL_TRUE);
+    spec.append(EGL_ALPHA_SIZE); spec.append(8);
     spec.append(EGL_NONE);
     return spec;
 }
@@ -77,7 +78,7 @@ GLuint XCompositeEglIntegration::createTextureFromBuffer(wl_buffer *buffer)
     QVector<EGLint> attribList;
 
     attribList.append(EGL_TEXTURE_FORMAT);
-    attribList.append(EGL_TEXTURE_RGB);
+    attribList.append(EGL_TEXTURE_RGBA);
     attribList.append(EGL_TEXTURE_TARGET);
     attribList.append(EGL_TEXTURE_2D);
     attribList.append(EGL_NONE);
@@ -86,6 +87,9 @@ GLuint XCompositeEglIntegration::createTextureFromBuffer(wl_buffer *buffer)
     if (surface == EGL_NO_SURFACE) {
         qDebug() << "Failed to create eglsurface" << pixmap << compositorBuffer->window();
     }
+
+    compositorBuffer->setInvertedY(false);
+
     GLuint textureId;
     glGenTextures(1,&textureId);
     glBindTexture(GL_TEXTURE_2D, textureId);
@@ -97,5 +101,10 @@ GLuint XCompositeEglIntegration::createTextureFromBuffer(wl_buffer *buffer)
     //    eglDestroySurface(mEglDisplay,surface);
 
     return textureId;
+}
 
+bool XCompositeEglIntegration::isYInverted(wl_buffer *buffer) const
+{
+    XCompositeBuffer *compositorBuffer = Wayland::wayland_cast<XCompositeBuffer *>(buffer);
+    return compositorBuffer->isYInverted();
 }

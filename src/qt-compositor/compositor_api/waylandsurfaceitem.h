@@ -55,6 +55,7 @@ class WaylandSurfaceItem : public QSGItem, public QSGTextureProvider
     Q_INTERFACES(QSGTextureProvider)
     Q_PROPERTY(WaylandSurface* surface READ surface WRITE setSurface)
     Q_PROPERTY(bool paintEnabled READ paintEnabled WRITE setPaintEnabled)
+    Q_PROPERTY(bool useTextureAlpha READ useTextureAlpha WRITE setUseTextureAlpha)
 
 public:
     WaylandSurfaceItem(QSGItem *parent = 0);
@@ -70,6 +71,7 @@ public:
     const char *textureChangedSignal() const { return SIGNAL(textureChanged()); }
 
     bool paintEnabled() const;
+    bool useTextureAlpha() const  { return m_useTextureAlpha; }
 
 protected:
     void mousePressEvent(QGraphicsSceneMouseEvent *event);
@@ -82,6 +84,7 @@ protected:
 public slots:
     void takeFocus();
     void setPaintEnabled(bool paintEnabled);
+    void setUseTextureAlpha(bool useTextureAlpha);
 
 private slots:
     void surfaceMapped(const QRect &rect);
@@ -101,6 +104,7 @@ private:
     WaylandSurface *m_surface;
     QSGTexture *m_texture;
     bool m_paintEnabled;
+    bool m_useTextureAlpha;
 };
 
 #endif

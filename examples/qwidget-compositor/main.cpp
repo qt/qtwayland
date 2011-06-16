@@ -71,8 +71,8 @@ public:
         //so that clients can successfully initialize egl
         winId();
 #ifdef QT_COMPOSITOR_WAYLAND_GL
-        if (platformWindow()) {
-            platformWindow()->glContext();
+        if (windowHandle()) {
+            windowHandle()->glSurface();
         }
 #endif
     }
@@ -133,12 +133,7 @@ protected:
         for (int i = 0; i < m_surfaces.size(); ++i) {
             if (m_surfaces.at(i)->type() == WaylandSurface::Texture) {
 #ifdef QT_COMPOSITOR_WAYLAND_GL
-                QPlatformGLContext *glcontext = platformWindow()->glContext();
-                if (glcontext) {
-                    QGLContext *context = QGLContext::fromPlatformGLContext(glcontext);
-                    context->makeCurrent();
-                    context->drawTexture(m_surfaces.at(i)->geometry(),m_surfaces.at(i)->texture());
-                }
+                drawTexture(m_surfaces.at(i)->geometry(), m_surfaces.at(i)->texture());
                 break;
 #endif //QT_COMPOSITOR_WAYLAND_GL
             } else if (m_surfaces.at(i)->type() == WaylandSurface::Shm) {

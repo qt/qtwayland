@@ -95,7 +95,9 @@ void Selection::selActivate(struct wl_client *client,
 
     selection->selection_offer.object.interface = &wl_selection_offer_interface;
     selection->selection_offer.object.implementation = (void (**)()) &selectionOfferInterface;
-    wl_display_add_object(Compositor::instance()->wl_display(), &selection->selection_offer.object);
+    wl_display *dpy = Compositor::instance()->wl_display();
+    wl_display_add_object(dpy, &selection->selection_offer.object);
+    wl_display_add_global(dpy, &selection->selection_offer.object, 0);
 
     QList<struct wl_client *> clients = Compositor::instance()->clients();
     if (self->m_currentSelection) {
@@ -201,12 +203,16 @@ void Selection::destroySelection(struct wl_resource *resource, struct wl_client 
     Q_UNUSED(client);
     struct wl_selection *selection = container_of(resource, struct wl_selection, resource);
     Selection *self = Selection::instance();
+    wl_display *dpy = Compositor::instance()->wl_display();
     if (self->m_currentSelection == selection)
         self->m_currentSelection = 0;
     if (self->m_currentOffer == &selection->selection_offer) {
         self->m_currentOffer = 0;
         if (self->m_retainedSelectionEnabled) {
-            delete self->m_retainedSelection;
+            if (self->m_retainedSelection) {
+                wl_display_remove_global(dpy, &self->m_retainedSelection->selection_offer.object);
+                delete self->m_retainedSelection;
+            }
             self->m_retainedSelection = selection;
             return;
         }
@@ -215,6 +221,7 @@ void Selection::destroySelection(struct wl_resource *resource, struct wl_client 
             wl_client_post_event(client, &selection->selection_offer.object,
                                  WL_SELECTION_OFFER_KEYBOARD_FOCUS, 0);
     }
+    wl_display_remove_global(dpy, &selection->selection_offer.object);
     delete selection;
 }
 
@@ -254,6 +261,8 @@ void Selection::onClientAdded(wl_client *client)
         offer = &m_retainedSelection->selection_offer;
     }
     if (selection && offer) {
+        wl_client_post_event(client, &offer->object,
+                             WL_SELECTION_OFFER_KEYBOARD_FOCUS, 0);
         wl_client_post_global(client, &offer->object);
         foreach (const QString &mimeType, m_offerList) {
             QByteArray mimeTypeBa = mimeType.toLatin1();

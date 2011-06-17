@@ -62,8 +62,8 @@ public:
         setSource(QUrl(QLatin1String("qrc:qml/QmlCompositor/main.qml")));
         setResizeMode(QSGView::SizeRootObjectToView);
         winId();
-        if (platformWindow()) {
-            platformWindow()->glContext();
+        if (windowHandle()) {
+            windowHandle()->glSurface();
         }
     }
 

@@ -17,6 +17,9 @@ LIBS += -L ../../lib
 QT += declarative
 QT += opengl
 
+# to be removed once scenegraph gets rid of its widget dependencies
+QT += widgets widgets-private
+
 !isEmpty(QT.core.MAJOR_VERSION):greaterThan(QT.core.MAJOR_VERSION, 4) {
     QT += core-private gui-private declarative-private opengl-private
 }

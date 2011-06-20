@@ -39,11 +39,11 @@
 **
 ****************************************************************************/
 
-#ifndef QWINDOWSURFACE_WAYLAND_H
-#define QWINDOWSURFACE_WAYLAND_H
+#ifndef QWAYLANDSHMBACKINGSTORE_H
+#define QWAYLANDSHMBACKINGSTORE_H
 
 #include "qwaylandbuffer.h"
-#include <QtGui/private/qwindowsurface_p.h>
+#include <QtGui/QPlatformBackingStore>
 #include <QtGui/QImage>
 #include <QtGui/QPlatformWindow>
 
@@ -62,15 +62,15 @@ private:
     QImage mImage;
 };
 
-class QWaylandShmWindowSurface : public QWindowSurface
+class QWaylandShmBackingStore : public QPlatformBackingStore
 {
 public:
-    QWaylandShmWindowSurface(QWindow *window);
-    ~QWaylandShmWindowSurface();
+    QWaylandShmBackingStore(QWindow *window);
+    ~QWaylandShmBackingStore();
 
     QPaintDevice *paintDevice();
     void flush(QWindow *window, const QRegion &region, const QPoint &offset);
-    void resize(const QSize &size);
+    void resize(const QSize &size, const QRegion &staticContents);
     void beginPaint(const QRegion &);
 
 private:

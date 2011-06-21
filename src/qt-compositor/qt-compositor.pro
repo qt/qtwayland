@@ -1,5 +1,4 @@
 TEMPLATE = lib
-CONFIG += staticlib
 
 include (qt-compositor.pri)
 

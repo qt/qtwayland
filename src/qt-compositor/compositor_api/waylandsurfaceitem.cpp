@@ -219,5 +219,8 @@ QSGNode *WaylandSurfaceItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeDa
 void WaylandSurfaceItem::setUseTextureAlpha(bool useTextureAlpha)
 {
     m_useTextureAlpha = useTextureAlpha;
-    update();
+
+    if ((flags() & ItemHasContents) != 0) {
+        update();
+    }
 }

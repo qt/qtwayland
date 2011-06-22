@@ -180,7 +180,9 @@ Compositor::Compositor(WaylandCompositor *qt_compositor)
     , m_pointerFocusSurface(0)
     , m_keyFocusSurface(0)
     , m_directRenderSurface(0)
+#if defined (QT_COMPOSITOR_WAYLAND_GL)
     , m_graphics_hw_integration(0)
+#endif
 {
     compositor = this;
 
@@ -386,6 +388,8 @@ bool Compositor::setDirectRenderSurface(Surface *surface)
         m_directRenderSurface = surface;
         return true;
     }
+#else
+    Q_UNUSED(surface);
 #endif
     return false;
 }

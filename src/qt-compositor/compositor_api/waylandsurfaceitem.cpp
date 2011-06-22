@@ -224,3 +224,12 @@ void WaylandSurfaceItem::setUseTextureAlpha(bool useTextureAlpha)
         update();
     }
 }
+
+void WaylandSurfaceItem::setClientRenderingEnabled(bool enabled)
+{
+    if (m_clientRenderingEnabled != enabled) {
+        m_clientRenderingEnabled = enabled;
+        //qDebug() << "CLIENT RENDERING ENABLED: " << enabled;
+        emit clientRenderingEnabledChanged();
+    }
+}

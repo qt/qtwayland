@@ -219,5 +219,17 @@ QSGNode *WaylandSurfaceItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeDa
 void WaylandSurfaceItem::setUseTextureAlpha(bool useTextureAlpha)
 {
     m_useTextureAlpha = useTextureAlpha;
-    update();
+
+    if ((flags() & ItemHasContents) != 0) {
+        update();
+    }
+}
+
+void WaylandSurfaceItem::setClientRenderingEnabled(bool enabled)
+{
+    if (m_clientRenderingEnabled != enabled) {
+        m_clientRenderingEnabled = enabled;
+        //qDebug() << "CLIENT RENDERING ENABLED: " << enabled;
+        emit clientRenderingEnabledChanged();
+    }
 }

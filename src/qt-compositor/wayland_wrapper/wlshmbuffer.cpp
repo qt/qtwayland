@@ -127,12 +127,10 @@ void ShmHandler::buffer_damaged_callback(struct wl_buffer *buffer,
     Q_UNUSED(y);
     Q_UNUSED(width);
     Q_UNUSED(height);
-    fprintf(stderr,"damage_callback\n");
 }
 
 void ShmHandler::buffer_destroyed_callback(struct wl_buffer *buffer)
 {
-    fprintf(stderr, "destory callback\n");
     delete static_cast<ShmBuffer *>(buffer->user_data);
 }
 

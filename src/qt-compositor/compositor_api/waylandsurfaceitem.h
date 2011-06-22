@@ -55,7 +55,8 @@ class WaylandSurfaceItem : public QSGItem, public QSGTextureProvider
     Q_INTERFACES(QSGTextureProvider)
     Q_PROPERTY(WaylandSurface* surface READ surface WRITE setSurface)
     Q_PROPERTY(bool paintEnabled READ paintEnabled WRITE setPaintEnabled)
-    Q_PROPERTY(bool useTextureAlpha READ useTextureAlpha WRITE setUseTextureAlpha)
+    Q_PROPERTY(bool useTextureAlpha READ useTextureAlpha WRITE setUseTextureAlpha NOTIFY useTextureAlphaChanged)
+    Q_PROPERTY(bool clientRenderingEnabled READ clientRenderingEnabled WRITE setClientRenderingEnabled NOTIFY clientRenderingEnabledChanged)
 
 public:
     WaylandSurfaceItem(QSGItem *parent = 0);
@@ -72,6 +73,10 @@ public:
 
     bool paintEnabled() const;
     bool useTextureAlpha() const  { return m_useTextureAlpha; }
+    bool clientRenderingEnabled() const { return m_clientRenderingEnabled; }
+
+    void setUseTextureAlpha(bool useTextureAlpha);
+    void setClientRenderingEnabled(bool enabled);
 
 protected:
     void mousePressEvent(QGraphicsSceneMouseEvent *event);
@@ -84,7 +89,6 @@ protected:
 public slots:
     void takeFocus();
     void setPaintEnabled(bool paintEnabled);
-    void setUseTextureAlpha(bool useTextureAlpha);
 
 private slots:
     void surfaceMapped(const QRect &rect);
@@ -93,6 +97,8 @@ private slots:
 
 signals:
     void textureChanged();
+    void useTextureAlphaChanged();
+    void clientRenderingEnabledChanged();
 
 protected:
     QSGNode *updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *);
@@ -105,6 +111,7 @@ private:
     QSGTexture *m_texture;
     bool m_paintEnabled;
     bool m_useTextureAlpha;
+    bool m_clientRenderingEnabled;
 };
 
 #endif

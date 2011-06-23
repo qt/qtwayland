@@ -51,7 +51,9 @@ void output_post_geometry(struct wl_client *client, struct wl_object *global, ui
     Output *output = wayland_cast<Output *>(global);
 
     wl_client_post_event(client, global, WL_OUTPUT_GEOMETRY, 0, 0,
-                         output->size().width(), output->size().height());
+                         output->size().width(), output->size().height(),0,"","");
+
+    wl_client_post_event(client,global,WL_OUTPUT_MODE, 0,output->size().width(),output->size().height());
 }
 
 

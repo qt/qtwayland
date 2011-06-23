@@ -76,8 +76,6 @@ public:
     uint id() const { return base()->resource.object.id; }
     void attach(struct wl_buffer *buffer);
 
-    void mapTopLevel();
-
     void damage(const QRect &rect);
 
     QImage image() const;
@@ -114,25 +112,12 @@ private:
 void surface_destroy(struct wl_client *client, struct wl_surface *_surface);
 void surface_attach(struct wl_client *client, struct wl_surface *surface,
                     struct wl_buffer *buffer, int x, int y);
-void surface_map_toplevel(struct wl_client *client,
-                          struct wl_surface *surface);
-void surface_map_transient(struct wl_client *client,
-                      struct wl_surface *surface,
-                      struct wl_surface *parent,
-                      int x,
-                      int y,
-                      uint32_t flags);
-void surface_map_fullscreen(struct wl_client *client,
-                       struct wl_surface *surface);
 void surface_damage(struct wl_client *client, struct wl_surface *_surface,
                int32_t x, int32_t y, int32_t width, int32_t height);
 
 const static struct wl_surface_interface surface_interface = {
     surface_destroy,
     surface_attach,
-    surface_map_toplevel,
-    surface_map_transient,
-    surface_map_fullscreen,
     surface_damage
 };
 }

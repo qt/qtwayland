@@ -98,7 +98,7 @@ void WaylandSurfaceItem::init(WaylandSurface *surface)
     setSmooth(true);
     setFlag(ItemHasContents);
     setAcceptedMouseButtons(Qt::LeftButton | Qt::RightButton);
-    connect(surface, SIGNAL(mapped(const QRect &)), this, SLOT(surfaceMapped(const QRect &)));
+    connect(surface, SIGNAL(mapped(const QSize &)), this, SLOT(surfaceMapped(const QSize &)));
     connect(surface, SIGNAL(destroyed(QObject *)), this, SLOT(surfaceDestroyed(QObject *)));
     connect(this, SIGNAL(textureChanged()), this, SLOT(update()));
     connect(surface, SIGNAL(damaged(const QRect &)), this, SLOT(surfaceDamaged(const QRect &)));
@@ -169,10 +169,10 @@ QPoint WaylandSurfaceItem::toSurface(const QPointF &pos) const
     return pos.toPoint();
 }
 
-void WaylandSurfaceItem::surfaceMapped(const QRect &rect)
+void WaylandSurfaceItem::surfaceMapped(const QSize &size)
 {
-    setWidth(rect.width());
-    setHeight(rect.height());
+    setWidth(size.width());
+    setHeight(size.height());
 }
 
 void WaylandSurfaceItem::surfaceDestroyed(QObject *)

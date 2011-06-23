@@ -41,6 +41,7 @@
 #include "wlshmbuffer.h"
 
 #include "wldisplay.h"
+#include "wlcompositor.h"
 
 #include <QtCore/QDebug>
 
@@ -52,7 +53,6 @@ ShmBuffer::ShmBuffer(struct wl_buffer *buffer)
     : m_buffer(buffer)
 {
     m_buffer->user_data = this;
-    m_buffer->compositor = NULL;
     m_data = wl_shm_buffer_get_data(m_buffer);
     m_stride = wl_shm_buffer_get_stride(m_buffer);
 
@@ -77,22 +77,20 @@ void ShmBuffer::damage()
 {
     QImage::Format imageFormat = QImage::Format_Invalid;
 
-    //jl: need to do depth check as well.
-
-    if (!m_buffer->compositor)
-      return ;
-
-    if (m_buffer->visual == &m_buffer->compositor->premultiplied_argb_visual) {
+    wl_compositor *compositor = Wayland::Compositor::instance()->base();
+    if (m_buffer->visual == &compositor->premultiplied_argb_visual) {
         imageFormat = QImage::Format_ARGB32_Premultiplied;
-    } else if (m_buffer->visual == &m_buffer->compositor->rgb_visual) {
+    } else if (m_buffer->visual == &compositor->rgb_visual) {
         imageFormat = QImage::Format_RGB32;
-    } else if (m_buffer->visual == &m_buffer->compositor->argb_visual) {
+    } else if (m_buffer->visual == &compositor->argb_visual) {
         imageFormat = QImage::Format_ARGB32;
     } else {
+        qWarning("Failed to match ShmBuffer visual");
         imageFormat = QImage::Format_ARGB32_Premultiplied;
     }
 
     m_image = QImage(static_cast<uchar *>(m_data),m_buffer->width, m_buffer->height,m_stride,imageFormat);
+
 }
 
 ShmHandler::ShmHandler(Display *display)
@@ -127,6 +125,10 @@ void ShmHandler::buffer_damaged_callback(struct wl_buffer *buffer,
     Q_UNUSED(y);
     Q_UNUSED(width);
     Q_UNUSED(height);
+    //damage has the responsibillity to update the QImage
+    //for now we just recrate the entire QImage as we need a new
+    //hash key for texture uploads
+    static_cast<ShmBuffer *>(buffer->user_data)->damage();
 }
 
 void ShmHandler::buffer_destroyed_callback(struct wl_buffer *buffer)

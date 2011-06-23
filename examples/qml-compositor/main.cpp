@@ -78,14 +78,14 @@ public slots:
     }
 
 private slots:
-    void surfaceMapped(const QRect &rect) {
+    void surfaceMapped(const QSize &size) {
         WaylandSurface *surface = qobject_cast<WaylandSurface *>(sender());
-        surface->setGeometry(rect);
+        surface->setGeometry(QRect(surface->geometry().topLeft(),size));
 
         if (m_windowMap.contains(surface)) {
             WaylandSurfaceItem *item = m_windowMap.value(surface);
-            item->setWidth(rect.width());
-            item->setHeight(rect.height());
+            item->setWidth(size.width());
+            item->setHeight(size.height());
             emit windowResized(QVariant::fromValue(static_cast<QSGItem *>(item)));
         } else {
             WaylandSurfaceItem *item = new WaylandSurfaceItem(surface, rootObject());
@@ -104,7 +104,7 @@ private slots:
 
 protected:
     void surfaceCreated(WaylandSurface *surface) {
-        connect(surface, SIGNAL(mapped(const QRect &)), this, SLOT(surfaceMapped(const QRect &)));
+        connect(surface, SIGNAL(mapped(const QSize &)), this, SLOT(surfaceMapped(const QSize &)));
     }
 
     void paintEvent(QPaintEvent *event) {

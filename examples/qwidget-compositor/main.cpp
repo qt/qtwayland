@@ -84,17 +84,17 @@ private slots:
         update();
     }
 
-    void surfaceMapped(const QRect &rect) {
+    void surfaceMapped(const QSize &size) {
         WaylandSurface *surface = qobject_cast<WaylandSurface *>(sender());
         QPoint pos;
         if (!m_surfaces.contains(surface)) {
-            uint px = 1 + (qrand() % (width() - rect.width() - 2));
-            uint py = 1 + (qrand() % (height() - rect.height() - 2));
+            uint px = 1 + (qrand() % (width() - size.width() - 2));
+            uint py = 1 + (qrand() % (height() - size.height() - 2));
             pos = QPoint(px, py);
-            surface->setGeometry(QRect(pos, rect.size()));
+            surface->setGeometry(QRect(pos, size));
             m_surfaces.append(surface);
         } else {
-            surface->setGeometry(rect);
+            surface->setGeometry(QRect(geometry().topLeft(),size));
         }
         setInputFocus(surface);
         update();
@@ -119,7 +119,7 @@ protected:
 
     void surfaceCreated(WaylandSurface *surface) {
         connect(surface, SIGNAL(destroyed(QObject *)), this, SLOT(surfaceDestroyed(QObject *)));
-        connect(surface, SIGNAL(mapped(const QRect &)), this, SLOT(surfaceMapped(const QRect &)));
+        connect(surface, SIGNAL(mapped(const QSize &)), this, SLOT(surfaceMapped(const QSize &)));
         connect(surface, SIGNAL(damaged(const QRect &)), this, SLOT(surfaceDamaged(const QRect &)));
         update();
     }

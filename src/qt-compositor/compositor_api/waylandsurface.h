@@ -52,6 +52,7 @@ class WaylandSurfacePrivate;
 
 namespace Wayland {
 class Surface;
+class SurfacePrivate;
 }
 
 class WaylandSurface : public QObject
@@ -95,10 +96,11 @@ public:
     qint64 processId() const;
 
 signals:
-    void mapped(const QRect &rect);
+    void mapped(const QSize &size);
     void damaged(const QRect &rect);
 
     friend class Wayland::Surface;
+    friend class Wayland::SurfacePrivate;
 };
 
 #endif // WAYLANDSURFACE_H

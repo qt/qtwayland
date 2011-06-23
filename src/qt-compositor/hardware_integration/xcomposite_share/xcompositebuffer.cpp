@@ -4,7 +4,6 @@ XCompositeBuffer::XCompositeBuffer(Wayland::Compositor *compositor, Window windo
     : mWindow(window)
     , mInvertedY(false)
 {
-    base()->compositor = compositor->base();
     base()->height = size.height();
     base()->width = size.width();
     base()->visual = visual;

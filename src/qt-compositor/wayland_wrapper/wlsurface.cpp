@@ -64,7 +64,6 @@ public:
     SurfacePrivate(struct wl_client *client, Compositor *compositor)
         : client(client)
         , compositor(compositor)
-        , needsMap(false)
         , textureCreatedForBuffer(false)
         , directRenderBuffer(0)
         , processId(0)
@@ -91,10 +90,13 @@ public:
     }
 
     void attach(struct wl_buffer *buffer) {
-        this->surfaceBuffer = buffer;
+        bool emitMap = !surfaceBuffer;
+        surfaceBuffer = buffer;
         surfaceType = WaylandSurface::Invalid;
         textureCreatedForBuffer = false;
-        buffer->compositor = compositor->base();
+        if (emitMap) {
+            qtSurface->mapped(QSize(surfaceBuffer->width,surfaceBuffer->height));
+        }
     }
 
     inline struct wl_buffer *buffer() const { return surfaceBuffer; }
@@ -106,7 +108,6 @@ public:
 #ifdef QT_COMPOSITOR_WAYLAND_GL
     GLuint texture_id;
 #endif
-    bool needsMap;
     bool textureCreatedForBuffer;
     wl_buffer *directRenderBuffer;
     qint64 processId;
@@ -130,39 +131,6 @@ void surface_attach(struct wl_client *client, struct wl_surface *surface,
     Q_UNUSED(y);
 
     wayland_cast<Surface *>(surface)->attach(buffer);
-}
-
-void surface_map_toplevel(struct wl_client *client,
-                          struct wl_surface *surface)
-{
-    Q_UNUSED(client);
-    printf("surface_map_toplevel: %p, %p\n", client, surface);
-
-    wayland_cast<Surface *>(surface)->mapTopLevel();
-}
-
-void surface_map_transient(struct wl_client *client,
-                      struct wl_surface *surface,
-                      struct wl_surface *parent,
-                      int x,
-                      int y,
-                      uint32_t flags)
-{
-    Q_UNUSED(client);
-    Q_UNUSED(surface);
-    Q_UNUSED(parent);
-    Q_UNUSED(x);
-    Q_UNUSED(y);
-    Q_UNUSED(flags);
-    printf("surface_map_transient: %p, %p\n", client, surface);
-}
-
-void surface_map_fullscreen(struct wl_client *client,
-                       struct wl_surface *surface)
-{
-    Q_UNUSED(client);
-    Q_UNUSED(surface);
-    printf("surface_map_fullscreen: %p, %p\n", client, surface);
 }
 
 void surface_damage(struct wl_client *client, struct wl_surface *surface,
@@ -233,17 +201,7 @@ void Surface::damage(const QRect &rect)
     }
 #endif
 
-    if (d->needsMap) {
-        QRect rect(0,0,d->buffer()->width,d->buffer()->height);
-        emit d->qtSurface->mapped(rect);
-        d->needsMap = false;
-    }
-
     d->compositor->markSurfaceAsDirty(this);
-
-    if (d->type() == WaylandSurface::Shm) {
-        static_cast<ShmBuffer *>(d->buffer()->user_data)->damage();
-    }
 
     emit d->qtSurface->damaged(rect);
 }
@@ -278,16 +236,6 @@ void Surface::attach(struct wl_buffer *buffer)
 {
     Q_D(Surface);
     d->attach(buffer);
-}
-
-
-void Surface::mapTopLevel()
-{
-    Q_D(Surface);
-    if (!d->buffer())
-        d->needsMap = true;
-    else
-        emit d->qtSurface->mapped(QRect(0,0,d->buffer()->width, d->buffer()->height));
 }
 
 WaylandSurface * Surface::handle() const

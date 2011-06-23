@@ -157,11 +157,36 @@ void shell_selection(struct wl_client *client,
     Selection::instance()->create(client, id);
 }
 
+void set_toplevel(struct wl_client *client,
+                     struct wl_shell *wl_shell,
+                     struct wl_surface *surface)
+{
+
+}
+
+void set_transient(struct wl_client *client,
+                      struct wl_shell *wl_shell,
+                      struct wl_surface *surface,
+                      struct wl_surface *parent,
+                      int x,
+                      int y,
+                      uint32_t flags)
+{
+}
+void set_fullscreen(struct wl_client *client,
+                       struct wl_shell *wl_shell,
+                       struct wl_surface *surface)
+{
+}
+
 const static struct wl_shell_interface shell_interface = {
     shell_move,
     shell_resize,
     shell_drag,
-    shell_selection
+    shell_selection,
+    set_toplevel,
+    set_transient,
+    set_fullscreen
 };
 
 static Compositor *compositor;

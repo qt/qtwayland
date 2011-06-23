@@ -261,9 +261,6 @@ void Selection::onClientAdded(wl_client *client)
         offer = &m_retainedSelection->selection_offer;
     }
     if (selection && offer) {
-        wl_client_post_event(client, &offer->object,
-                             WL_SELECTION_OFFER_KEYBOARD_FOCUS, 0);
-        wl_client_post_global(client, &offer->object);
         foreach (const QString &mimeType, m_offerList) {
             QByteArray mimeTypeBa = mimeType.toLatin1();
             wl_client_post_event(client, &offer->object,

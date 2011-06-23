@@ -48,8 +48,9 @@
 #include "waylandsurfaceitem.h"
 #endif
 
-WaylandCompositor::WaylandCompositor(QWidget *topLevelWidget, const char *socketName)
+WaylandCompositor::WaylandCompositor(QWidget *topLevelWidget, QGLContext *context, const char *socketName)
     : m_compositor(0)
+    , m_glContext(context)
     , m_toplevel_widget(topLevelWidget)
     , m_socket_name(socketName)
 {
@@ -99,6 +100,11 @@ WaylandSurface *WaylandCompositor::directRenderSurface() const
 {
     Wayland::Surface *surf = m_compositor->directRenderSurface();
     return surf ? surf->handle() : 0;
+}
+
+QGLContext * WaylandCompositor::glContext() const
+{
+    return m_glContext;
 }
 
 QWidget * WaylandCompositor::topLevelWidget() const

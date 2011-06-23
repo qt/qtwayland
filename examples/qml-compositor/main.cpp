@@ -57,14 +57,11 @@ class QmlCompositor : public QSGView, public WaylandCompositor
 {
     Q_OBJECT
 public:
-    QmlCompositor() : WaylandCompositor(this) {
+    QmlCompositor() : WaylandCompositor(this, const_cast<QGLContext *>(context())) {
         setMouseTracking(true);
         setSource(QUrl(QLatin1String("qrc:qml/QmlCompositor/main.qml")));
         setResizeMode(QSGView::SizeRootObjectToView);
         winId();
-        if (windowHandle()) {
-            windowHandle()->glSurface();
-        }
     }
 
 signals:
@@ -132,7 +129,6 @@ int main(int argc, char *argv[])
     QObject::connect(&compositor, SIGNAL(windowResized(QVariant)), compositor.rootObject(), SLOT(windowResized(QVariant)));
 
     return app.exec();
-
 }
 
 #include "main.moc"

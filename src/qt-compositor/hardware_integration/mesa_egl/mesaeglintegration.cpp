@@ -41,7 +41,7 @@
 #include "mesaeglintegration.h"
 
 #include <QtGui/QPlatformNativeInterface>
-#include <QtGui/private/qapplication_p.h>
+#include <QtWidgets/private/qapplication_p.h>
 
 #define EGL_EGLEXT_PROTOTYPES
 #include <EGL/egl.h>
@@ -82,13 +82,13 @@ void MesaEglIntegration::initializeHardware(Wayland::Display *waylandDisplay)
 
     QPlatformNativeInterface *nativeInterface = QApplicationPrivate::platformIntegration()->nativeInterface();
     if (nativeInterface) {
-        d->egl_display = nativeInterface->nativeResourceForWidget("EglDisplay",m_compositor->topLevelWidget());
+        d->egl_display = nativeInterface->nativeResourceForWindow("EglDisplay", m_compositor->topLevelWidget()->windowHandle());
         if (d->egl_display) {
-            eglBindWaylandDisplayWL(d->egl_display,waylandDisplay->handle());
+            eglBindWaylandDisplayWL(d->egl_display, waylandDisplay->handle());
         } else {
             fprintf(stderr, "Failed to initialize egl display");
         }
-        d->egl_context = nativeInterface->nativeResourceForWidget("EglContext",m_compositor->topLevelWidget());
+        d->egl_context = nativeInterface->nativeResourceForContext("EglContext", m_compositor->glContext()->contextHandle());
     }
 }
 

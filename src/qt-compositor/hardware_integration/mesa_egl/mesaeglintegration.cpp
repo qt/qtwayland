@@ -64,14 +64,15 @@ public:
         , egl_context(EGL_NO_CONTEXT)
     { }
     EGLDisplay egl_display;
-
     EGLContext egl_context;
+    bool valid;
 };
 
 MesaEglIntegration::MesaEglIntegration(WaylandCompositor *compositor)
     : GraphicsHardwareIntegration(compositor)
     , d_ptr(new MesaEglIntegrationPrivate)
 {
+    d_ptr->valid = false;
 }
 
 void MesaEglIntegration::initializeHardware(Wayland::Display *waylandDisplay)
@@ -84,10 +85,17 @@ void MesaEglIntegration::initializeHardware(Wayland::Display *waylandDisplay)
     if (nativeInterface) {
         d->egl_display = nativeInterface->nativeResourceForWidget("EglDisplay",m_compositor->topLevelWidget());
         if (d->egl_display) {
-            eglBindWaylandDisplayWL(d->egl_display,waylandDisplay->handle());
-        } else {
-            fprintf(stderr, "Failed to initialize egl display");
+            const char *extensionString = eglQueryString(d->egl_display, EGL_EXTENSIONS);
+            if (extensionString && strstr(extensionString, "EGL_WL_bind_wayland_display")
+                && eglBindWaylandDisplayWL(d->egl_display, waylandDisplay->handle()))
+            {
+                d->valid = true;
+            }
         }
+
+        if (!d->valid)
+            fprintf(stderr, "Failed to initialize egl display\n");
+
         d->egl_context = nativeInterface->nativeResourceForWidget("EglContext",m_compositor->topLevelWidget());
     }
 }
@@ -95,6 +103,11 @@ void MesaEglIntegration::initializeHardware(Wayland::Display *waylandDisplay)
 GLuint MesaEglIntegration::createTextureFromBuffer(wl_buffer *buffer)
 {
     Q_D(MesaEglIntegration);
+    if (!d->valid) {
+        fprintf(stderr, "createTextureFromBuffer() failed\n");
+        return 0;
+    }
+
     EGLImageKHR image = eglCreateImageKHR(d->egl_display, d->egl_context,
                                           EGL_WAYLAND_BUFFER_WL,
                                           buffer, NULL);

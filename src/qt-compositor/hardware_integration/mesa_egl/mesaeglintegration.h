@@ -59,7 +59,6 @@ public:
 private:
     Q_DISABLE_COPY(MesaEglIntegration)
     QScopedPointer<MesaEglIntegrationPrivate> d_ptr;
-
 };
 
 #endif // MESAEGLINTEGRATION_H

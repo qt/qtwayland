@@ -7,8 +7,11 @@ use_pkgconfig {
 
     #set the rpath
     !isEmpty(QMAKE_LFLAGS_RPATH) {
-        WAYLAND_LIBDIR = $$system(pkg-config --variable=libdir wayland-server)
-        !isEmpty(WAYLAND_LIBDIR):QMAKE_LFLAGS += $${QMAKE_LFLAGS_RPATH}$${WAYLAND_LIBDIR}
+        WAYLAND_NEEDS_RPATH = $$system(pkg-config --libs-only-L wayland-server)
+        !isEmpty(WAYLAND_NEEDS_RPATH) {
+            WAYLAND_LIBDIR = $$system(pkg-config --variable=libdir wayland-server)
+            !isEmpty(WAYLAND_LIBDIR):QMAKE_LFLAGS += $${QMAKE_LFLAGS_RPATH}$${WAYLAND_LIBDIR}
+        }
     }
 } else {
     INCLUDEPATH += $$PWD/../3rdparty/wayland

@@ -94,6 +94,7 @@ public:
 
     Wayland::Surface *handle() const;
     qint64 processId() const;
+    QByteArray authenticationToken() const;
 
 signals:
     void mapped(const QSize &size);

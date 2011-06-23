@@ -227,8 +227,12 @@ void Selection::destroySelection(struct wl_resource *resource, struct wl_client 
 
 void Selection::create(struct wl_client *client, uint32_t id)
 {
-    delete m_retainedSelection;
-    m_retainedSelection = 0;
+    if (m_retainedSelection) {
+        wl_display_remove_global(Compositor::instance()->wl_display(),
+                                 &m_retainedSelection->selection_offer.object);
+        delete m_retainedSelection;
+        m_retainedSelection = 0;
+    }
     m_offerList.clear();
     struct wl_selection *selection = new struct wl_selection;
     memset(selection, 0, sizeof *selection);

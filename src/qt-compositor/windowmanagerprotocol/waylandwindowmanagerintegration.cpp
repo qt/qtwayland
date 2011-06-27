@@ -71,6 +71,11 @@ public:
         WindowManagerServerIntegration::instance()->authenticateWithToken(client, authenticationToken);
     }
 
+    void changeScreenVisibility(wl_client *client, int visible)
+    {
+        WindowManagerServerIntegration::instance()->changeScreenVisibility(client, visible);
+    }
+
 };
 
 void map_client_to_process(wl_client *client, struct wl_windowmanager *windowMgr, uint32_t processId)
@@ -122,6 +127,16 @@ void WindowManagerServerIntegration::authenticateWithToken(wl_client *client, co
     managedClient->m_authenticationToken = QByteArray(token);
     m_managedClients.insert(client, managedClient);
 }
+
+void WindowManagerServerIntegration::changeScreenVisibility(wl_client *client, int visible)
+{
+    m_managedClients[client]->m_isVisibleOnScreen = visible != 0;
+
+    qDebug() << Q_FUNC_INFO << visible;
+    wl_client_post_event(client, m_windowManagerObject->base(),
+                         WL_WINDOWMANAGER_CLIENT_ONSCREEN_VISIBILITY, visible);
+}
+
 
 WaylandManagedClient *WindowManagerServerIntegration::managedClient(wl_client *client) const
 {

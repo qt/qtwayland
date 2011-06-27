@@ -73,6 +73,7 @@ WaylandSurfaceItem::WaylandSurfaceItem(QSGItem *parent)
     , m_surface(0)
     , m_texture(0)
     , m_paintEnabled(true)
+
 {
 }
 
@@ -102,6 +103,7 @@ void WaylandSurfaceItem::init(WaylandSurface *surface)
     connect(surface, SIGNAL(destroyed(QObject *)), this, SLOT(surfaceDestroyed(QObject *)));
     connect(this, SIGNAL(textureChanged()), this, SLOT(update()));
     connect(surface, SIGNAL(damaged(const QRect &)), this, SLOT(surfaceDamaged(const QRect &)));
+
 }
 
 WaylandSurfaceItem::~WaylandSurfaceItem()
@@ -229,7 +231,11 @@ void WaylandSurfaceItem::setClientRenderingEnabled(bool enabled)
 {
     if (m_clientRenderingEnabled != enabled) {
         m_clientRenderingEnabled = enabled;
-        //qDebug() << "CLIENT RENDERING ENABLED: " << enabled;
-        emit clientRenderingEnabledChanged();
+
+        if (m_surface) {
+            m_surface->sendOnScreenVisibilityChange(enabled);
+        }
+
+        emit clientRenderingEnabledChanged();       
     }
 }

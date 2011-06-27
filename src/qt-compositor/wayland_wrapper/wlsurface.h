@@ -94,6 +94,8 @@ public:
     void frameFinished();
     void setInputFocus();
 
+    void sendOnScreenVisibilityChange(bool visible);
+
     WaylandSurface *handle() const;
     wl_client *clientHandle() const;
     qint64 processId() const;

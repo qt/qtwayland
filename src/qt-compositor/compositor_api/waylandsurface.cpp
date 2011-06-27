@@ -123,3 +123,8 @@ void WaylandSurface::setInputFocus()
     d->surface->setInputFocus();
 }
 
+void WaylandSurface::sendOnScreenVisibilityChange(bool visible)
+{
+    Q_D(WaylandSurface);
+    d->surface->sendOnScreenVisibilityChange(visible);
+}

@@ -89,6 +89,8 @@ public:
     void sendKeyPressEvent(uint code);
     void sendKeyReleaseEvent(uint code);
 
+    void sendOnScreenVisibilityChange(bool visible);
+
     void frameFinished();
     void setInputFocus();
 

@@ -66,6 +66,7 @@ public:
 
     WaylandManagedClient *managedClient(wl_client *client) const;
 
+    void changeScreenVisibility(wl_client *client, int visible);
 private:
     void mapClientToProcess(wl_client *client, uint32_t processId);
     void authenticateWithToken(wl_client *client, const char *token);
@@ -85,10 +86,12 @@ public:
     WaylandManagedClient();
     qint64 processId() const;
     QByteArray authenticationToken() const;
+    bool isVisibleOnScreen() const { return m_isVisibleOnScreen; }
 
 private:
     qint64 m_processId;
     QByteArray m_authenticationToken;
+    bool m_isVisibleOnScreen;
 
     friend class WindowManagerServerIntegration;
 };

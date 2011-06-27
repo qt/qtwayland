@@ -56,6 +56,10 @@
 #include <QtGui/QPlatformGLContext>
 #endif
 
+#ifdef QT_WAYLAND_WINDOWMANAGER_SUPPORT
+#include "waylandwindowmanagerintegration.h"
+#endif
+
 namespace Wayland {
 
 class SurfacePrivate
@@ -69,6 +73,7 @@ public:
         , processId(0)
         , surfaceBuffer(0)
         , surfaceType(WaylandSurface::Invalid)
+
     {
 #ifdef QT_COMPOSITOR_WAYLAND_GL
         texture_id = 0;
@@ -352,4 +357,12 @@ void Surface::setInputFocus()
     d->compositor->setInputFocus(this);
 }
 
+}
+
+void Wayland::Surface::sendOnScreenVisibilityChange(bool visible)
+{
+#ifdef QT_WAYLAND_WINDOWMANAGER_SUPPORT
+    Q_D(Surface);
+    WindowManagerServerIntegration::instance()->changeScreenVisibility(d->client, visible ? 1 : 0);
+#endif
 }

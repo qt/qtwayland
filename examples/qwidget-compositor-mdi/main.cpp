@@ -126,7 +126,7 @@ public:
 	setWidget(widget);
 
         connect(m_surface, SIGNAL(destroyed(QObject *)), this, SLOT(surfaceDestroyed(QObject *)));
-        connect(m_surface, SIGNAL(mapped(const QRect &)), this, SLOT(surfaceMapped(const QRect &)));
+        connect(m_surface, SIGNAL(mapped(const QSize &)), this, SLOT(surfaceMapped(const QSize &)));
         connect(m_surface, SIGNAL(damaged(const QRect &)), this, SLOT(surfaceDamaged(const QRect &)));
     }
 
@@ -136,12 +136,11 @@ private slots:
 	deleteLater();
     }
 
-    void surfaceMapped(const QRect &rect) {
+    void surfaceMapped(const QSize &size) {
         m_surface->setInputFocus();
-	setGeometry(rect);
-	widget()->setMinimumSize(rect.size());
-	resize(sizeHint());
-	show();
+        widget()->setMinimumSize(size);
+        resize(sizeHint());
+        show();
     }
 
     void surfaceDamaged(const QRect &) {

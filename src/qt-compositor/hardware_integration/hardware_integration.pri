@@ -1,6 +1,6 @@
 QT_WAYLAND_GL_CONFIG = $$(QT_WAYLAND_GL_CONFIG)
 
-contains(QT_CONFIG, opengl):!isEqual(QT_WAYLAND_GL_CONFIG,nogl) {
+!mac:contains(QT_CONFIG, opengl):!isEqual(QT_WAYLAND_GL_CONFIG,nogl) {
     HEADERS += \
         $$PWD/graphicshardwareintegration.h
 

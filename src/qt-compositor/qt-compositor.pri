@@ -1,5 +1,5 @@
 INCLUDEPATH += $$PWD
-use_pkgconfig {
+!mac:use_pkgconfig {
     QMAKE_CXXFLAGS += $$system(pkg-config --cflags wayland-server)
     #for some reason this is not included in the cflags line
     INCLUDEPATH += $$system(pkg-config --variable=includedir wayland-server)

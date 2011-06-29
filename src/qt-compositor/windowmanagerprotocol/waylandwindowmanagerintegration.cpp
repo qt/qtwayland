@@ -97,6 +97,7 @@ WindowManagerServerIntegration *WindowManagerServerIntegration::m_instance = 0;
 
 WindowManagerServerIntegration::WindowManagerServerIntegration(QObject *parent)
     : QObject(parent)
+    , m_orientationInDegrees(0)
 {
     m_instance = this;
 }
@@ -137,6 +138,17 @@ void WindowManagerServerIntegration::changeScreenVisibility(wl_client *client, i
                          WL_WINDOWMANAGER_CLIENT_ONSCREEN_VISIBILITY, visible);
 }
 
+void WindowManagerServerIntegration::updateOrientation(wl_client *client)
+{
+    setScreenOrientation(client, m_orientationInDegrees);
+}
+
+void WindowManagerServerIntegration::setScreenOrientation(wl_client *client, qint32 orientationInDegrees)
+{
+    m_orientationInDegrees = orientationInDegrees;
+    wl_client_post_event(client, m_windowManagerObject->base(),
+                         WL_WINDOWMANAGER_SET_SCREEN_ROTATION, orientationInDegrees);
+}
 
 WaylandManagedClient *WindowManagerServerIntegration::managedClient(wl_client *client) const
 {
@@ -155,7 +167,6 @@ WindowManagerServerIntegration *WindowManagerServerIntegration::instance()
 WaylandManagedClient::WaylandManagedClient()
     : m_processId(0)
 {
-
 }
 
 qint64 WaylandManagedClient::processId() const

@@ -23,5 +23,10 @@
         <event name="client_onscreen_visibility">
 	    <arg name="visible" type="int"/>
 	</event>
+
+        <!-- Sets screen rotation, typically based on accelerometer/orientation sensor reading data -->
+        <event name="set_screen_rotation">
+            <arg name="rotation" type="int"/>
+        </event>
     </interface>
 </protocol>

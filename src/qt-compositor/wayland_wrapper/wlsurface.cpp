@@ -397,12 +397,13 @@ void Surface::setInputFocus()
     d->compositor->setInputFocus(this);
 }
 
-}
-
-void Wayland::Surface::sendOnScreenVisibilityChange(bool visible)
+void Surface::sendOnScreenVisibilityChange(bool visible)
 {
 #ifdef QT_WAYLAND_WINDOWMANAGER_SUPPORT
     Q_D(Surface);
     WindowManagerServerIntegration::instance()->changeScreenVisibility(d->client, visible ? 1 : 0);
 #endif
 }
+
+} // namespace Wayland
+

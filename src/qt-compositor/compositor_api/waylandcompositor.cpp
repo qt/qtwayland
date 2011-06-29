@@ -140,3 +140,8 @@ const char *WaylandCompositor::socketName() const
         return 0;
     return m_socket_name.constData();
 }
+
+void WaylandCompositor::setScreenOrientation(qint32 orientationInDegrees)
+{
+    m_compositor->setScreenOrientation(orientationInDegrees);
+}

@@ -105,6 +105,8 @@ public:
 
     QList<struct wl_client *> clients() const;
 
+    void setScreenOrientation(qint32 orientationInDegrees);
+
 signals:
     void clientAdded(wl_client *client);
 

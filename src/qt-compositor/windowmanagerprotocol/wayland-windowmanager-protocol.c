@@ -32,6 +32,7 @@ static const struct wl_message wl_windowmanager_requests[] = {
 
 static const struct wl_message wl_windowmanager_events[] = {
 	{ "client_onscreen_visibility", "i", NULL },
+	{ "set_screen_rotation", "i", NULL },
 };
 
 WL_EXPORT const struct wl_interface wl_windowmanager_interface = {

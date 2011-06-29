@@ -273,6 +273,7 @@ void Compositor::createSurface(struct wl_client *client, int id)
         // if there is no PID, the client does not support the protocol.
         surface->setProcessId(managedClient->processId());
         surface->setAuthenticationToken(managedClient->authenticationToken());
+        m_windowManagerWaylandProtocol->updateOrientation(client);
     }
 
     m_qt_compositor->surfaceCreated(surface->handle());
@@ -440,7 +441,16 @@ QList<struct wl_client *> Compositor::clients() const
     return list;
 }
 
+void Compositor::setScreenOrientation(qint32 orientationInDegrees)
+{
+    QList<struct wl_client*> clientList = clients();
+    for (int i = 0; i < clientList.length(); ++i) {
+        struct wl_client *client = clientList.at(i);
+        m_windowManagerWaylandProtocol->setScreenOrientation(client, orientationInDegrees);
+    }
 }
+
+} // namespace Wayland
 
 wl_input_device * Wayland::Compositor::defaultInputDevice()
 {

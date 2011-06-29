@@ -48,6 +48,7 @@ struct wl_windowmanager_interface {
 };
 
 #define WL_WINDOWMANAGER_CLIENT_ONSCREEN_VISIBILITY	0
+#define WL_WINDOWMANAGER_SET_SCREEN_ROTATION	1
 
 #ifdef  __cplusplus
 }

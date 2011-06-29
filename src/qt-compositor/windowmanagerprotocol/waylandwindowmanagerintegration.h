@@ -67,6 +67,9 @@ public:
     WaylandManagedClient *managedClient(wl_client *client) const;
 
     void changeScreenVisibility(wl_client *client, int visible);
+    void setScreenOrientation(wl_client *client, qint32 orientationInDegrees);
+    void updateOrientation(wl_client *client);
+
 private:
     void mapClientToProcess(wl_client *client, uint32_t processId);
     void authenticateWithToken(wl_client *client, const char *token);
@@ -76,6 +79,7 @@ private:
     static WindowManagerServerIntegration *m_instance;
 
     WindowManagerObject *m_windowManagerObject;
+    qint32 m_orientationInDegrees;
 
     friend class WindowManagerObject;
 };
@@ -87,6 +91,7 @@ public:
     qint64 processId() const;
     QByteArray authenticationToken() const;
     bool isVisibleOnScreen() const { return m_isVisibleOnScreen; }
+    qint32 orientation() const;
 
 private:
     qint64 m_processId;

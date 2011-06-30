@@ -55,6 +55,24 @@
 
 #include <QDebug>
 
+#include "qtouchscreen.h"
+
+static int touch_x_min, touch_x_max, touch_y_min, touch_y_max;
+
+class QWidgetCompositor;
+
+class TouchObserver : public QTouchScreenObserver
+{
+public:
+    TouchObserver(QWidgetCompositor *compositor)
+        : m_compositor(compositor) { }
+    void touch_configure(int x_min, int x_max, int y_min, int y_max);
+    void touch_point(QEvent::Type state, const QList<QWindowSystemInterface::TouchPoint> &points);
+
+private:
+    QWidgetCompositor *m_compositor;
+};
+
 #ifdef QT_COMPOSITOR_WAYLAND_GL
 class QWidgetCompositor : public QGLWidget, public WaylandCompositor
 #else
@@ -240,8 +258,56 @@ private:
 
     WaylandSurface *m_dragSurface;
     QPoint m_dragOffset;
+
+    friend class TouchObserver;
 };
 
+void TouchObserver::touch_configure(int x_min, int x_max, int y_min, int y_max)
+{
+    touch_x_min = x_min;
+    touch_x_max = x_max;
+    touch_y_min = y_min;
+    touch_y_max = y_max;
+}
+
+void TouchObserver::touch_point(QEvent::Type state, const QList<QWindowSystemInterface::TouchPoint> &points)
+{
+    Q_UNUSED(state);
+    WaylandSurface *focusSurface = m_compositor->inputFocus();
+    if (focusSurface) {
+        if (points.isEmpty())
+            return;
+        for (int i = 0; i < points.count(); ++i) {
+            const QWindowSystemInterface::TouchPoint &point(points.at(i));
+
+            // These are hw coordinates.
+            int x = int(point.area.left());
+            int y = int(point.area.top());
+
+            // Wayland expects surface-relative coordinates.
+
+            // Translate so that (0, 0) is the top-left corner.
+            x = qBound(touch_x_min, x, touch_x_max) - touch_x_min;
+            y = qBound(touch_y_min, y, touch_y_max) - touch_y_min;
+
+            // Get a normalized position in range 0..1.
+            const int hw_w = touch_x_max - touch_x_min;
+            const int hw_h = touch_y_max - touch_y_min;
+            const qreal nx = x / qreal(hw_w);
+            const qreal ny = y / qreal(hw_h);
+
+            // Map to surface.
+            QRect winRect(focusSurface->geometry());
+            x = int(nx * winRect.width());
+            y = int(ny * winRect.height());
+
+            focusSurface->sendTouchPointEvent(point.id,
+                                              x, y,
+                                              point.state);
+        }
+        focusSurface->sendTouchFrameEvent();
+    }
+}
 
 int main(int argc, char *argv[])
 {
@@ -251,8 +317,9 @@ int main(int argc, char *argv[])
     compositor.resize(800, 600);
     compositor.show();
 
-    return app.exec();
+    QTouchScreenHandlerThread t(QString(), new TouchObserver(&compositor));
 
+    return app.exec();
 }
 
 #include "main.moc"

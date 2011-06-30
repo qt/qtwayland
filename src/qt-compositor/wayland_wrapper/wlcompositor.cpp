@@ -373,10 +373,20 @@ void Compositor::setKeyFocus(Surface *surface)
     wl_input_device_set_keyboard_focus(&m_input, surface ? surface->base() : 0, currentTimeMsecs());
 }
 
+Surface *Compositor::keyFocus() const
+{
+    return m_keyFocusSurface;
+}
+
 void Compositor::setPointerFocus(Surface *surface, const QPoint &pos)
 {
     m_pointerFocusSurface = surface;
     wl_input_device_set_pointer_focus(&m_input, surface ? surface->base() : 0, currentTimeMsecs(), pos.x(), pos.y(), pos.x(), pos.y());
+}
+
+Surface *Compositor::pointerFocus() const
+{
+    return m_pointerFocusSurface;
 }
 
 QWidget * Compositor::topLevelWidget() const

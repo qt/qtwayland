@@ -85,6 +85,12 @@ void WaylandCompositor::setInputFocus(WaylandSurface *surface)
     m_compositor->setInputFocus(surfaceImpl);
 }
 
+WaylandSurface *WaylandCompositor::inputFocus() const
+{
+    Wayland::Surface *surfaceImpl = m_compositor->keyFocus();
+    return surfaceImpl ? surfaceImpl->handle() : 0;
+}
+
 void WaylandCompositor::destroyClientForSurface(WaylandSurface *surface)
 {
     m_compositor->destroyClientForSurface(surface->handle());

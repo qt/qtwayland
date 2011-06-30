@@ -67,6 +67,7 @@ public:
     void frameFinished(WaylandSurface *surface = 0);
 
     void setInputFocus(WaylandSurface *surface);
+    WaylandSurface *inputFocus() const;
     void destroyClientForSurface(WaylandSurface *surface);
 
     void setDirectRenderSurface(WaylandSurface *surface);

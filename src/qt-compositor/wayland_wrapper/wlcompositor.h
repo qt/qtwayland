@@ -69,7 +69,9 @@ public:
     void frameFinished(Surface *surface = 0);
     void setInputFocus(Surface *surface);
     void setKeyFocus(Surface *surface);
+    Surface *keyFocus() const;
     void setPointerFocus(Surface *surface, const QPoint &point = QPoint());
+    Surface *pointerFocus() const;
 
     Surface *getSurfaceFromWinId(uint winId) const;
     struct wl_client *getClientFromWinId(uint winId) const;

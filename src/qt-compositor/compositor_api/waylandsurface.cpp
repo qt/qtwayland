@@ -111,6 +111,24 @@ void WaylandSurface::sendKeyReleaseEvent(uint code)
     d->surface->sendKeyReleaseEvent(code);
 }
 
+void WaylandSurface::sendTouchPointEvent(int id, int x, int y, Qt::TouchPointState state)
+{
+    Q_D(WaylandSurface);
+    d->surface->sendTouchPointEvent(id, x, y, state);
+}
+
+void WaylandSurface::sendTouchFrameEvent()
+{
+    Q_D(WaylandSurface);
+    d->surface->sendTouchFrameEvent();
+}
+
+void WaylandSurface::sendTouchCancelEvent()
+{
+    Q_D(WaylandSurface);
+    d->surface->sendTouchCancelEvent();
+}
+
 void WaylandSurface::frameFinished()
 {
     Q_D(WaylandSurface);

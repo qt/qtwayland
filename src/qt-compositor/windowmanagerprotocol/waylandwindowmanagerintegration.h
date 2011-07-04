@@ -44,13 +44,16 @@
 
 #include <qwindowdefs.h>
 #include <stdint.h>
-#include "wayland_wrapper/wldisplay.h"
 
 #include <QObject>
 #include <QMap>
 
 
 struct wl_client;
+
+namespace Wayland {
+    class Display;
+}
 
 class WindowManagerObject;
 class WaylandManagedClient;
@@ -69,6 +72,10 @@ public:
     void changeScreenVisibility(wl_client *client, int visible);
     void setScreenOrientation(wl_client *client, qint32 orientationInDegrees);
     void updateOrientation(wl_client *client);
+
+
+signals:
+    void clientAuthenticated(wl_client *client);
 
 private:
     void mapClientToProcess(wl_client *client, uint32_t processId);

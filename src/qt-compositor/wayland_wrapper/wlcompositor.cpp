@@ -268,14 +268,7 @@ void Compositor::createSurface(struct wl_client *client, int id)
     addClientResource(client, &surface->base()->resource, id, &wl_surface_interface,
             &surface_interface, destroy_surface);
 
-    WaylandManagedClient *managedClient = m_windowManagerWaylandProtocol->managedClient(client);
-    if (managedClient) {
-        // if there is no PID, the client does not support the protocol.
-        surface->setProcessId(managedClient->processId());
-        surface->setAuthenticationToken(managedClient->authenticationToken());
         m_windowManagerWaylandProtocol->updateOrientation(client);
-    }
-
     m_qt_compositor->surfaceCreated(surface->handle());
 
     QList<struct wl_client *> prevClientList = clients();
@@ -331,6 +324,7 @@ void Compositor::processWaylandEvents()
     if (ret)
         fprintf(stderr, "wl_event_loop_dispatch error: %d\n", ret);
 }
+
 
 void Compositor::surfaceDestroyed(Surface *surface)
 {
@@ -456,3 +450,16 @@ wl_input_device * Wayland::Compositor::defaultInputDevice()
 {
     return &m_input;
 }
+
+QList<Wayland::Surface *> Wayland::Compositor::surfacesForClient(wl_client *client)
+{
+    QList<Wayland::Surface *> ret;
+
+    for (int i=0; i < m_surfaces.count(); ++i) {
+        if (m_surfaces.at(i)->clientHandle() == client) {
+            ret.append(m_surfaces.at(i));
+        }
+    }
+    return ret;
+}
+

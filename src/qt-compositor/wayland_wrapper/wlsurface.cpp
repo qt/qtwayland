@@ -270,13 +270,7 @@ void Surface::setProcessId(qint64 processId)
 QByteArray Surface::authenticationToken() const
 {
     Q_D(const Surface);
-    return d->authenticationToken;
-}
-
-void Surface::setAuthenticationToken(const QByteArray &authenticationToken)
-{
-    Q_D(Surface);
-    d->authenticationToken = authenticationToken;
+    return WindowManagerServerIntegration::instance()->managedClient(d->client)->authenticationToken();
 }
 
 uint32_t toWaylandButton(Qt::MouseButton button)

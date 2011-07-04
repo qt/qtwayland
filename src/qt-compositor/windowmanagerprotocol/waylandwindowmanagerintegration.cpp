@@ -61,11 +61,13 @@ public:
 
     void mapClientToProcess(wl_client *client, uint32_t processId)
     {
+        //qDebug() << "COMPOSITOR:" << Q_FUNC_INFO << client << processId;
         WindowManagerServerIntegration::instance()->mapClientToProcess(client, processId);
     }
 
     void authenticateWithToken(wl_client *client, const char *authenticationToken)
     {
+        //qDebug() << "COMPOSITOR:" << Q_FUNC_INFO << client << authenticationToken;
         WindowManagerServerIntegration::instance()->authenticateWithToken(client, authenticationToken);
     }
 
@@ -122,9 +124,13 @@ void WindowManagerServerIntegration::mapClientToProcess(wl_client *client, uint3
 
 void WindowManagerServerIntegration::authenticateWithToken(wl_client *client, const char *token)
 {
+    Q_ASSERT(token != 0 && *token != 0);
+
     WaylandManagedClient *managedClient = m_managedClients.value(client, new WaylandManagedClient);
     managedClient->m_authenticationToken = QByteArray(token);
     m_managedClients.insert(client, managedClient);
+
+    emit clientAuthenticated(client);
 }
 
 void WindowManagerServerIntegration::changeScreenVisibility(wl_client *client, int visible)

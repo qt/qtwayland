@@ -96,6 +96,8 @@ public:
     bool setDirectRenderSurface(Surface *surface);
     Surface *directRenderSurface() const {return m_directRenderSurface;}
 
+    QList<Surface*> surfacesForClient(wl_client* client);
+
     wl_input_device *defaultInputDevice();
     WaylandCompositor *qtCompositor() const { return m_qt_compositor; }
 

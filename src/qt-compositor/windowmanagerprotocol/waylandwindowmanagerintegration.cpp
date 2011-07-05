@@ -48,8 +48,6 @@
 #include "wayland-server.h"
 #include "wayland-windowmanager-server-protocol.h"
 
-#include <QtCore/QDebug>
-
 // the protocol files are generated with wayland-scanner, in the following manner:
 // wayland-scanner client-header < windowmanager.xml > wayland-windowmanager-client-protocol.h
 // wayland-scanner server-header < windowmanager.xml > wayland-windowmanager-server-protocol.h
@@ -133,7 +131,6 @@ void WindowManagerServerIntegration::changeScreenVisibility(wl_client *client, i
 {
     m_managedClients[client]->m_isVisibleOnScreen = visible != 0;
 
-    qDebug() << Q_FUNC_INFO << visible;
     wl_client_post_event(client, m_windowManagerObject->base(),
                          WL_WINDOWMANAGER_CLIENT_ONSCREEN_VISIBILITY, visible);
 }

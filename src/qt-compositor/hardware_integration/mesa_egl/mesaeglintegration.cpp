@@ -40,8 +40,8 @@
 
 #include "mesaeglintegration.h"
 
+#include <QtGui/QApplication>
 #include <QtGui/QPlatformNativeInterface>
-#include <QtGui/private/qapplication_p.h>
 
 #define EGL_EGLEXT_PROTOTYPES
 #include <EGL/egl.h>
@@ -81,7 +81,7 @@ void MesaEglIntegration::initializeHardware(Wayland::Display *waylandDisplay)
     //We need a window id now :)
     m_compositor->topLevelWidget()->winId();
 
-    QPlatformNativeInterface *nativeInterface = QApplicationPrivate::platformIntegration()->nativeInterface();
+    QPlatformNativeInterface *nativeInterface = QApplication::platformNativeInterface();
     if (nativeInterface) {
         d->egl_display = nativeInterface->nativeResourceForWidget("EglDisplay",m_compositor->topLevelWidget());
         if (d->egl_display) {

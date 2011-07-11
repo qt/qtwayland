@@ -41,13 +41,14 @@
 #include "waylandsurfaceitem.h"
 #include "waylandsurface.h"
 
-#include <qsgengine.h>
-#include <private/qsgitem_p.h>
+#include <QtDeclarative/QSGEngine>
+//#include <private/qsgitem_p.h>
 
-#include <QKeyEvent>
+#include <QtGui/QKeyEvent>
 
-#include <qsgsimpletexturenode.h>
-#include <qsgsimplerectnode.h>
+#include <QtDeclarative/QSGSimpleTextureNode>
+#include <QtDeclarative/QSGSimpleRectNode>
+#include <QtDeclarative/QSGCanvas>
 
 void WaylandSurfaceItem::surfaceDamaged(const QRect &)
 {

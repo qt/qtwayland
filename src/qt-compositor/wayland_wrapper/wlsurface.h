@@ -50,7 +50,6 @@
 
 #include <QtCore/QTextStream>
 #include <QtCore/QMetaType>
-#include <QtGui/private/qapplication_p.h>
 
 #ifdef QT_COMPOSITOR_WAYLAND_GL
 #include <QtOpenGL/QGLContext>

@@ -1,5 +1,7 @@
 #include "waylandsurface.h"
 
+#include <private/qobject_p.h>
+
 #include "wayland_wrapper/wlsurface.h"
 
 class WaylandSurfacePrivate : public QObjectPrivate

@@ -4,9 +4,9 @@
 #include "wayland_wrapper/wlcompositor.h"
 #include "wayland-xcomposite-server-protocol.h"
 
+#include <QtGui/QApplication>
 #include <QtGui/QPlatformNativeInterface>
 #include <QtGui/QPlatformGLContext>
-#include <private/qapplication_p.h>
 
 #include "xcompositebuffer.h"
 #include "xcompositehandler.h"
@@ -43,7 +43,7 @@ XCompositeGLXIntegration::XCompositeGLXIntegration(WaylandCompositor *compositor
     : GraphicsHardwareIntegration(compositor)
     , mDisplay(0)
 {
-    QPlatformNativeInterface *nativeInterface = QApplicationPrivate::platformIntegration()->nativeInterface();
+    QPlatformNativeInterface *nativeInterface = QApplication::platformNativeInterface();
     if (nativeInterface) {
         mDisplay = static_cast<Display *>(nativeInterface->nativeResourceForWidget("Display",m_compositor->topLevelWidget()));
         if (!mDisplay)

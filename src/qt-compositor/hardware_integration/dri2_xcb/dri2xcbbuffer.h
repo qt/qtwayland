@@ -7,8 +7,8 @@
 #include <wayland-server.h>
 
 #include <QtCore/QSize>
+#include <QtGui/QApplication>
 #include <QtCore/QTextStream>
-#include <QtGui/private/qapplication_p.h>
 #include <QtGui/QPlatformNativeInterface>
 
 #define EGL_EGLEXT_PROTOTYPES

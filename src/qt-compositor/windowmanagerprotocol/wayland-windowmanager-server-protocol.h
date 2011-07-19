@@ -39,13 +39,16 @@ struct wl_windowmanager;
 extern const struct wl_interface wl_windowmanager_interface;
 
 struct wl_windowmanager_interface {
-        void (*map_client_to_process)(struct wl_client *client,
-                                      struct wl_windowmanager *windowmanager,
-                                      uint32_t processid);
-        void (*authenticate_with_token)(struct wl_client *client,
-                                        struct wl_windowmanager *windowmanager,
-                                        const char *wl_authentication_token);
+	void (*map_client_to_process)(struct wl_client *client,
+				      struct wl_windowmanager *wl_windowmanager,
+				      uint32_t processid);
+	void (*authenticate_with_token)(struct wl_client *client,
+					struct wl_windowmanager *wl_windowmanager,
+					const char *processid);
 };
+
+#define WL_WINDOWMANAGER_CLIENT_ONSCREEN_VISIBILITY	0
+#define WL_WINDOWMANAGER_SET_SCREEN_ROTATION	1
 
 #ifdef  __cplusplus
 }

@@ -1,5 +1,7 @@
 #include "waylandsurface.h"
 
+#include <private/qobject_p.h>
+
 #include "wayland_wrapper/wlsurface.h"
 
 class WaylandSurfacePrivate : public QObjectPrivate
@@ -75,6 +77,12 @@ qint64 WaylandSurface::processId() const
     return d->surface->processId();
 }
 
+QByteArray WaylandSurface::authenticationToken() const
+{
+    Q_D(const WaylandSurface);
+    return d->surface->authenticationToken();
+}
+
 void WaylandSurface::sendMousePressEvent(const QPoint &pos, Qt::MouseButton button)
 {
     Q_D(WaylandSurface);
@@ -105,6 +113,24 @@ void WaylandSurface::sendKeyReleaseEvent(uint code)
     d->surface->sendKeyReleaseEvent(code);
 }
 
+void WaylandSurface::sendTouchPointEvent(int id, int x, int y, Qt::TouchPointState state)
+{
+    Q_D(WaylandSurface);
+    d->surface->sendTouchPointEvent(id, x, y, state);
+}
+
+void WaylandSurface::sendTouchFrameEvent()
+{
+    Q_D(WaylandSurface);
+    d->surface->sendTouchFrameEvent();
+}
+
+void WaylandSurface::sendTouchCancelEvent()
+{
+    Q_D(WaylandSurface);
+    d->surface->sendTouchCancelEvent();
+}
+
 void WaylandSurface::frameFinished()
 {
     Q_D(WaylandSurface);
@@ -117,3 +143,8 @@ void WaylandSurface::setInputFocus()
     d->surface->setInputFocus();
 }
 
+void WaylandSurface::sendOnScreenVisibilityChange(bool visible)
+{
+    Q_D(WaylandSurface);
+    d->surface->sendOnScreenVisibilityChange(visible);
+}

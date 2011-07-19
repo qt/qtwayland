@@ -269,13 +269,7 @@ void Compositor::createSurface(struct wl_client *client, int id)
     addClientResource(client, &surface->base()->resource, id, &wl_surface_interface,
             &surface_interface, destroy_surface);
 
-    WaylandManagedClient *managedClient = m_windowManagerWaylandProtocol->managedClient(client);
-    if (managedClient) {
-        // if there is no PID, the client does not support the protocol.
-        surface->setProcessId(managedClient->processId());
-        surface->setAuthenticationToken(managedClient->authenticationToken());
-    }
-
+        m_windowManagerWaylandProtocol->updateOrientation(client);
     m_qt_compositor->surfaceCreated(surface->handle());
 
     QList<struct wl_client *> prevClientList = clients();
@@ -332,6 +326,7 @@ void Compositor::processWaylandEvents()
         fprintf(stderr, "wl_event_loop_dispatch error: %d\n", ret);
 }
 
+
 void Compositor::surfaceDestroyed(Surface *surface)
 {
     m_surfaces.removeOne(surface);
@@ -374,10 +369,20 @@ void Compositor::setKeyFocus(Surface *surface)
     wl_input_device_set_keyboard_focus(&m_input, surface ? surface->base() : 0, currentTimeMsecs());
 }
 
+Surface *Compositor::keyFocus() const
+{
+    return m_keyFocusSurface;
+}
+
 void Compositor::setPointerFocus(Surface *surface, const QPoint &pos)
 {
     m_pointerFocusSurface = surface;
     wl_input_device_set_pointer_focus(&m_input, surface ? surface->base() : 0, currentTimeMsecs(), pos.x(), pos.y(), pos.x(), pos.y());
+}
+
+Surface *Compositor::pointerFocus() const
+{
+    return m_pointerFocusSurface;
 }
 
 QWidget * Compositor::topLevelWidget() const
@@ -431,9 +436,31 @@ QList<struct wl_client *> Compositor::clients() const
     return list;
 }
 
+void Compositor::setScreenOrientation(qint32 orientationInDegrees)
+{
+    QList<struct wl_client*> clientList = clients();
+    for (int i = 0; i < clientList.length(); ++i) {
+        struct wl_client *client = clientList.at(i);
+        m_windowManagerWaylandProtocol->setScreenOrientation(client, orientationInDegrees);
+    }
 }
+
+} // namespace Wayland
 
 wl_input_device * Wayland::Compositor::defaultInputDevice()
 {
     return &m_input;
 }
+
+QList<Wayland::Surface *> Wayland::Compositor::surfacesForClient(wl_client *client)
+{
+    QList<Wayland::Surface *> ret;
+
+    for (int i=0; i < m_surfaces.count(); ++i) {
+        if (m_surfaces.at(i)->clientHandle() == client) {
+            ret.append(m_surfaces.at(i));
+        }
+    }
+    return ret;
+}
+

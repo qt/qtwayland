@@ -89,11 +89,18 @@ public:
     void sendKeyPressEvent(uint code);
     void sendKeyReleaseEvent(uint code);
 
+    void sendTouchPointEvent(int id, int x, int y, Qt::TouchPointState state);
+    void sendTouchFrameEvent();
+    void sendTouchCancelEvent();
+
+    void sendOnScreenVisibilityChange(bool visible);
+
     void frameFinished();
     void setInputFocus();
 
     Wayland::Surface *handle() const;
     qint64 processId() const;
+    QByteArray authenticationToken() const;
 
 signals:
     void mapped(const QSize &size);

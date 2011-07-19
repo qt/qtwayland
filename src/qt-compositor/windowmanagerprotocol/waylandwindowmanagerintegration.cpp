@@ -48,8 +48,6 @@
 #include "wayland-server.h"
 #include "wayland-windowmanager-server-protocol.h"
 
-#include <QtCore/QDebug>
-
 // the protocol files are generated with wayland-scanner, in the following manner:
 // wayland-scanner client-header < windowmanager.xml > wayland-windowmanager-client-protocol.h
 // wayland-scanner server-header < windowmanager.xml > wayland-windowmanager-server-protocol.h
@@ -63,12 +61,19 @@ public:
 
     void mapClientToProcess(wl_client *client, uint32_t processId)
     {
+        //qDebug() << "COMPOSITOR:" << Q_FUNC_INFO << client << processId;
         WindowManagerServerIntegration::instance()->mapClientToProcess(client, processId);
     }
 
     void authenticateWithToken(wl_client *client, const char *authenticationToken)
     {
+        //qDebug() << "COMPOSITOR:" << Q_FUNC_INFO << client << authenticationToken;
         WindowManagerServerIntegration::instance()->authenticateWithToken(client, authenticationToken);
+    }
+
+    void changeScreenVisibility(wl_client *client, int visible)
+    {
+        WindowManagerServerIntegration::instance()->changeScreenVisibility(client, visible);
     }
 
 };
@@ -92,6 +97,7 @@ WindowManagerServerIntegration *WindowManagerServerIntegration::m_instance = 0;
 
 WindowManagerServerIntegration::WindowManagerServerIntegration(QObject *parent)
     : QObject(parent)
+    , m_orientationInDegrees(0)
 {
     m_instance = this;
 }
@@ -118,9 +124,33 @@ void WindowManagerServerIntegration::mapClientToProcess(wl_client *client, uint3
 
 void WindowManagerServerIntegration::authenticateWithToken(wl_client *client, const char *token)
 {
+    Q_ASSERT(token != 0 && *token != 0);
+
     WaylandManagedClient *managedClient = m_managedClients.value(client, new WaylandManagedClient);
     managedClient->m_authenticationToken = QByteArray(token);
     m_managedClients.insert(client, managedClient);
+
+    emit clientAuthenticated(client);
+}
+
+void WindowManagerServerIntegration::changeScreenVisibility(wl_client *client, int visible)
+{
+    m_managedClients[client]->m_isVisibleOnScreen = visible != 0;
+
+    wl_client_post_event(client, m_windowManagerObject->base(),
+                         WL_WINDOWMANAGER_CLIENT_ONSCREEN_VISIBILITY, visible);
+}
+
+void WindowManagerServerIntegration::updateOrientation(wl_client *client)
+{
+    setScreenOrientation(client, m_orientationInDegrees);
+}
+
+void WindowManagerServerIntegration::setScreenOrientation(wl_client *client, qint32 orientationInDegrees)
+{
+    m_orientationInDegrees = orientationInDegrees;
+    wl_client_post_event(client, m_windowManagerObject->base(),
+                         WL_WINDOWMANAGER_SET_SCREEN_ROTATION, orientationInDegrees);
 }
 
 WaylandManagedClient *WindowManagerServerIntegration::managedClient(wl_client *client) const
@@ -140,7 +170,6 @@ WindowManagerServerIntegration *WindowManagerServerIntegration::instance()
 WaylandManagedClient::WaylandManagedClient()
     : m_processId(0)
 {
-
 }
 
 qint64 WaylandManagedClient::processId() const

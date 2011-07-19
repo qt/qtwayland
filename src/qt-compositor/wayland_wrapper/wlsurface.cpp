@@ -58,6 +58,10 @@
 #include <QtGui/QPlatformGLContext>
 #endif
 
+#ifdef QT_WAYLAND_WINDOWMANAGER_SUPPORT
+#include "waylandwindowmanagerintegration.h"
+#endif
+
 namespace Wayland {
 
 class SurfacePrivate
@@ -71,6 +75,7 @@ public:
         , processId(0)
         , surfaceBuffer(0)
         , surfaceType(WaylandSurface::Invalid)
+
     {
 #ifdef QT_COMPOSITOR_WAYLAND_GL
         texture_id = 0;
@@ -267,13 +272,7 @@ void Surface::setProcessId(qint64 processId)
 QByteArray Surface::authenticationToken() const
 {
     Q_D(const Surface);
-    return d->authenticationToken;
-}
-
-void Surface::setAuthenticationToken(const QByteArray &authenticationToken)
-{
-    Q_D(Surface);
-    d->authenticationToken = authenticationToken;
+    return WindowManagerServerIntegration::instance()->managedClient(d->client)->authenticationToken();
 }
 
 uint32_t toWaylandButton(Qt::MouseButton button)
@@ -348,6 +347,46 @@ void Surface::sendKeyReleaseEvent(uint code)
     }
 }
 
+void Surface::sendTouchPointEvent(int id, int x, int y, Qt::TouchPointState state)
+{
+    Q_D(Surface);
+    if (d->compositor->defaultInputDevice()->keyboard_focus) {
+        uint32_t time = d->compositor->currentTimeMsecs();
+        struct wl_client *client = d->client;
+        struct wl_object *dev = &d->compositor->defaultInputDevice()->object;
+        switch (state) {
+        case Qt::TouchPointPressed:
+            wl_client_post_event(client, dev, WL_INPUT_DEVICE_TOUCH_DOWN, time, id, x, y);
+            break;
+        case Qt::TouchPointMoved:
+            wl_client_post_event(client, dev, WL_INPUT_DEVICE_TOUCH_MOTION, time, id, x, y);
+            break;
+        case Qt::TouchPointReleased:
+            wl_client_post_event(client, dev, WL_INPUT_DEVICE_TOUCH_UP, time, id);
+            break;
+        case Qt::TouchPointStationary:
+            // stationary points are not sent through wayland, the client must cache them
+            break;
+        default:
+            break;
+        }
+    }
+}
+
+void Surface::sendTouchFrameEvent()
+{
+    Q_D(Surface);
+    wl_client_post_event(d->client, &d->compositor->defaultInputDevice()->object,
+                         WL_INPUT_DEVICE_TOUCH_FRAME);
+}
+
+void Surface::sendTouchCancelEvent()
+{
+    Q_D(Surface);
+    wl_client_post_event(d->client, &d->compositor->defaultInputDevice()->object,
+                         WL_INPUT_DEVICE_TOUCH_CANCEL);
+}
+
 void Surface::frameFinished()
 {
     Q_D(Surface);
@@ -360,4 +399,13 @@ void Surface::setInputFocus()
     d->compositor->setInputFocus(this);
 }
 
+void Surface::sendOnScreenVisibilityChange(bool visible)
+{
+#ifdef QT_WAYLAND_WINDOWMANAGER_SUPPORT
+    Q_D(Surface);
+    WindowManagerServerIntegration::instance()->changeScreenVisibility(d->client, visible ? 1 : 0);
+#endif
 }
+
+} // namespace Wayland
+

@@ -68,6 +68,7 @@ public:
     void frameFinished(WaylandSurface *surface = 0);
 
     void setInputFocus(WaylandSurface *surface);
+    WaylandSurface *inputFocus() const;
     void destroyClientForSurface(WaylandSurface *surface);
 
     void setDirectRenderSurface(WaylandSurface *surface);
@@ -84,6 +85,8 @@ public:
     virtual void retainedSelectionReceived(QMimeData *mimeData);
 
     const char *socketName() const;
+
+    void setScreenOrientation(qint32 orientationInDegrees);
 
 private:
     static void retainedSelectionChanged(QMimeData *mimeData, void *param);

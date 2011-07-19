@@ -43,6 +43,7 @@
 #include "wayland_wrapper/wlcompositor.h"
 #include "wayland_wrapper/wlsurface.h"
 #include "wayland_wrapper/wlselection.h"
+#include <QtCore/QCoreApplication>
 
 #ifdef QT_COMPOSITOR_DECLARATIVE
 #include "waylandsurfaceitem.h"
@@ -84,6 +85,12 @@ void WaylandCompositor::setInputFocus(WaylandSurface *surface)
 {
     Wayland::Surface *surfaceImpl = surface? surface->handle():0;
     m_compositor->setInputFocus(surfaceImpl);
+}
+
+WaylandSurface *WaylandCompositor::inputFocus() const
+{
+    Wayland::Surface *surfaceImpl = m_compositor->keyFocus();
+    return surfaceImpl ? surfaceImpl->handle() : 0;
 }
 
 void WaylandCompositor::destroyClientForSurface(WaylandSurface *surface)
@@ -139,4 +146,9 @@ const char *WaylandCompositor::socketName() const
     if (m_socket_name.isEmpty())
         return 0;
     return m_socket_name.constData();
+}
+
+void WaylandCompositor::setScreenOrientation(qint32 orientationInDegrees)
+{
+    m_compositor->setScreenOrientation(orientationInDegrees);
 }

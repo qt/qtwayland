@@ -69,7 +69,9 @@ public:
     void frameFinished(Surface *surface = 0);
     void setInputFocus(Surface *surface);
     void setKeyFocus(Surface *surface);
+    Surface *keyFocus() const;
     void setPointerFocus(Surface *surface, const QPoint &point = QPoint());
+    Surface *pointerFocus() const;
 
     Surface *getSurfaceFromWinId(uint winId) const;
     struct wl_client *getClientFromWinId(uint winId) const;
@@ -94,6 +96,8 @@ public:
     bool setDirectRenderSurface(Surface *surface);
     Surface *directRenderSurface() const {return m_directRenderSurface;}
 
+    QList<Surface*> surfacesForClient(wl_client* client);
+
     wl_input_device *defaultInputDevice();
     WaylandCompositor *qtCompositor() const { return m_qt_compositor; }
 
@@ -102,6 +106,8 @@ public:
     static Compositor *instance();
 
     QList<struct wl_client *> clients() const;
+
+    void setScreenOrientation(qint32 orientationInDegrees);
 
 signals:
     void clientAdded(wl_client *client);

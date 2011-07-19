@@ -91,8 +91,14 @@ public:
     void sendKeyPressEvent(uint code);
     void sendKeyReleaseEvent(uint code);
 
+    void sendTouchPointEvent(int id, int x, int y, Qt::TouchPointState state);
+    void sendTouchFrameEvent();
+    void sendTouchCancelEvent();
+
     void frameFinished();
     void setInputFocus();
+
+    void sendOnScreenVisibilityChange(bool visible);
 
     WaylandSurface *handle() const;
     wl_client *clientHandle() const;

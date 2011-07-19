@@ -42,7 +42,6 @@
 #include "waylandsurface.h"
 
 #include <QtDeclarative/QSGEngine>
-//#include <private/qsgitem_p.h>
 
 #include <QtGui/QKeyEvent>
 

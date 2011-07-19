@@ -14,3 +14,8 @@ contains(QT, declarative) {
 
    DEFINES += QT_COMPOSITOR_DECLARATIVE
 }
+
+!isEmpty(QT.core.MAJOR_VERSION):greaterThan(QT.core.MAJOR_VERSION, 4) {
+    QT += core-private
+    contains(QT, opengl):QT += opengl-private gui-private
+}

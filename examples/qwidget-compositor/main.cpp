@@ -72,7 +72,7 @@ public:
         winId();
 #ifdef QT_COMPOSITOR_WAYLAND_GL
         if (windowHandle()) {
-            windowHandle()->glSurface();
+//            windowHandle()->surfaceHandle();
         }
 #endif
     }

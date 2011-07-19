@@ -58,7 +58,7 @@ void XCompositeGLXIntegration::initializeHardware(Wayland::Display *waylandDispl
     XCompositeHandler *handler = new XCompositeHandler(m_compositor->handle(),mDisplay,m_compositor->topLevelWidget());
     waylandDisplay->addGlobalObject(handler->base(), &wl_xcomposite_interface, &XCompositeHandler::xcomposite_interface,XCompositeHandler::send_root_information);
 
-    QGuiGLContext *glContext = new QGuiGLContext(QGuiGLFormat());
+    QGuiGLContext *glContext = new QGuiGLContext(QSurfaceFormat());
 
     m_glxBindTexImageEXT = reinterpret_cast<PFNGLXBINDTEXIMAGEEXTPROC>(glContext->getProcAddress("glXBindTexImageEXT"));
     if (!m_glxBindTexImageEXT) {

@@ -276,5 +276,8 @@ void WaylandSurfaceItem::setClientRenderingEnabled(bool enabled)
 //
 void WaylandSurfaceItem::setTouchEventsEnabled(bool enabled)
 {
-    m_touchEventsEnabled = enabled;
+    if (m_touchEventsEnabled != enabled) {
+        m_touchEventsEnabled = enabled;
+        emit touchEventsEnabledChanged();
+    }
 }

@@ -57,6 +57,7 @@ class WaylandSurfaceItem : public QSGItem, public QSGTextureProvider
     Q_PROPERTY(bool paintEnabled READ paintEnabled WRITE setPaintEnabled)
     Q_PROPERTY(bool useTextureAlpha READ useTextureAlpha WRITE setUseTextureAlpha NOTIFY useTextureAlphaChanged)
     Q_PROPERTY(bool clientRenderingEnabled READ clientRenderingEnabled WRITE setClientRenderingEnabled NOTIFY clientRenderingEnabledChanged)
+    Q_PROPERTY(bool touchEventsEnabled READ touchEventsEnabled WRITE setTouchEventsEnabled NOTIFY touchEventsEnabledChanged)
 
 public:
     WaylandSurfaceItem(QSGItem *parent = 0);
@@ -74,6 +75,7 @@ public:
     bool paintEnabled() const;
     bool useTextureAlpha() const  { return m_useTextureAlpha; }
     bool clientRenderingEnabled() const { return m_clientRenderingEnabled; }
+    bool touchEventsEnabled() const { return m_touchEventsEnabled; }
 
     void setUseTextureAlpha(bool useTextureAlpha);
     void setClientRenderingEnabled(bool enabled);
@@ -102,6 +104,7 @@ signals:
     void textureChanged();
     void useTextureAlphaChanged();
     void clientRenderingEnabledChanged();
+    void touchEventsEnabledChanged();
 
 protected:
     QSGNode *updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *);

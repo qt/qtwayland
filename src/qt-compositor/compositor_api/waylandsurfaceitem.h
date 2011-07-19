@@ -77,6 +77,7 @@ public:
 
     void setUseTextureAlpha(bool useTextureAlpha);
     void setClientRenderingEnabled(bool enabled);
+    void setTouchEventsEnabled(bool enabled);
 
 protected:
     void mousePressEvent(QGraphicsSceneMouseEvent *event);
@@ -85,6 +86,8 @@ protected:
 
     void keyPressEvent(QKeyEvent *event);
     void keyReleaseEvent(QKeyEvent *event);
+
+    void touchEvent(QTouchEvent *event);
 
 public slots:
     void takeFocus();
@@ -112,6 +115,7 @@ private:
     bool m_paintEnabled;
     bool m_useTextureAlpha;
     bool m_clientRenderingEnabled;
+    bool m_touchEventsEnabled;
 };
 
 #endif

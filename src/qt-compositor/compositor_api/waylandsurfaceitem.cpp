@@ -74,7 +74,7 @@ WaylandSurfaceItem::WaylandSurfaceItem(QSGItem *parent)
     , m_surface(0)
     , m_texture(0)
     , m_paintEnabled(true)
-
+    , m_touchEventsEnabled(false)
 {
 }
 
@@ -83,6 +83,7 @@ WaylandSurfaceItem::WaylandSurfaceItem(WaylandSurface *surface, QSGItem *parent)
     , m_surface(0)
     , m_texture(0)
     , m_paintEnabled(true)
+    , m_touchEventsEnabled(false)
 {
     init(surface);
 }
@@ -157,6 +158,24 @@ void WaylandSurfaceItem::keyReleaseEvent(QKeyEvent *event)
 {
     if (m_surface && hasFocus())
         m_surface->sendKeyReleaseEvent(event->nativeScanCode());
+}
+
+void WaylandSurfaceItem::touchEvent(QTouchEvent *event)
+{
+    if (m_touchEventsEnabled && m_surface && hasFocus()) {
+        event->accept();
+        QList<QTouchEvent::TouchPoint> points = event->touchPoints();
+        if (!points.isEmpty()) {
+            for (int i = 0; i < points.count(); ++i) {
+                const QTouchEvent::TouchPoint &point(points.at(i));
+                // Wayland expects surface-relative coordinates.
+                m_surface->sendTouchPointEvent(point.id(), point.pos().x(), point.pos().y(), point.state());
+            }
+            m_surface->sendTouchFrameEvent();
+        }
+    } else {
+        event->ignore();
+    }
 }
 
 void WaylandSurfaceItem::takeFocus()
@@ -239,4 +258,23 @@ void WaylandSurfaceItem::setClientRenderingEnabled(bool enabled)
 
         emit clientRenderingEnabledChanged();       
     }
+}
+
+// By default touch events are ignored and not sent to the clients.
+//
+// Call this function to enable it, however this approach is INEFFICIENT.
+//
+// The touch support in WaylandSurfaceItem is only there to support
+// experimenting and to simplify the life of "dummy" compositors.
+//
+// Ideally touch events should be sent to the client right when they are read
+// from the hardware, there is no need to waste time with sending them through
+// Qt. (or, if the compositor contains UI too, both the Wayland and the Qt touch
+// events should be sent at the same time, otherwise the clients will inevitably
+// suffer from a small lag which may get problematic on slower systems with a
+// large number of touch events)
+//
+void WaylandSurfaceItem::setTouchEventsEnabled(bool enabled)
+{
+    m_touchEventsEnabled = enabled;
 }

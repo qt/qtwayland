@@ -48,7 +48,7 @@
 #include <QMouseEvent>
 
 #include <QDeclarativeContext>
-#include <QDeclarativeView>
+#include <QtQuick1/QDeclarativeView>
 
 #include <QSGItem>
 #include <QSGView>
@@ -89,6 +89,7 @@ private slots:
             emit windowResized(QVariant::fromValue(static_cast<QSGItem *>(item)));
         } else {
             WaylandSurfaceItem *item = new WaylandSurfaceItem(surface, rootObject());
+            item->setTouchEventsEnabled(true);
             connect(surface, SIGNAL(destroyed(QObject *)), this, SLOT(surfaceDestroyed(QObject *)));
             emit windowAdded(QVariant::fromValue(static_cast<QSGItem *>(item)));
             m_windowMap[surface] = item;

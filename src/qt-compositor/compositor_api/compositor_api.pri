@@ -17,5 +17,5 @@ contains(QT, declarative) {
 
 !isEmpty(QT.core.MAJOR_VERSION):greaterThan(QT.core.MAJOR_VERSION, 4) {
     QT += core-private
-    contains(QT, opengl):QT += opengl-private gui-private
+    if(contains(QT, opengl)|contains(QT, declarative)):QT += opengl-private gui-private
 }

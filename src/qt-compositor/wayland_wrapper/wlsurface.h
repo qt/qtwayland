@@ -109,6 +109,8 @@ public:
 
     void setSurfaceCreationFinished(bool isCreated);
 
+    QPoint lastMousePos() const;
+
 protected:
     QScopedPointer<SurfacePrivate> d_ptr;
 private:

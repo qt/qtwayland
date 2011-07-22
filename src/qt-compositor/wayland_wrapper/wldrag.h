@@ -38,60 +38,58 @@
 **
 ****************************************************************************/
 
-#ifndef WL_SHMBUFFER_H
-#define WL_SHMBUFFER_H
+#ifndef WLDRAG_H
+#define WLDRAG_H
 
-#include "waylandobject.h"
+#include <QtCore/QObject>
+#include <QtCore/QStringList>
+#include <QtCore/QMimeData>
+#include <wayland-server.h>
 
-#include <QtCore/QRect>
-#include <QtGui/QImage>
-
+QT_BEGIN_NAMESPACE
+class QSocketNotifier;
+QT_END_NAMESPACE
 
 namespace Wayland {
 
 class Surface;
-class Display;
 
-class ShmBuffer
+class Drag : public QObject
 {
+    Q_OBJECT
+
 public:
-    ShmBuffer(struct wl_buffer *buffer);
-    ~ShmBuffer();
-
-    QImage image() const;
-    QSize size() const;
-
-    void damage();
+    static Drag *instance();
+    Drag();
+    void create(struct wl_client *client, uint32_t id);
+    void dragMove(const QPoint &global, const QPoint &local, Surface *surface);
+    void dragEnd();
 
 private:
-    struct wl_buffer *m_buffer;
-    int m_stride;
-    void *m_data;
-    QImage m_image;
-};
+    static void destroyDrag(struct wl_resource *resource, struct wl_client *client);
 
-class ShmHandler
-{
-public:
-    ShmHandler(Display *display);
-    ~ShmHandler();
+    static void dragOffer(struct wl_client *client, struct wl_drag *drag, const char *type);
+    static void dragActivate(struct wl_client *client,
+                             struct wl_drag *drag,
+                             struct wl_surface *surface,
+                             struct wl_input_device *device, uint32_t time);
+    static void dragDestroy(struct wl_client *client, struct wl_drag *drag);
+    static const struct wl_drag_interface dragInterface;
 
-    typedef void (*DestroyCallback)(ShmBuffer *);
-    void addDestroyCallback(DestroyCallback callback);
+    static void dragOfferAccept(struct wl_client *client,
+                                struct wl_drag_offer *offer, uint32_t time, const char *type);
+    static void dragOfferReceive(struct wl_client *client,
+                                 struct wl_drag_offer *offer, int fd);
+    static void dragOfferReject(struct wl_client *client, struct wl_drag_offer *offer);
+    static const struct wl_drag_offer_interface dragOfferInterface;
 
-private:
-    Display *m_display;
-    struct wl_shm *m_shm;
+    void setPointerFocus(wl_surface *surface, const QPoint &global, const QPoint &local);
+    void done(bool sending);
 
-    static struct wl_shm_callbacks shm_callbacks;
-    static void buffer_created_callback(struct wl_buffer *buffer);
-    static void buffer_damaged_callback(struct wl_buffer *buffer,
-                          int32_t x, int32_t y,
-                          int32_t width, int32_t height);
-    static void buffer_destroyed_callback(struct wl_buffer *buffer);
-    QList<DestroyCallback> m_extraCallbacks;
+    QStringList m_offerList;
+    wl_drag *m_drag;
 };
 
 }
 
-#endif //WL_SHMBUFFER_H
+#endif // WLDRAG_H

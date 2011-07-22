@@ -44,6 +44,7 @@
 #include "wayland_wrapper/wlsurface.h"
 #include "wayland_wrapper/wlselection.h"
 #include <QtCore/QCoreApplication>
+#include <QDebug>
 
 #ifdef QT_COMPOSITOR_DECLARATIVE
 #include "waylandsurfaceitem.h"
@@ -151,4 +152,28 @@ const char *WaylandCompositor::socketName() const
 void WaylandCompositor::setScreenOrientation(qint32 orientationInDegrees)
 {
     m_compositor->setScreenOrientation(orientationInDegrees);
+}
+
+bool WaylandCompositor::isDragging() const
+{
+    return m_compositor->isDragging();
+}
+
+void WaylandCompositor::sendDragMoveEvent(const QPoint &global, const QPoint &local,
+                                          WaylandSurface *surface)
+{
+    m_compositor->sendDragMoveEvent(global, local, surface ? surface->handle() : 0);
+}
+
+void WaylandCompositor::sendDragEndEvent()
+{
+    m_compositor->sendDragEndEvent();
+}
+
+void WaylandCompositor::changeCursor(const QImage &image, int hotspotX, int hotspotY)
+{
+    Q_UNUSED(image);
+    Q_UNUSED(hotspotX);
+    Q_UNUSED(hotspotY);
+    qDebug() << "changeCursor" << image.size() << hotspotX << hotspotY;
 }

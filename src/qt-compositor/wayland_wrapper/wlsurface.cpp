@@ -120,6 +120,8 @@ public:
     qint64 processId;
     QByteArray authenticationToken;
 
+    QPoint lastMousePos;
+
 private:
     struct wl_buffer *surfaceBuffer;
     WaylandSurface::Type surfaceType;
@@ -293,6 +295,12 @@ uint32_t BTN_MIDDLE = 0x112;
 
 }
 
+QPoint Surface::lastMousePos() const
+{
+    Q_D(const Surface);
+    return d->lastMousePos;
+}
+
 void Surface::sendMousePressEvent(int x, int y, Qt::MouseButton button)
 {
     Q_D(Surface);
@@ -319,6 +327,7 @@ void Surface::sendMouseMoveEvent(int x, int y)
 {
     Q_D(Surface);
     if (d->client) {
+        d->lastMousePos = QPoint(x, y);
         uint32_t time = d->compositor->currentTimeMsecs();
         d->compositor->setPointerFocus(this, QPoint(x, y));
         wl_client_post_event(d->client, &d->compositor->defaultInputDevice()->object,

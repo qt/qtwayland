@@ -109,6 +109,10 @@ public:
 
     void setScreenOrientation(qint32 orientationInDegrees);
 
+    bool isDragging() const;
+    void sendDragMoveEvent(const QPoint &global, const QPoint &local, Surface *surface);
+    void sendDragEndEvent();
+
 signals:
     void clientAdded(wl_client *client);
 
@@ -147,6 +151,9 @@ private:
     GraphicsHardwareIntegration *m_graphics_hw_integration;
 #endif
     WindowManagerServerIntegration *m_windowManagerWaylandProtocol;
+
+    bool m_dragActive;
+    friend class Drag;
 };
 
 }

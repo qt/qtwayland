@@ -88,6 +88,12 @@ public:
 
     void setScreenOrientation(qint32 orientationInDegrees);
 
+    bool isDragging() const;
+    void sendDragMoveEvent(const QPoint &global, const QPoint &local, WaylandSurface *surface);
+    void sendDragEndEvent();
+
+    virtual void changeCursor(const QImage &image, int hotspotX, int hotspotY);
+
 private:
     static void retainedSelectionChanged(QMimeData *mimeData, void *param);
 

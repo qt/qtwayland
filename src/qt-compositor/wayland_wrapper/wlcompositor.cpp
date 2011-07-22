@@ -45,10 +45,8 @@
 #include "wlshmbuffer.h"
 #include "wlsurface.h"
 #include "wlselection.h"
+#include "wldrag.h"
 #include "waylandcompositor.h"
-
-#include <QApplication>
-#include <QDesktopWidget>
 
 #include <QSocketNotifier>
 #include <QDebug>
@@ -72,6 +70,18 @@
 
 namespace Wayland {
 
+static Compositor *compositor;
+
+static ShmBuffer *currentCursor;
+
+static void shmBufferDestroyed(ShmBuffer *buf)
+{
+    if (currentCursor == buf) {
+        compositor->qtCompositor()->changeCursor(QImage(), 0, 0);
+        currentCursor = 0;
+    }
+}
+
 void input_device_attach(struct wl_client *client,
                          struct wl_input_device *device_base,
                          uint32_t time,
@@ -80,11 +90,16 @@ void input_device_attach(struct wl_client *client,
     Q_UNUSED(client);
     Q_UNUSED(device_base);
     Q_UNUSED(time);
-    Q_UNUSED(buffer);
     Q_UNUSED(x);
     Q_UNUSED(y);
 
-    qDebug() << "Client %p input device attach" << client;
+    qDebug() << "Client input device attach" << client << buffer << x << y;
+
+    ShmBuffer *shmBuffer = static_cast<ShmBuffer *>(buffer->user_data);
+    if (shmBuffer) {
+        compositor->qtCompositor()->changeCursor(shmBuffer->image(), x, y);
+        currentCursor = shmBuffer;
+    }
 }
 
 const static struct wl_input_device_interface input_device_interface = {
@@ -142,10 +157,9 @@ void shell_drag(struct wl_client *client,
                 struct wl_shell *shell,
                 uint32_t id)
 {
-    Q_UNUSED(client);
     Q_UNUSED(shell);
-    Q_UNUSED(id);
     qDebug() << "shellDrag";
+    Drag::instance()->create(client, id);
 }
 
 void shell_selection(struct wl_client *client,
@@ -189,8 +203,6 @@ const static struct wl_shell_interface shell_interface = {
     set_fullscreen
 };
 
-static Compositor *compositor;
-
 Compositor *Compositor::instance()
 {
     return compositor;
@@ -208,8 +220,10 @@ Compositor::Compositor(WaylandCompositor *qt_compositor)
 #if defined (QT_COMPOSITOR_WAYLAND_GL)
     , m_graphics_hw_integration(0)
 #endif
+    , m_dragActive(false)
 {
     compositor = this;
+    m_shm.addDestroyCallback(shmBufferDestroyed);
 
 #if defined (QT_COMPOSITOR_WAYLAND_GL)
     QWindow *window = qt_compositor->topLevelWidget()->windowHandle();
@@ -464,3 +478,18 @@ QList<Wayland::Surface *> Wayland::Compositor::surfacesForClient(wl_client *clie
     return ret;
 }
 
+bool Wayland::Compositor::isDragging() const
+{
+    return m_dragActive;
+}
+
+void Wayland::Compositor::sendDragMoveEvent(const QPoint &global, const QPoint &local,
+                                            Surface *surface)
+{
+    Drag::instance()->dragMove(global, local, surface);
+}
+
+void Wayland::Compositor::sendDragEndEvent()
+{
+    Drag::instance()->dragEnd();
+}

@@ -342,26 +342,24 @@ void Surface::sendKeyReleaseEvent(uint code)
 void Surface::sendTouchPointEvent(int id, int x, int y, Qt::TouchPointState state)
 {
     Q_D(Surface);
-    if (d->compositor->defaultInputDevice()->keyboard_focus) {
-        uint32_t time = d->compositor->currentTimeMsecs();
-        struct wl_client *client = d->client;
-        struct wl_object *dev = &d->compositor->defaultInputDevice()->object;
-        switch (state) {
-        case Qt::TouchPointPressed:
-            wl_client_post_event(client, dev, WL_INPUT_DEVICE_TOUCH_DOWN, time, id, x, y);
-            break;
-        case Qt::TouchPointMoved:
-            wl_client_post_event(client, dev, WL_INPUT_DEVICE_TOUCH_MOTION, time, id, x, y);
-            break;
-        case Qt::TouchPointReleased:
-            wl_client_post_event(client, dev, WL_INPUT_DEVICE_TOUCH_UP, time, id);
-            break;
-        case Qt::TouchPointStationary:
-            // stationary points are not sent through wayland, the client must cache them
-            break;
-        default:
-            break;
-        }
+    uint32_t time = d->compositor->currentTimeMsecs();
+    struct wl_client *client = d->client;
+    struct wl_object *dev = &d->compositor->defaultInputDevice()->object;
+    switch (state) {
+    case Qt::TouchPointPressed:
+        wl_client_post_event(client, dev, WL_INPUT_DEVICE_TOUCH_DOWN, time, id, x, y);
+        break;
+    case Qt::TouchPointMoved:
+        wl_client_post_event(client, dev, WL_INPUT_DEVICE_TOUCH_MOTION, time, id, x, y);
+        break;
+    case Qt::TouchPointReleased:
+        wl_client_post_event(client, dev, WL_INPUT_DEVICE_TOUCH_UP, time, id);
+        break;
+    case Qt::TouchPointStationary:
+        // stationary points are not sent through wayland, the client must cache them
+        break;
+    default:
+        break;
     }
 }
 

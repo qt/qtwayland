@@ -28,3 +28,4 @@ SOURCES += $$TOUCHSCREEN_BASE/qtouchscreen.cpp
 HEADERS += $$TOUCHSCREEN_BASE/qtouchscreen.h
 INCLUDEPATH += $$TOUCHSCREEN_BASE
 LIBS += -ludev -lmtdev
+QT += gui-private

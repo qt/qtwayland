@@ -42,7 +42,6 @@
 #include "waylandsurface.h"
 
 #include <QtDeclarative/QSGEngine>
-//#include <private/qsgitem_p.h>
 
 #include <QtGui/QKeyEvent>
 
@@ -162,7 +161,7 @@ void WaylandSurfaceItem::keyReleaseEvent(QKeyEvent *event)
 
 void WaylandSurfaceItem::touchEvent(QTouchEvent *event)
 {
-    if (m_touchEventsEnabled && m_surface && hasFocus()) {
+    if (m_touchEventsEnabled && m_surface) {
         event->accept();
         QList<QTouchEvent::TouchPoint> points = event->touchPoints();
         if (!points.isEmpty()) {

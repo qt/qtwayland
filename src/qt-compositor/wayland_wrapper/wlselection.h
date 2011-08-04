@@ -86,13 +86,14 @@ private:
     static const struct wl_selection_offer_interface selectionOfferInterface;
 
     void retain();
-    void finishReadFromClient();
+    void finishReadFromClient(bool exhausted = false);
 
     QStringList m_offerList;
     struct wl_selection *m_currentSelection;
     struct wl_selection_offer *m_currentOffer;
     QMimeData m_retainedData;
     QSocketNotifier *m_retainedReadNotifier;
+    QList<QSocketNotifier *> m_obsoleteRetainedReadNotifiers;
     int m_retainedReadIndex;
     QByteArray m_retainedReadBuf;
     struct wl_selection *m_retainedSelection;

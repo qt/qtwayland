@@ -72,7 +72,7 @@ Item {
         NumberAnimation { easing.type: Easing.Linear; duration: 250; }
     }
 
-    ShaderEffect {
+    ContrastEffect {
         id: effect
         source: child
         anchors.fill: child

@@ -40,7 +40,7 @@
 
 import QtQuick 2.0
 
-ShaderEffectItem {
+ShaderEffect {
     property variant source: null;
     property color color: "#ffffff"
     property real blend;
@@ -53,23 +53,23 @@ ShaderEffectItem {
     }
 
     property string vShader: "
-    uniform highp mat4 qt_ModelViewProjectionMatrix;
+    uniform highp mat4 qt_Matrix;
     attribute highp vec4 qt_Vertex;
     attribute highp vec2 qt_MultiTexCoord0;
     varying highp vec2 qt_TexCoord0;
     void main() {
         qt_TexCoord0 = qt_MultiTexCoord0;
-        gl_Position = qt_ModelViewProjectionMatrix * qt_Vertex;
+        gl_Position = qt_Matrix * qt_Vertex;
     }
     "
     property string vShaderInvertedY: "
-    uniform highp mat4 qt_ModelViewProjectionMatrix;
+    uniform highp mat4 qt_Matrix;
     attribute highp vec4 qt_Vertex;
     attribute highp vec2 qt_MultiTexCoord0;
     varying highp vec2 qt_TexCoord0;
     void main() {
         qt_TexCoord0 = vec2(0, 1) + qt_MultiTexCoord0 * vec2(1, -1);
-        gl_Position = qt_ModelViewProjectionMatrix * qt_Vertex;
+        gl_Position = qt_Matrix * qt_Vertex;
     }
     "
 

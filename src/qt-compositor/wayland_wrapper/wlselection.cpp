@@ -43,8 +43,10 @@
 #include <wayland-util.h>
 #include <string.h>
 #include <unistd.h>
+#include <fcntl.h>
 #include <QtCore/QFile>
 #include <QtCore/QSocketNotifier>
+#include <QtCore/private/qcore_unix_p.h>
 
 namespace Wayland {
 
@@ -155,6 +157,7 @@ void Selection::retain()
         qWarning("Clipboard: Failed to create pipe");
         return;
     }
+    fcntl(fd[0], F_SETFL, fcntl(fd[0], F_GETFL, 0) | O_NONBLOCK);
     wl_client_post_event(m_currentSelection->client, &m_currentSelection->resource.object,
                          WL_SELECTION_SEND, mimeTypeBa.constData(), fd[1]);
     close(fd[1]);
@@ -162,26 +165,53 @@ void Selection::retain()
     connect(m_retainedReadNotifier, SIGNAL(activated(int)), SLOT(readFromClient(int)));
 }
 
-void Selection::finishReadFromClient()
+void Selection::finishReadFromClient(bool exhausted)
 {
     if (m_retainedReadNotifier) {
-        int fd = m_retainedReadNotifier->socket();
-        delete m_retainedReadNotifier;
+        if (exhausted) {
+            int fd = m_retainedReadNotifier->socket();
+            delete m_retainedReadNotifier;
+            close(fd);
+        } else {
+            // Do not close the handle or destroy the read notifier here
+            // or else clients may SIGPIPE.
+            m_obsoleteRetainedReadNotifiers.append(m_retainedReadNotifier);
+        }
         m_retainedReadNotifier = 0;
-        close(fd);
     }
 }
 
 void Selection::readFromClient(int fd)
 {
-    char buf[256];
-    int n = read(fd, buf, sizeof buf);
+    static char buf[4096];
+    int obsCount = m_obsoleteRetainedReadNotifiers.count();
+    for (int i = 0; i < obsCount; ++i) {
+        QSocketNotifier *sn = m_obsoleteRetainedReadNotifiers.at(i);
+        if (sn->socket() == fd) {
+            // Read and drop the data, stopping to read and closing the handle
+            // is not yet safe because that could kill the client with SIGPIPE
+            // when it still tries to write.
+            int n;
+            do {
+                n = QT_READ(fd, buf, sizeof buf);
+            } while (n > 0);
+            if (n != -1 || (errno != EAGAIN && errno != EWOULDBLOCK)) {
+                m_obsoleteRetainedReadNotifiers.removeAt(i);
+                delete sn;
+                close(fd);
+            }
+            return;
+        }
+    }
+    int n = QT_READ(fd, buf, sizeof buf);
     if (n <= 0) {
-        finishReadFromClient();
-        QString mimeType = m_offerList.at(m_retainedReadIndex);
-        m_retainedData.setData(mimeType, m_retainedReadBuf);
-        ++m_retainedReadIndex;
-        retain();
+        if (n != -1 || (errno != EAGAIN && errno != EWOULDBLOCK)) {
+            finishReadFromClient(true);
+            QString mimeType = m_offerList.at(m_retainedReadIndex);
+            m_retainedData.setData(mimeType, m_retainedReadBuf);
+            ++m_retainedReadIndex;
+            retain();
+        }
     } else {
         m_retainedReadBuf.append(buf, n);
     }

@@ -7,7 +7,7 @@
 #include <wayland-server.h>
 
 #include <QtCore/QSize>
-#include <QtGui/QApplication>
+#include <QtWidgets/QApplication>
 #include <QtCore/QTextStream>
 #include <QtGui/QPlatformNativeInterface>
 

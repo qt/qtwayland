@@ -4,7 +4,7 @@
 #include "wayland_wrapper/wlcompositor.h"
 #include "wayland-xcomposite-server-protocol.h"
 
-#include <QtGui/QApplication>
+#include <QtWidgets/QApplication>
 #include <QtGui/QPlatformNativeInterface>
 #include <QtGui/QPlatformGLContext>
 

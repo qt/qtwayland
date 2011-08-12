@@ -50,7 +50,7 @@
 #include "waylandsurfaceitem.h"
 #endif
 
-WaylandCompositor::WaylandCompositor(QWidget *topLevelWidget, QGLContext *context, const char *socketName)
+WaylandCompositor::WaylandCompositor(QWindow *topLevelWidget, QGLContext *context, const char *socketName)
     : m_compositor(0)
     , m_glContext(context)
     , m_toplevel_widget(topLevelWidget)
@@ -115,7 +115,7 @@ QGLContext * WaylandCompositor::glContext() const
     return m_glContext;
 }
 
-QWidget * WaylandCompositor::topLevelWidget() const
+QWindow * WaylandCompositor::topLevelWidget() const
 {
     return m_toplevel_widget;
 }

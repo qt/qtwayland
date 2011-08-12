@@ -62,7 +62,7 @@ namespace Wayland
 class WaylandCompositor
 {
 public:
-    WaylandCompositor(QWidget *topLevelWidget = 0, QGLContext *context = 0, const char *socketName = 0);
+    WaylandCompositor(QWindow *topLevelWidget = 0, QGLContext *context = 0, const char *socketName = 0);
     virtual ~WaylandCompositor();
 
     void frameFinished(WaylandSurface *surface = 0);
@@ -75,7 +75,7 @@ public:
     WaylandSurface *directRenderSurface() const;
 
     QGLContext *glContext() const;
-    QWidget *topLevelWidget()const;
+    QWindow *topLevelWidget()const;
 
     virtual void surfaceCreated(WaylandSurface *surface) = 0;
 
@@ -99,7 +99,7 @@ private:
 
     Wayland::Compositor *m_compositor;
     QGLContext *m_glContext;
-    QWidget  *m_toplevel_widget;
+    QWindow  *m_toplevel_widget;
     QByteArray m_socket_name;
 };
 

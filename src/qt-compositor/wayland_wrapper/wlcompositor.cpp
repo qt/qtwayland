@@ -226,7 +226,7 @@ Compositor::Compositor(WaylandCompositor *qt_compositor)
     m_shm.addDestroyCallback(shmBufferDestroyed);
 
 #if defined (QT_COMPOSITOR_WAYLAND_GL)
-    QWindow *window = qt_compositor->topLevelWidget()->windowHandle();
+    QWindow *window = qt_compositor->window();
     if (window && window->surfaceType() != QWindow::RasterSurface)
         m_graphics_hw_integration = GraphicsHardwareIntegration::createGraphicsHardwareIntegration(qt_compositor);
 #endif
@@ -399,9 +399,9 @@ Surface *Compositor::pointerFocus() const
     return m_pointerFocusSurface;
 }
 
-QWidget * Compositor::topLevelWidget() const
+QWindow *Compositor::window() const
 {
-    return m_qt_compositor->topLevelWidget();
+    return m_qt_compositor->window();
 }
 
 GraphicsHardwareIntegration * Compositor::graphicsHWIntegration() const

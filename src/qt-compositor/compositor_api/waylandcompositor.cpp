@@ -50,10 +50,10 @@
 #include "waylandsurfaceitem.h"
 #endif
 
-WaylandCompositor::WaylandCompositor(QWindow *topLevelWidget, QGLContext *context, const char *socketName)
+WaylandCompositor::WaylandCompositor(QWindow *window, QGLContext *context, const char *socketName)
     : m_compositor(0)
     , m_glContext(context)
-    , m_toplevel_widget(topLevelWidget)
+    , m_toplevel_widget(window)
     , m_socket_name(socketName)
 {
     QStringList arguments = QCoreApplication::instance()->arguments();
@@ -115,7 +115,7 @@ QGLContext * WaylandCompositor::glContext() const
     return m_glContext;
 }
 
-QWindow * WaylandCompositor::topLevelWidget() const
+QWindow * WaylandCompositor::window() const
 {
     return m_toplevel_widget;
 }

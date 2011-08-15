@@ -44,7 +44,7 @@ XCompositeGLXIntegration::XCompositeGLXIntegration(WaylandCompositor *compositor
 {
     QPlatformNativeInterface *nativeInterface = QGuiApplicationPrivate::platformIntegration()->nativeInterface();
     if (nativeInterface) {
-        mDisplay = static_cast<Display *>(nativeInterface->nativeResourceForWindow("Display",m_compositor->topLevelWidget()->windowHandle()));
+        mDisplay = static_cast<Display *>(nativeInterface->nativeResourceForWindow("Display",m_compositor->window()));
         if (!mDisplay)
             qFatal("could not retireve Display from platform integration");
     } else {
@@ -55,7 +55,7 @@ XCompositeGLXIntegration::XCompositeGLXIntegration(WaylandCompositor *compositor
 
 void XCompositeGLXIntegration::initializeHardware(Wayland::Display *waylandDisplay)
 {
-    XCompositeHandler *handler = new XCompositeHandler(m_compositor->handle(),mDisplay,m_compositor->topLevelWidget());
+    XCompositeHandler *handler = new XCompositeHandler(m_compositor->handle(),mDisplay,m_compositor->window());
     waylandDisplay->addGlobalObject(handler->base(), &wl_xcomposite_interface, &XCompositeHandler::xcomposite_interface,XCompositeHandler::send_root_information);
 
     QGuiGLContext *glContext = new QGuiGLContext();

@@ -8,7 +8,7 @@
 class XCompositeHandler : public Wayland::Object<struct wl_object>
 {
 public:
-    XCompositeHandler(Wayland::Compositor *compositor, Display *display, QWidget *topLevelWidget);
+    XCompositeHandler(Wayland::Compositor *compositor, Display *display, QWindow *window);
     void createBuffer(struct wl_client *client, uint32_t id, Window window, const QSize &size, struct wl_visual *visual);
 
     static void send_root_information(struct wl_client *client, struct wl_object *global, uint32_t version);
@@ -16,8 +16,8 @@ public:
 
 private:
     Wayland::Compositor *mCompositor;
-    QWidget *mTopLevelWidget;
-    QWidget *mFakeRootWidget;
+    QWindow *mwindow;
+    QWindow *mFakeRootWidget;
     Display *mDisplay;
 
     static void create_buffer(struct wl_client *client,

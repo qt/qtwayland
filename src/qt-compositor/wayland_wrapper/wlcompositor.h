@@ -51,7 +51,6 @@
 
 class WaylandCompositor;
 class GraphicsHardwareIntegration;
-class QWidget;
 class WindowManagerServerIntegration;
 
 namespace Wayland {
@@ -88,7 +87,7 @@ public:
 
     static uint currentTimeMsecs();
 
-    QWidget *topLevelWidget() const;
+    QWindow *window() const;
 
     GraphicsHardwareIntegration *graphicsHWIntegration() const;
     void initializeHardwareIntegration();

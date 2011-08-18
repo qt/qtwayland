@@ -83,7 +83,7 @@ void MesaEglIntegration::initializeHardware(Wayland::Display *waylandDisplay)
 
     QPlatformNativeInterface *nativeInterface = QApplicationPrivate::platformIntegration()->nativeInterface();
     if (nativeInterface) {
-        d->egl_display = nativeInterface->nativeResourceForWindow("EglDisplay", m_compositor->window()->windowHandle());
+        d->egl_display = nativeInterface->nativeResourceForWindow("EglDisplay", m_compositor->window());
         if (d->egl_display) {
             const char *extensionString = eglQueryString(d->egl_display, EGL_EXTENSIONS);
             if (extensionString && strstr(extensionString, "EGL_WL_bind_wayland_display")

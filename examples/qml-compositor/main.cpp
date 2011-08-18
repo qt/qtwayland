@@ -57,11 +57,13 @@ class QmlCompositor : public QSGView, public WaylandCompositor
 {
     Q_OBJECT
 public:
-    QmlCompositor() : WaylandCompositor(this, const_cast<QGLContext *>(context())) {
-        setMouseTracking(true);
+    QmlCompositor() : WaylandCompositor(this, const_cast<QGLContext *>(QGLContext::currentContext())) {
+        //setMouseTracking(true);
         setSource(QUrl(QLatin1String("qrc:qml/QmlCompositor/main.qml")));
         setResizeMode(QSGView::SizeRootObjectToView);
         winId();
+
+	connect(this, SIGNAL(frameSwapped()), this, SLOT(frameSwappedSlot()));
     }
 
 signals:
@@ -100,17 +102,21 @@ private slots:
         emit windowDestroyed(QVariant::fromValue(static_cast<QSGItem *>(item)));
     }
 
+    void frameSwappedSlot() { 
+          frameFinished();         
+    } 
+
 protected:
     void surfaceCreated(WaylandSurface *surface) {
         connect(surface, SIGNAL(mapped(const QSize &)), this, SLOT(surfaceMapped(const QSize &)));
     }
-
+#if 0
     void paintEvent(QPaintEvent *event) {
         QSGView::paintEvent(event);
         frameFinished();
         glFinish();
     }
-
+#endif
 private:
     QMap<QObject *, WaylandSurfaceItem *> m_windowMap;
 };

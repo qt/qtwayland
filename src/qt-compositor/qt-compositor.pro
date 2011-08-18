@@ -13,3 +13,4 @@ headers.files = $$HEADERS
 INSTALLS = target headers
 
 QT += gui-private
+QT += widgets-private

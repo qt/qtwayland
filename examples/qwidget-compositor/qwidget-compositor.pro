@@ -23,9 +23,12 @@ isEmpty(QT_SOURCE_TREE) {
 } else {
     QTBASE = $$QT_SOURCE_TREE
 }
-TOUCHSCREEN_BASE = $$QTBASE/src/plugins/generic/touchscreen
-SOURCES += $$TOUCHSCREEN_BASE/qtouchscreen.cpp
-HEADERS += $$TOUCHSCREEN_BASE/qtouchscreen.h
-INCLUDEPATH += $$TOUCHSCREEN_BASE
-LIBS += -ludev -lmtdev
-QT += gui-private
+#TOUCHSCREEN_BASE = $$QTBASE/src/plugins/generic/touchscreen
+#SOURCES += $$TOUCHSCREEN_BASE/qtouchscreen.cpp
+#HEADERS += $$TOUCHSCREEN_BASE/qtouchscreen.h
+#INCLUDEPATH += $$TOUCHSCREEN_BASE
+#LIBS += -ludev -lmtdev
+QT += gui-private widgets widgets-private
+
+target.path += $$[QT_INSTALL_DATA]/bin
+INSTALLS += target

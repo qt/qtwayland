@@ -49,23 +49,21 @@
 #include <QtDeclarative/QSGSimpleRectNode>
 #include <QtDeclarative/QSGCanvas>
 
-void WaylandSurfaceItem::surfaceDamaged(const QRect &)
+class WaylandSurfaceTextureProvider : public QSGTextureProvider
 {
-    QSGTexture *oldTexture = m_texture;
-
-    if (m_surface->type() == WaylandSurface::Texture) {
-        QSGEngine::TextureOption opt = useTextureAlpha() ? QSGEngine::TextureHasAlphaChannel : QSGEngine::TextureOption(0);
-
-        m_texture = canvas()->sceneGraphEngine()->createTextureFromId(m_surface->texture(),
-                                                                      m_surface->geometry().size(),
-                                                                      opt);
-    } else {
-        m_texture = canvas()->sceneGraphEngine()->createTextureFromImage(m_surface->image());
+public:
+    QSGTexture *texture() const {
+        t->setFiltering(smooth ? QSGTexture::Linear : QSGTexture::Nearest);
+        return t;
     }
 
-    delete oldTexture;
+    QSGTexture *t;
+    bool smooth;
+};
 
-    emit textureChanged();
+void WaylandSurfaceItem::surfaceDamaged(const QRect &)
+{
+    m_damaged = true;
 }
 
 WaylandSurfaceItem::WaylandSurfaceItem(QSGItem *parent)
@@ -105,11 +103,13 @@ void WaylandSurfaceItem::init(WaylandSurface *surface)
     connect(this, SIGNAL(textureChanged()), this, SLOT(update()));
     connect(surface, SIGNAL(damaged(const QRect &)), this, SLOT(surfaceDamaged(const QRect &)));
 
+    m_damaged = false;
+
 }
 
 WaylandSurfaceItem::~WaylandSurfaceItem()
 {
-    delete m_texture;
+    m_texture->deleteLater();
 }
 
 void WaylandSurfaceItem::setSurface(WaylandSurface *surface)
@@ -122,11 +122,11 @@ bool WaylandSurfaceItem::isYInverted() const
     return m_surface->isYInverted();
 }
 
-QSGTexture *WaylandSurfaceItem::texture() const
+QSGTextureProvider *WaylandSurfaceItem::textureProvider() const
 {
-    if (m_texture)
-        m_texture->setFiltering(smooth() ? QSGTexture::Linear : QSGTexture::Nearest);
-    return m_texture;
+    if (!m_provider)
+        m_provider = new WaylandSurfaceTextureProvider();
+    return m_provider;
 }
 
 void WaylandSurfaceItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
@@ -216,6 +216,26 @@ QSGNode *WaylandSurfaceItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeDa
 {
     QSGSimpleTextureNode *node = static_cast<QSGSimpleTextureNode *>(oldNode);
 
+    if (m_damaged) {
+        QSGTexture *oldTexture = m_texture;
+        if (m_surface->type() == WaylandSurface::Texture) {
+            QSGEngine::TextureOption opt = useTextureAlpha() ? QSGEngine::TextureHasAlphaChannel : QSGEngine::TextureOption(0);
+            m_texture = canvas()->sceneGraphEngine()->createTextureFromId(m_surface->texture(),
+                                                                          m_surface->geometry().size(),
+                                                                          opt);
+        } else {
+            m_texture = canvas()->sceneGraphEngine()->createTextureFromImage(m_surface->image());
+        }
+        delete oldTexture;
+        emit textureChanged();
+        m_damaged = false;
+    }
+
+    if (m_provider) {
+        m_provider->t = m_texture;
+        m_provider->smooth = smooth();
+    }
+
     if (!m_texture || !m_paintEnabled) {
         delete oldNode;
         return 0;
@@ -255,7 +275,7 @@ void WaylandSurfaceItem::setClientRenderingEnabled(bool enabled)
             m_surface->sendOnScreenVisibilityChange(enabled);
         }
 
-        emit clientRenderingEnabledChanged();       
+        emit clientRenderingEnabledChanged();
     }
 }
 

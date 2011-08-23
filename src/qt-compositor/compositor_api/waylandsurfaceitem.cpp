@@ -52,8 +52,11 @@
 class WaylandSurfaceTextureProvider : public QSGTextureProvider
 {
 public:
+    WaylandSurfaceTextureProvider() : t(0) { }
+
     QSGTexture *texture() const {
-        t->setFiltering(smooth ? QSGTexture::Linear : QSGTexture::Nearest);
+        if (t)
+            t->setFiltering(smooth ? QSGTexture::Linear : QSGTexture::Nearest);
         return t;
     }
 

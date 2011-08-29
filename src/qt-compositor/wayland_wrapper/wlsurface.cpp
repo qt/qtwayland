@@ -55,7 +55,7 @@
 
 #ifdef QT_COMPOSITOR_WAYLAND_GL
 #include "hardware_integration/graphicshardwareintegration.h"
-#include <QtGui/QPlatformGLContext>
+#include <QtGui/QPlatformOpenGLContext>
 #endif
 
 #ifdef QT_WAYLAND_WINDOWMANAGER_SUPPORT

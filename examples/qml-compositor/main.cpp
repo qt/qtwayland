@@ -102,21 +102,15 @@ private slots:
         emit windowDestroyed(QVariant::fromValue(static_cast<QSGItem *>(item)));
     }
 
-    void frameSwappedSlot() { 
-          frameFinished();         
-    } 
+    void frameSwappedSlot() {
+        frameFinished();
+    }
 
 protected:
     void surfaceCreated(WaylandSurface *surface) {
         connect(surface, SIGNAL(mapped(const QSize &)), this, SLOT(surfaceMapped(const QSize &)));
     }
-#if 0
-    void paintEvent(QPaintEvent *event) {
-        QSGView::paintEvent(event);
-        frameFinished();
-        glFinish();
-    }
-#endif
+
 private:
     QMap<QObject *, WaylandSurfaceItem *> m_windowMap;
 };

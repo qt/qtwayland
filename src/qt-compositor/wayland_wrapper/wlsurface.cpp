@@ -73,6 +73,7 @@ public:
         , textureCreatedForBuffer(false)
         , directRenderBuffer(0)
         , processId(0)
+        , previousBuffer(0)
         , surfaceBuffer(0)
         , surfaceType(WaylandSurface::Invalid)
 
@@ -116,12 +117,13 @@ public:
     GLuint texture_id;
 #endif
     bool textureCreatedForBuffer;
-    wl_buffer *directRenderBuffer;
+    struct wl_buffer *directRenderBuffer;
     qint64 processId;
     QByteArray authenticationToken;
 
     QPoint lastMousePos;
 
+    struct wl_buffer *previousBuffer;
 private:
     struct wl_buffer *surfaceBuffer;
     WaylandSurface::Type surfaceType;
@@ -205,8 +207,13 @@ void Surface::damage(const QRect &rect)
             glDeleteTextures(1,&d->texture_id);
             d->textureCreatedForBuffer = false;
         }
-        if (d->compositor->graphicsHWIntegration()->postBuffer(d->directRenderBuffer))
+        if (d->compositor->graphicsHWIntegration()->postBuffer(d->buffer())) {
+            if (d->previousBuffer) {
+                wl_client_post_event(d->client,&d->previousBuffer->resource.object,WL_BUFFER_RELEASE);
+            }
+            d->previousBuffer = d->buffer();
             return;
+        }
     }
 #endif
 
@@ -232,8 +239,12 @@ GLuint Surface::textureId() const
     if (d->compositor->graphicsHWIntegration() && d->type() == WaylandSurface::Texture
          && !d->textureCreatedForBuffer) {
         glDeleteTextures(1,&d->texture_id);
+        if (d->previousBuffer) {
+            wl_client_post_event(d->client,&d->previousBuffer->resource.object,WL_BUFFER_RELEASE);
+        }
         Surface *that = const_cast<Surface *>(this);
         GraphicsHardwareIntegration *hwIntegration = d->compositor->graphicsHWIntegration();
+        that->d_func()->previousBuffer = d->buffer();
         that->d_func()->texture_id = hwIntegration->createTextureFromBuffer(d->buffer());
         that->d_func()->textureCreatedForBuffer = true;
     }

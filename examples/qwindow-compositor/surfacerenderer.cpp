@@ -8,12 +8,12 @@ SurfaceRenderer::SurfaceRenderer(QOpenGLContext *context, QWindow *surface)
 {
     const char *textureVertexProgram =
             "uniform highp mat4 matrix;\n"
-            "attribute highp vec2 vertexCoordEntry;\n"
+            "attribute highp vec3 vertexCoordEntry;\n"
             "attribute highp vec2 textureCoordEntry;\n"
             "varying highp vec2 textureCoord;\n"
             "void main() {\n"
             "   textureCoord = textureCoordEntry;\n"
-            "   gl_Position = matrix * vec4(vertexCoordEntry, 0, 1);\n"
+            "   gl_Position = matrix * vec4(vertexCoordEntry, 1);\n"
             "}\n";
 
     const char *textureFragmentProgram =
@@ -24,6 +24,10 @@ SurfaceRenderer::SurfaceRenderer(QOpenGLContext *context, QWindow *surface)
             "}\n";
 
     m_context->makeCurrent(m_surface);
+
+    //Enable transparent windows
+    glEnable(GL_BLEND);
+    glBlendFunc (GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
 
     //May need to manually set context here
     m_shaderProgram = new QGLShaderProgram();
@@ -46,6 +50,7 @@ void SurfaceRenderer::drawImage(const QImage &image, const QRect &geometry)
 
 void SurfaceRenderer::drawTexture(int textureId, const QRect &geometry, int depth)
 {
+    GLfloat zValue = depth / 1000.0f;
     //Set Texture and Vertex coordinates
     GLfloat textureCoordinates[] = { 0, 0,
                                      1, 0,
@@ -53,10 +58,10 @@ void SurfaceRenderer::drawTexture(int textureId, const QRect &geometry, int dept
                                      0, 1
                                    };
 
-    GLfloat vertexCoordinates[] = { geometry.left(), geometry.top(),
-                                    geometry.right(), geometry.top(),
-                                    geometry.right(), geometry.bottom(),
-                                    geometry.left(), geometry.bottom()
+    GLfloat vertexCoordinates[] = { geometry.left(), geometry.top(), zValue,
+                                    geometry.right(), geometry.top(), zValue,
+                                    geometry.right(), geometry.bottom(), zValue,
+                                    geometry.left(), geometry.bottom(), zValue
                                   };
 
     //Set matrix to transfrom geometry values into gl coordinate space.
@@ -70,7 +75,7 @@ void SurfaceRenderer::drawTexture(int textureId, const QRect &geometry, int dept
     m_context->functions()->glEnableVertexAttribArray(m_vertexCoordEntry);
     m_context->functions()->glEnableVertexAttribArray(m_textureCoordEntry);
 
-    m_context->functions()->glVertexAttribPointer(m_vertexCoordEntry, 2, GL_FLOAT, GL_FALSE, 0, vertexCoordinates);
+    m_context->functions()->glVertexAttribPointer(m_vertexCoordEntry, 3, GL_FLOAT, GL_FALSE, 0, vertexCoordinates);
     m_context->functions()->glVertexAttribPointer(m_textureCoordEntry, 2, GL_FLOAT, GL_FALSE, 0, textureCoordinates);
     m_shaderProgram->setUniformValue(m_matrixLocation, m_transformMatrix);
 

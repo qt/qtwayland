@@ -7,6 +7,7 @@ QWindowCompositor::QWindowCompositor(QOpenGLWindow *window)
     m_backgroundImage = QImage(QLatin1String("background.jpg"));
     m_renderer = new SurfaceRenderer(m_window->context(), m_window);
     m_backgroundTexture = m_renderer->textureFromImage(m_backgroundImage);
+
     render();
 }
 
@@ -72,17 +73,16 @@ void QWindowCompositor::render()
     m_window->makeCurrent();
 
     //Draw the background Image texture
-    m_renderer->drawTexture(m_backgroundTexture, m_window->geometry());
+    m_renderer->drawTexture(m_backgroundTexture, m_window->geometry(), 0);
 
     //Iterate all surfaces in m_surfaces
     //If type == WaylandSurface::Texture draw textureId at geometry
     foreach (WaylandSurface *surface, m_surfaces) {
         if (surface->type() == WaylandSurface::Texture)
-            m_renderer->drawTexture(surface->texture(), surface->geometry());
+            m_renderer->drawTexture(surface->texture(), surface->geometry(), 1); //depth argument should be dynamic (focused should be top).
         else if (surface->type() == WaylandSurface::Shm)
             m_renderer->drawImage(surface->image(), surface->geometry());
     }
-
     frameFinished();
     glFinish();
     m_window->swapBuffers();

@@ -38,8 +38,8 @@
 **
 ****************************************************************************/
 
-#ifndef MESAEGLINTEGRATION_H
-#define MESAEGLINTEGRATION_H
+#ifndef WAYLANDEGLINTEGRATION_H
+#define WAYLANDEGLINTEGRATION_H
 
 #include "hardware_integration/graphicshardwareintegration.h"
 #include <QtCore/QScopedPointer>
@@ -61,4 +61,4 @@ private:
     QScopedPointer<MesaEglIntegrationPrivate> d_ptr;
 };
 
-#endif // MESAEGLINTEGRATION_H
+#endif // WAYLANDEGLINTEGRATION_H

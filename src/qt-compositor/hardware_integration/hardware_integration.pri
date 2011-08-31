@@ -35,7 +35,7 @@ isEmpty(QT_WAYLAND_GL_CONFIG):QT_WAYLAND_GL_CONFIG = $$(QT_WAYLAND_GL_CONFIG)
 }
 
 mesa_egl {
-    include (mesa_egl/mesa_egl.pri)
+    include (wayland_egl/wayland_egl.pri)
 }
 dri2_xcb {
     include (dri2_xcb/dri2_xcb.pri)

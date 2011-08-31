@@ -38,10 +38,11 @@
 **
 ****************************************************************************/
 
-#include "mesaeglintegration.h"
+#include "waylandeglintegration.h"
 
 #include <QtGui/QPlatformNativeInterface>
 #include <QtGui/QGuiApplication>
+#include <QtGui/QOpenGLContext>
 
 #define EGL_EGLEXT_PROTOTYPES
 #include <EGL/egl.h>
@@ -96,7 +97,7 @@ void MesaEglIntegration::initializeHardware(Wayland::Display *waylandDisplay)
         if (!d->valid)
             qWarning("Failed to initialize egl display\n");
 
-        d->egl_context = nativeInterface->nativeResourceForContext("EglContext", m_compositor->glContext()->contextHandle());
+        d->egl_context = nativeInterface->nativeResourceForContext("EglContext", m_compositor->glContext());
     }
 }
 
@@ -108,18 +109,20 @@ GLuint MesaEglIntegration::createTextureFromBuffer(wl_buffer *buffer)
         return 0;
     }
 
-    EGLImageKHR image = eglCreateImageKHR(d->egl_display, d->egl_context,
-                                          EGL_WAYLAND_BUFFER_WL,
-                                          buffer, NULL);
+    if (!buffer->user_data) {
+        buffer->user_data = eglCreateImageKHR(d->egl_display, d->egl_context,
+                                              EGL_WAYLAND_BUFFER_WL,
+                                              buffer, NULL);
+    }
 
     GLuint textureId;
     glGenTextures(1,&textureId);
 
     glBindTexture(GL_TEXTURE_2D, textureId);
 
-    glEGLImageTargetTexture2DOES(GL_TEXTURE_2D, image);
+    glEGLImageTargetTexture2DOES(GL_TEXTURE_2D, buffer->user_data);
 
-    eglDestroyImageKHR(d->egl_display, image);
+//    eglDestroyImageKHR(d->egl_display, image);
 
     return textureId;
 }

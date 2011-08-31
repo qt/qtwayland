@@ -41,7 +41,7 @@
 #include "mesaeglintegration.h"
 
 #include <QtGui/QPlatformNativeInterface>
-#include <QtWidgets/private/qapplication_p.h>
+#include <QtGui/QGuiApplication>
 
 #define EGL_EGLEXT_PROTOTYPES
 #include <EGL/egl.h>
@@ -81,7 +81,7 @@ void MesaEglIntegration::initializeHardware(Wayland::Display *waylandDisplay)
     //We need a window id now :)
     m_compositor->window()->winId();
 
-    QPlatformNativeInterface *nativeInterface = QApplicationPrivate::platformIntegration()->nativeInterface();
+    QPlatformNativeInterface *nativeInterface = QGuiApplication::platformNativeInterface();
     if (nativeInterface) {
         d->egl_display = nativeInterface->nativeResourceForWindow("EglDisplay", m_compositor->window());
         if (d->egl_display) {
@@ -94,7 +94,7 @@ void MesaEglIntegration::initializeHardware(Wayland::Display *waylandDisplay)
         }
 
         if (!d->valid)
-            fprintf(stderr, "Failed to initialize egl display\n");
+            qWarning("Failed to initialize egl display\n");
 
         d->egl_context = nativeInterface->nativeResourceForContext("EglContext", m_compositor->glContext()->contextHandle());
     }
@@ -104,7 +104,7 @@ GLuint MesaEglIntegration::createTextureFromBuffer(wl_buffer *buffer)
 {
     Q_D(MesaEglIntegration);
     if (!d->valid) {
-        fprintf(stderr, "createTextureFromBuffer() failed\n");
+        qWarning("createTextureFromBuffer() failed\n");
         return 0;
     }
 

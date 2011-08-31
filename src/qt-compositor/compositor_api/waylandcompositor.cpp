@@ -50,7 +50,7 @@
 #include "waylandsurfaceitem.h"
 #endif
 
-WaylandCompositor::WaylandCompositor(QWindow *window, QGLContext *context, const char *socketName)
+WaylandCompositor::WaylandCompositor(QWindow *window, QOpenGLContext *context, const char *socketName)
     : m_compositor(0)
     , m_glContext(context)
     , m_toplevel_widget(window)
@@ -110,7 +110,7 @@ WaylandSurface *WaylandCompositor::directRenderSurface() const
     return surf ? surf->handle() : 0;
 }
 
-QGLContext * WaylandCompositor::glContext() const
+QOpenGLContext * WaylandCompositor::glContext() const
 {
     return m_glContext;
 }

@@ -39,9 +39,9 @@
 ****************************************************************************/
 
 #include "wloutput.h"
-
-#include <QtWidgets/QApplication>
-#include <QtWidgets/QDesktopWidget>
+#include <QGuiApplication>
+#include <QtGui/QScreen>
+#include <QRect>
 
 namespace Wayland {
 
@@ -58,10 +58,11 @@ void output_post_geometry(struct wl_client *client, struct wl_object *global, ui
 
 
 Output::Output()
-    : m_size(QApplication::desktop()->screenGeometry().size())
-    , m_displayId(-1)
+    : m_displayId(-1)
     , m_numQueued(0)
 {
+    QScreen *screen = QGuiApplication::primaryScreen();
+    m_size = screen->availableGeometry().size();
 }
 
 }

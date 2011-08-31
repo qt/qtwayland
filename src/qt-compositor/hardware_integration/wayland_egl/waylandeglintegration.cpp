@@ -38,10 +38,11 @@
 **
 ****************************************************************************/
 
-#include "mesaeglintegration.h"
+#include "waylandeglintegration.h"
 
 #include <QtGui/QPlatformNativeInterface>
 #include <QtGui/QGuiApplication>
+#include <QtGui/QOpenGLContext>
 
 #define EGL_EGLEXT_PROTOTYPES
 #include <EGL/egl.h>
@@ -53,13 +54,13 @@
 
 GraphicsHardwareIntegration * GraphicsHardwareIntegration::createGraphicsHardwareIntegration(WaylandCompositor *compositor)
 {
-    return new MesaEglIntegration(compositor);
+    return new WaylandEglIntegration(compositor);
 }
 
-class MesaEglIntegrationPrivate
+class WaylandEglIntegrationPrivate
 {
 public:
-    MesaEglIntegrationPrivate()
+    WaylandEglIntegrationPrivate()
         : egl_display(EGL_NO_DISPLAY)
         , egl_context(EGL_NO_CONTEXT)
     { }
@@ -68,16 +69,16 @@ public:
     bool valid;
 };
 
-MesaEglIntegration::MesaEglIntegration(WaylandCompositor *compositor)
+WaylandEglIntegration::WaylandEglIntegration(WaylandCompositor *compositor)
     : GraphicsHardwareIntegration(compositor)
-    , d_ptr(new MesaEglIntegrationPrivate)
+    , d_ptr(new WaylandEglIntegrationPrivate)
 {
     d_ptr->valid = false;
 }
 
-void MesaEglIntegration::initializeHardware(Wayland::Display *waylandDisplay)
+void WaylandEglIntegration::initializeHardware(Wayland::Display *waylandDisplay)
 {
-    Q_D(MesaEglIntegration);
+    Q_D(WaylandEglIntegration);
     //We need a window id now :)
     m_compositor->window()->winId();
 
@@ -96,13 +97,13 @@ void MesaEglIntegration::initializeHardware(Wayland::Display *waylandDisplay)
         if (!d->valid)
             qWarning("Failed to initialize egl display\n");
 
-        d->egl_context = nativeInterface->nativeResourceForContext("EglContext", m_compositor->glContext()->contextHandle());
+        d->egl_context = nativeInterface->nativeResourceForContext("EglContext", m_compositor->glContext());
     }
 }
 
-GLuint MesaEglIntegration::createTextureFromBuffer(wl_buffer *buffer)
+GLuint WaylandEglIntegration::createTextureFromBuffer(wl_buffer *buffer)
 {
-    Q_D(MesaEglIntegration);
+    Q_D(WaylandEglIntegration);
     if (!d->valid) {
         qWarning("createTextureFromBuffer() failed\n");
         return 0;

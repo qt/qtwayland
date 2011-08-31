@@ -81,7 +81,11 @@ class QWidgetCompositor : public QWidget, public WaylandCompositor
 {
     Q_OBJECT
 public:
-    QWidgetCompositor() : WaylandCompositor(windowHandle(),const_cast<QGLContext *>(context())), m_moveSurface(0), m_dragSourceSurface(0) {
+    QWidgetCompositor()
+        : WaylandCompositor(windowHandle(),const_cast<QGLContext *>(context())->contextHandle())
+        , m_moveSurface(0)
+        , m_dragSourceSurface(0)
+    {
         setMouseTracking(true);
         setRetainedSelectionEnabled(true);
         m_background = QImage(QLatin1String("background.jpg"));

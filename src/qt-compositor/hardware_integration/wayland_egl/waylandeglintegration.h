@@ -38,27 +38,27 @@
 **
 ****************************************************************************/
 
-#ifndef MESAEGLINTEGRATION_H
-#define MESAEGLINTEGRATION_H
+#ifndef WAYLANDEGLINTEGRATION_H
+#define WAYLANDEGLINTEGRATION_H
 
 #include "hardware_integration/graphicshardwareintegration.h"
 #include <QtCore/QScopedPointer>
 
-class MesaEglIntegrationPrivate;
+class WaylandEglIntegrationPrivate;
 
-class MesaEglIntegration : public GraphicsHardwareIntegration
+class WaylandEglIntegration : public GraphicsHardwareIntegration
 {
-    Q_DECLARE_PRIVATE(MesaEglIntegration)
+    Q_DECLARE_PRIVATE(WaylandEglIntegration)
 public:
-    MesaEglIntegration(WaylandCompositor *compositor);
+    WaylandEglIntegration(WaylandCompositor *compositor);
 
     void initializeHardware(Wayland::Display *waylandDisplay);
 
     GLuint createTextureFromBuffer(wl_buffer *buffer);
 
 private:
-    Q_DISABLE_COPY(MesaEglIntegration)
-    QScopedPointer<MesaEglIntegrationPrivate> d_ptr;
+    Q_DISABLE_COPY(WaylandEglIntegration)
+    QScopedPointer<WaylandEglIntegrationPrivate> d_ptr;
 };
 
-#endif // MESAEGLINTEGRATION_H
+#endif // WAYLANDEGLINTEGRATION_H

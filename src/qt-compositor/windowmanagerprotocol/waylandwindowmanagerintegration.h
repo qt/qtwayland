@@ -69,7 +69,7 @@ public:
 
     WaylandManagedClient *managedClient(wl_client *client) const;
 
-    void changeScreenVisibility(wl_client *client, int visible);
+    void setVisibilityOnScreen(wl_client *client, bool visible);
     void setScreenOrientation(wl_client *client, qint32 orientationInDegrees);
     void updateOrientation(wl_client *client);
 
@@ -100,13 +100,10 @@ public:
     WaylandManagedClient();
     qint64 processId() const;
     QByteArray authenticationToken() const;
-    // ## TODO must be moved to Surface
-    bool isVisibleOnScreen() const { return m_isVisibleOnScreen; }
 
 private:
     qint64 m_processId;
     QByteArray m_authenticationToken;
-    bool m_isVisibleOnScreen;
 
     friend class WindowManagerServerIntegration;
 };

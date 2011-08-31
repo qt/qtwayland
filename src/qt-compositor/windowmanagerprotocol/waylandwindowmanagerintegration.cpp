@@ -71,7 +71,7 @@ public:
 
     void changeScreenVisibility(wl_client *client, int visible)
     {
-        WindowManagerServerIntegration::instance()->changeScreenVisibility(client, visible);
+        WindowManagerServerIntegration::instance()->setVisibilityOnScreen(client, visible);
     }
 
     void updateWindowProperty(wl_client *client, wl_surface *surface, const char *name, struct wl_array *value)
@@ -142,12 +142,10 @@ void WindowManagerServerIntegration::authenticateWithToken(wl_client *client, co
     emit clientAuthenticated(client);
 }
 
-void WindowManagerServerIntegration::changeScreenVisibility(wl_client *client, int visible)
+void WindowManagerServerIntegration::setVisibilityOnScreen(wl_client *client, bool visible)
 {
-    m_managedClients[client]->m_isVisibleOnScreen = visible != 0;
-
     wl_client_post_event(client, m_windowManagerObject->base(),
-                         WL_WINDOWMANAGER_CLIENT_ONSCREEN_VISIBILITY, visible);
+                         WL_WINDOWMANAGER_CLIENT_ONSCREEN_VISIBILITY, visible ? 1 : 0);
 }
 
 void WindowManagerServerIntegration::setScreenOrientation(wl_client *client, qint32 orientationInDegrees)

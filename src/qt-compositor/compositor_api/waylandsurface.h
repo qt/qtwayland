@@ -43,6 +43,7 @@
 
 #include <QtCore/QScopedPointer>
 #include <QtGui/QImage>
+#include <QtCore/QVariantMap>
 
 #ifdef QT_COMPOSITOR_WAYLAND_GL
 #include <QtOpenGL/QGLContext>
@@ -101,6 +102,8 @@ public:
     Wayland::Surface *handle() const;
     qint64 processId() const;
     QByteArray authenticationToken() const;
+    QVariantMap windowProperties() const;
+    void setWindowProperty(const QString &name, const QVariant &value);
 
 signals:
     void mapped(const QSize &size);

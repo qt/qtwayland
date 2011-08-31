@@ -117,6 +117,7 @@ public:
     wl_buffer *directRenderBuffer;
     qint64 processId;
     QByteArray authenticationToken;
+    QVariantMap windowProperties;
 
 private:
     struct wl_buffer *surfaceBuffer;
@@ -271,6 +272,27 @@ QByteArray Surface::authenticationToken() const
 {
     Q_D(const Surface);
     return WindowManagerServerIntegration::instance()->managedClient(d->client)->authenticationToken();
+}
+
+QVariantMap Surface::windowProperties() const
+{
+    Q_D(const Surface);
+    return d->windowProperties;
+}
+
+QVariant Surface::windowProperty(const QString &propertyName) const
+{
+    Q_D(const Surface);
+    QVariantMap props = d->windowProperties;
+    return props.value(propertyName);
+}
+
+void Surface::setWindowProperty(const QString &name, const QVariant &value, bool writeUpdateToClient)
+{
+    Q_D(Surface);
+    d->windowProperties.insert(name, value);
+    if (writeUpdateToClient)
+        WindowManagerServerIntegration::instance()->setWindowProperty(d->client, base(), name, value);
 }
 
 uint32_t toWaylandButton(Qt::MouseButton button)

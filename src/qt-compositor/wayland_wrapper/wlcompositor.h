@@ -114,6 +114,7 @@ signals:
 
 private slots:
     void processWaylandEvents();
+    void windowPropertyChanged(wl_client *client, wl_surface *surface, const QString &name, const QVariant &value);
 
 private:
     Display *m_display;

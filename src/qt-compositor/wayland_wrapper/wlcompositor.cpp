@@ -216,6 +216,9 @@ Compositor::Compositor(WaylandCompositor *qt_compositor)
         m_graphics_hw_integration = GraphicsHardwareIntegration::createGraphicsHardwareIntegration(qt_compositor);
 #endif
     m_windowManagerWaylandProtocol = new WindowManagerServerIntegration(this);
+    connect(m_windowManagerWaylandProtocol,
+            SIGNAL(windowPropertyChanged(wl_client*,wl_surface*,QString,QVariant)),
+            SLOT(windowPropertyChanged(wl_client*,wl_surface*,QString,QVariant)));
 
     if (wl_compositor_init(base(), &compositor_interface, m_display->handle())) {
         fprintf(stderr, "Fatal: Error initializing compositor\n");
@@ -268,7 +271,7 @@ void Compositor::createSurface(struct wl_client *client, int id)
     addClientResource(client, &surface->base()->resource, id, &wl_surface_interface,
             &surface_interface, destroy_surface);
 
-        m_windowManagerWaylandProtocol->updateOrientation(client);
+    m_windowManagerWaylandProtocol->updateOrientation(client);
     m_qt_compositor->surfaceCreated(surface->handle());
 
     QList<struct wl_client *> prevClientList = clients();
@@ -325,6 +328,15 @@ void Compositor::processWaylandEvents()
         fprintf(stderr, "wl_event_loop_dispatch error: %d\n", ret);
 }
 
+void Compositor::windowPropertyChanged(wl_client *client, wl_surface *changedSurface, const QString &name, const QVariant &value)
+{
+    for(int i = 0; i < m_surfaces.length(); ++i) {
+        Surface *surface = m_surfaces[i];
+        if (surface->clientHandle() == client && surface->base() == changedSurface) {
+            surface->setWindowProperty(name, value, false);
+        }
+    }
+}
 
 void Compositor::surfaceDestroyed(Surface *surface)
 {

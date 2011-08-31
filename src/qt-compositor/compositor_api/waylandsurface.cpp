@@ -83,6 +83,18 @@ QByteArray WaylandSurface::authenticationToken() const
     return d->surface->authenticationToken();
 }
 
+QVariantMap WaylandSurface::windowProperties() const
+{
+    Q_D(const WaylandSurface);
+    return d->surface->windowProperties();
+}
+
+void WaylandSurface::setWindowProperty(const QString &name, const QVariant &value)
+{
+    Q_D(WaylandSurface);
+    d->surface->setWindowProperty(name, value);
+}
+
 void WaylandSurface::sendMousePressEvent(const QPoint &pos, Qt::MouseButton button)
 {
     Q_D(WaylandSurface);

@@ -61,19 +61,22 @@ public:
 
     void mapClientToProcess(wl_client *client, uint32_t processId)
     {
-        //qDebug() << "COMPOSITOR:" << Q_FUNC_INFO << client << processId;
         WindowManagerServerIntegration::instance()->mapClientToProcess(client, processId);
     }
 
     void authenticateWithToken(wl_client *client, const char *authenticationToken)
     {
-        //qDebug() << "COMPOSITOR:" << Q_FUNC_INFO << client << authenticationToken;
         WindowManagerServerIntegration::instance()->authenticateWithToken(client, authenticationToken);
     }
 
     void changeScreenVisibility(wl_client *client, int visible)
     {
         WindowManagerServerIntegration::instance()->changeScreenVisibility(client, visible);
+    }
+
+    void updateWindowProperty(wl_client *client, wl_surface *surface, const char *name, struct wl_array *value)
+    {
+        WindowManagerServerIntegration::instance()->updateWindowProperty(client, surface, name, value);
     }
 
 };
@@ -88,9 +91,15 @@ void authenticate_with_token(wl_client *client, struct wl_windowmanager *windowM
     reinterpret_cast<WindowManagerObject *>(windowMgr)->authenticateWithToken(client, wl_authentication_token);
 }
 
+void update_generic_property(wl_client *client, struct wl_windowmanager *windowMgr, wl_surface *surface, const char *name, struct wl_array *value)
+{
+    reinterpret_cast<WindowManagerObject *>(windowMgr)->updateWindowProperty(client, surface, name, value);
+}
+
 const static struct wl_windowmanager_interface windowmanager_interface = {
     map_client_to_process,
-    authenticate_with_token
+    authenticate_with_token,
+    update_generic_property
 };
 
 WindowManagerServerIntegration *WindowManagerServerIntegration::m_instance = 0;
@@ -141,16 +150,42 @@ void WindowManagerServerIntegration::changeScreenVisibility(wl_client *client, i
                          WL_WINDOWMANAGER_CLIENT_ONSCREEN_VISIBILITY, visible);
 }
 
-void WindowManagerServerIntegration::updateOrientation(wl_client *client)
-{
-    setScreenOrientation(client, m_orientationInDegrees);
-}
-
 void WindowManagerServerIntegration::setScreenOrientation(wl_client *client, qint32 orientationInDegrees)
 {
     m_orientationInDegrees = orientationInDegrees;
     wl_client_post_event(client, m_windowManagerObject->base(),
                          WL_WINDOWMANAGER_SET_SCREEN_ROTATION, orientationInDegrees);
+}
+
+void WindowManagerServerIntegration::updateOrientation(wl_client *client)
+{
+    setScreenOrientation(client, m_orientationInDegrees);
+}
+
+// client -> server
+void WindowManagerServerIntegration::updateWindowProperty(wl_client *client, wl_surface *surface, const char *name, struct wl_array *value)
+{
+    QVariant variantValue;
+    QByteArray byteValue((const char*)value->data, value->size);
+    QDataStream ds(&byteValue, QIODevice::ReadOnly);
+    ds >> variantValue;
+
+    emit windowPropertyChanged(client, surface, QString(name), variantValue);
+}
+
+// server -> client
+void WindowManagerServerIntegration::setWindowProperty(wl_client *client, wl_surface *surface, const QString &name, const QVariant &value)
+{
+    QByteArray byteValue;
+    QDataStream ds(&byteValue, QIODevice::WriteOnly);
+    ds << value;
+    wl_array data;
+    data.size = byteValue.size();
+    data.data = (void*) byteValue.constData();
+    data.alloc = 0;
+
+    wl_client_post_event(client, m_windowManagerObject->base(),
+                         WL_WINDOWMANAGER_SET_GENERIC_PROPERTY, surface, name.toLatin1().constData(), &data);
 }
 
 WaylandManagedClient *WindowManagerServerIntegration::managedClient(wl_client *client) const

@@ -47,7 +47,7 @@
 
 #include <QObject>
 #include <QMap>
-
+#include <QVariant>
 
 struct wl_client;
 
@@ -73,9 +73,12 @@ public:
     void setScreenOrientation(wl_client *client, qint32 orientationInDegrees);
     void updateOrientation(wl_client *client);
 
+    void updateWindowProperty(wl_client *client, struct wl_surface *surface, const char *name, struct wl_array *value);
+    void setWindowProperty(wl_client *client, struct wl_surface *surface, const QString &name, const QVariant &value);
 
 signals:
     void clientAuthenticated(wl_client *client);
+    void windowPropertyChanged(wl_client *client, struct wl_surface *surface, const QString &name, const QVariant &value);
 
 private:
     void mapClientToProcess(wl_client *client, uint32_t processId);
@@ -97,8 +100,8 @@ public:
     WaylandManagedClient();
     qint64 processId() const;
     QByteArray authenticationToken() const;
+    // ## TODO must be moved to Surface
     bool isVisibleOnScreen() const { return m_isVisibleOnScreen; }
-    qint32 orientation() const;
 
 private:
     qint64 m_processId;

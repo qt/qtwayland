@@ -105,6 +105,10 @@ public:
     void setProcessId(qint64 processId);
     QByteArray authenticationToken() const;
 
+    QVariantMap windowProperties() const;
+    QVariant windowProperty(const QString &propertyName) const;
+    void setWindowProperty(const QString &name, const QVariant &value, bool writeUpdateToClient = true);
+
     void setSurfaceCreationFinished(bool isCreated);
 
 protected:

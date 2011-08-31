@@ -54,13 +54,13 @@
 
 GraphicsHardwareIntegration * GraphicsHardwareIntegration::createGraphicsHardwareIntegration(WaylandCompositor *compositor)
 {
-    return new MesaEglIntegration(compositor);
+    return new WaylandEglIntegration(compositor);
 }
 
-class MesaEglIntegrationPrivate
+class WaylandEglIntegrationPrivate
 {
 public:
-    MesaEglIntegrationPrivate()
+    WaylandEglIntegrationPrivate()
         : egl_display(EGL_NO_DISPLAY)
         , egl_context(EGL_NO_CONTEXT)
     { }
@@ -69,16 +69,16 @@ public:
     bool valid;
 };
 
-MesaEglIntegration::MesaEglIntegration(WaylandCompositor *compositor)
+WaylandEglIntegration::WaylandEglIntegration(WaylandCompositor *compositor)
     : GraphicsHardwareIntegration(compositor)
-    , d_ptr(new MesaEglIntegrationPrivate)
+    , d_ptr(new WaylandEglIntegrationPrivate)
 {
     d_ptr->valid = false;
 }
 
-void MesaEglIntegration::initializeHardware(Wayland::Display *waylandDisplay)
+void WaylandEglIntegration::initializeHardware(Wayland::Display *waylandDisplay)
 {
-    Q_D(MesaEglIntegration);
+    Q_D(WaylandEglIntegration);
     //We need a window id now :)
     m_compositor->window()->winId();
 
@@ -101,28 +101,26 @@ void MesaEglIntegration::initializeHardware(Wayland::Display *waylandDisplay)
     }
 }
 
-GLuint MesaEglIntegration::createTextureFromBuffer(wl_buffer *buffer)
+GLuint WaylandEglIntegration::createTextureFromBuffer(wl_buffer *buffer)
 {
-    Q_D(MesaEglIntegration);
+    Q_D(WaylandEglIntegration);
     if (!d->valid) {
         qWarning("createTextureFromBuffer() failed\n");
         return 0;
     }
 
-    if (!buffer->user_data) {
-        buffer->user_data = eglCreateImageKHR(d->egl_display, d->egl_context,
-                                              EGL_WAYLAND_BUFFER_WL,
-                                              buffer, NULL);
-    }
+    EGLImageKHR image = eglCreateImageKHR(d->egl_display, d->egl_context,
+                                          EGL_WAYLAND_BUFFER_WL,
+                                          buffer, NULL);
 
     GLuint textureId;
     glGenTextures(1,&textureId);
 
     glBindTexture(GL_TEXTURE_2D, textureId);
 
-    glEGLImageTargetTexture2DOES(GL_TEXTURE_2D, buffer->user_data);
+    glEGLImageTargetTexture2DOES(GL_TEXTURE_2D, image);
 
-//    eglDestroyImageKHR(d->egl_display, image);
+    eglDestroyImageKHR(d->egl_display, image);
 
     return textureId;
 }

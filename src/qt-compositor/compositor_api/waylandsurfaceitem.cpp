@@ -134,19 +134,19 @@ QSGTextureProvider *WaylandSurfaceItem::textureProvider() const
     return m_provider;
 }
 
-void WaylandSurfaceItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
+void WaylandSurfaceItem::mousePressEvent(QMouseEvent *event)
 {
     if (m_surface)
         m_surface->sendMousePressEvent(toSurface(event->pos()), event->button());
 }
 
-void WaylandSurfaceItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+void WaylandSurfaceItem::mouseMoveEvent(QMouseEvent *event)
 {
     if (m_surface)
         m_surface->sendMouseMoveEvent(toSurface(event->pos()));
 }
 
-void WaylandSurfaceItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+void WaylandSurfaceItem::mouseReleaseEvent(QMouseEvent *event)
 {
     if (m_surface)
         m_surface->sendMouseReleaseEvent(toSurface(event->pos()), event->button());

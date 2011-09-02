@@ -44,10 +44,7 @@
 #include <QObject>
 #include <QImage>
 #include <QRect>
-
-#ifdef QT_COMPOSITOR_WAYLAND_GL
-#include <QtOpenGL/QGLContext>
-#endif
+#include <QOpenGLContext>
 
 class QGLContext;
 class QWidget;

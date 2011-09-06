@@ -50,7 +50,7 @@ void output_post_geometry(struct wl_client *client, struct wl_object *global, ui
     Q_UNUSED(version);
     Output *output = wayland_cast<Output *>(global);
 
-    wl_client_post_event(client, global, WL_OUTPUT_GEOMETRY, 0, 0,
+    wl_client_post_event(client, global, WL_OUTPUT_GEOMETRY, output->x(), output->y(),
                          output->size().width(), output->size().height(),0,"","");
 
     wl_client_post_event(client,global,WL_OUTPUT_MODE, 0,output->size().width(),output->size().height());
@@ -58,10 +58,16 @@ void output_post_geometry(struct wl_client *client, struct wl_object *global, ui
 
 
 Output::Output()
-    : m_size(QApplication::desktop()->screenGeometry().size())
+    : m_geometry(QPoint(0,0), QApplication::desktop()->screenGeometry().size())
     , m_displayId(-1)
     , m_numQueued(0)
 {
-}
 
 }
+
+void Output::setGeometry(const QRect &geometry)
+{
+    m_geometry = geometry;
+}
+
+} // namespace Wayland

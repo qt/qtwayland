@@ -146,3 +146,8 @@ void WaylandCompositor::setScreenOrientation(qint32 orientationInDegrees)
 {
     m_compositor->setScreenOrientation(orientationInDegrees);
 }
+
+void WaylandCompositor::setOutputGeometry(const QRect &geometry)
+{
+    m_compositor->setOutputGeometry(geometry);
+}

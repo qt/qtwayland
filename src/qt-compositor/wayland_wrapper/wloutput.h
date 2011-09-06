@@ -43,7 +43,7 @@
 
 #include "waylandobject.h"
 
-#include <QtCore/QSize>
+#include <QtCore/QRect>
 
 namespace Wayland {
 
@@ -52,10 +52,14 @@ class Output : public Object<struct wl_object>
 public:
     Output();
 
-    QSize size() const { return m_size; }
+    void setGeometry(const QRect &geometry);
+
+    int x() const { return m_geometry.x(); }
+    int y() const { return m_geometry.y(); }
+    QSize size() const { return m_geometry.size(); }
 
 private:
-    QSize m_size;
+    QRect m_geometry;
     int m_displayId;
     int m_numQueued;
 };

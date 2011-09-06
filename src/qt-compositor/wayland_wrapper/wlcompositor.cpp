@@ -456,6 +456,11 @@ void Compositor::setScreenOrientation(qint32 orientationInDegrees)
     }
 }
 
+void Compositor::setOutputGeometry(const QRect &geometry)
+{
+    m_output.setGeometry(geometry);
+}
+
 } // namespace Wayland
 
 wl_input_device * Wayland::Compositor::defaultInputDevice()

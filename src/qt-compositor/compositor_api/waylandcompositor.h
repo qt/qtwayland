@@ -85,6 +85,7 @@ public:
     const char *socketName() const;
 
     void setScreenOrientation(qint32 orientationInDegrees);
+    void setOutputGeometry(const QRect &outputGeometry);
 
 private:
     static void retainedSelectionChanged(QMimeData *mimeData, void *param);

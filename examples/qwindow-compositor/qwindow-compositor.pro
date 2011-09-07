@@ -33,7 +33,7 @@ isEmpty(QT_SOURCE_TREE) {
 #LIBS += -ludev -lmtdev
 QT += gui opengl
 
-target.path += $$[QT_INSTALL_DATA]/bin
+target.path += $$[QT_INSTALL_BINS]
 INSTALLS += target
 
 HEADERS += \

@@ -99,6 +99,10 @@ public:
 
     void attach(struct wl_buffer *buffer) {
         bool emitMap = !surfaceBuffer;
+        if (surfaceBuffer && ! textureCreatedForBuffer) {
+            qWarning() << "### WaylandSurface::attach() releasing undisplayed buffer ###";
+             wl_client_post_event(client,&surfaceBuffer->resource.object,WL_BUFFER_RELEASE);
+        }
         surfaceBuffer = buffer;
         surfaceType = WaylandSurface::Invalid;
         textureCreatedForBuffer = false;

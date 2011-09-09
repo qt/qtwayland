@@ -106,7 +106,6 @@ void WaylandSurfaceItem::init(WaylandSurface *surface)
     setAcceptedMouseButtons(Qt::LeftButton | Qt::RightButton);
     connect(surface, SIGNAL(mapped(const QSize &)), this, SLOT(surfaceMapped(const QSize &)));
     connect(surface, SIGNAL(destroyed(QObject *)), this, SLOT(surfaceDestroyed(QObject *)));
-    connect(this, SIGNAL(textureChanged()), this, SLOT(update()));
     connect(surface, SIGNAL(damaged(const QRect &)), this, SLOT(surfaceDamaged(const QRect &)));
 
     m_damaged = false;
@@ -233,7 +232,6 @@ QSGNode *WaylandSurfaceItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeDa
             m_texture = canvas()->sceneGraphEngine()->createTextureFromImage(m_surface->image());
         }
         delete oldTexture;
-        emit textureChanged();
         m_damaged = false;
     }
 

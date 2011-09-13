@@ -10,3 +10,5 @@ SOURCES += \
     $$PWD/wayland-xcomposite-protocol.c \
     $$PWD/xcompositebuffer.cpp \
     $$PWD/xcompositehandler.cpp
+
+QT += gui-private

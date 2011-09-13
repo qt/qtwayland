@@ -55,23 +55,23 @@
 
 #include <QDebug>
 
-#include "qtouchscreen.h"
-
-static int touch_x_min, touch_x_max, touch_y_min, touch_y_max;
-
-class QWidgetCompositor;
-
-class TouchObserver : public QTouchScreenObserver
-{
-public:
-    TouchObserver(QWidgetCompositor *compositor)
-        : m_compositor(compositor) { }
-    void touch_configure(int x_min, int x_max, int y_min, int y_max);
-    void touch_point(QEvent::Type state, const QList<QWindowSystemInterface::TouchPoint> &points);
-
-private:
-    QWidgetCompositor *m_compositor;
-};
+//#include "qtouchscreen.h"
+//
+//static int touch_x_min, touch_x_max, touch_y_min, touch_y_max;
+//
+//class QWidgetCompositor;
+//
+//class TouchObserver : public QTouchScreenObserver
+//{
+//public:
+//    TouchObserver(QWidgetCompositor *compositor)
+//        : m_compositor(compositor) { }
+//    void touch_configure(int x_min, int x_max, int y_min, int y_max);
+//    void touch_point(QEvent::Type state, const QList<QWindowSystemInterface::TouchPoint> &points);
+//
+//private:
+//    QWidgetCompositor *m_compositor;
+//};
 
 #ifdef QT_COMPOSITOR_WAYLAND_GL
 class QWidgetCompositor : public QGLWidget, public WaylandCompositor
@@ -81,7 +81,11 @@ class QWidgetCompositor : public QWidget, public WaylandCompositor
 {
     Q_OBJECT
 public:
-    QWidgetCompositor() : WaylandCompositor(this), m_dragSurface(0) {
+    QWidgetCompositor()
+        : WaylandCompositor(windowHandle(),const_cast<QGLContext *>(context())->contextHandle())
+        , m_moveSurface(0)
+        , m_dragSourceSurface(0)
+    {
         setMouseTracking(true);
         setRetainedSelectionEnabled(true);
         m_background = QImage(QLatin1String("background.jpg"));
@@ -89,8 +93,8 @@ public:
         //so that clients can successfully initialize egl
         winId();
 #ifdef QT_COMPOSITOR_WAYLAND_GL
-        if (platformWindow()) {
-            platformWindow()->glContext();
+        if (windowHandle()) {
+//            windowHandle()->surfaceHandle();
         }
 #endif
     }
@@ -151,12 +155,7 @@ protected:
         for (int i = 0; i < m_surfaces.size(); ++i) {
             if (m_surfaces.at(i)->type() == WaylandSurface::Texture) {
 #ifdef QT_COMPOSITOR_WAYLAND_GL
-                QPlatformGLContext *glcontext = platformWindow()->glContext();
-                if (glcontext) {
-                    QGLContext *context = QGLContext::fromPlatformGLContext(glcontext);
-                    context->makeCurrent();
-                    context->drawTexture(m_surfaces.at(i)->geometry(),m_surfaces.at(i)->texture());
-                }
+                drawTexture(m_surfaces.at(i)->geometry(), m_surfaces.at(i)->texture());
                 break;
 #endif //QT_COMPOSITOR_WAYLAND_GL
             } else if (m_surfaces.at(i)->type() == WaylandSurface::Shm) {
@@ -164,6 +163,9 @@ protected:
                 p.drawImage(m_surfaces.at(i)->geometry(), img);
             }
         }
+
+        if (!m_cursor.isNull())
+            p.drawImage(m_cursorPos - m_cursorHotspot, m_cursor);
 
         frameFinished();
 
@@ -190,12 +192,15 @@ protected:
     }
 
     void mousePressEvent(QMouseEvent *e) {
+        m_cursorPos = e->pos();
+        if (!m_cursor.isNull())
+            update();
         QPoint local;
         if (WaylandSurface *surface = surfaceAt(e->pos(), &local)) {
             raise(surface);
             if (e->modifiers() & Qt::ControlModifier) {
-                m_dragSurface = surface;
-                m_dragOffset = local;
+                m_moveSurface = surface;
+                m_moveOffset = local;
             } else {
                 surface->sendMousePressEvent(local, e->button());
             }
@@ -203,10 +208,27 @@ protected:
     }
 
     void mouseMoveEvent(QMouseEvent *e) {
-        if (m_dragSurface) {
-            QRect geometry = m_dragSurface->geometry();
-            geometry.moveTo(e->pos() - m_dragOffset);
-            m_dragSurface->setGeometry(geometry);
+        m_cursorPos = e->pos();
+        if (!m_cursor.isNull())
+            update();
+        if (isDragging()) {
+            QPoint global = e->pos(); // "global" here means the window of the compositor
+            QPoint local;
+            WaylandSurface *surface = surfaceAt(e->pos(), &local);
+            if (surface) {
+                if (!m_dragSourceSurface)
+                    m_dragSourceSurface = surface;
+                if (m_dragSourceSurface == surface)
+                    m_lastDragSourcePos = local;
+                raise(surface);
+            }
+            sendDragMoveEvent(global, local, surface);
+            return;
+        }
+        if (m_moveSurface) {
+            QRect geometry = m_moveSurface->geometry();
+            geometry.moveTo(e->pos() - m_moveOffset);
+            m_moveSurface->setGeometry(geometry);
             update();
             return;
         }
@@ -216,8 +238,16 @@ protected:
     }
 
     void mouseReleaseEvent(QMouseEvent *e) {
-        if (m_dragSurface) {
-            m_dragSurface = 0;
+        if (isDragging()) {
+            sendDragEndEvent();
+            if (m_dragSourceSurface) {
+                // Must send a release event to the source too, no matter where the cursor is now.
+                m_dragSourceSurface->sendMouseReleaseEvent(m_lastDragSourcePos, e->button());
+                m_dragSourceSurface = 0;
+            }
+        }
+        if (m_moveSurface) {
+            m_moveSurface = 0;
             return;
         }
         QPoint local;
@@ -250,64 +280,76 @@ protected:
         return 0;
     }
 
+    void changeCursor(const QImage &image, int hotspotX, int hotspotY) {
+        m_cursor = image;
+        m_cursorHotspot = QPoint(hotspotX, hotspotY);
+        update();
+    }
+
 private:
     QImage m_background;
     QPixmap m_backgroundScaled;
 
     QList<WaylandSurface *> m_surfaces;
 
-    WaylandSurface *m_dragSurface;
-    QPoint m_dragOffset;
+    WaylandSurface *m_moveSurface;
+    QPoint m_moveOffset;
+    WaylandSurface *m_dragSourceSurface;
+    QPoint m_lastDragSourcePos;
+
+    QImage m_cursor;
+    QPoint m_cursorPos;
+    QPoint m_cursorHotspot;
 
     friend class TouchObserver;
 };
 
-void TouchObserver::touch_configure(int x_min, int x_max, int y_min, int y_max)
-{
-    touch_x_min = x_min;
-    touch_x_max = x_max;
-    touch_y_min = y_min;
-    touch_y_max = y_max;
-}
+//void TouchObserver::touch_configure(int x_min, int x_max, int y_min, int y_max)
+//{
+//    touch_x_min = x_min;
+//    touch_x_max = x_max;
+//    touch_y_min = y_min;
+//    touch_y_max = y_max;
+//}
 
-void TouchObserver::touch_point(QEvent::Type state, const QList<QWindowSystemInterface::TouchPoint> &points)
-{
-    Q_UNUSED(state);
-    WaylandSurface *focusSurface = m_compositor->inputFocus();
-    if (focusSurface) {
-        if (points.isEmpty())
-            return;
-        for (int i = 0; i < points.count(); ++i) {
-            const QWindowSystemInterface::TouchPoint &point(points.at(i));
+//void TouchObserver::touch_point(QEvent::Type state, const QList<QWindowSystemInterface::TouchPoint> &points)
+//{
+//    Q_UNUSED(state);
+//    WaylandSurface *focusSurface = m_compositor->inputFocus();
+//    if (focusSurface) {
+//        if (points.isEmpty())
+//            return;
+//        for (int i = 0; i < points.count(); ++i) {
+//            const QWindowSystemInterface::TouchPoint &point(points.at(i));
 
-            // These are hw coordinates.
-            int x = int(point.area.left());
-            int y = int(point.area.top());
+//            // These are hw coordinates.
+//            int x = int(point.area.left());
+//            int y = int(point.area.top());
 
-            // Wayland expects surface-relative coordinates.
+//            // Wayland expects surface-relative coordinates.
 
-            // Translate so that (0, 0) is the top-left corner.
-            x = qBound(touch_x_min, x, touch_x_max) - touch_x_min;
-            y = qBound(touch_y_min, y, touch_y_max) - touch_y_min;
+//            // Translate so that (0, 0) is the top-left corner.
+//            x = qBound(touch_x_min, x, touch_x_max) - touch_x_min;
+//            y = qBound(touch_y_min, y, touch_y_max) - touch_y_min;
 
-            // Get a normalized position in range 0..1.
-            const int hw_w = touch_x_max - touch_x_min;
-            const int hw_h = touch_y_max - touch_y_min;
-            const qreal nx = x / qreal(hw_w);
-            const qreal ny = y / qreal(hw_h);
+//            // Get a normalized position in range 0..1.
+//            const int hw_w = touch_x_max - touch_x_min;
+//            const int hw_h = touch_y_max - touch_y_min;
+//            const qreal nx = x / qreal(hw_w);
+//            const qreal ny = y / qreal(hw_h);
 
-            // Map to surface.
-            QRect winRect(focusSurface->geometry());
-            x = int(nx * winRect.width());
-            y = int(ny * winRect.height());
+//            // Map to surface.
+//            QRect winRect(focusSurface->geometry());
+//            x = int(nx * winRect.width());
+//            y = int(ny * winRect.height());
 
-            focusSurface->sendTouchPointEvent(point.id,
-                                              x, y,
-                                              point.state);
-        }
-        focusSurface->sendTouchFrameEvent();
-    }
-}
+//            focusSurface->sendTouchPointEvent(point.id,
+//                                              x, y,
+//                                              point.state);
+//        }
+//        focusSurface->sendTouchFrameEvent();
+//    }
+//}
 
 int main(int argc, char *argv[])
 {
@@ -317,7 +359,7 @@ int main(int argc, char *argv[])
     compositor.resize(800, 600);
     compositor.show();
 
-    QTouchScreenHandlerThread t(QString(), new TouchObserver(&compositor));
+//    QTouchScreenHandlerThread t(QString(), new TouchObserver(&compositor));
 
     return app.exec();
 }

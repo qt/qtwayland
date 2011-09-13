@@ -10,6 +10,8 @@ DESTDIR=$$PWD/../../bin/
 
 include (../../src/qt-compositor/qt-compositor.pri)
 
+QT += widgets gui-private widgets-private
+
 # Input
 SOURCES += main.cpp
 

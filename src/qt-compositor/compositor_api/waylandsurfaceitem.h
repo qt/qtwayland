@@ -47,12 +47,13 @@
 #include <private/qsgtextureprovider_p.h>
 
 class WaylandSurface;
+class WaylandSurfaceTextureProvider;
+
 Q_DECLARE_METATYPE(WaylandSurface*)
 
-class WaylandSurfaceItem : public QSGItem, public QSGTextureProvider
+class WaylandSurfaceItem : public QSGItem
 {
     Q_OBJECT
-    Q_INTERFACES(QSGTextureProvider)
     Q_PROPERTY(WaylandSurface* surface READ surface WRITE setSurface)
     Q_PROPERTY(bool paintEnabled READ paintEnabled WRITE setPaintEnabled)
     Q_PROPERTY(bool useTextureAlpha READ useTextureAlpha WRITE setUseTextureAlpha NOTIFY useTextureAlphaChanged)
@@ -69,8 +70,8 @@ public:
 
     Q_INVOKABLE bool isYInverted() const;
 
-    QSGTexture *texture() const;
-    const char *textureChangedSignal() const { return SIGNAL(textureChanged()); }
+    bool isTextureProvider() const { return true; }
+    QSGTextureProvider *textureProvider() const;
 
     bool paintEnabled() const;
     bool useTextureAlpha() const  { return m_useTextureAlpha; }
@@ -82,9 +83,9 @@ public:
     void setTouchEventsEnabled(bool enabled);
 
 protected:
-    void mousePressEvent(QGraphicsSceneMouseEvent *event);
-    void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
-    void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+    void mousePressEvent(QMouseEvent *event);
+    void mouseMoveEvent(QMouseEvent *event);
+    void mouseReleaseEvent(QMouseEvent *event);
 
     void keyPressEvent(QKeyEvent *event);
     void keyReleaseEvent(QKeyEvent *event);
@@ -101,7 +102,6 @@ private slots:
     void surfaceDamaged(const QRect &);
 
 signals:
-    void textureChanged();
     void useTextureAlphaChanged();
     void clientRenderingEnabledChanged();
     void touchEventsEnabledChanged();
@@ -115,10 +115,12 @@ private:
 
     WaylandSurface *m_surface;
     QSGTexture *m_texture;
+    mutable WaylandSurfaceTextureProvider *m_provider;
     bool m_paintEnabled;
     bool m_useTextureAlpha;
     bool m_clientRenderingEnabled;
     bool m_touchEventsEnabled;
+    bool m_damaged;
 };
 
 #endif

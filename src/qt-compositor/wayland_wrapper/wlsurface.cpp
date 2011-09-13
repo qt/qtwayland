@@ -49,11 +49,13 @@
 
 #include <wayland-server.h>
 
+#ifdef Q_OS_LINUX
 #include <linux/input.h>
+#endif
 
 #ifdef QT_COMPOSITOR_WAYLAND_GL
 #include "hardware_integration/graphicshardwareintegration.h"
-#include <QtGui/QPlatformGLContext>
+#include <QtGui/QPlatformOpenGLContext>
 #endif
 
 #ifdef QT_WAYLAND_WINDOWMANAGER_SUPPORT
@@ -71,6 +73,7 @@ public:
         , textureCreatedForBuffer(false)
         , directRenderBuffer(0)
         , processId(0)
+        , previousBuffer(0)
         , surfaceBuffer(0)
         , surfaceType(WaylandSurface::Invalid)
 
@@ -96,6 +99,10 @@ public:
 
     void attach(struct wl_buffer *buffer) {
         bool emitMap = !surfaceBuffer;
+        if (surfaceBuffer && ! textureCreatedForBuffer) {
+            qWarning() << "### WaylandSurface::attach() releasing undisplayed buffer ###";
+             wl_client_post_event(client,&surfaceBuffer->resource.object,WL_BUFFER_RELEASE);
+        }
         surfaceBuffer = buffer;
         surfaceType = WaylandSurface::Invalid;
         textureCreatedForBuffer = false;
@@ -114,11 +121,14 @@ public:
     GLuint texture_id;
 #endif
     bool textureCreatedForBuffer;
-    wl_buffer *directRenderBuffer;
+    struct wl_buffer *directRenderBuffer;
     qint64 processId;
     QByteArray authenticationToken;
     QVariantMap windowProperties;
 
+    QPoint lastMousePos;
+
+    struct wl_buffer *previousBuffer;
 private:
     struct wl_buffer *surfaceBuffer;
     WaylandSurface::Type surfaceType;
@@ -202,8 +212,13 @@ void Surface::damage(const QRect &rect)
             glDeleteTextures(1,&d->texture_id);
             d->textureCreatedForBuffer = false;
         }
-        if (d->compositor->graphicsHWIntegration()->postBuffer(d->directRenderBuffer))
+        if (d->compositor->graphicsHWIntegration()->postBuffer(d->buffer())) {
+            if (d->previousBuffer) {
+                wl_client_post_event(d->client,&d->previousBuffer->resource.object,WL_BUFFER_RELEASE);
+            }
+            d->previousBuffer = d->buffer();
             return;
+        }
     }
 #endif
 
@@ -229,8 +244,12 @@ GLuint Surface::textureId() const
     if (d->compositor->graphicsHWIntegration() && d->type() == WaylandSurface::Texture
          && !d->textureCreatedForBuffer) {
         glDeleteTextures(1,&d->texture_id);
+        if (d->previousBuffer) {
+            wl_client_post_event(d->client,&d->previousBuffer->resource.object,WL_BUFFER_RELEASE);
+        }
         Surface *that = const_cast<Surface *>(this);
         GraphicsHardwareIntegration *hwIntegration = d->compositor->graphicsHWIntegration();
+        that->d_func()->previousBuffer = d->buffer();
         that->d_func()->texture_id = hwIntegration->createTextureFromBuffer(d->buffer());
         that->d_func()->textureCreatedForBuffer = true;
     }
@@ -297,6 +316,11 @@ void Surface::setWindowProperty(const QString &name, const QVariant &value, bool
 
 uint32_t toWaylandButton(Qt::MouseButton button)
 {
+#ifndef BTN_LEFT
+uint32_t BTN_LEFT = 0x110;
+uint32_t BTN_RIGHT = 0x111;
+uint32_t BTN_MIDDLE = 0x112;
+#endif
     switch (button) {
     case Qt::LeftButton:
         return BTN_LEFT;
@@ -305,6 +329,13 @@ uint32_t toWaylandButton(Qt::MouseButton button)
     default:
         return BTN_MIDDLE;
     }
+
+}
+
+QPoint Surface::lastMousePos() const
+{
+    Q_D(const Surface);
+    return d->lastMousePos;
 }
 
 void Surface::sendMousePressEvent(int x, int y, Qt::MouseButton button)
@@ -333,6 +364,7 @@ void Surface::sendMouseMoveEvent(int x, int y)
 {
     Q_D(Surface);
     if (d->client) {
+        d->lastMousePos = QPoint(x, y);
         uint32_t time = d->compositor->currentTimeMsecs();
         d->compositor->setPointerFocus(this, QPoint(x, y));
         wl_client_post_event(d->client, &d->compositor->defaultInputDevice()->object,

@@ -38,67 +38,58 @@
 **
 ****************************************************************************/
 
-#ifndef QTCOMP_H
-#define QTCOMP_H
+#ifndef WLDRAG_H
+#define WLDRAG_H
 
-#include <QObject>
-#include <QImage>
-#include <QRect>
-#include <QOpenGLContext>
+#include <QtCore/QObject>
+#include <QtCore/QStringList>
+#include <QtCore/QMimeData>
+#include <wayland-server.h>
 
-class QGLContext;
-class QWidget;
-class QMimeData;
-class WaylandSurface;
+QT_BEGIN_NAMESPACE
+class QSocketNotifier;
+QT_END_NAMESPACE
 
-namespace Wayland
+namespace Wayland {
+
+class Surface;
+
+class Drag : public QObject
 {
-    class Compositor;
-}
+    Q_OBJECT
 
-class WaylandCompositor
-{
 public:
-    WaylandCompositor(QWindow *window = 0, QOpenGLContext *context = 0, const char *socketName = 0);
-    virtual ~WaylandCompositor();
-
-    void frameFinished(WaylandSurface *surface = 0);
-
-    void setInputFocus(WaylandSurface *surface);
-    WaylandSurface *inputFocus() const;
-    void destroyClientForSurface(WaylandSurface *surface);
-
-    void setDirectRenderSurface(WaylandSurface *surface);
-    WaylandSurface *directRenderSurface() const;
-
-    QOpenGLContext *glContext() const;
-    QWindow *window()const;
-
-    virtual void surfaceCreated(WaylandSurface *surface) = 0;
-
-    Wayland::Compositor *handle() const;
-
-    void setRetainedSelectionEnabled(bool enable);
-    virtual void retainedSelectionReceived(QMimeData *mimeData);
-
-    const char *socketName() const;
-
-    void setScreenOrientation(qint32 orientationInDegrees);
-    void setOutputGeometry(const QRect &outputGeometry);
-
-    bool isDragging() const;
-    void sendDragMoveEvent(const QPoint &global, const QPoint &local, WaylandSurface *surface);
-    void sendDragEndEvent();
-
-    virtual void changeCursor(const QImage &image, int hotspotX, int hotspotY);
+    static Drag *instance();
+    Drag();
+    void create(struct wl_client *client, uint32_t id);
+    void dragMove(const QPoint &global, const QPoint &local, Surface *surface);
+    void dragEnd();
 
 private:
-    static void retainedSelectionChanged(QMimeData *mimeData, void *param);
+    static void destroyDrag(struct wl_resource *resource, struct wl_client *client);
 
-    Wayland::Compositor *m_compositor;
-    QOpenGLContext *m_glContext;
-    QWindow  *m_toplevel_widget;
-    QByteArray m_socket_name;
+    static void dragOffer(struct wl_client *client, struct wl_drag *drag, const char *type);
+    static void dragActivate(struct wl_client *client,
+                             struct wl_drag *drag,
+                             struct wl_surface *surface,
+                             struct wl_input_device *device, uint32_t time);
+    static void dragDestroy(struct wl_client *client, struct wl_drag *drag);
+    static const struct wl_drag_interface dragInterface;
+
+    static void dragOfferAccept(struct wl_client *client,
+                                struct wl_drag_offer *offer, uint32_t time, const char *type);
+    static void dragOfferReceive(struct wl_client *client,
+                                 struct wl_drag_offer *offer, int fd);
+    static void dragOfferReject(struct wl_client *client, struct wl_drag_offer *offer);
+    static const struct wl_drag_offer_interface dragOfferInterface;
+
+    void setPointerFocus(wl_surface *surface, const QPoint &global, const QPoint &local);
+    void done(bool sending);
+
+    QStringList m_offerList;
+    wl_drag *m_drag;
 };
 
-#endif // QTCOMP_H
+}
+
+#endif // WLDRAG_H

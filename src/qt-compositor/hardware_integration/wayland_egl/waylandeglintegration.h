@@ -38,67 +38,27 @@
 **
 ****************************************************************************/
 
-#ifndef QTCOMP_H
-#define QTCOMP_H
+#ifndef WAYLANDEGLINTEGRATION_H
+#define WAYLANDEGLINTEGRATION_H
 
-#include <QObject>
-#include <QImage>
-#include <QRect>
-#include <QOpenGLContext>
+#include "hardware_integration/graphicshardwareintegration.h"
+#include <QtCore/QScopedPointer>
 
-class QGLContext;
-class QWidget;
-class QMimeData;
-class WaylandSurface;
+class WaylandEglIntegrationPrivate;
 
-namespace Wayland
+class WaylandEglIntegration : public GraphicsHardwareIntegration
 {
-    class Compositor;
-}
-
-class WaylandCompositor
-{
+    Q_DECLARE_PRIVATE(WaylandEglIntegration)
 public:
-    WaylandCompositor(QWindow *window = 0, QOpenGLContext *context = 0, const char *socketName = 0);
-    virtual ~WaylandCompositor();
+    WaylandEglIntegration(WaylandCompositor *compositor);
 
-    void frameFinished(WaylandSurface *surface = 0);
+    void initializeHardware(Wayland::Display *waylandDisplay);
 
-    void setInputFocus(WaylandSurface *surface);
-    WaylandSurface *inputFocus() const;
-    void destroyClientForSurface(WaylandSurface *surface);
-
-    void setDirectRenderSurface(WaylandSurface *surface);
-    WaylandSurface *directRenderSurface() const;
-
-    QOpenGLContext *glContext() const;
-    QWindow *window()const;
-
-    virtual void surfaceCreated(WaylandSurface *surface) = 0;
-
-    Wayland::Compositor *handle() const;
-
-    void setRetainedSelectionEnabled(bool enable);
-    virtual void retainedSelectionReceived(QMimeData *mimeData);
-
-    const char *socketName() const;
-
-    void setScreenOrientation(qint32 orientationInDegrees);
-    void setOutputGeometry(const QRect &outputGeometry);
-
-    bool isDragging() const;
-    void sendDragMoveEvent(const QPoint &global, const QPoint &local, WaylandSurface *surface);
-    void sendDragEndEvent();
-
-    virtual void changeCursor(const QImage &image, int hotspotX, int hotspotY);
+    GLuint createTextureFromBuffer(wl_buffer *buffer);
 
 private:
-    static void retainedSelectionChanged(QMimeData *mimeData, void *param);
-
-    Wayland::Compositor *m_compositor;
-    QOpenGLContext *m_glContext;
-    QWindow  *m_toplevel_widget;
-    QByteArray m_socket_name;
+    Q_DISABLE_COPY(WaylandEglIntegration)
+    QScopedPointer<WaylandEglIntegrationPrivate> d_ptr;
 };
 
-#endif // QTCOMP_H
+#endif // WAYLANDEGLINTEGRATION_H

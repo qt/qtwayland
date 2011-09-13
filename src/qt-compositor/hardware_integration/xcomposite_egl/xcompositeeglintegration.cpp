@@ -4,7 +4,7 @@
 #include "wayland_wrapper/wlcompositor.h"
 #include "wayland-xcomposite-server-protocol.h"
 
-#include <QtGui/QApplication>
+#include <QtWidgets/QApplication>
 #include <QtGui/QPlatformNativeInterface>
 #include <QtGui/QPlatformGLContext>
 
@@ -42,10 +42,10 @@ XCompositeEglIntegration::XCompositeEglIntegration(WaylandCompositor *compositor
 {
     QPlatformNativeInterface *nativeInterface = QApplication::platformNativeInterface();
     if (nativeInterface) {
-        mDisplay = static_cast<Display *>(nativeInterface->nativeResourceForWidget("Display",m_compositor->topLevelWidget()));
+        mDisplay = static_cast<Display *>(nativeInterface->nativeResourceForWidget("Display",m_compositor->window()));
         if (!mDisplay)
             qFatal("could not retireve Display from platform integration");
-        mEglDisplay = static_cast<EGLDisplay>(nativeInterface->nativeResourceForWidget("EGLDisplay",m_compositor->topLevelWidget()));
+        mEglDisplay = static_cast<EGLDisplay>(nativeInterface->nativeResourceForWidget("EGLDisplay",m_compositor->window()));
         if (!mEglDisplay)
             qFatal("could not retrieve EGLDisplay from plaform integration");
     } else {
@@ -56,11 +56,8 @@ XCompositeEglIntegration::XCompositeEglIntegration(WaylandCompositor *compositor
 
 void XCompositeEglIntegration::initializeHardware(Wayland::Display *waylandDisplay)
 {
-    XCompositeHandler *handler = new XCompositeHandler(m_compositor->handle(),mDisplay,m_compositor->topLevelWidget());
+    XCompositeHandler *handler = new XCompositeHandler(m_compositor->handle(),mDisplay,m_compositor->window());
     waylandDisplay->addGlobalObject(handler->base(), &wl_xcomposite_interface, &XCompositeHandler::xcomposite_interface,XCompositeHandler::send_root_information);
-
-    QPlatformGLContext *glContext = m_compositor->topLevelWidget()->platformWindow()->glContext();
-
 }
 
 GLuint XCompositeEglIntegration::createTextureFromBuffer(wl_buffer *buffer)

@@ -51,12 +51,11 @@
 #include <QPainter>
 #include <QMouseEvent>
 
-#ifdef QT_COMPOSITOR_WAYLAND_GL
-#include <QGLContext>
-#include <QGLWidget>
-#endif
-
 #include <QDebug>
+
+// This has no GL support, meaning only readback-based GL clients will work.
+// Others, e.g. xcomposite-glx, will typically crash the client as there is no
+// corresponding integration on the compositor side.
 
 class QSurfaceWidget : public QWidget
 {
@@ -70,6 +69,12 @@ public:
 
 private slots:
     void surfaceDamaged(const QRect &rect) {
+
+        // NB! This is dangerous. There may be no paintEvent() called, for
+        // example if the mdi subwindow is completely covered by another one.
+        // And in that case there is no frameFinished() -> the client may block
+        // in its waitForFrameSync() for a long time...
+
 	update(rect);
     }
 
@@ -133,9 +138,9 @@ private slots:
 
     void surfaceMapped(const QSize &size) {
         m_surface->setInputFocus();
-	widget()->setMinimumSize(size);
-	resize(sizeHint());
-	show();
+        widget()->setMinimumSize(size);
+        resize(sizeHint());
+        show();
     }
 
     void surfaceDamaged(const QRect &) {

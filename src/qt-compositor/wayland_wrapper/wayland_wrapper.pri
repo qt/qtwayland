@@ -4,7 +4,8 @@ HEADERS += \
     $$PWD/wloutput.h \
     $$PWD/wlshmbuffer.h \
     $$PWD/wlsurface.h \
-    $$PWD/wlselection.h
+    $$PWD/wlselection.h \
+    $$PWD/wldrag.h
 
 SOURCES += \
     $$PWD/wlcompositor.cpp \
@@ -12,4 +13,5 @@ SOURCES += \
     $$PWD/wloutput.cpp \
     $$PWD/wlshmbuffer.cpp \
     $$PWD/wlsurface.cpp \
-    $$PWD/wlselection.cpp
+    $$PWD/wlselection.cpp \
+    $$PWD/wldrag.cpp

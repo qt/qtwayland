@@ -51,7 +51,6 @@
 
 class WaylandCompositor;
 class GraphicsHardwareIntegration;
-class QWidget;
 class WindowManagerServerIntegration;
 
 namespace Wayland {
@@ -88,7 +87,7 @@ public:
 
     static uint currentTimeMsecs();
 
-    QWidget *topLevelWidget() const;
+    QWindow *window() const;
 
     GraphicsHardwareIntegration *graphicsHWIntegration() const;
     void initializeHardwareIntegration();
@@ -109,6 +108,10 @@ public:
 
     void setScreenOrientation(qint32 orientationInDegrees);
     void setOutputGeometry(const QRect &geometry);
+
+    bool isDragging() const;
+    void sendDragMoveEvent(const QPoint &global, const QPoint &local, Surface *surface);
+    void sendDragEndEvent();
 
 signals:
     void clientAdded(wl_client *client);
@@ -149,6 +152,9 @@ private:
     GraphicsHardwareIntegration *m_graphics_hw_integration;
 #endif
     WindowManagerServerIntegration *m_windowManagerWaylandProtocol;
+
+    bool m_dragActive;
+    friend class Drag;
 };
 
 }

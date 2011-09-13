@@ -1,5 +1,5 @@
 TEMPLATE = app
-TARGET = qwidget-compositor
+TARGET = qwindow-compositor
 DEPENDPATH += .
 INCLUDEPATH += .
 
@@ -11,7 +11,10 @@ DESTDIR=$$PWD/../../bin/
 include (../../src/qt-compositor/qt-compositor.pri)
 
 # Input
-SOURCES += main.cpp
+SOURCES += main.cpp \
+    qopenglwindow.cpp \
+    surfacerenderer.cpp \
+    qwindowcompositor.cpp
 
 CONFIG += qt warn_on debug  create_prl link_prl
 OBJECTS_DIR = .obj/release-shared
@@ -28,7 +31,18 @@ isEmpty(QT_SOURCE_TREE) {
 #HEADERS += $$TOUCHSCREEN_BASE/qtouchscreen.h
 #INCLUDEPATH += $$TOUCHSCREEN_BASE
 #LIBS += -ludev -lmtdev
-QT += gui-private widgets widgets-private
+QT += gui opengl
 
-target.path += $$[QT_INSTALL_DATA]/bin
+target.path += $$[QT_INSTALL_BINS]
 INSTALLS += target
+
+HEADERS += \
+    qopenglwindow.h \
+    surfacerenderer.h \
+    qwindowcompositor.h
+
+
+
+
+
+

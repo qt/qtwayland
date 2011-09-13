@@ -93,9 +93,12 @@ void ShmBuffer::damage()
 
 }
 
+static ShmHandler *handlerInstance;
+
 ShmHandler::ShmHandler(Display *display)
     : m_display(display)
 {
+    handlerInstance = this;
     m_shm = wl_shm_init(m_display->handle(),&shm_callbacks);
 }
 
@@ -133,7 +136,16 @@ void ShmHandler::buffer_damaged_callback(struct wl_buffer *buffer,
 
 void ShmHandler::buffer_destroyed_callback(struct wl_buffer *buffer)
 {
-    delete static_cast<ShmBuffer *>(buffer->user_data);
+    ShmBuffer *shmbuf = static_cast<ShmBuffer *>(buffer->user_data);
+    for (int i = 0; i < handlerInstance->m_extraCallbacks.count(); ++i)
+        handlerInstance->m_extraCallbacks.at(i)(shmbuf);
+    delete shmbuf;
+}
+
+void ShmHandler::addDestroyCallback(DestroyCallback callback)
+{
+    if (!m_extraCallbacks.contains(callback))
+        m_extraCallbacks.append(callback);
 }
 
 }

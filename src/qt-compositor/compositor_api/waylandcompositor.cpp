@@ -44,14 +44,16 @@
 #include "wayland_wrapper/wlsurface.h"
 #include "wayland_wrapper/wlselection.h"
 #include <QtCore/QCoreApplication>
+#include <QDebug>
 
 #ifdef QT_COMPOSITOR_DECLARATIVE
 #include "waylandsurfaceitem.h"
 #endif
 
-WaylandCompositor::WaylandCompositor(QWidget *topLevelWidget, const char *socketName)
+WaylandCompositor::WaylandCompositor(QWindow *window, QOpenGLContext *context, const char *socketName)
     : m_compositor(0)
-    , m_toplevel_widget(topLevelWidget)
+    , m_glContext(context)
+    , m_toplevel_widget(window)
     , m_socket_name(socketName)
 {
     QStringList arguments = QCoreApplication::instance()->arguments();
@@ -108,7 +110,12 @@ WaylandSurface *WaylandCompositor::directRenderSurface() const
     return surf ? surf->handle() : 0;
 }
 
-QWidget * WaylandCompositor::topLevelWidget() const
+QOpenGLContext * WaylandCompositor::glContext() const
+{
+    return m_glContext;
+}
+
+QWindow * WaylandCompositor::window() const
 {
     return m_toplevel_widget;
 }
@@ -150,4 +157,28 @@ void WaylandCompositor::setScreenOrientation(qint32 orientationInDegrees)
 void WaylandCompositor::setOutputGeometry(const QRect &geometry)
 {
     m_compositor->setOutputGeometry(geometry);
+}
+
+bool WaylandCompositor::isDragging() const
+{
+    return m_compositor->isDragging();
+}
+
+void WaylandCompositor::sendDragMoveEvent(const QPoint &global, const QPoint &local,
+                                          WaylandSurface *surface)
+{
+    m_compositor->sendDragMoveEvent(global, local, surface ? surface->handle() : 0);
+}
+
+void WaylandCompositor::sendDragEndEvent()
+{
+    m_compositor->sendDragEndEvent();
+}
+
+void WaylandCompositor::changeCursor(const QImage &image, int hotspotX, int hotspotY)
+{
+    Q_UNUSED(image);
+    Q_UNUSED(hotspotX);
+    Q_UNUSED(hotspotY);
+    qDebug() << "changeCursor" << image.size() << hotspotX << hotspotY;
 }

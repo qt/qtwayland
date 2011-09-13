@@ -3,7 +3,7 @@ LIBS += -lEGL
 DEFINES += QT_COMPOSITOR_MESA_EGL
 
 SOURCES += \
-    $$PWD/mesaeglintegration.cpp
+    $$PWD/waylandeglintegration.cpp
 
 HEADERS += \
-    $$PWD/mesaeglintegration.h
+    $$PWD/waylandeglintegration.h

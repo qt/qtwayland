@@ -76,6 +76,9 @@ public:
     ShmHandler(Display *display);
     ~ShmHandler();
 
+    typedef void (*DestroyCallback)(ShmBuffer *);
+    void addDestroyCallback(DestroyCallback callback);
+
 private:
     Display *m_display;
     struct wl_shm *m_shm;
@@ -86,8 +89,9 @@ private:
                           int32_t x, int32_t y,
                           int32_t width, int32_t height);
     static void buffer_destroyed_callback(struct wl_buffer *buffer);
-
+    QList<DestroyCallback> m_extraCallbacks;
 };
+
 }
 
 #endif //WL_SHMBUFFER_H

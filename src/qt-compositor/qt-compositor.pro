@@ -11,3 +11,6 @@ headers.path = $$headers_path/qt-compositor
 headers.files = $$HEADERS
 
 INSTALLS = target headers
+
+QT += gui-private
+QT += widgets-private

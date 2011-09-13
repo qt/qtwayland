@@ -4,9 +4,8 @@
 #include "wayland_wrapper/wlcompositor.h"
 #include "wayland-xcomposite-server-protocol.h"
 
-#include <QtGui/QApplication>
 #include <QtGui/QPlatformNativeInterface>
-#include <QtGui/QPlatformGLContext>
+#include <QtGui/QOpenGLContext>
 
 #include "xcompositebuffer.h"
 #include "xcompositehandler.h"
@@ -43,9 +42,9 @@ XCompositeGLXIntegration::XCompositeGLXIntegration(WaylandCompositor *compositor
     : GraphicsHardwareIntegration(compositor)
     , mDisplay(0)
 {
-    QPlatformNativeInterface *nativeInterface = QApplication::platformNativeInterface();
+    QPlatformNativeInterface *nativeInterface = QGuiApplicationPrivate::platformIntegration()->nativeInterface();
     if (nativeInterface) {
-        mDisplay = static_cast<Display *>(nativeInterface->nativeResourceForWidget("Display",m_compositor->topLevelWidget()));
+        mDisplay = static_cast<Display *>(nativeInterface->nativeResourceForWindow("Display",m_compositor->window()));
         if (!mDisplay)
             qFatal("could not retireve Display from platform integration");
     } else {
@@ -56,10 +55,11 @@ XCompositeGLXIntegration::XCompositeGLXIntegration(WaylandCompositor *compositor
 
 void XCompositeGLXIntegration::initializeHardware(Wayland::Display *waylandDisplay)
 {
-    XCompositeHandler *handler = new XCompositeHandler(m_compositor->handle(),mDisplay,m_compositor->topLevelWidget());
+    XCompositeHandler *handler = new XCompositeHandler(m_compositor->handle(),mDisplay,m_compositor->window());
     waylandDisplay->addGlobalObject(handler->base(), &wl_xcomposite_interface, &XCompositeHandler::xcomposite_interface,XCompositeHandler::send_root_information);
 
-    QPlatformGLContext *glContext = m_compositor->topLevelWidget()->platformWindow()->glContext();
+    QOpenGLContext *glContext = new QOpenGLContext();
+    glContext->create();
 
     m_glxBindTexImageEXT = reinterpret_cast<PFNGLXBINDTEXIMAGEEXTPROC>(glContext->getProcAddress("glXBindTexImageEXT"));
     if (!m_glxBindTexImageEXT) {
@@ -69,6 +69,8 @@ void XCompositeGLXIntegration::initializeHardware(Wayland::Display *waylandDispl
     if (!m_glxReleaseTexImageEXT) {
         qDebug() << "Did not find glxReleaseTexImageExt";
     }
+
+    delete glContext;
 }
 
 GLuint XCompositeGLXIntegration::createTextureFromBuffer(wl_buffer *buffer)

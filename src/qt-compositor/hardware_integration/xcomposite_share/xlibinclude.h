@@ -7,6 +7,7 @@
 #include <QtCore/QMetaType>
 #include <QtCore/QVariant>
 #include <QtGui/QCursor>
+#include <QtGui/private/qguiapplication_p.h>
 
 #include <X11/Xlib.h>
 #include "X11/extensions/Xcomposite.h"

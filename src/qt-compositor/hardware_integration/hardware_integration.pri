@@ -1,6 +1,6 @@
 isEmpty(QT_WAYLAND_GL_CONFIG):QT_WAYLAND_GL_CONFIG = $$(QT_WAYLAND_GL_CONFIG)
 
-contains(QT_CONFIG, opengl):!isEqual(QT_WAYLAND_GL_CONFIG,nogl) {
+!mac:contains(QT_CONFIG, opengl):!isEqual(QT_WAYLAND_GL_CONFIG,nogl) {
     HEADERS += \
         $$PWD/graphicshardwareintegration.h
 
@@ -35,7 +35,7 @@ contains(QT_CONFIG, opengl):!isEqual(QT_WAYLAND_GL_CONFIG,nogl) {
 }
 
 mesa_egl {
-    include (mesa_egl/mesa_egl.pri)
+    include (wayland_egl/wayland_egl.pri)
 }
 dri2_xcb {
     include (dri2_xcb/dri2_xcb.pri)

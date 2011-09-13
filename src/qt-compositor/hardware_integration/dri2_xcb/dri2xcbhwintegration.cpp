@@ -22,15 +22,15 @@ GraphicsHardwareIntegration * GraphicsHardwareIntegration::createGraphicsHardwar
 class DrmObject : public Wayland::Object<struct wl_object>
 {
 public:
-    DrmObject(Wayland::Compositor *compositor, QWidget *topLevelWidget)
+    DrmObject(Wayland::Compositor *compositor, QWidget *window)
         :m_compositor(compositor)
     {
         QPlatformNativeInterface *nativeInterface = QApplicationPrivate::platformIntegration()->nativeInterface();
-        char *deviceName = static_cast<char *>(nativeInterface->nativeResourceForWidget("GraphicsDevice",topLevelWidget));
+        char *deviceName = static_cast<char *>(nativeInterface->nativeResourceForWidget("GraphicsDevice",window));
         m_device_name = QByteArray(deviceName);
 
-        m_connection = static_cast<xcb_connection_t *>(nativeInterface->nativeResourceForWidget("Connection",topLevelWidget));
-        m_egl_display = static_cast<EGLDisplay>(nativeInterface->nativeResourceForWidget("EglDisplay",topLevelWidget));
+        m_connection = static_cast<xcb_connection_t *>(nativeInterface->nativeResourceForWidget("Connection",window));
+        m_egl_display = static_cast<EGLDisplay>(nativeInterface->nativeResourceForWidget("EglDisplay",window));
     }
     QByteArray deviceName()
     {
@@ -108,10 +108,10 @@ Dri2XcbHWIntegration::Dri2XcbHWIntegration(WaylandCompositor *compositor)
 void Dri2XcbHWIntegration::initializeHardware(Wayland::Display *waylandDisplay)
 {
     //we need a winId now.
-    m_compositor->topLevelWidget()->winId();
+    m_compositor->window()->winId();
 
 
-    m_drm_object = new DrmObject(m_compositor->handle(),m_compositor->topLevelWidget());
+    m_drm_object = new DrmObject(m_compositor->handle(),m_compositor->window());
 
     waylandDisplay->addGlobalObject(m_drm_object->base(),&wl_drm_interface,&drm_interface,post_drm_device);
 }

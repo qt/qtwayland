@@ -5,14 +5,13 @@
 #include "xcompositebuffer.h"
 #include <X11/extensions/Xcomposite.h>
 
-XCompositeHandler::XCompositeHandler(Wayland::Compositor *compositor, Display *display, QWidget *topLevelWidget)
+XCompositeHandler::XCompositeHandler(Wayland::Compositor *compositor, Display *display, QWindow *window)
     : mCompositor(compositor)
-    , mTopLevelWidget(topLevelWidget)
+    , mwindow(window)
     , mDisplay(display)
 {
-    mFakeRootWidget = new QWidget(mCompositor->topLevelWidget());
-    mFakeRootWidget->setGeometry(-1,-1,1,1);
-    mFakeRootWidget->setAttribute(Qt::WA_NativeWindow);
+    mFakeRootWidget = new QWindow(mCompositor->window());
+    mFakeRootWidget->setGeometry(QRect(-1,-1,1,1));
     int composite_event_base, composite_error_base;
     if (XCompositeQueryExtension(mDisplay, &composite_event_base, &composite_error_base)) {
 

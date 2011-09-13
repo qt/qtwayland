@@ -104,12 +104,15 @@ public:
     qint64 processId() const;
     void setProcessId(qint64 processId);
     QByteArray authenticationToken() const;
+    void setAuthenticationToken(const QByteArray &authenticationToken);
 
     QVariantMap windowProperties() const;
     QVariant windowProperty(const QString &propertyName) const;
     void setWindowProperty(const QString &name, const QVariant &value, bool writeUpdateToClient = true);
 
     void setSurfaceCreationFinished(bool isCreated);
+
+    QPoint lastMousePos() const;
 
 protected:
     QScopedPointer<SurfacePrivate> d_ptr;

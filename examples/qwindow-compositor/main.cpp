@@ -37,28 +37,26 @@
 ** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 **
 ****************************************************************************/
+#include "qopenglwindow.h"
+#include "qwindowcompositor.h"
 
-#ifndef MESAEGLINTEGRATION_H
-#define MESAEGLINTEGRATION_H
+#include <QGuiApplication>
+#include <QtGui/QScreen>
+#include <QtGui/QSurfaceFormat>
 
-#include "hardware_integration/graphicshardwareintegration.h"
-#include <QtCore/QScopedPointer>
-
-class MesaEglIntegrationPrivate;
-
-class MesaEglIntegration : public GraphicsHardwareIntegration
+int main(int argc, char *argv[])
 {
-    Q_DECLARE_PRIVATE(MesaEglIntegration)
-public:
-    MesaEglIntegration(WaylandCompositor *compositor);
+    QGuiApplication app(argc, argv);
+    QScreen *screen = QGuiApplication::primaryScreen();
+    QRect screenGeometry = screen->availableGeometry();
 
-    void initializeHardware(Wayland::Display *waylandDisplay);
+    QSurfaceFormat format;
+    format.setDepthBufferSize(16);
 
-    GLuint createTextureFromBuffer(wl_buffer *buffer);
+    QOpenGLWindow *window = new QOpenGLWindow(format, screenGeometry);
 
-private:
-    Q_DISABLE_COPY(MesaEglIntegration)
-    QScopedPointer<MesaEglIntegrationPrivate> d_ptr;
-};
+    QWindowCompositor compositor(window);
+    window->show();
 
-#endif // MESAEGLINTEGRATION_H
+    return app.exec();
+}

@@ -6,7 +6,7 @@
 
 #include <QtWidgets/QApplication>
 #include <QtGui/QPlatformNativeInterface>
-#include <QtGui/QPlatformGLContext>
+#include <QtGui/QPlatformOpenGLContext>
 
 #include "xcompositebuffer.h"
 #include "xcompositehandler.h"
@@ -42,10 +42,10 @@ XCompositeEglIntegration::XCompositeEglIntegration(WaylandCompositor *compositor
 {
     QPlatformNativeInterface *nativeInterface = QApplication::platformNativeInterface();
     if (nativeInterface) {
-        mDisplay = static_cast<Display *>(nativeInterface->nativeResourceForWidget("Display",m_compositor->window()));
+        mDisplay = static_cast<Display *>(nativeInterface->nativeResourceForWindow("Display",m_compositor->window()));
         if (!mDisplay)
             qFatal("could not retireve Display from platform integration");
-        mEglDisplay = static_cast<EGLDisplay>(nativeInterface->nativeResourceForWidget("EGLDisplay",m_compositor->window()));
+        mEglDisplay = static_cast<EGLDisplay>(nativeInterface->nativeResourceForWindow("EGLDisplay",m_compositor->window()));
         if (!mEglDisplay)
             qFatal("could not retrieve EGLDisplay from plaform integration");
     } else {

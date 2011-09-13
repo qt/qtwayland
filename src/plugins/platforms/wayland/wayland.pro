@@ -3,7 +3,7 @@ load(qt_plugin)
 
 CONFIG += qpa/genericunixfontdatabase
 
-DESTDIR = $$QT.gui.plugins/platforms
+#DESTDIR = $$QT.gui.plugins/platforms
 
 DEFINES += Q_PLATFORM_WAYLAND
 DEFINES += $$QMAKE_DEFINES_WAYLAND

@@ -1,7 +1,3 @@
-qml_folder.source = qml/QmlCompositor
-qml_folder.target = qml
-DEPLOYMENTFOLDERS = qml_folder
-
 TEMPLATE = app
 TARGET = qml-compositor
 DEPENDPATH += .
@@ -14,17 +10,20 @@ DESTDIR=$$PWD/../../bin/
 
 LIBS += -L ../../lib
 
-QT += declarative
+QT += declarative v8
 QT += opengl
 
 # to be removed once scenegraph gets rid of its widget dependencies
-QT += widgets widgets-private
+#QT += widgets widgets-private
 
 !isEmpty(QT.core.MAJOR_VERSION):greaterThan(QT.core.MAJOR_VERSION, 4) {
     QT += core-private gui-private declarative-private opengl-private
 }
 
 include (../../src/qt-compositor/qt-compositor.pri)
+
+target.path += $$[QT_INSTALL_BINS]
+INSTALLS += target
 
 # Input
 SOURCES += main.cpp

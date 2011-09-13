@@ -8,6 +8,7 @@ CONFIG += use_pkgconfig
 
 DESTDIR=$$PWD/../../bin/
 
+LIBS += -L ../../lib
 include (../../src/qt-compositor/qt-compositor.pri)
 
 # Input

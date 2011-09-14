@@ -243,7 +243,8 @@ GLuint Surface::textureId() const
     Q_D(const Surface);
     if (d->compositor->graphicsHWIntegration() && d->type() == WaylandSurface::Texture
          && !d->textureCreatedForBuffer) {
-        glDeleteTextures(1,&d->texture_id);
+        if (d->texture_id)
+            glDeleteTextures(1,&d->texture_id);
         if (d->previousBuffer) {
             wl_client_post_event(d->client,&d->previousBuffer->resource.object,WL_BUFFER_RELEASE);
         }

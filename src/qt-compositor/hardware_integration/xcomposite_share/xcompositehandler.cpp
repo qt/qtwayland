@@ -10,6 +10,8 @@ XCompositeHandler::XCompositeHandler(Wayland::Compositor *compositor, Display *d
     , mwindow(window)
     , mDisplay(display)
 {
+    mCompositor->window()->create();
+
     mFakeRootWidget = new QWindow(mCompositor->window());
     mFakeRootWidget->setGeometry(QRect(-1,-1,1,1));
     mFakeRootWidget->create();

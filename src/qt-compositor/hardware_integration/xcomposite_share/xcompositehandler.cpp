@@ -12,6 +12,8 @@ XCompositeHandler::XCompositeHandler(Wayland::Compositor *compositor, Display *d
 {
     mFakeRootWidget = new QWindow(mCompositor->window());
     mFakeRootWidget->setGeometry(QRect(-1,-1,1,1));
+    mFakeRootWidget->create();
+    mFakeRootWidget->show();
     int composite_event_base, composite_error_base;
     if (XCompositeQueryExtension(mDisplay, &composite_event_base, &composite_error_base)) {
 

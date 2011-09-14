@@ -18,7 +18,7 @@ QVector<EGLint> eglbuildSpec()
 {
     QVector<EGLint> spec;
 
-    spec.append(EGL_SURFACE_TYPE); spec.append(EGL_PIXMAP_BIT);
+    spec.append(EGL_SURFACE_TYPE); spec.append(EGL_WINDOW_BIT | EGL_PIXMAP_BIT);
     spec.append(EGL_RENDERABLE_TYPE); spec.append(EGL_OPENGL_ES2_BIT);
     spec.append(EGL_BIND_TO_TEXTURE_RGBA); spec.append(EGL_TRUE);
     spec.append(EGL_ALPHA_SIZE); spec.append(8);

@@ -20,7 +20,7 @@ QVector<int> qglx_buildSpec()
 
     spec[i++] = GLX_LEVEL;
     spec[i++] = 0;
-    spec[i++] = GLX_DRAWABLE_TYPE; spec[i++] = GLX_PIXMAP_BIT;
+    spec[i++] = GLX_DRAWABLE_TYPE; spec[i++] = GLX_PIXMAP_BIT | GLX_WINDOW_BIT;
     spec[i++] = GLX_BIND_TO_TEXTURE_TARGETS_EXT; spec[i++] = GLX_TEXTURE_2D_BIT_EXT;
     spec[i++] = GLX_BIND_TO_TEXTURE_RGB_EXT; spec[i++] = TRUE;
 

@@ -43,6 +43,7 @@
 #include <QtGui/QPlatformNativeInterface>
 #include <QtGui/QGuiApplication>
 #include <QtGui/QOpenGLContext>
+#include <QtGui/QPlatformScreen>
 
 #define EGL_EGLEXT_PROTOTYPES
 #include <EGL/egl.h>
@@ -51,6 +52,7 @@
 #define GL_GLEXT_PROTOTYPES
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
+#include <QDebug>
 
 GraphicsHardwareIntegration * GraphicsHardwareIntegration::createGraphicsHardwareIntegration(WaylandCompositor *compositor)
 {
@@ -123,4 +125,19 @@ GLuint WaylandEglIntegration::createTextureFromBuffer(wl_buffer *buffer)
     eglDestroyImageKHR(d->egl_display, image);
 
     return textureId;
+}
+
+bool WaylandEglIntegration::setDirectRenderSurface(WaylandSurface *)
+{
+    QPlatformScreen *screen = QPlatformScreen::platformScreenForWindow(m_compositor->window());
+    return screen && screen->pageFlipper();
+}
+
+
+bool WaylandEglIntegration::postBuffer(struct wl_buffer *buffer)
+{
+    QPlatformScreen *screen = QPlatformScreen::platformScreenForWindow(m_compositor->window());
+    QPlatformScreenPageFlipper *flipper = screen->pageFlipper();
+
+    return flipper ? flipper->displayBuffer(buffer) : false;
 }

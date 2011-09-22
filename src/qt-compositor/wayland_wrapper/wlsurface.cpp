@@ -99,7 +99,7 @@ public:
 
     void attach(struct wl_buffer *buffer) {
         bool emitMap = !surfaceBuffer;
-        if (surfaceBuffer && ! textureCreatedForBuffer) {
+        if (surfaceBuffer && ! textureCreatedForBuffer && surfaceBuffer != directRenderBuffer) {
             qWarning() << "### WaylandSurface::attach() releasing undisplayed buffer ###";
              wl_client_post_event(client,&surfaceBuffer->resource.object,WL_BUFFER_RELEASE);
         }
@@ -216,12 +216,12 @@ void Surface::damage(const QRect &rect)
             if (d->previousBuffer) {
                 wl_client_post_event(d->client,&d->previousBuffer->resource.object,WL_BUFFER_RELEASE);
             }
-            d->previousBuffer = d->buffer();
+            d->directRenderBuffer = d->previousBuffer = d->buffer();
             return;
         }
     }
 #endif
-
+    d->directRenderBuffer = 0;
     d->compositor->markSurfaceAsDirty(this);
 
     emit d->qtSurface->damaged(rect);

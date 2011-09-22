@@ -56,6 +56,9 @@ public:
 
     GLuint createTextureFromBuffer(wl_buffer *buffer);
 
+    bool setDirectRenderSurface(WaylandSurface *);
+    bool postBuffer(struct wl_buffer *);
+
 private:
     Q_DISABLE_COPY(WaylandEglIntegration)
     QScopedPointer<WaylandEglIntegrationPrivate> d_ptr;

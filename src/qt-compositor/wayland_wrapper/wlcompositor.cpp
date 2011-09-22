@@ -360,6 +360,8 @@ void Compositor::surfaceDestroyed(Surface *surface)
         setKeyFocus(0);
     if (m_pointerFocusSurface == surface)
         setPointerFocus(0);
+    if (m_directRenderSurface == surface)
+        setDirectRenderSurface(0);
 }
 
 void Compositor::markSurfaceAsDirty(Wayland::Surface *surface)

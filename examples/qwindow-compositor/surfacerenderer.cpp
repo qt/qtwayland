@@ -43,12 +43,14 @@ SurfaceRenderer::SurfaceRenderer(QOpenGLContext *context, QWindow *surface)
 
 }
 
-void SurfaceRenderer::drawImage(const QImage &image, const QRect &geometry)
+void SurfaceRenderer::drawImage(const QImage &image, const QRectF &geometry)
 {
+    if (image.isNull())
+        return;
     drawTexture(textureFromImage(image), geometry);
 }
 
-void SurfaceRenderer::drawTexture(int textureId, const QRect &geometry, int depth)
+void SurfaceRenderer::drawTexture(int textureId, const QRectF &geometry, int depth)
 {
     GLfloat zValue = depth / 1000.0f;
     //Set Texture and Vertex coordinates
@@ -97,6 +99,7 @@ GLuint SurfaceRenderer::textureFromImage(const QImage &image)
 
     GLuint textureId;
     //Copy QImage data to Texture
+    glGenTextures(1, &textureId);
     glBindTexture(GL_TEXTURE_2D, textureId);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, convertedImage.width(), convertedImage.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, convertedImage.constBits());
 

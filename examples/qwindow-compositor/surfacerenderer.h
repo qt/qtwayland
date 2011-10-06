@@ -10,8 +10,8 @@ class SurfaceRenderer
 public:
     SurfaceRenderer(QOpenGLContext *context, QWindow *surface);
 
-    void drawImage(const QImage &image, const QRect &geometry);
-    void drawTexture(int textureId, const QRect &geometry, int depth = 0);
+    void drawImage(const QImage &image, const QRectF &geometry);
+    void drawTexture(int textureId, const QRectF &geometry, int depth = 0);
     GLuint textureFromImage(const QImage &image);
 
 private:

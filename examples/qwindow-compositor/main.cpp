@@ -54,9 +54,9 @@ int main(int argc, char *argv[])
     format.setDepthBufferSize(16);
 
     QOpenGLWindow *window = new QOpenGLWindow(format, screenGeometry);
+    window->show();
 
     QWindowCompositor compositor(window);
-    window->show();
 
     return app.exec();
 }

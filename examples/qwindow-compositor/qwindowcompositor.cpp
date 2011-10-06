@@ -73,7 +73,15 @@ void QWindowCompositor::render()
     m_window->makeCurrent();
 
     //Draw the background Image texture
-    m_renderer->drawTexture(m_backgroundTexture, m_window->geometry(), 0);
+    int w = m_window->width();
+    int h = m_window->height();
+    int iw = m_backgroundImage.width();
+    int ih = m_backgroundImage.height();
+    for (int y = 0; y < h; y += ih) {
+        for (int x = 0; x < w; x += iw) {
+            m_renderer->drawTexture(m_backgroundTexture, QRect(QPoint(x, y), QSize(iw, ih)), 0);
+        }
+    }
 
     //Iterate all surfaces in m_surfaces
     //If type == WaylandSurface::Texture draw textureId at geometry

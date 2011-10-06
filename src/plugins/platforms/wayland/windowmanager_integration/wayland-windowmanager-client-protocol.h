@@ -59,10 +59,11 @@ extern const struct wl_interface wl_windowmanager_interface;
 struct wl_windowmanager_listener {
 	void (*client_onscreen_visibility)(void *data,
 					   struct wl_windowmanager *wl_windowmanager,
-					   int32_t visible);
+					   int visible);
 	void (*set_screen_rotation)(void *data,
 				    struct wl_windowmanager *wl_windowmanager,
-				    int32_t rotation);
+				    struct wl_output *output,
+				    int rotation);
 	void (*set_generic_property)(void *data,
 				     struct wl_windowmanager *wl_windowmanager,
 				     struct wl_surface *surface,

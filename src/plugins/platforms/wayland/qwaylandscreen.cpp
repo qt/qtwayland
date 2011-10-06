@@ -44,6 +44,8 @@
 #include "qwaylanddisplay.h"
 #include "qwaylandcursor.h"
 
+#include <QWindowSystemInterface>
+
 QWaylandScreen::QWaylandScreen(QWaylandDisplay *waylandDisplay, struct wl_output *output, QRect geometry)
     : QPlatformScreen()
     , mWaylandDisplay(waylandDisplay)
@@ -51,6 +53,7 @@ QWaylandScreen::QWaylandScreen(QWaylandDisplay *waylandDisplay, struct wl_output
     , mGeometry(geometry)
     , mDepth(32)
     , mFormat(QImage::Format_ARGB32_Premultiplied)
+    , mOrientation(primaryOrientation())
     , mWaylandCursor(new QWaylandCursor(this))
 {
 }
@@ -78,6 +81,17 @@ int QWaylandScreen::depth() const
 QImage::Format QWaylandScreen::format() const
 {
     return mFormat;
+}
+
+Qt::ScreenOrientation QWaylandScreen::currentOrientation() const
+{
+    return mOrientation;
+}
+
+void QWaylandScreen::setOrientation(const Qt::ScreenOrientation orientation)
+{
+    mOrientation = orientation;
+    QWindowSystemInterface::handleScreenOrientationChange(screen());
 }
 
 QWaylandScreen * QWaylandScreen::waylandScreenFromWindow(QWindow *window)

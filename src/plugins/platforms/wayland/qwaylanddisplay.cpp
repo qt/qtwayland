@@ -234,6 +234,16 @@ int QWaylandDisplay::sourceUpdate(uint32_t mask, void *data)
     return 0;
 }
 
+QWaylandScreen *QWaylandDisplay::screenForOutput(struct wl_output *output) const
+{
+    for (int i = 0; i < mScreens.size(); ++i) {
+        QWaylandScreen *screen = static_cast<QWaylandScreen *>(mScreens.at(i));
+        if (screen->output() == output)
+            return screen;
+    }
+    return 0;
+}
+
 void QWaylandDisplay::outputHandleGeometry(void *data,
                                            wl_output *output,
                                            int32_t x, int32_t y,

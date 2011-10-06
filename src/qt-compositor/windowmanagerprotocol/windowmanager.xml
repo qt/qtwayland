@@ -26,6 +26,7 @@
 
         <!-- Sets screen rotation, typically based on accelerometer/orientation sensor reading data -->
         <event name="set_screen_rotation">
+            <arg name="output" type="object" interface="wl_output"/>
             <arg name="rotation" type="int"/>
         </event>
 

@@ -106,7 +106,7 @@ public:
 
     QList<struct wl_client *> clients() const;
 
-    void setScreenOrientation(qint32 orientationInDegrees);
+    void setScreenOrientation(Qt::ScreenOrientation orientation);
     void setOutputGeometry(const QRect &geometry);
 
     bool isDragging() const;
@@ -143,6 +143,7 @@ private:
     wl_event_loop *m_loop;
 
     WaylandCompositor *m_qt_compositor;
+    Qt::ScreenOrientation m_orientation;
 
     Surface *m_pointerFocusSurface;
     Surface *m_keyFocusSurface;

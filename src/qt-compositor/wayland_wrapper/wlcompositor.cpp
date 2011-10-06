@@ -214,6 +214,7 @@ Compositor::Compositor(WaylandCompositor *qt_compositor)
     , m_current_frame(0)
     , m_last_queued_buf(-1)
     , m_qt_compositor(qt_compositor)
+    , m_orientation(Qt::UnknownOrientation)
     , m_pointerFocusSurface(0)
     , m_keyFocusSurface(0)
     , m_directRenderSurface(0)
@@ -286,13 +287,14 @@ void Compositor::createSurface(struct wl_client *client, int id)
     addClientResource(client, &surface->base()->resource, id, &wl_surface_interface,
             &surface_interface, destroy_surface);
 
-    m_windowManagerWaylandProtocol->updateOrientation(client);
-    m_qt_compositor->surfaceCreated(surface->handle());
-
     QList<struct wl_client *> prevClientList = clients();
     m_surfaces << surface;
-    if (!prevClientList.contains(client))
+    if (!prevClientList.contains(client)) {
+        m_windowManagerWaylandProtocol->setScreenOrientation(client, m_output.base(), m_orientation);
         emit clientAdded(client);
+    }
+
+    m_qt_compositor->surfaceCreated(surface->handle());
 }
 
 struct wl_client *Compositor::getClientFromWinId(uint winId) const
@@ -464,12 +466,14 @@ QList<struct wl_client *> Compositor::clients() const
     return list;
 }
 
-void Compositor::setScreenOrientation(qint32 orientationInDegrees)
+void Compositor::setScreenOrientation(Qt::ScreenOrientation orientation)
 {
+    m_orientation = orientation;
+
     QList<struct wl_client*> clientList = clients();
     for (int i = 0; i < clientList.length(); ++i) {
         struct wl_client *client = clientList.at(i);
-        m_windowManagerWaylandProtocol->setScreenOrientation(client, orientationInDegrees);
+        m_windowManagerWaylandProtocol->setScreenOrientation(client, m_output.base(), orientation);
     }
 }
 

@@ -50,6 +50,7 @@
 #include <QVariant>
 
 struct wl_client;
+struct wl_object;
 
 namespace Wayland {
     class Display;
@@ -70,7 +71,7 @@ public:
     WaylandManagedClient *managedClient(wl_client *client) const;
 
     void setVisibilityOnScreen(wl_client *client, bool visible);
-    void setScreenOrientation(wl_client *client, qint32 orientationInDegrees);
+    void setScreenOrientation(wl_client *client, wl_object *output, Qt::ScreenOrientation orientationInDegrees);
     void updateOrientation(wl_client *client);
 
     void updateWindowProperty(wl_client *client, struct wl_surface *surface, const char *name, struct wl_array *value);
@@ -89,7 +90,6 @@ private:
     static WindowManagerServerIntegration *m_instance;
 
     WindowManagerObject *m_windowManagerObject;
-    qint32 m_orientationInDegrees;
 
     friend class WindowManagerObject;
 };

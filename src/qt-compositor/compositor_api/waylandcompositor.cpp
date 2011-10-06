@@ -149,9 +149,12 @@ const char *WaylandCompositor::socketName() const
     return m_socket_name.constData();
 }
 
-void WaylandCompositor::setScreenOrientation(qint32 orientationInDegrees)
+/*!
+  Set the screen orientation based on accelerometer data or similar.
+*/
+void WaylandCompositor::setScreenOrientation(Qt::ScreenOrientation orientation)
 {
-    m_compositor->setScreenOrientation(orientationInDegrees);
+    m_compositor->setScreenOrientation(orientation);
 }
 
 void WaylandCompositor::setOutputGeometry(const QRect &geometry)

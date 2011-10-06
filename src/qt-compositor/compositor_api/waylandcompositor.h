@@ -83,7 +83,7 @@ public:
 
     const char *socketName() const;
 
-    void setScreenOrientation(qint32 orientationInDegrees);
+    void setScreenOrientation(Qt::ScreenOrientation orientation);
     void setOutputGeometry(const QRect &outputGeometry);
 
     bool isDragging() const;

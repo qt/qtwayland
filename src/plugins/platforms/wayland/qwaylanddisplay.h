@@ -66,6 +66,9 @@ public:
     ~QWaylandDisplay(void);
 
     QList<QPlatformScreen *> screens() const { return mScreens; }
+
+    QWaylandScreen *screenForOutput(struct wl_output *output) const;
+
     struct wl_surface *createSurface(void *handle);
     struct wl_buffer *createShmBuffer(int fd, int width, int height,
                                       uint32_t stride,

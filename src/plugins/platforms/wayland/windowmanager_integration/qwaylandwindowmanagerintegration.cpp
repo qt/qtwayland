@@ -41,6 +41,7 @@
 
 #include "qwaylandwindowmanagerintegration.h"
 #include "wayland-windowmanager-client-protocol.h"
+#include "qwaylandscreen.h"
 #include "qwaylandwindow.h"
 
 #include <stdint.h>
@@ -212,12 +213,13 @@ void QWaylandWindowManagerIntegration::wlHandleOnScreenVisibilityChange(void *da
     QCoreApplication::sendEvent(QCoreApplication::instance(), &evt);
 }
 
-void QWaylandWindowManagerIntegration::wlHandleScreenOrientationChange(void *data, struct wl_windowmanager *wl_windowmanager, int screenOrientation)
+void QWaylandWindowManagerIntegration::wlHandleScreenOrientationChange(void *data, struct wl_windowmanager *wl_windowmanager,
+                                                                       struct wl_output *wl_output, int screenOrientation)
 {
-    Q_UNUSED(data);
-    Q_UNUSED(wl_windowmanager);
-    QScreenOrientationChangeEvent event(screenOrientation);
-    QCoreApplication::sendEvent(QCoreApplication::instance(), &event);
+    QWaylandWindowManagerIntegration *integration = QWaylandWindowManagerIntegration::instance();
+    QWaylandScreen *screen = integration->d_ptr->m_waylandDisplay->screenForOutput(wl_output);
+    if (screen)
+        screen->setOrientation(Qt::ScreenOrientation(screenOrientation));
 }
 
 void QWaylandWindowManagerIntegration::wlHandleWindowPropertyChange(void *data, struct wl_windowmanager *wl_windowmanager,

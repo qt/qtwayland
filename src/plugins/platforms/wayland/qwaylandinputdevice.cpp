@@ -235,10 +235,10 @@ void QWaylandInputDevice::inputHandleKey(void *data,
 					 struct wl_input_device *input_device,
 					 uint32_t time, uint32_t key, uint32_t state)
 {
-#ifndef QT_NO_WAYLAND_XKB
     Q_UNUSED(input_device);
     QWaylandInputDevice *inputDevice = (QWaylandInputDevice *) data;
     QWaylandWindow *window = inputDevice->mKeyboardFocus;
+#ifndef QT_NO_WAYLAND_XKB
     uint32_t code, sym, level;
     Qt::KeyboardModifiers modifiers;
     QEvent::Type type;
@@ -277,6 +277,14 @@ void QWaylandInputDevice::inputHandleKey(void *data,
                                                inputDevice->mModifiers,
                                                QString::fromLatin1(s));
     }
+#else
+    // Generic fallback for single hard keys: Assume 'key' is a Qt key code.
+    if (window) {
+        QWindowSystemInterface::handleKeyEvent(window->window(),
+                                               time, state ? QEvent::KeyPress : QEvent::KeyRelease,
+                                               key + 8, // qt-compositor substracts 8 for some reason
+                                               inputDevice->mModifiers);
+    }
 #endif
 }
 
@@ -314,21 +322,26 @@ void QWaylandInputDevice::inputHandleKeyboardFocus(void *data,
 						   struct wl_surface *surface,
 						   struct wl_array *keys)
 {
-#ifndef QT_NO_WAYLAND_XKB
     Q_UNUSED(input_device);
     Q_UNUSED(time);
     QWaylandInputDevice *inputDevice = (QWaylandInputDevice *) data;
     QWaylandWindow *window;
+
+    inputDevice->mModifiers = 0;
+
+#ifndef QT_NO_WAYLAND_XKB
     uint32_t *k, *end;
     uint32_t code;
 
     end = (uint32_t *) ((char *) keys->data + keys->size);
-    inputDevice->mModifiers = 0;
     for (k = (uint32_t *) keys->data; k < end; k++) {
 	code = *k + inputDevice->mXkb->min_key_code;
 	inputDevice->mModifiers |=
 	    translateModifiers(inputDevice->mXkb->map->modmap[code]);
     }
+#else
+    Q_UNUSED(keys);
+#endif
 
     if (surface) {
 	window = (QWaylandWindow *) wl_surface_get_user_data(surface);
@@ -338,7 +351,6 @@ void QWaylandInputDevice::inputHandleKeyboardFocus(void *data,
 	inputDevice->mKeyboardFocus = NULL;
 	QWindowSystemInterface::handleWindowActivated(0);
     }
-#endif
 }
 
 void QWaylandInputDevice::inputHandleTouchDown(void *data,
@@ -348,6 +360,8 @@ void QWaylandInputDevice::inputHandleTouchDown(void *data,
                                                int x,
                                                int y)
 {
+    Q_UNUSED(wl_input_device);
+    Q_UNUSED(time);
     QWaylandInputDevice *inputDevice = (QWaylandInputDevice *) data;
     inputDevice->handleTouchPoint(id, x, y, Qt::TouchPointPressed);
 }
@@ -357,6 +371,8 @@ void QWaylandInputDevice::inputHandleTouchUp(void *data,
                                              uint32_t time,
                                              int id)
 {
+    Q_UNUSED(wl_input_device);
+    Q_UNUSED(time);
     QWaylandInputDevice *inputDevice = (QWaylandInputDevice *) data;
     inputDevice->handleTouchPoint(id, 0, 0, Qt::TouchPointReleased);
 }
@@ -368,6 +384,8 @@ void QWaylandInputDevice::inputHandleTouchMotion(void *data,
                                                  int x,
                                                  int y)
 {
+    Q_UNUSED(wl_input_device);
+    Q_UNUSED(time);
     QWaylandInputDevice *inputDevice = (QWaylandInputDevice *) data;
     inputDevice->handleTouchPoint(id, x, y, Qt::TouchPointMoved);
 }
@@ -430,6 +448,7 @@ void QWaylandInputDevice::handleTouchPoint(int id, int x, int y, Qt::TouchPointS
 
 void QWaylandInputDevice::inputHandleTouchFrame(void *data, struct wl_input_device *wl_input_device)
 {
+    Q_UNUSED(wl_input_device);
     QWaylandInputDevice *inputDevice = (QWaylandInputDevice *) data;
     inputDevice->handleTouchFrame();
 }
@@ -490,6 +509,8 @@ void QWaylandInputDevice::handleTouchFrame()
 
 void QWaylandInputDevice::inputHandleTouchCancel(void *data, struct wl_input_device *wl_input_device)
 {
+    Q_UNUSED(wl_input_device);
+    Q_UNUSED(data);
 }
 
 const struct wl_input_device_listener QWaylandInputDevice::inputDeviceListener = {

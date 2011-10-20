@@ -436,7 +436,7 @@ void QWaylandInputDevice::handleTouchPoint(int id, int x, int y, Qt::TouchPointS
         qDebug() << "mapped to screen position" << x << y;
 #endif
 
-        tp.area = QRectF(x, y, 1, 1);
+        tp.area = QRectF(x, y, 8, 8);
     }
 
     tp.state = state;

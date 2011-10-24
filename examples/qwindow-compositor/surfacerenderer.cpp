@@ -54,10 +54,10 @@ void SurfaceRenderer::drawTexture(int textureId, const QRectF &geometry, int dep
 {
     GLfloat zValue = depth / 1000.0f;
     //Set Texture and Vertex coordinates
-    GLfloat textureCoordinates[] = { 0, 0,
-                                     1, 0,
+    GLfloat textureCoordinates[] = { 0, 1,
                                      1, 1,
-                                     0, 1
+                                     1, 0,
+                                     0, 0
                                    };
 
     GLfloat vertexCoordinates[] = { geometry.left(), geometry.top(), zValue,
@@ -68,7 +68,7 @@ void SurfaceRenderer::drawTexture(int textureId, const QRectF &geometry, int dep
 
     //Set matrix to transfrom geometry values into gl coordinate space.
     m_transformMatrix.setToIdentity();
-    m_transformMatrix.scale( 2.0f / m_surface->geometry().width(), 2.0f / m_surface->geometry().height());
+    m_transformMatrix.scale( 2.0f / m_surface->geometry().width(), -2.0f / m_surface->geometry().height());
     m_transformMatrix.translate(-m_surface->geometry().width() / 2.0f, -m_surface->geometry().height() / 2.0f);
 
     m_shaderProgram->bind();

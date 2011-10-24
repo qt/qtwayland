@@ -26,6 +26,9 @@ protected:
 
     void render();
 
+    bool eventFilter(QObject *obj, QEvent *event);
+    QPointF toSurface(WaylandSurface *surface, const QPointF &pos) const;
+
 private:
     QOpenGLWindow *m_window;
     QImage m_backgroundImage;

@@ -47,7 +47,9 @@ void SurfaceRenderer::drawImage(const QImage &image, const QRectF &geometry)
 {
     if (image.isNull())
         return;
-    drawTexture(textureFromImage(image), geometry);
+    GLuint textureId = textureFromImage(image);
+    drawTexture(textureId, geometry);
+    glDeleteTextures(1, &textureId);
 }
 
 void SurfaceRenderer::drawTexture(int textureId, const QRectF &geometry, int depth)

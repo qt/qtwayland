@@ -4,7 +4,7 @@ QWindowCompositor::QWindowCompositor(QOpenGLWindow *window)
     : WaylandCompositor(window, window->context())
     , m_window(window)
 {
-    m_backgroundImage = QImage(QLatin1String("background.jpg"));
+    m_backgroundImage = QImage(QLatin1String(":/background.jpg"));
     m_renderer = new SurfaceRenderer(m_window->context(), m_window);
     m_backgroundTexture = m_renderer->textureFromImage(m_backgroundImage);
 

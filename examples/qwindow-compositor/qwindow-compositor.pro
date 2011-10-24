@@ -42,8 +42,4 @@ HEADERS += \
     surfacerenderer.h \
     qwindowcompositor.h
 
-
-
-
-
-
+RESOURCES += qwindow-compositor.qrc

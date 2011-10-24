@@ -2,9 +2,8 @@ INCLUDEPATH += $$PWD
 DEFINES += QT_WAYLAND_WINDOWMANAGER_SUPPORT
 
 !mac:use_pkgconfig {
-    QMAKE_CXXFLAGS += $$system(pkg-config --cflags wayland-server)
-
-    LIBS += $$system(pkg-config --libs wayland-server)
+    CONFIG += link_pkgconfig
+    PKGCONFIG += wayland-server
 
     #set the rpath
     !isEmpty(QMAKE_LFLAGS_RPATH) {

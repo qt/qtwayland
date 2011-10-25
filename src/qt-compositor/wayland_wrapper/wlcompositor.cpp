@@ -48,6 +48,7 @@
 #include "wldrag.h"
 #include "waylandcompositor.h"
 
+#include <QWindow>
 #include <QSocketNotifier>
 #include <QDebug>
 

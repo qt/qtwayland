@@ -47,7 +47,7 @@
 
 #include <QtDeclarative/QSGSimpleTextureNode>
 #include <QtDeclarative/QSGSimpleRectNode>
-#include <QtDeclarative/QSGCanvas>
+#include <QtDeclarative/QQuickCanvas>
 
 class WaylandSurfaceTextureProvider : public QSGTextureProvider
 {
@@ -70,8 +70,8 @@ void WaylandSurfaceItem::surfaceDamaged(const QRect &)
     update();
 }
 
-WaylandSurfaceItem::WaylandSurfaceItem(QSGItem *parent)
-    : QSGItem(parent)
+WaylandSurfaceItem::WaylandSurfaceItem(QQuickItem *parent)
+    : QQuickItem(parent)
     , m_surface(0)
     , m_texture(0)
     , m_provider(0)
@@ -80,8 +80,8 @@ WaylandSurfaceItem::WaylandSurfaceItem(QSGItem *parent)
 {
 }
 
-WaylandSurfaceItem::WaylandSurfaceItem(WaylandSurface *surface, QSGItem *parent)
-    : QSGItem(parent)
+WaylandSurfaceItem::WaylandSurfaceItem(WaylandSurface *surface, QQuickItem *parent)
+    : QQuickItem(parent)
     , m_surface(0)
     , m_texture(0)
     , m_provider(0)

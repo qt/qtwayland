@@ -41,7 +41,7 @@
 #ifndef WAYLANDSURFACEITEM_H
 #define WAYLANDSURFACEITEM_H
 
-#include <QSGItem>
+#include <QQuickItem>
 #include <qsgtexture.h>
 
 #include <private/qsgtextureprovider_p.h>
@@ -51,7 +51,7 @@ class WaylandSurfaceTextureProvider;
 
 Q_DECLARE_METATYPE(WaylandSurface*)
 
-class WaylandSurfaceItem : public QSGItem
+class WaylandSurfaceItem : public QQuickItem
 {
     Q_OBJECT
     Q_PROPERTY(WaylandSurface* surface READ surface WRITE setSurface)
@@ -61,8 +61,8 @@ class WaylandSurfaceItem : public QSGItem
     Q_PROPERTY(bool touchEventsEnabled READ touchEventsEnabled WRITE setTouchEventsEnabled NOTIFY touchEventsEnabledChanged)
 
 public:
-    WaylandSurfaceItem(QSGItem *parent = 0);
-    WaylandSurfaceItem(WaylandSurface *surface, QSGItem *parent = 0);
+    WaylandSurfaceItem(QQuickItem *parent = 0);
+    WaylandSurfaceItem(WaylandSurface *surface, QQuickItem *parent = 0);
     ~WaylandSurfaceItem();
 
     void setSurface(WaylandSurface *surface);

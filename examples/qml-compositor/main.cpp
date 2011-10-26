@@ -50,17 +50,17 @@
 #include <QDeclarativeContext>
 #include <QtQuick1/QDeclarativeView>
 
-#include <QSGItem>
-#include <QSGView>
+#include <QQuickItem>
+#include <QQuickView>
 
-class QmlCompositor : public QSGView, public WaylandCompositor
+class QmlCompositor : public QQuickView, public WaylandCompositor
 {
     Q_OBJECT
 public:
     QmlCompositor() : WaylandCompositor(this, const_cast<QOpenGLContext *>(QOpenGLContext::currentContext())) {
         //setMouseTracking(true);
         setSource(QUrl(QLatin1String("qrc:qml/QmlCompositor/main.qml")));
-        setResizeMode(QSGView::SizeRootObjectToView);
+        setResizeMode(QQuickView::SizeRootObjectToView);
         winId();
 
 	connect(this, SIGNAL(frameSwapped()), this, SLOT(frameSwappedSlot()));
@@ -85,12 +85,12 @@ private slots:
             WaylandSurfaceItem *item = m_windowMap.value(surface);
             item->setWidth(size.width());
             item->setHeight(size.height());
-            emit windowResized(QVariant::fromValue(static_cast<QSGItem *>(item)));
+            emit windowResized(QVariant::fromValue(static_cast<QQuickItem *>(item)));
         } else {
             WaylandSurfaceItem *item = new WaylandSurfaceItem(surface, rootObject());
             item->setTouchEventsEnabled(true);
             connect(surface, SIGNAL(destroyed(QObject *)), this, SLOT(surfaceDestroyed(QObject *)));
-            emit windowAdded(QVariant::fromValue(static_cast<QSGItem *>(item)));
+            emit windowAdded(QVariant::fromValue(static_cast<QQuickItem *>(item)));
             m_windowMap[surface] = item;
 
             item->takeFocus();
@@ -99,7 +99,7 @@ private slots:
 
     void surfaceDestroyed(QObject *object) {
         WaylandSurfaceItem *item = m_windowMap.take(object);
-        emit windowDestroyed(QVariant::fromValue(static_cast<QSGItem *>(item)));
+        emit windowDestroyed(QVariant::fromValue(static_cast<QQuickItem *>(item)));
     }
 
     void frameSwappedSlot() {

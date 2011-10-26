@@ -17,6 +17,7 @@ isEmpty(QT_WAYLAND_GL_CONFIG):QT_WAYLAND_GL_CONFIG = $$(QT_WAYLAND_GL_CONFIG)
             isEqual(QT_WAYLAND_GL_CONFIG, wayland_egl) {
                 QT_WAYLAND_GL_INTEGRATION = $$QT_WAYLAND_GL_CONFIG
                 CONFIG += mesa_egl
+                DEFINES += MESA_EGL_NO_X11_HEADERS
             } else:isEqual(QT_WAYLAND_GL_CONFIG,dri2_xcb) {
                 QT_WAYLAND_GL_INTEGRATION = $$QT_WAYLAND_GL_CONFIG
                 CONFIG += dri2_xcb

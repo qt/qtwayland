@@ -12,6 +12,11 @@ mac {
     DEFINES += QT_NO_WAYLAND_XKB
 }
 
+QT_WAYLAND_GL_CONFIG = $$(QT_WAYLAND_GL_CONFIG)
+isEqual(QT_WAYLAND_GL_CONFIG, wayland_egl) {
+    DEFINES += QT_NO_WAYLAND_XKB
+}
+
 QT += core-private gui-private opengl-private platformsupport-private
 
 SOURCES =   main.cpp \

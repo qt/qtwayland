@@ -67,6 +67,7 @@ public:
 void WaylandSurfaceItem::surfaceDamaged(const QRect &)
 {
     m_damaged = true;
+    emit textureChanged();
     update();
 }
 

@@ -102,6 +102,7 @@ private slots:
     void surfaceDamaged(const QRect &);
 
 signals:
+    void textureChanged();
     void useTextureAlphaChanged();
     void clientRenderingEnabledChanged();
     void touchEventsEnabledChanged();

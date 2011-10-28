@@ -64,6 +64,8 @@ public:
     void setRetainedSelection(bool enable);
     typedef void (*Watcher)(QMimeData*, void*);
     void setRetainedSelectionWatcher(Watcher func, void *param);
+    void clearSelection();
+    void overrideSelection(QMimeData *data);
 
 private slots:
     void onClientAdded(wl_client *client);

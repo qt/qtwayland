@@ -142,6 +142,12 @@ void WaylandCompositor::retainedSelectionReceived(QMimeData *)
 {
 }
 
+void WaylandCompositor::overrideSelection(QMimeData *data)
+{
+    Wayland::Selection *sel = Wayland::Selection::instance();
+    sel->overrideSelection(data);
+}
+
 const char *WaylandCompositor::socketName() const
 {
     if (m_socket_name.isEmpty())

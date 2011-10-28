@@ -134,7 +134,7 @@ void Selection::selActivate(struct wl_client *client,
                              WL_SELECTION_OFFER_KEYBOARD_FOCUS, selection->input_device);
     }
 
-    if (self->m_retainedSelectionEnabled) {
+    if (self->m_retainedSelectionEnabled && client) {
         self->m_retainedData.clear();
         self->m_retainedReadIndex = 0;
         self->retain();
@@ -144,6 +144,8 @@ void Selection::selActivate(struct wl_client *client,
 void Selection::retain()
 {
     finishReadFromClient();
+    if (!m_currentSelection->client) // do not retain data created via overrideSelection()
+        return;
     if (m_retainedReadIndex >= m_offerList.count()) {
         if (m_watchFunc)
             m_watchFunc(&m_retainedData, m_watchFuncParam);
@@ -258,6 +260,11 @@ void Selection::destroySelection(struct wl_resource *resource, struct wl_client 
 void Selection::create(struct wl_client *client, uint32_t id)
 {
     if (m_retainedSelection) {
+        if (m_retainedSelection == m_currentSelection) { // this can happen only when overrideSelection() was called
+            if (m_currentOffer == &m_currentSelection->selection_offer)
+                m_currentOffer = 0;
+            m_currentSelection = 0;
+        }
         wl_display_remove_global(Compositor::instance()->wl_display(),
                                  &m_retainedSelection->selection_offer.object);
         delete m_retainedSelection;
@@ -303,6 +310,49 @@ void Selection::onClientAdded(wl_client *client)
         wl_client_post_event(client, &offer->object,
                              WL_SELECTION_OFFER_KEYBOARD_FOCUS, selection->input_device);
     }
+}
+
+void Selection::clearSelection()
+{
+    wl_display *dpy = Compositor::instance()->wl_display();
+    QList<struct wl_client *> clients = Compositor::instance()->clients();
+
+    if (m_currentSelection && clients.contains(m_currentSelection->client))
+        wl_client_post_event(m_currentSelection->client,
+                             &m_currentSelection->resource.object,
+                             WL_SELECTION_CANCELLED);
+
+    if (m_currentOffer)
+        foreach (struct wl_client *client, clients)
+            wl_client_post_event(client, &m_currentOffer->object,
+                                 WL_SELECTION_OFFER_KEYBOARD_FOCUS, 0);
+
+    m_currentSelection = 0;
+    m_currentOffer = 0;
+    m_offerList.clear();
+
+    if (m_retainedSelection) {
+        wl_display_remove_global(dpy, &m_retainedSelection->selection_offer.object);
+        delete m_retainedSelection;
+        m_retainedSelection = 0;
+    }
+}
+
+void Selection::overrideSelection(QMimeData *data)
+{
+    clearSelection();
+
+    m_retainedSelection = new wl_selection;
+    memset(m_retainedSelection, 0, sizeof *m_retainedSelection);
+    m_retainedSelection->client = 0; // indicates there is a special selection active
+    m_retainedSelection->input_device = Compositor::instance()->inputDevice(); // needed for keyboard_focus
+
+    m_offerList.append(data->formats());
+    m_retainedData.clear();
+    foreach (const QString &format, m_offerList)
+        m_retainedData.setData(format, data->data(format));
+
+    selActivate(0, m_retainedSelection, 0, 0);
 }
 
 Q_GLOBAL_STATIC(Selection, globalInstance)

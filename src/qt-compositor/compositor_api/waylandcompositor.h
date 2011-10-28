@@ -80,6 +80,7 @@ public:
 
     void setRetainedSelectionEnabled(bool enable);
     virtual void retainedSelectionReceived(QMimeData *mimeData);
+    void overrideSelection(QMimeData *data);
 
     const char *socketName() const;
 

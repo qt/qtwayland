@@ -143,14 +143,14 @@ void WindowManagerServerIntegration::authenticateWithToken(wl_client *client, co
 
 void WindowManagerServerIntegration::setVisibilityOnScreen(wl_client *client, bool visible)
 {
-    wl_client_post_event(client, m_windowManagerObject->base(),
-                         WL_WINDOWMANAGER_CLIENT_ONSCREEN_VISIBILITY, visible ? 1 : 0);
+//    wl_client_post_event(client, m_windowManagerObject->base(),
+//                         WL_WINDOWMANAGER_CLIENT_ONSCREEN_VISIBILITY, visible ? 1 : 0);
 }
 
 void WindowManagerServerIntegration::setScreenOrientation(wl_client *client, wl_object *output, Qt::ScreenOrientation orientation)
 {
-    wl_client_post_event(client, m_windowManagerObject->base(),
-                         WL_WINDOWMANAGER_SET_SCREEN_ROTATION, output, qint32(orientation));
+//    wl_client_post_event(client, m_windowManagerObject->base(),
+//                         WL_WINDOWMANAGER_SET_SCREEN_ROTATION, output, qint32(orientation));
 }
 
 // client -> server

@@ -42,12 +42,14 @@
 
 #include "wlcompositor.h"
 
+#include "wlcompositor.h"
+
 #include <QtCore/qglobal.h>
 #include <QtCore/QDebug>
 
 namespace Wayland {
 
-Shell::Shell()
+Shell::Shell(Compositor *compositor)
 {
 }
 
@@ -88,24 +90,6 @@ void Shell::shell_resize(struct wl_client *client,
     qDebug() << "shellResize";
 }
 
-void Shell::shell_drag(struct wl_client *client,
-                struct wl_resource *shell,
-                uint32_t id)
-{
-    Q_UNUSED(shell);
-    qDebug() << "shellDrag";
-    Drag::instance()->create(client, id);
-}
-
-void Shell::shell_selection(struct wl_client *client,
-                     struct wl_resource  *shell,
-                     uint32_t id)
-{
-    qDebug() << "shellSelection";
-    Q_UNUSED(shell);
-    Selection::instance()->create(client, id);
-}
-
 void Shell::set_toplevel(struct wl_client *client,
                      struct wl_resource *wl_shell,
                      struct wl_resource  *surface)
@@ -143,8 +127,6 @@ void Shell::set_fullscreen(struct wl_client *client,
 const struct wl_shell_interface Shell::shell_interface = {
     shell_move,
     shell_resize,
-    shell_drag,
-    shell_selection,
     set_toplevel,
     set_transient,
     set_fullscreen

@@ -38,43 +38,48 @@
 **
 ****************************************************************************/
 
-#ifndef WLINPUTDEVICE_H
-#define WLINPUTDEVICE_H
+#ifndef WLDATASOURCE_H
+#define WLDATASOURCE_H
 
-#include "waylandobject.h"
+#include <wayland-server-protocol.h>
+
+#include <QtCore/QByteArray>
 #include <QtCore/QList>
 
 namespace Wayland {
 
-class Compositor;
-class DataDevice;
-class Surface;
-class DataDeviceManager;
+class DataOffer;
 
-class InputDevice : public Object<struct wl_input_device>
+class DataSource
 {
 public:
-    InputDevice(Compositor *compositor);
+    DataSource(struct wl_client *client, uint32_t id, uint32_t time);
+    ~DataSource();
+    uint32_t time() const;
+    QList<QByteArray> offerList() const;
 
-    void clientRequestedDataDevice(DataDeviceManager *dndSelection, struct wl_client *client, uint32_t id);
-    DataDevice *dataDevice(struct wl_client *client) const;
+    DataOffer *dataOffer() const;
 
-    void sendSelectionFocus(Surface *surface);
-
-    static void bind_func(struct wl_client *client, void *data,
-                                uint32_t version, uint32_t id);
-    static void input_device_attach(struct wl_client *client,
-                             struct wl_resource *device_base,
-                             uint32_t time,
-                             struct wl_resource *buffer, int32_t x, int32_t y);
-    const static struct wl_input_device_interface input_device_interface;
-    static void destroy_resource(struct wl_resource *resource);
+    void postSendEvent(const QByteArray mimeType,int fd);
+    struct wl_client *client() const;
 
 private:
-    QList<DataDevice *>m_data_devices;
+    uint32_t m_time;
+    QList<QByteArray> m_offers;
+    struct wl_resource *m_data_source_resource;
+
+    DataOffer *m_data_offer;
+
+    static struct wl_data_source_interface data_source_interface;
+    static void offer(struct wl_client *client,
+                  struct wl_resource *resource,
+                  const char *type);
+    static void destroy(struct wl_client *client,
+                    struct wl_resource *resource);
+
 
 };
 
 }
 
-#endif // WLINPUTDEVICE_H
+#endif // WLDATASOURCE_H

@@ -43,6 +43,8 @@
 #include "wayland_wrapper/wlcompositor.h"
 #include "wayland_wrapper/wlsurface.h"
 #include <QtCore/QCoreApplication>
+#include <QtCore/QStringList>
+
 #include <QDebug>
 
 #ifdef QT_COMPOSITOR_DECLARATIVE
@@ -120,9 +122,9 @@ Wayland::Compositor * WaylandCompositor::handle() const
 
 void WaylandCompositor::setRetainedSelectionEnabled(bool enable)
 {
-    Wayland::Selection *sel = Wayland::Selection::instance();
-    sel->setRetainedSelection(enable);
-    sel->setRetainedSelectionWatcher(retainedSelectionChanged, this);
+//    Wayland::Selection *sel = Wayland::Selection::instance();
+//    sel->setRetainedSelection(enable);
+//    sel->setRetainedSelectionWatcher(retainedSelectionChanged, this);
 }
 
 void WaylandCompositor::retainedSelectionChanged(QMimeData *mimeData, void *param)
@@ -137,8 +139,8 @@ void WaylandCompositor::retainedSelectionReceived(QMimeData *)
 
 void WaylandCompositor::overrideSelection(QMimeData *data)
 {
-    Wayland::Selection *sel = Wayland::Selection::instance();
-    sel->overrideSelection(data);
+//    Wayland::Selection *sel = Wayland::Selection::instance();
+//    sel->overrideSelection(data);
 }
 
 const char *WaylandCompositor::socketName() const

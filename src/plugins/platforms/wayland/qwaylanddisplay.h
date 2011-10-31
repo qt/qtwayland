@@ -57,6 +57,7 @@ class QPlatformScreen;
 class QWaylandScreen;
 class QWaylandGLIntegration;
 class QWaylandWindowManagerIntegration;
+class QWaylandDataDeviceManager;
 
 class QWaylandDisplay : public QObject {
     Q_OBJECT
@@ -86,9 +87,17 @@ public:
 
     QList<QWaylandInputDevice *> inputDevices() const { return mInputDevices; }
 
+    QWaylandInputDevice *lastKeyboardFocusInputDevice() const;
+    void setLastKeyboardFocusInputDevice(QWaylandInputDevice *device);
+
+    QWaylandDataDeviceManager *dndSelectionHandler() const { return mDndSelectionHandler; }
+
     struct wl_shell *shell() const {return mShell; }
     struct wl_shm *shm() const { return mShm; }
 
+    static uint32_t currentTimeMillisec();
+
+    void forceRoundTrip();
 public slots:
     void createNewScreen(struct wl_output *output, QRect geometry);
     void readEvents();
@@ -107,6 +116,8 @@ private:
     struct wl_shell *mShell;
     QList<QPlatformScreen *> mScreens;
     QList<QWaylandInputDevice *> mInputDevices;
+    QWaylandInputDevice *mLastKeyboardFocusInputDevice;
+    QWaylandDataDeviceManager *mDndSelectionHandler;
 
     QSocketNotifier *mReadNotifier;
     int mFd;
@@ -114,7 +125,6 @@ private:
 
     uint32_t mSocketMask;
 
-    struct wl_visual *argb_visual, *premultiplied_argb_visual, *rgb_visual;
 
     static const struct wl_output_listener outputListener;
     static int sourceUpdate(uint32_t mask, void *data);
@@ -148,6 +158,9 @@ private:
                                      uint32_t time, uint32_t edges,
                                      struct wl_surface *surface,
                                      int32_t width, int32_t height);
+
+    static void force_roundtrip_sync_callback(void *data, struct wl_callback *wl_callback, uint32_t time);
+    static const struct wl_callback_listener force_roundtrip_sync_callback_listener;
 
     static const struct wl_shell_listener shellListener;
 };

@@ -38,43 +38,53 @@
 **
 ****************************************************************************/
 
-#ifndef WLINPUTDEVICE_H
-#define WLINPUTDEVICE_H
+#ifndef WLDATADEVICEMANAGER_H
+#define WLDATADEVICEMANAGER_H
 
 #include "waylandobject.h"
+
+#include "wlcompositor.h"
+
 #include <QtCore/QList>
+#include <QtCore/QMap>
+#include <QtGui/QClipboard>
+
 
 namespace Wayland {
 
 class Compositor;
-class DataDevice;
-class Surface;
-class DataDeviceManager;
 
-class InputDevice : public Object<struct wl_input_device>
+class DataDevice;
+class DataSource;
+
+class DataDeviceManager : public Object<struct wl_object>
 {
 public:
-    InputDevice(Compositor *compositor);
+    DataDeviceManager(Compositor *compositor);
 
-    void clientRequestedDataDevice(DataDeviceManager *dndSelection, struct wl_client *client, uint32_t id);
-    DataDevice *dataDevice(struct wl_client *client) const;
+    void setCurrentSelectionSource(DataSource *source);
+    DataSource *currentSelectionSource();
 
-    void sendSelectionFocus(Surface *surface);
-
-    static void bind_func(struct wl_client *client, void *data,
-                                uint32_t version, uint32_t id);
-    static void input_device_attach(struct wl_client *client,
-                             struct wl_resource *device_base,
-                             uint32_t time,
-                             struct wl_resource *buffer, int32_t x, int32_t y);
-    const static struct wl_input_device_interface input_device_interface;
-    static void destroy_resource(struct wl_resource *resource);
-
+    struct wl_display *display() const;
 private:
-    QList<DataDevice *>m_data_devices;
+    Compositor *m_compositor;
+    QList<DataDevice *> m_data_device_list;
 
+    DataSource *m_current_selection_source;
+
+    static void bind_func_drag(struct wl_client *client, void *data,
+                     uint32_t version, uint32_t id);
+    static void bind_func_data(struct wl_client *client, void *data,
+                                          uint32_t version, uint32_t id);
+    static void get_data_device(struct wl_client *client,
+                          struct wl_resource *resource,
+                          uint32_t id,
+                          struct wl_resource *input_device);
+    static void create_data_source(struct wl_client *client,
+                                   struct wl_resource *resource,
+                                   uint32_t id);
+    static struct wl_data_device_manager_interface drag_interface;
 };
 
 }
-
-#endif // WLINPUTDEVICE_H
+#endif // WLDATADEVICEMANAGER_H

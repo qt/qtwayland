@@ -12,11 +12,6 @@ mac {
     DEFINES += QT_NO_WAYLAND_XKB
 }
 
-QT_WAYLAND_GL_CONFIG = $$(QT_WAYLAND_GL_CONFIG)
-isEqual(QT_WAYLAND_GL_CONFIG, wayland_egl) {
-    DEFINES += QT_NO_WAYLAND_XKB
-}
-
 QT += core-private gui-private opengl-private platformsupport-private
 
 SOURCES =   main.cpp \
@@ -31,7 +26,9 @@ SOURCES =   main.cpp \
             qwaylandshmwindow.cpp \
             qwaylandclipboard.cpp \
             qwaylanddnd.cpp \
-            qwaylandmime.cpp
+            qwaylanddataoffer.cpp \
+            qwaylanddatadevicemanager.cpp \
+            qwaylanddatasource.cpp
 
 HEADERS =   qwaylandintegration.h \
             qwaylandnativeinterface.h \
@@ -44,7 +41,9 @@ HEADERS =   qwaylandintegration.h \
             qwaylandshmwindow.h \
             qwaylandclipboard.h \
             qwaylanddnd.h \
-            qwaylandmime.h
+            qwaylanddataoffer.h \
+            qwaylanddatadevicemanager.h \
+            qwaylanddatasource.h
 
 INCLUDEPATH += $$QMAKE_INCDIR_WAYLAND
 LIBS += $$QMAKE_LIBS_WAYLAND
@@ -59,3 +58,4 @@ INSTALLS += target
 
 include ($$PWD/gl_integration/gl_integration.pri)
 include ($$PWD/windowmanager_integration/windowmanager_integration.pri)
+

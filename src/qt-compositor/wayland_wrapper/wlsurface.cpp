@@ -46,8 +46,6 @@
 #include "wlshmbuffer.h"
 #include "wlinputdevice.h"
 
-#include "waylandlist.h"
-
 #include <QtCore/QDebug>
 
 #include <wayland-server.h>
@@ -113,7 +111,7 @@ public:
         bool emitMap = !surfaceBuffer;
         if (surfaceBuffer && ! textureCreatedForBuffer && surfaceBuffer != directRenderBuffer) {
             qWarning() << "### WaylandSurface::attach() releasing undisplayed buffer ###";
-             wl_client_post_event(client,&surfaceBuffer->resource.object,WL_BUFFER_RELEASE);
+             wl_resource_post_event(&surfaceBuffer->resource, WL_BUFFER_RELEASE);
         }
         surfaceBuffer = buffer;
         surfaceType = WaylandSurface::Invalid;
@@ -157,7 +155,7 @@ private:
 void Surface::surface_destroy(struct wl_client *client, struct wl_resource *surface_resource)
 {
     Surface *surface = reinterpret_cast<Surface *>(surface_resource);
-    delete surface;
+    wl_resource_destroy(surface_resource,Compositor::currentTimeMsecs());
 }
 
 void Surface::surface_attach(struct wl_client *client, struct wl_resource *surface,
@@ -190,17 +188,11 @@ void Surface::surface_frame(struct wl_client *client,
     wl_client_add_resource(client,surface->d_func()->frame_callback);
 }
 
-void Surface::surface_resource_destory(wl_resource *resource)
-{
-    qDebug() << "destorying surface";
-}
-
 Surface::Surface(struct wl_client *client, Compositor *compositor)
     : d_ptr(new SurfacePrivate(client,compositor))
 {
     base()->resource.client = client;
     d_ptr->qtSurface = new WaylandSurface(this);
-    base()->resource.destroy = Surface::surface_resource_destory;
 }
 
 Surface::~Surface()

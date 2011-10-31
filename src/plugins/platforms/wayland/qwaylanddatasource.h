@@ -39,17 +39,37 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDMIME_H
-#define QWAYLANDMIME_H
+#ifndef QWAYLANDDATASOURCE_H
+#define QWAYLANDDATASOURCE_H
 
-#include <QString>
-#include <QByteArray>
-#include <QMimeData>
+#include "qwaylanddatadevicemanager.h"
 
-class QWaylandMimeHelper
+#include <wayland-client-protocol.h>
+
+class QWaylandDataSource
 {
 public:
-    static QByteArray getByteArray(QMimeData *mimeData, const QString &mimeType);
+    QWaylandDataSource(QWaylandDataDeviceManager *dndSelectionHandler, QMimeData *mimeData);
+    ~QWaylandDataSource();
+
+    QMimeData *mimeData() const;
+
+    struct wl_data_source *handle() const;
+private:
+    struct wl_data_source *m_data_source;
+    QWaylandDisplay *m_display;
+    QMimeData *m_mime_data;
+
+    static void data_source_target(void *data,
+                   struct wl_data_source *data_source,
+                   const char *mime_type);
+    static void data_source_send(void *data,
+                 struct wl_data_source *data_source,
+                 const char *mime_type,
+                 int32_t fd);
+    static void data_source_cancelled(void *data,
+                      struct wl_data_source *data_source);
+    static const struct wl_data_source_listener data_source_listener;
 };
 
-#endif
+#endif // QWAYLANDDATASOURCE_H

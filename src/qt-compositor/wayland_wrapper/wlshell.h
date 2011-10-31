@@ -45,10 +45,12 @@
 
 namespace Wayland {
 
+class Compositor;
+
 class Shell : public Object<struct wl_object>
 {
 public:
-    Shell();
+    Shell(Compositor *compositor);
 
     static void bind_func(struct wl_client *client, void *data,
                                 uint32_t version, uint32_t id);
@@ -63,12 +65,6 @@ public:
                       struct wl_resource *input_device,
                       uint32_t time,
                       uint32_t edges);
-    static void shell_drag(struct wl_client *client,
-                    struct wl_resource *shell,
-                    uint32_t id);
-    static void shell_selection(struct wl_client *client,
-                         struct wl_resource *shell,
-                         uint32_t id);
     static void set_toplevel(struct wl_client *client,
                          struct wl_resource *shell,
                          struct wl_resource *surface);

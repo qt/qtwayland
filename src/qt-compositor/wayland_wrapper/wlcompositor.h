@@ -58,8 +58,9 @@ namespace Wayland {
 
 class Surface;
 class InputDevice;
+class DataDeviceManager;
 
-class Compositor : public QObject, public Object<struct wl_compositor>
+class Compositor : public QObject
 {
     Q_OBJECT
 
@@ -135,6 +136,9 @@ private:
 
     /* shm/*/
     ShmHandler m_shm;
+
+    DataDeviceManager *m_data_device_manager;
+
     QList<Surface *> m_surfaces;
     QSet<Surface *> m_dirty_surfaces;
 
@@ -156,8 +160,8 @@ private:
 #endif
     WindowManagerServerIntegration *m_windowManagerWaylandProtocol;
 
-    bool m_dragActive;
-    friend class Drag;
+    static void bind_func(struct wl_client *client, void *data,
+                          uint32_t version, uint32_t id);
 };
 
 }

@@ -44,6 +44,7 @@
 #include "qwaylandintegration.h"
 #include "qwaylandwindow.h"
 #include "qwaylandbuffer.h"
+#include "qwaylanddatadevicemanager.h"
 
 #include <QtGui/private/qpixmap_raster_p.h>
 #include <QtGui/QPlatformWindow>
@@ -51,6 +52,8 @@
 
 #include <unistd.h>
 #include <fcntl.h>
+
+#include <QtGui/QGuiApplication>
 
 #ifndef QT_NO_WAYLAND_XKB
 #include <X11/extensions/XKBcommon.h>
@@ -61,6 +64,7 @@ QWaylandInputDevice::QWaylandInputDevice(QWaylandDisplay *display,
 					 uint32_t id)
     : mQDisplay(display)
     , mDisplay(display->wl_display())
+    , mTransferDevice(0)
     , mPointerFocus(NULL)
     , mKeyboardFocus(NULL)
     , mButtons(0)
@@ -83,6 +87,10 @@ QWaylandInputDevice::QWaylandInputDevice(QWaylandDisplay *display,
 
     mXkb = xkb_compile_keymap_from_rules(&names);
 #endif
+
+    if (mQDisplay->dndSelectionHandler()) {
+        mTransferDevice = mQDisplay->dndSelectionHandler()->getDataDevice(this);
+    }
 }
 
 void QWaylandInputDevice::handleWindowDestroyed(QWaylandWindow *window)
@@ -91,6 +99,17 @@ void QWaylandInputDevice::handleWindowDestroyed(QWaylandWindow *window)
         mPointerFocus = 0;
     if (window == mKeyboardFocus)
         mKeyboardFocus = 0;
+}
+
+void QWaylandInputDevice::setTransferDevice(struct wl_data_device *device)
+{
+   mTransferDevice =  device;
+}
+
+struct wl_data_device *QWaylandInputDevice::transferDevice() const
+{
+    Q_ASSERT(mTransferDevice);
+    return mTransferDevice;
 }
 
 void QWaylandInputDevice::inputHandleMotion(void *data,
@@ -345,9 +364,11 @@ void QWaylandInputDevice::inputHandleKeyboardFocus(void *data,
     if (surface) {
 	window = (QWaylandWindow *) wl_surface_get_user_data(surface);
 	inputDevice->mKeyboardFocus = window;
+        inputDevice->mQDisplay->setLastKeyboardFocusInputDevice(inputDevice);
 	QWindowSystemInterface::handleWindowActivated(window->window());
     } else {
 	inputDevice->mKeyboardFocus = NULL;
+        inputDevice->mQDisplay->setLastKeyboardFocusInputDevice(0);
 	QWindowSystemInterface::handleWindowActivated(0);
     }
 }

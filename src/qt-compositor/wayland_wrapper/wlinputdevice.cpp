@@ -42,6 +42,8 @@
 
 #include "wlshmbuffer.h"
 #include "wlcompositor.h"
+#include "wldatadevice.h"
+#include "wlsurface.h"
 
 #include <QtCore/QDebug>
 
@@ -53,7 +55,44 @@ static ShmBuffer *currentCursor;
 
 InputDevice::InputDevice(Compositor *compositor)
 {
-    wl_input_device_init(base(), compositor->base());
+    wl_input_device_init(base());
+    wl_display_add_global(compositor->wl_display(),&wl_input_device_interface,this,InputDevice::bind_func);
+}
+
+void InputDevice::clientRequestedDataDevice(DataDeviceManager *data_device_manager  , struct wl_client *client, uint32_t id)
+{
+    for (int i = 0; i < m_data_devices.size(); i++) {
+        struct wl_resource *data_device_resource =
+                m_data_devices.at(i)->dataDeviceResource();
+        if (data_device_resource->client == client) {
+            qDebug() << "Client created data device, but allready has one; removing the old one!";
+            m_data_devices.removeAt(i);
+            delete data_device_resource;
+            break;
+        }
+    }
+    DataDevice *dataDevice = new DataDevice(data_device_manager,client,id);
+    m_data_devices.append(dataDevice);
+}
+
+void InputDevice::sendSelectionFocus(Surface *surface)
+{
+    if (!surface)
+        return;
+    DataDevice *device = dataDevice(surface->base()->resource.client);
+    if (device) {
+        device->sendSelectionFocus();
+    }
+}
+
+DataDevice *InputDevice::dataDevice(struct wl_client *client) const
+{
+    for (int i = 0; i < m_data_devices.size();i++) {
+        if (m_data_devices.at(i)->dataDeviceResource()->client == client) {
+            return m_data_devices.at(i);
+        }
+    }
+    return 0;
 }
 
 void InputDevice::bind_func(struct wl_client *client, void *data,
@@ -63,7 +102,6 @@ void InputDevice::bind_func(struct wl_client *client, void *data,
     struct wl_resource *resource = wl_client_add_object(client,&wl_input_device_interface ,&input_device_interface,id,data);
 
     struct wl_input_device *input_device = static_cast<struct wl_input_device *>(data);
-    qDebug() << "InputDevice::bind_func" << resource;
     resource->destroy = destroy_resource;
     wl_list_insert(&input_device->resource_list,&resource->link);
 }
@@ -80,10 +118,10 @@ void InputDevice::input_device_attach(struct wl_client *client,
     struct wl_buffer *buffer = reinterpret_cast<struct wl_buffer *>(buffer_resource);
     qDebug() << "Client input device attach" << client << buffer << x << y;
 
-    Compositor *compositor = wayland_cast<Compositor *>(device_base->compositor);
+//    Compositor *compositor = wayland_cast<Compositor *>(device_base->compositor);
     ShmBuffer *shmBuffer = static_cast<ShmBuffer *>(buffer->user_data);
     if (shmBuffer) {
-        compositor->qtCompositor()->changeCursor(shmBuffer->image(), x, y);
+//        compositor->qtCompositor()->changeCursor(shmBuffer->image(), x, y);
         currentCursor = shmBuffer;
     }
 }

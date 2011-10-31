@@ -72,6 +72,8 @@ QWaylandIntegration::QWaylandIntegration()
 {
     QGuiApplicationPrivate::instance()->setEventDispatcher(mEventDispatcher);
     mDisplay = new QWaylandDisplay();
+    mClipboard = new QWaylandClipboard(mDisplay);
+    mDrag = new QWaylandDrag(mDisplay);
 
     foreach (QPlatformScreen *screen, mDisplay->screens())
         screenAdded(screen);
@@ -137,12 +139,12 @@ QPlatformFontDatabase *QWaylandIntegration::fontDatabase() const
 
 QPlatformClipboard *QWaylandIntegration::clipboard() const
 {
-    return QWaylandClipboard::instance(mDisplay);
+    return mClipboard;
 }
 
 QPlatformDrag *QWaylandIntegration::drag() const
 {
-    return QWaylandDrag::instance(mDisplay);
+    return mDrag;
 }
 
 QPlatformInputContext *QWaylandIntegration::inputContext() const

@@ -38,58 +38,80 @@
 **
 ****************************************************************************/
 
-#ifndef WLDRAG_H
-#define WLDRAG_H
+#include "wldatasource.h"
 
-#include <QtCore/QObject>
-#include <QtCore/QStringList>
-#include <QtCore/QMimeData>
+#include "wldataoffer.h"
+
 #include <wayland-server.h>
 
-QT_BEGIN_NAMESPACE
-class QSocketNotifier;
-QT_END_NAMESPACE
+#include "wlcompositor.h"
+
+#include <QtCore/QDebug>
 
 namespace Wayland {
 
-class Surface;
 
-class Drag : public QObject
+DataSource::DataSource(struct wl_client *client, uint32_t id, uint32_t time)
+    : m_time(time)
 {
-    Q_OBJECT
-
-public:
-    static Drag *instance();
-    Drag();
-    void create(struct wl_client *client, uint32_t id);
-    void dragMove(const QPoint &global, const QPoint &local, Surface *surface);
-    void dragEnd();
-
-private:
-    static void destroyDrag(struct wl_resource *resource);
-
-    static void dragOffer(struct wl_client *client, struct wl_resource *drag, const char *type);
-    static void dragActivate(struct wl_client *client,
-                             struct wl_resource *drag,
-                             struct wl_resource  *surface,
-                             struct wl_resource *device, uint32_t time);
-    static void dragDestroy(struct wl_client *client, struct wl_resource *drag);
-    static const struct wl_drag_interface dragInterface;
-
-    static void dragOfferAccept(struct wl_client *client,
-                                struct wl_resource *offer, uint32_t time, const char *type);
-    static void dragOfferReceive(struct wl_client *client,
-                                 struct wl_resource *offer, int fd);
-    static void dragOfferReject(struct wl_client *client, struct wl_resource *offer);
-    static const struct wl_drag_offer_interface dragOfferInterface;
-
-    void setPointerFocus(wl_surface *surface, const QPoint &global, const QPoint &local);
-    void done(bool sending);
-
-    QStringList m_offerList;
-    wl_drag *m_drag;
-};
-
+    m_data_source_resource = wl_client_add_object(client, &wl_data_source_interface, &DataSource::data_source_interface,id,this);
+    m_data_offer = new DataOffer(this);
 }
 
-#endif // WLDRAG_H
+DataSource::~DataSource()
+{
+    qDebug() << "destorying source";
+    wl_resource_destroy(m_data_source_resource,Compositor::currentTimeMsecs());
+}
+
+uint32_t DataSource::time() const
+{
+    return m_time;
+}
+
+QList<QByteArray> DataSource::offerList() const
+{
+    return m_offers;
+}
+
+struct wl_data_source_interface DataSource::data_source_interface = {
+    DataSource::offer,
+    DataSource::destroy
+};
+
+void DataSource::offer(struct wl_client *client,
+              struct wl_resource *resource,
+              const char *type)
+{
+    Q_UNUSED(client);
+    qDebug() << "received offer" << type;
+    static_cast<DataSource *>(resource->data)->m_offers.append(type);
+}
+
+void DataSource::destroy(struct wl_client *client,
+                struct wl_resource *resource)
+{
+    DataSource *self = static_cast<DataSource *>(resource->data);
+    delete self;
+}
+
+DataOffer * DataSource::dataOffer() const
+{
+    return m_data_offer;
+}
+
+void DataSource::postSendEvent(const QByteArray mimeType, int fd)
+{
+    if (m_data_source_resource) {
+        wl_resource_post_event(m_data_source_resource,WL_DATA_SOURCE_SEND,mimeType.constData(),fd);
+    }
+}
+
+struct wl_client *DataSource::client() const
+{
+    if (m_data_source_resource)
+        return m_data_source_resource->client;
+    return 0;
+}
+
+}

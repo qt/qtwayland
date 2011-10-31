@@ -46,41 +46,24 @@
 #include <QtCore/QMimeData>
 #include "qwaylanddisplay.h"
 
-class QWaylandDragWrapper;
-class QWaylandDragOfferWrapper;
-class QSocketNotifier;
-
-class QWaylandDrag : public QObject, public QPlatformDrag
+class QWaylandDrag : public QPlatformDrag
 {
-    Q_OBJECT
-
 public:
-    static QWaylandDrag *instance(QWaylandDisplay *display);
+    QWaylandDrag(QWaylandDisplay *display);
     ~QWaylandDrag();
-    void createDragOffer(uint32_t id);
 
     QMimeData *platformDropData();
-    void startDrag();
-    void move(const QMouseEvent *) { }
-    void drop(const QMouseEvent *) { }
-    void cancel() { }
 
-private slots:
-    void pipeReadable(int fd);
+    void startDrag(QDrag *drag);
+    void move(const QMouseEvent *me);
+    bool canDrop() const;
+    void drop(const QMouseEvent *me);
+    void cancel();
+
+    virtual Qt::DropAction executedDropAction() const;
 
 private:
-    QWaylandDrag(QWaylandDisplay *display);
-
-    QWaylandDisplay *mDisplay;
-    QMimeData *mDropData;
-    QWaylandDragWrapper *mCurrentDrag;
-    QWaylandDragOfferWrapper *mCurrentOffer;
-    int mPipeWriteEnd;
-    QSocketNotifier *mPipeWatcher;
-    QByteArray mPipeData;
-    QString mMimeFormat;
-    friend class QWaylandDragWrapper;
-    friend class QWaylandDragOfferWrapper;
+    QWaylandDisplay *m_display;
 };
 
 #endif // QWAYLANDDND_H

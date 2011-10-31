@@ -38,43 +38,42 @@
 **
 ****************************************************************************/
 
-#ifndef WLINPUTDEVICE_H
-#define WLINPUTDEVICE_H
+#ifndef WLDATAOFFER_H
+#define WLDATAOFFER_H
 
-#include "waylandobject.h"
-#include <QtCore/QList>
+#include "wldatasource.h"
 
-namespace Wayland {
+namespace Wayland
+{
 
-class Compositor;
-class DataDevice;
-class Surface;
-class DataDeviceManager;
-
-class InputDevice : public Object<struct wl_input_device>
+class DataOffer
 {
 public:
-    InputDevice(Compositor *compositor);
+    DataOffer(DataSource *data_source);
+    ~DataOffer();
 
-    void clientRequestedDataDevice(DataDeviceManager *dndSelection, struct wl_client *client, uint32_t id);
-    DataDevice *dataDevice(struct wl_client *client) const;
-
-    void sendSelectionFocus(Surface *surface);
-
-    static void bind_func(struct wl_client *client, void *data,
-                                uint32_t version, uint32_t id);
-    static void input_device_attach(struct wl_client *client,
-                             struct wl_resource *device_base,
-                             uint32_t time,
-                             struct wl_resource *buffer, int32_t x, int32_t y);
-    const static struct wl_input_device_interface input_device_interface;
-    static void destroy_resource(struct wl_resource *resource);
-
+    struct wl_resource *addDataDeviceResource(struct wl_resource *client_resource);
+    void removeClient(struct wl_client *client);
 private:
-    QList<DataDevice *>m_data_devices;
+    DataSource *m_data_source;
+
+    QList<struct wl_resource *> m_clients_data_resource;
+
+    static void accept(struct wl_client *client,
+                   struct wl_resource *resource,
+                   uint32_t time,
+                   const char *type);
+    static void receive(struct wl_client *client,
+                    struct wl_resource *resource,
+                    const char *mime_type,
+                    int32_t fd);
+    static void destroy(struct wl_client *client,
+                    struct wl_resource *resource);
+
+    static const struct wl_data_offer_interface data_interface;
 
 };
 
 }
 
-#endif // WLINPUTDEVICE_H
+#endif // WLDATAOFFER_H

@@ -38,43 +38,52 @@
 **
 ****************************************************************************/
 
-#ifndef WLINPUTDEVICE_H
-#define WLINPUTDEVICE_H
+#ifndef WLDATADEVICE_H
+#define WLDATADEVICE_H
 
-#include "waylandobject.h"
-#include <QtCore/QList>
+#include "wldatadevicemanager.h"
 
 namespace Wayland {
 
-class Compositor;
-class DataDevice;
-class Surface;
+class DataSource;
 class DataDeviceManager;
 
-class InputDevice : public Object<struct wl_input_device>
+class DataDevice
 {
 public:
-    InputDevice(Compositor *compositor);
+    DataDevice(DataDeviceManager *data_device_manager, struct wl_client *client, uint32_t id);
 
-    void clientRequestedDataDevice(DataDeviceManager *dndSelection, struct wl_client *client, uint32_t id);
-    DataDevice *dataDevice(struct wl_client *client) const;
+    void createAndSetSelectionSource(struct wl_client *client, uint32_t id, const char *name, uint32_t time);
+    void sendSelectionFocus();
 
-    void sendSelectionFocus(Surface *surface);
+    struct wl_resource *dataDeviceResource() const;
 
-    static void bind_func(struct wl_client *client, void *data,
-                                uint32_t version, uint32_t id);
-    static void input_device_attach(struct wl_client *client,
-                             struct wl_resource *device_base,
-                             uint32_t time,
-                             struct wl_resource *buffer, int32_t x, int32_t y);
-    const static struct wl_input_device_interface input_device_interface;
-    static void destroy_resource(struct wl_resource *resource);
-
+    struct wl_display *display() const { return m_data_device_manager->display(); }
 private:
-    QList<DataDevice *>m_data_devices;
+    DataDeviceManager *m_data_device_manager;
+    uint32_t m_sent_selection_time;
+    struct wl_resource *m_data_device_resource;
 
+    static const struct wl_data_device_interface data_device_interface;
+    static void start_drag(struct wl_client *client,
+                       struct wl_resource *resource,
+                       struct wl_resource *source,
+                       struct wl_resource *surface,
+                       uint32_t time);
+    static void attach(struct wl_client *client,
+                   struct wl_resource *resource,
+                   uint32_t time,
+                   struct wl_resource *buffer,
+                   int32_t x,
+                   int32_t y);
+    static void set_selection(struct wl_client *client,
+                          struct wl_resource *resource,
+                          struct wl_resource *source,
+                          uint32_t time);
+
+    static void destroy_data_device_resource(struct wl_resource *resource);
 };
 
 }
 
-#endif // WLINPUTDEVICE_H
+#endif // WLDATADEVICE_H

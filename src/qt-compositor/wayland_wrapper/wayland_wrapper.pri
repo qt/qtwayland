@@ -4,10 +4,12 @@ HEADERS += \
     $$PWD/wloutput.h \
     $$PWD/wlshmbuffer.h \
     $$PWD/wlsurface.h \
-    $$PWD/wlselection.h \
-    $$PWD/wldrag.h \
-    ../../src/qt-compositor/wayland_wrapper/wlshell.h \
-    ../../src/qt-compositor/wayland_wrapper/wlinputdevice.h
+    $$PWD/wlshell.h \
+    $$PWD/wlinputdevice.h \
+    $$PWD/wldatadevicemanager.h \
+    $$PWD/wldatadevice.h \
+    $$PWD/wldataoffer.h \
+    $$PWD/wldatasource.h
 
 SOURCES += \
     $$PWD/wlcompositor.cpp \
@@ -15,11 +17,10 @@ SOURCES += \
     $$PWD/wloutput.cpp \
     $$PWD/wlshmbuffer.cpp \
     $$PWD/wlsurface.cpp \
-    $$PWD/wlselection.cpp \
-    $$PWD/wldrag.cpp \
-    ../../src/qt-compositor/wayland_wrapper/wlshell.cpp \
-    ../../src/qt-compositor/wayland_wrapper/wlinputdevice.cpp
-
-
-
+    $$PWD/wlshell.cpp \
+    $$PWD/wlinputdevice.cpp \
+    $$PWD/wldatadevicemanager.cpp \
+    $$PWD/wldatadevice.cpp \
+    $$PWD/wldataoffer.cpp \
+    $$PWD/wldatasource.cpp
 

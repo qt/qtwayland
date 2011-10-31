@@ -65,10 +65,14 @@ public:
     struct wl_input_device *wl_input_device() const { return mInputDevice; }
     QWaylandWindow *pointerFocus() const { return mPointerFocus; }
 
+    void setTransferDevice(struct wl_data_device *device);
+    struct wl_data_device *transferDevice() const;
+
 private:
     QWaylandDisplay *mQDisplay;
     struct wl_display *mDisplay;
     struct wl_input_device *mInputDevice;
+    struct wl_data_device *mTransferDevice;
     QWaylandWindow *mPointerFocus;
     QWaylandWindow *mKeyboardFocus;
     static const struct wl_input_device_listener inputDeviceListener;

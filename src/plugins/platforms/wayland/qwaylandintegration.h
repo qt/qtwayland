@@ -75,6 +75,8 @@ public:
 private:
     QPlatformFontDatabase *mFontDb;
     QAbstractEventDispatcher *mEventDispatcher;
+    QPlatformClipboard *mClipboard;
+    QPlatformDrag *mDrag;
     QWaylandDisplay *mDisplay;
     QPlatformNativeInterface *mNativeInterface;
     QPlatformInputContext *mInputContext;

@@ -46,7 +46,7 @@
 #include "qwaylandcursor.h"
 #include "qwaylandinputdevice.h"
 #include "qwaylandclipboard.h"
-#include "qwaylanddnd.h"
+#include "qwaylanddatadevicemanager.h"
 
 #ifdef QT_WAYLAND_GL_SUPPORT
 #include "gl_integration/qwaylandglintegration.h"
@@ -69,6 +69,8 @@
 // lock used to syncronize swap-buffers with the display-event-loop
 QMutex g_waylandLock;
 
+#include <QtCore/QDebug>
+
 struct wl_surface *QWaylandDisplay::createSurface(void *handle)
 {
     struct wl_surface * surface = wl_compositor_create_surface(mCompositor);
@@ -89,6 +91,17 @@ QWaylandWindowManagerIntegration *QWaylandDisplay::windowManagerIntegration()
     return mWindowManagerIntegration;
 }
 #endif
+
+QWaylandInputDevice *QWaylandDisplay::lastKeyboardFocusInputDevice() const
+{
+    return mLastKeyboardFocusInputDevice;
+}
+
+void QWaylandDisplay::setLastKeyboardFocusInputDevice(QWaylandInputDevice *device)
+{
+    qDebug() << "setting last keyboard focus input device" << device;
+    mLastKeyboardFocusInputDevice = device;
+}
 
 void QWaylandDisplay::shellHandleConfigure(void *data, struct wl_shell *shell,
                                            uint32_t time, uint32_t edges,
@@ -111,7 +124,8 @@ const struct wl_shell_listener QWaylandDisplay::shellListener = {
 static QWaylandDisplay *display = 0;
 
 QWaylandDisplay::QWaylandDisplay(void)
-    : argb_visual(0), premultiplied_argb_visual(0), rgb_visual(0)
+    : mDndSelectionHandler(0)
+    , mLastKeyboardFocusInputDevice(0)
 {
     display = this;
     qRegisterMetaType<uint32_t>("uint32_t");
@@ -292,10 +306,41 @@ void QWaylandDisplay::displayHandleGlobal(uint32_t id,
         QWaylandInputDevice *inputDevice =
             new QWaylandInputDevice(this, id);
         mInputDevices.append(inputDevice);
-    } else if (interface == "wl_selection_offer") {
-        QWaylandClipboard::instance(display)->createSelectionOffer(id);
-    } else if (interface == "wl_drag_offer") {
-        QWaylandDrag::instance(display)->createDragOffer(id);
+    } else if (interface == "wl_data_device_manager") {
+        mDndSelectionHandler = new QWaylandDataDeviceManager(this, id);
     }
 }
 
+uint32_t QWaylandDisplay::currentTimeMillisec()
+{
+    //### we throw away the time information
+    struct timeval tv;
+    int ret = gettimeofday(&tv, 0);
+    if (ret == 0)
+        return tv.tv_sec*1000 + tv.tv_usec/1000;
+    return 0;
+}
+
+void QWaylandDisplay::force_roundtrip_sync_callback(void *data, struct wl_callback *wl_callback, uint32_t time)
+{
+    Q_UNUSED(wl_callback);
+    Q_UNUSED(time);
+
+    int *round_trip = (int *)data;
+    *round_trip = true;
+}
+
+const struct wl_callback_listener QWaylandDisplay::force_roundtrip_sync_callback_listener = {
+    QWaylandDisplay::force_roundtrip_sync_callback
+};
+
+void QWaylandDisplay::forceRoundTrip()
+{
+    int round_trip = false;
+    wl_callback *sync_callback = wl_display_sync(mDisplay);
+    wl_callback_add_listener(sync_callback,&force_roundtrip_sync_callback_listener,&round_trip);
+    flushRequests();
+    while (!round_trip) {
+        readEvents();
+    }
+}

@@ -130,8 +130,6 @@ private:
     static void surface_frame(struct wl_client *client, struct wl_resource *resource,
                        uint32_t callback);
 
-    static void surface_resource_destory(struct wl_resource *resource);
-
 };
 
 }

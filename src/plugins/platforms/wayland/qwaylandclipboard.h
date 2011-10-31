@@ -43,27 +43,14 @@
 #define QWAYLANDCLIPBOARD_H
 
 #include <QtGui/QPlatformClipboard>
-#include <QtCore/QStringList>
 #include <QtCore/QVariant>
 
-#include <wayland-client.h>
-
 class QWaylandDisplay;
-class QWaylandSelection;
-class QWaylandClipboardMimeData;
-struct wl_selection_offer;
-
-class QWaylandClipboardSignalEmitter : public QObject
-{
-    Q_OBJECT
-public slots:
-    void emitChanged();
-};
 
 class QWaylandClipboard : public QPlatformClipboard
 {
 public:
-    static QWaylandClipboard *instance(QWaylandDisplay *display);
+    QWaylandClipboard(QWaylandDisplay *display);
 
     ~QWaylandClipboard();
 
@@ -71,33 +58,10 @@ public:
     void setMimeData(QMimeData *data, QClipboard::Mode mode = QClipboard::Clipboard);
     bool supportsMode(QClipboard::Mode mode) const;
 
-    void unregisterSelection(QWaylandSelection *selection);
-
-    void createSelectionOffer(uint32_t id);
-
     QVariant retrieveData(const QString &mimeType, QVariant::Type type) const;
 
 private:
-    QWaylandClipboard(QWaylandDisplay *display);
-
-    static void offer(void *data,
-                      struct wl_selection_offer *selection_offer,
-                      const char *type);
-    static void keyboardFocus(void *data,
-                              struct wl_selection_offer *selection_offer,
-                              struct wl_input_device *input_device);
-    static const struct wl_selection_offer_listener selectionOfferListener;
-
-    static const struct wl_callback_listener syncCallbackListener;
-    static void syncCallback(void *data, struct wl_callback *wl_callback, uint32_t time);
-    static void forceRoundtrip(struct wl_display *display);
-
     QWaylandDisplay *mDisplay;
-    QWaylandClipboardMimeData *mMimeDataIn;
-    QList<QWaylandSelection *> mSelections;
-    QStringList mOfferedMimeTypes;
-    struct wl_selection_offer *mOffer;
-    QWaylandClipboardSignalEmitter mEmitter;
 };
 
 #endif // QWAYLANDCLIPBOARD_H

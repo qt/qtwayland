@@ -44,10 +44,10 @@
 #include "wldisplay.h"
 #include "wlshmbuffer.h"
 #include "wlsurface.h"
-#include "wlselection.h"
-#include "wldrag.h"
 #include "wlinputdevice.h"
 #include "waylandcompositor.h"
+#include "wldatadevicemanager.h"
+#include "wldatadevice.h"
 
 #include <QWindow>
 #include <QSocketNotifier>
@@ -88,19 +88,21 @@ void destroy_surface(struct wl_resource *resource)
     delete surface;
 }
 
-typedef Object<struct wl_compositor> wl_compositor_object;
-
 void compositor_create_surface(struct wl_client *client,
                                struct wl_resource *resource, uint32_t id)
 {
-    wl_compositor_object *second_super = static_cast<wl_compositor_object *>(resource->data);
-    static_cast<Compositor *>(second_super)->createSurface(client,id);
+     static_cast<Compositor *>(resource->data)->createSurface(client,id);
 }
 
 const static struct wl_compositor_interface compositor_interface = {
     compositor_create_surface
 };
 
+void Compositor::bind_func(struct wl_client *client, void *data,
+                      uint32_t version, uint32_t id)
+{
+    wl_client_add_object(client,&wl_compositor_interface, &compositor_interface, id,data);
+}
 
 
 Compositor *Compositor::instance()
@@ -110,6 +112,7 @@ Compositor *Compositor::instance()
 
 Compositor::Compositor(WaylandCompositor *qt_compositor)
     : m_display(new Display)
+    , m_shell(this)
     , m_shm(m_display)
     , m_current_frame(0)
     , m_last_queued_buf(-1)
@@ -121,7 +124,6 @@ Compositor::Compositor(WaylandCompositor *qt_compositor)
 #if defined (QT_COMPOSITOR_WAYLAND_GL)
     , m_graphics_hw_integration(0)
 #endif
-    , m_dragActive(false)
 {
     compositor = this;
     qDebug() << "Compositor instance is" << this;
@@ -137,16 +139,15 @@ Compositor::Compositor(WaylandCompositor *qt_compositor)
             SIGNAL(windowPropertyChanged(wl_client*,wl_surface*,QString,QVariant)),
             SLOT(windowPropertyChanged(wl_client*,wl_surface*,QString,QVariant)));
 
-    if (wl_compositor_init(base(), &compositor_interface, m_display->handle())) {
-        fprintf(stderr, "Fatal: Error initializing compositor\n");
-        exit(EXIT_FAILURE);
-    }
+    wl_display_add_global(m_display->handle(),&wl_compositor_interface,this,Compositor::bind_func);
 
     m_input = new InputDevice(this);
 
+    m_data_device_manager =  new DataDeviceManager(this);
     wl_display_add_global(m_display->handle(),&wl_output_interface,m_output.base(),Output::output_bind_func);
+
     wl_display_add_global(m_display->handle(), &wl_shell_interface, m_shell.base(), Shell::bind_func);
-    wl_display_add_global(m_display->handle(),&wl_input_device_interface,m_input,InputDevice::bind_func);
+
 
     if (wl_display_add_socket(m_display->handle(), qt_compositor->socketName())) {
         fprintf(stderr, "Fatal: Failed to open server socket\n");
@@ -159,10 +160,15 @@ Compositor::Compositor(WaylandCompositor *qt_compositor)
 
     QSocketNotifier *sockNot = new QSocketNotifier(fd, QSocketNotifier::Read, this);
     connect(sockNot, SIGNAL(activated(int)), this, SLOT(processWaylandEvents()));
+
+    //initialize distancefieldglyphcache here
 }
 
 Compositor::~Compositor()
 {
+    delete m_input;
+    delete m_data_device_manager;
+
     delete m_display;
 }
 
@@ -282,18 +288,13 @@ void Compositor::destroyClientForSurface(Surface *surface)
 
 void Compositor::setInputFocus(Surface *surface)
 {
-    wl_surface *base = surface ? surface->base() : 0;
-
-    ulong time = currentTimeMsecs();
-
-    m_keyFocusSurface = surface;
-    m_pointerFocusSurface = surface;
-    wl_input_device_set_keyboard_focus(m_input->base(), base, time);
-    wl_input_device_set_pointer_focus(m_input->base(), base, time, 0, 0, 0, 0);
+    setKeyFocus(surface);
+    setPointerFocus(surface);
 }
 
 void Compositor::setKeyFocus(Surface *surface)
 {
+    m_input->sendSelectionFocus(surface);
     m_keyFocusSurface = surface;
     wl_input_device_set_keyboard_focus(m_input->base(), surface ? surface->base() : 0, currentTimeMsecs());
 }
@@ -400,18 +401,18 @@ QList<Wayland::Surface *> Compositor::surfacesForClient(wl_client *client)
 
 bool Compositor::isDragging() const
 {
-    return m_dragActive;
+    return false;
 }
 
 void Compositor::sendDragMoveEvent(const QPoint &global, const QPoint &local,
                                             Surface *surface)
 {
-    Drag::instance()->dragMove(global, local, surface);
+//    Drag::instance()->dragMove(global, local, surface);
 }
 
 void Compositor::sendDragEndEvent()
 {
-    Drag::instance()->dragEnd();
+//    Drag::instance()->dragEnd();
 }
 
 } // namespace Wayland

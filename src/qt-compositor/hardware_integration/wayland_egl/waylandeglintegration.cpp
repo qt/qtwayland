@@ -44,6 +44,7 @@
 #include <QtGui/QGuiApplication>
 #include <QtGui/QOpenGLContext>
 #include <QtGui/QPlatformScreen>
+#include <QtGui/QWindow>
 
 #define EGL_EGLEXT_PROTOTYPES
 #include <EGL/egl.h>

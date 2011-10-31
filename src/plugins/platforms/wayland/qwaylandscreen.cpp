@@ -99,22 +99,3 @@ QWaylandScreen * QWaylandScreen::waylandScreenFromWindow(QWindow *window)
     QPlatformScreen *platformScreen = QPlatformScreen::platformScreenForWindow(window);
     return static_cast<QWaylandScreen *>(platformScreen);
 }
-
-wl_visual * QWaylandScreen::visual() const
-{
-    struct wl_visual *visual;
-
-    switch (format()) {
-    case QImage::Format_ARGB32:
-        visual = mWaylandDisplay->argbVisual();
-        break;
-    case QImage::Format_ARGB32_Premultiplied:
-        visual = mWaylandDisplay->argbPremultipliedVisual();
-        break;
-    default:
-        qDebug("unsupported buffer format %d requested\n", format());
-        visual = mWaylandDisplay->argbVisual();
-        break;
-    }
-    return visual;
-}

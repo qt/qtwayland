@@ -11,7 +11,7 @@ public:
     XCompositeHandler(Wayland::Compositor *compositor, Display *display, QWindow *window);
     void createBuffer(struct wl_client *client, uint32_t id, Window window, const QSize &size, struct wl_visual *visual);
 
-    static void send_root_information(struct wl_client *client, struct wl_object *global, uint32_t version);
+    static void xcomposite_bind_func(struct wl_client *client, void *data, uint32_t version, uint32_t id);
     static struct wl_xcomposite_interface xcomposite_interface;
 
 private:

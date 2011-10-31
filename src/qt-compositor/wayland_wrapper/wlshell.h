@@ -38,39 +38,53 @@
 **
 ****************************************************************************/
 
-#include "wloutput.h"
-#include <QGuiApplication>
-#include <QtGui/QScreen>
-#include <QRect>
+#ifndef WLSHELL_H
+#define WLSHELL_H
+
+#include <waylandobject.h>
 
 namespace Wayland {
 
-void Output::output_bind_func(struct wl_client *client, void *data,
-                          uint32_t version, uint32_t id)
+class Shell : public Object<struct wl_object>
 {
-    Q_UNUSED(version);
-    Output *output = static_cast<Output *>(data);
+public:
+    Shell();
 
-    struct wl_resource *resource = wl_client_add_object(client,&wl_output_interface,0,id,data);
-    wl_resource_post_event(resource, WL_OUTPUT_GEOMETRY, 0, 0,
-                         output->size().width(), output->size().height(),0,"","");
+    static void bind_func(struct wl_client *client, void *data,
+                                uint32_t version, uint32_t id);
+    static void shell_move(struct wl_client *client,
+                    struct wl_resource *shell,
+                    struct wl_resource *surface,
+                    struct wl_resource *input_device,
+                    uint32_t time);
+    static void shell_resize(struct wl_client *client,
+                      struct wl_resource *shell,
+                      struct wl_resource *surface,
+                      struct wl_resource *input_device,
+                      uint32_t time,
+                      uint32_t edges);
+    static void shell_drag(struct wl_client *client,
+                    struct wl_resource *shell,
+                    uint32_t id);
+    static void shell_selection(struct wl_client *client,
+                         struct wl_resource *shell,
+                         uint32_t id);
+    static void set_toplevel(struct wl_client *client,
+                         struct wl_resource *shell,
+                         struct wl_resource *surface);
+    static void set_transient(struct wl_client *client,
+                          struct wl_resource *shell,
+                          struct wl_resource *surface,
+                          struct wl_resource *parent,
+                          int x,
+                          int y,
+                          uint32_t flags);
+    static void set_fullscreen(struct wl_client *client,
+                           struct wl_resource *shell,
+                           struct wl_resource *surface);
+    const static struct wl_shell_interface shell_interface;
+};
 
-    wl_resource_post_event(resource,WL_OUTPUT_MODE, WL_OUTPUT_MODE_CURRENT|WL_OUTPUT_MODE_PREFERRED,
-                           output->size().width(),output->size().height());
 }
 
-
-Output::Output()
-    : m_displayId(-1)
-    , m_numQueued(0)
-{
-    QScreen *screen = QGuiApplication::primaryScreen();
-    m_geometry = QRect(QPoint(0, 0), screen->availableGeometry().size());
-}
-
-void Output::setGeometry(const QRect &geometry)
-{
-    m_geometry = geometry;
-}
-
-} // namespace Wayland
+#endif // WLSHELL_H

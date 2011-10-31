@@ -72,18 +72,18 @@ private slots:
     void readFromClient(int fd);
 
 private:
-    static void destroySelection(struct wl_resource *resource, struct wl_client *client);
+    static void destroySelection(struct wl_resource *resource);
     static void selOffer(struct wl_client *client,
-                         struct wl_selection *selection,
+                         struct wl_resource *selection,
                          const char *type);
     static void selActivate(struct wl_client *client,
-                            struct wl_selection *selection,
-                            struct wl_input_device *device,
+                            struct wl_resource *selection,
+                            struct wl_resource *device,
                             uint32_t time);
-    static void selDestroy(struct wl_client *client, struct wl_selection *selection);
+    static void selDestroy(struct wl_client *client, struct wl_resource *selection);
     static const struct wl_selection_interface selectionInterface;
     static void send(struct wl_client *client,
-                     struct wl_selection_offer *offer,
+                     struct wl_resource *offer,
                      const char *mime_type, int fd);
     static const struct wl_selection_offer_interface selectionOfferInterface;
 
@@ -99,9 +99,11 @@ private:
     int m_retainedReadIndex;
     QByteArray m_retainedReadBuf;
     struct wl_selection *m_retainedSelection;
+    struct wl_global *m_retainedSelectionGlobal;
     bool m_retainedSelectionEnabled;
     Watcher m_watchFunc;
     void *m_watchFuncParam;
+    QList<struct wl_resource *> m_selectionClientResources;
 };
 
 }

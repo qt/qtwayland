@@ -49,12 +49,14 @@
 namespace Wayland {
 
 void Drag::dragOfferAccept(struct wl_client *client,
-                           struct wl_drag_offer *offer, uint32_t time, const char *type)
+                           struct wl_resource *resource_offer, uint32_t time, const char *type)
 {
-    qDebug() << "dragOfferAccept" << client << offer << type;
     Q_UNUSED(time);
     Drag *self = Drag::instance();
+    struct wl_drag_offer *offer = reinterpret_cast<struct wl_drag_offer *>(resource_offer);
     struct wl_drag *drag = container_of(offer, struct wl_drag, drag_offer);
+
+    qDebug() << "dragOfferAccept" << client << offer << type;
     drag->target = client;
     QString wantedType = QString::fromLatin1(type);
     if (!self->m_offerList.contains(wantedType)) {
@@ -62,29 +64,33 @@ void Drag::dragOfferAccept(struct wl_client *client,
                  qPrintable(type));
         type = 0;
     }
-    wl_client_post_event(drag->source->client, &drag->resource.object,
+    wl_resource_post_event(&drag->resource,
                          WL_DRAG_TARGET, type);
 }
 
 void Drag::dragOfferReceive(struct wl_client *client,
-                            struct wl_drag_offer *offer, int fd)
+                            struct wl_resource *resource_offer, int fd)
 {
-    qDebug() << "dragOfferReceive" << client << offer << fd;
     Q_UNUSED(client);
+    struct wl_drag_offer *offer = reinterpret_cast<struct wl_drag_offer *>(resource_offer);
+
+    qDebug() << "dragOfferReceive" << client << offer << fd;
     struct wl_drag *drag = container_of(offer, struct wl_drag, drag_offer);
-    wl_client_post_event(drag->source->client, &drag->resource.object,
+    wl_resource_post_event(&drag->resource,
                          WL_DRAG_FINISH, fd);
     close(fd);
 }
 
-void Drag::dragOfferReject(struct wl_client *client, struct wl_drag_offer *offer)
+void Drag::dragOfferReject(struct wl_client *client, struct wl_resource *resource_offer)
 {
-    qDebug() << "dragOfferReject" << client << offer;
     Q_UNUSED(client);
+    struct wl_drag_offer *offer = reinterpret_cast<struct wl_drag_offer *>(resource_offer);
+    qDebug() << "dragOfferReject" << client << offer;
+
     struct wl_drag *drag = container_of(offer, struct wl_drag, drag_offer);
     if (drag->target == client)
         drag->target = 0;
-    wl_client_post_event(drag->source->client, &drag->resource.object,
+    wl_resource_post_event(&drag->resource,
                          WL_DRAG_REJECT);
 }
 
@@ -94,7 +100,7 @@ const struct wl_drag_offer_interface Drag::dragOfferInterface = {
     Drag::dragOfferReject
 };
 
-void Drag::dragOffer(struct wl_client *client, struct wl_drag *drag, const char *type)
+void Drag::dragOffer(struct wl_client *client, struct wl_resource *drag, const char *type)
 {
     qDebug() << "dragOffer" << client << drag << type;
     Q_UNUSED(client);
@@ -103,21 +109,25 @@ void Drag::dragOffer(struct wl_client *client, struct wl_drag *drag, const char 
 }
 
 void Drag::dragActivate(struct wl_client *client,
-                        struct wl_drag *drag,
-                        struct wl_surface *surface,
-                        struct wl_input_device *device, uint32_t time)
+                        struct wl_resource *drag_resource,
+                        struct wl_resource *surface_resource,
+                        struct wl_resource *device_resource, uint32_t time)
 {
+    struct wl_drag *drag = reinterpret_cast<struct wl_drag *>(drag_resource);
+    struct wl_surface *surface = reinterpret_cast<struct wl_surface *>(surface_resource);
+    struct wl_input_device *device = reinterpret_cast<struct wl_input_device *>(device_resource);
+
     qDebug() << "dragActivate" << client << drag << surface;
     Q_UNUSED(client);
     Q_UNUSED(device);
     Q_UNUSED(time);
     Drag *self = Drag::instance();
     drag->source = surface;
-    drag->drag_offer.object.interface = &wl_drag_offer_interface;
-    drag->drag_offer.object.implementation = (void (**)()) &dragOfferInterface;
+    drag->drag_offer.resource.object.interface = &wl_drag_offer_interface;
+    drag->drag_offer.resource.object.implementation = (void (**)()) &dragOfferInterface;
     wl_display *dpy = Compositor::instance()->wl_display();
-    wl_display_add_object(dpy, &drag->drag_offer.object);
-    wl_display_add_global(dpy, &drag->drag_offer.object, 0);
+//    wl_display_add_object(dpy, &drag->drag_offer.resource.object);
+//    wl_display_add_global(dpy, &drag->drag_offer.resource.object, 0);
     Surface *focus = Compositor::instance()->pointerFocus();
     QPoint pos;
     if (focus)
@@ -136,29 +146,27 @@ void Drag::setPointerFocus(wl_surface *surface, const QPoint &global, const QPoi
 
     uint timestamp = Compositor::currentTimeMsecs();
     if (m_drag->drag_focus
-        && (!surface || m_drag->drag_focus->client != surface->client)) {
+        && (!surface || m_drag->drag_focus->resource.client != surface->resource.client)) {
         qDebug() << "WL_DRAG_OFFER_POINTER_FOCUS with null";
-        wl_client_post_event(m_drag->drag_focus->client,
-                             &m_drag->drag_offer.object,
+        wl_resource_post_event(&m_drag->drag_offer.resource,
                              WL_DRAG_OFFER_POINTER_FOCUS,
                              timestamp, 0, 0, 0, 0, 0);
     }
     if (surface
-        && (!m_drag->drag_focus || m_drag->drag_focus->client != surface->client)) {
-        wl_client_post_global(surface->client,
-                              &m_drag->drag_offer.object);
+        && (!m_drag->drag_focus || m_drag->drag_focus->resource.client != surface->resource.client)) {
+//        wl_client_post_global(surface->client,
+//                              &m_drag->drag_offer.object);
         foreach (const QString &format, m_offerList) {
             QByteArray mimeTypeBa = format.toLatin1();
             qDebug() << "WL_DRAG_OFFER_OFFER" << mimeTypeBa;
-            wl_client_post_event(surface->client, &m_drag->drag_offer.object,
+            wl_resource_post_event(&m_drag->drag_offer.resource,
                                  WL_DRAG_OFFER_OFFER, mimeTypeBa.constData());
         }
     }
 
     if (surface) {
         qDebug() << "WL_DRAG_OFFER_POINTER_FOCUS" << surface << global << local;
-        wl_client_post_event(surface->client,
-                             &m_drag->drag_offer.object,
+        wl_resource_post_event(&m_drag->drag_offer.resource,
                              WL_DRAG_OFFER_POINTER_FOCUS,
                              timestamp, surface,
                              global.x(), global.y(), local.x(), local.y());
@@ -169,10 +177,12 @@ void Drag::setPointerFocus(wl_surface *surface, const QPoint &global, const QPoi
     m_drag->target = 0;
 }
 
-void Drag::dragDestroy(struct wl_client *client, struct wl_drag *drag)
+void Drag::dragDestroy(struct wl_client *client, struct wl_resource *drag_resource)
 {
+    Q_UNUSED(client);
     qDebug() << "dragDestroy";
-    wl_resource_destroy(&drag->resource, client, Compositor::currentTimeMsecs());
+    struct wl_drag *drag = reinterpret_cast<struct wl_drag *>(drag_resource);
+    wl_resource_destroy(&drag->resource, Compositor::currentTimeMsecs());
 }
 
 const struct wl_drag_interface Drag::dragInterface = {
@@ -181,12 +191,11 @@ const struct wl_drag_interface Drag::dragInterface = {
     Drag::dragDestroy
 };
 
-void Drag::destroyDrag(struct wl_resource *resource, struct wl_client *client)
+void Drag::destroyDrag(struct wl_resource *resource)
 {
-    Q_UNUSED(client);
     struct wl_drag *drag = container_of(resource, struct wl_drag, resource);
     wl_display *dpy = Compositor::instance()->wl_display();
-    wl_display_remove_global(dpy, &drag->drag_offer.object);
+//    wl_display_remove_global(dpy, &drag->drag_offer.object);
     delete drag;
 }
 
@@ -213,8 +222,7 @@ void Drag::done(bool sending)
         // ### hack: Send a pointerFocus with null surface to the source too, this is
         // mandatory even if the previous pointerFocus went to the same client, otherwise
         // Qt will not know the drag is over without a drop.
-        wl_client_post_event(m_drag->source->client,
-                             &m_drag->drag_offer.object,
+        wl_resource_post_event(&m_drag->drag_offer.resource,
                              WL_DRAG_OFFER_POINTER_FOCUS,
                              Compositor::instance()->currentTimeMsecs(),
                              0, 0, 0, 0, 0);
@@ -230,8 +238,7 @@ void Drag::dragMove(const QPoint &global, const QPoint &local, Surface *surface)
     if (surface) {
         setPointerFocus(surface->base(), global, local);
         uint timestamp = Compositor::currentTimeMsecs();
-        wl_client_post_event(surface->base()->client,
-                             &m_drag->drag_offer.object,
+        wl_resource_post_event(&m_drag->drag_offer.resource,
                              WL_DRAG_OFFER_MOTION,
                              timestamp,
                              global.x(), global.y(), local.x(), local.y());
@@ -247,8 +254,7 @@ void Drag::dragEnd()
         return;
     if (m_drag->target) {
         qDebug() << "WL_DRAG_OFFER_DROP" << m_drag->target;
-        wl_client_post_event(m_drag->target,
-                             &m_drag->drag_offer.object,
+        wl_resource_post_event(&m_drag->drag_offer.resource,
                              WL_DRAG_OFFER_DROP);
         done(true);
     } else {

@@ -58,13 +58,14 @@ public:
     int y() const { return m_geometry.y(); }
     QSize size() const { return m_geometry.size(); }
 
+    static void output_bind_func(struct wl_client *client, void *data,
+                          uint32_t version, uint32_t id);
 private:
     QRect m_geometry;
     int m_displayId;
     int m_numQueued;
 };
 
-void output_post_geometry(struct wl_client *client, struct wl_object *global, uint32_t version);
 
 }
 

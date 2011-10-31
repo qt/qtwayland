@@ -38,39 +38,29 @@
 **
 ****************************************************************************/
 
-#include "wloutput.h"
-#include <QGuiApplication>
-#include <QtGui/QScreen>
-#include <QRect>
+#ifndef WLINPUTDEVICE_H
+#define WLINPUTDEVICE_H
+
+#include "waylandobject.h"
 
 namespace Wayland {
 
-void Output::output_bind_func(struct wl_client *client, void *data,
-                          uint32_t version, uint32_t id)
+class Compositor;
+class InputDevice : public Object<struct wl_input_device>
 {
-    Q_UNUSED(version);
-    Output *output = static_cast<Output *>(data);
+public:
+    InputDevice(Compositor *compositor);
 
-    struct wl_resource *resource = wl_client_add_object(client,&wl_output_interface,0,id,data);
-    wl_resource_post_event(resource, WL_OUTPUT_GEOMETRY, 0, 0,
-                         output->size().width(), output->size().height(),0,"","");
+    static void bind_func(struct wl_client *client, void *data,
+                                uint32_t version, uint32_t id);
+    static void input_device_attach(struct wl_client *client,
+                             struct wl_resource *device_base,
+                             uint32_t time,
+                             struct wl_resource *buffer, int32_t x, int32_t y);
+    const static struct wl_input_device_interface input_device_interface;
+    static void destroy_resource(struct wl_resource *resource);
+};
 
-    wl_resource_post_event(resource,WL_OUTPUT_MODE, WL_OUTPUT_MODE_CURRENT|WL_OUTPUT_MODE_PREFERRED,
-                           output->size().width(),output->size().height());
 }
 
-
-Output::Output()
-    : m_displayId(-1)
-    , m_numQueued(0)
-{
-    QScreen *screen = QGuiApplication::primaryScreen();
-    m_geometry = QRect(QPoint(0, 0), screen->availableGeometry().size());
-}
-
-void Output::setGeometry(const QRect &geometry)
-{
-    m_geometry = geometry;
-}
-
-} // namespace Wayland
+#endif // WLINPUTDEVICE_H

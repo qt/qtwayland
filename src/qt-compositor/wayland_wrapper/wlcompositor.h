@@ -46,6 +46,7 @@
 #include "wloutput.h"
 #include "wldisplay.h"
 #include "wlshmbuffer.h"
+#include "wlshell.h"
 
 #include <wayland-server.h>
 
@@ -56,6 +57,7 @@ class WindowManagerServerIntegration;
 namespace Wayland {
 
 class Surface;
+class InputDevice;
 
 class Compositor : public QObject, public Object<struct wl_compositor>
 {
@@ -76,8 +78,8 @@ public:
     struct wl_client *getClientFromWinId(uint winId) const;
     QImage image(uint winId) const;
 
-    const struct wl_input_device *inputDevice() const { return &m_input; }
-    struct wl_input_device *inputDevice() { return &m_input; }
+    InputDevice *inputDevice() { return m_input; }
+    InputDevice *defaultInputDevice();
 
     void createSurface(struct wl_client *client, int id);
     void surfaceDestroyed(Surface *surface);
@@ -97,7 +99,6 @@ public:
 
     QList<Surface*> surfacesForClient(wl_client* client);
 
-    wl_input_device *defaultInputDevice();
     WaylandCompositor *qtCompositor() const { return m_qt_compositor; }
 
     struct wl_display *wl_display() { return m_display->handle(); }
@@ -124,12 +125,13 @@ private:
     Display *m_display;
 
     /* Input */
-    struct wl_input_device m_input;
+    InputDevice *m_input;
 
     /* Output */
+    //make this a list of the available screens
     Output m_output;
 
-    struct wl_object m_shell;
+    Shell m_shell;
 
     /* shm/*/
     ShmHandler m_shm;

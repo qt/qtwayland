@@ -40,6 +40,8 @@
 
 #include "wlselection.h"
 #include "wlcompositor.h"
+#include "wlinputdevice.h"
+
 #include <wayland-util.h>
 #include <string.h>
 #include <unistd.h>
@@ -48,10 +50,12 @@
 #include <QtCore/QSocketNotifier>
 #include <QtCore/private/qcore_unix_p.h>
 
+#include <QtCore/QDebug>
+
 namespace Wayland {
 
 void Selection::send(struct wl_client *client,
-                     struct wl_selection_offer *offer,
+                     struct wl_resource *offer,
                      const char *mime_type, int fd)
 {
     Q_UNUSED(client);
@@ -64,9 +68,9 @@ void Selection::send(struct wl_client *client,
                 f.write(data);
         }
     } else {
-        struct wl_selection *selection = container_of(offer, struct wl_selection, selection_offer);
-        wl_client_post_event(selection->client,
-                             &selection->resource.object,
+        struct wl_selection_offer *actual_offer = reinterpret_cast<struct wl_selection_offer *>(offer);
+        struct wl_selection *selection = container_of(actual_offer, struct wl_selection, selection_offer);
+        wl_resource_post_event(&selection->resource,
                              WL_SELECTION_SEND, mime_type, fd);
     }
     close(fd);
@@ -77,7 +81,7 @@ const struct wl_selection_offer_interface Selection::selectionOfferInterface = {
 };
 
 void Selection::selOffer(struct wl_client *client,
-                         struct wl_selection *selection,
+                         struct wl_resource *selection,
                          const char *type)
 {
     Q_UNUSED(client);
@@ -86,51 +90,49 @@ void Selection::selOffer(struct wl_client *client,
 }
 
 void Selection::selActivate(struct wl_client *client,
-                            struct wl_selection *selection,
-                            struct wl_input_device *device,
+                            struct wl_resource *selection_resource,
+                            struct wl_resource *device,
                             uint32_t time)
 {
     Q_UNUSED(client);
     Q_UNUSED(device);
     Q_UNUSED(time);
     Selection *self = Selection::instance();
-
-    selection->selection_offer.object.interface = &wl_selection_offer_interface;
-    selection->selection_offer.object.implementation = (void (**)()) &selectionOfferInterface;
+    struct wl_selection *selection = reinterpret_cast<struct wl_selection *>(selection_resource);
+    selection->selection_offer.resource.object.interface = &wl_selection_offer_interface;
+    selection->selection_offer.resource.object.implementation = (void (**)()) &selectionOfferInterface;
     wl_display *dpy = Compositor::instance()->wl_display();
-    wl_display_add_object(dpy, &selection->selection_offer.object);
-    wl_display_add_global(dpy, &selection->selection_offer.object, 0);
+    wl_display_add_global(dpy,&wl_selection_offer_interface,selection,0);
 
     QList<struct wl_client *> clients = Compositor::instance()->clients();
+
     if (self->m_currentSelection) {
         if (!clients.contains(self->m_currentSelection->client))
             self->m_currentSelection = 0;
         else
-            wl_client_post_event(self->m_currentSelection->client,
-                                 &self->m_currentSelection->resource.object,
+            wl_resource_post_event(&self->m_currentSelection->resource,
                                  WL_SELECTION_CANCELLED);
     }
     self->m_currentSelection = selection;
 
     if (self->m_currentOffer) {
-        foreach (struct wl_client *client, clients) {
-            wl_client_post_event(client, &self->m_currentOffer->object,
+        foreach (struct wl_resource *clientResource, self->m_selectionClientResources) {
+            wl_resource_post_event(clientResource,
                                  WL_SELECTION_OFFER_KEYBOARD_FOCUS, 0);
         }
+        self->m_selectionClientResources.clear();
     }
     self->m_currentOffer = &selection->selection_offer;
     foreach (struct wl_client *client, clients) {
-        wl_client_post_global(client, &selection->selection_offer.object);
-    }
-    foreach (struct wl_client *client, clients) {
+        qDebug() << "sending to clients";
+        selection->selection_offer.resource.client = client;
         foreach (const QString &mimeType, self->m_offerList) {
             QByteArray mimeTypeBa = mimeType.toLatin1();
-            wl_client_post_event(client, &selection->selection_offer.object,
+            wl_resource_post_event(&selection->selection_offer.resource,
                                  WL_SELECTION_OFFER_OFFER, mimeTypeBa.constData());
         }
-    }
-    foreach (struct wl_client *client, clients) {
-        wl_client_post_event(client, &selection->selection_offer.object,
+
+        wl_resource_post_event(&selection->selection_offer.resource,
                              WL_SELECTION_OFFER_KEYBOARD_FOCUS, selection->input_device);
     }
 
@@ -160,7 +162,7 @@ void Selection::retain()
         return;
     }
     fcntl(fd[0], F_SETFL, fcntl(fd[0], F_GETFL, 0) | O_NONBLOCK);
-    wl_client_post_event(m_currentSelection->client, &m_currentSelection->resource.object,
+    wl_resource_post_event(&m_currentSelection->resource,
                          WL_SELECTION_SEND, mimeTypeBa.constData(), fd[1]);
     close(fd[1]);
     m_retainedReadNotifier = new QSocketNotifier(fd[0], QSocketNotifier::Read, this);
@@ -219,9 +221,9 @@ void Selection::readFromClient(int fd)
     }
 }
 
-void Selection::selDestroy(struct wl_client *client, struct wl_selection *selection)
+void Selection::selDestroy(struct wl_client *client, struct wl_resource *selection)
 {
-    wl_resource_destroy(&selection->resource, client, Compositor::currentTimeMsecs());
+    wl_resource_destroy(selection, Compositor::currentTimeMsecs());
 }
 
 const struct wl_selection_interface Selection::selectionInterface = {
@@ -230,9 +232,8 @@ const struct wl_selection_interface Selection::selectionInterface = {
     Selection::selDestroy
 };
 
-void Selection::destroySelection(struct wl_resource *resource, struct wl_client *client)
+void Selection::destroySelection(struct wl_resource *resource)
 {
-    Q_UNUSED(client);
     struct wl_selection *selection = container_of(resource, struct wl_selection, resource);
     Selection *self = Selection::instance();
     wl_display *dpy = Compositor::instance()->wl_display();
@@ -242,18 +243,18 @@ void Selection::destroySelection(struct wl_resource *resource, struct wl_client 
         self->m_currentOffer = 0;
         if (self->m_retainedSelectionEnabled) {
             if (self->m_retainedSelection) {
-                wl_display_remove_global(dpy, &self->m_retainedSelection->selection_offer.object);
+//                wl_display_remove_global(dpy, &self->m_retainedSelection->selection_offer.object);
                 delete self->m_retainedSelection;
             }
             self->m_retainedSelection = selection;
             return;
         }
         self->m_offerList.clear();
-        foreach (struct wl_client *client, Compositor::instance()->clients())
-            wl_client_post_event(client, &selection->selection_offer.object,
+        foreach (struct wl_resource *resource, self->m_selectionClientResources)
+            wl_resource_post_event(resource,
                                  WL_SELECTION_OFFER_KEYBOARD_FOCUS, 0);
     }
-    wl_display_remove_global(dpy, &selection->selection_offer.object);
+//    wl_display_remove_global(dpy, &selection->selection_offer.object);
     delete selection;
 }
 
@@ -265,8 +266,8 @@ void Selection::create(struct wl_client *client, uint32_t id)
                 m_currentOffer = 0;
             m_currentSelection = 0;
         }
-        wl_display_remove_global(Compositor::instance()->wl_display(),
-                                 &m_retainedSelection->selection_offer.object);
+//        wl_display_remove_global(Compositor::instance()->wl_display(),
+//                                 &m_retainedSelection->selection_offer.object);
         delete m_retainedSelection;
         m_retainedSelection = 0;
     }
@@ -278,7 +279,7 @@ void Selection::create(struct wl_client *client, uint32_t id)
     selection->resource.object.implementation = (void (**)()) &selectionInterface;
     selection->resource.destroy = destroySelection;
     selection->client = client;
-    selection->input_device = Compositor::instance()->inputDevice();
+    selection->input_device = Compositor::instance()->inputDevice()->base();
     wl_client_add_resource(client, &selection->resource);
 }
 
@@ -304,10 +305,10 @@ void Selection::onClientAdded(wl_client *client)
     if (selection && offer) {
         foreach (const QString &mimeType, m_offerList) {
             QByteArray mimeTypeBa = mimeType.toLatin1();
-            wl_client_post_event(client, &offer->object,
+            wl_resource_post_event(&offer->resource,
                                  WL_SELECTION_OFFER_OFFER, mimeTypeBa.constData());
         }
-        wl_client_post_event(client, &offer->object,
+        wl_resource_post_event(&offer->resource,
                              WL_SELECTION_OFFER_KEYBOARD_FOCUS, selection->input_device);
     }
 }

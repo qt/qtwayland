@@ -74,7 +74,7 @@ public:
     bool isYInverted() const;
 
     uint id() const { return base()->resource.object.id; }
-    void attach(struct wl_buffer *buffer);
+    void attach(struct wl_resource *buffer);
 
     void damage(const QRect &rect);
 
@@ -94,6 +94,8 @@ public:
     void sendTouchPointEvent(int id, int x, int y, Qt::TouchPointState state);
     void sendTouchFrameEvent();
     void sendTouchCancelEvent();
+
+    void sendFrameCallback();
 
     void frameFinished();
     void setInputFocus();
@@ -115,23 +117,23 @@ public:
 
     QPoint lastMousePos() const;
 
+    static const struct wl_surface_interface surface_interface;
 protected:
     QScopedPointer<SurfacePrivate> d_ptr;
 private:
     Q_DISABLE_COPY(Surface)
+    static void surface_destroy(struct wl_client *client, struct wl_resource *_surface);
+    static void surface_attach(struct wl_client *client, struct wl_resource *surface,
+                        struct wl_resource *buffer, int x, int y);
+    static void surface_damage(struct wl_client *client, struct wl_resource *_surface,
+                        int32_t x, int32_t y, int32_t width, int32_t height);
+    static void surface_frame(struct wl_client *client, struct wl_resource *resource,
+                       uint32_t callback);
+
+    static void surface_resource_destory(struct wl_resource *resource);
+
 };
 
-void surface_destroy(struct wl_client *client, struct wl_surface *_surface);
-void surface_attach(struct wl_client *client, struct wl_surface *surface,
-                    struct wl_buffer *buffer, int x, int y);
-void surface_damage(struct wl_client *client, struct wl_surface *_surface,
-               int32_t x, int32_t y, int32_t width, int32_t height);
-
-const static struct wl_surface_interface surface_interface = {
-    surface_destroy,
-    surface_attach,
-    surface_damage
-};
 }
 
 #endif //WL_SURFACE_H

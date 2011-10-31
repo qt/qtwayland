@@ -140,6 +140,7 @@ protected:
     }
 
     void surfaceCreated(WaylandSurface *surface) {
+        qDebug() << "surface created";
         connect(surface, SIGNAL(destroyed(QObject *)), this, SLOT(surfaceDestroyed(QObject *)));
         connect(surface, SIGNAL(mapped(const QSize &)), this, SLOT(surfaceMapped(const QSize &)));
         connect(surface, SIGNAL(damaged(const QRect &)), this, SLOT(surfaceDamaged(const QRect &)));

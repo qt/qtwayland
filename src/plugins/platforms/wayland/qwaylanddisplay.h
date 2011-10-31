@@ -70,12 +70,6 @@ public:
     QWaylandScreen *screenForOutput(struct wl_output *output) const;
 
     struct wl_surface *createSurface(void *handle);
-    struct wl_buffer *createShmBuffer(int fd, int width, int height,
-                                      uint32_t stride,
-                                      struct wl_visual *visual);
-    struct wl_visual *rgbVisual();
-    struct wl_visual *argbVisual();
-    struct wl_visual *argbPremultipliedVisual();
 
 #ifdef QT_WAYLAND_GL_SUPPORT
     QWaylandGLIntegration *eglIntegration();
@@ -87,13 +81,13 @@ public:
 
     void setCursor(QWaylandBuffer *buffer, int32_t x, int32_t y);
 
-    void syncCallback(wl_display_sync_func_t func, void *data);
-    void frameCallback(wl_display_frame_func_t func, struct wl_surface *surface, void *data);
-
     struct wl_display *wl_display() const { return mDisplay; }
     struct wl_shell *wl_shell() const { return mShell; }
 
     QList<QWaylandInputDevice *> inputDevices() const { return mInputDevices; }
+
+    struct wl_shell *shell() const {return mShell; }
+    struct wl_shm *shm() const { return mShm; }
 
 public slots:
     void createNewScreen(struct wl_output *output, QRect geometry);
@@ -123,7 +117,6 @@ private:
     struct wl_visual *argb_visual, *premultiplied_argb_visual, *rgb_visual;
 
     static const struct wl_output_listener outputListener;
-    static const struct wl_compositor_listener compositorListener;
     static int sourceUpdate(uint32_t mask, void *data);
     static void displayHandleGlobal(struct wl_display *display,
                                     uint32_t id,
@@ -142,10 +135,6 @@ private:
                      int width,
                      int height,
                      int refresh);
-
-    static void handleVisual(void *data,
-                                       struct wl_compositor *compositor,
-                                       uint32_t id, uint32_t token);
 
 #ifdef QT_WAYLAND_GL_SUPPORT
     QWaylandGLIntegration *mEglIntegration;

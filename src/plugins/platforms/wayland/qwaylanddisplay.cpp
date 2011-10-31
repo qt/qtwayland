@@ -76,29 +76,6 @@ struct wl_surface *QWaylandDisplay::createSurface(void *handle)
     return surface;
 }
 
-struct wl_buffer *QWaylandDisplay::createShmBuffer(int fd,
-                                                   int width, int height,
-                                                   uint32_t stride,
-                                                   struct wl_visual *visual)
-{
-    return wl_shm_create_buffer(mShm, fd, width, height, stride, visual);
-}
-
-struct wl_visual *QWaylandDisplay::rgbVisual()
-{
-    return rgb_visual;
-}
-
-struct wl_visual *QWaylandDisplay::argbVisual()
-{
-    return argb_visual;
-}
-
-struct wl_visual *QWaylandDisplay::argbPremultipliedVisual()
-{
-    return premultiplied_argb_visual;
-}
-
 #ifdef QT_WAYLAND_GL_SUPPORT
 QWaylandGLIntegration * QWaylandDisplay::eglIntegration()
 {
@@ -184,16 +161,6 @@ void QWaylandDisplay::createNewScreen(struct wl_output *output, QRect geometry)
 {
     QWaylandScreen *waylandScreen = new QWaylandScreen(this,output,geometry);
     mScreens.append(waylandScreen);
-}
-
-void QWaylandDisplay::syncCallback(wl_display_sync_func_t func, void *data)
-{
-    wl_display_sync_callback(mDisplay, func, data);
-}
-
-void QWaylandDisplay::frameCallback(wl_display_frame_func_t func, struct wl_surface *surface, void *data)
-{
-    wl_display_frame_callback(mDisplay, surface, func, data);
 }
 
 void QWaylandDisplay::flushRequests()
@@ -288,11 +255,6 @@ const struct wl_output_listener QWaylandDisplay::outputListener = {
     QWaylandDisplay::mode
 };
 
-const struct wl_compositor_listener QWaylandDisplay::compositorListener = {
-    QWaylandDisplay::handleVisual,
-};
-
-
 void QWaylandDisplay::waitForScreens()
 {
     flushRequests();
@@ -317,16 +279,14 @@ void QWaylandDisplay::displayHandleGlobal(uint32_t id,
 {
     Q_UNUSED(version);
     if (interface == "wl_output") {
-        struct wl_output *output = wl_output_create(mDisplay, id, 1);
+        struct wl_output *output = static_cast<struct wl_output *>(wl_display_bind(mDisplay,id,&wl_output_interface));
         wl_output_add_listener(output, &outputListener, this);
     } else if (interface == "wl_compositor") {
-        mCompositor = wl_compositor_create(mDisplay, id, 1);
-        wl_compositor_add_listener(mCompositor,
-                                   &compositorListener, this);
+        mCompositor = static_cast<struct wl_compositor *>(wl_display_bind(mDisplay, id,&wl_compositor_interface));
     } else if (interface == "wl_shm") {
-        mShm = wl_shm_create(mDisplay, id, 1);
+        mShm = static_cast<struct wl_shm *>(wl_display_bind(mDisplay, id, &wl_shm_interface));
     } else if (interface == "wl_shell"){
-        mShell = wl_shell_create(mDisplay, id, 1);
+        mShell = static_cast<struct wl_shell *>(wl_display_bind(mDisplay, id, &wl_shell_interface));
         wl_shell_add_listener(mShell, &shellListener, this);
     } else if (interface == "wl_input_device") {
         QWaylandInputDevice *inputDevice =
@@ -339,22 +299,3 @@ void QWaylandDisplay::displayHandleGlobal(uint32_t id,
     }
 }
 
-void QWaylandDisplay::handleVisual(void *data,
-                                   struct wl_compositor *compositor,
-                                   uint32_t id, uint32_t token)
-{
-    QWaylandDisplay *self = static_cast<QWaylandDisplay *>(data);
-
-    switch (token) {
-    case WL_COMPOSITOR_VISUAL_ARGB32:
-        self->argb_visual = wl_visual_create(self->mDisplay, id, 1);
-        break;
-    case WL_COMPOSITOR_VISUAL_PREMULTIPLIED_ARGB32:
-        self->premultiplied_argb_visual =
-            wl_visual_create(self->mDisplay, id, 1);
-        break;
-    case WL_COMPOSITOR_VISUAL_XRGB32:
-        self->rgb_visual = wl_visual_create(self->mDisplay, id, 1);
-        break;
-    }
-}

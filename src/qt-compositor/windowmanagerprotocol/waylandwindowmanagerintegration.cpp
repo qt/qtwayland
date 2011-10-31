@@ -112,9 +112,9 @@ WindowManagerServerIntegration::WindowManagerServerIntegration(QObject *parent)
 
 void WindowManagerServerIntegration::initialize(Wayland::Display *waylandDisplay)
 {
-    m_windowManagerObject = new WindowManagerObject();
-    waylandDisplay->addGlobalObject(m_windowManagerObject->base(),
-                                    &wl_windowmanager_interface, &windowmanager_interface, 0);
+//    m_windowManagerObject = new WindowManagerObject();
+//    waylandDisplay->addGlobalObject(m_windowManagerObject->base(),
+//                                    &wl_windowmanager_interface, &windowmanager_interface, 0);
 }
 
 void WindowManagerServerIntegration::removeClient(wl_client *client)
@@ -175,8 +175,8 @@ void WindowManagerServerIntegration::setWindowProperty(wl_client *client, wl_sur
     data.data = (void*) byteValue.constData();
     data.alloc = 0;
 
-    wl_client_post_event(client, m_windowManagerObject->base(),
-                         WL_WINDOWMANAGER_SET_GENERIC_PROPERTY, surface, name.toLatin1().constData(), &data);
+    //wl_client_post_event(client, m_windowManagerObject->base(),
+    //                     WL_WINDOWMANAGER_SET_GENERIC_PROPERTY, surface, name.toLatin1().constData(), &data);
 }
 
 WaylandManagedClient *WindowManagerServerIntegration::managedClient(wl_client *client) const

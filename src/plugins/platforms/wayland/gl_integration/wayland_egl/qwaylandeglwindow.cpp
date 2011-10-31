@@ -93,7 +93,6 @@ void QWaylandEglWindow::newSurfaceCreated()
     if (m_waylandEglWindow)
         wl_egl_window_destroy(m_waylandEglWindow);
 
-    wl_visual *visual = QWaylandScreen::waylandScreenFromWindow(window())->visual();
     QSize size = geometry().size();
     if (!size.isValid())
         size = QSize(0,0);
@@ -103,7 +102,7 @@ void QWaylandEglWindow::newSurfaceCreated()
         m_eglSurface = 0;
     }
 
-    m_waylandEglWindow = wl_egl_window_create(mSurface, size.width(), size.height(), visual);
+    m_waylandEglWindow = wl_egl_window_create(mSurface, size.width(), size.height());
 
 #ifdef QT_WAYLAND_WINDOWMANAGER_SUPPORT
     QWaylandWindowManagerIntegration::instance()->flushPropertyChanges(this);

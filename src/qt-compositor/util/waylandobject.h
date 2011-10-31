@@ -72,8 +72,7 @@ void addClientResource(struct wl_client *client,
                        struct wl_resource *resource,
                        int id, const struct wl_interface *interface,
                        Implementation implementation,
-                       void (*destroy)(struct wl_resource *resource,
-                                       struct wl_client *client))
+                       void (*destroy)(struct wl_resource *resource))
 {
     resource->object.id = id;
     resource->object.interface = interface;

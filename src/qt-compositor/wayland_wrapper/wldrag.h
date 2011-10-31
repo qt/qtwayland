@@ -66,21 +66,21 @@ public:
     void dragEnd();
 
 private:
-    static void destroyDrag(struct wl_resource *resource, struct wl_client *client);
+    static void destroyDrag(struct wl_resource *resource);
 
-    static void dragOffer(struct wl_client *client, struct wl_drag *drag, const char *type);
+    static void dragOffer(struct wl_client *client, struct wl_resource *drag, const char *type);
     static void dragActivate(struct wl_client *client,
-                             struct wl_drag *drag,
-                             struct wl_surface *surface,
-                             struct wl_input_device *device, uint32_t time);
-    static void dragDestroy(struct wl_client *client, struct wl_drag *drag);
+                             struct wl_resource *drag,
+                             struct wl_resource  *surface,
+                             struct wl_resource *device, uint32_t time);
+    static void dragDestroy(struct wl_client *client, struct wl_resource *drag);
     static const struct wl_drag_interface dragInterface;
 
     static void dragOfferAccept(struct wl_client *client,
-                                struct wl_drag_offer *offer, uint32_t time, const char *type);
+                                struct wl_resource *offer, uint32_t time, const char *type);
     static void dragOfferReceive(struct wl_client *client,
-                                 struct wl_drag_offer *offer, int fd);
-    static void dragOfferReject(struct wl_client *client, struct wl_drag_offer *offer);
+                                 struct wl_resource *offer, int fd);
+    static void dragOfferReject(struct wl_client *client, struct wl_resource *offer);
     static const struct wl_drag_offer_interface dragOfferInterface;
 
     void setPointerFocus(wl_surface *surface, const QPoint &global, const QPoint &local);

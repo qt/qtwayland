@@ -188,16 +188,21 @@ void QWaylandClipboard::unregisterSelection(QWaylandSelection *selection)
 {
     mSelections.removeOne(selection);
 }
-
-void QWaylandClipboard::syncCallback(void *data)
+void QWaylandClipboard::syncCallback(void *data, struct wl_callback *wl_callback, uint32_t time)
 {
+    Q_UNUSED(wl_callback);
+    Q_UNUSED(time);
     *static_cast<bool *>(data) = true;
 }
-
+const struct wl_callback_listener QWaylandClipboard::syncCallbackListener =
+{
+  QWaylandClipboard::syncCallback
+};
 void QWaylandClipboard::forceRoundtrip(struct wl_display *display)
 {
     bool done = false;
-    wl_display_sync_callback(display, syncCallback, &done);
+    struct wl_callback *syncCallback = wl_display_sync(display);
+    wl_callback_add_listener(syncCallback,&syncCallbackListener,&done);
     wl_display_iterate(display, WL_DISPLAY_WRITABLE);
     while (!done)
         wl_display_iterate(display, WL_DISPLAY_READABLE);
@@ -267,7 +272,9 @@ void QWaylandClipboard::createSelectionOffer(uint32_t id)
     if (mOffer)
         wl_selection_offer_destroy(mOffer);
     mOffer = 0;
-    struct wl_selection_offer *offer = wl_selection_offer_create(mDisplay->wl_display(), id, 1);
+    struct wl_selection_offer *offer = static_cast<struct wl_selection_offer *>
+            (wl_display_bind(mDisplay->wl_display(), id,&wl_selection_offer_interface));
+    qDebug() << "creating selection offer";
     wl_selection_offer_add_listener(offer, &selectionOfferListener, this);
 }
 
@@ -277,6 +284,7 @@ void QWaylandClipboard::offer(void *data,
 {
     Q_UNUSED(data);
     Q_UNUSED(selection_offer);
+    qDebug() << "received offer";
     clipboard->mOfferedMimeTypes.append(QString::fromLatin1(type));
 }
 

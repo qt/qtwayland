@@ -63,7 +63,6 @@ public:
     Qt::ScreenOrientation currentOrientation() const;
     void setOrientation(const Qt::ScreenOrientation orientation);
 
-    wl_visual *visual() const;
     wl_output *output() const { return mOutput; }
 
     static QWaylandScreen *waylandScreenFromWindow(QWindow *window);

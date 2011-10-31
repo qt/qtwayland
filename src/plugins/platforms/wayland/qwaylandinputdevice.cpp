@@ -61,12 +61,13 @@ QWaylandInputDevice::QWaylandInputDevice(QWaylandDisplay *display,
 					 uint32_t id)
     : mQDisplay(display)
     , mDisplay(display->wl_display())
-    , mInputDevice(wl_input_device_create(mDisplay, id, 1))
     , mPointerFocus(NULL)
     , mKeyboardFocus(NULL)
     , mButtons(0)
     , mTouchState(QEvent::TouchBegin)
 {
+    mInputDevice = static_cast<struct wl_input_device *>
+            (wl_display_bind(mDisplay,id,&wl_input_device_interface));
     wl_input_device_add_listener(mInputDevice,
 				 &inputDeviceListener,
 				 this);

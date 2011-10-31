@@ -46,6 +46,7 @@
 #include "wlsurface.h"
 #include "wlselection.h"
 #include "wldrag.h"
+#include "wlinputdevice.h"
 #include "waylandcompositor.h"
 
 #include <QWindow>
@@ -73,136 +74,34 @@ namespace Wayland {
 
 static Compositor *compositor;
 
-static ShmBuffer *currentCursor;
-
 static void shmBufferDestroyed(ShmBuffer *buf)
 {
-    if (currentCursor == buf) {
-        compositor->qtCompositor()->changeCursor(QImage(), 0, 0);
-        currentCursor = 0;
-    }
+//    if (currentCursor == buf) {
+//        compositor->qtCompositor()->changeCursor(QImage(), 0, 0);
+//        currentCursor = 0;
+//    }
 }
 
-void input_device_attach(struct wl_client *client,
-                         struct wl_input_device *device_base,
-                         uint32_t time,
-                         struct wl_buffer *buffer, int32_t x, int32_t y)
+void destroy_surface(struct wl_resource *resource)
 {
-    Q_UNUSED(client);
-    Q_UNUSED(device_base);
-    Q_UNUSED(time);
-    Q_UNUSED(x);
-    Q_UNUSED(y);
-
-    qDebug() << "Client input device attach" << client << buffer << x << y;
-
-    ShmBuffer *shmBuffer = static_cast<ShmBuffer *>(buffer->user_data);
-    if (shmBuffer) {
-        compositor->qtCompositor()->changeCursor(shmBuffer->image(), x, y);
-        currentCursor = shmBuffer;
-    }
-}
-
-const static struct wl_input_device_interface input_device_interface = {
-    input_device_attach,
-};
-
-void destroy_surface(struct wl_resource *resource, struct wl_client *client)
-{
-    Q_UNUSED(client);
     Surface *surface = wayland_cast<Surface *>((wl_surface *)resource);
     delete surface;
 }
 
+typedef Object<struct wl_compositor> wl_compositor_object;
+
 void compositor_create_surface(struct wl_client *client,
-			       struct wl_compositor *compositor, uint32_t id)
+                               struct wl_resource *resource, uint32_t id)
 {
-    wayland_cast<Compositor *>(compositor)->createSurface(client, id);
+    wl_compositor_object *second_super = static_cast<wl_compositor_object *>(resource->data);
+    static_cast<Compositor *>(second_super)->createSurface(client,id);
 }
 
 const static struct wl_compositor_interface compositor_interface = {
     compositor_create_surface
 };
 
-void shell_move(struct wl_client *client,
-                struct wl_shell *shell,
-                struct wl_surface *surface,
-                struct wl_input_device *input_device,
-                uint32_t time)
-{
-    Q_UNUSED(client);
-    Q_UNUSED(shell);
-    Q_UNUSED(surface);
-    Q_UNUSED(input_device);
-    Q_UNUSED(time);
-    qDebug() << "shellMove";
-}
 
-void shell_resize(struct wl_client *client,
-                  struct wl_shell *shell,
-                  struct wl_surface *surface,
-                  struct wl_input_device *input_device,
-                  uint32_t time,
-                  uint32_t edges)
-{
-    Q_UNUSED(client);
-    Q_UNUSED(shell);
-    Q_UNUSED(surface);
-    Q_UNUSED(input_device);
-    Q_UNUSED(time);
-    Q_UNUSED(edges);
-    qDebug() << "shellResize";
-}
-
-void shell_drag(struct wl_client *client,
-                struct wl_shell *shell,
-                uint32_t id)
-{
-    Q_UNUSED(shell);
-    qDebug() << "shellDrag";
-    Drag::instance()->create(client, id);
-}
-
-void shell_selection(struct wl_client *client,
-                     struct wl_shell *shell,
-                     uint32_t id)
-{
-    qDebug() << "shellSelection";
-    Q_UNUSED(shell);
-    Selection::instance()->create(client, id);
-}
-
-void set_toplevel(struct wl_client *client,
-                     struct wl_shell *wl_shell,
-                     struct wl_surface *surface)
-{
-
-}
-
-void set_transient(struct wl_client *client,
-                      struct wl_shell *wl_shell,
-                      struct wl_surface *surface,
-                      struct wl_surface *parent,
-                      int x,
-                      int y,
-                      uint32_t flags)
-{
-}
-void set_fullscreen(struct wl_client *client,
-                       struct wl_shell *wl_shell,
-                       struct wl_surface *surface)
-{
-}
-
-const static struct wl_shell_interface shell_interface = {
-    shell_move,
-    shell_resize,
-    shell_drag,
-    shell_selection,
-    set_toplevel,
-    set_transient,
-    set_fullscreen
-};
 
 Compositor *Compositor::instance()
 {
@@ -225,6 +124,7 @@ Compositor::Compositor(WaylandCompositor *qt_compositor)
     , m_dragActive(false)
 {
     compositor = this;
+    qDebug() << "Compositor instance is" << this;
     m_shm.addDestroyCallback(shmBufferDestroyed);
 
 #if defined (QT_COMPOSITOR_WAYLAND_GL)
@@ -242,13 +142,11 @@ Compositor::Compositor(WaylandCompositor *qt_compositor)
         exit(EXIT_FAILURE);
     }
 
-    memset(&m_input, 0, sizeof(m_input));
+    m_input = new InputDevice(this);
 
-    m_display->addGlobalObject(m_output.base(), &wl_output_interface, 0, output_post_geometry);
-    m_display->addGlobalObject(&m_shell, &wl_shell_interface, &shell_interface, 0);
-
-    wl_input_device_init(&m_input, base());
-    m_display->addGlobalObject(&m_input.object, &wl_input_device_interface, &input_device_interface, 0);
+    wl_display_add_global(m_display->handle(),&wl_output_interface,m_output.base(),Output::output_bind_func);
+    wl_display_add_global(m_display->handle(), &wl_shell_interface, m_shell.base(), Shell::bind_func);
+    wl_display_add_global(m_display->handle(),&wl_input_device_interface,m_input,InputDevice::bind_func);
 
     if (wl_display_add_socket(m_display->handle(), qt_compositor->socketName())) {
         fprintf(stderr, "Fatal: Failed to open server socket\n");
@@ -271,11 +169,11 @@ Compositor::~Compositor()
 void Compositor::frameFinished(Surface *surface)
 {
     if (surface && m_dirty_surfaces.contains(surface)) {
-	wl_display_post_frame(m_display->handle(), surface->base(), currentTimeMsecs());
+        surface->sendFrameCallback();
 	m_dirty_surfaces.remove(surface);
     } else if (!surface) {
 	foreach (Surface *surface, m_dirty_surfaces)
-	    wl_display_post_frame(m_display->handle(), surface->base(), currentTimeMsecs());
+            surface->sendFrameCallback();
 	m_dirty_surfaces.clear();
     }
 }
@@ -286,7 +184,7 @@ void Compositor::createSurface(struct wl_client *client, int id)
     printf("Compositor::createSurface: %p %d\n", client, id);
 
     addClientResource(client, &surface->base()->resource, id, &wl_surface_interface,
-            &surface_interface, destroy_surface);
+            &Surface::surface_interface, destroy_surface);
 
     QList<struct wl_client *> prevClientList = clients();
     m_surfaces << surface;
@@ -302,7 +200,7 @@ struct wl_client *Compositor::getClientFromWinId(uint winId) const
 {
     Surface *surface = getSurfaceFromWinId(winId);
     if (surface)
-        return surface->base()->client;
+        return surface->base()->resource.client;
 
     return 0;
 }
@@ -374,7 +272,7 @@ void Compositor::markSurfaceAsDirty(Wayland::Surface *surface)
 
 void Compositor::destroyClientForSurface(Surface *surface)
 {
-    wl_client *client = surface->base()->client;
+    wl_client *client = surface->base()->resource.client;
 
     if (client) {
         m_windowManagerWaylandProtocol->removeClient(client);
@@ -390,14 +288,14 @@ void Compositor::setInputFocus(Surface *surface)
 
     m_keyFocusSurface = surface;
     m_pointerFocusSurface = surface;
-    wl_input_device_set_keyboard_focus(&m_input, base, time);
-    wl_input_device_set_pointer_focus(&m_input, base, time, 0, 0, 0, 0);
+    wl_input_device_set_keyboard_focus(m_input->base(), base, time);
+    wl_input_device_set_pointer_focus(m_input->base(), base, time, 0, 0, 0, 0);
 }
 
 void Compositor::setKeyFocus(Surface *surface)
 {
     m_keyFocusSurface = surface;
-    wl_input_device_set_keyboard_focus(&m_input, surface ? surface->base() : 0, currentTimeMsecs());
+    wl_input_device_set_keyboard_focus(m_input->base(), surface ? surface->base() : 0, currentTimeMsecs());
 }
 
 Surface *Compositor::keyFocus() const
@@ -408,7 +306,7 @@ Surface *Compositor::keyFocus() const
 void Compositor::setPointerFocus(Surface *surface, const QPoint &pos)
 {
     m_pointerFocusSurface = surface;
-    wl_input_device_set_pointer_focus(&m_input, surface ? surface->base() : 0, currentTimeMsecs(), pos.x(), pos.y(), pos.x(), pos.y());
+    wl_input_device_set_pointer_focus(m_input->base(), surface ? surface->base() : 0, currentTimeMsecs(), pos.x(), pos.y(), pos.x(), pos.y());
 }
 
 Surface *Compositor::pointerFocus() const
@@ -460,7 +358,7 @@ QList<struct wl_client *> Compositor::clients() const
 {
     QList<struct wl_client *> list;
     foreach (Surface *surface, m_surfaces) {
-        struct wl_client *client = surface->base()->client;
+        struct wl_client *client = surface->base()->resource.client;
         if (!list.contains(client))
             list.append(client);
     }
@@ -483,14 +381,12 @@ void Compositor::setOutputGeometry(const QRect &geometry)
     m_output.setGeometry(geometry);
 }
 
-} // namespace Wayland
-
-wl_input_device * Wayland::Compositor::defaultInputDevice()
+InputDevice* Compositor::defaultInputDevice()
 {
-    return &m_input;
+    return m_input;
 }
 
-QList<Wayland::Surface *> Wayland::Compositor::surfacesForClient(wl_client *client)
+QList<Wayland::Surface *> Compositor::surfacesForClient(wl_client *client)
 {
     QList<Wayland::Surface *> ret;
 
@@ -502,18 +398,20 @@ QList<Wayland::Surface *> Wayland::Compositor::surfacesForClient(wl_client *clie
     return ret;
 }
 
-bool Wayland::Compositor::isDragging() const
+bool Compositor::isDragging() const
 {
     return m_dragActive;
 }
 
-void Wayland::Compositor::sendDragMoveEvent(const QPoint &global, const QPoint &local,
+void Compositor::sendDragMoveEvent(const QPoint &global, const QPoint &local,
                                             Surface *surface)
 {
     Drag::instance()->dragMove(global, local, surface);
 }
 
-void Wayland::Compositor::sendDragEndEvent()
+void Compositor::sendDragEndEvent()
 {
     Drag::instance()->dragEnd();
 }
+
+} // namespace Wayland

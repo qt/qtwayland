@@ -54,17 +54,6 @@ public:
     struct wl_display *handle() const { return m_display; }
     struct wl_display *handle() { return m_display; }
 
-    template <typename Implementation>
-    void addGlobalObject(struct wl_object *object, const struct wl_interface *interface,
-                         Implementation implementation, wl_global_bind_func_t func = 0)
-    {
-        object->interface = interface;
-        object->implementation = (void (**)())implementation;
-
-        wl_display_add_object(m_display, object);
-        wl_display_add_global(m_display, object, func);
-    }
-
 private:
     struct wl_display *m_display;
 };

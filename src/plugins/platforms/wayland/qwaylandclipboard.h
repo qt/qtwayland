@@ -46,6 +46,8 @@
 #include <QtCore/QStringList>
 #include <QtCore/QVariant>
 
+#include <wayland-client.h>
+
 class QWaylandDisplay;
 class QWaylandSelection;
 class QWaylandClipboardMimeData;
@@ -86,7 +88,8 @@ private:
                               struct wl_input_device *input_device);
     static const struct wl_selection_offer_listener selectionOfferListener;
 
-    static void syncCallback(void *data);
+    static const struct wl_callback_listener syncCallbackListener;
+    static void syncCallback(void *data, struct wl_callback *wl_callback, uint32_t time);
     static void forceRoundtrip(struct wl_display *display);
 
     QWaylandDisplay *mDisplay;

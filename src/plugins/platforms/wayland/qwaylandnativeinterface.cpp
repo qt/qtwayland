@@ -97,7 +97,9 @@ void QWaylandNativeInterface::setWindowProperty(QPlatformWindow *window, const Q
     m_windowProperties.insert(window, props);
 
     QWaylandWindow *wlWindow = static_cast<QWaylandWindow*>(window);
+#ifdef    QT_WAYLAND_WINDOWMANAGER_SUPPORT
     QWaylandWindowManagerIntegration::instance()->setWindowProperty(wlWindow, name, value);
+#endif
 
     emit windowPropertyChanged(window, name);
 }

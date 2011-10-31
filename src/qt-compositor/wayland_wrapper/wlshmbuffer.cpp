@@ -77,17 +77,7 @@ void ShmBuffer::damage()
 {
     QImage::Format imageFormat = QImage::Format_Invalid;
 
-    wl_compositor *compositor = Wayland::Compositor::instance()->base();
-    if (m_buffer->visual == &compositor->premultiplied_argb_visual) {
-        imageFormat = QImage::Format_ARGB32_Premultiplied;
-    } else if (m_buffer->visual == &compositor->rgb_visual) {
-        imageFormat = QImage::Format_RGB32;
-    } else if (m_buffer->visual == &compositor->argb_visual) {
-        imageFormat = QImage::Format_ARGB32;
-    } else {
-        qWarning("Failed to match ShmBuffer visual");
-        imageFormat = QImage::Format_ARGB32_Premultiplied;
-    }
+    imageFormat = QImage::Format_ARGB32_Premultiplied;
 
     m_image = QImage(static_cast<uchar *>(m_data),m_buffer->width, m_buffer->height,m_stride,imageFormat);
 

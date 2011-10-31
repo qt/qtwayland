@@ -22,8 +22,7 @@ public:
     Window window();
 
     static struct wl_buffer_interface buffer_interface;
-    static void delete_resource(struct wl_resource *resource,
-                                        struct wl_client *client);
+    static void delete_resource(struct wl_resource *resource);
 
     bool isYInverted() const { return mInvertedY; }
     void setInvertedY(bool inverted) { mInvertedY = inverted; }
@@ -32,9 +31,9 @@ private:
     bool mInvertedY;
 
     static void buffer_interface_destroy(struct wl_client *client,
-                        struct wl_buffer *buffer);
+                        struct wl_resource *buffer);
     static void buffer_interface_damage(struct wl_client *client,
-                   struct wl_buffer *wl_buffer,
+                   struct wl_resource *buffer,
                    int x,
                    int y,
                    int width,

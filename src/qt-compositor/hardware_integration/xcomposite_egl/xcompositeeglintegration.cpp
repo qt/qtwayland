@@ -57,7 +57,7 @@ XCompositeEglIntegration::XCompositeEglIntegration(WaylandCompositor *compositor
 void XCompositeEglIntegration::initializeHardware(Wayland::Display *waylandDisplay)
 {
     XCompositeHandler *handler = new XCompositeHandler(m_compositor->handle(),mDisplay,m_compositor->window());
-    waylandDisplay->addGlobalObject(handler->base(), &wl_xcomposite_interface, &XCompositeHandler::xcomposite_interface,XCompositeHandler::send_root_information);
+    wl_display_add_global(waylandDisplay->handle(),&wl_xcomposite_interface,handler,XCompositeHandler::xcomposite_bind_func);
 }
 
 GLuint XCompositeEglIntegration::createTextureFromBuffer(wl_buffer *buffer, QOpenGLContext *)

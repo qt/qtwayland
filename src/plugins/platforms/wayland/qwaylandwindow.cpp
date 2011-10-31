@@ -63,6 +63,7 @@ QWaylandWindow::QWaylandWindow(QWindow *window)
     , mDisplay(QWaylandScreen::waylandScreenFromWindow(window)->display())
     , mBuffer(0)
     , mWaitingForFrameSync(false)
+    , mFrameCallback(0)
 {
     static WId id = 1;
     mWindowId = id++;
@@ -99,6 +100,7 @@ void QWaylandWindow::setVisible(bool visible)
     if (!mSurface && visible) {
         mSurface = mDisplay->createSurface(this);
         newSurfaceCreated();
+        wl_shell_set_toplevel(mDisplay->shell(),mSurface);
     }
 
     if (!visible) {
@@ -134,7 +136,8 @@ void QWaylandWindow::damage(const QRect &rect)
     //We have to do sync stuff before calling damage, or we might
     //get a frame callback before we get the timestamp
     if (!mWaitingForFrameSync) {
-        mDisplay->frameCallback(QWaylandWindow::frameCallback, mSurface, this);
+        mFrameCallback = wl_surface_frame(mSurface);
+        wl_callback_add_listener(mFrameCallback,&QWaylandWindow::callbackListener,this);
         mWaitingForFrameSync = true;
     }
 
@@ -154,12 +157,19 @@ void QWaylandWindow::newSurfaceCreated()
 #endif
 }
 
-void QWaylandWindow::frameCallback(struct wl_surface *surface, void *data, uint32_t time)
+const wl_callback_listener QWaylandWindow::callbackListener = {
+    QWaylandWindow::frameCallback
+};
+
+void QWaylandWindow::frameCallback(void *data, struct wl_callback *wl_callback, uint32_t time)
 {
     Q_UNUSED(time);
-    Q_UNUSED(surface);
+    Q_UNUSED(wl_callback);
     QWaylandWindow *self = static_cast<QWaylandWindow*>(data);
     self->mWaitingForFrameSync = false;
+    if (self->mFrameCallback) {
+        wl_callback_destroy(self->mFrameCallback);
+    }
 }
 
 void QWaylandWindow::waitForFrameSync()

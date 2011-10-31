@@ -42,7 +42,6 @@
 
 #include "wayland_wrapper/wlcompositor.h"
 #include "wayland_wrapper/wlsurface.h"
-#include "wayland_wrapper/wlselection.h"
 #include <QtCore/QCoreApplication>
 #include <QDebug>
 

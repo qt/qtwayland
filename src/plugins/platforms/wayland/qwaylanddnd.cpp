@@ -231,7 +231,7 @@ QWaylandDragOfferWrapper::QWaylandDragOfferWrapper(QWaylandDisplay *display,
     : mDisplay(display), mData(data), mOffer(0), mFocusSurface(0),
       mAccepted(false)
 {
-    mOffer = wl_drag_offer_create(mDisplay->wl_display(), id, 1);
+    mOffer = static_cast<struct wl_drag_offer *>(wl_display_bind(mDisplay->wl_display(), id,&wl_drag_offer_interface));
     wl_drag_offer_add_listener(mOffer, &dragOfferListener, this);
 }
 

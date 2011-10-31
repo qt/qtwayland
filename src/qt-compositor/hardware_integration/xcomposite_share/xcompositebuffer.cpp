@@ -6,7 +6,6 @@ XCompositeBuffer::XCompositeBuffer(Wayland::Compositor *compositor, Window windo
 {
     base()->height = size.height();
     base()->width = size.width();
-    base()->visual = visual;
 }
 
 struct wl_buffer_interface XCompositeBuffer::buffer_interface = {
@@ -15,30 +14,28 @@ struct wl_buffer_interface XCompositeBuffer::buffer_interface = {
 };
 
 void XCompositeBuffer::buffer_interface_damage(struct wl_client *client,
-               struct wl_buffer *wl_buffer,
+               struct wl_resource *buffer,
                int x,
                int y,
                int width,
                int height)
 {
     Q_UNUSED(client);
-    Q_UNUSED(wl_buffer);
+    Q_UNUSED(buffer);
     Q_UNUSED(x);
     Q_UNUSED(y);
     Q_UNUSED(width);
     Q_UNUSED(height);
 }
 
-void XCompositeBuffer::buffer_interface_destroy(wl_client *client, wl_buffer *buffer)
+void XCompositeBuffer::buffer_interface_destroy(wl_client *client, wl_resource *buffer)
 {
     Q_UNUSED(client);
     Q_UNUSED(buffer);
 }
 
-void XCompositeBuffer::delete_resource(struct wl_resource *resource,
-                                    struct wl_client *client)
+void XCompositeBuffer::delete_resource(struct wl_resource *resource)
 {
-    Q_UNUSED(client);
     delete reinterpret_cast<XCompositeBuffer *>(resource);
 }
 

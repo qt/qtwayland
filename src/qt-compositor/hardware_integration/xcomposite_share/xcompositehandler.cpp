@@ -33,12 +33,13 @@ void XCompositeHandler::createBuffer(struct wl_client *client, uint32_t id, Wind
                                XCompositeBuffer::delete_resource);
 }
 
-void XCompositeHandler::send_root_information(struct wl_client *client, struct wl_object *global, uint32_t version)
+void XCompositeHandler::xcomposite_bind_func(struct wl_client *client, void *data, uint32_t version, uint32_t id)
 {
     Q_UNUSED(version);
-    XCompositeHandler *handler = Wayland::wayland_cast<XCompositeHandler *>(global);
+    XCompositeHandler *handler = static_cast<XCompositeHandler *>(data);
+    wl_resource *resource = wl_client_add_object(client,&wl_xcomposite_interface,&xcomposite_interface,id,handler);
     const char *displayString = XDisplayString(handler->mDisplay);
-    wl_client_post_event(client, global, WL_XCOMPOSITE_ROOT, displayString, handler->mFakeRootWidget->winId());
+    wl_resource_post_event(resource, WL_XCOMPOSITE_ROOT, displayString, handler->mFakeRootWidget->winId());
 }
 
 void XCompositeHandler::create_buffer(struct wl_client *client,

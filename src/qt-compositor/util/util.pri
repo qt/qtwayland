@@ -1,4 +1,6 @@
 INCLUDEPATH += $$PWD
 
 HEADERS += \
-    $$PWD/waylandobject.h
+    $$PWD/waylandobject.h \
+    ../../src/qt-compositor/util/waylandlist.h
+

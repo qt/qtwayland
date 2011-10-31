@@ -50,10 +50,7 @@ Display::Display()
 {
     m_display = wl_display_create();
 
-    if (!m_display) {
-        qDebug() << "Failed creating wayland display object";
-        exit(EXIT_FAILURE);
-    }
+    Q_ASSERT(m_display);
 }
 
 Display::~Display()

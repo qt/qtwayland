@@ -73,7 +73,7 @@ void XCompositeGLXIntegration::initializeHardware(Wayland::Display *waylandDispl
     delete glContext;
 }
 
-GLuint XCompositeGLXIntegration::createTextureFromBuffer(wl_buffer *buffer)
+GLuint XCompositeGLXIntegration::createTextureFromBuffer(wl_buffer *buffer, QOpenGLContext *)
 {
     XCompositeBuffer *compositorBuffer = Wayland::wayland_cast<XCompositeBuffer *>(buffer);
     Pixmap pixmap = XCompositeNameWindowPixmap(mDisplay, compositorBuffer->window());

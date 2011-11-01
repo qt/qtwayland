@@ -52,17 +52,16 @@ QImage WaylandSurface::image() const
 }
 
 #ifdef QT_COMPOSITOR_WAYLAND_GL
-GLuint WaylandSurface::texture() const
+GLuint WaylandSurface::texture(QOpenGLContext *context) const
 {
     Q_D(const WaylandSurface);
-    return d->surface->textureId();
+    return d->surface->textureId(context);
 }
 #else //QT_COMPOSITOR_WAYLAND_GL
-uint WaylandSurface::texture() const
+uint WaylandSurface::texture(QOpenGLContext *) const
 {
     return 0;
 }
-
 #endif
 
 Wayland::Surface * WaylandSurface::handle() const

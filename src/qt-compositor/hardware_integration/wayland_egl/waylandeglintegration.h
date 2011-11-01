@@ -54,7 +54,7 @@ public:
 
     void initializeHardware(Wayland::Display *waylandDisplay);
 
-    GLuint createTextureFromBuffer(wl_buffer *buffer);
+    GLuint createTextureFromBuffer(wl_buffer *buffer, QOpenGLContext *context);
 
     bool setDirectRenderSurface(WaylandSurface *);
     bool postBuffer(struct wl_buffer *);

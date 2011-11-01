@@ -52,7 +52,8 @@
 #include <QtCore/QMetaType>
 
 #ifdef QT_COMPOSITOR_WAYLAND_GL
-#include <QtOpenGL/QGLContext>
+#include <QtGui/QOpenGLContext>
+#include <QtGui/qopengl.h>
 #endif
 
 namespace Wayland {
@@ -80,7 +81,7 @@ public:
     QImage image() const;
 
 #ifdef QT_COMPOSITOR_WAYLAND_GL
-    GLuint textureId() const;
+    GLuint textureId(QOpenGLContext *context) const;
 #endif
 
     void sendMousePressEvent(int x, int y, Qt::MouseButton button);

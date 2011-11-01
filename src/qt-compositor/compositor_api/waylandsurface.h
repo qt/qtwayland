@@ -46,7 +46,8 @@
 #include <QtCore/QVariantMap>
 
 #ifdef QT_COMPOSITOR_WAYLAND_GL
-#include <QtOpenGL/QGLContext>
+#include <QtGui/QOpenGLContext>
+#include <QtGui/qopengl.h>
 #endif
 
 class WaylandSurfacePrivate;
@@ -78,9 +79,9 @@ public:
 
     QImage image() const;
 #ifdef QT_COMPOSITOR_WAYLAND_GL
-    GLuint texture() const;
+    GLuint texture(QOpenGLContext *context) const;
 #else
-    uint texture() const;
+    uint texture(QOpenGLContext *context) const;
 #endif
 
     void sendMousePressEvent(const QPoint &pos, Qt::MouseButton button);

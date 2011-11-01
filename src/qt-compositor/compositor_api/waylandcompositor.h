@@ -44,9 +44,7 @@
 #include <QObject>
 #include <QImage>
 #include <QRect>
-#include <QOpenGLContext>
 
-class QGLContext;
 class QWidget;
 class QMimeData;
 class WaylandSurface;
@@ -59,7 +57,7 @@ namespace Wayland
 class WaylandCompositor
 {
 public:
-    WaylandCompositor(QWindow *window = 0, QOpenGLContext *context = 0, const char *socketName = 0);
+    WaylandCompositor(QWindow *window = 0, const char *socketName = 0);
     virtual ~WaylandCompositor();
 
     void frameFinished(WaylandSurface *surface = 0);
@@ -71,7 +69,6 @@ public:
     void setDirectRenderSurface(WaylandSurface *surface);
     WaylandSurface *directRenderSurface() const;
 
-    QOpenGLContext *glContext() const;
     QWindow *window()const;
 
     virtual void surfaceCreated(WaylandSurface *surface) = 0;
@@ -97,7 +94,6 @@ private:
     static void retainedSelectionChanged(QMimeData *mimeData, void *param);
 
     Wayland::Compositor *m_compositor;
-    QOpenGLContext *m_glContext;
     QWindow  *m_toplevel_widget;
     QByteArray m_socket_name;
 };

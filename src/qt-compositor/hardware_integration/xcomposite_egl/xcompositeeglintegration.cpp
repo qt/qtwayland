@@ -60,7 +60,7 @@ void XCompositeEglIntegration::initializeHardware(Wayland::Display *waylandDispl
     waylandDisplay->addGlobalObject(handler->base(), &wl_xcomposite_interface, &XCompositeHandler::xcomposite_interface,XCompositeHandler::send_root_information);
 }
 
-GLuint XCompositeEglIntegration::createTextureFromBuffer(wl_buffer *buffer)
+GLuint XCompositeEglIntegration::createTextureFromBuffer(wl_buffer *buffer, QOpenGLContext *)
 {
     XCompositeBuffer *compositorBuffer = Wayland::wayland_cast<XCompositeBuffer *>(buffer);
     Pixmap pixmap = XCompositeNameWindowPixmap(mDisplay, compositorBuffer->window());

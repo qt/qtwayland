@@ -188,9 +188,9 @@ bool Surface::isYInverted() const
 
     if (d->compositor->graphicsHWIntegration()) {
         if (d->type() == WaylandSurface::Texture) {
-            if (textureId()) {
+            //if (textureId()) {
                 return d->compositor->graphicsHWIntegration()->isYInverted(d->buffer());
-            }
+            //}
         } else if (d->type() == WaylandSurface::Direct) {
             return d->compositor->graphicsHWIntegration()->isYInverted(d->buffer());
         }
@@ -238,7 +238,7 @@ QImage Surface::image() const
 }
 
 #ifdef QT_COMPOSITOR_WAYLAND_GL
-GLuint Surface::textureId() const
+GLuint Surface::textureId(QOpenGLContext *context) const
 {
     Q_D(const Surface);
     if (d->compositor->graphicsHWIntegration() && d->type() == WaylandSurface::Texture
@@ -251,7 +251,7 @@ GLuint Surface::textureId() const
         Surface *that = const_cast<Surface *>(this);
         GraphicsHardwareIntegration *hwIntegration = d->compositor->graphicsHWIntegration();
         that->d_func()->previousBuffer = d->buffer();
-        that->d_func()->texture_id = hwIntegration->createTextureFromBuffer(d->buffer());
+        that->d_func()->texture_id = hwIntegration->createTextureFromBuffer(d->buffer(), context);
         that->d_func()->textureCreatedForBuffer = true;
     }
     return d->texture_id;

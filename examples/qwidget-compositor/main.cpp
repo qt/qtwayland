@@ -49,7 +49,7 @@
 #include <QMouseEvent>
 
 #ifdef QT_COMPOSITOR_WAYLAND_GL
-#include <QGLContext>
+#include <QOpenGLContext>
 #include <QGLWidget>
 #endif
 
@@ -82,7 +82,7 @@ class QWidgetCompositor : public QWidget, public WaylandCompositor
     Q_OBJECT
 public:
     QWidgetCompositor()
-        : WaylandCompositor(windowHandle(),const_cast<QGLContext *>(context())->contextHandle())
+        : WaylandCompositor(windowHandle())
         , m_moveSurface(0)
         , m_dragSourceSurface(0)
     {
@@ -155,7 +155,7 @@ protected:
         for (int i = 0; i < m_surfaces.size(); ++i) {
             if (m_surfaces.at(i)->type() == WaylandSurface::Texture) {
 #ifdef QT_COMPOSITOR_WAYLAND_GL
-                drawTexture(m_surfaces.at(i)->geometry(), m_surfaces.at(i)->texture());
+                drawTexture(m_surfaces.at(i)->geometry(), m_surfaces.at(i)->texture(QOpenGLContext::currentContext()));
                 break;
 #endif //QT_COMPOSITOR_WAYLAND_GL
             } else if (m_surfaces.at(i)->type() == WaylandSurface::Shm) {

@@ -12,7 +12,7 @@ public:
 
     void initializeHardware(Wayland::Display *waylandDisplay);
 
-    GLuint createTextureFromBuffer(wl_buffer *buffer);
+    GLuint createTextureFromBuffer(wl_buffer *buffer, QOpenGLContext *context);
 
 private:
     DrmObject *m_drm_object;

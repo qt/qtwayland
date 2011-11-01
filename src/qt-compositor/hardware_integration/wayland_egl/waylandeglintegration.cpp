@@ -64,10 +64,8 @@ class WaylandEglIntegrationPrivate
 public:
     WaylandEglIntegrationPrivate()
         : egl_display(EGL_NO_DISPLAY)
-        , egl_context(EGL_NO_CONTEXT)
     { }
     EGLDisplay egl_display;
-    EGLContext egl_context;
     bool valid;
 };
 
@@ -81,8 +79,6 @@ WaylandEglIntegration::WaylandEglIntegration(WaylandCompositor *compositor)
 void WaylandEglIntegration::initializeHardware(Wayland::Display *waylandDisplay)
 {
     Q_D(WaylandEglIntegration);
-    //We need a window id now :)
-    m_compositor->window()->winId();
 
     QPlatformNativeInterface *nativeInterface = QGuiApplication::platformNativeInterface();
     if (nativeInterface) {
@@ -98,12 +94,10 @@ void WaylandEglIntegration::initializeHardware(Wayland::Display *waylandDisplay)
 
         if (!d->valid)
             qWarning("Failed to initialize egl display\n");
-
-        d->egl_context = nativeInterface->nativeResourceForContext("EglContext", m_compositor->glContext());
     }
 }
 
-GLuint WaylandEglIntegration::createTextureFromBuffer(wl_buffer *buffer)
+GLuint WaylandEglIntegration::createTextureFromBuffer(wl_buffer *buffer, QOpenGLContext *context)
 {
     Q_D(WaylandEglIntegration);
     if (!d->valid) {
@@ -111,7 +105,10 @@ GLuint WaylandEglIntegration::createTextureFromBuffer(wl_buffer *buffer)
         return 0;
     }
 
-    EGLImageKHR image = eglCreateImageKHR(d->egl_display, d->egl_context,
+    QPlatformNativeInterface *nativeInterface = QGuiApplication::platformNativeInterface();
+    EGLContext egl_context = nativeInterface->nativeResourceForContext("EglContext", context);
+
+    EGLImageKHR image = eglCreateImageKHR(d->egl_display, egl_context,
                                           EGL_WAYLAND_BUFFER_WL,
                                           buffer, NULL);
 

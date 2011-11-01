@@ -57,7 +57,7 @@ public:
     /** Bind the Wayland buffer to the textureId. The correct context is the current context,
         so there is no need to do makeCurrent in this function.
      **/
-    virtual GLuint createTextureFromBuffer(struct wl_buffer *buffer) = 0;
+    virtual GLuint createTextureFromBuffer(struct wl_buffer *buffer, QOpenGLContext *context) = 0;
     virtual bool isYInverted(struct wl_buffer *) const { return true; }
 
     virtual bool setDirectRenderSurface(WaylandSurface *) {return false;}

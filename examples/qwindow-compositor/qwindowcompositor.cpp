@@ -4,7 +4,7 @@
 #include <QTouchEvent>
 
 QWindowCompositor::QWindowCompositor(QOpenGLWindow *window)
-    : WaylandCompositor(window, window->context())
+    : WaylandCompositor(window)
     , m_window(window)
 {
     m_backgroundImage = QImage(QLatin1String(":/background.jpg"));
@@ -100,7 +100,7 @@ void QWindowCompositor::render()
     //If type == WaylandSurface::Texture draw textureId at geometry
     foreach (WaylandSurface *surface, m_surfaces) {
         if (surface->type() == WaylandSurface::Texture)
-            m_renderer->drawTexture(surface->texture(), surface->geometry(), 1); //depth argument should be dynamic (focused should be top).
+            m_renderer->drawTexture(surface->texture(QOpenGLContext::currentContext()), surface->geometry(), 1); //depth argument should be dynamic (focused should be top).
         else if (surface->type() == WaylandSurface::Shm)
             m_renderer->drawImage(surface->image(), surface->geometry());
     }

@@ -57,7 +57,7 @@ class QmlCompositor : public QQuickView, public WaylandCompositor
 {
     Q_OBJECT
 public:
-    QmlCompositor() : WaylandCompositor(this, const_cast<QOpenGLContext *>(QOpenGLContext::currentContext())) {
+    QmlCompositor() : WaylandCompositor(this) {
         //setMouseTracking(true);
         setSource(QUrl(QLatin1String("qrc:qml/QmlCompositor/main.qml")));
         setResizeMode(QQuickView::SizeRootObjectToView);

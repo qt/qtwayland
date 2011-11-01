@@ -225,8 +225,10 @@ QSGNode *WaylandSurfaceItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeDa
     if (m_damaged) {
         QSGTexture *oldTexture = m_texture;
         if (m_surface->type() == WaylandSurface::Texture) {
+            QOpenGLContext *context = QOpenGLContext::currentContext();
+
             QSGEngine::TextureOption opt = useTextureAlpha() ? QSGEngine::TextureHasAlphaChannel : QSGEngine::TextureOption(0);
-            m_texture = canvas()->sceneGraphEngine()->createTextureFromId(m_surface->texture(),
+            m_texture = canvas()->sceneGraphEngine()->createTextureFromId(m_surface->texture(context),
                                                                           m_surface->geometry().size(),
                                                                           opt);
         } else {

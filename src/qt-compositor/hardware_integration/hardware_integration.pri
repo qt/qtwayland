@@ -8,7 +8,6 @@ isEmpty(QT_WAYLAND_GL_CONFIG):QT_WAYLAND_GL_CONFIG = $$(QT_WAYLAND_GL_CONFIG)
         $$PWD/graphicshardwareintegration.cpp
 
     DEFINES += QT_COMPOSITOR_WAYLAND_GL
-    QT += opengl
 
     isEqual(QT_WAYLAND_GL_CONFIG, custom) {
         QT_WAYLAND_GL_INTEGRATION = $$QT_WAYLAND_GL_CONFIG

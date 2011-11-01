@@ -16,7 +16,7 @@ public:
 
     void initializeHardware(Wayland::Display *waylandDisplay);
 
-    GLuint createTextureFromBuffer(struct wl_buffer *buffer);
+    GLuint createTextureFromBuffer(struct wl_buffer *buffer, QOpenGLContext *context);
     bool isYInverted(wl_buffer *) const;
 
 private:

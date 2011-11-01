@@ -116,7 +116,7 @@ void Dri2XcbHWIntegration::initializeHardware(Wayland::Display *waylandDisplay)
     waylandDisplay->addGlobalObject(m_drm_object->base(),&wl_drm_interface,&drm_interface,post_drm_device);
 }
 
-GLuint Dri2XcbHWIntegration::createTextureFromBuffer(wl_buffer *buffer)
+GLuint Dri2XcbHWIntegration::createTextureFromBuffer(wl_buffer *buffer, QOpenGLContext *)
 {
     Dri2XcbBuffer *dri2Buffer = Wayland::wayland_cast<Dri2XcbBuffer *>(buffer);
 

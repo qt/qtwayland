@@ -28,7 +28,7 @@ isEmpty(QT_SOURCE_TREE) {
 #HEADERS += $$TOUCHSCREEN_BASE/qtouchscreen.h
 #INCLUDEPATH += $$TOUCHSCREEN_BASE
 #LIBS += -ludev -lmtdev
-QT += gui-private widgets widgets-private
+QT += gui-private widgets widgets-private opengl opengl-private
 
 target.path += $$[QT_INSTALL_DATA]/bin
 INSTALLS += target

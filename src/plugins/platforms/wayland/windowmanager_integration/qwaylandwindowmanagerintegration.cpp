@@ -60,7 +60,7 @@ public:
     bool m_blockPropertyUpdates;
     QWaylandDisplay *m_waylandDisplay;
     struct wl_windowmanager *m_waylandWindowManager;
-    QHash<QWaylandWindow*,QVariantMap> m_queuedProperties;
+    QHash<QWindow*, QVariantMap> m_queuedProperties;
 
 };
 
@@ -167,11 +167,10 @@ void QWaylandWindowManagerIntegration::setWindowProperty(QWaylandWindow *window,
                                                  propertyName.toLatin1().constData(),
                                                  &data);
     } else {
-        QVariantMap props = d->m_queuedProperties.value(window);
+        QVariantMap props = d->m_queuedProperties.value(window->window());
         props.insert(propertyName, propertyValue);
-        d->m_queuedProperties.insert(window, props);
-        // ### TODO we'll need to add listening to destroyed() of QWindow that owns QWaylandWindow
-        // once refactor changes are in, and connect to removeQueuedPropertiesForWindow().
+        d->m_queuedProperties.insert(window->window(), props);
+        connect(window->window(), SIGNAL(destroyed()), SLOT(removeQueuedPropertiesForWindow()));
     }
 }
 
@@ -181,10 +180,11 @@ void QWaylandWindowManagerIntegration::flushPropertyChanges(QWaylandWindow *wind
     // this can happen during startup, for example, or while the window is hidden.
     Q_D(QWaylandWindowManagerIntegration);
 
-    if (!windowToFlush)
+    if (!windowToFlush || !windowToFlush->window())
         return;
 
-    QVariantMap properties = d->m_queuedProperties.value(windowToFlush);
+
+    QVariantMap properties = d->m_queuedProperties.value(windowToFlush->window());
     wl_surface *surface = windowToFlush->wl_surface();
 
     QMapIterator<QString, QVariant> pIt(properties);
@@ -199,10 +199,9 @@ void QWaylandWindowManagerIntegration::flushPropertyChanges(QWaylandWindow *wind
 
 void QWaylandWindowManagerIntegration::removeQueuedPropertiesForWindow()
 {
-    //  TODO enable this later once refactor changes are in.
-//    Q_D(QWaylandWindowManagerIntegration);
-//    QWaylandWindow *window = 0;
-//    d->m_queuedProperties.remove(window);
+    Q_D(QWaylandWindowManagerIntegration);
+    QWindow *window = static_cast<QWindow*>(sender());
+    d->m_queuedProperties.remove(window);
 }
 
 void QWaylandWindowManagerIntegration::wlHandleOnScreenVisibilityChange(void *data, struct wl_windowmanager *wl_windowmanager, int visible)

@@ -49,6 +49,10 @@
 #include <QtGui/QWindow>
 #include <QtGui/QWindowSystemInterface>
 
+#ifdef QT_WAYLAND_WINDOWMANAGER_SUPPORT
+#include "windowmanager_integration/qwaylandwindowmanagerintegration.h"
+#endif
+
 QWaylandEglWindow::QWaylandEglWindow(QWindow *window)
     : QWaylandWindow(window)
     , m_waylandEglWindow(0)
@@ -100,6 +104,10 @@ void QWaylandEglWindow::newSurfaceCreated()
     }
 
     m_waylandEglWindow = wl_egl_window_create(mSurface, size.width(), size.height(), visual);
+
+#ifdef QT_WAYLAND_WINDOWMANAGER_SUPPORT
+    QWaylandWindowManagerIntegration::instance()->flushPropertyChanges(this);
+#endif
 }
 
 QSurfaceFormat QWaylandEglWindow::format() const

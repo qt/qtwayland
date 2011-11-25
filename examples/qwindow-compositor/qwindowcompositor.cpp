@@ -116,6 +116,9 @@ bool QWindowCompositor::eventFilter(QObject *obj, QEvent *event)
         return false;
 
     switch (event->type()) {
+    case QEvent::Expose:
+        render();
+        break;
     case QEvent::MouseButtonPress: {
         QPoint local;
         QMouseEvent *me = static_cast<QMouseEvent *>(event);

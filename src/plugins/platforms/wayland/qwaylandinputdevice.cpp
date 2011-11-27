@@ -57,8 +57,6 @@
 #include <X11/keysym.h>
 #endif
 
-//#define POINT_DEBUG
-
 QWaylandInputDevice::QWaylandInputDevice(QWaylandDisplay *display,
 					 uint32_t id)
     : mQDisplay(display)
@@ -407,36 +405,13 @@ void QWaylandInputDevice::handleTouchPoint(int id, int x, int y, Qt::TouchPointS
     if (!coordsOk) {
         // x and y are surface relative.
         // We need a global (screen) position.
-
         QWaylandWindow *win = mPointerFocus;
         if (!win)
             win = mKeyboardFocus;
-#ifdef POINT_DEBUG
-        qDebug() << "surface relative coords" << x << y << "using window" << win;
-#endif
-        if (!win)
+        if (!win || !win->window())
             return;
-
-        QRect winRect = win->geometry();
-
-        // Get a normalized position (0..1).
-        const qreal nx = x / qreal(winRect.width());
-        const qreal ny = y / qreal(winRect.height());
-        tp.normalPosition = QPointF(nx, ny);
-
-        // Map to screen.
-        QPlatformScreen *screen = mQDisplay->screens().at(0);
-        QRect screenRect = screen->geometry();
-        x = int(nx * screenRect.width());
-        y = int(ny * screenRect.height());
-
-#ifdef POINT_DEBUG
-        qDebug() << "normalized position" << nx << ny
-                 << "win rect" << winRect << "screen rect" << screenRect;
-        qDebug() << "mapped to screen position" << x << y;
-#endif
-
-        tp.area = QRectF(x, y, 8, 8);
+        tp.area = QRectF(0, 0, 8, 8);
+        tp.area.moveCenter(win->window()->mapToGlobal(QPoint(x, y)));
     }
 
     tp.state = state;

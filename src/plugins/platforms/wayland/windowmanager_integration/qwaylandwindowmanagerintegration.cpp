@@ -116,7 +116,8 @@ void QWaylandWindowManagerIntegration::wlHandleListenerGlobal(wl_display *displa
     Q_UNUSED(version);
     if (strcmp(interface, "wl_windowmanager") == 0) {
         QWaylandWindowManagerIntegration *integration = static_cast<QWaylandWindowManagerIntegration *>(data);
-        integration->d_ptr->m_waylandWindowManager = wl_windowmanager_create(display, id, 1);
+        integration->d_ptr->m_waylandWindowManager =
+                static_cast<struct wl_windowmanager *>(wl_display_bind(display, id, &wl_windowmanager_interface));
         wl_windowmanager *windowManager = integration->d_ptr->m_waylandWindowManager;
         wl_windowmanager_add_listener(windowManager, &m_windowManagerListener, integration);
     }

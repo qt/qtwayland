@@ -323,8 +323,7 @@ void Surface::setProcessId(qint64 processId)
 QByteArray Surface::authenticationToken() const
 {
     Q_D(const Surface);
-    return QByteArray();
-//    return WindowManagerServerIntegration::instance()->managedClient(d->client)->authenticationToken();
+    return WindowManagerServerIntegration::instance()->managedClient(d->client)->authenticationToken();
 }
 
 QVariantMap Surface::windowProperties() const
@@ -497,7 +496,7 @@ void Surface::sendOnScreenVisibilityChange(bool visible)
 {
 #ifdef QT_WAYLAND_WINDOWMANAGER_SUPPORT
     Q_D(Surface);
-    //WindowManagerServerIntegration::instance()->setVisibilityOnScreen(d->client, visible);
+    WindowManagerServerIntegration::instance()->setVisibilityOnScreen(d->client, visible);
 #endif
 }
 

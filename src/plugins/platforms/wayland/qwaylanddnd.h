@@ -43,6 +43,7 @@
 #define QWAYLANDDND_H
 
 #include <QtGui/QPlatformDrag>
+#include <QtGui/QDrag>
 #include <QtCore/QMimeData>
 #include "qwaylanddisplay.h"
 

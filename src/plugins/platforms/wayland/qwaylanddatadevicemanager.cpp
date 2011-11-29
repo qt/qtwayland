@@ -98,9 +98,9 @@ void QWaylandDataDeviceManager::enter(void *data,
 
     QPoint point(x,y);
     Qt::DropActions allActions =  Qt::CopyAction | Qt::MoveAction | Qt::LinkAction;
-    QPlatformDragQtResponse response = QWindowSystemInterface::handleDrag(data_device_manager->m_drag_current_event_window->window(),
-                                                                          offer,point,allActions);
-    data_device_manager->m_drag_can_drop = response.accepted();
+//    QPlatformDragQtResponse response = QWindowSystemInterface::handleDrag(data_device_manager->m_drag_current_event_window->window(),
+//                                                                          offer,point,allActions);
+//    data_device_manager->m_drag_can_drop = response.accepted();
     data_device_manager->m_drag_data_offer = offer;
     if (data_device_manager->m_drag_can_drop) {
         const char *first_offer = qPrintable(offer->formats_sys().at(0));
@@ -114,7 +114,7 @@ void QWaylandDataDeviceManager::leave(void *data,
               struct wl_data_device *wl_data_device)
 {
     QWaylandDataDeviceManager *data_device_manager = static_cast<QWaylandDataDeviceManager *>(data);
-    QWindowSystemInterface::handleDrag(data_device_manager->m_drag_current_event_window->window(),0,QPoint(0,0),Qt::IgnoreAction);
+//    QWindowSystemInterface::handleDrag(data_device_manager->m_drag_current_event_window->window(),0,QPoint(0,0),Qt::IgnoreAction);
     data_device_manager->m_drag_can_drop = false;
     data_device_manager->m_drag_data_offer = 0;
     data_device_manager->m_drag_last_event_time = 0;
@@ -135,11 +135,11 @@ void QWaylandDataDeviceManager::motion(void *data,
     data_device_manager->m_drag_position = QPoint(x,y);
 
     Qt::DropActions allActions =  Qt::CopyAction | Qt::MoveAction | Qt::LinkAction;
-    QPlatformDragQtResponse response = QWindowSystemInterface::handleDrag(data_device_manager->m_drag_current_event_window->window(),
-                                       data_device_manager->m_drag_data_offer, data_device_manager->m_drag_position ,allActions);
-    data_device_manager->m_drag_can_drop = response.accepted();
+//    QPlatformDragQtResponse response = QWindowSystemInterface::handleDrag(data_device_manager->m_drag_current_event_window->window(),
+//                                       data_device_manager->m_drag_data_offer, data_device_manager->m_drag_position ,allActions);
+//    data_device_manager->m_drag_can_drop = response.accepted();
     const char *offerMime = 0;
-    if (response.accepted()) {
+    if (data_device_manager->m_drag_can_drop) {
         offerMime = qPrintable(data_device_manager->m_drag_data_offer->formats_sys().at(0));
     }
     wl_data_offer_accept(data_device_manager->m_drag_data_offer->handle(),QWaylandDisplay::currentTimeMillisec(),offerMime);
@@ -154,7 +154,7 @@ void QWaylandDataDeviceManager::drop(void *data,
     QPoint point = data_device_manager->m_drag_position;
     Qt::DropActions allActions =  Qt::CopyAction | Qt::MoveAction | Qt::LinkAction;
 
-    QWindowSystemInterface::handleDrop(window,mime,point,allActions);
+//    QWindowSystemInterface::handleDrop(window,mime,point,allActions);
 }
 
 
@@ -246,7 +246,7 @@ void QWaylandDataDeviceManager::createAndSetDrag(QDrag *drag)
     m_drag_surface = m_display->createSurface(this);
     QPixmap pixmap = drag->pixmap();
     if (pixmap.isNull()) {
-        pixmap = QPlatformDrag::defaultPixmap();
+//        pixmap = QPlatformDrag::defaultPixmap();
     }
     m_drag_buffer = new QWaylandShmBuffer(m_display,pixmap.size(),QImage::Format_ARGB32_Premultiplied);
 

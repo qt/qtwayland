@@ -111,7 +111,7 @@ public:
         bool emitMap = !surfaceBuffer;
         if (surfaceBuffer && ! textureCreatedForBuffer && surfaceBuffer != directRenderBuffer) {
             qWarning() << "### WaylandSurface::attach() releasing undisplayed buffer ###";
-             wl_resource_post_event(&surfaceBuffer->resource, WL_BUFFER_RELEASE);
+            wl_resource_post_event(&surfaceBuffer->resource, WL_BUFFER_RELEASE);
         }
         surfaceBuffer = buffer;
         surfaceType = WaylandSurface::Invalid;
@@ -164,7 +164,6 @@ void Surface::surface_attach(struct wl_client *client, struct wl_resource *surfa
     Q_UNUSED(client);
     Q_UNUSED(x);
     Q_UNUSED(y);
-    qDebug() << "surface attach";
     reinterpret_cast<Surface *>(surface)->attach(buffer);
 }
 

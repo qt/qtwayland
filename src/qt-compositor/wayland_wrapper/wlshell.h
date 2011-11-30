@@ -41,7 +41,7 @@
 #ifndef WLSHELL_H
 #define WLSHELL_H
 
-#include <waylandobject.h>
+#include "waylandobject.h"
 
 namespace Wayland {
 

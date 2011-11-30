@@ -121,6 +121,7 @@ private:
 
     QSocketNotifier *mReadNotifier;
     int mFd;
+    int mWritableNotificationFd;
     bool mScreensInitialized;
 
     uint32_t mSocketMask;

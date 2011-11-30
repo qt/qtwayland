@@ -139,8 +139,15 @@ QWaylandDisplay::QWaylandDisplay(void)
     wl_display_add_global_listener(mDisplay, QWaylandDisplay::displayHandleGlobal, this);
 
     mFd = wl_display_get_fd(mDisplay, sourceUpdate, this);
+
+#ifdef QTWAYLAND_EXPERIMENTAL_THREAD_SUPPORT
+    mWritableNotificationFd = wl_display_get_write_notification_fd(mDisplay);
+    QSocketNotifier *wn = new QSocketNotifier(mWritableNotificationFd, QSocketNotifier::Read, this);
+    connect(wn, SIGNAL(activated(int)), this, SLOT(flushRequests()));
+#else
     QAbstractEventDispatcher *dispatcher = QGuiApplicationPrivate::eventDispatcher;
     connect(dispatcher, SIGNAL(aboutToBlock()), this, SLOT(flushRequests()));
+#endif
 
     mReadNotifier = new QSocketNotifier(mFd, QSocketNotifier::Read, this);
     connect(mReadNotifier, SIGNAL(activated(int)), this, SLOT(readEvents()));

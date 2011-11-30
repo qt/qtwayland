@@ -117,7 +117,7 @@ void QWaylandXCompositeGLXIntegration::wlDisplayHandleGlobal(wl_display *display
     if (strcmp(interface, "wl_xcomposite") == 0) {
         qDebug("XComposite-GLX: got wl_xcomposite global");
         QWaylandXCompositeGLXIntegration *integration = static_cast<QWaylandXCompositeGLXIntegration *>(data);
-        integration->mWaylandComposite = wl_xcomposite_create(display,id,1);
+        integration->mWaylandComposite = static_cast<struct wl_xcomposite *>(wl_display_bind(display, id, &wl_xcomposite_interface));
         wl_xcomposite_add_listener(integration->mWaylandComposite,&xcomposite_listener,integration);
     }
 

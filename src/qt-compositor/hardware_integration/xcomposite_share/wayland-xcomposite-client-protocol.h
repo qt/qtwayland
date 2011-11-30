@@ -1,26 +1,3 @@
-/*
- * Copyright © 2010 Kristian Høgsberg
- *
- * Permission to use, copy, modify, distribute, and sell this software and its
- * documentation for any purpose is hereby granted without fee, provided that
- * the above copyright notice appear in all copies and that both that copyright
- * notice and this permission notice appear in supporting documentation, and
- * that the name of the copyright holders not be used in advertising or
- * publicity pertaining to distribution of the software without specific,
- * written prior permission.  The copyright holders make no representations
- * about the suitability of this software for any purpose.  It is provided "as
- * is" without express or implied warranty.
- *
- * THE COPYRIGHT HOLDERS DISCLAIM ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
- * INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO
- * EVENT SHALL THE COPYRIGHT HOLDERS BE LIABLE FOR ANY SPECIAL, INDIRECT OR
- * CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE,
- * DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
- * TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE
- * OF THIS SOFTWARE.
- */
-
-
 #ifndef XCOMPOSITE_CLIENT_PROTOCOL_H
 #define XCOMPOSITE_CLIENT_PROTOCOL_H
 
@@ -33,6 +10,7 @@ extern "C" {
 #include "wayland-util.h"
 
 struct wl_client;
+struct wl_resource;
 
 struct wl_xcomposite;
 
@@ -47,22 +25,13 @@ struct wl_xcomposite_listener {
 
 static inline int
 wl_xcomposite_add_listener(struct wl_xcomposite *wl_xcomposite,
-			      const struct wl_xcomposite_listener *listener, void *data)
+			   const struct wl_xcomposite_listener *listener, void *data)
 {
 	return wl_proxy_add_listener((struct wl_proxy *) wl_xcomposite,
 				     (void (**)(void)) listener, data);
 }
 
 #define WL_XCOMPOSITE_CREATE_BUFFER	0
-
-static inline struct wl_xcomposite *
-wl_xcomposite_create(struct wl_display *display, uint32_t id, uint32_t version)
-{
-	wl_display_bind(display, id, "wl_xcomposite", version);
-
-	return (struct wl_xcomposite *)
-		wl_proxy_create_for_id(display, &wl_xcomposite_interface, id);
-}
 
 static inline void
 wl_xcomposite_set_user_data(struct wl_xcomposite *wl_xcomposite, void *user_data)
@@ -83,7 +52,7 @@ wl_xcomposite_destroy(struct wl_xcomposite *wl_xcomposite)
 }
 
 static inline struct wl_buffer *
-wl_xcomposite_create_buffer(struct wl_xcomposite *wl_xcomposite, uint32_t x_window, int width, int height, struct wl_visual *visual)
+wl_xcomposite_create_buffer(struct wl_xcomposite *wl_xcomposite, uint32_t x_window, int32_t width, int32_t height)
 {
 	struct wl_proxy *id;
 
@@ -93,7 +62,7 @@ wl_xcomposite_create_buffer(struct wl_xcomposite *wl_xcomposite, uint32_t x_wind
 		return NULL;
 
 	wl_proxy_marshal((struct wl_proxy *) wl_xcomposite,
-			 WL_XCOMPOSITE_CREATE_BUFFER, id, x_window, width, height, visual);
+			 WL_XCOMPOSITE_CREATE_BUFFER, id, x_window, width, height);
 
 	return (struct wl_buffer *) id;
 }

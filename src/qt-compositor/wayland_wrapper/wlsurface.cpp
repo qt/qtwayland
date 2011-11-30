@@ -125,8 +125,9 @@ public:
 
     static void destroy_frame_callback(struct wl_resource *resource)
     {
+        if (resource->data)
+            static_cast<SurfacePrivate *>(resource->data)->frame_callback = 0;
         delete resource;
-        resource = 0;
     }
 
     struct wl_client *client;
@@ -178,13 +179,15 @@ void Surface::surface_frame(struct wl_client *client,
                    uint32_t callback)
 {
     Surface *surface = reinterpret_cast<Surface *>(resource);
-    surface->d_func()->frame_callback = new struct wl_resource;
-    surface->d_func()->frame_callback->client = client;
-    surface->d_func()->frame_callback->object.interface = &wl_callback_interface;
-    surface->d_func()->frame_callback->object.id = callback;
-    surface->d_func()->frame_callback->destroy = SurfacePrivate::destroy_frame_callback;
+    SurfacePrivate *d = surface->d_func();
+    d->frame_callback = new struct wl_resource;
+    d->frame_callback->client = client;
+    d->frame_callback->object.interface = &wl_callback_interface;
+    d->frame_callback->object.id = callback;
+    d->frame_callback->data = d;
+    d->frame_callback->destroy = SurfacePrivate::destroy_frame_callback;
 
-    wl_client_add_resource(client,surface->d_func()->frame_callback);
+    wl_client_add_resource(client, d->frame_callback);
 }
 
 Surface::Surface(struct wl_client *client, Compositor *compositor)
@@ -459,14 +462,16 @@ void Surface::sendTouchPointEvent(int id, int x, int y, Qt::TouchPointState stat
 void Surface::sendTouchFrameEvent()
 {
     Q_D(Surface);
-    wl_resource_post_event(&base()->resource,
+    struct wl_resource *resource = d->compositor->defaultInputDevice()->base()->pointer_focus_resource;
+    wl_resource_post_event(resource,
                          WL_INPUT_DEVICE_TOUCH_FRAME);
 }
 
 void Surface::sendTouchCancelEvent()
 {
     Q_D(Surface);
-    wl_resource_post_event(&base()->resource,
+    struct wl_resource *resource = d->compositor->defaultInputDevice()->base()->pointer_focus_resource;
+    wl_resource_post_event(resource,
                          WL_INPUT_DEVICE_TOUCH_CANCEL);
 }
 

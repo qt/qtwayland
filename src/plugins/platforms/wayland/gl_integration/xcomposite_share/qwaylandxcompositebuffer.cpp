@@ -44,14 +44,13 @@
 #include "wayland-client.h"
 #include "wayland-xcomposite-client-protocol.h"
 
-QWaylandXCompositeBuffer::QWaylandXCompositeBuffer(wl_xcomposite *xcomposite, uint32_t window, const QSize &size, wl_visual *visual)
+QWaylandXCompositeBuffer::QWaylandXCompositeBuffer(wl_xcomposite *xcomposite, uint32_t window, const QSize &size)
     :mSize(size)
 {
     mBuffer = wl_xcomposite_create_buffer(xcomposite,
                                               window,
                                               size.width(),
-                                              size.height(),
-                                              visual);
+                                              size.height());
 }
 
 QSize QWaylandXCompositeBuffer::size() const

@@ -88,16 +88,19 @@ Window QWaylandXCompositeGLXWindow::xWindow() const
 
 void QWaylandXCompositeGLXWindow::waitForSync()
 {
-    wl_display_sync_callback(m_glxIntegration->waylandDisplay()->wl_display(),
-                             QWaylandXCompositeGLXWindow::sync_function,
-                             this);
-    m_waitingForSync= true;
-    wl_display_sync(m_glxIntegration->waylandDisplay()->wl_display(), 0);
+    struct wl_display *dpy = m_glxIntegration->waylandDisplay()->wl_display();
+    wl_callback *sync_callback = wl_display_sync(dpy);
+    wl_callback_add_listener(sync_callback, &sync_callback_listener, this);
+    m_waitingForSync = true;
+    wl_display_sync(dpy);
     m_glxIntegration->waylandDisplay()->flushRequests();
     while (m_waitingForSync)
         m_glxIntegration->waylandDisplay()->readEvents();
 }
 
+const struct wl_callback_listener QWaylandXCompositeGLXWindow::sync_callback_listener = {
+    QWaylandXCompositeGLXWindow::sync_function
+};
 
 void QWaylandXCompositeGLXWindow::createSurface()
 {
@@ -130,14 +133,15 @@ void QWaylandXCompositeGLXWindow::createSurface()
     XSync(m_glxIntegration->xDisplay(), False);
     m_buffer = new QWaylandXCompositeBuffer(m_glxIntegration->waylandXComposite(),
                                             (uint32_t)m_xWindow,
-                                            size,
-                                            m_glxIntegration->waylandDisplay()->argbVisual());
+                                            size);
     attach(m_buffer);
     waitForSync();
 }
 
-void QWaylandXCompositeGLXWindow::sync_function(void *data)
+void QWaylandXCompositeGLXWindow::sync_function(void *data, struct wl_callback *wl_callback, uint32_t time)
 {
+    Q_UNUSED(wl_callback);
+    Q_UNUSED(time);
     QWaylandXCompositeGLXWindow *that = static_cast<QWaylandXCompositeGLXWindow *>(data);
     that->m_waitingForSync = false;
 }

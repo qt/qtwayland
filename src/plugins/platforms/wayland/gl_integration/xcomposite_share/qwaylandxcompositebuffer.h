@@ -53,8 +53,7 @@ class QWaylandXCompositeBuffer : public QWaylandBuffer
 public:
     QWaylandXCompositeBuffer(struct wl_xcomposite *xcomposite,
                              uint32_t window,
-                             const QSize &size,
-                             struct wl_visual *visual);
+                             const QSize &size);
 
     QSize size() const;
 private:

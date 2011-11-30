@@ -73,7 +73,8 @@ private:
     void waitForSync();
     bool m_waitingForSync;
 
-    static void sync_function(void *data);
+    static const struct wl_callback_listener sync_callback_listener;
+    static void sync_function(void *data, struct wl_callback *wl_callback, uint32_t time);
 };
 
 #endif // QWAYLANDXCOMPOSITEGLXWINDOW_H

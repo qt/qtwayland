@@ -1,6 +1,6 @@
 #include "xcompositebuffer.h"
 
-XCompositeBuffer::XCompositeBuffer(Wayland::Compositor *compositor, Window window, const QSize &size, struct wl_visual *visual)
+XCompositeBuffer::XCompositeBuffer(Wayland::Compositor *compositor, Window window, const QSize &size)
     : mWindow(window)
     , mInvertedY(false)
 {

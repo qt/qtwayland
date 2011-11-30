@@ -46,7 +46,6 @@
 
 class QWaylandDisplay;
 class QWaylandCursor;
-struct wl_visual;
 
 class QWaylandScreen : public QPlatformScreen
 {

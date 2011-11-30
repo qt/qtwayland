@@ -17,7 +17,7 @@
 class XCompositeBuffer : public Wayland::Object<struct wl_buffer>
 {
 public:
-    XCompositeBuffer(Wayland::Compositor *compositor, Window window, const QSize &size, struct wl_visual *visual);
+    XCompositeBuffer(Wayland::Compositor *compositor, Window window, const QSize &size);
 
     Window window();
 

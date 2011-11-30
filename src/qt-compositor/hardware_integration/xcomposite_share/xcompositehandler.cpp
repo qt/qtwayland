@@ -24,9 +24,9 @@ XCompositeHandler::XCompositeHandler(Wayland::Compositor *compositor, Display *d
     }
 }
 
-void XCompositeHandler::createBuffer(struct wl_client *client, uint32_t id, Window window, const QSize &size, struct wl_visual *visual)
+void XCompositeHandler::createBuffer(struct wl_client *client, uint32_t id, Window window, const QSize &size)
 {
-    XCompositeBuffer *buffer = new XCompositeBuffer(mCompositor, window, size, visual);
+    XCompositeBuffer *buffer = new XCompositeBuffer(mCompositor, window, size);
     Wayland::addClientResource(client,&buffer->base()->resource,
                                id,&wl_buffer_interface,
                                &XCompositeBuffer::buffer_interface,
@@ -43,14 +43,13 @@ void XCompositeHandler::xcomposite_bind_func(struct wl_client *client, void *dat
 }
 
 void XCompositeHandler::create_buffer(struct wl_client *client,
-                      struct wl_xcomposite *xcomposite,
+                      struct wl_resource *xcomposite,
                       uint32_t id,
                       uint32_t x_window,
-                      int width,
-                      int height,
-                      struct wl_visual *visual)
+                      int32_t width,
+                      int32_t height)
 {
     Window window = (Window)x_window;
     XCompositeHandler *that = reinterpret_cast<XCompositeHandler *>(xcomposite);
-    that->createBuffer(client, id, window, QSize(width,height),visual);
+    that->createBuffer(client, id, window, QSize(width,height));
 }

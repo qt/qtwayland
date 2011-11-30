@@ -39,6 +39,7 @@
 ****************************************************************************/
 
 #include "waylandeglintegration.h"
+#include "wayland_wrapper/wlcompositor.h"
 
 #include <QtGui/QPlatformNativeInterface>
 #include <QtGui/QGuiApplication>
@@ -63,17 +64,17 @@ class WaylandEglIntegrationPrivate
 {
 public:
     WaylandEglIntegrationPrivate()
-        : egl_display(EGL_NO_DISPLAY)
+        : egl_display(EGL_NO_DISPLAY), valid(false), flipperConnected(false)
     { }
     EGLDisplay egl_display;
     bool valid;
+    bool flipperConnected;
 };
 
 WaylandEglIntegration::WaylandEglIntegration(WaylandCompositor *compositor)
     : GraphicsHardwareIntegration(compositor)
     , d_ptr(new WaylandEglIntegrationPrivate)
 {
-    d_ptr->valid = false;
 }
 
 void WaylandEglIntegration::initializeHardware(Wayland::Display *waylandDisplay)
@@ -131,8 +132,15 @@ GLuint WaylandEglIntegration::createTextureFromBuffer(wl_buffer *buffer, QOpenGL
 
 bool WaylandEglIntegration::setDirectRenderSurface(WaylandSurface *)
 {
+    Q_D(WaylandEglIntegration);
+
     QPlatformScreen *screen = QPlatformScreen::platformScreenForWindow(m_compositor->window());
-    return screen && screen->pageFlipper();
+    QPlatformScreenPageFlipper *flipper = screen ? screen->pageFlipper() : 0;
+    if (flipper && !d->flipperConnected) {
+        QObject::connect(flipper, SIGNAL(bufferReleased(void*)), m_compositor->handle(), SLOT(releaseBuffer(void*)));
+        d->flipperConnected = true;
+    }
+    return flipper;
 }
 
 

@@ -115,6 +115,9 @@ public:
     void sendDragMoveEvent(const QPoint &global, const QPoint &local, Surface *surface);
     void sendDragEndEvent();
 
+public slots:
+    void releaseBuffer(void*);
+
 signals:
     void clientAdded(wl_client *client);
 

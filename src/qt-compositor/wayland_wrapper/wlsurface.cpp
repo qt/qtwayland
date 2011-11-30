@@ -246,11 +246,13 @@ void Surface::damage(const QRect &rect)
             glDeleteTextures(1,&d->texture_id);
             d->textureCreatedForBuffer = false;
         }
+        if (d->previousBuffer) { //previousBuffer means previous buffer turned into texture
+            wl_resource_post_event(&d->previousBuffer->resource,WL_BUFFER_RELEASE);
+            d->previousBuffer = 0;
+        }
         if (d->compositor->graphicsHWIntegration()->postBuffer(d->buffer())) {
-            if (d->previousBuffer) {
-                wl_resource_post_event(&d->previousBuffer->resource,WL_BUFFER_RELEASE);
-            }
-            d->directRenderBuffer = d->previousBuffer = d->buffer();
+            d->directRenderBuffer = d->buffer();
+            emit d->qtSurface->damaged(rect);
             return;
         }
     }

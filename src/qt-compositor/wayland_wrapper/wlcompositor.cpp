@@ -243,6 +243,16 @@ uint Compositor::currentTimeMsecs()
     return 0;
 }
 
+void Compositor::releaseBuffer(void *bufferHandle)
+{
+    struct wl_buffer *buffer = static_cast<struct wl_buffer*>(bufferHandle);
+    if (buffer) {
+        qDebug() << "WL_BUFFER_RELEASE" << buffer<< buffer->resource.client;
+        wl_resource_post_event(&buffer->resource, WL_BUFFER_RELEASE);
+    }
+
+}
+
 void Compositor::processWaylandEvents()
 {
     int ret = wl_event_loop_dispatch(m_loop, 0);

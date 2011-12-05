@@ -40,12 +40,16 @@
 
 #include "waylandeglintegration.h"
 #include "wayland_wrapper/wlcompositor.h"
-
+#include "wayland_wrapper/wlsurface.h"
+#include "compositor_api/waylandsurface.h"
 #include <QtGui/QPlatformNativeInterface>
 #include <QtGui/QGuiApplication>
 #include <QtGui/QOpenGLContext>
 #include <QtGui/QPlatformScreen>
 #include <QtGui/QWindow>
+#include <QtCore/QWeakPointer>
+
+#include <QDebug>
 
 #define EGL_EGLEXT_PROTOTYPES
 #include <EGL/egl.h>
@@ -69,6 +73,9 @@ public:
     EGLDisplay egl_display;
     bool valid;
     bool flipperConnected;
+#ifdef EGL_WL_request_client_buffer_format
+    QWeakPointer<WaylandSurface> directRenderSurface;
+#endif
 };
 
 WaylandEglIntegration::WaylandEglIntegration(WaylandCompositor *compositor)
@@ -130,7 +137,17 @@ GLuint WaylandEglIntegration::createTextureFromBuffer(wl_buffer *buffer, QOpenGL
     return textureId;
 }
 
-bool WaylandEglIntegration::setDirectRenderSurface(WaylandSurface *)
+bool WaylandEglIntegration::isYInverted(struct wl_buffer *buffer) const
+{
+#ifdef EGL_WL_request_client_buffer_format
+    return eglGetBufferYInvertedWL(buffer);
+#else
+    return GraphicsHardwareIntegration::isYInverted(buffer);
+#endif
+}
+
+
+bool WaylandEglIntegration::setDirectRenderSurface(WaylandSurface *surface)
 {
     Q_D(WaylandEglIntegration);
 
@@ -140,6 +157,20 @@ bool WaylandEglIntegration::setDirectRenderSurface(WaylandSurface *)
         QObject::connect(flipper, SIGNAL(bufferReleased(void*)), m_compositor->handle(), SLOT(releaseBuffer(void*)));
         d->flipperConnected = true;
     }
+#ifdef EGL_WL_request_client_buffer_format
+    int buffer_format = surface ? EGL_SCANOUT_FORMAT_WL : EGL_RENDER_FORMAT_WL;
+    struct wl_client *client = 0;
+    if (surface) {
+        client = surface->handle()->clientHandle();
+    } else {
+        WaylandSurface *oldSurface = d->directRenderSurface.data();
+        if (oldSurface)
+            client = oldSurface->handle()->clientHandle();
+    }
+    if (client)
+        eglRequestClientBufferFormatWL(d->egl_display, client, buffer_format);
+    d->directRenderSurface = surface;
+#endif
     return flipper;
 }
 

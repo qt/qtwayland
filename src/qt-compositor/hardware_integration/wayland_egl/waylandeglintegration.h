@@ -55,6 +55,7 @@ public:
     void initializeHardware(Wayland::Display *waylandDisplay);
 
     GLuint createTextureFromBuffer(wl_buffer *buffer, QOpenGLContext *context);
+    bool isYInverted(struct wl_buffer *) const;
 
     bool setDirectRenderSurface(WaylandSurface *);
     bool postBuffer(struct wl_buffer *);

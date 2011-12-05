@@ -41,13 +41,13 @@
 #include "waylandsurfaceitem.h"
 #include "waylandsurface.h"
 
-#include <QtDeclarative/QSGEngine>
+#include <QtQuick/QSGEngine>
 
 #include <QtGui/QKeyEvent>
 
-#include <QtDeclarative/QSGSimpleTextureNode>
-#include <QtDeclarative/QSGSimpleRectNode>
-#include <QtDeclarative/QQuickCanvas>
+#include <QtQuick/QSGSimpleTextureNode>
+#include <QtQuick/QSGSimpleRectNode>
+#include <QtQuick/QQuickCanvas>
 
 class WaylandSurfaceTextureProvider : public QSGTextureProvider
 {

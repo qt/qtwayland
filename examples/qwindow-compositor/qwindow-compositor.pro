@@ -6,10 +6,8 @@ INCLUDEPATH += .
 # comment out the following to not use pkg-config in the pri files
 CONFIG += use_pkgconfig
 
-DESTDIR=$$PWD/../../bin/
-
 LIBS += -L ../../lib
-include (../../src/qt-compositor/qt-compositor.pri)
+#include (../../src/qt-compositor/qt-compositor.pri)
 
 # Input
 SOURCES += main.cpp \
@@ -21,10 +19,10 @@ CONFIG += qt warn_on debug  create_prl link_prl
 OBJECTS_DIR = .obj/release-shared
 MOC_DIR = .moc/release-shared
 
-QT += gui opengl
+QT += gui
 
-target.path += $$[QT_INSTALL_BINS]
-INSTALLS += target
+QT += compositor
+#include(../../src/compositor/compositor.pri)
 
 HEADERS += \
     qopenglwindow.h \
@@ -32,3 +30,9 @@ HEADERS += \
     qwindowcompositor.h
 
 RESOURCES += qwindow-compositor.qrc
+
+# install
+target.path = $$[QT_INSTALL_EXAMPLES]/qtwayland/qwindow-compositor
+sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS qwindow-compositor.pro
+sources.path = $$[QT_INSTALL_EXAMPLES]/qtwayland/qwindow-compositor
+INSTALLS += target sources

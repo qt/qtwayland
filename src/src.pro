@@ -1,2 +1,2 @@
 TEMPLATE=subdirs
-SUBDIRS=qt-compositor
+SUBDIRS += plugins compositor

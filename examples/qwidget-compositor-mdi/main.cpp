@@ -172,7 +172,7 @@ class QWidgetCompositorMdi : public QMainWindow, public WaylandCompositor
 {
     Q_OBJECT
 public:
-    QWidgetCompositorMdi() : WaylandCompositor(this) {
+    QWidgetCompositorMdi() : WaylandCompositor(this->windowHandle()) {
 	m_mdiArea = new QMdiArea(this);
 
 	setCentralWidget(m_mdiArea);

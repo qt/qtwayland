@@ -42,7 +42,7 @@
 #include "waylandsurface.h"
 #include "waylandsurfaceitem.h"
 
-#include <QApplication>
+#include <QGuiApplication>
 #include <QTimer>
 #include <QPainter>
 #include <QMouseEvent>
@@ -117,7 +117,7 @@ private:
 
 int main(int argc, char *argv[])
 {
-    QApplication app(argc, argv);
+    QGuiApplication app(argc, argv);
 
     QmlCompositor compositor;
     compositor.setWindowTitle(QLatin1String("QML Compositor"));

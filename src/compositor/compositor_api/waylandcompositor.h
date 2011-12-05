@@ -56,7 +56,7 @@ namespace Wayland
     class Compositor;
 }
 
-class WaylandCompositor
+class Q_COMPOSITOR_EXPORT WaylandCompositor
 {
 public:
     WaylandCompositor(QWindow *window = 0, const char *socketName = 0);

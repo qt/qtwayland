@@ -6,24 +6,13 @@ INCLUDEPATH += .
 # comment out the following to not use pkg-config in the pri files
 CONFIG += use_pkgconfig
 
-DESTDIR=$$PWD/../../bin/
-
 LIBS += -L ../../lib
 
-QT += declarative v8
-QT += opengl
+QT += quick v8
+QT += quick-private
 
-# to be removed once scenegraph gets rid of its widget dependencies
-#QT += widgets widgets-private
-
-!isEmpty(QT.core.MAJOR_VERSION):greaterThan(QT.core.MAJOR_VERSION, 4) {
-    QT += core-private gui-private declarative-private opengl-private
-}
-
-include (../../src/qt-compositor/qt-compositor.pri)
-
-target.path += $$[QT_INSTALL_BINS]
-INSTALLS += target
+QT += compositor
+#include (../../src/compositor/compositor.pri)
 
 # Input
 SOURCES += main.cpp
@@ -32,3 +21,9 @@ RESOURCES = qml-compositor.qrc
 CONFIG += qt warn_on debug  create_prl link_prl
 OBJECTS_DIR = .obj/release-shared
 MOC_DIR = .moc/release-shared
+
+# install
+target.path = $$[QT_INSTALL_EXAMPLES]/qtwayland/qml-compositor
+sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS qml-compositor.pro
+sources.path = $$[QT_INSTALL_EXAMPLES]/qtwayland/qml-compositor
+INSTALLS += target sources

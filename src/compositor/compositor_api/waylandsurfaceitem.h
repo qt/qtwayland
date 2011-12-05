@@ -46,14 +46,14 @@
 #include <QtQuick/QQuickItem>
 #include <QtQuick/qsgtexture.h>
 
-#include <private/qsgtextureprovider_p.h>
+#include <QtQuick/private/qsgtextureprovider_p.h>
 
 class WaylandSurface;
 class WaylandSurfaceTextureProvider;
 
 Q_DECLARE_METATYPE(WaylandSurface*)
 
-class WaylandSurfaceItem : public QQuickItem
+class Q_COMPOSITOR_EXPORT WaylandSurfaceItem : public QQuickItem
 {
     Q_OBJECT
     Q_PROPERTY(WaylandSurface* surface READ surface WRITE setSurface)

@@ -2,7 +2,7 @@
 #define SURFACERENDERER_H
 
 #include <QOpenGLContext>
-#include <QGLShaderProgram>
+#include <QOpenGLShaderProgram>
 #include <QWindow>
 
 class SurfaceRenderer
@@ -18,7 +18,7 @@ private:
 
     QOpenGLContext *m_context;
     QWindow *m_surface;
-    QGLShaderProgram *m_shaderProgram;
+    QOpenGLShaderProgram *m_shaderProgram;
     QMatrix4x4 m_transformMatrix;
 
     int m_matrixLocation;

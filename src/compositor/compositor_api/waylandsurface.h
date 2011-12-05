@@ -59,7 +59,7 @@ class Surface;
 class SurfacePrivate;
 }
 
-class WaylandSurface : public QObject
+class Q_COMPOSITOR_EXPORT WaylandSurface : public QObject
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(WaylandSurface)

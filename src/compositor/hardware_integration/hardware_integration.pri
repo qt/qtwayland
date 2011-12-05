@@ -13,16 +13,16 @@ isEmpty(QT_WAYLAND_GL_CONFIG):QT_WAYLAND_GL_CONFIG = $$(QT_WAYLAND_GL_CONFIG)
         QT_WAYLAND_GL_INTEGRATION = $$QT_WAYLAND_GL_CONFIG
     } else {
         contains(QT_CONFIG, opengles2) {
-            isEqual(QT_WAYLAND_GL_CONFIG, wayland_egl) {
-                QT_WAYLAND_GL_INTEGRATION = $$QT_WAYLAND_GL_CONFIG
-                CONFIG += mesa_egl
-                DEFINES += MESA_EGL_NO_X11_HEADERS
+            isEqual(QT_WAYLAND_GL_CONFIG, xcomposite_egl) {
+                QT_WAYLAND_GL_INTEGRATION = xcomposite_egl
+                CONFIG += xcomposite_egl
             } else:isEqual(QT_WAYLAND_GL_CONFIG,dri2_xcb) {
                 QT_WAYLAND_GL_INTEGRATION = $$QT_WAYLAND_GL_CONFIG
                 CONFIG += dri2_xcb
             } else {
-                QT_WAYLAND_GL_INTEGRATION = xcomposite_egl
-                CONFIG += xcomposite_egl
+                QT_WAYLAND_GL_INTEGRATION = $$QT_WAYLAND_GL_CONFIG
+                CONFIG += wayland_egl
+                DEFINES += MESA_EGL_NO_X11_HEADERS
             }
         } else {
             QT_WAYLAND_GL_INTEGRATION = xcomposite_glx
@@ -34,7 +34,7 @@ isEmpty(QT_WAYLAND_GL_CONFIG):QT_WAYLAND_GL_CONFIG = $$(QT_WAYLAND_GL_CONFIG)
     system(echo "Qt-Compositor configured as raster only compositor")
 }
 
-mesa_egl {
+wayland_egl {
     include (wayland_egl/wayland_egl.pri)
 }
 dri2_xcb {

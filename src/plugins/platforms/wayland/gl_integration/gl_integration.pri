@@ -10,15 +10,15 @@ SOURCES += \
 
     QT_WAYLAND_GL_CONFIG = $$(QT_WAYLAND_GL_CONFIG)
     contains(QT_CONFIG, opengles2) {
-        isEqual(QT_WAYLAND_GL_CONFIG, wayland_egl) {
-            QT_WAYLAND_GL_INTEGRATION = $$QT_WAYLAND_GL_CONFIG
-            CONFIG += wayland_egl
+        isEqual(QT_WAYLAND_GL_CONFIG, xcomposite_egl) {
+            QT_WAYLAND_GL_INTEGRATION = xcomposite_egl
+            CONFIG += xcomposite_egl
         } else:isEqual(QT_WAYLAND_GL_CONFIG,readback) {
             QT_WAYLAND_GL_INTEGRATION = readback_egl
             CONFIG += readback_egl
         } else {
-            QT_WAYLAND_GL_INTEGRATION = xcomposite_egl
-            CONFIG += xcomposite_egl
+            QT_WAYLAND_GL_INTEGRATION = $$QT_WAYLAND_GL_CONFIG
+            CONFIG += wayland_egl
         }
     } else:mac {
         QT_WAYLAND_GL_INTEGRATION = readback_cgl

@@ -1,5 +1,9 @@
+CONFIG += module
+MODULE_PRI += $$PWD/../../modules/qt_compositor.pri
+
 INCLUDEPATH += $$PWD
 DEFINES += QT_WAYLAND_WINDOWMANAGER_SUPPORT
+DEFINES += QT_BUILD_COMPOSITOR_LIB
 
 !mac:use_pkgconfig {
     CONFIG += link_pkgconfig
@@ -18,6 +22,8 @@ DEFINES += QT_WAYLAND_WINDOWMANAGER_SUPPORT
     LIBS += -L$$PWD/../../lib
     LIBS += -lwayland-server -lffi
 }
+
+HEADERS += qtcompositorversion.h
 
 include ($$PWD/util/util.pri)
 include ($$PWD/wayland_wrapper/wayland_wrapper.pri)

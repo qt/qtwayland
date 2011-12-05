@@ -1,6 +1,7 @@
 #include "surfacerenderer.h"
 
 #include <QOpenGLFunctions>
+#include <QImage>
 
 SurfaceRenderer::SurfaceRenderer(QOpenGLContext *context, QWindow *surface)
     : m_context(context)
@@ -30,10 +31,10 @@ SurfaceRenderer::SurfaceRenderer(QOpenGLContext *context, QWindow *surface)
     glBlendFunc (GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
 
     //May need to manually set context here
-    m_shaderProgram = new QGLShaderProgram();
+    m_shaderProgram = new QOpenGLShaderProgram();
 
-    m_shaderProgram->addShaderFromSourceCode(QGLShader::Vertex, textureVertexProgram);
-    m_shaderProgram->addShaderFromSourceCode(QGLShader::Fragment, textureFragmentProgram);
+    m_shaderProgram->addShaderFromSourceCode(QOpenGLShader::Vertex, textureVertexProgram);
+    m_shaderProgram->addShaderFromSourceCode(QOpenGLShader::Fragment, textureFragmentProgram);
     m_shaderProgram->link();
     m_shaderProgram->bind();
 
@@ -97,13 +98,13 @@ void SurfaceRenderer::drawTexture(int textureId, const QRectF &geometry, int dep
 GLuint SurfaceRenderer::textureFromImage(const QImage &image)
 {
     //TODO: Replace this line
-    QImage convertedImage = QGLWidget::convertToGLFormat(image);
+    //QImage convertedImage = QGLWidget::convertToGLFormat(image);
 
     GLuint textureId;
     //Copy QImage data to Texture
     glGenTextures(1, &textureId);
     glBindTexture(GL_TEXTURE_2D, textureId);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, convertedImage.width(), convertedImage.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, convertedImage.constBits());
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image.width(), image.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, image.constBits());
 
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);

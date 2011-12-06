@@ -81,6 +81,9 @@ public:
 
     static void bind_func(struct wl_client *client, void *data,
                                           uint32_t version, uint32_t id);
+
+    static void destroy_resource(wl_resource *resource);
+
     struct wl_resource *getWindowManagerResourceForClient(struct wl_client *client) {
         for (int i = 0; i < m_client_resources.size(); i++) {
             if (m_client_resources.at(i)->client == client) {
@@ -126,11 +129,17 @@ void WindowManagerObject::bind_func(struct wl_client *client, void *data,
     Q_UNUSED(version);
     WindowManagerObject *win_mgr_object= static_cast<WindowManagerObject *>(data);
     struct wl_resource *resource =wl_client_add_object(client,&wl_windowmanager_interface,&windowmanager_interface,id,data);
-    for (int i = 0; i < win_mgr_object->m_client_resources.size(); i++) {
-        struct wl_client *existing_client = win_mgr_object->m_client_resources.at(i)->client;
-        Q_ASSERT(client != existing_client);
-    }
+    resource->destroy = destroy_resource;
     win_mgr_object->m_client_resources.append(resource);
+    qDebug("wm bind client %p resource %p", client, resource);
+}
+
+void WindowManagerObject::destroy_resource(wl_resource *resource)
+{
+    qDebug("wm destroy resource %p", resource);
+    WindowManagerObject *win_mgr_object = static_cast<WindowManagerObject *>(resource->data);
+    win_mgr_object->m_client_resources.removeOne(resource);
+    free(resource);
 }
 
 WindowManagerServerIntegration *WindowManagerServerIntegration::m_instance = 0;

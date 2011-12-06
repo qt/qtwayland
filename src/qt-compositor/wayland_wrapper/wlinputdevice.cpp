@@ -144,6 +144,8 @@ void InputDevice::destroy_resource(wl_resource *resource)
 
     input_device->m_data_devices.clear();
 
+    wl_list_remove(&resource->link);
+
     free(resource);
 }
 

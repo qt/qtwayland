@@ -41,6 +41,8 @@
 #ifndef WAYLANDSURFACE_H
 #define WAYLANDSURFACE_H
 
+#include "waylandexport.h"
+
 #include <QtCore/QScopedPointer>
 #include <QtGui/QImage>
 #include <QtCore/QVariantMap>

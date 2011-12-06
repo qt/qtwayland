@@ -38,66 +38,17 @@
 **
 ****************************************************************************/
 
-#ifndef QTCOMP_H
-#define QTCOMP_H
+#ifndef WAYLANDEXPORT_H
+#define WAYLANDEXPORT_H
 
-#include "waylandexport.h"
+#include <QtCore/qglobal.h>
 
-#include <QObject>
-#include <QImage>
-#include <QRect>
+#if !defined(Q_COMPOSITOR_EXPORT)
+#  if defined(QT_SHARED)
+#    define Q_COMPOSITOR_EXPORT Q_DECL_EXPORT
+#  else
+#    define Q_COMPOSITOR_EXPORT
+#  endif
+#endif
 
-class QWidget;
-class QMimeData;
-class WaylandSurface;
-
-namespace Wayland
-{
-    class Compositor;
-}
-
-class WaylandCompositor
-{
-public:
-    WaylandCompositor(QWindow *window = 0, const char *socketName = 0);
-    virtual ~WaylandCompositor();
-
-    void frameFinished(WaylandSurface *surface = 0);
-
-    void setInputFocus(WaylandSurface *surface);
-    WaylandSurface *inputFocus() const;
-    void destroyClientForSurface(WaylandSurface *surface);
-
-    void setDirectRenderSurface(WaylandSurface *surface);
-    WaylandSurface *directRenderSurface() const;
-
-    QWindow *window()const;
-
-    virtual void surfaceCreated(WaylandSurface *surface) = 0;
-
-    Wayland::Compositor *handle() const;
-
-    void setRetainedSelectionEnabled(bool enable);
-    virtual void retainedSelectionReceived(QMimeData *mimeData);
-    void overrideSelection(QMimeData *data);
-
-    const char *socketName() const;
-
-    void setScreenOrientation(Qt::ScreenOrientation orientation);
-    void setOutputGeometry(const QRect &outputGeometry);
-
-    bool isDragging() const;
-    void sendDragMoveEvent(const QPoint &global, const QPoint &local, WaylandSurface *surface);
-    void sendDragEndEvent();
-
-    virtual void changeCursor(const QImage &image, int hotspotX, int hotspotY);
-
-private:
-    static void retainedSelectionChanged(QMimeData *mimeData, void *param);
-
-    Wayland::Compositor *m_compositor;
-    QWindow  *m_toplevel_widget;
-    QByteArray m_socket_name;
-};
-
-#endif // QTCOMP_H
+#endif //WAYLANDEXPORT_H

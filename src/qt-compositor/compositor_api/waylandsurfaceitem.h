@@ -41,8 +41,10 @@
 #ifndef WAYLANDSURFACEITEM_H
 #define WAYLANDSURFACEITEM_H
 
-#include <QQuickItem>
-#include <qsgtexture.h>
+#include "waylandexport.h"
+
+#include <QtQuick/QQuickItem>
+#include <QtQuick/qsgtexture.h>
 
 #include <private/qsgtextureprovider_p.h>
 

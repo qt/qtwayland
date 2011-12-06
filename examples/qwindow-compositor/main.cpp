@@ -53,7 +53,12 @@ int main(int argc, char *argv[])
     QSurfaceFormat format;
     format.setDepthBufferSize(16);
 
-    QOpenGLWindow *window = new QOpenGLWindow(format, screenGeometry);
+    QRect geom = screenGeometry;
+    if (QCoreApplication::arguments().contains(QLatin1String("-nofullscreen")))
+        geom = QRect(screenGeometry.width() / 4, screenGeometry.height() / 4,
+                     screenGeometry.width() / 2, screenGeometry.height() / 2);
+
+    QOpenGLWindow *window = new QOpenGLWindow(format, geom);
     window->show();
 
     QWindowCompositor compositor(window);

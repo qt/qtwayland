@@ -59,20 +59,21 @@ InputDevice::InputDevice(Compositor *compositor)
     wl_display_add_global(compositor->wl_display(),&wl_input_device_interface,this,InputDevice::bind_func);
 }
 
-void InputDevice::clientRequestedDataDevice(DataDeviceManager *data_device_manager  , struct wl_client *client, uint32_t id)
+void InputDevice::clientRequestedDataDevice(DataDeviceManager *data_device_manager, struct wl_client *client, uint32_t id)
 {
     for (int i = 0; i < m_data_devices.size(); i++) {
         struct wl_resource *data_device_resource =
                 m_data_devices.at(i)->dataDeviceResource();
         if (data_device_resource->client == client) {
-            qDebug() << "Client created data device, but allready has one; removing the old one!";
+            qDebug() << "Client created data device, but already has one; removing the old one!";
             m_data_devices.removeAt(i);
-            delete data_device_resource;
+            free(data_device_resource);
             break;
         }
     }
     DataDevice *dataDevice = new DataDevice(data_device_manager,client,id);
     m_data_devices.append(dataDevice);
+    qDebug("created datadevice %p resource %p", dataDevice, dataDevice->dataDeviceResource());
 }
 
 void InputDevice::sendSelectionFocus(Surface *surface)
@@ -132,7 +133,7 @@ const struct wl_input_device_interface InputDevice::input_device_interface = {
 
 void InputDevice::destroy_resource(wl_resource *resource)
 {
-    qDebug() << "input device resource destory";
+    qDebug() << "input device resource destroy" << resource;
     InputDevice *input_device = static_cast<InputDevice *>(resource->data);
     if (input_device->base()->keyboard_focus_resource == resource) {
         input_device->base()->keyboard_focus_resource = 0;
@@ -140,6 +141,9 @@ void InputDevice::destroy_resource(wl_resource *resource)
     if (input_device->base()->pointer_focus_resource == resource) {
         input_device->base()->pointer_focus_resource = 0;
     }
+
+    input_device->m_data_devices.clear();
+
     free(resource);
 }
 

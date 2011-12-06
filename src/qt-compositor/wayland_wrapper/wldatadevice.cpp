@@ -90,13 +90,6 @@ const struct wl_data_device_interface DataDevice::data_device_interface = {
     DataDevice::set_selection
 };
 
-void DataDevice::destroy_data_device_resource(struct wl_resource *resource)
-{
-    DataDevice *data_device = static_cast<DataDevice *>(resource->data);
-    delete data_device;
-    free(resource);
-}
-
 DataDevice::DataDevice(DataDeviceManager *data_device_manager, struct wl_client *client, uint32_t id)
     : m_data_device_manager(data_device_manager)
     , m_sent_selection_time(0)
@@ -106,7 +99,6 @@ DataDevice::DataDevice(DataDeviceManager *data_device_manager, struct wl_client 
     qDebug() << "data device" << ++i;
     m_data_device_resource =
             wl_client_add_object(client,&wl_data_device_interface,&data_device_interface,id, this);
-
 }
 
 void DataDevice::sendSelectionFocus()

@@ -80,8 +80,6 @@ private:
                           struct wl_resource *resource,
                           struct wl_resource *source,
                           uint32_t time);
-
-    static void destroy_data_device_resource(struct wl_resource *resource);
 };
 
 }

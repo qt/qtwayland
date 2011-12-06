@@ -76,7 +76,7 @@ private:
                   const char *type);
     static void destroy(struct wl_client *client,
                     struct wl_resource *resource);
-
+    static void resource_destroy(struct wl_resource *resource);
 
 };
 

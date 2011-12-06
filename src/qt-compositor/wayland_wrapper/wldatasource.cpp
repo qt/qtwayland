@@ -55,6 +55,7 @@ DataSource::DataSource(struct wl_client *client, uint32_t id, uint32_t time)
     : m_time(time)
 {
     m_data_source_resource = wl_client_add_object(client, &wl_data_source_interface, &DataSource::data_source_interface,id,this);
+    m_data_source_resource->destroy = resource_destroy;
     m_data_offer = new DataOffer(this);
 }
 
@@ -62,6 +63,14 @@ DataSource::~DataSource()
 {
     qDebug() << "destorying source";
     wl_resource_destroy(m_data_source_resource,Compositor::currentTimeMsecs());
+}
+
+void DataSource::resource_destroy(wl_resource *resource)
+{
+    DataSource *source = static_cast<DataSource *>(resource->data);
+    if (source && source->m_data_source_resource == resource)
+        source->m_data_source_resource = 0;
+    free(resource);
 }
 
 uint32_t DataSource::time() const

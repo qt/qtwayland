@@ -48,7 +48,6 @@
 #include <QMouseEvent>
 
 #include <QDeclarativeContext>
-#include <QtQuick1/QDeclarativeView>
 
 #include <QQuickItem>
 #include <QQuickView>

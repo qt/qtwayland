@@ -41,8 +41,9 @@
 #include "qwindowcompositor.h"
 
 #include <QGuiApplication>
-#include <QtGui/QScreen>
-#include <QtGui/QSurfaceFormat>
+#include <QStringList>
+#include <QScreen>
+#include <QSurfaceFormat>
 
 int main(int argc, char *argv[])
 {

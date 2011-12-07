@@ -95,16 +95,47 @@ void SurfaceRenderer::drawTexture(int textureId, const QRectF &geometry, int dep
     m_shaderProgram->release();
 }
 
+static inline QImage convertToGLFormat(const QImage &img)
+{
+    QImage dst(img.width(), img.height(), QImage::Format_ARGB32);
+    const int width = img.width();
+    const int height = img.height();
+    const uint *p = (const uint*) img.scanLine(img.height() - 1);
+    uint *q = (uint*) dst.scanLine(0);
+
+    if (QSysInfo::ByteOrder == QSysInfo::BigEndian) {
+        for (int i=0; i < height; ++i) {
+            const uint *end = p + width;
+            while (p < end) {
+                *q = (*p << 8) | ((*p >> 24) & 0xff);
+                p++;
+                q++;
+            }
+            p -= 2 * width;
+        }
+    } else {
+        for (int i=0; i < height; ++i) {
+            const uint *end = p + width;
+            while (p < end) {
+                *q = ((*p << 16) & 0xff0000) | ((*p >> 16) & 0xff) | (*p & 0xff00ff00);
+                p++;
+                q++;
+            }
+            p -= 2 * width;
+        }
+    }
+
+    return dst;
+}
+
 GLuint SurfaceRenderer::textureFromImage(const QImage &image)
 {
-    //TODO: Replace this line
-    //QImage convertedImage = QGLWidget::convertToGLFormat(image);
-
+    QImage convertedImage = convertToGLFormat(image);
     GLuint textureId;
     //Copy QImage data to Texture
     glGenTextures(1, &textureId);
     glBindTexture(GL_TEXTURE_2D, textureId);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image.width(), image.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, image.constBits());
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, convertedImage.width(), convertedImage.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, convertedImage.constBits());
 
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);

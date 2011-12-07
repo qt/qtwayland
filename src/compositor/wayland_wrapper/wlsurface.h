@@ -41,6 +41,8 @@
 #ifndef WL_SURFACE_H
 #define WL_SURFACE_H
 
+#include "waylandexport.h"
+
 #include "waylandobject.h"
 #include "wlshmbuffer.h"
 #include "waylandsurface.h"
@@ -63,7 +65,7 @@ class Buffer;
 
 class SurfacePrivate;
 
-class Surface : public Object<struct wl_surface>
+class Q_COMPOSITOR_EXPORT Surface : public Object<struct wl_surface>
 {
     Q_DECLARE_PRIVATE(Surface)
 public:

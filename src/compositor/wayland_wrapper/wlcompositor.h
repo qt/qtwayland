@@ -41,6 +41,8 @@
 #ifndef WL_COMPOSITOR_H
 #define WL_COMPOSITOR_H
 
+#include "waylandexport.h"
+
 #include <QtCore/QSet>
 
 #include "wloutput.h"
@@ -60,7 +62,7 @@ class Surface;
 class InputDevice;
 class DataDeviceManager;
 
-class Compositor : public QObject
+class Q_COMPOSITOR_EXPORT Compositor : public QObject
 {
     Q_OBJECT
 

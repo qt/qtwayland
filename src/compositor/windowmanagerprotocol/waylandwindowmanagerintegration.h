@@ -45,6 +45,8 @@
 #include <qwindowdefs.h>
 #include <stdint.h>
 
+#include "waylandexport.h"
+
 #include <QObject>
 #include <QMap>
 #include <QVariant>
@@ -59,7 +61,7 @@ namespace Wayland {
 class WindowManagerObject;
 class WaylandManagedClient;
 
-class WindowManagerServerIntegration : public QObject
+class Q_COMPOSITOR_EXPORT WindowManagerServerIntegration : public QObject
 {
     Q_OBJECT
 public:

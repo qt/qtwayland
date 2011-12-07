@@ -6,6 +6,9 @@ INCLUDEPATH += .
 # comment out the following to not use pkg-config in the pri files
 CONFIG += use_pkgconfig
 
+#  if you want to compile QtCompositor as part of the application
+#  instead of linking to it, remove the QT += compositor and uncomment
+#  the following line
 #include (../../src/qt-compositor/qt-compositor.pri)
 
 # Input

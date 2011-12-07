@@ -12,6 +12,10 @@ QT += quick v8
 QT += quick-private
 
 QT += compositor
+
+#  if you want to compile QtCompositor as part of the application
+#  instead of linking to it, remove the QT += compositor and uncomment
+#  the following line
 #include (../../src/compositor/compositor.pri)
 
 # Input

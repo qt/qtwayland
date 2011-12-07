@@ -22,6 +22,10 @@ MOC_DIR = .moc/release-shared
 QT += gui
 
 QT += compositor
+
+#  if you want to compile QtCompositor as part of the application
+#  instead of linking to it, remove the QT += compositor and uncomment
+#  the following line
 #include(../../src/compositor/compositor.pri)
 
 HEADERS += \

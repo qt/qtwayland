@@ -129,6 +129,7 @@ private:
     QList<QWindowSystemInterface::TouchPoint> mTouchPoints;
     QList<QWindowSystemInterface::TouchPoint> mPrevTouchPoints;
     QEvent::Type mTouchState;
+    QTouchDevice *mTouchDevice;
 };
 
 QT_END_NAMESPACE

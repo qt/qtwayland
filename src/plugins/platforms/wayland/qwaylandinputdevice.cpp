@@ -91,6 +91,11 @@ QWaylandInputDevice::QWaylandInputDevice(QWaylandDisplay *display,
     if (mQDisplay->dndSelectionHandler()) {
         mTransferDevice = mQDisplay->dndSelectionHandler()->getDataDevice(this);
     }
+
+    mTouchDevice = new QTouchDevice;
+    mTouchDevice->setType(QTouchDevice::TouchScreen);
+    mTouchDevice->setCapabilities(QTouchDevice::Position);
+    QWindowSystemInterface::registerTouchDevice(mTouchDevice);
 }
 
 void QWaylandInputDevice::handleWindowDestroyed(QWaylandWindow *window)
@@ -438,7 +443,8 @@ void QWaylandInputDevice::handleTouchPoint(int id, int x, int y, Qt::TouchPointS
 
     tp.state = state;
     tp.id = id;
-    tp.isPrimary = mTouchPoints.isEmpty();
+    if (mTouchPoints.isEmpty())
+        tp.flags |= QTouchEvent::TouchPoint::Primary;
     tp.pressure = tp.state == Qt::TouchPointReleased ? 0 : 1;
     mTouchPoints.append(tp);
 }
@@ -475,13 +481,7 @@ void QWaylandInputDevice::handleTouchFrame()
         return;
     }
 
-#ifdef POINT_DEBUG
-        qDebug() << mTouchPoints.count() << "touchpoints, event type" << mTouchState;
-        for (int i = 0; i < mTouchPoints.count(); ++i)
-            qDebug() << "    " << mTouchPoints[i].id << mTouchPoints[i].state << mTouchPoints[i].area;
-#endif
-
-    QWindowSystemInterface::handleTouchEvent(0, mTouchState, QTouchEvent::TouchScreen, mTouchPoints);
+    QWindowSystemInterface::handleTouchEvent(0, mTouchDevice, mTouchPoints);
 
     bool allReleased = true;
     for (int i = 0; i < mTouchPoints.count(); ++i)
@@ -494,10 +494,7 @@ void QWaylandInputDevice::handleTouchFrame()
     mTouchPoints.clear();
 
     if (allReleased) {
-#ifdef POINT_DEBUG
-        qDebug() << mTouchPoints.count() << "touchpoints, event type" << QEvent::TouchEnd;
-#endif
-        QWindowSystemInterface::handleTouchEvent(0, QEvent::TouchEnd, QTouchEvent::TouchScreen, mTouchPoints);
+        QWindowSystemInterface::handleTouchEvent(0, mTouchDevice, mTouchPoints);
         mTouchState = QEvent::TouchBegin;
         mPrevTouchPoints.clear();
     } else if (mTouchState == QEvent::TouchBegin)

@@ -56,8 +56,12 @@ DataDeviceManager::DataDeviceManager(Compositor *compositor)
 {
     wl_display_add_global(compositor->wl_display(), &wl_data_device_manager_interface, base(), DataDeviceManager::bind_func_drag);
 }
+
 void DataDeviceManager::setCurrentSelectionSource(DataSource *source)
 {
+    if (m_current_selection_source == source)
+        return;
+
     if (m_current_selection_source) {
         if (m_current_selection_source->time() >= source->time()) {
             qDebug() << "Trying to set older selection";

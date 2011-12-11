@@ -61,7 +61,7 @@ DataSource::DataSource(struct wl_client *client, uint32_t id, uint32_t time)
 
 DataSource::~DataSource()
 {
-    qDebug() << "destorying source";
+    qDebug() << "destroying source";
     wl_resource_destroy(m_data_source_resource,Compositor::currentTimeMsecs());
 }
 

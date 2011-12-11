@@ -330,11 +330,11 @@ uint32_t QWaylandDisplay::currentTimeMillisec()
 
 void QWaylandDisplay::force_roundtrip_sync_callback(void *data, struct wl_callback *wl_callback, uint32_t time)
 {
-    Q_UNUSED(wl_callback);
     Q_UNUSED(time);
 
     int *round_trip = (int *)data;
     *round_trip = true;
+    wl_callback_destroy(wl_callback);
 }
 
 const struct wl_callback_listener QWaylandDisplay::force_roundtrip_sync_callback_listener = {

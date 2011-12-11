@@ -95,8 +95,11 @@ void QWaylandDataOffer::offer_sync_callback(void *data,
              struct wl_callback *wl_callback,
              uint32_t time)
 {
+    Q_UNUSED(time);
+
     QWaylandDataOffer *mime = static_cast<QWaylandDataOffer *>(data);
     mime->m_receiving_offers = false;
+    wl_callback_destroy(wl_callback);
 }
 
 const struct wl_callback_listener QWaylandDataOffer::offer_sync_callback_listener = {

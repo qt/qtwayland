@@ -140,9 +140,9 @@ void QWaylandXCompositeGLXWindow::createSurface()
 
 void QWaylandXCompositeGLXWindow::sync_function(void *data, struct wl_callback *wl_callback, uint32_t time)
 {
-    Q_UNUSED(wl_callback);
     Q_UNUSED(time);
     QWaylandXCompositeGLXWindow *that = static_cast<QWaylandXCompositeGLXWindow *>(data);
     that->m_waitingForSync = false;
+    wl_callback_destroy(wl_callback);
 }
 

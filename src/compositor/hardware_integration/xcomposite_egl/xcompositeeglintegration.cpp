@@ -4,7 +4,7 @@
 #include "wayland_wrapper/wlcompositor.h"
 #include "wayland-xcomposite-server-protocol.h"
 
-#include <QtWidgets/QApplication>
+#include <QtGui/QGuiApplication>
 #include <QtGui/QPlatformNativeInterface>
 #include <QtGui/QPlatformOpenGLContext>
 
@@ -40,7 +40,7 @@ XCompositeEglIntegration::XCompositeEglIntegration(WaylandCompositor *compositor
     : GraphicsHardwareIntegration(compositor)
     , mDisplay(0)
 {
-    QPlatformNativeInterface *nativeInterface = QApplication::platformNativeInterface();
+    QPlatformNativeInterface *nativeInterface = QGuiApplication::platformNativeInterface();
     if (nativeInterface) {
         mDisplay = static_cast<Display *>(nativeInterface->nativeResourceForWindow("Display",m_compositor->window()));
         if (!mDisplay)

@@ -1,11 +1,11 @@
 INCLUDEPATH += $$PWD
 
+WAYLANDSOURCES += $$PWD/../../../extensions/windowmanager/windowmanager.xml
+
 HEADERS += \
     $$PWD/waylandwindowmanagerintegration.h \
-    $$PWD/wayland-windowmanager-server-protocol.h
 
 SOURCES += \
     $$PWD/waylandwindowmanagerintegration.cpp \
-    $$PWD/wayland-windowmanager-protocol.c
 
 

@@ -48,13 +48,6 @@
 #include "wayland-server.h"
 #include "wayland-windowmanager-server-protocol.h"
 
-// the protocol files are generated with wayland-scanner, in the following manner:
-// wayland-scanner client-header < windowmanager.xml > wayland-windowmanager-client-protocol.h
-// wayland-scanner server-header < windowmanager.xml > wayland-windowmanager-server-protocol.h
-// wayland-scanner code < windowmanager.xml > wayland-windowmanager-protocol.c
-//
-// wayland-scanner can be found from wayland sources.
-
 class WindowManagerObject
 {
 public:

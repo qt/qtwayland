@@ -121,7 +121,7 @@ void WindowManagerObject::bind_func(struct wl_client *client, void *data,
 {
     Q_UNUSED(version);
     WindowManagerObject *win_mgr_object= static_cast<WindowManagerObject *>(data);
-    struct wl_resource *resource =wl_client_add_object(client,&wl_windowmanager_interface,&windowmanager_interface,id,data);
+    struct wl_resource *resource = wl_client_add_object(client,&wl_windowmanager_interface,&windowmanager_interface,id,data);
     resource->destroy = destroy_resource;
     win_mgr_object->m_client_resources.append(resource);
     qDebug("wm bind client %p resource %p", client, resource);

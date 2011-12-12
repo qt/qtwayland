@@ -53,7 +53,7 @@
 
 WaylandCompositor::WaylandCompositor(QWindow *window, const char *socketName)
     : m_compositor(0)
-    , m_toplevel_widget(window)
+    , m_toplevel_window(window)
     , m_socket_name(socketName)
 {
     QStringList arguments = QCoreApplication::instance()->arguments();
@@ -112,7 +112,7 @@ WaylandSurface *WaylandCompositor::directRenderSurface() const
 
 QWindow * WaylandCompositor::window() const
 {
-    return m_toplevel_widget;
+    return m_toplevel_window;
 }
 
 Wayland::Compositor * WaylandCompositor::handle() const

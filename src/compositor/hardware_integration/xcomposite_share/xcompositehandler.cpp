@@ -12,10 +12,10 @@ XCompositeHandler::XCompositeHandler(Wayland::Compositor *compositor, Display *d
 {
     mCompositor->window()->create();
 
-    mFakeRootWidget = new QWindow(mCompositor->window());
-    mFakeRootWidget->setGeometry(QRect(-1,-1,1,1));
-    mFakeRootWidget->create();
-    mFakeRootWidget->show();
+    mFakeRootWindow = new QWindow(mCompositor->window());
+    mFakeRootWindow->setGeometry(QRect(-1,-1,1,1));
+    mFakeRootWindow->create();
+    mFakeRootWindow->show();
     int composite_event_base, composite_error_base;
     if (XCompositeQueryExtension(mDisplay, &composite_event_base, &composite_error_base)) {
 
@@ -39,7 +39,7 @@ void XCompositeHandler::xcomposite_bind_func(struct wl_client *client, void *dat
     XCompositeHandler *handler = static_cast<XCompositeHandler *>(data);
     wl_resource *resource = wl_client_add_object(client,&wl_xcomposite_interface,&xcomposite_interface,id,handler);
     const char *displayString = XDisplayString(handler->mDisplay);
-    wl_resource_post_event(resource, WL_XCOMPOSITE_ROOT, displayString, handler->mFakeRootWidget->winId());
+    wl_resource_post_event(resource, WL_XCOMPOSITE_ROOT, displayString, handler->mFakeRootWindow->winId());
 }
 
 void XCompositeHandler::create_buffer(struct wl_client *client,

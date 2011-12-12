@@ -17,7 +17,7 @@ public:
 private:
     Wayland::Compositor *mCompositor;
     QWindow *mwindow;
-    QWindow *mFakeRootWidget;
+    QWindow *mFakeRootWindow;
     Display *mDisplay;
 
     static void create_buffer(struct wl_client *client,

@@ -47,7 +47,6 @@
 #include <QImage>
 #include <QRect>
 
-class QWidget;
 class QMimeData;
 class WaylandSurface;
 
@@ -96,7 +95,7 @@ private:
     static void retainedSelectionChanged(QMimeData *mimeData, void *param);
 
     Wayland::Compositor *m_compositor;
-    QWindow  *m_toplevel_widget;
+    QWindow  *m_toplevel_window;
     QByteArray m_socket_name;
 };
 

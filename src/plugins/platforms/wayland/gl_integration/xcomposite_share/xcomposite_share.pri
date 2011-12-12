@@ -1,9 +1,9 @@
 INCLUDEPATH += $$PWD
 
+WAYLANDSOURCES += $$PWD/../../../../../../extensions/xcomposite/xcomposite.xml
+
 HEADERS += \
-    $$PWD/wayland-xcomposite-client-protocol.h \
-    gl_integration/xcomposite_share/qwaylandxcompositebuffer.h
+    $$PWD/qwaylandxcompositebuffer.h
 
 SOURCES += \
-   $$PWD/wayland-xcomposite-protocol.c \
-    gl_integration/xcomposite_share/qwaylandxcompositebuffer.cpp
+    $$PWD/qwaylandxcompositebuffer.cpp

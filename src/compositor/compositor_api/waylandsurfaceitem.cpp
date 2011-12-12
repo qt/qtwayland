@@ -41,8 +41,6 @@
 #include "waylandsurfaceitem.h"
 #include "waylandsurface.h"
 
-#include <QtQuick/QSGEngine>
-
 #include <QtGui/QKeyEvent>
 
 #include <QtQuick/QSGSimpleTextureNode>
@@ -227,12 +225,12 @@ QSGNode *WaylandSurfaceItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeDa
         if (m_surface->type() == WaylandSurface::Texture) {
             QOpenGLContext *context = QOpenGLContext::currentContext();
 
-            QSGEngine::TextureOption opt = useTextureAlpha() ? QSGEngine::TextureHasAlphaChannel : QSGEngine::TextureOption(0);
-            m_texture = canvas()->sceneGraphEngine()->createTextureFromId(m_surface->texture(context),
+            QQuickCanvas::CreateTextureOptions opt = useTextureAlpha() ? QQuickCanvas::TextureHasAlphaChannel : QQuickCanvas::CreateTextureOptions(0);
+            m_texture = canvas()->createTextureFromId(m_surface->texture(context),
                                                                           m_surface->geometry().size(),
                                                                           opt);
         } else {
-            m_texture = canvas()->sceneGraphEngine()->createTextureFromImage(m_surface->image());
+            m_texture = canvas()->createTextureFromImage(m_surface->image());
         }
         delete oldTexture;
         m_damaged = false;

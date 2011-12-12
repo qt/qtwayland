@@ -118,7 +118,7 @@ void QWaylandXCompositeEGLIntegration::wlDisplayHandleGlobal(wl_display *display
     Q_UNUSED(version);
     if (strcmp(interface, "wl_xcomposite") == 0) {
         QWaylandXCompositeEGLIntegration *integration = static_cast<QWaylandXCompositeEGLIntegration *>(data);
-        integration->mWaylandComposite = wl_xcomposite_create(display,id,1);
+        integration->mWaylandComposite = static_cast<struct wl_xcomposite *>(wl_display_bind(display,id,&wl_xcomposite_interface));
         wl_xcomposite_add_listener(integration->mWaylandComposite,&xcomposite_listener,integration);
     }
 

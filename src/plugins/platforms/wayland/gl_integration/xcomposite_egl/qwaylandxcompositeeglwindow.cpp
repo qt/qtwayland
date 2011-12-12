@@ -130,24 +130,16 @@ void QWaylandXCompositeEGLWindow::createEglSurface()
     XSync(m_glxIntegration->xDisplay(),False);
     m_buffer = new QWaylandXCompositeBuffer(m_glxIntegration->waylandXComposite(),
                                            (uint32_t)m_xWindow,
-                                           size,
-                                           m_glxIntegration->waylandDisplay()->argbVisual());
+                                           size);
     attach(m_buffer);
-    wl_display_sync_callback(m_glxIntegration->waylandDisplay()->wl_display(),
-                             QWaylandXCompositeEGLWindow::sync_function,
-                             this);
 
     m_waitingForSync = true;
-    wl_display_sync(m_glxIntegration->waylandDisplay()->wl_display(),0);
+    struct wl_callback *callback = wl_display_sync(m_glxIntegration->waylandDisplay()->wl_display());
+    wl_callback_add_listener(callback,&m_callback_listener,&m_waitingForSync);
+
     m_glxIntegration->waylandDisplay()->flushRequests();
     while (m_waitingForSync)
         m_glxIntegration->waylandDisplay()->readEvents();
-}
-
-void QWaylandXCompositeEGLWindow::sync_function(void *data)
-{
-    QWaylandXCompositeEGLWindow *that = static_cast<QWaylandXCompositeEGLWindow *>(data);
-    that->m_waitingForSync = false;
 }
 
 void QWaylandXCompositeEGLWindow::requestActivateWindow()
@@ -157,4 +149,18 @@ void QWaylandXCompositeEGLWindow::requestActivateWindow()
 #endif
 
     QWaylandWindow::requestActivateWindow();
+}
+
+const struct wl_callback_listener QWaylandXCompositeEGLWindow::m_callback_listener = {
+    QWaylandXCompositeEGLWindow::done
+};
+
+void QWaylandXCompositeEGLWindow::done(void *data,
+             struct wl_callback *callback,
+             uint32_t time)
+{
+    Q_UNUSED(time);
+    bool *waitingForSync = static_cast<bool *>(data);
+    *waitingForSync=false;
+    wl_callback_destroy(callback);
 }

@@ -71,8 +71,10 @@ private:
     EGLSurface m_surface;
 
     bool m_waitingForSync;
-
-    static void sync_function(void *data);
+    static const struct wl_callback_listener m_callback_listener;
+    static void done(void *data,
+             struct wl_callback *wl_callback,
+             uint32_t time);
 };
 
 #endif // QWAYLANDXCOMPOSITEEGLWINDOW_H

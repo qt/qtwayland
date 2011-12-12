@@ -60,76 +60,79 @@ void Shell::bind_func(struct wl_client *client, void *data,
     wl_client_add_object(client,&wl_shell_interface,&shell_interface,id,data);
 }
 
-void Shell::shell_move(struct wl_client *client,
-                struct wl_resource *shell,
-                struct wl_resource *surface,
+void Shell::get_shell_surface(struct wl_client *client,
+              struct wl_resource *shell_resource,
+              uint32_t id,
+              struct wl_resource *surface)
+{
+    Q_UNUSED(surface);
+    wl_client_add_object(client,&wl_shell_surface_interface,&shell_surface_interface,id,shell_resource->data);
+}
+
+const struct wl_shell_interface Shell::shell_interface = {
+    Shell::get_shell_surface
+};
+
+void Shell::shell_surface_move(struct wl_client *client,
+                struct wl_resource *shell_surface_resource,
                 struct wl_resource *input_device,
                 uint32_t time)
 {
     Q_UNUSED(client);
-    Q_UNUSED(shell);
-    Q_UNUSED(surface);
+    Q_UNUSED(shell_surface_resource);
     Q_UNUSED(input_device);
     Q_UNUSED(time);
-    qDebug() << "shellMove";
 }
 
-void Shell::shell_resize(struct wl_client *client,
-                  struct wl_resource *shell,
-                  struct wl_resource *surface,
+void Shell::shell_surface_resize(struct wl_client *client,
+                  struct wl_resource *shell_surface_resource,
                   struct wl_resource *input_device,
                   uint32_t time,
                   uint32_t edges)
 {
     Q_UNUSED(client);
-    Q_UNUSED(shell);
-    Q_UNUSED(surface);
+    Q_UNUSED(shell_surface_resource);
     Q_UNUSED(input_device);
     Q_UNUSED(time);
     Q_UNUSED(edges);
-    qDebug() << "shellResize";
 }
 
-void Shell::set_toplevel(struct wl_client *client,
-                     struct wl_resource *wl_shell,
-                     struct wl_resource  *surface)
+void Shell::shell_surface_set_toplevel(struct wl_client *client,
+                     struct wl_resource *shell_surface_resource)
 {
     Q_UNUSED(client);
-    Q_UNUSED(wl_shell);
-    Q_UNUSED(surface);
+    Q_UNUSED(shell_surface_resource);
 }
 
-void Shell::set_transient(struct wl_client *client,
-                      struct wl_resource *wl_shell,
-                      struct wl_resource *surface,
+void Shell::shell_surface_set_transient(struct wl_client *client,
+                      struct wl_resource *shell_surface_resource,
                       struct wl_resource *parent,
                       int x,
                       int y,
                       uint32_t flags)
 {
+
     Q_UNUSED(client);
-    Q_UNUSED(wl_shell);
-    Q_UNUSED(surface);
+    Q_UNUSED(shell_surface_resource);
     Q_UNUSED(parent);
     Q_UNUSED(x);
     Q_UNUSED(y);
     Q_UNUSED(flags);
 }
-void Shell::set_fullscreen(struct wl_client *client,
-                       struct wl_resource *wl_shell,
-                       struct wl_resource *surface)
+
+void Shell::shell_surface_set_fullscreen(struct wl_client *client,
+                       struct wl_resource *shell_surface_resource)
 {
     Q_UNUSED(client);
-    Q_UNUSED(wl_shell);
-    Q_UNUSED(surface);
+    Q_UNUSED(shell_surface_resource);
 }
 
-const struct wl_shell_interface Shell::shell_interface = {
-    shell_move,
-    shell_resize,
-    set_toplevel,
-    set_transient,
-    set_fullscreen
+const struct wl_shell_surface_interface Shell::shell_surface_interface = {
+    Shell::shell_surface_move,
+    Shell::shell_surface_resize,
+    Shell::shell_surface_set_toplevel,
+    Shell::shell_surface_set_transient,
+    Shell::shell_surface_set_fullscreen
 };
 
 }

@@ -29,7 +29,9 @@ SOURCES =   main.cpp \
             qwaylanddnd.cpp \
             qwaylanddataoffer.cpp \
             qwaylanddatadevicemanager.cpp \
-            qwaylanddatasource.cpp
+            qwaylanddatasource.cpp \
+            qwaylandshell.cpp \
+            qwaylandshellsurface.cpp
 
 HEADERS =   qwaylandintegration.h \
             qwaylandnativeinterface.h \
@@ -44,7 +46,9 @@ HEADERS =   qwaylandintegration.h \
             qwaylanddnd.h \
             qwaylanddataoffer.h \
             qwaylanddatadevicemanager.h \
-            qwaylanddatasource.h
+            qwaylanddatasource.h \
+            qwaylandshell.h \
+            qwaylandshellsurface.h
 
 INCLUDEPATH += $$QMAKE_INCDIR_WAYLAND
 LIBS += $$QMAKE_LIBS_WAYLAND

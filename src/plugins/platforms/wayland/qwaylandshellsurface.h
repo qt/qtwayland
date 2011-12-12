@@ -39,62 +39,30 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDWINDOW_H
-#define QWAYLANDWINDOW_H
+#ifndef QWAYLANDSHELLSURFACE_H
+#define QWAYLANDSHELLSURFACE_H
 
-#include <QtGui/QPlatformWindow>
-#include <QtCore/QWaitCondition>
+#include <inttypes.h>
 
-#include "qwaylanddisplay.h"
+class QWaylandWindow;
 
-class QWaylandDisplay;
-class QWaylandBuffer;
-class QWaylandShellSurface;
-struct wl_egl_window;
-
-class QWaylandWindow : public QPlatformWindow
+class QWaylandShellSurface
 {
 public:
-    enum WindowType {
-        Shm,
-        Egl
-    };
+    QWaylandShellSurface(struct wl_shell_surface *shell_surface, QWaylandWindow *window);
 
-    QWaylandWindow(QWindow *window);
-    ~QWaylandWindow();
-
-    virtual WindowType windowType() const = 0;
-    WId winId() const;
-    void setVisible(bool visible);
-    void setParent(const QPlatformWindow *parent);
-
-    void configure(uint32_t time, uint32_t edges,
-                   int32_t x, int32_t y, int32_t width, int32_t height);
-
-    void attach(QWaylandBuffer *buffer);
-    void damage(const QRect &rect);
-
-    void waitForFrameSync();
-
-    struct wl_surface *wl_surface() const { return mSurface; }
-
-    QWaylandShellSurface *shellSurface() const;
-protected:
-    struct wl_surface *mSurface;
-    QWaylandShellSurface *mShellSurface;
-    virtual void newSurfaceCreated();
-    QWaylandDisplay *mDisplay;
-    QWaylandBuffer *mBuffer;
-    WId mWindowId;
-    bool mWaitingForFrameSync;
-    struct wl_callback *mFrameCallback;
-    QWaitCondition mFrameSyncWait;
-
+    struct wl_shell_surface *handle() const { return m_shell_surface; }
 private:
-    static const wl_callback_listener callbackListener;
-    static void frameCallback(void *data, struct wl_callback *wl_callback, uint32_t time);
+    struct wl_shell_surface *m_shell_surface;
+    QWaylandWindow *m_window;
 
+    static void configure(void *data,
+              struct wl_shell_surface *wl_shell_surface,
+              uint32_t time,
+              uint32_t edges,
+              int32_t width,
+              int32_t height);
+    static const struct wl_shell_surface_listener m_shell_surface_listener;
 };
 
-
-#endif // QWAYLANDWINDOW_H
+#endif // QWAYLANDSHELLSURFACE_H

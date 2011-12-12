@@ -53,32 +53,36 @@ public:
     Shell(Compositor *compositor);
 
     static void bind_func(struct wl_client *client, void *data,
-                                uint32_t version, uint32_t id);
-    static void shell_move(struct wl_client *client,
-                    struct wl_resource *shell,
-                    struct wl_resource *surface,
+                          uint32_t version, uint32_t id);
+private:
+    static void get_shell_surface(struct wl_client *client,
+                  struct wl_resource *resource,
+                  uint32_t id,
+                  struct wl_resource *surface);
+    static const struct wl_shell_interface shell_interface;
+
+    static void shell_surface_move(struct wl_client *client,
+                    struct wl_resource *shell_surface_resource,
                     struct wl_resource *input_device,
                     uint32_t time);
-    static void shell_resize(struct wl_client *client,
-                      struct wl_resource *shell,
-                      struct wl_resource *surface,
+    static void shell_surface_resize(struct wl_client *client,
+                      struct wl_resource *shell_surface_resource,
                       struct wl_resource *input_device,
                       uint32_t time,
                       uint32_t edges);
-    static void set_toplevel(struct wl_client *client,
-                         struct wl_resource *shell,
-                         struct wl_resource *surface);
-    static void set_transient(struct wl_client *client,
-                          struct wl_resource *shell,
-                          struct wl_resource *surface,
+    static void shell_surface_set_toplevel(struct wl_client *client,
+                         struct wl_resource *shell_surface_resource);
+    static void shell_surface_set_transient(struct wl_client *client,
+                          struct wl_resource *shell_surface_resource,
                           struct wl_resource *parent,
                           int x,
                           int y,
                           uint32_t flags);
-    static void set_fullscreen(struct wl_client *client,
-                           struct wl_resource *shell,
-                           struct wl_resource *surface);
-    const static struct wl_shell_interface shell_interface;
+    static void shell_surface_set_fullscreen(struct wl_client *client,
+                           struct wl_resource *shell_surface_resource);
+
+    static const struct wl_shell_surface_interface shell_surface_interface;
+
 };
 
 }

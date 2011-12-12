@@ -45,6 +45,8 @@
 #include "qwaylanddisplay.h"
 #include "qwaylandinputdevice.h"
 #include "qwaylandscreen.h"
+#include "qwaylandshell.h"
+#include "qwaylandshellsurface.h"
 
 #include <QtGui/QWindow>
 
@@ -60,6 +62,7 @@
 QWaylandWindow::QWaylandWindow(QWindow *window)
     : QPlatformWindow(window)
     , mSurface(0)
+    , mShellSurface(0)
     , mDisplay(QWaylandScreen::waylandScreenFromWindow(window)->display())
     , mBuffer(0)
     , mWaitingForFrameSync(false)
@@ -76,8 +79,10 @@ QWaylandWindow::QWaylandWindow(QWindow *window)
 
 QWaylandWindow::~QWaylandWindow()
 {
-    if (mSurface)
+    if (mSurface) {
+        delete mShellSurface;
         wl_surface_destroy(mSurface);
+    }
 
     QList<QWaylandInputDevice *> inputDevices = mDisplay->inputDevices();
     for (int i = 0; i < inputDevices.size(); ++i)
@@ -99,8 +104,9 @@ void QWaylandWindow::setVisible(bool visible)
 {
     if (!mSurface && visible) {
         mSurface = mDisplay->createSurface(this);
+        mShellSurface = mDisplay->shell()->createShellSurface(this);
         newSurfaceCreated();
-        wl_shell_set_toplevel(mDisplay->shell(),mSurface);
+        wl_shell_surface_set_toplevel(mShellSurface->handle());
     }
 
     if (!visible) {

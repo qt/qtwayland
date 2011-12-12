@@ -39,62 +39,25 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDWINDOW_H
-#define QWAYLANDWINDOW_H
-
-#include <QtGui/QPlatformWindow>
-#include <QtCore/QWaitCondition>
+#ifndef QWAYLANDSHELL_H
+#define QWAYLANDSHELL_H
 
 #include "qwaylanddisplay.h"
 
-class QWaylandDisplay;
-class QWaylandBuffer;
+class QWaylandWindow;
 class QWaylandShellSurface;
-struct wl_egl_window;
 
-class QWaylandWindow : public QPlatformWindow
+class QWaylandShell
 {
 public:
-    enum WindowType {
-        Shm,
-        Egl
-    };
+    QWaylandShell(QWaylandDisplay *display, uint32_t id, uint32_t version);
 
-    QWaylandWindow(QWindow *window);
-    ~QWaylandWindow();
-
-    virtual WindowType windowType() const = 0;
-    WId winId() const;
-    void setVisible(bool visible);
-    void setParent(const QPlatformWindow *parent);
-
-    void configure(uint32_t time, uint32_t edges,
-                   int32_t x, int32_t y, int32_t width, int32_t height);
-
-    void attach(QWaylandBuffer *buffer);
-    void damage(const QRect &rect);
-
-    void waitForFrameSync();
-
-    struct wl_surface *wl_surface() const { return mSurface; }
-
-    QWaylandShellSurface *shellSurface() const;
-protected:
-    struct wl_surface *mSurface;
-    QWaylandShellSurface *mShellSurface;
-    virtual void newSurfaceCreated();
-    QWaylandDisplay *mDisplay;
-    QWaylandBuffer *mBuffer;
-    WId mWindowId;
-    bool mWaitingForFrameSync;
-    struct wl_callback *mFrameCallback;
-    QWaitCondition mFrameSyncWait;
+    QWaylandShellSurface *createShellSurface(QWaylandWindow *window);
 
 private:
-    static const wl_callback_listener callbackListener;
-    static void frameCallback(void *data, struct wl_callback *wl_callback, uint32_t time);
+    struct wl_shell *m_shell;
 
+    QWaylandDisplay *m_display;
 };
 
-
-#endif // QWAYLANDWINDOW_H
+#endif // QWAYLANDSHELL_H

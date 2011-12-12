@@ -39,62 +39,21 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDWINDOW_H
-#define QWAYLANDWINDOW_H
+#include "qwaylandshell.h"
 
-#include <QtGui/QPlatformWindow>
-#include <QtCore/QWaitCondition>
+#include "qwaylandshellsurface.h"
+#include "qwaylandwindow.h"
 
-#include "qwaylanddisplay.h"
-
-class QWaylandDisplay;
-class QWaylandBuffer;
-class QWaylandShellSurface;
-struct wl_egl_window;
-
-class QWaylandWindow : public QPlatformWindow
+QWaylandShell::QWaylandShell(QWaylandDisplay *display, uint32_t id, uint32_t version)
+    : m_display(display)
 {
-public:
-    enum WindowType {
-        Shm,
-        Egl
-    };
+    Q_UNUSED(version)
+    m_shell = static_cast<struct wl_shell *>(wl_display_bind(m_display->wl_display(), id, &wl_shell_interface));
+}
 
-    QWaylandWindow(QWindow *window);
-    ~QWaylandWindow();
-
-    virtual WindowType windowType() const = 0;
-    WId winId() const;
-    void setVisible(bool visible);
-    void setParent(const QPlatformWindow *parent);
-
-    void configure(uint32_t time, uint32_t edges,
-                   int32_t x, int32_t y, int32_t width, int32_t height);
-
-    void attach(QWaylandBuffer *buffer);
-    void damage(const QRect &rect);
-
-    void waitForFrameSync();
-
-    struct wl_surface *wl_surface() const { return mSurface; }
-
-    QWaylandShellSurface *shellSurface() const;
-protected:
-    struct wl_surface *mSurface;
-    QWaylandShellSurface *mShellSurface;
-    virtual void newSurfaceCreated();
-    QWaylandDisplay *mDisplay;
-    QWaylandBuffer *mBuffer;
-    WId mWindowId;
-    bool mWaitingForFrameSync;
-    struct wl_callback *mFrameCallback;
-    QWaitCondition mFrameSyncWait;
-
-private:
-    static const wl_callback_listener callbackListener;
-    static void frameCallback(void *data, struct wl_callback *wl_callback, uint32_t time);
-
-};
-
-
-#endif // QWAYLANDWINDOW_H
+QWaylandShellSurface *QWaylandShell::createShellSurface(QWaylandWindow *window)
+{
+    Q_ASSERT(window->wl_surface());
+    struct wl_shell_surface *shell_surface = wl_shell_get_shell_surface(m_shell,window->wl_surface());
+    return new QWaylandShellSurface(shell_surface,window);
+}

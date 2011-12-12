@@ -47,6 +47,7 @@
 #include "qwaylandinputdevice.h"
 #include "qwaylandclipboard.h"
 #include "qwaylanddatadevicemanager.h"
+#include "qwaylandshell.h"
 
 #ifdef QT_WAYLAND_GL_SUPPORT
 #include "gl_integration/qwaylandglintegration.h"
@@ -102,24 +103,6 @@ void QWaylandDisplay::setLastKeyboardFocusInputDevice(QWaylandInputDevice *devic
     qDebug() << "setting last keyboard focus input device" << device;
     mLastKeyboardFocusInputDevice = device;
 }
-
-void QWaylandDisplay::shellHandleConfigure(void *data, struct wl_shell *shell,
-                                           uint32_t time, uint32_t edges,
-                                           struct wl_surface *surface,
-                                           int32_t width, int32_t height)
-{
-    Q_UNUSED(data);
-    Q_UNUSED(shell);
-    Q_UNUSED(time);
-    Q_UNUSED(edges);
-    QWaylandWindow *ww = (QWaylandWindow *) wl_surface_get_user_data(surface);
-
-    ww->configure(time, edges, 0, 0, width, height);
-}
-
-const struct wl_shell_listener QWaylandDisplay::shellListener = {
-    QWaylandDisplay::shellHandleConfigure,
-};
 
 static QWaylandDisplay *display = 0;
 
@@ -307,8 +290,7 @@ void QWaylandDisplay::displayHandleGlobal(uint32_t id,
     } else if (interface == "wl_shm") {
         mShm = static_cast<struct wl_shm *>(wl_display_bind(mDisplay, id, &wl_shm_interface));
     } else if (interface == "wl_shell"){
-        mShell = static_cast<struct wl_shell *>(wl_display_bind(mDisplay, id, &wl_shell_interface));
-        wl_shell_add_listener(mShell, &shellListener, this);
+        mShell = new QWaylandShell(this,id,version);
     } else if (interface == "wl_input_device") {
         QWaylandInputDevice *inputDevice =
             new QWaylandInputDevice(this, id);

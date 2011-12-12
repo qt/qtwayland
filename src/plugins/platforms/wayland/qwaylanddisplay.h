@@ -58,6 +58,7 @@ class QWaylandScreen;
 class QWaylandGLIntegration;
 class QWaylandWindowManagerIntegration;
 class QWaylandDataDeviceManager;
+class QWaylandShell;
 
 class QWaylandDisplay : public QObject {
     Q_OBJECT
@@ -83,7 +84,8 @@ public:
     void setCursor(QWaylandBuffer *buffer, int32_t x, int32_t y);
 
     struct wl_display *wl_display() const { return mDisplay; }
-    struct wl_shell *wl_shell() const { return mShell; }
+
+    QWaylandShell *shell() const { return mShell; }
 
     QList<QWaylandInputDevice *> inputDevices() const { return mInputDevices; }
 
@@ -92,7 +94,6 @@ public:
 
     QWaylandDataDeviceManager *dndSelectionHandler() const { return mDndSelectionHandler; }
 
-    struct wl_shell *shell() const {return mShell; }
     struct wl_shm *shm() const { return mShm; }
 
     static uint32_t currentTimeMillisec();
@@ -113,7 +114,7 @@ private:
     struct wl_display *mDisplay;
     struct wl_compositor *mCompositor;
     struct wl_shm *mShm;
-    struct wl_shell *mShell;
+    QWaylandShell *mShell;
     QList<QPlatformScreen *> mScreens;
     QList<QWaylandInputDevice *> mInputDevices;
     QWaylandInputDevice *mLastKeyboardFocusInputDevice;
@@ -162,8 +163,6 @@ private:
 
     static void force_roundtrip_sync_callback(void *data, struct wl_callback *wl_callback, uint32_t time);
     static const struct wl_callback_listener force_roundtrip_sync_callback_listener;
-
-    static const struct wl_shell_listener shellListener;
 };
 
 #endif // QWAYLANDDISPLAY_H

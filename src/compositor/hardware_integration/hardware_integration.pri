@@ -16,9 +16,6 @@ isEmpty(QT_WAYLAND_GL_CONFIG):QT_WAYLAND_GL_CONFIG = $$(QT_WAYLAND_GL_CONFIG)
             isEqual(QT_WAYLAND_GL_CONFIG, xcomposite_egl) {
                 QT_WAYLAND_GL_INTEGRATION = xcomposite_egl
                 CONFIG += xcomposite_egl
-            } else:isEqual(QT_WAYLAND_GL_CONFIG,dri2_xcb) {
-                QT_WAYLAND_GL_INTEGRATION = $$QT_WAYLAND_GL_CONFIG
-                CONFIG += dri2_xcb
             } else {
                 QT_WAYLAND_GL_INTEGRATION = $$QT_WAYLAND_GL_CONFIG
                 CONFIG += wayland_egl
@@ -36,9 +33,6 @@ isEmpty(QT_WAYLAND_GL_CONFIG):QT_WAYLAND_GL_CONFIG = $$(QT_WAYLAND_GL_CONFIG)
 
 wayland_egl {
     include (wayland_egl/wayland_egl.pri)
-}
-dri2_xcb {
-    include (dri2_xcb/dri2_xcb.pri)
 }
 xcomposite_egl {
     include (xcomposite_egl/xcomposite_egl.pri)

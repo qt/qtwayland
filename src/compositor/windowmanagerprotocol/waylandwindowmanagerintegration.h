@@ -66,7 +66,6 @@ class Q_COMPOSITOR_EXPORT WindowManagerServerIntegration : public QObject
     Q_OBJECT
 public:
     WindowManagerServerIntegration(QObject *parent = 0);
-    static WindowManagerServerIntegration *instance();
     void initialize(Wayland::Display *waylandDisplay);
     void removeClient(wl_client *client);
 
@@ -74,7 +73,6 @@ public:
 
     void setVisibilityOnScreen(wl_client *client, bool visible);
     void setScreenOrientation(wl_client *client, wl_object *output, Qt::ScreenOrientation orientationInDegrees);
-    void updateOrientation(wl_client *client);
 
     void updateWindowProperty(wl_client *client, struct wl_surface *surface, const char *name, struct wl_array *value);
     void setWindowProperty(wl_client *client, struct wl_surface *surface, const QString &name, const QVariant &value);
@@ -89,12 +87,27 @@ private:
 
 private:
     QMap<wl_client*, WaylandManagedClient*> m_managedClients;
-    static WindowManagerServerIntegration *m_instance;
 
-    WindowManagerObject *m_windowManagerObject;
+    QList<struct wl_resource *>m_client_resources;
+    struct wl_resource *getWindowManagerResourceForClient(struct wl_client *client) const;
 
-    friend class WindowManagerObject;
+    static void bind_func(struct wl_client *client, void *data,
+                                          uint32_t version, uint32_t id);
+
+    static void destroy_resource(wl_resource *resource);
+    static void map_client_to_process(struct wl_client *client,
+                                      struct wl_resource *windowMgrResource,
+                                      uint32_t processId);
+    static void authenticate_with_token(struct wl_client *client,
+                                        struct wl_resource *windowMgrResource,
+                                        const char *wl_authentication_token);
+    static void update_generic_property(struct wl_client *client,
+                                        struct wl_resource *windowMgrResource,
+                                        struct wl_resource *surfaceResource,
+                                        const char *name, struct wl_array *value);
+    static const struct wl_windowmanager_interface windowmanager_interface;
 };
+
 
 class WaylandManagedClient
 {

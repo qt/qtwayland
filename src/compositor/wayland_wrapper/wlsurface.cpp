@@ -327,7 +327,7 @@ void Surface::setProcessId(qint64 processId)
 QByteArray Surface::authenticationToken() const
 {
     Q_D(const Surface);
-    return WindowManagerServerIntegration::instance()->managedClient(d->client)->authenticationToken();
+    return d->compositor->windowManagerIntegration()->managedClient(d->client)->authenticationToken();
 }
 
 QVariantMap Surface::windowProperties() const
@@ -348,7 +348,7 @@ void Surface::setWindowProperty(const QString &name, const QVariant &value, bool
     Q_D(Surface);
     d->windowProperties.insert(name, value);
     if (writeUpdateToClient)
-        WindowManagerServerIntegration::instance()->setWindowProperty(d->client, base(), name, value);
+        d->compositor->windowManagerIntegration()->setWindowProperty(d->client, base(), name, value);
 }
 
 uint32_t toWaylandButton(Qt::MouseButton button)
@@ -502,7 +502,7 @@ void Surface::sendOnScreenVisibilityChange(bool visible)
 {
 #ifdef QT_WAYLAND_WINDOWMANAGER_SUPPORT
     Q_D(Surface);
-    WindowManagerServerIntegration::instance()->setVisibilityOnScreen(d->client, visible);
+    d->compositor->windowManagerIntegration()->setVisibilityOnScreen(d->client, visible);
 #endif
 }
 

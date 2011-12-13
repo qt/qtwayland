@@ -134,8 +134,8 @@ Compositor::Compositor(WaylandCompositor *qt_compositor)
     if (window && window->surfaceType() != QWindow::RasterSurface)
         m_graphics_hw_integration = GraphicsHardwareIntegration::createGraphicsHardwareIntegration(qt_compositor);
 #endif
-    m_windowManagerWaylandProtocol = new WindowManagerServerIntegration(this);
-    connect(m_windowManagerWaylandProtocol,
+    m_windowManagerIntegration = new WindowManagerServerIntegration(this);
+    connect(m_windowManagerIntegration,
             SIGNAL(windowPropertyChanged(wl_client*,wl_surface*,QString,QVariant)),
             SLOT(windowPropertyChanged(wl_client*,wl_surface*,QString,QVariant)));
 
@@ -195,7 +195,7 @@ void Compositor::createSurface(struct wl_client *client, int id)
     QList<struct wl_client *> prevClientList = clients();
     m_surfaces << surface;
     if (!prevClientList.contains(client)) {
-        m_windowManagerWaylandProtocol->setScreenOrientation(client, m_output.base(), m_orientation);
+        m_windowManagerIntegration->setScreenOrientation(client, m_output.base(), m_orientation);
         emit clientAdded(client);
     }
 
@@ -291,7 +291,7 @@ void Compositor::destroyClientForSurface(Surface *surface)
     wl_client *client = surface->base()->resource.client;
 
     if (client) {
-        m_windowManagerWaylandProtocol->removeClient(client);
+        m_windowManagerIntegration->removeClient(client);
         wl_client_destroy(client);
     }
 }
@@ -349,7 +349,7 @@ void Compositor::initializeHardwareIntegration()
 
 void Compositor::initializeWindowManagerProtocol()
 {
-    m_windowManagerWaylandProtocol->initialize(m_display);
+    m_windowManagerIntegration->initialize(m_display);
 }
 
 bool Compositor::setDirectRenderSurface(Surface *surface)
@@ -383,7 +383,7 @@ void Compositor::setScreenOrientation(Qt::ScreenOrientation orientation)
     QList<struct wl_client*> clientList = clients();
     for (int i = 0; i < clientList.length(); ++i) {
         struct wl_client *client = clientList.at(i);
-        m_windowManagerWaylandProtocol->setScreenOrientation(client, m_output.base(), orientation);
+        m_windowManagerIntegration->setScreenOrientation(client, m_output.base(), orientation);
     }
 }
 

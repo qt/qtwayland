@@ -104,11 +104,13 @@ public:
 
     WaylandCompositor *qtCompositor() const { return m_qt_compositor; }
 
-    struct wl_display *wl_display() { return m_display->handle(); }
+    struct wl_display *wl_display() const { return m_display->handle(); }
 
     static Compositor *instance();
 
     QList<struct wl_client *> clients() const;
+
+    WindowManagerServerIntegration *windowManagerIntegration() const { return m_windowManagerIntegration; }
 
     void setScreenOrientation(Qt::ScreenOrientation orientation);
     void setOutputGeometry(const QRect &geometry);
@@ -163,7 +165,7 @@ private:
 #ifdef QT_COMPOSITOR_WAYLAND_GL
     GraphicsHardwareIntegration *m_graphics_hw_integration;
 #endif
-    WindowManagerServerIntegration *m_windowManagerWaylandProtocol;
+    WindowManagerServerIntegration *m_windowManagerIntegration;
 
     static void bind_func(struct wl_client *client, void *data,
                           uint32_t version, uint32_t id);

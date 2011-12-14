@@ -42,6 +42,9 @@
 #define WLINPUTDEVICE_H
 
 #include "waylandobject.h"
+
+#include <stdint.h>
+
 #include <QtCore/QList>
 
 namespace Wayland {
@@ -71,6 +74,7 @@ public:
     static void destroy_resource(struct wl_resource *resource);
 
 private:
+    Compositor *m_compositor;
     QList<DataDevice *>m_data_devices;
 
 };

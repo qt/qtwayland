@@ -41,13 +41,13 @@
 #ifndef WL_OUTPUT_H
 #define WL_OUTPUT_H
 
-#include "waylandobject.h"
+#include "waylandresourcecollection.h"
 
 #include <QtCore/QRect>
 
 namespace Wayland {
 
-class Output : public Object<struct wl_object>
+class Output : public ResourceCollection
 {
 public:
     Output();

@@ -41,13 +41,13 @@
 #ifndef WLSHELL_H
 #define WLSHELL_H
 
-#include "waylandobject.h"
+#include "waylandresourcecollection.h"
 
 namespace Wayland {
 
 class Compositor;
 
-class Shell : public Object<struct wl_object>
+class Shell
 {
 public:
     Shell(Compositor *compositor);

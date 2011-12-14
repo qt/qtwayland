@@ -42,10 +42,11 @@
 #ifndef WAYLANDWINDOWMANAGERINTEGRATION_H
 #define WAYLANDWINDOWMANAGERINTEGRATION_H
 
+#include "waylandexport.h"
+#include "waylandresourcecollection.h"
+
 #include <qwindowdefs.h>
 #include <stdint.h>
-
-#include "waylandexport.h"
 
 #include <QObject>
 #include <QMap>
@@ -61,7 +62,7 @@ namespace Wayland {
 class WindowManagerObject;
 class WaylandManagedClient;
 
-class Q_COMPOSITOR_EXPORT WindowManagerServerIntegration : public QObject
+class Q_COMPOSITOR_EXPORT WindowManagerServerIntegration : public QObject, private Wayland::ResourceCollection
 {
     Q_OBJECT
 public:
@@ -72,7 +73,7 @@ public:
     WaylandManagedClient *managedClient(wl_client *client) const;
 
     void setVisibilityOnScreen(wl_client *client, bool visible);
-    void setScreenOrientation(wl_client *client, wl_object *output, Qt::ScreenOrientation orientationInDegrees);
+    void setScreenOrientation(wl_client *client, struct wl_resource *output_resource, Qt::ScreenOrientation orientationInDegrees);
 
     void updateWindowProperty(wl_client *client, struct wl_surface *surface, const char *name, struct wl_array *value);
     void setWindowProperty(wl_client *client, struct wl_surface *surface, const QString &name, const QVariant &value);
@@ -87,9 +88,6 @@ private:
 
 private:
     QMap<wl_client*, WaylandManagedClient*> m_managedClients;
-
-    QList<struct wl_resource *>m_client_resources;
-    struct wl_resource *getWindowManagerResourceForClient(struct wl_client *client) const;
 
     static void bind_func(struct wl_client *client, void *data,
                                           uint32_t version, uint32_t id);

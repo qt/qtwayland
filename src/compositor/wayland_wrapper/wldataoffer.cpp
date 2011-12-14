@@ -63,34 +63,20 @@ DataOffer::~DataOffer()
 
 struct wl_resource *DataOffer::addDataDeviceResource(struct wl_resource *data_device_resource)
 {
-    for (int i = 0; i < m_clients_data_resource.size(); i++) {
-        if (m_clients_data_resource.at(i)->client == data_device_resource->client) {
-            qDebug() << "This should not happen, the client tries to add twice to a data offer";
-            return 0;
-        }
+    if (resourceForClient(data_device_resource->client)) {
+        qDebug() << "This should not happen, the client tries to add twice to a data offer";
+        return 0;
     }
     struct wl_resource *new_object =
              wl_client_new_object(data_device_resource->client,&wl_data_offer_interface,&data_interface,this);
     wl_resource_post_event(data_device_resource,WL_DATA_DEVICE_DATA_OFFER,new_object);
 
-    m_clients_data_resource.append(new_object);
+    registerResource(new_object);
     QList<QByteArray> offer_list = m_data_source->offerList();
     for (int i = 0; i < offer_list.size(); i++) {
         wl_resource_post_event(new_object, WL_DATA_OFFER_OFFER, offer_list.at(i).constData());
     }
     return new_object;
-}
-
-void DataOffer::removeClient(struct wl_client *client)
-{
-    for (int i = 0; i < m_clients_data_resource.size(); i++) {
-        struct wl_resource *resource = m_clients_data_resource.at(i);
-        if (resource->client == client) {
-            wl_resource_destroy(resource,Compositor::currentTimeMsecs());
-            m_clients_data_resource.removeAt(i);
-            break;
-        }
-    }
 }
 
 const struct wl_data_offer_interface DataOffer::data_interface = {
@@ -115,11 +101,11 @@ void DataOffer::receive(wl_client *client, wl_resource *resource, const char *mi
 
 void DataOffer::destroy(wl_client *client, wl_resource *resource)
 {
+    Q_UNUSED(client);
     qDebug() << "dataOFFER DESTROY!";
     DataOffer *data_offer = static_cast<DataOffer *>(resource->data);
-    data_offer->removeClient(client);
 
-    if (data_offer->m_clients_data_resource.size() == 0) {
+    if (data_offer->resourceListIsEmpty()) {
         delete data_offer;
     }
 }

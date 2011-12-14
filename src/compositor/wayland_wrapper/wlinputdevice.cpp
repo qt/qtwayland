@@ -54,6 +54,7 @@ namespace Wayland {
 static ShmBuffer *currentCursor;
 
 InputDevice::InputDevice(Compositor *compositor)
+    : m_compositor(compositor)
 {
     wl_input_device_init(base());
     wl_display_add_global(compositor->wl_display(),&wl_input_device_interface,this,InputDevice::bind_func);
@@ -119,10 +120,10 @@ void InputDevice::input_device_attach(struct wl_client *client,
     struct wl_buffer *buffer = reinterpret_cast<struct wl_buffer *>(buffer_resource);
     qDebug() << "Client input device attach" << client << buffer << x << y;
 
-//    Compositor *compositor = wayland_cast<Compositor *>(device_base->compositor);
+    InputDevice *inputDevice = wayland_cast<InputDevice *>(device_base);
     ShmBuffer *shmBuffer = static_cast<ShmBuffer *>(buffer->user_data);
     if (shmBuffer) {
-//        compositor->qtCompositor()->changeCursor(shmBuffer->image(), x, y);
+        inputDevice->m_compositor->qtCompositor()->changeCursor(shmBuffer->image(), x, y);
         currentCursor = shmBuffer;
     }
 }

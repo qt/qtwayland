@@ -54,7 +54,7 @@ DataDeviceManager::DataDeviceManager(Compositor *compositor)
     : m_compositor(compositor)
     , m_current_selection_source(0)
 {
-    wl_display_add_global(compositor->wl_display(), &wl_data_device_manager_interface, base(), DataDeviceManager::bind_func_drag);
+    wl_display_add_global(compositor->wl_display(), &wl_data_device_manager_interface, this, DataDeviceManager::bind_func_drag);
 }
 
 void DataDeviceManager::setCurrentSelectionSource(DataSource *source)

@@ -38,40 +38,55 @@
 **
 ****************************************************************************/
 
-#include "wloutput.h"
-#include <QGuiApplication>
-#include <QtGui/QScreen>
-#include <QRect>
+#include "waylandresourcecollection.h"
+
+#include <QtCore/qglobal.h>
 
 namespace Wayland {
 
-void Output::output_bind_func(struct wl_client *client, void *data,
-                          uint32_t version, uint32_t id)
+ResourceCollection::ResourceCollection()
 {
-    Q_UNUSED(version);
-    Output *output = static_cast<Output *>(data);
+    wl_list_init(&client_resources);
+}
 
-    struct wl_resource *resource = wl_client_add_object(client,&wl_output_interface,0,id,data);
-    output->registerResource(resource);
-    wl_resource_post_event(resource, WL_OUTPUT_GEOMETRY, 0, 0,
-                         output->size().width(), output->size().height(),0,"","");
+ResourceCollection::~ResourceCollection()
+{
 
-    wl_resource_post_event(resource,WL_OUTPUT_MODE, WL_OUTPUT_MODE_CURRENT|WL_OUTPUT_MODE_PREFERRED,
-                           output->size().width(),output->size().height());
+}
+
+void ResourceCollection::registerResource(struct wl_resource *resource)
+{
+    wl_list_insert(&client_resources,&resource->link);
+    struct wl_listener *listener = new struct wl_listener;
+    listener->func = ResourceCollection::destroy_listener_func;
+    wl_list_insert(&resource->destroy_listener_list,&listener->link);
+}
+
+struct wl_resource *ResourceCollection::resourceForClient(wl_client *client) const
+{
+    struct wl_resource *resource;
+    wl_list_for_each(resource,&client_resources, link) {
+        if (resource->client == client) {
+            return resource;
+        }
+    }
+    return 0;
+
+}
+
+bool ResourceCollection::resourceListIsEmpty() const
+{
+    return wl_list_empty(const_cast<struct wl_list *>(&client_resources));
+}
+
+void ResourceCollection::destroy_listener_func(struct wl_listener *listener,
+                                   wl_resource *resource,
+                                   uint32_t time)
+{
+    Q_UNUSED(time);
+    wl_list_remove(&resource->link);
+    delete listener;
 }
 
 
-Output::Output()
-    : m_displayId(-1)
-    , m_numQueued(0)
-{
-    QScreen *screen = QGuiApplication::primaryScreen();
-    m_geometry = QRect(QPoint(0, 0), screen->availableGeometry().size());
 }
-
-void Output::setGeometry(const QRect &geometry)
-{
-    m_geometry = geometry;
-}
-
-} // namespace Wayland

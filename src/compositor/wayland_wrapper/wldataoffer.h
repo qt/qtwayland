@@ -43,21 +43,20 @@
 
 #include "wldatasource.h"
 
+#include "waylandresourcecollection.h"
+
 namespace Wayland
 {
 
-class DataOffer
+class DataOffer : public ResourceCollection
 {
 public:
     DataOffer(DataSource *data_source);
     ~DataOffer();
 
     struct wl_resource *addDataDeviceResource(struct wl_resource *client_resource);
-    void removeClient(struct wl_client *client);
 private:
     DataSource *m_data_source;
-
-    QList<struct wl_resource *> m_clients_data_resource;
 
     static void accept(struct wl_client *client,
                    struct wl_resource *resource,

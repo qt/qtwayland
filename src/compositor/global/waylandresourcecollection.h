@@ -38,50 +38,30 @@
 **
 ****************************************************************************/
 
-#ifndef WL_OBJECT_H
-#define WL_OBJECT_H
+#ifndef WAYLAND_RESOURCE_OBJECT_H
+#define WAYLAND_RESOURCE_OBJECT_H
 
 #include <wayland-server.h>
 
-#include <string.h>
-
 namespace Wayland {
 
-template <typename T>
-class Object
+class ResourceCollection
 {
 public:
-    Object() { memset(&m_waylandObject, 0, sizeof(T)); }
+    ResourceCollection();
+    virtual ~ResourceCollection();
+    void registerResource(struct wl_resource *resource);
+    struct wl_resource *resourceForClient(struct wl_client *client) const;
+    bool resourceListIsEmpty() const;
 
-    const T *base() const { return &m_waylandObject; }
-    T *base() { return &m_waylandObject; }
-
+protected:
+    struct wl_list client_resources;
 private:
-    T m_waylandObject;
+    static void destroy_listener_func(struct wl_listener *listener,
+             struct wl_resource *resource, uint32_t time);
+
 };
 
-template <typename To, typename From>
-To wayland_cast(From *from)
-{
-    Object<From> *object = reinterpret_cast<Object<From> *>(from);
-    return static_cast<To>(object);
 }
 
-template <typename Implementation>
-void addClientResource(struct wl_client *client,
-                       struct wl_resource *resource,
-                       int id, const struct wl_interface *interface,
-                       Implementation implementation,
-                       void (*destroy)(struct wl_resource *resource))
-{
-    resource->object.id = id;
-    resource->object.interface = interface;
-    resource->object.implementation = (void (**)(void))implementation;
-    resource->destroy = destroy;
-
-    wl_client_add_resource(client, resource);
-}
-
-}
-
-#endif //WL_OBJECT_H
+#endif //WAYLAND_RESOURCE_OBJECT_H

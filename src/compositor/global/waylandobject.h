@@ -38,40 +38,50 @@
 **
 ****************************************************************************/
 
-#include "wloutput.h"
-#include <QGuiApplication>
-#include <QtGui/QScreen>
-#include <QRect>
+#ifndef WAYLAND_OBJECT_H
+#define WAYLAND_OBJECT_H
+
+#include <wayland-server.h>
+
+#include <string.h>
 
 namespace Wayland {
 
-void Output::output_bind_func(struct wl_client *client, void *data,
-                          uint32_t version, uint32_t id)
+template <typename T>
+class Object
 {
-    Q_UNUSED(version);
-    Output *output = static_cast<Output *>(data);
+public:
+    Object() { memset(&m_waylandObject, 0, sizeof(T)); }
 
-    struct wl_resource *resource = wl_client_add_object(client,&wl_output_interface,0,id,data);
-    output->registerResource(resource);
-    wl_resource_post_event(resource, WL_OUTPUT_GEOMETRY, 0, 0,
-                         output->size().width(), output->size().height(),0,"","");
+    const T *base() const { return &m_waylandObject; }
+    T *base() { return &m_waylandObject; }
 
-    wl_resource_post_event(resource,WL_OUTPUT_MODE, WL_OUTPUT_MODE_CURRENT|WL_OUTPUT_MODE_PREFERRED,
-                           output->size().width(),output->size().height());
+private:
+    T m_waylandObject;
+};
+
+template <typename To, typename From>
+To wayland_cast(From *from)
+{
+    Object<From> *object = reinterpret_cast<Object<From> *>(from);
+    return static_cast<To>(object);
 }
 
-
-Output::Output()
-    : m_displayId(-1)
-    , m_numQueued(0)
+template <typename Implementation>
+void addClientResource(struct wl_client *client,
+                       struct wl_resource *resource,
+                       int id, const struct wl_interface *interface,
+                       Implementation implementation,
+                       void (*destroy)(struct wl_resource *resource))
 {
-    QScreen *screen = QGuiApplication::primaryScreen();
-    m_geometry = QRect(QPoint(0, 0), screen->availableGeometry().size());
+    resource->object.id = id;
+    resource->object.interface = interface;
+    resource->object.implementation = (void (**)(void))implementation;
+    resource->destroy = destroy;
+
+    wl_client_add_resource(client, resource);
 }
 
-void Output::setGeometry(const QRect &geometry)
-{
-    m_geometry = geometry;
 }
 
-} // namespace Wayland
+#endif //WAYLAND_OBJECT_H

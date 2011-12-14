@@ -40,7 +40,6 @@
 
 #include "wlcompositor.h"
 
-#include "waylandobject.h"
 #include "wldisplay.h"
 #include "wlshmbuffer.h"
 #include "wlsurface.h"
@@ -144,9 +143,9 @@ Compositor::Compositor(WaylandCompositor *qt_compositor)
     m_input = new InputDevice(this);
 
     m_data_device_manager =  new DataDeviceManager(this);
-    wl_display_add_global(m_display->handle(),&wl_output_interface,m_output.base(),Output::output_bind_func);
+    wl_display_add_global(m_display->handle(),&wl_output_interface, &m_output,Output::output_bind_func);
 
-    wl_display_add_global(m_display->handle(), &wl_shell_interface, m_shell.base(), Shell::bind_func);
+    wl_display_add_global(m_display->handle(), &wl_shell_interface, &m_shell, Shell::bind_func);
 
 
     if (wl_display_add_socket(m_display->handle(), qt_compositor->socketName())) {
@@ -195,7 +194,7 @@ void Compositor::createSurface(struct wl_client *client, int id)
     QList<struct wl_client *> prevClientList = clients();
     m_surfaces << surface;
     if (!prevClientList.contains(client)) {
-        m_windowManagerIntegration->setScreenOrientation(client, m_output.base(), m_orientation);
+        m_windowManagerIntegration->setScreenOrientation(client, m_output.resourceForClient(client), m_orientation);
         emit clientAdded(client);
     }
 
@@ -383,7 +382,7 @@ void Compositor::setScreenOrientation(Qt::ScreenOrientation orientation)
     QList<struct wl_client*> clientList = clients();
     for (int i = 0; i < clientList.length(); ++i) {
         struct wl_client *client = clientList.at(i);
-        m_windowManagerIntegration->setScreenOrientation(client, m_output.base(), orientation);
+        m_windowManagerIntegration->setScreenOrientation(client, m_output.resourceForClient(client), orientation);
     }
 }
 

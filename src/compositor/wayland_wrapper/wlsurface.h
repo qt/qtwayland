@@ -43,9 +43,10 @@
 
 #include "waylandexport.h"
 
-#include "waylandobject.h"
 #include "wlshmbuffer.h"
 #include "waylandsurface.h"
+
+#include "waylandobject.h"
 
 #include <QtCore/QRect>
 #include <QtGui/QImage>

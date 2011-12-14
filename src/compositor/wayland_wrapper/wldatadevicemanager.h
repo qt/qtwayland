@@ -41,8 +41,6 @@
 #ifndef WLDATADEVICEMANAGER_H
 #define WLDATADEVICEMANAGER_H
 
-#include "waylandobject.h"
-
 #include "wlcompositor.h"
 
 #include <QtCore/QList>
@@ -57,7 +55,7 @@ class Compositor;
 class DataDevice;
 class DataSource;
 
-class DataDeviceManager : public Object<struct wl_object>
+class DataDeviceManager
 {
 public:
     DataDeviceManager(Compositor *compositor);

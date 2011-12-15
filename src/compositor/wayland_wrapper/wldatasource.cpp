@@ -109,7 +109,7 @@ DataOffer * DataSource::dataOffer() const
     return m_data_offer;
 }
 
-void DataSource::postSendEvent(const QByteArray mimeType, int fd)
+void DataSource::postSendEvent(const QByteArray &mimeType, int fd)
 {
     if (m_data_source_resource) {
         wl_resource_post_event(m_data_source_resource,WL_DATA_SOURCE_SEND,mimeType.constData(),fd);

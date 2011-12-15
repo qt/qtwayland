@@ -60,7 +60,7 @@ public:
 
     DataOffer *dataOffer() const;
 
-    void postSendEvent(const QByteArray mimeType,int fd);
+    void postSendEvent(const QByteArray &mimeType,int fd);
     struct wl_client *client() const;
 
 private:

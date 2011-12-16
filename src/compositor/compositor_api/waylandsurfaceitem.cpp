@@ -114,7 +114,7 @@ void WaylandSurfaceItem::init(WaylandSurface *surface)
     connect(surface, SIGNAL(posChanged()), this, SLOT(updatePosition()));
 
     m_damaged = false;
-
+    m_yInverted = surface ? surface->isYInverted() : true;
 }
 
 WaylandSurfaceItem::~WaylandSurfaceItem()
@@ -132,7 +132,7 @@ void WaylandSurfaceItem::setSurface(WaylandSurface *surface)
 
 bool WaylandSurfaceItem::isYInverted() const
 {
-    return m_surface->isYInverted();
+    return m_yInverted;
 }
 
 QSGTextureProvider *WaylandSurfaceItem::textureProvider() const
@@ -221,6 +221,13 @@ void WaylandSurfaceItem::surfaceDestroyed(QObject *)
 void WaylandSurfaceItem::surfaceDamaged(const QRect &)
 {
     m_damaged = true;
+    if (m_surface) {
+        bool inverted = m_surface->isYInverted();
+        if (inverted  != m_yInverted) {
+            m_yInverted = inverted;
+            emit yInvertedChanged();
+        }
+    }
     emit textureChanged();
     update();
 }

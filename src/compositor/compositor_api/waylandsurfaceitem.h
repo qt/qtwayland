@@ -61,6 +61,7 @@ class Q_COMPOSITOR_EXPORT WaylandSurfaceItem : public QQuickItem
     Q_PROPERTY(bool useTextureAlpha READ useTextureAlpha WRITE setUseTextureAlpha NOTIFY useTextureAlphaChanged)
     Q_PROPERTY(bool clientRenderingEnabled READ clientRenderingEnabled WRITE setClientRenderingEnabled NOTIFY clientRenderingEnabledChanged)
     Q_PROPERTY(bool touchEventsEnabled READ touchEventsEnabled WRITE setTouchEventsEnabled NOTIFY touchEventsEnabledChanged)
+    Q_PROPERTY(bool isYInverted READ isYInverted NOTIFY yInvertedChanged)
 
 public:
     WaylandSurfaceItem(QQuickItem *parent = 0);
@@ -112,6 +113,7 @@ signals:
     void useTextureAlphaChanged();
     void clientRenderingEnabledChanged();
     void touchEventsEnabledChanged();
+    void yInvertedChanged();
 
 protected:
     QSGNode *updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *);
@@ -128,6 +130,7 @@ private:
     bool m_clientRenderingEnabled;
     bool m_touchEventsEnabled;
     bool m_damaged;
+    bool m_yInverted;
 };
 
 #endif

@@ -48,7 +48,15 @@ ShaderEffect {
     onSourceChanged: {
         if (source != null) {
             source.setPaintEnabled(false);
-            vertexShader = source.isYInverted() ? vShaderInvertedY : vShader;
+            vertexShader = source.isYInverted ? vShaderInvertedY : vShader;
+        }
+    }
+
+    Connections {
+      target: source;
+      onYInvertedChanged: {
+            print("onY " + source.isYInverted);
+            vertexShader = source.isYInverted ? vShaderInvertedY : vShader;
         }
     }
 

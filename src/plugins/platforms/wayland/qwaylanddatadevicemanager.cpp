@@ -288,7 +288,6 @@ void QWaylandDataDeviceManager::createAndSetSelectionSource(QMimeData *mimeData,
 
     transfer_source = new QWaylandDataSource(this,mimeData);
     m_selection_data_source = transfer_source;
-
     struct wl_data_device *transfer_device = m_display->lastKeyboardFocusInputDevice()->transferDevice();
     wl_data_device_set_selection(transfer_device,transfer_source->handle(),QWaylandDisplay::currentTimeMillisec());
 }

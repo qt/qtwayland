@@ -47,28 +47,125 @@
 #include "wldataoffer.h"
 
 #include <QtCore/QDebug>
+#include <QtCore/QSocketNotifier>
+#include <fcntl.h>
+#include <QtCore/private/qcore_unix_p.h>
 
 namespace Wayland {
 
 DataDeviceManager::DataDeviceManager(Compositor *compositor)
     : m_compositor(compositor)
     , m_current_selection_source(0)
+    , m_retainedReadNotifier(0)
 {
     wl_display_add_global(compositor->wl_display(), &wl_data_device_manager_interface, this, DataDeviceManager::bind_func_drag);
 }
 
 void DataDeviceManager::setCurrentSelectionSource(DataSource *source)
 {
-    if (m_current_selection_source == source)
+    if (m_current_selection_source
+            && m_current_selection_source->time() > source->time()) {
+        qDebug() << "Trying to set older selection";
         return;
+    }
 
-    if (m_current_selection_source) {
-        if (m_current_selection_source->time() >= source->time()) {
-            qDebug() << "Trying to set older selection";
+    finishReadFromClient();
+
+    m_current_selection_source = source;
+    source->setManager(this);
+
+    // When retained selection is enabled, the compositor will query all the data from the client.
+    // This makes it possible to
+    //    1. supply the selection after the offering client is gone
+    //    2. make it possible for the compositor to participate in copy-paste
+    // The downside is decreased performance, therefore this mode has to be enabled
+    // explicitly in the compositors.
+    if (m_compositor->wantsRetainedSelection()) {
+        m_retainedData.clear();
+        m_retainedReadIndex = 0;
+        retain();
+    }
+}
+
+void DataDeviceManager::sourceDestroyed(DataSource *source)
+{
+    if (m_current_selection_source == source)
+        finishReadFromClient();
+}
+
+void DataDeviceManager::retain()
+{
+    QList<QByteArray> offers = m_current_selection_source->offerList();
+    finishReadFromClient();
+    if (m_retainedReadIndex >= offers.count()) {
+        m_compositor->feedRetainedSelectionData(&m_retainedData);
+        return;
+    }
+    QByteArray mimeType = offers.at(m_retainedReadIndex);
+    m_retainedReadBuf.clear();
+    int fd[2];
+    if (pipe(fd) == -1) {
+        qWarning("Clipboard: Failed to create pipe");
+        return;
+    }
+    fcntl(fd[0], F_SETFL, fcntl(fd[0], F_GETFL, 0) | O_NONBLOCK);
+    m_current_selection_source->postSendEvent(mimeType, fd[1]);
+    close(fd[1]);
+    m_retainedReadNotifier = new QSocketNotifier(fd[0], QSocketNotifier::Read, this);
+    connect(m_retainedReadNotifier, SIGNAL(activated(int)), SLOT(readFromClient(int)));
+}
+
+void DataDeviceManager::finishReadFromClient(bool exhausted)
+{
+    if (m_retainedReadNotifier) {
+        if (exhausted) {
+            int fd = m_retainedReadNotifier->socket();
+            delete m_retainedReadNotifier;
+            close(fd);
+        } else {
+            // Do not close the handle or destroy the read notifier here
+            // or else clients may SIGPIPE.
+            m_obsoleteRetainedReadNotifiers.append(m_retainedReadNotifier);
+        }
+        m_retainedReadNotifier = 0;
+    }
+}
+
+void DataDeviceManager::readFromClient(int fd)
+{
+    static char buf[4096];
+    int obsCount = m_obsoleteRetainedReadNotifiers.count();
+    for (int i = 0; i < obsCount; ++i) {
+        QSocketNotifier *sn = m_obsoleteRetainedReadNotifiers.at(i);
+        if (sn->socket() == fd) {
+            // Read and drop the data, stopping to read and closing the handle
+            // is not yet safe because that could kill the client with SIGPIPE
+            // when it still tries to write.
+            int n;
+            do {
+                n = QT_READ(fd, buf, sizeof buf);
+            } while (n > 0);
+            if (n != -1 || (errno != EAGAIN && errno != EWOULDBLOCK)) {
+                m_obsoleteRetainedReadNotifiers.removeAt(i);
+                delete sn;
+                close(fd);
+            }
             return;
         }
     }
-    m_current_selection_source = source;
+    int n = QT_READ(fd, buf, sizeof buf);
+    if (n <= 0) {
+        if (n != -1 || (errno != EAGAIN && errno != EWOULDBLOCK)) {
+            finishReadFromClient(true);
+            QList<QByteArray> offers = m_current_selection_source->offerList();
+            QString mimeType = QString::fromLatin1(offers.at(m_retainedReadIndex));
+            m_retainedData.setData(mimeType, m_retainedReadBuf);
+            ++m_retainedReadIndex;
+            retain();
+        }
+    } else {
+        m_retainedReadBuf.append(buf, n);
+    }
 }
 
 DataSource *DataDeviceManager::currentSelectionSource()

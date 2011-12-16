@@ -13,6 +13,8 @@ QWindowCompositor::QWindowCompositor(QOpenGLWindow *window)
 
     window->installEventFilter(this);
 
+    setRetainedSelectionEnabled(true);
+
     render();
 }
 

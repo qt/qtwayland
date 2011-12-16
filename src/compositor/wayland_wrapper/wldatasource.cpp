@@ -39,17 +39,13 @@
 ****************************************************************************/
 
 #include "wldatasource.h"
-
 #include "wldataoffer.h"
-
-#include <wayland-server.h>
-
+#include "wldatadevicemanager.h"
 #include "wlcompositor.h"
-
+#include <wayland-server.h>
 #include <QtCore/QDebug>
 
 namespace Wayland {
-
 
 DataSource::DataSource(struct wl_client *client, uint32_t id, uint32_t time)
     : m_time(time)
@@ -57,11 +53,14 @@ DataSource::DataSource(struct wl_client *client, uint32_t id, uint32_t time)
     m_data_source_resource = wl_client_add_object(client, &wl_data_source_interface, &DataSource::data_source_interface,id,this);
     m_data_source_resource->destroy = resource_destroy;
     m_data_offer = new DataOffer(this);
+    m_manager = 0;
 }
 
 DataSource::~DataSource()
 {
     qDebug() << "destroying source";
+    if (m_manager)
+        m_manager->sourceDestroyed(this);
     wl_resource_destroy(m_data_source_resource,Compositor::currentTimeMsecs());
 }
 
@@ -121,6 +120,11 @@ struct wl_client *DataSource::client() const
     if (m_data_source_resource)
         return m_data_source_resource->client;
     return 0;
+}
+
+void DataSource::setManager(DataDeviceManager *mgr)
+{
+    m_manager = mgr;
 }
 
 }

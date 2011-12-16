@@ -49,6 +49,7 @@
 namespace Wayland {
 
 class DataOffer;
+class DataDeviceManager;
 
 class DataSource
 {
@@ -63,6 +64,8 @@ public:
     void postSendEvent(const QByteArray &mimeType,int fd);
     struct wl_client *client() const;
 
+    void setManager(DataDeviceManager *mgr);
+
 private:
     uint32_t m_time;
     QList<QByteArray> m_offers;
@@ -70,14 +73,16 @@ private:
 
     DataOffer *m_data_offer;
 
+    DataDeviceManager *m_manager;
+
     static struct wl_data_source_interface data_source_interface;
     static void offer(struct wl_client *client,
                   struct wl_resource *resource,
                   const char *type);
     static void destroy(struct wl_client *client,
                     struct wl_resource *resource);
-    static void resource_destroy(struct wl_resource *resource);
 
+    static void resource_destroy(struct wl_resource *resource);
 };
 
 }

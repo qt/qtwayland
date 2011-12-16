@@ -88,7 +88,7 @@ void WindowManagerServerIntegration::updateWindowProperty(wl_client *client, wl_
     QDataStream ds(&byteValue, QIODevice::ReadOnly);
     ds >> variantValue;
 
-    emit windowPropertyChanged(client, surface, QString(name), variantValue);
+    emit windowPropertyChanged(client, surface, QString::fromLatin1(name), variantValue);
 }
 
 // server -> client

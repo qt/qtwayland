@@ -46,7 +46,9 @@
 #include <QtCore/QList>
 #include <QtCore/QMap>
 #include <QtGui/QClipboard>
+#include <QtCore/QMimeData>
 
+class QSocketNotifier;
 
 namespace Wayland {
 
@@ -55,8 +57,10 @@ class Compositor;
 class DataDevice;
 class DataSource;
 
-class DataDeviceManager
+class DataDeviceManager : public QObject
 {
+    Q_OBJECT
+
 public:
     DataDeviceManager(Compositor *compositor);
 
@@ -64,7 +68,16 @@ public:
     DataSource *currentSelectionSource();
 
     struct wl_display *display() const;
+
+    void sourceDestroyed(DataSource *source);
+
+private slots:
+    void readFromClient(int fd);
+
 private:
+    void retain();
+    void finishReadFromClient(bool exhausted = false);
+
     Compositor *m_compositor;
     QList<DataDevice *> m_data_device_list;
 
@@ -82,6 +95,13 @@ private:
                                    struct wl_resource *resource,
                                    uint32_t id);
     static struct wl_data_device_manager_interface drag_interface;
+
+    QMimeData m_retainedData;
+    QSocketNotifier *m_retainedReadNotifier;
+    QList<QSocketNotifier *> m_obsoleteRetainedReadNotifiers;
+    int m_retainedReadIndex;
+    QByteArray m_retainedReadBuf;
+
 };
 
 }

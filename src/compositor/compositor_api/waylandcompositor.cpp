@@ -122,9 +122,10 @@ Wayland::Compositor * WaylandCompositor::handle() const
 
 void WaylandCompositor::setRetainedSelectionEnabled(bool enable)
 {
-//    Wayland::Selection *sel = Wayland::Selection::instance();
-//    sel->setRetainedSelection(enable);
-//    sel->setRetainedSelectionWatcher(retainedSelectionChanged, this);
+    if (enable)
+        m_compositor->setRetainedSelectionWatcher(retainedSelectionChanged, this);
+    else
+        m_compositor->setRetainedSelectionWatcher(0, 0);
 }
 
 void WaylandCompositor::retainedSelectionChanged(QMimeData *mimeData, void *param)
@@ -139,8 +140,7 @@ void WaylandCompositor::retainedSelectionReceived(QMimeData *)
 
 void WaylandCompositor::overrideSelection(QMimeData *data)
 {
-//    Wayland::Selection *sel = Wayland::Selection::instance();
-//    sel->overrideSelection(data);
+    m_compositor->overrideSelection(data);
 }
 
 const char *WaylandCompositor::socketName() const

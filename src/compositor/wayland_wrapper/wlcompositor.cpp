@@ -123,6 +123,7 @@ Compositor::Compositor(WaylandCompositor *qt_compositor)
 #if defined (QT_COMPOSITOR_WAYLAND_GL)
     , m_graphics_hw_integration(0)
 #endif
+    , m_retainNotify(0)
 {
     compositor = this;
     qDebug() << "Compositor instance is" << this;
@@ -406,6 +407,29 @@ QList<Wayland::Surface *> Compositor::surfacesForClient(wl_client *client)
         }
     }
     return ret;
+}
+
+void Compositor::setRetainedSelectionWatcher(RetainedSelectionFunc func, void *param)
+{
+    m_retainNotify = func;
+    m_retainNotifyParam = param;
+}
+
+bool Compositor::wantsRetainedSelection() const
+{
+    return m_retainNotify != 0;
+}
+
+void Compositor::feedRetainedSelectionData(QMimeData *data)
+{
+    if (m_retainNotify) {
+        m_retainNotify(data, m_retainNotifyParam);
+    }
+}
+
+void Compositor::overrideSelection(QMimeData *data)
+{
+    // ### TODO implement
 }
 
 bool Compositor::isDragging() const

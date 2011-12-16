@@ -55,6 +55,7 @@
 class WaylandCompositor;
 class GraphicsHardwareIntegration;
 class WindowManagerServerIntegration;
+class QMimeData;
 
 namespace Wayland {
 
@@ -119,6 +120,13 @@ public:
     void sendDragMoveEvent(const QPoint &global, const QPoint &local, Surface *surface);
     void sendDragEndEvent();
 
+    typedef void (*RetainedSelectionFunc)(QMimeData *, void *);
+    void setRetainedSelectionWatcher(RetainedSelectionFunc func, void *param);
+    void overrideSelection(QMimeData *data);
+
+    bool wantsRetainedSelection() const;
+    void feedRetainedSelectionData(QMimeData *data);
+
 public slots:
     void releaseBuffer(void*);
 
@@ -169,6 +177,9 @@ private:
 
     static void bind_func(struct wl_client *client, void *data,
                           uint32_t version, uint32_t id);
+
+    RetainedSelectionFunc m_retainNotify;
+    void *m_retainNotifyParam;
 };
 
 }

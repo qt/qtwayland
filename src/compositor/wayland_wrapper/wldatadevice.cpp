@@ -105,7 +105,7 @@ void DataDevice::sendSelectionFocus()
 {
     //do for all clipboards
     DataSource *source = m_data_device_manager->currentSelectionSource();
-    if (!source){
+    if (!source) {
         return;
     }
     if (source->time() > m_sent_selection_time) { //this makes sure we don't resend

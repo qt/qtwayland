@@ -45,6 +45,7 @@
 #include "wlcompositor.h"
 #include "wlshmbuffer.h"
 #include "wlinputdevice.h"
+#include "wlextendedsurface.h"
 
 #include <QtCore/QDebug>
 
@@ -85,6 +86,7 @@ public:
         , frame_callback(0)
         , surfaceBuffer(0)
         , surfaceType(WaylandSurface::Invalid)
+        , extendedSurface(0)
 
 
     {
@@ -147,6 +149,7 @@ public:
 
     struct wl_buffer *previousBuffer;
     struct wl_resource *frame_callback;
+    ExtendedSurface *extendedSurface;
 private:
     struct wl_buffer *surfaceBuffer;
     WaylandSurface::Type surfaceType;
@@ -347,8 +350,11 @@ void Surface::setWindowProperty(const QString &name, const QVariant &value, bool
 {
     Q_D(Surface);
     d->windowProperties.insert(name, value);
-    if (writeUpdateToClient)
-        d->compositor->windowManagerIntegration()->setWindowProperty(d->client, base(), name, value);
+    handle()->windowPropertyChanged(name,value);
+    if (writeUpdateToClient && d->extendedSurface) {
+        const char *property = qPrintable(name);
+        d->extendedSurface->sendGenericProperty(property,value);
+    }
 }
 
 uint32_t toWaylandButton(Qt::MouseButton button)
@@ -373,6 +379,18 @@ QPoint Surface::lastMousePos() const
 {
     Q_D(const Surface);
     return d->lastMousePos;
+}
+
+void Surface::setExtendedSurface(ExtendedSurface *extendedSurface)
+{
+    Q_D(Surface);
+    d->extendedSurface = extendedSurface;
+}
+
+ExtendedSurface *Surface::extendedSurface() const
+{
+    Q_D(const Surface);
+    return d->extendedSurface;
 }
 
 void Surface::sendMousePressEvent(int x, int y, Qt::MouseButton button)
@@ -500,10 +518,10 @@ void Surface::setInputFocus()
 
 void Surface::sendOnScreenVisibilityChange(bool visible)
 {
-#ifdef QT_WAYLAND_WINDOWMANAGER_SUPPORT
     Q_D(Surface);
-    d->compositor->windowManagerIntegration()->setVisibilityOnScreen(d->client, visible);
-#endif
+    if (d->extendedSurface) {
+        d->extendedSurface->sendOnScreenVisibllity(visible);
+    }
 }
 
 } // namespace Wayland

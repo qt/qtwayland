@@ -15,6 +15,10 @@ mac {
 
 QT += core-private gui-private opengl-private platformsupport-private
 
+WAYLANDSOURCES += \
+            $$PWD/../../../../extensions/surface-extension/surface-extension.xml \
+            $$PWD/../../../../extensions/output-extension/output-extension.xml
+
 SOURCES =   main.cpp \
             qwaylandintegration.cpp \
             qwaylandnativeinterface.cpp \
@@ -31,7 +35,9 @@ SOURCES =   main.cpp \
             qwaylanddatadevicemanager.cpp \
             qwaylanddatasource.cpp \
             qwaylandshell.cpp \
-            qwaylandshellsurface.cpp
+            qwaylandshellsurface.cpp \
+            qwaylandextendedoutput.cpp \
+            qwaylandextendedsurface.cpp
 
 HEADERS =   qwaylandintegration.h \
             qwaylandnativeinterface.h \
@@ -48,7 +54,9 @@ HEADERS =   qwaylandintegration.h \
             qwaylanddatadevicemanager.h \
             qwaylanddatasource.h \
             qwaylandshell.h \
-            qwaylandshellsurface.h
+            qwaylandshellsurface.h \
+            qwaylandextendedoutput.h \
+            qwaylandextendedsurface.h
 
 INCLUDEPATH += $$QMAKE_INCDIR_WAYLAND
 LIBS += $$QMAKE_LIBS_WAYLAND

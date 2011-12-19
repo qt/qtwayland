@@ -54,6 +54,8 @@
 #include "windowmanager_integration/qwaylandwindowmanagerintegration.h"
 #endif
 
+#include "qwaylandextendedsurface.h"
+
 #include <QCoreApplication>
 #include <QtGui/QWindowSystemInterface>
 
@@ -81,6 +83,7 @@ QWaylandWindow::~QWaylandWindow()
 {
     if (mSurface) {
         delete mShellSurface;
+        delete mExtendedWindow;
         wl_surface_destroy(mSurface);
     }
 
@@ -105,11 +108,17 @@ void QWaylandWindow::setVisible(bool visible)
     if (!mSurface && visible) {
         mSurface = mDisplay->createSurface(this);
         mShellSurface = mDisplay->shell()->createShellSurface(this);
+        if (mDisplay->windowExtension())
+            mExtendedWindow = mDisplay->windowExtension()->getExtendedWindow(this);
         newSurfaceCreated();
         wl_shell_surface_set_toplevel(mShellSurface->handle());
     }
 
     if (!visible) {
+        delete mShellSurface;
+        mShellSurface = 0;
+        delete mExtendedWindow;
+        mExtendedWindow = 0;
         wl_surface_destroy(mSurface);
         mSurface = NULL;
     }
@@ -159,7 +168,8 @@ void QWaylandWindow::newSurfaceCreated()
         // the first frame has been rendered
     }
 #ifdef QT_WAYLAND_WINDOWMANAGER_SUPPORT
-    QWaylandWindowManagerIntegration::instance()->flushPropertyChanges(this);
+    //TODO: remove when we don't delay wl_surface creation
+//    QWaylandWindowManagerIntegration::instance()->flushPropertyChanges(this);
 #endif
 }
 
@@ -183,4 +193,14 @@ void QWaylandWindow::waitForFrameSync()
     mDisplay->flushRequests();
     while (mWaitingForFrameSync)
         mDisplay->blockingReadEvents();
+}
+
+QWaylandShellSurface *QWaylandWindow::shellSurface() const
+{
+    return mShellSurface;
+}
+
+QWaylandExtendedSurface *QWaylandWindow::extendedWindow() const
+{
+    return mExtendedWindow;
 }

@@ -47,6 +47,8 @@
 #include "waylandcompositor.h"
 #include "wldatadevicemanager.h"
 #include "wldatadevice.h"
+#include "wlextendedoutput.h"
+#include "wlextendedsurface.h"
 
 #include <QWindow>
 #include <QSocketNotifier>
@@ -124,6 +126,8 @@ Compositor::Compositor(WaylandCompositor *qt_compositor)
     , m_graphics_hw_integration(0)
 #endif
     , m_retainNotify(0)
+    , m_outputExtension(0)
+    , m_surfaceExtension(0)
 {
     compositor = this;
     qDebug() << "Compositor instance is" << this;
@@ -135,19 +139,18 @@ Compositor::Compositor(WaylandCompositor *qt_compositor)
         m_graphics_hw_integration = GraphicsHardwareIntegration::createGraphicsHardwareIntegration(qt_compositor);
 #endif
     m_windowManagerIntegration = new WindowManagerServerIntegration(this);
-    connect(m_windowManagerIntegration,
-            SIGNAL(windowPropertyChanged(wl_client*,wl_surface*,QString,QVariant)),
-            SLOT(windowPropertyChanged(wl_client*,wl_surface*,QString,QVariant)));
 
     wl_display_add_global(m_display->handle(),&wl_compositor_interface,this,Compositor::bind_func);
 
     m_input = new InputDevice(this);
 
     m_data_device_manager =  new DataDeviceManager(this);
-    wl_display_add_global(m_display->handle(),&wl_output_interface, &m_output,Output::output_bind_func);
+    wl_display_add_global(m_display->handle(),&wl_output_interface, &m_output_global,OutputGlobal::output_bind_func);
 
     wl_display_add_global(m_display->handle(), &wl_shell_interface, &m_shell, Shell::bind_func);
 
+    m_outputExtension = new OutputExtensionGlobal(this);
+    m_surfaceExtension = new SurfaceExtensionGlobal(this);
 
     if (wl_display_add_socket(m_display->handle(), qt_compositor->socketName())) {
         fprintf(stderr, "Fatal: Failed to open server socket\n");
@@ -194,8 +197,14 @@ void Compositor::createSurface(struct wl_client *client, int id)
 
     QList<struct wl_client *> prevClientList = clients();
     m_surfaces << surface;
+
+    //this is not how we want to solve this.
     if (!prevClientList.contains(client)) {
-        m_windowManagerIntegration->setScreenOrientation(client, m_output.resourceForClient(client), m_orientation);
+        Output *output = m_output_global.outputForClient(client);
+        Q_ASSERT(output);
+        if (output->extendedOutput()) {
+            output->extendedOutput()->sendOutputOrientation(m_orientation);
+        }
         emit clientAdded(client);
     }
 
@@ -258,16 +267,6 @@ void Compositor::processWaylandEvents()
     int ret = wl_event_loop_dispatch(m_loop, 0);
     if (ret)
         fprintf(stderr, "wl_event_loop_dispatch error: %d\n", ret);
-}
-
-void Compositor::windowPropertyChanged(wl_client *client, wl_surface *changedSurface, const QString &name, const QVariant &value)
-{
-    for(int i = 0; i < m_surfaces.length(); ++i) {
-        Surface *surface = m_surfaces[i];
-        if (surface->clientHandle() == client && surface->base() == changedSurface) {
-            surface->setWindowProperty(name, value, false);
-        }
-    }
 }
 
 void Compositor::surfaceDestroyed(Surface *surface)
@@ -383,13 +382,17 @@ void Compositor::setScreenOrientation(Qt::ScreenOrientation orientation)
     QList<struct wl_client*> clientList = clients();
     for (int i = 0; i < clientList.length(); ++i) {
         struct wl_client *client = clientList.at(i);
-        m_windowManagerIntegration->setScreenOrientation(client, m_output.resourceForClient(client), orientation);
+        Output *output = m_output_global.outputForClient(client);
+        Q_ASSERT(output);
+        if (output->extendedOutput()){
+            output->extendedOutput()->sendOutputOrientation(orientation);
+        }
     }
 }
 
 void Compositor::setOutputGeometry(const QRect &geometry)
 {
-    m_output.setGeometry(geometry);
+    m_output_global.setGeometry(geometry);
 }
 
 InputDevice* Compositor::defaultInputDevice()

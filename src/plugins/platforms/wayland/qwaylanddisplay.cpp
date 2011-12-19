@@ -57,6 +57,9 @@
 #include "windowmanager_integration/qwaylandwindowmanagerintegration.h"
 #endif
 
+#include "qwaylandextendedoutput.h"
+#include "qwaylandextendedsurface.h"
+
 #include <QtCore/QAbstractEventDispatcher>
 #include <QtGui/private/qguiapplication_p.h>
 
@@ -109,6 +112,8 @@ static QWaylandDisplay *display = 0;
 QWaylandDisplay::QWaylandDisplay(void)
     : mDndSelectionHandler(0)
     , mLastKeyboardFocusInputDevice(0)
+    , mWindowExtension(0)
+    , mOutputExtension(0)
 {
     display = this;
     qRegisterMetaType<uint32_t>("uint32_t");
@@ -297,6 +302,10 @@ void QWaylandDisplay::displayHandleGlobal(uint32_t id,
         mInputDevices.append(inputDevice);
     } else if (interface == "wl_data_device_manager") {
         mDndSelectionHandler = new QWaylandDataDeviceManager(this, id);
+    } else if (interface == "wl_output_extension") {
+        mOutputExtension = new QWaylandOutputExtension(this,id);
+    } else if (interface == "wl_surface_extension") {
+        mWindowExtension = new QWaylandSurfaceExtension(this,id);
     }
 }
 

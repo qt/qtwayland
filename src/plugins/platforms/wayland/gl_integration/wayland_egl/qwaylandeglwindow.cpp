@@ -105,7 +105,8 @@ void QWaylandEglWindow::newSurfaceCreated()
     m_waylandEglWindow = wl_egl_window_create(mSurface, size.width(), size.height());
 
 #ifdef QT_WAYLAND_WINDOWMANAGER_SUPPORT
-    QWaylandWindowManagerIntegration::instance()->flushPropertyChanges(this);
+    //remove when we don't delay wl_surface creation
+//    QWaylandWindowManagerIntegration::instance()->flushPropertyChanges(this);
 #endif
 }
 

@@ -8,7 +8,7 @@ CONFIG += use_pkgconfig
 
 LIBS += -L ../../lib
 
-QT += quick v8
+QT += quick declarative     v8
 QT += quick-private
 
 QT += compositor

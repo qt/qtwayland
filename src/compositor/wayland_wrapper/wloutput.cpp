@@ -45,23 +45,7 @@
 
 namespace Wayland {
 
-void Output::output_bind_func(struct wl_client *client, void *data,
-                          uint32_t version, uint32_t id)
-{
-    Q_UNUSED(version);
-    Output *output = static_cast<Output *>(data);
-
-    struct wl_resource *resource = wl_client_add_object(client,&wl_output_interface,0,id,data);
-    output->registerResource(resource);
-    wl_resource_post_event(resource, WL_OUTPUT_GEOMETRY, 0, 0,
-                         output->size().width(), output->size().height(),0,"","");
-
-    wl_resource_post_event(resource,WL_OUTPUT_MODE, WL_OUTPUT_MODE_CURRENT|WL_OUTPUT_MODE_PREFERRED,
-                           output->size().width(),output->size().height());
-}
-
-
-Output::Output()
+OutputGlobal::OutputGlobal()
     : m_displayId(-1)
     , m_numQueued(0)
 {
@@ -69,9 +53,55 @@ Output::Output()
     m_geometry = QRect(QPoint(0, 0), screen->availableGeometry().size());
 }
 
-void Output::setGeometry(const QRect &geometry)
+void OutputGlobal::setGeometry(const QRect &geometry)
 {
     m_geometry = geometry;
+}
+
+Output *OutputGlobal::outputForClient(wl_client *client) const
+{
+    return static_cast<Output *>(resourceForClient(client)->data);
+}
+
+void OutputGlobal::output_bind_func(struct wl_client *client, void *data,
+                          uint32_t version, uint32_t id)
+{
+    Q_UNUSED(version);
+    OutputGlobal *output_global = static_cast<OutputGlobal *>(data);
+
+    Output *output = new Output(output_global,client,version,id);
+    output_global->registerResource(output->handle());
+}
+
+
+
+Output::Output(OutputGlobal *outputGlobal, wl_client *client, uint32_t version, uint32_t id)
+    : m_output_global(outputGlobal)
+    , m_extended_output(0)
+{
+    Q_UNUSED(version);
+    m_output_resource = wl_client_add_object(client,&wl_output_interface,0,id,this);
+    wl_resource_post_event(m_output_resource, WL_OUTPUT_GEOMETRY, 0, 0,
+                         m_output_global->size().width(), m_output_global->size().height(),0,"","");
+
+    wl_resource_post_event(m_output_resource,WL_OUTPUT_MODE, WL_OUTPUT_MODE_CURRENT|WL_OUTPUT_MODE_PREFERRED,
+                           m_output_global->size().width(),m_output_global->size().height());
+
+}
+
+ExtendedOutput *Output::extendedOutput() const
+{
+    return m_extended_output;
+}
+
+void Output::setExtendedOutput(ExtendedOutput *extendedOutput)
+{
+    m_extended_output = extendedOutput;
+}
+
+wl_resource *Output::handle() const
+{
+    return m_output_resource;
 }
 
 } // namespace Wayland

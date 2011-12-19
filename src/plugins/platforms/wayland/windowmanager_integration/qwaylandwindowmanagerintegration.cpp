@@ -74,11 +74,6 @@ QWaylandWindowManagerIntegrationPrivate::QWaylandWindowManagerIntegrationPrivate
 
 QWaylandWindowManagerIntegration *QWaylandWindowManagerIntegration::m_instance = 0;
 
-const struct wl_windowmanager_listener QWaylandWindowManagerIntegration::m_windowManagerListener = {
-    QWaylandWindowManagerIntegration::wlHandleOnScreenVisibilityChange,
-    QWaylandWindowManagerIntegration::wlHandleScreenOrientationChange,
-    QWaylandWindowManagerIntegration::wlHandleWindowPropertyChange
-};
 
 QWaylandWindowManagerIntegration *QWaylandWindowManagerIntegration::createIntegration(QWaylandDisplay *waylandDisplay)
 {
@@ -118,8 +113,6 @@ void QWaylandWindowManagerIntegration::wlHandleListenerGlobal(wl_display *displa
         QWaylandWindowManagerIntegration *integration = static_cast<QWaylandWindowManagerIntegration *>(data);
         integration->d_ptr->m_waylandWindowManager =
                 static_cast<struct wl_windowmanager *>(wl_display_bind(display, id, &wl_windowmanager_interface));
-        wl_windowmanager *windowManager = integration->d_ptr->m_waylandWindowManager;
-        wl_windowmanager_add_listener(windowManager, &m_windowManagerListener, integration);
     }
 }
 
@@ -140,126 +133,4 @@ void QWaylandWindowManagerIntegration::authenticateWithToken(const QByteArray &t
     if (d->m_waylandWindowManager && !authToken.isEmpty()) {
         wl_windowmanager_authenticate_with_token(d->m_waylandWindowManager, authToken.constData());
     }
-}
-
-static wl_array writePropertyValue(const QVariant &value)
-{
-    QByteArray byteValue;
-    QDataStream ds(&byteValue, QIODevice::WriteOnly);
-    ds << value;
-
-    wl_array data;
-    data.size = byteValue.size();
-    data.data = (void*)byteValue.constData();
-    data.alloc = 0;
-
-    return data;
-}
-
-void QWaylandWindowManagerIntegration::setWindowProperty(QWaylandWindow *window, const QString &propertyName, const QVariant &propertyValue)
-{
-    Q_D(QWaylandWindowManagerIntegration);
-    if (d->m_blockPropertyUpdates)
-        return;
-
-    if (window->wl_surface()) {
-        wl_array data = writePropertyValue(propertyValue);
-        wl_windowmanager_update_generic_property(d->m_waylandWindowManager, window->wl_surface(),
-                                                 propertyName.toLatin1().constData(),
-                                                 &data);
-    } else {
-        QVariantMap props = d->m_queuedProperties.value(window->window());
-        props.insert(propertyName, propertyValue);
-        d->m_queuedProperties.insert(window->window(), props);
-        connect(window->window(), SIGNAL(destroyed()), SLOT(removeQueuedPropertiesForWindow()));
-    }
-}
-
-void QWaylandWindowManagerIntegration::flushPropertyChanges(QWaylandWindow *windowToFlush)
-{
-    // write all changes we got while we did not have a surface.
-    // this can happen during startup, for example, or while the window is hidden.
-    Q_D(QWaylandWindowManagerIntegration);
-
-    if (!windowToFlush || !windowToFlush->window())
-        return;
-
-
-    QVariantMap properties = d->m_queuedProperties.value(windowToFlush->window());
-    wl_surface *surface = windowToFlush->wl_surface();
-
-    QMapIterator<QString, QVariant> pIt(properties);
-    while (pIt.hasNext()) {
-        pIt.next();
-        wl_array data = writePropertyValue(pIt.value());
-        wl_windowmanager_update_generic_property(d->m_waylandWindowManager, surface, pIt.key().toLatin1().constData(), &data);
-    }
-
-    d->m_queuedProperties.clear();
-}
-
-void QWaylandWindowManagerIntegration::removeQueuedPropertiesForWindow()
-{
-    Q_D(QWaylandWindowManagerIntegration);
-    QWindow *window = static_cast<QWindow*>(sender());
-    d->m_queuedProperties.remove(window);
-}
-
-void QWaylandWindowManagerIntegration::wlHandleOnScreenVisibilityChange(void *data, struct wl_windowmanager *wl_windowmanager, int visible)
-{
-    Q_UNUSED(data);
-    Q_UNUSED(wl_windowmanager);
-    QEvent evt(visible != 0 ? QEvent::ApplicationActivate : QEvent::ApplicationDeactivate);
-    QCoreApplication::sendEvent(QCoreApplication::instance(), &evt);
-}
-
-void QWaylandWindowManagerIntegration::wlHandleScreenOrientationChange(void *data, struct wl_windowmanager *wl_windowmanager,
-                                                                       struct wl_output *wl_output, int screenOrientation)
-{
-    QWaylandWindowManagerIntegration *integration = QWaylandWindowManagerIntegration::instance();
-    QWaylandScreen *screen = integration->d_ptr->m_waylandDisplay->screenForOutput(wl_output);
-    if (screen)
-        screen->setOrientation(Qt::ScreenOrientation(screenOrientation));
-}
-
-void QWaylandWindowManagerIntegration::wlHandleWindowPropertyChange(void *data, struct wl_windowmanager *wl_windowmanager,
-                                                                    struct wl_surface *surface,
-                                                                    const char *propertyName, struct wl_array *propertyValue)
-{
-    // window manager changes a window property
-    Q_UNUSED(data);
-    Q_UNUSED(wl_windowmanager);
-
-    QVariant variantValue;
-    QByteArray baValue = QByteArray((const char*)propertyValue->data, propertyValue->size);
-    QDataStream ds(&baValue, QIODevice::ReadOnly);
-    ds >> variantValue;
-
-    QPlatformNativeInterface *nativeInterface = qApp->platformNativeInterface();
-    QWaylandWindowManagerIntegration *inst = QWaylandWindowManagerIntegration::instance();
-
-    QList<QWindow *> windows = qApp->topLevelWindows();
-    foreach (QWindow *window, windows) {
-        QPlatformWindow *platformWindowForWindow = window->handle();
-        if (!platformWindowForWindow)
-            continue;
-        QWaylandWindow *waylandWindow = static_cast<QWaylandWindow*>(platformWindowForWindow);
-        wl_surface *windowSurface = (wl_surface*)nativeInterface->nativeResourceForWindow(QByteArray("surface"), window);
-        if (windowSurface == surface) {
-            inst->handleWindowPropertyChange(waylandWindow, QString(propertyName), variantValue);
-            break;
-        }
-    }
-}
-
-void QWaylandWindowManagerIntegration::handleWindowPropertyChange(QWaylandWindow *window,
-                                                                  const QString &propertyName, const QVariant &propertyValue)
-{
-    Q_D(QWaylandWindowManagerIntegration);
-    d->m_blockPropertyUpdates = true;
-
-    QPlatformNativeInterface *nativeInterface = qApp->platformNativeInterface();
-    nativeInterface->setWindowProperty(window, propertyName, propertyValue);
-
-    d->m_blockPropertyUpdates = false;
 }

@@ -38,59 +38,55 @@
 **
 ****************************************************************************/
 
-#ifndef WL_OUTPUT_H
-#define WL_OUTPUT_H
+#ifndef WLEXTENDEDSURFACE_H
+#define WLEXTENDEDSURFACE_H
 
-#include "waylandresourcecollection.h"
+#include "wayland-surface-extension-server-protocol.h"
 
-#include <QtCore/QRect>
-
+#include <QtCore/QVariant>
 
 namespace Wayland {
 
-class Output;
-class ExtendedOutput;
+class Compositor;
+class Surface;
 
-class OutputGlobal : public ResourceCollection
+class SurfaceExtensionGlobal
 {
 public:
-    OutputGlobal();
+    SurfaceExtensionGlobal(Compositor *compositor);
 
-    void setGeometry(const QRect &geometry);
-
-    int x() const { return m_geometry.x(); }
-    int y() const { return m_geometry.y(); }
-    QSize size() const { return m_geometry.size(); }
-
-    Output *outputForClient(struct wl_client *client) const;
-
-    static void output_bind_func(struct wl_client *client, void *data,
-                          uint32_t version, uint32_t id);
 private:
-    QRect m_geometry;
-    int m_displayId;
-    int m_numQueued;
+    Compositor *m_compositor;
+
+    static void bind_func(struct wl_client *client, void *data,
+                          uint32_t version, uint32_t id);
+    static void get_extended_surface(struct wl_client *client,
+                                 struct wl_resource *resource,
+                                 uint32_t id,
+                                 struct wl_resource *surface);
+    static const struct wl_surface_extension_interface surface_extension_interface;
+
 };
 
-
-class Output
+class ExtendedSurface
 {
 public:
-    Output(OutputGlobal *outputGlobal, wl_client *client, uint32_t version, uint32_t id);
+    ExtendedSurface(struct wl_client *client, uint32_t id, Surface *surface);
 
-    OutputGlobal *outputGlobal() const;
+    void sendGenericProperty(const char *name, const QVariant &variant);
+    void sendOnScreenVisibllity(bool visible);
 
-    ExtendedOutput *extendedOutput() const;
-    void setExtendedOutput(ExtendedOutput *extendedOutput);
-
-    struct wl_resource *handle() const;
 private:
-    struct wl_resource *m_output_resource;
-    OutputGlobal *m_output_global;
-    ExtendedOutput *m_extended_output;
+    struct wl_resource *m_extended_surface_resource;
+    Surface *m_surface;
 
+    static void update_generic_property(struct wl_client *client,
+                                    struct wl_resource *resource,
+                                    const char *name,
+                                    struct wl_array *value);
+    static const struct wl_extended_surface_interface extended_surface_interface;
 };
 
 }
 
-#endif //WL_OUTPUT_H
+#endif // WLEXTENDEDSURFACE_H

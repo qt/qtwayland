@@ -39,31 +39,54 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDNATIVEINTERFACE_H
-#define QWAYLANDNATIVEINTERFACE_H
+#ifndef QWAYLANDEXTENDEDSURFACE_H
+#define QWAYLANDEXTENDEDSURFACE_H
 
-#include "qwaylandscreen.h"
-#include <QVariantMap>
-#include <QtGui/QPlatformNativeInterface>
+#include <wayland-client.h>
 
-class QWaylandNativeInterface : public QPlatformNativeInterface
+#include <QtCore/QString>
+#include <QtCore/QVariant>
+
+class QWaylandDisplay;
+class QWaylandWindow;
+class QWaylandExtendedSurface;
+
+class QWaylandSurfaceExtension
 {
 public:
-    void *nativeResourceForWindow(const QByteArray &resourceString,
-				  QWindow *window);
+    QWaylandSurfaceExtension(QWaylandDisplay *display, uint32_t id);
 
-    QVariantMap windowProperties(QPlatformWindow *window) const;
-    QVariant windowProperty(QPlatformWindow *window, const QString &name) const;
-    QVariant windowProperty(QPlatformWindow *window, const QString &name, const QVariant &defaultValue) const;
-    void setWindowProperty(QPlatformWindow *window, const QString &name, const QVariant &value);
-
-    void emitWindowPropertyChanged(QPlatformWindow *window, const QString &name);
+    QWaylandExtendedSurface *getExtendedWindow(QWaylandWindow *window);
 private:
-    static QWaylandScreen *qPlatformScreenForWindow(QWindow *window);
-
-private:
-    QHash<QPlatformWindow*, QVariantMap> m_windowProperties;
+    struct wl_surface_extension *m_surface_extension;
 };
 
+class QWaylandExtendedSurface
+{
+public:
+    QWaylandExtendedSurface(QWaylandWindow *window, struct wl_extended_surface *extended_surface);
 
-#endif // QWAYLANDNATIVEINTERFACE_H
+    void updateGenericProperty(const QString &name, const QVariant &value);
+    QVariantMap properties() const;
+    QVariant property(const QString &name);
+    QVariant property(const QString &name, const QVariant &defaultValue);
+private:
+    QWaylandWindow *m_window;
+    struct wl_extended_surface *m_extended_surface;
+
+    QVariantMap m_properties;
+
+    static void onscreen_visibility(void *data,
+                                struct wl_extended_surface *wl_extended_surface,
+                                int32_t visible);
+
+    static void set_generic_property(void *data,
+                                 struct wl_extended_surface *wl_extended_surface,
+                                 const char *name,
+                                 struct wl_array *value);
+
+    static const struct wl_extended_surface_listener extended_surface_listener;
+
+};
+
+#endif // QWAYLANDEXTENDEDSURFACE_H

@@ -43,6 +43,7 @@
 
 #include "qwaylanddisplay.h"
 #include "qwaylandcursor.h"
+#include "qwaylandextendedoutput.h"
 
 #include <QWindowSystemInterface>
 
@@ -50,12 +51,16 @@ QWaylandScreen::QWaylandScreen(QWaylandDisplay *waylandDisplay, struct wl_output
     : QPlatformScreen()
     , mWaylandDisplay(waylandDisplay)
     , mOutput(output)
+    , mExtendedOutput(0)
     , mGeometry(geometry)
     , mDepth(32)
     , mFormat(QImage::Format_ARGB32_Premultiplied)
-    , mOrientation(primaryOrientation())
     , mWaylandCursor(new QWaylandCursor(this))
 {
+    //maybe the global is sent after the first screen?
+    if (waylandDisplay->outputExtension()) {
+        mExtendedOutput = waylandDisplay->outputExtension()->getExtendedOutput(this);
+    }
 }
 
 QWaylandScreen::~QWaylandScreen()
@@ -85,13 +90,20 @@ QImage::Format QWaylandScreen::format() const
 
 Qt::ScreenOrientation QWaylandScreen::currentOrientation() const
 {
-    return mOrientation;
+    if (mExtendedOutput)
+        return mExtendedOutput->currentOrientation();
+    return primaryOrientation();
 }
 
-void QWaylandScreen::setOrientation(const Qt::ScreenOrientation orientation)
+QWaylandExtendedOutput *QWaylandScreen::extendedOutput() const
 {
-    mOrientation = orientation;
-    QWindowSystemInterface::handleScreenOrientationChange(screen());
+    return mExtendedOutput;
+}
+
+void QWaylandScreen::setExtendedOutput(QWaylandExtendedOutput *extendedOutput)
+{
+    Q_ASSERT(!mExtendedOutput);
+    mExtendedOutput = extendedOutput;
 }
 
 QWaylandScreen * QWaylandScreen::waylandScreenFromWindow(QWindow *window)

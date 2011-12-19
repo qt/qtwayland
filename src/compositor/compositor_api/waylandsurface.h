@@ -111,6 +111,7 @@ public:
 signals:
     void mapped(const QSize &size);
     void damaged(const QRect &rect);
+    void windowPropertyChanged(const QString &name, const QVariant &value);
 
     friend class Wayland::Surface;
     friend class Wayland::SurfacePrivate;

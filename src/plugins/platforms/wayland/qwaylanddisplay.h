@@ -59,6 +59,8 @@ class QWaylandGLIntegration;
 class QWaylandWindowManagerIntegration;
 class QWaylandDataDeviceManager;
 class QWaylandShell;
+class QWaylandSurfaceExtension;
+class QWaylandOutputExtension;
 
 class QWaylandDisplay : public QObject {
     Q_OBJECT
@@ -94,6 +96,9 @@ public:
 
     QWaylandDataDeviceManager *dndSelectionHandler() const { return mDndSelectionHandler; }
 
+    QWaylandSurfaceExtension *windowExtension() const { return mWindowExtension; }
+    QWaylandOutputExtension *outputExtension() const { return mOutputExtension; }
+
     struct wl_shm *shm() const { return mShm; }
 
     static uint32_t currentTimeMillisec();
@@ -119,6 +124,8 @@ private:
     QList<QWaylandInputDevice *> mInputDevices;
     QWaylandInputDevice *mLastKeyboardFocusInputDevice;
     QWaylandDataDeviceManager *mDndSelectionHandler;
+    QWaylandSurfaceExtension *mWindowExtension;
+    QWaylandOutputExtension *mOutputExtension;
 
     QSocketNotifier *mReadNotifier;
     int mFd;

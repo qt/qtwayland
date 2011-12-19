@@ -46,6 +46,7 @@
 
 class QWaylandDisplay;
 class QWaylandCursor;
+class QWaylandExtendedOutput;
 
 class QWaylandScreen : public QPlatformScreen
 {
@@ -60,20 +61,23 @@ public:
     QImage::Format format() const;
 
     Qt::ScreenOrientation currentOrientation() const;
-    void setOrientation(const Qt::ScreenOrientation orientation);
 
     wl_output *output() const { return mOutput; }
+
+    QWaylandExtendedOutput *extendedOutput() const;
+    void setExtendedOutput(QWaylandExtendedOutput *extendedOutput);
 
     static QWaylandScreen *waylandScreenFromWindow(QWindow *window);
 
 private:
     QWaylandDisplay *mWaylandDisplay;
     struct wl_output *mOutput;
+    QWaylandExtendedOutput *mExtendedOutput;
     QRect mGeometry;
     int mDepth;
     QImage::Format mFormat;
     QSize mPhysicalSize;
-    Qt::ScreenOrientation mOrientation;
+
     QWaylandCursor *mWaylandCursor;
 };
 

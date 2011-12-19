@@ -39,31 +39,39 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDNATIVEINTERFACE_H
-#define QWAYLANDNATIVEINTERFACE_H
+#ifndef QWAYLANDEXTENDEDOUTPUT_H
+#define QWAYLANDEXTENDEDOUTPUT_H
 
-#include "qwaylandscreen.h"
-#include <QVariantMap>
-#include <QtGui/QPlatformNativeInterface>
+#include "qwaylanddisplay.h"
 
-class QWaylandNativeInterface : public QPlatformNativeInterface
+class QWaylandExtendedOutput;
+
+class QWaylandOutputExtension
 {
 public:
-    void *nativeResourceForWindow(const QByteArray &resourceString,
-				  QWindow *window);
+    QWaylandOutputExtension(QWaylandDisplay *display, uint32_t id);
 
-    QVariantMap windowProperties(QPlatformWindow *window) const;
-    QVariant windowProperty(QPlatformWindow *window, const QString &name) const;
-    QVariant windowProperty(QPlatformWindow *window, const QString &name, const QVariant &defaultValue) const;
-    void setWindowProperty(QPlatformWindow *window, const QString &name, const QVariant &value);
-
-    void emitWindowPropertyChanged(QPlatformWindow *window, const QString &name);
+    QWaylandExtendedOutput* getExtendedOutput(QWaylandScreen *screen);
 private:
-    static QWaylandScreen *qPlatformScreenForWindow(QWindow *window);
+    struct wl_output_extension *m_output_extension;
+};
 
+class QWaylandExtendedOutput
+{
+public:
+    QWaylandExtendedOutput(QWaylandScreen *screen, struct wl_extended_output *extended_output);
+
+    Qt::ScreenOrientation currentOrientation() const;
 private:
-    QHash<QPlatformWindow*, QVariantMap> m_windowProperties;
+    struct wl_extended_output *m_extended_output;
+    QWaylandScreen *m_screen;
+    Qt::ScreenOrientation m_orientation;
+
+    static void set_screen_rotation(void *data,
+                             struct wl_extended_output *wl_extended_output,
+                             int32_t rotation);
+    static const struct wl_extended_output_listener extended_output_listener;
 };
 
 
-#endif // QWAYLANDNATIVEINTERFACE_H
+#endif // QWAYLANDEXTENDEDOUTPUT_H

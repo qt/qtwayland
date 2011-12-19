@@ -62,6 +62,8 @@ namespace Wayland {
 class Surface;
 class InputDevice;
 class DataDeviceManager;
+class OutputExtensionGlobal;
+class SurfaceExtensionGlobal;
 
 class Q_COMPOSITOR_EXPORT Compositor : public QObject
 {
@@ -135,7 +137,6 @@ signals:
 
 private slots:
     void processWaylandEvents();
-    void windowPropertyChanged(wl_client *client, wl_surface *surface, const QString &name, const QVariant &value);
 
 private:
     Display *m_display;
@@ -145,7 +146,7 @@ private:
 
     /* Output */
     //make this a list of the available screens
-    Output m_output;
+    OutputGlobal m_output_global;
 
     Shell m_shell;
 
@@ -173,7 +174,12 @@ private:
 #ifdef QT_COMPOSITOR_WAYLAND_GL
     GraphicsHardwareIntegration *m_graphics_hw_integration;
 #endif
+
+    //extensions
     WindowManagerServerIntegration *m_windowManagerIntegration;
+
+    OutputExtensionGlobal *m_outputExtension;
+    SurfaceExtensionGlobal *m_surfaceExtension;
 
     static void bind_func(struct wl_client *client, void *data,
                           uint32_t version, uint32_t id);

@@ -42,6 +42,7 @@
 #include "qwaylandnativeinterface.h"
 #include "qwaylanddisplay.h"
 #include "qwaylandwindow.h"
+#include "qwaylandextendedsurface.h"
 #include <QtGui/private/qguiapplication_p.h>
 #include <QtGui/QScreen>
 
@@ -75,31 +76,38 @@ QWaylandScreen * QWaylandNativeInterface::qPlatformScreenForWindow(QWindow *wind
 
 QVariantMap QWaylandNativeInterface::windowProperties(QPlatformWindow *window) const
 {
-    return m_windowProperties.value(window);
+    QWaylandWindow *waylandWindow = static_cast<QWaylandWindow *>(window);
+    if (QWaylandExtendedSurface *extendedWindow = waylandWindow->extendedWindow())
+        return extendedWindow->properties();
+    return QVariantMap();
 }
+
 
 QVariant QWaylandNativeInterface::windowProperty(QPlatformWindow *window, const QString &name) const
 {
-    const QVariantMap properties = m_windowProperties.value(window);
-    return properties.value(name);
+    QWaylandWindow *waylandWindow = static_cast<QWaylandWindow *>(window);
+    if (QWaylandExtendedSurface *extendedWindow = waylandWindow->extendedWindow())
+        return extendedWindow->property(name);
+    return QVariant();
 }
 
 QVariant QWaylandNativeInterface::windowProperty(QPlatformWindow *window, const QString &name, const QVariant &defaultValue) const
 {
-    const QVariantMap properties = m_windowProperties.value(window);
-    return properties.value(name, defaultValue);
+    QWaylandWindow *waylandWindow = static_cast<QWaylandWindow *>(window);
+    if (QWaylandExtendedSurface *extendedWindow = waylandWindow->extendedWindow()) {
+        return extendedWindow->property(name,defaultValue);
+    }
+    return defaultValue;
 }
 
 void QWaylandNativeInterface::setWindowProperty(QPlatformWindow *window, const QString &name, const QVariant &value)
 {
-    QVariantMap props = m_windowProperties.value(window);
-    props.insert(name, value);
-    m_windowProperties.insert(window, props);
-
     QWaylandWindow *wlWindow = static_cast<QWaylandWindow*>(window);
-#ifdef    QT_WAYLAND_WINDOWMANAGER_SUPPORT
-    QWaylandWindowManagerIntegration::instance()->setWindowProperty(wlWindow, name, value);
-#endif
+    if (QWaylandExtendedSurface *extendedWindow = wlWindow->extendedWindow())
+        extendedWindow->updateGenericProperty(name,value);
+}
 
-    emit windowPropertyChanged(window, name);
+void QWaylandNativeInterface::emitWindowPropertyChanged(QPlatformWindow *window, const QString &name)
+{
+    emit windowPropertyChanged(window,name);
 }

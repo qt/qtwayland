@@ -67,25 +67,10 @@ public:
     void mapSurfaceToProcess(struct wl_surface *surface, long long processId);
     void mapClientToProcess(long long processId);
     void authenticateWithToken(const QByteArray &token = QByteArray());
-    void setWindowProperty(QWaylandWindow *window, const QString &propertyName, const QVariant &propertyValue);
-
-    void flushPropertyChanges(QWaylandWindow *windowToFlush);
-
-private slots:
-    void removeQueuedPropertiesForWindow();
 
 private:
     static void wlHandleListenerGlobal(wl_display *display, uint32_t id,
                                        const char *interface, uint32_t version, void *data);
-
-    static void wlHandleOnScreenVisibilityChange(void *data, struct wl_windowmanager *wl_windowmanager, int visible);
-    static void wlHandleScreenOrientationChange(void *data, struct wl_windowmanager *wl_windowmanager,
-                                                struct wl_output *wl_output, int screenOrientation);
-    static void wlHandleWindowPropertyChange(void *data, struct wl_windowmanager *wl_windowmanager,
-                                             struct wl_surface *surface,
-                                             const char *propertyName, struct wl_array *propertyValue);
-
-    void handleWindowPropertyChange(QWaylandWindow *window, const QString &propertyName, const QVariant &propertyValue);
 
 private:
     QScopedPointer<QWaylandWindowManagerIntegrationPrivate> d_ptr;

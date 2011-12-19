@@ -72,15 +72,10 @@ public:
 
     WaylandManagedClient *managedClient(wl_client *client) const;
 
-    void setVisibilityOnScreen(wl_client *client, bool visible);
     void setScreenOrientation(wl_client *client, struct wl_resource *output_resource, Qt::ScreenOrientation orientationInDegrees);
-
-    void updateWindowProperty(wl_client *client, struct wl_surface *surface, const char *name, struct wl_array *value);
-    void setWindowProperty(wl_client *client, struct wl_surface *surface, const QString &name, const QVariant &value);
 
 signals:
     void clientAuthenticated(wl_client *client);
-    void windowPropertyChanged(wl_client *client, struct wl_surface *surface, const QString &name, const QVariant &value);
 
 private:
     void mapClientToProcess(wl_client *client, uint32_t processId);
@@ -99,10 +94,6 @@ private:
     static void authenticate_with_token(struct wl_client *client,
                                         struct wl_resource *windowMgrResource,
                                         const char *wl_authentication_token);
-    static void update_generic_property(struct wl_client *client,
-                                        struct wl_resource *windowMgrResource,
-                                        struct wl_resource *surfaceResource,
-                                        const char *name, struct wl_array *value);
     static const struct wl_windowmanager_interface windowmanager_interface;
 };
 

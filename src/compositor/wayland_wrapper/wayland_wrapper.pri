@@ -1,3 +1,8 @@
+WAYLANDSOURCES += \
+                $$PWD/../../../extensions/surface-extension/surface-extension.xml \
+                $$PWD/../../../extensions/output-extension/output-extension.xml
+
+
 HEADERS += \
     $$PWD/wlcompositor.h \
     $$PWD/wldisplay.h \
@@ -9,7 +14,9 @@ HEADERS += \
     $$PWD/wldatadevicemanager.h \
     $$PWD/wldatadevice.h \
     $$PWD/wldataoffer.h \
-    $$PWD/wldatasource.h
+    $$PWD/wldatasource.h \
+    $$PWD/wlextendedsurface.h \
+    $$PWD/wlextendedoutput.h
 
 SOURCES += \
     $$PWD/wlcompositor.cpp \
@@ -22,5 +29,7 @@ SOURCES += \
     $$PWD/wldatadevicemanager.cpp \
     $$PWD/wldatadevice.cpp \
     $$PWD/wldataoffer.cpp \
-    $$PWD/wldatasource.cpp
+    $$PWD/wldatasource.cpp \
+    $$PWD/wlextendedsurface.cpp \
+    $$PWD/wlextendedoutput.cpp
 

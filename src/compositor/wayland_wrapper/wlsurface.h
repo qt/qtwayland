@@ -63,6 +63,7 @@ namespace Wayland {
 
 class Compositor;
 class Buffer;
+class ExtendedSurface;
 
 class SurfacePrivate;
 
@@ -116,9 +117,10 @@ public:
     QVariant windowProperty(const QString &propertyName) const;
     void setWindowProperty(const QString &name, const QVariant &value, bool writeUpdateToClient = true);
 
-    void setSurfaceCreationFinished(bool isCreated);
-
     QPoint lastMousePos() const;
+
+    void setExtendedSurface(ExtendedSurface *extendedSurface);
+    ExtendedSurface *extendedSurface() const;
 
     static const struct wl_surface_interface surface_interface;
 protected:

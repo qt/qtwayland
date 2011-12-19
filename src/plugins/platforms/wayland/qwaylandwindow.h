@@ -50,6 +50,7 @@
 class QWaylandDisplay;
 class QWaylandBuffer;
 class QWaylandShellSurface;
+class QWaylandExtendedSurface;
 struct wl_egl_window;
 
 class QWaylandWindow : public QPlatformWindow
@@ -79,9 +80,13 @@ public:
     struct wl_surface *wl_surface() const { return mSurface; }
 
     QWaylandShellSurface *shellSurface() const;
+    QWaylandExtendedSurface *extendedWindow() const;
+
 protected:
     struct wl_surface *mSurface;
     QWaylandShellSurface *mShellSurface;
+    QWaylandExtendedSurface *mExtendedWindow;
+
     virtual void newSurfaceCreated();
     QWaylandDisplay *mDisplay;
     QWaylandBuffer *mBuffer;

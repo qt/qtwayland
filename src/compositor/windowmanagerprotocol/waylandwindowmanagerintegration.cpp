@@ -68,45 +68,6 @@ WaylandManagedClient *WindowManagerServerIntegration::managedClient(wl_client *c
     return m_managedClients.value(client, 0);
 }
 
-void WindowManagerServerIntegration::setVisibilityOnScreen(wl_client *client, bool visible)
-{
-    struct wl_resource *win_mgr_resource  = resourceForClient(client);
-    wl_resource_post_event(win_mgr_resource,WL_WINDOWMANAGER_CLIENT_ONSCREEN_VISIBILITY,visible);
-}
-
-void WindowManagerServerIntegration::setScreenOrientation(wl_client *client, wl_resource *output_resource, Qt::ScreenOrientation orientation)
-{
-    struct wl_resource *win_mgr_resource  = resourceForClient(client);
-    wl_resource_post_event(win_mgr_resource,WL_WINDOWMANAGER_SET_SCREEN_ROTATION,output_resource, qint32(orientation));
-}
-
-// client -> server
-void WindowManagerServerIntegration::updateWindowProperty(wl_client *client, wl_surface *surface, const char *name, struct wl_array *value)
-{
-    QVariant variantValue;
-    QByteArray byteValue((const char*)value->data, value->size);
-    QDataStream ds(&byteValue, QIODevice::ReadOnly);
-    ds >> variantValue;
-
-    emit windowPropertyChanged(client, surface, QString::fromLatin1(name), variantValue);
-}
-
-// server -> client
-void WindowManagerServerIntegration::setWindowProperty(wl_client *client, wl_surface *surface, const QString &name, const QVariant &value)
-{
-    QByteArray byteValue;
-    QDataStream ds(&byteValue, QIODevice::WriteOnly);
-    ds << value;
-    wl_array data;
-    data.size = byteValue.size();
-    data.data = (void*) byteValue.constData();
-    data.alloc = 0;
-
-    struct wl_resource *win_mgr_resource = resourceForClient(client);
-    wl_resource_post_event(win_mgr_resource,WL_WINDOWMANAGER_SET_GENERIC_PROPERTY,surface, name.toLatin1().constData(),&data);
-}
-
-
 void WindowManagerServerIntegration::mapClientToProcess(wl_client *client, uint32_t processId)
 {
     WaylandManagedClient *managedClient = m_managedClients.value(client, new WaylandManagedClient);
@@ -151,21 +112,9 @@ void WindowManagerServerIntegration::authenticate_with_token(struct wl_client *c
     window_mgr->authenticateWithToken(client,wl_authentication_token);
 }
 
-void WindowManagerServerIntegration::update_generic_property(struct wl_client *client,
-                                                             struct wl_resource *window_mgr_resource,
-                                                             wl_resource *surface_resource,
-                                                             const char *name,
-                                                             struct wl_array *value)
-{
-    WindowManagerServerIntegration *window_mgr = static_cast<WindowManagerServerIntegration *>(window_mgr_resource->data);
-    struct wl_surface *surface = static_cast<struct wl_surface *>(surface_resource->data);
-    window_mgr->updateWindowProperty(client,surface,name,value);
-}
-
 const struct wl_windowmanager_interface WindowManagerServerIntegration::windowmanager_interface = {
     WindowManagerServerIntegration::map_client_to_process,
     WindowManagerServerIntegration::authenticate_with_token,
-    WindowManagerServerIntegration::update_generic_property
 };
 
 

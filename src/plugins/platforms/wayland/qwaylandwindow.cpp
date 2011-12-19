@@ -63,9 +63,10 @@
 
 QWaylandWindow::QWaylandWindow(QWindow *window)
     : QPlatformWindow(window)
-    , mSurface(0)
-    , mShellSurface(0)
     , mDisplay(QWaylandScreen::waylandScreenFromWindow(window)->display())
+    , mSurface(mDisplay->createSurface(this))
+    , mShellSurface(mDisplay->shell()->createShellSurface(this))
+    , mExtendedWindow(0)
     , mBuffer(0)
     , mWaitingForFrameSync(false)
     , mFrameCallback(0)
@@ -73,10 +74,16 @@ QWaylandWindow::QWaylandWindow(QWindow *window)
     static WId id = 1;
     mWindowId = id++;
 
+    if (mDisplay->windowExtension())
+        mExtendedWindow = mDisplay->windowExtension()->getExtendedWindow(this);
+
 #ifdef QT_WAYLAND_WINDOWMANAGER_SUPPORT
-        mDisplay->windowManagerIntegration()->mapClientToProcess(qApp->applicationPid());
-        mDisplay->windowManagerIntegration()->authenticateWithToken();
+    mDisplay->windowManagerIntegration()->mapClientToProcess(qApp->applicationPid());
+    mDisplay->windowManagerIntegration()->authenticateWithToken();
 #endif
+
+    //all surfaces are toplevel surfaces for now
+    wl_shell_surface_set_toplevel(mShellSurface->handle());
 }
 
 QWaylandWindow::~QWaylandWindow()
@@ -105,22 +112,14 @@ void QWaylandWindow::setParent(const QPlatformWindow *parent)
 
 void QWaylandWindow::setVisible(bool visible)
 {
-    if (!mSurface && visible) {
-        mSurface = mDisplay->createSurface(this);
-        mShellSurface = mDisplay->shell()->createShellSurface(this);
-        if (mDisplay->windowExtension())
-            mExtendedWindow = mDisplay->windowExtension()->getExtendedWindow(this);
-        newSurfaceCreated();
-        wl_shell_surface_set_toplevel(mShellSurface->handle());
-    }
 
-    if (!visible) {
-        delete mShellSurface;
-        mShellSurface = 0;
-        delete mExtendedWindow;
-        mExtendedWindow = 0;
-        wl_surface_destroy(mSurface);
-        mSurface = NULL;
+    if (visible) {
+        if (mBuffer) {
+            wl_surface_attach(mSurface, mBuffer->buffer(),0,0);
+            QWindowSystemInterface::handleSynchronousExposeEvent(window(), QRect(QPoint(), geometry().size()));
+        }
+    } else {
+        wl_surface_attach(mSurface, 0,0,0);
     }
 }
 
@@ -140,9 +139,11 @@ void QWaylandWindow::configure(uint32_t time, uint32_t edges,
 void QWaylandWindow::attach(QWaylandBuffer *buffer)
 {
     mBuffer = buffer;
-    if (mSurface) {
-        wl_surface_attach(mSurface, buffer->buffer(),0,0);
-        QWindowSystemInterface::handleSynchronousExposeEvent(window(), QRect(QPoint(), geometry().size()));
+
+    if (window()->visible()) {
+        wl_surface_attach(mSurface, mBuffer->buffer(),0,0);
+        if (buffer)
+            QWindowSystemInterface::handleSynchronousExposeEvent(window(), QRect(QPoint(), geometry().size()));
     }
 }
 
@@ -158,19 +159,6 @@ void QWaylandWindow::damage(const QRect &rect)
 
     wl_surface_damage(mSurface,
                       rect.x(), rect.y(), rect.width(), rect.height());
-}
-
-void QWaylandWindow::newSurfaceCreated()
-{
-    if (mBuffer) {
-        wl_surface_attach(mSurface,mBuffer->buffer(),0,0);
-        // do not damage the surface here, as this leads to graphical corruptions in the compositor until
-        // the first frame has been rendered
-    }
-#ifdef QT_WAYLAND_WINDOWMANAGER_SUPPORT
-    //TODO: remove when we don't delay wl_surface creation
-//    QWaylandWindowManagerIntegration::instance()->flushPropertyChanges(this);
-#endif
 }
 
 const wl_callback_listener QWaylandWindow::callbackListener = {

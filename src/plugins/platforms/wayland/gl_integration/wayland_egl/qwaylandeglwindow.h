@@ -60,9 +60,6 @@ public:
 
     QSurfaceFormat format() const;
 
-protected:
-    void newSurfaceCreated();
-
 private:
     QWaylandEglIntegration *m_eglIntegration;
     struct wl_egl_window *m_waylandEglWindow;

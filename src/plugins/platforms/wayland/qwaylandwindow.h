@@ -83,12 +83,11 @@ public:
     QWaylandExtendedSurface *extendedWindow() const;
 
 protected:
+    QWaylandDisplay *mDisplay;
     struct wl_surface *mSurface;
     QWaylandShellSurface *mShellSurface;
     QWaylandExtendedSurface *mExtendedWindow;
 
-    virtual void newSurfaceCreated();
-    QWaylandDisplay *mDisplay;
     QWaylandBuffer *mBuffer;
     WId mWindowId;
     bool mWaitingForFrameSync;

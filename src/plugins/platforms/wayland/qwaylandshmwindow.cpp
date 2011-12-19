@@ -50,7 +50,6 @@
 QWaylandShmWindow::QWaylandShmWindow(QWindow *window)
     : QWaylandWindow(window)
 {
-    newSurfaceCreated();
 }
 
 QWaylandShmWindow::~QWaylandShmWindow()

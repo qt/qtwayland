@@ -55,15 +55,12 @@
 
 QWaylandEglWindow::QWaylandEglWindow(QWindow *window)
     : QWaylandWindow(window)
-    , m_waylandEglWindow(0)
+    , m_eglIntegration(static_cast<QWaylandEglIntegration *>(mDisplay->eglIntegration()))
+    , m_waylandEglWindow(wl_egl_window_create(mSurface,window->width(),window->height()))
     , m_eglSurface(0)
     , m_eglConfig(0)
     , m_format(window->format())
 {
-    m_eglIntegration = static_cast<QWaylandEglIntegration *>(mDisplay->eglIntegration());
-
-    //super creates a new surface
-    newSurfaceCreated();
 }
 
 QWaylandEglWindow::~QWaylandEglWindow()
@@ -71,6 +68,10 @@ QWaylandEglWindow::~QWaylandEglWindow()
     if (m_eglSurface) {
         eglDestroySurface(m_eglIntegration->eglDisplay(), m_eglSurface);
         m_eglSurface = 0;
+    }
+
+    if (m_waylandEglWindow) {
+        wl_egl_window_destroy(m_waylandEglWindow);
     }
 }
 
@@ -88,28 +89,6 @@ void QWaylandEglWindow::setGeometry(const QRect &rect)
     }
 }
 
-void QWaylandEglWindow::newSurfaceCreated()
-{
-    if (m_waylandEglWindow)
-        wl_egl_window_destroy(m_waylandEglWindow);
-
-    QSize size = geometry().size();
-    if (!size.isValid())
-        size = QSize(0,0);
-
-    if (m_eglSurface) {
-        eglDestroySurface(m_eglIntegration->eglDisplay(), m_eglSurface);
-        m_eglSurface = 0;
-    }
-
-    m_waylandEglWindow = wl_egl_window_create(mSurface, size.width(), size.height());
-
-#ifdef QT_WAYLAND_WINDOWMANAGER_SUPPORT
-    //remove when we don't delay wl_surface creation
-//    QWaylandWindowManagerIntegration::instance()->flushPropertyChanges(this);
-#endif
-}
-
 QSurfaceFormat QWaylandEglWindow::format() const
 {
     return m_format;
@@ -121,8 +100,8 @@ EGLSurface QWaylandEglWindow::eglSurface() const
         return 0;
 
     if (!m_eglSurface) {
-        if (!m_eglConfig)
-            m_eglConfig = q_configFromGLFormat(m_eglIntegration->eglDisplay(), window()->format(), true);
+        m_eglConfig = q_configFromGLFormat(m_eglIntegration->eglDisplay(), window()->format(), true);
+        const_cast<QWaylandEglWindow *>(this)->m_format = q_glFormatFromConfig(m_eglIntegration->eglDisplay(),m_eglConfig);
 
         EGLNativeWindowType window = m_waylandEglWindow;
         m_eglSurface = eglCreateWindowSurface(m_eglIntegration->eglDisplay(), m_eglConfig, window, 0);

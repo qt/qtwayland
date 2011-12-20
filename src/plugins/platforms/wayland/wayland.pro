@@ -13,7 +13,7 @@ mac {
     DEFINES += QT_NO_WAYLAND_XKB
 }
 
-QT += core-private gui-private opengl-private platformsupport-private
+QT += core-private gui-private platformsupport-private
 
 WAYLANDSOURCES += \
             $$PWD/../../../../extensions/surface-extension/surface-extension.xml \

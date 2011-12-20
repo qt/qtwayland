@@ -1,6 +1,5 @@
 contains(QT_CONFIG, opengl) {
     DEFINES += QT_WAYLAND_GL_SUPPORT
-    QT += opengl
 
 HEADERS += \
     $$PWD/qwaylandglintegration.h

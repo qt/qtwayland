@@ -72,13 +72,14 @@ private:
 class ExtendedOutput
 {
 public:
-    ExtendedOutput(struct wl_client *client, uint32_t id, Output *output);
+    ExtendedOutput(struct wl_client *client, uint32_t id, Output *output, Compositor *compositor);
 
     void sendOutputOrientation(Qt::ScreenOrientation orientation);
 
 private:
     struct wl_resource *m_extended_output_resource;
     Output *m_output;
+    Compositor *m_compositor;
 
 };
 

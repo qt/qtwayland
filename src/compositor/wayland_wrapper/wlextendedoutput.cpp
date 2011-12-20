@@ -62,21 +62,23 @@ void OutputExtensionGlobal::bind_func(wl_client *client, void *data, uint32_t ve
 
 void OutputExtensionGlobal::get_extended_output(wl_client *client, wl_resource *output_extension_resource, uint32_t id, wl_resource *output_resource)
 {
-    Q_UNUSED(output_extension_resource);
+    OutputExtensionGlobal *output_extension = static_cast<OutputExtensionGlobal *>(output_extension_resource->data);
     Output *output = static_cast<Output *>(output_resource->data);
-    new ExtendedOutput(client,id,output);
+    new ExtendedOutput(client,id,output,output_extension->m_compositor);
 }
 
 const struct wl_output_extension_interface OutputExtensionGlobal::output_extension_interface = {
     OutputExtensionGlobal::get_extended_output
 };
 
-ExtendedOutput::ExtendedOutput(struct wl_client *client, uint32_t id, Output *output)
+ExtendedOutput::ExtendedOutput(struct wl_client *client, uint32_t id, Output *output, Compositor *compositor)
     : m_output(output)
+    , m_compositor(compositor)
 {
     Q_ASSERT(m_output->extendedOutput() == 0);
     m_output->setExtendedOutput(this);
     m_extended_output_resource = wl_client_add_object(client,&wl_extended_output_interface,0,id,this);
+    sendOutputOrientation(m_compositor->screenOrientation());
 }
 
 void ExtendedOutput::sendOutputOrientation(Qt::ScreenOrientation orientation)

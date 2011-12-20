@@ -192,11 +192,6 @@ void Compositor::createSurface(struct wl_client *client, int id)
 
     //this is not how we want to solve this.
     if (!prevClientList.contains(client)) {
-        Output *output = m_output_global.outputForClient(client);
-        Q_ASSERT(output);
-        if (output->extendedOutput()) {
-            output->extendedOutput()->sendOutputOrientation(m_orientation);
-        }
         emit clientAdded(client);
     }
 
@@ -380,6 +375,11 @@ void Compositor::setScreenOrientation(Qt::ScreenOrientation orientation)
             output->extendedOutput()->sendOutputOrientation(orientation);
         }
     }
+}
+
+Qt::ScreenOrientation Compositor::screenOrientation() const
+{
+    return m_orientation;
 }
 
 void Compositor::setOutputGeometry(const QRect &geometry)

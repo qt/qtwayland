@@ -116,6 +116,7 @@ public:
     WindowManagerServerIntegration *windowManagerIntegration() const { return m_windowManagerIntegration; }
 
     void setScreenOrientation(Qt::ScreenOrientation orientation);
+    Qt::ScreenOrientation screenOrientation() const;
     void setOutputGeometry(const QRect &geometry);
 
     bool isDragging() const;

@@ -75,14 +75,6 @@ namespace Wayland {
 
 static Compositor *compositor;
 
-static void shmBufferDestroyed(ShmBuffer *buf)
-{
-//    if (currentCursor == buf) {
-//        compositor->qtCompositor()->changeCursor(QImage(), 0, 0);
-//        currentCursor = 0;
-//    }
-}
-
 void destroy_surface(struct wl_resource *resource)
 {
     Surface *surface = wayland_cast<Surface *>((wl_surface *)resource);
@@ -131,7 +123,6 @@ Compositor::Compositor(WaylandCompositor *qt_compositor)
 {
     compositor = this;
     qDebug() << "Compositor instance is" << this;
-    m_shm.addDestroyCallback(shmBufferDestroyed);
 
 #if defined (QT_COMPOSITOR_WAYLAND_GL)
     QWindow *window = qt_compositor->window();
@@ -142,9 +133,10 @@ Compositor::Compositor(WaylandCompositor *qt_compositor)
 
     wl_display_add_global(m_display->handle(),&wl_compositor_interface,this,Compositor::bind_func);
 
+    m_data_device_manager =  new DataDeviceManager(this);
+
     m_input = new InputDevice(this);
 
-    m_data_device_manager =  new DataDeviceManager(this);
     wl_display_add_global(m_display->handle(),&wl_output_interface, &m_output_global,OutputGlobal::output_bind_func);
 
     wl_display_add_global(m_display->handle(), &wl_shell_interface, &m_shell, Shell::bind_func);

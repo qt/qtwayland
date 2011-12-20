@@ -116,15 +116,17 @@ void InputDevice::input_device_attach(struct wl_client *client,
     Q_UNUSED(client);
     Q_UNUSED(time);
 
-    struct wl_input_device *device_base = reinterpret_cast<struct wl_input_device *>(device_resource);
+    struct wl_input_device *device_base = reinterpret_cast<struct wl_input_device *>(device_resource->data);
     struct wl_buffer *buffer = reinterpret_cast<struct wl_buffer *>(buffer_resource);
     qDebug() << "Client input device attach" << client << buffer << x << y;
 
     InputDevice *inputDevice = wayland_cast<InputDevice *>(device_base);
-    ShmBuffer *shmBuffer = static_cast<ShmBuffer *>(buffer->user_data);
-    if (shmBuffer) {
-        inputDevice->m_compositor->qtCompositor()->changeCursor(shmBuffer->image(), x, y);
-        currentCursor = shmBuffer;
+    if (wl_buffer_is_shm(buffer)) {
+        ShmBuffer *shmBuffer = static_cast<ShmBuffer *>(buffer->user_data);
+        if (shmBuffer) {
+            inputDevice->m_compositor->qtCompositor()->changeCursor(shmBuffer->image(), x, y);
+            currentCursor = shmBuffer;
+        }
     }
 }
 

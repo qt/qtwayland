@@ -66,6 +66,14 @@
 
 namespace Wayland {
 
+struct surface_buffer_destroy_listener
+{
+    struct wl_listener listener;
+    struct wl_buffer *buffer;
+    class SurfacePrivate *surfacePrivate;
+    struct wl_list link;
+};
+
 const struct wl_surface_interface Surface::surface_interface = {
         Surface::surface_destroy,
         Surface::surface_attach,
@@ -83,7 +91,6 @@ public:
         , directRenderBuffer(0)
         , processId(0)
         , previousBuffer(0)
-        , frame_callback(0)
         , surfaceBuffer(0)
         , surfaceType(WaylandSurface::Invalid)
         , extendedSurface(0)
@@ -93,6 +100,66 @@ public:
 #ifdef QT_COMPOSITOR_WAYLAND_GL
         texture_id = 0;
 #endif
+        wl_list_init(&frame_callback_list);
+        wl_list_init(&buffer_destroy_listener_list);
+    }
+
+    static void destroy_listener_callback(struct wl_listener *listener,
+             struct wl_resource *resource, uint32_t time)
+    {
+        Q_UNUSED(resource);
+        Q_UNUSED(time);
+        struct surface_buffer_destroy_listener *destroy_listener =
+                reinterpret_cast<struct surface_buffer_destroy_listener *>(listener);
+        SurfacePrivate *d = destroy_listener->surfacePrivate;
+        if (d->surfaceBuffer == destroy_listener->buffer) {
+            d->surfaceBuffer = 0;
+            d->surfaceType = WaylandSurface::Invalid;
+#ifdef QT_COMPOSITOR_WAYLAND_GL
+            if (d->textureCreatedForBuffer) {
+                glDeleteTextures(1,&d->texture_id);
+                d->textureCreatedForBuffer = false;
+                d->texture_id = 0;
+            }
+#endif
+        }
+        if (d->directRenderBuffer == destroy_listener->buffer) {
+            d->directRenderBuffer = 0;
+        }
+        if (d->previousBuffer == destroy_listener->buffer) {
+            d->previousBuffer = 0;
+        }
+        d->removeFromBufferDestroyListenerList(destroy_listener->buffer);
+        delete destroy_listener;
+    }
+
+    void addToBufferDestoryListenerList(struct wl_buffer *buffer)
+    {
+        struct surface_buffer_destroy_listener *destroy_listener;
+        wl_list_for_each(destroy_listener,&buffer_destroy_listener_list,link) {
+            if (destroy_listener->buffer == buffer)
+                return;
+        }
+        destroy_listener = new struct surface_buffer_destroy_listener;
+        destroy_listener->buffer = buffer;
+        destroy_listener->surfacePrivate = this;
+        destroy_listener->listener.func = destroy_listener_callback;
+        wl_list_insert(&buffer->resource.destroy_listener_list,&destroy_listener->listener.link);
+        wl_list_insert(&buffer_destroy_listener_list,&destroy_listener->link);
+
+    }
+
+    void removeFromBufferDestroyListenerList(struct wl_buffer *buffer)
+    {
+        struct surface_buffer_destroy_listener *destroy_listener;
+        wl_list_for_each(destroy_listener, &buffer_destroy_listener_list, link) {
+            if (destroy_listener->buffer == buffer)
+                break;
+        }
+        if (destroy_listener) {
+            qDebug() << "removing listener";
+            wl_list_remove(&destroy_listener->link);
+        }
     }
 
     WaylandSurface::Type type() const {
@@ -110,9 +177,12 @@ public:
     }
 
     void attach(struct wl_buffer *buffer) {
+        addToBufferDestoryListenerList(buffer);
         bool emitMap = !surfaceBuffer;
+
         if (surfaceBuffer && ! textureCreatedForBuffer && surfaceBuffer != directRenderBuffer) {
             qWarning() << "### WaylandSurface::attach() releasing undisplayed buffer ###";
+            removeFromBufferDestroyListenerList(surfaceBuffer);
             wl_resource_post_event(&surfaceBuffer->resource, WL_BUFFER_RELEASE);
         }
         surfaceBuffer = buffer;
@@ -127,8 +197,6 @@ public:
 
     static void destroy_frame_callback(struct wl_resource *resource)
     {
-        if (resource->data)
-            static_cast<SurfacePrivate *>(resource->data)->frame_callback = 0;
         delete resource;
     }
 
@@ -148,7 +216,9 @@ public:
     QPoint lastMousePos;
 
     struct wl_buffer *previousBuffer;
-    struct wl_resource *frame_callback;
+    struct wl_list frame_callback_list;
+    struct wl_list buffer_destroy_listener_list;
+
     ExtendedSurface *extendedSurface;
 private:
     struct wl_buffer *surfaceBuffer;
@@ -183,14 +253,8 @@ void Surface::surface_frame(struct wl_client *client,
 {
     Surface *surface = reinterpret_cast<Surface *>(resource);
     SurfacePrivate *d = surface->d_func();
-    d->frame_callback = new struct wl_resource;
-    d->frame_callback->client = client;
-    d->frame_callback->object.interface = &wl_callback_interface;
-    d->frame_callback->object.id = callback;
-    d->frame_callback->data = d;
-    d->frame_callback->destroy = SurfacePrivate::destroy_frame_callback;
-
-    wl_client_add_resource(client, d->frame_callback);
+    struct wl_resource *frame_callback = wl_client_add_object(client,&wl_callback_interface,0,callback,d);
+    wl_list_insert(&d->frame_callback_list,&frame_callback->link);
 }
 
 Surface::Surface(struct wl_client *client, Compositor *compositor)
@@ -251,6 +315,7 @@ void Surface::damage(const QRect &rect)
         }
         if (d->previousBuffer) { //previousBuffer means previous buffer turned into texture
             wl_resource_post_event(&d->previousBuffer->resource,WL_BUFFER_RELEASE);
+            d->removeFromBufferDestroyListenerList(d->previousBuffer);
             d->previousBuffer = 0;
         }
         if (d->compositor->graphicsHWIntegration()->postBuffer(d->buffer())) {
@@ -269,7 +334,7 @@ void Surface::damage(const QRect &rect)
 QImage Surface::image() const
 {
     Q_D(const Surface);
-    if (d->type() == WaylandSurface::Shm) {
+    if (d->type() == WaylandSurface::Shm && d->buffer()) {
         ShmBuffer *shmBuffer = static_cast<ShmBuffer *>(d->buffer()->user_data);
         return shmBuffer->image();
     }
@@ -286,6 +351,7 @@ GLuint Surface::textureId(QOpenGLContext *context) const
             glDeleteTextures(1,&d->texture_id);
         if (d->previousBuffer) {
             wl_resource_post_event(&d->previousBuffer->resource,WL_BUFFER_RELEASE);
+            const_cast<Surface *>(this)->d_func()->removeFromBufferDestroyListenerList(d->previousBuffer);
         }
         Surface *that = const_cast<Surface *>(this);
         GraphicsHardwareIntegration *hwIntegration = d->compositor->graphicsHWIntegration();
@@ -498,10 +564,14 @@ void Surface::sendTouchCancelEvent()
 void Surface::sendFrameCallback()
 {
     Q_D(Surface);
-    if (d->frame_callback) {
-        wl_resource_post_event(d->frame_callback,WL_CALLBACK_DONE,Compositor::currentTimeMsecs());
-        wl_resource_destroy(d->frame_callback,Compositor::currentTimeMsecs());
+    uint time = Compositor::currentTimeMsecs();
+    struct wl_resource *frame_callback;
+    wl_list_for_each(frame_callback, &d->frame_callback_list, link) {
+        wl_resource_post_event(frame_callback,WL_CALLBACK_DONE,time);
+        wl_resource_destroy(frame_callback,Compositor::currentTimeMsecs());
     }
+
+    wl_list_init(&d->frame_callback_list);
 }
 
 void Surface::frameFinished()

@@ -77,10 +77,9 @@ public:
     WaylandSurface::Type type() const;
     bool isYInverted() const;
 
-    uint id() const { return base()->resource.object.id; }
-    void attach(struct wl_resource *buffer);
+    bool visible() const;
 
-    void damage(const QRect &rect);
+    uint id() const { return base()->resource.object.id; }
 
     QImage image() const;
 
@@ -127,6 +126,9 @@ protected:
     QScopedPointer<SurfacePrivate> d_ptr;
 private:
     Q_DISABLE_COPY(Surface)
+    void attach(struct wl_buffer *buffer);
+    void damage(const QRect &rect);
+
     static void surface_destroy(struct wl_client *client, struct wl_resource *_surface);
     static void surface_attach(struct wl_client *client, struct wl_resource *surface,
                         struct wl_resource *buffer, int x, int y);

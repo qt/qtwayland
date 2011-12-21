@@ -76,6 +76,8 @@ public:
     Type type() const;
     bool isYInverted() const;
 
+    bool visible() const;
+
     void setGeometry(const QRect &geometry);
     QRect geometry() const;
 
@@ -110,6 +112,7 @@ public:
 
 signals:
     void mapped(const QSize &size);
+    void unmapped();
     void damaged(const QRect &rect);
     void windowPropertyChanged(const QString &name, const QVariant &value);
 

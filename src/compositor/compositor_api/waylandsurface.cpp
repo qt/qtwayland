@@ -33,6 +33,12 @@ bool WaylandSurface::isYInverted() const
     return d->surface->isYInverted();
 }
 
+bool WaylandSurface::visible() const
+{
+    Q_D(const WaylandSurface);
+    return d->surface->visible();
+}
+
 QRect WaylandSurface::geometry() const
 {
     Q_D(const WaylandSurface);

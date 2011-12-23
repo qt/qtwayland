@@ -259,6 +259,7 @@ void Compositor::processWaylandEvents()
 void Compositor::surfaceDestroyed(Surface *surface)
 {
     m_surfaces.removeOne(surface);
+    m_dirty_surfaces.remove(surface);
     if (m_keyFocusSurface == surface)
         setKeyFocus(0);
     if (m_pointerFocusSurface == surface)

@@ -218,6 +218,8 @@ void WaylandSurfaceItem::setPaintEnabled(bool enabled)
 
 QSGNode *WaylandSurfaceItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *)
 {
+    if (!m_surface)
+        return 0;
     QSGSimpleTextureNode *node = static_cast<QSGSimpleTextureNode *>(oldNode);
 
     if (m_damaged) {

@@ -406,8 +406,8 @@ void Surface::attach(struct wl_buffer *buffer)
                 break;
             }
         }
+        Q_ASSERT(newBuffer);
     }
-    Q_ASSERT(newBuffer);
 
     bool emitMap = !d->surfaceBuffer && buffer;
     bool emitUnmap = d->surfaceBuffer && !buffer;

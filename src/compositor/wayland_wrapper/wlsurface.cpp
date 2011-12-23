@@ -413,14 +413,11 @@ void Surface::attach(struct wl_buffer *buffer)
     bool emitUnmap = d->surfaceBuffer && !buffer;
 
     if (d->surfaceBuffer && d->surfaceBuffer != d->directRenderBuffer) {
-        qDebug() << "### WaylandSurface::attach() releasing undisplayed buffer ###";
         if (d->textureBuffer == d->surfaceBuffer)
             d->textureBuffer = 0;
         d->surfaceBuffer->destructBufferState();
         d->surfaceBuffer = 0;
     }
-    if (d->surfaceBuffer)
-        qDebug() << "Still a surfacebuffer!";
     d->surfaceBuffer = newBuffer;
     if (emitMap) {
         d->qtSurface->mapped(QSize(d->surfaceBuffer->width(),d->surfaceBuffer->height()));

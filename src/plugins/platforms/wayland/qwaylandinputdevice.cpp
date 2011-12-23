@@ -381,6 +381,7 @@ void QWaylandInputDevice::inputHandleKeyboardFocus(void *data,
 void QWaylandInputDevice::inputHandleTouchDown(void *data,
                                                struct wl_input_device *wl_input_device,
                                                uint32_t time,
+                                               struct wl_surface *surface,
                                                int id,
                                                int x,
                                                int y)
@@ -388,6 +389,7 @@ void QWaylandInputDevice::inputHandleTouchDown(void *data,
     Q_UNUSED(wl_input_device);
     Q_UNUSED(time);
     QWaylandInputDevice *inputDevice = (QWaylandInputDevice *) data;
+    inputDevice->mTouchFocus = static_cast<QWaylandWindow *>(wl_surface_get_user_data(surface));
     inputDevice->handleTouchPoint(id, x, y, Qt::TouchPointPressed);
 }
 
@@ -399,6 +401,7 @@ void QWaylandInputDevice::inputHandleTouchUp(void *data,
     Q_UNUSED(wl_input_device);
     Q_UNUSED(time);
     QWaylandInputDevice *inputDevice = (QWaylandInputDevice *) data;
+    inputDevice->mTouchFocus = 0;
     inputDevice->handleTouchPoint(id, 0, 0, Qt::TouchPointReleased);
 }
 
@@ -432,11 +435,16 @@ void QWaylandInputDevice::handleTouchPoint(int id, int x, int y, Qt::TouchPointS
     if (!coordsOk) {
         // x and y are surface relative.
         // We need a global (screen) position.
-        QWaylandWindow *win = mPointerFocus;
+        QWaylandWindow *win = mTouchFocus;
+
+        //is it possible that mTouchFocus is null;
+        if (!win)
+            win = mPointerFocus;
         if (!win)
             win = mKeyboardFocus;
         if (!win || !win->window())
             return;
+
         tp.area = QRectF(0, 0, 8, 8);
         tp.area.moveCenter(win->window()->mapToGlobal(QPoint(x, y)));
     }

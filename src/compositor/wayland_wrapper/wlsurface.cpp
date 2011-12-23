@@ -589,7 +589,7 @@ void Surface::sendTouchPointEvent(int id, int x, int y, Qt::TouchPointState stat
     struct wl_resource *resource = d->compositor->defaultInputDevice()->base()->pointer_focus_resource;
     switch (state) {
     case Qt::TouchPointPressed:
-        wl_resource_post_event(resource, WL_INPUT_DEVICE_TOUCH_DOWN, time, id, x, y);
+        wl_resource_post_event(resource, WL_INPUT_DEVICE_TOUCH_DOWN, time, this, id, x, y);
         break;
     case Qt::TouchPointMoved:
         wl_resource_post_event(resource, WL_INPUT_DEVICE_TOUCH_MOTION, time, id, x, y);

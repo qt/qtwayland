@@ -75,6 +75,7 @@ private:
     struct wl_data_device *mTransferDevice;
     QWaylandWindow *mPointerFocus;
     QWaylandWindow *mKeyboardFocus;
+    QWaylandWindow *mTouchFocus;
     static const struct wl_input_device_listener inputDeviceListener;
     Qt::MouseButtons mButtons;
     QPoint mSurfacePos;
@@ -106,6 +107,7 @@ private:
     static void inputHandleTouchDown(void *data,
                                      struct wl_input_device *wl_input_device,
                                      uint32_t time,
+                                     struct wl_surface *surface,
                                      int id,
                                      int x,
                                      int y);

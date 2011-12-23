@@ -18,8 +18,8 @@ DEFINES += QT_BUILD_COMPOSITOR_LIB
         }
     }
 } else {
-    INCLUDEPATH += $$PWD/../3rdparty/wayland
-    LIBS += -L$$PWD/../../lib
+    INCLUDEPATH += $$QMAKE_INCDIR_WAYLAND
+    LIBS += -L$$QMAKE_LIBDIR_WAYLAND
     LIBS += -lwayland-server -lffi
 }
 

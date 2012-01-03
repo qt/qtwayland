@@ -317,8 +317,7 @@ bool Surface::isYInverted() const
         }
     }
 #endif
-    //shm surfaces are not flipped (in our "world")
-    return false;
+    return true;
 }
 
 bool Surface::visible() const

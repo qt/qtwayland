@@ -172,12 +172,13 @@ Compositor::~Compositor()
 void Compositor::frameFinished(Surface *surface)
 {
     if (surface && m_dirty_surfaces.contains(surface)) {
+        m_dirty_surfaces.remove(surface);
         surface->sendFrameCallback();
-	m_dirty_surfaces.remove(surface);
     } else if (!surface) {
-	foreach (Surface *surface, m_dirty_surfaces)
+        QSet<Surface *> dirty = m_dirty_surfaces;
+        m_dirty_surfaces.clear();
+        foreach (Surface *surface, dirty)
             surface->sendFrameCallback();
-	m_dirty_surfaces.clear();
     }
 }
 

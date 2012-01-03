@@ -47,7 +47,7 @@
 
 #include <QDebug>
 
-#ifdef QT_COMPOSITOR_DECLARATIVE
+#ifdef QT_COMPOSITOR_QUICK
 #include "waylandsurfaceitem.h"
 #endif
 
@@ -63,7 +63,7 @@ WaylandCompositor::WaylandCompositor(QWindow *window, const char *socketName)
         m_socket_name = arguments.at(socketArg + 1).toLocal8Bit();
 
     m_compositor = new Wayland::Compositor(this);
-#ifdef QT_COMPOSITOR_DECLARATIVE
+#ifdef QT_COMPOSITOR_QUICK
     qmlRegisterType<WaylandSurfaceItem>("WaylandCompositor", 1, 0, "WaylandSurfaceItem");
     qRegisterMetaType<WaylandSurface*>("WaylandSurface*");
 #endif

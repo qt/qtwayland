@@ -16,8 +16,8 @@ mac {
 QT += core-private gui-private platformsupport-private
 
 WAYLANDSOURCES += \
-            $$PWD/../../../../extensions/surface-extension/surface-extension.xml \
-            $$PWD/../../../../extensions/output-extension/output-extension.xml
+            $$PWD/../../../../extensions/surface-extension.xml \
+            $$PWD/../../../../extensions/output-extension.xml
 
 SOURCES =   main.cpp \
             qwaylandintegration.cpp \

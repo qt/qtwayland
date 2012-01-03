@@ -1,6 +1,6 @@
 WAYLANDSOURCES += \
-                $$PWD/../../../extensions/surface-extension/surface-extension.xml \
-                $$PWD/../../../extensions/output-extension/output-extension.xml
+                $$PWD/../../../extensions/surface-extension.xml \
+                $$PWD/../../../extensions/output-extension.xml
 
 
 HEADERS += \

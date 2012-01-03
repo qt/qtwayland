@@ -144,6 +144,13 @@ bool QWindowCompositor::eventFilter(QObject *obj, QEvent *event)
         }
         break;
     }
+    case QEvent::MouseMove: {
+        QMouseEvent *me = static_cast<QMouseEvent *>(event);
+        QPoint local;
+        WaylandSurface *targetSurface = surfaceAt(me->pos(), &local);
+        if (targetSurface)
+            targetSurface->sendMouseMoveEvent(local);
+    }
     case QEvent::KeyPress: {
         QKeyEvent *ke = static_cast<QKeyEvent *>(event);
         WaylandSurface *targetSurface = inputFocus();

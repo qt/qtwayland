@@ -1,0 +1,7 @@
+.*.callgrind.out.*
+Makefile*
+*.pro.user*
+*.qmlproject.user*
+.*.swp
+src/compositor/qtcompositorversion.h
+

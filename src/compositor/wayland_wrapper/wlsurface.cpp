@@ -83,6 +83,7 @@ public:
         : m_buffer(0)
         , m_is_released_sent(false)
         , m_is_registered_for_buffer(false)
+        , m_is_posted(false)
         , m_texture(0)
     {
     }
@@ -99,6 +100,7 @@ public:
         m_texture = 0;
         m_is_released_sent = false;
         m_is_registered_for_buffer = true;
+        m_is_posted = false;
         m_destroy_listener.surfaceBuffer = this;
         m_destroy_listener.listener.func = destroy_listener_callback;
         wl_list_insert(&buffer->resource.destroy_listener_list,&m_destroy_listener.listener.link);
@@ -114,8 +116,8 @@ public:
         }
         m_buffer = 0;
         m_is_registered_for_buffer = false;
+        m_is_posted = 0;
     }
-
 
     inline int32_t width() const { return m_buffer->width; }
     inline int32_t height() const { return m_buffer->height; }
@@ -135,11 +137,20 @@ public:
         m_is_released_sent = true;
     }
 
-    inline bool isDisplayed() const {return textureCreated(); }    //############ SHM #########
+    void setPosted() {
+        m_is_posted = true;
+         if (m_buffer) {
+            wl_list_remove(&m_destroy_listener.listener.link);
+         }
+         m_buffer = 0;
+    }
+
+    inline bool isPosted() const { return m_is_posted; }
+    inline bool isDisplayed() const { return m_texture || m_is_posted; }
 
     inline QRect damageRect() const { return m_damageRect; }
 
-    inline void damage(const QRect &rect) { m_damageRect = rect; }
+    inline void setDamage(const QRect &rect) { m_damageRect = rect; }
 
     inline bool textureCreated() const
     {
@@ -175,6 +186,7 @@ private:
     QRect m_damageRect;
     bool m_is_released_sent;
     bool m_is_registered_for_buffer;
+    bool m_is_posted;
 
 #ifdef QT_COMPOSITOR_WAYLAND_GL
     GLuint m_texture;
@@ -229,13 +241,29 @@ public:
         delete resource;
     }
 
-    void markDirty(const QRect &rect) {
-        compositor->markSurfaceAsDirty(q_ptr);
-        emit qtSurface->damaged(rect);
+    void doUpdate(const QRect &rect) {
+        if (postBuffer()) {
+            surfaceBuffer->setPosted();  // disown buffer....
+            if (textureBuffer) {
+                textureBuffer->destructBufferState();
+                textureBuffer = 0;
+            }
+            if (!bufferQueue.isEmpty()) {
+                qDebug() << "++++++++++++++++++++++++++++++++++++++++ recursive damage :-)";
+                newCurrentBuffer();
+                doUpdate(rect);
+            }
+        } else {
+            compositor->markSurfaceAsDirty(q_ptr);
+            emit qtSurface->damaged(rect);
+        }
     }
 
     void newCurrentBuffer() {
-        //#### release SHM buffer....
+        //TODO release SHM buffer....
+        if (surfaceBuffer && surfaceBuffer->isPosted())
+            surfaceBuffer->destructBufferState();
+
         surfaceBuffer = bufferQueue.takeFirst();
 
 
@@ -250,7 +278,7 @@ public:
 
         frameFinishedTooEarly = false;
         if (surfaceBuffer &&  (!subSurface || !subSurface->parent()) && !surfaceMapped) {
-            emit qtSurface->mapped(QSize(surfaceBuffer->width(),surfaceBuffer->height()));
+            emit qtSurface->mapped();
             surfaceMapped = true;
         } else if (!surfaceBuffer && surfaceMapped) {
             emit qtSurface->unmapped();
@@ -279,11 +307,25 @@ public:
             if (!surfaceBuffer || surfaceBuffer->isDisplayed()) {
                 newCurrentBuffer();
                 if (surfaceBuffer)
-                    markDirty(surfaceBuffer->damageRect());
+                    doUpdate(surfaceBuffer->damageRect());
             } else {
                 frameFinishedTooEarly = true;
             }
         }
+    }
+
+    bool postBuffer() {
+#ifdef QT_COMPOSITOR_WAYLAND_GL
+        if (compositor->graphicsHWIntegration() && qtSurface->handle() == compositor->directRenderSurface()) {
+//            qDebug() << "posting...." << bufferQueue;
+            if (surfaceBuffer && surfaceBuffer->handle() && compositor->graphicsHWIntegration()->postBuffer(surfaceBuffer->handle())) {
+                return true;
+            } else {
+                qDebug() << "could not post buffer";
+            }
+        }
+#endif
+        return false;
     }
 
     struct wl_client *client;
@@ -407,11 +449,11 @@ void Surface::damage(const QRect &rect)
 // TODO direct render case...
 
     if (d->bufferQueue.isEmpty()) {
-        d->markDirty(rect);
+        d->doUpdate(rect);
     } else {
         SurfaceBuffer *b = d->bufferQueue.last();
         if (b)
-            b->damage(rect);
+            b->setDamage(rect);
         else
             qWarning() << "Surface::damage() null buffer";
     }

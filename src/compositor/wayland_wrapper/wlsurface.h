@@ -84,8 +84,11 @@ public:
 
     QImage image() const;
 
-    QRect geometry() const;
-    void setGeometry(const QRect &rect);
+    QPointF pos() const;
+    void setPos(const QPointF  &pos);
+
+    QSize size() const;
+    void setSize(const QSize &size);
 
 #ifdef QT_COMPOSITOR_WAYLAND_GL
     GLuint textureId(QOpenGLContext *context) const;

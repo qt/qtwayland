@@ -104,7 +104,8 @@ private slots:
     void surfaceDestroyed(QObject *object);
     void surfaceDamaged(const QRect &);
     void parentChanged(WaylandSurface *newParent, WaylandSurface *oldParent);
-    void updateGeometry();
+    void updateSize();
+    void updatePosition();
 
 signals:
     void textureChanged();

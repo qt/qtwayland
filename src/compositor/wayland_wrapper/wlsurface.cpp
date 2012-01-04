@@ -243,7 +243,8 @@ public:
 
     SurfaceBuffer bufferPool[buffer_pool_size];
 
-    QRect geometry;
+    QPointF position;
+    QSize size;
 private:
     Surface *q_ptr;
 };
@@ -377,21 +378,34 @@ QImage Surface::image() const
     return QImage();
 }
 
-QRect Surface::geometry() const
+QPointF Surface::pos() const
 {
     Q_D(const Surface);
-    return d->geometry;
+    return d->position;
 }
 
-void Surface::setGeometry(const QRect &rect)
+void Surface::setPos(const QPointF &pos)
 {
     Q_D(Surface);
-    bool emitChange = false;
-    if (rect != d->geometry)
-        emitChange = true;
-    d->geometry = rect;
+    bool emitChange = pos != d->position;
+    d->position = pos;
     if (emitChange)
-        d->qtSurface->geometryChanged();
+        d->qtSurface->posChanged();
+}
+
+QSize Surface::size() const
+{
+    Q_D(const Surface);
+    return d->size;
+}
+
+void Surface::setSize(const QSize &size)
+{
+    Q_D(Surface);
+    bool emitChange = size != d->size;
+    d->size = size;
+    if (emitChange)
+        d->qtSurface->sizeChanged();
 }
 
 #ifdef QT_COMPOSITOR_WAYLAND_GL
@@ -440,9 +454,7 @@ void Surface::attach(struct wl_buffer *buffer)
     bool emitMap = !d->surfaceBuffer && buffer && (!d->subSurface || !d->subSurface->parent());
     bool emitUnmap = d->surfaceBuffer && !buffer;
 
-    if (d->surfaceBuffer && d->surfaceBuffer != d->directRenderBuffer) {
-        if (d->textureBuffer == d->surfaceBuffer)
-            d->textureBuffer = 0;
+    if (d->surfaceBuffer && !d->surfaceBuffer->textureCreated() && d->surfaceBuffer != d->directRenderBuffer) {
         d->surfaceBuffer->destructBufferState();
         d->surfaceBuffer = 0;
     }
@@ -453,10 +465,7 @@ void Surface::attach(struct wl_buffer *buffer)
         width = d->surfaceBuffer->width();
         height = d->surfaceBuffer->height();
     }
-    QRect geo = geometry();
-    geo.setWidth(width);
-    geo.setHeight(height);
-    setGeometry(geo);
+    setSize(QSize(width,height));
 
     if (emitMap) {
         d->qtSurface->mapped();

@@ -68,7 +68,8 @@ class Q_COMPOSITOR_EXPORT WaylandSurface : public QObject
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(WaylandSurface)
-    Q_PROPERTY(QRect geometry READ geometry WRITE setGeometry NOTIFY geometryChanged)
+    Q_PROPERTY(QSize size READ size WRITE setSize NOTIFY sizeChanged)
+    Q_PROPERTY(QPointF pos READ pos WRITE setPos NOTIFY posChanged)
 public:
     enum Type {
         Invalid,
@@ -87,8 +88,10 @@ public:
 
     bool visible() const;
 
-    void setGeometry(const QRect &geometry);
-    QRect geometry() const;
+    QPointF pos() const;
+    void setPos(const QPointF &pos);
+    QSize size() const;
+    void setSize(const QSize &size);
 
     QImage image() const;
 #ifdef QT_COMPOSITOR_WAYLAND_GL
@@ -125,15 +128,16 @@ public:
     QVariantMap windowProperties() const;
     void setWindowProperty(const QString &name, const QVariant &value);
 
-    QPoint mapToParent(const QPoint &) const;
-    QPoint mapTo(WaylandSurface *, const QPoint &) const;
+    QPointF mapToParent(const QPointF &) const;
+    QPointF mapTo(WaylandSurface *, const QPointF &) const;
 
 signals:
     void mapped();
     void unmapped();
     void damaged(const QRect &rect);
     void parentChanged(WaylandSurface *newParent, WaylandSurface *oldParent);
-    void geometryChanged();
+    void sizeChanged();
+    void posChanged();
     void windowPropertyChanged(const QString &name, const QVariant &value);
 
     friend class Wayland::Surface;

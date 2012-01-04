@@ -91,12 +91,10 @@ SubSurface::~SubSurface()
 
 void SubSurface::setSubSurface(SubSurface *subSurface, int x, int y)
 {
-//    Q_ASSERT(!m_sub_surfaces.contains(subSurface->m_surface->handle()));
+    Q_ASSERT(!m_sub_surfaces.contains(subSurface->m_surface->handle()));
     m_sub_surfaces.append(subSurface->m_surface->handle());
     subSurface->setParent(this);
-    QRect rect = m_surface->geometry();
-    rect.moveTo(x,y);
-    subSurface->m_surface->setGeometry(rect);
+    subSurface->m_surface->setPos(QPointF(x,y));
 }
 
 void SubSurface::removeSubSurface(SubSurface *subSurfaces)

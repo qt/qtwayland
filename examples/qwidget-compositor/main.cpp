@@ -96,10 +96,10 @@ private slots:
         WaylandSurface *surface = qobject_cast<WaylandSurface *>(sender());
         QPoint pos;
         if (!m_surfaces.contains(surface)) {
-            uint px = 1 + (qrand() % (width() - surface->geometry().size().width() - 2));
-            uint py = 1 + (qrand() % (height() - surface->geometry().size().height() - 2));
+            uint px = 1 + (qrand() % (width() - surface->size().width() - 2));
+            uint py = 1 + (qrand() % (height() - surface->size().height() - 2));
             pos = QPoint(px, py);
-            surface->setGeometry(QRect(pos, surface->geometry().size()));
+            surface->setPos(pos);
             m_surfaces.append(surface);
         }
 
@@ -163,17 +163,16 @@ protected:
         QLinkedListIterator<WaylandSurface *> i(surface->subSurfaces());
         while (i.hasNext()) {
             WaylandSurface *subSurface = i.next();
-            QPoint p = subSurface->mapTo(window,QPoint(0,0));
-            QRect geo = subSurface->geometry();
-            geo.moveTo(p);
-            if (geo.isValid()) {
+            QPointF p = subSurface->mapTo(window,QPoint(0,0));
+            QSize size = subSurface->size();
+            if (size.isValid()) {
                 GLuint texture = 0;
                 if (subSurface->type() == WaylandSurface::Texture) {
                     texture = subSurface->texture(QOpenGLContext::currentContext());
                 } else if (surface->type() == WaylandSurface::Shm ) {
                     texture = m_textureCache->bindTexture(context()->contextHandle(), surface->image());
                 }
-                m_textureBlitter->drawTexture(texture,geo,window->geometry().size(),0,window->isYInverted(),subSurface->isYInverted());
+                m_textureBlitter->drawTexture(texture,QRect(p.toPoint(),size),window->size(),0,window->isYInverted(),subSurface->isYInverted());
             }
             paintChildren(subSurface,window);
         }
@@ -227,7 +226,9 @@ protected:
         for (int i = 0; i < m_surfaces.size(); ++i) {
 #ifdef QT_COMPOSITOR_WAYLAND_GL
             GLuint texture = composeSurface(m_surfaces.at(i));
-            m_textureBlitter->drawTexture(texture,m_surfaces.at(i)->geometry(),size(),0,false,m_surfaces.at(i)->isYInverted());
+            WaylandSurface *surface = m_surfaces.at(i);
+            QRect geo(surface->pos().toPoint(),surface->size());
+            m_textureBlitter->drawTexture(texture,geo,size(),0,false,m_surfaces.at(i)->isYInverted());
 #else
             QImage img = composeSurface(m_surfaces.at(i));
             p.drawImage(m_surfaces.at(i)->geometry().topLeft(),img);
@@ -256,7 +257,7 @@ protected:
 
     void raise(WaylandSurface *surface) {
         setInputFocus(surface);
-        surfaceDamaged(surface, QRect(QPoint(), surface->geometry().size()));
+        surfaceDamaged(surface, QRect(QPoint(), surface->size()));
         m_surfaces.removeOne(surface);
         m_surfaces.append(surface);
     }
@@ -265,14 +266,14 @@ protected:
         m_cursorPos = e->pos();
         if (!m_cursor.isNull())
             update();
-        QPoint local;
+        QPointF local;
         if (WaylandSurface *surface = surfaceAt(e->pos(), &local)) {
             raise(surface);
             if (e->modifiers() & Qt::ControlModifier) {
                 m_moveSurface = surface;
                 m_moveOffset = local;
             } else {
-                surface->sendMousePressEvent(local, e->button());
+                surface->sendMousePressEvent(local.toPoint(), e->button());
             }
         }
     }
@@ -283,7 +284,7 @@ protected:
             update();
         if (isDragging()) {
             QPoint global = e->pos(); // "global" here means the window of the compositor
-            QPoint local;
+            QPointF local;
             WaylandSurface *surface = surfaceAt(e->pos(), &local);
             if (surface) {
                 if (!m_dragSourceSurface)
@@ -292,19 +293,17 @@ protected:
                     m_lastDragSourcePos = local;
                 raise(surface);
             }
-            sendDragMoveEvent(global, local, surface);
+            sendDragMoveEvent(global, local.toPoint(), surface);
             return;
         }
         if (m_moveSurface) {
-            QRect geometry = m_moveSurface->geometry();
-            geometry.moveTo(e->pos() - m_moveOffset);
-            m_moveSurface->setGeometry(geometry);
+            m_moveSurface->setPos(e->posF() - m_moveOffset);
             update();
             return;
         }
-        QPoint local;
+        QPointF local;
         if (WaylandSurface *surface = surfaceAt(e->pos(), &local))
-            surface->sendMouseMoveEvent(local);
+            surface->sendMouseMoveEvent(local.toPoint());
     }
 
     void mouseReleaseEvent(QMouseEvent *e) {
@@ -312,7 +311,7 @@ protected:
             sendDragEndEvent();
             if (m_dragSourceSurface) {
                 // Must send a release event to the source too, no matter where the cursor is now.
-                m_dragSourceSurface->sendMouseReleaseEvent(m_lastDragSourcePos, e->button());
+                m_dragSourceSurface->sendMouseReleaseEvent(m_lastDragSourcePos.toPoint(), e->button());
                 m_dragSourceSurface = 0;
             }
         }
@@ -320,9 +319,9 @@ protected:
             m_moveSurface = 0;
             return;
         }
-        QPoint local;
+        QPointF local;
         if (WaylandSurface *surface = surfaceAt(e->pos(), &local))
-            surface->sendMouseReleaseEvent(local, e->button());
+            surface->sendMouseReleaseEvent(local.toPoint(), e->button());
     }
 
     void keyPressEvent(QKeyEvent *event)
@@ -339,12 +338,14 @@ protected:
         m_surfaces.last()->sendKeyReleaseEvent(event->nativeScanCode());
     }
 
-    WaylandSurface *surfaceAt(const QPoint &point, QPoint *local = 0) {
+    WaylandSurface *surfaceAt(const QPointF &point, QPointF *local = 0) {
         for (int i = m_surfaces.size() - 1; i >= 0; --i) {
-            if (m_surfaces.at(i)->geometry().contains(point)) {
+            WaylandSurface *surface = m_surfaces.at(i);
+            QRect geo(surface->pos().toPoint(),surface->size());
+            if (geo.contains(point.toPoint())) {
                 if (local)
-                    *local = point - m_surfaces.at(i)->geometry().topLeft();
-                return m_surfaces.at(i);
+                    *local = point - surface->pos();
+                return surface;
             }
         }
         return 0;
@@ -369,9 +370,9 @@ private:
 #endif
 
     WaylandSurface *m_moveSurface;
-    QPoint m_moveOffset;
+    QPointF m_moveOffset;
     WaylandSurface *m_dragSourceSurface;
-    QPoint m_lastDragSourcePos;
+    QPointF m_lastDragSourcePos;
 
     QImage m_cursor;
     QPoint m_cursorPos;

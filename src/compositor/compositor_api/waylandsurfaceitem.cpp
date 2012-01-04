@@ -98,8 +98,8 @@ void WaylandSurfaceItem::init(WaylandSurface *surface)
     m_surface = surface;
     m_surface->setSurfaceItem(this);
 
-    setWidth(surface->geometry().width());
-    setHeight(surface->geometry().height());
+    setWidth(surface->size().width());
+    setHeight(surface->size().height());
 
     setSmooth(true);
     setFlag(ItemHasContents);
@@ -110,7 +110,8 @@ void WaylandSurfaceItem::init(WaylandSurface *surface)
     connect(surface, SIGNAL(damaged(const QRect &)), this, SLOT(surfaceDamaged(const QRect &)));
     connect(surface, SIGNAL(parentChanged(WaylandSurface*,WaylandSurface*)),
             this, SLOT(parentChanged(WaylandSurface*,WaylandSurface*)));
-    connect(surface, SIGNAL(geometryChanged()), this, SLOT(updateGeometry()));
+    connect(surface, SIGNAL(sizeChanged()), this, SLOT(updateSize()));
+    connect(surface, SIGNAL(posChanged()), this, SLOT(updatePosition()));
 
     m_damaged = false;
 
@@ -239,10 +240,14 @@ void WaylandSurfaceItem::parentChanged(WaylandSurface *newParent, WaylandSurface
     }
 }
 
-void WaylandSurfaceItem::updateGeometry()
+void WaylandSurfaceItem::updateSize()
 {
-    setPos(m_surface->geometry().topLeft());
-    setSize(m_surface->geometry().size());
+    setSize(m_surface->size());
+}
+
+void WaylandSurfaceItem::updatePosition()
+{
+    setPos(m_surface->pos());
 }
 
 bool WaylandSurfaceItem::paintEnabled() const
@@ -270,7 +275,7 @@ QSGNode *WaylandSurfaceItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeDa
 
             QQuickCanvas::CreateTextureOptions opt = useTextureAlpha() ? QQuickCanvas::TextureHasAlphaChannel : QQuickCanvas::CreateTextureOptions(0);
             m_texture = canvas()->createTextureFromId(m_surface->texture(context),
-                                                                          m_surface->geometry().size(),
+                                                                          m_surface->size(),
                                                                           opt);
         } else {
             m_texture = canvas()->createTextureFromImage(m_surface->image());

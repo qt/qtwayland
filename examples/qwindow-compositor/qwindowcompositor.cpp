@@ -45,12 +45,12 @@ void QWindowCompositor::surfaceMapped()
     WaylandSurface *surface = qobject_cast<WaylandSurface *>(sender());
     QPoint pos;
     if (!m_surfaces.contains(surface)) {
-        uint px = 1 + (qrand() % (m_window->width() - surface->geometry().size().width() - 2));
-        uint py = 1 + (qrand() % (m_window->height() - surface->geometry().size().height() - 2));
+        uint px = 1 + (qrand() % (m_window->width() - surface->size().width() - 2));
+        uint py = 1 + (qrand() % (m_window->height() - surface->size().height() - 2));
         pos = QPoint(px, py);
-        surface->setGeometry(QRect(pos, surface->geometry().size()));
+        surface->setPos(pos);
     } else {
-        surface->setGeometry(QRect(window()->geometry().topLeft(),surface->geometry().size()));
+        surface->setPos(window()->geometry().topLeft());
         m_surfaces.removeOne(surface);
     }
     m_surfaces.append(surface);
@@ -81,16 +81,18 @@ void QWindowCompositor::surfaceCreated(WaylandSurface *surface)
 
 QPointF QWindowCompositor::toSurface(WaylandSurface *surface, const QPointF &pos) const
 {
-    return pos - surface->geometry().topLeft();
+    return pos - surface->pos();
 }
 
 WaylandSurface *QWindowCompositor::surfaceAt(const QPoint &point, QPoint *local)
 {
     for (int i = m_surfaces.size() - 1; i >= 0; --i) {
-        if (m_surfaces.at(i)->geometry().contains(point)) {
+        WaylandSurface *surface = m_surfaces.at(i);
+        QRect geo(surface->pos().toPoint(),surface->size());
+        if (geo.contains(point)) {
             if (local)
-                *local = toSurface(m_surfaces.at(i), point).toPoint();
-            return m_surfaces.at(i);
+                *local = toSurface(surface, point).toPoint();
+            return surface;
         }
     }
     return 0;
@@ -124,18 +126,16 @@ void QWindowCompositor::paintChildren(WaylandSurface *surface, WaylandSurface *w
     QLinkedListIterator<WaylandSurface *> i(surface->subSurfaces());
     while (i.hasNext()) {
         WaylandSurface *subSurface = i.next();
-        QPoint p = subSurface->mapTo(window,QPoint(0,0));
-        QRect geo = subSurface->geometry();
-        geo.moveTo(p);
-        if (geo.isValid()) {
+        QPointF p = subSurface->mapTo(window,QPointF(0,0));
+        if (subSurface->size().isValid()) {
             GLuint texture = 0;
             if (subSurface->type() == WaylandSurface::Texture) {
                 texture = subSurface->texture(QOpenGLContext::currentContext());
             } else if (surface->type() == WaylandSurface::Shm ) {
                 texture = m_textureCache->bindTexture(QOpenGLContext::currentContext(),surface->image());
             }
-            qDebug() << "window geo is" << window->geometry().size();
-            m_textureBlitter->drawTexture(texture,geo,window->geometry().size(),0,window->isYInverted(),subSurface->isYInverted());
+            QRect geo(p.toPoint(),subSurface->size());
+            m_textureBlitter->drawTexture(texture,geo,window->size(),0,window->isYInverted(),subSurface->isYInverted());
         }
         paintChildren(subSurface,window);
     }
@@ -160,7 +160,8 @@ void QWindowCompositor::render()
 
     foreach (WaylandSurface *surface, m_surfaces) {
         GLuint texture = composeSurface(surface);
-        m_textureBlitter->drawTexture(texture,surface->geometry(),m_window->size(),0,false,surface->isYInverted());
+        QRect geo(surface->pos().toPoint(),surface->size());
+        m_textureBlitter->drawTexture(texture,geo,m_window->size(),0,false,surface->isYInverted());
     }
 
     m_textureBlitter->release();
@@ -213,9 +214,7 @@ bool QWindowCompositor::eventFilter(QObject *obj, QEvent *event)
     case QEvent::MouseMove: {
         QMouseEvent *me = static_cast<QMouseEvent *>(event);
         if (m_draggingWindow) {
-            QRect geo = m_draggingWindow->geometry();
-            geo.moveTopLeft(me->pos() - m_drag_diff);
-            m_draggingWindow->setGeometry(geo);
+            m_draggingWindow->setPos(me->posF() - m_drag_diff);
             m_renderScheduler.start(0);
         } else {
             QPoint local;

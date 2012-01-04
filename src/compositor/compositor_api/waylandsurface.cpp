@@ -76,16 +76,28 @@ bool WaylandSurface::visible() const
     return d->surface->visible();
 }
 
-QRect WaylandSurface::geometry() const
+QPointF WaylandSurface::pos() const
 {
     Q_D(const WaylandSurface);
-    return d->surface->geometry();
+    return d->surface->pos();
 }
 
-void WaylandSurface::setGeometry(const QRect &geometry)
+void WaylandSurface::setPos(const QPointF &pos)
 {
     Q_D(WaylandSurface);
-    d->surface->setGeometry(geometry);
+    d->surface->setPos(pos);
+}
+
+QSize WaylandSurface::size() const
+{
+    Q_D(const WaylandSurface);
+    d->surface->size();
+}
+
+void WaylandSurface::setSize(const QSize &size)
+{
+    Q_D(WaylandSurface);
+    d->surface->setSize(size);
 }
 
 QImage WaylandSurface::image() const
@@ -151,14 +163,14 @@ void WaylandSurface::setWindowProperty(const QString &name, const QVariant &valu
     d->surface->setWindowProperty(name, value);
 }
 
-QPoint WaylandSurface::mapToParent(const QPoint &pos) const
+QPointF WaylandSurface::mapToParent(const QPointF &pos) const
 {
-    return pos + geometry().topLeft();
+    return pos + this->pos();
 }
 
-QPoint WaylandSurface::mapTo(WaylandSurface *parent, const QPoint &pos) const
+QPointF WaylandSurface::mapTo(WaylandSurface *parent, const QPointF &pos) const
 {
-    QPoint p = pos;
+    QPointF p = pos;
     if (parent) {
         const WaylandSurface * surface = this;
         while (surface != parent) {

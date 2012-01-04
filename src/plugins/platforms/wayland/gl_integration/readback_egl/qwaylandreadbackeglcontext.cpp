@@ -46,9 +46,6 @@
 #include <QtCore/QDebug>
 #include <QtGui/QWindowContext>
 
-#include <QtOpenGL/QGLContext>
-#include <QtOpenGL/private/qglextensions_p.h>
-
 #include "qwaylandshmsurface.h"
 
 

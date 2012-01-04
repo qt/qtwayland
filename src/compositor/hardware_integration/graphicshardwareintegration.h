@@ -41,7 +41,8 @@
 #ifndef GRAPHICSHARDWAREINTEGRATION_H
 #define GRAPHICSHARDWAREINTEGRATION_H
 
-#include <QtOpenGL/qgl.h>
+#include <QtGui/qopengl.h>
+#include <QtGui/QOpenGLContext>
 #include <wayland-server.h>
 
 #include "waylandcompositor.h"

@@ -99,7 +99,7 @@ public slots:
     void setPaintEnabled(bool paintEnabled);
 
 private slots:
-    void surfaceMapped(const QSize &size);
+    void surfaceMapped();
     void surfaceUnmapped();
     void surfaceDestroyed(QObject *object);
     void surfaceDamaged(const QRect &);

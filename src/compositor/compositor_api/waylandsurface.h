@@ -111,7 +111,7 @@ public:
     void setWindowProperty(const QString &name, const QVariant &value);
 
 signals:
-    void mapped(const QSize &size);
+    void mapped();
     void unmapped();
     void damaged(const QRect &rect);
     void windowPropertyChanged(const QString &name, const QVariant &value);

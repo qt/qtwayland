@@ -27,17 +27,17 @@ void QWindowCompositor::surfaceDestroyed(QObject *object)
     render();
 }
 
-void QWindowCompositor::surfaceMapped(const QSize &size)
+void QWindowCompositor::surfaceMapped()
 {
     WaylandSurface *surface = qobject_cast<WaylandSurface *>(sender());
     QPoint pos;
     if (!m_surfaces.contains(surface)) {
-        uint px = 1 + (qrand() % (m_window->width() - size.width() - 2));
-        uint py = 1 + (qrand() % (m_window->height() - size.height() - 2));
+        uint px = 1 + (qrand() % (m_window->width() - surface->geometry().size().width() - 2));
+        uint py = 1 + (qrand() % (m_window->height() - surface->geometry().size().height() - 2));
         pos = QPoint(px, py);
-        surface->setGeometry(QRect(pos, size));
+        surface->setGeometry(QRect(pos, surface->geometry().size()));
     } else {
-        surface->setGeometry(QRect(window()->geometry().topLeft(),size));
+        surface->setGeometry(QRect(window()->geometry().topLeft(),surface->geometry().size()));
         m_surfaces.removeOne(surface);
     }
     m_surfaces.append(surface);
@@ -61,7 +61,7 @@ void QWindowCompositor::surfaceDamaged(WaylandSurface *surface, const QRect &rec
 void QWindowCompositor::surfaceCreated(WaylandSurface *surface)
 {
     connect(surface, SIGNAL(destroyed(QObject *)), this, SLOT(surfaceDestroyed(QObject *)));
-    connect(surface, SIGNAL(mapped(const QSize &)), this, SLOT(surfaceMapped(const QSize &)));
+    connect(surface, SIGNAL(mapped()), this, SLOT(surfaceMapped()));
     connect(surface, SIGNAL(damaged(const QRect &)), this, SLOT(surfaceDamaged(const QRect &)));
     render();
 }

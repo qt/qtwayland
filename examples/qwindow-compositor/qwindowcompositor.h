@@ -15,7 +15,7 @@ public:
     QWindowCompositor(QOpenGLWindow *window);
 private slots:
     void surfaceDestroyed(QObject *object);
-    void surfaceMapped(const QSize &size);
+    void surfaceMapped();
     void surfaceDamaged(const QRect &rect);
 
 protected:

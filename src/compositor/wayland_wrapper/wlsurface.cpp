@@ -420,7 +420,7 @@ void Surface::attach(struct wl_buffer *buffer)
     }
     d->surfaceBuffer = newBuffer;
     if (emitMap) {
-        d->qtSurface->mapped(QSize(d->surfaceBuffer->width(),d->surfaceBuffer->height()));
+        d->qtSurface->mapped();
     } else if (emitUnmap) {
         d->qtSurface->unmapped();
     }

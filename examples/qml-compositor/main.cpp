@@ -76,7 +76,7 @@ public slots:
     }
 
 private slots:
-    void surfaceMapped(const QSize &size) {
+    void surfaceMapped() {
         WaylandSurface *surface = qobject_cast<WaylandSurface *>(sender());
         surface->setGeometry(QRect(surface->geometry().topLeft(),size));
 
@@ -107,7 +107,7 @@ private slots:
 
 protected:
     void surfaceCreated(WaylandSurface *surface) {
-        connect(surface, SIGNAL(mapped(const QSize &)), this, SLOT(surfaceMapped(const QSize &)));
+        connect(surface, SIGNAL(mapped()), this, SLOT(surfaceMapped()));
     }
 
 private:

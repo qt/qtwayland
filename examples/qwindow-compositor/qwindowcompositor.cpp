@@ -8,6 +8,8 @@ QWindowCompositor::QWindowCompositor(QOpenGLWindow *window)
     , m_window(window)
     , m_textureBlitter(0)
     , m_renderScheduler(this)
+    , m_draggingWindow(0)
+    , m_dragKeyIsPressed(false)
 {
     enableSubSurfaceExtension();
     m_window->makeCurrent();
@@ -182,19 +184,27 @@ bool QWindowCompositor::eventFilter(QObject *obj, QEvent *event)
         QMouseEvent *me = static_cast<QMouseEvent *>(event);
         WaylandSurface *targetSurface = surfaceAt(me->pos(), &local);
         if (targetSurface) {
-            if (inputFocus() != targetSurface) {
-                setInputFocus(targetSurface);
-                m_surfaces.removeOne(targetSurface);
-                m_surfaces.append(targetSurface);
-                m_renderScheduler.start(0);
+            if (m_dragKeyIsPressed) {
+               m_draggingWindow = targetSurface;
+               m_drag_diff = local;
+            } else {
+                if (inputFocus() != targetSurface) {
+                    setInputFocus(targetSurface);
+                    m_surfaces.removeOne(targetSurface);
+                    m_surfaces.append(targetSurface);
+                    m_renderScheduler.start(0);
+                }
+                targetSurface->sendMousePressEvent(local, me->button());
             }
-            targetSurface->sendMousePressEvent(local, me->button());
         }
         break;
     }
     case QEvent::MouseButtonRelease: {
         WaylandSurface *targetSurface = inputFocus();
-        if (targetSurface) {
+        if (m_draggingWindow) {
+            m_draggingWindow = 0;
+            m_drag_diff = QPoint();
+        } else  if (targetSurface) {
             QMouseEvent *me = static_cast<QMouseEvent *>(event);
             targetSurface->sendMouseReleaseEvent(toSurface(targetSurface, me->pos()).toPoint(), me->button());
         }
@@ -202,13 +212,25 @@ bool QWindowCompositor::eventFilter(QObject *obj, QEvent *event)
     }
     case QEvent::MouseMove: {
         QMouseEvent *me = static_cast<QMouseEvent *>(event);
-        QPoint local;
-        WaylandSurface *targetSurface = surfaceAt(me->pos(), &local);
-        if (targetSurface)
-            targetSurface->sendMouseMoveEvent(local);
+        if (m_draggingWindow) {
+            QRect geo = m_draggingWindow->geometry();
+            geo.moveTopLeft(me->pos() - m_drag_diff);
+            m_draggingWindow->setGeometry(geo);
+            m_renderScheduler.start(0);
+        } else {
+            QPoint local;
+            WaylandSurface *targetSurface = surfaceAt(me->pos(), &local);
+            if (targetSurface) {
+                targetSurface->sendMouseMoveEvent(local);
+            }
+        }
     }
     case QEvent::KeyPress: {
         QKeyEvent *ke = static_cast<QKeyEvent *>(event);
+        qDebug() << ke->key();
+        if (ke->key() == Qt::Key_Meta || ke->key() == Qt::Key_Super_L) {
+            m_dragKeyIsPressed = true;
+        }
         WaylandSurface *targetSurface = inputFocus();
         if (targetSurface)
             targetSurface->sendKeyPressEvent(ke->nativeScanCode());
@@ -216,6 +238,9 @@ bool QWindowCompositor::eventFilter(QObject *obj, QEvent *event)
     }
     case QEvent::KeyRelease: {
         QKeyEvent *ke = static_cast<QKeyEvent *>(event);
+        if (ke->key() == Qt::Key_Meta || ke->key() == Qt::Key_Super_L) {
+            m_dragKeyIsPressed = false;
+        }
         WaylandSurface *targetSurface = inputFocus();
         if (targetSurface)
             targetSurface->sendKeyReleaseEvent(ke->nativeScanCode());

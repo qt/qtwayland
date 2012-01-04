@@ -43,6 +43,12 @@ private:
     QOpenGLTextureCache *m_textureCache;
     GLuint m_surface_fbo;
     QTimer m_renderScheduler;
+
+    //Dragging windows around
+    WaylandSurface *m_draggingWindow;
+    bool m_dragKeyIsPressed;
+    QPoint m_drag_diff;
+
 };
 
 #endif // QWINDOWCOMPOSITOR_H

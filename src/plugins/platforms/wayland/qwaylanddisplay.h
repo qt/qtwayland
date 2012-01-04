@@ -60,6 +60,7 @@ class QWaylandWindowManagerIntegration;
 class QWaylandDataDeviceManager;
 class QWaylandShell;
 class QWaylandSurfaceExtension;
+class QWaylandSubSurfaceExtension;
 class QWaylandOutputExtension;
 
 class QWaylandDisplay : public QObject {
@@ -97,6 +98,7 @@ public:
     QWaylandDataDeviceManager *dndSelectionHandler() const { return mDndSelectionHandler; }
 
     QWaylandSurfaceExtension *windowExtension() const { return mWindowExtension; }
+    QWaylandSubSurfaceExtension *subSurfaceExtension() const { return mSubSurfaceExtension; }
     QWaylandOutputExtension *outputExtension() const { return mOutputExtension; }
 
     struct wl_shm *shm() const { return mShm; }
@@ -125,6 +127,7 @@ private:
     QWaylandInputDevice *mLastKeyboardFocusInputDevice;
     QWaylandDataDeviceManager *mDndSelectionHandler;
     QWaylandSurfaceExtension *mWindowExtension;
+    QWaylandSubSurfaceExtension *mSubSurfaceExtension;
     QWaylandOutputExtension *mOutputExtension;
 
     QSocketNotifier *mReadNotifier;

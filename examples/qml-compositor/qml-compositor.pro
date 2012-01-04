@@ -3,6 +3,8 @@ TARGET = qml-compositor
 DEPENDPATH += .
 INCLUDEPATH += .
 
+DEFINES += QT_COMPOSITOR_QUICK
+
 # comment out the following to not use pkg-config in the pri files
 CONFIG += use_pkgconfig
 

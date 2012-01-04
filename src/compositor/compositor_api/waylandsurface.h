@@ -54,15 +54,21 @@
 
 class WaylandSurfacePrivate;
 
+#ifdef QT_COMPOSITOR_QUICK
+class WaylandSurfaceItem;
+#endif
+
 namespace Wayland {
 class Surface;
 class SurfacePrivate;
+class ExtendedSurface;
 }
 
 class Q_COMPOSITOR_EXPORT WaylandSurface : public QObject
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(WaylandSurface)
+    Q_PROPERTY(QRect geometry READ geometry WRITE setGeometry NOTIFY geometryChanged)
 public:
     enum Type {
         Invalid,
@@ -72,6 +78,9 @@ public:
     };
 
     WaylandSurface(Wayland::Surface *surface);
+
+    WaylandSurface *parentSurface() const;
+    QLinkedList<WaylandSurface *> subSurfaces() const;
 
     Type type() const;
     bool isYInverted() const;
@@ -105,19 +114,31 @@ public:
     void setInputFocus();
 
     Wayland::Surface *handle() const;
+
+#ifdef QT_COMPOSITOR_QUICK
+    WaylandSurfaceItem *surfaceItem() const;
+    void setSurfaceItem(WaylandSurfaceItem *surfaceItem);
+#endif
+
     qint64 processId() const;
     QByteArray authenticationToken() const;
     QVariantMap windowProperties() const;
     void setWindowProperty(const QString &name, const QVariant &value);
 
+    QPoint mapToParent(const QPoint &) const;
+    QPoint mapTo(WaylandSurface *, const QPoint &) const;
+
 signals:
     void mapped();
     void unmapped();
     void damaged(const QRect &rect);
+    void parentChanged(WaylandSurface *newParent, WaylandSurface *oldParent);
+    void geometryChanged();
     void windowPropertyChanged(const QString &name, const QVariant &value);
 
     friend class Wayland::Surface;
     friend class Wayland::SurfacePrivate;
+    friend class Wayland::ExtendedSurface;
 };
 
 #endif // WAYLANDSURFACE_H

@@ -130,7 +130,6 @@ void QWaylandShmBackingStore::flush(QWindow *window, const QRegion &region, cons
 void QWaylandShmBackingStore::resize(const QSize &size, const QRegion &)
 {
     QWaylandShmWindow *waylandWindow = static_cast<QWaylandShmWindow *>(window()->handle());
-    Q_ASSERT(waylandWindow->windowType() == QWaylandWindow::Shm);
 
     QImage::Format format = QPlatformScreen::platformScreenForWindow(window())->format();
 

@@ -47,31 +47,16 @@
 #include <QTimer>
 #include <QPainter>
 #include <QMouseEvent>
+#include <QtCore/QLinkedList>
 
 #ifdef QT_COMPOSITOR_WAYLAND_GL
 #include <QOpenGLContext>
 #include <QGLWidget>
+#include <QtGui/private/qopengltexturecache_p.h>
+#include "textureblitter.h"
 #endif
 
 #include <QDebug>
-
-//#include "qtouchscreen.h"
-//
-//static int touch_x_min, touch_x_max, touch_y_min, touch_y_max;
-//
-//class QWidgetCompositor;
-//
-//class TouchObserver : public QTouchScreenObserver
-//{
-//public:
-//    TouchObserver(QWidgetCompositor *compositor)
-//        : m_compositor(compositor) { }
-//    void touch_configure(int x_min, int x_max, int y_min, int y_max);
-//    void touch_point(QEvent::Type state, const QList<QWindowSystemInterface::TouchPoint> &points);
-//
-//private:
-//    QWidgetCompositor *m_compositor;
-//};
 
 #ifdef QT_COMPOSITOR_WAYLAND_GL
 class QWidgetCompositor : public QGLWidget, public WaylandCompositor
@@ -85,18 +70,19 @@ public:
         : WaylandCompositor(windowHandle())
         , m_moveSurface(0)
         , m_dragSourceSurface(0)
+#ifdef QT_COMPOSITOR_WAYLAND_GL
+        , m_surfaceCompositorFbo(0)
+        , m_textureBlitter(0)
+        , m_textureCache(0)
+#endif
     {
+        enableSubSurfaceExtension();
         setMouseTracking(true);
         setRetainedSelectionEnabled(true);
         m_background = QImage(QLatin1String("background.jpg"));
         //make sure we get the window id and create the glcontext
         //so that clients can successfully initialize egl
         winId();
-#ifdef QT_COMPOSITOR_WAYLAND_GL
-        if (windowHandle()) {
-//            windowHandle()->surfaceHandle();
-        }
-#endif
     }
 
 private slots:
@@ -115,9 +101,8 @@ private slots:
             pos = QPoint(px, py);
             surface->setGeometry(QRect(pos, surface->geometry().size()));
             m_surfaces.append(surface);
-        } else {
-            surface->setGeometry(QRect(geometry().topLeft(),size));
         }
+
         setInputFocus(surface);
         update();
     }
@@ -140,12 +125,89 @@ protected:
     }
 
     void surfaceCreated(WaylandSurface *surface) {
-        qDebug() << "surface created";
         connect(surface, SIGNAL(destroyed(QObject *)), this, SLOT(surfaceDestroyed(QObject *)));
         connect(surface, SIGNAL(mapped()), this, SLOT(surfaceMapped()));
         connect(surface, SIGNAL(damaged(const QRect &)), this, SLOT(surfaceDamaged(const QRect &)));
         update();
     }
+
+#ifdef QT_COMPOSITOR_WAYLAND_GL
+    GLuint composeSurface(WaylandSurface *surface) {
+        GLuint texture = 0;
+
+        if (!m_surfaceCompositorFbo) {
+            glGenFramebuffers(1,&m_surfaceCompositorFbo);
+        }
+        glBindFramebuffer(GL_FRAMEBUFFER, m_surfaceCompositorFbo);
+
+        if (surface->type() == WaylandSurface::Shm) {
+            texture = m_textureCache->bindTexture(context()->contextHandle(), surface->image());
+        } else {
+            texture = surface->texture(QOpenGLContext::currentContext());
+        }
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+                               GL_TEXTURE_2D, texture, 0);
+        paintChildren(surface,surface);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+                               GL_TEXTURE_2D, 0, 0);
+
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        return texture;
+    }
+
+    void paintChildren(WaylandSurface *surface, WaylandSurface *window) {
+
+        if (surface->subSurfaces().size() == 0)
+            return;
+
+        QLinkedListIterator<WaylandSurface *> i(surface->subSurfaces());
+        while (i.hasNext()) {
+            WaylandSurface *subSurface = i.next();
+            QPoint p = subSurface->mapTo(window,QPoint(0,0));
+            QRect geo = subSurface->geometry();
+            geo.moveTo(p);
+            if (geo.isValid()) {
+                GLuint texture = 0;
+                if (subSurface->type() == WaylandSurface::Texture) {
+                    texture = subSurface->texture(QOpenGLContext::currentContext());
+                } else if (surface->type() == WaylandSurface::Shm ) {
+                    texture = m_textureCache->bindTexture(context()->contextHandle(), surface->image());
+                }
+                m_textureBlitter->drawTexture(texture,geo,window->geometry().size(),0,window->isYInverted(),subSurface->isYInverted());
+            }
+            paintChildren(subSurface,window);
+        }
+    }
+#else //hmmm, this is actually untested :(
+    QImage composeSurface(WaylandSurface *surface)
+    {
+        Q_ASSER(surface->type() == WaylandSurface::Shm);
+        QImage img = surface->image();
+        QPainter p(&img);
+        paintChildren(surface,p,surface);
+
+        return img;
+    }
+
+    void paintChildren(WaylandSurface *surface, QPainter *painter, WaylandSurface *window) {
+        if (surface->subSurfaces().size() == 0)
+            return;
+
+        QLinkedListIterator<WaylandSurface *> i(surface->subSurfaces());
+        while (i.hasNext()) {
+            WaylandSurface *subSurface = i.next();
+            QPoint p = subSurface->mapTo(window,QPoint(0,0));
+            QRect geo = subSurface->geometry();
+            geo.moveTo(p);
+            if (geo.isValid()) {
+                painter->drawImage(p,subSurface->image());
+            }
+            paintChildren(subSurface,painter,window);
+        }
+    }
+#endif //QT_COMPOSITOR_WAYLAND_GL
+
+
 
     void paintEvent(QPaintEvent *) {
         QPainter p(this);
@@ -153,16 +215,23 @@ protected:
         if (!m_background.isNull())
             p.drawPixmap(rect(), m_backgroundScaled);
 
-        for (int i = 0; i < m_surfaces.size(); ++i) {
-            if (m_surfaces.at(i)->type() == WaylandSurface::Texture) {
 #ifdef QT_COMPOSITOR_WAYLAND_GL
-                drawTexture(m_surfaces.at(i)->geometry(), m_surfaces.at(i)->texture(QOpenGLContext::currentContext()));
-                break;
+        if (!m_textureCache) {
+            m_textureCache = new QOpenGLTextureCache(context()->contextHandle());
+        }
+        if (!m_textureBlitter) {
+            m_textureBlitter = new TextureBlitter();
+        }
+        m_textureBlitter->bind();
+#endif
+        for (int i = 0; i < m_surfaces.size(); ++i) {
+#ifdef QT_COMPOSITOR_WAYLAND_GL
+            GLuint texture = composeSurface(m_surfaces.at(i));
+            m_textureBlitter->drawTexture(texture,m_surfaces.at(i)->geometry(),size(),0,false,m_surfaces.at(i)->isYInverted());
+#else
+            QImage img = composeSurface(m_surfaces.at(i));
+            p.drawImage(m_surfaces.at(i)->geometry().topLeft(),img);
 #endif //QT_COMPOSITOR_WAYLAND_GL
-            } else if (m_surfaces.at(i)->type() == WaylandSurface::Shm) {
-                QImage img = m_surfaces.at(i)->image();
-                p.drawImage(m_surfaces.at(i)->geometry(), img);
-            }
         }
 
         if (!m_cursor.isNull())
@@ -173,7 +242,7 @@ protected:
 #ifdef QT_COMPOSITOR_WAYLAND_GL
         //jl:FIX FIX FIX:)
 //        update();
-        glFinish();
+        m_textureBlitter->release();
 #endif
     }
 
@@ -293,6 +362,12 @@ private:
 
     QList<WaylandSurface *> m_surfaces;
 
+#ifdef QT_COMPOSITOR_WAYLAND_GL
+    GLuint m_surfaceCompositorFbo;
+    TextureBlitter *m_textureBlitter;
+    QOpenGLTextureCache *m_textureCache;
+#endif
+
     WaylandSurface *m_moveSurface;
     QPoint m_moveOffset;
     WaylandSurface *m_dragSourceSurface;
@@ -304,53 +379,6 @@ private:
 
     friend class TouchObserver;
 };
-
-//void TouchObserver::touch_configure(int x_min, int x_max, int y_min, int y_max)
-//{
-//    touch_x_min = x_min;
-//    touch_x_max = x_max;
-//    touch_y_min = y_min;
-//    touch_y_max = y_max;
-//}
-
-//void TouchObserver::touch_point(QEvent::Type state, const QList<QWindowSystemInterface::TouchPoint> &points)
-//{
-//    Q_UNUSED(state);
-//    WaylandSurface *focusSurface = m_compositor->inputFocus();
-//    if (focusSurface) {
-//        if (points.isEmpty())
-//            return;
-//        for (int i = 0; i < points.count(); ++i) {
-//            const QWindowSystemInterface::TouchPoint &point(points.at(i));
-
-//            // These are hw coordinates.
-//            int x = int(point.area.left());
-//            int y = int(point.area.top());
-
-//            // Wayland expects surface-relative coordinates.
-
-//            // Translate so that (0, 0) is the top-left corner.
-//            x = qBound(touch_x_min, x, touch_x_max) - touch_x_min;
-//            y = qBound(touch_y_min, y, touch_y_max) - touch_y_min;
-
-//            // Get a normalized position in range 0..1.
-//            const int hw_w = touch_x_max - touch_x_min;
-//            const int hw_h = touch_y_max - touch_y_min;
-//            const qreal nx = x / qreal(hw_w);
-//            const qreal ny = y / qreal(hw_h);
-
-//            // Map to surface.
-//            QRect winRect(focusSurface->geometry());
-//            x = int(nx * winRect.width());
-//            y = int(ny * winRect.height());
-
-//            focusSurface->sendTouchPointEvent(point.id,
-//                                              x, y,
-//                                              point.state);
-//        }
-//        focusSurface->sendTouchFrameEvent();
-//    }
-//}
 
 int main(int argc, char *argv[])
 {

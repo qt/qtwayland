@@ -11,8 +11,6 @@ CONFIG += use_pkgconfig
 #  the following line
 #include (../../src/qt-compositor/qt-compositor.pri)
 
-# Input
-SOURCES += main.cpp
 
 CONFIG += qt warn_on debug  create_prl link_prl
 OBJECTS_DIR = .obj/release-shared
@@ -25,13 +23,15 @@ isEmpty(QT_SOURCE_TREE) {
     QTBASE = $$QT_SOURCE_TREE
 }
 
-#TOUCHSCREEN_BASE = $$QTBASE/src/plugins/generic/touchscreen
-#SOURCES += $$TOUCHSCREEN_BASE/qtouchscreen.cpp
-#HEADERS += $$TOUCHSCREEN_BASE/qtouchscreen.h
-#INCLUDEPATH += $$TOUCHSCREEN_BASE
-#LIBS += -ludev -lmtdev
+# Input
+HEADERS += \
+            textureblitter.h
 
-QT += gui-private widgets widgets-private opengl opengl-private compositor
+SOURCES += \
+            main.cpp \
+            textureblitter.cpp
+
+QT += core-private gui-private widgets widgets-private opengl opengl-private compositor
 
 # install
 target.path = $$[QT_INSTALL_EXAMPLES]/qtwayland/qwidget-compositor

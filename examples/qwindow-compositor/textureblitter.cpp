@@ -1,0 +1,118 @@
+#include "textureblitter.h"
+
+#include <QtGui/QOpenGLShaderProgram>
+#include <QtGui/QOpenGLContext>
+#include <QtGui/QOpenGLFunctions>
+
+TextureBlitter::TextureBlitter()
+    : m_shaderProgram(new QOpenGLShaderProgram())
+{
+    static const char *textureVertexProgram =
+            "uniform highp mat4 matrix;\n"
+            "attribute highp vec3 vertexCoordEntry;\n"
+            "attribute highp vec2 textureCoordEntry;\n"
+            "varying highp vec2 textureCoord;\n"
+            "void main() {\n"
+            "   textureCoord = textureCoordEntry;\n"
+            "   gl_Position = matrix * vec4(vertexCoordEntry, 1);\n"
+            "}\n";
+
+    static const char *textureFragmentProgram =
+            "uniform sampler2D texture;\n"
+            "varying highp vec2 textureCoord;\n"
+            "void main() {\n"
+            "   gl_FragColor = texture2D(texture, textureCoord);\n"
+            "}\n";
+
+    //Enable transparent windows
+    glEnable(GL_BLEND);
+    glBlendFunc (GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
+
+    m_shaderProgram->addShaderFromSourceCode(QOpenGLShader::Vertex, textureVertexProgram);
+    m_shaderProgram->addShaderFromSourceCode(QOpenGLShader::Fragment, textureFragmentProgram);
+    m_shaderProgram->link();
+}
+
+
+void TextureBlitter::bind()
+{
+
+    m_shaderProgram->bind();
+
+    m_vertexCoordEntry = m_shaderProgram->attributeLocation("vertexCoordEntry");
+    m_textureCoordEntry = m_shaderProgram->attributeLocation("textureCoordEntry");
+    m_matrixLocation = m_shaderProgram->uniformLocation("matrix");
+}
+
+void TextureBlitter::release()
+{
+    m_shaderProgram->release();
+}
+
+void TextureBlitter::drawTexture(int textureId, const QRectF &targetRect, const QSize &targetSize, int depth, bool targethasInvertedY, bool sourceHasInvertedY)
+{
+
+    glViewport(0,0,targetSize.width(),targetSize.height());
+    GLfloat zValue = depth / 1000.0f;
+    //Set Texture and Vertex coordinates
+    const GLfloat textureCoordinates[] = {
+        0, 0,
+        1, 0,
+        1, 1,
+        0, 1
+    };
+
+    int x1 = targetRect.left();
+    int x2 = targetRect.right();
+    int y1, y2;
+    if (targethasInvertedY) {
+        if (sourceHasInvertedY) {
+            y1 = targetRect.top();
+            y2 = targetRect.bottom();
+        } else {
+            y1 = targetRect.bottom();
+            y2 = targetRect.top();
+        }
+    } else {
+        if (sourceHasInvertedY) {
+            y1 = targetSize.height() - targetRect.top();
+            y2 = targetSize.height() - targetRect.bottom();
+        } else {
+            y1 = targetSize.height() - targetRect.bottom();
+            y2 = targetSize.height() - targetRect.top();
+        }
+    }
+
+    const GLfloat vertexCoordinates[] = {
+        x1, y1, zValue,
+        x2, y1, zValue,
+        x2, y2, zValue,
+        x1, y2, zValue
+    };
+
+    //Set matrix to transfrom geometry values into gl coordinate space.
+    m_transformMatrix.setToIdentity();
+    m_transformMatrix.scale( 2.0f / targetSize.width(), 2.0f / targetSize.height() );
+    m_transformMatrix.translate(-targetSize.width() / 2.0f, -targetSize.height() / 2.0f);
+
+    //attach the data!
+    QOpenGLContext *currentContext = QOpenGLContext::currentContext();
+    currentContext->functions()->glEnableVertexAttribArray(m_vertexCoordEntry);
+    currentContext->functions()->glEnableVertexAttribArray(m_textureCoordEntry);
+
+    currentContext->functions()->glVertexAttribPointer(m_vertexCoordEntry, 3, GL_FLOAT, GL_FALSE, 0, vertexCoordinates);
+    currentContext->functions()->glVertexAttribPointer(m_textureCoordEntry, 2, GL_FLOAT, GL_FALSE, 0, textureCoordinates);
+    m_shaderProgram->setUniformValue(m_matrixLocation, m_transformMatrix);
+
+    glBindTexture(GL_TEXTURE_2D, textureId);
+
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+    glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    currentContext->functions()->glDisableVertexAttribArray(m_vertexCoordEntry);
+    currentContext->functions()->glDisableVertexAttribArray(m_textureCoordEntry);
+}

@@ -6,16 +6,27 @@
 QWindowCompositor::QWindowCompositor(QOpenGLWindow *window)
     : WaylandCompositor(window)
     , m_window(window)
+    , m_textureBlitter(0)
+    , m_renderScheduler(this)
 {
+    enableSubSurfaceExtension();
+    m_window->makeCurrent();
+
+    m_textureCache = new QOpenGLTextureCache(m_window->context());
+    m_textureBlitter = new TextureBlitter();
     m_backgroundImage = QImage(QLatin1String(":/background.jpg"));
-    m_renderer = new SurfaceRenderer(m_window->context(), m_window);
-    m_backgroundTexture = m_renderer->textureFromImage(m_backgroundImage);
+    m_renderScheduler.setSingleShot(true);
+    connect(&m_renderScheduler,SIGNAL(timeout()),this,SLOT(render()));
+
+
+
+    glGenFramebuffers(1,&m_surface_fbo);
 
     window->installEventFilter(this);
 
     setRetainedSelectionEnabled(true);
 
-    render();
+    m_renderScheduler.start(0);
 }
 
 void QWindowCompositor::surfaceDestroyed(QObject *object)
@@ -24,7 +35,7 @@ void QWindowCompositor::surfaceDestroyed(QObject *object)
     m_surfaces.removeOne(surface);
     if (inputFocus() == surface || !inputFocus()) // typically reset to 0 already in Compositor::surfaceDestroyed()
         setInputFocus(m_surfaces.isEmpty() ? 0 : m_surfaces.last());
-    render();
+    m_renderScheduler.start(0);
 }
 
 void QWindowCompositor::surfaceMapped()
@@ -42,7 +53,7 @@ void QWindowCompositor::surfaceMapped()
     }
     m_surfaces.append(surface);
     setInputFocus(surface);
-    render();
+    m_renderScheduler.start(0);
 }
 
 void QWindowCompositor::surfaceDamaged(const QRect &rect)
@@ -55,7 +66,7 @@ void QWindowCompositor::surfaceDamaged(WaylandSurface *surface, const QRect &rec
 {
     Q_UNUSED(surface)
     Q_UNUSED(rect)
-    render();
+    m_renderScheduler.start(0);
 }
 
 void QWindowCompositor::surfaceCreated(WaylandSurface *surface)
@@ -63,7 +74,7 @@ void QWindowCompositor::surfaceCreated(WaylandSurface *surface)
     connect(surface, SIGNAL(destroyed(QObject *)), this, SLOT(surfaceDestroyed(QObject *)));
     connect(surface, SIGNAL(mapped()), this, SLOT(surfaceMapped()));
     connect(surface, SIGNAL(damaged(const QRect &)), this, SLOT(surfaceDamaged(const QRect &)));
-    render();
+    m_renderScheduler.start(0);
 }
 
 QPointF QWindowCompositor::toSurface(WaylandSurface *surface, const QPointF &pos) const
@@ -83,33 +94,78 @@ WaylandSurface *QWindowCompositor::surfaceAt(const QPoint &point, QPoint *local)
     return 0;
 }
 
+GLuint QWindowCompositor::composeSurface(WaylandSurface *surface) {
+    GLuint texture = 0;
+
+    glBindFramebuffer(GL_FRAMEBUFFER, m_surface_fbo);
+
+    if (surface->type() == WaylandSurface::Shm) {
+        texture = m_textureCache->bindTexture(QOpenGLContext::currentContext(),surface->image());
+    } else {
+        texture = surface->texture(QOpenGLContext::currentContext());
+    }
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+                           GL_TEXTURE_2D, texture, 0);
+    paintChildren(surface,surface);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+                           GL_TEXTURE_2D,0, 0);
+
+    glBindFramebuffer(GL_FRAMEBUFFER,0);
+    return texture;
+}
+
+void QWindowCompositor::paintChildren(WaylandSurface *surface, WaylandSurface *window) {
+
+    if (surface->subSurfaces().size() == 0)
+        return;
+
+    QLinkedListIterator<WaylandSurface *> i(surface->subSurfaces());
+    while (i.hasNext()) {
+        WaylandSurface *subSurface = i.next();
+        QPoint p = subSurface->mapTo(window,QPoint(0,0));
+        QRect geo = subSurface->geometry();
+        geo.moveTo(p);
+        if (geo.isValid()) {
+            GLuint texture = 0;
+            if (subSurface->type() == WaylandSurface::Texture) {
+                texture = subSurface->texture(QOpenGLContext::currentContext());
+            } else if (surface->type() == WaylandSurface::Shm ) {
+                texture = m_textureCache->bindTexture(QOpenGLContext::currentContext(),surface->image());
+            }
+            qDebug() << "window geo is" << window->geometry().size();
+            m_textureBlitter->drawTexture(texture,geo,window->geometry().size(),0,window->isYInverted(),subSurface->isYInverted());
+        }
+        paintChildren(subSurface,window);
+    }
+}
+
+
 void QWindowCompositor::render()
 {
     m_window->makeCurrent();
+    m_backgroundTexture = m_textureCache->bindTexture(QOpenGLContext::currentContext(),m_backgroundImage);
 
+    m_textureBlitter->bind();
     //Draw the background Image texture
     int w = m_window->width();
     int h = m_window->height();
-    int iw = m_backgroundImage.width();
-    int ih = m_backgroundImage.height();
-    for (int y = 0; y < h; y += ih) {
-        for (int x = 0; x < w; x += iw) {
-            m_renderer->drawTexture(m_backgroundTexture, QRect(QPoint(x, y), QSize(iw, ih)), 0);
+    QSize imageSize = m_backgroundImage.size();
+    for (int y = 0; y < h; y += imageSize.height()) {
+        for (int x = 0; x < w; x += imageSize.width()) {
+            m_textureBlitter->drawTexture(m_backgroundTexture,QRect(QPoint(x, y),imageSize),window()->size(), 0,true,true);
         }
     }
 
-    //Iterate all surfaces in m_surfaces
-    //If type == WaylandSurface::Texture draw textureId at geometry
     foreach (WaylandSurface *surface, m_surfaces) {
-        if (surface->type() == WaylandSurface::Texture)
-            m_renderer->drawTexture(surface->texture(QOpenGLContext::currentContext()), surface->geometry(), 1); //depth argument should be dynamic (focused should be top).
-        else if (surface->type() == WaylandSurface::Shm)
-            m_renderer->drawImage(surface->image(), surface->geometry());
+        GLuint texture = composeSurface(surface);
+        m_textureBlitter->drawTexture(texture,surface->geometry(),m_window->size(),0,false,surface->isYInverted());
     }
+
+    m_textureBlitter->release();
     frameFinished();
     glFinish();
+
     m_window->swapBuffers();
-    m_window->context()->doneCurrent();
 }
 
 bool QWindowCompositor::eventFilter(QObject *obj, QEvent *event)
@@ -119,7 +175,7 @@ bool QWindowCompositor::eventFilter(QObject *obj, QEvent *event)
 
     switch (event->type()) {
     case QEvent::Expose:
-        render();
+        m_renderScheduler.start(0);
         break;
     case QEvent::MouseButtonPress: {
         QPoint local;
@@ -130,7 +186,7 @@ bool QWindowCompositor::eventFilter(QObject *obj, QEvent *event)
                 setInputFocus(targetSurface);
                 m_surfaces.removeOne(targetSurface);
                 m_surfaces.append(targetSurface);
-                render();
+                m_renderScheduler.start(0);
             }
             targetSurface->sendMousePressEvent(local, me->button());
         }

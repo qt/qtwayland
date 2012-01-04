@@ -91,6 +91,8 @@ public:
 
     virtual void changeCursor(const QImage &image, int hotspotX, int hotspotY);
 
+    void enableSubSurfaceExtension();
+
 private:
     static void retainedSelectionChanged(QMimeData *mimeData, void *param);
 

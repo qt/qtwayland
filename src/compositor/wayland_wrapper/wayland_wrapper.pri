@@ -1,5 +1,6 @@
 WAYLANDSOURCES += \
                 $$PWD/../../../extensions/surface-extension.xml \
+                $$PWD/../../../extensions/sub-surface-extension.xml \
                 $$PWD/../../../extensions/output-extension.xml
 
 
@@ -16,7 +17,8 @@ HEADERS += \
     $$PWD/wldataoffer.h \
     $$PWD/wldatasource.h \
     $$PWD/wlextendedsurface.h \
-    $$PWD/wlextendedoutput.h
+    $$PWD/wlextendedoutput.h \
+    $$PWD/wlsubsurface.h
 
 SOURCES += \
     $$PWD/wlcompositor.cpp \
@@ -31,5 +33,6 @@ SOURCES += \
     $$PWD/wldataoffer.cpp \
     $$PWD/wldatasource.cpp \
     $$PWD/wlextendedsurface.cpp \
-    $$PWD/wlextendedoutput.cpp
+    $$PWD/wlextendedoutput.cpp \
+    $$PWD/wlsubsurface.cpp
 

@@ -186,3 +186,8 @@ void WaylandCompositor::changeCursor(const QImage &image, int hotspotX, int hots
     Q_UNUSED(hotspotY);
     qDebug() << "changeCursor" << image.size() << hotspotX << hotspotY;
 }
+
+void WaylandCompositor::enableSubSurfaceExtension()
+{
+    m_compositor->enableSubSurfaceExtension();
+}

@@ -55,11 +55,10 @@
 #endif
 
 #include "qwaylandextendedsurface.h"
+#include "qwaylandsubsurface.h"
 
 #include <QCoreApplication>
 #include <QtGui/QWindowSystemInterface>
-
-#include <QDebug>
 
 QWaylandWindow::QWaylandWindow(QWindow *window)
     : QPlatformWindow(window)
@@ -67,6 +66,7 @@ QWaylandWindow::QWaylandWindow(QWindow *window)
     , mSurface(mDisplay->createSurface(this))
     , mShellSurface(mDisplay->shell()->createShellSurface(this))
     , mExtendedWindow(0)
+    , mSubSurfaceWindow(0)
     , mBuffer(0)
     , mWaitingForFrameSync(false)
     , mFrameCallback(0)
@@ -76,14 +76,19 @@ QWaylandWindow::QWaylandWindow(QWindow *window)
 
     if (mDisplay->windowExtension())
         mExtendedWindow = mDisplay->windowExtension()->getExtendedWindow(this);
+    if (mDisplay->subSurfaceExtension())
+        mSubSurfaceWindow = mDisplay->subSurfaceExtension()->getSubSurfaceAwareWindow(this);
 
 #ifdef QT_WAYLAND_WINDOWMANAGER_SUPPORT
     mDisplay->windowManagerIntegration()->mapClientToProcess(qApp->applicationPid());
     mDisplay->windowManagerIntegration()->authenticateWithToken();
 #endif
 
-    //all surfaces are toplevel surfaces for now
-    wl_shell_surface_set_toplevel(mShellSurface->handle());
+    if (parent() && mSubSurfaceWindow) {
+        mSubSurfaceWindow->setParent(static_cast<const QWaylandWindow *>(parent()));
+    } else {
+        wl_shell_surface_set_toplevel(mShellSurface->handle());
+    }
 }
 
 QWaylandWindow::~QWaylandWindow()
@@ -106,8 +111,10 @@ WId QWaylandWindow::winId() const
 
 void QWaylandWindow::setParent(const QPlatformWindow *parent)
 {
-    Q_UNUSED(parent);
-    qWarning("Sub window is not supported");
+    const QWaylandWindow *parentWaylandWindow = static_cast<const QWaylandWindow *>(parent);
+    if (subSurfaceWindow()) {
+        subSurfaceWindow()->setParent(parentWaylandWindow);
+    }
 }
 
 void QWaylandWindow::setVisible(bool visible)
@@ -191,4 +198,9 @@ QWaylandShellSurface *QWaylandWindow::shellSurface() const
 QWaylandExtendedSurface *QWaylandWindow::extendedWindow() const
 {
     return mExtendedWindow;
+}
+
+QWaylandSubSurface *QWaylandWindow::subSurfaceWindow() const
+{
+    return mSubSurfaceWindow;
 }

@@ -46,6 +46,7 @@
 #include "wlshmbuffer.h"
 #include "wlinputdevice.h"
 #include "wlextendedsurface.h"
+#include "wlsubsurface.h"
 
 #include <QtCore/QDebug>
 
@@ -203,11 +204,13 @@ public:
         : q_ptr(surface)
         , client(client)
         , compositor(compositor)
+        , qtSurface(new WaylandSurface(surface))
         , directRenderBuffer(0)
         , processId(0)
         , textureBuffer(0)
         , surfaceBuffer(0)
         , extendedSurface(0)
+        , subSurface(0)
 
 
     {
@@ -236,8 +239,11 @@ public:
     struct wl_list frame_callback_list;
 
     ExtendedSurface *extendedSurface;
+    SubSurface *subSurface;
 
     SurfaceBuffer bufferPool[buffer_pool_size];
+
+    QRect geometry;
 private:
     Surface *q_ptr;
 };
@@ -278,7 +284,7 @@ Surface::Surface(struct wl_client *client, Compositor *compositor)
     : d_ptr(new SurfacePrivate(this,client,compositor))
 {
     base()->resource.client = client;
-    d_ptr->qtSurface = new WaylandSurface(this);
+
 }
 
 Surface::~Surface()
@@ -308,6 +314,9 @@ bool Surface::isYInverted() const
 {
 #ifdef QT_COMPOSITOR_WAYLAND_GL
     Q_D(const Surface);
+
+    if (!d->surfaceBuffer)
+        return false;
 
     if (d->compositor->graphicsHWIntegration() && !d->surfaceBuffer->bufferIsDestroyed()) {
         if (type() == WaylandSurface::Texture) {
@@ -368,11 +377,31 @@ QImage Surface::image() const
     return QImage();
 }
 
+QRect Surface::geometry() const
+{
+    Q_D(const Surface);
+    return d->geometry;
+}
+
+void Surface::setGeometry(const QRect &rect)
+{
+    Q_D(Surface);
+    bool emitChange = false;
+    if (rect != d->geometry)
+        emitChange = true;
+    d->geometry = rect;
+    if (emitChange)
+        d->qtSurface->geometryChanged();
+}
+
 #ifdef QT_COMPOSITOR_WAYLAND_GL
 GLuint Surface::textureId(QOpenGLContext *context) const
 {
     Q_D(const Surface);
 
+    if (!d->surfaceBuffer) {
+        return 0;
+    }
     if (d->compositor->graphicsHWIntegration() && type() == WaylandSurface::Texture
          && !d->surfaceBuffer->textureCreated()) {
         Surface *that = const_cast<Surface *>(this);
@@ -408,7 +437,7 @@ void Surface::attach(struct wl_buffer *buffer)
         Q_ASSERT(newBuffer);
     }
 
-    bool emitMap = !d->surfaceBuffer && buffer;
+    bool emitMap = !d->surfaceBuffer && buffer && (!d->subSurface || !d->subSurface->parent());
     bool emitUnmap = d->surfaceBuffer && !buffer;
 
     if (d->surfaceBuffer && d->surfaceBuffer != d->directRenderBuffer) {
@@ -418,6 +447,17 @@ void Surface::attach(struct wl_buffer *buffer)
         d->surfaceBuffer = 0;
     }
     d->surfaceBuffer = newBuffer;
+    int width = 0;
+    int height = 0;
+    if (d->surfaceBuffer) {
+        width = d->surfaceBuffer->width();
+        height = d->surfaceBuffer->height();
+    }
+    QRect geo = geometry();
+    geo.setWidth(width);
+    geo.setHeight(height);
+    setGeometry(geo);
+
     if (emitMap) {
         d->qtSurface->mapped();
     } else if (emitUnmap) {
@@ -513,6 +553,18 @@ ExtendedSurface *Surface::extendedSurface() const
 {
     Q_D(const Surface);
     return d->extendedSurface;
+}
+
+void Surface::setSubSurface(SubSurface *subSurface)
+{
+    Q_D(Surface);
+    d->subSurface = subSurface;
+}
+
+SubSurface *Surface::subSurface() const
+{
+    Q_D(const Surface);
+    return d->subSurface;
 }
 
 void Surface::sendMousePressEvent(int x, int y, Qt::MouseButton button)

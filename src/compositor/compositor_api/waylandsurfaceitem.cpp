@@ -41,6 +41,9 @@
 #include "waylandsurfaceitem.h"
 #include "waylandsurface.h"
 
+#include "wlsurface.h"
+#include "wlextendedsurface.h"
+
 #include <QtGui/QKeyEvent>
 
 #include <QtQuick/QSGSimpleTextureNode>
@@ -61,13 +64,6 @@ public:
     QSGTexture *t;
     bool smooth;
 };
-
-void WaylandSurfaceItem::surfaceDamaged(const QRect &)
-{
-    m_damaged = true;
-    emit textureChanged();
-    update();
-}
 
 WaylandSurfaceItem::WaylandSurfaceItem(QQuickItem *parent)
     : QQuickItem(parent)
@@ -95,7 +91,12 @@ void WaylandSurfaceItem::init(WaylandSurface *surface)
     if (!surface)
         return;
 
+    if (m_surface) {
+        m_surface->setSurfaceItem(0);
+    }
+
     m_surface = surface;
+    m_surface->setSurfaceItem(this);
 
     setWidth(surface->geometry().width());
     setHeight(surface->geometry().height());
@@ -104,8 +105,12 @@ void WaylandSurfaceItem::init(WaylandSurface *surface)
     setFlag(ItemHasContents);
     setAcceptedMouseButtons(Qt::LeftButton | Qt::RightButton);
     connect(surface, SIGNAL(mapped(const QSize &)), this, SLOT(surfaceMapped(const QSize &)));
+    connect(surface, SIGNAL(unmapped()), this, SLOT(surfaceUnmapped()));
     connect(surface, SIGNAL(destroyed(QObject *)), this, SLOT(surfaceDestroyed(QObject *)));
     connect(surface, SIGNAL(damaged(const QRect &)), this, SLOT(surfaceDamaged(const QRect &)));
+    connect(surface, SIGNAL(parentChanged(WaylandSurface*,WaylandSurface*)),
+            this, SLOT(parentChanged(WaylandSurface*,WaylandSurface*)));
+    connect(surface, SIGNAL(geometryChanged()), this, SLOT(updateGeometry()));
 
     m_damaged = false;
 
@@ -113,6 +118,9 @@ void WaylandSurfaceItem::init(WaylandSurface *surface)
 
 WaylandSurfaceItem::~WaylandSurfaceItem()
 {
+    if (m_surface) {
+        m_surface->setSurfaceItem(0);
+    }
     m_texture->deleteLater();
 }
 
@@ -194,15 +202,47 @@ QPoint WaylandSurfaceItem::toSurface(const QPointF &pos) const
     return pos.toPoint();
 }
 
-void WaylandSurfaceItem::surfaceMapped(const QSize &size)
+void WaylandSurfaceItem::surfaceMapped(const QSize &)
 {
-    setWidth(size.width());
-    setHeight(size.height());
+    setPaintEnabled(true);
+}
+
+void WaylandSurfaceItem::surfaceUnmapped()
+{
+    setPaintEnabled(false);
 }
 
 void WaylandSurfaceItem::surfaceDestroyed(QObject *)
 {
     m_surface = 0;
+}
+
+void WaylandSurfaceItem::surfaceDamaged(const QRect &)
+{
+    m_damaged = true;
+    emit textureChanged();
+    update();
+}
+
+void WaylandSurfaceItem::parentChanged(WaylandSurface *newParent, WaylandSurface *oldParent)
+{
+    Q_UNUSED(oldParent);
+
+    WaylandSurfaceItem *item = newParent? newParent->surfaceItem():0;
+    setParentItem(item);
+
+    if (newParent) {
+        setPaintEnabled(true);
+        setVisible(true);
+        setOpacity(1);
+        setEnabled(true);
+    }
+}
+
+void WaylandSurfaceItem::updateGeometry()
+{
+    setPos(m_surface->geometry().topLeft());
+    setSize(m_surface->geometry().size());
 }
 
 bool WaylandSurfaceItem::paintEnabled() const
@@ -218,9 +258,10 @@ void WaylandSurfaceItem::setPaintEnabled(bool enabled)
 
 QSGNode *WaylandSurfaceItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *)
 {
-    if (!m_surface)
+    if (!m_surface) {
+        delete oldNode;
         return 0;
-    QSGSimpleTextureNode *node = static_cast<QSGSimpleTextureNode *>(oldNode);
+    }
 
     if (m_damaged) {
         QSGTexture *oldTexture = m_texture;
@@ -234,6 +275,7 @@ QSGNode *WaylandSurfaceItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeDa
         } else {
             m_texture = canvas()->createTextureFromImage(m_surface->image());
         }
+
         delete oldTexture;
         m_damaged = false;
     }
@@ -243,6 +285,7 @@ QSGNode *WaylandSurfaceItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeDa
         m_provider->smooth = smooth();
     }
 
+    QSGSimpleTextureNode *node = static_cast<QSGSimpleTextureNode *>(oldNode);
     if (!m_texture || !m_paintEnabled) {
         delete oldNode;
         return 0;

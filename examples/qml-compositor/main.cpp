@@ -56,8 +56,10 @@ class QmlCompositor : public QQuickView, public WaylandCompositor
 {
     Q_OBJECT
 public:
-    QmlCompositor() : WaylandCompositor(this) {
-        //setMouseTracking(true);
+    QmlCompositor()
+        : WaylandCompositor(this)
+    {
+        enableSubSurfaceExtension();
         setSource(QUrl(QLatin1String("qrc:qml/QmlCompositor/main.qml")));
         setResizeMode(QQuickView::SizeRootObjectToView);
         winId();
@@ -78,27 +80,20 @@ public slots:
 private slots:
     void surfaceMapped() {
         WaylandSurface *surface = qobject_cast<WaylandSurface *>(sender());
-        surface->setGeometry(QRect(surface->geometry().topLeft(),size));
-
-        if (m_windowMap.contains(surface)) {
-            WaylandSurfaceItem *item = m_windowMap.value(surface);
-            item->setWidth(size.width());
-            item->setHeight(size.height());
-            emit windowResized(QVariant::fromValue(static_cast<QQuickItem *>(item)));
-        } else {
-            WaylandSurfaceItem *item = new WaylandSurfaceItem(surface, rootObject());
-            item->setTouchEventsEnabled(true);
-            connect(surface, SIGNAL(destroyed(QObject *)), this, SLOT(surfaceDestroyed(QObject *)));
-            emit windowAdded(QVariant::fromValue(static_cast<QQuickItem *>(item)));
-            m_windowMap[surface] = item;
-
-            item->takeFocus();
-        }
+        WaylandSurfaceItem *item = surface->surfaceItem();
+        item->takeFocus();
+        emit windowAdded(QVariant::fromValue(static_cast<QQuickItem *>(item)));
+    }
+    void surfaceUnmapped() {
+        WaylandSurface *surface = qobject_cast<WaylandSurface *>(sender());
+        QQuickItem *item = surface->surfaceItem();
+        emit windowDestroyed(QVariant::fromValue(item));
     }
 
     void surfaceDestroyed(QObject *object) {
-        WaylandSurfaceItem *item = m_windowMap.take(object);
-        emit windowDestroyed(QVariant::fromValue(static_cast<QQuickItem *>(item)));
+        WaylandSurface *surface = static_cast<WaylandSurface *>(object);
+        QQuickItem *item = surface->surfaceItem();
+        emit windowDestroyed(QVariant::fromValue(item));
     }
 
     void frameSwappedSlot() {
@@ -107,11 +102,13 @@ private slots:
 
 protected:
     void surfaceCreated(WaylandSurface *surface) {
-        connect(surface, SIGNAL(mapped()), this, SLOT(surfaceMapped()));
-    }
+        WaylandSurfaceItem *item = new WaylandSurfaceItem(surface, rootObject());
+        item->setTouchEventsEnabled(true);
+        connect(surface, SIGNAL(destroyed(QObject *)), this, SLOT(surfaceDestroyed(QObject *)));
 
-private:
-    QMap<QObject *, WaylandSurfaceItem *> m_windowMap;
+        connect(surface, SIGNAL(mapped()), this, SLOT(surfaceMapped()));
+        connect(surface,SIGNAL(unmapped()), this,SLOT(surfaceUnmapped()));
+    }
 };
 
 int main(int argc, char *argv[])

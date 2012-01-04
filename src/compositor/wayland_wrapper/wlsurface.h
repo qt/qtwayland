@@ -64,6 +64,7 @@ namespace Wayland {
 class Compositor;
 class Buffer;
 class ExtendedSurface;
+class SubSurface;
 
 class SurfacePrivate;
 
@@ -82,6 +83,9 @@ public:
     uint id() const { return base()->resource.object.id; }
 
     QImage image() const;
+
+    QRect geometry() const;
+    void setGeometry(const QRect &rect);
 
 #ifdef QT_COMPOSITOR_WAYLAND_GL
     GLuint textureId(QOpenGLContext *context) const;
@@ -120,6 +124,9 @@ public:
 
     void setExtendedSurface(ExtendedSurface *extendedSurface);
     ExtendedSurface *extendedSurface() const;
+
+    void setSubSurface(SubSurface *subSurface);
+    SubSurface *subSurface() const;
 
     static const struct wl_surface_interface surface_interface;
 protected:

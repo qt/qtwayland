@@ -9,17 +9,22 @@ CONFIG += use_pkgconfig
 LIBS += -L ../../lib
 #include (../../src/qt-compositor/qt-compositor.pri)
 
+HEADERS += \
+    qopenglwindow.h \
+    qwindowcompositor.h \
+    textureblitter.h
+
 # Input
 SOURCES += main.cpp \
     qopenglwindow.cpp \
-    surfacerenderer.cpp \
-    qwindowcompositor.cpp
+    qwindowcompositor.cpp \
+    textureblitter.cpp
 
 CONFIG += qt warn_on debug  create_prl link_prl
 OBJECTS_DIR = .obj/release-shared
 MOC_DIR = .moc/release-shared
 
-QT += gui
+QT += gui gui-private core-private
 
 QT += compositor
 
@@ -27,11 +32,6 @@ QT += compositor
 #  instead of linking to it, remove the QT += compositor and uncomment
 #  the following line
 #include(../../src/compositor/compositor.pri)
-
-HEADERS += \
-    qopenglwindow.h \
-    surfacerenderer.h \
-    qwindowcompositor.h
 
 RESOURCES += qwindow-compositor.qrc
 

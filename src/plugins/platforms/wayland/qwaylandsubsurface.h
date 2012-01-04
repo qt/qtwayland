@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
-** This file is part of the config.tests of the Qt Toolkit.
+** This file is part of the plugins of the Qt Toolkit.
 **
 ** $QT_BEGIN_LICENSE:LGPL$
 ** GNU Lesser General Public License Usage
@@ -39,70 +39,35 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDWINDOW_H
-#define QWAYLANDWINDOW_H
-
-#include <QtGui/QPlatformWindow>
-#include <QtCore/QWaitCondition>
-
-#include "qwaylanddisplay.h"
+#ifndef QWAYLANDSUBSURFACE_H
+#define QWAYLANDSUBSURFACE_H
 
 class QWaylandDisplay;
-class QWaylandBuffer;
-class QWaylandShellSurface;
-class QWaylandExtendedSurface;
+class QWaylandWindow;
 class QWaylandSubSurface;
 
-struct wl_egl_window;
+#include <wayland-client.h>
 
-class QWaylandWindow : public QPlatformWindow
+class QWaylandSubSurfaceExtension
 {
 public:
-    enum WindowType {
-        Shm,
-        Egl
-    };
+    QWaylandSubSurfaceExtension(QWaylandDisplay *display, uint32_t id);
 
-    QWaylandWindow(QWindow *window);
-    ~QWaylandWindow();
-
-    virtual WindowType windowType() const = 0;
-    WId winId() const;
-    void setVisible(bool visible);
-    void setParent(const QPlatformWindow *parent);
-
-    void configure(uint32_t time, uint32_t edges,
-                   int32_t x, int32_t y, int32_t width, int32_t height);
-
-    void attach(QWaylandBuffer *buffer);
-    void damage(const QRect &rect);
-
-    void waitForFrameSync();
-
-    struct wl_surface *wl_surface() const { return mSurface; }
-
-    QWaylandShellSurface *shellSurface() const;
-    QWaylandExtendedSurface *extendedWindow() const;
-    QWaylandSubSurface *subSurfaceWindow() const;
-
-protected:
-    QWaylandDisplay *mDisplay;
-    struct wl_surface *mSurface;
-    QWaylandShellSurface *mShellSurface;
-    QWaylandExtendedSurface *mExtendedWindow;
-    QWaylandSubSurface *mSubSurfaceWindow;
-
-    QWaylandBuffer *mBuffer;
-    WId mWindowId;
-    bool mWaitingForFrameSync;
-    struct wl_callback *mFrameCallback;
-    QWaitCondition mFrameSyncWait;
-
+    QWaylandSubSurface *getSubSurfaceAwareWindow(QWaylandWindow *window);
 private:
-    static const wl_callback_listener callbackListener;
-    static void frameCallback(void *data, struct wl_callback *wl_callback, uint32_t time);
-
+    struct wl_sub_surface_extension *m_sub_surface_extension;
 };
 
+class QWaylandSubSurface
+{
+public:
+    QWaylandSubSurface(QWaylandWindow *window, struct wl_sub_surface *sub_surface);
 
-#endif // QWAYLANDWINDOW_H
+    void setParent(const QWaylandWindow *parent);
+
+private:
+    QWaylandWindow *m_window;
+    struct wl_sub_surface *m_sub_surface;
+};
+
+#endif // QWAYLANDSUBSURFACE_H

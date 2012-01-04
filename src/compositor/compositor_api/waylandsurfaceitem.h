@@ -100,8 +100,11 @@ public slots:
 
 private slots:
     void surfaceMapped(const QSize &size);
+    void surfaceUnmapped();
     void surfaceDestroyed(QObject *object);
     void surfaceDamaged(const QRect &);
+    void parentChanged(WaylandSurface *newParent, WaylandSurface *oldParent);
+    void updateGeometry();
 
 signals:
     void textureChanged();

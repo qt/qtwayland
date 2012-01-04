@@ -87,6 +87,11 @@ ExtendedSurface::ExtendedSurface(struct wl_client *client, uint32_t id, Surface 
                                                        this);
 }
 
+ExtendedSurface::~ExtendedSurface()
+{
+
+}
+
 void ExtendedSurface::sendGenericProperty(const char *name, const QVariant &variant)
 {
     QByteArray byteValue;
@@ -105,6 +110,7 @@ void ExtendedSurface::sendOnScreenVisibllity(bool visible)
     int32_t visibleInt = visible;
     wl_resource_post_event(m_extended_surface_resource,WL_EXTENDED_SURFACE_ONSCREEN_VISIBILITY,visibleInt);
 }
+
 
 void ExtendedSurface::update_generic_property(wl_client *client, wl_resource *extended_surface_resource, const char *name, wl_array *value)
 {

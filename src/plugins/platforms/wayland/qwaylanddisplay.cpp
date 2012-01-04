@@ -59,6 +59,7 @@
 
 #include "qwaylandextendedoutput.h"
 #include "qwaylandextendedsurface.h"
+#include "qwaylandsubsurface.h"
 
 #include <QtCore/QAbstractEventDispatcher>
 #include <QtGui/private/qguiapplication_p.h>
@@ -306,6 +307,8 @@ void QWaylandDisplay::displayHandleGlobal(uint32_t id,
         mOutputExtension = new QWaylandOutputExtension(this,id);
     } else if (interface == "wl_surface_extension") {
         mWindowExtension = new QWaylandSurfaceExtension(this,id);
+    } else if (interface == "wl_sub_surface_extension") {
+        mSubSurfaceExtension = new QWaylandSubSurfaceExtension(this,id);
     }
 }
 

@@ -49,6 +49,7 @@
 #include "wldatadevice.h"
 #include "wlextendedoutput.h"
 #include "wlextendedsurface.h"
+#include "wlsubsurface.h"
 
 #include <QWindow>
 #include <QSocketNotifier>
@@ -120,6 +121,7 @@ Compositor::Compositor(WaylandCompositor *qt_compositor)
     , m_retainNotify(0)
     , m_outputExtension(0)
     , m_surfaceExtension(0)
+    , m_subSurfaceExtension(0)
 {
     compositor = this;
     qDebug() << "Compositor instance is" << this;
@@ -337,6 +339,13 @@ void Compositor::initializeHardwareIntegration()
 void Compositor::initializeWindowManagerProtocol()
 {
     m_windowManagerIntegration->initialize(m_display);
+}
+
+void Compositor::enableSubSurfaceExtension()
+{
+    if (!m_subSurfaceExtension) {
+        m_subSurfaceExtension = new SubSurfaceExtensionGlobal(this);
+    }
 }
 
 bool Compositor::setDirectRenderSurface(Surface *surface)

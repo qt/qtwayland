@@ -64,6 +64,7 @@ class InputDevice;
 class DataDeviceManager;
 class OutputExtensionGlobal;
 class SurfaceExtensionGlobal;
+class SubSurfaceExtensionGlobal;
 
 class Q_COMPOSITOR_EXPORT Compositor : public QObject
 {
@@ -100,6 +101,7 @@ public:
     GraphicsHardwareIntegration *graphicsHWIntegration() const;
     void initializeHardwareIntegration();
     void initializeWindowManagerProtocol();
+    void enableSubSurfaceExtension();
     bool setDirectRenderSurface(Surface *surface);
     Surface *directRenderSurface() const {return m_directRenderSurface;}
 
@@ -181,6 +183,7 @@ private:
 
     OutputExtensionGlobal *m_outputExtension;
     SurfaceExtensionGlobal *m_surfaceExtension;
+    SubSurfaceExtensionGlobal *m_subSurfaceExtension;
 
     static void bind_func(struct wl_client *client, void *data,
                           uint32_t version, uint32_t id);

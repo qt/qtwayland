@@ -38,77 +38,92 @@
 **
 ****************************************************************************/
 
-#ifndef WLEXTENDEDSURFACE_H
-#define WLEXTENDEDSURFACE_H
-
-#include "wayland-surface-extension-server-protocol.h"
+#ifndef WLSUBSURFACE_H
+#define WLSUBSURFACE_H
 
 #include "wlsurface.h"
 
-#include <QtCore/QVariant>
+#include "wayland-sub-surface-extension-server-protocol.h"
+
 #include <QtCore/QLinkedList>
 
+class Compositor;
 class WaylandSurface;
 
 namespace Wayland {
 
-class Compositor;
-
-class SurfaceExtensionGlobal
+class SubSurfaceExtensionGlobal
 {
 public:
-    SurfaceExtensionGlobal(Compositor *compositor);
+    SubSurfaceExtensionGlobal(Compositor *compositor);
 
 private:
     Compositor *m_compositor;
 
     static void bind_func(struct wl_client *client, void *data,
                           uint32_t version, uint32_t id);
-    static void get_extended_surface(struct wl_client *client,
-                                 struct wl_resource *resource,
-                                 uint32_t id,
-                                 struct wl_resource *surface);
-    static const struct wl_surface_extension_interface surface_extension_interface;
+    static void get_sub_surface_aware_surface(struct wl_client *client,
+                                          struct wl_resource *sub_surface_extension_resource,
+                                          uint32_t id,
+                                          struct wl_resource *surface_resource);
 
+    static const struct wl_sub_surface_extension_interface sub_surface_extension_interface;
 };
 
-class ExtendedSurface
+class SubSurface
 {
 public:
-    ExtendedSurface(struct wl_client *client, uint32_t id, Surface *surface);
-    ~ExtendedSurface();
+    SubSurface(struct wl_client *client, uint32_t id, Surface *surface);
+    ~SubSurface();
 
-    void sendGenericProperty(const char *name, const QVariant &variant);
-    void sendOnScreenVisibllity(bool visible);
+    void setSubSurface(SubSurface *subSurface, int x, int y);
+    void removeSubSurface(SubSurface *subSurfaces);
 
-    void setSubSurface(ExtendedSurface *subSurface,int x, int y);
-    void removeSubSurface(ExtendedSurface *subSurfaces);
-    ExtendedSurface *parent() const;
-    void setParent(ExtendedSurface *parent);
+    SubSurface *parent() const;
+    void setParent(SubSurface *parent);
+
     QLinkedList<WaylandSurface *> subSurfaces() const;
 
+    Surface *surface() const;
+    WaylandSurface *waylandSurface() const;
+
 private:
-    struct wl_resource *m_extended_surface_resource;
+    struct wl_resource *m_sub_surface_resource;
     Surface *m_surface;
 
-    static void update_generic_property(struct wl_client *client,
-                                    struct wl_resource *resource,
-                                    const char *name,
-                                    struct wl_array *value);
-    static void map_sub_surface(struct wl_client *client,
-                            struct wl_resource *extended_surface_resource,
-                            struct wl_resource *sub_surface_resource,
-                            int32_t x,
-                            int32_t y);
-    static void move_sub_surface(struct wl_client *client,
-                             struct wl_resource *extended_surface_resource,
-                             struct wl_resource *sub_surface_resource,
-                             int32_t x,
-                             int32_t y);
+    SubSurface *m_parent;
+    QLinkedList<WaylandSurface *> m_sub_surfaces;
 
-    static const struct wl_extended_surface_interface extended_surface_interface;
+    static void attach_sub_surface(struct wl_client *client,
+                                   struct wl_resource *sub_surface_parent_resource,
+                                   struct wl_resource *sub_surface_child_resource,
+                                   int32_t x,
+                                   int32_t y);
+    static void move_sub_surface(struct wl_client *client,
+                                 struct wl_resource *sub_surface_parent_resource,
+                                 struct wl_resource *sub_surface_child_resource,
+                                 int32_t x,
+                                 int32_t y);
+    static void raise(struct wl_client *client,
+                      struct wl_resource *sub_surface_parent_resource,
+                      struct wl_resource *sub_surface_child_resource);
+    static void lower(struct wl_client *client,
+                      struct wl_resource *sub_surface_parent_resource,
+                      struct wl_resource *sub_surface_child_resource);
+    static const struct wl_sub_surface_interface sub_surface_interface;
 };
+
+inline Surface *SubSurface::surface() const
+{
+    return m_surface;
+}
+
+inline WaylandSurface *SubSurface::waylandSurface() const
+{
+    return m_surface->handle();
+}
+
 
 }
 
-#endif // WLEXTENDEDSURFACE_H
+#endif // WLSUBSURFACE_H

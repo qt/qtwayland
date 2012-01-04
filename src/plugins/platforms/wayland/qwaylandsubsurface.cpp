@@ -39,55 +39,41 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDEXTENDEDSURFACE_H
-#define QWAYLANDEXTENDEDSURFACE_H
+#include "qwaylandsubsurface.h"
 
-#include <wayland-client.h>
+#include "qwaylandwindow.h"
 
-#include <QtCore/QString>
-#include <QtCore/QVariant>
+#include "wayland-sub-surface-extension-client-protocol.h"
 
-class QWaylandDisplay;
-class QWaylandWindow;
-class QWaylandExtendedSurface;
-
-class QWaylandSurfaceExtension
+QWaylandSubSurfaceExtension::QWaylandSubSurfaceExtension(QWaylandDisplay *display, uint32_t id)
 {
-public:
-    QWaylandSurfaceExtension(QWaylandDisplay *display, uint32_t id);
+    m_sub_surface_extension = static_cast<struct wl_sub_surface_extension *>(
+                wl_display_bind(display->wl_display(),id, &wl_sub_surface_extension_interface));
+}
 
-    QWaylandExtendedSurface *getExtendedWindow(QWaylandWindow *window);
-private:
-    struct wl_surface_extension *m_surface_extension;
-};
-
-class QWaylandExtendedSurface
+QWaylandSubSurface *QWaylandSubSurfaceExtension::getSubSurfaceAwareWindow(QWaylandWindow *window)
 {
-public:
-    QWaylandExtendedSurface(QWaylandWindow *window, struct wl_extended_surface *extended_surface);
+    struct wl_surface *surface = window->wl_surface();
+    Q_ASSERT(surface);
+    struct wl_sub_surface *sub_surface =
+            wl_sub_surface_extension_get_sub_surface_aware_surface(m_sub_surface_extension,surface);
 
-    void updateGenericProperty(const QString &name, const QVariant &value);
-    QVariantMap properties() const;
-    QVariant property(const QString &name);
-    QVariant property(const QString &name, const QVariant &defaultValue);
+    return new QWaylandSubSurface(window,sub_surface);
 
-private:
-    QWaylandWindow *m_window;
-    struct wl_extended_surface *m_extended_surface;
+}
 
-    QVariantMap m_properties;
+QWaylandSubSurface::QWaylandSubSurface(QWaylandWindow *window, struct wl_sub_surface *sub_surface)
+    : m_window(window)
+    , m_sub_surface(sub_surface)
+{
+}
 
-    static void onscreen_visibility(void *data,
-                                struct wl_extended_surface *wl_extended_surface,
-                                int32_t visible);
-
-    static void set_generic_property(void *data,
-                                 struct wl_extended_surface *wl_extended_surface,
-                                 const char *name,
-                                 struct wl_array *value);
-
-    static const struct wl_extended_surface_listener extended_surface_listener;
-
-};
-
-#endif // QWAYLANDEXTENDEDSURFACE_H
+void QWaylandSubSurface::setParent(const QWaylandWindow *parent)
+{
+    QWaylandSubSurface *parentSurface = parent? parent->subSurfaceWindow():0;
+    if (parentSurface) {
+        int x = m_window->geometry().x();
+        int y = m_window->geometry().y();
+        wl_sub_surface_attach_sub_surface(parentSurface->m_sub_surface,m_sub_surface,x,y);
+    }
+}

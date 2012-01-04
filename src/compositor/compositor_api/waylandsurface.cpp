@@ -3,22 +3,59 @@
 #include <private/qobject_p.h>
 
 #include "wayland_wrapper/wlsurface.h"
+#include "wayland_wrapper/wlextendedsurface.h"
+#include "wayland_wrapper/wlsubsurface.h"
+
+#ifdef QT_COMPOSITOR_QUICK
+#include "waylandsurfaceitem.h"
+#endif
 
 class WaylandSurfacePrivate : public QObjectPrivate
 {
 public:
     WaylandSurfacePrivate(Wayland::Surface *srfc)
         : surface(srfc)
+#ifdef QT_COMPOSITOR_QUICK
+        , surface_item(0)
+#endif
     {}
 
+    ~WaylandSurfacePrivate()
+    {
+#ifdef QT_COMPOSITOR_QUICK
+        if (surface_item)
+            surface_item->setSurface(0);
+#endif
+    }
+
     Wayland::Surface *surface;
-    QRect geometry;
+#ifdef QT_COMPOSITOR_QUICK
+    WaylandSurfaceItem *surface_item;
+#endif
 };
 
 WaylandSurface::WaylandSurface(Wayland::Surface *surface)
     : QObject(*new WaylandSurfacePrivate(surface))
 {
 
+}
+
+WaylandSurface *WaylandSurface::parentSurface() const
+{
+    Q_D(const WaylandSurface);
+    if (d->surface->subSurface()) {
+        return d->surface->subSurface()->parent()->waylandSurface();
+    }
+    return 0;
+}
+
+QLinkedList<WaylandSurface *> WaylandSurface::subSurfaces() const
+{
+    Q_D(const WaylandSurface);
+    if (d->surface->subSurface()) {
+        return d->surface->subSurface()->subSurfaces();
+    }
+    return QLinkedList<WaylandSurface *>();
 }
 
 WaylandSurface::Type WaylandSurface::type() const
@@ -42,13 +79,13 @@ bool WaylandSurface::visible() const
 QRect WaylandSurface::geometry() const
 {
     Q_D(const WaylandSurface);
-    return d->geometry;
+    return d->surface->geometry();
 }
 
 void WaylandSurface::setGeometry(const QRect &geometry)
 {
     Q_D(WaylandSurface);
-    d->geometry = geometry;
+    d->surface->setGeometry(geometry);
 }
 
 QImage WaylandSurface::image() const
@@ -76,6 +113,20 @@ Wayland::Surface * WaylandSurface::handle() const
     return d->surface;
 }
 
+#ifdef QT_COMPOSITOR_QUICK
+WaylandSurfaceItem *WaylandSurface::surfaceItem() const
+{
+    Q_D(const WaylandSurface);
+    return d->surface_item;
+}
+
+void WaylandSurface::setSurfaceItem(WaylandSurfaceItem *surfaceItem)
+{
+    Q_D(WaylandSurface);
+    d->surface_item = surfaceItem;
+}
+#endif //QT_COMPOSITOR_QUICK
+
 qint64 WaylandSurface::processId() const
 {
     Q_D(const WaylandSurface);
@@ -98,6 +149,27 @@ void WaylandSurface::setWindowProperty(const QString &name, const QVariant &valu
 {
     Q_D(WaylandSurface);
     d->surface->setWindowProperty(name, value);
+}
+
+QPoint WaylandSurface::mapToParent(const QPoint &pos) const
+{
+    return pos + geometry().topLeft();
+}
+
+QPoint WaylandSurface::mapTo(WaylandSurface *parent, const QPoint &pos) const
+{
+    QPoint p = pos;
+    if (parent) {
+        const WaylandSurface * surface = this;
+        while (surface != parent) {
+            Q_ASSERT_X(surface, "WaylandSurface::mapTo(WaylandSurface *parent, const QPoint &pos)",
+                       "parent must be in parent hierarchy");
+            p = surface->mapToParent(p);
+            surface = surface->parentSurface();
+        }
+    }
+    return p;
+
 }
 
 void WaylandSurface::sendMousePressEvent(const QPoint &pos, Qt::MouseButton button)

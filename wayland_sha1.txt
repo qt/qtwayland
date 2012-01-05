@@ -1,3 +1,3 @@
 This version of Qt-Compositor is checked against the following sha1 from the
 Wayland repository:
-e68529b52f30974841974c53605f00c9a8ca1580
+1f58d155da09f66dc1eaaafafddae3312e71704f

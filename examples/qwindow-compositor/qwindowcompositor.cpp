@@ -241,6 +241,7 @@ bool QWindowCompositor::eventFilter(QObject *obj, QEvent *event)
                 targetSurface->sendMouseMoveEvent(local);
             }
         }
+        break;
     }
     case QEvent::KeyPress: {
         QKeyEvent *ke = static_cast<QKeyEvent *>(event);

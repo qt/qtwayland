@@ -91,7 +91,7 @@ void WaylandSurface::setPos(const QPointF &pos)
 QSize WaylandSurface::size() const
 {
     Q_D(const WaylandSurface);
-    d->surface->size();
+    return d->surface->size();
 }
 
 void WaylandSurface::setSize(const QSize &size)

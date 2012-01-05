@@ -154,13 +154,15 @@ protected:
     }
 
     void resizeEvent(QResizeEvent *e) {
-	QMdiSubWindow::resizeEvent(e);
-	m_surface->setGeometry(geometry());
+        QMdiSubWindow::resizeEvent(e);
+        m_surface->setPos(QPointF(geometry().topLeft()));
+        m_surface->setSize(geometry().size());
     }
 
     void moveEvent(QMoveEvent *e) {
-	QMdiSubWindow::moveEvent(e);
-	m_surface->setGeometry(geometry());
+        QMdiSubWindow::moveEvent(e);
+        m_surface->setPos(QPointF(geometry().topLeft()));
+        m_surface->setSize(geometry().size());
     }
 
 

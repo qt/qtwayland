@@ -46,7 +46,7 @@
 #include <QtQuick/QQuickItem>
 #include <QtQuick/qsgtexture.h>
 
-#include <QtQuick/private/qsgtextureprovider_p.h>
+#include <QtQuick/qsgtextureprovider.h>
 
 class WaylandSurface;
 class WaylandSurfaceTextureProvider;

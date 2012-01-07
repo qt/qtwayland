@@ -151,7 +151,7 @@ public:
     void setFinished() { m_is_frame_finished = true; }
 
     inline bool isPosted() const { return m_is_posted; }
-    inline bool isDisplayed() const { return m_texture || m_is_posted; }
+    inline bool isDisplayed() const { return m_texture || m_is_posted || wl_buffer_is_shm(m_buffer); }
     inline bool isFinished() const { return m_is_frame_finished; }
 
     inline QRect damageRect() const { return m_damageRect; }
@@ -544,6 +544,11 @@ void Surface::attach(struct wl_buffer *buffer)
         d->surfaceBuffer = 0;
     }
 #endif
+    SurfaceBuffer *last = d->bufferQueue.size()?d->bufferQueue.last():0;
+    if (last && !last->damageRect().isValid()) {
+        last->destructBufferState();
+        d->bufferQueue.takeLast();
+    }
     d->bufferQueue << newBuffer;
 }
 

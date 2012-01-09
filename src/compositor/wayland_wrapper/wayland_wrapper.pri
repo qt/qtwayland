@@ -10,7 +10,7 @@ HEADERS += \
     $$PWD/wloutput.h \
     $$PWD/wlshmbuffer.h \
     $$PWD/wlsurface.h \
-    $$PWD/wlshell.h \
+    $$PWD/wlshellsurface.h \
     $$PWD/wlinputdevice.h \
     $$PWD/wldatadevicemanager.h \
     $$PWD/wldatadevice.h \
@@ -26,7 +26,7 @@ SOURCES += \
     $$PWD/wloutput.cpp \
     $$PWD/wlshmbuffer.cpp \
     $$PWD/wlsurface.cpp \
-    $$PWD/wlshell.cpp \
+    $$PWD/wlshellsurface.cpp \
     $$PWD/wlinputdevice.cpp \
     $$PWD/wldatadevicemanager.cpp \
     $$PWD/wldatadevice.cpp \

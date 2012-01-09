@@ -50,6 +50,7 @@
 #include "wlextendedoutput.h"
 #include "wlextendedsurface.h"
 #include "wlsubsurface.h"
+#include "wlshellsurface.h"
 
 #include <QWindow>
 #include <QSocketNotifier>
@@ -106,7 +107,6 @@ Compositor *Compositor::instance()
 
 Compositor::Compositor(WaylandCompositor *qt_compositor)
     : m_display(new Display)
-    , m_shell(this)
     , m_shm(m_display)
     , m_current_frame(0)
     , m_last_queued_buf(-1)
@@ -141,6 +141,7 @@ Compositor::Compositor(WaylandCompositor *qt_compositor)
 
     wl_display_add_global(m_display->handle(), &wl_shell_interface, &m_shell, Shell::bind_func);
 
+    m_shell = new Shell(this);
     m_outputExtension = new OutputExtensionGlobal(this);
     m_surfaceExtension = new SurfaceExtensionGlobal(this);
 

@@ -235,6 +235,7 @@ public:
         , processId(0)
         , extendedSurface(0)
         , subSurface(0)
+        , shellSurface(0)
         , q_ptr(surface)
 
     {
@@ -352,6 +353,7 @@ public:
 
     ExtendedSurface *extendedSurface;
     SubSurface *subSurface;
+    ShellSurface *shellSurface;
 
     SurfaceBuffer bufferPool[buffer_pool_size];
 
@@ -651,6 +653,18 @@ SubSurface *Surface::subSurface() const
 {
     Q_D(const Surface);
     return d->subSurface;
+}
+
+void Surface::setShellSurface(ShellSurface *shellSurface)
+{
+    Q_D(Surface);
+    d->shellSurface = shellSurface;
+}
+
+ShellSurface *Surface::shellSurface() const
+{
+    Q_D(const Surface);
+    return d->shellSurface;
 }
 
 void Surface::sendMousePressEvent(int x, int y, Qt::MouseButton button)

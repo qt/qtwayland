@@ -48,7 +48,6 @@
 #include "wloutput.h"
 #include "wldisplay.h"
 #include "wlshmbuffer.h"
-#include "wlshell.h"
 
 #include <wayland-server.h>
 
@@ -65,6 +64,7 @@ class DataDeviceManager;
 class OutputExtensionGlobal;
 class SurfaceExtensionGlobal;
 class SubSurfaceExtensionGlobal;
+class Shell;
 
 class Q_COMPOSITOR_EXPORT Compositor : public QObject
 {
@@ -147,9 +147,6 @@ private:
     /* Output */
     //make this a list of the available screens
     OutputGlobal m_output_global;
-
-    Shell m_shell;
-
     /* shm/*/
     ShmHandler m_shm;
 
@@ -176,6 +173,8 @@ private:
     //extensions
     WindowManagerServerIntegration *m_windowManagerIntegration;
 
+
+    Shell *m_shell;
     OutputExtensionGlobal *m_outputExtension;
     SurfaceExtensionGlobal *m_surfaceExtension;
     SubSurfaceExtensionGlobal *m_subSurfaceExtension;

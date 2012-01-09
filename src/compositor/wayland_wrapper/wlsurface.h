@@ -67,6 +67,7 @@ class Compositor;
 class Buffer;
 class ExtendedSurface;
 class SubSurface;
+class ShellSurface;
 
 class SurfacePrivate;
 
@@ -134,6 +135,9 @@ public:
 
     void setSubSurface(SubSurface *subSurface);
     SubSurface *subSurface() const;
+
+    void setShellSurface(ShellSurface *shellSurface);
+    ShellSurface *shellSurface() const;
 
     static const struct wl_surface_interface surface_interface;
 protected:

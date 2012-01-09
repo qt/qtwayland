@@ -38,11 +38,11 @@
 **
 ****************************************************************************/
 
-#include "wlshell.h"
+#include "wlshellsurface.h"
 
 #include "wlcompositor.h"
-
-#include "wlcompositor.h"
+#include "wlsurface.h"
+#include "wlinputdevice.h"
 
 #include <QtCore/qglobal.h>
 #include <QtCore/QDebug>
@@ -63,17 +63,25 @@ void Shell::bind_func(struct wl_client *client, void *data,
 void Shell::get_shell_surface(struct wl_client *client,
               struct wl_resource *shell_resource,
               uint32_t id,
-              struct wl_resource *surface)
+              struct wl_resource *surface_super)
 {
-    Q_UNUSED(surface);
-    wl_client_add_object(client,&wl_shell_surface_interface,&shell_surface_interface,id,shell_resource->data);
+    Q_UNUSED(shell_resource);
+    Surface *surface = reinterpret_cast<Surface *>(surface_super);
+    new ShellSurface(client,id,surface);
 }
 
 const struct wl_shell_interface Shell::shell_interface = {
     Shell::get_shell_surface
 };
 
-void Shell::shell_surface_move(struct wl_client *client,
+ShellSurface::ShellSurface(wl_client *client, uint32_t id, Surface *surface)
+{
+    m_shellSurface = wl_client_add_object(client,&wl_shell_surface_interface,&shell_surface_interface,id,this);
+    surface->setShellSurface(this);
+
+}
+
+void ShellSurface::move(struct wl_client *client,
                 struct wl_resource *shell_surface_resource,
                 struct wl_resource *input_device,
                 uint32_t time)
@@ -84,55 +92,53 @@ void Shell::shell_surface_move(struct wl_client *client,
     Q_UNUSED(time);
 }
 
-void Shell::shell_surface_resize(struct wl_client *client,
+void ShellSurface::resize(struct wl_client *client,
                   struct wl_resource *shell_surface_resource,
-                  struct wl_resource *input_device,
+                  struct wl_resource *input_device_super,
                   uint32_t time,
                   uint32_t edges)
 {
-    Q_UNUSED(client);
     Q_UNUSED(shell_surface_resource);
-    Q_UNUSED(input_device);
-    Q_UNUSED(time);
-    Q_UNUSED(edges);
+    ShellSurface *shell_surface = static_cast<ShellSurface *>(shell_surface_resource->data);
+    InputDevice *input_device = static_cast<InputDevice *>(input_device_super->data);
 }
 
-void Shell::shell_surface_set_toplevel(struct wl_client *client,
+void ShellSurface::set_toplevel(struct wl_client *client,
                      struct wl_resource *shell_surface_resource)
 {
     Q_UNUSED(client);
     Q_UNUSED(shell_surface_resource);
 }
 
-void Shell::shell_surface_set_transient(struct wl_client *client,
+void ShellSurface::set_transient(struct wl_client *client,
                       struct wl_resource *shell_surface_resource,
-                      struct wl_resource *parent,
+                      struct wl_resource *parent_shell_surface_resource,
                       int x,
                       int y,
                       uint32_t flags)
 {
 
     Q_UNUSED(client);
-    Q_UNUSED(shell_surface_resource);
-    Q_UNUSED(parent);
-    Q_UNUSED(x);
-    Q_UNUSED(y);
     Q_UNUSED(flags);
+    ShellSurface *shell_surface = static_cast<ShellSurface *>(shell_surface_resource->data);
+    ShellSurface *parent_shell_surface = static_cast<ShellSurface *>(parent_shell_surface_resource->data);
+    QPointF point = parent_shell_surface->m_surface->pos() + QPoint(x,y);
+    shell_surface->m_surface->setPos(point);
 }
 
-void Shell::shell_surface_set_fullscreen(struct wl_client *client,
+void ShellSurface::set_fullscreen(struct wl_client *client,
                        struct wl_resource *shell_surface_resource)
 {
     Q_UNUSED(client);
     Q_UNUSED(shell_surface_resource);
 }
 
-const struct wl_shell_surface_interface Shell::shell_surface_interface = {
-    Shell::shell_surface_move,
-    Shell::shell_surface_resize,
-    Shell::shell_surface_set_toplevel,
-    Shell::shell_surface_set_transient,
-    Shell::shell_surface_set_fullscreen
+const struct wl_shell_surface_interface ShellSurface::shell_surface_interface = {
+    ShellSurface::move,
+    ShellSurface::resize,
+    ShellSurface::set_toplevel,
+    ShellSurface::set_transient,
+    ShellSurface::set_fullscreen
 };
 
 }

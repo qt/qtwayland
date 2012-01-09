@@ -38,14 +38,15 @@
 **
 ****************************************************************************/
 
-#ifndef WLSHELL_H
-#define WLSHELL_H
+#ifndef WLSHELLSURFACE_H
+#define WLSHELLSURFACE_H
 
-#include "waylandresourcecollection.h"
+#include <wayland-server.h>
 
 namespace Wayland {
 
 class Compositor;
+class Surface;
 
 class Shell
 {
@@ -61,24 +62,35 @@ private:
                   struct wl_resource *surface);
     static const struct wl_shell_interface shell_interface;
 
-    static void shell_surface_move(struct wl_client *client,
+};
+
+class ShellSurface
+{
+public:
+    ShellSurface(struct wl_client *client, uint32_t id, Surface *surface);
+
+private:
+    struct wl_resource *m_shellSurface;
+    Surface *m_surface;
+
+    static void move(struct wl_client *client,
                     struct wl_resource *shell_surface_resource,
-                    struct wl_resource *input_device,
+                    struct wl_resource *input_device_super,
                     uint32_t time);
-    static void shell_surface_resize(struct wl_client *client,
+    static void resize(struct wl_client *client,
                       struct wl_resource *shell_surface_resource,
                       struct wl_resource *input_device,
                       uint32_t time,
                       uint32_t edges);
-    static void shell_surface_set_toplevel(struct wl_client *client,
+    static void set_toplevel(struct wl_client *client,
                          struct wl_resource *shell_surface_resource);
-    static void shell_surface_set_transient(struct wl_client *client,
+    static void set_transient(struct wl_client *client,
                           struct wl_resource *shell_surface_resource,
                           struct wl_resource *parent,
                           int x,
                           int y,
                           uint32_t flags);
-    static void shell_surface_set_fullscreen(struct wl_client *client,
+    static void set_fullscreen(struct wl_client *client,
                            struct wl_resource *shell_surface_resource);
 
     static const struct wl_shell_surface_interface shell_surface_interface;
@@ -87,4 +99,4 @@ private:
 
 }
 
-#endif // WLSHELL_H
+#endif // WLSHELLSURFACE_H

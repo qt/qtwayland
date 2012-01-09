@@ -84,6 +84,7 @@ public:
         , m_is_released_sent(false)
         , m_is_registered_for_buffer(false)
         , m_is_posted(false)
+        , m_is_frame_finished(false)
         , m_texture(0)
     {
     }
@@ -101,6 +102,7 @@ public:
         m_is_released_sent = false;
         m_is_registered_for_buffer = true;
         m_is_posted = false;
+        m_is_frame_finished = false;
         m_destroy_listener.surfaceBuffer = this;
         m_destroy_listener.listener.func = destroy_listener_callback;
         wl_list_insert(&buffer->resource.destroy_listener_list,&m_destroy_listener.listener.link);
@@ -145,8 +147,11 @@ public:
          m_buffer = 0;
     }
 
+    void setFinished() { m_is_frame_finished = true; }
+
     inline bool isPosted() const { return m_is_posted; }
     inline bool isDisplayed() const { return m_texture || m_is_posted; }
+    inline bool isFinished() const { return m_is_frame_finished; }
 
     inline QRect damageRect() const { return m_damageRect; }
 
@@ -187,7 +192,7 @@ private:
     bool m_is_released_sent;
     bool m_is_registered_for_buffer;
     bool m_is_posted;
-
+    bool m_is_frame_finished;
 #ifdef QT_COMPOSITOR_WAYLAND_GL
     GLuint m_texture;
 #else
@@ -229,7 +234,6 @@ public:
         , processId(0)
         , extendedSurface(0)
         , subSurface(0)
-        , frameFinishedTooEarly(false)
         , q_ptr(surface)
 
     {
@@ -266,7 +270,6 @@ public:
 
         surfaceBuffer = bufferQueue.takeFirst();
 
-
         int width = 0;
         int height = 0;
         if (surfaceBuffer) {
@@ -275,8 +278,6 @@ public:
         }
         q_ptr->setSize(QSize(width,height));
 
-
-        frameFinishedTooEarly = false;
         if (surfaceBuffer &&  (!subSurface || !subSurface->parent()) && !surfaceMapped) {
             emit qtSurface->mapped();
             surfaceMapped = true;
@@ -303,14 +304,13 @@ public:
      }
 
     void frameFinished() {
+        if (surfaceBuffer)
+            surfaceBuffer->setFinished();
+
         if (!bufferQueue.isEmpty()) {
-            if (!surfaceBuffer || surfaceBuffer->isDisplayed()) {
-                newCurrentBuffer();
-                if (surfaceBuffer)
-                    doUpdate(surfaceBuffer->damageRect());
-            } else {
-                frameFinishedTooEarly = true;
-            }
+            newCurrentBuffer();
+            if (surfaceBuffer)
+                doUpdate(surfaceBuffer->damageRect());
         }
     }
 
@@ -352,8 +352,6 @@ public:
 
     QPointF position;
     QSize size;
-
-    bool frameFinishedTooEarly;
 
 private:
     Surface *q_ptr;
@@ -443,14 +441,15 @@ void Surface::damage(const QRect &rect)
 {
     Q_D(Surface);
 
-    if (!d->surfaceBuffer || !d->surfaceBuffer->handle())
-            return;
-
-// TODO direct render case...
-
-    if (d->bufferQueue.isEmpty()) {
+    if (!d->bufferQueue.isEmpty() && (!d->surfaceBuffer || d->surfaceBuffer->isFinished()) || !d->surfaceBuffer->handle() ) {
+            // Handle the "slow" case where we've finished the previous frame before the next damage comes.
+            d->newCurrentBuffer();
+            d->doUpdate(rect);
+    } else if (d->bufferQueue.isEmpty()) {
+        // we've receicved a second damage for the same buffer
         d->doUpdate(rect);
     } else {
+        // we're still composing the previous buffer, so just store the damage rect for later
         SurfaceBuffer *b = d->bufferQueue.last();
         if (b)
             b->setDamage(rect);
@@ -519,11 +518,6 @@ GLuint Surface::textureId(QOpenGLContext *context) const
         GraphicsHardwareIntegration *hwIntegration = d->compositor->graphicsHWIntegration();
         that->d_func()->textureBuffer = d->surfaceBuffer;
         that->d_func()->textureBuffer->setTexture(hwIntegration->createTextureFromBuffer(d->textureBuffer->handle(), context));
-        if (d->frameFinishedTooEarly) {
-            qDebug() << "calling frameFinished again...";
-            SurfacePrivate *that = const_cast<SurfacePrivate *>(d);
-            that->frameFinished();
-        }
     }
     return d->textureBuffer->texture();
 }
@@ -542,15 +536,9 @@ void Surface::attach(struct wl_buffer *buffer)
         //qDebug() << "releasing undisplayed buffer";
         d->surfaceBuffer->destructBufferState();
         d->surfaceBuffer = 0;
-    } else
+    }
 #endif
     d->bufferQueue << newBuffer;
-
-    if (!d->surfaceBuffer || d->surfaceBuffer->isDisplayed()) {
-            d->newCurrentBuffer();
-    } else {
-        qDebug("Queueing in attach");
-    }
 }
 
 WaylandSurface * Surface::handle() const

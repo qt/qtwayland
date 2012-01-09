@@ -268,6 +268,11 @@ public:
         if (surfaceBuffer && surfaceBuffer->isPosted())
             surfaceBuffer->destructBufferState();
 
+        if (surfaceBuffer && !surfaceBuffer->isDisplayed()) {
+            qDebug() << "### not skipping undisplayed buffer";
+            return;
+        }
+
         surfaceBuffer = bufferQueue.takeFirst();
 
         int width = 0;
@@ -441,7 +446,7 @@ void Surface::damage(const QRect &rect)
 {
     Q_D(Surface);
 
-    if (!d->bufferQueue.isEmpty() && (!d->surfaceBuffer || d->surfaceBuffer->isFinished()) || !d->surfaceBuffer->handle() ) {
+    if (!d->bufferQueue.isEmpty() && (!d->surfaceBuffer || d->surfaceBuffer->isFinished() || !d->surfaceBuffer->handle())) {
             // Handle the "slow" case where we've finished the previous frame before the next damage comes.
             d->newCurrentBuffer();
             d->doUpdate(rect);

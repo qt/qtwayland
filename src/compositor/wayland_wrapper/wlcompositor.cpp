@@ -193,11 +193,6 @@ void Compositor::createSurface(struct wl_client *client, int id)
     QList<struct wl_client *> prevClientList = clients();
     m_surfaces << surface;
 
-    //this is not how we want to solve this.
-    if (!prevClientList.contains(client)) {
-        emit clientAdded(client);
-    }
-
     m_qt_compositor->surfaceCreated(surface->handle());
 }
 

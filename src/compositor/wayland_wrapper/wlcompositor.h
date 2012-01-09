@@ -135,9 +135,6 @@ public:
 public slots:
     void releaseBuffer(void*);
 
-signals:
-    void clientAdded(wl_client *client);
-
 private slots:
     void processWaylandEvents();
 

@@ -7,10 +7,10 @@
 #include "qopenglwindow.h"
 
 #include <QtGui/private/qopengltexturecache_p.h>
-
 #include <QObject>
+#include <QOpenGLFunctions>
 
-class QWindowCompositor : public QObject, public WaylandCompositor
+class QWindowCompositor : public QObject, public WaylandCompositor, protected QOpenGLFunctions
 {
     Q_OBJECT
 public:

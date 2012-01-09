@@ -14,13 +14,13 @@ QWindowCompositor::QWindowCompositor(QOpenGLWindow *window)
     enableSubSurfaceExtension();
     m_window->makeCurrent();
 
+    initializeGLFunctions();
+
     m_textureCache = new QOpenGLTextureCache(m_window->context());
     m_textureBlitter = new TextureBlitter();
     m_backgroundImage = QImage(QLatin1String(":/background.jpg"));
     m_renderScheduler.setSingleShot(true);
     connect(&m_renderScheduler,SIGNAL(timeout()),this,SLOT(render()));
-
-
 
     glGenFramebuffers(1,&m_surface_fbo);
 

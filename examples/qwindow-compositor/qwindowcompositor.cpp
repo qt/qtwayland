@@ -98,7 +98,8 @@ WaylandSurface *QWindowCompositor::surfaceAt(const QPoint &point, QPoint *local)
     return 0;
 }
 
-GLuint QWindowCompositor::composeSurface(WaylandSurface *surface) {
+GLuint QWindowCompositor::composeSurface(WaylandSurface *surface)
+{
     GLuint texture = 0;
 
     glBindFramebuffer(GL_FRAMEBUFFER, m_surface_fbo);
@@ -226,7 +227,6 @@ bool QWindowCompositor::eventFilter(QObject *obj, QEvent *event)
     }
     case QEvent::KeyPress: {
         QKeyEvent *ke = static_cast<QKeyEvent *>(event);
-        qDebug() << ke->key();
         if (ke->key() == Qt::Key_Meta || ke->key() == Qt::Key_Super_L) {
             m_dragKeyIsPressed = true;
         }

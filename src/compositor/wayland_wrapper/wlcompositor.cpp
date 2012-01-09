@@ -112,8 +112,6 @@ Compositor::Compositor(WaylandCompositor *qt_compositor)
     , m_last_queued_buf(-1)
     , m_qt_compositor(qt_compositor)
     , m_orientation(Qt::UnknownOrientation)
-    , m_pointerFocusSurface(0)
-    , m_keyFocusSurface(0)
     , m_directRenderSurface(0)
 #if defined (QT_COMPOSITOR_WAYLAND_GL)
     , m_graphics_hw_integration(0)
@@ -258,10 +256,6 @@ void Compositor::surfaceDestroyed(Surface *surface)
 {
     m_surfaces.removeOne(surface);
     m_dirty_surfaces.remove(surface);
-    if (m_keyFocusSurface == surface)
-        setKeyFocus(0);
-    if (m_pointerFocusSurface == surface)
-        setPointerFocus(0);
     if (m_directRenderSurface == surface)
         setDirectRenderSurface(0);
 }
@@ -290,24 +284,22 @@ void Compositor::setInputFocus(Surface *surface)
 void Compositor::setKeyFocus(Surface *surface)
 {
     m_input->sendSelectionFocus(surface);
-    m_keyFocusSurface = surface;
     wl_input_device_set_keyboard_focus(m_input->base(), surface ? surface->base() : 0, currentTimeMsecs());
 }
 
 Surface *Compositor::keyFocus() const
 {
-    return m_keyFocusSurface;
+    return wayland_cast<Surface *>(m_input->base()->keyboard_focus);
 }
 
 void Compositor::setPointerFocus(Surface *surface, const QPoint &pos)
 {
-    m_pointerFocusSurface = surface;
     wl_input_device_set_pointer_focus(m_input->base(), surface ? surface->base() : 0, currentTimeMsecs(), pos.x(), pos.y(), pos.x(), pos.y());
 }
 
 Surface *Compositor::pointerFocus() const
 {
-    return m_pointerFocusSurface;
+    return wayland_cast<Surface *>(m_input->base()->pointer_focus);
 }
 
 QWindow *Compositor::window() const

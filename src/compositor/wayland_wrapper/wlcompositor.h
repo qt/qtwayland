@@ -167,8 +167,6 @@ private:
     WaylandCompositor *m_qt_compositor;
     Qt::ScreenOrientation m_orientation;
 
-    Surface *m_pointerFocusSurface;
-    Surface *m_keyFocusSurface;
     Surface *m_directRenderSurface;
 
 #ifdef QT_COMPOSITOR_WAYLAND_GL

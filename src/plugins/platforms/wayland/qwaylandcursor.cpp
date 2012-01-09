@@ -181,6 +181,7 @@ void QWaylandCursor::changeCursor(QCursor *cursor, QWindow *window)
                                             QImage::Format_ARGB32);
         }
         reader.read(mBuffer->image());
+        mBuffer->damage();
         mDisplay->setCursor(mBuffer, p->hotspot_x, p->hotspot_y);
     }
 }

@@ -88,6 +88,18 @@ QPointF QWindowCompositor::toSurface(WaylandSurface *surface, const QPointF &pos
     return pos - surface->pos();
 }
 
+void QWindowCompositor::changeCursor(const QImage &image, int hotspotX, int hotspotY)
+{
+    QCursor cursor(QPixmap::fromImage(image),hotspotX,hotspotY);
+    static bool cursroIsSet = false;
+    if (cursroIsSet) {
+        QGuiApplication::changeOverrideCursor(cursor);
+    } else {
+        QGuiApplication::setOverrideCursor(cursor);
+        cursroIsSet = true;
+    }
+}
+
 WaylandSurface *QWindowCompositor::surfaceAt(const QPoint &point, QPoint *local)
 {
     for (int i = m_surfaces.size() - 1; i >= 0; --i) {

@@ -34,6 +34,8 @@ protected:
     bool eventFilter(QObject *obj, QEvent *event);
     QPointF toSurface(WaylandSurface *surface, const QPointF &pos) const;
 
+    void changeCursor(const QImage &image, int hotspotX, int hotspotY);
+
 private:
     QOpenGLWindow *m_window;
     QImage m_backgroundImage;

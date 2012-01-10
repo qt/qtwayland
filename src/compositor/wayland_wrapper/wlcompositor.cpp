@@ -90,6 +90,7 @@ const static struct wl_compositor_interface compositor_interface = {
 void Compositor::bind_func(struct wl_client *client, void *data,
                       uint32_t version, uint32_t id)
 {
+    Q_UNUSED(version);
     wl_client_add_object(client,&wl_compositor_interface, &compositor_interface, id,data);
 }
 
@@ -110,10 +111,10 @@ Compositor::Compositor(WaylandCompositor *qt_compositor)
 #if defined (QT_COMPOSITOR_WAYLAND_GL)
     , m_graphics_hw_integration(0)
 #endif
-    , m_retainNotify(0)
     , m_outputExtension(0)
     , m_surfaceExtension(0)
     , m_subSurfaceExtension(0)
+    , m_retainNotify(0)
 {
     compositor = this;
     qDebug() << "Compositor instance is" << this;
@@ -135,7 +136,7 @@ Compositor::Compositor(WaylandCompositor *qt_compositor)
 
     wl_display_add_global(m_display->handle(), &wl_shell_interface, &m_shell, Shell::bind_func);
 
-    m_shell = new Shell(this);
+    m_shell = new Shell();
     m_outputExtension = new OutputExtensionGlobal(this);
     m_surfaceExtension = new SurfaceExtensionGlobal(this);
 
@@ -414,6 +415,7 @@ void Compositor::feedRetainedSelectionData(QMimeData *data)
 
 void Compositor::overrideSelection(QMimeData *data)
 {
+    Q_UNUSED(data);
     // ### TODO implement
 }
 
@@ -425,6 +427,9 @@ bool Compositor::isDragging() const
 void Compositor::sendDragMoveEvent(const QPoint &global, const QPoint &local,
                                             Surface *surface)
 {
+    Q_UNUSED(global);
+    Q_UNUSED(local);
+    Q_UNUSED(surface);
 //    Drag::instance()->dragMove(global, local, surface);
 }
 

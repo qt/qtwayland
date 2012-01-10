@@ -51,7 +51,7 @@ class Surface;
 class Shell
 {
 public:
-    Shell(Compositor *compositor);
+    Shell();
 
     static void bind_func(struct wl_client *client, void *data,
                           uint32_t version, uint32_t id);
@@ -74,24 +74,32 @@ private:
     Surface *m_surface;
 
     static void move(struct wl_client *client,
-                    struct wl_resource *shell_surface_resource,
-                    struct wl_resource *input_device_super,
-                    uint32_t time);
+                     struct wl_resource *shell_surface_resource,
+                     struct wl_resource *input_device_super,
+                     uint32_t time);
     static void resize(struct wl_client *client,
-                      struct wl_resource *shell_surface_resource,
-                      struct wl_resource *input_device,
-                      uint32_t time,
-                      uint32_t edges);
+                       struct wl_resource *shell_surface_resource,
+                       struct wl_resource *input_device,
+                       uint32_t time,
+                       uint32_t edges);
     static void set_toplevel(struct wl_client *client,
-                         struct wl_resource *shell_surface_resource);
+                             struct wl_resource *shell_surface_resource);
     static void set_transient(struct wl_client *client,
-                          struct wl_resource *shell_surface_resource,
-                          struct wl_resource *parent,
-                          int x,
-                          int y,
-                          uint32_t flags);
+                              struct wl_resource *shell_surface_resource,
+                              struct wl_resource *parent,
+                              int x,
+                              int y,
+                              uint32_t flags);
     static void set_fullscreen(struct wl_client *client,
-                           struct wl_resource *shell_surface_resource);
+                               struct wl_resource *shell_surface_resource);
+    static void set_popup(struct wl_client *client,
+                          struct wl_resource *resource,
+                          struct wl_resource *input_device,
+                          uint32_t time,
+                          struct wl_resource *parent,
+                          int32_t x,
+                          int32_t y,
+                          uint32_t flags);
 
     static const struct wl_shell_surface_interface shell_surface_interface;
 

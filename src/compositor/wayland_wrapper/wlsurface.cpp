@@ -345,7 +345,8 @@ public:
     QByteArray authenticationToken;
     QVariantMap windowProperties;
 
-    QPoint lastMousePos;
+    QPoint lastLocalMousePos;
+    QPoint lastGlobalMousePos;
 
     struct wl_list frame_callback_list;
 
@@ -624,7 +625,7 @@ uint32_t BTN_MIDDLE = 0x112;
 QPoint Surface::lastMousePos() const
 {
     Q_D(const Surface);
-    return d->lastMousePos;
+    return d->lastLocalMousePos;
 }
 
 void Surface::setExtendedSurface(ExtendedSurface *extendedSurface)
@@ -665,8 +666,13 @@ ShellSurface *Surface::shellSurface() const
 
 void Surface::sendMousePressEvent(int x, int y, Qt::MouseButton button)
 {
+    sendMousePressEvent(x,y,x,y,button);
+}
+
+void Surface::sendMousePressEvent(int global_x, int global_y, int local_x, int local_y, Qt::MouseButton button)
+{
     Q_D(Surface);
-    sendMouseMoveEvent(x, y);
+    sendMouseMoveEvent(global_x,global_y,local_x,local_y);
     uint32_t time = d->compositor->currentTimeMsecs();
     struct wl_resource *pointer_focus_resource = d->compositor->defaultInputDevice()->base()->pointer_focus_resource;
     if (pointer_focus_resource) {
@@ -677,8 +683,13 @@ void Surface::sendMousePressEvent(int x, int y, Qt::MouseButton button)
 
 void Surface::sendMouseReleaseEvent(int x, int y, Qt::MouseButton button)
 {
+    sendMouseReleaseEvent(x,y,x,y,button);
+}
+
+void Surface::sendMouseReleaseEvent(int global_x, int global_y, int local_x, int local_y, Qt::MouseButton button)
+{
     Q_D(Surface);
-    sendMouseMoveEvent(x, y);
+    sendMouseMoveEvent(global_x,global_y,local_x, local_y);
     uint32_t time = d->compositor->currentTimeMsecs();
     struct wl_resource *pointer_focus_resource = d->compositor->defaultInputDevice()->base()->pointer_focus_resource;
     if (pointer_focus_resource) {
@@ -689,14 +700,20 @@ void Surface::sendMouseReleaseEvent(int x, int y, Qt::MouseButton button)
 
 void Surface::sendMouseMoveEvent(int x, int y)
 {
+    sendMouseMoveEvent(x,y,x,y);
+}
+
+void Surface::sendMouseMoveEvent(int global_x, int global_y, int local_x, int local_y)
+{
     Q_D(Surface);
-    d->lastMousePos = QPoint(x, y);
+    d->lastLocalMousePos = QPoint(local_x, local_y);
+    d->lastGlobalMousePos = QPoint(global_x, global_y);
     uint32_t time = d->compositor->currentTimeMsecs();
-    d->compositor->setPointerFocus(this, QPoint(x, y));
+    d->compositor->setPointerFocus(this, d->lastGlobalMousePos, d->lastLocalMousePos);
     struct wl_resource *pointer_focus_resource = d->compositor->defaultInputDevice()->base()->pointer_focus_resource;
     if (pointer_focus_resource) {
         wl_resource_post_event(pointer_focus_resource,
-                               WL_INPUT_DEVICE_MOTION, time, x, y, x, y);
+                               WL_INPUT_DEVICE_MOTION, time, global_x, global_y, local_x, local_y);
     }
 }
 

@@ -98,8 +98,12 @@ public:
 #endif
 
     void sendMousePressEvent(int x, int y, Qt::MouseButton button);
+    void sendMousePressEvent(int global_x, int global_y, int local_x, int local_y, Qt::MouseButton button);
     void sendMouseReleaseEvent(int x, int y, Qt::MouseButton button);
+    void sendMouseReleaseEvent(int global_x, int global_y, int local_x, int local_y, Qt::MouseButton button);
     void sendMouseMoveEvent(int x, int y);
+    void sendMouseMoveEvent(int global_x, int global_y, int local_x, int local_y);
+
 
     void sendKeyPressEvent(uint code);
     void sendKeyReleaseEvent(uint code);

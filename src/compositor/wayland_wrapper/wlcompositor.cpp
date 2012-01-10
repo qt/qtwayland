@@ -285,9 +285,13 @@ Surface *Compositor::keyFocus() const
     return wayland_cast<Surface *>(m_input->base()->keyboard_focus);
 }
 
-void Compositor::setPointerFocus(Surface *surface, const QPoint &pos)
+void Compositor::setPointerFocus(Surface *surface, const QPoint &globalPos, const QPoint &localPos)
 {
-    wl_input_device_set_pointer_focus(m_input->base(), surface ? surface->base() : 0, currentTimeMsecs(), pos.x(), pos.y(), pos.x(), pos.y());
+    wl_input_device_set_pointer_focus(m_input->base(),
+                                      surface ? surface->base() : 0,
+                                      currentTimeMsecs(),
+                                      globalPos.x(), globalPos.y(),
+                                      localPos.x(), localPos.y());
 }
 
 Surface *Compositor::pointerFocus() const

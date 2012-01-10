@@ -78,7 +78,7 @@ public:
     void setInputFocus(Surface *surface);
     void setKeyFocus(Surface *surface);
     Surface *keyFocus() const;
-    void setPointerFocus(Surface *surface, const QPoint &point = QPoint());
+    void setPointerFocus(Surface *surface, const QPoint &globalPos = QPoint(), const QPoint &localPos = QPoint());
     Surface *pointerFocus() const;
 
     Surface *getSurfaceFromWinId(uint winId) const;

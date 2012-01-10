@@ -266,10 +266,9 @@ public:
 
     void newCurrentBuffer() {
         //TODO release SHM buffer....
-        if (surfaceBuffer && surfaceBuffer->isPosted())
+        if (surfaceBuffer && surfaceBuffer->isPosted()) {
             surfaceBuffer->destructBufferState();
-
-        if (surfaceBuffer && !surfaceBuffer->isDisplayed()) {
+        } else if (surfaceBuffer && !surfaceBuffer->isDisplayed()) {
             qDebug() << "### not skipping undisplayed buffer";
             return;
         }
@@ -413,7 +412,7 @@ Surface::~Surface()
 WaylandSurface::Type Surface::type() const
 {
     Q_D(const Surface);
-    if (d->surfaceBuffer && !d->surfaceBuffer->bufferIsDestroyed()) {
+    if (d->surfaceBuffer && d->surfaceBuffer->handle()) {
         if (d->surfaceBuffer && d->surfaceBuffer->isShmBuffer()) {
             return WaylandSurface::Shm;
         } else if (d->surfaceBuffer){
@@ -430,7 +429,7 @@ bool Surface::isYInverted() const
 
     if (!d->surfaceBuffer)
         return false;
-    if (d->compositor->graphicsHWIntegration() && !d->surfaceBuffer->bufferIsDestroyed() && type() != WaylandSurface::Shm) {
+    if (d->compositor->graphicsHWIntegration() && d->surfaceBuffer->handle() && type() != WaylandSurface::Shm) {
         return d->compositor->graphicsHWIntegration()->isYInverted(d->surfaceBuffer->handle());
     }
 #endif

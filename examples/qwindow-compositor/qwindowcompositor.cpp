@@ -258,15 +258,12 @@ bool QWindowCompositor::eventFilter(QObject *obj, QEvent *event)
         QList<QTouchEvent::TouchPoint> points = te->touchPoints();
         for (int i = 0; i < points.count(); ++i) {
             const QTouchEvent::TouchPoint &tp(points.at(i));
-            QPoint local;
-            WaylandSurface *targetSurface = surfaceAt(tp.pos().toPoint(), &local);
-            if (targetSurface) {
-                targetSurface->sendTouchPointEvent(tp.id(), local.x(), local.y(), tp.state());
+            WaylandSurface *targetSurface = surfaceAt(tp.pos().toPoint());
+            if (targetSurface)
                 targets.insert(targetSurface);
-            }
         }
         foreach (WaylandSurface *surface, targets)
-            surface->sendTouchFrameEvent();
+            surface->sendFullTouchEvent(te);
         break;
     }
     default:

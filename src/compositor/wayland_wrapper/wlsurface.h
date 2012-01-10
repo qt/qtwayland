@@ -59,6 +59,8 @@
 #include <QtGui/qopengl.h>
 #endif
 
+class QTouchEvent;
+
 namespace Wayland {
 
 class Compositor;
@@ -104,6 +106,8 @@ public:
     void sendTouchPointEvent(int id, int x, int y, Qt::TouchPointState state);
     void sendTouchFrameEvent();
     void sendTouchCancelEvent();
+
+    void sendFullTouchEvent(QTouchEvent *event);
 
     void sendFrameCallback();
 

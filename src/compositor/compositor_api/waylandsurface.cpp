@@ -232,6 +232,12 @@ void WaylandSurface::sendTouchCancelEvent()
     d->surface->sendTouchCancelEvent();
 }
 
+void WaylandSurface::sendFullTouchEvent(QTouchEvent *event)
+{
+    Q_D(WaylandSurface);
+    d->surface->sendFullTouchEvent(event);
+}
+
 void WaylandSurface::frameFinished()
 {
     Q_D(WaylandSurface);

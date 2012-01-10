@@ -49,6 +49,7 @@
 #include "wlsubsurface.h"
 
 #include <QtCore/QDebug>
+#include <QTouchEvent>
 
 #include <wayland-server.h>
 
@@ -748,6 +749,21 @@ void Surface::sendTouchCancelEvent()
     struct wl_resource *resource = d->compositor->defaultInputDevice()->base()->pointer_focus_resource;
     wl_resource_post_event(resource,
                          WL_INPUT_DEVICE_TOUCH_CANCEL);
+}
+
+void Surface::sendFullTouchEvent(QTouchEvent *event)
+{
+    const QList<QTouchEvent::TouchPoint> points = event->touchPoints();
+    if (points.isEmpty())
+        return;
+    const int pointCount = points.count();
+    for (int i = 0; i < pointCount; ++i) {
+        const QTouchEvent::TouchPoint &tp(points.at(i));
+        // Convert the local pos in the compositor window to surface-relative.
+        QPoint p = (tp.pos() - pos()).toPoint();
+        sendTouchPointEvent(tp.id(), p.x(), p.y(), tp.state());
+    }
+    sendTouchFrameEvent();
 }
 
 void Surface::sendFrameCallback()

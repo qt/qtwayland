@@ -68,7 +68,6 @@ QWaylandInputDevice::QWaylandInputDevice(QWaylandDisplay *display,
     , mPointerFocus(NULL)
     , mKeyboardFocus(NULL)
     , mButtons(0)
-    , mTouchState(QEvent::TouchBegin)
 {
     mInputDevice = static_cast<struct wl_input_device *>
             (wl_display_bind(mDisplay,id,&wl_input_device_interface));
@@ -503,10 +502,8 @@ void QWaylandInputDevice::handleTouchFrame()
 
     if (allReleased) {
         QWindowSystemInterface::handleTouchEvent(0, mTouchDevice, mTouchPoints);
-        mTouchState = QEvent::TouchBegin;
         mPrevTouchPoints.clear();
-    } else if (mTouchState == QEvent::TouchBegin)
-        mTouchState = QEvent::TouchUpdate;
+    }
 }
 
 void QWaylandInputDevice::inputHandleTouchCancel(void *data, struct wl_input_device *wl_input_device)

@@ -130,7 +130,6 @@ private:
     void handleTouchFrame();
     QList<QWindowSystemInterface::TouchPoint> mTouchPoints;
     QList<QWindowSystemInterface::TouchPoint> mPrevTouchPoints;
-    QEvent::Type mTouchState;
     QTouchDevice *mTouchDevice;
 };
 

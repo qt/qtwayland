@@ -75,7 +75,7 @@ class Q_COMPOSITOR_EXPORT Surface : public Object<struct wl_surface>
 {
     Q_DECLARE_PRIVATE(Surface)
 public:
-    Surface(struct wl_client *client, Compositor *compositor);
+    Surface(struct wl_client *client, uint32_t id, Compositor *compositor);
     ~Surface();
 
     WaylandSurface::Type type() const;
@@ -118,7 +118,7 @@ public:
     void sendOnScreenVisibilityChange(bool visible);
 
     WaylandSurface *handle() const;
-    wl_client *clientHandle() const;
+
     qint64 processId() const;
     void setProcessId(qint64 processId);
     QByteArray authenticationToken() const;

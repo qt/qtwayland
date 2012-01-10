@@ -225,9 +225,8 @@ class SurfacePrivate
 {
     Q_DECLARE_PUBLIC(Surface)
 public:
-    SurfacePrivate(Surface *surface, struct wl_client *client, Compositor *compositor)
-        : client(client)
-        , compositor(compositor)
+    SurfacePrivate(Surface *surface, Compositor *compositor)
+        : compositor(compositor)
         , qtSurface(new WaylandSurface(surface))
         , surfaceBuffer(0)
         , textureBuffer(0)
@@ -334,7 +333,6 @@ public:
         return false;
     }
 
-    struct wl_client *client;
     Compositor *compositor;
     WaylandSurface *qtSurface;
 
@@ -364,10 +362,14 @@ private:
     Surface *q_ptr;
 };
 
+void destroy_surface(struct wl_resource *resource)
+{
+    Surface *surface = wayland_cast<Surface *>((wl_surface *)resource);
+    delete surface;
+}
 
 void Surface::surface_destroy(struct wl_client *, struct wl_resource *surface_resource)
 {
-    //Surface *surface = reinterpret_cast<Surface *>(surface_resource);
     wl_resource_destroy(surface_resource,Compositor::currentTimeMsecs());
 }
 
@@ -396,11 +398,11 @@ void Surface::surface_frame(struct wl_client *client,
     wl_list_insert(&d->frame_callback_list,&frame_callback->link);
 }
 
-Surface::Surface(struct wl_client *client, Compositor *compositor)
-    : d_ptr(new SurfacePrivate(this,client,compositor))
+Surface::Surface(struct wl_client *client, uint32_t id, Compositor *compositor)
+    : d_ptr(new SurfacePrivate(this,compositor))
 {
-    base()->resource.client = client;
-
+    addClientResource(client, &base()->resource, id, &wl_surface_interface,
+            &Surface::surface_interface, destroy_surface);
 }
 
 Surface::~Surface()
@@ -559,12 +561,6 @@ WaylandSurface * Surface::handle() const
     return d->qtSurface;
 }
 
-wl_client *Surface::clientHandle() const
-{
-    Q_D(const Surface);
-    return d->client;
-}
-
 qint64 Surface::processId() const
 {
     Q_D(const Surface);
@@ -580,7 +576,7 @@ void Surface::setProcessId(qint64 processId)
 QByteArray Surface::authenticationToken() const
 {
     Q_D(const Surface);
-    return d->compositor->windowManagerIntegration()->managedClient(d->client)->authenticationToken();
+    return d->compositor->windowManagerIntegration()->managedClient(base()->resource.client)->authenticationToken();
 }
 
 QVariantMap Surface::windowProperties() const
@@ -671,13 +667,11 @@ void Surface::sendMousePressEvent(int x, int y, Qt::MouseButton button)
 {
     Q_D(Surface);
     sendMouseMoveEvent(x, y);
-    if (d->client) {
-        uint32_t time = d->compositor->currentTimeMsecs();
-        struct wl_resource *pointer_focus_resource = d->compositor->defaultInputDevice()->base()->pointer_focus_resource;
-        if (pointer_focus_resource) {
-            wl_resource_post_event(d->compositor->defaultInputDevice()->base()->pointer_focus_resource,
-                                   WL_INPUT_DEVICE_BUTTON, time, toWaylandButton(button), 1);
-        }
+    uint32_t time = d->compositor->currentTimeMsecs();
+    struct wl_resource *pointer_focus_resource = d->compositor->defaultInputDevice()->base()->pointer_focus_resource;
+    if (pointer_focus_resource) {
+        wl_resource_post_event(d->compositor->defaultInputDevice()->base()->pointer_focus_resource,
+                               WL_INPUT_DEVICE_BUTTON, time, toWaylandButton(button), 1);
     }
 }
 
@@ -685,28 +679,24 @@ void Surface::sendMouseReleaseEvent(int x, int y, Qt::MouseButton button)
 {
     Q_D(Surface);
     sendMouseMoveEvent(x, y);
-    if (d->client) {
-        uint32_t time = d->compositor->currentTimeMsecs();
-        struct wl_resource *pointer_focus_resource = d->compositor->defaultInputDevice()->base()->pointer_focus_resource;
-        if (pointer_focus_resource) {
-            wl_resource_post_event(pointer_focus_resource,
-                                   WL_INPUT_DEVICE_BUTTON, time, toWaylandButton(button), 0);
-        }
+    uint32_t time = d->compositor->currentTimeMsecs();
+    struct wl_resource *pointer_focus_resource = d->compositor->defaultInputDevice()->base()->pointer_focus_resource;
+    if (pointer_focus_resource) {
+        wl_resource_post_event(pointer_focus_resource,
+                               WL_INPUT_DEVICE_BUTTON, time, toWaylandButton(button), 0);
     }
 }
 
 void Surface::sendMouseMoveEvent(int x, int y)
 {
     Q_D(Surface);
-    if (d->client) {
-        d->lastMousePos = QPoint(x, y);
-        uint32_t time = d->compositor->currentTimeMsecs();
-        d->compositor->setPointerFocus(this, QPoint(x, y));
-        struct wl_resource *pointer_focus_resource = d->compositor->defaultInputDevice()->base()->pointer_focus_resource;
-        if (pointer_focus_resource) {
-            wl_resource_post_event(pointer_focus_resource,
-                                   WL_INPUT_DEVICE_MOTION, time, x, y, x, y);
-        }
+    d->lastMousePos = QPoint(x, y);
+    uint32_t time = d->compositor->currentTimeMsecs();
+    d->compositor->setPointerFocus(this, QPoint(x, y));
+    struct wl_resource *pointer_focus_resource = d->compositor->defaultInputDevice()->base()->pointer_focus_resource;
+    if (pointer_focus_resource) {
+        wl_resource_post_event(pointer_focus_resource,
+                               WL_INPUT_DEVICE_MOTION, time, x, y, x, y);
     }
 }
 

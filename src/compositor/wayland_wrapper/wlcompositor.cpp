@@ -77,12 +77,6 @@ namespace Wayland {
 
 static Compositor *compositor;
 
-void destroy_surface(struct wl_resource *resource)
-{
-    Surface *surface = wayland_cast<Surface *>((wl_surface *)resource);
-    delete surface;
-}
-
 void compositor_create_surface(struct wl_client *client,
                                struct wl_resource *resource, uint32_t id)
 {
@@ -181,13 +175,10 @@ void Compositor::frameFinished(Surface *surface)
     }
 }
 
-void Compositor::createSurface(struct wl_client *client, int id)
+void Compositor::createSurface(struct wl_client *client, uint32_t id)
 {
-    Surface *surface = new Surface(client, this);
+    Surface *surface = new Surface(client,id, this);
     printf("Compositor::createSurface: %p %d\n", client, id);
-
-    addClientResource(client, &surface->base()->resource, id, &wl_surface_interface,
-            &Surface::surface_interface, destroy_surface);
 
     QList<struct wl_client *> prevClientList = clients();
     m_surfaces << surface;
@@ -396,7 +387,7 @@ QList<Wayland::Surface *> Compositor::surfacesForClient(wl_client *client)
     QList<Wayland::Surface *> ret;
 
     for (int i=0; i < m_surfaces.count(); ++i) {
-        if (m_surfaces.at(i)->clientHandle() == client) {
+        if (m_surfaces.at(i)->base()->resource.client == client) {
             ret.append(m_surfaces.at(i));
         }
     }

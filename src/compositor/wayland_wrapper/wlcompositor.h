@@ -88,7 +88,7 @@ public:
     InputDevice *inputDevice() { return m_input; }
     InputDevice *defaultInputDevice();
 
-    void createSurface(struct wl_client *client, int id);
+    void createSurface(struct wl_client *client, uint32_t id);
     void surfaceDestroyed(Surface *surface);
     void markSurfaceAsDirty(Surface *surface);
 

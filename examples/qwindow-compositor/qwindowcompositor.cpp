@@ -224,6 +224,7 @@ bool QWindowCompositor::eventFilter(QObject *obj, QEvent *event)
         } else {
             QPoint local;
             WaylandSurface *targetSurface = surfaceAt(me->pos(), &local);
+            setMouseFocus(targetSurface);
             if (targetSurface) {
                 targetSurface->sendMouseMoveEvent(local);
             }

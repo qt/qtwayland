@@ -65,6 +65,10 @@ public:
 
     void setInputFocus(WaylandSurface *surface);
     WaylandSurface *inputFocus() const;
+
+    void setMouseFocus(WaylandSurface *surface);
+    WaylandSurface *mouseFocus() const;
+
     void destroyClientForSurface(WaylandSurface *surface);
 
     void setDirectRenderSurface(WaylandSurface *surface);

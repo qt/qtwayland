@@ -94,6 +94,18 @@ WaylandSurface *WaylandCompositor::inputFocus() const
     return surfaceImpl ? surfaceImpl->handle() : 0;
 }
 
+void WaylandCompositor::setMouseFocus(WaylandSurface *surface)
+{
+    Wayland::Surface *surfaceImpl = surface? surface->handle() : 0;
+    m_compositor->setPointerFocus(surfaceImpl);
+}
+
+WaylandSurface *WaylandCompositor::mouseFocus() const
+{
+    Wayland::Surface *surfaceImpl = m_compositor->pointerFocus();
+    return surfaceImpl ? surfaceImpl->handle() : 0;
+}
+
 void WaylandCompositor::destroyClientForSurface(WaylandSurface *surface)
 {
     m_compositor->destroyClientForSurface(surface->handle());

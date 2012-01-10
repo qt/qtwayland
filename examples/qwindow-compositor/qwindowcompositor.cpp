@@ -45,8 +45,12 @@ void QWindowCompositor::surfaceMapped()
     WaylandSurface *surface = qobject_cast<WaylandSurface *>(sender());
     QPoint pos;
     if (!m_surfaces.contains(surface)) {
-        uint px = 1 + (qrand() % (m_window->width() - surface->size().width() - 2));
-        uint py = 1 + (qrand() % (m_window->height() - surface->size().height() - 2));
+        uint px = 0;
+        uint py = 0;
+        if (!QCoreApplication::arguments().contains(QLatin1String("-stickytopleft"))) {
+            px = 1 + (qrand() % (m_window->width() - surface->size().width() - 2));
+            py = 1 + (qrand() % (m_window->height() - surface->size().height() - 2));
+        }
         pos = QPoint(px, py);
         surface->setPos(pos);
     } else {

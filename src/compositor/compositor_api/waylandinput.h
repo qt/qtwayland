@@ -38,35 +38,31 @@
 **
 ****************************************************************************/
 
-#ifndef WLINPUTDEVICE_H
-#define WLINPUTDEVICE_H
+#ifndef WAYLANDINPUT_H
+#define WAYLANDINPUT_H
 
-#include "waylandobject.h"
-
-#include <stdint.h>
-
-#include <QtCore/QList>
+#include <QtCore/qnamespace.h>
 #include <QtCore/QPoint>
 
+#include "waylandexport.h"
+
+class WaylandCompositor;
+class WaylandSurface;
 class QTouchEvent;
-class WaylandInputDevice;
 
 namespace Wayland {
+class InputDevice;
+}
 
-class Compositor;
-class DataDevice;
-class Surface;
-class DataDeviceManager;
-
-class InputDevice : public Object<struct wl_input_device>
+class Q_COMPOSITOR_EXPORT WaylandInputDevice
 {
 public:
-    InputDevice(WaylandInputDevice *handle, Compositor *compositor);
+    WaylandInputDevice(WaylandCompositor *compositor);
 
     void sendMousePressEvent(Qt::MouseButton button, const QPoint &localPos, const QPoint &globalPos = QPoint());
     void sendMouseReleaseEvent(Qt::MouseButton button, const QPoint &localPos, const QPoint &globalPos = QPoint());
     void sendMouseMoveEvent(const QPoint &localPos, const QPoint &globalPos = QPoint());
-    void sendMouseMoveEvent(Surface *surface, const QPoint &localPos, const QPoint &globalPos = QPoint());
+    void sendMouseMoveEvent(WaylandSurface *surface , const QPoint &localPos, const QPoint &globalPos = QPoint());
 
     void sendKeyPressEvent(uint code);
     void sendKeyReleaseEvent(uint code);
@@ -77,35 +73,17 @@ public:
 
     void sendFullTouchEvent(QTouchEvent *event);
 
-    Surface *keyboardFocus() const;
-    void setKeyboardFocus(Surface *surface);
+    WaylandSurface *keyboardFocus() const;
+    void setKeyboardFocus(WaylandSurface *surface);
 
-    Surface *mouseFocus() const;
-    void setMouseFocus(Surface *surface, const QPoint &localPos, const QPoint &globalPos);
+    WaylandSurface *mouseFocus() const;
+    void setMouseFocus(WaylandSurface *surface, const QPoint &local_pos, const QPoint &global_pos = QPoint());
 
-    void clientRequestedDataDevice(DataDeviceManager *dndSelection, struct wl_client *client, uint32_t id);
-    DataDevice *dataDevice(struct wl_client *client) const;
-    void sendSelectionFocus(Surface *surface);
-
-    Compositor *compositor() const;
-    WaylandInputDevice *handle() const;
+    WaylandCompositor *compositor() const;
+    Wayland::InputDevice *handle() const;
 private:
-    WaylandInputDevice *m_handle;
-    Compositor *m_compositor;
-    QList<DataDevice *>m_data_devices;
-
-    uint32_t toWaylandButton(Qt::MouseButton button);
-
-    static void bind_func(struct wl_client *client, void *data,
-                                uint32_t version, uint32_t id);
-    static void input_device_attach(struct wl_client *client,
-                             struct wl_resource *device_base,
-                             uint32_t time,
-                             struct wl_resource *buffer, int32_t x, int32_t y);
-    const static struct wl_input_device_interface input_device_interface;
-    static void destroy_resource(struct wl_resource *resource);
+    Wayland::InputDevice *d;
+    Q_DISABLE_COPY(WaylandInputDevice)
 };
 
-}
-
-#endif // WLINPUTDEVICE_H
+#endif // WAYLANDINPUT_H

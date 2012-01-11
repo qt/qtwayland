@@ -54,6 +54,7 @@
 
 class QTouchEvent;
 class WaylandSurfacePrivate;
+class WaylandCompositor;
 
 #ifdef QT_COMPOSITOR_QUICK
 class WaylandSurfaceItem;
@@ -100,23 +101,9 @@ public:
     uint texture(QOpenGLContext *context) const;
 #endif
 
-    void sendMousePressEvent(const QPoint &pos, Qt::MouseButton button);
-    void sendMouseReleaseEvent(const QPoint &pos, Qt::MouseButton button);
-    void sendMouseMoveEvent(const QPoint &pos);
-
-    void sendKeyPressEvent(uint code);
-    void sendKeyReleaseEvent(uint code);
-
-    void sendTouchPointEvent(int id, int x, int y, Qt::TouchPointState state);
-    void sendTouchFrameEvent();
-    void sendTouchCancelEvent();
-
-    void sendFullTouchEvent(QTouchEvent *event);
-
     void sendOnScreenVisibilityChange(bool visible);
 
     void frameFinished();
-    void setInputFocus();
 
     Wayland::Surface *handle() const;
 
@@ -132,6 +119,8 @@ public:
 
     QPointF mapToParent(const QPointF &) const;
     QPointF mapTo(WaylandSurface *, const QPointF &) const;
+
+    WaylandCompositor *compositor() const;
 
 signals:
     void mapped();

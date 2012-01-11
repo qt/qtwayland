@@ -40,6 +40,8 @@
 
 #include "waylandsurfaceitem.h"
 #include "waylandsurface.h"
+#include "waylandcompositor.h"
+#include "waylandinput.h"
 
 #include "wlsurface.h"
 #include "wlextendedsurface.h"
@@ -144,46 +146,57 @@ QSGTextureProvider *WaylandSurfaceItem::textureProvider() const
 
 void WaylandSurfaceItem::mousePressEvent(QMouseEvent *event)
 {
-    if (m_surface)
-        m_surface->sendMousePressEvent(toSurface(event->pos()), event->button());
+    if (m_surface) {
+        WaylandInputDevice *inputDevice = m_surface->compositor()->defaultInputDevice();
+        inputDevice->sendMousePressEvent(event->button(), toSurface(event->pos()));
+    }
 }
 
 void WaylandSurfaceItem::mouseMoveEvent(QMouseEvent *event)
 {
-    if (m_surface)
-        m_surface->sendMouseMoveEvent(toSurface(event->pos()));
+    if (m_surface){
+        WaylandInputDevice *inputDevice = m_surface->compositor()->defaultInputDevice();
+        inputDevice->sendMouseMoveEvent(m_surface, toSurface(event->pos()));
+    }
 }
 
 void WaylandSurfaceItem::mouseReleaseEvent(QMouseEvent *event)
 {
-    if (m_surface)
-        m_surface->sendMouseReleaseEvent(toSurface(event->pos()), event->button());
+    if (m_surface){
+        WaylandInputDevice *inputDevice = m_surface->compositor()->defaultInputDevice();
+        inputDevice->sendMouseReleaseEvent(event->button(), toSurface(event->pos()));
+    }
 }
 
 void WaylandSurfaceItem::keyPressEvent(QKeyEvent *event)
 {
-    if (m_surface && hasFocus())
-        m_surface->sendKeyPressEvent(event->nativeScanCode());
+    if (m_surface && hasFocus()) {
+        WaylandInputDevice *inputDevice = m_surface->compositor()->defaultInputDevice();
+        inputDevice->sendKeyPressEvent(event->nativeScanCode());
+    }
 }
 
 void WaylandSurfaceItem::keyReleaseEvent(QKeyEvent *event)
 {
-    if (m_surface && hasFocus())
-        m_surface->sendKeyReleaseEvent(event->nativeScanCode());
+    if (m_surface && hasFocus()) {
+        WaylandInputDevice *inputDevice = m_surface->compositor()->defaultInputDevice();
+        inputDevice->sendKeyReleaseEvent(event->nativeScanCode());
+    }
 }
 
 void WaylandSurfaceItem::touchEvent(QTouchEvent *event)
 {
     if (m_touchEventsEnabled && m_surface) {
+        WaylandInputDevice *inputDevice = m_surface->compositor()->defaultInputDevice();
         event->accept();
         QList<QTouchEvent::TouchPoint> points = event->touchPoints();
         if (!points.isEmpty()) {
             for (int i = 0; i < points.count(); ++i) {
                 const QTouchEvent::TouchPoint &point(points.at(i));
                 // Wayland expects surface-relative coordinates.
-                m_surface->sendTouchPointEvent(point.id(), point.pos().x(), point.pos().y(), point.state());
+                inputDevice->sendTouchPointEvent(point.id(), point.pos().x(), point.pos().y(), point.state());
             }
-            m_surface->sendTouchFrameEvent();
+            inputDevice->sendTouchFrameEvent();
         }
     } else {
         event->ignore();
@@ -194,8 +207,10 @@ void WaylandSurfaceItem::takeFocus()
 {
     setFocus(true);
 
-    if (m_surface)
-        m_surface->setInputFocus();
+    if (m_surface) {
+        WaylandInputDevice *inputDevice = m_surface->compositor()->defaultInputDevice();
+        inputDevice->setKeyboardFocus(m_surface);
+    }
 }
 
 QPoint WaylandSurfaceItem::toSurface(const QPointF &pos) const

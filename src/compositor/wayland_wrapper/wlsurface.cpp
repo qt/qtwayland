@@ -604,24 +604,6 @@ void Surface::setWindowProperty(const QString &name, const QVariant &value, bool
     }
 }
 
-uint32_t toWaylandButton(Qt::MouseButton button)
-{
-#ifndef BTN_LEFT
-uint32_t BTN_LEFT = 0x110;
-uint32_t BTN_RIGHT = 0x111;
-uint32_t BTN_MIDDLE = 0x112;
-#endif
-    switch (button) {
-    case Qt::LeftButton:
-        return BTN_LEFT;
-    case Qt::RightButton:
-        return BTN_RIGHT;
-    default:
-        return BTN_MIDDLE;
-    }
-
-}
-
 QPoint Surface::lastMousePos() const
 {
     Q_D(const Surface);
@@ -664,131 +646,10 @@ ShellSurface *Surface::shellSurface() const
     return d->shellSurface;
 }
 
-void Surface::sendMousePressEvent(int x, int y, Qt::MouseButton button)
+Compositor *Surface::compositor() const
 {
-    sendMousePressEvent(x,y,x,y,button);
-}
-
-void Surface::sendMousePressEvent(int global_x, int global_y, int local_x, int local_y, Qt::MouseButton button)
-{
-    Q_D(Surface);
-    sendMouseMoveEvent(global_x,global_y,local_x,local_y);
-    uint32_t time = d->compositor->currentTimeMsecs();
-    struct wl_resource *pointer_focus_resource = d->compositor->defaultInputDevice()->base()->pointer_focus_resource;
-    if (pointer_focus_resource) {
-        wl_resource_post_event(d->compositor->defaultInputDevice()->base()->pointer_focus_resource,
-                               WL_INPUT_DEVICE_BUTTON, time, toWaylandButton(button), 1);
-    }
-}
-
-void Surface::sendMouseReleaseEvent(int x, int y, Qt::MouseButton button)
-{
-    sendMouseReleaseEvent(x,y,x,y,button);
-}
-
-void Surface::sendMouseReleaseEvent(int global_x, int global_y, int local_x, int local_y, Qt::MouseButton button)
-{
-    Q_D(Surface);
-    sendMouseMoveEvent(global_x,global_y,local_x, local_y);
-    uint32_t time = d->compositor->currentTimeMsecs();
-    struct wl_resource *pointer_focus_resource = d->compositor->defaultInputDevice()->base()->pointer_focus_resource;
-    if (pointer_focus_resource) {
-        wl_resource_post_event(pointer_focus_resource,
-                               WL_INPUT_DEVICE_BUTTON, time, toWaylandButton(button), 0);
-    }
-}
-
-void Surface::sendMouseMoveEvent(int x, int y)
-{
-    sendMouseMoveEvent(x,y,x,y);
-}
-
-void Surface::sendMouseMoveEvent(int global_x, int global_y, int local_x, int local_y)
-{
-    Q_D(Surface);
-    d->lastLocalMousePos = QPoint(local_x, local_y);
-    d->lastGlobalMousePos = QPoint(global_x, global_y);
-    uint32_t time = d->compositor->currentTimeMsecs();
-    d->compositor->setPointerFocus(this, d->lastGlobalMousePos, d->lastLocalMousePos);
-    struct wl_resource *pointer_focus_resource = d->compositor->defaultInputDevice()->base()->pointer_focus_resource;
-    if (pointer_focus_resource) {
-        wl_resource_post_event(pointer_focus_resource,
-                               WL_INPUT_DEVICE_MOTION, time, global_x, global_y, local_x, local_y);
-    }
-}
-
-void Surface::sendKeyPressEvent(uint code)
-{
-    Q_D(Surface);
-    if (d->compositor->defaultInputDevice()->base()->keyboard_focus_resource != NULL) {
-        uint32_t time = d->compositor->currentTimeMsecs();
-        wl_resource_post_event(d->compositor->defaultInputDevice()->base()->keyboard_focus_resource,
-                               WL_INPUT_DEVICE_KEY, time, code - 8, 1);
-    }
-}
-
-void Surface::sendKeyReleaseEvent(uint code)
-{
-    Q_D(Surface);
-    if (d->compositor->defaultInputDevice()->base()->keyboard_focus_resource != NULL) {
-        uint32_t time = d->compositor->currentTimeMsecs();
-        wl_resource_post_event(d->compositor->defaultInputDevice()->base()->keyboard_focus_resource,
-                               WL_INPUT_DEVICE_KEY, time, code - 8, 0);
-    }
-}
-
-void Surface::sendTouchPointEvent(int id, int x, int y, Qt::TouchPointState state)
-{
-    Q_D(Surface);
-    uint32_t time = d->compositor->currentTimeMsecs();
-    struct wl_resource *resource = d->compositor->defaultInputDevice()->base()->pointer_focus_resource;
-    switch (state) {
-    case Qt::TouchPointPressed:
-        wl_resource_post_event(resource, WL_INPUT_DEVICE_TOUCH_DOWN, time, this, id, x, y);
-        break;
-    case Qt::TouchPointMoved:
-        wl_resource_post_event(resource, WL_INPUT_DEVICE_TOUCH_MOTION, time, id, x, y);
-        break;
-    case Qt::TouchPointReleased:
-        wl_resource_post_event(resource, WL_INPUT_DEVICE_TOUCH_UP, time, id);
-        break;
-    case Qt::TouchPointStationary:
-        // stationary points are not sent through wayland, the client must cache them
-        break;
-    default:
-        break;
-    }
-}
-
-void Surface::sendTouchFrameEvent()
-{
-    Q_D(Surface);
-    struct wl_resource *resource = d->compositor->defaultInputDevice()->base()->pointer_focus_resource;
-    wl_resource_post_event(resource,
-                         WL_INPUT_DEVICE_TOUCH_FRAME);
-}
-
-void Surface::sendTouchCancelEvent()
-{
-    Q_D(Surface);
-    struct wl_resource *resource = d->compositor->defaultInputDevice()->base()->pointer_focus_resource;
-    wl_resource_post_event(resource,
-                         WL_INPUT_DEVICE_TOUCH_CANCEL);
-}
-
-void Surface::sendFullTouchEvent(QTouchEvent *event)
-{
-    const QList<QTouchEvent::TouchPoint> points = event->touchPoints();
-    if (points.isEmpty())
-        return;
-    const int pointCount = points.count();
-    for (int i = 0; i < pointCount; ++i) {
-        const QTouchEvent::TouchPoint &tp(points.at(i));
-        // Convert the local pos in the compositor window to surface-relative.
-        QPoint p = (tp.pos() - pos()).toPoint();
-        sendTouchPointEvent(tp.id(), p.x(), p.y(), tp.state());
-    }
-    sendTouchFrameEvent();
+    Q_D(const Surface);
+    return d->compositor;
 }
 
 void Surface::sendFrameCallback()
@@ -811,12 +672,6 @@ void Surface::frameFinished()
 {
     Q_D(Surface);
     d->compositor->frameFinished(this);
-}
-
-void Surface::setInputFocus()
-{
-    Q_D(Surface);
-    d->compositor->setInputFocus(this);
 }
 
 void Surface::sendOnScreenVisibilityChange(bool visible)

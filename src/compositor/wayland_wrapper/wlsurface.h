@@ -97,27 +97,9 @@ public:
     GLuint textureId(QOpenGLContext *context) const;
 #endif
 
-    void sendMousePressEvent(int x, int y, Qt::MouseButton button);
-    void sendMousePressEvent(int global_x, int global_y, int local_x, int local_y, Qt::MouseButton button);
-    void sendMouseReleaseEvent(int x, int y, Qt::MouseButton button);
-    void sendMouseReleaseEvent(int global_x, int global_y, int local_x, int local_y, Qt::MouseButton button);
-    void sendMouseMoveEvent(int x, int y);
-    void sendMouseMoveEvent(int global_x, int global_y, int local_x, int local_y);
-
-
-    void sendKeyPressEvent(uint code);
-    void sendKeyReleaseEvent(uint code);
-
-    void sendTouchPointEvent(int id, int x, int y, Qt::TouchPointState state);
-    void sendTouchFrameEvent();
-    void sendTouchCancelEvent();
-
-    void sendFullTouchEvent(QTouchEvent *event);
-
     void sendFrameCallback();
 
     void frameFinished();
-    void setInputFocus();
 
     void sendOnScreenVisibilityChange(bool visible);
 
@@ -142,6 +124,8 @@ public:
 
     void setShellSurface(ShellSurface *shellSurface);
     ShellSurface *shellSurface() const;
+
+    Compositor *compositor() const;
 
     static const struct wl_surface_interface surface_interface;
 protected:

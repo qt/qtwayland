@@ -2,11 +2,13 @@ INCLUDEPATH += $$PWD
 
 HEADERS += \
     $$PWD/waylandcompositor.h \
-    $$PWD/waylandsurface.h
+    $$PWD/waylandsurface.h \
+    $$PWD/waylandinput.h
 
 SOURCES += \
     $$PWD/waylandcompositor.cpp \
-    $$PWD/waylandsurface.cpp
+    $$PWD/waylandsurface.cpp \
+    $$PWD/waylandinput.cpp
 
 QT += core-private
 

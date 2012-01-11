@@ -75,18 +75,12 @@ public:
     ~Compositor();
 
     void frameFinished(Surface *surface = 0);
-    void setInputFocus(Surface *surface);
-    void setKeyFocus(Surface *surface);
-    Surface *keyFocus() const;
-    void setPointerFocus(Surface *surface, const QPoint &globalPos = QPoint(), const QPoint &localPos = QPoint());
-    Surface *pointerFocus() const;
 
     Surface *getSurfaceFromWinId(uint winId) const;
     struct wl_client *getClientFromWinId(uint winId) const;
     QImage image(uint winId) const;
 
-    InputDevice *inputDevice() { return m_input; }
-    InputDevice *defaultInputDevice();
+    InputDevice *defaultInputDevice(); //we just have 1 default device for now (since QPA doesn't give us anything else)
 
     void createSurface(struct wl_client *client, uint32_t id);
     void surfaceDestroyed(Surface *surface);
@@ -100,6 +94,7 @@ public:
 
     GraphicsHardwareIntegration *graphicsHWIntegration() const;
     void initializeHardwareIntegration();
+    void initializeDefaultInputDevice();
     void initializeWindowManagerProtocol();
     void enableSubSurfaceExtension();
     bool setDirectRenderSurface(Surface *surface);
@@ -142,7 +137,7 @@ private:
     Display *m_display;
 
     /* Input */
-    InputDevice *m_input;
+    InputDevice *m_default_input_device;
 
     /* Output */
     //make this a list of the available screens

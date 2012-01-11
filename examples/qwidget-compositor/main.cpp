@@ -41,6 +41,7 @@
 #include "waylandcompositor.h"
 
 #include "waylandsurface.h"
+#include <QtCompositor/waylandinput.h>
 
 #include <QApplication>
 #include <QWidget>
@@ -103,7 +104,7 @@ private slots:
             m_surfaces.append(surface);
         }
 
-        setInputFocus(surface);
+        defaultInputDevice()->setKeyboardFocus(surface);
         update();
     }
 
@@ -256,7 +257,7 @@ protected:
     }
 
     void raise(WaylandSurface *surface) {
-        setInputFocus(surface);
+        defaultInputDevice()->setKeyboardFocus(surface);
         surfaceDamaged(surface, QRect(QPoint(), surface->size()));
         m_surfaces.removeOne(surface);
         m_surfaces.append(surface);
@@ -273,7 +274,7 @@ protected:
                 m_moveSurface = surface;
                 m_moveOffset = local;
             } else {
-                surface->sendMousePressEvent(local.toPoint(), e->button());
+                defaultInputDevice()->sendMousePressEvent(e->button(), local.toPoint(),e->pos());
             }
         }
     }
@@ -293,6 +294,7 @@ protected:
                     m_lastDragSourcePos = local;
                 raise(surface);
             }
+            //this should go away when draggin is reimplemented
             sendDragMoveEvent(global, local.toPoint(), surface);
             return;
         }
@@ -303,7 +305,7 @@ protected:
         }
         QPointF local;
         if (WaylandSurface *surface = surfaceAt(e->pos(), &local))
-            surface->sendMouseMoveEvent(local.toPoint());
+            defaultInputDevice()->sendMouseMoveEvent(local.toPoint(),pos());
     }
 
     void mouseReleaseEvent(QMouseEvent *e) {
@@ -311,7 +313,8 @@ protected:
             sendDragEndEvent();
             if (m_dragSourceSurface) {
                 // Must send a release event to the source too, no matter where the cursor is now.
-                m_dragSourceSurface->sendMouseReleaseEvent(m_lastDragSourcePos.toPoint(), e->button());
+                // This is a hack and should go away when we reimplement draging
+                defaultInputDevice()->sendMouseReleaseEvent(e->button(), m_lastDragSourcePos.toPoint(), e->pos());
                 m_dragSourceSurface = 0;
             }
         }
@@ -321,21 +324,17 @@ protected:
         }
         QPointF local;
         if (WaylandSurface *surface = surfaceAt(e->pos(), &local))
-            surface->sendMouseReleaseEvent(local.toPoint(), e->button());
+            defaultInputDevice()->sendMouseReleaseEvent(e->button(), local.toPoint(), e->pos());
     }
 
     void keyPressEvent(QKeyEvent *event)
     {
-        if (m_surfaces.isEmpty())
-            return;
-        m_surfaces.last()->sendKeyPressEvent(event->nativeScanCode());
+        defaultInputDevice()->sendKeyPressEvent(event->nativeScanCode());
     }
 
     void keyReleaseEvent(QKeyEvent *event)
     {
-        if (m_surfaces.isEmpty())
-            return;
-        m_surfaces.last()->sendKeyReleaseEvent(event->nativeScanCode());
+        defaultInputDevice()->sendKeyReleaseEvent(event->nativeScanCode());
     }
 
     WaylandSurface *surfaceAt(const QPointF &point, QPointF *local = 0) {

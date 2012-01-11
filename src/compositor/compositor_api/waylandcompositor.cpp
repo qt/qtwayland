@@ -40,8 +40,11 @@
 
 #include "waylandcompositor.h"
 
+#include "waylandinput.h"
+
 #include "wayland_wrapper/wlcompositor.h"
 #include "wayland_wrapper/wlsurface.h"
+#include "wayland_wrapper/wlinputdevice.h"
 #include <QtCore/QCoreApplication>
 #include <QtCore/QStringList>
 
@@ -69,6 +72,7 @@ WaylandCompositor::WaylandCompositor(QWindow *window, const char *socketName)
 #endif
     m_compositor->initializeHardwareIntegration();
     m_compositor->initializeWindowManagerProtocol();
+    m_compositor->initializeDefaultInputDevice();
 }
 
 WaylandCompositor::~WaylandCompositor()
@@ -80,30 +84,6 @@ void WaylandCompositor::frameFinished(WaylandSurface *surface)
 {
     Wayland::Surface *surfaceImpl = surface? surface->handle():0;
     m_compositor->frameFinished(surfaceImpl);
-}
-
-void WaylandCompositor::setInputFocus(WaylandSurface *surface)
-{
-    Wayland::Surface *surfaceImpl = surface? surface->handle():0;
-    m_compositor->setInputFocus(surfaceImpl);
-}
-
-WaylandSurface *WaylandCompositor::inputFocus() const
-{
-    Wayland::Surface *surfaceImpl = m_compositor->keyFocus();
-    return surfaceImpl ? surfaceImpl->handle() : 0;
-}
-
-void WaylandCompositor::setMouseFocus(WaylandSurface *surface)
-{
-    Wayland::Surface *surfaceImpl = surface? surface->handle() : 0;
-    m_compositor->setPointerFocus(surfaceImpl);
-}
-
-WaylandSurface *WaylandCompositor::mouseFocus() const
-{
-    Wayland::Surface *surfaceImpl = m_compositor->pointerFocus();
-    return surfaceImpl ? surfaceImpl->handle() : 0;
 }
 
 void WaylandCompositor::destroyClientForSurface(WaylandSurface *surface)
@@ -173,6 +153,11 @@ void WaylandCompositor::setScreenOrientation(Qt::ScreenOrientation orientation)
 void WaylandCompositor::setOutputGeometry(const QRect &geometry)
 {
     m_compositor->setOutputGeometry(geometry);
+}
+
+WaylandInputDevice *WaylandCompositor::defaultInputDevice() const
+{
+    return m_compositor->defaultInputDevice()->handle();
 }
 
 bool WaylandCompositor::isDragging() const

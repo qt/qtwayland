@@ -40,10 +40,10 @@
 
 #include "wlcompositor.h"
 
+#include "waylandinput.h"
 #include "wldisplay.h"
 #include "wlshmbuffer.h"
 #include "wlsurface.h"
-#include "wlinputdevice.h"
 #include "waylandcompositor.h"
 #include "wldatadevicemanager.h"
 #include "wldatadevice.h"
@@ -103,6 +103,7 @@ Compositor *Compositor::instance()
 Compositor::Compositor(WaylandCompositor *qt_compositor)
     : m_display(new Display)
     , m_shm(m_display)
+    , m_default_input_device(0)
     , m_current_frame(0)
     , m_last_queued_buf(-1)
     , m_qt_compositor(qt_compositor)
@@ -130,8 +131,6 @@ Compositor::Compositor(WaylandCompositor *qt_compositor)
 
     m_data_device_manager =  new DataDeviceManager(this);
 
-    m_input = new InputDevice(this);
-
     wl_display_add_global(m_display->handle(),&wl_output_interface, &m_output_global,OutputGlobal::output_bind_func);
 
     wl_display_add_global(m_display->handle(), &wl_shell_interface, &m_shell, Shell::bind_func);
@@ -157,7 +156,7 @@ Compositor::Compositor(WaylandCompositor *qt_compositor)
 
 Compositor::~Compositor()
 {
-    delete m_input;
+    delete m_default_input_device;
     delete m_data_device_manager;
 
     delete m_display;
@@ -268,37 +267,6 @@ void Compositor::destroyClientForSurface(Surface *surface)
     }
 }
 
-void Compositor::setInputFocus(Surface *surface)
-{
-    setKeyFocus(surface);
-    setPointerFocus(surface);
-}
-
-void Compositor::setKeyFocus(Surface *surface)
-{
-    m_input->sendSelectionFocus(surface);
-    wl_input_device_set_keyboard_focus(m_input->base(), surface ? surface->base() : 0, currentTimeMsecs());
-}
-
-Surface *Compositor::keyFocus() const
-{
-    return wayland_cast<Surface *>(m_input->base()->keyboard_focus);
-}
-
-void Compositor::setPointerFocus(Surface *surface, const QPoint &globalPos, const QPoint &localPos)
-{
-    wl_input_device_set_pointer_focus(m_input->base(),
-                                      surface ? surface->base() : 0,
-                                      currentTimeMsecs(),
-                                      globalPos.x(), globalPos.y(),
-                                      localPos.x(), localPos.y());
-}
-
-Surface *Compositor::pointerFocus() const
-{
-    return wayland_cast<Surface *>(m_input->base()->pointer_focus);
-}
-
 QWindow *Compositor::window() const
 {
     return m_qt_compositor->window();
@@ -319,6 +287,12 @@ void Compositor::initializeHardwareIntegration()
     if (m_graphics_hw_integration)
         m_graphics_hw_integration->initializeHardware(m_display);
 #endif
+}
+
+void Compositor::initializeDefaultInputDevice()
+{
+    WaylandInputDevice *defaultInput = new WaylandInputDevice(m_qt_compositor);
+    m_default_input_device = defaultInput->handle();
 }
 
 void Compositor::initializeWindowManagerProtocol()
@@ -384,7 +358,7 @@ void Compositor::setOutputGeometry(const QRect &geometry)
 
 InputDevice* Compositor::defaultInputDevice()
 {
-    return m_input;
+    return m_default_input_device;
 }
 
 QList<Wayland::Surface *> Compositor::surfacesForClient(wl_client *client)

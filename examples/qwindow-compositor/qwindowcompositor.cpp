@@ -3,6 +3,8 @@
 #include <QKeyEvent>
 #include <QTouchEvent>
 
+#include <QtCompositor/waylandinput.h>
+
 QWindowCompositor::QWindowCompositor(QOpenGLWindow *window)
     : WaylandCompositor(window)
     , m_window(window)
@@ -35,8 +37,8 @@ void QWindowCompositor::surfaceDestroyed(QObject *object)
 {
     WaylandSurface *surface = static_cast<WaylandSurface *>(object);
     m_surfaces.removeOne(surface);
-    if (inputFocus() == surface || !inputFocus()) // typically reset to 0 already in Compositor::surfaceDestroyed()
-        setInputFocus(m_surfaces.isEmpty() ? 0 : m_surfaces.last());
+    if (defaultInputDevice()->keyboardFocus() == surface || !defaultInputDevice()->keyboardFocus()) // typically reset to 0 already in Compositor::surfaceDestroyed()
+        defaultInputDevice()->setKeyboardFocus(m_surfaces.isEmpty() ? 0 : m_surfaces.last());
     m_renderScheduler.start(0);
 }
 
@@ -58,7 +60,7 @@ void QWindowCompositor::surfaceMapped()
         m_surfaces.removeOne(surface);
     }
     m_surfaces.append(surface);
-    setInputFocus(surface);
+    defaultInputDevice()->setKeyboardFocus(surface);
     m_renderScheduler.start(0);
 }
 
@@ -193,6 +195,8 @@ bool QWindowCompositor::eventFilter(QObject *obj, QEvent *event)
     if (obj != m_window)
         return false;
 
+    WaylandInputDevice *input = defaultInputDevice();
+
     switch (event->type()) {
     case QEvent::Expose:
         m_renderScheduler.start(0);
@@ -206,25 +210,25 @@ bool QWindowCompositor::eventFilter(QObject *obj, QEvent *event)
                m_draggingWindow = targetSurface;
                m_drag_diff = local;
             } else {
-                if (inputFocus() != targetSurface) {
-                    setInputFocus(targetSurface);
+                if (input->keyboardFocus() != targetSurface) {
+                    input->setKeyboardFocus(targetSurface);
                     m_surfaces.removeOne(targetSurface);
                     m_surfaces.append(targetSurface);
                     m_renderScheduler.start(0);
                 }
-                targetSurface->sendMousePressEvent(local, me->button());
+                input->sendMousePressEvent(me->button(),local,me->pos());
             }
         }
         break;
     }
     case QEvent::MouseButtonRelease: {
-        WaylandSurface *targetSurface = inputFocus();
+        WaylandSurface *targetSurface = input->mouseFocus();
         if (m_draggingWindow) {
             m_draggingWindow = 0;
             m_drag_diff = QPoint();
         } else  if (targetSurface) {
             QMouseEvent *me = static_cast<QMouseEvent *>(event);
-            targetSurface->sendMouseReleaseEvent(toSurface(targetSurface, me->pos()).toPoint(), me->button());
+            input->sendMouseReleaseEvent(me->button(),toSurface(targetSurface, me->pos()).toPoint(),me->pos());
         }
         break;
     }
@@ -236,10 +240,7 @@ bool QWindowCompositor::eventFilter(QObject *obj, QEvent *event)
         } else {
             QPoint local;
             WaylandSurface *targetSurface = surfaceAt(me->pos(), &local);
-            setMouseFocus(targetSurface);
-            if (targetSurface) {
-                targetSurface->sendMouseMoveEvent(local);
-            }
+            input->sendMouseMoveEvent(targetSurface, local,me->pos());
         }
         break;
     }
@@ -248,9 +249,9 @@ bool QWindowCompositor::eventFilter(QObject *obj, QEvent *event)
         if (ke->key() == Qt::Key_Meta || ke->key() == Qt::Key_Super_L) {
             m_dragKeyIsPressed = true;
         }
-        WaylandSurface *targetSurface = inputFocus();
+        WaylandSurface *targetSurface = input->keyboardFocus();
         if (targetSurface)
-            targetSurface->sendKeyPressEvent(ke->nativeScanCode());
+            input->sendKeyPressEvent(ke->nativeScanCode());
         break;
     }
     case QEvent::KeyRelease: {
@@ -258,9 +259,9 @@ bool QWindowCompositor::eventFilter(QObject *obj, QEvent *event)
         if (ke->key() == Qt::Key_Meta || ke->key() == Qt::Key_Super_L) {
             m_dragKeyIsPressed = false;
         }
-        WaylandSurface *targetSurface = inputFocus();
+        WaylandSurface *targetSurface = input->keyboardFocus();
         if (targetSurface)
-            targetSurface->sendKeyReleaseEvent(ke->nativeScanCode());
+            input->sendKeyReleaseEvent(ke->nativeScanCode());
         break;
     }
     case QEvent::TouchBegin:
@@ -277,7 +278,7 @@ bool QWindowCompositor::eventFilter(QObject *obj, QEvent *event)
                 targets.insert(targetSurface);
         }
         foreach (WaylandSurface *surface, targets)
-            surface->sendFullTouchEvent(te);
+            input->sendFullTouchEvent(te);
         break;
     }
     default:

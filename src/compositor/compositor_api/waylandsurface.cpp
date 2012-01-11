@@ -5,6 +5,7 @@
 #include "wayland_wrapper/wlsurface.h"
 #include "wayland_wrapper/wlextendedsurface.h"
 #include "wayland_wrapper/wlsubsurface.h"
+#include "wayland_wrapper/wlcompositor.h"
 
 #ifdef QT_COMPOSITOR_QUICK
 #include "waylandsurfaceitem.h"
@@ -184,70 +185,16 @@ QPointF WaylandSurface::mapTo(WaylandSurface *parent, const QPointF &pos) const
 
 }
 
-void WaylandSurface::sendMousePressEvent(const QPoint &pos, Qt::MouseButton button)
+WaylandCompositor *WaylandSurface::compositor() const
 {
-    Q_D(WaylandSurface);
-    d->surface->sendMousePressEvent(pos.x(), pos.y(), button);
-}
-
-void WaylandSurface::sendMouseReleaseEvent(const QPoint &pos, Qt::MouseButton button)
-{
-    Q_D(WaylandSurface);
-    d->surface->sendMouseReleaseEvent(pos.x(), pos.y(), button);
-}
-
-void WaylandSurface::sendMouseMoveEvent(const QPoint &pos)
-{
-    Q_D(WaylandSurface);
-    d->surface->sendMouseMoveEvent(pos.x(), pos.y());
-}
-
-void WaylandSurface::sendKeyPressEvent(uint code)
-{
-    Q_D(WaylandSurface);
-    d->surface->sendKeyPressEvent(code);
-}
-
-void WaylandSurface::sendKeyReleaseEvent(uint code)
-{
-    Q_D(WaylandSurface);
-    d->surface->sendKeyReleaseEvent(code);
-}
-
-void WaylandSurface::sendTouchPointEvent(int id, int x, int y, Qt::TouchPointState state)
-{
-    Q_D(WaylandSurface);
-    d->surface->sendTouchPointEvent(id, x, y, state);
-}
-
-void WaylandSurface::sendTouchFrameEvent()
-{
-    Q_D(WaylandSurface);
-    d->surface->sendTouchFrameEvent();
-}
-
-void WaylandSurface::sendTouchCancelEvent()
-{
-    Q_D(WaylandSurface);
-    d->surface->sendTouchCancelEvent();
-}
-
-void WaylandSurface::sendFullTouchEvent(QTouchEvent *event)
-{
-    Q_D(WaylandSurface);
-    d->surface->sendFullTouchEvent(event);
+    Q_D(const WaylandSurface);
+    return d->surface->compositor()->qtCompositor();
 }
 
 void WaylandSurface::frameFinished()
 {
     Q_D(WaylandSurface);
     d->surface->frameFinished();
-}
-
-void WaylandSurface::setInputFocus()
-{
-    Q_D(WaylandSurface);
-    d->surface->setInputFocus();
 }
 
 void WaylandSurface::sendOnScreenVisibilityChange(bool visible)

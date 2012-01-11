@@ -49,6 +49,7 @@
 
 class QMimeData;
 class WaylandSurface;
+class WaylandInputDevice;
 
 namespace Wayland
 {
@@ -62,12 +63,6 @@ public:
     virtual ~WaylandCompositor();
 
     void frameFinished(WaylandSurface *surface = 0);
-
-    void setInputFocus(WaylandSurface *surface);
-    WaylandSurface *inputFocus() const;
-
-    void setMouseFocus(WaylandSurface *surface);
-    WaylandSurface *mouseFocus() const;
 
     void destroyClientForSurface(WaylandSurface *surface);
 
@@ -88,6 +83,8 @@ public:
 
     void setScreenOrientation(Qt::ScreenOrientation orientation);
     void setOutputGeometry(const QRect &outputGeometry);
+
+    WaylandInputDevice *defaultInputDevice() const;
 
     bool isDragging() const;
     void sendDragMoveEvent(const QPoint &global, const QPoint &local, WaylandSurface *surface);

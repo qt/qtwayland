@@ -106,6 +106,7 @@ void WaylandSurfaceItem::init(WaylandSurface *surface)
     setSmooth(true);
     setFlag(ItemHasContents);
     setAcceptedMouseButtons(Qt::LeftButton | Qt::RightButton);
+    setAcceptHoverEvents(true);
     connect(surface, SIGNAL(mapped()), this, SLOT(surfaceMapped()));
     connect(surface, SIGNAL(unmapped()), this, SLOT(surfaceUnmapped()));
     connect(surface, SIGNAL(destroyed(QObject *)), this, SLOT(surfaceDestroyed(QObject *)));
@@ -189,15 +190,14 @@ void WaylandSurfaceItem::touchEvent(QTouchEvent *event)
     if (m_touchEventsEnabled && m_surface) {
         WaylandInputDevice *inputDevice = m_surface->compositor()->defaultInputDevice();
         event->accept();
-        QList<QTouchEvent::TouchPoint> points = event->touchPoints();
-        if (!points.isEmpty()) {
-            for (int i = 0; i < points.count(); ++i) {
-                const QTouchEvent::TouchPoint &point(points.at(i));
-                // Wayland expects surface-relative coordinates.
-                inputDevice->sendTouchPointEvent(point.id(), point.pos().x(), point.pos().y(), point.state());
-            }
-            inputDevice->sendTouchFrameEvent();
+        if (inputDevice->mouseFocus() != m_surface) {
+            QPoint pointPos;
+            QList<QTouchEvent::TouchPoint> points = event->touchPoints();
+            if (!points.isEmpty())
+                pointPos = points.at(0).pos().toPoint();
+            inputDevice->setMouseFocus(m_surface, pointPos, pointPos);
         }
+        inputDevice->sendFullTouchEvent(event);
     } else {
         event->ignore();
     }

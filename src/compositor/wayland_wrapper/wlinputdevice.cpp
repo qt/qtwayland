@@ -129,6 +129,8 @@ void InputDevice::sendTouchPointEvent(int id, int x, int y, Qt::TouchPointState 
 {
     uint32_t time = m_compositor->currentTimeMsecs();
     struct wl_resource *resource = base()->pointer_focus_resource;
+    if (!resource)
+        return;
     switch (state) {
     case Qt::TouchPointPressed:
         wl_resource_post_event(resource, WL_INPUT_DEVICE_TOUCH_DOWN, time, base()->pointer_focus, id, x, y);
@@ -150,15 +152,19 @@ void InputDevice::sendTouchPointEvent(int id, int x, int y, Qt::TouchPointState 
 void InputDevice::sendTouchFrameEvent()
 {
     struct wl_resource *resource = base()->pointer_focus_resource;
-    wl_resource_post_event(resource,
-                         WL_INPUT_DEVICE_TOUCH_FRAME);
+    if (resource) {
+        wl_resource_post_event(resource,
+                               WL_INPUT_DEVICE_TOUCH_FRAME);
+    }
 }
 
 void InputDevice::sendTouchCancelEvent()
 {
     struct wl_resource *resource = base()->pointer_focus_resource;
-    wl_resource_post_event(resource,
-                         WL_INPUT_DEVICE_TOUCH_CANCEL);
+    if (resource) {
+        wl_resource_post_event(resource,
+                               WL_INPUT_DEVICE_TOUCH_CANCEL);
+    }
 }
 
 void InputDevice::sendFullTouchEvent(QTouchEvent *event)
@@ -166,8 +172,12 @@ void InputDevice::sendFullTouchEvent(QTouchEvent *event)
     const QList<QTouchEvent::TouchPoint> points = event->touchPoints();
     if (points.isEmpty())
         return;
+    if (!mouseFocus()) {
+        qWarning("Cannot send touch event, no pointer focus, fix the compositor");
+        return;
+    }
     const int pointCount = points.count();
-    QPointF pos = mouseFocus()? mouseFocus()->pos():QPointF(0,0);
+    QPointF pos = mouseFocus()->pos();
     for (int i = 0; i < pointCount; ++i) {
         const QTouchEvent::TouchPoint &tp(points.at(i));
         // Convert the local pos in the compositor window to surface-relative.

@@ -268,16 +268,17 @@ bool QWindowCompositor::eventFilter(QObject *obj, QEvent *event)
     case QEvent::TouchUpdate:
     case QEvent::TouchEnd:
     {
-        QSet<WaylandSurface *> targets;
+        WaylandSurface *targetSurface = 0;
         QTouchEvent *te = static_cast<QTouchEvent *>(event);
         QList<QTouchEvent::TouchPoint> points = te->touchPoints();
-        for (int i = 0; i < points.count(); ++i) {
-            const QTouchEvent::TouchPoint &tp(points.at(i));
-            WaylandSurface *targetSurface = surfaceAt(tp.pos().toPoint());
-            if (targetSurface)
-                targets.insert(targetSurface);
+        QPoint pointPos;
+        if (!points.isEmpty()) {
+            pointPos = points.at(0).pos().toPoint();
+            targetSurface = surfaceAt(pointPos);
         }
-        foreach (WaylandSurface *surface, targets)
+        if (targetSurface && targetSurface != input->mouseFocus())
+            input->setMouseFocus(targetSurface, pointPos, pointPos);
+        if (input->mouseFocus())
             input->sendFullTouchEvent(te);
         break;
     }

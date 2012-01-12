@@ -18,7 +18,7 @@ contains(QT_CONFIG, quick) {
 
     DEFINES += QT_COMPOSITOR_QUICK
 
-    QT += quick
+    QT += declarative quick
     QT += quick-private gui-private
 }
 

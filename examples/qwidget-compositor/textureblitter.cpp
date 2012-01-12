@@ -124,10 +124,10 @@ void TextureBlitter::drawTexture(int textureId, const QRectF &targetRect, const 
     }
 
     const GLfloat vertexCoordinates[] = {
-        x1, y1, zValue,
-        x2, y1, zValue,
-        x2, y2, zValue,
-        x1, y2, zValue
+        GLfloat(x1), GLfloat(y1), zValue,
+        GLfloat(x2), GLfloat(y1), zValue,
+        GLfloat(x2), GLfloat(y2), zValue,
+        GLfloat(x1), GLfloat(y2), zValue
     };
 
     //Set matrix to transfrom geometry values into gl coordinate space.

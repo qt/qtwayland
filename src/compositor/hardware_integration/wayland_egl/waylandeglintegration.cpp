@@ -206,11 +206,11 @@ bool WaylandEglIntegration::setDirectRenderSurface(WaylandSurface *surface)
     int buffer_format = surface ? EGL_SCANOUT_FORMAT_WL : EGL_RENDER_FORMAT_WL;
     struct wl_client *client = 0;
     if (surface) {
-        client = surface->handle()->clientHandle();
+        client = surface->handle()->base()->resource.client;
     } else {
         WaylandSurface *oldSurface = d->directRenderSurface.data();
         if (oldSurface)
-            client = oldSurface->handle()->clientHandle();
+            client = oldSurface->handle()->base()->resource.client;
     }
     if (client)
         eglRequestClientBufferFormatWL(d->egl_display, client, buffer_format);

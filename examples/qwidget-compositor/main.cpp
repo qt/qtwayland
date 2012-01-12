@@ -55,6 +55,7 @@
 #include <QGLWidget>
 #include <QtGui/private/qopengltexturecache_p.h>
 #include "textureblitter.h"
+#include <QOpenGLFunctions>
 #endif
 
 #include <QDebug>
@@ -135,24 +136,26 @@ protected:
 #ifdef QT_COMPOSITOR_WAYLAND_GL
     GLuint composeSurface(WaylandSurface *surface) {
         GLuint texture = 0;
+        QOpenGLFunctions *functions = QOpenGLContext::currentContext()->functions();
 
-        if (!m_surfaceCompositorFbo) {
-            glGenFramebuffers(1,&m_surfaceCompositorFbo);
-        }
-        glBindFramebuffer(GL_FRAMEBUFFER, m_surfaceCompositorFbo);
+        if (!m_surfaceCompositorFbo)
+            functions->glGenFramebuffers(1,&m_surfaceCompositorFbo);
+
+        functions->glBindFramebuffer(GL_FRAMEBUFFER, m_surfaceCompositorFbo);
 
         if (surface->type() == WaylandSurface::Shm) {
             texture = m_textureCache->bindTexture(context()->contextHandle(), surface->image());
         } else {
             texture = surface->texture(QOpenGLContext::currentContext());
         }
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-                               GL_TEXTURE_2D, texture, 0);
-        paintChildren(surface,surface);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-                               GL_TEXTURE_2D, 0, 0);
 
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        functions->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+                                           GL_TEXTURE_2D, texture, 0);
+        paintChildren(surface,surface);
+        functions->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+                                           GL_TEXTURE_2D, 0, 0);
+
+        functions->glBindFramebuffer(GL_FRAMEBUFFER, 0);
         return texture;
     }
 

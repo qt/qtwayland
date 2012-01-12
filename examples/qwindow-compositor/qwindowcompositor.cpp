@@ -2,6 +2,7 @@
 #include <QMouseEvent>
 #include <QKeyEvent>
 #include <QTouchEvent>
+#include <QOpenGLFunctions>
 
 #include <QtCompositor/waylandinput.h>
 
@@ -24,7 +25,8 @@ QWindowCompositor::QWindowCompositor(QOpenGLWindow *window)
     m_renderScheduler.setSingleShot(true);
     connect(&m_renderScheduler,SIGNAL(timeout()),this,SLOT(render()));
 
-    glGenFramebuffers(1,&m_surface_fbo);
+    QOpenGLFunctions *functions = m_window->context()->functions();
+    functions->glGenFramebuffers(1, &m_surface_fbo);
 
     window->installEventFilter(this);
 
@@ -120,20 +122,22 @@ GLuint QWindowCompositor::composeSurface(WaylandSurface *surface)
 {
     GLuint texture = 0;
 
-    glBindFramebuffer(GL_FRAMEBUFFER, m_surface_fbo);
+    QOpenGLFunctions *functions = QOpenGLContext::currentContext()->functions();
+    functions->glBindFramebuffer(GL_FRAMEBUFFER, m_surface_fbo);
 
     if (surface->type() == WaylandSurface::Shm) {
         texture = m_textureCache->bindTexture(QOpenGLContext::currentContext(),surface->image());
     } else {
         texture = surface->texture(QOpenGLContext::currentContext());
     }
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-                           GL_TEXTURE_2D, texture, 0);
-    paintChildren(surface,surface);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-                           GL_TEXTURE_2D,0, 0);
 
-    glBindFramebuffer(GL_FRAMEBUFFER,0);
+    functions->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+                                       GL_TEXTURE_2D, texture, 0);
+    paintChildren(surface,surface);
+    functions->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+                                       GL_TEXTURE_2D,0, 0);
+
+    functions->glBindFramebuffer(GL_FRAMEBUFFER, 0);
     return texture;
 }
 

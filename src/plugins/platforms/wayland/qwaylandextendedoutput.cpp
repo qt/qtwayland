@@ -107,7 +107,7 @@ void QWaylandExtendedOutput::set_screen_rotation(void *data, wl_extended_output 
         extended_output->m_orientation = Qt::PortraitOrientation;
         break;
     }
-    QWindowSystemInterface::handleScreenOrientationChange(extended_output->m_screen->screen());
+    QWindowSystemInterface::handleScreenOrientationChange(extended_output->m_screen->screen(), extended_output->m_orientation);
 }
 
 const struct wl_extended_output_listener QWaylandExtendedOutput::extended_output_listener = {

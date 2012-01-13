@@ -60,6 +60,7 @@
 #include "qwaylandextendedoutput.h"
 #include "qwaylandextendedsurface.h"
 #include "qwaylandsubsurface.h"
+#include "qwaylandtouch.h"
 
 #include <QtCore/QAbstractEventDispatcher>
 #include <QtGui/private/qguiapplication_p.h>
@@ -111,10 +112,11 @@ void QWaylandDisplay::setLastKeyboardFocusInputDevice(QWaylandInputDevice *devic
 static QWaylandDisplay *display = 0;
 
 QWaylandDisplay::QWaylandDisplay(void)
-    : mDndSelectionHandler(0)
-    , mLastKeyboardFocusInputDevice(0)
+    : mLastKeyboardFocusInputDevice(0)
+    , mDndSelectionHandler(0)
     , mWindowExtension(0)
     , mOutputExtension(0)
+    , mTouchExtension(0)
 {
     display = this;
     qRegisterMetaType<uint32_t>("uint32_t");
@@ -309,6 +311,8 @@ void QWaylandDisplay::displayHandleGlobal(uint32_t id,
         mWindowExtension = new QWaylandSurfaceExtension(this,id);
     } else if (interface == "wl_sub_surface_extension") {
         mSubSurfaceExtension = new QWaylandSubSurfaceExtension(this,id);
+    } else if (interface == "wl_touch") {
+        mTouchExtension = new QWaylandTouchExtension(this, id);
     }
 }
 

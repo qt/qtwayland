@@ -65,8 +65,9 @@ QWaylandInputDevice::QWaylandInputDevice(QWaylandDisplay *display,
     : mQDisplay(display)
     , mDisplay(display->wl_display())
     , mTransferDevice(0)
-    , mPointerFocus(NULL)
-    , mKeyboardFocus(NULL)
+    , mPointerFocus(0)
+    , mKeyboardFocus(0)
+    , mTouchFocus(0)
     , mButtons(0)
 {
     mInputDevice = static_cast<struct wl_input_device *>

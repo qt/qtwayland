@@ -51,6 +51,8 @@
 #include "wlextendedsurface.h"
 #include "wlsubsurface.h"
 #include "wlshellsurface.h"
+#include "wltouch.h"
+#include "wlinputdevice.h"
 
 #include <QWindow>
 #include <QSocketNotifier>
@@ -102,8 +104,8 @@ Compositor *Compositor::instance()
 
 Compositor::Compositor(WaylandCompositor *qt_compositor)
     : m_display(new Display)
-    , m_shm(m_display)
     , m_default_input_device(0)
+    , m_shm(m_display)
     , m_current_frame(0)
     , m_last_queued_buf(-1)
     , m_qt_compositor(qt_compositor)
@@ -115,6 +117,7 @@ Compositor::Compositor(WaylandCompositor *qt_compositor)
     , m_outputExtension(0)
     , m_surfaceExtension(0)
     , m_subSurfaceExtension(0)
+    , m_touchExtension(0)
     , m_retainNotify(0)
 {
     compositor = this;
@@ -371,6 +374,13 @@ QList<Wayland::Surface *> Compositor::surfacesForClient(wl_client *client)
         }
     }
     return ret;
+}
+
+void Compositor::enableTouchExtension()
+{
+    if (!m_touchExtension) {
+        m_touchExtension = new TouchExtensionGlobal(this);
+    }
 }
 
 void Compositor::setRetainedSelectionWatcher(RetainedSelectionFunc func, void *param)

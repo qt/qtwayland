@@ -94,6 +94,8 @@ public:
 
     void enableSubSurfaceExtension();
 
+    void enableTouchExtension();
+
 private:
     static void retainedSelectionChanged(QMimeData *mimeData, void *param);
 

@@ -37,36 +37,39 @@
 ** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 **
 ****************************************************************************/
-#include "qopenglwindow.h"
-#include "qwindowcompositor.h"
 
-#include <QGuiApplication>
-#include <QStringList>
-#include <QScreen>
-#include <QSurfaceFormat>
+#ifndef WLTOUCH_H
+#define WLTOUCH_H
 
-int main(int argc, char *argv[])
+#include "wlcompositor.h"
+#include "wayland-touch-extension-server-protocol.h"
+
+class Compositor;
+class Surface;
+class QTouchEvent;
+
+namespace Wayland {
+
+class TouchExtensionGlobal
 {
-    // Enable the following to have touch events generated from mouse events.
-    // Very handy for testing touch event delivery without a real touch device.
-    // QGuiApplication::setAttribute(Qt::AA_SynthesizeTouchForUnhandledMouseEvents, true);
+public:
+    TouchExtensionGlobal(Compositor *compositor);
 
-    QGuiApplication app(argc, argv);
-    QScreen *screen = QGuiApplication::primaryScreen();
-    QRect screenGeometry = screen->availableGeometry();
+    void postTouchEvent(QTouchEvent *event, Surface *surface);
 
-    QSurfaceFormat format;
-    format.setDepthBufferSize(16);
+private:
+    Compositor *m_compositor;
 
-    QRect geom = screenGeometry;
-    if (QCoreApplication::arguments().contains(QLatin1String("-nofullscreen")))
-        geom = QRect(screenGeometry.width() / 4, screenGeometry.height() / 4,
-                     screenGeometry.width() / 2, screenGeometry.height() / 2);
+    static void bind_func(struct wl_client *client, void *data,
+                          uint32_t version, uint32_t id);
 
-    QOpenGLWindow *window = new QOpenGLWindow(format, geom);
-    window->show();
+    static void destroy_resource(wl_resource *resource);
 
-    QWindowCompositor compositor(window);
+    static const struct wl_touch_interface touch_interface;
 
-    return app.exec();
+    QList<wl_resource *> m_resources;
+};
+
 }
+
+#endif // WLTOUCH_H

@@ -188,3 +188,8 @@ void WaylandCompositor::enableSubSurfaceExtension()
 {
     m_compositor->enableSubSurfaceExtension();
 }
+
+void WaylandCompositor::enableTouchExtension()
+{
+    m_compositor->enableTouchExtension();
+}

@@ -44,7 +44,7 @@
 #include "wlcompositor.h"
 #include "wldatadevice.h"
 #include "wlsurface.h"
-
+#include "wltouch.h"
 #include "waylandcompositor.h"
 
 #include <QtGui/QTouchEvent>
@@ -169,13 +169,21 @@ void InputDevice::sendTouchCancelEvent()
 
 void InputDevice::sendFullTouchEvent(QTouchEvent *event)
 {
-    const QList<QTouchEvent::TouchPoint> points = event->touchPoints();
-    if (points.isEmpty())
-        return;
     if (!mouseFocus()) {
         qWarning("Cannot send touch event, no pointer focus, fix the compositor");
         return;
     }
+
+    TouchExtensionGlobal *ext = m_compositor->touchExtension();
+    if (ext) {
+        ext->postTouchEvent(event, mouseFocus());
+        return;
+    }
+
+    const QList<QTouchEvent::TouchPoint> points = event->touchPoints();
+    if (points.isEmpty())
+        return;
+
     const int pointCount = points.count();
     QPointF pos = mouseFocus()->pos();
     for (int i = 0; i < pointCount; ++i) {

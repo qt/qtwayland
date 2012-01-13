@@ -14,6 +14,10 @@ QWindowCompositor::QWindowCompositor(QOpenGLWindow *window)
     , m_draggingWindow(0)
     , m_dragKeyIsPressed(false)
 {
+    // Enable the following to have all QTouchEvent-specific data delivered
+    // using a custom protocol extension.
+    // enableTouchExtension();
+
     enableSubSurfaceExtension();
     m_window->makeCurrent();
 

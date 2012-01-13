@@ -18,7 +18,8 @@ QT += core-private gui-private platformsupport-private
 WAYLANDSOURCES += \
             $$PWD/../../../../extensions/surface-extension.xml \
             $$PWD/../../../../extensions/sub-surface-extension.xml \
-            $$PWD/../../../../extensions/output-extension.xml
+            $$PWD/../../../../extensions/output-extension.xml \
+            $$PWD/../../../../extensions/touch-extension.xml
 
 SOURCES =   main.cpp \
             qwaylandintegration.cpp \
@@ -39,7 +40,8 @@ SOURCES =   main.cpp \
             qwaylandshellsurface.cpp \
             qwaylandextendedoutput.cpp \
             qwaylandextendedsurface.cpp \
-            qwaylandsubsurface.cpp
+            qwaylandsubsurface.cpp \
+            qwaylandtouch.cpp
 
 HEADERS =   qwaylandintegration.h \
             qwaylandnativeinterface.h \
@@ -59,7 +61,8 @@ HEADERS =   qwaylandintegration.h \
             qwaylandshellsurface.h \
             qwaylandextendedoutput.h \
             qwaylandextendedsurface.h \
-            qwaylandsubsurface.h
+            qwaylandsubsurface.h \
+            qwaylandtouch.h
 
 INCLUDEPATH += $$QMAKE_INCDIR_WAYLAND
 LIBS += $$QMAKE_LIBS_WAYLAND

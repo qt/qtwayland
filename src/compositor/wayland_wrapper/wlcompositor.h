@@ -65,6 +65,7 @@ class OutputExtensionGlobal;
 class SurfaceExtensionGlobal;
 class SubSurfaceExtensionGlobal;
 class Shell;
+class TouchExtensionGlobal;
 
 class Q_COMPOSITOR_EXPORT Compositor : public QObject
 {
@@ -115,6 +116,9 @@ public:
     void setScreenOrientation(Qt::ScreenOrientation orientation);
     Qt::ScreenOrientation screenOrientation() const;
     void setOutputGeometry(const QRect &geometry);
+
+    void enableTouchExtension();
+    TouchExtensionGlobal *touchExtension() { return m_touchExtension; }
 
     bool isDragging() const;
     void sendDragMoveEvent(const QPoint &global, const QPoint &local, Surface *surface);
@@ -173,6 +177,7 @@ private:
     OutputExtensionGlobal *m_outputExtension;
     SurfaceExtensionGlobal *m_surfaceExtension;
     SubSurfaceExtensionGlobal *m_subSurfaceExtension;
+    TouchExtensionGlobal *m_touchExtension;
 
     static void bind_func(struct wl_client *client, void *data,
                           uint32_t version, uint32_t id);

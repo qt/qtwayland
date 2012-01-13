@@ -131,6 +131,8 @@ private:
     QList<QWindowSystemInterface::TouchPoint> mTouchPoints;
     QList<QWindowSystemInterface::TouchPoint> mPrevTouchPoints;
     QTouchDevice *mTouchDevice;
+
+    friend class QWaylandTouchExtension;
 };
 
 QT_END_NAMESPACE

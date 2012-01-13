@@ -1,7 +1,8 @@
 WAYLANDSOURCES += \
                 $$PWD/../../../extensions/surface-extension.xml \
                 $$PWD/../../../extensions/sub-surface-extension.xml \
-                $$PWD/../../../extensions/output-extension.xml
+                $$PWD/../../../extensions/output-extension.xml \
+                $$PWD/../../../extensions/touch-extension.xml
 
 
 HEADERS += \
@@ -18,7 +19,8 @@ HEADERS += \
     $$PWD/wldatasource.h \
     $$PWD/wlextendedsurface.h \
     $$PWD/wlextendedoutput.h \
-    $$PWD/wlsubsurface.h
+    $$PWD/wlsubsurface.h \
+    $$PWD/wltouch.h
 
 SOURCES += \
     $$PWD/wlcompositor.cpp \
@@ -34,5 +36,6 @@ SOURCES += \
     $$PWD/wldatasource.cpp \
     $$PWD/wlextendedsurface.cpp \
     $$PWD/wlextendedoutput.cpp \
-    $$PWD/wlsubsurface.cpp
+    $$PWD/wlsubsurface.cpp \
+    $$PWD/wltouch.cpp
 

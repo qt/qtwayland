@@ -62,6 +62,7 @@ class QWaylandShell;
 class QWaylandSurfaceExtension;
 class QWaylandSubSurfaceExtension;
 class QWaylandOutputExtension;
+class QWaylandTouchExtension;
 
 class QWaylandDisplay : public QObject {
     Q_OBJECT
@@ -100,6 +101,7 @@ public:
     QWaylandSurfaceExtension *windowExtension() const { return mWindowExtension; }
     QWaylandSubSurfaceExtension *subSurfaceExtension() const { return mSubSurfaceExtension; }
     QWaylandOutputExtension *outputExtension() const { return mOutputExtension; }
+    QWaylandTouchExtension *touchExtension() const { return mTouchExtension; }
 
     struct wl_shm *shm() const { return mShm; }
 
@@ -129,6 +131,7 @@ private:
     QWaylandSurfaceExtension *mWindowExtension;
     QWaylandSubSurfaceExtension *mSubSurfaceExtension;
     QWaylandOutputExtension *mOutputExtension;
+    QWaylandTouchExtension *mTouchExtension;
 
     QSocketNotifier *mReadNotifier;
     int mFd;

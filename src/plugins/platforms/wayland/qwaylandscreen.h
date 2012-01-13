@@ -60,7 +60,7 @@ public:
     int depth() const;
     QImage::Format format() const;
 
-    Qt::ScreenOrientation currentOrientation() const;
+    Qt::ScreenOrientation orientation() const;
 
     wl_output *output() const { return mOutput; }
 

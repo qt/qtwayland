@@ -88,11 +88,11 @@ QImage::Format QWaylandScreen::format() const
     return mFormat;
 }
 
-Qt::ScreenOrientation QWaylandScreen::currentOrientation() const
+Qt::ScreenOrientation QWaylandScreen::orientation() const
 {
     if (mExtendedOutput)
         return mExtendedOutput->currentOrientation();
-    return primaryOrientation();
+    return QPlatformScreen::orientation();
 }
 
 QWaylandExtendedOutput *QWaylandScreen::extendedOutput() const

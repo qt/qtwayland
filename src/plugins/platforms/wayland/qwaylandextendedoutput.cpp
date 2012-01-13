@@ -76,7 +76,7 @@ QWaylandExtendedOutput *QWaylandOutputExtension::getExtendedOutput(QWaylandScree
 QWaylandExtendedOutput::QWaylandExtendedOutput(QWaylandScreen *screen, wl_extended_output *extended_output)
     : m_extended_output(extended_output)
     , m_screen(screen)
-    , m_orientation(m_screen->primaryOrientation())
+    , m_orientation(m_screen->orientation())
 {
     wl_extended_output_add_listener(m_extended_output,&extended_output_listener,this);
 }

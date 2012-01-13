@@ -450,8 +450,6 @@ void QWaylandInputDevice::handleTouchPoint(int id, int x, int y, Qt::TouchPointS
 
     tp.state = state;
     tp.id = id;
-    if (mTouchPoints.isEmpty())
-        tp.flags |= QTouchEvent::TouchPoint::Primary;
     tp.pressure = tp.state == Qt::TouchPointReleased ? 0 : 1;
     mTouchPoints.append(tp);
 }

@@ -42,7 +42,7 @@
 ****************************************************************************/
     </copyright>
 
-    <interface name="wl_touch" version="1">
+    <interface name="wl_touch_extension" version="1">
       <event name="touch">
         <arg name="time" type="uint" />
         <arg name="id" type="uint" />

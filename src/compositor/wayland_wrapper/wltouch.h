@@ -65,7 +65,7 @@ private:
 
     static void destroy_resource(wl_resource *resource);
 
-    static const struct wl_touch_interface touch_interface;
+    static const struct wl_touch_extension_interface touch_interface;
 
     QList<wl_resource *> m_resources;
 };

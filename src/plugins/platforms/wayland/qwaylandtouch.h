@@ -45,7 +45,7 @@
 #include "qwaylanddisplay.h"
 #include <QWindowSystemInterface>
 
-class wl_touch;
+class wl_touch_extension;
 
 class QWaylandTouchExtension
 {
@@ -54,11 +54,11 @@ public:
 
 private:
     QWaylandDisplay *mDisplay;
-    wl_touch *mTouch;
-    static const struct wl_touch_listener touch_listener;
+    wl_touch_extension *mTouch;
+    static const struct wl_touch_extension_listener touch_listener;
 
     static void handle_touch(void *data,
-                             struct wl_touch *wl_touch,
+                             struct wl_touch_extension *ext,
                              uint32_t time,
                              uint32_t id,
                              uint32_t state,
@@ -75,7 +75,7 @@ private:
                              struct wl_array *rawdata);
 
     static void handle_touch_frame(void *data,
-                                   struct wl_touch *wl_touch);
+                                   struct wl_touch_extension *ext);
 
     void sendTouchEvent();
 

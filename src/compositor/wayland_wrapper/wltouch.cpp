@@ -49,7 +49,7 @@ static void dummy(wl_client *, wl_resource *)
 {
 }
 
-const struct wl_touch_interface TouchExtensionGlobal::touch_interface = {
+const struct wl_touch_extension_interface TouchExtensionGlobal::touch_interface = {
     dummy
 };
 
@@ -57,7 +57,7 @@ TouchExtensionGlobal::TouchExtensionGlobal(Compositor *compositor)
     : m_compositor(compositor)
 {
     wl_display_add_global(compositor->wl_display(),
-                          &wl_touch_interface,
+                          &wl_touch_extension_interface,
                           this,
                           TouchExtensionGlobal::bind_func);
 }
@@ -72,7 +72,7 @@ void TouchExtensionGlobal::destroy_resource(wl_resource *resource)
 void TouchExtensionGlobal::bind_func(wl_client *client, void *data, uint32_t version, uint32_t id)
 {
     Q_UNUSED(version);
-    wl_resource *resource = wl_client_add_object(client, &wl_touch_interface, &touch_interface, id, data);
+    wl_resource *resource = wl_client_add_object(client, &wl_touch_extension_interface, &touch_interface, id, data);
     resource->destroy = destroy_resource;
     TouchExtensionGlobal *self = static_cast<TouchExtensionGlobal *>(resource->data);
     self->m_resources.append(resource);
@@ -91,10 +91,14 @@ void TouchExtensionGlobal::postTouchEvent(QTouchEvent *event, Surface *surface)
         return;
 
     QPointF surfacePos = surface->pos();
+    wl_client *surfaceClient = surface->base()->resource.client;
     uint32_t time = m_compositor->currentTimeMsecs();
     const int rescount = m_resources.count();
+
     for (int res = 0; res < rescount; ++res) {
         wl_resource *target = m_resources.at(res);
+        if (target->client != surfaceClient)
+            continue;
 
         for (int i = 0; i < pointCount; ++i) {
             const QTouchEvent::TouchPoint &tp(points.at(i));
@@ -112,14 +116,14 @@ void TouchExtensionGlobal::postTouchEvent(QTouchEvent *event, Surface *surface)
             int vy = toFixed(tp.velocity().y());
             uint32_t pressure = uint32_t(tp.pressure() * 255);
             wl_array *rawData = 0;
-            wl_resource_post_event(target, WL_TOUCH_TOUCH,
+            wl_resource_post_event(target, WL_TOUCH_EXTENSION_TOUCH,
                                    time, id, state,
                                    x, y, nx, ny, w, h,
                                    pressure, vx, vy,
                                    flags, rawData);
         }
 
-        wl_resource_post_event(target, WL_TOUCH_TOUCH_FRAME);
+        wl_resource_post_event(target, WL_TOUCH_EXTENSION_TOUCH_FRAME);
     }
 }
 

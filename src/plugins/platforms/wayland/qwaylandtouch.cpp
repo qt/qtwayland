@@ -47,8 +47,8 @@
 QWaylandTouchExtension::QWaylandTouchExtension(QWaylandDisplay *display, uint32_t id)
 {
     mDisplay = display;
-    mTouch = static_cast<struct wl_touch *>(wl_display_bind(display->wl_display(), id, &wl_touch_interface));
-    wl_touch_add_listener(mTouch, &touch_listener, this);
+    mTouch = static_cast<struct wl_touch_extension *>(wl_display_bind(display->wl_display(), id, &wl_touch_extension_interface));
+    wl_touch_extension_add_listener(mTouch, &touch_listener, this);
 
     QTouchDevice::Capabilities caps = QTouchDevice::Position
             | QTouchDevice::Area
@@ -67,18 +67,18 @@ static inline qreal fromFixed(int f)
     return f / qreal(10000);
 }
 
-void QWaylandTouchExtension::handle_touch(void *data, wl_touch *wl_touch, uint32_t time,
+void QWaylandTouchExtension::handle_touch(void *data, wl_touch_extension *ext, uint32_t time,
                                           uint32_t id, uint32_t state, int32_t x, int32_t y,
                                           int32_t normalized_x, int32_t normalized_y,
                                           int32_t width, int32_t height, uint32_t pressure,
                                           int32_t velocity_x, int32_t velocity_y,
                                           uint32_t flags, wl_array *rawdata)
 {
-    Q_UNUSED(wl_touch);
+    Q_UNUSED(ext);
     QWaylandTouchExtension *self = static_cast<QWaylandTouchExtension *>(data);
     QList<QWaylandInputDevice *> inputDevices = self->mDisplay->inputDevices();
     if (inputDevices.isEmpty()) {
-        qWarning("handle_touch: No input device");
+        qWarning("wl_touch_extension: handle_touch: No input device");
         return;
     }
     QWaylandInputDevice *dev = inputDevices.first();
@@ -87,8 +87,10 @@ void QWaylandTouchExtension::handle_touch(void *data, wl_touch *wl_touch, uint32
         win = dev->mPointerFocus;
     if (!win)
         win = dev->mKeyboardFocus;
-    if (!win || !win->window())
+    if (!win || !win->window()) {
+        qWarning("wl_touch_extension: handle_touch: No pointer focus");
         return;
+    }
 
     QWindowSystemInterface::TouchPoint tp;
     tp.id = id;
@@ -111,9 +113,9 @@ void QWaylandTouchExtension::handle_touch(void *data, wl_touch *wl_touch, uint32
     self->mTimestamp = time;
 }
 
-void QWaylandTouchExtension::handle_touch_frame(void *data, wl_touch *wl_touch)
+void QWaylandTouchExtension::handle_touch_frame(void *data, wl_touch_extension *ext)
 {
-    Q_UNUSED(wl_touch);
+    Q_UNUSED(ext);
     QWaylandTouchExtension *self = static_cast<QWaylandTouchExtension *>(data);
     self->sendTouchEvent();
 }
@@ -159,7 +161,7 @@ void QWaylandTouchExtension::sendTouchEvent()
         mPrevTouchPoints.clear();
 }
 
-const struct wl_touch_listener QWaylandTouchExtension::touch_listener = {
+const struct wl_touch_extension_listener QWaylandTouchExtension::touch_listener = {
     QWaylandTouchExtension::handle_touch,
     QWaylandTouchExtension::handle_touch_frame
 };

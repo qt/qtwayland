@@ -311,7 +311,7 @@ void QWaylandDisplay::displayHandleGlobal(uint32_t id,
         mWindowExtension = new QWaylandSurfaceExtension(this,id);
     } else if (interface == "wl_sub_surface_extension") {
         mSubSurfaceExtension = new QWaylandSubSurfaceExtension(this,id);
-    } else if (interface == "wl_touch") {
+    } else if (interface == "wl_touch_extension") {
         mTouchExtension = new QWaylandTouchExtension(this, id);
     }
 }

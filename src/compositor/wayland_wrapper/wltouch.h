@@ -43,6 +43,7 @@
 
 #include "wlcompositor.h"
 #include "wayland-touch-extension-server-protocol.h"
+#include "wayland-util.h"
 
 class Compositor;
 class Surface;
@@ -54,6 +55,7 @@ class TouchExtensionGlobal
 {
 public:
     TouchExtensionGlobal(Compositor *compositor);
+    ~TouchExtensionGlobal();
 
     void postTouchEvent(QTouchEvent *event, Surface *surface);
 
@@ -68,6 +70,8 @@ private:
     static const struct wl_touch_extension_interface touch_interface;
 
     QList<wl_resource *> m_resources;
+    wl_array m_rawdata_array;
+    float *m_rawdata_ptr;
 };
 
 }

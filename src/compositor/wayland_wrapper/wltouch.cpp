@@ -53,13 +53,23 @@ const struct wl_touch_extension_interface TouchExtensionGlobal::touch_interface 
     dummy
 };
 
+static const int maxRawPos = 24;
+
 TouchExtensionGlobal::TouchExtensionGlobal(Compositor *compositor)
     : m_compositor(compositor)
 {
+    wl_array_init(&m_rawdata_array);
+    m_rawdata_ptr = static_cast<float *>(wl_array_add(&m_rawdata_array, maxRawPos * sizeof(float) * 2));
+
     wl_display_add_global(compositor->wl_display(),
                           &wl_touch_extension_interface,
                           this,
                           TouchExtensionGlobal::bind_func);
+}
+
+TouchExtensionGlobal::~TouchExtensionGlobal()
+{
+    wl_array_release(&m_rawdata_array);
 }
 
 void TouchExtensionGlobal::destroy_resource(wl_resource *resource)
@@ -105,6 +115,7 @@ void TouchExtensionGlobal::postTouchEvent(QTouchEvent *event, Surface *surface)
             uint32_t id = tp.id();
             uint32_t state = tp.state();
             uint32_t flags = tp.flags();
+
             QPointF p = tp.pos() - surfacePos; // surface-relative
             int x = toFixed(p.x());
             int y = toFixed(p.y());
@@ -115,7 +126,25 @@ void TouchExtensionGlobal::postTouchEvent(QTouchEvent *event, Surface *surface)
             int vx = toFixed(tp.velocity().x());
             int vy = toFixed(tp.velocity().y());
             uint32_t pressure = uint32_t(tp.pressure() * 255);
+
             wl_array *rawData = 0;
+            QList<QPointF> rawPosList = tp.rawScreenPositions();
+            int rawPosCount = rawPosList.count();
+            if (rawPosCount) {
+                rawPosCount = qMin(maxRawPos, rawPosCount);
+                rawData = &m_rawdata_array;
+                rawData->size = rawPosCount * sizeof(float) * 2;
+                float *p = m_rawdata_ptr;
+                for (int rpi = 0; rpi < rawPosCount; ++rpi) {
+                    const QPointF &rawPos(rawPosList.at(rpi));
+                    // This will stay in screen coordinates for performance
+                    // reasons, clients using this data will presumably know
+                    // what they are doing.
+                    *p++ = float(rawPos.x());
+                    *p++ = float(rawPos.y());
+                }
+            }
+
             wl_resource_post_event(target, WL_TOUCH_EXTENSION_TOUCH,
                                    time, id, state,
                                    x, y, nx, ny, w, h,

@@ -109,6 +109,16 @@ void QWaylandTouchExtension::handle_touch(void *data, wl_touch_extension *ext, u
     tp.velocity.setX(fromFixed(velocity_x));
     tp.velocity.setY(fromFixed(velocity_y));
 
+    if (rawdata) {
+        const int rawPosCount = rawdata->size / sizeof(float) / 2;
+        float *p = static_cast<float *>(rawdata->data);
+        for (int i = 0; i < rawPosCount; ++i) {
+            float x = *p++;
+            float y = *p++;
+            tp.rawPositions.append(QPointF(x, y));
+        }
+    }
+
     self->mTouchPoints.append(tp);
     self->mTimestamp = time;
 }

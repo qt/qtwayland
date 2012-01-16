@@ -112,6 +112,10 @@ void TouchExtensionGlobal::postTouchEvent(QTouchEvent *event, Surface *surface)
 
         for (int i = 0; i < pointCount; ++i) {
             const QTouchEvent::TouchPoint &tp(points.at(i));
+            // Stationary points are never sent. They are cached on client side.
+            if (tp.state() == Qt::TouchPointStationary)
+                continue;
+
             uint32_t id = tp.id();
             uint32_t state = tp.state();
             uint32_t flags = tp.flags();

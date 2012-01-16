@@ -47,6 +47,7 @@
 QWaylandTouchExtension::QWaylandTouchExtension(QWaylandDisplay *display, uint32_t id)
 {
     mDisplay = display;
+    mPointsLeft = 0;
     mTouch = static_cast<struct wl_touch_extension *>(wl_display_bind(display->wl_display(), id, &wl_touch_extension_interface));
     wl_touch_extension_add_listener(mTouch, &touch_listener, this);
 
@@ -94,7 +95,12 @@ void QWaylandTouchExtension::handle_touch(void *data, wl_touch_extension *ext, u
 
     QWindowSystemInterface::TouchPoint tp;
     tp.id = id;
-    tp.state = Qt::TouchPointState(int(state));
+    tp.state = Qt::TouchPointState(int(state & 0xFFFF));
+    int sentPointCount = state >> 16;
+    if (!self->mPointsLeft) {
+        Q_ASSERT(sentPointCount > 0);
+        self->mPointsLeft = sentPointCount;
+    }
     tp.flags = QTouchEvent::TouchPoint::InfoFlags(int(flags));
 
     tp.area = QRectF(0, 0, fromFixed(width), fromFixed(height));
@@ -121,13 +127,9 @@ void QWaylandTouchExtension::handle_touch(void *data, wl_touch_extension *ext, u
 
     self->mTouchPoints.append(tp);
     self->mTimestamp = time;
-}
 
-void QWaylandTouchExtension::handle_touch_frame(void *data, wl_touch_extension *ext)
-{
-    Q_UNUSED(ext);
-    QWaylandTouchExtension *self = static_cast<QWaylandTouchExtension *>(data);
-    self->sendTouchEvent();
+    if (!--self->mPointsLeft)
+        self->sendTouchEvent();
 }
 
 void QWaylandTouchExtension::sendTouchEvent()
@@ -173,5 +175,4 @@ void QWaylandTouchExtension::sendTouchEvent()
 
 const struct wl_touch_extension_listener QWaylandTouchExtension::touch_listener = {
     QWaylandTouchExtension::handle_touch,
-    QWaylandTouchExtension::handle_touch_frame
 };

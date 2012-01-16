@@ -56,9 +56,6 @@
         <arg name="rawdata" type="array" />
       </event>
 
-      <event name="touch_frame">
-      </event>
-
       <request name="dummy">
       </request>
 

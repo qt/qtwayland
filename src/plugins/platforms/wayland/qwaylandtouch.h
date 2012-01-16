@@ -74,15 +74,13 @@ private:
                              uint32_t flags,
                              struct wl_array *rawdata);
 
-    static void handle_touch_frame(void *data,
-                                   struct wl_touch_extension *ext);
-
     void sendTouchEvent();
 
     QList<QWindowSystemInterface::TouchPoint> mTouchPoints;
     QList<QWindowSystemInterface::TouchPoint> mPrevTouchPoints;
     QTouchDevice *mTouchDevice;
     uint32_t mTimestamp;
+    int mPointsLeft;
 };
 
 #endif // QWAYLANDTOUCH_H

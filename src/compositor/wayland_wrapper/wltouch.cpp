@@ -110,6 +110,15 @@ void TouchExtensionGlobal::postTouchEvent(QTouchEvent *event, Surface *surface)
         if (target->client != surfaceClient)
             continue;
 
+        // We will use no touch_frame type of event, to reduce the number of
+        // events flowing through the wire. Instead, the number of points sent is
+        // included in the touch point events.
+        int sentPointCount = 0;
+        for (int i = 0; i < pointCount; ++i) {
+            if (points.at(i).state() != Qt::TouchPointStationary)
+                ++sentPointCount;
+        }
+
         for (int i = 0; i < pointCount; ++i) {
             const QTouchEvent::TouchPoint &tp(points.at(i));
             // Stationary points are never sent. They are cached on client side.
@@ -117,7 +126,7 @@ void TouchExtensionGlobal::postTouchEvent(QTouchEvent *event, Surface *surface)
                 continue;
 
             uint32_t id = tp.id();
-            uint32_t state = tp.state();
+            uint32_t state = (tp.state() & 0xFFFF) | (sentPointCount << 16);
             uint32_t flags = tp.flags();
 
             QPointF p = tp.pos() - surfacePos; // surface-relative
@@ -155,8 +164,6 @@ void TouchExtensionGlobal::postTouchEvent(QTouchEvent *event, Surface *surface)
                                    pressure, vx, vy,
                                    flags, rawData);
         }
-
-        wl_resource_post_event(target, WL_TOUCH_EXTENSION_TOUCH_FRAME);
     }
 }
 

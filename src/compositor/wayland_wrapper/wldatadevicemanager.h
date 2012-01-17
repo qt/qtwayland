@@ -73,6 +73,7 @@ public:
 
     void overrideSelection(const QMimeData &mimeData);
     bool offerFromCompositorToClient(wl_resource *clientDataDeviceResource);
+    void offerRetainedSelection(wl_resource *clientDataDeviceResource);
 
 private slots:
     void readFromClient(int fd);

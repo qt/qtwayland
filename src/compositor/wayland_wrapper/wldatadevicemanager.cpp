@@ -257,6 +257,15 @@ bool DataDeviceManager::offerFromCompositorToClient(wl_resource *clientDataDevic
     return true;
 }
 
+void DataDeviceManager::offerRetainedSelection(wl_resource *clientDataDeviceResource)
+{
+    if (m_retainedData.formats().isEmpty())
+        return;
+
+    m_compositorOwnsSelection = true;
+    offerFromCompositorToClient(clientDataDeviceResource);
+}
+
 void DataDeviceManager::comp_accept(wl_client *, wl_resource *, uint32_t, const char *)
 {
 }

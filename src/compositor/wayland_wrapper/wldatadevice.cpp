@@ -107,12 +107,13 @@ void DataDevice::sendSelectionFocus()
         return;
 
     DataSource *source = m_data_device_manager->currentSelectionSource();
-    if (!source) {
+    if (!source || !source->client()) {
+        m_data_device_manager->offerRetainedSelection(m_data_device_resource);
         return;
     }
     if (source->time() > m_sent_selection_time) { //this makes sure we don't resend
         if (source->client() != m_data_device_resource->client) { //don't send selection to the client that owns the selection
-            DataOffer *data_offer = m_data_device_manager->currentSelectionSource()->dataOffer();
+            DataOffer *data_offer = source->dataOffer();
             wl_resource *client_resource =
                     data_offer->addDataDeviceResource(m_data_device_resource);
             qDebug() << "sending data_offer for source" << source;

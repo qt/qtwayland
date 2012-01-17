@@ -95,16 +95,6 @@ private:
                                     struct wl_resource *resource,
                                     const char *name,
                                     struct wl_array *value);
-    static void map_sub_surface(struct wl_client *client,
-                            struct wl_resource *extended_surface_resource,
-                            struct wl_resource *sub_surface_resource,
-                            int32_t x,
-                            int32_t y);
-    static void move_sub_surface(struct wl_client *client,
-                             struct wl_resource *extended_surface_resource,
-                             struct wl_resource *sub_surface_resource,
-                             int32_t x,
-                             int32_t y);
 
     static const struct wl_extended_surface_interface extended_surface_interface;
 };

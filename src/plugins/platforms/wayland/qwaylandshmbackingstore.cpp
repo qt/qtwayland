@@ -80,7 +80,7 @@ QWaylandShmBuffer::QWaylandShmBuffer(QWaylandDisplay *display,
 
     mImage = QImage(data, size.width(), size.height(), stride, format);
     mBuffer = wl_shm_create_buffer(display->shm(),fd, size.width(), size.height(),
-                                       stride, WL_SHM_FORMAT_PREMULTIPLIED_ARGB32);
+                                       stride, WL_SHM_FORMAT_ARGB8888);
     close(fd);
 }
 

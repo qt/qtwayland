@@ -39,43 +39,45 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDDATAOFFER_H
-#define QWAYLANDDATAOFFER_H
+#include "qwaylandmimehelper.h"
+#include <QImage>
+#include <QColor>
+#include <QUrl>
+#include <QBuffer>
+#include <QImageWriter>
 
-#include <QString>
-#include <QByteArray>
-#include <QMimeData>
-
-#include <QtGui/private/qdnd_p.h>
-#include <QtGui/QClipboard>
-
-#include <stdint.h>
-
-class QWaylandDisplay;
-
-class QWaylandDataOffer : public QInternalMimeData
+QByteArray QWaylandMimeHelper::getByteArray(QMimeData *mimeData, const QString &mimeType)
 {
-public:
-    QWaylandDataOffer(QWaylandDisplay *display, struct wl_data_offer *offer);
-    ~QWaylandDataOffer();
-
-    bool hasFormat_sys(const QString &mimeType) const;
-    QStringList formats_sys() const;
-    QVariant retrieveData_sys(const QString &mimeType, QVariant::Type type) const;
-
-    struct wl_data_offer *handle() const;
-private:
-
-    struct wl_data_offer *m_data_offer;
-    QWaylandDisplay *m_display;
-    QStringList m_offered_mime_types;
-    bool m_receiving_offers;
-
-    static void offer(void *data, struct wl_data_offer *wl_data_offer, const char *type);
-    static const struct wl_data_offer_listener data_offer_listener;
-
-    static void offer_sync_callback(void *data, struct wl_callback *wl_callback, uint32_t time);
-    static const struct wl_callback_listener offer_sync_callback_listener;
-};
-
-#endif
+    QByteArray content;
+    if (mimeType == QLatin1String("text/plain")) {
+        content = mimeData->text().toUtf8();
+    } else if (mimeData->hasImage()
+               && (mimeType == QLatin1String("application/x-qt-image")
+                   || mimeType.startsWith(QLatin1String("image/")))) {
+        QImage image = qvariant_cast<QImage>(mimeData->imageData());
+        if (!image.isNull()) {
+            QBuffer buf;
+            buf.open(QIODevice::ReadWrite);
+            QByteArray fmt = "BMP";
+            if (mimeType.startsWith(QLatin1String("image/"))) {
+                QByteArray imgFmt = mimeType.mid(6).toUpper().toAscii();
+                if (QImageWriter::supportedImageFormats().contains(imgFmt))
+                    fmt = imgFmt;
+            }
+            QImageWriter wr(&buf, fmt);
+            wr.write(image);
+            content = buf.buffer();
+        }
+    } else if (mimeType == QLatin1String("application/x-color")) {
+        content = qvariant_cast<QColor>(mimeData->colorData()).name().toAscii();
+    } else if (mimeType == QLatin1String("text/uri-list")) {
+        QList<QUrl> urls = mimeData->urls();
+        for (int i = 0; i < urls.count(); ++i) {
+            content.append(urls.at(i).toEncoded());
+            content.append('\n');
+        }
+    } else {
+        content = mimeData->data(mimeType);
+    }
+    return content;
+}

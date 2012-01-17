@@ -39,43 +39,17 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDDATAOFFER_H
-#define QWAYLANDDATAOFFER_H
+#ifndef QWAYLANDMIMEHELPER_H
+#define QWAYLANDMIMEHELPER_H
 
 #include <QString>
 #include <QByteArray>
 #include <QMimeData>
 
-#include <QtGui/private/qdnd_p.h>
-#include <QtGui/QClipboard>
-
-#include <stdint.h>
-
-class QWaylandDisplay;
-
-class QWaylandDataOffer : public QInternalMimeData
+class QWaylandMimeHelper
 {
 public:
-    QWaylandDataOffer(QWaylandDisplay *display, struct wl_data_offer *offer);
-    ~QWaylandDataOffer();
-
-    bool hasFormat_sys(const QString &mimeType) const;
-    QStringList formats_sys() const;
-    QVariant retrieveData_sys(const QString &mimeType, QVariant::Type type) const;
-
-    struct wl_data_offer *handle() const;
-private:
-
-    struct wl_data_offer *m_data_offer;
-    QWaylandDisplay *m_display;
-    QStringList m_offered_mime_types;
-    bool m_receiving_offers;
-
-    static void offer(void *data, struct wl_data_offer *wl_data_offer, const char *type);
-    static const struct wl_data_offer_listener data_offer_listener;
-
-    static void offer_sync_callback(void *data, struct wl_callback *wl_callback, uint32_t time);
-    static const struct wl_callback_listener offer_sync_callback_listener;
+    static QByteArray getByteArray(QMimeData *mimeData, const QString &mimeType);
 };
 
 #endif

@@ -45,11 +45,14 @@
 #include "wlinputdevice.h"
 #include "wlcompositor.h"
 #include "wldataoffer.h"
+#include "wlsurface.h"
+#include "qwaylandmimehelper.h"
 
 #include <QtCore/QDebug>
 #include <QtCore/QSocketNotifier>
 #include <fcntl.h>
 #include <QtCore/private/qcore_unix_p.h>
+#include <QtCore/QFile>
 
 namespace Wayland {
 
@@ -57,6 +60,7 @@ DataDeviceManager::DataDeviceManager(Compositor *compositor)
     : m_compositor(compositor)
     , m_current_selection_source(0)
     , m_retainedReadNotifier(0)
+    , m_compositorOwnsSelection(false)
 {
     wl_display_add_global(compositor->wl_display(), &wl_data_device_manager_interface, this, DataDeviceManager::bind_func_drag);
 }
@@ -68,6 +72,8 @@ void DataDeviceManager::setCurrentSelectionSource(DataSource *source)
         qDebug() << "Trying to set older selection";
         return;
     }
+
+    m_compositorOwnsSelection = false;
 
     finishReadFromClient();
 
@@ -208,6 +214,74 @@ void DataDeviceManager::create_data_source(struct wl_client *client,
 struct wl_data_device_manager_interface DataDeviceManager::drag_interface = {
     DataDeviceManager::create_data_source,
     DataDeviceManager::get_data_device
+};
+
+void DataDeviceManager::overrideSelection(const QMimeData &mimeData)
+{
+    QStringList formats = mimeData.formats();
+    if (formats.isEmpty())
+        return;
+
+    m_retainedData.clear();
+    foreach (const QString &format, formats)
+        m_retainedData.setData(format, mimeData.data(format));
+
+    m_compositor->feedRetainedSelectionData(&m_retainedData);
+
+    m_compositorOwnsSelection = true;
+
+    InputDevice *dev = m_compositor->defaultInputDevice();
+    Surface *focusSurface = dev->keyboardFocus();
+    if (focusSurface)
+        offerFromCompositorToClient(
+                    dev->dataDevice(focusSurface->base()->resource.client)->dataDeviceResource());
+}
+
+bool DataDeviceManager::offerFromCompositorToClient(wl_resource *clientDataDeviceResource)
+{
+    if (!m_compositorOwnsSelection)
+        return false;
+
+    wl_client *client = clientDataDeviceResource->client;
+    qDebug("compositor offers %d types to %p", m_retainedData.formats().count(), client);
+
+    struct wl_resource *selectionOffer =
+             wl_client_new_object(client, &wl_data_offer_interface, &compositor_offer_interface, this);
+    wl_resource_post_event(clientDataDeviceResource, WL_DATA_DEVICE_DATA_OFFER, selectionOffer);
+    foreach (const QString &format, m_retainedData.formats()) {
+        QByteArray ba = format.toLatin1();
+        wl_resource_post_event(selectionOffer, WL_DATA_OFFER_OFFER, ba.constData());
+    }
+    wl_resource_post_event(clientDataDeviceResource, WL_DATA_DEVICE_SELECTION, selectionOffer);
+
+    return true;
+}
+
+void DataDeviceManager::comp_accept(wl_client *, wl_resource *, uint32_t, const char *)
+{
+}
+
+void DataDeviceManager::comp_receive(wl_client *client, wl_resource *resource, const char *mime_type, int32_t fd)
+{
+    DataDeviceManager *self = static_cast<DataDeviceManager *>(resource->data);
+    qDebug("client %p wants data for type %s from compositor", client, mime_type);
+    QByteArray content = QWaylandMimeHelper::getByteArray(&self->m_retainedData, QString::fromLatin1(mime_type));
+    if (!content.isEmpty()) {
+        QFile f;
+        if (f.open(fd, QIODevice::WriteOnly))
+            f.write(content);
+    }
+    close(fd);
+}
+
+void DataDeviceManager::comp_destroy(wl_client *, wl_resource *)
+{
+}
+
+const struct wl_data_offer_interface DataDeviceManager::compositor_offer_interface = {
+    DataDeviceManager::comp_accept,
+    DataDeviceManager::comp_receive,
+    DataDeviceManager::comp_destroy
 };
 
 } //namespace

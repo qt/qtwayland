@@ -71,6 +71,9 @@ public:
 
     void sourceDestroyed(DataSource *source);
 
+    void overrideSelection(const QMimeData &mimeData);
+    bool offerFromCompositorToClient(wl_resource *clientDataDeviceResource);
+
 private slots:
     void readFromClient(int fd);
 
@@ -102,6 +105,21 @@ private:
     int m_retainedReadIndex;
     QByteArray m_retainedReadBuf;
 
+    bool m_compositorOwnsSelection;
+
+
+    static void comp_accept(struct wl_client *client,
+                            struct wl_resource *resource,
+                            uint32_t time,
+                            const char *type);
+    static void comp_receive(struct wl_client *client,
+                             struct wl_resource *resource,
+                             const char *mime_type,
+                             int32_t fd);
+    static void comp_destroy(struct wl_client *client,
+                             struct wl_resource *resource);
+
+    static const struct wl_data_offer_interface compositor_offer_interface;
 };
 
 }

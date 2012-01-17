@@ -41,7 +41,8 @@ SOURCES =   main.cpp \
             qwaylandextendedoutput.cpp \
             qwaylandextendedsurface.cpp \
             qwaylandsubsurface.cpp \
-            qwaylandtouch.cpp
+            qwaylandtouch.cpp \
+            $$PWD/../../../shared/qwaylandmimehelper.cpp
 
 HEADERS =   qwaylandintegration.h \
             qwaylandnativeinterface.h \
@@ -62,9 +63,13 @@ HEADERS =   qwaylandintegration.h \
             qwaylandextendedoutput.h \
             qwaylandextendedsurface.h \
             qwaylandsubsurface.h \
-            qwaylandtouch.h
+            qwaylandtouch.h \
+            $$PWD/../../../shared/qwaylandmimehelper.h
+
+INCLUDEPATH += $$PWD/../../../shared
 
 INCLUDEPATH += $$QMAKE_INCDIR_WAYLAND
+
 LIBS += $$QMAKE_LIBS_WAYLAND
 mac {
     LIBS += -lwayland-client

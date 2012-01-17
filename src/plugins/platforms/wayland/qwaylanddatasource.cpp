@@ -40,9 +40,9 @@
 ****************************************************************************/
 
 #include "qwaylanddatasource.h"
-
 #include "qwaylanddataoffer.h"
 #include "qwaylandinputdevice.h"
+#include "qwaylandmimehelper.h"
 
 #include <QtCore/QFile>
 

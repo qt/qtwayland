@@ -103,7 +103,9 @@ DataDevice::DataDevice(DataDeviceManager *data_device_manager, struct wl_client 
 
 void DataDevice::sendSelectionFocus()
 {
-    //do for all clipboards
+    if (m_data_device_manager->offerFromCompositorToClient(m_data_device_resource))
+        return;
+
     DataSource *source = m_data_device_manager->currentSelectionSource();
     if (!source) {
         return;

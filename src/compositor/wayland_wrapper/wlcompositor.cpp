@@ -402,8 +402,7 @@ void Compositor::feedRetainedSelectionData(QMimeData *data)
 
 void Compositor::overrideSelection(QMimeData *data)
 {
-    Q_UNUSED(data);
-    // ### TODO implement
+    m_data_device_manager->overrideSelection(*data);
 }
 
 bool Compositor::isDragging() const

@@ -20,7 +20,8 @@ HEADERS += \
     $$PWD/wlextendedsurface.h \
     $$PWD/wlextendedoutput.h \
     $$PWD/wlsubsurface.h \
-    $$PWD/wltouch.h
+    $$PWD/wltouch.h \
+    $$PWD/../../shared/qwaylandmimehelper.h
 
 SOURCES += \
     $$PWD/wlcompositor.cpp \
@@ -37,5 +38,8 @@ SOURCES += \
     $$PWD/wlextendedsurface.cpp \
     $$PWD/wlextendedoutput.cpp \
     $$PWD/wlsubsurface.cpp \
-    $$PWD/wltouch.cpp
+    $$PWD/wltouch.cpp \
+    $$PWD/../../shared/qwaylandmimehelper.cpp
+
+INCLUDEPATH += $$PWD/../../shared
 

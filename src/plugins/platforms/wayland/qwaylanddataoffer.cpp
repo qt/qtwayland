@@ -40,55 +40,12 @@
 ****************************************************************************/
 
 #include "qwaylanddataoffer.h"
-
 #include "qwaylanddatadevicemanager.h"
-
-#include <QImage>
-#include <QColor>
-#include <QUrl>
-#include <QBuffer>
-#include <QImageWriter>
 
 #include <QtGui/private/qguiapplication_p.h>
 #include <QtGui/QPlatformClipboard>
 
 #include <QtCore/QDebug>
-
-QByteArray QWaylandMimeHelper::getByteArray(QMimeData *mimeData, const QString &mimeType)
-{
-    QByteArray content;
-    if (mimeType == QLatin1String("text/plain")) {
-        content = mimeData->text().toUtf8();
-    } else if (mimeData->hasImage()
-               && (mimeType == QLatin1String("application/x-qt-image")
-                   || mimeType.startsWith("image/"))) {
-        QImage image = qvariant_cast<QImage>(mimeData->imageData());
-        if (!image.isNull()) {
-            QBuffer buf;
-            buf.open(QIODevice::ReadWrite);
-            QByteArray fmt = "BMP";
-            if (mimeType.startsWith("image/")) {
-                QByteArray imgFmt = mimeType.mid(6).toUpper().toAscii();
-                if (QImageWriter::supportedImageFormats().contains(imgFmt))
-                    fmt = imgFmt;
-            }
-            QImageWriter wr(&buf, fmt);
-            wr.write(image);
-            content = buf.buffer();
-        }
-    } else if (mimeType == QLatin1String("application/x-color")) {
-        content = qvariant_cast<QColor>(mimeData->colorData()).name().toAscii();
-    } else if (mimeType == QLatin1String("text/uri-list")) {
-        QList<QUrl> urls = mimeData->urls();
-        for (int i = 0; i < urls.count(); ++i) {
-            content.append(urls.at(i).toEncoded());
-            content.append('\n');
-        }
-    } else {
-        content = mimeData->data(mimeType);
-    }
-    return content;
-}
 
 
 void QWaylandDataOffer::offer_sync_callback(void *data,

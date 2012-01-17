@@ -115,6 +115,7 @@ QWaylandDisplay::QWaylandDisplay(void)
     : mLastKeyboardFocusInputDevice(0)
     , mDndSelectionHandler(0)
     , mWindowExtension(0)
+    , mSubSurfaceExtension(0)
     , mOutputExtension(0)
     , mTouchExtension(0)
 {

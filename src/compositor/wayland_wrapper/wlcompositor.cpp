@@ -183,7 +183,6 @@ void Compositor::createSurface(struct wl_client *client, uint32_t id)
     Surface *surface = new Surface(client,id, this);
     printf("Compositor::createSurface: %p %d\n", client, id);
 
-    QList<struct wl_client *> prevClientList = clients();
     m_surfaces << surface;
 
     m_qt_compositor->surfaceCreated(surface->handle());

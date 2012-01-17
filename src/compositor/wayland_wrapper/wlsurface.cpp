@@ -577,7 +577,8 @@ void Surface::setProcessId(qint64 processId)
 QByteArray Surface::authenticationToken() const
 {
     Q_D(const Surface);
-    return d->compositor->windowManagerIntegration()->managedClient(base()->resource.client)->authenticationToken();
+    WaylandManagedClient *mcl = d->compositor->windowManagerIntegration()->managedClient(base()->resource.client);
+    return mcl ? mcl->authenticationToken() : QByteArray();
 }
 
 QVariantMap Surface::windowProperties() const

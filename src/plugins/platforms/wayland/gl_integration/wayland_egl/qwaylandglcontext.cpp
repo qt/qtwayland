@@ -63,7 +63,7 @@ QWaylandGLContext::QWaylandGLContext(EGLDisplay eglDisplay, const QSurfaceFormat
 
     QVector<EGLint> eglContextAttrs;
     eglContextAttrs.append(EGL_CONTEXT_CLIENT_VERSION);
-    eglContextAttrs.append(2);
+    eglContextAttrs.append(format.majorVersion() == 1 ? 1 : 2);
     eglContextAttrs.append(EGL_NONE);
 
     m_context = eglCreateContext(m_eglDisplay, m_config, shareEGLContext, eglContextAttrs.constData());

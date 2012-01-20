@@ -61,8 +61,6 @@ QWindowCompositor::QWindowCompositor(QOpenGLWindow *window)
     enableSubSurfaceExtension();
     m_window->makeCurrent();
 
-    initializeGLFunctions();
-
     m_textureCache = new QOpenGLTextureCache(m_window->context());
     m_textureBlitter = new TextureBlitter();
     m_backgroundImage = QImage(QLatin1String(":/background.jpg"));

@@ -48,9 +48,8 @@
 
 #include <QtGui/private/qopengltexturecache_p.h>
 #include <QObject>
-#include <QOpenGLFunctions>
 
-class QWindowCompositor : public QObject, public WaylandCompositor, protected QOpenGLFunctions
+class QWindowCompositor : public QObject, public WaylandCompositor
 {
     Q_OBJECT
 public:

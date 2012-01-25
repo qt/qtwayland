@@ -205,3 +205,19 @@ QWaylandSubSurface *QWaylandWindow::subSurfaceWindow() const
 {
     return mSubSurfaceWindow;
 }
+
+void QWaylandWindow::handleContentOrientationChange(Qt::ScreenOrientation orientation)
+{
+    if (mExtendedWindow)
+        mExtendedWindow->setContentOrientation(orientation);
+}
+
+Qt::ScreenOrientation QWaylandWindow::requestWindowOrientation(Qt::ScreenOrientation orientation)
+{
+    if (mExtendedWindow) {
+        mExtendedWindow->setWindowOrientation(orientation);
+        return orientation;
+    }
+
+    return Qt::PrimaryOrientation;
+}

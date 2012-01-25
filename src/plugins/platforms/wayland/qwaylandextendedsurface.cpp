@@ -97,6 +97,27 @@ void QWaylandExtendedSurface::updateGenericProperty(const QString &name, const Q
     nativeInterface->emitWindowPropertyChanged(m_window,name);
 }
 
+static int32_t waylandRotationFromScreenOrientation(Qt::ScreenOrientation orientation)
+{
+    switch (orientation) {
+    case Qt::PortraitOrientation: return WL_EXTENDED_SURFACE_ORIENTATION_PORTRAITORIENTATION;
+    case Qt::InvertedPortraitOrientation: return WL_EXTENDED_SURFACE_ORIENTATION_INVERTEDPORTRAITORIENTATION;
+    case Qt::LandscapeOrientation: return WL_EXTENDED_SURFACE_ORIENTATION_LANDSCAPEORIENTATION;
+    case Qt::InvertedLandscapeOrientation: return WL_EXTENDED_SURFACE_ORIENTATION_INVERTEDLANDSCAPEORIENTATION;
+    default: return WL_EXTENDED_SURFACE_ORIENTATION_PRIMARYORIENTATION;
+    }
+}
+
+void QWaylandExtendedSurface::setWindowOrientation(Qt::ScreenOrientation orientation)
+{
+    wl_extended_surface_set_window_orientation(m_extended_surface, waylandRotationFromScreenOrientation(orientation));
+}
+
+void QWaylandExtendedSurface::setContentOrientation(Qt::ScreenOrientation orientation)
+{
+    wl_extended_surface_set_content_orientation(m_extended_surface, waylandRotationFromScreenOrientation(orientation));
+}
+
 QVariantMap QWaylandExtendedSurface::properties() const
 {
     return m_properties;

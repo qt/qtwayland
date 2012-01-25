@@ -612,6 +612,18 @@ void Surface::setWindowProperty(const QString &name, const QVariant &value, bool
     }
 }
 
+Qt::ScreenOrientation Surface::windowOrientation() const
+{
+    Q_D(const Surface);
+    return d->extendedSurface ? d->extendedSurface->windowOrientation() : Qt::PrimaryOrientation;
+}
+
+Qt::ScreenOrientation Surface::contentOrientation() const
+{
+    Q_D(const Surface);
+    return d->extendedSurface ? d->extendedSurface->contentOrientation() : Qt::PrimaryOrientation;
+}
+
 QPoint Surface::lastMousePos() const
 {
     Q_D(const Surface);

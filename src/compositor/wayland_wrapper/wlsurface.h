@@ -114,6 +114,9 @@ public:
     QVariant windowProperty(const QString &propertyName) const;
     void setWindowProperty(const QString &name, const QVariant &value, bool writeUpdateToClient = true);
 
+    Qt::ScreenOrientation contentOrientation() const;
+    Qt::ScreenOrientation windowOrientation() const;
+
     QPoint lastMousePos() const;
 
     void setExtendedSurface(ExtendedSurface *extendedSurface);

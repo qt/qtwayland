@@ -94,6 +94,9 @@ public:
     QSize size() const;
     void setSize(const QSize &size);
 
+    Qt::ScreenOrientation contentOrientation() const;
+    Qt::ScreenOrientation windowOrientation() const;
+
     QImage image() const;
 #ifdef QT_COMPOSITOR_WAYLAND_GL
     GLuint texture(QOpenGLContext *context) const;

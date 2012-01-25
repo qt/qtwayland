@@ -85,6 +85,9 @@ public:
     QWaylandExtendedSurface *extendedWindow() const;
     QWaylandSubSurface *subSurfaceWindow() const;
 
+    void handleContentOrientationChange(Qt::ScreenOrientation orientation);
+    Qt::ScreenOrientation requestWindowOrientation(Qt::ScreenOrientation orientation);
+
 protected:
     QWaylandDisplay *mDisplay;
     struct wl_surface *mSurface;

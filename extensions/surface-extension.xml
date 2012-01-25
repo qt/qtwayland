@@ -59,5 +59,21 @@
             <arg name="name" type="string"/>
             <arg name="value" type="array"/>
         </request>
+
+        <enum name="orientation">
+            <entry name="PrimaryOrientation" value="0"/>
+            <entry name="PortraitOrientation" value="1"/>
+            <entry name="LandscapeOrientation" value="2"/>
+            <entry name="InvertedPortraitOrientation" value="4"/>
+            <entry name="InvertedLandscapeOrientation" value="8"/>
+        </enum>
+
+        <request name="set_window_orientation">
+            <arg name="orientation" type="int"/>
+        </request>
+
+        <request name="set_content_orientation">
+            <arg name="orientation" type="int"/>
+        </request>
     </interface>
 </protocol>

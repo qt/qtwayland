@@ -87,14 +87,28 @@ public:
     void setParent(ExtendedSurface *parent);
     QLinkedList<WaylandSurface *> subSurfaces() const;
 
+    Qt::ScreenOrientation windowOrientation() const;
+    Qt::ScreenOrientation contentOrientation() const;
+
 private:
     struct wl_resource *m_extended_surface_resource;
     Surface *m_surface;
+
+    Qt::ScreenOrientation m_windowOrientation;
+    Qt::ScreenOrientation m_contentOrientation;
 
     static void update_generic_property(struct wl_client *client,
                                     struct wl_resource *resource,
                                     const char *name,
                                     struct wl_array *value);
+
+    static void set_window_orientation(struct wl_client *client,
+                                       struct wl_resource *resource,
+                                       int32_t orientation);
+
+    static void set_content_orientation(struct wl_client *client,
+                                        struct wl_resource *resource,
+                                        int32_t orientation);
 
     static const struct wl_extended_surface_interface extended_surface_interface;
 };

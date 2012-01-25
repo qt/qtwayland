@@ -66,6 +66,9 @@ class QWaylandExtendedSurface
 public:
     QWaylandExtendedSurface(QWaylandWindow *window, struct wl_extended_surface *extended_surface);
 
+    void setWindowOrientation(Qt::ScreenOrientation orientation);
+    void setContentOrientation(Qt::ScreenOrientation orientation);
+
     void updateGenericProperty(const QString &name, const QVariant &value);
     QVariantMap properties() const;
     QVariant property(const QString &name);

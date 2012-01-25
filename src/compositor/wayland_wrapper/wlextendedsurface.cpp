@@ -77,6 +77,8 @@ void SurfaceExtensionGlobal::get_extended_surface(struct wl_client *client,
 
 ExtendedSurface::ExtendedSurface(struct wl_client *client, uint32_t id, Surface *surface)
     : m_surface(surface)
+    , m_windowOrientation(Qt::PrimaryOrientation)
+    , m_contentOrientation(Qt::PrimaryOrientation)
 {
     Q_ASSERT(surface->extendedSurface() == 0);
     surface->setExtendedSurface(this);
@@ -124,8 +126,49 @@ void ExtendedSurface::update_generic_property(wl_client *client, wl_resource *ex
 
 }
 
+static Qt::ScreenOrientation screenOrientationFromWaylandOrientation(int32_t orientation)
+{
+    switch (orientation) {
+    case WL_EXTENDED_SURFACE_ORIENTATION_PORTRAITORIENTATION: return Qt::PortraitOrientation;
+    case WL_EXTENDED_SURFACE_ORIENTATION_INVERTEDPORTRAITORIENTATION: return Qt::InvertedPortraitOrientation;
+    case WL_EXTENDED_SURFACE_ORIENTATION_LANDSCAPEORIENTATION: return Qt::LandscapeOrientation;
+    case WL_EXTENDED_SURFACE_ORIENTATION_INVERTEDLANDSCAPEORIENTATION: return Qt::InvertedLandscapeOrientation;
+    default: return Qt::PrimaryOrientation;
+    }
+}
+
+Qt::ScreenOrientation ExtendedSurface::windowOrientation() const
+{
+    return m_windowOrientation;
+}
+
+Qt::ScreenOrientation ExtendedSurface::contentOrientation() const
+{
+    return m_contentOrientation;
+}
+
+void ExtendedSurface::set_window_orientation(struct wl_client *client,
+                                             struct wl_resource *extended_surface_resource,
+                                             int32_t orientation)
+{
+    Q_UNUSED(client);
+    ExtendedSurface *extended_surface = static_cast<ExtendedSurface *>(extended_surface_resource->data);
+    extended_surface->m_windowOrientation = screenOrientationFromWaylandOrientation(orientation);
+}
+
+void ExtendedSurface::set_content_orientation(struct wl_client *client,
+                                              struct wl_resource *extended_surface_resource,
+                                              int32_t orientation)
+{
+    Q_UNUSED(client);
+    ExtendedSurface *extended_surface = static_cast<ExtendedSurface *>(extended_surface_resource->data);
+    extended_surface->m_contentOrientation = screenOrientationFromWaylandOrientation(orientation);
+}
+
 const struct wl_extended_surface_interface ExtendedSurface::extended_surface_interface = {
-    ExtendedSurface::update_generic_property
+    ExtendedSurface::update_generic_property,
+    ExtendedSurface::set_window_orientation,
+    ExtendedSurface::set_content_orientation
 };
 
 }

@@ -141,6 +141,18 @@ void WaylandSurface::setSize(const QSize &size)
     d->surface->setSize(size);
 }
 
+Qt::ScreenOrientation WaylandSurface::contentOrientation() const
+{
+    Q_D(const WaylandSurface);
+    return d->surface->contentOrientation();
+}
+
+Qt::ScreenOrientation WaylandSurface::windowOrientation() const
+{
+    Q_D(const WaylandSurface);
+    return d->surface->windowOrientation();
+}
+
 QImage WaylandSurface::image() const
 {
     Q_D(const WaylandSurface);

@@ -42,13 +42,13 @@
 #define WAYLANDSURFACEITEM_H
 
 #include "waylandexport.h"
+#include "waylandsurface.h"
 
 #include <QtQuick/QQuickItem>
 #include <QtQuick/qsgtexture.h>
 
 #include <QtQuick/qsgtextureprovider.h>
 
-class WaylandSurface;
 class WaylandSurfaceTextureProvider;
 
 Q_DECLARE_METATYPE(WaylandSurface*)

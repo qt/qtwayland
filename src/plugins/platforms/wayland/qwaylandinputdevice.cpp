@@ -136,11 +136,14 @@ void QWaylandInputDevice::inputHandleMotion(void *data,
     inputDevice->mSurfacePos = QPoint(surface_x, surface_y);
     inputDevice->mGlobalPos = QPoint(x, y);
     inputDevice->mTime = time;
-    QWindowSystemInterface::handleMouseEvent(window->window(),
-					     time,
-					     inputDevice->mSurfacePos,
-					     inputDevice->mGlobalPos,
-                                             inputDevice->mButtons);
+
+    if (inputDevice->mButtons) {
+        QWindowSystemInterface::handleMouseEvent(window->window(),
+                                                 time,
+                                                 inputDevice->mSurfacePos,
+                                                 inputDevice->mGlobalPos,
+                                                 inputDevice->mButtons);
+    }
 }
 
 void QWaylandInputDevice::inputHandleButton(void *data,

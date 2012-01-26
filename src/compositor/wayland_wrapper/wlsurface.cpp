@@ -431,13 +431,19 @@ bool Surface::isYInverted() const
 #ifdef QT_COMPOSITOR_WAYLAND_GL
     Q_D(const Surface);
 
-    if (!d->surfaceBuffer)
-        return false;
-    if (d->compositor->graphicsHWIntegration() && d->surfaceBuffer->handle() && type() != WaylandSurface::Shm) {
-        return d->compositor->graphicsHWIntegration()->isYInverted(d->surfaceBuffer->handle());
-    }
+    bool ret = false;
+
+    static bool negateReturn = qgetenv("QT_COMPOSITOR_NEGATE_INVERTED_Y").toInt();
+
+    if (!d->surfaceBuffer) {
+        ret = false;
+    } else if (d->compositor->graphicsHWIntegration() && d->surfaceBuffer->handle() && type() != WaylandSurface::Shm) {
+        ret = d->compositor->graphicsHWIntegration()->isYInverted(d->surfaceBuffer->handle());
+    } else
 #endif
-    return true;
+        ret = true;
+
+    return ret^negateReturn;
 }
 
 bool Surface::visible() const

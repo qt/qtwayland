@@ -301,10 +301,9 @@ public:
                 newBuffer->initialize(buffer);
                 break;
             }
-        }
-         if (!newBuffer) {
-             qDebug() << "####################### create failed ######################";
          }
+
+         Q_ASSERT(newBuffer);
          return newBuffer;
      }
 
@@ -536,18 +535,20 @@ GLuint Surface::textureId(QOpenGLContext *context) const
 void Surface::attach(struct wl_buffer *buffer)
 {
     Q_D(Surface);
+    static bool no_serverside_buffer_queue = qgetenv("QT_NO_SERVERSIDE_BUFFER_QUEUE").toInt();
+
     SurfaceBuffer *newBuffer = 0;
+    if (no_serverside_buffer_queue) {
+        if (d->surfaceBuffer && !d->surfaceBuffer->textureCreated()) {
+            qDebug() << "releasing undisplayed buffer";
+            d->surfaceBuffer->destructBufferState();
+            d->surfaceBuffer = 0;
+        }
+    }
     if (buffer) {
         newBuffer = d->createSurfaceBuffer(buffer);
-        Q_ASSERT(newBuffer);
     }
-#if 0 //GAMING_TRIPLE_BUFFERING
-    if (d->surfaceBuffer && !d->surfaceBuffer->textureCreated()) {
-        //qDebug() << "releasing undisplayed buffer";
-        d->surfaceBuffer->destructBufferState();
-        d->surfaceBuffer = 0;
-    }
-#endif
+
     SurfaceBuffer *last = d->bufferQueue.size()?d->bufferQueue.last():0;
     if (last && !last->damageRect().isValid()) {
         last->destructBufferState();

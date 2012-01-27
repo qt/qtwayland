@@ -41,5 +41,6 @@ SOURCES += \
     $$PWD/wltouch.cpp \
     $$PWD/../../shared/qwaylandmimehelper.cpp
 
+INCLUDEPATH += $$PWD
 INCLUDEPATH += $$PWD/../../shared
 

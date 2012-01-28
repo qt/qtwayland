@@ -180,6 +180,7 @@ void QWaylandWindow::frameCallback(void *data, struct wl_callback *wl_callback, 
     self->mWaitingForFrameSync = false;
     if (self->mFrameCallback) {
         wl_callback_destroy(self->mFrameCallback);
+        self->mFrameCallback = 0;
     }
 }
 

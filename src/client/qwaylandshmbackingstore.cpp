@@ -44,6 +44,8 @@
 #include "qwaylandabstractdecoration_p.h"
 
 #include <QtCore/qdebug.h>
+#include <QtCore/qstandardpaths.h>
+#include <QtCore/qtemporaryfile.h>
 #include <QtGui/QPainter>
 #include <QMutexLocker>
 #include <QLoggingCategory>
@@ -52,10 +54,7 @@
 #include <wayland-client-protocol.h>
 
 #include <unistd.h>
-#include <fcntl.h>
-#include <errno.h>
 #include <sys/mman.h>
-
 QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
@@ -72,28 +71,22 @@ QWaylandShmBuffer::QWaylandShmBuffer(QWaylandDisplay *display,
 {
     int stride = size.width() * 4;
     int alloc = stride * size.height();
-    char filename[] = "/tmp/wayland-shm-XXXXXX";
-    int fd = mkstemp(filename);
-    if (fd < 0) {
-        qWarning("mkstemp %s failed: %s", filename, strerror(errno));
-        return;
-    }
-    int flags = fcntl(fd, F_GETFD);
-    if (flags != -1)
-        fcntl(fd, F_SETFD, flags | FD_CLOEXEC);
+    int fd;
 
-    if (ftruncate(fd, alloc) < 0) {
-        qWarning("ftruncate failed: %s", strerror(errno));
-        close(fd);
+    QTemporaryFile tmp(QStandardPaths::writableLocation(QStandardPaths::RuntimeLocation) +
+                       QLatin1String("/wayland-shm-XXXXXX"));
+    if (!tmp.open() || !tmp.resize(alloc)) {
+        qWarning("QWaylandShmBuffer: failed: %s", qUtf8Printable(tmp.errorString()));
         return;
     }
+    fd = tmp.handle();
+
+    // map ourselves: QFile::map() will unmap when the object is destroyed,
+    // but we want this mapping to persist (unmapping in destructor)
     uchar *data = (uchar *)
             mmap(NULL, alloc, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
-    unlink(filename);
-
     if (data == (uchar *) MAP_FAILED) {
-        qWarning("mmap /dev/zero failed: %s", strerror(errno));
-        close(fd);
+        qErrnoWarning("QWaylandShmBuffer: mmap failed");
         return;
     }
 
@@ -105,7 +98,6 @@ QWaylandShmBuffer::QWaylandShmBuffer(QWaylandDisplay *display,
     mShmPool = wl_shm_create_pool(shm->object(), fd, alloc);
     init(wl_shm_pool_create_buffer(mShmPool,0, size.width(), size.height(),
                                        stride, wl_format));
-    close(fd);
 }
 
 QWaylandShmBuffer::~QWaylandShmBuffer(void)

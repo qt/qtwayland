@@ -125,6 +125,8 @@ void QWaylandWindow::setVisible(bool visible)
             wl_surface_attach(mSurface, mBuffer->buffer(),0,0);
             QWindowSystemInterface::handleSynchronousExposeEvent(window(), QRect(QPoint(), geometry().size()));
         }
+    } else {
+        wl_surface_attach(mSurface, 0,0,0);
     }
 }
 

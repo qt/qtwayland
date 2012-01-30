@@ -11,6 +11,8 @@ CONFIG += use_pkgconfig
 #  the following line
 #include (../../src/qt-compositor/qt-compositor.pri)
 
+# to make QtCompositor/... style includes working without installing
+INCLUDEPATH += $$PWD/../../include
 
 CONFIG += qt warn_on debug  create_prl link_prl
 OBJECTS_DIR = .obj/release-shared

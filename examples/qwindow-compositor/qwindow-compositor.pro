@@ -28,6 +28,9 @@ QT += gui gui-private core-private
 
 QT += compositor
 
+# to make QtCompositor/... style includes working without installing
+INCLUDEPATH += $$PWD/../../include
+
 #  if you want to compile QtCompositor as part of the application
 #  instead of linking to it, remove the QT += compositor and uncomment
 #  the following line

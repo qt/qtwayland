@@ -68,7 +68,7 @@ void QWaylandEglIntegration::initialize()
     }
 
     EGLint major,minor;
-    m_eglDisplay = eglGetDisplay(m_waylandDisplay);
+    m_eglDisplay = eglGetDisplay((EGLNativeDisplayType) m_waylandDisplay);
     if (m_eglDisplay == NULL) {
         qWarning("EGL not available");
     } else {

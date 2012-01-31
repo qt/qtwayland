@@ -103,7 +103,7 @@ EGLSurface QWaylandEglWindow::eglSurface() const
         m_eglConfig = q_configFromGLFormat(m_eglIntegration->eglDisplay(), window()->format(), true);
         const_cast<QWaylandEglWindow *>(this)->m_format = q_glFormatFromConfig(m_eglIntegration->eglDisplay(),m_eglConfig);
 
-        EGLNativeWindowType window = m_waylandEglWindow;
+        EGLNativeWindowType window = (EGLNativeWindowType) m_waylandEglWindow;
         m_eglSurface = eglCreateWindowSurface(m_eglIntegration->eglDisplay(), m_eglConfig, window, 0);
     }
 

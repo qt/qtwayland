@@ -94,7 +94,7 @@ ExtendedSurface::~ExtendedSurface()
 
 }
 
-void ExtendedSurface::sendGenericProperty(const char *name, const QVariant &variant)
+void ExtendedSurface::sendGenericProperty(const QString &name, const QVariant &variant)
 {
     QByteArray byteValue;
     QDataStream ds(&byteValue, QIODevice::WriteOnly);
@@ -103,7 +103,7 @@ void ExtendedSurface::sendGenericProperty(const char *name, const QVariant &vari
     data.size = byteValue.size();
     data.data = (void*) byteValue.constData();
     data.alloc = 0;
-    wl_resource_post_event(m_extended_surface_resource,WL_EXTENDED_SURFACE_SET_GENERIC_PROPERTY, name,&data);
+    wl_resource_post_event(m_extended_surface_resource,WL_EXTENDED_SURFACE_SET_GENERIC_PROPERTY, qPrintable(name), &data);
 
 }
 

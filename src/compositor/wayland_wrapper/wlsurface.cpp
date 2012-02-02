@@ -607,8 +607,7 @@ void Surface::setWindowProperty(const QString &name, const QVariant &value, bool
     d->windowProperties.insert(name, value);
     handle()->windowPropertyChanged(name,value);
     if (writeUpdateToClient && d->extendedSurface) {
-        const char *property = qPrintable(name);
-        d->extendedSurface->sendGenericProperty(property,value);
+        d->extendedSurface->sendGenericProperty(name, value);
     }
 }
 

@@ -78,7 +78,7 @@ public:
     ExtendedSurface(struct wl_client *client, uint32_t id, Surface *surface);
     ~ExtendedSurface();
 
-    void sendGenericProperty(const char *name, const QVariant &variant);
+    void sendGenericProperty(const QString &name, const QVariant &variant);
     void sendOnScreenVisibllity(bool visible);
 
     void setSubSurface(ExtendedSurface *subSurface,int x, int y);

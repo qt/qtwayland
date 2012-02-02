@@ -149,6 +149,8 @@ void WaylandSurfaceItem::mousePressEvent(QMouseEvent *event)
 {
     if (m_surface) {
         WaylandInputDevice *inputDevice = m_surface->compositor()->defaultInputDevice();
+        if (inputDevice->mouseFocus() != m_surface)
+            inputDevice->setMouseFocus(m_surface, event->pos(), event->globalPos());
         inputDevice->sendMousePressEvent(event->button(), toSurface(event->pos()));
     }
 }

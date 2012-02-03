@@ -248,6 +248,8 @@ void Compositor::processWaylandEvents()
 
 void Compositor::surfaceDestroyed(Surface *surface)
 {
+    if (defaultInputDevice()->mouseFocus() == surface)
+        defaultInputDevice()->setMouseFocus(0, QPoint(), QPoint());
     m_surfaces.removeOne(surface);
     m_dirty_surfaces.remove(surface);
     if (m_directRenderSurface == surface)

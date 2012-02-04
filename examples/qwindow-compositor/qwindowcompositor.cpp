@@ -39,6 +39,7 @@
 ****************************************************************************/
 
 #include "qwindowcompositor.h"
+
 #include <QMouseEvent>
 #include <QKeyEvent>
 #include <QTouchEvent>
@@ -184,7 +185,7 @@ GLuint QWindowCompositor::composeSurface(WaylandSurface *surface)
 
     if (surface->type() == WaylandSurface::Shm) {
         texture = m_textureCache->bindTexture(QOpenGLContext::currentContext(),surface->image());
-    } else {
+    } else if (surface->type() == WaylandSurface::Texture) {
         texture = surface->texture(QOpenGLContext::currentContext());
     }
 
@@ -266,19 +267,17 @@ bool QWindowCompositor::eventFilter(QObject *obj, QEvent *event)
         QPoint local;
         QMouseEvent *me = static_cast<QMouseEvent *>(event);
         WaylandSurface *targetSurface = surfaceAt(me->pos(), &local);
-        if (targetSurface) {
-            if (m_dragKeyIsPressed) {
-               m_draggingWindow = targetSurface;
-               m_drag_diff = local;
-            } else {
-                if (input->keyboardFocus() != targetSurface) {
-                    input->setKeyboardFocus(targetSurface);
-                    m_surfaces.removeOne(targetSurface);
-                    m_surfaces.append(targetSurface);
-                    m_renderScheduler.start(0);
-                }
-                input->sendMousePressEvent(me->button(),local,me->pos());
+        if (m_dragKeyIsPressed && targetSurface) {
+            m_draggingWindow = targetSurface;
+            m_drag_diff = local;
+        } else {
+            if (targetSurface && input->keyboardFocus() != targetSurface) {
+                input->setKeyboardFocus(targetSurface);
+                m_surfaces.removeOne(targetSurface);
+                m_surfaces.append(targetSurface);
+                m_renderScheduler.start(0);
             }
+            input->sendMousePressEvent(me->button(),local,me->pos());
         }
         break;
     }
@@ -287,9 +286,12 @@ bool QWindowCompositor::eventFilter(QObject *obj, QEvent *event)
         if (m_draggingWindow) {
             m_draggingWindow = 0;
             m_drag_diff = QPoint();
-        } else  if (targetSurface) {
+        } else {
             QMouseEvent *me = static_cast<QMouseEvent *>(event);
-            input->sendMouseReleaseEvent(me->button(),toSurface(targetSurface, me->pos()).toPoint(),me->pos());
+            QPointF localPos;
+            if (targetSurface)
+                localPos = toSurface(targetSurface, me->pos());
+            input->sendMouseReleaseEvent(me->button(),localPos.toPoint(),me->pos());
         }
         break;
     }

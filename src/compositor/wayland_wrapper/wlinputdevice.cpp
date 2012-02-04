@@ -70,43 +70,37 @@ void InputDevice::sendMousePressEvent(Qt::MouseButton button, const QPoint &loca
 {
     sendMouseMoveEvent(localPos,globalPos);
 
+    base()->button_count++;
     uint32_t time = m_compositor->currentTimeMsecs();
-    struct wl_resource *pointer_focus_resource = base()->pointer_focus_resource;
-    if (pointer_focus_resource) {
-        wl_input_device_send_button(pointer_focus_resource,
-                                    time, toWaylandButton(button), 1);
-    }
+    const struct wl_pointer_grab_interface *interface = base()->pointer_grab->interface;
+    interface->button(base()->pointer_grab,time,toWaylandButton(button),1);
 }
 
 void InputDevice::sendMouseReleaseEvent(Qt::MouseButton button, const QPoint &localPos, const QPoint &globalPos)
 {
     sendMouseMoveEvent(localPos,globalPos);
 
+    base()->button_count--;
     uint32_t time = m_compositor->currentTimeMsecs();
-    struct wl_resource *pointer_focus_resource = base()->pointer_focus_resource;
-    if (pointer_focus_resource) {
-        wl_input_device_send_button(pointer_focus_resource,
-                                    time, toWaylandButton(button), 0);
-    }
+    const struct wl_pointer_grab_interface *interface = base()->pointer_grab->interface;
+    interface->button(base()->pointer_grab,time,toWaylandButton(button),0);
 }
 
 void InputDevice::sendMouseMoveEvent(const QPoint &localPos, const QPoint &globalPos)
 {
     Q_UNUSED(globalPos);
     uint32_t time = m_compositor->currentTimeMsecs();
-    struct wl_resource *pointer_focus_resource = base()->pointer_focus_resource;
-    if (pointer_focus_resource) {
-        wl_input_device_send_motion(pointer_focus_resource,
-                                    time,
-                                    localPos.x(), localPos.y());
-    }
+    const struct wl_pointer_grab_interface *interface = base()->pointer_grab->interface;
+    base()->x = globalPos.x();
+    base()->y = globalPos.y();
+    interface->motion(base()->pointer_grab,
+                      time,
+                      localPos.x(), localPos.y());
 }
 
 void InputDevice::sendMouseMoveEvent(Surface *surface, const QPoint &localPos, const QPoint &globalPos)
 {
-    if (mouseFocus() != surface) {
-        setMouseFocus(surface,localPos,globalPos);
-    }
+    setMouseFocus(surface,localPos,globalPos);
     sendMouseMoveEvent(localPos,globalPos);
 }
 
@@ -234,11 +228,15 @@ Surface *InputDevice::mouseFocus() const
 
 void InputDevice::setMouseFocus(Surface *surface, const QPoint &globalPos, const QPoint &localPos)
 {
-    Q_UNUSED(globalPos);
-    wl_input_device_set_pointer_focus(base(),
-                                      surface ? surface->base() : 0,
-                                      m_compositor->currentTimeMsecs(),
-                                      localPos.x(), localPos.y());
+    base()->x = globalPos.x();
+    base()->y = globalPos.y();
+    base()->current = surface->base();
+    base()->current_x = localPos.x();
+    base()->current_y = localPos.y();
+    base()->pointer_grab->interface->focus(base()->pointer_grab,
+                        m_compositor->currentTimeMsecs(),
+                        surface ? surface->base() : 0,
+                        localPos.x(), localPos.y());
 }
 
 void InputDevice::cleanupDataDeviceForClient(struct wl_client *client, bool destroyDev)

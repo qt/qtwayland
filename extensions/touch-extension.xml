@@ -56,6 +56,14 @@
         <arg name="rawdata" type="array" />
       </event>
 
+      <enum name="flags">
+        <entry name="mouse_from_touch" value="0x1" />
+      </enum>
+
+      <event name="configure">
+        <arg name="flags" type="uint" />
+      </event>
+
       <request name="dummy">
       </request>
 

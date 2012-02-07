@@ -193,3 +193,8 @@ void WaylandCompositor::enableTouchExtension()
 {
     m_compositor->enableTouchExtension();
 }
+
+void WaylandCompositor::configureTouchExtension(TouchExtensionFlags flags)
+{
+    m_compositor->configureTouchExtension(flags);
+}

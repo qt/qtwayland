@@ -48,6 +48,8 @@ QWaylandTouchExtension::QWaylandTouchExtension(QWaylandDisplay *display, uint32_
 {
     mDisplay = display;
     mPointsLeft = 0;
+    mFlags = 0;
+
     mTouch = static_cast<struct wl_touch_extension *>(wl_display_bind(display->wl_display(), id, &wl_touch_extension_interface));
     wl_touch_extension_add_listener(mTouch, &touch_listener, this);
 
@@ -92,6 +94,7 @@ void QWaylandTouchExtension::handle_touch(void *data, wl_touch_extension *ext, u
         qWarning("wl_touch_extension: handle_touch: No pointer focus");
         return;
     }
+    self->mTargetWindow = win->window();
 
     QWindowSystemInterface::TouchPoint tp;
     tp.id = id;
@@ -107,7 +110,7 @@ void QWaylandTouchExtension::handle_touch(void *data, wl_touch_extension *ext, u
     // Got surface-relative coords but need a (virtual) screen position.
     QPointF relPos = QPointF(fromFixed(x), fromFixed(y));
     QPointF delta = relPos - relPos.toPoint();
-    tp.area.moveCenter(win->window()->mapToGlobal(relPos.toPoint()) + delta);
+    tp.area.moveCenter(self->mTargetWindow->mapToGlobal(relPos.toPoint()) + delta);
 
     tp.normalPosition.setX(fromFixed(normalized_x));
     tp.normalPosition.setY(fromFixed(normalized_y));
@@ -159,20 +162,41 @@ void QWaylandTouchExtension::sendTouchEvent()
 
     QWindowSystemInterface::handleTouchEvent(0, mTimestamp, mTouchDevice, mTouchPoints);
 
-    bool allReleased = true;
+    Qt::TouchPointStates states = 0;
     for (int i = 0; i < mTouchPoints.count(); ++i)
-        if (mTouchPoints.at(i).state != Qt::TouchPointReleased) {
-            allReleased = false;
-            break;
+        states |= mTouchPoints.at(i).state;
+
+    if (mFlags & WL_TOUCH_EXTENSION_FLAGS_MOUSE_FROM_TOUCH) {
+        if (states == Qt::TouchPointPressed)
+            mMouseSourceId = mTouchPoints.first().id;
+        for (int i = 0; i < mTouchPoints.count(); ++i) {
+            const QWindowSystemInterface::TouchPoint &tp(mTouchPoints.at(i));
+            if (tp.id == mMouseSourceId) {
+                Qt::MouseButtons buttons = tp.state == Qt::TouchPointReleased ? Qt::NoButton : Qt::LeftButton;
+                QPointF globalPos = tp.area.center();
+                QPointF delta = globalPos - globalPos.toPoint();
+                QPointF localPos = mTargetWindow->mapFromGlobal(globalPos.toPoint()) + delta;
+                QWindowSystemInterface::handleMouseEvent(0, mTimestamp, localPos, globalPos, buttons);
+                break;
+            }
         }
+    }
 
     mPrevTouchPoints = mTouchPoints;
     mTouchPoints.clear();
 
-    if (allReleased)
+    if (states == Qt::TouchPointReleased)
         mPrevTouchPoints.clear();
+}
+
+void QWaylandTouchExtension::handle_configure(void *data, wl_touch_extension *ext, uint32_t flags)
+{
+    Q_UNUSED(ext);
+    QWaylandTouchExtension *self = static_cast<QWaylandTouchExtension *>(data);
+    self->mFlags = flags;
 }
 
 const struct wl_touch_extension_listener QWaylandTouchExtension::touch_listener = {
     QWaylandTouchExtension::handle_touch,
+    QWaylandTouchExtension::handle_configure
 };

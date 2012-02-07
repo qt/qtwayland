@@ -59,9 +59,9 @@ public:
 
     void postTouchEvent(QTouchEvent *event, Surface *surface);
 
-private:
-    Compositor *m_compositor;
+    void setFlags(int flags) { m_flags = flags; }
 
+private:
     static void bind_func(struct wl_client *client, void *data,
                           uint32_t version, uint32_t id);
 
@@ -69,6 +69,8 @@ private:
 
     static const struct wl_touch_extension_interface touch_interface;
 
+    Compositor *m_compositor;
+    int m_flags;
     QList<wl_resource *> m_resources;
     wl_array m_rawdata_array;
     float *m_rawdata_ptr;

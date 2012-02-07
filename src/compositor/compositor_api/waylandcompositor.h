@@ -95,6 +95,11 @@ public:
     void enableSubSurfaceExtension();
 
     void enableTouchExtension();
+    enum TouchExtensionFlag {
+        TouchExtMouseFromTouch = 0x01
+    };
+    Q_DECLARE_FLAGS(TouchExtensionFlags, TouchExtensionFlag)
+    void configureTouchExtension(TouchExtensionFlags flags);
 
 private:
     static void retainedSelectionChanged(QMimeData *mimeData, void *param);
@@ -103,5 +108,7 @@ private:
     QWindow  *m_toplevel_window;
     QByteArray m_socket_name;
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(WaylandCompositor::TouchExtensionFlags)
 
 #endif // QTCOMP_H

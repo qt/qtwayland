@@ -53,7 +53,8 @@ public:
     QOpenGLContext* context() { return m_context; }
     bool makeCurrent() { return m_context->makeCurrent(this); }
     void swapBuffers() { m_context->swapBuffers(this); }
-
+protected:
+    void touchEvent(QTouchEvent *event);
 private:
     QOpenGLContext *m_context;
     QSurfaceFormat m_format;

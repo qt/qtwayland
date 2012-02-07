@@ -73,6 +73,9 @@ private:
                              int32_t velocity_y,
                              uint32_t flags,
                              struct wl_array *rawdata);
+    static void handle_configure(void *data,
+                                 struct wl_touch_extension *ext,
+                                 uint32_t flags);
 
     void sendTouchEvent();
 
@@ -81,6 +84,9 @@ private:
     QTouchDevice *mTouchDevice;
     uint32_t mTimestamp;
     int mPointsLeft;
+    uint32_t mFlags;
+    int mMouseSourceId;
+    QWindow *mTargetWindow;
 };
 
 #endif // QWAYLANDTOUCH_H

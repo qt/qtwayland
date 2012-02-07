@@ -119,6 +119,7 @@ public:
 
     void enableTouchExtension();
     TouchExtensionGlobal *touchExtension() { return m_touchExtension; }
+    void configureTouchExtension(int flags);
 
     bool isDragging() const;
     void sendDragMoveEvent(const QPoint &global, const QPoint &local, Surface *surface);

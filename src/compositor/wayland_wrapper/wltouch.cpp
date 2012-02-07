@@ -56,7 +56,8 @@ const struct wl_touch_extension_interface TouchExtensionGlobal::touch_interface 
 static const int maxRawPos = 24;
 
 TouchExtensionGlobal::TouchExtensionGlobal(Compositor *compositor)
-    : m_compositor(compositor)
+    : m_compositor(compositor),
+      m_flags(0)
 {
     wl_array_init(&m_rawdata_array);
     m_rawdata_ptr = static_cast<float *>(wl_array_add(&m_rawdata_array, maxRawPos * sizeof(float) * 2));
@@ -86,6 +87,7 @@ void TouchExtensionGlobal::bind_func(wl_client *client, void *data, uint32_t ver
     resource->destroy = destroy_resource;
     TouchExtensionGlobal *self = static_cast<TouchExtensionGlobal *>(resource->data);
     self->m_resources.append(resource);
+    wl_resource_post_event(resource, WL_TOUCH_EXTENSION_CONFIGURE, self->m_flags);
 }
 
 static inline int toFixed(qreal f)

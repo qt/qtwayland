@@ -39,6 +39,7 @@
 ****************************************************************************/
 
 #include "qopenglwindow.h"
+#include <QTouchEvent>
 
 QOpenGLWindow::QOpenGLWindow(const QSurfaceFormat &format, const QRect &geometry)
     : m_format(format)
@@ -50,4 +51,11 @@ QOpenGLWindow::QOpenGLWindow(const QSurfaceFormat &format, const QRect &geometry
     m_context = new QOpenGLContext;
     m_context->setFormat(format);
     m_context->create();
+}
+
+void QOpenGLWindow::touchEvent(QTouchEvent *event)
+{
+    // Do not want any automatically synthesized mouse events
+    // so make sure the touch is always accepted.
+    event->accept();
 }

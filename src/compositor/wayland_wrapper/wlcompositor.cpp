@@ -384,6 +384,12 @@ void Compositor::enableTouchExtension()
     }
 }
 
+void Compositor::configureTouchExtension(int flags)
+{
+    if (m_touchExtension)
+        m_touchExtension->setFlags(flags);
+}
+
 void Compositor::setRetainedSelectionWatcher(RetainedSelectionFunc func, void *param)
 {
     m_retainNotify = func;

@@ -58,6 +58,11 @@ QWindowCompositor::QWindowCompositor(QOpenGLWindow *window)
     // using a custom protocol extension.
     // enableTouchExtension();
 
+    // Enable the following to have mouse events generated from touch
+    // on client side. This is not the same as synthesizing mouse events
+    // in the compositor because it avoids sending data through the wire.
+    // configureTouchExtension(WaylandCompositor::TouchExtMouseFromTouch);
+
     enableSubSurfaceExtension();
     m_window->makeCurrent();
 

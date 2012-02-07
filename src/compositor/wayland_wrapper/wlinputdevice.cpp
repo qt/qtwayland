@@ -220,17 +220,21 @@ void InputDevice::setMouseFocus(Surface *surface, const QPoint &globalPos, const
                                       localPos.x(), localPos.y());
 }
 
-void InputDevice::clientRequestedDataDevice(DataDeviceManager *data_device_manager, struct wl_client *client, uint32_t id)
+void InputDevice::cleanupDataDeviceForClient(struct wl_client *client)
 {
     for (int i = 0; i < m_data_devices.size(); i++) {
         struct wl_resource *data_device_resource =
                 m_data_devices.at(i)->dataDeviceResource();
         if (data_device_resource->client == client) {
             m_data_devices.removeAt(i);
-            free(data_device_resource);
             break;
         }
     }
+}
+
+void InputDevice::clientRequestedDataDevice(DataDeviceManager *data_device_manager, struct wl_client *client, uint32_t id)
+{
+    cleanupDataDeviceForClient(client);
     DataDevice *dataDevice = new DataDevice(data_device_manager,client,id);
     m_data_devices.append(dataDevice);
 }
@@ -328,7 +332,7 @@ void InputDevice::destroy_resource(wl_resource *resource)
         input_device->base()->pointer_focus_resource = 0;
     }
 
-    input_device->m_data_devices.clear();
+    input_device->cleanupDataDeviceForClient(resource->client);
 
     wl_list_remove(&resource->link);
 

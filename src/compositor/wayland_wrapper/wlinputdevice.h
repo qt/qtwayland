@@ -89,7 +89,10 @@ public:
 
     Compositor *compositor() const;
     WaylandInputDevice *handle() const;
+
 private:
+    void cleanupDataDeviceForClient(struct wl_client *client);
+
     WaylandInputDevice *m_handle;
     Compositor *m_compositor;
     QList<DataDevice *>m_data_devices;

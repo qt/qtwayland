@@ -49,7 +49,6 @@
 
 #include <QtGui/QPlatformOpenGLContext>
 #include <QtGui/QSurfaceFormat>
-#include <QtCore/QMutex>
 
 QWaylandGLContext::QWaylandGLContext(EGLDisplay eglDisplay, const QSurfaceFormat &format, QPlatformOpenGLContext *share)
     : QPlatformOpenGLContext()
@@ -85,13 +84,8 @@ void QWaylandGLContext::doneCurrent()
     eglMakeCurrent(m_eglDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
 }
 
-// lock to sync with QWaylandDisplay event loop ( defined in qwaylanddisplay.cpp )
-extern QMutex g_waylandLock;
-
 void QWaylandGLContext::swapBuffers(QPlatformSurface *surface)
 {
-    QMutexLocker l(&g_waylandLock);
-
     EGLSurface eglSurface = static_cast<QWaylandEglWindow *>(surface)->eglSurface();
     eglSwapBuffers(m_eglDisplay, eglSurface);
 }

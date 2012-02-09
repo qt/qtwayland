@@ -70,11 +70,6 @@
 #include <stdio.h>
 #include <errno.h>
 
-#include <QMutex>
-
-// lock used to syncronize swap-buffers with the display-event-loop
-QMutex g_waylandLock;
-
 #include <QtCore/QDebug>
 
 struct wl_surface *QWaylandDisplay::createSurface(void *handle)
@@ -184,32 +179,27 @@ void QWaylandDisplay::flushRequests()
 
 void QWaylandDisplay::readEvents()
 {
-    if (g_waylandLock.tryLock())
-    {
-        fd_set fds;
-        FD_ZERO(&fds);
-        FD_SET(mFd, &fds);
+    fd_set fds;
+    FD_ZERO(&fds);
+    FD_SET(mFd, &fds);
 
-        fd_set nds;
-        FD_ZERO(&nds);
-        fd_set rs = fds;
-        fd_set ws = nds;
-        fd_set es = nds;
-        timeval timeout;
+    fd_set nds;
+    FD_ZERO(&nds);
+    fd_set rs = fds;
+    fd_set ws = nds;
+    fd_set es = nds;
+    timeval timeout;
 
-        timeout.tv_sec = 0;
-        timeout.tv_usec = 0;
+    timeout.tv_sec = 0;
+    timeout.tv_usec = 0;
 
-        int ret = ::select(mFd+1, &rs, &ws, &es, &timeout );
+    int ret = ::select(mFd+1, &rs, &ws, &es, &timeout );
 
-        if (ret <= 0) {
-            g_waylandLock.unlock();
-            return;
-        }
-
-        wl_display_iterate(mDisplay, WL_DISPLAY_READABLE);
-        g_waylandLock.unlock();
+    if (ret <= 0) {
+        return;
     }
+
+    wl_display_iterate(mDisplay, WL_DISPLAY_READABLE);
 }
 
 void QWaylandDisplay::blockingReadEvents()

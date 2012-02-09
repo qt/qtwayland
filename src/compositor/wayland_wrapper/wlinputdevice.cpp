@@ -174,6 +174,11 @@ void InputDevice::sendFullTouchEvent(QTouchEvent *event)
         return;
     }
 
+    if (event->type() == QEvent::TouchCancel) {
+        sendTouchCancelEvent();
+        return;
+    }
+
     TouchExtensionGlobal *ext = m_compositor->touchExtension();
     if (ext) {
         ext->postTouchEvent(event, mouseFocus());

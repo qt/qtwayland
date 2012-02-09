@@ -45,6 +45,7 @@
 #include "qwaylandwindow.h"
 #include "qwaylandbuffer.h"
 #include "qwaylanddatadevicemanager.h"
+#include "qwaylandtouch.h"
 
 #include <QtGui/private/qpixmap_raster_p.h>
 #include <QtGui/QPlatformWindow>
@@ -508,7 +509,16 @@ void QWaylandInputDevice::handleTouchFrame()
 void QWaylandInputDevice::inputHandleTouchCancel(void *data, struct wl_input_device *wl_input_device)
 {
     Q_UNUSED(wl_input_device);
-    Q_UNUSED(data);
+    QWaylandInputDevice *self = static_cast<QWaylandInputDevice *>(data);
+
+    self->mPrevTouchPoints.clear();
+    self->mTouchPoints.clear();
+
+    QWaylandTouchExtension *touchExt = self->mQDisplay->touchExtension();
+    if (touchExt)
+        touchExt->touchCanceled();
+
+    QWindowSystemInterface::handleTouchCancelEvent(0, self->mTouchDevice);
 }
 
 const struct wl_input_device_listener QWaylandInputDevice::inputDeviceListener = {

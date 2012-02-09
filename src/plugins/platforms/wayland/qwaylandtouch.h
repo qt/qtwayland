@@ -52,6 +52,8 @@ class QWaylandTouchExtension
 public:
     QWaylandTouchExtension(QWaylandDisplay *display, uint32_t id);
 
+    void touchCanceled();
+
 private:
     QWaylandDisplay *mDisplay;
     wl_touch_extension *mTouch;
@@ -86,6 +88,8 @@ private:
     int mPointsLeft;
     uint32_t mFlags;
     int mMouseSourceId;
+    QPointF mLastMouseLocal;
+    QPointF mLastMouseGlobal;
     QWindow *mTargetWindow;
 };
 

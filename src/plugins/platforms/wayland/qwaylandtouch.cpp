@@ -49,6 +49,7 @@ QWaylandTouchExtension::QWaylandTouchExtension(QWaylandDisplay *display, uint32_
     mDisplay = display;
     mPointsLeft = 0;
     mFlags = 0;
+    mMouseSourceId = -1;
 
     mTouch = static_cast<struct wl_touch_extension *>(wl_display_bind(display->wl_display(), id, &wl_touch_extension_interface));
     wl_touch_extension_add_listener(mTouch, &touch_listener, this);
@@ -173,10 +174,13 @@ void QWaylandTouchExtension::sendTouchEvent()
             const QWindowSystemInterface::TouchPoint &tp(mTouchPoints.at(i));
             if (tp.id == mMouseSourceId) {
                 Qt::MouseButtons buttons = tp.state == Qt::TouchPointReleased ? Qt::NoButton : Qt::LeftButton;
-                QPointF globalPos = tp.area.center();
-                QPointF delta = globalPos - globalPos.toPoint();
-                QPointF localPos = mTargetWindow->mapFromGlobal(globalPos.toPoint()) + delta;
-                QWindowSystemInterface::handleMouseEvent(0, mTimestamp, localPos, globalPos, buttons);
+                mLastMouseGlobal = tp.area.center();
+                QPoint globalPoint = mLastMouseGlobal.toPoint();
+                QPointF delta = mLastMouseGlobal - globalPoint;
+                mLastMouseLocal = mTargetWindow->mapFromGlobal(globalPoint) + delta;
+                QWindowSystemInterface::handleMouseEvent(0, mTimestamp, mLastMouseLocal, mLastMouseGlobal, buttons);
+                if (buttons == Qt::NoButton)
+                    mMouseSourceId = -1;
                 break;
             }
         }
@@ -187,6 +191,14 @@ void QWaylandTouchExtension::sendTouchEvent()
 
     if (states == Qt::TouchPointReleased)
         mPrevTouchPoints.clear();
+}
+
+void QWaylandTouchExtension::touchCanceled()
+{
+    mTouchPoints.clear();
+    mPrevTouchPoints.clear();
+    if (mMouseSourceId != -1)
+        QWindowSystemInterface::handleMouseEvent(0, mTimestamp, mLastMouseLocal, mLastMouseGlobal, Qt::NoButton);
 }
 
 void QWaylandTouchExtension::handle_configure(void *data, wl_touch_extension *ext, uint32_t flags)

@@ -75,5 +75,15 @@
         <request name="set_content_orientation">
             <arg name="orientation" type="int"/>
         </request>
+
+        <enum name="windowflag">
+            <entry name="OverridesSystemGestures" value="1"/>
+            <entry name="StaysOnTop" value="2"/>
+        </enum>
+
+        <request name="set_window_flags">
+            <arg name="flags" type="int"/>
+        </request>
+
     </interface>
 </protocol>

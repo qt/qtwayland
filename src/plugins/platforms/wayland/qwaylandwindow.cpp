@@ -221,3 +221,8 @@ Qt::ScreenOrientation QWaylandWindow::requestWindowOrientation(Qt::ScreenOrienta
 
     return Qt::PrimaryOrientation;
 }
+
+Qt::WindowFlags QWaylandWindow::setWindowFlags(Qt::WindowFlags flags)
+{
+    return mExtendedWindow->setWindowFlags(flags);
+}

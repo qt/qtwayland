@@ -153,6 +153,15 @@ Qt::ScreenOrientation WaylandSurface::windowOrientation() const
     return d->surface->windowOrientation();
 }
 
+
+
+WaylandSurface::WindowFlags WaylandSurface::windowFlags() const
+{
+    Q_D(const WaylandSurface);
+    return d->surface->windowFlags();
+}
+
+
 QImage WaylandSurface::image() const
 {
     Q_D(const WaylandSurface);

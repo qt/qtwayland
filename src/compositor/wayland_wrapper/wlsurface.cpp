@@ -623,6 +623,12 @@ Qt::ScreenOrientation Surface::contentOrientation() const
     return d->extendedSurface ? d->extendedSurface->contentOrientation() : Qt::PrimaryOrientation;
 }
 
+WaylandSurface::WindowFlags Surface::windowFlags() const
+{
+    Q_D(const Surface);
+    return d->extendedSurface ? d->extendedSurface->windowFlags() : WaylandSurface::WindowFlags(0);
+}
+
 QPoint Surface::lastMousePos() const
 {
     Q_D(const Surface);

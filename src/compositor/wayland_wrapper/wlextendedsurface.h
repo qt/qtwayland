@@ -90,12 +90,17 @@ public:
     Qt::ScreenOrientation windowOrientation() const;
     Qt::ScreenOrientation contentOrientation() const;
 
+    void setWindowFlags(WaylandSurface::WindowFlags flags);
+    WaylandSurface::WindowFlags windowFlags() const { return m_windowFlags; }
+
 private:
     struct wl_resource *m_extended_surface_resource;
     Surface *m_surface;
 
     Qt::ScreenOrientation m_windowOrientation;
     Qt::ScreenOrientation m_contentOrientation;
+
+    WaylandSurface::WindowFlags m_windowFlags;
 
     static void update_generic_property(struct wl_client *client,
                                     struct wl_resource *resource,
@@ -109,6 +114,10 @@ private:
     static void set_content_orientation(struct wl_client *client,
                                         struct wl_resource *resource,
                                         int32_t orientation);
+
+    static void set_window_flags(struct wl_client *client,
+                                 struct wl_resource *resource,
+                                 int32_t flags);
 
     static const struct wl_extended_surface_interface extended_surface_interface;
 };

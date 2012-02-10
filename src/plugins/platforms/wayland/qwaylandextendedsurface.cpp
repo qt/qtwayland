@@ -162,6 +162,20 @@ void QWaylandExtendedSurface::set_generic_property(void *data, wl_extended_surfa
     nativeInterface->emitWindowPropertyChanged(extended_window->m_window,QString::fromLatin1(name));
 }
 
+Qt::WindowFlags QWaylandExtendedSurface::setWindowFlags(Qt::WindowFlags flags)
+{
+    uint wlFlags = 0;
+    if (flags & Qt::WindowStaysOnTopHint) wlFlags |= WL_EXTENDED_SURFACE_WINDOWFLAG_STAYSONTOP;
+    if (flags & Qt::WindowOverridesSystemGestures) wlFlags |= WL_EXTENDED_SURFACE_WINDOWFLAG_OVERRIDESSYSTEMGESTURES;
+
+    wl_extended_surface_set_window_flags(m_extended_surface, wlFlags);
+
+    return flags & (
+                    Qt::WindowStaysOnTopHint
+                    | Qt::WindowOverridesSystemGestures
+                   );
+}
+
 const struct wl_extended_surface_listener QWaylandExtendedSurface::extended_surface_listener = {
     QWaylandExtendedSurface::onscreen_visibility,
     QWaylandExtendedSurface::set_generic_property

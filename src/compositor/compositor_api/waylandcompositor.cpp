@@ -68,6 +68,8 @@ WaylandCompositor::WaylandCompositor(QWindow *window, const char *socketName)
     m_compositor = new Wayland::Compositor(this);
 #ifdef QT_COMPOSITOR_QUICK
     qmlRegisterType<WaylandSurfaceItem>("WaylandCompositor", 1, 0, "WaylandSurfaceItem");
+    qmlRegisterType<WaylandSurface>("WaylandCompositor", 1, 0, "WaylandSurface");
+#else
     qRegisterMetaType<WaylandSurface*>("WaylandSurface*");
 #endif
     m_compositor->initializeHardwareIntegration();

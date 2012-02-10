@@ -72,14 +72,25 @@ class Q_COMPOSITOR_EXPORT WaylandSurface : public QObject
     Q_DECLARE_PRIVATE(WaylandSurface)
     Q_PROPERTY(QSize size READ size WRITE setSize NOTIFY sizeChanged)
     Q_PROPERTY(QPointF pos READ pos WRITE setPos NOTIFY posChanged)
+    Q_PROPERTY(WaylandSurface::WindowFlags windowFlags READ windowFlags NOTIFY windowFlagsChanged)
+
+    Q_ENUMS(WindowFlag)
+    Q_FLAGS(WindowFlag WindowFlags)
+
 public:
+    enum WindowFlag {
+        OverridesSystemGestures     = 0x0001,
+        StaysOnTop                  = 0x0002
+    };
+    Q_DECLARE_FLAGS(WindowFlags, WindowFlag)
+
     enum Type {
         Invalid,
         Shm,
         Texture
     };
 
-    WaylandSurface(Wayland::Surface *surface);
+    WaylandSurface(Wayland::Surface *surface = 0);
 
     WaylandSurface *parentSurface() const;
     QLinkedList<WaylandSurface *> subSurfaces() const;
@@ -96,6 +107,8 @@ public:
 
     Qt::ScreenOrientation contentOrientation() const;
     Qt::ScreenOrientation windowOrientation() const;
+
+    WindowFlags windowFlags() const;
 
     QImage image() const;
 #ifdef QT_COMPOSITOR_WAYLAND_GL
@@ -133,6 +146,7 @@ signals:
     void sizeChanged();
     void posChanged();
     void windowPropertyChanged(const QString &name, const QVariant &value);
+    void windowFlagsChanged(WindowFlags flags);
 
     friend class Wayland::Surface;
     friend class Wayland::SurfacePrivate;

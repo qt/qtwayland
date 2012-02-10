@@ -117,6 +117,8 @@ public:
     Qt::ScreenOrientation contentOrientation() const;
     Qt::ScreenOrientation windowOrientation() const;
 
+    WaylandSurface::WindowFlags windowFlags() const;
+
     QPoint lastMousePos() const;
 
     void setExtendedSurface(ExtendedSurface *extendedSurface);

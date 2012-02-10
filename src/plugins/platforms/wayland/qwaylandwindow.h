@@ -88,6 +88,8 @@ public:
     void handleContentOrientationChange(Qt::ScreenOrientation orientation);
     Qt::ScreenOrientation requestWindowOrientation(Qt::ScreenOrientation orientation);
 
+    Qt::WindowFlags setWindowFlags(Qt::WindowFlags flags);
+
 protected:
     QWaylandDisplay *mDisplay;
     struct wl_surface *mSurface;

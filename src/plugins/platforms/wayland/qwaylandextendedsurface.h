@@ -74,6 +74,8 @@ public:
     QVariant property(const QString &name);
     QVariant property(const QString &name, const QVariant &defaultValue);
 
+    Qt::WindowFlags setWindowFlags(Qt::WindowFlags flags);
+
 private:
     QWaylandWindow *m_window;
     struct wl_extended_surface *m_extended_surface;

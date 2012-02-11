@@ -47,8 +47,8 @@
 #include <QtGui/QImage>
 #include <QtCore/QVariantMap>
 
-#ifdef QT_COMPOSITOR_WAYLAND_GL
 #include <QtGui/QOpenGLContext>
+#ifdef QT_COMPOSITOR_WAYLAND_GL
 #include <QtGui/qopengl.h>
 #endif
 

@@ -429,10 +429,10 @@ WaylandSurface::Type Surface::type() const
 bool Surface::isYInverted() const
 {
     bool ret = false;
+    static bool negateReturn = qgetenv("QT_COMPOSITOR_NEGATE_INVERTED_Y").toInt();
+
 #ifdef QT_COMPOSITOR_WAYLAND_GL
     Q_D(const Surface);
-
-    static bool negateReturn = qgetenv("QT_COMPOSITOR_NEGATE_INVERTED_Y").toInt();
 
     if (!d->surfaceBuffer) {
         ret = false;

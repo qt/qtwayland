@@ -44,6 +44,7 @@
 #include "wayland-surface-extension-server-protocol.h"
 
 #include "wlsurface.h"
+#include "waylandsurface.h"
 
 #include <QtCore/QVariant>
 #include <QtCore/QLinkedList>
@@ -90,8 +91,14 @@ public:
     Qt::ScreenOrientation windowOrientation() const;
     Qt::ScreenOrientation contentOrientation() const;
 
-    void setWindowFlags(WaylandSurface::WindowFlags flags);
     WaylandSurface::WindowFlags windowFlags() const { return m_windowFlags; }
+
+    qint64 processId() const;
+    void setProcessId(qint64 processId);
+
+    QVariantMap windowProperties() const;
+    QVariant windowProperty(const QString &propertyName) const;
+    void setWindowProperty(const QString &name, const QVariant &value, bool writeUpdateToClient = true);
 
 private:
     struct wl_resource *m_extended_surface_resource;
@@ -101,6 +108,10 @@ private:
     Qt::ScreenOrientation m_contentOrientation;
 
     WaylandSurface::WindowFlags m_windowFlags;
+
+    QByteArray m_authenticationToken;
+    QVariantMap m_windowProperties;
+
 
     static void update_generic_property(struct wl_client *client,
                                     struct wl_resource *resource,
@@ -118,6 +129,7 @@ private:
     static void set_window_flags(struct wl_client *client,
                                  struct wl_resource *resource,
                                  int32_t flags);
+    void setWindowFlags(WaylandSurface::WindowFlags flags);
 
     static const struct wl_extended_surface_interface extended_surface_interface;
 };

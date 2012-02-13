@@ -91,16 +91,16 @@ SubSurface::~SubSurface()
 
 void SubSurface::setSubSurface(SubSurface *subSurface, int x, int y)
 {
-    Q_ASSERT(!m_sub_surfaces.contains(subSurface->m_surface->handle()));
-    m_sub_surfaces.append(subSurface->m_surface->handle());
+    Q_ASSERT(!m_sub_surfaces.contains(subSurface->m_surface->waylandSurface()));
+    m_sub_surfaces.append(subSurface->m_surface->waylandSurface());
     subSurface->setParent(this);
     subSurface->m_surface->setPos(QPointF(x,y));
 }
 
 void SubSurface::removeSubSurface(SubSurface *subSurfaces)
 {
-    Q_ASSERT(m_sub_surfaces.contains(subSurfaces->m_surface->handle()));
-    m_sub_surfaces.removeOne(subSurfaces->m_surface->handle());
+    Q_ASSERT(m_sub_surfaces.contains(subSurfaces->m_surface->waylandSurface()));
+    m_sub_surfaces.removeOne(subSurfaces->m_surface->waylandSurface());
 }
 
 SubSurface *SubSurface::parent() const
@@ -117,15 +117,15 @@ void SubSurface::setParent(SubSurface *parent)
     WaylandSurface *newParent = 0;
 
     if (m_parent) {
-        oldParent = m_parent->m_surface->handle();
+        oldParent = m_parent->m_surface->waylandSurface();
         m_parent->removeSubSurface(this);
     }
     if (parent) {
-        newParent = parent->m_surface->handle();
+        newParent = parent->m_surface->waylandSurface();
     }
     m_parent = parent;
 
-    m_surface->handle()->parentChanged(newParent,oldParent);
+    m_surface->waylandSurface()->parentChanged(newParent,oldParent);
 }
 
 QLinkedList<WaylandSurface *> SubSurface::subSurfaces() const

@@ -120,7 +120,7 @@ inline Surface *SubSurface::surface() const
 
 inline WaylandSurface *SubSurface::waylandSurface() const
 {
-    return m_surface->handle();
+    return m_surface->waylandSurface();
 }
 
 

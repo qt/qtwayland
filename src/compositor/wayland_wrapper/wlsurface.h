@@ -44,6 +44,7 @@
 #include "waylandexport.h"
 
 #include "wlshmbuffer.h"
+#include "wlsurfacebuffer.h"
 #include "waylandsurface.h"
 
 #include "waylandobject.h"
@@ -59,6 +60,8 @@
 #include <QtGui/qopengl.h>
 #endif
 
+#include <wayland-util.h>
+
 class QTouchEvent;
 
 namespace Wayland {
@@ -69,11 +72,8 @@ class ExtendedSurface;
 class SubSurface;
 class ShellSurface;
 
-class SurfacePrivate;
-
 class Q_COMPOSITOR_EXPORT Surface : public Object<struct wl_surface>
 {
-    Q_DECLARE_PRIVATE(Surface)
 public:
     Surface(struct wl_client *client, uint32_t id, Compositor *compositor);
     ~Surface();
@@ -101,23 +101,7 @@ public:
 
     void frameFinished();
 
-    void sendOnScreenVisibilityChange(bool visible);
-
-    WaylandSurface *handle() const;
-
-    qint64 processId() const;
-    void setProcessId(qint64 processId);
-    QByteArray authenticationToken() const;
-    void setAuthenticationToken(const QByteArray &authenticationToken);
-
-    QVariantMap windowProperties() const;
-    QVariant windowProperty(const QString &propertyName) const;
-    void setWindowProperty(const QString &name, const QVariant &value, bool writeUpdateToClient = true);
-
-    Qt::ScreenOrientation contentOrientation() const;
-    Qt::ScreenOrientation windowOrientation() const;
-
-    WaylandSurface::WindowFlags windowFlags() const;
+    WaylandSurface *waylandSurface() const;
 
     QPoint lastMousePos() const;
 
@@ -133,10 +117,39 @@ public:
     Compositor *compositor() const;
 
     static const struct wl_surface_interface surface_interface;
-protected:
-    QScopedPointer<SurfacePrivate> d_ptr;
+
 private:
     Q_DISABLE_COPY(Surface)
+
+    Compositor *m_compositor;
+    WaylandSurface *m_waylandSurface;
+
+    SurfaceBuffer  *m_surfaceBuffer;
+    SurfaceBuffer *m_textureBuffer;
+    QList<SurfaceBuffer*> m_bufferQueue;
+    bool m_surfaceMapped;
+
+    QPoint m_lastLocalMousePos;
+    QPoint m_lastGlobalMousePos;
+
+    struct wl_list m_frame_callback_list;
+
+    ExtendedSurface *m_extendedSurface;
+    SubSurface *m_subSurface;
+    ShellSurface *m_shellSurface;
+
+    static const int buffer_pool_size = 3;
+    SurfaceBuffer m_bufferPool[buffer_pool_size];
+
+    QPointF m_position;
+    QSize m_size;
+
+    void doUpdate(const QRect &rect);
+    void newCurrentBuffer();
+    SurfaceBuffer *createSurfaceBuffer(struct wl_buffer *buffer);
+    void frameFinishedInternal();
+    bool postBuffer();
+
     void attach(struct wl_buffer *buffer);
     void damage(const QRect &rect);
 

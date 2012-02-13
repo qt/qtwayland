@@ -123,7 +123,7 @@ void ExtendedSurface::update_generic_property(wl_client *client, wl_resource *ex
     QByteArray byteValue((const char*)value->data, value->size);
     QDataStream ds(&byteValue, QIODevice::ReadOnly);
     ds >> variantValue;
-    extended_surface->m_surface->setWindowProperty(QString::fromLatin1(name),variantValue,false);
+    extended_surface->setWindowProperty(QString::fromLatin1(name),variantValue,false);
 
 }
 
@@ -171,7 +171,25 @@ void ExtendedSurface::setWindowFlags(WaylandSurface::WindowFlags flags)
     if (flags == m_windowFlags)
         return;
     m_windowFlags = flags;
-    emit m_surface->handle()->windowFlagsChanged(flags);
+    emit m_surface->waylandSurface()->windowFlagsChanged(flags);
+}
+
+QVariantMap ExtendedSurface::windowProperties() const
+{
+    return m_windowProperties;
+}
+
+QVariant ExtendedSurface::windowProperty(const QString &propertyName) const
+{
+    QVariantMap props = m_windowProperties;
+    return props.value(propertyName);
+}
+
+void ExtendedSurface::setWindowProperty(const QString &name, const QVariant &value, bool writeUpdateToClient)
+{
+    m_windowProperties.insert(name, value);
+    m_surface->waylandSurface()->windowPropertyChanged(name,value);
+    sendGenericProperty(name, value);
 }
 
 void ExtendedSurface::set_window_flags(wl_client *client, wl_resource *resource, int32_t flags)

@@ -108,7 +108,7 @@ WaylandSurface *WaylandInputDevice::keyboardFocus() const
 {
     Wayland::Surface *wlsurface = d->keyboardFocus();
     if (wlsurface)
-        return  wlsurface->handle();
+        return  wlsurface->waylandSurface();
     return 0;
 }
 
@@ -122,7 +122,7 @@ WaylandSurface *WaylandInputDevice::mouseFocus() const
 {
     Wayland::Surface *wlsurface = d->mouseFocus();
     if (wlsurface)
-        return  wlsurface->handle();
+        return  wlsurface->waylandSurface();
     return 0;
 }
 
@@ -134,7 +134,7 @@ void WaylandInputDevice::setMouseFocus(WaylandSurface *surface, const QPoint &lo
 
 WaylandCompositor *WaylandInputDevice::compositor() const
 {
-    return d->compositor()->qtCompositor();
+    return d->compositor()->waylandCompositor();
 }
 
 Wayland::InputDevice *WaylandInputDevice::handle() const

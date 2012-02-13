@@ -77,6 +77,7 @@ public:
 
     void frameFinished(Surface *surface = 0);
 
+    //these 3 functions will be removed if noone steps up soon.
     Surface *getSurfaceFromWinId(uint winId) const;
     struct wl_client *getClientFromWinId(uint winId) const;
     QImage image(uint winId) const;
@@ -103,7 +104,7 @@ public:
 
     QList<Surface*> surfacesForClient(wl_client* client);
 
-    WaylandCompositor *qtCompositor() const { return m_qt_compositor; }
+    WaylandCompositor *waylandCompositor() const { return m_qt_compositor; }
 
     struct wl_display *wl_display() const { return m_display->handle(); }
 

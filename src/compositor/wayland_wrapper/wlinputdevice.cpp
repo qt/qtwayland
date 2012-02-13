@@ -317,7 +317,7 @@ void InputDevice::input_device_attach(struct wl_client *client,
     if (wl_buffer_is_shm(buffer)) {
         ShmBuffer *shmBuffer = static_cast<ShmBuffer *>(buffer->user_data);
         if (shmBuffer) {
-            inputDevice->m_compositor->qtCompositor()->changeCursor(shmBuffer->image(), x, y);
+            inputDevice->m_compositor->waylandCompositor()->changeCursor(shmBuffer->image(), x, y);
             currentCursor = shmBuffer;
         }
     }

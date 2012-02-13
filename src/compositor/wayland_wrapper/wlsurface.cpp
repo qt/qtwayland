@@ -47,15 +47,12 @@
 #include "wlinputdevice.h"
 #include "wlextendedsurface.h"
 #include "wlsubsurface.h"
+#include "wlsurfacebuffer.h"
 
 #include <QtCore/QDebug>
 #include <QTouchEvent>
 
 #include <wayland-server.h>
-
-#ifdef Q_OS_LINUX
-#include <linux/input.h>
-#endif
 
 #ifdef QT_COMPOSITOR_WAYLAND_GL
 #include "hardware_integration/graphicshardwareintegration.h"
@@ -68,151 +65,317 @@
 
 namespace Wayland {
 
-static const int buffer_pool_size = 3;
-
-struct surface_buffer_destroy_listener
+void destroy_surface(struct wl_resource *resource)
 {
-    struct wl_listener listener;
-    class SurfaceBuffer *surfaceBuffer;
-};
+    Surface *surface = wayland_cast<Surface *>((wl_surface *)resource);
+    delete surface;
+}
 
-
-class SurfaceBuffer
+Surface::Surface(struct wl_client *client, uint32_t id, Compositor *compositor)
+    : m_compositor(compositor)
+    , m_waylandSurface(new WaylandSurface(this))
+    , m_surfaceBuffer(0)
+    , m_textureBuffer(0)
+    , m_surfaceMapped(false)
+    , m_extendedSurface(0)
+    , m_subSurface(0)
+    , m_shellSurface(0)
 {
-public:
-    SurfaceBuffer()
-        : m_buffer(0)
-        , m_is_released_sent(false)
-        , m_is_registered_for_buffer(false)
-        , m_is_posted(false)
-        , m_is_frame_finished(false)
-        , m_texture(0)
-    {
-    }
+    wl_list_init(&m_frame_callback_list);
+    addClientResource(client, &base()->resource, id, &wl_surface_interface,
+            &Surface::surface_interface, destroy_surface);
+}
 
-    ~SurfaceBuffer()
-    {
-        if (m_is_registered_for_buffer)
-            destructBufferState();
-    }
+Surface::~Surface()
+{
+    m_compositor->surfaceDestroyed(this);
+    delete m_waylandSurface;
+}
 
-    void initialize(struct wl_buffer *buffer)
-    {
-        m_buffer = buffer;
-        m_texture = 0;
-        m_is_released_sent = false;
-        m_is_registered_for_buffer = true;
-        m_is_posted = false;
-        m_is_frame_finished = false;
-        m_destroy_listener.surfaceBuffer = this;
-        m_destroy_listener.listener.func = destroy_listener_callback;
-        wl_list_insert(&buffer->resource.destroy_listener_list,&m_destroy_listener.listener.link);
-        m_damageRect = QRect();
-    }
-
-    void destructBufferState()
-    {
-        destroyTexture();
-        if (m_buffer) {
-            wl_list_remove(&m_destroy_listener.listener.link);
-            sendRelease();
+WaylandSurface::Type Surface::type() const
+{
+    if (m_surfaceBuffer && m_surfaceBuffer->handle()) {
+        if (m_surfaceBuffer && m_surfaceBuffer->isShmBuffer()) {
+            return WaylandSurface::Shm;
+        } else if (m_surfaceBuffer){
+            return WaylandSurface::Texture;
         }
-        m_buffer = 0;
-        m_is_registered_for_buffer = false;
-        m_is_posted = 0;
     }
+    return WaylandSurface::Invalid;
+}
 
-    inline int32_t width() const { return m_buffer->width; }
-    inline int32_t height() const { return m_buffer->height; }
+bool Surface::isYInverted() const
+{
+    bool ret = false;
+    static bool negateReturn = qgetenv("QT_COMPOSITOR_NEGATE_INVERTED_Y").toInt();
 
+#ifdef QT_COMPOSITOR_WAYLAND_GL
+    if (!m_surfaceBuffer) {
+        ret = false;
+    } else if (m_compositor->graphicsHWIntegration() && m_surfaceBuffer->handle() && type() != WaylandSurface::Shm) {
+        ret = m_compositor->graphicsHWIntegration()->isYInverted(m_surfaceBuffer->handle());
+    } else
+#endif
+        ret = true;
 
-    inline bool bufferIsDestroyed() const { return m_is_registered_for_buffer &&!m_buffer; }
-    inline bool isShmBuffer() const { return wl_buffer_is_shm(m_buffer); }
+    return ret != negateReturn;
+}
 
-    inline bool isReleasedSent() const { return m_is_released_sent; }
-    inline bool isRegisteredWithBuffer() const { return m_is_registered_for_buffer; }
+bool Surface::visible() const
+{
+    return m_surfaceBuffer && m_surfaceBuffer->handle();
+}
 
-    void sendRelease()
-    {
-        Q_ASSERT(m_buffer);
-        wl_resource_post_event(&m_buffer->resource, WL_BUFFER_RELEASE);
-        m_buffer = 0;
-        m_is_released_sent = true;
+QImage Surface::image() const
+{
+    if (type() == WaylandSurface::Shm && m_surfaceBuffer && m_surfaceBuffer->handle()) {
+        ShmBuffer *shmBuffer = static_cast<ShmBuffer *>(m_surfaceBuffer->handle()->user_data);
+        //TODO SHM: m_surfaceBuffer->bufferHandled = true;
+        return shmBuffer->image();
     }
+    return QImage();
+}
 
-    void setPosted() {
-        m_is_posted = true;
-         if (m_buffer) {
-            wl_list_remove(&m_destroy_listener.listener.link);
-         }
-         m_buffer = 0;
-    }
+QPointF Surface::pos() const
+{
+    return m_position;
+}
 
-    void setFinished() { m_is_frame_finished = true; }
+void Surface::setPos(const QPointF &pos)
+{
+    bool emitChange = pos != m_position;
+    m_position = pos;
+    if (emitChange)
+        m_waylandSurface->posChanged();
+}
 
-    inline bool isPosted() const { return m_is_posted; }
-    inline bool isDisplayed() const { return m_texture || m_is_posted || wl_buffer_is_shm(m_buffer); }
-    inline bool isFinished() const { return m_is_frame_finished; }
+QSize Surface::size() const
+{
+    return m_size;
+}
 
-    inline QRect damageRect() const { return m_damageRect; }
+void Surface::setSize(const QSize &size)
+{
+    bool emitChange = size != m_size;
+    m_size = size;
+    if (emitChange)
+        m_waylandSurface->sizeChanged();
+}
 
-    inline void setDamage(const QRect &rect) { m_damageRect = rect; }
-
-    inline bool textureCreated() const
-    {
-        return m_texture;
-    }
-
-    inline GLuint texture()
-    {
-        if (m_buffer)
-            return m_texture;
+#ifdef QT_COMPOSITOR_WAYLAND_GL
+GLuint Surface::textureId(QOpenGLContext *context) const
+{
+    if (!m_surfaceBuffer) {
         return 0;
     }
+    if (m_compositor->graphicsHWIntegration() && type() == WaylandSurface::Texture
+         && !m_surfaceBuffer->textureCreated()) {
+        Surface *that = const_cast<Surface *>(this);
 
-    inline void setTexture(GLuint texId)
-    {
-        m_texture = texId;
-    }
-
-    inline void destroyTexture()
-    {
-#ifdef QT_COMPOSITOR_WAYLAND_GL
-        if (m_texture) {
-            glDeleteTextures(1,&m_texture);
-            m_texture = 0;
+        if (m_textureBuffer) {
+            m_textureBuffer->destructBufferState();
+            that->m_textureBuffer = 0;
         }
-#endif
+        GraphicsHardwareIntegration *hwIntegration = m_compositor->graphicsHWIntegration();
+        that->m_textureBuffer = m_surfaceBuffer;
+        that->m_textureBuffer->setTexture(hwIntegration->createTextureFromBuffer(m_textureBuffer->handle(), context));
+    }
+    return m_textureBuffer->texture();
+}
+#endif // QT_COMPOSITOR_WAYLAND_GL
+
+WaylandSurface * Surface::waylandSurface() const
+{
+    return m_waylandSurface;
+}
+
+QPoint Surface::lastMousePos() const
+{
+    return m_lastLocalMousePos;
+}
+
+void Surface::setExtendedSurface(ExtendedSurface *extendedSurface)
+{
+    m_extendedSurface = extendedSurface;
+}
+
+ExtendedSurface *Surface::extendedSurface() const
+{
+    return m_extendedSurface;
+}
+
+void Surface::setSubSurface(SubSurface *subSurface)
+{
+    m_subSurface = subSurface;
+}
+
+SubSurface *Surface::subSurface() const
+{
+    return m_subSurface;
+}
+
+void Surface::setShellSurface(ShellSurface *shellSurface)
+{
+    m_shellSurface = shellSurface;
+}
+
+ShellSurface *Surface::shellSurface() const
+{
+    return m_shellSurface;
+}
+
+Compositor *Surface::compositor() const
+{
+    return m_compositor;
+}
+
+void Surface::sendFrameCallback()
+{
+    frameFinished();
+
+    uint time = Compositor::currentTimeMsecs();
+    struct wl_resource *frame_callback;
+    wl_list_for_each(frame_callback, &m_frame_callback_list, link) {
+        wl_resource_post_event(frame_callback,WL_CALLBACK_DONE,time);
+        wl_resource_destroy(frame_callback,Compositor::currentTimeMsecs());
     }
 
-    inline struct wl_buffer *handle() const { return m_buffer; }
-private:
-    struct wl_buffer *m_buffer;
-    struct surface_buffer_destroy_listener m_destroy_listener;
-    QRect m_damageRect;
-    bool m_is_released_sent;
-    bool m_is_registered_for_buffer;
-    bool m_is_posted;
-    bool m_is_frame_finished;
+    wl_list_init(&m_frame_callback_list);
+}
+
+void Surface::frameFinished()
+{
+    m_compositor->frameFinished(this);
+}
+
+void Surface::doUpdate(const QRect &rect) {
+    if (postBuffer()) {
+        m_surfaceBuffer->setPosted();  // disown buffer....
+        if (m_textureBuffer) {
+            m_textureBuffer->destructBufferState();
+            m_textureBuffer = 0;
+        }
+        if (!m_bufferQueue.isEmpty()) {
+            qDebug() << "++++++++++++++++++++++++++++++++++++++++ recursive damage :-)";
+            newCurrentBuffer();
+            doUpdate(rect);
+        }
+    } else {
+        m_compositor->markSurfaceAsDirty(this);
+        emit m_waylandSurface->damaged(rect);
+    }
+}
+
+void Surface::newCurrentBuffer() {
+    //TODO release SHM buffer....
+    if (m_surfaceBuffer && m_surfaceBuffer->isPosted()) {
+        m_surfaceBuffer->destructBufferState();
+    } else if (m_surfaceBuffer && !m_surfaceBuffer->isDisplayed()) {
+        qDebug() << "### not skipping undisplayed buffer";
+        return;
+    }
+
+    m_surfaceBuffer = m_bufferQueue.takeFirst();
+
+    int width = 0;
+    int height = 0;
+    if (m_surfaceBuffer) {
+        width = m_surfaceBuffer->width();
+        height = m_surfaceBuffer->height();
+    }
+    setSize(QSize(width,height));
+
+    if (m_surfaceBuffer &&  (!m_subSurface || !m_subSurface->parent()) && !m_surfaceMapped) {
+        emit m_waylandSurface->mapped();
+        m_surfaceMapped = true;
+    } else if (!m_surfaceBuffer && m_surfaceMapped) {
+        emit m_waylandSurface->unmapped();
+        m_surfaceMapped = false;
+    }
+}
+
+SurfaceBuffer *Surface::createSurfaceBuffer(struct wl_buffer *buffer)
+{
+    SurfaceBuffer *newBuffer = 0;
+    for (int i = 0; i < Surface::buffer_pool_size; i++) {
+        if (!m_bufferPool[i].isRegisteredWithBuffer()) {
+            newBuffer = &m_bufferPool[i];
+            newBuffer->initialize(buffer);
+            break;
+        }
+    }
+
+    Q_ASSERT(newBuffer);
+    return newBuffer;
+}
+
+void Surface::frameFinishedInternal() {
+    if (m_surfaceBuffer)
+        m_surfaceBuffer->setFinished();
+
+    if (!m_bufferQueue.isEmpty()) {
+        newCurrentBuffer();
+        if (m_surfaceBuffer)
+            doUpdate(m_surfaceBuffer->damageRect());
+    }
+}
+
+bool Surface::postBuffer() {
 #ifdef QT_COMPOSITOR_WAYLAND_GL
-    GLuint m_texture;
-#else
-    uint m_texture;
-#endif
-
-    static void destroy_listener_callback(struct wl_listener *listener,
-             struct wl_resource *resource, uint32_t time)
-    {
-        Q_UNUSED(resource);
-        Q_UNUSED(time);
-        struct surface_buffer_destroy_listener *destroy_listener =
-                reinterpret_cast<struct surface_buffer_destroy_listener *>(listener);
-        SurfaceBuffer *d = destroy_listener->surfaceBuffer;
-        d->destroyTexture();
-        d->m_buffer = 0;
+    if (m_compositor->graphicsHWIntegration() && m_waylandSurface->handle() == m_compositor->directRenderSurface()) {
+        //            qDebug() << "posting...." << bufferQueue;
+        if (m_surfaceBuffer && m_surfaceBuffer->handle() && m_compositor->graphicsHWIntegration()->postBuffer(m_surfaceBuffer->handle())) {
+            return true;
+        } else {
+            qDebug() << "could not post buffer";
+        }
     }
-};
+#endif
+    return false;
+}
 
+void Surface::attach(struct wl_buffer *buffer)
+{
+    static bool no_serverside_buffer_queue = qgetenv("QT_NO_SERVERSIDE_BUFFER_QUEUE").toInt();
+
+    SurfaceBuffer *newBuffer = 0;
+    if (no_serverside_buffer_queue) {
+        if (m_surfaceBuffer && !m_surfaceBuffer->textureCreated()) {
+            qDebug() << "releasing undisplayed buffer";
+            m_surfaceBuffer->destructBufferState();
+            m_surfaceBuffer = 0;
+        }
+    }
+    if (buffer) {
+        newBuffer = createSurfaceBuffer(buffer);
+    }
+
+    SurfaceBuffer *last = m_bufferQueue.size()?m_bufferQueue.last():0;
+    if (last && !last->damageRect().isValid()) {
+        last->destructBufferState();
+        m_bufferQueue.takeLast();
+    }
+    m_bufferQueue << newBuffer;
+}
+
+void Surface::damage(const QRect &rect)
+{
+    if (!m_bufferQueue.isEmpty() && (!m_surfaceBuffer || m_surfaceBuffer->isFinished() || !m_surfaceBuffer->handle())) {
+            // Handle the "slow" case where we've finished the previous frame before the next damage comes.
+            newCurrentBuffer();
+            doUpdate(rect);
+    } else if (m_bufferQueue.isEmpty()) {
+        // we've receicved a second damage for the same buffer
+        doUpdate(rect);
+    } else {
+        // we're still composing the previous buffer, so just store the damage rect for later
+        SurfaceBuffer *b = m_bufferQueue.last();
+        if (b)
+            b->setDamage(rect);
+        else
+            qWarning() << "Surface::damage() null buffer";
+    }
+}
 
 const struct wl_surface_interface Surface::surface_interface = {
         Surface::surface_destroy,
@@ -220,153 +383,6 @@ const struct wl_surface_interface Surface::surface_interface = {
         Surface::surface_damage,
         Surface::surface_frame
 };
-
-class SurfacePrivate
-{
-    Q_DECLARE_PUBLIC(Surface)
-public:
-    SurfacePrivate(Surface *surface, Compositor *compositor)
-        : compositor(compositor)
-        , qtSurface(new WaylandSurface(surface))
-        , surfaceBuffer(0)
-        , textureBuffer(0)
-        , surfaceMapped(false)
-        , processId(0)
-        , extendedSurface(0)
-        , subSurface(0)
-        , shellSurface(0)
-        , q_ptr(surface)
-
-    {
-        wl_list_init(&frame_callback_list);
-    }
-
-    static void destroy_frame_callback(struct wl_resource *resource)
-    {
-        delete resource;
-    }
-
-    void doUpdate(const QRect &rect) {
-        if (postBuffer()) {
-            surfaceBuffer->setPosted();  // disown buffer....
-            if (textureBuffer) {
-                textureBuffer->destructBufferState();
-                textureBuffer = 0;
-            }
-            if (!bufferQueue.isEmpty()) {
-                qDebug() << "++++++++++++++++++++++++++++++++++++++++ recursive damage :-)";
-                newCurrentBuffer();
-                doUpdate(rect);
-            }
-        } else {
-            compositor->markSurfaceAsDirty(q_ptr);
-            emit qtSurface->damaged(rect);
-        }
-    }
-
-    void newCurrentBuffer() {
-        //TODO release SHM buffer....
-        if (surfaceBuffer && surfaceBuffer->isPosted()) {
-            surfaceBuffer->destructBufferState();
-        } else if (surfaceBuffer && !surfaceBuffer->isDisplayed()) {
-            qDebug() << "### not skipping undisplayed buffer";
-            return;
-        }
-
-        surfaceBuffer = bufferQueue.takeFirst();
-
-        int width = 0;
-        int height = 0;
-        if (surfaceBuffer) {
-            width = surfaceBuffer->width();
-            height = surfaceBuffer->height();
-        }
-        q_ptr->setSize(QSize(width,height));
-
-        if (surfaceBuffer &&  (!subSurface || !subSurface->parent()) && !surfaceMapped) {
-            emit qtSurface->mapped();
-            surfaceMapped = true;
-        } else if (!surfaceBuffer && surfaceMapped) {
-            emit qtSurface->unmapped();
-            surfaceMapped = false;
-        }
-    }
-
-    SurfaceBuffer *createSurfaceBuffer(struct wl_buffer *buffer)
-     {
-         SurfaceBuffer *newBuffer = 0;
-         for (int i = 0; i < buffer_pool_size; i++) {
-            if (!bufferPool[i].isRegisteredWithBuffer()) {
-                newBuffer = &bufferPool[i];
-                newBuffer->initialize(buffer);
-                break;
-            }
-         }
-
-         Q_ASSERT(newBuffer);
-         return newBuffer;
-     }
-
-    void frameFinished() {
-        if (surfaceBuffer)
-            surfaceBuffer->setFinished();
-
-        if (!bufferQueue.isEmpty()) {
-            newCurrentBuffer();
-            if (surfaceBuffer)
-                doUpdate(surfaceBuffer->damageRect());
-        }
-    }
-
-    bool postBuffer() {
-#ifdef QT_COMPOSITOR_WAYLAND_GL
-        if (compositor->graphicsHWIntegration() && qtSurface->handle() == compositor->directRenderSurface()) {
-//            qDebug() << "posting...." << bufferQueue;
-            if (surfaceBuffer && surfaceBuffer->handle() && compositor->graphicsHWIntegration()->postBuffer(surfaceBuffer->handle())) {
-                return true;
-            } else {
-                qDebug() << "could not post buffer";
-            }
-        }
-#endif
-        return false;
-    }
-
-    Compositor *compositor;
-    WaylandSurface *qtSurface;
-
-    SurfaceBuffer  *surfaceBuffer;
-    SurfaceBuffer *textureBuffer;
-    QList<SurfaceBuffer*> bufferQueue;
-    bool surfaceMapped;
-
-    qint64 processId;
-    QByteArray authenticationToken;
-    QVariantMap windowProperties;
-
-    QPoint lastLocalMousePos;
-    QPoint lastGlobalMousePos;
-
-    struct wl_list frame_callback_list;
-
-    ExtendedSurface *extendedSurface;
-    SubSurface *subSurface;
-    ShellSurface *shellSurface;
-
-    SurfaceBuffer bufferPool[buffer_pool_size];
-
-    QPointF position;
-    QSize size;
-
-private:
-    Surface *q_ptr;
-};
-
-void destroy_surface(struct wl_resource *resource)
-{
-    Surface *surface = wayland_cast<Surface *>((wl_surface *)resource);
-    delete surface;
-}
 
 void Surface::surface_destroy(struct wl_client *, struct wl_resource *surface_resource)
 {
@@ -393,317 +409,8 @@ void Surface::surface_frame(struct wl_client *client,
                    uint32_t callback)
 {
     Surface *surface = reinterpret_cast<Surface *>(resource);
-    SurfacePrivate *d = surface->d_func();
-    struct wl_resource *frame_callback = wl_client_add_object(client,&wl_callback_interface,0,callback,d);
-    wl_list_insert(&d->frame_callback_list,&frame_callback->link);
-}
-
-Surface::Surface(struct wl_client *client, uint32_t id, Compositor *compositor)
-    : d_ptr(new SurfacePrivate(this,compositor))
-{
-    addClientResource(client, &base()->resource, id, &wl_surface_interface,
-            &Surface::surface_interface, destroy_surface);
-}
-
-Surface::~Surface()
-{
-    Q_D(Surface);
-    d->compositor->surfaceDestroyed(this);
-
-    delete d->qtSurface;
-}
-
-WaylandSurface::Type Surface::type() const
-{
-    Q_D(const Surface);
-    if (d->surfaceBuffer && d->surfaceBuffer->handle()) {
-        if (d->surfaceBuffer && d->surfaceBuffer->isShmBuffer()) {
-            return WaylandSurface::Shm;
-        } else if (d->surfaceBuffer){
-            return WaylandSurface::Texture;
-        }
-    }
-    return WaylandSurface::Invalid;
-}
-
-bool Surface::isYInverted() const
-{
-    bool ret = false;
-    static bool negateReturn = qgetenv("QT_COMPOSITOR_NEGATE_INVERTED_Y").toInt();
-
-#ifdef QT_COMPOSITOR_WAYLAND_GL
-    Q_D(const Surface);
-
-    if (!d->surfaceBuffer) {
-        ret = false;
-    } else if (d->compositor->graphicsHWIntegration() && d->surfaceBuffer->handle() && type() != WaylandSurface::Shm) {
-        ret = d->compositor->graphicsHWIntegration()->isYInverted(d->surfaceBuffer->handle());
-    } else
-#endif
-        ret = true;
-
-    return ret != negateReturn;
-}
-
-bool Surface::visible() const
-{
-    Q_D(const Surface);
-    return d->surfaceBuffer && d->surfaceBuffer->handle();
-}
-
-void Surface::damage(const QRect &rect)
-{
-    Q_D(Surface);
-
-    if (!d->bufferQueue.isEmpty() && (!d->surfaceBuffer || d->surfaceBuffer->isFinished() || !d->surfaceBuffer->handle())) {
-            // Handle the "slow" case where we've finished the previous frame before the next damage comes.
-            d->newCurrentBuffer();
-            d->doUpdate(rect);
-    } else if (d->bufferQueue.isEmpty()) {
-        // we've receicved a second damage for the same buffer
-        d->doUpdate(rect);
-    } else {
-        // we're still composing the previous buffer, so just store the damage rect for later
-        SurfaceBuffer *b = d->bufferQueue.last();
-        if (b)
-            b->setDamage(rect);
-        else
-            qWarning() << "Surface::damage() null buffer";
-    }
-}
-
-QImage Surface::image() const
-{
-    Q_D(const Surface);
-    if (type() == WaylandSurface::Shm && d->surfaceBuffer && d->surfaceBuffer->handle()) {
-        ShmBuffer *shmBuffer = static_cast<ShmBuffer *>(d->surfaceBuffer->handle()->user_data);
-        //TODO SHM: d->surfaceBuffer->bufferHandled = true;
-        return shmBuffer->image();
-    }
-    return QImage();
-}
-
-QPointF Surface::pos() const
-{
-    Q_D(const Surface);
-    return d->position;
-}
-
-void Surface::setPos(const QPointF &pos)
-{
-    Q_D(Surface);
-    bool emitChange = pos != d->position;
-    d->position = pos;
-    if (emitChange)
-        d->qtSurface->posChanged();
-}
-
-QSize Surface::size() const
-{
-    Q_D(const Surface);
-    return d->size;
-}
-
-void Surface::setSize(const QSize &size)
-{
-    Q_D(Surface);
-    bool emitChange = size != d->size;
-    d->size = size;
-    if (emitChange)
-        d->qtSurface->sizeChanged();
-}
-
-#ifdef QT_COMPOSITOR_WAYLAND_GL
-GLuint Surface::textureId(QOpenGLContext *context) const
-{
-    Q_D(const Surface);
-
-    if (!d->surfaceBuffer) {
-        return 0;
-    }
-    if (d->compositor->graphicsHWIntegration() && type() == WaylandSurface::Texture
-         && !d->surfaceBuffer->textureCreated()) {
-        Surface *that = const_cast<Surface *>(this);
-
-        if (d->textureBuffer) {
-            d->textureBuffer->destructBufferState();
-            that->d_func()->textureBuffer = 0;
-        }
-        GraphicsHardwareIntegration *hwIntegration = d->compositor->graphicsHWIntegration();
-        that->d_func()->textureBuffer = d->surfaceBuffer;
-        that->d_func()->textureBuffer->setTexture(hwIntegration->createTextureFromBuffer(d->textureBuffer->handle(), context));
-    }
-    return d->textureBuffer->texture();
-}
-#endif // QT_COMPOSITOR_WAYLAND_GL
-
-void Surface::attach(struct wl_buffer *buffer)
-{
-    Q_D(Surface);
-    static bool no_serverside_buffer_queue = qgetenv("QT_NO_SERVERSIDE_BUFFER_QUEUE").toInt();
-
-    SurfaceBuffer *newBuffer = 0;
-    if (no_serverside_buffer_queue) {
-        if (d->surfaceBuffer && !d->surfaceBuffer->textureCreated()) {
-            qDebug() << "releasing undisplayed buffer";
-            d->surfaceBuffer->destructBufferState();
-            d->surfaceBuffer = 0;
-        }
-    }
-    if (buffer) {
-        newBuffer = d->createSurfaceBuffer(buffer);
-    }
-
-    SurfaceBuffer *last = d->bufferQueue.size()?d->bufferQueue.last():0;
-    if (last && !last->damageRect().isValid()) {
-        last->destructBufferState();
-        d->bufferQueue.takeLast();
-    }
-    d->bufferQueue << newBuffer;
-}
-
-WaylandSurface * Surface::handle() const
-{
-    Q_D(const Surface);
-    return d->qtSurface;
-}
-
-qint64 Surface::processId() const
-{
-    Q_D(const Surface);
-    return d->processId;
-}
-
-void Surface::setProcessId(qint64 processId)
-{
-    Q_D(Surface);
-    d->processId = processId;
-}
-
-QByteArray Surface::authenticationToken() const
-{
-    Q_D(const Surface);
-    WaylandManagedClient *mcl = d->compositor->windowManagerIntegration()->managedClient(base()->resource.client);
-    return mcl ? mcl->authenticationToken() : QByteArray();
-}
-
-QVariantMap Surface::windowProperties() const
-{
-    Q_D(const Surface);
-    return d->windowProperties;
-}
-
-QVariant Surface::windowProperty(const QString &propertyName) const
-{
-    Q_D(const Surface);
-    QVariantMap props = d->windowProperties;
-    return props.value(propertyName);
-}
-
-void Surface::setWindowProperty(const QString &name, const QVariant &value, bool writeUpdateToClient)
-{
-    Q_D(Surface);
-    d->windowProperties.insert(name, value);
-    handle()->windowPropertyChanged(name,value);
-    if (writeUpdateToClient && d->extendedSurface) {
-        d->extendedSurface->sendGenericProperty(name, value);
-    }
-}
-
-Qt::ScreenOrientation Surface::windowOrientation() const
-{
-    Q_D(const Surface);
-    return d->extendedSurface ? d->extendedSurface->windowOrientation() : Qt::PrimaryOrientation;
-}
-
-Qt::ScreenOrientation Surface::contentOrientation() const
-{
-    Q_D(const Surface);
-    return d->extendedSurface ? d->extendedSurface->contentOrientation() : Qt::PrimaryOrientation;
-}
-
-WaylandSurface::WindowFlags Surface::windowFlags() const
-{
-    Q_D(const Surface);
-    return d->extendedSurface ? d->extendedSurface->windowFlags() : WaylandSurface::WindowFlags(0);
-}
-
-QPoint Surface::lastMousePos() const
-{
-    Q_D(const Surface);
-    return d->lastLocalMousePos;
-}
-
-void Surface::setExtendedSurface(ExtendedSurface *extendedSurface)
-{
-    Q_D(Surface);
-    d->extendedSurface = extendedSurface;
-}
-
-ExtendedSurface *Surface::extendedSurface() const
-{
-    Q_D(const Surface);
-    return d->extendedSurface;
-}
-
-void Surface::setSubSurface(SubSurface *subSurface)
-{
-    Q_D(Surface);
-    d->subSurface = subSurface;
-}
-
-SubSurface *Surface::subSurface() const
-{
-    Q_D(const Surface);
-    return d->subSurface;
-}
-
-void Surface::setShellSurface(ShellSurface *shellSurface)
-{
-    Q_D(Surface);
-    d->shellSurface = shellSurface;
-}
-
-ShellSurface *Surface::shellSurface() const
-{
-    Q_D(const Surface);
-    return d->shellSurface;
-}
-
-Compositor *Surface::compositor() const
-{
-    Q_D(const Surface);
-    return d->compositor;
-}
-
-void Surface::sendFrameCallback()
-{
-    Q_D(Surface);
-
-    d->frameFinished();
-
-    uint time = Compositor::currentTimeMsecs();
-    struct wl_resource *frame_callback;
-    wl_list_for_each(frame_callback, &d->frame_callback_list, link) {
-        wl_resource_post_event(frame_callback,WL_CALLBACK_DONE,time);
-        wl_resource_destroy(frame_callback,Compositor::currentTimeMsecs());
-    }
-
-    wl_list_init(&d->frame_callback_list);
-}
-
-void Surface::frameFinished()
-{
-    Q_D(Surface);
-    d->compositor->frameFinished(this);
-}
-
-void Surface::sendOnScreenVisibilityChange(bool visible)
-{
-    Q_D(Surface);
-    if (d->extendedSurface) {
-        d->extendedSurface->sendOnScreenVisibllity(visible);
-    }
+    struct wl_resource *frame_callback = wl_client_add_object(client,&wl_callback_interface,0,callback,surface);
+    wl_list_insert(&surface->m_frame_callback_list,&frame_callback->link);
 }
 
 } // namespace Wayland

@@ -185,7 +185,7 @@ void Compositor::createSurface(struct wl_client *client, uint32_t id)
 
     m_surfaces << surface;
 
-    m_qt_compositor->surfaceCreated(surface->handle());
+    m_qt_compositor->surfaceCreated(surface->waylandSurface());
 }
 
 struct wl_client *Compositor::getClientFromWinId(uint winId) const
@@ -314,7 +314,7 @@ void Compositor::enableSubSurfaceExtension()
 bool Compositor::setDirectRenderSurface(Surface *surface)
 {
 #ifdef QT_COMPOSITOR_WAYLAND_GL
-    if (m_graphics_hw_integration && m_graphics_hw_integration->setDirectRenderSurface(surface ? surface->handle() : 0)) {
+    if (m_graphics_hw_integration && m_graphics_hw_integration->setDirectRenderSurface(surface ? surface->waylandSurface() : 0)) {
         m_directRenderSurface = surface;
         return true;
     }

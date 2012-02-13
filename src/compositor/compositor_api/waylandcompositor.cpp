@@ -101,7 +101,7 @@ void WaylandCompositor::setDirectRenderSurface(WaylandSurface *surface)
 WaylandSurface *WaylandCompositor::directRenderSurface() const
 {
     Wayland::Surface *surf = m_compositor->directRenderSurface();
-    return surf ? surf->handle() : 0;
+    return surf ? surf->waylandSurface() : 0;
 }
 
 QWindow * WaylandCompositor::window() const

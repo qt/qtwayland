@@ -47,6 +47,8 @@
 #include "wayland_wrapper/wlsubsurface.h"
 #include "wayland_wrapper/wlcompositor.h"
 
+#include "waylandwindowmanagerintegration.h"
+
 #ifdef QT_COMPOSITOR_QUICK
 #include "waylandsurfaceitem.h"
 #endif
@@ -144,13 +146,17 @@ void WaylandSurface::setSize(const QSize &size)
 Qt::ScreenOrientation WaylandSurface::contentOrientation() const
 {
     Q_D(const WaylandSurface);
-    return d->surface->contentOrientation();
+    if (!d->surface->extendedSurface())
+        return Qt::PrimaryOrientation;
+    return d->surface->extendedSurface()->contentOrientation();
 }
 
 Qt::ScreenOrientation WaylandSurface::windowOrientation() const
 {
     Q_D(const WaylandSurface);
-    return d->surface->windowOrientation();
+    if (!d->surface->extendedSurface())
+        return Qt::PrimaryOrientation;
+    return d->surface->extendedSurface()->windowOrientation();
 }
 
 
@@ -158,7 +164,9 @@ Qt::ScreenOrientation WaylandSurface::windowOrientation() const
 WaylandSurface::WindowFlags WaylandSurface::windowFlags() const
 {
     Q_D(const WaylandSurface);
-    return d->surface->windowFlags();
+    if (!d->surface->extendedSurface())
+        return WaylandSurface::WindowFlags(0);
+    return d->surface->extendedSurface()->windowFlags();
 }
 
 
@@ -204,25 +212,43 @@ void WaylandSurface::setSurfaceItem(WaylandSurfaceItem *surfaceItem)
 qint64 WaylandSurface::processId() const
 {
     Q_D(const WaylandSurface);
-    return d->surface->processId();
+    WindowManagerServerIntegration *wmIntegration = d->surface->compositor()->windowManagerIntegration();
+    if (!wmIntegration) {
+        return 0;
+    }
+
+    WaylandManagedClient *mcl = wmIntegration->managedClient(d->surface->base()->resource.client);
+    return mcl ? mcl->processId() : 0;
 }
 
 QByteArray WaylandSurface::authenticationToken() const
 {
     Q_D(const WaylandSurface);
-    return d->surface->authenticationToken();
+    WindowManagerServerIntegration *wmIntegration = d->surface->compositor()->windowManagerIntegration();
+    if (!wmIntegration) {
+        return QByteArray();
+    }
+
+    WaylandManagedClient *mcl = wmIntegration->managedClient(d->surface->base()->resource.client);
+    return mcl ? mcl->authenticationToken() : QByteArray();
 }
 
 QVariantMap WaylandSurface::windowProperties() const
 {
     Q_D(const WaylandSurface);
-    return d->surface->windowProperties();
+    if (!d->surface->extendedSurface())
+        return QVariantMap();
+
+    return d->surface->extendedSurface()->windowProperties();
 }
 
 void WaylandSurface::setWindowProperty(const QString &name, const QVariant &value)
 {
     Q_D(WaylandSurface);
-    d->surface->setWindowProperty(name, value);
+    if (!d->surface->extendedSurface())
+        return;
+
+    d->surface->extendedSurface()->setWindowProperty(name, value);
 }
 
 QPointF WaylandSurface::mapToParent(const QPointF &pos) const
@@ -243,13 +269,12 @@ QPointF WaylandSurface::mapTo(WaylandSurface *parent, const QPointF &pos) const
         }
     }
     return p;
-
 }
 
 WaylandCompositor *WaylandSurface::compositor() const
 {
     Q_D(const WaylandSurface);
-    return d->surface->compositor()->qtCompositor();
+    return d->surface->compositor()->waylandCompositor();
 }
 
 void WaylandSurface::frameFinished()
@@ -261,5 +286,6 @@ void WaylandSurface::frameFinished()
 void WaylandSurface::sendOnScreenVisibilityChange(bool visible)
 {
     Q_D(WaylandSurface);
-    d->surface->sendOnScreenVisibilityChange(visible);
+    if (d->surface->extendedSurface())
+        d->surface->extendedSurface()->sendOnScreenVisibllity(visible);
 }

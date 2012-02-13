@@ -101,7 +101,6 @@ QWaylandInputDevice *QWaylandDisplay::lastKeyboardFocusInputDevice() const
 
 void QWaylandDisplay::setLastKeyboardFocusInputDevice(QWaylandInputDevice *device)
 {
-    qDebug() << "setting last keyboard focus input device" << device;
     mLastKeyboardFocusInputDevice = device;
 }
 

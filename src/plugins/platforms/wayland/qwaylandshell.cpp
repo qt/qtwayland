@@ -51,7 +51,7 @@ QWaylandShell::QWaylandShell(QWaylandDisplay *display, uint32_t id, uint32_t ver
     m_shell = static_cast<struct wl_shell *>(wl_display_bind(m_display->wl_display(), id, &wl_shell_interface));
 }
 
-QWaylandShellSurface *QWaylandShell::createShellSurface(QWaylandWindow *window)
+QWaylandShellSurface *QWaylandShell::getShellSurface(QWaylandWindow *window)
 {
     Q_ASSERT(window->wl_surface());
     struct wl_shell_surface *shell_surface = wl_shell_get_shell_surface(m_shell,window->wl_surface());

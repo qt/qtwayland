@@ -66,6 +66,8 @@ public:
 
     void setParent(const QWaylandWindow *parent);
 
+    void adjustPositionOfChildren();
+
 private:
     QWaylandWindow *m_window;
     struct wl_sub_surface *m_sub_surface;

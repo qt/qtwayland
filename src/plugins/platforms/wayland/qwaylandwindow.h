@@ -52,6 +52,7 @@ class QWaylandBuffer;
 class QWaylandShellSurface;
 class QWaylandExtendedSurface;
 class QWaylandSubSurface;
+class QWaylandDecoration;
 
 struct wl_egl_window;
 
@@ -71,13 +72,21 @@ public:
     void setVisible(bool visible);
     void setParent(const QPlatformWindow *parent);
 
+    void setWindowTitle(const QString &title);
+
+    void setGeometry(const QRect &rect);
+
     void configure(uint32_t time, uint32_t edges,
-                   int32_t x, int32_t y, int32_t width, int32_t height);
+                   int32_t width, int32_t height);
 
     void attach(QWaylandBuffer *buffer);
+    QWaylandBuffer *attached() const;
+
     void damage(const QRect &rect);
 
     void waitForFrameSync();
+
+    QMargins frameMargins() const;
 
     struct wl_surface *wl_surface() const { return mSurface; }
 
@@ -93,12 +102,28 @@ public:
 
     bool isExposed() const;
 
+    QWaylandDecoration *decoration() const;
+    void setDecoration(QWaylandDecoration *decoration);
+
+
+    void handleMouse(QWaylandInputDevice *inputDevice,
+                     ulong timestamp,
+                     const QPointF & local,
+                     const QPointF & global,
+                     Qt::MouseButtons b,
+                     Qt::KeyboardModifiers mods);
+    void handleMouseEnter();
+    void handleMouseLeave();
 protected:
     QWaylandDisplay *mDisplay;
     struct wl_surface *mSurface;
     QWaylandShellSurface *mShellSurface;
     QWaylandExtendedSurface *mExtendedWindow;
     QWaylandSubSurface *mSubSurfaceWindow;
+
+    QWaylandDecoration *mWindowDecoration;
+    bool mMouseEventsInContentArea;
+    Qt::MouseButtons mMousePressedInContentArea;
 
     QWaylandBuffer *mBuffer;
     WId mWindowId;
@@ -109,6 +134,13 @@ protected:
     bool mSentInitialResize;
 
 private:
+    void handleMouseEventWithDecoration(QWaylandInputDevice *inputDevice,
+                                        ulong timestamp,
+                                        const QPointF & local,
+                                        const QPointF & global,
+                                        Qt::MouseButtons b,
+                                        Qt::KeyboardModifiers mods);
+
     static const wl_callback_listener callbackListener;
     static void frameCallback(void *data, struct wl_callback *wl_callback, uint32_t time);
 

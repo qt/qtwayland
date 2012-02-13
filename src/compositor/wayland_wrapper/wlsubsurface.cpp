@@ -91,9 +91,10 @@ SubSurface::~SubSurface()
 
 void SubSurface::setSubSurface(SubSurface *subSurface, int x, int y)
 {
-    Q_ASSERT(!m_sub_surfaces.contains(subSurface->m_surface->waylandSurface()));
-    m_sub_surfaces.append(subSurface->m_surface->waylandSurface());
-    subSurface->setParent(this);
+    if (!m_sub_surfaces.contains(subSurface->m_surface->waylandSurface())) {
+        m_sub_surfaces.append(subSurface->m_surface->waylandSurface());
+        subSurface->setParent(this);
+    }
     subSurface->m_surface->setPos(QPointF(x,y));
 }
 

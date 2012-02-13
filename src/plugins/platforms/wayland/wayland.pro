@@ -30,7 +30,8 @@ SOURCES =   main.cpp \
             qwaylandsubsurface.cpp \
             qwaylandtouch.cpp \
             qwaylandqtkey.cpp \
-            $$PWD/../../../shared/qwaylandmimehelper.cpp
+            $$PWD/../../../shared/qwaylandmimehelper.cpp \
+            qwaylanddecoration.cpp
 
 HEADERS =   qwaylandintegration.h \
             qwaylandnativeinterface.h \
@@ -53,7 +54,8 @@ HEADERS =   qwaylandintegration.h \
             qwaylandsubsurface.h \
             qwaylandtouch.h \
             qwaylandqtkey.h \
-            $$PWD/../../../shared/qwaylandmimehelper.h
+            $$PWD/../../../shared/qwaylandmimehelper.h \
+            qwaylanddecoration.h
 
 DEFINES += Q_PLATFORM_WAYLAND
 

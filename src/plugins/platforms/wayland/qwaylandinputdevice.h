@@ -63,11 +63,13 @@ public:
     void attach(QWaylandBuffer *buffer, int x, int y);
     void handleWindowDestroyed(QWaylandWindow *window);
     struct wl_input_device *wl_input_device() const { return mInputDevice; }
-    QWaylandWindow *pointerFocus() const { return mPointerFocus; }
 
     void setTransferDevice(struct wl_data_device *device);
     struct wl_data_device *transferDevice() const;
 
+    struct wl_input_device *handle() const;
+
+    void removeMouseButtonFromState(Qt::MouseButton button);
 private:
     QWaylandDisplay *mQDisplay;
     struct wl_display *mDisplay;

@@ -52,7 +52,7 @@ class QWaylandShell
 public:
     QWaylandShell(QWaylandDisplay *display, uint32_t id, uint32_t version);
 
-    QWaylandShellSurface *createShellSurface(QWaylandWindow *window);
+    QWaylandShellSurface *getShellSurface(QWaylandWindow *window);
 
 private:
     struct wl_shell *m_shell;

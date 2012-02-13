@@ -127,6 +127,8 @@ public:
 
     void frameFinished();
 
+    WaylandSurface *transientParent() const;
+
     Wayland::Surface *handle() const;
 
 #ifdef QT_COMPOSITOR_QUICK

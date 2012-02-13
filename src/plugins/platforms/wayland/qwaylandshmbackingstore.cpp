@@ -45,6 +45,9 @@
 #include "qwaylanddisplay.h"
 #include "qwaylandshmwindow.h"
 #include "qwaylandscreen.h"
+#include "qwaylanddecoration.h"
+
+#include <QtGui/QPainter>
 
 #include <wayland-client.h>
 #include <unistd.h>
@@ -55,27 +58,28 @@
 QT_BEGIN_NAMESPACE
 
 QWaylandShmBuffer::QWaylandShmBuffer(QWaylandDisplay *display,
-				     const QSize &size, QImage::Format format)
+                     const QSize &size, QImage::Format format)
+    : mMarginsImage(0)
 {
     int stride = size.width() * 4;
     int alloc = stride * size.height();
     char filename[] = "/tmp/wayland-shm-XXXXXX";
     int fd = mkstemp(filename);
     if (fd < 0)
-	qWarning("open %s failed: %s", filename, strerror(errno));
+        qWarning("open %s failed: %s", filename, strerror(errno));
     if (ftruncate(fd, alloc) < 0) {
-	qWarning("ftruncate failed: %s", strerror(errno));
-	close(fd);
-	return;
+        qWarning("ftruncate failed: %s", strerror(errno));
+        close(fd);
+        return;
     }
     uchar *data = (uchar *)
-	mmap(NULL, alloc, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+            mmap(NULL, alloc, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
     unlink(filename);
 
     if (data == (uchar *) MAP_FAILED) {
-	qWarning("mmap /dev/zero failed: %s", strerror(errno));
-	close(fd);
-	return;
+        qWarning("mmap /dev/zero failed: %s", strerror(errno));
+        close(fd);
+        return;
     }
 
     mImage = QImage(data, size.width(), size.height(), stride, format);
@@ -92,57 +96,194 @@ QWaylandShmBuffer::~QWaylandShmBuffer(void)
     wl_shm_pool_destroy(mShmPool);
 }
 
+QImage *QWaylandShmBuffer::imageInsideMargins(const QMargins &margins)
+{
+    if (!margins.isNull() && margins != mMargins) {
+        if (mMarginsImage) {
+            delete mMarginsImage;
+        }
+        uchar *bits = const_cast<uchar *>(mImage.constBits());
+        uchar *b_s_data = bits + margins.top() * mImage.bytesPerLine() + margins.left() * 4;
+        int b_s_width = mImage.size().width() - margins.left() - margins.right();
+        int b_s_height = mImage.size().height() - margins.top() - margins.bottom();
+        mMarginsImage = new QImage(b_s_data, b_s_width,b_s_height,mImage.bytesPerLine(),mImage.format());
+    }
+    if (margins.isNull()) {
+        delete mMarginsImage;
+        mMarginsImage = 0;
+    }
+
+    mMargins = margins;
+    if (!mMarginsImage)
+        return &mImage;
+
+    return mMarginsImage;
+
+}
+
 QWaylandShmBackingStore::QWaylandShmBackingStore(QWindow *window)
     : QPlatformBackingStore(window)
-    , mBuffer(0)
     , mDisplay(QWaylandScreen::waylandScreenFromWindow(window)->display())
+    , mFrontBuffer(0)
+    , mBackBuffer(0)
+    , mFrontBufferIsDirty(false)
+    , mPainting(false)
+    , mWindowDecoration(0)
+    , mFrameCallback(0)
 {
 }
 
 QWaylandShmBackingStore::~QWaylandShmBackingStore()
 {
+//    if (mFrontBuffer == waylandWindow()->attached())
+//        waylandWindow()->attach(0);
+
+    if (mFrontBuffer != mBackBuffer)
+        delete mFrontBuffer;
+
+    delete mBackBuffer;
 }
 
 QPaintDevice *QWaylandShmBackingStore::paintDevice()
 {
-    return mBuffer->image();
+    if (!mWindowDecoration)
+        return mBackBuffer->image();
+    return mBackBuffer->imageInsideMargins(mWindowDecoration->margins());
 }
 
 void QWaylandShmBackingStore::beginPaint(const QRegion &)
 {
-    QWaylandShmWindow *waylandWindow = static_cast<QWaylandShmWindow *>(window()->handle());
-    Q_ASSERT(waylandWindow->windowType() == QWaylandWindow::Shm);
-    waylandWindow->waitForFrameSync();
+    mPainting = true;
+    ensureSize();
+
+    if (waylandWindow()->attached() && mBackBuffer == waylandWindow()->attached()) {
+        QWaylandShmWindow *waylandWindow = static_cast<QWaylandShmWindow *>(window()->handle());
+        Q_ASSERT(waylandWindow->windowType() == QWaylandWindow::Shm);
+        waylandWindow->waitForFrameSync();
+    }
+
+}
+
+void QWaylandShmBackingStore::endPaint()
+{
+    mPainting = false;
+}
+
+void QWaylandShmBackingStore::ensureSize()
+{
+    bool decoration = false;
+    switch (window()->windowType()) {
+        case Qt::Window:
+    case Qt::Widget:
+    case Qt::Dialog:
+    case Qt::Tool:
+    case Qt::Drawer:
+        decoration = true;
+        break;
+    default:
+        break;
+    }
+    if (window()->windowFlags() & Qt::FramelessWindowHint) {
+        decoration = false;
+    }
+
+    if (decoration) {
+        if (!mWindowDecoration) {
+            mWindowDecoration = new QWaylandDecoration(window(), this);
+        }
+    } else {
+        delete mWindowDecoration;
+        mWindowDecoration = 0;
+    }
+    resize(mRequestedSize);
 }
 
 void QWaylandShmBackingStore::flush(QWindow *window, const QRegion &region, const QPoint &offset)
 {
     Q_UNUSED(window);
     Q_UNUSED(offset);
-    QWaylandShmWindow *waylandWindow = static_cast<QWaylandShmWindow *>(window->handle());
-    Q_ASSERT(waylandWindow->windowType() == QWaylandWindow::Shm);
+    Q_ASSERT(waylandWindow()->windowType() == QWaylandWindow::Shm);
+
+    mFrontBuffer = mBackBuffer;
+
+    if (mFrameCallback) {
+        mFrontBufferIsDirty = true;
+        return;
+    }
+
+    mFrameCallback = wl_surface_frame(waylandWindow()->wl_surface());
+    wl_callback_add_listener(mFrameCallback,&frameCallbackListener,this);
+    QMargins margins = windowDecorationMargins();
+
+    if (waylandWindow()->attached() != mFrontBuffer) {
+        delete waylandWindow()->attached();
+        waylandWindow()->attach(mFrontBuffer);
+    }
+
     QVector<QRect> rects = region.rects();
     for (int i = 0; i < rects.size(); i++) {
-        const QRect rect = rects.at(i);
-        waylandWindow->damage(rect);
+        QRect rect = rects.at(i);
+        rect.translate(margins.left(),margins.top());
+        waylandWindow()->damage(rect);
     }
+    mFrontBufferIsDirty = false;
 }
 
 void QWaylandShmBackingStore::resize(const QSize &size, const QRegion &)
 {
-    QWaylandShmWindow *waylandWindow = static_cast<QWaylandShmWindow *>(window()->handle());
+    mRequestedSize = size;
+}
+
+void QWaylandShmBackingStore::resize(const QSize &size)
+{
+
+    QMargins margins = windowDecorationMargins();
+    QSize sizeWithMargins = size + QSize(margins.left()+margins.right(),margins.top()+margins.bottom());
 
     QImage::Format format = QPlatformScreen::platformScreenForWindow(window())->format();
 
-    if (mBuffer != NULL && mBuffer->size() == size)
-	return;
+    if (mBackBuffer != NULL && mBackBuffer->size() == sizeWithMargins)
+        return;
 
-    if (mBuffer != NULL)
-	delete mBuffer;
+    if (mBackBuffer != mFrontBuffer) {
+        delete mBackBuffer; //we delete the attached buffer when we flush
+    }
 
-    mBuffer = new QWaylandShmBuffer(mDisplay, size, format);
+    mBackBuffer = new QWaylandShmBuffer(mDisplay, sizeWithMargins, format);
 
-    waylandWindow->attach(mBuffer);
+    if (mWindowDecoration)
+        mWindowDecoration->paintDecoration();
 }
+
+QImage *QWaylandShmBackingStore::entireSurface() const
+{
+    return mBackBuffer->image();
+}
+
+void QWaylandShmBackingStore::done(void *data, wl_callback *callback, uint32_t time)
+{
+    Q_UNUSED(callback);
+    Q_UNUSED(time);
+    QWaylandShmBackingStore *self =
+            static_cast<QWaylandShmBackingStore *>(data);
+    QWaylandWindow *window = self->waylandWindow();
+    wl_callback_destroy(self->mFrameCallback);
+    self->mFrameCallback = 0;
+    if (self->mFrontBuffer != self->waylandWindow()->attached()) {
+        delete self->waylandWindow()->attached();
+        self->waylandWindow()->attach(self->mFrontBuffer);
+    }
+
+    if (self->mFrontBufferIsDirty && !self->mPainting) {
+        self->mFrontBufferIsDirty = false;
+        self->mFrameCallback = wl_surface_frame(self->waylandWindow()->wl_surface());
+        wl_callback_add_listener(self->mFrameCallback,&self->frameCallbackListener,self);
+        self->waylandWindow()->damage(QRect(QPoint(0,0),self->mFrontBuffer->size()));
+    }
+}
+
+const struct wl_callback_listener QWaylandShmBackingStore::frameCallbackListener = {
+    QWaylandShmBackingStore::done
+};
 
 QT_END_NAMESPACE

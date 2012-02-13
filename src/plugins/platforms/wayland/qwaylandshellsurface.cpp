@@ -43,6 +43,10 @@
 
 #include "qwaylanddisplay.h"
 #include "qwaylandwindow.h"
+#include "qwaylandinputdevice.h"
+#include "qwaylanddecoration.h"
+
+#include <QtCore/QDebug>
 
 QWaylandShellSurface::QWaylandShellSurface(struct wl_shell_surface *shell_surface, QWaylandWindow *window)
     : m_shell_surface(shell_surface)
@@ -51,6 +55,38 @@ QWaylandShellSurface::QWaylandShellSurface(struct wl_shell_surface *shell_surfac
     wl_shell_surface_add_listener(m_shell_surface,&m_shell_surface_listener,this);
 }
 
+void QWaylandShellSurface::resize(QWaylandInputDevice *inputDevice, enum wl_shell_surface_resize edges)
+{
+    wl_shell_surface_resize(m_shell_surface,inputDevice->wl_input_device(),QWaylandDisplay::currentTimeMillisec(),edges);
+}
+
+void QWaylandShellSurface::move(QWaylandInputDevice *inputDevice)
+{
+    wl_shell_surface_move(m_shell_surface,inputDevice->wl_input_device(),QWaylandDisplay::currentTimeMillisec());
+}
+
+void QWaylandShellSurface::setTopLevel()
+{
+    wl_shell_surface_set_toplevel(m_shell_surface);
+}
+
+void QWaylandShellSurface::updateTransientParent(QWindow *parent)
+{
+    QWaylandWindow *parent_wayland_window = static_cast<QWaylandWindow *>(parent->handle());
+    if (!parent_wayland_window || !parent_wayland_window->shellSurface())
+        return;
+
+    QPoint transientPos = m_window->geometry().topLeft();
+    if (parent_wayland_window->decoration()) {
+        transientPos.setX(transientPos.x() + parent_wayland_window->decoration()->margins().left());
+        transientPos.setY(transientPos.y() + parent_wayland_window->decoration()->margins().top());
+    }
+    wl_shell_surface_set_transient(m_shell_surface,
+                                   parent_wayland_window->shellSurface()->m_shell_surface,
+                                   transientPos.x(),
+                                   transientPos.y(),
+                                   0);
+}
 
 void QWaylandShellSurface::configure(void *data,
                                      wl_shell_surface *wl_shell_surface,
@@ -61,7 +97,7 @@ void QWaylandShellSurface::configure(void *data,
 {
     Q_UNUSED(wl_shell_surface);
     QWaylandShellSurface *shell_surface = static_cast<QWaylandShellSurface *>(data);
-    shell_surface->m_window->configure(time,edges,0,0,width,height);
+    shell_surface->m_window->configure(time,edges,width,height);
 }
 
 void QWaylandShellSurface::popup_done(void *data,

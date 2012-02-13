@@ -146,6 +146,9 @@ bool Surface::visible() const
 
 QPointF Surface::pos() const
 {
+    if (m_shellSurface) {
+        m_shellSurface->adjustPosToTransientParent();
+    }
     return m_position;
 }
 
@@ -168,6 +171,9 @@ void Surface::setSize(const QSize &size)
         m_opaqueRegion = QRegion();
         m_inputRegion = QRegion(QRect(QPoint(), size));
         m_size = size;
+        if (m_shellSurface) {
+            m_shellSurface->adjustPosInResize();
+        }
         m_waylandSurface->sizeChanged();
     }
 }

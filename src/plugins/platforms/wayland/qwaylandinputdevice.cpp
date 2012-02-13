@@ -121,12 +121,24 @@ struct wl_data_device *QWaylandInputDevice::transferDevice() const
     return mTransferDevice;
 }
 
+struct wl_input_device *QWaylandInputDevice::handle() const
+{
+    return mInputDevice;
+}
+
+void QWaylandInputDevice::removeMouseButtonFromState(Qt::MouseButton button)
+{
+    mButtons = mButtons & !button;
+}
+
 void QWaylandInputDevice::inputHandleMotion(void *data,
 					    struct wl_input_device *input_device,
 					    uint32_t time,
 					    int32_t surface_x, int32_t surface_y)
 {
     Q_UNUSED(input_device);
+    Q_UNUSED(surface_x);
+    Q_UNUSED(surface_y);
     QWaylandInputDevice *inputDevice = (QWaylandInputDevice *) data;
     QWaylandWindow *window = inputDevice->mPointerFocus;
 
@@ -142,9 +154,13 @@ void QWaylandInputDevice::inputHandleMotion(void *data,
     inputDevice->mSurfacePos = pos;
     inputDevice->mGlobalPos = global;
     inputDevice->mTime = time;
-    QWindowSystemInterface::handleMouseEvent(window->window(),
-                                             time, pos, global,
-                                             inputDevice->mButtons);
+
+    window->handleMouse(inputDevice,
+                        time,
+                        inputDevice->mSurfacePos,
+                        inputDevice->mSurfacePos,
+                        inputDevice->mButtons,
+                        Qt::NoModifier);
 }
 
 void QWaylandInputDevice::inputHandleButton(void *data,
@@ -156,11 +172,6 @@ void QWaylandInputDevice::inputHandleButton(void *data,
     QWaylandWindow *window = inputDevice->mPointerFocus;
     Qt::MouseButton qt_button;
 
-    if (window == NULL) {
-	/* We destroyed the pointer focus surface, but the server
-	 * didn't get the message yet. */
-	return;
-    }
 
     // translate from kernel (input.h) 'button' to corresponding Qt:MouseButton.
     // The range of mouse values is 0x110 <= mouse_button < 0x120, the first Joystick button.
@@ -190,11 +201,15 @@ void QWaylandInputDevice::inputHandleButton(void *data,
 	inputDevice->mButtons &= ~qt_button;
 
     inputDevice->mTime = time;
-    QWindowSystemInterface::handleMouseEvent(window->window(),
-					     time,
-					     inputDevice->mSurfacePos,
-					     inputDevice->mGlobalPos,
-					     inputDevice->mButtons);
+
+    if (window) {
+        window->handleMouse(inputDevice,
+                            time,
+                            inputDevice->mSurfacePos,
+                            inputDevice->mSurfacePos,
+                            inputDevice->mButtons,
+                            Qt::NoModifier);
+    }
 }
 
 void QWaylandInputDevice::inputHandleAxis(void *data,
@@ -351,7 +366,7 @@ void QWaylandInputDevice::inputHandlePointerEnter(void *data,
     Q_ASSERT(surface);
 
     QWaylandWindow *window = (QWaylandWindow *) wl_surface_get_user_data(surface);
-    QWindowSystemInterface::handleEnterEvent(window->window());
+    window->handleMouseEnter();
     inputDevice->mPointerFocus = window;
 
     inputDevice->mTime = time;
@@ -368,8 +383,9 @@ void QWaylandInputDevice::inputHandlePointerLeave(void *data,
     Q_ASSERT(surface);
 
     QWaylandWindow *window = (QWaylandWindow *) wl_surface_get_user_data(surface);
-    QWindowSystemInterface::handleLeaveEvent(window->window());
+    window->handleMouseLeave();
     inputDevice->mPointerFocus = 0;
+    inputDevice->mButtons = Qt::NoButton;
 
     inputDevice->mTime = time;
 }
@@ -494,7 +510,8 @@ void QWaylandInputDevice::handleTouchPoint(int id, int x, int y, Qt::TouchPointS
             return;
 
         tp.area = QRectF(0, 0, 8, 8);
-        tp.area.moveCenter(win->window()->mapToGlobal(QPoint(x, y)));
+        QMargins margins = win->frameMargins();
+        tp.area.moveCenter(win->window()->mapToGlobal(QPoint(x+margins.left(), y+margins.top())));
     }
 
     tp.state = state;

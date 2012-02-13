@@ -42,14 +42,24 @@
 #ifndef QWAYLANDSHELLSURFACE_H
 #define QWAYLANDSHELLSURFACE_H
 
-#include <inttypes.h>
+#include <QtCore/QSize>
+
+#include <wayland-client.h>
 
 class QWaylandWindow;
+class QWaylandInputDevice;
+class QWindow;
 
 class QWaylandShellSurface
 {
 public:
     QWaylandShellSurface(struct wl_shell_surface *shell_surface, QWaylandWindow *window);
+
+    void resize(QWaylandInputDevice *inputDevice, enum wl_shell_surface_resize edges);
+    void move(QWaylandInputDevice *inputDevice);
+
+    void setTopLevel();
+    void updateTransientParent(QWindow *parent);
 
     struct wl_shell_surface *handle() const { return m_shell_surface; }
 

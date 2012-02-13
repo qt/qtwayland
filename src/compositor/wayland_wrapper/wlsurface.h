@@ -118,6 +118,8 @@ public:
 
     Compositor *compositor() const;
 
+    void damage(const QRect &rect);
+
     static const struct wl_surface_interface surface_interface;
 
 private:
@@ -157,7 +159,6 @@ private:
     bool postBuffer();
 
     void attach(struct wl_buffer *buffer);
-    void damage(const QRect &rect);
 
     static void surface_destroy(struct wl_client *client, struct wl_resource *_surface);
     static void surface_attach(struct wl_client *client, struct wl_resource *surface,

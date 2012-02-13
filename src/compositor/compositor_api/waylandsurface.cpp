@@ -46,6 +46,7 @@
 #include "wayland_wrapper/wlextendedsurface.h"
 #include "wayland_wrapper/wlsubsurface.h"
 #include "wayland_wrapper/wlcompositor.h"
+#include "wayland_wrapper/wlshellsurface.h"
 
 #include "waylandcompositor.h"
 #include "waylandwindowmanagerintegration.h"
@@ -307,6 +308,13 @@ void WaylandSurface::frameFinished()
 {
     Q_D(WaylandSurface);
     d->surface->frameFinished();
+}
+
+WaylandSurface *WaylandSurface::transientParent() const
+{
+    Q_D(const WaylandSurface);
+    if (d->surface->shellSurface() && d->surface->shellSurface()->transientParent())
+        return d->surface->shellSurface()->transientParent()->surface()->waylandSurface();
 }
 
 void WaylandSurface::sendOnScreenVisibilityChange(bool visible)

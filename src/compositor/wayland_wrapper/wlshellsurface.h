@@ -41,12 +41,17 @@
 #ifndef WLSHELLSURFACE_H
 #define WLSHELLSURFACE_H
 
+#include "waylandobject.h"
+
 #include <wayland-server.h>
 
 namespace Wayland {
 
 class Compositor;
 class Surface;
+class ShellSurface;
+class ShellSurfaceResizeGrabber;
+class ShellSurfaceMoveGrabber;
 
 class Shell
 {
@@ -68,10 +73,27 @@ class ShellSurface
 {
 public:
     ShellSurface(struct wl_client *client, uint32_t id, Surface *surface);
+    void sendConfigure(uint32_t edges, int32_t width, int32_t height);
 
+    Surface *surface() const;
+
+    void adjustPosInResize();
+    void adjustPosToTransientParent();
+    void resetResizeGrabber();
+    void resetMoveGrabber();
+
+    ShellSurface *transientParent() const;
 private:
     struct wl_resource *m_shellSurface;
     Surface *m_surface;
+
+    ShellSurfaceResizeGrabber *m_resizeGrabber;
+    ShellSurfaceMoveGrabber *m_moveGrabber;
+
+    ShellSurface *m_transientParent;
+
+    int32_t m_xOffset;
+    int32_t m_yOffset;
 
     static void move(struct wl_client *client,
                      struct wl_resource *shell_surface_resource,
@@ -108,8 +130,58 @@ private:
                               struct wl_resource *output);
 
     static const struct wl_shell_surface_interface shell_surface_interface;
-
 };
+
+class ShellSurfaceGrabber : public Object<wl_pointer_grab>
+{
+public:
+    ShellSurfaceGrabber(ShellSurface *shellSurface, const struct wl_pointer_grab_interface *interface);
+    ~ShellSurfaceGrabber();
+
+    struct wl_listener surface_destroy_listener;
+    static void destroy(struct wl_listener *listener,
+             struct wl_resource *resource, uint32_t time);
+
+    ShellSurface *shell_surface;
+};
+
+class ShellSurfaceResizeGrabber : public ShellSurfaceGrabber
+{
+public:
+    ShellSurfaceResizeGrabber(ShellSurface *shellSurface);
+
+
+    enum wl_shell_surface_resize resize_edges;
+    int32_t width;
+    int32_t height;
+
+    static void focus(struct wl_pointer_grab *grab, uint32_t time,
+                      struct wl_surface *surface, int32_t x, int32_t y);
+    static void motion(struct wl_pointer_grab *grab,
+                       uint32_t time, int32_t x, int32_t y);
+    static void button(struct wl_pointer_grab *grab,
+                       uint32_t time, uint32_t mouse_grabber_button, int32_t state);
+    static const struct wl_pointer_grab_interface resize_grabber_interface;
+};
+
+class ShellSurfaceMoveGrabber : public ShellSurfaceGrabber
+{
+public:
+    ShellSurfaceMoveGrabber(ShellSurface *shellSurface);
+
+    int32_t offset_x;
+    int32_t offset_y;
+
+    static void focus(struct wl_pointer_grab *grab, uint32_t time,
+                      struct wl_surface *surface, int32_t x, int32_t y);
+    static void motion(struct wl_pointer_grab *grab,
+                       uint32_t time, int32_t x, int32_t y);
+    static void button(struct wl_pointer_grab *grab,
+                       uint32_t time, uint32_t mouse_grabber_button, int32_t state);
+    static const struct wl_pointer_grab_interface move_grabber_interface;
+};
+
+
 
 }
 

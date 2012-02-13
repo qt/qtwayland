@@ -43,6 +43,10 @@
 #define QWAYLANDSHMBACKINGSTORE_H
 
 #include "qwaylandbuffer.h"
+
+#include "qwaylanddecoration.h"
+#include "qwaylandwindow.h"
+
 #include <QtGui/QPlatformBackingStore>
 #include <QtGui/QImage>
 #include <QtGui/QPlatformWindow>
@@ -54,13 +58,17 @@ class QWaylandDisplay;
 class QWaylandShmBuffer : public QWaylandBuffer {
 public:
     QWaylandShmBuffer(QWaylandDisplay *display,
-		   const QSize &size, QImage::Format format);
+           const QSize &size, QImage::Format format);
     ~QWaylandShmBuffer();
     QSize size() const { return mImage.size(); }
     QImage *image() { return &mImage; }
+
+    QImage *imageInsideMargins(const QMargins &margins);
 private:
     QImage mImage;
     struct wl_shm_pool *mShmPool;
+    QMargins mMargins;
+    QImage *mMarginsImage;
 };
 
 class QWaylandShmBackingStore : public QPlatformBackingStore
@@ -72,12 +80,46 @@ public:
     QPaintDevice *paintDevice();
     void flush(QWindow *window, const QRegion &region, const QPoint &offset);
     void resize(const QSize &size, const QRegion &staticContents);
+    void resize(const QSize &size);
     void beginPaint(const QRegion &);
+    void endPaint();
+
+    QMargins windowDecorationMargins() const;
+    QImage *entireSurface() const;
+    void ensureSize();
+
+    QWaylandWindow *waylandWindow() const;
+    void iterateBuffer();
 
 private:
-    QWaylandShmBuffer *mBuffer;
     QWaylandDisplay *mDisplay;
+    QWaylandShmBuffer *mFrontBuffer;
+    QWaylandShmBuffer *mBackBuffer;
+    bool mFrontBufferIsDirty;
+    bool mPainting;
+
+    QWaylandDecoration *mWindowDecoration;
+    QSize mRequestedSize;
+    Qt::WindowFlags mCurrentWindowFlags;
+
+    static const struct wl_callback_listener frameCallbackListener;
+    static void done(void *data,
+             struct wl_callback *callback,
+             uint32_t time);
+    struct wl_callback *mFrameCallback;
 };
+
+inline QMargins QWaylandShmBackingStore::windowDecorationMargins() const
+{
+    if (mWindowDecoration)
+        return mWindowDecoration->margins();
+    return QMargins();
+}
+
+inline QWaylandWindow *QWaylandShmBackingStore::waylandWindow() const
+{
+    return static_cast<QWaylandWindow *>(window()->handle());
+}
 
 QT_END_NAMESPACE
 

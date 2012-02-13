@@ -268,7 +268,7 @@ void QWaylandInputDevice::inputHandleKey(void *data,
     QEvent::Type type;
     char s[2];
 
-    if (window == NULL) {
+    if (window == NULL || !inputDevice->mXkb) {
 	/* We destroyed the keyboard focus surface, but the server
 	 * didn't get the message yet. */
 	return;

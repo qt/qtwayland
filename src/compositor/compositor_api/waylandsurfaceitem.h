@@ -56,7 +56,7 @@ Q_DECLARE_METATYPE(WaylandSurface*)
 class Q_COMPOSITOR_EXPORT WaylandSurfaceItem : public QQuickItem
 {
     Q_OBJECT
-    Q_PROPERTY(WaylandSurface* surface READ surface WRITE setSurface)
+    Q_PROPERTY(WaylandSurface* surface READ surface WRITE setSurface NOTIFY surfaceChanged)
     Q_PROPERTY(bool paintEnabled READ paintEnabled WRITE setPaintEnabled)
     Q_PROPERTY(bool useTextureAlpha READ useTextureAlpha WRITE setUseTextureAlpha NOTIFY useTextureAlphaChanged)
     Q_PROPERTY(bool clientRenderingEnabled READ clientRenderingEnabled WRITE setClientRenderingEnabled NOTIFY clientRenderingEnabledChanged)
@@ -114,6 +114,7 @@ signals:
     void clientRenderingEnabledChanged();
     void touchEventsEnabledChanged();
     void yInvertedChanged();
+    void surfaceChanged();
 
 protected:
     QSGNode *updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *);

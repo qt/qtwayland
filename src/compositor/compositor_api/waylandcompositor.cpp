@@ -157,6 +157,11 @@ void WaylandCompositor::setOutputGeometry(const QRect &geometry)
     m_compositor->setOutputGeometry(geometry);
 }
 
+QRect WaylandCompositor::outputGeometry() const
+{
+    return m_compositor->outputGeometry();
+}
+
 WaylandInputDevice *WaylandCompositor::defaultInputDevice() const
 {
     return m_compositor->defaultInputDevice()->handle();

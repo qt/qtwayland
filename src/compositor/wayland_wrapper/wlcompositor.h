@@ -117,6 +117,7 @@ public:
     void setScreenOrientation(Qt::ScreenOrientation orientation);
     Qt::ScreenOrientation screenOrientation() const;
     void setOutputGeometry(const QRect &geometry);
+    QRect outputGeometry() const;
 
     void enableTouchExtension();
     TouchExtensionGlobal *touchExtension() { return m_touchExtension; }

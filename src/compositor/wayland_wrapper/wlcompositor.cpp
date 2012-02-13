@@ -360,6 +360,11 @@ void Compositor::setOutputGeometry(const QRect &geometry)
     m_output_global.setGeometry(geometry);
 }
 
+QRect Compositor::outputGeometry() const
+{
+    return m_output_global.geometry();
+}
+
 InputDevice* Compositor::defaultInputDevice()
 {
     return m_default_input_device;

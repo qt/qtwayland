@@ -101,6 +101,11 @@ private slots:
     }
 
 protected:
+    void resizeEvent(QResizeEvent *)
+    {
+        WaylandCompositor::setOutputGeometry(QRect(0, 0, width(), height()));
+    }
+
     void surfaceCreated(WaylandSurface *surface) {
         WaylandSurfaceItem *item = new WaylandSurfaceItem(surface, rootObject());
         item->setTouchEventsEnabled(true);

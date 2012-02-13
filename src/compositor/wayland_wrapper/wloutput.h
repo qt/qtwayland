@@ -57,6 +57,7 @@ public:
     OutputGlobal();
 
     void setGeometry(const QRect &geometry);
+    QRect geometry() const { return m_geometry; }
 
     int x() const { return m_geometry.x(); }
     int y() const { return m_geometry.y(); }

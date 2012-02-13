@@ -47,6 +47,8 @@
 #include "wlextendedsurface.h"
 
 #include <QtGui/QKeyEvent>
+#include <QtGui/QGuiApplication>
+#include <QtGui/QScreen>
 
 #include <QtQuick/QSGSimpleTextureNode>
 #include <QtQuick/QSGSimpleRectNode>
@@ -130,7 +132,11 @@ WaylandSurfaceItem::~WaylandSurfaceItem()
 
 void WaylandSurfaceItem::setSurface(WaylandSurface *surface)
 {
+    if (surface == m_surface)
+        return;
+
     init(surface);
+    emit surfaceChanged();
 }
 
 bool WaylandSurfaceItem::isYInverted() const

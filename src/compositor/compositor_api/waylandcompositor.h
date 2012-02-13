@@ -82,7 +82,9 @@ public:
     const char *socketName() const;
 
     void setScreenOrientation(Qt::ScreenOrientation orientation);
+
     void setOutputGeometry(const QRect &outputGeometry);
+    QRect outputGeometry() const;
 
     WaylandInputDevice *defaultInputDevice() const;
 

@@ -45,7 +45,7 @@
 #include <QtGui/QOpenGLFunctions>
 
 TextureBlitter::TextureBlitter()
-    : m_shaderProgram(new QOpenGLShaderProgram())
+    : m_shaderProgram(new QOpenGLShaderProgram)
 {
     static const char *textureVertexProgram =
             "uniform highp mat4 matrix;\n"
@@ -73,6 +73,10 @@ TextureBlitter::TextureBlitter()
     m_shaderProgram->link();
 }
 
+TextureBlitter::~TextureBlitter()
+{
+    delete m_shaderProgram;
+}
 
 void TextureBlitter::bind()
 {

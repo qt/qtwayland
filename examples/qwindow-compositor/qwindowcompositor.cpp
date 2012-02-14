@@ -82,6 +82,12 @@ QWindowCompositor::QWindowCompositor(QOpenGLWindow *window)
     m_renderScheduler.start(0);
 }
 
+QWindowCompositor::~QWindowCompositor()
+{
+    delete m_textureBlitter;
+    delete m_textureCache;
+}
+
 void QWindowCompositor::surfaceDestroyed(QObject *object)
 {
     WaylandSurface *surface = static_cast<WaylandSurface *>(object);

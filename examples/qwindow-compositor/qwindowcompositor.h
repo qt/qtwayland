@@ -54,6 +54,8 @@ class QWindowCompositor : public QObject, public WaylandCompositor
     Q_OBJECT
 public:
     QWindowCompositor(QOpenGLWindow *window);
+    ~QWindowCompositor();
+
 private slots:
     void surfaceDestroyed(QObject *object);
     void surfaceMapped();

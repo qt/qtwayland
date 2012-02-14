@@ -48,6 +48,7 @@ class TextureBlitter
 {
 public:
     TextureBlitter();
+    ~TextureBlitter();
     void bind();
     void release();
     void drawTexture(int textureId, const QRectF &sourceGeometry,

@@ -85,13 +85,13 @@ public:
 
     uint id() const { return base()->resource.object.id; }
 
-    QImage image() const;
-
     QPointF pos() const;
     void setPos(const QPointF  &pos);
 
     QSize size() const;
     void setSize(const QSize &size);
+
+    QImage image() const;
 
 #ifdef QT_COMPOSITOR_WAYLAND_GL
     GLuint textureId(QOpenGLContext *context) const;
@@ -124,9 +124,9 @@ private:
     Compositor *m_compositor;
     WaylandSurface *m_waylandSurface;
 
-    SurfaceBuffer  *m_surfaceBuffer;
-    SurfaceBuffer *m_textureBuffer;
-    QList<SurfaceBuffer*> m_bufferQueue;
+    SurfaceBuffer *m_backBuffer;
+    SurfaceBuffer *m_frontBuffer;
+    QList<SurfaceBuffer *> m_bufferQueue;
     bool m_surfaceMapped;
 
     QPoint m_lastLocalMousePos;
@@ -144,8 +144,9 @@ private:
     QPointF m_position;
     QSize m_size;
 
-    void doUpdate(const QRect &rect);
-    void newCurrentBuffer();
+    inline SurfaceBuffer *currentSurfaceBuffer() const;
+    void advanceBufferQueue();
+    void doUpdate();
     SurfaceBuffer *createSurfaceBuffer(struct wl_buffer *buffer);
     void frameFinishedInternal();
     bool postBuffer();
@@ -162,6 +163,10 @@ private:
                        uint32_t callback);
 
 };
+
+inline SurfaceBuffer *Surface::currentSurfaceBuffer() const {
+    return m_backBuffer? m_backBuffer : m_frontBuffer;
+}
 
 }
 

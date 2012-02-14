@@ -40,14 +40,19 @@
 
 #include "wlsurfacebuffer.h"
 
+#ifdef QT_COMPOSITOR_WAYLAND_GL
+#include "hardware_integration/graphicshardwareintegration.h"
+#include <QtGui/QPlatformOpenGLContext>
+#endif
+
 namespace Wayland {
 
 SurfaceBuffer::SurfaceBuffer()
     : m_buffer(0)
-    , m_is_released_sent(false)
+    , m_dont_send_release(false)
     , m_is_registered_for_buffer(false)
-    , m_is_posted(false)
-    , m_is_frame_finished(false)
+    , m_is_displayed(false)
+    , m_is_destroyed(false)
     , m_texture(0)
 {
 }
@@ -62,13 +67,14 @@ void SurfaceBuffer::initialize(wl_buffer *buffer)
 {
     m_buffer = buffer;
     m_texture = 0;
-    m_is_released_sent = false;
+    m_dont_send_release = false;
     m_is_registered_for_buffer = true;
-    m_is_posted = false;
-    m_is_frame_finished = false;
+    m_is_displayed = false;
+    m_is_destroyed = false;
     m_destroy_listener.surfaceBuffer = this;
     m_destroy_listener.listener.func = destroy_listener_callback;
-    wl_list_insert(&buffer->resource.destroy_listener_list,&m_destroy_listener.listener.link);
+    if (buffer)
+        wl_list_insert(&buffer->resource.destroy_listener_list,&m_destroy_listener.listener.link);
     m_damageRect = QRect();
 }
 
@@ -81,29 +87,35 @@ void SurfaceBuffer::destructBufferState()
     }
     m_buffer = 0;
     m_is_registered_for_buffer = false;
-    m_is_posted = 0;
+    m_is_displayed = false;
 }
 
 void SurfaceBuffer::sendRelease()
 {
     Q_ASSERT(m_buffer);
+    if (m_dont_send_release)
+        return;
     wl_resource_post_event(&m_buffer->resource, WL_BUFFER_RELEASE);
-    m_buffer = 0;
-    m_is_released_sent = true;
+    m_dont_send_release = true;
 }
 
-void SurfaceBuffer::setPosted()
+void SurfaceBuffer::dontSendRelease()
 {
-    m_is_posted = true;
-     if (m_buffer) {
-        wl_list_remove(&m_destroy_listener.listener.link);
-     }
-     m_buffer = 0;
+    m_dont_send_release = true;
 }
 
-void SurfaceBuffer::setFinished()
+void SurfaceBuffer::setDisplayed()
 {
-    m_is_frame_finished = true;
+    m_is_displayed = true;
+    m_damageRect = QRect();
+}
+
+void SurfaceBuffer::setDamage(const QRect &rect)
+{
+        if (m_damageRect.isValid()) {
+        m_damageRect = m_damageRect.united(rect);
+    }
+    m_damageRect = rect;
 }
 
 void SurfaceBuffer::destroyTexture()
@@ -124,12 +136,15 @@ void SurfaceBuffer::destroy_listener_callback(wl_listener *listener, wl_resource
                 reinterpret_cast<struct surface_buffer_destroy_listener *>(listener);
         SurfaceBuffer *d = destroy_listener->surfaceBuffer;
         d->destroyTexture();
+        d->m_is_destroyed = true;
         d->m_buffer = 0;
 }
 
-void SurfaceBuffer::setTexture(GLuint texId)
+void SurfaceBuffer::createTexture(GraphicsHardwareIntegration *hwIntegration, QOpenGLContext *context)
 {
-    m_texture = texId;
+#ifdef QT_COMPOSITOR_WAYLAND_GL
+    m_texture = hwIntegration->createTextureFromBuffer(m_buffer, context);
+#endif
 }
 
 }

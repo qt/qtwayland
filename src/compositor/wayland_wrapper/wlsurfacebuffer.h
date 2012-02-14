@@ -46,6 +46,9 @@
 
 #include <wayland-server.h>
 
+class GraphicsHardwareIntegration;
+class QOpenGLContext;
+
 namespace Wayland {
 
 struct surface_buffer_destroy_listener
@@ -65,39 +68,29 @@ public:
 
     void initialize(struct wl_buffer *buffer);
     void destructBufferState();
-    inline bool bufferIsDestroyed() const { return m_is_registered_for_buffer &&!m_buffer; }
+    inline bool bufferIsDestroyed() const { return m_is_destroyed; }
 
     inline int32_t width() const { return m_buffer->width; }
     inline int32_t height() const { return m_buffer->height; }
 
     inline bool isShmBuffer() const { return wl_buffer_is_shm(m_buffer); }
 
-    inline bool isReleasedSent() const { return m_is_released_sent; }
     inline bool isRegisteredWithBuffer() const { return m_is_registered_for_buffer; }
 
     void sendRelease();
+    void dontSendRelease();
 
-    void setPosted();
+    void setDisplayed();
 
-    void setFinished();
-
-    inline bool isPosted() const { return m_is_posted; }
-
-    //this is wrong. Should have a frameSent function;
-    inline bool isDisplayed() const { return m_texture || m_is_posted || wl_buffer_is_shm(m_buffer); }
-
-    //I don't know understand isFinished.
-    inline bool isFinished() const { return m_is_frame_finished; }
+    inline bool isDisplayed() const { return m_is_displayed; }
 
     inline QRect damageRect() const { return m_damageRect; }
-
-    inline void setDamage(const QRect &rect) { m_damageRect = rect; }
+    void setDamage(const QRect &rect);
 
     inline bool textureCreated() const { return m_texture; }
 
-    void setTexture(GLuint texId);
-    inline GLuint texture();
-
+    void createTexture(GraphicsHardwareIntegration *hwIntegration, QOpenGLContext *context);
+    inline GLuint texture() const;
     void destroyTexture();
 
     inline struct wl_buffer *handle() const { return m_buffer; }
@@ -105,10 +98,10 @@ private:
     struct wl_buffer *m_buffer;
     struct surface_buffer_destroy_listener m_destroy_listener;
     QRect m_damageRect;
-    bool m_is_released_sent;
+    bool m_dont_send_release;
     bool m_is_registered_for_buffer;
-    bool m_is_posted;
-    bool m_is_frame_finished;
+    bool m_is_displayed;
+    bool m_is_destroyed;
 #ifdef QT_COMPOSITOR_WAYLAND_GL
     GLuint m_texture;
 #else
@@ -120,7 +113,7 @@ private:
 
 };
 
-GLuint SurfaceBuffer::texture()
+GLuint SurfaceBuffer::texture() const
 {
     if (m_buffer)
         return m_texture;

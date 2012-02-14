@@ -161,7 +161,7 @@ void QWaylandTouchExtension::sendTouchEvent()
         return;
     }
 
-    QWindowSystemInterface::handleTouchEvent(0, mTimestamp, mTouchDevice, mTouchPoints);
+    QWindowSystemInterface::handleTouchEvent(mTargetWindow, mTimestamp, mTouchDevice, mTouchPoints);
 
     Qt::TouchPointStates states = 0;
     for (int i = 0; i < mTouchPoints.count(); ++i)
@@ -178,7 +178,7 @@ void QWaylandTouchExtension::sendTouchEvent()
                 QPoint globalPoint = mLastMouseGlobal.toPoint();
                 QPointF delta = mLastMouseGlobal - globalPoint;
                 mLastMouseLocal = mTargetWindow->mapFromGlobal(globalPoint) + delta;
-                QWindowSystemInterface::handleMouseEvent(0, mTimestamp, mLastMouseLocal, mLastMouseGlobal, buttons);
+                QWindowSystemInterface::handleMouseEvent(mTargetWindow, mTimestamp, mLastMouseLocal, mLastMouseGlobal, buttons);
                 if (buttons == Qt::NoButton)
                     mMouseSourceId = -1;
                 break;

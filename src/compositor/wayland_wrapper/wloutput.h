@@ -44,7 +44,7 @@
 #include "waylandresourcecollection.h"
 
 #include <QtCore/QRect>
-
+#include <QtCore/QList>
 
 namespace Wayland {
 
@@ -55,6 +55,7 @@ class OutputGlobal : public ResourceCollection
 {
 public:
     OutputGlobal();
+    ~OutputGlobal();
 
     void setGeometry(const QRect &geometry);
     QRect geometry() const { return m_geometry; }
@@ -71,6 +72,7 @@ private:
     QRect m_geometry;
     int m_displayId;
     int m_numQueued;
+    QList<Output *> m_outputs;
 };
 
 
@@ -78,6 +80,7 @@ class Output
 {
 public:
     Output(OutputGlobal *outputGlobal, wl_client *client, uint32_t version, uint32_t id);
+    ~Output();
 
     OutputGlobal *outputGlobal() const;
 

@@ -50,6 +50,11 @@ WaylandInputDevice::WaylandInputDevice(WaylandCompositor *compositor)
 {
 }
 
+WaylandInputDevice::~WaylandInputDevice()
+{
+    delete d;
+}
+
 void WaylandInputDevice::sendMousePressEvent(Qt::MouseButton button, const QPoint &localPos, const QPoint &globalPos)
 {
     d->sendMousePressEvent(button,localPos,globalPos);

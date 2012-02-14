@@ -51,6 +51,11 @@ WindowManagerServerIntegration::WindowManagerServerIntegration(QObject *parent)
 {
 }
 
+WindowManagerServerIntegration::~WindowManagerServerIntegration()
+{
+    qDeleteAll(m_managedClients);
+}
+
 void WindowManagerServerIntegration::initialize(Wayland::Display *waylandDisplay)
 {
     wl_display_add_global(waylandDisplay->handle(),&wl_windowmanager_interface,this,WindowManagerServerIntegration::bind_func);
@@ -69,7 +74,9 @@ WaylandManagedClient *WindowManagerServerIntegration::managedClient(wl_client *c
 
 void WindowManagerServerIntegration::mapClientToProcess(wl_client *client, uint32_t processId)
 {
-    WaylandManagedClient *managedClient = m_managedClients.value(client, new WaylandManagedClient);
+    WaylandManagedClient *managedClient = m_managedClients.value(client);
+    if (!managedClient)
+        managedClient = new WaylandManagedClient;
     managedClient->m_processId = processId;
     m_managedClients.insert(client, managedClient);
 }
@@ -78,7 +85,9 @@ void WindowManagerServerIntegration::authenticateWithToken(wl_client *client, co
 {
     Q_ASSERT(token != 0 && *token != 0);
 
-    WaylandManagedClient *managedClient = m_managedClients.value(client, new WaylandManagedClient);
+    WaylandManagedClient *managedClient = m_managedClients.value(client);
+    if (!managedClient)
+        managedClient = new WaylandManagedClient;
     managedClient->m_authenticationToken = QByteArray(token);
     m_managedClients.insert(client, managedClient);
 

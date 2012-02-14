@@ -61,6 +61,11 @@ InputDevice::InputDevice(WaylandInputDevice *handle, Compositor *compositor)
     wl_display_add_global(compositor->wl_display(),&wl_input_device_interface,this,InputDevice::bind_func);
 }
 
+InputDevice::~InputDevice()
+{
+    qDeleteAll(m_data_devices);
+}
+
 void InputDevice::sendMousePressEvent(Qt::MouseButton button, const QPoint &localPos, const QPoint &globalPos)
 {
     sendMouseMoveEvent(localPos,globalPos);
@@ -225,12 +230,14 @@ void InputDevice::setMouseFocus(Surface *surface, const QPoint &globalPos, const
                                       localPos.x(), localPos.y());
 }
 
-void InputDevice::cleanupDataDeviceForClient(struct wl_client *client)
+void InputDevice::cleanupDataDeviceForClient(struct wl_client *client, bool destroyDev)
 {
     for (int i = 0; i < m_data_devices.size(); i++) {
         struct wl_resource *data_device_resource =
                 m_data_devices.at(i)->dataDeviceResource();
         if (data_device_resource->client == client) {
+            if (destroyDev)
+                delete m_data_devices.at(i);
             m_data_devices.removeAt(i);
             break;
         }
@@ -239,7 +246,7 @@ void InputDevice::cleanupDataDeviceForClient(struct wl_client *client)
 
 void InputDevice::clientRequestedDataDevice(DataDeviceManager *data_device_manager, struct wl_client *client, uint32_t id)
 {
-    cleanupDataDeviceForClient(client);
+    cleanupDataDeviceForClient(client, false);
     DataDevice *dataDevice = new DataDevice(data_device_manager,client,id);
     m_data_devices.append(dataDevice);
 }
@@ -337,7 +344,7 @@ void InputDevice::destroy_resource(wl_resource *resource)
         input_device->base()->pointer_focus_resource = 0;
     }
 
-    input_device->cleanupDataDeviceForClient(resource->client);
+    input_device->cleanupDataDeviceForClient(resource->client, true);
 
     wl_list_remove(&resource->link);
 

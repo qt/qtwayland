@@ -66,6 +66,8 @@ class Q_COMPOSITOR_EXPORT WindowManagerServerIntegration : public QObject, priva
     Q_OBJECT
 public:
     WindowManagerServerIntegration(QObject *parent = 0);
+    ~WindowManagerServerIntegration();
+
     void initialize(Wayland::Display *waylandDisplay);
     void removeClient(wl_client *client);
 

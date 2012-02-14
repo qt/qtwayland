@@ -52,6 +52,7 @@
 #include <wayland-server.h>
 
 class WaylandCompositor;
+class WaylandInputDevice;
 class GraphicsHardwareIntegration;
 class WindowManagerServerIntegration;
 class QMimeData;
@@ -144,6 +145,7 @@ private:
     Display *m_display;
 
     /* Input */
+    WaylandInputDevice *m_default_wayland_input_device;
     InputDevice *m_default_input_device;
 
     /* Output */

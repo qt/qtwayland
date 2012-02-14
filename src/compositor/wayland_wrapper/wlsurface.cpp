@@ -48,6 +48,7 @@
 #include "wlextendedsurface.h"
 #include "wlsubsurface.h"
 #include "wlsurfacebuffer.h"
+#include "wlshellsurface.h"
 
 #include <QtCore/QDebug>
 #include <QTouchEvent>
@@ -90,6 +91,9 @@ Surface::Surface(struct wl_client *client, uint32_t id, Compositor *compositor)
 Surface::~Surface()
 {
     delete m_waylandSurface;
+    delete m_extendedSurface;
+    delete m_subSurface;
+    delete m_shellSurface;
 }
 
 WaylandSurface::Type Surface::type() const

@@ -81,6 +81,7 @@ GraphicsHardwareIntegration *GraphicsHardwareIntegration::createGraphicsHardware
 XCompositeGLXIntegration::XCompositeGLXIntegration(WaylandCompositor *compositor)
     : GraphicsHardwareIntegration(compositor)
     , mDisplay(0)
+    , mHandler(0)
 {
     QPlatformNativeInterface *nativeInterface = QGuiApplicationPrivate::platformIntegration()->nativeInterface();
     if (nativeInterface) {
@@ -93,10 +94,15 @@ XCompositeGLXIntegration::XCompositeGLXIntegration(WaylandCompositor *compositor
     mScreen = XDefaultScreen(mDisplay);
 }
 
+XCompositeGLXIntegration::~XCompositeGLXIntegration()
+{
+    delete mHandler;
+}
+
 void XCompositeGLXIntegration::initializeHardware(Wayland::Display *waylandDisplay)
 {
-    XCompositeHandler *handler = new XCompositeHandler(m_compositor->handle(),mDisplay,m_compositor->window());
-    wl_display_add_global(waylandDisplay->handle(),&wl_xcomposite_interface,handler,XCompositeHandler::xcomposite_bind_func);
+    mHandler = new XCompositeHandler(m_compositor->handle(),mDisplay,m_compositor->window());
+    wl_display_add_global(waylandDisplay->handle(),&wl_xcomposite_interface,mHandler,XCompositeHandler::xcomposite_bind_func);
 
     QOpenGLContext *glContext = new QOpenGLContext();
     glContext->create();

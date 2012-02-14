@@ -62,6 +62,7 @@ class InputDevice : public Object<struct wl_input_device>
 {
 public:
     InputDevice(WaylandInputDevice *handle, Compositor *compositor);
+    ~InputDevice();
 
     void sendMousePressEvent(Qt::MouseButton button, const QPoint &localPos, const QPoint &globalPos = QPoint());
     void sendMouseReleaseEvent(Qt::MouseButton button, const QPoint &localPos, const QPoint &globalPos = QPoint());
@@ -91,7 +92,7 @@ public:
     WaylandInputDevice *handle() const;
 
 private:
-    void cleanupDataDeviceForClient(struct wl_client *client);
+    void cleanupDataDeviceForClient(struct wl_client *client, bool destroyDev);
 
     WaylandInputDevice *m_handle;
     Compositor *m_compositor;

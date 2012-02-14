@@ -39,6 +39,7 @@
 ****************************************************************************/
 
 #include "wloutput.h"
+#include "wlextendedoutput.h"
 #include <QGuiApplication>
 #include <QtGui/QScreen>
 #include <QRect>
@@ -51,6 +52,11 @@ OutputGlobal::OutputGlobal()
 {
     QScreen *screen = QGuiApplication::primaryScreen();
     m_geometry = QRect(QPoint(0, 0), screen->availableGeometry().size());
+}
+
+OutputGlobal::~OutputGlobal()
+{
+    qDeleteAll(m_outputs);
 }
 
 void OutputGlobal::setGeometry(const QRect &geometry)
@@ -71,6 +77,7 @@ void OutputGlobal::output_bind_func(struct wl_client *client, void *data,
 
     Output *output = new Output(output_global,client,version,id);
     output_global->registerResource(output->handle());
+    output_global->m_outputs.append(output);
 }
 
 
@@ -87,6 +94,11 @@ Output::Output(OutputGlobal *outputGlobal, wl_client *client, uint32_t version, 
     wl_resource_post_event(m_output_resource,WL_OUTPUT_MODE, WL_OUTPUT_MODE_CURRENT|WL_OUTPUT_MODE_PREFERRED,
                            m_output_global->size().width(),m_output_global->size().height());
 
+}
+
+Output::~Output()
+{
+    delete m_extended_output;
 }
 
 ExtendedOutput *Output::extendedOutput() const

@@ -49,10 +49,13 @@
 #include <GL/glx.h>
 #include <GL/glxext.h>
 
+class XCompositeHandler;
+
 class XCompositeGLXIntegration : public GraphicsHardwareIntegration
 {
 public:
     XCompositeGLXIntegration(WaylandCompositor *compositor);
+    ~XCompositeGLXIntegration();
 
     void initializeHardware(Wayland::Display *waylandDisplay);
 
@@ -65,6 +68,7 @@ private:
 
     Display *mDisplay;
     int mScreen;
+    XCompositeHandler *mHandler;
 };
 
 #endif // XCOMPOSITEGLXINTEGRATION_H

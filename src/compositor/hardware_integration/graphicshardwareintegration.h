@@ -52,6 +52,7 @@ class GraphicsHardwareIntegration
 {
 public:
     GraphicsHardwareIntegration(WaylandCompositor *compositor);
+    virtual ~GraphicsHardwareIntegration() { }
 
     virtual void initializeHardware(Wayland::Display *waylandDisplay) = 0;
 

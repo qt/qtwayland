@@ -136,9 +136,9 @@ Compositor::Compositor(WaylandCompositor *qt_compositor)
 
     wl_display_add_global(m_display->handle(),&wl_output_interface, &m_output_global,OutputGlobal::output_bind_func);
 
-    wl_display_add_global(m_display->handle(), &wl_shell_interface, &m_shell, Shell::bind_func);
-
     m_shell = new Shell();
+    wl_display_add_global(m_display->handle(), &wl_shell_interface, m_shell, Shell::bind_func);
+
     m_outputExtension = new OutputExtensionGlobal(this);
     m_surfaceExtension = new SurfaceExtensionGlobal(this);
 
@@ -159,8 +159,18 @@ Compositor::Compositor(WaylandCompositor *qt_compositor)
 
 Compositor::~Compositor()
 {
-    delete m_default_input_device;
+    delete m_shell;
+    delete m_outputExtension;
+    delete m_surfaceExtension;
+    delete m_subSurfaceExtension;
+    delete m_touchExtension;
+
+    delete m_default_wayland_input_device;
     delete m_data_device_manager;
+
+#ifdef QT_COMPOSITOR_WAYLAND_GL
+    delete m_graphics_hw_integration;
+#endif
 
     delete m_display;
 }
@@ -296,8 +306,8 @@ void Compositor::initializeHardwareIntegration()
 
 void Compositor::initializeDefaultInputDevice()
 {
-    WaylandInputDevice *defaultInput = new WaylandInputDevice(m_qt_compositor);
-    m_default_input_device = defaultInput->handle();
+    m_default_wayland_input_device = new WaylandInputDevice(m_qt_compositor);
+    m_default_input_device = m_default_wayland_input_device->handle();
 }
 
 void Compositor::initializeWindowManagerProtocol()

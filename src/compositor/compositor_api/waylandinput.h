@@ -58,6 +58,7 @@ class Q_COMPOSITOR_EXPORT WaylandInputDevice
 {
 public:
     WaylandInputDevice(WaylandCompositor *compositor);
+    ~WaylandInputDevice();
 
     void sendMousePressEvent(Qt::MouseButton button, const QPoint &localPos, const QPoint &globalPos = QPoint());
     void sendMouseReleaseEvent(Qt::MouseButton button, const QPoint &localPos, const QPoint &globalPos = QPoint());

@@ -167,8 +167,47 @@ void QWaylandInputDevice::inputHandleButton(void *data,
 	qt_button = Qt::RightButton;
 	break;
     case 274:
-	qt_button = Qt::MiddleButton;
-	break;
+        qt_button = Qt::MiddleButton;
+        break;
+    case 275:
+        qt_button = Qt::ExtraButton1;   // AKA BackButton
+        break;
+    case 276:
+        qt_button = Qt::ExtraButton2;   // AKA ForwardButton
+        break;
+    case 277:
+        qt_button = Qt::ExtraButton3;   // AKA TaskButton
+        break;
+    case 278:
+        qt_button = Qt::ExtraButton4;
+        break;
+    case 279:
+        qt_button = Qt::ExtraButton5;
+        break;
+    case 280:
+        qt_button = Qt::ExtraButton6;
+        break;
+    case 281:
+        qt_button = Qt::ExtraButton7;
+        break;
+    case 282:
+        qt_button = Qt::ExtraButton8;
+        break;
+    case 283:
+        qt_button = Qt::ExtraButton9;
+        break;
+    case 284:
+        qt_button = Qt::ExtraButton10;
+        break;
+    case 285:
+        qt_button = Qt::ExtraButton11;
+        break;
+    case 286:
+        qt_button = Qt::ExtraButton12;
+        break;
+    case 285:
+        qt_button = Qt::ExtraButton13;
+        break;
     default:
 	return;
     }

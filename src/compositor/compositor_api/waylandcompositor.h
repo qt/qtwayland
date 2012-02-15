@@ -72,6 +72,7 @@ public:
     QWindow *window()const;
 
     virtual void surfaceCreated(WaylandSurface *surface) = 0;
+    virtual void surfaceAboutToBeDestroyed(WaylandSurface *surface);
 
     Wayland::Compositor *handle() const;
 

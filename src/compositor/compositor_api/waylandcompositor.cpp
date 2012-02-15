@@ -109,6 +109,11 @@ QWindow * WaylandCompositor::window() const
     return m_toplevel_window;
 }
 
+void WaylandCompositor::surfaceAboutToBeDestroyed(WaylandSurface *surface)
+{
+    Q_UNUSED(surface);
+}
+
 Wayland::Compositor * WaylandCompositor::handle() const
 {
     return m_compositor;

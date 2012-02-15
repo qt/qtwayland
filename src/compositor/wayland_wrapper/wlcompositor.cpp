@@ -254,6 +254,7 @@ void Compositor::surfaceDestroyed(Surface *surface)
     m_dirty_surfaces.remove(surface);
     if (m_directRenderSurface == surface)
         setDirectRenderSurface(0);
+    waylandCompositor()->surfaceAboutToBeDestroyed(surface->waylandSurface());
 }
 
 void Compositor::markSurfaceAsDirty(Wayland::Surface *surface)

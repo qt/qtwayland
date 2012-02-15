@@ -68,6 +68,7 @@ namespace Wayland {
 void destroy_surface(struct wl_resource *resource)
 {
     Surface *surface = wayland_cast<Surface *>((wl_surface *)resource);
+    surface->compositor()->surfaceDestroyed(surface);
     delete surface;
 }
 
@@ -88,7 +89,6 @@ Surface::Surface(struct wl_client *client, uint32_t id, Compositor *compositor)
 
 Surface::~Surface()
 {
-    m_compositor->surfaceDestroyed(this);
     delete m_waylandSurface;
 }
 

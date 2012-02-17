@@ -48,6 +48,7 @@
 
 #include <QtGui/private/qopengltexturecache_p.h>
 #include <QObject>
+#include <QTimer>
 
 class QWindowCompositor : public QObject, public WaylandCompositor
 {

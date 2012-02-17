@@ -205,7 +205,7 @@ void QWaylandInputDevice::inputHandleButton(void *data,
     case 286:
         qt_button = Qt::ExtraButton12;
         break;
-    case 285:
+    case 287:
         qt_button = Qt::ExtraButton13;
         break;
     default:

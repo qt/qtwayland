@@ -43,6 +43,10 @@
 #include <QKeyEvent>
 #include <QTouchEvent>
 #include <QOpenGLFunctions>
+#include <QGuiApplication>
+#include <QCursor>
+#include <QPixmap>
+#include <QLinkedList>
 
 #include <QtCompositor/waylandinput.h>
 

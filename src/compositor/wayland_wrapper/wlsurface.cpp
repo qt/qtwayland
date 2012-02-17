@@ -235,7 +235,7 @@ Compositor *Surface::compositor() const
 
 void Surface::sendFrameCallback()
 {
-    frameFinished();
+    frameFinishedInternal();
 
     uint time = Compositor::currentTimeMsecs();
     struct wl_resource *frame_callback;

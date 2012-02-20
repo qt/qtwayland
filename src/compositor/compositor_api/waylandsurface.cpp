@@ -307,5 +307,5 @@ void WaylandSurface::sendOnScreenVisibilityChange(bool visible)
 {
     Q_D(WaylandSurface);
     if (d->surface->extendedSurface())
-        d->surface->extendedSurface()->sendOnScreenVisibllity(visible);
+        d->surface->extendedSurface()->sendOnScreenVisibility(visible);
 }

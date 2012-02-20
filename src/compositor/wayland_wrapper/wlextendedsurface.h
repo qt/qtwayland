@@ -80,7 +80,7 @@ public:
     ~ExtendedSurface();
 
     void sendGenericProperty(const QString &name, const QVariant &variant);
-    void sendOnScreenVisibllity(bool visible);
+    void sendOnScreenVisibility(bool visible);
 
     void setSubSurface(ExtendedSurface *subSurface,int x, int y);
     void removeSubSurface(ExtendedSurface *subSurfaces);

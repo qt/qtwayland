@@ -108,7 +108,7 @@ void ExtendedSurface::sendGenericProperty(const QString &name, const QVariant &v
 
 }
 
-void ExtendedSurface::sendOnScreenVisibllity(bool visible)
+void ExtendedSurface::sendOnScreenVisibility(bool visible)
 {
     int32_t visibleInt = visible;
     wl_resource_post_event(m_extended_surface_resource,WL_EXTENDED_SURFACE_ONSCREEN_VISIBILITY,visibleInt);

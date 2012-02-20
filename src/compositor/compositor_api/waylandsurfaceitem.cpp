@@ -75,6 +75,8 @@ WaylandSurfaceItem::WaylandSurfaceItem(QQuickItem *parent)
     , m_texture(0)
     , m_provider(0)
     , m_paintEnabled(true)
+    , m_useTextureAlpha(false)
+    , m_clientRenderingEnabled(false)
     , m_touchEventsEnabled(false)
 {
 }
@@ -85,6 +87,8 @@ WaylandSurfaceItem::WaylandSurfaceItem(WaylandSurface *surface, QQuickItem *pare
     , m_texture(0)
     , m_provider(0)
     , m_paintEnabled(true)
+    , m_useTextureAlpha(false)
+    , m_clientRenderingEnabled(false)
     , m_touchEventsEnabled(false)
 {
     init(surface);
@@ -101,6 +105,7 @@ void WaylandSurfaceItem::init(WaylandSurface *surface)
 
     m_surface = surface;
     m_surface->setSurfaceItem(this);
+    m_surface->sendOnScreenVisibilityChange(m_clientRenderingEnabled);
 
     setWidth(surface->size().width());
     setHeight(surface->size().height());

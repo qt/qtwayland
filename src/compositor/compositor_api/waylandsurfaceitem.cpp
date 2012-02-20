@@ -105,7 +105,9 @@ void WaylandSurfaceItem::init(WaylandSurface *surface)
 
     m_surface = surface;
     m_surface->setSurfaceItem(this);
-    m_surface->sendOnScreenVisibilityChange(m_clientRenderingEnabled);
+    if (m_clientRenderingEnabled) {
+        m_surface->sendOnScreenVisibilityChange(m_clientRenderingEnabled);
+    }
 
     setWidth(surface->size().width());
     setHeight(surface->size().height());

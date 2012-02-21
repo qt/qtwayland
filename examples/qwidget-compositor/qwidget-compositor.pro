@@ -1,8 +1,3 @@
-TEMPLATE = app
-TARGET = qwidget-compositor
-DEPENDPATH += .
-INCLUDEPATH += .
-
 # comment out the following to not use pkg-config in the pri files
 CONFIG += use_pkgconfig
 
@@ -14,10 +9,6 @@ CONFIG += use_pkgconfig
 # to make QtCompositor/... style includes working without installing
 INCLUDEPATH += $$PWD/../../include
 
-CONFIG += qt warn_on debug  create_prl link_prl
-OBJECTS_DIR = .obj/release-shared
-MOC_DIR = .moc/release-shared
-
 # Touch support
 isEmpty(QT_SOURCE_TREE) {
     QTBASE = $$[QT_INSTALL_DATA]
@@ -25,7 +16,6 @@ isEmpty(QT_SOURCE_TREE) {
     QTBASE = $$QT_SOURCE_TREE
 }
 
-# Input
 HEADERS += \
             textureblitter.h
 
@@ -35,7 +25,6 @@ SOURCES += \
 
 QT += core-private gui-private widgets widgets-private opengl opengl-private compositor
 
-# install
 target.path = $$[QT_INSTALL_EXAMPLES]/qtwayland/qwidget-compositor
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS qwidget-compositor.pro
 sources.path = $$[QT_INSTALL_EXAMPLES]/qtwayland/qwidget-compositor

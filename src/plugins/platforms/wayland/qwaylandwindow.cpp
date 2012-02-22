@@ -130,6 +130,17 @@ void QWaylandWindow::setVisible(bool visible)
     }
 }
 
+
+bool QWaylandWindow::isExposed() const
+{
+    if (!window()->isVisible())
+        return false;
+    if (mExtendedWindow)
+        return mExtendedWindow->isExposed();
+    return true;
+}
+
+
 void QWaylandWindow::configure(uint32_t time, uint32_t edges,
                                int32_t x, int32_t y,
                                int32_t width, int32_t height)

@@ -91,6 +91,8 @@ public:
     Qt::WindowState setWindowState(Qt::WindowState state);
     Qt::WindowFlags setWindowFlags(Qt::WindowFlags flags);
 
+    bool isExposed() const;
+
 protected:
     QWaylandDisplay *mDisplay;
     struct wl_surface *mSurface;

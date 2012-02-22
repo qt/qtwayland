@@ -76,6 +76,8 @@ public:
 
     Qt::WindowFlags setWindowFlags(Qt::WindowFlags flags);
 
+    bool isExposed() const { return m_exposed; }
+
 private:
     QWaylandWindow *m_window;
     struct wl_extended_surface *m_extended_surface;
@@ -93,6 +95,7 @@ private:
 
     static const struct wl_extended_surface_listener extended_surface_listener;
 
+    bool m_exposed;
 };
 
 #endif // QWAYLANDEXTENDEDSURFACE_H

@@ -52,6 +52,7 @@
 
 #include <QtGui/QGuiApplication>
 #include <QtGui/QPlatformNativeInterface>
+#include <QtGui/QWindowSystemInterface>
 
 QWaylandSurfaceExtension::QWaylandSurfaceExtension(QWaylandDisplay *display, uint32_t id)
 {
@@ -73,6 +74,7 @@ QWaylandExtendedSurface *QWaylandSurfaceExtension::getExtendedWindow(QWaylandWin
 QWaylandExtendedSurface::QWaylandExtendedSurface(QWaylandWindow *window, struct wl_extended_surface *extended_surface)
     : m_window(window)
     , m_extended_surface(extended_surface)
+    , m_exposed(true)
 {
     wl_extended_surface_add_listener(m_extended_surface,&QWaylandExtendedSurface::extended_surface_listener,this);
 }
@@ -141,6 +143,13 @@ void QWaylandExtendedSurface::onscreen_visibility(void *data, wl_extended_surfac
 
     QEvent evt(visible != 0 ? QEvent::ApplicationActivate : QEvent::ApplicationDeactivate);
     QCoreApplication::sendEvent(QCoreApplication::instance(), &evt);
+
+    extendedWindow->m_exposed = visible;
+    QWaylandWindow *w = extendedWindow->m_window;
+    QWindowSystemInterface::handleSynchronousExposeEvent(w->window(),
+                                                         visible
+                                                         ? QRegion(w->geometry())
+                                                         : QRegion());
 }
 
 void QWaylandExtendedSurface::set_generic_property(void *data, wl_extended_surface *wl_extended_surface, const char *name, wl_array *value)

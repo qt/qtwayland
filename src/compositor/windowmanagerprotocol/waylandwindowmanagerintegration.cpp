@@ -48,6 +48,7 @@
 
 WindowManagerServerIntegration::WindowManagerServerIntegration(QObject *parent)
     : QObject(parent)
+    , m_showIsFullScreen(false)
 {
 }
 
@@ -94,13 +95,23 @@ void WindowManagerServerIntegration::authenticateWithToken(wl_client *client, co
     emit clientAuthenticated(client);
 }
 
+void WindowManagerServerIntegration::setShowIsFullScreen(bool value)
+{
+    m_showIsFullScreen = value;
+    struct wl_resource *resource;
+    wl_list_for_each(resource,&client_resources, link) {
+        wl_resource_post_event(resource, WL_WINDOWMANAGER_HINTS, int32_t(m_showIsFullScreen));
+    }
+}
+
 void WindowManagerServerIntegration::bind_func(struct wl_client *client, void *data,
                                       uint32_t version, uint32_t id)
 {
     Q_UNUSED(version);
     WindowManagerServerIntegration *win_mgr = static_cast<WindowManagerServerIntegration *>(data);
-    struct wl_resource *resource = wl_client_add_object(client,&wl_windowmanager_interface,&windowmanager_interface,id,data);
+    wl_resource *resource = wl_client_add_object(client,&wl_windowmanager_interface,&windowmanager_interface,id,data);
     win_mgr->registerResource(resource);
+    wl_resource_post_event(resource, WL_WINDOWMANAGER_HINTS, int32_t(win_mgr->m_showIsFullScreen));
 }
 
 

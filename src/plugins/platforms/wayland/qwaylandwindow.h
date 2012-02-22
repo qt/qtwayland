@@ -88,6 +88,7 @@ public:
     void handleContentOrientationChange(Qt::ScreenOrientation orientation);
     Qt::ScreenOrientation requestWindowOrientation(Qt::ScreenOrientation orientation);
 
+    Qt::WindowState setWindowState(Qt::WindowState state);
     Qt::WindowFlags setWindowFlags(Qt::WindowFlags flags);
 
 protected:

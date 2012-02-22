@@ -376,6 +376,11 @@ QRect Compositor::outputGeometry() const
     return m_output_global.geometry();
 }
 
+void Compositor::setClientFullScreenHint(bool value)
+{
+    m_windowManagerIntegration->setShowIsFullScreen(value);
+}
+
 InputDevice* Compositor::defaultInputDevice()
 {
     return m_default_input_device;

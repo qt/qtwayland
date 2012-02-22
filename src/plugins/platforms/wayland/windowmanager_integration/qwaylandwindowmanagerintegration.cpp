@@ -61,19 +61,19 @@ public:
     QWaylandDisplay *m_waylandDisplay;
     struct wl_windowmanager *m_waylandWindowManager;
     QHash<QWindow*, QVariantMap> m_queuedProperties;
-
+    bool m_showIsFullScreen;
 };
 
 QWaylandWindowManagerIntegrationPrivate::QWaylandWindowManagerIntegrationPrivate(QWaylandDisplay *waylandDisplay)
     : m_blockPropertyUpdates(false)
     , m_waylandDisplay(waylandDisplay)
     , m_waylandWindowManager(0)
+    , m_showIsFullScreen(false)
 {
 
 }
 
 QWaylandWindowManagerIntegration *QWaylandWindowManagerIntegration::m_instance = 0;
-
 
 QWaylandWindowManagerIntegration *QWaylandWindowManagerIntegration::createIntegration(QWaylandDisplay *waylandDisplay)
 {
@@ -106,6 +106,12 @@ struct wl_windowmanager *QWaylandWindowManagerIntegration::windowManager() const
     return d->m_waylandWindowManager;
 }
 
+bool QWaylandWindowManagerIntegration::showIsFullScreen() const
+{
+    Q_D(const QWaylandWindowManagerIntegration);
+    return d->m_showIsFullScreen;
+}
+
 void QWaylandWindowManagerIntegration::wlHandleListenerGlobal(wl_display *display, uint32_t id, const char *interface, uint32_t version, void *data)
 {
     Q_UNUSED(version);
@@ -113,7 +119,19 @@ void QWaylandWindowManagerIntegration::wlHandleListenerGlobal(wl_display *displa
         QWaylandWindowManagerIntegration *integration = static_cast<QWaylandWindowManagerIntegration *>(data);
         integration->d_ptr->m_waylandWindowManager =
                 static_cast<struct wl_windowmanager *>(wl_display_bind(display, id, &wl_windowmanager_interface));
+        wl_windowmanager_add_listener(integration->d_ptr->m_waylandWindowManager, &windowmanager_listener, integration);
     }
+}
+
+const struct wl_windowmanager_listener QWaylandWindowManagerIntegration::windowmanager_listener = {
+    QWaylandWindowManagerIntegration::handle_hints
+};
+
+void QWaylandWindowManagerIntegration::handle_hints(void *data, wl_windowmanager *ext, int32_t showIsFullScreen)
+{
+    Q_UNUSED(ext);
+    QWaylandWindowManagerIntegration *self = static_cast<QWaylandWindowManagerIntegration *>(data);
+    self->d_func()->m_showIsFullScreen = showIsFullScreen;
 }
 
 void QWaylandWindowManagerIntegration::mapClientToProcess(long long processId)

@@ -45,6 +45,8 @@
         <request name="authenticate_with_token">
             <arg name="processid" type="string" />
         </request>
-
+        <event name="hints">
+            <arg name="show_is_fullscreen" type="int"/>
+        </event>
     </interface>
 </protocol>

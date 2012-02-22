@@ -73,7 +73,7 @@ public:
 
     WaylandManagedClient *managedClient(wl_client *client) const;
 
-    void setScreenOrientation(wl_client *client, struct wl_resource *output_resource, Qt::ScreenOrientation orientationInDegrees);
+    void setShowIsFullScreen(bool value);
 
 signals:
     void clientAuthenticated(wl_client *client);
@@ -83,6 +83,7 @@ private:
     void authenticateWithToken(wl_client *client, const char *token);
 
 private:
+    bool m_showIsFullScreen;
     QMap<wl_client*, WaylandManagedClient*> m_managedClients;
 
     static void bind_func(struct wl_client *client, void *data,

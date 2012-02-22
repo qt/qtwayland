@@ -68,6 +68,8 @@ public:
     void mapClientToProcess(long long processId);
     void authenticateWithToken(const QByteArray &token = QByteArray());
 
+    bool showIsFullScreen() const;
+
 private:
     static void wlHandleListenerGlobal(wl_display *display, uint32_t id,
                                        const char *interface, uint32_t version, void *data);
@@ -75,6 +77,12 @@ private:
 private:
     QScopedPointer<QWaylandWindowManagerIntegrationPrivate> d_ptr;
     static QWaylandWindowManagerIntegration *m_instance;
+
+    static const struct wl_windowmanager_listener windowmanager_listener;
+
+    static void handle_hints(void *data,
+                             struct wl_windowmanager *ext,
+                             int32_t showIsFullScreen);
 
     static const struct wl_windowmanager_listener m_windowManagerListener;
 };

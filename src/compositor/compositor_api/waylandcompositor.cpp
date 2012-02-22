@@ -142,6 +142,11 @@ void WaylandCompositor::overrideSelection(QMimeData *data)
     m_compositor->overrideSelection(data);
 }
 
+void WaylandCompositor::setClientFullScreenHint(bool value)
+{
+    m_compositor->setClientFullScreenHint(value);
+}
+
 const char *WaylandCompositor::socketName() const
 {
     if (m_socket_name.isEmpty())

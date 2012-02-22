@@ -72,6 +72,8 @@ public:
 
     QPlatformInputContext *inputContext() const;
 
+    QVariant styleHint(StyleHint hint) const;
+
 private:
     QPlatformFontDatabase *mFontDb;
     QAbstractEventDispatcher *mEventDispatcher;

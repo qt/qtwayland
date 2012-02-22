@@ -147,7 +147,7 @@ void QWaylandWindow::attach(QWaylandBuffer *buffer)
 {
     mBuffer = buffer;
 
-    if (window()->visible()) {
+    if (window()->isVisible()) {
         wl_surface_attach(mSurface, mBuffer->buffer(),0,0);
         if (buffer)
             QWindowSystemInterface::handleSynchronousExposeEvent(window(), QRect(QPoint(), geometry().size()));
@@ -220,6 +220,22 @@ Qt::ScreenOrientation QWaylandWindow::requestWindowOrientation(Qt::ScreenOrienta
     }
 
     return Qt::PrimaryOrientation;
+}
+
+Qt::WindowState QWaylandWindow::setWindowState(Qt::WindowState state)
+{
+    if (state == Qt::WindowFullScreen || state == Qt::WindowMaximized) {
+        QScreen *screen = window()->screen();
+
+        QRect geometry = screen->mapBetween(window()->windowOrientation(), screen->primaryOrientation(), screen->geometry());
+        setGeometry(geometry);
+
+        QWindowSystemInterface::handleGeometryChange(window(), geometry);
+
+        return state;
+    }
+
+    return Qt::WindowNoState;
 }
 
 Qt::WindowFlags QWaylandWindow::setWindowFlags(Qt::WindowFlags flags)

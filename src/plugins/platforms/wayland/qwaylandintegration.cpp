@@ -65,6 +65,10 @@
 #include "gl_integration/qwaylandglintegration.h"
 #endif
 
+#ifdef QT_WAYLAND_WINDOWMANAGER_SUPPORT
+#include "windowmanager_integration/qwaylandwindowmanagerintegration.h"
+#endif
+
 QWaylandIntegration::QWaylandIntegration()
     : mFontDb(new QGenericUnixFontDatabase())
     , mEventDispatcher(createUnixEventDispatcher())
@@ -150,4 +154,13 @@ QPlatformDrag *QWaylandIntegration::drag() const
 QPlatformInputContext *QWaylandIntegration::inputContext() const
 {
     return mInputContext;
+}
+
+QVariant QWaylandIntegration::styleHint(StyleHint hint) const
+{
+#ifdef QT_WAYLAND_WINDOWMANAGER_SUPPORT
+    if (hint == ShowIsFullScreen && mDisplay->windowManagerIntegration())
+        return mDisplay->windowManagerIntegration()->showIsFullScreen();
+#endif
+    return QPlatformIntegration::styleHint(hint);
 }

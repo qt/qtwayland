@@ -80,6 +80,8 @@ public:
     virtual void retainedSelectionReceived(QMimeData *mimeData);
     void overrideSelection(QMimeData *data);
 
+    void setClientFullScreenHint(bool value);
+
     const char *socketName() const;
 
     void setScreenOrientation(Qt::ScreenOrientation orientation);

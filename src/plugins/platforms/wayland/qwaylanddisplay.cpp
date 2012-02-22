@@ -340,3 +340,4 @@ void QWaylandDisplay::forceRoundTrip()
         readEvents();
     }
 }
+

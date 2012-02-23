@@ -74,6 +74,8 @@ public:
 
     QVariant styleHint(StyleHint hint) const;
 
+    QPlatformAccessibility *accessibility() const;
+
 private:
     QPlatformFontDatabase *mFontDb;
     QAbstractEventDispatcher *mEventDispatcher;
@@ -82,6 +84,7 @@ private:
     QWaylandDisplay *mDisplay;
     QPlatformNativeInterface *mNativeInterface;
     QPlatformInputContext *mInputContext;
+    QPlatformAccessibility *mAccessibility;
 };
 
 QT_END_NAMESPACE

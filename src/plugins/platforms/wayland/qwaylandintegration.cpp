@@ -59,6 +59,7 @@
 #include <QtGui/QOpenGLContext>
 
 #include <private/qplatforminputcontextfactory_qpa_p.h>
+#include <qplatformaccessibility_qpa.h>
 #include <qplatforminputcontext_qpa.h>
 
 #ifdef QT_WAYLAND_GL_SUPPORT
@@ -73,6 +74,7 @@ QWaylandIntegration::QWaylandIntegration()
     : mFontDb(new QGenericUnixFontDatabase())
     , mEventDispatcher(createUnixEventDispatcher())
     , mNativeInterface(new QWaylandNativeInterface)
+    , mAccessibility(new QPlatformAccessibility())
 {
     QGuiApplicationPrivate::instance()->setEventDispatcher(mEventDispatcher);
     mDisplay = new QWaylandDisplay();
@@ -163,4 +165,9 @@ QVariant QWaylandIntegration::styleHint(StyleHint hint) const
         return mDisplay->windowManagerIntegration()->showIsFullScreen();
 #endif
     return QPlatformIntegration::styleHint(hint);
+}
+
+QPlatformAccessibility *QWaylandIntegration::accessibility() const
+{
+    return mAccessibility;
 }

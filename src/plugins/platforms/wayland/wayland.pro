@@ -66,6 +66,8 @@ HEADERS =   qwaylandintegration.h \
             qwaylandtouch.h \
             $$PWD/../../../shared/qwaylandmimehelper.h
 
+OTHER_FILES += wayland.json
+
 INCLUDEPATH += $$PWD/../../../shared
 
 INCLUDEPATH += $$QMAKE_INCDIR_WAYLAND

@@ -1,4 +1,6 @@
 CONFIG += module
+
+load(qt_module)
 MODULE_PRI += $$PWD/../../modules/qt_compositor.pri
 
 INCLUDEPATH += $$PWD

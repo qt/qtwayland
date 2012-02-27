@@ -10,5 +10,6 @@ module_qtcompositor_examples.depends = module_qtcompositor_src
     module_qtcompositor_examples.CONFIG = no_default_target no_default_install
 }
 
-SUBDIRS += module_qtcompositor_src \
+SUBDIRS += tests \
+           module_qtcompositor_src \
            module_qtcompositor_examples \

@@ -106,6 +106,11 @@ void QWaylandDisplay::setLastKeyboardFocusInputDevice(QWaylandInputDevice *devic
 
 static QWaylandDisplay *display = 0;
 
+static int dummyUpdate(uint32_t, void *)
+{
+    return 0;
+}
+
 QWaylandDisplay::QWaylandDisplay(void)
     : mLastKeyboardFocusInputDevice(0)
     , mDndSelectionHandler(0)
@@ -125,7 +130,7 @@ QWaylandDisplay::QWaylandDisplay(void)
 
     wl_display_add_global_listener(mDisplay, QWaylandDisplay::displayHandleGlobal, this);
 
-    mFd = wl_display_get_fd(mDisplay, sourceUpdate, this);
+    mFd = wl_display_get_fd(mDisplay, dummyUpdate, 0);
 
 #ifdef QTWAYLAND_EXPERIMENTAL_THREAD_SUPPORT
     mWritableNotificationFd = wl_display_get_write_notification_fd(mDisplay);
@@ -158,7 +163,6 @@ QWaylandDisplay::QWaylandDisplay(void)
 
 QWaylandDisplay::~QWaylandDisplay(void)
 {
-    close(mFd);
 #ifdef QT_WAYLAND_GL_SUPPORT
     delete mEglIntegration;
 #endif
@@ -173,8 +177,7 @@ void QWaylandDisplay::createNewScreen(struct wl_output *output, QRect geometry)
 
 void QWaylandDisplay::flushRequests()
 {
-    if (mSocketMask & WL_DISPLAY_WRITABLE)
-        wl_display_iterate(mDisplay, WL_DISPLAY_WRITABLE);
+    wl_display_flush(mDisplay);
 }
 
 void QWaylandDisplay::readEvents()
@@ -205,14 +208,6 @@ void QWaylandDisplay::readEvents()
 void QWaylandDisplay::blockingReadEvents()
 {
     wl_display_iterate(mDisplay, WL_DISPLAY_READABLE);
-}
-
-int QWaylandDisplay::sourceUpdate(uint32_t mask, void *data)
-{
-    QWaylandDisplay *waylandDisplay = static_cast<QWaylandDisplay *>(data);
-    waylandDisplay->mSocketMask = mask;
-
-    return 0;
 }
 
 QWaylandScreen *QWaylandDisplay::screenForOutput(struct wl_output *output) const
@@ -317,27 +312,8 @@ uint32_t QWaylandDisplay::currentTimeMillisec()
     return 0;
 }
 
-void QWaylandDisplay::force_roundtrip_sync_callback(void *data, struct wl_callback *wl_callback, uint32_t time)
-{
-    Q_UNUSED(time);
-
-    int *round_trip = (int *)data;
-    *round_trip = true;
-    wl_callback_destroy(wl_callback);
-}
-
-const struct wl_callback_listener QWaylandDisplay::force_roundtrip_sync_callback_listener = {
-    QWaylandDisplay::force_roundtrip_sync_callback
-};
-
 void QWaylandDisplay::forceRoundTrip()
 {
-    int round_trip = false;
-    wl_callback *sync_callback = wl_display_sync(mDisplay);
-    wl_callback_add_listener(sync_callback,&force_roundtrip_sync_callback_listener,&round_trip);
-    flushRequests();
-    while (!round_trip) {
-        readEvents();
-    }
+    wl_display_roundtrip(mDisplay);
 }
 

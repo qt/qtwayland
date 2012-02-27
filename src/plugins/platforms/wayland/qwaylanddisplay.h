@@ -138,11 +138,7 @@ private:
     int mWritableNotificationFd;
     bool mScreensInitialized;
 
-    uint32_t mSocketMask;
-
-
     static const struct wl_output_listener outputListener;
-    static int sourceUpdate(uint32_t mask, void *data);
     static void displayHandleGlobal(struct wl_display *display,
                                     uint32_t id,
                                     const char *interface,
@@ -173,9 +169,6 @@ private:
                                      uint32_t time, uint32_t edges,
                                      struct wl_surface *surface,
                                      int32_t width, int32_t height);
-
-    static void force_roundtrip_sync_callback(void *data, struct wl_callback *wl_callback, uint32_t time);
-    static const struct wl_callback_listener force_roundtrip_sync_callback_listener;
 };
 
 #endif // QWAYLANDDISPLAY_H

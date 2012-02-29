@@ -87,6 +87,9 @@ QWaylandInputDevice::QWaylandInputDevice(QWaylandDisplay *display,
     names.options = "";
 
     mXkb = xkb_compile_keymap_from_rules(&names);
+
+    if (!mXkb)
+        qWarning() << "xkb_compile_keymap_from_rules failed, no key input";
 #endif
 
     if (mQDisplay->dndSelectionHandler()) {

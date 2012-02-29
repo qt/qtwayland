@@ -219,11 +219,3 @@ bool WaylandEglIntegration::setDirectRenderSurface(WaylandSurface *surface)
     return flipper;
 }
 
-
-bool WaylandEglIntegration::postBuffer(struct wl_buffer *buffer)
-{
-    QPlatformScreen *screen = QPlatformScreen::platformScreenForWindow(m_compositor->window());
-    QPlatformScreenPageFlipper *flipper = screen->pageFlipper();
-
-    return flipper ? flipper->displayBuffer(buffer) : false;
-}

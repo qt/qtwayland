@@ -56,10 +56,13 @@ class WaylandInputDevice;
 class GraphicsHardwareIntegration;
 class WindowManagerServerIntegration;
 class QMimeData;
+class QPlatformScreenPageFlipper;
+class QPlatformScreenBuffer;
 
 namespace Wayland {
 
 class Surface;
+class SurfaceBuffer;
 class InputDevice;
 class DataDeviceManager;
 class OutputExtensionGlobal;
@@ -102,6 +105,7 @@ public:
     void enableSubSurfaceExtension();
     bool setDirectRenderSurface(Surface *surface);
     Surface *directRenderSurface() const {return m_directRenderSurface;}
+    QPlatformScreenPageFlipper *pageFlipper() const { return m_pageFlipper; }
 
     QList<Surface*> surfacesForClient(wl_client* client);
 
@@ -137,10 +141,10 @@ public:
     bool wantsRetainedSelection() const;
     void feedRetainedSelectionData(QMimeData *data);
 
-public slots:
-    void releaseBuffer(void*);
-
+    void scheduleReleaseBuffer(SurfaceBuffer *screenBuffer);
 private slots:
+
+    void releaseBuffer(SurfaceBuffer *screenBuffer);
     void processWaylandEvents();
 
 private:
@@ -153,6 +157,9 @@ private:
     /* Output */
     //make this a list of the available screens
     OutputGlobal m_output_global;
+    //This one should be part of the outputs
+    QPlatformScreenPageFlipper *m_pageFlipper;
+
     /* shm/*/
     ShmHandler m_shm;
 

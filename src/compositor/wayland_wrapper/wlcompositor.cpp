@@ -56,6 +56,10 @@
 
 #include <QWindow>
 #include <QSocketNotifier>
+#include <QScreen>
+#include <QPlatformScreen>
+#include <QGuiApplication>
+#include <QPlatformScreenPageFlipper>
 #include <QDebug>
 
 #include <stdio.h>
@@ -154,6 +158,12 @@ Compositor::Compositor(WaylandCompositor *qt_compositor)
     QSocketNotifier *sockNot = new QSocketNotifier(fd, QSocketNotifier::Read, this);
     connect(sockNot, SIGNAL(activated(int)), this, SLOT(processWaylandEvents()));
 
+    m_pageFlipper = QGuiApplication::primaryScreen()->handle()->pageFlipper();
+    if (m_pageFlipper) {
+        connect(m_pageFlipper,SIGNAL(bufferReleased(QPlatformScreenBuffer*)),this,SLOT(releaseBuffer(QPlatformScreenBuffer*)));
+    }
+
+
     //initialize distancefieldglyphcache here
 }
 
@@ -239,14 +249,9 @@ uint Compositor::currentTimeMsecs()
     return 0;
 }
 
-void Compositor::releaseBuffer(void *bufferHandle)
+void Compositor::releaseBuffer(SurfaceBuffer *screenBuffer)
 {
-    struct wl_buffer *buffer = static_cast<struct wl_buffer*>(bufferHandle);
-    if (buffer) {
-        //qDebug() << "WL_BUFFER_RELEASE" << buffer<< buffer->resource.client;
-        wl_resource_post_event(&buffer->resource, WL_BUFFER_RELEASE);
-    }
-
+    screenBuffer->scheduledRelease();
 }
 
 void Compositor::processWaylandEvents()
@@ -427,6 +432,11 @@ void Compositor::feedRetainedSelectionData(QMimeData *data)
     if (m_retainNotify) {
         m_retainNotify(data, m_retainNotifyParam);
     }
+}
+
+void Compositor::scheduleReleaseBuffer(SurfaceBuffer *screenBuffer)
+{
+    QMetaObject::invokeMethod(this,"releaseBuffer",Q_ARG(SurfaceBuffer *,screenBuffer));
 }
 
 void Compositor::overrideSelection(QMimeData *data)

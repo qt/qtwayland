@@ -58,7 +58,6 @@ public:
     bool isYInverted(struct wl_buffer *) const;
 
     bool setDirectRenderSurface(WaylandSurface *);
-    bool postBuffer(struct wl_buffer *);
 
 private:
     Q_DISABLE_COPY(WaylandEglIntegration)
@@ -66,3 +65,4 @@ private:
 };
 
 #endif // WAYLANDEGLINTEGRATION_H
+

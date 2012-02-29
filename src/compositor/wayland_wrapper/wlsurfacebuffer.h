@@ -43,6 +43,7 @@
 
 #include <QtCore/QRect>
 #include <QtGui/qopengl.h>
+#include <QtGui/QPlatformScreenBuffer>
 
 #include <wayland-server.h>
 
@@ -51,24 +52,24 @@ class QOpenGLContext;
 
 namespace Wayland {
 
+class Surface;
+class Compositor;
+
 struct surface_buffer_destroy_listener
 {
     struct wl_listener listener;
     class SurfaceBuffer *surfaceBuffer;
 };
 
-class SurfaceBuffer
+class SurfaceBuffer : public QPlatformScreenBuffer
 {
 public:
-    SurfaceBuffer();
-
+    SurfaceBuffer(Surface *surface);
 
     ~SurfaceBuffer();
 
-
     void initialize(struct wl_buffer *buffer);
     void destructBufferState();
-    inline bool bufferIsDestroyed() const { return m_is_destroyed; }
 
     inline int32_t width() const { return m_buffer->width; }
     inline int32_t height() const { return m_buffer->height; }
@@ -78,7 +79,11 @@ public:
     inline bool isRegisteredWithBuffer() const { return m_is_registered_for_buffer; }
 
     void sendRelease();
-    void dontSendRelease();
+    void setPageFlipperHasBuffer(bool owns);
+    bool pageFlipperHasBuffer() const { return m_page_flipper_has_buffer; }
+    void release();
+    void scheduledRelease();
+    void disown();
 
     void setDisplayed();
 
@@ -93,15 +98,23 @@ public:
     inline GLuint texture() const;
     void destroyTexture();
 
-    inline struct wl_buffer *handle() const { return m_buffer; }
+    inline struct wl_buffer *waylandBufferHandle() const { return m_buffer; }
+
+    void handleAboutToBeDisplayed();
+    void handleDisplayed();
+
+    void *handle() const;
 private:
+    Surface *m_surface;
+    Compositor *m_compositor;
     struct wl_buffer *m_buffer;
     struct surface_buffer_destroy_listener m_destroy_listener;
     QRect m_damageRect;
-    bool m_dont_send_release;
     bool m_is_registered_for_buffer;
+    bool m_surface_has_buffer;
+    bool m_page_flipper_has_buffer;
+
     bool m_is_displayed;
-    bool m_is_destroyed;
 #ifdef QT_COMPOSITOR_WAYLAND_GL
     GLuint m_texture;
 #else

@@ -86,6 +86,9 @@ Surface::Surface(struct wl_client *client, uint32_t id, Compositor *compositor)
     wl_list_init(&m_frame_callback_list);
     addClientResource(client, &base()->resource, id, &wl_surface_interface,
             &Surface::surface_interface, destroy_surface);
+    for (int i = 0; i < buffer_pool_size; i++) {
+        m_bufferPool[i] = new SurfaceBuffer(this);
+    }
 }
 
 Surface::~Surface()
@@ -94,12 +97,17 @@ Surface::~Surface()
     delete m_extendedSurface;
     delete m_subSurface;
     delete m_shellSurface;
+
+    for (int i = 0; i < buffer_pool_size; i++) {
+        if (!m_bufferPool[i]->pageFlipperHasBuffer())
+            delete m_bufferPool[i];
+    }
 }
 
 WaylandSurface::Type Surface::type() const
 {
     SurfaceBuffer *surfaceBuffer = currentSurfaceBuffer();
-    if (surfaceBuffer && surfaceBuffer->handle()) {
+    if (surfaceBuffer && surfaceBuffer->waylandBufferHandle()) {
         if (surfaceBuffer->isShmBuffer()) {
             return WaylandSurface::Shm;
         } else {
@@ -119,8 +127,8 @@ bool Surface::isYInverted() const
     SurfaceBuffer *surfacebuffer = currentSurfaceBuffer();
     if (!surfacebuffer) {
         ret = false;
-    } else if (graphicsHWIntegration && surfacebuffer->handle() && type() != WaylandSurface::Shm) {
-        ret = graphicsHWIntegration->isYInverted(surfacebuffer->handle());
+    } else if (graphicsHWIntegration && surfacebuffer->waylandBufferHandle() && type() != WaylandSurface::Shm) {
+        ret = graphicsHWIntegration->isYInverted(surfacebuffer->waylandBufferHandle());
     } else
 #endif
         ret = true;
@@ -132,7 +140,7 @@ bool Surface::visible() const
 {
 
     SurfaceBuffer *surfacebuffer = currentSurfaceBuffer();
-    return surfacebuffer->handle();
+    return surfacebuffer->waylandBufferHandle();
 }
 
 QPointF Surface::pos() const
@@ -164,8 +172,8 @@ void Surface::setSize(const QSize &size)
 QImage Surface::image() const
 {
     SurfaceBuffer *surfacebuffer = currentSurfaceBuffer();
-    if (surfacebuffer && !surfacebuffer->bufferIsDestroyed() && type() == WaylandSurface::Shm) {
-        ShmBuffer *shmBuffer = static_cast<ShmBuffer *>(surfacebuffer->handle()->user_data);
+    if (surfacebuffer && !surfacebuffer->isDestroyed() && type() == WaylandSurface::Shm) {
+        ShmBuffer *shmBuffer = static_cast<ShmBuffer *>(surfacebuffer->waylandBufferHandle()->user_data);
         return shmBuffer->image();
     }
     return QImage();
@@ -191,7 +199,7 @@ void Surface::sendFrameCallback()
     surfacebuffer->setDisplayed();
     if (m_backBuffer) {
         if (m_frontBuffer)
-            m_frontBuffer->destructBufferState();
+            m_frontBuffer->disown();
         m_frontBuffer = m_backBuffer;
     }
 
@@ -274,8 +282,8 @@ void Surface::advanceBufferQueue()
         }
 
         m_backBuffer = m_bufferQueue.takeFirst();
-        while (m_backBuffer && m_backBuffer->bufferIsDestroyed()) {
-            m_backBuffer->destructBufferState();
+        while (m_backBuffer && m_backBuffer->isDestroyed()) {
+            m_backBuffer->disown();
             m_bufferQueue.takeFirst();
             m_backBuffer = m_bufferQueue.size() ? m_bufferQueue.first():0;
         }
@@ -283,7 +291,7 @@ void Surface::advanceBufferQueue()
         if (!m_backBuffer)
             return; //we have no new backbuffer;
 
-        if (m_backBuffer->handle()) {
+       if (m_backBuffer->waylandBufferHandle()) {
             if (width != m_backBuffer->width() ||
                     height != m_backBuffer->height()) {
                 width = m_backBuffer->width();
@@ -296,7 +304,7 @@ void Surface::advanceBufferQueue()
         if (m_backBuffer &&  (!m_subSurface || !m_subSurface->parent()) && !m_surfaceMapped) {
             m_surfaceMapped = true;
             emit m_waylandSurface->mapped();
-        } else if (!m_backBuffer->handle() && m_surfaceMapped) {
+        } else if (m_backBuffer && !m_backBuffer->waylandBufferHandle() && m_surfaceMapped) {
             m_surfaceMapped = false;
             emit m_waylandSurface->unmapped();
         }
@@ -326,8 +334,8 @@ SurfaceBuffer *Surface::createSurfaceBuffer(struct wl_buffer *buffer)
 {
     SurfaceBuffer *newBuffer = 0;
     for (int i = 0; i < Surface::buffer_pool_size; i++) {
-        if (!m_bufferPool[i].isRegisteredWithBuffer()) {
-            newBuffer = &m_bufferPool[i];
+        if (!m_bufferPool[i]->isRegisteredWithBuffer()) {
+            newBuffer = m_bufferPool[i];
             newBuffer->initialize(buffer);
             break;
         }
@@ -339,12 +347,15 @@ SurfaceBuffer *Surface::createSurfaceBuffer(struct wl_buffer *buffer)
 
 bool Surface::postBuffer() {
 #ifdef QT_COMPOSITOR_WAYLAND_GL
-    if (m_compositor->graphicsHWIntegration() && m_waylandSurface->handle() == m_compositor->directRenderSurface()) {
+    if (m_waylandSurface->handle() == m_compositor->directRenderSurface()) {
         SurfaceBuffer *surfaceBuffer = m_backBuffer? m_backBuffer : m_frontBuffer;
-        if (surfaceBuffer && m_compositor->graphicsHWIntegration()->postBuffer(surfaceBuffer->handle())) {
-            return true;
-        } else {
-            qDebug() << "could not post buffer";
+        if (surfaceBuffer && m_compositor->pageFlipper()) {
+            if (m_compositor->pageFlipper()->displayBuffer(surfaceBuffer)) {
+                surfaceBuffer->setPageFlipperHasBuffer(true);
+                return true;
+            } else {
+                qDebug() << "could not post buffer";
+            }
         }
     }
 #endif
@@ -355,10 +366,10 @@ void Surface::attach(struct wl_buffer *buffer)
 {
     SurfaceBuffer *last = m_bufferQueue.size()?m_bufferQueue.last():0;
     if (last) {
-        if (last->handle() == buffer)
+        if (last->waylandBufferHandle() == buffer)
             return;
         if (!last->damageRect().isValid()) {
-            last->destructBufferState();
+            last->disown();
             m_bufferQueue.takeLast();
         }
     }

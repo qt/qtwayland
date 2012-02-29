@@ -139,7 +139,7 @@ private:
     ShellSurface *m_shellSurface;
 
     static const int buffer_pool_size = 3;
-    SurfaceBuffer m_bufferPool[buffer_pool_size];
+    SurfaceBuffer *m_bufferPool[buffer_pool_size];
 
     QPointF m_position;
     QSize m_size;

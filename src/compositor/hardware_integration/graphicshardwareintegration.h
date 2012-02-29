@@ -63,7 +63,8 @@ public:
     virtual bool isYInverted(struct wl_buffer *) const { return true; }
 
     virtual bool setDirectRenderSurface(WaylandSurface *) {return false;}
-    virtual bool postBuffer(struct wl_buffer *) {return false;}
+
+    virtual void *toNativeBufferHandle(struct wl_buffer *) { return 0; }
 
     static GraphicsHardwareIntegration *createGraphicsHardwareIntegration(WaylandCompositor *compositor);
 

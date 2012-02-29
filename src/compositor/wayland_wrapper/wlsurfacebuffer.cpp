@@ -40,19 +40,27 @@
 
 #include "wlsurfacebuffer.h"
 
+#include "wlsurface.h"
+#include "wlcompositor.h"
+
 #ifdef QT_COMPOSITOR_WAYLAND_GL
 #include "hardware_integration/graphicshardwareintegration.h"
 #include <QtGui/QPlatformOpenGLContext>
 #endif
 
+#include <QtCore/QDebug>
+
 namespace Wayland {
 
-SurfaceBuffer::SurfaceBuffer()
-    : m_buffer(0)
-    , m_dont_send_release(false)
+SurfaceBuffer::SurfaceBuffer(Surface *surface)
+    : QPlatformScreenBuffer()
+    , m_surface(surface)
+    , m_compositor(surface->compositor())
+    , m_buffer(0)
     , m_is_registered_for_buffer(false)
+    , m_surface_has_buffer(false)
+    , m_page_flipper_has_buffer(false)
     , m_is_displayed(false)
-    , m_is_destroyed(false)
     , m_texture(0)
 {
 }
@@ -67,10 +75,11 @@ void SurfaceBuffer::initialize(wl_buffer *buffer)
 {
     m_buffer = buffer;
     m_texture = 0;
-    m_dont_send_release = false;
     m_is_registered_for_buffer = true;
+    m_surface_has_buffer = true;
+    m_page_flipper_has_buffer = false;
     m_is_displayed = false;
-    m_is_destroyed = false;
+    m_destroyed = false;
     m_destroy_listener.surfaceBuffer = this;
     m_destroy_listener.listener.func = destroy_listener_callback;
     if (buffer)
@@ -80,6 +89,7 @@ void SurfaceBuffer::initialize(wl_buffer *buffer)
 
 void SurfaceBuffer::destructBufferState()
 {
+    Q_ASSERT(!m_page_flipper_has_buffer);
     destroyTexture();
     if (m_buffer) {
         wl_list_remove(&m_destroy_listener.listener.link);
@@ -93,15 +103,37 @@ void SurfaceBuffer::destructBufferState()
 void SurfaceBuffer::sendRelease()
 {
     Q_ASSERT(m_buffer);
-    if (m_dont_send_release)
-        return;
     wl_resource_post_event(&m_buffer->resource, WL_BUFFER_RELEASE);
-    m_dont_send_release = true;
 }
 
-void SurfaceBuffer::dontSendRelease()
+void SurfaceBuffer::setPageFlipperHasBuffer(bool owns)
 {
-    m_dont_send_release = true;
+    m_page_flipper_has_buffer = owns;
+}
+
+void SurfaceBuffer::release()
+{
+    m_compositor->scheduleReleaseBuffer(this);
+}
+
+void SurfaceBuffer::scheduledRelease()
+{
+    qDebug() << Q_FUNC_INFO;
+    m_page_flipper_has_buffer = false;
+    if (!m_surface_has_buffer)
+        destructBufferState();
+    if (!m_surface) {
+        delete this;
+    }
+}
+
+void SurfaceBuffer::disown()
+{
+    m_surface_has_buffer = false;
+
+    if (!m_page_flipper_has_buffer) {
+        destructBufferState();
+    }
 }
 
 void SurfaceBuffer::setDisplayed()
@@ -128,6 +160,21 @@ void SurfaceBuffer::destroyTexture()
 #endif
 }
 
+void SurfaceBuffer::handleAboutToBeDisplayed()
+{
+    qDebug() << Q_FUNC_INFO;
+}
+
+void SurfaceBuffer::handleDisplayed()
+{
+    qDebug() << Q_FUNC_INFO;
+}
+
+void *SurfaceBuffer::handle() const
+{
+    return m_buffer->user_data;
+}
+
 void SurfaceBuffer::destroy_listener_callback(wl_listener *listener, wl_resource *resource, uint32_t time)
 {
         Q_UNUSED(resource);
@@ -136,7 +183,7 @@ void SurfaceBuffer::destroy_listener_callback(wl_listener *listener, wl_resource
                 reinterpret_cast<struct surface_buffer_destroy_listener *>(listener);
         SurfaceBuffer *d = destroy_listener->surfaceBuffer;
         d->destroyTexture();
-        d->m_is_destroyed = true;
+        d->m_destroyed = true;
         d->m_buffer = 0;
 }
 

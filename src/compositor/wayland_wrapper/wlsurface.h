@@ -91,6 +91,9 @@ public:
     QSize size() const;
     void setSize(const QSize &size);
 
+    QRegion inputRegion() const;
+    QRegion opaqueRegion() const;
+
     QImage image() const;
 
 #ifdef QT_COMPOSITOR_WAYLAND_GL
@@ -138,6 +141,9 @@ private:
     SubSurface *m_subSurface;
     ShellSurface *m_shellSurface;
 
+    QRegion m_inputRegion;
+    QRegion m_opaqueRegion;
+
     static const int buffer_pool_size = 3;
     SurfaceBuffer *m_bufferPool[buffer_pool_size];
 
@@ -161,6 +167,10 @@ private:
                         int32_t x, int32_t y, int32_t width, int32_t height);
     static void surface_frame(struct wl_client *client, struct wl_resource *resource,
                        uint32_t callback);
+    static void surface_set_opaque_region(struct wl_client *client, struct wl_resource *resource,
+                                          struct wl_resource *region);
+    static void surface_set_input_region(struct wl_client *client, struct wl_resource *resource,
+                                         struct wl_resource *region);
 
 };
 

@@ -88,6 +88,7 @@ public:
     void setCursor(QWaylandBuffer *buffer, int32_t x, int32_t y);
 
     struct wl_display *wl_display() const { return mDisplay; }
+    struct wl_compositor *wl_compositor() const { return mCompositor; }
 
     QWaylandShell *shell() const { return mShell; }
 

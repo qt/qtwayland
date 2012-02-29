@@ -134,10 +134,16 @@ void ShellSurface::set_transient(struct wl_client *client,
 }
 
 void ShellSurface::set_fullscreen(struct wl_client *client,
-                       struct wl_resource *shell_surface_resource)
+                       struct wl_resource *shell_surface_resource,
+                       uint32_t method,
+                       uint32_t framerate,
+                       struct wl_resource *output)
 {
     Q_UNUSED(client);
     Q_UNUSED(shell_surface_resource);
+    Q_UNUSED(method);
+    Q_UNUSED(framerate);
+    Q_UNUSED(output);
 }
 
 void ShellSurface::set_popup(wl_client *client, wl_resource *resource, wl_resource *input_device, uint32_t time, wl_resource *parent, int32_t x, int32_t y, uint32_t flags)
@@ -152,14 +158,23 @@ void ShellSurface::set_popup(wl_client *client, wl_resource *resource, wl_resour
     Q_UNUSED(flags);
 }
 
+void ShellSurface::set_maximized(struct wl_client *client,
+                       struct wl_resource *shell_surface_resource,
+                       struct wl_resource *output)
+{
+    Q_UNUSED(client);
+    Q_UNUSED(shell_surface_resource);
+    Q_UNUSED(output);
+}
+
 const struct wl_shell_surface_interface ShellSurface::shell_surface_interface = {
     ShellSurface::move,
     ShellSurface::resize,
     ShellSurface::set_toplevel,
     ShellSurface::set_transient,
     ShellSurface::set_fullscreen,
-    ShellSurface::set_popup
-
+    ShellSurface::set_popup,
+    ShellSurface::set_maximized
 };
 
 }

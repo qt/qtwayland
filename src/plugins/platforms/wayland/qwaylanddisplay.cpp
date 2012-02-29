@@ -166,7 +166,7 @@ QWaylandDisplay::~QWaylandDisplay(void)
 #ifdef QT_WAYLAND_GL_SUPPORT
     delete mEglIntegration;
 #endif
-    wl_display_destroy(mDisplay);
+    wl_display_disconnect(mDisplay);
 }
 
 void QWaylandDisplay::createNewScreen(struct wl_output *output, QRect geometry)

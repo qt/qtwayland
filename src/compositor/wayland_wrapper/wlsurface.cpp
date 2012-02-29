@@ -47,6 +47,7 @@
 #include "wlshmbuffer.h"
 #include "wlinputdevice.h"
 #include "wlextendedsurface.h"
+#include "wlregion.h"
 #include "wlsubsurface.h"
 #include "wlsurfacebuffer.h"
 #include "wlshellsurface.h"
@@ -83,6 +84,8 @@ Surface::Surface(struct wl_client *client, uint32_t id, Compositor *compositor)
     , m_extendedSurface(0)
     , m_subSurface(0)
     , m_shellSurface(0)
+    , m_inputRegion(0)
+    , m_opaqueRegion(0)
 {
     wl_list_init(&m_frame_callback_list);
     addClientResource(client, &base()->resource, id, &wl_surface_interface,
@@ -164,10 +167,22 @@ QSize Surface::size() const
 
 void Surface::setSize(const QSize &size)
 {
-    bool emitChange = size != m_size;
-    m_size = size;
-    if (emitChange)
+    if (size != m_size) {
+        m_opaqueRegion = QRegion();
+        m_inputRegion = QRegion(QRect(QPoint(), size));
+        m_size = size;
         m_waylandSurface->sizeChanged();
+    }
+}
+
+QRegion Surface::inputRegion() const
+{
+    return m_inputRegion;
+}
+
+QRegion Surface::opaqueRegion() const
+{
+    return m_opaqueRegion;
 }
 
 QImage Surface::image() const
@@ -403,7 +418,9 @@ const struct wl_surface_interface Surface::surface_interface = {
         Surface::surface_destroy,
         Surface::surface_attach,
         Surface::surface_damage,
-        Surface::surface_frame
+        Surface::surface_frame,
+        Surface::surface_set_opaque_region,
+        Surface::surface_set_input_region
 };
 
 void Surface::surface_destroy(struct wl_client *, struct wl_resource *surface_resource)
@@ -434,6 +451,22 @@ void Surface::surface_frame(struct wl_client *client,
     Surface *surface = resolve<Surface>(resource);
     struct wl_resource *frame_callback = wl_client_add_object(client,&wl_callback_interface,0,callback,surface);
     wl_list_insert(&surface->m_frame_callback_list,&frame_callback->link);
+}
+
+void Surface::surface_set_opaque_region(struct wl_client *client, struct wl_resource *surfaceResource,
+                                        struct wl_resource *region)
+{
+    Q_UNUSED(client);
+    Surface *surface = resolve<Surface>(surfaceResource);
+    surface->m_opaqueRegion = region ? resolve<Region>(region)->region() : QRegion();
+}
+
+void Surface::surface_set_input_region(struct wl_client *client, struct wl_resource *surfaceResource,
+                                       struct wl_resource *region)
+{
+    Q_UNUSED(client);
+    Surface *surface = resolve<Surface>(surfaceResource);
+    surface->m_inputRegion = region ? resolve<Region>(region)->region() : QRegion(QRect(QPoint(), surface->size()));
 }
 
 } // namespace Wayland

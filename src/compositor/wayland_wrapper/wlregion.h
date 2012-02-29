@@ -38,45 +38,43 @@
 **
 ****************************************************************************/
 
-#ifndef WLDATADEVICE_H
-#define WLDATADEVICE_H
+#ifndef WL_REGION_H
+#define WL_REGION_H
 
-#include "wldatadevicemanager.h"
+#include "waylandexport.h"
+#include "waylandobject.h"
+
+#include <QRegion>
+
+#include <wayland-util.h>
 
 namespace Wayland {
 
-class DataSource;
-class DataDeviceManager;
-
-class DataDevice
+class Q_COMPOSITOR_EXPORT Region : public Object<wl_resource>
 {
 public:
-    DataDevice(DataDeviceManager *data_device_manager, struct wl_client *client, uint32_t id);
+    Region(struct wl_client *client, uint32_t id);
+    ~Region();
 
-    void createAndSetSelectionSource(struct wl_client *client, uint32_t id, const char *name, uint32_t time);
-    void sendSelectionFocus();
+    uint id() const { return base()->object.id; }
 
-    struct wl_resource *dataDeviceResource() const;
+    QRegion region() const { return m_region; }
 
-    struct wl_display *display() const { return m_data_device_manager->display(); }
+    static const struct wl_region_interface region_interface;
+
 private:
-    DataDeviceManager *m_data_device_manager;
-    uint32_t m_sent_selection_time;
-    struct wl_resource *m_data_device_resource;
+    Q_DISABLE_COPY(Region)
 
-    static const struct wl_data_device_interface data_device_interface;
-    static void start_drag(struct wl_client *client,
-                       struct wl_resource *resource,
-                       struct wl_resource *source,
-                       struct wl_resource *surface,
-                       struct wl_resource *icon,
-                       uint32_t time);
-    static void set_selection(struct wl_client *client,
-                          struct wl_resource *resource,
-                          struct wl_resource *source,
-                          uint32_t time);
+    QRegion m_region;
+
+    static void region_destroy(wl_client *client, wl_resource *region);
+    static void region_add(wl_client *client, wl_resource *region,
+                           int32_t x, int32_t y, int32_t w, int32_t h);
+    static void region_subtract(wl_client *client, wl_resource *region,
+                                int32_t x, int32_t y, int32_t w, int32_t h);
 };
 
 }
 
-#endif // WLDATADEVICE_H
+#endif // WL_REGION_H
+

@@ -91,7 +91,10 @@ private:
                               int y,
                               uint32_t flags);
     static void set_fullscreen(struct wl_client *client,
-                               struct wl_resource *shell_surface_resource);
+                               struct wl_resource *shell_surface_resource,
+                               uint32_t method,
+                               uint32_t framerate,
+                               struct wl_resource *output);
     static void set_popup(struct wl_client *client,
                           struct wl_resource *resource,
                           struct wl_resource *input_device,
@@ -100,6 +103,9 @@ private:
                           int32_t x,
                           int32_t y,
                           uint32_t flags);
+    static void set_maximized(struct wl_client *client,
+                              struct wl_resource *shell_surface_resource,
+                              struct wl_resource *output);
 
     static const struct wl_shell_surface_interface shell_surface_interface;
 

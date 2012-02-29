@@ -61,6 +61,7 @@ QMimeData * QWaylandDrag::platformDropData()
 
 Qt::DropAction QWaylandDrag::drag(QDrag *m_drag)
 {
+    Q_UNUSED(m_drag);
 //    m_display->dndSelectionHandler()->createAndSetDrag(drag);
     return Qt::IgnoreAction;
 }

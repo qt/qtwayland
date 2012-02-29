@@ -87,7 +87,6 @@ private:
     static void inputHandleMotion(void *data,
 				  struct wl_input_device *input_device,
 				  uint32_t time,
-				  int32_t x, int32_t y,
 				  int32_t sx, int32_t sy);
     static void inputHandleButton(void *data,
 				  struct wl_input_device *input_device,
@@ -95,15 +94,22 @@ private:
     static void inputHandleKey(void *data,
 			       struct wl_input_device *input_device,
 			       uint32_t time, uint32_t key, uint32_t state);
-    static void inputHandlePointerFocus(void *data,
-					struct wl_input_device *input_device,
-					uint32_t time, struct wl_surface *surface,
-					int32_t x, int32_t y, int32_t sx, int32_t sy);
-    static void inputHandleKeyboardFocus(void *data,
-					 struct wl_input_device *input_device,
-					 uint32_t time,
-					 struct wl_surface *surface,
-					 struct wl_array *keys);
+    static void inputHandlePointerEnter(void *data,
+                                        struct wl_input_device *input_device,
+                                        uint32_t time, struct wl_surface *surface,
+                                        int32_t sx, int32_t sy);
+    static void inputHandlePointerLeave(void *data,
+                                        struct wl_input_device *input_device,
+                                        uint32_t time, struct wl_surface *surface);
+    static void inputHandleKeyboardEnter(void *data,
+                                         struct wl_input_device *input_device,
+                                         uint32_t time,
+                                         struct wl_surface *surface,
+                                         struct wl_array *keys);
+    static void inputHandleKeyboardLeave(void *data,
+                                         struct wl_input_device *input_device,
+                                         uint32_t time,
+                                         struct wl_surface *surface);
     static void inputHandleTouchDown(void *data,
                                      struct wl_input_device *wl_input_device,
                                      uint32_t time,

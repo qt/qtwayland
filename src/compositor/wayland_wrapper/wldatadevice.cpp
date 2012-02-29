@@ -54,32 +54,17 @@ void DataDevice::start_drag(struct wl_client *client,
                    struct wl_resource *resource,
                    struct wl_resource *source,
                    struct wl_resource *surface,
+                   struct wl_resource *icon,
                    uint32_t time)
 {
     Q_UNUSED(client);
     Q_UNUSED(surface);
+    Q_UNUSED(icon);
     Q_UNUSED(time);
-
     DataDevice *data_device = static_cast<DataDevice *>(resource->data);
     DataSource *data_source = static_cast<DataSource *>(source->data);
-
     Q_UNUSED(data_device);
     Q_UNUSED(data_source);
-}
-
-void DataDevice::attach(struct wl_client *client,
-               struct wl_resource *resource,
-               uint32_t time,
-               struct wl_resource *buffer,
-               int32_t x,
-               int32_t y)
-{
-    Q_UNUSED(client);
-    Q_UNUSED(resource);
-    Q_UNUSED(time);
-    Q_UNUSED(buffer);
-    Q_UNUSED(x);
-    Q_UNUSED(y);
 }
 
 void DataDevice::set_selection(struct wl_client *client,
@@ -98,7 +83,6 @@ void DataDevice::set_selection(struct wl_client *client,
 
 const struct wl_data_device_interface DataDevice::data_device_interface = {
     DataDevice::start_drag,
-    DataDevice::attach,
     DataDevice::set_selection
 };
 

@@ -194,7 +194,8 @@ QWaylandDataDeviceManager::QWaylandDataDeviceManager(QWaylandDisplay *display, u
     , m_drag_data_offer(0)
     , m_drag_data_source(0)
     , m_drag_surface(0)
-    , m_drag_buffer(0)
+    , m_drag_icon_surface(0)
+    , m_drag_icon_buffer(0)
     , m_drag_can_drop(false)
 {
     m_data_device_manager = static_cast<struct wl_data_device_manager *>(wl_display_bind(display->wl_display(),id,&wl_data_device_manager_interface));
@@ -253,16 +254,18 @@ void QWaylandDataDeviceManager::createAndSetDrag(QDrag *drag)
     if (pixmap.isNull()) {
 //        pixmap = QPlatformDrag::defaultPixmap();
     }
-    m_drag_buffer = new QWaylandShmBuffer(m_display,pixmap.size(),QImage::Format_ARGB32_Premultiplied);
+
+    m_drag_icon_buffer = new QWaylandShmBuffer(m_display, pixmap.size(), QImage::Format_ARGB32_Premultiplied);
 
     {
-        QPainter p(m_drag_buffer->image());
+        QPainter p(m_drag_icon_buffer->image());
         p.drawPixmap(0,0,pixmap);
     }
 
-    wl_data_device_start_drag(transfer_device,m_drag_data_source->handle(),m_drag_surface,QWaylandDisplay::currentTimeMillisec());
-    wl_data_device_attach(transfer_device,QWaylandDisplay::currentTimeMillisec()
-                          ,m_drag_buffer->buffer(),drag->hotSpot().x(),drag->hotSpot().y());
+    m_drag_icon_surface = wl_compositor_create_surface(m_display->wl_compositor());
+    wl_surface_attach(m_drag_icon_surface, m_drag_icon_buffer->buffer(), -drag->hotSpot().x(), -drag->hotSpot().y());
+
+    wl_data_device_start_drag(transfer_device, m_drag_data_source->handle(), m_drag_surface, m_drag_icon_surface, QWaylandDisplay::currentTimeMillisec());
 }
 
 QMimeData *QWaylandDataDeviceManager::dragMime() const
@@ -283,6 +286,7 @@ bool QWaylandDataDeviceManager::canDropDrag() const
 void QWaylandDataDeviceManager::cancelDrag()
 {
     wl_data_source_destroy(m_drag_data_source->handle() );
+    wl_surface_destroy(m_drag_icon_surface);
     m_drag_data_source = 0;
 }
 

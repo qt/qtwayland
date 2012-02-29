@@ -88,8 +88,9 @@ private:
     QWaylandDataOffer *m_drag_data_offer;
     QWaylandDataSource *m_drag_data_source;
     QWaylandWindow *m_drag_current_event_window;
-    struct wl_surface *m_drag_surface;
-    QWaylandShmBuffer *m_drag_buffer;
+    wl_surface *m_drag_surface;
+    wl_surface *m_drag_icon_surface;
+    QWaylandShmBuffer *m_drag_icon_buffer;
     bool m_drag_can_drop;
     uint32_t m_drag_last_event_time;
     QPoint m_drag_position;

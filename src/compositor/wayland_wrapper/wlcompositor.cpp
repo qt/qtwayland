@@ -53,6 +53,7 @@
 #include "wlshellsurface.h"
 #include "wltouch.h"
 #include "wlinputdevice.h"
+#include "wlregion.h"
 
 #include <QWindow>
 #include <QSocketNotifier>
@@ -89,8 +90,16 @@ void compositor_create_surface(struct wl_client *client,
      static_cast<Compositor *>(resource->data)->createSurface(client,id);
 }
 
+void compositor_create_region(struct wl_client *client,
+                              struct wl_resource *compositor, uint32_t id)
+{
+    Q_UNUSED(compositor);
+    new Region(client, id);
+}
+
 const static struct wl_compositor_interface compositor_interface = {
-    compositor_create_surface
+    compositor_create_surface,
+    compositor_create_region
 };
 
 void Compositor::bind_func(struct wl_client *client, void *data,

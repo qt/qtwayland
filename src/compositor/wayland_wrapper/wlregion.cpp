@@ -38,45 +38,53 @@
 **
 ****************************************************************************/
 
-#ifndef WLDATADEVICE_H
-#define WLDATADEVICE_H
+#include "wlregion.h"
 
-#include "wldatadevicemanager.h"
+#include "wlcompositor.h"
 
 namespace Wayland {
 
-class DataSource;
-class DataDeviceManager;
-
-class DataDevice
+void destroy_region(struct wl_resource *resource)
 {
-public:
-    DataDevice(DataDeviceManager *data_device_manager, struct wl_client *client, uint32_t id);
+    delete resolve<Region>(resource);
+}
 
-    void createAndSetSelectionSource(struct wl_client *client, uint32_t id, const char *name, uint32_t time);
-    void sendSelectionFocus();
+Region::Region(struct wl_client *client, uint32_t id)
+{
+    addClientResource(client, base(), id, &wl_region_interface,
+            &region_interface, destroy_region);
+}
 
-    struct wl_resource *dataDeviceResource() const;
+Region::~Region()
+{
+}
 
-    struct wl_display *display() const { return m_data_device_manager->display(); }
-private:
-    DataDeviceManager *m_data_device_manager;
-    uint32_t m_sent_selection_time;
-    struct wl_resource *m_data_device_resource;
-
-    static const struct wl_data_device_interface data_device_interface;
-    static void start_drag(struct wl_client *client,
-                       struct wl_resource *resource,
-                       struct wl_resource *source,
-                       struct wl_resource *surface,
-                       struct wl_resource *icon,
-                       uint32_t time);
-    static void set_selection(struct wl_client *client,
-                          struct wl_resource *resource,
-                          struct wl_resource *source,
-                          uint32_t time);
+const struct wl_region_interface Region::region_interface = {
+    region_destroy,
+    region_add,
+    region_subtract
 };
+
+void Region::region_destroy(wl_client *client, wl_resource *region)
+{
+    Q_UNUSED(client);
+    wl_resource_destroy(region, Compositor::currentTimeMsecs());
+}
+
+void Region::region_add(wl_client *client, wl_resource *region,
+                       int32_t x, int32_t y, int32_t w, int32_t h)
+{
+    Q_UNUSED(client);
+    resolve<Region>(region)->m_region += QRect(x, y, w, h);
+}
+
+void Region::region_subtract(wl_client *client, wl_resource *region,
+                            int32_t x, int32_t y, int32_t w, int32_t h)
+{
+    Q_UNUSED(client);
+    resolve<Region>(region)->m_region -= QRect(x, y, w, h);
+}
 
 }
 
-#endif // WLDATADEVICE_H
+

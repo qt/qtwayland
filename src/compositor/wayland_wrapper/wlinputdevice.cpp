@@ -223,10 +223,10 @@ Surface *InputDevice::mouseFocus() const
 
 void InputDevice::setMouseFocus(Surface *surface, const QPoint &globalPos, const QPoint &localPos)
 {
+    Q_UNUSED(globalPos);
     wl_input_device_set_pointer_focus(base(),
                                       surface ? surface->base() : 0,
                                       m_compositor->currentTimeMsecs(),
-                                      globalPos.x(), globalPos.y(),
                                       localPos.x(), localPos.y());
 }
 

@@ -203,7 +203,7 @@ void Surface::sendFrameCallback()
         m_frontBuffer = m_backBuffer;
     }
 
-    advanceBufferQueue();
+    bool updateNeeded = advanceBufferQueue();
 
     uint time = Compositor::currentTimeMsecs();
     struct wl_resource *frame_callback;
@@ -211,10 +211,10 @@ void Surface::sendFrameCallback()
         wl_resource_post_event(frame_callback,WL_CALLBACK_DONE,time);
         wl_resource_destroy(frame_callback,Compositor::currentTimeMsecs());
     }
-
     wl_list_init(&m_frame_callback_list);
 
-    doUpdate();
+    if (updateNeeded)
+        doUpdate();
 }
 
 void Surface::frameFinished()
@@ -267,7 +267,7 @@ Compositor *Surface::compositor() const
     return m_compositor;
 }
 
-void Surface::advanceBufferQueue()
+bool Surface::advanceBufferQueue()
 {
     //has current buffer been displayed,
     //do we have another buffer in the queue
@@ -289,7 +289,7 @@ void Surface::advanceBufferQueue()
         }
 
         if (!m_backBuffer)
-            return; //we have no new backbuffer;
+            return false; //we have no new backbuffer;
 
        if (m_backBuffer->waylandBufferHandle()) {
             if (width != m_backBuffer->width() ||
@@ -311,9 +311,10 @@ void Surface::advanceBufferQueue()
 
     } else {
         m_backBuffer = 0;
+        return false;
     }
 
-
+    return true;
 }
 
 void Surface::doUpdate() {

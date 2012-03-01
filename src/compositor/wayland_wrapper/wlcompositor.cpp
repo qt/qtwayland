@@ -109,6 +109,7 @@ Compositor *Compositor::instance()
 Compositor::Compositor(WaylandCompositor *qt_compositor)
     : m_display(new Display)
     , m_default_input_device(0)
+    , m_pageFlipper(0)
     , m_shm(m_display)
     , m_current_frame(0)
     , m_last_queued_buf(-1)
@@ -158,12 +159,7 @@ Compositor::Compositor(WaylandCompositor *qt_compositor)
     QSocketNotifier *sockNot = new QSocketNotifier(fd, QSocketNotifier::Read, this);
     connect(sockNot, SIGNAL(activated(int)), this, SLOT(processWaylandEvents()));
 
-    m_pageFlipper = QGuiApplication::primaryScreen()->handle()->pageFlipper();
-    if (m_pageFlipper) {
-        connect(m_pageFlipper,SIGNAL(bufferReleased(QPlatformScreenBuffer*)),this,SLOT(releaseBuffer(QPlatformScreenBuffer*)));
-    }
-
-
+    qRegisterMetaType<SurfaceBuffer*>("SurfaceBuffer*");
     //initialize distancefieldglyphcache here
 }
 
@@ -330,6 +326,10 @@ void Compositor::enableSubSurfaceExtension()
 bool Compositor::setDirectRenderSurface(Surface *surface)
 {
 #ifdef QT_COMPOSITOR_WAYLAND_GL
+    if (!m_pageFlipper) {
+        m_pageFlipper = QGuiApplication::primaryScreen()->handle()->pageFlipper();
+    }
+
     if (m_graphics_hw_integration && m_graphics_hw_integration->setDirectRenderSurface(surface ? surface->waylandSurface() : 0)) {
         m_directRenderSurface = surface;
         return true;
@@ -436,7 +436,7 @@ void Compositor::feedRetainedSelectionData(QMimeData *data)
 
 void Compositor::scheduleReleaseBuffer(SurfaceBuffer *screenBuffer)
 {
-    QMetaObject::invokeMethod(this,"releaseBuffer",Q_ARG(SurfaceBuffer *,screenBuffer));
+    QMetaObject::invokeMethod(this,"releaseBuffer",Q_ARG(SurfaceBuffer*,screenBuffer));
 }
 
 void Compositor::overrideSelection(QMimeData *data)

@@ -118,7 +118,6 @@ void SurfaceBuffer::release()
 
 void SurfaceBuffer::scheduledRelease()
 {
-    qDebug() << Q_FUNC_INFO;
     m_page_flipper_has_buffer = false;
     if (!m_surface_has_buffer)
         destructBufferState();

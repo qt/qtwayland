@@ -145,7 +145,7 @@ private:
     QSize m_size;
 
     inline SurfaceBuffer *currentSurfaceBuffer() const;
-    void advanceBufferQueue();
+    bool advanceBufferQueue();
     void doUpdate();
     SurfaceBuffer *createSurfaceBuffer(struct wl_buffer *buffer);
     void frameFinishedInternal();

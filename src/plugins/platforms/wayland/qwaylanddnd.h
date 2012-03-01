@@ -55,7 +55,7 @@ public:
 
     QMimeData *platformDropData();
 
-    void startDrag(QDrag *drag);
+    Qt::DropAction drag(QDrag *m_drag);
     void move(const QMouseEvent *me);
     bool canDrop() const;
     void drop(const QMouseEvent *me);

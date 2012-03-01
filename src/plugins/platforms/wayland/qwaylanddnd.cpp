@@ -59,9 +59,10 @@ QMimeData * QWaylandDrag::platformDropData()
     return m_display->dndSelectionHandler()->dragMime();
 }
 
-void QWaylandDrag::startDrag(QDrag *drag)
+Qt::DropAction QWaylandDrag::drag(QDrag *m_drag)
 {
-    m_display->dndSelectionHandler()->createAndSetDrag(drag);
+//    m_display->dndSelectionHandler()->createAndSetDrag(drag);
+    return Qt::IgnoreAction;
 }
 
 void QWaylandDrag::move(const QMouseEvent *me)

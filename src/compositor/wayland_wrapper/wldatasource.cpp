@@ -99,6 +99,7 @@ void DataSource::offer(struct wl_client *client,
 void DataSource::destroy(struct wl_client *client,
                 struct wl_resource *resource)
 {
+    Q_UNUSED(client);
     DataSource *self = static_cast<DataSource *>(resource->data);
     delete self;
 }

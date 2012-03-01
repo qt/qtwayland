@@ -87,7 +87,10 @@ const struct wl_data_offer_interface DataOffer::data_interface = {
 
 void DataOffer::accept(wl_client *client, wl_resource *resource, uint32_t time, const char *type)
 {
-
+    Q_UNUSED(client);
+    Q_UNUSED(resource);
+    Q_UNUSED(time);
+    Q_UNUSED(type);
 }
 
 void DataOffer::receive(wl_client *client, wl_resource *resource, const char *mime_type, int32_t fd)

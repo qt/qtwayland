@@ -56,6 +56,7 @@ OutputExtensionGlobal::OutputExtensionGlobal(Compositor *compositor)
 
 void OutputExtensionGlobal::bind_func(wl_client *client, void *data, uint32_t version, uint32_t id)
 {
+    Q_UNUSED(version);
     wl_client_add_object(client,&wl_output_extension_interface,&output_extension_interface,id,data);
 }
 

@@ -186,11 +186,16 @@ struct wl_display *DataDeviceManager::display() const
 
 void DataDeviceManager::bind_func_drag(struct wl_client *client, void *data, uint32_t version, uint32_t id)
 {
+    Q_UNUSED(version);
     wl_client_add_object(client,&wl_data_device_manager_interface,&drag_interface,id,data);
 }
 
 void DataDeviceManager::bind_func_data(struct wl_client *client, void *data, uint32_t version, uint32_t id)
 {
+    Q_UNUSED(client);
+    Q_UNUSED(data);
+    Q_UNUSED(version);
+    Q_UNUSED(id);
 }
 
 void DataDeviceManager::get_data_device(struct wl_client *client,

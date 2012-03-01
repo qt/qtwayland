@@ -215,6 +215,8 @@ bool WaylandEglIntegration::setDirectRenderSurface(WaylandSurface *surface)
     if (client)
         eglRequestClientBufferFormatWL(d->egl_display, client, buffer_format);
     d->directRenderSurface = surface;
+#else
+    Q_UNUSED(surface);
 #endif
     return flipper;
 }

@@ -144,16 +144,26 @@ void SubSurface::attach_sub_surface(wl_client *client, wl_resource *sub_surface_
 void SubSurface::move_sub_surface(wl_client *client, wl_resource *sub_surface_parent_resource, wl_resource *sub_surface_child_resource, int32_t x, int32_t y)
 {
     Q_UNUSED(client);
+    Q_UNUSED(x);
+    Q_UNUSED(y);
     SubSurface *parent_sub_surface = static_cast<SubSurface *>(sub_surface_parent_resource->data);
     SubSurface *child_sub_surface = static_cast<SubSurface *>(sub_surface_child_resource->data);
+    Q_UNUSED(parent_sub_surface);
+    Q_UNUSED(child_sub_surface);
 }
 
 void SubSurface::raise(wl_client *client, wl_resource *sub_surface_parent_resource, wl_resource *sub_surface_child_resource)
 {
+    Q_UNUSED(client);
+    Q_UNUSED(sub_surface_parent_resource);
+    Q_UNUSED(sub_surface_child_resource);
 }
 
 void SubSurface::lower(wl_client *client, wl_resource *sub_surface_parent_resource, wl_resource *sub_surface_child_resource)
 {
+    Q_UNUSED(client);
+    Q_UNUSED(sub_surface_parent_resource);
+    Q_UNUSED(sub_surface_child_resource);
 }
 
 const struct wl_sub_surface_interface SubSurface::sub_surface_interface = {

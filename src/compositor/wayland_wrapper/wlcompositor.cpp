@@ -197,7 +197,6 @@ void Compositor::frameFinished(Surface *surface)
 void Compositor::createSurface(struct wl_client *client, uint32_t id)
 {
     Surface *surface = new Surface(client,id, this);
-    printf("Compositor::createSurface: %p %d\n", client, id);
 
     m_surfaces << surface;
 
@@ -225,7 +224,6 @@ Surface *Compositor::getSurfaceFromWinId(uint winId) const
 
 QImage Compositor::image(uint winId) const
 {
-    printf("Compositor::image(%x)\n", winId);
     foreach (Surface *surface, m_surfaces) {
         if (surface->id() == winId) {
             return surface->image();

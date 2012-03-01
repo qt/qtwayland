@@ -195,6 +195,7 @@ QVariant ExtendedSurface::windowProperty(const QString &propertyName) const
 
 void ExtendedSurface::setWindowProperty(const QString &name, const QVariant &value, bool writeUpdateToClient)
 {
+    Q_UNUSED(writeUpdateToClient);
     m_windowProperties.insert(name, value);
     m_surface->waylandSurface()->windowPropertyChanged(name,value);
     sendGenericProperty(name, value);
@@ -202,6 +203,7 @@ void ExtendedSurface::setWindowProperty(const QString &name, const QVariant &val
 
 void ExtendedSurface::set_window_flags(wl_client *client, wl_resource *resource, int32_t flags)
 {
+    Q_UNUSED(client);
     ExtendedSurface *extended_surface = static_cast<ExtendedSurface *>(resource->data);
     extended_surface->setWindowFlags(WaylandSurface::WindowFlags(flags));
 }

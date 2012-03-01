@@ -113,6 +113,7 @@ void QWaylandDataDeviceManager::enter(void *data,
 void QWaylandDataDeviceManager::leave(void *data,
               struct wl_data_device *wl_data_device)
 {
+    Q_UNUSED(wl_data_device);
     QWaylandDataDeviceManager *data_device_manager = static_cast<QWaylandDataDeviceManager *>(data);
 //    QWindowSystemInterface::handleDrag(data_device_manager->m_drag_current_event_window->window(),0,QPoint(0,0),Qt::IgnoreAction);
     data_device_manager->m_drag_can_drop = false;
@@ -148,12 +149,15 @@ void QWaylandDataDeviceManager::motion(void *data,
 void QWaylandDataDeviceManager::drop(void *data,
              struct wl_data_device *wl_data_device)
 {
+    Q_UNUSED(wl_data_device);
     QWaylandDataDeviceManager *data_device_manager = static_cast<QWaylandDataDeviceManager *>(data);
     QWindow *window = data_device_manager->m_drag_current_event_window->window();
     QMimeData *mime = data_device_manager->m_drag_data_offer;
     QPoint point = data_device_manager->m_drag_position;
     Qt::DropActions allActions =  Qt::CopyAction | Qt::MoveAction | Qt::LinkAction;
 
+    Q_UNUSED(window);
+    Q_UNUSED(mime);
 //    QWindowSystemInterface::handleDrop(window,mime,point,allActions);
 }
 
@@ -162,6 +166,7 @@ void QWaylandDataDeviceManager::selection(void *data,
                                             struct wl_data_device *wl_data_device,
                                             struct wl_data_offer *id)
 {
+    Q_UNUSED(wl_data_device);
     QWaylandDataDeviceManager *handler = static_cast<QWaylandDataDeviceManager *>(data);
     QWaylandDataOffer *mime = handler->m_selection_data_offer;
     delete mime;
@@ -283,6 +288,7 @@ void QWaylandDataDeviceManager::cancelDrag()
 
 void QWaylandDataDeviceManager::createAndSetSelectionSource(QMimeData *mimeData, QClipboard::Mode mode)
 {
+    Q_UNUSED(mode);
     QWaylandDataSource *transfer_source = m_selection_data_source;
     delete transfer_source;
 

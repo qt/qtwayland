@@ -62,6 +62,7 @@ void QWaylandDataSource::data_source_send(void *data,
              const char *mime_type,
              int32_t fd)
 {
+    Q_UNUSED(wl_data_source);
     QWaylandDataSource *self = static_cast<QWaylandDataSource *>(data);
     QString mimeType = QString::fromLatin1(mime_type);
     QByteArray content = QWaylandMimeHelper::getByteArray(self->m_mime_data, mimeType);

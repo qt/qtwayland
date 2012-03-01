@@ -52,6 +52,7 @@ public:
     QWaylandShellSurface(struct wl_shell_surface *shell_surface, QWaylandWindow *window);
 
     struct wl_shell_surface *handle() const { return m_shell_surface; }
+
 private:
     struct wl_shell_surface *m_shell_surface;
     QWaylandWindow *m_window;
@@ -62,6 +63,8 @@ private:
               uint32_t edges,
               int32_t width,
               int32_t height);
+    static void popup_done(void *data,
+                struct wl_shell_surface *wl_shell_surface);
     static const struct wl_shell_surface_listener m_shell_surface_listener;
 };
 

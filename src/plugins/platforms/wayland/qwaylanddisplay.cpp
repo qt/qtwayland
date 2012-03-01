@@ -228,6 +228,9 @@ void QWaylandDisplay::outputHandleGeometry(void *data,
                                            int subpixel,
                                            const char *make, const char *model)
 {
+    Q_UNUSED(subpixel);
+    Q_UNUSED(make);
+    Q_UNUSED(model);
     QWaylandDisplay *waylandDisplay = static_cast<QWaylandDisplay *>(data);
     QRect outputRect = QRect(x, y, physicalWidth, physicalHeight);
     waylandDisplay->createNewScreen(output,outputRect);

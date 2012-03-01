@@ -64,6 +64,14 @@ void QWaylandShellSurface::configure(void *data,
     shell_surface->m_window->configure(time,edges,0,0,width,height);
 }
 
+void QWaylandShellSurface::popup_done(void *data,
+                                      struct wl_shell_surface *wl_shell_surface)
+{
+    Q_UNUSED(data);
+    Q_UNUSED(wl_shell_surface);
+}
+
 const wl_shell_surface_listener QWaylandShellSurface::m_shell_surface_listener = {
-    QWaylandShellSurface::configure
+    QWaylandShellSurface::configure,
+    QWaylandShellSurface::popup_done
 };

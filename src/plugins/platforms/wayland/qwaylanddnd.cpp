@@ -67,15 +67,18 @@ Qt::DropAction QWaylandDrag::drag(QDrag *m_drag)
 
 void QWaylandDrag::move(const QMouseEvent *me)
 {
+    Q_UNUSED(me);
     qFatal("This function should not be called");
 }
 
 bool QWaylandDrag::canDrop() const
 {
+    return false;
 }
 
 void QWaylandDrag::drop(const QMouseEvent *me)
 {
+    Q_UNUSED(me);
 }
 
 void QWaylandDrag::cancel()
@@ -85,5 +88,5 @@ void QWaylandDrag::cancel()
 
 Qt::DropAction QWaylandDrag::executedDropAction() const
 {
-    Qt::CopyAction;
+    return Qt::CopyAction;
 }

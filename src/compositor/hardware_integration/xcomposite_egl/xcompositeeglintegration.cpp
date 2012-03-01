@@ -102,7 +102,7 @@ void XCompositeEglIntegration::initializeHardware(Wayland::Display *waylandDispl
 
 GLuint XCompositeEglIntegration::createTextureFromBuffer(wl_buffer *buffer, QOpenGLContext *)
 {
-    XCompositeBuffer *compositorBuffer = Wayland::wayland_cast<XCompositeBuffer *>(buffer);
+    XCompositeBuffer *compositorBuffer = Wayland::wayland_cast<XCompositeBuffer>(buffer);
     Pixmap pixmap = XCompositeNameWindowPixmap(mDisplay, compositorBuffer->window());
 
     QVector<EGLint> eglConfigSpec = eglbuildSpec();
@@ -145,6 +145,6 @@ GLuint XCompositeEglIntegration::createTextureFromBuffer(wl_buffer *buffer, QOpe
 
 bool XCompositeEglIntegration::isYInverted(wl_buffer *buffer) const
 {
-    XCompositeBuffer *compositorBuffer = Wayland::wayland_cast<XCompositeBuffer *>(buffer);
+    XCompositeBuffer *compositorBuffer = Wayland::wayland_cast<XCompositeBuffer>(buffer);
     return compositorBuffer->isYInverted();
 }

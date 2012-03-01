@@ -122,7 +122,7 @@ void XCompositeGLXIntegration::initializeHardware(Wayland::Display *waylandDispl
 
 GLuint XCompositeGLXIntegration::createTextureFromBuffer(wl_buffer *buffer, QOpenGLContext *)
 {
-    XCompositeBuffer *compositorBuffer = Wayland::wayland_cast<XCompositeBuffer *>(buffer);
+    XCompositeBuffer *compositorBuffer = Wayland::wayland_cast<XCompositeBuffer>(buffer);
     Pixmap pixmap = XCompositeNameWindowPixmap(mDisplay, compositorBuffer->window());
 
     QVector<int> glxConfigSpec = qglx_buildSpec();
@@ -155,6 +155,6 @@ GLuint XCompositeGLXIntegration::createTextureFromBuffer(wl_buffer *buffer, QOpe
 
 bool XCompositeGLXIntegration::isYInverted(wl_buffer *buffer) const
 {
-    XCompositeBuffer *compositorBuffer = Wayland::wayland_cast<XCompositeBuffer *>(buffer);
+    XCompositeBuffer *compositorBuffer = Wayland::wayland_cast<XCompositeBuffer>(buffer);
     return compositorBuffer->isYInverted();
 }

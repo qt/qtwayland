@@ -69,7 +69,7 @@ namespace Wayland {
 
 void destroy_surface(struct wl_resource *resource)
 {
-    Surface *surface = wayland_cast<Surface *>((wl_surface *)resource);
+    Surface *surface = resolve<Surface>(resource);
     surface->compositor()->surfaceDestroyed(surface);
     delete surface;
 }
@@ -417,20 +417,21 @@ void Surface::surface_attach(struct wl_client *client, struct wl_resource *surfa
     Q_UNUSED(client);
     Q_UNUSED(x);
     Q_UNUSED(y);
-    reinterpret_cast<Surface *>(surface)->attach(reinterpret_cast<struct wl_buffer *>(buffer));
+    resolve<Surface>(surface)->attach(reinterpret_cast<wl_buffer *>(buffer->data));
 }
 
 void Surface::surface_damage(struct wl_client *client, struct wl_resource *surface,
                     int32_t x, int32_t y, int32_t width, int32_t height)
 {
     Q_UNUSED(client);
-    reinterpret_cast<Surface *>(surface)->damage(QRect(x, y, width, height));
+    resolve<Surface>(surface)->damage(QRect(x, y, width, height));
 }
+
 void Surface::surface_frame(struct wl_client *client,
                    struct wl_resource *resource,
                    uint32_t callback)
 {
-    Surface *surface = reinterpret_cast<Surface *>(resource);
+    Surface *surface = resolve<Surface>(resource);
     struct wl_resource *frame_callback = wl_client_add_object(client,&wl_callback_interface,0,callback,surface);
     wl_list_insert(&surface->m_frame_callback_list,&frame_callback->link);
 }

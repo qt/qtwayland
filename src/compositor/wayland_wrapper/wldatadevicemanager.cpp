@@ -204,7 +204,7 @@ void DataDeviceManager::get_data_device(struct wl_client *client,
                       struct wl_resource *input_device_resource)
 {
     DataDeviceManager *data_device_manager = static_cast<DataDeviceManager *>(data_device_manager_resource->data);
-    InputDevice *input_device = reinterpret_cast<InputDevice *>(input_device_resource->data);
+    InputDevice *input_device = resolve<InputDevice>(input_device_resource);
     input_device->clientRequestedDataDevice(data_device_manager,client,id);
 }
 

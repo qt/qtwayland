@@ -66,7 +66,7 @@ void Shell::get_shell_surface(struct wl_client *client,
               struct wl_resource *surface_super)
 {
     Q_UNUSED(shell_resource);
-    Surface *surface = reinterpret_cast<Surface *>(surface_super);
+    Surface *surface = resolve<Surface>(surface_super);
     new ShellSurface(client,id,surface);
 }
 

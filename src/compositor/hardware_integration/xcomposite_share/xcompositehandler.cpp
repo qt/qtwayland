@@ -67,10 +67,10 @@ XCompositeHandler::XCompositeHandler(Wayland::Compositor *compositor, Display *d
 void XCompositeHandler::createBuffer(struct wl_client *client, uint32_t id, Window window, const QSize &size)
 {
     XCompositeBuffer *buffer = new XCompositeBuffer(mCompositor, window, size);
-    Wayland::addClientResource(client,&buffer->base()->resource,
-                               id,&wl_buffer_interface,
-                               &XCompositeBuffer::buffer_interface,
-                               XCompositeBuffer::delete_resource);
+    buffer->addClientResource(client, &buffer->base()->resource,
+                              id,&wl_buffer_interface,
+                              &XCompositeBuffer::buffer_interface,
+                              XCompositeBuffer::delete_resource);
 }
 
 void XCompositeHandler::xcomposite_bind_func(struct wl_client *client, void *data, uint32_t version, uint32_t id)

@@ -51,35 +51,45 @@ template <typename T>
 class Object
 {
 public:
+    typedef T Base;
+
     Object() { memset(&m_waylandObject, 0, sizeof(T)); }
 
     const T *base() const { return &m_waylandObject; }
     T *base() { return &m_waylandObject; }
 
+    template <typename Implementation>
+    void addClientResource(wl_client *client,
+                           wl_resource *resource,
+                           int id, const struct wl_interface *interface,
+                           Implementation implementation,
+                           void (*destroy)(struct wl_resource *resource))
+    {
+        resource->object.id = id;
+        resource->object.interface = interface;
+        resource->object.implementation = (void (**)(void))implementation;
+        resource->data = &m_waylandObject;
+        resource->destroy = destroy;
+
+        wl_client_add_resource(client, resource);
+    }
+
 private:
     T m_waylandObject;
 };
 
-template <typename To, typename From>
-To wayland_cast(From *from)
+template <typename T>
+T *resolve(wl_resource *from)
 {
-    Object<From> *object = reinterpret_cast<Object<From> *>(from);
-    return static_cast<To>(object);
+    Object<typename T::Base> *object = reinterpret_cast<Object<typename T::Base> *>(from->data);
+    return static_cast<T *>(object);
 }
 
-template <typename Implementation>
-void addClientResource(struct wl_client *client,
-                       struct wl_resource *resource,
-                       int id, const struct wl_interface *interface,
-                       Implementation implementation,
-                       void (*destroy)(struct wl_resource *resource))
+template <typename T>
+T *wayland_cast(typename T::Base *from)
 {
-    resource->object.id = id;
-    resource->object.interface = interface;
-    resource->object.implementation = (void (**)(void))implementation;
-    resource->destroy = destroy;
-
-    wl_client_add_resource(client, resource);
+    Object<typename T::Base> *object = reinterpret_cast<Object<typename T::Base> *>(from);
+    return static_cast<T *>(object);
 }
 
 }

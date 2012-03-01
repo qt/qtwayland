@@ -207,7 +207,7 @@ void InputDevice::sendFullTouchEvent(QTouchEvent *event)
 
 Surface *InputDevice::keyboardFocus() const
 {
-    return wayland_cast<Surface *>(base()->keyboard_focus);
+    return wayland_cast<Surface>(base()->keyboard_focus);
 }
 
 void InputDevice::setKeyboardFocus(Surface *surface)
@@ -218,7 +218,7 @@ void InputDevice::setKeyboardFocus(Surface *surface)
 
 Surface *InputDevice::mouseFocus() const
 {
-    return wayland_cast<Surface *>(base()->pointer_focus);
+    return wayland_cast<Surface>(base()->pointer_focus);
 }
 
 void InputDevice::setMouseFocus(Surface *surface, const QPoint &globalPos, const QPoint &localPos)
@@ -320,7 +320,7 @@ void InputDevice::input_device_attach(struct wl_client *client,
     struct wl_input_device *device_base = reinterpret_cast<struct wl_input_device *>(device_resource->data);
     struct wl_buffer *buffer = reinterpret_cast<struct wl_buffer *>(buffer_resource);
 
-    InputDevice *inputDevice = wayland_cast<InputDevice *>(device_base);
+    InputDevice *inputDevice = wayland_cast<InputDevice>(device_base);
     if (wl_buffer_is_shm(buffer)) {
         ShmBuffer *shmBuffer = static_cast<ShmBuffer *>(buffer->user_data);
         if (shmBuffer) {

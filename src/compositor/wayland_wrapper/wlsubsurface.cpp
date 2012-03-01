@@ -62,7 +62,7 @@ void SubSurfaceExtensionGlobal::bind_func(wl_client *client, void *data, uint32_
 void SubSurfaceExtensionGlobal::get_sub_surface_aware_surface(wl_client *client, wl_resource *sub_surface_extension_resource, uint32_t id, wl_resource *surface_resource)
 {
     Q_UNUSED(sub_surface_extension_resource);
-    Surface *surface = reinterpret_cast<Surface *>(surface_resource);
+    Surface *surface = resolve<Surface>(surface_resource);
     new SubSurface(client,id,surface);
 }
 

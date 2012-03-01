@@ -71,7 +71,7 @@ void SurfaceExtensionGlobal::get_extended_surface(struct wl_client *client,
                              struct wl_resource *surface_resource)
 {
     Q_UNUSED(surface_extension_resource);
-    Surface *surface = reinterpret_cast<Surface *>(surface_resource);
+    Surface *surface = resolve<Surface>(surface_resource);
     new ExtendedSurface(client,id,surface);
 }
 

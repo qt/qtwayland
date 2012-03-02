@@ -50,6 +50,7 @@
 #include <QtQuick/qsgtextureprovider.h>
 
 class WaylandSurfaceTextureProvider;
+class WaylandSurfaceNode;
 
 Q_DECLARE_METATYPE(WaylandSurface*)
 
@@ -84,6 +85,8 @@ public:
     void setUseTextureAlpha(bool useTextureAlpha);
     void setClientRenderingEnabled(bool enabled);
     void setTouchEventsEnabled(bool enabled);
+
+    void setDamagedFlag(bool on);
 
 protected:
     void mousePressEvent(QMouseEvent *event);
@@ -120,6 +123,8 @@ protected:
     QSGNode *updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *);
 
 private:
+    friend class WaylandSurfaceNode;
+    void updateNodeTexture(WaylandSurfaceNode *newNode);
     QPoint toSurface(const QPointF &pos) const;
     void init(WaylandSurface *);
 

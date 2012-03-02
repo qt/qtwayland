@@ -41,6 +41,7 @@
 #include "wlsurface.h"
 
 #include "waylandsurface.h"
+#include "waylandsurfaceitem.h"
 
 #include "wlcompositor.h"
 #include "wlshmbuffer.h"
@@ -319,6 +320,9 @@ bool Surface::advanceBufferQueue()
 
 void Surface::doUpdate() {
     if (postBuffer()) {
+        WaylandSurfaceItem *surfaceItem = waylandSurface()->surfaceItem();
+        if (surfaceItem)
+            surfaceItem->setDamagedFlag(true); // avoid flicker when we switch back to composited mode
         sendFrameCallback();
     } else {
         SurfaceBuffer *surfaceBuffer = currentSurfaceBuffer();

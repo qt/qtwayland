@@ -248,6 +248,12 @@ void WaylandSurfaceItem::surfaceDestroyed(QObject *)
     m_surface = 0;
 }
 
+void WaylandSurfaceItem::setDamagedFlag(bool on)
+{
+    m_damaged = on;
+}
+
+
 void WaylandSurfaceItem::surfaceDamaged(const QRect &)
 {
     m_damaged = true;
@@ -298,13 +304,23 @@ void WaylandSurfaceItem::setPaintEnabled(bool enabled)
     update();
 }
 
-QSGNode *WaylandSurfaceItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *)
+class WaylandSurfaceNode : public QSGSimpleTextureNode
 {
-    if (!m_surface) {
-        delete oldNode;
-        return 0;
+public:
+    WaylandSurfaceNode(WaylandSurfaceItem *item) : m_item(item) {
+        setFlag(UsePreprocess,true);
     }
+    void preprocess() {
+        if (m_item->m_damaged)
+            m_item->updateNodeTexture(this);
+    }
+private:
+    WaylandSurfaceItem *m_item;
+};
 
+
+void WaylandSurfaceItem::updateNodeTexture(WaylandSurfaceNode *node)
+{
     if (m_damaged) {
         QSGTexture *oldTexture = m_texture;
         if (m_surface->type() == WaylandSurface::Texture) {
@@ -327,24 +343,31 @@ QSGNode *WaylandSurfaceItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeDa
         m_provider->smooth = smooth();
     }
 
-    QSGSimpleTextureNode *node = static_cast<QSGSimpleTextureNode *>(oldNode);
-    if (!m_texture || !m_paintEnabled) {
+    node->setTexture(m_texture);
+    node->setFiltering(smooth() ? QSGTexture::Linear : QSGTexture::Nearest);
+}
+
+
+QSGNode *WaylandSurfaceItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *)
+{
+    if (!m_surface || !m_paintEnabled) {
         delete oldNode;
         return 0;
     }
 
+    WaylandSurfaceNode *node = static_cast<WaylandSurfaceNode *>(oldNode);
+
     if (!node) {
-        node = new QSGSimpleTextureNode();
+        node = new WaylandSurfaceNode(this);
     }
+
+    updateNodeTexture(node);
 
     if (surface()->isYInverted()) {
         node->setRect(0, height(), width(), -height());
     } else {
         node->setRect(0, 0, width(), height());
     }
-
-    node->setTexture(m_texture);
-    node->setFiltering(smooth() ? QSGTexture::Linear : QSGTexture::Nearest);
 
     return node;
 }

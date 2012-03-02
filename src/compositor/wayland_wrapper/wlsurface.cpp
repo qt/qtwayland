@@ -417,7 +417,7 @@ void Surface::surface_attach(struct wl_client *client, struct wl_resource *surfa
     Q_UNUSED(client);
     Q_UNUSED(x);
     Q_UNUSED(y);
-    resolve<Surface>(surface)->attach(reinterpret_cast<wl_buffer *>(buffer->data));
+    resolve<Surface>(surface)->attach(buffer ? reinterpret_cast<wl_buffer *>(buffer->data) : 0);
 }
 
 void Surface::surface_damage(struct wl_client *client, struct wl_resource *surface,

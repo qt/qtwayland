@@ -162,57 +162,26 @@ void QWaylandInputDevice::inputHandleButton(void *data,
 	return;
     }
 
+    // translate from kernel (input.h) 'button' to corresponding Qt:MouseButton.
+    // The range of mouse values is 0x110 <= mouse_button < 0x120, the first Joystick button.
     switch (button) {
-    case 272:
-	qt_button = Qt::LeftButton;
-	break;
-    case 273:
-	qt_button = Qt::RightButton;
-	break;
-    case 274:
-        qt_button = Qt::MiddleButton;
-        break;
-    case 275:
-        qt_button = Qt::ExtraButton1;   // AKA BackButton
-        break;
-    case 276:
-        qt_button = Qt::ExtraButton2;   // AKA ForwardButton
-        break;
-    case 277:
-        qt_button = Qt::ExtraButton3;   // AKA TaskButton
-        break;
-    case 278:
-        qt_button = Qt::ExtraButton4;
-        break;
-    case 279:
-        qt_button = Qt::ExtraButton5;
-        break;
-    case 280:
-        qt_button = Qt::ExtraButton6;
-        break;
-    case 281:
-        qt_button = Qt::ExtraButton7;
-        break;
-    case 282:
-        qt_button = Qt::ExtraButton8;
-        break;
-    case 283:
-        qt_button = Qt::ExtraButton9;
-        break;
-    case 284:
-        qt_button = Qt::ExtraButton10;
-        break;
-    case 285:
-        qt_button = Qt::ExtraButton11;
-        break;
-    case 286:
-        qt_button = Qt::ExtraButton12;
-        break;
-    case 287:
-        qt_button = Qt::ExtraButton13;
-        break;
-    default:
-	return;
+        case 0x110: qt_button = Qt::LeftButton; break;    // kernel BTN_LEFT
+        case 0x111: qt_button = Qt::RightButton; break;
+        case 0x112: qt_button = Qt::MiddleButton; break;
+        case 0x113: qt_button = Qt::ExtraButton1; break;  // AKA Qt::BackButton
+        case 0x114: qt_button = Qt::ExtraButton2; break;  // AKA Qt::ForwardButton
+        case 0x115: qt_button = Qt::ExtraButton3; break;  // AKA Qt::TaskButton
+        case 0x116: qt_button = Qt::ExtraButton4; break;
+        case 0x117: qt_button = Qt::ExtraButton5; break;
+        case 0x118: qt_button = Qt::ExtraButton6; break;
+        case 0x119: qt_button = Qt::ExtraButton7; break;
+        case 0x11a: qt_button = Qt::ExtraButton8; break;
+        case 0x11b: qt_button = Qt::ExtraButton9; break;
+        case 0x11c: qt_button = Qt::ExtraButton10; break;
+        case 0x11d: qt_button = Qt::ExtraButton11; break;
+        case 0x11e: qt_button = Qt::ExtraButton12; break;
+        case 0x11f: qt_button = Qt::ExtraButton13; break;
+        default: return; // invalid button number (as far as Qt is concerned)
     }
 
     if (state)

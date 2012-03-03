@@ -275,16 +275,28 @@ uint32_t InputDevice::toWaylandButton(Qt::MouseButton button)
 {
 #ifndef BTN_LEFT
     uint32_t BTN_LEFT = 0x110;
-    uint32_t BTN_RIGHT = 0x111;
-    uint32_t BTN_MIDDLE = 0x112;
 #endif
+    // the range of valid buttons (evdev module) is from 0x110
+    // through 0x11f. 0x120 is the first 'Joystick' button.
     switch (button) {
-    case Qt::LeftButton:
-        return BTN_LEFT;
-    case Qt::RightButton:
-        return BTN_RIGHT;
-    default:
-        return BTN_MIDDLE;
+        case Qt::LeftButton: return BTN_LEFT;
+        case Qt::RightButton: return uint32_t(0x111);
+        case Qt::MiddleButton: return uint32_t(0x112);
+        case Qt::ExtraButton1: return uint32_t(0x113);  // AKA Qt::BackButton, Qt::XButton1
+        case Qt::ExtraButton2: return uint32_t(0x114);  // AKA Qt::ForwardButton, Qt::XButton2
+        case Qt::ExtraButton3: return uint32_t(0x115);
+        case Qt::ExtraButton4: return uint32_t(0x116);
+        case Qt::ExtraButton5: return uint32_t(0x117);
+        case Qt::ExtraButton6: return uint32_t(0x118);
+        case Qt::ExtraButton7: return uint32_t(0x119);
+        case Qt::ExtraButton8: return uint32_t(0x11a);
+        case Qt::ExtraButton9: return uint32_t(0x11b);
+        case Qt::ExtraButton10: return uint32_t(0x11c);
+        case Qt::ExtraButton11: return uint32_t(0x11d);
+        case Qt::ExtraButton12: return uint32_t(0x11e);
+        case Qt::ExtraButton13: return uint32_t(0x11f);
+        // default should not occur; but if it does, then return Wayland's highest possible button number.
+        default: return uint32_t(0x11f);
     }
 }
 

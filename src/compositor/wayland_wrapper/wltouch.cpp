@@ -87,7 +87,7 @@ void TouchExtensionGlobal::bind_func(wl_client *client, void *data, uint32_t ver
     resource->destroy = destroy_resource;
     TouchExtensionGlobal *self = static_cast<TouchExtensionGlobal *>(resource->data);
     self->m_resources.append(resource);
-    wl_resource_post_event(resource, WL_TOUCH_EXTENSION_CONFIGURE, self->m_flags);
+    wl_touch_extension_send_configure(resource, self->m_flags);
 }
 
 static inline int toFixed(qreal f)
@@ -160,7 +160,7 @@ void TouchExtensionGlobal::postTouchEvent(QTouchEvent *event, Surface *surface)
                 }
             }
 
-            wl_resource_post_event(target, WL_TOUCH_EXTENSION_TOUCH,
+            wl_touch_extension_send_touch(target,
                                    time, id, state,
                                    x, y, nx, ny, w, h,
                                    pressure, vx, vy,

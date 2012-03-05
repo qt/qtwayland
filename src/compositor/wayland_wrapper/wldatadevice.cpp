@@ -113,7 +113,7 @@ void DataDevice::sendSelectionFocus()
             wl_resource *client_resource =
                     data_offer->addDataDeviceResource(m_data_device_resource);
             qDebug() << "sending data_offer for source" << source;
-            wl_resource_post_event(m_data_device_resource,WL_DATA_DEVICE_SELECTION,client_resource);
+            wl_data_device_send_selection(m_data_device_resource,client_resource);
             m_sent_selection_time = source->time();
         }
     }

@@ -104,14 +104,14 @@ void ExtendedSurface::sendGenericProperty(const QString &name, const QVariant &v
     data.size = byteValue.size();
     data.data = (void*) byteValue.constData();
     data.alloc = 0;
-    wl_resource_post_event(m_extended_surface_resource,WL_EXTENDED_SURFACE_SET_GENERIC_PROPERTY, qPrintable(name), &data);
+    wl_extended_surface_send_set_generic_property(m_extended_surface_resource, qPrintable(name), &data);
 
 }
 
 void ExtendedSurface::sendOnScreenVisibility(bool visible)
 {
     int32_t visibleInt = visible;
-    wl_resource_post_event(m_extended_surface_resource,WL_EXTENDED_SURFACE_ONSCREEN_VISIBILITY,visibleInt);
+    wl_extended_surface_send_onscreen_visibility(m_extended_surface_resource, visibleInt);
 }
 
 

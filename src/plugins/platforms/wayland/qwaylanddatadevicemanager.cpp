@@ -83,7 +83,10 @@ void QWaylandDataDeviceManager::enter(void *data,
               int32_t y,
               struct wl_data_offer *id)
 {
+
     Q_UNUSED(wl_data_device);
+    Q_UNUSED(x);
+    Q_UNUSED(y);
     QWaylandDataDeviceManager *data_device_manager = static_cast<QWaylandDataDeviceManager *>(data);
     if (time < data_device_manager->m_drag_last_event_time)
         return;
@@ -96,8 +99,8 @@ void QWaylandDataDeviceManager::enter(void *data,
     if (!offer)
         return;
 
-    QPoint point(x,y);
-    Qt::DropActions allActions =  Qt::CopyAction | Qt::MoveAction | Qt::LinkAction;
+//    QPoint point(x,y);
+//    Qt::DropActions allActions =  Qt::CopyAction | Qt::MoveAction | Qt::LinkAction;
 //    QPlatformDragQtResponse response = QWindowSystemInterface::handleDrag(data_device_manager->m_drag_current_event_window->window(),
 //                                                                          offer,point,allActions);
 //    data_device_manager->m_drag_can_drop = response.accepted();
@@ -135,7 +138,7 @@ void QWaylandDataDeviceManager::motion(void *data,
         return;
     data_device_manager->m_drag_position = QPoint(x,y);
 
-    Qt::DropActions allActions =  Qt::CopyAction | Qt::MoveAction | Qt::LinkAction;
+//    Qt::DropActions allActions =  Qt::CopyAction | Qt::MoveAction | Qt::LinkAction;
 //    QPlatformDragQtResponse response = QWindowSystemInterface::handleDrag(data_device_manager->m_drag_current_event_window->window(),
 //                                       data_device_manager->m_drag_data_offer, data_device_manager->m_drag_position ,allActions);
 //    data_device_manager->m_drag_can_drop = response.accepted();
@@ -153,8 +156,8 @@ void QWaylandDataDeviceManager::drop(void *data,
     QWaylandDataDeviceManager *data_device_manager = static_cast<QWaylandDataDeviceManager *>(data);
     QWindow *window = data_device_manager->m_drag_current_event_window->window();
     QMimeData *mime = data_device_manager->m_drag_data_offer;
-    QPoint point = data_device_manager->m_drag_position;
-    Qt::DropActions allActions =  Qt::CopyAction | Qt::MoveAction | Qt::LinkAction;
+//    QPoint point = data_device_manager->m_drag_position;
+//    Qt::DropActions allActions =  Qt::CopyAction | Qt::MoveAction | Qt::LinkAction;
 
     Q_UNUSED(window);
     Q_UNUSED(mime);

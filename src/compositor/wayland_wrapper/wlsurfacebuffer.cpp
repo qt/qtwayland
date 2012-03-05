@@ -103,7 +103,7 @@ void SurfaceBuffer::destructBufferState()
 void SurfaceBuffer::sendRelease()
 {
     Q_ASSERT(m_buffer);
-    wl_resource_post_event(&m_buffer->resource, WL_BUFFER_RELEASE);
+    wl_buffer_send_release(&m_buffer->resource);
 }
 
 void SurfaceBuffer::setPageFlipperHasBuffer(bool owns)

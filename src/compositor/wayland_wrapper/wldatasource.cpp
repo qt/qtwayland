@@ -114,7 +114,7 @@ DataOffer * DataSource::dataOffer() const
 void DataSource::postSendEvent(const QByteArray &mimeType, int fd)
 {
     if (m_data_source_resource) {
-        wl_resource_post_event(m_data_source_resource,WL_DATA_SOURCE_SEND,mimeType.constData(),fd);
+        wl_data_source_send_send(m_data_source_resource, mimeType.constData(), fd);
     }
 }
 

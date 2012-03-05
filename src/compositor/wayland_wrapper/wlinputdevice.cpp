@@ -73,8 +73,8 @@ void InputDevice::sendMousePressEvent(Qt::MouseButton button, const QPoint &loca
     uint32_t time = m_compositor->currentTimeMsecs();
     struct wl_resource *pointer_focus_resource = base()->pointer_focus_resource;
     if (pointer_focus_resource) {
-        wl_resource_post_event(pointer_focus_resource,
-                               WL_INPUT_DEVICE_BUTTON, time, toWaylandButton(button), 1);
+        wl_input_device_send_button(pointer_focus_resource,
+                                    time, toWaylandButton(button), 1);
     }
 }
 
@@ -85,22 +85,20 @@ void InputDevice::sendMouseReleaseEvent(Qt::MouseButton button, const QPoint &lo
     uint32_t time = m_compositor->currentTimeMsecs();
     struct wl_resource *pointer_focus_resource = base()->pointer_focus_resource;
     if (pointer_focus_resource) {
-        wl_resource_post_event(pointer_focus_resource,
-                               WL_INPUT_DEVICE_BUTTON, time, toWaylandButton(button), 0);
+        wl_input_device_send_button(pointer_focus_resource,
+                                    time, toWaylandButton(button), 0);
     }
 }
 
 void InputDevice::sendMouseMoveEvent(const QPoint &localPos, const QPoint &globalPos)
 {
+    Q_UNUSED(globalPos);
     uint32_t time = m_compositor->currentTimeMsecs();
     struct wl_resource *pointer_focus_resource = base()->pointer_focus_resource;
     if (pointer_focus_resource) {
-        QPoint validGlobalPos = globalPos.isNull()?localPos:globalPos;
-        wl_resource_post_event(pointer_focus_resource,
-                               WL_INPUT_DEVICE_MOTION,
-                               time,
-                               validGlobalPos.x(), validGlobalPos.y(), //wayland sends globals before locals
-                               localPos.x(), localPos.y());
+        wl_input_device_send_motion(pointer_focus_resource,
+                                    time,
+                                    localPos.x(), localPos.y());
     }
 }
 
@@ -116,8 +114,8 @@ void InputDevice::sendKeyPressEvent(uint code)
 {
     if (base()->keyboard_focus_resource != NULL) {
         uint32_t time = m_compositor->currentTimeMsecs();
-        wl_resource_post_event(base()->keyboard_focus_resource,
-                               WL_INPUT_DEVICE_KEY, time, code - 8, 1);
+        wl_input_device_send_key(base()->keyboard_focus_resource,
+                                 time, code - 8, 1);
     }
 }
 
@@ -125,8 +123,8 @@ void InputDevice::sendKeyReleaseEvent(uint code)
 {
     if (base()->keyboard_focus_resource != NULL) {
         uint32_t time = m_compositor->currentTimeMsecs();
-        wl_resource_post_event(base()->keyboard_focus_resource,
-                               WL_INPUT_DEVICE_KEY, time, code - 8, 0);
+        wl_input_device_send_key(base()->keyboard_focus_resource,
+                                 time, code - 8, 0);
     }
 }
 
@@ -138,13 +136,13 @@ void InputDevice::sendTouchPointEvent(int id, int x, int y, Qt::TouchPointState 
         return;
     switch (state) {
     case Qt::TouchPointPressed:
-        wl_resource_post_event(resource, WL_INPUT_DEVICE_TOUCH_DOWN, time, base()->pointer_focus, id, x, y);
+        wl_input_device_send_touch_down(resource, time, &base()->pointer_focus->resource, id, x, y);
         break;
     case Qt::TouchPointMoved:
-        wl_resource_post_event(resource, WL_INPUT_DEVICE_TOUCH_MOTION, time, id, x, y);
+        wl_input_device_send_touch_motion(resource, time, id, x, y);
         break;
     case Qt::TouchPointReleased:
-        wl_resource_post_event(resource, WL_INPUT_DEVICE_TOUCH_UP, time, id);
+        wl_input_device_send_touch_up(resource, time, id);
         break;
     case Qt::TouchPointStationary:
         // stationary points are not sent through wayland, the client must cache them
@@ -158,8 +156,7 @@ void InputDevice::sendTouchFrameEvent()
 {
     struct wl_resource *resource = base()->pointer_focus_resource;
     if (resource) {
-        wl_resource_post_event(resource,
-                               WL_INPUT_DEVICE_TOUCH_FRAME);
+        wl_input_device_send_touch_frame(resource);
     }
 }
 
@@ -167,8 +164,7 @@ void InputDevice::sendTouchCancelEvent()
 {
     struct wl_resource *resource = base()->pointer_focus_resource;
     if (resource) {
-        wl_resource_post_event(resource,
-                               WL_INPUT_DEVICE_TOUCH_CANCEL);
+        wl_input_device_send_touch_cancel(resource);
     }
 }
 

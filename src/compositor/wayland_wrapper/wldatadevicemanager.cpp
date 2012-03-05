@@ -95,6 +95,7 @@ void DataDeviceManager::setCurrentSelectionSource(DataSource *source)
 
 void DataDeviceManager::sourceDestroyed(DataSource *source)
 {
+    Q_UNUSED(source);
     if (m_current_selection_source == source)
         finishReadFromClient();
 }
@@ -123,6 +124,7 @@ void DataDeviceManager::retain()
 
 void DataDeviceManager::finishReadFromClient(bool exhausted)
 {
+    Q_UNUSED(exhausted);
     if (m_retainedReadNotifier) {
         if (exhausted) {
             int fd = m_retainedReadNotifier->socket();
@@ -252,12 +254,12 @@ bool DataDeviceManager::offerFromCompositorToClient(wl_resource *clientDataDevic
 
     struct wl_resource *selectionOffer =
              wl_client_new_object(client, &wl_data_offer_interface, &compositor_offer_interface, this);
-    wl_resource_post_event(clientDataDeviceResource, WL_DATA_DEVICE_DATA_OFFER, selectionOffer);
+    wl_data_device_send_data_offer(clientDataDeviceResource, selectionOffer);
     foreach (const QString &format, m_retainedData.formats()) {
         QByteArray ba = format.toLatin1();
-        wl_resource_post_event(selectionOffer, WL_DATA_OFFER_OFFER, ba.constData());
+        wl_data_offer_send_offer(selectionOffer, ba.constData());
     }
-    wl_resource_post_event(clientDataDeviceResource, WL_DATA_DEVICE_SELECTION, selectionOffer);
+    wl_data_device_send_selection(clientDataDeviceResource, selectionOffer);
 
     return true;
 }

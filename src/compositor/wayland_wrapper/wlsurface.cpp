@@ -224,7 +224,7 @@ void Surface::sendFrameCallback()
     uint time = Compositor::currentTimeMsecs();
     struct wl_resource *frame_callback;
     wl_list_for_each(frame_callback, &m_frame_callback_list, link) {
-        wl_resource_post_event(frame_callback,WL_CALLBACK_DONE,time);
+        wl_callback_send_done(frame_callback, time);
         wl_resource_destroy(frame_callback,Compositor::currentTimeMsecs());
     }
     wl_list_init(&m_frame_callback_list);

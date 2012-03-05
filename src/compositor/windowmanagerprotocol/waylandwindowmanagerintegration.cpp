@@ -100,7 +100,7 @@ void WindowManagerServerIntegration::setShowIsFullScreen(bool value)
     m_showIsFullScreen = value;
     struct wl_resource *resource;
     wl_list_for_each(resource,&client_resources, link) {
-        wl_resource_post_event(resource, WL_WINDOWMANAGER_HINTS, int32_t(m_showIsFullScreen));
+        wl_windowmanager_send_hints(resource, int32_t(m_showIsFullScreen));
     }
 }
 
@@ -111,7 +111,7 @@ void WindowManagerServerIntegration::bind_func(struct wl_client *client, void *d
     WindowManagerServerIntegration *win_mgr = static_cast<WindowManagerServerIntegration *>(data);
     wl_resource *resource = wl_client_add_object(client,&wl_windowmanager_interface,&windowmanager_interface,id,data);
     win_mgr->registerResource(resource);
-    wl_resource_post_event(resource, WL_WINDOWMANAGER_HINTS, int32_t(win_mgr->m_showIsFullScreen));
+    wl_windowmanager_send_hints(resource, int32_t(win_mgr->m_showIsFullScreen));
 }
 
 

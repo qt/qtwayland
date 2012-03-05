@@ -69,12 +69,12 @@ struct wl_resource *DataOffer::addDataDeviceResource(struct wl_resource *data_de
     }
     struct wl_resource *new_object =
              wl_client_new_object(data_device_resource->client,&wl_data_offer_interface,&data_interface,this);
-    wl_resource_post_event(data_device_resource,WL_DATA_DEVICE_DATA_OFFER,new_object);
+    wl_data_device_send_data_offer(data_device_resource, new_object);
 
     registerResource(new_object);
     QList<QByteArray> offer_list = m_data_source->offerList();
     for (int i = 0; i < offer_list.size(); i++) {
-        wl_resource_post_event(new_object, WL_DATA_OFFER_OFFER, offer_list.at(i).constData());
+        wl_data_offer_send_offer(new_object, offer_list.at(i).constData());
     }
     return new_object;
 }

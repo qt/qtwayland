@@ -124,6 +124,7 @@ protected:
 
 private:
     friend class WaylandSurfaceNode;
+    void updateTexture();
     void updateNodeTexture(WaylandSurfaceNode *newNode);
     QPoint toSurface(const QPointF &pos) const;
     void init(WaylandSurface *);

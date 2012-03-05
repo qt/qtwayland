@@ -311,15 +311,17 @@ public:
         setFlag(UsePreprocess,true);
     }
     void preprocess() {
-        if (m_item->m_damaged)
+        if (m_item->m_damaged) {
+            m_item->updateTexture();
             m_item->updateNodeTexture(this);
+        }
     }
 private:
     WaylandSurfaceItem *m_item;
 };
 
 
-void WaylandSurfaceItem::updateNodeTexture(WaylandSurfaceNode *node)
+void WaylandSurfaceItem::updateTexture()
 {
     if (m_damaged) {
         QSGTexture *oldTexture = m_texture;
@@ -342,15 +344,23 @@ void WaylandSurfaceItem::updateNodeTexture(WaylandSurfaceNode *node)
         m_provider->t = m_texture;
         m_provider->smooth = smooth();
     }
+}
 
+void WaylandSurfaceItem::updateNodeTexture(WaylandSurfaceNode *node)
+{
     node->setTexture(m_texture);
     node->setFiltering(smooth() ? QSGTexture::Linear : QSGTexture::Nearest);
 }
 
-
 QSGNode *WaylandSurfaceItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *)
 {
-    if (!m_surface || !m_paintEnabled) {
+    if (!m_surface) {
+        delete oldNode;
+        return 0;
+    }
+
+    updateTexture();
+    if (!m_texture || !m_paintEnabled) {
         delete oldNode;
         return 0;
     }

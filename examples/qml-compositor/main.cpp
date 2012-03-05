@@ -47,7 +47,7 @@
 #include <QPainter>
 #include <QMouseEvent>
 
-#include <QDeclarativeContext>
+#include <QQmlContext>
 
 #include <QQuickItem>
 #include <QQuickView>

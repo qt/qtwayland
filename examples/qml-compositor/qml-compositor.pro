@@ -5,7 +5,7 @@ CONFIG += use_pkgconfig
 
 LIBS += -L ../../lib
 
-QT += quick declarative     v8
+QT += quick qml     v8
 QT += quick-private
 
 QT += compositor

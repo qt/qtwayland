@@ -41,6 +41,7 @@
 #ifndef WLEXTENDEDSURFACE_H
 #define WLEXTENDEDSURFACE_H
 
+#include <wayland-server.h>
 #include "wayland-surface-extension-server-protocol.h"
 
 #include "wlsurface.h"

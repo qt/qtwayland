@@ -42,7 +42,9 @@
 #include "wldataoffer.h"
 #include "wldatadevicemanager.h"
 #include "wlcompositor.h"
-#include <wayland-server.h>
+
+#include <wayland-server-protocol.h>
+
 #include <QtCore/QDebug>
 
 namespace Wayland {

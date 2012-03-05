@@ -41,6 +41,7 @@
 #ifndef WLEXTENDEDOUTPUT_H
 #define WLEXTENDEDOUTPUT_H
 
+#include "wayland-server.h"
 #include "wayland-output-extension-server-protocol.h"
 
 #include <QtCore/qnamespace.h>

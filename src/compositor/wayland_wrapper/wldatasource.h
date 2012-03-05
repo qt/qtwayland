@@ -41,7 +41,7 @@
 #ifndef WLDATASOURCE_H
 #define WLDATASOURCE_H
 
-#include <wayland-server-protocol.h>
+#include <wayland-server.h>
 
 #include <QtCore/QByteArray>
 #include <QtCore/QList>

@@ -70,13 +70,13 @@ class QWidgetCompositor : public QWidget, public WaylandCompositor
 public:
     QWidgetCompositor()
         : WaylandCompositor(windowHandle())
-        , m_moveSurface(0)
-        , m_dragSourceSurface(0)
 #ifdef QT_COMPOSITOR_WAYLAND_GL
         , m_surfaceCompositorFbo(0)
         , m_textureBlitter(0)
         , m_textureCache(0)
 #endif
+        , m_moveSurface(0)
+        , m_dragSourceSurface(0)
     {
         enableSubSurfaceExtension();
         setMouseTracking(true);
@@ -307,7 +307,7 @@ protected:
             return;
         }
         QPointF local;
-        if (WaylandSurface *surface = surfaceAt(e->pos(), &local))
+        if (surfaceAt(e->pos(), &local))
             defaultInputDevice()->sendMouseMoveEvent(local.toPoint(),pos());
     }
 
@@ -326,7 +326,7 @@ protected:
             return;
         }
         QPointF local;
-        if (WaylandSurface *surface = surfaceAt(e->pos(), &local))
+        if (surfaceAt(e->pos(), &local))
             defaultInputDevice()->sendMouseReleaseEvent(e->button(), local.toPoint(), e->pos());
     }
 

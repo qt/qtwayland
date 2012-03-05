@@ -155,9 +155,6 @@ signals:
     void contentOrientationChanged();
     void windowRotationChanged();
 
-    friend class Wayland::Surface;
-    friend class Wayland::SurfacePrivate;
-    friend class Wayland::ExtendedSurface;
 };
 
 #endif // WAYLANDSURFACE_H

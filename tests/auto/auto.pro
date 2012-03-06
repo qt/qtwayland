@@ -1,2 +1,2 @@
 TEMPLATE=subdirs
-SUBDIRS=compositor
+SUBDIRS=client compositor

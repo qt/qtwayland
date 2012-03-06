@@ -138,6 +138,7 @@ QWaylandDisplay::QWaylandDisplay(void)
     connect(wn, SIGNAL(activated(int)), this, SLOT(flushRequests()));
 #else
     QAbstractEventDispatcher *dispatcher = QGuiApplicationPrivate::eventDispatcher;
+    connect(dispatcher, SIGNAL(awake()), this, SLOT(flushRequests())); // needed for auto-testing
     connect(dispatcher, SIGNAL(aboutToBlock()), this, SLOT(flushRequests()));
 #endif
 

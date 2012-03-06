@@ -285,19 +285,15 @@ bool Surface::advanceBufferQueue()
         m_backBuffer = m_bufferQueue.takeFirst();
         while (m_backBuffer && m_backBuffer->isDestroyed()) {
             m_backBuffer->disown();
-            m_bufferQueue.takeFirst();
-            m_backBuffer = m_bufferQueue.size() ? m_bufferQueue.first():0;
+            m_backBuffer = m_bufferQueue.size() ? m_bufferQueue.takeFirst() : 0;
         }
 
         if (!m_backBuffer)
             return false; //we have no new backbuffer;
 
-       if (m_backBuffer->waylandBufferHandle()) {
-            if (width != m_backBuffer->width() ||
-                    height != m_backBuffer->height()) {
-                width = m_backBuffer->width();
-                height = m_backBuffer->height();
-            }
+        if (m_backBuffer->waylandBufferHandle()) {
+            width = m_backBuffer->width();
+            height = m_backBuffer->height();
         }
         setSize(QSize(width,height));
 

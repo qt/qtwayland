@@ -95,6 +95,11 @@ Qt::ScreenOrientation QWaylandScreen::orientation() const
     return QPlatformScreen::orientation();
 }
 
+QPlatformCursor *QWaylandScreen::cursor() const
+{
+    return  mWaylandCursor;
+}
+
 QWaylandExtendedOutput *QWaylandScreen::extendedOutput() const
 {
     return mExtendedOutput;

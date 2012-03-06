@@ -62,6 +62,8 @@ public:
 
     Qt::ScreenOrientation orientation() const;
 
+    QPlatformCursor *cursor() const;
+
     wl_output *output() const { return mOutput; }
 
     QWaylandExtendedOutput *extendedOutput() const;

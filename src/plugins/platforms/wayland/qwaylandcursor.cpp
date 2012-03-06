@@ -103,8 +103,7 @@ static const struct pointer_image {
 };
 
 QWaylandCursor::QWaylandCursor(QWaylandScreen *screen)
-    : QPlatformCursor(screen)
-    , mBuffer(0)
+    : mBuffer(0)
     , mDisplay(screen->display())
 {
 }

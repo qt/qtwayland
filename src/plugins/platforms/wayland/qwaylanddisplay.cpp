@@ -106,11 +106,6 @@ void QWaylandDisplay::setLastKeyboardFocusInputDevice(QWaylandInputDevice *devic
 
 static QWaylandDisplay *display = 0;
 
-static int dummyUpdate(uint32_t, void *)
-{
-    return 0;
-}
-
 QWaylandDisplay::QWaylandDisplay(void)
     : mLastKeyboardFocusInputDevice(0)
     , mDndSelectionHandler(0)
@@ -130,7 +125,7 @@ QWaylandDisplay::QWaylandDisplay(void)
 
     wl_display_add_global_listener(mDisplay, QWaylandDisplay::displayHandleGlobal, this);
 
-    mFd = wl_display_get_fd(mDisplay, dummyUpdate, 0);
+    mFd = wl_display_get_fd(mDisplay, 0, 0);
 
 #ifdef QTWAYLAND_EXPERIMENTAL_THREAD_SUPPORT
     mWritableNotificationFd = wl_display_get_write_notification_fd(mDisplay);

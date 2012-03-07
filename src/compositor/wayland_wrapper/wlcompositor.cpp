@@ -135,7 +135,6 @@ Compositor::Compositor(WaylandCompositor *qt_compositor)
     , m_retainNotify(0)
 {
     compositor = this;
-    qDebug() << "Compositor instance is" << this;
 
 #if defined (QT_COMPOSITOR_WAYLAND_GL)
     QWindow *window = qt_compositor->window();

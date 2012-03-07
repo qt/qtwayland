@@ -63,7 +63,7 @@ MockClient::MockClient()
 
     wl_display_add_global_listener(display, handleGlobal, this);
 
-    fd = wl_display_get_fd(display, sourceUpdate, 0);
+    fd = wl_display_get_fd(display, 0, 0);
 
     QSocketNotifier *readNotifier = new QSocketNotifier(fd, QSocketNotifier::Read, this);
     connect(readNotifier, SIGNAL(activated(int)), this, SLOT(readEvents()));
@@ -94,11 +94,6 @@ MockClient::~MockClient()
 void MockClient::handleGlobal(wl_display *, uint32_t id, const char *interface, uint32_t, void *data)
 {
     resolve(data)->handleGlobal(id, QByteArray(interface));
-}
-
-int MockClient::sourceUpdate(uint32_t, void *)
-{
-    return 0;
 }
 
 void MockClient::outputGeometryEvent(void *data, wl_output *,

@@ -121,5 +121,26 @@ void Compositor::sendMouseRelease(void *data, const QList<QVariant> &parameters)
     wl_input_device_send_button(compositor->m_input.pointer_focus_resource, compositor->time(), 0x110, 0);
 }
 
+void Compositor::sendKeyPress(void *data, const QList<QVariant> &parameters)
+{
+    Compositor *compositor = static_cast<Compositor *>(data);
+    wl_surface *surface = resolveSurface(parameters.first());
+    if (!surface)
+        return;
+
+    QPoint pos = parameters.last().toPoint();
+    wl_input_device_send_key(compositor->m_input.keyboard_focus_resource, compositor->time(), parameters.last().toUInt() - 8, 1);
+}
+
+void Compositor::sendKeyRelease(void *data, const QList<QVariant> &parameters)
+{
+    Compositor *compositor = static_cast<Compositor *>(data);
+    wl_surface *surface = resolveSurface(parameters.first());
+    if (!surface)
+        return;
+
+    wl_input_device_send_key(compositor->m_input.keyboard_focus_resource, compositor->time(), parameters.last().toUInt() - 8, 0);
+}
+
 }
 

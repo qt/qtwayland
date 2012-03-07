@@ -114,6 +114,20 @@ void MockCompositor::sendMouseRelease(const QSharedPointer<MockSurface> &surface
     processCommand(command);
 }
 
+void MockCompositor::sendKeyPress(const QSharedPointer<MockSurface> &surface, uint code)
+{
+    Command command = makeCommand(Impl::Compositor::sendKeyPress, m_compositor);
+    command.parameters << QVariant::fromValue(surface) << code;
+    processCommand(command);
+}
+
+void MockCompositor::sendKeyRelease(const QSharedPointer<MockSurface> &surface, uint code)
+{
+    Command command = makeCommand(Impl::Compositor::sendKeyRelease, m_compositor);
+    command.parameters << QVariant::fromValue(surface) << code;
+    processCommand(command);
+}
+
 QSharedPointer<MockSurface> MockCompositor::surface()
 {
     QSharedPointer<MockSurface> result;

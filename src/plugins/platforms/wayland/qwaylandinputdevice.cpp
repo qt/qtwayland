@@ -307,18 +307,20 @@ void QWaylandInputDevice::inputHandleKey(void *data,
     sym = translateKey(sym, s, sizeof s);
 
     if (window) {
-        QWindowSystemInterface::handleKeyEvent(window->window(),
-                                               time, type, sym,
-                                               inputDevice->mModifiers,
-                                               QString::fromLatin1(s));
+        QWindowSystemInterface::handleExtendedKeyEvent(window->window(),
+                                                       time, type, sym,
+                                                       inputDevice->mModifiers,
+                                                       code, 0, 0,
+                                                       QString::fromLatin1(s));
     }
 #else
     // Generic fallback for single hard keys: Assume 'key' is a Qt key code.
     if (window) {
-        QWindowSystemInterface::handleKeyEvent(window->window(),
-                                               time, state ? QEvent::KeyPress : QEvent::KeyRelease,
-                                               key + 8, // qt-compositor substracts 8 for some reason
-                                               inputDevice->mModifiers);
+        QWindowSystemInterface::handleExtendedKeyEvent(window->window(),
+                                                       time, state ? QEvent::KeyPress : QEvent::KeyRelease,
+                                                       key + 8, // qt-compositor substracts 8 for some reason
+                                                       inputDevice->mModifiers,
+                                                       key + 8, 0, 0);
     }
 #endif
 }

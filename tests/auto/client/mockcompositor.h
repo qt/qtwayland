@@ -80,6 +80,8 @@ public:
     static void setKeyboardFocus(void *data, const QList<QVariant> &parameters);
     static void sendMousePress(void *data, const QList<QVariant> &parameters);
     static void sendMouseRelease(void *data, const QList<QVariant> &parameters);
+    static void sendKeyPress(void *data, const QList<QVariant> &parameters);
+    static void sendKeyRelease(void *data, const QList<QVariant> &parameters);
 
 private:
     static void bindCompositor(wl_client *client, void *data, uint32_t version, uint32_t id);
@@ -142,6 +144,8 @@ public:
     void setKeyboardFocus(const QSharedPointer<MockSurface> &surface);
     void sendMousePress(const QSharedPointer<MockSurface> &surface, const QPoint &pos);
     void sendMouseRelease(const QSharedPointer<MockSurface> &surface);
+    void sendKeyPress(const QSharedPointer<MockSurface> &surface, uint code);
+    void sendKeyRelease(const QSharedPointer<MockSurface> &surface, uint code);
 
     QSharedPointer<MockSurface> surface();
 

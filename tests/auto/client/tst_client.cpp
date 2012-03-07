@@ -55,6 +55,7 @@ public:
         , keyReleaseEventCount(0)
         , mousePressEventCount(0)
         , mouseReleaseEventCount(0)
+        , keyCode(0)
     {
         setSurfaceType(QSurface::RasterSurface);
         setGeometry(0, 0, 32, 32);
@@ -71,14 +72,16 @@ public:
         ++focusOutEventCount;
     }
 
-    void keyPressEvent(QKeyEvent *)
+    void keyPressEvent(QKeyEvent *event)
     {
         ++keyPressEventCount;
+        keyCode = event->nativeScanCode();
     }
 
-    void keyReleaseEvent(QKeyEvent *)
+    void keyReleaseEvent(QKeyEvent *event)
     {
         ++keyReleaseEventCount;
+        keyCode = event->nativeScanCode();
     }
 
     void mousePressEvent(QMouseEvent *event)
@@ -99,6 +102,7 @@ public:
     int mousePressEventCount;
     int mouseReleaseEventCount;
 
+    uint keyCode;
     QPoint mousePressPos;
 };
 
@@ -165,6 +169,17 @@ void tst_WaylandClient::events()
     compositor->setKeyboardFocus(surface);
     QTRY_COMPARE(window.focusInEventCount, 2);
     QTRY_COMPARE(QGuiApplication::focusWindow(), &window);
+
+    uint keyCode = 80; // arbitrarily chosen
+    QCOMPARE(window.keyPressEventCount, 0);
+    compositor->sendKeyPress(surface, keyCode);
+    QTRY_COMPARE(window.keyPressEventCount, 1);
+    QTRY_COMPARE(window.keyCode, keyCode);
+
+    QCOMPARE(window.keyReleaseEventCount, 0);
+    compositor->sendKeyRelease(surface, keyCode);
+    QTRY_COMPARE(window.keyReleaseEventCount, 1);
+    QCOMPARE(window.keyCode, keyCode);
 
     QPoint mousePressPos(16, 16);
     QCOMPARE(window.mousePressEventCount, 0);

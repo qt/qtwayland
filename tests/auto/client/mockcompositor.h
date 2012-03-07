@@ -46,8 +46,9 @@
 #include <qglobal.h>
 #include <wayland-server.h>
 
-#include <QRect>
+#include <QImage>
 #include <QMutex>
+#include <QRect>
 #include <QSharedPointer>
 #include <QVariant>
 #include <QVector>
@@ -118,6 +119,8 @@ class MockSurface
 {
 public:
     Impl::Surface *handle() const { return m_surface; }
+
+    QImage image;
 
 private:
     MockSurface(Impl::Surface *surface);

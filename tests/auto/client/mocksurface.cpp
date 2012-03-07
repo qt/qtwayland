@@ -41,6 +41,7 @@
 
 #include "mocksurface.h"
 #include "mockcompositor.h"
+#include "mockshm.h"
 
 namespace Impl {
 
@@ -57,39 +58,54 @@ static void surface_destroy(wl_client *, wl_resource *surfaceResource)
     wl_resource_destroy(surfaceResource, surface->compositor()->time());
 }
 
-void surface_attach(wl_client *client, wl_resource *surface,
+void surface_attach(wl_client *client, wl_resource *surfaceResource,
                     wl_resource *buffer, int x, int y)
 {
     Q_UNUSED(client);
-    Q_UNUSED(surface);
-    Q_UNUSED(buffer);
     Q_UNUSED(x);
     Q_UNUSED(y);
-    //resolve<Surface>(surface)->attach(buffer ? reinterpret_cast<wl_buffer *>(buffer->data) : 0);
+
+    Surface *surface = static_cast<Surface *>(surfaceResource->data);
+    surface->m_buffer = buffer ? static_cast<wl_buffer *>(buffer->data) : 0;
+
+    if (!buffer)
+        surface->m_mockSurface->image = QImage();
 }
 
-void surface_damage(wl_client *client, wl_resource *surface,
+void surface_damage(wl_client *client, wl_resource *surfaceResource,
                     int32_t x, int32_t y, int32_t width, int32_t height)
 {
     Q_UNUSED(client);
-    Q_UNUSED(surface);
     Q_UNUSED(x);
     Q_UNUSED(y);
     Q_UNUSED(width);
     Q_UNUSED(height);
-    //resolve<Surface>(surface)->damage(QRect(x, y, width, height));
+
+    Surface *surface = static_cast<Surface *>(surfaceResource->data);
+    wl_buffer *buffer = surface->m_buffer;
+
+    if (!buffer)
+        return;
+
+    if (wl_buffer_is_shm(buffer))
+        surface->m_mockSurface->image = static_cast<ShmBuffer *>(buffer->user_data)->image();
+
+    wl_resource *frameCallback;
+    wl_list_for_each(frameCallback, &surface->m_frameCallbackList, link) {
+        wl_callback_send_done(frameCallback, surface->m_compositor->time());
+        wl_resource_destroy(frameCallback, surface->m_compositor->time());
+    }
+
+    wl_list_init(&surface->m_frameCallbackList);
 }
 
 void surface_frame(wl_client *client,
-                   wl_resource *surface,
+                   wl_resource *surfaceResource,
                    uint32_t callback)
 {
-    Q_UNUSED(client);
-    Q_UNUSED(surface);
-    Q_UNUSED(callback);
-//    Surface *surface = resolve<Surface>(resource);
-//    wl_resource *frame_callback = wl_client_add_object(client, &wl_callback_interface, 0, callback, surface);
-//    wl_list_insert(&surface->m_frame_callback_list, &frame_callback->link);
+    Surface *surface = static_cast<Surface *>(surfaceResource->data);
+    wl_resource *frameCallback = wl_client_add_object(client, &wl_callback_interface, 0, callback, surface);
+    wl_list_insert(&surface->m_frameCallbackList, &frameCallback->link);
 }
 
 void surface_set_opaque_region(wl_client *client, wl_resource *surfaceResource,
@@ -130,6 +146,7 @@ Surface::Surface(wl_client *client, uint32_t id, Compositor *compositor)
 
     wl_client_add_resource(client, &m_surface.resource);
 
+    wl_list_init(&m_frameCallbackList);
 }
 
 Surface::~Surface()

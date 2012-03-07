@@ -40,32 +40,28 @@
 ****************************************************************************/
 
 #include "mockcompositor.h"
-
-#include <QImage>
+#include "mockshm.h"
 
 namespace Impl {
 
-class ShmBuffer
+ShmBuffer::ShmBuffer(wl_buffer *buffer)
+    : m_buffer(buffer)
 {
-public:
-    ShmBuffer(wl_buffer *buffer)
-        : m_buffer(buffer)
-    {
-        refresh();
-    }
+    refresh();
+}
 
-    void refresh()
-    {
-        m_image = QImage(static_cast<uint8_t *>(wl_shm_buffer_get_data(m_buffer)),
-                         m_buffer->width, m_buffer->height,
-                         wl_shm_buffer_get_stride(m_buffer),
-                         QImage::Format_ARGB32_Premultiplied);
-    }
+void ShmBuffer::refresh()
+{
+    m_image = QImage(static_cast<uint8_t *>(wl_shm_buffer_get_data(m_buffer)),
+                     m_buffer->width, m_buffer->height,
+                     wl_shm_buffer_get_stride(m_buffer),
+                     QImage::Format_ARGB32_Premultiplied);
+}
 
-private:
-    wl_buffer *m_buffer;
-    QImage m_image;
-};
+QImage ShmBuffer::image() const
+{
+    return m_image;
+}
 
 static void shm_buffer_created(wl_buffer *buffer)
 {

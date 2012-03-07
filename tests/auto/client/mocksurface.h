@@ -59,9 +59,18 @@ public:
 
 private:
     wl_surface m_surface;
+    wl_buffer *m_buffer;
 
     Compositor *m_compositor;
     QSharedPointer<MockSurface> m_mockSurface;
+
+    wl_list m_frameCallbackList;
+
+    friend void surface_attach(wl_client *client, wl_resource *surface,
+                               wl_resource *buffer, int x, int y);
+    friend void surface_damage(wl_client *client, wl_resource *surface,
+                               int32_t x, int32_t y, int32_t width, int32_t height);
+    friend void surface_frame(wl_client *client, wl_resource *surface, uint32_t callback);
 };
 
 }

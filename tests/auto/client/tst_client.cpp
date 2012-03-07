@@ -41,6 +41,9 @@
 
 #include "mockcompositor.h"
 
+#include <QBackingStore>
+#include <QPainter>
+
 #include <QtTest/QtTest>
 
 static const QSize screenSize(1600, 1200);
@@ -123,10 +126,18 @@ public slots:
         compositor->processWaylandEvents();
     }
 
+    void cleanup()
+    {
+        // make sure the surfaces from the last test are properly cleaned up
+        // and don't show up as false positives in the next test
+        QTRY_VERIFY(!compositor->surface());
+    }
+
 private slots:
     void screen();
     void createDestroyWindow();
     void events();
+    void backingStore();
 
 private:
     MockCompositor *compositor;
@@ -190,6 +201,42 @@ void tst_WaylandClient::events()
     QCOMPARE(window.mouseReleaseEventCount, 0);
     compositor->sendMouseRelease(surface);
     QTRY_COMPARE(window.mouseReleaseEventCount, 1);
+}
+
+void tst_WaylandClient::backingStore()
+{
+    TestWindow window;
+    window.show();
+
+    QSharedPointer<MockSurface> surface;
+    QTRY_VERIFY(surface = compositor->surface());
+
+    QRect rect(QPoint(), window.size());
+
+    QBackingStore backingStore(&window);
+    backingStore.resize(rect.size());
+
+    backingStore.beginPaint(rect);
+
+    QColor color = Qt::magenta;
+
+    QPainter p(backingStore.paintDevice());
+    p.fillRect(rect, color);
+    p.end();
+
+    backingStore.endPaint();
+
+    QVERIFY(surface->image.isNull());
+
+    backingStore.flush(rect);
+
+    QTRY_COMPARE(surface->image.size(), rect.size());
+    QTRY_COMPARE(surface->image.pixel(0, 0), color.rgba());
+
+    window.hide();
+
+    // hiding the window should detach the buffer
+    QTRY_VERIFY(surface->image.isNull());
 }
 
 int main(int argc, char **argv)

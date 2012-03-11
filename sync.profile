@@ -22,3 +22,8 @@
 %dependencies = (
         "qtbase" => "refs/heads/master",
 );
+
+# Compile tests
+%configtests = (
+    "xkbcommon" => {}
+);

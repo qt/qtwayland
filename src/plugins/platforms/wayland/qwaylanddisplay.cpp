@@ -127,7 +127,7 @@ QWaylandDisplay::QWaylandDisplay(void)
 
     mFd = wl_display_get_fd(mDisplay, 0, 0);
 
-#ifdef QTWAYLAND_EXPERIMENTAL_THREAD_SUPPORT
+#ifdef WAYLAND_CLIENT_THREAD_AFFINITY
     mWritableNotificationFd = wl_display_get_write_notification_fd(mDisplay);
     QSocketNotifier *wn = new QSocketNotifier(mWritableNotificationFd, QSocketNotifier::Read, this);
     connect(wn, SIGNAL(activated(int)), this, SLOT(flushRequests()));

@@ -104,6 +104,8 @@ bool QWaylandIntegration::hasCapability(QPlatformIntegration::Capability cap) co
 #endif
     case ThreadedOpenGL:
         return hasCapability(OpenGL);
+    case BufferQueueingOpenGL:
+        return true;
     default: return QPlatformIntegration::hasCapability(cap);
     }
 }

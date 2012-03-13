@@ -324,6 +324,7 @@ private:
 void WaylandSurfaceItem::updateTexture()
 {
     if (m_damaged) {
+        m_damaged = false;
         QSGTexture *oldTexture = m_texture;
         if (m_surface->type() == WaylandSurface::Texture) {
             QOpenGLContext *context = QOpenGLContext::currentContext();
@@ -337,7 +338,6 @@ void WaylandSurfaceItem::updateTexture()
         }
 
         delete oldTexture;
-        m_damaged = false;
     }
 
     if (m_provider) {

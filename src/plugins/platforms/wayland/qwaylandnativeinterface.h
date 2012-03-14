@@ -46,9 +46,12 @@
 #include <QVariantMap>
 #include <QtGui/QPlatformNativeInterface>
 
+class QWaylandIntegration;
+
 class QWaylandNativeInterface : public QPlatformNativeInterface
 {
 public:
+    QWaylandNativeInterface(QWaylandIntegration *integration);
     void *nativeResourceForWindow(const QByteArray &resourceString,
 				  QWindow *window);
 
@@ -62,6 +65,7 @@ private:
     static QWaylandScreen *qPlatformScreenForWindow(QWindow *window);
 
 private:
+    QWaylandIntegration *m_integration;
     QHash<QPlatformWindow*, QVariantMap> m_windowProperties;
 };
 

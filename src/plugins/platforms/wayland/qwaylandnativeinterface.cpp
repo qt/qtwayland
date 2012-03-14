@@ -43,35 +43,29 @@
 #include "qwaylanddisplay.h"
 #include "qwaylandwindow.h"
 #include "qwaylandextendedsurface.h"
+#include "qwaylandintegration.h"
+#include "qwaylanddisplay.h"
 #include <QtGui/private/qguiapplication_p.h>
 #include <QtGui/QScreen>
 
 #include "windowmanager_integration/qwaylandwindowmanagerintegration.h"
+
+QWaylandNativeInterface::QWaylandNativeInterface(QWaylandIntegration *integration)
+    : m_integration(integration)
+{
+}
 
 void *QWaylandNativeInterface::nativeResourceForWindow(const QByteArray &resourceString, QWindow *window)
 {
     QByteArray lowerCaseResource = resourceString.toLower();
 
     if (lowerCaseResource == "display")
-	return qPlatformScreenForWindow(window)->display()->wl_display();
+        return m_integration->display()->wl_display();
     if (lowerCaseResource == "surface") {
 	return ((QWaylandWindow *) window->handle())->wl_surface();
     }
 
     return NULL;
-}
-
-
-QWaylandScreen * QWaylandNativeInterface::qPlatformScreenForWindow(QWindow *window)
-{
-    QWaylandScreen *screen;
-
-    if (window) {
-        screen = static_cast<QWaylandScreen *>(window->screen()->handle());
-    } else {
-        screen = static_cast<QWaylandScreen *>(QGuiApplication::primaryScreen()->handle());
-    }
-    return screen;
 }
 
 QVariantMap QWaylandNativeInterface::windowProperties(QPlatformWindow *window) const

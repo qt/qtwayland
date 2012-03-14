@@ -73,7 +73,7 @@
 QWaylandIntegration::QWaylandIntegration()
     : mFontDb(new QGenericUnixFontDatabase())
     , mEventDispatcher(createUnixEventDispatcher())
-    , mNativeInterface(new QWaylandNativeInterface)
+    , mNativeInterface(new QWaylandNativeInterface(this))
     , mAccessibility(new QPlatformAccessibility())
 {
     QGuiApplicationPrivate::instance()->setEventDispatcher(mEventDispatcher);
@@ -172,4 +172,9 @@ QVariant QWaylandIntegration::styleHint(StyleHint hint) const
 QPlatformAccessibility *QWaylandIntegration::accessibility() const
 {
     return mAccessibility;
+}
+
+QWaylandDisplay *QWaylandIntegration::display() const
+{
+    return mDisplay;
 }

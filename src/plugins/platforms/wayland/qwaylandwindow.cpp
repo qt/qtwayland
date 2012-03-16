@@ -70,6 +70,7 @@ QWaylandWindow::QWaylandWindow(QWindow *window)
     , mBuffer(0)
     , mWaitingForFrameSync(false)
     , mFrameCallback(0)
+    , mSentInitialResize(false)
 {
     static WId id = 1;
     mWindowId = id++;
@@ -121,11 +122,16 @@ void QWaylandWindow::setVisible(bool visible)
 {
 
     if (visible) {
+        if (!mSentInitialResize) {
+            QWindowSystemInterface::handleSynchronousGeometryChange(window(), geometry());
+            mSentInitialResize = true;
+        }
+        QWindowSystemInterface::handleSynchronousExposeEvent(window(), QRect(QPoint(), geometry().size()));
         if (mBuffer) {
             wl_surface_attach(mSurface, mBuffer->buffer(),0,0);
-            QWindowSystemInterface::handleSynchronousExposeEvent(window(), QRect(QPoint(), geometry().size()));
         }
     } else {
+        QWindowSystemInterface::handleSynchronousExposeEvent(window(), QRect(QPoint(), geometry().size()));
         wl_surface_attach(mSurface, 0,0,0);
     }
 }

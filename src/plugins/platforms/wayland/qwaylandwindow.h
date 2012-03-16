@@ -106,6 +106,8 @@ protected:
     struct wl_callback *mFrameCallback;
     QWaitCondition mFrameSyncWait;
 
+    bool mSentInitialResize;
+
 private:
     static const wl_callback_listener callbackListener;
     static void frameCallback(void *data, struct wl_callback *wl_callback, uint32_t time);

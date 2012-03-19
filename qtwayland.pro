@@ -12,5 +12,4 @@ module_qtwayland_examples.depends = module_qtwayland_src
 }
 
 SUBDIRS += module_qtwayland_src \
-           module_qtwayland_examples \
-           module_qtwayland_tests
+           module_qtwayland_examples

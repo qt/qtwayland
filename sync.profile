@@ -21,6 +21,8 @@
 #
 %dependencies = (
         "qtbase" => "refs/heads/master",
+        "qtjsbackend" => "refs/heads/master",
+        "qtdeclarative" => "refs/heads/master",
 );
 
 # Compile tests

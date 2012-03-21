@@ -38,7 +38,7 @@
 **
 ****************************************************************************/
 
-#include <X11/extensions/XKBcommon.h>
+#include <xkbcommon/xkbcommon.h>
 #include <X11/keysym.h>
 
 #include <QtCore/qnamespace.h>

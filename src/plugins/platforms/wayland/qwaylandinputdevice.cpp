@@ -57,7 +57,7 @@
 #include <QtGui/QGuiApplication>
 
 #ifndef QT_NO_WAYLAND_XKB
-#include <X11/extensions/XKBcommon.h>
+#include <xkbcommon/xkbcommon.h>
 #include <X11/keysym.h>
 #endif
 

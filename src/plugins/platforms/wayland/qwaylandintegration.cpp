@@ -124,8 +124,7 @@ QPlatformOpenGLContext *QWaylandIntegration::createPlatformOpenGLContext(QOpenGL
 #ifdef QT_WAYLAND_GL_SUPPORT
     return mDisplay->eglIntegration()->createPlatformOpenGLContext(context->format(), context->shareHandle());
 #else
-    Q_UNUSED(glFormat);
-    Q_UNUSED(share);
+    Q_UNUSED(context);
     return 0;
 #endif
 }

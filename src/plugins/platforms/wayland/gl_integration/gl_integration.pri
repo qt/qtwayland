@@ -1,13 +1,14 @@
-contains(QT_CONFIG, opengl) {
+QT_WAYLAND_GL_CONFIG = $$(QT_WAYLAND_GL_CONFIG)
+contains(QT_CONFIG, opengl):!equals(QT_WAYLAND_GL_CONFIG, nogl) {
+
     DEFINES += QT_WAYLAND_GL_SUPPORT
 
-HEADERS += \
-    $$PWD/qwaylandglintegration.h
+    HEADERS += \
+        $$PWD/qwaylandglintegration.h
 
-SOURCES += \
-    $$PWD/qwaylandglintegration.cpp
+    SOURCES += \
+        $$PWD/qwaylandglintegration.cpp
 
-    QT_WAYLAND_GL_CONFIG = $$(QT_WAYLAND_GL_CONFIG)
     contains(QT_CONFIG, opengles2) {
         isEqual(QT_WAYLAND_GL_CONFIG, xcomposite_egl) {
             QT_WAYLAND_GL_INTEGRATION = xcomposite_egl

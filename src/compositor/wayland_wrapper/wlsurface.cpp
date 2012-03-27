@@ -393,18 +393,15 @@ void Surface::attach(struct wl_buffer *buffer)
 
 void Surface::damage(const QRect &rect)
 {
-    if (m_bufferQueue.size()) {
-        SurfaceBuffer *surfaceBuffer = m_bufferQueue.last();
-        if (surfaceBuffer)
-            surfaceBuffer->setDamage(rect);
-        else
-            qWarning() << "Surface::damage() null buffer";
-        if (!m_backBuffer)
-            advanceBufferQueue();
-    } else {
-        // we've receicved a second damage for the same buffer
-        currentSurfaceBuffer()->setDamage(rect);
-    }
+    SurfaceBuffer *surfaceBuffer = m_bufferQueue.isEmpty() ? currentSurfaceBuffer() : m_bufferQueue.last();
+    if (surfaceBuffer)
+        surfaceBuffer->setDamage(rect);
+    else
+        qWarning() << "Surface::damage() null buffer";
+
+    if (!m_bufferQueue.isEmpty() && !m_backBuffer)
+        advanceBufferQueue();
+
     doUpdate();
 }
 

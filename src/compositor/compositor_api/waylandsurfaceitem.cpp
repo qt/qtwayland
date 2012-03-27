@@ -188,7 +188,7 @@ void WaylandSurfaceItem::keyPressEvent(QKeyEvent *event)
 {
     if (m_surface && hasFocus()) {
         WaylandInputDevice *inputDevice = m_surface->compositor()->defaultInputDevice();
-        inputDevice->sendKeyPressEvent(event->nativeScanCode());
+        inputDevice->sendFullKeyEvent(event);
     }
 }
 
@@ -196,7 +196,7 @@ void WaylandSurfaceItem::keyReleaseEvent(QKeyEvent *event)
 {
     if (m_surface && hasFocus()) {
         WaylandInputDevice *inputDevice = m_surface->compositor()->defaultInputDevice();
-        inputDevice->sendKeyReleaseEvent(event->nativeScanCode());
+        inputDevice->sendFullKeyEvent(event);
     }
 }
 

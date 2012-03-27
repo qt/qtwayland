@@ -109,6 +109,11 @@ void WaylandInputDevice::sendFullTouchEvent(QTouchEvent *event)
     d->sendFullTouchEvent(event);
 }
 
+void WaylandInputDevice::sendFullKeyEvent(QKeyEvent *event)
+{
+    d->sendFullKeyEvent(event);
+}
+
 WaylandSurface *WaylandInputDevice::keyboardFocus() const
 {
     Wayland::Surface *wlsurface = d->keyboardFocus();

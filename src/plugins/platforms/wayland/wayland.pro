@@ -29,6 +29,7 @@ SOURCES =   main.cpp \
             qwaylandextendedsurface.cpp \
             qwaylandsubsurface.cpp \
             qwaylandtouch.cpp \
+            qwaylandqtkey.cpp \
             $$PWD/../../../shared/qwaylandmimehelper.cpp
 
 HEADERS =   qwaylandintegration.h \
@@ -51,6 +52,7 @@ HEADERS =   qwaylandintegration.h \
             qwaylandextendedsurface.h \
             qwaylandsubsurface.h \
             qwaylandtouch.h \
+            qwaylandqtkey.h \
             $$PWD/../../../shared/qwaylandmimehelper.h
 
 DEFINES += Q_PLATFORM_WAYLAND
@@ -72,7 +74,8 @@ WAYLANDSOURCES += \
             $$PWD/../../../../extensions/surface-extension.xml \
             $$PWD/../../../../extensions/sub-surface-extension.xml \
             $$PWD/../../../../extensions/output-extension.xml \
-            $$PWD/../../../../extensions/touch-extension.xml
+            $$PWD/../../../../extensions/touch-extension.xml \
+            $$PWD/../../../../extensions/qtkey-extension.xml
 
 
 OTHER_FILES += wayland.json

@@ -63,6 +63,7 @@ class QWaylandSurfaceExtension;
 class QWaylandSubSurfaceExtension;
 class QWaylandOutputExtension;
 class QWaylandTouchExtension;
+class QWaylandQtKeyExtension;
 
 class QWaylandDisplay : public QObject {
     Q_OBJECT
@@ -133,6 +134,7 @@ private:
     QWaylandSubSurfaceExtension *mSubSurfaceExtension;
     QWaylandOutputExtension *mOutputExtension;
     QWaylandTouchExtension *mTouchExtension;
+    QWaylandQtKeyExtension *mQtKeyExtension;
 
     QSocketNotifier *mReadNotifier;
     int mFd;

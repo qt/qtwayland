@@ -2,7 +2,8 @@ WAYLANDSOURCES += \
                 $$PWD/../../../extensions/surface-extension.xml \
                 $$PWD/../../../extensions/sub-surface-extension.xml \
                 $$PWD/../../../extensions/output-extension.xml \
-                $$PWD/../../../extensions/touch-extension.xml
+                $$PWD/../../../extensions/touch-extension.xml \
+                $$PWD/../../../extensions/qtkey-extension.xml
 
 
 HEADERS += \
@@ -21,6 +22,7 @@ HEADERS += \
     $$PWD/wlextendedoutput.h \
     $$PWD/wlsubsurface.h \
     $$PWD/wltouch.h \
+    $$PWD/wlqtkey.h \
     $$PWD/../../shared/qwaylandmimehelper.h \
     $$PWD/wlsurfacebuffer.h \
     $$PWD/wlregion.h
@@ -41,6 +43,7 @@ SOURCES += \
     $$PWD/wlextendedoutput.cpp \
     $$PWD/wlsubsurface.cpp \
     $$PWD/wltouch.cpp \
+    $$PWD/wlqtkey.cpp \
     $$PWD/../../shared/qwaylandmimehelper.cpp \
     $$PWD/wlsurfacebuffer.cpp \
     $$PWD/wlregion.cpp

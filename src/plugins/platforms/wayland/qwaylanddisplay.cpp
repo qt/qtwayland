@@ -61,6 +61,7 @@
 #include "qwaylandextendedsurface.h"
 #include "qwaylandsubsurface.h"
 #include "qwaylandtouch.h"
+#include "qwaylandqtkey.h"
 
 #include <QtCore/QAbstractEventDispatcher>
 #include <QtGui/private/qguiapplication_p.h>
@@ -113,6 +114,7 @@ QWaylandDisplay::QWaylandDisplay(void)
     , mSubSurfaceExtension(0)
     , mOutputExtension(0)
     , mTouchExtension(0)
+    , mQtKeyExtension(0)
 {
     display = this;
     qRegisterMetaType<uint32_t>("uint32_t");
@@ -298,6 +300,8 @@ void QWaylandDisplay::displayHandleGlobal(uint32_t id,
         mSubSurfaceExtension = new QWaylandSubSurfaceExtension(this,id);
     } else if (interface == "wl_touch_extension") {
         mTouchExtension = new QWaylandTouchExtension(this, id);
+    } else if (interface == "wl_qtkey_extension") {
+        mQtKeyExtension = new QWaylandQtKeyExtension(this, id);
     }
 }
 

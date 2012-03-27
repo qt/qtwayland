@@ -45,6 +45,7 @@
 #include "wldatadevice.h"
 #include "wlsurface.h"
 #include "wltouch.h"
+#include "wlqtkey.h"
 #include "waylandcompositor.h"
 
 #include <QtGui/QTouchEvent>
@@ -166,6 +167,25 @@ void InputDevice::sendTouchCancelEvent()
     if (resource) {
         wl_input_device_send_touch_cancel(resource);
     }
+}
+
+void InputDevice::sendFullKeyEvent(QKeyEvent *event)
+{
+    if (!keyboardFocus()) {
+        qWarning("Cannot send key event, no keyboard focus, fix the compositor");
+        return;
+    }
+
+    QtKeyExtensionGlobal *ext = m_compositor->qtkeyExtension();
+    if (ext) {
+        ext->postQtKeyEvent(event, keyboardFocus());
+        return;
+    }
+
+    if (event->type() == QEvent::KeyPress)
+        sendKeyPressEvent(event->nativeScanCode());
+    else if (event->type() == QEvent::KeyRelease)
+        sendKeyReleaseEvent(event->nativeScanCode());
 }
 
 void InputDevice::sendFullTouchEvent(QTouchEvent *event)

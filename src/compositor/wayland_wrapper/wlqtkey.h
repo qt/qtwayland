@@ -38,56 +38,39 @@
 **
 ****************************************************************************/
 
-#ifndef WAYLANDINPUT_H
-#define WAYLANDINPUT_H
+#ifndef WLQTKEY_H
+#define WLQTKEY_H
 
-#include <QtCore/qnamespace.h>
-#include <QtCore/QPoint>
+#include "wlcompositor.h"
+#include "wayland-qtkey-extension-server-protocol.h"
+#include "wayland-util.h"
 
-#include "waylandexport.h"
-
-class WaylandCompositor;
-class WaylandSurface;
+class Compositor;
+class Surface;
 class QKeyEvent;
-class QTouchEvent;
 
 namespace Wayland {
-class InputDevice;
-}
 
-class Q_COMPOSITOR_EXPORT WaylandInputDevice
+class QtKeyExtensionGlobal
 {
 public:
-    WaylandInputDevice(WaylandCompositor *compositor);
-    ~WaylandInputDevice();
+    QtKeyExtensionGlobal(Compositor *compositor);
+    ~QtKeyExtensionGlobal();
 
-    void sendMousePressEvent(Qt::MouseButton button, const QPoint &localPos, const QPoint &globalPos = QPoint());
-    void sendMouseReleaseEvent(Qt::MouseButton button, const QPoint &localPos, const QPoint &globalPos = QPoint());
-    void sendMouseMoveEvent(const QPoint &localPos, const QPoint &globalPos = QPoint());
-    void sendMouseMoveEvent(WaylandSurface *surface , const QPoint &localPos, const QPoint &globalPos = QPoint());
+    void postQtKeyEvent(QKeyEvent *event, Surface *surface);
 
-    void sendKeyPressEvent(uint code);
-    void sendKeyReleaseEvent(uint code);
-
-    void sendFullKeyEvent(QKeyEvent *event);
-
-    void sendTouchPointEvent(int id, int x, int y, Qt::TouchPointState state);
-    void sendTouchFrameEvent();
-    void sendTouchCancelEvent();
-
-    void sendFullTouchEvent(QTouchEvent *event);
-
-    WaylandSurface *keyboardFocus() const;
-    void setKeyboardFocus(WaylandSurface *surface);
-
-    WaylandSurface *mouseFocus() const;
-    void setMouseFocus(WaylandSurface *surface, const QPoint &local_pos, const QPoint &global_pos = QPoint());
-
-    WaylandCompositor *compositor() const;
-    Wayland::InputDevice *handle() const;
 private:
-    Wayland::InputDevice *d;
-    Q_DISABLE_COPY(WaylandInputDevice)
+    static void bind_func(struct wl_client *client, void *data,
+                          uint32_t version, uint32_t id);
+
+    static void destroy_resource(wl_resource *resource);
+
+    static const struct wl_qtkey_extension_interface qtkey_interface;
+
+    Compositor *m_compositor;
+    QList<wl_resource *> m_resources;
 };
 
-#endif // WAYLANDINPUT_H
+}
+
+#endif // WLQTKEY_H

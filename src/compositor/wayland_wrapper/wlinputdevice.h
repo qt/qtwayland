@@ -48,6 +48,7 @@
 #include <QtCore/QList>
 #include <QtCore/QPoint>
 
+class QKeyEvent;
 class QTouchEvent;
 class WaylandInputDevice;
 
@@ -76,6 +77,7 @@ public:
     void sendTouchFrameEvent();
     void sendTouchCancelEvent();
 
+    void sendFullKeyEvent(QKeyEvent *event);
     void sendFullTouchEvent(QTouchEvent *event);
 
     Surface *keyboardFocus() const;

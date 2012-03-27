@@ -139,6 +139,7 @@ private:
     QTouchDevice *mTouchDevice;
 
     friend class QWaylandTouchExtension;
+    friend class QWaylandQtKeyExtension;
 };
 
 QT_END_NAMESPACE

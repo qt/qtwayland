@@ -206,6 +206,11 @@ void WaylandCompositor::enableSubSurfaceExtension()
     m_compositor->enableSubSurfaceExtension();
 }
 
+void WaylandCompositor::enableQtKeyExtension()
+{
+    m_compositor->enableQtKeyExtension();
+}
+
 void WaylandCompositor::enableTouchExtension()
 {
     m_compositor->enableTouchExtension();

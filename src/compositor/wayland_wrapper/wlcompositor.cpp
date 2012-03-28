@@ -180,6 +180,7 @@ Compositor::~Compositor()
     delete m_surfaceExtension;
     delete m_subSurfaceExtension;
     delete m_touchExtension;
+    delete m_qtkeyExtension;
 
     delete m_default_wayland_input_device;
     delete m_data_device_manager;

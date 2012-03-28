@@ -208,7 +208,7 @@ void WaylandCompositor::enableSubSurfaceExtension()
 
 void WaylandCompositor::enableTouchExtension()
 {
-    m_compositor->enableTouchExtension();
+    // nothing to do here
 }
 
 void WaylandCompositor::configureTouchExtension(TouchExtensionFlags flags)

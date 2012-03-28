@@ -127,7 +127,6 @@ public:
 
     void setClientFullScreenHint(bool value);
 
-    void enableTouchExtension();
     TouchExtensionGlobal *touchExtension() { return m_touchExtension; }
     void configureTouchExtension(int flags);
 

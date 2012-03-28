@@ -57,7 +57,7 @@ public:
     TouchExtensionGlobal(Compositor *compositor);
     ~TouchExtensionGlobal();
 
-    void postTouchEvent(QTouchEvent *event, Surface *surface);
+    bool postTouchEvent(QTouchEvent *event, Surface *surface);
 
     void setFlags(int flags) { m_flags = flags; }
 

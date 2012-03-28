@@ -199,10 +199,8 @@ void InputDevice::sendFullTouchEvent(QTouchEvent *event)
     }
 
     TouchExtensionGlobal *ext = m_compositor->touchExtension();
-    if (ext) {
-        ext->postTouchEvent(event, mouseFocus());
+    if (ext && ext->postTouchEvent(event, mouseFocus()))
         return;
-    }
 
     const QList<QTouchEvent::TouchPoint> points = event->touchPoints();
     if (points.isEmpty())

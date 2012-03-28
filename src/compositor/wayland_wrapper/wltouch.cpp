@@ -95,12 +95,12 @@ static inline int toFixed(qreal f)
     return int(f * 10000);
 }
 
-void TouchExtensionGlobal::postTouchEvent(QTouchEvent *event, Surface *surface)
+bool TouchExtensionGlobal::postTouchEvent(QTouchEvent *event, Surface *surface)
 {
     const QList<QTouchEvent::TouchPoint> points = event->touchPoints();
     const int pointCount = points.count();
     if (!pointCount)
-        return;
+        return false;
 
     QPointF surfacePos = surface->pos();
     wl_client *surfaceClient = surface->base()->resource.client;
@@ -166,7 +166,11 @@ void TouchExtensionGlobal::postTouchEvent(QTouchEvent *event, Surface *surface)
                                    pressure, vx, vy,
                                    flags, rawData);
         }
+
+        return true;
     }
+
+    return false;
 }
 
 }

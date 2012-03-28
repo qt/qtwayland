@@ -170,7 +170,7 @@ void ExtendedSurface::set_content_orientation(struct wl_client *client,
 
     Qt::ScreenOrientation oldOrientation = extended_surface->m_contentOrientation;
     extended_surface->m_contentOrientation = screenOrientationFromWaylandOrientation(orientation);
-    if (extended_surface->m_windowOrientation != oldOrientation)
+    if (extended_surface->m_contentOrientation != oldOrientation)
         emit extended_surface->m_surface->waylandSurface()->contentOrientationChanged();
 }
 

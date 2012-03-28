@@ -98,7 +98,6 @@ public:
     virtual void changeCursor(const QImage &image, int hotspotX, int hotspotY);
 
     void enableSubSurfaceExtension();
-    void enableQtKeyExtension();
 
     void enableTouchExtension();
     enum TouchExtensionFlag {

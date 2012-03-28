@@ -82,7 +82,7 @@ void QtKeyExtensionGlobal::bind_func(wl_client *client, void *data, uint32_t ver
     self->m_resources.append(resource);
 }
 
-void QtKeyExtensionGlobal::postQtKeyEvent(QKeyEvent *event, Surface *surface)
+bool QtKeyExtensionGlobal::postQtKeyEvent(QKeyEvent *event, Surface *surface)
 {
     wl_client *surfaceClient = surface->base()->resource.client;
     uint32_t time = m_compositor->currentTimeMsecs();
@@ -103,7 +103,11 @@ void QtKeyExtensionGlobal::postQtKeyEvent(QKeyEvent *event, Surface *surface)
                 textUtf8.constData(),
                 event->isAutoRepeat(),
                 event->count());
+
+        return true;
     }
+
+    return false;
 }
 
 }

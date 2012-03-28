@@ -131,7 +131,6 @@ public:
     TouchExtensionGlobal *touchExtension() { return m_touchExtension; }
     void configureTouchExtension(int flags);
 
-    void enableQtKeyExtension();
     QtKeyExtensionGlobal *qtkeyExtension() { return m_qtkeyExtension; }
 
     bool isDragging() const;

@@ -133,7 +133,6 @@ Compositor::Compositor(WaylandCompositor *qt_compositor)
     , m_surfaceExtension(0)
     , m_subSurfaceExtension(0)
     , m_touchExtension(0)
-    , m_qtkeyExtension(0)
     , m_retainNotify(0)
 {
     compositor = this;
@@ -156,6 +155,7 @@ Compositor::Compositor(WaylandCompositor *qt_compositor)
 
     m_outputExtension = new OutputExtensionGlobal(this);
     m_surfaceExtension = new SurfaceExtensionGlobal(this);
+    m_qtkeyExtension = new QtKeyExtensionGlobal(this);
 
     if (wl_display_add_socket(m_display->handle(), qt_compositor->socketName())) {
         fprintf(stderr, "Fatal: Failed to open server socket\n");
@@ -416,12 +416,6 @@ void Compositor::enableTouchExtension()
     if (!m_touchExtension) {
         m_touchExtension = new TouchExtensionGlobal(this);
     }
-}
-
-void Compositor::enableQtKeyExtension()
-{
-    if (!m_qtkeyExtension)
-        m_qtkeyExtension = new QtKeyExtensionGlobal(this);
 }
 
 void Compositor::configureTouchExtension(int flags)

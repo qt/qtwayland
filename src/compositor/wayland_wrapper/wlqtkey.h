@@ -57,7 +57,7 @@ public:
     QtKeyExtensionGlobal(Compositor *compositor);
     ~QtKeyExtensionGlobal();
 
-    void postQtKeyEvent(QKeyEvent *event, Surface *surface);
+    bool postQtKeyEvent(QKeyEvent *event, Surface *surface);
 
 private:
     static void bind_func(struct wl_client *client, void *data,

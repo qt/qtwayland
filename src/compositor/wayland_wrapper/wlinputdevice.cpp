@@ -177,10 +177,8 @@ void InputDevice::sendFullKeyEvent(QKeyEvent *event)
     }
 
     QtKeyExtensionGlobal *ext = m_compositor->qtkeyExtension();
-    if (ext) {
-        ext->postQtKeyEvent(event, keyboardFocus());
+    if (ext && ext->postQtKeyEvent(event, keyboardFocus()))
         return;
-    }
 
     if (event->type() == QEvent::KeyPress)
         sendKeyPressEvent(event->nativeScanCode());

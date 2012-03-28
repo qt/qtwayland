@@ -84,8 +84,6 @@ Surface::Surface(struct wl_client *client, uint32_t id, Compositor *compositor)
     , m_extendedSurface(0)
     , m_subSurface(0)
     , m_shellSurface(0)
-    , m_inputRegion(0)
-    , m_opaqueRegion(0)
 {
     wl_list_init(&m_frame_callback_list);
     addClientResource(client, &base()->resource, id, &wl_surface_interface,

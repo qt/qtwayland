@@ -65,6 +65,9 @@ public:
     void frameFinished(WaylandSurface *surface = 0);
 
     void destroyClientForSurface(WaylandSurface *surface);
+    void destroyClient(WaylandClient *client);
+
+    QList<WaylandSurface *> surfacesForClient(WaylandClient* client) const;
 
     void setDirectRenderSurface(WaylandSurface *surface);
     WaylandSurface *directRenderSurface() const;

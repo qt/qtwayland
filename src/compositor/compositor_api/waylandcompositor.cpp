@@ -90,7 +90,29 @@ void WaylandCompositor::frameFinished(WaylandSurface *surface)
 
 void WaylandCompositor::destroyClientForSurface(WaylandSurface *surface)
 {
-    m_compositor->destroyClientForSurface(surface->handle());
+    destroyClient(surface->client());
+}
+
+void WaylandCompositor::destroyClient(WaylandClient *client)
+{
+    m_compositor->destroyClient(client);
+}
+
+QList<WaylandSurface *> WaylandCompositor::surfacesForClient(WaylandClient* c) const
+{
+    wl_client *client = static_cast<wl_client *>(c);
+
+    QList<Wayland::Surface *> surfaces = m_compositor->surfaces();
+
+    QList<WaylandSurface *> result;
+
+    for (int i = 0; i < surfaces.count(); ++i) {
+        if (surfaces.at(i)->base()->resource.client == client) {
+            result.append(surfaces.at(i)->waylandSurface());
+        }
+    }
+
+    return result;
 }
 
 void WaylandCompositor::setDirectRenderSurface(WaylandSurface *surface)

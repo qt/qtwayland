@@ -93,7 +93,7 @@ public:
     void surfaceDestroyed(Surface *surface);
     void markSurfaceAsDirty(Surface *surface);
 
-    void destroyClientForSurface(Surface *surface);
+    void destroyClient(WaylandClient *client);
 
     static uint currentTimeMsecs();
 
@@ -108,8 +108,8 @@ public:
     Surface *directRenderSurface() const {return m_directRenderSurface;}
     QPlatformScreenPageFlipper *pageFlipper() const { return m_pageFlipper; }
 
+    QList<Surface*> surfaces() const { return m_surfaces; }
     QList<Surface*> surfacesForClient(wl_client* client);
-
     WaylandCompositor *waylandCompositor() const { return m_qt_compositor; }
 
     struct wl_display *wl_display() const { return m_display->handle(); }

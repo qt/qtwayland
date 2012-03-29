@@ -95,6 +95,8 @@ public:
 
     WaylandSurface(Wayland::Surface *surface = 0);
 
+    WaylandClient *client() const;
+
     WaylandSurface *parentSurface() const;
     QLinkedList<WaylandSurface *> subSurfaces() const;
 

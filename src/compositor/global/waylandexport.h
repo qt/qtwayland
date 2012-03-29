@@ -51,4 +51,6 @@
 #  endif
 #endif
 
+typedef void WaylandClient;
+
 #endif //WAYLANDEXPORT_H

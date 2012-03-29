@@ -87,6 +87,12 @@ WaylandSurface::WaylandSurface(Wayland::Surface *surface)
     connect(this, SIGNAL(windowOrientationChanged()), this, SIGNAL(windowRotationChanged()));
 }
 
+WaylandClient *WaylandSurface::client() const
+{
+    Q_D(const WaylandSurface);
+    return d->surface->base()->resource.client;
+}
+
 WaylandSurface *WaylandSurface::parentSurface() const
 {
     Q_D(const WaylandSurface);

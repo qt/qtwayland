@@ -173,6 +173,15 @@ QPlatformAccessibility *QWaylandIntegration::accessibility() const
     return mAccessibility;
 }
 
+QPlatformServices *QWaylandIntegration::services() const
+{
+#ifdef QT_WAYLAND_WINDOWMANAGER_SUPPORT
+    return mDisplay->windowManagerIntegration();
+#else
+    return QWaylandIntegration::services();
+#endif
+}
+
 QWaylandDisplay *QWaylandIntegration::display() const
 {
     return mDisplay;

@@ -142,7 +142,7 @@ Compositor::Compositor(WaylandCompositor *qt_compositor)
     if (window && window->surfaceType() != QWindow::RasterSurface)
         m_graphics_hw_integration = GraphicsHardwareIntegration::createGraphicsHardwareIntegration(qt_compositor);
 #endif
-    m_windowManagerIntegration = new WindowManagerServerIntegration(this);
+    m_windowManagerIntegration = new WindowManagerServerIntegration(qt_compositor, this);
 
     wl_display_add_global(m_display->handle(),&wl_compositor_interface,this,Compositor::bind_func);
 

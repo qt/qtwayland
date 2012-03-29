@@ -48,6 +48,7 @@
 #include <QRect>
 
 class QMimeData;
+class QUrl;
 class WaylandSurface;
 class WaylandInputDevice;
 
@@ -76,6 +77,8 @@ public:
 
     virtual void surfaceCreated(WaylandSurface *surface) = 0;
     virtual void surfaceAboutToBeDestroyed(WaylandSurface *surface);
+
+    virtual void openUrl(WaylandClient *client, const QUrl &url);
 
     Wayland::Compositor *handle() const;
 

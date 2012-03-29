@@ -47,12 +47,13 @@
 
 #include "wayland-client.h"
 #include "qwaylanddisplay.h"
+#include "qplatformservices_qpa.h"
 
 class QWaylandWindow;
 
 class QWaylandWindowManagerIntegrationPrivate;
 
-class QWaylandWindowManagerIntegration : public QObject
+class QWaylandWindowManagerIntegration : public QObject, public QPlatformServices
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandWindowManagerIntegration)
@@ -67,6 +68,8 @@ public:
     void mapSurfaceToProcess(struct wl_surface *surface, long long processId);
     void mapClientToProcess(long long processId);
     void authenticateWithToken(const QByteArray &token = QByteArray());
+    bool openUrl(const QUrl &url);
+    bool openDocument(const QUrl &url);
 
     bool showIsFullScreen() const;
 
@@ -85,6 +88,8 @@ private:
                              int32_t showIsFullScreen);
 
     static const struct wl_windowmanager_listener m_windowManagerListener;
+
+    void openUrl_helper(const QUrl &url);
 };
 
 #endif // QWAYLANDWINDOWMANAGERINTEGRATION_H

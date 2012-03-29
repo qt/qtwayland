@@ -45,8 +45,11 @@
 #include "wayland_wrapper/wlcompositor.h"
 #include "wayland_wrapper/wlsurface.h"
 #include "wayland_wrapper/wlinputdevice.h"
+
 #include <QtCore/QCoreApplication>
 #include <QtCore/QStringList>
+
+#include <QtGui/QDesktopServices>
 
 #include <QDebug>
 
@@ -134,6 +137,17 @@ QWindow * WaylandCompositor::window() const
 void WaylandCompositor::surfaceAboutToBeDestroyed(WaylandSurface *surface)
 {
     Q_UNUSED(surface);
+}
+
+/*!
+    Override this to handle QDesktopServices::openUrl() requests from the clients.
+
+    The default implementation simply forwards the request to QDesktopServices::openUrl().
+*/
+void WaylandCompositor::openUrl(WaylandClient *client, const QUrl &url)
+{
+    Q_UNUSED(client);
+    QDesktopServices::openUrl(url);
 }
 
 Wayland::Compositor * WaylandCompositor::handle() const

@@ -60,12 +60,13 @@ namespace Wayland {
 
 class WindowManagerObject;
 class WaylandManagedClient;
+class WaylandCompositor;
 
 class Q_COMPOSITOR_EXPORT WindowManagerServerIntegration : public QObject, private Wayland::ResourceCollection
 {
     Q_OBJECT
 public:
-    WindowManagerServerIntegration(QObject *parent = 0);
+    WindowManagerServerIntegration(WaylandCompositor *compositor, QObject *parent = 0);
     ~WindowManagerServerIntegration();
 
     void initialize(Wayland::Display *waylandDisplay);
@@ -84,6 +85,7 @@ private:
 
 private:
     bool m_showIsFullScreen;
+    WaylandCompositor *m_compositor;
     QMap<wl_client*, WaylandManagedClient*> m_managedClients;
 
     static void bind_func(struct wl_client *client, void *data,
@@ -96,6 +98,10 @@ private:
     static void authenticate_with_token(struct wl_client *client,
                                         struct wl_resource *windowMgrResource,
                                         const char *wl_authentication_token);
+    static void open_url(struct wl_client *client,
+                         struct wl_resource *window_mgr_resource,
+                         uint32_t remaining,
+                         const char *url);
     static const struct wl_windowmanager_interface windowmanager_interface;
 };
 

@@ -47,6 +47,7 @@
 #include <stdint.h>
 #include <QtCore/QEvent>
 #include <QtCore/QHash>
+#include <QtCore/QUrl>
 #include <QtGui/QPlatformNativeInterface>
 #include <QtGui/QPlatformWindow>
 #include <QtGui/QtEvents>
@@ -151,4 +152,31 @@ void QWaylandWindowManagerIntegration::authenticateWithToken(const QByteArray &t
     if (d->m_waylandWindowManager && !authToken.isEmpty()) {
         wl_windowmanager_authenticate_with_token(d->m_waylandWindowManager, authToken.constData());
     }
+}
+
+void QWaylandWindowManagerIntegration::openUrl_helper(const QUrl &url)
+{
+    Q_D(QWaylandWindowManagerIntegration);
+    if (d->m_waylandWindowManager) {
+        QByteArray data = url.toString().toUtf8();
+
+        static const int chunkSize = 128;
+        while (!data.isEmpty()) {
+            QByteArray chunk = data.left(chunkSize);
+            data = data.mid(chunkSize);
+            wl_windowmanager_open_url(d->m_waylandWindowManager, !data.isEmpty(), chunk.constData());
+        }
+    }
+}
+
+bool QWaylandWindowManagerIntegration::openUrl(const QUrl &url)
+{
+    openUrl_helper(url);
+    return true;
+}
+
+bool QWaylandWindowManagerIntegration::openDocument(const QUrl &url)
+{
+    openUrl_helper(url);
+    return true;
 }

@@ -45,6 +45,16 @@
         <request name="authenticate_with_token">
             <arg name="processid" type="string" />
         </request>
+        <request name="open_url">
+            <description summary="client requests a url to be opened">
+                If remaining is not 0 this is a multipart request, and
+                the server must concatenate subsequent requst urls to and
+                including a request where remaining is set to 0, before
+                it can handle the url.
+            </description>
+            <arg name="remaining" type="uint" />
+            <arg name="url" type="string" />
+        </request>
         <event name="hints">
             <arg name="show_is_fullscreen" type="int"/>
         </event>

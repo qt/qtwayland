@@ -76,6 +76,8 @@ public:
 
     QPlatformAccessibility *accessibility() const;
 
+    QPlatformServices *services() const;
+
     QWaylandDisplay *display() const;
 private:
     QPlatformFontDatabase *mFontDb;

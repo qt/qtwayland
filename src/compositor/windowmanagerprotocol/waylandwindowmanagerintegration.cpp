@@ -43,12 +43,17 @@
 #include "wayland_wrapper/wldisplay.h"
 #include "wayland_wrapper/wlcompositor.h"
 
+#include "compositor_api/waylandcompositor.h"
+
 #include "wayland-server.h"
 #include "wayland-windowmanager-server-protocol.h"
 
-WindowManagerServerIntegration::WindowManagerServerIntegration(QObject *parent)
+#include <QUrl>
+
+WindowManagerServerIntegration::WindowManagerServerIntegration(WaylandCompositor *compositor, QObject *parent)
     : QObject(parent)
     , m_showIsFullScreen(false)
+    , m_compositor(compositor)
 {
 }
 
@@ -104,22 +109,42 @@ void WindowManagerServerIntegration::setShowIsFullScreen(bool value)
     }
 }
 
+struct WindowManagerServerIntegrationClientData
+{
+    QByteArray url;
+    WindowManagerServerIntegration *integration;
+};
+
 void WindowManagerServerIntegration::bind_func(struct wl_client *client, void *data,
                                       uint32_t version, uint32_t id)
 {
     Q_UNUSED(version);
-    WindowManagerServerIntegration *win_mgr = static_cast<WindowManagerServerIntegration *>(data);
-    wl_resource *resource = wl_client_add_object(client,&wl_windowmanager_interface,&windowmanager_interface,id,data);
-    win_mgr->registerResource(resource);
-    wl_windowmanager_send_hints(resource, int32_t(win_mgr->m_showIsFullScreen));
+
+    WindowManagerServerIntegrationClientData *clientData = new WindowManagerServerIntegrationClientData;
+    clientData->integration = static_cast<WindowManagerServerIntegration *>(data);
+
+    wl_resource *resource = wl_client_add_object(client,&wl_windowmanager_interface,&windowmanager_interface,id,clientData);
+    resource->destroy = WindowManagerServerIntegration::destroy_resource;
+    clientData->integration->registerResource(resource);
+    wl_windowmanager_send_hints(resource, int32_t(clientData->integration->m_showIsFullScreen));
 }
 
+void WindowManagerServerIntegration::destroy_resource(wl_resource *resource)
+{
+    WindowManagerServerIntegrationClientData *data = static_cast<WindowManagerServerIntegrationClientData *>(resource->data);
+    WindowManagerServerIntegration *window_mgr = data->integration;
+
+    window_mgr->removeClient(resource->client);
+
+    delete data;
+    free(resource);
+}
 
 void WindowManagerServerIntegration::map_client_to_process(struct wl_client *client,
                                                            struct wl_resource *window_mgr_resource,
                                                            uint32_t process_id)
 {
-    WindowManagerServerIntegration *window_mgr = static_cast<WindowManagerServerIntegration *>(window_mgr_resource->data);
+    WindowManagerServerIntegration *window_mgr = static_cast<WindowManagerServerIntegrationClientData *>(window_mgr_resource->data)->integration;
     window_mgr->mapClientToProcess(client,process_id);
 }
 
@@ -127,13 +152,30 @@ void WindowManagerServerIntegration::authenticate_with_token(struct wl_client *c
                                                              struct wl_resource *window_mgr_resource,
                                                              const char *wl_authentication_token)
 {
-    WindowManagerServerIntegration *window_mgr = static_cast<WindowManagerServerIntegration *>(window_mgr_resource->data);
+    WindowManagerServerIntegration *window_mgr = static_cast<WindowManagerServerIntegrationClientData *>(window_mgr_resource->data)->integration;
     window_mgr->authenticateWithToken(client,wl_authentication_token);
+}
+
+void WindowManagerServerIntegration::open_url(struct wl_client *client,
+                                              struct wl_resource *window_mgr_resource,
+                                              uint32_t remaining,
+                                              const char *url)
+{
+    WindowManagerServerIntegrationClientData *data = static_cast<WindowManagerServerIntegrationClientData *>(window_mgr_resource->data);
+    WindowManagerServerIntegration *window_mgr = data->integration;
+
+    data->url.append(url);
+
+    if (!remaining) {
+        window_mgr->m_compositor->openUrl(client, QUrl(QString::fromUtf8(data->url)));
+        data->url = QByteArray();
+    }
 }
 
 const struct wl_windowmanager_interface WindowManagerServerIntegration::windowmanager_interface = {
     WindowManagerServerIntegration::map_client_to_process,
     WindowManagerServerIntegration::authenticate_with_token,
+    WindowManagerServerIntegration::open_url
 };
 
 

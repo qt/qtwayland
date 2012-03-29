@@ -78,7 +78,16 @@ ExtendedOutput::ExtendedOutput(struct wl_client *client, uint32_t id, Output *ou
     Q_ASSERT(m_output->extendedOutput() == 0);
     m_output->setExtendedOutput(this);
     m_extended_output_resource = wl_client_add_object(client,&wl_extended_output_interface,0,id,this);
+    m_extended_output_resource->destroy = ExtendedOutput::destroy_resource;
+
     sendOutputOrientation(m_compositor->screenOrientation());
+}
+
+void ExtendedOutput::destroy_resource(wl_resource *resource)
+{
+    ExtendedOutput *output = static_cast<ExtendedOutput *>(resource->data);
+    delete output;
+    free(resource);
 }
 
 void ExtendedOutput::sendOutputOrientation(Qt::ScreenOrientation orientation)

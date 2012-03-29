@@ -76,11 +76,12 @@ public:
 
     void sendOutputOrientation(Qt::ScreenOrientation orientation);
 
+    static void destroy_resource(wl_resource *resource);
+
 private:
     struct wl_resource *m_extended_output_resource;
     Output *m_output;
     Compositor *m_compositor;
-
 };
 
 }

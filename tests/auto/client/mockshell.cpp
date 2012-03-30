@@ -131,7 +131,7 @@ void shell_surface_set_maximized(wl_client *client,
 
 static void get_shell_surface(wl_client *client, wl_resource *compositorResource, uint32_t id, wl_resource *surfaceResource)
 {
-    const struct wl_shell_surface_interface shellSurfaceInterface = {
+    static const struct wl_shell_surface_interface shellSurfaceInterface = {
         shell_surface_move,
         shell_surface_resize,
         shell_surface_set_toplevel,

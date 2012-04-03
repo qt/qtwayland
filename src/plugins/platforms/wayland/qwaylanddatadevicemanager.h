@@ -63,7 +63,6 @@ public:
 
     struct wl_data_device *getDataDevice(QWaylandInputDevice *inputDevice);
 
-    void setNewClipboardMimeData(QWaylandDataOffer *mimeData);
     QWaylandDataOffer *selectionTransfer() const;
 
     void createAndSetDrag(QDrag *drag);

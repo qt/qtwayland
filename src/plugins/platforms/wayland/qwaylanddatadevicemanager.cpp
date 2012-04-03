@@ -179,6 +179,8 @@ void QWaylandDataDeviceManager::selection(void *data,
 
     mime = static_cast<QWaylandDataOffer *>(wl_data_offer_get_user_data(id));
     handler->m_selection_data_offer = mime;
+
+    QGuiApplicationPrivate::platformIntegration()->clipboard()->emitChanged(QClipboard::Clipboard);
 }
 
 const struct wl_data_device_listener QWaylandDataDeviceManager::transfer_device_listener = {
@@ -222,17 +224,6 @@ struct wl_data_device *QWaylandDataDeviceManager::getDataDevice(QWaylandInputDev
 
     return transfer_device;
 }
-
-void QWaylandDataDeviceManager::setNewClipboardMimeData(QWaylandDataOffer *mime)
-{
-    if (m_selection_data_offer) {
-        qDebug() << "This function should not be called when there is an exising selection";
-        delete m_selection_data_offer;
-    }
-    m_selection_data_offer = mime;
-    QGuiApplicationPrivate::platformIntegration()->clipboard()->emitChanged(QClipboard::Clipboard);
-}
-
 
 QWaylandDataOffer *QWaylandDataDeviceManager::selectionTransfer() const
 {
@@ -303,6 +294,8 @@ void QWaylandDataDeviceManager::createAndSetSelectionSource(QMimeData *mimeData,
     m_selection_data_source = transfer_source;
     struct wl_data_device *transfer_device = m_display->lastKeyboardFocusInputDevice()->transferDevice();
     wl_data_device_set_selection(transfer_device,transfer_source->handle(),QWaylandDisplay::currentTimeMillisec());
+
+    QGuiApplicationPrivate::platformIntegration()->clipboard()->emitChanged(QClipboard::Clipboard);
 }
 
 QWaylandDataSource *QWaylandDataDeviceManager::selectionTransferSource()

@@ -59,7 +59,7 @@ HEADERS =   qwaylandintegration.h \
 
 DEFINES += Q_PLATFORM_WAYLAND
 
-contains(config_test_xkbcommon,yes) {
+config_xkbcommon {
     !contains(QT_CONFIG, no-pkg-config) {
         PKGCONFIG += xkbcommon
     } else {

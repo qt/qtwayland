@@ -16,7 +16,7 @@ contains(QT_CONFIG, opengl):!equals(QT_WAYLAND_GL_CONFIG, nogl) {
         } else:isEqual(QT_WAYLAND_GL_CONFIG,readback) {
             QT_WAYLAND_GL_INTEGRATION = readback_egl
             CONFIG += readback_egl
-        } else:isEqual(QT_WAYLAND_GL_CONFIG, brcm_egl)|isEmpty(QT_WAYLAND_GL_CONFIG):contains(config_test_brcm_egl,yes) {
+        } else:isEqual(QT_WAYLAND_GL_CONFIG, brcm_egl)|isEmpty(QT_WAYLAND_GL_CONFIG):config_brcm_egl {
             QT_WAYLAND_GL_INTEGRATION = brcm_egl
             CONFIG += brcm_egl
         } else {

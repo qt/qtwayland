@@ -1,3 +1,7 @@
+load(configure)
+qtCompileTest(xkbcommon)
+qtCompileTest(brcm_egl)
+
 TEMPLATE=subdirs
 CONFIG += ordered
 

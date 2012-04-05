@@ -21,9 +21,3 @@
         "qtjsbackend" => "refs/heads/master",
         "qtdeclarative" => "refs/heads/master",
 );
-
-# Compile tests
-%configtests = (
-    "xkbcommon" => {},
-    "brcm_egl" => {}
-);

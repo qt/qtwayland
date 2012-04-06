@@ -42,10 +42,10 @@
 #ifndef QWAYLANDEXTENDEDSURFACE_H
 #define QWAYLANDEXTENDEDSURFACE_H
 
-#include <wayland-client.h>
-
 #include <QtCore/QString>
 #include <QtCore/QVariant>
+
+#include <wayland-client.h>
 
 class QWaylandDisplay;
 class QWaylandWindow;

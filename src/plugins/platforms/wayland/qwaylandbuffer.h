@@ -54,18 +54,9 @@ public:
     virtual ~QWaylandBuffer() { }
     wl_buffer *buffer() {return mBuffer;}
     virtual QSize size() const = 0;
-    inline void damage(const QRect &rect = QRect());
 
 protected:
     struct wl_buffer *mBuffer;
 };
-
-void QWaylandBuffer::damage(const QRect &rect)
-{
-    if (rect.isValid())
-        wl_buffer_damage(mBuffer,rect.x(),rect.y(),rect.width(),rect.height());
-    else
-        wl_buffer_damage(mBuffer,0,0,size().width(),size().height());
-}
 
 #endif // QWAYLANDBUFFER_H

@@ -167,7 +167,8 @@ ShmBuffer::ShmBuffer(const QSize &size, wl_shm *shm)
     }
 
     image = QImage(static_cast<uchar *>(data), size.width(), size.height(), stride, QImage::Format_ARGB32_Premultiplied);
-    handle = wl_shm_create_buffer(shm,fd, size.width(), size.height(),
+    shm_pool = wl_shm_create_pool(shm,fd,alloc);
+    handle = wl_shm_pool_create_buffer(shm_pool,0, size.width(), size.height(),
                                    stride, WL_SHM_FORMAT_ARGB8888);
     close(fd);
 }
@@ -176,5 +177,6 @@ ShmBuffer::~ShmBuffer()
 {
     munmap(image.bits(), image.byteCount());
     wl_buffer_destroy(handle);
+    wl_shm_pool_destroy(shm_pool);
 }
 

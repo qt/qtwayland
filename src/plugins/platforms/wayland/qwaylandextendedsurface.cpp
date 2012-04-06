@@ -86,7 +86,7 @@ void QWaylandExtendedSurface::updateGenericProperty(const QString &name, const Q
     QDataStream ds(&byteValue, QIODevice::WriteOnly);
     ds << value;
 
-    wl_array data;
+    struct wl_array data;
     data.size = byteValue.size();
     data.data = (void*)byteValue.constData();
     data.alloc = 0;

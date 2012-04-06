@@ -42,6 +42,7 @@
 #ifndef QWAYLANDEGLINCLUDE_H
 #define QWAYLANDEGLINCLUDE_H
 
+#include <string.h>
 #include <wayland-client.h>
 
 #include <wayland-egl.h>

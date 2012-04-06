@@ -44,10 +44,10 @@
 #include "waylandexport.h"
 
 #include <QtCore/QSet>
+#include <QtGui/QWindow>
 
 #include "wloutput.h"
 #include "wldisplay.h"
-#include "wlshmbuffer.h"
 
 #include <wayland-server.h>
 
@@ -161,9 +161,6 @@ private:
     OutputGlobal m_output_global;
     //This one should be part of the outputs
     QPlatformScreenPageFlipper *m_pageFlipper;
-
-    /* shm/*/
-    ShmHandler m_shm;
 
     DataDeviceManager *m_data_device_manager;
 

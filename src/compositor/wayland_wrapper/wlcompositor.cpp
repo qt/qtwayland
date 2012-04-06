@@ -42,7 +42,6 @@
 
 #include "waylandinput.h"
 #include "wldisplay.h"
-#include "wlshmbuffer.h"
 #include "wlsurface.h"
 #include "waylandcompositor.h"
 #include "wldatadevicemanager.h"
@@ -120,7 +119,6 @@ Compositor::Compositor(WaylandCompositor *qt_compositor)
     : m_display(new Display)
     , m_default_input_device(0)
     , m_pageFlipper(0)
-    , m_shm(m_display)
     , m_current_frame(0)
     , m_last_queued_buf(-1)
     , m_qt_compositor(qt_compositor)
@@ -152,6 +150,8 @@ Compositor::Compositor(WaylandCompositor *qt_compositor)
 
     m_shell = new Shell();
     wl_display_add_global(m_display->handle(), &wl_shell_interface, m_shell, Shell::bind_func);
+
+    wl_display_init_shm(m_display->handle());
 
     m_outputExtension = new OutputExtensionGlobal(this);
     m_surfaceExtension = new SurfaceExtensionGlobal(this);

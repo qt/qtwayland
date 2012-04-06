@@ -230,8 +230,8 @@ void tst_WaylandClient::backingStore()
 
     backingStore.flush(rect);
 
-    QTRY_COMPARE(surface->image.size(), rect.size());
-    QTRY_COMPARE(surface->image.pixel(0, 0), color.rgba());
+    QTRY_COMPARE(surface->image.size(), window.frameGeometry().size());
+    QTRY_COMPARE(surface->image.pixel(window.frameMargins().left(), window.frameMargins().top()), color.rgba());
 
     window.hide();
 

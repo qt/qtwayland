@@ -44,7 +44,6 @@
 #include "waylandsurfaceitem.h"
 
 #include "wlcompositor.h"
-#include "wlshmbuffer.h"
 #include "wlinputdevice.h"
 #include "wlextendedsurface.h"
 #include "wlregion.h"
@@ -187,8 +186,14 @@ QImage Surface::image() const
 {
     SurfaceBuffer *surfacebuffer = currentSurfaceBuffer();
     if (surfacebuffer && !surfacebuffer->isDestroyed() && type() == WaylandSurface::Shm) {
-        ShmBuffer *shmBuffer = static_cast<ShmBuffer *>(surfacebuffer->waylandBufferHandle()->user_data);
-        return shmBuffer->image();
+        struct wl_buffer *buffer = surfacebuffer->waylandBufferHandle();
+        int stride = wl_shm_buffer_get_stride(buffer);
+        uint format = wl_shm_buffer_get_format(buffer);
+        (void) format;
+        void *data = wl_shm_buffer_get_data(buffer);
+        const uchar *char_data = static_cast<const uchar *>(data);
+        QImage img(char_data, buffer->width, buffer->height, stride, QImage::Format_ARGB32_Premultiplied);
+        return img;
     }
     return QImage();
 }

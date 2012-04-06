@@ -43,7 +43,6 @@
 
 #include "waylandexport.h"
 
-#include "wlshmbuffer.h"
 #include "wlsurfacebuffer.h"
 #include "waylandsurface.h"
 

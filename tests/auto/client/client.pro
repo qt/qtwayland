@@ -33,9 +33,7 @@ SOURCES += tst_client.cpp \
            mockcompositor.cpp \
            mockinput.cpp \
            mockshell.cpp \
-           mockshm.cpp \
            mocksurface.cpp \
            mockoutput.cpp
 HEADERS += mockcompositor.h \
-           mockshm.h \
            mocksurface.h

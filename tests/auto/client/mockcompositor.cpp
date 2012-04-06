@@ -204,7 +204,7 @@ Compositor::Compositor()
     wl_display_add_global(m_display, &wl_output_interface, this, bindOutput);
     wl_display_add_global(m_display, &wl_shell_interface, this, bindShell);
 
-    initShm();
+    wl_display_init_shm(m_display);
 
     m_loop = wl_display_get_event_loop(m_display);
     m_fd = wl_event_loop_get_fd(m_loop);
@@ -212,7 +212,6 @@ Compositor::Compositor()
 
 Compositor::~Compositor()
 {
-    wl_shm_finish(m_shm);
     wl_display_destroy(m_display);
 }
 

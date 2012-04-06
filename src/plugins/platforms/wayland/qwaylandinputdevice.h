@@ -91,6 +91,11 @@ private:
     static void inputHandleButton(void *data,
 				  struct wl_input_device *input_device,
 				  uint32_t time, uint32_t button, uint32_t state);
+    static void inputHandleAxis(void *data,
+                                struct wl_input_device *wl_input_device,
+                                uint32_t time,
+                                uint32_t axis,
+                                int32_t value);
     static void inputHandleKey(void *data,
 			       struct wl_input_device *input_device,
 			       uint32_t time, uint32_t key, uint32_t state);

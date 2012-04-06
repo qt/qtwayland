@@ -41,7 +41,6 @@
 
 #include "mocksurface.h"
 #include "mockcompositor.h"
-#include "mockshm.h"
 
 namespace Impl {
 
@@ -87,8 +86,15 @@ void surface_damage(wl_client *client, wl_resource *surfaceResource,
     if (!buffer)
         return;
 
-    if (wl_buffer_is_shm(buffer))
-        surface->m_mockSurface->image = static_cast<ShmBuffer *>(buffer->user_data)->image();
+    if (wl_buffer_is_shm(buffer)) {
+        int stride = wl_shm_buffer_get_stride(buffer);
+        uint format = wl_shm_buffer_get_format(buffer);
+        (void) format;
+        void *data = wl_shm_buffer_get_data(buffer);
+        const uchar *char_data = static_cast<const uchar *>(data);
+        QImage img(char_data, buffer->width, buffer->height, stride, QImage::Format_ARGB32_Premultiplied);
+        surface->m_mockSurface->image = img;
+    }
 
     wl_resource *frameCallback;
     wl_list_for_each(frameCallback, &surface->m_frameCallbackList, link) {

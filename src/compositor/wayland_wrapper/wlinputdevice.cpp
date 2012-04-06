@@ -40,7 +40,6 @@
 
 #include "wlinputdevice.h"
 
-#include "wlshmbuffer.h"
 #include "wlcompositor.h"
 #include "wldatadevice.h"
 #include "wlsurface.h"
@@ -52,7 +51,7 @@
 
 namespace Wayland {
 
-static ShmBuffer *currentCursor;
+static QImage *currentCursor;
 
 InputDevice::InputDevice(WaylandInputDevice *handle, Compositor *compositor)
     : m_handle(handle)
@@ -346,10 +345,16 @@ void InputDevice::input_device_attach(struct wl_client *client,
 
     InputDevice *inputDevice = wayland_cast<InputDevice>(device_base);
     if (wl_buffer_is_shm(buffer)) {
-        ShmBuffer *shmBuffer = static_cast<ShmBuffer *>(buffer->user_data);
-        if (shmBuffer) {
-            inputDevice->m_compositor->waylandCompositor()->changeCursor(shmBuffer->image(), x, y);
-            currentCursor = shmBuffer;
+        int stride = wl_shm_buffer_get_stride(buffer);
+        uint format = wl_shm_buffer_get_format(buffer);
+        (void) format;
+        void *data = wl_shm_buffer_get_data(buffer);
+        const uchar *char_data = static_cast<const uchar *>(data);
+        if (char_data) {
+            QImage *img = new QImage(char_data, buffer->width, buffer->height, stride, QImage::Format_ARGB32_Premultiplied);
+            inputDevice->m_compositor->waylandCompositor()->changeCursor(*img, x, y);
+            delete currentCursor;
+            currentCursor = img;
         }
     }
 }

@@ -171,7 +171,7 @@ void SurfaceBuffer::handleDisplayed()
 
 void *SurfaceBuffer::handle() const
 {
-    return m_buffer->user_data;
+    return m_buffer;
 }
 
 void SurfaceBuffer::destroy_listener_callback(wl_listener *listener, wl_resource *resource, uint32_t time)

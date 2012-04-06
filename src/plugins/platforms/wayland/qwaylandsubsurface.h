@@ -46,6 +46,7 @@ class QWaylandDisplay;
 class QWaylandWindow;
 class QWaylandSubSurface;
 
+#include <string.h>
 #include <wayland-client.h>
 
 class QWaylandSubSurfaceExtension

@@ -79,7 +79,8 @@ QWaylandShmBuffer::QWaylandShmBuffer(QWaylandDisplay *display,
     }
 
     mImage = QImage(data, size.width(), size.height(), stride, format);
-    mBuffer = wl_shm_create_buffer(display->shm(),fd, size.width(), size.height(),
+    mShmPool = wl_shm_create_pool(display->shm(), fd, alloc);
+    mBuffer = wl_shm_pool_create_buffer(mShmPool,0, size.width(), size.height(),
                                        stride, WL_SHM_FORMAT_ARGB8888);
     close(fd);
 }
@@ -88,6 +89,7 @@ QWaylandShmBuffer::~QWaylandShmBuffer(void)
 {
     munmap((void *) mImage.constBits(), mImage.byteCount());
     wl_buffer_destroy(mBuffer);
+    wl_shm_pool_destroy(mShmPool);
 }
 
 QWaylandShmBackingStore::QWaylandShmBackingStore(QWindow *window)
@@ -122,7 +124,6 @@ void QWaylandShmBackingStore::flush(QWindow *window, const QRegion &region, cons
     QVector<QRect> rects = region.rects();
     for (int i = 0; i < rects.size(); i++) {
         const QRect rect = rects.at(i);
-        wl_buffer_damage(mBuffer->buffer(),rect.x(),rect.y(),rect.width(),rect.height());
         waylandWindow->damage(rect);
     }
 }

@@ -60,6 +60,7 @@ public:
     QImage *image() { return &mImage; }
 private:
     QImage mImage;
+    struct wl_shm_pool *mShmPool;
 };
 
 class QWaylandShmBackingStore : public QPlatformBackingStore

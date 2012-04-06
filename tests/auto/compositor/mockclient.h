@@ -39,6 +39,7 @@
 **
 ****************************************************************************/
 
+#include "string.h"
 #include "wayland-client.h"
 
 #include <QObject>
@@ -51,7 +52,8 @@ public:
     ShmBuffer(const QSize &size, wl_shm *shm);
     ~ShmBuffer();
 
-    wl_buffer *handle;
+    struct wl_buffer *handle;
+    struct wl_shm_pool *shm_pool;
     QImage image;
 };
 

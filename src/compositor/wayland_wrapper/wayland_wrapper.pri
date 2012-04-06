@@ -10,7 +10,6 @@ HEADERS += \
     $$PWD/wlcompositor.h \
     $$PWD/wldisplay.h \
     $$PWD/wloutput.h \
-    $$PWD/wlshmbuffer.h \
     $$PWD/wlsurface.h \
     $$PWD/wlshellsurface.h \
     $$PWD/wlinputdevice.h \
@@ -31,7 +30,6 @@ SOURCES += \
     $$PWD/wlcompositor.cpp \
     $$PWD/wldisplay.cpp \
     $$PWD/wloutput.cpp \
-    $$PWD/wlshmbuffer.cpp \
     $$PWD/wlsurface.cpp \
     $$PWD/wlshellsurface.cpp \
     $$PWD/wlinputdevice.cpp \

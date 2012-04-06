@@ -197,6 +197,18 @@ void QWaylandInputDevice::inputHandleButton(void *data,
 					     inputDevice->mButtons);
 }
 
+void QWaylandInputDevice::inputHandleAxis(void *data,
+                                          struct wl_input_device *wl_input_device,
+                                          uint32_t time,
+                                          uint32_t axis,
+                                          int32_t value)
+{
+    Q_UNUSED(data);
+    Q_UNUSED(wl_input_device);
+    Q_UNUSED(time);
+    Q_UNUSED(axis);
+    Q_UNUSED(value);
+}
 #ifndef QT_NO_WAYLAND_XKB
 static Qt::KeyboardModifiers translateModifiers(int s)
 {
@@ -559,6 +571,7 @@ void QWaylandInputDevice::inputHandleTouchCancel(void *data, struct wl_input_dev
 const struct wl_input_device_listener QWaylandInputDevice::inputDeviceListener = {
     QWaylandInputDevice::inputHandleMotion,
     QWaylandInputDevice::inputHandleButton,
+    QWaylandInputDevice::inputHandleAxis,
     QWaylandInputDevice::inputHandleKey,
     QWaylandInputDevice::inputHandlePointerEnter,
     QWaylandInputDevice::inputHandlePointerLeave,

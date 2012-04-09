@@ -48,15 +48,15 @@
 namespace Wayland {
 
 template <typename T>
-class Object
+class Object : public T
 {
 public:
     typedef T Base;
 
-    Object() { memset(&m_waylandObject, 0, sizeof(T)); }
+    Object() { memset(this, 0, sizeof(T)); }
 
-    const T *base() const { return &m_waylandObject; }
-    T *base() { return &m_waylandObject; }
+    const T *base() const { return this; }
+    T *base() { return this; }
 
     template <typename Implementation>
     void addClientResource(wl_client *client,
@@ -68,14 +68,11 @@ public:
         resource->object.id = id;
         resource->object.interface = interface;
         resource->object.implementation = (void (**)(void))implementation;
-        resource->data = &m_waylandObject;
+        resource->data = this;
         resource->destroy = destroy;
 
         wl_client_add_resource(client, resource);
     }
-
-private:
-    T m_waylandObject;
 };
 
 template <typename T>

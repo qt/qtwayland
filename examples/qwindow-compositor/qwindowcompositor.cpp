@@ -116,7 +116,6 @@ void QWindowCompositor::surfaceMapped()
         pos = QPoint(px, py);
         surface->setPos(pos);
     } else {
-        surface->setPos(window()->geometry().topLeft());
         m_surfaces.removeOne(surface);
     }
     m_surfaces.append(surface);
@@ -279,7 +278,7 @@ bool QWindowCompositor::eventFilter(QObject *obj, QEvent *event)
             }
             input->sendMousePressEvent(me->button(),local,me->pos());
         }
-        break;
+        return true;
     }
     case QEvent::MouseButtonRelease: {
         WaylandSurface *targetSurface = input->mouseFocus();
@@ -293,7 +292,7 @@ bool QWindowCompositor::eventFilter(QObject *obj, QEvent *event)
                 localPos = toSurface(targetSurface, me->pos());
             input->sendMouseReleaseEvent(me->button(),localPos.toPoint(),me->pos());
         }
-        break;
+        return true;
     }
     case QEvent::MouseMove: {
         QMouseEvent *me = static_cast<QMouseEvent *>(event);

@@ -85,6 +85,10 @@ WaylandCompositor::~WaylandCompositor()
     delete m_compositor;
 }
 
+struct wl_display *WaylandCompositor::waylandDisplay() const
+{
+    return m_compositor->wl_display();
+}
 void WaylandCompositor::frameFinished(WaylandSurface *surface)
 {
     Wayland::Surface *surfaceImpl = surface? surface->handle():0;

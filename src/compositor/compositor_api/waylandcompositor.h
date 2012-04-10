@@ -63,6 +63,8 @@ public:
     WaylandCompositor(QWindow *window = 0, const char *socketName = 0);
     virtual ~WaylandCompositor();
 
+    struct wl_display *waylandDisplay() const;
+
     void frameFinished(WaylandSurface *surface = 0);
 
     void destroyClientForSurface(WaylandSurface *surface);

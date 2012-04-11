@@ -71,12 +71,6 @@ private:
 
     static void buffer_interface_destroy(struct wl_client *client,
                         struct wl_resource *buffer);
-    static void buffer_interface_damage(struct wl_client *client,
-                   struct wl_resource *buffer,
-                   int x,
-                   int y,
-                   int width,
-                   int height);
 };
 
 #endif // XCOMPOSITORBUFFER_H

@@ -42,6 +42,7 @@
 #define XCOMPOSITEHANDLER_H
 
 #include "wayland_wrapper/wlcompositor.h"
+#include "waylandobject.h"
 
 #include "xlibinclude.h"
 

@@ -39,7 +39,6 @@
 **
 ****************************************************************************/
 
-#include "string.h"
 #include "wayland-client.h"
 
 #include <QObject>

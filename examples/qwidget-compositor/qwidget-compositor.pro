@@ -6,13 +6,6 @@
 # to make QtCompositor/... style includes working without installing
 INCLUDEPATH += $$PWD/../../include
 
-# Touch support
-isEmpty(QT_SOURCE_TREE) {
-    QTBASE = $$[QT_INSTALL_DATA]
-} else {
-    QTBASE = $$QT_SOURCE_TREE
-}
-
 HEADERS += \
             textureblitter.h
 

@@ -1,8 +1,5 @@
-TEMPLATE = app
 TARGET = xkbcommon
 QT = core
-DEPENDPATH += .
-INCLUDEPATH += .
 
 CONFIG += link_pkgconfig
 

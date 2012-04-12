@@ -5,9 +5,6 @@
 );
 %classnames = (
 );
-%mastercontent = (
-    "gui" => "#include <QtGui/QtGui>\n",
-);
 %deprecatedheaders = (
 );
 # Module dependencies.

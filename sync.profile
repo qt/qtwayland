@@ -8,9 +8,6 @@
 %mastercontent = (
     "gui" => "#include <QtGui/QtGui>\n",
 );
-%modulepris = (
-    "QtCompositor" => "$basedir/modules/qt_compositor.pri",
-);
 %deprecatedheaders = (
 );
 # Module dependencies.

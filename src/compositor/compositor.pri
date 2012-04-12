@@ -1,8 +1,5 @@
 CONFIG += module link_pkgconfig
 
-load(qt_module)
-MODULE_PRI += $$PWD/../../modules/qt_compositor.pri
-
 INCLUDEPATH += $$PWD
 DEFINES += QT_WAYLAND_WINDOWMANAGER_SUPPORT
 DEFINES += QT_BUILD_COMPOSITOR_LIB

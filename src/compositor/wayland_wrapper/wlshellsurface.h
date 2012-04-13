@@ -44,6 +44,7 @@
 #include "waylandobject.h"
 
 #include <wayland-server.h>
+#include <QPoint>
 
 namespace Wayland {
 
@@ -78,11 +79,13 @@ public:
     Surface *surface() const;
 
     void adjustPosInResize();
-    void adjustPosToTransientParent();
+    QPointF adjustedPosToTransientParent() const;
     void resetResizeGrabber();
     void resetMoveGrabber();
 
     ShellSurface *transientParent() const;
+    void setOffset(const QPointF &offset);
+
 private:
     struct wl_resource *m_shellSurface;
     Surface *m_surface;

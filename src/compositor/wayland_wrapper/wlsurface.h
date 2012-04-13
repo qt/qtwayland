@@ -85,6 +85,7 @@ public:
     uint id() const { return base()->resource.object.id; }
 
     QPointF pos() const;
+    QPointF nonAdjustedPos() const;
     void setPos(const QPointF  &pos);
 
     QSize size() const;

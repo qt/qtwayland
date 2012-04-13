@@ -146,9 +146,11 @@ bool Surface::visible() const
 
 QPointF Surface::pos() const
 {
-    if (m_shellSurface) {
-        m_shellSurface->adjustPosToTransientParent();
-    }
+    return m_shellSurface ? m_shellSurface->adjustedPosToTransientParent() : m_position;
+}
+
+QPointF Surface::nonAdjustedPos() const
+{
     return m_position;
 }
 

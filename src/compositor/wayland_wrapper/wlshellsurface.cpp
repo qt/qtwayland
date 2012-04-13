@@ -116,13 +116,13 @@ void ShellSurface::adjustPosInResize()
     surface()->setPos(newPos);
 }
 
-void ShellSurface::adjustPosToTransientParent()
+QPointF ShellSurface::adjustedPosToTransientParent() const
 {
     if (!m_transientParent ||
             (m_surface->subSurface() && m_surface->subSurface()->parent()))
-        return;
+        return m_surface->nonAdjustedPos();
 
-    m_surface->setPos(m_transientParent->surface()->pos() + QPoint(m_xOffset,m_yOffset));
+    return m_transientParent->surface()->pos() + QPoint(m_xOffset,m_yOffset);
 }
 
 void ShellSurface::resetResizeGrabber()
@@ -140,6 +140,11 @@ ShellSurface *ShellSurface::transientParent() const
     return m_transientParent;
 }
 
+void ShellSurface::setOffset(const QPointF &offset)
+{
+    m_xOffset = offset.x();
+    m_yOffset = offset.y();
+}
 
 void ShellSurface::move(struct wl_client *client,
                 struct wl_resource *shell_surface_resource,
@@ -393,6 +398,8 @@ void ShellSurfaceMoveGrabber::motion(wl_pointer_grab *grab, uint32_t time, int32
     QPointF pos(input_device->base()->x - shell_surface_grabber->offset_x,
                 input_device->base()->y - shell_surface_grabber->offset_y);
     shell_surface->surface()->setPos(pos);
+    if (shell_surface->transientParent())
+        shell_surface->setOffset(pos - shell_surface->transientParent()->surface()->pos());
     shell_surface->surface()->damage(QRect(QPoint(0,0),shell_surface->surface()->size()));
 }
 

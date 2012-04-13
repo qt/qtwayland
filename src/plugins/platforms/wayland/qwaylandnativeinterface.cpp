@@ -55,6 +55,16 @@ QWaylandNativeInterface::QWaylandNativeInterface(QWaylandIntegration *integratio
 {
 }
 
+void *QWaylandNativeInterface::nativeResourceForIntegration(const QByteArray &resourceString)
+{
+    QByteArray lowerCaseResource = resourceString.toLower();
+
+    if (lowerCaseResource == "display")
+        return m_integration->display()->wl_display();
+
+    return 0;
+}
+
 void *QWaylandNativeInterface::nativeResourceForWindow(const QByteArray &resourceString, QWindow *window)
 {
     QByteArray lowerCaseResource = resourceString.toLower();

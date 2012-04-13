@@ -52,6 +52,7 @@ class QWaylandNativeInterface : public QPlatformNativeInterface
 {
 public:
     QWaylandNativeInterface(QWaylandIntegration *integration);
+    void *nativeResourceForIntegration(const QByteArray &resource);
     void *nativeResourceForWindow(const QByteArray &resourceString,
 				  QWindow *window);
 

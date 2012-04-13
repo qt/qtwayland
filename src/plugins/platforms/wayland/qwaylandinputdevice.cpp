@@ -362,7 +362,7 @@ void QWaylandInputDevice::inputHandlePointerEnter(void *data,
     Q_UNUSED(sy);
     QWaylandInputDevice *inputDevice = (QWaylandInputDevice *) data;
 
-    // shouldn't get pointer leave with no surface
+    // shouldn't get pointer enter with no surface
     Q_ASSERT(surface);
 
     QWaylandWindow *window = (QWaylandWindow *) wl_surface_get_user_data(surface);
@@ -379,8 +379,10 @@ void QWaylandInputDevice::inputHandlePointerLeave(void *data,
     Q_UNUSED(input_device);
     QWaylandInputDevice *inputDevice = (QWaylandInputDevice *) data;
 
-    // shouldn't get pointer leave with no surface
-    Q_ASSERT(surface);
+    // The event may arrive after destroying the window, indicated by
+    // a null surface.
+    if (!surface)
+        return;
 
     QWaylandWindow *window = (QWaylandWindow *) wl_surface_get_user_data(surface);
     window->handleMouseLeave();

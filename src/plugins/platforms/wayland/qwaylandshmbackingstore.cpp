@@ -135,6 +135,9 @@ QWaylandShmBackingStore::QWaylandShmBackingStore(QWindow *window)
 
 QWaylandShmBackingStore::~QWaylandShmBackingStore()
 {
+    if (mFrameCallback)
+        wl_callback_destroy(mFrameCallback);
+
 //    if (mFrontBuffer == waylandWindow()->attached())
 //        waylandWindow()->attach(0);
 
@@ -269,16 +272,16 @@ void QWaylandShmBackingStore::done(void *data, wl_callback *callback, uint32_t t
     QWaylandWindow *window = self->waylandWindow();
     wl_callback_destroy(self->mFrameCallback);
     self->mFrameCallback = 0;
-    if (self->mFrontBuffer != self->waylandWindow()->attached()) {
-        delete self->waylandWindow()->attached();
-        self->waylandWindow()->attach(self->mFrontBuffer);
+    if (self->mFrontBuffer != window->attached()) {
+        delete window->attached();
+        window->attach(self->mFrontBuffer);
     }
 
     if (self->mFrontBufferIsDirty && !self->mPainting) {
         self->mFrontBufferIsDirty = false;
-        self->mFrameCallback = wl_surface_frame(self->waylandWindow()->wl_surface());
+        self->mFrameCallback = wl_surface_frame(window->wl_surface());
         wl_callback_add_listener(self->mFrameCallback,&self->frameCallbackListener,self);
-        self->waylandWindow()->damage(QRect(QPoint(0,0),self->mFrontBuffer->size()));
+        window->damage(QRect(QPoint(0,0),self->mFrontBuffer->size()));
     }
 }
 

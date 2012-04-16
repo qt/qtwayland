@@ -59,6 +59,9 @@ public:
 
     bool setDirectRenderSurface(WaylandSurface *);
 
+    virtual void *lockNativeBuffer(struct wl_buffer *buffer, QOpenGLContext *context) const;
+    virtual void unlockNativeBuffer(void *native_buffer, QOpenGLContext *context) const;
+
 private:
     Q_DISABLE_COPY(WaylandEglIntegration)
     QScopedPointer<WaylandEglIntegrationPrivate> d_ptr;

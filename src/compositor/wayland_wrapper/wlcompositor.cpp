@@ -124,6 +124,7 @@ Compositor::Compositor(WaylandCompositor *qt_compositor)
     , m_qt_compositor(qt_compositor)
     , m_orientation(Qt::PrimaryOrientation)
     , m_directRenderSurface(0)
+    , m_directRenderContext(0)
 #if defined (QT_COMPOSITOR_WAYLAND_GL)
     , m_graphics_hw_integration(0)
 #endif
@@ -274,7 +275,7 @@ void Compositor::surfaceDestroyed(Surface *surface)
     m_surfaces.removeOne(surface);
     m_dirty_surfaces.remove(surface);
     if (m_directRenderSurface == surface)
-        setDirectRenderSurface(0);
+        setDirectRenderSurface(0, 0);
     waylandCompositor()->surfaceAboutToBeDestroyed(surface->waylandSurface());
 }
 
@@ -332,7 +333,7 @@ void Compositor::enableSubSurfaceExtension()
     }
 }
 
-bool Compositor::setDirectRenderSurface(Surface *surface)
+bool Compositor::setDirectRenderSurface(Surface *surface, QOpenGLContext *context)
 {
 #ifdef QT_COMPOSITOR_WAYLAND_GL
     if (!m_pageFlipper) {
@@ -341,6 +342,7 @@ bool Compositor::setDirectRenderSurface(Surface *surface)
 
     if (m_graphics_hw_integration && m_graphics_hw_integration->setDirectRenderSurface(surface ? surface->waylandSurface() : 0)) {
         m_directRenderSurface = surface;
+        m_directRenderContext = context;
         return true;
     }
 #else

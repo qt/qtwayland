@@ -104,8 +104,9 @@ public:
     void initializeDefaultInputDevice();
     void initializeWindowManagerProtocol();
     void enableSubSurfaceExtension();
-    bool setDirectRenderSurface(Surface *surface);
+    bool setDirectRenderSurface(Surface *surface, QOpenGLContext *context);
     Surface *directRenderSurface() const {return m_directRenderSurface;}
+    QOpenGLContext *directRenderContext() const {return m_directRenderContext;}
     QPlatformScreenPageFlipper *pageFlipper() const { return m_pageFlipper; }
 
     QList<Surface*> surfaces() const { return m_surfaces; }
@@ -177,6 +178,7 @@ private:
     Qt::ScreenOrientation m_orientation;
 
     Surface *m_directRenderSurface;
+    QOpenGLContext *m_directRenderContext;
 
 #ifdef QT_COMPOSITOR_WAYLAND_GL
     GraphicsHardwareIntegration *m_graphics_hw_integration;
@@ -184,7 +186,6 @@ private:
 
     //extensions
     WindowManagerServerIntegration *m_windowManagerIntegration;
-
 
     Shell *m_shell;
     OutputExtensionGlobal *m_outputExtension;

@@ -120,6 +120,7 @@ private:
 #else
     uint m_texture;
 #endif
+    void *m_handle;
 
     static void destroy_listener_callback(struct wl_listener *listener,
              struct wl_resource *resource, uint32_t time);

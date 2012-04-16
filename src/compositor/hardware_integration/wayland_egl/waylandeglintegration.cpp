@@ -57,6 +57,7 @@
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
 
+
 GraphicsHardwareIntegration * GraphicsHardwareIntegration::createGraphicsHardwareIntegration(WaylandCompositor *compositor)
 {
     return new WaylandEglIntegration(compositor);
@@ -87,7 +88,7 @@ public:
         , egl_bind_wayland_display(0)
         , egl_unbind_wayland_display(0)
         , egl_create_image(0)
-        , egl_destory_image(0)
+        , egl_destroy_image(0)
         , gl_egl_image_target_texture_2d(0)
     { }
     EGLDisplay egl_display;
@@ -100,7 +101,7 @@ public:
     PFNEGLUNBINDWAYLANDDISPLAYWL egl_unbind_wayland_display;
 
     PFNEGLCREATEIMAGEKHRPROC egl_create_image;
-    PFNEGLDESTROYIMAGEKHRPROC egl_destory_image;
+    PFNEGLDESTROYIMAGEKHRPROC egl_destroy_image;
 
     PFNGLEGLIMAGETARGETTEXTURE2DOESPROC gl_egl_image_target_texture_2d;
 };
@@ -128,7 +129,7 @@ void WaylandEglIntegration::initializeHardware(Wayland::Display *waylandDisplay)
                         reinterpret_cast<PFNEGLUNBINDWAYLANDDISPLAYWL>(eglGetProcAddress("eglUnbindWaylandDisplayWL"));
                 d->egl_create_image =
                         reinterpret_cast<PFNEGLCREATEIMAGEKHRPROC>(eglGetProcAddress("eglCreateImageKHR"));
-                d->egl_destory_image =
+                d->egl_destroy_image =
                         reinterpret_cast<PFNEGLDESTROYIMAGEKHRPROC>(eglGetProcAddress("eglDestroyImageKHR"));
                 d->gl_egl_image_target_texture_2d =
                         reinterpret_cast<PFNGLEGLIMAGETARGETTEXTURE2DOESPROC>(eglGetProcAddress("glEGLImageTargetTexture2DOES"));
@@ -136,7 +137,7 @@ void WaylandEglIntegration::initializeHardware(Wayland::Display *waylandDisplay)
                 if (d->egl_bind_wayland_display
                         && d->egl_unbind_wayland_display
                         && d->egl_create_image
-                        && d->egl_destory_image
+                        && d->egl_destroy_image
                         && d->gl_egl_image_target_texture_2d) {
                     if (d->egl_bind_wayland_display(d->egl_display, waylandDisplay->handle())) {
                         d->valid = true;
@@ -159,6 +160,7 @@ GLuint WaylandEglIntegration::createTextureFromBuffer(wl_buffer *buffer, QOpenGL
     }
 
     QPlatformNativeInterface *nativeInterface = QGuiApplication::platformNativeInterface();
+//#####jl: fix to use functions pointer
     EGLContext egl_context = nativeInterface->nativeResourceForContext("EglContext", context);
 
     EGLImageKHR image = d->egl_create_image(d->egl_display, egl_context,
@@ -177,7 +179,7 @@ GLuint WaylandEglIntegration::createTextureFromBuffer(wl_buffer *buffer, QOpenGL
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-    d->egl_destory_image(d->egl_display, image);
+    d->egl_destroy_image(d->egl_display, image);
 
     return textureId;
 }
@@ -219,5 +221,27 @@ bool WaylandEglIntegration::setDirectRenderSurface(WaylandSurface *surface)
     Q_UNUSED(surface);
 #endif
     return flipper;
+}
+
+void *WaylandEglIntegration::lockNativeBuffer(struct wl_buffer *buffer, QOpenGLContext *context) const
+{
+    Q_D(const WaylandEglIntegration);
+
+    QPlatformNativeInterface *nativeInterface = QGuiApplication::platformNativeInterface();
+//#####jl: fix to use functions pointer
+    EGLContext egl_context = nativeInterface->nativeResourceForContext("EglContext", context);
+
+    EGLImageKHR image = d->egl_create_image(d->egl_display, egl_context,
+                                          EGL_WAYLAND_BUFFER_WL,
+                                          buffer, NULL);
+    return image;
+}
+
+void WaylandEglIntegration::unlockNativeBuffer(void *native_buffer, QOpenGLContext *) const
+{
+    Q_D(const WaylandEglIntegration);
+    EGLImageKHR image = static_cast<EGLImageKHR>(native_buffer);
+
+    d->egl_destroy_image(d->egl_display, image);
 }
 

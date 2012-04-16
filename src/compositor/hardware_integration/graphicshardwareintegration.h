@@ -64,7 +64,8 @@ public:
 
     virtual bool setDirectRenderSurface(WaylandSurface *) {return false;}
 
-    virtual void *toNativeBufferHandle(struct wl_buffer *) { return 0; }
+    virtual void *lockNativeBuffer(struct wl_buffer *, QOpenGLContext *) const { return 0; }
+    virtual void unlockNativeBuffer(void *, QOpenGLContext *) const { return; }
 
     static GraphicsHardwareIntegration *createGraphicsHardwareIntegration(WaylandCompositor *compositor);
 

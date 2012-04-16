@@ -90,6 +90,10 @@ void SurfaceBuffer::initialize(wl_buffer *buffer)
 void SurfaceBuffer::destructBufferState()
 {
     Q_ASSERT(!m_page_flipper_has_buffer);
+    if (m_handle) {
+        GraphicsHardwareIntegration *hwIntegration = m_compositor->graphicsHWIntegration();
+        hwIntegration->unlockNativeBuffer(m_handle, m_compositor->directRenderContext());
+    }
     destroyTexture();
     if (m_buffer) {
         wl_list_remove(&m_destroy_listener.listener.link);
@@ -171,7 +175,12 @@ void SurfaceBuffer::handleDisplayed()
 
 void *SurfaceBuffer::handle() const
 {
-    return m_buffer;
+    if (!m_handle) {
+        GraphicsHardwareIntegration *hwIntegration = m_compositor->graphicsHWIntegration();
+        SurfaceBuffer *that = const_cast<SurfaceBuffer *>(this);
+        that->m_handle = hwIntegration->lockNativeBuffer(m_buffer, m_compositor->directRenderContext());
+    }
+    return m_handle;
 }
 
 void SurfaceBuffer::destroy_listener_callback(wl_listener *listener, wl_resource *resource, uint32_t time)

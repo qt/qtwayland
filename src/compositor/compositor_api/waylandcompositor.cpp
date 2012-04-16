@@ -122,9 +122,9 @@ QList<WaylandSurface *> WaylandCompositor::surfacesForClient(WaylandClient* c) c
     return result;
 }
 
-void WaylandCompositor::setDirectRenderSurface(WaylandSurface *surface)
+void WaylandCompositor::setDirectRenderSurface(WaylandSurface *surface, QOpenGLContext *context)
 {
-    m_compositor->setDirectRenderSurface(surface ? surface->handle() : 0);
+    m_compositor->setDirectRenderSurface(surface ? surface->handle() : 0, context);
 }
 
 WaylandSurface *WaylandCompositor::directRenderSurface() const

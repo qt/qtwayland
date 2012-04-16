@@ -49,6 +49,7 @@
 
 class QMimeData;
 class QUrl;
+class QOpenGLContext;
 class WaylandSurface;
 class WaylandInputDevice;
 
@@ -72,7 +73,7 @@ public:
 
     QList<WaylandSurface *> surfacesForClient(WaylandClient* client) const;
 
-    void setDirectRenderSurface(WaylandSurface *surface);
+    void setDirectRenderSurface(WaylandSurface *surface, QOpenGLContext *context);
     WaylandSurface *directRenderSurface() const;
 
     QWindow *window()const;

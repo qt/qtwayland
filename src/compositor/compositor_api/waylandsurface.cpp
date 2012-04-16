@@ -315,6 +315,7 @@ WaylandSurface *WaylandSurface::transientParent() const
     Q_D(const WaylandSurface);
     if (d->surface->shellSurface() && d->surface->shellSurface()->transientParent())
         return d->surface->shellSurface()->transientParent()->surface()->waylandSurface();
+    return 0;
 }
 
 void WaylandSurface::sendOnScreenVisibilityChange(bool visible)

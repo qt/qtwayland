@@ -144,6 +144,10 @@ void QWaylandExtendedSurface::onscreen_visibility(void *data, wl_extended_surfac
     QEvent evt(visible != 0 ? QEvent::ApplicationActivate : QEvent::ApplicationDeactivate);
     QCoreApplication::sendEvent(QCoreApplication::instance(), &evt);
 
+    // Do not send events when the state is not changing...
+    if (visible == extendedWindow->m_window->isExposed())
+        return;
+
     extendedWindow->m_exposed = visible;
     QWaylandWindow *w = extendedWindow->m_window;
     QWindowSystemInterface::handleSynchronousExposeEvent(w->window(),

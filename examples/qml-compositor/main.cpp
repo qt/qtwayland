@@ -101,8 +101,9 @@ private slots:
     }
 
 protected:
-    void resizeEvent(QResizeEvent *)
+    void resizeEvent(QResizeEvent *event)
     {
+        QQuickView::resizeEvent(event);
         WaylandCompositor::setOutputGeometry(QRect(0, 0, width(), height()));
     }
 

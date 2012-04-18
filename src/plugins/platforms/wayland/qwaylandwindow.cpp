@@ -300,7 +300,9 @@ Qt::WindowState QWaylandWindow::setWindowState(Qt::WindowState state)
 
 Qt::WindowFlags QWaylandWindow::setWindowFlags(Qt::WindowFlags flags)
 {
-    return mExtendedWindow->setWindowFlags(flags);
+    if (mExtendedWindow)
+        return mExtendedWindow->setWindowFlags(flags);
+    return Qt::WindowFlags(0);
 }
 
 QWaylandDecoration *QWaylandWindow::decoration() const

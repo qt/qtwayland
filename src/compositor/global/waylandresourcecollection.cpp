@@ -58,8 +58,8 @@ void ResourceCollection::registerResource(struct wl_resource *resource)
 {
     wl_list_insert(&client_resources,&resource->link);
     struct wl_listener *listener = new struct wl_listener;
-    listener->func = ResourceCollection::destroy_listener_func;
-    wl_list_insert(&resource->destroy_listener_list,&listener->link);
+    listener->notify = ResourceCollection::destroy_listener_notify;
+    wl_signal_add(&resource->destroy_signal, listener);
 }
 
 struct wl_resource *ResourceCollection::resourceForClient(wl_client *client) const
@@ -79,11 +79,9 @@ bool ResourceCollection::resourceListIsEmpty() const
     return wl_list_empty(const_cast<struct wl_list *>(&client_resources));
 }
 
-void ResourceCollection::destroy_listener_func(struct wl_listener *listener,
-                                   wl_resource *resource,
-                                   uint32_t time)
+void ResourceCollection::destroy_listener_notify(struct wl_listener *listener, void *data)
 {
-    Q_UNUSED(time);
+    struct wl_resource *resource = reinterpret_cast<struct wl_resource *>(data);
     wl_list_remove(&resource->link);
     delete listener;
 }

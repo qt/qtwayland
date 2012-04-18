@@ -63,7 +63,7 @@ DataSource::~DataSource()
     qDebug() << "destroying source";
     if (m_manager)
         m_manager->sourceDestroyed(this);
-    wl_resource_destroy(m_data_source_resource,Compositor::currentTimeMsecs());
+    wl_resource_destroy(m_data_source_resource);
 }
 
 void DataSource::resource_destroy(wl_resource *resource)

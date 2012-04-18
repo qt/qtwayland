@@ -69,6 +69,7 @@ public:
     int fileDescriptor() const { return m_fd; }
     void dispatchEvents(int timeout = 0);
 
+    uint32_t nextSerial();
     uint32_t time() { return ++m_time; }
 
     static void setOutputGeometry(void *compositor, const QList<QVariant> &parameters);

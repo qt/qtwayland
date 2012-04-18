@@ -108,8 +108,9 @@ void InputDevice::sendKeyPressEvent(uint code)
 {
     if (base()->keyboard_focus_resource != NULL) {
         uint32_t time = m_compositor->currentTimeMsecs();
+        uint32_t serial = wl_display_next_serial(m_compositor->wl_display());
         wl_input_device_send_key(base()->keyboard_focus_resource,
-                                 time, code - 8, 1);
+                                 serial, time, code - 8, 1);
     }
 }
 
@@ -117,26 +118,28 @@ void InputDevice::sendKeyReleaseEvent(uint code)
 {
     if (base()->keyboard_focus_resource != NULL) {
         uint32_t time = m_compositor->currentTimeMsecs();
+        uint32_t serial = wl_display_next_serial(m_compositor->wl_display());
         wl_input_device_send_key(base()->keyboard_focus_resource,
-                                 time, code - 8, 0);
+                                 serial, time, code - 8, 0);
     }
 }
 
 void InputDevice::sendTouchPointEvent(int id, int x, int y, Qt::TouchPointState state)
 {
     uint32_t time = m_compositor->currentTimeMsecs();
+    uint32_t serial = 0;
     struct wl_resource *resource = base()->pointer_focus_resource;
     if (!resource)
         return;
     switch (state) {
     case Qt::TouchPointPressed:
-        wl_input_device_send_touch_down(resource, time, &base()->pointer_focus->resource, id, x, y);
+        wl_input_device_send_touch_down(resource, serial, time, &base()->pointer_focus->resource, id, x, y);
         break;
     case Qt::TouchPointMoved:
         wl_input_device_send_touch_motion(resource, time, id, x, y);
         break;
     case Qt::TouchPointReleased:
-        wl_input_device_send_touch_up(resource, time, id);
+        wl_input_device_send_touch_up(resource, serial, time, id);
         break;
     case Qt::TouchPointStationary:
         // stationary points are not sent through wayland, the client must cache them
@@ -218,7 +221,7 @@ Surface *InputDevice::keyboardFocus() const
 void InputDevice::setKeyboardFocus(Surface *surface)
 {
     sendSelectionFocus(surface);
-    wl_input_device_set_keyboard_focus(base(), surface ? surface->base() : 0, m_compositor->currentTimeMsecs());
+    wl_input_device_set_keyboard_focus(base(), surface ? surface->base() : 0);
 }
 
 Surface *InputDevice::mouseFocus() const
@@ -234,7 +237,6 @@ void InputDevice::setMouseFocus(Surface *surface, const QPoint &globalPos, const
     base()->current_x = localPos.x();
     base()->current_y = localPos.y();
     base()->pointer_grab->interface->focus(base()->pointer_grab,
-                        m_compositor->currentTimeMsecs(),
                         surface ? surface->base() : 0,
                         localPos.x(), localPos.y());
 }

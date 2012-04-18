@@ -122,9 +122,7 @@ private:
 #endif
     void *m_handle;
 
-    static void destroy_listener_callback(struct wl_listener *listener,
-             struct wl_resource *resource, uint32_t time);
-
+    static void destroy_listener_callback(wl_listener *listener, void *data);
 };
 
 GLuint SurfaceBuffer::texture() const

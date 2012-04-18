@@ -90,14 +90,13 @@ void QWaylandShellSurface::updateTransientParent(QWindow *parent)
 
 void QWaylandShellSurface::configure(void *data,
                                      wl_shell_surface *wl_shell_surface,
-                                     uint32_t time,
                                      uint32_t edges,
                                      int32_t width,
                                      int32_t height)
 {
     Q_UNUSED(wl_shell_surface);
     QWaylandShellSurface *shell_surface = static_cast<QWaylandShellSurface *>(data);
-    shell_surface->m_window->configure(time,edges,width,height);
+    shell_surface->m_window->configure(edges, width, height);
 }
 
 void QWaylandShellSurface::popup_done(void *data,

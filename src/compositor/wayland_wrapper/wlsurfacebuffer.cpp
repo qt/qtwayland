@@ -81,9 +81,9 @@ void SurfaceBuffer::initialize(wl_buffer *buffer)
     m_is_displayed = false;
     m_destroyed = false;
     m_destroy_listener.surfaceBuffer = this;
-    m_destroy_listener.listener.func = destroy_listener_callback;
+    m_destroy_listener.listener.notify = destroy_listener_callback;
     if (buffer)
-        wl_list_insert(&buffer->resource.destroy_listener_list,&m_destroy_listener.listener.link);
+        wl_signal_add(&buffer->resource.destroy_signal, &m_destroy_listener.listener);
     m_damageRect = QRect();
 }
 
@@ -183,10 +183,9 @@ void *SurfaceBuffer::handle() const
     return m_handle;
 }
 
-void SurfaceBuffer::destroy_listener_callback(wl_listener *listener, wl_resource *resource, uint32_t time)
+void SurfaceBuffer::destroy_listener_callback(wl_listener *listener, void *data)
 {
-        Q_UNUSED(resource);
-        Q_UNUSED(time);
+        Q_UNUSED(data);
         struct surface_buffer_destroy_listener *destroy_listener =
                 reinterpret_cast<struct surface_buffer_destroy_listener *>(listener);
         SurfaceBuffer *d = destroy_listener->surfaceBuffer;

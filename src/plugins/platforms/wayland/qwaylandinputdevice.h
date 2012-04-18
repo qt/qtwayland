@@ -92,7 +92,8 @@ private:
 				  int32_t sx, int32_t sy);
     static void inputHandleButton(void *data,
 				  struct wl_input_device *input_device,
-				  uint32_t time, uint32_t button, uint32_t state);
+                                  uint32_t serial, uint32_t time,
+                                  uint32_t button, uint32_t state);
     static void inputHandleAxis(void *data,
                                 struct wl_input_device *wl_input_device,
                                 uint32_t time,
@@ -100,7 +101,8 @@ private:
                                 int32_t value);
     static void inputHandleKey(void *data,
 			       struct wl_input_device *input_device,
-			       uint32_t time, uint32_t key, uint32_t state);
+                               uint32_t serial, uint32_t time,
+                               uint32_t key, uint32_t state);
     static void inputHandlePointerEnter(void *data,
                                         struct wl_input_device *input_device,
                                         uint32_t time, struct wl_surface *surface,
@@ -119,6 +121,7 @@ private:
                                          struct wl_surface *surface);
     static void inputHandleTouchDown(void *data,
                                      struct wl_input_device *wl_input_device,
+                                     uint32_t serial,
                                      uint32_t time,
                                      struct wl_surface *surface,
                                      int id,
@@ -126,6 +129,7 @@ private:
                                      int y);
     static void inputHandleTouchUp(void *data,
                                    struct wl_input_device *wl_input_device,
+                                   uint32_t serial,
                                    uint32_t time,
                                    int id);
     static void inputHandleTouchMotion(void *data,

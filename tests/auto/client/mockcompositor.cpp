@@ -244,11 +244,9 @@ void Compositor::bindCompositor(wl_client *client, void *compositorData, uint32_
     wl_client_add_object(client, &wl_compositor_interface, &compositorInterface, id, compositorData);
 }
 
-static void unregisterResourceCallback(wl_listener *listener,
-                                wl_resource *resource,
-                                uint32_t time)
+static void unregisterResourceCallback(wl_listener *listener, void *data)
 {
-    Q_UNUSED(time);
+    struct wl_resource *resource = reinterpret_cast<struct wl_resource *>(data);
     wl_list_remove(&resource->link);
     delete listener;
 }
@@ -258,14 +256,19 @@ void registerResource(wl_list *list, wl_resource *resource)
     wl_list_insert(list, &resource->link);
 
     wl_listener *listener = new wl_listener;
-    listener->func = unregisterResourceCallback;
+    listener->notify = unregisterResourceCallback;
 
-    wl_list_insert(&resource->destroy_listener_list, &listener->link);
+    wl_signal_add(&resource->destroy_signal, listener);
 }
 
 QVector<Surface *> Compositor::surfaces() const
 {
     return m_surfaces;
+}
+
+uint32_t Compositor::nextSerial()
+{
+    return wl_display_next_serial(m_display);
 }
 
 void Compositor::addSurface(Surface *surface)

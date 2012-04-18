@@ -236,7 +236,7 @@ void Surface::sendFrameCallback()
     struct wl_resource *frame_callback;
     wl_list_for_each(frame_callback, &m_frame_callback_list, link) {
         wl_callback_send_done(frame_callback, time);
-        wl_resource_destroy(frame_callback,Compositor::currentTimeMsecs());
+        wl_resource_destroy(frame_callback);
     }
     wl_list_init(&m_frame_callback_list);
 
@@ -429,7 +429,7 @@ const struct wl_surface_interface Surface::surface_interface = {
 
 void Surface::surface_destroy(struct wl_client *, struct wl_resource *surface_resource)
 {
-    wl_resource_destroy(surface_resource,Compositor::currentTimeMsecs());
+    wl_resource_destroy(surface_resource);
 }
 
 void Surface::surface_attach(struct wl_client *client, struct wl_resource *surface,

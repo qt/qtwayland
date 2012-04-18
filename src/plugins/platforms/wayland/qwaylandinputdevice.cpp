@@ -165,9 +165,11 @@ void QWaylandInputDevice::inputHandleMotion(void *data,
 
 void QWaylandInputDevice::inputHandleButton(void *data,
 					    struct wl_input_device *input_device,
-					    uint32_t time, uint32_t button, uint32_t state)
+                                            uint32_t serial, uint32_t time,
+                                            uint32_t button, uint32_t state)
 {
     Q_UNUSED(input_device);
+    Q_UNUSED(serial);
     QWaylandInputDevice *inputDevice = (QWaylandInputDevice *) data;
     QWaylandWindow *window = inputDevice->mPointerFocus;
     Qt::MouseButton qt_button;
@@ -295,9 +297,11 @@ static uint32_t translateKey(uint32_t sym, char *string, size_t size)
 
 void QWaylandInputDevice::inputHandleKey(void *data,
 					 struct wl_input_device *input_device,
-					 uint32_t time, uint32_t key, uint32_t state)
+                                         uint32_t serial, uint32_t time,
+                                         uint32_t key, uint32_t state)
 {
     Q_UNUSED(input_device);
+    Q_UNUSED(serial);
     QWaylandInputDevice *inputDevice = (QWaylandInputDevice *) data;
     QWaylandWindow *window = inputDevice->mKeyboardFocus;
 #ifndef QT_NO_WAYLAND_XKB
@@ -446,6 +450,7 @@ void QWaylandInputDevice::inputHandleKeyboardLeave(void *data,
 
 void QWaylandInputDevice::inputHandleTouchDown(void *data,
                                                struct wl_input_device *wl_input_device,
+                                               uint32_t serial,
                                                uint32_t time,
                                                struct wl_surface *surface,
                                                int id,
@@ -453,6 +458,7 @@ void QWaylandInputDevice::inputHandleTouchDown(void *data,
                                                int y)
 {
     Q_UNUSED(wl_input_device);
+    Q_UNUSED(serial);
     Q_UNUSED(time);
     QWaylandInputDevice *inputDevice = (QWaylandInputDevice *) data;
     inputDevice->mTouchFocus = static_cast<QWaylandWindow *>(wl_surface_get_user_data(surface));
@@ -461,10 +467,12 @@ void QWaylandInputDevice::inputHandleTouchDown(void *data,
 
 void QWaylandInputDevice::inputHandleTouchUp(void *data,
                                              struct wl_input_device *wl_input_device,
+                                             uint32_t serial,
                                              uint32_t time,
                                              int id)
 {
     Q_UNUSED(wl_input_device);
+    Q_UNUSED(serial);
     Q_UNUSED(time);
     QWaylandInputDevice *inputDevice = (QWaylandInputDevice *) data;
     inputDevice->mTouchFocus = 0;

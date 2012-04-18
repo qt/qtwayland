@@ -76,8 +76,7 @@ public:
 
     void setGeometry(const QRect &rect);
 
-    void configure(uint32_t time, uint32_t edges,
-                   int32_t width, int32_t height);
+    void configure(uint32_t edges, int32_t width, int32_t height);
 
     void attach(QWaylandBuffer *buffer);
     QWaylandBuffer *attached() const;

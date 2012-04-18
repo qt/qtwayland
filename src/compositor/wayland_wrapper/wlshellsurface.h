@@ -158,7 +158,7 @@ public:
     int32_t width;
     int32_t height;
 
-    static void focus(struct wl_pointer_grab *grab, uint32_t time,
+    static void focus(struct wl_pointer_grab *grab,
                       struct wl_surface *surface, int32_t x, int32_t y);
     static void motion(struct wl_pointer_grab *grab,
                        uint32_t time, int32_t x, int32_t y);
@@ -175,7 +175,7 @@ public:
     int32_t offset_x;
     int32_t offset_y;
 
-    static void focus(struct wl_pointer_grab *grab, uint32_t time,
+    static void focus(struct wl_pointer_grab *grab,
                       struct wl_surface *surface, int32_t x, int32_t y);
     static void motion(struct wl_pointer_grab *grab,
                        uint32_t time, int32_t x, int32_t y);

@@ -176,10 +176,8 @@ bool QWaylandWindow::isExposed() const
 }
 
 
-void QWaylandWindow::configure(uint32_t time, uint32_t edges,
-                               int32_t width, int32_t height)
+void QWaylandWindow::configure(uint32_t edges, int32_t width, int32_t height)
 {
-    Q_UNUSED(time);
     Q_UNUSED(edges);
 
     int widthWithoutMargins = qMax(width-(frameMargins().left() +frameMargins().right()),1);

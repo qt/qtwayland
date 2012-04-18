@@ -68,7 +68,7 @@ const struct wl_region_interface Region::region_interface = {
 void Region::region_destroy(wl_client *client, wl_resource *region)
 {
     Q_UNUSED(client);
-    wl_resource_destroy(region, Compositor::currentTimeMsecs());
+    wl_resource_destroy(region);
 }
 
 void Region::region_add(wl_client *client, wl_resource *region,

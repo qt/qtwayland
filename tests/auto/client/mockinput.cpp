@@ -95,7 +95,7 @@ static wl_surface *resolveSurface(const QVariant &v)
 void Compositor::setKeyboardFocus(void *data, const QList<QVariant> &parameters)
 {
     Compositor *compositor = static_cast<Compositor *>(data);
-    wl_input_device_set_keyboard_focus(&compositor->m_input, resolveSurface(parameters.first()), compositor->time());
+    wl_input_device_set_keyboard_focus(&compositor->m_input, resolveSurface(parameters.first()));
 }
 
 void Compositor::sendMousePress(void *data, const QList<QVariant> &parameters)
@@ -106,9 +106,10 @@ void Compositor::sendMousePress(void *data, const QList<QVariant> &parameters)
         return;
 
     QPoint pos = parameters.last().toPoint();
-    wl_input_device_set_pointer_focus(&compositor->m_input, surface, compositor->time(), pos.x(), pos.y());
+    wl_input_device_set_pointer_focus(&compositor->m_input, surface, pos.x(), pos.y());
     wl_input_device_send_motion(compositor->m_input.pointer_focus_resource, compositor->time(), pos.x(), pos.y());
-    wl_input_device_send_button(compositor->m_input.pointer_focus_resource, compositor->time(), 0x110, 1);
+    wl_input_device_send_button(compositor->m_input.pointer_focus_resource,
+        compositor->nextSerial(), compositor->time(), 0x110, 1);
 }
 
 void Compositor::sendMouseRelease(void *data, const QList<QVariant> &parameters)
@@ -118,7 +119,8 @@ void Compositor::sendMouseRelease(void *data, const QList<QVariant> &parameters)
     if (!surface)
         return;
 
-    wl_input_device_send_button(compositor->m_input.pointer_focus_resource, compositor->time(), 0x110, 0);
+    wl_input_device_send_button(compositor->m_input.pointer_focus_resource,
+        compositor->nextSerial(), compositor->time(), 0x110, 0);
 }
 
 void Compositor::sendKeyPress(void *data, const QList<QVariant> &parameters)
@@ -129,7 +131,8 @@ void Compositor::sendKeyPress(void *data, const QList<QVariant> &parameters)
         return;
 
     QPoint pos = parameters.last().toPoint();
-    wl_input_device_send_key(compositor->m_input.keyboard_focus_resource, compositor->time(), parameters.last().toUInt() - 8, 1);
+    wl_input_device_send_key(compositor->m_input.keyboard_focus_resource,
+        compositor->nextSerial(), compositor->time(), parameters.last().toUInt() - 8, 1);
 }
 
 void Compositor::sendKeyRelease(void *data, const QList<QVariant> &parameters)
@@ -139,7 +142,8 @@ void Compositor::sendKeyRelease(void *data, const QList<QVariant> &parameters)
     if (!surface)
         return;
 
-    wl_input_device_send_key(compositor->m_input.keyboard_focus_resource, compositor->time(), parameters.last().toUInt() - 8, 0);
+    wl_input_device_send_key(compositor->m_input.keyboard_focus_resource,
+        compositor->nextSerial(), compositor->time(), parameters.last().toUInt() - 8, 0);
 }
 
 }

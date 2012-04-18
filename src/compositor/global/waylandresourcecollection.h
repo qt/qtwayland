@@ -57,9 +57,7 @@ public:
 protected:
     struct wl_list client_resources;
 private:
-    static void destroy_listener_func(struct wl_listener *listener,
-             struct wl_resource *resource, uint32_t time);
-
+    static void destroy_listener_notify(struct wl_listener *listener, void *data);
 };
 
 }

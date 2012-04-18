@@ -53,8 +53,7 @@ void destroy_surface(wl_resource *resource)
 
 static void surface_destroy(wl_client *, wl_resource *surfaceResource)
 {
-    Surface *surface = static_cast<Surface *>(surfaceResource->data);
-    wl_resource_destroy(surfaceResource, surface->compositor()->time());
+    wl_resource_destroy(surfaceResource);
 }
 
 void surface_attach(wl_client *client, wl_resource *surfaceResource,
@@ -99,7 +98,7 @@ void surface_damage(wl_client *client, wl_resource *surfaceResource,
     wl_resource *frameCallback;
     wl_list_for_each(frameCallback, &surface->m_frameCallbackList, link) {
         wl_callback_send_done(frameCallback, surface->m_compositor->time());
-        wl_resource_destroy(frameCallback, surface->m_compositor->time());
+        wl_resource_destroy(frameCallback);
     }
 
     wl_list_init(&surface->m_frameCallbackList);

@@ -166,7 +166,7 @@ void ShellSurface::move(struct wl_client *client,
     self->m_moveGrabber->offset_x = input_device->base()->x - self->surface()->pos().x();
     self->m_moveGrabber->offset_y = input_device->base()->y - self->surface()->pos().y();
 
-    wl_input_device_start_pointer_grab(input_device->base(),self->m_moveGrabber->base(),Compositor::currentTimeMsecs());
+    wl_input_device_start_pointer_grab(input_device->base(),self->m_moveGrabber->base());
 }
 
 void ShellSurface::resize(struct wl_client *client,
@@ -192,7 +192,7 @@ void ShellSurface::resize(struct wl_client *client,
     self->m_resizeGrabber->width = self->surface()->size().width();
     self->m_resizeGrabber->height = self->surface()->size().height();
 
-    wl_input_device_start_pointer_grab(input_device->base(),self->m_resizeGrabber->base(),Compositor::currentTimeMsecs());
+    wl_input_device_start_pointer_grab(input_device->base(),self->m_resizeGrabber->base());
 }
 
 void ShellSurface::set_toplevel(struct wl_client *client,
@@ -314,7 +314,7 @@ ShellSurfaceResizeGrabber::ShellSurfaceResizeGrabber(ShellSurface *shellSurface)
 {
 }
 
-void ShellSurfaceResizeGrabber::focus(wl_pointer_grab *grab, uint32_t time, wl_surface *surface, int32_t x, int32_t y)
+void ShellSurfaceResizeGrabber::focus(wl_pointer_grab *grab, wl_surface *surface, int32_t x, int32_t y)
 {
 }
 
@@ -369,7 +369,7 @@ void ShellSurfaceResizeGrabber::button(wl_pointer_grab *grab, uint32_t time, uin
     ShellSurfaceResizeGrabber *self = reinterpret_cast<ShellSurfaceResizeGrabber *>(grab);
     ShellSurface *shell_surface = self->shell_surface;
     if (toQtButton(button) == Qt::LeftButton && !state) {
-        wl_input_device_end_pointer_grab(grab->input_device,Compositor::currentTimeMsecs());
+        wl_input_device_end_pointer_grab(grab->input_device);
         shell_surface->resetResizeGrabber();
         delete self;
     }
@@ -386,7 +386,7 @@ ShellSurfaceMoveGrabber::ShellSurfaceMoveGrabber(ShellSurface *shellSurface)
 {
 }
 
-void ShellSurfaceMoveGrabber::focus(wl_pointer_grab *grab, uint32_t time, wl_surface *surface, int32_t x, int32_t y)
+void ShellSurfaceMoveGrabber::focus(wl_pointer_grab *grab, wl_surface *surface, int32_t x, int32_t y)
 {
 }
 
@@ -409,8 +409,8 @@ void ShellSurfaceMoveGrabber::button(wl_pointer_grab *grab, uint32_t time, uint3
     ShellSurfaceResizeGrabber *self = reinterpret_cast<ShellSurfaceResizeGrabber *>(grab);
     ShellSurface *shell_surface = self->shell_surface;
     if (toQtButton(button) == Qt::LeftButton && !state) {
-        wl_input_device_set_pointer_focus(grab->input_device,0,Compositor::currentTimeMsecs(),0,0);
-        wl_input_device_end_pointer_grab(grab->input_device,Compositor::currentTimeMsecs());
+        wl_input_device_set_pointer_focus(grab->input_device,0,0,0);
+        wl_input_device_end_pointer_grab(grab->input_device);
         shell_surface->resetMoveGrabber();
         delete self;
     }

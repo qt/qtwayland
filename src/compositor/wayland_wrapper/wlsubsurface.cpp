@@ -41,6 +41,7 @@
 #include "wlsubsurface.h"
 
 #include "wlcompositor.h"
+#include "waylandsurface.h"
 
 namespace Wayland {
 
@@ -86,6 +87,10 @@ SubSurface::~SubSurface()
 {
     if (m_parent) {
         m_parent->removeSubSurface(this);
+    }
+    QLinkedList<WaylandSurface *>::iterator it;
+    for (it = m_sub_surfaces.begin(); it != m_sub_surfaces.end(); ++it) {
+        (*it)->handle()->subSurface()->parentDestroyed();
     }
 }
 
@@ -134,6 +139,10 @@ QLinkedList<WaylandSurface *> SubSurface::subSurfaces() const
     return m_sub_surfaces;
 }
 
+void SubSurface::parentDestroyed()
+{
+    m_parent = 0;
+}
 void SubSurface::attach_sub_surface(wl_client *client, wl_resource *sub_surface_parent_resource, wl_resource *sub_surface_child_resource, int32_t x, int32_t y)
 {
     Q_UNUSED(client);

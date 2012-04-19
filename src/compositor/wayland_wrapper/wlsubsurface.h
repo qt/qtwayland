@@ -88,6 +88,7 @@ public:
     WaylandSurface *waylandSurface() const;
 
 private:
+    void parentDestroyed();
     struct wl_resource *m_sub_surface_resource;
     Surface *m_surface;
 

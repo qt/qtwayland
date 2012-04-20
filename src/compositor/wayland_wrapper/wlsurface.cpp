@@ -262,6 +262,8 @@ QPoint Surface::lastMousePos() const
 void Surface::setExtendedSurface(ExtendedSurface *extendedSurface)
 {
     m_extendedSurface = extendedSurface;
+    if (m_extendedSurface)
+        emit m_waylandSurface->extendedSurfaceReady();
 }
 
 ExtendedSurface *Surface::extendedSurface() const

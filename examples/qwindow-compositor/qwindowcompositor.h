@@ -78,6 +78,9 @@ protected:
 
     void changeCursor(const QImage &image, int hotspotX, int hotspotY);
 
+private slots:
+    void sendExpose();
+
 private:
     QOpenGLWindow *m_window;
     QImage m_backgroundImage;

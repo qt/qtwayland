@@ -139,7 +139,14 @@ void QWindowCompositor::surfaceCreated(WaylandSurface *surface)
     connect(surface, SIGNAL(destroyed(QObject *)), this, SLOT(surfaceDestroyed(QObject *)));
     connect(surface, SIGNAL(mapped()), this, SLOT(surfaceMapped()));
     connect(surface, SIGNAL(damaged(const QRect &)), this, SLOT(surfaceDamaged(const QRect &)));
+    connect(surface, SIGNAL(extendedSurfaceReady()), this, SLOT(sendExpose()));
     m_renderScheduler.start(0);
+}
+
+void QWindowCompositor::sendExpose()
+{
+    WaylandSurface *surface = qobject_cast<WaylandSurface *>(sender());
+    surface->sendOnScreenVisibilityChange(true);
 }
 
 QPointF QWindowCompositor::toSurface(WaylandSurface *surface, const QPointF &pos) const

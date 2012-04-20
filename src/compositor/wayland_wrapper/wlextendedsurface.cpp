@@ -82,12 +82,12 @@ ExtendedSurface::ExtendedSurface(struct wl_client *client, uint32_t id, Surface 
     , m_windowFlags(0)
 {
     Q_ASSERT(surface->extendedSurface() == 0);
-    surface->setExtendedSurface(this);
     m_extended_surface_resource = wl_client_add_object(client,
                                                        &wl_extended_surface_interface,
                                                        &extended_surface_interface,
                                                        id,
                                                        this);
+    surface->setExtendedSurface(this);
 }
 
 ExtendedSurface::~ExtendedSurface()

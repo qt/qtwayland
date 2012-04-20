@@ -158,6 +158,7 @@ signals:
     void windowOrientationChanged();
     void contentOrientationChanged();
     void windowRotationChanged();
+    void extendedSurfaceReady();
 
 };
 

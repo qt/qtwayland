@@ -98,7 +98,6 @@ Output::Output(OutputGlobal *outputGlobal, wl_client *client, uint32_t version, 
 
 Output::~Output()
 {
-    delete m_extended_output;
 }
 
 ExtendedOutput *Output::extendedOutput() const

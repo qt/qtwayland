@@ -89,7 +89,7 @@ ShellSurface::ShellSurface(wl_client *client, uint32_t id, Surface *surface)
 
 void ShellSurface::sendConfigure(uint32_t edges, int32_t width, int32_t height)
 {
-    wl_resource_post_event(m_shellSurface,WL_SHELL_SURFACE_CONFIGURE, Compositor::currentTimeMsecs(),edges,width,height);
+    wl_shell_surface_send_configure(m_shellSurface,edges,width,height);
 }
 
 Surface *ShellSurface::surface() const
@@ -303,6 +303,7 @@ void ShellSurfaceGrabber::destroy(wl_listener *listener, wl_resource *resource, 
 {
     Q_UNUSED(resource);
     Q_UNUSED(time);
+    Q_UNUSED(listener);
     //ShellSurfaceGrabber *shell_surface_grabber = container_of(listener, ShellSurfaceGrabber,surface_destroy_listener);
     Q_ASSERT(false); //hasn't been enabled yet
     //wl_input_device_end_grab(shell_surface_grabber->base()->input_device,Compositor::currentTimeMsecs());
@@ -316,10 +317,17 @@ ShellSurfaceResizeGrabber::ShellSurfaceResizeGrabber(ShellSurface *shellSurface)
 
 void ShellSurfaceResizeGrabber::focus(wl_pointer_grab *grab, wl_surface *surface, int32_t x, int32_t y)
 {
+    Q_UNUSED(grab);
+    Q_UNUSED(surface);
+    Q_UNUSED(x);
+    Q_UNUSED(y);
 }
 
 void ShellSurfaceResizeGrabber::motion(wl_pointer_grab *grab, uint32_t time, int32_t x, int32_t y)
 {
+    Q_UNUSED(time);
+    Q_UNUSED(x);
+    Q_UNUSED(y);
     //Should be more structured
     ShellSurfaceResizeGrabber *resize_grabber = reinterpret_cast<ShellSurfaceResizeGrabber *>(grab);
     ShellSurface *shell_surface = resize_grabber->shell_surface;
@@ -388,10 +396,17 @@ ShellSurfaceMoveGrabber::ShellSurfaceMoveGrabber(ShellSurface *shellSurface)
 
 void ShellSurfaceMoveGrabber::focus(wl_pointer_grab *grab, wl_surface *surface, int32_t x, int32_t y)
 {
+    Q_UNUSED(grab);
+    Q_UNUSED(surface);
+    Q_UNUSED(x);
+    Q_UNUSED(y);
 }
 
 void ShellSurfaceMoveGrabber::motion(wl_pointer_grab *grab, uint32_t time, int32_t x, int32_t y)
 {
+    Q_UNUSED(time);
+    Q_UNUSED(x);
+    Q_UNUSED(y);
     ShellSurfaceMoveGrabber *shell_surface_grabber = reinterpret_cast<ShellSurfaceMoveGrabber *>(grab);
     ShellSurface *shell_surface = shell_surface_grabber->shell_surface;
     InputDevice *input_device = reinterpret_cast<InputDevice *>(grab->input_device);

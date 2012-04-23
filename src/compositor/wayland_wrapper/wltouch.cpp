@@ -143,7 +143,7 @@ void TouchExtensionGlobal::postTouchEvent(QTouchEvent *event, Surface *surface)
             uint32_t pressure = uint32_t(tp.pressure() * 255);
 
             wl_array *rawData = 0;
-            QList<QPointF> rawPosList = tp.rawScreenPositions();
+            QVector<QPointF> rawPosList = tp.rawScreenPositions();
             int rawPosCount = rawPosList.count();
             if (rawPosCount) {
                 rawPosCount = qMin(maxRawPos, rawPosCount);

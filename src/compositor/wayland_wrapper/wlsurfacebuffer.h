@@ -74,7 +74,7 @@ public:
     inline int32_t width() const { return m_buffer->width; }
     inline int32_t height() const { return m_buffer->height; }
 
-    inline bool isShmBuffer() const { return wl_buffer_is_shm(m_buffer); }
+    bool isShmBuffer() const;
 
     inline bool isRegisteredWithBuffer() const { return m_is_registered_for_buffer; }
 
@@ -121,6 +121,8 @@ private:
     uint m_texture;
 #endif
     void *m_handle;
+    bool m_is_shm_resolved;
+    bool m_is_shm;
 
     static void destroy_listener_callback(wl_listener *listener, void *data);
 };

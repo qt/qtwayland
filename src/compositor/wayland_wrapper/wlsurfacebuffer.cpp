@@ -62,6 +62,8 @@ SurfaceBuffer::SurfaceBuffer(Surface *surface)
     , m_page_flipper_has_buffer(false)
     , m_is_displayed(false)
     , m_texture(0)
+    , m_is_shm_resolved(false)
+    , m_is_shm(false)
 {
 }
 
@@ -80,6 +82,9 @@ void SurfaceBuffer::initialize(wl_buffer *buffer)
     m_page_flipper_has_buffer = false;
     m_is_displayed = false;
     m_destroyed = false;
+    m_handle = 0;
+    m_is_shm_resolved = false;
+    m_is_shm = false;
     m_destroy_listener.surfaceBuffer = this;
     m_destroy_listener.listener.notify = destroy_listener_callback;
     if (buffer)
@@ -90,18 +95,35 @@ void SurfaceBuffer::initialize(wl_buffer *buffer)
 void SurfaceBuffer::destructBufferState()
 {
     Q_ASSERT(!m_page_flipper_has_buffer);
-    if (m_handle) {
-        GraphicsHardwareIntegration *hwIntegration = m_compositor->graphicsHWIntegration();
-        hwIntegration->unlockNativeBuffer(m_handle, m_compositor->directRenderContext());
-    }
+
     destroyTexture();
+
     if (m_buffer) {
+        if (m_handle) {
+            if (m_is_shm) {
+                delete static_cast<QImage *>(m_handle);
+            } else {
+                GraphicsHardwareIntegration *hwIntegration = m_compositor->graphicsHWIntegration();
+                hwIntegration->unlockNativeBuffer(m_handle, m_compositor->directRenderContext());
+            }
+        }
         wl_list_remove(&m_destroy_listener.listener.link);
         sendRelease();
     }
     m_buffer = 0;
+    m_handle = 0;
     m_is_registered_for_buffer = false;
     m_is_displayed = false;
+}
+
+bool SurfaceBuffer::isShmBuffer() const
+{
+    if (!m_is_shm_resolved) {
+        SurfaceBuffer *that = const_cast<SurfaceBuffer *>(this);
+        that->m_is_shm = wl_buffer_is_shm(m_buffer);
+        that->m_is_shm_resolved = true;
+    }
+    return m_is_shm;
 }
 
 void SurfaceBuffer::sendRelease()
@@ -179,7 +201,12 @@ void *SurfaceBuffer::handle() const
         GraphicsHardwareIntegration *hwIntegration = m_compositor->graphicsHWIntegration();
         SurfaceBuffer *that = const_cast<SurfaceBuffer *>(this);
         if (isShmBuffer()) {
-            that->m_handle = wl_shm_buffer_get_data(m_buffer);
+            const uchar *data = static_cast<const uchar *>(wl_shm_buffer_get_data(m_buffer));
+            int stride = wl_shm_buffer_get_stride(m_buffer);
+            int width = m_buffer->width;
+            int height = m_buffer->height;
+            QImage *image = new QImage(data,width,height,stride, QImage::Format_ARGB32_Premultiplied);
+            that->m_handle = image;
         } else {
             that->m_handle = hwIntegration->lockNativeBuffer(m_buffer, m_compositor->directRenderContext());
         }

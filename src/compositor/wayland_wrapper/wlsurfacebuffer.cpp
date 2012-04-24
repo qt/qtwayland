@@ -178,7 +178,11 @@ void *SurfaceBuffer::handle() const
     if (!m_handle) {
         GraphicsHardwareIntegration *hwIntegration = m_compositor->graphicsHWIntegration();
         SurfaceBuffer *that = const_cast<SurfaceBuffer *>(this);
-        that->m_handle = hwIntegration->lockNativeBuffer(m_buffer, m_compositor->directRenderContext());
+        if (isShmBuffer()) {
+            that->m_handle = wl_shm_buffer_get_data(m_buffer);
+        } else {
+            that->m_handle = hwIntegration->lockNativeBuffer(m_buffer, m_compositor->directRenderContext());
+        }
     }
     return m_handle;
 }

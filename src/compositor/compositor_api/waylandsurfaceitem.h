@@ -51,6 +51,7 @@
 
 class WaylandSurfaceTextureProvider;
 class WaylandSurfaceNode;
+class QMutex;
 
 Q_DECLARE_METATYPE(WaylandSurface*)
 
@@ -124,14 +125,15 @@ protected:
 
 private:
     friend class WaylandSurfaceNode;
-    void updateTexture();
-    void updateNodeTexture(WaylandSurfaceNode *newNode);
+    QSGTexture *updateTexture(QSGTexture *oldTexture);
     QPoint toSurface(const QPointF &pos) const;
     void init(WaylandSurface *);
 
+    static QMutex *mutex;
+
     WaylandSurface *m_surface;
-    QSGTexture *m_texture;
     mutable WaylandSurfaceTextureProvider *m_provider;
+    WaylandSurfaceNode *m_node;
     bool m_paintEnabled;
     bool m_useTextureAlpha;
     bool m_clientRenderingEnabled;

@@ -54,37 +54,76 @@
 #include <QtQuick/QSGSimpleRectNode>
 #include <QtQuick/QQuickCanvas>
 
+#include <QtCore/QMutexLocker>
+#include <QtCore/QMutex>
+
+class WaylandSurfaceNode : public QSGSimpleTextureNode
+{
+public:
+    WaylandSurfaceNode(WaylandSurfaceItem *item) : m_item(item), smooth(true), t(0) {
+        if (m_item)
+            m_item->m_node = this;
+        setFlag(UsePreprocess,true);
+    }
+    ~WaylandSurfaceNode() {
+        QMutexLocker locker(WaylandSurfaceItem::mutex);
+        delete t;
+        if (m_item)
+            m_item->m_node = 0;
+    }
+    void preprocess() {
+        QMutexLocker locker(WaylandSurfaceItem::mutex);
+        if (m_item && m_item->m_damaged) {
+            QSGTexture *newTexture = m_item->updateTexture(t);
+            updateTexture(newTexture);
+        }
+    }
+
+    void updateTexture(QSGTexture *texture) {
+        t = texture;
+        setTexture(texture);
+        setFiltering(smooth ? QSGTexture::Linear : QSGTexture::Nearest);
+    }
+
+    WaylandSurfaceItem *m_item;
+    bool smooth;
+    QSGTexture *t;
+};
+
 class WaylandSurfaceTextureProvider : public QSGTextureProvider
 {
 public:
-    WaylandSurfaceTextureProvider() : t(0) { }
+    WaylandSurfaceTextureProvider() : node(0) { }
 
     QSGTexture *texture() const {
-        if (t)
-            t->setFiltering(smooth ? QSGTexture::Linear : QSGTexture::Nearest);
-        return t;
+        if (node && node->t) {
+            node->t->setFiltering(node->smooth ? QSGTexture::Linear : QSGTexture::Nearest);
+            return node->t;
+        }
+        return 0;
     }
 
-    QSGTexture *t;
-    bool smooth;
+    WaylandSurfaceNode *node;
 };
+
+QMutex *WaylandSurfaceItem::mutex = 0;
 
 WaylandSurfaceItem::WaylandSurfaceItem(QQuickItem *parent)
     : QQuickItem(parent)
     , m_surface(0)
-    , m_texture(0)
     , m_provider(0)
     , m_paintEnabled(true)
     , m_useTextureAlpha(false)
     , m_clientRenderingEnabled(false)
     , m_touchEventsEnabled(false)
 {
+    if (!mutex)
+        mutex = new QMutex;
 }
 
 WaylandSurfaceItem::WaylandSurfaceItem(WaylandSurface *surface, QQuickItem *parent)
     : QQuickItem(parent)
     , m_surface(0)
-    , m_texture(0)
     , m_provider(0)
     , m_paintEnabled(true)
     , m_useTextureAlpha(false)
@@ -131,10 +170,12 @@ void WaylandSurfaceItem::init(WaylandSurface *surface)
 
 WaylandSurfaceItem::~WaylandSurfaceItem()
 {
+    QMutexLocker locker(mutex);
+    if (m_node)
+        m_node->m_item = 0;
     if (m_surface) {
         m_surface->setSurfaceItem(0);
     }
-    m_texture->deleteLater();
 }
 
 void WaylandSurfaceItem::setSurface(WaylandSurface *surface)
@@ -304,53 +345,30 @@ void WaylandSurfaceItem::setPaintEnabled(bool enabled)
     update();
 }
 
-class WaylandSurfaceNode : public QSGSimpleTextureNode
-{
-public:
-    WaylandSurfaceNode(WaylandSurfaceItem *item) : m_item(item) {
-        setFlag(UsePreprocess,true);
-    }
-    void preprocess() {
-        if (m_item->m_damaged) {
-            m_item->updateTexture();
-            m_item->updateNodeTexture(this);
-        }
-    }
-private:
-    WaylandSurfaceItem *m_item;
-};
 
-
-void WaylandSurfaceItem::updateTexture()
+QSGTexture *WaylandSurfaceItem::updateTexture(QSGTexture *oldTexture)
 {
+    QSGTexture *newTexture;
     if (m_damaged) {
         m_damaged = false;
-        QSGTexture *oldTexture = m_texture;
         if (m_surface->type() == WaylandSurface::Texture) {
             QOpenGLContext *context = QOpenGLContext::currentContext();
 
             QQuickCanvas::CreateTextureOptions opt = useTextureAlpha() ? QQuickCanvas::TextureHasAlphaChannel : QQuickCanvas::CreateTextureOptions(0);
-            m_texture = canvas()->createTextureFromId(m_surface->texture(context),
+            newTexture = canvas()->createTextureFromId(m_surface->texture(context),
                                                                           m_surface->size(),
                                                                           opt);
         } else {
-            m_texture = canvas()->createTextureFromImage(m_surface->image());
+            newTexture = canvas()->createTextureFromImage(m_surface->image());
         }
 
         delete oldTexture;
+    } else {
+        newTexture = oldTexture;
     }
-
-    if (m_provider) {
-        m_provider->t = m_texture;
-        m_provider->smooth = smooth();
-    }
+    return newTexture;
 }
 
-void WaylandSurfaceItem::updateNodeTexture(WaylandSurfaceNode *node)
-{
-    node->setTexture(m_texture);
-    node->setFiltering(smooth() ? QSGTexture::Linear : QSGTexture::Nearest);
-}
 
 QSGNode *WaylandSurfaceItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *)
 {
@@ -359,25 +377,33 @@ QSGNode *WaylandSurfaceItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeDa
         return 0;
     }
 
-    updateTexture();
-    if (!m_texture || !m_paintEnabled) {
+    WaylandSurfaceNode *node = static_cast<WaylandSurfaceNode *>(oldNode);
+
+    QSGTexture *oldTexture = node ? node->t : 0;
+    QSGTexture *newTexture = updateTexture(oldTexture);
+
+    if (!newTexture || !m_paintEnabled) {
         delete oldNode;
+        if (m_provider)
+            m_provider->node = 0;
         return 0;
     }
-
-    WaylandSurfaceNode *node = static_cast<WaylandSurfaceNode *>(oldNode);
 
     if (!node) {
         node = new WaylandSurfaceNode(this);
     }
 
-    updateNodeTexture(node);
+    node->updateTexture(newTexture);
 
     if (surface()->isYInverted()) {
         node->setRect(0, height(), width(), -height());
     } else {
         node->setRect(0, 0, width(), height());
     }
+
+    node->smooth = smooth();
+    if (m_provider)
+        m_provider->node = node;
 
     return node;
 }

@@ -129,7 +129,7 @@ bool TouchExtensionGlobal::postTouchEvent(QTouchEvent *event, Surface *surface)
 
             uint32_t id = tp.id();
             uint32_t state = (tp.state() & 0xFFFF) | (sentPointCount << 16);
-            uint32_t flags = tp.flags();
+            uint32_t flags = (tp.flags() & 0xFFFF) | (int(event->device()->capabilities()) << 16);
 
             QPointF p = tp.pos() - surfacePos; // surface-relative
             int x = toFixed(p.x());

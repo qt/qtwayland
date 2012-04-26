@@ -55,6 +55,8 @@ public:
     void touchCanceled();
 
 private:
+    void registerDevice(int caps);
+
     QWaylandDisplay *mDisplay;
     wl_touch_extension *mTouch;
     static const struct wl_touch_extension_listener touch_listener;

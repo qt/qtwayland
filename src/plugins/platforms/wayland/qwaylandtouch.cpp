@@ -50,19 +50,17 @@ QWaylandTouchExtension::QWaylandTouchExtension(QWaylandDisplay *display, uint32_
     mPointsLeft = 0;
     mFlags = 0;
     mMouseSourceId = -1;
+    mTouchDevice = 0;
 
     mTouch = static_cast<struct wl_touch_extension *>(wl_display_bind(display->wl_display(), id, &wl_touch_extension_interface));
     wl_touch_extension_add_listener(mTouch, &touch_listener, this);
+}
 
-    QTouchDevice::Capabilities caps = QTouchDevice::Position
-            | QTouchDevice::Area
-            | QTouchDevice::Pressure
-            | QTouchDevice::Velocity
-            | QTouchDevice::RawPositions
-            | QTouchDevice::NormalizedPosition;
+void QWaylandTouchExtension::registerDevice(int caps)
+{
     mTouchDevice = new QTouchDevice;
     mTouchDevice->setType(QTouchDevice::TouchScreen);
-    mTouchDevice->setCapabilities(caps);
+    mTouchDevice->setCapabilities(QTouchDevice::Capabilities(caps));
     QWindowSystemInterface::registerTouchDevice(mTouchDevice);
 }
 
@@ -105,7 +103,10 @@ void QWaylandTouchExtension::handle_touch(void *data, wl_touch_extension *ext, u
         Q_ASSERT(sentPointCount > 0);
         self->mPointsLeft = sentPointCount;
     }
-    tp.flags = QTouchEvent::TouchPoint::InfoFlags(int(flags));
+    tp.flags = QTouchEvent::TouchPoint::InfoFlags(int(flags & 0xFFFF));
+
+    if (!self->mTouchDevice)
+        self->registerDevice(flags >> 16);
 
     tp.area = QRectF(0, 0, fromFixed(width), fromFixed(height));
     // Got surface-relative coords but need a (virtual) screen position.

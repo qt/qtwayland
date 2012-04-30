@@ -125,14 +125,15 @@ protected:
 
 private:
     friend class WaylandSurfaceNode;
-    QSGTexture *updateTexture(QSGTexture *oldTexture);
+    void updateTexture();
     QPoint toSurface(const QPointF &pos) const;
     void init(WaylandSurface *);
+    void ensureProvider();
 
     static QMutex *mutex;
 
     WaylandSurface *m_surface;
-    mutable WaylandSurfaceTextureProvider *m_provider;
+    WaylandSurfaceTextureProvider *m_provider;
     WaylandSurfaceNode *m_node;
     bool m_paintEnabled;
     bool m_useTextureAlpha;

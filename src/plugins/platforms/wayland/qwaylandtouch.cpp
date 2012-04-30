@@ -45,13 +45,12 @@
 #include "wayland-touch-extension-client-protocol.h"
 
 QWaylandTouchExtension::QWaylandTouchExtension(QWaylandDisplay *display, uint32_t id)
+    : mDisplay(display),
+      mTouchDevice(0),
+      mPointsLeft(0),
+      mFlags(0),
+      mMouseSourceId(-1)
 {
-    mDisplay = display;
-    mPointsLeft = 0;
-    mFlags = 0;
-    mMouseSourceId = -1;
-    mTouchDevice = 0;
-
     mTouch = static_cast<struct wl_touch_extension *>(wl_display_bind(display->wl_display(), id, &wl_touch_extension_interface));
     wl_touch_extension_add_listener(mTouch, &touch_listener, this);
 }

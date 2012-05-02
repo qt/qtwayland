@@ -60,7 +60,9 @@
 class WaylandSurfaceNode : public QSGSimpleTextureNode
 {
 public:
-    WaylandSurfaceNode(WaylandSurfaceItem *item) : m_item(item) {
+    WaylandSurfaceNode(WaylandSurfaceItem *item)
+        : m_item(item), m_textureUpdated(false)
+    {
         if (m_item)
             m_item->m_node = this;
         setFlag(UsePreprocess,true);
@@ -72,10 +74,14 @@ public:
     }
     void preprocess() {
         QMutexLocker locker(WaylandSurfaceItem::mutex);
-        if (m_item && m_item->m_damaged) {
+
+        //Update if the item is dirty and we haven't done an updateTexture for this frame
+        if (m_item && m_item->m_damaged && !m_textureUpdated) {
             m_item->updateTexture();
             updateTexture();
         }
+        //Reset value for next frame: we have not done updatePaintNode yet
+        m_textureUpdated = false;
     }
 
     void updateTexture() {
@@ -87,6 +93,7 @@ public:
     }
 
     WaylandSurfaceItem *m_item;
+    bool m_textureUpdated;
 };
 
 class WaylandSurfaceTextureProvider : public QSGTextureProvider
@@ -414,6 +421,7 @@ QSGNode *WaylandSurfaceItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeDa
         node->setRect(0, 0, width(), height());
     }
 
+    node->m_textureUpdated = true;
     return node;
 }
 

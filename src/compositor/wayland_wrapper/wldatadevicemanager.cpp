@@ -53,6 +53,7 @@
 #include <fcntl.h>
 #include <QtCore/private/qcore_unix_p.h>
 #include <QtCore/QFile>
+#include <QtCore/QStringList>
 
 namespace Wayland {
 

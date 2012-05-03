@@ -199,7 +199,7 @@ void QWaylandCursor::setupPixmapCursor(QCursor *cursor)
     }
     QImage src = cursor->pixmap().toImage().convertToFormat(QImage::Format_ARGB32);
     for (int y = 0; y < src.height(); ++y)
-        qMemCopy(mBuffer->image()->scanLine(y), src.scanLine(y), src.bytesPerLine());
+        memcpy(mBuffer->image()->scanLine(y), src.scanLine(y), src.bytesPerLine());
     mDisplay->setCursor(mBuffer, cursor->hotSpot().x(), cursor->hotSpot().y());
 }
 

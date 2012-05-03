@@ -232,6 +232,10 @@ QWaylandDataOffer *QWaylandDataDeviceManager::selectionTransfer() const
 
 void QWaylandDataDeviceManager::createAndSetDrag(QDrag *drag)
 {
+    QWaylandInputDevice *inputDevice = m_display->lastKeyboardFocusInputDevice();
+    if (!inputDevice)
+        return;
+
     if (m_drag_data_source) {
         qDebug() << "QWaylandDndSelectionHandler::createAndSetDrag: Allready have a valid drag";
         delete m_drag_data_source;
@@ -242,7 +246,7 @@ void QWaylandDataDeviceManager::createAndSetDrag(QDrag *drag)
 
     m_drag_data_source = new QWaylandDataSource(this,drag->mimeData());
 
-    struct wl_data_device *transfer_device = m_display->lastKeyboardFocusInputDevice()->transferDevice();
+    struct wl_data_device *transfer_device = inputDevice->transferDevice();
     m_drag_surface = m_display->createSurface(this);
     QPixmap pixmap = drag->pixmap();
     if (pixmap.isNull()) {
@@ -292,7 +296,10 @@ void QWaylandDataDeviceManager::createAndSetSelectionSource(QMimeData *mimeData,
 
     transfer_source = new QWaylandDataSource(this,mimeData);
     m_selection_data_source = transfer_source;
-    struct wl_data_device *transfer_device = m_display->lastKeyboardFocusInputDevice()->transferDevice();
+    QWaylandInputDevice *inputDevice = m_display->lastKeyboardFocusInputDevice();
+    if (!inputDevice)
+        inputDevice = m_display->inputDevices().first(); // try to survive in apps without any surfaces
+    struct wl_data_device *transfer_device = inputDevice->transferDevice();
     wl_data_device_set_selection(transfer_device,transfer_source->handle(),QWaylandDisplay::currentTimeMillisec());
 
     QGuiApplicationPrivate::platformIntegration()->clipboard()->emitChanged(QClipboard::Clipboard);

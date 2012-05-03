@@ -60,7 +60,7 @@ QByteArray QWaylandMimeHelper::getByteArray(QMimeData *mimeData, const QString &
             buf.open(QIODevice::ReadWrite);
             QByteArray fmt = "BMP";
             if (mimeType.startsWith(QLatin1String("image/"))) {
-                QByteArray imgFmt = mimeType.mid(6).toUpper().toAscii();
+                QByteArray imgFmt = mimeType.mid(6).toUpper().toLatin1();
                 if (QImageWriter::supportedImageFormats().contains(imgFmt))
                     fmt = imgFmt;
             }
@@ -69,7 +69,7 @@ QByteArray QWaylandMimeHelper::getByteArray(QMimeData *mimeData, const QString &
             content = buf.buffer();
         }
     } else if (mimeType == QLatin1String("application/x-color")) {
-        content = qvariant_cast<QColor>(mimeData->colorData()).name().toAscii();
+        content = qvariant_cast<QColor>(mimeData->colorData()).name().toLatin1();
     } else if (mimeType == QLatin1String("text/uri-list")) {
         QList<QUrl> urls = mimeData->urls();
         for (int i = 0; i < urls.count(); ++i) {

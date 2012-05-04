@@ -98,6 +98,9 @@ public:
     void setOutputGeometry(const QRect &outputGeometry);
     QRect outputGeometry() const;
 
+    void setOutputRefreshRate(int refreshRate);
+    int outputRefreshRate() const;
+
     WaylandInputDevice *defaultInputDevice() const;
 
     bool isDragging() const;

@@ -212,6 +212,16 @@ QRect WaylandCompositor::outputGeometry() const
     return m_compositor->outputGeometry();
 }
 
+void WaylandCompositor::setOutputRefreshRate(int rate)
+{
+    m_compositor->setOutputRefreshRate(rate);
+}
+
+int WaylandCompositor::outputRefreshRate() const
+{
+    return m_compositor->outputRefreshRate();
+}
+
 WaylandInputDevice *WaylandCompositor::defaultInputDevice() const
 {
     return m_compositor->defaultInputDevice()->handle();

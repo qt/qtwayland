@@ -52,6 +52,7 @@ OutputGlobal::OutputGlobal()
 {
     QScreen *screen = QGuiApplication::primaryScreen();
     m_geometry = QRect(QPoint(0, 0), screen->availableGeometry().size());
+    m_refreshRate = qRound(screen->refreshRate());
 }
 
 OutputGlobal::~OutputGlobal()
@@ -62,6 +63,11 @@ OutputGlobal::~OutputGlobal()
 void OutputGlobal::setGeometry(const QRect &geometry)
 {
     m_geometry = geometry;
+}
+
+void OutputGlobal::setRefreshRate(int rate)
+{
+    m_refreshRate = rate;
 }
 
 Output *OutputGlobal::outputForClient(wl_client *client) const
@@ -92,7 +98,7 @@ Output::Output(OutputGlobal *outputGlobal, wl_client *client, uint32_t version, 
                          m_output_global->size().width(), m_output_global->size().height(),0,"","");
 
     wl_output_send_mode(m_output_resource, WL_OUTPUT_MODE_CURRENT|WL_OUTPUT_MODE_PREFERRED,
-                           m_output_global->size().width(),m_output_global->size().height(), 60);
+                        m_output_global->size().width(), m_output_global->size().height(), m_output_global->refreshRate());
 
 }
 

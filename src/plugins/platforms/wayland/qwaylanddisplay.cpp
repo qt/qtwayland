@@ -234,18 +234,19 @@ void QWaylandDisplay::outputHandleGeometry(void *data,
 }
 
 void QWaylandDisplay::mode(void *data,
-             struct wl_output *wl_output,
+             struct wl_output *output,
              uint32_t flags,
              int width,
              int height,
              int refresh)
 {
-    Q_UNUSED(data);
-    Q_UNUSED(wl_output);
-    Q_UNUSED(flags);
-    Q_UNUSED(width);
-    Q_UNUSED(height);
-    Q_UNUSED(refresh);
+    QWaylandDisplay *waylandDisplay = static_cast<QWaylandDisplay *>(data);
+
+    if (flags & WL_OUTPUT_MODE_CURRENT) {
+        QWaylandScreen *screen = waylandDisplay->screenForOutput(output);
+        if (screen)
+            screen->handleMode(QSize(width, height), refresh);
+    }
 }
 
 const struct wl_output_listener QWaylandDisplay::outputListener = {

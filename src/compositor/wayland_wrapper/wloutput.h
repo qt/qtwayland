@@ -64,12 +64,16 @@ public:
     int y() const { return m_geometry.y(); }
     QSize size() const { return m_geometry.size(); }
 
+    void setRefreshRate(int rate);
+    int refreshRate() const { return m_refreshRate; }
+
     Output *outputForClient(struct wl_client *client) const;
 
     static void output_bind_func(struct wl_client *client, void *data,
                           uint32_t version, uint32_t id);
 private:
     QRect m_geometry;
+    int m_refreshRate;
     int m_displayId;
     int m_numQueued;
     QList<Output *> m_outputs;

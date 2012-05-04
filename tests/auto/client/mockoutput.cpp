@@ -64,7 +64,8 @@ void Compositor::sendOutputGeometry(wl_resource *resource)
 
 void Compositor::sendOutputMode(wl_resource *resource)
 {
-    wl_output_send_mode(resource, WL_OUTPUT_MODE_CURRENT | WL_OUTPUT_MODE_PREFERRED, 640, 480, 60);
+    const QRect &r = m_outputGeometry;
+    wl_output_send_mode(resource, WL_OUTPUT_MODE_CURRENT | WL_OUTPUT_MODE_PREFERRED, r.width(), r.height(), 60);
 }
 
 void Compositor::setOutputGeometry(void *c, const QList<QVariant> &parameters)

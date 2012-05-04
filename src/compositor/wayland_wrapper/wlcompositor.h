@@ -125,6 +125,8 @@ public:
     Qt::ScreenOrientation screenOrientation() const;
     void setOutputGeometry(const QRect &geometry);
     QRect outputGeometry() const;
+    void setOutputRefreshRate(int rate);
+    int outputRefreshRate() const;
 
     void setClientFullScreenHint(bool value);
 

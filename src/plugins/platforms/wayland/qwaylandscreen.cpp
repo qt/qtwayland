@@ -54,6 +54,7 @@ QWaylandScreen::QWaylandScreen(QWaylandDisplay *waylandDisplay, struct wl_output
     , mExtendedOutput(0)
     , mGeometry(geometry)
     , mDepth(32)
+    , mRefreshRate(60)
     , mFormat(QImage::Format_ARGB32_Premultiplied)
     , mWaylandCursor(new QWaylandCursor(this))
 {
@@ -95,6 +96,11 @@ Qt::ScreenOrientation QWaylandScreen::orientation() const
     return QPlatformScreen::orientation();
 }
 
+qreal QWaylandScreen::refreshRate() const
+{
+    return mRefreshRate;
+}
+
 QPlatformCursor *QWaylandScreen::cursor() const
 {
     return  mWaylandCursor;
@@ -115,4 +121,17 @@ QWaylandScreen * QWaylandScreen::waylandScreenFromWindow(QWindow *window)
 {
     QPlatformScreen *platformScreen = QPlatformScreen::platformScreenForWindow(window);
     return static_cast<QWaylandScreen *>(platformScreen);
+}
+
+void QWaylandScreen::handleMode(const QSize &size, int refreshRate)
+{
+    if (size != mGeometry.size()) {
+        mGeometry.setSize(size);
+        QWindowSystemInterface::handleScreenGeometryChange(screen(), mGeometry);
+    }
+
+    if (refreshRate != mRefreshRate) {
+        mRefreshRate = refreshRate;
+        QWindowSystemInterface::handleScreenRefreshRateChange(screen(), mRefreshRate);
+    }
 }

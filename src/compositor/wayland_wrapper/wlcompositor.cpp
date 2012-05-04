@@ -392,6 +392,16 @@ QRect Compositor::outputGeometry() const
     return m_output_global.geometry();
 }
 
+void Compositor::setOutputRefreshRate(int rate)
+{
+    m_output_global.setRefreshRate(rate);
+}
+
+int Compositor::outputRefreshRate() const
+{
+    return m_output_global.refreshRate();
+}
+
 void Compositor::setClientFullScreenHint(bool value)
 {
     m_windowManagerIntegration->setShowIsFullScreen(value);

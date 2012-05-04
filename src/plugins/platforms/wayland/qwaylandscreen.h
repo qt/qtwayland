@@ -61,6 +61,7 @@ public:
     QImage::Format format() const;
 
     Qt::ScreenOrientation orientation() const;
+    qreal refreshRate() const;
 
     QPlatformCursor *cursor() const;
 
@@ -71,12 +72,15 @@ public:
 
     static QWaylandScreen *waylandScreenFromWindow(QWindow *window);
 
+    void handleMode(const QSize &size, int refreshRate);
+
 private:
     QWaylandDisplay *mWaylandDisplay;
     struct wl_output *mOutput;
     QWaylandExtendedOutput *mExtendedOutput;
     QRect mGeometry;
     int mDepth;
+    int mRefreshRate;
     QImage::Format mFormat;
     QSize mPhysicalSize;
 

@@ -132,7 +132,7 @@ void QWaylandWindow::setParent(const QPlatformWindow *parent)
 void QWaylandWindow::setWindowTitle(const QString &title)
 {
     Q_UNUSED(title);
-    if (mWindowDecoration && window()->visible()) {
+    if (mWindowDecoration && window()->isVisible()) {
         mWindowDecoration->paintDecoration();
     }
 }

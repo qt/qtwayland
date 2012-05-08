@@ -45,7 +45,7 @@
 
 #ifdef QT_COMPOSITOR_WAYLAND_GL
 #include "hardware_integration/graphicshardwareintegration.h"
-#include <QtGui/QPlatformOpenGLContext>
+#include <qpa/qplatformopenglcontext.h>
 #endif
 
 #include <QtCore/QDebug>

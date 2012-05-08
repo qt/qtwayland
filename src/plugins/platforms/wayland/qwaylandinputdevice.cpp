@@ -48,7 +48,7 @@
 #include "qwaylandtouch.h"
 
 #include <QtGui/private/qpixmap_raster_p.h>
-#include <QtGui/QPlatformWindow>
+#include <qpa/qplatformwindow.h>
 #include <QDebug>
 
 #include <unistd.h>

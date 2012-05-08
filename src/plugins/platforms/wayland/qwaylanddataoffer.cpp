@@ -43,7 +43,7 @@
 #include "qwaylanddatadevicemanager.h"
 
 #include <QtGui/private/qguiapplication_p.h>
-#include <QtGui/QPlatformClipboard>
+#include <qpa/qplatformclipboard.h>
 
 #include <QtCore/QDebug>
 

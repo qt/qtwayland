@@ -42,7 +42,7 @@
 #ifndef QWAYLANDCURSOR_H
 #define QWAYLANDCURSOR_H
 
-#include <QtGui/QPlatformCursor>
+#include <qpa/qplatformcursor.h>
 
 class QWaylandShmBuffer;
 class QWaylandDisplay;

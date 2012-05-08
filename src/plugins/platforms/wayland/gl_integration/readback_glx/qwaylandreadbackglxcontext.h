@@ -42,7 +42,7 @@
 #ifndef QWAYLANDREADBACKGLXCONTEXT_H
 #define QWAYLANDREADBACKGLXCONTEXT_H
 
-#include <QPlatformOpenGLContext>
+#include <qpa/qplatformopenglcontext.h>
 #include <QSurfaceFormat>
 
 #include "qwaylandreadbackglxintegration.h"

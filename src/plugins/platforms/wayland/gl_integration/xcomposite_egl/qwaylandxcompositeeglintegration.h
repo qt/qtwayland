@@ -51,7 +51,7 @@
 #include <QtCore/QVariant>
 #include <QtGui/QWindow>
 
-#include <QPlatformOpenGLContext>
+#include <qpa/qplatformopenglcontext.h>
 
 #include <QWaitCondition>
 

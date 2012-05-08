@@ -58,9 +58,9 @@
 #include <QWindow>
 #include <QSocketNotifier>
 #include <QScreen>
-#include <QPlatformScreen>
+#include <qpa/qplatformscreen.h>
 #include <QGuiApplication>
-#include <QPlatformScreenPageFlipper>
+#include <qpa/qplatformscreenpageflipper.h>
 #include <QDebug>
 
 #include <stdio.h>

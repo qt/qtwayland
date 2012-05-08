@@ -42,7 +42,7 @@
 #ifndef QWAYLANDCLIPBOARD_H
 #define QWAYLANDCLIPBOARD_H
 
-#include <QtGui/QPlatformClipboard>
+#include <qpa/qplatformclipboard.h>
 #include <QtCore/QVariant>
 
 class QWaylandDisplay;

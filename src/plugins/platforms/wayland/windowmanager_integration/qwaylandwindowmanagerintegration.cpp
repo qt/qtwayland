@@ -48,8 +48,8 @@
 #include <QtCore/QEvent>
 #include <QtCore/QHash>
 #include <QtCore/QUrl>
-#include <QtGui/QPlatformNativeInterface>
-#include <QtGui/QPlatformWindow>
+#include <qpa/qplatformnativeinterface.h>
+#include <qpa/qplatformwindow.h>
 #include <QtGui/QtEvents>
 #include <QtGui/QGuiApplication>
 

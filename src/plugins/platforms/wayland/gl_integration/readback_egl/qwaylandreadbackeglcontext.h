@@ -42,7 +42,7 @@
 #ifndef QWAYLANDREADBACKEGLGLCONTEXT_H
 #define QWAYLANDREADBACKEGLGLCONTEXT_H
 
-#include <QPlatformOpenGLContext>
+#include <qpa/qplatformopenglcontext.h>
 
 #include "qwaylandreadbackeglintegration.h"
 #include "qwaylandreadbackeglwindow.h"

@@ -42,7 +42,7 @@
 #ifndef QWAYLANDWINDOW_H
 #define QWAYLANDWINDOW_H
 
-#include <QtGui/QPlatformWindow>
+#include <qpa/qplatformwindow.h>
 #include <QtCore/QWaitCondition>
 
 #include "qwaylanddisplay.h"

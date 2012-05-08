@@ -46,8 +46,8 @@
 
 #include <QSocketNotifier>
 #include <QObject>
-#include <QtGui/QPlatformIntegration>
-#include <QtGui/QPlatformScreen>
+#include <qpa/qplatformintegration.h>
+#include <qpa/qplatformscreen.h>
 #include <QWindowSystemInterface>
 
 #include <wayland-client.h>

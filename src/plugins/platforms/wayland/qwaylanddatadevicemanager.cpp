@@ -51,7 +51,7 @@
 
 #include <QtGui/QGuiApplication>
 #include <QtGui/private/qguiapplication_p.h>
-#include <QtGui/QPlatformClipboard>
+#include <qpa/qplatformclipboard.h>
 #include <QtGui/QPainter>
 
 #include <QWindowSystemInterface>

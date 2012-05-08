@@ -42,7 +42,7 @@
 #ifndef QPLATFORMINTEGRATION_WAYLAND_H
 #define QPLATFORMINTEGRATION_WAYLAND_H
 
-#include <QtGui/QPlatformIntegration>
+#include <qpa/qplatformintegration.h>
 
 QT_BEGIN_NAMESPACE
 

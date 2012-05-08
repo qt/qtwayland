@@ -51,7 +51,7 @@
 #include "qwaylandnativeinterface.h"
 
 #include <QtGui/QGuiApplication>
-#include <QtGui/QPlatformNativeInterface>
+#include <qpa/qplatformnativeinterface.h>
 #include <QtGui/QWindowSystemInterface>
 
 QWaylandSurfaceExtension::QWaylandSurfaceExtension(QWaylandDisplay *display, uint32_t id)

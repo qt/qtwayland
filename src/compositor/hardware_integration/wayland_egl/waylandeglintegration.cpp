@@ -42,10 +42,10 @@
 #include "wayland_wrapper/wlcompositor.h"
 #include "wayland_wrapper/wlsurface.h"
 #include "compositor_api/waylandsurface.h"
-#include <QtGui/QPlatformNativeInterface>
+#include <qpa/qplatformnativeinterface.h>
 #include <QtGui/QGuiApplication>
 #include <QtGui/QOpenGLContext>
-#include <QtGui/QPlatformScreen>
+#include <qpa/qplatformscreen.h>
 #include <QtGui/QWindow>
 #include <QtCore/QWeakPointer>
 

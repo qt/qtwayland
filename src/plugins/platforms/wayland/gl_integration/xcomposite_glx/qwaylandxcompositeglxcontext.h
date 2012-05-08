@@ -42,7 +42,7 @@
 #ifndef QWAYLANDXCOMPOSITEGLXCONTEXT_H
 #define QWAYLANDXCOMPOSITEGLXCONTEXT_H
 
-#include <QtGui/QPlatformOpenGLContext>
+#include <qpa/qplatformopenglcontext.h>
 
 #include "qwaylandxcompositeglxintegration.h"
 #include <QtPlatformSupport/private/qglxconvenience_p.h>

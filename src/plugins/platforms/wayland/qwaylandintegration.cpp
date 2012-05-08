@@ -54,13 +54,13 @@
 #include <QtGui/private/qguiapplication_p.h>
 
 #include <QtGui/QWindowSystemInterface>
-#include <QtGui/QPlatformCursor>
+#include <qpa/qplatformcursor.h>
 #include <QtGui/QSurfaceFormat>
 #include <QtGui/QOpenGLContext>
 
-#include <private/qplatforminputcontextfactory_qpa_p.h>
-#include <qplatformaccessibility_qpa.h>
-#include <qplatforminputcontext_qpa.h>
+#include <qpa/qplatforminputcontextfactory_p.h>
+#include <qpa/qplatformaccessibility.h>
+#include <qpa/qplatforminputcontext.h>
 
 #ifdef QT_WAYLAND_GL_SUPPORT
 #include "gl_integration/qwaylandglintegration.h"

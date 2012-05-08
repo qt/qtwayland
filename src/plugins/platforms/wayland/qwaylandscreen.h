@@ -42,7 +42,7 @@
 #ifndef QWAYLANDSCREEN_H
 #define QWAYLANDSCREEN_H
 
-#include <QtGui/QPlatformScreen>
+#include <qpa/qplatformscreen.h>
 
 class QWaylandDisplay;
 class QWaylandCursor;

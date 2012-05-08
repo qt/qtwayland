@@ -45,8 +45,8 @@
 #include "wayland-xcomposite-server-protocol.h"
 
 #include <QtGui/QGuiApplication>
-#include <QtGui/QPlatformNativeInterface>
-#include <QtGui/QPlatformOpenGLContext>
+#include <qpa/qplatformnativeinterface.h>
+#include <qpa/qplatformopenglcontext.h>
 
 #include "xcompositebuffer.h"
 #include "xcompositehandler.h"

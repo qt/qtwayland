@@ -44,7 +44,7 @@
 
 #include "qwaylandscreen.h"
 #include <QVariantMap>
-#include <QtGui/QPlatformNativeInterface>
+#include <qpa/qplatformnativeinterface.h>
 
 class QWaylandIntegration;
 

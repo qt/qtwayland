@@ -47,7 +47,7 @@
 
 #include <QtPlatformSupport/private/qeglconvenience_p.h>
 
-#include <QtGui/QPlatformOpenGLContext>
+#include <qpa/qplatformopenglcontext.h>
 #include <QtGui/QSurfaceFormat>
 
 QWaylandGLContext::QWaylandGLContext(EGLDisplay eglDisplay, const QSurfaceFormat &format, QPlatformOpenGLContext *share)

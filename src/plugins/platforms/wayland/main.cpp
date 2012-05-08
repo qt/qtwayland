@@ -39,7 +39,7 @@
 **
 ****************************************************************************/
 
-#include <QtGui/QPlatformIntegrationPlugin>
+#include <qpa/qplatformintegrationplugin.h>
 #include "qwaylandintegration.h"
 
 QT_BEGIN_NAMESPACE

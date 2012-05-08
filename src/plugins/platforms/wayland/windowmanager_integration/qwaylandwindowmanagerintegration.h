@@ -47,7 +47,7 @@
 
 #include "wayland-client.h"
 #include "qwaylanddisplay.h"
-#include "qplatformservices_qpa.h"
+#include <qpa/qplatformservices.h>
 
 class QWaylandWindow;
 

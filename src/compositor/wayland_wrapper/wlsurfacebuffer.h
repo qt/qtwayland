@@ -43,7 +43,7 @@
 
 #include <QtCore/QRect>
 #include <QtGui/qopengl.h>
-#include <QtGui/QPlatformScreenBuffer>
+#include <qpa/qplatformscreenpageflipper.h>
 
 #include <wayland-server.h>
 

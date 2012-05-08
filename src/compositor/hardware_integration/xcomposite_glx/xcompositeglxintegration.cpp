@@ -44,8 +44,8 @@
 #include "wayland_wrapper/wlcompositor.h"
 #include "wayland-xcomposite-server-protocol.h"
 
-#include <QtGui/QPlatformNativeInterface>
-#include <QtGui/QPlatformIntegration>
+#include <qpa/qplatformnativeinterface.h>
+#include <qpa/qplatformintegration.h>
 #include <QtGui/QOpenGLContext>
 
 #include "xcompositebuffer.h"

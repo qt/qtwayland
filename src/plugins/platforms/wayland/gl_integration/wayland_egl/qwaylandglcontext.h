@@ -44,7 +44,7 @@
 
 #include "qwaylanddisplay.h"
 
-#include <QtGui/QPlatformOpenGLContext>
+#include <qpa/qplatformopenglcontext.h>
 
 #include "qwaylandeglinclude.h"
 

@@ -47,9 +47,9 @@
 #include "qwaylanddecoration.h"
 #include "qwaylandwindow.h"
 
-#include <QtGui/QPlatformBackingStore>
+#include <qpa/qplatformbackingstore.h>
 #include <QtGui/QImage>
-#include <QtGui/QPlatformWindow>
+#include <qpa/qplatformwindow.h>
 
 QT_BEGIN_NAMESPACE
 

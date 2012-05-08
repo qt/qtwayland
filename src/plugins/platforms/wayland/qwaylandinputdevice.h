@@ -52,6 +52,12 @@
 
 #include <wayland-client.h>
 
+#ifndef QT_NO_WAYLAND_XKB
+struct xkb_context;
+struct xkb_keymap;
+struct xkb_state;
+#endif
+
 QT_BEGIN_NAMESPACE
 
 class QWaylandWindow;
@@ -60,6 +66,7 @@ class QWaylandDisplay;
 class QWaylandInputDevice {
 public:
     QWaylandInputDevice(QWaylandDisplay *display, uint32_t id);
+    ~QWaylandInputDevice();
     void attach(QWaylandBuffer *buffer, int x, int y);
     void handleWindowDestroyed(QWaylandWindow *window);
     struct wl_input_device *wl_input_device() const { return mInputDevice; }
@@ -82,7 +89,6 @@ private:
     Qt::MouseButtons mButtons;
     QPoint mSurfacePos;
     QPoint mGlobalPos;
-    struct xkb_desc *mXkb;
     Qt::KeyboardModifiers mModifiers;
     uint32_t mTime;
 
@@ -148,6 +154,12 @@ private:
     QList<QWindowSystemInterface::TouchPoint> mTouchPoints;
     QList<QWindowSystemInterface::TouchPoint> mPrevTouchPoints;
     QTouchDevice *mTouchDevice;
+
+#ifndef QT_NO_WAYLAND_XKB
+    xkb_context *mXkbContext;
+    xkb_keymap *mXkbMap;
+    xkb_state *mXkbState;
+#endif
 
     friend class QWaylandTouchExtension;
     friend class QWaylandQtKeyExtension;

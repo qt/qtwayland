@@ -70,6 +70,11 @@ QWaylandInputDevice::QWaylandInputDevice(QWaylandDisplay *display,
     , mKeyboardFocus(0)
     , mTouchFocus(0)
     , mButtons(0)
+#ifndef QT_NO_WAYLAND_XKB
+    , mXkbContext(0)
+    , mXkbMap(0)
+    , mXkbState(0)
+#endif
 {
     mInputDevice = static_cast<struct wl_input_device *>
             (wl_display_bind(mDisplay,id,&wl_input_device_interface));
@@ -79,17 +84,23 @@ QWaylandInputDevice::QWaylandInputDevice(QWaylandDisplay *display,
     wl_input_device_set_user_data(mInputDevice, this);
 
 #ifndef QT_NO_WAYLAND_XKB
-    struct xkb_rule_names names;
-    names.rules = "evdev";
-    names.model = "pc105";
-    names.layout = "us";
-    names.variant = "";
-    names.options = "";
+    xkb_rule_names names;
+    names.rules = strdup("evdev");
+    names.model = strdup("pc105");
+    names.layout = strdup("us");
+    names.variant = strdup("");
+    names.options = strdup("");
 
-    mXkb = xkb_compile_keymap_from_rules(&names);
+    xkb_context *mXkbContext = xkb_context_new();
+    if (mXkbContext) {
+        mXkbMap = xkb_map_new_from_names(mXkbContext, &names);
+        if (mXkbMap) {
+            mXkbState = xkb_state_new(mXkbMap);
+        }
+    }
 
-    if (!mXkb)
-        qWarning() << "xkb_compile_keymap_from_rules failed, no key input";
+    if (!mXkbContext || !mXkbMap || !mXkbState)
+        qWarning() << "xkb_map_new_from_names failed, no key input";
 #endif
 
     if (mQDisplay->dndSelectionHandler()) {
@@ -100,6 +111,18 @@ QWaylandInputDevice::QWaylandInputDevice(QWaylandDisplay *display,
     mTouchDevice->setType(QTouchDevice::TouchScreen);
     mTouchDevice->setCapabilities(QTouchDevice::Position);
     QWindowSystemInterface::registerTouchDevice(mTouchDevice);
+}
+
+QWaylandInputDevice::~QWaylandInputDevice()
+{
+#ifndef QT_NO_WAYLAND_XKB
+    if (mXkbState)
+        xkb_state_unref(mXkbState);
+    if (mXkbMap)
+        xkb_map_unref(mXkbMap);
+    if (mXkbContext)
+        xkb_context_unref(mXkbContext);
+#endif
 }
 
 void QWaylandInputDevice::handleWindowDestroyed(QWaylandWindow *window)
@@ -227,20 +250,21 @@ void QWaylandInputDevice::inputHandleAxis(void *data,
     Q_UNUSED(value);
 }
 #ifndef QT_NO_WAYLAND_XKB
-static Qt::KeyboardModifiers translateModifiers(int s)
+static Qt::KeyboardModifiers translateModifiers(xkb_state *state)
 {
-    const uchar qt_alt_mask = XKB_COMMON_MOD1_MASK;
-    const uchar qt_meta_mask = XKB_COMMON_MOD4_MASK;
+    Qt::KeyboardModifiers ret = Qt::NoModifier;
+    xkb_state_component cstate = xkb_state_component(XKB_STATE_DEPRESSED | XKB_STATE_LATCHED);
 
-    Qt::KeyboardModifiers ret = 0;
-    if (s & XKB_COMMON_SHIFT_MASK)
-	ret |= Qt::ShiftModifier;
-    if (s & XKB_COMMON_CONTROL_MASK)
-	ret |= Qt::ControlModifier;
-    if (s & qt_alt_mask)
-	ret |= Qt::AltModifier;
-    if (s & qt_meta_mask)
-	ret |= Qt::MetaModifier;
+    if (xkb_state_mod_name_is_active(state, "Shift", cstate))
+        ret |= Qt::ShiftModifier;
+    if (xkb_state_mod_name_is_active(state, "Control", cstate))
+        ret |= Qt::ControlModifier;
+    if (xkb_state_mod_name_is_active(state, "Alt", cstate))
+        ret |= Qt::AltModifier;
+    if (xkb_state_mod_name_is_active(state, "Mod1", cstate))
+        ret |= Qt::AltModifier;
+    if (xkb_state_mod_name_is_active(state, "Mod4", cstate))
+        ret |= Qt::MetaModifier;
 
     return ret;
 }
@@ -296,7 +320,7 @@ static uint32_t translateKey(uint32_t sym, char *string, size_t size)
 #endif
 
 void QWaylandInputDevice::inputHandleKey(void *data,
-					 struct wl_input_device *input_device,
+                                         struct wl_input_device *input_device,
                                          uint32_t serial, uint32_t time,
                                          uint32_t key, uint32_t state)
 {
@@ -305,44 +329,46 @@ void QWaylandInputDevice::inputHandleKey(void *data,
     QWaylandInputDevice *inputDevice = (QWaylandInputDevice *) data;
     QWaylandWindow *window = inputDevice->mKeyboardFocus;
 #ifndef QT_NO_WAYLAND_XKB
-    uint32_t code, sym, level;
+    uint32_t numSyms, code;
+    const xkb_keysym_t *syms;
     Qt::KeyboardModifiers modifiers;
     QEvent::Type type;
     char s[2];
 
-    if (window == NULL || !inputDevice->mXkb) {
-	/* We destroyed the keyboard focus surface, but the server
-	 * didn't get the message yet. */
-	return;
+    if (window == NULL || !inputDevice->mXkbMap) {
+        // We destroyed the keyboard focus surface, but the server
+        // didn't get the message yet.
+        return;
     }
 
-    code = key + inputDevice->mXkb->min_key_code;
+    code = key + 8;
+    bool isDown = state != 0;
+    numSyms = xkb_key_get_syms(inputDevice->mXkbState, code, &syms);
+    xkb_state_update_key(inputDevice->mXkbState, code,
+                         isDown ? XKB_KEY_DOWN : XKB_KEY_UP);
 
-    level = 0;
-    if (inputDevice->mModifiers & Qt::ShiftModifier &&
-	XkbKeyGroupWidth(inputDevice->mXkb, code, 0) > 1)
-	level = 1;
+    xkb_keysym_t sym;
+    if (numSyms == 1) {
+        sym = syms[0];
 
-    sym = XkbKeySymEntry(inputDevice->mXkb, code, level, 0);
+        modifiers = translateModifiers(inputDevice->mXkbState);
 
-    modifiers = translateModifiers(inputDevice->mXkb->map->modmap[code]);
+        if (isDown) {
+            inputDevice->mModifiers |= modifiers;
+            type = QEvent::KeyPress;
+        } else {
+            inputDevice->mModifiers &= ~modifiers;
+            type = QEvent::KeyRelease;
+        }
 
-    if (state) {
-	inputDevice->mModifiers |= modifiers;
-	type = QEvent::KeyPress;
-    } else {
-	inputDevice->mModifiers &= ~modifiers;
-	type = QEvent::KeyRelease;
-    }
+        sym = translateKey(sym, s, sizeof s);
 
-    sym = translateKey(sym, s, sizeof s);
-
-    if (window) {
-        QWindowSystemInterface::handleExtendedKeyEvent(window->window(),
-                                                       time, type, sym,
-                                                       inputDevice->mModifiers,
-                                                       code, 0, 0,
-                                                       QString::fromLatin1(s));
+        if (window)
+            QWindowSystemInterface::handleExtendedKeyEvent(window->window(),
+                                                           time, type, sym,
+                                                           inputDevice->mModifiers,
+                                                           code, 0, 0,
+                                                           QString::fromLatin1(s));
     }
 #else
     // Generic fallback for single hard keys: Assume 'key' is a Qt key code.
@@ -409,18 +435,9 @@ void QWaylandInputDevice::inputHandleKeyboardEnter(void *data,
 
     inputDevice->mModifiers = 0;
 
-#ifndef QT_NO_WAYLAND_XKB
-    uint32_t *k, *end;
-    uint32_t code;
-
-    end = (uint32_t *) ((char *) keys->data + keys->size);
-    for (k = (uint32_t *) keys->data; k < end; k++) {
-	code = *k + inputDevice->mXkb->min_key_code;
-	inputDevice->mModifiers |=
-	    translateModifiers(inputDevice->mXkb->map->modmap[code]);
-    }
-#else
     Q_UNUSED(keys);
+#ifndef QT_NO_WAYLAND_XKB
+    inputDevice->mModifiers |= translateModifiers(inputDevice->mXkbState);
 #endif
 
     // shouldn't get keyboard enter with no surface

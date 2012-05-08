@@ -42,17 +42,28 @@
 #include <X11/keysym.h>
 
 #include <QtCore/qnamespace.h>
+#include <string.h>
 
-int main(int argc, char **argv)
+int main()
 {
-    struct xkb_rule_names names;
-    names.rules = "evdev";
-    names.model = "pc105";
-    names.layout = "us";
-    names.variant = "";
-    names.options = "";
+    xkb_rule_names names;
+    names.rules = strdup("evdev");
+    names.model = strdup("pc105");
+    names.layout = strdup("us");
+    names.variant = strdup("");
+    names.options = strdup("");
 
-    struct xkb_desc *xkb = xkb_compile_keymap_from_rules(&names);
-    Q_UNUSED(xkb);
+    xkb_context *context = xkb_context_new();
+    if (context) {
+        xkb_keymap * keymap = xkb_map_new_from_names(context, &names);
+        if (keymap) {
+            xkb_state *state = xkb_state_new(keymap);
+            if (state)
+                xkb_state_unref(state);
+            xkb_map_unref(keymap);
+        }
+        xkb_context_unref(context);
+    }
+
     return 0;
 }

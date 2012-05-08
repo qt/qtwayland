@@ -76,6 +76,7 @@ class Q_COMPOSITOR_EXPORT WaylandSurface : public QObject
     Q_PROPERTY(Qt::ScreenOrientation windowOrientation READ windowOrientation NOTIFY windowOrientationChanged)
     Q_PROPERTY(Qt::ScreenOrientation contentOrientation READ contentOrientation NOTIFY contentOrientationChanged)
     Q_PROPERTY(int windowRotation READ windowRotation NOTIFY windowRotationChanged)
+    Q_PROPERTY(QString title READ title NOTIFY titleChanged)
 
     Q_ENUMS(WindowFlag)
     Q_FLAGS(WindowFlag WindowFlags)
@@ -146,6 +147,8 @@ public:
 
     WaylandCompositor *compositor() const;
 
+    QString title() const;
+
 signals:
     void mapped();
     void unmapped();
@@ -159,6 +162,7 @@ signals:
     void contentOrientationChanged();
     void windowRotationChanged();
     void extendedSurfaceReady();
+    void titleChanged();
 
 };
 

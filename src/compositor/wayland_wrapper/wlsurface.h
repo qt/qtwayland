@@ -123,6 +123,9 @@ public:
 
     static const struct wl_surface_interface surface_interface;
 
+    QString title() const { return m_title; }
+    void setTitle(const QString &title);
+
 private:
     Q_DISABLE_COPY(Surface)
 
@@ -151,6 +154,7 @@ private:
 
     QPointF m_position;
     QSize m_size;
+    QString m_title;
 
     inline SurfaceBuffer *currentSurfaceBuffer() const;
     bool advanceBufferQueue();

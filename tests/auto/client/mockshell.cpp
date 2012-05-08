@@ -43,6 +43,15 @@
 
 namespace Impl {
 
+void shell_surface_pong(wl_client *client,
+                        wl_resource *surface_resource,
+                        uint32_t serial)
+{
+    Q_UNUSED(client);
+    Q_UNUSED(surface_resource);
+    Q_UNUSED(serial);
+}
+
 void shell_surface_move(wl_client *client,
                         wl_resource *surface_resource,
                         wl_resource *input_device_resource,
@@ -129,16 +138,37 @@ void shell_surface_set_maximized(wl_client *client,
     Q_UNUSED(output);
 }
 
+void shell_surface_set_title(wl_client *client,
+                             wl_resource *surface_resource,
+                             const char *title)
+{
+    Q_UNUSED(client);
+    Q_UNUSED(surface_resource);
+    Q_UNUSED(title);
+}
+
+void shell_surface_set_class(wl_client *client,
+                             wl_resource *surface_resource,
+                             const char *class_)
+{
+    Q_UNUSED(client);
+    Q_UNUSED(surface_resource);
+    Q_UNUSED(class_);
+}
+
 static void get_shell_surface(wl_client *client, wl_resource *compositorResource, uint32_t id, wl_resource *surfaceResource)
 {
     static const struct wl_shell_surface_interface shellSurfaceInterface = {
+        shell_surface_pong,
         shell_surface_move,
         shell_surface_resize,
         shell_surface_set_toplevel,
         shell_surface_set_transient,
         shell_surface_set_fullscreen,
         shell_surface_set_popup,
-        shell_surface_set_maximized
+        shell_surface_set_maximized,
+        shell_surface_set_title,
+        shell_surface_set_class
     };
 
     Q_UNUSED(compositorResource);

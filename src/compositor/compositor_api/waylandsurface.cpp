@@ -324,3 +324,9 @@ void WaylandSurface::sendOnScreenVisibilityChange(bool visible)
     if (d->surface->extendedSurface())
         d->surface->extendedSurface()->sendOnScreenVisibility(visible);
 }
+
+QString WaylandSurface::title() const
+{
+    Q_D(const WaylandSurface);
+    return d->surface->title();
+}

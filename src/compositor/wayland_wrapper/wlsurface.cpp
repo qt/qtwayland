@@ -475,5 +475,13 @@ void Surface::surface_set_input_region(struct wl_client *client, struct wl_resou
     surface->m_inputRegion = region ? resolve<Region>(region)->region() : QRegion(QRect(QPoint(), surface->size()));
 }
 
+void Surface::setTitle(const QString &title)
+{
+    if (m_title != title) {
+        m_title = title;
+        emit waylandSurface()->titleChanged();
+    }
+}
+
 } // namespace Wayland
 

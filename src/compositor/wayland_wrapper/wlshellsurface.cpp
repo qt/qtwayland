@@ -258,14 +258,44 @@ void ShellSurface::set_maximized(struct wl_client *client,
     Q_UNUSED(output);
 }
 
+void ShellSurface::pong(struct wl_client *client,
+                        struct wl_resource *resource,
+                        uint32_t serial)
+{
+    Q_UNUSED(client);
+    Q_UNUSED(resource);
+    Q_UNUSED(serial);
+}
+
+void ShellSurface::set_title(struct wl_client *client,
+                             struct wl_resource *resource,
+                             const char *title)
+{
+    Q_UNUSED(client);
+    ShellSurface *self = static_cast<ShellSurface *>(resource->data);
+    self->surface()->setTitle(QString::fromUtf8(title));
+}
+
+void ShellSurface::set_class(struct wl_client *client,
+                             struct wl_resource *resource,
+                             const char *class_)
+{
+    Q_UNUSED(client);
+    Q_UNUSED(resource);
+    Q_UNUSED(class_);
+}
+
 const struct wl_shell_surface_interface ShellSurface::shell_surface_interface = {
+    ShellSurface::pong,
     ShellSurface::move,
     ShellSurface::resize,
     ShellSurface::set_toplevel,
     ShellSurface::set_transient,
     ShellSurface::set_fullscreen,
     ShellSurface::set_popup,
-    ShellSurface::set_maximized
+    ShellSurface::set_maximized,
+    ShellSurface::set_title,
+    ShellSurface::set_class
 };
 
 Qt::MouseButton toQtButton(uint32_t button)
@@ -371,7 +401,7 @@ void ShellSurfaceResizeGrabber::motion(wl_pointer_grab *grab, uint32_t time, int
     shell_surface->sendConfigure(resize_grabber->resize_edges,new_width,new_height);
 }
 
-void ShellSurfaceResizeGrabber::button(wl_pointer_grab *grab, uint32_t time, uint32_t button, int32_t state)
+void ShellSurfaceResizeGrabber::button(wl_pointer_grab *grab, uint32_t time, uint32_t button, uint32_t state)
 {
     Q_UNUSED(time)
     ShellSurfaceResizeGrabber *self = reinterpret_cast<ShellSurfaceResizeGrabber *>(grab);
@@ -418,7 +448,7 @@ void ShellSurfaceMoveGrabber::motion(wl_pointer_grab *grab, uint32_t time, int32
     shell_surface->surface()->damage(QRect(QPoint(0,0),shell_surface->surface()->size()));
 }
 
-void ShellSurfaceMoveGrabber::button(wl_pointer_grab *grab, uint32_t time, uint32_t button, int32_t state)
+void ShellSurfaceMoveGrabber::button(wl_pointer_grab *grab, uint32_t time, uint32_t button, uint32_t state)
 {
     Q_UNUSED(time)
     ShellSurfaceResizeGrabber *self = reinterpret_cast<ShellSurfaceResizeGrabber *>(grab);

@@ -131,6 +131,15 @@ private:
     static void set_maximized(struct wl_client *client,
                               struct wl_resource *shell_surface_resource,
                               struct wl_resource *output);
+    static void pong(struct wl_client *client,
+                     struct wl_resource *resource,
+                     uint32_t serial);
+    static void set_title(struct wl_client *client,
+                          struct wl_resource *resource,
+                          const char *title);
+    static void set_class(struct wl_client *client,
+                          struct wl_resource *resource,
+                          const char *class_);
 
     static const struct wl_shell_surface_interface shell_surface_interface;
 };
@@ -163,7 +172,7 @@ public:
     static void motion(struct wl_pointer_grab *grab,
                        uint32_t time, int32_t x, int32_t y);
     static void button(struct wl_pointer_grab *grab,
-                       uint32_t time, uint32_t mouse_grabber_button, int32_t state);
+                       uint32_t time, uint32_t mouse_grabber_button, uint32_t state);
     static const struct wl_pointer_grab_interface resize_grabber_interface;
 };
 
@@ -180,7 +189,7 @@ public:
     static void motion(struct wl_pointer_grab *grab,
                        uint32_t time, int32_t x, int32_t y);
     static void button(struct wl_pointer_grab *grab,
-                       uint32_t time, uint32_t mouse_grabber_button, int32_t state);
+                       uint32_t time, uint32_t mouse_grabber_button, uint32_t state);
     static const struct wl_pointer_grab_interface move_grabber_interface;
 };
 

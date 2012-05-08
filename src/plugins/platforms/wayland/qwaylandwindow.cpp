@@ -133,7 +133,10 @@ void QWaylandWindow::setParent(const QPlatformWindow *parent)
 
 void QWaylandWindow::setWindowTitle(const QString &title)
 {
-    Q_UNUSED(title);
+    if (mShellSurface) {
+        QByteArray titleUtf8 = title.toUtf8();
+        mShellSurface->setTitle(titleUtf8.constData());
+    }
     if (mWindowDecoration && window()->isVisible()) {
         mWindowDecoration->paintDecoration();
     }

@@ -63,10 +63,15 @@ public:
 
     struct wl_shell_surface *handle() const { return m_shell_surface; }
 
+    void setTitle(const char *title);
+
 private:
     struct wl_shell_surface *m_shell_surface;
     QWaylandWindow *m_window;
 
+    static void ping(void *data,
+                     struct wl_shell_surface *wl_shell_surface,
+                     uint32_t serial);
     static void configure(void *data,
               struct wl_shell_surface *wl_shell_surface,
               uint32_t edges,

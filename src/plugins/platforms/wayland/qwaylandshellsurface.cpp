@@ -88,6 +88,19 @@ void QWaylandShellSurface::updateTransientParent(QWindow *parent)
                                    0);
 }
 
+void QWaylandShellSurface::setTitle(const char *title)
+{
+    wl_shell_surface_set_title(m_shell_surface, title);
+}
+
+void QWaylandShellSurface::ping(void *data,
+                                struct wl_shell_surface *wl_shell_surface,
+                                uint32_t serial)
+{
+    Q_UNUSED(data);
+    wl_shell_surface_pong(wl_shell_surface, serial);
+}
+
 void QWaylandShellSurface::configure(void *data,
                                      wl_shell_surface *wl_shell_surface,
                                      uint32_t edges,
@@ -107,6 +120,7 @@ void QWaylandShellSurface::popup_done(void *data,
 }
 
 const wl_shell_surface_listener QWaylandShellSurface::m_shell_surface_listener = {
+    QWaylandShellSurface::ping,
     QWaylandShellSurface::configure,
     QWaylandShellSurface::popup_done
 };

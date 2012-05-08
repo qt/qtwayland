@@ -101,6 +101,8 @@ QWaylandWindow::QWaylandWindow(QWindow *window)
             mShellSurface->setTopLevel();
         }
     }
+
+    setWindowFlags(window->windowFlags());
 }
 
 QWaylandWindow::~QWaylandWindow()

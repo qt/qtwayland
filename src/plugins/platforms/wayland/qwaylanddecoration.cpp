@@ -14,8 +14,8 @@ QWaylandDecoration::QWaylandDecoration(QWindow *window, QWaylandShmBackingStore 
     , m_wayland_window(static_cast<QWaylandWindow *>(window->handle()))
     , m_backing_store(backing_store)
     , m_margins(3,30,3,3)
-    , m_mouseButtons(Qt::NoButton)
     , m_hasSetCursor(false)
+    , m_mouseButtons(Qt::NoButton)
 {
     m_wayland_window->setDecoration(this);
     QTextOption option(Qt::AlignHCenter | Qt::AlignVCenter);
@@ -78,6 +78,7 @@ void QWaylandDecoration::paintDecoration()
 void QWaylandDecoration::handleMouse(QWaylandInputDevice *inputDevice, const QPointF &local, const QPointF &global, Qt::MouseButtons b, Qt::KeyboardModifiers mods)
 
 {
+    Q_UNUSED(global);
     //figure out what area mouse is in
     if (local.y() <= m_margins.top()) {
         processMouseTop(inputDevice,local,b,mods);
@@ -124,6 +125,7 @@ void QWaylandDecoration::startMove(QWaylandInputDevice *inputDevice, Qt::MouseBu
 
 void QWaylandDecoration::processMouseTop(QWaylandInputDevice *inputDevice, const QPointF &local, Qt::MouseButtons b, Qt::KeyboardModifiers mods)
 {
+    Q_UNUSED(mods);
     if (local.y() <= m_margins.bottom()) {
         if (local.x() <= margins().left()) {
             //top left bit
@@ -145,6 +147,7 @@ void QWaylandDecoration::processMouseTop(QWaylandInputDevice *inputDevice, const
 
 void QWaylandDecoration::processMouseBottom(QWaylandInputDevice *inputDevice, const QPointF &local, Qt::MouseButtons b, Qt::KeyboardModifiers mods)
 {
+    Q_UNUSED(mods);
     if (local.x() <= margins().left()) {
         //bottom left bit
         startResize(inputDevice, WL_SHELL_SURFACE_RESIZE_BOTTOM_LEFT,b);

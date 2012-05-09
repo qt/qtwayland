@@ -106,8 +106,10 @@ void Compositor::sendMousePress(void *data, const QList<QVariant> &parameters)
         return;
 
     QPoint pos = parameters.last().toPoint();
-    wl_input_device_set_pointer_focus(&compositor->m_input, surface, pos.x(), pos.y());
-    wl_input_device_send_motion(compositor->m_input.pointer_focus_resource, compositor->time(), pos.x(), pos.y());
+    wl_input_device_set_pointer_focus(&compositor->m_input, surface,
+                                      wl_fixed_from_int(pos.x()), wl_fixed_from_int(pos.y()));
+    wl_input_device_send_motion(compositor->m_input.pointer_focus_resource, compositor->time(),
+                                wl_fixed_from_double(pos.x()), wl_fixed_from_double(pos.y()));
     wl_input_device_send_button(compositor->m_input.pointer_focus_resource,
         compositor->nextSerial(), compositor->time(), 0x110, 1);
 }

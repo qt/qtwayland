@@ -157,7 +157,7 @@ void QWaylandInputDevice::removeMouseButtonFromState(Qt::MouseButton button)
 void QWaylandInputDevice::inputHandleMotion(void *data,
 					    struct wl_input_device *input_device,
 					    uint32_t time,
-					    int32_t surface_x, int32_t surface_y)
+                        wl_fixed_t surface_x, wl_fixed_t surface_y)
 {
     Q_UNUSED(input_device);
     Q_UNUSED(surface_x);
@@ -171,8 +171,10 @@ void QWaylandInputDevice::inputHandleMotion(void *data,
 	return;
     }
 
-    QPoint pos(surface_x, surface_y);
-    QPoint global = window->window()->mapToGlobal(pos);
+    QPointF pos(wl_fixed_to_double(surface_x), wl_fixed_to_double(surface_y));
+    QPointF delta = pos - pos.toPoint();
+    QPointF global = window->window()->mapToGlobal(pos.toPoint());
+    global += delta;
 
     inputDevice->mSurfacePos = pos;
     inputDevice->mGlobalPos = global;
@@ -385,7 +387,7 @@ void QWaylandInputDevice::inputHandleKey(void *data,
 void QWaylandInputDevice::inputHandlePointerEnter(void *data,
                                                   struct wl_input_device *input_device,
                                                   uint32_t time, struct wl_surface *surface,
-                                                  int32_t sx, int32_t sy)
+                                                  wl_fixed_t sx, wl_fixed_t sy)
 {
     Q_UNUSED(input_device);
     Q_UNUSED(sx);
@@ -470,23 +472,23 @@ void QWaylandInputDevice::inputHandleTouchDown(void *data,
                                                uint32_t serial,
                                                uint32_t time,
                                                struct wl_surface *surface,
-                                               int id,
-                                               int x,
-                                               int y)
+                                               int32_t id,
+                                               wl_fixed_t x,
+                                               wl_fixed_t y)
 {
     Q_UNUSED(wl_input_device);
     Q_UNUSED(serial);
     Q_UNUSED(time);
     QWaylandInputDevice *inputDevice = (QWaylandInputDevice *) data;
     inputDevice->mTouchFocus = static_cast<QWaylandWindow *>(wl_surface_get_user_data(surface));
-    inputDevice->handleTouchPoint(id, x, y, Qt::TouchPointPressed);
+    inputDevice->handleTouchPoint(id, wl_fixed_to_double(x), wl_fixed_to_double(y), Qt::TouchPointPressed);
 }
 
 void QWaylandInputDevice::inputHandleTouchUp(void *data,
                                              struct wl_input_device *wl_input_device,
                                              uint32_t serial,
                                              uint32_t time,
-                                             int id)
+                                             int32_t id)
 {
     Q_UNUSED(wl_input_device);
     Q_UNUSED(serial);
@@ -499,17 +501,17 @@ void QWaylandInputDevice::inputHandleTouchUp(void *data,
 void QWaylandInputDevice::inputHandleTouchMotion(void *data,
                                                  struct wl_input_device *wl_input_device,
                                                  uint32_t time,
-                                                 int id,
-                                                 int x,
-                                                 int y)
+                                                 int32_t id,
+                                                 wl_fixed_t x,
+                                                 wl_fixed_t y)
 {
     Q_UNUSED(wl_input_device);
     Q_UNUSED(time);
     QWaylandInputDevice *inputDevice = (QWaylandInputDevice *) data;
-    inputDevice->handleTouchPoint(id, x, y, Qt::TouchPointMoved);
+    inputDevice->handleTouchPoint(id, wl_fixed_to_double(x), wl_fixed_to_double(y), Qt::TouchPointMoved);
 }
 
-void QWaylandInputDevice::handleTouchPoint(int id, int x, int y, Qt::TouchPointState state)
+void QWaylandInputDevice::handleTouchPoint(int id, double x, double y, Qt::TouchPointState state)
 {
     QWindowSystemInterface::TouchPoint tp;
 

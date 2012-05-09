@@ -79,8 +79,8 @@ void QWaylandDataDeviceManager::enter(void *data,
               struct wl_data_device *wl_data_device,
               uint32_t time,
               struct wl_surface *surface,
-              int32_t x,
-              int32_t y,
+              wl_fixed_t x,
+              wl_fixed_t y,
               struct wl_data_offer *id)
 {
 
@@ -129,14 +129,14 @@ void QWaylandDataDeviceManager::leave(void *data,
 void QWaylandDataDeviceManager::motion(void *data,
                struct wl_data_device *wl_data_device,
                uint32_t time,
-               int32_t x,
-               int32_t y)
+               wl_fixed_t x,
+               wl_fixed_t y)
 {
     Q_UNUSED(wl_data_device);
     QWaylandDataDeviceManager *data_device_manager = static_cast<QWaylandDataDeviceManager *>(data);
     if (time < data_device_manager->m_drag_last_event_time)
         return;
-    data_device_manager->m_drag_position = QPoint(x,y);
+    data_device_manager->m_drag_position = QPoint(wl_fixed_to_int(x), wl_fixed_to_int(y));
 
 //    Qt::DropActions allActions =  Qt::CopyAction | Qt::MoveAction | Qt::LinkAction;
 //    QPlatformDragQtResponse response = QWindowSystemInterface::handleDrag(data_device_manager->m_drag_current_event_window->window(),

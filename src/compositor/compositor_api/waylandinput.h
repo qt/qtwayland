@@ -61,17 +61,17 @@ public:
     WaylandInputDevice(WaylandCompositor *compositor);
     ~WaylandInputDevice();
 
-    void sendMousePressEvent(Qt::MouseButton button, const QPoint &localPos, const QPoint &globalPos = QPoint());
-    void sendMouseReleaseEvent(Qt::MouseButton button, const QPoint &localPos, const QPoint &globalPos = QPoint());
-    void sendMouseMoveEvent(const QPoint &localPos, const QPoint &globalPos = QPoint());
-    void sendMouseMoveEvent(WaylandSurface *surface , const QPoint &localPos, const QPoint &globalPos = QPoint());
+    void sendMousePressEvent(Qt::MouseButton button, const QPointF &localPos, const QPointF &globalPos = QPointF());
+    void sendMouseReleaseEvent(Qt::MouseButton button, const QPointF &localPos, const QPointF &globalPos = QPointF());
+    void sendMouseMoveEvent(const QPointF &localPos, const QPointF &globalPos = QPointF());
+    void sendMouseMoveEvent(WaylandSurface *surface , const QPointF &localPos, const QPointF &globalPos = QPointF());
 
     void sendKeyPressEvent(uint code);
     void sendKeyReleaseEvent(uint code);
 
     void sendFullKeyEvent(QKeyEvent *event);
 
-    void sendTouchPointEvent(int id, int x, int y, Qt::TouchPointState state);
+    void sendTouchPointEvent(int id, double x, double y, Qt::TouchPointState state);
     void sendTouchFrameEvent();
     void sendTouchCancelEvent();
 
@@ -81,7 +81,7 @@ public:
     void setKeyboardFocus(WaylandSurface *surface);
 
     WaylandSurface *mouseFocus() const;
-    void setMouseFocus(WaylandSurface *surface, const QPoint &local_pos, const QPoint &global_pos = QPoint());
+    void setMouseFocus(WaylandSurface *surface, const QPointF &local_pos, const QPointF &global_pos = QPointF());
 
     WaylandCompositor *compositor() const;
     Wayland::InputDevice *handle() const;

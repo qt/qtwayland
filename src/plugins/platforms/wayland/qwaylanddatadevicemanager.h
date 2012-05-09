@@ -101,16 +101,16 @@ private:
                   struct wl_data_device *wl_data_device,
                   uint32_t time,
                   struct wl_surface *surface,
-                  int32_t x,
-                  int32_t y,
+                  wl_fixed_t x,
+                  wl_fixed_t y,
                   struct wl_data_offer *id);
     static void leave(void *data,
                   struct wl_data_device *wl_data_device);
     static void motion(void *data,
                    struct wl_data_device *wl_data_device,
                    uint32_t time,
-                   int32_t x,
-                   int32_t y);
+                   wl_fixed_t x,
+                   wl_fixed_t y);
     static void drop(void *data,
                  struct wl_data_device *wl_data_device);
     static void selection(void *data,

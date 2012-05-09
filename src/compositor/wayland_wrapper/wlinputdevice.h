@@ -65,15 +65,15 @@ public:
     InputDevice(WaylandInputDevice *handle, Compositor *compositor);
     ~InputDevice();
 
-    void sendMousePressEvent(Qt::MouseButton button, const QPoint &localPos, const QPoint &globalPos = QPoint());
-    void sendMouseReleaseEvent(Qt::MouseButton button, const QPoint &localPos, const QPoint &globalPos = QPoint());
-    void sendMouseMoveEvent(const QPoint &localPos, const QPoint &globalPos = QPoint());
-    void sendMouseMoveEvent(Surface *surface, const QPoint &localPos, const QPoint &globalPos = QPoint());
+    void sendMousePressEvent(Qt::MouseButton button, const QPointF &localPos, const QPointF &globalPos = QPointF());
+    void sendMouseReleaseEvent(Qt::MouseButton button, const QPointF &localPos, const QPointF &globalPos = QPointF());
+    void sendMouseMoveEvent(const QPointF &localPos, const QPointF &globalPos = QPointF());
+    void sendMouseMoveEvent(Surface *surface, const QPointF &localPos, const QPointF &globalPos = QPointF());
 
     void sendKeyPressEvent(uint code);
     void sendKeyReleaseEvent(uint code);
 
-    void sendTouchPointEvent(int id, int x, int y, Qt::TouchPointState state);
+    void sendTouchPointEvent(int id, double x, double y, Qt::TouchPointState state);
     void sendTouchFrameEvent();
     void sendTouchCancelEvent();
 
@@ -84,7 +84,7 @@ public:
     void setKeyboardFocus(Surface *surface);
 
     Surface *mouseFocus() const;
-    void setMouseFocus(Surface *surface, const QPoint &localPos, const QPoint &globalPos);
+    void setMouseFocus(Surface *surface, const QPointF &localPos, const QPointF &globalPos);
 
     void clientRequestedDataDevice(DataDeviceManager *dndSelection, struct wl_client *client, uint32_t id);
     DataDevice *dataDevice(struct wl_client *client) const;

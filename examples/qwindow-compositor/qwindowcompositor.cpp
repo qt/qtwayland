@@ -157,14 +157,14 @@ void QWindowCompositor::changeCursor(const QImage &image, int hotspotX, int hots
     }
 }
 
-WaylandSurface *QWindowCompositor::surfaceAt(const QPoint &point, QPoint *local)
+WaylandSurface *QWindowCompositor::surfaceAt(const QPointF &point, QPointF *local)
 {
     for (int i = m_surfaces.size() - 1; i >= 0; --i) {
         WaylandSurface *surface = m_surfaces.at(i);
-        QRect geo(surface->pos().toPoint(),surface->size());
+        QRectF geo(surface->pos(), surface->size());
         if (geo.contains(point)) {
             if (local)
-                *local = toSurface(surface, point).toPoint();
+                *local = toSurface(surface, point);
             return surface;
         }
     }
@@ -259,9 +259,9 @@ bool QWindowCompositor::eventFilter(QObject *obj, QEvent *event)
         m_renderScheduler.start(0);
         break;
     case QEvent::MouseButtonPress: {
-        QPoint local;
+        QPointF local;
         QMouseEvent *me = static_cast<QMouseEvent *>(event);
-        WaylandSurface *targetSurface = surfaceAt(me->pos(), &local);
+        WaylandSurface *targetSurface = surfaceAt(me->localPos(), &local);
         if (m_dragKeyIsPressed && targetSurface) {
             m_draggingWindow = targetSurface;
             m_drag_diff = local;
@@ -272,7 +272,7 @@ bool QWindowCompositor::eventFilter(QObject *obj, QEvent *event)
                 m_surfaces.append(targetSurface);
                 m_renderScheduler.start(0);
             }
-            input->sendMousePressEvent(me->button(),local,me->pos());
+            input->sendMousePressEvent(me->button(), local, me->localPos());
         }
         return true;
     }
@@ -280,25 +280,25 @@ bool QWindowCompositor::eventFilter(QObject *obj, QEvent *event)
         WaylandSurface *targetSurface = input->mouseFocus();
         if (m_draggingWindow) {
             m_draggingWindow = 0;
-            m_drag_diff = QPoint();
+            m_drag_diff = QPointF();
         } else {
             QMouseEvent *me = static_cast<QMouseEvent *>(event);
             QPointF localPos;
             if (targetSurface)
-                localPos = toSurface(targetSurface, me->pos());
-            input->sendMouseReleaseEvent(me->button(),localPos.toPoint(),me->pos());
+                localPos = toSurface(targetSurface, me->localPos());
+            input->sendMouseReleaseEvent(me->button(), localPos, me->localPos());
         }
         return true;
     }
     case QEvent::MouseMove: {
         QMouseEvent *me = static_cast<QMouseEvent *>(event);
         if (m_draggingWindow) {
-            m_draggingWindow->setPos(me->posF() - m_drag_diff);
+            m_draggingWindow->setPos(me->localPos() - m_drag_diff);
             m_renderScheduler.start(0);
         } else {
-            QPoint local;
-            WaylandSurface *targetSurface = surfaceAt(me->pos(), &local);
-            input->sendMouseMoveEvent(targetSurface, local,me->pos());
+            QPointF local;
+            WaylandSurface *targetSurface = surfaceAt(me->localPos(), &local);
+            input->sendMouseMoveEvent(targetSurface, local, me->localPos());
         }
         break;
     }

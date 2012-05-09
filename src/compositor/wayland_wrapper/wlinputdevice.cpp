@@ -66,7 +66,7 @@ InputDevice::~InputDevice()
     qDeleteAll(m_data_devices);
 }
 
-void InputDevice::sendMousePressEvent(Qt::MouseButton button, const QPoint &localPos, const QPoint &globalPos)
+void InputDevice::sendMousePressEvent(Qt::MouseButton button, const QPointF &localPos, const QPointF &globalPos)
 {
     sendMouseMoveEvent(localPos,globalPos);
 
@@ -76,7 +76,7 @@ void InputDevice::sendMousePressEvent(Qt::MouseButton button, const QPoint &loca
     interface->button(base()->pointer_grab,time,toWaylandButton(button),1);
 }
 
-void InputDevice::sendMouseReleaseEvent(Qt::MouseButton button, const QPoint &localPos, const QPoint &globalPos)
+void InputDevice::sendMouseReleaseEvent(Qt::MouseButton button, const QPointF &localPos, const QPointF &globalPos)
 {
     sendMouseMoveEvent(localPos,globalPos);
 
@@ -86,19 +86,19 @@ void InputDevice::sendMouseReleaseEvent(Qt::MouseButton button, const QPoint &lo
     interface->button(base()->pointer_grab,time,toWaylandButton(button),0);
 }
 
-void InputDevice::sendMouseMoveEvent(const QPoint &localPos, const QPoint &globalPos)
+void InputDevice::sendMouseMoveEvent(const QPointF &localPos, const QPointF &globalPos)
 {
     Q_UNUSED(globalPos);
     uint32_t time = m_compositor->currentTimeMsecs();
     const struct wl_pointer_grab_interface *interface = base()->pointer_grab->interface;
-    base()->x = globalPos.x();
-    base()->y = globalPos.y();
+    base()->x = wl_fixed_from_double(globalPos.x());
+    base()->y = wl_fixed_from_double(globalPos.y());
     interface->motion(base()->pointer_grab,
                       time,
-                      localPos.x(), localPos.y());
+                      wl_fixed_from_double(localPos.x()), wl_fixed_from_double(localPos.y()));
 }
 
-void InputDevice::sendMouseMoveEvent(Surface *surface, const QPoint &localPos, const QPoint &globalPos)
+void InputDevice::sendMouseMoveEvent(Surface *surface, const QPointF &localPos, const QPointF &globalPos)
 {
     setMouseFocus(surface,localPos,globalPos);
     sendMouseMoveEvent(localPos,globalPos);
@@ -124,7 +124,7 @@ void InputDevice::sendKeyReleaseEvent(uint code)
     }
 }
 
-void InputDevice::sendTouchPointEvent(int id, int x, int y, Qt::TouchPointState state)
+void InputDevice::sendTouchPointEvent(int id, double x, double y, Qt::TouchPointState state)
 {
     uint32_t time = m_compositor->currentTimeMsecs();
     uint32_t serial = 0;
@@ -133,10 +133,12 @@ void InputDevice::sendTouchPointEvent(int id, int x, int y, Qt::TouchPointState 
         return;
     switch (state) {
     case Qt::TouchPointPressed:
-        wl_input_device_send_touch_down(resource, serial, time, &base()->pointer_focus->resource, id, x, y);
+        wl_input_device_send_touch_down(resource, serial, time, &base()->pointer_focus->resource, id,
+                                        wl_fixed_from_double(x), wl_fixed_from_double(y));
         break;
     case Qt::TouchPointMoved:
-        wl_input_device_send_touch_motion(resource, time, id, x, y);
+        wl_input_device_send_touch_motion(resource, time, id,
+                                          wl_fixed_from_double(x), wl_fixed_from_double(y));
         break;
     case Qt::TouchPointReleased:
         wl_input_device_send_touch_up(resource, serial, time, id);
@@ -207,7 +209,7 @@ void InputDevice::sendFullTouchEvent(QTouchEvent *event)
     for (int i = 0; i < pointCount; ++i) {
         const QTouchEvent::TouchPoint &tp(points.at(i));
         // Convert the local pos in the compositor window to surface-relative.
-        QPoint p = (tp.pos() - pos).toPoint();
+        QPointF p = tp.pos() - pos;
         sendTouchPointEvent(tp.id(), p.x(), p.y(), tp.state());
     }
     sendTouchFrameEvent();
@@ -229,16 +231,16 @@ Surface *InputDevice::mouseFocus() const
     return wayland_cast<Surface>(base()->pointer_focus);
 }
 
-void InputDevice::setMouseFocus(Surface *surface, const QPoint &globalPos, const QPoint &localPos)
+void InputDevice::setMouseFocus(Surface *surface, const QPointF &globalPos, const QPointF &localPos)
 {
-    base()->x = globalPos.x();
-    base()->y = globalPos.y();
+    base()->x = wl_fixed_from_double(globalPos.x());
+    base()->y = wl_fixed_from_double(globalPos.y());
     base()->current = surface->base();
-    base()->current_x = localPos.x();
-    base()->current_y = localPos.y();
+    base()->current_x = wl_fixed_from_double(localPos.x());
+    base()->current_y = wl_fixed_from_double(localPos.y());
     base()->pointer_grab->interface->focus(base()->pointer_grab,
                         surface ? surface->base() : 0,
-                        localPos.x(), localPos.y());
+                        wl_fixed_from_double(localPos.x()), wl_fixed_from_double(localPos.y()));
 }
 
 void InputDevice::cleanupDataDeviceForClient(struct wl_client *client, bool destroyDev)

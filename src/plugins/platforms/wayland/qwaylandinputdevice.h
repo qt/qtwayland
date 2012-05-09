@@ -87,15 +87,15 @@ private:
     QWaylandWindow *mTouchFocus;
     static const struct wl_input_device_listener inputDeviceListener;
     Qt::MouseButtons mButtons;
-    QPoint mSurfacePos;
-    QPoint mGlobalPos;
+    QPointF mSurfacePos;
+    QPointF mGlobalPos;
     Qt::KeyboardModifiers mModifiers;
     uint32_t mTime;
 
     static void inputHandleMotion(void *data,
 				  struct wl_input_device *input_device,
 				  uint32_t time,
-				  int32_t sx, int32_t sy);
+                  wl_fixed_t sx, wl_fixed_t sy);
     static void inputHandleButton(void *data,
 				  struct wl_input_device *input_device,
                                   uint32_t serial, uint32_t time,
@@ -112,7 +112,7 @@ private:
     static void inputHandlePointerEnter(void *data,
                                         struct wl_input_device *input_device,
                                         uint32_t time, struct wl_surface *surface,
-                                        int32_t sx, int32_t sy);
+                                        wl_fixed_t sx, wl_fixed_t sy);
     static void inputHandlePointerLeave(void *data,
                                         struct wl_input_device *input_device,
                                         uint32_t time, struct wl_surface *surface);
@@ -130,26 +130,26 @@ private:
                                      uint32_t serial,
                                      uint32_t time,
                                      struct wl_surface *surface,
-                                     int id,
-                                     int x,
-                                     int y);
+                                     int32_t id,
+                                     wl_fixed_t x,
+                                     wl_fixed_t y);
     static void inputHandleTouchUp(void *data,
                                    struct wl_input_device *wl_input_device,
                                    uint32_t serial,
                                    uint32_t time,
-                                   int id);
+                                   int32_t id);
     static void inputHandleTouchMotion(void *data,
                                        struct wl_input_device *wl_input_device,
                                        uint32_t time,
-                                       int id,
-                                       int x,
-                                       int y);
+                                       int32_t id,
+                                       wl_fixed_t x,
+                                       wl_fixed_t y);
     static void inputHandleTouchFrame(void *data,
                                       struct wl_input_device *wl_input_device);
     static void inputHandleTouchCancel(void *data,
                                        struct wl_input_device *wl_input_device);
 
-    void handleTouchPoint(int id, int x, int y, Qt::TouchPointState state);
+    void handleTouchPoint(int id, double x, double y, Qt::TouchPointState state);
     void handleTouchFrame();
     QList<QWindowSystemInterface::TouchPoint> mTouchPoints;
     QList<QWindowSystemInterface::TouchPoint> mPrevTouchPoints;

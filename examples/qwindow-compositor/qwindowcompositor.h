@@ -67,7 +67,7 @@ protected:
     void surfaceDamaged(WaylandSurface *surface, const QRect &rect);
     void surfaceCreated(WaylandSurface *surface);
 
-    WaylandSurface* surfaceAt(const QPoint &point, QPoint *local = 0);
+    WaylandSurface* surfaceAt(const QPointF &point, QPointF *local = 0);
 
     GLuint composeSurface(WaylandSurface *surface);
     void paintChildren(WaylandSurface *surface, WaylandSurface *window);
@@ -94,7 +94,7 @@ private:
     //Dragging windows around
     WaylandSurface *m_draggingWindow;
     bool m_dragKeyIsPressed;
-    QPoint m_drag_diff;
+    QPointF m_drag_diff;
 
 };
 

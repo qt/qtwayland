@@ -55,17 +55,17 @@ WaylandInputDevice::~WaylandInputDevice()
     delete d;
 }
 
-void WaylandInputDevice::sendMousePressEvent(Qt::MouseButton button, const QPoint &localPos, const QPoint &globalPos)
+void WaylandInputDevice::sendMousePressEvent(Qt::MouseButton button, const QPointF &localPos, const QPointF &globalPos)
 {
     d->sendMousePressEvent(button,localPos,globalPos);
 }
 
-void WaylandInputDevice::sendMouseReleaseEvent(Qt::MouseButton button, const QPoint &localPos, const QPoint &globalPos)
+void WaylandInputDevice::sendMouseReleaseEvent(Qt::MouseButton button, const QPointF &localPos, const QPointF &globalPos)
 {
     d->sendMouseReleaseEvent(button,localPos,globalPos);
 }
 
-void WaylandInputDevice::sendMouseMoveEvent(const QPoint &localPos, const QPoint &globalPos)
+void WaylandInputDevice::sendMouseMoveEvent(const QPointF &localPos, const QPointF &globalPos)
 {
     d->sendMouseMoveEvent(localPos,globalPos);
 }
@@ -73,7 +73,7 @@ void WaylandInputDevice::sendMouseMoveEvent(const QPoint &localPos, const QPoint
 /** Convenience function that will set the mouse focus to the surface, then send the mouse move event.
  *  If the mouse focus is the same surface as the surface passed in, then only the move event is sent
  **/
-void WaylandInputDevice::sendMouseMoveEvent(WaylandSurface *surface, const QPoint &localPos, const QPoint &globalPos)
+void WaylandInputDevice::sendMouseMoveEvent(WaylandSurface *surface, const QPointF &localPos, const QPointF &globalPos)
 {
     Wayland::Surface *wlsurface = surface? surface->handle():0;
     d->sendMouseMoveEvent(wlsurface,localPos,globalPos);
@@ -89,7 +89,7 @@ void WaylandInputDevice::sendKeyReleaseEvent(uint code)
     d->sendKeyReleaseEvent(code);
 }
 
-void WaylandInputDevice::sendTouchPointEvent(int id, int x, int y, Qt::TouchPointState state)
+void WaylandInputDevice::sendTouchPointEvent(int id, double x, double y, Qt::TouchPointState state)
 {
     d->sendTouchPointEvent(id,x,y,state);
 }
@@ -136,7 +136,7 @@ WaylandSurface *WaylandInputDevice::mouseFocus() const
     return 0;
 }
 
-void WaylandInputDevice::setMouseFocus(WaylandSurface *surface, const QPoint &localPos, const QPoint &globalPos)
+void WaylandInputDevice::setMouseFocus(WaylandSurface *surface, const QPointF &localPos, const QPointF &globalPos)
 {
     Wayland::Surface *wlsurface = surface?surface->handle():0;
     d->setMouseFocus(wlsurface,localPos,globalPos);

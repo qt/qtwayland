@@ -108,6 +108,7 @@ public:
     Surface *directRenderSurface() const {return m_directRenderSurface;}
     QOpenGLContext *directRenderContext() const {return m_directRenderContext;}
     QPlatformScreenPageFlipper *pageFlipper() const { return m_pageFlipper; }
+    void setDirectRenderingActive(bool active);
 
     QList<Surface*> surfaces() const { return m_surfaces; }
     QList<Surface*> surfacesForClient(wl_client* client);
@@ -181,6 +182,7 @@ private:
 
     Surface *m_directRenderSurface;
     QOpenGLContext *m_directRenderContext;
+    bool m_directRenderActive;
 
 #ifdef QT_COMPOSITOR_WAYLAND_GL
     GraphicsHardwareIntegration *m_graphics_hw_integration;

@@ -125,6 +125,7 @@ Compositor::Compositor(WaylandCompositor *qt_compositor)
     , m_orientation(Qt::PrimaryOrientation)
     , m_directRenderSurface(0)
     , m_directRenderContext(0)
+    , m_directRenderActive(false)
 #if defined (QT_COMPOSITOR_WAYLAND_GL)
     , m_graphics_hw_integration(0)
 #endif
@@ -340,6 +341,9 @@ bool Compositor::setDirectRenderSurface(Surface *surface, QOpenGLContext *contex
         m_pageFlipper = QGuiApplication::primaryScreen()->handle()->pageFlipper();
     }
 
+    if (!surface)
+        setDirectRenderingActive(false);
+
     if (m_graphics_hw_integration && m_graphics_hw_integration->setDirectRenderSurface(surface ? surface->waylandSurface() : 0)) {
         m_directRenderSurface = surface;
         m_directRenderContext = context;
@@ -349,6 +353,16 @@ bool Compositor::setDirectRenderSurface(Surface *surface, QOpenGLContext *contex
     Q_UNUSED(surface);
 #endif
     return false;
+}
+
+void Compositor::setDirectRenderingActive(bool active)
+{
+    if (m_directRenderActive == active)
+        return;
+    m_directRenderActive = active;
+
+    if (m_pageFlipper)
+        QMetaObject::invokeMethod(m_pageFlipper, "setDirectRenderingActive", Q_ARG(bool, active));
 }
 
 QList<struct wl_client *> Compositor::clients() const

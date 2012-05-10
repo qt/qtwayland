@@ -381,6 +381,7 @@ bool Surface::postBuffer() {
         if (surfaceBuffer && m_compositor->pageFlipper()) {
             if (m_compositor->pageFlipper()->displayBuffer(surfaceBuffer)) {
                 surfaceBuffer->setPageFlipperHasBuffer(true);
+                m_compositor->setDirectRenderingActive(true);
                 return true;
             } else {
                 qDebug() << "could not post buffer";

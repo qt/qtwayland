@@ -246,7 +246,7 @@ void InputDevice::setMouseFocus(Surface *surface, const QPointF &globalPos, cons
 {
     base()->x = wl_fixed_from_double(globalPos.x());
     base()->y = wl_fixed_from_double(globalPos.y());
-    base()->current = surface->base();
+    base()->current = surface ? surface->base() : 0;
     base()->current_x = wl_fixed_from_double(localPos.x());
     base()->current_y = wl_fixed_from_double(localPos.y());
     base()->pointer_grab->interface->focus(base()->pointer_grab,

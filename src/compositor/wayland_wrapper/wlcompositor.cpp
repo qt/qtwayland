@@ -271,8 +271,14 @@ void Compositor::processWaylandEvents()
 
 void Compositor::surfaceDestroyed(Surface *surface)
 {
-    if (defaultInputDevice()->mouseFocus() == surface)
-        defaultInputDevice()->setMouseFocus(0, QPoint(), QPoint());
+    if (defaultInputDevice()->mouseFocus() == surface) {
+        InputDevice *dev = defaultInputDevice();
+        dev->setMouseFocus(0, QPointF(), QPointF());
+        // Make sure the surface is reset regardless of what the grabber
+        // interface's focus() does. (e.g. the default implementation does
+        // nothing when a button is down which would be disastrous here)
+        wl_input_device_set_pointer_focus(dev->base(), 0, 0, 0);
+    }
     m_surfaces.removeOne(surface);
     m_dirty_surfaces.remove(surface);
     if (m_directRenderSurface == surface)

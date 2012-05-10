@@ -302,6 +302,11 @@ bool QWindowCompositor::eventFilter(QObject *obj, QEvent *event)
         }
         break;
     }
+    case QEvent::Wheel: {
+        QWheelEvent *we = static_cast<QWheelEvent *>(event);
+        input->sendMouseWheelEvent(we->orientation(), we->delta());
+        break;
+    }
     case QEvent::KeyPress: {
         QKeyEvent *ke = static_cast<QKeyEvent *>(event);
         if (ke->key() == Qt::Key_Meta || ke->key() == Qt::Key_Super_L) {

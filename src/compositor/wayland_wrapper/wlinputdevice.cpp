@@ -104,6 +104,17 @@ void InputDevice::sendMouseMoveEvent(Surface *surface, const QPointF &localPos, 
     sendMouseMoveEvent(localPos,globalPos);
 }
 
+void InputDevice::sendMouseWheelEvent(Qt::Orientation orientation, int delta)
+{
+    struct wl_resource *resource = base()->pointer_focus_resource;
+    if (!resource)
+        return;
+    uint32_t time = m_compositor->currentTimeMsecs();
+    uint32_t axis = orientation == Qt::Horizontal ? WL_INPUT_DEVICE_AXIS_HORIZONTAL_SCROLL
+                                                  : WL_INPUT_DEVICE_AXIS_VERTICAL_SCROLL;
+    wl_input_device_send_axis(resource, time, axis, delta);
+}
+
 void InputDevice::sendKeyPressEvent(uint code)
 {
     if (base()->keyboard_focus_resource != NULL) {

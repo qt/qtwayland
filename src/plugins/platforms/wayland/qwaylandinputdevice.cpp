@@ -245,12 +245,17 @@ void QWaylandInputDevice::inputHandleAxis(void *data,
                                           uint32_t axis,
                                           int32_t value)
 {
-    Q_UNUSED(data);
     Q_UNUSED(wl_input_device);
-    Q_UNUSED(time);
-    Q_UNUSED(axis);
-    Q_UNUSED(value);
+    QWaylandInputDevice *inputDevice = (QWaylandInputDevice *) data;
+    QWaylandWindow *window = inputDevice->mPointerFocus;
+    Qt::Orientation orientation = axis == WL_INPUT_DEVICE_AXIS_HORIZONTAL_SCROLL ? Qt::Horizontal
+                                                                                 : Qt::Vertical;
+    QWindowSystemInterface::handleWheelEvent(window->window(), time,
+                                             inputDevice->mSurfacePos,
+                                             inputDevice->mGlobalPos,
+                                             value, orientation);
 }
+
 #ifndef QT_NO_WAYLAND_XKB
 static Qt::KeyboardModifiers translateModifiers(xkb_state *state)
 {

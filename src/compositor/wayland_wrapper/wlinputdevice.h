@@ -69,6 +69,7 @@ public:
     void sendMouseReleaseEvent(Qt::MouseButton button, const QPointF &localPos, const QPointF &globalPos = QPointF());
     void sendMouseMoveEvent(const QPointF &localPos, const QPointF &globalPos = QPointF());
     void sendMouseMoveEvent(Surface *surface, const QPointF &localPos, const QPointF &globalPos = QPointF());
+    void sendMouseWheelEvent(Qt::Orientation orientation, int delta);
 
     void sendKeyPressEvent(uint code);
     void sendKeyReleaseEvent(uint code);

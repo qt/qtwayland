@@ -79,6 +79,11 @@ void WaylandInputDevice::sendMouseMoveEvent(WaylandSurface *surface, const QPoin
     d->sendMouseMoveEvent(wlsurface,localPos,globalPos);
 }
 
+void WaylandInputDevice::sendMouseWheelEvent(Qt::Orientation orientation, int delta)
+{
+    d->sendMouseWheelEvent(orientation, delta);
+}
+
 void WaylandInputDevice::sendKeyPressEvent(uint code)
 {
     d->sendKeyPressEvent(code);

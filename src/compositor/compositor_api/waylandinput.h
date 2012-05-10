@@ -65,6 +65,7 @@ public:
     void sendMouseReleaseEvent(Qt::MouseButton button, const QPointF &localPos, const QPointF &globalPos = QPointF());
     void sendMouseMoveEvent(const QPointF &localPos, const QPointF &globalPos = QPointF());
     void sendMouseMoveEvent(WaylandSurface *surface , const QPointF &localPos, const QPointF &globalPos = QPointF());
+    void sendMouseWheelEvent(Qt::Orientation orientation, int delta);
 
     void sendKeyPressEvent(uint code);
     void sendKeyReleaseEvent(uint code);
@@ -85,6 +86,7 @@ public:
 
     WaylandCompositor *compositor() const;
     Wayland::InputDevice *handle() const;
+
 private:
     Wayland::InputDevice *d;
     Q_DISABLE_COPY(WaylandInputDevice)

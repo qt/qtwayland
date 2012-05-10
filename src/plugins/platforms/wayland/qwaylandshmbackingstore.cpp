@@ -265,10 +265,11 @@ QImage *QWaylandShmBackingStore::entireSurface() const
 
 void QWaylandShmBackingStore::done(void *data, wl_callback *callback, uint32_t time)
 {
-    Q_UNUSED(callback);
     Q_UNUSED(time);
     QWaylandShmBackingStore *self =
             static_cast<QWaylandShmBackingStore *>(data);
+    if (callback != self->mFrameCallback) // others, like QWaylandWindow, may trigger callbacks too
+        return;
     QWaylandWindow *window = self->waylandWindow();
     wl_callback_destroy(self->mFrameCallback);
     self->mFrameCallback = 0;

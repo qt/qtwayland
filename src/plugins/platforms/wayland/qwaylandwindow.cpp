@@ -228,11 +228,12 @@ const wl_callback_listener QWaylandWindow::callbackListener = {
     QWaylandWindow::frameCallback
 };
 
-void QWaylandWindow::frameCallback(void *data, struct wl_callback *wl_callback, uint32_t time)
+void QWaylandWindow::frameCallback(void *data, struct wl_callback *callback, uint32_t time)
 {
     Q_UNUSED(time);
-    Q_UNUSED(wl_callback);
     QWaylandWindow *self = static_cast<QWaylandWindow*>(data);
+    if (callback != self->mFrameCallback) // might be a callback caused by the shm backingstore
+        return;
     self->mWaitingForFrameSync = false;
     if (self->mFrameCallback) {
         wl_callback_destroy(self->mFrameCallback);

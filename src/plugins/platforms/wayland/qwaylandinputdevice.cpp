@@ -399,8 +399,8 @@ void QWaylandInputDevice::inputHandlePointerEnter(void *data,
     Q_UNUSED(sy);
     QWaylandInputDevice *inputDevice = (QWaylandInputDevice *) data;
 
-    // shouldn't get pointer enter with no surface
-    Q_ASSERT(surface);
+    if (!surface)
+        return;
 
     QWaylandWindow *window = (QWaylandWindow *) wl_surface_get_user_data(surface);
     window->handleMouseEnter();
@@ -447,8 +447,8 @@ void QWaylandInputDevice::inputHandleKeyboardEnter(void *data,
     inputDevice->mModifiers |= translateModifiers(inputDevice->mXkbState);
 #endif
 
-    // shouldn't get keyboard enter with no surface
-    Q_ASSERT(surface);
+    if (!surface)
+        return;
 
     window = (QWaylandWindow *) wl_surface_get_user_data(surface);
     inputDevice->mKeyboardFocus = window;

@@ -60,7 +60,6 @@ DataSource::DataSource(struct wl_client *client, uint32_t id, uint32_t time)
 
 DataSource::~DataSource()
 {
-    qDebug() << "destroying source";
     if (m_manager)
         m_manager->sourceDestroyed(this);
     wl_resource_destroy(m_data_source_resource);
@@ -94,7 +93,7 @@ void DataSource::offer(struct wl_client *client,
               const char *type)
 {
     Q_UNUSED(client);
-    qDebug() << "received offer" << type;
+    //qDebug() << "received offer" << type;
     static_cast<DataSource *>(resource->data)->m_offers.append(type);
 }
 

@@ -250,7 +250,7 @@ bool DataDeviceManager::offerFromCompositorToClient(wl_resource *clientDataDevic
         return false;
 
     wl_client *client = clientDataDeviceResource->client;
-    qDebug("compositor offers %d types to %p", m_retainedData.formats().count(), client);
+    //qDebug("compositor offers %d types to %p", m_retainedData.formats().count(), client);
 
     struct wl_resource *selectionOffer =
              wl_client_new_object(client, &wl_data_offer_interface, &compositor_offer_interface, this);
@@ -279,8 +279,9 @@ void DataDeviceManager::comp_accept(wl_client *, wl_resource *, uint32_t, const 
 
 void DataDeviceManager::comp_receive(wl_client *client, wl_resource *resource, const char *mime_type, int32_t fd)
 {
+    Q_UNUSED(client);
     DataDeviceManager *self = static_cast<DataDeviceManager *>(resource->data);
-    qDebug("client %p wants data for type %s from compositor", client, mime_type);
+    //qDebug("client %p wants data for type %s from compositor", client, mime_type);
     QByteArray content = QWaylandMimeHelper::getByteArray(&self->m_retainedData, QString::fromLatin1(mime_type));
     if (!content.isEmpty()) {
         QFile f;

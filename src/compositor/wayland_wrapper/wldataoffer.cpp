@@ -105,7 +105,6 @@ void DataOffer::receive(wl_client *client, wl_resource *resource, const char *mi
 void DataOffer::destroy(wl_client *client, wl_resource *resource)
 {
     Q_UNUSED(client);
-    qDebug() << "dataOFFER DESTROY!";
     DataOffer *data_offer = static_cast<DataOffer *>(resource->data);
 
     if (data_offer->resourceListIsEmpty()) {

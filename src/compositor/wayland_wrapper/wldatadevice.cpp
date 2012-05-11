@@ -91,8 +91,8 @@ DataDevice::DataDevice(DataDeviceManager *data_device_manager, struct wl_client 
     , m_sent_selection_time(0)
 {
 
-    static int i = 0;
-    qDebug() << "data device" << ++i;
+    //static int i = 0;
+    //qDebug() << "data device" << ++i;
     m_data_device_resource =
             wl_client_add_object(client,&wl_data_device_interface,&data_device_interface,id, this);
 }
@@ -112,7 +112,7 @@ void DataDevice::sendSelectionFocus()
             DataOffer *data_offer = source->dataOffer();
             wl_resource *client_resource =
                     data_offer->addDataDeviceResource(m_data_device_resource);
-            qDebug() << "sending data_offer for source" << source;
+            //qDebug() << "sending data_offer for source" << source;
             wl_data_device_send_selection(m_data_device_resource,client_resource);
             m_sent_selection_time = source->time();
         }

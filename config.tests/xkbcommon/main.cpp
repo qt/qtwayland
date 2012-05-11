@@ -53,9 +53,9 @@ int main()
     names.variant = strdup("");
     names.options = strdup("");
 
-    xkb_context *context = xkb_context_new();
+    xkb_context *context = xkb_context_new(xkb_context_flags(0));
     if (context) {
-        xkb_keymap * keymap = xkb_map_new_from_names(context, &names);
+        xkb_keymap * keymap = xkb_map_new_from_names(context, &names, xkb_map_compile_flags(0));
         if (keymap) {
             xkb_state *state = xkb_state_new(keymap);
             if (state)

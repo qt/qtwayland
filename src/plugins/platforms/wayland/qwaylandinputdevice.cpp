@@ -91,9 +91,9 @@ QWaylandInputDevice::QWaylandInputDevice(QWaylandDisplay *display,
     names.variant = strdup("");
     names.options = strdup("");
 
-    xkb_context *mXkbContext = xkb_context_new();
+    xkb_context *mXkbContext = xkb_context_new(xkb_context_flags(0));
     if (mXkbContext) {
-        mXkbMap = xkb_map_new_from_names(mXkbContext, &names);
+        mXkbMap = xkb_map_new_from_names(mXkbContext, &names, xkb_map_compile_flags(0));
         if (mXkbMap) {
             mXkbState = xkb_state_new(mXkbMap);
         }

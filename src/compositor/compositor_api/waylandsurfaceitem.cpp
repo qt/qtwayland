@@ -39,6 +39,7 @@
 ****************************************************************************/
 
 #include "waylandsurfaceitem.h"
+#include "waylandsurfacenode.h"
 #include "waylandsurface.h"
 #include "waylandcompositor.h"
 #include "waylandinput.h"
@@ -50,51 +51,12 @@
 #include <QtGui/QGuiApplication>
 #include <QtGui/QScreen>
 
-#include <QtQuick/QSGSimpleTextureNode>
 #include <QtQuick/QSGSimpleRectNode>
 #include <QtQuick/QQuickCanvas>
 
 #include <QtCore/QMutexLocker>
 #include <QtCore/QMutex>
 
-class WaylandSurfaceNode : public QSGSimpleTextureNode
-{
-public:
-    WaylandSurfaceNode(WaylandSurfaceItem *item)
-        : m_item(item), m_textureUpdated(false)
-    {
-        if (m_item)
-            m_item->m_node = this;
-        setFlag(UsePreprocess,true);
-    }
-    ~WaylandSurfaceNode() {
-        QMutexLocker locker(WaylandSurfaceItem::mutex);
-        if (m_item)
-            m_item->m_node = 0;
-    }
-    void preprocess() {
-        QMutexLocker locker(WaylandSurfaceItem::mutex);
-
-        //Update if the item is dirty and we haven't done an updateTexture for this frame
-        if (m_item && m_item->m_damaged && !m_textureUpdated) {
-            m_item->updateTexture();
-            updateTexture();
-        }
-        //Reset value for next frame: we have not done updatePaintNode yet
-        m_textureUpdated = false;
-    }
-
-    void updateTexture() {
-        Q_ASSERT(m_item && m_item->textureProvider());
-
-        QSGTexture *texture = m_item->textureProvider()->texture();
-        setTexture(texture);
-        setFiltering(texture->filtering());
-    }
-
-    WaylandSurfaceItem *m_item;
-    bool m_textureUpdated;
-};
 
 class WaylandSurfaceTextureProvider : public QSGTextureProvider
 {
@@ -189,7 +151,7 @@ WaylandSurfaceItem::~WaylandSurfaceItem()
 {
     QMutexLocker locker(mutex);
     if (m_node)
-        m_node->m_item = 0;
+        m_node->setItem(0);
     if (m_surface)
         m_surface->setSurfaceItem(0);
     if (m_provider)
@@ -421,7 +383,8 @@ QSGNode *WaylandSurfaceItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeDa
         node->setRect(0, 0, width(), height());
     }
 
-    node->m_textureUpdated = true;
+    node->setTextureUpdated(true);
+
     return node;
 }
 

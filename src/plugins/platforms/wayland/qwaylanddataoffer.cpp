@@ -49,14 +49,15 @@
 
 
 void QWaylandDataOffer::offer_sync_callback(void *data,
-             struct wl_callback *wl_callback,
+             struct wl_callback *callback,
              uint32_t time)
 {
     Q_UNUSED(time);
-
     QWaylandDataOffer *mime = static_cast<QWaylandDataOffer *>(data);
-    mime->m_receiving_offers = false;
-    wl_callback_destroy(wl_callback);
+    if (mime->m_receiveSyncCallback == callback) {
+        mime->m_receiveSyncCallback = 0;
+        wl_callback_destroy(callback);
+    }
 }
 
 const struct wl_callback_listener QWaylandDataOffer::offer_sync_callback_listener = {
@@ -71,14 +72,13 @@ void QWaylandDataOffer::offer(void *data,
 
     QWaylandDataOffer *data_offer = static_cast<QWaylandDataOffer *>(data);
 
-    if (!data_offer->m_receiving_offers) {
-        struct wl_callback *callback = wl_display_sync(data_offer->m_display->wl_display());
-        wl_callback_add_listener(callback,&offer_sync_callback_listener,data_offer);
-        data_offer->m_receiving_offers = true;
+    if (!data_offer->m_receiveSyncCallback) {
+        data_offer->m_receiveSyncCallback = wl_display_sync(data_offer->m_display->wl_display());
+        wl_callback_add_listener(data_offer->m_receiveSyncCallback, &offer_sync_callback_listener, data_offer);
     }
 
     data_offer->m_offered_mime_types.append(QString::fromLocal8Bit(type));
-    qDebug() << data_offer->m_offered_mime_types;
+//    qDebug() << data_offer->m_offered_mime_types;
 }
 
 const struct wl_data_offer_listener QWaylandDataOffer::data_offer_listener = {
@@ -87,7 +87,7 @@ const struct wl_data_offer_listener QWaylandDataOffer::data_offer_listener = {
 
 QWaylandDataOffer::QWaylandDataOffer(QWaylandDisplay *display, struct wl_data_offer *data_offer)
     : m_display(display)
-    , m_receiving_offers(false)
+    , m_receiveSyncCallback(0)
 {
     m_data_offer = data_offer;
     wl_data_offer_set_user_data(m_data_offer,this);

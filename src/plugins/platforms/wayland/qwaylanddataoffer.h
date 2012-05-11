@@ -52,6 +52,7 @@
 #include <stdint.h>
 
 class QWaylandDisplay;
+struct wl_callback;
 
 class QWaylandDataOffer : public QInternalMimeData
 {
@@ -69,7 +70,7 @@ private:
     struct wl_data_offer *m_data_offer;
     QWaylandDisplay *m_display;
     QStringList m_offered_mime_types;
-    bool m_receiving_offers;
+    wl_callback *m_receiveSyncCallback;
 
     static void offer(void *data, struct wl_data_offer *wl_data_offer, const char *type);
     static const struct wl_data_offer_listener data_offer_listener;

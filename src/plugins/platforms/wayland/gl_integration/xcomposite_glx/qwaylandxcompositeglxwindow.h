@@ -71,7 +71,7 @@ private:
     QWaylandBuffer *m_buffer;
 
     void waitForSync();
-    bool m_waitingForSync;
+    wl_callback *m_syncCallback;
 
     static const struct wl_callback_listener sync_callback_listener;
     static void sync_function(void *data, struct wl_callback *wl_callback, uint32_t time);

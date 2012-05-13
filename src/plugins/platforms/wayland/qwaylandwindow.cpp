@@ -94,12 +94,12 @@ QWaylandWindow::QWaylandWindow(QWindow *window)
 
     if (parent() && mSubSurfaceWindow) {
         mSubSurfaceWindow->setParent(static_cast<const QWaylandWindow *>(parent()));
-    }else if (window->transientParent()) {
+    } else if (window->transientParent()) {
         if (window->transientParent()) {
             mShellSurface->updateTransientParent(window->transientParent());
-        } else {
-            mShellSurface->setTopLevel();
         }
+    } else {
+        mShellSurface->setTopLevel();
     }
 
     setWindowFlags(window->windowFlags());

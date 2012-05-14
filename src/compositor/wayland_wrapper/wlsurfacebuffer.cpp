@@ -102,9 +102,11 @@ void SurfaceBuffer::destructBufferState()
         if (m_handle) {
             if (m_is_shm) {
                 delete static_cast<QImage *>(m_handle);
+#ifdef QT_COMPOSITOR_WAYLAND_GL
             } else {
                 GraphicsHardwareIntegration *hwIntegration = m_compositor->graphicsHWIntegration();
                 hwIntegration->unlockNativeBuffer(m_handle, m_compositor->directRenderContext());
+#endif
             }
         }
         wl_list_remove(&m_destroy_listener.listener.link);
@@ -198,7 +200,6 @@ void SurfaceBuffer::handleDisplayed()
 void *SurfaceBuffer::handle() const
 {
     if (!m_handle) {
-        GraphicsHardwareIntegration *hwIntegration = m_compositor->graphicsHWIntegration();
         SurfaceBuffer *that = const_cast<SurfaceBuffer *>(this);
         if (isShmBuffer()) {
             const uchar *data = static_cast<const uchar *>(wl_shm_buffer_get_data(m_buffer));
@@ -207,8 +208,11 @@ void *SurfaceBuffer::handle() const
             int height = m_buffer->height;
             QImage *image = new QImage(data,width,height,stride, QImage::Format_ARGB32_Premultiplied);
             that->m_handle = image;
+#ifdef QT_COMPOSITOR_WAYLAND_GL
         } else {
+            GraphicsHardwareIntegration *hwIntegration = m_compositor->graphicsHWIntegration();
             that->m_handle = hwIntegration->lockNativeBuffer(m_buffer, m_compositor->directRenderContext());
+#endif
         }
     }
     return m_handle;
@@ -229,6 +233,9 @@ void SurfaceBuffer::createTexture(GraphicsHardwareIntegration *hwIntegration, QO
 {
 #ifdef QT_COMPOSITOR_WAYLAND_GL
     m_texture = hwIntegration->createTextureFromBuffer(m_buffer, context);
+#else
+    Q_UNUSED(hwIntegration);
+    Q_UNUSED(context);
 #endif
 }
 

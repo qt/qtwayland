@@ -16,6 +16,9 @@ isEmpty(QT_WAYLAND_GL_CONFIG):QT_WAYLAND_GL_CONFIG = $$(QT_WAYLAND_GL_CONFIG)
             isEqual(QT_WAYLAND_GL_CONFIG, xcomposite_egl) {
                 QT_WAYLAND_GL_INTEGRATION = xcomposite_egl
                 CONFIG += xcomposite_egl
+            } else:isEqual(QT_WAYLAND_GL_CONFIG, brcm_egl) {
+                QT_WAYLAND_GL_INTEGRATION = brcm_egl
+                CONFIG += brcm_egl
             } else {
                 QT_WAYLAND_GL_INTEGRATION = $$QT_WAYLAND_GL_CONFIG
                 CONFIG += wayland_egl
@@ -31,6 +34,9 @@ isEmpty(QT_WAYLAND_GL_CONFIG):QT_WAYLAND_GL_CONFIG = $$(QT_WAYLAND_GL_CONFIG)
     system(echo "Qt-Compositor configured as raster only compositor")
 }
 
+brcm_egl {
+    include (brcm_egl/brcm_egl.pri)
+}
 wayland_egl {
     include (wayland_egl/wayland_egl.pri)
 }

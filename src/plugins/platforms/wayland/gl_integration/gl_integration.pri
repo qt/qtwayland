@@ -16,6 +16,9 @@ contains(QT_CONFIG, opengl):!equals(QT_WAYLAND_GL_CONFIG, nogl) {
         } else:isEqual(QT_WAYLAND_GL_CONFIG,readback) {
             QT_WAYLAND_GL_INTEGRATION = readback_egl
             CONFIG += readback_egl
+        } else:isEqual(QT_WAYLAND_GL_CONFIG, brcm_egl) {
+            QT_WAYLAND_GL_INTEGRATION = brcm_egl
+            CONFIG += brcm_egl
         } else {
             QT_WAYLAND_GL_INTEGRATION = $$QT_WAYLAND_GL_CONFIG
             CONFIG += wayland_egl
@@ -43,6 +46,10 @@ wayland_egl {
 
 readback_egl {
     include ($$PWD/readback_egl/readback_egl.pri)
+}
+
+brcm_egl {
+    include ($$PWD/brcm_egl/brcm_egl.pri)
 }
 
 readback_glx {

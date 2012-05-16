@@ -51,7 +51,7 @@ ShaderEffect {
         }
     }
 
-    property string vShader: "
+    property string vShaderInvertedY: "
     uniform highp mat4 qt_Matrix;
     attribute highp vec4 qt_Vertex;
     attribute highp vec2 qt_MultiTexCoord0;
@@ -61,7 +61,7 @@ ShaderEffect {
         gl_Position = qt_Matrix * qt_Vertex;
     }
     "
-    property string vShaderInvertedY: "
+    property string vShader: "
     uniform highp mat4 qt_Matrix;
     attribute highp vec4 qt_Vertex;
     attribute highp vec2 qt_MultiTexCoord0;

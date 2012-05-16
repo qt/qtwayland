@@ -48,15 +48,6 @@ ShaderEffect {
     onSourceChanged: {
         if (source != null) {
             source.setPaintEnabled(false);
-            vertexShader = source.yInverted ? vShaderInvertedY : vShader;
-        }
-    }
-
-    Connections {
-      target: source;
-      onYInvertedChanged: {
-            print("onY " + source.yInverted);
-            vertexShader = source.yInverted ? vShaderInvertedY : vShader;
         }
     }
 
@@ -80,6 +71,8 @@ ShaderEffect {
         gl_Position = qt_Matrix * qt_Vertex;
     }
     "
+
+    vertexShader: source && source.isYInverted ? vShaderInvertedY : vShader
 
     fragmentShader: "
     uniform sampler2D source;

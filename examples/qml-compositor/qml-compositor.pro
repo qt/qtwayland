@@ -5,7 +5,7 @@ CONFIG += use_pkgconfig
 
 LIBS += -L ../../lib
 
-QT += quick qml     v8
+QT += quick qml v8
 QT += quick-private
 
 QT += compositor
@@ -16,9 +16,10 @@ QT += compositor
 #include (../../src/compositor/compositor.pri)
 
 SOURCES += main.cpp
-RESOURCES = qml-compositor.qrc
+
+OTHER_FILES = ContrastEffect.qml  main.qml  WindowChrome.qml  WindowContainer.qml background.jpg compositor.js
 
 target.path = $$[QT_INSTALL_EXAMPLES]/qtwayland/qml-compositor
-sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS qml-compositor.pro
+sources.files = $$OTHER_FILES $$SOURCES $$HEADERS $$RESOURCES $$FORMS qml-compositor.pro
 sources.path = $$[QT_INSTALL_EXAMPLES]/qtwayland/qml-compositor
 INSTALLS += target sources

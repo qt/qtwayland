@@ -60,7 +60,7 @@ public:
         : WaylandCompositor(this)
     {
         enableSubSurfaceExtension();
-        setSource(QUrl(QLatin1String("qrc:qml/QmlCompositor/main.qml")));
+        setSource(QUrl("main.qml"));
         setResizeMode(QQuickView::SizeRootObjectToView);
         winId();
 

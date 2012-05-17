@@ -49,7 +49,8 @@ QWaylandTouchExtension::QWaylandTouchExtension(QWaylandDisplay *display, uint32_
       mTouchDevice(0),
       mPointsLeft(0),
       mFlags(0),
-      mMouseSourceId(-1)
+      mMouseSourceId(-1),
+      mInputDevice(0)
 {
     mTouch = static_cast<struct wl_touch_extension *>(wl_display_bind(display->wl_display(), id, &wl_touch_extension_interface));
     wl_touch_extension_add_listener(mTouch, &touch_listener, this);
@@ -77,17 +78,20 @@ void QWaylandTouchExtension::handle_touch(void *data, wl_touch_extension *ext, u
 {
     Q_UNUSED(ext);
     QWaylandTouchExtension *self = static_cast<QWaylandTouchExtension *>(data);
-    QList<QWaylandInputDevice *> inputDevices = self->mDisplay->inputDevices();
-    if (inputDevices.isEmpty()) {
-        qWarning("wl_touch_extension: handle_touch: No input device");
-        return;
+
+    if (!self->mInputDevice) {
+        QList<QWaylandInputDevice *> inputDevices = self->mDisplay->inputDevices();
+        if (inputDevices.isEmpty()) {
+            qWarning("wl_touch_extension: handle_touch: No input devices");
+            return;
+        }
+        self->mInputDevice = inputDevices.first();
     }
-    QWaylandInputDevice *dev = inputDevices.first();
-    QWaylandWindow *win = dev->mTouchFocus;
+    QWaylandWindow *win = self->mInputDevice->mTouchFocus;
     if (!win)
-        win = dev->mPointerFocus;
+        win = self->mInputDevice->mPointerFocus;
     if (!win)
-        win = dev->mKeyboardFocus;
+        win = self->mInputDevice->mKeyboardFocus;
     if (!win || !win->window()) {
         qWarning("wl_touch_extension: handle_touch: No pointer focus");
         return;

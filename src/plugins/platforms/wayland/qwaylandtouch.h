@@ -93,6 +93,7 @@ private:
     QPointF mLastMouseLocal;
     QPointF mLastMouseGlobal;
     QWindow *mTargetWindow;
+    QWaylandInputDevice *mInputDevice;
 };
 
 #endif // QWAYLANDTOUCH_H

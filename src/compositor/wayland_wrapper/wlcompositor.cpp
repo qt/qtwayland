@@ -277,7 +277,7 @@ void Compositor::surfaceDestroyed(Surface *surface)
         // Make sure the surface is reset regardless of what the grabber
         // interface's focus() does. (e.g. the default implementation does
         // nothing when a button is down which would be disastrous here)
-        wl_input_device_set_pointer_focus(dev->base(), 0, 0, 0);
+        wl_pointer_set_focus(dev->pointerDevice(), 0, 0, 0);
     }
     m_surfaces.removeOne(surface);
     m_dirty_surfaces.remove(surface);
@@ -447,6 +447,22 @@ QList<Wayland::Surface *> Compositor::surfacesForClient(wl_client *client)
         }
     }
     return ret;
+}
+
+wl_resource *Compositor::resourceForSurface(wl_list *resourceList, Surface *surface)
+{
+    if (!surface)
+        return 0;
+
+    wl_resource *r;
+    wl_client *surfaceClient = surface->base()->resource.client;
+
+    wl_list_for_each(r, resourceList, link) {
+        if (r->client == surfaceClient)
+            return r;
+    }
+
+    return 0;
 }
 
 void Compositor::configureTouchExtension(int flags)

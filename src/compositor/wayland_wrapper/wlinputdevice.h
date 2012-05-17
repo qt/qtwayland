@@ -59,7 +59,7 @@ class DataDevice;
 class Surface;
 class DataDeviceManager;
 
-class InputDevice : public Object<struct wl_input_device>
+class InputDevice : public Object<struct wl_seat>
 {
 public:
     InputDevice(WaylandInputDevice *handle, Compositor *compositor);
@@ -94,23 +94,51 @@ public:
     Compositor *compositor() const;
     WaylandInputDevice *handle() const;
 
+    wl_pointer *pointerDevice();
+    wl_keyboard *keyboardDevice();
+    wl_touch *touchDevice();
+    const wl_pointer *pointerDevice() const;
+    const wl_keyboard *keyboardDevice() const;
+    const wl_touch *touchDevice() const;
+
 private:
+    void initDevices();
+    void releaseDevices();
     void cleanupDataDeviceForClient(struct wl_client *client, bool destroyDev);
 
     WaylandInputDevice *m_handle;
     Compositor *m_compositor;
-    QList<DataDevice *>m_data_devices;
+    QList<DataDevice *> m_data_devices;
+    struct {
+        wl_pointer pointer;
+        wl_keyboard keyboard;
+        wl_touch touch;
+    } m_device_interfaces;
 
     uint32_t toWaylandButton(Qt::MouseButton button);
 
     static void bind_func(struct wl_client *client, void *data,
                                 uint32_t version, uint32_t id);
-    static void input_device_attach(struct wl_client *client,
-                             struct wl_resource *device_base,
-                             uint32_t time,
-                             struct wl_resource *buffer, int32_t x, int32_t y);
-    const static struct wl_input_device_interface input_device_interface;
-    static void destroy_resource(struct wl_resource *resource);
+
+    static void pointer_attach(struct wl_client *client,
+                               struct wl_resource *device_base,
+                               uint32_t serial,
+                               struct wl_resource *buffer, int32_t x, int32_t y);
+    const static struct wl_pointer_interface pointer_interface;
+
+    static void get_pointer(struct wl_client *client,
+                            struct wl_resource *resource,
+                            uint32_t id);
+    static void get_keyboard(struct wl_client *client,
+                            struct wl_resource *resource,
+                            uint32_t id);
+    static void get_touch(struct wl_client *client,
+                            struct wl_resource *resource,
+                            uint32_t id);
+    const static struct wl_seat_interface seat_interface;
+
+    static void destroy_resource(wl_resource *resource);
+    static void destroy_device_resource(wl_resource *resource);
 };
 
 }

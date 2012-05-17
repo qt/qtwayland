@@ -205,7 +205,8 @@ QWaylandDataDeviceManager::QWaylandDataDeviceManager(QWaylandDisplay *display, u
 {
     m_data_device_manager = static_cast<struct wl_data_device_manager *>(wl_display_bind(display->wl_display(),id,&wl_data_device_manager_interface));
 
-    //create transfer devices for all input devices
+    // Create transfer devices for all input devices.
+    // ### This only works if we get the global before all devices and is surely wrong when hotplugging.
     QList<QWaylandInputDevice *> inputDevices = m_display->inputDevices();
     for (int i = 0; i < inputDevices.size();i++) {
         inputDevices.at(i)->setTransferDevice(getDataDevice(inputDevices.at(i)));
@@ -219,7 +220,8 @@ QWaylandDataDeviceManager::~QWaylandDataDeviceManager()
 
 struct wl_data_device *QWaylandDataDeviceManager::getDataDevice(QWaylandInputDevice *inputDevice)
 {
-    struct wl_data_device *transfer_device = wl_data_device_manager_get_data_device(m_data_device_manager,inputDevice->wl_input_device());
+    struct wl_data_device *transfer_device = wl_data_device_manager_get_data_device(m_data_device_manager,
+                                                                                    inputDevice->wl_seat());
     wl_data_device_add_listener(transfer_device,&transfer_device_listener,this);
 
     return transfer_device;

@@ -47,22 +47,29 @@ namespace Impl {
 void Compositor::destroyInputResource(wl_resource *resource)
 {
     Compositor *compositor = static_cast<Compositor *>(resource->data);
-    wl_input_device *input = &compositor->m_input;
+    wl_keyboard *keyboard = &compositor->m_keyboard;
+    wl_pointer *pointer = &compositor->m_pointer;
 
-    if (input->keyboard_focus_resource == resource)
-        input->keyboard_focus_resource = 0;
-    if (input->pointer_focus_resource == resource)
-        input->pointer_focus_resource = 0;
+    if (keyboard->focus_resource == resource)
+        keyboard->focus_resource = 0;
+    if (pointer->focus_resource == resource)
+        pointer->focus_resource = 0;
 
     wl_list_remove(&resource->link);
 
     free(resource);
 }
 
-void input_device_attach(wl_client *client,
-                         wl_resource *device_resource,
-                         uint32_t time,
-                         wl_resource *buffer_resource, int32_t x, int32_t y)
+static void destroyInputDevice(wl_resource *resource)
+{
+    wl_list_remove(&resource->link);
+    free(resource);
+}
+
+void pointer_attach(wl_client *client,
+                    wl_resource *device_resource,
+                    uint32_t time,
+                    wl_resource *buffer_resource, int32_t x, int32_t y)
 {
     Q_UNUSED(client);
     Q_UNUSED(device_resource);
@@ -71,18 +78,64 @@ void input_device_attach(wl_client *client,
     Q_UNUSED(QPoint(x, y));
 }
 
-void Compositor::bindInput(wl_client *client, void *compositorData, uint32_t version, uint32_t id)
+void Compositor::get_pointer(wl_client *client,
+                             wl_resource *resource,
+                             uint32_t id)
 {
-    static const struct wl_input_device_interface inputDeviceInterface = {
-        input_device_attach,
+    static const struct wl_pointer_interface pointer_interface = {
+        pointer_attach
+    };
+    Compositor *compositor = static_cast<Compositor *>(resource->data);
+    wl_pointer *pointer = &compositor->m_pointer;
+    wl_resource *clientResource = wl_client_add_object(client,
+                                                       &wl_pointer_interface,
+                                                       &pointer_interface,
+                                                       id,
+                                                       pointer);
+    wl_list_insert(&pointer->resource_list, &clientResource->link);
+    clientResource->destroy = destroyInputDevice;
+}
+
+void Compositor::get_keyboard(wl_client *client,
+                              wl_resource *resource,
+                              uint32_t id)
+{
+    Compositor *compositor = static_cast<Compositor *>(resource->data);
+    wl_keyboard *keyboard = &compositor->m_keyboard;
+    wl_resource *clientResource = wl_client_add_object(client,
+                                                       &wl_keyboard_interface,
+                                                       0,
+                                                       id,
+                                                       keyboard);
+    wl_list_insert(&keyboard->resource_list, &clientResource->link);
+    clientResource->destroy = destroyInputDevice;
+}
+
+void Compositor::get_touch(wl_client *client,
+                           wl_resource *resource,
+                           uint32_t id)
+{
+    Q_UNUSED(client);
+    Q_UNUSED(resource);
+    Q_UNUSED(id);
+}
+
+void Compositor::bindSeat(wl_client *client, void *compositorData, uint32_t version, uint32_t id)
+{
+    static const struct wl_seat_interface seatInterface = {
+        get_pointer,
+        get_keyboard,
+        get_touch
     };
 
     Q_UNUSED(version);
-    wl_resource *resource = wl_client_add_object(client, &wl_input_device_interface, &inputDeviceInterface, id, compositorData);
+    wl_resource *resource = wl_client_add_object(client, &wl_seat_interface, &seatInterface, id, compositorData);
     resource->destroy = destroyInputResource;
 
     Compositor *compositor = static_cast<Compositor *>(compositorData);
-    wl_list_insert(&compositor->m_input.resource_list, &resource->link);
+    wl_list_insert(&compositor->m_seat.base_resource_list, &resource->link);
+
+    wl_seat_send_capabilities(resource, WL_SEAT_CAPABILITY_POINTER | WL_SEAT_CAPABILITY_KEYBOARD);
 }
 
 static wl_surface *resolveSurface(const QVariant &v)
@@ -95,7 +148,7 @@ static wl_surface *resolveSurface(const QVariant &v)
 void Compositor::setKeyboardFocus(void *data, const QList<QVariant> &parameters)
 {
     Compositor *compositor = static_cast<Compositor *>(data);
-    wl_input_device_set_keyboard_focus(&compositor->m_input, resolveSurface(parameters.first()));
+    wl_keyboard_set_focus(&compositor->m_keyboard, resolveSurface(parameters.first()));
 }
 
 void Compositor::sendMousePress(void *data, const QList<QVariant> &parameters)
@@ -106,12 +159,12 @@ void Compositor::sendMousePress(void *data, const QList<QVariant> &parameters)
         return;
 
     QPoint pos = parameters.last().toPoint();
-    wl_input_device_set_pointer_focus(&compositor->m_input, surface,
-                                      wl_fixed_from_int(pos.x()), wl_fixed_from_int(pos.y()));
-    wl_input_device_send_motion(compositor->m_input.pointer_focus_resource, compositor->time(),
-                                wl_fixed_from_double(pos.x()), wl_fixed_from_double(pos.y()));
-    wl_input_device_send_button(compositor->m_input.pointer_focus_resource,
-        compositor->nextSerial(), compositor->time(), 0x110, 1);
+    wl_pointer_set_focus(&compositor->m_pointer, surface,
+                         wl_fixed_from_int(pos.x()), wl_fixed_from_int(pos.y()));
+    wl_pointer_send_motion(compositor->m_pointer.focus_resource, compositor->time(),
+                           wl_fixed_from_double(pos.x()), wl_fixed_from_double(pos.y()));
+    wl_pointer_send_button(compositor->m_pointer.focus_resource,
+                           compositor->nextSerial(), compositor->time(), 0x110, 1);
 }
 
 void Compositor::sendMouseRelease(void *data, const QList<QVariant> &parameters)
@@ -121,8 +174,8 @@ void Compositor::sendMouseRelease(void *data, const QList<QVariant> &parameters)
     if (!surface)
         return;
 
-    wl_input_device_send_button(compositor->m_input.pointer_focus_resource,
-        compositor->nextSerial(), compositor->time(), 0x110, 0);
+    wl_pointer_send_button(compositor->m_pointer.focus_resource,
+                           compositor->nextSerial(), compositor->time(), 0x110, 0);
 }
 
 void Compositor::sendKeyPress(void *data, const QList<QVariant> &parameters)
@@ -132,9 +185,8 @@ void Compositor::sendKeyPress(void *data, const QList<QVariant> &parameters)
     if (!surface)
         return;
 
-    QPoint pos = parameters.last().toPoint();
-    wl_input_device_send_key(compositor->m_input.keyboard_focus_resource,
-        compositor->nextSerial(), compositor->time(), parameters.last().toUInt() - 8, 1);
+    wl_keyboard_send_key(compositor->m_keyboard.focus_resource,
+                         compositor->nextSerial(), compositor->time(), parameters.last().toUInt() - 8, 1);
 }
 
 void Compositor::sendKeyRelease(void *data, const QList<QVariant> &parameters)
@@ -144,9 +196,8 @@ void Compositor::sendKeyRelease(void *data, const QList<QVariant> &parameters)
     if (!surface)
         return;
 
-    wl_input_device_send_key(compositor->m_input.keyboard_focus_resource,
-        compositor->nextSerial(), compositor->time(), parameters.last().toUInt() - 8, 0);
+    wl_keyboard_send_key(compositor->m_keyboard.focus_resource,
+                         compositor->nextSerial(), compositor->time(), parameters.last().toUInt() - 8, 0);
 }
 
 }
-

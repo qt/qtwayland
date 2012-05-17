@@ -87,9 +87,13 @@ public:
 
 private:
     static void bindCompositor(wl_client *client, void *data, uint32_t version, uint32_t id);
-    static void bindInput(wl_client *client, void *data, uint32_t version, uint32_t id);
+    static void bindSeat(wl_client *client, void *data, uint32_t version, uint32_t id);
     static void bindOutput(wl_client *client, void *data, uint32_t version, uint32_t id);
     static void bindShell(wl_client *client, void *data, uint32_t version, uint32_t id);
+
+    static void get_pointer(wl_client *client, wl_resource *resource, uint32_t id);
+    static void get_keyboard(wl_client *client, wl_resource *resource, uint32_t id);
+    static void get_touch(wl_client *client, wl_resource *resource, uint32_t id);
 
     static void destroyInputResource(wl_resource *resource);
 
@@ -108,7 +112,9 @@ private:
     wl_list m_outputResources;
     uint32_t m_time;
 
-    wl_input_device m_input;
+    wl_seat m_seat;
+    wl_pointer m_pointer;
+    wl_keyboard m_keyboard;
     QVector<Surface *> m_surfaces;
 };
 

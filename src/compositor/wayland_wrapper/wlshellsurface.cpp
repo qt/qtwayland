@@ -161,12 +161,13 @@ void ShellSurface::move(struct wl_client *client,
     }
 
     self->m_moveGrabber = new ShellSurfaceMoveGrabber(self);
-    self->m_moveGrabber->base()->x = input_device->base()->x;
-    self->m_moveGrabber->base()->y = input_device->base()->y;
-    self->m_moveGrabber->offset_x = wl_fixed_to_int(input_device->base()->x) - self->surface()->pos().x();
-    self->m_moveGrabber->offset_y = wl_fixed_to_int(input_device->base()->y) - self->surface()->pos().y();
+    wl_pointer *pointer = input_device->pointerDevice();
+    self->m_moveGrabber->base()->x = pointer->x;
+    self->m_moveGrabber->base()->y = pointer->y;
+    self->m_moveGrabber->offset_x = wl_fixed_to_int(pointer->x) - self->surface()->pos().x();
+    self->m_moveGrabber->offset_y = wl_fixed_to_int(pointer->y) - self->surface()->pos().y();
 
-    wl_input_device_start_pointer_grab(input_device->base(),self->m_moveGrabber->base());
+    wl_pointer_start_grab(pointer, self->m_moveGrabber->base());
 }
 
 void ShellSurface::resize(struct wl_client *client,
@@ -186,13 +187,14 @@ void ShellSurface::resize(struct wl_client *client,
         return;
     }
     self->m_resizeGrabber = new ShellSurfaceResizeGrabber(self);
-    self->m_resizeGrabber->base()->x = input_device->base()->x;
-    self->m_resizeGrabber->base()->y = input_device->base()->y;
+    wl_pointer *pointer = input_device->pointerDevice();
+    self->m_resizeGrabber->base()->x = pointer->x;
+    self->m_resizeGrabber->base()->y = pointer->y;
     self->m_resizeGrabber->resize_edges = wl_shell_surface_resize(edges);
     self->m_resizeGrabber->width = self->surface()->size().width();
     self->m_resizeGrabber->height = self->surface()->size().height();
 
-    wl_input_device_start_pointer_grab(input_device->base(),self->m_resizeGrabber->base());
+    wl_pointer_start_grab(pointer, self->m_resizeGrabber->base());
 }
 
 void ShellSurface::set_toplevel(struct wl_client *client,
@@ -361,9 +363,9 @@ void ShellSurfaceResizeGrabber::motion(wl_pointer_grab *grab, uint32_t time, int
     //Should be more structured
     ShellSurfaceResizeGrabber *resize_grabber = reinterpret_cast<ShellSurfaceResizeGrabber *>(grab);
     ShellSurface *shell_surface = resize_grabber->shell_surface;
-    InputDevice *input_device = reinterpret_cast<InputDevice *>(grab->input_device);
-    int width_delta = wl_fixed_to_int(grab->x) - wl_fixed_to_int(input_device->base()->x);
-    int height_delta = wl_fixed_to_int(grab->y) - wl_fixed_to_int(input_device->base()->y);
+    wl_pointer *pointer = grab->pointer;
+    int width_delta = wl_fixed_to_int(grab->x) - wl_fixed_to_int(pointer->x);
+    int height_delta = wl_fixed_to_int(grab->y) - wl_fixed_to_int(pointer->y);
     int new_width = resize_grabber->width;
     int new_height = resize_grabber->height;
     if (resize_grabber->resize_edges & WL_SHELL_SURFACE_RESIZE_TOP_LEFT) {
@@ -407,7 +409,7 @@ void ShellSurfaceResizeGrabber::button(wl_pointer_grab *grab, uint32_t time, uin
     ShellSurfaceResizeGrabber *self = reinterpret_cast<ShellSurfaceResizeGrabber *>(grab);
     ShellSurface *shell_surface = self->shell_surface;
     if (toQtButton(button) == Qt::LeftButton && !state) {
-        wl_input_device_end_pointer_grab(grab->input_device);
+        wl_pointer_end_grab(grab->pointer);
         shell_surface->resetResizeGrabber();
         delete self;
     }
@@ -439,9 +441,9 @@ void ShellSurfaceMoveGrabber::motion(wl_pointer_grab *grab, uint32_t time, int32
     Q_UNUSED(y);
     ShellSurfaceMoveGrabber *shell_surface_grabber = reinterpret_cast<ShellSurfaceMoveGrabber *>(grab);
     ShellSurface *shell_surface = shell_surface_grabber->shell_surface;
-    InputDevice *input_device = reinterpret_cast<InputDevice *>(grab->input_device);
-    QPointF pos(wl_fixed_to_int(input_device->base()->x) - shell_surface_grabber->offset_x,
-                wl_fixed_to_int(input_device->base()->y) - shell_surface_grabber->offset_y);
+    wl_pointer *pointer = grab->pointer;
+    QPointF pos(wl_fixed_to_int(pointer->x) - shell_surface_grabber->offset_x,
+                wl_fixed_to_int(pointer->y) - shell_surface_grabber->offset_y);
     shell_surface->surface()->setPos(pos);
     if (shell_surface->transientParent())
         shell_surface->setOffset(pos - shell_surface->transientParent()->surface()->pos());
@@ -454,8 +456,8 @@ void ShellSurfaceMoveGrabber::button(wl_pointer_grab *grab, uint32_t time, uint3
     ShellSurfaceResizeGrabber *self = reinterpret_cast<ShellSurfaceResizeGrabber *>(grab);
     ShellSurface *shell_surface = self->shell_surface;
     if (toQtButton(button) == Qt::LeftButton && !state) {
-        wl_input_device_set_pointer_focus(grab->input_device,0,0,0);
-        wl_input_device_end_pointer_grab(grab->input_device);
+        wl_pointer_set_focus(grab->pointer, 0, 0, 0);
+        wl_pointer_end_grab(grab->pointer);
         shell_surface->resetMoveGrabber();
         delete self;
     }

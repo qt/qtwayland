@@ -57,12 +57,16 @@ QWaylandShellSurface::QWaylandShellSurface(struct wl_shell_surface *shell_surfac
 
 void QWaylandShellSurface::resize(QWaylandInputDevice *inputDevice, enum wl_shell_surface_resize edges)
 {
-    wl_shell_surface_resize(m_shell_surface,inputDevice->wl_input_device(),QWaylandDisplay::currentTimeMillisec(),edges);
+    wl_shell_surface_resize(m_shell_surface,inputDevice->wl_seat(),
+                            QWaylandDisplay::currentTimeMillisec(),
+                            edges);
 }
 
 void QWaylandShellSurface::move(QWaylandInputDevice *inputDevice)
 {
-    wl_shell_surface_move(m_shell_surface,inputDevice->wl_input_device(),QWaylandDisplay::currentTimeMillisec());
+    wl_shell_surface_move(m_shell_surface,
+                          inputDevice->wl_seat(),
+                          QWaylandDisplay::currentTimeMillisec());
 }
 
 void QWaylandShellSurface::setTopLevel()

@@ -197,10 +197,14 @@ Compositor::Compositor()
 
     wl_display_add_socket(m_display, 0);
 
-    wl_input_device_init(&m_input);
+    wl_seat_init(&m_seat);
+    wl_pointer_init(&m_pointer);
+    wl_seat_set_pointer(&m_seat, &m_pointer);
+    wl_keyboard_init(&m_keyboard);
+    wl_seat_set_keyboard(&m_seat, &m_keyboard);
 
     wl_display_add_global(m_display, &wl_compositor_interface, this, bindCompositor);
-    wl_display_add_global(m_display, &wl_input_device_interface, this, bindInput);
+    wl_display_add_global(m_display, &wl_seat_interface, this, bindSeat);
     wl_display_add_global(m_display, &wl_output_interface, this, bindOutput);
     wl_display_add_global(m_display, &wl_shell_interface, this, bindShell);
 
@@ -212,6 +216,8 @@ Compositor::Compositor()
 
 Compositor::~Compositor()
 {
+    wl_pointer_release(&m_pointer);
+    wl_keyboard_release(&m_keyboard);
     wl_display_destroy(m_display);
 }
 

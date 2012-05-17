@@ -148,6 +148,9 @@ public:
     void feedRetainedSelectionData(QMimeData *data);
 
     void scheduleReleaseBuffer(SurfaceBuffer *screenBuffer);
+
+    static wl_resource *resourceForSurface(wl_list *resourceList, Surface *surface);
+
 private slots:
 
     void releaseBuffer(SurfaceBuffer *screenBuffer);

@@ -286,9 +286,8 @@ void QWaylandDisplay::displayHandleGlobal(uint32_t id,
         mShm = static_cast<struct wl_shm *>(wl_display_bind(mDisplay, id, &wl_shm_interface));
     } else if (interface == "wl_shell"){
         mShell = new QWaylandShell(this,id,version);
-    } else if (interface == "wl_input_device") {
-        QWaylandInputDevice *inputDevice =
-            new QWaylandInputDevice(this, id);
+    } else if (interface == "wl_seat") {
+        QWaylandInputDevice *inputDevice = new QWaylandInputDevice(this, id);
         mInputDevices.append(inputDevice);
     } else if (interface == "wl_data_device_manager") {
         mDndSelectionHandler = new QWaylandDataDeviceManager(this, id);

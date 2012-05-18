@@ -294,8 +294,13 @@ void Compositor::markSurfaceAsDirty(Wayland::Surface *surface)
 void Compositor::destroyClient(WaylandClient *c)
 {
     wl_client *client = static_cast<wl_client *>(c);
-    if (client) {
+    if (!client)
+        return;
+
+    if (m_windowManagerIntegration->managedClient(client)) {
+        m_windowManagerIntegration->sendQuitMessage(client);
         m_windowManagerIntegration->removeClient(client);
+    } else {
         wl_client_destroy(client);
     }
 }

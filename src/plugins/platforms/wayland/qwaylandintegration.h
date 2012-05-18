@@ -54,6 +54,7 @@ class QWaylandIntegration : public QPlatformIntegration
 {
 public:
     QWaylandIntegration();
+    ~QWaylandIntegration();
 
     bool hasCapability(QPlatformIntegration::Capability cap) const;
     QPlatformWindow *createPlatformWindow(QWindow *window) const;

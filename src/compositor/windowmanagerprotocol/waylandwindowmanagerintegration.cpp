@@ -109,6 +109,17 @@ void WindowManagerServerIntegration::setShowIsFullScreen(bool value)
     }
 }
 
+void WindowManagerServerIntegration::sendQuitMessage(wl_client *client)
+{
+    struct wl_resource *resource;
+    wl_list_for_each(resource, &client_resources, link) {
+        if (resource->client == client) {
+            wl_windowmanager_send_quit(resource);
+            return;
+        }
+    }
+}
+
 struct WindowManagerServerIntegrationClientData
 {
     QByteArray url;

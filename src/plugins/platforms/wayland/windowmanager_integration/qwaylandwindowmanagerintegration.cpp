@@ -125,7 +125,8 @@ void QWaylandWindowManagerIntegration::wlHandleListenerGlobal(wl_display *displa
 }
 
 const struct wl_windowmanager_listener QWaylandWindowManagerIntegration::windowmanager_listener = {
-    QWaylandWindowManagerIntegration::handle_hints
+    QWaylandWindowManagerIntegration::handle_hints,
+    QWaylandWindowManagerIntegration::handle_quit
 };
 
 void QWaylandWindowManagerIntegration::handle_hints(void *data, wl_windowmanager *ext, int32_t showIsFullScreen)
@@ -133,6 +134,13 @@ void QWaylandWindowManagerIntegration::handle_hints(void *data, wl_windowmanager
     Q_UNUSED(ext);
     QWaylandWindowManagerIntegration *self = static_cast<QWaylandWindowManagerIntegration *>(data);
     self->d_func()->m_showIsFullScreen = showIsFullScreen;
+}
+
+void QWaylandWindowManagerIntegration::handle_quit(void *data, wl_windowmanager *ext)
+{
+    Q_UNUSED(data);
+    Q_UNUSED(ext);
+    QGuiApplication::quit();
 }
 
 void QWaylandWindowManagerIntegration::mapClientToProcess(long long processId)

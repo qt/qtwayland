@@ -87,6 +87,15 @@ QWaylandIntegration::QWaylandIntegration()
     mInputContext = QPlatformInputContextFactory::create();
 }
 
+QWaylandIntegration::~QWaylandIntegration()
+{
+    delete mDrag;
+    delete mClipboard;
+    delete mAccessibility;
+    delete mNativeInterface;
+    delete mDisplay;
+}
+
 QPlatformNativeInterface * QWaylandIntegration::nativeInterface() const
 {
     return mNativeInterface;

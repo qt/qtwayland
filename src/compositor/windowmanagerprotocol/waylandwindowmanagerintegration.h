@@ -75,6 +75,7 @@ public:
     WaylandManagedClient *managedClient(wl_client *client) const;
 
     void setShowIsFullScreen(bool value);
+    void sendQuitMessage(wl_client *client);
 
 signals:
     void clientAuthenticated(wl_client *client);

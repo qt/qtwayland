@@ -58,5 +58,7 @@
         <event name="hints">
             <arg name="show_is_fullscreen" type="int"/>
         </event>
+        <event name="quit">
+        </event>
     </interface>
 </protocol>

@@ -61,6 +61,9 @@ public:
     bool makeCurrent(QPlatformSurface *surface);
     void doneCurrent();
 
+    bool isSharing() const;
+    bool isValid() const;
+
     void (*getProcAddress(const QByteArray &procName)) ();
 
     QSurfaceFormat format() const { return m_format; }
@@ -72,6 +75,7 @@ private:
     EGLDisplay m_eglDisplay;
 
     EGLContext m_context;
+    EGLContext m_shareEGLContext;
     EGLConfig m_config;
     QSurfaceFormat m_format;
 };

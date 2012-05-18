@@ -44,15 +44,41 @@ import "compositor.js" as CompositorLogic
 Item {
     id: root
 
-    width: 1024
-    height: 768
+    property variant selectedWindow: null
+    property bool hasFullscreenWindow: compositor.fullscreenSurface !== null
+
+    onHasFullscreenWindowChanged: console.log("has fullscreen window: " + hasFullscreenWindow);
 
     Image {
         id: background
+        Behavior on opacity {
+            NumberAnimation { easing.type: Easing.InCubic; duration: 400; }
+        }
         anchors.fill: parent
         fillMode: Image.Tile
         source: "background.jpg"
         smooth: true
+    }
+
+    MouseArea {
+        anchors.fill: parent
+        onClicked: {
+            root.selectedWindow = null
+            root.focus = true
+        }
+    }
+
+    MouseArea {
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        width: 2
+        height: 2
+        hoverEnabled: true
+        onEntered: {
+            root.selectedWindow = null
+            root.focus = true
+        }
+        z: 10
     }
 
     function windowAdded(window) {
@@ -61,8 +87,8 @@ Item {
 
         window.parent = windowContainer;
 
-        windowContainer.width = window.width;
-        windowContainer.height = window.height;
+        windowContainer.targetWidth = window.width;
+        windowContainer.targetHeight = window.height;
         windowContainer.child = window;
 
         var windowChromeComponent = Qt.createComponent("WindowChrome.qml");
@@ -85,7 +111,8 @@ Item {
 
     function windowDestroyed(window) {
         var windowContainer = window.parent;
-        windowContainer.runDestroyAnimation();
+        if (windowContainer.runDestroyAnimation)
+            windowContainer.runDestroyAnimation();
     }
 
     function removeWindow(window) {

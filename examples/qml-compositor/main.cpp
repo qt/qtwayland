@@ -55,49 +55,75 @@
 class QmlCompositor : public QQuickView, public WaylandCompositor
 {
     Q_OBJECT
+    Q_PROPERTY(WaylandSurface* fullscreenSurface READ fullscreenSurface WRITE setFullscreenSurface NOTIFY fullscreenSurfaceChanged)
+
 public:
     QmlCompositor()
         : WaylandCompositor(this)
+        , m_fullscreenSurface(0)
     {
         enableSubSurfaceExtension();
         setSource(QUrl("main.qml"));
         setResizeMode(QQuickView::SizeRootObjectToView);
+        setClearColor(Qt::black);
         winId();
 
 	connect(this, SIGNAL(frameSwapped()), this, SLOT(frameSwappedSlot()));
+    }
+
+    WaylandSurface *fullscreenSurface() const
+    {
+        return m_fullscreenSurface;
     }
 
 signals:
     void windowAdded(QVariant window);
     void windowDestroyed(QVariant window);
     void windowResized(QVariant window);
+    void fullscreenSurfaceChanged();
 
 public slots:
     void destroyWindow(QVariant window) {
         qvariant_cast<QObject *>(window)->deleteLater();
     }
 
+    void destroyClientForWindow(QVariant window) {
+        WaylandSurface *surface = qobject_cast<WaylandSurfaceItem *>(qvariant_cast<QObject *>(window))->surface();
+        destroyClientForSurface(surface);
+    }
+
+    void setFullscreenSurface(WaylandSurface *surface) {
+        if (surface == m_fullscreenSurface)
+            return;
+        m_fullscreenSurface = surface;
+        emit fullscreenSurfaceChanged();
+    }
+
 private slots:
     void surfaceMapped() {
         WaylandSurface *surface = qobject_cast<WaylandSurface *>(sender());
         WaylandSurfaceItem *item = surface->surfaceItem();
-        item->takeFocus();
+        //item->takeFocus();
         emit windowAdded(QVariant::fromValue(static_cast<QQuickItem *>(item)));
     }
     void surfaceUnmapped() {
         WaylandSurface *surface = qobject_cast<WaylandSurface *>(sender());
+        if (surface == m_fullscreenSurface)
+            m_fullscreenSurface = 0;
         QQuickItem *item = surface->surfaceItem();
         emit windowDestroyed(QVariant::fromValue(item));
     }
 
     void surfaceDestroyed(QObject *object) {
         WaylandSurface *surface = static_cast<WaylandSurface *>(object);
+        if (surface == m_fullscreenSurface)
+            m_fullscreenSurface = 0;
         QQuickItem *item = surface->surfaceItem();
         emit windowDestroyed(QVariant::fromValue(item));
     }
 
     void frameSwappedSlot() {
-        frameFinished();
+        frameFinished(m_fullscreenSurface);
     }
 
 protected:
@@ -115,6 +141,9 @@ protected:
         connect(surface, SIGNAL(mapped()), this, SLOT(surfaceMapped()));
         connect(surface,SIGNAL(unmapped()), this,SLOT(surfaceUnmapped()));
     }
+
+private:
+    WaylandSurface *m_fullscreenSurface;
 };
 
 int main(int argc, char *argv[])

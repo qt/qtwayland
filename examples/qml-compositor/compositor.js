@@ -42,7 +42,7 @@ var windowList = null;
 var indexes = null;
 
 function relayout() {
-    if (windowList.length == 0)
+    if (windowList === null || windowList.length == 0)
         return;
 
     var dim = Math.ceil(Math.sqrt(windowList.length));
@@ -84,10 +84,10 @@ function relayout() {
         var cx = (ix + 0.5) * w;
         var cy = (iy + 0.5) * h;
 
-        windowList[i].scale = 0.98 * Math.min(w / windowList[i].width, h / windowList[i].height);
+        windowList[i].targetScale = 0.98 * Math.min(w / windowList[i].width, h / windowList[i].height);
 
-        windowList[i].x = (cx - windowList[i].width / 2);
-        windowList[i].y = (cy - windowList[i].height / 2);
+        windowList[i].targetX = (cx - windowList[i].width / 2);
+        windowList[i].targetY = (cy - windowList[i].height / 2);
     }
 }
 

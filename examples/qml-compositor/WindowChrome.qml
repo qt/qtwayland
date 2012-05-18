@@ -45,12 +45,19 @@ Item {
     anchors.fill: parent
 
     property variant window: parent;
+    property bool selected: root.selectedWindow === window
 
     MouseArea {
         anchors.fill: parent
         enabled: !window.focus
+        hoverEnabled: !window.focus
         onClicked: {
-            window.takeFocus();
+            if (selected) {
+                window.takeFocus();
+            } else {
+                root.selectedWindow = window
+                root.focus = true
+            }
         }
     }
 }

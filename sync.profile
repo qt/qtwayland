@@ -27,5 +27,6 @@
 
 # Compile tests
 %configtests = (
-    "xkbcommon" => {}
+    "xkbcommon" => {},
+    "brcm_egl" => {}
 );

@@ -16,11 +16,11 @@ isEmpty(QT_WAYLAND_GL_CONFIG):QT_WAYLAND_GL_CONFIG = $$(QT_WAYLAND_GL_CONFIG)
             isEqual(QT_WAYLAND_GL_CONFIG, xcomposite_egl) {
                 QT_WAYLAND_GL_INTEGRATION = xcomposite_egl
                 CONFIG += xcomposite_egl
-            } else:isEqual(QT_WAYLAND_GL_CONFIG, brcm_egl) {
+            } else:isEqual(QT_WAYLAND_GL_CONFIG, brcm_egl)|isEmpty(QT_WAYLAND_GL_CONFIG):contains(config_test_brcm_egl,yes) {
                 QT_WAYLAND_GL_INTEGRATION = brcm_egl
                 CONFIG += brcm_egl
             } else {
-                QT_WAYLAND_GL_INTEGRATION = $$QT_WAYLAND_GL_CONFIG
+                QT_WAYLAND_GL_INTEGRATION = wayland_egl
                 CONFIG += wayland_egl
                 DEFINES += MESA_EGL_NO_X11_HEADERS
             }

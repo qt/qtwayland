@@ -360,20 +360,23 @@ void QWaylandWindow::handleMouseEventWithDecoration(QWaylandInputDevice *inputDe
         return;
     }
 
-    QPointF localTranslated = local;
     QMargins marg = frameMargins();
     QRect windowRect(0 + marg.left(),
                      0 + marg.top(),
                      geometry().size().width() - marg.right(),
                      geometry().size().height() - marg.bottom());
     if (windowRect.contains(local.toPoint()) || mMousePressedInContentArea != Qt::NoButton) {
+        QPointF localTranslated = local;
+        QPointF globalTranslated = global;
         localTranslated.setX(localTranslated.x() - marg.left());
         localTranslated.setY(localTranslated.y() - marg.top());
+        globalTranslated.setX(localTranslated.x() - marg.left());
+        globalTranslated.setY(localTranslated.y() - marg.top());
         if (!mMouseEventsInContentArea) {
             mWindowDecoration->restoreMouseCursor();
             QWindowSystemInterface::handleEnterEvent(window());
         }
-        QWindowSystemInterface::handleMouseEvent(window(),timestamp,localTranslated,global,b,mods);
+        QWindowSystemInterface::handleMouseEvent(window(), timestamp, localTranslated, globalTranslated, b, mods);
         mMouseEventsInContentArea = true;
         mMousePressedInContentArea = b;
     } else {

@@ -271,7 +271,7 @@ void QWaylandInputDevice::pointer_motion(void *data,
     window->handleMouse(inputDevice,
                         time,
                         inputDevice->mSurfacePos,
-                        inputDevice->mSurfacePos,
+                        inputDevice->mGlobalPos,
                         inputDevice->mButtons,
                         Qt::NoModifier);
 }
@@ -321,7 +321,7 @@ void QWaylandInputDevice::pointer_button(void *data,
         window->handleMouse(inputDevice,
                             time,
                             inputDevice->mSurfacePos,
-                            inputDevice->mSurfacePos,
+                            inputDevice->mGlobalPos,
                             inputDevice->mButtons,
                             Qt::NoModifier);
     }
@@ -446,7 +446,6 @@ void QWaylandInputDevice::keyboard_leave(void *data,
     Q_UNUSED(surface);
 
     QWaylandInputDevice *inputDevice = (QWaylandInputDevice *) data;
-
     inputDevice->mKeyboardFocus = NULL;
     inputDevice->mQDisplay->setLastKeyboardFocusInputDevice(0);
     QWindowSystemInterface::handleWindowActivated(0);

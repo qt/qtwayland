@@ -58,6 +58,7 @@ QWindowCompositor::QWindowCompositor(QOpenGLWindow *window)
     , m_renderScheduler(this)
     , m_draggingWindow(0)
     , m_dragKeyIsPressed(false)
+    , m_modifiers(Qt::NoModifier)
 {
     enableSubSurfaceExtension();
     m_window->makeCurrent();
@@ -257,6 +258,19 @@ bool QWindowCompositor::eventFilter(QObject *obj, QEvent *event)
     switch (event->type()) {
     case QEvent::Expose:
         m_renderScheduler.start(0);
+        if (m_window->isExposed()) {
+            // Alt-tabbing away normally results in the alt remaining in
+            // pressed state in the clients xkb state. Prevent this by sending
+            // a release. This is not an issue in a "real" compositor but
+            // is very annoying when running in a regular window on xcb.
+            Qt::KeyboardModifiers mods = QGuiApplication::queryKeyboardModifiers();
+            if (m_modifiers != mods && input->keyboardFocus()) {
+                Qt::KeyboardModifiers stuckMods = m_modifiers ^ mods;
+                if (stuckMods & Qt::AltModifier)
+                    input->sendKeyReleaseEvent(64); // native scancode for left alt
+                m_modifiers = mods;
+            }
+        }
         break;
     case QEvent::MouseButtonPress: {
         QPointF local;
@@ -312,6 +326,7 @@ bool QWindowCompositor::eventFilter(QObject *obj, QEvent *event)
         if (ke->key() == Qt::Key_Meta || ke->key() == Qt::Key_Super_L) {
             m_dragKeyIsPressed = true;
         }
+        m_modifiers = ke->modifiers();
         WaylandSurface *targetSurface = input->keyboardFocus();
         if (targetSurface)
             input->sendKeyPressEvent(ke->nativeScanCode());
@@ -322,6 +337,7 @@ bool QWindowCompositor::eventFilter(QObject *obj, QEvent *event)
         if (ke->key() == Qt::Key_Meta || ke->key() == Qt::Key_Super_L) {
             m_dragKeyIsPressed = false;
         }
+        m_modifiers = ke->modifiers();
         WaylandSurface *targetSurface = input->keyboardFocus();
         if (targetSurface)
             input->sendKeyReleaseEvent(ke->nativeScanCode());

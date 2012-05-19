@@ -96,6 +96,7 @@ private:
     bool m_dragKeyIsPressed;
     QPointF m_drag_diff;
 
+    Qt::KeyboardModifiers m_modifiers;
 };
 
 #endif // QWINDOWCOMPOSITOR_H

@@ -347,6 +347,7 @@ void QWaylandInputDevice::pointer_axis(void *data,
 }
 
 #ifndef QT_NO_WAYLAND_XKB
+
 static Qt::KeyboardModifiers translateModifiers(xkb_state *state)
 {
     Qt::KeyboardModifiers ret = Qt::NoModifier;
@@ -366,55 +367,102 @@ static Qt::KeyboardModifiers translateModifiers(xkb_state *state)
     return ret;
 }
 
+static const uint32_t KeyTbl[] = {
+    XK_Escape,                  Qt::Key_Escape,
+    XK_Tab,                     Qt::Key_Tab,
+    XK_ISO_Left_Tab,            Qt::Key_Backtab,
+    XK_BackSpace,               Qt::Key_Backspace,
+    XK_Return,                  Qt::Key_Return,
+    XK_Insert,                  Qt::Key_Insert,
+    XK_Delete,                  Qt::Key_Delete,
+    XK_Clear,                   Qt::Key_Delete,
+    XK_Pause,                   Qt::Key_Pause,
+    XK_Print,                   Qt::Key_Print,
+
+    XK_Home,                    Qt::Key_Home,
+    XK_End,                     Qt::Key_End,
+    XK_Left,                    Qt::Key_Left,
+    XK_Up,                      Qt::Key_Up,
+    XK_Right,                   Qt::Key_Right,
+    XK_Down,                    Qt::Key_Down,
+    XK_Prior,                   Qt::Key_PageUp,
+    XK_Next,                    Qt::Key_PageDown,
+
+    XK_Shift_L,                 Qt::Key_Shift,
+    XK_Shift_R,                 Qt::Key_Shift,
+    XK_Shift_Lock,              Qt::Key_Shift,
+    XK_Control_L,               Qt::Key_Control,
+    XK_Control_R,               Qt::Key_Control,
+    XK_Meta_L,                  Qt::Key_Meta,
+    XK_Meta_R,                  Qt::Key_Meta,
+    XK_Alt_L,                   Qt::Key_Alt,
+    XK_Alt_R,                   Qt::Key_Alt,
+    XK_Caps_Lock,               Qt::Key_CapsLock,
+    XK_Num_Lock,                Qt::Key_NumLock,
+    XK_Scroll_Lock,             Qt::Key_ScrollLock,
+    XK_Super_L,                 Qt::Key_Super_L,
+    XK_Super_R,                 Qt::Key_Super_R,
+    XK_Menu,                    Qt::Key_Menu,
+    XK_Hyper_L,                 Qt::Key_Hyper_L,
+    XK_Hyper_R,                 Qt::Key_Hyper_R,
+    XK_Help,                    Qt::Key_Help,
+
+    XK_KP_Space,                Qt::Key_Space,
+    XK_KP_Tab,                  Qt::Key_Tab,
+    XK_KP_Enter,                Qt::Key_Enter,
+    XK_KP_Home,                 Qt::Key_Home,
+    XK_KP_Left,                 Qt::Key_Left,
+    XK_KP_Up,                   Qt::Key_Up,
+    XK_KP_Right,                Qt::Key_Right,
+    XK_KP_Down,                 Qt::Key_Down,
+    XK_KP_Prior,                Qt::Key_PageUp,
+    XK_KP_Next,                 Qt::Key_PageDown,
+    XK_KP_End,                  Qt::Key_End,
+    XK_KP_Begin,                Qt::Key_Clear,
+    XK_KP_Insert,               Qt::Key_Insert,
+    XK_KP_Delete,               Qt::Key_Delete,
+    XK_KP_Equal,                Qt::Key_Equal,
+    XK_KP_Multiply,             Qt::Key_Asterisk,
+    XK_KP_Add,                  Qt::Key_Plus,
+    XK_KP_Separator,            Qt::Key_Comma,
+    XK_KP_Subtract,             Qt::Key_Minus,
+    XK_KP_Decimal,              Qt::Key_Period,
+    XK_KP_Divide,               Qt::Key_Slash,
+
+    XK_ISO_Level3_Shift,        Qt::Key_AltGr,
+    XK_Multi_key,               Qt::Key_Multi_key,
+    XK_Codeinput,               Qt::Key_Codeinput,
+    XK_SingleCandidate,         Qt::Key_SingleCandidate,
+    XK_MultipleCandidate,       Qt::Key_MultipleCandidate,
+    XK_PreviousCandidate,       Qt::Key_PreviousCandidate,
+
+    XK_Mode_switch,             Qt::Key_Mode_switch,
+    XK_script_switch,           Qt::Key_Mode_switch,
+
+    0,                          0
+};
+
 static uint32_t translateKey(uint32_t sym, char *string, size_t size)
 {
     Q_UNUSED(size);
     string[0] = '\0';
 
-    switch (sym) {
-    case XK_Escape:		return Qt::Key_Escape;
-    case XK_Tab:		return Qt::Key_Tab;
-    case XK_ISO_Left_Tab:	return Qt::Key_Backtab;
-    case XK_BackSpace:		return Qt::Key_Backspace;
-    case XK_Return:		return Qt::Key_Return;
-    case XK_Insert:		return Qt::Key_Insert;
-    case XK_Delete:		return Qt::Key_Delete;
-    case XK_Clear:		return Qt::Key_Delete;
-    case XK_Pause:		return Qt::Key_Pause;
-    case XK_Print:		return Qt::Key_Print;
-
-    case XK_Home:		return Qt::Key_Home;
-    case XK_End:		return Qt::Key_End;
-    case XK_Left:		return Qt::Key_Left;
-    case XK_Up:			return Qt::Key_Up;
-    case XK_Right:		return Qt::Key_Right;
-    case XK_Down:		return Qt::Key_Down;
-    case XK_Prior:		return Qt::Key_PageUp;
-    case XK_Next:		return Qt::Key_PageDown;
-
-    case XK_Shift_L:		return Qt::Key_Shift;
-    case XK_Shift_R:		return Qt::Key_Shift;
-    case XK_Shift_Lock:		return Qt::Key_Shift;
-    case XK_Control_L:		return Qt::Key_Control;
-    case XK_Control_R:		return Qt::Key_Control;
-    case XK_Meta_L:		return Qt::Key_Meta;
-    case XK_Meta_R:		return Qt::Key_Meta;
-    case XK_Alt_L:		return Qt::Key_Alt;
-    case XK_Alt_R:		return Qt::Key_Alt;
-    case XK_Caps_Lock:		return Qt::Key_CapsLock;
-    case XK_Num_Lock:		return Qt::Key_NumLock;
-    case XK_Scroll_Lock:	return Qt::Key_ScrollLock;
-    case XK_Super_L:		return Qt::Key_Super_L;
-    case XK_Super_R:		return Qt::Key_Super_R;
-    case XK_Menu:		return Qt::Key_Menu;
-
-    default:
+    int code = -1;
+    for (int i = 0; KeyTbl[i]; i += 2) {
+        if (sym == KeyTbl[i]) {
+            code = KeyTbl[i + 1];
+            break;
+        }
+    }
+    if (code == -1) {
         string[0] = sym;
         string[1] = '\0';
         return toupper(sym);
     }
+    return code;
 }
-#endif
+
+#endif // QT_NO_WAYLAND_XKB
 
 void QWaylandInputDevice::keyboard_enter(void *data,
                                          struct wl_keyboard *keyboard,

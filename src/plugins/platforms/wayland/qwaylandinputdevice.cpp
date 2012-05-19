@@ -338,10 +338,12 @@ void QWaylandInputDevice::pointer_axis(void *data,
     QWaylandWindow *window = inputDevice->mPointerFocus;
     Qt::Orientation orientation = axis == WL_POINTER_AXIS_HORIZONTAL_SCROLL ? Qt::Horizontal
                                                                             : Qt::Vertical;
-    QWindowSystemInterface::handleWheelEvent(window->window(), time,
+    QWindowSystemInterface::handleWheelEvent(window->window(),
+                                             time,
                                              inputDevice->mSurfacePos,
                                              inputDevice->mGlobalPos,
-                                             value, orientation);
+                                             value * 120,
+                                             orientation);
 }
 
 #ifndef QT_NO_WAYLAND_XKB

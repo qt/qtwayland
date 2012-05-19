@@ -263,7 +263,7 @@ void InputDevice::sendMouseWheelEvent(Qt::Orientation orientation, int delta)
     uint32_t time = m_compositor->currentTimeMsecs();
     uint32_t axis = orientation == Qt::Horizontal ? WL_POINTER_AXIS_HORIZONTAL_SCROLL
                                                   : WL_POINTER_AXIS_VERTICAL_SCROLL;
-    wl_pointer_send_axis(resource, time, axis, delta);
+    wl_pointer_send_axis(resource, time, axis, delta / 120);
 }
 
 void InputDevice::sendKeyPressEvent(uint code)

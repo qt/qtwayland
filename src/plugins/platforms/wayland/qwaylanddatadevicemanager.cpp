@@ -170,6 +170,7 @@ void QWaylandDataDeviceManager::selection(void *data,
                                             struct wl_data_offer *id)
 {
     Q_UNUSED(wl_data_device);
+
     QWaylandDataDeviceManager *handler = static_cast<QWaylandDataDeviceManager *>(data);
     QWaylandDataOffer *mime = handler->m_selection_data_offer;
     delete mime;
@@ -177,8 +178,12 @@ void QWaylandDataDeviceManager::selection(void *data,
     delete transfer_source;
     handler->m_selection_data_source = 0;
 
-    mime = static_cast<QWaylandDataOffer *>(wl_data_offer_get_user_data(id));
-    handler->m_selection_data_offer = mime;
+    if (id) {
+        mime = static_cast<QWaylandDataOffer *>(wl_data_offer_get_user_data(id));
+        handler->m_selection_data_offer = mime;
+    } else {
+        handler->m_selection_data_offer = 0;
+    }
 
     QGuiApplicationPrivate::platformIntegration()->clipboard()->emitChanged(QClipboard::Clipboard);
 }

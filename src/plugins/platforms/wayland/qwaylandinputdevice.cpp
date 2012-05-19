@@ -70,6 +70,7 @@ QWaylandInputDevice::QWaylandInputDevice(QWaylandDisplay *display, uint32_t id)
     , mKeyboardFocus(0)
     , mTouchFocus(0)
     , mButtons(0)
+    , mTouchDevice(0)
     #ifndef QT_NO_WAYLAND_XKB
     , mXkbContext(0)
     , mXkbMap(0)
@@ -103,11 +104,6 @@ QWaylandInputDevice::QWaylandInputDevice(QWaylandDisplay *display, uint32_t id)
     if (mQDisplay->dndSelectionHandler()) {
         mTransferDevice = mQDisplay->dndSelectionHandler()->getDataDevice(this);
     }
-
-    mTouchDevice = new QTouchDevice;
-    mTouchDevice->setType(QTouchDevice::TouchScreen);
-    mTouchDevice->setCapabilities(QTouchDevice::Position);
-    QWindowSystemInterface::registerTouchDevice(mTouchDevice);
 }
 
 QWaylandInputDevice::~QWaylandInputDevice()
@@ -166,6 +162,13 @@ void QWaylandInputDevice::seat_capabilities(void *data, struct wl_seat *seat, ui
     if (caps & WL_SEAT_CAPABILITY_TOUCH) {
         self->mDeviceInterfaces.touch = wl_seat_get_touch(seat);
         wl_touch_add_listener(self->mDeviceInterfaces.touch, &touchListener, self);
+
+        if (!self->mTouchDevice) {
+            self->mTouchDevice = new QTouchDevice;
+            self->mTouchDevice->setType(QTouchDevice::TouchScreen);
+            self->mTouchDevice->setCapabilities(QTouchDevice::Position);
+            QWindowSystemInterface::registerTouchDevice(self->mTouchDevice);
+        }
     }
 }
 

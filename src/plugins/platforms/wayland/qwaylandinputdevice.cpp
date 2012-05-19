@@ -424,20 +424,13 @@ void QWaylandInputDevice::keyboard_enter(void *data,
 {
     Q_UNUSED(keyboard);
     Q_UNUSED(time);
-    QWaylandInputDevice *inputDevice = (QWaylandInputDevice *) data;
-    QWaylandWindow *window;
-
-    inputDevice->mModifiers = 0;
-
     Q_UNUSED(keys);
-#ifndef QT_NO_WAYLAND_XKB
-    inputDevice->mModifiers |= translateModifiers(inputDevice->mXkbState);
-#endif
 
     if (!surface)
         return;
 
-    window = (QWaylandWindow *) wl_surface_get_user_data(surface);
+    QWaylandInputDevice *inputDevice = (QWaylandInputDevice *) data;
+    QWaylandWindow *window = (QWaylandWindow *) wl_surface_get_user_data(surface);
     inputDevice->mKeyboardFocus = window;
     inputDevice->mQDisplay->setLastKeyboardFocusInputDevice(inputDevice);
     QWindowSystemInterface::handleWindowActivated(window->window());
@@ -475,11 +468,8 @@ void QWaylandInputDevice::keyboard_key(void *data,
     QEvent::Type type;
     char s[2];
 
-    if (window == NULL || !inputDevice->mXkbMap) {
-        // We destroyed the keyboard focus surface, but the server
-        // didn't get the message yet.
+    if (!inputDevice->mXkbMap)
         return;
-    }
 
     code = key + 8;
     bool isDown = state != 0;
@@ -487,26 +477,23 @@ void QWaylandInputDevice::keyboard_key(void *data,
     xkb_state_update_key(inputDevice->mXkbState, code,
                          isDown ? XKB_KEY_DOWN : XKB_KEY_UP);
 
-    xkb_keysym_t sym;
+    if (!window) {
+        // We destroyed the keyboard focus surface, but the server
+        // didn't get the message yet.
+        return;
+    }
+
     if (numSyms == 1) {
-        sym = syms[0];
-
-        modifiers = translateModifiers(inputDevice->mXkbState);
-
-        if (isDown) {
-            inputDevice->mModifiers |= modifiers;
-            type = QEvent::KeyPress;
-        } else {
-            inputDevice->mModifiers &= ~modifiers;
-            type = QEvent::KeyRelease;
-        }
+        xkb_keysym_t sym = syms[0];
+        Qt::KeyboardModifiers modifiers = translateModifiers(inputDevice->mXkbState);
+        type = isDown ? QEvent::KeyPress : QEvent::KeyRelease;
 
         sym = translateKey(sym, s, sizeof s);
 
         if (window)
             QWindowSystemInterface::handleExtendedKeyEvent(window->window(),
                                                            time, type, sym,
-                                                           inputDevice->mModifiers,
+                                                           modifiers,
                                                            code, 0, 0,
                                                            QString::fromLatin1(s));
     }

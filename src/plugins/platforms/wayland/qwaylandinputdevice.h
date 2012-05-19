@@ -101,7 +101,6 @@ private:
     Qt::MouseButtons mButtons;
     QPointF mSurfacePos;
     QPointF mGlobalPos;
-    Qt::KeyboardModifiers mModifiers;
     uint32_t mTime;
 
     static const struct wl_seat_listener seatListener;

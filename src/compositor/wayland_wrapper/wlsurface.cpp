@@ -405,6 +405,14 @@ void Surface::attach(struct wl_buffer *buffer)
     }
 
     m_bufferQueue <<  createSurfaceBuffer(buffer);
+
+    if (!buffer) {
+        InputDevice *inputDevice = m_compositor->defaultInputDevice();
+        if (inputDevice->keyboardFocus() == this)
+            inputDevice->setKeyboardFocus(0);
+        if (inputDevice->mouseFocus() == this)
+            inputDevice->setMouseFocus(0, QPointF(), QPointF());
+    }
 }
 
 void Surface::damage(const QRect &rect)

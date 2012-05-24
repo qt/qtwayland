@@ -124,7 +124,7 @@ public:
     uint texture(QOpenGLContext *context) const;
 #endif
 
-    void sendOnScreenVisibilityChange(bool visible);
+    Q_INVOKABLE void sendOnScreenVisibilityChange(bool visible);
 
     void frameFinished();
 

@@ -57,6 +57,8 @@ public:
 
     virtual void initialize() = 0;
 
+    virtual bool supportsThreadedOpenGL() const { return false; }
+
     virtual QWaylandWindow *createEglWindow(QWindow *window) = 0;
     virtual QPlatformOpenGLContext *createPlatformOpenGLContext(const QSurfaceFormat &glFormat, QPlatformOpenGLContext *share) const = 0;
 

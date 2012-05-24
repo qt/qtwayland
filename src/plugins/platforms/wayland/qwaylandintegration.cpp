@@ -112,7 +112,11 @@ bool QWaylandIntegration::hasCapability(QPlatformIntegration::Capability cap) co
         return false;
 #endif
     case ThreadedOpenGL:
-        return hasCapability(OpenGL);
+#ifdef QT_WAYLAND_GL_SUPPORT
+        return mDisplay->eglIntegration()->supportsThreadedOpenGL();
+#else
+        return false;
+#endif
     case BufferQueueingOpenGL:
         return true;
     default: return QPlatformIntegration::hasCapability(cap);

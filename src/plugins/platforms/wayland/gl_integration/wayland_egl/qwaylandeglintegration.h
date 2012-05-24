@@ -56,6 +56,7 @@ public:
     ~QWaylandEglIntegration();
 
     void initialize();
+    bool supportsThreadedOpenGL() const;
 
     QWaylandWindow *createEglWindow(QWindow *window);
     QPlatformOpenGLContext *createPlatformOpenGLContext(const QSurfaceFormat &glFormat, QPlatformOpenGLContext *share) const;

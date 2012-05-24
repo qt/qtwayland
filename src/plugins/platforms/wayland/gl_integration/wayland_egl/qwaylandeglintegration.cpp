@@ -46,6 +46,8 @@
 #include "qwaylandeglwindow.h"
 #include "qwaylandglcontext.h"
 
+#include <wayland-client.h>
+
 #include <QtCore/QDebug>
 
 QWaylandEglIntegration::QWaylandEglIntegration(struct wl_display *waylandDisplay)
@@ -77,6 +79,15 @@ void QWaylandEglIntegration::initialize()
             return;
         }
     }
+}
+
+bool QWaylandEglIntegration::supportsThreadedOpenGL() const
+{
+#ifdef WAYLAND_CLIENT_THREAD_AFFINITY
+    return true;
+#else
+    return false;
+#endif
 }
 
 QWaylandWindow *QWaylandEglIntegration::createEglWindow(QWindow *window)

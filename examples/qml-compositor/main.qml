@@ -45,7 +45,7 @@ Item {
     id: root
 
     property variant selectedWindow: null
-    property bool hasFullscreenWindow: compositor.fullscreenSurface !== null
+    property bool hasFullscreenWindow: typeof compositor != "undefined" && compositor.fullscreenSurface !== null
 
     onHasFullscreenWindowChanged: console.log("has fullscreen window: " + hasFullscreenWindow);
 

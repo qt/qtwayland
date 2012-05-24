@@ -152,6 +152,7 @@ int main(int argc, char *argv[])
 
     QmlCompositor compositor;
     compositor.setWindowTitle(QLatin1String("QML Compositor"));
+    compositor.setGeometry(0, 0, 1024, 768);
     compositor.show();
 
     compositor.rootContext()->setContextProperty("compositor", &compositor);

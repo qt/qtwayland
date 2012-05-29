@@ -45,6 +45,7 @@
 #include <wayland-server.h>
 
 #include <sys/time.h>
+#include <unistd.h>
 
 #include <QtCore/QDebug>
 

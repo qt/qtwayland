@@ -48,6 +48,8 @@
 
 #include <QtCore/QDebug>
 
+#include <unistd.h>
+
 void QWaylandDataSource::data_source_target(void *data,
                struct wl_data_source *wl_data_source,
                const char *mime_type)

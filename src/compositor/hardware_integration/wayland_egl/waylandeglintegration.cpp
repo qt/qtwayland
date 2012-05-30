@@ -47,7 +47,7 @@
 #include <QtGui/QOpenGLContext>
 #include <qpa/qplatformscreen.h>
 #include <QtGui/QWindow>
-#include <QtCore/QWeakPointer>
+#include <QtCore/QPointer>
 
 #include <QDebug>
 
@@ -95,7 +95,7 @@ public:
     bool valid;
     bool flipperConnected;
 #ifdef EGL_WL_request_client_buffer_format
-    QWeakPointer<WaylandSurface> directRenderSurface;
+    QPointer<WaylandSurface> directRenderSurface;
 #endif
     PFNEGLBINDWAYLANDDISPLAYWL egl_bind_wayland_display;
     PFNEGLUNBINDWAYLANDDISPLAYWL egl_unbind_wayland_display;

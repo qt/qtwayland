@@ -550,7 +550,7 @@ void QWaylandInputDevice::keyboard_key(void *data,
         QWindowSystemInterface::handleExtendedKeyEvent(window->window(),
                                                        time, state ? QEvent::KeyPress : QEvent::KeyRelease,
                                                        key + 8, // qt-compositor substracts 8 for some reason
-                                                       inputDevice->mModifiers,
+                                                       Qt::NoModifier,
                                                        key + 8, 0, 0);
     }
 #endif

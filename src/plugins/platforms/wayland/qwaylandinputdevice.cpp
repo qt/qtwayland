@@ -131,9 +131,11 @@ const struct wl_pointer_listener QWaylandInputDevice::pointerListener = {
 };
 
 const struct wl_keyboard_listener QWaylandInputDevice::keyboardListener = {
+    QWaylandInputDevice::keyboard_keymap,
     QWaylandInputDevice::keyboard_enter,
     QWaylandInputDevice::keyboard_leave,
-    QWaylandInputDevice::keyboard_key
+    QWaylandInputDevice::keyboard_key,
+    QWaylandInputDevice::keyboard_modifiers
 };
 
 const struct wl_touch_listener QWaylandInputDevice::touchListener = {
@@ -342,7 +344,7 @@ void QWaylandInputDevice::pointer_axis(void *data,
                                              time,
                                              inputDevice->mSurfacePos,
                                              inputDevice->mGlobalPos,
-                                             value * 120,
+                                             int(wl_fixed_to_double(value) * 120.0),
                                              orientation);
 }
 
@@ -464,6 +466,19 @@ static uint32_t translateKey(uint32_t sym, char *string, size_t size)
 
 #endif // QT_NO_WAYLAND_XKB
 
+void QWaylandInputDevice::keyboard_keymap(void *data,
+                                          struct wl_keyboard *keyboard,
+                                          uint32_t format,
+                                          int32_t fd,
+                                          uint32_t size)
+{
+    Q_UNUSED(data);
+    Q_UNUSED(keyboard);
+    Q_UNUSED(format);
+    Q_UNUSED(fd);
+    Q_UNUSED(size);
+}
+
 void QWaylandInputDevice::keyboard_enter(void *data,
                                          struct wl_keyboard *keyboard,
                                          uint32_t time,
@@ -509,18 +524,13 @@ void QWaylandInputDevice::keyboard_key(void *data,
     QWaylandInputDevice *inputDevice = (QWaylandInputDevice *) data;
     QWaylandWindow *window = inputDevice->mKeyboardFocus;
 #ifndef QT_NO_WAYLAND_XKB
-    uint32_t numSyms, code;
-    const xkb_keysym_t *syms;
-    Qt::KeyboardModifiers modifiers;
-    QEvent::Type type;
-    char s[2];
-
     if (!inputDevice->mXkbMap)
         return;
 
-    code = key + 8;
+    uint32_t code = key + 8;
     bool isDown = state != 0;
-    numSyms = xkb_key_get_syms(inputDevice->mXkbState, code, &syms);
+    const xkb_keysym_t *syms;
+    uint32_t numSyms = xkb_key_get_syms(inputDevice->mXkbState, code, &syms);
     xkb_state_update_key(inputDevice->mXkbState, code,
                          isDown ? XKB_KEY_DOWN : XKB_KEY_UP);
 
@@ -533,8 +543,9 @@ void QWaylandInputDevice::keyboard_key(void *data,
     if (numSyms == 1) {
         xkb_keysym_t sym = syms[0];
         Qt::KeyboardModifiers modifiers = translateModifiers(inputDevice->mXkbState);
-        type = isDown ? QEvent::KeyPress : QEvent::KeyRelease;
+        QEvent::Type type = isDown ? QEvent::KeyPress : QEvent::KeyRelease;
 
+        char s[2];
         sym = translateKey(sym, s, sizeof s);
 
         if (window)
@@ -553,6 +564,31 @@ void QWaylandInputDevice::keyboard_key(void *data,
                                                        Qt::NoModifier,
                                                        key + 8, 0, 0);
     }
+#endif
+}
+
+void QWaylandInputDevice::keyboard_modifiers(void *data,
+                                             struct wl_keyboard *keyboard,
+                                             uint32_t serial,
+                                             uint32_t mods_depressed,
+                                             uint32_t mods_latched,
+                                             uint32_t mods_locked,
+                                             uint32_t group)
+{
+    Q_UNUSED(keyboard);
+    Q_UNUSED(serial);
+#ifndef QT_NO_WAYLAND_XKB
+    QWaylandInputDevice *inputDevice = (QWaylandInputDevice *) data;
+    if (inputDevice->mXkbState)
+        xkb_state_update_mask(inputDevice->mXkbState,
+                              mods_depressed, mods_latched, mods_locked,
+                              0, 0, group);
+#else
+    Q_UNUSED(data);
+    Q_UNUSED(mods_depressed);
+    Q_UNUSED(mods_latched);
+    Q_UNUSED(mods_locked);
+    Q_UNUSED(group);
 #endif
 }
 

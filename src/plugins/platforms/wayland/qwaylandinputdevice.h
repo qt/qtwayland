@@ -130,10 +130,15 @@ private:
                              struct wl_pointer *pointer,
                              uint32_t time,
                              uint32_t axis,
-                             int32_t value);
+                             wl_fixed_t value);
 
     static const struct wl_keyboard_listener keyboardListener;
 
+    static void keyboard_keymap(void *data,
+                                struct wl_keyboard *keyboard,
+                                uint32_t format,
+                                int32_t fd,
+                                uint32_t size);
     static void keyboard_enter(void *data,
                                struct wl_keyboard *keyboard,
                                uint32_t time,
@@ -147,6 +152,13 @@ private:
                              struct wl_keyboard *keyboard,
                              uint32_t serial, uint32_t time,
                              uint32_t key, uint32_t state);
+    static void keyboard_modifiers(void *data,
+                                   struct wl_keyboard *keyboard,
+                                   uint32_t serial,
+                                   uint32_t mods_depressed,
+                                   uint32_t mods_latched,
+                                   uint32_t mods_locked,
+                                   uint32_t group);
 
     static const struct wl_touch_listener touchListener;
 

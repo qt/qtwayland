@@ -349,6 +349,7 @@ void WaylandSurfaceItem::updateTexture()
         } else {
             texture = canvas()->createTextureFromImage(m_surface->image());
         }
+        texture->bind();
         delete oldTexture;
     }
 

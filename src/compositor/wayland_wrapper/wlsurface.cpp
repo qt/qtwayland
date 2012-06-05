@@ -377,14 +377,16 @@ SurfaceBuffer *Surface::createSurfaceBuffer(struct wl_buffer *buffer)
 bool Surface::postBuffer() {
 #ifdef QT_COMPOSITOR_WAYLAND_GL
     if (m_waylandSurface->handle() == m_compositor->directRenderSurface()) {
-        SurfaceBuffer *surfaceBuffer = m_backBuffer? m_backBuffer : m_frontBuffer;
-        if (surfaceBuffer && m_compositor->pageFlipper()) {
-            if (m_compositor->pageFlipper()->displayBuffer(surfaceBuffer)) {
-                surfaceBuffer->setPageFlipperHasBuffer(true);
-                m_compositor->setDirectRenderingActive(true);
-                return true;
-            } else {
-                qDebug() << "could not post buffer";
+        SurfaceBuffer *surfaceBuffer = currentSurfaceBuffer();
+        if (surfaceBuffer && surfaceBuffer->waylandBufferHandle()) {
+            if (m_compositor->pageFlipper()) {
+                if (m_compositor->pageFlipper()->displayBuffer(surfaceBuffer)) {
+                    surfaceBuffer->setPageFlipperHasBuffer(true);
+                    m_compositor->setDirectRenderingActive(true);
+                    return true;
+                } else {
+                    qDebug() << "could not post buffer";
+                }
             }
         }
     }

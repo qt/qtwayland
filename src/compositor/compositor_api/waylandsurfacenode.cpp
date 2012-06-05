@@ -39,10 +39,12 @@ void WaylandSurfaceNode::preprocess()
 {
     QMutexLocker locker(WaylandSurfaceItem::mutex);
 
-    //Update if the item is dirty and we haven't done an updateTexture for this frame
-    if (m_item && m_item->m_damaged && !m_textureUpdated) {
-        m_item->updateTexture();
-        updateTexture();
+    if (m_item && m_item->surface()) {
+        //Update if the item is dirty and we haven't done an updateTexture for this frame
+        if (m_item->m_damaged && !m_textureUpdated) {
+            m_item->updateTexture();
+            updateTexture();
+        }
     }
     //Reset value for next frame: we have not done updatePaintNode yet
     m_textureUpdated = false;

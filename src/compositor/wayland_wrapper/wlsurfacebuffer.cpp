@@ -199,6 +199,9 @@ void SurfaceBuffer::handleDisplayed()
 
 void *SurfaceBuffer::handle() const
 {
+    if (!m_buffer)
+        return 0;
+
     if (!m_handle) {
         SurfaceBuffer *that = const_cast<SurfaceBuffer *>(this);
         if (isShmBuffer()) {

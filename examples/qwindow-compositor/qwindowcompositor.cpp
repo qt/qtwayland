@@ -243,8 +243,7 @@ void QWindowCompositor::render()
 
     m_textureBlitter->release();
     frameFinished();
-    glFinish();
-
+    // N.B. Never call glFinish() here as the busylooping with vsync 'feature' of the nvidia binary driver is not desirable.
     m_window->swapBuffers();
 }
 

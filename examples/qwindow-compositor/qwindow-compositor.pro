@@ -1,8 +1,5 @@
 QT += gui gui-private core-private compositor
 
-# comment out the following to not use pkg-config in the pri files
-CONFIG += use_pkgconfig
-
 LIBS += -L ../../lib
 #include (../../src/qt-compositor/qt-compositor.pri)
 

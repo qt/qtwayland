@@ -14,7 +14,8 @@ module_qtwayland_examples.depends = module_qtwayland_src
 module_qtwayland_tests.subdir = tests
 module_qtwayland_tests.target = module-qtwayland-tests
 module_qtwayland_tests.depends = module_qtwayland_src
-!contains(QT_BUILD_PARTS,tests):!with-tests {
+module_qtwayland_tests.CONFIG = no_default_install
+!contains(QT_BUILD_PARTS,tests):{
     module_qtwayland_tests.CONFIG += no_default_target
 }
 

@@ -129,6 +129,8 @@ public:
     void setOutputRefreshRate(int rate);
     int outputRefreshRate() const;
 
+    Qt::ScreenOrientations orientationUpdateMaskForClient(wl_client *client);
+
     void setClientFullScreenHint(bool value);
 
     TouchExtensionGlobal *touchExtension() { return m_touchExtension; }

@@ -74,14 +74,21 @@ class ExtendedOutput
 public:
     ExtendedOutput(struct wl_client *client, uint32_t id, Output *output, Compositor *compositor);
 
+    Qt::ScreenOrientations orientationUpdateMask() { return m_orientationUpdateMask; }
+
     void sendOutputOrientation(Qt::ScreenOrientation orientation);
 
     static void destroy_resource(wl_resource *resource);
+
+    static void set_orientation_update_mask(struct wl_client *client,
+                                            struct wl_resource *resource,
+                                            int32_t orientation_update_mask);
 
 private:
     struct wl_resource *m_extended_output_resource;
     Output *m_output;
     Compositor *m_compositor;
+    Qt::ScreenOrientations m_orientationUpdateMask;
 };
 
 }

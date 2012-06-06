@@ -60,6 +60,8 @@ public:
     int depth() const;
     QImage::Format format() const;
 
+    void setOrientationUpdateMask(Qt::ScreenOrientations mask);
+
     Qt::ScreenOrientation orientation() const;
     qreal refreshRate() const;
 

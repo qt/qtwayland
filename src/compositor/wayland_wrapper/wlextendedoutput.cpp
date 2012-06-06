@@ -41,6 +41,7 @@
 #include "wlextendedoutput.h"
 
 #include "wlcompositor.h"
+#include "wlsurface.h"
 #include "wloutput.h"
 
 namespace Wayland {
@@ -75,9 +76,12 @@ ExtendedOutput::ExtendedOutput(struct wl_client *client, uint32_t id, Output *ou
     : m_output(output)
     , m_compositor(compositor)
 {
+    static const struct wl_extended_output_interface extended_output_interface = {
+        set_orientation_update_mask
+    };
     Q_ASSERT(m_output->extendedOutput() == 0);
     m_output->setExtendedOutput(this);
-    m_extended_output_resource = wl_client_add_object(client,&wl_extended_output_interface,0,id,this);
+    m_extended_output_resource = wl_client_add_object(client,&wl_extended_output_interface,&extended_output_interface,id,this);
     m_extended_output_resource->destroy = ExtendedOutput::destroy_resource;
 
     sendOutputOrientation(m_compositor->screenOrientation());
@@ -88,6 +92,34 @@ void ExtendedOutput::destroy_resource(wl_resource *resource)
     ExtendedOutput *output = static_cast<ExtendedOutput *>(resource->data);
     delete output;
     free(resource);
+}
+
+void ExtendedOutput::set_orientation_update_mask(struct wl_client *client,
+                                                 struct wl_resource *resource,
+                                                 int32_t orientation_update_mask)
+{
+    ExtendedOutput *output = static_cast<ExtendedOutput *>(resource->data);
+
+    Qt::ScreenOrientations mask = 0;
+    if (orientation_update_mask & WL_EXTENDED_OUTPUT_ROTATION_PORTRAITORIENTATION)
+        mask |= Qt::PortraitOrientation;
+    if (orientation_update_mask & WL_EXTENDED_OUTPUT_ROTATION_LANDSCAPEORIENTATION)
+        mask |= Qt::LandscapeOrientation;
+    if (orientation_update_mask & WL_EXTENDED_OUTPUT_ROTATION_INVERTEDPORTRAITORIENTATION)
+        mask |= Qt::InvertedPortraitOrientation;
+    if (orientation_update_mask & WL_EXTENDED_OUTPUT_ROTATION_INVERTEDLANDSCAPEORIENTATION)
+        mask |= Qt::InvertedLandscapeOrientation;
+
+    Qt::ScreenOrientations oldMask = output->m_orientationUpdateMask;
+    output->m_orientationUpdateMask = mask;
+
+    if (mask != oldMask) {
+        QList<Surface*> surfaces = output->m_compositor->surfacesForClient(client);
+        foreach (Surface *surface, surfaces) {
+            if (surface->waylandSurface())
+                emit surface->waylandSurface()->orientationUpdateMaskChanged();
+        }
+    }
 }
 
 void ExtendedOutput::sendOutputOrientation(Qt::ScreenOrientation orientation)

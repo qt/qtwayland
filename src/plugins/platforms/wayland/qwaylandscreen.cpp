@@ -89,6 +89,12 @@ QImage::Format QWaylandScreen::format() const
     return mFormat;
 }
 
+void QWaylandScreen::setOrientationUpdateMask(Qt::ScreenOrientations mask)
+{
+    if (mExtendedOutput)
+        mExtendedOutput->setOrientationUpdateMask(mask);
+}
+
 Qt::ScreenOrientation QWaylandScreen::orientation() const
 {
     if (mExtendedOutput)

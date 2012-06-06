@@ -86,6 +86,20 @@ Qt::ScreenOrientation QWaylandExtendedOutput::currentOrientation() const
     return m_orientation;
 }
 
+void QWaylandExtendedOutput::setOrientationUpdateMask(Qt::ScreenOrientations orientations)
+{
+    int mask = 0;
+    if (orientations & Qt::PortraitOrientation)
+        mask |= WL_EXTENDED_OUTPUT_ROTATION_PORTRAITORIENTATION;
+    if (orientations & Qt::LandscapeOrientation)
+        mask |= WL_EXTENDED_OUTPUT_ROTATION_LANDSCAPEORIENTATION;
+    if (orientations & Qt::InvertedPortraitOrientation)
+        mask |= WL_EXTENDED_OUTPUT_ROTATION_INVERTEDPORTRAITORIENTATION;
+    if (orientations & Qt::InvertedLandscapeOrientation)
+        mask |= WL_EXTENDED_OUTPUT_ROTATION_INVERTEDLANDSCAPEORIENTATION;
+    wl_extended_output_set_orientation_update_mask(m_extended_output, mask);
+}
+
 void QWaylandExtendedOutput::set_screen_rotation(void *data, wl_extended_output *wl_extended_output, int32_t rotation)
 {
     Q_UNUSED(wl_extended_output);

@@ -62,6 +62,8 @@ public:
     QWaylandExtendedOutput(QWaylandScreen *screen, struct wl_extended_output *extended_output);
 
     Qt::ScreenOrientation currentOrientation() const;
+    void setOrientationUpdateMask(Qt::ScreenOrientations mask);
+
 private:
     struct wl_extended_output *m_extended_output;
     QWaylandScreen *m_screen;

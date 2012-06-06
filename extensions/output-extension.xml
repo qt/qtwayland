@@ -56,5 +56,9 @@
         <event name="set_screen_rotation">
             <arg name="rotation" type="int"/>
         </event>
+
+        <request name="set_orientation_update_mask">
+            <arg name="orientation" type="int"/>
+        </request>
     </interface>
 </protocol>

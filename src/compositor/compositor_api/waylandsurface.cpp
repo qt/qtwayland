@@ -154,6 +154,12 @@ void WaylandSurface::setSize(const QSize &size)
     d->surface->setSize(size);
 }
 
+Qt::ScreenOrientations WaylandSurface::orientationUpdateMask() const
+{
+    Q_D(const WaylandSurface);
+    return d->surface->compositor()->orientationUpdateMaskForClient(static_cast<wl_client *>(client()));
+}
+
 Qt::ScreenOrientation WaylandSurface::contentOrientation() const
 {
     Q_D(const WaylandSurface);

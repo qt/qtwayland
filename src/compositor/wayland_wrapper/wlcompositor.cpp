@@ -271,18 +271,22 @@ void Compositor::processWaylandEvents()
 
 void Compositor::surfaceDestroyed(Surface *surface)
 {
-    if (defaultInputDevice()->mouseFocus() == surface) {
-        InputDevice *dev = defaultInputDevice();
+    InputDevice *dev = defaultInputDevice();
+    if (dev->mouseFocus() == surface) {
         dev->setMouseFocus(0, QPointF(), QPointF());
         // Make sure the surface is reset regardless of what the grabber
         // interface's focus() does. (e.g. the default implementation does
         // nothing when a button is down which would be disastrous here)
         wl_pointer_set_focus(dev->pointerDevice(), 0, 0, 0);
     }
+    if (dev->keyboardFocus() == surface)
+        dev->setKeyboardFocus(0);
+
     m_surfaces.removeOne(surface);
     m_dirty_surfaces.remove(surface);
     if (m_directRenderSurface == surface)
         setDirectRenderSurface(0, 0);
+
     waylandCompositor()->surfaceAboutToBeDestroyed(surface->waylandSurface());
 }
 

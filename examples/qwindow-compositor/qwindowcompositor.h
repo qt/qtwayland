@@ -60,6 +60,7 @@ public:
 private slots:
     void surfaceDestroyed(QObject *object);
     void surfaceMapped();
+    void surfaceUnmapped();
     void surfaceDamaged(const QRect &rect);
 
     void render();
@@ -77,6 +78,8 @@ protected:
     QPointF toSurface(WaylandSurface *surface, const QPointF &pos) const;
 
     void changeCursor(const QImage &image, int hotspotX, int hotspotY);
+
+    void ensureKeyboardFocusSurface(WaylandSurface *oldSurface);
 
 private slots:
     void sendExpose();

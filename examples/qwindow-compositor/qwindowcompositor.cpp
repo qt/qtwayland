@@ -87,12 +87,18 @@ QWindowCompositor::~QWindowCompositor()
     delete m_textureCache;
 }
 
+void QWindowCompositor::ensureKeyboardFocusSurface(WaylandSurface *oldSurface)
+{
+    WaylandSurface *kbdFocus = defaultInputDevice()->keyboardFocus();
+    if (kbdFocus == oldSurface || !kbdFocus)
+        defaultInputDevice()->setKeyboardFocus(m_surfaces.isEmpty() ? 0 : m_surfaces.last());
+}
+
 void QWindowCompositor::surfaceDestroyed(QObject *object)
 {
     WaylandSurface *surface = static_cast<WaylandSurface *>(object);
     m_surfaces.removeOne(surface);
-    if (defaultInputDevice()->keyboardFocus() == surface || !defaultInputDevice()->keyboardFocus()) // typically reset to 0 already in Compositor::surfaceDestroyed()
-        defaultInputDevice()->setKeyboardFocus(m_surfaces.isEmpty() ? 0 : m_surfaces.last());
+    ensureKeyboardFocusSurface(surface);
     m_renderScheduler.start(0);
 }
 
@@ -117,6 +123,15 @@ void QWindowCompositor::surfaceMapped()
     m_renderScheduler.start(0);
 }
 
+void QWindowCompositor::surfaceUnmapped()
+{
+    WaylandSurface *surface = qobject_cast<WaylandSurface *>(sender());
+    if (m_surfaces.removeOne(surface))
+        m_surfaces.insert(0, surface);
+
+    ensureKeyboardFocusSurface(surface);
+}
+
 void QWindowCompositor::surfaceDamaged(const QRect &rect)
 {
     WaylandSurface *surface = qobject_cast<WaylandSurface *>(sender());
@@ -134,6 +149,7 @@ void QWindowCompositor::surfaceCreated(WaylandSurface *surface)
 {
     connect(surface, SIGNAL(destroyed(QObject *)), this, SLOT(surfaceDestroyed(QObject *)));
     connect(surface, SIGNAL(mapped()), this, SLOT(surfaceMapped()));
+    connect(surface, SIGNAL(unmapped()), this, SLOT(surfaceUnmapped()));
     connect(surface, SIGNAL(damaged(const QRect &)), this, SLOT(surfaceDamaged(const QRect &)));
     connect(surface, SIGNAL(extendedSurfaceReady()), this, SLOT(sendExpose()));
     m_renderScheduler.start(0);

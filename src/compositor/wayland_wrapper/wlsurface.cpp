@@ -41,7 +41,9 @@
 #include "wlsurface.h"
 
 #include "waylandsurface.h"
+#ifdef QT_COMPOSITOR_QUICK
 #include "waylandsurfaceitem.h"
+#endif
 
 #include "wlcompositor.h"
 #include "wlinputdevice.h"
@@ -344,9 +346,11 @@ bool Surface::advanceBufferQueue()
 
 void Surface::doUpdate() {
     if (postBuffer()) {
+#ifdef QT_COMPOSITOR_QUICK
         WaylandSurfaceItem *surfaceItem = waylandSurface()->surfaceItem();
         if (surfaceItem)
             surfaceItem->setDamagedFlag(true); // avoid flicker when we switch back to composited mode
+#endif
         sendFrameCallback();
     } else {
         SurfaceBuffer *surfaceBuffer = currentSurfaceBuffer();

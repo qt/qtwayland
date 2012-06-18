@@ -449,19 +449,16 @@ static uint32_t translateKey(uint32_t sym, char *string, size_t size)
     Q_UNUSED(size);
     string[0] = '\0';
 
-    int code = -1;
-    for (int i = 0; KeyTbl[i]; i += 2) {
-        if (sym == KeyTbl[i]) {
-            code = KeyTbl[i + 1];
-            break;
-        }
-    }
-    if (code == -1) {
-        string[0] = sym;
-        string[1] = '\0';
-        return toupper(sym);
-    }
-    return code;
+    if (sym >= XK_F1 && sym <= XK_F35)
+        return Qt::Key_F1 + (int(sym) - XK_F1);
+
+    for (int i = 0; KeyTbl[i]; i += 2)
+        if (sym == KeyTbl[i])
+            return KeyTbl[i + 1];
+
+    string[0] = sym;
+    string[1] = '\0';
+    return toupper(sym);
 }
 
 #endif // QT_NO_WAYLAND_XKB

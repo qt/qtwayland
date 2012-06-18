@@ -47,11 +47,13 @@
 class QWaylandShmBuffer;
 class QWaylandDisplay;
 class QWaylandScreen;
+struct wl_surface;
 
 class QWaylandCursor : public QPlatformCursor
 {
 public:
     QWaylandCursor(QWaylandScreen *screen);
+    ~QWaylandCursor();
 
     void changeCursor(QCursor *cursor, QWindow *window);
     void pointerEvent(const QMouseEvent &event);
@@ -62,8 +64,11 @@ public:
 
     QWaylandShmBuffer *mBuffer;
     QWaylandDisplay *mDisplay;
+    wl_surface *mSurface;
 
 private:
+    void ensureSurface(const QSize &size);
+
     QPoint mLastPos;
 };
 

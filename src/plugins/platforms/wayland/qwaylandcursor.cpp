@@ -105,7 +105,30 @@ static const struct pointer_image {
 QWaylandCursor::QWaylandCursor(QWaylandScreen *screen)
     : mBuffer(0)
     , mDisplay(screen->display())
+    , mSurface(0)
 {
+}
+
+QWaylandCursor::~QWaylandCursor()
+{
+    if (mSurface)
+        wl_surface_destroy(mSurface);
+
+    delete mBuffer;
+}
+
+void QWaylandCursor::ensureSurface(const QSize &size)
+{
+    if (!mBuffer || mBuffer->size() != size) {
+        delete mBuffer;
+        mBuffer = new QWaylandShmBuffer(mDisplay, size,
+                                        QImage::Format_ARGB32);
+    }
+
+    if (!mSurface)
+        mSurface = mDisplay->createSurface(0);
+
+    wl_surface_attach(mSurface, mBuffer->buffer(), 0, 0);
 }
 
 void QWaylandCursor::changeCursor(QCursor *cursor, QWindow *window)
@@ -174,13 +197,9 @@ void QWaylandCursor::changeCursor(QCursor *cursor, QWindow *window)
         QImageReader reader(p->filename);
         if (!reader.canRead())
             return;
-        if (mBuffer == NULL || mBuffer->size() != reader.size()) {
-            delete mBuffer;
-            mBuffer = new QWaylandShmBuffer(mDisplay, reader.size(),
-                                            QImage::Format_ARGB32);
-        }
+        ensureSurface(reader.size());
         reader.read(mBuffer->image());
-        mDisplay->setCursor(mBuffer, p->hotspot_x, p->hotspot_y);
+        mDisplay->setCursor(mSurface, p->hotspot_x, p->hotspot_y);
     }
 }
 
@@ -191,24 +210,20 @@ void QWaylandCursor::setupPixmapCursor(QCursor *cursor)
         mBuffer = 0;
         return;
     }
-    if (!mBuffer || mBuffer->size() != cursor->pixmap().size()) {
-        delete mBuffer;
-        mBuffer = new QWaylandShmBuffer(mDisplay, cursor->pixmap().size(),
-                                        QImage::Format_ARGB32);
-    }
+    ensureSurface(cursor->pixmap().size());
     QImage src = cursor->pixmap().toImage().convertToFormat(QImage::Format_ARGB32);
     for (int y = 0; y < src.height(); ++y)
         qMemCopy(mBuffer->image()->scanLine(y), src.scanLine(y), src.bytesPerLine());
-    mDisplay->setCursor(mBuffer, cursor->hotSpot().x(), cursor->hotSpot().y());
+    mDisplay->setCursor(mSurface, cursor->hotSpot().x(), cursor->hotSpot().y());
 }
 
-void QWaylandDisplay::setCursor(QWaylandBuffer *buffer, int32_t x, int32_t y)
+void QWaylandDisplay::setCursor(wl_surface *surface, int32_t x, int32_t y)
 {
     /* Qt doesn't tell us which input device we should set the cursor
      * for, so set it for all devices. */
     for (int i = 0; i < mInputDevices.count(); i++) {
         QWaylandInputDevice *inputDevice = mInputDevices.at(i);
-        inputDevice->attach(buffer, x, y);
+        inputDevice->setCursor(surface, x, y);
     }
 }
 

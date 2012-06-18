@@ -198,10 +198,10 @@ void QWaylandInputDevice::removeMouseButtonFromState(Qt::MouseButton button)
     mButtons = mButtons & !button;
 }
 
-void QWaylandInputDevice::attach(QWaylandBuffer *buffer, int x, int y)
+void QWaylandInputDevice::setCursor(wl_surface *surface, int x, int y)
 {
     if (mCaps & WL_SEAT_CAPABILITY_POINTER)
-        wl_pointer_attach(mDeviceInterfaces.pointer, mTime, buffer->buffer(), x, y);
+        wl_pointer_set_cursor(mDeviceInterfaces.pointer, mTime, surface, x, y);
 }
 
 void QWaylandInputDevice::pointer_enter(void *data,

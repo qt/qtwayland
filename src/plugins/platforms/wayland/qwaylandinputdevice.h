@@ -72,7 +72,7 @@ public:
 
     struct wl_seat *wl_seat() const { return mSeat; }
 
-    void attach(QWaylandBuffer *buffer, int x, int y);
+    void setCursor(wl_surface *surface, int x, int y);
     void handleWindowDestroyed(QWaylandWindow *window);
 
     void setTransferDevice(struct wl_data_device *device);

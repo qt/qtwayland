@@ -48,6 +48,7 @@
 #include <QCursor>
 #include <QPixmap>
 #include <QLinkedList>
+#include <QScreen>
 
 #include <QtCompositor/waylandinput.h>
 
@@ -75,6 +76,9 @@ QWindowCompositor::QWindowCompositor(QOpenGLWindow *window)
     window->installEventFilter(this);
 
     setRetainedSelectionEnabled(true);
+
+    setOutputGeometry(QRect(QPoint(0, 0), window->size()));
+    setOutputRefreshRate(qGuiApp->primaryScreen()->refreshRate());
 }
 
 QWindowCompositor::~QWindowCompositor()

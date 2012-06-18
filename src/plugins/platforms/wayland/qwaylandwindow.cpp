@@ -370,8 +370,8 @@ void QWaylandWindow::handleMouseEventWithDecoration(QWaylandInputDevice *inputDe
         QPointF globalTranslated = global;
         localTranslated.setX(localTranslated.x() - marg.left());
         localTranslated.setY(localTranslated.y() - marg.top());
-        globalTranslated.setX(localTranslated.x() - marg.left());
-        globalTranslated.setY(localTranslated.y() - marg.top());
+        globalTranslated.setX(globalTranslated.x() - marg.left());
+        globalTranslated.setY(globalTranslated.y() - marg.top());
         if (!mMouseEventsInContentArea) {
             mWindowDecoration->restoreMouseCursor();
             QWindowSystemInterface::handleEnterEvent(window());

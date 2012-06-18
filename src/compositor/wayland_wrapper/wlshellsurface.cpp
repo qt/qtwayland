@@ -223,7 +223,8 @@ void ShellSurface::set_transient(struct wl_client *client,
     shell_surface->m_transientParent = parent_shell_surface;
     shell_surface->m_xOffset = x;
     shell_surface->m_yOffset = y;
-
+    if (flags & WL_SHELL_SURFACE_TRANSIENT_INACTIVE)
+        shell_surface->surface()->setTransientInactive(true);
 }
 
 void ShellSurface::set_fullscreen(struct wl_client *client,

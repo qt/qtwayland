@@ -127,10 +127,10 @@ WaylandSurface *WaylandInputDevice::keyboardFocus() const
     return 0;
 }
 
-void WaylandInputDevice::setKeyboardFocus(WaylandSurface *surface)
+bool WaylandInputDevice::setKeyboardFocus(WaylandSurface *surface)
 {
     Wayland::Surface *wlsurface = surface?surface->handle():0;
-    d->setKeyboardFocus(wlsurface);
+    return d->setKeyboardFocus(wlsurface);
 }
 
 WaylandSurface *WaylandInputDevice::mouseFocus() const

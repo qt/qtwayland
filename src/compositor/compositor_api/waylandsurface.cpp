@@ -336,3 +336,12 @@ QString WaylandSurface::title() const
     Q_D(const WaylandSurface);
     return d->surface->title();
 }
+
+/*!
+ * \return True if WL_SHELL_SURFACE_TRANSIENT_INACTIVE was set for this surface, meaning it should not receive keyboard focus.
+ */
+bool WaylandSurface::transientInactive() const
+{
+    Q_D(const WaylandSurface);
+    return d->surface->transientInactive();
+}

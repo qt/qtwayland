@@ -79,7 +79,7 @@ public:
     void sendFullTouchEvent(QTouchEvent *event);
 
     WaylandSurface *keyboardFocus() const;
-    void setKeyboardFocus(WaylandSurface *surface);
+    bool setKeyboardFocus(WaylandSurface *surface);
 
     WaylandSurface *mouseFocus() const;
     void setMouseFocus(WaylandSurface *surface, const QPointF &local_pos, const QPointF &global_pos = QPointF());

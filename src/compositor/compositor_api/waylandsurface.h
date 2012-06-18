@@ -151,6 +151,8 @@ public:
 
     QString title() const;
 
+    bool transientInactive() const;
+
 signals:
     void mapped();
     void unmapped();

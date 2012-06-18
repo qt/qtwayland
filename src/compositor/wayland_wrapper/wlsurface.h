@@ -126,6 +126,9 @@ public:
     QString title() const { return m_title; }
     void setTitle(const QString &title);
 
+    bool transientInactive() const { return m_transientInactive; }
+    void setTransientInactive(bool v) { m_transientInactive = v; }
+
 private:
     Q_DISABLE_COPY(Surface)
 
@@ -155,6 +158,7 @@ private:
     QPointF m_position;
     QSize m_size;
     QString m_title;
+    bool m_transientInactive;
 
     inline SurfaceBuffer *currentSurfaceBuffer() const;
     bool advanceBufferQueue();

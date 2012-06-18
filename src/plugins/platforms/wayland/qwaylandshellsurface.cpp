@@ -88,11 +88,18 @@ void QWaylandShellSurface::updateTransientParent(QWindow *parent)
         transientPos.setX(transientPos.x() + parent_wayland_window->decoration()->margins().left());
         transientPos.setY(transientPos.y() + parent_wayland_window->decoration()->margins().top());
     }
+
+    uint32_t flags = 0;
+    Qt::WindowFlags wf = m_window->window()->windowFlags();
+    if (wf.testFlag(Qt::ToolTip)
+            || wf.testFlag(Qt::WindowTransparentForInput))
+        flags |= WL_SHELL_SURFACE_TRANSIENT_INACTIVE;
+
     wl_shell_surface_set_transient(m_shell_surface,
                                    parent_wayland_window->shellSurface()->m_shell_surface,
                                    transientPos.x(),
                                    transientPos.y(),
-                                   0);
+                                   flags);
 }
 
 void QWaylandShellSurface::setTitle(const char *title)

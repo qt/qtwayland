@@ -385,10 +385,17 @@ Surface *InputDevice::keyboardFocus() const
     return wayland_cast<Surface>(keyboardDevice()->focus);
 }
 
-void InputDevice::setKeyboardFocus(Surface *surface)
+/*!
+ * \return True if the keyboard focus is changed successfully. False for inactive transient surfaces.
+ */
+bool InputDevice::setKeyboardFocus(Surface *surface)
 {
+    if (surface && surface->transientInactive())
+        return false;
+
     sendSelectionFocus(surface);
     wl_keyboard_set_focus(keyboardDevice(), surface ? surface->base() : 0);
+    return true;
 }
 
 Surface *InputDevice::mouseFocus() const

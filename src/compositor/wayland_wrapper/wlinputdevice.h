@@ -82,7 +82,7 @@ public:
     void sendFullTouchEvent(QTouchEvent *event);
 
     Surface *keyboardFocus() const;
-    void setKeyboardFocus(Surface *surface);
+    bool setKeyboardFocus(Surface *surface);
 
     Surface *mouseFocus() const;
     void setMouseFocus(Surface *surface, const QPointF &localPos, const QPointF &globalPos);

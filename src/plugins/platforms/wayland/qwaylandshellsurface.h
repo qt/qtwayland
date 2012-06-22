@@ -54,6 +54,7 @@ class QWaylandShellSurface
 {
 public:
     QWaylandShellSurface(struct wl_shell_surface *shell_surface, QWaylandWindow *window);
+    ~QWaylandShellSurface();
 
     void resize(QWaylandInputDevice *inputDevice, enum wl_shell_surface_resize edges);
     void move(QWaylandInputDevice *inputDevice);

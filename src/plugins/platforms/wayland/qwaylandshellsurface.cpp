@@ -55,6 +55,11 @@ QWaylandShellSurface::QWaylandShellSurface(struct wl_shell_surface *shell_surfac
     wl_shell_surface_add_listener(m_shell_surface,&m_shell_surface_listener,this);
 }
 
+QWaylandShellSurface::~QWaylandShellSurface()
+{
+    wl_shell_surface_destroy(m_shell_surface);
+}
+
 void QWaylandShellSurface::resize(QWaylandInputDevice *inputDevice, enum wl_shell_surface_resize edges)
 {
     wl_shell_surface_resize(m_shell_surface,inputDevice->wl_seat(),

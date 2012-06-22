@@ -65,8 +65,14 @@ QWaylandShmBuffer::QWaylandShmBuffer(QWaylandDisplay *display,
     int alloc = stride * size.height();
     char filename[] = "/tmp/wayland-shm-XXXXXX";
     int fd = mkstemp(filename);
-    if (fd < 0)
-        qWarning("open %s failed: %s", filename, strerror(errno));
+    if (fd < 0) {
+        qWarning("mkstemp %s failed: %s", filename, strerror(errno));
+        return;
+    }
+    int flags = fcntl(fd, F_GETFD);
+    if (flags != -1)
+        fcntl(fd, F_SETFD, flags | FD_CLOEXEC);
+
     if (ftruncate(fd, alloc) < 0) {
         qWarning("ftruncate failed: %s", strerror(errno));
         close(fd);

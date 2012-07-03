@@ -54,7 +54,7 @@
 #include <qpa/qplatformclipboard.h>
 #include <QtGui/QPainter>
 
-#include <QWindowSystemInterface>
+#include <qpa/qwindowsysteminterface.h>
 
 #include <QtCore/QDebug>
 

@@ -1,5 +1,7 @@
 CONFIG += link_pkgconfig
 
+load(qt_build_config)
+
 DEFINES += QT_WAYLAND_WINDOWMANAGER_SUPPORT
 
 !contains(QT_CONFIG, no-pkg-config) {

@@ -101,7 +101,7 @@ void QWaylandShellSurface::updateTransientParent(QWindow *parent)
         flags |= WL_SHELL_SURFACE_TRANSIENT_INACTIVE;
 
     wl_shell_surface_set_transient(m_shell_surface,
-                                   parent_wayland_window->shellSurface()->m_shell_surface,
+                                   parent_wayland_window->wl_surface(),
                                    transientPos.x(),
                                    transientPos.y(),
                                    flags);

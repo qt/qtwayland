@@ -60,19 +60,11 @@
 
 void QWaylandDataDeviceManager::data_offer(void *data,
                    struct wl_data_device *data_device,
-                   uint32_t id)
+                   struct wl_data_offer *id)
 {
-
     QWaylandDataDeviceManager *handler = static_cast<QWaylandDataDeviceManager *>(data);
-    //this will be hidden with a wl function call in the near future I hope, but I suppose the scanner
-    //doesn't support it yet
-    struct wl_proxy *newId = wl_proxy_create_for_id(reinterpret_cast<struct wl_proxy *>(data_device),
-                                                    id, &wl_data_offer_interface);
-    struct wl_data_offer *data_offer =
-            reinterpret_cast<struct wl_data_offer *>(newId);
 
-
-    new QWaylandDataOffer(handler->display(),data_offer);
+    new QWaylandDataOffer(handler->display(),id);
 }
 
 void QWaylandDataDeviceManager::enter(void *data,

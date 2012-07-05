@@ -96,7 +96,7 @@ private:
 
     static void data_offer(void *data,
                        struct wl_data_device *wl_data_device,
-                       uint32_t id);
+                       struct wl_data_offer *id);
     static void enter(void *data,
                   struct wl_data_device *wl_data_device,
                   uint32_t time,

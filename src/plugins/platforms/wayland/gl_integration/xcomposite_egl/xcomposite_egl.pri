@@ -1,6 +1,11 @@
 include (../xcomposite_share/xcomposite_share.pri)
 
-LIBS += -lXcomposite -lEGL
+!contains(QT_CONFIG, no-pkg-config) {
+    CONFIG += link_pkgconfig
+    PKGCONFIG += xcomposite egl x11
+} else {
+    LIBS += -lXcomposite -lEGL -lX11
+}
 
 SOURCES += \
     $$PWD/qwaylandxcompositeeglcontext.cpp \

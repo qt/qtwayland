@@ -8,4 +8,9 @@ SOURCES += \
     $$PWD/qwaylandreadbackglxwindow.cpp \
     $$PWD/qwaylandreadbackglxcontext.cpp
 
-LIBS += -lX11
+!contains(QT_CONFIG, no-pkg-config) {
+    CONFIG += link_pkgconfig
+    PKGCONFIG += x11 gl
+} else {
+    LIBS += -lX11 -lGL
+}

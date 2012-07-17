@@ -1,4 +1,9 @@
-LIBS += -lX11 -lXext -lEGL
+!contains(QT_CONFIG, no-pkg-config) {
+    CONFIG += link_pkgconfig
+    PKGCONFIG += egl x11 xext
+} else {
+    LIBS += -lX11 -lXext -lEGL
+}
 
 load(qpa/egl/convenience)
 HEADERS += \

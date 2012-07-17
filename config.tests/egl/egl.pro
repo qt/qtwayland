@@ -1,11 +1,11 @@
-TARGET = xkbcommon
+TARGET = egl
 QT = core
 
 !contains(QT_CONFIG, no-pkg-config) {
     CONFIG += link_pkgconfig
-    PKGCONFIG += xkbcommon
+    PKGCONFIG += egl
 } else {
-    LIBS += -lxkbcommon
+    LIBS += -lEGL
 }
 
 # Input

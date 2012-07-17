@@ -1,6 +1,6 @@
 isEmpty(QT_WAYLAND_GL_CONFIG):QT_WAYLAND_GL_CONFIG = $$(QT_WAYLAND_GL_CONFIG)
 
-!mac:!isEqual(QT_WAYLAND_GL_CONFIG,nogl) {
+!isEqual(QT_WAYLAND_GL_CONFIG,nogl) {
     HEADERS += \
         $$PWD/graphicshardwareintegration.h
 
@@ -12,37 +12,32 @@ isEmpty(QT_WAYLAND_GL_CONFIG):QT_WAYLAND_GL_CONFIG = $$(QT_WAYLAND_GL_CONFIG)
     isEqual(QT_WAYLAND_GL_CONFIG, custom) {
         QT_WAYLAND_GL_INTEGRATION = $$QT_WAYLAND_GL_CONFIG
     } else {
-        contains(QT_CONFIG, opengles2) {
-            isEqual(QT_WAYLAND_GL_CONFIG, xcomposite_egl) {
+        equals(QT_WAYLAND_GL_CONFIG, brcm_egl) {
+            CONFIG -= config_wayland_egl config_xcomposite
+        }
+
+        equals(QT_WAYLAND_GL_CONFIG, xcomposite) {
+            CONFIG -= config_wayland_egl config_brcm_egl
+        }
+
+        config_wayland_egl {
+            include (wayland_egl/wayland_egl.pri)
+            QT_WAYLAND_GL_INTEGRATION = wayland_egl
+        }else:config_brcm_egl {
+            include (brcm_egl/brcm_egl.pri)
+            QT_WAYLAND_GL_INTEGRATION = brcm_egl
+        }else:config_xcomposite{
+            config_egl{
+                include (xcomposite_egl/xcomposite_egl.pri)
                 QT_WAYLAND_GL_INTEGRATION = xcomposite_egl
-                CONFIG += xcomposite_egl
-            } else:isEqual(QT_WAYLAND_GL_CONFIG, brcm_egl)|isEmpty(QT_WAYLAND_GL_CONFIG):config_brcm_egl {
-                QT_WAYLAND_GL_INTEGRATION = brcm_egl
-                CONFIG += brcm_egl
-            } else {
-                QT_WAYLAND_GL_INTEGRATION = wayland_egl
-                CONFIG += wayland_egl
-                DEFINES += MESA_EGL_NO_X11_HEADERS
+            }else:config_glx{
+                include (xcomposite_glx/xcomposite_glx.pri)
+                QT_WAYLAND_GL_INTEGRATION = xcomposite_glx
             }
-        } else {
-            QT_WAYLAND_GL_INTEGRATION = xcomposite_glx
-            CONFIG += xcomposite_glx
         }
     }
-    system(echo "Qt-Compositor configured with openGL: $$QT_WAYLAND_GL_INTEGRATION")
+    system(echo "Qt-Compositor configured with openGL integration: $$QT_WAYLAND_GL_INTEGRATION")
 } else {
     system(echo "Qt-Compositor configured as raster only compositor")
 }
 
-brcm_egl {
-    include (brcm_egl/brcm_egl.pri)
-}
-wayland_egl {
-    include (wayland_egl/wayland_egl.pri)
-}
-xcomposite_egl {
-    include (xcomposite_egl/xcomposite_egl.pri)
-}
-xcomposite_glx {
-    include (xcomposite_glx/xcomposite_glx.pri)
-}

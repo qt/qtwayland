@@ -1,11 +1,11 @@
-TARGET = xkbcommon
+TARGET = wayland_egl
 QT = core
 
 !contains(QT_CONFIG, no-pkg-config) {
     CONFIG += link_pkgconfig
-    PKGCONFIG += xkbcommon
+    PKGCONFIG += wayland-egl
 } else {
-    LIBS += -lxkbcommon
+    LIBS += -lwayland-egl
 }
 
 # Input

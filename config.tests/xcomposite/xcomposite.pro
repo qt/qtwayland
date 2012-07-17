@@ -1,11 +1,11 @@
-TARGET = xkbcommon
+TARGET = xcomposite
 QT = core
 
 !contains(QT_CONFIG, no-pkg-config) {
     CONFIG += link_pkgconfig
-    PKGCONFIG += xkbcommon
+    PKGCONFIG += xcomposite
 } else {
-    LIBS += -lxkbcommon
+    LIBS += -lXcomposite
 }
 
 # Input

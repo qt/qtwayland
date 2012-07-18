@@ -48,7 +48,7 @@
 #include <QObject>
 #include <qpa/qplatformintegration.h>
 #include <qpa/qplatformscreen.h>
-#include <qpa/qwindowsysteminterface.h>
+#include <QWindowSystemInterface>
 
 #include <wayland-client.h>
 

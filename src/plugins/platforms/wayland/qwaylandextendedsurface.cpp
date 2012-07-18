@@ -52,7 +52,7 @@
 
 #include <QtGui/QGuiApplication>
 #include <qpa/qplatformnativeinterface.h>
-#include <qpa/qwindowsysteminterface.h>
+#include <QtGui/QWindowSystemInterface>
 
 QWaylandSurfaceExtension::QWaylandSurfaceExtension(QWaylandDisplay *display, uint32_t id)
 {

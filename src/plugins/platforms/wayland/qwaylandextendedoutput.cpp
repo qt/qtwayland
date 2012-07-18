@@ -45,7 +45,7 @@
 
 #include "wayland-output-extension-client-protocol.h"
 
-#include <qpa/qwindowsysteminterface.h>
+#include <QtGui/QWindowSystemInterface>
 
 #include <QtCore/QDebug>
 

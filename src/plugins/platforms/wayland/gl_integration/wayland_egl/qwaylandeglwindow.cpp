@@ -47,7 +47,7 @@
 #include <QtPlatformSupport/private/qeglconvenience_p.h>
 
 #include <QtGui/QWindow>
-#include <qpa/qwindowsysteminterface.h>
+#include <QtGui/QWindowSystemInterface>
 
 #ifdef QT_WAYLAND_WINDOWMANAGER_SUPPORT
 #include "windowmanager_integration/qwaylandwindowmanagerintegration.h"

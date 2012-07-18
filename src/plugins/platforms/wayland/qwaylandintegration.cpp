@@ -53,7 +53,7 @@
 
 #include <QtGui/private/qguiapplication_p.h>
 
-#include <qpa/qwindowsysteminterface.h>
+#include <QtGui/QWindowSystemInterface>
 #include <qpa/qplatformcursor.h>
 #include <QtGui/QSurfaceFormat>
 #include <QtGui/QOpenGLContext>

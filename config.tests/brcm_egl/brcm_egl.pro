@@ -1,7 +1,13 @@
 TARGET = brcm_egl
-QT = core gui
+CONFIG -= qt
 
-LIBS += -lEGL -lGLESv2
+INCLUDEPATH += $$QMAKE_INCDIR_EGL
+
+for(p, QMAKE_LIBDIR_EGL) {
+    exists($$p):LIBS += -L$$p
+}
+
+LIBS += $$QMAKE_LIBS_EGL
 
 # Input
 SOURCES += main.cpp

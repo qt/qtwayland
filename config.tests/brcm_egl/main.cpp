@@ -38,7 +38,7 @@
 **
 ****************************************************************************/
 
-#include <qglobal.h>
+#include <stdio.h>
 
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
@@ -49,11 +49,16 @@
 int main()
 {
     EGLDisplay display = eglGetDisplay((EGLNativeDisplayType)EGL_DEFAULT_DISPLAY);
-    if (!display)
-        qFatal("No EGL display");
+    if (!display) {
+        fprintf(stderr, "No EGL display");
+        return -1;
+    }
+
     EGLint major, minor;
-    if (!eglInitialize(display, &major, &minor))
-        qFatal("Failed to initialize EGL");
+    if (!eglInitialize(display, &major, &minor)) {
+        fprintf(stderr, "Failed to initialize EGL");
+        return -1;
+    }
 
     EGLint pixel_format = EGL_PIXEL_FORMAT_ARGB_8888_BRCM;
 

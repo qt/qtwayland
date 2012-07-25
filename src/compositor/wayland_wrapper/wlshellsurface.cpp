@@ -210,7 +210,7 @@ void ShellSurface::set_toplevel(struct wl_client *client,
 
 void ShellSurface::set_transient(struct wl_client *client,
                       struct wl_resource *shell_surface_resource,
-                      struct wl_resource *parent_shell_surface_resource,
+                      struct wl_resource *parent_surface_resource,
                       int x,
                       int y,
                       uint32_t flags)
@@ -219,8 +219,8 @@ void ShellSurface::set_transient(struct wl_client *client,
     Q_UNUSED(client);
     Q_UNUSED(flags);
     ShellSurface *shell_surface = static_cast<ShellSurface *>(shell_surface_resource->data);
-    ShellSurface *parent_shell_surface = static_cast<ShellSurface *>(parent_shell_surface_resource->data);
-    shell_surface->m_transientParent = parent_shell_surface;
+    Surface *parent_surface = static_cast<Surface *>(parent_surface_resource->data);
+    shell_surface->m_transientParent = parent_surface->shellSurface();
     shell_surface->m_xOffset = x;
     shell_surface->m_yOffset = y;
     if (flags & WL_SHELL_SURFACE_TRANSIENT_INACTIVE)

@@ -111,7 +111,7 @@ private:
                              struct wl_resource *shell_surface_resource);
     static void set_transient(struct wl_client *client,
                               struct wl_resource *shell_surface_resource,
-                              struct wl_resource *parent,
+                              struct wl_resource *parent_surface_resource,
                               int x,
                               int y,
                               uint32_t flags);

@@ -65,9 +65,9 @@ int main(int argc, char *argv[])
                      screenGeometry.width() / 2, screenGeometry.height() / 2);
 
     QOpenGLWindow window(format, geom);
-    window.show();
-
     QWindowCompositor compositor(&window);
+
+    window.show();
 
     return app.exec();
 }

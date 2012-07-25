@@ -41,7 +41,6 @@
 #include <xkbcommon/xkbcommon.h>
 #include <X11/keysym.h>
 
-#include <QtCore/qnamespace.h>
 #include <string.h>
 
 int main()

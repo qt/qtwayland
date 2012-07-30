@@ -4,7 +4,7 @@ load(qt_build_config)
 
 CONFIG += link_pkgconfig qpa/genericunixfontdatabase
 
-DESTDIR = $$QT.gui.plugins/platforms
+DESTDIR = $$QT.compositor.plugins/platforms
 
 QT += core-private gui-private platformsupport-private
 

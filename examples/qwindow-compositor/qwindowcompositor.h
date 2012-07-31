@@ -80,6 +80,7 @@ protected:
     void changeCursor(const QImage &image, int hotspotX, int hotspotY);
 
     void ensureKeyboardFocusSurface(WaylandSurface *oldSurface);
+    QImage makeBackgroundImage(const QString &fileName);
 
 private slots:
     void sendExpose();

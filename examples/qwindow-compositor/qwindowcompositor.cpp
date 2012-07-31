@@ -49,6 +49,7 @@
 #include <QPixmap>
 #include <QLinkedList>
 #include <QScreen>
+#include <QPainter>
 
 #include <QtCompositor/waylandinput.h>
 
@@ -66,7 +67,7 @@ QWindowCompositor::QWindowCompositor(QOpenGLWindow *window)
 
     m_textureCache = new QOpenGLTextureCache(m_window->context());
     m_textureBlitter = new TextureBlitter();
-    m_backgroundImage = QImage(QLatin1String(":/background.jpg"));
+    m_backgroundImage = makeBackgroundImage(QLatin1String(":/background.jpg"));
     m_renderScheduler.setSingleShot(true);
     connect(&m_renderScheduler,SIGNAL(timeout()),this,SLOT(render()));
 
@@ -85,6 +86,27 @@ QWindowCompositor::~QWindowCompositor()
 {
     delete m_textureBlitter;
     delete m_textureCache;
+}
+
+
+QImage QWindowCompositor::makeBackgroundImage(const QString &fileName)
+{
+    Q_ASSERT(m_window);
+
+    int width = m_window->width();
+    int height = m_window->height();
+    QImage baseImage(fileName);
+    QImage patternedBackground(width, height, baseImage.format());
+    QPainter painter(&patternedBackground);
+
+    QSize imageSize = baseImage.size();
+    for (int y = 0; y < height; y += imageSize.height()) {
+        for (int x = 0; x < width; x += imageSize.width()) {
+            painter.drawImage(x, y, baseImage);
+        }
+    }
+
+    return patternedBackground;
 }
 
 void QWindowCompositor::ensureKeyboardFocusSurface(WaylandSurface *oldSurface)
@@ -246,14 +268,7 @@ void QWindowCompositor::render()
 
     m_textureBlitter->bind();
     //Draw the background Image texture
-    int w = m_window->width();
-    int h = m_window->height();
-    QSize imageSize = m_backgroundImage.size();
-    for (int y = 0; y < h; y += imageSize.height()) {
-        for (int x = 0; x < w; x += imageSize.width()) {
-            m_textureBlitter->drawTexture(m_backgroundTexture,QRect(QPoint(x, y),imageSize),window()->size(), 0,true,true);
-        }
-    }
+    m_textureBlitter->drawTexture(m_backgroundTexture, window()->geometry(), window()->size(), 0, true, true);
 
     foreach (WaylandSurface *surface, m_surfaces) {
         GLuint texture = composeSurface(surface);

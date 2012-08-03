@@ -81,7 +81,7 @@ public:
         enableSubSurfaceExtension();
         setMouseTracking(true);
         setRetainedSelectionEnabled(true);
-        m_background = QImage(QLatin1String("background.jpg"));
+        m_background = QImage(QLatin1String(":/background.jpg"));
         //make sure we get the window id and create the glcontext
         //so that clients can successfully initialize egl
         winId();

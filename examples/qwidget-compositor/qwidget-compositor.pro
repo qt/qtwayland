@@ -15,6 +15,8 @@ SOURCES += \
 
 QT += core-private gui-private widgets widgets-private opengl opengl-private compositor
 
+RESOURCES += qwidget-compositor.qrc
+
 target.path = $$[QT_INSTALL_EXAMPLES]/qtwayland/qwidget-compositor
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS qwidget-compositor.pro
 sources.path = $$[QT_INSTALL_EXAMPLES]/qtwayland/qwidget-compositor

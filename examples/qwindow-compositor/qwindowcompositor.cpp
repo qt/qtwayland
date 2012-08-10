@@ -267,8 +267,11 @@ void QWindowCompositor::render()
     m_backgroundTexture = m_textureCache->bindTexture(QOpenGLContext::currentContext(),m_backgroundImage);
 
     m_textureBlitter->bind();
-    //Draw the background Image texture
-    m_textureBlitter->drawTexture(m_backgroundTexture, window()->geometry(), window()->size(), 0, true, true);
+    // Draw the background image texture
+    m_textureBlitter->drawTexture(m_backgroundTexture,
+                                  QRect(QPoint(0, 0), m_backgroundImage.size()),
+                                  window()->size(),
+                                  0, false, true);
 
     foreach (WaylandSurface *surface, m_surfaces) {
         GLuint texture = composeSurface(surface);

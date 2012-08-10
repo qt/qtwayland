@@ -97,7 +97,7 @@ WaylandClient *WaylandSurface::client() const
 WaylandSurface *WaylandSurface::parentSurface() const
 {
     Q_D(const WaylandSurface);
-    if (d->surface->subSurface()) {
+    if (d->surface->subSurface() && d->surface->subSurface()->parent()) {
         return d->surface->subSurface()->parent()->waylandSurface();
     }
     return 0;

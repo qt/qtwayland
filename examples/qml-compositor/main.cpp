@@ -65,7 +65,7 @@ public:
         enableSubSurfaceExtension();
         setSource(QUrl("main.qml"));
         setResizeMode(QQuickView::SizeRootObjectToView);
-        setClearColor(Qt::black);
+        setColor(Qt::black);
         winId();
 
 	connect(this, SIGNAL(frameSwapped()), this, SLOT(frameSwappedSlot()));

@@ -43,6 +43,7 @@
 
 #include <QBackingStore>
 #include <QPainter>
+#include <QScreen>
 
 #include <QtTest/QtTest>
 

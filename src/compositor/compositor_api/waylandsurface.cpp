@@ -154,6 +154,13 @@ void WaylandSurface::setSize(const QSize &size)
     d->surface->setSize(size);
 }
 
+void WaylandSurface::sendConfigure(const QSize &size)
+{
+    Q_D(WaylandSurface);
+    if (d->surface->shellSurface())
+        d->surface->shellSurface()->sendConfigure(WL_SHELL_SURFACE_RESIZE_BOTTOM_RIGHT, size.width(), size.height());
+}
+
 Qt::ScreenOrientations WaylandSurface::orientationUpdateMask() const
 {
     Q_D(const WaylandSurface);

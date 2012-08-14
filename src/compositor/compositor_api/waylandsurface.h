@@ -111,6 +111,7 @@ public:
     void setPos(const QPointF &pos);
     QSize size() const;
     void setSize(const QSize &size);
+    void sendConfigure(const QSize &size);
 
     Qt::ScreenOrientations orientationUpdateMask() const;
     Qt::ScreenOrientation contentOrientation() const;

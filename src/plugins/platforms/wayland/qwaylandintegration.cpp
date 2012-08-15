@@ -50,6 +50,7 @@
 
 #include "QtPlatformSupport/private/qgenericunixfontdatabase_p.h"
 #include <QtPlatformSupport/private/qgenericunixeventdispatcher_p.h>
+#include <QtPlatformSupport/private/qgenericunixthemes_p.h>
 
 #include <QtGui/private/qguiapplication_p.h>
 
@@ -198,4 +199,14 @@ QPlatformServices *QWaylandIntegration::services() const
 QWaylandDisplay *QWaylandIntegration::display() const
 {
     return mDisplay;
+}
+
+QStringList QWaylandIntegration::themeNames() const
+{
+    return QGenericUnixTheme::themeNames();
+}
+
+QPlatformTheme *QWaylandIntegration::createPlatformTheme(const QString &name) const
+{
+    return QGenericUnixTheme::createUnixTheme(name);
 }

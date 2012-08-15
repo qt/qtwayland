@@ -80,6 +80,11 @@ public:
     QPlatformServices *services() const;
 
     QWaylandDisplay *display() const;
+
+    QStringList themeNames() const;
+
+    QPlatformTheme *createPlatformTheme(const QString &name) const;
+
 private:
     QPlatformFontDatabase *mFontDb;
     QAbstractEventDispatcher *mEventDispatcher;

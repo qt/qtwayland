@@ -212,6 +212,14 @@ void WaylandSurfaceItem::mouseReleaseEvent(QMouseEvent *event)
     }
 }
 
+void WaylandSurfaceItem::wheelEvent(QWheelEvent *event)
+{
+    if (m_surface) {
+        WaylandInputDevice *inputDevice = m_surface->compositor()->defaultInputDevice();
+        inputDevice->sendMouseWheelEvent(event->orientation(), event->delta());
+    }
+}
+
 void WaylandSurfaceItem::keyPressEvent(QKeyEvent *event)
 {
     if (m_surface && hasFocus()) {

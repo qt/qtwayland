@@ -75,7 +75,11 @@ QWaylandIntegration::QWaylandIntegration()
     : mFontDb(new QGenericUnixFontDatabase())
     , mEventDispatcher(createUnixEventDispatcher())
     , mNativeInterface(new QWaylandNativeInterface(this))
+#ifndef QT_NO_ACCESSIBILITY
     , mAccessibility(new QPlatformAccessibility())
+#else
+    , mAccessibility(0)
+#endif
 {
     QGuiApplicationPrivate::instance()->setEventDispatcher(mEventDispatcher);
     mDisplay = new QWaylandDisplay();
@@ -92,7 +96,9 @@ QWaylandIntegration::~QWaylandIntegration()
 {
     delete mDrag;
     delete mClipboard;
+#ifndef QT_NO_ACCESSIBILITY
     delete mAccessibility;
+#endif
     delete mNativeInterface;
     delete mDisplay;
 }

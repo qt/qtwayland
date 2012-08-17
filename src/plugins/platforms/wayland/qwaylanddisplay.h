@@ -152,7 +152,8 @@ private:
                                      int32_t width, int32_t height,
                                      int subpixel,
                                      const char *make,
-                                     const char *model);
+                                     const char *model,
+                                     int32_t transform);
     static void mode(void *data,
                      struct wl_output *wl_output,
                      uint32_t flags,

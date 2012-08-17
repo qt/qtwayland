@@ -59,7 +59,7 @@ void Compositor::bindOutput(wl_client *client, void *compositorData, uint32_t ve
 void Compositor::sendOutputGeometry(wl_resource *resource)
 {
     const QRect &r = m_outputGeometry;
-    wl_output_send_geometry(resource, r.x(), r.y(), r.width(), r.height(), 0, "", "");
+    wl_output_send_geometry(resource, r.x(), r.y(), r.width(), r.height(), 0, "", "",0);
 }
 
 void Compositor::sendOutputMode(wl_resource *resource)

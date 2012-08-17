@@ -99,7 +99,8 @@ void MockClient::handleGlobal(wl_display *, uint32_t id, const char *interface, 
 void MockClient::outputGeometryEvent(void *data, wl_output *,
                                      int32_t x, int32_t y,
                                      int32_t width, int32_t height,
-                                     int, const char *, const char *)
+                                     int, const char *, const char *,
+                                     int32_t )
 {
     resolve(data)->geometry = QRect(x, y, width, height);
 }

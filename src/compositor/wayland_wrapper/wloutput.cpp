@@ -95,7 +95,7 @@ Output::Output(OutputGlobal *outputGlobal, wl_client *client, uint32_t version, 
     Q_UNUSED(version);
     m_output_resource = wl_client_add_object(client,&wl_output_interface,0,id,this);
     wl_output_send_geometry(m_output_resource, 0, 0,
-                         m_output_global->size().width(), m_output_global->size().height(),0,"","");
+                         m_output_global->size().width(), m_output_global->size().height(),0,"","",0);
 
     wl_output_send_mode(m_output_resource, WL_OUTPUT_MODE_CURRENT|WL_OUTPUT_MODE_PREFERRED,
                         m_output_global->size().width(), m_output_global->size().height(), m_output_global->refreshRate());

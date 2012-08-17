@@ -349,7 +349,7 @@ void WaylandSurfaceItem::updateTexture()
         QSGTexture *oldTexture = texture;
         if (m_surface->type() == WaylandSurface::Texture) {
             QOpenGLContext *context = QOpenGLContext::currentContext();
-            QQuickCanvas::CreateTextureOptions opt = QQuickCanvas::TextureOwnsGLTexture;
+            QQuickCanvas::CreateTextureOptions opt = 0;
             if (useTextureAlpha()) {
                 opt |= QQuickCanvas::TextureHasAlphaChannel;
             }

@@ -403,7 +403,7 @@ Surface *InputDevice::mouseFocus() const
     return wayland_cast<Surface>(pointerDevice()->focus);
 }
 
-void InputDevice::setMouseFocus(Surface *surface, const QPointF &globalPos, const QPointF &localPos)
+void InputDevice::setMouseFocus(Surface *surface, const QPointF &localPos, const QPointF &globalPos)
 {
     wl_pointer *pointer = pointerDevice();
     pointer->x = wl_fixed_from_double(globalPos.x());

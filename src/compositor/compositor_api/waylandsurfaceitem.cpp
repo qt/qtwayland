@@ -132,7 +132,11 @@ void WaylandSurfaceItem::init(WaylandSurface *surface)
 
     setSmooth(true);
     setFlag(ItemHasContents);
-    setAcceptedMouseButtons(Qt::LeftButton | Qt::RightButton);
+    setAcceptedMouseButtons(Qt::LeftButton | Qt::MiddleButton | Qt::RightButton |
+        Qt::ExtraButton1 | Qt::ExtraButton2 | Qt::ExtraButton3 | Qt::ExtraButton4 |
+        Qt::ExtraButton5 | Qt::ExtraButton6 | Qt::ExtraButton7 | Qt::ExtraButton8 |
+        Qt::ExtraButton9 | Qt::ExtraButton10 | Qt::ExtraButton11 |
+        Qt::ExtraButton12 | Qt::ExtraButton13);
     setAcceptHoverEvents(true);
     connect(surface, SIGNAL(mapped()), this, SLOT(surfaceMapped()));
     connect(surface, SIGNAL(unmapped()), this, SLOT(surfaceUnmapped()));
@@ -192,7 +196,7 @@ void WaylandSurfaceItem::mousePressEvent(QMouseEvent *event)
         WaylandInputDevice *inputDevice = m_surface->compositor()->defaultInputDevice();
         if (inputDevice->mouseFocus() != m_surface)
             inputDevice->setMouseFocus(m_surface, event->pos(), event->globalPos());
-        inputDevice->sendMousePressEvent(event->button(), toSurface(event->pos()));
+        inputDevice->sendMousePressEvent(event->button(), toSurface(event->pos()), event->globalPos());
     }
 }
 
@@ -200,7 +204,7 @@ void WaylandSurfaceItem::mouseMoveEvent(QMouseEvent *event)
 {
     if (m_surface){
         WaylandInputDevice *inputDevice = m_surface->compositor()->defaultInputDevice();
-        inputDevice->sendMouseMoveEvent(m_surface, toSurface(event->pos()));
+        inputDevice->sendMouseMoveEvent(m_surface, toSurface(event->pos()), event->globalPos());
     }
 }
 
@@ -208,7 +212,7 @@ void WaylandSurfaceItem::mouseReleaseEvent(QMouseEvent *event)
 {
     if (m_surface){
         WaylandInputDevice *inputDevice = m_surface->compositor()->defaultInputDevice();
-        inputDevice->sendMouseReleaseEvent(event->button(), toSurface(event->pos()));
+        inputDevice->sendMouseReleaseEvent(event->button(), toSurface(event->pos()), event->globalPos());
     }
 }
 

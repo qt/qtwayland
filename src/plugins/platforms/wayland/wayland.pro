@@ -1,6 +1,5 @@
 TARGET = qwayland
 load(qt_plugin)
-load(qt_build_config)
 
 CONFIG += link_pkgconfig qpa/genericunixfontdatabase
 

@@ -302,7 +302,7 @@ protected:
             return;
         }
         if (m_moveSurface) {
-            m_moveSurface->setPos(e->posF() - m_moveOffset);
+            m_moveSurface->setPos(e->localPos() - m_moveOffset);
             update();
             return;
         }

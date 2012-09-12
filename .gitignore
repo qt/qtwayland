@@ -17,7 +17,6 @@ moc_*.cpp
 .moc/
 mkspecs/
 lib/
-plugins/
 include/
 src/compositor/qtcompositorversion.h
 src/compositor/*-server-protocol.h

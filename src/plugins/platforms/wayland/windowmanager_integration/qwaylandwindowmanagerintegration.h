@@ -88,8 +88,6 @@ private:
                              int32_t showIsFullScreen);
     static void handle_quit(void *data, struct wl_windowmanager *ext);
 
-    static const struct wl_windowmanager_listener m_windowManagerListener;
-
     void openUrl_helper(const QUrl &url);
 };
 

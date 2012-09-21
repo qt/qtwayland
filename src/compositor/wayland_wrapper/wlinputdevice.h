@@ -48,6 +48,10 @@
 #include <QtCore/QList>
 #include <QtCore/QPoint>
 
+#ifndef QT_NO_WAYLAND_XKB
+#include <xkbcommon/xkbcommon.h>
+#endif
+
 class QKeyEvent;
 class QTouchEvent;
 class WaylandInputDevice;
@@ -114,6 +118,13 @@ private:
         wl_keyboard keyboard;
         wl_touch touch;
     } m_device_interfaces;
+
+#ifndef QT_NO_WAYLAND_XKB
+    struct xkb_keymap *m_keymap;
+    int m_keymap_fd;
+    size_t m_keymap_size;
+    char *m_keymap_area;
+#endif
 
     uint32_t toWaylandButton(Qt::MouseButton button);
 

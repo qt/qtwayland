@@ -49,6 +49,17 @@
 
 #include <QtGui/QTouchEvent>
 
+#ifndef QT_NO_WAYLAND_XKB
+#include <sys/mman.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <sys/epoll.h>
+#include <unistd.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <stdlib.h>
+#endif
+
 namespace Wayland {
 
 static QImage *currentCursor;
@@ -63,12 +74,72 @@ InputDevice::InputDevice(WaylandInputDevice *handle, Compositor *compositor)
                           &wl_seat_interface,
                           this,
                           InputDevice::bind_func);
+
+#ifndef QT_NO_WAYLAND_XKB
+    xkb_rule_names xkb_names;
+    xkb_context *context = xkb_context_new(xkb_context_flags(0));
+
+    memset(&xkb_names, 0, sizeof(xkb_names));
+    xkb_names.rules = strdup("evdev");
+    xkb_names.model = strdup("pc105");
+    xkb_names.layout = strdup("us");
+
+    xkb_keymap *keymap = xkb_map_new_from_names(context, &xkb_names, xkb_map_compile_flags(0));
+    if (!keymap)
+        qFatal("Failed to compile global XKB keymap");
+
+    char *keymap_str_data = xkb_map_get_as_string(keymap);
+    QByteArray keymap_str = keymap_str_data;
+    m_keymap_size = keymap_str.size() + 1;
+    free(keymap_str_data);
+
+    const char *path = getenv("XDG_RUNTIME_DIR");
+    if (!path)
+        qFatal("XDG_RUNTIME_DIR not set");
+
+    QByteArray name = QByteArray(path) + "/qtwayland-xkb-map-XXXXXX";
+
+    int fd = mkstemp(name.data());
+    if (fd >= 0) {
+        long flags = fcntl(fd, F_GETFD);
+        if (flags == -1 || fcntl(fd, F_SETFD, flags | FD_CLOEXEC) == -1) {
+            close(fd);
+            qFatal("Failed to set FD_CLOEXEC on anonymous file");
+        }
+        unlink(name.data());
+    } else {
+        qFatal("Failed to create anonymous file with name %s", name.constData());
+    }
+
+    if (ftruncate(fd, m_keymap_size) < 0)
+        qFatal("Failed to create anonymous file of size %d", m_keymap_size);
+
+    m_keymap_fd = fd;
+
+    m_keymap_area = (char *)mmap(0, m_keymap_size, PROT_READ | PROT_WRITE, MAP_SHARED, m_keymap_fd, 0);
+    if (m_keymap_area == MAP_FAILED) {
+        close(m_keymap_fd);
+        qFatal("Failed to map shared memory segment");
+    }
+
+    strcpy(m_keymap_area, keymap_str.constData());
+
+    free((char *)xkb_names.rules);
+    free((char *)xkb_names.model);
+    free((char *)xkb_names.layout);
+    xkb_map_unref(keymap);
+    xkb_context_unref(context);
+#endif
 }
 
 InputDevice::~InputDevice()
 {
     qDeleteAll(m_data_devices);
     releaseDevices();
+
+    if (m_keymap_area)
+        munmap(m_keymap_area, m_keymap_size);
+    close(m_keymap_fd);
 }
 
 void InputDevice::initDevices()
@@ -198,6 +269,11 @@ void InputDevice::get_keyboard(struct wl_client *client,
                                                        keyboard);
     wl_list_insert(&keyboard->resource_list, &clientResource->link);
     clientResource->destroy = InputDevice::destroy_device_resource;
+
+#ifndef QT_NO_WAYLAND_XKB
+    wl_keyboard_send_keymap(clientResource, WL_KEYBOARD_KEYMAP_FORMAT_XKB_V1,
+                            inputDevice->m_keymap_fd, inputDevice->m_keymap_size);
+#endif
 }
 
 void InputDevice::get_touch(struct wl_client *client,

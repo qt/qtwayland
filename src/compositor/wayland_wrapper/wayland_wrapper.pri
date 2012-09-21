@@ -49,3 +49,12 @@ SOURCES += \
 INCLUDEPATH += $$PWD
 INCLUDEPATH += $$PWD/../../shared
 
+config_xkbcommon {
+    !contains(QT_CONFIG, no-pkg-config) {
+        PKGCONFIG += xkbcommon
+    } else {
+        LIBS += -lxkbcommon
+    }
+} else {
+    DEFINES += QT_NO_WAYLAND_XKB
+}

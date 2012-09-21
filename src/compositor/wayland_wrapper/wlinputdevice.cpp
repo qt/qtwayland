@@ -518,7 +518,7 @@ void InputDevice::pointer_attach(struct wl_client *client,
     InputDevice *inputDevice = wayland_cast<InputDevice>(pointer->seat);
     wl_buffer *buffer = reinterpret_cast<wl_buffer *>(buffer_resource);
 
-    if (wl_buffer_is_shm(buffer)) {
+    if (buffer && wl_buffer_is_shm(buffer)) {
         int stride = wl_shm_buffer_get_stride(buffer);
         uint format = wl_shm_buffer_get_format(buffer);
         (void) format;
@@ -530,6 +530,8 @@ void InputDevice::pointer_attach(struct wl_client *client,
             delete currentCursor;
             currentCursor = img;
         }
+    } else {
+        inputDevice->m_compositor->waylandCompositor()->changeCursor(QImage(), x, y);
     }
 }
 

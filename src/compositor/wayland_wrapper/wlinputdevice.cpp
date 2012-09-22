@@ -112,7 +112,7 @@ InputDevice::InputDevice(WaylandInputDevice *handle, Compositor *compositor)
     }
 
     if (ftruncate(fd, m_keymap_size) < 0)
-        qFatal("Failed to create anonymous file of size %d", m_keymap_size);
+        qFatal("Failed to create anonymous file of size %lu", (unsigned long)m_keymap_size);
 
     m_keymap_fd = fd;
 
@@ -123,6 +123,8 @@ InputDevice::InputDevice(WaylandInputDevice *handle, Compositor *compositor)
     }
 
     strcpy(m_keymap_area, keymap_str.constData());
+
+    m_state = xkb_state_new(keymap);
 
     free((char *)xkb_names.rules);
     free((char *)xkb_names.model);
@@ -137,9 +139,12 @@ InputDevice::~InputDevice()
     qDeleteAll(m_data_devices);
     releaseDevices();
 
+#ifndef QT_NO_WAYLAND_XKB
     if (m_keymap_area)
         munmap(m_keymap_area, m_keymap_size);
     close(m_keymap_fd);
+    xkb_state_unref(m_state);
+#endif
 }
 
 void InputDevice::initDevices()
@@ -342,6 +347,47 @@ void InputDevice::sendMouseWheelEvent(Qt::Orientation orientation, int delta)
     wl_pointer_send_axis(resource, time, axis, wl_fixed_from_double(delta / 120.0));
 }
 
+void InputDevice::updateModifierState(uint code, int state)
+{
+#ifndef QT_NO_WAYLAND_XKB
+    xkb_state_update_key(m_state, code, state ? XKB_KEY_DOWN : XKB_KEY_UP);
+
+    uint32_t mods_depressed = xkb_state_serialize_mods(m_state, XKB_STATE_DEPRESSED);
+    uint32_t mods_latched = xkb_state_serialize_mods(m_state, XKB_STATE_LATCHED);
+    uint32_t mods_locked = xkb_state_serialize_mods(m_state, XKB_STATE_LATCHED);
+    uint32_t group = xkb_state_serialize_group(m_state, XKB_STATE_EFFECTIVE);
+
+    wl_keyboard *keyboard = keyboardDevice();
+
+    if (mods_depressed == keyboard->modifiers.mods_depressed
+        && mods_latched == keyboard->modifiers.mods_latched
+        && mods_locked == keyboard->modifiers.mods_locked
+        && group == keyboard->modifiers.group)
+    {
+        return; // no change
+    }
+
+    keyboard->modifiers.mods_depressed = mods_depressed;
+    keyboard->modifiers.mods_latched = mods_latched;
+    keyboard->modifiers.mods_locked = mods_locked;
+    keyboard->modifiers.group = group;
+
+    if (keyboard->focus_resource)
+        sendKeyModifiers(keyboard->focus_resource);
+#else
+    Q_UNUSED(code);
+    Q_UNUSED(state);
+#endif
+}
+
+void InputDevice::sendKeyModifiers(wl_resource *resource)
+{
+    wl_keyboard *keyboard = keyboardDevice();
+    uint32_t serial = wl_display_next_serial(m_compositor->wl_display());
+    wl_keyboard_send_modifiers(resource, serial, keyboard->modifiers.mods_depressed,
+        keyboard->modifiers.mods_latched, keyboard->modifiers.mods_locked, keyboard->modifiers.group);
+}
+
 void InputDevice::sendKeyPressEvent(uint code)
 {
     wl_keyboard *keyboard = keyboardDevice();
@@ -351,6 +397,7 @@ void InputDevice::sendKeyPressEvent(uint code)
         wl_keyboard_send_key(keyboard->focus_resource,
                              serial, time, code - 8, 1);
     }
+    updateModifierState(code, 1);
 }
 
 void InputDevice::sendKeyReleaseEvent(uint code)
@@ -362,6 +409,7 @@ void InputDevice::sendKeyReleaseEvent(uint code)
         wl_keyboard_send_key(keyboard->focus_resource,
                              serial, time, code - 8, 0);
     }
+    updateModifierState(code, 0);
 }
 
 void InputDevice::sendTouchPointEvent(int id, double x, double y, Qt::TouchPointState state)

@@ -109,6 +109,8 @@ private:
     void initDevices();
     void releaseDevices();
     void cleanupDataDeviceForClient(struct wl_client *client, bool destroyDev);
+    void updateModifierState(uint key, int state);
+    void sendKeyModifiers(wl_resource *resource);
 
     WaylandInputDevice *m_handle;
     Compositor *m_compositor;
@@ -121,6 +123,7 @@ private:
 
 #ifndef QT_NO_WAYLAND_XKB
     struct xkb_keymap *m_keymap;
+    struct xkb_state *m_state;
     int m_keymap_fd;
     size_t m_keymap_size;
     char *m_keymap_area;

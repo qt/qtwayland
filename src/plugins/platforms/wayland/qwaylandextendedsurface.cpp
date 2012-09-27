@@ -147,10 +147,11 @@ void QWaylandExtendedSurface::onscreen_visibility(void *data, wl_extended_surfac
 
     extendedWindow->m_exposed = visible;
     QWaylandWindow *w = extendedWindow->m_window;
-    QWindowSystemInterface::handleSynchronousExposeEvent(w->window(),
-                                                         visible
-                                                         ? QRegion(w->geometry())
-                                                         : QRegion());
+    QWindowSystemInterface::handleExposeEvent(w->window(),
+                                              visible
+                                              ? QRegion(w->geometry())
+                                              : QRegion());
+    QWindowSystemInterface::flushWindowSystemEvents();
 }
 
 void QWaylandExtendedSurface::set_generic_property(void *data, wl_extended_surface *wl_extended_surface, const char *name, wl_array *value)

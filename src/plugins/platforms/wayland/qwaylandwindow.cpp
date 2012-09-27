@@ -158,13 +158,16 @@ void QWaylandWindow::setVisible(bool visible)
             wl_surface_attach(mSurface, mBuffer->buffer(), 0, 0);
 
         if (!mSentInitialResize) {
-            QWindowSystemInterface::handleSynchronousGeometryChange(window(), geometry());
+            QWindowSystemInterface::handleGeometryChange(window(), geometry());
+            QWindowSystemInterface::flushWindowSystemEvents();
             mSentInitialResize = true;
         }
 
-        QWindowSystemInterface::handleSynchronousExposeEvent(window(), QRect(QPoint(), geometry().size()));
+        QWindowSystemInterface::handleExposeEvent(window(), QRect(QPoint(), geometry().size()));
+        QWindowSystemInterface::flushWindowSystemEvents();
     } else {
-        QWindowSystemInterface::handleSynchronousExposeEvent(window(), QRect(QPoint(), geometry().size()));
+        QWindowSystemInterface::handleExposeEvent(window(), QRect(QPoint(), geometry().size()));
+        QWindowSystemInterface::flushWindowSystemEvents();
         wl_surface_attach(mSurface, 0,0,0);
         damage(QRect(QPoint(0,0),geometry().size()));
     }

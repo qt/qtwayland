@@ -1,2 +1,2 @@
 TEMPLATE=subdirs
-SUBDIRS += plugins compositor
+SUBDIRS += compositor plugins

@@ -43,7 +43,7 @@
 #define QWAYLANDTOUCH_H
 
 #include "qwaylanddisplay.h"
-#include <QWindowSystemInterface>
+#include <qpa/qwindowsysteminterface.h>
 
 class wl_touch_extension;
 

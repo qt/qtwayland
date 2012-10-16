@@ -45,7 +45,7 @@
 #include "qwaylandcursor.h"
 #include "qwaylandextendedoutput.h"
 
-#include <QWindowSystemInterface>
+#include <qpa/qwindowsysteminterface.h>
 
 QWaylandScreen::QWaylandScreen(QWaylandDisplay *waylandDisplay, struct wl_output *output, QRect geometry)
     : QPlatformScreen()

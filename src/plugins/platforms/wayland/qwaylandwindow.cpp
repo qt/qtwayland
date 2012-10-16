@@ -58,7 +58,7 @@
 #endif
 
 #include <QCoreApplication>
-#include <QtGui/QWindowSystemInterface>
+#include <qpa/qwindowsysteminterface.h>
 
 #include <QtCore/QDebug>
 

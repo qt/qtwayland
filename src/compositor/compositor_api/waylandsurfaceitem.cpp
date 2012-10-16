@@ -52,7 +52,7 @@
 #include <QtGui/QScreen>
 
 #include <QtQuick/QSGSimpleRectNode>
-#include <QtQuick/QQuickCanvas>
+#include <QtQuick/QQuickWindow>
 
 #include <QtCore/QMutexLocker>
 #include <QtCore/QMutex>
@@ -186,7 +186,7 @@ void WaylandSurfaceItem::ensureProvider()
 {
     if (!m_provider) {
         m_provider = new WaylandSurfaceTextureProvider();
-        connect(canvas(), SIGNAL(sceneGraphInvalidated()), m_provider, SLOT(invalidate()), Qt::DirectConnection);
+        connect(window(), SIGNAL(sceneGraphInvalidated()), m_provider, SLOT(invalidate()), Qt::DirectConnection);
     }
 }
 
@@ -353,13 +353,13 @@ void WaylandSurfaceItem::updateTexture()
         QSGTexture *oldTexture = texture;
         if (m_surface->type() == WaylandSurface::Texture) {
             QOpenGLContext *context = QOpenGLContext::currentContext();
-            QQuickCanvas::CreateTextureOptions opt = 0;
+            QQuickWindow::CreateTextureOptions opt = 0;
             if (useTextureAlpha()) {
-                opt |= QQuickCanvas::TextureHasAlphaChannel;
+                opt |= QQuickWindow::TextureHasAlphaChannel;
             }
-            texture = canvas()->createTextureFromId(m_surface->texture(context), m_surface->size(), opt);
+            texture = window()->createTextureFromId(m_surface->texture(context), m_surface->size(), opt);
         } else {
-            texture = canvas()->createTextureFromImage(m_surface->image());
+            texture = window()->createTextureFromImage(m_surface->image());
         }
         texture->bind();
         delete oldTexture;

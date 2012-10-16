@@ -97,7 +97,7 @@ public:
     Qt::ScreenOrientation requestWindowOrientation(Qt::ScreenOrientation orientation);
 
     Qt::WindowState setWindowState(Qt::WindowState state);
-    Qt::WindowFlags setWindowFlags(Qt::WindowFlags flags);
+    void setWindowFlags(Qt::WindowFlags flags);
 
     bool isExposed() const;
 

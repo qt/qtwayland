@@ -291,7 +291,7 @@ Qt::ScreenOrientation QWaylandWindow::requestWindowOrientation(Qt::ScreenOrienta
     return Qt::PrimaryOrientation;
 }
 
-Qt::WindowState QWaylandWindow::setWindowState(Qt::WindowState state)
+void QWaylandWindow::setWindowState(Qt::WindowState state)
 {
     if (state == Qt::WindowFullScreen || state == Qt::WindowMaximized) {
         QScreen *screen = window()->screen();
@@ -300,11 +300,7 @@ Qt::WindowState QWaylandWindow::setWindowState(Qt::WindowState state)
         setGeometry(geometry);
 
         QWindowSystemInterface::handleGeometryChange(window(), geometry);
-
-        return state;
     }
-
-    return Qt::WindowNoState;
 }
 
 void QWaylandWindow::setWindowFlags(Qt::WindowFlags flags)

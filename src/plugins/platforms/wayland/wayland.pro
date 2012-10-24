@@ -1,9 +1,9 @@
 TARGET = qwayland
+
+PLUGIN_TYPE = platforms
 load(qt_plugin)
 
 CONFIG += link_pkgconfig qpa/genericunixfontdatabase
-
-DESTDIR = $$QT.compositor.plugins/platforms
 
 QT += core-private gui-private platformsupport-private
 
@@ -85,9 +85,6 @@ INCLUDEPATH += $$PWD/../../../shared
 } else {
     LIBS += -lwayland-client
 }
-
-target.path += $$[QT_INSTALL_PLUGINS]/platforms
-INSTALLS += target
 
 include ($$PWD/gl_integration/gl_integration.pri)
 include ($$PWD/windowmanager_integration/windowmanager_integration.pri)

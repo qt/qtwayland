@@ -352,10 +352,10 @@ void InputDevice::updateModifierState(uint code, int state)
 #ifndef QT_NO_WAYLAND_XKB
     xkb_state_update_key(m_state, code, state ? XKB_KEY_DOWN : XKB_KEY_UP);
 
-    uint32_t mods_depressed = xkb_state_serialize_mods(m_state, XKB_STATE_DEPRESSED);
-    uint32_t mods_latched = xkb_state_serialize_mods(m_state, XKB_STATE_LATCHED);
-    uint32_t mods_locked = xkb_state_serialize_mods(m_state, XKB_STATE_LATCHED);
-    uint32_t group = xkb_state_serialize_group(m_state, XKB_STATE_EFFECTIVE);
+    uint32_t mods_depressed = xkb_state_serialize_mods(m_state, (xkb_state_component)XKB_STATE_DEPRESSED);
+    uint32_t mods_latched = xkb_state_serialize_mods(m_state, (xkb_state_component)XKB_STATE_LATCHED);
+    uint32_t mods_locked = xkb_state_serialize_mods(m_state, (xkb_state_component)XKB_STATE_LATCHED);
+    uint32_t group = xkb_state_serialize_group(m_state, (xkb_state_component)XKB_STATE_EFFECTIVE);
 
     wl_keyboard *keyboard = keyboardDevice();
 

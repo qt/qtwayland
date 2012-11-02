@@ -51,7 +51,7 @@ class QWaylandExtendedOutput;
 class QWaylandScreen : public QPlatformScreen
 {
 public:
-    QWaylandScreen(QWaylandDisplay *waylandDisplay, struct wl_output *output, QRect geometry);
+    QWaylandScreen(QWaylandDisplay *waylandDisplay, struct wl_output *output);
     ~QWaylandScreen();
 
     QWaylandDisplay *display() const;
@@ -75,6 +75,8 @@ public:
     static QWaylandScreen *waylandScreenFromWindow(QWindow *window);
 
     void handleMode(const QSize &size, int refreshRate);
+
+    void setGeometry(const QRect &geom);
 
 private:
     QWaylandDisplay *mWaylandDisplay;

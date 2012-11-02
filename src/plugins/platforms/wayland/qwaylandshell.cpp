@@ -48,7 +48,7 @@ QWaylandShell::QWaylandShell(QWaylandDisplay *display, uint32_t id, uint32_t ver
     : m_display(display)
 {
     Q_UNUSED(version)
-    m_shell = static_cast<struct wl_shell *>(wl_display_bind(m_display->wl_display(), id, &wl_shell_interface));
+    m_shell = static_cast<struct wl_shell *>(wl_registry_bind(m_display->wl_registry(), id, &wl_shell_interface, 1));
 }
 
 QWaylandShellSurface *QWaylandShell::getShellSurface(QWaylandWindow *window)

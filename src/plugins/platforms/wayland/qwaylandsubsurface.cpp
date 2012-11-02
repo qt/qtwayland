@@ -50,7 +50,7 @@
 QWaylandSubSurfaceExtension::QWaylandSubSurfaceExtension(QWaylandDisplay *display, uint32_t id)
 {
     m_sub_surface_extension = static_cast<struct wl_sub_surface_extension *>(
-                wl_display_bind(display->wl_display(),id, &wl_sub_surface_extension_interface));
+                wl_registry_bind(display->wl_registry(), id, &wl_sub_surface_extension_interface, 1));
 }
 
 QWaylandSubSurface *QWaylandSubSurfaceExtension::getSubSurfaceAwareWindow(QWaylandWindow *window)

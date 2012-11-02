@@ -47,12 +47,11 @@
 
 #include <qpa/qwindowsysteminterface.h>
 
-QWaylandScreen::QWaylandScreen(QWaylandDisplay *waylandDisplay, struct wl_output *output, QRect geometry)
+QWaylandScreen::QWaylandScreen(QWaylandDisplay *waylandDisplay, struct wl_output *output)
     : QPlatformScreen()
     , mWaylandDisplay(waylandDisplay)
     , mOutput(output)
     , mExtendedOutput(0)
-    , mGeometry(geometry)
     , mDepth(32)
     , mRefreshRate(60)
     , mFormat(QImage::Format_ARGB32_Premultiplied)
@@ -72,6 +71,11 @@ QWaylandScreen::~QWaylandScreen()
 QWaylandDisplay * QWaylandScreen::display() const
 {
     return mWaylandDisplay;
+}
+
+void QWaylandScreen::setGeometry(const QRect &geom)
+{
+    mGeometry = geom;
 }
 
 QRect QWaylandScreen::geometry() const

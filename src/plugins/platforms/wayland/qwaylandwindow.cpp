@@ -225,6 +225,7 @@ void QWaylandWindow::damage(const QRect &rect)
 
     wl_surface_damage(mSurface,
                       rect.x(), rect.y(), rect.width(), rect.height());
+    wl_surface_commit(mSurface);
 }
 
 const wl_callback_listener QWaylandWindow::callbackListener = {

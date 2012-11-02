@@ -77,7 +77,7 @@ QWaylandInputDevice::QWaylandInputDevice(QWaylandDisplay *display, uint32_t id)
     , mXkbState(0)
     #endif
 {
-    mSeat = static_cast<struct wl_seat *>(wl_display_bind(mDisplay, id, &wl_seat_interface));
+    mSeat = static_cast<struct wl_seat *>(wl_registry_bind(display->wl_registry(), id, &wl_seat_interface, 1));
     wl_seat_add_listener(mSeat, &seatListener, this);
     wl_seat_set_user_data(mSeat, this);
 

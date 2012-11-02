@@ -85,10 +85,7 @@ QWaylandWindowManagerIntegration::QWaylandWindowManagerIntegration(QWaylandDispl
     : d_ptr(new QWaylandWindowManagerIntegrationPrivate(waylandDisplay))
 {
     m_instance = this;
-
-    wl_display_add_global_listener(d_ptr->m_waylandDisplay->wl_display(),
-                                   QWaylandWindowManagerIntegration::wlHandleListenerGlobal,
-                                   this);
+    waylandDisplay->addRegistryListener(&wlHandleListenerGlobal, this);
 }
 
 QWaylandWindowManagerIntegration::~QWaylandWindowManagerIntegration()
@@ -113,13 +110,13 @@ bool QWaylandWindowManagerIntegration::showIsFullScreen() const
     return d->m_showIsFullScreen;
 }
 
-void QWaylandWindowManagerIntegration::wlHandleListenerGlobal(wl_display *display, uint32_t id, const char *interface, uint32_t version, void *data)
+void QWaylandWindowManagerIntegration::wlHandleListenerGlobal(void *data, wl_registry *registry, uint32_t id, const char *interface, uint32_t version)
 {
     Q_UNUSED(version);
     if (strcmp(interface, "wl_windowmanager") == 0) {
         QWaylandWindowManagerIntegration *integration = static_cast<QWaylandWindowManagerIntegration *>(data);
         integration->d_ptr->m_waylandWindowManager =
-                static_cast<struct wl_windowmanager *>(wl_display_bind(display, id, &wl_windowmanager_interface));
+                static_cast<struct wl_windowmanager *>(wl_registry_bind(registry, id, &wl_windowmanager_interface, 1));
         wl_windowmanager_add_listener(integration->d_ptr->m_waylandWindowManager, &windowmanager_listener, integration);
     }
 }

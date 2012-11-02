@@ -47,7 +47,7 @@
 QWaylandQtKeyExtension::QWaylandQtKeyExtension(QWaylandDisplay *display, uint32_t id)
     : m_display(display)
 {
-    m_qtkey = static_cast<struct wl_qtkey_extension *>(wl_display_bind(display->wl_display(), id, &wl_qtkey_extension_interface));
+    m_qtkey = static_cast<struct wl_qtkey_extension *>(wl_registry_bind(display->wl_registry(), id, &wl_qtkey_extension_interface, 1));
     wl_qtkey_extension_add_listener(m_qtkey, &qtkey_listener, this);
 }
 

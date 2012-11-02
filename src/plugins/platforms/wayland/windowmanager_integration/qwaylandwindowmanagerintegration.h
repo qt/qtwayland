@@ -74,10 +74,9 @@ public:
     bool showIsFullScreen() const;
 
 private:
-    static void wlHandleListenerGlobal(wl_display *display, uint32_t id,
-                                       const char *interface, uint32_t version, void *data);
+    static void wlHandleListenerGlobal(void *data, wl_registry *registry, uint32_t id,
+                                       const char *interface, uint32_t version);
 
-private:
     QScopedPointer<QWaylandWindowManagerIntegrationPrivate> d_ptr;
     static QWaylandWindowManagerIntegration *m_instance;
 

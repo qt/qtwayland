@@ -200,7 +200,7 @@ QWaylandDataDeviceManager::QWaylandDataDeviceManager(QWaylandDisplay *display, u
     , m_drag_icon_buffer(0)
     , m_drag_can_drop(false)
 {
-    m_data_device_manager = static_cast<struct wl_data_device_manager *>(wl_display_bind(display->wl_display(),id,&wl_data_device_manager_interface));
+    m_data_device_manager = static_cast<struct wl_data_device_manager *>(wl_registry_bind(display->wl_registry(),id,&wl_data_device_manager_interface,1));
 
     // Create transfer devices for all input devices.
     // ### This only works if we get the global before all devices and is surely wrong when hotplugging.

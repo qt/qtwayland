@@ -57,7 +57,7 @@
 QWaylandSurfaceExtension::QWaylandSurfaceExtension(QWaylandDisplay *display, uint32_t id)
 {
     m_surface_extension = static_cast<struct wl_surface_extension *>(
-                wl_display_bind(display->wl_display(),id, &wl_surface_extension_interface));
+                wl_registry_bind(display->wl_registry(), id, &wl_surface_extension_interface, 1));
 }
 
 QWaylandExtendedSurface *QWaylandSurfaceExtension::getExtendedWindow(QWaylandWindow *window)

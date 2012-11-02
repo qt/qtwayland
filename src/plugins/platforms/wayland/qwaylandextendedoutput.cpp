@@ -52,7 +52,7 @@
 QWaylandOutputExtension::QWaylandOutputExtension(QWaylandDisplay *display, uint32_t id)
 {
     m_output_extension = static_cast<struct wl_output_extension *>(
-                wl_display_bind(display->wl_display(),id, &wl_output_extension_interface));
+                wl_registry_bind(display->wl_registry(), id, &wl_output_extension_interface, 1));
 
     QList<QPlatformScreen *> platformScreens = display->screens();
     for (int i = 0; i < platformScreens.size(); i++) {

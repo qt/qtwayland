@@ -65,6 +65,12 @@ class QWaylandOutputExtension;
 class QWaylandTouchExtension;
 class QWaylandQtKeyExtension;
 
+typedef void (*RegistryListener)(void *data,
+                                 struct wl_registry *registry,
+                                 uint32_t id,
+                                 const char *interface,
+                                 uint32_t version);
+
 class QWaylandDisplay : public QObject {
     Q_OBJECT
 
@@ -89,6 +95,7 @@ public:
     void setCursor(wl_surface *surface, int32_t x, int32_t y);
 
     struct wl_display *wl_display() const { return mDisplay; }
+    struct wl_registry *wl_registry() const { return mRegistry; }
     struct wl_compositor *wl_compositor() const { return mCompositor; }
 
     QWaylandShell *shell() const { return mShell; }
@@ -105,13 +112,18 @@ public:
     QWaylandOutputExtension *outputExtension() const { return mOutputExtension; }
     QWaylandTouchExtension *touchExtension() const { return mTouchExtension; }
 
+    /* wl_registry_add_listener does not add but rather sets a listener, so this function is used
+     * to enable many listeners at once. */
+    void addRegistryListener(RegistryListener listener, void *data);
+
     struct wl_shm *shm() const { return mShm; }
 
     static uint32_t currentTimeMillisec();
 
     void forceRoundTrip();
+
 public slots:
-    void createNewScreen(struct wl_output *output, QRect geometry);
+    void createNewScreen(struct wl_output *output);
     void readEvents();
     void blockingReadEvents();
     void flushRequests();
@@ -122,12 +134,19 @@ private:
                              const QByteArray &interface,
                              uint32_t version);
 
+    struct Listener {
+        RegistryListener listener;
+        void *data;
+    };
+
     struct wl_display *mDisplay;
+    struct wl_registry *mRegistry;
     struct wl_compositor *mCompositor;
     struct wl_shm *mShm;
     QWaylandShell *mShell;
     QList<QPlatformScreen *> mScreens;
     QList<QWaylandInputDevice *> mInputDevices;
+    QList<Listener> mRegistryListeners;
     QWaylandInputDevice *mLastKeyboardFocusInputDevice;
     QWaylandDataDeviceManager *mDndSelectionHandler;
     QWaylandSurfaceExtension *mWindowExtension;
@@ -141,11 +160,14 @@ private:
     int mWritableNotificationFd;
     bool mScreensInitialized;
 
+    static const struct wl_registry_listener registryListener;
     static const struct wl_output_listener outputListener;
-    static void displayHandleGlobal(struct wl_display *display,
+
+    static void displayHandleGlobal(void *data,
+                                    struct wl_registry *registry,
                                     uint32_t id,
                                     const char *interface,
-                                    uint32_t version, void *data);
+                                    uint32_t version);
     static void outputHandleGeometry(void *data,
                                      struct wl_output *output,
                                      int32_t x, int32_t y,

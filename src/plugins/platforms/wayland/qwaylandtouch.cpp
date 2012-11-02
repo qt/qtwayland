@@ -52,7 +52,7 @@ QWaylandTouchExtension::QWaylandTouchExtension(QWaylandDisplay *display, uint32_
       mMouseSourceId(-1),
       mInputDevice(0)
 {
-    mTouch = static_cast<struct wl_touch_extension *>(wl_display_bind(display->wl_display(), id, &wl_touch_extension_interface));
+    mTouch = static_cast<struct wl_touch_extension *>(wl_registry_bind(display->wl_registry(), id, &wl_touch_extension_interface, 1));
     wl_touch_extension_add_listener(mTouch, &touch_listener, this);
 }
 

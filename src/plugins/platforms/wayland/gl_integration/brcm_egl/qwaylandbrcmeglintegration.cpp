@@ -50,19 +50,19 @@
 
 #include "wayland-brcm-client-protocol.h"
 
-QWaylandBrcmEglIntegration::QWaylandBrcmEglIntegration(struct wl_display *waylandDisplay)
-    : m_waylandDisplay(waylandDisplay)
+QWaylandBrcmEglIntegration::QWaylandBrcmEglIntegration(QWaylandDisplay *waylandDisplay)
+    : m_waylandDisplay(waylandDisplay->wl_display())
 {
-    wl_display_add_global_listener(waylandDisplay, wlDisplayHandleGlobal, this);
     qDebug() << "Using Brcm-EGL";
+    waylandDisplay->addRegistryListener(wlDisplayHandleGlobal, this);
 }
 
-void QWaylandBrcmEglIntegration::wlDisplayHandleGlobal(wl_display *display, uint32_t id, const char *interface, uint32_t version, void *data)
+void QWaylandBrcmEglIntegration::wlDisplayHandleGlobal(void *data, struct wl_registry *registry, uint32_t id, const char *interface, uint32_t version)
 {
     Q_UNUSED(version);
     if (strcmp(interface, "wl_brcm") == 0) {
         QWaylandBrcmEglIntegration *integration = static_cast<QWaylandBrcmEglIntegration *>(data);
-        integration->m_waylandBrcm = static_cast<struct wl_brcm *>(wl_display_bind(display, id, &wl_brcm_interface));
+        integration->m_waylandBrcm = static_cast<struct wl_brcm *>(wl_registry_bind(registry, id, &wl_brcm_interface, 1));
     }
 }
 
@@ -124,6 +124,6 @@ EGLDisplay QWaylandBrcmEglIntegration::eglDisplay() const
 
 QWaylandGLIntegration *QWaylandGLIntegration::createGLIntegration(QWaylandDisplay *waylandDisplay)
 {
-    return new QWaylandBrcmEglIntegration(waylandDisplay->wl_display());
+    return new QWaylandBrcmEglIntegration(waylandDisplay);
 }
 

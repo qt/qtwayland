@@ -52,13 +52,12 @@ QWaylandGLIntegration * QWaylandGLIntegration::createGLIntegration(QWaylandDispl
     return new QWaylandXCompositeEGLIntegration(waylandDisplay);
 }
 
-QWaylandXCompositeEGLIntegration::QWaylandXCompositeEGLIntegration(QWaylandDisplay * waylandDispaly)
+QWaylandXCompositeEGLIntegration::QWaylandXCompositeEGLIntegration(QWaylandDisplay * waylandDisplay)
     : QWaylandGLIntegration()
-    , mWaylandDisplay(waylandDispaly)
+    , mWaylandDisplay(waylandDisplay)
 {
     qDebug() << "Using XComposite-EGL";
-    wl_display_add_global_listener(mWaylandDisplay->wl_display(), QWaylandXCompositeEGLIntegration::wlDisplayHandleGlobal,
-                                   this);
+    waylandDisplay->addRegistryListener(&wlDisplayHandleGlobal, this);
 }
 
 QWaylandXCompositeEGLIntegration::~QWaylandXCompositeEGLIntegration()
@@ -113,12 +112,12 @@ const struct wl_xcomposite_listener QWaylandXCompositeEGLIntegration::xcomposite
     QWaylandXCompositeEGLIntegration::rootInformation
 };
 
-void QWaylandXCompositeEGLIntegration::wlDisplayHandleGlobal(wl_display *display, uint32_t id, const char *interface, uint32_t version, void *data)
+void QWaylandXCompositeEGLIntegration::wlDisplayHandleGlobal(void *data, wl_registry *registry, uint32_t id, const char *interface, uint32_t version)
 {
     Q_UNUSED(version);
     if (strcmp(interface, "wl_xcomposite") == 0) {
         QWaylandXCompositeEGLIntegration *integration = static_cast<QWaylandXCompositeEGLIntegration *>(data);
-        integration->mWaylandComposite = static_cast<struct wl_xcomposite *>(wl_display_bind(display,id,&wl_xcomposite_interface));
+        integration->mWaylandComposite = static_cast<struct wl_xcomposite *>(wl_registry_bind(registry,id,&wl_xcomposite_interface,1));
         wl_xcomposite_add_listener(integration->mWaylandComposite,&xcomposite_listener,integration);
     }
 

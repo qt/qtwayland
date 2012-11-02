@@ -42,7 +42,7 @@
 
 int main()
 {
-    struct wl_egl_pixmap *pm = wl_egl_pixmap_create(100,100,0);
+    struct wl_egl_window *window = wl_egl_window_create(0,100,100);
 
     return 0;
 }

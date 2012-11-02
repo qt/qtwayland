@@ -63,6 +63,9 @@
 #include <qpa/qplatformscreenpageflipper.h>
 #include <QDebug>
 
+#include <QtCore/QAbstractEventDispatcher>
+#include <QtGui/private/qguiapplication_p.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -108,7 +111,6 @@ void Compositor::bind_func(struct wl_client *client, void *data,
     Q_UNUSED(version);
     wl_client_add_object(client,&wl_compositor_interface, &compositor_interface, id,data);
 }
-
 
 Compositor *Compositor::instance()
 {
@@ -171,6 +173,9 @@ Compositor::Compositor(WaylandCompositor *qt_compositor)
 
     QSocketNotifier *sockNot = new QSocketNotifier(fd, QSocketNotifier::Read, this);
     connect(sockNot, SIGNAL(activated(int)), this, SLOT(processWaylandEvents()));
+
+    QAbstractEventDispatcher *dispatcher = QGuiApplicationPrivate::eventDispatcher;
+    connect(dispatcher, SIGNAL(aboutToBlock()), this, SLOT(processWaylandEvents()));
 
     qRegisterMetaType<SurfaceBuffer*>("SurfaceBuffer*");
     //initialize distancefieldglyphcache here
@@ -267,6 +272,7 @@ void Compositor::processWaylandEvents()
     int ret = wl_event_loop_dispatch(m_loop, 0);
     if (ret)
         fprintf(stderr, "wl_event_loop_dispatch error: %d\n", ret);
+    wl_display_flush_clients(m_display->handle());
 }
 
 void Compositor::surfaceDestroyed(Surface *surface)

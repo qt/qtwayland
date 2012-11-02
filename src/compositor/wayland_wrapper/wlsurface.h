@@ -166,6 +166,7 @@ private:
     SurfaceBuffer *createSurfaceBuffer(struct wl_buffer *buffer);
     void frameFinishedInternal();
     bool postBuffer();
+    void commit();
 
     void attach(struct wl_buffer *buffer);
 
@@ -180,6 +181,7 @@ private:
                                           struct wl_resource *region);
     static void surface_set_input_region(struct wl_client *client, struct wl_resource *resource,
                                          struct wl_resource *region);
+    static void surface_commit(struct wl_client *client, struct wl_resource *resource);
 
 };
 

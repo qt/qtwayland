@@ -399,6 +399,14 @@ bool Surface::postBuffer() {
     return false;
 }
 
+void Surface::commit()
+{
+    if (!m_bufferQueue.isEmpty() && !m_backBuffer)
+        advanceBufferQueue();
+
+    doUpdate();
+}
+
 void Surface::attach(struct wl_buffer *buffer)
 {
     SurfaceBuffer *last = m_bufferQueue.size()?m_bufferQueue.last():0;
@@ -429,11 +437,6 @@ void Surface::damage(const QRect &rect)
         surfaceBuffer->setDamage(rect);
     else
         qWarning() << "Surface::damage() null buffer";
-
-    if (!m_bufferQueue.isEmpty() && !m_backBuffer)
-        advanceBufferQueue();
-
-    doUpdate();
 }
 
 const struct wl_surface_interface Surface::surface_interface = {
@@ -442,7 +445,8 @@ const struct wl_surface_interface Surface::surface_interface = {
         Surface::surface_damage,
         Surface::surface_frame,
         Surface::surface_set_opaque_region,
-        Surface::surface_set_input_region
+        Surface::surface_set_input_region,
+        Surface::surface_commit
 };
 
 void Surface::surface_destroy(struct wl_client *, struct wl_resource *surface_resource)
@@ -489,6 +493,12 @@ void Surface::surface_set_input_region(struct wl_client *client, struct wl_resou
     Q_UNUSED(client);
     Surface *surface = resolve<Surface>(surfaceResource);
     surface->m_inputRegion = region ? resolve<Region>(region)->region() : QRegion(QRect(QPoint(), surface->size()));
+}
+
+void Surface::surface_commit(wl_client *client, wl_resource *resource)
+{
+    Q_UNUSED(client);
+    resolve<Surface>(resource)->commit();
 }
 
 void Surface::setTitle(const QString &title)

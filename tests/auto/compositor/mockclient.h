@@ -70,6 +70,7 @@ public:
     wl_compositor *compositor;
     wl_output *output;
     wl_shm *shm;
+    wl_registry *registry;
 
     QRect geometry;
 
@@ -81,8 +82,8 @@ private slots:
 
 private:
     static MockClient *resolve(void *data) { return static_cast<MockClient *>(data); }
-
-    static void handleGlobal(wl_display *display, uint32_t id, const char *interface, uint32_t, void *data);
+    static const struct wl_registry_listener registryListener;
+    static void handleGlobal(void *data, struct wl_registry *registry, uint32_t id, const char *interface, uint32_t version);
     static int sourceUpdate(uint32_t mask, void *data);
 
     static void outputGeometryEvent(void *data,

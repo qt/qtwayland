@@ -52,18 +52,23 @@
 #include <errno.h>
 #include <sys/mman.h>
 
+const struct wl_registry_listener MockClient::registryListener = {
+    MockClient::handleGlobal
+};
 
 MockClient::MockClient()
     : display(wl_display_connect(0))
     , compositor(0)
     , output(0)
+    , registry(0)
 {
     if (!display)
         qFatal("MockClient(): wl_display_connect() failed");
 
-    wl_display_add_global_listener(display, handleGlobal, this);
+    registry = wl_display_get_registry(display);
+    wl_registry_add_listener(registry, &registryListener, this);
 
-    fd = wl_display_get_fd(display, 0, 0);
+    fd = wl_display_get_fd(display);
 
     QSocketNotifier *readNotifier = new QSocketNotifier(fd, QSocketNotifier::Read, this);
     connect(readNotifier, SIGNAL(activated(int)), this, SLOT(readEvents()));
@@ -91,11 +96,6 @@ MockClient::~MockClient()
     wl_display_disconnect(display);
 }
 
-void MockClient::handleGlobal(wl_display *, uint32_t id, const char *interface, uint32_t, void *data)
-{
-    resolve(data)->handleGlobal(id, QByteArray(interface));
-}
-
 void MockClient::outputGeometryEvent(void *data, wl_output *,
                                      int32_t x, int32_t y,
                                      int32_t width, int32_t height,
@@ -112,23 +112,29 @@ void MockClient::outputModeEvent(void *, wl_output *, uint32_t,
 
 void MockClient::readEvents()
 {
-    wl_display_iterate(display, WL_DISPLAY_READABLE);
+    wl_display_dispatch(display);
 }
 
 void MockClient::flushDisplay()
 {
+    wl_display_dispatch_pending(display);
     wl_display_flush(display);
+}
+
+void MockClient::handleGlobal(void *data, wl_registry *registry, uint32_t id, const char *interface, uint32_t version)
+{
+    resolve(data)->handleGlobal(id, QByteArray(interface));
 }
 
 void MockClient::handleGlobal(uint32_t id, const QByteArray &interface)
 {
     if (interface == "wl_compositor") {
-        compositor = static_cast<wl_compositor *>(wl_display_bind(display, id, &wl_compositor_interface));
+        compositor = static_cast<wl_compositor *>(wl_registry_bind(registry, id, &wl_compositor_interface, 1));
     } else if (interface == "wl_output") {
-        output = static_cast<wl_output *>(wl_display_bind(display, id, &wl_output_interface));
+        output = static_cast<wl_output *>(wl_registry_bind(registry, id, &wl_output_interface, 1));
         wl_output_add_listener(output, &outputListener, this);
     } else if (interface == "wl_shm") {
-        shm = static_cast<wl_shm *>(wl_display_bind(display, id, &wl_shm_interface));
+        shm = static_cast<wl_shm *>(wl_registry_bind(registry, id, &wl_shm_interface, 1));
     }
 }
 

@@ -310,6 +310,36 @@ void QWaylandWindow::setWindowFlags(Qt::WindowFlags flags)
         mExtendedWindow->setWindowFlags(flags);
 }
 
+bool QWaylandWindow::createDecoration()
+{
+    bool decoration = false;
+    switch (window()->windowType()) {
+        case Qt::Window:
+        case Qt::Widget:
+        case Qt::Dialog:
+        case Qt::Tool:
+        case Qt::Drawer:
+            decoration = true;
+            break;
+        default:
+            break;
+    }
+    if (window()->windowFlags() & Qt::FramelessWindowHint) {
+        decoration = false;
+    }
+
+    if (decoration) {
+        if (!mWindowDecoration) {
+            createDecorationInstance();
+        }
+    } else {
+        delete mWindowDecoration;
+        mWindowDecoration = 0;
+    }
+
+    return mWindowDecoration;
+}
+
 QWaylandDecoration *QWaylandWindow::decoration() const
 {
     return mWindowDecoration;

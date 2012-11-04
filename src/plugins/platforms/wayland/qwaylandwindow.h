@@ -113,7 +113,12 @@ public:
                      Qt::KeyboardModifiers mods);
     void handleMouseEnter();
     void handleMouseLeave();
+
+    bool createDecoration();
+
 protected:
+    virtual void createDecorationInstance() {}
+
     QWaylandDisplay *mDisplay;
     struct wl_surface *mSurface;
     QWaylandShellSurface *mShellSurface;

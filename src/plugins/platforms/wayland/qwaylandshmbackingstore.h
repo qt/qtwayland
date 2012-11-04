@@ -45,7 +45,7 @@
 #include "qwaylandbuffer.h"
 
 #include "qwaylanddecoration.h"
-#include "qwaylandwindow.h"
+#include "qwaylandshmwindow.h"
 
 #include <qpa/qplatformbackingstore.h>
 #include <QtGui/QImage>
@@ -84,11 +84,13 @@ public:
     void beginPaint(const QRegion &);
     void endPaint();
 
+    QWaylandDecoration *windowDecoration() const;
+
     QMargins windowDecorationMargins() const;
     QImage *entireSurface() const;
     void ensureSize();
 
-    QWaylandWindow *waylandWindow() const;
+    QWaylandShmWindow *waylandWindow() const;
     void iterateBuffer();
 
 private:
@@ -98,7 +100,6 @@ private:
     bool mFrontBufferIsDirty;
     bool mPainting;
 
-    QWaylandDecoration *mWindowDecoration;
     QSize mRequestedSize;
     Qt::WindowFlags mCurrentWindowFlags;
 
@@ -109,16 +110,21 @@ private:
     struct wl_callback *mFrameCallback;
 };
 
+inline QWaylandDecoration *QWaylandShmBackingStore::windowDecoration() const
+{
+    return waylandWindow()->decoration();
+}
+
 inline QMargins QWaylandShmBackingStore::windowDecorationMargins() const
 {
-    if (mWindowDecoration)
-        return mWindowDecoration->margins();
+    if (windowDecoration())
+        return windowDecoration()->margins();
     return QMargins();
 }
 
-inline QWaylandWindow *QWaylandShmBackingStore::waylandWindow() const
+inline QWaylandShmWindow *QWaylandShmBackingStore::waylandWindow() const
 {
-    return static_cast<QWaylandWindow *>(window()->handle());
+    return static_cast<QWaylandShmWindow *>(window()->handle());
 }
 
 QT_END_NAMESPACE

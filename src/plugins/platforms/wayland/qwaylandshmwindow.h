@@ -45,6 +45,8 @@
 #include "qwaylandwindow.h"
 #include <QtGui/QRegion>
 
+class QWaylandShmBackingStore;
+
 class QWaylandShmWindow : public QWaylandWindow
 {
 public:
@@ -53,6 +55,20 @@ public:
 
     WindowType windowType() const;
     QSurfaceFormat format() const { return QSurfaceFormat(); }
+
+    void setBackingStore(QWaylandShmBackingStore *backingStore);
+    QWaylandShmBackingStore *backingStore() const;
+
+protected:
+    void createDecorationInstance();
+
+private:
+    QWaylandShmBackingStore *mBackingStore;
 };
+
+inline QWaylandShmBackingStore *QWaylandShmWindow::backingStore() const
+{
+    return mBackingStore;
+}
 
 #endif // QWAYLANDSHMWINDOW_H

@@ -8,8 +8,10 @@
 INCLUDEPATH += $$PWD
 SOURCES += $$PWD/qwaylandeglintegration.cpp \
            $$PWD/qwaylandglcontext.cpp \
-           $$PWD/qwaylandeglwindow.cpp
+           $$PWD/qwaylandeglwindow.cpp \
+           $$PWD/qwaylandegldecoration.cpp
 
 HEADERS += $$PWD/qwaylandeglintegration.h \
            $$PWD/qwaylandglcontext.h \
-           $$PWD/qwaylandeglwindow.h
+           $$PWD/qwaylandeglwindow.h \
+           $$PWD/qwaylandegldecoration.h

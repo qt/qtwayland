@@ -50,6 +50,7 @@
 
 class QWaylandWindow;
 class QWaylandGLWindowSurface;
+class QOpenGLShaderProgram;
 
 class QWaylandGLContext : public QPlatformOpenGLContext {
 public:
@@ -60,6 +61,8 @@ public:
 
     bool makeCurrent(QPlatformSurface *surface);
     void doneCurrent();
+
+    GLuint defaultFramebufferObject(QPlatformSurface *surface) const;
 
     bool isSharing() const;
     bool isValid() const;
@@ -78,6 +81,7 @@ private:
     EGLContext m_shareEGLContext;
     EGLConfig m_config;
     QSurfaceFormat m_format;
+    QOpenGLShaderProgram *m_blitProgram;
 };
 
 

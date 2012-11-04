@@ -42,7 +42,6 @@
 #include "qwaylanddecoration.h"
 
 #include "qwaylandwindow.h"
-#include "qwaylandshmbackingstore.h"
 #include "qwaylandshellsurface.h"
 #include "qwaylandinputdevice.h"
 
@@ -50,13 +49,14 @@
 #include <QtGui/QCursor>
 #include <QtGui/QPainter>
 #include <QtGui/QRadialGradient>
-QWaylandDecoration::QWaylandDecoration(QWindow *window, QWaylandShmBackingStore *backing_store)
-    : m_window(window)
-    , m_wayland_window(static_cast<QWaylandWindow *>(window->handle()))
-    , m_backing_store(backing_store)
+
+QWaylandDecoration::QWaylandDecoration(QWaylandWindow *window)
+    : m_window(window->window())
+    , m_wayland_window(window)
     , m_margins(3,30,3,3)
     , m_hasSetCursor(false)
     , m_mouseButtons(Qt::NoButton)
+    , m_backgroundColor(90, 90, 100)
 {
     m_wayland_window->setDecoration(this);
     QTextOption option(Qt::AlignHCenter | Qt::AlignVCenter);
@@ -69,22 +69,22 @@ QWaylandDecoration::~QWaylandDecoration()
     m_wayland_window->setDecoration(0);
 }
 
-void QWaylandDecoration::paintDecoration()
+void QWaylandDecoration::paint(QPaintDevice *device)
 {
-    QRect surfaceRect(QPoint(), m_backing_store->entireSurface()->size());
+    QRect surfaceRect(QPoint(), window()->frameGeometry().size());
     QRect clips[] =
     {
-        QRect(0, 0, surfaceRect.width(), m_margins.top()),
-        QRect(0, surfaceRect.height() - m_margins.bottom(), surfaceRect.width(), m_margins.bottom()),
-        QRect(0, m_margins.top(), m_margins.left(), surfaceRect.height() - m_margins.top() - m_margins.bottom()),
-        QRect(surfaceRect.width() - m_margins.right(), m_margins.top(), m_margins.left(), surfaceRect.height() - m_margins.top() - m_margins.bottom())
+        QRect(0, 0, surfaceRect.width(), margins().top()),
+        QRect(0, surfaceRect.height() - margins().bottom(), surfaceRect.width(), margins().bottom()),
+        QRect(0, margins().top(), margins().left(), surfaceRect.height() - margins().top() - margins().bottom()),
+        QRect(surfaceRect.width() - margins().right(), margins().top(), margins().left(), surfaceRect.height() - margins().top() - margins().bottom())
     };
     QRect top = clips[0];
-    QPainter p(m_backing_store->entireSurface());
+    QPainter p(device);
     p.setRenderHint(QPainter::Antialiasing);
     QPoint gradCenter(top.center()+ QPoint(30,60));
     QRadialGradient grad(gradCenter, top.width() / 2, gradCenter);
-    QColor base(90, 90, 100);
+    QColor base(backgroundColor());
     grad.setColorAt(1, base);
     grad.setColorAt(0, base.lighter(123));
     QPainterPath roundedRect;
@@ -97,7 +97,7 @@ void QWaylandDecoration::paintDecoration()
     }
 
 
-    QString windowTitleText = m_window->windowTitle();
+    QString windowTitleText = window()->windowTitle();
     if (!windowTitleText.isEmpty()) {
         if (m_windowTitle.text() != windowTitleText) {
             m_windowTitle.setText(windowTitleText);
@@ -230,4 +230,9 @@ bool QWaylandDecoration::isLeftReleased(Qt::MouseButtons newMouseButtonState)
     if ((m_mouseButtons & Qt::LeftButton) && !(newMouseButtonState & Qt::LeftButton))
         return true;
     return false;
+}
+
+void QWaylandDecoration::setBackgroundColor(const QColor &c)
+{
+    m_backgroundColor = c;
 }

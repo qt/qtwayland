@@ -39,49 +39,21 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDEGLWINDOW_H
-#define QWAYLANDEGLWINDOW_H
+#ifndef QWAYLANDSHMDECORATION_H
+#define QWAYLANDSHMDECORATION_H
 
-#include "qwaylandwindow.h"
-#include "qwaylandeglinclude.h"
-#include "qwaylandeglintegration.h"
+#include "qwaylanddecoration.h"
 
-class QWaylandGLContext;
-class QOpenGLFramebufferObject;
+class QWaylandShmWindow;
 
-class QWaylandEglWindow : public QWaylandWindow
+class QWaylandShmDecoration : public QWaylandDecoration
 {
 public:
-    QWaylandEglWindow(QWindow *window);
-    ~QWaylandEglWindow();
-    WindowType windowType() const;
-    void setGeometry(const QRect &rect);
+    QWaylandShmDecoration(QWaylandShmWindow *window);
+    ~QWaylandShmDecoration();
 
-    QRect contentsRect() const;
+    void paintDecoration();
 
-    EGLSurface eglSurface() const;
-    GLuint contentFBO() const;
-    GLuint contentTexture() const;
-
-    QSurfaceFormat format() const;
-
-    void bindContentFBO();
-
-protected:
-    void createDecorationInstance();
-
-private:
-    QWaylandEglIntegration *m_eglIntegration;
-    struct wl_egl_window *m_waylandEglWindow;
-
-    const QWaylandWindow *m_parentWindow;
-
-    mutable EGLSurface m_eglSurface;
-    mutable EGLConfig m_eglConfig;
-    mutable QOpenGLFramebufferObject *m_contentFBO;
-    mutable bool m_resize;
-
-    QSurfaceFormat m_format;
 };
 
-#endif // QWAYLANDEGLWINDOW_H
+#endif // QWAYLANDSHMDECORATION_H

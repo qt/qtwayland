@@ -43,11 +43,15 @@
 
 #include "qwaylandscreen.h"
 #include "qwaylandglcontext.h"
+#include "qwaylandegldecoration.h"
 
 #include <QtPlatformSupport/private/qeglconvenience_p.h>
 
+#include <QDebug>
 #include <QtGui/QWindow>
 #include <qpa/qwindowsysteminterface.h>
+#include <QOpenGLFramebufferObject>
+#include <QOpenGLContext>
 
 #ifdef QT_WAYLAND_WINDOWMANAGER_SUPPORT
 #include "windowmanager_integration/qwaylandwindowmanagerintegration.h"
@@ -56,11 +60,14 @@
 QWaylandEglWindow::QWaylandEglWindow(QWindow *window)
     : QWaylandWindow(window)
     , m_eglIntegration(static_cast<QWaylandEglIntegration *>(mDisplay->eglIntegration()))
-    , m_waylandEglWindow(wl_egl_window_create(mSurface,window->width(),window->height()))
+    , m_waylandEglWindow(0)
     , m_eglSurface(0)
     , m_eglConfig(0)
+    , m_contentFBO(0)
+    , m_resize(false)
     , m_format(window->format())
 {
+    setGeometry(window->geometry());
 }
 
 QWaylandEglWindow::~QWaylandEglWindow()
@@ -71,6 +78,8 @@ QWaylandEglWindow::~QWaylandEglWindow()
     }
 
     wl_egl_window_destroy(m_waylandEglWindow);
+
+    delete m_contentFBO;
 }
 
 QWaylandWindow::WindowType QWaylandEglWindow::windowType() const
@@ -80,14 +89,32 @@ QWaylandWindow::WindowType QWaylandEglWindow::windowType() const
 
 void QWaylandEglWindow::setGeometry(const QRect &rect)
 {
-    int current_width, current_height;
-    wl_egl_window_get_attached_size(m_waylandEglWindow,&current_width,&current_height);
-    if (current_width != rect.width() || current_height != rect.height()) {
-        waitForFrameSync();
-        wl_egl_window_resize(m_waylandEglWindow, rect.width(), rect.height(), 0, 0);
+    createDecoration();
+    QMargins margins = frameMargins();
+    QSize sizeWithMargins = rect.size() + QSize(margins.left() + margins.right(), margins.top() + margins.bottom());
+
+    if (m_waylandEglWindow) {
+        int current_width, current_height;
+        wl_egl_window_get_attached_size(m_waylandEglWindow,&current_width,&current_height);
+        if (current_width != sizeWithMargins.width() || current_height != sizeWithMargins.height()) {
+            waitForFrameSync();
+            wl_egl_window_resize(m_waylandEglWindow, sizeWithMargins.width(), sizeWithMargins.height(), 0, 0);
+
+            m_resize = true;
+        }
+    } else {
+        m_waylandEglWindow = wl_egl_window_create(mSurface, sizeWithMargins.width(), sizeWithMargins.height());
     }
     QWaylandWindow::setGeometry(rect);
 }
+
+QRect QWaylandEglWindow::contentsRect() const
+{
+    QRect r = geometry();
+    QMargins m = frameMargins();
+    return QRect(m.left(), m.bottom(), r.width(), r.height());
+}
+
 QSurfaceFormat QWaylandEglWindow::format() const
 {
     return m_format;
@@ -106,3 +133,36 @@ EGLSurface QWaylandEglWindow::eglSurface() const
     return m_eglSurface;
 }
 
+GLuint QWaylandEglWindow::contentFBO() const
+{
+    if (!decoration())
+        return 0;
+
+    if (m_resize || !m_contentFBO) {
+        QOpenGLFramebufferObject *old = m_contentFBO;
+        m_contentFBO = new QOpenGLFramebufferObject(geometry().width(), geometry().height(), QOpenGLFramebufferObject::CombinedDepthStencil);
+
+        delete old;
+        m_resize = false;
+    }
+
+    return m_contentFBO->handle();
+}
+
+GLuint QWaylandEglWindow::contentTexture() const
+{
+    return m_contentFBO->texture();
+}
+
+void QWaylandEglWindow::bindContentFBO()
+{
+    if (decoration()) {
+        contentFBO();
+        m_contentFBO->bind();
+    }
+}
+
+void QWaylandEglWindow::createDecorationInstance()
+{
+    new QWaylandEglDecoration(this);
+}

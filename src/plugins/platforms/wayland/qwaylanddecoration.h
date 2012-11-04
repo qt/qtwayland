@@ -46,7 +46,7 @@
 #include <QtCore/QPointF>
 #include <QtGui/QGuiApplication>
 #include <QtGui/QCursor>
-#include <QtGui/QImage>
+#include <QtGui/QColor>
 #include <QtGui/QStaticText>
 
 #include <wayland-client.h>
@@ -58,15 +58,16 @@ class QPaintDevice;
 class QPainter;
 class QEvent;
 class QWaylandWindow;
-class QWaylandShmBackingStore;
 class QWaylandInputDevice;
 
 class QWaylandDecoration
 {
 public:
-    QWaylandDecoration(QWindow *window, QWaylandShmBackingStore *backing_store);
-    ~QWaylandDecoration();
-    void paintDecoration();
+    QWaylandDecoration(QWaylandWindow *window);
+    virtual ~QWaylandDecoration();
+
+    virtual void paintDecoration() = 0;
+
     void handleMouse(QWaylandInputDevice *inputDevice, const QPointF &local, const QPointF &global,Qt::MouseButtons b,Qt::KeyboardModifiers mods);
     void restoreMouseCursor();
     bool inMouseButtonPressedState() const;
@@ -74,6 +75,15 @@ public:
     void startResize(QWaylandInputDevice *inputDevice,enum wl_shell_surface_resize resize, Qt::MouseButtons buttons);
     void startMove(QWaylandInputDevice *inputDevice, Qt::MouseButtons buttons);
     QMargins margins() const;
+    QWindow *window() const;
+    QWaylandWindow *waylandWindow() const;
+
+    void setBackgroundColor(const QColor &c);
+    inline QColor backgroundColor() const;
+
+protected:
+    void paint(QPaintDevice *device);
+
 private:
     void overrideCursor(Qt::CursorShape shape);
 
@@ -87,21 +97,34 @@ private:
 
     QWindow *m_window;
     QWaylandWindow *m_wayland_window;
-    QWaylandShmBackingStore *m_backing_store;
 
     QMargins m_margins;
     bool m_hasSetCursor;
     Qt::CursorShape m_cursorShape;
     Qt::MouseButtons m_mouseButtons;
 
+    QColor m_backgroundColor;
     QStaticText m_windowTitle;
-
-    QImage m_borderImage;
 };
 
 inline QMargins QWaylandDecoration::margins() const
 {
     return m_margins;
+}
+
+inline QWindow *QWaylandDecoration::window() const
+{
+    return m_window;
+}
+
+inline QWaylandWindow *QWaylandDecoration::waylandWindow() const
+{
+    return m_wayland_window;
+}
+
+inline QColor QWaylandDecoration::backgroundColor() const
+{
+    return m_backgroundColor;
 }
 
 inline void QWaylandDecoration::overrideCursor(Qt::CursorShape shape)

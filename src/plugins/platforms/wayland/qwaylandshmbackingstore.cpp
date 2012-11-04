@@ -134,9 +134,9 @@ QWaylandShmBackingStore::QWaylandShmBackingStore(QWindow *window)
     , mBackBuffer(0)
     , mFrontBufferIsDirty(false)
     , mPainting(false)
-    , mWindowDecoration(0)
     , mFrameCallback(0)
 {
+
 }
 
 QWaylandShmBackingStore::~QWaylandShmBackingStore()
@@ -155,9 +155,9 @@ QWaylandShmBackingStore::~QWaylandShmBackingStore()
 
 QPaintDevice *QWaylandShmBackingStore::paintDevice()
 {
-    if (!mWindowDecoration)
+    if (!windowDecoration())
         return mBackBuffer->image();
-    return mBackBuffer->imageInsideMargins(mWindowDecoration->margins());
+    return mBackBuffer->imageInsideMargins(windowDecorationMargins());
 }
 
 void QWaylandShmBackingStore::beginPaint(const QRegion &)
@@ -180,30 +180,8 @@ void QWaylandShmBackingStore::endPaint()
 
 void QWaylandShmBackingStore::ensureSize()
 {
-    bool decoration = false;
-    switch (window()->windowType()) {
-        case Qt::Window:
-    case Qt::Widget:
-    case Qt::Dialog:
-    case Qt::Tool:
-    case Qt::Drawer:
-        decoration = true;
-        break;
-    default:
-        break;
-    }
-    if (window()->windowFlags() & Qt::FramelessWindowHint) {
-        decoration = false;
-    }
-
-    if (decoration) {
-        if (!mWindowDecoration) {
-            mWindowDecoration = new QWaylandDecoration(window(), this);
-        }
-    } else {
-        delete mWindowDecoration;
-        mWindowDecoration = 0;
-    }
+    waylandWindow()->setBackingStore(this);
+    waylandWindow()->createDecoration();
     resize(mRequestedSize);
 }
 
@@ -260,8 +238,8 @@ void QWaylandShmBackingStore::resize(const QSize &size)
 
     mBackBuffer = new QWaylandShmBuffer(mDisplay, sizeWithMargins, format);
 
-    if (mWindowDecoration)
-        mWindowDecoration->paintDecoration();
+    if (windowDecoration())
+        windowDecoration()->paintDecoration();
 }
 
 QImage *QWaylandShmBackingStore::entireSurface() const

@@ -39,49 +39,27 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDEGLWINDOW_H
-#define QWAYLANDEGLWINDOW_H
+#include "qwaylandegldecoration.h"
 
-#include "qwaylandwindow.h"
-#include "qwaylandeglinclude.h"
-#include "qwaylandeglintegration.h"
+#include "qwaylandeglwindow.h"
 
-class QWaylandGLContext;
-class QOpenGLFramebufferObject;
+#include <QtGui/QPainter>
+#include <QtGui/QOpenGLPaintDevice>
 
-class QWaylandEglWindow : public QWaylandWindow
+QWaylandEglDecoration::QWaylandEglDecoration(QWaylandEglWindow *window)
+    : QWaylandDecoration(window)
 {
-public:
-    QWaylandEglWindow(QWindow *window);
-    ~QWaylandEglWindow();
-    WindowType windowType() const;
-    void setGeometry(const QRect &rect);
+}
 
-    QRect contentsRect() const;
+QWaylandEglDecoration::~QWaylandEglDecoration()
+{
+}
 
-    EGLSurface eglSurface() const;
-    GLuint contentFBO() const;
-    GLuint contentTexture() const;
+void QWaylandEglDecoration::paintDecoration()
+{
+    glClearColor(backgroundColor().redF(), backgroundColor().greenF(), backgroundColor().blueF(), backgroundColor().alphaF());
+    glClear(GL_COLOR_BUFFER_BIT);
 
-    QSurfaceFormat format() const;
-
-    void bindContentFBO();
-
-protected:
-    void createDecorationInstance();
-
-private:
-    QWaylandEglIntegration *m_eglIntegration;
-    struct wl_egl_window *m_waylandEglWindow;
-
-    const QWaylandWindow *m_parentWindow;
-
-    mutable EGLSurface m_eglSurface;
-    mutable EGLConfig m_eglConfig;
-    mutable QOpenGLFramebufferObject *m_contentFBO;
-    mutable bool m_resize;
-
-    QSurfaceFormat m_format;
-};
-
-#endif // QWAYLANDEGLWINDOW_H
+    QOpenGLPaintDevice device(window()->frameGeometry().size());
+    paint(&device);
+}

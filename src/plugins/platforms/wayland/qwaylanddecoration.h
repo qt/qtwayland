@@ -68,7 +68,7 @@ public:
 
     virtual void paintDecoration() = 0;
 
-    void handleMouse(QWaylandInputDevice *inputDevice, const QPointF &local, const QPointF &global,Qt::MouseButtons b,Qt::KeyboardModifiers mods);
+    bool handleMouse(QWaylandInputDevice *inputDevice, const QPointF &local, const QPointF &global,Qt::MouseButtons b,Qt::KeyboardModifiers mods);
     void restoreMouseCursor();
     bool inMouseButtonPressedState() const;
 

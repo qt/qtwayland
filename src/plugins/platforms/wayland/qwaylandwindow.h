@@ -78,8 +78,10 @@ public:
 
     void configure(uint32_t edges, int32_t width, int32_t height);
 
-    void attach(QWaylandBuffer *buffer);
+    void attach(QWaylandBuffer *buffer, int x, int y);
+    void attachOffset(QWaylandBuffer *buffer);
     QWaylandBuffer *attached() const;
+    QPoint attachOffset() const;
 
     void damage(const QRect &rect);
 
@@ -115,6 +117,8 @@ public:
 
     bool createDecoration();
 
+    virtual void redraw();
+
 protected:
     virtual void createDecorationInstance() {}
 
@@ -135,6 +139,7 @@ protected:
     QWaitCondition mFrameSyncWait;
 
     bool mSentInitialResize;
+    QPoint mOffset;
 
 private:
     void handleMouseEventWithDecoration(QWaylandInputDevice *inputDevice,
@@ -148,6 +153,11 @@ private:
     static void frameCallback(void *data, struct wl_callback *wl_callback, uint32_t time);
 
 };
+
+inline QPoint QWaylandWindow::attachOffset() const
+{
+    return mOffset;
+}
 
 
 #endif // QWAYLANDWINDOW_H

@@ -45,6 +45,7 @@
 #include "qwaylandwindow.h"
 #include "qwaylandinputdevice.h"
 #include "qwaylanddecoration.h"
+#include "qwaylandscreen.h"
 
 #include <QtCore/QDebug>
 
@@ -64,7 +65,7 @@ QWaylandShellSurface::~QWaylandShellSurface()
 void QWaylandShellSurface::resize(QWaylandInputDevice *inputDevice, enum wl_shell_surface_resize edges)
 {
     wl_shell_surface_resize(m_shell_surface,inputDevice->wl_seat(),
-                            QWaylandDisplay::currentTimeMillisec(),
+                            inputDevice->serial(),
                             edges);
 }
 
@@ -72,7 +73,7 @@ void QWaylandShellSurface::move(QWaylandInputDevice *inputDevice)
 {
     wl_shell_surface_move(m_shell_surface,
                           inputDevice->wl_seat(),
-                          QWaylandDisplay::currentTimeMillisec());
+                          inputDevice->serial());
 }
 
 void QWaylandShellSurface::toggleMaximize()

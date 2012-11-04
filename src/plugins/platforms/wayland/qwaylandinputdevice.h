@@ -80,6 +80,8 @@ public:
 
     void removeMouseButtonFromState(Qt::MouseButton button);
 
+    uint32_t serial() const;
+
 private:
     QWaylandDisplay *mQDisplay;
     struct wl_display *mDisplay;
@@ -102,6 +104,7 @@ private:
     QPointF mSurfacePos;
     QPointF mGlobalPos;
     uint32_t mTime;
+    uint32_t mSerial;
 
     static const struct wl_seat_listener seatListener;
 
@@ -113,7 +116,7 @@ private:
 
     static void pointer_enter(void *data,
                               struct wl_pointer *pointer,
-                              uint32_t time, struct wl_surface *surface,
+                              uint32_t serial, struct wl_surface *surface,
                               wl_fixed_t sx, wl_fixed_t sy);
     static void pointer_leave(void *data,
                               struct wl_pointer *pointer,
@@ -201,6 +204,11 @@ private:
     friend class QWaylandTouchExtension;
     friend class QWaylandQtKeyExtension;
 };
+
+inline uint32_t QWaylandInputDevice::serial() const
+{
+    return mSerial;
+}
 
 QT_END_NAMESPACE
 

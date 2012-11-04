@@ -55,7 +55,6 @@ public:
     QWaylandEglWindow(QWindow *window);
     ~QWaylandEglWindow();
     WindowType windowType() const;
-    void setGeometry(const QRect &rect);
 
     QRect contentsRect() const;
 
@@ -67,12 +66,14 @@ public:
 
     void bindContentFBO();
 
+    void redraw();
+
 protected:
     void createDecorationInstance();
 
 private:
     QWaylandEglIntegration *m_eglIntegration;
-    struct wl_egl_window *m_waylandEglWindow;
+    mutable struct wl_egl_window *m_waylandEglWindow;
 
     const QWaylandWindow *m_parentWindow;
 

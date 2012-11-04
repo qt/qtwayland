@@ -206,7 +206,7 @@ void QWaylandInputDevice::setCursor(wl_surface *surface, int x, int y)
 
 void QWaylandInputDevice::pointer_enter(void *data,
                                         struct wl_pointer *pointer,
-                                        uint32_t time, struct wl_surface *surface,
+                                        uint32_t serial, struct wl_surface *surface,
                                         wl_fixed_t sx, wl_fixed_t sy)
 {
     Q_UNUSED(pointer);
@@ -221,7 +221,8 @@ void QWaylandInputDevice::pointer_enter(void *data,
     window->handleMouseEnter();
     inputDevice->mPointerFocus = window;
 
-    inputDevice->mTime = time;
+    inputDevice->mTime = QWaylandDisplay::currentTimeMillisec();
+    inputDevice->mSerial = serial;
 }
 
 void QWaylandInputDevice::pointer_leave(void *data,
@@ -318,6 +319,7 @@ void QWaylandInputDevice::pointer_button(void *data,
         inputDevice->mButtons &= ~qt_button;
 
     inputDevice->mTime = time;
+    inputDevice->mSerial = serial;
 
     if (window) {
         window->handleMouse(inputDevice,

@@ -87,25 +87,25 @@ QWaylandWindow::WindowType QWaylandEglWindow::windowType() const
     return QWaylandWindow::Egl;
 }
 
-void QWaylandEglWindow::setGeometry(const QRect &rect)
+void QWaylandEglWindow::redraw()
 {
     createDecoration();
     QMargins margins = frameMargins();
-    QSize sizeWithMargins = rect.size() + QSize(margins.left() + margins.right(), margins.top() + margins.bottom());
+    QSize sizeWithMargins = geometry().size() + QSize(margins.left() + margins.right(), margins.top() + margins.bottom());
 
     if (m_waylandEglWindow) {
         int current_width, current_height;
         wl_egl_window_get_attached_size(m_waylandEglWindow,&current_width,&current_height);
         if (current_width != sizeWithMargins.width() || current_height != sizeWithMargins.height()) {
             waitForFrameSync();
-            wl_egl_window_resize(m_waylandEglWindow, sizeWithMargins.width(), sizeWithMargins.height(), 0, 0);
+            wl_egl_window_resize(m_waylandEglWindow, sizeWithMargins.width(), sizeWithMargins.height(), mOffset.x(), mOffset.y());
+            mOffset = QPoint();
 
             m_resize = true;
         }
     } else {
         m_waylandEglWindow = wl_egl_window_create(mSurface, sizeWithMargins.width(), sizeWithMargins.height());
     }
-    QWaylandWindow::setGeometry(rect);
 }
 
 QRect QWaylandEglWindow::contentsRect() const
@@ -122,6 +122,13 @@ QSurfaceFormat QWaylandEglWindow::format() const
 
 EGLSurface QWaylandEglWindow::eglSurface() const
 {
+    if (!m_waylandEglWindow) {
+        const_cast<QWaylandEglWindow *>(this)->createDecoration();
+        QMargins margins = frameMargins();
+        QSize sizeWithMargins = geometry().size() + QSize(margins.left() + margins.right(), margins.top() + margins.bottom());
+        m_waylandEglWindow = wl_egl_window_create(mSurface, sizeWithMargins.width(), sizeWithMargins.height());
+    }
+
     if (!m_eglSurface) {
         m_eglConfig = q_configFromGLFormat(m_eglIntegration->eglDisplay(), window()->format(), true);
         const_cast<QWaylandEglWindow *>(this)->m_format = q_glFormatFromConfig(m_eglIntegration->eglDisplay(),m_eglConfig);

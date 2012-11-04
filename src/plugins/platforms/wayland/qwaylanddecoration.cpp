@@ -183,7 +183,7 @@ void QWaylandDecoration::paint(QPaintDevice *device)
     p.restore();
 }
 
-void QWaylandDecoration::handleMouse(QWaylandInputDevice *inputDevice, const QPointF &local, const QPointF &global, Qt::MouseButtons b, Qt::KeyboardModifiers mods)
+bool QWaylandDecoration::handleMouse(QWaylandInputDevice *inputDevice, const QPointF &local, const QPointF &global, Qt::MouseButtons b, Qt::KeyboardModifiers mods)
 
 {
     Q_UNUSED(global);
@@ -198,17 +198,19 @@ void QWaylandDecoration::handleMouse(QWaylandInputDevice *inputDevice, const QPo
         m_wayland_window->shellSurface()->minimize();
     } else if (local.y() <= m_margins.top()) {
         processMouseTop(inputDevice,local,b,mods);
-    } else if (local.y() > m_window->height() - m_margins.bottom()) {
+    } else if (local.y() > m_window->height() - m_margins.bottom() + m_margins.top()) {
         processMouseBottom(inputDevice,local,b,mods);
     } else if (local.x() <= m_margins.left()) {
         processMouseLeft(inputDevice,local,b,mods);
-    } else if (local.x() > m_window->width() - m_margins.right()) {
+    } else if (local.x() > m_window->width() - m_margins.right() + m_margins.left()) {
         processMouseRight(inputDevice,local,b,mods);
     } else {
         restoreMouseCursor();
+        return false;
     }
 
     m_mouseButtons = b;
+    return true;
 }
 
 void QWaylandDecoration::restoreMouseCursor()

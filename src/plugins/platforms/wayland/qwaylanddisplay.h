@@ -64,6 +64,7 @@ class QWaylandSubSurfaceExtension;
 class QWaylandOutputExtension;
 class QWaylandTouchExtension;
 class QWaylandQtKeyExtension;
+class QWaylandWindow;
 
 typedef void (*RegistryListener)(void *data,
                                  struct wl_registry *registry,
@@ -122,6 +123,8 @@ public:
 
     void forceRoundTrip();
 
+    void scheduleRedraw(QWaylandWindow *window);
+
 public slots:
     void createNewScreen(struct wl_output *output);
     void readEvents();
@@ -147,6 +150,7 @@ private:
     QList<QPlatformScreen *> mScreens;
     QList<QWaylandInputDevice *> mInputDevices;
     QList<Listener> mRegistryListeners;
+    QList<QWaylandWindow *> mWindows;
     QWaylandInputDevice *mLastKeyboardFocusInputDevice;
     QWaylandDataDeviceManager *mDndSelectionHandler;
     QWaylandSurfaceExtension *mWindowExtension;

@@ -202,16 +202,23 @@ void QWaylandShmBackingStore::flush(QWindow *window, const QRegion &region, cons
     wl_callback_add_listener(mFrameCallback,&frameCallbackListener,this);
     QMargins margins = windowDecorationMargins();
 
+    bool damageAll = false;
     if (waylandWindow()->attached() != mFrontBuffer) {
         delete waylandWindow()->attached();
-        waylandWindow()->attach(mFrontBuffer);
+        waylandWindow()->attachOffset(mFrontBuffer);
+        damageAll = true;
     }
 
-    QVector<QRect> rects = region.rects();
-    for (int i = 0; i < rects.size(); i++) {
-        QRect rect = rects.at(i);
-        rect.translate(margins.left(),margins.top());
-        waylandWindow()->damage(rect);
+    if (damageAll) {
+        //need to damage it all, otherwise the attach offset may screw up
+        waylandWindow()->damage(QRect(QPoint(0,0),mFrontBuffer->size()));
+    } else {
+        QVector<QRect> rects = region.rects();
+        for (int i = 0; i < rects.size(); i++) {
+            QRect rect = rects.at(i);
+            rect.translate(margins.left(),margins.top());
+            waylandWindow()->damage(rect);
+        }
     }
     mFrontBufferIsDirty = false;
 }
@@ -223,7 +230,6 @@ void QWaylandShmBackingStore::resize(const QSize &size, const QRegion &)
 
 void QWaylandShmBackingStore::resize(const QSize &size)
 {
-
     QMargins margins = windowDecorationMargins();
     QSize sizeWithMargins = size + QSize(margins.left()+margins.right(),margins.top()+margins.bottom());
 
@@ -254,13 +260,15 @@ void QWaylandShmBackingStore::done(void *data, wl_callback *callback, uint32_t t
             static_cast<QWaylandShmBackingStore *>(data);
     if (callback != self->mFrameCallback) // others, like QWaylandWindow, may trigger callbacks too
         return;
-    QWaylandWindow *window = self->waylandWindow();
+    QWaylandShmWindow *window = self->waylandWindow();
     wl_callback_destroy(self->mFrameCallback);
     self->mFrameCallback = 0;
+
     if (self->mFrontBuffer != window->attached()) {
         delete window->attached();
-        window->attach(self->mFrontBuffer);
     }
+
+    window->attachOffset(self->mFrontBuffer);
 
     if (self->mFrontBufferIsDirty && !self->mPainting) {
         self->mFrontBufferIsDirty = false;

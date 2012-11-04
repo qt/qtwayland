@@ -154,6 +154,8 @@ void QWaylandWindow::setGeometry(const QRect &rect)
 
     if (shellSurface() && window()->transientParent())
         shellSurface()->updateTransientParent(window()->transientParent());
+
+    mDisplay->scheduleRedraw(this);
 }
 
 void QWaylandWindow::setVisible(bool visible)
@@ -201,17 +203,43 @@ void QWaylandWindow::configure(uint32_t edges, int32_t width, int32_t height)
     heightWithoutMargins = qMax(heightWithoutMargins, window()->minimumSize().height());
     QRect geometry = QRect(0,0,
                            widthWithoutMargins, heightWithoutMargins);
+
+    int x = 0;
+    int y = 0;
+    QSize size = this->geometry().size();
+    if (edges == WL_SHELL_SURFACE_RESIZE_LEFT || edges == WL_SHELL_SURFACE_RESIZE_BOTTOM_LEFT ||
+                                                 edges ==  WL_SHELL_SURFACE_RESIZE_TOP_LEFT) {
+        x = size.width() - geometry.width();
+    }
+    if (edges == WL_SHELL_SURFACE_RESIZE_TOP || edges == WL_SHELL_SURFACE_RESIZE_TOP_LEFT ||
+                                                edges == WL_SHELL_SURFACE_RESIZE_TOP_RIGHT) {
+        y = size.height() - geometry.height();
+    }
+    mOffset += QPoint(x, y);
+
     setGeometry(geometry);
     QWindowSystemInterface::handleGeometryChange(window(), geometry);
+    QWindowSystemInterface::flushWindowSystemEvents();
 }
 
-void QWaylandWindow::attach(QWaylandBuffer *buffer)
+void QWaylandWindow::redraw()
+{
+
+}
+
+void QWaylandWindow::attach(QWaylandBuffer *buffer, int x, int y)
 {
     mBuffer = buffer;
 
     if (window()->isVisible()) {
-        wl_surface_attach(mSurface, mBuffer->buffer(),0,0);
+        wl_surface_attach(mSurface, mBuffer->buffer(), x, y);
     }
+}
+
+void QWaylandWindow::attachOffset(QWaylandBuffer *buffer)
+{
+    attach(buffer, mOffset.x(), mOffset.y());
+    mOffset = QPoint();
 }
 
 QWaylandBuffer *QWaylandWindow::attached() const
@@ -380,10 +408,8 @@ void QWaylandWindow::handleMouseLeave()
 
 void QWaylandWindow::handleMouseEventWithDecoration(QWaylandInputDevice *inputDevice, ulong timestamp, const QPointF &local, const QPointF &global, Qt::MouseButtons b, Qt::KeyboardModifiers mods)
 {
-    if (mWindowDecoration->inMouseButtonPressedState()) {
-        mWindowDecoration->handleMouse(inputDevice,local,global,b,mods);
+    if (mWindowDecoration->handleMouse(inputDevice,local,global,b,mods))
         return;
-    }
 
     QMargins marg = frameMargins();
     QRect windowRect(0 + marg.left(),

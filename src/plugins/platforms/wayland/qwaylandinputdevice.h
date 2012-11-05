@@ -72,7 +72,7 @@ public:
 
     struct wl_seat *wl_seat() const { return mSeat; }
 
-    void setCursor(wl_surface *surface, int x, int y);
+    void setCursor(struct wl_buffer *buffer, struct wl_cursor_image *image);
     void handleWindowDestroyed(QWaylandWindow *window);
 
     void setTransferDevice(struct wl_data_device *device);
@@ -91,6 +91,7 @@ private:
 
     struct {
         struct wl_pointer *pointer;
+        struct wl_surface *pointerSurface;
         struct wl_keyboard *keyboard;
         struct wl_touch *touch;
     } mDeviceInterfaces;
@@ -105,6 +106,7 @@ private:
     QPointF mGlobalPos;
     uint32_t mTime;
     uint32_t mSerial;
+    uint32_t mEnterSerial;
 
     static const struct wl_seat_listener seatListener;
 

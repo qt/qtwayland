@@ -49,182 +49,199 @@
 #include <QtGui/QImageReader>
 #include <QDebug>
 
-#define DATADIR "/usr/share"
+#include <wayland-cursor.h>
 
-static const struct pointer_image {
-    const char *filename;
-    int hotspot_x, hotspot_y;
-} pointer_images[] = {
-    /* FIXME: Half of these are wrong... */
-    /* Qt::ArrowCursor */
-    { DATADIR "/wayland/left_ptr.png",			10,  5 },
-    /* Qt::UpArrowCursor */
-    { DATADIR "/wayland/top_side.png",			18,  8 },
-    /* Qt::CrossCursor */
-    { DATADIR "/wayland/top_side.png",			18,  8 },
-    /* Qt::WaitCursor */
-    { DATADIR "/wayland/top_side.png",			18,  8 },
-    /* Qt::IBeamCursor */
-    { DATADIR "/wayland/xterm.png",			15, 15 },
-    /* Qt::SizeVerCursor */
-    { DATADIR "/wayland/top_side.png",			18,  8 },
-    /* Qt::SizeHorCursor */
-    { DATADIR "/wayland/bottom_left_corner.png",	 6, 30 },
-    /* Qt::SizeBDiagCursor */
-    { DATADIR "/wayland/bottom_right_corner.png",	28, 28 },
-    /* Qt::SizeFDiagCursor */
-    { DATADIR "/wayland/bottom_side.png",		16, 20 },
-    /* Qt::SizeAllCursor */
-    { DATADIR "/wayland/left_side.png",			10, 20 },
-    /* Qt::BlankCursor */
-    { DATADIR "/wayland/right_side.png",		30, 19 },
-    /* Qt::SplitVCursor */
-    { DATADIR "/wayland/sb_v_double_arrow.png",		15, 15 },
-    /* Qt::SplitHCursor */
-    { DATADIR "/wayland/sb_h_double_arrow.png",		15, 15 },
-    /* Qt::PointingHandCursor */
-    { DATADIR "/wayland/hand2.png",			14,  8 },
-    /* Qt::ForbiddenCursor */
-    { DATADIR "/wayland/top_right_corner.png",		26,  8 },
-    /* Qt::WhatsThisCursor */
-    { DATADIR "/wayland/top_right_corner.png",		26,  8 },
-    /* Qt::BusyCursor */
-    { DATADIR "/wayland/top_right_corner.png",		26,  8 },
-    /* Qt::OpenHandCursor */
-    { DATADIR "/wayland/hand1.png",			18, 11 },
-    /* Qt::ClosedHandCursor */
-    { DATADIR "/wayland/grabbing.png",			20, 17 },
-    /* Qt::DragCopyCursor */
-    { DATADIR "/wayland/dnd-copy.png",			13, 13 },
-    /* Qt::DragMoveCursor */
-    { DATADIR "/wayland/dnd-move.png",			13, 13 },
-    /* Qt::DragLinkCursor */
-    { DATADIR "/wayland/dnd-link.png",			13, 13 },
+#define ARRAY_LENGTH(a) sizeof(a) / sizeof(a[0])
+
+/*
+ * The following correspondences between file names and cursors was copied
+ * from: https://bugs.kde.org/attachment.cgi?id=67313
+ */
+
+static const char *bottom_left_corners[] = {
+    "size_fdiag",
+    "bottom_left_corner",
+    "sw-resize"
+};
+
+static const char *bottom_right_corners[] = {
+    "size_bdiag",
+    "bottom_right_corner",
+    "se-resize"
+};
+
+static const char *bottom_sides[] = {
+    "bottom_side",
+    "s-resize"
+};
+
+static const char *grabbings[] = {
+    "grabbing",
+    "closedhand",
+    "208530c400c041818281048008011002"
+};
+
+static const char *left_ptrs[] = {
+    "left_ptr",
+    "default",
+    "top_left_arrow",
+    "left-arrow"
+};
+
+static const char *left_sides[] = {
+    "left_side",
+    "w-resize"
+};
+
+static const char *right_sides[] = {
+    "right_side",
+    "e-resize"
+};
+
+static const char *top_left_corners[] = {
+    "top_left_corner",
+    "nw-resize"
+};
+
+static const char *top_right_corners[] = {
+    "top_right_corner",
+    "ne-resize"
+};
+
+static const char *top_sides[] = {
+    "top_side",
+    "n-resize"
+};
+
+static const char *xterms[] = {
+    "xterm",
+    "ibeam",
+    "text"
+};
+
+static const char *hand1s[] = {
+    "hand1",
+    "pointer",
+    "pointing_hand",
+    "e29285e634086352946a0e7090d73106"
+};
+
+static const char *watches[] = {
+    "watch",
+    "wait",
+    "0426c94ea35c87780ff01dc239897213"
+};
+
+struct cursor_alternatives {
+    const char **names;
+    size_t count;
+};
+
+static const struct cursor_alternatives cursors[] = {
+    {left_ptrs, ARRAY_LENGTH(left_ptrs)},
+    {bottom_left_corners, ARRAY_LENGTH(bottom_left_corners)},
+    {bottom_right_corners, ARRAY_LENGTH(bottom_right_corners)},
+    {bottom_sides, ARRAY_LENGTH(bottom_sides)},
+    {grabbings, ARRAY_LENGTH(grabbings)},
+    {left_sides, ARRAY_LENGTH(left_sides)},
+    {right_sides, ARRAY_LENGTH(right_sides)},
+    {top_left_corners, ARRAY_LENGTH(top_left_corners)},
+    {top_right_corners, ARRAY_LENGTH(top_right_corners)},
+    {top_sides, ARRAY_LENGTH(top_sides)},
+    {xterms, ARRAY_LENGTH(xterms)},
+    {hand1s, ARRAY_LENGTH(hand1s)},
+    {watches, ARRAY_LENGTH(watches)},
 };
 
 QWaylandCursor::QWaylandCursor(QWaylandScreen *screen)
-    : mBuffer(0)
-    , mDisplay(screen->display())
-    , mSurface(0)
+    : mDisplay(screen->display())
 {
+    //TODO: Make wl_cursor_theme_load arguments configurable here
+    mCursorTheme = wl_cursor_theme_load("default", 32, mDisplay->shm());
+    mCursors = new wl_cursor*[ARRAY_LENGTH(cursors)];
+
+    for (uint i = 0; i < ARRAY_LENGTH(cursors); i++) {
+        struct wl_cursor *cursor = NULL;
+        for (uint j = 0; !cursor && j < cursors[i].count; ++j)
+            cursor = wl_cursor_theme_get_cursor(mCursorTheme, cursors[i].names[j]);
+
+        if (!cursor)
+            qDebug() << "could not load cursor" << cursors[i].names[0];
+
+        mCursors[i] = cursor;
+    }
 }
 
 QWaylandCursor::~QWaylandCursor()
 {
-    if (mSurface)
-        wl_surface_destroy(mSurface);
-
-    delete mBuffer;
-}
-
-void QWaylandCursor::ensureSurface(const QSize &size)
-{
-    if (!mBuffer || mBuffer->size() != size) {
-        delete mBuffer;
-        mBuffer = new QWaylandShmBuffer(mDisplay, size,
-                                        QImage::Format_ARGB32);
-    }
-
-    if (!mSurface)
-        mSurface = mDisplay->createSurface(0);
-
-    wl_surface_attach(mSurface, mBuffer->buffer(), 0, 0);
+    wl_cursor_theme_destroy(mCursorTheme);
+    delete[] mCursors;
 }
 
 void QWaylandCursor::changeCursor(QCursor *cursor, QWindow *window)
 {
-    const struct pointer_image *p;
+    Q_UNUSED(window)
 
-    if (window == NULL)
-        return;
-
-    p = NULL;
-    bool isBitmap = false;
-
-    const Qt::CursorShape newShape = cursor ? cursor->shape() : Qt::ArrowCursor;
-    switch (newShape) {
-    case Qt::ArrowCursor:
-        p = &pointer_images[newShape];
-        break;
+    int pointer = 0;
+    switch (cursor->shape()) {
     case Qt::UpArrowCursor:
     case Qt::CrossCursor:
     case Qt::WaitCursor:
         break;
     case Qt::IBeamCursor:
-        p = &pointer_images[newShape];
-        break;
-    case Qt::SizeVerCursor:	/* 5 */
+    case Qt::SizeVerCursor: /* 5 */
     case Qt::SizeHorCursor:
     case Qt::SizeBDiagCursor:
+        pointer = 2;
+        break;
     case Qt::SizeFDiagCursor:
+        pointer = 1;
+        break;
     case Qt::SizeAllCursor:
-    case Qt::BlankCursor:	/* 10 */
+    case Qt::BlankCursor:   /* 10 */
         break;
     case Qt::SplitVCursor:
+        pointer = 3;
+        break;
     case Qt::SplitHCursor:
+        pointer = 6;
+        break;
     case Qt::PointingHandCursor:
-        p = &pointer_images[newShape];
-        break;
     case Qt::ForbiddenCursor:
-    case Qt::WhatsThisCursor:	/* 15 */
+    case Qt::WhatsThisCursor:   /* 15 */
     case Qt::BusyCursor:
-        break;
     case Qt::OpenHandCursor:
     case Qt::ClosedHandCursor:
+        pointer = 4;
+        break;
     case Qt::DragCopyCursor:
     case Qt::DragMoveCursor: /* 20 */
     case Qt::DragLinkCursor:
-        p = &pointer_images[newShape];
-        break;
-
     case Qt::BitmapCursor:
-        isBitmap = true;
-        break;
-
     default:
         break;
     }
 
-    if (!p && !isBitmap) {
-        p = &pointer_images[0];
-        qWarning("unhandled cursor %d", newShape);
-    }
-
-    if (isBitmap && !cursor->pixmap().isNull()) {
-        setupPixmapCursor(cursor);
-    } else if (isBitmap && cursor->bitmap()) {
-        qWarning("unsupported QBitmap cursor");
-    } else {
-        QImageReader reader(p->filename);
-        if (!reader.canRead())
-            return;
-        ensureSurface(reader.size());
-        reader.read(mBuffer->image());
-        mDisplay->setCursor(mSurface, p->hotspot_x, p->hotspot_y);
-    }
-}
-
-void QWaylandCursor::setupPixmapCursor(QCursor *cursor)
-{
-    if (!cursor) {
-        delete mBuffer;
-        mBuffer = 0;
+    struct wl_cursor *cur = mCursors[pointer];
+    if (!cur)
         return;
-    }
-    ensureSurface(cursor->pixmap().size());
-    QImage src = cursor->pixmap().toImage().convertToFormat(QImage::Format_ARGB32);
-    for (int y = 0; y < src.height(); ++y)
-        memcpy(mBuffer->image()->scanLine(y), src.scanLine(y), src.bytesPerLine());
-    mDisplay->setCursor(mSurface, cursor->hotSpot().x(), cursor->hotSpot().y());
+
+    struct wl_cursor_image *image = cur->images[0];
+
+    struct wl_buffer *buffer = wl_cursor_image_get_buffer(image);
+    if (!buffer)
+        return;
+
+    mDisplay->setCursor(buffer, image);
 }
 
-void QWaylandDisplay::setCursor(wl_surface *surface, int32_t x, int32_t y)
+void QWaylandDisplay::setCursor(struct wl_buffer *buffer, struct wl_cursor_image *image)
 {
     /* Qt doesn't tell us which input device we should set the cursor
      * for, so set it for all devices. */
     for (int i = 0; i < mInputDevices.count(); i++) {
         QWaylandInputDevice *inputDevice = mInputDevices.at(i);
-        inputDevice->setCursor(surface, x, y);
+        inputDevice->setCursor(buffer, image);
     }
 }
 

@@ -93,7 +93,7 @@ public:
     QWaylandWindowManagerIntegration *windowManagerIntegration();
 #endif
 
-    void setCursor(wl_surface *surface, int32_t x, int32_t y);
+    void setCursor(struct wl_buffer *buffer, struct wl_cursor_image *image);
 
     struct wl_display *wl_display() const { return mDisplay; }
     struct wl_registry *wl_registry() const { return mRegistry; }

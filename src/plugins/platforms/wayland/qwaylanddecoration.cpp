@@ -229,6 +229,7 @@ bool QWaylandDecoration::handleMouse(QWaylandInputDevice *inputDevice, const QPo
 void QWaylandDecoration::restoreMouseCursor()
 {
     if (m_hasSetCursor) {
+        overrideCursor(Qt::ArrowCursor);
         QGuiApplication::restoreOverrideCursor();
         m_hasSetCursor = false;
     }
@@ -261,9 +262,11 @@ void QWaylandDecoration::processMouseTop(QWaylandInputDevice *inputDevice, const
     if (local.y() <= m_margins.bottom()) {
         if (local.x() <= margins().left()) {
             //top left bit
+            overrideCursor(Qt::SizeFDiagCursor);
             startResize(inputDevice,WL_SHELL_SURFACE_RESIZE_TOP_LEFT,b);
         } else if (local.x() > m_window->width() - margins().right()) {
             //top right bit
+            overrideCursor(Qt::SizeBDiagCursor);
             startResize(inputDevice,WL_SHELL_SURFACE_RESIZE_TOP_RIGHT,b);
         } else {
             //top reszie bit
@@ -282,10 +285,12 @@ void QWaylandDecoration::processMouseBottom(QWaylandInputDevice *inputDevice, co
     Q_UNUSED(mods);
     if (local.x() <= margins().left()) {
         //bottom left bit
+        overrideCursor(Qt::SizeBDiagCursor);
         startResize(inputDevice, WL_SHELL_SURFACE_RESIZE_BOTTOM_LEFT,b);
     } else if (local.x() > m_window->width() - margins().right()) {
         //bottom right bit
-            startResize(inputDevice, WL_SHELL_SURFACE_RESIZE_BOTTOM_RIGHT,b);
+        overrideCursor(Qt::SizeFDiagCursor);
+        startResize(inputDevice, WL_SHELL_SURFACE_RESIZE_BOTTOM_RIGHT,b);
     } else {
         //bottom bit
         overrideCursor(Qt::SplitVCursor);

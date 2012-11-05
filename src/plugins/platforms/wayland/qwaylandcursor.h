@@ -44,10 +44,9 @@
 
 #include <qpa/qplatformcursor.h>
 
-class QWaylandShmBuffer;
 class QWaylandDisplay;
 class QWaylandScreen;
-struct wl_surface;
+struct wl_cursor_theme;
 
 class QWaylandCursor : public QPlatformCursor
 {
@@ -60,15 +59,10 @@ public:
     QPoint pos() const;
     void setPos(const QPoint &pos);
 
-    void setupPixmapCursor(QCursor *cursor);
-
-    QWaylandShmBuffer *mBuffer;
-    QWaylandDisplay *mDisplay;
-    wl_surface *mSurface;
-
 private:
-    void ensureSurface(const QSize &size);
-
+    QWaylandDisplay *mDisplay;
+    struct wl_cursor_theme *mCursorTheme;
+    struct wl_cursor **mCursors;
     QPoint mLastPos;
 };
 

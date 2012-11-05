@@ -54,6 +54,8 @@
 #include <unistd.h>
 #include <fcntl.h>
 
+#include <wayland-cursor.h>
+
 #include <QtGui/QGuiApplication>
 
 #ifndef QT_NO_WAYLAND_XKB
@@ -158,6 +160,7 @@ void QWaylandInputDevice::seat_capabilities(void *data, struct wl_seat *seat, ui
 
     if (caps & WL_SEAT_CAPABILITY_POINTER) {
         self->mDeviceInterfaces.pointer = wl_seat_get_pointer(seat);
+        self->mDeviceInterfaces.pointerSurface = self->mQDisplay->createSurface(self);
         wl_pointer_add_listener(self->mDeviceInterfaces.pointer, &pointerListener, self);
     }
 
@@ -198,10 +201,15 @@ void QWaylandInputDevice::removeMouseButtonFromState(Qt::MouseButton button)
     mButtons = mButtons & !button;
 }
 
-void QWaylandInputDevice::setCursor(wl_surface *surface, int x, int y)
+void QWaylandInputDevice::setCursor(struct wl_buffer *buffer, struct wl_cursor_image *image)
 {
-    if (mCaps & WL_SEAT_CAPABILITY_POINTER)
-        wl_pointer_set_cursor(mDeviceInterfaces.pointer, mTime, surface, x, y);
+    if (mCaps & WL_SEAT_CAPABILITY_POINTER) {
+        wl_pointer_set_cursor(mDeviceInterfaces.pointer, mEnterSerial, mDeviceInterfaces.pointerSurface,
+                              image->hotspot_x, image->hotspot_y);
+        wl_surface_attach(mDeviceInterfaces.pointerSurface, buffer, 0, 0);
+        wl_surface_damage(mDeviceInterfaces.pointerSurface, 0, 0, image->width, image->height);
+        wl_surface_commit(mDeviceInterfaces.pointerSurface);
+    }
 }
 
 void QWaylandInputDevice::pointer_enter(void *data,
@@ -217,12 +225,21 @@ void QWaylandInputDevice::pointer_enter(void *data,
     if (!surface)
         return;
 
+    QGuiApplication::setOverrideCursor(QCursor(Qt::ArrowCursor));
+
     QWaylandWindow *window = (QWaylandWindow *) wl_surface_get_user_data(surface);
     window->handleMouseEnter();
+    window->handleMouse(inputDevice,
+                        inputDevice->mTime,
+                        inputDevice->mSurfacePos,
+                        inputDevice->mGlobalPos,
+                        inputDevice->mButtons,
+                        Qt::NoModifier);
     inputDevice->mPointerFocus = window;
 
     inputDevice->mTime = QWaylandDisplay::currentTimeMillisec();
     inputDevice->mSerial = serial;
+    inputDevice->mEnterSerial = serial;
 }
 
 void QWaylandInputDevice::pointer_leave(void *data,
@@ -236,6 +253,8 @@ void QWaylandInputDevice::pointer_leave(void *data,
     // a null surface.
     if (!surface)
         return;
+
+    QGuiApplication::restoreOverrideCursor();
 
     QWaylandWindow *window = (QWaylandWindow *) wl_surface_get_user_data(surface);
     window->handleMouseLeave();
@@ -289,7 +308,6 @@ void QWaylandInputDevice::pointer_button(void *data,
     QWaylandInputDevice *inputDevice = (QWaylandInputDevice *) data;
     QWaylandWindow *window = inputDevice->mPointerFocus;
     Qt::MouseButton qt_button;
-
 
     // translate from kernel (input.h) 'button' to corresponding Qt:MouseButton.
     // The range of mouse values is 0x110 <= mouse_button < 0x120, the first Joystick button.

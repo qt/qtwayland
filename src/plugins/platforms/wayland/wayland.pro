@@ -83,9 +83,9 @@ OTHER_FILES += wayland.json
 INCLUDEPATH += $$PWD/../../../shared
 
 !contains(QT_CONFIG, no-pkg-config) {
-    PKGCONFIG += wayland-client
+    PKGCONFIG += wayland-client wayland-cursor
 } else {
-    LIBS += -lwayland-client
+    LIBS += -lwayland-client -lwayland-cursor
 }
 
 include ($$PWD/gl_integration/gl_integration.pri)

@@ -107,6 +107,11 @@ void QWaylandShellSurface::updateTransientParent(QWindow *parent)
                                    flags);
 }
 
+void QWaylandShellSurface::setClassName(const char *_class)
+{
+    wl_shell_surface_set_class(m_shell_surface, _class);
+}
+
 void QWaylandShellSurface::setTitle(const char *title)
 {
     wl_shell_surface_set_title(m_shell_surface, title);

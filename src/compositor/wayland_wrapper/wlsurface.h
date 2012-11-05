@@ -123,6 +123,9 @@ public:
 
     static const struct wl_surface_interface surface_interface;
 
+    QString className() const { return m_className; }
+    void setClassName(const QString &className);
+
     QString title() const { return m_title; }
     void setTitle(const QString &title);
 
@@ -157,6 +160,7 @@ private:
 
     QPointF m_position;
     QSize m_size;
+    QString m_className;
     QString m_title;
     bool m_transientInactive;
 

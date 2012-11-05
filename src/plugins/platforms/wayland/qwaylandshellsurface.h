@@ -64,6 +64,8 @@ public:
 
     struct wl_shell_surface *handle() const { return m_shell_surface; }
 
+    void setClassName(const char *_class);
+
     void setTitle(const char *title);
 
 private:

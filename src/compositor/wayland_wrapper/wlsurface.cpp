@@ -501,6 +501,14 @@ void Surface::surface_commit(wl_client *client, wl_resource *resource)
     resolve<Surface>(resource)->commit();
 }
 
+void Surface::setClassName(const QString &className)
+{
+    if (m_className != className) {
+        m_className = className;
+        emit waylandSurface()->classNameChanged();
+    }
+}
+
 void Surface::setTitle(const QString &title)
 {
     if (m_title != title) {

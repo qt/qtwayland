@@ -311,6 +311,12 @@ void WaylandSurface::sendOnScreenVisibilityChange(bool visible)
         d->surface->extendedSurface()->sendOnScreenVisibility(visible);
 }
 
+QString WaylandSurface::className() const
+{
+    Q_D(const WaylandSurface);
+    return d->surface->className();
+}
+
 QString WaylandSurface::title() const
 {
     Q_D(const WaylandSurface);

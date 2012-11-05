@@ -284,8 +284,8 @@ void ShellSurface::set_class(struct wl_client *client,
                              const char *class_)
 {
     Q_UNUSED(client);
-    Q_UNUSED(resource);
-    Q_UNUSED(class_);
+    ShellSurface *self = static_cast<ShellSurface *>(resource->data);
+    self->surface()->setClassName(QString::fromUtf8(class_));
 }
 
 const struct wl_shell_surface_interface ShellSurface::shell_surface_interface = {

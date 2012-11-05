@@ -51,6 +51,7 @@
 #include "qwaylandsubsurface.h"
 #include "qwaylanddecoration.h"
 
+#include <QtCore/QFileInfo>
 #include <QtGui/QWindow>
 
 #ifdef QT_WAYLAND_WINDOWMANAGER_SUPPORT
@@ -91,6 +92,11 @@ QWaylandWindow::QWaylandWindow(QWindow *window)
     mDisplay->windowManagerIntegration()->mapClientToProcess(qApp->applicationPid());
     mDisplay->windowManagerIntegration()->authenticateWithToken();
 #endif
+
+    // Set surface class to the .desktop file name (obtained from executable name)
+    QFileInfo exeFileInfo(qApp->applicationFilePath());
+    QString className = exeFileInfo.baseName() + QLatin1String(".desktop");
+    mShellSurface->setClassName(className.toUtf8().constData());
 
     if (parent() && mSubSurfaceWindow) {
         mSubSurfaceWindow->setParent(static_cast<const QWaylandWindow *>(parent()));

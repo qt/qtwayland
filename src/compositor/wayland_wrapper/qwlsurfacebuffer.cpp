@@ -67,6 +67,7 @@ SurfaceBuffer::SurfaceBuffer(Surface *surface)
     , m_guard(0)
     , m_is_shm_resolved(false)
     , m_is_shm(false)
+    , m_image(0)
 {
 }
 
@@ -120,6 +121,7 @@ void SurfaceBuffer::destructBufferState()
     m_handle = 0;
     m_is_registered_for_buffer = false;
     m_is_displayed = false;
+    m_image = QImage();
 }
 
 bool SurfaceBuffer::isShmBuffer() const
@@ -225,6 +227,24 @@ void *SurfaceBuffer::handle() const
         }
     }
     return m_handle;
+}
+
+QImage SurfaceBuffer::image()
+{
+    /* This api may be available on non-shm buffer. But be sure about it's format. */
+    if (!m_buffer || !isShmBuffer())
+        return QImage();
+
+    if (m_image.isNull())
+    {
+        const uchar *data = static_cast<const uchar *>(wl_shm_buffer_get_data(m_buffer));
+        int stride = wl_shm_buffer_get_stride(m_buffer);
+        int width = m_buffer->width;
+        int height = m_buffer->height;
+        m_image = QImage(data, width, height, stride, QImage::Format_ARGB32_Premultiplied);
+    }
+
+    return m_image;
 }
 
 void SurfaceBuffer::destroy_listener_callback(wl_listener *listener, void *data)

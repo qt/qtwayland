@@ -45,6 +45,7 @@
 #include <QtGui/qopengl.h>
 #include <QtGui/private/qopenglcontext_p.h>
 #include <qpa/qplatformscreenpageflipper.h>
+#include <QImage>
 
 #include <wayland-server.h>
 
@@ -107,6 +108,7 @@ public:
     void handleDisplayed();
 
     void *handle() const;
+    QImage image();
 private:
     Surface *m_surface;
     Compositor *m_compositor;
@@ -128,6 +130,8 @@ private:
     void *m_handle;
     bool m_is_shm_resolved;
     bool m_is_shm;
+
+    QImage m_image;
 
     static void destroy_listener_callback(wl_listener *listener, void *data);
 };

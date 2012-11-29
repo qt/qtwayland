@@ -199,14 +199,7 @@ QImage Surface::image() const
 {
     SurfaceBuffer *surfacebuffer = currentSurfaceBuffer();
     if (surfacebuffer && !surfacebuffer->isDestroyed() && type() == QWaylandSurface::Shm) {
-        struct wl_buffer *buffer = surfacebuffer->waylandBufferHandle();
-        int stride = wl_shm_buffer_get_stride(buffer);
-        uint format = wl_shm_buffer_get_format(buffer);
-        (void) format;
-        void *data = wl_shm_buffer_get_data(buffer);
-        const uchar *char_data = static_cast<const uchar *>(data);
-        QImage img(char_data, buffer->width, buffer->height, stride, QImage::Format_ARGB32_Premultiplied);
-        return img;
+        return surfacebuffer->image();
     }
     return QImage();
 }

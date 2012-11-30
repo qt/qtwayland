@@ -56,6 +56,7 @@ public:
     virtual ~QWaylandGLIntegration();
 
     virtual void initialize() = 0;
+    virtual bool waitingForEvents() { return false; }
 
     virtual bool supportsThreadedOpenGL() const { return false; }
 

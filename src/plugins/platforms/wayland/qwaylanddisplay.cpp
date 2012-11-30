@@ -158,6 +158,10 @@ QWaylandDisplay::QWaylandDisplay(void)
 
 #ifdef QT_WAYLAND_GL_SUPPORT
     mEglIntegration->initialize();
+
+    flushRequests();
+    while (mEglIntegration->waitingForEvents())
+        blockingReadEvents();
 #endif
 
     waitForScreens();

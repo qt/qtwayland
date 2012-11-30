@@ -67,6 +67,7 @@ public:
     ~QWaylandXCompositeEGLIntegration();
 
     void initialize();
+    bool waitingForEvents() { return !mDisplay; }
 
     QWaylandWindow *createEglWindow(QWindow *window);
     QPlatformOpenGLContext *createPlatformOpenGLContext(const QSurfaceFormat &glFormat, QPlatformOpenGLContext *share) const;

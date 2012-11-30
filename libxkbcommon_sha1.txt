@@ -1,7 +1,0 @@
-This version of Qt-Compositor is checked against the following sha1
-from the libxkbcommon repository:
-5be22ad641e96f76ce08a9fd928553b67d627de4
-
-During the qmake step a configuration test will be compiled to check
-if libxkbcommon is available. If not, or it is an incompatible
-version, the platform plug-in will be built without keymap support.

@@ -8,4 +8,4 @@ HEADERS += $$PWD/qwaylandbrcmeglintegration.h \
            $$PWD/qwaylandbrcmglcontext.h \
            $$PWD/qwaylandbrcmeglwindow.h
 
-WAYLANDSOURCES += $$PWD/../../../../../../extensions/brcm.xml
+WAYLANDSOURCES += $$PWD/../../../../../extensions/brcm.xml

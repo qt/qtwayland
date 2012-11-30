@@ -1,8 +1,0 @@
-Here are our patches to the Wayland repository that have not been upstreamed
-yet. They are available here as a convenience.
-
-Ground rules:
-
-1. We aim to get these patches into Wayland proper.
-
-2. QtWayland should compile and work without these patches.

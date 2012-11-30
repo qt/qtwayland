@@ -11,6 +11,7 @@ config.tests/glx/glx
 config.tests/wayland_egl/wayland_egl
 config.tests/xcomposite/xcomposite
 config.tests/xkbcommon/xkbcommon
+config.tests/wayland/wayland
 qrc_*.cpp
 moc_*.cpp
 .obj/

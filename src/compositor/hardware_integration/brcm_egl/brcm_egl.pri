@@ -8,4 +8,4 @@ HEADERS += \
     $$PWD/brcmeglintegration.h \
     $$PWD/brcmbuffer.h
 
-WAYLANDSOURCES += $$PWD/../../../../extensions/brcm.xml
+WAYLANDSOURCES += $$PWD/../../../extensions/brcm.xml

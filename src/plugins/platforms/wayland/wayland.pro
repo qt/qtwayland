@@ -71,11 +71,11 @@ config_xkbcommon {
 }
 
 WAYLANDSOURCES += \
-            $$PWD/../../../../extensions/surface-extension.xml \
-            $$PWD/../../../../extensions/sub-surface-extension.xml \
-            $$PWD/../../../../extensions/output-extension.xml \
-            $$PWD/../../../../extensions/touch-extension.xml \
-            $$PWD/../../../../extensions/qtkey-extension.xml
+            $$PWD/../../../extensions/surface-extension.xml \
+            $$PWD/../../../extensions/sub-surface-extension.xml \
+            $$PWD/../../../extensions/output-extension.xml \
+            $$PWD/../../../extensions/touch-extension.xml \
+            $$PWD/../../../extensions/qtkey-extension.xml
 
 
 OTHER_FILES += wayland.json

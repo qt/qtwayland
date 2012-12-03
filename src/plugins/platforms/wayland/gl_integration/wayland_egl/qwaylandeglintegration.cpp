@@ -83,11 +83,7 @@ void QWaylandEglIntegration::initialize()
 
 bool QWaylandEglIntegration::supportsThreadedOpenGL() const
 {
-#ifdef WAYLAND_CLIENT_THREAD_AFFINITY
-    return true;
-#else
     return false;
-#endif
 }
 
 QWaylandWindow *QWaylandEglIntegration::createEglWindow(QWindow *window)

@@ -133,15 +133,9 @@ QWaylandDisplay::QWaylandDisplay(void)
     mRegistry = wl_display_get_registry(mDisplay);
     wl_registry_add_listener(mRegistry, &registryListener, this);
 
-#ifdef WAYLAND_CLIENT_THREAD_AFFINITY
-    mWritableNotificationFd = wl_display_get_write_notification_fd(mDisplay);
-    QSocketNotifier *wn = new QSocketNotifier(mWritableNotificationFd, QSocketNotifier::Read, this);
-    connect(wn, SIGNAL(activated(int)), this, SLOT(flushRequests()));
-#else
     QAbstractEventDispatcher *dispatcher = QGuiApplicationPrivate::eventDispatcher;
     connect(dispatcher, SIGNAL(awake()), this, SLOT(flushRequests())); // needed for auto-testing
     connect(dispatcher, SIGNAL(aboutToBlock()), this, SLOT(flushRequests()));
-#endif
 
     mReadNotifier = new QSocketNotifier(mFd, QSocketNotifier::Read, this);
     connect(mReadNotifier, SIGNAL(activated(int)), this, SLOT(readEvents()));

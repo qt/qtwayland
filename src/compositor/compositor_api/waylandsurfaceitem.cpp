@@ -330,7 +330,7 @@ void WaylandSurfaceItem::updateSize()
 
 void WaylandSurfaceItem::updatePosition()
 {
-    setPos(m_surface->pos());
+    setPosition(m_surface->pos());
 }
 
 bool WaylandSurfaceItem::paintEnabled() const

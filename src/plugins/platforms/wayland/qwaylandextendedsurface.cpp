@@ -110,11 +110,6 @@ static int32_t waylandRotationFromScreenOrientation(Qt::ScreenOrientation orient
     }
 }
 
-void QWaylandExtendedSurface::setWindowOrientation(Qt::ScreenOrientation orientation)
-{
-    wl_extended_surface_set_window_orientation(m_extended_surface, waylandRotationFromScreenOrientation(orientation));
-}
-
 void QWaylandExtendedSurface::setContentOrientation(Qt::ScreenOrientation orientation)
 {
     wl_extended_surface_set_content_orientation(m_extended_surface, waylandRotationFromScreenOrientation(orientation));

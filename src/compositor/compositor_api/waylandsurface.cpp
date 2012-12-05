@@ -85,7 +85,6 @@ public:
 WaylandSurface::WaylandSurface(Wayland::Surface *surface)
     : QObject(*new WaylandSurfacePrivate(surface))
 {
-    connect(this, SIGNAL(windowOrientationChanged()), this, SIGNAL(windowRotationChanged()));
 }
 
 WaylandClient *WaylandSurface::client() const
@@ -173,32 +172,6 @@ Qt::ScreenOrientation WaylandSurface::contentOrientation() const
     if (!d->surface->extendedSurface())
         return Qt::PrimaryOrientation;
     return d->surface->extendedSurface()->contentOrientation();
-}
-
-Qt::ScreenOrientation WaylandSurface::windowOrientation() const
-{
-    Q_D(const WaylandSurface);
-    if (!d->surface->extendedSurface())
-        return Qt::PrimaryOrientation;
-    return d->surface->extendedSurface()->windowOrientation();
-}
-
-/*!
-   \property windowRotation
-
-   Convenience property to get the rotation required to map the surface to the screen
-   based on its windowOrientation.
- */
-int WaylandSurface::windowRotation() const
-{
-    QRect geometry = compositor()->outputGeometry();
-    Qt::ScreenOrientation compositorOrientation = geometry.width() >= geometry.height() ? Qt::LandscapeOrientation : Qt::PortraitOrientation;
-    Qt::ScreenOrientation wOrientation = windowOrientation();
-
-    if (wOrientation == Qt::PrimaryOrientation)
-        return 0;
-
-    return QGuiApplication::primaryScreen()->angleBetween(wOrientation, compositorOrientation);
 }
 
 WaylandSurface::WindowFlags WaylandSurface::windowFlags() const

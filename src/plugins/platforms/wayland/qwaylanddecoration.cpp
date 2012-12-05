@@ -97,7 +97,7 @@ void QWaylandDecoration::paint(QPaintDevice *device)
     }
 
 
-    QString windowTitleText = window()->windowTitle();
+    QString windowTitleText = window()->title();
     if (!windowTitleText.isEmpty()) {
         if (m_windowTitle.text() != windowTitleText) {
             m_windowTitle.setText(windowTitleText);

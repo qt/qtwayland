@@ -151,7 +151,7 @@ int main(int argc, char *argv[])
     QGuiApplication app(argc, argv);
 
     QmlCompositor compositor;
-    compositor.setWindowTitle(QLatin1String("QML Compositor"));
+    compositor.setTitle(QLatin1String("QML Compositor"));
     compositor.setGeometry(0, 0, 1024, 768);
     compositor.show();
 

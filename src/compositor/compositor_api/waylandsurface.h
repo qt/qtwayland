@@ -73,9 +73,7 @@ class Q_COMPOSITOR_EXPORT WaylandSurface : public QObject
     Q_PROPERTY(QSize size READ size WRITE setSize NOTIFY sizeChanged)
     Q_PROPERTY(QPointF pos READ pos WRITE setPos NOTIFY posChanged)
     Q_PROPERTY(WaylandSurface::WindowFlags windowFlags READ windowFlags NOTIFY windowFlagsChanged)
-    Q_PROPERTY(Qt::ScreenOrientation windowOrientation READ windowOrientation NOTIFY windowOrientationChanged)
     Q_PROPERTY(Qt::ScreenOrientation contentOrientation READ contentOrientation NOTIFY contentOrientationChanged)
-    Q_PROPERTY(int windowRotation READ windowRotation NOTIFY windowRotationChanged)
     Q_PROPERTY(QString title READ title NOTIFY titleChanged)
     Q_PROPERTY(Qt::ScreenOrientations orientationUpdateMask READ orientationUpdateMask NOTIFY orientationUpdateMaskChanged)
 
@@ -115,8 +113,6 @@ public:
 
     Qt::ScreenOrientations orientationUpdateMask() const;
     Qt::ScreenOrientation contentOrientation() const;
-    Qt::ScreenOrientation windowOrientation() const;
-    int windowRotation() const;
 
     WindowFlags windowFlags() const;
 
@@ -163,9 +159,7 @@ signals:
     void posChanged();
     void windowPropertyChanged(const QString &name, const QVariant &value);
     void windowFlagsChanged(WindowFlags flags);
-    void windowOrientationChanged();
     void contentOrientationChanged();
-    void windowRotationChanged();
     void orientationUpdateMaskChanged();
     void extendedSurfaceReady();
     void titleChanged();

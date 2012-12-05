@@ -77,7 +77,6 @@ void SurfaceExtensionGlobal::get_extended_surface(struct wl_client *client,
 
 ExtendedSurface::ExtendedSurface(struct wl_client *client, uint32_t id, Surface *surface)
     : m_surface(surface)
-    , m_windowOrientation(Qt::PrimaryOrientation)
     , m_contentOrientation(Qt::PrimaryOrientation)
     , m_windowFlags(0)
 {
@@ -138,27 +137,9 @@ static Qt::ScreenOrientation screenOrientationFromWaylandOrientation(int32_t ori
     }
 }
 
-Qt::ScreenOrientation ExtendedSurface::windowOrientation() const
-{
-    return m_windowOrientation;
-}
-
 Qt::ScreenOrientation ExtendedSurface::contentOrientation() const
 {
     return m_contentOrientation;
-}
-
-void ExtendedSurface::set_window_orientation(struct wl_client *client,
-                                             struct wl_resource *extended_surface_resource,
-                                             int32_t orientation)
-{
-    Q_UNUSED(client);
-    ExtendedSurface *extended_surface = static_cast<ExtendedSurface *>(extended_surface_resource->data);
-
-    Qt::ScreenOrientation oldOrientation = extended_surface->m_windowOrientation;
-    extended_surface->m_windowOrientation = screenOrientationFromWaylandOrientation(orientation);
-    if (extended_surface->m_windowOrientation != oldOrientation)
-        emit extended_surface->m_surface->waylandSurface()->windowOrientationChanged();
 }
 
 void ExtendedSurface::set_content_orientation(struct wl_client *client,
@@ -210,7 +191,6 @@ void ExtendedSurface::set_window_flags(wl_client *client, wl_resource *resource,
 
 const struct wl_extended_surface_interface ExtendedSurface::extended_surface_interface = {
     ExtendedSurface::update_generic_property,
-    ExtendedSurface::set_window_orientation,
     ExtendedSurface::set_content_orientation,
     ExtendedSurface::set_window_flags
 };

@@ -89,7 +89,6 @@ public:
     void setParent(ExtendedSurface *parent);
     QLinkedList<WaylandSurface *> subSurfaces() const;
 
-    Qt::ScreenOrientation windowOrientation() const;
     Qt::ScreenOrientation contentOrientation() const;
 
     WaylandSurface::WindowFlags windowFlags() const { return m_windowFlags; }
@@ -105,7 +104,6 @@ private:
     struct wl_resource *m_extended_surface_resource;
     Surface *m_surface;
 
-    Qt::ScreenOrientation m_windowOrientation;
     Qt::ScreenOrientation m_contentOrientation;
 
     WaylandSurface::WindowFlags m_windowFlags;
@@ -118,10 +116,6 @@ private:
                                     struct wl_resource *resource,
                                     const char *name,
                                     struct wl_array *value);
-
-    static void set_window_orientation(struct wl_client *client,
-                                       struct wl_resource *resource,
-                                       int32_t orientation);
 
     static void set_content_orientation(struct wl_client *client,
                                         struct wl_resource *resource,

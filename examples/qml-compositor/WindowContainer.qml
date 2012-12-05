@@ -117,7 +117,6 @@ Item {
     }
 
     transform: [
-        Rotation { origin.x: container.width / 2; origin.y: container.height / 2; angle: (child && child.surface ? child.surface.windowRotation : 0) },
         Scale { id: scaleTransform; origin.x: container.width / 2; origin.y: container.height / 2; xScale: 1; yScale: 1 }
     ]
 

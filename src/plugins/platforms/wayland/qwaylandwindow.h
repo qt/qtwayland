@@ -94,7 +94,6 @@ public:
     QWaylandSubSurface *subSurfaceWindow() const;
 
     void handleContentOrientationChange(Qt::ScreenOrientation orientation);
-    Qt::ScreenOrientation requestWindowOrientation(Qt::ScreenOrientation orientation);
 
     void setWindowState(Qt::WindowState state);
     void setWindowFlags(Qt::WindowFlags flags);

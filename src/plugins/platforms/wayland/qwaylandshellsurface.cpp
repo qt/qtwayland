@@ -95,7 +95,7 @@ void QWaylandShellSurface::updateTransientParent(QWindow *parent)
     }
 
     uint32_t flags = 0;
-    Qt::WindowFlags wf = m_window->window()->windowFlags();
+    Qt::WindowFlags wf = m_window->window()->flags();
     if (wf.testFlag(Qt::ToolTip)
             || wf.testFlag(Qt::WindowTransparentForInput))
         flags |= WL_SHELL_SURFACE_TRANSIENT_INACTIVE;

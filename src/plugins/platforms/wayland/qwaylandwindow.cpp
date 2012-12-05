@@ -102,7 +102,7 @@ QWaylandWindow::QWaylandWindow(QWindow *window)
         mShellSurface->setTopLevel();
     }
 
-    setWindowFlags(window->windowFlags());
+    setWindowFlags(window->flags());
 }
 
 QWaylandWindow::~QWaylandWindow()
@@ -282,22 +282,12 @@ void QWaylandWindow::handleContentOrientationChange(Qt::ScreenOrientation orient
         mExtendedWindow->setContentOrientation(orientation);
 }
 
-Qt::ScreenOrientation QWaylandWindow::requestWindowOrientation(Qt::ScreenOrientation orientation)
-{
-    if (mExtendedWindow) {
-        mExtendedWindow->setWindowOrientation(orientation);
-        return orientation;
-    }
-
-    return Qt::PrimaryOrientation;
-}
-
 void QWaylandWindow::setWindowState(Qt::WindowState state)
 {
     if (state == Qt::WindowFullScreen || state == Qt::WindowMaximized) {
         QScreen *screen = window()->screen();
 
-        QRect geometry = screen->mapBetween(window()->windowOrientation(), screen->primaryOrientation(), screen->geometry());
+        QRect geometry = screen->geometry();
         setGeometry(geometry);
 
         QWindowSystemInterface::handleGeometryChange(window(), geometry);
@@ -313,7 +303,7 @@ void QWaylandWindow::setWindowFlags(Qt::WindowFlags flags)
 bool QWaylandWindow::createDecoration()
 {
     bool decoration = false;
-    switch (window()->windowType()) {
+    switch (window()->type()) {
         case Qt::Window:
         case Qt::Widget:
         case Qt::Dialog:
@@ -324,7 +314,7 @@ bool QWaylandWindow::createDecoration()
         default:
             break;
     }
-    if (window()->windowFlags() & Qt::FramelessWindowHint) {
+    if (window()->flags() & Qt::FramelessWindowHint) {
         decoration = false;
     }
 

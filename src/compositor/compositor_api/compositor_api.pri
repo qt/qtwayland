@@ -12,7 +12,7 @@ SOURCES += \
 
 QT += core-private
 
-contains(QT_CONFIG, quick) {
+qtHaveModule(quick) {
     SOURCES += $$PWD/waylandsurfaceitem.cpp \
             $$PWD/waylandsurfacenode.cpp \
             $$PWD/waylandsurfacetexturematerial.cpp

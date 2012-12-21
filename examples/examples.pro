@@ -1,10 +1,10 @@
 TEMPLATE=subdirs
 SUBDIRS += qwindow-compositor
 
-!contains(QT_CONFIG, no-widgets) {
+qtHaveModule(widgets) {
     SUBDIRS += qwidget-compositor
 }
 
-contains(QT_CONFIG, quick) {
+qtHaveModule(quick) {
     SUBDIRS += qml-compositor
 }

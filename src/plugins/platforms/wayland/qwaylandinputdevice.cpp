@@ -508,7 +508,6 @@ void QWaylandInputDevice::keyboard_leave(void *data,
     QWaylandInputDevice *inputDevice = (QWaylandInputDevice *) data;
     inputDevice->mKeyboardFocus = NULL;
     inputDevice->mQDisplay->setLastKeyboardFocusInputDevice(0);
-    QWindowSystemInterface::handleWindowActivated(0);
 }
 
 void QWaylandInputDevice::keyboard_key(void *data,

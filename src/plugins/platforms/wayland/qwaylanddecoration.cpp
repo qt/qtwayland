@@ -103,12 +103,20 @@ void QWaylandDecoration::paint(QPaintDevice *device)
             m_windowTitle.setText(windowTitleText);
             m_windowTitle.prepare();
         }
+
+        QRect titleBar = top;
+        titleBar.setLeft(m_margins.left() + BUTTON_SPACING);
+        titleBar.setRight(minimizeButtonRect().left() - BUTTON_SPACING);
+
         p.save();
-        p.setClipRect(top);
+        p.setClipRect(titleBar);
         p.setPen(QColor(0xee,0xee,0xee));
         QSizeF size = m_windowTitle.size();
         int dx = (top.width() - size.width()) /2;
         int dy = (top.height()- size.height()) /2;
+        QFont font = p.font();
+        font.setBold(true);
+        p.setFont(font);
         QPoint windowTitlePoint(top.topLeft().x() + dx,
                  top.topLeft().y() + dy);
         p.drawStaticText(windowTitlePoint,m_windowTitle);

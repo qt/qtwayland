@@ -165,7 +165,7 @@ void QWaylandShmBackingStore::beginPaint(const QRegion &)
     mPainting = true;
     ensureSize();
 
-    if (waylandWindow()->attached() && mBackBuffer == waylandWindow()->attached()) {
+    if (waylandWindow()->attached() && mBackBuffer == waylandWindow()->attached() && mFrameCallback) {
         QWaylandShmWindow *waylandWindow = static_cast<QWaylandShmWindow *>(window()->handle());
         Q_ASSERT(waylandWindow->windowType() == QWaylandWindow::Shm);
         waylandWindow->waitForFrameSync();

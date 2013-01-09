@@ -95,6 +95,10 @@ private:
     bool isLeftClicked(Qt::MouseButtons newMouseButtonState);
     bool isLeftReleased(Qt::MouseButtons newMouseButtonState);
 
+    QRectF closeButtonRect() const;
+    QRectF maximizeButtonRect() const;
+    QRectF minimizeButtonRect() const;
+
     QWindow *m_window;
     QWaylandWindow *m_wayland_window;
 

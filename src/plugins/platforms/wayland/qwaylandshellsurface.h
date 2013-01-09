@@ -56,8 +56,12 @@ public:
     QWaylandShellSurface(struct wl_shell_surface *shell_surface, QWaylandWindow *window);
     ~QWaylandShellSurface();
 
+    bool isMaximized() const { return m_maximized; }
+
     void resize(QWaylandInputDevice *inputDevice, enum wl_shell_surface_resize edges);
     void move(QWaylandInputDevice *inputDevice);
+    void toggleMaximize();
+    void minimize();
 
     void setTopLevel();
     void updateTransientParent(QWindow *parent);
@@ -71,6 +75,8 @@ public:
 private:
     struct wl_shell_surface *m_shell_surface;
     QWaylandWindow *m_window;
+    bool m_maximized;
+    QSize m_size;
 
     static void ping(void *data,
                      struct wl_shell_surface *wl_shell_surface,

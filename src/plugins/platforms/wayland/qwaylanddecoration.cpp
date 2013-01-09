@@ -50,6 +50,9 @@
 #include <QtGui/QPainter>
 #include <QtGui/QRadialGradient>
 
+#define BUTTON_WIDTH 25
+#define BUTTON_SPACING 5
+
 QWaylandDecoration::QWaylandDecoration(QWaylandWindow *window)
     : m_window(window->window())
     , m_wayland_window(window)
@@ -79,10 +82,14 @@ void QWaylandDecoration::paint(QPaintDevice *device)
         QRect(0, margins().top(), margins().left(), surfaceRect.height() - margins().top() - margins().bottom()),
         QRect(surfaceRect.width() - margins().right(), margins().top(), margins().left(), surfaceRect.height() - margins().top() - margins().bottom())
     };
+
     QRect top = clips[0];
+
     QPainter p(device);
     p.setRenderHint(QPainter::Antialiasing);
-    QPoint gradCenter(top.center()+ QPoint(30,60));
+
+    // Title bar
+    QPoint gradCenter(top.center()+ QPoint(30, 60));
     QRadialGradient grad(gradCenter, top.width() / 2, gradCenter);
     QColor base(backgroundColor());
     grad.setColorAt(1, base);
@@ -96,7 +103,7 @@ void QWaylandDecoration::paint(QPaintDevice *device)
         p.restore();
     }
 
-
+    // Window title
     QString windowTitleText = window()->title();
     if (!windowTitleText.isEmpty()) {
         if (m_windowTitle.text() != windowTitleText) {
@@ -122,14 +129,69 @@ void QWaylandDecoration::paint(QPaintDevice *device)
         p.drawStaticText(windowTitlePoint,m_windowTitle);
         p.restore();
     }
+
+    // We don't need antialiasing from now on
+    p.setRenderHint(QPainter::Antialiasing, false);
+
+    QRectF rect;
+
+    // Default pen
+    QPen pen(QColor(0xee, 0xee, 0xee));
+    p.setPen(pen);
+
+    // Close button
+    p.save();
+    rect = closeButtonRect();
+    p.drawRect(rect);
+    qreal crossSize = rect.height() / 2;
+    QPointF crossCenter(rect.center());
+    QRectF crossRect(crossCenter.x() - crossSize / 2, crossCenter.y() - crossSize / 2, crossSize, crossSize);
+    pen.setWidth(2);
+    p.setPen(pen);
+    p.drawLine(crossRect.topLeft(), crossRect.bottomRight());
+    p.drawLine(crossRect.bottomLeft(), crossRect.topRight());
+    p.restore();
+
+    // Maximize button
+    p.save();
+    p.drawRect(maximizeButtonRect());
+    rect = maximizeButtonRect().adjusted(5, 5, -5, -5);
+    if (m_wayland_window->shellSurface()->isMaximized()) {
+        QRectF rect1 = rect.adjusted(rect.width() / 3, 0, 0, -rect.height() / 3);
+        QRectF rect2 = rect.adjusted(0, rect.height() / 4, -rect.width() / 4, 0);
+        p.drawRect(rect1);
+        p.drawRect(rect2);
+    } else {
+        p.setPen(QColor(0xee, 0xee, 0xee));
+        p.drawRect(rect);
+        p.drawLine(rect.left(), rect.top() + 1, rect.right(), rect.top() + 1);
+    }
+    p.restore();
+
+    // Minimize button
+    p.save();
+    p.drawRect(minimizeButtonRect());
+    rect = minimizeButtonRect().adjusted(5, 5, -5, -5);
+    pen.setWidth(2);
+    p.setPen(pen);
+    p.drawLine(rect.bottomLeft(), rect.bottomRight());
+    p.restore();
 }
 
 void QWaylandDecoration::handleMouse(QWaylandInputDevice *inputDevice, const QPointF &local, const QPointF &global, Qt::MouseButtons b, Qt::KeyboardModifiers mods)
 
 {
     Q_UNUSED(global);
-    //figure out what area mouse is in
-    if (local.y() <= m_margins.top()) {
+
+    // Figure out what area mouse is in
+    if (closeButtonRect().contains(local) && isLeftClicked(b)) {
+        if (m_wayland_window->window())
+            QCoreApplication::postEvent(m_wayland_window->window(), new QCloseEvent());
+    } else if (maximizeButtonRect().contains(local) && isLeftClicked(b)) {
+        m_wayland_window->shellSurface()->toggleMaximize();
+    } else if (minimizeButtonRect().contains(local) && isLeftClicked(b)) {
+        m_wayland_window->shellSurface()->minimize();
+    } else if (local.y() <= m_margins.top()) {
         processMouseTop(inputDevice,local,b,mods);
     } else if (local.y() > m_window->height() - m_margins.bottom()) {
         processMouseBottom(inputDevice,local,b,mods);
@@ -140,6 +202,7 @@ void QWaylandDecoration::handleMouse(QWaylandInputDevice *inputDevice, const QPo
     } else {
         restoreMouseCursor();
     }
+
     m_mouseButtons = b;
 }
 
@@ -238,6 +301,24 @@ bool QWaylandDecoration::isLeftReleased(Qt::MouseButtons newMouseButtonState)
     if ((m_mouseButtons & Qt::LeftButton) && !(newMouseButtonState & Qt::LeftButton))
         return true;
     return false;
+}
+
+QRectF QWaylandDecoration::closeButtonRect() const
+{
+    return QRectF(window()->frameGeometry().width() - BUTTON_WIDTH - BUTTON_SPACING * 2,
+                  BUTTON_SPACING, BUTTON_WIDTH, margins().top() - BUTTON_SPACING * 2);
+}
+
+QRectF QWaylandDecoration::maximizeButtonRect() const
+{
+    return QRectF(window()->frameGeometry().width() - BUTTON_WIDTH * 2 - BUTTON_SPACING * 3,
+                  BUTTON_SPACING, BUTTON_WIDTH, margins().top() - BUTTON_SPACING * 2);
+}
+
+QRectF QWaylandDecoration::minimizeButtonRect() const
+{
+    return QRectF(window()->frameGeometry().width() - BUTTON_WIDTH * 3 - BUTTON_SPACING * 4,
+                  BUTTON_SPACING, BUTTON_WIDTH, margins().top() - BUTTON_SPACING * 2);
 }
 
 void QWaylandDecoration::setBackgroundColor(const QColor &c)

@@ -51,6 +51,7 @@
 QWaylandShellSurface::QWaylandShellSurface(struct wl_shell_surface *shell_surface, QWaylandWindow *window)
     : m_shell_surface(shell_surface)
     , m_window(window)
+    , m_maximized(false)
 {
     wl_shell_surface_add_listener(m_shell_surface,&m_shell_surface_listener,this);
 }
@@ -72,6 +73,24 @@ void QWaylandShellSurface::move(QWaylandInputDevice *inputDevice)
     wl_shell_surface_move(m_shell_surface,
                           inputDevice->wl_seat(),
                           QWaylandDisplay::currentTimeMillisec());
+}
+
+void QWaylandShellSurface::toggleMaximize()
+{
+    if (m_maximized) {
+        setTopLevel();
+        m_window->configure(0, m_size.width(), m_size.height());
+    } else {
+        m_size = m_window->window()->frameGeometry().size();
+        wl_shell_surface_set_maximized(m_shell_surface, 0);
+    }
+
+    m_maximized = !m_maximized;
+}
+
+void QWaylandShellSurface::minimize()
+{
+    // TODO: There's no wl_shell_surface API for this
 }
 
 void QWaylandShellSurface::setTopLevel()

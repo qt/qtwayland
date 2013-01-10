@@ -78,6 +78,9 @@ public:
     QWindow *window() const;
     QWaylandWindow *waylandWindow() const;
 
+    void setForegroundColor(const QColor &c);
+    inline QColor foregroundColor() const;
+
     void setBackgroundColor(const QColor &c);
     inline QColor backgroundColor() const;
 
@@ -107,6 +110,7 @@ private:
     Qt::CursorShape m_cursorShape;
     Qt::MouseButtons m_mouseButtons;
 
+    QColor m_foregroundColor;
     QColor m_backgroundColor;
     QStaticText m_windowTitle;
 };
@@ -124,6 +128,11 @@ inline QWindow *QWaylandDecoration::window() const
 inline QWaylandWindow *QWaylandDecoration::waylandWindow() const
 {
     return m_wayland_window;
+}
+
+inline QColor QWaylandDecoration::foregroundColor() const
+{
+    return m_foregroundColor;
 }
 
 inline QColor QWaylandDecoration::backgroundColor() const

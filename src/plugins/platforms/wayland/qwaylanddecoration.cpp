@@ -48,7 +48,8 @@
 #include <QtGui/QGuiApplication>
 #include <QtGui/QCursor>
 #include <QtGui/QPainter>
-#include <QtGui/QRadialGradient>
+#include <QtGui/QPalette>
+#include <QtGui/QLinearGradient>
 
 #define BUTTON_WIDTH 25
 #define BUTTON_SPACING 5
@@ -59,9 +60,13 @@ QWaylandDecoration::QWaylandDecoration(QWaylandWindow *window)
     , m_margins(3,30,3,3)
     , m_hasSetCursor(false)
     , m_mouseButtons(Qt::NoButton)
-    , m_backgroundColor(90, 90, 100)
 {
     m_wayland_window->setDecoration(this);
+
+    QPalette palette;
+    m_foregroundColor = palette.color(QPalette::Active, QPalette::HighlightedText);
+    m_backgroundColor = palette.color(QPalette::Active, QPalette::Highlight);
+
     QTextOption option(Qt::AlignHCenter | Qt::AlignVCenter);
     option.setWrapMode(QTextOption::NoWrap);
     m_windowTitle.setTextOption(option);
@@ -90,10 +95,10 @@ void QWaylandDecoration::paint(QPaintDevice *device)
 
     // Title bar
     QPoint gradCenter(top.center()+ QPoint(30, 60));
-    QRadialGradient grad(gradCenter, top.width() / 2, gradCenter);
+    QLinearGradient grad(top.topLeft(), top.bottomLeft());
     QColor base(backgroundColor());
-    grad.setColorAt(1, base);
-    grad.setColorAt(0, base.lighter(123));
+    grad.setColorAt(0, base.lighter(100));
+    grad.setColorAt(1, base.darker(180));
     QPainterPath roundedRect;
     roundedRect.addRoundedRect(surfaceRect, 6, 6);
     for (int i = 0; i < 4; ++i) {
@@ -117,7 +122,7 @@ void QWaylandDecoration::paint(QPaintDevice *device)
 
         p.save();
         p.setClipRect(titleBar);
-        p.setPen(QColor(0xee,0xee,0xee));
+        p.setPen(m_foregroundColor);
         QSizeF size = m_windowTitle.size();
         int dx = (top.width() - size.width()) /2;
         int dy = (top.height()- size.height()) /2;
@@ -136,7 +141,7 @@ void QWaylandDecoration::paint(QPaintDevice *device)
     QRectF rect;
 
     // Default pen
-    QPen pen(QColor(0xee, 0xee, 0xee));
+    QPen pen(m_foregroundColor);
     p.setPen(pen);
 
     // Close button
@@ -162,7 +167,7 @@ void QWaylandDecoration::paint(QPaintDevice *device)
         p.drawRect(rect1);
         p.drawRect(rect2);
     } else {
-        p.setPen(QColor(0xee, 0xee, 0xee));
+        p.setPen(m_foregroundColor);
         p.drawRect(rect);
         p.drawLine(rect.left(), rect.top() + 1, rect.right(), rect.top() + 1);
     }
@@ -319,6 +324,11 @@ QRectF QWaylandDecoration::minimizeButtonRect() const
 {
     return QRectF(window()->frameGeometry().width() - BUTTON_WIDTH * 3 - BUTTON_SPACING * 4,
                   BUTTON_SPACING, BUTTON_WIDTH, margins().top() - BUTTON_SPACING * 2);
+}
+
+void QWaylandDecoration::setForegroundColor(const QColor &c)
+{
+    m_foregroundColor = c;
 }
 
 void QWaylandDecoration::setBackgroundColor(const QColor &c)

@@ -141,16 +141,17 @@ void QWaylandCursor::changeCursor(QCursor *cursor, QWindow *window)
     p = NULL;
     bool isBitmap = false;
 
-    switch (cursor->shape()) {
+    const Qt::CursorShape newShape = cursor ? cursor->shape() : Qt::ArrowCursor;
+    switch (newShape) {
     case Qt::ArrowCursor:
-        p = &pointer_images[cursor->shape()];
+        p = &pointer_images[newShape];
         break;
     case Qt::UpArrowCursor:
     case Qt::CrossCursor:
     case Qt::WaitCursor:
         break;
     case Qt::IBeamCursor:
-        p = &pointer_images[cursor->shape()];
+        p = &pointer_images[newShape];
         break;
     case Qt::SizeVerCursor:	/* 5 */
     case Qt::SizeHorCursor:
@@ -162,7 +163,7 @@ void QWaylandCursor::changeCursor(QCursor *cursor, QWindow *window)
     case Qt::SplitVCursor:
     case Qt::SplitHCursor:
     case Qt::PointingHandCursor:
-        p = &pointer_images[cursor->shape()];
+        p = &pointer_images[newShape];
         break;
     case Qt::ForbiddenCursor:
     case Qt::WhatsThisCursor:	/* 15 */
@@ -173,7 +174,7 @@ void QWaylandCursor::changeCursor(QCursor *cursor, QWindow *window)
     case Qt::DragCopyCursor:
     case Qt::DragMoveCursor: /* 20 */
     case Qt::DragLinkCursor:
-        p = &pointer_images[cursor->shape()];
+        p = &pointer_images[newShape];
         break;
 
     case Qt::BitmapCursor:
@@ -186,7 +187,7 @@ void QWaylandCursor::changeCursor(QCursor *cursor, QWindow *window)
 
     if (!p && !isBitmap) {
         p = &pointer_images[0];
-        qWarning("unhandled cursor %d", cursor->shape());
+        qWarning("unhandled cursor %d", newShape);
     }
 
     if (isBitmap && !cursor->pixmap().isNull()) {

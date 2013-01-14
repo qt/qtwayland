@@ -42,8 +42,10 @@
 #ifndef QWAYLANDWINDOW_H
 #define QWAYLANDWINDOW_H
 
-#include <qpa/qplatformwindow.h>
 #include <QtCore/QWaitCondition>
+#include <QtGui/QIcon>
+
+#include <qpa/qplatformwindow.h>
 
 #include "qwaylanddisplay.h"
 
@@ -73,6 +75,9 @@ public:
     void setParent(const QPlatformWindow *parent);
 
     void setWindowTitle(const QString &title);
+
+    inline QIcon windowIcon() const;
+    void setWindowIcon(const QIcon &icon);
 
     void setGeometry(const QRect &rect);
 
@@ -141,6 +146,8 @@ protected:
     bool mSentInitialResize;
     QPoint mOffset;
 
+    QIcon mWindowIcon;
+
 private:
     void handleMouseEventWithDecoration(QWaylandInputDevice *inputDevice,
                                         ulong timestamp,
@@ -153,6 +160,11 @@ private:
     static void frameCallback(void *data, struct wl_callback *wl_callback, uint32_t time);
 
 };
+
+inline QIcon QWaylandWindow::windowIcon() const
+{
+    return mWindowIcon;
+}
 
 inline QPoint QWaylandWindow::attachOffset() const
 {

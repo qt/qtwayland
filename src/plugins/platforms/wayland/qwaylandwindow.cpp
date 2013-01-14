@@ -148,6 +148,14 @@ void QWaylandWindow::setWindowTitle(const QString &title)
     }
 }
 
+void QWaylandWindow::setWindowIcon(const QIcon &icon)
+{
+    mWindowIcon = icon;
+
+    if (mWindowDecoration && window()->isVisible())
+        mWindowDecoration->paintDecoration();
+}
+
 void QWaylandWindow::setGeometry(const QRect &rect)
 {
     QPlatformWindow::setGeometry(rect);

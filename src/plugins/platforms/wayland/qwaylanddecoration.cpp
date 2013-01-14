@@ -108,6 +108,18 @@ void QWaylandDecoration::paint(QPaintDevice *device)
         p.restore();
     }
 
+    // Window icon
+    QIcon icon = m_wayland_window->windowIcon();
+    if (!icon.isNull()) {
+        QPixmap pixmap = icon.pixmap(QSize(128, 128));
+        QPixmap scaled = pixmap.scaled(22, 22, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+
+        QRectF iconRect(0, 0, 22, 22);
+        p.drawPixmap(iconRect.adjusted(margins().left() + BUTTON_SPACING, 4,
+                                       margins().left() + BUTTON_SPACING, 4),
+                     scaled, iconRect);
+    }
+
     // Window title
     QString windowTitleText = window()->title();
     if (!windowTitleText.isEmpty()) {
@@ -117,7 +129,8 @@ void QWaylandDecoration::paint(QPaintDevice *device)
         }
 
         QRect titleBar = top;
-        titleBar.setLeft(m_margins.left() + BUTTON_SPACING);
+        titleBar.setLeft(m_margins.left() + BUTTON_SPACING +
+            (icon.isNull() ? 0 : 22 + BUTTON_SPACING));
         titleBar.setRight(minimizeButtonRect().left() - BUTTON_SPACING);
 
         p.save();

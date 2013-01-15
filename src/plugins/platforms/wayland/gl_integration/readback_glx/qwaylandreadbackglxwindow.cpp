@@ -97,7 +97,7 @@ void QWaylandReadbackGlxWindow::createSurface()
     waitForFrameSync();
 
     m_buffer = new QWaylandShmBuffer(m_glxIntegration->waylandDisplay(), size, QImage::Format_ARGB32);
-    attach(m_buffer);
+    attach(m_buffer, 0, 0);
 
     int depth = XDefaultDepth(m_glxIntegration->xDisplay(), m_glxIntegration->screen());
     m_pixmap = XCreatePixmap(m_glxIntegration->xDisplay(), m_glxIntegration->rootWindow(), size.width(), size.height(), depth);

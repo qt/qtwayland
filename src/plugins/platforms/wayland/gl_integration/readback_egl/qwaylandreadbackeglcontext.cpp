@@ -160,7 +160,7 @@ void QWaylandReadbackEglContext::geometryChanged()
         XFreePixmap(mEglIntegration->xDisplay(),mPixmap);
 
     mBuffer = new QWaylandShmBuffer(mEglIntegration->waylandDisplay(),size,QImage::Format_ARGB32);
-    mWindow->attach(mBuffer);
+    mWindow->attach(mBuffer, 0, 0);
     mPixmap = XCreatePixmap(mEglIntegration->xDisplay(),mEglIntegration->rootWindow(),size.width(),size.height(),mEglIntegration->depth());
     XSync(mEglIntegration->xDisplay(),False);
 

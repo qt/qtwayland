@@ -133,7 +133,7 @@ void QWaylandXCompositeGLXWindow::createSurface()
     m_buffer = new QWaylandXCompositeBuffer(m_glxIntegration->waylandXComposite(),
                                             (uint32_t)m_xWindow,
                                             size);
-    attach(m_buffer);
+    attach(m_buffer, 0, 0);
     waitForSync();
 }
 

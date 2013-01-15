@@ -277,7 +277,7 @@ void QWaylandBrcmEglWindow::flushBuffers()
     m_mutex.lock();
     while (!m_pending.isEmpty()) {
         QWaylandBrcmBuffer *buffer = m_pending.takeFirst();
-        attach(buffer);
+        attach(buffer, 0, 0);
         damage(QRect(QPoint(), size));
     }
     m_mutex.unlock();

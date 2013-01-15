@@ -101,6 +101,6 @@ void QWaylandReadbackCGLWindow::createSurface()
 
     delete m_buffer;
     m_buffer = new QWaylandShmBuffer(m_CglIntegration->waylandDisplay(),size,QImage::Format_ARGB32);
-    attach(m_buffer);
+    attach(m_buffer, 0, 0);
 }
 

@@ -150,12 +150,12 @@ Compositor::Compositor(WaylandCompositor *qt_compositor)
 
     m_data_device_manager =  new DataDeviceManager(this);
 
+    wl_display_init_shm(m_display->handle());
+
     wl_display_add_global(m_display->handle(),&wl_output_interface, &m_output_global,OutputGlobal::output_bind_func);
 
     m_shell = new Shell();
     wl_display_add_global(m_display->handle(), &wl_shell_interface, m_shell, Shell::bind_func);
-
-    wl_display_init_shm(m_display->handle());
 
     m_outputExtension = new OutputExtensionGlobal(this);
     m_surfaceExtension = new SurfaceExtensionGlobal(this);
@@ -218,7 +218,7 @@ void Compositor::createSurface(struct wl_client *client, uint32_t id)
     Surface *surface = new Surface(client,id, this);
 
     m_surfaces << surface;
-
+    //BUG: This may not be an on-screen window surface though
     m_qt_compositor->surfaceCreated(surface->waylandSurface());
 }
 

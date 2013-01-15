@@ -134,10 +134,12 @@ private:
     static void bind_func(struct wl_client *client, void *data,
                                 uint32_t version, uint32_t id);
 
-    static void pointer_attach(struct wl_client *client,
-                               struct wl_resource *device_base,
-                               uint32_t serial,
-                               struct wl_resource *buffer, int32_t x, int32_t y);
+    static void set_cursor(struct wl_client *client,
+                           struct wl_resource *device_base,
+                           uint32_t serial,
+                           struct wl_resource *surface,
+                           int32_t hotspot_x,
+                           int32_t hotspot_y);
     const static struct wl_pointer_interface pointer_interface;
 
     static void get_pointer(struct wl_client *client,

@@ -323,6 +323,15 @@ QString WaylandSurface::title() const
     return d->surface->title();
 }
 
+bool WaylandSurface::hasShellSurface() const
+{
+    Q_D(const WaylandSurface);
+    if (d->surface->shellSurface())
+        return true;
+
+    return false;
+}
+
 /*!
  * \return True if WL_SHELL_SURFACE_TRANSIENT_INACTIVE was set for this surface, meaning it should not receive keyboard focus.
  */

@@ -62,8 +62,6 @@
 
 namespace Wayland {
 
-static QImage *currentCursor;
-
 InputDevice::InputDevice(WaylandInputDevice *handle, Compositor *compositor)
     : m_handle(handle)
     , m_compositor(compositor)
@@ -232,6 +230,25 @@ void InputDevice::bind_func(struct wl_client *client, void *data,
         caps |= WL_SEAT_CAPABILITY_TOUCH;
 
     wl_seat_send_capabilities(resource, caps);
+}
+
+const struct wl_pointer_interface InputDevice::pointer_interface = {
+    InputDevice::set_cursor
+};
+
+void InputDevice::set_cursor(wl_client *client, wl_resource *resource,
+                             uint32_t serial, wl_resource *surface_resource,
+                             int32_t hotspot_x, int32_t hotspot_y)
+{
+    Q_UNUSED(client);
+    Q_UNUSED(serial);
+
+    wl_pointer *pointer = reinterpret_cast<wl_pointer *>(resource->data);
+    InputDevice *inputDevice = wayland_cast<InputDevice>(pointer->seat);
+    Wayland::Surface *surface = reinterpret_cast<Wayland::Surface *>(surface_resource->data);
+
+    surface->setCursorSurface(true);
+    inputDevice->m_compositor->waylandCompositor()->setCursorSurface(surface->waylandSurface(), hotspot_x, hotspot_y);
 }
 
 const struct wl_seat_interface InputDevice::seat_interface = {
@@ -625,39 +642,5 @@ DataDevice *InputDevice::dataDevice(struct wl_client *client) const
     }
     return 0;
 }
-
-const struct wl_pointer_interface InputDevice::pointer_interface = {
-    InputDevice::pointer_attach
-};
-
-void InputDevice::pointer_attach(struct wl_client *client,
-                                 struct wl_resource *device_resource,
-                                 uint32_t serial,
-                                 struct wl_resource *buffer_resource, int32_t x, int32_t y)
-{
-    Q_UNUSED(client);
-    Q_UNUSED(serial);
-
-    wl_pointer *pointer = reinterpret_cast<wl_pointer *>(device_resource->data);
-    InputDevice *inputDevice = wayland_cast<InputDevice>(pointer->seat);
-    wl_buffer *buffer = reinterpret_cast<wl_buffer *>(buffer_resource);
-
-    if (buffer && wl_buffer_is_shm(buffer)) {
-        int stride = wl_shm_buffer_get_stride(buffer);
-        uint format = wl_shm_buffer_get_format(buffer);
-        (void) format;
-        void *data = wl_shm_buffer_get_data(buffer);
-        const uchar *char_data = static_cast<const uchar *>(data);
-        if (char_data) {
-            QImage *img = new QImage(char_data, buffer->width, buffer->height, stride, QImage::Format_ARGB32_Premultiplied);
-            inputDevice->m_compositor->waylandCompositor()->changeCursor(*img, x, y);
-            delete currentCursor;
-            currentCursor = img;
-        }
-    } else {
-        inputDevice->m_compositor->waylandCompositor()->changeCursor(QImage(), x, y);
-    }
-}
-
 
 }

@@ -77,13 +77,14 @@ protected:
     bool eventFilter(QObject *obj, QEvent *event);
     QPointF toSurface(WaylandSurface *surface, const QPointF &pos) const;
 
-    void changeCursor(const QImage &image, int hotspotX, int hotspotY);
+    void setCursorSurface(WaylandSurface *surface, int hotspotX, int hotspotY);
 
     void ensureKeyboardFocusSurface(WaylandSurface *oldSurface);
     QImage makeBackgroundImage(const QString &fileName);
 
 private slots:
     void sendExpose();
+    void updateCursor();
 
 private:
     QOpenGLWindow *m_window;
@@ -99,6 +100,11 @@ private:
     WaylandSurface *m_draggingWindow;
     bool m_dragKeyIsPressed;
     QPointF m_drag_diff;
+
+    //Cursor
+    WaylandSurface *m_cursorSurface;
+    int m_cursorHotspotX;
+    int m_cursorHotspotY;
 
     Qt::KeyboardModifiers m_modifiers;
 };

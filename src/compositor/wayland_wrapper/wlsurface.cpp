@@ -86,6 +86,7 @@ Surface::Surface(struct wl_client *client, uint32_t id, Compositor *compositor)
     , m_subSurface(0)
     , m_shellSurface(0)
     , m_transientInactive(false)
+    , m_isCursorSurface(false)
 {
     wl_list_init(&m_frame_callback_list);
     addClientResource(client, &base()->resource, id, &wl_surface_interface,
@@ -413,7 +414,7 @@ void Surface::attach(struct wl_buffer *buffer)
     if (last) {
         if (last->waylandBufferHandle() == buffer)
             return;
-        if (!last->damageRect().isValid()) {
+        if (!last->damageRect().isValid() || isCursorSurface() ){
             last->disown();
             m_bufferQueue.takeLast();
         }

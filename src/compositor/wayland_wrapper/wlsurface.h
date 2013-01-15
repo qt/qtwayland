@@ -132,6 +132,9 @@ public:
     bool transientInactive() const { return m_transientInactive; }
     void setTransientInactive(bool v) { m_transientInactive = v; }
 
+    bool isCursorSurface() const { return m_isCursorSurface; }
+    void setCursorSurface(bool isCursor) { m_isCursorSurface = isCursor; }
+
 private:
     Q_DISABLE_COPY(Surface)
 
@@ -163,6 +166,7 @@ private:
     QString m_className;
     QString m_title;
     bool m_transientInactive;
+    bool m_isCursorSurface;
 
     inline SurfaceBuffer *currentSurfaceBuffer() const;
     bool advanceBufferQueue();

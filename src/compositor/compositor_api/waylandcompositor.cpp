@@ -243,12 +243,12 @@ void WaylandCompositor::sendDragEndEvent()
     m_compositor->sendDragEndEvent();
 }
 
-void WaylandCompositor::changeCursor(const QImage &image, int hotspotX, int hotspotY)
+void WaylandCompositor::setCursorSurface(WaylandSurface *surface, int hotspotX, int hotspotY)
 {
-    Q_UNUSED(image);
+    Q_UNUSED(surface);
     Q_UNUSED(hotspotX);
     Q_UNUSED(hotspotY);
-    qDebug() << "changeCursor" << image.size() << hotspotX << hotspotY;
+    qDebug() << "changeCursor" << surface->size() << hotspotX << hotspotY;
 }
 
 void WaylandCompositor::enableSubSurfaceExtension()

@@ -151,6 +151,8 @@ public:
 
     QString title() const;
 
+    bool hasShellSurface() const;
+
     bool transientInactive() const;
 
 signals:

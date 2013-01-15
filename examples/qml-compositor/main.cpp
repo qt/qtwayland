@@ -102,7 +102,16 @@ public slots:
 private slots:
     void surfaceMapped() {
         WaylandSurface *surface = qobject_cast<WaylandSurface *>(sender());
+        //Ignore surface if it's not a window surface
+        if (!surface->hasShellSurface())
+            return;
+
         WaylandSurfaceItem *item = surface->surfaceItem();
+        //Create a WaylandSurfaceItem if we have not yet
+        if (!item)
+            item = new WaylandSurfaceItem(surface, rootObject());
+
+        item->setTouchEventsEnabled(true);
         //item->takeFocus();
         emit windowAdded(QVariant::fromValue(static_cast<QQuickItem *>(item)));
     }
@@ -134,10 +143,7 @@ protected:
     }
 
     void surfaceCreated(WaylandSurface *surface) {
-        WaylandSurfaceItem *item = new WaylandSurfaceItem(surface, rootObject());
-        item->setTouchEventsEnabled(true);
         connect(surface, SIGNAL(destroyed(QObject *)), this, SLOT(surfaceDestroyed(QObject *)));
-
         connect(surface, SIGNAL(mapped()), this, SLOT(surfaceMapped()));
         connect(surface,SIGNAL(unmapped()), this,SLOT(surfaceUnmapped()));
     }

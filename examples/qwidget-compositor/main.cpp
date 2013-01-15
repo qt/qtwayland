@@ -77,6 +77,7 @@ public:
 #endif
         , m_moveSurface(0)
         , m_dragSourceSurface(0)
+        , m_cursorSurface(0)
     {
         enableSubSurfaceExtension();
         setMouseTracking(true);
@@ -102,10 +103,11 @@ private slots:
             uint py = 1 + (qrand() % (height() - surface->size().height() - 2));
             pos = QPoint(px, py);
             surface->setPos(pos);
-            m_surfaces.append(surface);
+            if (surface->hasShellSurface())
+                m_surfaces.append(surface);
         }
-
-        defaultInputDevice()->setKeyboardFocus(surface);
+        if (surface->hasShellSurface())
+            defaultInputDevice()->setKeyboardFocus(surface);
         update();
     }
 
@@ -239,9 +241,6 @@ protected:
 #endif //QT_COMPOSITOR_WAYLAND_GL
         }
 
-        if (!m_cursor.isNull())
-            p.drawImage(m_cursorPos - m_cursorHotspot, m_cursor);
-
         frameFinished();
 
 #ifdef QT_COMPOSITOR_WAYLAND_GL
@@ -268,8 +267,6 @@ protected:
 
     void mousePressEvent(QMouseEvent *e) {
         m_cursorPos = e->pos();
-        if (!m_cursor.isNull())
-            update();
         QPointF local;
         if (WaylandSurface *surface = surfaceAt(e->pos(), &local)) {
             raise(surface);
@@ -284,8 +281,6 @@ protected:
 
     void mouseMoveEvent(QMouseEvent *e) {
         m_cursorPos = e->pos();
-        if (!m_cursor.isNull())
-            update();
         if (isDragging()) {
             QPoint global = e->pos(); // "global" here means the window of the compositor
             QPointF local;
@@ -353,8 +348,8 @@ protected:
         return 0;
     }
 
-    void changeCursor(const QImage &image, int hotspotX, int hotspotY) {
-        m_cursor = image;
+    void setCursorSurface(WaylandSurface *surface, int hotspotX, int hotspotY) {
+        m_cursorSurface = surface;
         m_cursorHotspot = QPoint(hotspotX, hotspotY);
         update();
     }
@@ -376,7 +371,7 @@ private:
     WaylandSurface *m_dragSourceSurface;
     QPointF m_lastDragSourcePos;
 
-    QImage m_cursor;
+    WaylandSurface* m_cursorSurface;
     QPoint m_cursorPos;
     QPoint m_cursorHotspot;
 

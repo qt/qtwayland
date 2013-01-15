@@ -60,6 +60,9 @@ QWindowCompositor::QWindowCompositor(QOpenGLWindow *window)
     , m_renderScheduler(this)
     , m_draggingWindow(0)
     , m_dragKeyIsPressed(false)
+    , m_cursorSurface(0)
+    , m_cursorHotspotX(0)
+    , m_cursorHotspotY(0)
     , m_modifiers(Qt::NoModifier)
 {
     enableSubSurfaceExtension();
@@ -140,8 +143,11 @@ void QWindowCompositor::surfaceMapped()
     } else {
         m_surfaces.removeOne(surface);
     }
-    m_surfaces.append(surface);
-    defaultInputDevice()->setKeyboardFocus(surface);
+    //Sometimes surfaces dont have shell_surfaces, so don't render them
+    if (surface->hasShellSurface()) {
+        m_surfaces.append(surface);
+        defaultInputDevice()->setKeyboardFocus(surface);
+    }
     m_renderScheduler.start(0);
 }
 
@@ -183,21 +189,33 @@ void QWindowCompositor::sendExpose()
     surface->sendOnScreenVisibilityChange(true);
 }
 
+void QWindowCompositor::updateCursor()
+{
+    if (!m_cursorSurface)
+        return;
+    QCursor cursor(QPixmap::fromImage(m_cursorSurface->image()), m_cursorHotspotX, m_cursorHotspotY);
+    static bool cursorIsSet = false;
+    if (cursorIsSet) {
+        QGuiApplication::changeOverrideCursor(cursor);
+    } else {
+        QGuiApplication::setOverrideCursor(cursor);
+        cursorIsSet = true;
+    }
+}
+
 QPointF QWindowCompositor::toSurface(WaylandSurface *surface, const QPointF &pos) const
 {
     return pos - surface->pos();
 }
 
-void QWindowCompositor::changeCursor(const QImage &image, int hotspotX, int hotspotY)
+void QWindowCompositor::setCursorSurface(WaylandSurface *surface, int hotspotX, int hotspotY)
 {
-    QCursor cursor(QPixmap::fromImage(image),hotspotX,hotspotY);
-    static bool cursroIsSet = false;
-    if (cursroIsSet) {
-        QGuiApplication::changeOverrideCursor(cursor);
-    } else {
-        QGuiApplication::setOverrideCursor(cursor);
-        cursroIsSet = true;
-    }
+    if ((m_cursorSurface != surface) && surface)
+        connect(surface, SIGNAL(damaged(QRect)), this, SLOT(updateCursor()));
+
+    m_cursorSurface = surface;
+    m_cursorHotspotX = hotspotX;
+    m_cursorHotspotY = hotspotY;
 }
 
 WaylandSurface *QWindowCompositor::surfaceAt(const QPointF &point, QPointF *local)

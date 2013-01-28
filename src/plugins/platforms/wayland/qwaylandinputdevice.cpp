@@ -358,14 +358,26 @@ void QWaylandInputDevice::pointer_axis(void *data,
     Q_UNUSED(pointer);
     QWaylandInputDevice *inputDevice = (QWaylandInputDevice *) data;
     QWaylandWindow *window = inputDevice->mPointerFocus;
-    Qt::Orientation orientation = axis == WL_POINTER_AXIS_HORIZONTAL_SCROLL ? Qt::Horizontal
-                                                                            : Qt::Vertical;
+    QPoint pixelDelta;
+    QPoint angleDelta;
+
+    //normalize value and inverse axis
+    int valueDelta = wl_fixed_to_int(value) * -12;
+
+    if (axis == WL_POINTER_AXIS_HORIZONTAL_SCROLL) {
+        pixelDelta = QPoint();
+        angleDelta.setX(valueDelta);
+    } else {
+        pixelDelta = QPoint();
+        angleDelta.setY(valueDelta);
+    }
+
     QWindowSystemInterface::handleWheelEvent(window->window(),
                                              time,
                                              inputDevice->mSurfacePos,
                                              inputDevice->mGlobalPos,
-                                             int(wl_fixed_to_double(value) * 120.0),
-                                             orientation);
+                                             pixelDelta,
+                                             angleDelta);
 }
 
 #ifndef QT_NO_WAYLAND_XKB

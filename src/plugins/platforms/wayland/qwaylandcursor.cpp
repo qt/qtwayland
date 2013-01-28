@@ -183,7 +183,8 @@ void QWaylandCursor::changeCursor(QCursor *cursor, QWindow *window)
     Q_UNUSED(window)
 
     int pointer = 0;
-    switch (cursor->shape()) {
+    const Qt::CursorShape newShape = cursor ? cursor->shape() : Qt::ArrowCursor;
+    switch (newShape) {
     case Qt::UpArrowCursor:
     case Qt::CrossCursor:
     case Qt::WaitCursor:

@@ -121,6 +121,7 @@ private:
     QOpenGLSharedResourceGuard *m_guard;
 #else
     uint m_texture;
+    uint m_guard;
 #endif
     void *m_handle;
     bool m_is_shm_resolved;

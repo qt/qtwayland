@@ -43,6 +43,7 @@
 #define QWAYLANDCURSOR_H
 
 #include <qpa/qplatformcursor.h>
+#include <QMap>
 
 class QWaylandDisplay;
 class QWaylandScreen;
@@ -60,10 +61,46 @@ public:
     void setPos(const QPoint &pos);
 
 private:
+    enum WaylandCursor {
+        ArrowCursor = Qt::ArrowCursor,
+        UpArrowCursor,
+        CrossCursor,
+        WaitCursor,
+        IBeamCursor,
+        SizeVerCursor,
+        SizeHorCursor,
+        SizeBDiagCursor,
+        SizeFDiagCursor,
+        SizeAllCursor,
+        BlankCursor,
+        SplitVCursor,
+        SplitHCursor,
+        PointingHandCursor,
+        ForbiddenCursor,
+        WhatsThisCursor,
+        BusyCursor,
+        OpenHandCursor,
+        ClosedHandCursor,
+        DragCopyCursor,
+        DragMoveCursor,
+        DragLinkCursor,
+        ResizeNorthCursor = Qt::CustomCursor + 1,
+        ResizeSouthCursor,
+        ResizeEastCursor,
+        ResizeWestCursor,
+        ResizeNorthWestCursor,
+        ResizeSouthEastCursor,
+        ResizeNorthEastCursor,
+        ResizeSouthWestCursor
+    };
+
+    struct wl_cursor* requestCursor(WaylandCursor shape);
+    void initCursorMap();
     QWaylandDisplay *mDisplay;
     struct wl_cursor_theme *mCursorTheme;
-    struct wl_cursor **mCursors;
     QPoint mLastPos;
+    QMap<WaylandCursor, wl_cursor *> mCursors;
+    QMultiMap<WaylandCursor, QByteArray> mCursorNamesMap;
 };
 
 #endif // QWAYLANDCURSOR_H

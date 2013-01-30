@@ -51,187 +51,45 @@
 
 #include <wayland-cursor.h>
 
-#define ARRAY_LENGTH(a) sizeof(a) / sizeof(a[0])
-
-/*
- * The following correspondences between file names and cursors was copied
- * from: https://bugs.kde.org/attachment.cgi?id=67313
- */
-
-static const char *bottom_left_corners[] = {
-    "size_fdiag",
-    "bottom_left_corner",
-    "sw-resize"
-};
-
-static const char *bottom_right_corners[] = {
-    "size_bdiag",
-    "bottom_right_corner",
-    "se-resize"
-};
-
-static const char *bottom_sides[] = {
-    "bottom_side",
-    "s-resize"
-};
-
-static const char *grabbings[] = {
-    "grabbing",
-    "closedhand",
-    "208530c400c041818281048008011002"
-};
-
-static const char *left_ptrs[] = {
-    "left_ptr",
-    "default",
-    "top_left_arrow",
-    "left-arrow"
-};
-
-static const char *left_sides[] = {
-    "left_side",
-    "w-resize"
-};
-
-static const char *right_sides[] = {
-    "right_side",
-    "e-resize"
-};
-
-static const char *top_left_corners[] = {
-    "top_left_corner",
-    "nw-resize"
-};
-
-static const char *top_right_corners[] = {
-    "top_right_corner",
-    "ne-resize"
-};
-
-static const char *top_sides[] = {
-    "top_side",
-    "n-resize"
-};
-
-static const char *xterms[] = {
-    "xterm",
-    "ibeam",
-    "text"
-};
-
-static const char *hand1s[] = {
-    "hand1",
-    "pointer",
-    "pointing_hand",
-    "e29285e634086352946a0e7090d73106"
-};
-
-static const char *watches[] = {
-    "watch",
-    "wait",
-    "0426c94ea35c87780ff01dc239897213"
-};
-
-struct cursor_alternatives {
-    const char **names;
-    size_t count;
-};
-
-static const struct cursor_alternatives cursors[] = {
-    {left_ptrs, ARRAY_LENGTH(left_ptrs)},
-    {bottom_left_corners, ARRAY_LENGTH(bottom_left_corners)},
-    {bottom_right_corners, ARRAY_LENGTH(bottom_right_corners)},
-    {bottom_sides, ARRAY_LENGTH(bottom_sides)},
-    {grabbings, ARRAY_LENGTH(grabbings)},
-    {left_sides, ARRAY_LENGTH(left_sides)},
-    {right_sides, ARRAY_LENGTH(right_sides)},
-    {top_left_corners, ARRAY_LENGTH(top_left_corners)},
-    {top_right_corners, ARRAY_LENGTH(top_right_corners)},
-    {top_sides, ARRAY_LENGTH(top_sides)},
-    {xterms, ARRAY_LENGTH(xterms)},
-    {hand1s, ARRAY_LENGTH(hand1s)},
-    {watches, ARRAY_LENGTH(watches)},
-};
-
 QWaylandCursor::QWaylandCursor(QWaylandScreen *screen)
     : mDisplay(screen->display())
 {
     //TODO: Make wl_cursor_theme_load arguments configurable here
     mCursorTheme = wl_cursor_theme_load("default", 32, mDisplay->shm());
-    mCursors = new wl_cursor*[ARRAY_LENGTH(cursors)];
-
-    for (uint i = 0; i < ARRAY_LENGTH(cursors); i++) {
-        struct wl_cursor *cursor = NULL;
-        for (uint j = 0; !cursor && j < cursors[i].count; ++j)
-            cursor = wl_cursor_theme_get_cursor(mCursorTheme, cursors[i].names[j]);
-
-        if (!cursor)
-            qDebug() << "could not load cursor" << cursors[i].names[0];
-
-        mCursors[i] = cursor;
-    }
+    initCursorMap();
 }
 
 QWaylandCursor::~QWaylandCursor()
 {
     wl_cursor_theme_destroy(mCursorTheme);
-    delete[] mCursors;
 }
 
 void QWaylandCursor::changeCursor(QCursor *cursor, QWindow *window)
 {
     Q_UNUSED(window)
 
-    int pointer = 0;
+    struct wl_cursor *waylandCursor = 0;
     const Qt::CursorShape newShape = cursor ? cursor->shape() : Qt::ArrowCursor;
-    switch (newShape) {
-    case Qt::UpArrowCursor:
-    case Qt::CrossCursor:
-    case Qt::WaitCursor:
-        break;
-    case Qt::IBeamCursor:
-    case Qt::SizeVerCursor: /* 5 */
-    case Qt::SizeHorCursor:
-    case Qt::SizeBDiagCursor:
-        pointer = 2;
-        break;
-    case Qt::SizeFDiagCursor:
-        pointer = 1;
-        break;
-    case Qt::SizeAllCursor:
-    case Qt::BlankCursor:   /* 10 */
-        break;
-    case Qt::SplitVCursor:
-        pointer = 3;
-        break;
-    case Qt::SplitHCursor:
-        pointer = 6;
-        break;
-    case Qt::PointingHandCursor:
-    case Qt::ForbiddenCursor:
-    case Qt::WhatsThisCursor:   /* 15 */
-    case Qt::BusyCursor:
-    case Qt::OpenHandCursor:
-    case Qt::ClosedHandCursor:
-        pointer = 4;
-        break;
-    case Qt::DragCopyCursor:
-    case Qt::DragMoveCursor: /* 20 */
-    case Qt::DragLinkCursor:
-    case Qt::BitmapCursor:
-    default:
-        break;
+    if (newShape < Qt::BitmapCursor) {
+        waylandCursor = requestCursor((WaylandCursor)newShape);
+    } else if (newShape == Qt::BitmapCursor) {
+        //TODO: Bitmap cursor logic
+    } else {
+        //TODO: Custom cursor logic (for resize arrows)
     }
 
-    struct wl_cursor *cur = mCursors[pointer];
-    if (!cur)
+    if (!waylandCursor) {
+        qDebug("Could not find cursor for shape %d", newShape);
         return;
+    }
 
-    struct wl_cursor_image *image = cur->images[0];
+    struct wl_cursor_image *image = waylandCursor->images[0];
 
     struct wl_buffer *buffer = wl_cursor_image_get_buffer(image);
-    if (!buffer)
+    if (!buffer) {
+        qDebug("Could not find buffer for cursor");
         return;
+    }
 
     mDisplay->setCursor(buffer, image);
 }
@@ -260,4 +118,152 @@ void QWaylandCursor::setPos(const QPoint &pos)
 {
     Q_UNUSED(pos);
     qWarning() << "QWaylandCursor::setPos: not implemented";
+}
+
+wl_cursor *QWaylandCursor::requestCursor(WaylandCursor shape)
+{
+    if (shape == BlankCursor)
+        return 0;
+
+    struct wl_cursor *cursor = mCursors.value(shape, 0);
+
+    //If the cursor has not been loaded already, load it
+    if (!cursor) {
+        QList<QByteArray> cursorNames = mCursorNamesMap.values(shape);
+        foreach (QByteArray name, cursorNames) {
+            cursor = wl_cursor_theme_get_cursor(mCursorTheme, name.constData());
+            if (cursor) {
+                mCursors.insert(shape, cursor);
+                break;
+            }
+        }
+    }
+
+    //If there still no cursor for a shape, use the default cursor
+    if (!cursor && shape != ArrowCursor) {
+        cursor = requestCursor(ArrowCursor);
+    }
+
+    return cursor;
+}
+
+
+void QWaylandCursor::initCursorMap()
+{
+    //Fill the cursor name map will the table of xcursor names
+    mCursorNamesMap.insert(ArrowCursor, "left_ptr");
+    mCursorNamesMap.insert(ArrowCursor, "default");
+    mCursorNamesMap.insert(ArrowCursor, "top_left_arrow");
+    mCursorNamesMap.insert(ArrowCursor, "left_arrow");
+
+    mCursorNamesMap.insert(UpArrowCursor, "up_arrow");
+
+    mCursorNamesMap.insert(CrossCursor, "cross");
+
+    mCursorNamesMap.insert(WaitCursor, "wait");
+    mCursorNamesMap.insert(WaitCursor, "watch");
+    mCursorNamesMap.insert(WaitCursor, "0426c94ea35c87780ff01dc239897213");
+
+    mCursorNamesMap.insert(IBeamCursor, "ibeam");
+    mCursorNamesMap.insert(IBeamCursor, "text");
+    mCursorNamesMap.insert(IBeamCursor, "xterm");
+
+    mCursorNamesMap.insert(SizeVerCursor, "size_ver");
+    mCursorNamesMap.insert(SizeVerCursor, "ns-resize");
+    mCursorNamesMap.insert(SizeVerCursor, "v_double_arrow");
+    mCursorNamesMap.insert(SizeVerCursor, "00008160000006810000408080010102");
+
+    mCursorNamesMap.insert(SizeHorCursor, "size_hor");
+    mCursorNamesMap.insert(SizeHorCursor, "ew-resize");
+    mCursorNamesMap.insert(SizeHorCursor, "h_double_arrow");
+    mCursorNamesMap.insert(SizeHorCursor, "028006030e0e7ebffc7f7070c0600140");
+
+    mCursorNamesMap.insert(SizeBDiagCursor, "size_bdiag");
+    mCursorNamesMap.insert(SizeBDiagCursor, "nesw-resize");
+    mCursorNamesMap.insert(SizeBDiagCursor, "50585d75b494802d0151028115016902");
+    mCursorNamesMap.insert(SizeBDiagCursor, "fcf1c3c7cd4491d801f1e1c78f100000");
+
+    mCursorNamesMap.insert(SizeFDiagCursor, "size_fdiag");
+    mCursorNamesMap.insert(SizeFDiagCursor, "nwse-resize");
+    mCursorNamesMap.insert(SizeFDiagCursor, "38c5dff7c7b8962045400281044508d2");
+    mCursorNamesMap.insert(SizeFDiagCursor, "c7088f0f3e6c8088236ef8e1e3e70000");
+
+    mCursorNamesMap.insert(SizeAllCursor, "size_all");
+
+    mCursorNamesMap.insert(SplitVCursor, "split_v");
+    mCursorNamesMap.insert(SplitVCursor, "row-resize");
+    mCursorNamesMap.insert(SplitVCursor, "sb_v_double_arrow");
+    mCursorNamesMap.insert(SplitVCursor, "2870a09082c103050810ffdffffe0204");
+    mCursorNamesMap.insert(SplitVCursor, "c07385c7190e701020ff7ffffd08103c");
+
+    mCursorNamesMap.insert(SplitHCursor, "split_h");
+    mCursorNamesMap.insert(SplitHCursor, "col-resize");
+    mCursorNamesMap.insert(SplitHCursor, "sb_h_double_arrow");
+    mCursorNamesMap.insert(SplitHCursor, "043a9f68147c53184671403ffa811cc5");
+    mCursorNamesMap.insert(SplitHCursor, "14fef782d02440884392942c11205230");
+
+    mCursorNamesMap.insert(PointingHandCursor, "pointing_hand");
+    mCursorNamesMap.insert(PointingHandCursor, "pointer");
+    mCursorNamesMap.insert(PointingHandCursor, "hand1");
+    mCursorNamesMap.insert(PointingHandCursor, "e29285e634086352946a0e7090d73106");
+
+    mCursorNamesMap.insert(ForbiddenCursor, "forbidden");
+    mCursorNamesMap.insert(ForbiddenCursor, "not-allowed");
+    mCursorNamesMap.insert(ForbiddenCursor, "crossed_circle");
+    mCursorNamesMap.insert(ForbiddenCursor, "circle");
+    mCursorNamesMap.insert(ForbiddenCursor, "03b6e0fcb3499374a867c041f52298f0");
+
+    mCursorNamesMap.insert(WhatsThisCursor, "whats_this");
+    mCursorNamesMap.insert(WhatsThisCursor, "help");
+    mCursorNamesMap.insert(WhatsThisCursor, "question_arrow");
+    mCursorNamesMap.insert(WhatsThisCursor, "5c6cd98b3f3ebcb1f9c7f1c204630408");
+    mCursorNamesMap.insert(WhatsThisCursor, "d9ce0ab605698f320427677b458ad60b");
+
+    mCursorNamesMap.insert(BusyCursor, "left_ptr_watch");
+    mCursorNamesMap.insert(BusyCursor, "half-busy");
+    mCursorNamesMap.insert(BusyCursor, "progress");
+    mCursorNamesMap.insert(BusyCursor, "00000000000000020006000e7e9ffc3f");
+    mCursorNamesMap.insert(BusyCursor, "08e8e1c95fe2fc01f976f1e063a24ccd");
+
+    mCursorNamesMap.insert(OpenHandCursor, "openhand");
+    mCursorNamesMap.insert(OpenHandCursor, "fleur");
+    mCursorNamesMap.insert(OpenHandCursor, "5aca4d189052212118709018842178c0");
+    mCursorNamesMap.insert(OpenHandCursor, "9d800788f1b08800ae810202380a0822");
+
+    mCursorNamesMap.insert(ClosedHandCursor, "closedhand");
+    mCursorNamesMap.insert(ClosedHandCursor, "grabbing");
+    mCursorNamesMap.insert(ClosedHandCursor, "208530c400c041818281048008011002");
+
+    mCursorNamesMap.insert(DragCopyCursor, "dnd-copy");
+    mCursorNamesMap.insert(DragCopyCursor, "copy");
+
+    mCursorNamesMap.insert(DragMoveCursor, "dnd-move");
+    mCursorNamesMap.insert(DragMoveCursor, "move");
+
+    mCursorNamesMap.insert(DragLinkCursor, "dnd-link");
+    mCursorNamesMap.insert(DragLinkCursor, "link");
+
+    mCursorNamesMap.insert(ResizeNorthCursor, "n-resize");
+    mCursorNamesMap.insert(ResizeNorthCursor, "top_side");
+
+    mCursorNamesMap.insert(ResizeSouthCursor, "s-resize");
+    mCursorNamesMap.insert(ResizeSouthCursor, "bottom_side");
+
+    mCursorNamesMap.insert(ResizeEastCursor, "e-resize");
+    mCursorNamesMap.insert(ResizeEastCursor, "right_side");
+
+    mCursorNamesMap.insert(ResizeWestCursor, "w-resize");
+    mCursorNamesMap.insert(ResizeWestCursor, "left_side");
+
+    mCursorNamesMap.insert(ResizeNorthWestCursor, "nw-resize");
+    mCursorNamesMap.insert(ResizeNorthWestCursor, "top_left_corner");
+
+    mCursorNamesMap.insert(ResizeSouthEastCursor, "se-resize");
+    mCursorNamesMap.insert(ResizeSouthEastCursor, "bottom_right_corner");
+
+    mCursorNamesMap.insert(ResizeNorthEastCursor, "ne-resize");
+    mCursorNamesMap.insert(ResizeNorthEastCursor, "top_right_corner");
+
+    mCursorNamesMap.insert(ResizeSouthWestCursor, "sw-resize");
+    mCursorNamesMap.insert(ResizeSouthWestCursor, "bottom_left_corner");
 }

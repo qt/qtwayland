@@ -8,9 +8,16 @@ Wayland platform plugin:
 QtCompositor API:
     Enables the creation of Wayland compositors using Qt and QtQuick.
 
+By default only the Wayland platform plugin is built.  If you want to build the
+experimental QtCompositor API then you need to set the qmake CONFIG variable to
+include "wayland-compositor" when building the QtWayland module:
+
+qmake CONFIG+=wayland-compositor
+make
+
 To build the QtWayland module you need the external dependencies:
 xkbcommon 0.2.0 - http://xkbcommon.org/
-libwayland 1.0.1 - http://wayland.freedesktop.org/
+wayland 1.0.3 - http://wayland.freedesktop.org/
 
 
 We hang out at #qt-labs and #qt-lighthouse on freenode if you have any questions

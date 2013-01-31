@@ -40,7 +40,7 @@
 
 #include "graphicshardwareintegration.h"
 
-GraphicsHardwareIntegration::GraphicsHardwareIntegration(WaylandCompositor *compositor)
-    : m_compositor(compositor)
+GraphicsHardwareIntegration::GraphicsHardwareIntegration()
+    : m_compositor(0)
 {
 }

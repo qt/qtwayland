@@ -41,9 +41,9 @@
 #include "xcompositeeglintegration.h"
 
 #include "waylandobject.h"
-#include "wayland_wrapper/wlcompositor.h"
 #include "wayland-xcomposite-server-protocol.h"
 
+#include <QtCompositor/wlcompositor.h>
 #include <QtGui/QGuiApplication>
 #include <qpa/qplatformnativeinterface.h>
 #include <qpa/qplatformopenglcontext.h>
@@ -71,14 +71,14 @@ struct wl_xcomposite_interface XCompositeHandler::xcomposite_interface = {
     XCompositeHandler::create_buffer
 };
 
-GraphicsHardwareIntegration *GraphicsHardwareIntegration::createGraphicsHardwareIntegration(WaylandCompositor *compositor)
+XCompositeEglIntegration::XCompositeEglIntegration()
+    : GraphicsHardwareIntegration()
+    , mDisplay(0)
 {
-    return new XCompositeEglIntegration(compositor);
+
 }
 
-XCompositeEglIntegration::XCompositeEglIntegration(WaylandCompositor *compositor)
-    : GraphicsHardwareIntegration(compositor)
-    , mDisplay(0)
+void XCompositeEglIntegration::initializeHardware(Wayland::Display *waylandDisplay)
 {
     QPlatformNativeInterface *nativeInterface = QGuiApplication::platformNativeInterface();
     if (nativeInterface) {
@@ -87,15 +87,11 @@ XCompositeEglIntegration::XCompositeEglIntegration(WaylandCompositor *compositor
             qFatal("could not retireve Display from platform integration");
         mEglDisplay = static_cast<EGLDisplay>(nativeInterface->nativeResourceForWindow("EGLDisplay",m_compositor->window()));
         if (!mEglDisplay)
-            qFatal("could not retrieve EGLDisplay from plaform integration");
+            qFatal("could not retrieve EGLDisplay from platform integration");
     } else {
         qFatal("Platform integration doesn't have native interface");
     }
     mScreen = XDefaultScreen(mDisplay);
-}
-
-void XCompositeEglIntegration::initializeHardware(Wayland::Display *waylandDisplay)
-{
     XCompositeHandler *handler = new XCompositeHandler(m_compositor->handle(),mDisplay,m_compositor->window());
     wl_display_add_global(waylandDisplay->handle(),&wl_xcomposite_interface,handler,XCompositeHandler::xcomposite_bind_func);
 }
@@ -128,7 +124,7 @@ GLuint XCompositeEglIntegration::createTextureFromBuffer(wl_buffer *buffer, QOpe
         qDebug() << "Failed to create eglsurface" << pixmap << compositorBuffer->window();
     }
 
-    compositorBuffer->setInvertedY(false);
+    compositorBuffer->setInvertedY(true);
 
     GLuint textureId;
     glGenTextures(1,&textureId);

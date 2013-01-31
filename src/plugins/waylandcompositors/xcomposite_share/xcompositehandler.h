@@ -38,37 +38,36 @@
 **
 ****************************************************************************/
 
-#ifndef XCOMPOSITEGLXINTEGRATION_H
-#define XCOMPOSITEGLXINTEGRATION_H
+#ifndef XCOMPOSITEHANDLER_H
+#define XCOMPOSITEHANDLER_H
 
-#include "hardware_integration/graphicshardwareintegration.h"
+#include <QtCompositor/wlcompositor.h>
+#include "waylandobject.h"
 
 #include "xlibinclude.h"
 
-#define GLX_GLXEXT_PROTOTYPES
-#include <GL/glx.h>
-#include <GL/glxext.h>
-
-class XCompositeHandler;
-
-class XCompositeGLXIntegration : public GraphicsHardwareIntegration
+class XCompositeHandler : public Wayland::Object<struct wl_object>
 {
 public:
-    XCompositeGLXIntegration(WaylandCompositor *compositor);
-    ~XCompositeGLXIntegration();
+    XCompositeHandler(Wayland::Compositor *compositor, Display *display, QWindow *window);
+    void createBuffer(struct wl_client *client, uint32_t id, Window window, const QSize &size);
 
-    void initializeHardware(Wayland::Display *waylandDisplay);
-
-    GLuint createTextureFromBuffer(struct wl_buffer *buffer, QOpenGLContext *context);
-    bool isYInverted(wl_buffer *) const;
+    static void xcomposite_bind_func(struct wl_client *client, void *data, uint32_t version, uint32_t id);
+    static struct wl_xcomposite_interface xcomposite_interface;
 
 private:
-    PFNGLXBINDTEXIMAGEEXTPROC m_glxBindTexImageEXT;
-    PFNGLXRELEASETEXIMAGEEXTPROC m_glxReleaseTexImageEXT;
-
+    Wayland::Compositor *mCompositor;
+    QWindow *mwindow;
+    QWindow *mFakeRootWindow;
     Display *mDisplay;
-    int mScreen;
-    XCompositeHandler *mHandler;
+
+    static void create_buffer(struct wl_client *client,
+                          struct wl_resource *xcomposite,
+                          uint32_t id,
+                          uint32_t x_window,
+                          int32_t width,
+                          int32_t height);
+
 };
 
-#endif // XCOMPOSITEGLXINTEGRATION_H
+#endif // XCOMPOSITEHANDLER_H

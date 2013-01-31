@@ -38,37 +38,38 @@
 **
 ****************************************************************************/
 
-#ifndef BRCMBUFFER_H
-#define BRCMBUFFER_H
+#ifndef BRCMEGLINTEGRATION_H
+#define BRCMEGLINTEGRATION_H
 
-#include "waylandobject.h"
-#include "wayland_wrapper/wlcompositor.h"
+#include <QtCompositor/graphicshardwareintegration.h>
+#include <QtCore/QScopedPointer>
 
-#include <QtCore/QSize>
-#include <QtCore/QVector>
+class BrcmEglIntegrationPrivate;
 
-#include <EGL/egl.h>
-
-class BrcmBuffer : public Wayland::Object<struct wl_buffer>
+class BrcmEglIntegration : public GraphicsHardwareIntegration
 {
+    Q_DECLARE_PRIVATE(BrcmEglIntegration)
 public:
-    BrcmBuffer(Wayland::Compositor *compositor, const QSize &size, EGLint *data, size_t count);
-    ~BrcmBuffer();
+    BrcmEglIntegration();
 
-    static struct wl_buffer_interface buffer_interface;
-    static void delete_resource(struct wl_resource *resource);
+    void initializeHardware(Wayland::Display *waylandDisplay);
 
-    bool isYInverted() const { return m_invertedY; }
-    void setInvertedY(bool inverted) { m_invertedY = inverted; }
+    GLuint createTextureFromBuffer(wl_buffer *buffer, QOpenGLContext *context);
+    bool isYInverted(struct wl_buffer *) const;
 
-    EGLint *handle() { return m_handle.data(); }
+    static void create_buffer(struct wl_client *client,
+                          struct wl_resource *brcm,
+                          uint32_t id,
+                          int32_t width,
+                          int32_t height,
+                          wl_array *data);
 
-    static void buffer_interface_destroy(struct wl_client *client,
-                        struct wl_resource *buffer);
+    static void brcm_bind_func(struct wl_client *client, void *data, uint32_t version, uint32_t id);
 
 private:
-    QVector<EGLint> m_handle;
-    bool m_invertedY;
+    Q_DISABLE_COPY(BrcmEglIntegration)
+    QScopedPointer<BrcmEglIntegrationPrivate> d_ptr;
 };
 
-#endif // BRCMBUFFER_H
+#endif // BRCMEGLINTEGRATION_H
+

@@ -83,6 +83,8 @@
 #include "hardware_integration/graphicshardwareintegration.h"
 #include "waylandwindowmanagerintegration.h"
 
+#include "hardware_integration/graphicshardwareintegrationfactory.h"
+
 namespace Wayland {
 
 static Compositor *compositor;
@@ -141,8 +143,27 @@ Compositor::Compositor(WaylandCompositor *qt_compositor)
 
 #if defined (QT_COMPOSITOR_WAYLAND_GL)
     QWindow *window = qt_compositor->window();
-    if (window && window->surfaceType() != QWindow::RasterSurface)
-        m_graphics_hw_integration = GraphicsHardwareIntegration::createGraphicsHardwareIntegration(qt_compositor);
+    if (window && window->surfaceType() != QWindow::RasterSurface) {
+        QStringList keys = GraphicsHardwareIntegrationFactory::keys();
+        QString targetKey;
+        QByteArray hardwareIntegration = qgetenv("QT_WAYLAND_HARDWARE_INTEGRATION");
+        if (keys.contains(QString::fromLocal8Bit(hardwareIntegration.constData()))) {
+            targetKey = QString::fromLocal8Bit(hardwareIntegration.constData());
+        } else if (keys.contains(QString::fromLatin1("wayland-egl"))) {
+            targetKey = QString::fromLatin1("wayland-egl");
+        } else if (!keys.isEmpty()) {
+            targetKey = keys.first();
+        }
+
+        if (!targetKey.isEmpty()) {
+            m_graphics_hw_integration = GraphicsHardwareIntegrationFactory::create(targetKey, QStringList());
+            if (m_graphics_hw_integration) {
+                m_graphics_hw_integration->setCompositor(qt_compositor);
+            }
+        }
+        //BUG: if there is no hw_integration, bad things will probably happen
+
+    }
 #endif
     m_windowManagerIntegration = new WindowManagerServerIntegration(qt_compositor, this);
 

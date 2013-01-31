@@ -38,29 +38,37 @@
 **
 ****************************************************************************/
 
-#ifndef XCOMPOSITEEGLINTEGRATION_H
-#define XCOMPOSITEEGLINTEGRATION_H
+#ifndef BRCMBUFFER_H
+#define BRCMBUFFER_H
 
-#include "hardware_integration/graphicshardwareintegration.h"
+#include "waylandobject.h"
+#include <QtCompositor/wlcompositor.h>
 
-#include "xlibinclude.h"
+#include <QtCore/QSize>
+#include <QtCore/QVector>
 
 #include <EGL/egl.h>
 
-class XCompositeEglIntegration : public GraphicsHardwareIntegration
+class BrcmBuffer : public Wayland::Object<struct wl_buffer>
 {
 public:
-    XCompositeEglIntegration(WaylandCompositor *compositor);
+    BrcmBuffer(Wayland::Compositor *compositor, const QSize &size, EGLint *data, size_t count);
+    ~BrcmBuffer();
 
-    void initializeHardware(Wayland::Display *waylandDisplay);
+    static struct wl_buffer_interface buffer_interface;
+    static void delete_resource(struct wl_resource *resource);
 
-    GLuint createTextureFromBuffer(struct wl_buffer *buffer, QOpenGLContext *context);
-    bool isYInverted(wl_buffer *) const;
+    bool isYInverted() const { return m_invertedY; }
+    void setInvertedY(bool inverted) { m_invertedY = inverted; }
+
+    EGLint *handle() { return m_handle.data(); }
+
+    static void buffer_interface_destroy(struct wl_client *client,
+                        struct wl_resource *buffer);
 
 private:
-    Display *mDisplay;
-    EGLDisplay mEglDisplay;
-    int mScreen;
+    QVector<EGLint> m_handle;
+    bool m_invertedY;
 };
 
-#endif // XCOMPOSITEEGLINTEGRATION_H
+#endif // BRCMBUFFER_H

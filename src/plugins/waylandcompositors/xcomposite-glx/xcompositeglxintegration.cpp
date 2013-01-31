@@ -41,7 +41,7 @@
 #include "xcompositeglxintegration.h"
 
 #include "waylandobject.h"
-#include "wayland_wrapper/wlcompositor.h"
+#include <QtCompositor/wlcompositor.h>
 #include "wayland-xcomposite-server-protocol.h"
 
 #include <qpa/qplatformnativeinterface.h>
@@ -63,7 +63,7 @@ QVector<int> qglx_buildSpec()
     spec[i++] = 0;
     spec[i++] = GLX_DRAWABLE_TYPE; spec[i++] = GLX_PIXMAP_BIT | GLX_WINDOW_BIT;
     spec[i++] = GLX_BIND_TO_TEXTURE_TARGETS_EXT; spec[i++] = GLX_TEXTURE_2D_BIT_EXT;
-    spec[i++] = GLX_BIND_TO_TEXTURE_RGB_EXT; spec[i++] = TRUE;
+    spec[i++] = GLX_BIND_TO_TEXTURE_RGB_EXT; spec[i++] = true;
 
     spec[i++] = 0;
     return spec;
@@ -74,15 +74,19 @@ struct wl_xcomposite_interface XCompositeHandler::xcomposite_interface = {
     XCompositeHandler::create_buffer
 };
 
-GraphicsHardwareIntegration *GraphicsHardwareIntegration::createGraphicsHardwareIntegration(WaylandCompositor *compositor)
-{
-    return new XCompositeGLXIntegration(compositor);
-}
-
-XCompositeGLXIntegration::XCompositeGLXIntegration(WaylandCompositor *compositor)
-    : GraphicsHardwareIntegration(compositor)
+XCompositeGLXIntegration::XCompositeGLXIntegration()
+    : GraphicsHardwareIntegration()
     , mDisplay(0)
     , mHandler(0)
+{
+}
+
+XCompositeGLXIntegration::~XCompositeGLXIntegration()
+{
+    delete mHandler;
+}
+
+void XCompositeGLXIntegration::initializeHardware(Wayland::Display *waylandDisplay)
 {
     QPlatformNativeInterface *nativeInterface = QGuiApplicationPrivate::platformIntegration()->nativeInterface();
     if (nativeInterface) {
@@ -93,15 +97,7 @@ XCompositeGLXIntegration::XCompositeGLXIntegration(WaylandCompositor *compositor
         qFatal("Platform integration doesn't have native interface");
     }
     mScreen = XDefaultScreen(mDisplay);
-}
 
-XCompositeGLXIntegration::~XCompositeGLXIntegration()
-{
-    delete mHandler;
-}
-
-void XCompositeGLXIntegration::initializeHardware(Wayland::Display *waylandDisplay)
-{
     mHandler = new XCompositeHandler(m_compositor->handle(),mDisplay,m_compositor->window());
     wl_display_add_global(waylandDisplay->handle(),&wl_xcomposite_interface,mHandler,XCompositeHandler::xcomposite_bind_func);
 

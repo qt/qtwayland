@@ -40,9 +40,9 @@
 
 #include "brcmeglintegration.h"
 #include "brcmbuffer.h"
-#include "wayland_wrapper/wlcompositor.h"
-#include "wayland_wrapper/wlsurface.h"
-#include "compositor_api/waylandsurface.h"
+#include <QtCompositor/wlsurface.h>
+#include <QtCompositor/wlcompositor.h>
+#include <QtCompositor/waylandsurface.h>
 #include <qpa/qplatformnativeinterface.h>
 #include <QtGui/QGuiApplication>
 #include <QtGui/QOpenGLContext>
@@ -80,8 +80,8 @@ public:
     PFNEGLDESTROYIMAGEKHRPROC eglDestroyImageKHR;
 };
 
-BrcmEglIntegration::BrcmEglIntegration(WaylandCompositor *compositor)
-    : GraphicsHardwareIntegration(compositor)
+BrcmEglIntegration::BrcmEglIntegration()
+    : GraphicsHardwareIntegration()
     , d_ptr(new BrcmEglIntegrationPrivate)
 {
 }

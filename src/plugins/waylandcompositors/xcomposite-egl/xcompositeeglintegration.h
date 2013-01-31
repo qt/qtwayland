@@ -38,34 +38,29 @@
 **
 ****************************************************************************/
 
-#ifndef WAYLANDEGLINTEGRATION_H
-#define WAYLANDEGLINTEGRATION_H
+#ifndef XCOMPOSITEEGLINTEGRATION_H
+#define XCOMPOSITEEGLINTEGRATION_H
 
-#include "hardware_integration/graphicshardwareintegration.h"
-#include <QtCore/QScopedPointer>
+#include <QtCompositor/graphicshardwareintegration.h>
 
-class WaylandEglIntegrationPrivate;
+#include "xlibinclude.h"
 
-class WaylandEglIntegration : public GraphicsHardwareIntegration
+#include <EGL/egl.h>
+
+class XCompositeEglIntegration : public GraphicsHardwareIntegration
 {
-    Q_DECLARE_PRIVATE(WaylandEglIntegration)
 public:
-    WaylandEglIntegration(WaylandCompositor *compositor);
+    XCompositeEglIntegration();
 
     void initializeHardware(Wayland::Display *waylandDisplay);
 
-    GLuint createTextureFromBuffer(wl_buffer *buffer, QOpenGLContext *context);
-    bool isYInverted(struct wl_buffer *) const;
-
-    bool setDirectRenderSurface(WaylandSurface *);
-
-    virtual void *lockNativeBuffer(struct wl_buffer *buffer, QOpenGLContext *context) const;
-    virtual void unlockNativeBuffer(void *native_buffer, QOpenGLContext *context) const;
+    GLuint createTextureFromBuffer(struct wl_buffer *buffer, QOpenGLContext *context);
+    bool isYInverted(wl_buffer *) const;
 
 private:
-    Q_DISABLE_COPY(WaylandEglIntegration)
-    QScopedPointer<WaylandEglIntegrationPrivate> d_ptr;
+    Display *mDisplay;
+    EGLDisplay mEglDisplay;
+    int mScreen;
 };
 
-#endif // WAYLANDEGLINTEGRATION_H
-
+#endif // XCOMPOSITEEGLINTEGRATION_H

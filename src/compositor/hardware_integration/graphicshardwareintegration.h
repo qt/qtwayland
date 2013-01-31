@@ -45,14 +45,16 @@
 #include <QtGui/QOpenGLContext>
 #include <wayland-server.h>
 
-#include "waylandcompositor.h"
-#include "wayland_wrapper/wldisplay.h"
+#include <QtCompositor/waylandcompositor.h>
+#include <QtCompositor/wldisplay.h>
 
-class GraphicsHardwareIntegration
+class Q_COMPOSITOR_EXPORT GraphicsHardwareIntegration
 {
 public:
-    GraphicsHardwareIntegration(WaylandCompositor *compositor);
+    GraphicsHardwareIntegration();
     virtual ~GraphicsHardwareIntegration() { }
+
+    void setCompositor(WaylandCompositor *compositor) { m_compositor = compositor; }
 
     virtual void initializeHardware(Wayland::Display *waylandDisplay) = 0;
 
@@ -66,8 +68,6 @@ public:
 
     virtual void *lockNativeBuffer(struct wl_buffer *, QOpenGLContext *) const { return 0; }
     virtual void unlockNativeBuffer(void *, QOpenGLContext *) const { return; }
-
-    static GraphicsHardwareIntegration *createGraphicsHardwareIntegration(WaylandCompositor *compositor);
 
 protected:
     WaylandCompositor *m_compositor;

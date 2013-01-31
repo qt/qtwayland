@@ -39,9 +39,9 @@
 ****************************************************************************/
 
 #include "waylandeglintegration.h"
-#include "wayland_wrapper/wlcompositor.h"
-#include "wayland_wrapper/wlsurface.h"
-#include "compositor_api/waylandsurface.h"
+
+#include <QtCompositor/wlcompositor.h>
+#include <QtCompositor/wlsurface.h>
 #include <qpa/qplatformnativeinterface.h>
 #include <QtGui/QGuiApplication>
 #include <QtGui/QOpenGLContext>
@@ -56,12 +56,6 @@
 
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
-
-
-GraphicsHardwareIntegration * GraphicsHardwareIntegration::createGraphicsHardwareIntegration(WaylandCompositor *compositor)
-{
-    return new WaylandEglIntegration(compositor);
-}
 
 #ifndef EGL_WL_bind_wayland_display
 typedef EGLBoolean (EGLAPIENTRYP PFNEGLBINDWAYLANDDISPLAYWL) (EGLDisplay dpy, struct wl_display *display);
@@ -108,8 +102,8 @@ public:
     QPlatformNativeInterface::NativeResourceForContextFunction get_egl_context;
 };
 
-WaylandEglIntegration::WaylandEglIntegration(WaylandCompositor *compositor)
-    : GraphicsHardwareIntegration(compositor)
+WaylandEglIntegration::WaylandEglIntegration()
+    : GraphicsHardwareIntegration()
     , d_ptr(new WaylandEglIntegrationPrivate)
 {
 }

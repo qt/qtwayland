@@ -1,3 +1,10 @@
+PLUGIN_TYPE = waylandcompositors
+load(qt_plugin)
+
+QT = compositor core-private gui-private
+
+OTHER_FILES += xcomposite-glx.json
+
 include (../xcomposite_share/xcomposite_share.pri)
 
 !contains(QT_CONFIG, no-pkg-config) {
@@ -8,7 +15,8 @@ include (../xcomposite_share/xcomposite_share.pri)
 }
 
 HEADERS += \
-    $$PWD/xcompositeglxintegration.h
+    xcompositeglxintegration.h
 
 SOURCES += \
-    $$PWD/xcompositeglxintegration.cpp
+    xcompositeglxintegration.cpp \
+    main.cpp

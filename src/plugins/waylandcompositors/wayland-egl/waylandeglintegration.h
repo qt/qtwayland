@@ -38,36 +38,34 @@
 **
 ****************************************************************************/
 
-#ifndef XCOMPOSITEHANDLER_H
-#define XCOMPOSITEHANDLER_H
+#ifndef WAYLANDEGLINTEGRATION_H
+#define WAYLANDEGLINTEGRATION_H
 
-#include "wayland_wrapper/wlcompositor.h"
-#include "waylandobject.h"
+#include <QtCompositor/graphicshardwareintegration.h>
+#include <QtCore/QScopedPointer>
 
-#include "xlibinclude.h"
+class WaylandEglIntegrationPrivate;
 
-class XCompositeHandler : public Wayland::Object<struct wl_object>
+class WaylandEglIntegration : public GraphicsHardwareIntegration
 {
+    Q_DECLARE_PRIVATE(WaylandEglIntegration)
 public:
-    XCompositeHandler(Wayland::Compositor *compositor, Display *display, QWindow *window);
-    void createBuffer(struct wl_client *client, uint32_t id, Window window, const QSize &size);
+    WaylandEglIntegration();
 
-    static void xcomposite_bind_func(struct wl_client *client, void *data, uint32_t version, uint32_t id);
-    static struct wl_xcomposite_interface xcomposite_interface;
+    void initializeHardware(Wayland::Display *waylandDisplay);
+
+    GLuint createTextureFromBuffer(wl_buffer *buffer, QOpenGLContext *context);
+    bool isYInverted(struct wl_buffer *) const;
+
+    bool setDirectRenderSurface(WaylandSurface *);
+
+    virtual void *lockNativeBuffer(struct wl_buffer *buffer, QOpenGLContext *context) const;
+    virtual void unlockNativeBuffer(void *native_buffer, QOpenGLContext *context) const;
 
 private:
-    Wayland::Compositor *mCompositor;
-    QWindow *mwindow;
-    QWindow *mFakeRootWindow;
-    Display *mDisplay;
-
-    static void create_buffer(struct wl_client *client,
-                          struct wl_resource *xcomposite,
-                          uint32_t id,
-                          uint32_t x_window,
-                          int32_t width,
-                          int32_t height);
-
+    Q_DISABLE_COPY(WaylandEglIntegration)
+    QScopedPointer<WaylandEglIntegrationPrivate> d_ptr;
 };
 
-#endif // XCOMPOSITEHANDLER_H
+#endif // WAYLANDEGLINTEGRATION_H
+

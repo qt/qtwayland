@@ -42,7 +42,7 @@
 #define XCOMPOSITEBUFFER_H
 
 #include "waylandobject.h"
-#include "wayland_wrapper/wlcompositor.h"
+#include <QtCompositor/wlcompositor.h>
 
 #include <QtCore/QSize>
 

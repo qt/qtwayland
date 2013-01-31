@@ -38,38 +38,37 @@
 **
 ****************************************************************************/
 
-#ifndef BRCMEGLINTEGRATION_H
-#define BRCMEGLINTEGRATION_H
+#ifndef XCOMPOSITEGLXINTEGRATION_H
+#define XCOMPOSITEGLXINTEGRATION_H
 
-#include "hardware_integration/graphicshardwareintegration.h"
-#include <QtCore/QScopedPointer>
+#include <QtCompositor/graphicshardwareintegration.h>
 
-class BrcmEglIntegrationPrivate;
+#include "xlibinclude.h"
 
-class BrcmEglIntegration : public GraphicsHardwareIntegration
+#define GLX_GLXEXT_PROTOTYPES
+#include <GL/glx.h>
+#include <GL/glxext.h>
+
+class XCompositeHandler;
+
+class XCompositeGLXIntegration : public GraphicsHardwareIntegration
 {
-    Q_DECLARE_PRIVATE(BrcmEglIntegration)
 public:
-    BrcmEglIntegration(WaylandCompositor *compositor);
+    XCompositeGLXIntegration();
+    ~XCompositeGLXIntegration();
 
     void initializeHardware(Wayland::Display *waylandDisplay);
 
-    GLuint createTextureFromBuffer(wl_buffer *buffer, QOpenGLContext *context);
-    bool isYInverted(struct wl_buffer *) const;
-
-    static void create_buffer(struct wl_client *client,
-                          struct wl_resource *brcm,
-                          uint32_t id,
-                          int32_t width,
-                          int32_t height,
-                          wl_array *data);
-
-    static void brcm_bind_func(struct wl_client *client, void *data, uint32_t version, uint32_t id);
+    GLuint createTextureFromBuffer(struct wl_buffer *buffer, QOpenGLContext *context);
+    bool isYInverted(wl_buffer *) const;
 
 private:
-    Q_DISABLE_COPY(BrcmEglIntegration)
-    QScopedPointer<BrcmEglIntegrationPrivate> d_ptr;
+    PFNGLXBINDTEXIMAGEEXTPROC m_glxBindTexImageEXT;
+    PFNGLXRELEASETEXIMAGEEXTPROC m_glxReleaseTexImageEXT;
+
+    Display *mDisplay;
+    int mScreen;
+    XCompositeHandler *mHandler;
 };
 
-#endif // BRCMEGLINTEGRATION_H
-
+#endif // XCOMPOSITEGLXINTEGRATION_H

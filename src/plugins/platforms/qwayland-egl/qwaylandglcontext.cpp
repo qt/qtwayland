@@ -54,6 +54,8 @@
 #include <QtGui/QSurfaceFormat>
 #include <QtGui/QOpenGLShaderProgram>
 
+QT_USE_NAMESPACE
+
 QWaylandGLContext::QWaylandGLContext(EGLDisplay eglDisplay, const QSurfaceFormat &format, QPlatformOpenGLContext *share)
     : QPlatformOpenGLContext()
     , m_eglDisplay(eglDisplay)

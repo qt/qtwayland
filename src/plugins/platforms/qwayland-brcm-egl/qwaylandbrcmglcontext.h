@@ -48,6 +48,8 @@
 
 #include <EGL/egl.h>
 
+QT_BEGIN_NAMESPACE
+
 class QWaylandWindow;
 class QWaylandGLWindowSurface;
 
@@ -76,5 +78,6 @@ private:
     QSurfaceFormat m_format;
 };
 
+QT_END_NAMESPACE
 
 #endif // QWAYLANDBRCMGLCONTEXT_H

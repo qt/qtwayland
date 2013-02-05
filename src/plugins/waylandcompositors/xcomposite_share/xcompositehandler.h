@@ -41,22 +41,24 @@
 #ifndef XCOMPOSITEHANDLER_H
 #define XCOMPOSITEHANDLER_H
 
-#include <QtCompositor/wlcompositor.h>
-#include "waylandobject.h"
+#include <QtCompositor/private/qwlcompositor_p.h>
+#include <QtCompositor/qwaylandobject.h>
 
 #include "xlibinclude.h"
 
-class XCompositeHandler : public Wayland::Object<struct wl_object>
+QT_BEGIN_NAMESPACE
+
+class XCompositeHandler : public QtWayland::Object<struct wl_object>
 {
 public:
-    XCompositeHandler(Wayland::Compositor *compositor, Display *display, QWindow *window);
+    XCompositeHandler(QtWayland::Compositor *compositor, Display *display, QWindow *window);
     void createBuffer(struct wl_client *client, uint32_t id, Window window, const QSize &size);
 
     static void xcomposite_bind_func(struct wl_client *client, void *data, uint32_t version, uint32_t id);
     static struct wl_xcomposite_interface xcomposite_interface;
 
 private:
-    Wayland::Compositor *mCompositor;
+    QtWayland::Compositor *mCompositor;
     QWindow *mwindow;
     QWindow *mFakeRootWindow;
     Display *mDisplay;
@@ -69,5 +71,7 @@ private:
                           int32_t height);
 
 };
+
+QT_END_NAMESPACE
 
 #endif // XCOMPOSITEHANDLER_H

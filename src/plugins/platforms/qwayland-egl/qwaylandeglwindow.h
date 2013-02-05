@@ -46,6 +46,8 @@
 #include "qwaylandeglinclude.h"
 #include "qwaylandeglintegration.h"
 
+QT_BEGIN_NAMESPACE
+
 class QWaylandGLContext;
 class QOpenGLFramebufferObject;
 
@@ -84,5 +86,7 @@ private:
 
     QSurfaceFormat m_format;
 };
+
+QT_END_NAMESPACE
 
 #endif // QWAYLANDEGLWINDOW_H

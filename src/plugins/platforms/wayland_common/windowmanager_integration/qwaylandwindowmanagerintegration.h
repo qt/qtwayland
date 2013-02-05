@@ -49,6 +49,8 @@
 #include "qwaylanddisplay.h"
 #include <qpa/qplatformservices.h>
 
+QT_BEGIN_NAMESPACE
+
 class QWaylandWindow;
 
 class QWaylandWindowManagerIntegrationPrivate;
@@ -89,5 +91,7 @@ private:
 
     void openUrl_helper(const QUrl &url);
 };
+
+QT_END_NAMESPACE
 
 #endif // QWAYLANDWINDOWMANAGERINTEGRATION_H

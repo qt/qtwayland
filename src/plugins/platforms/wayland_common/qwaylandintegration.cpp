@@ -71,6 +71,8 @@
 #include "windowmanager_integration/qwaylandwindowmanagerintegration.h"
 #endif
 
+QT_USE_NAMESPACE
+
 QWaylandIntegration::QWaylandIntegration()
     : mFontDb(new QGenericUnixFontDatabase())
     , mEventDispatcher(createUnixEventDispatcher())

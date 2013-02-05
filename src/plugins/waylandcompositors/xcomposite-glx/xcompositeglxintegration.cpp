@@ -40,8 +40,8 @@
 
 #include "xcompositeglxintegration.h"
 
-#include "waylandobject.h"
-#include <QtCompositor/wlcompositor.h>
+#include <QtCompositor/qwaylandobject.h>
+#include <QtCompositor/private/qwlcompositor_p.h>
 #include "wayland-xcomposite-server-protocol.h"
 
 #include <qpa/qplatformnativeinterface.h>
@@ -53,6 +53,8 @@
 #include <X11/extensions/Xcomposite.h>
 
 #include <QtCore/QDebug>
+
+QT_USE_NAMESPACE
 
 QVector<int> qglx_buildSpec()
 {
@@ -75,7 +77,7 @@ struct wl_xcomposite_interface XCompositeHandler::xcomposite_interface = {
 };
 
 XCompositeGLXIntegration::XCompositeGLXIntegration()
-    : GraphicsHardwareIntegration()
+    : QWaylandGraphicsHardwareIntegration()
     , mDisplay(0)
     , mHandler(0)
 {
@@ -86,7 +88,7 @@ XCompositeGLXIntegration::~XCompositeGLXIntegration()
     delete mHandler;
 }
 
-void XCompositeGLXIntegration::initializeHardware(Wayland::Display *waylandDisplay)
+void XCompositeGLXIntegration::initializeHardware(QtWayland::Display *waylandDisplay)
 {
     QPlatformNativeInterface *nativeInterface = QGuiApplicationPrivate::platformIntegration()->nativeInterface();
     if (nativeInterface) {
@@ -118,7 +120,7 @@ void XCompositeGLXIntegration::initializeHardware(Wayland::Display *waylandDispl
 
 GLuint XCompositeGLXIntegration::createTextureFromBuffer(wl_buffer *buffer, QOpenGLContext *)
 {
-    XCompositeBuffer *compositorBuffer = Wayland::wayland_cast<XCompositeBuffer>(buffer);
+    XCompositeBuffer *compositorBuffer = QtWayland::wayland_cast<XCompositeBuffer>(buffer);
     Pixmap pixmap = XCompositeNameWindowPixmap(mDisplay, compositorBuffer->window());
 
     QVector<int> glxConfigSpec = qglx_buildSpec();
@@ -151,6 +153,6 @@ GLuint XCompositeGLXIntegration::createTextureFromBuffer(wl_buffer *buffer, QOpe
 
 bool XCompositeGLXIntegration::isYInverted(wl_buffer *buffer) const
 {
-    XCompositeBuffer *compositorBuffer = Wayland::wayland_cast<XCompositeBuffer>(buffer);
+    XCompositeBuffer *compositorBuffer = QtWayland::wayland_cast<XCompositeBuffer>(buffer);
     return compositorBuffer->isYInverted();
 }

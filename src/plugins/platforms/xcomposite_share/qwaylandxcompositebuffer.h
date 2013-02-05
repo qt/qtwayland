@@ -48,6 +48,8 @@
 struct wl_xcomposite;
 struct wl_visual;
 
+QT_BEGIN_NAMESPACE
+
 class QWaylandXCompositeBuffer : public QWaylandBuffer
 {
 public:
@@ -59,5 +61,7 @@ public:
 private:
     QSize mSize;
 };
+
+QT_END_NAMESPACE
 
 #endif // QWAYLANDXCOMPOSITEBUFFER_H

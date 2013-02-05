@@ -49,6 +49,8 @@
 #include <QtCore/QStringList>
 #include <QtGui/QClipboard>
 
+QT_BEGIN_NAMESPACE
+
 class QWaylandDataOffer;
 class QWaylandDataSource;
 class QDrag;
@@ -119,5 +121,7 @@ private:
 
     static const struct wl_data_device_listener transfer_device_listener;
 };
+
+QT_END_NAMESPACE
 
 #endif // QWAYLANDDATADEVICEMANAGER_H

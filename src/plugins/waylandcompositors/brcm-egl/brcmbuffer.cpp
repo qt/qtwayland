@@ -45,7 +45,9 @@
 #define EGL_EGLEXT_PROTOTYPES
 #include <EGL/eglext_brcm.h>
 
-BrcmBuffer::BrcmBuffer(Wayland::Compositor *compositor, const QSize &size, EGLint *data, size_t count)
+QT_USE_NAMESPACE
+
+BrcmBuffer::BrcmBuffer(QtWayland::Compositor *compositor, const QSize &size, EGLint *data, size_t count)
     : m_invertedY(false)
     , m_handle(count)
 {

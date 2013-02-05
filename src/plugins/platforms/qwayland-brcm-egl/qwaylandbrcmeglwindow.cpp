@@ -59,6 +59,8 @@
 
 #include "wayland-brcm-client-protocol.h"
 
+QT_USE_NAMESPACE
+
 class QWaylandBrcmBuffer : public QWaylandBuffer
 {
 public:

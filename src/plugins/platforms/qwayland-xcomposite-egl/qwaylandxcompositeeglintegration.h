@@ -60,6 +60,8 @@
 
 struct wl_xcomposite;
 
+QT_BEGIN_NAMESPACE
+
 class QWaylandXCompositeEGLIntegration : public QWaylandGLIntegration
 {
 public:
@@ -98,5 +100,7 @@ private:
                  const char *display_name,
                  uint32_t root_window);
 };
+
+QT_END_NAMESPACE
 
 #endif // QWAYLANDXCOMPOSITEEGLINTEGRATION_H

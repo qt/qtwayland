@@ -40,10 +40,10 @@
 
 #include "xcompositeeglintegration.h"
 
-#include "waylandobject.h"
+#include <QtCompositor/qwaylandobject.h>
 #include "wayland-xcomposite-server-protocol.h"
 
-#include <QtCompositor/wlcompositor.h>
+#include <QtCompositor/private/qwlcompositor_p.h>
 #include <QtGui/QGuiApplication>
 #include <qpa/qplatformnativeinterface.h>
 #include <qpa/qplatformopenglcontext.h>
@@ -53,6 +53,8 @@
 #include <X11/extensions/Xcomposite.h>
 
 #include <QtCore/QDebug>
+
+QT_USE_NAMESPACE
 
 QVector<EGLint> eglbuildSpec()
 {
@@ -72,13 +74,13 @@ struct wl_xcomposite_interface XCompositeHandler::xcomposite_interface = {
 };
 
 XCompositeEglIntegration::XCompositeEglIntegration()
-    : GraphicsHardwareIntegration()
+    : QWaylandGraphicsHardwareIntegration()
     , mDisplay(0)
 {
 
 }
 
-void XCompositeEglIntegration::initializeHardware(Wayland::Display *waylandDisplay)
+void XCompositeEglIntegration::initializeHardware(QtWayland::Display *waylandDisplay)
 {
     QPlatformNativeInterface *nativeInterface = QGuiApplication::platformNativeInterface();
     if (nativeInterface) {
@@ -98,7 +100,7 @@ void XCompositeEglIntegration::initializeHardware(Wayland::Display *waylandDispl
 
 GLuint XCompositeEglIntegration::createTextureFromBuffer(wl_buffer *buffer, QOpenGLContext *)
 {
-    XCompositeBuffer *compositorBuffer = Wayland::wayland_cast<XCompositeBuffer>(buffer);
+    XCompositeBuffer *compositorBuffer = QtWayland::wayland_cast<XCompositeBuffer>(buffer);
     Pixmap pixmap = XCompositeNameWindowPixmap(mDisplay, compositorBuffer->window());
 
     QVector<EGLint> eglConfigSpec = eglbuildSpec();
@@ -141,6 +143,6 @@ GLuint XCompositeEglIntegration::createTextureFromBuffer(wl_buffer *buffer, QOpe
 
 bool XCompositeEglIntegration::isYInverted(wl_buffer *buffer) const
 {
-    XCompositeBuffer *compositorBuffer = Wayland::wayland_cast<XCompositeBuffer>(buffer);
+    XCompositeBuffer *compositorBuffer = QtWayland::wayland_cast<XCompositeBuffer>(buffer);
     return compositorBuffer->isYInverted();
 }

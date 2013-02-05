@@ -51,10 +51,10 @@
 #include <QScreen>
 #include <QPainter>
 
-#include <QtCompositor/waylandinput.h>
+#include <QtCompositor/qwaylandinput.h>
 
 QWindowCompositor::QWindowCompositor(QOpenGLWindow *window)
-    : WaylandCompositor(window)
+    : QWaylandCompositor(window)
     , m_window(window)
     , m_textureBlitter(0)
     , m_renderScheduler(this)
@@ -112,16 +112,16 @@ QImage QWindowCompositor::makeBackgroundImage(const QString &fileName)
     return patternedBackground;
 }
 
-void QWindowCompositor::ensureKeyboardFocusSurface(WaylandSurface *oldSurface)
+void QWindowCompositor::ensureKeyboardFocusSurface(QWaylandSurface *oldSurface)
 {
-    WaylandSurface *kbdFocus = defaultInputDevice()->keyboardFocus();
+    QWaylandSurface *kbdFocus = defaultInputDevice()->keyboardFocus();
     if (kbdFocus == oldSurface || !kbdFocus)
         defaultInputDevice()->setKeyboardFocus(m_surfaces.isEmpty() ? 0 : m_surfaces.last());
 }
 
 void QWindowCompositor::surfaceDestroyed(QObject *object)
 {
-    WaylandSurface *surface = static_cast<WaylandSurface *>(object);
+    QWaylandSurface *surface = static_cast<QWaylandSurface *>(object);
     m_surfaces.removeOne(surface);
     ensureKeyboardFocusSurface(surface);
     m_renderScheduler.start(0);
@@ -129,7 +129,7 @@ void QWindowCompositor::surfaceDestroyed(QObject *object)
 
 void QWindowCompositor::surfaceMapped()
 {
-    WaylandSurface *surface = qobject_cast<WaylandSurface *>(sender());
+    QWaylandSurface *surface = qobject_cast<QWaylandSurface *>(sender());
     QPoint pos;
     if (!m_surfaces.contains(surface)) {
         uint px = 0;
@@ -153,7 +153,7 @@ void QWindowCompositor::surfaceMapped()
 
 void QWindowCompositor::surfaceUnmapped()
 {
-    WaylandSurface *surface = qobject_cast<WaylandSurface *>(sender());
+    QWaylandSurface *surface = qobject_cast<QWaylandSurface *>(sender());
     if (m_surfaces.removeOne(surface))
         m_surfaces.insert(0, surface);
 
@@ -162,18 +162,18 @@ void QWindowCompositor::surfaceUnmapped()
 
 void QWindowCompositor::surfaceDamaged(const QRect &rect)
 {
-    WaylandSurface *surface = qobject_cast<WaylandSurface *>(sender());
+    QWaylandSurface *surface = qobject_cast<QWaylandSurface *>(sender());
     surfaceDamaged(surface, rect);
 }
 
-void QWindowCompositor::surfaceDamaged(WaylandSurface *surface, const QRect &rect)
+void QWindowCompositor::surfaceDamaged(QWaylandSurface *surface, const QRect &rect)
 {
     Q_UNUSED(surface)
     Q_UNUSED(rect)
     m_renderScheduler.start(0);
 }
 
-void QWindowCompositor::surfaceCreated(WaylandSurface *surface)
+void QWindowCompositor::surfaceCreated(QWaylandSurface *surface)
 {
     connect(surface, SIGNAL(destroyed(QObject *)), this, SLOT(surfaceDestroyed(QObject *)));
     connect(surface, SIGNAL(mapped()), this, SLOT(surfaceMapped()));
@@ -185,7 +185,7 @@ void QWindowCompositor::surfaceCreated(WaylandSurface *surface)
 
 void QWindowCompositor::sendExpose()
 {
-    WaylandSurface *surface = qobject_cast<WaylandSurface *>(sender());
+    QWaylandSurface *surface = qobject_cast<QWaylandSurface *>(sender());
     surface->sendOnScreenVisibilityChange(true);
 }
 
@@ -203,12 +203,12 @@ void QWindowCompositor::updateCursor()
     }
 }
 
-QPointF QWindowCompositor::toSurface(WaylandSurface *surface, const QPointF &pos) const
+QPointF QWindowCompositor::toSurface(QWaylandSurface *surface, const QPointF &pos) const
 {
     return pos - surface->pos();
 }
 
-void QWindowCompositor::setCursorSurface(WaylandSurface *surface, int hotspotX, int hotspotY)
+void QWindowCompositor::setCursorSurface(QWaylandSurface *surface, int hotspotX, int hotspotY)
 {
     if ((m_cursorSurface != surface) && surface)
         connect(surface, SIGNAL(damaged(QRect)), this, SLOT(updateCursor()));
@@ -218,10 +218,10 @@ void QWindowCompositor::setCursorSurface(WaylandSurface *surface, int hotspotX, 
     m_cursorHotspotY = hotspotY;
 }
 
-WaylandSurface *QWindowCompositor::surfaceAt(const QPointF &point, QPointF *local)
+QWaylandSurface *QWindowCompositor::surfaceAt(const QPointF &point, QPointF *local)
 {
     for (int i = m_surfaces.size() - 1; i >= 0; --i) {
-        WaylandSurface *surface = m_surfaces.at(i);
+        QWaylandSurface *surface = m_surfaces.at(i);
         QRectF geo(surface->pos(), surface->size());
         if (geo.contains(point)) {
             if (local)
@@ -232,16 +232,16 @@ WaylandSurface *QWindowCompositor::surfaceAt(const QPointF &point, QPointF *loca
     return 0;
 }
 
-GLuint QWindowCompositor::composeSurface(WaylandSurface *surface)
+GLuint QWindowCompositor::composeSurface(QWaylandSurface *surface)
 {
     GLuint texture = 0;
 
     QOpenGLFunctions *functions = QOpenGLContext::currentContext()->functions();
     functions->glBindFramebuffer(GL_FRAMEBUFFER, m_surface_fbo);
 
-    if (surface->type() == WaylandSurface::Shm) {
+    if (surface->type() == QWaylandSurface::Shm) {
         texture = m_textureCache->bindTexture(QOpenGLContext::currentContext(),surface->image());
-    } else if (surface->type() == WaylandSurface::Texture) {
+    } else if (surface->type() == QWaylandSurface::Texture) {
         texture = surface->texture(QOpenGLContext::currentContext());
     }
 
@@ -255,20 +255,20 @@ GLuint QWindowCompositor::composeSurface(WaylandSurface *surface)
     return texture;
 }
 
-void QWindowCompositor::paintChildren(WaylandSurface *surface, WaylandSurface *window) {
+void QWindowCompositor::paintChildren(QWaylandSurface *surface, QWaylandSurface *window) {
 
     if (surface->subSurfaces().size() == 0)
         return;
 
-    QLinkedListIterator<WaylandSurface *> i(surface->subSurfaces());
+    QLinkedListIterator<QWaylandSurface *> i(surface->subSurfaces());
     while (i.hasNext()) {
-        WaylandSurface *subSurface = i.next();
+        QWaylandSurface *subSurface = i.next();
         QPointF p = subSurface->mapTo(window,QPointF(0,0));
         if (subSurface->size().isValid()) {
             GLuint texture = 0;
-            if (subSurface->type() == WaylandSurface::Texture) {
+            if (subSurface->type() == QWaylandSurface::Texture) {
                 texture = subSurface->texture(QOpenGLContext::currentContext());
-            } else if (surface->type() == WaylandSurface::Shm ) {
+            } else if (surface->type() == QWaylandSurface::Shm ) {
                 texture = m_textureCache->bindTexture(QOpenGLContext::currentContext(),surface->image());
             }
             QRect geo(p.toPoint(),subSurface->size());
@@ -291,7 +291,7 @@ void QWindowCompositor::render()
                                   window()->size(),
                                   0, false, true);
 
-    foreach (WaylandSurface *surface, m_surfaces) {
+    foreach (QWaylandSurface *surface, m_surfaces) {
         GLuint texture = composeSurface(surface);
         QRect geo(surface->pos().toPoint(),surface->size());
         m_textureBlitter->drawTexture(texture,geo,m_window->size(),0,false,surface->isYInverted());
@@ -308,7 +308,7 @@ bool QWindowCompositor::eventFilter(QObject *obj, QEvent *event)
     if (obj != m_window)
         return false;
 
-    WaylandInputDevice *input = defaultInputDevice();
+    QWaylandInputDevice *input = defaultInputDevice();
 
     switch (event->type()) {
     case QEvent::Expose:
@@ -330,7 +330,7 @@ bool QWindowCompositor::eventFilter(QObject *obj, QEvent *event)
     case QEvent::MouseButtonPress: {
         QPointF local;
         QMouseEvent *me = static_cast<QMouseEvent *>(event);
-        WaylandSurface *targetSurface = surfaceAt(me->localPos(), &local);
+        QWaylandSurface *targetSurface = surfaceAt(me->localPos(), &local);
         if (m_dragKeyIsPressed && targetSurface) {
             m_draggingWindow = targetSurface;
             m_drag_diff = local;
@@ -346,7 +346,7 @@ bool QWindowCompositor::eventFilter(QObject *obj, QEvent *event)
         return true;
     }
     case QEvent::MouseButtonRelease: {
-        WaylandSurface *targetSurface = input->mouseFocus();
+        QWaylandSurface *targetSurface = input->mouseFocus();
         if (m_draggingWindow) {
             m_draggingWindow = 0;
             m_drag_diff = QPointF();
@@ -366,7 +366,7 @@ bool QWindowCompositor::eventFilter(QObject *obj, QEvent *event)
             m_renderScheduler.start(0);
         } else {
             QPointF local;
-            WaylandSurface *targetSurface = surfaceAt(me->localPos(), &local);
+            QWaylandSurface *targetSurface = surfaceAt(me->localPos(), &local);
             input->sendMouseMoveEvent(targetSurface, local, me->localPos());
         }
         break;
@@ -382,7 +382,7 @@ bool QWindowCompositor::eventFilter(QObject *obj, QEvent *event)
             m_dragKeyIsPressed = true;
         }
         m_modifiers = ke->modifiers();
-        WaylandSurface *targetSurface = input->keyboardFocus();
+        QWaylandSurface *targetSurface = input->keyboardFocus();
         if (targetSurface)
             input->sendKeyPressEvent(ke->nativeScanCode());
         break;
@@ -393,7 +393,7 @@ bool QWindowCompositor::eventFilter(QObject *obj, QEvent *event)
             m_dragKeyIsPressed = false;
         }
         m_modifiers = ke->modifiers();
-        WaylandSurface *targetSurface = input->keyboardFocus();
+        QWaylandSurface *targetSurface = input->keyboardFocus();
         if (targetSurface)
             input->sendKeyReleaseEvent(ke->nativeScanCode());
         break;
@@ -402,7 +402,7 @@ bool QWindowCompositor::eventFilter(QObject *obj, QEvent *event)
     case QEvent::TouchUpdate:
     case QEvent::TouchEnd:
     {
-        WaylandSurface *targetSurface = 0;
+        QWaylandSurface *targetSurface = 0;
         QTouchEvent *te = static_cast<QTouchEvent *>(event);
         QList<QTouchEvent::TouchPoint> points = te->touchPoints();
         QPoint pointPos;

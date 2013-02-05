@@ -44,6 +44,8 @@
 #include "wayland-client.h"
 #include "wayland-xcomposite-client-protocol.h"
 
+QT_USE_NAMESPACE
+
 QWaylandXCompositeBuffer::QWaylandXCompositeBuffer(wl_xcomposite *xcomposite, uint32_t window, const QSize &size)
     :mSize(size)
 {

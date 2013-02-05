@@ -48,6 +48,8 @@
 
 #include <QtPlatformSupport/private/qeglplatformcontext_p.h>
 
+QT_BEGIN_NAMESPACE
+
 class QWaylandXCompositeEGLWindow;
 
 class QWaylandXCompositeEGLContext : public QEGLPlatformContext
@@ -60,5 +62,7 @@ public:
 private:
     EGLSurface eglSurfaceForPlatformSurface(QPlatformSurface *surface);
 };
+
+QT_END_NAMESPACE
 
 #endif // QWAYLANDXCOMPOSITEEGLCONTEXT_H

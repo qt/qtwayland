@@ -54,6 +54,8 @@
 #include <qpa/qplatformnativeinterface.h>
 #include <qpa/qwindowsysteminterface.h>
 
+QT_USE_NAMESPACE
+
 QWaylandSurfaceExtension::QWaylandSurfaceExtension(QWaylandDisplay *display, uint32_t id)
 {
     m_surface_extension = static_cast<struct wl_surface_extension *>(

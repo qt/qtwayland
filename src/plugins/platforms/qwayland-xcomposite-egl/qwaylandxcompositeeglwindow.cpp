@@ -53,6 +53,8 @@
 
 #include <QtCore/QDebug>
 
+QT_USE_NAMESPACE
+
 QWaylandXCompositeEGLWindow::QWaylandXCompositeEGLWindow(QWindow *window, QWaylandXCompositeEGLIntegration *glxIntegration)
     : QWaylandWindow(window)
     , m_glxIntegration(glxIntegration)

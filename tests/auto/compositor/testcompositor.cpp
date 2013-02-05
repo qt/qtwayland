@@ -41,12 +41,12 @@
 
 #include "testcompositor.h"
 
-void TestCompositor::surfaceCreated(WaylandSurface *surface)
+void TestCompositor::surfaceCreated(QWaylandSurface *surface)
 {
     surfaces << surface;
 }
 
-void TestCompositor::surfaceAboutToBeDestroyed(WaylandSurface *surface)
+void TestCompositor::surfaceAboutToBeDestroyed(QWaylandSurface *surface)
 {
     surfaces.removeOne(surface);
 }

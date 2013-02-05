@@ -73,6 +73,8 @@
 
 #include <QtCore/QDebug>
 
+QT_USE_NAMESPACE
+
 struct wl_surface *QWaylandDisplay::createSurface(void *handle)
 {
     struct wl_surface * surface = wl_compositor_create_surface(mCompositor);

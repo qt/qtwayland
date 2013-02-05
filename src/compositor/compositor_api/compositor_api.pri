@@ -1,29 +1,30 @@
-INCLUDEPATH += $$PWD
+INCLUDEPATH += compositor_api
 
 HEADERS += \
-    $$PWD/waylandcompositor.h \
-    $$PWD/waylandsurface.h \
-    $$PWD/waylandinput.h
+    compositor_api/qwaylandcompositor.h \
+    compositor_api/qwaylandsurface.h \
+    compositor_api/qwaylandinput.h
 
 SOURCES += \
-    $$PWD/waylandcompositor.cpp \
-    $$PWD/waylandsurface.cpp \
-    $$PWD/waylandinput.cpp
+    compositor_api/qwaylandcompositor.cpp \
+    compositor_api/qwaylandsurface.cpp \
+    compositor_api/qwaylandinput.cpp
 
 QT += core-private
 
 qtHaveModule(quick) {
-    SOURCES += $$PWD/waylandsurfaceitem.cpp \
-            $$PWD/waylandsurfacenode.cpp \
-            $$PWD/waylandsurfacetexturematerial.cpp
+    SOURCES += \
+        compositor_api/qwaylandsurfaceitem.cpp \
+        compositor_api/qwaylandsurfacenode.cpp \
+        compositor_api/qwaylandsurfacetexturematerial.cpp
 
-    HEADERS += $$PWD/waylandsurfaceitem.h \
-            $$PWD/waylandsurfacenode.h \
-            $$PWD/waylandsurfacetexturematerial.h
+    HEADERS += \
+        compositor_api/qwaylandsurfaceitem.h \
+        compositor_api/qwaylandsurfacenode_p.h \
+        compositor_api/qwaylandsurfacetexturematerial_p.h
 
     DEFINES += QT_COMPOSITOR_QUICK
 
     QT += qml quick
     QT += quick-private gui-private
 }
-

@@ -41,18 +41,20 @@
 #ifndef XCOMPOSITEEGLINTEGRATION_H
 #define XCOMPOSITEEGLINTEGRATION_H
 
-#include <QtCompositor/graphicshardwareintegration.h>
+#include <QtCompositor/qwaylandgraphicshardwareintegration.h>
 
 #include "xlibinclude.h"
 
 #include <EGL/egl.h>
 
-class XCompositeEglIntegration : public GraphicsHardwareIntegration
+QT_BEGIN_NAMESPACE
+
+class XCompositeEglIntegration : public QWaylandGraphicsHardwareIntegration
 {
 public:
     XCompositeEglIntegration();
 
-    void initializeHardware(Wayland::Display *waylandDisplay);
+    void initializeHardware(QtWayland::Display *waylandDisplay);
 
     GLuint createTextureFromBuffer(struct wl_buffer *buffer, QOpenGLContext *context);
     bool isYInverted(wl_buffer *) const;
@@ -62,5 +64,7 @@ private:
     EGLDisplay mEglDisplay;
     int mScreen;
 };
+
+QT_END_NAMESPACE
 
 #endif // XCOMPOSITEEGLINTEGRATION_H

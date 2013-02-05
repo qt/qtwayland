@@ -39,16 +39,18 @@
 **
 ****************************************************************************/
 
-#include <QtCompositor/graphicshardwareintegrationplugin.h>
+#include <QtCompositor/qwaylandgraphicshardwareintegrationplugin.h>
 #include "xcompositeeglintegration.h"
 
-class QWaylandIntegrationPlugin : public GraphicsHardwareIntegrationPlugin
+QT_BEGIN_NAMESPACE
+
+class QWaylandIntegrationPlugin : public QWaylandGraphicsHardwareIntegrationPlugin
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.Compositor.GraphicsHardwareIntegrationFactoryInterface.5.1" FILE "xcomposite-egl.json")
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.Compositor.QWaylandGraphicsHardwareIntegrationFactoryInterface.5.1" FILE "xcomposite-egl.json")
 public:
     QStringList keys() const;
-    GraphicsHardwareIntegration *create(const QString&, const QStringList&);
+    QWaylandGraphicsHardwareIntegration *create(const QString&, const QStringList&);
 };
 
 QStringList QWaylandIntegrationPlugin::keys() const
@@ -58,7 +60,7 @@ QStringList QWaylandIntegrationPlugin::keys() const
     return list;
 }
 
-GraphicsHardwareIntegration *QWaylandIntegrationPlugin::create(const QString& system, const QStringList& paramList)
+QWaylandGraphicsHardwareIntegration *QWaylandIntegrationPlugin::create(const QString& system, const QStringList& paramList)
 {
     Q_UNUSED(paramList);
     if (system.toLower() == "wayland-xcomposite")
@@ -66,5 +68,7 @@ GraphicsHardwareIntegration *QWaylandIntegrationPlugin::create(const QString& sy
 
     return 0;
 }
+
+QT_END_NAMESPACE
 
 #include "main.moc"

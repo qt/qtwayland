@@ -49,6 +49,8 @@
 
 #include <QtCore/QDebug>
 
+QT_USE_NAMESPACE
+
 QWaylandOutputExtension::QWaylandOutputExtension(QWaylandDisplay *display, uint32_t id)
 {
     m_output_extension = static_cast<struct wl_output_extension *>(

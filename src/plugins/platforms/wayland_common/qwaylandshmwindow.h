@@ -45,6 +45,8 @@
 #include "qwaylandwindow.h"
 #include <QtGui/QRegion>
 
+QT_BEGIN_NAMESPACE
+
 class QWaylandShmBackingStore;
 
 class QWaylandShmWindow : public QWaylandWindow
@@ -70,5 +72,7 @@ inline QWaylandShmBackingStore *QWaylandShmWindow::backingStore() const
 {
     return mBackingStore;
 }
+
+QT_END_NAMESPACE
 
 #endif // QWAYLANDSHMWINDOW_H

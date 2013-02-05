@@ -49,6 +49,8 @@
 
 #include <QtCore/QDebug>
 
+QT_USE_NAMESPACE
+
 QWaylandShellSurface::QWaylandShellSurface(struct wl_shell_surface *shell_surface, QWaylandWindow *window)
     : m_shell_surface(shell_surface)
     , m_window(window)

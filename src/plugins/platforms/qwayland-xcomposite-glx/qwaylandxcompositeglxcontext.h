@@ -47,6 +47,8 @@
 #include "qwaylandxcompositeglxintegration.h"
 #include <QtPlatformSupport/private/qglxconvenience_p.h>
 
+QT_BEGIN_NAMESPACE
+
 class QWaylandXCompositeGLXWindow;
 class QWaylandShmBuffer;
 
@@ -70,5 +72,7 @@ private:
     Display *m_display;
     QSurfaceFormat m_format;
 };
+
+QT_END_NAMESPACE
 
 #endif // QWAYLANDXCOMPOSITEGLXCONTEXT_H

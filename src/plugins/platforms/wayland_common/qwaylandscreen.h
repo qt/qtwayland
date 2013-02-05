@@ -44,6 +44,8 @@
 
 #include <qpa/qplatformscreen.h>
 
+QT_BEGIN_NAMESPACE
+
 class QWaylandDisplay;
 class QWaylandCursor;
 class QWaylandExtendedOutput;
@@ -90,5 +92,7 @@ private:
 
     QWaylandCursor *mWaylandCursor;
 };
+
+QT_END_NAMESPACE
 
 #endif // QWAYLANDSCREEN_H

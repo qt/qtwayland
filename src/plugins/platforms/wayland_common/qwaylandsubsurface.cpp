@@ -47,6 +47,8 @@
 
 #include <QtCore/QDebug>
 
+QT_USE_NAMESPACE
+
 QWaylandSubSurfaceExtension::QWaylandSubSurfaceExtension(QWaylandDisplay *display, uint32_t id)
 {
     m_sub_surface_extension = static_cast<struct wl_sub_surface_extension *>(

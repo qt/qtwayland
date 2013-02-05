@@ -48,6 +48,8 @@
 #include "qwaylandxcompositeeglintegration.h"
 #include "qwaylandxcompositeeglcontext.h"
 
+QT_BEGIN_NAMESPACE
+
 class QWaylandXCompositeEGLWindow : public QWaylandWindow
 {
 public:
@@ -76,5 +78,7 @@ private:
              struct wl_callback *wl_callback,
              uint32_t time);
 };
+
+QT_END_NAMESPACE
 
 #endif // QWAYLANDXCOMPOSITEEGLWINDOW_H

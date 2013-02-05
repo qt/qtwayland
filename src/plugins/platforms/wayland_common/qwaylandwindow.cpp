@@ -63,6 +63,8 @@
 
 #include <QtCore/QDebug>
 
+QT_USE_NAMESPACE
+
 QWaylandWindow::QWaylandWindow(QWindow *window)
     : QPlatformWindow(window)
     , mDisplay(QWaylandScreen::waylandScreenFromWindow(window)->display())

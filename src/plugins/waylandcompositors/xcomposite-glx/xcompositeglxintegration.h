@@ -41,7 +41,7 @@
 #ifndef XCOMPOSITEGLXINTEGRATION_H
 #define XCOMPOSITEGLXINTEGRATION_H
 
-#include <QtCompositor/graphicshardwareintegration.h>
+#include <QtCompositor/qwaylandgraphicshardwareintegration.h>
 
 #include "xlibinclude.h"
 
@@ -49,15 +49,17 @@
 #include <GL/glx.h>
 #include <GL/glxext.h>
 
+QT_BEGIN_NAMESPACE
+
 class XCompositeHandler;
 
-class XCompositeGLXIntegration : public GraphicsHardwareIntegration
+class XCompositeGLXIntegration : public QWaylandGraphicsHardwareIntegration
 {
 public:
     XCompositeGLXIntegration();
     ~XCompositeGLXIntegration();
 
-    void initializeHardware(Wayland::Display *waylandDisplay);
+    void initializeHardware(QtWayland::Display *waylandDisplay);
 
     GLuint createTextureFromBuffer(struct wl_buffer *buffer, QOpenGLContext *context);
     bool isYInverted(wl_buffer *) const;
@@ -70,5 +72,7 @@ private:
     int mScreen;
     XCompositeHandler *mHandler;
 };
+
+QT_END_NAMESPACE
 
 #endif // XCOMPOSITEGLXINTEGRATION_H

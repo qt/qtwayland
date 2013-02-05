@@ -50,6 +50,8 @@
 
 #include "qwaylandbuffer.h"
 
+QT_BEGIN_NAMESPACE
+
 class QWaylandXCompositeGLXWindow : public QWaylandWindow
 {
 public:
@@ -76,5 +78,7 @@ private:
     static const struct wl_callback_listener sync_callback_listener;
     static void sync_function(void *data, struct wl_callback *wl_callback, uint32_t time);
 };
+
+QT_END_NAMESPACE
 
 #endif // QWAYLANDXCOMPOSITEGLXWINDOW_H

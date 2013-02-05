@@ -54,6 +54,8 @@
 #define BUTTON_WIDTH 25
 #define BUTTON_SPACING 5
 
+QT_USE_NAMESPACE
+
 QWaylandDecoration::QWaylandDecoration(QWaylandWindow *window)
     : m_window(window->window())
     , m_wayland_window(window)

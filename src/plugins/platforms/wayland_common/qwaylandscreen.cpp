@@ -47,6 +47,8 @@
 
 #include <qpa/qwindowsysteminterface.h>
 
+QT_USE_NAMESPACE
+
 QWaylandScreen::QWaylandScreen(QWaylandDisplay *waylandDisplay, struct wl_output *output)
     : QPlatformScreen()
     , mWaylandDisplay(waylandDisplay)

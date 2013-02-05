@@ -55,6 +55,8 @@
 
 #include <QDebug>
 
+QT_USE_NAMESPACE
+
 class QWaylandWindowManagerIntegrationPrivate {
 public:
     QWaylandWindowManagerIntegrationPrivate(QWaylandDisplay *waylandDisplay);

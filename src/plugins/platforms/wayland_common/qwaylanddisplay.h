@@ -49,6 +49,8 @@
 
 #include <wayland-client.h>
 
+QT_BEGIN_NAMESPACE
+
 class QAbstractEventDispatcher;
 class QWaylandInputDevice;
 class QSocketNotifier;
@@ -200,5 +202,7 @@ private:
                                      struct wl_surface *surface,
                                      int32_t width, int32_t height);
 };
+
+QT_END_NAMESPACE
 
 #endif // QWAYLANDDISPLAY_H

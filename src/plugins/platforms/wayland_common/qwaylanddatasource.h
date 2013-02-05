@@ -46,6 +46,8 @@
 
 #include <wayland-client-protocol.h>
 
+QT_BEGIN_NAMESPACE
+
 class QWaylandDataSource
 {
 public:
@@ -71,5 +73,7 @@ private:
                       struct wl_data_source *data_source);
     static const struct wl_data_source_listener data_source_listener;
 };
+
+QT_END_NAMESPACE
 
 #endif // QWAYLANDDATASOURCE_H

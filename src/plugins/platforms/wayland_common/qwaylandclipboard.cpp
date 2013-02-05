@@ -46,6 +46,8 @@
 #include "qwaylanddatasource.h"
 #include "qwaylanddatadevicemanager.h"
 
+QT_USE_NAMESPACE
+
 QWaylandClipboard::QWaylandClipboard(QWaylandDisplay *display)
     : mDisplay(display)
 {

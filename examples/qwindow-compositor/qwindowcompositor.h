@@ -41,8 +41,8 @@
 #ifndef QWINDOWCOMPOSITOR_H
 #define QWINDOWCOMPOSITOR_H
 
-#include "waylandcompositor.h"
-#include "waylandsurface.h"
+#include "qwaylandcompositor.h"
+#include "qwaylandsurface.h"
 #include "textureblitter.h"
 #include "qopenglwindow.h"
 
@@ -50,7 +50,7 @@
 #include <QObject>
 #include <QTimer>
 
-class QWindowCompositor : public QObject, public WaylandCompositor
+class QWindowCompositor : public QObject, public QWaylandCompositor
 {
     Q_OBJECT
 public:
@@ -65,21 +65,21 @@ private slots:
 
     void render();
 protected:
-    void surfaceDamaged(WaylandSurface *surface, const QRect &rect);
-    void surfaceCreated(WaylandSurface *surface);
+    void surfaceDamaged(QWaylandSurface *surface, const QRect &rect);
+    void surfaceCreated(QWaylandSurface *surface);
 
-    WaylandSurface* surfaceAt(const QPointF &point, QPointF *local = 0);
+    QWaylandSurface* surfaceAt(const QPointF &point, QPointF *local = 0);
 
-    GLuint composeSurface(WaylandSurface *surface);
-    void paintChildren(WaylandSurface *surface, WaylandSurface *window);
+    GLuint composeSurface(QWaylandSurface *surface);
+    void paintChildren(QWaylandSurface *surface, QWaylandSurface *window);
 
 
     bool eventFilter(QObject *obj, QEvent *event);
-    QPointF toSurface(WaylandSurface *surface, const QPointF &pos) const;
+    QPointF toSurface(QWaylandSurface *surface, const QPointF &pos) const;
 
-    void setCursorSurface(WaylandSurface *surface, int hotspotX, int hotspotY);
+    void setCursorSurface(QWaylandSurface *surface, int hotspotX, int hotspotY);
 
-    void ensureKeyboardFocusSurface(WaylandSurface *oldSurface);
+    void ensureKeyboardFocusSurface(QWaylandSurface *oldSurface);
     QImage makeBackgroundImage(const QString &fileName);
 
 private slots:
@@ -90,19 +90,19 @@ private:
     QOpenGLWindow *m_window;
     QImage m_backgroundImage;
     GLuint m_backgroundTexture;
-    QList<WaylandSurface *> m_surfaces;
+    QList<QWaylandSurface *> m_surfaces;
     TextureBlitter *m_textureBlitter;
     QOpenGLTextureCache *m_textureCache;
     GLuint m_surface_fbo;
     QTimer m_renderScheduler;
 
     //Dragging windows around
-    WaylandSurface *m_draggingWindow;
+    QWaylandSurface *m_draggingWindow;
     bool m_dragKeyIsPressed;
     QPointF m_drag_diff;
 
     //Cursor
-    WaylandSurface *m_cursorSurface;
+    QWaylandSurface *m_cursorSurface;
     int m_cursorHotspotX;
     int m_cursorHotspotY;
 

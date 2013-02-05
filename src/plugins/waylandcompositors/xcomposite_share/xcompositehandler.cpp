@@ -45,7 +45,9 @@
 #include "xcompositebuffer.h"
 #include <X11/extensions/Xcomposite.h>
 
-XCompositeHandler::XCompositeHandler(Wayland::Compositor *compositor, Display *display, QWindow *window)
+QT_USE_NAMESPACE
+
+XCompositeHandler::XCompositeHandler(QtWayland::Compositor *compositor, Display *display, QWindow *window)
     : mCompositor(compositor)
     , mwindow(window)
     , mDisplay(display)

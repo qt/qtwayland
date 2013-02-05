@@ -46,10 +46,14 @@
 #include <QByteArray>
 #include <QMimeData>
 
+QT_BEGIN_NAMESPACE
+
 class QWaylandMimeHelper
 {
 public:
     static QByteArray getByteArray(QMimeData *mimeData, const QString &mimeType);
 };
+
+QT_END_NAMESPACE
 
 #endif

@@ -47,6 +47,8 @@
 
 #include <QRegion>
 
+QT_USE_NAMESPACE
+
 QWaylandXCompositeGLXContext::QWaylandXCompositeGLXContext(const QSurfaceFormat &format, QPlatformOpenGLContext *share, Display *display, int screen)
     : m_display(display)
 {

@@ -1,53 +1,50 @@
 WAYLANDSOURCES += \
-                $$PWD/../../extensions/surface-extension.xml \
-                $$PWD/../../extensions/sub-surface-extension.xml \
-                $$PWD/../../extensions/output-extension.xml \
-                $$PWD/../../extensions/touch-extension.xml \
-                $$PWD/../../extensions/qtkey-extension.xml
-
+    ../extensions/surface-extension.xml \
+    ../extensions/sub-surface-extension.xml \
+    ../extensions/output-extension.xml \
+    ../extensions/touch-extension.xml \
+    ../extensions/qtkey-extension.xml \
+    ../extensions/windowmanager.xml
 
 HEADERS += \
-    $$PWD/wlcompositor.h \
-    $$PWD/wldisplay.h \
-    $$PWD/wloutput.h \
-    $$PWD/wlsurface.h \
-    $$PWD/wlshellsurface.h \
-    $$PWD/wlinputdevice.h \
-    $$PWD/wldatadevicemanager.h \
-    $$PWD/wldatadevice.h \
-    $$PWD/wldataoffer.h \
-    $$PWD/wldatasource.h \
-    $$PWD/wlextendedsurface.h \
-    $$PWD/wlextendedoutput.h \
-    $$PWD/wlsubsurface.h \
-    $$PWD/wltouch.h \
-    $$PWD/wlqtkey.h \
-    $$PWD/../../shared/qwaylandmimehelper.h \
-    $$PWD/wlsurfacebuffer.h \
-    $$PWD/wlregion.h
+    wayland_wrapper/qwlcompositor_p.h \
+    wayland_wrapper/qwldatadevice_p.h \
+    wayland_wrapper/qwldatadevicemanager_p.h \
+    wayland_wrapper/qwldataoffer_p.h \
+    wayland_wrapper/qwldatasource_p.h \
+    wayland_wrapper/qwldisplay_p.h \
+    wayland_wrapper/qwlextendedoutput_p.h \
+    wayland_wrapper/qwlextendedsurface_p.h \
+    wayland_wrapper/qwlinputdevice_p.h \
+    wayland_wrapper/qwloutput_p.h \
+    wayland_wrapper/qwlqtkey_p.h \
+    wayland_wrapper/qwlregion_p.h \
+    wayland_wrapper/qwlshellsurface_p.h \
+    wayland_wrapper/qwlsubsurface_p.h \
+    wayland_wrapper/qwlsurface_p.h \
+    wayland_wrapper/qwlsurfacebuffer_p.h \
+    wayland_wrapper/qwltouch_p.h
 
 SOURCES += \
-    $$PWD/wlcompositor.cpp \
-    $$PWD/wldisplay.cpp \
-    $$PWD/wloutput.cpp \
-    $$PWD/wlsurface.cpp \
-    $$PWD/wlshellsurface.cpp \
-    $$PWD/wlinputdevice.cpp \
-    $$PWD/wldatadevicemanager.cpp \
-    $$PWD/wldatadevice.cpp \
-    $$PWD/wldataoffer.cpp \
-    $$PWD/wldatasource.cpp \
-    $$PWD/wlextendedsurface.cpp \
-    $$PWD/wlextendedoutput.cpp \
-    $$PWD/wlsubsurface.cpp \
-    $$PWD/wltouch.cpp \
-    $$PWD/wlqtkey.cpp \
-    $$PWD/../../shared/qwaylandmimehelper.cpp \
-    $$PWD/wlsurfacebuffer.cpp \
-    $$PWD/wlregion.cpp
+    wayland_wrapper/qwlcompositor.cpp \
+    wayland_wrapper/qwldatadevice.cpp \
+    wayland_wrapper/qwldatadevicemanager.cpp \
+    wayland_wrapper/qwldataoffer.cpp \
+    wayland_wrapper/qwldatasource.cpp \
+    wayland_wrapper/qwldisplay.cpp \
+    wayland_wrapper/qwlextendedoutput.cpp \
+    wayland_wrapper/qwlextendedsurface.cpp \
+    wayland_wrapper/qwlinputdevice.cpp \
+    wayland_wrapper/qwloutput.cpp \
+    wayland_wrapper/qwlqtkey.cpp \
+    wayland_wrapper/qwlregion.cpp \
+    wayland_wrapper/qwlshellsurface.cpp \
+    wayland_wrapper/qwlsubsurface.cpp \
+    wayland_wrapper/qwlsurface.cpp \
+    wayland_wrapper/qwlsurfacebuffer.cpp \
+    wayland_wrapper/qwltouch.cpp
 
-INCLUDEPATH += $$PWD
-INCLUDEPATH += $$PWD/../../shared
+INCLUDEPATH += wayland_wrapper
 
 config_xkbcommon {
     !contains(QT_CONFIG, no-pkg-config) {

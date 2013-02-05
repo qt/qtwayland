@@ -47,6 +47,7 @@
 
 #include <QtCore/QDebug>
 
+QT_USE_NAMESPACE
 
 void QWaylandDataOffer::offer_sync_callback(void *data,
              struct wl_callback *callback,

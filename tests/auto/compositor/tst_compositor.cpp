@@ -78,7 +78,7 @@ void tst_WaylandCompositor::singleClient()
 
     QCOMPARE(ca, cb);
 
-    QList<WaylandSurface *> surfaces = compositor.surfacesForClient(ca);
+    QList<QWaylandSurface *> surfaces = compositor.surfacesForClient(ca);
     QCOMPARE(surfaces.size(), 2);
     QVERIFY((surfaces.at(0) == compositor.surfaces.at(0) && surfaces.at(1) == compositor.surfaces.at(1))
             || (surfaces.at(0) == compositor.surfaces.at(1) && surfaces.at(1) == compositor.surfaces.at(0)));
@@ -149,12 +149,12 @@ void tst_WaylandCompositor::mapSurface()
     wl_surface *surface = client.createSurface();
     QTRY_COMPARE(compositor.surfaces.size(), 1);
 
-    WaylandSurface *waylandSurface = compositor.surfaces.at(0);
+    QWaylandSurface *waylandSurface = compositor.surfaces.at(0);
 
     QSignalSpy mappedSpy(waylandSurface, SIGNAL(mapped()));
 
     QCOMPARE(waylandSurface->size(), QSize());
-    QCOMPARE(waylandSurface->type(), WaylandSurface::Invalid);
+    QCOMPARE(waylandSurface->type(), QWaylandSurface::Invalid);
 
     QSize size(256, 256);
     ShmBuffer buffer(size, client.shm);
@@ -163,7 +163,7 @@ void tst_WaylandCompositor::mapSurface()
     wl_surface_damage(surface, 0, 0, size.width(), size.height());
 
     QTRY_COMPARE(waylandSurface->size(), size);
-    QTRY_COMPARE(waylandSurface->type(), WaylandSurface::Shm);
+    QTRY_COMPARE(waylandSurface->type(), QWaylandSurface::Shm);
     QTRY_COMPARE(mappedSpy.count(), 1);
 
     wl_surface_destroy(surface);
@@ -199,14 +199,14 @@ void tst_WaylandCompositor::frameCallback()
     int frameCounter = 0;
 
     QTRY_COMPARE(compositor.surfaces.size(), 1);
-    WaylandSurface *waylandSurface = compositor.surfaces.at(0);
+    QWaylandSurface *waylandSurface = compositor.surfaces.at(0);
     QSignalSpy damagedSpy(waylandSurface, SIGNAL(damaged(const QRect &)));
 
     for (int i = 0; i < 10; ++i) {
         registerFrameCallback(surface, &frameCounter);
         wl_surface_damage(surface, 0, 0, size.width(), size.height());
 
-        QTRY_COMPARE(waylandSurface->type(), WaylandSurface::Shm);
+        QTRY_COMPARE(waylandSurface->type(), QWaylandSurface::Shm);
         QTRY_COMPARE(damagedSpy.count(), i + 1);
 
         QCOMPARE(waylandSurface->image(), buffer.image);

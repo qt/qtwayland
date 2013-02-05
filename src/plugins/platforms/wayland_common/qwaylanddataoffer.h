@@ -51,8 +51,11 @@
 
 #include <stdint.h>
 
-class QWaylandDisplay;
 struct wl_callback;
+
+QT_BEGIN_NAMESPACE
+
+class QWaylandDisplay;
 
 class QWaylandDataOffer : public QInternalMimeData
 {
@@ -78,5 +81,7 @@ private:
     static void offer_sync_callback(void *data, struct wl_callback *wl_callback, uint32_t time);
     static const struct wl_callback_listener offer_sync_callback_listener;
 };
+
+QT_END_NAMESPACE
 
 #endif

@@ -48,6 +48,8 @@
 #include <wayland-client.h>
 #include <wayland-client-protocol.h>
 
+QT_BEGIN_NAMESPACE
+
 class QWaylandBuffer {
 public:
     QWaylandBuffer() { }
@@ -58,5 +60,7 @@ public:
 protected:
     struct wl_buffer *mBuffer;
 };
+
+QT_END_NAMESPACE
 
 #endif // QWAYLANDBUFFER_H

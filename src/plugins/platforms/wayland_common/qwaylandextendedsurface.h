@@ -47,6 +47,8 @@
 
 #include <wayland-client.h>
 
+QT_BEGIN_NAMESPACE
+
 class QWaylandDisplay;
 class QWaylandWindow;
 class QWaylandExtendedSurface;
@@ -96,5 +98,7 @@ private:
 
     bool m_exposed;
 };
+
+QT_END_NAMESPACE
 
 #endif // QWAYLANDEXTENDEDSURFACE_H

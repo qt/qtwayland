@@ -44,6 +44,8 @@
 
 #include "qwaylanddisplay.h"
 
+QT_BEGIN_NAMESPACE
+
 class QWaylandExtendedOutput;
 
 class QWaylandOutputExtension
@@ -75,5 +77,6 @@ private:
     static const struct wl_extended_output_listener extended_output_listener;
 };
 
+QT_END_NAMESPACE
 
 #endif // QWAYLANDEXTENDEDOUTPUT_H

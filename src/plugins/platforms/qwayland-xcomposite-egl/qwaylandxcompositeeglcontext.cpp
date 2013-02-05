@@ -48,6 +48,8 @@
 
 #include <QtPlatformSupport/private/qeglconvenience_p.h>
 
+QT_USE_NAMESPACE
+
 QWaylandXCompositeEGLContext::QWaylandXCompositeEGLContext(const QSurfaceFormat &format, QPlatformOpenGLContext *share, EGLDisplay display)
     : QEGLPlatformContext(format, share, display)
 {

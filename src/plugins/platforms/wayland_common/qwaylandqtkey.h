@@ -46,6 +46,9 @@
 #include <qpa/qwindowsysteminterface.h>
 
 class wl_qtkey_extension;
+
+QT_BEGIN_NAMESPACE
+
 class QWaylandQtKeyExtension
 {
 public:
@@ -70,5 +73,7 @@ private:
                              uint32_t autorep,
                              uint32_t count);
 };
+
+QT_END_NAMESPACE
 
 #endif // QWAYLANDQTKEY_H

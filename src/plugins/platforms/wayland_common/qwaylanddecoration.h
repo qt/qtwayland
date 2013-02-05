@@ -53,6 +53,8 @@
 
 #include <QtCore/QDebug>
 
+QT_BEGIN_NAMESPACE
+
 class QWindow;
 class QPaintDevice;
 class QPainter;
@@ -153,5 +155,7 @@ inline void QWaylandDecoration::overrideCursor(Qt::CursorShape shape)
         m_cursorShape = shape;
     }
 }
+
+QT_END_NAMESPACE
 
 #endif // QWAYLANDDECORATION_H

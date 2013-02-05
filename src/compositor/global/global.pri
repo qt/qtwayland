@@ -1,10 +1,10 @@
-INCLUDEPATH += $$PWD
+INCLUDEPATH += global/
 
 HEADERS += \
-    $$PWD/waylandexport.h \
-    $$PWD/waylandobject.h \
-    $$PWD/waylandresourcecollection.h \
+    global/qwaylandexport.h \
+    global/qwaylandobject.h \
+    global/qwaylandresourcecollection.h
 
 SOURCES += \
-    $$PWD/waylandresourcecollection.cpp \
+    global/qwaylandresourcecollection.cpp
 

@@ -47,6 +47,8 @@
 
 #include "wayland-xcomposite-client-protocol.h"
 
+QT_USE_NAMESPACE
+
 QWaylandGLIntegration * QWaylandGLIntegration::createGLIntegration(QWaylandDisplay *waylandDisplay)
 {
     return new QWaylandXCompositeEGLIntegration(waylandDisplay);

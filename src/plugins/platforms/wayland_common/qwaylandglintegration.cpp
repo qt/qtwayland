@@ -41,6 +41,8 @@
 
 #include "qwaylandglintegration.h"
 
+QT_USE_NAMESPACE
+
 QWaylandGLIntegration::QWaylandGLIntegration()
 {
 

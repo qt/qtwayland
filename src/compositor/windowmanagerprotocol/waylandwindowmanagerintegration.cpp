@@ -40,17 +40,19 @@
 
 #include "waylandwindowmanagerintegration.h"
 
-#include "wayland_wrapper/wldisplay.h"
-#include "wayland_wrapper/wlcompositor.h"
+#include "wayland_wrapper/qwldisplay_p.h"
+#include "wayland_wrapper/qwlcompositor_p.h"
 
-#include "compositor_api/waylandcompositor.h"
+#include "compositor_api/qwaylandcompositor.h"
 
 #include "wayland-server.h"
 #include "wayland-windowmanager-server-protocol.h"
 
 #include <QUrl>
 
-WindowManagerServerIntegration::WindowManagerServerIntegration(WaylandCompositor *compositor, QObject *parent)
+QT_BEGIN_NAMESPACE
+
+WindowManagerServerIntegration::WindowManagerServerIntegration(QWaylandCompositor *compositor, QObject *parent)
     : QObject(parent)
     , m_showIsFullScreen(false)
     , m_compositor(compositor)
@@ -62,7 +64,7 @@ WindowManagerServerIntegration::~WindowManagerServerIntegration()
     qDeleteAll(m_managedClients);
 }
 
-void WindowManagerServerIntegration::initialize(Wayland::Display *waylandDisplay)
+void WindowManagerServerIntegration::initialize(QtWayland::Display *waylandDisplay)
 {
     wl_display_add_global(waylandDisplay->handle(),&wl_windowmanager_interface,this,WindowManagerServerIntegration::bind_func);
 }
@@ -208,3 +210,5 @@ QByteArray WaylandManagedClient::authenticationToken() const
 {
     return m_authenticationToken;
 }
+
+QT_END_NAMESPACE

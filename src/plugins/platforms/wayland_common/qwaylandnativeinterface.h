@@ -46,6 +46,8 @@
 #include <QVariantMap>
 #include <qpa/qplatformnativeinterface.h>
 
+QT_BEGIN_NAMESPACE
+
 class QWaylandIntegration;
 
 class QWaylandNativeInterface : public QPlatformNativeInterface
@@ -70,5 +72,6 @@ private:
     QHash<QPlatformWindow*, QVariantMap> m_windowProperties;
 };
 
+QT_END_NAMESPACE
 
 #endif // QWAYLANDNATIVEINTERFACE_H

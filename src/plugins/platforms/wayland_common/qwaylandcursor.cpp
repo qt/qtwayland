@@ -51,6 +51,8 @@
 
 #include <wayland-cursor.h>
 
+QT_USE_NAMESPACE
+
 QWaylandCursor::QWaylandCursor(QWaylandScreen *screen)
     : mDisplay(screen->display())
 {

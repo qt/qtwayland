@@ -50,6 +50,8 @@
 
 #include "windowmanager_integration/qwaylandwindowmanagerintegration.h"
 
+QT_USE_NAMESPACE
+
 QWaylandNativeInterface::QWaylandNativeInterface(QWaylandIntegration *integration)
     : m_integration(integration)
 {

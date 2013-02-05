@@ -38,9 +38,9 @@
 **
 ****************************************************************************/
 
-#include "waylandcompositor.h"
-#include "waylandsurface.h"
-#include "waylandsurfaceitem.h"
+#include "qwaylandcompositor.h"
+#include "qwaylandsurface.h"
+#include "qwaylandsurfaceitem.h"
 
 #include <QGuiApplication>
 #include <QTimer>
@@ -52,14 +52,14 @@
 #include <QQuickItem>
 #include <QQuickView>
 
-class QmlCompositor : public QQuickView, public WaylandCompositor
+class QmlCompositor : public QQuickView, public QWaylandCompositor
 {
     Q_OBJECT
-    Q_PROPERTY(WaylandSurface* fullscreenSurface READ fullscreenSurface WRITE setFullscreenSurface NOTIFY fullscreenSurfaceChanged)
+    Q_PROPERTY(QWaylandSurface* fullscreenSurface READ fullscreenSurface WRITE setFullscreenSurface NOTIFY fullscreenSurfaceChanged)
 
 public:
     QmlCompositor()
-        : WaylandCompositor(this)
+        : QWaylandCompositor(this)
         , m_fullscreenSurface(0)
     {
         enableSubSurfaceExtension();
@@ -71,7 +71,7 @@ public:
 	connect(this, SIGNAL(frameSwapped()), this, SLOT(frameSwappedSlot()));
     }
 
-    WaylandSurface *fullscreenSurface() const
+    QWaylandSurface *fullscreenSurface() const
     {
         return m_fullscreenSurface;
     }
@@ -88,11 +88,11 @@ public slots:
     }
 
     void destroyClientForWindow(QVariant window) {
-        WaylandSurface *surface = qobject_cast<WaylandSurfaceItem *>(qvariant_cast<QObject *>(window))->surface();
+        QWaylandSurface *surface = qobject_cast<QWaylandSurfaceItem *>(qvariant_cast<QObject *>(window))->surface();
         destroyClientForSurface(surface);
     }
 
-    void setFullscreenSurface(WaylandSurface *surface) {
+    void setFullscreenSurface(QWaylandSurface *surface) {
         if (surface == m_fullscreenSurface)
             return;
         m_fullscreenSurface = surface;
@@ -101,22 +101,22 @@ public slots:
 
 private slots:
     void surfaceMapped() {
-        WaylandSurface *surface = qobject_cast<WaylandSurface *>(sender());
+        QWaylandSurface *surface = qobject_cast<QWaylandSurface *>(sender());
         //Ignore surface if it's not a window surface
         if (!surface->hasShellSurface())
             return;
 
-        WaylandSurfaceItem *item = surface->surfaceItem();
+        QWaylandSurfaceItem *item = surface->surfaceItem();
         //Create a WaylandSurfaceItem if we have not yet
         if (!item)
-            item = new WaylandSurfaceItem(surface, rootObject());
+            item = new QWaylandSurfaceItem(surface, rootObject());
 
         item->setTouchEventsEnabled(true);
         //item->takeFocus();
         emit windowAdded(QVariant::fromValue(static_cast<QQuickItem *>(item)));
     }
     void surfaceUnmapped() {
-        WaylandSurface *surface = qobject_cast<WaylandSurface *>(sender());
+        QWaylandSurface *surface = qobject_cast<QWaylandSurface *>(sender());
         if (surface == m_fullscreenSurface)
             m_fullscreenSurface = 0;
         QQuickItem *item = surface->surfaceItem();
@@ -124,7 +124,7 @@ private slots:
     }
 
     void surfaceDestroyed(QObject *object) {
-        WaylandSurface *surface = static_cast<WaylandSurface *>(object);
+        QWaylandSurface *surface = static_cast<QWaylandSurface *>(object);
         if (surface == m_fullscreenSurface)
             m_fullscreenSurface = 0;
         QQuickItem *item = surface->surfaceItem();
@@ -139,17 +139,17 @@ protected:
     void resizeEvent(QResizeEvent *event)
     {
         QQuickView::resizeEvent(event);
-        WaylandCompositor::setOutputGeometry(QRect(0, 0, width(), height()));
+        QWaylandCompositor::setOutputGeometry(QRect(0, 0, width(), height()));
     }
 
-    void surfaceCreated(WaylandSurface *surface) {
+    void surfaceCreated(QWaylandSurface *surface) {
         connect(surface, SIGNAL(destroyed(QObject *)), this, SLOT(surfaceDestroyed(QObject *)));
         connect(surface, SIGNAL(mapped()), this, SLOT(surfaceMapped()));
         connect(surface,SIGNAL(unmapped()), this,SLOT(surfaceUnmapped()));
     }
 
 private:
-    WaylandSurface *m_fullscreenSurface;
+    QWaylandSurface *m_fullscreenSurface;
 };
 
 int main(int argc, char *argv[])

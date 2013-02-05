@@ -49,6 +49,8 @@
 
 #include <X11/extensions/Xcomposite.h>
 
+QT_USE_NAMESPACE
+
 QWaylandXCompositeGLXWindow::QWaylandXCompositeGLXWindow(QWindow *window, QWaylandXCompositeGLXIntegration *glxIntegration)
     : QWaylandWindow(window)
     , m_glxIntegration(glxIntegration)

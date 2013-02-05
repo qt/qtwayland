@@ -45,6 +45,8 @@
 #include <qpa/qplatformcursor.h>
 #include <QMap>
 
+QT_BEGIN_NAMESPACE
+
 class QWaylandDisplay;
 class QWaylandScreen;
 struct wl_cursor_theme;
@@ -102,5 +104,7 @@ private:
     QMap<WaylandCursor, wl_cursor *> mCursors;
     QMultiMap<WaylandCursor, QByteArray> mCursorNamesMap;
 };
+
+QT_END_NAMESPACE
 
 #endif // QWAYLANDCURSOR_H

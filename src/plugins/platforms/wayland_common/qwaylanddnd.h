@@ -47,6 +47,8 @@
 #include <QtCore/QMimeData>
 #include "qwaylanddisplay.h"
 
+QT_BEGIN_NAMESPACE
+
 class QWaylandDrag : public QPlatformDrag
 {
 public:
@@ -66,5 +68,7 @@ public:
 private:
     QWaylandDisplay *m_display;
 };
+
+QT_END_NAMESPACE
 
 #endif // QWAYLANDDND_H

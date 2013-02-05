@@ -41,8 +41,8 @@
 #ifndef XCOMPOSITEBUFFER_H
 #define XCOMPOSITEBUFFER_H
 
-#include "waylandobject.h"
-#include <QtCompositor/wlcompositor.h>
+#include <QtCompositor/qwaylandobject.h>
+#include <private/qwlcompositor_p.h>
 
 #include <QtCore/QSize>
 
@@ -53,10 +53,12 @@
 
 #include <X11/X.h>
 
-class XCompositeBuffer : public Wayland::Object<struct wl_buffer>
+QT_BEGIN_NAMESPACE
+
+class XCompositeBuffer : public QtWayland::Object<struct wl_buffer>
 {
 public:
-    XCompositeBuffer(Wayland::Compositor *compositor, Window window, const QSize &size);
+    XCompositeBuffer(QtWayland::Compositor *compositor, Window window, const QSize &size);
 
     Window window();
 
@@ -72,5 +74,7 @@ private:
     static void buffer_interface_destroy(struct wl_client *client,
                         struct wl_resource *buffer);
 };
+
+QT_END_NAMESPACE
 
 #endif // XCOMPOSITORBUFFER_H

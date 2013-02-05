@@ -40,8 +40,8 @@
 
 #include "waylandeglintegration.h"
 
-#include <QtCompositor/wlcompositor.h>
-#include <QtCompositor/wlsurface.h>
+#include <QtCompositor/private/qwlcompositor_p.h>
+#include <QtCompositor/private/qwlsurface_p.h>
 #include <qpa/qplatformnativeinterface.h>
 #include <QtGui/QGuiApplication>
 #include <QtGui/QOpenGLContext>
@@ -71,6 +71,8 @@ typedef EGLBoolean (EGLAPIENTRYP PFNEGLDESTROYIMAGEKHRPROC) (EGLDisplay dpy, EGL
 typedef void (GL_APIENTRYP PFNGLEGLIMAGETARGETTEXTURE2DOESPROC) (GLenum target, GLeglImageOES image);
 typedef void (GL_APIENTRYP PFNGLEGLIMAGETARGETRENDERBUFFERSTORAGEOESPROC) (GLenum target, GLeglImageOES image);
 #endif
+
+QT_USE_NAMESPACE
 
 class WaylandEglIntegrationPrivate
 {
@@ -103,12 +105,12 @@ public:
 };
 
 WaylandEglIntegration::WaylandEglIntegration()
-    : GraphicsHardwareIntegration()
+    : QWaylandGraphicsHardwareIntegration()
     , d_ptr(new WaylandEglIntegrationPrivate)
 {
 }
 
-void WaylandEglIntegration::initializeHardware(Wayland::Display *waylandDisplay)
+void WaylandEglIntegration::initializeHardware(QtWayland::Display *waylandDisplay)
 {
     Q_D(WaylandEglIntegration);
 
@@ -189,12 +191,12 @@ bool WaylandEglIntegration::isYInverted(struct wl_buffer *buffer) const
 #ifdef EGL_WL_request_client_buffer_format
     return eglGetBufferYInvertedWL(buffer);
 #else
-    return GraphicsHardwareIntegration::isYInverted(buffer);
+    return QWaylandGraphicsHardwareIntegration::isYInverted(buffer);
 #endif
 }
 
 
-bool WaylandEglIntegration::setDirectRenderSurface(WaylandSurface *surface)
+bool WaylandEglIntegration::setDirectRenderSurface(QWaylandSurface *surface)
 {
     Q_D(WaylandEglIntegration);
 

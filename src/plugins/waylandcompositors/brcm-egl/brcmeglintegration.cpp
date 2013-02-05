@@ -40,8 +40,8 @@
 
 #include "brcmeglintegration.h"
 #include "brcmbuffer.h"
-#include <QtCompositor/wlsurface.h>
-#include <QtCompositor/wlcompositor.h>
+#include <QtCompositor/private/qwlsurface_p.h>
+#include <QtCompositor/private/qwlcompositor_p.h>
 #include <QtCompositor/waylandsurface.h>
 #include <qpa/qplatformnativeinterface.h>
 #include <QtGui/QGuiApplication>
@@ -60,7 +60,9 @@
 
 #include "wayland-brcm-server-protocol.h"
 
-GraphicsHardwareIntegration * GraphicsHardwareIntegration::createGraphicsHardwareIntegration(WaylandCompositor *compositor)
+QT_USE_NAMESPACE
+
+QWaylandGraphicsHardwareIntegration * QWaylandGraphicsHardwareIntegration::createGraphicsHardwareIntegration(QWaylandCompositor *compositor)
 {
     return new BrcmEglIntegration(compositor);
 }
@@ -81,12 +83,12 @@ public:
 };
 
 BrcmEglIntegration::BrcmEglIntegration()
-    : GraphicsHardwareIntegration()
+    : QWaylandGraphicsHardwareIntegration()
     , d_ptr(new BrcmEglIntegrationPrivate)
 {
 }
 
-void BrcmEglIntegration::initializeHardware(Wayland::Display *waylandDisplay)
+void BrcmEglIntegration::initializeHardware(QtWayland::Display *waylandDisplay)
 {
     Q_D(BrcmEglIntegration);
 
@@ -137,7 +139,7 @@ GLuint BrcmEglIntegration::createTextureFromBuffer(wl_buffer *buffer, QOpenGLCon
         return 0;
     }
 
-    BrcmBuffer *brcmBuffer = Wayland::wayland_cast<BrcmBuffer>(buffer);
+    BrcmBuffer *brcmBuffer = QtWayland::wayland_cast<BrcmBuffer>(buffer);
 
     if (!d->eglQueryGlobalImageBRCM(brcmBuffer->handle(), brcmBuffer->handle() + 2)) {
         qWarning("eglQueryGlobalImageBRCM failed!");

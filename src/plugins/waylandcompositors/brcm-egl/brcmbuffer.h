@@ -41,18 +41,20 @@
 #ifndef BRCMBUFFER_H
 #define BRCMBUFFER_H
 
-#include "waylandobject.h"
-#include <QtCompositor/wlcompositor.h>
+#include <QtCompositor/qwaylandobject.h>
+#include <QtCompositor/private/qwlcompositor_p.h>
 
 #include <QtCore/QSize>
 #include <QtCore/QVector>
 
 #include <EGL/egl.h>
 
-class BrcmBuffer : public Wayland::Object<struct wl_buffer>
+QT_BEGIN_NAMESPACE
+
+class BrcmBuffer : public QtWayland::Object<struct wl_buffer>
 {
 public:
-    BrcmBuffer(Wayland::Compositor *compositor, const QSize &size, EGLint *data, size_t count);
+    BrcmBuffer(QtWayland::Compositor *compositor, const QSize &size, EGLint *data, size_t count);
     ~BrcmBuffer();
 
     static struct wl_buffer_interface buffer_interface;
@@ -70,5 +72,7 @@ private:
     QVector<EGLint> m_handle;
     bool m_invertedY;
 };
+
+QT_END_NAMESPACE
 
 #endif // BRCMBUFFER_H

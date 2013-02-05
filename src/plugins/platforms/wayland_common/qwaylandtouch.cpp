@@ -44,6 +44,8 @@
 
 #include "wayland-touch-extension-client-protocol.h"
 
+QT_USE_NAMESPACE
+
 QWaylandTouchExtension::QWaylandTouchExtension(QWaylandDisplay *display, uint32_t id)
     : mDisplay(display),
       mTouchDevice(0),

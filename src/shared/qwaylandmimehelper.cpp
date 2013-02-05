@@ -46,6 +46,8 @@
 #include <QBuffer>
 #include <QImageWriter>
 
+QT_USE_NAMESPACE
+
 QByteArray QWaylandMimeHelper::getByteArray(QMimeData *mimeData, const QString &mimeType)
 {
     QByteArray content;

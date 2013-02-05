@@ -44,6 +44,8 @@
 
 #include "qwaylanddisplay.h"
 
+QT_BEGIN_NAMESPACE
+
 class QWaylandWindow;
 class QWaylandShellSurface;
 
@@ -59,5 +61,7 @@ private:
 
     QWaylandDisplay *m_display;
 };
+
+QT_END_NAMESPACE
 
 #endif // QWAYLANDSHELL_H

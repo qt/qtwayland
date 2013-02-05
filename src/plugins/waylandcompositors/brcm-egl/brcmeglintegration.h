@@ -41,18 +41,20 @@
 #ifndef BRCMEGLINTEGRATION_H
 #define BRCMEGLINTEGRATION_H
 
-#include <QtCompositor/graphicshardwareintegration.h>
+#include <QtCompositor/qwaylandgraphicshardwareintegration.h>
 #include <QtCore/QScopedPointer>
+
+QT_BEGIN_NAMESPACE
 
 class BrcmEglIntegrationPrivate;
 
-class BrcmEglIntegration : public GraphicsHardwareIntegration
+class BrcmEglIntegration : public QWaylandGraphicsHardwareIntegration
 {
     Q_DECLARE_PRIVATE(BrcmEglIntegration)
 public:
     BrcmEglIntegration();
 
-    void initializeHardware(Wayland::Display *waylandDisplay);
+    void initializeHardware(QtWayland::Display *waylandDisplay);
 
     GLuint createTextureFromBuffer(wl_buffer *buffer, QOpenGLContext *context);
     bool isYInverted(struct wl_buffer *) const;
@@ -70,6 +72,8 @@ private:
     Q_DISABLE_COPY(BrcmEglIntegration)
     QScopedPointer<BrcmEglIntegrationPrivate> d_ptr;
 };
+
+QT_END_NAMESPACE
 
 #endif // BRCMEGLINTEGRATION_H
 

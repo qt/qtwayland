@@ -45,6 +45,8 @@
 #include <qpa/qplatformclipboard.h>
 #include <QtCore/QVariant>
 
+QT_BEGIN_NAMESPACE
+
 class QWaylandDisplay;
 
 class QWaylandClipboard : public QPlatformClipboard
@@ -63,5 +65,7 @@ public:
 private:
     QWaylandDisplay *mDisplay;
 };
+
+QT_END_NAMESPACE
 
 #endif // QWAYLANDCLIPBOARD_H

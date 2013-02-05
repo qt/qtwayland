@@ -58,6 +58,8 @@
 
 #include <QtCore/QDebug>
 
+QT_USE_NAMESPACE
+
 void QWaylandDataDeviceManager::data_offer(void *data,
                    struct wl_data_device *data_device,
                    struct wl_data_offer *id)

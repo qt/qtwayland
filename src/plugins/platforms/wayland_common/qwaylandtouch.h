@@ -47,6 +47,8 @@
 
 class wl_touch_extension;
 
+QT_BEGIN_NAMESPACE
+
 class QWaylandTouchExtension
 {
 public:
@@ -95,5 +97,7 @@ private:
     QWindow *mTargetWindow;
     QWaylandInputDevice *mInputDevice;
 };
+
+QT_END_NAMESPACE
 
 #endif // QWAYLANDTOUCH_H

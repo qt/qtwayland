@@ -41,8 +41,8 @@
 #ifndef WAYLANDWINDOWMANAGERINTEGRATION_H
 #define WAYLANDWINDOWMANAGERINTEGRATION_H
 
-#include "waylandexport.h"
-#include "waylandresourcecollection.h"
+#include <QtCompositor/qwaylandexport.h>
+#include <QtCompositor/qwaylandresourcecollection.h>
 
 #include <qwindowdefs.h>
 #include <stdint.h>
@@ -54,22 +54,24 @@
 struct wl_client;
 struct wl_object;
 
-namespace Wayland {
+QT_BEGIN_NAMESPACE
+
+namespace QtWayland {
     class Display;
 }
 
 class WindowManagerObject;
 class WaylandManagedClient;
-class WaylandCompositor;
+class QWaylandCompositor;
 
-class Q_COMPOSITOR_EXPORT WindowManagerServerIntegration : public QObject, private Wayland::ResourceCollection
+class Q_COMPOSITOR_EXPORT WindowManagerServerIntegration : public QObject, private QtWayland::ResourceCollection
 {
     Q_OBJECT
 public:
-    WindowManagerServerIntegration(WaylandCompositor *compositor, QObject *parent = 0);
+    WindowManagerServerIntegration(QWaylandCompositor *compositor, QObject *parent = 0);
     ~WindowManagerServerIntegration();
 
-    void initialize(Wayland::Display *waylandDisplay);
+    void initialize(QtWayland::Display *waylandDisplay);
     void removeClient(wl_client *client);
 
     WaylandManagedClient *managedClient(wl_client *client) const;
@@ -86,7 +88,7 @@ private:
 
 private:
     bool m_showIsFullScreen;
-    WaylandCompositor *m_compositor;
+    QWaylandCompositor *m_compositor;
     QMap<wl_client*, WaylandManagedClient*> m_managedClients;
 
     static void bind_func(struct wl_client *client, void *data,
@@ -120,5 +122,7 @@ private:
 
     friend class WindowManagerServerIntegration;
 };
+
+QT_END_NAMESPACE
 
 #endif // WAYLANDWINDOWMANAGERINTEGRATION_H

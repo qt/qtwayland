@@ -39,15 +39,15 @@
 **
 ****************************************************************************/
 
-#include "waylandcompositor.h"
-#include "waylandsurface.h"
+#include "qwaylandcompositor.h"
+#include "qwaylandsurface.h"
 
-class TestCompositor : public WaylandCompositor
+class TestCompositor : public QWaylandCompositor
 {
 public:
-    void surfaceCreated(WaylandSurface *surface);
-    void surfaceAboutToBeDestroyed(WaylandSurface *surface);
+    void surfaceCreated(QWaylandSurface *surface);
+    void surfaceAboutToBeDestroyed(QWaylandSurface *surface);
 
-    QList<WaylandSurface *> surfaces;
+    QList<QWaylandSurface *> surfaces;
 };
 

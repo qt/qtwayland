@@ -42,6 +42,10 @@
 #ifndef QWAYLANDGLINTEGRATION_H
 #define QWAYLANDGLINTEGRATION_H
 
+#include <QtCore/qglobal.h>
+
+QT_BEGIN_NAMESPACE
+
 class QWaylandWindow;
 class QWaylandDisplay;
 class QWindow;
@@ -65,5 +69,7 @@ public:
 
     static QWaylandGLIntegration *createGLIntegration(QWaylandDisplay *waylandDisplay);
 };
+
+QT_END_NAMESPACE
 
 #endif // QWAYLANDGLINTEGRATION_H

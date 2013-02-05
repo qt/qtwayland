@@ -44,6 +44,8 @@
 #include "qwaylandshmwindow.h"
 #include "qwaylandshmbackingstore.h"
 
+QT_USE_NAMESPACE
+
 QWaylandShmDecoration::QWaylandShmDecoration(QWaylandShmWindow *window)
     : QWaylandDecoration(window)
 {

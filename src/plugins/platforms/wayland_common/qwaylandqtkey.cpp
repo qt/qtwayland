@@ -44,6 +44,8 @@
 
 #include "wayland-qtkey-extension-client-protocol.h"
 
+QT_USE_NAMESPACE
+
 QWaylandQtKeyExtension::QWaylandQtKeyExtension(QWaylandDisplay *display, uint32_t id)
     : m_display(display)
 {

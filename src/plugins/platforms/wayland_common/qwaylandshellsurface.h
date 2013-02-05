@@ -46,6 +46,8 @@
 
 #include <wayland-client.h>
 
+QT_BEGIN_NAMESPACE
+
 class QWaylandWindow;
 class QWaylandInputDevice;
 class QWindow;
@@ -90,5 +92,7 @@ private:
                 struct wl_shell_surface *wl_shell_surface);
     static const struct wl_shell_surface_listener m_shell_surface_listener;
 };
+
+QT_END_NAMESPACE
 
 #endif // QWAYLANDSHELLSURFACE_H

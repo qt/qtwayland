@@ -46,6 +46,8 @@
 #include <QtGui/QPainter>
 #include <QtGui/QOpenGLPaintDevice>
 
+QT_USE_NAMESPACE
+
 QWaylandEglDecoration::QWaylandEglDecoration(QWaylandEglWindow *window)
     : QWaylandDecoration(window)
 {

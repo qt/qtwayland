@@ -63,6 +63,8 @@
 #include <X11/keysym.h>
 #endif
 
+QT_USE_NAMESPACE
+
 QWaylandInputDevice::QWaylandInputDevice(QWaylandDisplay *display, uint32_t id)
     : mQDisplay(display)
     , mDisplay(display->wl_display())

@@ -50,6 +50,10 @@
 #define EGL_EGLEXT_PROTOTYPES
 #include <EGL/eglext_brcm.h>
 
+#include <QtCore/qglobal.h>
+
+QT_BEGIN_NAMESPACE
+
 class QWaylandWindow;
 class QWindow;
 
@@ -84,5 +88,7 @@ private:
 
     EGLDisplay m_eglDisplay;
 };
+
+QT_END_NAMESPACE
 
 #endif // QWAYLANDBRCMEGLINTEGRATION_H

@@ -44,6 +44,8 @@
 #include "qwaylandshellsurface.h"
 #include "qwaylandwindow.h"
 
+QT_USE_NAMESPACE
+
 QWaylandShell::QWaylandShell(QWaylandDisplay *display, uint32_t id, uint32_t version)
     : m_display(display)
 {

@@ -40,7 +40,9 @@
 
 #include "xcompositebuffer.h"
 
-XCompositeBuffer::XCompositeBuffer(Wayland::Compositor *compositor, Window window, const QSize &size)
+QT_USE_NAMESPACE
+
+XCompositeBuffer::XCompositeBuffer(QtWayland::Compositor *compositor, Window window, const QSize &size)
     : mWindow(window)
     , mInvertedY(false)
 {

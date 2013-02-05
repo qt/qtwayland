@@ -42,11 +42,15 @@
 #ifndef QWAYLANDSUBSURFACE_H
 #define QWAYLANDSUBSURFACE_H
 
+#include <wayland-client.h>
+
+#include <QtCore/qglobal.h>
+
+QT_BEGIN_NAMESPACE
+
 class QWaylandDisplay;
 class QWaylandWindow;
 class QWaylandSubSurface;
-
-#include <wayland-client.h>
 
 class QWaylandSubSurfaceExtension
 {
@@ -71,5 +75,7 @@ private:
     QWaylandWindow *m_window;
     struct wl_sub_surface *m_sub_surface;
 };
+
+QT_END_NAMESPACE
 
 #endif // QWAYLANDSUBSURFACE_H

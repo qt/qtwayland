@@ -49,14 +49,16 @@
 
 #include "qwaylanddisplay.h"
 
+struct wl_egl_window;
+
+QT_BEGIN_NAMESPACE
+
 class QWaylandDisplay;
 class QWaylandBuffer;
 class QWaylandShellSurface;
 class QWaylandExtendedSurface;
 class QWaylandSubSurface;
 class QWaylandDecoration;
-
-struct wl_egl_window;
 
 class QWaylandWindow : public QPlatformWindow
 {
@@ -171,5 +173,6 @@ inline QPoint QWaylandWindow::attachOffset() const
     return mOffset;
 }
 
+QT_END_NAMESPACE
 
 #endif // QWAYLANDWINDOW_H

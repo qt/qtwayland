@@ -46,6 +46,8 @@
 
 #include "qwaylandeglinclude.h"
 
+QT_BEGIN_NAMESPACE
+
 class QWaylandWindow;
 class QWindow;
 
@@ -68,5 +70,7 @@ private:
 
     EGLDisplay m_eglDisplay;
 };
+
+QT_END_NAMESPACE
 
 #endif // QWAYLANDEGLINTEGRATION_H

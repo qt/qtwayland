@@ -44,6 +44,8 @@
 
 #include "qwaylanddecoration.h"
 
+QT_BEGIN_NAMESPACE
+
 class QWaylandEglWindow;
 
 class QWaylandEglDecoration : public QWaylandDecoration
@@ -55,5 +57,7 @@ public:
     void paintDecoration();
 
 };
+
+QT_END_NAMESPACE
 
 #endif // QWAYLANDEGLDECORATION_H

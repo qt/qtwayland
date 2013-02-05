@@ -48,6 +48,8 @@
 
 #include <QtCore/QDebug>
 
+QT_USE_NAMESPACE
+
 QWaylandShmWindow::QWaylandShmWindow(QWindow *window)
     : QWaylandWindow(window)
     , mBackingStore(0)

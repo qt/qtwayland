@@ -1,7 +1,7 @@
 PLUGIN_TYPE = waylandcompositors
 load(qt_plugin)
 
-QT = compositor core-private gui-private
+QT = compositor compositor-private core-private gui-private
 
 OTHER_FILES += wayland_egl.json
 

@@ -49,6 +49,8 @@
 
 #include <EGL/egl.h>
 
+QT_BEGIN_NAMESPACE
+
 class QWaylandGLContext;
 class QWaylandBrcmBuffer;
 
@@ -93,5 +95,7 @@ private:
 
     QMutex m_mutex;
 };
+
+QT_END_NAMESPACE
 
 #endif // QWAYLANDBRCMEGLWINDOW_H

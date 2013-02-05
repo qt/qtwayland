@@ -43,6 +43,8 @@
 
 #include "qwaylanddatadevicemanager.h"
 
+QT_USE_NAMESPACE
+
 QWaylandDrag::QWaylandDrag(QWaylandDisplay *display)
     : m_display(display)
 {

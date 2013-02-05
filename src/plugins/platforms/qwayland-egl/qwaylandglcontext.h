@@ -48,6 +48,8 @@
 
 #include "qwaylandeglinclude.h"
 
+QT_BEGIN_NAMESPACE
+
 class QWaylandWindow;
 class QWaylandGLWindowSurface;
 class QOpenGLShaderProgram;
@@ -84,5 +86,6 @@ private:
     QOpenGLShaderProgram *m_blitProgram;
 };
 
+QT_END_NAMESPACE
 
 #endif // QWAYLANDGLCONTEXT_H

@@ -50,6 +50,8 @@
 #include <qpa/qplatformopenglcontext.h>
 #include <QtGui/QSurfaceFormat>
 
+QT_USE_NAMESPACE
+
 extern QSurfaceFormat brcmFixFormat(const QSurfaceFormat &format);
 
 QWaylandBrcmGLContext::QWaylandBrcmGLContext(EGLDisplay eglDisplay, const QSurfaceFormat &format, QPlatformOpenGLContext *share)

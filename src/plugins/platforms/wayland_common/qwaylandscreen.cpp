@@ -77,7 +77,11 @@ QWaylandDisplay * QWaylandScreen::display() const
 
 void QWaylandScreen::setGeometry(const QRect &geom)
 {
+    if (mGeometry == geom)
+        return;
+
     mGeometry = geom;
+    QWindowSystemInterface::handleScreenGeometryChange(screen(), mGeometry);
 }
 
 QRect QWaylandScreen::geometry() const

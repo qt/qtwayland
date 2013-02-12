@@ -23,5 +23,6 @@ INCLUDEPATH += $$PWD $$PWD/../../../shared
     LIBS += -lwayland-client -lwayland-cursor
 }
 
-LIBS += $$PWD/libwayland_common.a
-
+staticlib = $$PWD/libwayland_common.$${QMAKE_EXTENSION_STATICLIB}
+LIBS += $$staticlib
+PRE_TARGETDEPS += $$staticlib

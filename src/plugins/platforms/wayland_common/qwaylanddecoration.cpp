@@ -51,10 +51,75 @@
 #include <QtGui/QPalette>
 #include <QtGui/QLinearGradient>
 
-#define BUTTON_WIDTH 25
+QT_USE_NAMESPACE
+
 #define BUTTON_SPACING 5
 
-QT_USE_NAMESPACE
+#ifndef QT_NO_IMAGEFORMAT_XPM
+#  define BUTTON_WIDTH 10
+
+static const char * const qt_close_xpm[] = {
+"10 10 2 1",
+"# c #000000",
+". c None",
+"..........",
+".##....##.",
+"..##..##..",
+"...####...",
+"....##....",
+"...####...",
+"..##..##..",
+".##....##.",
+"..........",
+".........."};
+
+static const char * const qt_maximize_xpm[]={
+"10 10 2 1",
+"# c #000000",
+". c None",
+"#########.",
+"#########.",
+"#.......#.",
+"#.......#.",
+"#.......#.",
+"#.......#.",
+"#.......#.",
+"#.......#.",
+"#########.",
+".........."};
+
+static const char * const qt_minimize_xpm[] = {
+"10 10 2 1",
+"# c #000000",
+". c None",
+"..........",
+"..........",
+"..........",
+"..........",
+"..........",
+"..........",
+"..........",
+".#######..",
+".#######..",
+".........."};
+
+static const char * const qt_normalizeup_xpm[] = {
+"10 10 2 1",
+"# c #000000",
+". c None",
+"...######.",
+"...######.",
+"...#....#.",
+".######.#.",
+".######.#.",
+".#....###.",
+".#....#...",
+".#....#...",
+".######...",
+".........."};
+#else
+#  define BUTTON_WIDTH 22
+#endif
 
 QWaylandDecoration::QWaylandDecoration(QWaylandWindow *window)
     : m_window(window->window())
@@ -150,6 +215,24 @@ void QWaylandDecoration::paint(QPaintDevice *device)
         p.restore();
     }
 
+#ifndef QT_NO_IMAGEFORMAT_XPM
+    p.save();
+
+    // Close button
+    QPixmap closePixmap(qt_close_xpm);
+    p.drawPixmap(closeButtonRect(), closePixmap, closePixmap.rect());
+
+    // Maximize button
+    QPixmap maximizePixmap(m_wayland_window->shellSurface()->isMaximized()
+                           ? qt_normalizeup_xpm : qt_maximize_xpm);
+    p.drawPixmap(maximizeButtonRect(), maximizePixmap, maximizePixmap.rect());
+
+    // Minimize button
+    QPixmap minimizePixmap(qt_minimize_xpm);
+    p.drawPixmap(minimizeButtonRect(), minimizePixmap, minimizePixmap.rect());
+
+    p.restore();
+#else
     // We don't need antialiasing from now on
     p.setRenderHint(QPainter::Antialiasing, false);
 
@@ -196,6 +279,7 @@ void QWaylandDecoration::paint(QPaintDevice *device)
     p.setPen(pen);
     p.drawLine(rect.bottomLeft(), rect.bottomRight());
     p.restore();
+#endif
 }
 
 bool QWaylandDecoration::handleMouse(QWaylandInputDevice *inputDevice, const QPointF &local, const QPointF &global, Qt::MouseButtons b, Qt::KeyboardModifiers mods)
@@ -333,19 +417,19 @@ bool QWaylandDecoration::isLeftReleased(Qt::MouseButtons newMouseButtonState)
 QRectF QWaylandDecoration::closeButtonRect() const
 {
     return QRectF(window()->frameGeometry().width() - BUTTON_WIDTH - BUTTON_SPACING * 2,
-                  BUTTON_SPACING, BUTTON_WIDTH, margins().top() - BUTTON_SPACING * 2);
+                  (m_margins.top() - BUTTON_WIDTH) / 2, BUTTON_WIDTH, BUTTON_WIDTH);
 }
 
 QRectF QWaylandDecoration::maximizeButtonRect() const
 {
     return QRectF(window()->frameGeometry().width() - BUTTON_WIDTH * 2 - BUTTON_SPACING * 3,
-                  BUTTON_SPACING, BUTTON_WIDTH, margins().top() - BUTTON_SPACING * 2);
+                  (m_margins.top() - BUTTON_WIDTH) / 2, BUTTON_WIDTH, BUTTON_WIDTH);
 }
 
 QRectF QWaylandDecoration::minimizeButtonRect() const
 {
     return QRectF(window()->frameGeometry().width() - BUTTON_WIDTH * 3 - BUTTON_SPACING * 4,
-                  BUTTON_SPACING, BUTTON_WIDTH, margins().top() - BUTTON_SPACING * 2);
+                  (m_margins.top() - BUTTON_WIDTH) / 2, BUTTON_WIDTH, BUTTON_WIDTH);
 }
 
 void QWaylandDecoration::setForegroundColor(const QColor &c)

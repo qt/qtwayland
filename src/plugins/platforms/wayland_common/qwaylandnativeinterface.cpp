@@ -80,6 +80,16 @@ void *QWaylandNativeInterface::nativeResourceForWindow(const QByteArray &resourc
     return NULL;
 }
 
+void *QWaylandNativeInterface::nativeResourceForScreen(const QByteArray &resourceString, QScreen *screen)
+{
+    QByteArray lowerCaseResource = resourceString.toLower();
+
+    if (lowerCaseResource == "output")
+        return ((QWaylandScreen *) screen->handle())->output();
+
+    return NULL;
+}
+
 QVariantMap QWaylandNativeInterface::windowProperties(QPlatformWindow *window) const
 {
     QWaylandWindow *waylandWindow = static_cast<QWaylandWindow *>(window);

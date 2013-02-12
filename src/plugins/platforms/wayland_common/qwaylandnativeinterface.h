@@ -57,6 +57,8 @@ public:
     void *nativeResourceForIntegration(const QByteArray &resource);
     void *nativeResourceForWindow(const QByteArray &resourceString,
 				  QWindow *window);
+    void *nativeResourceForScreen(const QByteArray &resourceString,
+                                  QScreen *screen);
 
     QVariantMap windowProperties(QPlatformWindow *window) const;
     QVariant windowProperty(QPlatformWindow *window, const QString &name) const;

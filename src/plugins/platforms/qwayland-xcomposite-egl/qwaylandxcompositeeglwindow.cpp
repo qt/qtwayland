@@ -141,7 +141,7 @@ void QWaylandXCompositeEGLWindow::createEglSurface()
 
     m_glxIntegration->waylandDisplay()->flushRequests();
     while (m_waitingForSync)
-        m_glxIntegration->waylandDisplay()->readEvents();
+        m_glxIntegration->waylandDisplay()->blockingReadEvents();
 }
 
 void QWaylandXCompositeEGLWindow::requestActivateWindow()

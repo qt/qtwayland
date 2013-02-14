@@ -67,6 +67,7 @@ class QWaylandOutputExtension;
 class QWaylandTouchExtension;
 class QWaylandQtKeyExtension;
 class QWaylandWindow;
+class QWaylandEventThread;
 
 typedef void (*RegistryListener)(void *data,
                                  struct wl_registry *registry,
@@ -98,6 +99,7 @@ public:
     void setCursor(struct wl_buffer *buffer, struct wl_cursor_image *image);
 
     struct wl_display *wl_display() const { return mDisplay; }
+    struct wl_event_queue *wl_event_queue() const { return mEventQueue; }
     struct wl_registry *wl_registry() const { return mRegistry; }
     struct wl_compositor *wl_compositor() const { return mCompositor; }
 
@@ -129,7 +131,6 @@ public:
 
 public slots:
     void createNewScreen(struct wl_output *output);
-    void readEvents();
     void blockingReadEvents();
     void flushRequests();
 
@@ -145,9 +146,12 @@ private:
     };
 
     struct wl_display *mDisplay;
+    struct wl_event_queue *mEventQueue;
     struct wl_registry *mRegistry;
     struct wl_compositor *mCompositor;
     struct wl_shm *mShm;
+    QThread *mEventThread;
+    QWaylandEventThread *mEventThreadObject;
     QWaylandShell *mShell;
     QList<QPlatformScreen *> mScreens;
     QList<QWaylandInputDevice *> mInputDevices;

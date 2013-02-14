@@ -41,6 +41,7 @@
 
 #include "qwaylanddisplay.h"
 
+#include "qwaylandeventthread.h"
 #include "qwaylandwindow.h"
 #include "qwaylandscreen.h"
 #include "qwaylandcursor.h"
@@ -65,11 +66,6 @@
 
 #include <QtCore/QAbstractEventDispatcher>
 #include <QtGui/private/qguiapplication_p.h>
-
-#include <unistd.h>
-#include <fcntl.h>
-#include <stdio.h>
-#include <errno.h>
 
 #include <QtCore/QDebug>
 
@@ -124,23 +120,24 @@ QWaylandDisplay::QWaylandDisplay(void)
     display = this;
     qRegisterMetaType<uint32_t>("uint32_t");
 
-    mDisplay = wl_display_connect(NULL);
-    if (mDisplay == NULL) {
-        qErrnoWarning(errno, "Failed to create display");
-        qFatal("No wayland connection available.");
-    }
+    mEventThreadObject = new QWaylandEventThread(0);
+    mEventThread = new QThread(this);
+    mEventThreadObject->moveToThread(mEventThread);
+    mEventThread->start();
 
-    mFd = wl_display_get_fd(mDisplay);
+    mEventThreadObject->displayConnect();
+    mDisplay = mEventThreadObject->display(); //blocks until display is available
+
+    //Create a new even queue for the QtGui thread
+    mEventQueue = wl_display_create_queue(mDisplay);
 
     mRegistry = wl_display_get_registry(mDisplay);
+    wl_proxy_set_queue((struct wl_proxy *)mRegistry, mEventQueue);
     wl_registry_add_listener(mRegistry, &registryListener, this);
 
     QAbstractEventDispatcher *dispatcher = QGuiApplicationPrivate::eventDispatcher;
-    connect(dispatcher, SIGNAL(awake()), this, SLOT(flushRequests())); // needed for auto-testing
     connect(dispatcher, SIGNAL(aboutToBlock()), this, SLOT(flushRequests()));
-
-    mReadNotifier = new QSocketNotifier(mFd, QSocketNotifier::Read, this);
-    connect(mReadNotifier, SIGNAL(activated(int)), this, SLOT(readEvents()));
+    connect(mEventThreadObject, SIGNAL(newEventsRead()), this, SLOT(flushRequests()));
 
 #ifdef QT_WAYLAND_GL_SUPPORT
     mEglIntegration = QWaylandGLIntegration::createGLIntegration(this);
@@ -168,7 +165,9 @@ QWaylandDisplay::~QWaylandDisplay(void)
 #ifdef QT_WAYLAND_GL_SUPPORT
     delete mEglIntegration;
 #endif
-    wl_display_disconnect(mDisplay);
+    mEventThread->quit();
+    mEventThread->wait();
+    delete mEventThreadObject;
 }
 
 void QWaylandDisplay::createNewScreen(struct wl_output *output)
@@ -185,7 +184,7 @@ void QWaylandDisplay::scheduleRedraw(QWaylandWindow *window)
 
 void QWaylandDisplay::flushRequests()
 {
-    wl_display_dispatch_pending(mDisplay);
+    wl_display_dispatch_queue_pending(mDisplay, mEventQueue);
     wl_display_flush(mDisplay);
 
     foreach (QWaylandWindow *w, mWindows) {
@@ -194,34 +193,9 @@ void QWaylandDisplay::flushRequests()
     mWindows.clear();
 }
 
-void QWaylandDisplay::readEvents()
-{
-    fd_set fds;
-    FD_ZERO(&fds);
-    FD_SET(mFd, &fds);
-
-    fd_set nds;
-    FD_ZERO(&nds);
-    fd_set rs = fds;
-    fd_set ws = nds;
-    fd_set es = nds;
-    timeval timeout;
-
-    timeout.tv_sec = 0;
-    timeout.tv_usec = 0;
-
-    int ret = ::select(mFd+1, &rs, &ws, &es, &timeout );
-
-    if (ret <= 0) {
-        return;
-    }
-
-    wl_display_dispatch(mDisplay);
-}
-
 void QWaylandDisplay::blockingReadEvents()
 {
-    wl_display_dispatch(mDisplay);
+    wl_display_dispatch_queue(mDisplay, mEventQueue);
 }
 
 QWaylandScreen *QWaylandDisplay::screenForOutput(struct wl_output *output) const

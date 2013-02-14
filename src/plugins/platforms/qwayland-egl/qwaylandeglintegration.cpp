@@ -85,7 +85,7 @@ void QWaylandEglIntegration::initialize()
 
 bool QWaylandEglIntegration::supportsThreadedOpenGL() const
 {
-    return false;
+    return true;
 }
 
 QWaylandWindow *QWaylandEglIntegration::createEglWindow(QWindow *window)

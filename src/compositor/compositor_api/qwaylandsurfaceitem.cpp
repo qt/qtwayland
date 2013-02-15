@@ -95,6 +95,7 @@ QWaylandSurfaceItem::QWaylandSurfaceItem(QQuickItem *parent)
     , m_useTextureAlpha(false)
     , m_clientRenderingEnabled(false)
     , m_touchEventsEnabled(false)
+    , m_resizeSurfaceToItem(false)
 {
     if (!mutex)
         mutex = new QMutex;
@@ -128,8 +129,12 @@ void QWaylandSurfaceItem::init(QWaylandSurface *surface)
         m_surface->sendOnScreenVisibilityChange(m_clientRenderingEnabled);
     }
 
-    setWidth(surface->size().width());
-    setHeight(surface->size().height());
+    if (m_resizeSurfaceToItem) {
+        updateSurfaceSize();
+    } else {
+        setWidth(surface->size().width());
+        setHeight(surface->size().height());
+    }
 
     setSmooth(true);
     setFlag(ItemHasContents);
@@ -147,6 +152,8 @@ void QWaylandSurfaceItem::init(QWaylandSurface *surface)
             this, SLOT(parentChanged(QWaylandSurface*,QWaylandSurface*)));
     connect(surface, SIGNAL(sizeChanged()), this, SLOT(updateSize()));
     connect(surface, SIGNAL(posChanged()), this, SLOT(updatePosition()));
+    connect(this, SIGNAL(widthChanged()), this, SLOT(updateSurfaceSize()));
+    connect(this, SIGNAL(heightChanged()), this, SLOT(updateSurfaceSize()));
 
     m_damaged = false;
     m_yInverted = surface ? surface->isYInverted() : true;
@@ -329,6 +336,13 @@ void QWaylandSurfaceItem::updateSize()
     setSize(m_surface->size());
 }
 
+void QWaylandSurfaceItem::updateSurfaceSize()
+{
+    if (m_resizeSurfaceToItem) {
+        m_surface->sendConfigure(QSize(width(), height()));
+    }
+}
+
 void QWaylandSurfaceItem::updatePosition()
 {
     setPosition(m_surface->pos());
@@ -429,6 +443,14 @@ void QWaylandSurfaceItem::setTouchEventsEnabled(bool enabled)
     if (m_touchEventsEnabled != enabled) {
         m_touchEventsEnabled = enabled;
         emit touchEventsEnabledChanged();
+    }
+}
+
+void QWaylandSurfaceItem::setResizeSurfaceToItem(bool enabled)
+{
+    if (m_resizeSurfaceToItem != enabled) {
+        m_resizeSurfaceToItem = enabled;
+        emit resizeSurfaceToItemChanged();
     }
 }
 

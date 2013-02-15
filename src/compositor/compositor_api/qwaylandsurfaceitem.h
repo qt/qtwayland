@@ -66,6 +66,7 @@ class Q_COMPOSITOR_EXPORT QWaylandSurfaceItem : public QQuickItem
     Q_PROPERTY(bool clientRenderingEnabled READ clientRenderingEnabled WRITE setClientRenderingEnabled NOTIFY clientRenderingEnabledChanged)
     Q_PROPERTY(bool touchEventsEnabled READ touchEventsEnabled WRITE setTouchEventsEnabled NOTIFY touchEventsEnabledChanged)
     Q_PROPERTY(bool isYInverted READ isYInverted NOTIFY yInvertedChanged)
+    Q_PROPERTY(bool resizeSurfaceToItem READ resizeSurfaceToItem WRITE setResizeSurfaceToItem NOTIFY resizeSurfaceToItemChanged)
 
 public:
     QWaylandSurfaceItem(QQuickItem *parent = 0);
@@ -84,10 +85,12 @@ public:
     bool useTextureAlpha() const  { return m_useTextureAlpha; }
     bool clientRenderingEnabled() const { return m_clientRenderingEnabled; }
     bool touchEventsEnabled() const { return m_touchEventsEnabled; }
+    bool resizeSurfaceToItem() const { return m_resizeSurfaceToItem; }
 
     void setUseTextureAlpha(bool useTextureAlpha);
     void setClientRenderingEnabled(bool enabled);
     void setTouchEventsEnabled(bool enabled);
+    void setResizeSurfaceToItem(bool enabled);
 
     void setDamagedFlag(bool on);
 
@@ -113,6 +116,7 @@ private slots:
     void surfaceDamaged(const QRect &);
     void parentChanged(QWaylandSurface *newParent, QWaylandSurface *oldParent);
     void updateSize();
+    void updateSurfaceSize();
     void updatePosition();
 
 signals:
@@ -122,6 +126,7 @@ signals:
     void touchEventsEnabledChanged();
     void yInvertedChanged();
     void surfaceChanged();
+    void resizeSurfaceToItemChanged();
 
 protected:
     QSGNode *updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *);
@@ -144,6 +149,7 @@ private:
     bool m_touchEventsEnabled;
     bool m_damaged;
     bool m_yInverted;
+    bool m_resizeSurfaceToItem;
 };
 
 QT_END_NAMESPACE

@@ -75,7 +75,7 @@ QWaylandCompositor::QWaylandCompositor(QWindow *window, const char *socketName)
     qmlRegisterType<QWaylandSurfaceItem>("WaylandCompositor", 1, 0, "WaylandSurfaceItem");
     qmlRegisterType<QWaylandSurface>("WaylandCompositor", 1, 0, "WaylandSurface");
 #else
-    qRegisterMetaType<WaylandSurface*>("WaylandSurface*");
+    qRegisterMetaType<QWaylandSurface*>("WaylandSurface*");
 #endif
     m_compositor->initializeHardwareIntegration();
     m_compositor->initializeWindowManagerProtocol();

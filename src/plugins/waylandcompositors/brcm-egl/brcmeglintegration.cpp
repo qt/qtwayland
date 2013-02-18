@@ -42,7 +42,7 @@
 #include "brcmbuffer.h"
 #include <QtCompositor/private/qwlsurface_p.h>
 #include <QtCompositor/private/qwlcompositor_p.h>
-#include <QtCompositor/waylandsurface.h>
+#include <QtCompositor/qwaylandsurface.h>
 #include <qpa/qplatformnativeinterface.h>
 #include <QtGui/QGuiApplication>
 #include <QtGui/QOpenGLContext>
@@ -61,11 +61,6 @@
 #include "wayland-brcm-server-protocol.h"
 
 QT_USE_NAMESPACE
-
-QWaylandGraphicsHardwareIntegration * QWaylandGraphicsHardwareIntegration::createGraphicsHardwareIntegration(QWaylandCompositor *compositor)
-{
-    return new BrcmEglIntegration(compositor);
-}
 
 class BrcmEglIntegrationPrivate
 {

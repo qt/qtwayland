@@ -55,6 +55,7 @@ QWaylandShellSurface::QWaylandShellSurface(struct wl_shell_surface *shell_surfac
     : m_shell_surface(shell_surface)
     , m_window(window)
     , m_maximized(false)
+    , m_fullscreen(false)
 {
     wl_shell_surface_add_listener(m_shell_surface,&m_shell_surface_listener,this);
 }
@@ -78,20 +79,31 @@ void QWaylandShellSurface::move(QWaylandInputDevice *inputDevice)
                           inputDevice->serial());
 }
 
-void QWaylandShellSurface::toggleMaximize()
+void QWaylandShellSurface::setMaximized()
 {
-    if (m_maximized) {
-        setTopLevel();
-        m_window->configure(0, m_size.width(), m_size.height());
-    } else {
-        m_size = m_window->window()->frameGeometry().size();
-        wl_shell_surface_set_maximized(m_shell_surface, 0);
-    }
-
-    m_maximized = !m_maximized;
+    m_maximized = true;
+    m_size = m_window->window()->geometry().size();
+    wl_shell_surface_set_maximized(m_shell_surface, 0);
 }
 
-void QWaylandShellSurface::minimize()
+void QWaylandShellSurface::setFullscreen()
+{
+    m_fullscreen = true;
+    m_size = m_window->window()->geometry().size();
+    wl_shell_surface_set_fullscreen(m_shell_surface, 0, 0, 0);
+}
+
+void QWaylandShellSurface::setNormal()
+{
+    if (m_fullscreen || m_maximized) {
+        m_fullscreen = m_maximized = false;
+        setTopLevel();
+        QMargins m = m_window->frameMargins();
+        m_window->configure(0, m_size.width() + m.left() + m.right(), m_size.height() + m.top() + m.bottom());
+    }
+}
+
+void QWaylandShellSurface::setMinimized()
 {
     // TODO: There's no wl_shell_surface API for this
 }

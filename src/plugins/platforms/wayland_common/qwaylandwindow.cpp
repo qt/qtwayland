@@ -79,6 +79,7 @@ QWaylandWindow::QWaylandWindow(QWindow *window)
     , mWaitingForFrameSync(false)
     , mFrameCallback(0)
     , mSentInitialResize(false)
+    , mState(Qt::WindowNoState)
 {
     static WId id = 1;
     mWindowId = id++;
@@ -329,13 +330,27 @@ void QWaylandWindow::handleContentOrientationChange(Qt::ScreenOrientation orient
 
 void QWaylandWindow::setWindowState(Qt::WindowState state)
 {
-    if (state == Qt::WindowFullScreen || state == Qt::WindowMaximized) {
-        QScreen *screen = window()->screen();
+    if (mState == state) {
+        return;
+    }
 
-        QRect geometry = screen->geometry();
-        setGeometry(geometry);
-
-        QWindowSystemInterface::handleGeometryChange(window(), geometry);
+    // As of february 2013 QWindow::setWindowState sets the new state value after
+    // QPlatformWindow::setWindowState returns, so we cannot rely on QWindow::windowState
+    // here. We use then this mState variable.
+    mState = state;
+    createDecoration();
+    switch (state) {
+        case Qt::WindowFullScreen:
+            mShellSurface->setFullscreen();
+            break;
+        case Qt::WindowMaximized:
+            mShellSurface->setMaximized();
+            break;
+        case Qt::WindowMinimized:
+            mShellSurface->setMinimized();
+            break;
+        default:
+            mShellSurface->setNormal();
     }
 }
 
@@ -359,7 +374,7 @@ bool QWaylandWindow::createDecoration()
         default:
             break;
     }
-    if (window()->flags() & Qt::FramelessWindowHint) {
+    if (window()->flags() & Qt::FramelessWindowHint || isFullscreen()) {
         decoration = false;
     }
 

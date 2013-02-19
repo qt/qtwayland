@@ -58,5 +58,8 @@ QWaylandShmDecoration::~QWaylandShmDecoration()
 
 void QWaylandShmDecoration::paintDecoration()
 {
-    paint(static_cast<QWaylandShmWindow *>(waylandWindow())->backingStore()->entireSurface());
+    QWaylandShmBackingStore *bs = static_cast<QWaylandShmWindow *>(waylandWindow())->backingStore();
+    if (bs) {
+        paint(bs->entireSurface());
+    }
 }

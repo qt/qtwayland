@@ -223,7 +223,7 @@ void QWaylandDecoration::paint(QPaintDevice *device)
     p.drawPixmap(closeButtonRect(), closePixmap, closePixmap.rect());
 
     // Maximize button
-    QPixmap maximizePixmap(m_wayland_window->shellSurface()->isMaximized()
+    QPixmap maximizePixmap(m_wayland_window->isMaximized()
                            ? qt_normalizeup_xpm : qt_maximize_xpm);
     p.drawPixmap(maximizeButtonRect(), maximizePixmap, maximizePixmap.rect());
 
@@ -259,7 +259,7 @@ void QWaylandDecoration::paint(QPaintDevice *device)
     p.save();
     p.drawRect(maximizeButtonRect());
     rect = maximizeButtonRect().adjusted(5, 5, -5, -5);
-    if (m_wayland_window->shellSurface()->isMaximized()) {
+    if (m_wayland_window->isMaximized()) {
         QRectF rect1 = rect.adjusted(rect.width() / 3, 0, 0, -rect.height() / 3);
         QRectF rect2 = rect.adjusted(0, rect.height() / 4, -rect.width() / 4, 0);
         p.drawRect(rect1);
@@ -289,12 +289,11 @@ bool QWaylandDecoration::handleMouse(QWaylandInputDevice *inputDevice, const QPo
 
     // Figure out what area mouse is in
     if (closeButtonRect().contains(local) && isLeftClicked(b)) {
-        if (m_wayland_window->window())
-            QCoreApplication::postEvent(m_wayland_window->window(), new QCloseEvent());
+        QCoreApplication::postEvent(m_window, new QCloseEvent());
     } else if (maximizeButtonRect().contains(local) && isLeftClicked(b)) {
-        m_wayland_window->shellSurface()->toggleMaximize();
+        m_window->setWindowState(m_wayland_window->isMaximized() ? Qt::WindowNoState : Qt::WindowMaximized);
     } else if (minimizeButtonRect().contains(local) && isLeftClicked(b)) {
-        m_wayland_window->shellSurface()->minimize();
+        m_window->setWindowState(Qt::WindowMinimized);
     } else if (local.y() <= m_margins.top()) {
         processMouseTop(inputDevice,local,b,mods);
     } else if (local.y() > m_window->height() - m_margins.bottom() + m_margins.top()) {

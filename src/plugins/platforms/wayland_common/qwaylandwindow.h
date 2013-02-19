@@ -126,6 +126,9 @@ public:
 
     virtual void redraw();
 
+    inline bool isMaximized() const { return mState == Qt::WindowMaximized; }
+    inline bool isFullscreen() const { return mState == Qt::WindowFullScreen; }
+
 protected:
     virtual void createDecorationInstance() {}
 
@@ -149,6 +152,8 @@ protected:
     QPoint mOffset;
 
     QIcon mWindowIcon;
+
+    Qt::WindowState mState;
 
 private:
     void handleMouseEventWithDecoration(QWaylandInputDevice *inputDevice,

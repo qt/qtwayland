@@ -63,6 +63,8 @@ void *QWaylandNativeInterface::nativeResourceForIntegration(const QByteArray &re
 
     if (lowerCaseResource == "display")
         return m_integration->display()->wl_display();
+    if (lowerCaseResource == "compositor")
+        return m_integration->display()->wl_compositor();
 
     return 0;
 }
@@ -73,6 +75,8 @@ void *QWaylandNativeInterface::nativeResourceForWindow(const QByteArray &resourc
 
     if (lowerCaseResource == "display")
         return m_integration->display()->wl_display();
+    if (lowerCaseResource == "compositor")
+        return m_integration->display()->wl_compositor();
     if (lowerCaseResource == "surface") {
 	return ((QWaylandWindow *) window->handle())->wl_surface();
     }

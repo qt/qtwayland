@@ -97,6 +97,7 @@ QWaylandShmBuffer::QWaylandShmBuffer(QWaylandDisplay *display,
 
 QWaylandShmBuffer::~QWaylandShmBuffer(void)
 {
+    delete mMarginsImage;
     munmap((void *) mImage.constBits(), mImage.byteCount());
     wl_buffer_destroy(mBuffer);
     wl_shm_pool_destroy(mShmPool);

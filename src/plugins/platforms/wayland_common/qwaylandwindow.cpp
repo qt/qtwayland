@@ -182,13 +182,14 @@ void QWaylandWindow::setVisible(bool visible)
         }
 
         QWindowSystemInterface::handleExposeEvent(window(), QRect(QPoint(), geometry().size()));
-        QWindowSystemInterface::flushWindowSystemEvents();
+        // Don't flush the events here, or else the newly visible window may start drawing, but since
+        // there was no frame before it will be stuck at the waitForFrameSync() in
+        // QWaylandShmBackingStore::beginPaint().
     } else {
         QWindowSystemInterface::handleExposeEvent(window(), QRect(QPoint(), geometry().size()));
-        QWindowSystemInterface::flushWindowSystemEvents();
         wl_surface_attach(mSurface, 0,0,0);
-        damage(QRect(QPoint(0,0),geometry().size()));
     }
+    damage(QRect(QPoint(0,0),geometry().size()));
 }
 
 

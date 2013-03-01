@@ -114,6 +114,8 @@ QWaylandWindow::QWaylandWindow(QWindow *window)
     }
 
     setWindowFlags(window->flags());
+    setGeometry(window->geometry());
+
 }
 
 QWaylandWindow::~QWaylandWindow()

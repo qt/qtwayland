@@ -55,7 +55,7 @@ QWaylandScreen::QWaylandScreen(QWaylandDisplay *waylandDisplay, struct wl_output
     , mOutput(output)
     , mExtendedOutput(0)
     , mDepth(32)
-    , mRefreshRate(60)
+    , mRefreshRate(60000)
     , mFormat(QImage::Format_ARGB32_Premultiplied)
     , mWaylandCursor(new QWaylandCursor(this))
 {
@@ -114,7 +114,7 @@ Qt::ScreenOrientation QWaylandScreen::orientation() const
 
 qreal QWaylandScreen::refreshRate() const
 {
-    return mRefreshRate;
+    return mRefreshRate / 1000.f;
 }
 
 QPlatformCursor *QWaylandScreen::cursor() const

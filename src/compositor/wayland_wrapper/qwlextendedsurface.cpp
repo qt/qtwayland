@@ -178,10 +178,10 @@ QVariant ExtendedSurface::windowProperty(const QString &propertyName) const
 
 void ExtendedSurface::setWindowProperty(const QString &name, const QVariant &value, bool writeUpdateToClient)
 {
-    Q_UNUSED(writeUpdateToClient);
     m_windowProperties.insert(name, value);
     m_surface->waylandSurface()->windowPropertyChanged(name,value);
-    sendGenericProperty(name, value);
+    if (writeUpdateToClient)
+        sendGenericProperty(name, value);
 }
 
 void ExtendedSurface::set_window_flags(wl_client *client, wl_resource *resource, int32_t flags)

@@ -362,6 +362,10 @@ void QWaylandWindow::setWindowFlags(Qt::WindowFlags flags)
 
 bool QWaylandWindow::createDecoration()
 {
+    static bool disableWaylandDecorations = !qgetenv("QT_WAYLAND_DISABLE_WINDOWDECORATION").isEmpty();
+    if (disableWaylandDecorations)
+        return false;
+
     bool decoration = false;
     switch (window()->type()) {
         case Qt::Window:

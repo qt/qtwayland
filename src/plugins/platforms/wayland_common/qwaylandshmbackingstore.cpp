@@ -192,6 +192,9 @@ void QWaylandShmBackingStore::flush(QWindow *window, const QRegion &region, cons
     Q_UNUSED(offset);
     Q_ASSERT(waylandWindow()->windowType() == QWaylandWindow::Shm);
 
+    if (windowDecoration() && windowDecoration()->isDirty())
+        updateDecorations();
+
     mFrontBuffer = mBackBuffer;
 
     if (mFrameCallback) {
@@ -245,13 +248,43 @@ void QWaylandShmBackingStore::resize(const QSize &size)
 
     mBackBuffer = new QWaylandShmBuffer(mDisplay, sizeWithMargins, format);
 
-    if (windowDecoration())
-        windowDecoration()->paintDecoration();
+    if (windowDecoration() && window()->isVisible())
+        windowDecoration()->update();
 }
 
 QImage *QWaylandShmBackingStore::entireSurface() const
 {
     return mBackBuffer->image();
+}
+
+void QWaylandShmBackingStore::updateDecorations()
+{
+    QPainter decorationPainter(entireSurface());
+    decorationPainter.setCompositionMode(QPainter::CompositionMode_Source);
+    QImage sourceImage = windowDecoration()->contentImage();
+    QRect target;
+    //Top
+    target.setX(0);
+    target.setY(0);
+    target.setWidth(sourceImage.width());
+    target.setHeight(windowDecorationMargins().top());
+    decorationPainter.drawImage(target, sourceImage, target);
+
+    //Left
+    target.setWidth(windowDecorationMargins().left());
+    target.setHeight(sourceImage.height());
+    decorationPainter.drawImage(target, sourceImage, target);
+
+    //Right
+    target.setX(sourceImage.width() - windowDecorationMargins().right());
+    decorationPainter.drawImage(target, sourceImage, target);
+
+    //Bottom
+    target.setX(0);
+    target.setY(sourceImage.height() - windowDecorationMargins().bottom());
+    target.setWidth(sourceImage.width());
+    target.setHeight(windowDecorationMargins().bottom());
+    decorationPainter.drawImage(target, sourceImage, target);
 }
 
 void QWaylandShmBackingStore::done(void *data, wl_callback *callback, uint32_t time)
@@ -284,3 +317,4 @@ const struct wl_callback_listener QWaylandShmBackingStore::frameCallbackListener
 };
 
 QT_END_NAMESPACE
+

@@ -40,7 +40,6 @@ SOURCES +=  qwaylandintegration.cpp \
             qwaylandqtkey.cpp \
             ../../../shared/qwaylandmimehelper.cpp \
             qwaylanddecoration.cpp \
-            qwaylandshmdecoration.cpp \
             qwaylandeventthread.cpp
 
 HEADERS +=  qwaylandintegration.h \
@@ -67,7 +66,6 @@ HEADERS +=  qwaylandintegration.h \
             qwaylandqtkey.h \
             ../../../shared/qwaylandmimehelper.h \
             qwaylanddecoration.h \
-            qwaylandshmdecoration.h \
             qwaylandeventthread.h
 
 contains(DEFINES, QT_WAYLAND_GL_SUPPORT) {

@@ -176,21 +176,10 @@ void QWaylandDisplay::createNewScreen(struct wl_output *output)
     mScreens.append(waylandScreen);
 }
 
-void QWaylandDisplay::scheduleRedraw(QWaylandWindow *window)
-{
-    if (!mWindows.contains(window))
-        mWindows << window;
-}
-
 void QWaylandDisplay::flushRequests()
 {
     wl_display_dispatch_queue_pending(mDisplay, mEventQueue);
     wl_display_flush(mDisplay);
-
-    foreach (QWaylandWindow *w, mWindows) {
-        w->redraw();
-    }
-    mWindows.clear();
 }
 
 void QWaylandDisplay::blockingReadEvents()

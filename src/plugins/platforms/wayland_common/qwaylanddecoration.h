@@ -48,6 +48,7 @@
 #include <QtGui/QCursor>
 #include <QtGui/QColor>
 #include <QtGui/QStaticText>
+#include <QtGui/QImage>
 
 #include <wayland-client.h>
 
@@ -68,7 +69,8 @@ public:
     QWaylandDecoration(QWaylandWindow *window);
     virtual ~QWaylandDecoration();
 
-    virtual void paintDecoration() = 0;
+    void update();
+    bool isDirty() const;
 
     bool handleMouse(QWaylandInputDevice *inputDevice, const QPointF &local, const QPointF &global,Qt::MouseButtons b,Qt::KeyboardModifiers mods);
     void restoreMouseCursor();
@@ -79,6 +81,7 @@ public:
     QMargins margins() const;
     QWindow *window() const;
     QWaylandWindow *waylandWindow() const;
+    const QImage &contentImage();
 
     void setForegroundColor(const QColor &c);
     inline QColor foregroundColor() const;
@@ -107,6 +110,9 @@ private:
     QWindow *m_window;
     QWaylandWindow *m_wayland_window;
 
+    bool m_isDirty;
+    QImage m_decorationContentImage;
+
     QMargins m_margins;
     bool m_hasSetCursor;
     Qt::CursorShape m_cursorShape;
@@ -116,6 +122,11 @@ private:
     QColor m_backgroundColor;
     QStaticText m_windowTitle;
 };
+
+inline bool QWaylandDecoration::isDirty() const
+{
+    return m_isDirty;
+}
 
 inline QMargins QWaylandDecoration::margins() const
 {

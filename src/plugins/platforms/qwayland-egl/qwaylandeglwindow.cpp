@@ -43,7 +43,6 @@
 
 #include "qwaylandscreen.h"
 #include "qwaylandglcontext.h"
-#include "qwaylandegldecoration.h"
 
 #include <QtPlatformSupport/private/qeglconvenience_p.h>
 
@@ -89,11 +88,11 @@ QWaylandWindow::WindowType QWaylandEglWindow::windowType() const
     return QWaylandWindow::Egl;
 }
 
-void QWaylandEglWindow::redraw()
+void QWaylandEglWindow::setGeometry(const QRect &rect)
 {
     createDecoration();
     QMargins margins = frameMargins();
-    QSize sizeWithMargins = geometry().size() + QSize(margins.left() + margins.right(), margins.top() + margins.bottom());
+    QSize sizeWithMargins = rect.size() + QSize(margins.left() + margins.right(), margins.top() + margins.bottom());
 
     if (m_waylandEglWindow) {
         int current_width, current_height;
@@ -108,6 +107,8 @@ void QWaylandEglWindow::redraw()
     } else {
         m_waylandEglWindow = wl_egl_window_create(mSurface, sizeWithMargins.width(), sizeWithMargins.height());
     }
+
+    QWaylandWindow::setGeometry(rect);
 }
 
 QRect QWaylandEglWindow::contentsRect() const
@@ -169,9 +170,4 @@ void QWaylandEglWindow::bindContentFBO()
         contentFBO();
         m_contentFBO->bind();
     }
-}
-
-void QWaylandEglWindow::createDecorationInstance()
-{
-    new QWaylandEglDecoration(this);
 }

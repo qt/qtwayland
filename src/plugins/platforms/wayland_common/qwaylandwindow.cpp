@@ -146,9 +146,9 @@ void QWaylandWindow::setWindowTitle(const QString &title)
         QByteArray titleUtf8 = title.toUtf8();
         mShellSurface->setTitle(titleUtf8.constData());
     }
-    if (mWindowDecoration && window()->isVisible()) {
-        mWindowDecoration->paintDecoration();
-    }
+
+    if (mWindowDecoration && window()->isVisible())
+        mWindowDecoration->update();
 }
 
 void QWaylandWindow::setWindowIcon(const QIcon &icon)
@@ -156,7 +156,7 @@ void QWaylandWindow::setWindowIcon(const QIcon &icon)
     mWindowIcon = icon;
 
     if (mWindowDecoration && window()->isVisible())
-        mWindowDecoration->paintDecoration();
+        mWindowDecoration->update();
 }
 
 void QWaylandWindow::setGeometry(const QRect &rect)
@@ -166,7 +166,8 @@ void QWaylandWindow::setGeometry(const QRect &rect)
     if (shellSurface() && window()->transientParent())
         shellSurface()->updateTransientParent(window()->transientParent());
 
-    mDisplay->scheduleRedraw(this);
+    if (mWindowDecoration && window()->isVisible())
+        mWindowDecoration->update();
 }
 
 void QWaylandWindow::setVisible(bool visible)
@@ -232,11 +233,6 @@ void QWaylandWindow::configure(uint32_t edges, int32_t width, int32_t height)
     setGeometry(geometry);
     QWindowSystemInterface::handleGeometryChange(window(), geometry);
     QWindowSystemInterface::flushWindowSystemEvents();
-}
-
-void QWaylandWindow::redraw()
-{
-
 }
 
 void QWaylandWindow::attach(QWaylandBuffer *buffer, int x, int y)
@@ -384,7 +380,7 @@ bool QWaylandWindow::createDecoration()
 
     if (decoration) {
         if (!mWindowDecoration) {
-            createDecorationInstance();
+            mWindowDecoration = new QWaylandDecoration(this);
         }
     } else {
         delete mWindowDecoration;

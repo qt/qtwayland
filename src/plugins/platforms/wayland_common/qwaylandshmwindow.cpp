@@ -42,7 +42,6 @@
 #include "qwaylandshmwindow.h"
 
 #include "qwaylandbuffer.h"
-#include "qwaylandshmdecoration.h"
 
 #include <QtCore/QVector>
 
@@ -70,9 +69,3 @@ void QWaylandShmWindow::setBackingStore(QWaylandShmBackingStore *backingStore)
 {
     mBackingStore = backingStore;
 }
-
-void QWaylandShmWindow::createDecorationInstance()
-{
-    new QWaylandShmDecoration(this);
-}
-

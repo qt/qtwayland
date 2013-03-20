@@ -156,7 +156,6 @@ private:
     QList<QPlatformScreen *> mScreens;
     QList<QWaylandInputDevice *> mInputDevices;
     QList<Listener> mRegistryListeners;
-    QList<QWaylandWindow *> mWindows;
     QWaylandInputDevice *mLastKeyboardFocusInputDevice;
     QWaylandDataDeviceManager *mDndSelectionHandler;
     QWaylandSurfaceExtension *mWindowExtension;

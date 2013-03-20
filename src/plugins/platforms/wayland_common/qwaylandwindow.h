@@ -124,14 +124,10 @@ public:
 
     bool createDecoration();
 
-    virtual void redraw();
-
     inline bool isMaximized() const { return mState == Qt::WindowMaximized; }
     inline bool isFullscreen() const { return mState == Qt::WindowFullScreen; }
 
 protected:
-    virtual void createDecorationInstance() {}
-
     QWaylandDisplay *mDisplay;
     struct wl_surface *mSurface;
     QWaylandShellSurface *mShellSurface;

@@ -46,6 +46,7 @@
 #include "qwaylandinputdevice.h"
 
 #include <QtGui/QGuiApplication>
+#include <QtGui/QImage>
 #include <QtGui/QCursor>
 #include <QtGui/QPainter>
 #include <QtGui/QPalette>
@@ -124,6 +125,8 @@ static const char * const qt_normalizeup_xpm[] = {
 QWaylandDecoration::QWaylandDecoration(QWaylandWindow *window)
     : m_window(window->window())
     , m_wayland_window(window)
+    , m_isDirty(true)
+    , m_decorationContentImage(0)
     , m_margins(3,30,3,3)
     , m_hasSetCursor(false)
     , m_mouseButtons(Qt::NoButton)
@@ -142,6 +145,26 @@ QWaylandDecoration::QWaylandDecoration(QWaylandWindow *window)
 QWaylandDecoration::~QWaylandDecoration()
 {
     m_wayland_window->setDecoration(0);
+}
+
+const QImage &QWaylandDecoration::contentImage()
+{
+    if (m_isDirty) {
+        //Update the decoration backingstore
+
+        m_decorationContentImage = QImage(window()->frameGeometry().size(), QImage::Format_ARGB32_Premultiplied);
+        m_decorationContentImage.fill(Qt::transparent);
+        this->paint(&m_decorationContentImage);
+
+        m_isDirty = false;
+    }
+
+    return m_decorationContentImage;
+}
+
+void QWaylandDecoration::update()
+{
+    m_isDirty = true;
 }
 
 void QWaylandDecoration::paint(QPaintDevice *device)

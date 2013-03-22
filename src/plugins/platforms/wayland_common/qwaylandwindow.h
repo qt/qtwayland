@@ -129,6 +129,9 @@ public:
     inline bool isMaximized() const { return mState == Qt::WindowMaximized; }
     inline bool isFullscreen() const { return mState == Qt::WindowFullScreen; }
 
+    QWaylandWindow *topLevelWindow();
+    QWaylandWindow *transientParent() const;
+
 protected:
     virtual void createDecorationInstance() {}
 
@@ -152,6 +155,8 @@ protected:
     QPoint mOffset;
 
     QIcon mWindowIcon;
+    QWaylandInputDevice *mMouseDevice;
+    int mMouseSerial;
 
     Qt::WindowState mState;
 

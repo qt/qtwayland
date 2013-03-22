@@ -69,6 +69,7 @@ private:
 
     void setTopLevel();
     void updateTransientParent(QWindow *parent);
+    void setPopup(QWaylandWindow *parent, QWaylandInputDevice *device, int serial);
 
     struct wl_shell_surface *handle() const { return m_shell_surface; }
 

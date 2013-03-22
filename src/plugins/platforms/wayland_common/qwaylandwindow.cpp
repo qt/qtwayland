@@ -78,6 +78,8 @@ QWaylandWindow::QWaylandWindow(QWindow *window)
     , mRequestResizeSent(false)
     , mCanResize(true)
     , mSentInitialResize(false)
+    , mMouseDevice(0)
+    , mMouseSerial(0)
     , mState(Qt::WindowNoState)
 {
     init(mDisplay->createSurface(static_cast<QtWayland::wl_surface *>(this)));
@@ -85,7 +87,7 @@ QWaylandWindow::QWaylandWindow(QWindow *window)
     static WId id = 1;
     mWindowId = id++;
 
-    if (mDisplay->shell() && !(window->flags() & Qt::BypassWindowManagerHint))
+    if (mDisplay->shell() && window->type() & Qt::Window && !(window->flags() & Qt::BypassWindowManagerHint))
         mShellSurface = new QWaylandShellSurface(mDisplay->shell()->get_shell_surface(object()), this);
     if (mDisplay->windowExtension())
         mExtendedWindow = new QWaylandExtendedSurface(this, mDisplay->windowExtension()->get_extended_surface(object()));
@@ -101,9 +103,10 @@ QWaylandWindow::QWaylandWindow(QWindow *window)
 
     if (QPlatformWindow::parent() && mSubSurfaceWindow) {
         mSubSurfaceWindow->setParent(static_cast<const QWaylandWindow *>(QPlatformWindow::parent()));
-    } else if (window->transientParent()) {
-        if (window->transientParent() && mShellSurface)
+    } else if (window->transientParent() && mShellSurface) {
+        if (window->type() != Qt::Popup) {
             mShellSurface->updateTransientParent(window->transientParent());
+        }
     } else if (mShellSurface) {
         mShellSurface->setTopLevel();
     }
@@ -186,10 +189,17 @@ void QWaylandWindow::setGeometry(const QRect &rect)
 
 void QWaylandWindow::setVisible(bool visible)
 {
-
     if (visible) {
         if (mBuffer)
             attach(mBuffer->buffer(), 0, 0);
+
+        if (window()->type() == Qt::Popup && transientParent()) {
+            QWaylandWindow *parent = transientParent();
+            mMouseDevice = parent->mMouseDevice;
+            mMouseSerial = parent->mMouseSerial;
+
+            mShellSurface->setPopup(transientParent(), mMouseDevice, mMouseSerial);
+        }
 
         if (!mSentInitialResize) {
             QWindowSystemInterface::handleGeometryChange(window(), geometry());
@@ -464,8 +474,31 @@ void QWaylandWindow::setDecoration(QWaylandDecoration *decoration)
     }
 }
 
+static QWindow *topLevelWindow(QWindow *window)
+{
+    while (QWindow *parent = window->parent())
+        window = parent;
+    return window;
+}
+
+QWaylandWindow *QWaylandWindow::transientParent() const
+{
+    if (window()->transientParent()) {
+        // Take the top level window here, since the transient parent may be a QWidgetWindow
+        // or some other window without a shell surface, which is then not able to get mouse
+        // events, nor set mMouseSerial and mMouseDevice.
+        return static_cast<QWaylandWindow *>(topLevelWindow(window()->transientParent())->handle());
+    }
+    return 0;
+}
+
 void QWaylandWindow::handleMouse(QWaylandInputDevice *inputDevice, ulong timestamp, const QPointF &local, const QPointF &global, Qt::MouseButtons b, Qt::KeyboardModifiers mods)
 {
+    if (b != Qt::NoButton) {
+        mMouseSerial = inputDevice->serial();
+        mMouseDevice = inputDevice;
+    }
+
     if (mWindowDecoration) {
         handleMouseEventWithDecoration(inputDevice, timestamp,local,global,b,mods);
         return;

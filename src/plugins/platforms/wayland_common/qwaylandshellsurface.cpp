@@ -138,6 +138,24 @@ void QWaylandShellSurface::updateTransientParent(QWindow *parent)
                   flags);
 }
 
+void QWaylandShellSurface::setPopup(QWaylandWindow *parent, QWaylandInputDevice *device, int serial)
+{
+    QWaylandWindow *parent_wayland_window = parent;
+    if (!parent_wayland_window || !parent_wayland_window->shellSurface())
+        return;
+
+    // set_popup expects a position relative to the parent
+    QPoint transientPos = m_window->geometry().topLeft(); // this is absolute
+    transientPos -= parent_wayland_window->geometry().topLeft();
+    if (parent_wayland_window->decoration()) {
+        transientPos.setX(transientPos.x() + parent_wayland_window->decoration()->margins().left());
+        transientPos.setY(transientPos.y() + parent_wayland_window->decoration()->margins().top());
+    }
+
+    set_popup(device->wl_seat(), serial, parent_wayland_window->object(),
+              transientPos.x(), transientPos.y(), 0);
+}
+
 void QWaylandShellSurface::shell_surface_ping(uint32_t serial)
 {
     pong(serial);
@@ -152,6 +170,7 @@ void QWaylandShellSurface::shell_surface_configure(uint32_t edges,
 
 void QWaylandShellSurface::shell_surface_popup_done()
 {
+    QCoreApplication::postEvent(m_window->window(), new QCloseEvent());
 }
 
 QT_END_NAMESPACE

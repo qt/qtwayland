@@ -157,6 +157,8 @@ public:
     void setMouseCursor(QWaylandInputDevice *device, Qt::CursorShape shape);
     void restoreMouseCursor(QWaylandInputDevice *device);
 
+    QWaylandWindow *transientParent() const;
+
     QMutex *resizeMutex() { return &mResizeLock; }
     void doResize();
     void setCanResize(bool canResize);
@@ -190,6 +192,8 @@ protected:
     QPoint mOffset;
 
     QIcon mWindowIcon;
+    QWaylandInputDevice *mMouseDevice;
+    int mMouseSerial;
 
     Qt::WindowState mState;
 

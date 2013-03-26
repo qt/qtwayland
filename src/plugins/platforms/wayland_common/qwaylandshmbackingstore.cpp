@@ -209,9 +209,9 @@ void QWaylandShmBackingStore::flush(QWindow *window, const QRegion &region, cons
     bool damageAll = false;
     if (waylandWindow()->attached() != mFrontBuffer) {
         delete waylandWindow()->attached();
-        waylandWindow()->attachOffset(mFrontBuffer);
         damageAll = true;
     }
+    waylandWindow()->attachOffset(mFrontBuffer);
 
     if (damageAll) {
         //need to damage it all, otherwise the attach offset may screw up

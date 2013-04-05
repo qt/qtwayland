@@ -225,6 +225,7 @@ void QWaylandShmBackingStore::flush(QWindow *window, const QRegion &region, cons
         }
     }
     mFrontBufferIsDirty = false;
+    waylandWindow()->doResize();
 }
 
 void QWaylandShmBackingStore::resize(const QSize &size, const QRegion &)

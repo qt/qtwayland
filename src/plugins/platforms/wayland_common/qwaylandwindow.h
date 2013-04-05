@@ -43,6 +43,7 @@
 #define QWAYLANDWINDOW_H
 
 #include <QtCore/QWaitCondition>
+#include <QtCore/QMutex>
 #include <QtGui/QIcon>
 
 #include <qpa/qplatformwindow.h>
@@ -59,6 +60,26 @@ class QWaylandShellSurface;
 class QWaylandExtendedSurface;
 class QWaylandSubSurface;
 class QWaylandDecoration;
+
+class QWaylandWindowConfigure
+{
+public:
+    QWaylandWindowConfigure()
+        : width(0)
+        , height(0)
+        , edges(0)
+    { }
+
+    void clear()
+    { width = height = edges = 0; }
+
+    bool isEmpty() const
+    { return !height || !width; }
+
+    int width;
+    int height;
+    uint32_t edges;
+};
 
 class QWaylandWindow : public QPlatformWindow
 {
@@ -84,6 +105,7 @@ public:
     void setGeometry(const QRect &rect);
 
     void configure(uint32_t edges, int32_t width, int32_t height);
+    void doResize();
 
     void attach(QWaylandBuffer *buffer, int x, int y);
     void attachOffset(QWaylandBuffer *buffer);
@@ -143,6 +165,10 @@ protected:
     bool mWaitingForFrameSync;
     struct wl_callback *mFrameCallback;
     QWaitCondition mFrameSyncWait;
+
+    QMutex mResizeLock;
+    QWaylandWindowConfigure mConfigure;
+    bool mResizeExposedSent;
 
     bool mSentInitialResize;
     QPoint mOffset;

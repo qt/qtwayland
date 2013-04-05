@@ -78,6 +78,7 @@ QWaylandWindow::QWaylandWindow(QWindow *window)
     , mBuffer(0)
     , mWaitingForFrameSync(false)
     , mFrameCallback(0)
+    , mResizeExposedSent(false)
     , mSentInitialResize(false)
     , mState(Qt::WindowNoState)
 {
@@ -207,32 +208,47 @@ bool QWaylandWindow::isExposed() const
 
 void QWaylandWindow::configure(uint32_t edges, int32_t width, int32_t height)
 {
-    Q_UNUSED(edges);
+    QMutexLocker resizeLocker(&mResizeLock);
+    mConfigure.edges |= edges;
+    mConfigure.width = width;
+    mConfigure.height = height;
 
-    int widthWithoutMargins = qMax(width-(frameMargins().left() +frameMargins().right()),1);
-    int heightWithoutMargins = qMax(height-(frameMargins().top()+frameMargins().bottom()),1);
+    if (!mResizeExposedSent) {
+        mResizeExposedSent = true;
+        QWindowSystemInterface::handleExposeEvent(window(),QRegion(geometry()));
+    }
+}
+
+void QWaylandWindow::doResize()
+{
+    if (mConfigure.isEmpty())
+        return;
+
+    QMutexLocker resizeLocker(&mResizeLock);
+    int widthWithoutMargins = qMax(mConfigure.width-(frameMargins().left() +frameMargins().right()),1);
+    int heightWithoutMargins = qMax(mConfigure.height-(frameMargins().top()+frameMargins().bottom()),1);
 
     widthWithoutMargins = qMax(widthWithoutMargins, window()->minimumSize().width());
     heightWithoutMargins = qMax(heightWithoutMargins, window()->minimumSize().height());
-    QRect geometry = QRect(0,0,
-                           widthWithoutMargins, heightWithoutMargins);
+    QRect geometry = QRect(0,0, widthWithoutMargins, heightWithoutMargins);
 
     int x = 0;
     int y = 0;
     QSize size = this->geometry().size();
-    if (edges == WL_SHELL_SURFACE_RESIZE_LEFT || edges == WL_SHELL_SURFACE_RESIZE_BOTTOM_LEFT ||
-                                                 edges ==  WL_SHELL_SURFACE_RESIZE_TOP_LEFT) {
+    if (mConfigure.edges & WL_SHELL_SURFACE_RESIZE_LEFT) {
         x = size.width() - geometry.width();
     }
-    if (edges == WL_SHELL_SURFACE_RESIZE_TOP || edges == WL_SHELL_SURFACE_RESIZE_TOP_LEFT ||
-                                                edges == WL_SHELL_SURFACE_RESIZE_TOP_RIGHT) {
+    if (mConfigure.edges & WL_SHELL_SURFACE_RESIZE_TOP) {
         y = size.height() - geometry.height();
     }
     mOffset += QPoint(x, y);
 
     setGeometry(geometry);
+
+    mResizeExposedSent = false;
+
+    resizeLocker.unlock();
     QWindowSystemInterface::handleGeometryChange(window(), geometry);
-    QWindowSystemInterface::flushWindowSystemEvents();
 }
 
 void QWaylandWindow::attach(QWaylandBuffer *buffer, int x, int y)

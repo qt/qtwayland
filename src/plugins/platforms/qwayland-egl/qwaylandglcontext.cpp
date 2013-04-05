@@ -202,6 +202,8 @@ void QWaylandGLContext::swapBuffers(QPlatformSurface *surface)
     }
 
     eglSwapBuffers(m_eglDisplay, eglSurface);
+
+    window->doResize();
 }
 
 GLuint QWaylandGLContext::defaultFramebufferObject(QPlatformSurface *surface) const

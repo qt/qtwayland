@@ -11,15 +11,18 @@ qtCompileTest(xcomposite)
 load(qt_parts)
 
 !config_wayland {
-    error(QtWayland requires Wayland 1.0.3 or higher)
+    warning("QtWayland requires Wayland 1.0.3 or higher")
+    SUBDIRS =
 }
 
 !config_xkbcommon {
-    error(QtWayland requires xkbcommon 0.2.0 or higher)
+    warning("QtWayland requires xkbcommon 0.2.0 or higher")
+    SUBDIRS =
 }
 
 !config_wayland_scanner {
-    error(QtWayland requires wayland-scanner)
+    warning("QtWayland requires wayland-scanner")
+    SUBDIRS =
 }
 
 !config_wayland_egl {

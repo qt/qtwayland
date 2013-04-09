@@ -1,4 +1,4 @@
-<protocol name="wayland_windowmanager">
+<protocol name="windowmanager">
 
     <copyright>
  Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).

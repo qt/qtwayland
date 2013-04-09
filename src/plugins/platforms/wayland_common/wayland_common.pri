@@ -26,3 +26,5 @@ INCLUDEPATH += $$PWD $$PWD/../../../shared
 staticlib = $$shadowed($$PWD)/$${QMAKE_PREFIX_STATICLIB}wayland_common.$${QMAKE_EXTENSION_STATICLIB}
 LIBS += $$staticlib
 PRE_TARGETDEPS += $$staticlib
+
+WAYLANDCLIENTSOURCES += ../../../3rdparty/protocol/wayland.xml

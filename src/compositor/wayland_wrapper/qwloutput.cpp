@@ -44,12 +44,15 @@
 #include <QtGui/QScreen>
 #include <QRect>
 
+#include "qwaylandresourcecollection.h"
+
 QT_BEGIN_NAMESPACE
 
 namespace QtWayland {
 
-OutputGlobal::OutputGlobal()
-    : m_displayId(-1)
+OutputGlobal::OutputGlobal(struct ::wl_display *display)
+    : QtWaylandServer::wl_output(display)
+    , m_displayId(-1)
     , m_numQueued(0)
 {
     QScreen *screen = QGuiApplication::primaryScreen();
@@ -59,7 +62,15 @@ OutputGlobal::OutputGlobal()
 
 OutputGlobal::~OutputGlobal()
 {
-    qDeleteAll(m_outputs);
+}
+
+void OutputGlobal::output_bind_resource(Resource *resource)
+{
+    wl_output_send_geometry(resource->handle, 0, 0,
+                            size().width(), size().height(), 0, "", "", 0);
+
+    wl_output_send_mode(resource->handle, WL_OUTPUT_MODE_CURRENT|WL_OUTPUT_MODE_PREFERRED,
+                        size().width(), size().height(), refreshRate());
 }
 
 void OutputGlobal::setGeometry(const QRect &geometry)
@@ -74,53 +85,7 @@ void OutputGlobal::setRefreshRate(int rate)
 
 Output *OutputGlobal::outputForClient(wl_client *client) const
 {
-    return static_cast<Output *>(resourceForClient(client)->data);
-}
-
-void OutputGlobal::output_bind_func(struct wl_client *client, void *data,
-                          uint32_t version, uint32_t id)
-{
-    Q_UNUSED(version);
-    OutputGlobal *output_global = static_cast<OutputGlobal *>(data);
-
-    Output *output = new Output(output_global,client,version,id);
-    output_global->registerResource(output->handle());
-    output_global->m_outputs.append(output);
-}
-
-
-
-Output::Output(OutputGlobal *outputGlobal, wl_client *client, uint32_t version, uint32_t id)
-    : m_output_global(outputGlobal)
-    , m_extended_output(0)
-{
-    Q_UNUSED(version);
-    m_output_resource = wl_client_add_object(client,&wl_output_interface,0,id,this);
-    wl_output_send_geometry(m_output_resource, 0, 0,
-                         m_output_global->size().width(), m_output_global->size().height(),0,"","",0);
-
-    wl_output_send_mode(m_output_resource, WL_OUTPUT_MODE_CURRENT|WL_OUTPUT_MODE_PREFERRED,
-                        m_output_global->size().width(), m_output_global->size().height(), m_output_global->refreshRate());
-
-}
-
-Output::~Output()
-{
-}
-
-ExtendedOutput *Output::extendedOutput() const
-{
-    return m_extended_output;
-}
-
-void Output::setExtendedOutput(ExtendedOutput *extendedOutput)
-{
-    m_extended_output = extendedOutput;
-}
-
-wl_resource *Output::handle() const
-{
-    return m_output_resource;
+    return static_cast<Output *>(resourceForClient(resourceList(), client)->data);
 }
 
 } // namespace Wayland

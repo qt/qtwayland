@@ -46,31 +46,22 @@
 #include <QtCore/QVariant>
 
 #include <wayland-client.h>
+#include <qwayland-surface-extension.h>
 
 QT_BEGIN_NAMESPACE
 
 class QWaylandDisplay;
 class QWaylandWindow;
-class QWaylandExtendedSurface;
 
-class QWaylandSurfaceExtension
+class QWaylandExtendedSurface : public QtWayland::wl_extended_surface
 {
 public:
-    QWaylandSurfaceExtension(QWaylandDisplay *display, uint32_t id);
-
-    QWaylandExtendedSurface *getExtendedWindow(QWaylandWindow *window);
-private:
-    struct wl_surface_extension *m_surface_extension;
-};
-
-class QWaylandExtendedSurface
-{
-public:
-    QWaylandExtendedSurface(QWaylandWindow *window, struct wl_extended_surface *extended_surface);
+    QWaylandExtendedSurface(QWaylandWindow *window, struct ::wl_extended_surface *extended_surface);
 
     void setContentOrientation(Qt::ScreenOrientation orientation);
 
     void updateGenericProperty(const QString &name, const QVariant &value);
+
     QVariantMap properties() const;
     QVariant property(const QString &name);
     QVariant property(const QString &name, const QVariant &defaultValue);
@@ -80,21 +71,11 @@ public:
     bool isExposed() const { return m_exposed; }
 
 private:
+    void extended_surface_onscreen_visibility(int32_t visible) Q_DECL_OVERRIDE;
+    void extended_surface_set_generic_property(const QString &name, wl_array *value) Q_DECL_OVERRIDE;
+
     QWaylandWindow *m_window;
-    struct wl_extended_surface *m_extended_surface;
-
     QVariantMap m_properties;
-
-    static void onscreen_visibility(void *data,
-                                struct wl_extended_surface *wl_extended_surface,
-                                int32_t visible);
-
-    static void set_generic_property(void *data,
-                                 struct wl_extended_surface *wl_extended_surface,
-                                 const char *name,
-                                 struct wl_array *value);
-
-    static const struct wl_extended_surface_listener extended_surface_listener;
 
     bool m_exposed;
 };

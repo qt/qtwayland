@@ -81,7 +81,7 @@ public:
     PFNEGLDESTROYGLOBALIMAGEBRCMPROC eglDestroyGlobalImageBRCM;
 
 private:
-    static void wlDisplayHandleGlobal(void *data, struct wl_registry *registry, uint32_t id, const char *interface, uint32_t version);
+    static void wlDisplayHandleGlobal(void *data, struct wl_registry *registry, uint32_t id, const QString &interface, uint32_t version);
 
     struct wl_display *m_waylandDisplay;
     struct wl_brcm *m_waylandBrcm;

@@ -41,22 +41,27 @@
 #ifndef WL_OUTPUT_H
 #define WL_OUTPUT_H
 
-#include <QtCompositor/qwaylandresourcecollection.h>
-
 #include <QtCore/QRect>
 #include <QtCore/QList>
+
+#include <qwayland-server-wayland.h>
 
 QT_BEGIN_NAMESPACE
 
 namespace QtWayland {
 
-class Output;
 class ExtendedOutput;
 
-class OutputGlobal : public ResourceCollection
+struct Output : public QtWaylandServer::wl_output::Resource
+{
+    Output() : extendedOutput(0) {}
+    ExtendedOutput *extendedOutput;
+};
+
+class OutputGlobal : public QtWaylandServer::wl_output
 {
 public:
-    OutputGlobal();
+    OutputGlobal(struct ::wl_display *display);
     ~OutputGlobal();
 
     void setGeometry(const QRect &geometry);
@@ -71,21 +76,21 @@ public:
 
     Output *outputForClient(struct wl_client *client) const;
 
-    static void output_bind_func(struct wl_client *client, void *data,
-                          uint32_t version, uint32_t id);
+    void output_bind_resource(Resource *resource) Q_DECL_OVERRIDE;
+    Resource *output_allocate() Q_DECL_OVERRIDE { return new Output; }
+
 private:
     QRect m_geometry;
     int m_refreshRate;
     int m_displayId;
     int m_numQueued;
-    QList<Output *> m_outputs;
 };
 
-
+#if 0
 class Output
 {
 public:
-    Output(OutputGlobal *outputGlobal, wl_client *client, uint32_t version, uint32_t id);
+    Output(OutputGlobal *outputGlobal, struct ::wl_resource *resource);
     ~Output();
 
     OutputGlobal *outputGlobal() const;
@@ -98,8 +103,8 @@ private:
     struct wl_resource *m_output_resource;
     OutputGlobal *m_output_global;
     ExtendedOutput *m_extended_output;
-
 };
+#endif
 
 }
 

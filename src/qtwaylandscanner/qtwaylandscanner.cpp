@@ -593,10 +593,7 @@ void process(QXmlStreamReader &xml)
             printf("    void %s::bind_func(struct ::wl_client *client, void *data, uint32_t version, uint32_t id)\n", interfaceName);
             printf("    {\n");
             printf("        Q_UNUSED(version);\n");
-            printf("        %s *that = static_cast<%s *>(data);\n", interfaceName, interfaceName);
-            printf("        Resource *resource = that->bind(client, id);\n");
-            printf("        resource->handle->destroy = destroy_func;\n");
-            printf("        that->%s_bind_resource(resource);\n", interfaceNameStripped);
+            printf("        static_cast<%s *>(data)->bind(client, id);\n", interfaceName);
             printf("    }\n");
             printf("\n");
 
@@ -622,6 +619,8 @@ void process(QXmlStreamReader &xml)
                 printf("        resource->handle = wl_client_add_object(client, &::%s_interface, &m_%s_interface, id, resource);\n", interfaceName, interfaceName);
             else
                 printf("        resource->handle = wl_client_add_object(client, &::%s_interface, 0, id, resource);\n", interfaceName);
+            printf("        resource->handle->destroy = destroy_func;\n");
+            printf("        %s_bind_resource(resource);\n", interfaceNameStripped);
             printf("        wl_list_init(&resource->handle->link);\n");
             printf("        return resource;\n");
             printf("    }\n");

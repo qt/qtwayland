@@ -202,7 +202,7 @@ void QWaylandShmBackingStore::flush(QWindow *window, const QRegion &region, cons
         return;
     }
 
-    mFrameCallback = wl_surface_frame(waylandWindow()->wl_surface());
+    mFrameCallback = waylandWindow()->frame();
     wl_callback_add_listener(mFrameCallback,&frameCallbackListener,this);
     QMargins margins = windowDecorationMargins();
 

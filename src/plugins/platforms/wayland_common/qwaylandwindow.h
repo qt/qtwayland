@@ -50,6 +50,8 @@
 
 #include "qwaylanddisplay.h"
 
+#include "qwayland-wayland.h"
+
 struct wl_egl_window;
 
 QT_BEGIN_NAMESPACE
@@ -81,7 +83,7 @@ public:
     uint32_t edges;
 };
 
-class QWaylandWindow : public QObject, public QPlatformWindow
+class QWaylandWindow : public QObject, public QPlatformWindow, public QtWayland::wl_surface
 {
     Q_OBJECT
 public:
@@ -107,18 +109,24 @@ public:
 
     void configure(uint32_t edges, int32_t width, int32_t height);
 
+    using QtWayland::wl_surface::attach;
     void attach(QWaylandBuffer *buffer, int x, int y);
     void attachOffset(QWaylandBuffer *buffer);
     QWaylandBuffer *attached() const;
     QPoint attachOffset() const;
 
+    using QtWayland::wl_surface::damage;
     void damage(const QRect &rect);
 
     void waitForFrameSync();
 
     QMargins frameMargins() const;
 
-    struct wl_surface *wl_surface() const { return mSurface; }
+    // TODO: remove?
+    struct ::wl_surface *wl_surface() { return object(); }
+    const struct ::wl_surface *wl_surface() const { return object(); }
+
+    static QWaylandWindow *fromWlSurface(::wl_surface *surface);
 
     QWaylandShellSurface *shellSurface() const;
     QWaylandExtendedSurface *extendedWindow() const;
@@ -155,7 +163,6 @@ public slots:
 
 protected:
     QWaylandDisplay *mDisplay;
-    struct wl_surface *mSurface;
     QWaylandShellSurface *mShellSurface;
     QWaylandExtendedSurface *mExtendedWindow;
     QWaylandSubSurface *mSubSurfaceWindow;

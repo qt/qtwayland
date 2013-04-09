@@ -48,7 +48,6 @@
 #include "qwaylandinputdevice.h"
 #include "qwaylandclipboard.h"
 #include "qwaylanddatadevicemanager.h"
-#include "qwaylandshell.h"
 
 #ifdef QT_WAYLAND_GL_SUPPORT
 #include "qwaylandglintegration.h"
@@ -73,7 +72,7 @@ QT_USE_NAMESPACE
 
 struct wl_surface *QWaylandDisplay::createSurface(void *handle)
 {
-    struct wl_surface * surface = wl_compositor_create_surface(mCompositor);
+    struct wl_surface *surface = mCompositor.create_surface();
     wl_surface_set_user_data(surface, handle);
     return surface;
 }
@@ -104,11 +103,7 @@ void QWaylandDisplay::setLastKeyboardFocusInputDevice(QWaylandInputDevice *devic
 
 static QWaylandDisplay *display = 0;
 
-const struct wl_registry_listener QWaylandDisplay::registryListener = {
-    QWaylandDisplay::displayHandleGlobal
-};
-
-QWaylandDisplay::QWaylandDisplay(void)
+QWaylandDisplay::QWaylandDisplay()
     : mLastKeyboardFocusInputDevice(0)
     , mDndSelectionHandler(0)
     , mWindowExtension(0)
@@ -131,9 +126,10 @@ QWaylandDisplay::QWaylandDisplay(void)
     //Create a new even queue for the QtGui thread
     mEventQueue = wl_display_create_queue(mDisplay);
 
-    mRegistry = wl_display_get_registry(mDisplay);
-    wl_proxy_set_queue((struct wl_proxy *)mRegistry, mEventQueue);
-    wl_registry_add_listener(mRegistry, &registryListener, this);
+    struct ::wl_registry *registry = wl_display_get_registry(mDisplay);
+    wl_proxy_set_queue((struct wl_proxy *)registry, mEventQueue);
+
+    init(registry);
 
     QAbstractEventDispatcher *dispatcher = QGuiApplicationPrivate::eventDispatcher;
     connect(dispatcher, SIGNAL(aboutToBlock()), this, SLOT(flushRequests()));
@@ -144,7 +140,7 @@ QWaylandDisplay::QWaylandDisplay(void)
 #endif
 
 #ifdef QT_WAYLAND_WINDOWMANAGER_SUPPORT
-    mWindowManagerIntegration = QWaylandWindowManagerIntegration::createIntegration(this);
+    mWindowManagerIntegration = new QWaylandWindowManagerIntegration(this);
 #endif
 
     blockingReadEvents();
@@ -170,12 +166,6 @@ QWaylandDisplay::~QWaylandDisplay(void)
     delete mEventThreadObject;
 }
 
-void QWaylandDisplay::createNewScreen(struct wl_output *output)
-{
-    QWaylandScreen *waylandScreen = new QWaylandScreen(this,output);
-    mScreens.append(waylandScreen);
-}
-
 void QWaylandDisplay::flushRequests()
 {
     wl_display_dispatch_queue_pending(mDisplay, mEventQueue);
@@ -197,50 +187,11 @@ QWaylandScreen *QWaylandDisplay::screenForOutput(struct wl_output *output) const
     return 0;
 }
 
-void QWaylandDisplay::outputHandleGeometry(void *data,
-                                           struct wl_output *output,
-                                           int32_t x, int32_t y,
-                                           int32_t physicalWidth,
-                                           int32_t physicalHeight,
-                                           int subpixel,
-                                           const char *make, const char *model,
-                                           int32_t transform)
-{
-    Q_UNUSED(subpixel);
-    Q_UNUSED(make);
-    Q_UNUSED(model);
-    Q_UNUSED(transform);
-    QWaylandDisplay *waylandDisplay = static_cast<QWaylandDisplay *>(data);
-    QRect outputRect = QRect(x, y, physicalWidth, physicalHeight);
-    waylandDisplay->screenForOutput(output)->setGeometry(outputRect);
-}
-
-void QWaylandDisplay::mode(void *data,
-             struct wl_output *output,
-             uint32_t flags,
-             int width,
-             int height,
-             int refresh)
-{
-    QWaylandDisplay *waylandDisplay = static_cast<QWaylandDisplay *>(data);
-
-    if (flags & WL_OUTPUT_MODE_CURRENT) {
-        QWaylandScreen *screen = waylandDisplay->screenForOutput(output);
-        if (screen)
-            screen->handleMode(QSize(width, height), refresh);
-    }
-}
-
 void QWaylandDisplay::addRegistryListener(RegistryListener listener, void *data)
 {
     Listener l = { listener, data };
     mRegistryListeners.append(l);
 }
-
-const struct wl_output_listener QWaylandDisplay::outputListener = {
-    QWaylandDisplay::outputHandleGeometry,
-    QWaylandDisplay::mode
-};
 
 void QWaylandDisplay::waitForScreens()
 {
@@ -249,53 +200,41 @@ void QWaylandDisplay::waitForScreens()
         blockingReadEvents();
 }
 
-void QWaylandDisplay::displayHandleGlobal(void *data,
-                                          struct wl_registry *registry,
-                                          uint32_t id,
-                                          const char *interface,
-                                          uint32_t version)
-{
-    Q_UNUSED(registry);
-    QWaylandDisplay *that = static_cast<QWaylandDisplay *>(data);
-    that->displayHandleGlobal(id, QByteArray(interface), version);
-}
-
-void QWaylandDisplay::displayHandleGlobal(uint32_t id,
-                                          const QByteArray &interface,
-                                          uint32_t version)
+void QWaylandDisplay::registry_global(uint32_t id, const QString &interface, uint32_t version)
 {
     Q_UNUSED(version);
 
+    struct ::wl_registry *registry = object();
+
     if (interface == "wl_output") {
-        struct wl_output *output = static_cast<struct wl_output *>(wl_registry_bind(mRegistry,id,&wl_output_interface,1));
-        createNewScreen(output);
-        wl_output_add_listener(output, &outputListener, this);
+        mScreens.append(new QWaylandScreen(this, id));
     } else if (interface == "wl_compositor") {
-        mCompositor = static_cast<struct wl_compositor *>(wl_registry_bind(mRegistry, id,&wl_compositor_interface,1));
+        mCompositor.init(registry, id);
     } else if (interface == "wl_shm") {
-        mShm = static_cast<struct wl_shm *>(wl_registry_bind(mRegistry, id, &wl_shm_interface,1));
+        mShm = static_cast<struct wl_shm *>(wl_registry_bind(registry, id, &wl_shm_interface,1));
     } else if (interface == "wl_shell"){
-        mShell = new QWaylandShell(this,id,version);
+        mShell = new QtWayland::wl_shell(registry, id);
     } else if (interface == "wl_seat") {
         QWaylandInputDevice *inputDevice = new QWaylandInputDevice(this, id);
         mInputDevices.append(inputDevice);
     } else if (interface == "wl_data_device_manager") {
         mDndSelectionHandler = new QWaylandDataDeviceManager(this, id);
     } else if (interface == "wl_output_extension") {
-        mOutputExtension = new QWaylandOutputExtension(this,id);
+        mOutputExtension = new QtWayland::wl_output_extension(registry, id);
+        foreach (QPlatformScreen *screen, screens())
+            static_cast<QWaylandScreen *>(screen)->createExtendedOutput();
     } else if (interface == "wl_surface_extension") {
-        mWindowExtension = new QWaylandSurfaceExtension(this,id);
+        mWindowExtension = new QtWayland::wl_surface_extension(registry, id);
     } else if (interface == "wl_sub_surface_extension") {
-        mSubSurfaceExtension = new QWaylandSubSurfaceExtension(this,id);
+        mSubSurfaceExtension = new QtWayland::wl_sub_surface_extension(registry, id);
     } else if (interface == "wl_touch_extension") {
         mTouchExtension = new QWaylandTouchExtension(this, id);
     } else if (interface == "wl_qtkey_extension") {
         mQtKeyExtension = new QWaylandQtKeyExtension(this, id);
     }
 
-    foreach (Listener l, mRegistryListeners) {
-        (*l.listener)(l.data, mRegistry, id, interface, version);
-    }
+    foreach (Listener l, mRegistryListeners)
+        (*l.listener)(l.data, registry, id, interface, version);
 }
 
 uint32_t QWaylandDisplay::currentTimeMillisec()

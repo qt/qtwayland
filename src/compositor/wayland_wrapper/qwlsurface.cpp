@@ -103,7 +103,6 @@ Surface::~Surface()
     delete m_waylandSurface;
     delete m_extendedSurface;
     delete m_subSurface;
-    delete m_shellSurface;
 
     for (int i = 0; i < buffer_pool_size; i++) {
         if (!m_bufferPool[i]->pageFlipperHasBuffer())

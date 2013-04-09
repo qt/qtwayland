@@ -45,7 +45,6 @@
 #include "qwaylanddisplay.h"
 #include "qwaylandinputdevice.h"
 #include "qwaylandscreen.h"
-#include "qwaylandshell.h"
 #include "qwaylandshellsurface.h"
 #include "qwaylandextendedsurface.h"
 #include "qwaylandsubsurface.h"
@@ -69,7 +68,6 @@ QWaylandWindow::QWaylandWindow(QWindow *window)
     : QObject()
     , QPlatformWindow(window)
     , mDisplay(QWaylandScreen::waylandScreenFromWindow(window)->display())
-    , mSurface(mDisplay->createSurface(this))
     , mShellSurface(0)
     , mExtendedWindow(0)
     , mSubSurfaceWindow(0)
@@ -83,15 +81,17 @@ QWaylandWindow::QWaylandWindow(QWindow *window)
     , mSentInitialResize(false)
     , mState(Qt::WindowNoState)
 {
+    init(mDisplay->createSurface(static_cast<QtWayland::wl_surface *>(this)));
+
     static WId id = 1;
     mWindowId = id++;
 
     if (mDisplay->shell())
-        mShellSurface = mDisplay->shell()->getShellSurface(this);
+        mShellSurface = new QWaylandShellSurface(mDisplay->shell()->get_shell_surface(wl_surface()), this);
     if (mDisplay->windowExtension())
-        mExtendedWindow = mDisplay->windowExtension()->getExtendedWindow(this);
+        mExtendedWindow = new QWaylandExtendedSurface(this, mDisplay->windowExtension()->get_extended_surface(wl_surface()));
     if (mDisplay->subSurfaceExtension())
-        mSubSurfaceWindow = mDisplay->subSurfaceExtension()->getSubSurfaceAwareWindow(this);
+        mSubSurfaceWindow = new QWaylandSubSurface(this, mDisplay->subSurfaceExtension()->get_sub_surface_aware_surface(wl_surface()));
 
 #ifdef QT_WAYLAND_WINDOWMANAGER_SUPPORT
     mDisplay->windowManagerIntegration()->mapClientToProcess(qApp->applicationPid());
@@ -118,15 +118,20 @@ QWaylandWindow::QWaylandWindow(QWindow *window)
 
 QWaylandWindow::~QWaylandWindow()
 {
-    if (mSurface) {
+    if (isInitialized()) {
         delete mShellSurface;
         delete mExtendedWindow;
-        wl_surface_destroy(mSurface);
+        destroy();
     }
 
     QList<QWaylandInputDevice *> inputDevices = mDisplay->inputDevices();
     for (int i = 0; i < inputDevices.size(); ++i)
         inputDevices.at(i)->handleWindowDestroyed(this);
+}
+
+QWaylandWindow *QWaylandWindow::fromWlSurface(::wl_surface *surface)
+{
+    return static_cast<QWaylandWindow *>(static_cast<QtWayland::wl_surface *>(wl_surface_get_user_data(surface)));
 }
 
 WId QWaylandWindow::winId() const
@@ -177,7 +182,7 @@ void QWaylandWindow::setVisible(bool visible)
 
     if (visible) {
         if (mBuffer)
-            wl_surface_attach(mSurface, mBuffer->buffer(), 0, 0);
+            attach(mBuffer->buffer(), 0, 0);
 
         if (!mSentInitialResize) {
             QWindowSystemInterface::handleGeometryChange(window(), geometry());
@@ -190,7 +195,7 @@ void QWaylandWindow::setVisible(bool visible)
         // QWaylandShmBackingStore::beginPaint().
     } else {
         QWindowSystemInterface::handleExposeEvent(window(), QRect(QPoint(), geometry().size()));
-        wl_surface_attach(mSurface, 0,0,0);
+        attach(static_cast<QWaylandBuffer *>(0), 0, 0);
     }
     damage(QRect(QPoint(0,0),geometry().size()));
 }
@@ -257,9 +262,8 @@ void QWaylandWindow::attach(QWaylandBuffer *buffer, int x, int y)
 {
     mBuffer = buffer;
 
-    if (window()->isVisible()) {
-        wl_surface_attach(mSurface, mBuffer->buffer(), x, y);
-    }
+    if (window()->isVisible())
+        attach(mBuffer->buffer(), x, y);
 }
 
 void QWaylandWindow::attachOffset(QWaylandBuffer *buffer)
@@ -278,14 +282,13 @@ void QWaylandWindow::damage(const QRect &rect)
     //We have to do sync stuff before calling damage, or we might
     //get a frame callback before we get the timestamp
     if (!mWaitingForFrameSync) {
-        mFrameCallback = wl_surface_frame(mSurface);
+        mFrameCallback = frame();
         wl_callback_add_listener(mFrameCallback,&QWaylandWindow::callbackListener,this);
         mWaitingForFrameSync = true;
     }
 
-    wl_surface_damage(mSurface,
-                      rect.x(), rect.y(), rect.width(), rect.height());
-    wl_surface_commit(mSurface);
+    damage(rect.x(), rect.y(), rect.width(), rect.height());
+    commit();
 }
 
 const wl_callback_listener QWaylandWindow::callbackListener = {

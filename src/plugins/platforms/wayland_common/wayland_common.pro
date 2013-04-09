@@ -31,7 +31,6 @@ SOURCES +=  qwaylandintegration.cpp \
             qwaylanddataoffer.cpp \
             qwaylanddatadevicemanager.cpp \
             qwaylanddatasource.cpp \
-            qwaylandshell.cpp \
             qwaylandshellsurface.cpp \
             qwaylandextendedoutput.cpp \
             qwaylandextendedsurface.cpp \
@@ -57,7 +56,6 @@ HEADERS +=  qwaylandintegration.h \
             qwaylanddataoffer.h \
             qwaylanddatadevicemanager.h \
             qwaylanddatasource.h \
-            qwaylandshell.h \
             qwaylandshellsurface.h \
             qwaylandextendedoutput.h \
             qwaylandextendedsurface.h \
@@ -73,9 +71,14 @@ contains(DEFINES, QT_WAYLAND_GL_SUPPORT) {
     HEADERS += qwaylandglintegration.h
 }
 
-WAYLANDSOURCES += \
+WAYLANDCLIENTSOURCES += \
             ../../../extensions/surface-extension.xml \
             ../../../extensions/sub-surface-extension.xml \
             ../../../extensions/output-extension.xml \
             ../../../extensions/touch-extension.xml \
-            ../../../extensions/qtkey-extension.xml
+            ../../../extensions/qtkey-extension.xml \
+            ../../../3rdparty/protocol/wayland.xml
+
+PLUGIN_TYPE = platforms
+
+load(qt_common)

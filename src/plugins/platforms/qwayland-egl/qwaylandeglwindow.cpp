@@ -104,7 +104,7 @@ void QWaylandEglWindow::setGeometry(const QRect &rect)
             m_resize = true;
         }
     } else {
-        m_waylandEglWindow = wl_egl_window_create(mSurface, sizeWithMargins.width(), sizeWithMargins.height());
+        m_waylandEglWindow = wl_egl_window_create(wl_surface(), sizeWithMargins.width(), sizeWithMargins.height());
     }
 
     QWaylandWindow::setGeometry(rect);
@@ -125,10 +125,11 @@ QSurfaceFormat QWaylandEglWindow::format() const
 EGLSurface QWaylandEglWindow::eglSurface() const
 {
     if (!m_waylandEglWindow) {
-        const_cast<QWaylandEglWindow *>(this)->createDecoration();
+        QWaylandEglWindow *self = const_cast<QWaylandEglWindow *>(this);
+        self->createDecoration();
         QMargins margins = frameMargins();
         QSize sizeWithMargins = geometry().size() + QSize(margins.left() + margins.right(), margins.top() + margins.bottom());
-        m_waylandEglWindow = wl_egl_window_create(mSurface, sizeWithMargins.width(), sizeWithMargins.height());
+        m_waylandEglWindow = wl_egl_window_create(self->wl_surface(), sizeWithMargins.width(), sizeWithMargins.height());
     }
 
     if (!m_eglSurface) {

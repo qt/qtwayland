@@ -51,46 +51,44 @@
 
 QT_USE_NAMESPACE
 
-QWaylandShellSurface::QWaylandShellSurface(struct wl_shell_surface *shell_surface, QWaylandWindow *window)
-    : m_shell_surface(shell_surface)
+QWaylandShellSurface::QWaylandShellSurface(struct ::wl_shell_surface *shell_surface, QWaylandWindow *window)
+    : QtWayland::wl_shell_surface(shell_surface)
     , m_window(window)
     , m_maximized(false)
     , m_fullscreen(false)
 {
-    wl_shell_surface_add_listener(m_shell_surface,&m_shell_surface_listener,this);
 }
 
 QWaylandShellSurface::~QWaylandShellSurface()
 {
-    wl_shell_surface_destroy(m_shell_surface);
+    wl_shell_surface_destroy(object());
 }
 
 void QWaylandShellSurface::resize(QWaylandInputDevice *inputDevice, enum wl_shell_surface_resize edges)
 {
-    wl_shell_surface_resize(m_shell_surface,inputDevice->wl_seat(),
-                            inputDevice->serial(),
-                            edges);
+    resize(inputDevice->wl_seat(),
+           inputDevice->serial(),
+           edges);
 }
 
 void QWaylandShellSurface::move(QWaylandInputDevice *inputDevice)
 {
-    wl_shell_surface_move(m_shell_surface,
-                          inputDevice->wl_seat(),
-                          inputDevice->serial());
+    move(inputDevice->wl_seat(),
+         inputDevice->serial());
 }
 
 void QWaylandShellSurface::setMaximized()
 {
     m_maximized = true;
     m_size = m_window->window()->geometry().size();
-    wl_shell_surface_set_maximized(m_shell_surface, 0);
+    set_maximized(0);
 }
 
 void QWaylandShellSurface::setFullscreen()
 {
     m_fullscreen = true;
     m_size = m_window->window()->geometry().size();
-    wl_shell_surface_set_fullscreen(m_shell_surface, 0, 0, 0);
+    set_fullscreen(0, 0, 0);
 }
 
 void QWaylandShellSurface::setNormal()
@@ -110,7 +108,7 @@ void QWaylandShellSurface::setMinimized()
 
 void QWaylandShellSurface::setTopLevel()
 {
-    wl_shell_surface_set_toplevel(m_shell_surface);
+    set_toplevel();
 }
 
 void QWaylandShellSurface::updateTransientParent(QWindow *parent)
@@ -134,51 +132,34 @@ void QWaylandShellSurface::updateTransientParent(QWindow *parent)
             || wf.testFlag(Qt::WindowTransparentForInput))
         flags |= WL_SHELL_SURFACE_TRANSIENT_INACTIVE;
 
-    wl_shell_surface_set_transient(m_shell_surface,
-                                   parent_wayland_window->wl_surface(),
-                                   transientPos.x(),
-                                   transientPos.y(),
-                                   flags);
+    set_transient(parent_wayland_window->wl_surface(),
+                  transientPos.x(),
+                  transientPos.y(),
+                  flags);
 }
 
-void QWaylandShellSurface::setClassName(const char *_class)
+void QWaylandShellSurface::setClassName(const char *className)
 {
-    wl_shell_surface_set_class(m_shell_surface, _class);
+    set_class(className);
 }
 
 void QWaylandShellSurface::setTitle(const char *title)
 {
-    wl_shell_surface_set_title(m_shell_surface, title);
+    set_title(title);
 }
 
-void QWaylandShellSurface::ping(void *data,
-                                struct wl_shell_surface *wl_shell_surface,
-                                uint32_t serial)
+void QWaylandShellSurface::shell_surface_ping(uint32_t serial)
 {
-    Q_UNUSED(data);
-    wl_shell_surface_pong(wl_shell_surface, serial);
+    pong(serial);
 }
 
-void QWaylandShellSurface::configure(void *data,
-                                     wl_shell_surface *wl_shell_surface,
-                                     uint32_t edges,
-                                     int32_t width,
-                                     int32_t height)
+void QWaylandShellSurface::shell_surface_configure(uint32_t edges,
+                                                   int32_t width,
+                                                   int32_t height)
 {
-    Q_UNUSED(wl_shell_surface);
-    QWaylandShellSurface *shell_surface = static_cast<QWaylandShellSurface *>(data);
-    shell_surface->m_window->configure(edges, width, height);
+    m_window->configure(edges, width, height);
 }
 
-void QWaylandShellSurface::popup_done(void *data,
-                                      struct wl_shell_surface *wl_shell_surface)
+void QWaylandShellSurface::shell_surface_popup_done()
 {
-    Q_UNUSED(data);
-    Q_UNUSED(wl_shell_surface);
 }
-
-const wl_shell_surface_listener QWaylandShellSurface::m_shell_surface_listener = {
-    QWaylandShellSurface::ping,
-    QWaylandShellSurface::configure,
-    QWaylandShellSurface::popup_done
-};

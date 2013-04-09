@@ -59,10 +59,10 @@ QWaylandBrcmEglIntegration::QWaylandBrcmEglIntegration(QWaylandDisplay *waylandD
     waylandDisplay->addRegistryListener(wlDisplayHandleGlobal, this);
 }
 
-void QWaylandBrcmEglIntegration::wlDisplayHandleGlobal(void *data, struct wl_registry *registry, uint32_t id, const char *interface, uint32_t version)
+void QWaylandBrcmEglIntegration::wlDisplayHandleGlobal(void *data, struct wl_registry *registry, uint32_t id, const QString &interface, uint32_t version)
 {
     Q_UNUSED(version);
-    if (strcmp(interface, "wl_brcm") == 0) {
+    if (interface == "wl_brcm") {
         QWaylandBrcmEglIntegration *integration = static_cast<QWaylandBrcmEglIntegration *>(data);
         integration->m_waylandBrcm = static_cast<struct wl_brcm *>(wl_registry_bind(registry, id, &wl_brcm_interface, 1));
     }

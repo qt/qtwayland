@@ -86,7 +86,7 @@ void QWaylandDataDeviceManager::enter(void *data,
         return;
     data_device_manager->m_drag_last_event_time = time;
 
-    data_device_manager->m_drag_current_event_window = static_cast<QWaylandWindow *>(wl_surface_get_user_data(surface));
+    data_device_manager->m_drag_current_event_window = QWaylandWindow::fromWlSurface(surface);
     if (!surface)
         return;
     QWaylandDataOffer *offer = static_cast<QWaylandDataOffer *>(wl_data_offer_get_user_data(id));
@@ -261,7 +261,7 @@ void QWaylandDataDeviceManager::createAndSetDrag(QDrag *drag)
         p.drawPixmap(0,0,pixmap);
     }
 
-    m_drag_icon_surface = wl_compositor_create_surface(m_display->wl_compositor());
+    m_drag_icon_surface = m_display->compositor()->create_surface();
     wl_surface_attach(m_drag_icon_surface, m_drag_icon_buffer->buffer(), -drag->hotSpot().x(), -drag->hotSpot().y());
 
     wl_data_device_start_drag(transfer_device, m_drag_data_source->handle(), m_drag_surface, m_drag_icon_surface, QWaylandDisplay::currentTimeMillisec());

@@ -52,6 +52,8 @@
 
 #include <wayland-client.h>
 
+#include "qwayland-wayland.h"
+
 #ifndef QT_NO_WAYLAND_XKB
 struct xkb_context;
 struct xkb_keymap;
@@ -63,14 +65,15 @@ QT_BEGIN_NAMESPACE
 class QWaylandWindow;
 class QWaylandDisplay;
 
-class QWaylandInputDevice {
+class QWaylandInputDevice : public QtWayland::wl_pointer, public QtWayland::wl_keyboard, public QtWayland::wl_touch, public QtWayland::wl_seat
+{
 public:
     QWaylandInputDevice(QWaylandDisplay *display, uint32_t id);
     ~QWaylandInputDevice();
 
     uint32_t capabilities() const { return mCaps; }
 
-    struct wl_seat *wl_seat() const { return mSeat; }
+    struct ::wl_seat *wl_seat() { return QtWayland::wl_seat::object(); }
 
     void setCursor(struct wl_buffer *buffer, struct wl_cursor_image *image);
     void handleWindowDestroyed(QWaylandWindow *window);
@@ -86,15 +89,9 @@ private:
     QWaylandDisplay *mQDisplay;
     struct wl_display *mDisplay;
 
-    struct wl_seat *mSeat;
     uint32_t mCaps;
 
-    struct {
-        struct wl_pointer *pointer;
-        struct wl_surface *pointerSurface;
-        struct wl_keyboard *keyboard;
-        struct wl_touch *touch;
-    } mDeviceInterfaces;
+    struct wl_surface *pointerSurface;
 
     struct wl_data_device *mTransferDevice;
     QWaylandWindow *mPointerFocus;
@@ -108,91 +105,53 @@ private:
     uint32_t mSerial;
     uint32_t mEnterSerial;
 
-    static const struct wl_seat_listener seatListener;
+    void seat_capabilities(uint32_t caps) Q_DECL_OVERRIDE;
 
-    static void seat_capabilities(void *data,
-                                  struct wl_seat *seat,
-                                  uint32_t caps);
+    void pointer_enter(uint32_t serial, struct wl_surface *surface,
+                       wl_fixed_t sx, wl_fixed_t sy) Q_DECL_OVERRIDE;
+    void pointer_leave(uint32_t time, struct wl_surface *surface);
+    void pointer_motion(uint32_t time,
+                        wl_fixed_t sx, wl_fixed_t sy) Q_DECL_OVERRIDE;
+    void pointer_button(uint32_t serial, uint32_t time,
+                        uint32_t button, uint32_t state) Q_DECL_OVERRIDE;
+    void pointer_axis(uint32_t time,
+                      uint32_t axis,
+                      wl_fixed_t value) Q_DECL_OVERRIDE;
 
-    static const struct wl_pointer_listener pointerListener;
+    void keyboard_keymap(uint32_t format,
+                         int32_t fd,
+                         uint32_t size) Q_DECL_OVERRIDE;
+    void keyboard_enter(uint32_t time,
+                        struct wl_surface *surface,
+                        struct wl_array *keys) Q_DECL_OVERRIDE;
+    void keyboard_leave(uint32_t time,
+                        struct wl_surface *surface) Q_DECL_OVERRIDE;
+    void keyboard_key(uint32_t serial, uint32_t time,
+                      uint32_t key, uint32_t state) Q_DECL_OVERRIDE;
+    void keyboard_modifiers(uint32_t serial,
+                            uint32_t mods_depressed,
+                            uint32_t mods_latched,
+                            uint32_t mods_locked,
+                            uint32_t group) Q_DECL_OVERRIDE;
 
-    static void pointer_enter(void *data,
-                              struct wl_pointer *pointer,
-                              uint32_t serial, struct wl_surface *surface,
-                              wl_fixed_t sx, wl_fixed_t sy);
-    static void pointer_leave(void *data,
-                              struct wl_pointer *pointer,
-                              uint32_t time, struct wl_surface *surface);
-    static void pointer_motion(void *data,
-                               struct wl_pointer *pointer,
-                               uint32_t time,
-                               wl_fixed_t sx, wl_fixed_t sy);
-    static void pointer_button(void *data,
-                               struct wl_pointer *pointer,
-                               uint32_t serial, uint32_t time,
-                               uint32_t button, uint32_t state);
-    static void pointer_axis(void *data,
-                             struct wl_pointer *pointer,
-                             uint32_t time,
-                             uint32_t axis,
-                             wl_fixed_t value);
-
-    static const struct wl_keyboard_listener keyboardListener;
-
-    static void keyboard_keymap(void *data,
-                                struct wl_keyboard *keyboard,
-                                uint32_t format,
-                                int32_t fd,
-                                uint32_t size);
-    static void keyboard_enter(void *data,
-                               struct wl_keyboard *keyboard,
-                               uint32_t time,
-                               struct wl_surface *surface,
-                               struct wl_array *keys);
-    static void keyboard_leave(void *data,
-                               struct wl_keyboard *keyboard,
-                               uint32_t time,
-                               struct wl_surface *surface);
-    static void keyboard_key(void *data,
-                             struct wl_keyboard *keyboard,
-                             uint32_t serial, uint32_t time,
-                             uint32_t key, uint32_t state);
-    static void keyboard_modifiers(void *data,
-                                   struct wl_keyboard *keyboard,
-                                   uint32_t serial,
-                                   uint32_t mods_depressed,
-                                   uint32_t mods_latched,
-                                   uint32_t mods_locked,
-                                   uint32_t group);
-
-    static const struct wl_touch_listener touchListener;
-
-    static void touch_down(void *data,
-                           struct wl_touch *touch,
-                           uint32_t serial,
-                           uint32_t time,
-                           struct wl_surface *surface,
-                           int32_t id,
-                           wl_fixed_t x,
-                           wl_fixed_t y);
-    static void touch_up(void *data,
-                         struct wl_touch *touch,
-                         uint32_t serial,
-                         uint32_t time,
-                         int32_t id);
-    static void touch_motion(void *data,
-                             struct wl_touch *touch,
-                             uint32_t time,
-                             int32_t id,
-                             wl_fixed_t x,
-                             wl_fixed_t y);
-    static void touch_frame(void *data,
-                            struct wl_touch *touch);
-    static void touch_cancel(void *data,
-                             struct wl_touch *touch);
+    void touch_down(uint32_t serial,
+                    uint32_t time,
+                    struct wl_surface *surface,
+                    int32_t id,
+                    wl_fixed_t x,
+                    wl_fixed_t y) Q_DECL_OVERRIDE;
+    void touch_up(uint32_t serial,
+                  uint32_t time,
+                  int32_t id) Q_DECL_OVERRIDE;
+    void touch_motion(uint32_t time,
+                      int32_t id,
+                      wl_fixed_t x,
+                      wl_fixed_t y) Q_DECL_OVERRIDE;
+    void touch_frame() Q_DECL_OVERRIDE;
+    void touch_cancel() Q_DECL_OVERRIDE;
 
     void handleTouchPoint(int id, double x, double y, Qt::TouchPointState state);
-    void handleTouchFrame();
+
     QList<QWindowSystemInterface::TouchPoint> mTouchPoints;
     QList<QWindowSystemInterface::TouchPoint> mPrevTouchPoints;
     QTouchDevice *mTouchDevice;

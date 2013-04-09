@@ -46,6 +46,17 @@ QT_BEGIN_NAMESPACE
 
 namespace QtWayland {
 
+struct wl_resource *resourceForClient(const struct wl_list *list, struct wl_client *client)
+{
+    struct wl_resource *resource;
+    wl_list_for_each(resource, list, link) {
+        if (resource->client == client) {
+            return resource;
+        }
+    }
+    return 0;
+}
+
 ResourceCollection::ResourceCollection()
 {
     wl_list_init(&client_resources);
@@ -66,14 +77,7 @@ void ResourceCollection::registerResource(struct wl_resource *resource)
 
 struct wl_resource *ResourceCollection::resourceForClient(wl_client *client) const
 {
-    struct wl_resource *resource;
-    wl_list_for_each(resource,&client_resources, link) {
-        if (resource->client == client) {
-            return resource;
-        }
-    }
-    return 0;
-
+    return QtWayland::resourceForClient(&client_resources, client);
 }
 
 bool ResourceCollection::resourceListIsEmpty() const

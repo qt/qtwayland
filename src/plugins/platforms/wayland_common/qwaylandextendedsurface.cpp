@@ -44,7 +44,6 @@
 #include "qwaylandwindow.h"
 
 #include "wayland-client.h"
-#include "wayland-surface-extension-client-protocol.h"
 
 #include "qwaylanddisplay.h"
 
@@ -56,49 +55,25 @@
 
 QT_USE_NAMESPACE
 
-QWaylandSurfaceExtension::QWaylandSurfaceExtension(QWaylandDisplay *display, uint32_t id)
-{
-    m_surface_extension = static_cast<struct wl_surface_extension *>(
-                wl_registry_bind(display->wl_registry(), id, &wl_surface_extension_interface, 1));
-}
-
-QWaylandExtendedSurface *QWaylandSurfaceExtension::getExtendedWindow(QWaylandWindow *window)
-{
-    struct wl_surface *surface = window->wl_surface();
-    Q_ASSERT(surface);
-    struct wl_extended_surface *extended_surface =
-            wl_surface_extension_get_extended_surface(m_surface_extension,surface);
-
-    return new QWaylandExtendedSurface(window,extended_surface);
-}
-
-
-QWaylandExtendedSurface::QWaylandExtendedSurface(QWaylandWindow *window, struct wl_extended_surface *extended_surface)
-    : m_window(window)
-    , m_extended_surface(extended_surface)
+QWaylandExtendedSurface::QWaylandExtendedSurface(QWaylandWindow *window, struct ::wl_extended_surface *extended_surface)
+    : QtWayland::wl_extended_surface(extended_surface)
+    , m_window(window)
     , m_exposed(true)
 {
-    wl_extended_surface_add_listener(m_extended_surface,&QWaylandExtendedSurface::extended_surface_listener,this);
 }
 
 void QWaylandExtendedSurface::updateGenericProperty(const QString &name, const QVariant &value)
 {
-
     QByteArray byteValue;
     QDataStream ds(&byteValue, QIODevice::WriteOnly);
     ds << value;
 
-    struct wl_array data;
-    data.size = byteValue.size();
-    data.data = (void*)byteValue.constData();
-    data.alloc = 0;
+    update_generic_property(name, byteValue);
 
-    wl_extended_surface_update_generic_property(m_extended_surface,qPrintable(name),&data);
-
-    m_properties.insert(name,value);
+    m_properties.insert(name, value);
     QWaylandNativeInterface *nativeInterface = static_cast<QWaylandNativeInterface *>(
                 QGuiApplication::platformNativeInterface());
-    nativeInterface->emitWindowPropertyChanged(m_window,name);
+    nativeInterface->emitWindowPropertyChanged(m_window, name);
 }
 
 static int32_t waylandRotationFromScreenOrientation(Qt::ScreenOrientation orientation)
@@ -114,7 +89,7 @@ static int32_t waylandRotationFromScreenOrientation(Qt::ScreenOrientation orient
 
 void QWaylandExtendedSurface::setContentOrientation(Qt::ScreenOrientation orientation)
 {
-    wl_extended_surface_set_content_orientation(m_extended_surface, waylandRotationFromScreenOrientation(orientation));
+    set_content_orientation(waylandRotationFromScreenOrientation(orientation));
 }
 
 QVariantMap QWaylandExtendedSurface::properties() const
@@ -132,18 +107,14 @@ QVariant QWaylandExtendedSurface::property(const QString &name, const QVariant &
     return m_properties.value(name,defaultValue);
 }
 
-void QWaylandExtendedSurface::onscreen_visibility(void *data, wl_extended_surface *wl_extended_surface, int32_t visible)
+void QWaylandExtendedSurface::extended_surface_onscreen_visibility(int32_t visible)
 {
-    QWaylandExtendedSurface *extendedWindow = static_cast<QWaylandExtendedSurface *>(data);
-    Q_UNUSED(extendedWindow);
-    Q_UNUSED(wl_extended_surface);
-
     // Do not send events when the state is not changing...
-    if (visible == extendedWindow->m_window->isExposed())
+    if (visible == m_exposed)
         return;
 
-    extendedWindow->m_exposed = visible;
-    QWaylandWindow *w = extendedWindow->m_window;
+    m_exposed = visible;
+    QWaylandWindow *w = m_window;
     QWindowSystemInterface::handleExposeEvent(w->window(),
                                               visible
                                               ? QRegion(w->geometry())
@@ -151,40 +122,29 @@ void QWaylandExtendedSurface::onscreen_visibility(void *data, wl_extended_surfac
     QWindowSystemInterface::flushWindowSystemEvents();
 }
 
-void QWaylandExtendedSurface::set_generic_property(void *data, wl_extended_surface *wl_extended_surface, const char *name, wl_array *value)
+void QWaylandExtendedSurface::extended_surface_set_generic_property(const QString &name, wl_array *value)
 {
-    Q_UNUSED(wl_extended_surface);
-
-    QWaylandExtendedSurface *extended_window = static_cast<QWaylandExtendedSurface *>(data);
+    QByteArray data = QByteArray::fromRawData(static_cast<char *>(value->data), value->size);
 
     QVariant variantValue;
-    QByteArray baValue = QByteArray((const char*)value->data, value->size);
-    QDataStream ds(&baValue, QIODevice::ReadOnly);
+    QDataStream ds(data);
     ds >> variantValue;
 
-    QString qstring_name = QString::fromLatin1(name);
-    extended_window->m_properties.insert(qstring_name,variantValue);
+    m_properties.insert(name, variantValue);
 
     QWaylandNativeInterface *nativeInterface = static_cast<QWaylandNativeInterface *>(
-                QGuiApplication::platformNativeInterface());
-    nativeInterface->emitWindowPropertyChanged(extended_window->m_window,QString::fromLatin1(name));
+        QGuiApplication::platformNativeInterface());
+    nativeInterface->emitWindowPropertyChanged(m_window, name);
 }
 
 Qt::WindowFlags QWaylandExtendedSurface::setWindowFlags(Qt::WindowFlags flags)
 {
     uint wlFlags = 0;
+
     if (flags & Qt::WindowStaysOnTopHint) wlFlags |= WL_EXTENDED_SURFACE_WINDOWFLAG_STAYSONTOP;
     if (flags & Qt::WindowOverridesSystemGestures) wlFlags |= WL_EXTENDED_SURFACE_WINDOWFLAG_OVERRIDESSYSTEMGESTURES;
 
-    wl_extended_surface_set_window_flags(m_extended_surface, wlFlags);
+    set_window_flags(wlFlags);
 
-    return flags & (
-                    Qt::WindowStaysOnTopHint
-                    | Qt::WindowOverridesSystemGestures
-                   );
+    return flags & (Qt::WindowStaysOnTopHint | Qt::WindowOverridesSystemGestures);
 }
-
-const struct wl_extended_surface_listener QWaylandExtendedSurface::extended_surface_listener = {
-    QWaylandExtendedSurface::onscreen_visibility,
-    QWaylandExtendedSurface::set_generic_property
-};

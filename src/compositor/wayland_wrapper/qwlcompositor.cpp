@@ -176,8 +176,7 @@ Compositor::Compositor(QWaylandCompositor *qt_compositor)
 
     wl_display_init_shm(m_display->handle());
 
-    m_output_global = new OutputGlobal();
-    wl_display_add_global(m_display->handle(),&wl_output_interface, m_output_global, OutputGlobal::output_bind_func);
+    m_output_global = new OutputGlobal(m_display->handle());
 
     m_shell = new Shell();
     wl_display_add_global(m_display->handle(), &wl_shell_interface, m_shell, Shell::bind_func);
@@ -426,8 +425,8 @@ Qt::ScreenOrientations Compositor::orientationUpdateMaskForClient(wl_client *cli
 {
     Output *output = m_output_global->outputForClient(client);
     Q_ASSERT(output);
-    if (output->extendedOutput())
-        return output->extendedOutput()->orientationUpdateMask();
+    if (output->extendedOutput)
+        return output->extendedOutput->orientationUpdateMask;
     return 0;
 }
 
@@ -440,9 +439,8 @@ void Compositor::setScreenOrientation(Qt::ScreenOrientation orientation)
         struct wl_client *client = clientList.at(i);
         Output *output = m_output_global->outputForClient(client);
         Q_ASSERT(output);
-        if (output->extendedOutput()){
-            output->extendedOutput()->sendOutputOrientation(orientation);
-        }
+        if (output->extendedOutput)
+            output->extendedOutput->sendOutputOrientation(orientation);
     }
 }
 

@@ -49,7 +49,10 @@
 
 #include <X11/extensions/Xcomposite.h>
 #include "qwaylandxcompositeeglintegration.h"
+
+#ifdef QT_WAYLAND_WINDOWMANAGER_SUPPORT
 #include "windowmanager_integration/qwaylandwindowmanagerintegration.h"
+#endif
 
 #include <QtCore/QDebug>
 

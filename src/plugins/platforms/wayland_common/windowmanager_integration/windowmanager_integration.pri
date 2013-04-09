@@ -2,7 +2,7 @@ DEFINES += QT_WAYLAND_WINDOWMANAGER_SUPPORT
 
 contains(DEFINES, QT_WAYLAND_WINDOWMANAGER_SUPPORT) {
 
-    WAYLANDSOURCES += $$PWD/../../../../extensions/windowmanager.xml
+    WAYLANDCLIENTSOURCES += $$PWD/../../../../extensions/windowmanager.xml
 
     HEADERS += \
         $$PWD/qwaylandwindowmanagerintegration.h

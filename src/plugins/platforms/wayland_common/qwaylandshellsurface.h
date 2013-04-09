@@ -46,19 +46,24 @@
 
 #include <wayland-client.h>
 
+#include "qwayland-wayland.h"
+
 QT_BEGIN_NAMESPACE
 
 class QWaylandWindow;
 class QWaylandInputDevice;
 class QWindow;
 
-class QWaylandShellSurface
+class QWaylandShellSurface : public QtWayland::wl_shell_surface
 {
 public:
-    QWaylandShellSurface(struct wl_shell_surface *shell_surface, QWaylandWindow *window);
+    QWaylandShellSurface(struct ::wl_shell_surface *shell_surface, QWaylandWindow *window);
     ~QWaylandShellSurface();
 
+    using QtWayland::wl_shell_surface::resize;
     void resize(QWaylandInputDevice *inputDevice, enum wl_shell_surface_resize edges);
+
+    using QtWayland::wl_shell_surface::move;
     void move(QWaylandInputDevice *inputDevice);
 
 private:
@@ -70,29 +75,20 @@ private:
     void setTopLevel();
     void updateTransientParent(QWindow *parent);
 
-    struct wl_shell_surface *handle() const { return m_shell_surface; }
-
     void setClassName(const char *_class);
 
     void setTitle(const char *title);
 
-    struct wl_shell_surface *m_shell_surface;
     QWaylandWindow *m_window;
     bool m_maximized;
     bool m_fullscreen;
     QSize m_size;
 
-    static void ping(void *data,
-                     struct wl_shell_surface *wl_shell_surface,
-                     uint32_t serial);
-    static void configure(void *data,
-              struct wl_shell_surface *wl_shell_surface,
-              uint32_t edges,
-              int32_t width,
-              int32_t height);
-    static void popup_done(void *data,
-                struct wl_shell_surface *wl_shell_surface);
-    static const struct wl_shell_surface_listener m_shell_surface_listener;
+    void shell_surface_ping(uint32_t serial) Q_DECL_OVERRIDE;
+    void shell_surface_configure(uint32_t edges,
+                                 int32_t width,
+                                 int32_t height) Q_DECL_OVERRIDE;
+    void shell_surface_popup_done() Q_DECL_OVERRIDE;
 
     friend class QWaylandWindow;
 };

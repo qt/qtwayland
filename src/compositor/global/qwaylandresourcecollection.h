@@ -49,6 +49,8 @@ QT_BEGIN_NAMESPACE
 
 namespace QtWayland {
 
+struct wl_resource *resourceForClient(const struct wl_list *list, struct wl_client *client);
+
 class ResourceCollection
 {
 public:

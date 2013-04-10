@@ -93,11 +93,10 @@ bool QWaylandGLContext::makeCurrent(QPlatformSurface *surface)
 {
     QWaylandEglWindow *window = static_cast<QWaylandEglWindow *>(surface);
     EGLSurface eglSurface = window->eglSurface();
-    if (!eglMakeCurrent(m_eglDisplay, eglSurface, eglSurface, m_context))
+    if (!eglMakeCurrent(m_eglDisplay, eglSurface, eglSurface, m_context)) {
+        qWarning("QEGLPlatformContext::makeCurrent: eglError: %x, this: %p \n", eglGetError(), this);
         return false;
-
-    // FIXME: remove this as soon as https://codereview.qt-project.org/#change,38879 is merged
-    QOpenGLContextPrivate::setCurrentContext(context());
+    }
 
     window->bindContentFBO();
 
@@ -116,7 +115,6 @@ void QWaylandGLContext::swapBuffers(QPlatformSurface *surface)
 
     if (window->decoration()) {
         makeCurrent(surface);
-
         if (!m_blitProgram) {
             m_blitProgram = new QOpenGLShaderProgram();
             m_blitProgram->addShaderFromSourceCode(QOpenGLShader::Vertex, "attribute vec4 position;\n\

@@ -247,6 +247,8 @@ void QWaylandWindow::doResize()
 
     mResizeExposedSent = false;
 
+    mConfigure.clear();
+
     resizeLocker.unlock();
     QWindowSystemInterface::handleGeometryChange(window(), geometry);
 }

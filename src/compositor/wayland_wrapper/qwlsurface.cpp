@@ -311,7 +311,7 @@ bool Surface::advanceBufferQueue()
     if (m_bufferQueue.size()) {
         int width = 0;
         int height = 0;
-        if (m_backBuffer) {
+        if (m_backBuffer && m_backBuffer->waylandBufferHandle()) {
             width = m_backBuffer->width();
             height = m_backBuffer->height();
         }

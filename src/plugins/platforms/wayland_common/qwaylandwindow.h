@@ -81,8 +81,9 @@ public:
     uint32_t edges;
 };
 
-class QWaylandWindow : public QPlatformWindow
+class QWaylandWindow : public QObject, public QPlatformWindow
 {
+    Q_OBJECT
 public:
     enum WindowType {
         Shm,
@@ -105,7 +106,6 @@ public:
     void setGeometry(const QRect &rect);
 
     void configure(uint32_t edges, int32_t width, int32_t height);
-    void doResize();
 
     void attach(QWaylandBuffer *buffer, int x, int y);
     void attachOffset(QWaylandBuffer *buffer);
@@ -148,6 +148,10 @@ public:
 
     inline bool isMaximized() const { return mState == Qt::WindowMaximized; }
     inline bool isFullscreen() const { return mState == Qt::WindowFullScreen; }
+
+    QMutex *resizeMutex() { return &mResizeLock; }
+public slots:
+    void doResize();
 
 protected:
     QWaylandDisplay *mDisplay;

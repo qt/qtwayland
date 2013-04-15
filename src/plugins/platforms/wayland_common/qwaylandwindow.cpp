@@ -66,7 +66,8 @@
 QT_USE_NAMESPACE
 
 QWaylandWindow::QWaylandWindow(QWindow *window)
-    : QPlatformWindow(window)
+    : QObject()
+    , QPlatformWindow(window)
     , mDisplay(QWaylandScreen::waylandScreenFromWindow(window)->display())
     , mSurface(mDisplay->createSurface(this))
     , mShellSurface(0)
@@ -102,8 +103,8 @@ QWaylandWindow::QWaylandWindow(QWindow *window)
     QString className = exeFileInfo.baseName() + QLatin1String(".desktop");
     mShellSurface->setClassName(className.toUtf8().constData());
 
-    if (parent() && mSubSurfaceWindow) {
-        mSubSurfaceWindow->setParent(static_cast<const QWaylandWindow *>(parent()));
+    if (QPlatformWindow::parent() && mSubSurfaceWindow) {
+        mSubSurfaceWindow->setParent(static_cast<const QWaylandWindow *>(QPlatformWindow::parent()));
     } else if (window->transientParent()) {
         if (window->transientParent()) {
             mShellSurface->updateTransientParent(window->transientParent());
@@ -180,7 +181,6 @@ void QWaylandWindow::setVisible(bool visible)
 
         if (!mSentInitialResize) {
             QWindowSystemInterface::handleGeometryChange(window(), geometry());
-            QWindowSystemInterface::flushWindowSystemEvents();
             mSentInitialResize = true;
         }
 
@@ -208,23 +208,23 @@ bool QWaylandWindow::isExposed() const
 
 void QWaylandWindow::configure(uint32_t edges, int32_t width, int32_t height)
 {
-    QMutexLocker resizeLocker(&mResizeLock);
     mConfigure.edges |= edges;
     mConfigure.width = width;
     mConfigure.height = height;
 
     if (!mResizeExposedSent) {
         mResizeExposedSent = true;
-        QWindowSystemInterface::handleExposeEvent(window(),QRegion(geometry()));
+        QMetaObject::invokeMethod(this, "doResize", Qt::QueuedConnection);
     }
 }
 
 void QWaylandWindow::doResize()
 {
-    if (mConfigure.isEmpty())
+    mResizeExposedSent = false;
+    if (mConfigure.isEmpty()) {
         return;
+    }
 
-    QMutexLocker resizeLocker(&mResizeLock);
     int widthWithoutMargins = qMax(mConfigure.width-(frameMargins().left() +frameMargins().right()),1);
     int heightWithoutMargins = qMax(mConfigure.height-(frameMargins().top()+frameMargins().bottom()),1);
 
@@ -243,14 +243,14 @@ void QWaylandWindow::doResize()
     }
     mOffset += QPoint(x, y);
 
+    mResizeLock.lock();
     setGeometry(geometry);
-
-    mResizeExposedSent = false;
+    mResizeLock.unlock();
 
     mConfigure.clear();
-
-    resizeLocker.unlock();
     QWindowSystemInterface::handleGeometryChange(window(), geometry);
+    QWindowSystemInterface::handleExposeEvent(window(), QRegion(geometry));
+    QWindowSystemInterface::flushWindowSystemEvents();
 }
 
 void QWaylandWindow::attach(QWaylandBuffer *buffer, int x, int y)

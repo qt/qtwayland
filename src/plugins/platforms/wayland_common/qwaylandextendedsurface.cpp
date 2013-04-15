@@ -119,7 +119,6 @@ void QWaylandExtendedSurface::extended_surface_onscreen_visibility(int32_t visib
                                               visible
                                               ? QRegion(w->geometry())
                                               : QRegion());
-    QWindowSystemInterface::flushWindowSystemEvents();
 }
 
 void QWaylandExtendedSurface::extended_surface_set_generic_property(const QString &name, wl_array *value)

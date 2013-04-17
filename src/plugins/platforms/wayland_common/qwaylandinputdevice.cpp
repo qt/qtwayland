@@ -511,7 +511,7 @@ void QWaylandInputDevice::keyboard_modifiers(uint32_t serial,
                               mods_depressed, mods_latched, mods_locked,
                               0, 0, group);
 #else
-    Q_UNUSED(data);
+    Q_UNUSED(serial);
     Q_UNUSED(mods_depressed);
     Q_UNUSED(mods_latched);
     Q_UNUSED(mods_locked);

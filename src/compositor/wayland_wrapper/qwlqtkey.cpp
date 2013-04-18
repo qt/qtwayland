@@ -57,7 +57,7 @@ QtKeyExtensionGlobal::QtKeyExtensionGlobal(Compositor *compositor)
 
 bool QtKeyExtensionGlobal::postQtKeyEvent(QKeyEvent *event, Surface *surface)
 {
-    wl_client *surfaceClient = surface->base()->resource.client;
+    wl_client *surfaceClient = surface->resource()->client();
 
     uint32_t time = m_compositor->currentTimeMsecs();
 

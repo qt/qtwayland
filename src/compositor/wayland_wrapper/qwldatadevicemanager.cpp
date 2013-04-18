@@ -243,7 +243,7 @@ void DataDeviceManager::overrideSelection(const QMimeData &mimeData)
     Surface *focusSurface = dev->keyboardFocus();
     if (focusSurface)
         offerFromCompositorToClient(
-                    dev->dataDevice(focusSurface->base()->resource.client)->dataDeviceResource());
+                    dev->dataDevice(focusSurface->resource()->client())->dataDeviceResource());
 }
 
 bool DataDeviceManager::offerFromCompositorToClient(wl_resource *clientDataDeviceResource)

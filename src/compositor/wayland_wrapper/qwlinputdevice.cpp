@@ -222,7 +222,7 @@ void InputDevice::pointer_set_cursor(wl_pointer::Resource *resource,
     Q_UNUSED(resource);
     Q_UNUSED(serial);
 
-    QtWayland::Surface *surface = reinterpret_cast<QtWayland::Surface *>(surface_resource->data);
+    QtWayland::Surface *surface = QtWayland::Surface::fromResource(surface_resource);
 
     surface->setCursorSurface(true);
     m_compositor->waylandCompositor()->setCursorSurface(surface->waylandSurface(), hotspot_x, hotspot_y);
@@ -464,7 +464,7 @@ void InputDevice::sendFullTouchEvent(QTouchEvent *event)
 
 Surface *InputDevice::keyboardFocus() const
 {
-    return wayland_cast<Surface>(keyboardDevice()->focus);
+    return static_cast<Surface *>(keyboardDevice()->focus);
 }
 
 /*!
@@ -476,13 +476,13 @@ bool InputDevice::setKeyboardFocus(Surface *surface)
         return false;
 
     sendSelectionFocus(surface);
-    wl_keyboard_set_focus(keyboardDevice(), surface ? surface->base() : 0);
+    wl_keyboard_set_focus(keyboardDevice(), surface);
     return true;
 }
 
 Surface *InputDevice::mouseFocus() const
 {
-    return wayland_cast<Surface>(pointerDevice()->focus);
+    return static_cast<Surface *>(pointerDevice()->focus);
 }
 
 void InputDevice::setMouseFocus(Surface *surface, const QPointF &localPos, const QPointF &globalPos)
@@ -490,17 +490,16 @@ void InputDevice::setMouseFocus(Surface *surface, const QPointF &localPos, const
     ::wl_pointer *pointer = pointerDevice();
     pointer->x = wl_fixed_from_double(globalPos.x());
     pointer->y = wl_fixed_from_double(globalPos.y());
-    pointer->current = surface ? surface->base() : 0;
+    pointer->current = surface;
     pointer->current_x = wl_fixed_from_double(localPos.x());
     pointer->current_y = wl_fixed_from_double(localPos.y());
-    pointer->grab->interface->focus(pointer->grab,
-                                    surface ? surface->base() : 0,
+    pointer->grab->interface->focus(pointer->grab, surface,
                                     wl_fixed_from_double(localPos.x()), wl_fixed_from_double(localPos.y()));
 
     // We have no separate touch focus management so make it match the pointer focus always.
     // No wl_touch_set_focus() is available so set it manually.
     ::wl_touch *touch = touchDevice();
-    touch->focus = surface ? surface->base() : 0;
+    touch->focus = surface;
     touch->focus_resource = Compositor::resourceForSurface(&touch->resource_list, surface);
 }
 
@@ -529,7 +528,7 @@ void InputDevice::sendSelectionFocus(Surface *surface)
 {
     if (!surface)
         return;
-    DataDevice *device = dataDevice(surface->base()->resource.client);
+    DataDevice *device = dataDevice(surface->resource()->client());
     if (device) {
         device->sendSelectionFocus();
     }

@@ -46,45 +46,38 @@ QT_BEGIN_NAMESPACE
 
 namespace QtWayland {
 
-void destroy_region(struct wl_resource *resource)
-{
-    delete resolve<Region>(resource);
-}
-
 Region::Region(struct wl_client *client, uint32_t id)
+    : QtWaylandServer::wl_region(client, id)
 {
-    addClientResource(client, base(), id, &wl_region_interface,
-            &region_interface, destroy_region);
 }
 
 Region::~Region()
 {
 }
 
-const struct wl_region_interface Region::region_interface = {
-    region_destroy,
-    region_add,
-    region_subtract
-};
-
-void Region::region_destroy(wl_client *client, wl_resource *region)
+Region *Region::fromResource(struct ::wl_resource *resource)
 {
-    Q_UNUSED(client);
-    wl_resource_destroy(region);
+    return static_cast<Region *>(Resource::fromResource(resource)->region);
 }
 
-void Region::region_add(wl_client *client, wl_resource *region,
-                       int32_t x, int32_t y, int32_t w, int32_t h)
+void Region::region_destroy_resource(Resource *)
 {
-    Q_UNUSED(client);
-    resolve<Region>(region)->m_region += QRect(x, y, w, h);
+    delete this;
 }
 
-void Region::region_subtract(wl_client *client, wl_resource *region,
-                            int32_t x, int32_t y, int32_t w, int32_t h)
+void Region::region_destroy(Resource *resource)
 {
-    Q_UNUSED(client);
-    resolve<Region>(region)->m_region -= QRect(x, y, w, h);
+    wl_resource_destroy(resource->handle);
+}
+
+void Region::region_add(Resource *, int32_t x, int32_t y, int32_t w, int32_t h)
+{
+    m_region += QRect(x, y, w, h);
+}
+
+void Region::region_subtract(Resource *, int32_t x, int32_t y, int32_t w, int32_t h)
+{
+    m_region -= QRect(x, y, w, h);
 }
 
 }

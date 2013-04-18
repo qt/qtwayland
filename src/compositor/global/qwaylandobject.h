@@ -60,37 +60,7 @@ public:
 
     const T *base() const { return this; }
     T *base() { return this; }
-
-    template <typename Implementation>
-    void addClientResource(wl_client *client,
-                           wl_resource *resource,
-                           int id, const struct wl_interface *interface,
-                           Implementation implementation,
-                           void (*destroy)(struct wl_resource *resource))
-    {
-        resource->object.id = id;
-        resource->object.interface = interface;
-        resource->object.implementation = (void (**)(void))implementation;
-        resource->data = this;
-        resource->destroy = destroy;
-
-        wl_client_add_resource(client, resource);
-    }
 };
-
-template <typename T>
-T *resolve(wl_resource *from)
-{
-    Object<typename T::Base> *object = reinterpret_cast<Object<typename T::Base> *>(from->data);
-    return static_cast<T *>(object);
-}
-
-template <typename T>
-T *wayland_cast(typename T::Base *from)
-{
-    Object<typename T::Base> *object = reinterpret_cast<Object<typename T::Base> *>(from);
-    return static_cast<T *>(object);
-}
 
 }
 

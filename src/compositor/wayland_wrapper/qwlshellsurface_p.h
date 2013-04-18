@@ -41,9 +41,8 @@
 #ifndef WLSHELLSURFACE_H
 #define WLSHELLSURFACE_H
 
-#include <QtCompositor/qwaylandobject.h>
-
 #include <wayland-server.h>
+#include <qwaylandobject.h>
 #include <QPoint>
 
 #include <qwayland-server-wayland.h>
@@ -137,7 +136,7 @@ private:
                                  const QString &class_) Q_DECL_OVERRIDE;
 };
 
-class ShellSurfaceGrabber : public Object<wl_pointer_grab>
+class ShellSurfaceGrabber : public Object<struct ::wl_pointer_grab>
 {
 public:
     ShellSurfaceGrabber(ShellSurface *shellSurface, const struct wl_pointer_grab_interface *interface);

@@ -69,7 +69,7 @@ void Shell::get_shell_surface(struct wl_client *client,
               struct wl_resource *surface_super)
 {
     Q_UNUSED(shell_resource);
-    Surface *surface = resolve<Surface>(surface_super);
+    Surface *surface = Surface::fromResource(surface_super);
     new ShellSurface(client,id,surface);
 }
 
@@ -223,7 +223,7 @@ void ShellSurface::shell_surface_set_transient(Resource *resource,
 
     Q_UNUSED(resource);
     Q_UNUSED(flags);
-    Surface *parent_surface = static_cast<Surface *>(parent_surface_resource->data);
+    Surface *parent_surface = Surface::fromResource(parent_surface_resource);
     m_transientParent = parent_surface->shellSurface();
     m_xOffset = x;
     m_yOffset = y;
@@ -304,7 +304,7 @@ ShellSurfaceGrabber::ShellSurfaceGrabber(ShellSurface *shellSurface, const struc
     : shell_surface(shellSurface)
 {
     base()->interface = interface;
-    base()->focus = shell_surface->surface()->base();
+    base()->focus = shell_surface->surface();
 }
 
 ShellSurfaceGrabber::~ShellSurfaceGrabber()

@@ -42,38 +42,38 @@
 #define WL_REGION_H
 
 #include <QtCompositor/qwaylandexport.h>
-#include <QtCompositor/qwaylandobject.h>
 
 #include <QRegion>
 
 #include <wayland-util.h>
+#include "qwayland-server-wayland.h"
 
 QT_BEGIN_NAMESPACE
 
 namespace QtWayland {
 
-class Q_COMPOSITOR_EXPORT Region : public Object<wl_resource>
+class Q_COMPOSITOR_EXPORT Region : public QtWaylandServer::wl_region
 {
 public:
     Region(struct wl_client *client, uint32_t id);
     ~Region();
 
-    uint id() const { return base()->object.id; }
+    static Region *fromResource(struct ::wl_resource *resource);
+
+    uint id() const { return resource()->handle->object.id; }
 
     QRegion region() const { return m_region; }
-
-    static const struct wl_region_interface region_interface;
 
 private:
     Q_DISABLE_COPY(Region)
 
     QRegion m_region;
 
-    static void region_destroy(wl_client *client, wl_resource *region);
-    static void region_add(wl_client *client, wl_resource *region,
-                           int32_t x, int32_t y, int32_t w, int32_t h);
-    static void region_subtract(wl_client *client, wl_resource *region,
-                                int32_t x, int32_t y, int32_t w, int32_t h);
+    void region_destroy_resource(Resource *) Q_DECL_OVERRIDE;
+
+    void region_destroy(Resource *resource) Q_DECL_OVERRIDE;
+    void region_add(Resource *resource, int32_t x, int32_t y, int32_t w, int32_t h) Q_DECL_OVERRIDE;
+    void region_subtract(Resource *resource, int32_t x, int32_t y, int32_t w, int32_t h) Q_DECL_OVERRIDE;
 };
 
 }

@@ -105,7 +105,7 @@ bool TouchExtensionGlobal::postTouchEvent(QTouchEvent *event, Surface *surface)
         return false;
 
     QPointF surfacePos = surface->pos();
-    wl_client *surfaceClient = surface->base()->resource.client;
+    wl_client *surfaceClient = surface->resource()->client();
     uint32_t time = m_compositor->currentTimeMsecs();
     const int rescount = m_resources.count();
 

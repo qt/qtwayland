@@ -71,12 +71,6 @@ private:
     GLXFBConfig m_config;
 
     QWaylandBuffer *m_buffer;
-
-    void waitForSync();
-    wl_callback *m_syncCallback;
-
-    static const struct wl_callback_listener sync_callback_listener;
-    static void sync_function(void *data, struct wl_callback *wl_callback, uint32_t time);
 };
 
 QT_END_NAMESPACE

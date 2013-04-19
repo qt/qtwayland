@@ -76,6 +76,8 @@ public:
     int screen() const;
     Window rootWindow() const;
 
+    bool supportsThreadedOpenGL() const { return true; }
+
 private:
     QWaylandDisplay *mWaylandDisplay;
     struct wl_xcomposite *mWaylandComposite;

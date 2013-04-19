@@ -199,6 +199,7 @@ private:
     static const wl_callback_listener callbackListener;
     static void frameCallback(void *data, struct wl_callback *wl_callback, uint32_t time);
 
+    static QMutex mFrameSyncMutex;
 };
 
 inline QIcon QWaylandWindow::windowIcon() const

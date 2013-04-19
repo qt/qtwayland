@@ -308,8 +308,11 @@ void QWaylandWindow::frameCallback(void *data, struct wl_callback *callback, uin
     }
 }
 
+QMutex QWaylandWindow::mFrameSyncMutex;
+
 void QWaylandWindow::waitForFrameSync()
 {
+    QMutexLocker locker(&mFrameSyncMutex);
     if (!mWaitingForFrameSync)
         return;
     mDisplay->flushRequests();

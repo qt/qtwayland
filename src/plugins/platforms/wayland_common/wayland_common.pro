@@ -17,6 +17,10 @@ include (windowmanager_integration/windowmanager_integration.pri)
 
 INCLUDEPATH += ../../../shared
 
+!contains(QT_CONFIG, no-pkg-config) {
+    PKGCONFIG += wayland-client wayland-cursor
+}
+
 SOURCES +=  qwaylandintegration.cpp \
             qwaylandnativeinterface.cpp \
             qwaylandshmbackingstore.cpp \

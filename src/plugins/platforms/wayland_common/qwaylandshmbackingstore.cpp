@@ -303,7 +303,8 @@ void QWaylandShmBackingStore::done(void *data, wl_callback *callback, uint32_t t
         delete window->attached();
     }
 
-    window->attachOffset(self->mFrontBuffer);
+    if (window->attached() != self->mFrontBuffer)
+        window->attachOffset(self->mFrontBuffer);
 
     if (self->mFrontBufferIsDirty && !self->mPainting) {
         self->mFrontBufferIsDirty = false;

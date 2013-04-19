@@ -177,10 +177,13 @@ void SurfaceBuffer::setDisplayed()
 
 void SurfaceBuffer::setDamage(const QRect &rect)
 {
-        if (m_damageRect.isValid()) {
+    if (m_damageRect.isValid()) {
         m_damageRect = m_damageRect.united(rect);
+    } else {
+        m_damageRect = rect;
     }
-    m_damageRect = rect;
+    m_image = QImage();
+
 }
 
 void SurfaceBuffer::destroyTexture()

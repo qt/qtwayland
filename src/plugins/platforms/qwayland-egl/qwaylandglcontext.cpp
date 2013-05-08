@@ -143,7 +143,7 @@ void QWaylandGLContext::swapBuffers(QPlatformSurface *surface)
                                                                             gl_Position = position;\n\
                                                                             outTexCoords = texCoords.xy;\n\
                                                                         }");
-            m_blitProgram->addShaderFromSourceCode(QOpenGLShader::Fragment, "varying vec2 outTexCoords;\n\
+            m_blitProgram->addShaderFromSourceCode(QOpenGLShader::Fragment, "varying highp vec2 outTexCoords;\n\
                                                                             uniform sampler2D texture;\n\
                                                                             void main()\n\
                                                                             {\n\

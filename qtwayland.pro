@@ -15,7 +15,7 @@ load(qt_parts)
 }
 
 !config_xkbcommon {
-    error(QtWayland requires xkbcommon 0.2.0 or higher)
+    warning("No xkbcommon 0.2.0 or higher found, disabling support for it")
 }
 
 !config_wayland_scanner {

@@ -86,7 +86,7 @@ QWaylandWindow::QWaylandWindow(QWindow *window)
     static WId id = 1;
     mWindowId = id++;
 
-    if (mDisplay->shell())
+    if (mDisplay->shell() && !(window->flags() & Qt::BypassWindowManagerHint))
         mShellSurface = new QWaylandShellSurface(mDisplay->shell()->get_shell_surface(wl_surface()), this);
     if (mDisplay->windowExtension())
         mExtendedWindow = new QWaylandExtendedSurface(this, mDisplay->windowExtension()->get_extended_surface(wl_surface()));
@@ -98,18 +98,19 @@ QWaylandWindow::QWaylandWindow(QWindow *window)
     mDisplay->windowManagerIntegration()->authenticateWithToken();
 #endif
 
-    // Set surface class to the .desktop file name (obtained from executable name)
-    QFileInfo exeFileInfo(qApp->applicationFilePath());
-    QString className = exeFileInfo.baseName() + QLatin1String(".desktop");
-    mShellSurface->setClassName(className.toUtf8().constData());
+    if (mShellSurface) {
+        // Set surface class to the .desktop file name (obtained from executable name)
+        QFileInfo exeFileInfo(qApp->applicationFilePath());
+        QString className = exeFileInfo.baseName() + QLatin1String(".desktop");
+        mShellSurface->setClassName(className.toUtf8().constData());
+    }
 
     if (QPlatformWindow::parent() && mSubSurfaceWindow) {
         mSubSurfaceWindow->setParent(static_cast<const QWaylandWindow *>(QPlatformWindow::parent()));
     } else if (window->transientParent()) {
-        if (window->transientParent()) {
+        if (window->transientParent() && mShellSurface)
             mShellSurface->updateTransientParent(window->transientParent());
-        }
-    } else {
+    } else if (mShellSurface) {
         mShellSurface->setTopLevel();
     }
 
@@ -400,14 +401,14 @@ bool QWaylandWindow::createDecoration()
         default:
             break;
     }
-    if (window()->flags() & Qt::FramelessWindowHint || isFullscreen()) {
+    if (window()->flags() & Qt::FramelessWindowHint || isFullscreen())
         decoration = false;
-    }
+    if (window()->flags() & Qt::BypassWindowManagerHint)
+        decoration = false;
 
     if (decoration) {
-        if (!mWindowDecoration) {
+        if (!mWindowDecoration)
             mWindowDecoration = new QWaylandDecoration(this);
-        }
     } else {
         delete mWindowDecoration;
         mWindowDecoration = 0;

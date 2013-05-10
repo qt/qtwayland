@@ -133,8 +133,6 @@ public:
 
     void forceRoundTrip();
 
-    void scheduleRedraw(QWaylandWindow *window);
-
 public slots:
     void blockingReadEvents();
     void flushRequests();

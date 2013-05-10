@@ -1,25 +1,8 @@
 TEMPLATE = lib
 CONFIG += staticlib
 
-CONFIG += link_pkgconfig qpa/genericunixfontdatabase
-
-QT += core-private gui-private platformsupport-private
-
+include ($$PWD/wayland_common_share.pri)
 include (windowmanager_integration/windowmanager_integration.pri)
-
-!equals(QT_WAYLAND_GL_CONFIG, nogl) {
-    DEFINES += QT_WAYLAND_GL_SUPPORT
-}
-
-!config_xkbcommon {
-    DEFINES += QT_NO_WAYLAND_XKB
-}
-
-INCLUDEPATH += ../../../shared
-
-!contains(QT_CONFIG, no-pkg-config) {
-    PKGCONFIG += wayland-client wayland-cursor
-}
 
 SOURCES +=  qwaylandintegration.cpp \
             qwaylandnativeinterface.cpp \
@@ -81,7 +64,6 @@ WAYLANDCLIENTSOURCES += \
             ../../../extensions/output-extension.xml \
             ../../../extensions/touch-extension.xml \
             ../../../extensions/qtkey-extension.xml \
-            ../../../3rdparty/protocol/wayland.xml
 
 PLUGIN_TYPE = platforms
 

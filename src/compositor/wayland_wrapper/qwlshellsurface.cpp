@@ -428,7 +428,7 @@ void ShellSurfaceMoveGrabber::motion(wl_pointer_grab *grab, uint32_t time, int32
     shell_surface->surface()->setPos(pos);
     if (shell_surface->transientParent())
         shell_surface->setOffset(pos - shell_surface->transientParent()->surface()->pos());
-    shell_surface->surface()->damage(QRect(QPoint(0,0),shell_surface->surface()->size()));
+
 }
 
 void ShellSurfaceMoveGrabber::button(wl_pointer_grab *grab, uint32_t time, uint32_t button, uint32_t state)

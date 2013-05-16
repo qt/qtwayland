@@ -188,9 +188,11 @@ void SurfaceBuffer::destroyTexture()
 #ifdef QT_COMPOSITOR_WAYLAND_GL
     if (m_texture) {
         Q_ASSERT(m_guard);
+        /* When QOpenGLSharedResourceGuard is freed, destroyTexture might be reentered
+            to cause double free. So clear m_texture first. */
+        m_texture = 0;
         m_guard->free();
         m_guard = 0;
-        m_texture = 0;
     }
 #endif
 }

@@ -126,8 +126,6 @@ public:
 
     Compositor *compositor() const;
 
-    void damage(const QRect &rect);
-
     QString className() const { return m_className; }
     void setClassName(const QString &className);
 
@@ -174,6 +172,7 @@ private:
     bool m_isCursorSurface;
 
     inline SurfaceBuffer *currentSurfaceBuffer() const;
+    void damage(const QRect &rect);
     bool advanceBufferQueue();
     void doUpdate();
     SurfaceBuffer *createSurfaceBuffer(struct wl_buffer *buffer);

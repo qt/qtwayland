@@ -17,7 +17,7 @@ make
 
 To build the QtWayland module you need the external dependencies:
 xkbcommon 0.2.0 - http://xkbcommon.org/
-wayland 1.0.3 - http://wayland.freedesktop.org/
+wayland 1.1.0 - http://wayland.freedesktop.org/
 
 
 We hang out at #qt-labs and #qt-lighthouse on freenode if you have any questions

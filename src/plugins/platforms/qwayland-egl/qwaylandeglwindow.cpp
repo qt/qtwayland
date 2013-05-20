@@ -66,7 +66,7 @@ QWaylandEglWindow::QWaylandEglWindow(QWindow *window)
     , m_eglConfig(0)
     , m_contentFBO(0)
     , m_resize(false)
-    , m_format(window->format())
+    , m_format(window->requestedFormat())
 {
     setGeometry(window->geometry());
 }

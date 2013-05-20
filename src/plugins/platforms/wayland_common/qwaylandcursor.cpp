@@ -57,7 +57,15 @@ QWaylandCursor::QWaylandCursor(QWaylandScreen *screen)
     : mDisplay(screen->display())
 {
     //TODO: Make wl_cursor_theme_load arguments configurable here
-    mCursorTheme = wl_cursor_theme_load("default", 32, mDisplay->shm());
+    QByteArray cursorTheme = qgetenv("XCURSOR_THEME");
+    if (cursorTheme.isEmpty())
+        cursorTheme = QByteArray("default");
+    QByteArray cursorSizeFromEnv = qgetenv("XCURSOR_SIZE");
+    bool hasCursorSize = false;
+    int cursorSize = cursorSizeFromEnv.toInt(&hasCursorSize);
+    if (!hasCursorSize || cursorSize <= 0)
+        cursorSize = 32;
+    mCursorTheme = wl_cursor_theme_load(cursorTheme, cursorSize, mDisplay->shm());
     initCursorMap();
 }
 

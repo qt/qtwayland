@@ -55,7 +55,7 @@ class QKeyEvent;
 
 namespace QtWayland {
 
-class QtKeyExtensionGlobal : public QtWaylandServer::wl_qtkey_extension
+class QtKeyExtensionGlobal : public QtWaylandServer::qt_key_extension
 {
 public:
     QtKeyExtensionGlobal(Compositor *compositor);

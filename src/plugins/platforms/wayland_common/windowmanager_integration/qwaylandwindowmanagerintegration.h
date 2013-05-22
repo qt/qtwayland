@@ -57,7 +57,7 @@ class QWaylandWindow;
 
 class QWaylandWindowManagerIntegrationPrivate;
 
-class QWaylandWindowManagerIntegration : public QObject, public QPlatformServices, public QtWayland::wl_windowmanager
+class QWaylandWindowManagerIntegration : public QObject, public QPlatformServices, public QtWayland::qt_windowmanager
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandWindowManagerIntegration)

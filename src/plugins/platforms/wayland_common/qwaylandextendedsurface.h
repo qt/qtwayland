@@ -53,10 +53,10 @@ QT_BEGIN_NAMESPACE
 class QWaylandDisplay;
 class QWaylandWindow;
 
-class QWaylandExtendedSurface : public QtWayland::wl_extended_surface
+class QWaylandExtendedSurface : public QtWayland::qt_extended_surface
 {
 public:
-    QWaylandExtendedSurface(QWaylandWindow *window, struct ::wl_extended_surface *extended_surface);
+    QWaylandExtendedSurface(QWaylandWindow *window, struct ::qt_extended_surface *extended_surface);
 
     void setContentOrientation(Qt::ScreenOrientation orientation);
 

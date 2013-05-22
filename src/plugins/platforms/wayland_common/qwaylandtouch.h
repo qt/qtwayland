@@ -49,7 +49,7 @@
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandTouchExtension : public QtWayland::wl_touch_extension
+class QWaylandTouchExtension : public QtWayland::qt_touch_extension
 {
 public:
     QWaylandTouchExtension(QWaylandDisplay *display, uint32_t id);

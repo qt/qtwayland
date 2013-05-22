@@ -220,13 +220,13 @@ void QWaylandDisplay::registry_global(uint32_t id, const QString &interface, uin
     } else if (interface == "wl_data_device_manager") {
         mDndSelectionHandler = new QWaylandDataDeviceManager(this, id);
     } else if (interface == "wl_output_extension") {
-        mOutputExtension = new QtWayland::wl_output_extension(registry, id);
+        mOutputExtension = new QtWayland::qt_output_extension(registry, id);
         foreach (QPlatformScreen *screen, screens())
             static_cast<QWaylandScreen *>(screen)->createExtendedOutput();
     } else if (interface == "wl_surface_extension") {
-        mWindowExtension = new QtWayland::wl_surface_extension(registry, id);
+        mWindowExtension = new QtWayland::qt_surface_extension(registry, id);
     } else if (interface == "wl_sub_surface_extension") {
-        mSubSurfaceExtension = new QtWayland::wl_sub_surface_extension(registry, id);
+        mSubSurfaceExtension = new QtWayland::qt_sub_surface_extension(registry, id);
     } else if (interface == "wl_touch_extension") {
         mTouchExtension = new QWaylandTouchExtension(this, id);
     } else if (interface == "wl_qtkey_extension") {

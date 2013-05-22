@@ -67,10 +67,10 @@ class QWaylandWindow;
 class QWaylandEventThread;
 
 namespace QtWayland {
-    class wl_output_extension;
-    class wl_shell;
-    class wl_sub_surface_extension;
-    class wl_surface_extension;
+    class qt_output_extension;
+    class qt_shell;
+    class qt_sub_surface_extension;
+    class qt_surface_extension;
 }
 
 typedef void (*RegistryListener)(void *data,
@@ -118,9 +118,9 @@ public:
 
     QWaylandDataDeviceManager *dndSelectionHandler() const { return mDndSelectionHandler; }
 
-    QtWayland::wl_surface_extension *windowExtension() const { return mWindowExtension; }
-    QtWayland::wl_sub_surface_extension *subSurfaceExtension() const { return mSubSurfaceExtension; }
-    QtWayland::wl_output_extension *outputExtension() const { return mOutputExtension; }
+    QtWayland::qt_surface_extension *windowExtension() const { return mWindowExtension; }
+    QtWayland::qt_sub_surface_extension *subSurfaceExtension() const { return mSubSurfaceExtension; }
+    QtWayland::qt_output_extension *outputExtension() const { return mOutputExtension; }
     QWaylandTouchExtension *touchExtension() const { return mTouchExtension; }
 
     /* wl_registry_add_listener does not add but rather sets a listener, so this function is used
@@ -159,9 +159,9 @@ private:
     QList<Listener> mRegistryListeners;
     QWaylandInputDevice *mLastKeyboardFocusInputDevice;
     QWaylandDataDeviceManager *mDndSelectionHandler;
-    QtWayland::wl_surface_extension *mWindowExtension;
-    QtWayland::wl_sub_surface_extension *mSubSurfaceExtension;
-    QtWayland::wl_output_extension *mOutputExtension;
+    QtWayland::qt_surface_extension *mWindowExtension;
+    QtWayland::qt_sub_surface_extension *mSubSurfaceExtension;
+    QtWayland::qt_output_extension *mOutputExtension;
     QWaylandTouchExtension *mTouchExtension;
     QWaylandQtKeyExtension *mQtKeyExtension;
 

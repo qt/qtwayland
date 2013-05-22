@@ -38,14 +38,14 @@
  $QT_END_LICENSE$
     </copyright>
 
-    <interface name="wl_surface_extension" version="1">
+    <interface name="qt_surface_extension" version="1">
         <request name="get_extended_surface">
-            <arg name="id" type="new_id" interface="wl_extended_surface"/>
+            <arg name="id" type="new_id" interface="qt_extended_surface"/>
             <arg name="surface" type="object" interface="wl_surface"/>
         </request>
     </interface>
 
-    <interface name="wl_extended_surface" version="1">
+    <interface name="qt_extended_surface" version="1">
         <event name="onscreen_visibility">
 	    <arg name="visible" type="int"/>
 	</event>

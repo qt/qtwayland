@@ -51,7 +51,7 @@ SurfaceExtensionGlobal::SurfaceExtensionGlobal(Compositor *compositor)
     : m_compositor(compositor)
 {
     wl_display_add_global(m_compositor->wl_display(),
-                          &wl_surface_extension_interface,
+                          &qt_surface_extension_interface,
                           this,
                           SurfaceExtensionGlobal::bind_func);
 }
@@ -60,10 +60,10 @@ void SurfaceExtensionGlobal::bind_func(struct wl_client *client, void *data,
                       uint32_t version, uint32_t id)
 {
     Q_UNUSED(version);
-    wl_client_add_object(client, &wl_surface_extension_interface,&surface_extension_interface,id,data);
+    wl_client_add_object(client, &qt_surface_extension_interface,&surface_extension_interface,id,data);
 }
 
-const struct wl_surface_extension_interface SurfaceExtensionGlobal::surface_extension_interface = {
+const struct qt_surface_extension_interface SurfaceExtensionGlobal::surface_extension_interface = {
     SurfaceExtensionGlobal::get_extended_surface
 };
 
@@ -84,7 +84,7 @@ ExtendedSurface::ExtendedSurface(struct wl_client *client, uint32_t id, Surface 
 {
     Q_ASSERT(surface->extendedSurface() == 0);
     m_extended_surface_resource = wl_client_add_object(client,
-                                                       &wl_extended_surface_interface,
+                                                       &qt_extended_surface_interface,
                                                        &extended_surface_interface,
                                                        id,
                                                        this);
@@ -105,14 +105,14 @@ void ExtendedSurface::sendGenericProperty(const QString &name, const QVariant &v
     data.size = byteValue.size();
     data.data = (void*) byteValue.constData();
     data.alloc = 0;
-    wl_extended_surface_send_set_generic_property(m_extended_surface_resource, qPrintable(name), &data);
+    qt_extended_surface_send_set_generic_property(m_extended_surface_resource, qPrintable(name), &data);
 
 }
 
 void ExtendedSurface::sendOnScreenVisibility(bool visible)
 {
     int32_t visibleInt = visible;
-    wl_extended_surface_send_onscreen_visibility(m_extended_surface_resource, visibleInt);
+    qt_extended_surface_send_onscreen_visibility(m_extended_surface_resource, visibleInt);
 }
 
 
@@ -131,10 +131,10 @@ void ExtendedSurface::update_generic_property(wl_client *client, wl_resource *ex
 static Qt::ScreenOrientation screenOrientationFromWaylandOrientation(int32_t orientation)
 {
     switch (orientation) {
-    case WL_EXTENDED_SURFACE_ORIENTATION_PORTRAITORIENTATION: return Qt::PortraitOrientation;
-    case WL_EXTENDED_SURFACE_ORIENTATION_INVERTEDPORTRAITORIENTATION: return Qt::InvertedPortraitOrientation;
-    case WL_EXTENDED_SURFACE_ORIENTATION_LANDSCAPEORIENTATION: return Qt::LandscapeOrientation;
-    case WL_EXTENDED_SURFACE_ORIENTATION_INVERTEDLANDSCAPEORIENTATION: return Qt::InvertedLandscapeOrientation;
+    case QT_EXTENDED_SURFACE_ORIENTATION_PORTRAITORIENTATION: return Qt::PortraitOrientation;
+    case QT_EXTENDED_SURFACE_ORIENTATION_INVERTEDPORTRAITORIENTATION: return Qt::InvertedPortraitOrientation;
+    case QT_EXTENDED_SURFACE_ORIENTATION_LANDSCAPEORIENTATION: return Qt::LandscapeOrientation;
+    case QT_EXTENDED_SURFACE_ORIENTATION_INVERTEDLANDSCAPEORIENTATION: return Qt::InvertedLandscapeOrientation;
     default: return Qt::PrimaryOrientation;
     }
 }
@@ -191,7 +191,7 @@ void ExtendedSurface::set_window_flags(wl_client *client, wl_resource *resource,
     extended_surface->setWindowFlags(QWaylandSurface::WindowFlags(flags));
 }
 
-const struct wl_extended_surface_interface ExtendedSurface::extended_surface_interface = {
+const struct qt_extended_surface_interface ExtendedSurface::extended_surface_interface = {
     ExtendedSurface::update_generic_property,
     ExtendedSurface::set_content_orientation,
     ExtendedSurface::set_window_flags

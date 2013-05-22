@@ -45,12 +45,12 @@
 QT_USE_NAMESPACE
 
 QWaylandQtKeyExtension::QWaylandQtKeyExtension(QWaylandDisplay *display, uint32_t id)
-    : QtWayland::wl_qtkey_extension(display->wl_registry(), id)
+    : QtWayland::qt_key_extension(display->wl_registry(), id)
     , m_display(display)
 {
 }
 
-void QWaylandQtKeyExtension::qtkey_extension_qtkey(uint32_t time,
+void QWaylandQtKeyExtension::key_extension_qtkey(uint32_t time,
                                                    uint32_t type,
                                                    uint32_t key,
                                                    uint32_t modifiers,

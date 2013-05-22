@@ -55,8 +55,8 @@
 
 QT_USE_NAMESPACE
 
-QWaylandExtendedSurface::QWaylandExtendedSurface(QWaylandWindow *window, struct ::wl_extended_surface *extended_surface)
-    : QtWayland::wl_extended_surface(extended_surface)
+QWaylandExtendedSurface::QWaylandExtendedSurface(QWaylandWindow *window, struct ::qt_extended_surface *extended_surface)
+    : QtWayland::qt_extended_surface(extended_surface)
     , m_window(window)
     , m_exposed(true)
 {
@@ -79,11 +79,11 @@ void QWaylandExtendedSurface::updateGenericProperty(const QString &name, const Q
 static int32_t waylandRotationFromScreenOrientation(Qt::ScreenOrientation orientation)
 {
     switch (orientation) {
-    case Qt::PortraitOrientation: return WL_EXTENDED_SURFACE_ORIENTATION_PORTRAITORIENTATION;
-    case Qt::InvertedPortraitOrientation: return WL_EXTENDED_SURFACE_ORIENTATION_INVERTEDPORTRAITORIENTATION;
-    case Qt::LandscapeOrientation: return WL_EXTENDED_SURFACE_ORIENTATION_LANDSCAPEORIENTATION;
-    case Qt::InvertedLandscapeOrientation: return WL_EXTENDED_SURFACE_ORIENTATION_INVERTEDLANDSCAPEORIENTATION;
-    default: return WL_EXTENDED_SURFACE_ORIENTATION_PRIMARYORIENTATION;
+    case Qt::PortraitOrientation: return QT_EXTENDED_SURFACE_ORIENTATION_PORTRAITORIENTATION;
+    case Qt::InvertedPortraitOrientation: return QT_EXTENDED_SURFACE_ORIENTATION_INVERTEDPORTRAITORIENTATION;
+    case Qt::LandscapeOrientation: return QT_EXTENDED_SURFACE_ORIENTATION_LANDSCAPEORIENTATION;
+    case Qt::InvertedLandscapeOrientation: return QT_EXTENDED_SURFACE_ORIENTATION_INVERTEDLANDSCAPEORIENTATION;
+    default: return QT_EXTENDED_SURFACE_ORIENTATION_PRIMARYORIENTATION;
     }
 }
 
@@ -140,8 +140,8 @@ Qt::WindowFlags QWaylandExtendedSurface::setWindowFlags(Qt::WindowFlags flags)
 {
     uint wlFlags = 0;
 
-    if (flags & Qt::WindowStaysOnTopHint) wlFlags |= WL_EXTENDED_SURFACE_WINDOWFLAG_STAYSONTOP;
-    if (flags & Qt::WindowOverridesSystemGestures) wlFlags |= WL_EXTENDED_SURFACE_WINDOWFLAG_OVERRIDESSYSTEMGESTURES;
+    if (flags & Qt::WindowStaysOnTopHint) wlFlags |= QT_EXTENDED_SURFACE_WINDOWFLAG_STAYSONTOP;
+    if (flags & Qt::WindowOverridesSystemGestures) wlFlags |= QT_EXTENDED_SURFACE_WINDOWFLAG_OVERRIDESSYSTEMGESTURES;
 
     set_window_flags(wlFlags);
 

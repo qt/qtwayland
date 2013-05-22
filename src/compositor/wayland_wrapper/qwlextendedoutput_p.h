@@ -56,7 +56,7 @@ namespace QtWayland {
 class Compositor;
 class Output;
 
-class ExtendedOutput : public QtWaylandServer::wl_extended_output::Resource
+class ExtendedOutput : public QtWaylandServer::qt_extended_output::Resource
 {
 public:
     ExtendedOutput() : output(0) {}
@@ -67,7 +67,7 @@ public:
     Qt::ScreenOrientations orientationUpdateMask;
 };
 
-class OutputExtensionGlobal : public QtWaylandServer::wl_output_extension, public QtWaylandServer::wl_extended_output
+class OutputExtensionGlobal : public QtWaylandServer::qt_output_extension, public QtWaylandServer::qt_extended_output
 {
 public:
     OutputExtensionGlobal(Compositor *compositor);
@@ -75,12 +75,12 @@ public:
 private:
     Compositor *m_compositor;
 
-    wl_extended_output::Resource *extended_output_allocate() Q_DECL_OVERRIDE { return new ExtendedOutput; }
+    qt_extended_output::Resource *extended_output_allocate() Q_DECL_OVERRIDE { return new ExtendedOutput; }
 
-    void extended_output_set_orientation_update_mask(wl_extended_output::Resource *resource,
+    void extended_output_set_orientation_update_mask(qt_extended_output::Resource *resource,
                                                      int32_t orientation_update_mask) Q_DECL_OVERRIDE;
 
-    void output_extension_get_extended_output(wl_output_extension::Resource *resource,
+    void output_extension_get_extended_output(qt_output_extension::Resource *resource,
                                               uint32_t id,
                                               struct wl_resource *output_resource) Q_DECL_OVERRIDE;
 };

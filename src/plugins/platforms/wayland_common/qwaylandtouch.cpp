@@ -45,7 +45,7 @@
 QT_USE_NAMESPACE
 
 QWaylandTouchExtension::QWaylandTouchExtension(QWaylandDisplay *display, uint32_t id)
-    : QtWayland::wl_touch_extension(display->wl_registry(), id),
+    : QtWayland::qt_touch_extension(display->wl_registry(), id),
       mDisplay(display),
       mTouchDevice(0),
       mPointsLeft(0),
@@ -167,7 +167,7 @@ void QWaylandTouchExtension::sendTouchEvent()
     for (int i = 0; i < mTouchPoints.count(); ++i)
         states |= mTouchPoints.at(i).state;
 
-    if (mFlags & WL_TOUCH_EXTENSION_FLAGS_MOUSE_FROM_TOUCH) {
+    if (mFlags & QT_TOUCH_EXTENSION_FLAGS_MOUSE_FROM_TOUCH) {
         if (states == Qt::TouchPointPressed)
             mMouseSourceId = mTouchPoints.first().id;
         for (int i = 0; i < mTouchPoints.count(); ++i) {

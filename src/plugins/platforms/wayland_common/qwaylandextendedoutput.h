@@ -49,10 +49,10 @@ QT_BEGIN_NAMESPACE
 
 class QWaylandExtendedOutput;
 
-class QWaylandExtendedOutput : public QtWayland::wl_extended_output
+class QWaylandExtendedOutput : public QtWayland::qt_extended_output
 {
 public:
-    QWaylandExtendedOutput(QWaylandScreen *screen, struct ::wl_extended_output *extended_output);
+    QWaylandExtendedOutput(QWaylandScreen *screen, struct ::qt_extended_output *extended_output);
 
     Qt::ScreenOrientation currentOrientation() const;
     void setOrientationUpdateMask(Qt::ScreenOrientations mask);

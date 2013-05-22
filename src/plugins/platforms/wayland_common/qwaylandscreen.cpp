@@ -117,7 +117,7 @@ QWaylandExtendedOutput *QWaylandScreen::extendedOutput() const
 
 void QWaylandScreen::createExtendedOutput()
 {
-    QtWayland::wl_output_extension *extension = mWaylandDisplay->outputExtension();
+    QtWayland::qt_output_extension *extension = mWaylandDisplay->outputExtension();
     if (!mExtendedOutput && extension)
         mExtendedOutput = new QWaylandExtendedOutput(this, extension->get_extended_output(output()));
 }

@@ -48,7 +48,7 @@
 QT_USE_NAMESPACE
 
 XCompositeHandler::XCompositeHandler(QtWayland::Compositor *compositor, Display *display)
-    : QtWaylandServer::wl_xcomposite(compositor->wl_display())
+    : QtWaylandServer::qt_xcomposite(compositor->wl_display())
 {
     compositor->window()->create();
 

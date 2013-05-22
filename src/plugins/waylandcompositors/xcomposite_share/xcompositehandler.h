@@ -50,7 +50,7 @@
 
 QT_BEGIN_NAMESPACE
 
-class XCompositeHandler : public QtWaylandServer::wl_xcomposite
+class XCompositeHandler : public QtWaylandServer::qt_xcomposite
 {
 public:
     XCompositeHandler(QtWayland::Compositor *compositor, Display *display);

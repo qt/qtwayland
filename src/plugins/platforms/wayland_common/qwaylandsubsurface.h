@@ -54,10 +54,10 @@ class QWaylandDisplay;
 class QWaylandWindow;
 class QWaylandSubSurface;
 
-class QWaylandSubSurface : public QtWayland::wl_sub_surface
+class QWaylandSubSurface : public QtWayland::qt_sub_surface
 {
 public:
-    QWaylandSubSurface(QWaylandWindow *window, struct ::wl_sub_surface *sub_surface);
+    QWaylandSubSurface(QWaylandWindow *window, struct ::qt_sub_surface *sub_surface);
 
     void setParent(const QWaylandWindow *parent);
     void adjustPositionOfChildren();

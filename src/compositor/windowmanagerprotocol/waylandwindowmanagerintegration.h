@@ -105,7 +105,7 @@ private:
                          struct wl_resource *window_mgr_resource,
                          uint32_t remaining,
                          const char *url);
-    static const struct wl_windowmanager_interface windowmanager_interface;
+    static const struct qt_windowmanager_interface windowmanager_interface;
 };
 
 

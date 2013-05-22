@@ -47,8 +47,8 @@
 
 QT_USE_NAMESPACE
 
-QWaylandSubSurface::QWaylandSubSurface(QWaylandWindow *window, struct ::wl_sub_surface *sub_surface)
-    : QtWayland::wl_sub_surface(sub_surface)
+QWaylandSubSurface::QWaylandSubSurface(QWaylandWindow *window, struct ::qt_sub_surface *sub_surface)
+    : QtWayland::qt_sub_surface(sub_surface)
     , m_window(window)
 {
 }

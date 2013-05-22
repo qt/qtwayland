@@ -69,7 +69,7 @@ private:
                                           uint32_t id,
                                           struct wl_resource *surface_resource);
 
-    static const struct wl_sub_surface_extension_interface sub_surface_extension_interface;
+    static const struct qt_sub_surface_extension_interface sub_surface_extension_interface;
 };
 
 class SubSurface
@@ -113,7 +113,7 @@ private:
     static void lower(struct wl_client *client,
                       struct wl_resource *sub_surface_parent_resource,
                       struct wl_resource *sub_surface_child_resource);
-    static const struct wl_sub_surface_interface sub_surface_interface;
+    static const struct qt_sub_surface_interface sub_surface_interface;
 };
 
 inline Surface *SubSurface::surface() const

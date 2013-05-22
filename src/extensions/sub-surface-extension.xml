@@ -38,32 +38,32 @@
  $QT_END_LICENSE$
     </copyright>
 
-    <interface name="wl_sub_surface_extension" version="1">
+    <interface name="qt_sub_surface_extension" version="1">
         <request name="get_sub_surface_aware_surface">
-            <arg name="id" type="new_id" interface="wl_sub_surface"/>
+            <arg name="id" type="new_id" interface="qt_sub_surface"/>
             <arg name="surface" type="object" interface="wl_surface"/>
         </request>
     </interface>
 
-    <interface name="wl_sub_surface" version="1">
+    <interface name="qt_sub_surface" version="1">
         <request name="attach_sub_surface">
-            <arg name="sub_surface" type="object" interface="wl_sub_surface"/>
+            <arg name="sub_surface" type="object" interface="qt_sub_surface"/>
             <arg name="x" type="int"/>
             <arg name="y" type="int"/>
         </request>
 
         <request name="move_sub_surface">
-            <arg name="sub_surface" type="object" interface="wl_sub_surface"/>
+            <arg name="sub_surface" type="object" interface="qt_sub_surface"/>
             <arg name="x" type="int"/>
             <arg name="y" type="int"/>
         </request>
 
         <request name="raise">
-            <arg name="sub_surface" type="object" interface="wl_sub_surface"/>
+            <arg name="sub_surface" type="object" interface="qt_sub_surface"/>
         </request>
 
         <request name="lower">
-            <arg name="sub_surface" type="object" interface="wl_sub_surface"/>
+            <arg name="sub_surface" type="object" interface="qt_sub_surface"/>
         </request>
     </interface>
 </protocol>

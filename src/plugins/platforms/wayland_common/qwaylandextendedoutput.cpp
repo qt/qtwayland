@@ -49,8 +49,8 @@
 
 QT_USE_NAMESPACE
 
-QWaylandExtendedOutput::QWaylandExtendedOutput(QWaylandScreen *screen, struct ::wl_extended_output *extended_output)
-    : QtWayland::wl_extended_output(extended_output)
+QWaylandExtendedOutput::QWaylandExtendedOutput(QWaylandScreen *screen, ::qt_extended_output *extended_output)
+    : QtWayland::qt_extended_output(extended_output)
     , m_screen(screen)
     , m_orientation(m_screen->orientation())
 {
@@ -65,29 +65,29 @@ void QWaylandExtendedOutput::setOrientationUpdateMask(Qt::ScreenOrientations ori
 {
     int mask = 0;
     if (orientations & Qt::PortraitOrientation)
-        mask |= WL_EXTENDED_OUTPUT_ROTATION_PORTRAITORIENTATION;
+        mask |= QT_EXTENDED_OUTPUT_ROTATION_PORTRAITORIENTATION;
     if (orientations & Qt::LandscapeOrientation)
-        mask |= WL_EXTENDED_OUTPUT_ROTATION_LANDSCAPEORIENTATION;
+        mask |= QT_EXTENDED_OUTPUT_ROTATION_LANDSCAPEORIENTATION;
     if (orientations & Qt::InvertedPortraitOrientation)
-        mask |= WL_EXTENDED_OUTPUT_ROTATION_INVERTEDPORTRAITORIENTATION;
+        mask |= QT_EXTENDED_OUTPUT_ROTATION_INVERTEDPORTRAITORIENTATION;
     if (orientations & Qt::InvertedLandscapeOrientation)
-        mask |= WL_EXTENDED_OUTPUT_ROTATION_INVERTEDLANDSCAPEORIENTATION;
+        mask |= QT_EXTENDED_OUTPUT_ROTATION_INVERTEDLANDSCAPEORIENTATION;
     set_orientation_update_mask(mask);
 }
 
 void QWaylandExtendedOutput::extended_output_set_screen_rotation(int32_t rotation)
 {
     switch (rotation) {
-    case WL_EXTENDED_OUTPUT_ROTATION_PORTRAITORIENTATION:
+    case QT_EXTENDED_OUTPUT_ROTATION_PORTRAITORIENTATION:
         m_orientation = Qt::PortraitOrientation;
         break;
-    case WL_EXTENDED_OUTPUT_ROTATION_LANDSCAPEORIENTATION:
+    case QT_EXTENDED_OUTPUT_ROTATION_LANDSCAPEORIENTATION:
         m_orientation = Qt::LandscapeOrientation;
         break;
-    case WL_EXTENDED_OUTPUT_ROTATION_INVERTEDPORTRAITORIENTATION:
+    case QT_EXTENDED_OUTPUT_ROTATION_INVERTEDPORTRAITORIENTATION:
         m_orientation = Qt::InvertedPortraitOrientation;
         break;
-    case WL_EXTENDED_OUTPUT_ROTATION_INVERTEDLANDSCAPEORIENTATION:
+    case QT_EXTENDED_OUTPUT_ROTATION_INVERTEDLANDSCAPEORIENTATION:
         m_orientation = Qt::InvertedLandscapeOrientation;
         break;
     default:

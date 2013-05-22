@@ -38,7 +38,7 @@
  $QT_END_LICENSE$
     </copyright>
 
-    <interface name="wl_windowmanager" version="1">
+    <interface name="qt_windowmanager" version="1">
         <request name="map_client_to_process">
             <arg name="processid" type="uint" />
         </request>

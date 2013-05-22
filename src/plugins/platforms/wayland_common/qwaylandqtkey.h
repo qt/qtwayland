@@ -49,7 +49,7 @@
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandQtKeyExtension : public QtWayland::wl_qtkey_extension
+class QWaylandQtKeyExtension : public QtWayland::qt_key_extension
 {
 public:
     QWaylandQtKeyExtension(QWaylandDisplay *display, uint32_t id);
@@ -57,7 +57,7 @@ public:
 private:
     QWaylandDisplay *m_display;
 
-    void qtkey_extension_qtkey(uint32_t time,
+    void key_extension_qtkey(uint32_t time,
                                uint32_t type,
                                uint32_t key,
                                uint32_t modifiers,

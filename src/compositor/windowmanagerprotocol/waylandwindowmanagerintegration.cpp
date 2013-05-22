@@ -66,7 +66,7 @@ WindowManagerServerIntegration::~WindowManagerServerIntegration()
 
 void WindowManagerServerIntegration::initialize(QtWayland::Display *waylandDisplay)
 {
-    wl_display_add_global(waylandDisplay->handle(),&wl_windowmanager_interface,this,WindowManagerServerIntegration::bind_func);
+    wl_display_add_global(waylandDisplay->handle(),&qt_windowmanager_interface,this,WindowManagerServerIntegration::bind_func);
 }
 
 void WindowManagerServerIntegration::removeClient(wl_client *client)
@@ -107,7 +107,7 @@ void WindowManagerServerIntegration::setShowIsFullScreen(bool value)
     m_showIsFullScreen = value;
     struct wl_resource *resource;
     wl_list_for_each(resource,&client_resources, link) {
-        wl_windowmanager_send_hints(resource, int32_t(m_showIsFullScreen));
+        qt_windowmanager_send_hints(resource, int32_t(m_showIsFullScreen));
     }
 }
 
@@ -116,7 +116,7 @@ void WindowManagerServerIntegration::sendQuitMessage(wl_client *client)
     struct wl_resource *resource;
     wl_list_for_each(resource, &client_resources, link) {
         if (resource->client == client) {
-            wl_windowmanager_send_quit(resource);
+            qt_windowmanager_send_quit(resource);
             return;
         }
     }
@@ -136,10 +136,10 @@ void WindowManagerServerIntegration::bind_func(struct wl_client *client, void *d
     WindowManagerServerIntegrationClientData *clientData = new WindowManagerServerIntegrationClientData;
     clientData->integration = static_cast<WindowManagerServerIntegration *>(data);
 
-    wl_resource *resource = wl_client_add_object(client,&wl_windowmanager_interface,&windowmanager_interface,id,clientData);
+    wl_resource *resource = wl_client_add_object(client,&qt_windowmanager_interface,&windowmanager_interface,id,clientData);
     resource->destroy = WindowManagerServerIntegration::destroy_resource;
     clientData->integration->registerResource(resource);
-    wl_windowmanager_send_hints(resource, int32_t(clientData->integration->m_showIsFullScreen));
+    qt_windowmanager_send_hints(resource, int32_t(clientData->integration->m_showIsFullScreen));
 }
 
 void WindowManagerServerIntegration::destroy_resource(wl_resource *resource)
@@ -185,7 +185,7 @@ void WindowManagerServerIntegration::open_url(struct wl_client *client,
     }
 }
 
-const struct wl_windowmanager_interface WindowManagerServerIntegration::windowmanager_interface = {
+const struct qt_windowmanager_interface WindowManagerServerIntegration::windowmanager_interface = {
     WindowManagerServerIntegration::map_client_to_process,
     WindowManagerServerIntegration::authenticate_with_token,
     WindowManagerServerIntegration::open_url

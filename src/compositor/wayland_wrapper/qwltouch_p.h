@@ -69,7 +69,7 @@ private:
 
     static void destroy_resource(wl_resource *resource);
 
-    static const struct wl_touch_extension_interface touch_interface;
+    static const struct qt_touch_extension_interface touch_interface;
 
     Compositor *m_compositor;
     int m_flags;

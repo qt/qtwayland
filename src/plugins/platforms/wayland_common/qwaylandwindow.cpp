@@ -93,11 +93,6 @@ QWaylandWindow::QWaylandWindow(QWindow *window)
     if (mDisplay->subSurfaceExtension())
         mSubSurfaceWindow = new QWaylandSubSurface(this, mDisplay->subSurfaceExtension()->get_sub_surface_aware_surface(wl_surface()));
 
-#ifdef QT_WAYLAND_WINDOWMANAGER_SUPPORT
-    mDisplay->windowManagerIntegration()->mapClientToProcess(qApp->applicationPid());
-    mDisplay->windowManagerIntegration()->authenticateWithToken();
-#endif
-
     if (mShellSurface) {
         // Set surface class to the .desktop file name (obtained from executable name)
         QFileInfo exeFileInfo(qApp->applicationFilePath());

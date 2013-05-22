@@ -65,9 +65,6 @@ public:
     explicit QWaylandWindowManagerIntegration(QWaylandDisplay *waylandDisplay);
     virtual ~QWaylandWindowManagerIntegration();
 
-    void mapSurfaceToProcess(struct wl_surface *surface, long long processId);
-    void mapClientToProcess(long long processId);
-    void authenticateWithToken(const QByteArray &token = QByteArray());
     bool openUrl(const QUrl &url);
     bool openDocument(const QUrl &url);
 

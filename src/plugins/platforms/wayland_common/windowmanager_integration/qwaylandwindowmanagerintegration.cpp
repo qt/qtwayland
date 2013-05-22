@@ -108,21 +108,6 @@ void QWaylandWindowManagerIntegration::windowmanager_quit()
     QGuiApplication::quit();
 }
 
-void QWaylandWindowManagerIntegration::mapClientToProcess(long long processId)
-{
-    if (isInitialized())
-        map_client_to_process(uint32_t(processId));
-}
-
-void QWaylandWindowManagerIntegration::authenticateWithToken(const QByteArray &token)
-{
-    QByteArray authToken = token;
-    if (authToken.isEmpty())
-        authToken = qgetenv("WL_AUTHENTICATION_TOKEN");
-
-    if (isInitialized() && !authToken.isEmpty())
-        authenticate_with_token(authToken.constData());
-}
 
 void QWaylandWindowManagerIntegration::openUrl_helper(const QUrl &url)
 {

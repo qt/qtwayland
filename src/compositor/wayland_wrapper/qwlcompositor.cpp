@@ -331,12 +331,9 @@ void Compositor::destroyClient(WaylandClient *c)
     if (!client)
         return;
 
-    if (m_windowManagerIntegration->managedClient(client)) {
-        m_windowManagerIntegration->sendQuitMessage(client);
-        m_windowManagerIntegration->removeClient(client);
-    } else {
-        wl_client_destroy(client);
-    }
+    m_windowManagerIntegration->sendQuitMessage(client);
+
+    wl_client_destroy(client);
 }
 
 QWindow *Compositor::window() const

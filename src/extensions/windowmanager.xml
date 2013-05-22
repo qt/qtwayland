@@ -39,12 +39,6 @@
     </copyright>
 
     <interface name="qt_windowmanager" version="1">
-        <request name="map_client_to_process">
-            <arg name="processid" type="uint" />
-        </request>
-        <request name="authenticate_with_token">
-            <arg name="processid" type="string" />
-        </request>
         <request name="open_url">
             <description summary="client requests a url to be opened">
                 If remaining is not 0 this is a multipart request, and

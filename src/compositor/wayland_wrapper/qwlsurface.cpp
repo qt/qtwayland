@@ -71,6 +71,8 @@ QT_BEGIN_NAMESPACE
 
 namespace QtWayland {
 
+static bool QT_WAYLAND_PRINT_BUFFERING_WARNINGS = qEnvironmentVariableIsSet("QT_WAYLAND_PRINT_BUFFERING_WARNINGS");
+
 Surface::Surface(struct wl_client *client, uint32_t id, Compositor *compositor)
     : QtWaylandServer::wl_surface(client, &base()->resource, id)
     , m_compositor(compositor)
@@ -297,6 +299,8 @@ bool Surface::advanceBufferQueue()
     //do we have another buffer in the queue
     //and does it have a valid damage rect
 
+    if (m_backBuffer && !m_backBuffer->isDisplayed())
+        return true;
     if (m_bufferQueue.size()) {
         int width = 0;
         int height = 0;
@@ -304,6 +308,9 @@ bool Surface::advanceBufferQueue()
             width = m_backBuffer->width();
             height = m_backBuffer->height();
         }
+
+        if (!m_bufferQueue.first()->isComitted())
+            return false;
 
         m_backBuffer = m_bufferQueue.takeFirst();
         while (m_backBuffer && m_backBuffer->isDestroyed()) {
@@ -347,6 +354,7 @@ void Surface::doUpdate() {
         sendFrameCallback();
     } else {
         SurfaceBuffer *surfaceBuffer = currentSurfaceBuffer();
+
         if (surfaceBuffer) {
             if (surfaceBuffer->damageRect().isValid()) {
                 m_compositor->markSurfaceAsDirty(this);
@@ -382,7 +390,8 @@ bool Surface::postBuffer() {
                     m_compositor->setDirectRenderingActive(true);
                     return true;
                 } else {
-                    qDebug() << "could not post buffer";
+                    if (QT_WAYLAND_PRINT_BUFFERING_WARNINGS)
+                        qWarning() << "could not post buffer";
                 }
             }
         }
@@ -395,15 +404,19 @@ void Surface::attach(struct wl_buffer *buffer)
 {
     SurfaceBuffer *last = m_bufferQueue.size()?m_bufferQueue.last():0;
     if (last) {
-        if (last->waylandBufferHandle() == buffer)
+        if (last->waylandBufferHandle() == buffer) {
+            if (QT_WAYLAND_PRINT_BUFFERING_WARNINGS)
+                qWarning() << "attaching already attached buffer";
             return;
-        if (!last->damageRect().isValid() || isCursorSurface() ){
+        }
+        if (!last->damageRect().isValid() || !last->isComitted() || isCursorSurface() ){
             last->disown();
             m_bufferQueue.takeLast();
         }
     }
 
-    m_bufferQueue <<  createSurfaceBuffer(buffer);
+    SurfaceBuffer *surfBuf = createSurfaceBuffer(buffer);
+    m_bufferQueue << surfBuf;
 
     if (!buffer) {
         InputDevice *inputDevice = m_compositor->defaultInputDevice();
@@ -416,12 +429,18 @@ void Surface::attach(struct wl_buffer *buffer)
 
 void Surface::damage(const QRect &rect)
 {
-    SurfaceBuffer *surfaceBuffer = m_bufferQueue.isEmpty() ? currentSurfaceBuffer() : m_bufferQueue.last();
-
-    if (surfaceBuffer)
+    if (m_bufferQueue.empty()) {
+        if (QT_WAYLAND_PRINT_BUFFERING_WARNINGS)
+            qWarning() << "Surface::damage() null buffer";
+        return;
+    }
+    SurfaceBuffer *surfaceBuffer =  m_bufferQueue.last();
+    if (surfaceBuffer->isComitted()) {
+        if (QT_WAYLAND_PRINT_BUFFERING_WARNINGS)
+            qWarning("Surface::damage() on a committed surface");
+    } else{
         surfaceBuffer->setDamage(rect);
-    else
-        qWarning() << "Surface::damage() null buffer";
+    }
 }
 
 void Surface::surface_destroy_resource(Resource *)
@@ -466,9 +485,21 @@ void Surface::surface_set_input_region(Resource *, struct wl_resource *region)
 
 void Surface::surface_commit(Resource *)
 {
-    if (!m_bufferQueue.isEmpty() && !m_backBuffer)
-        advanceBufferQueue();
+    if (m_bufferQueue.empty()) {
+        if (QT_WAYLAND_PRINT_BUFFERING_WARNINGS)
+            qWarning("Commit on invalid surface");
+        return;
+    }
 
+    SurfaceBuffer *surfaceBuffer = m_bufferQueue.last();
+    if (surfaceBuffer->isComitted()) {
+        if (QT_WAYLAND_PRINT_BUFFERING_WARNINGS)
+            qWarning("Committing buffer that has already been committed");
+    } else {
+        surfaceBuffer->setCommitted();
+    }
+
+    advanceBufferQueue();
     doUpdate();
 }
 

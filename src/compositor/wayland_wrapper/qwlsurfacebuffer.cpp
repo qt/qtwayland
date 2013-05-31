@@ -59,6 +59,7 @@ SurfaceBuffer::SurfaceBuffer(Surface *surface)
     , m_surface(surface)
     , m_compositor(surface->compositor())
     , m_buffer(0)
+    , m_committed(false)
     , m_is_registered_for_buffer(false)
     , m_surface_has_buffer(false)
     , m_page_flipper_has_buffer(false)
@@ -82,6 +83,7 @@ void SurfaceBuffer::initialize(wl_buffer *buffer)
     m_buffer = buffer;
     m_texture = 0;
     m_guard = 0;
+    m_committed = false;
     m_is_registered_for_buffer = true;
     m_surface_has_buffer = true;
     m_page_flipper_has_buffer = false;
@@ -119,6 +121,7 @@ void SurfaceBuffer::destructBufferState()
     }
     m_buffer = 0;
     m_handle = 0;
+    m_committed = false;
     m_is_registered_for_buffer = false;
     m_is_displayed = false;
     m_image = QImage();

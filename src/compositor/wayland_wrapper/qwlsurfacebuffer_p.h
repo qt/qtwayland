@@ -91,6 +91,8 @@ public:
 
     void setDisplayed();
 
+    inline bool isComitted() const { return m_committed; }
+    inline void setCommitted() { m_committed = true; }
     inline bool isDisplayed() const { return m_is_displayed; }
 
     inline QRect damageRect() const { return m_damageRect; }
@@ -115,6 +117,7 @@ private:
     struct wl_buffer *m_buffer;
     struct surface_buffer_destroy_listener m_destroy_listener;
     QRect m_damageRect;
+    bool m_committed;
     bool m_is_registered_for_buffer;
     bool m_surface_has_buffer;
     bool m_page_flipper_has_buffer;

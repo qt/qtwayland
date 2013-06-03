@@ -381,6 +381,7 @@ void QWaylandSurfaceItem::updateTexture()
     }
 
     m_provider->t = texture;
+    emit m_provider->textureChanged();
     m_provider->smooth = smooth();
 }
 

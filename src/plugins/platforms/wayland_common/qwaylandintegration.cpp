@@ -84,8 +84,7 @@ QWaylandIntegration::QWaylandIntegration()
 #endif
 {
     QGuiApplicationPrivate::instance()->setEventDispatcher(mEventDispatcher);
-    //Disable desktop settings for wayland clients for now
-    QGuiApplicationPrivate::obey_desktop_settings = false;
+    QGuiApplication::setDesktopSettingsAware(false);
     mDisplay = new QWaylandDisplay();
     mClipboard = new QWaylandClipboard(mDisplay);
     mDrag = new QWaylandDrag(mDisplay);

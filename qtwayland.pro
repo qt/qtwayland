@@ -16,8 +16,7 @@ load(qt_parts)
 }
 
 !config_xkbcommon {
-    warning("QtWayland requires xkbcommon 0.2.0 or higher")
-    SUBDIRS =
+    warning("No xkbcommon 0.2.0 or higher found, disabling support for it")
 }
 
 !config_wayland_scanner {

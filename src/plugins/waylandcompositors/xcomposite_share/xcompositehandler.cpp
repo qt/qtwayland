@@ -47,51 +47,30 @@
 
 QT_USE_NAMESPACE
 
-XCompositeHandler::XCompositeHandler(QtWayland::Compositor *compositor, Display *display, QWindow *window)
-    : mCompositor(compositor)
-    , mwindow(window)
-    , mDisplay(display)
+XCompositeHandler::XCompositeHandler(QtWayland::Compositor *compositor, Display *display)
+    : QtWaylandServer::qt_xcomposite(compositor->wl_display())
 {
-    mCompositor->window()->create();
+    compositor->window()->create();
 
-    mFakeRootWindow = new QWindow(mCompositor->window());
+    mFakeRootWindow = new QWindow(compositor->window());
     mFakeRootWindow->setGeometry(QRect(-1,-1,1,1));
     mFakeRootWindow->create();
     mFakeRootWindow->show();
+
     int composite_event_base, composite_error_base;
-    if (XCompositeQueryExtension(mDisplay, &composite_event_base, &composite_error_base)) {
-
-    } else {
+    if (!XCompositeQueryExtension(display, &composite_event_base, &composite_error_base))
         qFatal("XComposite required");
-    }
+
+    mDisplayString = QString::fromLocal8Bit(XDisplayString(display));
 }
 
-void XCompositeHandler::createBuffer(struct wl_client *client, uint32_t id, Window window, const QSize &size)
+void XCompositeHandler::xcomposite_bind_resource(Resource *resource)
 {
-    XCompositeBuffer *buffer = new XCompositeBuffer(mCompositor, window, size);
-    buffer->addClientResource(client, &buffer->base()->resource,
-                              id,&wl_buffer_interface,
-                              &XCompositeBuffer::buffer_interface,
-                              XCompositeBuffer::delete_resource);
+    send_root(resource->handle, mDisplayString, mFakeRootWindow->winId());
 }
 
-void XCompositeHandler::xcomposite_bind_func(struct wl_client *client, void *data, uint32_t version, uint32_t id)
+void XCompositeHandler::xcomposite_create_buffer(Resource *resource, uint32_t id, uint32_t window,
+                                                 int32_t width, int32_t height)
 {
-    Q_UNUSED(version);
-    XCompositeHandler *handler = static_cast<XCompositeHandler *>(data);
-    wl_resource *resource = wl_client_add_object(client,&wl_xcomposite_interface,&xcomposite_interface,id,handler);
-    const char *displayString = XDisplayString(handler->mDisplay);
-    wl_resource_post_event(resource, WL_XCOMPOSITE_ROOT, displayString, handler->mFakeRootWindow->winId());
-}
-
-void XCompositeHandler::create_buffer(struct wl_client *client,
-                      struct wl_resource *xcomposite,
-                      uint32_t id,
-                      uint32_t x_window,
-                      int32_t width,
-                      int32_t height)
-{
-    Window window = (Window)x_window;
-    XCompositeHandler *that = reinterpret_cast<XCompositeHandler *>(xcomposite);
-    that->createBuffer(client, id, window, QSize(width,height));
+    new XCompositeBuffer(Window(window), QSize(width, height), resource->client(), id);
 }

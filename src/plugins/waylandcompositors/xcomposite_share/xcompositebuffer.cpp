@@ -42,13 +42,21 @@
 
 QT_USE_NAMESPACE
 
-XCompositeBuffer::XCompositeBuffer(QtWayland::Compositor *compositor, Window window, const QSize &size)
+XCompositeBuffer::XCompositeBuffer(Window window, const QSize &size,
+                                   struct ::wl_client *client, uint32_t id)
     : mWindow(window)
     , mInvertedY(false)
 {
-    Q_UNUSED(compositor);
     base()->height = size.height();
     base()->width = size.width();
+
+    base()->resource.object.id = id;
+    base()->resource.object.interface = &::wl_buffer_interface;
+    base()->resource.object.implementation = (void (**)(void))&buffer_interface;
+    base()->resource.data = base();
+    wl_client_add_resource(client, &base()->resource);
+
+    base()->resource.destroy = delete_resource;
 }
 
 struct wl_buffer_interface XCompositeBuffer::buffer_interface = {
@@ -63,7 +71,7 @@ void XCompositeBuffer::buffer_interface_destroy(wl_client *client, wl_resource *
 
 void XCompositeBuffer::delete_resource(struct wl_resource *resource)
 {
-    delete reinterpret_cast<XCompositeBuffer *>(resource);
+    delete static_cast<XCompositeBuffer *>(static_cast<wl_buffer *>(resource->data));
 }
 
 Window XCompositeBuffer::window()

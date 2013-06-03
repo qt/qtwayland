@@ -1,6 +1,6 @@
 INCLUDEPATH += $$PWD
 
-WAYLANDSOURCES += $$PWD/../../../extensions/xcomposite.xml
+WAYLANDCLIENTSOURCES += $$PWD/../../../extensions/xcomposite.xml
 
 HEADERS += \
     $$PWD/qwaylandxcompositebuffer.h

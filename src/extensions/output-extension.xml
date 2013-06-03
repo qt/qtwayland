@@ -38,14 +38,14 @@
  $QT_END_LICENSE$
     </copyright>
 
-    <interface name="wl_output_extension" version="1">
+    <interface name="qt_output_extension" version="1">
         <request name="get_extended_output">
-            <arg name="id" type="new_id" interface="wl_extended_output"/>
+            <arg name="id" type="new_id" interface="qt_extended_output"/>
             <arg name="output" type="object" interface="wl_output"/>
         </request>
     </interface>
 
-    <interface name="wl_extended_output" version="1">
+    <interface name="qt_extended_output" version="1">
         <enum name="rotation">
             <entry name="PortraitOrientation" value="1"/>
             <entry name="LandscapeOrientation" value="2"/>

@@ -49,27 +49,22 @@
 #include "qwaylanddisplay.h"
 #include <qpa/qplatformservices.h>
 
+#include "qwayland-windowmanager.h"
+
 QT_BEGIN_NAMESPACE
 
 class QWaylandWindow;
 
 class QWaylandWindowManagerIntegrationPrivate;
 
-class QWaylandWindowManagerIntegration : public QObject, public QPlatformServices
+class QWaylandWindowManagerIntegration : public QObject, public QPlatformServices, public QtWayland::qt_windowmanager
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandWindowManagerIntegration)
 public:
     explicit QWaylandWindowManagerIntegration(QWaylandDisplay *waylandDisplay);
     virtual ~QWaylandWindowManagerIntegration();
-    static QWaylandWindowManagerIntegration *createIntegration(QWaylandDisplay *waylandDisplay);
-    struct wl_windowmanager *windowManager() const;
 
-    static QWaylandWindowManagerIntegration *instance();
-
-    void mapSurfaceToProcess(struct wl_surface *surface, long long processId);
-    void mapClientToProcess(long long processId);
-    void authenticateWithToken(const QByteArray &token = QByteArray());
     bool openUrl(const QUrl &url);
     bool openDocument(const QUrl &url);
 
@@ -77,17 +72,12 @@ public:
 
 private:
     static void wlHandleListenerGlobal(void *data, wl_registry *registry, uint32_t id,
-                                       const char *interface, uint32_t version);
+                                       const QString &interface, uint32_t version);
 
     QScopedPointer<QWaylandWindowManagerIntegrationPrivate> d_ptr;
-    static QWaylandWindowManagerIntegration *m_instance;
 
-    static const struct wl_windowmanager_listener windowmanager_listener;
-
-    static void handle_hints(void *data,
-                             struct wl_windowmanager *ext,
-                             int32_t showIsFullScreen);
-    static void handle_quit(void *data, struct wl_windowmanager *ext);
+    void windowmanager_hints(int32_t showIsFullScreen) Q_DECL_OVERRIDE;
+    void windowmanager_quit() Q_DECL_OVERRIDE;
 
     void openUrl_helper(const QUrl &url);
 };

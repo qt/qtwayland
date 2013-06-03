@@ -41,10 +41,11 @@
 #ifndef WLSHELLSURFACE_H
 #define WLSHELLSURFACE_H
 
-#include <QtCompositor/qwaylandobject.h>
-
 #include <wayland-server.h>
+#include <qwaylandobject.h>
 #include <QPoint>
+
+#include <qwayland-server-wayland.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -72,7 +73,7 @@ private:
 
 };
 
-class ShellSurface
+class ShellSurface : public QtWaylandServer::wl_shell_surface
 {
 public:
     ShellSurface(struct wl_client *client, uint32_t id, Surface *surface);
@@ -89,7 +90,6 @@ public:
     void setOffset(const QPointF &offset);
 
 private:
-    struct wl_resource *m_shellSurface;
     Surface *m_surface;
 
     ShellSurfaceResizeGrabber *m_resizeGrabber;
@@ -100,53 +100,43 @@ private:
     int32_t m_xOffset;
     int32_t m_yOffset;
 
-    static void move(struct wl_client *client,
-                     struct wl_resource *shell_surface_resource,
-                     struct wl_resource *input_device_super,
-                     uint32_t time);
-    static void resize(struct wl_client *client,
-                       struct wl_resource *shell_surface_resource,
-                       struct wl_resource *input_device,
-                       uint32_t time,
-                       uint32_t edges);
-    static void set_toplevel(struct wl_client *client,
-                             struct wl_resource *shell_surface_resource);
-    static void set_transient(struct wl_client *client,
-                              struct wl_resource *shell_surface_resource,
-                              struct wl_resource *parent_surface_resource,
-                              int x,
-                              int y,
-                              uint32_t flags);
-    static void set_fullscreen(struct wl_client *client,
-                               struct wl_resource *shell_surface_resource,
-                               uint32_t method,
-                               uint32_t framerate,
-                               struct wl_resource *output);
-    static void set_popup(struct wl_client *client,
-                          struct wl_resource *resource,
-                          struct wl_resource *input_device,
-                          uint32_t time,
-                          struct wl_resource *parent,
-                          int32_t x,
-                          int32_t y,
-                          uint32_t flags);
-    static void set_maximized(struct wl_client *client,
-                              struct wl_resource *shell_surface_resource,
-                              struct wl_resource *output);
-    static void pong(struct wl_client *client,
-                     struct wl_resource *resource,
-                     uint32_t serial);
-    static void set_title(struct wl_client *client,
-                          struct wl_resource *resource,
-                          const char *title);
-    static void set_class(struct wl_client *client,
-                          struct wl_resource *resource,
-                          const char *class_);
+    void shell_surface_destroy_resource(Resource *resource) Q_DECL_OVERRIDE;
 
-    static const struct wl_shell_surface_interface shell_surface_interface;
+    void shell_surface_move(Resource *resource,
+                            struct wl_resource *input_device_super,
+                            uint32_t time) Q_DECL_OVERRIDE;
+    void shell_surface_resize(Resource *resource,
+                              struct wl_resource *input_device,
+                              uint32_t time,
+                              uint32_t edges) Q_DECL_OVERRIDE;
+    void shell_surface_set_toplevel(Resource *resource) Q_DECL_OVERRIDE;
+    void shell_surface_set_transient(Resource *resource,
+                                     struct wl_resource *parent_surface_resource,
+                                     int x,
+                                     int y,
+                                     uint32_t flags) Q_DECL_OVERRIDE;
+    void shell_surface_set_fullscreen(Resource *resource,
+                                      uint32_t method,
+                                      uint32_t framerate,
+                                      struct wl_resource *output) Q_DECL_OVERRIDE;
+    void shell_surface_set_popup(Resource *resource,
+                                 struct wl_resource *input_device,
+                                 uint32_t time,
+                                 struct wl_resource *parent,
+                                 int32_t x,
+                                 int32_t y,
+                                 uint32_t flags) Q_DECL_OVERRIDE;
+    void shell_surface_set_maximized(Resource *resource,
+                                     struct wl_resource *output) Q_DECL_OVERRIDE;
+    void shell_surface_pong(Resource *resource,
+                            uint32_t serial) Q_DECL_OVERRIDE;
+    void shell_surface_set_title(Resource *resource,
+                                 const QString &title) Q_DECL_OVERRIDE;
+    void shell_surface_set_class(Resource *resource,
+                                 const QString &class_) Q_DECL_OVERRIDE;
 };
 
-class ShellSurfaceGrabber : public Object<wl_pointer_grab>
+class ShellSurfaceGrabber : public Object<struct ::wl_pointer_grab>
 {
 public:
     ShellSurfaceGrabber(ShellSurface *shellSurface, const struct wl_pointer_grab_interface *interface);

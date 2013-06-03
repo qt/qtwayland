@@ -94,6 +94,8 @@ public:
     void iterateBuffer();
 
 private:
+    void updateDecorations();
+
     QWaylandDisplay *mDisplay;
     QWaylandShmBuffer *mFrontBuffer;
     QWaylandShmBuffer *mBackBuffer;

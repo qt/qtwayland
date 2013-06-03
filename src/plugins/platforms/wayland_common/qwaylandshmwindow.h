@@ -61,9 +61,6 @@ public:
     void setBackingStore(QWaylandShmBackingStore *backingStore);
     QWaylandShmBackingStore *backingStore() const;
 
-protected:
-    void createDecorationInstance();
-
 private:
     QWaylandShmBackingStore *mBackingStore;
 };

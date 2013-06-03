@@ -71,15 +71,11 @@ QT_BEGIN_NAMESPACE
 
 namespace QtWayland {
 
-void destroy_surface(struct wl_resource *resource)
-{
-    Surface *surface = resolve<Surface>(resource);
-    surface->compositor()->surfaceDestroyed(surface);
-    delete surface;
-}
+static bool QT_WAYLAND_PRINT_BUFFERING_WARNINGS = qEnvironmentVariableIsSet("QT_WAYLAND_PRINT_BUFFERING_WARNINGS");
 
 Surface::Surface(struct wl_client *client, uint32_t id, Compositor *compositor)
-    : m_compositor(compositor)
+    : QtWaylandServer::wl_surface(client, &base()->resource, id)
+    , m_compositor(compositor)
     , m_waylandSurface(new QWaylandSurface(this))
     , m_backBuffer(0)
     , m_frontBuffer(0)
@@ -91,11 +87,9 @@ Surface::Surface(struct wl_client *client, uint32_t id, Compositor *compositor)
     , m_isCursorSurface(false)
 {
     wl_list_init(&m_frame_callback_list);
-    addClientResource(client, &base()->resource, id, &wl_surface_interface,
-            &Surface::surface_interface, destroy_surface);
-    for (int i = 0; i < buffer_pool_size; i++) {
+
+    for (int i = 0; i < buffer_pool_size; i++)
         m_bufferPool[i] = new SurfaceBuffer(this);
-    }
 }
 
 Surface::~Surface()
@@ -103,12 +97,16 @@ Surface::~Surface()
     delete m_waylandSurface;
     delete m_extendedSurface;
     delete m_subSurface;
-    delete m_shellSurface;
 
     for (int i = 0; i < buffer_pool_size; i++) {
         if (!m_bufferPool[i]->pageFlipperHasBuffer())
             delete m_bufferPool[i];
     }
+}
+
+Surface *Surface::fromResource(struct ::wl_resource *resource)
+{
+    return static_cast<Surface *>(Resource::fromResource(resource)->surface);
 }
 
 QWaylandSurface::Type Surface::type() const
@@ -200,14 +198,7 @@ QImage Surface::image() const
 {
     SurfaceBuffer *surfacebuffer = currentSurfaceBuffer();
     if (surfacebuffer && !surfacebuffer->isDestroyed() && type() == QWaylandSurface::Shm) {
-        struct wl_buffer *buffer = surfacebuffer->waylandBufferHandle();
-        int stride = wl_shm_buffer_get_stride(buffer);
-        uint format = wl_shm_buffer_get_format(buffer);
-        (void) format;
-        void *data = wl_shm_buffer_get_data(buffer);
-        const uchar *char_data = static_cast<const uchar *>(data);
-        QImage img(char_data, buffer->width, buffer->height, stride, QImage::Format_ARGB32_Premultiplied);
-        return img;
+        return surfacebuffer->image();
     }
     return QImage();
 }
@@ -308,13 +299,18 @@ bool Surface::advanceBufferQueue()
     //do we have another buffer in the queue
     //and does it have a valid damage rect
 
+    if (m_backBuffer && !m_backBuffer->isDisplayed())
+        return true;
     if (m_bufferQueue.size()) {
         int width = 0;
         int height = 0;
-        if (m_backBuffer) {
+        if (m_backBuffer && m_backBuffer->waylandBufferHandle()) {
             width = m_backBuffer->width();
             height = m_backBuffer->height();
         }
+
+        if (!m_bufferQueue.first()->isComitted())
+            return false;
 
         m_backBuffer = m_bufferQueue.takeFirst();
         while (m_backBuffer && m_backBuffer->isDestroyed()) {
@@ -358,6 +354,7 @@ void Surface::doUpdate() {
         sendFrameCallback();
     } else {
         SurfaceBuffer *surfaceBuffer = currentSurfaceBuffer();
+
         if (surfaceBuffer) {
             if (surfaceBuffer->damageRect().isValid()) {
                 m_compositor->markSurfaceAsDirty(this);
@@ -393,7 +390,8 @@ bool Surface::postBuffer() {
                     m_compositor->setDirectRenderingActive(true);
                     return true;
                 } else {
-                    qDebug() << "could not post buffer";
+                    if (QT_WAYLAND_PRINT_BUFFERING_WARNINGS)
+                        qWarning() << "could not post buffer";
                 }
             }
         }
@@ -402,27 +400,23 @@ bool Surface::postBuffer() {
     return false;
 }
 
-void Surface::commit()
-{
-    if (!m_bufferQueue.isEmpty() && !m_backBuffer)
-        advanceBufferQueue();
-
-    doUpdate();
-}
-
 void Surface::attach(struct wl_buffer *buffer)
 {
     SurfaceBuffer *last = m_bufferQueue.size()?m_bufferQueue.last():0;
     if (last) {
-        if (last->waylandBufferHandle() == buffer)
+        if (last->waylandBufferHandle() == buffer) {
+            if (QT_WAYLAND_PRINT_BUFFERING_WARNINGS)
+                qWarning() << "attaching already attached buffer";
             return;
-        if (!last->damageRect().isValid() || isCursorSurface() ){
+        }
+        if (!last->damageRect().isValid() || !last->isComitted() || isCursorSurface() ){
             last->disown();
             m_bufferQueue.takeLast();
         }
     }
 
-    m_bufferQueue <<  createSurfaceBuffer(buffer);
+    SurfaceBuffer *surfBuf = createSurfaceBuffer(buffer);
+    m_bufferQueue << surfBuf;
 
     if (!buffer) {
         InputDevice *inputDevice = m_compositor->defaultInputDevice();
@@ -435,73 +429,78 @@ void Surface::attach(struct wl_buffer *buffer)
 
 void Surface::damage(const QRect &rect)
 {
-    SurfaceBuffer *surfaceBuffer = m_bufferQueue.isEmpty() ? currentSurfaceBuffer() : m_bufferQueue.last();
-    if (surfaceBuffer)
+    if (m_bufferQueue.empty()) {
+        if (QT_WAYLAND_PRINT_BUFFERING_WARNINGS)
+            qWarning() << "Surface::damage() null buffer";
+        return;
+    }
+    SurfaceBuffer *surfaceBuffer =  m_bufferQueue.last();
+    if (surfaceBuffer->isComitted()) {
+        if (QT_WAYLAND_PRINT_BUFFERING_WARNINGS)
+            qWarning("Surface::damage() on a committed surface");
+    } else{
         surfaceBuffer->setDamage(rect);
-    else
-        qWarning() << "Surface::damage() null buffer";
+    }
 }
 
-const struct wl_surface_interface Surface::surface_interface = {
-        Surface::surface_destroy,
-        Surface::surface_attach,
-        Surface::surface_damage,
-        Surface::surface_frame,
-        Surface::surface_set_opaque_region,
-        Surface::surface_set_input_region,
-        Surface::surface_commit
-};
-
-void Surface::surface_destroy(struct wl_client *, struct wl_resource *surface_resource)
+void Surface::surface_destroy_resource(Resource *)
 {
-    wl_resource_destroy(surface_resource);
+    compositor()->surfaceDestroyed(this);
+    delete this;
 }
 
-void Surface::surface_attach(struct wl_client *client, struct wl_resource *surface,
-                    struct wl_resource *buffer, int x, int y)
+void Surface::surface_destroy(Resource *resource)
 {
-    Q_UNUSED(client);
+    wl_resource_destroy(resource->handle);
+}
+
+void Surface::surface_attach(Resource *, struct wl_resource *buffer, int x, int y)
+{
     Q_UNUSED(x);
     Q_UNUSED(y);
-    resolve<Surface>(surface)->attach(buffer ? reinterpret_cast<wl_buffer *>(buffer->data) : 0);
+
+    attach(buffer ? reinterpret_cast<wl_buffer *>(buffer->data) : 0);
 }
 
-void Surface::surface_damage(struct wl_client *client, struct wl_resource *surface,
-                    int32_t x, int32_t y, int32_t width, int32_t height)
+void Surface::surface_damage(Resource *, int32_t x, int32_t y, int32_t width, int32_t height)
 {
-    Q_UNUSED(client);
-    resolve<Surface>(surface)->damage(QRect(x, y, width, height));
+    damage(QRect(x, y, width, height));
 }
 
-void Surface::surface_frame(struct wl_client *client,
-                   struct wl_resource *resource,
-                   uint32_t callback)
+void Surface::surface_frame(Resource *resource, uint32_t callback)
 {
-    Surface *surface = resolve<Surface>(resource);
-    struct wl_resource *frame_callback = wl_client_add_object(client,&wl_callback_interface,0,callback,surface);
-    wl_list_insert(&surface->m_frame_callback_list,&frame_callback->link);
+    struct wl_resource *frame_callback = wl_client_add_object(resource->client(), &wl_callback_interface, 0, callback, this);
+    wl_list_insert(&m_frame_callback_list, &frame_callback->link);
 }
 
-void Surface::surface_set_opaque_region(struct wl_client *client, struct wl_resource *surfaceResource,
-                                        struct wl_resource *region)
+void Surface::surface_set_opaque_region(Resource *, struct wl_resource *region)
 {
-    Q_UNUSED(client);
-    Surface *surface = resolve<Surface>(surfaceResource);
-    surface->m_opaqueRegion = region ? resolve<Region>(region)->region() : QRegion();
+    m_opaqueRegion = region ? Region::fromResource(region)->region() : QRegion();
 }
 
-void Surface::surface_set_input_region(struct wl_client *client, struct wl_resource *surfaceResource,
-                                       struct wl_resource *region)
+void Surface::surface_set_input_region(Resource *, struct wl_resource *region)
 {
-    Q_UNUSED(client);
-    Surface *surface = resolve<Surface>(surfaceResource);
-    surface->m_inputRegion = region ? resolve<Region>(region)->region() : QRegion(QRect(QPoint(), surface->size()));
+    m_inputRegion = region ? Region::fromResource(region)->region() : QRegion(QRect(QPoint(), size()));
 }
 
-void Surface::surface_commit(wl_client *client, wl_resource *resource)
+void Surface::surface_commit(Resource *)
 {
-    Q_UNUSED(client);
-    resolve<Surface>(resource)->commit();
+    if (m_bufferQueue.empty()) {
+        if (QT_WAYLAND_PRINT_BUFFERING_WARNINGS)
+            qWarning("Commit on invalid surface");
+        return;
+    }
+
+    SurfaceBuffer *surfaceBuffer = m_bufferQueue.last();
+    if (surfaceBuffer->isComitted()) {
+        if (QT_WAYLAND_PRINT_BUFFERING_WARNINGS)
+            qWarning("Committing buffer that has already been committed");
+    } else {
+        surfaceBuffer->setCommitted();
+    }
+
+    advanceBufferQueue();
+    doUpdate();
 }
 
 void Surface::setClassName(const QString &className)

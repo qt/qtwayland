@@ -48,6 +48,7 @@
 #include <QtCore/QWaitCondition>
 
 #include <wayland-client.h>
+#include <qwayland-wayland.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -60,22 +61,25 @@ class QWaylandScreen;
 class QWaylandGLIntegration;
 class QWaylandWindowManagerIntegration;
 class QWaylandDataDeviceManager;
-class QWaylandShell;
-class QWaylandSurfaceExtension;
-class QWaylandSubSurfaceExtension;
-class QWaylandOutputExtension;
 class QWaylandTouchExtension;
 class QWaylandQtKeyExtension;
 class QWaylandWindow;
 class QWaylandEventThread;
 
+namespace QtWayland {
+    class qt_output_extension;
+    class qt_shell;
+    class qt_sub_surface_extension;
+    class qt_surface_extension;
+}
+
 typedef void (*RegistryListener)(void *data,
                                  struct wl_registry *registry,
                                  uint32_t id,
-                                 const char *interface,
+                                 const QString &interface,
                                  uint32_t version);
 
-class QWaylandDisplay : public QObject {
+class QWaylandDisplay : public QObject, public QtWayland::wl_registry {
     Q_OBJECT
 
 public:
@@ -100,10 +104,12 @@ public:
 
     struct wl_display *wl_display() const { return mDisplay; }
     struct wl_event_queue *wl_event_queue() const { return mEventQueue; }
-    struct wl_registry *wl_registry() const { return mRegistry; }
-    struct wl_compositor *wl_compositor() const { return mCompositor; }
+    struct ::wl_registry *wl_registry() { return object(); }
 
-    QWaylandShell *shell() const { return mShell; }
+    const struct wl_compositor *wl_compositor() const { return mCompositor.object(); }
+    QtWayland::wl_compositor *compositor() { return &mCompositor; }
+
+    QtWayland::wl_shell *shell() { return mShell; }
 
     QList<QWaylandInputDevice *> inputDevices() const { return mInputDevices; }
 
@@ -112,9 +118,9 @@ public:
 
     QWaylandDataDeviceManager *dndSelectionHandler() const { return mDndSelectionHandler; }
 
-    QWaylandSurfaceExtension *windowExtension() const { return mWindowExtension; }
-    QWaylandSubSurfaceExtension *subSurfaceExtension() const { return mSubSurfaceExtension; }
-    QWaylandOutputExtension *outputExtension() const { return mOutputExtension; }
+    QtWayland::qt_surface_extension *windowExtension() const { return mWindowExtension; }
+    QtWayland::qt_sub_surface_extension *subSurfaceExtension() const { return mSubSurfaceExtension; }
+    QtWayland::qt_output_extension *outputExtension() const { return mOutputExtension; }
     QWaylandTouchExtension *touchExtension() const { return mTouchExtension; }
 
     /* wl_registry_add_listener does not add but rather sets a listener, so this function is used
@@ -127,18 +133,12 @@ public:
 
     void forceRoundTrip();
 
-    void scheduleRedraw(QWaylandWindow *window);
-
 public slots:
-    void createNewScreen(struct wl_output *output);
     void blockingReadEvents();
     void flushRequests();
 
 private:
     void waitForScreens();
-    void displayHandleGlobal(uint32_t id,
-                             const QByteArray &interface,
-                             uint32_t version);
 
     struct Listener {
         RegistryListener listener;
@@ -147,21 +147,19 @@ private:
 
     struct wl_display *mDisplay;
     struct wl_event_queue *mEventQueue;
-    struct wl_registry *mRegistry;
-    struct wl_compositor *mCompositor;
+    QtWayland::wl_compositor mCompositor;
     struct wl_shm *mShm;
     QThread *mEventThread;
     QWaylandEventThread *mEventThreadObject;
-    QWaylandShell *mShell;
+    QtWayland::wl_shell *mShell;
     QList<QPlatformScreen *> mScreens;
     QList<QWaylandInputDevice *> mInputDevices;
     QList<Listener> mRegistryListeners;
-    QList<QWaylandWindow *> mWindows;
     QWaylandInputDevice *mLastKeyboardFocusInputDevice;
     QWaylandDataDeviceManager *mDndSelectionHandler;
-    QWaylandSurfaceExtension *mWindowExtension;
-    QWaylandSubSurfaceExtension *mSubSurfaceExtension;
-    QWaylandOutputExtension *mOutputExtension;
+    QtWayland::qt_surface_extension *mWindowExtension;
+    QtWayland::qt_sub_surface_extension *mSubSurfaceExtension;
+    QtWayland::qt_output_extension *mOutputExtension;
     QWaylandTouchExtension *mTouchExtension;
     QWaylandQtKeyExtension *mQtKeyExtension;
 
@@ -170,28 +168,7 @@ private:
     int mWritableNotificationFd;
     bool mScreensInitialized;
 
-    static const struct wl_registry_listener registryListener;
-    static const struct wl_output_listener outputListener;
-
-    static void displayHandleGlobal(void *data,
-                                    struct wl_registry *registry,
-                                    uint32_t id,
-                                    const char *interface,
-                                    uint32_t version);
-    static void outputHandleGeometry(void *data,
-                                     struct wl_output *output,
-                                     int32_t x, int32_t y,
-                                     int32_t width, int32_t height,
-                                     int subpixel,
-                                     const char *make,
-                                     const char *model,
-                                     int32_t transform);
-    static void mode(void *data,
-                     struct wl_output *wl_output,
-                     uint32_t flags,
-                     int width,
-                     int height,
-                     int refresh);
+    void registry_global(uint32_t id, const QString &interface, uint32_t version) Q_DECL_OVERRIDE;
 
 #ifdef QT_WAYLAND_GL_SUPPORT
     QWaylandGLIntegration *mEglIntegration;

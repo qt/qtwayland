@@ -65,15 +65,12 @@ QT_BEGIN_NAMESPACE
 namespace QtWayland {
 
 InputDevice::InputDevice(QWaylandInputDevice *handle, Compositor *compositor)
-    : m_handle(handle)
+    : QtWaylandServer::wl_seat(compositor->wl_display())
+    , m_handle(handle)
     , m_compositor(compositor)
 {
-    wl_seat_init(base());
+    wl_seat_init(&m_seat);
     initDevices();
-    wl_display_add_global(compositor->wl_display(),
-                          &wl_seat_interface,
-                          this,
-                          InputDevice::bind_func);
 
 #ifndef QT_NO_WAYLAND_XKB
     xkb_rule_names xkb_names;
@@ -150,13 +147,13 @@ InputDevice::~InputDevice()
 void InputDevice::initDevices()
 {
     wl_pointer_init(&m_device_interfaces.pointer);
-    wl_seat_set_pointer(base(), &m_device_interfaces.pointer);
+    wl_seat_set_pointer(&m_seat, &m_device_interfaces.pointer);
 
     wl_keyboard_init(&m_device_interfaces.keyboard);
-    wl_seat_set_keyboard(base(), &m_device_interfaces.keyboard);
+    wl_seat_set_keyboard(&m_seat, &m_device_interfaces.keyboard);
 
     wl_touch_init(&m_device_interfaces.touch);
-    wl_seat_set_touch(base(), &m_device_interfaces.touch);
+    wl_seat_set_touch(&m_seat, &m_device_interfaces.touch);
 }
 
 void InputDevice::releaseDevices()
@@ -196,129 +193,71 @@ const wl_touch *InputDevice::touchDevice() const
     return &m_device_interfaces.touch;
 }
 
-void InputDevice::destroy_resource(wl_resource *resource)
+void InputDevice::seat_destroy_resource(wl_seat::Resource *resource)
 {
-    InputDevice *input_device = static_cast<InputDevice *>(resource->data);
-    if (input_device->keyboardDevice()->focus_resource == resource) {
-        input_device->keyboardDevice()->focus_resource = 0;
-    }
-    if (input_device->pointerDevice()->focus_resource == resource) {
-        input_device->pointerDevice()->focus_resource = 0;
-    }
+    if (keyboardDevice()->focus_resource == resource->handle)
+        keyboardDevice()->focus_resource = 0;
 
-    input_device->cleanupDataDeviceForClient(resource->client, true);
+    if (pointerDevice()->focus_resource == resource->handle)
+        pointerDevice()->focus_resource = 0;
 
-    wl_list_remove(&resource->link);
-
-    free(resource);
+    cleanupDataDeviceForClient(resource->client(), true);
 }
 
-void InputDevice::bind_func(struct wl_client *client, void *data,
-                            uint32_t version, uint32_t id)
+void InputDevice::seat_bind_resource(wl_seat::Resource *resource)
 {
-    Q_UNUSED(version);
-    struct wl_resource *resource = wl_client_add_object(client,
-                                                        &wl_seat_interface,
-                                                        &seat_interface,
-                                                        id,
-                                                        data);
-
-    struct wl_seat *seat = static_cast<struct wl_seat *>(data);
-    resource->destroy = destroy_resource;
-    wl_list_insert(&seat->base_resource_list, &resource->link);
+    wl_list_insert(&m_seat.base_resource_list, &resource->handle->link);
 
     uint32_t caps = WL_SEAT_CAPABILITY_POINTER | WL_SEAT_CAPABILITY_KEYBOARD;
     if (!QTouchDevice::devices().isEmpty())
         caps |= WL_SEAT_CAPABILITY_TOUCH;
 
-    wl_seat_send_capabilities(resource, caps);
+    wl_seat::send_capabilities(resource->handle, caps);
 }
 
-const struct wl_pointer_interface InputDevice::pointer_interface = {
-    InputDevice::set_cursor
-};
-
-void InputDevice::set_cursor(wl_client *client, wl_resource *resource,
-                             uint32_t serial, wl_resource *surface_resource,
-                             int32_t hotspot_x, int32_t hotspot_y)
+void InputDevice::pointer_set_cursor(wl_pointer::Resource *resource,
+                                     uint32_t serial, wl_resource *surface_resource,
+                                     int32_t hotspot_x, int32_t hotspot_y)
 {
-    Q_UNUSED(client);
+    Q_UNUSED(resource);
     Q_UNUSED(serial);
 
-    wl_pointer *pointer = reinterpret_cast<wl_pointer *>(resource->data);
-    InputDevice *inputDevice = wayland_cast<InputDevice>(pointer->seat);
-    QtWayland::Surface *surface = reinterpret_cast<QtWayland::Surface *>(surface_resource->data);
+    QtWayland::Surface *surface = QtWayland::Surface::fromResource(surface_resource);
 
     surface->setCursorSurface(true);
-    inputDevice->m_compositor->waylandCompositor()->setCursorSurface(surface->waylandSurface(), hotspot_x, hotspot_y);
+    m_compositor->waylandCompositor()->setCursorSurface(surface->waylandSurface(), hotspot_x, hotspot_y);
 }
 
-const struct wl_seat_interface InputDevice::seat_interface = {
-    get_pointer,
-    get_keyboard,
-    get_touch
-};
-
-void InputDevice::destroy_device_resource(wl_resource *resource)
+void InputDevice::seat_get_pointer(wl_seat::Resource *resource, uint32_t id)
 {
-    wl_list_remove(&resource->link);
-    free(resource);
+    ::wl_pointer *pointer = pointerDevice();
+    wl_pointer::add(&pointer->resource_list, resource->client(), id);
 }
 
-void InputDevice::get_pointer(struct wl_client *client,
-                              struct wl_resource *resource,
-                              uint32_t id)
+void InputDevice::seat_get_keyboard(wl_seat::Resource *resource, uint32_t id)
 {
-    InputDevice *inputDevice = static_cast<InputDevice *>(resource->data);
-    wl_pointer *pointer = inputDevice->pointerDevice();
-    wl_resource *clientResource = wl_client_add_object(client,
-                                                       &wl_pointer_interface,
-                                                       &pointer_interface,
-                                                       id,
-                                                       pointer);
-    wl_list_insert(&pointer->resource_list, &clientResource->link);
-    clientResource->destroy = InputDevice::destroy_device_resource;
+    ::wl_keyboard *keyboard = keyboardDevice();
+    wl_keyboard::add(&keyboard->resource_list, resource->client(), id);
 }
 
-void InputDevice::get_keyboard(struct wl_client *client,
-                               struct wl_resource *resource,
-                               uint32_t id)
+void InputDevice::keyboard_bind_resource(wl_keyboard::Resource *resource)
 {
-    InputDevice *inputDevice = static_cast<InputDevice *>(resource->data);
-    wl_keyboard *keyboard = inputDevice->keyboardDevice();
-    wl_resource *clientResource = wl_client_add_object(client,
-                                                       &wl_keyboard_interface,
-                                                       0,
-                                                       id,
-                                                       keyboard);
-    wl_list_insert(&keyboard->resource_list, &clientResource->link);
-    clientResource->destroy = InputDevice::destroy_device_resource;
-
 #ifndef QT_NO_WAYLAND_XKB
-    wl_keyboard_send_keymap(clientResource, WL_KEYBOARD_KEYMAP_FORMAT_XKB_V1,
-                            inputDevice->m_keymap_fd, inputDevice->m_keymap_size);
+    wl_keyboard::send_keymap(resource->handle, WL_KEYBOARD_KEYMAP_FORMAT_XKB_V1,
+                             m_keymap_fd, m_keymap_size);
 #endif
 }
 
-void InputDevice::get_touch(struct wl_client *client,
-                            struct wl_resource *resource,
-                            uint32_t id)
+void InputDevice::seat_get_touch(wl_seat::Resource *resource, uint32_t id)
 {
-    InputDevice *inputDevice = static_cast<InputDevice *>(resource->data);
-    wl_touch *touch = inputDevice->touchDevice();
-    wl_resource *clientResource = wl_client_add_object(client,
-                                                       &wl_touch_interface,
-                                                       0,
-                                                       id,
-                                                       touch);
-    wl_list_insert(&touch->resource_list, &clientResource->link);
-    clientResource->destroy = InputDevice::destroy_device_resource;
+    ::wl_touch *touch = touchDevice();
+    wl_touch::add(&touch->resource_list, resource->client(), id);
 }
 
 void InputDevice::sendMousePressEvent(Qt::MouseButton button, const QPointF &localPos, const QPointF &globalPos)
 {
     sendMouseMoveEvent(localPos,globalPos);
-    wl_pointer *pointer = pointerDevice();
+    ::wl_pointer *pointer = pointerDevice();
     pointer->button_count++;
     uint32_t time = m_compositor->currentTimeMsecs();
     const struct wl_pointer_grab_interface *interface = pointer->grab->interface;
@@ -328,7 +267,7 @@ void InputDevice::sendMousePressEvent(Qt::MouseButton button, const QPointF &loc
 void InputDevice::sendMouseReleaseEvent(Qt::MouseButton button, const QPointF &localPos, const QPointF &globalPos)
 {
     sendMouseMoveEvent(localPos,globalPos);
-    wl_pointer *pointer = pointerDevice();
+    ::wl_pointer *pointer = pointerDevice();
     pointer->button_count--;
     uint32_t time = m_compositor->currentTimeMsecs();
     const struct wl_pointer_grab_interface *interface = pointer->grab->interface;
@@ -339,7 +278,7 @@ void InputDevice::sendMouseMoveEvent(const QPointF &localPos, const QPointF &glo
 {
     Q_UNUSED(globalPos);
     uint32_t time = m_compositor->currentTimeMsecs();
-    wl_pointer *pointer = pointerDevice();
+    ::wl_pointer *pointer = pointerDevice();
     const struct wl_pointer_grab_interface *interface = pointer->grab->interface;
     pointer->x = wl_fixed_from_double(globalPos.x());
     pointer->y = wl_fixed_from_double(globalPos.y());
@@ -356,7 +295,7 @@ void InputDevice::sendMouseMoveEvent(Surface *surface, const QPointF &localPos, 
 
 void InputDevice::sendMouseWheelEvent(Qt::Orientation orientation, int delta)
 {
-    wl_pointer *pointer = pointerDevice();
+    ::wl_pointer *pointer = pointerDevice();
     struct wl_resource *resource = pointer->focus_resource;
     if (!resource)
         return;
@@ -376,7 +315,7 @@ void InputDevice::updateModifierState(uint code, int state)
     uint32_t mods_locked = xkb_state_serialize_mods(m_state, (xkb_state_component)XKB_STATE_LATCHED);
     uint32_t group = xkb_state_serialize_group(m_state, (xkb_state_component)XKB_STATE_EFFECTIVE);
 
-    wl_keyboard *keyboard = keyboardDevice();
+    ::wl_keyboard *keyboard = keyboardDevice();
 
     if (mods_depressed == keyboard->modifiers.mods_depressed
         && mods_latched == keyboard->modifiers.mods_latched
@@ -401,7 +340,7 @@ void InputDevice::updateModifierState(uint code, int state)
 
 void InputDevice::sendKeyModifiers(wl_resource *resource)
 {
-    wl_keyboard *keyboard = keyboardDevice();
+    ::wl_keyboard *keyboard = keyboardDevice();
     uint32_t serial = wl_display_next_serial(m_compositor->wl_display());
     wl_keyboard_send_modifiers(resource, serial, keyboard->modifiers.mods_depressed,
         keyboard->modifiers.mods_latched, keyboard->modifiers.mods_locked, keyboard->modifiers.group);
@@ -409,7 +348,7 @@ void InputDevice::sendKeyModifiers(wl_resource *resource)
 
 void InputDevice::sendKeyPressEvent(uint code)
 {
-    wl_keyboard *keyboard = keyboardDevice();
+    ::wl_keyboard *keyboard = keyboardDevice();
     if (keyboard->focus_resource) {
         uint32_t time = m_compositor->currentTimeMsecs();
         uint32_t serial = wl_display_next_serial(m_compositor->wl_display());
@@ -421,7 +360,7 @@ void InputDevice::sendKeyPressEvent(uint code)
 
 void InputDevice::sendKeyReleaseEvent(uint code)
 {
-    wl_keyboard *keyboard = keyboardDevice();
+    ::wl_keyboard *keyboard = keyboardDevice();
     if (keyboard->focus_resource) {
         uint32_t time = m_compositor->currentTimeMsecs();
         uint32_t serial = wl_display_next_serial(m_compositor->wl_display());
@@ -435,7 +374,7 @@ void InputDevice::sendTouchPointEvent(int id, double x, double y, Qt::TouchPoint
 {
     uint32_t time = m_compositor->currentTimeMsecs();
     uint32_t serial = 0;
-    wl_touch *touch = touchDevice();
+    ::wl_touch *touch = touchDevice();
     wl_resource *resource = touch->focus_resource;
     if (!resource)
         return;
@@ -461,7 +400,7 @@ void InputDevice::sendTouchPointEvent(int id, double x, double y, Qt::TouchPoint
 
 void InputDevice::sendTouchFrameEvent()
 {
-    wl_touch *touch = touchDevice();
+    ::wl_touch *touch = touchDevice();
     wl_resource *resource = touch->focus_resource;
     if (resource)
         wl_touch_send_frame(resource);
@@ -469,7 +408,7 @@ void InputDevice::sendTouchFrameEvent()
 
 void InputDevice::sendTouchCancelEvent()
 {
-    wl_touch *touch = touchDevice();
+    ::wl_touch *touch = touchDevice();
     wl_resource *resource = touch->focus_resource;
     if (resource)
         wl_touch_send_cancel(resource);
@@ -525,7 +464,7 @@ void InputDevice::sendFullTouchEvent(QTouchEvent *event)
 
 Surface *InputDevice::keyboardFocus() const
 {
-    return wayland_cast<Surface>(keyboardDevice()->focus);
+    return static_cast<Surface *>(keyboardDevice()->focus);
 }
 
 /*!
@@ -537,31 +476,30 @@ bool InputDevice::setKeyboardFocus(Surface *surface)
         return false;
 
     sendSelectionFocus(surface);
-    wl_keyboard_set_focus(keyboardDevice(), surface ? surface->base() : 0);
+    wl_keyboard_set_focus(keyboardDevice(), surface);
     return true;
 }
 
 Surface *InputDevice::mouseFocus() const
 {
-    return wayland_cast<Surface>(pointerDevice()->focus);
+    return static_cast<Surface *>(pointerDevice()->focus);
 }
 
 void InputDevice::setMouseFocus(Surface *surface, const QPointF &localPos, const QPointF &globalPos)
 {
-    wl_pointer *pointer = pointerDevice();
+    ::wl_pointer *pointer = pointerDevice();
     pointer->x = wl_fixed_from_double(globalPos.x());
     pointer->y = wl_fixed_from_double(globalPos.y());
-    pointer->current = surface ? surface->base() : 0;
+    pointer->current = surface;
     pointer->current_x = wl_fixed_from_double(localPos.x());
     pointer->current_y = wl_fixed_from_double(localPos.y());
-    pointer->grab->interface->focus(pointer->grab,
-                                    surface ? surface->base() : 0,
+    pointer->grab->interface->focus(pointer->grab, surface,
                                     wl_fixed_from_double(localPos.x()), wl_fixed_from_double(localPos.y()));
 
     // We have no separate touch focus management so make it match the pointer focus always.
     // No wl_touch_set_focus() is available so set it manually.
-    wl_touch *touch = touchDevice();
-    touch->focus = surface ? surface->base() : 0;
+    ::wl_touch *touch = touchDevice();
+    touch->focus = surface;
     touch->focus_resource = Compositor::resourceForSurface(&touch->resource_list, surface);
 }
 
@@ -590,7 +528,7 @@ void InputDevice::sendSelectionFocus(Surface *surface)
 {
     if (!surface)
         return;
-    DataDevice *device = dataDevice(surface->base()->resource.client);
+    DataDevice *device = dataDevice(surface->resource()->client());
     if (device) {
         device->sendSelectionFocus();
     }

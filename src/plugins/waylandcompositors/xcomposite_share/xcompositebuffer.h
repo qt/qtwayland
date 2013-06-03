@@ -58,7 +58,8 @@ QT_BEGIN_NAMESPACE
 class XCompositeBuffer : public QtWayland::Object<struct wl_buffer>
 {
 public:
-    XCompositeBuffer(QtWayland::Compositor *compositor, Window window, const QSize &size);
+    XCompositeBuffer(Window window, const QSize &size,
+                     struct ::wl_client *client, uint32_t id);
 
     Window window();
 
@@ -67,12 +68,13 @@ public:
 
     bool isYInverted() const { return mInvertedY; }
     void setInvertedY(bool inverted) { mInvertedY = inverted; }
+
 private:
     Window mWindow;
     bool mInvertedY;
 
     static void buffer_interface_destroy(struct wl_client *client,
-                        struct wl_resource *buffer);
+                                         struct wl_resource *buffer);
 };
 
 QT_END_NAMESPACE

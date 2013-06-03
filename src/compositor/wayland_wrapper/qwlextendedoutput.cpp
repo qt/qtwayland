@@ -49,74 +49,45 @@ QT_BEGIN_NAMESPACE
 namespace QtWayland {
 
 OutputExtensionGlobal::OutputExtensionGlobal(Compositor *compositor)
-    : m_compositor(compositor)
-{
-    wl_display_add_global(compositor->wl_display(),
-                          &wl_output_extension_interface,
-                          this,
-                          OutputExtensionGlobal::bind_func);
-}
-
-void OutputExtensionGlobal::bind_func(wl_client *client, void *data, uint32_t version, uint32_t id)
-{
-    Q_UNUSED(version);
-    wl_client_add_object(client,&wl_output_extension_interface,&output_extension_interface,id,data);
-}
-
-void OutputExtensionGlobal::get_extended_output(wl_client *client, wl_resource *output_extension_resource, uint32_t id, wl_resource *output_resource)
-{
-    OutputExtensionGlobal *output_extension = static_cast<OutputExtensionGlobal *>(output_extension_resource->data);
-    Output *output = static_cast<Output *>(output_resource->data);
-    new ExtendedOutput(client,id,output,output_extension->m_compositor);
-}
-
-const struct wl_output_extension_interface OutputExtensionGlobal::output_extension_interface = {
-    OutputExtensionGlobal::get_extended_output
-};
-
-ExtendedOutput::ExtendedOutput(struct wl_client *client, uint32_t id, Output *output, Compositor *compositor)
-    : m_output(output)
+    : QtWaylandServer::qt_output_extension(compositor->wl_display())
     , m_compositor(compositor)
 {
-    static const struct wl_extended_output_interface extended_output_interface = {
-        set_orientation_update_mask
-    };
-    Q_ASSERT(m_output->extendedOutput() == 0);
-    m_output->setExtendedOutput(this);
-    m_extended_output_resource = wl_client_add_object(client,&wl_extended_output_interface,&extended_output_interface,id,this);
-    m_extended_output_resource->destroy = ExtendedOutput::destroy_resource;
-
-    sendOutputOrientation(m_compositor->screenOrientation());
 }
 
-void ExtendedOutput::destroy_resource(wl_resource *resource)
+void OutputExtensionGlobal::output_extension_get_extended_output(qt_output_extension::Resource *resource, uint32_t id, wl_resource *output_resource)
 {
-    ExtendedOutput *output = static_cast<ExtendedOutput *>(resource->data);
-    delete output;
-    free(resource);
+    Output *output = static_cast<Output *>(OutputGlobal::Resource::fromResource(output_resource));
+    Q_ASSERT(output->extendedOutput == 0);
+
+    ExtendedOutput *extendedOutput = static_cast<ExtendedOutput *>(qt_extended_output::add(resource->client(), id));
+
+    Q_ASSERT(!output->extendedOutput);
+    output->extendedOutput = extendedOutput;
+    extendedOutput->output = output;
+
+    extendedOutput->sendOutputOrientation(m_compositor->screenOrientation());
 }
 
-void ExtendedOutput::set_orientation_update_mask(struct wl_client *client,
-                                                 struct wl_resource *resource,
-                                                 int32_t orientation_update_mask)
+void OutputExtensionGlobal::extended_output_set_orientation_update_mask(qt_extended_output::Resource *resource,
+                                                                        int32_t orientation_update_mask)
 {
-    ExtendedOutput *output = static_cast<ExtendedOutput *>(resource->data);
+    ExtendedOutput *output = static_cast<ExtendedOutput *>(resource);
 
     Qt::ScreenOrientations mask = 0;
-    if (orientation_update_mask & WL_EXTENDED_OUTPUT_ROTATION_PORTRAITORIENTATION)
+    if (orientation_update_mask & QT_EXTENDED_OUTPUT_ROTATION_PORTRAITORIENTATION)
         mask |= Qt::PortraitOrientation;
-    if (orientation_update_mask & WL_EXTENDED_OUTPUT_ROTATION_LANDSCAPEORIENTATION)
+    if (orientation_update_mask & QT_EXTENDED_OUTPUT_ROTATION_LANDSCAPEORIENTATION)
         mask |= Qt::LandscapeOrientation;
-    if (orientation_update_mask & WL_EXTENDED_OUTPUT_ROTATION_INVERTEDPORTRAITORIENTATION)
+    if (orientation_update_mask & QT_EXTENDED_OUTPUT_ROTATION_INVERTEDPORTRAITORIENTATION)
         mask |= Qt::InvertedPortraitOrientation;
-    if (orientation_update_mask & WL_EXTENDED_OUTPUT_ROTATION_INVERTEDLANDSCAPEORIENTATION)
+    if (orientation_update_mask & QT_EXTENDED_OUTPUT_ROTATION_INVERTEDLANDSCAPEORIENTATION)
         mask |= Qt::InvertedLandscapeOrientation;
 
-    Qt::ScreenOrientations oldMask = output->m_orientationUpdateMask;
-    output->m_orientationUpdateMask = mask;
+    Qt::ScreenOrientations oldMask = output->orientationUpdateMask;
+    output->orientationUpdateMask = mask;
 
     if (mask != oldMask) {
-        QList<Surface*> surfaces = output->m_compositor->surfacesForClient(client);
+        QList<Surface*> surfaces = m_compositor->surfacesForClient(resource->client());
         foreach (Surface *surface, surfaces) {
             if (surface->waylandSurface())
                 emit surface->waylandSurface()->orientationUpdateMaskChanged();
@@ -126,24 +97,25 @@ void ExtendedOutput::set_orientation_update_mask(struct wl_client *client,
 
 void ExtendedOutput::sendOutputOrientation(Qt::ScreenOrientation orientation)
 {
-    int sendOpperation;
+    int sendOperation;
     switch (orientation) {
         case Qt::PortraitOrientation:
-            sendOpperation = WL_EXTENDED_OUTPUT_ROTATION_PORTRAITORIENTATION;
+            sendOperation = QT_EXTENDED_OUTPUT_ROTATION_PORTRAITORIENTATION;
             break;
     case Qt::LandscapeOrientation:
-            sendOpperation = WL_EXTENDED_OUTPUT_ROTATION_LANDSCAPEORIENTATION;
+            sendOperation = QT_EXTENDED_OUTPUT_ROTATION_LANDSCAPEORIENTATION;
             break;
     case Qt::InvertedPortraitOrientation:
-            sendOpperation = WL_EXTENDED_OUTPUT_ROTATION_INVERTEDPORTRAITORIENTATION;
+            sendOperation = QT_EXTENDED_OUTPUT_ROTATION_INVERTEDPORTRAITORIENTATION;
             break;
     case Qt::InvertedLandscapeOrientation:
-            sendOpperation = WL_EXTENDED_OUTPUT_ROTATION_INVERTEDLANDSCAPEORIENTATION;
+            sendOperation = QT_EXTENDED_OUTPUT_ROTATION_INVERTEDLANDSCAPEORIENTATION;
             break;
     default:
-        sendOpperation = WL_EXTENDED_OUTPUT_ROTATION_PORTRAITORIENTATION;
+        sendOperation = QT_EXTENDED_OUTPUT_ROTATION_PORTRAITORIENTATION;
     }
-    wl_extended_output_send_set_screen_rotation(m_extended_output_resource, sendOpperation);
+
+    extended_output->send_set_screen_rotation(handle, sendOperation);
 }
 
 }

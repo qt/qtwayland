@@ -72,7 +72,7 @@ private:
                                  struct wl_resource *resource,
                                  uint32_t id,
                                  struct wl_resource *surface);
-    static const struct wl_surface_extension_interface surface_extension_interface;
+    static const struct qt_surface_extension_interface surface_extension_interface;
 
 };
 
@@ -128,7 +128,7 @@ private:
                                  int32_t flags);
     void setWindowFlags(QWaylandSurface::WindowFlags flags);
 
-    static const struct wl_extended_surface_interface extended_surface_interface;
+    static const struct qt_extended_surface_interface extended_surface_interface;
 };
 
 }

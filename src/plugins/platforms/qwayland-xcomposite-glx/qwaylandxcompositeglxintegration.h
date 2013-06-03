@@ -76,6 +76,8 @@ public:
     int screen() const;
     Window rootWindow() const;
 
+    bool supportsThreadedOpenGL() const { return true; }
+
 private:
     QWaylandDisplay *mWaylandDisplay;
     struct wl_xcomposite *mWaylandComposite;
@@ -85,7 +87,7 @@ private:
     Window mRootWindow;
 
     static void wlDisplayHandleGlobal(void *data, struct wl_registry *registry, uint32_t id,
-                             const char *interface, uint32_t version);
+                                      const QString &interface, uint32_t version);
 
     static const struct wl_xcomposite_listener xcomposite_listener;
     static void rootInformation(void *data,

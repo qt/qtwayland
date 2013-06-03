@@ -49,20 +49,17 @@
 
 QT_USE_NAMESPACE
 
-QWaylandScreen::QWaylandScreen(QWaylandDisplay *waylandDisplay, struct wl_output *output)
-    : QPlatformScreen()
+QWaylandScreen::QWaylandScreen(QWaylandDisplay *waylandDisplay, uint32_t id)
+    : QtWayland::wl_output(waylandDisplay->wl_registry(), id)
     , mWaylandDisplay(waylandDisplay)
-    , mOutput(output)
     , mExtendedOutput(0)
     , mDepth(32)
     , mRefreshRate(60000)
     , mFormat(QImage::Format_ARGB32_Premultiplied)
     , mWaylandCursor(new QWaylandCursor(this))
 {
-    //maybe the global is sent after the first screen?
-    if (waylandDisplay->outputExtension()) {
-        mExtendedOutput = waylandDisplay->outputExtension()->getExtendedOutput(this);
-    }
+    // handle case of output extension global being sent after outputs
+    createExtendedOutput();
 }
 
 QWaylandScreen::~QWaylandScreen()
@@ -73,15 +70,6 @@ QWaylandScreen::~QWaylandScreen()
 QWaylandDisplay * QWaylandScreen::display() const
 {
     return mWaylandDisplay;
-}
-
-void QWaylandScreen::setGeometry(const QRect &geom)
-{
-    if (mGeometry == geom)
-        return;
-
-    mGeometry = geom;
-    QWindowSystemInterface::handleScreenGeometryChange(screen(), mGeometry);
 }
 
 QRect QWaylandScreen::geometry() const
@@ -127,10 +115,11 @@ QWaylandExtendedOutput *QWaylandScreen::extendedOutput() const
     return mExtendedOutput;
 }
 
-void QWaylandScreen::setExtendedOutput(QWaylandExtendedOutput *extendedOutput)
+void QWaylandScreen::createExtendedOutput()
 {
-    Q_ASSERT(!mExtendedOutput);
-    mExtendedOutput = extendedOutput;
+    QtWayland::qt_output_extension *extension = mWaylandDisplay->outputExtension();
+    if (!mExtendedOutput && extension)
+        mExtendedOutput = new QWaylandExtendedOutput(this, extension->get_extended_output(output()));
 }
 
 QWaylandScreen * QWaylandScreen::waylandScreenFromWindow(QWindow *window)
@@ -139,15 +128,41 @@ QWaylandScreen * QWaylandScreen::waylandScreenFromWindow(QWindow *window)
     return static_cast<QWaylandScreen *>(platformScreen);
 }
 
-void QWaylandScreen::handleMode(const QSize &size, int refreshRate)
+void QWaylandScreen::output_mode(uint32_t flags, int width, int height, int refresh)
 {
+    if (!(flags & WL_OUTPUT_MODE_CURRENT))
+        return;
+
+    QSize size(width, height);
+
     if (size != mGeometry.size()) {
         mGeometry.setSize(size);
         QWindowSystemInterface::handleScreenGeometryChange(screen(), mGeometry);
     }
 
-    if (refreshRate != mRefreshRate) {
-        mRefreshRate = refreshRate;
+    if (refresh != mRefreshRate) {
+        mRefreshRate = refresh;
         QWindowSystemInterface::handleScreenRefreshRateChange(screen(), mRefreshRate);
     }
+}
+
+void QWaylandScreen::output_geometry(int32_t x, int32_t y,
+                                     int32_t width, int32_t height,
+                                     int subpixel,
+                                     const QString &make,
+                                     const QString &model,
+                                     int32_t transform)
+{
+    Q_UNUSED(subpixel);
+    Q_UNUSED(make);
+    Q_UNUSED(model);
+    Q_UNUSED(transform);
+
+    QRect geom(x, y, width, height);
+
+    if (mGeometry == geom)
+        return;
+
+    mGeometry = geom;
+    QWindowSystemInterface::handleScreenGeometryChange(screen(), mGeometry);
 }

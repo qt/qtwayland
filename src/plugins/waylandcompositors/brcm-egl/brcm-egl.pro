@@ -19,4 +19,4 @@ HEADERS += \
 
 OTHER_FILES += brcm-egl.json
 
-WAYLANDSOURCES += $$PWD/../../../extensions/brcm.xml
+WAYLANDSERVERSOURCES += $$PWD/../../../extensions/brcm.xml $$PWD/../../../3rdparty/protocol/wayland.xml

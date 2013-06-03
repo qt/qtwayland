@@ -49,7 +49,10 @@
 
 #include <X11/extensions/Xcomposite.h>
 #include "qwaylandxcompositeeglintegration.h"
+
+#ifdef QT_WAYLAND_WINDOWMANAGER_SUPPORT
 #include "windowmanager_integration/qwaylandwindowmanagerintegration.h"
+#endif
 
 #include <QtCore/QDebug>
 
@@ -63,7 +66,6 @@ QWaylandXCompositeEGLWindow::QWaylandXCompositeEGLWindow(QWindow *window, QWayla
     , m_xWindow(0)
     , m_config(q_configFromGLFormat(glxIntegration->eglDisplay(), window->format(), true, EGL_WINDOW_BIT | EGL_PIXMAP_BIT))
     , m_surface(0)
-    , m_waitingForSync(false)
 {
 }
 
@@ -134,14 +136,6 @@ void QWaylandXCompositeEGLWindow::createEglSurface()
                                            (uint32_t)m_xWindow,
                                            size);
     attach(m_buffer, 0, 0);
-
-    m_waitingForSync = true;
-    struct wl_callback *callback = wl_display_sync(m_glxIntegration->waylandDisplay()->wl_display());
-    wl_callback_add_listener(callback,&m_callback_listener,&m_waitingForSync);
-
-    m_glxIntegration->waylandDisplay()->flushRequests();
-    while (m_waitingForSync)
-        m_glxIntegration->waylandDisplay()->blockingReadEvents();
 }
 
 void QWaylandXCompositeEGLWindow::requestActivateWindow()
@@ -151,18 +145,4 @@ void QWaylandXCompositeEGLWindow::requestActivateWindow()
 #endif
 
     QWaylandWindow::requestActivateWindow();
-}
-
-const struct wl_callback_listener QWaylandXCompositeEGLWindow::m_callback_listener = {
-    QWaylandXCompositeEGLWindow::done
-};
-
-void QWaylandXCompositeEGLWindow::done(void *data,
-             struct wl_callback *callback,
-             uint32_t time)
-{
-    Q_UNUSED(time);
-    bool *waitingForSync = static_cast<bool *>(data);
-    *waitingForSync=false;
-    wl_callback_destroy(callback);
 }

@@ -46,10 +46,10 @@
 
 QT_USE_NAMESPACE
 
-QWaylandXCompositeBuffer::QWaylandXCompositeBuffer(wl_xcomposite *xcomposite, uint32_t window, const QSize &size)
+QWaylandXCompositeBuffer::QWaylandXCompositeBuffer(qt_xcomposite *xcomposite, uint32_t window, const QSize &size)
     :mSize(size)
 {
-    mBuffer = wl_xcomposite_create_buffer(xcomposite,
+    mBuffer = qt_xcomposite_create_buffer(xcomposite,
                                               window,
                                               size.width(),
                                               size.height());

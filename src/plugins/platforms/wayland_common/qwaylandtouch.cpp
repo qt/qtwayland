@@ -42,20 +42,17 @@
 #include "qwaylandtouch.h"
 #include "qwaylandinputdevice.h"
 
-#include "wayland-touch-extension-client-protocol.h"
-
 QT_USE_NAMESPACE
 
 QWaylandTouchExtension::QWaylandTouchExtension(QWaylandDisplay *display, uint32_t id)
-    : mDisplay(display),
+    : QtWayland::qt_touch_extension(display->wl_registry(), id),
+      mDisplay(display),
       mTouchDevice(0),
       mPointsLeft(0),
       mFlags(0),
       mMouseSourceId(-1),
       mInputDevice(0)
 {
-    mTouch = static_cast<struct wl_touch_extension *>(wl_registry_bind(display->wl_registry(), id, &wl_touch_extension_interface, 1));
-    wl_touch_extension_add_listener(mTouch, &touch_listener, this);
 }
 
 void QWaylandTouchExtension::registerDevice(int caps)
@@ -71,53 +68,50 @@ static inline qreal fromFixed(int f)
     return f / qreal(10000);
 }
 
-void QWaylandTouchExtension::handle_touch(void *data, wl_touch_extension *ext, uint32_t time,
-                                          uint32_t id, uint32_t state, int32_t x, int32_t y,
-                                          int32_t normalized_x, int32_t normalized_y,
-                                          int32_t width, int32_t height, uint32_t pressure,
-                                          int32_t velocity_x, int32_t velocity_y,
-                                          uint32_t flags, wl_array *rawdata)
+void QWaylandTouchExtension::touch_extension_touch(uint32_t time,
+                                                   uint32_t id, uint32_t state, int32_t x, int32_t y,
+                                                   int32_t normalized_x, int32_t normalized_y,
+                                                   int32_t width, int32_t height, uint32_t pressure,
+                                                   int32_t velocity_x, int32_t velocity_y,
+                                                   uint32_t flags, wl_array *rawdata)
 {
-    Q_UNUSED(ext);
-    QWaylandTouchExtension *self = static_cast<QWaylandTouchExtension *>(data);
-
-    if (!self->mInputDevice) {
-        QList<QWaylandInputDevice *> inputDevices = self->mDisplay->inputDevices();
+    if (!mInputDevice) {
+        QList<QWaylandInputDevice *> inputDevices = mDisplay->inputDevices();
         if (inputDevices.isEmpty()) {
             qWarning("wl_touch_extension: handle_touch: No input devices");
             return;
         }
-        self->mInputDevice = inputDevices.first();
+        mInputDevice = inputDevices.first();
     }
-    QWaylandWindow *win = self->mInputDevice->mTouchFocus;
+    QWaylandWindow *win = mInputDevice->mTouchFocus;
     if (!win)
-        win = self->mInputDevice->mPointerFocus;
+        win = mInputDevice->mPointerFocus;
     if (!win)
-        win = self->mInputDevice->mKeyboardFocus;
+        win = mInputDevice->mKeyboardFocus;
     if (!win || !win->window()) {
         qWarning("wl_touch_extension: handle_touch: No pointer focus");
         return;
     }
-    self->mTargetWindow = win->window();
+    mTargetWindow = win->window();
 
     QWindowSystemInterface::TouchPoint tp;
     tp.id = id;
     tp.state = Qt::TouchPointState(int(state & 0xFFFF));
     int sentPointCount = state >> 16;
-    if (!self->mPointsLeft) {
+    if (!mPointsLeft) {
         Q_ASSERT(sentPointCount > 0);
-        self->mPointsLeft = sentPointCount;
+        mPointsLeft = sentPointCount;
     }
     tp.flags = QTouchEvent::TouchPoint::InfoFlags(int(flags & 0xFFFF));
 
-    if (!self->mTouchDevice)
-        self->registerDevice(flags >> 16);
+    if (!mTouchDevice)
+        registerDevice(flags >> 16);
 
     tp.area = QRectF(0, 0, fromFixed(width), fromFixed(height));
     // Got surface-relative coords but need a (virtual) screen position.
     QPointF relPos = QPointF(fromFixed(x), fromFixed(y));
     QPointF delta = relPos - relPos.toPoint();
-    tp.area.moveCenter(self->mTargetWindow->mapToGlobal(relPos.toPoint()) + delta);
+    tp.area.moveCenter(mTargetWindow->mapToGlobal(relPos.toPoint()) + delta);
 
     tp.normalPosition.setX(fromFixed(normalized_x));
     tp.normalPosition.setY(fromFixed(normalized_y));
@@ -135,11 +129,11 @@ void QWaylandTouchExtension::handle_touch(void *data, wl_touch_extension *ext, u
         }
     }
 
-    self->mTouchPoints.append(tp);
-    self->mTimestamp = time;
+    mTouchPoints.append(tp);
+    mTimestamp = time;
 
-    if (!--self->mPointsLeft)
-        self->sendTouchEvent();
+    if (!--mPointsLeft)
+        sendTouchEvent();
 }
 
 void QWaylandTouchExtension::sendTouchEvent()
@@ -173,7 +167,7 @@ void QWaylandTouchExtension::sendTouchEvent()
     for (int i = 0; i < mTouchPoints.count(); ++i)
         states |= mTouchPoints.at(i).state;
 
-    if (mFlags & WL_TOUCH_EXTENSION_FLAGS_MOUSE_FROM_TOUCH) {
+    if (mFlags & QT_TOUCH_EXTENSION_FLAGS_MOUSE_FROM_TOUCH) {
         if (states == Qt::TouchPointPressed)
             mMouseSourceId = mTouchPoints.first().id;
         for (int i = 0; i < mTouchPoints.count(); ++i) {
@@ -207,14 +201,7 @@ void QWaylandTouchExtension::touchCanceled()
         QWindowSystemInterface::handleMouseEvent(mTargetWindow, mTimestamp, mLastMouseLocal, mLastMouseGlobal, Qt::NoButton);
 }
 
-void QWaylandTouchExtension::handle_configure(void *data, wl_touch_extension *ext, uint32_t flags)
+void QWaylandTouchExtension::touch_extension_configure(uint32_t flags)
 {
-    Q_UNUSED(ext);
-    QWaylandTouchExtension *self = static_cast<QWaylandTouchExtension *>(data);
-    self->mFlags = flags;
+    mFlags = flags;
 }
-
-const struct wl_touch_extension_listener QWaylandTouchExtension::touch_listener = {
-    QWaylandTouchExtension::handle_touch,
-    QWaylandTouchExtension::handle_configure
-};

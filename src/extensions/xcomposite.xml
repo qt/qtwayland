@@ -39,7 +39,7 @@
 
  $QT_END_LICENSE$
     </copyright>
-  <interface name="wl_xcomposite" version="1">
+  <interface name="qt_xcomposite" version="1">
 
     <!-- Create a wayland buffer for X Window. -->
     <request name="create_buffer">

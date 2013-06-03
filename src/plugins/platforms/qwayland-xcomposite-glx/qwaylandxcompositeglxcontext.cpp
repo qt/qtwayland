@@ -54,10 +54,10 @@ QWaylandXCompositeGLXContext::QWaylandXCompositeGLXContext(const QSurfaceFormat 
 {
     qDebug("creating XComposite-GLX context");
     GLXContext shareContext = share ? static_cast<QWaylandXCompositeGLXContext *>(share)->m_context : 0;
-    GLXFBConfig config = qglx_findConfig(display, screen, format);
+    GLXFBConfig config = qglx_findConfig(display, screen, format, GLX_WINDOW_BIT | GLX_PIXMAP_BIT);
     XVisualInfo *visualInfo = glXGetVisualFromFBConfig(display, config);
     m_context = glXCreateContext(display, visualInfo, shareContext, true);
-    m_format = qglx_surfaceFormatFromGLXFBConfig(display, config, m_context);
+    qglx_surfaceFormatFromGLXFBConfig(&m_format, display, config, m_context);
 }
 
 bool QWaylandXCompositeGLXContext::makeCurrent(QPlatformSurface *surface)

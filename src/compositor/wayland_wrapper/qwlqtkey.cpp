@@ -43,68 +43,35 @@
 #include <QKeyEvent>
 #include <QWindow>
 
+#include "qwaylandresourcecollection.h"
+
 QT_BEGIN_NAMESPACE
 
 namespace QtWayland {
 
-static void dummy(wl_client *, wl_resource *)
-{
-}
-
-const struct wl_qtkey_extension_interface QtKeyExtensionGlobal::qtkey_interface = {
-    dummy
-};
-
 QtKeyExtensionGlobal::QtKeyExtensionGlobal(Compositor *compositor)
-    : m_compositor(compositor)
+    : QtWaylandServer::qt_key_extension(compositor->wl_display())
+    , m_compositor(compositor)
 {
-    wl_display_add_global(compositor->wl_display(),
-                          &wl_qtkey_extension_interface,
-                          this,
-                          QtKeyExtensionGlobal::bind_func);
-}
-
-QtKeyExtensionGlobal::~QtKeyExtensionGlobal()
-{
-}
-
-void QtKeyExtensionGlobal::destroy_resource(wl_resource *resource)
-{
-    QtKeyExtensionGlobal *self = static_cast<QtKeyExtensionGlobal *>(resource->data);
-    self->m_resources.removeOne(resource);
-    free(resource);
-}
-
-void QtKeyExtensionGlobal::bind_func(wl_client *client, void *data, uint32_t version, uint32_t id)
-{
-    Q_UNUSED(version);
-    wl_resource *resource = wl_client_add_object(client, &wl_qtkey_extension_interface, &qtkey_interface, id, data);
-    resource->destroy = destroy_resource;
-    QtKeyExtensionGlobal *self = static_cast<QtKeyExtensionGlobal *>(resource->data);
-    self->m_resources.append(resource);
 }
 
 bool QtKeyExtensionGlobal::postQtKeyEvent(QKeyEvent *event, Surface *surface)
 {
-    wl_client *surfaceClient = surface->base()->resource.client;
+    wl_client *surfaceClient = surface->resource()->client();
+
     uint32_t time = m_compositor->currentTimeMsecs();
-    const int rescount = m_resources.count();
 
-    for (int res = 0; res < rescount; ++res) {
-        wl_resource *target = m_resources.at(res);
-        if (target->client != surfaceClient)
-            continue;
+    struct wl_resource *target = resourceForClient(resourceList(), surfaceClient);
 
-        QByteArray textUtf8 = event->text().toUtf8();
-
-        wl_qtkey_extension_send_qtkey(target,
-                time, event->type(), event->key(), event->modifiers(),
-                event->nativeScanCode(),
-                event->nativeVirtualKey(),
-                event->nativeModifiers(),
-                textUtf8.constData(),
-                event->isAutoRepeat(),
-                event->count());
+    if (target) {
+        send_qtkey(target,
+                   time, event->type(), event->key(), event->modifiers(),
+                   event->nativeScanCode(),
+                   event->nativeVirtualKey(),
+                   event->nativeModifiers(),
+                   event->text(),
+                   event->isAutoRepeat(),
+                   event->count());
 
         return true;
     }

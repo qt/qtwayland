@@ -16,11 +16,9 @@ OTHER_FILES += \
 SOURCES += qwaylandeglintegration.cpp \
            qwaylandglcontext.cpp \
            qwaylandeglwindow.cpp \
-           qwaylandegldecoration.cpp \
            main.cpp
 
 HEADERS += qwaylandeglintegration.h \
            qwaylandglcontext.h \
            qwaylandeglwindow.h \
-           qwaylandegldecoration.h \
            qwaylandeglinclude.h

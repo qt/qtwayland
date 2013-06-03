@@ -18,6 +18,7 @@ DEFINES += QT_WAYLAND_WINDOWMANAGER_SUPPORT
 INCLUDEPATH += ../shared
 HEADERS += ../shared/qwaylandmimehelper.h
 SOURCES += ../shared/qwaylandmimehelper.cpp
+HEADERS += qwayland-server-wayland.h
 
 include ($$PWD/global/global.pri)
 include ($$PWD/wayland_wrapper/wayland_wrapper.pri)

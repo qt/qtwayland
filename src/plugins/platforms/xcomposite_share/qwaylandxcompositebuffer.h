@@ -45,7 +45,7 @@
 #include "qwaylandbuffer.h"
 #include <stdint.h>
 
-struct wl_xcomposite;
+struct qt_xcomposite;
 struct wl_visual;
 
 QT_BEGIN_NAMESPACE
@@ -53,7 +53,7 @@ QT_BEGIN_NAMESPACE
 class QWaylandXCompositeBuffer : public QWaylandBuffer
 {
 public:
-    QWaylandXCompositeBuffer(struct wl_xcomposite *xcomposite,
+    QWaylandXCompositeBuffer(qt_xcomposite *xcomposite,
                              uint32_t window,
                              const QSize &size);
 

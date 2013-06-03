@@ -68,11 +68,6 @@ QVector<EGLint> eglbuildSpec()
     return spec;
 }
 
-
-struct wl_xcomposite_interface XCompositeHandler::xcomposite_interface = {
-    XCompositeHandler::create_buffer
-};
-
 XCompositeEglIntegration::XCompositeEglIntegration()
     : QWaylandGraphicsHardwareIntegration()
     , mDisplay(0)
@@ -80,7 +75,7 @@ XCompositeEglIntegration::XCompositeEglIntegration()
 
 }
 
-void XCompositeEglIntegration::initializeHardware(QtWayland::Display *waylandDisplay)
+void XCompositeEglIntegration::initializeHardware(QtWayland::Display *)
 {
     QPlatformNativeInterface *nativeInterface = QGuiApplication::platformNativeInterface();
     if (nativeInterface) {
@@ -94,13 +89,12 @@ void XCompositeEglIntegration::initializeHardware(QtWayland::Display *waylandDis
         qFatal("Platform integration doesn't have native interface");
     }
     mScreen = XDefaultScreen(mDisplay);
-    XCompositeHandler *handler = new XCompositeHandler(m_compositor->handle(),mDisplay,m_compositor->window());
-    wl_display_add_global(waylandDisplay->handle(),&wl_xcomposite_interface,handler,XCompositeHandler::xcomposite_bind_func);
+    new XCompositeHandler(m_compositor->handle(), mDisplay);
 }
 
 GLuint XCompositeEglIntegration::createTextureFromBuffer(wl_buffer *buffer, QOpenGLContext *)
 {
-    XCompositeBuffer *compositorBuffer = QtWayland::wayland_cast<XCompositeBuffer>(buffer);
+    XCompositeBuffer *compositorBuffer = static_cast<XCompositeBuffer *>(buffer);
     Pixmap pixmap = XCompositeNameWindowPixmap(mDisplay, compositorBuffer->window());
 
     QVector<EGLint> eglConfigSpec = eglbuildSpec();
@@ -143,6 +137,6 @@ GLuint XCompositeEglIntegration::createTextureFromBuffer(wl_buffer *buffer, QOpe
 
 bool XCompositeEglIntegration::isYInverted(wl_buffer *buffer) const
 {
-    XCompositeBuffer *compositorBuffer = QtWayland::wayland_cast<XCompositeBuffer>(buffer);
+    XCompositeBuffer *compositorBuffer = static_cast<XCompositeBuffer *>(buffer);
     return compositorBuffer->isYInverted();
 }

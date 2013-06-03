@@ -112,10 +112,10 @@ const struct wl_xcomposite_listener QWaylandXCompositeGLXIntegration::xcomposite
     QWaylandXCompositeGLXIntegration::rootInformation
 };
 
-void QWaylandXCompositeGLXIntegration::wlDisplayHandleGlobal(void *data, wl_registry *registry, uint32_t id, const char *interface, uint32_t version)
+void QWaylandXCompositeGLXIntegration::wlDisplayHandleGlobal(void *data, wl_registry *registry, uint32_t id, const QString &interface, uint32_t version)
 {
     Q_UNUSED(version);
-    if (strcmp(interface, "wl_xcomposite") == 0) {
+    if (interface == "wl_xcomposite") {
         qDebug("XComposite-GLX: got wl_xcomposite global");
         QWaylandXCompositeGLXIntegration *integration = static_cast<QWaylandXCompositeGLXIntegration *>(data);
         integration->mWaylandComposite = static_cast<struct wl_xcomposite *>(wl_registry_bind(registry, id, &wl_xcomposite_interface, 1));

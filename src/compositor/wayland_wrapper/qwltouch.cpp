@@ -51,7 +51,7 @@ static void dummy(wl_client *, wl_resource *)
 {
 }
 
-const struct wl_touch_extension_interface TouchExtensionGlobal::touch_interface = {
+const struct qt_touch_extension_interface TouchExtensionGlobal::touch_interface = {
     dummy
 };
 
@@ -65,7 +65,7 @@ TouchExtensionGlobal::TouchExtensionGlobal(Compositor *compositor)
     m_rawdata_ptr = static_cast<float *>(wl_array_add(&m_rawdata_array, maxRawPos * sizeof(float) * 2));
 
     wl_display_add_global(compositor->wl_display(),
-                          &wl_touch_extension_interface,
+                          &qt_touch_extension_interface,
                           this,
                           TouchExtensionGlobal::bind_func);
 }
@@ -85,11 +85,11 @@ void TouchExtensionGlobal::destroy_resource(wl_resource *resource)
 void TouchExtensionGlobal::bind_func(wl_client *client, void *data, uint32_t version, uint32_t id)
 {
     Q_UNUSED(version);
-    wl_resource *resource = wl_client_add_object(client, &wl_touch_extension_interface, &touch_interface, id, data);
+    wl_resource *resource = wl_client_add_object(client, &qt_touch_extension_interface, &touch_interface, id, data);
     resource->destroy = destroy_resource;
     TouchExtensionGlobal *self = static_cast<TouchExtensionGlobal *>(resource->data);
     self->m_resources.append(resource);
-    wl_touch_extension_send_configure(resource, self->m_flags);
+    qt_touch_extension_send_configure(resource, self->m_flags);
 }
 
 static inline int toFixed(qreal f)
@@ -105,7 +105,7 @@ bool TouchExtensionGlobal::postTouchEvent(QTouchEvent *event, Surface *surface)
         return false;
 
     QPointF surfacePos = surface->pos();
-    wl_client *surfaceClient = surface->base()->resource.client;
+    wl_client *surfaceClient = surface->resource()->client();
     uint32_t time = m_compositor->currentTimeMsecs();
     const int rescount = m_resources.count();
 
@@ -162,7 +162,7 @@ bool TouchExtensionGlobal::postTouchEvent(QTouchEvent *event, Surface *surface)
                 }
             }
 
-            wl_touch_extension_send_touch(target,
+            qt_touch_extension_send_touch(target,
                                    time, id, state,
                                    x, y, nx, ny, w, h,
                                    pressure, vx, vy,

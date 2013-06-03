@@ -53,6 +53,7 @@ QT_BEGIN_NAMESPACE
 class QWaylandWindow;
 class QWaylandGLWindowSurface;
 class QOpenGLShaderProgram;
+class QOpenGLTextureCache;
 
 class QWaylandGLContext : public QPlatformOpenGLContext {
 public:
@@ -84,6 +85,9 @@ private:
     EGLConfig m_config;
     QSurfaceFormat m_format;
     QOpenGLShaderProgram *m_blitProgram;
+    QOpenGLTextureCache *m_textureCache;
+
+    QWaylandWindow *m_currentOnSurface;
 };
 
 QT_END_NAMESPACE

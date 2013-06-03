@@ -46,34 +46,24 @@
 
 #include <QtCore/qglobal.h>
 
+#include <qwayland-sub-surface-extension.h>
+
 QT_BEGIN_NAMESPACE
 
 class QWaylandDisplay;
 class QWaylandWindow;
 class QWaylandSubSurface;
 
-class QWaylandSubSurfaceExtension
+class QWaylandSubSurface : public QtWayland::qt_sub_surface
 {
 public:
-    QWaylandSubSurfaceExtension(QWaylandDisplay *display, uint32_t id);
-
-    QWaylandSubSurface *getSubSurfaceAwareWindow(QWaylandWindow *window);
-private:
-    struct wl_sub_surface_extension *m_sub_surface_extension;
-};
-
-class QWaylandSubSurface
-{
-public:
-    QWaylandSubSurface(QWaylandWindow *window, struct wl_sub_surface *sub_surface);
+    QWaylandSubSurface(QWaylandWindow *window, struct ::qt_sub_surface *sub_surface);
 
     void setParent(const QWaylandWindow *parent);
-
     void adjustPositionOfChildren();
 
 private:
     QWaylandWindow *m_window;
-    struct wl_sub_surface *m_sub_surface;
 };
 
 QT_END_NAMESPACE

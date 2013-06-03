@@ -43,42 +43,23 @@
 
 #include "qwaylandwindow.h"
 
-#include "wayland-sub-surface-extension-client-protocol.h"
-
 #include <QtCore/QDebug>
 
 QT_USE_NAMESPACE
 
-QWaylandSubSurfaceExtension::QWaylandSubSurfaceExtension(QWaylandDisplay *display, uint32_t id)
-{
-    m_sub_surface_extension = static_cast<struct wl_sub_surface_extension *>(
-                wl_registry_bind(display->wl_registry(), id, &wl_sub_surface_extension_interface, 1));
-}
-
-QWaylandSubSurface *QWaylandSubSurfaceExtension::getSubSurfaceAwareWindow(QWaylandWindow *window)
-{
-    struct wl_surface *surface = window->wl_surface();
-    Q_ASSERT(surface);
-    struct wl_sub_surface *sub_surface =
-            wl_sub_surface_extension_get_sub_surface_aware_surface(m_sub_surface_extension,surface);
-
-    return new QWaylandSubSurface(window,sub_surface);
-
-}
-
-QWaylandSubSurface::QWaylandSubSurface(QWaylandWindow *window, struct wl_sub_surface *sub_surface)
-    : m_window(window)
-    , m_sub_surface(sub_surface)
+QWaylandSubSurface::QWaylandSubSurface(QWaylandWindow *window, struct ::qt_sub_surface *sub_surface)
+    : QtWayland::qt_sub_surface(sub_surface)
+    , m_window(window)
 {
 }
 
 void QWaylandSubSurface::setParent(const QWaylandWindow *parent)
 {
-    QWaylandSubSurface *parentSurface = parent? parent->subSurfaceWindow():0;
+    QWaylandSubSurface *parentSurface = parent ? parent->subSurfaceWindow() : 0;
     if (parentSurface) {
         int x = m_window->geometry().x() + parent->frameMargins().left();
         int y = m_window->geometry().y() + parent->frameMargins().top();
-        wl_sub_surface_attach_sub_surface(parentSurface->m_sub_surface,m_sub_surface,x,y);
+        parentSurface->attach_sub_surface(object(), x, y);
     }
 }
 

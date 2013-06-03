@@ -1,10 +1,11 @@
-WAYLANDSOURCES += \
+WAYLANDSERVERSOURCES += \
     ../extensions/surface-extension.xml \
     ../extensions/sub-surface-extension.xml \
     ../extensions/output-extension.xml \
     ../extensions/touch-extension.xml \
     ../extensions/qtkey-extension.xml \
-    ../extensions/windowmanager.xml
+    ../extensions/windowmanager.xml \
+    ../3rdparty/protocol/wayland.xml
 
 HEADERS += \
     wayland_wrapper/qwlcompositor_p.h \

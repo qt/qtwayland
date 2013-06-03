@@ -51,7 +51,7 @@ SubSurfaceExtensionGlobal::SubSurfaceExtensionGlobal(Compositor *compositor)
     : m_compositor(compositor)
 {
     wl_display_add_global(m_compositor->wl_display(),
-                          &wl_sub_surface_extension_interface,
+                          &qt_sub_surface_extension_interface,
                           this,
                           SubSurfaceExtensionGlobal::bind_func);
 }
@@ -59,17 +59,17 @@ SubSurfaceExtensionGlobal::SubSurfaceExtensionGlobal(Compositor *compositor)
 void SubSurfaceExtensionGlobal::bind_func(wl_client *client, void *data, uint32_t version, uint32_t id)
 {
     Q_UNUSED(version);
-    wl_client_add_object(client, &wl_sub_surface_extension_interface,&sub_surface_extension_interface,id,data);
+    wl_client_add_object(client, &qt_sub_surface_extension_interface,&sub_surface_extension_interface,id,data);
 }
 
 void SubSurfaceExtensionGlobal::get_sub_surface_aware_surface(wl_client *client, wl_resource *sub_surface_extension_resource, uint32_t id, wl_resource *surface_resource)
 {
     Q_UNUSED(sub_surface_extension_resource);
-    Surface *surface = resolve<Surface>(surface_resource);
+    Surface *surface = Surface::fromResource(surface_resource);
     new SubSurface(client,id,surface);
 }
 
-const struct wl_sub_surface_extension_interface SubSurfaceExtensionGlobal::sub_surface_extension_interface = {
+const struct qt_sub_surface_extension_interface SubSurfaceExtensionGlobal::sub_surface_extension_interface = {
     SubSurfaceExtensionGlobal::get_sub_surface_aware_surface
 };
 
@@ -79,7 +79,7 @@ SubSurface::SubSurface(wl_client *client, uint32_t id, Surface *surface)
 {
     surface->setSubSurface(this);
     m_sub_surface_resource = wl_client_add_object(client,
-                                                       &wl_sub_surface_interface,
+                                                       &qt_sub_surface_interface,
                                                        &sub_surface_interface,
                                                        id,
                                                        this);
@@ -178,7 +178,7 @@ void SubSurface::lower(wl_client *client, wl_resource *sub_surface_parent_resour
     Q_UNUSED(sub_surface_child_resource);
 }
 
-const struct wl_sub_surface_interface SubSurface::sub_surface_interface = {
+const struct qt_sub_surface_interface SubSurface::sub_surface_interface = {
     SubSurface::attach_sub_surface,
     SubSurface::move_sub_surface,
     SubSurface::raise,

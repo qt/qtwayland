@@ -42,11 +42,10 @@
 #define WL_SURFACE_H
 
 #include <QtCompositor/qwaylandexport.h>
+#include <QtCompositor/qwaylandobject.h>
 
 #include <private/qwlsurfacebuffer_p.h>
 #include <QtCompositor/qwaylandsurface.h>
-
-#include <QtCompositor/qwaylandobject.h>
 
 #include <QtCore/QRect>
 #include <QtGui/QImage>
@@ -61,6 +60,8 @@
 
 #include <wayland-util.h>
 
+#include "qwayland-server-wayland.h"
+
 QT_BEGIN_NAMESPACE
 
 class QTouchEvent;
@@ -73,18 +74,22 @@ class ExtendedSurface;
 class SubSurface;
 class ShellSurface;
 
-class Q_COMPOSITOR_EXPORT Surface : public Object<struct wl_surface>
+class Q_COMPOSITOR_EXPORT Surface : public Object<struct ::wl_surface>, public QtWaylandServer::wl_surface
 {
 public:
     Surface(struct wl_client *client, uint32_t id, Compositor *compositor);
     ~Surface();
+
+    static Surface *fromResource(struct ::wl_resource *resource);
 
     QWaylandSurface::Type type() const;
     bool isYInverted() const;
 
     bool visible() const;
 
-    uint id() const { return base()->resource.object.id; }
+    uint id() const { return ::wl_surface::resource.object.id; }
+
+    using QtWaylandServer::wl_surface::resource;
 
     QPointF pos() const;
     QPointF nonAdjustedPos() const;
@@ -120,10 +125,6 @@ public:
     ShellSurface *shellSurface() const;
 
     Compositor *compositor() const;
-
-    void damage(const QRect &rect);
-
-    static const struct wl_surface_interface surface_interface;
 
     QString className() const { return m_className; }
     void setClassName(const QString &className);
@@ -171,27 +172,29 @@ private:
     bool m_isCursorSurface;
 
     inline SurfaceBuffer *currentSurfaceBuffer() const;
+    void damage(const QRect &rect);
     bool advanceBufferQueue();
     void doUpdate();
     SurfaceBuffer *createSurfaceBuffer(struct wl_buffer *buffer);
     void frameFinishedInternal();
     bool postBuffer();
-    void commit();
 
     void attach(struct wl_buffer *buffer);
 
-    static void surface_destroy(struct wl_client *client, struct wl_resource *_surface);
-    static void surface_attach(struct wl_client *client, struct wl_resource *surface,
-                        struct wl_resource *buffer, int x, int y);
-    static void surface_damage(struct wl_client *client, struct wl_resource *_surface,
-                        int32_t x, int32_t y, int32_t width, int32_t height);
-    static void surface_frame(struct wl_client *client, struct wl_resource *resource,
-                       uint32_t callback);
-    static void surface_set_opaque_region(struct wl_client *client, struct wl_resource *resource,
-                                          struct wl_resource *region);
-    static void surface_set_input_region(struct wl_client *client, struct wl_resource *resource,
-                                         struct wl_resource *region);
-    static void surface_commit(struct wl_client *client, struct wl_resource *resource);
+    void surface_destroy_resource(Resource *resource) Q_DECL_OVERRIDE;
+
+    void surface_destroy(Resource *resource) Q_DECL_OVERRIDE;
+    void surface_attach(Resource *resource,
+                        struct wl_resource *buffer, int x, int y) Q_DECL_OVERRIDE;
+    void surface_damage(Resource *resource,
+                        int32_t x, int32_t y, int32_t width, int32_t height) Q_DECL_OVERRIDE;
+    void surface_frame(Resource *resource,
+                       uint32_t callback) Q_DECL_OVERRIDE;
+    void surface_set_opaque_region(Resource *resource,
+                                   struct wl_resource *region) Q_DECL_OVERRIDE;
+    void surface_set_input_region(Resource *resource,
+                                  struct wl_resource *region) Q_DECL_OVERRIDE;
+    void surface_commit(Resource *resource) Q_DECL_OVERRIDE;
 
 };
 

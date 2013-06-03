@@ -71,12 +71,6 @@ private:
     Window m_xWindow;
     EGLConfig m_config;
     EGLSurface m_surface;
-
-    bool m_waitingForSync;
-    static const struct wl_callback_listener m_callback_listener;
-    static void done(void *data,
-             struct wl_callback *wl_callback,
-             uint32_t time);
 };
 
 QT_END_NAMESPACE

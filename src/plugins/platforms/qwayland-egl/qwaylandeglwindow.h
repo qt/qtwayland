@@ -58,6 +58,7 @@ public:
     ~QWaylandEglWindow();
     WindowType windowType() const;
 
+    virtual void setGeometry(const QRect &rect);
     QRect contentsRect() const;
 
     EGLSurface eglSurface() const;
@@ -67,11 +68,6 @@ public:
     QSurfaceFormat format() const;
 
     void bindContentFBO();
-
-    void redraw();
-
-protected:
-    void createDecorationInstance();
 
 private:
     QWaylandEglIntegration *m_eglIntegration;

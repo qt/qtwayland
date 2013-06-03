@@ -72,24 +72,13 @@ public:
     ~WindowManagerServerIntegration();
 
     void initialize(QtWayland::Display *waylandDisplay);
-    void removeClient(wl_client *client);
-
-    WaylandManagedClient *managedClient(wl_client *client) const;
 
     void setShowIsFullScreen(bool value);
     void sendQuitMessage(wl_client *client);
 
-signals:
-    void clientAuthenticated(wl_client *client);
-
-private:
-    void mapClientToProcess(wl_client *client, uint32_t processId);
-    void authenticateWithToken(wl_client *client, const char *token);
-
 private:
     bool m_showIsFullScreen;
     QWaylandCompositor *m_compositor;
-    QMap<wl_client*, WaylandManagedClient*> m_managedClients;
 
     static void bind_func(struct wl_client *client, void *data,
                                           uint32_t version, uint32_t id);
@@ -105,22 +94,7 @@ private:
                          struct wl_resource *window_mgr_resource,
                          uint32_t remaining,
                          const char *url);
-    static const struct wl_windowmanager_interface windowmanager_interface;
-};
-
-
-class WaylandManagedClient
-{
-public:
-    WaylandManagedClient();
-    qint64 processId() const;
-    QByteArray authenticationToken() const;
-
-private:
-    qint64 m_processId;
-    QByteArray m_authenticationToken;
-
-    friend class WindowManagerServerIntegration;
+    static const struct qt_windowmanager_interface windowmanager_interface;
 };
 
 QT_END_NAMESPACE

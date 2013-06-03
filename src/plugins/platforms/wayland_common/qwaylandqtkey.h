@@ -45,33 +45,28 @@
 #include "qwaylanddisplay.h"
 #include <qpa/qwindowsysteminterface.h>
 
-class wl_qtkey_extension;
+#include "qwayland-qtkey-extension.h"
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandQtKeyExtension
+class QWaylandQtKeyExtension : public QtWayland::qt_key_extension
 {
 public:
     QWaylandQtKeyExtension(QWaylandDisplay *display, uint32_t id);
 
 private:
     QWaylandDisplay *m_display;
-    wl_qtkey_extension *m_qtkey;
 
-    static const struct wl_qtkey_extension_listener qtkey_listener;
-
-    static void handle_qtkey(void *data,
-                             struct wl_qtkey_extension *ext,
-                             uint32_t time,
-                             uint32_t type,
-                             uint32_t key,
-                             uint32_t modifiers,
-                             uint32_t nativeScanCode,
-                             uint32_t nativeVirtualKey,
-                             uint32_t nativeModifiers,
-                             const char *text,
-                             uint32_t autorep,
-                             uint32_t count);
+    void key_extension_qtkey(uint32_t time,
+                               uint32_t type,
+                               uint32_t key,
+                               uint32_t modifiers,
+                               uint32_t nativeScanCode,
+                               uint32_t nativeVirtualKey,
+                               uint32_t nativeModifiers,
+                               const QString &text,
+                               uint32_t autorep,
+                               uint32_t count) Q_DECL_OVERRIDE;
 };
 
 QT_END_NAMESPACE

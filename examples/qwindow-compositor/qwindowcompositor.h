@@ -62,6 +62,7 @@ private slots:
     void surfaceMapped();
     void surfaceUnmapped();
     void surfaceDamaged(const QRect &rect);
+    void surfacePosChanged();
 
     void render();
 protected:

@@ -43,38 +43,25 @@
 #define QWAYLANDEXTENDEDOUTPUT_H
 
 #include "qwaylanddisplay.h"
+#include "qwayland-output-extension.h"
 
 QT_BEGIN_NAMESPACE
 
 class QWaylandExtendedOutput;
 
-class QWaylandOutputExtension
+class QWaylandExtendedOutput : public QtWayland::qt_extended_output
 {
 public:
-    QWaylandOutputExtension(QWaylandDisplay *display, uint32_t id);
-
-    QWaylandExtendedOutput* getExtendedOutput(QWaylandScreen *screen);
-private:
-    struct wl_output_extension *m_output_extension;
-};
-
-class QWaylandExtendedOutput
-{
-public:
-    QWaylandExtendedOutput(QWaylandScreen *screen, struct wl_extended_output *extended_output);
+    QWaylandExtendedOutput(QWaylandScreen *screen, struct ::qt_extended_output *extended_output);
 
     Qt::ScreenOrientation currentOrientation() const;
     void setOrientationUpdateMask(Qt::ScreenOrientations mask);
 
 private:
-    struct wl_extended_output *m_extended_output;
+    void extended_output_set_screen_rotation(int32_t rotation) Q_DECL_OVERRIDE;
+
     QWaylandScreen *m_screen;
     Qt::ScreenOrientation m_orientation;
-
-    static void set_screen_rotation(void *data,
-                             struct wl_extended_output *wl_extended_output,
-                             int32_t rotation);
-    static const struct wl_extended_output_listener extended_output_listener;
 };
 
 QT_END_NAMESPACE

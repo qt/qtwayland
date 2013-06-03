@@ -69,7 +69,7 @@ void Shell::get_shell_surface(struct wl_client *client,
               struct wl_resource *surface_super)
 {
     Q_UNUSED(shell_resource);
-    Surface *surface = resolve<Surface>(surface_super);
+    Surface *surface = Surface::fromResource(surface_super);
     new ShellSurface(client,id,surface);
 }
 
@@ -78,20 +78,20 @@ const struct wl_shell_interface Shell::shell_interface = {
 };
 
 ShellSurface::ShellSurface(wl_client *client, uint32_t id, Surface *surface)
-    : m_surface(surface)
+    : wl_shell_surface(client, id)
+    , m_surface(surface)
     , m_resizeGrabber(0)
     , m_moveGrabber(0)
     , m_transientParent(0)
     , m_xOffset(0)
     , m_yOffset(0)
 {
-    m_shellSurface = wl_client_add_object(client,&wl_shell_surface_interface,&shell_surface_interface,id,this);
     surface->setShellSurface(this);
 }
 
 void ShellSurface::sendConfigure(uint32_t edges, int32_t width, int32_t height)
 {
-    wl_shell_surface_send_configure(m_shellSurface,edges,width,height);
+    send_configure(edges, width, height);
 }
 
 Surface *ShellSurface::surface() const
@@ -148,103 +148,102 @@ void ShellSurface::setOffset(const QPointF &offset)
     m_yOffset = offset.y();
 }
 
-void ShellSurface::move(struct wl_client *client,
-                struct wl_resource *shell_surface_resource,
+void ShellSurface::shell_surface_destroy_resource(Resource *)
+{
+    delete this;
+}
+
+void ShellSurface::shell_surface_move(Resource *resource,
                 struct wl_resource *input_device_super,
                 uint32_t time)
 {
-    Q_UNUSED(client);
+    Q_UNUSED(resource);
     Q_UNUSED(time);
-    ShellSurface *self = static_cast<ShellSurface *>(shell_surface_resource->data);
-    InputDevice *input_device = static_cast<InputDevice *>(input_device_super->data);
-    if (self->m_resizeGrabber || self->m_moveGrabber) {
+
+    if (m_resizeGrabber || m_moveGrabber) {
         qDebug() << "invalid state";
         return;
     }
 
-    self->m_moveGrabber = new ShellSurfaceMoveGrabber(self);
-    wl_pointer *pointer = input_device->pointerDevice();
-    self->m_moveGrabber->base()->x = pointer->x;
-    self->m_moveGrabber->base()->y = pointer->y;
-    self->m_moveGrabber->offset_x = wl_fixed_to_int(pointer->x) - self->surface()->pos().x();
-    self->m_moveGrabber->offset_y = wl_fixed_to_int(pointer->y) - self->surface()->pos().y();
+    InputDevice *input_device = InputDevice::fromSeatResource(input_device_super);
+    ::wl_pointer *pointer = input_device->pointerDevice();
 
-    wl_pointer_start_grab(pointer, self->m_moveGrabber->base());
+    m_moveGrabber = new ShellSurfaceMoveGrabber(this);
+    m_moveGrabber->base()->x = pointer->x;
+    m_moveGrabber->base()->y = pointer->y;
+    m_moveGrabber->offset_x = wl_fixed_to_int(pointer->x) - surface()->pos().x();
+    m_moveGrabber->offset_y = wl_fixed_to_int(pointer->y) - surface()->pos().y();
+
+    wl_pointer_start_grab(pointer, m_moveGrabber->base());
 }
 
-void ShellSurface::resize(struct wl_client *client,
-                  struct wl_resource *shell_surface_resource,
+void ShellSurface::shell_surface_resize(Resource *resource,
                   struct wl_resource *input_device_super,
                   uint32_t time,
                   uint32_t edges)
 {
-    Q_UNUSED(shell_surface_resource);
-    Q_UNUSED(client);
+    Q_UNUSED(resource);
     Q_UNUSED(time);
     Q_UNUSED(edges);
-    ShellSurface *self = static_cast<ShellSurface *>(shell_surface_resource->data);
-    InputDevice *input_device = static_cast<InputDevice *>(input_device_super->data);
-    if (self->m_moveGrabber || self->m_resizeGrabber) {
+
+    if (m_moveGrabber || m_resizeGrabber) {
         qDebug() << "invalid state2";
         return;
     }
-    self->m_resizeGrabber = new ShellSurfaceResizeGrabber(self);
-    wl_pointer *pointer = input_device->pointerDevice();
-    self->m_resizeGrabber->base()->x = pointer->x;
-    self->m_resizeGrabber->base()->y = pointer->y;
-    self->m_resizeGrabber->resize_edges = wl_shell_surface_resize(edges);
-    self->m_resizeGrabber->width = self->surface()->size().width();
-    self->m_resizeGrabber->height = self->surface()->size().height();
 
-    wl_pointer_start_grab(pointer, self->m_resizeGrabber->base());
+    m_resizeGrabber = new ShellSurfaceResizeGrabber(this);
+
+    InputDevice *input_device = InputDevice::fromSeatResource(input_device_super);
+    ::wl_pointer *pointer = input_device->pointerDevice();
+
+    m_resizeGrabber->base()->x = pointer->x;
+    m_resizeGrabber->base()->y = pointer->y;
+    m_resizeGrabber->resize_edges = wl_shell_surface_resize(edges);
+    m_resizeGrabber->width = surface()->size().width();
+    m_resizeGrabber->height = surface()->size().height();
+
+    wl_pointer_start_grab(pointer, m_resizeGrabber->base());
 }
 
-void ShellSurface::set_toplevel(struct wl_client *client,
-                     struct wl_resource *shell_surface_resource)
+void ShellSurface::shell_surface_set_toplevel(Resource *resource)
 {
-    Q_UNUSED(client);
-    ShellSurface *self = static_cast<ShellSurface *>(shell_surface_resource->data);
-    self->m_transientParent = 0;
-    self->m_xOffset = 0;
-    self->m_yOffset = 0;
+    Q_UNUSED(resource);
+    m_transientParent = 0;
+    m_xOffset = 0;
+    m_yOffset = 0;
 
 }
 
-void ShellSurface::set_transient(struct wl_client *client,
-                      struct wl_resource *shell_surface_resource,
+void ShellSurface::shell_surface_set_transient(Resource *resource,
                       struct wl_resource *parent_surface_resource,
                       int x,
                       int y,
                       uint32_t flags)
 {
 
-    Q_UNUSED(client);
+    Q_UNUSED(resource);
     Q_UNUSED(flags);
-    ShellSurface *shell_surface = static_cast<ShellSurface *>(shell_surface_resource->data);
-    Surface *parent_surface = static_cast<Surface *>(parent_surface_resource->data);
-    shell_surface->m_transientParent = parent_surface->shellSurface();
-    shell_surface->m_xOffset = x;
-    shell_surface->m_yOffset = y;
+    Surface *parent_surface = Surface::fromResource(parent_surface_resource);
+    m_transientParent = parent_surface->shellSurface();
+    m_xOffset = x;
+    m_yOffset = y;
     if (flags & WL_SHELL_SURFACE_TRANSIENT_INACTIVE)
-        shell_surface->surface()->setTransientInactive(true);
+        surface()->setTransientInactive(true);
 }
 
-void ShellSurface::set_fullscreen(struct wl_client *client,
-                       struct wl_resource *shell_surface_resource,
+void ShellSurface::shell_surface_set_fullscreen(Resource *resource,
                        uint32_t method,
                        uint32_t framerate,
                        struct wl_resource *output)
 {
-    Q_UNUSED(client);
-    Q_UNUSED(shell_surface_resource);
+    Q_UNUSED(resource);
     Q_UNUSED(method);
     Q_UNUSED(framerate);
     Q_UNUSED(output);
 }
 
-void ShellSurface::set_popup(wl_client *client, wl_resource *resource, wl_resource *input_device, uint32_t time, wl_resource *parent, int32_t x, int32_t y, uint32_t flags)
+void ShellSurface::shell_surface_set_popup(Resource *resource, wl_resource *input_device, uint32_t time, wl_resource *parent, int32_t x, int32_t y, uint32_t flags)
 {
-    Q_UNUSED(client);
     Q_UNUSED(resource);
     Q_UNUSED(input_device);
     Q_UNUSED(time);
@@ -254,54 +253,33 @@ void ShellSurface::set_popup(wl_client *client, wl_resource *resource, wl_resour
     Q_UNUSED(flags);
 }
 
-void ShellSurface::set_maximized(struct wl_client *client,
-                       struct wl_resource *shell_surface_resource,
+void ShellSurface::shell_surface_set_maximized(Resource *resource,
                        struct wl_resource *output)
 {
-    Q_UNUSED(client);
-    Q_UNUSED(shell_surface_resource);
+    Q_UNUSED(resource);
     Q_UNUSED(output);
 }
 
-void ShellSurface::pong(struct wl_client *client,
-                        struct wl_resource *resource,
+void ShellSurface::shell_surface_pong(Resource *resource,
                         uint32_t serial)
 {
-    Q_UNUSED(client);
     Q_UNUSED(resource);
     Q_UNUSED(serial);
 }
 
-void ShellSurface::set_title(struct wl_client *client,
-                             struct wl_resource *resource,
-                             const char *title)
+void ShellSurface::shell_surface_set_title(Resource *resource,
+                             const QString &title)
 {
-    Q_UNUSED(client);
-    ShellSurface *self = static_cast<ShellSurface *>(resource->data);
-    self->surface()->setTitle(QString::fromUtf8(title));
+    Q_UNUSED(resource);
+    surface()->setTitle(title);
 }
 
-void ShellSurface::set_class(struct wl_client *client,
-                             struct wl_resource *resource,
-                             const char *class_)
+void ShellSurface::shell_surface_set_class(Resource *resource,
+                             const QString &className)
 {
-    Q_UNUSED(client);
-    ShellSurface *self = static_cast<ShellSurface *>(resource->data);
-    self->surface()->setClassName(QString::fromUtf8(class_));
+    Q_UNUSED(resource);
+    surface()->setClassName(className);
 }
-
-const struct wl_shell_surface_interface ShellSurface::shell_surface_interface = {
-    ShellSurface::pong,
-    ShellSurface::move,
-    ShellSurface::resize,
-    ShellSurface::set_toplevel,
-    ShellSurface::set_transient,
-    ShellSurface::set_fullscreen,
-    ShellSurface::set_popup,
-    ShellSurface::set_maximized,
-    ShellSurface::set_title,
-    ShellSurface::set_class
-};
 
 Qt::MouseButton toQtButton(uint32_t button)
 {
@@ -326,7 +304,7 @@ ShellSurfaceGrabber::ShellSurfaceGrabber(ShellSurface *shellSurface, const struc
     : shell_surface(shellSurface)
 {
     base()->interface = interface;
-    base()->focus = shell_surface->surface()->base();
+    base()->focus = shell_surface->surface();
 }
 
 ShellSurfaceGrabber::~ShellSurfaceGrabber()
@@ -450,7 +428,7 @@ void ShellSurfaceMoveGrabber::motion(wl_pointer_grab *grab, uint32_t time, int32
     shell_surface->surface()->setPos(pos);
     if (shell_surface->transientParent())
         shell_surface->setOffset(pos - shell_surface->transientParent()->surface()->pos());
-    shell_surface->surface()->damage(QRect(QPoint(0,0),shell_surface->surface()->size()));
+
 }
 
 void ShellSurfaceMoveGrabber::button(wl_pointer_grab *grab, uint32_t time, uint32_t button, uint32_t state)

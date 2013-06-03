@@ -49,6 +49,7 @@
 #include <QDebug>
 #include <QtPlatformSupport/private/qeglconvenience_p.h>
 #include <QtGui/private/qopenglcontext_p.h>
+#include <QtGui/private/qopengltexturecache_p.h>
 
 #include <qpa/qplatformopenglcontext.h>
 #include <QtGui/QSurfaceFormat>
@@ -62,6 +63,8 @@ QWaylandGLContext::QWaylandGLContext(EGLDisplay eglDisplay, const QSurfaceFormat
     , m_config(q_configFromGLFormat(m_eglDisplay, format, true))
     , m_format(q_glFormatFromConfig(m_eglDisplay, m_config))
     , m_blitProgram(0)
+    , m_textureCache(0)
+    , m_currentOnSurface(0)
 {
     m_shareEGLContext = share ? static_cast<QWaylandGLContext *>(share)->eglContext() : EGL_NO_CONTEXT;
 
@@ -83,18 +86,29 @@ QWaylandGLContext::QWaylandGLContext(EGLDisplay eglDisplay, const QSurfaceFormat
 QWaylandGLContext::~QWaylandGLContext()
 {
     delete m_blitProgram;
+    delete m_textureCache;
     eglDestroyContext(m_eglDisplay, m_context);
 }
 
 bool QWaylandGLContext::makeCurrent(QPlatformSurface *surface)
 {
     QWaylandEglWindow *window = static_cast<QWaylandEglWindow *>(surface);
-    EGLSurface eglSurface = window->eglSurface();
-    if (!eglMakeCurrent(m_eglDisplay, eglSurface, eglSurface, m_context))
-        return false;
+    if (m_currentOnSurface != window) {
+        if (m_currentOnSurface) {
+            QWaylandWindow *oldWindow = m_currentOnSurface;
+            m_currentOnSurface = 0;
+            oldWindow->resizeMutex()->unlock();
+        }
+        window->resizeMutex()->lock();
+        m_currentOnSurface = window;
+    }
 
-    // FIXME: remove this as soon as https://codereview.qt-project.org/#change,38879 is merged
-    QOpenGLContextPrivate::setCurrentContext(context());
+    EGLSurface eglSurface = window->eglSurface();
+    if (!eglMakeCurrent(m_eglDisplay, eglSurface, eglSurface, m_context)) {
+        qWarning("QEGLPlatformContext::makeCurrent: eglError: %x, this: %p \n", eglGetError(), this);
+        m_currentOnSurface->resizeMutex()->unlock();
+        return false;
+    }
 
     window->bindContentFBO();
 
@@ -104,16 +118,21 @@ bool QWaylandGLContext::makeCurrent(QPlatformSurface *surface)
 void QWaylandGLContext::doneCurrent()
 {
     eglMakeCurrent(m_eglDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+    if (m_currentOnSurface) {
+        QWaylandWindow *window = m_currentOnSurface;
+        m_currentOnSurface = 0;
+        window->resizeMutex()->unlock();
+    }
 }
 
 void QWaylandGLContext::swapBuffers(QPlatformSurface *surface)
 {
     QWaylandEglWindow *window = static_cast<QWaylandEglWindow *>(surface);
+
     EGLSurface eglSurface = window->eglSurface();
 
     if (window->decoration()) {
         makeCurrent(surface);
-
         if (!m_blitProgram) {
             m_blitProgram = new QOpenGLShaderProgram();
             m_blitProgram->addShaderFromSourceCode(QOpenGLShader::Vertex, "attribute vec4 position;\n\
@@ -124,7 +143,7 @@ void QWaylandGLContext::swapBuffers(QPlatformSurface *surface)
                                                                             gl_Position = position;\n\
                                                                             outTexCoords = texCoords.xy;\n\
                                                                         }");
-            m_blitProgram->addShaderFromSourceCode(QOpenGLShader::Fragment, "varying vec2 outTexCoords;\n\
+            m_blitProgram->addShaderFromSourceCode(QOpenGLShader::Fragment, "varying highp vec2 outTexCoords;\n\
                                                                             uniform sampler2D texture;\n\
                                                                             void main()\n\
                                                                             {\n\
@@ -137,23 +156,28 @@ void QWaylandGLContext::swapBuffers(QPlatformSurface *surface)
             }
         }
 
+        if (!m_textureCache) {
+            m_textureCache = new QOpenGLTextureCache(this->context());
+        }
+
         glDisable(GL_DEPTH_TEST);
+        glDisable(GL_BLEND);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-        if (window->decoration())
-            window->decoration()->paintDecoration();
-
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, window->contentTexture());
-        QRect r = window->contentsRect();
-        glViewport(r.x(), r.y(), r.width(), r.height());
 
         static const GLfloat squareVertices[] = {
             -1.f, -1.f,
             1.0f, -1.f,
             -1.f,  1.0f,
-            1.0f,  1.0f,
+            1.0f,  1.0f
         };
+
+        static const GLfloat inverseSquareVertices[] = {
+            -1.f, 1.f,
+            1.f, 1.f,
+            -1.f, -1.f,
+            1.f, -1.f
+        };
+
         static const GLfloat textureVertices[] = {
             0.0f,  0.0f,
             1.0f,  0.0f,
@@ -161,25 +185,44 @@ void QWaylandGLContext::swapBuffers(QPlatformSurface *surface)
             1.0f,  1.0f,
         };
 
-        m_blitProgram->bind();
-
         m_blitProgram->setUniformValue("texture", 0);
 
         m_blitProgram->enableAttributeArray("position");
         m_blitProgram->enableAttributeArray("texCoords");
-        m_blitProgram->setAttributeArray("position", squareVertices, 2);
         m_blitProgram->setAttributeArray("texCoords", textureVertices, 2);
 
         m_blitProgram->bind();
+        glActiveTexture(GL_TEXTURE0);
 
+        //Draw Decoration
+        m_blitProgram->setAttributeArray("position", inverseSquareVertices, 2);
+        QImage decorationImage = window->decoration()->contentImage();
+        m_textureCache->bindTexture(context(), decorationImage);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        QRect windowRect = window->window()->frameGeometry();
+        glViewport(0, 0, windowRect.width(), windowRect.height());
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
+        //Draw Content
+        m_blitProgram->setAttributeArray("position", squareVertices, 2);
+        glBindTexture(GL_TEXTURE_2D, window->contentTexture());
+        QRect r = window->contentsRect();
+        glViewport(r.x(), r.y(), r.width(), r.height());
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+        //Cleanup
         m_blitProgram->disableAttributeArray("position");
         m_blitProgram->disableAttributeArray("texCoords");
         m_blitProgram->release();
     }
 
     eglSwapBuffers(m_eglDisplay, eglSurface);
+    if (m_currentOnSurface == window) {
+        m_currentOnSurface = 0;
+        window->resizeMutex()->unlock();
+    }
+
 }
 
 GLuint QWaylandGLContext::defaultFramebufferObject(QPlatformSurface *surface) const

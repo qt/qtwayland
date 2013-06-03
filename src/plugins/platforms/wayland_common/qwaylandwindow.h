@@ -43,11 +43,14 @@
 #define QWAYLANDWINDOW_H
 
 #include <QtCore/QWaitCondition>
+#include <QtCore/QMutex>
 #include <QtGui/QIcon>
 
 #include <qpa/qplatformwindow.h>
 
 #include "qwaylanddisplay.h"
+
+#include "qwayland-wayland.h"
 
 struct wl_egl_window;
 
@@ -60,8 +63,29 @@ class QWaylandExtendedSurface;
 class QWaylandSubSurface;
 class QWaylandDecoration;
 
-class QWaylandWindow : public QPlatformWindow
+class QWaylandWindowConfigure
 {
+public:
+    QWaylandWindowConfigure()
+        : width(0)
+        , height(0)
+        , edges(0)
+    { }
+
+    void clear()
+    { width = height = edges = 0; }
+
+    bool isEmpty() const
+    { return !height || !width; }
+
+    int width;
+    int height;
+    uint32_t edges;
+};
+
+class QWaylandWindow : public QObject, public QPlatformWindow, public QtWayland::wl_surface
+{
+    Q_OBJECT
 public:
     enum WindowType {
         Shm,
@@ -85,18 +109,24 @@ public:
 
     void configure(uint32_t edges, int32_t width, int32_t height);
 
+    using QtWayland::wl_surface::attach;
     void attach(QWaylandBuffer *buffer, int x, int y);
     void attachOffset(QWaylandBuffer *buffer);
     QWaylandBuffer *attached() const;
     QPoint attachOffset() const;
 
+    using QtWayland::wl_surface::damage;
     void damage(const QRect &rect);
 
     void waitForFrameSync();
 
     QMargins frameMargins() const;
 
-    struct wl_surface *wl_surface() const { return mSurface; }
+    // TODO: remove?
+    struct ::wl_surface *wl_surface() { return object(); }
+    const struct ::wl_surface *wl_surface() const { return object(); }
+
+    static QWaylandWindow *fromWlSurface(::wl_surface *surface);
 
     QWaylandShellSurface *shellSurface() const;
     QWaylandExtendedSurface *extendedWindow() const;
@@ -124,19 +154,21 @@ public:
 
     bool createDecoration();
 
-    virtual void redraw();
-
     inline bool isMaximized() const { return mState == Qt::WindowMaximized; }
     inline bool isFullscreen() const { return mState == Qt::WindowFullScreen; }
 
     QWaylandWindow *topLevelWindow();
     QWaylandWindow *transientParent() const;
 
+    QMutex *resizeMutex() { return &mResizeLock; }
+
+public slots:
+    void doResize();
+
 protected:
     virtual void createDecorationInstance() {}
 
     QWaylandDisplay *mDisplay;
-    struct wl_surface *mSurface;
     QWaylandShellSurface *mShellSurface;
     QWaylandExtendedSurface *mExtendedWindow;
     QWaylandSubSurface *mSubSurfaceWindow;
@@ -150,6 +182,10 @@ protected:
     bool mWaitingForFrameSync;
     struct wl_callback *mFrameCallback;
     QWaitCondition mFrameSyncWait;
+
+    QMutex mResizeLock;
+    QWaylandWindowConfigure mConfigure;
+    bool mResizeExposedSent;
 
     bool mSentInitialResize;
     QPoint mOffset;
@@ -171,6 +207,7 @@ private:
     static const wl_callback_listener callbackListener;
     static void frameCallback(void *data, struct wl_callback *wl_callback, uint32_t time);
 
+    static QMutex mFrameSyncMutex;
 };
 
 inline QIcon QWaylandWindow::windowIcon() const

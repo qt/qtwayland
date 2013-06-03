@@ -45,11 +45,11 @@
 #include "qwaylanddisplay.h"
 #include <qpa/qwindowsysteminterface.h>
 
-class wl_touch_extension;
+#include <qwayland-touch-extension.h>
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandTouchExtension
+class QWaylandTouchExtension : public QtWayland::qt_touch_extension
 {
 public:
     QWaylandTouchExtension(QWaylandDisplay *display, uint32_t id);
@@ -60,28 +60,22 @@ private:
     void registerDevice(int caps);
 
     QWaylandDisplay *mDisplay;
-    wl_touch_extension *mTouch;
-    static const struct wl_touch_extension_listener touch_listener;
 
-    static void handle_touch(void *data,
-                             struct wl_touch_extension *ext,
-                             uint32_t time,
-                             uint32_t id,
-                             uint32_t state,
-                             int32_t x,
-                             int32_t y,
-                             int32_t normalized_x,
-                             int32_t normalized_y,
-                             int32_t width,
-                             int32_t height,
-                             uint32_t pressure,
-                             int32_t velocity_x,
-                             int32_t velocity_y,
-                             uint32_t flags,
-                             struct wl_array *rawdata);
-    static void handle_configure(void *data,
-                                 struct wl_touch_extension *ext,
-                                 uint32_t flags);
+    void touch_extension_touch(uint32_t time,
+                               uint32_t id,
+                               uint32_t state,
+                               int32_t x,
+                               int32_t y,
+                               int32_t normalized_x,
+                               int32_t normalized_y,
+                               int32_t width,
+                               int32_t height,
+                               uint32_t pressure,
+                               int32_t velocity_x,
+                               int32_t velocity_y,
+                               uint32_t flags,
+                               struct wl_array *rawdata) Q_DECL_OVERRIDE;
+    void touch_extension_configure(uint32_t flags) Q_DECL_OVERRIDE;
 
     void sendTouchEvent();
 

@@ -39,7 +39,7 @@
 
  $QT_END_LICENSE$
     </copyright>
-  <interface name="wl_brcm" version="1">
+  <interface name="qt_brcm" version="1">
 
     <!-- Create a wayland buffer wrapping a global image. -->
     <request name="create_buffer">

@@ -61,45 +61,11 @@ WindowManagerServerIntegration::WindowManagerServerIntegration(QWaylandComposito
 
 WindowManagerServerIntegration::~WindowManagerServerIntegration()
 {
-    qDeleteAll(m_managedClients);
 }
 
 void WindowManagerServerIntegration::initialize(QtWayland::Display *waylandDisplay)
 {
-    wl_display_add_global(waylandDisplay->handle(),&wl_windowmanager_interface,this,WindowManagerServerIntegration::bind_func);
-}
-
-void WindowManagerServerIntegration::removeClient(wl_client *client)
-{
-    WaylandManagedClient *managedClient = m_managedClients.take(client);
-    delete managedClient;
-}
-
-WaylandManagedClient *WindowManagerServerIntegration::managedClient(wl_client *client) const
-{
-    return m_managedClients.value(client, 0);
-}
-
-void WindowManagerServerIntegration::mapClientToProcess(wl_client *client, uint32_t processId)
-{
-    WaylandManagedClient *managedClient = m_managedClients.value(client);
-    if (!managedClient)
-        managedClient = new WaylandManagedClient;
-    managedClient->m_processId = processId;
-    m_managedClients.insert(client, managedClient);
-}
-
-void WindowManagerServerIntegration::authenticateWithToken(wl_client *client, const char *token)
-{
-    Q_ASSERT(token != 0 && *token != 0);
-
-    WaylandManagedClient *managedClient = m_managedClients.value(client);
-    if (!managedClient)
-        managedClient = new WaylandManagedClient;
-    managedClient->m_authenticationToken = QByteArray(token);
-    m_managedClients.insert(client, managedClient);
-
-    emit clientAuthenticated(client);
+    wl_display_add_global(waylandDisplay->handle(),&qt_windowmanager_interface,this,WindowManagerServerIntegration::bind_func);
 }
 
 void WindowManagerServerIntegration::setShowIsFullScreen(bool value)
@@ -107,7 +73,7 @@ void WindowManagerServerIntegration::setShowIsFullScreen(bool value)
     m_showIsFullScreen = value;
     struct wl_resource *resource;
     wl_list_for_each(resource,&client_resources, link) {
-        wl_windowmanager_send_hints(resource, int32_t(m_showIsFullScreen));
+        qt_windowmanager_send_hints(resource, int32_t(m_showIsFullScreen));
     }
 }
 
@@ -116,7 +82,7 @@ void WindowManagerServerIntegration::sendQuitMessage(wl_client *client)
     struct wl_resource *resource;
     wl_list_for_each(resource, &client_resources, link) {
         if (resource->client == client) {
-            wl_windowmanager_send_quit(resource);
+            qt_windowmanager_send_quit(resource);
             return;
         }
     }
@@ -136,37 +102,18 @@ void WindowManagerServerIntegration::bind_func(struct wl_client *client, void *d
     WindowManagerServerIntegrationClientData *clientData = new WindowManagerServerIntegrationClientData;
     clientData->integration = static_cast<WindowManagerServerIntegration *>(data);
 
-    wl_resource *resource = wl_client_add_object(client,&wl_windowmanager_interface,&windowmanager_interface,id,clientData);
+    wl_resource *resource = wl_client_add_object(client,&qt_windowmanager_interface,&windowmanager_interface,id,clientData);
     resource->destroy = WindowManagerServerIntegration::destroy_resource;
     clientData->integration->registerResource(resource);
-    wl_windowmanager_send_hints(resource, int32_t(clientData->integration->m_showIsFullScreen));
+    qt_windowmanager_send_hints(resource, int32_t(clientData->integration->m_showIsFullScreen));
 }
 
 void WindowManagerServerIntegration::destroy_resource(wl_resource *resource)
 {
     WindowManagerServerIntegrationClientData *data = static_cast<WindowManagerServerIntegrationClientData *>(resource->data);
-    WindowManagerServerIntegration *window_mgr = data->integration;
-
-    window_mgr->removeClient(resource->client);
 
     delete data;
     free(resource);
-}
-
-void WindowManagerServerIntegration::map_client_to_process(struct wl_client *client,
-                                                           struct wl_resource *window_mgr_resource,
-                                                           uint32_t process_id)
-{
-    WindowManagerServerIntegration *window_mgr = static_cast<WindowManagerServerIntegrationClientData *>(window_mgr_resource->data)->integration;
-    window_mgr->mapClientToProcess(client,process_id);
-}
-
-void WindowManagerServerIntegration::authenticate_with_token(struct wl_client *client,
-                                                             struct wl_resource *window_mgr_resource,
-                                                             const char *wl_authentication_token)
-{
-    WindowManagerServerIntegration *window_mgr = static_cast<WindowManagerServerIntegrationClientData *>(window_mgr_resource->data)->integration;
-    window_mgr->authenticateWithToken(client,wl_authentication_token);
 }
 
 void WindowManagerServerIntegration::open_url(struct wl_client *client,
@@ -185,30 +132,8 @@ void WindowManagerServerIntegration::open_url(struct wl_client *client,
     }
 }
 
-const struct wl_windowmanager_interface WindowManagerServerIntegration::windowmanager_interface = {
-    WindowManagerServerIntegration::map_client_to_process,
-    WindowManagerServerIntegration::authenticate_with_token,
+const struct qt_windowmanager_interface WindowManagerServerIntegration::windowmanager_interface = {
     WindowManagerServerIntegration::open_url
 };
-
-
-/// ///
-/// / WaylandManagedClient
-/// ///
-
-WaylandManagedClient::WaylandManagedClient()
-    : m_processId(0)
-{
-}
-
-qint64 WaylandManagedClient::processId() const
-{
-    return m_processId;
-}
-
-QByteArray WaylandManagedClient::authenticationToken() const
-{
-    return m_authenticationToken;
-}
 
 QT_END_NAMESPACE

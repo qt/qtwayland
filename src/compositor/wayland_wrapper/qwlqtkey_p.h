@@ -42,8 +42,10 @@
 #define WLQTKEY_H
 
 #include  <private/qwlcompositor_p.h>
-#include "wayland-qtkey-extension-server-protocol.h"
+
 #include "wayland-util.h"
+
+#include "qwayland-server-qtkey-extension.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -53,24 +55,15 @@ class QKeyEvent;
 
 namespace QtWayland {
 
-class QtKeyExtensionGlobal
+class QtKeyExtensionGlobal : public QtWaylandServer::qt_key_extension
 {
 public:
     QtKeyExtensionGlobal(Compositor *compositor);
-    ~QtKeyExtensionGlobal();
 
     bool postQtKeyEvent(QKeyEvent *event, Surface *surface);
 
 private:
-    static void bind_func(struct wl_client *client, void *data,
-                          uint32_t version, uint32_t id);
-
-    static void destroy_resource(wl_resource *resource);
-
-    static const struct wl_qtkey_extension_interface qtkey_interface;
-
     Compositor *m_compositor;
-    QList<wl_resource *> m_resources;
 };
 
 }

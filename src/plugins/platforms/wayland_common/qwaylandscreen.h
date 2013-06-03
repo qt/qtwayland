@@ -44,16 +44,18 @@
 
 #include <qpa/qplatformscreen.h>
 
+#include <qwayland-wayland.h>
+
 QT_BEGIN_NAMESPACE
 
 class QWaylandDisplay;
 class QWaylandCursor;
 class QWaylandExtendedOutput;
 
-class QWaylandScreen : public QPlatformScreen
+class QWaylandScreen : public QPlatformScreen, QtWayland::wl_output
 {
 public:
-    QWaylandScreen(QWaylandDisplay *waylandDisplay, struct wl_output *output);
+    QWaylandScreen(QWaylandDisplay *waylandDisplay, uint32_t id);
     ~QWaylandScreen();
 
     QWaylandDisplay *display() const;
@@ -69,20 +71,23 @@ public:
 
     QPlatformCursor *cursor() const;
 
-    wl_output *output() const { return mOutput; }
+    ::wl_output *output() { return object(); }
 
     QWaylandExtendedOutput *extendedOutput() const;
-    void setExtendedOutput(QWaylandExtendedOutput *extendedOutput);
+    void createExtendedOutput();
 
     static QWaylandScreen *waylandScreenFromWindow(QWindow *window);
 
-    void handleMode(const QSize &size, int refreshRate);
-
-    void setGeometry(const QRect &geom);
-
 private:
+    void output_mode(uint32_t flags, int width, int height, int refresh) Q_DECL_OVERRIDE;
+    void output_geometry(int32_t x, int32_t y,
+                         int32_t width, int32_t height,
+                         int subpixel,
+                         const QString &make,
+                         const QString &model,
+                         int32_t transform) Q_DECL_OVERRIDE;
+
     QWaylandDisplay *mWaylandDisplay;
-    struct wl_output *mOutput;
     QWaylandExtendedOutput *mExtendedOutput;
     QRect mGeometry;
     int mDepth;

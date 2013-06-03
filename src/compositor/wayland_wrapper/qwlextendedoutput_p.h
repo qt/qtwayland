@@ -42,11 +42,12 @@
 #define WLEXTENDEDOUTPUT_H
 
 #include "wayland-server.h"
-#include "wayland-output-extension-server-protocol.h"
 
 #include <QtCompositor/qwaylandexport.h>
 
 #include <QtCore/qnamespace.h>
+
+#include <qwayland-server-output-extension.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -55,7 +56,18 @@ namespace QtWayland {
 class Compositor;
 class Output;
 
-class OutputExtensionGlobal
+class ExtendedOutput : public QtWaylandServer::qt_extended_output::Resource
+{
+public:
+    ExtendedOutput() : output(0) {}
+
+    void sendOutputOrientation(Qt::ScreenOrientation orientation);
+
+    Output *output;
+    Qt::ScreenOrientations orientationUpdateMask;
+};
+
+class OutputExtensionGlobal : public QtWaylandServer::qt_output_extension, public QtWaylandServer::qt_extended_output
 {
 public:
     OutputExtensionGlobal(Compositor *compositor);
@@ -63,37 +75,16 @@ public:
 private:
     Compositor *m_compositor;
 
-    static void bind_func(struct wl_client *client, void *data,
-                          uint32_t version, uint32_t id);
-    static void get_extended_output(struct wl_client *client,
-                                        struct wl_resource *output_extension_resource,
-                                        uint32_t id,
-                                        struct wl_resource *output_resource);
-    static const struct wl_output_extension_interface output_extension_interface;
+    qt_extended_output::Resource *extended_output_allocate() Q_DECL_OVERRIDE { return new ExtendedOutput; }
 
+    void extended_output_set_orientation_update_mask(qt_extended_output::Resource *resource,
+                                                     int32_t orientation_update_mask) Q_DECL_OVERRIDE;
+
+    void output_extension_get_extended_output(qt_output_extension::Resource *resource,
+                                              uint32_t id,
+                                              struct wl_resource *output_resource) Q_DECL_OVERRIDE;
 };
 
-class ExtendedOutput
-{
-public:
-    ExtendedOutput(struct wl_client *client, uint32_t id, Output *output, Compositor *compositor);
-
-    Qt::ScreenOrientations orientationUpdateMask() { return m_orientationUpdateMask; }
-
-    void sendOutputOrientation(Qt::ScreenOrientation orientation);
-
-    static void destroy_resource(wl_resource *resource);
-
-    static void set_orientation_update_mask(struct wl_client *client,
-                                            struct wl_resource *resource,
-                                            int32_t orientation_update_mask);
-
-private:
-    struct wl_resource *m_extended_output_resource;
-    Output *m_output;
-    Compositor *m_compositor;
-    Qt::ScreenOrientations m_orientationUpdateMask;
-};
 
 }
 

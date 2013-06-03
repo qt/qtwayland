@@ -75,16 +75,18 @@ public:
     QPlatformOpenGLContext *createPlatformOpenGLContext(const QSurfaceFormat &glFormat, QPlatformOpenGLContext *share) const;
 
     QWaylandDisplay *waylandDisplay() const;
-    struct wl_xcomposite *waylandXComposite() const;
+    struct qt_xcomposite *waylandXComposite() const;
 
     Display *xDisplay() const;
     EGLDisplay eglDisplay() const;
     int screen() const;
     Window rootWindow() const;
 
+    bool supportsThreadedOpenGL() const { return true; }
+
 private:
     QWaylandDisplay *mWaylandDisplay;
-    struct wl_xcomposite *mWaylandComposite;
+    struct qt_xcomposite *mWaylandComposite;
 
     Display *mDisplay;
     EGLDisplay mEglDisplay;
@@ -92,11 +94,11 @@ private:
     Window mRootWindow;
 
     static void wlDisplayHandleGlobal(void *data, struct wl_registry *registry, uint32_t id,
-                                      const char *interface, uint32_t version);
+                                      const QString &interface, uint32_t version);
 
-    static const struct wl_xcomposite_listener xcomposite_listener;
+    static const struct qt_xcomposite_listener xcomposite_listener;
     static void rootInformation(void *data,
-                 struct wl_xcomposite *xcomposite,
+                 struct qt_xcomposite *xcomposite,
                  const char *display_name,
                  uint32_t root_window);
 };

@@ -66,7 +66,8 @@
 QT_USE_NAMESPACE
 
 QWaylandInputDevice::QWaylandInputDevice(QWaylandDisplay *display, uint32_t id)
-    : mQDisplay(display)
+    : QtWayland::wl_seat(display->wl_registry(), id)
+    , mQDisplay(display)
     , mDisplay(display->wl_display())
     , mCaps(0)
     , mTransferDevice(0)
@@ -81,10 +82,6 @@ QWaylandInputDevice::QWaylandInputDevice(QWaylandDisplay *display, uint32_t id)
     , mXkbState(0)
     #endif
 {
-    mSeat = static_cast<struct wl_seat *>(wl_registry_bind(display->wl_registry(), id, &wl_seat_interface, 1));
-    wl_seat_add_listener(mSeat, &seatListener, this);
-    wl_seat_set_user_data(mSeat, this);
-
 #ifndef QT_NO_WAYLAND_XKB
     xkb_rule_names names;
     names.rules = strdup("evdev");
@@ -122,59 +119,26 @@ QWaylandInputDevice::~QWaylandInputDevice()
 #endif
 }
 
-const struct wl_seat_listener QWaylandInputDevice::seatListener = {
-    QWaylandInputDevice::seat_capabilities
-};
-
-const struct wl_pointer_listener QWaylandInputDevice::pointerListener = {
-    QWaylandInputDevice::pointer_enter,
-    QWaylandInputDevice::pointer_leave,
-    QWaylandInputDevice::pointer_motion,
-    QWaylandInputDevice::pointer_button,
-    QWaylandInputDevice::pointer_axis
-};
-
-const struct wl_keyboard_listener QWaylandInputDevice::keyboardListener = {
-    QWaylandInputDevice::keyboard_keymap,
-    QWaylandInputDevice::keyboard_enter,
-    QWaylandInputDevice::keyboard_leave,
-    QWaylandInputDevice::keyboard_key,
-    QWaylandInputDevice::keyboard_modifiers
-};
-
-const struct wl_touch_listener QWaylandInputDevice::touchListener = {
-    QWaylandInputDevice::touch_down,
-    QWaylandInputDevice::touch_up,
-    QWaylandInputDevice::touch_motion,
-    QWaylandInputDevice::touch_frame,
-    QWaylandInputDevice::touch_cancel
-};
-
-void QWaylandInputDevice::seat_capabilities(void *data, struct wl_seat *seat, uint32_t caps)
+void QWaylandInputDevice::seat_capabilities(uint32_t caps)
 {
-    QWaylandInputDevice *self = static_cast<QWaylandInputDevice *>(data);
-    self->mCaps = caps;
+    mCaps = caps;
 
-    if (caps & WL_SEAT_CAPABILITY_KEYBOARD) {
-        self->mDeviceInterfaces.keyboard = wl_seat_get_keyboard(seat);
-        wl_keyboard_add_listener(self->mDeviceInterfaces.keyboard, &keyboardListener, self);
-    }
+    if (caps & WL_SEAT_CAPABILITY_KEYBOARD)
+        QtWayland::wl_keyboard::init(get_keyboard());
 
     if (caps & WL_SEAT_CAPABILITY_POINTER) {
-        self->mDeviceInterfaces.pointer = wl_seat_get_pointer(seat);
-        self->mDeviceInterfaces.pointerSurface = self->mQDisplay->createSurface(self);
-        wl_pointer_add_listener(self->mDeviceInterfaces.pointer, &pointerListener, self);
+        QtWayland::wl_pointer::init(get_pointer());
+        pointerSurface = mQDisplay->createSurface(this);
     }
 
     if (caps & WL_SEAT_CAPABILITY_TOUCH) {
-        self->mDeviceInterfaces.touch = wl_seat_get_touch(seat);
-        wl_touch_add_listener(self->mDeviceInterfaces.touch, &touchListener, self);
+        QtWayland::wl_touch::init(get_touch());
 
-        if (!self->mTouchDevice) {
-            self->mTouchDevice = new QTouchDevice;
-            self->mTouchDevice->setType(QTouchDevice::TouchScreen);
-            self->mTouchDevice->setCapabilities(QTouchDevice::Position);
-            QWindowSystemInterface::registerTouchDevice(self->mTouchDevice);
+        if (!mTouchDevice) {
+            mTouchDevice = new QTouchDevice;
+            mTouchDevice->setType(QTouchDevice::TouchScreen);
+            mTouchDevice->setCapabilities(QTouchDevice::Position);
+            QWindowSystemInterface::registerTouchDevice(mTouchDevice);
         }
     }
 }
@@ -189,7 +153,7 @@ void QWaylandInputDevice::handleWindowDestroyed(QWaylandWindow *window)
 
 void QWaylandInputDevice::setTransferDevice(struct wl_data_device *device)
 {
-    mTransferDevice =  device;
+    mTransferDevice = device;
 }
 
 struct wl_data_device *QWaylandInputDevice::transferDevice() const
@@ -206,51 +170,37 @@ void QWaylandInputDevice::removeMouseButtonFromState(Qt::MouseButton button)
 void QWaylandInputDevice::setCursor(struct wl_buffer *buffer, struct wl_cursor_image *image)
 {
     if (mCaps & WL_SEAT_CAPABILITY_POINTER) {
-        wl_pointer_set_cursor(mDeviceInterfaces.pointer, mEnterSerial, mDeviceInterfaces.pointerSurface,
-                              image->hotspot_x, image->hotspot_y);
-        wl_surface_attach(mDeviceInterfaces.pointerSurface, buffer, 0, 0);
-        wl_surface_damage(mDeviceInterfaces.pointerSurface, 0, 0, image->width, image->height);
-        wl_surface_commit(mDeviceInterfaces.pointerSurface);
+        set_cursor(mEnterSerial, pointerSurface,
+                   image->hotspot_x, image->hotspot_y);
+        wl_surface_attach(pointerSurface, buffer, 0, 0);
+        wl_surface_damage(pointerSurface, 0, 0, image->width, image->height);
+        wl_surface_commit(pointerSurface);
     }
 }
 
-void QWaylandInputDevice::pointer_enter(void *data,
-                                        struct wl_pointer *pointer,
-                                        uint32_t serial, struct wl_surface *surface,
+void QWaylandInputDevice::pointer_enter(uint32_t serial, struct wl_surface *surface,
                                         wl_fixed_t sx, wl_fixed_t sy)
 {
-    Q_UNUSED(pointer);
     Q_UNUSED(sx);
     Q_UNUSED(sy);
-    QWaylandInputDevice *inputDevice = (QWaylandInputDevice *) data;
 
     if (!surface)
         return;
 
     QGuiApplication::setOverrideCursor(QCursor(Qt::ArrowCursor));
 
-    QWaylandWindow *window = (QWaylandWindow *) wl_surface_get_user_data(surface);
+    QWaylandWindow *window = QWaylandWindow::fromWlSurface(surface);
     window->handleMouseEnter();
-    window->handleMouse(inputDevice,
-                        inputDevice->mTime,
-                        inputDevice->mSurfacePos,
-                        inputDevice->mGlobalPos,
-                        inputDevice->mButtons,
-                        Qt::NoModifier);
-    inputDevice->mPointerFocus = window;
+    window->handleMouse(this, mTime, mSurfacePos, mGlobalPos, mButtons, Qt::NoModifier);
+    mPointerFocus = window;
 
-    inputDevice->mTime = QWaylandDisplay::currentTimeMillisec();
-    inputDevice->mSerial = serial;
-    inputDevice->mEnterSerial = serial;
+    mTime = QWaylandDisplay::currentTimeMillisec();
+    mSerial = serial;
+    mEnterSerial = serial;
 }
 
-void QWaylandInputDevice::pointer_leave(void *data,
-                                        struct wl_pointer *pointer,
-                                        uint32_t time, struct wl_surface *surface)
+void QWaylandInputDevice::pointer_leave(uint32_t time, struct wl_surface *surface)
 {
-    Q_UNUSED(pointer);
-    QWaylandInputDevice *inputDevice = (QWaylandInputDevice *) data;
-
     // The event may arrive after destroying the window, indicated by
     // a null surface.
     if (!surface)
@@ -258,24 +208,20 @@ void QWaylandInputDevice::pointer_leave(void *data,
 
     QGuiApplication::restoreOverrideCursor();
 
-    QWaylandWindow *window = (QWaylandWindow *) wl_surface_get_user_data(surface);
+    QWaylandWindow *window = QWaylandWindow::fromWlSurface(surface);
     window->handleMouseLeave();
-    inputDevice->mPointerFocus = 0;
-    inputDevice->mButtons = Qt::NoButton;
+    mPointerFocus = 0;
+    mButtons = Qt::NoButton;
 
-    inputDevice->mTime = time;
+    mTime = time;
 }
 
-void QWaylandInputDevice::pointer_motion(void *data,
-                                         struct wl_pointer *pointer,
-                                         uint32_t time,
-                                         wl_fixed_t surface_x, wl_fixed_t surface_y)
+void QWaylandInputDevice::pointer_motion(uint32_t time, wl_fixed_t surface_x, wl_fixed_t surface_y)
 {
-    Q_UNUSED(pointer);
     Q_UNUSED(surface_x);
     Q_UNUSED(surface_y);
-    QWaylandInputDevice *inputDevice = (QWaylandInputDevice *) data;
-    QWaylandWindow *window = inputDevice->mPointerFocus;
+
+    QWaylandWindow *window = mPointerFocus;
 
     if (window == NULL) {
         // We destroyed the pointer focus surface, but the server
@@ -288,27 +234,18 @@ void QWaylandInputDevice::pointer_motion(void *data,
     QPointF global = window->window()->mapToGlobal(pos.toPoint());
     global += delta;
 
-    inputDevice->mSurfacePos = pos;
-    inputDevice->mGlobalPos = global;
-    inputDevice->mTime = time;
+    mSurfacePos = pos;
+    mGlobalPos = global;
+    mTime = time;
 
-    window->handleMouse(inputDevice,
-                        time,
-                        inputDevice->mSurfacePos,
-                        inputDevice->mGlobalPos,
-                        inputDevice->mButtons,
-                        Qt::NoModifier);
+    window->handleMouse(this, time, mSurfacePos, mGlobalPos, mButtons, Qt::NoModifier);
 }
 
-void QWaylandInputDevice::pointer_button(void *data,
-                                         struct wl_pointer *pointer,
-                                         uint32_t serial, uint32_t time,
+void QWaylandInputDevice::pointer_button(uint32_t serial, uint32_t time,
                                          uint32_t button, uint32_t state)
 {
-    Q_UNUSED(pointer);
     Q_UNUSED(serial);
-    QWaylandInputDevice *inputDevice = (QWaylandInputDevice *) data;
-    QWaylandWindow *window = inputDevice->mPointerFocus;
+    QWaylandWindow *window = mPointerFocus;
     Qt::MouseButton qt_button;
 
     // translate from kernel (input.h) 'button' to corresponding Qt:MouseButton.
@@ -334,32 +271,20 @@ void QWaylandInputDevice::pointer_button(void *data,
     }
 
     if (state)
-        inputDevice->mButtons |= qt_button;
+        mButtons |= qt_button;
     else
-        inputDevice->mButtons &= ~qt_button;
+        mButtons &= ~qt_button;
 
-    inputDevice->mTime = time;
-    inputDevice->mSerial = serial;
+    mTime = time;
+    mSerial = serial;
 
-    if (window) {
-        window->handleMouse(inputDevice,
-                            time,
-                            inputDevice->mSurfacePos,
-                            inputDevice->mGlobalPos,
-                            inputDevice->mButtons,
-                            Qt::NoModifier);
-    }
+    if (window)
+        window->handleMouse(this, time, mSurfacePos, mGlobalPos, mButtons, Qt::NoModifier);
 }
 
-void QWaylandInputDevice::pointer_axis(void *data,
-                                       struct wl_pointer *pointer,
-                                       uint32_t time,
-                                       uint32_t axis,
-                                       int32_t value)
+void QWaylandInputDevice::pointer_axis(uint32_t time, uint32_t axis, int32_t value)
 {
-    Q_UNUSED(pointer);
-    QWaylandInputDevice *inputDevice = (QWaylandInputDevice *) data;
-    QWaylandWindow *window = inputDevice->mPointerFocus;
+    QWaylandWindow *window = mPointerFocus;
     QPoint pixelDelta;
     QPoint angleDelta;
 
@@ -375,10 +300,8 @@ void QWaylandInputDevice::pointer_axis(void *data,
     }
 
     QWindowSystemInterface::handleWheelEvent(window->window(),
-                                             time,
-                                             inputDevice->mSurfacePos,
-                                             inputDevice->mGlobalPos,
-                                             pixelDelta,
+                                             time, mSurfacePos,
+                                             mGlobalPos, pixelDelta,
                                              angleDelta);
 }
 
@@ -497,71 +420,49 @@ static uint32_t translateKey(uint32_t sym, char *string, size_t size)
 
 #endif // QT_NO_WAYLAND_XKB
 
-void QWaylandInputDevice::keyboard_keymap(void *data,
-                                          struct wl_keyboard *keyboard,
-                                          uint32_t format,
-                                          int32_t fd,
-                                          uint32_t size)
+void QWaylandInputDevice::keyboard_keymap(uint32_t format, int32_t fd, uint32_t size)
 {
-    Q_UNUSED(data);
-    Q_UNUSED(keyboard);
     Q_UNUSED(format);
     Q_UNUSED(fd);
     Q_UNUSED(size);
 }
 
-void QWaylandInputDevice::keyboard_enter(void *data,
-                                         struct wl_keyboard *keyboard,
-                                         uint32_t time,
-                                         struct wl_surface *surface,
-                                         struct wl_array *keys)
+void QWaylandInputDevice::keyboard_enter(uint32_t time, struct wl_surface *surface, struct wl_array *keys)
 {
-    Q_UNUSED(keyboard);
     Q_UNUSED(time);
     Q_UNUSED(keys);
 
     if (!surface)
         return;
 
-    QWaylandInputDevice *inputDevice = (QWaylandInputDevice *) data;
-    QWaylandWindow *window = (QWaylandWindow *) wl_surface_get_user_data(surface);
-    inputDevice->mKeyboardFocus = window;
-    inputDevice->mQDisplay->setLastKeyboardFocusInputDevice(inputDevice);
+    QWaylandWindow *window = QWaylandWindow::fromWlSurface(surface);
+    mKeyboardFocus = window;
+    mQDisplay->setLastKeyboardFocusInputDevice(this);
     QWindowSystemInterface::handleWindowActivated(window->window());
 }
 
-void QWaylandInputDevice::keyboard_leave(void *data,
-                                         struct wl_keyboard *keyboard,
-                                         uint32_t time,
-                                         struct wl_surface *surface)
+void QWaylandInputDevice::keyboard_leave(uint32_t time, struct wl_surface *surface)
 {
-    Q_UNUSED(keyboard);
     Q_UNUSED(time);
     Q_UNUSED(surface);
 
-    QWaylandInputDevice *inputDevice = (QWaylandInputDevice *) data;
-    inputDevice->mKeyboardFocus = NULL;
-    inputDevice->mQDisplay->setLastKeyboardFocusInputDevice(0);
+    mKeyboardFocus = NULL;
+    mQDisplay->setLastKeyboardFocusInputDevice(0);
 }
 
-void QWaylandInputDevice::keyboard_key(void *data,
-                                       struct wl_keyboard *keyboard,
-                                       uint32_t serial, uint32_t time,
-                                       uint32_t key, uint32_t state)
+void QWaylandInputDevice::keyboard_key(uint32_t serial, uint32_t time, uint32_t key, uint32_t state)
 {
-    Q_UNUSED(keyboard);
     Q_UNUSED(serial);
-    QWaylandInputDevice *inputDevice = (QWaylandInputDevice *) data;
-    QWaylandWindow *window = inputDevice->mKeyboardFocus;
+    QWaylandWindow *window = mKeyboardFocus;
 #ifndef QT_NO_WAYLAND_XKB
-    if (!inputDevice->mXkbMap)
+    if (!mXkbMap)
         return;
 
     uint32_t code = key + 8;
     bool isDown = state != 0;
     const xkb_keysym_t *syms;
-    uint32_t numSyms = xkb_key_get_syms(inputDevice->mXkbState, code, &syms);
-    xkb_state_update_key(inputDevice->mXkbState, code,
+    uint32_t numSyms = xkb_key_get_syms(mXkbState, code, &syms);
+    xkb_state_update_key(mXkbState, code,
                          isDown ? XKB_KEY_DOWN : XKB_KEY_UP);
 
     if (!window) {
@@ -572,7 +473,7 @@ void QWaylandInputDevice::keyboard_key(void *data,
 
     if (numSyms == 1) {
         xkb_keysym_t sym = syms[0];
-        Qt::KeyboardModifiers modifiers = translateModifiers(inputDevice->mXkbState);
+        Qt::KeyboardModifiers modifiers = translateModifiers(mXkbState);
         QEvent::Type type = isDown ? QEvent::KeyPress : QEvent::KeyRelease;
 
         char s[2];
@@ -597,24 +498,20 @@ void QWaylandInputDevice::keyboard_key(void *data,
 #endif
 }
 
-void QWaylandInputDevice::keyboard_modifiers(void *data,
-                                             struct wl_keyboard *keyboard,
-                                             uint32_t serial,
+void QWaylandInputDevice::keyboard_modifiers(uint32_t serial,
                                              uint32_t mods_depressed,
                                              uint32_t mods_latched,
                                              uint32_t mods_locked,
                                              uint32_t group)
 {
-    Q_UNUSED(keyboard);
     Q_UNUSED(serial);
 #ifndef QT_NO_WAYLAND_XKB
-    QWaylandInputDevice *inputDevice = (QWaylandInputDevice *) data;
-    if (inputDevice->mXkbState)
-        xkb_state_update_mask(inputDevice->mXkbState,
+    if (mXkbState)
+        xkb_state_update_mask(mXkbState,
                               mods_depressed, mods_latched, mods_locked,
                               0, 0, group);
 #else
-    Q_UNUSED(data);
+    Q_UNUSED(serial);
     Q_UNUSED(mods_depressed);
     Q_UNUSED(mods_latched);
     Q_UNUSED(mods_locked);
@@ -622,70 +519,43 @@ void QWaylandInputDevice::keyboard_modifiers(void *data,
 #endif
 }
 
-void QWaylandInputDevice::touch_down(void *data,
-                                     struct wl_touch *touch,
-                                     uint32_t serial,
+void QWaylandInputDevice::touch_down(uint32_t serial,
                                      uint32_t time,
                                      struct wl_surface *surface,
                                      int32_t id,
                                      wl_fixed_t x,
                                      wl_fixed_t y)
 {
-    Q_UNUSED(touch);
     Q_UNUSED(serial);
     Q_UNUSED(time);
-    QWaylandInputDevice *inputDevice = (QWaylandInputDevice *) data;
-    inputDevice->mTouchFocus = static_cast<QWaylandWindow *>(wl_surface_get_user_data(surface));
-    inputDevice->handleTouchPoint(id, wl_fixed_to_double(x), wl_fixed_to_double(y), Qt::TouchPointPressed);
+    mTouchFocus = QWaylandWindow::fromWlSurface(surface);
+    handleTouchPoint(id, wl_fixed_to_double(x), wl_fixed_to_double(y), Qt::TouchPointPressed);
 }
 
-void QWaylandInputDevice::touch_up(void *data,
-                                   struct wl_touch *touch,
-                                   uint32_t serial,
-                                   uint32_t time,
-                                   int32_t id)
+void QWaylandInputDevice::touch_up(uint32_t serial, uint32_t time, int32_t id)
 {
-    Q_UNUSED(touch);
     Q_UNUSED(serial);
     Q_UNUSED(time);
-    QWaylandInputDevice *inputDevice = (QWaylandInputDevice *) data;
-    inputDevice->mTouchFocus = 0;
-    inputDevice->handleTouchPoint(id, 0, 0, Qt::TouchPointReleased);
+    mTouchFocus = 0;
+    handleTouchPoint(id, 0, 0, Qt::TouchPointReleased);
 }
 
-void QWaylandInputDevice::touch_motion(void *data,
-                                       struct wl_touch *touch,
-                                       uint32_t time,
-                                       int32_t id,
-                                       wl_fixed_t x,
-                                       wl_fixed_t y)
+void QWaylandInputDevice::touch_motion(uint32_t time, int32_t id, wl_fixed_t x, wl_fixed_t y)
 {
-    Q_UNUSED(touch);
     Q_UNUSED(time);
-    QWaylandInputDevice *inputDevice = (QWaylandInputDevice *) data;
-    inputDevice->handleTouchPoint(id, wl_fixed_to_double(x), wl_fixed_to_double(y), Qt::TouchPointMoved);
+    handleTouchPoint(id, wl_fixed_to_double(x), wl_fixed_to_double(y), Qt::TouchPointMoved);
 }
 
-void QWaylandInputDevice::touch_frame(void *data, struct wl_touch *touch)
+void QWaylandInputDevice::touch_cancel()
 {
-    Q_UNUSED(touch);
-    QWaylandInputDevice *inputDevice = (QWaylandInputDevice *) data;
-    inputDevice->handleTouchFrame();
-}
+    mPrevTouchPoints.clear();
+    mTouchPoints.clear();
 
-void QWaylandInputDevice::touch_cancel(void *data, struct wl_touch *touch)
-{
-    Q_UNUSED(touch);
-    QWaylandInputDevice *self = static_cast<QWaylandInputDevice *>(data);
-
-    self->mPrevTouchPoints.clear();
-    self->mTouchPoints.clear();
-
-    QWaylandTouchExtension *touchExt = self->mQDisplay->touchExtension();
+    QWaylandTouchExtension *touchExt = mQDisplay->touchExtension();
     if (touchExt)
         touchExt->touchCanceled();
 
-    QWindowSystemInterface::handleTouchCancelEvent(0, self->mTouchDevice);
+    QWindowSystemInterface::handleTouchCancelEvent(0, mTouchDevice);
 }
 
 void QWaylandInputDevice::handleTouchPoint(int id, double x, double y, Qt::TouchPointState state)
@@ -726,7 +596,7 @@ void QWaylandInputDevice::handleTouchPoint(int id, double x, double y, Qt::Touch
     mTouchPoints.append(tp);
 }
 
-void QWaylandInputDevice::handleTouchFrame()
+void QWaylandInputDevice::touch_frame()
 {
     // Copy all points, that are in the previous but not in the current list, as stationary.
     for (int i = 0; i < mPrevTouchPoints.count(); ++i) {

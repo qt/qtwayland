@@ -72,10 +72,6 @@ QVector<int> qglx_buildSpec()
 }
 
 
-struct wl_xcomposite_interface XCompositeHandler::xcomposite_interface = {
-    XCompositeHandler::create_buffer
-};
-
 XCompositeGLXIntegration::XCompositeGLXIntegration()
     : QWaylandGraphicsHardwareIntegration()
     , mDisplay(0)
@@ -88,7 +84,7 @@ XCompositeGLXIntegration::~XCompositeGLXIntegration()
     delete mHandler;
 }
 
-void XCompositeGLXIntegration::initializeHardware(QtWayland::Display *waylandDisplay)
+void XCompositeGLXIntegration::initializeHardware(QtWayland::Display *)
 {
     QPlatformNativeInterface *nativeInterface = QGuiApplicationPrivate::platformIntegration()->nativeInterface();
     if (nativeInterface) {
@@ -100,8 +96,7 @@ void XCompositeGLXIntegration::initializeHardware(QtWayland::Display *waylandDis
     }
     mScreen = XDefaultScreen(mDisplay);
 
-    mHandler = new XCompositeHandler(m_compositor->handle(),mDisplay,m_compositor->window());
-    wl_display_add_global(waylandDisplay->handle(),&wl_xcomposite_interface,mHandler,XCompositeHandler::xcomposite_bind_func);
+    mHandler = new XCompositeHandler(m_compositor->handle(), mDisplay);
 
     QOpenGLContext *glContext = new QOpenGLContext();
     glContext->create();
@@ -118,9 +113,9 @@ void XCompositeGLXIntegration::initializeHardware(QtWayland::Display *waylandDis
     delete glContext;
 }
 
-GLuint XCompositeGLXIntegration::createTextureFromBuffer(wl_buffer *buffer, QOpenGLContext *)
+GLuint XCompositeGLXIntegration::createTextureFromBuffer(struct ::wl_buffer *buffer, QOpenGLContext *)
 {
-    XCompositeBuffer *compositorBuffer = QtWayland::wayland_cast<XCompositeBuffer>(buffer);
+    XCompositeBuffer *compositorBuffer = static_cast<XCompositeBuffer *>(buffer);
     Pixmap pixmap = XCompositeNameWindowPixmap(mDisplay, compositorBuffer->window());
 
     QVector<int> glxConfigSpec = qglx_buildSpec();
@@ -153,6 +148,5 @@ GLuint XCompositeGLXIntegration::createTextureFromBuffer(wl_buffer *buffer, QOpe
 
 bool XCompositeGLXIntegration::isYInverted(wl_buffer *buffer) const
 {
-    XCompositeBuffer *compositorBuffer = QtWayland::wayland_cast<XCompositeBuffer>(buffer);
-    return compositorBuffer->isYInverted();
+    return static_cast<XCompositeBuffer *>(buffer)->isYInverted();
 }

@@ -1,21 +1,8 @@
 TEMPLATE = lib
 CONFIG += staticlib
 
-CONFIG += link_pkgconfig qpa/genericunixfontdatabase
-
-QT += core-private gui-private platformsupport-private
-
+include ($$PWD/wayland_common_share.pri)
 include (windowmanager_integration/windowmanager_integration.pri)
-
-!equals(QT_WAYLAND_GL_CONFIG, nogl) {
-    DEFINES += QT_WAYLAND_GL_SUPPORT
-}
-
-!config_xkbcommon {
-    DEFINES += QT_NO_WAYLAND_XKB
-}
-
-INCLUDEPATH += ../../../shared
 
 SOURCES +=  qwaylandintegration.cpp \
             qwaylandnativeinterface.cpp \
@@ -31,7 +18,6 @@ SOURCES +=  qwaylandintegration.cpp \
             qwaylanddataoffer.cpp \
             qwaylanddatadevicemanager.cpp \
             qwaylanddatasource.cpp \
-            qwaylandshell.cpp \
             qwaylandshellsurface.cpp \
             qwaylandextendedoutput.cpp \
             qwaylandextendedsurface.cpp \
@@ -40,7 +26,6 @@ SOURCES +=  qwaylandintegration.cpp \
             qwaylandqtkey.cpp \
             ../../../shared/qwaylandmimehelper.cpp \
             qwaylanddecoration.cpp \
-            qwaylandshmdecoration.cpp \
             qwaylandeventthread.cpp
 
 HEADERS +=  qwaylandintegration.h \
@@ -58,7 +43,6 @@ HEADERS +=  qwaylandintegration.h \
             qwaylanddataoffer.h \
             qwaylanddatadevicemanager.h \
             qwaylanddatasource.h \
-            qwaylandshell.h \
             qwaylandshellsurface.h \
             qwaylandextendedoutput.h \
             qwaylandextendedsurface.h \
@@ -67,7 +51,6 @@ HEADERS +=  qwaylandintegration.h \
             qwaylandqtkey.h \
             ../../../shared/qwaylandmimehelper.h \
             qwaylanddecoration.h \
-            qwaylandshmdecoration.h \
             qwaylandeventthread.h
 
 contains(DEFINES, QT_WAYLAND_GL_SUPPORT) {
@@ -75,9 +58,13 @@ contains(DEFINES, QT_WAYLAND_GL_SUPPORT) {
     HEADERS += qwaylandglintegration.h
 }
 
-WAYLANDSOURCES += \
+WAYLANDCLIENTSOURCES += \
             ../../../extensions/surface-extension.xml \
             ../../../extensions/sub-surface-extension.xml \
             ../../../extensions/output-extension.xml \
             ../../../extensions/touch-extension.xml \
-            ../../../extensions/qtkey-extension.xml
+            ../../../extensions/qtkey-extension.xml \
+
+PLUGIN_TYPE = platforms
+
+load(qt_common)

@@ -57,7 +57,6 @@ QWaylandXCompositeGLXWindow::QWaylandXCompositeGLXWindow(QWindow *window, QWayla
     , m_xWindow(0)
     , m_config(qglx_findConfig(glxIntegration->xDisplay(), glxIntegration->screen(), window->format(), GLX_WINDOW_BIT | GLX_PIXMAP_BIT))
     , m_buffer(0)
-    , m_syncCallback(0)
 {
 }
 
@@ -86,22 +85,6 @@ Window QWaylandXCompositeGLXWindow::xWindow() const
 
     return m_xWindow;
 }
-
-void QWaylandXCompositeGLXWindow::waitForSync()
-{
-    if (!m_syncCallback) {
-        struct wl_display *dpy = m_glxIntegration->waylandDisplay()->wl_display();
-        m_syncCallback = wl_display_sync(dpy);
-        wl_callback_add_listener(m_syncCallback, &sync_callback_listener, this);
-    }
-    m_glxIntegration->waylandDisplay()->flushRequests();
-    while (m_syncCallback)
-        m_glxIntegration->waylandDisplay()->readEvents();
-}
-
-const struct wl_callback_listener QWaylandXCompositeGLXWindow::sync_callback_listener = {
-    QWaylandXCompositeGLXWindow::sync_function
-};
 
 void QWaylandXCompositeGLXWindow::createSurface()
 {
@@ -136,15 +119,4 @@ void QWaylandXCompositeGLXWindow::createSurface()
                                             (uint32_t)m_xWindow,
                                             size);
     attach(m_buffer, 0, 0);
-    waitForSync();
-}
-
-void QWaylandXCompositeGLXWindow::sync_function(void *data, struct wl_callback *callback, uint32_t time)
-{
-    Q_UNUSED(time);
-    QWaylandXCompositeGLXWindow *that = static_cast<QWaylandXCompositeGLXWindow *>(data);
-    if (that->m_syncCallback != callback)
-        return;
-    that->m_syncCallback = 0;
-    wl_callback_destroy(callback);
 }

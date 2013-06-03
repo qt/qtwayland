@@ -176,8 +176,7 @@ Compositor::Compositor(QWaylandCompositor *qt_compositor)
 
     wl_display_init_shm(m_display->handle());
 
-    m_output_global = new OutputGlobal();
-    wl_display_add_global(m_display->handle(),&wl_output_interface, m_output_global, OutputGlobal::output_bind_func);
+    m_output_global = new OutputGlobal(m_display->handle());
 
     m_shell = new Shell();
     wl_display_add_global(m_display->handle(), &wl_shell_interface, m_shell, Shell::bind_func);
@@ -251,7 +250,7 @@ struct wl_client *Compositor::getClientFromWinId(uint winId) const
 {
     Surface *surface = getSurfaceFromWinId(winId);
     if (surface)
-        return surface->base()->resource.client;
+        return surface->resource()->client();
 
     return 0;
 }
@@ -332,12 +331,9 @@ void Compositor::destroyClient(WaylandClient *c)
     if (!client)
         return;
 
-    if (m_windowManagerIntegration->managedClient(client)) {
-        m_windowManagerIntegration->sendQuitMessage(client);
-        m_windowManagerIntegration->removeClient(client);
-    } else {
-        wl_client_destroy(client);
-    }
+    m_windowManagerIntegration->sendQuitMessage(client);
+
+    wl_client_destroy(client);
 }
 
 QWindow *Compositor::window() const
@@ -415,7 +411,7 @@ QList<struct wl_client *> Compositor::clients() const
 {
     QList<struct wl_client *> list;
     foreach (Surface *surface, m_surfaces) {
-        struct wl_client *client = surface->base()->resource.client;
+        struct wl_client *client = surface->resource()->client();
         if (!list.contains(client))
             list.append(client);
     }
@@ -426,8 +422,8 @@ Qt::ScreenOrientations Compositor::orientationUpdateMaskForClient(wl_client *cli
 {
     Output *output = m_output_global->outputForClient(client);
     Q_ASSERT(output);
-    if (output->extendedOutput())
-        return output->extendedOutput()->orientationUpdateMask();
+    if (output->extendedOutput)
+        return output->extendedOutput->orientationUpdateMask;
     return 0;
 }
 
@@ -440,9 +436,8 @@ void Compositor::setScreenOrientation(Qt::ScreenOrientation orientation)
         struct wl_client *client = clientList.at(i);
         Output *output = m_output_global->outputForClient(client);
         Q_ASSERT(output);
-        if (output->extendedOutput()){
-            output->extendedOutput()->sendOutputOrientation(orientation);
-        }
+        if (output->extendedOutput)
+            output->extendedOutput->sendOutputOrientation(orientation);
     }
 }
 
@@ -492,7 +487,7 @@ QList<QtWayland::Surface *> Compositor::surfacesForClient(wl_client *client)
     QList<QtWayland::Surface *> ret;
 
     for (int i=0; i < m_surfaces.count(); ++i) {
-        if (m_surfaces.at(i)->base()->resource.client == client) {
+        if (m_surfaces.at(i)->resource()->client() == client) {
             ret.append(m_surfaces.at(i));
         }
     }
@@ -505,7 +500,7 @@ wl_resource *Compositor::resourceForSurface(wl_list *resourceList, Surface *surf
         return 0;
 
     wl_resource *r;
-    wl_client *surfaceClient = surface->base()->resource.client;
+    wl_client *surfaceClient = surface->resource()->client();
 
     wl_list_for_each(r, resourceList, link) {
         if (r->client == surfaceClient)

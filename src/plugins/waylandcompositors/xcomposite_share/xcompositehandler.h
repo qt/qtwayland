@@ -42,33 +42,27 @@
 #define XCOMPOSITEHANDLER_H
 
 #include <QtCompositor/private/qwlcompositor_p.h>
-#include <QtCompositor/qwaylandobject.h>
 
 #include "xlibinclude.h"
 
+#include "qwayland-server-xcomposite.h"
+#include <wayland-server.h>
+
 QT_BEGIN_NAMESPACE
 
-class XCompositeHandler : public QtWayland::Object<struct wl_object>
+class XCompositeHandler : public QtWaylandServer::qt_xcomposite
 {
 public:
-    XCompositeHandler(QtWayland::Compositor *compositor, Display *display, QWindow *window);
-    void createBuffer(struct wl_client *client, uint32_t id, Window window, const QSize &size);
-
-    static void xcomposite_bind_func(struct wl_client *client, void *data, uint32_t version, uint32_t id);
-    static struct wl_xcomposite_interface xcomposite_interface;
+    XCompositeHandler(QtWayland::Compositor *compositor, Display *display);
 
 private:
-    QtWayland::Compositor *mCompositor;
-    QWindow *mwindow;
     QWindow *mFakeRootWindow;
-    Display *mDisplay;
 
-    static void create_buffer(struct wl_client *client,
-                          struct wl_resource *xcomposite,
-                          uint32_t id,
-                          uint32_t x_window,
-                          int32_t width,
-                          int32_t height);
+    QString mDisplayString;
+
+    void xcomposite_bind_resource(Resource *resource) Q_DECL_OVERRIDE;
+    void xcomposite_create_buffer(Resource *resource, uint32_t id, uint32_t x_window,
+                                  int32_t width, int32_t height) Q_DECL_OVERRIDE;
 
 };
 

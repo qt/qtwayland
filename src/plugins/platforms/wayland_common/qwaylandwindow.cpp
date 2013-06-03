@@ -284,9 +284,10 @@ void QWaylandWindow::damage(const QRect &rect)
         wl_callback_add_listener(mFrameCallback,&QWaylandWindow::callbackListener,this);
         mWaitingForFrameSync = true;
     }
-
-    damage(rect.x(), rect.y(), rect.width(), rect.height());
-    commit();
+    if (mBuffer) {
+        damage(rect.x(), rect.y(), rect.width(), rect.height());
+        commit();
+    }
 }
 
 const wl_callback_listener QWaylandWindow::callbackListener = {

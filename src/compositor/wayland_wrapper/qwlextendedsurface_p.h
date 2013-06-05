@@ -95,9 +95,6 @@ public:
 
     QWaylandSurface::WindowFlags windowFlags() const { return m_windowFlags; }
 
-    qint64 processId() const;
-    void setProcessId(qint64 processId);
-
     QVariantMap windowProperties() const;
     QVariant windowProperty(const QString &propertyName) const;
     void setWindowProperty(const QString &name, const QVariant &value, bool writeUpdateToClient = true);

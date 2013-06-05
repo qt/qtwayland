@@ -260,8 +260,10 @@ void QWaylandWindow::attach(QWaylandBuffer *buffer, int x, int y)
 {
     mBuffer = buffer;
 
-    if (window()->isVisible())
+    if (mBuffer)
         attach(mBuffer->buffer(), x, y);
+    else
+        QtWayland::wl_surface::attach(0, 0, 0);
 }
 
 void QWaylandWindow::attachOffset(QWaylandBuffer *buffer)
@@ -286,8 +288,8 @@ void QWaylandWindow::damage(const QRect &rect)
     }
     if (mBuffer) {
         damage(rect.x(), rect.y(), rect.width(), rect.height());
-        commit();
     }
+    commit();
 }
 
 const wl_callback_listener QWaylandWindow::callbackListener = {

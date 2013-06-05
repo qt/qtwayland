@@ -298,6 +298,8 @@ void QWindowCompositor::render()
                                   0, false, true);
 
     foreach (QWaylandSurface *surface, m_surfaces) {
+        if (!surface->visible())
+            continue;
         GLuint texture = composeSurface(surface);
         QRect geo(surface->pos().toPoint(),surface->size());
         m_textureBlitter->drawTexture(texture,geo,m_window->size(),0,false,surface->isYInverted());

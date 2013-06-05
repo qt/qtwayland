@@ -95,7 +95,6 @@ Surface::Surface(struct wl_client *client, uint32_t id, Compositor *compositor)
 Surface::~Surface()
 {
     delete m_waylandSurface;
-    delete m_extendedSurface;
     delete m_subSurface;
 
     for (int i = 0; i < buffer_pool_size; i++) {

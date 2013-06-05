@@ -193,7 +193,7 @@ Item {
         MouseArea {
             anchors.fill: parent
             onClicked: {
-                compositor.destroyClientForWindow(child)
+                child.surface.destroySurface()
             }
         }
     }

@@ -55,6 +55,9 @@
             <arg name="value" type="array"/>
         </event>
 
+        <event name="close">
+        </event>
+
         <request name="update_generic_property">
             <arg name="name" type="string"/>
             <arg name="value" type="array"/>

@@ -136,6 +136,11 @@ void QWaylandExtendedSurface::extended_surface_set_generic_property(const QStrin
     nativeInterface->emitWindowPropertyChanged(m_window, name);
 }
 
+void QWaylandExtendedSurface::extended_surface_close()
+{
+    QWindowSystemInterface::handleCloseEvent(m_window->window());
+}
+
 Qt::WindowFlags QWaylandExtendedSurface::setWindowFlags(Qt::WindowFlags flags)
 {
     uint wlFlags = 0;

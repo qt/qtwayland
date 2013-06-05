@@ -327,4 +327,19 @@ bool QWaylandSurface::transientInactive() const
     return d->surface->transientInactive();
 }
 
+void QWaylandSurface::destroySurface()
+{
+    Q_D(QWaylandSurface);
+    if (d->surface->extendedSurface()) {
+        d->surface->extendedSurface()->send_close();
+    }
+}
+
+void QWaylandSurface::destroySurfaceByForce()
+{
+    Q_D(QWaylandSurface);
+   wl_resource *surface_resource = d->surface->resource()->handle;
+   wl_resource_destroy(surface_resource);
+}
+
 QT_END_NAMESPACE

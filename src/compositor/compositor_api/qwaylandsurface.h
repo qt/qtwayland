@@ -157,6 +157,8 @@ public:
 
     bool transientInactive() const;
 
+    Q_INVOKABLE void destroySurface();
+    Q_INVOKABLE void destroySurfaceByForce();
 signals:
     void mapped();
     void unmapped();

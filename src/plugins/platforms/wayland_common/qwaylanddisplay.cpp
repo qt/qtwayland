@@ -219,17 +219,17 @@ void QWaylandDisplay::registry_global(uint32_t id, const QString &interface, uin
         mInputDevices.append(inputDevice);
     } else if (interface == "wl_data_device_manager") {
         mDndSelectionHandler = new QWaylandDataDeviceManager(this, id);
-    } else if (interface == "wl_output_extension") {
+    } else if (interface == "qt_output_extension") {
         mOutputExtension = new QtWayland::qt_output_extension(registry, id);
         foreach (QPlatformScreen *screen, screens())
             static_cast<QWaylandScreen *>(screen)->createExtendedOutput();
-    } else if (interface == "wl_surface_extension") {
+    } else if (interface == "qt_surface_extension") {
         mWindowExtension = new QtWayland::qt_surface_extension(registry, id);
-    } else if (interface == "wl_sub_surface_extension") {
+    } else if (interface == "qt_sub_surface_extension") {
         mSubSurfaceExtension = new QtWayland::qt_sub_surface_extension(registry, id);
-    } else if (interface == "wl_touch_extension") {
+    } else if (interface == "qt_touch_extension") {
         mTouchExtension = new QWaylandTouchExtension(this, id);
-    } else if (interface == "wl_qtkey_extension") {
+    } else if (interface == "qt_qtkey_extension") {
         mQtKeyExtension = new QWaylandQtKeyExtension(this, id);
     }
 

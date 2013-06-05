@@ -312,7 +312,7 @@ bool QWaylandDecoration::handleMouse(QWaylandInputDevice *inputDevice, const QPo
 
     // Figure out what area mouse is in
     if (closeButtonRect().contains(local) && isLeftClicked(b)) {
-        QCoreApplication::postEvent(m_window, new QCloseEvent());
+        QWindowSystemInterface::handleCloseEvent(m_window);
     } else if (maximizeButtonRect().contains(local) && isLeftClicked(b)) {
         m_window->setWindowState(m_wayland_window->isMaximized() ? Qt::WindowNoState : Qt::WindowMaximized);
     } else if (minimizeButtonRect().contains(local) && isLeftClicked(b)) {

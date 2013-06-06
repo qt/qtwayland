@@ -138,6 +138,7 @@ void QWaylandScreen::output_mode(uint32_t flags, int width, int height, int refr
     if (size != mGeometry.size()) {
         mGeometry.setSize(size);
         QWindowSystemInterface::handleScreenGeometryChange(screen(), mGeometry);
+        QWindowSystemInterface::handleScreenAvailableGeometryChange(screen(), mGeometry);
     }
 
     if (refresh != mRefreshRate) {
@@ -165,4 +166,5 @@ void QWaylandScreen::output_geometry(int32_t x, int32_t y,
 
     mGeometry = geom;
     QWindowSystemInterface::handleScreenGeometryChange(screen(), mGeometry);
+    QWindowSystemInterface::handleScreenAvailableGeometryChange(screen(), mGeometry);
 }

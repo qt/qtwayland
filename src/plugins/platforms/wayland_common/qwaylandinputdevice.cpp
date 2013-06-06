@@ -448,6 +448,7 @@ void QWaylandInputDevice::keyboard_leave(uint32_t time, struct wl_surface *surfa
 
     mKeyboardFocus = NULL;
     mQDisplay->setLastKeyboardFocusInputDevice(0);
+    QWindowSystemInterface::handleWindowActivated(0);
 }
 
 void QWaylandInputDevice::keyboard_key(uint32_t serial, uint32_t time, uint32_t key, uint32_t state)

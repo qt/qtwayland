@@ -187,9 +187,9 @@ void QWaylandInputDevice::pointer_enter(uint32_t serial, struct wl_surface *surf
     if (!surface)
         return;
 
-    QGuiApplication::setOverrideCursor(QCursor(Qt::ArrowCursor));
-
     QWaylandWindow *window = QWaylandWindow::fromWlSurface(surface);
+    window->window()->setCursor(window->window()->cursor());
+
     window->handleMouseEnter();
     window->handleMouse(this, mTime, mSurfacePos, mGlobalPos, mButtons, Qt::NoModifier);
     mPointerFocus = window;
@@ -205,8 +205,6 @@ void QWaylandInputDevice::pointer_leave(uint32_t time, struct wl_surface *surfac
     // a null surface.
     if (!surface)
         return;
-
-    QGuiApplication::restoreOverrideCursor();
 
     QWaylandWindow *window = QWaylandWindow::fromWlSurface(surface);
     window->handleMouseLeave();

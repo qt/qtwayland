@@ -138,16 +138,6 @@ void QWaylandShellSurface::updateTransientParent(QWindow *parent)
                   flags);
 }
 
-void QWaylandShellSurface::setClassName(const char *className)
-{
-    set_class(className);
-}
-
-void QWaylandShellSurface::setTitle(const char *title)
-{
-    set_title(title);
-}
-
 void QWaylandShellSurface::shell_surface_ping(uint32_t serial)
 {
     pong(serial);

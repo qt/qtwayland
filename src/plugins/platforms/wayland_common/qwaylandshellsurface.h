@@ -75,10 +75,6 @@ private:
     void setTopLevel();
     void updateTransientParent(QWindow *parent);
 
-    void setClassName(const char *_class);
-
-    void setTitle(const char *title);
-
     QWaylandWindow *m_window;
     bool m_maximized;
     bool m_fullscreen;

@@ -97,7 +97,7 @@ QWaylandWindow::QWaylandWindow(QWindow *window)
         // Set surface class to the .desktop file name (obtained from executable name)
         QFileInfo exeFileInfo(qApp->applicationFilePath());
         QString className = exeFileInfo.baseName() + QLatin1String(".desktop");
-        mShellSurface->setClassName(className.toUtf8().constData());
+        mShellSurface->set_class(className);
     }
 
     if (QPlatformWindow::parent() && mSubSurfaceWindow) {
@@ -148,8 +148,7 @@ void QWaylandWindow::setParent(const QPlatformWindow *parent)
 void QWaylandWindow::setWindowTitle(const QString &title)
 {
     if (mShellSurface) {
-        QByteArray titleUtf8 = title.toUtf8();
-        mShellSurface->setTitle(titleUtf8.constData());
+        mShellSurface->set_title(title);
     }
 
     if (mWindowDecoration && window()->isVisible())

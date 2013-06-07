@@ -224,6 +224,7 @@ void QWaylandShmBackingStore::flush(QWindow *window, const QRegion &region, cons
             waylandWindow()->damage(rect);
         }
     }
+    waylandWindow()->commit();
     mFrontBufferIsDirty = false;
     waylandWindow()->doResize();
 }
@@ -299,18 +300,17 @@ void QWaylandShmBackingStore::done(void *data, wl_callback *callback, uint32_t t
     wl_callback_destroy(self->mFrameCallback);
     self->mFrameCallback = 0;
 
-    if (self->mFrontBuffer != window->attached()) {
-        delete window->attached();
-    }
-
-    if (window->attached() != self->mFrontBuffer)
-        window->attachOffset(self->mFrontBuffer);
 
     if (self->mFrontBufferIsDirty && !self->mPainting) {
         self->mFrontBufferIsDirty = false;
         self->mFrameCallback = wl_surface_frame(window->object());
         wl_callback_add_listener(self->mFrameCallback,&self->frameCallbackListener,self);
+        if (self->mFrontBuffer != window->attached()) {
+            delete window->attached();
+        }
+        window->attachOffset(self->mFrontBuffer);
         window->damage(QRect(QPoint(0,0),self->mFrontBuffer->size()));
+        window->commit();
     }
 }
 

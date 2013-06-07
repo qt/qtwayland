@@ -288,7 +288,6 @@ void QWaylandWindow::damage(const QRect &rect)
     if (mBuffer) {
         damage(rect.x(), rect.y(), rect.width(), rect.height());
     }
-    commit();
 }
 
 const wl_callback_listener QWaylandWindow::callbackListener = {

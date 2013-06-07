@@ -81,6 +81,7 @@ void QWaylandXCompositeGLXContext::swapBuffers(QPlatformSurface *surface)
     glXSwapBuffers(m_display, w->xWindow());
 
     w->damage(QRect(QPoint(), size));
+    w->commit();
     w->waitForFrameSync();
 }
 

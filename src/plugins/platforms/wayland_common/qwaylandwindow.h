@@ -122,10 +122,6 @@ public:
 
     QMargins frameMargins() const;
 
-    // TODO: remove?
-    struct ::wl_surface *wl_surface() { return object(); }
-    const struct ::wl_surface *wl_surface() const { return object(); }
-
     static QWaylandWindow *fromWlSurface(::wl_surface *surface);
 
     QWaylandShellSurface *shellSurface() const;

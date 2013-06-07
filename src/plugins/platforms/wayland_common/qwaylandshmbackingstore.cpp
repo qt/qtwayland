@@ -308,7 +308,7 @@ void QWaylandShmBackingStore::done(void *data, wl_callback *callback, uint32_t t
 
     if (self->mFrontBufferIsDirty && !self->mPainting) {
         self->mFrontBufferIsDirty = false;
-        self->mFrameCallback = wl_surface_frame(window->wl_surface());
+        self->mFrameCallback = wl_surface_frame(window->object());
         wl_callback_add_listener(self->mFrameCallback,&self->frameCallbackListener,self);
         window->damage(QRect(QPoint(0,0),self->mFrontBuffer->size()));
     }

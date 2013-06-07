@@ -87,11 +87,11 @@ QWaylandWindow::QWaylandWindow(QWindow *window)
     mWindowId = id++;
 
     if (mDisplay->shell() && !(window->flags() & Qt::BypassWindowManagerHint))
-        mShellSurface = new QWaylandShellSurface(mDisplay->shell()->get_shell_surface(wl_surface()), this);
+        mShellSurface = new QWaylandShellSurface(mDisplay->shell()->get_shell_surface(object()), this);
     if (mDisplay->windowExtension())
-        mExtendedWindow = new QWaylandExtendedSurface(this, mDisplay->windowExtension()->get_extended_surface(wl_surface()));
+        mExtendedWindow = new QWaylandExtendedSurface(this, mDisplay->windowExtension()->get_extended_surface(object()));
     if (mDisplay->subSurfaceExtension())
-        mSubSurfaceWindow = new QWaylandSubSurface(this, mDisplay->subSurfaceExtension()->get_sub_surface_aware_surface(wl_surface()));
+        mSubSurfaceWindow = new QWaylandSubSurface(this, mDisplay->subSurfaceExtension()->get_sub_surface_aware_surface(object()));
 
     if (mShellSurface) {
         // Set surface class to the .desktop file name (obtained from executable name)

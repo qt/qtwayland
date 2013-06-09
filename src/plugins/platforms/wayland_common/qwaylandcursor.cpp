@@ -80,6 +80,14 @@ void QWaylandCursor::changeCursor(QCursor *cursor, QWindow *window)
 
     struct wl_cursor *waylandCursor = 0;
     const Qt::CursorShape newShape = cursor ? cursor->shape() : Qt::ArrowCursor;
+
+    /* Hide cursor */
+    if (newShape == Qt::BlankCursor)
+    {
+        mDisplay->setCursor(NULL, NULL);
+        return;
+    }
+
     if (newShape < Qt::BitmapCursor) {
         waylandCursor = requestCursor((WaylandCursor)newShape);
     } else if (newShape == Qt::BitmapCursor) {
@@ -132,9 +140,6 @@ void QWaylandCursor::setPos(const QPoint &pos)
 
 wl_cursor *QWaylandCursor::requestCursor(WaylandCursor shape)
 {
-    if (shape == BlankCursor)
-        return 0;
-
     struct wl_cursor *cursor = mCursors.value(shape, 0);
 
     //If the cursor has not been loaded already, load it

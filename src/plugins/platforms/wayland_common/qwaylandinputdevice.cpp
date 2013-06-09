@@ -170,6 +170,13 @@ void QWaylandInputDevice::removeMouseButtonFromState(Qt::MouseButton button)
 void QWaylandInputDevice::setCursor(struct wl_buffer *buffer, struct wl_cursor_image *image)
 {
     if (mCaps & WL_SEAT_CAPABILITY_POINTER) {
+        /* Hide cursor */
+        if (!buffer)
+        {
+            wl_pointer_set_cursor(mDeviceInterfaces.pointer, mEnterSerial, NULL, 0, 0);
+            return;
+        }
+
         set_cursor(mEnterSerial, pointerSurface,
                    image->hotspot_x, image->hotspot_y);
         wl_surface_attach(pointerSurface, buffer, 0, 0);

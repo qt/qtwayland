@@ -222,8 +222,14 @@ void InputDevice::pointer_set_cursor(wl_pointer::Resource *resource,
     Q_UNUSED(resource);
     Q_UNUSED(serial);
 
-    QtWayland::Surface *surface = QtWayland::Surface::fromResource(surface_resource);
+    /* Hide cursor */
+    if (!surface_resource)
+    {
+        m_compositor->waylandCompositor()->setCursorSurface(NULL, 0, 0);
+        return;
+    }
 
+    QtWayland::Surface *surface = QtWayland::Surface::fromResource(surface_resource);
     surface->setCursorSurface(true);
     m_compositor->waylandCompositor()->setCursorSurface(surface->waylandSurface(), hotspot_x, hotspot_y);
 }

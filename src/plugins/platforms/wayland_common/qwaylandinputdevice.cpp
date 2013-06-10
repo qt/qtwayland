@@ -173,7 +173,7 @@ void QWaylandInputDevice::setCursor(struct wl_buffer *buffer, struct wl_cursor_i
         /* Hide cursor */
         if (!buffer)
         {
-            wl_pointer_set_cursor(mDeviceInterfaces.pointer, mEnterSerial, NULL, 0, 0);
+            set_cursor(mEnterSerial, NULL, 0, 0);
             return;
         }
 

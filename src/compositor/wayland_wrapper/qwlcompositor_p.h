@@ -157,7 +157,7 @@ public:
 
 private slots:
 
-    void releaseBuffer(SurfaceBuffer *screenBuffer);
+    void releaseBuffer(QPlatformScreenBuffer *screenBuffer);
     void processWaylandEvents();
 
 private:

@@ -203,7 +203,7 @@ bool WaylandEglIntegration::setDirectRenderSurface(QWaylandSurface *surface)
     QPlatformScreen *screen = QPlatformScreen::platformScreenForWindow(m_compositor->window());
     QPlatformScreenPageFlipper *flipper = screen ? screen->pageFlipper() : 0;
     if (flipper && !d->flipperConnected) {
-        QObject::connect(flipper, SIGNAL(bufferReleased(void*)), m_compositor->handle(), SLOT(releaseBuffer(void*)));
+        QObject::connect(flipper, SIGNAL(bufferReleased(QPlatformScreenBuffer*)), m_compositor->handle(), SLOT(releaseBuffer(QPlatformScreenBuffer*)));
         d->flipperConnected = true;
     }
 #ifdef EGL_WL_request_client_buffer_format

@@ -286,9 +286,9 @@ uint Compositor::currentTimeMsecs()
     return 0;
 }
 
-void Compositor::releaseBuffer(SurfaceBuffer *screenBuffer)
+void Compositor::releaseBuffer(QPlatformScreenBuffer *screenBuffer)
 {
-    screenBuffer->scheduledRelease();
+    static_cast<SurfaceBuffer *>(screenBuffer)->scheduledRelease();
 }
 
 void Compositor::processWaylandEvents()
@@ -536,7 +536,7 @@ void Compositor::feedRetainedSelectionData(QMimeData *data)
 
 void Compositor::scheduleReleaseBuffer(SurfaceBuffer *screenBuffer)
 {
-    QMetaObject::invokeMethod(this,"releaseBuffer",Q_ARG(SurfaceBuffer*,screenBuffer));
+    QMetaObject::invokeMethod(this,"releaseBuffer",Q_ARG(QPlatformScreenBuffer*,screenBuffer));
 }
 
 void Compositor::overrideSelection(QMimeData *data)

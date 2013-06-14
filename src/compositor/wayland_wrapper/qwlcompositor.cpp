@@ -246,36 +246,6 @@ void Compositor::createSurface(struct wl_client *client, uint32_t id)
     m_qt_compositor->surfaceCreated(surface->waylandSurface());
 }
 
-struct wl_client *Compositor::getClientFromWinId(uint winId) const
-{
-    Surface *surface = getSurfaceFromWinId(winId);
-    if (surface)
-        return surface->resource()->client();
-
-    return 0;
-}
-
-Surface *Compositor::getSurfaceFromWinId(uint winId) const
-{
-    foreach (Surface *surface, m_surfaces) {
-        if (surface->id() == winId)
-            return surface;
-    }
-
-    return 0;
-}
-
-QImage Compositor::image(uint winId) const
-{
-    foreach (Surface *surface, m_surfaces) {
-        if (surface->id() == winId) {
-            return surface->image();
-        }
-    }
-
-    return QImage();
-}
-
 uint Compositor::currentTimeMsecs()
 {
     //### we throw away the time information

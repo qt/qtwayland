@@ -84,11 +84,6 @@ public:
 
     void frameFinished(Surface *surface = 0);
 
-    //these 3 functions will be removed if noone steps up soon.
-    Surface *getSurfaceFromWinId(uint winId) const;
-    struct wl_client *getClientFromWinId(uint winId) const;
-    QImage image(uint winId) const;
-
     InputDevice *defaultInputDevice(); //we just have 1 default device for now (since QPA doesn't give us anything else)
 
     void createSurface(struct wl_client *client, uint32_t id);

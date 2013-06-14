@@ -240,6 +240,8 @@ void ShellSurface::shell_surface_set_fullscreen(Resource *resource,
     Q_UNUSED(method);
     Q_UNUSED(framerate);
     Q_UNUSED(output);
+    QSize defaultScreenSize = m_surface->compositor()->outputGeometry().size();
+    send_configure(resize_bottom_right, defaultScreenSize.width(), defaultScreenSize.height());
 }
 
 void ShellSurface::shell_surface_set_popup(Resource *resource, wl_resource *input_device, uint32_t time, wl_resource *parent, int32_t x, int32_t y, uint32_t flags)
@@ -258,6 +260,8 @@ void ShellSurface::shell_surface_set_maximized(Resource *resource,
 {
     Q_UNUSED(resource);
     Q_UNUSED(output);
+    QSize defaultScreenSize = m_surface->compositor()->outputGeometry().size();
+    send_configure(resize_bottom_right, defaultScreenSize.width(), defaultScreenSize.height());
 }
 
 void ShellSurface::shell_surface_pong(Resource *resource,

@@ -43,7 +43,7 @@
 #include "qwldatadevicemanager_p.h"
 #include "qwlcompositor_p.h"
 
-#include <wayland-server-protocol.h>
+#include <wayland-wayland-server-protocol.h>
 
 #include <QtCore/QDebug>
 

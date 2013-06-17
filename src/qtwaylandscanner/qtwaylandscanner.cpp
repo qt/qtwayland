@@ -364,7 +364,6 @@ void process(QXmlStreamReader &xml)
         printf("#define %s\n", inclusionGuard.constData());
         printf("\n");
         printf("#include \"wayland-server.h\"\n");
-        printf("#include \"wayland-server-protocol.h\"\n");
         printf("#include \"wayland-%s-server-protocol.h\"\n", QByteArray(protocolName).replace('_', '-').constData());
         printf("#include <QByteArray>\n");
         printf("#include <QString>\n");

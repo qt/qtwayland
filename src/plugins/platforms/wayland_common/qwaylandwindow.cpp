@@ -433,20 +433,20 @@ void QWaylandWindow::handleMouse(QWaylandInputDevice *inputDevice, ulong timesta
     QWindowSystemInterface::handleMouseEvent(window(),timestamp,local,global,b,mods);
 }
 
-void QWaylandWindow::handleMouseEnter()
+void QWaylandWindow::handleMouseEnter(QWaylandInputDevice *)
 {
     if (!mWindowDecoration) {
         QWindowSystemInterface::handleEnterEvent(window());
     }
 }
 
-void QWaylandWindow::handleMouseLeave()
+void QWaylandWindow::handleMouseLeave(QWaylandInputDevice *inputDevice)
 {
     if (mWindowDecoration) {
         if (mMouseEventsInContentArea) {
             QWindowSystemInterface::handleLeaveEvent(window());
         }
-        mWindowDecoration->restoreMouseCursor();
+        mWindowDecoration->restoreMouseCursor(inputDevice);
     } else {
         QWindowSystemInterface::handleLeaveEvent(window());
     }
@@ -470,7 +470,7 @@ void QWaylandWindow::handleMouseEventWithDecoration(QWaylandInputDevice *inputDe
         globalTranslated.setX(globalTranslated.x() - marg.left());
         globalTranslated.setY(globalTranslated.y() - marg.top());
         if (!mMouseEventsInContentArea) {
-            mWindowDecoration->restoreMouseCursor();
+            mWindowDecoration->restoreMouseCursor(inputDevice);
             QWindowSystemInterface::handleEnterEvent(window());
         }
         QWindowSystemInterface::handleMouseEvent(window(), timestamp, localTranslated, globalTranslated, b, mods);

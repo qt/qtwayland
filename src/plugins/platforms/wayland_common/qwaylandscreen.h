@@ -70,6 +70,7 @@ public:
     qreal refreshRate() const;
 
     QPlatformCursor *cursor() const;
+    QWaylandCursor *waylandCursor() const { return mWaylandCursor; };
 
     ::wl_output *output() { return object(); }
 

@@ -75,6 +75,7 @@ public:
 
     struct ::wl_seat *wl_seat() { return QtWayland::wl_seat::object(); }
 
+    void setCursor(Qt::CursorShape cursor, QWaylandScreen *screen);
     void setCursor(struct wl_buffer *buffer, struct wl_cursor_image *image);
     void handleWindowDestroyed(QWaylandWindow *window);
 
@@ -84,6 +85,7 @@ public:
     void removeMouseButtonFromState(Qt::MouseButton button);
 
     uint32_t serial() const;
+    uint32_t cursorSerial() const { return mCursorSerial; }
 
 private:
     QWaylandDisplay *mQDisplay;
@@ -104,6 +106,7 @@ private:
     uint32_t mTime;
     uint32_t mSerial;
     uint32_t mEnterSerial;
+    uint32_t mCursorSerial;
 
     void seat_capabilities(uint32_t caps) Q_DECL_OVERRIDE;
 

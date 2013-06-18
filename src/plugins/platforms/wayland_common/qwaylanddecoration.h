@@ -60,6 +60,7 @@ class QWindow;
 class QPaintDevice;
 class QPainter;
 class QEvent;
+class QWaylandScreen;
 class QWaylandWindow;
 class QWaylandInputDevice;
 
@@ -73,7 +74,7 @@ public:
     bool isDirty() const;
 
     bool handleMouse(QWaylandInputDevice *inputDevice, const QPointF &local, const QPointF &global,Qt::MouseButtons b,Qt::KeyboardModifiers mods);
-    void restoreMouseCursor();
+    void restoreMouseCursor(QWaylandInputDevice *inputDevice);
     bool inMouseButtonPressedState() const;
 
     void startResize(QWaylandInputDevice *inputDevice,enum wl_shell_surface_resize resize, Qt::MouseButtons buttons);
@@ -93,7 +94,7 @@ protected:
     void paint(QPaintDevice *device);
 
 private:
-    void overrideCursor(Qt::CursorShape shape);
+    void setMouseCursor(QWaylandInputDevice *inputDevice, Qt::CursorShape shape);
 
     void processMouseTop(QWaylandInputDevice *inputDevice, const QPointF &local, Qt::MouseButtons b,Qt::KeyboardModifiers mods);
     void processMouseBottom(QWaylandInputDevice *inputDevice, const QPointF &local, Qt::MouseButtons b,Qt::KeyboardModifiers mods);
@@ -107,6 +108,7 @@ private:
     QRectF maximizeButtonRect() const;
     QRectF minimizeButtonRect() const;
 
+    QWaylandScreen *m_screen;
     QWindow *m_window;
     QWaylandWindow *m_wayland_window;
 
@@ -114,7 +116,6 @@ private:
     QImage m_decorationContentImage;
 
     QMargins m_margins;
-    bool m_hasSetCursor;
     Qt::CursorShape m_cursorShape;
     Qt::MouseButtons m_mouseButtons;
 
@@ -151,20 +152,6 @@ inline QColor QWaylandDecoration::foregroundColor() const
 inline QColor QWaylandDecoration::backgroundColor() const
 {
     return m_backgroundColor;
-}
-
-inline void QWaylandDecoration::overrideCursor(Qt::CursorShape shape)
-{
-    if (m_hasSetCursor) {
-        if (m_cursorShape != shape) {
-            QGuiApplication::changeOverrideCursor(QCursor(shape));
-            m_cursorShape = shape;
-        }
-    } else {
-        QGuiApplication::setOverrideCursor(QCursor(shape));
-        m_hasSetCursor = true;
-        m_cursorShape = shape;
-    }
 }
 
 QT_END_NAMESPACE

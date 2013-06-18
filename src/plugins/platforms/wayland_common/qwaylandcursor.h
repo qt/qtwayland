@@ -62,6 +62,8 @@ public:
     QPoint pos() const;
     void setPos(const QPoint &pos);
 
+    struct wl_cursor_image *cursorImage(Qt::CursorShape shape);
+
 private:
     enum WaylandCursor {
         ArrowCursor = Qt::ArrowCursor,

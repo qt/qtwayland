@@ -145,8 +145,8 @@ public:
                      const QPointF & global,
                      Qt::MouseButtons b,
                      Qt::KeyboardModifiers mods);
-    void handleMouseEnter();
-    void handleMouseLeave();
+    void handleMouseEnter(QWaylandInputDevice *inputDevice);
+    void handleMouseLeave(QWaylandInputDevice *inputDevice);
 
     bool createDecoration();
 

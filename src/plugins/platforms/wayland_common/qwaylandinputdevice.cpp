@@ -46,6 +46,8 @@
 #include "qwaylandbuffer.h"
 #include "qwaylanddatadevicemanager.h"
 #include "qwaylandtouch.h"
+#include "qwaylandscreen.h"
+#include "qwaylandcursor.h"
 
 #include <QtGui/private/qpixmap_raster_p.h>
 #include <qpa/qplatformwindow.h>
@@ -75,6 +77,7 @@ QWaylandInputDevice::QWaylandInputDevice(QWaylandDisplay *display, uint32_t id)
     , mKeyboardFocus(0)
     , mTouchFocus(0)
     , mButtons(0)
+    , mCursorSerial(0)
     , mTouchDevice(0)
     #ifndef QT_NO_WAYLAND_XKB
     , mXkbContext(0)
@@ -167,9 +170,21 @@ void QWaylandInputDevice::removeMouseButtonFromState(Qt::MouseButton button)
     mButtons = mButtons & !button;
 }
 
+void QWaylandInputDevice::setCursor(Qt::CursorShape newShape, QWaylandScreen *screen)
+{
+    struct wl_cursor_image *image = screen->waylandCursor()->cursorImage(newShape);
+    if (!image) {
+        return;
+    }
+
+    struct wl_buffer *buffer = wl_cursor_image_get_buffer(image);
+    setCursor(buffer, image);
+}
+
 void QWaylandInputDevice::setCursor(struct wl_buffer *buffer, struct wl_cursor_image *image)
 {
     if (mCaps & WL_SEAT_CAPABILITY_POINTER) {
+        mCursorSerial = mEnterSerial;
         /* Hide cursor */
         if (!buffer)
         {
@@ -197,7 +212,7 @@ void QWaylandInputDevice::pointer_enter(uint32_t serial, struct wl_surface *surf
     QWaylandWindow *window = QWaylandWindow::fromWlSurface(surface);
     window->window()->setCursor(window->window()->cursor());
 
-    window->handleMouseEnter();
+    window->handleMouseEnter(this);
     window->handleMouse(this, mTime, mSurfacePos, mGlobalPos, mButtons, Qt::NoModifier);
     mPointerFocus = window;
 
@@ -214,7 +229,7 @@ void QWaylandInputDevice::pointer_leave(uint32_t time, struct wl_surface *surfac
         return;
 
     QWaylandWindow *window = QWaylandWindow::fromWlSurface(surface);
-    window->handleMouseLeave();
+    window->handleMouseLeave(this);
     mPointerFocus = 0;
     mButtons = Qt::NoButton;
 

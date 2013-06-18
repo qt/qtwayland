@@ -44,6 +44,7 @@
 #include "qwaylandwindow.h"
 #include "qwaylandshellsurface.h"
 #include "qwaylandinputdevice.h"
+#include "qwaylandscreen.h"
 
 #include <QtGui/QGuiApplication>
 #include <QtGui/QImage>
@@ -128,10 +129,10 @@ QWaylandDecoration::QWaylandDecoration(QWaylandWindow *window)
     , m_isDirty(true)
     , m_decorationContentImage(0)
     , m_margins(3,30,3,3)
-    , m_hasSetCursor(false)
     , m_mouseButtons(Qt::NoButton)
 {
     m_wayland_window->setDecoration(this);
+    m_screen = QWaylandScreen::waylandScreenFromWindow(m_window);
 
     QPalette palette;
     m_foregroundColor = palette.color(QPalette::Active, QPalette::HighlightedText);
@@ -326,7 +327,7 @@ bool QWaylandDecoration::handleMouse(QWaylandInputDevice *inputDevice, const QPo
     } else if (local.x() > m_window->width() - m_margins.right() + m_margins.left()) {
         processMouseRight(inputDevice,local,b,mods);
     } else {
-        restoreMouseCursor();
+        restoreMouseCursor(inputDevice);
         return false;
     }
 
@@ -334,13 +335,17 @@ bool QWaylandDecoration::handleMouse(QWaylandInputDevice *inputDevice, const QPo
     return true;
 }
 
-void QWaylandDecoration::restoreMouseCursor()
+void QWaylandDecoration::restoreMouseCursor(QWaylandInputDevice *inputDevice)
 {
-    if (m_hasSetCursor) {
-        overrideCursor(Qt::ArrowCursor);
-        QGuiApplication::restoreOverrideCursor();
-        m_hasSetCursor = false;
-    }
+    setMouseCursor(inputDevice, Qt::ArrowCursor);
+}
+
+void QWaylandDecoration::setMouseCursor(QWaylandInputDevice *device, Qt::CursorShape shape)
+{
+        if (m_cursorShape != shape || device->serial() > device->cursorSerial()) {
+            device->setCursor(shape, m_screen);
+            m_cursorShape = shape;
+        }
 }
 
 bool QWaylandDecoration::inMouseButtonPressedState() const
@@ -370,19 +375,19 @@ void QWaylandDecoration::processMouseTop(QWaylandInputDevice *inputDevice, const
     if (local.y() <= m_margins.bottom()) {
         if (local.x() <= margins().left()) {
             //top left bit
-            overrideCursor(Qt::SizeFDiagCursor);
+            setMouseCursor(inputDevice, Qt::SizeFDiagCursor);
             startResize(inputDevice,WL_SHELL_SURFACE_RESIZE_TOP_LEFT,b);
         } else if (local.x() > m_window->width() - margins().right()) {
             //top right bit
-            overrideCursor(Qt::SizeBDiagCursor);
+            setMouseCursor(inputDevice, Qt::SizeBDiagCursor);
             startResize(inputDevice,WL_SHELL_SURFACE_RESIZE_TOP_RIGHT,b);
         } else {
             //top reszie bit
-            overrideCursor(Qt::SplitVCursor);
+            setMouseCursor(inputDevice, Qt::SplitVCursor);
             startResize(inputDevice,WL_SHELL_SURFACE_RESIZE_TOP,b);
         }
     } else {
-        restoreMouseCursor();
+        restoreMouseCursor(inputDevice);
         startMove(inputDevice,b);
     }
 
@@ -393,15 +398,15 @@ void QWaylandDecoration::processMouseBottom(QWaylandInputDevice *inputDevice, co
     Q_UNUSED(mods);
     if (local.x() <= margins().left()) {
         //bottom left bit
-        overrideCursor(Qt::SizeBDiagCursor);
+        setMouseCursor(inputDevice, Qt::SizeBDiagCursor);
         startResize(inputDevice, WL_SHELL_SURFACE_RESIZE_BOTTOM_LEFT,b);
     } else if (local.x() > m_window->width() - margins().right()) {
         //bottom right bit
-        overrideCursor(Qt::SizeFDiagCursor);
+        setMouseCursor(inputDevice, Qt::SizeFDiagCursor);
         startResize(inputDevice, WL_SHELL_SURFACE_RESIZE_BOTTOM_RIGHT,b);
     } else {
         //bottom bit
-        overrideCursor(Qt::SplitVCursor);
+        setMouseCursor(inputDevice, Qt::SplitVCursor);
         startResize(inputDevice,WL_SHELL_SURFACE_RESIZE_BOTTOM,b);
     }
 }
@@ -410,7 +415,7 @@ void QWaylandDecoration::processMouseLeft(QWaylandInputDevice *inputDevice, cons
 {
     Q_UNUSED(local);
     Q_UNUSED(mods);
-    overrideCursor(Qt::SplitHCursor);
+    setMouseCursor(inputDevice, Qt::SplitHCursor);
     startResize(inputDevice,WL_SHELL_SURFACE_RESIZE_LEFT,b);
 }
 
@@ -418,7 +423,7 @@ void QWaylandDecoration::processMouseRight(QWaylandInputDevice *inputDevice, con
 {
     Q_UNUSED(local);
     Q_UNUSED(mods);
-    overrideCursor(Qt::SplitHCursor);
+    setMouseCursor(inputDevice, Qt::SplitHCursor);
     startResize(inputDevice, WL_SHELL_SURFACE_RESIZE_RIGHT,b);
 }
 

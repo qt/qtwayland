@@ -74,18 +74,15 @@ QWaylandCursor::~QWaylandCursor()
     wl_cursor_theme_destroy(mCursorTheme);
 }
 
-void QWaylandCursor::changeCursor(QCursor *cursor, QWindow *window)
+struct wl_cursor_image *QWaylandCursor::cursorImage(Qt::CursorShape newShape)
 {
-    Q_UNUSED(window)
-
     struct wl_cursor *waylandCursor = 0;
-    const Qt::CursorShape newShape = cursor ? cursor->shape() : Qt::ArrowCursor;
 
     /* Hide cursor */
     if (newShape == Qt::BlankCursor)
     {
         mDisplay->setCursor(NULL, NULL);
-        return;
+        return NULL;
     }
 
     if (newShape < Qt::BitmapCursor) {
@@ -98,17 +95,31 @@ void QWaylandCursor::changeCursor(QCursor *cursor, QWindow *window)
 
     if (!waylandCursor) {
         qDebug("Could not find cursor for shape %d", newShape);
-        return;
+        return NULL;
     }
 
     struct wl_cursor_image *image = waylandCursor->images[0];
-
     struct wl_buffer *buffer = wl_cursor_image_get_buffer(image);
     if (!buffer) {
         qDebug("Could not find buffer for cursor");
+        return NULL;
+    }
+
+    return image;
+}
+
+void QWaylandCursor::changeCursor(QCursor *cursor, QWindow *window)
+{
+    Q_UNUSED(window)
+
+    const Qt::CursorShape newShape = cursor ? cursor->shape() : Qt::ArrowCursor;
+
+    struct wl_cursor_image *image = cursorImage(newShape);
+    if (!image) {
         return;
     }
 
+    struct wl_buffer *buffer = wl_cursor_image_get_buffer(image);
     mDisplay->setCursor(buffer, image);
 }
 

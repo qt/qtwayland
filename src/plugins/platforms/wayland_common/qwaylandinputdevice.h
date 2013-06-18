@@ -90,6 +90,7 @@ public:
 private:
     QWaylandDisplay *mQDisplay;
     struct wl_display *mDisplay;
+    struct wl_callback *mFocusCallback;
 
     uint32_t mCaps;
 
@@ -154,6 +155,9 @@ private:
     void touch_cancel() Q_DECL_OVERRIDE;
 
     void handleTouchPoint(int id, double x, double y, Qt::TouchPointState state);
+
+    static const wl_callback_listener callback;
+    static void focusCallback(void *data, struct wl_callback *callback, uint32_t time);
 
     QList<QWindowSystemInterface::TouchPoint> mTouchPoints;
     QList<QWindowSystemInterface::TouchPoint> mPrevTouchPoints;

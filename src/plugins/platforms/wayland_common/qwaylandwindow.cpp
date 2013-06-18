@@ -200,6 +200,7 @@ void QWaylandWindow::setVisible(bool visible)
         attach(static_cast<QWaylandBuffer *>(0), 0, 0);
     }
     damage(QRect(QPoint(0,0),geometry().size()));
+    commit();
 }
 
 

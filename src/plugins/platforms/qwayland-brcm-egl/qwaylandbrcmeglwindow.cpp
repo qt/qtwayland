@@ -50,10 +50,6 @@
 #include <QtGui/QWindow>
 #include <qpa/qwindowsysteminterface.h>
 
-#ifdef QT_WAYLAND_WINDOWMANAGER_SUPPORT
-#include "windowmanager_integration/qwaylandwindowmanagerintegration.h"
-#endif
-
 #define EGL_EGLEXT_PROTOTYPES
 #include <EGL/eglext_brcm.h>
 

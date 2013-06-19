@@ -47,6 +47,7 @@
 #include "qwaylandnativeinterface.h"
 #include "qwaylandclipboard.h"
 #include "qwaylanddnd.h"
+#include "qwaylandwindowmanagerintegration.h"
 
 #include "QtPlatformSupport/private/qgenericunixfontdatabase_p.h"
 #include <QtPlatformSupport/private/qgenericunixeventdispatcher_p.h>
@@ -67,9 +68,6 @@
 #include "qwaylandglintegration.h"
 #endif
 
-#ifdef QT_WAYLAND_WINDOWMANAGER_SUPPORT
-#include "windowmanager_integration/qwaylandwindowmanagerintegration.h"
-#endif
 
 QT_USE_NAMESPACE
 
@@ -184,10 +182,9 @@ QPlatformInputContext *QWaylandIntegration::inputContext() const
 
 QVariant QWaylandIntegration::styleHint(StyleHint hint) const
 {
-#ifdef QT_WAYLAND_WINDOWMANAGER_SUPPORT
     if (hint == ShowIsFullScreen && mDisplay->windowManagerIntegration())
         return mDisplay->windowManagerIntegration()->showIsFullScreen();
-#endif
+
     return QPlatformIntegration::styleHint(hint);
 }
 
@@ -198,11 +195,7 @@ QPlatformAccessibility *QWaylandIntegration::accessibility() const
 
 QPlatformServices *QWaylandIntegration::services() const
 {
-#ifdef QT_WAYLAND_WINDOWMANAGER_SUPPORT
     return mDisplay->windowManagerIntegration();
-#else
-    return QWaylandIntegration::services();
-#endif
 }
 
 QWaylandDisplay *QWaylandIntegration::display() const

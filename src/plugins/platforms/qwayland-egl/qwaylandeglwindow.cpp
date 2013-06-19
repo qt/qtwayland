@@ -52,10 +52,6 @@
 #include <QOpenGLFramebufferObject>
 #include <QOpenGLContext>
 
-#ifdef QT_WAYLAND_WINDOWMANAGER_SUPPORT
-#include "windowmanager_integration/qwaylandwindowmanagerintegration.h"
-#endif
-
 QT_USE_NAMESPACE
 
 QWaylandEglWindow::QWaylandEglWindow(QWindow *window)

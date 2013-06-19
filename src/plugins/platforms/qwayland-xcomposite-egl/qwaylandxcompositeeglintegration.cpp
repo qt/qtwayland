@@ -117,7 +117,7 @@ const struct qt_xcomposite_listener QWaylandXCompositeEGLIntegration::xcomposite
 void QWaylandXCompositeEGLIntegration::wlDisplayHandleGlobal(void *data, wl_registry *registry, uint32_t id, const QString &interface, uint32_t version)
 {
     Q_UNUSED(version);
-    if (interface == "wl_xcomposite") {
+    if (interface == "qt_xcomposite") {
         QWaylandXCompositeEGLIntegration *integration = static_cast<QWaylandXCompositeEGLIntegration *>(data);
         integration->mWaylandComposite = static_cast<struct qt_xcomposite *>(wl_registry_bind(registry,id,&qt_xcomposite_interface,1));
         qt_xcomposite_add_listener(integration->mWaylandComposite,&xcomposite_listener,integration);

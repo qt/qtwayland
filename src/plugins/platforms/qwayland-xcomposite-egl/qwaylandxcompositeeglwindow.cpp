@@ -50,10 +50,6 @@
 #include <X11/extensions/Xcomposite.h>
 #include "qwaylandxcompositeeglintegration.h"
 
-#ifdef QT_WAYLAND_WINDOWMANAGER_SUPPORT
-#include "windowmanager_integration/qwaylandwindowmanagerintegration.h"
-#endif
-
 #include <QtCore/QDebug>
 
 QT_USE_NAMESPACE
@@ -138,11 +134,3 @@ void QWaylandXCompositeEGLWindow::createEglSurface()
     attach(m_buffer, 0, 0);
 }
 
-void QWaylandXCompositeEGLWindow::requestActivateWindow()
-{
-#ifdef QT_WAYLAND_WINDOWMANAGER_SUPPORT
-    mDisplay->windowManagerIntegration()->authenticateWithToken();
-#endif
-
-    QWaylandWindow::requestActivateWindow();
-}

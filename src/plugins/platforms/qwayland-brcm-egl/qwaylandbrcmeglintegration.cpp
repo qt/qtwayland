@@ -62,7 +62,7 @@ QWaylandBrcmEglIntegration::QWaylandBrcmEglIntegration(QWaylandDisplay *waylandD
 void QWaylandBrcmEglIntegration::wlDisplayHandleGlobal(void *data, struct wl_registry *registry, uint32_t id, const QString &interface, uint32_t version)
 {
     Q_UNUSED(version);
-    if (interface == "wl_brcm") {
+    if (interface == "qt_brcm") {
         QWaylandBrcmEglIntegration *integration = static_cast<QWaylandBrcmEglIntegration *>(data);
         integration->m_waylandBrcm = static_cast<struct wl_brcm *>(wl_registry_bind(registry, id, &wl_brcm_interface, 1));
     }

@@ -49,13 +49,10 @@
 #include "qwaylandextendedsurface.h"
 #include "qwaylandsubsurface.h"
 #include "qwaylanddecoration.h"
+#include "qwaylandwindowmanagerintegration.h"
 
 #include <QtCore/QFileInfo>
 #include <QtGui/QWindow>
-
-#ifdef QT_WAYLAND_WINDOWMANAGER_SUPPORT
-#include "windowmanager_integration/qwaylandwindowmanagerintegration.h"
-#endif
 
 #include <QCoreApplication>
 #include <qpa/qwindowsysteminterface.h>

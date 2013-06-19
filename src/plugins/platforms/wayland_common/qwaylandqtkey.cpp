@@ -63,7 +63,7 @@ void QWaylandQtKeyExtension::key_extension_qtkey(uint32_t time,
 {
     QList<QWaylandInputDevice *> inputDevices = m_display->inputDevices();
     if (inputDevices.isEmpty()) {
-        qWarning("wl_qtkey_extension: handle_qtkey: No input device");
+        qWarning("qt_key_extension: handle_qtkey: No input device");
         return;
     }
 
@@ -71,7 +71,7 @@ void QWaylandQtKeyExtension::key_extension_qtkey(uint32_t time,
     QWaylandWindow *win = dev->mKeyboardFocus;
 
     if (!win || !win->window()) {
-        qWarning("wl_qtkey_extension: handle_qtkey: No keyboard focus");
+        qWarning("qt_key_extension: handle_qtkey: No keyboard focus");
         return;
     }
 

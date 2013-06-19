@@ -45,10 +45,9 @@
 #include "qwaylandextendedsurface.h"
 #include "qwaylandintegration.h"
 #include "qwaylanddisplay.h"
+#include "qwaylandwindowmanagerintegration.h"
 #include <QtGui/private/qguiapplication_p.h>
 #include <QtGui/QScreen>
-
-#include "windowmanager_integration/qwaylandwindowmanagerintegration.h"
 
 QT_USE_NAMESPACE
 

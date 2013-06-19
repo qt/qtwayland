@@ -53,9 +53,7 @@
 #include "qwaylandglintegration.h"
 #endif
 
-#ifdef QT_WAYLAND_WINDOWMANAGER_SUPPORT
-#include "windowmanager_integration/qwaylandwindowmanagerintegration.h"
-#endif
+#include "qwaylandwindowmanagerintegration.h"
 
 #include "qwaylandextendedoutput.h"
 #include "qwaylandextendedsurface.h"
@@ -84,12 +82,10 @@ QWaylandGLIntegration * QWaylandDisplay::eglIntegration()
 }
 #endif
 
-#ifdef QT_WAYLAND_WINDOWMANAGER_SUPPORT
 QWaylandWindowManagerIntegration *QWaylandDisplay::windowManagerIntegration()
 {
     return mWindowManagerIntegration;
 }
-#endif
 
 QWaylandInputDevice *QWaylandDisplay::lastKeyboardFocusInputDevice() const
 {
@@ -139,9 +135,7 @@ QWaylandDisplay::QWaylandDisplay()
     mEglIntegration = QWaylandGLIntegration::createGLIntegration(this);
 #endif
 
-#ifdef QT_WAYLAND_WINDOWMANAGER_SUPPORT
     mWindowManagerIntegration = new QWaylandWindowManagerIntegration(this);
-#endif
 
     blockingReadEvents();
 

@@ -6,10 +6,6 @@ include (../xcomposite_share/xcomposite_share.pri)
 
 OTHER_FILES += qwayland-xcomposite-egl.json
 
-contains(DEFINES, QT_WAYLAND_WINDOWMANAGER_SUPPORT) {
-    WAYLANDCLIENTSOURCES += ../../../extensions/windowmanager.xml
-}
-
 !contains(QT_CONFIG, no-pkg-config) {
     CONFIG += link_pkgconfig
     PKGCONFIG += xcomposite egl x11

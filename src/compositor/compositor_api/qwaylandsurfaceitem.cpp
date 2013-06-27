@@ -93,7 +93,7 @@ QWaylandSurfaceItem::QWaylandSurfaceItem(QQuickItem *parent)
     , m_node(0)
     , m_paintEnabled(true)
     , m_useTextureAlpha(false)
-    , m_clientRenderingEnabled(false)
+    , m_clientRenderingEnabled(true)
     , m_touchEventsEnabled(false)
     , m_resizeSurfaceToItem(false)
 {
@@ -108,7 +108,7 @@ QWaylandSurfaceItem::QWaylandSurfaceItem(QWaylandSurface *surface, QQuickItem *p
     , m_node(0)
     , m_paintEnabled(true)
     , m_useTextureAlpha(false)
-    , m_clientRenderingEnabled(false)
+    , m_clientRenderingEnabled(true)
     , m_touchEventsEnabled(false)
 {
     init(surface);
@@ -125,9 +125,7 @@ void QWaylandSurfaceItem::init(QWaylandSurface *surface)
 
     m_surface = surface;
     m_surface->setSurfaceItem(this);
-    if (m_clientRenderingEnabled) {
-        m_surface->sendOnScreenVisibilityChange(m_clientRenderingEnabled);
-    }
+    m_surface->sendOnScreenVisibilityChange(m_clientRenderingEnabled);
 
     if (m_resizeSurfaceToItem) {
         updateSurfaceSize();

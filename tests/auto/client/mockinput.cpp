@@ -142,7 +142,7 @@ static wl_surface *resolveSurface(const QVariant &v)
 {
     QSharedPointer<MockSurface> mockSurface = v.value<QSharedPointer<MockSurface> >();
     Surface *surface = mockSurface ? mockSurface->handle() : 0;
-    return surface ? surface->handle() : 0;
+    return surface ? surface->base() : 0;
 }
 
 void Compositor::setKeyboardFocus(void *data, const QList<QVariant> &parameters)

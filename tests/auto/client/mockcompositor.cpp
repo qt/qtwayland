@@ -42,6 +42,7 @@
 #include "mockcompositor.h"
 #include "mocksurface.h"
 
+#include <stdio.h>
 MockCompositor::MockCompositor()
     : m_alive(true)
     , m_ready(false)
@@ -195,7 +196,10 @@ Compositor::Compositor()
 {
     wl_list_init(&m_outputResources);
 
-    wl_display_add_socket(m_display, 0);
+    if (wl_display_add_socket(m_display, 0)) {
+        fprintf(stderr, "Fatal: Failed to open server socket\n");
+        exit(EXIT_FAILURE);
+    }
 
     wl_seat_init(&m_seat);
     wl_pointer_init(&m_pointer);
@@ -204,11 +208,13 @@ Compositor::Compositor()
     wl_seat_set_keyboard(&m_seat, &m_keyboard);
 
     wl_display_add_global(m_display, &wl_compositor_interface, this, bindCompositor);
+
+    wl_display_init_shm(m_display);
+
     wl_display_add_global(m_display, &wl_seat_interface, this, bindSeat);
     wl_display_add_global(m_display, &wl_output_interface, this, bindOutput);
     wl_display_add_global(m_display, &wl_shell_interface, this, bindShell);
 
-    wl_display_init_shm(m_display);
 
     m_loop = wl_display_get_event_loop(m_display);
     m_fd = wl_event_loop_get_fd(m_loop);
@@ -223,6 +229,7 @@ Compositor::~Compositor()
 
 void Compositor::dispatchEvents(int timeout)
 {
+    wl_display_flush_clients(m_display);
     wl_event_loop_dispatch(m_loop, timeout);
 }
 

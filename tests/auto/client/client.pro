@@ -10,6 +10,9 @@ QT += core-private gui-private
     LIBS += -lwayland-client -lwayland-server
 }
 
+WAYLANDSERVERSOURCES += \
+    ../../../src/3rdparty/protocol/wayland.xml
+
 SOURCES += tst_client.cpp \
            mockcompositor.cpp \
            mockinput.cpp \

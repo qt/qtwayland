@@ -40,37 +40,44 @@
 ****************************************************************************/
 
 #include <qglobal.h>
-#include <wayland-server.h>
+
+#include <QtCompositor/qwaylandobject.h>
+
+#include "qwayland-server-wayland.h"
 
 #include "mockcompositor.h"
 
 namespace Impl {
 
-class Surface
+class Surface : public QtWayland::Object<struct ::wl_surface>, public QtWaylandServer::wl_surface
 {
 public:
     Surface(wl_client *client, uint32_t id, Compositor *compositor);
     ~Surface();
 
     Compositor *compositor() const { return m_compositor; }
-    wl_surface *handle() { return &m_surface; }
 
     QSharedPointer<MockSurface> mockSurface() const { return m_mockSurface; }
 
+protected:
+
+    void surface_destroy_resource(Resource *resource) Q_DECL_OVERRIDE;
+
+    void surface_destroy(Resource *resource) Q_DECL_OVERRIDE;
+    void surface_attach(Resource *resource,
+                        struct wl_resource *buffer, int x, int y) Q_DECL_OVERRIDE;
+    void surface_damage(Resource *resource,
+                        int32_t x, int32_t y, int32_t width, int32_t height) Q_DECL_OVERRIDE;
+    void surface_frame(Resource *resource,
+                       uint32_t callback) Q_DECL_OVERRIDE;
+    void surface_commit(Resource *resource) Q_DECL_OVERRIDE;
 private:
-    wl_surface m_surface;
     wl_buffer *m_buffer;
 
     Compositor *m_compositor;
     QSharedPointer<MockSurface> m_mockSurface;
 
     wl_list m_frameCallbackList;
-
-    friend void surface_attach(wl_client *client, wl_resource *surface,
-                               wl_resource *buffer, int x, int y);
-    friend void surface_damage(wl_client *client, wl_resource *surface,
-                               int32_t x, int32_t y, int32_t width, int32_t height);
-    friend void surface_frame(wl_client *client, wl_resource *surface, uint32_t callback);
 };
 
 }

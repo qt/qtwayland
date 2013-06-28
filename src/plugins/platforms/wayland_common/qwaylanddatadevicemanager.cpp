@@ -64,6 +64,7 @@ void QWaylandDataDeviceManager::data_offer(void *data,
                    struct wl_data_device *data_device,
                    struct wl_data_offer *id)
 {
+    Q_UNUSED(data_device);
     QWaylandDataDeviceManager *handler = static_cast<QWaylandDataDeviceManager *>(data);
 
     new QWaylandDataOffer(handler->display(),id);

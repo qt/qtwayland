@@ -102,9 +102,9 @@ void TextureBlitter::drawTexture(int textureId, const QRectF &targetRect, const 
         0, 1
     };
 
-    int x1 = targetRect.left();
-    int x2 = targetRect.right();
-    int y1, y2;
+    GLfloat x1 = targetRect.left();
+    GLfloat x2 = targetRect.right();
+    GLfloat y1, y2;
     if (targethasInvertedY) {
         if (sourceHasInvertedY) {
             y1 = targetRect.top();

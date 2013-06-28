@@ -160,8 +160,10 @@ public:
     void restoreMouseCursor(QWaylandInputDevice *device);
 
     QMutex *resizeMutex() { return &mResizeLock; }
-public slots:
     void doResize();
+    void setCanResize(bool canResize);
+public slots:
+    void requestResize();
 
 protected:
     QWaylandScreen *mScreen;
@@ -183,7 +185,8 @@ protected:
 
     QMutex mResizeLock;
     QWaylandWindowConfigure mConfigure;
-    bool mResizeExposedSent;
+    bool mRequestResizeSent;
+    bool mCanResize;
 
     bool mSentInitialResize;
     QPoint mOffset;

@@ -64,7 +64,6 @@ QWaylandGLContext::QWaylandGLContext(EGLDisplay eglDisplay, const QSurfaceFormat
     , m_format(q_glFormatFromConfig(m_eglDisplay, m_config))
     , m_blitProgram(0)
     , m_textureCache(0)
-    , m_currentOnSurface(0)
 {
     m_shareEGLContext = share ? static_cast<QWaylandGLContext *>(share)->eglContext() : EGL_NO_CONTEXT;
 
@@ -93,20 +92,12 @@ QWaylandGLContext::~QWaylandGLContext()
 bool QWaylandGLContext::makeCurrent(QPlatformSurface *surface)
 {
     QWaylandEglWindow *window = static_cast<QWaylandEglWindow *>(surface);
-    if (m_currentOnSurface != window) {
-        if (m_currentOnSurface) {
-            QWaylandWindow *oldWindow = m_currentOnSurface;
-            m_currentOnSurface = 0;
-            oldWindow->resizeMutex()->unlock();
-        }
-        window->resizeMutex()->lock();
-        m_currentOnSurface = window;
-    }
+
+    window->setCanResize(false);
 
     EGLSurface eglSurface = window->eglSurface();
     if (!eglMakeCurrent(m_eglDisplay, eglSurface, eglSurface, m_context)) {
         qWarning("QEGLPlatformContext::makeCurrent: eglError: %x, this: %p \n", eglGetError(), this);
-        m_currentOnSurface->resizeMutex()->unlock();
         return false;
     }
 
@@ -118,11 +109,6 @@ bool QWaylandGLContext::makeCurrent(QPlatformSurface *surface)
 void QWaylandGLContext::doneCurrent()
 {
     eglMakeCurrent(m_eglDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
-    if (m_currentOnSurface) {
-        QWaylandWindow *window = m_currentOnSurface;
-        m_currentOnSurface = 0;
-        window->resizeMutex()->unlock();
-    }
 }
 
 void QWaylandGLContext::swapBuffers(QPlatformSurface *surface)
@@ -218,11 +204,8 @@ void QWaylandGLContext::swapBuffers(QPlatformSurface *surface)
     }
 
     eglSwapBuffers(m_eglDisplay, eglSurface);
-    if (m_currentOnSurface == window) {
-        m_currentOnSurface = 0;
-        window->resizeMutex()->unlock();
-    }
 
+    window->setCanResize(true);
 }
 
 GLuint QWaylandGLContext::defaultFramebufferObject(QPlatformSurface *surface) const

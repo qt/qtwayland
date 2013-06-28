@@ -86,8 +86,6 @@ private:
     QSurfaceFormat m_format;
     QOpenGLShaderProgram *m_blitProgram;
     QOpenGLTextureCache *m_textureCache;
-
-    QWaylandWindow *m_currentOnSurface;
 };
 
 QT_END_NAMESPACE

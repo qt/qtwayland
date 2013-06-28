@@ -75,7 +75,8 @@ QWaylandWindow::QWaylandWindow(QWindow *window)
     , mBuffer(0)
     , mWaitingForFrameSync(false)
     , mFrameCallback(0)
-    , mResizeExposedSent(false)
+    , mRequestResizeSent(false)
+    , mCanResize(true)
     , mSentInitialResize(false)
     , mState(Qt::WindowNoState)
 {
@@ -222,19 +223,19 @@ bool QWaylandWindow::isExposed() const
 
 void QWaylandWindow::configure(uint32_t edges, int32_t width, int32_t height)
 {
+    QMutexLocker resizeLocker(&mResizeLock);
     mConfigure.edges |= edges;
     mConfigure.width = width;
     mConfigure.height = height;
 
-    if (!mResizeExposedSent) {
-        mResizeExposedSent = true;
-        QMetaObject::invokeMethod(this, "doResize", Qt::QueuedConnection);
+    if (!mRequestResizeSent && !mConfigure.isEmpty()) {
+        mRequestResizeSent= true;
+        QMetaObject::invokeMethod(this, "requestResize", Qt::QueuedConnection);
     }
 }
 
 void QWaylandWindow::doResize()
 {
-    mResizeExposedSent = false;
     if (mConfigure.isEmpty()) {
         return;
     }
@@ -257,13 +258,34 @@ void QWaylandWindow::doResize()
     }
     mOffset += QPoint(x, y);
 
-    mResizeLock.lock();
     setGeometry(geometry);
-    mResizeLock.unlock();
 
     mConfigure.clear();
     QWindowSystemInterface::handleGeometryChange(window(), geometry);
-    QWindowSystemInterface::handleExposeEvent(window(), QRegion(geometry));
+}
+
+void QWaylandWindow::setCanResize(bool canResize)
+{
+    QMutexLocker lock(&mResizeLock);
+    mCanResize = canResize;
+
+    if (canResize && !mConfigure.isEmpty()) {
+        doResize();
+        QWindowSystemInterface::handleExposeEvent(window(), geometry());
+    }
+}
+
+void QWaylandWindow::requestResize()
+{
+    QMutexLocker lock(&mResizeLock);
+
+    if (mCanResize) {
+        doResize();
+    }
+
+    mRequestResizeSent = false;
+    lock.unlock();
+    QWindowSystemInterface::handleExposeEvent(window(), geometry());
     QWindowSystemInterface::flushWindowSystemEvents();
 }
 

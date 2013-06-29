@@ -1,6 +1,7 @@
 load(configure)
 qtCompileTest(wayland)
 qtCompileTest(xkbcommon)
+qtCompileTest(wayland_cursor)
 qtCompileTest(wayland_scanner)
 qtCompileTest(wayland_egl)
 qtCompileTest(egl)
@@ -21,6 +22,11 @@ load(qt_parts)
 
 !config_wayland_scanner {
     warning("QtWayland requires wayland-scanner")
+    SUBDIRS =
+}
+
+!config_wayland_cursor {
+    warning("QtWayland requires wayland-cursor")
     SUBDIRS =
 }
 

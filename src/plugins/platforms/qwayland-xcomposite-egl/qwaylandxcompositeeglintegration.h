@@ -58,7 +58,7 @@
 #include <X11/Xlib.h>
 #include <EGL/egl.h>
 
-struct wl_xcomposite;
+struct qt_xcomposite;
 
 QT_BEGIN_NAMESPACE
 

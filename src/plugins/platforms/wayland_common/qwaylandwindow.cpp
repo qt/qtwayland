@@ -64,7 +64,8 @@ QT_BEGIN_NAMESPACE
 QWaylandWindow::QWaylandWindow(QWindow *window)
     : QObject()
     , QPlatformWindow(window)
-    , mDisplay(QWaylandScreen::waylandScreenFromWindow(window)->display())
+    , mScreen(QWaylandScreen::waylandScreenFromWindow(window))
+    , mDisplay(mScreen->display())
     , mShellSurface(0)
     , mExtendedWindow(0)
     , mSubSurfaceWindow(0)
@@ -433,11 +434,12 @@ void QWaylandWindow::handleMouse(QWaylandInputDevice *inputDevice, ulong timesta
     QWindowSystemInterface::handleMouseEvent(window(),timestamp,local,global,b,mods);
 }
 
-void QWaylandWindow::handleMouseEnter(QWaylandInputDevice *)
+void QWaylandWindow::handleMouseEnter(QWaylandInputDevice *inputDevice)
 {
     if (!mWindowDecoration) {
         QWindowSystemInterface::handleEnterEvent(window());
     }
+    restoreMouseCursor(inputDevice);
 }
 
 void QWaylandWindow::handleMouseLeave(QWaylandInputDevice *inputDevice)
@@ -446,10 +448,10 @@ void QWaylandWindow::handleMouseLeave(QWaylandInputDevice *inputDevice)
         if (mMouseEventsInContentArea) {
             QWindowSystemInterface::handleLeaveEvent(window());
         }
-        mWindowDecoration->restoreMouseCursor(inputDevice);
     } else {
         QWindowSystemInterface::handleLeaveEvent(window());
     }
+    restoreMouseCursor(inputDevice);
 }
 
 void QWaylandWindow::handleMouseEventWithDecoration(QWaylandInputDevice *inputDevice, ulong timestamp, const QPointF &local, const QPointF &global, Qt::MouseButtons b, Qt::KeyboardModifiers mods)
@@ -470,7 +472,7 @@ void QWaylandWindow::handleMouseEventWithDecoration(QWaylandInputDevice *inputDe
         globalTranslated.setX(globalTranslated.x() - marg.left());
         globalTranslated.setY(globalTranslated.y() - marg.top());
         if (!mMouseEventsInContentArea) {
-            mWindowDecoration->restoreMouseCursor(inputDevice);
+            restoreMouseCursor(inputDevice);
             QWindowSystemInterface::handleEnterEvent(window());
         }
         QWindowSystemInterface::handleMouseEvent(window(), timestamp, localTranslated, globalTranslated, b, mods);
@@ -483,6 +485,19 @@ void QWaylandWindow::handleMouseEventWithDecoration(QWaylandInputDevice *inputDe
         }
         mWindowDecoration->handleMouse(inputDevice,local,global,b,mods);
     }
+}
+
+void QWaylandWindow::setMouseCursor(QWaylandInputDevice *device, Qt::CursorShape shape)
+{
+    if (m_cursorShape != shape || device->serial() > device->cursorSerial()) {
+        device->setCursor(shape, mScreen);
+        m_cursorShape = shape;
+    }
+}
+
+void QWaylandWindow::restoreMouseCursor(QWaylandInputDevice *device)
+{
+    setMouseCursor(device, window()->cursor().shape());
 }
 
 QT_END_NAMESPACE

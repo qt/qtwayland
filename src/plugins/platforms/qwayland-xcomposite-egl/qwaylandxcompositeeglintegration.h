@@ -58,6 +58,12 @@
 #include <X11/Xlib.h>
 #include <EGL/egl.h>
 
+// avoid clashes with Qt::CursorShape
+#ifdef CursorShape
+#   define X_CursorShape CursorShape
+#   undef CursorShape
+#endif
+
 struct qt_xcomposite;
 
 QT_BEGIN_NAMESPACE

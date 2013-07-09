@@ -213,13 +213,14 @@ void QWaylandInputDevice::pointer_enter(uint32_t serial, struct wl_surface *surf
     QWaylandWindow *window = QWaylandWindow::fromWlSurface(surface);
     window->window()->setCursor(window->window()->cursor());
 
-    window->handleMouseEnter(this);
-    window->handleMouse(this, mTime, mSurfacePos, mGlobalPos, mButtons, Qt::NoModifier);
     mPointerFocus = window;
 
     mTime = QWaylandDisplay::currentTimeMillisec();
     mSerial = serial;
     mEnterSerial = serial;
+
+    window->handleMouseEnter(this);
+    window->handleMouse(this, mTime, mSurfacePos, mGlobalPos, mButtons, Qt::NoModifier);
 }
 
 void QWaylandInputDevice::pointer_leave(uint32_t time, struct wl_surface *surface)

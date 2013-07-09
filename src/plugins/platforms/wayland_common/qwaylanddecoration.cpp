@@ -132,7 +132,6 @@ QWaylandDecoration::QWaylandDecoration(QWaylandWindow *window)
     , m_mouseButtons(Qt::NoButton)
 {
     m_wayland_window->setDecoration(this);
-    m_screen = QWaylandScreen::waylandScreenFromWindow(m_window);
 
     QPalette palette;
     m_foregroundColor = palette.color(QPalette::Active, QPalette::HighlightedText);
@@ -327,25 +326,12 @@ bool QWaylandDecoration::handleMouse(QWaylandInputDevice *inputDevice, const QPo
     } else if (local.x() > m_window->width() - m_margins.right() + m_margins.left()) {
         processMouseRight(inputDevice,local,b,mods);
     } else {
-        restoreMouseCursor(inputDevice);
+        m_wayland_window->restoreMouseCursor(inputDevice);
         return false;
     }
 
     m_mouseButtons = b;
     return true;
-}
-
-void QWaylandDecoration::restoreMouseCursor(QWaylandInputDevice *inputDevice)
-{
-    setMouseCursor(inputDevice, Qt::ArrowCursor);
-}
-
-void QWaylandDecoration::setMouseCursor(QWaylandInputDevice *device, Qt::CursorShape shape)
-{
-        if (m_cursorShape != shape || device->serial() > device->cursorSerial()) {
-            device->setCursor(shape, m_screen);
-            m_cursorShape = shape;
-        }
 }
 
 bool QWaylandDecoration::inMouseButtonPressedState() const
@@ -375,19 +361,19 @@ void QWaylandDecoration::processMouseTop(QWaylandInputDevice *inputDevice, const
     if (local.y() <= m_margins.bottom()) {
         if (local.x() <= margins().left()) {
             //top left bit
-            setMouseCursor(inputDevice, Qt::SizeFDiagCursor);
+            m_wayland_window->setMouseCursor(inputDevice, Qt::SizeFDiagCursor);
             startResize(inputDevice,WL_SHELL_SURFACE_RESIZE_TOP_LEFT,b);
         } else if (local.x() > m_window->width() - margins().right()) {
             //top right bit
-            setMouseCursor(inputDevice, Qt::SizeBDiagCursor);
+            m_wayland_window->setMouseCursor(inputDevice, Qt::SizeBDiagCursor);
             startResize(inputDevice,WL_SHELL_SURFACE_RESIZE_TOP_RIGHT,b);
         } else {
             //top reszie bit
-            setMouseCursor(inputDevice, Qt::SplitVCursor);
+            m_wayland_window->setMouseCursor(inputDevice, Qt::SplitVCursor);
             startResize(inputDevice,WL_SHELL_SURFACE_RESIZE_TOP,b);
         }
     } else {
-        restoreMouseCursor(inputDevice);
+        m_wayland_window->restoreMouseCursor(inputDevice);
         startMove(inputDevice,b);
     }
 
@@ -398,15 +384,15 @@ void QWaylandDecoration::processMouseBottom(QWaylandInputDevice *inputDevice, co
     Q_UNUSED(mods);
     if (local.x() <= margins().left()) {
         //bottom left bit
-        setMouseCursor(inputDevice, Qt::SizeBDiagCursor);
+        m_wayland_window->setMouseCursor(inputDevice, Qt::SizeBDiagCursor);
         startResize(inputDevice, WL_SHELL_SURFACE_RESIZE_BOTTOM_LEFT,b);
     } else if (local.x() > m_window->width() - margins().right()) {
         //bottom right bit
-        setMouseCursor(inputDevice, Qt::SizeFDiagCursor);
+        m_wayland_window->setMouseCursor(inputDevice, Qt::SizeFDiagCursor);
         startResize(inputDevice, WL_SHELL_SURFACE_RESIZE_BOTTOM_RIGHT,b);
     } else {
         //bottom bit
-        setMouseCursor(inputDevice, Qt::SplitVCursor);
+        m_wayland_window->setMouseCursor(inputDevice, Qt::SplitVCursor);
         startResize(inputDevice,WL_SHELL_SURFACE_RESIZE_BOTTOM,b);
     }
 }
@@ -415,7 +401,7 @@ void QWaylandDecoration::processMouseLeft(QWaylandInputDevice *inputDevice, cons
 {
     Q_UNUSED(local);
     Q_UNUSED(mods);
-    setMouseCursor(inputDevice, Qt::SplitHCursor);
+    m_wayland_window->setMouseCursor(inputDevice, Qt::SplitHCursor);
     startResize(inputDevice,WL_SHELL_SURFACE_RESIZE_LEFT,b);
 }
 
@@ -423,7 +409,7 @@ void QWaylandDecoration::processMouseRight(QWaylandInputDevice *inputDevice, con
 {
     Q_UNUSED(local);
     Q_UNUSED(mods);
-    setMouseCursor(inputDevice, Qt::SplitHCursor);
+    m_wayland_window->setMouseCursor(inputDevice, Qt::SplitHCursor);
     startResize(inputDevice, WL_SHELL_SURFACE_RESIZE_RIGHT,b);
 }
 

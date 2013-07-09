@@ -153,11 +153,15 @@ public:
     inline bool isMaximized() const { return mState == Qt::WindowMaximized; }
     inline bool isFullscreen() const { return mState == Qt::WindowFullScreen; }
 
+    void setMouseCursor(QWaylandInputDevice *device, Qt::CursorShape shape);
+    void restoreMouseCursor(QWaylandInputDevice *device);
+
     QMutex *resizeMutex() { return &mResizeLock; }
 public slots:
     void doResize();
 
 protected:
+    QWaylandScreen *mScreen;
     QWaylandDisplay *mDisplay;
     QWaylandShellSurface *mShellSurface;
     QWaylandExtendedSurface *mExtendedWindow;
@@ -166,6 +170,7 @@ protected:
     QWaylandDecoration *mWindowDecoration;
     bool mMouseEventsInContentArea;
     Qt::MouseButtons mMousePressedInContentArea;
+    Qt::CursorShape m_cursorShape;
 
     QWaylandBuffer *mBuffer;
     WId mWindowId;

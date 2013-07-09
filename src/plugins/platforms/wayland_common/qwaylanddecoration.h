@@ -74,7 +74,6 @@ public:
     bool isDirty() const;
 
     bool handleMouse(QWaylandInputDevice *inputDevice, const QPointF &local, const QPointF &global,Qt::MouseButtons b,Qt::KeyboardModifiers mods);
-    void restoreMouseCursor(QWaylandInputDevice *inputDevice);
     bool inMouseButtonPressedState() const;
 
     void startResize(QWaylandInputDevice *inputDevice,enum wl_shell_surface_resize resize, Qt::MouseButtons buttons);
@@ -94,8 +93,6 @@ protected:
     void paint(QPaintDevice *device);
 
 private:
-    void setMouseCursor(QWaylandInputDevice *inputDevice, Qt::CursorShape shape);
-
     void processMouseTop(QWaylandInputDevice *inputDevice, const QPointF &local, Qt::MouseButtons b,Qt::KeyboardModifiers mods);
     void processMouseBottom(QWaylandInputDevice *inputDevice, const QPointF &local, Qt::MouseButtons b,Qt::KeyboardModifiers mods);
     void processMouseLeft(QWaylandInputDevice *inputDevice, const QPointF &local, Qt::MouseButtons b,Qt::KeyboardModifiers mods);
@@ -108,7 +105,6 @@ private:
     QRectF maximizeButtonRect() const;
     QRectF minimizeButtonRect() const;
 
-    QWaylandScreen *m_screen;
     QWindow *m_window;
     QWaylandWindow *m_wayland_window;
 
@@ -116,7 +112,6 @@ private:
     QImage m_decorationContentImage;
 
     QMargins m_margins;
-    Qt::CursorShape m_cursorShape;
     Qt::MouseButtons m_mouseButtons;
 
     QColor m_foregroundColor;

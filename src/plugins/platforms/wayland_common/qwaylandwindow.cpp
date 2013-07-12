@@ -177,6 +177,11 @@ void QWaylandWindow::setGeometry(const QRect &rect)
 
     if (mWindowDecoration && window()->isVisible())
         mWindowDecoration->update();
+
+    if (mConfigure.isEmpty()) {
+        QWindowSystemInterface::handleGeometryChange(window(), rect);
+        QWindowSystemInterface::handleExposeEvent(window(), QRegion(rect));
+    }
 }
 
 void QWaylandWindow::setVisible(bool visible)

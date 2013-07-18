@@ -45,7 +45,7 @@
 #define EGL_EGLEXT_PROTOTYPES
 #include <EGL/eglext_brcm.h>
 
-QT_USE_NAMESPACE
+QT_BEGIN_NAMESPACE
 
 BrcmBuffer::BrcmBuffer(QtWayland::Compositor *compositor, const QSize &size, EGLint *data, size_t count)
     : m_invertedY(false)
@@ -79,3 +79,5 @@ void BrcmBuffer::delete_resource(struct wl_resource *resource)
 {
     delete reinterpret_cast<BrcmBuffer *>(resource);
 }
+
+QT_END_NAMESPACE

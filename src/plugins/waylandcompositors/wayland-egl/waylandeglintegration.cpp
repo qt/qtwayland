@@ -72,7 +72,7 @@ typedef void (GL_APIENTRYP PFNGLEGLIMAGETARGETTEXTURE2DOESPROC) (GLenum target, 
 typedef void (GL_APIENTRYP PFNGLEGLIMAGETARGETRENDERBUFFERSTORAGEOESPROC) (GLenum target, GLeglImageOES image);
 #endif
 
-QT_USE_NAMESPACE
+QT_BEGIN_NAMESPACE
 
 class WaylandEglIntegrationPrivate
 {
@@ -233,3 +233,4 @@ void WaylandEglIntegration::unlockNativeBuffer(void *native_buffer, QOpenGLConte
     d->egl_destroy_image(d->egl_display, image);
 }
 
+QT_END_NAMESPACE

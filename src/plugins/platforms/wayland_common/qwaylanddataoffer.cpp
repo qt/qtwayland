@@ -47,7 +47,7 @@
 
 #include <QtCore/QDebug>
 
-QT_USE_NAMESPACE
+QT_BEGIN_NAMESPACE
 
 void QWaylandDataOffer::offer_sync_callback(void *data,
              struct wl_callback *callback,
@@ -143,3 +143,5 @@ struct wl_data_offer *QWaylandDataOffer::handle() const
 {
     return m_data_offer;
 }
+
+QT_END_NAMESPACE

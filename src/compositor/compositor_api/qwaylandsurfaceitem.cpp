@@ -453,6 +453,6 @@ void QWaylandSurfaceItem::setResizeSurfaceToItem(bool enabled)
     }
 }
 
-#include "qwaylandsurfaceitem.moc"
-
 QT_END_NAMESPACE
+
+#include "qwaylandsurfaceitem.moc"

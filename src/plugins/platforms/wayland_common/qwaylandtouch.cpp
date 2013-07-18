@@ -42,7 +42,7 @@
 #include "qwaylandtouch.h"
 #include "qwaylandinputdevice.h"
 
-QT_USE_NAMESPACE
+QT_BEGIN_NAMESPACE
 
 QWaylandTouchExtension::QWaylandTouchExtension(QWaylandDisplay *display, uint32_t id)
     : QtWayland::qt_touch_extension(display->wl_registry(), id),
@@ -205,3 +205,5 @@ void QWaylandTouchExtension::touch_extension_configure(uint32_t flags)
 {
     mFlags = flags;
 }
+
+QT_END_NAMESPACE

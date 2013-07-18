@@ -49,7 +49,7 @@
 
 #include <QtCore/QDebug>
 
-QT_USE_NAMESPACE
+QT_BEGIN_NAMESPACE
 
 QWaylandShellSurface::QWaylandShellSurface(struct ::wl_shell_surface *shell_surface, QWaylandWindow *window)
     : QtWayland::wl_shell_surface(shell_surface)
@@ -153,3 +153,5 @@ void QWaylandShellSurface::shell_surface_configure(uint32_t edges,
 void QWaylandShellSurface::shell_surface_popup_done()
 {
 }
+
+QT_END_NAMESPACE

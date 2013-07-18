@@ -47,7 +47,7 @@
 
 #include "wayland-xcomposite-client-protocol.h"
 
-QT_USE_NAMESPACE
+QT_BEGIN_NAMESPACE
 
 QWaylandGLIntegration * QWaylandGLIntegration::createGLIntegration(QWaylandDisplay *waylandDisplay)
 {
@@ -136,3 +136,4 @@ void QWaylandXCompositeGLXIntegration::rootInformation(void *data, wl_xcomposite
     integration->mScreen = XDefaultScreen(integration->mDisplay);
 }
 
+QT_END_NAMESPACE

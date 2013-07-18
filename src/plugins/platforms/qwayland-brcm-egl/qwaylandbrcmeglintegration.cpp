@@ -50,7 +50,7 @@
 
 #include "wayland-brcm-client-protocol.h"
 
-QT_USE_NAMESPACE
+QT_BEGIN_NAMESPACE
 
 QWaylandBrcmEglIntegration::QWaylandBrcmEglIntegration(QWaylandDisplay *waylandDisplay)
     : m_waylandDisplay(waylandDisplay->wl_display())
@@ -129,3 +129,4 @@ QWaylandGLIntegration *QWaylandGLIntegration::createGLIntegration(QWaylandDispla
     return new QWaylandBrcmEglIntegration(waylandDisplay);
 }
 
+QT_END_NAMESPACE

@@ -47,7 +47,7 @@
 
 #include <QtCore/QDebug>
 
-QT_USE_NAMESPACE
+QT_BEGIN_NAMESPACE
 
 QWaylandExtendedOutput::QWaylandExtendedOutput(QWaylandScreen *screen, ::qt_extended_output *extended_output)
     : QtWayland::qt_extended_output(extended_output)
@@ -96,3 +96,5 @@ void QWaylandExtendedOutput::extended_output_set_screen_rotation(int32_t rotatio
     }
     QWindowSystemInterface::handleScreenOrientationChange(m_screen->screen(), m_orientation);
 }
+
+QT_END_NAMESPACE

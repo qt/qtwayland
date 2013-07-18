@@ -53,7 +53,7 @@
 #include <QtGui/QPalette>
 #include <QtGui/QLinearGradient>
 
-QT_USE_NAMESPACE
+QT_BEGIN_NAMESPACE
 
 #define BUTTON_SPACING 5
 
@@ -468,3 +468,5 @@ void QWaylandDecoration::setBackgroundColor(const QColor &c)
 {
     m_backgroundColor = c;
 }
+
+QT_END_NAMESPACE

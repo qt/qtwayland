@@ -52,7 +52,7 @@
 #include <QOpenGLFramebufferObject>
 #include <QOpenGLContext>
 
-QT_USE_NAMESPACE
+QT_BEGIN_NAMESPACE
 
 QWaylandEglWindow::QWaylandEglWindow(QWindow *window)
     : QWaylandWindow(window)
@@ -167,3 +167,5 @@ void QWaylandEglWindow::bindContentFBO()
         m_contentFBO->bind();
     }
 }
+
+QT_END_NAMESPACE

@@ -45,11 +45,14 @@
 #include <qpa/qplatformcursor.h>
 #include <QMap>
 
+struct wl_cursor;
+struct wl_cursor_image;
+struct wl_cursor_theme;
+
 QT_BEGIN_NAMESPACE
 
 class QWaylandDisplay;
 class QWaylandScreen;
-struct wl_cursor_theme;
 
 class QWaylandCursor : public QPlatformCursor
 {

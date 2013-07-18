@@ -49,7 +49,7 @@
 #include <QtGui/private/qguiapplication_p.h>
 #include <QtGui/QScreen>
 
-QT_USE_NAMESPACE
+QT_BEGIN_NAMESPACE
 
 QWaylandNativeInterface::QWaylandNativeInterface(QWaylandIntegration *integration)
     : m_integration(integration)
@@ -130,3 +130,5 @@ void QWaylandNativeInterface::emitWindowPropertyChanged(QPlatformWindow *window,
 {
     emit windowPropertyChanged(window,name);
 }
+
+QT_END_NAMESPACE

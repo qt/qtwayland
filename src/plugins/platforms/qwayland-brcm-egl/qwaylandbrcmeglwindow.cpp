@@ -55,7 +55,7 @@
 
 #include "wayland-brcm-client-protocol.h"
 
-QT_USE_NAMESPACE
+QT_BEGIN_NAMESPACE
 
 class QWaylandBrcmBuffer : public QWaylandBuffer
 {
@@ -290,3 +290,4 @@ bool QWaylandBrcmEglWindow::makeCurrent(EGLContext context)
     return eglMakeCurrent(m_eglIntegration->eglDisplay(), m_eglSurfaces[m_current], m_eglSurfaces[m_current], context);
 }
 
+QT_END_NAMESPACE

@@ -50,7 +50,7 @@
 #include <qpa/qplatformopenglcontext.h>
 #include <QtGui/QSurfaceFormat>
 
-QT_USE_NAMESPACE
+QT_BEGIN_NAMESPACE
 
 extern QSurfaceFormat brcmFixFormat(const QSurfaceFormat &format);
 
@@ -102,3 +102,4 @@ EGLConfig QWaylandBrcmGLContext::eglConfig() const
     return m_config;
 }
 
+QT_END_NAMESPACE

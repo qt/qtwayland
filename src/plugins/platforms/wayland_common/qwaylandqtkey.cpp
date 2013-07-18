@@ -42,7 +42,7 @@
 #include "qwaylandqtkey.h"
 #include "qwaylandinputdevice.h"
 
-QT_USE_NAMESPACE
+QT_BEGIN_NAMESPACE
 
 QWaylandQtKeyExtension::QWaylandQtKeyExtension(QWaylandDisplay *display, uint32_t id)
     : QtWayland::qt_key_extension(display->wl_registry(), id)
@@ -80,3 +80,5 @@ void QWaylandQtKeyExtension::key_extension_qtkey(uint32_t time,
                                                    nativeScanCode, nativeVirtualKey, nativeModifiers, text,
                                                    autorep, count);
 }
+
+QT_END_NAMESPACE

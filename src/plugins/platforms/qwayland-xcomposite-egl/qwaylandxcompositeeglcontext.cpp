@@ -48,7 +48,7 @@
 
 #include <QtPlatformSupport/private/qeglconvenience_p.h>
 
-QT_USE_NAMESPACE
+QT_BEGIN_NAMESPACE
 
 QWaylandXCompositeEGLContext::QWaylandXCompositeEGLContext(const QSurfaceFormat &format, QPlatformOpenGLContext *share, EGLDisplay display)
     : QEGLPlatformContext(format, share, display, q_configFromGLFormat(display, format, true, EGL_WINDOW_BIT | EGL_PIXMAP_BIT), EGL_OPENGL_ES_API)
@@ -73,3 +73,5 @@ EGLSurface QWaylandXCompositeEGLContext::eglSurfaceForPlatformSurface(QPlatformS
 {
     return static_cast<QWaylandXCompositeEGLWindow *>(surface)->eglSurface();
 }
+
+QT_END_NAMESPACE

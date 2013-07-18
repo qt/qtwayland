@@ -59,7 +59,7 @@
 
 #include <QtCore/QDebug>
 
-QT_USE_NAMESPACE
+QT_BEGIN_NAMESPACE
 
 QWaylandWindow::QWaylandWindow(QWindow *window)
     : QObject()
@@ -484,3 +484,5 @@ void QWaylandWindow::handleMouseEventWithDecoration(QWaylandInputDevice *inputDe
         mWindowDecoration->handleMouse(inputDevice,local,global,b,mods);
     }
 }
+
+QT_END_NAMESPACE

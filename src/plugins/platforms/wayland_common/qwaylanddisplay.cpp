@@ -66,7 +66,7 @@
 
 #include <QtCore/QDebug>
 
-QT_USE_NAMESPACE
+QT_BEGIN_NAMESPACE
 
 struct wl_surface *QWaylandDisplay::createSurface(void *handle)
 {
@@ -258,3 +258,4 @@ void QWaylandDisplay::forceRoundTrip()
     wl_display_roundtrip(mDisplay);
 }
 
+QT_END_NAMESPACE

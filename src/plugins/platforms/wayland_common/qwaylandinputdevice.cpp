@@ -65,7 +65,7 @@
 #include <X11/keysym.h>
 #endif
 
-QT_USE_NAMESPACE
+QT_BEGIN_NAMESPACE
 
 QWaylandInputDevice::QWaylandInputDevice(QWaylandDisplay *display, uint32_t id)
     : QtWayland::wl_seat(display->wl_registry(), id)
@@ -659,3 +659,5 @@ void QWaylandInputDevice::touch_frame()
         mPrevTouchPoints.clear();
     }
 }
+
+QT_END_NAMESPACE

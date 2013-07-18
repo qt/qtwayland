@@ -50,7 +50,7 @@
 
 #include <QtCore/QDebug>
 
-QT_USE_NAMESPACE
+QT_BEGIN_NAMESPACE
 
 QWaylandEglIntegration::QWaylandEglIntegration(struct wl_display *waylandDisplay)
     : m_waylandDisplay(waylandDisplay)
@@ -107,3 +107,5 @@ QWaylandGLIntegration *QWaylandGLIntegration::createGLIntegration(QWaylandDispla
 {
     return new QWaylandEglIntegration(waylandDisplay->wl_display());
 }
+
+QT_END_NAMESPACE

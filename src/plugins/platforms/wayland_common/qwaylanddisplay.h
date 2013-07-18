@@ -50,6 +50,8 @@
 #include <wayland-client.h>
 #include <qwayland-wayland.h>
 
+struct wl_cursor_image;
+
 QT_BEGIN_NAMESPACE
 
 class QAbstractEventDispatcher;

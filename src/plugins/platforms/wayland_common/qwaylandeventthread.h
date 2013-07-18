@@ -5,6 +5,8 @@
 #include <QMutex>
 #include <wayland-client.h>
 
+QT_BEGIN_NAMESPACE
+
 class QSocketNotifier;
 
 class QWaylandEventThread : public QObject
@@ -36,5 +38,7 @@ private:
     QMutex *m_displayLock;
 
 };
+
+QT_END_NAMESPACE
 
 #endif // QWAYLANDEVENTTHREAD_H

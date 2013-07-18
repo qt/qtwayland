@@ -54,7 +54,7 @@
 
 #include <QtCore/QDebug>
 
-QT_USE_NAMESPACE
+QT_BEGIN_NAMESPACE
 
 QVector<EGLint> eglbuildSpec()
 {
@@ -140,3 +140,5 @@ bool XCompositeEglIntegration::isYInverted(wl_buffer *buffer) const
     XCompositeBuffer *compositorBuffer = static_cast<XCompositeBuffer *>(buffer);
     return compositorBuffer->isYInverted();
 }
+
+QT_END_NAMESPACE

@@ -46,7 +46,7 @@
 #include "qwaylanddatasource.h"
 #include "qwaylanddatadevicemanager.h"
 
-QT_USE_NAMESPACE
+QT_BEGIN_NAMESPACE
 
 QWaylandClipboard::QWaylandClipboard(QWaylandDisplay *display)
     : mDisplay(display)
@@ -82,3 +82,4 @@ bool QWaylandClipboard::supportsMode(QClipboard::Mode mode) const
     return mode == QClipboard::Clipboard;
 }
 
+QT_END_NAMESPACE

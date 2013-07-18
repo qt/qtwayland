@@ -55,7 +55,7 @@
 #include <QtGui/QSurfaceFormat>
 #include <QtGui/QOpenGLShaderProgram>
 
-QT_USE_NAMESPACE
+QT_BEGIN_NAMESPACE
 
 QWaylandGLContext::QWaylandGLContext(EGLDisplay eglDisplay, const QSurfaceFormat &format, QPlatformOpenGLContext *share)
     : QPlatformOpenGLContext()
@@ -250,3 +250,4 @@ EGLConfig QWaylandGLContext::eglConfig() const
     return m_config;
 }
 
+QT_END_NAMESPACE

@@ -60,7 +60,7 @@
 
 #include "wayland-brcm-server-protocol.h"
 
-QT_USE_NAMESPACE
+QT_BEGIN_NAMESPACE
 
 class BrcmEglIntegrationPrivate
 {
@@ -193,3 +193,5 @@ bool BrcmEglIntegration::isYInverted(struct wl_buffer *buffer) const
     Q_UNUSED(buffer);
     return false;
 }
+
+QT_END_NAMESPACE

@@ -54,7 +54,7 @@
 
 #include <QDebug>
 
-QT_USE_NAMESPACE
+QT_BEGIN_NAMESPACE
 
 class QWaylandWindowManagerIntegrationPrivate {
 public:
@@ -134,3 +134,5 @@ bool QWaylandWindowManagerIntegration::openDocument(const QUrl &url)
     openUrl_helper(url);
     return true;
 }
+
+QT_END_NAMESPACE

@@ -47,7 +47,7 @@
 
 #include <QRegion>
 
-QT_USE_NAMESPACE
+QT_BEGIN_NAMESPACE
 
 QWaylandXCompositeGLXContext::QWaylandXCompositeGLXContext(const QSurfaceFormat &format, QPlatformOpenGLContext *share, Display *display, int screen)
     : m_display(display)
@@ -95,3 +95,4 @@ QSurfaceFormat QWaylandXCompositeGLXContext::format() const
     return m_format;
 }
 
+QT_END_NAMESPACE

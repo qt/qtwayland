@@ -40,7 +40,7 @@
 
 #include "xcompositebuffer.h"
 
-QT_USE_NAMESPACE
+QT_BEGIN_NAMESPACE
 
 XCompositeBuffer::XCompositeBuffer(Window window, const QSize &size,
                                    struct ::wl_client *client, uint32_t id)
@@ -78,3 +78,5 @@ Window XCompositeBuffer::window()
 {
     return mWindow;
 }
+
+QT_END_NAMESPACE

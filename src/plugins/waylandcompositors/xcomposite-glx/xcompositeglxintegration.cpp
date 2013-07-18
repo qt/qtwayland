@@ -54,7 +54,7 @@
 
 #include <QtCore/QDebug>
 
-QT_USE_NAMESPACE
+QT_BEGIN_NAMESPACE
 
 QVector<int> qglx_buildSpec()
 {
@@ -150,3 +150,5 @@ bool XCompositeGLXIntegration::isYInverted(wl_buffer *buffer) const
 {
     return static_cast<XCompositeBuffer *>(buffer)->isYInverted();
 }
+
+QT_END_NAMESPACE

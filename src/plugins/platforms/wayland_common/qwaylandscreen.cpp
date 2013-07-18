@@ -47,7 +47,7 @@
 
 #include <qpa/qwindowsysteminterface.h>
 
-QT_USE_NAMESPACE
+QT_BEGIN_NAMESPACE
 
 QWaylandScreen::QWaylandScreen(QWaylandDisplay *waylandDisplay, uint32_t id)
     : QtWayland::wl_output(waylandDisplay->wl_registry(), id)
@@ -168,3 +168,5 @@ void QWaylandScreen::output_geometry(int32_t x, int32_t y,
     QWindowSystemInterface::handleScreenGeometryChange(screen(), mGeometry);
     QWindowSystemInterface::handleScreenAvailableGeometryChange(screen(), mGeometry);
 }
+
+QT_END_NAMESPACE

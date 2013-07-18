@@ -69,7 +69,7 @@
 #endif
 
 
-QT_USE_NAMESPACE
+QT_BEGIN_NAMESPACE
 
 QWaylandIntegration::QWaylandIntegration()
     : mFontDb(new QGenericUnixFontDatabase())
@@ -212,3 +212,5 @@ QPlatformTheme *QWaylandIntegration::createPlatformTheme(const QString &name) co
 {
     return QGenericUnixTheme::createUnixTheme(name);
 }
+
+QT_END_NAMESPACE

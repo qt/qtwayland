@@ -58,7 +58,7 @@
 
 #include <QtCore/QDebug>
 
-QT_USE_NAMESPACE
+QT_BEGIN_NAMESPACE
 
 void QWaylandDataDeviceManager::data_offer(void *data,
                    struct wl_data_device *data_device,
@@ -322,4 +322,4 @@ struct wl_data_device_manager *QWaylandDataDeviceManager::handle() const
     return m_data_device_manager;
 }
 
-
+QT_END_NAMESPACE

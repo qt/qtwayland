@@ -52,7 +52,7 @@
 
 #include <QtCore/QDebug>
 
-QT_USE_NAMESPACE
+QT_BEGIN_NAMESPACE
 
 QWaylandXCompositeEGLWindow::QWaylandXCompositeEGLWindow(QWindow *window, QWaylandXCompositeEGLIntegration *glxIntegration)
     : QWaylandWindow(window)
@@ -134,3 +134,4 @@ void QWaylandXCompositeEGLWindow::createEglSurface()
     attach(m_buffer, 0, 0);
 }
 
+QT_END_NAMESPACE

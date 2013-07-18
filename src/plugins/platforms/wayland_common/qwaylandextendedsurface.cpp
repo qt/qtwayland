@@ -53,7 +53,7 @@
 #include <qpa/qplatformnativeinterface.h>
 #include <qpa/qwindowsysteminterface.h>
 
-QT_USE_NAMESPACE
+QT_BEGIN_NAMESPACE
 
 QWaylandExtendedSurface::QWaylandExtendedSurface(QWaylandWindow *window, struct ::qt_extended_surface *extended_surface)
     : QtWayland::qt_extended_surface(extended_surface)
@@ -152,3 +152,5 @@ Qt::WindowFlags QWaylandExtendedSurface::setWindowFlags(Qt::WindowFlags flags)
 
     return flags & (Qt::WindowStaysOnTopHint | Qt::WindowOverridesSystemGestures);
 }
+
+QT_END_NAMESPACE

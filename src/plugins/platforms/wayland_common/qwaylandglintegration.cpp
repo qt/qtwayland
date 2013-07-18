@@ -41,7 +41,7 @@
 
 #include "qwaylandglintegration.h"
 
-QT_USE_NAMESPACE
+QT_BEGIN_NAMESPACE
 
 QWaylandGLIntegration::QWaylandGLIntegration()
 {
@@ -52,3 +52,5 @@ QWaylandGLIntegration::~QWaylandGLIntegration()
 {
 
 }
+
+QT_END_NAMESPACE

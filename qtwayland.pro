@@ -11,7 +11,7 @@ qtCompileTest(xcomposite)
 load(qt_parts)
 
 !config_wayland {
-    error(QtWayland requires Wayland 1.0.3 or higher)
+    error(QtWayland requires Wayland 1.1.0 or higher)
 }
 
 !config_xkbcommon {

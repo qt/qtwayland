@@ -1,7 +1,6 @@
 /****************************************************************************
 **
 ** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
-** Copyright (C) 2013 Klarälvdalens Datakonsult AB (KDAB).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the Qt Compositor.
@@ -39,68 +38,48 @@
 **
 ****************************************************************************/
 
-#include "qwltouch_p.h"
+#ifndef WLTOUCH_H
+#define WLTOUCH_H
 
-#include "qwlcompositor_p.h"
-#include "qwlsurface_p.h"
+#include <private/qwlcompositor_p.h>
+#include "wayland-touch-extension-server-protocol.h"
+#include "wayland-util.h"
+
+QT_BEGIN_NAMESPACE
+
+class Compositor;
+class Surface;
+class QTouchEvent;
 
 namespace QtWayland {
 
-Touch::Touch(Compositor *compositor)
-    : wl_touch()
-    , m_compositor(compositor)
-    , m_focus()
-    , m_focusResource()
+class TouchExtensionGlobal
 {
+public:
+    TouchExtensionGlobal(Compositor *compositor);
+    ~TouchExtensionGlobal();
+
+    bool postTouchEvent(QTouchEvent *event, Surface *surface);
+
+    void setFlags(int flags) { m_flags = flags; }
+
+private:
+    static void bind_func(struct wl_client *client, void *data,
+                          uint32_t version, uint32_t id);
+
+    static void destroy_resource(wl_resource *resource);
+
+    static const struct qt_touch_extension_interface touch_interface;
+
+    Compositor *m_compositor;
+    int m_flags;
+    QList<wl_resource *> m_resources;
+    wl_array m_rawdata_array;
+    float *m_rawdata_ptr;
+};
+
 }
 
-void Touch::setFocus(Surface *surface)
-{
-    m_focus = surface;
-    struct ::wl_resource *r = Compositor::resourceForSurface(resourceList(), surface);
-    m_focusResource = r ? Resource::fromResource(r) : 0;
-}
+QT_END_NAMESPACE
 
-void Touch::sendCancel()
-{
-    if (m_focusResource)
-        send_cancel(m_focusResource->handle);
-}
-
-void Touch::sendFrame()
-{
-    if (m_focusResource)
-        send_frame(m_focusResource->handle);
-}
-
-void Touch::sendDown(int touch_id, const QPointF &position)
-{
-    if (!m_focusResource || !m_focus)
-        return;
-
-    uint32_t serial = wl_display_next_serial(m_compositor->wl_display());
-
-    send_down(m_focusResource->handle, serial, Compositor::currentTimeMsecs(), m_focus->resource()->handle, touch_id,
-              wl_fixed_from_double(position.x()), wl_fixed_from_double(position.y()));
-}
-
-void Touch::sendMotion(int touch_id, const QPointF &position)
-{
-    if (!m_focusResource)
-        return;
-
-    send_motion(m_focusResource->handle, Compositor::currentTimeMsecs(), touch_id,
-                wl_fixed_from_double(position.x()), wl_fixed_from_double(position.y()));
-}
-
-void Touch::sendUp(int touch_id)
-{
-    if (!m_focusResource)
-        return;
-
-    uint32_t serial = wl_display_next_serial(m_compositor->wl_display());
-
-    send_up(m_focusResource->handle, serial, Compositor::currentTimeMsecs(), touch_id);
-}
-
-} // namespace QtWayland
+#endif // WLTOUCH_H

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2012 Digia Plc and/or its subsidi ary(-ies).
 ** Copyright (C) 2013 Klarälvdalens Datakonsult AB (KDAB).
 ** Contact: http://www.qt-project.org/legal
 **
@@ -39,68 +39,73 @@
 **
 ****************************************************************************/
 
-#include "qwltouch_p.h"
+#ifndef QTWAYLAND_QWLKEYBOARD_P_H
+#define QTWAYLAND_QWLKEYBOARD_P_H
 
-#include "qwlcompositor_p.h"
-#include "qwlsurface_p.h"
+#include <qwayland-server-wayland.h>
+
+#include <QtCore/QByteArray>
+
+#ifndef QT_NO_WAYLAND_XKB
+#include <xkbcommon/xkbcommon.h>
+#endif
+
+QT_BEGIN_NAMESPACE
 
 namespace QtWayland {
 
-Touch::Touch(Compositor *compositor)
-    : wl_touch()
-    , m_compositor(compositor)
-    , m_focus()
-    , m_focusResource()
+class Compositor;
+class InputDevice;
+class Surface;
+
+class Keyboard : public QtWaylandServer::wl_keyboard
 {
-}
+public:
+    Keyboard(Compositor *compositor, InputDevice *seat);
+    ~Keyboard();
 
-void Touch::setFocus(Surface *surface)
-{
-    m_focus = surface;
-    struct ::wl_resource *r = Compositor::resourceForSurface(resourceList(), surface);
-    m_focusResource = r ? Resource::fromResource(r) : 0;
-}
+    void setFocus(Surface *surface);
 
-void Touch::sendCancel()
-{
-    if (m_focusResource)
-        send_cancel(m_focusResource->handle);
-}
+    void sendKeyModifiers(Resource *resource, uint32_t serial);
+    void sendKeyPressEvent(uint code);
+    void sendKeyReleaseEvent(uint code);
 
-void Touch::sendFrame()
-{
-    if (m_focusResource)
-        send_frame(m_focusResource->handle);
-}
+    Surface *focus() const;
 
-void Touch::sendDown(int touch_id, const QPointF &position)
-{
-    if (!m_focusResource || !m_focus)
-        return;
+protected:
+    void keyboard_bind_resource(Resource *resource);
+    void keyboard_destroy_resource(Resource *resource);
 
-    uint32_t serial = wl_display_next_serial(m_compositor->wl_display());
+private:
+    void sendKeyEvent(uint code, uint32_t state);
+    void updateModifierState(uint code, uint32_t state);
 
-    send_down(m_focusResource->handle, serial, Compositor::currentTimeMsecs(), m_focus->resource()->handle, touch_id,
-              wl_fixed_from_double(position.x()), wl_fixed_from_double(position.y()));
-}
+#ifndef QT_NO_WAYLAND_XKB
+    void initXKB();
+#endif
 
-void Touch::sendMotion(int touch_id, const QPointF &position)
-{
-    if (!m_focusResource)
-        return;
+    Compositor *m_compositor;
+    InputDevice *m_seat;
 
-    send_motion(m_focusResource->handle, Compositor::currentTimeMsecs(), touch_id,
-                wl_fixed_from_double(position.x()), wl_fixed_from_double(position.y()));
-}
+    Surface *m_focus;
+    Resource *m_focusResource;
 
-void Touch::sendUp(int touch_id)
-{
-    if (!m_focusResource)
-        return;
+    QByteArray m_keys;
+    uint32_t m_modsDepressed;
+    uint32_t m_modsLatched;
+    uint32_t m_modsLocked;
+    uint32_t m_group;
 
-    uint32_t serial = wl_display_next_serial(m_compositor->wl_display());
-
-    send_up(m_focusResource->handle, serial, Compositor::currentTimeMsecs(), touch_id);
-}
+#ifndef QT_NO_WAYLAND_XKB
+    size_t m_keymap_size;
+    int m_keymap_fd;
+    char *m_keymap_area;
+    struct xkb_state *m_state;
+#endif
+};
 
 } // namespace QtWayland
+
+QT_END_NAMESPACE
+
+#endif // QTWAYLAND_QWLKEYBOARD_P_H

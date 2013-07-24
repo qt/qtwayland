@@ -44,6 +44,7 @@
 #include <wayland-server.h>
 #include <qwaylandobject.h>
 #include <QPoint>
+#include <private/qwlpointer_p.h>
 
 #include <qwayland-server-wayland.h>
 
@@ -136,15 +137,11 @@ private:
                                  const QString &class_) Q_DECL_OVERRIDE;
 };
 
-class ShellSurfaceGrabber : public Object<struct ::wl_pointer_grab>
+class ShellSurfaceGrabber : public PointerGrabber
 {
 public:
-    ShellSurfaceGrabber(ShellSurface *shellSurface, const struct wl_pointer_grab_interface *interface);
+    ShellSurfaceGrabber(ShellSurface *shellSurface);
     ~ShellSurfaceGrabber();
-
-    struct wl_listener surface_destroy_listener;
-    static void destroy(struct wl_listener *listener,
-             struct wl_resource *resource, uint32_t time);
 
     ShellSurface *shell_surface;
 };
@@ -154,35 +151,27 @@ class ShellSurfaceResizeGrabber : public ShellSurfaceGrabber
 public:
     ShellSurfaceResizeGrabber(ShellSurface *shellSurface);
 
-
+    QPointF point;
     enum wl_shell_surface_resize resize_edges;
     int32_t width;
     int32_t height;
 
-    static void focus(struct wl_pointer_grab *grab,
-                      struct wl_surface *surface, int32_t x, int32_t y);
-    static void motion(struct wl_pointer_grab *grab,
-                       uint32_t time, int32_t x, int32_t y);
-    static void button(struct wl_pointer_grab *grab,
-                       uint32_t time, uint32_t mouse_grabber_button, uint32_t state);
-    static const struct wl_pointer_grab_interface resize_grabber_interface;
+    void focus() Q_DECL_OVERRIDE;
+    void motion(uint32_t time) Q_DECL_OVERRIDE;
+    void button(uint32_t time, Qt::MouseButton button, uint32_t state) Q_DECL_OVERRIDE;
 };
 
 class ShellSurfaceMoveGrabber : public ShellSurfaceGrabber
 {
 public:
-    ShellSurfaceMoveGrabber(ShellSurface *shellSurface);
+    ShellSurfaceMoveGrabber(ShellSurface *shellSurface, const QPointF &offset);
 
-    int32_t offset_x;
-    int32_t offset_y;
+    void focus() Q_DECL_OVERRIDE;
+    void motion(uint32_t time) Q_DECL_OVERRIDE;
+    void button(uint32_t time, Qt::MouseButton button, uint32_t state) Q_DECL_OVERRIDE;
 
-    static void focus(struct wl_pointer_grab *grab,
-                      struct wl_surface *surface, int32_t x, int32_t y);
-    static void motion(struct wl_pointer_grab *grab,
-                       uint32_t time, int32_t x, int32_t y);
-    static void button(struct wl_pointer_grab *grab,
-                       uint32_t time, uint32_t mouse_grabber_button, uint32_t state);
-    static const struct wl_pointer_grab_interface move_grabber_interface;
+private:
+    QPointF m_offset;
 };
 
 }

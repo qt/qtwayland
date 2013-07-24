@@ -41,6 +41,7 @@
 #include "qwaylandinput.h"
 
 #include "qwlinputdevice_p.h"
+#include "qwlkeyboard_p.h"
 #include "qwaylandcompositor.h"
 #include "qwlsurface_p.h"
 #include "qwlcompositor_p.h"
@@ -88,12 +89,12 @@ void QWaylandInputDevice::sendMouseWheelEvent(Qt::Orientation orientation, int d
 
 void QWaylandInputDevice::sendKeyPressEvent(uint code)
 {
-    d->sendKeyPressEvent(code);
+    d->keyboardDevice()->sendKeyPressEvent(code);
 }
 
 void QWaylandInputDevice::sendKeyReleaseEvent(uint code)
 {
-    d->sendKeyReleaseEvent(code);
+    d->keyboardDevice()->sendKeyReleaseEvent(code);
 }
 
 void QWaylandInputDevice::sendTouchPointEvent(int id, double x, double y, Qt::TouchPointState state)

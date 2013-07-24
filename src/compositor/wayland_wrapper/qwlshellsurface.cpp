@@ -44,6 +44,7 @@
 #include "qwlsurface_p.h"
 #include "qwlinputdevice_p.h"
 #include "qwlsubsurface_p.h"
+#include "qwlpointer_p.h"
 
 #include <QtCore/qglobal.h>
 #include <QtCore/QDebug>
@@ -106,8 +107,8 @@ void ShellSurface::adjustPosInResize()
     if (!m_resizeGrabber || !(m_resizeGrabber->resize_edges & WL_SHELL_SURFACE_RESIZE_TOP_LEFT))
         return;
 
-    int bottomLeftX = wl_fixed_to_int(m_resizeGrabber->base()->x) + m_resizeGrabber->width;
-    int bottomLeftY = wl_fixed_to_int(m_resizeGrabber->base()->y) + m_resizeGrabber->height;
+    int bottomLeftX = m_resizeGrabber->point.x() + m_resizeGrabber->width;
+    int bottomLeftY = m_resizeGrabber->point.y() + m_resizeGrabber->height;
     qreal x = surface()->pos().x();
     qreal y = surface()->pos().y();
     if (m_resizeGrabber->resize_edges & WL_SHELL_SURFACE_RESIZE_TOP)
@@ -166,15 +167,11 @@ void ShellSurface::shell_surface_move(Resource *resource,
     }
 
     InputDevice *input_device = InputDevice::fromSeatResource(input_device_super);
-    ::wl_pointer *pointer = input_device->pointerDevice();
+    Pointer *pointer = input_device->pointerDevice();
 
-    m_moveGrabber = new ShellSurfaceMoveGrabber(this);
-    m_moveGrabber->base()->x = pointer->x;
-    m_moveGrabber->base()->y = pointer->y;
-    m_moveGrabber->offset_x = wl_fixed_to_int(pointer->x) - surface()->pos().x();
-    m_moveGrabber->offset_y = wl_fixed_to_int(pointer->y) - surface()->pos().y();
+    m_moveGrabber = new ShellSurfaceMoveGrabber(this, pointer->position() - surface()->pos());
 
-    wl_pointer_start_grab(pointer, m_moveGrabber->base());
+    pointer->startGrab(m_moveGrabber);
 }
 
 void ShellSurface::shell_surface_resize(Resource *resource,
@@ -194,15 +191,14 @@ void ShellSurface::shell_surface_resize(Resource *resource,
     m_resizeGrabber = new ShellSurfaceResizeGrabber(this);
 
     InputDevice *input_device = InputDevice::fromSeatResource(input_device_super);
-    ::wl_pointer *pointer = input_device->pointerDevice();
+    Pointer *pointer = input_device->pointerDevice();
 
-    m_resizeGrabber->base()->x = pointer->x;
-    m_resizeGrabber->base()->y = pointer->y;
-    m_resizeGrabber->resize_edges = wl_shell_surface_resize(edges);
+    m_resizeGrabber->point = pointer->position();
+    m_resizeGrabber->resize_edges = static_cast<wl_shell_surface_resize>(edges);
     m_resizeGrabber->width = surface()->size().width();
     m_resizeGrabber->height = surface()->size().height();
 
-    wl_pointer_start_grab(pointer, m_resizeGrabber->base());
+    pointer->startGrab(m_resizeGrabber);
 }
 
 void ShellSurface::shell_surface_set_toplevel(Resource *resource)
@@ -285,174 +281,90 @@ void ShellSurface::shell_surface_set_class(Resource *resource,
     surface()->setClassName(className);
 }
 
-Qt::MouseButton toQtButton(uint32_t button)
+ShellSurfaceGrabber::ShellSurfaceGrabber(ShellSurface *shellSurface)
+    : PointerGrabber()
+    , shell_surface(shellSurface)
 {
-#ifndef BTN_LEFT
-    static const uint32_t BTN_LEFT = 0x110;
-    static const uint32_t BTN_RIGHT = 0x111;
-    static const uint32_t BTN_MIDDLE = 0x112;
-#endif
-    switch (button) {
-    case BTN_LEFT:
-        return Qt::LeftButton;
-    case BTN_RIGHT:
-        return Qt::RightButton;
-    case BTN_MIDDLE:
-        return Qt::MiddleButton;
-    default:
-        return Qt::NoButton;
-    }
-}
-
-ShellSurfaceGrabber::ShellSurfaceGrabber(ShellSurface *shellSurface, const struct wl_pointer_grab_interface *interface)
-    : shell_surface(shellSurface)
-{
-    base()->interface = interface;
-    base()->focus = shell_surface->surface();
 }
 
 ShellSurfaceGrabber::~ShellSurfaceGrabber()
 {
 }
 
-
-void ShellSurfaceGrabber::destroy(wl_listener *listener, wl_resource *resource, uint32_t time)
-{
-    Q_UNUSED(resource);
-    Q_UNUSED(time);
-    Q_UNUSED(listener);
-    //ShellSurfaceGrabber *shell_surface_grabber = container_of(listener, ShellSurfaceGrabber,surface_destroy_listener);
-    Q_ASSERT(false); //hasn't been enabled yet
-    //wl_input_device_end_grab(shell_surface_grabber->base()->input_device,Compositor::currentTimeMsecs());
-}
-
-
 ShellSurfaceResizeGrabber::ShellSurfaceResizeGrabber(ShellSurface *shellSurface)
-    : ShellSurfaceGrabber(shellSurface,&resize_grabber_interface)
+    : ShellSurfaceGrabber(shellSurface)
 {
 }
 
-void ShellSurfaceResizeGrabber::focus(wl_pointer_grab *grab, wl_surface *surface, int32_t x, int32_t y)
+void ShellSurfaceResizeGrabber::focus()
 {
-    Q_UNUSED(grab);
-    Q_UNUSED(surface);
-    Q_UNUSED(x);
-    Q_UNUSED(y);
 }
 
-void ShellSurfaceResizeGrabber::motion(wl_pointer_grab *grab, uint32_t time, int32_t x, int32_t y)
+void ShellSurfaceResizeGrabber::motion(uint32_t time)
 {
     Q_UNUSED(time);
-    Q_UNUSED(x);
-    Q_UNUSED(y);
-    //Should be more structured
-    ShellSurfaceResizeGrabber *resize_grabber = reinterpret_cast<ShellSurfaceResizeGrabber *>(grab);
-    ShellSurface *shell_surface = resize_grabber->shell_surface;
-    wl_pointer *pointer = grab->pointer;
-    int width_delta = wl_fixed_to_int(grab->x) - wl_fixed_to_int(pointer->x);
-    int height_delta = wl_fixed_to_int(grab->y) - wl_fixed_to_int(pointer->y);
-    int new_width = resize_grabber->width;
-    int new_height = resize_grabber->height;
-    if (resize_grabber->resize_edges & WL_SHELL_SURFACE_RESIZE_TOP_LEFT) {
-        if (resize_grabber->resize_edges & WL_SHELL_SURFACE_RESIZE_TOP) {
-            if (new_height + height_delta > 0) {
-                new_height += height_delta;
-            } else {
-                new_height = 1;
-            }
-        }
-        if (resize_grabber->resize_edges & WL_SHELL_SURFACE_RESIZE_LEFT) {
-            if (new_width + width_delta > 0) {
-                new_width += width_delta;
-            } else {
-                new_width = 1;
-            }
-        }
-    }
 
-    if (resize_grabber->resize_edges & WL_SHELL_SURFACE_RESIZE_BOTTOM) {
-        if (new_height - height_delta > 0) {
-            new_height -= height_delta;
-        } else {
-            new_height = 1;
-        }
-    }
-    if (resize_grabber->resize_edges & WL_SHELL_SURFACE_RESIZE_RIGHT) {
-        if (new_width - width_delta > 0) {
-            new_width -= width_delta;
-        } else {
-            new_width =1;
-        }
-    }
+    int width_delta = point.x() - m_pointer->position().x();
+    int height_delta = point.y() - m_pointer->position().y();
 
-    shell_surface->sendConfigure(resize_grabber->resize_edges,new_width,new_height);
+    int new_height = height;
+    if (resize_edges & WL_SHELL_SURFACE_RESIZE_TOP)
+        new_height = qMax(new_height + height_delta, 1);
+    else if (resize_edges & WL_SHELL_SURFACE_RESIZE_BOTTOM)
+        new_height = qMax(new_height - height_delta, 1);
+
+    int new_width = width;
+    if (resize_edges & WL_SHELL_SURFACE_RESIZE_LEFT)
+        new_width = qMax(new_width + width_delta, 1);
+    else if (resize_edges & WL_SHELL_SURFACE_RESIZE_RIGHT)
+        new_width = qMax(new_width - width_delta, 1);
+
+    shell_surface->sendConfigure(resize_edges, new_width, new_height);
 }
 
-void ShellSurfaceResizeGrabber::button(wl_pointer_grab *grab, uint32_t time, uint32_t button, uint32_t state)
+void ShellSurfaceResizeGrabber::button(uint32_t time, Qt::MouseButton button, uint32_t state)
 {
     Q_UNUSED(time)
-    ShellSurfaceResizeGrabber *self = reinterpret_cast<ShellSurfaceResizeGrabber *>(grab);
-    ShellSurface *shell_surface = self->shell_surface;
-    if (toQtButton(button) == Qt::LeftButton && !state) {
-        wl_pointer_end_grab(grab->pointer);
+
+    if (button == Qt::LeftButton && !state) {
+        m_pointer->endGrab();
         shell_surface->resetResizeGrabber();
-        delete self;
+        delete this;
     }
 }
 
-const struct wl_pointer_grab_interface ShellSurfaceResizeGrabber::resize_grabber_interface = {
-    ShellSurfaceResizeGrabber::focus,
-    ShellSurfaceResizeGrabber::motion,
-    ShellSurfaceResizeGrabber::button
-};
-
-ShellSurfaceMoveGrabber::ShellSurfaceMoveGrabber(ShellSurface *shellSurface)
-    : ShellSurfaceGrabber(shellSurface,&move_grabber_interface)
+ShellSurfaceMoveGrabber::ShellSurfaceMoveGrabber(ShellSurface *shellSurface, const QPointF &offset)
+    : ShellSurfaceGrabber(shellSurface)
+    , m_offset(offset)
 {
 }
 
-void ShellSurfaceMoveGrabber::focus(wl_pointer_grab *grab, wl_surface *surface, int32_t x, int32_t y)
+void ShellSurfaceMoveGrabber::focus()
 {
-    Q_UNUSED(grab);
-    Q_UNUSED(surface);
-    Q_UNUSED(x);
-    Q_UNUSED(y);
 }
 
-void ShellSurfaceMoveGrabber::motion(wl_pointer_grab *grab, uint32_t time, int32_t x, int32_t y)
+void ShellSurfaceMoveGrabber::motion(uint32_t time)
 {
     Q_UNUSED(time);
-    Q_UNUSED(x);
-    Q_UNUSED(y);
-    ShellSurfaceMoveGrabber *shell_surface_grabber = reinterpret_cast<ShellSurfaceMoveGrabber *>(grab);
-    ShellSurface *shell_surface = shell_surface_grabber->shell_surface;
-    wl_pointer *pointer = grab->pointer;
-    QPointF pos(wl_fixed_to_int(pointer->x) - shell_surface_grabber->offset_x,
-                wl_fixed_to_int(pointer->y) - shell_surface_grabber->offset_y);
+
+    QPointF pos(m_pointer->position() - m_offset);
     shell_surface->surface()->setPos(pos);
     if (shell_surface->transientParent())
         shell_surface->setOffset(pos - shell_surface->transientParent()->surface()->pos());
 
 }
 
-void ShellSurfaceMoveGrabber::button(wl_pointer_grab *grab, uint32_t time, uint32_t button, uint32_t state)
+void ShellSurfaceMoveGrabber::button(uint32_t time, Qt::MouseButton button, uint32_t state)
 {
     Q_UNUSED(time)
-    ShellSurfaceResizeGrabber *self = reinterpret_cast<ShellSurfaceResizeGrabber *>(grab);
-    ShellSurface *shell_surface = self->shell_surface;
-    if (toQtButton(button) == Qt::LeftButton && !state) {
-        wl_pointer_set_focus(grab->pointer, 0, 0, 0);
-        wl_pointer_end_grab(grab->pointer);
+
+    if (button == Qt::LeftButton && !state) {
+        m_pointer->setFocus(0, QPointF());
+        m_pointer->endGrab();
         shell_surface->resetMoveGrabber();
-        delete self;
+        delete this;
     }
 }
-
-const struct wl_pointer_grab_interface ShellSurfaceMoveGrabber::move_grabber_interface = {
-    ShellSurfaceMoveGrabber::focus,
-    ShellSurfaceMoveGrabber::motion,
-    ShellSurfaceMoveGrabber::button
-};
 
 }
 

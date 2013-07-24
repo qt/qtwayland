@@ -51,10 +51,11 @@
 #include "qwlextendedsurface_p.h"
 #include "qwlsubsurface_p.h"
 #include "qwlshellsurface_p.h"
-#include "qwltouch_p.h"
+#include "qwlqttouch_p.h"
 #include "qwlqtkey_p.h"
 #include "qwlinputdevice_p.h"
 #include "qwlregion_p.h"
+#include "qwlpointer_p.h"
 
 #include <QWindow>
 #include <QSocketNotifier>
@@ -277,7 +278,10 @@ void Compositor::surfaceDestroyed(Surface *surface)
         // Make sure the surface is reset regardless of what the grabber
         // interface's focus() does. (e.g. the default implementation does
         // nothing when a button is down which would be disastrous here)
-        wl_pointer_set_focus(dev->pointerDevice(), 0, 0, 0);
+        dev->pointerDevice()->setFocus(0, QPointF());
+    }
+    if (dev->pointerDevice()->current() == surface) {
+        dev->pointerDevice()->setCurrent(0, QPointF());
     }
     if (dev->keyboardFocus() == surface)
         dev->setKeyboardFocus(0);

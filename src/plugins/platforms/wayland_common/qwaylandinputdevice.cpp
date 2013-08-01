@@ -672,7 +672,9 @@ void QWaylandInputDevice::touch_frame()
         return;
     }
 
-    QWindowSystemInterface::handleTouchEvent(0, mTouchDevice, mTouchPoints);
+    QWindow *window = mTouchFocus ? mTouchFocus->window() : 0;
+
+    QWindowSystemInterface::handleTouchEvent(window, mTouchDevice, mTouchPoints);
 
     bool allReleased = true;
     for (int i = 0; i < mTouchPoints.count(); ++i)
@@ -685,7 +687,7 @@ void QWaylandInputDevice::touch_frame()
     mTouchPoints.clear();
 
     if (allReleased) {
-        QWindowSystemInterface::handleTouchEvent(0, mTouchDevice, mTouchPoints);
+        QWindowSystemInterface::handleTouchEvent(window, mTouchDevice, mTouchPoints);
         mPrevTouchPoints.clear();
     }
 }

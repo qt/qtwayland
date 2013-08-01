@@ -42,6 +42,8 @@
 #ifndef QTWAYLAND_QWLTOUCH_P_H
 #define QTWAYLAND_QWLTOUCH_P_H
 
+#include <QtCompositor/qwaylandexport.h>
+
 #include <QtCore/QPoint>
 
 #include <qwayland-server-wayland.h>
@@ -53,7 +55,7 @@ namespace QtWayland {
 class Compositor;
 class Surface;
 
-class Touch : public QtWaylandServer::wl_touch
+class Q_COMPOSITOR_EXPORT Touch : public QtWaylandServer::wl_touch
 {
 public:
     explicit Touch(Compositor *compositor);

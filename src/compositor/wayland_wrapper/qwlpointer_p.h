@@ -42,6 +42,8 @@
 #ifndef QTWAYLAND_QWLPOINTER_P_H
 #define QTWAYLAND_QWLPOINTER_P_H
 
+#include <QtCompositor/qwaylandexport.h>
+
 #include <QtCore/QList>
 #include <QtCore/QPoint>
 
@@ -58,7 +60,7 @@ class InputDevice;
 class Pointer;
 class Surface;
 
-class PointerGrabber {
+class Q_COMPOSITOR_EXPORT PointerGrabber {
 public:
     virtual ~PointerGrabber();
 
@@ -69,7 +71,7 @@ public:
     Pointer *m_pointer;
 };
 
-class Pointer : public QtWaylandServer::wl_pointer, public PointerGrabber
+class Q_COMPOSITOR_EXPORT Pointer : public QtWaylandServer::wl_pointer, public PointerGrabber
 {
 public:
     Pointer(Compositor *compositor, InputDevice *seat);

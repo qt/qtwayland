@@ -43,6 +43,8 @@
 
 #include <stdint.h>
 
+#include <QtCompositor/qwaylandexport.h>
+
 #include <QtCore/QList>
 #include <QtCore/QPoint>
 #include <QtCore/QScopedPointer>
@@ -69,7 +71,7 @@ class Pointer;
 class Keyboard;
 class Touch;
 
-class InputDevice : public QtWaylandServer::wl_seat, public QtWaylandServer::wl_touch
+class Q_COMPOSITOR_EXPORT InputDevice : public QtWaylandServer::wl_seat, public QtWaylandServer::wl_touch
 {
 public:
     InputDevice(QWaylandInputDevice *handle, Compositor *compositor);

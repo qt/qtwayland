@@ -42,6 +42,8 @@
 #ifndef QTWAYLAND_QWLKEYBOARD_P_H
 #define QTWAYLAND_QWLKEYBOARD_P_H
 
+#include <QtCompositor/qwaylandexport.h>
+
 #include <qwayland-server-wayland.h>
 
 #include <QtCore/QByteArray>
@@ -58,7 +60,7 @@ class Compositor;
 class InputDevice;
 class Surface;
 
-class Keyboard : public QtWaylandServer::wl_keyboard
+class Q_COMPOSITOR_EXPORT Keyboard : public QtWaylandServer::wl_keyboard
 {
 public:
     Keyboard(Compositor *compositor, InputDevice *seat);

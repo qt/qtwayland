@@ -51,13 +51,26 @@ Touch::Touch(Compositor *compositor)
     , m_compositor(compositor)
     , m_focus()
     , m_focusResource()
+    , m_grab(this)
 {
+    m_grab->setTouch(this);
 }
 
 void Touch::setFocus(Surface *surface)
 {
     m_focus = surface;
     m_focusResource = surface ? resourceMap().value(surface->resource()->client()) : 0;
+}
+
+void Touch::startGrab(TouchGrabber *grab)
+{
+    m_grab = grab;
+    grab->setTouch(this);
+}
+
+void Touch::endGrab()
+{
+    m_grab = this;
 }
 
 void Touch::sendCancel()
@@ -74,32 +87,71 @@ void Touch::sendFrame()
 
 void Touch::sendDown(int touch_id, const QPointF &position)
 {
+    m_grab->down(m_compositor->currentTimeMsecs(), touch_id, position);
+}
+
+void Touch::sendMotion(int touch_id, const QPointF &position)
+{
+    m_grab->motion(m_compositor->currentTimeMsecs(), touch_id, position);
+}
+
+void Touch::sendUp(int touch_id)
+{
+    m_grab->up(m_compositor->currentTimeMsecs(), touch_id);
+}
+
+void Touch::down(uint32_t time, int touch_id, const QPointF &position)
+{
     if (!m_focusResource || !m_focus)
         return;
 
     uint32_t serial = wl_display_next_serial(m_compositor->wl_display());
 
-    send_down(m_focusResource->handle, serial, Compositor::currentTimeMsecs(), m_focus->resource()->handle, touch_id,
+    send_down(m_focusResource->handle, serial, time, m_focus->resource()->handle, touch_id,
               wl_fixed_from_double(position.x()), wl_fixed_from_double(position.y()));
 }
 
-void Touch::sendMotion(int touch_id, const QPointF &position)
-{
-    if (!m_focusResource)
-        return;
-
-    send_motion(m_focusResource->handle, Compositor::currentTimeMsecs(), touch_id,
-                wl_fixed_from_double(position.x()), wl_fixed_from_double(position.y()));
-}
-
-void Touch::sendUp(int touch_id)
+void Touch::up(uint32_t time, int touch_id)
 {
     if (!m_focusResource)
         return;
 
     uint32_t serial = wl_display_next_serial(m_compositor->wl_display());
 
-    send_up(m_focusResource->handle, serial, Compositor::currentTimeMsecs(), touch_id);
+    send_up(m_focusResource->handle, serial, time, touch_id);
+}
+
+void Touch::motion(uint32_t time, int touch_id, const QPointF &position)
+{
+    if (!m_focusResource)
+        return;
+
+    send_motion(m_focusResource->handle, time, touch_id,
+                wl_fixed_from_double(position.x()), wl_fixed_from_double(position.y()));
+}
+
+TouchGrabber::TouchGrabber()
+    : m_touch(0)
+{
+}
+
+TouchGrabber::~TouchGrabber()
+{
+}
+
+const Touch *TouchGrabber::touch() const
+{
+    return m_touch;
+}
+
+Touch *TouchGrabber::touch()
+{
+    return m_touch;
+}
+
+void TouchGrabber::setTouch(Touch *touch)
+{
+    m_touch = touch;
 }
 
 } // namespace QtWayland

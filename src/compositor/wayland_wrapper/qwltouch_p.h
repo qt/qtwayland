@@ -54,13 +54,34 @@ namespace QtWayland {
 
 class Compositor;
 class Surface;
+class Touch;
 
-class Q_COMPOSITOR_EXPORT Touch : public QtWaylandServer::wl_touch
+class Q_COMPOSITOR_EXPORT TouchGrabber {
+public:
+    TouchGrabber();
+    virtual ~TouchGrabber();
+
+    virtual void down(uint32_t time, int touch_id, const QPointF &position) = 0;
+    virtual void up(uint32_t time, int touch_id) = 0;
+    virtual void motion(uint32_t time, int touch_id, const QPointF &position) = 0;
+
+    const Touch *touch() const;
+    Touch *touch();
+    void setTouch(Touch *touch);
+
+private:
+    Touch *m_touch;
+};
+
+class Q_COMPOSITOR_EXPORT Touch : public QtWaylandServer::wl_touch, public TouchGrabber
 {
 public:
     explicit Touch(Compositor *compositor);
 
     void setFocus(Surface *surface);
+
+    void startGrab(TouchGrabber *grab);
+    void endGrab();
 
     void sendCancel();
     void sendFrame();
@@ -69,11 +90,17 @@ public:
     void sendMotion(int touch_id, const QPointF &position);
     void sendUp(int touch_id);
 
+    void down(uint32_t time, int touch_id, const QPointF &position);
+    void up(uint32_t time, int touch_id);
+    void motion(uint32_t time, int touch_id, const QPointF &position);
+
 private:
     Compositor *m_compositor;
 
     Surface *m_focus;
     Resource *m_focusResource;
+
+    TouchGrabber *m_grab;
 };
 
 } // namespace QtWayland

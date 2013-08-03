@@ -116,7 +116,7 @@ QList<QWaylandSurface *> QWaylandCompositor::surfacesForClient(WaylandClient* c)
     QList<QWaylandSurface *> result;
 
     for (int i = 0; i < surfaces.count(); ++i) {
-        if (surfaces.at(i)->base()->resource.client == client) {
+        if (surfaces.at(i)->resource()->client() == client) {
             result.append(surfaces.at(i)->waylandSurface());
         }
     }

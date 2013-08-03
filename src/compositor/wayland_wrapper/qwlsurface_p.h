@@ -74,7 +74,7 @@ class ExtendedSurface;
 class SubSurface;
 class ShellSurface;
 
-class Q_COMPOSITOR_EXPORT Surface : public Object<struct ::wl_surface>, public QtWaylandServer::wl_surface
+class Q_COMPOSITOR_EXPORT Surface : public QtWaylandServer::wl_surface
 {
 public:
     Surface(struct wl_client *client, uint32_t id, Compositor *compositor);
@@ -86,8 +86,6 @@ public:
     bool isYInverted() const;
 
     bool visible() const;
-
-    uint id() const { return ::wl_surface::resource.object.id; }
 
     using QtWaylandServer::wl_surface::resource;
 

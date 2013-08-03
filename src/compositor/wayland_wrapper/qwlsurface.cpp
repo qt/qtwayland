@@ -74,7 +74,7 @@ namespace QtWayland {
 static bool QT_WAYLAND_PRINT_BUFFERING_WARNINGS = qEnvironmentVariableIsSet("QT_WAYLAND_PRINT_BUFFERING_WARNINGS");
 
 Surface::Surface(struct wl_client *client, uint32_t id, Compositor *compositor)
-    : QtWaylandServer::wl_surface(client, &base()->resource, id)
+    : QtWaylandServer::wl_surface(client, id)
     , m_compositor(compositor)
     , m_waylandSurface(new QWaylandSurface(this))
     , m_backBuffer(0)

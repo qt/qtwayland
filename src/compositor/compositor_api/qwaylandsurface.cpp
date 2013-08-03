@@ -92,7 +92,7 @@ QWaylandSurface::QWaylandSurface(QtWayland::Surface *surface)
 WaylandClient *QWaylandSurface::client() const
 {
     Q_D(const QWaylandSurface);
-    return d->surface->base()->resource.client;
+    return d->surface->resource()->client();
 }
 
 QWaylandSurface *QWaylandSurface::parentSurface() const

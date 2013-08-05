@@ -173,11 +173,11 @@ private:
     void damage(const QRect &rect);
     bool advanceBufferQueue();
     void doUpdate();
-    SurfaceBuffer *createSurfaceBuffer(struct wl_buffer *buffer);
+    SurfaceBuffer *createSurfaceBuffer(struct ::wl_resource *buffer);
     void frameFinishedInternal();
     bool postBuffer();
 
-    void attach(struct wl_buffer *buffer);
+    void attach(struct ::wl_resource *buffer);
 
     void surface_destroy_resource(Resource *resource) Q_DECL_OVERRIDE;
 

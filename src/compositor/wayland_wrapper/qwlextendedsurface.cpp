@@ -161,6 +161,16 @@ void ExtendedSurface::extended_surface_destroy_resource(Resource *)
     delete this;
 }
 
+void ExtendedSurface::extended_surface_raise(Resource *)
+{
+    emit m_surface->waylandSurface()->raiseRequested();
+}
+
+void ExtendedSurface::extended_surface_lower(Resource *)
+{
+    emit m_surface->waylandSurface()->lowerRequested();
+}
+
 }
 
 QT_END_NAMESPACE

@@ -173,7 +173,8 @@ signals:
     void extendedSurfaceReady();
     void classNameChanged();
     void titleChanged();
-
+    void raiseRequested();
+    void lowerRequested();
 };
 
 QT_END_NAMESPACE

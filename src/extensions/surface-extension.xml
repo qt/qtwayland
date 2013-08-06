@@ -84,5 +84,11 @@
             <arg name="flags" type="int"/>
         </request>
 
+        <request name="raise">
+        </request>
+
+        <request name="lower">
+        </request>
+
     </interface>
 </protocol>

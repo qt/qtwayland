@@ -114,6 +114,8 @@ private:
                                            int32_t flags) Q_DECL_OVERRIDE;
 
     void extended_surface_destroy_resource(Resource *) Q_DECL_OVERRIDE;
+    void extended_surface_raise(Resource *) Q_DECL_OVERRIDE;
+    void extended_surface_lower(Resource *) Q_DECL_OVERRIDE;
 };
 
 }

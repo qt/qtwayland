@@ -133,6 +133,9 @@ public:
     void setWindowState(Qt::WindowState state);
     void setWindowFlags(Qt::WindowFlags flags);
 
+    void raise() Q_DECL_OVERRIDE;
+    void lower() Q_DECL_OVERRIDE;
+
     bool isExposed() const;
 
     QWaylandDecoration *decoration() const;

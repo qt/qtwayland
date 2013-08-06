@@ -196,6 +196,20 @@ void QWaylandWindow::setVisible(bool visible)
 }
 
 
+void QWaylandWindow::raise()
+{
+    if (mExtendedWindow)
+        mExtendedWindow->raise();
+}
+
+
+void QWaylandWindow::lower()
+{
+    if (mExtendedWindow)
+        mExtendedWindow->lower();
+}
+
+
 bool QWaylandWindow::isExposed() const
 {
     if (!window()->isVisible())

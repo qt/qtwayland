@@ -367,6 +367,15 @@ void process(QXmlStreamReader &xml)
         printf("#include \"wayland-%s-server-protocol.h\"\n", QByteArray(protocolName).replace('_', '-').constData());
         printf("#include <QByteArray>\n");
         printf("#include <QString>\n");
+
+        printf("\n");
+        printf("#ifndef WAYLAND_VERSION_CHECK\n");
+        printf("#define WAYLAND_VERSION_CHECK(major, minor, micro) \\\n");
+        printf("    (WAYLAND_VERSION_MAJOR > (major)) || \\\n");
+        printf("    (WAYLAND_VERSION_MAJOR == (major) && WAYLAND_VERSION_MINOR > (minor)) || \\\n");
+        printf("    (WAYLAND_VERSION_MAJOR == (major) && WAYLAND_VERSION_MINOR == (minor) && WAYLAND_VERSION_MICRO >= (micro))\n");
+        printf("#endif\n");
+
         printf("\n");
         printf("QT_BEGIN_NAMESPACE\n");
         printf("\n");
@@ -531,7 +540,11 @@ void process(QXmlStreamReader &xml)
 
             printf("    %s::%s(struct ::wl_client *client, int id)\n", interfaceName, interfaceName);
             printf("        : m_resource(0)\n");
+            printf("#if WAYLAND_VERSION_CHECK(1, 2, 0)\n");
+            printf("        , m_ownResource(false)\n");
+            printf("#else\n");
             printf("        , m_ownResource(true)\n");
+            printf("#endif\n");
             printf("        , m_global(0)\n");
             printf("    {\n");
             printf("        wl_list_init(&m_resource_list);\n");
@@ -541,7 +554,11 @@ void process(QXmlStreamReader &xml)
 
             printf("    %s::%s(struct ::wl_display *display)\n", interfaceName, interfaceName);
             printf("        : m_resource(0)\n");
+            printf("#if WAYLAND_VERSION_CHECK(1, 2, 0)\n");
+            printf("        , m_ownResource(false)\n");
+            printf("#else\n");
             printf("        , m_ownResource(true)\n");
+            printf("#endif\n");
             printf("        , m_global(0)\n");
             printf("    {\n");
             printf("        wl_list_init(&m_resource_list);\n");

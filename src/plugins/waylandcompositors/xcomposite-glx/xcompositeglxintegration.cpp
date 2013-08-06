@@ -115,7 +115,7 @@ void XCompositeGLXIntegration::initializeHardware(QtWayland::Display *)
 
 GLuint XCompositeGLXIntegration::createTextureFromBuffer(struct ::wl_resource *buffer, QOpenGLContext *)
 {
-    XCompositeBuffer *compositorBuffer = reinterpret_cast<XCompositeBuffer *>(buffer);
+    XCompositeBuffer *compositorBuffer = XCompositeBuffer::fromResource(buffer);
     Pixmap pixmap = XCompositeNameWindowPixmap(mDisplay, compositorBuffer->window());
 
     QVector<int> glxConfigSpec = qglx_buildSpec();
@@ -148,14 +148,14 @@ GLuint XCompositeGLXIntegration::createTextureFromBuffer(struct ::wl_resource *b
 
 bool XCompositeGLXIntegration::isYInverted(struct ::wl_resource *buffer) const
 {
-    return reinterpret_cast<XCompositeBuffer *>(buffer)->isYInverted();
+    return XCompositeBuffer::fromResource(buffer)->isYInverted();
 }
 
 QSize XCompositeGLXIntegration::bufferSize(struct ::wl_resource *buffer) const
 {
-    XCompositeBuffer *compositorBuffer = reinterpret_cast<XCompositeBuffer *>(buffer);
+    XCompositeBuffer *compositorBuffer = XCompositeBuffer::fromResource(buffer);
 
-    return QSize(compositorBuffer->base()->width, compositorBuffer->base()->height);
+    return compositorBuffer->size();
 }
 
 QT_END_NAMESPACE

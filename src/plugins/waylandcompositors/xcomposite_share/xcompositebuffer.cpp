@@ -44,34 +44,21 @@ QT_BEGIN_NAMESPACE
 
 XCompositeBuffer::XCompositeBuffer(Window window, const QSize &size,
                                    struct ::wl_client *client, uint32_t id)
-    : mWindow(window)
+    : QtWaylandServer::wl_buffer(client, id)
+    , mWindow(window)
     , mInvertedY(false)
+    , mSize(size)
 {
-    base()->height = size.height();
-    base()->width = size.width();
-
-    base()->resource.object.id = id;
-    base()->resource.object.interface = &::wl_buffer_interface;
-    base()->resource.object.implementation = (void (**)(void))&buffer_interface;
-    base()->resource.data = base();
-    wl_client_add_resource(client, &base()->resource);
-
-    base()->resource.destroy = delete_resource;
 }
 
-struct wl_buffer_interface XCompositeBuffer::buffer_interface = {
-    XCompositeBuffer::buffer_interface_destroy
-};
-
-void XCompositeBuffer::buffer_interface_destroy(wl_client *client, wl_resource *buffer)
+void XCompositeBuffer::buffer_destroy_resource(Resource *)
 {
-    Q_UNUSED(client);
-    Q_UNUSED(buffer);
+    delete this;
 }
 
-void XCompositeBuffer::delete_resource(struct wl_resource *resource)
+void XCompositeBuffer::buffer_destroy(Resource *resource)
 {
-    delete static_cast<XCompositeBuffer *>(static_cast<wl_buffer *>(resource->data));
+    wl_resource_destroy(resource->handle);
 }
 
 Window XCompositeBuffer::window()

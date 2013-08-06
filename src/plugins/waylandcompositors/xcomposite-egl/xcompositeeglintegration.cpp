@@ -94,7 +94,7 @@ void XCompositeEglIntegration::initializeHardware(QtWayland::Display *)
 
 GLuint XCompositeEglIntegration::createTextureFromBuffer(struct ::wl_resource *buffer, QOpenGLContext *)
 {
-    XCompositeBuffer *compositorBuffer = reinterpret_cast<XCompositeBuffer *>(buffer);
+    XCompositeBuffer *compositorBuffer = XCompositeBuffer::fromResource(buffer);
     Pixmap pixmap = XCompositeNameWindowPixmap(mDisplay, compositorBuffer->window());
 
     QVector<EGLint> eglConfigSpec = eglbuildSpec();
@@ -137,15 +137,15 @@ GLuint XCompositeEglIntegration::createTextureFromBuffer(struct ::wl_resource *b
 
 bool XCompositeEglIntegration::isYInverted(struct ::wl_resource *buffer) const
 {
-    XCompositeBuffer *compositorBuffer = reinterpret_cast<XCompositeBuffer *>(buffer);
+    XCompositeBuffer *compositorBuffer = XCompositeBuffer::fromResource(buffer);
     return compositorBuffer->isYInverted();
 }
 
 QSize XCompositeEglIntegration::bufferSize(struct ::wl_resource *buffer) const
 {
-    XCompositeBuffer *compositorBuffer = reinterpret_cast<XCompositeBuffer *>(buffer);
+    XCompositeBuffer *compositorBuffer = XCompositeBuffer::fromResource(buffer);
 
-    return QSize(compositorBuffer->base()->width, compositorBuffer->base()->height);
+    return compositorBuffer->size();
 }
 
 QT_END_NAMESPACE

@@ -64,11 +64,11 @@ void QWaylandBrcmEglIntegration::wlDisplayHandleGlobal(void *data, struct wl_reg
     Q_UNUSED(version);
     if (interface == "qt_brcm") {
         QWaylandBrcmEglIntegration *integration = static_cast<QWaylandBrcmEglIntegration *>(data);
-        integration->m_waylandBrcm = static_cast<struct wl_brcm *>(wl_registry_bind(registry, id, &wl_brcm_interface, 1));
+        integration->m_waylandBrcm = static_cast<struct qt_brcm *>(wl_registry_bind(registry, id, &qt_brcm_interface, 1));
     }
 }
 
-wl_brcm *QWaylandBrcmEglIntegration::waylandBrcm() const
+qt_brcm *QWaylandBrcmEglIntegration::waylandBrcm() const
 {
     return m_waylandBrcm;
 }

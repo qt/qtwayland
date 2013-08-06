@@ -43,6 +43,7 @@
 
 #include <QtCompositor/qwaylandobject.h>
 #include <QtCompositor/private/qwlcompositor_p.h>
+#include <qwayland-server-wayland.h>
 
 #include <QtCore/QSize>
 #include <QtCore/QVector>
@@ -51,26 +52,29 @@
 
 QT_BEGIN_NAMESPACE
 
-class BrcmBuffer : public QtWayland::Object<struct wl_buffer>
+class BrcmBuffer : public QtWaylandServer::wl_buffer
 {
 public:
-    BrcmBuffer(QtWayland::Compositor *compositor, const QSize &size, EGLint *data, size_t count);
+    BrcmBuffer(struct ::wl_client *client, uint32_t id, const QSize &size, EGLint *data, size_t count);
     ~BrcmBuffer();
-
-    static struct wl_buffer_interface buffer_interface;
-    static void delete_resource(struct wl_resource *resource);
 
     bool isYInverted() const { return m_invertedY; }
     void setInvertedY(bool inverted) { m_invertedY = inverted; }
 
     EGLint *handle() { return m_handle.data(); }
 
-    static void buffer_interface_destroy(struct wl_client *client,
-                        struct wl_resource *buffer);
+    QSize size() { return m_size; }
+
+    static BrcmBuffer *fromResource(struct ::wl_resource *resource) { return static_cast<BrcmBuffer*>(Resource::fromResource(resource)->buffer); }
+
+protected:
+    void buffer_destroy_resource(Resource *resource) Q_DECL_OVERRIDE;
+    void buffer_destroy(Resource *resource) Q_DECL_OVERRIDE;
 
 private:
     QVector<EGLint> m_handle;
     bool m_invertedY;
+    QSize m_size;
 };
 
 QT_END_NAMESPACE

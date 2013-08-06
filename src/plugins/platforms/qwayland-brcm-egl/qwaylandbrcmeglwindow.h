@@ -54,7 +54,7 @@ QT_BEGIN_NAMESPACE
 class QWaylandGLContext;
 class QWaylandBrcmBuffer;
 
-class QWaylandBrcmEglWindow : public QObject, public QWaylandWindow
+class QWaylandBrcmEglWindow : public QWaylandWindow
 {
     Q_OBJECT
 public:

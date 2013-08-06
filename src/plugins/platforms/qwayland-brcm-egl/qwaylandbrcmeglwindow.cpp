@@ -61,7 +61,7 @@ class QWaylandBrcmBuffer : public QWaylandBuffer
 {
 public:
     QWaylandBrcmBuffer(QWaylandDisplay *display,
-                       struct wl_brcm *brcm,
+                       struct qt_brcm *brcm,
                        const QSize &size,
                        EGLint *data,
                        int count)
@@ -75,7 +75,7 @@ public:
         for (int i = 0; i < count; ++i)
             m_data[i] = data[i];
 
-        mBuffer = wl_brcm_create_buffer(brcm, size.width(), size.height(), &m_array);
+        mBuffer = qt_brcm_create_buffer(brcm, size.width(), size.height(), &m_array);
 
         static const struct wl_buffer_listener buffer_listener = {
             QWaylandBrcmBuffer::buffer_release

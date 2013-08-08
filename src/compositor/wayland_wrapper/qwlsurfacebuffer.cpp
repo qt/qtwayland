@@ -138,8 +138,8 @@ QSize SurfaceBuffer::size() const
             m_size = QSize(wl_shm_buffer_get_width(m_shmBuffer), wl_shm_buffer_get_height(m_shmBuffer));
 #ifdef QT_COMPOSITOR_WAYLAND_GL
         } else {
-            struct ::wl_buffer *buffer = static_cast<struct ::wl_buffer*>(m_buffer->data);
-            m_size = QSize(buffer->width, buffer->height);
+            QWaylandGraphicsHardwareIntegration *hwIntegration = m_compositor->graphicsHWIntegration();
+            m_size = hwIntegration->bufferSize(m_buffer);
 #endif
         }
     }
@@ -254,7 +254,7 @@ void *SurfaceBuffer::handle() const
 #ifdef QT_COMPOSITOR_WAYLAND_GL
         } else {
             QWaylandGraphicsHardwareIntegration *hwIntegration = m_compositor->graphicsHWIntegration();
-            that->m_handle = hwIntegration->lockNativeBuffer(static_cast<struct ::wl_buffer*>(m_buffer->data), m_compositor->directRenderContext());
+            that->m_handle = hwIntegration->lockNativeBuffer(m_buffer, m_compositor->directRenderContext());
 #endif
         }
     }
@@ -298,7 +298,7 @@ void freeTexture(QOpenGLFunctions *, GLuint id)
 void SurfaceBuffer::createTexture(QWaylandGraphicsHardwareIntegration *hwIntegration, QOpenGLContext *context)
 {
 #ifdef QT_COMPOSITOR_WAYLAND_GL
-    m_texture = hwIntegration->createTextureFromBuffer(static_cast<struct ::wl_buffer*>(m_buffer->data), context);
+    m_texture = hwIntegration->createTextureFromBuffer(m_buffer, context);
     m_guard = new QOpenGLSharedResourceGuard(QOpenGLContext::currentContext(), m_texture, freeTexture);
 #else
     Q_UNUSED(hwIntegration);

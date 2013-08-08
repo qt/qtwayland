@@ -59,10 +59,12 @@ public:
     XCompositeGLXIntegration();
     ~XCompositeGLXIntegration();
 
-    void initializeHardware(QtWayland::Display *waylandDisplay);
+    void initializeHardware(QtWayland::Display *waylandDisplay) Q_DECL_OVERRIDE;
 
-    GLuint createTextureFromBuffer(struct wl_buffer *buffer, QOpenGLContext *context);
-    bool isYInverted(wl_buffer *) const;
+    GLuint createTextureFromBuffer(struct ::wl_resource *buffer, QOpenGLContext *context) Q_DECL_OVERRIDE;
+    bool isYInverted(struct ::wl_resource *) const Q_DECL_OVERRIDE;
+
+    QSize bufferSize(struct ::wl_resource *buffer) const Q_DECL_OVERRIDE;
 
 private:
     PFNGLXBINDTEXIMAGEEXTPROC m_glxBindTexImageEXT;

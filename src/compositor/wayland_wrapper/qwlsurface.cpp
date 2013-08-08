@@ -132,7 +132,7 @@ bool Surface::isYInverted() const
     if (!surfacebuffer) {
         ret = false;
     } else if (graphicsHWIntegration && surfacebuffer->waylandBufferHandle() && type() != QWaylandSurface::Shm) {
-        ret = graphicsHWIntegration->isYInverted(static_cast<struct ::wl_buffer*>(surfacebuffer->waylandBufferHandle()->data));
+        ret = graphicsHWIntegration->isYInverted(surfacebuffer->waylandBufferHandle());
     } else
 #endif
         ret = true;

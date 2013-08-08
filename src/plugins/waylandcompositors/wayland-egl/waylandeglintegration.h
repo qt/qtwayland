@@ -54,15 +54,17 @@ class WaylandEglIntegration : public QWaylandGraphicsHardwareIntegration
 public:
     WaylandEglIntegration();
 
-    void initializeHardware(QtWayland::Display *waylandDisplay);
+    void initializeHardware(QtWayland::Display *waylandDisplay) Q_DECL_OVERRIDE;
 
-    GLuint createTextureFromBuffer(wl_buffer *buffer, QOpenGLContext *context);
-    bool isYInverted(struct wl_buffer *) const;
+    GLuint createTextureFromBuffer(struct ::wl_resource *buffer, QOpenGLContext *context) Q_DECL_OVERRIDE;
+    bool isYInverted(struct ::wl_resource *) const Q_DECL_OVERRIDE;
 
-    bool setDirectRenderSurface(QWaylandSurface *);
+    bool setDirectRenderSurface(QWaylandSurface *) Q_DECL_OVERRIDE;
 
-    virtual void *lockNativeBuffer(struct wl_buffer *buffer, QOpenGLContext *context) const;
-    virtual void unlockNativeBuffer(void *native_buffer, QOpenGLContext *context) const;
+    void *lockNativeBuffer(struct ::wl_resource *buffer, QOpenGLContext *context) const Q_DECL_OVERRIDE;
+    void unlockNativeBuffer(void *native_buffer, QOpenGLContext *context) const Q_DECL_OVERRIDE;
+
+    QSize bufferSize(struct ::wl_resource *buffer) const Q_DECL_OVERRIDE;
 
 private:
     Q_DISABLE_COPY(WaylandEglIntegration)

@@ -60,6 +60,7 @@
 #ifndef EGL_WL_bind_wayland_display
 typedef EGLBoolean (EGLAPIENTRYP PFNEGLBINDWAYLANDDISPLAYWL) (EGLDisplay dpy, struct wl_display *display);
 typedef EGLBoolean (EGLAPIENTRYP PFNEGLUNBINDWAYLANDDISPLAYWL) (EGLDisplay dpy, struct wl_display *display);
+typedef EGLBoolean (EGLAPIENTRYP PFNEGLQUERYWAYLANDBUFFERWL) (EGLDisplay dpy, struct wl_buffer *buffer, EGLint attribute, EGLint *value);
 #endif
 
 #ifndef EGL_KHR_image
@@ -83,6 +84,7 @@ public:
         , flipperConnected(false)
         , egl_bind_wayland_display(0)
         , egl_unbind_wayland_display(0)
+        , egl_query_wayland_buffer(0)
         , egl_create_image(0)
         , egl_destroy_image(0)
         , gl_egl_image_target_texture_2d(0)
@@ -95,6 +97,7 @@ public:
 #endif
     PFNEGLBINDWAYLANDDISPLAYWL egl_bind_wayland_display;
     PFNEGLUNBINDWAYLANDDISPLAYWL egl_unbind_wayland_display;
+    PFNEGLQUERYWAYLANDBUFFERWL egl_query_wayland_buffer;
 
     PFNEGLCREATEIMAGEKHRPROC egl_create_image;
     PFNEGLDESTROYIMAGEKHRPROC egl_destroy_image;
@@ -123,6 +126,8 @@ void WaylandEglIntegration::initializeHardware(QtWayland::Display *waylandDispla
                         reinterpret_cast<PFNEGLBINDWAYLANDDISPLAYWL>(eglGetProcAddress("eglBindWaylandDisplayWL"));
                 d->egl_unbind_wayland_display =
                         reinterpret_cast<PFNEGLUNBINDWAYLANDDISPLAYWL>(eglGetProcAddress("eglUnbindWaylandDisplayWL"));
+                d->egl_query_wayland_buffer =
+                        reinterpret_cast<PFNEGLQUERYWAYLANDBUFFERWL>(eglGetProcAddress("eglQueryWaylandBufferWL"));
                 d->egl_create_image =
                         reinterpret_cast<PFNEGLCREATEIMAGEKHRPROC>(eglGetProcAddress("eglCreateImageKHR"));
                 d->egl_destroy_image =
@@ -132,6 +137,7 @@ void WaylandEglIntegration::initializeHardware(QtWayland::Display *waylandDispla
 
                 if (d->egl_bind_wayland_display
                         && d->egl_unbind_wayland_display
+                        && d->egl_query_wayland_buffer
                         && d->egl_create_image
                         && d->egl_destroy_image
                         && d->gl_egl_image_target_texture_2d) {
@@ -147,7 +153,7 @@ void WaylandEglIntegration::initializeHardware(QtWayland::Display *waylandDispla
     }
 }
 
-GLuint WaylandEglIntegration::createTextureFromBuffer(wl_buffer *buffer, QOpenGLContext *)
+GLuint WaylandEglIntegration::createTextureFromBuffer(struct ::wl_resource *buffer, QOpenGLContext *)
 {
     Q_D(WaylandEglIntegration);
     if (!d->valid) {
@@ -176,7 +182,7 @@ GLuint WaylandEglIntegration::createTextureFromBuffer(wl_buffer *buffer, QOpenGL
     return textureId;
 }
 
-bool WaylandEglIntegration::isYInverted(struct wl_buffer *buffer) const
+bool WaylandEglIntegration::isYInverted(struct ::wl_resource *buffer) const
 {
 #ifdef EGL_WL_request_client_buffer_format
     return eglGetBufferYInvertedWL(buffer);
@@ -215,7 +221,7 @@ bool WaylandEglIntegration::setDirectRenderSurface(QWaylandSurface *surface)
     return flipper;
 }
 
-void *WaylandEglIntegration::lockNativeBuffer(struct wl_buffer *buffer, QOpenGLContext *) const
+void *WaylandEglIntegration::lockNativeBuffer(struct ::wl_resource *buffer, QOpenGLContext *) const
 {
     Q_D(const WaylandEglIntegration);
 
@@ -231,6 +237,17 @@ void WaylandEglIntegration::unlockNativeBuffer(void *native_buffer, QOpenGLConte
     EGLImageKHR image = static_cast<EGLImageKHR>(native_buffer);
 
     d->egl_destroy_image(d->egl_display, image);
+}
+
+QSize WaylandEglIntegration::bufferSize(struct ::wl_resource *buffer) const
+{
+    Q_D(const WaylandEglIntegration);
+
+    int width, height;
+    d->egl_query_wayland_buffer(d->egl_display, reinterpret_cast<struct ::wl_buffer *>(buffer), EGL_WIDTH, &width);
+    d->egl_query_wayland_buffer(d->egl_display, reinterpret_cast<struct ::wl_buffer *>(buffer), EGL_HEIGHT, &height);
+
+    return QSize(width, height);
 }
 
 QT_END_NAMESPACE

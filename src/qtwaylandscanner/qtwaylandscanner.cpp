@@ -568,6 +568,11 @@ void process(QXmlStreamReader &xml)
 
             printf("    %s::%s()\n", interfaceName, interfaceName);
             printf("        : m_resource(0)\n");
+            printf("#if WAYLAND_VERSION_CHECK(1, 2, 0)\n");
+            printf("        , m_ownResource(false)\n");
+            printf("#else\n");
+            printf("        , m_ownResource(true)\n");
+            printf("#endif\n");
             printf("        , m_global(0)\n");
             printf("    {\n");
             printf("        wl_list_init(&m_resource_list);\n");

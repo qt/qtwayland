@@ -190,7 +190,7 @@ void QWaylandWindow::setVisible(bool visible)
         // there was no frame before it will be stuck at the waitForFrameSync() in
         // QWaylandShmBackingStore::beginPaint().
     } else {
-        QWindowSystemInterface::handleExposeEvent(window(), QRect(QPoint(), geometry().size()));
+        QWindowSystemInterface::handleExposeEvent(window(), QRegion());
         attach(static_cast<QWaylandBuffer *>(0), 0, 0);
     }
     damage(QRect(QPoint(0,0),geometry().size()));
@@ -210,17 +210,6 @@ void QWaylandWindow::lower()
         mExtendedWindow->lower();
 }
 
-
-bool QWaylandWindow::isExposed() const
-{
-    if (!window()->isVisible())
-        return false;
-    if (mExtendedWindow)
-        return mExtendedWindow->isExposed();
-    return true;
-}
-
-
 void QWaylandWindow::configure(uint32_t edges, int32_t width, int32_t height)
 {
     QMutexLocker resizeLocker(&mResizeLock);
@@ -232,6 +221,9 @@ void QWaylandWindow::configure(uint32_t edges, int32_t width, int32_t height)
         mRequestResizeSent= true;
         QMetaObject::invokeMethod(this, "requestResize", Qt::QueuedConnection);
     }
+
+    QWindowSystemInterface::handleWindowStateChanged(window(), mState);
+    QWindowSystemInterface::flushWindowSystemEvents(); // Required for oldState to work on WindowStateChanged
 }
 
 void QWaylandWindow::doResize()

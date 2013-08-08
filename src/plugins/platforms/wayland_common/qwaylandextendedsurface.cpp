@@ -58,7 +58,6 @@ QT_BEGIN_NAMESPACE
 QWaylandExtendedSurface::QWaylandExtendedSurface(QWaylandWindow *window, struct ::qt_extended_surface *extended_surface)
     : QtWayland::qt_extended_surface(extended_surface)
     , m_window(window)
-    , m_exposed(true)
 {
 }
 
@@ -107,18 +106,9 @@ QVariant QWaylandExtendedSurface::property(const QString &name, const QVariant &
     return m_properties.value(name,defaultValue);
 }
 
-void QWaylandExtendedSurface::extended_surface_onscreen_visibility(int32_t visible)
+void QWaylandExtendedSurface::extended_surface_onscreen_visibility(int32_t visibility)
 {
-    // Do not send events when the state is not changing...
-    if (visible == m_exposed)
-        return;
-
-    m_exposed = visible;
-    QWaylandWindow *w = m_window;
-    QWindowSystemInterface::handleExposeEvent(w->window(),
-                                              visible
-                                              ? QRegion(w->geometry())
-                                              : QRegion());
+    m_window->window()->setVisibility(static_cast<QWindow::Visibility>(visibility));
 }
 
 void QWaylandExtendedSurface::extended_surface_set_generic_property(const QString &name, wl_array *value)

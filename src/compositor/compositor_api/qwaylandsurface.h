@@ -45,6 +45,7 @@
 
 #include <QtCore/QScopedPointer>
 #include <QtGui/QImage>
+#include <QtGui/QWindow>
 #include <QtCore/QVariantMap>
 
 #include <QtGui/QOpenGLContext>
@@ -79,6 +80,7 @@ class Q_COMPOSITOR_EXPORT QWaylandSurface : public QObject
     Q_PROPERTY(QString className READ className NOTIFY classNameChanged)
     Q_PROPERTY(QString title READ title NOTIFY titleChanged)
     Q_PROPERTY(Qt::ScreenOrientations orientationUpdateMask READ orientationUpdateMask NOTIFY orientationUpdateMaskChanged)
+    Q_PROPERTY(QWindow::Visibility visibility READ visibility WRITE setVisibility NOTIFY visibilityChanged)
 
     Q_ENUMS(WindowFlag)
     Q_FLAGS(WindowFlag WindowFlags)
@@ -126,7 +128,9 @@ public:
     uint texture(QOpenGLContext *context) const;
 #endif
 
-    Q_INVOKABLE void sendOnScreenVisibilityChange(bool visible);
+    QWindow::Visibility visibility() const;
+    void setVisibility(QWindow::Visibility visibility);
+    Q_INVOKABLE void sendOnScreenVisibilityChange(bool visible); // Compat
 
     void frameFinished();
 
@@ -175,6 +179,7 @@ signals:
     void titleChanged();
     void raiseRequested();
     void lowerRequested();
+    void visibilityChanged();
 };
 
 QT_END_NAMESPACE

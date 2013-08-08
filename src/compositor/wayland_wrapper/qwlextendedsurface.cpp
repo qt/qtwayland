@@ -83,12 +83,18 @@ void ExtendedSurface::sendGenericProperty(const QString &name, const QVariant &v
 
 }
 
-void ExtendedSurface::sendOnScreenVisibility(bool visible)
+void ExtendedSurface::setVisibility(QWindow::Visibility visibility, bool updateClient)
 {
-    int32_t visibleInt = visible;
-    send_onscreen_visibility(visibleInt);
-}
+    if (visibility == m_visibility)
+        return;
 
+    m_visibility = visibility;
+    emit m_surface->waylandSurface()->visibilityChanged();
+
+    // If this change came from the client, we shouldn't update it
+    if (updateClient)
+        send_onscreen_visibility(m_visibility);
+}
 
 void ExtendedSurface::extended_surface_update_generic_property(Resource *resource,
                                                                const QString &name,

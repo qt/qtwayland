@@ -49,6 +49,7 @@
 
 #include <QtCore/QVariant>
 #include <QtCore/QLinkedList>
+#include <QtGui/QWindow>
 
 QT_BEGIN_NAMESPACE
 
@@ -77,7 +78,9 @@ public:
     ~ExtendedSurface();
 
     void sendGenericProperty(const QString &name, const QVariant &variant);
-    void sendOnScreenVisibility(bool visible);
+
+    QWindow::Visibility visibility() const { return m_visibility; }
+    void setVisibility(QWindow::Visibility visibility, bool updateClient = true);
 
     void setSubSurface(ExtendedSurface *subSurface,int x, int y);
     void removeSubSurface(ExtendedSurface *subSurfaces);
@@ -99,6 +102,7 @@ private:
     Qt::ScreenOrientation m_contentOrientation;
 
     QWaylandSurface::WindowFlags m_windowFlags;
+    QWindow::Visibility m_visibility;
 
     QByteArray m_authenticationToken;
     QVariantMap m_windowProperties;

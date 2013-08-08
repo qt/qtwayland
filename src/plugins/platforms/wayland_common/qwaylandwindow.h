@@ -136,8 +136,6 @@ public:
     void raise() Q_DECL_OVERRIDE;
     void lower() Q_DECL_OVERRIDE;
 
-    bool isExposed() const;
-
     QWaylandDecoration *decoration() const;
     void setDecoration(QWaylandDecoration *decoration);
 

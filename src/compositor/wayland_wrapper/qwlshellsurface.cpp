@@ -45,6 +45,7 @@
 #include "qwlinputdevice_p.h"
 #include "qwlsubsurface_p.h"
 #include "qwlpointer_p.h"
+#include "qwlextendedsurface_p.h"
 
 #include <QtCore/qglobal.h>
 #include <QtCore/QDebug>
@@ -208,6 +209,8 @@ void ShellSurface::shell_surface_set_toplevel(Resource *resource)
     m_xOffset = 0;
     m_yOffset = 0;
 
+    if (m_surface->extendedSurface())
+        m_surface->extendedSurface()->setVisibility(QWindow::Windowed, false);
 }
 
 void ShellSurface::shell_surface_set_transient(Resource *resource,
@@ -225,6 +228,9 @@ void ShellSurface::shell_surface_set_transient(Resource *resource,
     m_yOffset = y;
     if (flags & WL_SHELL_SURFACE_TRANSIENT_INACTIVE)
         surface()->setTransientInactive(true);
+
+    if (m_surface->extendedSurface())
+        m_surface->extendedSurface()->setVisibility(QWindow::AutomaticVisibility, false);
 }
 
 void ShellSurface::shell_surface_set_fullscreen(Resource *resource,
@@ -238,6 +244,9 @@ void ShellSurface::shell_surface_set_fullscreen(Resource *resource,
     Q_UNUSED(output);
     QSize defaultScreenSize = m_surface->compositor()->outputGeometry().size();
     send_configure(resize_bottom_right, defaultScreenSize.width(), defaultScreenSize.height());
+
+    if (m_surface->extendedSurface())
+        m_surface->extendedSurface()->setVisibility(QWindow::FullScreen, false);
 }
 
 void ShellSurface::shell_surface_set_popup(Resource *resource, wl_resource *input_device, uint32_t time, wl_resource *parent, int32_t x, int32_t y, uint32_t flags)
@@ -249,6 +258,9 @@ void ShellSurface::shell_surface_set_popup(Resource *resource, wl_resource *inpu
     Q_UNUSED(x);
     Q_UNUSED(y);
     Q_UNUSED(flags);
+
+    if (m_surface->extendedSurface())
+        m_surface->extendedSurface()->setVisibility(QWindow::AutomaticVisibility, false);
 }
 
 void ShellSurface::shell_surface_set_maximized(Resource *resource,
@@ -258,6 +270,9 @@ void ShellSurface::shell_surface_set_maximized(Resource *resource,
     Q_UNUSED(output);
     QSize defaultScreenSize = m_surface->compositor()->outputGeometry().size();
     send_configure(resize_bottom_right, defaultScreenSize.width(), defaultScreenSize.height());
+
+    if (m_surface->extendedSurface())
+        m_surface->extendedSurface()->setVisibility(QWindow::Maximized, false);
 }
 
 void ShellSurface::shell_surface_pong(Resource *resource,

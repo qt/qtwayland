@@ -110,6 +110,7 @@ QWaylandSurfaceItem::QWaylandSurfaceItem(QWaylandSurface *surface, QQuickItem *p
     , m_useTextureAlpha(false)
     , m_clientRenderingEnabled(true)
     , m_touchEventsEnabled(false)
+    , m_resizeSurfaceToItem(false)
 {
     init(surface);
 }

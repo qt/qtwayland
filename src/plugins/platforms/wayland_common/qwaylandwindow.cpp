@@ -54,7 +54,7 @@
 #include <QtCore/QFileInfo>
 #include <QtGui/QWindow>
 
-#include <QCoreApplication>
+#include <QGuiApplication>
 #include <qpa/qwindowsysteminterface.h>
 
 #include <QtCore/QDebug>
@@ -124,6 +124,12 @@ QWaylandWindow::~QWaylandWindow()
     QList<QWaylandInputDevice *> inputDevices = mDisplay->inputDevices();
     for (int i = 0; i < inputDevices.size(); ++i)
         inputDevices.at(i)->handleWindowDestroyed(this);
+
+    const QWindow *parent = window();
+    foreach (QWindow *w, QGuiApplication::topLevelWindows()) {
+        if (w->transientParent() == parent)
+            QWindowSystemInterface::handleCloseEvent(w);
+    }
 }
 
 QWaylandWindow *QWaylandWindow::fromWlSurface(::wl_surface *surface)

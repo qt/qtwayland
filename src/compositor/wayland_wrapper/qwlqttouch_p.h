@@ -42,7 +42,7 @@
 #define WLTOUCH_H
 
 #include <private/qwlcompositor_p.h>
-#include "wayland-touch-extension-server-protocol.h"
+#include "qwayland-server-touch-extension.h"
 #include "wayland-util.h"
 
 QT_BEGIN_NAMESPACE
@@ -53,7 +53,7 @@ class QTouchEvent;
 
 namespace QtWayland {
 
-class TouchExtensionGlobal
+class TouchExtensionGlobal : public QtWaylandServer::qt_touch_extension
 {
 public:
     TouchExtensionGlobal(Compositor *compositor);
@@ -63,19 +63,15 @@ public:
 
     void setFlags(int flags) { m_flags = flags; }
 
+protected:
+    void touch_extension_bind_resource(Resource *resource) Q_DECL_OVERRIDE;
+    void touch_extension_destroy_resource(Resource *resource) Q_DECL_OVERRIDE;
+
 private:
-    static void bind_func(struct wl_client *client, void *data,
-                          uint32_t version, uint32_t id);
-
-    static void destroy_resource(wl_resource *resource);
-
-    static const struct qt_touch_extension_interface touch_interface;
-
     Compositor *m_compositor;
     int m_flags;
-    QList<wl_resource *> m_resources;
-    wl_array m_rawdata_array;
-    float *m_rawdata_ptr;
+    QList<Resource *> m_resources;
+    QVector<float> m_posData;
 };
 
 }

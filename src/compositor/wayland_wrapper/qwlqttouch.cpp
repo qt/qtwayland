@@ -47,49 +47,19 @@ QT_BEGIN_NAMESPACE
 
 namespace QtWayland {
 
-static void dummy(wl_client *, wl_resource *)
-{
-}
-
-const struct qt_touch_extension_interface TouchExtensionGlobal::touch_interface = {
-    dummy
-};
-
 static const int maxRawPos = 24;
 
 TouchExtensionGlobal::TouchExtensionGlobal(Compositor *compositor)
-    : m_compositor(compositor),
-      m_flags(0)
+    : QtWaylandServer::qt_touch_extension(compositor->wl_display())
+    , m_compositor(compositor)
+    , m_flags(0)
+    , m_resources()
+    , m_posData(maxRawPos * 2)
 {
-    wl_array_init(&m_rawdata_array);
-    m_rawdata_ptr = static_cast<float *>(wl_array_add(&m_rawdata_array, maxRawPos * sizeof(float) * 2));
-
-    wl_display_add_global(compositor->wl_display(),
-                          &qt_touch_extension_interface,
-                          this,
-                          TouchExtensionGlobal::bind_func);
 }
 
 TouchExtensionGlobal::~TouchExtensionGlobal()
 {
-    wl_array_release(&m_rawdata_array);
-}
-
-void TouchExtensionGlobal::destroy_resource(wl_resource *resource)
-{
-    TouchExtensionGlobal *self = static_cast<TouchExtensionGlobal *>(resource->data);
-    self->m_resources.removeOne(resource);
-    free(resource);
-}
-
-void TouchExtensionGlobal::bind_func(wl_client *client, void *data, uint32_t version, uint32_t id)
-{
-    Q_UNUSED(version);
-    wl_resource *resource = wl_client_add_object(client, &qt_touch_extension_interface, &touch_interface, id, data);
-    resource->destroy = destroy_resource;
-    TouchExtensionGlobal *self = static_cast<TouchExtensionGlobal *>(resource->data);
-    self->m_resources.append(resource);
-    qt_touch_extension_send_configure(resource, self->m_flags);
 }
 
 static inline int toFixed(qreal f)
@@ -110,8 +80,8 @@ bool TouchExtensionGlobal::postTouchEvent(QTouchEvent *event, Surface *surface)
     const int rescount = m_resources.count();
 
     for (int res = 0; res < rescount; ++res) {
-        wl_resource *target = m_resources.at(res);
-        if (target->client != surfaceClient)
+        Resource *target = m_resources.at(res);
+        if (target->client() != surfaceClient)
             continue;
 
         // We will use no touch_frame type of event, to reduce the number of
@@ -144,35 +114,45 @@ bool TouchExtensionGlobal::postTouchEvent(QTouchEvent *event, Surface *surface)
             int vy = toFixed(tp.velocity().y());
             uint32_t pressure = uint32_t(tp.pressure() * 255);
 
-            wl_array *rawData = 0;
+            QByteArray rawData;
             QVector<QPointF> rawPosList = tp.rawScreenPositions();
             int rawPosCount = rawPosList.count();
             if (rawPosCount) {
                 rawPosCount = qMin(maxRawPos, rawPosCount);
-                rawData = &m_rawdata_array;
-                rawData->size = rawPosCount * sizeof(float) * 2;
-                float *p = m_rawdata_ptr;
+                QVector<float>::iterator iter = m_posData.begin();
                 for (int rpi = 0; rpi < rawPosCount; ++rpi) {
                     const QPointF &rawPos(rawPosList.at(rpi));
                     // This will stay in screen coordinates for performance
                     // reasons, clients using this data will presumably know
                     // what they are doing.
-                    *p++ = float(rawPos.x());
-                    *p++ = float(rawPos.y());
+                    *iter++ = static_cast<float>(rawPos.x());
+                    *iter++ = static_cast<float>(rawPos.y());
                 }
+                rawData = QByteArray::fromRawData(reinterpret_cast<const char*>(m_posData.constData()), sizeof(float) * rawPosCount * 2);
             }
 
-            qt_touch_extension_send_touch(target,
-                                   time, id, state,
-                                   x, y, nx, ny, w, h,
-                                   pressure, vx, vy,
-                                   flags, rawData);
+            send_touch(target->handle,
+                       time, id, state,
+                       x, y, nx, ny, w, h,
+                       pressure, vx, vy,
+                       flags, rawData);
         }
 
         return true;
     }
 
     return false;
+}
+
+void TouchExtensionGlobal::touch_extension_bind_resource(Resource *resource)
+{
+    m_resources.append(resource);
+    send_configure(resource->handle, m_flags);
+}
+
+void TouchExtensionGlobal::touch_extension_destroy_resource(Resource *resource)
+{
+    m_resources.removeOne(resource);
 }
 
 }

@@ -65,6 +65,8 @@ public:
     explicit QWaylandWindowManagerIntegration(QWaylandDisplay *waylandDisplay);
     virtual ~QWaylandWindowManagerIntegration();
 
+    QByteArray desktopEnvironment() const;
+
     bool openUrl(const QUrl &url);
     bool openDocument(const QUrl &url);
 

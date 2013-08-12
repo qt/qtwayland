@@ -71,6 +71,35 @@
 
 QT_BEGIN_NAMESPACE
 
+class GenericWaylandTheme: public QGenericUnixTheme
+{
+public:
+    static QStringList themeNames()
+    {
+        QStringList result;
+
+        if (QGuiApplication::desktopSettingsAware()) {
+            const QByteArray desktopEnvironment = QGuiApplicationPrivate::platformIntegration()->services()->desktopEnvironment();
+
+            // Ignore X11 desktop environments
+            if (!desktopEnvironment.isEmpty() &&
+                desktopEnvironment != QByteArrayLiteral("UNKNOWN") &&
+                desktopEnvironment != QByteArrayLiteral("KDE") &&
+                desktopEnvironment != QByteArrayLiteral("GNOME") &&
+                desktopEnvironment != QByteArrayLiteral("UNITY") &&
+                desktopEnvironment != QByteArrayLiteral("MATE") &&
+                desktopEnvironment != QByteArrayLiteral("XFCE") &&
+                desktopEnvironment != QByteArrayLiteral("LXDE"))
+                result.push_back(desktopEnvironment.toLower());
+        }
+
+        if (result.isEmpty())
+            result.push_back(QLatin1String(QGenericUnixTheme::name));
+
+        return result;
+    }
+};
+
 QWaylandIntegration::QWaylandIntegration()
     : mFontDb(new QGenericUnixFontDatabase())
     , mEventDispatcher(createUnixEventDispatcher())
@@ -82,7 +111,6 @@ QWaylandIntegration::QWaylandIntegration()
 #endif
 {
     QGuiApplicationPrivate::instance()->setEventDispatcher(mEventDispatcher);
-    QGuiApplication::setDesktopSettingsAware(false);
     mDisplay = new QWaylandDisplay();
     mClipboard = new QWaylandClipboard(mDisplay);
     mDrag = new QWaylandDrag(mDisplay);
@@ -205,12 +233,12 @@ QWaylandDisplay *QWaylandIntegration::display() const
 
 QStringList QWaylandIntegration::themeNames() const
 {
-    return QGenericUnixTheme::themeNames();
+    return GenericWaylandTheme::themeNames();
 }
 
 QPlatformTheme *QWaylandIntegration::createPlatformTheme(const QString &name) const
 {
-    return QGenericUnixTheme::createUnixTheme(name);
+    return GenericWaylandTheme::createUnixTheme(name);
 }
 
 QT_END_NAMESPACE

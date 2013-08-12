@@ -114,7 +114,7 @@ void QWaylandShellSurface::setTopLevel()
 void QWaylandShellSurface::updateTransientParent(QWindow *parent)
 {
     QWaylandWindow *parent_wayland_window = static_cast<QWaylandWindow *>(parent->handle());
-    if (!parent_wayland_window || !parent_wayland_window->shellSurface())
+    if (!parent_wayland_window)
         return;
 
     // set_transient expects a position relative to the parent
@@ -141,7 +141,7 @@ void QWaylandShellSurface::updateTransientParent(QWindow *parent)
 void QWaylandShellSurface::setPopup(QWaylandWindow *parent, QWaylandInputDevice *device, int serial)
 {
     QWaylandWindow *parent_wayland_window = parent;
-    if (!parent_wayland_window || !parent_wayland_window->shellSurface())
+    if (!parent_wayland_window)
         return;
 
     // set_popup expects a position relative to the parent

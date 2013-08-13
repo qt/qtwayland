@@ -227,9 +227,6 @@ void QWaylandWindow::configure(uint32_t edges, int32_t width, int32_t height)
         mRequestResizeSent= true;
         QMetaObject::invokeMethod(this, "requestResize", Qt::QueuedConnection);
     }
-
-    QWindowSystemInterface::handleWindowStateChanged(window(), mState);
-    QWindowSystemInterface::flushWindowSystemEvents(); // Required for oldState to work on WindowStateChanged
 }
 
 void QWaylandWindow::doResize()
@@ -403,6 +400,9 @@ void QWaylandWindow::setWindowState(Qt::WindowState state)
         default:
             mShellSurface->setNormal();
     }
+
+    QWindowSystemInterface::handleWindowStateChanged(window(), mState);
+    QWindowSystemInterface::flushWindowSystemEvents(); // Required for oldState to work on WindowStateChanged
 }
 
 void QWaylandWindow::setWindowFlags(Qt::WindowFlags flags)

@@ -235,7 +235,7 @@ void QWaylandDisplay::registry_global(uint32_t id, const QString &interface, uin
         mSubSurfaceExtension = new QtWayland::qt_sub_surface_extension(registry, id);
     } else if (interface == "qt_touch_extension") {
         mTouchExtension = new QWaylandTouchExtension(this, id);
-    } else if (interface == "qt_qtkey_extension") {
+    } else if (interface == "qt_key_extension") {
         mQtKeyExtension = new QWaylandQtKeyExtension(this, id);
     }
 

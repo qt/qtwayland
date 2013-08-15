@@ -57,6 +57,7 @@ class QWaylandExtendedSurface : public QtWayland::qt_extended_surface
 {
 public:
     QWaylandExtendedSurface(QWaylandWindow *window, struct ::qt_extended_surface *extended_surface);
+    ~QWaylandExtendedSurface();
 
     void setContentOrientation(Qt::ScreenOrientation orientation);
 

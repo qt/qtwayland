@@ -61,6 +61,11 @@ QWaylandExtendedSurface::QWaylandExtendedSurface(QWaylandWindow *window, struct 
 {
 }
 
+QWaylandExtendedSurface::~QWaylandExtendedSurface()
+{
+    qt_extended_surface_destroy(object());
+}
+
 void QWaylandExtendedSurface::updateGenericProperty(const QString &name, const QVariant &value)
 {
     QByteArray byteValue;

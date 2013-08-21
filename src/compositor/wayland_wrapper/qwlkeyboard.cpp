@@ -47,11 +47,11 @@
 #include "qwlcompositor_p.h"
 #include "qwlsurface_p.h"
 
-#ifndef QT_NO_WAYLAND_XKB
 #include <fcntl.h>
+#include <unistd.h>
+#ifndef QT_NO_WAYLAND_XKB
 #include <sys/mman.h>
 #include <sys/types.h>
-#include <unistd.h>
 #endif
 
 namespace QtWayland {

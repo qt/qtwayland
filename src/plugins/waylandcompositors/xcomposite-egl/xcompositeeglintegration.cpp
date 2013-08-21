@@ -40,7 +40,6 @@
 
 #include "xcompositeeglintegration.h"
 
-#include <QtCompositor/qwaylandobject.h>
 #include "wayland-xcomposite-server-protocol.h"
 
 #include <QtCompositor/private/qwlcompositor_p.h>

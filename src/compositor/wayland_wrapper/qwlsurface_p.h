@@ -42,7 +42,6 @@
 #define WL_SURFACE_H
 
 #include <QtCompositor/qwaylandexport.h>
-#include <QtCompositor/qwaylandobject.h>
 
 #include <private/qwlsurfacebuffer_p.h>
 #include <QtCompositor/qwaylandsurface.h>

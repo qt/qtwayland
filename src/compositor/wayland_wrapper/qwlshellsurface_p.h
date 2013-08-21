@@ -42,7 +42,6 @@
 #define WLSHELLSURFACE_H
 
 #include <wayland-server.h>
-#include <qwaylandobject.h>
 #include <QPoint>
 #include <private/qwlpointer_p.h>
 

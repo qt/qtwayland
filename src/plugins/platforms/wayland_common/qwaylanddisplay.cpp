@@ -162,13 +162,15 @@ QWaylandDisplay::~QWaylandDisplay(void)
 
 void QWaylandDisplay::flushRequests()
 {
-    wl_display_dispatch_queue_pending(mDisplay, mEventQueue);
+    if (wl_display_dispatch_queue_pending(mDisplay, mEventQueue) == -1 && errno == EPIPE)
+        QCoreApplication::quit();
     wl_display_flush(mDisplay);
 }
 
 void QWaylandDisplay::blockingReadEvents()
 {
-    wl_display_dispatch_queue(mDisplay, mEventQueue);
+    if (wl_display_dispatch_queue(mDisplay, mEventQueue) == -1 && errno == EPIPE)
+        QCoreApplication::quit();
 }
 
 QWaylandScreen *QWaylandDisplay::screenForOutput(struct wl_output *output) const

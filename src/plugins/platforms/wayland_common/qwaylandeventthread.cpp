@@ -1,5 +1,6 @@
 #include "qwaylandeventthread.h"
 #include <QtCore/QSocketNotifier>
+#include <QCoreApplication>
 
 #include <unistd.h>
 #include <fcntl.h>
@@ -31,7 +32,8 @@ void QWaylandEventThread::displayConnect()
 
 void QWaylandEventThread::readWaylandEvents()
 {
-    wl_display_dispatch(m_display);
+    if (wl_display_dispatch(m_display) == -1 && errno == EPIPE)
+        QCoreApplication::quit();
     emit newEventsRead();
 }
 

@@ -40,164 +40,192 @@
 ****************************************************************************/
 
 #include "mockcompositor.h"
+#include "mockinput.h"
 #include "mocksurface.h"
 
 namespace Impl {
 
-void Compositor::destroyInputResource(wl_resource *resource)
-{
-    Compositor *compositor = static_cast<Compositor *>(resource->data);
-    wl_keyboard *keyboard = &compositor->m_keyboard;
-    wl_pointer *pointer = &compositor->m_pointer;
-
-    if (keyboard->focus_resource == resource)
-        keyboard->focus_resource = 0;
-    if (pointer->focus_resource == resource)
-        pointer->focus_resource = 0;
-
-    wl_list_remove(&resource->link);
-
-    free(resource);
-}
-
-static void destroyInputDevice(wl_resource *resource)
-{
-    wl_list_remove(&resource->link);
-    free(resource);
-}
-
-void pointer_attach(wl_client *client,
-                    wl_resource *device_resource,
-                    uint32_t time,
-                    wl_resource *buffer_resource, int32_t x, int32_t y)
-{
-    Q_UNUSED(client);
-    Q_UNUSED(device_resource);
-    Q_UNUSED(time);
-    Q_UNUSED(buffer_resource);
-    Q_UNUSED(QPoint(x, y));
-}
-
-void Compositor::get_pointer(wl_client *client,
-                             wl_resource *resource,
-                             uint32_t id)
-{
-    static const struct wl_pointer_interface pointer_interface = {
-        pointer_attach
-    };
-    Compositor *compositor = static_cast<Compositor *>(resource->data);
-    wl_pointer *pointer = &compositor->m_pointer;
-    wl_resource *clientResource = wl_client_add_object(client,
-                                                       &wl_pointer_interface,
-                                                       &pointer_interface,
-                                                       id,
-                                                       pointer);
-    wl_list_insert(&pointer->resource_list, &clientResource->link);
-    clientResource->destroy = destroyInputDevice;
-}
-
-void Compositor::get_keyboard(wl_client *client,
-                              wl_resource *resource,
-                              uint32_t id)
-{
-    Compositor *compositor = static_cast<Compositor *>(resource->data);
-    wl_keyboard *keyboard = &compositor->m_keyboard;
-    wl_resource *clientResource = wl_client_add_object(client,
-                                                       &wl_keyboard_interface,
-                                                       0,
-                                                       id,
-                                                       keyboard);
-    wl_list_insert(&keyboard->resource_list, &clientResource->link);
-    clientResource->destroy = destroyInputDevice;
-}
-
-void Compositor::get_touch(wl_client *client,
-                           wl_resource *resource,
-                           uint32_t id)
-{
-    Q_UNUSED(client);
-    Q_UNUSED(resource);
-    Q_UNUSED(id);
-}
-
-void Compositor::bindSeat(wl_client *client, void *compositorData, uint32_t version, uint32_t id)
-{
-    static const struct wl_seat_interface seatInterface = {
-        get_pointer,
-        get_keyboard,
-        get_touch
-    };
-
-    Q_UNUSED(version);
-    wl_resource *resource = wl_client_add_object(client, &wl_seat_interface, &seatInterface, id, compositorData);
-    resource->destroy = destroyInputResource;
-
-    Compositor *compositor = static_cast<Compositor *>(compositorData);
-    wl_list_insert(&compositor->m_seat.base_resource_list, &resource->link);
-
-    wl_seat_send_capabilities(resource, WL_SEAT_CAPABILITY_POINTER | WL_SEAT_CAPABILITY_KEYBOARD);
-}
-
-static wl_surface *resolveSurface(const QVariant &v)
+static Surface *resolveSurface(const QVariant &v)
 {
     QSharedPointer<MockSurface> mockSurface = v.value<QSharedPointer<MockSurface> >();
-    Surface *surface = mockSurface ? mockSurface->handle() : 0;
-    return surface ? surface->base() : 0;
+    return mockSurface ? mockSurface->handle() : 0;
 }
 
 void Compositor::setKeyboardFocus(void *data, const QList<QVariant> &parameters)
 {
     Compositor *compositor = static_cast<Compositor *>(data);
-    wl_keyboard_set_focus(&compositor->m_keyboard, resolveSurface(parameters.first()));
+    compositor->m_keyboard->setFocus(resolveSurface(parameters.first()));
 }
 
 void Compositor::sendMousePress(void *data, const QList<QVariant> &parameters)
 {
     Compositor *compositor = static_cast<Compositor *>(data);
-    wl_surface *surface = resolveSurface(parameters.first());
+    Surface *surface = resolveSurface(parameters.first());
     if (!surface)
         return;
 
     QPoint pos = parameters.last().toPoint();
-    wl_pointer_set_focus(&compositor->m_pointer, surface,
-                         wl_fixed_from_int(pos.x()), wl_fixed_from_int(pos.y()));
-    wl_pointer_send_motion(compositor->m_pointer.focus_resource, compositor->time(),
-                           wl_fixed_from_double(pos.x()), wl_fixed_from_double(pos.y()));
-    wl_pointer_send_button(compositor->m_pointer.focus_resource,
-                           compositor->nextSerial(), compositor->time(), 0x110, 1);
+    compositor->m_pointer->setFocus(surface, pos);
+    compositor->m_pointer->sendMotion(pos);
+    compositor->m_pointer->sendButton(0x110, 1);
 }
 
 void Compositor::sendMouseRelease(void *data, const QList<QVariant> &parameters)
 {
     Compositor *compositor = static_cast<Compositor *>(data);
-    wl_surface *surface = resolveSurface(parameters.first());
+    Surface *surface = resolveSurface(parameters.first());
     if (!surface)
         return;
 
-    wl_pointer_send_button(compositor->m_pointer.focus_resource,
-                           compositor->nextSerial(), compositor->time(), 0x110, 0);
+    compositor->m_pointer->sendButton(0x110, 0);
 }
 
 void Compositor::sendKeyPress(void *data, const QList<QVariant> &parameters)
 {
     Compositor *compositor = static_cast<Compositor *>(data);
-    wl_surface *surface = resolveSurface(parameters.first());
+    Surface *surface = resolveSurface(parameters.first());
     if (!surface)
         return;
 
-    wl_keyboard_send_key(compositor->m_keyboard.focus_resource,
-                         compositor->nextSerial(), compositor->time(), parameters.last().toUInt() - 8, 1);
+    compositor->m_keyboard->sendKey(parameters.last().toUInt() - 8, 1);
 }
 
 void Compositor::sendKeyRelease(void *data, const QList<QVariant> &parameters)
 {
     Compositor *compositor = static_cast<Compositor *>(data);
-    wl_surface *surface = resolveSurface(parameters.first());
+    Surface *surface = resolveSurface(parameters.first());
     if (!surface)
         return;
 
-    wl_keyboard_send_key(compositor->m_keyboard.focus_resource,
-                         compositor->nextSerial(), compositor->time(), parameters.last().toUInt() - 8, 0);
+    compositor->m_keyboard->sendKey(parameters.last().toUInt() - 8, 0);
+}
+
+Seat::Seat(Compositor *compositor, struct ::wl_display *display)
+    : wl_seat(display)
+    , m_compositor(compositor)
+    , m_keyboard(new Keyboard(compositor))
+    , m_pointer(new Pointer(compositor))
+{
+}
+
+Seat::~Seat()
+{
+}
+
+void Seat::seat_bind_resource(Resource *resource)
+{
+    send_capabilities(resource->handle, capability_keyboard | capability_pointer);
+}
+
+void Seat::seat_get_keyboard(Resource *resource, uint32_t id)
+{
+    m_keyboard->add(resource->client(), id);
+}
+
+void Seat::seat_get_pointer(Resource *resource, uint32_t id)
+{
+    m_pointer->add(resource->client(), id);
+}
+
+Keyboard::Keyboard(Compositor *compositor)
+    : wl_keyboard()
+    , m_compositor(compositor)
+{
+}
+
+Keyboard::~Keyboard()
+{
+}
+
+static wl_resource *resourceForSurface(wl_list *resourceList, Surface *surface)
+{
+    if (!surface)
+        return 0;
+
+    wl_resource *r;
+    wl_client *surfaceClient = surface->resource()->client();
+
+    wl_list_for_each(r, resourceList, link) {
+        if (r->client == surfaceClient)
+            return r;
+    }
+
+    return 0;
+}
+
+void Keyboard::setFocus(Surface *surface)
+{
+    if (m_focusResource && m_focus != surface) {
+        uint32_t serial = m_compositor->nextSerial();
+        send_leave(m_focusResource->handle, serial, m_focus->resource()->handle);
+    }
+
+    struct ::wl_resource *r = resourceForSurface(resourceList(), surface);
+    Resource *resource = r ? Resource::fromResource(r) : 0;
+
+    if (resource && (m_focus != surface || m_focusResource != resource)) {
+        uint32_t serial = m_compositor->nextSerial();
+        send_modifiers(resource->handle, serial, 0, 0, 0, 0);
+        send_enter(resource->handle, serial, surface->resource()->handle, QByteArray());
+    }
+
+    m_focusResource = resource;
+    m_focus = surface;
+}
+
+void Keyboard::sendKey(uint32_t key, uint32_t state)
+{
+    if (m_focusResource) {
+        uint32_t serial = m_compositor->nextSerial();
+        send_key(m_focusResource->handle, serial, m_compositor->time(), key, state);
+    }
+}
+
+Pointer::Pointer(Compositor *compositor)
+    : wl_pointer()
+    , m_compositor(compositor)
+{
+}
+
+Pointer::~Pointer()
+{
+
+}
+
+void Pointer::setFocus(Surface *surface, const QPoint &pos)
+{
+    if (m_focusResource && m_focus != surface) {
+        uint32_t serial = m_compositor->nextSerial();
+        send_leave(m_focusResource->handle, serial, m_focus->resource()->handle);
+    }
+
+    struct ::wl_resource *r = resourceForSurface(resourceList(), surface);
+    Resource *resource = r ? Resource::fromResource(r) : 0;
+
+    if (resource && (m_focus != surface || resource != m_focusResource)) {
+        uint32_t serial = m_compositor->nextSerial();
+        send_enter(resource->handle, serial, surface->resource()->handle,
+                   wl_fixed_from_int(pos.x()), wl_fixed_from_int(pos.y()));
+    }
+
+    m_focusResource = resource;
+    m_focus = surface;
+}
+
+void Pointer::sendMotion(const QPoint &pos)
+{
+    if (m_focusResource)
+        send_motion(m_focusResource->handle, m_compositor->time(),
+                    wl_fixed_from_int(pos.x()), wl_fixed_from_int(pos.y()));
+}
+
+void Pointer::sendButton(uint32_t button, uint32_t state)
+{
+    if (m_focusResource) {
+        uint32_t serial = m_compositor->nextSerial();
+        send_button(m_focusResource->handle, serial, m_compositor->time(),
+                    button, state);
+    }
 }
 
 }

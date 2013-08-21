@@ -1,6 +1,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Klarälvdalens Datakonsult AB (KDAB).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the test suite of the Qt Toolkit.
@@ -39,6 +40,9 @@
 **
 ****************************************************************************/
 
+#ifndef MOCKINPUT_H
+#define MOCKINPUT_H
+
 #include <qglobal.h>
 
 #include "qwayland-server-wayland.h"
@@ -47,35 +51,69 @@
 
 namespace Impl {
 
-class Surface : public QtWaylandServer::wl_surface
+class Keyboard;
+class Pointer;
+
+class Seat : public QtWaylandServer::wl_seat
 {
 public:
-    Surface(wl_client *client, uint32_t id, Compositor *compositor);
-    ~Surface();
+    Seat(Compositor *compositor, struct ::wl_display *display);
+    ~Seat();
 
     Compositor *compositor() const { return m_compositor; }
 
-    QSharedPointer<MockSurface> mockSurface() const { return m_mockSurface; }
+    Keyboard *keyboard() const { return m_keyboard.data(); }
+    Pointer *pointer() const { return m_pointer.data(); }
 
 protected:
+    void seat_bind_resource(Resource *resource) Q_DECL_OVERRIDE;
+    void seat_get_keyboard(Resource *resource, uint32_t id) Q_DECL_OVERRIDE;
+    void seat_get_pointer(Resource *resource, uint32_t id) Q_DECL_OVERRIDE;
 
-    void surface_destroy_resource(Resource *resource) Q_DECL_OVERRIDE;
-
-    void surface_destroy(Resource *resource) Q_DECL_OVERRIDE;
-    void surface_attach(Resource *resource,
-                        struct wl_resource *buffer, int x, int y) Q_DECL_OVERRIDE;
-    void surface_damage(Resource *resource,
-                        int32_t x, int32_t y, int32_t width, int32_t height) Q_DECL_OVERRIDE;
-    void surface_frame(Resource *resource,
-                       uint32_t callback) Q_DECL_OVERRIDE;
-    void surface_commit(Resource *resource) Q_DECL_OVERRIDE;
 private:
-    wl_resource *m_buffer;
-
     Compositor *m_compositor;
-    QSharedPointer<MockSurface> m_mockSurface;
 
-    wl_list m_frameCallbackList;
+    QScopedPointer<Keyboard> m_keyboard;
+    QScopedPointer<Pointer> m_pointer;
+};
+
+class Keyboard : public QtWaylandServer::wl_keyboard
+{
+public:
+    Keyboard(Compositor *compositor);
+    ~Keyboard();
+
+    Surface *focus() const { return m_focus; }
+    void setFocus(Surface *surface);
+
+    void sendKey(uint32_t key, uint32_t state);
+
+private:
+    Compositor *m_compositor;
+
+    Resource *m_focusResource;
+    Surface *m_focus;
+};
+
+class Pointer : public QtWaylandServer::wl_pointer
+{
+public:
+    Pointer(Compositor *compositor);
+    ~Pointer();
+
+    Surface *focus() const { return m_focus; }
+
+    void setFocus(Surface *surface, const QPoint &pos);
+    void sendMotion(const QPoint &pos);
+    void sendButton(uint32_t button, uint32_t state);
+
+private:
+    Compositor *m_compositor;
+
+    Resource *m_focusResource;
+    Surface *m_focus;
 };
 
 }
+
+#endif // MOCKINPUT_H

@@ -40,6 +40,7 @@
 ****************************************************************************/
 
 #include "mockcompositor.h"
+#include "mockinput.h"
 #include "mocksurface.h"
 
 #include <stdio.h>
@@ -201,20 +202,16 @@ Compositor::Compositor()
         exit(EXIT_FAILURE);
     }
 
-    wl_seat_init(&m_seat);
-    wl_pointer_init(&m_pointer);
-    wl_seat_set_pointer(&m_seat, &m_pointer);
-    wl_keyboard_init(&m_keyboard);
-    wl_seat_set_keyboard(&m_seat, &m_keyboard);
-
     wl_display_add_global(m_display, &wl_compositor_interface, this, bindCompositor);
 
     wl_display_init_shm(m_display);
 
-    wl_display_add_global(m_display, &wl_seat_interface, this, bindSeat);
+    m_seat.reset(new Seat(this, m_display));
+    m_pointer = m_seat->pointer();
+    m_keyboard = m_seat->keyboard();
+
     wl_display_add_global(m_display, &wl_output_interface, this, bindOutput);
     wl_display_add_global(m_display, &wl_shell_interface, this, bindShell);
-
 
     m_loop = wl_display_get_event_loop(m_display);
     m_fd = wl_event_loop_get_fd(m_loop);
@@ -222,8 +219,6 @@ Compositor::Compositor()
 
 Compositor::~Compositor()
 {
-    wl_pointer_release(&m_pointer);
-    wl_keyboard_release(&m_keyboard);
     wl_display_destroy(m_display);
 }
 
@@ -292,6 +287,10 @@ void Compositor::addSurface(Surface *surface)
 void Compositor::removeSurface(Surface *surface)
 {
     m_surfaces.remove(m_surfaces.indexOf(surface));
+    if (m_keyboard->focus() == surface)
+        m_keyboard->setFocus(0);
+    if (m_pointer->focus() == surface)
+        m_pointer->setFocus(0, QPoint());
 }
 
 }

@@ -20,4 +20,5 @@ SOURCES += tst_client.cpp \
            mocksurface.cpp \
            mockoutput.cpp
 HEADERS += mockcompositor.h \
-           mocksurface.h
+           mockinput.h \
+           mocksurface.h \

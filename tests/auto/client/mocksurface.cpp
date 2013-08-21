@@ -45,7 +45,7 @@
 namespace Impl {
 
 Surface::Surface(wl_client *client, uint32_t id, Compositor *compositor)
-    : QtWaylandServer::wl_surface(client, &base()->resource, id)
+    : QtWaylandServer::wl_surface(client, id)
     , m_compositor(compositor)
     , m_mockSurface(new MockSurface(this))
 {
@@ -74,7 +74,7 @@ void Surface::surface_attach(Resource *resource,
     Q_UNUSED(resource);
     Q_UNUSED(x);
     Q_UNUSED(y);
-    m_buffer = buffer ? static_cast<wl_buffer *>(buffer->data) : 0;
+    m_buffer = buffer;
 
     if (!buffer)
         m_mockSurface->image = QImage();
@@ -92,13 +92,21 @@ void Surface::surface_damage(Resource *resource,
     if (!m_buffer)
         return;
 
-    if (wl_buffer_is_shm(m_buffer)) {
-        int stride = wl_shm_buffer_get_stride(m_buffer);
-        uint format = wl_shm_buffer_get_format(m_buffer);
+#if WAYLAND_VERSION_CHECK(1, 2, 0)
+    struct ::wl_shm_buffer *shm_buffer = wl_shm_buffer_get(m_buffer);
+#else
+    struct ::wl_buffer *shm_buffer = 0;
+    if (wl_buffer_is_shm(static_cast<struct ::wl_buffer*>(m_buffer->data)))
+        shm_buffer = static_cast<struct ::wl_buffer*>(m_buffer->data);
+#endif
+
+    if (shm_buffer) {
+        int stride = wl_shm_buffer_get_stride(shm_buffer);
+        uint format = wl_shm_buffer_get_format(shm_buffer);
         Q_UNUSED(format);
-        void *data = wl_shm_buffer_get_data(m_buffer);
+        void *data = wl_shm_buffer_get_data(shm_buffer);
         const uchar *char_data = static_cast<const uchar *>(data);
-        QImage img(char_data, m_buffer->width, m_buffer->height, stride, QImage::Format_ARGB32_Premultiplied);
+        QImage img(char_data, wl_shm_buffer_get_width(shm_buffer), wl_shm_buffer_get_height(shm_buffer), stride, QImage::Format_ARGB32_Premultiplied);
         m_mockSurface->image = img;
     }
 

@@ -137,22 +137,6 @@ Keyboard::~Keyboard()
 {
 }
 
-static wl_resource *resourceForSurface(wl_list *resourceList, Surface *surface)
-{
-    if (!surface)
-        return 0;
-
-    wl_resource *r;
-    wl_client *surfaceClient = surface->resource()->client();
-
-    wl_list_for_each(r, resourceList, link) {
-        if (r->client == surfaceClient)
-            return r;
-    }
-
-    return 0;
-}
-
 void Keyboard::setFocus(Surface *surface)
 {
     if (m_focusResource && m_focus != surface) {
@@ -160,8 +144,7 @@ void Keyboard::setFocus(Surface *surface)
         send_leave(m_focusResource->handle, serial, m_focus->resource()->handle);
     }
 
-    struct ::wl_resource *r = resourceForSurface(resourceList(), surface);
-    Resource *resource = r ? Resource::fromResource(r) : 0;
+    Resource *resource = surface ? resourceMap().value(surface->resource()->client()) : 0;
 
     if (resource && (m_focus != surface || m_focusResource != resource)) {
         uint32_t serial = m_compositor->nextSerial();
@@ -199,8 +182,7 @@ void Pointer::setFocus(Surface *surface, const QPoint &pos)
         send_leave(m_focusResource->handle, serial, m_focus->resource()->handle);
     }
 
-    struct ::wl_resource *r = resourceForSurface(resourceList(), surface);
-    Resource *resource = r ? Resource::fromResource(r) : 0;
+    Resource *resource = surface ? resourceMap().value(surface->resource()->client()) : 0;
 
     if (resource && (m_focus != surface || resource != m_focusResource)) {
         uint32_t serial = m_compositor->nextSerial();

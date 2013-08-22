@@ -366,6 +366,7 @@ void process(QXmlStreamReader &xml)
         printf("#include \"wayland-server.h\"\n");
         printf("#include \"wayland-%s-server-protocol.h\"\n", QByteArray(protocolName).replace('_', '-').constData());
         printf("#include <QByteArray>\n");
+        printf("#include <QMultiMap>\n");
         printf("#include <QString>\n");
 
         printf("\n");
@@ -423,8 +424,8 @@ void process(QXmlStreamReader &xml)
             printf("        Resource *resource() { return m_resource; }\n");
             printf("        const Resource *resource() const { return m_resource; }\n");
             printf("\n");
-            printf("        struct ::wl_list *resourceList() { return &m_resource_list; }\n");
-            printf("        const struct ::wl_list *resourceList() const { return &m_resource_list; }\n");
+            printf("        QMultiMap<struct ::wl_client*, Resource*> resourceMap() { return m_resource_map; }\n");
+            printf("        const QMultiMap<struct ::wl_client*, Resource*> resourceMap() const { return m_resource_map; }\n");
             printf("\n");
             printf("        bool isGlobal() const { return m_global != 0; }\n");
             printf("        bool isResource() const { return m_resource != 0; }\n");
@@ -485,8 +486,8 @@ void process(QXmlStreamReader &xml)
             }
 
             printf("\n");
+            printf("        QMultiMap<struct ::wl_client*, Resource*> m_resource_map;\n");
             printf("        Resource *m_resource;\n");
-            printf("        struct ::wl_list m_resource_list;\n");
             printf("        struct ::wl_global *m_global;\n");
             printf("    };\n");
 
@@ -526,28 +527,28 @@ void process(QXmlStreamReader &xml)
             const char *interfaceNameStripped = stripped.constData();
 
             printf("    %s::%s(struct ::wl_client *client, int id)\n", interfaceName, interfaceName);
-            printf("        : m_resource(0)\n");
+            printf("        : m_resource_map()\n");
+            printf("        , m_resource(0)\n");
             printf("        , m_global(0)\n");
             printf("    {\n");
-            printf("        wl_list_init(&m_resource_list);\n");
             printf("        init(client, id);\n");
             printf("    }\n");
             printf("\n");
 
             printf("    %s::%s(struct ::wl_display *display)\n", interfaceName, interfaceName);
-            printf("        : m_resource(0)\n");
+            printf("        : m_resource_map()\n");
+            printf("        , m_resource(0)\n");
             printf("        , m_global(0)\n");
             printf("    {\n");
-            printf("        wl_list_init(&m_resource_list);\n");
             printf("        init(display);\n");
             printf("    }\n");
             printf("\n");
 
             printf("    %s::%s()\n", interfaceName, interfaceName);
-            printf("        : m_resource(0)\n");
+            printf("        : m_resource_map()\n");
+            printf("        , m_resource(0)\n");
             printf("        , m_global(0)\n");
             printf("    {\n");
-            printf("        wl_list_init(&m_resource_list);\n");
             printf("    }\n");
             printf("\n");
 
@@ -564,14 +565,8 @@ void process(QXmlStreamReader &xml)
 
             printf("    %s::Resource *%s::add(struct ::wl_client *client, int id)\n", interfaceName, interfaceName);
             printf("    {\n");
-            printf("        return add(&m_resource_list, client, id);\n");
-            printf("    }\n");
-            printf("\n");
-
-            printf("    %s::Resource *%s::add(struct wl_list *resource_list, struct ::wl_client *client, int id)\n", interfaceName, interfaceName);
-            printf("    {\n");
             printf("        Resource *resource = bind(client, id);\n");
-            printf("        wl_list_insert(resource_list, &resource->handle->link);\n");
+            printf("        m_resource_map.insert(client, resource);\n");
             printf("        return resource;\n");
             printf("    }\n");
             printf("\n");
@@ -609,9 +604,8 @@ void process(QXmlStreamReader &xml)
             printf("    {\n");
             printf("        Resource *resource = Resource::fromResource(client_resource);\n");
             printf("        %s *that = resource->%s;\n", interfaceName, interfaceNameStripped);
+            printf("        that->m_resource_map.remove(resource->client(), resource);\n");
             printf("        that->%s_destroy_resource(resource);\n", interfaceNameStripped);
-            printf("        if (client_resource->link.next)\n");
-            printf("            wl_list_remove(&client_resource->link);\n");
             printf("        delete resource;\n");
             printf("#if !WAYLAND_VERSION_CHECK(1, 2, 0)\n");
             printf("        free(client_resource);\n");
@@ -633,7 +627,6 @@ void process(QXmlStreamReader &xml)
             printf("        handle->destroy = destroy_func;\n");
             printf("        resource->handle = handle;\n");
             printf("        %s_bind_resource(resource);\n", interfaceNameStripped);
-            printf("        wl_list_init(&resource->handle->link);\n");
             printf("        return resource;\n");
             printf("    }\n");
 

@@ -71,21 +71,17 @@ void WindowManagerServerIntegration::initialize(QtWayland::Display *waylandDispl
 void WindowManagerServerIntegration::setShowIsFullScreen(bool value)
 {
     m_showIsFullScreen = value;
-    struct wl_resource *resource;
-    wl_list_for_each(resource, resourceList(), link) {
-        send_hints(resource, static_cast<int32_t>(m_showIsFullScreen));
+    Q_FOREACH (Resource *resource, resourceMap().values()) {
+        send_hints(resource->handle, static_cast<int32_t>(m_showIsFullScreen));
     }
 }
 
 void WindowManagerServerIntegration::sendQuitMessage(wl_client *client)
 {
-    struct wl_resource *resource;
-    wl_list_for_each(resource, resourceList(), link) {
-        if (resource->client == client) {
-            send_quit(resource);
-            return;
-        }
-    }
+    Resource *resource = resourceMap().value(client);
+
+    if (resource)
+        send_quit(resource->handle);
 }
 
 void WindowManagerServerIntegration::windowmanager_bind_resource(Resource *resource)

@@ -57,8 +57,7 @@ Touch::Touch(Compositor *compositor)
 void Touch::setFocus(Surface *surface)
 {
     m_focus = surface;
-    struct ::wl_resource *r = Compositor::resourceForSurface(resourceList(), surface);
-    m_focusResource = r ? Resource::fromResource(r) : 0;
+    m_focusResource = surface ? resourceMap().value(surface->resource()->client()) : 0;
 }
 
 void Touch::sendCancel()

@@ -102,16 +102,15 @@ void Pointer::setFocus(Surface *surface, const QPointF &position)
         send_leave(m_focusResource->handle, serial, m_focus->resource()->handle);
     }
 
-    struct ::wl_resource *r = Compositor::resourceForSurface(resourceList(), surface);
-    Resource *resource = r ? Resource::fromResource(r) : 0;
+    Resource *resource = surface ? resourceMap().value(surface->resource()->client()) : 0;
 
     if (resource && (m_focus != surface || resource != m_focusResource)) {
         uint32_t serial = wl_display_next_serial(m_compositor->wl_display());
         Keyboard *keyboard = m_seat->keyboardDevice();
         if (keyboard) {
-            struct ::wl_resource *kr = Compositor::resourceForSurface(keyboard->resourceList(), surface);
+            wl_keyboard::Resource *kr = keyboard->resourceMap().value(surface->resource()->client());
             if (kr)
-                keyboard->sendKeyModifiers(wl_keyboard::Resource::fromResource(kr), serial);
+                keyboard->sendKeyModifiers(kr, serial);
         }
         send_enter(resource->handle, serial, surface->resource()->handle,
                    wl_fixed_from_double(position.x()), wl_fixed_from_double(position.y()));

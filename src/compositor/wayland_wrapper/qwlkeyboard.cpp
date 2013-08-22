@@ -90,8 +90,7 @@ void Keyboard::setFocus(Surface *surface)
         send_leave(m_focusResource->handle, serial, m_focus->resource()->handle);
     }
 
-    struct ::wl_resource *r = Compositor::resourceForSurface(resourceList(), surface);
-    Resource *resource = r ? Resource::fromResource(r) : 0;
+    Resource *resource = surface ? resourceMap().value(surface->resource()->client()) : 0;
 
     if (resource && (m_focus != surface || m_focusResource != resource)) {
         uint32_t serial = wl_display_next_serial(m_compositor->wl_display());

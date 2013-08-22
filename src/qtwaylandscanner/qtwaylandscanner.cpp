@@ -601,7 +601,7 @@ void process(QXmlStreamReader &xml)
             printf("    void %s::bind_func(struct ::wl_client *client, void *data, uint32_t version, uint32_t id)\n", interfaceName);
             printf("    {\n");
             printf("        Q_UNUSED(version);\n");
-            printf("        static_cast<%s *>(data)->bind(client, id);\n", interfaceName);
+            printf("        static_cast<%s *>(data)->add(client, id);\n", interfaceName);
             printf("    }\n");
             printf("\n");
 

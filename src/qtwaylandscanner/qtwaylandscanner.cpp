@@ -172,7 +172,7 @@ WaylandInterface readInterface(QXmlStreamReader &xml)
 {
     WaylandInterface interface;
     interface.name = byteArrayValue(xml, "name");
-    interface.version = intValue(xml, "name", 1);
+    interface.version = intValue(xml, "version", 1);
 
     while (xml.readNextStartElement()) {
         if (xml.name() == "event")

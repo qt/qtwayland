@@ -57,9 +57,10 @@ class QWaylandWindow;
 class Q_WAYLAND_CLIENT_EXPORT QWaylandShmBuffer : public QWaylandBuffer {
 public:
     QWaylandShmBuffer(QWaylandDisplay *display,
-           const QSize &size, QImage::Format format);
+           const QSize &size, QImage::Format format, int scale = 1);
     ~QWaylandShmBuffer();
     QSize size() const { return mImage.size(); }
+    int scale() const Q_DECL_OVERRIDE { return int(mImage.devicePixelRatio()); }
     QImage *image() { return &mImage; }
 
     QImage *imageInsideMargins(const QMargins &margins);

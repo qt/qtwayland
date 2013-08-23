@@ -56,7 +56,7 @@
 QT_BEGIN_NAMESPACE
 
 QWaylandShmBuffer::QWaylandShmBuffer(QWaylandDisplay *display,
-                     const QSize &size, QImage::Format format)
+                     const QSize &size, QImage::Format format, int scale)
     : mMarginsImage(0)
 {
     int stride = size.width() * 4;
@@ -87,6 +87,8 @@ QWaylandShmBuffer::QWaylandShmBuffer(QWaylandDisplay *display,
     }
 
     mImage = QImage(data, size.width(), size.height(), stride, format);
+    mImage.setDevicePixelRatio(qreal(scale));
+
     mShmPool = wl_shm_create_pool(display->shm(), fd, alloc);
     mBuffer = wl_shm_pool_create_buffer(mShmPool,0, size.width(), size.height(),
                                        stride, WL_SHM_FORMAT_ARGB8888);
@@ -101,8 +103,10 @@ QWaylandShmBuffer::~QWaylandShmBuffer(void)
     wl_shm_pool_destroy(mShmPool);
 }
 
-QImage *QWaylandShmBuffer::imageInsideMargins(const QMargins &margins)
+QImage *QWaylandShmBuffer::imageInsideMargins(const QMargins &marginsIn)
 {
+    QMargins margins = marginsIn * int(mImage.devicePixelRatio());
+
     if (!margins.isNull() && margins != mMargins) {
         if (mMarginsImage) {
             delete mMarginsImage;
@@ -112,6 +116,7 @@ QImage *QWaylandShmBuffer::imageInsideMargins(const QMargins &margins)
         int b_s_width = mImage.size().width() - margins.left() - margins.right();
         int b_s_height = mImage.size().height() - margins.top() - margins.bottom();
         mMarginsImage = new QImage(b_s_data, b_s_width,b_s_height,mImage.bytesPerLine(),mImage.format());
+        mMarginsImage->setDevicePixelRatio(mImage.devicePixelRatio());
     }
     if (margins.isNull()) {
         delete mMarginsImage;
@@ -228,7 +233,7 @@ void QWaylandShmBackingStore::flush(QWindow *window, const QRegion &region, cons
 
     if (damageAll) {
         //need to damage it all, otherwise the attach offset may screw up
-        waylandWindow()->damage(QRect(QPoint(0,0),mFrontBuffer->size()));
+        waylandWindow()->damage(QRect(QPoint(0,0), window->size()));
     } else {
         QVector<QRect> rects = region.rects();
         for (int i = 0; i < rects.size(); i++) {
@@ -249,7 +254,8 @@ void QWaylandShmBackingStore::resize(const QSize &size, const QRegion &)
 void QWaylandShmBackingStore::resize(const QSize &size)
 {
     QMargins margins = windowDecorationMargins();
-    QSize sizeWithMargins = size + QSize(margins.left()+margins.right(),margins.top()+margins.bottom());
+    int scale = waylandWindow()->scale();
+    QSize sizeWithMargins = (size + QSize(margins.left()+margins.right(),margins.top()+margins.bottom())) * scale;
 
     QImage::Format format = QPlatformScreen::platformScreenForWindow(window())->format();
 
@@ -260,7 +266,7 @@ void QWaylandShmBackingStore::resize(const QSize &size)
         delete mBackBuffer; //we delete the attached buffer when we flush
     }
 
-    mBackBuffer = new QWaylandShmBuffer(mDisplay, sizeWithMargins, format);
+    mBackBuffer = new QWaylandShmBuffer(mDisplay, sizeWithMargins, format, scale);
 
     if (windowDecoration() && window()->isVisible())
         windowDecoration()->update();
@@ -354,7 +360,7 @@ void QWaylandShmBackingStore::done(void *data, wl_callback *callback, uint32_t t
             delete window->attached();
         }
         window->attachOffset(self->mFrontBuffer);
-        window->damage(QRect(QPoint(0,0),self->mFrontBuffer->size()));
+        window->damage(QRect(QPoint(0,0),window->geometry().size()));
         window->commit();
     }
 }

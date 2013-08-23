@@ -142,6 +142,9 @@ public:
 
     void setMask(const QRegion &region) Q_DECL_OVERRIDE;
 
+    int scale() const;
+    qreal devicePixelRatio() const Q_DECL_OVERRIDE;
+
     void requestActivateWindow() Q_DECL_OVERRIDE;
     bool isExposed() const Q_DECL_OVERRIDE;
     void unfocus();

@@ -58,6 +58,7 @@ public:
     virtual ~QWaylandBuffer() { }
     wl_buffer *buffer() {return mBuffer;}
     virtual QSize size() const = 0;
+    virtual int scale() const { return 1; }
 
 protected:
     struct wl_buffer *mBuffer;

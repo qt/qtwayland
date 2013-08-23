@@ -126,6 +126,12 @@ QWaylandWindow::QWaylandWindow(QWindow *window)
         mShellSurface->setTopLevel();
     }
 
+    // Enable high-dpi rendering. Scale() returns the screen scale factor and will
+    // typically be integer 1 (normal-dpi) or 2 (high-dpi). Call set_buffer_scale()
+    // to inform the compositor that high-resolution buffers will be provided.
+    if (mDisplay->compositorVersion() >= 3)
+        set_buffer_scale(scale());
+
     setOrientationMask(window->screen()->orientationUpdateMask());
     setWindowFlags(window->flags());
     setGeometry_helper(window->geometry());
@@ -369,7 +375,6 @@ void QWaylandWindow::requestResize()
 void QWaylandWindow::attach(QWaylandBuffer *buffer, int x, int y)
 {
     mBuffer = buffer;
-
     if (mBuffer)
         attach(mBuffer->buffer(), x, y);
     else
@@ -705,6 +710,16 @@ bool QWaylandWindow::isExposed() const
     if (mShellSurface)
         return window()->isVisible() && mShellSurface->isExposed();
     return QPlatformWindow::isExposed();
+}
+
+int QWaylandWindow::scale() const
+{
+    return screen()->scale();
+}
+
+qreal QWaylandWindow::devicePixelRatio() const
+{
+    return screen()->devicePixelRatio();
 }
 
 bool QWaylandWindow::setMouseGrabEnabled(bool grab)

@@ -59,6 +59,7 @@ QWaylandScreen::QWaylandScreen(QWaylandDisplay *waylandDisplay, int version, uin
     , m_outputId(id)
     , mWaylandDisplay(waylandDisplay)
     , mExtendedOutput(0)
+    , mScale(1)
     , mDepth(32)
     , mRefreshRate(60000)
     , mTransform(-1)
@@ -83,7 +84,9 @@ QWaylandDisplay * QWaylandScreen::display() const
 
 QRect QWaylandScreen::geometry() const
 {
-    return mGeometry;
+    // Scale geometry for QScreen. This makes window and screen
+    // geometry be in the same coordinate system.
+    return QRect(mGeometry.topLeft(), mGeometry.size() / mScale);
 }
 
 int QWaylandScreen::depth() const
@@ -125,6 +128,16 @@ void QWaylandScreen::setOrientationUpdateMask(Qt::ScreenOrientations mask)
 Qt::ScreenOrientation QWaylandScreen::orientation() const
 {
     return m_orientation;
+}
+
+int QWaylandScreen::scale() const
+{
+    return mScale;
+}
+
+qreal QWaylandScreen::devicePixelRatio() const
+{
+    return qreal(mScale);
 }
 
 qreal QWaylandScreen::refreshRate() const
@@ -186,6 +199,11 @@ void QWaylandScreen::output_geometry(int32_t x, int32_t y,
 
     mPhysicalSize = QSize(width, height);
     mGeometry.moveTopLeft(QPoint(x, y));
+}
+
+void QWaylandScreen::output_scale(int32_t factor)
+{
+    mScale = factor;
 }
 
 void QWaylandScreen::output_done()

@@ -143,7 +143,8 @@ public:
         QOpenGLTextureCache *cache = QOpenGLTextureCache::cacheForContext(m_context->context());
 
         QRect windowRect = window->window()->frameGeometry();
-        glViewport(0, 0, windowRect.width(), windowRect.height());
+        int scale = window->scale() ;
+        glViewport(0, 0, windowRect.width() * scale, windowRect.height() * scale);
 
         glDisable(GL_DEPTH_TEST);
         glDisable(GL_BLEND);
@@ -205,7 +206,7 @@ public:
         m_blitProgram->setAttributeArray(0, squareVertices, 2);
         glBindTexture(GL_TEXTURE_2D, window->contentTexture());
         QRect r = window->contentsRect();
-        glViewport(r.x(), r.y(), r.width(), r.height());
+        glViewport(r.x(), r.y(), r.width() * scale, r.height() * scale);
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
         //Cleanup

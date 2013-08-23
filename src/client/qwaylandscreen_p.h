@@ -72,6 +72,8 @@ public:
     void setOrientationUpdateMask(Qt::ScreenOrientations mask);
 
     Qt::ScreenOrientation orientation() const;
+    int scale() const;
+    qreal devicePixelRatio() const Q_DECL_OVERRIDE;
     qreal refreshRate() const;
 
     QString name() const { return mOutputName; }
@@ -95,12 +97,14 @@ private:
                          const QString &make,
                          const QString &model,
                          int32_t transform) Q_DECL_OVERRIDE;
+    void output_scale(int32_t factor) Q_DECL_OVERRIDE;
     void output_done() Q_DECL_OVERRIDE;
 
     int m_outputId;
     QWaylandDisplay *mWaylandDisplay;
     QWaylandExtendedOutput *mExtendedOutput;
     QRect mGeometry;
+    int mScale;
     int mDepth;
     int mRefreshRate;
     int mTransform;

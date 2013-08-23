@@ -123,6 +123,8 @@ QWaylandWindow::~QWaylandWindow()
         delete mExtendedWindow;
         destroy();
     }
+    if (mFrameCallback)
+        wl_callback_destroy(mFrameCallback);
 
     QList<QWaylandInputDevice *> inputDevices = mDisplay->inputDevices();
     for (int i = 0; i < inputDevices.size(); ++i)

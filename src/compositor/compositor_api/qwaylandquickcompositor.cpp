@@ -39,14 +39,13 @@
 **
 ****************************************************************************/
 
-#include <QQuickWindow>
-
 #include <QtCompositor/private/qwlcompositor_p.h>
 
 #include "qwaylandclient.h"
 #include "qwaylandquickcompositor.h"
 #include "qwaylandquicksurface.h"
 #include "qwaylandsurfaceitem.h"
+#include "qwaylandquickoutput.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -78,32 +77,29 @@ public:
 };
 
 
-QWaylandQuickCompositor::QWaylandQuickCompositor(QQuickWindow *window, const char *socketName, ExtensionFlags extensions)
-                       : QWaylandCompositor(window, socketName, new QWaylandQuickCompositorPrivate(this, extensions))
+QWaylandQuickCompositor::QWaylandQuickCompositor(const char *socketName, ExtensionFlags extensions)
+                       : QWaylandCompositor(socketName, new QWaylandQuickCompositorPrivate(this, extensions))
 {
-    window->connect(window, &QQuickWindow::beforeSynchronizing, d_ptr(), &QWaylandQuickCompositorPrivate::updateStarted, Qt::DirectConnection);
-
     qmlRegisterUncreatableType<QWaylandSurfaceItem>("QtCompositor", 1, 0, "WaylandSurfaceItem", QObject::tr("Cannot create instance of WaylandSurfaceItem"));
     qmlRegisterUncreatableType<QWaylandQuickSurface>("QtCompositor", 1, 0, "WaylandQuickSurface", QObject::tr("Cannot create instance of WaylandQuickSurface"));
     qmlRegisterUncreatableType<QWaylandClient>("QtCompositor", 1, 0, "WaylandClient", QObject::tr("Cannot create instance of WaylandClient"));
-}
-
-QWaylandQuickCompositorPrivate *QWaylandQuickCompositor::d_ptr()
-{
-    return static_cast<QWaylandQuickCompositorPrivate *>(m_compositor);
-}
-
-void QWaylandQuickCompositor::update()
-{
-    if (!d_ptr()->updateScheduled) {
-        static_cast<QQuickWindow *>(window())->update();
-        d_ptr()->updateScheduled = true;
-    }
+    qmlRegisterUncreatableType<QWaylandOutput>("QtCompositor", 1, 0, "WaylandOutput", QObject::tr("Cannot create instance of WaylandOutput"));
 }
 
 QWaylandSurfaceView *QWaylandQuickCompositor::createView(QWaylandSurface *surf)
 {
     return new QWaylandSurfaceItem(static_cast<QWaylandQuickSurface *>(surf));
+}
+
+QWaylandOutput *QWaylandQuickCompositor::createOutput(QWindow *window,
+                                                      const QString &manufacturer,
+                                                      const QString &model)
+{
+    QQuickWindow *quickWindow = qobject_cast<QQuickWindow *>(window);
+    if (!quickWindow)
+        qFatal("%s: couldn't cast QWindow to QQuickWindow. All output windows must "
+               "be QQuickWindow derivates when using QWaylandQuickCompositor", Q_FUNC_INFO);
+    return new QWaylandQuickOutput(this, quickWindow, manufacturer, model);
 }
 
 QT_END_NAMESPACE

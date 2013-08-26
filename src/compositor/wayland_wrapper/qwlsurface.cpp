@@ -48,6 +48,7 @@
 #include "qwlsubsurface_p.h"
 #include "qwlsurfacebuffer_p.h"
 #include "qwaylandsurfaceview.h"
+#include "qwaylandoutput.h"
 
 #include <QtCore/QDebug>
 #include <QTouchEvent>
@@ -113,6 +114,7 @@ Surface::Surface(struct wl_client *client, uint32_t id, int version, QWaylandCom
     : QtWaylandServer::wl_surface(client, id, version)
     , m_compositor(compositor->handle())
     , m_waylandSurface(surface)
+    , m_output(m_compositor->primaryOutput()->handle())
     , m_buffer(0)
     , m_surfaceMapped(false)
     , m_attacher(0)
@@ -274,6 +276,11 @@ InputPanelSurface *Surface::inputPanelSurface() const
 Compositor *Surface::compositor() const
 {
     return m_compositor;
+}
+
+Output *Surface::output() const
+{
+    return m_output;
 }
 
 /*!

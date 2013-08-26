@@ -1,6 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Jolla Ltd, author: <giulio.camuffo@jollamobile.com>
+** Copyright (C) 2015 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the plugins of the Qt Toolkit.
@@ -39,27 +40,33 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDQUICKCOMPOSITOR_H
-#define QWAYLANDQUICKCOMPOSITOR_H
+#ifndef QWAYLANDQUICKOUTPUT_H
+#define QWAYLANDQUICKOUTPUT_H
 
-#include <QtCompositor/qwaylandcompositor.h>
+#include <QtQuick/QQuickWindow>
+#include <QtCompositor/qwaylandoutput.h>
 
 QT_BEGIN_NAMESPACE
 
+class QWaylandQuickCompositor;
 class QQuickWindow;
-class QWaylandQuickCompositorPrivate;
-class QWaylandSurfaceView;
-class QWaylandOutput;
 
-class Q_COMPOSITOR_EXPORT QWaylandQuickCompositor : public QWaylandCompositor
+class Q_COMPOSITOR_EXPORT QWaylandQuickOutput : public QWaylandOutput
 {
+    Q_OBJECT
 public:
-    QWaylandQuickCompositor(const char *socketName = 0, QWaylandCompositor::ExtensionFlags extensions = DefaultExtensions);
+    QWaylandQuickOutput(QWaylandCompositor *compositor, QQuickWindow *window,
+                        const QString &manufacturer, const QString &model);
 
-    QWaylandSurfaceView *createView(QWaylandSurface *surf) Q_DECL_OVERRIDE;
-    QWaylandOutput *createOutput(QWindow *window,
-                                 const QString &manufacturer,
-                                 const QString &model) Q_DECL_OVERRIDE;
+    QQuickWindow *quickWindow() const;
+
+    void update() Q_DECL_OVERRIDE;
+
+public Q_SLOTS:
+    void updateStarted();
+
+private:
+    bool m_updateScheduled;
 };
 
 QT_END_NAMESPACE

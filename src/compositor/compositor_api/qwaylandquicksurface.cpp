@@ -48,6 +48,7 @@
 #include "qwaylandquicksurface.h"
 #include "qwaylandquickcompositor.h"
 #include "qwaylandsurfaceitem.h"
+#include "qwaylandoutput.h"
 #include <QtCompositor/qwaylandbufferref.h>
 #include <QtCompositor/private/qwaylandsurface_p.h>
 
@@ -84,7 +85,7 @@ public:
             bufferRef.destroyTexture();
         bufferRef = nextBuffer;
 
-        QQuickWindow *window = static_cast<QQuickWindow *>(surface->compositor()->window());
+        QQuickWindow *window = static_cast<QQuickWindow *>(surface->output()->window());
         // If the next buffer is NULL do not delete the current texture. If the client called
         // attach(0) the surface is going to be unmapped anyway, if instead the client attached
         // a valid buffer but died before we got here we want to keep the old buffer around
@@ -149,7 +150,7 @@ public:
         }
         QWaylandSurfacePrivate::surface_commit(resource);
 
-        compositor->update();
+        output()->waylandOutput()->update();
     }
 
     BufferAttacher *buffer;
@@ -166,7 +167,7 @@ QWaylandQuickSurface::QWaylandQuickSurface(wl_client *client, quint32 id, int ve
     d->buffer->surface = this;
     setBufferAttacher(d->buffer);
 
-    QQuickWindow *window = static_cast<QQuickWindow *>(compositor->window());
+    QQuickWindow *window = static_cast<QQuickWindow *>(output()->window());
     connect(window, &QQuickWindow::beforeSynchronizing, this, &QWaylandQuickSurface::updateTexture, Qt::DirectConnection);
     connect(window, &QQuickWindow::sceneGraphInvalidated, this, &QWaylandQuickSurface::invalidateTexture, Qt::DirectConnection);
     connect(this, &QWaylandSurface::windowPropertyChanged, d->windowPropertyMap, &QQmlPropertyMap::insert);

@@ -239,6 +239,14 @@ QWaylandCompositor *QWaylandSurface::compositor() const
     return d->compositor()->waylandCompositor();
 }
 
+QWaylandOutput *QWaylandSurface::output() const
+{
+    Q_D(const QWaylandSurface);
+    if (!d->output())
+        return Q_NULLPTR;
+    return d->output()->waylandOutput();
+}
+
 QWindow::Visibility QWaylandSurface::visibility() const
 {
     Q_D(const QWaylandSurface);

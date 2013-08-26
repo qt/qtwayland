@@ -1,5 +1,6 @@
 /****************************************************************************
 **
+** Copyright (C) 2014 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
 ** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
@@ -55,6 +56,7 @@
 #include <QtCompositor/qwaylandinput.h>
 #include <QtCompositor/qwaylandbufferref.h>
 #include <QtCompositor/qwaylandsurfaceview.h>
+#include <QtCompositor/qwaylandoutput.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -108,7 +110,7 @@ public:
 };
 
 QWindowCompositor::QWindowCompositor(CompositorWindow *window)
-    : QWaylandCompositor(window, 0, DefaultExtensions | SubSurfaceExtension)
+    : QWaylandCompositor(0, DefaultExtensions | SubSurfaceExtension)
     , m_window(window)
     , m_backgroundTexture(0)
     , m_textureBlitter(0)
@@ -134,8 +136,7 @@ QWindowCompositor::QWindowCompositor(CompositorWindow *window)
 
     setRetainedSelectionEnabled(true);
 
-    setOutputGeometry(QRect(QPoint(0, 0), window->size()));
-    setOutputRefreshRate(qRound(qGuiApp->primaryScreen()->refreshRate() * 1000.0));
+    createOutput(window, "", "");
     addDefaultShell();
 }
 
@@ -321,7 +322,7 @@ void QWindowCompositor::render()
     // Draw the background image texture
     m_textureBlitter->drawTexture(m_backgroundTexture->textureId(),
                                   QRect(QPoint(0, 0), m_backgroundImage.size()),
-                                  window()->size(),
+                                  m_window->size(),
                                   0, false, true);
 
     foreach (QWaylandSurface *surface, m_surfaces) {

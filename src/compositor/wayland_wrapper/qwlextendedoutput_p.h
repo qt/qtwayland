@@ -54,14 +54,14 @@ QT_BEGIN_NAMESPACE
 namespace QtWayland {
 
 class Compositor;
-class Output;
+class OutputResource;
 
 class ExtendedOutput : public QtWaylandServer::qt_extended_output::Resource
 {
 public:
     ExtendedOutput() : output(0) {}
 
-    Output *output;
+    OutputResource *output;
 };
 
 class OutputExtensionGlobal : public QtWaylandServer::qt_output_extension, public QtWaylandServer::qt_extended_output

@@ -139,7 +139,7 @@ private:
     void shell_surface_set_fullscreen(Resource *resource,
                                       uint32_t method,
                                       uint32_t framerate,
-                                      struct wl_resource *output) Q_DECL_OVERRIDE;
+                                      struct wl_resource *output_resource) Q_DECL_OVERRIDE;
     void shell_surface_set_popup(Resource *resource,
                                  struct wl_resource *input_device,
                                  uint32_t time,
@@ -148,7 +148,7 @@ private:
                                  int32_t y,
                                  uint32_t flags) Q_DECL_OVERRIDE;
     void shell_surface_set_maximized(Resource *resource,
-                                     struct wl_resource *output) Q_DECL_OVERRIDE;
+                                     struct wl_resource *output_resource) Q_DECL_OVERRIDE;
     void shell_surface_pong(Resource *resource,
                             uint32_t serial) Q_DECL_OVERRIDE;
     void shell_surface_set_title(Resource *resource,

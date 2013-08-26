@@ -1,5 +1,6 @@
 /****************************************************************************
 **
+** Copyright (C) 2014 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
 ** Copyright (C) 2013 Klarälvdalens Datakonsult AB (KDAB).
 ** Contact: http://www.qt-project.org/legal
 **
@@ -68,7 +69,7 @@ public:
 
 protected:
     void input_panel_surface_set_overlay_panel(Resource *resource) Q_DECL_OVERRIDE;
-    void input_panel_surface_set_toplevel(Resource *resource, wl_resource *output, uint32_t position) Q_DECL_OVERRIDE;
+    void input_panel_surface_set_toplevel(Resource *resource, wl_resource *output_resource, uint32_t position) Q_DECL_OVERRIDE;
 
 private:
     Surface *m_surface;

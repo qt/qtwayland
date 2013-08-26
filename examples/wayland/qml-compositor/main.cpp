@@ -1,5 +1,6 @@
 /****************************************************************************
 **
+** Copyright (C) 2014 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
 ** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
@@ -42,6 +43,7 @@
 #include "qwaylandquicksurface.h"
 
 #include <QtCompositor/qwaylandsurfaceitem.h>
+#include <QtCompositor/qwaylandoutput.h>
 
 #include <QGuiApplication>
 #include <QTimer>
@@ -60,7 +62,7 @@ class QmlCompositor : public QQuickView, public QWaylandQuickCompositor
 
 public:
     QmlCompositor()
-        : QWaylandQuickCompositor(this, 0, DefaultExtensions | SubSurfaceExtension)
+        : QWaylandQuickCompositor(0, DefaultExtensions | SubSurfaceExtension)
         , m_fullscreenSurface(0)
     {
         setSource(QUrl("main.qml"));
@@ -68,6 +70,7 @@ public:
         setColor(Qt::black);
         winId();
         addDefaultShell();
+        createOutput(this, "", "");
 
         connect(this, SIGNAL(afterRendering()), this, SLOT(sendCallbacks()));
     }

@@ -1,6 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Jolla Ltd, author: <giulio.camuffo@jollamobile.com>
+** Copyright (C) 2015 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the plugins of the Qt Toolkit.
@@ -39,29 +40,39 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDQUICKCOMPOSITOR_H
-#define QWAYLANDQUICKCOMPOSITOR_H
-
-#include <QtCompositor/qwaylandcompositor.h>
+#include "qwaylandquickoutput.h"
+#include "qwaylandquickcompositor.h"
 
 QT_BEGIN_NAMESPACE
 
-class QQuickWindow;
-class QWaylandQuickCompositorPrivate;
-class QWaylandSurfaceView;
-class QWaylandOutput;
-
-class Q_COMPOSITOR_EXPORT QWaylandQuickCompositor : public QWaylandCompositor
+QWaylandQuickOutput::QWaylandQuickOutput(QWaylandCompositor *compositor, QQuickWindow *window,
+                                         const QString &manufacturer, const QString &model)
+    : QWaylandOutput(compositor, window, manufacturer, model)
+    , m_updateScheduled(false)
 {
-public:
-    QWaylandQuickCompositor(const char *socketName = 0, QWaylandCompositor::ExtensionFlags extensions = DefaultExtensions);
+    connect(window, &QQuickWindow::beforeSynchronizing,
+            this, &QWaylandQuickOutput::updateStarted,
+            Qt::DirectConnection);
+}
 
-    QWaylandSurfaceView *createView(QWaylandSurface *surf) Q_DECL_OVERRIDE;
-    QWaylandOutput *createOutput(QWindow *window,
-                                 const QString &manufacturer,
-                                 const QString &model) Q_DECL_OVERRIDE;
-};
+QQuickWindow *QWaylandQuickOutput::quickWindow() const
+{
+    return static_cast<QQuickWindow *>(window());
+}
+
+void QWaylandQuickOutput::update()
+{
+    if (!m_updateScheduled) {
+        quickWindow()->update();
+        m_updateScheduled = true;
+    }
+}
+
+void QWaylandQuickOutput::updateStarted()
+{
+    m_updateScheduled = false;
+    frameStarted();
+    compositor()->cleanupGraphicsResources();
+}
 
 QT_END_NAMESPACE
-
-#endif

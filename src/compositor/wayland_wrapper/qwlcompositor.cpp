@@ -63,6 +63,7 @@
 #include "qwaylandglobalinterface.h"
 #include "qwaylandsurfaceview.h"
 #include "qwaylandshmformathelper.h"
+#include "qwaylandoutput.h"
 
 #include <QWindow>
 #include <QSocketNotifier>
@@ -150,8 +151,6 @@ void Compositor::init()
     foreach (wl_shm_format format, formats)
         wl_display_add_shm_format(m_display->handle(), format);
 
-    m_output_global = new OutputGlobal(m_display->handle());
-
     if (wl_display_add_socket(m_display->handle(), m_qt_compositor->socketName())) {
         fprintf(stderr, "Fatal: Failed to open server socket\n");
         exit(EXIT_FAILURE);
@@ -184,6 +183,7 @@ Compositor::~Compositor()
         qWarning("QWaylandCompositor::cleanupGraphicsResources() must be called manually");
     qDeleteAll(m_clients);
 
+    qDeleteAll(m_outputs);
 
     delete m_outputExtension;
     delete m_surfaceExtension;
@@ -195,7 +195,6 @@ Compositor::~Compositor()
     delete m_default_wayland_input_device;
     delete m_data_device_manager;
 
-    delete m_output_global;
     delete m_display;
 }
 
@@ -210,6 +209,57 @@ void Compositor::sendFrameCallbacks(QList<QWaylandSurface *> visibleSurfaces)
 uint Compositor::currentTimeMsecs() const
 {
     return m_timer.elapsed();
+}
+
+QList<QWaylandOutput *> Compositor::outputs() const
+{
+    return m_outputs;
+}
+
+QWaylandOutput *Compositor::output(QWindow *window) const
+{
+    Q_FOREACH (QWaylandOutput *output, m_outputs) {
+        if (output->window() == window)
+            return output;
+    }
+
+    return Q_NULLPTR;
+}
+
+void Compositor::addOutput(QWaylandOutput *output)
+{
+    Q_ASSERT(output->handle());
+
+    if (m_outputs.contains(output))
+        return;
+
+    m_outputs.append(output);
+}
+
+void Compositor::removeOutput(QWaylandOutput *output)
+{
+    Q_ASSERT(output->handle());
+
+    m_outputs.removeOne(output);
+}
+
+QWaylandOutput *Compositor::primaryOutput() const
+{
+    if (m_outputs.size() == 0)
+        return Q_NULLPTR;
+    return m_outputs.at(0);
+}
+
+void Compositor::setPrimaryOutput(QWaylandOutput *output)
+{
+    Q_ASSERT(output->handle());
+
+    int i = m_outputs.indexOf(output);
+    if (i <= 0)
+        return;
+
+    m_outputs.removeAt(i);
+    m_outputs.prepend(output);
 }
 
 void Compositor::processWaylandEvents()
@@ -271,11 +321,6 @@ void Compositor::destroyClient(QWaylandClient *client)
     wl_client_destroy(client->client());
 }
 
-QWindow *Compositor::window() const
-{
-    return m_qt_compositor->window();
-}
-
 ClientBufferIntegration * Compositor::clientBufferIntegration() const
 {
 #ifdef QT_COMPOSITOR_WAYLAND_GL
@@ -299,11 +344,9 @@ void Compositor::initializeHardwareIntegration()
 #ifdef QT_COMPOSITOR_WAYLAND_GL
     if (m_extensions & QWaylandCompositor::HardwareIntegrationExtension)
         m_hw_integration.reset(new HardwareIntegration(this));
-    QWindow *window = m_qt_compositor->window();
-    if (window && window->surfaceType() != QWindow::RasterSurface) {
-        loadClientBufferIntegration();
-        loadServerBufferIntegration();
-    }
+
+    loadClientBufferIntegration();
+    loadServerBufferIntegration();
 
     if (m_client_buffer_integration)
         m_client_buffer_integration->initializeHardware(m_display);
@@ -343,43 +386,6 @@ void Compositor::initializeDefaultInputDevice()
 QList<QWaylandClient *> Compositor::clients() const
 {
     return m_clients;
-}
-
-void Compositor::setScreenOrientation(Qt::ScreenOrientation orientation)
-{
-    m_orientation = orientation;
-    m_output_global->sendOutputOrientation(orientation);
-}
-
-Qt::ScreenOrientation Compositor::screenOrientation() const
-{
-    return m_orientation;
-}
-
-void Compositor::setOutputGeometry(const QRect &geometry)
-{
-    if (m_output_global)
-        m_output_global->setGeometry(geometry);
-}
-
-QRect Compositor::outputGeometry() const
-{
-    if (m_output_global)
-        return m_output_global->geometry();
-    return QRect();
-}
-
-void Compositor::setOutputRefreshRate(int rate)
-{
-    if (m_output_global)
-        m_output_global->setRefreshRate(rate);
-}
-
-int Compositor::outputRefreshRate() const
-{
-    if (m_output_global)
-        return m_output_global->refreshRate();
-    return 0;
 }
 
 void Compositor::setClientFullScreenHint(bool value)

@@ -62,6 +62,7 @@ class QWaylandBufferRef;
 class QWaylandSurfaceView;
 class QWaylandSurfaceInterface;
 class QWaylandSurfaceOp;
+class QWaylandOutput;
 
 namespace QtWayland {
 class Surface;
@@ -161,6 +162,8 @@ public:
     void setWindowProperty(const QString &name, const QVariant &value);
 
     QWaylandCompositor *compositor() const;
+
+    QWaylandOutput *output() const;
 
     QString className() const;
 

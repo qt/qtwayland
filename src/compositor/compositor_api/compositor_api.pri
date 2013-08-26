@@ -7,6 +7,7 @@ HEADERS += \
     compositor_api/qwaylandsurface_p.h \
     compositor_api/qwaylandinput.h \
     compositor_api/qwaylandinputpanel.h \
+    compositor_api/qwaylandoutput.h \
     compositor_api/qwaylanddrag.h \
     compositor_api/qwaylandbufferref.h \
     compositor_api/qwaylandsurfaceview.h \
@@ -19,6 +20,7 @@ SOURCES += \
     compositor_api/qwaylandsurface.cpp \
     compositor_api/qwaylandinput.cpp \
     compositor_api/qwaylandinputpanel.cpp \
+    compositor_api/qwaylandoutput.cpp \
     compositor_api/qwaylanddrag.cpp \
     compositor_api/qwaylandbufferref.cpp \
     compositor_api/qwaylandsurfaceview.cpp \
@@ -31,11 +33,13 @@ qtHaveModule(quick) {
     SOURCES += \
         compositor_api/qwaylandquickcompositor.cpp \
         compositor_api/qwaylandquicksurface.cpp \
+        compositor_api/qwaylandquickoutput.cpp \
         compositor_api/qwaylandsurfaceitem.cpp
 
     HEADERS += \
         compositor_api/qwaylandquickcompositor.h \
         compositor_api/qwaylandquicksurface.h \
+        compositor_api/qwaylandquickoutput.h \
         compositor_api/qwaylandsurfaceitem.h
 
     QT += qml quick

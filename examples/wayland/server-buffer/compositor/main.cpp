@@ -1,5 +1,6 @@
 /****************************************************************************
 **
+** Copyright (C) 2014 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
 ** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
@@ -54,6 +55,7 @@
 #include <QQuickView>
 
 #include "qwayland-server-share-buffer.h"
+#include <QtCompositor/qwaylandoutput.h>
 #include <QtCompositor/private/qwlcompositor_p.h>
 #include <QtCompositor/private/qwlserverbufferintegration_p.h>
 
@@ -70,7 +72,7 @@ class QmlCompositor
 
 public:
     QmlCompositor()
-        : QWaylandQuickCompositor(this, 0, DefaultExtensions | SubSurfaceExtension)
+        : QWaylandQuickCompositor(0, DefaultExtensions | SubSurfaceExtension)
         , QtWaylandServer::qt_share_buffer(QWaylandCompositor::handle()->wl_display(), 1)
         , m_server_buffer_32_bit(0)
         , m_server_buffer_item_32_bit(0)
@@ -82,6 +84,7 @@ public:
         setColor(Qt::black);
         create();
         grabWindow();
+        createOutput(this, "", "");
         addDefaultShell();
 
         connect(this, SIGNAL(afterRendering()), this, SLOT(sendCallbacks()));

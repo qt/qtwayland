@@ -89,7 +89,7 @@ void XCompositeGLXClientBufferIntegration::initializeHardware(QtWayland::Display
     qDebug() << "Initializing GLX integration";
     QPlatformNativeInterface *nativeInterface = QGuiApplicationPrivate::platformIntegration()->nativeInterface();
     if (nativeInterface) {
-        mDisplay = static_cast<Display *>(nativeInterface->nativeResourceForWindow("Display",m_compositor->window()));
+        mDisplay = static_cast<Display *>(nativeInterface->nativeResourceForIntegration("Display"));
         if (!mDisplay)
             qFatal("could not retireve Display from platform integration");
     } else {

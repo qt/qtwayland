@@ -63,6 +63,7 @@ class QWaylandInputPanel;
 class QWaylandDrag;
 class QWaylandGlobalInterface;
 class QWaylandSurfaceView;
+class QWaylandOutput;
 
 namespace QtWayland
 {
@@ -86,7 +87,7 @@ public:
     };
     Q_DECLARE_FLAGS(ExtensionFlags, ExtensionFlag)
 
-    QWaylandCompositor(QWindow *window = 0, const char *socketName = 0, ExtensionFlags extensions = DefaultExtensions);
+    QWaylandCompositor(const char *socketName = 0, ExtensionFlags extensions = DefaultExtensions);
     virtual ~QWaylandCompositor();
 
     void addGlobalInterface(QWaylandGlobalInterface *interface);
@@ -102,7 +103,11 @@ public:
     QList<QWaylandSurface *> surfacesForClient(QWaylandClient* client) const;
     QList<QWaylandSurface *> surfaces() const;
 
-    QWindow *window()const;
+    QList<QWaylandOutput *> outputs() const;
+    QWaylandOutput *output(QWindow *window);
+
+    QWaylandOutput *primaryOutput() const;
+    void setPrimaryOutput(QWaylandOutput *output);
 
     virtual void surfaceCreated(QWaylandSurface *surface) = 0;
     virtual void surfaceAboutToBeDestroyed(QWaylandSurface *surface);
@@ -122,6 +127,7 @@ public:
 
     const char *socketName() const;
 
+#if QT_DEPRECATED_SINCE(5, 5)
     void setScreenOrientation(Qt::ScreenOrientation orientation);
 
     void setOutputGeometry(const QRect &outputGeometry);
@@ -129,6 +135,7 @@ public:
 
     void setOutputRefreshRate(int refreshRate);
     int outputRefreshRate() const;
+#endif
 
     QWaylandInputDevice *defaultInputDevice() const;
 
@@ -154,14 +161,15 @@ public:
     QWaylandInputDevice *inputDeviceFor(QInputEvent *inputEvent);
 
 protected:
-    QWaylandCompositor(QWindow *window, const char *socketName, QtWayland::Compositor *dptr);
+    QWaylandCompositor(const char *socketName, QtWayland::Compositor *dptr);
     virtual void retainedSelectionReceived(QMimeData *mimeData);
+
+    virtual QWaylandOutput *createOutput(QWindow *window,
+                                         const QString &manufacturer,
+                                         const QString &model);
 
     friend class QtWayland::Compositor;
     QtWayland::Compositor *m_compositor;
-
-private:
-    QWindow  *m_toplevel_window;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QWaylandCompositor::ExtensionFlags)

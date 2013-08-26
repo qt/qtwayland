@@ -131,10 +131,9 @@ LibHybrisEglServerBufferIntegration::~LibHybrisEglServerBufferIntegration()
 
 void LibHybrisEglServerBufferIntegration::initializeHardware(QWaylandCompositor *compositor)
 {
-    QWindow *window = compositor->window();
     Q_ASSERT(QGuiApplication::platformNativeInterface());
 
-    m_egl_display = static_cast<EGLDisplay>(QGuiApplication::platformNativeInterface()->nativeResourceForWindow("egldisplay", window));
+    m_egl_display = static_cast<EGLDisplay>(QGuiApplication::platformNativeInterface()->nativeResourceForIntegration("egldisplay"));
     if (!m_egl_display) {
         qWarning("Cant initialize libhybris egl server buffer integration. Missing egl display from platformplugin");
         return;

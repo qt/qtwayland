@@ -49,7 +49,6 @@
 
 #include <QtCore/QElapsedTimer>
 #include <QtCore/QSet>
-#include <QtGui/QWindow>
 
 #include <private/qwldisplay_p.h>
 
@@ -111,7 +110,14 @@ public:
 
     uint currentTimeMsecs() const;
 
-    QWindow *window() const;
+    QList<QWaylandOutput *> outputs() const;
+    QWaylandOutput *output(QWindow *window) const;
+
+    void addOutput(QWaylandOutput *output);
+    void removeOutput(QWaylandOutput *output);
+
+    QWaylandOutput *primaryOutput() const;
+    void setPrimaryOutput(QWaylandOutput *output);
 
     ClientBufferIntegration *clientBufferIntegration() const;
     ServerBufferIntegration *serverBufferIntegration() const;
@@ -132,13 +138,6 @@ public:
     QList<QWaylandClient *> clients() const;
 
     WindowManagerServerIntegration *windowManagerIntegration() const { return m_windowManagerIntegration; }
-
-    void setScreenOrientation(Qt::ScreenOrientation orientation);
-    Qt::ScreenOrientation screenOrientation() const;
-    void setOutputGeometry(const QRect &geometry);
-    QRect outputGeometry() const;
-    void setOutputRefreshRate(int rate);
-    int outputRefreshRate() const;
 
     void setClientFullScreenHint(bool value);
 
@@ -189,8 +188,7 @@ protected:
     QList<QWaylandInputDevice *> m_inputDevices;
 
     /* Output */
-    //make this a list of the available screens
-    OutputGlobal *m_output_global;
+    QList<QWaylandOutput *> m_outputs;
 
     DataDeviceManager *m_data_device_manager;
 

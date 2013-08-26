@@ -63,7 +63,18 @@ namespace QtWayland
 class Q_COMPOSITOR_EXPORT QWaylandCompositor
 {
 public:
-    QWaylandCompositor(QWindow *window = 0, const char *socketName = 0);
+    enum ExtensionFlag {
+        WindowManagerExtension = 0x01,
+        OutputExtension = 0x02,
+        SurfaceExtension = 0x04,
+        QtKeyExtension = 0x08,
+        TouchExtension = 0x10,
+        SubSurfaceExtension = 0x20,
+
+        DefaultExtensions = WindowManagerExtension | OutputExtension | SurfaceExtension | QtKeyExtension | TouchExtension
+    };
+
+    QWaylandCompositor(QWindow *window = 0, const char *socketName = 0, ExtensionFlag extensions = DefaultExtensions);
     virtual ~QWaylandCompositor();
 
     struct wl_display *waylandDisplay() const;
@@ -111,9 +122,6 @@ public:
 
     virtual void setCursorSurface(QWaylandSurface *surface, int hotspotX, int hotspotY);
 
-    void enableSubSurfaceExtension();
-
-    void enableTouchExtension();
     enum TouchExtensionFlag {
         TouchExtMouseFromTouch = 0x01
     };

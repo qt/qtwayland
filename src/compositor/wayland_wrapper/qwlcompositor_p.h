@@ -42,6 +42,7 @@
 #define WL_COMPOSITOR_H
 
 #include <QtCompositor/qwaylandexport.h>
+#include <QtCompositor/qwaylandcompositor.h>
 
 #include <QtCore/QSet>
 #include <QtGui/QWindow>
@@ -79,7 +80,7 @@ class Q_COMPOSITOR_EXPORT Compositor : public QObject
     Q_OBJECT
 
 public:
-    Compositor(QWaylandCompositor *qt_compositor);
+    Compositor(QWaylandCompositor *qt_compositor, QWaylandCompositor::ExtensionFlag extensions);
     ~Compositor();
 
     void frameFinished(Surface *surface = 0);
@@ -100,7 +101,6 @@ public:
     void initializeHardwareIntegration();
     void initializeDefaultInputDevice();
     void initializeWindowManagerProtocol();
-    void enableSubSurfaceExtension();
     bool setDirectRenderSurface(Surface *surface, QOpenGLContext *context);
     Surface *directRenderSurface() const {return m_directRenderSurface;}
     QOpenGLContext *directRenderContext() const {return m_directRenderContext;}

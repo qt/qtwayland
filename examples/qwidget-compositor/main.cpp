@@ -69,7 +69,7 @@ class QWidgetCompositor : public QWidget, public WaylandCompositor
     Q_OBJECT
 public:
     QWidgetCompositor()
-        : QWaylandCompositor(windowHandle())
+        : QWaylandCompositor(windowHandle(), 0, static_cast<ExtensionFlag>(DefaultExtensions | SubSurfaceExtension))
 #ifdef QT_COMPOSITOR_WAYLAND_GL
         , m_surfaceCompositorFbo(0)
         , m_textureBlitter(0)
@@ -79,7 +79,6 @@ public:
         , m_dragSourceSurface(0)
         , m_cursorSurface(0)
     {
-        enableSubSurfaceExtension();
         setMouseTracking(true);
         setRetainedSelectionEnabled(true);
         m_background = QImage(QLatin1String(":/background.jpg"));

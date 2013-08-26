@@ -54,7 +54,7 @@
 #include <QtCompositor/qwaylandinput.h>
 
 QWindowCompositor::QWindowCompositor(QOpenGLWindow *window)
-    : QWaylandCompositor(window)
+    : QWaylandCompositor(window, 0, static_cast<ExtensionFlag>(DefaultExtensions | SubSurfaceExtension))
     , m_window(window)
     , m_textureBlitter(0)
     , m_renderScheduler(this)
@@ -65,7 +65,6 @@ QWindowCompositor::QWindowCompositor(QOpenGLWindow *window)
     , m_cursorHotspotY(0)
     , m_modifiers(Qt::NoModifier)
 {
-    enableSubSurfaceExtension();
     m_window->makeCurrent();
 
     m_textureCache = new QOpenGLTextureCache(m_window->context());

@@ -75,7 +75,7 @@ bool parseOption(const char *str, Option *option)
 
 struct WaylandEnumEntry {
     QByteArray name;
-    int value;
+    QByteArray value;
     QByteArray summary;
 };
 
@@ -157,7 +157,7 @@ WaylandEnum readEnum(QXmlStreamReader &xml)
         if (xml.name() == "entry") {
             WaylandEnumEntry entry;
             entry.name = byteArrayValue(xml, "name");
-            entry.value = intValue(xml, "value");
+            entry.value = byteArrayValue(xml, "value");
             entry.summary = byteArrayValue(xml, "summary");
             result.entries << entry;
         }
@@ -304,7 +304,7 @@ void printEnums(const QList<WaylandEnum> &enums)
         printf("        enum %s {\n", e.name.constData());
         for (int i = 0; i < e.entries.size(); ++i) {
             const WaylandEnumEntry &entry = e.entries.at(i);
-            printf("            %s_%s = %d", e.name.constData(), entry.name.constData(), entry.value);
+            printf("            %s_%s = %s", e.name.constData(), entry.name.constData(), entry.value.constData());
             if (i < e.entries.size() - 1)
                 printf(",");
             if (!entry.summary.isNull())

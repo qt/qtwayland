@@ -64,6 +64,8 @@ public:
     int depth() const;
     QImage::Format format() const;
 
+    QDpi logicalDpi() const Q_DECL_OVERRIDE;
+
     void setOrientationUpdateMask(Qt::ScreenOrientations mask);
 
     Qt::ScreenOrientation orientation() const;

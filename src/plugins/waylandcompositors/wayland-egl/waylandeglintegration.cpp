@@ -162,7 +162,7 @@ void WaylandEglIntegration::initializeHardware(QtWayland::Display *waylandDispla
 
     if (d->egl_bind_wayland_display && d->egl_unbind_wayland_display) {
         d->display_bound = d->egl_bind_wayland_display(d->egl_display, waylandDisplay->handle());
-        if (!d->display_bound || ignoreBindDisplay) {
+        if (!d->display_bound && !ignoreBindDisplay) {
             qWarning("Failed to initialize egl display. Could not bind Wayland display.\n");
             return;
         }

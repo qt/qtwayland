@@ -66,6 +66,8 @@
 
 #include <QtCore/QDebug>
 
+#include <errno.h>
+
 QT_BEGIN_NAMESPACE
 
 struct wl_surface *QWaylandDisplay::createSurface(void *handle)

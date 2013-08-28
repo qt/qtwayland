@@ -333,7 +333,7 @@ void QWaylandSurfaceItem::updateSize()
 void QWaylandSurfaceItem::updateSurfaceSize()
 {
     if (m_resizeSurfaceToItem) {
-        m_surface->sendConfigure(QSize(width(), height()));
+        m_surface->requestSize(QSize(width(), height()));
     }
 }
 

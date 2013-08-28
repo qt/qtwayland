@@ -149,13 +149,7 @@ QSize QWaylandSurface::size() const
     return d->surface->size();
 }
 
-void QWaylandSurface::setSize(const QSize &size)
-{
-    Q_D(QWaylandSurface);
-    d->surface->setSize(size);
-}
-
-void QWaylandSurface::sendConfigure(const QSize &size)
+void QWaylandSurface::requestSize(const QSize &size)
 {
     Q_D(QWaylandSurface);
     if (d->surface->shellSurface())

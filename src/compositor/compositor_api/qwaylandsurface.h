@@ -73,7 +73,7 @@ class Q_COMPOSITOR_EXPORT QWaylandSurface : public QObject
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandSurface)
-    Q_PROPERTY(QSize size READ size WRITE setSize NOTIFY sizeChanged)
+    Q_PROPERTY(QSize size READ size NOTIFY sizeChanged)
     Q_PROPERTY(QPointF pos READ pos WRITE setPos NOTIFY posChanged)
     Q_PROPERTY(QWaylandSurface::WindowFlags windowFlags READ windowFlags NOTIFY windowFlagsChanged)
     Q_PROPERTY(Qt::ScreenOrientation contentOrientation READ contentOrientation NOTIFY contentOrientationChanged)
@@ -113,8 +113,7 @@ public:
     QPointF pos() const;
     void setPos(const QPointF &pos);
     QSize size() const;
-    void setSize(const QSize &size);
-    void sendConfigure(const QSize &size);
+    Q_INVOKABLE void requestSize(const QSize &size);
 
     Qt::ScreenOrientations orientationUpdateMask() const;
     Qt::ScreenOrientation contentOrientation() const;

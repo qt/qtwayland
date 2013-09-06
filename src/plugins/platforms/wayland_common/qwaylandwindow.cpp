@@ -61,6 +61,8 @@
 
 QT_BEGIN_NAMESPACE
 
+QWaylandWindow *QWaylandWindow::mMouseGrab = 0;
+
 QWaylandWindow::QWaylandWindow(QWindow *window)
     : QObject()
     , QPlatformWindow(window)
@@ -139,6 +141,10 @@ QWaylandWindow::~QWaylandWindow()
         if (w->transientParent() == parent)
             QWindowSystemInterface::handleCloseEvent(w);
     }
+
+    if (mMouseGrab == this) {
+        mMouseGrab = 0;
+    }
 }
 
 QWaylandWindow *QWaylandWindow::fromWlSurface(::wl_surface *surface)
@@ -183,7 +189,7 @@ void QWaylandWindow::setGeometry(const QRect &rect)
                 qBound(window()->minimumWidth(), rect.width(), window()->maximumWidth()),
                 qBound(window()->minimumHeight(), rect.height(), window()->maximumHeight())));
 
-    if (shellSurface() && window()->transientParent())
+    if (shellSurface() && window()->transientParent() && window()->type() != Qt::Popup)
         shellSurface()->updateTransientParent(window()->transientParent());
 
     if (mWindowDecoration && window()->isVisible())
@@ -580,6 +586,17 @@ void QWaylandWindow::setMouseCursor(QWaylandInputDevice *device, Qt::CursorShape
 void QWaylandWindow::restoreMouseCursor(QWaylandInputDevice *device)
 {
     setMouseCursor(device, window()->cursor().shape());
+}
+
+bool QWaylandWindow::setMouseGrabEnabled(bool grab)
+{
+    if (window()->type() != Qt::Popup) {
+        qWarning("This plugin supports grabbing the mouse only for popup windows");
+        return false;
+    }
+
+    mMouseGrab = grab ? this : 0;
+    return true;
 }
 
 QT_END_NAMESPACE

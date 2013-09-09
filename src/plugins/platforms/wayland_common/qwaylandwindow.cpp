@@ -200,7 +200,8 @@ void QWaylandWindow::setVisible(bool visible)
             mMouseDevice = parent->mMouseDevice;
             mMouseSerial = parent->mMouseSerial;
 
-            mShellSurface->setPopup(transientParent(), mMouseDevice, mMouseSerial);
+            if (mMouseDevice)
+                mShellSurface->setPopup(transientParent(), mMouseDevice, mMouseSerial);
         }
 
         if (!mSentInitialResize) {

@@ -1,10 +1,13 @@
 #include "qwaylandeventthread.h"
 #include <QtCore/QSocketNotifier>
+#include <QCoreApplication>
 
 #include <unistd.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <errno.h>
+
+QT_BEGIN_NAMESPACE
 
 QWaylandEventThread::QWaylandEventThread(QObject *parent)
     : QObject(parent)
@@ -29,7 +32,8 @@ void QWaylandEventThread::displayConnect()
 
 void QWaylandEventThread::readWaylandEvents()
 {
-    wl_display_dispatch(m_display);
+    if (wl_display_dispatch(m_display) == -1 && errno == EPIPE)
+        QCoreApplication::quit();
     emit newEventsRead();
 }
 
@@ -53,3 +57,5 @@ wl_display *QWaylandEventThread::display() const
     QMutexLocker displayLock(m_displayLock);
     return m_display;
 }
+
+QT_END_NAMESPACE

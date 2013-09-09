@@ -44,8 +44,6 @@
 #include <QtGui/QScreen>
 #include <QRect>
 
-#include "qwaylandresourcecollection.h"
-
 QT_BEGIN_NAMESPACE
 
 namespace QtWayland {
@@ -57,7 +55,7 @@ OutputGlobal::OutputGlobal(struct ::wl_display *display)
 {
     QScreen *screen = QGuiApplication::primaryScreen();
     m_geometry = QRect(QPoint(0, 0), screen->availableGeometry().size());
-    m_refreshRate = qRound(screen->refreshRate());
+    m_refreshRate = qRound(screen->refreshRate() * 1000.0);
 }
 
 OutputGlobal::~OutputGlobal()
@@ -85,7 +83,7 @@ void OutputGlobal::setRefreshRate(int rate)
 
 Output *OutputGlobal::outputForClient(wl_client *client) const
 {
-    return static_cast<Output *>(resourceForClient(resourceList(), client)->data);
+    return static_cast<Output *>(resourceMap().value(client));
 }
 
 } // namespace Wayland

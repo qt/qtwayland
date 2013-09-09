@@ -50,22 +50,18 @@
 #include <QtGui/QWindow>
 #include <qpa/qwindowsysteminterface.h>
 
-#ifdef QT_WAYLAND_WINDOWMANAGER_SUPPORT
-#include "windowmanager_integration/qwaylandwindowmanagerintegration.h"
-#endif
-
 #define EGL_EGLEXT_PROTOTYPES
 #include <EGL/eglext_brcm.h>
 
 #include "wayland-brcm-client-protocol.h"
 
-QT_USE_NAMESPACE
+QT_BEGIN_NAMESPACE
 
 class QWaylandBrcmBuffer : public QWaylandBuffer
 {
 public:
     QWaylandBrcmBuffer(QWaylandDisplay *display,
-                       struct wl_brcm *brcm,
+                       struct qt_brcm *brcm,
                        const QSize &size,
                        EGLint *data,
                        int count)
@@ -79,7 +75,7 @@ public:
         for (int i = 0; i < count; ++i)
             m_data[i] = data[i];
 
-        mBuffer = wl_brcm_create_buffer(brcm, size.width(), size.height(), &m_array);
+        mBuffer = qt_brcm_create_buffer(brcm, size.width(), size.height(), &m_array);
 
         static const struct wl_buffer_listener buffer_listener = {
             QWaylandBrcmBuffer::buffer_release
@@ -294,3 +290,4 @@ bool QWaylandBrcmEglWindow::makeCurrent(EGLContext context)
     return eglMakeCurrent(m_eglIntegration->eglDisplay(), m_eglSurfaces[m_current], m_eglSurfaces[m_current], context);
 }
 
+QT_END_NAMESPACE

@@ -43,7 +43,7 @@
 
 #include "qwaylanddatadevicemanager.h"
 
-QT_USE_NAMESPACE
+QT_BEGIN_NAMESPACE
 
 QWaylandDrag::QWaylandDrag(QWaylandDisplay *display)
     : m_display(display)
@@ -93,3 +93,5 @@ Qt::DropAction QWaylandDrag::executedDropAction() const
 {
     return Qt::CopyAction;
 }
+
+QT_END_NAMESPACE

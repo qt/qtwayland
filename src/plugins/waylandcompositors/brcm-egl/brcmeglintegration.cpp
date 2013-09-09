@@ -58,9 +58,7 @@
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
 
-#include "wayland-brcm-server-protocol.h"
-
-QT_USE_NAMESPACE
+QT_BEGIN_NAMESPACE
 
 class BrcmEglIntegrationPrivate
 {
@@ -79,6 +77,7 @@ public:
 
 BrcmEglIntegration::BrcmEglIntegration()
     : QWaylandGraphicsHardwareIntegration()
+    , QtWaylandServer::qt_brcm()
     , d_ptr(new BrcmEglIntegrationPrivate)
 {
 }
@@ -121,12 +120,11 @@ void BrcmEglIntegration::initializeHardware(QtWayland::Display *waylandDisplay)
             return;
         }
         d->valid = true;
+        init(waylandDisplay->handle());
     }
-
-    wl_display_add_global(waylandDisplay->handle(), &wl_brcm_interface, this, brcm_bind_func);
 }
 
-GLuint BrcmEglIntegration::createTextureFromBuffer(wl_buffer *buffer, QOpenGLContext *context)
+GLuint BrcmEglIntegration::createTextureFromBuffer(struct ::wl_resource *buffer, QOpenGLContext *)
 {
     Q_D(BrcmEglIntegration);
     if (!d->valid) {
@@ -134,7 +132,7 @@ GLuint BrcmEglIntegration::createTextureFromBuffer(wl_buffer *buffer, QOpenGLCon
         return 0;
     }
 
-    BrcmBuffer *brcmBuffer = QtWayland::wayland_cast<BrcmBuffer>(buffer);
+    BrcmBuffer *brcmBuffer = BrcmBuffer::fromResource(buffer);
 
     if (!d->eglQueryGlobalImageBRCM(brcmBuffer->handle(), brcmBuffer->handle() + 2)) {
         qWarning("eglQueryGlobalImageBRCM failed!");
@@ -162,34 +160,25 @@ GLuint BrcmEglIntegration::createTextureFromBuffer(wl_buffer *buffer, QOpenGLCon
     return textureId;
 }
 
-void BrcmEglIntegration::create_buffer(struct wl_client *client,
-                                       struct wl_resource *brcm,
-                                       uint32_t id,
-                                       int32_t width,
-                                       int32_t height,
-                                       wl_array *data)
+bool BrcmEglIntegration::isYInverted(struct ::wl_resource *) const
 {
-    BrcmEglIntegration *that = static_cast<BrcmEglIntegration *>(brcm->data);
-    BrcmBuffer *buffer = new BrcmBuffer(that->m_compositor->handle(), QSize(width, height), static_cast<EGLint *>(data->data), data->size / sizeof(EGLint));
-    buffer->addClientResource(client, &buffer->base()->resource,
-                              id, &wl_buffer_interface,
-                              &BrcmBuffer::buffer_interface,
-                              BrcmBuffer::delete_resource);
-}
-
-static struct wl_brcm_interface brcm_interface = {
-    BrcmEglIntegration::create_buffer
-};
-
-void BrcmEglIntegration::brcm_bind_func(struct wl_client *client, void *data, uint32_t version, uint32_t id)
-{
-    Q_UNUSED(version);
-    BrcmEglIntegration *integration = static_cast<BrcmEglIntegration *>(data);
-    wl_client_add_object(client, &wl_brcm_interface, &brcm_interface, id, integration);
-}
-
-bool BrcmEglIntegration::isYInverted(struct wl_buffer *buffer) const
-{
-    Q_UNUSED(buffer);
     return false;
 }
+
+void BrcmEglIntegration::brcm_bind_resource(Resource *)
+{
+}
+
+void BrcmEglIntegration::brcm_create_buffer(Resource *resource, uint32_t id, int32_t width, int32_t height, wl_array *data)
+{
+    new BrcmBuffer(resource->client(), id, QSize(width, height), static_cast<EGLint *>(data->data), data->size / sizeof(EGLint));
+}
+
+QSize BrcmEglIntegration::bufferSize(struct ::wl_resource *buffer) const
+{
+    BrcmBuffer *brcmBuffer = BrcmBuffer::fromResource(buffer);
+
+    return brcmBuffer->size();
+}
+
+QT_END_NAMESPACE

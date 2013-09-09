@@ -12,7 +12,7 @@ qtCompileTest(xcomposite)
 load(qt_parts)
 
 !config_wayland {
-    warning("QtWayland requires Wayland 1.0.3 or higher")
+    warning("QtWayland requires Wayland 1.1.0 or higher")
     SUBDIRS =
 }
 

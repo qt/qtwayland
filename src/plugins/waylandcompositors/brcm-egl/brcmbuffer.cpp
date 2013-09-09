@@ -45,17 +45,14 @@
 #define EGL_EGLEXT_PROTOTYPES
 #include <EGL/eglext_brcm.h>
 
-QT_USE_NAMESPACE
+QT_BEGIN_NAMESPACE
 
-BrcmBuffer::BrcmBuffer(QtWayland::Compositor *compositor, const QSize &size, EGLint *data, size_t count)
-    : m_invertedY(false)
+BrcmBuffer::BrcmBuffer(struct ::wl_client *client, uint32_t id, const QSize &size, EGLint *data, size_t count)
+    : QtWaylandServer::wl_buffer(client, id)
     , m_handle(count)
+    , m_invertedY(false)
+    , m_size(size)
 {
-    Q_UNUSED(compositor);
-
-    base()->height = size.height();
-    base()->width = size.width();
-
     for (size_t i = 0; i < count; ++i)
         m_handle[i] = data[i];
 }
@@ -65,17 +62,14 @@ BrcmBuffer::~BrcmBuffer()
     eglDestroyGlobalImageBRCM(handle());
 }
 
-struct wl_buffer_interface BrcmBuffer::buffer_interface = {
-    BrcmBuffer::buffer_interface_destroy
-};
-
-void BrcmBuffer::buffer_interface_destroy(wl_client *client, wl_resource *buffer)
+void BrcmBuffer::buffer_destroy_resource(Resource *)
 {
-    Q_UNUSED(client);
-    Q_UNUSED(buffer);
+    delete this;
 }
 
-void BrcmBuffer::delete_resource(struct wl_resource *resource)
+void BrcmBuffer::buffer_destroy(Resource *resource)
 {
-    delete reinterpret_cast<BrcmBuffer *>(resource);
+    wl_resource_destroy(resource->handle);
 }
+
+QT_END_NAMESPACE

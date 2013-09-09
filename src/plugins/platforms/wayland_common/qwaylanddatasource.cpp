@@ -50,7 +50,7 @@
 
 #include <unistd.h>
 
-QT_USE_NAMESPACE
+QT_BEGIN_NAMESPACE
 
 void QWaylandDataSource::data_source_target(void *data,
                struct wl_data_source *wl_data_source,
@@ -117,3 +117,5 @@ struct wl_data_source *QWaylandDataSource::handle() const
 {
     return m_data_source;
 }
+
+QT_END_NAMESPACE

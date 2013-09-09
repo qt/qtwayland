@@ -2,7 +2,6 @@ TEMPLATE = lib
 CONFIG += staticlib
 
 include ($$PWD/wayland_common_share.pri)
-include (windowmanager_integration/windowmanager_integration.pri)
 
 SOURCES +=  qwaylandintegration.cpp \
             qwaylandnativeinterface.cpp \
@@ -26,7 +25,8 @@ SOURCES +=  qwaylandintegration.cpp \
             qwaylandqtkey.cpp \
             ../../../shared/qwaylandmimehelper.cpp \
             qwaylanddecoration.cpp \
-            qwaylandeventthread.cpp
+            qwaylandeventthread.cpp\
+            qwaylandwindowmanagerintegration.cpp
 
 HEADERS +=  qwaylandintegration.h \
             qwaylandnativeinterface.h \
@@ -51,7 +51,8 @@ HEADERS +=  qwaylandintegration.h \
             qwaylandqtkey.h \
             ../../../shared/qwaylandmimehelper.h \
             qwaylanddecoration.h \
-            qwaylandeventthread.h
+            qwaylandeventthread.h \
+            qwaylandwindowmanagerintegration.h
 
 contains(DEFINES, QT_WAYLAND_GL_SUPPORT) {
     SOURCES += qwaylandglintegration.cpp
@@ -64,6 +65,7 @@ WAYLANDCLIENTSOURCES += \
             ../../../extensions/output-extension.xml \
             ../../../extensions/touch-extension.xml \
             ../../../extensions/qtkey-extension.xml \
+            ../../../extensions/windowmanager.xml \
 
 PLUGIN_TYPE = platforms
 

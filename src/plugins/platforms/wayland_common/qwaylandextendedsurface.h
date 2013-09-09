@@ -57,6 +57,7 @@ class QWaylandExtendedSurface : public QtWayland::qt_extended_surface
 {
 public:
     QWaylandExtendedSurface(QWaylandWindow *window, struct ::qt_extended_surface *extended_surface);
+    ~QWaylandExtendedSurface();
 
     void setContentOrientation(Qt::ScreenOrientation orientation);
 
@@ -68,16 +69,13 @@ public:
 
     Qt::WindowFlags setWindowFlags(Qt::WindowFlags flags);
 
-    bool isExposed() const { return m_exposed; }
-
 private:
-    void extended_surface_onscreen_visibility(int32_t visible) Q_DECL_OVERRIDE;
+    void extended_surface_onscreen_visibility(int32_t visibility) Q_DECL_OVERRIDE;
     void extended_surface_set_generic_property(const QString &name, wl_array *value) Q_DECL_OVERRIDE;
+    void extended_surface_close() Q_DECL_OVERRIDE;
 
     QWaylandWindow *m_window;
     QVariantMap m_properties;
-
-    bool m_exposed;
 };
 
 QT_END_NAMESPACE

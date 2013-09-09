@@ -53,9 +53,7 @@
 #include "qwaylandglintegration.h"
 #endif
 
-#ifdef QT_WAYLAND_WINDOWMANAGER_SUPPORT
-#include "windowmanager_integration/qwaylandwindowmanagerintegration.h"
-#endif
+#include "qwaylandwindowmanagerintegration.h"
 
 #include "qwaylandextendedoutput.h"
 #include "qwaylandextendedsurface.h"
@@ -68,7 +66,7 @@
 
 #include <QtCore/QDebug>
 
-QT_USE_NAMESPACE
+QT_BEGIN_NAMESPACE
 
 struct wl_surface *QWaylandDisplay::createSurface(void *handle)
 {
@@ -84,12 +82,10 @@ QWaylandGLIntegration * QWaylandDisplay::eglIntegration()
 }
 #endif
 
-#ifdef QT_WAYLAND_WINDOWMANAGER_SUPPORT
 QWaylandWindowManagerIntegration *QWaylandDisplay::windowManagerIntegration()
 {
     return mWindowManagerIntegration;
 }
-#endif
 
 QWaylandInputDevice *QWaylandDisplay::lastKeyboardFocusInputDevice() const
 {
@@ -139,9 +135,7 @@ QWaylandDisplay::QWaylandDisplay()
     mEglIntegration = QWaylandGLIntegration::createGLIntegration(this);
 #endif
 
-#ifdef QT_WAYLAND_WINDOWMANAGER_SUPPORT
     mWindowManagerIntegration = new QWaylandWindowManagerIntegration(this);
-#endif
 
     blockingReadEvents();
 
@@ -168,13 +162,15 @@ QWaylandDisplay::~QWaylandDisplay(void)
 
 void QWaylandDisplay::flushRequests()
 {
-    wl_display_dispatch_queue_pending(mDisplay, mEventQueue);
+    if (wl_display_dispatch_queue_pending(mDisplay, mEventQueue) == -1 && errno == EPIPE)
+        QCoreApplication::quit();
     wl_display_flush(mDisplay);
 }
 
 void QWaylandDisplay::blockingReadEvents()
 {
-    wl_display_dispatch_queue(mDisplay, mEventQueue);
+    if (wl_display_dispatch_queue(mDisplay, mEventQueue) == -1 && errno == EPIPE)
+        QCoreApplication::quit();
 }
 
 QWaylandScreen *QWaylandDisplay::screenForOutput(struct wl_output *output) const
@@ -196,8 +192,20 @@ void QWaylandDisplay::addRegistryListener(RegistryListener listener, void *data)
 void QWaylandDisplay::waitForScreens()
 {
     flushRequests();
-    while (mScreens.isEmpty())
-        blockingReadEvents();
+
+    while (true) {
+        bool screensReady = !mScreens.isEmpty();
+
+        for (int ii = 0; screensReady && ii < mScreens.count(); ++ii) {
+            if (mScreens.at(ii)->geometry() == QRect(0, 0, 0, 0))
+                screensReady = false;
+        }
+
+        if (!screensReady)
+            blockingReadEvents();
+        else
+            return;
+    }
 }
 
 void QWaylandDisplay::registry_global(uint32_t id, const QString &interface, uint32_t version)
@@ -219,17 +227,17 @@ void QWaylandDisplay::registry_global(uint32_t id, const QString &interface, uin
         mInputDevices.append(inputDevice);
     } else if (interface == "wl_data_device_manager") {
         mDndSelectionHandler = new QWaylandDataDeviceManager(this, id);
-    } else if (interface == "wl_output_extension") {
+    } else if (interface == "qt_output_extension") {
         mOutputExtension = new QtWayland::qt_output_extension(registry, id);
         foreach (QPlatformScreen *screen, screens())
             static_cast<QWaylandScreen *>(screen)->createExtendedOutput();
-    } else if (interface == "wl_surface_extension") {
+    } else if (interface == "qt_surface_extension") {
         mWindowExtension = new QtWayland::qt_surface_extension(registry, id);
-    } else if (interface == "wl_sub_surface_extension") {
+    } else if (interface == "qt_sub_surface_extension") {
         mSubSurfaceExtension = new QtWayland::qt_sub_surface_extension(registry, id);
-    } else if (interface == "wl_touch_extension") {
+    } else if (interface == "qt_touch_extension") {
         mTouchExtension = new QWaylandTouchExtension(this, id);
-    } else if (interface == "wl_qtkey_extension") {
+    } else if (interface == "qt_key_extension") {
         mQtKeyExtension = new QWaylandQtKeyExtension(this, id);
     }
 
@@ -252,3 +260,4 @@ void QWaylandDisplay::forceRoundTrip()
     wl_display_roundtrip(mDisplay);
 }
 
+QT_END_NAMESPACE

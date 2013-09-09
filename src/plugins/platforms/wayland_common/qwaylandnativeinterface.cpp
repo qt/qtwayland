@@ -45,12 +45,11 @@
 #include "qwaylandextendedsurface.h"
 #include "qwaylandintegration.h"
 #include "qwaylanddisplay.h"
+#include "qwaylandwindowmanagerintegration.h"
 #include <QtGui/private/qguiapplication_p.h>
 #include <QtGui/QScreen>
 
-#include "windowmanager_integration/qwaylandwindowmanagerintegration.h"
-
-QT_USE_NAMESPACE
+QT_BEGIN_NAMESPACE
 
 QWaylandNativeInterface::QWaylandNativeInterface(QWaylandIntegration *integration)
     : m_integration(integration)
@@ -78,7 +77,7 @@ void *QWaylandNativeInterface::nativeResourceForWindow(const QByteArray &resourc
     if (lowerCaseResource == "compositor")
         return const_cast<wl_compositor *>(m_integration->display()->wl_compositor());
     if (lowerCaseResource == "surface") {
-	return ((QWaylandWindow *) window->handle())->wl_surface();
+        return ((QWaylandWindow *) window->handle())->object();
     }
 
     return NULL;
@@ -131,3 +130,5 @@ void QWaylandNativeInterface::emitWindowPropertyChanged(QPlatformWindow *window,
 {
     emit windowPropertyChanged(window,name);
 }
+
+QT_END_NAMESPACE

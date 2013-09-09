@@ -47,6 +47,7 @@
 #include "qwaylandnativeinterface.h"
 #include "qwaylandclipboard.h"
 #include "qwaylanddnd.h"
+#include "qwaylandwindowmanagerintegration.h"
 
 #include "QtPlatformSupport/private/qgenericunixfontdatabase_p.h"
 #include <QtPlatformSupport/private/qgenericunixeventdispatcher_p.h>
@@ -67,11 +68,37 @@
 #include "qwaylandglintegration.h"
 #endif
 
-#ifdef QT_WAYLAND_WINDOWMANAGER_SUPPORT
-#include "windowmanager_integration/qwaylandwindowmanagerintegration.h"
-#endif
 
-QT_USE_NAMESPACE
+QT_BEGIN_NAMESPACE
+
+class GenericWaylandTheme: public QGenericUnixTheme
+{
+public:
+    static QStringList themeNames()
+    {
+        QStringList result;
+
+        if (QGuiApplication::desktopSettingsAware()) {
+            const QByteArray desktopEnvironment = QGuiApplicationPrivate::platformIntegration()->services()->desktopEnvironment();
+
+            // Ignore X11 desktop environments
+            if (!desktopEnvironment.isEmpty() &&
+                desktopEnvironment != QByteArrayLiteral("UNKNOWN") &&
+                desktopEnvironment != QByteArrayLiteral("KDE") &&
+                desktopEnvironment != QByteArrayLiteral("GNOME") &&
+                desktopEnvironment != QByteArrayLiteral("UNITY") &&
+                desktopEnvironment != QByteArrayLiteral("MATE") &&
+                desktopEnvironment != QByteArrayLiteral("XFCE") &&
+                desktopEnvironment != QByteArrayLiteral("LXDE"))
+                result.push_back(desktopEnvironment.toLower());
+        }
+
+        if (result.isEmpty())
+            result.push_back(QLatin1String(QGenericUnixTheme::name));
+
+        return result;
+    }
+};
 
 QWaylandIntegration::QWaylandIntegration()
     : mFontDb(new QGenericUnixFontDatabase())
@@ -84,7 +111,6 @@ QWaylandIntegration::QWaylandIntegration()
 #endif
 {
     QGuiApplicationPrivate::instance()->setEventDispatcher(mEventDispatcher);
-    QGuiApplication::setDesktopSettingsAware(false);
     mDisplay = new QWaylandDisplay();
     mClipboard = new QWaylandClipboard(mDisplay);
     mDrag = new QWaylandDrag(mDisplay);
@@ -184,10 +210,9 @@ QPlatformInputContext *QWaylandIntegration::inputContext() const
 
 QVariant QWaylandIntegration::styleHint(StyleHint hint) const
 {
-#ifdef QT_WAYLAND_WINDOWMANAGER_SUPPORT
     if (hint == ShowIsFullScreen && mDisplay->windowManagerIntegration())
         return mDisplay->windowManagerIntegration()->showIsFullScreen();
-#endif
+
     return QPlatformIntegration::styleHint(hint);
 }
 
@@ -198,11 +223,7 @@ QPlatformAccessibility *QWaylandIntegration::accessibility() const
 
 QPlatformServices *QWaylandIntegration::services() const
 {
-#ifdef QT_WAYLAND_WINDOWMANAGER_SUPPORT
     return mDisplay->windowManagerIntegration();
-#else
-    return QWaylandIntegration::services();
-#endif
 }
 
 QWaylandDisplay *QWaylandIntegration::display() const
@@ -212,10 +233,12 @@ QWaylandDisplay *QWaylandIntegration::display() const
 
 QStringList QWaylandIntegration::themeNames() const
 {
-    return QGenericUnixTheme::themeNames();
+    return GenericWaylandTheme::themeNames();
 }
 
 QPlatformTheme *QWaylandIntegration::createPlatformTheme(const QString &name) const
 {
-    return QGenericUnixTheme::createUnixTheme(name);
+    return GenericWaylandTheme::createUnixTheme(name);
 }
+
+QT_END_NAMESPACE

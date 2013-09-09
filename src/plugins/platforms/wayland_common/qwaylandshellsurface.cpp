@@ -49,7 +49,7 @@
 
 #include <QtCore/QDebug>
 
-QT_USE_NAMESPACE
+QT_BEGIN_NAMESPACE
 
 QWaylandShellSurface::QWaylandShellSurface(struct ::wl_shell_surface *shell_surface, QWaylandWindow *window)
     : QtWayland::wl_shell_surface(shell_surface)
@@ -114,7 +114,7 @@ void QWaylandShellSurface::setTopLevel()
 void QWaylandShellSurface::updateTransientParent(QWindow *parent)
 {
     QWaylandWindow *parent_wayland_window = static_cast<QWaylandWindow *>(parent->handle());
-    if (!parent_wayland_window || !parent_wayland_window->shellSurface())
+    if (!parent_wayland_window)
         return;
 
     // set_transient expects a position relative to the parent
@@ -132,7 +132,7 @@ void QWaylandShellSurface::updateTransientParent(QWindow *parent)
             || wf.testFlag(Qt::WindowTransparentForInput))
         flags |= WL_SHELL_SURFACE_TRANSIENT_INACTIVE;
 
-    set_transient(parent_wayland_window->wl_surface(),
+    set_transient(parent_wayland_window->object(),
                   transientPos.x(),
                   transientPos.y(),
                   flags);
@@ -140,8 +140,8 @@ void QWaylandShellSurface::updateTransientParent(QWindow *parent)
 
 void QWaylandShellSurface::setPopup(QWaylandWindow *parent, QWaylandInputDevice *device, int serial)
 {
-    QWaylandWindow *parent_wayland_window = parent->topLevelWindow();
-    if (!parent_wayland_window || !parent_wayland_window->shellSurface())
+    QWaylandWindow *parent_wayland_window = parent;
+    if (!parent_wayland_window)
         return;
 
     // set_popup expects a position relative to the parent
@@ -152,19 +152,8 @@ void QWaylandShellSurface::setPopup(QWaylandWindow *parent, QWaylandInputDevice 
         transientPos.setY(transientPos.y() + parent_wayland_window->decoration()->margins().top());
     }
 
-    wl_shell_surface_set_popup(object(), device->wl_seat(), serial,
-                               parent_wayland_window->wl_surface(),
-                               transientPos.x(), transientPos.y(), 0);
-}
-
-void QWaylandShellSurface::setClassName(const char *className)
-{
-    set_class(className);
-}
-
-void QWaylandShellSurface::setTitle(const char *title)
-{
-    set_title(title);
+    set_popup(device->wl_seat(), serial, parent_wayland_window->object(),
+              transientPos.x(), transientPos.y(), 0);
 }
 
 void QWaylandShellSurface::shell_surface_ping(uint32_t serial)
@@ -183,3 +172,5 @@ void QWaylandShellSurface::shell_surface_popup_done()
 {
     QCoreApplication::postEvent(m_window->window(), new QCloseEvent());
 }
+
+QT_END_NAMESPACE

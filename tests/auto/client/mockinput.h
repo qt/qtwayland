@@ -1,9 +1,10 @@
 /****************************************************************************
 **
 ** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Klarälvdalens Datakonsult AB (KDAB).
 ** Contact: http://www.qt-project.org/legal
 **
-** This file is part of the plugins of the Qt Toolkit.
+** This file is part of the test suite of the Qt Toolkit.
 **
 ** $QT_BEGIN_LICENSE:LGPL$
 ** Commercial License Usage
@@ -39,63 +40,80 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDBRCMEGLWINDOW_H
-#define QWAYLANDBRCMEGLWINDOW_H
+#ifndef MOCKINPUT_H
+#define MOCKINPUT_H
 
-#include "qwaylandwindow.h"
-#include "qwaylandbrcmeglintegration.h"
+#include <qglobal.h>
 
-#include <QMutex>
+#include "qwayland-server-wayland.h"
 
-#include <EGL/egl.h>
+#include "mockcompositor.h"
 
-QT_BEGIN_NAMESPACE
+namespace Impl {
 
-class QWaylandGLContext;
-class QWaylandBrcmBuffer;
+class Keyboard;
+class Pointer;
 
-class QWaylandBrcmEglWindow : public QWaylandWindow
+class Seat : public QtWaylandServer::wl_seat
 {
-    Q_OBJECT
 public:
-    QWaylandBrcmEglWindow(QWindow *window);
-    ~QWaylandBrcmEglWindow();
-    WindowType windowType() const;
-    void setGeometry(const QRect &rect);
+    Seat(Compositor *compositor, struct ::wl_display *display);
+    ~Seat();
 
-    QSurfaceFormat format() const;
+    Compositor *compositor() const { return m_compositor; }
 
-    bool makeCurrent(EGLContext context);
-    void swapBuffers();
+    Keyboard *keyboard() const { return m_keyboard.data(); }
+    Pointer *pointer() const { return m_pointer.data(); }
 
-private slots:
-    void flushBuffers();
+protected:
+    void seat_bind_resource(Resource *resource) Q_DECL_OVERRIDE;
+    void seat_get_keyboard(Resource *resource, uint32_t id) Q_DECL_OVERRIDE;
+    void seat_get_pointer(Resource *resource, uint32_t id) Q_DECL_OVERRIDE;
 
 private:
-    void createEglSurfaces();
-    void destroyEglSurfaces();
+    Compositor *m_compositor;
 
-    QWaylandBrcmEglIntegration *m_eglIntegration;
-    struct wl_egl_window *m_waylandEglWindow;
-
-    const QWaylandWindow *m_parentWindow;
-
-    EGLConfig m_eglConfig;
-
-    EGLint m_globalImages[3*5];
-    EGLSurface m_eglSurfaces[3];
-
-    QWaylandBrcmBuffer *m_buffers[3];
-    QSurfaceFormat m_format;
-
-    int m_current;
-    int m_count;
-
-    QList<QWaylandBrcmBuffer *> m_pending;
-
-    QMutex m_mutex;
+    QScopedPointer<Keyboard> m_keyboard;
+    QScopedPointer<Pointer> m_pointer;
 };
 
-QT_END_NAMESPACE
+class Keyboard : public QtWaylandServer::wl_keyboard
+{
+public:
+    Keyboard(Compositor *compositor);
+    ~Keyboard();
 
-#endif // QWAYLANDBRCMEGLWINDOW_H
+    Surface *focus() const { return m_focus; }
+    void setFocus(Surface *surface);
+
+    void sendKey(uint32_t key, uint32_t state);
+
+private:
+    Compositor *m_compositor;
+
+    Resource *m_focusResource;
+    Surface *m_focus;
+};
+
+class Pointer : public QtWaylandServer::wl_pointer
+{
+public:
+    Pointer(Compositor *compositor);
+    ~Pointer();
+
+    Surface *focus() const { return m_focus; }
+
+    void setFocus(Surface *surface, const QPoint &pos);
+    void sendMotion(const QPoint &pos);
+    void sendButton(uint32_t button, uint32_t state);
+
+private:
+    Compositor *m_compositor;
+
+    Resource *m_focusResource;
+    Surface *m_focus;
+};
+
+}
+
+#endif // MOCKINPUT_H

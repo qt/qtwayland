@@ -122,10 +122,6 @@ public:
 
     QMargins frameMargins() const;
 
-    // TODO: remove?
-    struct ::wl_surface *wl_surface() { return object(); }
-    const struct ::wl_surface *wl_surface() const { return object(); }
-
     static QWaylandWindow *fromWlSurface(::wl_surface *surface);
 
     QWaylandShellSurface *shellSurface() const;
@@ -137,7 +133,8 @@ public:
     void setWindowState(Qt::WindowState state);
     void setWindowFlags(Qt::WindowFlags flags);
 
-    bool isExposed() const;
+    void raise() Q_DECL_OVERRIDE;
+    void lower() Q_DECL_OVERRIDE;
 
     QWaylandDecoration *decoration() const;
     void setDecoration(QWaylandDecoration *decoration);
@@ -149,25 +146,27 @@ public:
                      const QPointF & global,
                      Qt::MouseButtons b,
                      Qt::KeyboardModifiers mods);
-    void handleMouseEnter();
-    void handleMouseLeave();
+    void handleMouseEnter(QWaylandInputDevice *inputDevice);
+    void handleMouseLeave(QWaylandInputDevice *inputDevice);
 
     bool createDecoration();
 
     inline bool isMaximized() const { return mState == Qt::WindowMaximized; }
     inline bool isFullscreen() const { return mState == Qt::WindowFullScreen; }
 
-    QWaylandWindow *topLevelWindow();
+    void setMouseCursor(QWaylandInputDevice *device, Qt::CursorShape shape);
+    void restoreMouseCursor(QWaylandInputDevice *device);
+
     QWaylandWindow *transientParent() const;
 
     QMutex *resizeMutex() { return &mResizeLock; }
-
-public slots:
     void doResize();
+    void setCanResize(bool canResize);
+public slots:
+    void requestResize();
 
 protected:
-    virtual void createDecorationInstance() {}
-
+    QWaylandScreen *mScreen;
     QWaylandDisplay *mDisplay;
     QWaylandShellSurface *mShellSurface;
     QWaylandExtendedSurface *mExtendedWindow;
@@ -176,6 +175,7 @@ protected:
     QWaylandDecoration *mWindowDecoration;
     bool mMouseEventsInContentArea;
     Qt::MouseButtons mMousePressedInContentArea;
+    Qt::CursorShape m_cursorShape;
 
     QWaylandBuffer *mBuffer;
     WId mWindowId;
@@ -185,7 +185,8 @@ protected:
 
     QMutex mResizeLock;
     QWaylandWindowConfigure mConfigure;
-    bool mResizeExposedSent;
+    bool mRequestResizeSent;
+    bool mCanResize;
 
     bool mSentInitialResize;
     QPoint mOffset;

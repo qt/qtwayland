@@ -45,7 +45,7 @@
 #include "xcompositebuffer.h"
 #include <X11/extensions/Xcomposite.h>
 
-QT_USE_NAMESPACE
+QT_BEGIN_NAMESPACE
 
 XCompositeHandler::XCompositeHandler(QtWayland::Compositor *compositor, Display *display)
     : QtWaylandServer::qt_xcomposite(compositor->wl_display())
@@ -74,3 +74,5 @@ void XCompositeHandler::xcomposite_create_buffer(Resource *resource, uint32_t id
 {
     new XCompositeBuffer(Window(window), QSize(width, height), resource->client(), id);
 }
+
+QT_END_NAMESPACE

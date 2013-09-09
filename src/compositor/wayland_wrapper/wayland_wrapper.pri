@@ -17,8 +17,11 @@ HEADERS += \
     wayland_wrapper/qwlextendedoutput_p.h \
     wayland_wrapper/qwlextendedsurface_p.h \
     wayland_wrapper/qwlinputdevice_p.h \
+    wayland_wrapper/qwlkeyboard_p.h \
     wayland_wrapper/qwloutput_p.h \
+    wayland_wrapper/qwlpointer_p.h \
     wayland_wrapper/qwlqtkey_p.h \
+    wayland_wrapper/qwlqttouch_p.h \
     wayland_wrapper/qwlregion_p.h \
     wayland_wrapper/qwlshellsurface_p.h \
     wayland_wrapper/qwlsubsurface_p.h \
@@ -36,8 +39,11 @@ SOURCES += \
     wayland_wrapper/qwlextendedoutput.cpp \
     wayland_wrapper/qwlextendedsurface.cpp \
     wayland_wrapper/qwlinputdevice.cpp \
+    wayland_wrapper/qwlkeyboard.cpp \
     wayland_wrapper/qwloutput.cpp \
+    wayland_wrapper/qwlpointer.cpp \
     wayland_wrapper/qwlqtkey.cpp \
+    wayland_wrapper/qwlqttouch.cpp \
     wayland_wrapper/qwlregion.cpp \
     wayland_wrapper/qwlshellsurface.cpp \
     wayland_wrapper/qwlsubsurface.cpp \

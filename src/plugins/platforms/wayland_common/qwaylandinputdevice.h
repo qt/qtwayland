@@ -75,6 +75,7 @@ public:
 
     struct ::wl_seat *wl_seat() { return QtWayland::wl_seat::object(); }
 
+    void setCursor(Qt::CursorShape cursor, QWaylandScreen *screen);
     void setCursor(struct wl_buffer *buffer, struct wl_cursor_image *image);
     void handleWindowDestroyed(QWaylandWindow *window);
 
@@ -84,10 +85,12 @@ public:
     void removeMouseButtonFromState(Qt::MouseButton button);
 
     uint32_t serial() const;
+    uint32_t cursorSerial() const { return mCursorSerial; }
 
 private:
     QWaylandDisplay *mQDisplay;
     struct wl_display *mDisplay;
+    struct wl_callback *mFocusCallback;
 
     uint32_t mCaps;
 
@@ -104,6 +107,7 @@ private:
     uint32_t mTime;
     uint32_t mSerial;
     uint32_t mEnterSerial;
+    uint32_t mCursorSerial;
 
     void seat_capabilities(uint32_t caps) Q_DECL_OVERRIDE;
 
@@ -151,6 +155,9 @@ private:
     void touch_cancel() Q_DECL_OVERRIDE;
 
     void handleTouchPoint(int id, double x, double y, Qt::TouchPointState state);
+
+    static const wl_callback_listener callback;
+    static void focusCallback(void *data, struct wl_callback *callback, uint32_t time);
 
     QList<QWindowSystemInterface::TouchPoint> mTouchPoints;
     QList<QWindowSystemInterface::TouchPoint> mPrevTouchPoints;

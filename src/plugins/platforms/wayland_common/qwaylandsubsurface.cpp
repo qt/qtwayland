@@ -45,7 +45,7 @@
 
 #include <QtCore/QDebug>
 
-QT_USE_NAMESPACE
+QT_BEGIN_NAMESPACE
 
 QWaylandSubSurface::QWaylandSubSurface(QWaylandWindow *window, struct ::qt_sub_surface *sub_surface)
     : QtWayland::qt_sub_surface(sub_surface)
@@ -87,3 +87,5 @@ void QWaylandSubSurface::adjustPositionOfChildren()
     }
     setPositionToParent(m_window);
 }
+
+QT_END_NAMESPACE

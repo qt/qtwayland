@@ -47,7 +47,7 @@
 
 #include <QRegion>
 
-QT_USE_NAMESPACE
+QT_BEGIN_NAMESPACE
 
 QWaylandXCompositeGLXContext::QWaylandXCompositeGLXContext(const QSurfaceFormat &format, QPlatformOpenGLContext *share, Display *display, int screen)
     : m_display(display)
@@ -81,6 +81,7 @@ void QWaylandXCompositeGLXContext::swapBuffers(QPlatformSurface *surface)
     glXSwapBuffers(m_display, w->xWindow());
 
     w->damage(QRect(QPoint(), size));
+    w->commit();
     w->waitForFrameSync();
 }
 
@@ -94,3 +95,4 @@ QSurfaceFormat QWaylandXCompositeGLXContext::format() const
     return m_format;
 }
 
+QT_END_NAMESPACE

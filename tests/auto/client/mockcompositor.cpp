@@ -40,8 +40,10 @@
 ****************************************************************************/
 
 #include "mockcompositor.h"
+#include "mockinput.h"
 #include "mocksurface.h"
 
+#include <stdio.h>
 MockCompositor::MockCompositor()
     : m_alive(true)
     , m_ready(false)
@@ -195,20 +197,21 @@ Compositor::Compositor()
 {
     wl_list_init(&m_outputResources);
 
-    wl_display_add_socket(m_display, 0);
-
-    wl_seat_init(&m_seat);
-    wl_pointer_init(&m_pointer);
-    wl_seat_set_pointer(&m_seat, &m_pointer);
-    wl_keyboard_init(&m_keyboard);
-    wl_seat_set_keyboard(&m_seat, &m_keyboard);
+    if (wl_display_add_socket(m_display, 0)) {
+        fprintf(stderr, "Fatal: Failed to open server socket\n");
+        exit(EXIT_FAILURE);
+    }
 
     wl_display_add_global(m_display, &wl_compositor_interface, this, bindCompositor);
-    wl_display_add_global(m_display, &wl_seat_interface, this, bindSeat);
-    wl_display_add_global(m_display, &wl_output_interface, this, bindOutput);
-    wl_display_add_global(m_display, &wl_shell_interface, this, bindShell);
 
     wl_display_init_shm(m_display);
+
+    m_seat.reset(new Seat(this, m_display));
+    m_pointer = m_seat->pointer();
+    m_keyboard = m_seat->keyboard();
+
+    wl_display_add_global(m_display, &wl_output_interface, this, bindOutput);
+    wl_display_add_global(m_display, &wl_shell_interface, this, bindShell);
 
     m_loop = wl_display_get_event_loop(m_display);
     m_fd = wl_event_loop_get_fd(m_loop);
@@ -216,13 +219,12 @@ Compositor::Compositor()
 
 Compositor::~Compositor()
 {
-    wl_pointer_release(&m_pointer);
-    wl_keyboard_release(&m_keyboard);
     wl_display_destroy(m_display);
 }
 
 void Compositor::dispatchEvents(int timeout)
 {
+    wl_display_flush_clients(m_display);
     wl_event_loop_dispatch(m_loop, timeout);
 }
 
@@ -285,6 +287,10 @@ void Compositor::addSurface(Surface *surface)
 void Compositor::removeSurface(Surface *surface)
 {
     m_surfaces.remove(m_surfaces.indexOf(surface));
+    if (m_keyboard->focus() == surface)
+        m_keyboard->setFocus(0);
+    if (m_pointer->focus() == surface)
+        m_pointer->setFocus(0, QPoint());
 }
 
 }

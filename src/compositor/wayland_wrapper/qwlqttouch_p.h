@@ -38,32 +38,44 @@
 **
 ****************************************************************************/
 
-#ifndef WAYLAND_OBJECT_H
-#define WAYLAND_OBJECT_H
+#ifndef WLTOUCH_H
+#define WLTOUCH_H
 
-#include <wayland-server.h>
-#include <string.h>
-
-#include <QtCompositor/qwaylandexport.h>
+#include <private/qwlcompositor_p.h>
+#include "qwayland-server-touch-extension.h"
+#include "wayland-util.h"
 
 QT_BEGIN_NAMESPACE
 
+class Compositor;
+class Surface;
+class QTouchEvent;
+
 namespace QtWayland {
 
-template <typename T>
-class Object : public T
+class TouchExtensionGlobal : public QtWaylandServer::qt_touch_extension
 {
 public:
-    typedef T Base;
+    TouchExtensionGlobal(Compositor *compositor);
+    ~TouchExtensionGlobal();
 
-    Object() { memset(this, 0, sizeof(T)); }
+    bool postTouchEvent(QTouchEvent *event, Surface *surface);
 
-    const T *base() const { return this; }
-    T *base() { return this; }
+    void setFlags(int flags) { m_flags = flags; }
+
+protected:
+    void touch_extension_bind_resource(Resource *resource) Q_DECL_OVERRIDE;
+    void touch_extension_destroy_resource(Resource *resource) Q_DECL_OVERRIDE;
+
+private:
+    Compositor *m_compositor;
+    int m_flags;
+    QList<Resource *> m_resources;
+    QVector<float> m_posData;
 };
 
 }
 
 QT_END_NAMESPACE
 
-#endif //WAYLAND_OBJECT_H
+#endif // WLTOUCH_H

@@ -51,10 +51,11 @@
 #include "qwlextendedsurface_p.h"
 #include "qwlsubsurface_p.h"
 #include "qwlshellsurface_p.h"
-#include "qwltouch_p.h"
+#include "qwlqttouch_p.h"
 #include "qwlqtkey_p.h"
 #include "qwlinputdevice_p.h"
 #include "qwlregion_p.h"
+#include "qwlpointer_p.h"
 
 #include <QWindow>
 #include <QSocketNotifier>
@@ -246,36 +247,6 @@ void Compositor::createSurface(struct wl_client *client, uint32_t id)
     m_qt_compositor->surfaceCreated(surface->waylandSurface());
 }
 
-struct wl_client *Compositor::getClientFromWinId(uint winId) const
-{
-    Surface *surface = getSurfaceFromWinId(winId);
-    if (surface)
-        return surface->resource()->client();
-
-    return 0;
-}
-
-Surface *Compositor::getSurfaceFromWinId(uint winId) const
-{
-    foreach (Surface *surface, m_surfaces) {
-        if (surface->id() == winId)
-            return surface;
-    }
-
-    return 0;
-}
-
-QImage Compositor::image(uint winId) const
-{
-    foreach (Surface *surface, m_surfaces) {
-        if (surface->id() == winId) {
-            return surface->image();
-        }
-    }
-
-    return QImage();
-}
-
 uint Compositor::currentTimeMsecs()
 {
     //### we throw away the time information
@@ -286,9 +257,9 @@ uint Compositor::currentTimeMsecs()
     return 0;
 }
 
-void Compositor::releaseBuffer(SurfaceBuffer *screenBuffer)
+void Compositor::releaseBuffer(QPlatformScreenBuffer *screenBuffer)
 {
-    screenBuffer->scheduledRelease();
+    static_cast<SurfaceBuffer *>(screenBuffer)->scheduledRelease();
 }
 
 void Compositor::processWaylandEvents()
@@ -307,7 +278,10 @@ void Compositor::surfaceDestroyed(Surface *surface)
         // Make sure the surface is reset regardless of what the grabber
         // interface's focus() does. (e.g. the default implementation does
         // nothing when a button is down which would be disastrous here)
-        wl_pointer_set_focus(dev->pointerDevice(), 0, 0, 0);
+        dev->pointerDevice()->setFocus(0, QPointF());
+    }
+    if (dev->pointerDevice()->current() == surface) {
+        dev->pointerDevice()->setCurrent(0, QPointF());
     }
     if (dev->keyboardFocus() == surface)
         dev->setKeyboardFocus(0);
@@ -494,22 +468,6 @@ QList<QtWayland::Surface *> Compositor::surfacesForClient(wl_client *client)
     return ret;
 }
 
-wl_resource *Compositor::resourceForSurface(wl_list *resourceList, Surface *surface)
-{
-    if (!surface)
-        return 0;
-
-    wl_resource *r;
-    wl_client *surfaceClient = surface->resource()->client();
-
-    wl_list_for_each(r, resourceList, link) {
-        if (r->client == surfaceClient)
-            return r;
-    }
-
-    return 0;
-}
-
 void Compositor::configureTouchExtension(int flags)
 {
     if (m_touchExtension)
@@ -536,7 +494,7 @@ void Compositor::feedRetainedSelectionData(QMimeData *data)
 
 void Compositor::scheduleReleaseBuffer(SurfaceBuffer *screenBuffer)
 {
-    QMetaObject::invokeMethod(this,"releaseBuffer",Q_ARG(SurfaceBuffer*,screenBuffer));
+    QMetaObject::invokeMethod(this,"releaseBuffer",Q_ARG(QPlatformScreenBuffer*,screenBuffer));
 }
 
 void Compositor::overrideSelection(QMimeData *data)

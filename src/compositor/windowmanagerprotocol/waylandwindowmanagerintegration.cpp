@@ -40,13 +40,12 @@
 
 #include "waylandwindowmanagerintegration.h"
 
-#include "wayland_wrapper/qwldisplay_p.h"
-#include "wayland_wrapper/qwlcompositor_p.h"
+#include <wayland_wrapper/qwldisplay_p.h>
+#include <wayland_wrapper/qwlcompositor_p.h>
 
-#include "compositor_api/qwaylandcompositor.h"
+#include <compositor_api/qwaylandcompositor.h>
 
-#include "wayland-server.h"
-#include "wayland-windowmanager-server-protocol.h"
+#include <wayland-server.h>
 
 #include <QUrl>
 
@@ -54,6 +53,7 @@ QT_BEGIN_NAMESPACE
 
 WindowManagerServerIntegration::WindowManagerServerIntegration(QWaylandCompositor *compositor, QObject *parent)
     : QObject(parent)
+    , QtWaylandServer::qt_windowmanager()
     , m_showIsFullScreen(false)
     , m_compositor(compositor)
 {
@@ -65,75 +65,47 @@ WindowManagerServerIntegration::~WindowManagerServerIntegration()
 
 void WindowManagerServerIntegration::initialize(QtWayland::Display *waylandDisplay)
 {
-    wl_display_add_global(waylandDisplay->handle(),&qt_windowmanager_interface,this,WindowManagerServerIntegration::bind_func);
+    init(waylandDisplay->handle());
 }
 
 void WindowManagerServerIntegration::setShowIsFullScreen(bool value)
 {
     m_showIsFullScreen = value;
-    struct wl_resource *resource;
-    wl_list_for_each(resource,&client_resources, link) {
-        qt_windowmanager_send_hints(resource, int32_t(m_showIsFullScreen));
+    Q_FOREACH (Resource *resource, resourceMap().values()) {
+        send_hints(resource->handle, static_cast<int32_t>(m_showIsFullScreen));
     }
 }
 
 void WindowManagerServerIntegration::sendQuitMessage(wl_client *client)
 {
-    struct wl_resource *resource;
-    wl_list_for_each(resource, &client_resources, link) {
-        if (resource->client == client) {
-            qt_windowmanager_send_quit(resource);
-            return;
-        }
+    Resource *resource = resourceMap().value(client);
+
+    if (resource)
+        send_quit(resource->handle);
+}
+
+void WindowManagerServerIntegration::windowmanager_bind_resource(Resource *resource)
+{
+    send_hints(resource->handle, static_cast<int32_t>(m_showIsFullScreen));
+}
+
+void WindowManagerServerIntegration::windowmanager_destroy_resource(Resource *resource)
+{
+    m_urls.remove(resource);
+}
+
+void WindowManagerServerIntegration::windowmanager_open_url(Resource *resource, uint32_t remaining, const QString &newUrl)
+{
+    QString url = m_urls.value(resource, QString());
+
+    url.append(newUrl);
+
+    if (remaining)
+        m_urls.insert(resource, url);
+    else {
+        m_urls.remove(resource);
+        m_compositor->openUrl(resource->client(), QUrl(url));
     }
 }
-
-struct WindowManagerServerIntegrationClientData
-{
-    QByteArray url;
-    WindowManagerServerIntegration *integration;
-};
-
-void WindowManagerServerIntegration::bind_func(struct wl_client *client, void *data,
-                                      uint32_t version, uint32_t id)
-{
-    Q_UNUSED(version);
-
-    WindowManagerServerIntegrationClientData *clientData = new WindowManagerServerIntegrationClientData;
-    clientData->integration = static_cast<WindowManagerServerIntegration *>(data);
-
-    wl_resource *resource = wl_client_add_object(client,&qt_windowmanager_interface,&windowmanager_interface,id,clientData);
-    resource->destroy = WindowManagerServerIntegration::destroy_resource;
-    clientData->integration->registerResource(resource);
-    qt_windowmanager_send_hints(resource, int32_t(clientData->integration->m_showIsFullScreen));
-}
-
-void WindowManagerServerIntegration::destroy_resource(wl_resource *resource)
-{
-    WindowManagerServerIntegrationClientData *data = static_cast<WindowManagerServerIntegrationClientData *>(resource->data);
-
-    delete data;
-    free(resource);
-}
-
-void WindowManagerServerIntegration::open_url(struct wl_client *client,
-                                              struct wl_resource *window_mgr_resource,
-                                              uint32_t remaining,
-                                              const char *url)
-{
-    WindowManagerServerIntegrationClientData *data = static_cast<WindowManagerServerIntegrationClientData *>(window_mgr_resource->data);
-    WindowManagerServerIntegration *window_mgr = data->integration;
-
-    data->url.append(url);
-
-    if (!remaining) {
-        window_mgr->m_compositor->openUrl(client, QUrl(QString::fromUtf8(data->url)));
-        data->url = QByteArray();
-    }
-}
-
-const struct qt_windowmanager_interface WindowManagerServerIntegration::windowmanager_interface = {
-    WindowManagerServerIntegration::open_url
-};
 
 QT_END_NAMESPACE

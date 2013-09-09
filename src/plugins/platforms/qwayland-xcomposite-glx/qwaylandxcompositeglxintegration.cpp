@@ -47,7 +47,7 @@
 
 #include "wayland-xcomposite-client-protocol.h"
 
-QT_USE_NAMESPACE
+QT_BEGIN_NAMESPACE
 
 QWaylandGLIntegration * QWaylandGLIntegration::createGLIntegration(QWaylandDisplay *waylandDisplay)
 {
@@ -103,28 +103,28 @@ QWaylandDisplay * QWaylandXCompositeGLXIntegration::waylandDisplay() const
 {
     return mWaylandDisplay;
 }
-wl_xcomposite * QWaylandXCompositeGLXIntegration::waylandXComposite() const
+qt_xcomposite * QWaylandXCompositeGLXIntegration::waylandXComposite() const
 {
     return mWaylandComposite;
 }
 
-const struct wl_xcomposite_listener QWaylandXCompositeGLXIntegration::xcomposite_listener = {
+const struct qt_xcomposite_listener QWaylandXCompositeGLXIntegration::xcomposite_listener = {
     QWaylandXCompositeGLXIntegration::rootInformation
 };
 
 void QWaylandXCompositeGLXIntegration::wlDisplayHandleGlobal(void *data, wl_registry *registry, uint32_t id, const QString &interface, uint32_t version)
 {
     Q_UNUSED(version);
-    if (interface == "wl_xcomposite") {
-        qDebug("XComposite-GLX: got wl_xcomposite global");
+    if (interface == "qt_xcomposite") {
+        qDebug("XComposite-GLX: got qt_xcomposite global");
         QWaylandXCompositeGLXIntegration *integration = static_cast<QWaylandXCompositeGLXIntegration *>(data);
-        integration->mWaylandComposite = static_cast<struct wl_xcomposite *>(wl_registry_bind(registry, id, &wl_xcomposite_interface, 1));
-        wl_xcomposite_add_listener(integration->mWaylandComposite,&xcomposite_listener,integration);
+        integration->mWaylandComposite = static_cast<struct qt_xcomposite *>(wl_registry_bind(registry, id, &qt_xcomposite_interface, 1));
+        qt_xcomposite_add_listener(integration->mWaylandComposite,&xcomposite_listener,integration);
     }
 
 }
 
-void QWaylandXCompositeGLXIntegration::rootInformation(void *data, wl_xcomposite *xcomposite, const char *display_name, uint32_t root_window)
+void QWaylandXCompositeGLXIntegration::rootInformation(void *data, qt_xcomposite *xcomposite, const char *display_name, uint32_t root_window)
 {
     Q_UNUSED(xcomposite);
     QWaylandXCompositeGLXIntegration *integration = static_cast<QWaylandXCompositeGLXIntegration *>(data);
@@ -136,3 +136,4 @@ void QWaylandXCompositeGLXIntegration::rootInformation(void *data, wl_xcomposite
     integration->mScreen = XDefaultScreen(integration->mDisplay);
 }
 
+QT_END_NAMESPACE

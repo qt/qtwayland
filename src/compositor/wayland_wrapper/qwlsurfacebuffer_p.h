@@ -72,11 +72,10 @@ public:
 
     ~SurfaceBuffer();
 
-    void initialize(struct wl_buffer *buffer);
+    void initialize(struct ::wl_resource *bufferResource);
     void destructBufferState();
 
-    inline int32_t width() const { return m_buffer->width; }
-    inline int32_t height() const { return m_buffer->height; }
+    QSize size() const;
 
     bool isShmBuffer() const;
 
@@ -104,7 +103,7 @@ public:
     inline GLuint texture() const;
     void destroyTexture();
 
-    inline struct wl_buffer *waylandBufferHandle() const { return m_buffer; }
+    inline struct ::wl_resource *waylandBufferHandle() const { return m_buffer; }
 
     void handleAboutToBeDisplayed();
     void handleDisplayed();
@@ -114,7 +113,7 @@ public:
 private:
     Surface *m_surface;
     Compositor *m_compositor;
-    struct wl_buffer *m_buffer;
+    struct ::wl_resource *m_buffer;
     struct surface_buffer_destroy_listener m_destroy_listener;
     QRect m_damageRect;
     bool m_committed;
@@ -131,8 +130,16 @@ private:
     uint m_guard;
 #endif
     void *m_handle;
-    bool m_is_shm_resolved;
-    bool m_is_shm;
+    mutable bool m_is_shm_resolved;
+
+#if (WAYLAND_VERSION_MAJOR >= 1) && (WAYLAND_VERSION_MINOR >= 2)
+    mutable struct ::wl_shm_buffer *m_shmBuffer;
+#else
+    mutable struct ::wl_buffer *m_shmBuffer;
+#endif
+
+    mutable bool m_isSizeResolved;
+    mutable QSize m_size;
 
     QImage m_image;
 

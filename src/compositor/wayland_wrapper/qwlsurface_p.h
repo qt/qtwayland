@@ -42,7 +42,6 @@
 #define WL_SURFACE_H
 
 #include <QtCompositor/qwaylandexport.h>
-#include <QtCompositor/qwaylandobject.h>
 
 #include <private/qwlsurfacebuffer_p.h>
 #include <QtCompositor/qwaylandsurface.h>
@@ -74,7 +73,7 @@ class ExtendedSurface;
 class SubSurface;
 class ShellSurface;
 
-class Q_COMPOSITOR_EXPORT Surface : public Object<struct ::wl_surface>, public QtWaylandServer::wl_surface
+class Q_COMPOSITOR_EXPORT Surface : public QtWaylandServer::wl_surface
 {
 public:
     Surface(struct wl_client *client, uint32_t id, Compositor *compositor);
@@ -86,8 +85,6 @@ public:
     bool isYInverted() const;
 
     bool visible() const;
-
-    uint id() const { return ::wl_surface::resource.object.id; }
 
     using QtWaylandServer::wl_surface::resource;
 
@@ -175,11 +172,11 @@ private:
     void damage(const QRect &rect);
     bool advanceBufferQueue();
     void doUpdate();
-    SurfaceBuffer *createSurfaceBuffer(struct wl_buffer *buffer);
+    SurfaceBuffer *createSurfaceBuffer(struct ::wl_resource *buffer);
     void frameFinishedInternal();
     bool postBuffer();
 
-    void attach(struct wl_buffer *buffer);
+    void attach(struct ::wl_resource *buffer);
 
     void surface_destroy_resource(Resource *resource) Q_DECL_OVERRIDE;
 

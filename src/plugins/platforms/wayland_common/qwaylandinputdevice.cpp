@@ -46,6 +46,8 @@
 #include "qwaylandbuffer.h"
 #include "qwaylanddatadevicemanager.h"
 #include "qwaylandtouch.h"
+#include "qwaylandscreen.h"
+#include "qwaylandcursor.h"
 
 #include <QtGui/private/qpixmap_raster_p.h>
 #include <qpa/qplatformwindow.h>
@@ -53,6 +55,7 @@
 
 #include <unistd.h>
 #include <fcntl.h>
+#include <sys/mman.h>
 
 #include <wayland-cursor.h>
 
@@ -63,18 +66,20 @@
 #include <X11/keysym.h>
 #endif
 
-QT_USE_NAMESPACE
+QT_BEGIN_NAMESPACE
 
 QWaylandInputDevice::QWaylandInputDevice(QWaylandDisplay *display, uint32_t id)
     : QtWayland::wl_seat(display->wl_registry(), id)
     , mQDisplay(display)
     , mDisplay(display->wl_display())
+    , mFocusCallback(0)
     , mCaps(0)
     , mTransferDevice(0)
     , mPointerFocus(0)
     , mKeyboardFocus(0)
     , mTouchFocus(0)
     , mButtons(0)
+    , mCursorSerial(0)
     , mTouchDevice(0)
     #ifndef QT_NO_WAYLAND_XKB
     , mXkbContext(0)
@@ -90,7 +95,7 @@ QWaylandInputDevice::QWaylandInputDevice(QWaylandDisplay *display, uint32_t id)
     names.variant = strdup("");
     names.options = strdup("");
 
-    xkb_context *mXkbContext = xkb_context_new(xkb_context_flags(0));
+    mXkbContext = xkb_context_new(xkb_context_flags(0));
     if (mXkbContext) {
         mXkbMap = xkb_map_new_from_names(mXkbContext, &names, xkb_map_compile_flags(0));
         if (mXkbMap) {
@@ -167,9 +172,28 @@ void QWaylandInputDevice::removeMouseButtonFromState(Qt::MouseButton button)
     mButtons = mButtons & !button;
 }
 
+void QWaylandInputDevice::setCursor(Qt::CursorShape newShape, QWaylandScreen *screen)
+{
+    struct wl_cursor_image *image = screen->waylandCursor()->cursorImage(newShape);
+    if (!image) {
+        return;
+    }
+
+    struct wl_buffer *buffer = wl_cursor_image_get_buffer(image);
+    setCursor(buffer, image);
+}
+
 void QWaylandInputDevice::setCursor(struct wl_buffer *buffer, struct wl_cursor_image *image)
 {
     if (mCaps & WL_SEAT_CAPABILITY_POINTER) {
+        mCursorSerial = mEnterSerial;
+        /* Hide cursor */
+        if (!buffer)
+        {
+            set_cursor(mEnterSerial, NULL, 0, 0);
+            return;
+        }
+
         set_cursor(mEnterSerial, pointerSurface,
                    image->hotspot_x, image->hotspot_y);
         wl_surface_attach(pointerSurface, buffer, 0, 0);
@@ -187,16 +211,17 @@ void QWaylandInputDevice::pointer_enter(uint32_t serial, struct wl_surface *surf
     if (!surface)
         return;
 
-    QGuiApplication::setOverrideCursor(QCursor(Qt::ArrowCursor));
-
     QWaylandWindow *window = QWaylandWindow::fromWlSurface(surface);
-    window->handleMouseEnter();
-    window->handleMouse(this, mTime, mSurfacePos, mGlobalPos, mButtons, Qt::NoModifier);
+    window->window()->setCursor(window->window()->cursor());
+
     mPointerFocus = window;
 
     mTime = QWaylandDisplay::currentTimeMillisec();
     mSerial = serial;
     mEnterSerial = serial;
+
+    window->handleMouseEnter(this);
+    window->handleMouse(this, mTime, mSurfacePos, mGlobalPos, mButtons, Qt::NoModifier);
 }
 
 void QWaylandInputDevice::pointer_leave(uint32_t time, struct wl_surface *surface)
@@ -206,10 +231,8 @@ void QWaylandInputDevice::pointer_leave(uint32_t time, struct wl_surface *surfac
     if (!surface)
         return;
 
-    QGuiApplication::restoreOverrideCursor();
-
     QWaylandWindow *window = QWaylandWindow::fromWlSurface(surface);
-    window->handleMouseLeave();
+    window->handleMouseLeave(this);
     mPointerFocus = 0;
     mButtons = Qt::NoButton;
 
@@ -401,30 +424,73 @@ static const uint32_t KeyTbl[] = {
     0,                          0
 };
 
-static uint32_t translateKey(uint32_t sym, char *string, size_t size)
+static int keysymToQtKey(xkb_keysym_t key)
 {
-    Q_UNUSED(size);
-    string[0] = '\0';
+    int code = 0;
+    int i = 0;
+    while (KeyTbl[i]) {
+        if (key == KeyTbl[i]) {
+            code = (int)KeyTbl[i+1];
+            break;
+        }
+        i += 2;
+    }
 
-    if (sym >= XK_F1 && sym <= XK_F35)
-        return Qt::Key_F1 + (int(sym) - XK_F1);
+    return code;
+}
 
-    for (int i = 0; KeyTbl[i]; i += 2)
-        if (sym == KeyTbl[i])
-            return KeyTbl[i + 1];
+static int keysymToQtKey(xkb_keysym_t keysym, Qt::KeyboardModifiers &modifiers, const QString &text)
+{
+    int code = 0;
 
-    string[0] = sym;
-    string[1] = '\0';
-    return toupper(sym);
+    if (keysym >= XKB_KEY_F1 && keysym <= XKB_KEY_F35) {
+        code =  Qt::Key_F1 + (int(keysym) - XKB_KEY_F1);
+    } else if (keysym >= XKB_KEY_KP_Space && keysym <= XKB_KEY_KP_9) {
+        if (keysym >= XKB_KEY_KP_0) {
+            // numeric keypad keys
+            code = Qt::Key_0 + ((int)keysym - XKB_KEY_KP_0);
+        } else {
+            code = keysymToQtKey(keysym);
+        }
+        modifiers |= Qt::KeypadModifier;
+    } else if (text.length() == 1 && text.unicode()->unicode() > 0x1f
+        && text.unicode()->unicode() != 0x7f
+        && !(keysym >= XKB_KEY_dead_grave && keysym <= XKB_KEY_dead_currency)) {
+        code = text.unicode()->toUpper().unicode();
+    } else {
+        // any other keys
+        code = keysymToQtKey(keysym);
+    }
+
+    return code;
 }
 
 #endif // QT_NO_WAYLAND_XKB
 
 void QWaylandInputDevice::keyboard_keymap(uint32_t format, int32_t fd, uint32_t size)
 {
+#ifndef QT_NO_WAYLAND_XKB
+    if (format != WL_KEYBOARD_KEYMAP_FORMAT_XKB_V1) {
+        close(fd);
+        return;
+    }
+
+    char *map_str = (char *)mmap(NULL, size, PROT_READ, MAP_SHARED, fd, 0);
+    if (map_str == MAP_FAILED) {
+        close(fd);
+        return;
+    }
+
+    mXkbMap = xkb_map_new_from_string(mXkbContext, map_str, XKB_KEYMAP_FORMAT_TEXT_V1, (xkb_keymap_compile_flags)0);
+    munmap(map_str, size);
+    close(fd);
+
+    mXkbState = xkb_state_new(mXkbMap);
+#else
     Q_UNUSED(format);
     Q_UNUSED(fd);
     Q_UNUSED(size);
+#endif
 }
 
 void QWaylandInputDevice::keyboard_enter(uint32_t time, struct wl_surface *surface, struct wl_array *keys)
@@ -435,10 +501,14 @@ void QWaylandInputDevice::keyboard_enter(uint32_t time, struct wl_surface *surfa
     if (!surface)
         return;
 
+
     QWaylandWindow *window = QWaylandWindow::fromWlSurface(surface);
     mKeyboardFocus = window;
-    mQDisplay->setLastKeyboardFocusInputDevice(this);
-    QWindowSystemInterface::handleWindowActivated(window->window());
+
+    if (!mFocusCallback) {
+        mFocusCallback = wl_display_sync(mDisplay);
+        wl_callback_add_listener(mFocusCallback, &QWaylandInputDevice::callback, this);
+    }
 }
 
 void QWaylandInputDevice::keyboard_leave(uint32_t time, struct wl_surface *surface)
@@ -447,7 +517,32 @@ void QWaylandInputDevice::keyboard_leave(uint32_t time, struct wl_surface *surfa
     Q_UNUSED(surface);
 
     mKeyboardFocus = NULL;
-    mQDisplay->setLastKeyboardFocusInputDevice(0);
+
+    // Use a callback to set the focus because we may get a leave/enter pair, and
+    // the latter one would be lost in the QWindowSystemInterface queue, if
+    // we issue the handleWindowActivated() calls immediately.
+    if (!mFocusCallback) {
+        mFocusCallback = wl_display_sync(mDisplay);
+        wl_callback_add_listener(mFocusCallback, &QWaylandInputDevice::callback, this);
+    }
+}
+
+const wl_callback_listener QWaylandInputDevice::callback = {
+    QWaylandInputDevice::focusCallback
+};
+
+void QWaylandInputDevice::focusCallback(void *data, struct wl_callback *callback, uint32_t time)
+{
+    Q_UNUSED(time);
+    Q_UNUSED(callback);
+    QWaylandInputDevice *self = static_cast<QWaylandInputDevice *>(data);
+    if (self->mFocusCallback) {
+        wl_callback_destroy(self->mFocusCallback);
+        self->mFocusCallback = 0;
+    }
+
+    self->mQDisplay->setLastKeyboardFocusInputDevice(self->mKeyboardFocus ? self : 0);
+    QWindowSystemInterface::handleWindowActivated(self->mKeyboardFocus ? self->mKeyboardFocus->window() : 0);
 }
 
 void QWaylandInputDevice::keyboard_key(uint32_t serial, uint32_t time, uint32_t key, uint32_t state)
@@ -476,15 +571,15 @@ void QWaylandInputDevice::keyboard_key(uint32_t serial, uint32_t time, uint32_t 
         Qt::KeyboardModifiers modifiers = translateModifiers(mXkbState);
         QEvent::Type type = isDown ? QEvent::KeyPress : QEvent::KeyRelease;
 
-        char s[2];
-        sym = translateKey(sym, s, sizeof s);
+        uint utf32 = xkb_keysym_to_utf32(sym);
+        QString text = QString::fromUcs4(&utf32, 1);
 
-        if (window)
-            QWindowSystemInterface::handleExtendedKeyEvent(window->window(),
-                                                           time, type, sym,
-                                                           modifiers,
-                                                           code, 0, 0,
-                                                           QString::fromLatin1(s));
+        int qtkey = keysymToQtKey(sym, modifiers, text);
+
+        QWindowSystemInterface::handleExtendedKeyEvent(window->window(),
+                                                       time, type, qtkey,
+                                                       modifiers,
+                                                       code, 0, 0, text);
     }
 #else
     // Generic fallback for single hard keys: Assume 'key' is a Qt key code.
@@ -621,7 +716,9 @@ void QWaylandInputDevice::touch_frame()
         return;
     }
 
-    QWindowSystemInterface::handleTouchEvent(0, mTouchDevice, mTouchPoints);
+    QWindow *window = mTouchFocus ? mTouchFocus->window() : 0;
+
+    QWindowSystemInterface::handleTouchEvent(window, mTouchDevice, mTouchPoints);
 
     bool allReleased = true;
     for (int i = 0; i < mTouchPoints.count(); ++i)
@@ -634,7 +731,9 @@ void QWaylandInputDevice::touch_frame()
     mTouchPoints.clear();
 
     if (allReleased) {
-        QWindowSystemInterface::handleTouchEvent(0, mTouchDevice, mTouchPoints);
+        QWindowSystemInterface::handleTouchEvent(window, mTouchDevice, mTouchPoints);
         mPrevTouchPoints.clear();
     }
 }
+
+QT_END_NAMESPACE

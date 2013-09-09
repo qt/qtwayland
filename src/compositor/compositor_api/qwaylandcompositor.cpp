@@ -116,7 +116,7 @@ QList<QWaylandSurface *> QWaylandCompositor::surfacesForClient(WaylandClient* c)
     QList<QWaylandSurface *> result;
 
     for (int i = 0; i < surfaces.count(); ++i) {
-        if (surfaces.at(i)->base()->resource.client == client) {
+        if (surfaces.at(i)->resource()->client() == client) {
             result.append(surfaces.at(i)->waylandSurface());
         }
     }
@@ -124,9 +124,9 @@ QList<QWaylandSurface *> QWaylandCompositor::surfacesForClient(WaylandClient* c)
     return result;
 }
 
-void QWaylandCompositor::setDirectRenderSurface(QWaylandSurface *surface, QOpenGLContext *context)
+bool QWaylandCompositor::setDirectRenderSurface(QWaylandSurface *surface, QOpenGLContext *context)
 {
-    m_compositor->setDirectRenderSurface(surface ? surface->handle() : 0, context);
+    return m_compositor->setDirectRenderSurface(surface ? surface->handle() : 0, context);
 }
 
 QWaylandSurface *QWaylandCompositor::directRenderSurface() const

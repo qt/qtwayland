@@ -57,14 +57,12 @@ QtKeyExtensionGlobal::QtKeyExtensionGlobal(Compositor *compositor)
 
 bool QtKeyExtensionGlobal::postQtKeyEvent(QKeyEvent *event, Surface *surface)
 {
-    wl_client *surfaceClient = surface->resource()->client();
-
     uint32_t time = m_compositor->currentTimeMsecs();
 
-    struct wl_resource *target = resourceForClient(resourceList(), surfaceClient);
+    Resource *target = surface ? resourceMap().value(surface->resource()->client()) : 0;
 
     if (target) {
-        send_qtkey(target,
+        send_qtkey(target->handle,
                    time, event->type(), event->key(), event->modifiers(),
                    event->nativeScanCode(),
                    event->nativeVirtualKey(),

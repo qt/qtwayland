@@ -134,7 +134,6 @@ protected:
 private:
     friend class QWaylandSurfaceNode;
     void updateTexture();
-    QPoint toSurface(const QPointF &pos) const;
     void init(QWaylandSurface *);
     void ensureProvider();
 

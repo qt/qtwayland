@@ -92,7 +92,7 @@ QWaylandSurface::QWaylandSurface(QtWayland::Surface *surface)
 WaylandClient *QWaylandSurface::client() const
 {
     Q_D(const QWaylandSurface);
-    return d->surface->base()->resource.client;
+    return d->surface->resource()->client();
 }
 
 QWaylandSurface *QWaylandSurface::parentSurface() const
@@ -149,13 +149,7 @@ QSize QWaylandSurface::size() const
     return d->surface->size();
 }
 
-void QWaylandSurface::setSize(const QSize &size)
-{
-    Q_D(QWaylandSurface);
-    d->surface->setSize(size);
-}
-
-void QWaylandSurface::sendConfigure(const QSize &size)
+void QWaylandSurface::requestSize(const QSize &size)
 {
     Q_D(QWaylandSurface);
     if (d->surface->shellSurface())
@@ -226,7 +220,6 @@ void QWaylandSurface::setSurfaceItem(QWaylandSurfaceItem *surfaceItem)
 
 qint64 QWaylandSurface::processId() const
 {
-    Q_D(const QWaylandSurface);
     struct wl_client *client = static_cast<struct wl_client *>(this->client());
     pid_t pid;
     wl_client_get_credentials(client,&pid, 0,0);
@@ -291,11 +284,25 @@ QWaylandSurface *QWaylandSurface::transientParent() const
     return 0;
 }
 
-void QWaylandSurface::sendOnScreenVisibilityChange(bool visible)
+QWindow::Visibility QWaylandSurface::visibility() const
+{
+    Q_D(const QWaylandSurface);
+    if (d->surface->extendedSurface())
+        return d->surface->extendedSurface()->visibility();
+
+    return QWindow::AutomaticVisibility;
+}
+
+void QWaylandSurface::setVisibility(QWindow::Visibility visibility)
 {
     Q_D(QWaylandSurface);
     if (d->surface->extendedSurface())
-        d->surface->extendedSurface()->sendOnScreenVisibility(visible);
+        d->surface->extendedSurface()->setVisibility(visibility);
+}
+
+void QWaylandSurface::sendOnScreenVisibilityChange(bool visible)
+{
+    setVisibility(visible ? QWindow::AutomaticVisibility : QWindow::Hidden);
 }
 
 QString QWaylandSurface::className() const
@@ -326,6 +333,23 @@ bool QWaylandSurface::transientInactive() const
 {
     Q_D(const QWaylandSurface);
     return d->surface->transientInactive();
+}
+
+void QWaylandSurface::destroySurface()
+{
+    Q_D(QWaylandSurface);
+    if (d->surface->extendedSurface()) {
+        d->surface->extendedSurface()->send_close();
+    } else {
+        destroySurfaceByForce();
+    }
+}
+
+void QWaylandSurface::destroySurfaceByForce()
+{
+    Q_D(QWaylandSurface);
+   wl_resource *surface_resource = d->surface->resource()->handle;
+   wl_resource_destroy(surface_resource);
 }
 
 QT_END_NAMESPACE

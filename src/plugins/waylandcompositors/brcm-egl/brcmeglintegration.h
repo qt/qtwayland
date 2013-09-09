@@ -42,31 +42,30 @@
 #define BRCMEGLINTEGRATION_H
 
 #include <QtCompositor/qwaylandgraphicshardwareintegration.h>
+#include "qwayland-server-brcm.h"
+
 #include <QtCore/QScopedPointer>
 
 QT_BEGIN_NAMESPACE
 
 class BrcmEglIntegrationPrivate;
 
-class BrcmEglIntegration : public QWaylandGraphicsHardwareIntegration
+class BrcmEglIntegration : public QWaylandGraphicsHardwareIntegration, public QtWaylandServer::qt_brcm
 {
     Q_DECLARE_PRIVATE(BrcmEglIntegration)
 public:
     BrcmEglIntegration();
 
-    void initializeHardware(QtWayland::Display *waylandDisplay);
+    void initializeHardware(QtWayland::Display *waylandDisplay) Q_DECL_OVERRIDE;
 
-    GLuint createTextureFromBuffer(wl_buffer *buffer, QOpenGLContext *context);
-    bool isYInverted(struct wl_buffer *) const;
+    GLuint createTextureFromBuffer(struct ::wl_resource *buffer, QOpenGLContext *context) Q_DECL_OVERRIDE;
+    bool isYInverted(struct ::wl_resource *) const Q_DECL_OVERRIDE;
 
-    static void create_buffer(struct wl_client *client,
-                          struct wl_resource *brcm,
-                          uint32_t id,
-                          int32_t width,
-                          int32_t height,
-                          wl_array *data);
+    QSize bufferSize(struct ::wl_resource *buffer) const Q_DECL_OVERRIDE;
 
-    static void brcm_bind_func(struct wl_client *client, void *data, uint32_t version, uint32_t id);
+protected:
+    void brcm_bind_resource(Resource *resource) Q_DECL_OVERRIDE;
+    void brcm_create_buffer(Resource *resource, uint32_t id, int32_t width, int32_t height, wl_array *data) Q_DECL_OVERRIDE;
 
 private:
     Q_DISABLE_COPY(BrcmEglIntegration)

@@ -54,7 +54,7 @@
 
 #include <QDebug>
 
-QT_USE_NAMESPACE
+QT_BEGIN_NAMESPACE
 
 class QWaylandWindowManagerIntegrationPrivate {
 public:
@@ -93,7 +93,7 @@ bool QWaylandWindowManagerIntegration::showIsFullScreen() const
 void QWaylandWindowManagerIntegration::wlHandleListenerGlobal(void *data, wl_registry *registry, uint32_t id, const QString &interface, uint32_t version)
 {
     Q_UNUSED(version);
-    if (interface == "wl_windowmanager")
+    if (interface == "qt_windowmanager")
         static_cast<QWaylandWindowManagerIntegration *>(data)->init(registry, id);
 }
 
@@ -108,6 +108,27 @@ void QWaylandWindowManagerIntegration::windowmanager_quit()
     QGuiApplication::quit();
 }
 
+QByteArray QWaylandWindowManagerIntegration::desktopEnvironment() const
+{
+    const QByteArray xdgCurrentDesktop = qgetenv("XDG_CURRENT_DESKTOP");
+    if (!xdgCurrentDesktop.isEmpty())
+        return xdgCurrentDesktop.toUpper(); // KDE, GNOME, UNITY, LXDE, MATE, XFCE...
+
+    // Classic fallbacks
+    if (!qEnvironmentVariableIsEmpty("KDE_FULL_SESSION"))
+        return QByteArrayLiteral("KDE");
+    if (!qEnvironmentVariableIsEmpty("GNOME_DESKTOP_SESSION_ID"))
+        return QByteArrayLiteral("GNOME");
+
+    // Fallback to checking $DESKTOP_SESSION (unreliable)
+    const QByteArray desktopSession = qgetenv("DESKTOP_SESSION");
+    if (desktopSession == "gnome")
+        return QByteArrayLiteral("GNOME");
+    if (desktopSession == "xfce")
+        return QByteArrayLiteral("XFCE");
+
+    return QByteArrayLiteral("UNKNOWN");
+}
 
 void QWaylandWindowManagerIntegration::openUrl_helper(const QUrl &url)
 {
@@ -134,3 +155,5 @@ bool QWaylandWindowManagerIntegration::openDocument(const QUrl &url)
     openUrl_helper(url);
     return true;
 }
+
+QT_END_NAMESPACE

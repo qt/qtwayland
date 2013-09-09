@@ -41,8 +41,8 @@
 #ifndef XCOMPOSITEBUFFER_H
 #define XCOMPOSITEBUFFER_H
 
-#include <QtCompositor/qwaylandobject.h>
 #include <private/qwlcompositor_p.h>
+#include <qwayland-server-wayland.h>
 
 #include <QtCore/QSize>
 
@@ -55,7 +55,7 @@
 
 QT_BEGIN_NAMESPACE
 
-class XCompositeBuffer : public QtWayland::Object<struct wl_buffer>
+class XCompositeBuffer : public QtWaylandServer::wl_buffer
 {
 public:
     XCompositeBuffer(Window window, const QSize &size,
@@ -63,18 +63,21 @@ public:
 
     Window window();
 
-    static struct wl_buffer_interface buffer_interface;
-    static void delete_resource(struct wl_resource *resource);
-
     bool isYInverted() const { return mInvertedY; }
     void setInvertedY(bool inverted) { mInvertedY = inverted; }
+
+    QSize size() const { return mSize; }
+
+    static XCompositeBuffer *fromResource(struct ::wl_resource *resource) { return static_cast<XCompositeBuffer*>(Resource::fromResource(resource)->buffer); }
+
+protected:
+    void buffer_destroy_resource(Resource *) Q_DECL_OVERRIDE;
+    void buffer_destroy(Resource *) Q_DECL_OVERRIDE;
 
 private:
     Window mWindow;
     bool mInvertedY;
-
-    static void buffer_interface_destroy(struct wl_client *client,
-                                         struct wl_resource *buffer);
+    QSize mSize;
 };
 
 QT_END_NAMESPACE

@@ -57,7 +57,7 @@ QT_BEGIN_NAMESPACE
 class QWaylandWindow;
 class QWindow;
 
-struct wl_brcm;
+struct qt_brcm;
 
 class QWaylandBrcmEglIntegration : public QWaylandGLIntegration
 {
@@ -74,7 +74,7 @@ public:
 
     EGLDisplay eglDisplay() const;
 
-    struct wl_brcm *waylandBrcm() const;
+    struct qt_brcm *waylandBrcm() const;
 
     PFNEGLFLUSHBRCMPROC eglFlushBRCM;
     PFNEGLCREATEGLOBALIMAGEBRCMPROC eglCreateGlobalImageBRCM;
@@ -84,7 +84,7 @@ private:
     static void wlDisplayHandleGlobal(void *data, struct wl_registry *registry, uint32_t id, const QString &interface, uint32_t version);
 
     struct wl_display *m_waylandDisplay;
-    struct wl_brcm *m_waylandBrcm;
+    struct qt_brcm *m_waylandBrcm;
 
     EGLDisplay m_eglDisplay;
 };

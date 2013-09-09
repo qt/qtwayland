@@ -42,13 +42,14 @@
 #define WLEXTENDEDSURFACE_H
 
 #include <wayland-server.h>
-#include "wayland-surface-extension-server-protocol.h"
 
+#include "qwayland-server-surface-extension.h"
 #include <private/qwlsurface_p.h>
 #include <QtCompositor/qwaylandsurface.h>
 
 #include <QtCore/QVariant>
 #include <QtCore/QLinkedList>
+#include <QtGui/QWindow>
 
 QT_BEGIN_NAMESPACE
 
@@ -58,32 +59,28 @@ namespace QtWayland {
 
 class Compositor;
 
-class SurfaceExtensionGlobal
+class SurfaceExtensionGlobal : public QtWaylandServer::qt_surface_extension
 {
 public:
     SurfaceExtensionGlobal(Compositor *compositor);
 
 private:
-    Compositor *m_compositor;
-
-    static void bind_func(struct wl_client *client, void *data,
-                          uint32_t version, uint32_t id);
-    static void get_extended_surface(struct wl_client *client,
-                                 struct wl_resource *resource,
-                                 uint32_t id,
-                                 struct wl_resource *surface);
-    static const struct qt_surface_extension_interface surface_extension_interface;
+    void surface_extension_get_extended_surface(Resource *resource,
+                                                uint32_t id,
+                                                struct wl_resource *surface);
 
 };
 
-class ExtendedSurface
+class ExtendedSurface : public QtWaylandServer::qt_extended_surface
 {
 public:
     ExtendedSurface(struct wl_client *client, uint32_t id, Surface *surface);
     ~ExtendedSurface();
 
     void sendGenericProperty(const QString &name, const QVariant &variant);
-    void sendOnScreenVisibility(bool visible);
+
+    QWindow::Visibility visibility() const { return m_visibility; }
+    void setVisibility(QWindow::Visibility visibility, bool updateClient = true);
 
     void setSubSurface(ExtendedSurface *subSurface,int x, int y);
     void removeSubSurface(ExtendedSurface *subSurfaces);
@@ -95,40 +92,34 @@ public:
 
     QWaylandSurface::WindowFlags windowFlags() const { return m_windowFlags; }
 
-    qint64 processId() const;
-    void setProcessId(qint64 processId);
-
     QVariantMap windowProperties() const;
     QVariant windowProperty(const QString &propertyName) const;
     void setWindowProperty(const QString &name, const QVariant &value, bool writeUpdateToClient = true);
 
 private:
-    struct wl_resource *m_extended_surface_resource;
     Surface *m_surface;
 
     Qt::ScreenOrientation m_contentOrientation;
 
     QWaylandSurface::WindowFlags m_windowFlags;
+    QWindow::Visibility m_visibility;
 
     QByteArray m_authenticationToken;
     QVariantMap m_windowProperties;
 
+    void extended_surface_update_generic_property(Resource *resource,
+                                                  const QString &name,
+                                                  struct wl_array *value) Q_DECL_OVERRIDE;
 
-    static void update_generic_property(struct wl_client *client,
-                                    struct wl_resource *resource,
-                                    const char *name,
-                                    struct wl_array *value);
+    void extended_surface_set_content_orientation(Resource *resource,
+                                                  int32_t orientation) Q_DECL_OVERRIDE;
 
-    static void set_content_orientation(struct wl_client *client,
-                                        struct wl_resource *resource,
-                                        int32_t orientation);
+    void extended_surface_set_window_flags(Resource *resource,
+                                           int32_t flags) Q_DECL_OVERRIDE;
 
-    static void set_window_flags(struct wl_client *client,
-                                 struct wl_resource *resource,
-                                 int32_t flags);
-    void setWindowFlags(QWaylandSurface::WindowFlags flags);
-
-    static const struct qt_extended_surface_interface extended_surface_interface;
+    void extended_surface_destroy_resource(Resource *) Q_DECL_OVERRIDE;
+    void extended_surface_raise(Resource *) Q_DECL_OVERRIDE;
+    void extended_surface_lower(Resource *) Q_DECL_OVERRIDE;
 };
 
 }

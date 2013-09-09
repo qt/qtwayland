@@ -42,7 +42,7 @@
 #include "qwaylandtouch.h"
 #include "qwaylandinputdevice.h"
 
-QT_USE_NAMESPACE
+QT_BEGIN_NAMESPACE
 
 QWaylandTouchExtension::QWaylandTouchExtension(QWaylandDisplay *display, uint32_t id)
     : QtWayland::qt_touch_extension(display->wl_registry(), id),
@@ -78,7 +78,7 @@ void QWaylandTouchExtension::touch_extension_touch(uint32_t time,
     if (!mInputDevice) {
         QList<QWaylandInputDevice *> inputDevices = mDisplay->inputDevices();
         if (inputDevices.isEmpty()) {
-            qWarning("wl_touch_extension: handle_touch: No input devices");
+            qWarning("qt_touch_extension: handle_touch: No input devices");
             return;
         }
         mInputDevice = inputDevices.first();
@@ -89,7 +89,7 @@ void QWaylandTouchExtension::touch_extension_touch(uint32_t time,
     if (!win)
         win = mInputDevice->mKeyboardFocus;
     if (!win || !win->window()) {
-        qWarning("wl_touch_extension: handle_touch: No pointer focus");
+        qWarning("qt_touch_extension: handle_touch: No pointer focus");
         return;
     }
     mTargetWindow = win->window();
@@ -205,3 +205,5 @@ void QWaylandTouchExtension::touch_extension_configure(uint32_t flags)
 {
     mFlags = flags;
 }
+
+QT_END_NAMESPACE

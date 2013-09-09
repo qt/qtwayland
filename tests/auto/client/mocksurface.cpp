@@ -44,113 +44,11 @@
 
 namespace Impl {
 
-void destroy_surface(wl_resource *resource)
-{
-    Surface *surface = static_cast<Surface *>(resource->data);
-    surface->compositor()->removeSurface(surface);
-    delete surface;
-}
-
-static void surface_destroy(wl_client *, wl_resource *surfaceResource)
-{
-    wl_resource_destroy(surfaceResource);
-}
-
-void surface_attach(wl_client *client, wl_resource *surfaceResource,
-                    wl_resource *buffer, int x, int y)
-{
-    Q_UNUSED(client);
-    Q_UNUSED(x);
-    Q_UNUSED(y);
-
-    Surface *surface = static_cast<Surface *>(surfaceResource->data);
-    surface->m_buffer = buffer ? static_cast<wl_buffer *>(buffer->data) : 0;
-
-    if (!buffer)
-        surface->m_mockSurface->image = QImage();
-}
-
-void surface_damage(wl_client *client, wl_resource *surfaceResource,
-                    int32_t x, int32_t y, int32_t width, int32_t height)
-{
-    Q_UNUSED(client);
-    Q_UNUSED(x);
-    Q_UNUSED(y);
-    Q_UNUSED(width);
-    Q_UNUSED(height);
-
-    Surface *surface = static_cast<Surface *>(surfaceResource->data);
-    wl_buffer *buffer = surface->m_buffer;
-
-    if (!buffer)
-        return;
-
-    if (wl_buffer_is_shm(buffer)) {
-        int stride = wl_shm_buffer_get_stride(buffer);
-        uint format = wl_shm_buffer_get_format(buffer);
-        (void) format;
-        void *data = wl_shm_buffer_get_data(buffer);
-        const uchar *char_data = static_cast<const uchar *>(data);
-        QImage img(char_data, buffer->width, buffer->height, stride, QImage::Format_ARGB32_Premultiplied);
-        surface->m_mockSurface->image = img;
-    }
-
-    wl_resource *frameCallback;
-    wl_list_for_each(frameCallback, &surface->m_frameCallbackList, link) {
-        wl_callback_send_done(frameCallback, surface->m_compositor->time());
-        wl_resource_destroy(frameCallback);
-    }
-
-    wl_list_init(&surface->m_frameCallbackList);
-}
-
-void surface_frame(wl_client *client,
-                   wl_resource *surfaceResource,
-                   uint32_t callback)
-{
-    Surface *surface = static_cast<Surface *>(surfaceResource->data);
-    wl_resource *frameCallback = wl_client_add_object(client, &wl_callback_interface, 0, callback, surface);
-    wl_list_insert(&surface->m_frameCallbackList, &frameCallback->link);
-}
-
-void surface_set_opaque_region(wl_client *client, wl_resource *surfaceResource,
-                               wl_resource *region)
-{
-    Q_UNUSED(client);
-    Q_UNUSED(surfaceResource);
-    Q_UNUSED(region);
-}
-
-void surface_set_input_region(wl_client *client, wl_resource *surfaceResource,
-                              wl_resource *region)
-{
-    Q_UNUSED(client);
-    Q_UNUSED(surfaceResource);
-    Q_UNUSED(region);
-}
-
 Surface::Surface(wl_client *client, uint32_t id, Compositor *compositor)
-    : m_surface(wl_surface())
+    : QtWaylandServer::wl_surface(client, id)
     , m_compositor(compositor)
     , m_mockSurface(new MockSurface(this))
 {
-    static const struct wl_surface_interface surfaceInterface = {
-        surface_destroy,
-        surface_attach,
-        surface_damage,
-        surface_frame,
-        surface_set_opaque_region,
-        surface_set_input_region
-    };
-
-    m_surface.resource.object.id = id;
-    m_surface.resource.object.interface = &wl_surface_interface;
-    m_surface.resource.object.implementation = (Implementation)&surfaceInterface;
-    m_surface.resource.data = this;
-    m_surface.resource.destroy = destroy_surface;
-
-    wl_client_add_resource(client, &m_surface.resource);
-
     wl_list_init(&m_frameCallbackList);
 }
 
@@ -159,8 +57,81 @@ Surface::~Surface()
     m_mockSurface->m_surface = 0;
 }
 
+void Surface::surface_destroy_resource(Resource *)
+{
+    compositor()->removeSurface(this);
+    delete this;
 }
 
+void Surface::surface_destroy(Resource *resource)
+{
+    wl_resource_destroy(resource->handle);
+}
+
+void Surface::surface_attach(Resource *resource,
+                             struct wl_resource *buffer, int x, int y)
+{
+    Q_UNUSED(resource);
+    Q_UNUSED(x);
+    Q_UNUSED(y);
+    m_buffer = buffer;
+
+    if (!buffer)
+        m_mockSurface->image = QImage();
+}
+
+void Surface::surface_damage(Resource *resource,
+                             int32_t x, int32_t y, int32_t width, int32_t height)
+{
+    Q_UNUSED(resource);
+    Q_UNUSED(x);
+    Q_UNUSED(y);
+    Q_UNUSED(width);
+    Q_UNUSED(height);
+
+    if (!m_buffer)
+        return;
+
+#if WAYLAND_VERSION_CHECK(1, 2, 0)
+    struct ::wl_shm_buffer *shm_buffer = wl_shm_buffer_get(m_buffer);
+#else
+    struct ::wl_buffer *shm_buffer = 0;
+    if (wl_buffer_is_shm(static_cast<struct ::wl_buffer*>(m_buffer->data)))
+        shm_buffer = static_cast<struct ::wl_buffer*>(m_buffer->data);
+#endif
+
+    if (shm_buffer) {
+        int stride = wl_shm_buffer_get_stride(shm_buffer);
+        uint format = wl_shm_buffer_get_format(shm_buffer);
+        Q_UNUSED(format);
+        void *data = wl_shm_buffer_get_data(shm_buffer);
+        const uchar *char_data = static_cast<const uchar *>(data);
+        QImage img(char_data, wl_shm_buffer_get_width(shm_buffer), wl_shm_buffer_get_height(shm_buffer), stride, QImage::Format_ARGB32_Premultiplied);
+        m_mockSurface->image = img;
+    }
+
+    wl_resource *frameCallback;
+    wl_list_for_each(frameCallback, &m_frameCallbackList, link) {
+        wl_callback_send_done(frameCallback, m_compositor->time());
+        wl_resource_destroy(frameCallback);
+    }
+
+    wl_list_init(&m_frameCallbackList);
+}
+
+void Surface::surface_frame(Resource *resource,
+                            uint32_t callback)
+{
+    wl_resource *frameCallback = wl_client_add_object(resource->client(), &wl_callback_interface, 0, callback, this);
+    wl_list_insert(&m_frameCallbackList, &frameCallback->link);
+}
+
+void Surface::surface_commit(Resource *resource)
+{
+    Q_UNUSED(resource);
+}
+
+}
 MockSurface::MockSurface(Impl::Surface *surface)
     : m_surface(surface)
 {

@@ -53,7 +53,13 @@
 
 #include <X11/Xlib.h>
 
-struct wl_xcomposite;
+// avoid clashes with Qt::CursorShape
+#ifdef CursorShape
+#   define X_CursorShape CursorShape
+#   undef CursorShape
+#endif
+
+struct qt_xcomposite;
 
 QT_BEGIN_NAMESPACE
 
@@ -70,7 +76,7 @@ public:
     QPlatformOpenGLContext *createPlatformOpenGLContext(const QSurfaceFormat &glFormat, QPlatformOpenGLContext *share) const;
 
     QWaylandDisplay *waylandDisplay() const;
-    struct wl_xcomposite *waylandXComposite() const;
+    struct qt_xcomposite *waylandXComposite() const;
 
     Display *xDisplay() const;
     int screen() const;
@@ -80,7 +86,7 @@ public:
 
 private:
     QWaylandDisplay *mWaylandDisplay;
-    struct wl_xcomposite *mWaylandComposite;
+    struct qt_xcomposite *mWaylandComposite;
 
     Display *mDisplay;
     int mScreen;
@@ -89,9 +95,9 @@ private:
     static void wlDisplayHandleGlobal(void *data, struct wl_registry *registry, uint32_t id,
                                       const QString &interface, uint32_t version);
 
-    static const struct wl_xcomposite_listener xcomposite_listener;
+    static const struct qt_xcomposite_listener xcomposite_listener;
     static void rootInformation(void *data,
-                 struct wl_xcomposite *xcomposite,
+                 struct qt_xcomposite *xcomposite,
                  const char *display_name,
                  uint32_t root_window);
 };

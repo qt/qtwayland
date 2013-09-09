@@ -69,7 +69,10 @@ public:
     Qt::ScreenOrientation orientation() const;
     qreal refreshRate() const;
 
+    QString name() const { return mOutputName; }
+
     QPlatformCursor *cursor() const;
+    QWaylandCursor *waylandCursor() const { return mWaylandCursor; };
 
     ::wl_output *output() { return object(); }
 
@@ -94,6 +97,7 @@ private:
     int mRefreshRate;
     QImage::Format mFormat;
     QSize mPhysicalSize;
+    QString mOutputName;
 
     QWaylandCursor *mWaylandCursor;
 };

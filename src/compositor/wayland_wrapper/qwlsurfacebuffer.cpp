@@ -67,7 +67,9 @@ SurfaceBuffer::SurfaceBuffer(Surface *surface)
     , m_texture(0)
     , m_guard(0)
     , m_is_shm_resolved(false)
-    , m_is_shm(false)
+    , m_shmBuffer(0)
+    , m_isSizeResolved(false)
+    , m_size()
     , m_image(0)
 {
 }
@@ -78,7 +80,7 @@ SurfaceBuffer::~SurfaceBuffer()
         destructBufferState();
 }
 
-void SurfaceBuffer::initialize(wl_buffer *buffer)
+void SurfaceBuffer::initialize(struct ::wl_resource *buffer)
 {
     m_buffer = buffer;
     m_texture = 0;
@@ -91,11 +93,13 @@ void SurfaceBuffer::initialize(wl_buffer *buffer)
     m_destroyed = false;
     m_handle = 0;
     m_is_shm_resolved = false;
-    m_is_shm = false;
+    m_shmBuffer = 0;
+    m_isSizeResolved = false;
+    m_size = QSize();
     m_destroy_listener.surfaceBuffer = this;
     m_destroy_listener.listener.notify = destroy_listener_callback;
     if (buffer)
-        wl_signal_add(&buffer->resource.destroy_signal, &m_destroy_listener.listener);
+        wl_signal_add(&buffer->destroy_signal, &m_destroy_listener.listener);
     m_damageRect = QRect();
 }
 
@@ -107,7 +111,7 @@ void SurfaceBuffer::destructBufferState()
 
     if (m_buffer) {
         if (m_handle) {
-            if (m_is_shm) {
+            if (m_shmBuffer) {
                 delete static_cast<QImage *>(m_handle);
 #ifdef QT_COMPOSITOR_WAYLAND_GL
             } else {
@@ -127,20 +131,40 @@ void SurfaceBuffer::destructBufferState()
     m_image = QImage();
 }
 
+QSize SurfaceBuffer::size() const
+{
+    if (!m_isSizeResolved) {
+        if (isShmBuffer()) {
+            m_size = QSize(wl_shm_buffer_get_width(m_shmBuffer), wl_shm_buffer_get_height(m_shmBuffer));
+#ifdef QT_COMPOSITOR_WAYLAND_GL
+        } else {
+            QWaylandGraphicsHardwareIntegration *hwIntegration = m_compositor->graphicsHWIntegration();
+            m_size = hwIntegration->bufferSize(m_buffer);
+#endif
+        }
+    }
+
+    return m_size;
+}
+
 bool SurfaceBuffer::isShmBuffer() const
 {
     if (!m_is_shm_resolved) {
-        SurfaceBuffer *that = const_cast<SurfaceBuffer *>(this);
-        that->m_is_shm = wl_buffer_is_shm(m_buffer);
-        that->m_is_shm_resolved = true;
+#if (WAYLAND_VERSION_MAJOR >= 1) && (WAYLAND_VERSION_MINOR >= 2)
+        m_shmBuffer = wl_shm_buffer_get(m_buffer);
+#else
+        if (wl_buffer_is_shm(static_cast<struct ::wl_buffer*>(m_buffer->data)))
+            m_shmBuffer = static_cast<struct ::wl_buffer*>(m_buffer->data);
+#endif
+        m_is_shm_resolved = true;
     }
-    return m_is_shm;
+    return m_shmBuffer != 0;
 }
 
 void SurfaceBuffer::sendRelease()
 {
     Q_ASSERT(m_buffer);
-    wl_buffer_send_release(&m_buffer->resource);
+    wl_buffer_send_release(m_buffer);
 }
 
 void SurfaceBuffer::setPageFlipperHasBuffer(bool owns)
@@ -221,10 +245,10 @@ void *SurfaceBuffer::handle() const
     if (!m_handle) {
         SurfaceBuffer *that = const_cast<SurfaceBuffer *>(this);
         if (isShmBuffer()) {
-            const uchar *data = static_cast<const uchar *>(wl_shm_buffer_get_data(m_buffer));
-            int stride = wl_shm_buffer_get_stride(m_buffer);
-            int width = m_buffer->width;
-            int height = m_buffer->height;
+            const uchar *data = static_cast<const uchar *>(wl_shm_buffer_get_data(m_shmBuffer));
+            int stride = wl_shm_buffer_get_stride(m_shmBuffer);
+            int width = wl_shm_buffer_get_width(m_shmBuffer);
+            int height = wl_shm_buffer_get_height(m_shmBuffer);
             QImage *image = new QImage(data,width,height,stride, QImage::Format_ARGB32_Premultiplied);
             that->m_handle = image;
 #ifdef QT_COMPOSITOR_WAYLAND_GL
@@ -245,10 +269,10 @@ QImage SurfaceBuffer::image()
 
     if (m_image.isNull())
     {
-        const uchar *data = static_cast<const uchar *>(wl_shm_buffer_get_data(m_buffer));
-        int stride = wl_shm_buffer_get_stride(m_buffer);
-        int width = m_buffer->width;
-        int height = m_buffer->height;
+        const uchar *data = static_cast<const uchar *>(wl_shm_buffer_get_data(m_shmBuffer));
+        int stride = wl_shm_buffer_get_stride(m_shmBuffer);
+        int width = wl_shm_buffer_get_width(m_shmBuffer);
+        int height = wl_shm_buffer_get_height(m_shmBuffer);
         m_image = QImage(data, width, height, stride, QImage::Format_ARGB32_Premultiplied);
     }
 

@@ -53,13 +53,17 @@
 #include <qpa/qplatformnativeinterface.h>
 #include <qpa/qwindowsysteminterface.h>
 
-QT_USE_NAMESPACE
+QT_BEGIN_NAMESPACE
 
 QWaylandExtendedSurface::QWaylandExtendedSurface(QWaylandWindow *window, struct ::qt_extended_surface *extended_surface)
     : QtWayland::qt_extended_surface(extended_surface)
     , m_window(window)
-    , m_exposed(true)
 {
+}
+
+QWaylandExtendedSurface::~QWaylandExtendedSurface()
+{
+    qt_extended_surface_destroy(object());
 }
 
 void QWaylandExtendedSurface::updateGenericProperty(const QString &name, const QVariant &value)
@@ -107,18 +111,9 @@ QVariant QWaylandExtendedSurface::property(const QString &name, const QVariant &
     return m_properties.value(name,defaultValue);
 }
 
-void QWaylandExtendedSurface::extended_surface_onscreen_visibility(int32_t visible)
+void QWaylandExtendedSurface::extended_surface_onscreen_visibility(int32_t visibility)
 {
-    // Do not send events when the state is not changing...
-    if (visible == m_exposed)
-        return;
-
-    m_exposed = visible;
-    QWaylandWindow *w = m_window;
-    QWindowSystemInterface::handleExposeEvent(w->window(),
-                                              visible
-                                              ? QRegion(w->geometry())
-                                              : QRegion());
+    m_window->window()->setVisibility(static_cast<QWindow::Visibility>(visibility));
 }
 
 void QWaylandExtendedSurface::extended_surface_set_generic_property(const QString &name, wl_array *value)
@@ -136,6 +131,11 @@ void QWaylandExtendedSurface::extended_surface_set_generic_property(const QStrin
     nativeInterface->emitWindowPropertyChanged(m_window, name);
 }
 
+void QWaylandExtendedSurface::extended_surface_close()
+{
+    QWindowSystemInterface::handleCloseEvent(m_window->window());
+}
+
 Qt::WindowFlags QWaylandExtendedSurface::setWindowFlags(Qt::WindowFlags flags)
 {
     uint wlFlags = 0;
@@ -147,3 +147,5 @@ Qt::WindowFlags QWaylandExtendedSurface::setWindowFlags(Qt::WindowFlags flags)
 
     return flags & (Qt::WindowStaysOnTopHint | Qt::WindowOverridesSystemGestures);
 }
+
+QT_END_NAMESPACE

@@ -51,7 +51,7 @@
 
 #include <wayland-cursor.h>
 
-QT_USE_NAMESPACE
+QT_BEGIN_NAMESPACE
 
 QWaylandCursor::QWaylandCursor(QWaylandScreen *screen)
     : mDisplay(screen->display())
@@ -74,12 +74,17 @@ QWaylandCursor::~QWaylandCursor()
     wl_cursor_theme_destroy(mCursorTheme);
 }
 
-void QWaylandCursor::changeCursor(QCursor *cursor, QWindow *window)
+struct wl_cursor_image *QWaylandCursor::cursorImage(Qt::CursorShape newShape)
 {
-    Q_UNUSED(window)
-
     struct wl_cursor *waylandCursor = 0;
-    const Qt::CursorShape newShape = cursor ? cursor->shape() : Qt::ArrowCursor;
+
+    /* Hide cursor */
+    if (newShape == Qt::BlankCursor)
+    {
+        mDisplay->setCursor(NULL, NULL);
+        return NULL;
+    }
+
     if (newShape < Qt::BitmapCursor) {
         waylandCursor = requestCursor((WaylandCursor)newShape);
     } else if (newShape == Qt::BitmapCursor) {
@@ -90,17 +95,31 @@ void QWaylandCursor::changeCursor(QCursor *cursor, QWindow *window)
 
     if (!waylandCursor) {
         qDebug("Could not find cursor for shape %d", newShape);
-        return;
+        return NULL;
     }
 
     struct wl_cursor_image *image = waylandCursor->images[0];
-
     struct wl_buffer *buffer = wl_cursor_image_get_buffer(image);
     if (!buffer) {
         qDebug("Could not find buffer for cursor");
+        return NULL;
+    }
+
+    return image;
+}
+
+void QWaylandCursor::changeCursor(QCursor *cursor, QWindow *window)
+{
+    Q_UNUSED(window)
+
+    const Qt::CursorShape newShape = cursor ? cursor->shape() : Qt::ArrowCursor;
+
+    struct wl_cursor_image *image = cursorImage(newShape);
+    if (!image) {
         return;
     }
 
+    struct wl_buffer *buffer = wl_cursor_image_get_buffer(image);
     mDisplay->setCursor(buffer, image);
 }
 
@@ -132,9 +151,6 @@ void QWaylandCursor::setPos(const QPoint &pos)
 
 wl_cursor *QWaylandCursor::requestCursor(WaylandCursor shape)
 {
-    if (shape == BlankCursor)
-        return 0;
-
     struct wl_cursor *cursor = mCursors.value(shape, 0);
 
     //If the cursor has not been loaded already, load it
@@ -277,3 +293,5 @@ void QWaylandCursor::initCursorMap()
     mCursorNamesMap.insert(ResizeSouthWestCursor, "sw-resize");
     mCursorNamesMap.insert(ResizeSouthWestCursor, "bottom_left_corner");
 }
+
+QT_END_NAMESPACE

@@ -50,6 +50,8 @@
 #include <wayland-client.h>
 #include <qwayland-wayland.h>
 
+struct wl_cursor_image;
+
 QT_BEGIN_NAMESPACE
 
 class QAbstractEventDispatcher;
@@ -96,9 +98,7 @@ public:
     QWaylandGLIntegration *eglIntegration();
 #endif
 
-#ifdef QT_WAYLAND_WINDOWMANAGER_SUPPORT
     QWaylandWindowManagerIntegration *windowManagerIntegration();
-#endif
 
     void setCursor(struct wl_buffer *buffer, struct wl_cursor_image *image);
 
@@ -162,6 +162,7 @@ private:
     QtWayland::qt_output_extension *mOutputExtension;
     QWaylandTouchExtension *mTouchExtension;
     QWaylandQtKeyExtension *mQtKeyExtension;
+    QWaylandWindowManagerIntegration *mWindowManagerIntegration;
 
     QSocketNotifier *mReadNotifier;
     int mFd;
@@ -172,10 +173,6 @@ private:
 
 #ifdef QT_WAYLAND_GL_SUPPORT
     QWaylandGLIntegration *mEglIntegration;
-#endif
-
-#ifdef QT_WAYLAND_WINDOWMANAGER_SUPPORT
-    QWaylandWindowManagerIntegration *mWindowManagerIntegration;
 #endif
 
     static void shellHandleConfigure(void *data, struct wl_shell *shell,

@@ -1,6 +1,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Klarälvdalens Datakonsult AB (KDAB).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the Qt Compositor.
@@ -39,142 +40,66 @@
 ****************************************************************************/
 
 #include "qwltouch_p.h"
-#include "qwlsurface_p.h"
-#include <QTouchEvent>
-#include <QWindow>
 
-QT_BEGIN_NAMESPACE
+#include "qwlcompositor_p.h"
+#include "qwlsurface_p.h"
 
 namespace QtWayland {
 
-static void dummy(wl_client *, wl_resource *)
+Touch::Touch(Compositor *compositor)
+    : wl_touch()
+    , m_compositor(compositor)
+    , m_focus()
+    , m_focusResource()
 {
 }
 
-const struct qt_touch_extension_interface TouchExtensionGlobal::touch_interface = {
-    dummy
-};
-
-static const int maxRawPos = 24;
-
-TouchExtensionGlobal::TouchExtensionGlobal(Compositor *compositor)
-    : m_compositor(compositor),
-      m_flags(0)
+void Touch::setFocus(Surface *surface)
 {
-    wl_array_init(&m_rawdata_array);
-    m_rawdata_ptr = static_cast<float *>(wl_array_add(&m_rawdata_array, maxRawPos * sizeof(float) * 2));
-
-    wl_display_add_global(compositor->wl_display(),
-                          &qt_touch_extension_interface,
-                          this,
-                          TouchExtensionGlobal::bind_func);
+    m_focus = surface;
+    m_focusResource = surface ? resourceMap().value(surface->resource()->client()) : 0;
 }
 
-TouchExtensionGlobal::~TouchExtensionGlobal()
+void Touch::sendCancel()
 {
-    wl_array_release(&m_rawdata_array);
+    if (m_focusResource)
+        send_cancel(m_focusResource->handle);
 }
 
-void TouchExtensionGlobal::destroy_resource(wl_resource *resource)
+void Touch::sendFrame()
 {
-    TouchExtensionGlobal *self = static_cast<TouchExtensionGlobal *>(resource->data);
-    self->m_resources.removeOne(resource);
-    free(resource);
+    if (m_focusResource)
+        send_frame(m_focusResource->handle);
 }
 
-void TouchExtensionGlobal::bind_func(wl_client *client, void *data, uint32_t version, uint32_t id)
+void Touch::sendDown(int touch_id, const QPointF &position)
 {
-    Q_UNUSED(version);
-    wl_resource *resource = wl_client_add_object(client, &qt_touch_extension_interface, &touch_interface, id, data);
-    resource->destroy = destroy_resource;
-    TouchExtensionGlobal *self = static_cast<TouchExtensionGlobal *>(resource->data);
-    self->m_resources.append(resource);
-    qt_touch_extension_send_configure(resource, self->m_flags);
+    if (!m_focusResource || !m_focus)
+        return;
+
+    uint32_t serial = wl_display_next_serial(m_compositor->wl_display());
+
+    send_down(m_focusResource->handle, serial, Compositor::currentTimeMsecs(), m_focus->resource()->handle, touch_id,
+              wl_fixed_from_double(position.x()), wl_fixed_from_double(position.y()));
 }
 
-static inline int toFixed(qreal f)
+void Touch::sendMotion(int touch_id, const QPointF &position)
 {
-    return int(f * 10000);
+    if (!m_focusResource)
+        return;
+
+    send_motion(m_focusResource->handle, Compositor::currentTimeMsecs(), touch_id,
+                wl_fixed_from_double(position.x()), wl_fixed_from_double(position.y()));
 }
 
-bool TouchExtensionGlobal::postTouchEvent(QTouchEvent *event, Surface *surface)
+void Touch::sendUp(int touch_id)
 {
-    const QList<QTouchEvent::TouchPoint> points = event->touchPoints();
-    const int pointCount = points.count();
-    if (!pointCount)
-        return false;
+    if (!m_focusResource)
+        return;
 
-    QPointF surfacePos = surface->pos();
-    wl_client *surfaceClient = surface->resource()->client();
-    uint32_t time = m_compositor->currentTimeMsecs();
-    const int rescount = m_resources.count();
+    uint32_t serial = wl_display_next_serial(m_compositor->wl_display());
 
-    for (int res = 0; res < rescount; ++res) {
-        wl_resource *target = m_resources.at(res);
-        if (target->client != surfaceClient)
-            continue;
-
-        // We will use no touch_frame type of event, to reduce the number of
-        // events flowing through the wire. Instead, the number of points sent is
-        // included in the touch point events.
-        int sentPointCount = 0;
-        for (int i = 0; i < pointCount; ++i) {
-            if (points.at(i).state() != Qt::TouchPointStationary)
-                ++sentPointCount;
-        }
-
-        for (int i = 0; i < pointCount; ++i) {
-            const QTouchEvent::TouchPoint &tp(points.at(i));
-            // Stationary points are never sent. They are cached on client side.
-            if (tp.state() == Qt::TouchPointStationary)
-                continue;
-
-            uint32_t id = tp.id();
-            uint32_t state = (tp.state() & 0xFFFF) | (sentPointCount << 16);
-            uint32_t flags = (tp.flags() & 0xFFFF) | (int(event->device()->capabilities()) << 16);
-
-            QPointF p = tp.pos() - surfacePos; // surface-relative
-            int x = toFixed(p.x());
-            int y = toFixed(p.y());
-            int nx = toFixed(tp.normalizedPos().x());
-            int ny = toFixed(tp.normalizedPos().y());
-            int w = toFixed(tp.rect().width());
-            int h = toFixed(tp.rect().height());
-            int vx = toFixed(tp.velocity().x());
-            int vy = toFixed(tp.velocity().y());
-            uint32_t pressure = uint32_t(tp.pressure() * 255);
-
-            wl_array *rawData = 0;
-            QVector<QPointF> rawPosList = tp.rawScreenPositions();
-            int rawPosCount = rawPosList.count();
-            if (rawPosCount) {
-                rawPosCount = qMin(maxRawPos, rawPosCount);
-                rawData = &m_rawdata_array;
-                rawData->size = rawPosCount * sizeof(float) * 2;
-                float *p = m_rawdata_ptr;
-                for (int rpi = 0; rpi < rawPosCount; ++rpi) {
-                    const QPointF &rawPos(rawPosList.at(rpi));
-                    // This will stay in screen coordinates for performance
-                    // reasons, clients using this data will presumably know
-                    // what they are doing.
-                    *p++ = float(rawPos.x());
-                    *p++ = float(rawPos.y());
-                }
-            }
-
-            qt_touch_extension_send_touch(target,
-                                   time, id, state,
-                                   x, y, nx, ny, w, h,
-                                   pressure, vx, vy,
-                                   flags, rawData);
-        }
-
-        return true;
-    }
-
-    return false;
+    send_up(m_focusResource->handle, serial, Compositor::currentTimeMsecs(), touch_id);
 }
 
-}
-
-QT_END_NAMESPACE
+} // namespace QtWayland

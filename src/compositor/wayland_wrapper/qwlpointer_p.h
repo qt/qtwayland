@@ -39,43 +39,87 @@
 **
 ****************************************************************************/
 
-#ifndef QTWAYLAND_QWLTOUCH_P_H
-#define QTWAYLAND_QWLTOUCH_P_H
+#ifndef QTWAYLAND_QWLPOINTER_P_H
+#define QTWAYLAND_QWLPOINTER_P_H
 
+#include <QtCore/QList>
 #include <QtCore/QPoint>
 
 #include <qwayland-server-wayland.h>
+
+#include <stdint.h>
 
 QT_BEGIN_NAMESPACE
 
 namespace QtWayland {
 
 class Compositor;
+class InputDevice;
+class Pointer;
 class Surface;
 
-class Touch : public QtWaylandServer::wl_touch
+class PointerGrabber {
+public:
+    virtual ~PointerGrabber();
+
+    virtual void focus() = 0;
+    virtual void motion(uint32_t time) = 0;
+    virtual void button(uint32_t time, Qt::MouseButton button, uint32_t state) = 0;
+
+    Pointer *m_pointer;
+};
+
+class Pointer : public QtWaylandServer::wl_pointer, public PointerGrabber
 {
 public:
-    explicit Touch(Compositor *compositor);
+    Pointer(Compositor *compositor, InputDevice *seat);
 
-    void setFocus(Surface *surface);
+    void setFocus(Surface *surface, const QPointF &position);
 
-    void sendCancel();
-    void sendFrame();
+    void startGrab(PointerGrabber *grab);
+    void endGrab();
 
-    void sendDown(int touch_id, const QPointF &position);
-    void sendMotion(int touch_id, const QPointF &position);
-    void sendUp(int touch_id);
+    void setCurrent(Surface *surface, const QPointF &point);
+    void setMouseFocus(Surface *surface, const QPointF &localPos, const QPointF &globalPos);
+
+    void sendMousePressEvent(Qt::MouseButton button, const QPointF &localPos, const QPointF &globalPos);
+    void sendMouseReleaseEvent(Qt::MouseButton button, const QPointF &localPos, const QPointF &globalPos);
+    void sendMouseMoveEvent(const QPointF &localPos, const QPointF &globalPos);
+    void sendMouseWheelEvent(Qt::Orientation orientation, int delta);
+
+    Surface *focusSurface() const;
+    Surface *current() const;
+    QPointF position() const;
+
+    void focus() Q_DECL_OVERRIDE;
+    void motion(uint32_t time) Q_DECL_OVERRIDE;
+    void button(uint32_t time, Qt::MouseButton button, uint32_t state) Q_DECL_OVERRIDE;
+
+protected:
+    void pointer_set_cursor(Resource *resource, uint32_t serial, wl_resource *surface, int32_t hotspot_x, int32_t hotspot_y) Q_DECL_OVERRIDE;
+    void pointer_destroy_resource(Resource *resource) Q_DECL_OVERRIDE;
 
 private:
+    bool buttonPressed() const;
+
     Compositor *m_compositor;
+    InputDevice *m_seat;
+
+    PointerGrabber *m_grab;
+
+    QPointF m_position;
 
     Surface *m_focus;
     Resource *m_focusResource;
+
+    Surface *m_current;
+    QPointF m_currentPoint;
+
+    int m_buttonCount;
 };
 
 } // namespace QtWayland
 
 QT_END_NAMESPACE
 
-#endif // QTWAYLAND_QWLTOUCH_P_H
+#endif // QTWAYLAND_QWLPOINTER_P_H

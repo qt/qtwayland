@@ -45,6 +45,7 @@
 
 #include <QtCore/QScopedPointer>
 #include <QtGui/QImage>
+#include <QtGui/QWindow>
 #include <QtCore/QVariantMap>
 
 #include <QtGui/QOpenGLContext>
@@ -72,13 +73,14 @@ class Q_COMPOSITOR_EXPORT QWaylandSurface : public QObject
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandSurface)
-    Q_PROPERTY(QSize size READ size WRITE setSize NOTIFY sizeChanged)
+    Q_PROPERTY(QSize size READ size NOTIFY sizeChanged)
     Q_PROPERTY(QPointF pos READ pos WRITE setPos NOTIFY posChanged)
     Q_PROPERTY(QWaylandSurface::WindowFlags windowFlags READ windowFlags NOTIFY windowFlagsChanged)
     Q_PROPERTY(Qt::ScreenOrientation contentOrientation READ contentOrientation NOTIFY contentOrientationChanged)
     Q_PROPERTY(QString className READ className NOTIFY classNameChanged)
     Q_PROPERTY(QString title READ title NOTIFY titleChanged)
     Q_PROPERTY(Qt::ScreenOrientations orientationUpdateMask READ orientationUpdateMask NOTIFY orientationUpdateMaskChanged)
+    Q_PROPERTY(QWindow::Visibility visibility READ visibility WRITE setVisibility NOTIFY visibilityChanged)
 
     Q_ENUMS(WindowFlag)
     Q_FLAGS(WindowFlag WindowFlags)
@@ -111,8 +113,7 @@ public:
     QPointF pos() const;
     void setPos(const QPointF &pos);
     QSize size() const;
-    void setSize(const QSize &size);
-    void sendConfigure(const QSize &size);
+    Q_INVOKABLE void requestSize(const QSize &size);
 
     Qt::ScreenOrientations orientationUpdateMask() const;
     Qt::ScreenOrientation contentOrientation() const;
@@ -126,7 +127,9 @@ public:
     uint texture(QOpenGLContext *context) const;
 #endif
 
-    Q_INVOKABLE void sendOnScreenVisibilityChange(bool visible);
+    QWindow::Visibility visibility() const;
+    void setVisibility(QWindow::Visibility visibility);
+    Q_INVOKABLE void sendOnScreenVisibilityChange(bool visible); // Compat
 
     void frameFinished();
 
@@ -157,6 +160,8 @@ public:
 
     bool transientInactive() const;
 
+    Q_INVOKABLE void destroySurface();
+    Q_INVOKABLE void destroySurfaceByForce();
 signals:
     void mapped();
     void unmapped();
@@ -171,7 +176,9 @@ signals:
     void extendedSurfaceReady();
     void classNameChanged();
     void titleChanged();
-
+    void raiseRequested();
+    void lowerRequested();
+    void visibilityChanged();
 };
 
 QT_END_NAMESPACE

@@ -2,7 +2,7 @@ DEFINES += QT_COMPOSITOR_QUICK
 
 LIBS += -L ../../lib
 
-QT += quick qml v8
+QT += quick qml
 QT += quick-private
 
 QT += compositor

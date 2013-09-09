@@ -52,6 +52,9 @@
 #include <stdint.h>
 
 struct wl_callback;
+struct wl_callback_listener;
+struct wl_data_offer;
+struct wl_data_offer_listener;
 
 QT_BEGIN_NAMESPACE
 

@@ -40,7 +40,6 @@
 
 #include "xcompositeglxintegration.h"
 
-#include <QtCompositor/qwaylandobject.h>
 #include <QtCompositor/private/qwlcompositor_p.h>
 #include "wayland-xcomposite-server-protocol.h"
 
@@ -54,7 +53,7 @@
 
 #include <QtCore/QDebug>
 
-QT_USE_NAMESPACE
+QT_BEGIN_NAMESPACE
 
 QVector<int> qglx_buildSpec()
 {
@@ -113,9 +112,9 @@ void XCompositeGLXIntegration::initializeHardware(QtWayland::Display *)
     delete glContext;
 }
 
-GLuint XCompositeGLXIntegration::createTextureFromBuffer(struct ::wl_buffer *buffer, QOpenGLContext *)
+GLuint XCompositeGLXIntegration::createTextureFromBuffer(struct ::wl_resource *buffer, QOpenGLContext *)
 {
-    XCompositeBuffer *compositorBuffer = static_cast<XCompositeBuffer *>(buffer);
+    XCompositeBuffer *compositorBuffer = XCompositeBuffer::fromResource(buffer);
     Pixmap pixmap = XCompositeNameWindowPixmap(mDisplay, compositorBuffer->window());
 
     QVector<int> glxConfigSpec = qglx_buildSpec();
@@ -146,7 +145,16 @@ GLuint XCompositeGLXIntegration::createTextureFromBuffer(struct ::wl_buffer *buf
     return textureId;
 }
 
-bool XCompositeGLXIntegration::isYInverted(wl_buffer *buffer) const
+bool XCompositeGLXIntegration::isYInverted(struct ::wl_resource *buffer) const
 {
-    return static_cast<XCompositeBuffer *>(buffer)->isYInverted();
+    return XCompositeBuffer::fromResource(buffer)->isYInverted();
 }
+
+QSize XCompositeGLXIntegration::bufferSize(struct ::wl_resource *buffer) const
+{
+    XCompositeBuffer *compositorBuffer = XCompositeBuffer::fromResource(buffer);
+
+    return compositorBuffer->size();
+}
+
+QT_END_NAMESPACE

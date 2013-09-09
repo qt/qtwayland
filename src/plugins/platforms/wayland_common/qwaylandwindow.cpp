@@ -49,25 +49,23 @@
 #include "qwaylandextendedsurface.h"
 #include "qwaylandsubsurface.h"
 #include "qwaylanddecoration.h"
+#include "qwaylandwindowmanagerintegration.h"
 
 #include <QtCore/QFileInfo>
 #include <QtGui/QWindow>
 
-#ifdef QT_WAYLAND_WINDOWMANAGER_SUPPORT
-#include "windowmanager_integration/qwaylandwindowmanagerintegration.h"
-#endif
-
-#include <QCoreApplication>
+#include <QGuiApplication>
 #include <qpa/qwindowsysteminterface.h>
 
 #include <QtCore/QDebug>
 
-QT_USE_NAMESPACE
+QT_BEGIN_NAMESPACE
 
 QWaylandWindow::QWaylandWindow(QWindow *window)
     : QObject()
     , QPlatformWindow(window)
-    , mDisplay(QWaylandScreen::waylandScreenFromWindow(window)->display())
+    , mScreen(QWaylandScreen::waylandScreenFromWindow(window))
+    , mDisplay(mScreen->display())
     , mShellSurface(0)
     , mExtendedWindow(0)
     , mSubSurfaceWindow(0)
@@ -77,7 +75,8 @@ QWaylandWindow::QWaylandWindow(QWindow *window)
     , mBuffer(0)
     , mWaitingForFrameSync(false)
     , mFrameCallback(0)
-    , mResizeExposedSent(false)
+    , mRequestResizeSent(false)
+    , mCanResize(true)
     , mSentInitialResize(false)
     , mMouseDevice(0)
     , mMouseSerial(0)
@@ -88,25 +87,26 @@ QWaylandWindow::QWaylandWindow(QWindow *window)
     static WId id = 1;
     mWindowId = id++;
 
-    if (mDisplay->shell() && !(window->flags() & Qt::BypassWindowManagerHint))
-        mShellSurface = new QWaylandShellSurface(mDisplay->shell()->get_shell_surface(wl_surface()), this);
+    if (mDisplay->shell() && window->type() & Qt::Window && !(window->flags() & Qt::BypassWindowManagerHint))
+        mShellSurface = new QWaylandShellSurface(mDisplay->shell()->get_shell_surface(object()), this);
     if (mDisplay->windowExtension())
-        mExtendedWindow = new QWaylandExtendedSurface(this, mDisplay->windowExtension()->get_extended_surface(wl_surface()));
+        mExtendedWindow = new QWaylandExtendedSurface(this, mDisplay->windowExtension()->get_extended_surface(object()));
     if (mDisplay->subSurfaceExtension())
-        mSubSurfaceWindow = new QWaylandSubSurface(this, mDisplay->subSurfaceExtension()->get_sub_surface_aware_surface(wl_surface()));
+        mSubSurfaceWindow = new QWaylandSubSurface(this, mDisplay->subSurfaceExtension()->get_sub_surface_aware_surface(object()));
 
     if (mShellSurface) {
         // Set surface class to the .desktop file name (obtained from executable name)
         QFileInfo exeFileInfo(qApp->applicationFilePath());
         QString className = exeFileInfo.baseName() + QLatin1String(".desktop");
-        mShellSurface->setClassName(className.toUtf8().constData());
+        mShellSurface->set_class(className);
     }
 
     if (QPlatformWindow::parent() && mSubSurfaceWindow) {
         mSubSurfaceWindow->setParent(static_cast<const QWaylandWindow *>(QPlatformWindow::parent()));
-    } else if (window->transientParent()) {
-        if (window->transientParent() && mShellSurface)
+    } else if (window->transientParent() && mShellSurface) {
+        if (window->type() != Qt::Popup) {
             mShellSurface->updateTransientParent(window->transientParent());
+        }
     } else if (mShellSurface) {
         mShellSurface->setTopLevel();
     }
@@ -123,10 +123,18 @@ QWaylandWindow::~QWaylandWindow()
         delete mExtendedWindow;
         destroy();
     }
+    if (mFrameCallback)
+        wl_callback_destroy(mFrameCallback);
 
     QList<QWaylandInputDevice *> inputDevices = mDisplay->inputDevices();
     for (int i = 0; i < inputDevices.size(); ++i)
         inputDevices.at(i)->handleWindowDestroyed(this);
+
+    const QWindow *parent = window();
+    foreach (QWindow *w, QGuiApplication::topLevelWindows()) {
+        if (w->transientParent() == parent)
+            QWindowSystemInterface::handleCloseEvent(w);
+    }
 }
 
 QWaylandWindow *QWaylandWindow::fromWlSurface(::wl_surface *surface)
@@ -150,8 +158,7 @@ void QWaylandWindow::setParent(const QPlatformWindow *parent)
 void QWaylandWindow::setWindowTitle(const QString &title)
 {
     if (mShellSurface) {
-        QByteArray titleUtf8 = title.toUtf8();
-        mShellSurface->setTitle(titleUtf8.constData());
+        mShellSurface->set_title(title);
     }
 
     if (mWindowDecoration && window()->isVisible())
@@ -175,6 +182,11 @@ void QWaylandWindow::setGeometry(const QRect &rect)
 
     if (mWindowDecoration && window()->isVisible())
         mWindowDecoration->update();
+
+    if (mConfigure.isEmpty()) {
+        QWindowSystemInterface::handleGeometryChange(window(), rect);
+        QWindowSystemInterface::handleExposeEvent(window(), QRegion(rect));
+    }
 }
 
 void QWaylandWindow::setVisible(bool visible)
@@ -201,38 +213,42 @@ void QWaylandWindow::setVisible(bool visible)
         // there was no frame before it will be stuck at the waitForFrameSync() in
         // QWaylandShmBackingStore::beginPaint().
     } else {
-        QWindowSystemInterface::handleExposeEvent(window(), QRect(QPoint(), geometry().size()));
+        QWindowSystemInterface::handleExposeEvent(window(), QRegion());
         attach(static_cast<QWaylandBuffer *>(0), 0, 0);
     }
     damage(QRect(QPoint(0,0),geometry().size()));
+    commit();
 }
 
 
-bool QWaylandWindow::isExposed() const
+void QWaylandWindow::raise()
 {
-    if (!window()->isVisible())
-        return false;
     if (mExtendedWindow)
-        return mExtendedWindow->isExposed();
-    return true;
+        mExtendedWindow->raise();
 }
 
+
+void QWaylandWindow::lower()
+{
+    if (mExtendedWindow)
+        mExtendedWindow->lower();
+}
 
 void QWaylandWindow::configure(uint32_t edges, int32_t width, int32_t height)
 {
+    QMutexLocker resizeLocker(&mResizeLock);
     mConfigure.edges |= edges;
     mConfigure.width = width;
     mConfigure.height = height;
 
-    if (!mResizeExposedSent) {
-        mResizeExposedSent = true;
-        QMetaObject::invokeMethod(this, "doResize", Qt::QueuedConnection);
+    if (!mRequestResizeSent && !mConfigure.isEmpty()) {
+        mRequestResizeSent= true;
+        QMetaObject::invokeMethod(this, "requestResize", Qt::QueuedConnection);
     }
 }
 
 void QWaylandWindow::doResize()
 {
-    mResizeExposedSent = false;
     if (mConfigure.isEmpty()) {
         return;
     }
@@ -255,13 +271,34 @@ void QWaylandWindow::doResize()
     }
     mOffset += QPoint(x, y);
 
-    mResizeLock.lock();
     setGeometry(geometry);
-    mResizeLock.unlock();
 
     mConfigure.clear();
     QWindowSystemInterface::handleGeometryChange(window(), geometry);
-    QWindowSystemInterface::handleExposeEvent(window(), QRegion(geometry));
+}
+
+void QWaylandWindow::setCanResize(bool canResize)
+{
+    QMutexLocker lock(&mResizeLock);
+    mCanResize = canResize;
+
+    if (canResize && !mConfigure.isEmpty()) {
+        doResize();
+        QWindowSystemInterface::handleExposeEvent(window(), geometry());
+    }
+}
+
+void QWaylandWindow::requestResize()
+{
+    QMutexLocker lock(&mResizeLock);
+
+    if (mCanResize) {
+        doResize();
+    }
+
+    mRequestResizeSent = false;
+    lock.unlock();
+    QWindowSystemInterface::handleExposeEvent(window(), geometry());
     QWindowSystemInterface::flushWindowSystemEvents();
 }
 
@@ -269,8 +306,10 @@ void QWaylandWindow::attach(QWaylandBuffer *buffer, int x, int y)
 {
     mBuffer = buffer;
 
-    if (window()->isVisible())
+    if (mBuffer)
         attach(mBuffer->buffer(), x, y);
+    else
+        QtWayland::wl_surface::attach(0, 0, 0);
 }
 
 void QWaylandWindow::attachOffset(QWaylandBuffer *buffer)
@@ -293,9 +332,9 @@ void QWaylandWindow::damage(const QRect &rect)
         wl_callback_add_listener(mFrameCallback,&QWaylandWindow::callbackListener,this);
         mWaitingForFrameSync = true;
     }
-
-    damage(rect.x(), rect.y(), rect.width(), rect.height());
-    commit();
+    if (mBuffer) {
+        damage(rect.x(), rect.y(), rect.width(), rect.height());
+    }
 }
 
 const wl_callback_listener QWaylandWindow::callbackListener = {
@@ -379,6 +418,9 @@ void QWaylandWindow::setWindowState(Qt::WindowState state)
         default:
             mShellSurface->setNormal();
     }
+
+    QWindowSystemInterface::handleWindowStateChanged(window(), mState);
+    QWindowSystemInterface::flushWindowSystemEvents(); // Required for oldState to work on WindowStateChanged
 }
 
 void QWaylandWindow::setWindowFlags(Qt::WindowFlags flags)
@@ -434,21 +476,20 @@ void QWaylandWindow::setDecoration(QWaylandDecoration *decoration)
     }
 }
 
-QWaylandWindow *QWaylandWindow::topLevelWindow()
+static QWindow *topLevelWindow(QWindow *window)
 {
-    QWaylandWindow *w = this;
-    while (w->QPlatformWindow::parent()) {
-        w = static_cast<QWaylandWindow *>(w->QPlatformWindow::parent());
-    }
-    return w;
+    while (QWindow *parent = window->parent())
+        window = parent;
+    return window;
 }
 
 QWaylandWindow *QWaylandWindow::transientParent() const
 {
     if (window()->transientParent()) {
-        // Take the top level window here, since the transient parent may be some non-native
-        // QWindow, which cannot have the mMouseDevice and mMouseSerial
-        return static_cast<QWaylandWindow *>(window()->transientParent()->handle())->topLevelWindow();
+        // Take the top level window here, since the transient parent may be a QWidgetWindow
+        // or some other window without a shell surface, which is then not able to get mouse
+        // events, nor set mMouseSerial and mMouseDevice.
+        return static_cast<QWaylandWindow *>(topLevelWindow(window()->transientParent())->handle());
     }
     return 0;
 }
@@ -468,23 +509,24 @@ void QWaylandWindow::handleMouse(QWaylandInputDevice *inputDevice, ulong timesta
     QWindowSystemInterface::handleMouseEvent(window(),timestamp,local,global,b,mods);
 }
 
-void QWaylandWindow::handleMouseEnter()
+void QWaylandWindow::handleMouseEnter(QWaylandInputDevice *inputDevice)
 {
     if (!mWindowDecoration) {
         QWindowSystemInterface::handleEnterEvent(window());
     }
+    restoreMouseCursor(inputDevice);
 }
 
-void QWaylandWindow::handleMouseLeave()
+void QWaylandWindow::handleMouseLeave(QWaylandInputDevice *inputDevice)
 {
     if (mWindowDecoration) {
         if (mMouseEventsInContentArea) {
             QWindowSystemInterface::handleLeaveEvent(window());
         }
-        mWindowDecoration->restoreMouseCursor();
     } else {
         QWindowSystemInterface::handleLeaveEvent(window());
     }
+    restoreMouseCursor(inputDevice);
 }
 
 void QWaylandWindow::handleMouseEventWithDecoration(QWaylandInputDevice *inputDevice, ulong timestamp, const QPointF &local, const QPointF &global, Qt::MouseButtons b, Qt::KeyboardModifiers mods)
@@ -505,7 +547,7 @@ void QWaylandWindow::handleMouseEventWithDecoration(QWaylandInputDevice *inputDe
         globalTranslated.setX(globalTranslated.x() - marg.left());
         globalTranslated.setY(globalTranslated.y() - marg.top());
         if (!mMouseEventsInContentArea) {
-            mWindowDecoration->restoreMouseCursor();
+            restoreMouseCursor(inputDevice);
             QWindowSystemInterface::handleEnterEvent(window());
         }
         QWindowSystemInterface::handleMouseEvent(window(), timestamp, localTranslated, globalTranslated, b, mods);
@@ -519,3 +561,18 @@ void QWaylandWindow::handleMouseEventWithDecoration(QWaylandInputDevice *inputDe
         mWindowDecoration->handleMouse(inputDevice,local,global,b,mods);
     }
 }
+
+void QWaylandWindow::setMouseCursor(QWaylandInputDevice *device, Qt::CursorShape shape)
+{
+    if (m_cursorShape != shape || device->serial() > device->cursorSerial()) {
+        device->setCursor(shape, mScreen);
+        m_cursorShape = shape;
+    }
+}
+
+void QWaylandWindow::restoreMouseCursor(QWaylandInputDevice *device)
+{
+    setMouseCursor(device, window()->cursor().shape());
+}
+
+QT_END_NAMESPACE

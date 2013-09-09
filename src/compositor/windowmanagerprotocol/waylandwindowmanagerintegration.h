@@ -42,17 +42,10 @@
 #define WAYLANDWINDOWMANAGERINTEGRATION_H
 
 #include <QtCompositor/qwaylandexport.h>
-#include <QtCompositor/qwaylandresourcecollection.h>
-
-#include <qwindowdefs.h>
-#include <stdint.h>
+#include "qwayland-server-windowmanager.h"
 
 #include <QObject>
 #include <QMap>
-#include <QVariant>
-
-struct wl_client;
-struct wl_object;
 
 QT_BEGIN_NAMESPACE
 
@@ -60,15 +53,13 @@ namespace QtWayland {
     class Display;
 }
 
-class WindowManagerObject;
-class WaylandManagedClient;
 class QWaylandCompositor;
 
-class Q_COMPOSITOR_EXPORT WindowManagerServerIntegration : public QObject, private QtWayland::ResourceCollection
+class Q_COMPOSITOR_EXPORT WindowManagerServerIntegration : public QObject, public QtWaylandServer::qt_windowmanager
 {
     Q_OBJECT
 public:
-    WindowManagerServerIntegration(QWaylandCompositor *compositor, QObject *parent = 0);
+    explicit WindowManagerServerIntegration(QWaylandCompositor *compositor, QObject *parent = 0);
     ~WindowManagerServerIntegration();
 
     void initialize(QtWayland::Display *waylandDisplay);
@@ -76,25 +67,15 @@ public:
     void setShowIsFullScreen(bool value);
     void sendQuitMessage(wl_client *client);
 
+protected:
+    void windowmanager_bind_resource(Resource *resource) Q_DECL_OVERRIDE;
+    void windowmanager_destroy_resource(Resource *resource) Q_DECL_OVERRIDE;
+    void windowmanager_open_url(Resource *resource, uint32_t remaining, const QString &url) Q_DECL_OVERRIDE;
+
 private:
     bool m_showIsFullScreen;
     QWaylandCompositor *m_compositor;
-
-    static void bind_func(struct wl_client *client, void *data,
-                                          uint32_t version, uint32_t id);
-
-    static void destroy_resource(wl_resource *resource);
-    static void map_client_to_process(struct wl_client *client,
-                                      struct wl_resource *windowMgrResource,
-                                      uint32_t processId);
-    static void authenticate_with_token(struct wl_client *client,
-                                        struct wl_resource *windowMgrResource,
-                                        const char *wl_authentication_token);
-    static void open_url(struct wl_client *client,
-                         struct wl_resource *window_mgr_resource,
-                         uint32_t remaining,
-                         const char *url);
-    static const struct qt_windowmanager_interface windowmanager_interface;
+    QMap<Resource*, QString> m_urls;
 };
 
 QT_END_NAMESPACE

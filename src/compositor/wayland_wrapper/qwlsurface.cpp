@@ -74,7 +74,7 @@ namespace QtWayland {
 static bool QT_WAYLAND_PRINT_BUFFERING_WARNINGS = qEnvironmentVariableIsSet("QT_WAYLAND_PRINT_BUFFERING_WARNINGS");
 
 Surface::Surface(struct wl_client *client, uint32_t id, Compositor *compositor)
-    : QtWaylandServer::wl_surface(client, &base()->resource, id)
+    : QtWaylandServer::wl_surface(client, id)
     , m_compositor(compositor)
     , m_waylandSurface(new QWaylandSurface(this))
     , m_backBuffer(0)
@@ -95,7 +95,6 @@ Surface::Surface(struct wl_client *client, uint32_t id, Compositor *compositor)
 Surface::~Surface()
 {
     delete m_waylandSurface;
-    delete m_extendedSurface;
     delete m_subSurface;
 
     for (int i = 0; i < buffer_pool_size; i++) {
@@ -302,11 +301,9 @@ bool Surface::advanceBufferQueue()
     if (m_backBuffer && !m_backBuffer->isDisplayed())
         return true;
     if (m_bufferQueue.size()) {
-        int width = 0;
-        int height = 0;
+        QSize size;
         if (m_backBuffer && m_backBuffer->waylandBufferHandle()) {
-            width = m_backBuffer->width();
-            height = m_backBuffer->height();
+            size = m_backBuffer->size();
         }
 
         if (!m_bufferQueue.first()->isComitted())
@@ -322,10 +319,9 @@ bool Surface::advanceBufferQueue()
             return false; //we have no new backbuffer;
 
         if (m_backBuffer->waylandBufferHandle()) {
-            width = m_backBuffer->width();
-            height = m_backBuffer->height();
+            size = m_backBuffer->size();
         }
-        setSize(QSize(width,height));
+        setSize(size);
 
 
         if (m_backBuffer &&  (!m_subSurface || !m_subSurface->parent()) && !m_surfaceMapped) {
@@ -364,7 +360,7 @@ void Surface::doUpdate() {
     }
 }
 
-SurfaceBuffer *Surface::createSurfaceBuffer(struct wl_buffer *buffer)
+SurfaceBuffer *Surface::createSurfaceBuffer(struct ::wl_resource *buffer)
 {
     SurfaceBuffer *newBuffer = 0;
     for (int i = 0; i < Surface::buffer_pool_size; i++) {
@@ -400,7 +396,7 @@ bool Surface::postBuffer() {
     return false;
 }
 
-void Surface::attach(struct wl_buffer *buffer)
+void Surface::attach(struct ::wl_resource *buffer)
 {
     SurfaceBuffer *last = m_bufferQueue.size()?m_bufferQueue.last():0;
     if (last) {
@@ -459,7 +455,7 @@ void Surface::surface_attach(Resource *, struct wl_resource *buffer, int x, int 
     Q_UNUSED(x);
     Q_UNUSED(y);
 
-    attach(buffer ? reinterpret_cast<wl_buffer *>(buffer->data) : 0);
+    attach(buffer);
 }
 
 void Surface::surface_damage(Resource *, int32_t x, int32_t y, int32_t width, int32_t height)

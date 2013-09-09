@@ -60,6 +60,7 @@
 #ifndef EGL_WL_bind_wayland_display
 typedef EGLBoolean (EGLAPIENTRYP PFNEGLBINDWAYLANDDISPLAYWL) (EGLDisplay dpy, struct wl_display *display);
 typedef EGLBoolean (EGLAPIENTRYP PFNEGLUNBINDWAYLANDDISPLAYWL) (EGLDisplay dpy, struct wl_display *display);
+typedef EGLBoolean (EGLAPIENTRYP PFNEGLQUERYWAYLANDBUFFERWL) (EGLDisplay dpy, struct wl_buffer *buffer, EGLint attribute, EGLint *value);
 #endif
 
 #ifndef EGL_KHR_image
@@ -72,7 +73,7 @@ typedef void (GL_APIENTRYP PFNGLEGLIMAGETARGETTEXTURE2DOESPROC) (GLenum target, 
 typedef void (GL_APIENTRYP PFNGLEGLIMAGETARGETRENDERBUFFERSTORAGEOESPROC) (GLenum target, GLeglImageOES image);
 #endif
 
-QT_USE_NAMESPACE
+QT_BEGIN_NAMESPACE
 
 class WaylandEglIntegrationPrivate
 {
@@ -80,28 +81,30 @@ public:
     WaylandEglIntegrationPrivate()
         : egl_display(EGL_NO_DISPLAY)
         , valid(false)
+        , display_bound(false)
         , flipperConnected(false)
         , egl_bind_wayland_display(0)
         , egl_unbind_wayland_display(0)
+        , egl_query_wayland_buffer(0)
         , egl_create_image(0)
         , egl_destroy_image(0)
         , gl_egl_image_target_texture_2d(0)
     { }
     EGLDisplay egl_display;
     bool valid;
+    bool display_bound;
     bool flipperConnected;
 #ifdef EGL_WL_request_client_buffer_format
     QPointer<WaylandSurface> directRenderSurface;
 #endif
     PFNEGLBINDWAYLANDDISPLAYWL egl_bind_wayland_display;
     PFNEGLUNBINDWAYLANDDISPLAYWL egl_unbind_wayland_display;
+    PFNEGLQUERYWAYLANDBUFFERWL egl_query_wayland_buffer;
 
     PFNEGLCREATEIMAGEKHRPROC egl_create_image;
     PFNEGLDESTROYIMAGEKHRPROC egl_destroy_image;
 
     PFNGLEGLIMAGETARGETTEXTURE2DOESPROC gl_egl_image_target_texture_2d;
-
-    QPlatformNativeInterface::NativeResourceForContextFunction get_egl_context;
 };
 
 WaylandEglIntegration::WaylandEglIntegration()
@@ -114,47 +117,66 @@ void WaylandEglIntegration::initializeHardware(QtWayland::Display *waylandDispla
 {
     Q_D(WaylandEglIntegration);
 
+    const bool ignoreBindDisplay = !qgetenv("QT_WAYLAND_IGNORE_BIND_DISPLAY").isEmpty();
+
     QPlatformNativeInterface *nativeInterface = QGuiApplication::platformNativeInterface();
-    if (nativeInterface) {
-        d->egl_display = nativeInterface->nativeResourceForWindow("EglDisplay", m_compositor->window());
-        if (d->egl_display) {
-            const char *extensionString = eglQueryString(d->egl_display, EGL_EXTENSIONS);
-            if (extensionString && strstr(extensionString, "EGL_WL_bind_wayland_display"))
-            {
-                d->get_egl_context = nativeInterface->nativeResourceFunctionForContext("get_egl_context");
-                if (!d->get_egl_context) {
-                    qWarning("Failed to retrieve the get_egl_context function");
-                }
-                d->egl_bind_wayland_display =
-                        reinterpret_cast<PFNEGLBINDWAYLANDDISPLAYWL>(eglGetProcAddress("eglBindWaylandDisplayWL"));
-                d->egl_unbind_wayland_display =
-                        reinterpret_cast<PFNEGLUNBINDWAYLANDDISPLAYWL>(eglGetProcAddress("eglUnbindWaylandDisplayWL"));
-                d->egl_create_image =
-                        reinterpret_cast<PFNEGLCREATEIMAGEKHRPROC>(eglGetProcAddress("eglCreateImageKHR"));
-                d->egl_destroy_image =
-                        reinterpret_cast<PFNEGLDESTROYIMAGEKHRPROC>(eglGetProcAddress("eglDestroyImageKHR"));
-                d->gl_egl_image_target_texture_2d =
-                        reinterpret_cast<PFNGLEGLIMAGETARGETTEXTURE2DOESPROC>(eglGetProcAddress("glEGLImageTargetTexture2DOES"));
-
-                if (d->egl_bind_wayland_display
-                        && d->get_egl_context
-                        && d->egl_unbind_wayland_display
-                        && d->egl_create_image
-                        && d->egl_destroy_image
-                        && d->gl_egl_image_target_texture_2d) {
-                    if (d->egl_bind_wayland_display(d->egl_display, waylandDisplay->handle())) {
-                        d->valid = true;
-                    }
-                }
-            }
-        }
-
-        if (!d->valid)
-            qWarning("Failed to initialize egl display\n");
+    if (!nativeInterface) {
+        qWarning("Failed to initialize egl display. No native platform interface available.\n");
+        return;
     }
+
+    d->egl_display = nativeInterface->nativeResourceForWindow("EglDisplay", m_compositor->window());
+    if (!d->egl_display) {
+        qWarning("Failed to initialize egl display. Could not get EglDisplay for window.\n");
+        return;
+    }
+
+    const char *extensionString = eglQueryString(d->egl_display, EGL_EXTENSIONS);
+    if ((!extensionString || !strstr(extensionString, "EGL_WL_bind_wayland_display")) && !ignoreBindDisplay) {
+        qWarning("Failed to initialize egl display. There is no EGL_WL_bind_wayland_display extension.\n");
+        return;
+    }
+
+    d->egl_bind_wayland_display = reinterpret_cast<PFNEGLBINDWAYLANDDISPLAYWL>(eglGetProcAddress("eglBindWaylandDisplayWL"));
+    d->egl_unbind_wayland_display = reinterpret_cast<PFNEGLUNBINDWAYLANDDISPLAYWL>(eglGetProcAddress("eglUnbindWaylandDisplayWL"));
+    if (!d->egl_bind_wayland_display || !d->egl_unbind_wayland_display && !ignoreBindDisplay) {
+        qWarning("Failed to initialize egl display. Could not find eglBindWaylandDisplayWL and eglUnbindWaylandDisplayWL.\n");
+        return;
+    }
+
+    d->egl_query_wayland_buffer = reinterpret_cast<PFNEGLQUERYWAYLANDBUFFERWL>(eglGetProcAddress("eglQueryWaylandBufferWL"));
+    if (!d->egl_query_wayland_buffer) {
+        qWarning("Failed to initialize egl display. Could not find eglQueryWaylandBufferWL.\n");
+        return;
+    }
+
+    d->egl_create_image = reinterpret_cast<PFNEGLCREATEIMAGEKHRPROC>(eglGetProcAddress("eglCreateImageKHR"));
+    d->egl_destroy_image = reinterpret_cast<PFNEGLDESTROYIMAGEKHRPROC>(eglGetProcAddress("eglDestroyImageKHR"));
+    if (!d->egl_create_image || !d->egl_destroy_image) {
+        qWarning("Failed to initialize egl display. Could not find eglCreateImageKHR and eglDestroyImageKHR.\n");
+        return;
+    }
+
+    d->gl_egl_image_target_texture_2d = reinterpret_cast<PFNGLEGLIMAGETARGETTEXTURE2DOESPROC>(eglGetProcAddress("glEGLImageTargetTexture2DOES"));
+    if (!d->gl_egl_image_target_texture_2d) {
+        qWarning("Failed to initialize egl display. Could not find glEGLImageTargetTexture2DOES.\n");
+        return;
+    }
+
+    if (d->egl_bind_wayland_display && d->egl_unbind_wayland_display) {
+        d->display_bound = d->egl_bind_wayland_display(d->egl_display, waylandDisplay->handle());
+        if (!d->display_bound || ignoreBindDisplay) {
+            qWarning("Failed to initialize egl display. Could not bind Wayland display.\n");
+            return;
+        }
+    }
+
+    d->valid = true;
+
+    qWarning("EGL Wayland extension successfully initialized.%s\n", !d->display_bound ? " eglBindWaylandDisplayWL ignored" : "");
 }
 
-GLuint WaylandEglIntegration::createTextureFromBuffer(wl_buffer *buffer, QOpenGLContext *context)
+GLuint WaylandEglIntegration::createTextureFromBuffer(struct ::wl_resource *buffer, QOpenGLContext *)
 {
     Q_D(WaylandEglIntegration);
     if (!d->valid) {
@@ -162,10 +184,7 @@ GLuint WaylandEglIntegration::createTextureFromBuffer(wl_buffer *buffer, QOpenGL
         return 0;
     }
 
-    QPlatformNativeInterface *nativeInterface = QGuiApplication::platformNativeInterface();
-    EGLContext egl_context = d->get_egl_context(context);
-
-    EGLImageKHR image = d->egl_create_image(d->egl_display, egl_context,
+    EGLImageKHR image = d->egl_create_image(d->egl_display, EGL_NO_CONTEXT,
                                           EGL_WAYLAND_BUFFER_WL,
                                           buffer, NULL);
 
@@ -186,7 +205,7 @@ GLuint WaylandEglIntegration::createTextureFromBuffer(wl_buffer *buffer, QOpenGL
     return textureId;
 }
 
-bool WaylandEglIntegration::isYInverted(struct wl_buffer *buffer) const
+bool WaylandEglIntegration::isYInverted(struct ::wl_resource *buffer) const
 {
 #ifdef EGL_WL_request_client_buffer_format
     return eglGetBufferYInvertedWL(buffer);
@@ -203,7 +222,7 @@ bool WaylandEglIntegration::setDirectRenderSurface(QWaylandSurface *surface)
     QPlatformScreen *screen = QPlatformScreen::platformScreenForWindow(m_compositor->window());
     QPlatformScreenPageFlipper *flipper = screen ? screen->pageFlipper() : 0;
     if (flipper && !d->flipperConnected) {
-        QObject::connect(flipper, SIGNAL(bufferReleased(void*)), m_compositor->handle(), SLOT(releaseBuffer(void*)));
+        QObject::connect(flipper, SIGNAL(bufferReleased(QPlatformScreenBuffer*)), m_compositor->handle(), SLOT(releaseBuffer(QPlatformScreenBuffer*)));
         d->flipperConnected = true;
     }
 #ifdef EGL_WL_request_client_buffer_format
@@ -225,14 +244,11 @@ bool WaylandEglIntegration::setDirectRenderSurface(QWaylandSurface *surface)
     return flipper;
 }
 
-void *WaylandEglIntegration::lockNativeBuffer(struct wl_buffer *buffer, QOpenGLContext *context) const
+void *WaylandEglIntegration::lockNativeBuffer(struct ::wl_resource *buffer, QOpenGLContext *) const
 {
     Q_D(const WaylandEglIntegration);
 
-    QPlatformNativeInterface *nativeInterface = QGuiApplication::platformNativeInterface();
-    EGLContext egl_context = d->get_egl_context(context);
-
-    EGLImageKHR image = d->egl_create_image(d->egl_display, egl_context,
+    EGLImageKHR image = d->egl_create_image(d->egl_display, EGL_NO_CONTEXT,
                                           EGL_WAYLAND_BUFFER_WL,
                                           buffer, NULL);
     return image;
@@ -246,3 +262,15 @@ void WaylandEglIntegration::unlockNativeBuffer(void *native_buffer, QOpenGLConte
     d->egl_destroy_image(d->egl_display, image);
 }
 
+QSize WaylandEglIntegration::bufferSize(struct ::wl_resource *buffer) const
+{
+    Q_D(const WaylandEglIntegration);
+
+    int width, height;
+    d->egl_query_wayland_buffer(d->egl_display, reinterpret_cast<struct ::wl_buffer *>(buffer), EGL_WIDTH, &width);
+    d->egl_query_wayland_buffer(d->egl_display, reinterpret_cast<struct ::wl_buffer *>(buffer), EGL_HEIGHT, &height);
+
+    return QSize(width, height);
+}
+
+QT_END_NAMESPACE

@@ -51,7 +51,7 @@ QT_BEGIN_NAMESPACE
 
 class QWaylandGraphicsHardwareIntegration;
 
-#define QWaylandGraphicsHardwareIntegrationFactoryInterface_iid "org.qt-project.Qt.Compositor.QWaylandGraphicsHardwareIntegrationFactoryInterface.5.1"
+#define QWaylandGraphicsHardwareIntegrationFactoryInterface_iid "org.qt-project.Qt.Compositor.QWaylandGraphicsHardwareIntegrationFactoryInterface.5.2"
 
 class Q_COMPOSITOR_EXPORT QWaylandGraphicsHardwareIntegrationPlugin : public QObject
 {

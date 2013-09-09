@@ -47,7 +47,7 @@ QT_BEGIN_NAMESPACE
 class QWaylandIntegrationPlugin : public QWaylandGraphicsHardwareIntegrationPlugin
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.Compositor.QWaylandGraphicsHardwareIntegrationFactoryInterface.5.1" FILE "xcomposite-egl.json")
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.Compositor.QWaylandGraphicsHardwareIntegrationFactoryInterface.5.2" FILE "xcomposite-egl.json")
 public:
     QStringList keys() const;
     QWaylandGraphicsHardwareIntegration *create(const QString&, const QStringList&);

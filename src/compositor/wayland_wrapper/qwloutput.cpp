@@ -55,7 +55,7 @@ OutputGlobal::OutputGlobal(struct ::wl_display *display)
 {
     QScreen *screen = QGuiApplication::primaryScreen();
     m_geometry = QRect(QPoint(0, 0), screen->availableGeometry().size());
-    m_refreshRate = qRound(screen->refreshRate());
+    m_refreshRate = qRound(screen->refreshRate() * 1000.0);
 }
 
 OutputGlobal::~OutputGlobal()

@@ -144,7 +144,7 @@ void QWaylandScreen::output_mode(uint32_t flags, int width, int height, int refr
 
     if (refresh != mRefreshRate) {
         mRefreshRate = refresh;
-        QWindowSystemInterface::handleScreenRefreshRateChange(screen(), mRefreshRate);
+        QWindowSystemInterface::handleScreenRefreshRateChange(screen(), refreshRate());
     }
 }
 

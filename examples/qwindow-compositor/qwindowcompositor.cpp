@@ -82,7 +82,7 @@ QWindowCompositor::QWindowCompositor(QOpenGLWindow *window)
     setRetainedSelectionEnabled(true);
 
     setOutputGeometry(QRect(QPoint(0, 0), window->size()));
-    setOutputRefreshRate(qGuiApp->primaryScreen()->refreshRate());
+    setOutputRefreshRate(qRound(qGuiApp->primaryScreen()->refreshRate() * 1000.0));
 }
 
 QWindowCompositor::~QWindowCompositor()

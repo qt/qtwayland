@@ -110,6 +110,8 @@ void SurfaceBuffer::destructBufferState()
     destroyTexture();
 
     if (m_buffer) {
+        sendRelease();
+
         if (m_handle) {
             if (m_shmBuffer) {
                 delete static_cast<QImage *>(m_handle);
@@ -121,7 +123,6 @@ void SurfaceBuffer::destructBufferState()
             }
         }
         wl_list_remove(&m_destroy_listener.listener.link);
-        sendRelease();
     }
     m_buffer = 0;
     m_handle = 0;

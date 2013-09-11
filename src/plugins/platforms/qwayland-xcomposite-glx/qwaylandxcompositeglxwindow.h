@@ -62,6 +62,8 @@ public:
 
     Window xWindow() const;
 
+    QWaylandBuffer *buffer() { return m_buffer; }
+
 private:
     void createSurface();
 

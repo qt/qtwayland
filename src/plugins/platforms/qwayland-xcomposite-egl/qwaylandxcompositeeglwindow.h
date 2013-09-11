@@ -60,6 +60,8 @@ public:
 
     EGLSurface eglSurface() const;
 
+    QWaylandBuffer *buffer() { return m_buffer; }
+
 private:
     void createEglSurface();
 

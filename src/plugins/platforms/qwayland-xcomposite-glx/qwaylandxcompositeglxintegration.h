@@ -82,7 +82,7 @@ public:
     int screen() const;
     Window rootWindow() const;
 
-    bool supportsThreadedOpenGL() const { return true; }
+    bool supportsThreadedOpenGL() const { return false; }
 
 private:
     QWaylandDisplay *mWaylandDisplay;

@@ -73,6 +73,7 @@ namespace QtWayland {
     class qt_shell;
     class qt_sub_surface_extension;
     class qt_surface_extension;
+    class wl_text_input_manager;
 }
 
 typedef void (*RegistryListener)(void *data,
@@ -112,6 +113,7 @@ public:
     QtWayland::wl_shell *shell() { return mShell; }
 
     QList<QWaylandInputDevice *> inputDevices() const { return mInputDevices; }
+    QWaylandInputDevice *defaultInputDevice() const;
 
     QWaylandInputDevice *lastKeyboardFocusInputDevice() const;
     void setLastKeyboardFocusInputDevice(QWaylandInputDevice *device);
@@ -122,6 +124,7 @@ public:
     QtWayland::qt_sub_surface_extension *subSurfaceExtension() const { return mSubSurfaceExtension; }
     QtWayland::qt_output_extension *outputExtension() const { return mOutputExtension; }
     QWaylandTouchExtension *touchExtension() const { return mTouchExtension; }
+    QtWayland::wl_text_input_manager *textInputManager() const { return mTextInputManager; }
 
     /* wl_registry_add_listener does not add but rather sets a listener, so this function is used
      * to enable many listeners at once. */
@@ -163,6 +166,7 @@ private:
     QWaylandTouchExtension *mTouchExtension;
     QWaylandQtKeyExtension *mQtKeyExtension;
     QWaylandWindowManagerIntegration *mWindowManagerIntegration;
+    QtWayland::wl_text_input_manager *mTextInputManager;
 
     QSocketNotifier *mReadNotifier;
     int mFd;

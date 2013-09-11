@@ -42,6 +42,7 @@
 #include "qwaylandintegration.h"
 
 #include "qwaylanddisplay.h"
+#include "qwaylandinputcontext.h"
 #include "qwaylandshmbackingstore.h"
 #include "qwaylandshmwindow.h"
 #include "qwaylandnativeinterface.h"
@@ -116,7 +117,7 @@ QWaylandIntegration::QWaylandIntegration()
     foreach (QPlatformScreen *screen, mDisplay->screens())
         screenAdded(screen);
 
-    mInputContext = QPlatformInputContextFactory::create();
+    mInputContext.reset(new QWaylandInputContext(mDisplay));
 }
 
 QWaylandIntegration::~QWaylandIntegration()
@@ -209,7 +210,7 @@ QPlatformDrag *QWaylandIntegration::drag() const
 
 QPlatformInputContext *QWaylandIntegration::inputContext() const
 {
-    return mInputContext;
+    return mInputContext.data();
 }
 
 QVariant QWaylandIntegration::styleHint(StyleHint hint) const

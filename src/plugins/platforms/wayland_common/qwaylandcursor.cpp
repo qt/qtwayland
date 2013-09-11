@@ -133,6 +133,11 @@ void QWaylandDisplay::setCursor(struct wl_buffer *buffer, struct wl_cursor_image
     }
 }
 
+QWaylandInputDevice *QWaylandDisplay::defaultInputDevice() const
+{
+    return mInputDevices.isEmpty() ? 0 : mInputDevices.first();
+}
+
 void QWaylandCursor::pointerEvent(const QMouseEvent &event)
 {
     mLastPos = event.globalPos();

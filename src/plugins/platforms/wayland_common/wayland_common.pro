@@ -26,7 +26,8 @@ SOURCES +=  qwaylandintegration.cpp \
             ../../../shared/qwaylandmimehelper.cpp \
             qwaylanddecoration.cpp \
             qwaylandeventthread.cpp\
-            qwaylandwindowmanagerintegration.cpp
+            qwaylandwindowmanagerintegration.cpp \
+    qwaylandinputcontext.cpp
 
 HEADERS +=  qwaylandintegration.h \
             qwaylandnativeinterface.h \
@@ -52,7 +53,8 @@ HEADERS +=  qwaylandintegration.h \
             ../../../shared/qwaylandmimehelper.h \
             qwaylanddecoration.h \
             qwaylandeventthread.h \
-            qwaylandwindowmanagerintegration.h
+            qwaylandwindowmanagerintegration.h \
+    qwaylandinputcontext.h
 
 contains(DEFINES, QT_WAYLAND_GL_SUPPORT) {
     SOURCES += qwaylandglintegration.cpp
@@ -67,6 +69,7 @@ WAYLANDCLIENTSOURCES += \
             ../../../extensions/touch-extension.xml \
             ../../../extensions/qtkey-extension.xml \
             ../../../extensions/windowmanager.xml \
+            ../../../3rdparty/protocol/text.xml \
 
 PLUGIN_TYPE = platforms
 

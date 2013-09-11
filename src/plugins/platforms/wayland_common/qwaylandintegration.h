@@ -91,7 +91,7 @@ private:
     QPlatformDrag *mDrag;
     QWaylandDisplay *mDisplay;
     QPlatformNativeInterface *mNativeInterface;
-    QPlatformInputContext *mInputContext;
+    QScopedPointer<QPlatformInputContext> mInputContext;
     QPlatformAccessibility *mAccessibility;
 };
 

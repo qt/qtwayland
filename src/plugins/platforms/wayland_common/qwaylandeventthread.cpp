@@ -32,8 +32,10 @@ void QWaylandEventThread::displayConnect()
 
 void QWaylandEventThread::readWaylandEvents()
 {
-    if (wl_display_dispatch(m_display) == -1 && errno == EPIPE)
-        QCoreApplication::quit();
+    if (wl_display_dispatch(m_display) == -1 && errno == EPIPE) {
+        qWarning("The Wayland connection broke. Did the Wayland compositor die?");
+        ::exit(1);
+    }
     emit newEventsRead();
 }
 
@@ -42,7 +44,7 @@ void QWaylandEventThread::waylandDisplayConnect()
     m_display = wl_display_connect(NULL);
     if (m_display == NULL) {
         qErrnoWarning(errno, "Failed to create display");
-        qFatal("No wayland connection available.");
+        ::exit(1);
     }
     m_displayLock->unlock();
 

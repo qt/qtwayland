@@ -164,15 +164,19 @@ QWaylandDisplay::~QWaylandDisplay(void)
 
 void QWaylandDisplay::flushRequests()
 {
-    if (wl_display_dispatch_queue_pending(mDisplay, mEventQueue) == -1 && errno == EPIPE)
-        QCoreApplication::quit();
+    if (wl_display_dispatch_queue_pending(mDisplay, mEventQueue) == -1 && errno == EPIPE) {
+        qWarning("The Wayland connection broke. Did the Wayland compositor die?");
+        ::exit(1);
+    }
     wl_display_flush(mDisplay);
 }
 
 void QWaylandDisplay::blockingReadEvents()
 {
-    if (wl_display_dispatch_queue(mDisplay, mEventQueue) == -1 && errno == EPIPE)
-        QCoreApplication::quit();
+    if (wl_display_dispatch_queue(mDisplay, mEventQueue) == -1 && errno == EPIPE) {
+        qWarning("The Wayland connection broke. Did the Wayland compositor die?");
+        ::exit(1);
+    }
 }
 
 QWaylandScreen *QWaylandDisplay::screenForOutput(struct wl_output *output) const

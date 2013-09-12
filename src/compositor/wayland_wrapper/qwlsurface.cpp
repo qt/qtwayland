@@ -298,8 +298,13 @@ bool Surface::advanceBufferQueue()
     //do we have another buffer in the queue
     //and does it have a valid damage rect
 
-    if (m_backBuffer && !m_backBuffer->isDisplayed())
-        return true;
+    if (m_backBuffer && !m_backBuffer->isDisplayed()) {
+        if (m_backBuffer->waylandBufferHandle()) {
+            return true;
+        } else {
+            m_backBuffer->disown();
+        }
+    }
     if (m_bufferQueue.size()) {
         QSize size;
         if (m_backBuffer && m_backBuffer->waylandBufferHandle()) {

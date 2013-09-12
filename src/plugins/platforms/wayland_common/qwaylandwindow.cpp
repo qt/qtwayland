@@ -175,7 +175,9 @@ void QWaylandWindow::setWindowIcon(const QIcon &icon)
 
 void QWaylandWindow::setGeometry(const QRect &rect)
 {
-    QPlatformWindow::setGeometry(rect);
+    QPlatformWindow::setGeometry(QRect(rect.x(), rect.y(),
+                qBound(window()->minimumWidth(), rect.width(), window()->maximumWidth()),
+                qBound(window()->minimumHeight(), rect.height(), window()->maximumHeight())));
 
     if (shellSurface() && window()->transientParent())
         shellSurface()->updateTransientParent(window()->transientParent());
@@ -184,8 +186,8 @@ void QWaylandWindow::setGeometry(const QRect &rect)
         mWindowDecoration->update();
 
     if (mConfigure.isEmpty()) {
-        QWindowSystemInterface::handleGeometryChange(window(), rect);
-        QWindowSystemInterface::handleExposeEvent(window(), QRegion(rect));
+        QWindowSystemInterface::handleGeometryChange(window(), geometry());
+        QWindowSystemInterface::handleExposeEvent(window(), QRegion(geometry()));
     }
 }
 

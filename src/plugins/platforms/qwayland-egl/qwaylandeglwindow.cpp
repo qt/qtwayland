@@ -86,9 +86,11 @@ QWaylandWindow::WindowType QWaylandEglWindow::windowType() const
 
 void QWaylandEglWindow::setGeometry(const QRect &rect)
 {
+    QWaylandWindow::setGeometry(rect);
+
     createDecoration();
     QMargins margins = frameMargins();
-    QSize sizeWithMargins = rect.size() + QSize(margins.left() + margins.right(), margins.top() + margins.bottom());
+    QSize sizeWithMargins = geometry().size() + QSize(margins.left() + margins.right(), margins.top() + margins.bottom());
 
     if (m_waylandEglWindow) {
         int current_width, current_height;
@@ -102,8 +104,6 @@ void QWaylandEglWindow::setGeometry(const QRect &rect)
     } else {
         m_waylandEglWindow = wl_egl_window_create(object(), sizeWithMargins.width(), sizeWithMargins.height());
     }
-
-    QWaylandWindow::setGeometry(rect);
 }
 
 QRect QWaylandEglWindow::contentsRect() const

@@ -95,6 +95,9 @@ QWaylandWindow::QWaylandWindow(QWindow *window)
         mSubSurfaceWindow = new QWaylandSubSurface(this, mDisplay->subSurfaceExtension()->get_sub_surface_aware_surface(object()));
 
     if (mShellSurface) {
+        // Set initial surface title
+        mShellSurface->set_title(window->title());
+
         // Set surface class to the .desktop file name (obtained from executable name)
         QFileInfo exeFileInfo(qApp->applicationFilePath());
         QString className = exeFileInfo.baseName() + QLatin1String(".desktop");

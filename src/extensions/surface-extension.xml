@@ -78,6 +78,7 @@
         <enum name="windowflag">
             <entry name="OverridesSystemGestures" value="1"/>
             <entry name="StaysOnTop" value="2"/>
+            <entry name="BypassWindowManager" value="4"/>
         </enum>
 
         <request name="set_window_flags">

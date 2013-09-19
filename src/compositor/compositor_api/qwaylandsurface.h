@@ -88,7 +88,8 @@ class Q_COMPOSITOR_EXPORT QWaylandSurface : public QObject
 public:
     enum WindowFlag {
         OverridesSystemGestures     = 0x0001,
-        StaysOnTop                  = 0x0002
+        StaysOnTop                  = 0x0002,
+        BypassWindowManager         = 0x0004
     };
     Q_DECLARE_FLAGS(WindowFlags, WindowFlag)
 

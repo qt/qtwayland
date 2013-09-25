@@ -622,7 +622,7 @@ void process(QXmlStreamReader &xml)
             printf("        Resource *resource = %s_allocate();\n", interfaceNameStripped);
             printf("        resource->%s = this;\n", interfaceNameStripped);
             printf("\n");
-            printf("        struct ::wl_resource *handle = wl_client_add_object(client, &::%s_interface, %s, id, resource);\n", interfaceName, interfaceMember.constData());
+            printf("        struct ::wl_resource *handle = id != 0 ? wl_client_add_object(client, &::%s_interface, %s, id, resource) : wl_client_new_object(client, &::%s_interface, %s, resource);\n", interfaceName, interfaceMember.constData(), interfaceName, interfaceMember.constData());
             printf("\n");
             printf("        handle->destroy = destroy_func;\n");
             printf("        resource->handle = handle;\n");

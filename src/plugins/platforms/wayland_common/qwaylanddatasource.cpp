@@ -96,6 +96,10 @@ QWaylandDataSource::QWaylandDataSource(QWaylandDataDeviceManager *dndSelectionHa
 {
     m_data_source = wl_data_device_manager_create_data_source(dndSelectionHandler->handle());
     wl_data_source_add_listener(m_data_source,&data_source_listener,this);
+
+    if (!mimeData)
+        return;
+
     QStringList formats = mimeData->formats();
     for (int i = 0; i < formats.size(); i++) {
         const char *offer = qPrintable(formats.at(i));

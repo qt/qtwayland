@@ -48,7 +48,6 @@ QT_BEGIN_NAMESPACE
 
 class QWaylandBuffer;
 class QWaylandDisplay;
-class QAbstractEventDispatcher;
 
 class QWaylandIntegration : public QPlatformIntegration
 {
@@ -61,7 +60,8 @@ public:
     QPlatformOpenGLContext *createPlatformOpenGLContext(QOpenGLContext *context) const;
     QPlatformBackingStore *createPlatformBackingStore(QWindow *window) const;
 
-    QAbstractEventDispatcher *guiThreadEventDispatcher() const;
+    QAbstractEventDispatcher *createEventDispatcher() const;
+    void initialize();
 
     QPlatformFontDatabase *fontDatabase() const;
 
@@ -87,7 +87,6 @@ public:
 
 private:
     QPlatformFontDatabase *mFontDb;
-    QAbstractEventDispatcher *mEventDispatcher;
     QPlatformClipboard *mClipboard;
     QPlatformDrag *mDrag;
     QWaylandDisplay *mDisplay;

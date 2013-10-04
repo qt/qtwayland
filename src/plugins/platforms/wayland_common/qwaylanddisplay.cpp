@@ -129,8 +129,6 @@ QWaylandDisplay::QWaylandDisplay()
 
     init(registry);
 
-    QAbstractEventDispatcher *dispatcher = QGuiApplicationPrivate::eventDispatcher;
-    connect(dispatcher, SIGNAL(aboutToBlock()), this, SLOT(flushRequests()));
     connect(mEventThreadObject, SIGNAL(newEventsRead()), this, SLOT(flushRequests()));
 
 #ifdef QT_WAYLAND_GL_SUPPORT

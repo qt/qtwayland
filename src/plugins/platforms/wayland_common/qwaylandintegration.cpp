@@ -102,7 +102,6 @@ public:
 
 QWaylandIntegration::QWaylandIntegration()
     : mFontDb(new QGenericUnixFontDatabase())
-    , mEventDispatcher(createUnixEventDispatcher())
     , mNativeInterface(new QWaylandNativeInterface(this))
 #ifndef QT_NO_ACCESSIBILITY
     , mAccessibility(new QPlatformAccessibility())
@@ -110,7 +109,6 @@ QWaylandIntegration::QWaylandIntegration()
     , mAccessibility(0)
 #endif
 {
-    QGuiApplicationPrivate::instance()->setEventDispatcher(mEventDispatcher);
     mDisplay = new QWaylandDisplay();
     mClipboard = new QWaylandClipboard(mDisplay);
     mDrag = new QWaylandDrag(mDisplay);
@@ -183,9 +181,15 @@ QPlatformBackingStore *QWaylandIntegration::createPlatformBackingStore(QWindow *
     return new QWaylandShmBackingStore(window);
 }
 
-QAbstractEventDispatcher *QWaylandIntegration::guiThreadEventDispatcher() const
+QAbstractEventDispatcher *QWaylandIntegration::createEventDispatcher() const
 {
-    return mEventDispatcher;
+    return createUnixEventDispatcher();
+}
+
+void QWaylandIntegration::initialize()
+{
+    QAbstractEventDispatcher *dispatcher = QGuiApplicationPrivate::eventDispatcher;
+    QObject::connect(dispatcher, SIGNAL(aboutToBlock()), mDisplay, SLOT(flushRequests()));
 }
 
 QPlatformFontDatabase *QWaylandIntegration::fontDatabase() const

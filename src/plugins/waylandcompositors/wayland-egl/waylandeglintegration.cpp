@@ -204,6 +204,20 @@ GLuint WaylandEglIntegration::createTextureFromBuffer(struct ::wl_resource *buff
 
 bool WaylandEglIntegration::isYInverted(struct ::wl_resource *buffer) const
 {
+    Q_D(const WaylandEglIntegration);
+
+#if defined(EGL_WAYLAND_Y_INVERTED_WL)
+    EGLint isYInverted;
+    EGLBoolean ret;
+    ret = d->egl_query_wayland_buffer(d->egl_display, reinterpret_cast<struct ::wl_buffer *>(buffer), EGL_WAYLAND_Y_INVERTED_WL, &isYInverted);
+
+    // Yes, this looks strange, but the specification says that EGL_FALSE return
+    // value (not supported) should be treated the same as EGL_TRUE return value
+    // and EGL_TRUE in value.
+    if (ret == EGL_FALSE || isYInverted == EGL_TRUE)
+        return true;
+#endif
+
     return QWaylandGraphicsHardwareIntegration::isYInverted(buffer);
 }
 

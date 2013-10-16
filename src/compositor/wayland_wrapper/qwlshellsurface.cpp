@@ -96,6 +96,13 @@ void ShellSurface::sendConfigure(uint32_t edges, int32_t width, int32_t height)
     send_configure(edges, width, height);
 }
 
+void ShellSurface::ping()
+{
+    uint32_t serial = wl_display_next_serial(m_surface->compositor()->wl_display());
+    m_pings.insert(serial);
+    send_ping(serial);
+}
+
 Surface *ShellSurface::surface() const
 {
     return m_surface;
@@ -279,7 +286,10 @@ void ShellSurface::shell_surface_pong(Resource *resource,
                         uint32_t serial)
 {
     Q_UNUSED(resource);
-    Q_UNUSED(serial);
+    if (m_pings.remove(serial))
+        emit m_surface->waylandSurface()->pong();
+    else
+        qWarning("Received an unexpected pong!");
 }
 
 void ShellSurface::shell_surface_set_title(Resource *resource,

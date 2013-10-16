@@ -352,4 +352,11 @@ void QWaylandSurface::destroySurfaceByForce()
    wl_resource_destroy(surface_resource);
 }
 
+void QWaylandSurface::ping()
+{
+    Q_D(QWaylandSurface);
+    if (d->surface->shellSurface())
+        d->surface->shellSurface()->ping();
+}
+
 QT_END_NAMESPACE

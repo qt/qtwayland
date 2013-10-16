@@ -163,6 +163,7 @@ public:
 
     Q_INVOKABLE void destroySurface();
     Q_INVOKABLE void destroySurfaceByForce();
+    Q_INVOKABLE void ping();
 signals:
     void mapped();
     void unmapped();
@@ -180,6 +181,7 @@ signals:
     void raiseRequested();
     void lowerRequested();
     void visibilityChanged();
+    void pong();
 };
 
 QT_END_NAMESPACE

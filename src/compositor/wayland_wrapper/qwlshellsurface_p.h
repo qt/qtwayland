@@ -43,6 +43,7 @@
 
 #include <wayland-server.h>
 #include <QPoint>
+#include <QSet>
 #include <private/qwlpointer_p.h>
 
 #include <qwayland-server-wayland.h>
@@ -78,6 +79,7 @@ class ShellSurface : public QtWaylandServer::wl_shell_surface
 public:
     ShellSurface(struct wl_client *client, uint32_t id, Surface *surface);
     void sendConfigure(uint32_t edges, int32_t width, int32_t height);
+    void ping();
 
     Surface *surface() const;
 
@@ -99,6 +101,8 @@ private:
 
     int32_t m_xOffset;
     int32_t m_yOffset;
+
+    QSet<uint32_t> m_pings;
 
     void shell_surface_destroy_resource(Resource *resource) Q_DECL_OVERRIDE;
 

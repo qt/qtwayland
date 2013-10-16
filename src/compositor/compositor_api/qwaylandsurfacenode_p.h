@@ -42,9 +42,7 @@
 #ifndef QWAYLANDSURFACENODE_H
 #define QWAYLANDSURFACENODE_H
 
-#include "qwaylandsurfacetexturematerial_p.h"
-
-#include <QtQuick/QSGGeometryNode>
+#include <QtQuick/QSGSimpleTextureNode>
 #include <QtQuick/QSGOpaqueTextureMaterial>
 
 QT_BEGIN_NAMESPACE
@@ -52,7 +50,7 @@ QT_BEGIN_NAMESPACE
 class QWaylandSurfaceItem;
 class QSGTexture;
 
-class QWaylandSurfaceNode : public QSGGeometryNode
+class QWaylandSurfaceNode : public QSGSimpleTextureNode
 {
 public:
     QWaylandSurfaceNode(QWaylandSurfaceItem *item = 0);
@@ -60,12 +58,6 @@ public:
 
     void preprocess();
     void updateTexture();
-
-    void setRect(const QRectF &rect);
-    inline void setRect(qreal x, qreal y, qreal w, qreal h) { setRect(QRectF(x, y, w, h)); }
-
-    void setTexture(QSGTexture *texture);
-    QSGTexture *texture() const;
 
     bool isTextureUpdated() const { return m_textureUpdated; }
     void setTextureUpdated(bool textureUpdated) { m_textureUpdated = textureUpdated; }
@@ -78,13 +70,6 @@ private:
     QWaylandSurfaceItem *m_item;
     bool m_textureUpdated;
     bool m_useTextureAlpha;
-
-    QSGGeometry m_geometry;
-    QSGSimpleMaterial<QWaylandSurfaceTextureState> *m_textureMaterial;
-    QSGSimpleMaterial<QWaylandSurfaceTextureState> *m_opaqueTextureMaterial;
-    QSGSimpleMaterial<QWaylandSurfaceTextureState> *m_currentMaterial;
-
-    QRectF m_rect;
 };
 
 QT_END_NAMESPACE

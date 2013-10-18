@@ -59,6 +59,7 @@ contains(DEFINES, QT_WAYLAND_GL_SUPPORT) {
     HEADERS += qwaylandglintegration.h
 }
 
+CONFIG += wayland-scanner
 WAYLANDCLIENTSOURCES += \
             ../../../extensions/surface-extension.xml \
             ../../../extensions/sub-surface-extension.xml \

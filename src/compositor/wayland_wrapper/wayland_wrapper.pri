@@ -1,3 +1,4 @@
+CONFIG += wayland-scanner
 WAYLANDSERVERSOURCES += \
     ../extensions/surface-extension.xml \
     ../extensions/sub-surface-extension.xml \

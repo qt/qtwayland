@@ -17,4 +17,5 @@ HEADERS += qwaylandbrcmeglintegration.h \
            qwaylandbrcmglcontext.h \
            qwaylandbrcmeglwindow.h
 
+CONFIG += wayland-scanner
 WAYLANDCLIENTSOURCES += ../../../extensions/brcm.xml

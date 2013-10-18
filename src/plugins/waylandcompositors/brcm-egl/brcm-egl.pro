@@ -19,4 +19,5 @@ HEADERS += \
 
 OTHER_FILES += brcm-egl.json
 
+CONFIG += wayland-scanner
 WAYLANDSERVERSOURCES += $$PWD/../../../extensions/brcm.xml $$PWD/../../../3rdparty/protocol/wayland.xml

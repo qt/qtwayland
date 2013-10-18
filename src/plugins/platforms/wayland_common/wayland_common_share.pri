@@ -23,4 +23,5 @@ config_xkbcommon {
 
 INCLUDEPATH += $$PWD/../../../shared
 
+CONFIG += wayland-scanner
 WAYLANDCLIENTSOURCES += ../../../3rdparty/protocol/wayland.xml

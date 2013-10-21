@@ -84,7 +84,6 @@ QWaylandMimeData::QWaylandMimeData(QWaylandDataOffer *dataOffer, QWaylandDisplay
     : QInternalMimeData()
     , m_dataOffer(dataOffer)
     , m_display(display)
-    , m_offered_mime_types()
 {
 }
 
@@ -94,46 +93,73 @@ QWaylandMimeData::~QWaylandMimeData()
 
 void QWaylandMimeData::appendFormat(const QString &mimeType)
 {
-    m_offered_mime_types.append(mimeType);
+    if (m_types.contains(mimeType))
+        close(m_types.take(mimeType)); // Unconsumed data
+    m_data.remove(mimeType); // Clear previous contents
+
+    int pipefd[2];
+    if (::pipe2(pipefd, O_CLOEXEC|O_NONBLOCK) == -1) {
+        qWarning("QWaylandMimeData: pipe2() failed");
+        return;
+    }
+
+    m_dataOffer->receive(mimeType, pipefd[1]);
+    m_display->forceRoundTrip();
+    close(pipefd[1]);
+    m_types.insert(mimeType, pipefd[0]);
 }
 
 bool QWaylandMimeData::hasFormat_sys(const QString &mimeType) const
 {
-    return m_offered_mime_types.contains(mimeType);
+    return m_types.contains(mimeType) || m_data.contains(mimeType);
 }
 
 QStringList QWaylandMimeData::formats_sys() const
 {
-    return m_offered_mime_types;
+    return m_types.keys() << m_data.keys();
 }
 
 QVariant QWaylandMimeData::retrieveData_sys(const QString &mimeType, QVariant::Type type) const
 {
     Q_UNUSED(type);
 
-    if (m_offered_mime_types.isEmpty())
+    if (m_data.contains(mimeType))
+        return m_data.value(mimeType);
+
+    if (!m_types.contains(mimeType))
         return QVariant();
-
-    int pipefd[2];
-    if (qt_safe_pipe(pipefd, O_CLOEXEC) == -1) {
-        qWarning("QWaylandMimeData: pipe() failed");
-        return QVariant();
-    }
-
-    m_dataOffer->receive(mimeType, pipefd[1]);
-    close(pipefd[1]);
-
-//    m_display->forceRoundTrip();
 
     QByteArray content;
-    char buf[4096];
-    int n;
-    while ((n = QT_READ(pipefd[0], &buf, sizeof buf)) > 0) {
-        content.append(buf, n);
+    int fd = m_types.take(mimeType);
+    if (readData(fd, content) != 0) {
+        qWarning("QWaylandDataOffer: error reading data for mimeType %s", qPrintable(mimeType));
+        content = QByteArray();
     }
-    close(pipefd[0]);
 
+    close(fd);
+    m_data.insert(mimeType, content);
     return content;
+}
+
+int QWaylandMimeData::readData(int fd, QByteArray &data) const
+{
+    char buf[4096];
+    int retryCount = 0;
+    int n;
+    while (true) {
+        n = QT_READ(fd, buf, sizeof buf);
+        if (n == -1 && (errno == EAGAIN || errno == EWOULDBLOCK) && ++retryCount < 1000)
+            usleep(1000);
+        else
+            break;
+    }
+    if (retryCount >= 1000)
+        qWarning("QWaylandDataOffer: timeout reading from pipe");
+    if (n > 0) {
+        data.append(buf, n);
+        n = readData(fd, data);
+    }
+    return n;
 }
 
 QT_END_NAMESPACE

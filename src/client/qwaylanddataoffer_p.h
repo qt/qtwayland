@@ -82,9 +82,12 @@ protected:
     QVariant retrieveData_sys(const QString &mimeType, QVariant::Type type) const Q_DECL_OVERRIDE;
 
 private:
+    int readData(int fd, QByteArray &data) const;
+
     mutable QWaylandDataOffer *m_dataOffer;
     QWaylandDisplay *m_display;
-    QStringList m_offered_mime_types;
+    mutable QHash<QString, int> m_types;
+    mutable QHash<QString, QByteArray> m_data;
 };
 
 QT_END_NAMESPACE

@@ -54,8 +54,10 @@
 #include "qwlqttouch_p.h"
 #include "qwlqtkey_p.h"
 #include "qwlinputdevice_p.h"
+#include "qwlinputpanel_p.h"
 #include "qwlregion_p.h"
 #include "qwlpointer_p.h"
+#include "qwltextinputmanager_p.h"
 
 #include <QWindow>
 #include <QSocketNotifier>
@@ -124,7 +126,8 @@ Compositor *Compositor::instance()
 }
 
 Compositor::Compositor(QWaylandCompositor *qt_compositor, QWaylandCompositor::ExtensionFlag extensions)
-    : m_display(new Display)
+    : m_extensions(extensions)
+    , m_display(new Display)
     , m_default_input_device(0)
     , m_pageFlipper(0)
     , m_current_frame(0)
@@ -143,6 +146,8 @@ Compositor::Compositor(QWaylandCompositor *qt_compositor, QWaylandCompositor::Ex
     , m_subSurfaceExtension(0)
     , m_touchExtension(0)
     , m_qtkeyExtension(0)
+    , m_textInputManager()
+    , m_inputPanel()
     , m_retainNotify(0)
 {
     compositor = this;
@@ -195,6 +200,10 @@ Compositor::Compositor(QWaylandCompositor *qt_compositor, QWaylandCompositor::Ex
         m_touchExtension = new TouchExtensionGlobal(this);
     if (extensions & QWaylandCompositor::QtKeyExtension)
         m_qtkeyExtension = new QtKeyExtensionGlobal(this);
+    if (extensions & QWaylandCompositor::TextInputExtension) {
+        m_textInputManager.reset(new TextInputManager(this));
+        m_inputPanel.reset(new InputPanel(this));
+    }
 
     if (wl_display_add_socket(m_display->handle(), qt_compositor->socketName())) {
         fprintf(stderr, "Fatal: Failed to open server socket\n");
@@ -455,6 +464,11 @@ void Compositor::setClientFullScreenHint(bool value)
         m_windowManagerIntegration->setShowIsFullScreen(value);
 }
 
+QWaylandCompositor::ExtensionFlag Compositor::extensions() const
+{
+    return m_extensions;
+}
+
 InputDevice* Compositor::defaultInputDevice()
 {
     return m_default_input_device;
@@ -476,6 +490,11 @@ void Compositor::configureTouchExtension(int flags)
 {
     if (m_touchExtension)
         m_touchExtension->setFlags(flags);
+}
+
+InputPanel *Compositor::inputPanel() const
+{
+    return m_inputPanel.data();
 }
 
 void Compositor::setRetainedSelectionWatcher(RetainedSelectionFunc func, void *param)

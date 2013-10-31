@@ -100,6 +100,7 @@ void Keyboard::setFocus(Surface *surface)
 
     m_focusResource = resource;
     m_focus = surface;
+    Q_EMIT focusChanged(m_focus);
 }
 
 void Keyboard::sendKeyModifiers(wl_keyboard::Resource *resource, uint32_t serial)

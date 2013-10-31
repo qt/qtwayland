@@ -1,6 +1,5 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidi ary(-ies).
 ** Copyright (C) 2013 Klarälvdalens Datakonsult AB (KDAB).
 ** Contact: http://www.qt-project.org/legal
 **
@@ -39,81 +38,52 @@
 **
 ****************************************************************************/
 
-#ifndef QTWAYLAND_QWLKEYBOARD_P_H
-#define QTWAYLAND_QWLKEYBOARD_P_H
+#include "qwlinputpanelsurface_p.h"
 
-#include <QtCompositor/qwaylandexport.h>
-
-#include <QObject>
-#include <qwayland-server-wayland.h>
-
-#include <QtCore/QByteArray>
-
-#ifndef QT_NO_WAYLAND_XKB
-#include <xkbcommon/xkbcommon.h>
-#endif
+#include "qwloutput_p.h"
+#include "qwlsurface_p.h"
 
 QT_BEGIN_NAMESPACE
 
 namespace QtWayland {
 
-class Compositor;
-class InputDevice;
-class Surface;
-
-class Q_COMPOSITOR_EXPORT Keyboard : public QObject, public QtWaylandServer::wl_keyboard
+InputPanelSurface::InputPanelSurface(wl_client *client, int id, Surface *surface)
+    : QtWaylandServer::wl_input_panel_surface(client, id)
+    , m_surface(surface)
+    , m_type(Invalid)
+    , m_output(0)
+    , m_position()
 {
-    Q_OBJECT
+    surface->setInputPanelSurface(this);
+}
 
-public:
-    Keyboard(Compositor *compositor, InputDevice *seat);
-    ~Keyboard();
+InputPanelSurface::Type InputPanelSurface::type() const
+{
+    return m_type;
+}
 
-    void setFocus(Surface *surface);
+Output *InputPanelSurface::output() const
+{
+    return m_output;
+}
 
-    void sendKeyModifiers(Resource *resource, uint32_t serial);
-    void sendKeyPressEvent(uint code);
-    void sendKeyReleaseEvent(uint code);
+QtWaylandServer::wl_input_panel_surface::position InputPanelSurface::position() const
+{
+    return m_position;
+}
 
-    Surface *focus() const;
+void InputPanelSurface::input_panel_surface_set_overlay_panel(Resource *)
+{
+    m_type = OverlayPanel;
+}
 
-Q_SIGNALS:
-    void focusChanged(Surface *surface);
-
-protected:
-    void keyboard_bind_resource(Resource *resource);
-    void keyboard_destroy_resource(Resource *resource);
-
-private:
-    void sendKeyEvent(uint code, uint32_t state);
-    void updateModifierState(uint code, uint32_t state);
-
-#ifndef QT_NO_WAYLAND_XKB
-    void initXKB();
-#endif
-
-    Compositor *m_compositor;
-    InputDevice *m_seat;
-
-    Surface *m_focus;
-    Resource *m_focusResource;
-
-    QByteArray m_keys;
-    uint32_t m_modsDepressed;
-    uint32_t m_modsLatched;
-    uint32_t m_modsLocked;
-    uint32_t m_group;
-
-#ifndef QT_NO_WAYLAND_XKB
-    size_t m_keymap_size;
-    int m_keymap_fd;
-    char *m_keymap_area;
-    struct xkb_state *m_state;
-#endif
-};
-
-} // namespace QtWayland
+void InputPanelSurface::input_panel_surface_set_toplevel(Resource *, wl_resource *output, uint32_t position)
+{
+    m_type = Toplevel;
+    m_output = static_cast<Output *>(Output::Resource::fromResource(output));
+    m_position = static_cast<wl_input_panel_surface::position>(position);
+}
 
 QT_END_NAMESPACE
 
-#endif // QTWAYLAND_QWLKEYBOARD_P_H
+} // namespace QtWayland

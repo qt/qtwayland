@@ -1,6 +1,5 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidi ary(-ies).
 ** Copyright (C) 2013 Klarälvdalens Datakonsult AB (KDAB).
 ** Contact: http://www.qt-project.org/legal
 **
@@ -39,19 +38,13 @@
 **
 ****************************************************************************/
 
-#ifndef QTWAYLAND_QWLKEYBOARD_P_H
-#define QTWAYLAND_QWLKEYBOARD_P_H
+#ifndef QTWAYLAND_QWLINPUTMETHOD_H
+#define QTWAYLAND_QWLINPUTMETHOD_H
 
-#include <QtCompositor/qwaylandexport.h>
+#include <qwayland-server-input-method.h>
 
 #include <QObject>
-#include <qwayland-server-wayland.h>
-
-#include <QtCore/QByteArray>
-
-#ifndef QT_NO_WAYLAND_XKB
-#include <xkbcommon/xkbcommon.h>
-#endif
+#include <QScopedPointer>
 
 QT_BEGIN_NAMESPACE
 
@@ -59,61 +52,41 @@ namespace QtWayland {
 
 class Compositor;
 class InputDevice;
+class InputMethodContext;
+class TextInput;
 class Surface;
 
-class Q_COMPOSITOR_EXPORT Keyboard : public QObject, public QtWaylandServer::wl_keyboard
+class InputMethod : public QObject, public QtWaylandServer::wl_input_method
 {
     Q_OBJECT
 
 public:
-    Keyboard(Compositor *compositor, InputDevice *seat);
-    ~Keyboard();
+    explicit InputMethod(Compositor *compositor, InputDevice *seat);
+    ~InputMethod();
 
-    void setFocus(Surface *surface);
+    void activate(TextInput *textInput);
+    void deactivate();
 
-    void sendKeyModifiers(Resource *resource, uint32_t serial);
-    void sendKeyPressEvent(uint code);
-    void sendKeyReleaseEvent(uint code);
-
-    Surface *focus() const;
-
-Q_SIGNALS:
     void focusChanged(Surface *surface);
 
+    bool isBound() const;
+
+    InputMethodContext *context() const;
+    TextInput *textInput() const;
+
 protected:
-    void keyboard_bind_resource(Resource *resource);
-    void keyboard_destroy_resource(Resource *resource);
+    void input_method_bind_resource(Resource *resource);
 
 private:
-    void sendKeyEvent(uint code, uint32_t state);
-    void updateModifierState(uint code, uint32_t state);
-
-#ifndef QT_NO_WAYLAND_XKB
-    void initXKB();
-#endif
-
     Compositor *m_compositor;
     InputDevice *m_seat;
-
-    Surface *m_focus;
-    Resource *m_focusResource;
-
-    QByteArray m_keys;
-    uint32_t m_modsDepressed;
-    uint32_t m_modsLatched;
-    uint32_t m_modsLocked;
-    uint32_t m_group;
-
-#ifndef QT_NO_WAYLAND_XKB
-    size_t m_keymap_size;
-    int m_keymap_fd;
-    char *m_keymap_area;
-    struct xkb_state *m_state;
-#endif
+    Resource *m_resource;
+    TextInput *m_textInput;
+    InputMethodContext *m_context;
 };
 
 } // namespace QtWayland
 
 QT_END_NAMESPACE
 
-#endif // QTWAYLAND_QWLKEYBOARD_P_H
+#endif // QTWAYLAND_QWLINPUTMETHOD_H

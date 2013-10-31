@@ -70,6 +70,7 @@ namespace QtWayland {
 class Compositor;
 class Buffer;
 class ExtendedSurface;
+class InputPanelSurface;
 class SubSurface;
 class ShellSurface;
 
@@ -121,6 +122,9 @@ public:
     void setShellSurface(ShellSurface *shellSurface);
     ShellSurface *shellSurface() const;
 
+    void setInputPanelSurface(InputPanelSurface *inputPanelSurface);
+    InputPanelSurface *inputPanelSurface() const;
+
     Compositor *compositor() const;
 
     QString className() const { return m_className; }
@@ -154,6 +158,7 @@ private:
     ExtendedSurface *m_extendedSurface;
     SubSurface *m_subSurface;
     ShellSurface *m_shellSurface;
+    InputPanelSurface *m_inputPanelSurface;
 
     QRegion m_inputRegion;
     QRegion m_opaqueRegion;

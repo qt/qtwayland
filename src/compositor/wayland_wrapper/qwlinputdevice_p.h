@@ -70,8 +70,9 @@ class DataDeviceManager;
 class Pointer;
 class Keyboard;
 class Touch;
+class InputMethod;
 
-class Q_COMPOSITOR_EXPORT InputDevice : public QtWaylandServer::wl_seat, public QtWaylandServer::wl_touch
+class Q_COMPOSITOR_EXPORT InputDevice : public QtWaylandServer::wl_seat
 {
 public:
     InputDevice(QWaylandInputDevice *handle, Compositor *compositor);
@@ -106,6 +107,7 @@ public:
     Pointer *pointerDevice();
     Keyboard *keyboardDevice();
     Touch *touchDevice();
+    InputMethod *inputMethod();
 
     const Pointer *pointerDevice() const;
     const Keyboard *keyboardDevice() const;
@@ -125,7 +127,8 @@ private:
 
     QScopedPointer<Pointer> m_pointer;
     QScopedPointer<Keyboard> m_keyboard;
-    QScopedPointer<Touch>  m_touch;
+    QScopedPointer<Touch> m_touch;
+    QScopedPointer<InputMethod> m_inputMethod;
 
     void seat_bind_resource(wl_seat::Resource *resource) Q_DECL_OVERRIDE;
 

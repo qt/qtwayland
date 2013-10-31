@@ -83,6 +83,7 @@ Surface::Surface(struct wl_client *client, uint32_t id, Compositor *compositor)
     , m_extendedSurface(0)
     , m_subSurface(0)
     , m_shellSurface(0)
+    , m_inputPanelSurface(0)
     , m_transientInactive(false)
     , m_isCursorSurface(false)
 {
@@ -285,6 +286,16 @@ void Surface::setShellSurface(ShellSurface *shellSurface)
 ShellSurface *Surface::shellSurface() const
 {
     return m_shellSurface;
+}
+
+void Surface::setInputPanelSurface(InputPanelSurface *inputPanelSurface)
+{
+    m_inputPanelSurface = inputPanelSurface;
+}
+
+InputPanelSurface *Surface::inputPanelSurface() const
+{
+    return m_inputPanelSurface;
 }
 
 Compositor *Surface::compositor() const

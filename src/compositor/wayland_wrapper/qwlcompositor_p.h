@@ -74,6 +74,8 @@ class SubSurfaceExtensionGlobal;
 class Shell;
 class TouchExtensionGlobal;
 class QtKeyExtensionGlobal;
+class TextInputManager;
+class InputPanel;
 
 class Q_COMPOSITOR_EXPORT Compositor : public QObject
 {
@@ -130,10 +132,14 @@ public:
 
     void setClientFullScreenHint(bool value);
 
+    QWaylandCompositor::ExtensionFlag extensions() const;
+
     TouchExtensionGlobal *touchExtension() { return m_touchExtension; }
     void configureTouchExtension(int flags);
 
     QtKeyExtensionGlobal *qtkeyExtension() { return m_qtkeyExtension; }
+
+    InputPanel *inputPanel() const;
 
     bool isDragging() const;
     void sendDragMoveEvent(const QPoint &global, const QPoint &local, Surface *surface);
@@ -154,6 +160,8 @@ private slots:
     void processWaylandEvents();
 
 private:
+    QWaylandCompositor::ExtensionFlag m_extensions;
+
     Display *m_display;
 
     /* Input */
@@ -197,6 +205,8 @@ private:
     SubSurfaceExtensionGlobal *m_subSurfaceExtension;
     TouchExtensionGlobal *m_touchExtension;
     QtKeyExtensionGlobal *m_qtkeyExtension;
+    QScopedPointer<TextInputManager> m_textInputManager;
+    QScopedPointer<InputPanel> m_inputPanel;
 
     static void bind_func(struct wl_client *client, void *data,
                           uint32_t version, uint32_t id);

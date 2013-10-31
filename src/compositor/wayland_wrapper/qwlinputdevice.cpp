@@ -42,6 +42,7 @@
 
 #include "qwlcompositor_p.h"
 #include "qwldatadevice_p.h"
+#include "qwlinputmethod_p.h"
 #include "qwlsurface_p.h"
 #include "qwlqttouch_p.h"
 #include "qwlqtkey_p.h"
@@ -63,6 +64,7 @@ InputDevice::InputDevice(QWaylandInputDevice *handle, Compositor *compositor)
     , m_pointer(new Pointer(m_compositor, this))
     , m_keyboard(new Keyboard(m_compositor, this))
     , m_touch(new Touch(m_compositor))
+    , m_inputMethod(m_compositor->extensions() & QWaylandCompositor::TextInputExtension ? new InputMethod(m_compositor, this) : 0)
 {
 }
 
@@ -84,6 +86,11 @@ Keyboard *InputDevice::keyboardDevice()
 Touch *InputDevice::touchDevice()
 {
     return m_touch.data();
+}
+
+InputMethod *InputDevice::inputMethod()
+{
+    return m_inputMethod.data();
 }
 
 const Pointer *InputDevice::pointerDevice() const

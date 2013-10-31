@@ -158,6 +158,7 @@ public:
     QString title() const;
 
     bool hasShellSurface() const;
+    bool hasInputPanelSurface() const;
 
     bool transientInactive() const;
 

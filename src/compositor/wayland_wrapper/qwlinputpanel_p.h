@@ -1,6 +1,5 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidi ary(-ies).
 ** Copyright (C) 2013 Klarälvdalens Datakonsult AB (KDAB).
 ** Contact: http://www.qt-project.org/legal
 **
@@ -39,81 +38,57 @@
 **
 ****************************************************************************/
 
-#ifndef QTWAYLAND_QWLKEYBOARD_P_H
-#define QTWAYLAND_QWLKEYBOARD_P_H
+#ifndef QTWAYLAND_QWLINPUTPANEL_P_H
+#define QTWAYLAND_QWLINPUTPANEL_P_H
 
 #include <QtCompositor/qwaylandexport.h>
 
-#include <QObject>
-#include <qwayland-server-wayland.h>
+#include <qwayland-server-input-method.h>
 
-#include <QtCore/QByteArray>
-
-#ifndef QT_NO_WAYLAND_XKB
-#include <xkbcommon/xkbcommon.h>
-#endif
+#include <QRect>
+#include <QScopedPointer>
 
 QT_BEGIN_NAMESPACE
+
+class QWaylandInputPanel;
 
 namespace QtWayland {
 
 class Compositor;
-class InputDevice;
 class Surface;
+class TextInput;
 
-class Q_COMPOSITOR_EXPORT Keyboard : public QObject, public QtWaylandServer::wl_keyboard
+class Q_COMPOSITOR_EXPORT InputPanel : public QtWaylandServer::wl_input_panel
 {
-    Q_OBJECT
-
 public:
-    Keyboard(Compositor *compositor, InputDevice *seat);
-    ~Keyboard();
+    InputPanel(Compositor *compositor);
+    ~InputPanel();
 
-    void setFocus(Surface *surface);
-
-    void sendKeyModifiers(Resource *resource, uint32_t serial);
-    void sendKeyPressEvent(uint code);
-    void sendKeyReleaseEvent(uint code);
+    QWaylandInputPanel *handle() const;
 
     Surface *focus() const;
+    void setFocus(Surface *focus);
 
-Q_SIGNALS:
-    void focusChanged(Surface *surface);
+    bool inputPanelVisible() const;
+    void setInputPanelVisible(bool inputPanelVisible);
+
+    QRect cursorRectangle() const;
+    void setCursorRectangle(const QRect &cursorRectangle);
 
 protected:
-    void keyboard_bind_resource(Resource *resource);
-    void keyboard_destroy_resource(Resource *resource);
+    void input_panel_get_input_panel_surface(Resource *resource, uint32_t id, struct ::wl_resource *surface) Q_DECL_OVERRIDE;
 
 private:
-    void sendKeyEvent(uint code, uint32_t state);
-    void updateModifierState(uint code, uint32_t state);
-
-#ifndef QT_NO_WAYLAND_XKB
-    void initXKB();
-#endif
-
     Compositor *m_compositor;
-    InputDevice *m_seat;
+    QScopedPointer<QWaylandInputPanel> m_handle;
 
     Surface *m_focus;
-    Resource *m_focusResource;
-
-    QByteArray m_keys;
-    uint32_t m_modsDepressed;
-    uint32_t m_modsLatched;
-    uint32_t m_modsLocked;
-    uint32_t m_group;
-
-#ifndef QT_NO_WAYLAND_XKB
-    size_t m_keymap_size;
-    int m_keymap_fd;
-    char *m_keymap_area;
-    struct xkb_state *m_state;
-#endif
+    bool m_inputPanelVisible;
+    QRect m_cursorRectangle;
 };
 
 } // namespace QtWayland
 
 QT_END_NAMESPACE
 
-#endif // QTWAYLAND_QWLKEYBOARD_P_H
+#endif // QTWAYLAND_QWLINPUTPANEL_P_H

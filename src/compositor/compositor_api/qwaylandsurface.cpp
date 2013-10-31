@@ -326,6 +326,13 @@ bool QWaylandSurface::hasShellSurface() const
     return false;
 }
 
+bool QWaylandSurface::hasInputPanelSurface() const
+{
+    Q_D(const QWaylandSurface);
+
+    return d->surface->inputPanelSurface() != 0;
+}
+
 /*!
  * \return True if WL_SHELL_SURFACE_TRANSIENT_INACTIVE was set for this surface, meaning it should not receive keyboard focus.
  */

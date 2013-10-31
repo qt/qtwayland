@@ -45,6 +45,7 @@
 #include "wayland_wrapper/qwlcompositor_p.h"
 #include "wayland_wrapper/qwlsurface_p.h"
 #include "wayland_wrapper/qwlinputdevice_p.h"
+#include "wayland_wrapper/qwlinputpanel_p.h"
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QStringList>
@@ -227,6 +228,11 @@ int QWaylandCompositor::outputRefreshRate() const
 QWaylandInputDevice *QWaylandCompositor::defaultInputDevice() const
 {
     return m_compositor->defaultInputDevice()->handle();
+}
+
+QWaylandInputPanel *QWaylandCompositor::inputPanel() const
+{
+    return m_compositor->inputPanel()->handle();
 }
 
 bool QWaylandCompositor::isDragging() const

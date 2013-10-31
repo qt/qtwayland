@@ -1,6 +1,5 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidi ary(-ies).
 ** Copyright (C) 2013 Klarälvdalens Datakonsult AB (KDAB).
 ** Contact: http://www.qt-project.org/legal
 **
@@ -39,81 +38,46 @@
 **
 ****************************************************************************/
 
-#ifndef QTWAYLAND_QWLKEYBOARD_P_H
-#define QTWAYLAND_QWLKEYBOARD_P_H
+#ifndef QTWAYLAND_QWLINPUTMETHODCONTEXT_P_H
+#define QTWAYLAND_QWLINPUTMETHODCONTEXT_P_H
 
-#include <QtCompositor/qwaylandexport.h>
-
-#include <QObject>
-#include <qwayland-server-wayland.h>
-
-#include <QtCore/QByteArray>
-
-#ifndef QT_NO_WAYLAND_XKB
-#include <xkbcommon/xkbcommon.h>
-#endif
+#include <qwayland-server-input-method.h>
 
 QT_BEGIN_NAMESPACE
 
 namespace QtWayland {
 
-class Compositor;
-class InputDevice;
-class Surface;
+class TextInput;
 
-class Q_COMPOSITOR_EXPORT Keyboard : public QObject, public QtWaylandServer::wl_keyboard
+class InputMethodContext : public QtWaylandServer::wl_input_method_context
 {
-    Q_OBJECT
-
 public:
-    Keyboard(Compositor *compositor, InputDevice *seat);
-    ~Keyboard();
-
-    void setFocus(Surface *surface);
-
-    void sendKeyModifiers(Resource *resource, uint32_t serial);
-    void sendKeyPressEvent(uint code);
-    void sendKeyReleaseEvent(uint code);
-
-    Surface *focus() const;
-
-Q_SIGNALS:
-    void focusChanged(Surface *surface);
+    explicit InputMethodContext(struct ::wl_client *client, TextInput *textInput);
+    ~InputMethodContext();
 
 protected:
-    void keyboard_bind_resource(Resource *resource);
-    void keyboard_destroy_resource(Resource *resource);
+    void input_method_context_destroy_resource(Resource *resource) Q_DECL_OVERRIDE;
+    void input_method_context_destroy(Resource *resource) Q_DECL_OVERRIDE;
+
+    void input_method_context_commit_string(Resource *resource, uint32_t serial, const QString &text) Q_DECL_OVERRIDE;
+    void input_method_context_cursor_position(Resource *resource, int32_t index, int32_t anchor) Q_DECL_OVERRIDE;
+    void input_method_context_delete_surrounding_text(Resource *resource, int32_t index, uint32_t length) Q_DECL_OVERRIDE;
+    void input_method_context_language(Resource *resource, uint32_t serial, const QString &language) Q_DECL_OVERRIDE;
+    void input_method_context_keysym(Resource *resource, uint32_t serial, uint32_t time, uint32_t sym, uint32_t state, uint32_t modifiers) Q_DECL_OVERRIDE;
+    void input_method_context_modifiers_map(Resource *resource, wl_array *map) Q_DECL_OVERRIDE;
+    void input_method_context_preedit_cursor(Resource *resource, int32_t index) Q_DECL_OVERRIDE;
+    void input_method_context_preedit_string(Resource *resource, uint32_t serial, const QString &text, const QString &commit) Q_DECL_OVERRIDE;
+    void input_method_context_preedit_styling(Resource *resource, uint32_t index, uint32_t length, uint32_t style) Q_DECL_OVERRIDE;
+    void input_method_context_grab_keyboard(Resource *resource, uint32_t keyboard) Q_DECL_OVERRIDE;
+    void input_method_context_key(Resource *resource, uint32_t serial, uint32_t time, uint32_t key, uint32_t state) Q_DECL_OVERRIDE;
+    void input_method_context_modifiers(Resource *resource, uint32_t serial, uint32_t mods_depressed, uint32_t mods_latched, uint32_t mods_locked, uint32_t group) Q_DECL_OVERRIDE;
 
 private:
-    void sendKeyEvent(uint code, uint32_t state);
-    void updateModifierState(uint code, uint32_t state);
-
-#ifndef QT_NO_WAYLAND_XKB
-    void initXKB();
-#endif
-
-    Compositor *m_compositor;
-    InputDevice *m_seat;
-
-    Surface *m_focus;
-    Resource *m_focusResource;
-
-    QByteArray m_keys;
-    uint32_t m_modsDepressed;
-    uint32_t m_modsLatched;
-    uint32_t m_modsLocked;
-    uint32_t m_group;
-
-#ifndef QT_NO_WAYLAND_XKB
-    size_t m_keymap_size;
-    int m_keymap_fd;
-    char *m_keymap_area;
-    struct xkb_state *m_state;
-#endif
+    TextInput *m_textInput;
 };
 
 } // namespace QtWayland
 
 QT_END_NAMESPACE
 
-#endif // QTWAYLAND_QWLKEYBOARD_P_H
+#endif // QTWAYLAND_QWLINPUTMETHODCONTEXT_P_H

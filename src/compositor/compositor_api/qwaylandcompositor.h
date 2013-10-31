@@ -54,6 +54,7 @@ class QUrl;
 class QOpenGLContext;
 class QWaylandSurface;
 class QWaylandInputDevice;
+class QWaylandInputPanel;
 
 namespace QtWayland
 {
@@ -70,6 +71,7 @@ public:
         QtKeyExtension = 0x08,
         TouchExtension = 0x10,
         SubSurfaceExtension = 0x20,
+        TextInputExtension = 0x40,
 
         DefaultExtensions = WindowManagerExtension | OutputExtension | SurfaceExtension | QtKeyExtension | TouchExtension
     };
@@ -115,6 +117,8 @@ public:
     int outputRefreshRate() const;
 
     QWaylandInputDevice *defaultInputDevice() const;
+
+    QWaylandInputPanel *inputPanel() const;
 
     bool isDragging() const;
     void sendDragMoveEvent(const QPoint &global, const QPoint &local, QWaylandSurface *surface);

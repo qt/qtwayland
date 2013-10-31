@@ -10,7 +10,7 @@ CONFIG += link_pkgconfig
 DEFINES += QT_WAYLAND_WINDOWMANAGER_SUPPORT
 
 !contains(QT_CONFIG, no-pkg-config) {
-    PKGCONFIG += wayland-server
+    PKGCONFIG_PRIVATE += wayland-server
 } else {
     LIBS += -lwayland-server
 }

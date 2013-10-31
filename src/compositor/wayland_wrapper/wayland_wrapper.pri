@@ -56,9 +56,9 @@ INCLUDEPATH += wayland_wrapper
 
 config_xkbcommon {
     !contains(QT_CONFIG, no-pkg-config) {
-        PKGCONFIG += xkbcommon
+        PKGCONFIG_PRIVATE += xkbcommon
     } else {
-        LIBS += -lxkbcommon
+        LIBS_PRIVATE += -lxkbcommon
     }
 } else {
     DEFINES += QT_NO_WAYLAND_XKB

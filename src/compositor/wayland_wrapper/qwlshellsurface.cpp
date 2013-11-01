@@ -65,28 +65,41 @@ void Shell::bind_func(struct wl_client *client, void *data,
     wl_client_add_object(client,&wl_shell_interface,&shell_interface,id,data);
 }
 
+ShellSurfacePopupGrabber *Shell::getPopupGrabber(InputDevice *input)
+{
+    if (!m_popupGrabber.contains(input))
+        m_popupGrabber.insert(input, new ShellSurfacePopupGrabber(input));
+
+    return m_popupGrabber.value(input);
+}
+
 void Shell::get_shell_surface(struct wl_client *client,
               struct wl_resource *shell_resource,
               uint32_t id,
               struct wl_resource *surface_super)
 {
-    Q_UNUSED(shell_resource);
+    Shell *shell = static_cast<Shell*>(shell_resource->data);
     Surface *surface = Surface::fromResource(surface_super);
-    new ShellSurface(client,id,surface);
+    new ShellSurface(shell, client, id, surface);
 }
 
 const struct wl_shell_interface Shell::shell_interface = {
     Shell::get_shell_surface
 };
 
-ShellSurface::ShellSurface(wl_client *client, uint32_t id, Surface *surface)
+ShellSurface::ShellSurface(Shell *shell, wl_client *client, uint32_t id, Surface *surface)
     : wl_shell_surface(client, id)
+    , m_shell(shell)
     , m_surface(surface)
     , m_resizeGrabber(0)
     , m_moveGrabber(0)
+    , m_popupGrabber(0)
     , m_transientParent(0)
     , m_xOffset(0)
     , m_yOffset(0)
+    , m_windowType(None)
+    , m_popupLocation()
+    , m_popupSerial()
 {
     surface->setShellSurface(this);
 }
@@ -157,8 +170,26 @@ void ShellSurface::setOffset(const QPointF &offset)
     m_yOffset = offset.y();
 }
 
+ShellSurface::WindowType ShellSurface::windowType() const
+{
+    return m_windowType;
+}
+
+void ShellSurface::mapPopup()
+{
+    if (m_popupGrabber->grabSerial() == m_popupSerial) {
+        m_popupGrabber->addPopup(this);
+    } else {
+        send_popup_done();
+        m_popupGrabber->setClient(0);
+    }
+}
+
 void ShellSurface::shell_surface_destroy_resource(Resource *)
 {
+    if (m_popupGrabber)
+        m_popupGrabber->removePopup(this);
+
     delete this;
 }
 
@@ -256,15 +287,20 @@ void ShellSurface::shell_surface_set_fullscreen(Resource *resource,
         m_surface->extendedSurface()->setVisibility(QWindow::FullScreen, false);
 }
 
-void ShellSurface::shell_surface_set_popup(Resource *resource, wl_resource *input_device, uint32_t time, wl_resource *parent, int32_t x, int32_t y, uint32_t flags)
+void ShellSurface::shell_surface_set_popup(Resource *resource, wl_resource *input_device, uint32_t serial, wl_resource *parent, int32_t x, int32_t y, uint32_t flags)
 {
     Q_UNUSED(resource);
     Q_UNUSED(input_device);
-    Q_UNUSED(time);
-    Q_UNUSED(parent);
-    Q_UNUSED(x);
-    Q_UNUSED(y);
     Q_UNUSED(flags);
+
+    InputDevice *input = InputDevice::fromSeatResource(input_device);
+    m_popupGrabber = m_shell->getPopupGrabber(input);
+
+    m_popupSerial = serial;
+    m_transientParent = Surface::fromResource(parent)->shellSurface();
+    m_popupLocation = QPointF(x, y);
+
+    m_windowType = Popup;
 
     if (m_surface->extendedSurface())
         m_surface->extendedSurface()->setVisibility(QWindow::AutomaticVisibility, false);
@@ -390,6 +426,87 @@ void ShellSurfaceMoveGrabber::button(uint32_t time, Qt::MouseButton button, uint
         delete this;
     }
 }
+
+ShellSurfacePopupGrabber::ShellSurfacePopupGrabber(InputDevice *inputDevice)
+    : PointerGrabber()
+    , m_inputDevice(inputDevice)
+    , m_client(0)
+    , m_surfaces()
+    , m_initialUp(false)
+{
+}
+
+uint32_t ShellSurfacePopupGrabber::grabSerial() const
+{
+    return m_inputDevice->pointerDevice()->grabSerial();
+}
+
+struct ::wl_client *ShellSurfacePopupGrabber::client() const
+{
+    return m_client;
+}
+
+void ShellSurfacePopupGrabber::setClient(struct ::wl_client *client)
+{
+    m_client = client;
+}
+
+void ShellSurfacePopupGrabber::addPopup(ShellSurface *surface)
+{
+    if (m_surfaces.isEmpty()) {
+        m_client = surface->resource()->client();
+
+        if (m_inputDevice->pointerDevice()->buttonPressed())
+            m_initialUp = false;
+
+        m_surfaces.append(surface);
+        m_inputDevice->pointerDevice()->startGrab(this);
+    } else {
+        m_surfaces.append(surface);
+    }
+}
+
+void ShellSurfacePopupGrabber::removePopup(ShellSurface *surface)
+{
+    if (m_surfaces.isEmpty())
+        return;
+
+    m_surfaces.removeOne(surface);
+    if (m_surfaces.isEmpty())
+        m_inputDevice->pointerDevice()->endGrab();
+}
+
+void ShellSurfacePopupGrabber::focus()
+{
+    if (m_pointer->current() && m_pointer->current()->resource()->client() == m_client)
+        m_pointer->setFocus(m_pointer->current(), m_pointer->currentPosition());
+    else
+        m_pointer->setFocus(0, QPointF());
+}
+
+void ShellSurfacePopupGrabber::motion(uint32_t time)
+{
+    m_pointer->motion(time);
+}
+
+void ShellSurfacePopupGrabber::button(uint32_t time, Qt::MouseButton button, uint32_t state)
+{
+    if (m_pointer->focusResource()) {
+        m_pointer->sendButton(time, button, state);
+    } else if (state == QtWaylandServer::wl_pointer::button_state_pressed &&
+               (m_initialUp || time - m_pointer->grabTime() > 500) &&
+               m_pointer->currentGrab() == this) {
+        m_pointer->endGrab();
+        Q_FOREACH (ShellSurface *surface, m_surfaces) {
+            surface->send_popup_done();
+        }
+        m_surfaces.clear();
+    }
+
+    if (state == QtWaylandServer::wl_pointer::button_state_released)
+        m_initialUp = true;
+}
+
 
 }
 

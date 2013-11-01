@@ -41,7 +41,10 @@
 #ifndef WLSHELLSURFACE_H
 #define WLSHELLSURFACE_H
 
+#include <QtCompositor/qwaylandexport.h>
+
 #include <wayland-server.h>
+#include <QHash>
 #include <QPoint>
 #include <QSet>
 #include <private/qwlpointer_p.h>
@@ -57,6 +60,7 @@ class Surface;
 class ShellSurface;
 class ShellSurfaceResizeGrabber;
 class ShellSurfaceMoveGrabber;
+class ShellSurfacePopupGrabber;
 
 class Shell
 {
@@ -65,6 +69,8 @@ public:
 
     static void bind_func(struct wl_client *client, void *data,
                           uint32_t version, uint32_t id);
+
+    ShellSurfacePopupGrabber* getPopupGrabber(InputDevice *input);
 private:
     static void get_shell_surface(struct wl_client *client,
                   struct wl_resource *resource,
@@ -72,12 +78,19 @@ private:
                   struct wl_resource *surface);
     static const struct wl_shell_interface shell_interface;
 
+    QHash<InputDevice*, ShellSurfacePopupGrabber*> m_popupGrabber;
 };
 
-class ShellSurface : public QtWaylandServer::wl_shell_surface
+class Q_COMPOSITOR_EXPORT ShellSurface : public QtWaylandServer::wl_shell_surface
 {
 public:
-    ShellSurface(struct wl_client *client, uint32_t id, Surface *surface);
+    enum WindowType {
+        None,
+        Toplevel,
+        Popup
+    };
+
+    ShellSurface(Shell *shell, struct wl_client *client, uint32_t id, Surface *surface);
     void sendConfigure(uint32_t edges, int32_t width, int32_t height);
     void ping();
 
@@ -91,16 +104,27 @@ public:
     ShellSurface *transientParent() const;
     void setOffset(const QPointF &offset);
 
+    WindowType windowType() const;
+
+    void mapPopup();
+
 private:
+    Shell *m_shell;
     Surface *m_surface;
 
     ShellSurfaceResizeGrabber *m_resizeGrabber;
     ShellSurfaceMoveGrabber *m_moveGrabber;
+    ShellSurfacePopupGrabber *m_popupGrabber;
 
     ShellSurface *m_transientParent;
 
     int32_t m_xOffset;
     int32_t m_yOffset;
+
+    WindowType m_windowType;
+
+    QPointF m_popupLocation;
+    uint32_t m_popupSerial;
 
     QSet<uint32_t> m_pings;
 
@@ -175,6 +199,30 @@ public:
 
 private:
     QPointF m_offset;
+};
+
+class ShellSurfacePopupGrabber : public PointerGrabber
+{
+public:
+    ShellSurfacePopupGrabber(InputDevice *inputDevice);
+
+    uint32_t grabSerial() const;
+
+    struct ::wl_client *client() const;
+    void setClient(struct ::wl_client *client);
+
+    void addPopup(ShellSurface *surface);
+    void removePopup(ShellSurface *surface);
+
+    void focus() Q_DECL_OVERRIDE;
+    void motion(uint32_t time) Q_DECL_OVERRIDE;
+    void button(uint32_t time, Qt::MouseButton button, uint32_t state) Q_DECL_OVERRIDE;
+
+private:
+    InputDevice *m_inputDevice;
+    struct ::wl_client *m_client;
+    QList<ShellSurface *> m_surfaces;
+    bool m_initialUp;
 };
 
 }

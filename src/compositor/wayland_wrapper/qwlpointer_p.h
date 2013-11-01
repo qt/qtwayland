@@ -78,11 +78,17 @@ public:
 
     void setFocus(Surface *surface, const QPointF &position);
 
-    void startGrab(PointerGrabber *grab);
+    void startGrab(PointerGrabber *currentGrab);
     void endGrab();
+    PointerGrabber *currentGrab() const;
+    Qt::MouseButton grabButton() const;
+    uint32_t grabTime() const;
+    uint32_t grabSerial() const;
 
     void setCurrent(Surface *surface, const QPointF &point);
     void setMouseFocus(Surface *surface, const QPointF &localPos, const QPointF &globalPos);
+
+    void sendButton(uint32_t time, Qt::MouseButton button, uint32_t state);
 
     void sendMousePressEvent(Qt::MouseButton button, const QPointF &localPos, const QPointF &globalPos);
     void sendMouseReleaseEvent(Qt::MouseButton button, const QPointF &localPos, const QPointF &globalPos);
@@ -92,6 +98,10 @@ public:
     Surface *focusSurface() const;
     Surface *current() const;
     QPointF position() const;
+    QPointF currentPosition() const;
+    Resource *focusResource() const;
+
+    bool buttonPressed() const;
 
     void focus() Q_DECL_OVERRIDE;
     void motion(uint32_t time) Q_DECL_OVERRIDE;
@@ -102,12 +112,13 @@ protected:
     void pointer_destroy_resource(Resource *resource) Q_DECL_OVERRIDE;
 
 private:
-    bool buttonPressed() const;
-
     Compositor *m_compositor;
     InputDevice *m_seat;
 
     PointerGrabber *m_grab;
+    Qt::MouseButton m_grabButton;
+    uint32_t m_grabTime;
+    uint32_t m_grabSerial;
 
     QPointF m_position;
 

@@ -288,6 +288,9 @@ void QWaylandSurfaceItem::surfaceUnmapped()
 
 void QWaylandSurfaceItem::surfaceDestroyed(QObject *)
 {
+    if (m_surface)
+        m_surface->setSurfaceItem(0);
+
     m_surface = 0;
 }
 

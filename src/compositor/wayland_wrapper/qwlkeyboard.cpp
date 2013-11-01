@@ -123,6 +123,11 @@ Surface *Keyboard::focus() const
     return m_focus;
 }
 
+QtWaylandServer::wl_keyboard::Resource *Keyboard::focusResource() const
+{
+    return m_focusResource;
+}
+
 void Keyboard::keyboard_bind_resource(wl_keyboard::Resource *resource)
 {
 #ifndef QT_NO_WAYLAND_XKB

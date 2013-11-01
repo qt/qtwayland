@@ -76,6 +76,7 @@ public:
     void sendKeyReleaseEvent(uint code);
 
     Surface *focus() const;
+    Resource *focusResource() const;
 
 Q_SIGNALS:
     void focusChanged(Surface *surface);

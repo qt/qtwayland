@@ -56,11 +56,10 @@ public:
 
     ~QWaylandClipboard();
 
-    QMimeData *mimeData(QClipboard::Mode mode = QClipboard::Clipboard);
-    void setMimeData(QMimeData *data, QClipboard::Mode mode = QClipboard::Clipboard);
-    bool supportsMode(QClipboard::Mode mode) const;
-
-    QVariant retrieveData(const QString &mimeType, QVariant::Type type) const;
+    QMimeData *mimeData(QClipboard::Mode mode = QClipboard::Clipboard) Q_DECL_OVERRIDE;
+    void setMimeData(QMimeData *data, QClipboard::Mode mode = QClipboard::Clipboard) Q_DECL_OVERRIDE;
+    bool supportsMode(QClipboard::Mode mode) const Q_DECL_OVERRIDE;
+    bool ownsMode(QClipboard::Mode mode) const Q_DECL_OVERRIDE;
 
 private:
     QWaylandDisplay *mDisplay;

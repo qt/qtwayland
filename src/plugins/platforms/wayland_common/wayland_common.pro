@@ -27,7 +27,8 @@ SOURCES +=  qwaylandintegration.cpp \
             qwaylanddecoration.cpp \
             qwaylandeventthread.cpp\
             qwaylandwindowmanagerintegration.cpp \
-    qwaylandinputcontext.cpp
+            qwaylandinputcontext.cpp \
+            qwaylanddatadevice.cpp \
 
 HEADERS +=  qwaylandintegration.h \
             qwaylandnativeinterface.h \
@@ -54,7 +55,8 @@ HEADERS +=  qwaylandintegration.h \
             qwaylanddecoration.h \
             qwaylandeventthread.h \
             qwaylandwindowmanagerintegration.h \
-    qwaylandinputcontext.h
+            qwaylandinputcontext.h \
+            qwaylanddatadevice.h \
 
 contains(DEFINES, QT_WAYLAND_GL_SUPPORT) {
     SOURCES += qwaylandglintegration.cpp

@@ -64,6 +64,7 @@ QT_BEGIN_NAMESPACE
 
 class QWaylandWindow;
 class QWaylandDisplay;
+class QWaylandDataDevice;
 
 class QWaylandInputDevice : public QtWayland::wl_pointer, public QtWayland::wl_keyboard, public QtWayland::wl_touch, public QtWayland::wl_seat
 {
@@ -79,10 +80,14 @@ public:
     void setCursor(struct wl_buffer *buffer, struct wl_cursor_image *image);
     void handleWindowDestroyed(QWaylandWindow *window);
 
-    void setTransferDevice(struct wl_data_device *device);
-    struct wl_data_device *transferDevice() const;
+    void setDataDevice(QWaylandDataDevice *device);
+    QWaylandDataDevice *dataDevice() const;
 
     void removeMouseButtonFromState(Qt::MouseButton button);
+
+    QWaylandWindow *pointerFocus() const;
+
+    Qt::KeyboardModifiers modifiers() const;
 
     uint32_t serial() const;
     uint32_t cursorSerial() const { return mCursorSerial; }
@@ -96,7 +101,7 @@ private:
 
     struct wl_surface *pointerSurface;
 
-    struct wl_data_device *mTransferDevice;
+    QWaylandDataDevice *mDataDevice;
     QWaylandWindow *mPointerFocus;
     QWaylandWindow *mKeyboardFocus;
     QWaylandWindow *mTouchFocus;

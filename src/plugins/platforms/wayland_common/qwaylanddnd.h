@@ -43,27 +43,33 @@
 #define QWAYLANDDND_H
 
 #include <qpa/qplatformdrag.h>
+#include <QtGui/private/qsimpledrag_p.h>
+
 #include <QtGui/QDrag>
 #include <QtCore/QMimeData>
 #include "qwaylanddisplay.h"
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandDrag : public QPlatformDrag
+class QWaylandDrag : public QBasicDrag
 {
 public:
     QWaylandDrag(QWaylandDisplay *display);
     ~QWaylandDrag();
 
-    QMimeData *platformDropData();
+    QMimeData *platformDropData() Q_DECL_OVERRIDE;
 
-    Qt::DropAction drag(QDrag *m_drag);
-    void move(const QMouseEvent *me);
-    bool canDrop() const;
-    void drop(const QMouseEvent *me);
-    void cancel();
+    void updateTarget(const QString &mimeType);
+    void setResponse(const QPlatformDragQtResponse &response);
+    void finishDrag(const QPlatformDropQtResponse &response);
 
-    virtual Qt::DropAction executedDropAction() const;
+protected:
+    void startDrag() Q_DECL_OVERRIDE;
+    void cancel() Q_DECL_OVERRIDE;
+    void move(const QMouseEvent *me) Q_DECL_OVERRIDE;
+    void drop(const QMouseEvent *me) Q_DECL_OVERRIDE;
+    void endDrag() Q_DECL_OVERRIDE;
+
 
 private:
     QWaylandDisplay *m_display;

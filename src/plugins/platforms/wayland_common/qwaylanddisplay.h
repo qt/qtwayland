@@ -114,6 +114,7 @@ public:
 
     QList<QWaylandInputDevice *> inputDevices() const { return mInputDevices; }
     QWaylandInputDevice *defaultInputDevice() const;
+    QWaylandInputDevice *currentInputDevice() const { return defaultInputDevice(); }
 
     QWaylandInputDevice *lastKeyboardFocusInputDevice() const;
     void setLastKeyboardFocusInputDevice(QWaylandInputDevice *device);

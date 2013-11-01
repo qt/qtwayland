@@ -44,6 +44,7 @@
 #include "qwaylandintegration.h"
 #include "qwaylandwindow.h"
 #include "qwaylandbuffer.h"
+#include "qwaylanddatadevice.h"
 #include "qwaylanddatadevicemanager.h"
 #include "qwaylandtouch.h"
 #include "qwaylandscreen.h"
@@ -74,7 +75,7 @@ QWaylandInputDevice::QWaylandInputDevice(QWaylandDisplay *display, uint32_t id)
     , mDisplay(display->wl_display())
     , mFocusCallback(0)
     , mCaps(0)
-    , mTransferDevice(0)
+    , mDataDevice(0)
     , mPointerFocus(0)
     , mKeyboardFocus(0)
     , mTouchFocus(0)
@@ -111,7 +112,7 @@ QWaylandInputDevice::QWaylandInputDevice(QWaylandDisplay *display, uint32_t id)
 #endif
 
     if (mQDisplay->dndSelectionHandler()) {
-        mTransferDevice = mQDisplay->dndSelectionHandler()->getDataDevice(this);
+        mDataDevice = mQDisplay->dndSelectionHandler()->getDataDevice(this);
     }
 }
 
@@ -159,20 +160,47 @@ void QWaylandInputDevice::handleWindowDestroyed(QWaylandWindow *window)
         mKeyboardFocus = 0;
 }
 
-void QWaylandInputDevice::setTransferDevice(struct wl_data_device *device)
+void QWaylandInputDevice::setDataDevice(QWaylandDataDevice *device)
 {
-    mTransferDevice = device;
+    mDataDevice = device;
 }
 
-struct wl_data_device *QWaylandInputDevice::transferDevice() const
+QWaylandDataDevice *QWaylandInputDevice::dataDevice() const
 {
-    Q_ASSERT(mTransferDevice);
-    return mTransferDevice;
+    Q_ASSERT(mDataDevice);
+    return mDataDevice;
 }
 
 void QWaylandInputDevice::removeMouseButtonFromState(Qt::MouseButton button)
 {
     mButtons = mButtons & !button;
+}
+
+QWaylandWindow *QWaylandInputDevice::pointerFocus() const
+{
+    return mPointerFocus;
+}
+
+Qt::KeyboardModifiers QWaylandInputDevice::modifiers() const
+{
+    Qt::KeyboardModifiers ret = Qt::NoModifier;
+
+#ifndef QT_NO_WAYLAND_XKB
+    xkb_state_component cstate = static_cast<xkb_state_component>(XKB_STATE_DEPRESSED | XKB_STATE_LATCHED);
+
+    if (xkb_state_mod_name_is_active(mXkbState, "Shift", cstate))
+        ret |= Qt::ShiftModifier;
+    if (xkb_state_mod_name_is_active(mXkbState, "Control", cstate))
+        ret |= Qt::ControlModifier;
+    if (xkb_state_mod_name_is_active(mXkbState, "Alt", cstate))
+        ret |= Qt::AltModifier;
+    if (xkb_state_mod_name_is_active(mXkbState, "Mod1", cstate))
+        ret |= Qt::AltModifier;
+    if (xkb_state_mod_name_is_active(mXkbState, "Mod4", cstate))
+        ret |= Qt::MetaModifier;
+#endif
+
+    return ret;
 }
 
 void QWaylandInputDevice::setCursor(Qt::CursorShape newShape, QWaylandScreen *screen)
@@ -350,25 +378,6 @@ void QWaylandInputDevice::pointer_axis(uint32_t time, uint32_t axis, int32_t val
 }
 
 #ifndef QT_NO_WAYLAND_XKB
-
-static Qt::KeyboardModifiers translateModifiers(xkb_state *state)
-{
-    Qt::KeyboardModifiers ret = Qt::NoModifier;
-    xkb_state_component cstate = xkb_state_component(XKB_STATE_DEPRESSED | XKB_STATE_LATCHED);
-
-    if (xkb_state_mod_name_is_active(state, "Shift", cstate))
-        ret |= Qt::ShiftModifier;
-    if (xkb_state_mod_name_is_active(state, "Control", cstate))
-        ret |= Qt::ControlModifier;
-    if (xkb_state_mod_name_is_active(state, "Alt", cstate))
-        ret |= Qt::AltModifier;
-    if (xkb_state_mod_name_is_active(state, "Mod1", cstate))
-        ret |= Qt::AltModifier;
-    if (xkb_state_mod_name_is_active(state, "Mod4", cstate))
-        ret |= Qt::MetaModifier;
-
-    return ret;
-}
 
 static const uint32_t KeyTbl[] = {
     XK_Escape,                  Qt::Key_Escape,
@@ -589,7 +598,7 @@ void QWaylandInputDevice::keyboard_key(uint32_t serial, uint32_t time, uint32_t 
 
     if (numSyms == 1) {
         xkb_keysym_t sym = syms[0];
-        Qt::KeyboardModifiers modifiers = translateModifiers(mXkbState);
+        Qt::KeyboardModifiers modifiers = this->modifiers();
         QEvent::Type type = isDown ? QEvent::KeyPress : QEvent::KeyRelease;
 
         uint utf32 = xkb_keysym_to_utf32(sym);

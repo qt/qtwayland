@@ -44,7 +44,7 @@
 #include "qwaylandinputdevice.h"
 #include "qwaylanddataoffer.h"
 #include "qwaylanddatasource.h"
-#include "qwaylanddatadevicemanager.h"
+#include "qwaylanddatadevice.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -59,27 +59,53 @@ QWaylandClipboard::~QWaylandClipboard()
 
 QMimeData *QWaylandClipboard::mimeData(QClipboard::Mode mode)
 {
-    Q_ASSERT(mode == QClipboard::Clipboard);
-    if (!mDisplay->dndSelectionHandler())
+    if (mode != QClipboard::Clipboard)
         return 0;
 
-    QWaylandDataSource *transfer_source = mDisplay->dndSelectionHandler()->selectionTransferSource();
-    if (transfer_source) { //if we have the keyboard focus and selectionTransferSource then we own the clipboard
-        return transfer_source->mimeData();
+    QWaylandInputDevice *inputDevice = mDisplay->currentInputDevice();
+    if (!inputDevice || !inputDevice->dataDevice())
+        return 0;
+
+    QWaylandDataSource *source = inputDevice->dataDevice()->selectionSource();
+    if (source) {
+        return source->mimeData();
     }
-    return mDisplay->dndSelectionHandler()->selectionTransfer();
+
+    if (inputDevice->dataDevice()->selectionOffer())
+        return inputDevice->dataDevice()->selectionOffer()->mimeData();
+
+    return 0;
 }
 
 void QWaylandClipboard::setMimeData(QMimeData *data, QClipboard::Mode mode)
 {
-    Q_ASSERT(mode == QClipboard::Clipboard);
-    if (mDisplay->dndSelectionHandler())
-        mDisplay->dndSelectionHandler()->createAndSetSelectionSource(data,mode);
+    if (mode != QClipboard::Clipboard)
+        return;
+
+    QWaylandInputDevice *inputDevice = mDisplay->currentInputDevice();
+    if (!inputDevice || !inputDevice->dataDevice())
+        return;
+
+    inputDevice->dataDevice()->setSelectionSource(data ? new QWaylandDataSource(mDisplay->dndSelectionHandler(), data) : 0);
+
+    emitChanged(mode);
 }
 
 bool QWaylandClipboard::supportsMode(QClipboard::Mode mode) const
 {
     return mode == QClipboard::Clipboard;
+}
+
+bool QWaylandClipboard::ownsMode(QClipboard::Mode mode) const
+{
+    if (mode != QClipboard::Clipboard)
+        return false;
+
+    QWaylandInputDevice *inputDevice = mDisplay->currentInputDevice();
+    if (!inputDevice || !inputDevice->dataDevice())
+        return false;
+
+    return inputDevice->dataDevice()->selectionSource() != 0;
 }
 
 QT_END_NAMESPACE

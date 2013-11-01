@@ -42,47 +42,49 @@
 #ifndef QWAYLANDDATAOFFER_H
 #define QWAYLANDDATAOFFER_H
 
-#include <QString>
-#include <QByteArray>
-#include <QMimeData>
+#include "qwaylanddisplay.h"
 
 #include <QtGui/private/qdnd_p.h>
-#include <QtGui/QClipboard>
-
-#include <stdint.h>
-
-struct wl_callback;
-struct wl_callback_listener;
-struct wl_data_offer;
-struct wl_data_offer_listener;
 
 QT_BEGIN_NAMESPACE
 
 class QWaylandDisplay;
+class QWaylandMimeData;
 
-class QWaylandDataOffer : public QInternalMimeData
+class QWaylandDataOffer : public QtWayland::wl_data_offer
 {
 public:
-    QWaylandDataOffer(QWaylandDisplay *display, struct wl_data_offer *offer);
+    explicit QWaylandDataOffer(QWaylandDisplay *display, struct ::wl_data_offer *offer);
     ~QWaylandDataOffer();
 
-    bool hasFormat_sys(const QString &mimeType) const;
-    QStringList formats_sys() const;
-    QVariant retrieveData_sys(const QString &mimeType, QVariant::Type type) const;
+    QString firstFormat() const;
 
-    struct wl_data_offer *handle() const;
+    QMimeData *mimeData();
+
+protected:
+    void data_offer_offer(const QString &mime_type) Q_DECL_OVERRIDE;
+
 private:
+    QScopedPointer<QWaylandMimeData> m_mimeData;
+};
 
-    struct wl_data_offer *m_data_offer;
+
+class QWaylandMimeData : public QInternalMimeData {
+public:
+    explicit QWaylandMimeData(QWaylandDataOffer *dataOffer, QWaylandDisplay *display);
+    ~QWaylandMimeData();
+
+    void appendFormat(const QString &mimeType);
+
+protected:
+    bool hasFormat_sys(const QString &mimeType) const Q_DECL_OVERRIDE;
+    QStringList formats_sys() const Q_DECL_OVERRIDE;
+    QVariant retrieveData_sys(const QString &mimeType, QVariant::Type type) const Q_DECL_OVERRIDE;
+
+private:
+    mutable QWaylandDataOffer *m_dataOffer;
     QWaylandDisplay *m_display;
     QStringList m_offered_mime_types;
-    wl_callback *m_receiveSyncCallback;
-
-    static void offer(void *data, struct wl_data_offer *wl_data_offer, const char *type);
-    static const struct wl_data_offer_listener data_offer_listener;
-
-    static void offer_sync_callback(void *data, struct wl_callback *wl_callback, uint32_t time);
-    static const struct wl_callback_listener offer_sync_callback_listener;
 };
 
 QT_END_NAMESPACE

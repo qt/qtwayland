@@ -42,36 +42,34 @@
 #ifndef QWAYLANDDATASOURCE_H
 #define QWAYLANDDATASOURCE_H
 
-#include "qwaylanddatadevicemanager.h"
-
-#include <wayland-client-protocol.h>
+#include "qwaylanddisplay.h"
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandDataSource
+class QMimeData;
+class QWaylandDataDeviceManager;
+
+class QWaylandDataSource : public QObject, public QtWayland::wl_data_source
 {
+    Q_OBJECT
 public:
-    QWaylandDataSource(QWaylandDataDeviceManager *dndSelectionHandler, QMimeData *mimeData);
+    QWaylandDataSource(QWaylandDataDeviceManager *dataDeviceManager, QMimeData *mimeData);
     ~QWaylandDataSource();
 
     QMimeData *mimeData() const;
 
-    struct wl_data_source *handle() const;
+Q_SIGNALS:
+    void targetChanged(const QString &mime_type);
+    void cancelled();
+
+protected:
+    void data_source_cancelled() Q_DECL_OVERRIDE;
+    void data_source_send(const QString &mime_type, int32_t fd) Q_DECL_OVERRIDE;
+    void data_source_target(const QString &mime_type) Q_DECL_OVERRIDE;
+
 private:
-    struct wl_data_source *m_data_source;
     QWaylandDisplay *m_display;
     QMimeData *m_mime_data;
-
-    static void data_source_target(void *data,
-                   struct wl_data_source *data_source,
-                   const char *mime_type);
-    static void data_source_send(void *data,
-                 struct wl_data_source *data_source,
-                 const char *mime_type,
-                 int32_t fd);
-    static void data_source_cancelled(void *data,
-                      struct wl_data_source *data_source);
-    static const struct wl_data_source_listener data_source_listener;
 };
 
 QT_END_NAMESPACE

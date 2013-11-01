@@ -42,6 +42,7 @@
 #include "qwaylanddataoffer.h"
 #include "qwaylanddatadevicemanager.h"
 
+#include <QtCore/private/qcore_unix_p.h>
 #include <QtGui/private/qguiapplication_p.h>
 #include <qpa/qplatformclipboard.h>
 
@@ -49,99 +50,90 @@
 
 QT_BEGIN_NAMESPACE
 
-void QWaylandDataOffer::offer_sync_callback(void *data,
-             struct wl_callback *callback,
-             uint32_t time)
+QWaylandDataOffer::QWaylandDataOffer(QWaylandDisplay *display, struct ::wl_data_offer *offer)
+    : QtWayland::wl_data_offer(offer)
+    , m_mimeData(new QWaylandMimeData(this, display))
 {
-    Q_UNUSED(time);
-    QWaylandDataOffer *mime = static_cast<QWaylandDataOffer *>(data);
-    if (mime->m_receiveSyncCallback == callback) {
-        mime->m_receiveSyncCallback = 0;
-        wl_callback_destroy(callback);
-    }
-}
-
-const struct wl_callback_listener QWaylandDataOffer::offer_sync_callback_listener = {
-    QWaylandDataOffer::offer_sync_callback
-};
-
-void QWaylandDataOffer::offer(void *data,
-              struct wl_data_offer *wl_data_offer,
-              const char *type)
-{
-    Q_UNUSED(wl_data_offer);
-
-    QWaylandDataOffer *data_offer = static_cast<QWaylandDataOffer *>(data);
-
-    if (!data_offer->m_receiveSyncCallback) {
-        data_offer->m_receiveSyncCallback = wl_display_sync(data_offer->m_display->wl_display());
-        wl_callback_add_listener(data_offer->m_receiveSyncCallback, &offer_sync_callback_listener, data_offer);
-    }
-
-    data_offer->m_offered_mime_types.append(QString::fromLocal8Bit(type));
-//    qDebug() << data_offer->m_offered_mime_types;
-}
-
-const struct wl_data_offer_listener QWaylandDataOffer::data_offer_listener = {
-    QWaylandDataOffer::offer
-};
-
-QWaylandDataOffer::QWaylandDataOffer(QWaylandDisplay *display, struct wl_data_offer *data_offer)
-    : m_display(display)
-    , m_receiveSyncCallback(0)
-{
-    m_data_offer = data_offer;
-    wl_data_offer_set_user_data(m_data_offer,this);
-    wl_data_offer_add_listener(m_data_offer,&data_offer_listener,this);
 }
 
 QWaylandDataOffer::~QWaylandDataOffer()
 {
-    wl_data_offer_destroy(m_data_offer);
+    destroy();
 }
 
-bool QWaylandDataOffer::hasFormat_sys(const QString &mimeType) const
+
+QString QWaylandDataOffer::firstFormat() const
+{
+    if (m_mimeData->formats().isEmpty())
+        return QString();
+
+    return m_mimeData->formats().first();
+}
+
+QMimeData *QWaylandDataOffer::mimeData()
+{
+    return m_mimeData.data();
+}
+
+void QWaylandDataOffer::data_offer_offer(const QString &mime_type)
+{
+    m_mimeData->appendFormat(mime_type);
+}
+
+QWaylandMimeData::QWaylandMimeData(QWaylandDataOffer *dataOffer, QWaylandDisplay *display)
+    : QInternalMimeData()
+    , m_dataOffer(dataOffer)
+    , m_display(display)
+    , m_offered_mime_types()
+{
+}
+
+QWaylandMimeData::~QWaylandMimeData()
+{
+}
+
+void QWaylandMimeData::appendFormat(const QString &mimeType)
+{
+    m_offered_mime_types.append(mimeType);
+}
+
+bool QWaylandMimeData::hasFormat_sys(const QString &mimeType) const
 {
     return m_offered_mime_types.contains(mimeType);
 }
 
-QStringList QWaylandDataOffer::formats_sys() const
+QStringList QWaylandMimeData::formats_sys() const
 {
     return m_offered_mime_types;
 }
 
-QVariant QWaylandDataOffer::retrieveData_sys(const QString &mimeType, QVariant::Type type) const
+QVariant QWaylandMimeData::retrieveData_sys(const QString &mimeType, QVariant::Type type) const
 {
     Q_UNUSED(type);
+
     if (m_offered_mime_types.isEmpty())
         return QVariant();
 
     int pipefd[2];
-    if (pipe(pipefd) == -1) {
+    if (qt_safe_pipe(pipefd, O_CLOEXEC) == -1) {
         qWarning("QWaylandMimeData: pipe() failed");
         return QVariant();
     }
 
-    QByteArray mimeTypeBa = mimeType.toLatin1();
-    wl_data_offer_receive(m_data_offer,mimeTypeBa.constData(),pipefd[1]);
-
-    m_display->forceRoundTrip();
+    m_dataOffer->receive(mimeType, pipefd[1]);
     close(pipefd[1]);
 
+//    m_display->forceRoundTrip();
+
     QByteArray content;
-    char buf[256];
+    char buf[4096];
     int n;
     while ((n = QT_READ(pipefd[0], &buf, sizeof buf)) > 0) {
         content.append(buf, n);
     }
-
     close(pipefd[0]);
-    return content;
-}
 
-struct wl_data_offer *QWaylandDataOffer::handle() const
-{
-    return m_data_offer;
+    return content;
 }
 
 QT_END_NAMESPACE

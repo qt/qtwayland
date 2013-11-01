@@ -41,57 +41,96 @@
 
 #include "qwaylanddnd.h"
 
+#include "qwaylanddatadevice.h"
 #include "qwaylanddatadevicemanager.h"
+#include "qwaylanddataoffer.h"
+#include "qwaylandinputdevice.h"
+
+#include <QtGui/private/qshapedpixmapdndwindow_p.h>
+
+#include <QDebug>
 
 QT_BEGIN_NAMESPACE
 
 QWaylandDrag::QWaylandDrag(QWaylandDisplay *display)
     : m_display(display)
 {
-
 }
 
 QWaylandDrag::~QWaylandDrag()
 {
-
 }
 
 QMimeData * QWaylandDrag::platformDropData()
 {
-    return m_display->dndSelectionHandler()->dragMime();
+    if (drag())
+        return drag()->mimeData();
+    return 0;
 }
 
-Qt::DropAction QWaylandDrag::drag(QDrag *m_drag)
+void QWaylandDrag::startDrag()
 {
-    Q_UNUSED(m_drag);
-//    m_display->dndSelectionHandler()->createAndSetDrag(drag);
-    return Qt::IgnoreAction;
+    if (!shapedPixmapWindow()) {
+        QBasicDrag::startDrag();
+        QBasicDrag::cancel();
+    }
+
+    QWaylandWindow *icon = static_cast<QWaylandWindow *>(shapedPixmapWindow()->handle());
+    m_display->currentInputDevice()->dataDevice()->startDrag(drag()->mimeData(), icon);
+    QBasicDrag::startDrag();
+}
+
+void QWaylandDrag::cancel()
+{
+    QBasicDrag::cancel();
+
+    m_display->currentInputDevice()->dataDevice()->cancelDrag();
 }
 
 void QWaylandDrag::move(const QMouseEvent *me)
 {
     Q_UNUSED(me);
-    qFatal("This function should not be called");
-}
-
-bool QWaylandDrag::canDrop() const
-{
-    return false;
+    // Do nothing
 }
 
 void QWaylandDrag::drop(const QMouseEvent *me)
 {
     Q_UNUSED(me);
+    // Do nothing
 }
 
-void QWaylandDrag::cancel()
+void QWaylandDrag::endDrag()
 {
-    m_display->dndSelectionHandler()->cancelDrag();
+    // Do nothing
 }
 
-Qt::DropAction QWaylandDrag::executedDropAction() const
+void QWaylandDrag::updateTarget(const QString &mimeType)
 {
-    return Qt::CopyAction;
+    setCanDrop(!mimeType.isEmpty());
+
+    if (canDrop()) {
+        updateCursor(defaultAction(drag()->supportedActions(), m_display->currentInputDevice()->modifiers()));
+    } else {
+        updateCursor(Qt::IgnoreAction);
+    }
+}
+
+void QWaylandDrag::setResponse(const QPlatformDragQtResponse &response)
+{
+    setCanDrop(response.isAccepted());
+
+    if (canDrop()) {
+        updateCursor(defaultAction(drag()->supportedActions(), m_display->currentInputDevice()->modifiers()));
+    } else {
+        updateCursor(Qt::IgnoreAction);
+    }
+}
+
+void QWaylandDrag::finishDrag(const QPlatformDropQtResponse &response)
+{
+    setExecutedDropAction(response.acceptedAction());
+    QKeyEvent event(QEvent::KeyPress, Qt::Key_Escape, Qt::NoModifier);
+    eventFilter(shapedPixmapWindow(), &event);
 }
 
 QT_END_NAMESPACE

@@ -260,8 +260,6 @@ void printEvent(const WaylandEvent &e, const char *interfaceName, bool omitNames
                     printf("const struct ::wl_interface *%s, uint32_t%s", omitNames ? "" : "interface", omitNames ? "" : " version");
                     continue;
                 }
-
-                printf("struct ::%s *%s, ", interfaceName, omitNames ? "" : "object");
             }
         }
 
@@ -965,8 +963,7 @@ void process(QXmlStreamReader &xml)
                     printEventHandlerSignature(e, interfaceName, false);
                     printf("\n");
                     printf("    {\n");
-                    if (!newIdArgument(e.arguments))
-                        printf("        Q_UNUSED(object);\n");
+                    printf("        Q_UNUSED(object);\n");
                     printf("        static_cast<%s *>(data)->%s_%s(", interfaceName, interfaceNameStripped, e.name.constData());
                     for (int i = 0; i < e.arguments.size(); ++i) {
                         printf("\n");
@@ -974,8 +971,6 @@ void process(QXmlStreamReader &xml)
                         QByteArray cType = waylandToCType(a.type, a.interface);
                         QByteArray qtType = waylandToQtType(a.type, a.interface, e.request);
                         const char *argumentName = a.name.constData();
-                        if (a.type == "new_id")
-                            printf("            object,\n");
                         if (a.type == "string")
                             printf("            QString::fromUtf8(%s)", argumentName);
                         else

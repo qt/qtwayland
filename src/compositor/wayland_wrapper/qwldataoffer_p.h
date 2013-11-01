@@ -41,37 +41,29 @@
 #ifndef WLDATAOFFER_H
 #define WLDATAOFFER_H
 
-#include <private/qwldatasource_p.h>
-#include <QtCompositor/qwaylandresourcecollection.h>
+#include <qwayland-server-wayland.h>
 
 QT_BEGIN_NAMESPACE
 
 namespace QtWayland
 {
 
-class DataOffer : public ResourceCollection
+class DataSource;
+
+class DataOffer : public QtWaylandServer::wl_data_offer
 {
 public:
-    DataOffer(DataSource *data_source);
+    DataOffer(DataSource *data_source, QtWaylandServer::wl_data_device::Resource *target);
     ~DataOffer();
 
-    struct wl_resource *addDataDeviceResource(struct wl_resource *client_resource);
+protected:
+    void data_offer_accept(Resource *resource, uint32_t serial, const QString &mime_type) Q_DECL_OVERRIDE;
+    void data_offer_receive(Resource *resource, const QString &mime_type, int32_t fd) Q_DECL_OVERRIDE;
+    void data_offer_destroy(Resource *resource) Q_DECL_OVERRIDE;
+    void data_offer_destroy_resource(Resource *resource) Q_DECL_OVERRIDE;
+
 private:
-    DataSource *m_data_source;
-
-    static void accept(struct wl_client *client,
-                   struct wl_resource *resource,
-                   uint32_t time,
-                   const char *type);
-    static void receive(struct wl_client *client,
-                    struct wl_resource *resource,
-                    const char *mime_type,
-                    int32_t fd);
-    static void destroy(struct wl_client *client,
-                    struct wl_resource *resource);
-
-    static const struct wl_data_offer_interface data_interface;
-
+    DataSource *m_dataSource;
 };
 
 }

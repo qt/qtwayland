@@ -43,6 +43,7 @@
 #include "qwaylandinput.h"
 
 #include "wayland_wrapper/qwlcompositor_p.h"
+#include "wayland_wrapper/qwldatadevice_p.h"
 #include "wayland_wrapper/qwlsurface_p.h"
 #include "wayland_wrapper/qwlinputdevice_p.h"
 #include "wayland_wrapper/qwlinputpanel_p.h"
@@ -146,6 +147,21 @@ void QWaylandCompositor::surfaceAboutToBeDestroyed(QWaylandSurface *surface)
     Q_UNUSED(surface);
 }
 
+QWaylandSurface *QWaylandCompositor::pickSurface(const QPointF &globalPosition) const
+{
+    Q_FOREACH (QtWayland::Surface *surface, m_compositor->surfaces()) {
+        if (QRectF(surface->pos(), surface->size()).contains(globalPosition))
+            return surface->waylandSurface();
+    }
+
+    return 0;
+}
+
+QPointF QWaylandCompositor::mapToSurface(QWaylandSurface *surface, const QPointF &globalPosition) const
+{
+    return globalPosition - surface->pos();
+}
+
 /*!
     Override this to handle QDesktopServices::openUrl() requests from the clients.
 
@@ -233,6 +249,11 @@ QWaylandInputDevice *QWaylandCompositor::defaultInputDevice() const
 QWaylandInputPanel *QWaylandCompositor::inputPanel() const
 {
     return m_compositor->inputPanel()->handle();
+}
+
+QWaylandDrag *QWaylandCompositor::drag() const
+{
+    return m_compositor->defaultInputDevice()->dragHandle();
 }
 
 bool QWaylandCompositor::isDragging() const

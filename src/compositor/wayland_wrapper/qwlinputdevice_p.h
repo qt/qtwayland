@@ -60,6 +60,7 @@ QT_BEGIN_NAMESPACE
 class QKeyEvent;
 class QTouchEvent;
 class QWaylandInputDevice;
+class QWaylandDrag;
 
 namespace QtWayland {
 
@@ -98,11 +99,11 @@ public:
     void setMouseFocus(Surface *surface, const QPointF &localPos, const QPointF &globalPos);
 
     void clientRequestedDataDevice(DataDeviceManager *dndSelection, struct wl_client *client, uint32_t id);
-    DataDevice *dataDevice(struct wl_client *client) const;
-    void sendSelectionFocus(Surface *surface);
+    const DataDevice *dataDevice() const;
 
     Compositor *compositor() const;
     QWaylandInputDevice *handle() const;
+    QWaylandDrag *dragHandle() const;
 
     Pointer *pointerDevice();
     Keyboard *keyboardDevice();
@@ -119,16 +120,15 @@ public:
     }
 
 private:
-    void cleanupDataDeviceForClient(struct wl_client *client, bool destroyDev);
-
     QWaylandInputDevice *m_handle;
+    QWaylandDrag *m_dragHandle;
     Compositor *m_compositor;
-    QList<DataDevice *> m_data_devices;
 
     QScopedPointer<Pointer> m_pointer;
     QScopedPointer<Keyboard> m_keyboard;
     QScopedPointer<Touch> m_touch;
     QScopedPointer<InputMethod> m_inputMethod;
+    QScopedPointer<DataDevice> m_data_device;
 
     void seat_bind_resource(wl_seat::Resource *resource) Q_DECL_OVERRIDE;
 

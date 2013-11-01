@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Klarälvdalens Datakonsult AB (KDAB).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the Qt Compositor.
@@ -38,57 +38,39 @@
 **
 ****************************************************************************/
 
-#include "qwldataoffer_p.h"
+#ifndef QWAYLANDDRAG_H
+#define QWAYLANDDRAG_H
 
-#include "qwldatadevice_p.h"
-#include "qwldatasource_p.h"
+#include <QtCompositor/qwaylandexport.h>
 
-#include <unistd.h>
+#include <QObject>
 
 QT_BEGIN_NAMESPACE
 
-namespace QtWayland
-{
+class QWaylandDragPrivate;
+class QWaylandSurface;
 
-DataOffer::DataOffer(DataSource *dataSource, QtWaylandServer::wl_data_device::Resource *target)
-    : QtWaylandServer::wl_data_offer(dataSource->resource()->client(), 0)
-    , m_dataSource(dataSource)
+namespace QtWayland {
+class InputDevice;
+}
+class Q_COMPOSITOR_EXPORT QWaylandDrag : public QObject
 {
-    // FIXME: connect to dataSource and reset m_dataSource on destroy
-    target->data_device->send_data_offer(target->handle, resource()->handle);
-    Q_FOREACH (const QString &mimeType, dataSource->mimeTypes()) {
-        send_offer(mimeType);
-    }
-}
+    Q_OBJECT
+    Q_DECLARE_PRIVATE(QWaylandDrag)
 
-DataOffer::~DataOffer()
-{
-}
+    Q_PROPERTY(QWaylandSurface* icon READ icon NOTIFY iconChanged)
+    Q_PROPERTY(bool visible READ visible NOTIFY iconChanged)
 
-void DataOffer::data_offer_accept(Resource *resource, uint32_t serial, const QString &mimeType)
-{
-    if (m_dataSource)
-        m_dataSource->accept(mimeType);
-}
+public:
+    explicit QWaylandDrag(QtWayland::InputDevice *inputDevice);
 
-void DataOffer::data_offer_receive(Resource *resource, const QString &mimeType, int32_t fd)
-{
-    if (m_dataSource)
-        m_dataSource->send(mimeType, fd);
-    else
-        close(fd);
-}
+    QWaylandSurface *icon() const;
+    bool visible() const;
 
-void DataOffer::data_offer_destroy(Resource *resource)
-{
-    wl_resource_destroy(resource->handle);
-}
-
-void DataOffer::data_offer_destroy_resource(Resource *)
-{
-    delete this;
-}
-
-}
+Q_SIGNALS:
+    void iconChanged();
+};
 
 QT_END_NAMESPACE
+
+#endif // QWAYLANDDRAG_H

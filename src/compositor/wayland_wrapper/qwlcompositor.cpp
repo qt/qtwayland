@@ -486,6 +486,17 @@ QList<QtWayland::Surface *> Compositor::surfacesForClient(wl_client *client)
     return ret;
 }
 
+Surface *Compositor::pickSurface(const QPointF &globalPosition)
+{
+    QWaylandSurface *surface = m_qt_compositor->pickSurface(globalPosition);
+    return surface ? surface->handle() : 0;
+}
+
+QPointF Compositor::mapToSurface(Surface *surface, const QPointF &globalPosition)
+{
+    return m_qt_compositor->mapToSurface(surface->waylandSurface(), globalPosition);
+}
+
 void Compositor::configureTouchExtension(int flags)
 {
     if (m_touchExtension)

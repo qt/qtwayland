@@ -113,6 +113,9 @@ public:
     QList<Surface*> surfacesForClient(wl_client* client);
     QWaylandCompositor *waylandCompositor() const { return m_qt_compositor; }
 
+    Surface *pickSurface(const QPointF &globalPosition);
+    QPointF mapToSurface(Surface *surface, const QPointF &globalPosition);
+
     struct wl_display *wl_display() const { return m_display->handle(); }
 
     static Compositor *instance();

@@ -41,42 +41,49 @@
 #ifndef WLDATADEVICE_H
 #define WLDATADEVICE_H
 
-#include <private/qwldatadevicemanager_p.h>
+#include <qwayland-server-wayland.h>
+#include <qwlpointer_p.h>
 
 QT_BEGIN_NAMESPACE
 
 namespace QtWayland {
 
+class Compositor;
 class DataSource;
-class DataDeviceManager;
+class InputDevice;
+class Surface;
 
-class DataDevice
+class DataDevice : public QtWaylandServer::wl_data_device, public PointerGrabber
 {
 public:
-    DataDevice(DataDeviceManager *data_device_manager, struct wl_client *client, uint32_t id);
+    DataDevice(InputDevice *inputDevice);
 
-    void createAndSetSelectionSource(struct wl_client *client, uint32_t id, const char *name, uint32_t time);
-    void sendSelectionFocus();
+    void setFocus(QtWaylandServer::wl_keyboard::Resource *focusResource);
 
-    struct wl_resource *dataDeviceResource() const;
+    void setDragFocus(Surface *focus, const QPointF &localPosition);
 
-    struct wl_display *display() const { return m_data_device_manager->display(); }
+    Surface *dragIcon() const;
+
+    void focus() Q_DECL_OVERRIDE;
+    void motion(uint32_t time) Q_DECL_OVERRIDE;
+    void button(uint32_t time, Qt::MouseButton button, uint32_t state) Q_DECL_OVERRIDE;
+protected:
+    void data_device_start_drag(Resource *resource, struct ::wl_resource *source, struct ::wl_resource *origin, struct ::wl_resource *icon, uint32_t serial) Q_DECL_OVERRIDE;
+    void data_device_set_selection(Resource *resource, struct ::wl_resource *source, uint32_t serial) Q_DECL_OVERRIDE;
+
 private:
-    DataDeviceManager *m_data_device_manager;
-    uint32_t m_sent_selection_time;
-    struct wl_resource *m_data_device_resource;
+    Compositor *m_compositor;
+    InputDevice *m_inputDevice;
 
-    static const struct wl_data_device_interface data_device_interface;
-    static void start_drag(struct wl_client *client,
-                       struct wl_resource *resource,
-                       struct wl_resource *source,
-                       struct wl_resource *surface,
-                       struct wl_resource *icon,
-                       uint32_t time);
-    static void set_selection(struct wl_client *client,
-                          struct wl_resource *resource,
-                          struct wl_resource *source,
-                          uint32_t time);
+    DataSource *m_selectionSource;
+
+    struct ::wl_client *m_dragClient;
+    DataSource *m_dragDataSource;
+
+    Surface *m_dragFocus;
+    Resource *m_dragFocusResource;
+
+    Surface *m_dragIcon;
 };
 
 }

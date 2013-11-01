@@ -55,6 +55,7 @@ class QOpenGLContext;
 class QWaylandSurface;
 class QWaylandInputDevice;
 class QWaylandInputPanel;
+class QWaylandDrag;
 
 namespace QtWayland
 {
@@ -96,6 +97,9 @@ public:
     virtual void surfaceCreated(QWaylandSurface *surface) = 0;
     virtual void surfaceAboutToBeDestroyed(QWaylandSurface *surface);
 
+    virtual QWaylandSurface *pickSurface(const QPointF &globalPosition) const;
+    virtual QPointF mapToSurface(QWaylandSurface *surface, const QPointF &surfacePosition) const;
+
     virtual void openUrl(WaylandClient *client, const QUrl &url);
 
     QtWayland::Compositor *handle() const;
@@ -119,6 +123,7 @@ public:
     QWaylandInputDevice *defaultInputDevice() const;
 
     QWaylandInputPanel *inputPanel() const;
+    QWaylandDrag *drag() const;
 
     bool isDragging() const;
     void sendDragMoveEvent(const QPoint &global, const QPoint &local, QWaylandSurface *surface);

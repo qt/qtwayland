@@ -41,9 +41,8 @@
 #ifndef WLDATASOURCE_H
 #define WLDATASOURCE_H
 
-#include <wayland-server.h>
+#include <qwayland-server-wayland.h>
 
-#include <QtCore/QByteArray>
 #include <QtCore/QList>
 
 QT_BEGIN_NAMESPACE
@@ -53,38 +52,32 @@ namespace QtWayland {
 class DataOffer;
 class DataDeviceManager;
 
-class DataSource
+class DataSource : public QtWaylandServer::wl_data_source
 {
 public:
     DataSource(struct wl_client *client, uint32_t id, uint32_t time);
     ~DataSource();
     uint32_t time() const;
-    QList<QByteArray> offerList() const;
+    QList<QString> mimeTypes() const;
 
-    DataOffer *dataOffer() const;
-
-    void postSendEvent(const QByteArray &mimeType,int fd);
-    struct wl_client *client() const;
+    void accept(const QString &mimeType);
+    void send(const QString &mimeType,int fd);
+    void cancel();
 
     void setManager(DataDeviceManager *mgr);
 
+    static DataSource *fromResource(struct ::wl_resource *resource);
+
+protected:
+    void data_source_offer(Resource *resource, const QString &mime_type) Q_DECL_OVERRIDE;
+    void data_source_destroy(Resource *resource) Q_DECL_OVERRIDE;
+    void data_source_destroy_resource(Resource *resource) Q_DECL_OVERRIDE;
+
 private:
     uint32_t m_time;
-    QList<QByteArray> m_offers;
-    struct wl_resource *m_data_source_resource;
-
-    DataOffer *m_data_offer;
+    QList<QString> m_mimeTypes;
 
     DataDeviceManager *m_manager;
-
-    static struct wl_data_source_interface data_source_interface;
-    static void offer(struct wl_client *client,
-                  struct wl_resource *resource,
-                  const char *type);
-    static void destroy(struct wl_client *client,
-                    struct wl_resource *resource);
-
-    static void resource_destroy(struct wl_resource *resource);
 };
 
 }

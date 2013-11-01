@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Klarälvdalens Datakonsult AB (KDAB).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the Qt Compositor.
@@ -38,57 +38,54 @@
 **
 ****************************************************************************/
 
-#include "qwldataoffer_p.h"
+#include "qwaylanddrag.h"
 
+#include <private/qobject_p.h>
+
+#include "qwlcompositor_p.h"
+#include "qwlinputdevice_p.h"
 #include "qwldatadevice_p.h"
-#include "qwldatasource_p.h"
-
-#include <unistd.h>
+#include "qwlsurface_p.h"
 
 QT_BEGIN_NAMESPACE
 
-namespace QtWayland
+class QWaylandDragPrivate : public QObjectPrivate
 {
-
-DataOffer::DataOffer(DataSource *dataSource, QtWaylandServer::wl_data_device::Resource *target)
-    : QtWaylandServer::wl_data_offer(dataSource->resource()->client(), 0)
-    , m_dataSource(dataSource)
-{
-    // FIXME: connect to dataSource and reset m_dataSource on destroy
-    target->data_device->send_data_offer(target->handle, resource()->handle);
-    Q_FOREACH (const QString &mimeType, dataSource->mimeTypes()) {
-        send_offer(mimeType);
+public:
+    QWaylandDragPrivate(QtWayland::InputDevice *id)
+        : inputDevice(id)
+    {
     }
-}
 
-DataOffer::~DataOffer()
+    QtWayland::InputDevice *inputDevice;
+};
+
+
+QWaylandDrag::QWaylandDrag(QtWayland::InputDevice *inputDevice)
+    : QObject(* new QWaylandDragPrivate(inputDevice))
 {
 }
 
-void DataOffer::data_offer_accept(Resource *resource, uint32_t serial, const QString &mimeType)
+QWaylandSurface *QWaylandDrag::icon() const
 {
-    if (m_dataSource)
-        m_dataSource->accept(mimeType);
+    Q_D(const QWaylandDrag);
+
+    const QtWayland::DataDevice *dataDevice = d->inputDevice->dataDevice();
+    if (!dataDevice)
+        return 0;
+
+    return dataDevice->dragIcon() ? dataDevice->dragIcon()->waylandSurface() : 0;
 }
 
-void DataOffer::data_offer_receive(Resource *resource, const QString &mimeType, int32_t fd)
+bool QWaylandDrag::visible() const
 {
-    if (m_dataSource)
-        m_dataSource->send(mimeType, fd);
-    else
-        close(fd);
-}
+    Q_D(const QWaylandDrag);
 
-void DataOffer::data_offer_destroy(Resource *resource)
-{
-    wl_resource_destroy(resource->handle);
-}
+    const QtWayland::DataDevice *dataDevice = d->inputDevice->dataDevice();
+    if (!dataDevice)
+        return false;
 
-void DataOffer::data_offer_destroy_resource(Resource *)
-{
-    delete this;
-}
-
+    return dataDevice->dragIcon() != 0;
 }
 
 QT_END_NAMESPACE

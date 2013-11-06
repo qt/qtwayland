@@ -47,7 +47,7 @@ QT_BEGIN_NAMESPACE
 class QWaylandIntegrationPlugin : public QPlatformIntegrationPlugin
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QPA.QPlatformIntegrationFactoryInterface.5.2" FILE "qwayland-xcomposite-glx.json")
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QPA.QPlatformIntegrationFactoryInterface.5.3" FILE "qwayland-xcomposite-glx.json")
 public:
     QStringList keys() const;
     QPlatformIntegration *create(const QString&, const QStringList&);

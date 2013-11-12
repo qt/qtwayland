@@ -54,6 +54,7 @@
 #include <EGL/eglext_brcm.h>
 
 #include "wayland-brcm-client-protocol.h"
+#include "wayland-client.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -64,10 +65,12 @@ public:
                        struct qt_brcm *brcm,
                        const QSize &size,
                        EGLint *data,
-                       int count)
+                       int count,
+                       struct wl_event_queue *eventQueue)
         : m_size(size)
         , m_released(true)
         , m_display(display)
+        , m_eventQueue(eventQueue)
     {
         wl_array_init(&m_array);
         m_data = static_cast<EGLint *>(wl_array_add(&m_array, count * sizeof(EGLint)));
@@ -76,6 +79,7 @@ public:
             m_data[i] = data[i];
 
         mBuffer = qt_brcm_create_buffer(brcm, size.width(), size.height(), &m_array);
+        wl_proxy_set_queue(reinterpret_cast<struct wl_proxy*>(mBuffer), m_eventQueue);
 
         static const struct wl_buffer_listener buffer_listener = {
             QWaylandBrcmBuffer::buffer_release
@@ -100,34 +104,26 @@ public:
     {
         if (m_released)
             return;
-        m_mutex.lock();
-        while (!m_released)
-            m_condition.wait(&m_mutex);
-        m_mutex.unlock();
+        while (!m_released) {
+            wl_display_dispatch_queue(m_display->wl_display(), m_eventQueue);
+        }
     }
 
     static void buffer_release(void *data, wl_buffer *buffer)
     {
         Q_UNUSED(buffer);
-        m_mutex.lock();
         static_cast<QWaylandBrcmBuffer *>(data)->m_released = true;
-        m_condition.wakeAll();
-        m_mutex.unlock();
     }
 
 private:
-    static QWaitCondition m_condition;
-    static QMutex m_mutex;
 
     QSize m_size;
     bool m_released;
     wl_array m_array;
     EGLint *m_data;
     QWaylandDisplay *m_display;
+    struct wl_event_queue *m_eventQueue;
 };
-
-QWaitCondition QWaylandBrcmBuffer::m_condition;
-QMutex QWaylandBrcmBuffer::m_mutex;
 
 QWaylandBrcmEglWindow::QWaylandBrcmEglWindow(QWindow *window)
     : QWaylandWindow(window)
@@ -136,6 +132,7 @@ QWaylandBrcmEglWindow::QWaylandBrcmEglWindow(QWindow *window)
     , m_format(window->format())
     , m_current(0)
     , m_count(0)
+    , m_eventQueue(wl_display_create_queue(mDisplay->wl_display()))
 {
 }
 
@@ -238,7 +235,7 @@ void QWaylandBrcmEglWindow::createEglSurfaces()
         m_eglSurfaces[i] = eglCreatePixmapSurface(m_eglIntegration->eglDisplay(), m_eglConfig, (EGLNativePixmapType)&m_globalImages[5*i], attrs);
         if (m_eglSurfaces[i] == EGL_NO_SURFACE)
             qFatal("eglCreatePixmapSurface failed: %x, global image id: %d %d\n", eglGetError(), m_globalImages[5*i], m_globalImages[5*i+1]);
-        m_buffers[i] = new QWaylandBrcmBuffer(mDisplay, m_eglIntegration->waylandBrcm(), size, &m_globalImages[5*i], 5);
+        m_buffers[i] = new QWaylandBrcmBuffer(mDisplay, m_eglIntegration->waylandBrcm(), size, &m_globalImages[5*i], 5, m_eventQueue);
     }
 }
 
@@ -277,6 +274,7 @@ void QWaylandBrcmEglWindow::flushBuffers()
         QWaylandBrcmBuffer *buffer = m_pending.takeFirst();
         attach(buffer, 0, 0);
         damage(QRect(QPoint(), size));
+        commit();
     }
     m_mutex.unlock();
 

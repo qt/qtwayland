@@ -88,6 +88,8 @@ private:
     QWaylandBrcmBuffer *m_buffers[3];
     QSurfaceFormat m_format;
 
+    struct wl_event_queue *m_eventQueue;
+
     int m_current;
     int m_count;
 

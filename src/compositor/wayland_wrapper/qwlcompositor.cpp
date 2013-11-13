@@ -85,9 +85,11 @@
 #include <wayland-server.h>
 
 #include "hardware_integration/qwaylandclientbufferintegration.h"
+#include "hardware_integration/qwaylandserverbufferintegration.h"
 #include "waylandwindowmanagerintegration.h"
 
 #include "hardware_integration/qwaylandclientbufferintegrationfactory.h"
+#include "hardware_integration/qwaylandserverbufferintegrationfactory.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -138,7 +140,8 @@ Compositor::Compositor(QWaylandCompositor *qt_compositor, QWaylandCompositor::Ex
     , m_directRenderContext(0)
     , m_directRenderActive(false)
 #if defined (QT_COMPOSITOR_WAYLAND_GL)
-    , m_graphics_client_buffer_integration(0)
+    , m_client_buffer_integration(0)
+    , m_server_buffer_integration(0)
 #endif
     , m_windowManagerIntegration(0)
     , m_outputExtension(0)
@@ -156,27 +159,11 @@ Compositor::Compositor(QWaylandCompositor *qt_compositor, QWaylandCompositor::Ex
 #if defined (QT_COMPOSITOR_WAYLAND_GL)
     QWindow *window = qt_compositor->window();
     if (window && window->surfaceType() != QWindow::RasterSurface) {
-        QStringList keys = QWaylandClientBufferIntegrationFactory::keys();
-        QString targetKey;
-        QByteArray hardwareIntegration = qgetenv("QT_WAYLAND_HARDWARE_INTEGRATION");
-        if (keys.contains(QString::fromLocal8Bit(hardwareIntegration.constData()))) {
-            targetKey = QString::fromLocal8Bit(hardwareIntegration.constData());
-        } else if (keys.contains(QString::fromLatin1("wayland-egl"))) {
-            targetKey = QString::fromLatin1("wayland-egl");
-        } else if (!keys.isEmpty()) {
-            targetKey = keys.first();
-        }
-
-        if (!targetKey.isEmpty()) {
-            m_graphics_client_buffer_integration = QWaylandClientBufferIntegrationFactory::create(targetKey, QStringList());
-            if (m_graphics_client_buffer_integration) {
-                m_graphics_client_buffer_integration->setCompositor(qt_compositor);
-            }
-        }
-        //BUG: if there is no hw_integration, bad things will probably happen
-
+        loadClientBufferIntegration();
+        loadServerBufferIntegration();
     }
 #endif
+
     if (extensions & QWaylandCompositor::WindowManagerExtension)
         m_windowManagerIntegration = new WindowManagerServerIntegration(qt_compositor, this);
 
@@ -238,7 +225,8 @@ Compositor::~Compositor()
     delete m_data_device_manager;
 
 #ifdef QT_COMPOSITOR_WAYLAND_GL
-    delete m_graphics_client_buffer_integration;
+    delete m_client_buffer_integration;
+    delete m_server_buffer_integration;
 #endif
     delete m_output_global;
     delete m_display;
@@ -333,7 +321,16 @@ QWindow *Compositor::window() const
 QWaylandClientBufferIntegration * Compositor::clientBufferIntegration() const
 {
 #ifdef QT_COMPOSITOR_WAYLAND_GL
-    return m_graphics_client_buffer_integration;
+    return m_client_buffer_integration;
+#else
+    return 0;
+#endif
+}
+
+QWaylandServerBufferIntegration * Compositor::serverBufferIntegration() const
+{
+#ifdef QT_COMPOSITOR_WAYLAND_GL
+    return m_server_buffer_integration;
 #else
     return 0;
 #endif
@@ -342,8 +339,10 @@ QWaylandClientBufferIntegration * Compositor::clientBufferIntegration() const
 void Compositor::initializeHardwareIntegration()
 {
 #ifdef QT_COMPOSITOR_WAYLAND_GL
-    if (m_graphics_client_buffer_integration)
-        m_graphics_client_buffer_integration->initializeHardware(m_display);
+    if (m_client_buffer_integration)
+        m_client_buffer_integration->initializeHardware(m_display);
+    if (m_server_buffer_integration)
+        m_server_buffer_integration->initializeHardware(m_qt_compositor);
 #endif
 }
 
@@ -369,7 +368,7 @@ bool Compositor::setDirectRenderSurface(Surface *surface, QOpenGLContext *contex
     if (!surface)
         setDirectRenderingActive(false);
 
-    if (m_graphics_client_buffer_integration && m_graphics_client_buffer_integration->setDirectRenderSurface(surface ? surface->waylandSurface() : 0)) {
+    if (m_client_buffer_integration && m_client_buffer_integration->setDirectRenderSurface(surface ? surface->waylandSurface() : 0)) {
         m_directRenderSurface = surface;
         m_directRenderContext = context;
         return true;
@@ -552,6 +551,43 @@ void Compositor::sendDragMoveEvent(const QPoint &global, const QPoint &local,
 void Compositor::sendDragEndEvent()
 {
 //    Drag::instance()->dragEnd();
+}
+
+void Compositor::loadClientBufferIntegration()
+{
+    QStringList keys = QWaylandClientBufferIntegrationFactory::keys();
+    QString targetKey;
+    QByteArray clientBufferIntegration = qgetenv("QT_WAYLAND_HARDWARE_INTEGRATION");
+    if (clientBufferIntegration.isEmpty())
+        clientBufferIntegration = qgetenv("QT_WAYLAND_CLIENT_BUFFER_INTEGRATION");
+    if (keys.contains(QString::fromLocal8Bit(clientBufferIntegration.constData()))) {
+        targetKey = QString::fromLocal8Bit(clientBufferIntegration.constData());
+    } else if (keys.contains(QString::fromLatin1("wayland-egl"))) {
+        targetKey = QString::fromLatin1("wayland-egl");
+    } else if (!keys.isEmpty()) {
+        targetKey = keys.first();
+    }
+
+    if (!targetKey.isEmpty()) {
+        m_client_buffer_integration = QWaylandClientBufferIntegrationFactory::create(targetKey, QStringList());
+        if (m_client_buffer_integration) {
+            m_client_buffer_integration->setCompositor(m_qt_compositor);
+        }
+    }
+    //BUG: if there is no client buffer integration, bad things will when opengl is used
+}
+
+void Compositor::loadServerBufferIntegration()
+{
+    QStringList keys = QWaylandServerBufferIntegrationFactory::keys();
+    QString targetKey;
+    QByteArray serverBufferIntegration = qgetenv("QT_WAYLAND_SERVER_BUFFER_INTEGRATION");
+    if (keys.contains(QString::fromLocal8Bit(serverBufferIntegration.constData()))) {
+        targetKey = QString::fromLocal8Bit(serverBufferIntegration.constData());
+    }
+    if (!targetKey.isEmpty()) {
+        m_server_buffer_integration = QWaylandServerBufferIntegrationFactory::create(targetKey, QStringList());
+    }
 }
 
 } // namespace Wayland

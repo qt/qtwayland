@@ -58,6 +58,7 @@ QT_BEGIN_NAMESPACE
 class QWaylandCompositor;
 class QWaylandInputDevice;
 class QWaylandClientBufferIntegration;
+class QWaylandServerBufferIntegration;
 class WindowManagerServerIntegration;
 class QMimeData;
 class QPlatformScreenPageFlipper;
@@ -102,6 +103,7 @@ public:
     QWindow *window() const;
 
     QWaylandClientBufferIntegration *clientBufferIntegration() const;
+    QWaylandServerBufferIntegration *serverBufferIntegration() const;
     void initializeHardwareIntegration();
     void initializeDefaultInputDevice();
     void initializeWindowManagerProtocol();
@@ -119,6 +121,7 @@ public:
     QPointF mapToSurface(Surface *surface, const QPointF &globalPosition);
 
     struct wl_display *wl_display() const { return m_display->handle(); }
+    Display *display() const { return m_display; }
 
     static Compositor *instance();
 
@@ -165,6 +168,9 @@ private slots:
     void processWaylandEvents();
 
 private:
+    void loadClientBufferIntegration();
+    void loadServerBufferIntegration();
+
     QWaylandCompositor::ExtensionFlags m_extensions;
 
     Display *m_display;
@@ -199,7 +205,8 @@ private:
     bool m_directRenderActive;
 
 #ifdef QT_COMPOSITOR_WAYLAND_GL
-    QWaylandClientBufferIntegration *m_graphics_client_buffer_integration;
+    QWaylandClientBufferIntegration *m_client_buffer_integration;
+    QWaylandServerBufferIntegration *m_server_buffer_integration;
 #endif
 
     //extensions

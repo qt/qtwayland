@@ -5,7 +5,7 @@ QT = compositor compositor-private core-private gui-private
 
 OTHER_FILES += wayland_egl.json
 
-LIBS += -lEGL
+LIBS += -lwayland-server -lEGL
 
 SOURCES += \
     brcmeglintegration.cpp \

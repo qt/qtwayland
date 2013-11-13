@@ -39,32 +39,32 @@
 **
 ****************************************************************************/
 
-#include <QtCompositor/qwaylandgraphicshardwareintegrationplugin.h>
+#include <QtCompositor/qwaylandclientbufferintegrationplugin.h>
 #include "xcompositeeglintegration.h"
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandIntegrationPlugin : public QWaylandGraphicsHardwareIntegrationPlugin
+class QWaylandXCompositeClientBufferIntegration : public QWaylandClientBufferIntegrationPlugin
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.Compositor.QWaylandGraphicsHardwareIntegrationFactoryInterface.5.1" FILE "xcomposite-egl.json")
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.Compositor.QWaylandClientBufferIntegrationFactoryInterface.5.1" FILE "xcomposite-egl.json")
 public:
     QStringList keys() const;
-    QWaylandGraphicsHardwareIntegration *create(const QString&, const QStringList&);
+    QWaylandClientBufferIntegration *create(const QString&, const QStringList&);
 };
 
-QStringList QWaylandIntegrationPlugin::keys() const
+QStringList QWaylandXCompositeClientBufferIntegration::keys() const
 {
     QStringList list;
     list << "wayland-xcomposite";
     return list;
 }
 
-QWaylandGraphicsHardwareIntegration *QWaylandIntegrationPlugin::create(const QString& system, const QStringList& paramList)
+QWaylandClientBufferIntegration *QWaylandXCompositeClientBufferIntegration::create(const QString& system, const QStringList& paramList)
 {
     Q_UNUSED(paramList);
     if (system.toLower() == "wayland-xcomposite")
-        return new XCompositeEglIntegration();
+        return new XCompositeEglClientBufferIntegration();
 
     return 0;
 }

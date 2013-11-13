@@ -38,7 +38,7 @@
 **
 ****************************************************************************/
 
-#include "waylandeglintegration.h"
+#include "waylandeglclientbufferintegration.h"
 
 #include <QtCompositor/private/qwlcompositor_p.h>
 #include <QtCompositor/private/qwlsurface_p.h>
@@ -72,10 +72,10 @@ typedef void (GL_APIENTRYP PFNGLEGLIMAGETARGETRENDERBUFFERSTORAGEOESPROC) (GLenu
 
 QT_BEGIN_NAMESPACE
 
-class WaylandEglIntegrationPrivate
+class WaylandEglClientBufferIntegrationPrivate
 {
 public:
-    WaylandEglIntegrationPrivate()
+    WaylandEglClientBufferIntegrationPrivate()
         : egl_display(EGL_NO_DISPLAY)
         , valid(false)
         , display_bound(false)
@@ -101,15 +101,15 @@ public:
     PFNGLEGLIMAGETARGETTEXTURE2DOESPROC gl_egl_image_target_texture_2d;
 };
 
-WaylandEglIntegration::WaylandEglIntegration()
-    : QWaylandGraphicsHardwareIntegration()
-    , d_ptr(new WaylandEglIntegrationPrivate)
+WaylandEglClientBufferIntegration::WaylandEglClientBufferIntegration()
+    : QWaylandClientBufferIntegration()
+    , d_ptr(new WaylandEglClientBufferIntegrationPrivate)
 {
 }
 
-void WaylandEglIntegration::initializeHardware(QtWayland::Display *waylandDisplay)
+void WaylandEglClientBufferIntegration::initializeHardware(QtWayland::Display *waylandDisplay)
 {
-    Q_D(WaylandEglIntegration);
+    Q_D(WaylandEglClientBufferIntegration);
 
     const bool ignoreBindDisplay = !qgetenv("QT_WAYLAND_IGNORE_BIND_DISPLAY").isEmpty();
 
@@ -170,9 +170,9 @@ void WaylandEglIntegration::initializeHardware(QtWayland::Display *waylandDispla
     qWarning("EGL Wayland extension successfully initialized.%s\n", !d->display_bound ? " eglBindWaylandDisplayWL ignored" : "");
 }
 
-GLuint WaylandEglIntegration::createTextureFromBuffer(struct ::wl_resource *buffer, QOpenGLContext *)
+GLuint WaylandEglClientBufferIntegration::createTextureFromBuffer(struct ::wl_resource *buffer, QOpenGLContext *)
 {
-    Q_D(WaylandEglIntegration);
+    Q_D(WaylandEglClientBufferIntegration);
     if (!d->valid) {
         qWarning("createTextureFromBuffer() failed\n");
         return 0;
@@ -199,9 +199,9 @@ GLuint WaylandEglIntegration::createTextureFromBuffer(struct ::wl_resource *buff
     return textureId;
 }
 
-bool WaylandEglIntegration::isYInverted(struct ::wl_resource *buffer) const
+bool WaylandEglClientBufferIntegration::isYInverted(struct ::wl_resource *buffer) const
 {
-    Q_D(const WaylandEglIntegration);
+    Q_D(const WaylandEglClientBufferIntegration);
 
 #if defined(EGL_WAYLAND_Y_INVERTED_WL)
     EGLint isYInverted;
@@ -215,13 +215,13 @@ bool WaylandEglIntegration::isYInverted(struct ::wl_resource *buffer) const
         return true;
 #endif
 
-    return QWaylandGraphicsHardwareIntegration::isYInverted(buffer);
+    return QWaylandClientBufferIntegration::isYInverted(buffer);
 }
 
 
-bool WaylandEglIntegration::setDirectRenderSurface(QWaylandSurface *surface)
+bool WaylandEglClientBufferIntegration::setDirectRenderSurface(QWaylandSurface *surface)
 {
-    Q_D(WaylandEglIntegration);
+    Q_D(WaylandEglClientBufferIntegration);
 
     QPlatformScreen *screen = QPlatformScreen::platformScreenForWindow(m_compositor->window());
     QPlatformScreenPageFlipper *flipper = screen ? screen->pageFlipper() : 0;
@@ -233,9 +233,9 @@ bool WaylandEglIntegration::setDirectRenderSurface(QWaylandSurface *surface)
     return flipper;
 }
 
-void *WaylandEglIntegration::lockNativeBuffer(struct ::wl_resource *buffer, QOpenGLContext *) const
+void *WaylandEglClientBufferIntegration::lockNativeBuffer(struct ::wl_resource *buffer, QOpenGLContext *) const
 {
-    Q_D(const WaylandEglIntegration);
+    Q_D(const WaylandEglClientBufferIntegration);
 
     EGLImageKHR image = d->egl_create_image(d->egl_display, EGL_NO_CONTEXT,
                                           EGL_WAYLAND_BUFFER_WL,
@@ -243,17 +243,17 @@ void *WaylandEglIntegration::lockNativeBuffer(struct ::wl_resource *buffer, QOpe
     return image;
 }
 
-void WaylandEglIntegration::unlockNativeBuffer(void *native_buffer, QOpenGLContext *) const
+void WaylandEglClientBufferIntegration::unlockNativeBuffer(void *native_buffer, QOpenGLContext *) const
 {
-    Q_D(const WaylandEglIntegration);
+    Q_D(const WaylandEglClientBufferIntegration);
     EGLImageKHR image = static_cast<EGLImageKHR>(native_buffer);
 
     d->egl_destroy_image(d->egl_display, image);
 }
 
-QSize WaylandEglIntegration::bufferSize(struct ::wl_resource *buffer) const
+QSize WaylandEglClientBufferIntegration::bufferSize(struct ::wl_resource *buffer) const
 {
-    Q_D(const WaylandEglIntegration);
+    Q_D(const WaylandEglClientBufferIntegration);
 
     int width, height;
     d->egl_query_wayland_buffer(d->egl_display, reinterpret_cast<struct ::wl_buffer *>(buffer), EGL_WIDTH, &width);

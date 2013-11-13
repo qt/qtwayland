@@ -59,7 +59,7 @@
 #include <wayland-server.h>
 
 #ifdef QT_COMPOSITOR_WAYLAND_GL
-#include "hardware_integration/qwaylandgraphicshardwareintegration.h"
+#include "hardware_integration/qwaylandclientbufferintegration.h"
 #include <qpa/qplatformopenglcontext.h>
 #endif
 
@@ -126,14 +126,14 @@ bool Surface::isYInverted() const
 {
     bool ret = false;
     static bool negateReturn = qgetenv("QT_COMPOSITOR_NEGATE_INVERTED_Y").toInt();
-    QWaylandGraphicsHardwareIntegration *graphicsHWIntegration = m_compositor->graphicsHWIntegration();
+    QWaylandClientBufferIntegration *clientBufferIntegration = m_compositor->clientBufferIntegration();
 
 #ifdef QT_COMPOSITOR_WAYLAND_GL
     SurfaceBuffer *surfacebuffer = currentSurfaceBuffer();
     if (!surfacebuffer) {
         ret = false;
-    } else if (graphicsHWIntegration && surfacebuffer->waylandBufferHandle() && type() != QWaylandSurface::Shm) {
-        ret = graphicsHWIntegration->isYInverted(surfacebuffer->waylandBufferHandle());
+    } else if (clientBufferIntegration && surfacebuffer->waylandBufferHandle() && type() != QWaylandSurface::Shm) {
+        ret = clientBufferIntegration->isYInverted(surfacebuffer->waylandBufferHandle());
     } else
 #endif
         ret = true;
@@ -208,9 +208,9 @@ GLuint Surface::textureId(QOpenGLContext *context) const
 {
     const SurfaceBuffer *surfacebuffer = currentSurfaceBuffer();
 
-    if (m_compositor->graphicsHWIntegration() && type() == QWaylandSurface::Texture
+    if (m_compositor->clientBufferIntegration() && type() == QWaylandSurface::Texture
          && !surfacebuffer->textureCreated()) {
-        QWaylandGraphicsHardwareIntegration *hwIntegration = m_compositor->graphicsHWIntegration();
+        QWaylandClientBufferIntegration *hwIntegration = m_compositor->clientBufferIntegration();
         const_cast<SurfaceBuffer *>(surfacebuffer)->createTexture(hwIntegration,context);
     }
     return surfacebuffer->texture();

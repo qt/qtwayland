@@ -4,14 +4,14 @@ isEmpty(QT_WAYLAND_GL_CONFIG):QT_WAYLAND_GL_CONFIG = $$(QT_WAYLAND_GL_CONFIG)
 
 !isEqual(QT_WAYLAND_GL_CONFIG,nogl) {
     HEADERS += \
-        hardware_integration/qwaylandgraphicshardwareintegration.h \
-        hardware_integration/qwaylandgraphicshardwareintegrationfactory.h \
-        hardware_integration/qwaylandgraphicshardwareintegrationplugin.h
+        hardware_integration/qwaylandclientbufferintegration.h \
+        hardware_integration/qwaylandclientbufferintegrationfactory.h \
+        hardware_integration/qwaylandclientbufferintegrationplugin.h
 
     SOURCES += \
-        hardware_integration/qwaylandgraphicshardwareintegration.cpp \
-        hardware_integration/qwaylandgraphicshardwareintegrationfactory.cpp \
-        hardware_integration/qwaylandgraphicshardwareintegrationplugin.cpp
+        hardware_integration/qwaylandclientbufferintegration.cpp \
+        hardware_integration/qwaylandclientbufferintegrationfactory.cpp \
+        hardware_integration/qwaylandclientbufferintegrationplugin.cpp
 
     DEFINES += QT_COMPOSITOR_WAYLAND_GL
 } else {

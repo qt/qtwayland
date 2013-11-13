@@ -41,7 +41,7 @@
 #ifndef BRCMEGLINTEGRATION_H
 #define BRCMEGLINTEGRATION_H
 
-#include <QtCompositor/qwaylandgraphicshardwareintegration.h>
+#include <QtCompositor/qwaylandclientbufferintegration.h>
 #include "qwayland-server-brcm.h"
 
 #include <QtCore/QScopedPointer>
@@ -50,7 +50,7 @@ QT_BEGIN_NAMESPACE
 
 class BrcmEglIntegrationPrivate;
 
-class BrcmEglIntegration : public QWaylandGraphicsHardwareIntegration, public QtWaylandServer::qt_brcm
+class BrcmEglIntegration : public QWaylandClientBufferIntegration, public QtWaylandServer::qt_brcm
 {
     Q_DECLARE_PRIVATE(BrcmEglIntegration)
 public:

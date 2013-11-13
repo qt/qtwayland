@@ -41,7 +41,7 @@
 #ifndef XCOMPOSITEEGLINTEGRATION_H
 #define XCOMPOSITEEGLINTEGRATION_H
 
-#include <QtCompositor/qwaylandgraphicshardwareintegration.h>
+#include <QtCompositor/qwaylandclientbufferintegration.h>
 
 #include "xlibinclude.h"
 
@@ -49,10 +49,10 @@
 
 QT_BEGIN_NAMESPACE
 
-class XCompositeEglIntegration : public QWaylandGraphicsHardwareIntegration
+class XCompositeEglClientBufferIntegration : public QWaylandClientBufferIntegration
 {
 public:
-    XCompositeEglIntegration();
+    XCompositeEglClientBufferIntegration();
 
     void initializeHardware(QtWayland::Display *waylandDisplay) Q_DECL_OVERRIDE;
 

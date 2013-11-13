@@ -44,7 +44,7 @@
 #include "qwlcompositor_p.h"
 
 #ifdef QT_COMPOSITOR_WAYLAND_GL
-#include "hardware_integration/qwaylandgraphicshardwareintegration.h"
+#include "hardware_integration/qwaylandclientbufferintegration.h"
 #include <qpa/qplatformopenglcontext.h>
 #endif
 
@@ -117,7 +117,7 @@ void SurfaceBuffer::destructBufferState()
                 delete static_cast<QImage *>(m_handle);
 #ifdef QT_COMPOSITOR_WAYLAND_GL
             } else {
-                QWaylandGraphicsHardwareIntegration *hwIntegration = m_compositor->graphicsHWIntegration();
+                QWaylandClientBufferIntegration *hwIntegration = m_compositor->clientBufferIntegration();
                 hwIntegration->unlockNativeBuffer(m_handle, m_compositor->directRenderContext());
 #endif
             }
@@ -139,7 +139,7 @@ QSize SurfaceBuffer::size() const
             m_size = QSize(wl_shm_buffer_get_width(m_shmBuffer), wl_shm_buffer_get_height(m_shmBuffer));
 #ifdef QT_COMPOSITOR_WAYLAND_GL
         } else {
-            QWaylandGraphicsHardwareIntegration *hwIntegration = m_compositor->graphicsHWIntegration();
+            QWaylandClientBufferIntegration *hwIntegration = m_compositor->clientBufferIntegration();
             m_size = hwIntegration->bufferSize(m_buffer);
 #endif
         }
@@ -254,8 +254,8 @@ void *SurfaceBuffer::handle() const
             that->m_handle = image;
 #ifdef QT_COMPOSITOR_WAYLAND_GL
         } else {
-            QWaylandGraphicsHardwareIntegration *hwIntegration = m_compositor->graphicsHWIntegration();
-            that->m_handle = hwIntegration->lockNativeBuffer(m_buffer, m_compositor->directRenderContext());
+            QWaylandClientBufferIntegration *clientBufferIntegration = m_compositor->clientBufferIntegration();
+            that->m_handle = clientBufferIntegration->lockNativeBuffer(m_buffer, m_compositor->directRenderContext());
 #endif
         }
     }
@@ -296,7 +296,7 @@ void freeTexture(QOpenGLFunctions *, GLuint id)
     glDeleteTextures(1, &id);
 }
 
-void SurfaceBuffer::createTexture(QWaylandGraphicsHardwareIntegration *hwIntegration, QOpenGLContext *context)
+void SurfaceBuffer::createTexture(QWaylandClientBufferIntegration *hwIntegration, QOpenGLContext *context)
 {
 #ifdef QT_COMPOSITOR_WAYLAND_GL
     m_texture = hwIntegration->createTextureFromBuffer(m_buffer, context);

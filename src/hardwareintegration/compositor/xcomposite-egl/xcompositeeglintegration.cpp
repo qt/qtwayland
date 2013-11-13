@@ -67,14 +67,14 @@ QVector<EGLint> eglbuildSpec()
     return spec;
 }
 
-XCompositeEglIntegration::XCompositeEglIntegration()
-    : QWaylandGraphicsHardwareIntegration()
+XCompositeEglClientBufferIntegration::XCompositeEglClientBufferIntegration()
+    : QWaylandClientBufferIntegration()
     , mDisplay(0)
 {
 
 }
 
-void XCompositeEglIntegration::initializeHardware(QtWayland::Display *)
+void XCompositeEglClientBufferIntegration::initializeHardware(QtWayland::Display *)
 {
     QPlatformNativeInterface *nativeInterface = QGuiApplication::platformNativeInterface();
     if (nativeInterface) {
@@ -91,7 +91,7 @@ void XCompositeEglIntegration::initializeHardware(QtWayland::Display *)
     new XCompositeHandler(m_compositor->handle(), mDisplay);
 }
 
-GLuint XCompositeEglIntegration::createTextureFromBuffer(struct ::wl_resource *buffer, QOpenGLContext *)
+GLuint XCompositeEglClientBufferIntegration::createTextureFromBuffer(struct ::wl_resource *buffer, QOpenGLContext *)
 {
     XCompositeBuffer *compositorBuffer = XCompositeBuffer::fromResource(buffer);
     Pixmap pixmap = XCompositeNameWindowPixmap(mDisplay, compositorBuffer->window());
@@ -134,13 +134,13 @@ GLuint XCompositeEglIntegration::createTextureFromBuffer(struct ::wl_resource *b
     return textureId;
 }
 
-bool XCompositeEglIntegration::isYInverted(struct ::wl_resource *buffer) const
+bool XCompositeEglClientBufferIntegration::isYInverted(struct ::wl_resource *buffer) const
 {
     XCompositeBuffer *compositorBuffer = XCompositeBuffer::fromResource(buffer);
     return compositorBuffer->isYInverted();
 }
 
-QSize XCompositeEglIntegration::bufferSize(struct ::wl_resource *buffer) const
+QSize XCompositeEglClientBufferIntegration::bufferSize(struct ::wl_resource *buffer) const
 {
     XCompositeBuffer *compositorBuffer = XCompositeBuffer::fromResource(buffer);
 

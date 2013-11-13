@@ -39,9 +39,9 @@
 **
 ****************************************************************************/
 
-#include "qwaylandgraphicshardwareintegrationfactory.h"
-#include "qwaylandgraphicshardwareintegrationplugin.h"
-#include "qwaylandgraphicshardwareintegration.h"
+#include "qwaylandclientbufferintegrationfactory.h"
+#include "qwaylandclientbufferintegrationplugin.h"
+#include "qwaylandclientbufferintegration.h"
 #include <QtCore/private/qfactoryloader_p.h>
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDir>
@@ -50,12 +50,12 @@ QT_BEGIN_NAMESPACE
 
 #ifndef QT_NO_LIBRARY
 Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
-    (QWaylandGraphicsHardwareIntegrationFactoryInterface_iid, QLatin1String("/wayland-graphics-integration"), Qt::CaseInsensitive))
+    (QWaylandClientBufferIntegrationFactoryInterface_iid, QLatin1String("/wayland-graphics-integration"), Qt::CaseInsensitive))
 Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, directLoader,
-                          (QWaylandGraphicsHardwareIntegrationFactoryInterface_iid, QLatin1String(""), Qt::CaseInsensitive))
+                          (QWaylandClientBufferIntegrationFactoryInterface_iid, QLatin1String(""), Qt::CaseInsensitive))
 #endif
 
-QStringList QWaylandGraphicsHardwareIntegrationFactory::keys(const QString &pluginPath)
+QStringList QWaylandClientBufferIntegrationFactory::keys(const QString &pluginPath)
 {
 #ifndef QT_NO_LIBRARY
     QStringList list;
@@ -78,16 +78,16 @@ QStringList QWaylandGraphicsHardwareIntegrationFactory::keys(const QString &plug
 #endif
 }
 
-QWaylandGraphicsHardwareIntegration *QWaylandGraphicsHardwareIntegrationFactory::create(const QString &name, const QStringList &args, const QString &pluginPath)
+QWaylandClientBufferIntegration *QWaylandClientBufferIntegrationFactory::create(const QString &name, const QStringList &args, const QString &pluginPath)
 {
 #ifndef QT_NO_LIBRARY
     // Try loading the plugin from platformPluginPath first:
     if (!pluginPath.isEmpty()) {
         QCoreApplication::addLibraryPath(pluginPath);
-        if (QWaylandGraphicsHardwareIntegration *ret = qLoadPlugin1<QWaylandGraphicsHardwareIntegration, QWaylandGraphicsHardwareIntegrationPlugin>(directLoader(), name, args))
+        if (QWaylandClientBufferIntegration *ret = qLoadPlugin1<QWaylandClientBufferIntegration, QWaylandClientBufferIntegrationPlugin>(directLoader(), name, args))
             return ret;
     }
-    if (QWaylandGraphicsHardwareIntegration *ret = qLoadPlugin1<QWaylandGraphicsHardwareIntegration, QWaylandGraphicsHardwareIntegrationPlugin>(loader(), name, args))
+    if (QWaylandClientBufferIntegration *ret = qLoadPlugin1<QWaylandClientBufferIntegration, QWaylandClientBufferIntegrationPlugin>(loader(), name, args))
         return ret;
 #endif
     return 0;

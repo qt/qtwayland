@@ -76,7 +76,7 @@ public:
 };
 
 BrcmEglIntegration::BrcmEglIntegration()
-    : QWaylandGraphicsHardwareIntegration()
+    : QWaylandClientBufferIntegration()
     , QtWaylandServer::qt_brcm()
     , d_ptr(new BrcmEglIntegrationPrivate)
 {

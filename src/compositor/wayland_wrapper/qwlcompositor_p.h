@@ -57,7 +57,7 @@ QT_BEGIN_NAMESPACE
 
 class QWaylandCompositor;
 class QWaylandInputDevice;
-class QWaylandGraphicsHardwareIntegration;
+class QWaylandClientBufferIntegration;
 class WindowManagerServerIntegration;
 class QMimeData;
 class QPlatformScreenPageFlipper;
@@ -101,7 +101,7 @@ public:
 
     QWindow *window() const;
 
-    QWaylandGraphicsHardwareIntegration *graphicsHWIntegration() const;
+    QWaylandClientBufferIntegration *clientBufferIntegration() const;
     void initializeHardwareIntegration();
     void initializeDefaultInputDevice();
     void initializeWindowManagerProtocol();
@@ -199,7 +199,7 @@ private:
     bool m_directRenderActive;
 
 #ifdef QT_COMPOSITOR_WAYLAND_GL
-    QWaylandGraphicsHardwareIntegration *m_graphics_hw_integration;
+    QWaylandClientBufferIntegration *m_graphics_client_buffer_integration;
 #endif
 
     //extensions

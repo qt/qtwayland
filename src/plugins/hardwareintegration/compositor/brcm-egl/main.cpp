@@ -39,28 +39,28 @@
 **
 ****************************************************************************/
 
-#include <QtCompositor/qwaylandgraphicshardwareintegrationplugin.h>
+#include <QtCompositor/qwaylandclientbufferintegrationplugin.h>
 #include "brcmeglintegration.h"
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandIntegrationPlugin : public QWaylandGraphicsHardwareIntegrationPlugin
+class QWaylandBrcmClientBufferIntegration : public QWaylandClientBufferIntegrationPlugin
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.Compositor.QWaylandGraphicsHardwareIntegrationFactoryInterface.5.1" FILE "brcm-egl.json")
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.Compositor.QWaylandClientBufferIntegrationFactoryInterface.5.1" FILE "brcm-egl.json")
 public:
     QStringList keys() const;
-    QWaylandGraphicsHardwareIntegration *create(const QString&, const QStringList&);
+    QWaylandClientBufferIntegration *create(const QString&, const QStringList&);
 };
 
-QStringList QWaylandIntegrationPlugin::keys() const
+QStringList QWaylandBrcmClientBufferIntegration::keys() const
 {
     QStringList list;
     list << "wayland-brcm";
     return list;
 }
 
-QWaylandGraphicsHardwareIntegration *QWaylandIntegrationPlugin::create(const QString& system, const QStringList& paramList)
+QWaylandClientBufferIntegration *QWaylandBrcmClientBufferIntegration::create(const QString& system, const QStringList& paramList)
 {
     Q_UNUSED(paramList);
     if (system.toLower() == "wayland-brcm")

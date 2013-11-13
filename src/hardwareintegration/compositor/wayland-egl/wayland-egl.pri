@@ -8,7 +8,7 @@ INCLUDEPATH += $$PWD
 }
 
 SOURCES += \
-    $$PWD/waylandeglintegration.cpp
+    $$PWD/waylandeglclientbufferintegration.cpp
 
 HEADERS += \
-    $$PWD/waylandeglintegration.h
+    $$PWD/waylandeglclientbufferintegration.h

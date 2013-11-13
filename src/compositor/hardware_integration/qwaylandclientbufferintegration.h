@@ -38,8 +38,8 @@
 **
 ****************************************************************************/
 
-#ifndef GRAPHICSHARDWAREINTEGRATION_H
-#define GRAPHICSHARDWAREINTEGRATION_H
+#ifndef QWAYLANDCLIENTBUFFERINTEGRATION_H
+#define QWAYLANDCLIENTBUFFERINTEGRATION_H
 
 #include <QtGui/qopengl.h>
 #include <QtGui/QOpenGLContext>
@@ -53,11 +53,11 @@ namespace QtWayland {
     class Display;
 }
 
-class Q_COMPOSITOR_EXPORT QWaylandGraphicsHardwareIntegration
+class Q_COMPOSITOR_EXPORT QWaylandClientBufferIntegration
 {
 public:
-    QWaylandGraphicsHardwareIntegration();
-    virtual ~QWaylandGraphicsHardwareIntegration() { }
+    QWaylandClientBufferIntegration();
+    virtual ~QWaylandClientBufferIntegration() { }
 
     void setCompositor(QWaylandCompositor *compositor) { m_compositor = compositor; }
 
@@ -82,4 +82,4 @@ protected:
 
 QT_END_NAMESPACE
 
-#endif // GRAPHICSHARDWAREINTEGRATION_H
+#endif // QWAYLANDCLIENTBUFFERINTEGRATION_H

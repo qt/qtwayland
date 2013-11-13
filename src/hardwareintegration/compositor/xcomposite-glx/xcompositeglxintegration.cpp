@@ -71,19 +71,19 @@ QVector<int> qglx_buildSpec()
 }
 
 
-XCompositeGLXIntegration::XCompositeGLXIntegration()
-    : QWaylandGraphicsHardwareIntegration()
+XCompositeGLXClientBufferIntegration::XCompositeGLXClientBufferIntegration()
+    : QWaylandClientBufferIntegration()
     , mDisplay(0)
     , mHandler(0)
 {
 }
 
-XCompositeGLXIntegration::~XCompositeGLXIntegration()
+XCompositeGLXClientBufferIntegration::~XCompositeGLXClientBufferIntegration()
 {
     delete mHandler;
 }
 
-void XCompositeGLXIntegration::initializeHardware(QtWayland::Display *)
+void XCompositeGLXClientBufferIntegration::initializeHardware(QtWayland::Display *)
 {
     QPlatformNativeInterface *nativeInterface = QGuiApplicationPrivate::platformIntegration()->nativeInterface();
     if (nativeInterface) {
@@ -112,7 +112,7 @@ void XCompositeGLXIntegration::initializeHardware(QtWayland::Display *)
     delete glContext;
 }
 
-GLuint XCompositeGLXIntegration::createTextureFromBuffer(struct ::wl_resource *buffer, QOpenGLContext *)
+GLuint XCompositeGLXClientBufferIntegration::createTextureFromBuffer(struct ::wl_resource *buffer, QOpenGLContext *)
 {
     XCompositeBuffer *compositorBuffer = XCompositeBuffer::fromResource(buffer);
     Pixmap pixmap = XCompositeNameWindowPixmap(mDisplay, compositorBuffer->window());
@@ -145,12 +145,12 @@ GLuint XCompositeGLXIntegration::createTextureFromBuffer(struct ::wl_resource *b
     return textureId;
 }
 
-bool XCompositeGLXIntegration::isYInverted(struct ::wl_resource *buffer) const
+bool XCompositeGLXClientBufferIntegration::isYInverted(struct ::wl_resource *buffer) const
 {
     return XCompositeBuffer::fromResource(buffer)->isYInverted();
 }
 
-QSize XCompositeGLXIntegration::bufferSize(struct ::wl_resource *buffer) const
+QSize XCompositeGLXClientBufferIntegration::bufferSize(struct ::wl_resource *buffer) const
 {
     XCompositeBuffer *compositorBuffer = XCompositeBuffer::fromResource(buffer);
 

@@ -39,18 +39,19 @@
 **
 ****************************************************************************/
 
-#include <QtCompositor/qwaylandgraphicshardwareintegrationplugin.h>
-#include "waylandeglintegration.h"
+#include <QtCompositor/qwaylandclientbufferintegrationfactory.h>
+#include <QtCompositor/qwaylandclientbufferintegrationplugin.h>
+#include "waylandeglclientbufferintegration.h"
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandIntegrationPlugin : public QWaylandGraphicsHardwareIntegrationPlugin
+class QWaylandIntegrationPlugin : public QWaylandClientBufferIntegrationPlugin
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.Compositor.QWaylandGraphicsHardwareIntegrationFactoryInterface.5.1" FILE "wayland-egl.json")
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.Compositor.QWaylandClientBufferIntegrationFactoryInterface.5.1" FILE "wayland-egl.json")
 public:
     QStringList keys() const;
-    QWaylandGraphicsHardwareIntegration *create(const QString&, const QStringList&);
+    QWaylandClientBufferIntegration *create(const QString&, const QStringList&);
 };
 
 QStringList QWaylandIntegrationPlugin::keys() const
@@ -60,11 +61,11 @@ QStringList QWaylandIntegrationPlugin::keys() const
     return list;
 }
 
-QWaylandGraphicsHardwareIntegration *QWaylandIntegrationPlugin::create(const QString& system, const QStringList& paramList)
+QWaylandClientBufferIntegration *QWaylandIntegrationPlugin::create(const QString& system, const QStringList& paramList)
 {
     Q_UNUSED(paramList);
     if (system.toLower() == "wayland-egl")
-        return new WaylandEglIntegration();
+        return new WaylandEglClientBufferIntegration();
 
     return 0;
 }

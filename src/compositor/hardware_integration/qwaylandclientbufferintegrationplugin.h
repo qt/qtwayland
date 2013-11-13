@@ -39,23 +39,30 @@
 **
 ****************************************************************************/
 
-#ifndef GRAPHICSHARDWAREINTEGRATIONFACTORY_H
-#define GRAPHICSHARDWAREINTEGRATIONFACTORY_H
+#ifndef QWAYLANDCLIENTBUFFERINTEGRATIONPLUGIN_H
+#define QWAYLANDCLIENTBUFFERINTEGRATIONPLUGIN_H
 
 #include <QtCompositor/qwaylandexport.h>
-#include <QtCore/QStringList>
+
+#include <QtCore/qplugin.h>
+#include <QtCore/qfactoryinterface.h>
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandGraphicsHardwareIntegration;
+class QWaylandClientBufferIntegration;
 
-class Q_COMPOSITOR_EXPORT QWaylandGraphicsHardwareIntegrationFactory
+#define QWaylandClientBufferIntegrationFactoryInterface_iid "org.qt-project.Qt.Compositor.QWaylandClientBufferIntegrationFactoryInterface.5.1"
+
+class Q_COMPOSITOR_EXPORT QWaylandClientBufferIntegrationPlugin : public QObject
 {
+    Q_OBJECT
 public:
-    static QStringList keys(const QString &pluginPath = QString());
-    static QWaylandGraphicsHardwareIntegration *create(const QString &name, const QStringList &args, const QString &pluginPath = QString());
+    explicit QWaylandClientBufferIntegrationPlugin(QObject *parent = 0);
+    ~QWaylandClientBufferIntegrationPlugin();
+
+    virtual QWaylandClientBufferIntegration *create(const QString &key, const QStringList &paramList) = 0;
 };
 
 QT_END_NAMESPACE
 
-#endif // GRAPHICSHARDWAREINTEGRATIONFACTORY_H
+#endif // QWAYLANDCLIENTBUFFERINTEGRATIONPLUGIN_H

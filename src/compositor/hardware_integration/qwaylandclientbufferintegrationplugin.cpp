@@ -39,16 +39,16 @@
 **
 ****************************************************************************/
 
-#include "qwaylandgraphicshardwareintegrationplugin.h"
+#include "qwaylandclientbufferintegrationplugin.h"
 
 QT_BEGIN_NAMESPACE
 
-QWaylandGraphicsHardwareIntegrationPlugin::QWaylandGraphicsHardwareIntegrationPlugin(QObject *parent) :
+QWaylandClientBufferIntegrationPlugin::QWaylandClientBufferIntegrationPlugin(QObject *parent) :
     QObject(parent)
 {
 }
 
-QWaylandGraphicsHardwareIntegrationPlugin::~QWaylandGraphicsHardwareIntegrationPlugin()
+QWaylandClientBufferIntegrationPlugin::~QWaylandClientBufferIntegrationPlugin()
 {
 }
 

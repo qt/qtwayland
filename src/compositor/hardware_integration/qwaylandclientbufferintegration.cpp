@@ -38,40 +38,13 @@
 **
 ****************************************************************************/
 
-#ifndef WAYLANDEGLINTEGRATION_H
-#define WAYLANDEGLINTEGRATION_H
-
-#include <QtCompositor/qwaylandgraphicshardwareintegration.h>
-#include <QtCore/QScopedPointer>
+#include "qwaylandclientbufferintegration.h"
 
 QT_BEGIN_NAMESPACE
 
-class WaylandEglIntegrationPrivate;
-
-class WaylandEglIntegration : public QWaylandGraphicsHardwareIntegration
+QWaylandClientBufferIntegration::QWaylandClientBufferIntegration()
+    : m_compositor(0)
 {
-    Q_DECLARE_PRIVATE(WaylandEglIntegration)
-public:
-    WaylandEglIntegration();
-
-    void initializeHardware(QtWayland::Display *waylandDisplay) Q_DECL_OVERRIDE;
-
-    GLuint createTextureFromBuffer(struct ::wl_resource *buffer, QOpenGLContext *context) Q_DECL_OVERRIDE;
-    bool isYInverted(struct ::wl_resource *) const Q_DECL_OVERRIDE;
-
-    bool setDirectRenderSurface(QWaylandSurface *) Q_DECL_OVERRIDE;
-
-    void *lockNativeBuffer(struct ::wl_resource *buffer, QOpenGLContext *context) const Q_DECL_OVERRIDE;
-    void unlockNativeBuffer(void *native_buffer, QOpenGLContext *context) const Q_DECL_OVERRIDE;
-
-    QSize bufferSize(struct ::wl_resource *buffer) const Q_DECL_OVERRIDE;
-
-private:
-    Q_DISABLE_COPY(WaylandEglIntegration)
-    QScopedPointer<WaylandEglIntegrationPrivate> d_ptr;
-};
+}
 
 QT_END_NAMESPACE
-
-#endif // WAYLANDEGLINTEGRATION_H
-

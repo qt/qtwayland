@@ -41,7 +41,7 @@
 #ifndef QTWAYLAND_QWLINPUTMETHOD_H
 #define QTWAYLAND_QWLINPUTMETHOD_H
 
-#include <qwayland-server-input-method.h>
+#include <QtCompositor/private/qwayland-server-input-method.h>
 
 #include <QObject>
 #include <QScopedPointer>

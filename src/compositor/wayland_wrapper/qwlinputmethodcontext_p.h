@@ -41,7 +41,7 @@
 #ifndef QTWAYLAND_QWLINPUTMETHODCONTEXT_P_H
 #define QTWAYLAND_QWLINPUTMETHODCONTEXT_P_H
 
-#include <qwayland-server-input-method.h>
+#include <QtCompositor/private/qwayland-server-input-method.h>
 
 QT_BEGIN_NAMESPACE
 

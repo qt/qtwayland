@@ -39,37 +39,50 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDGLINTEGRATION_H
-#define QWAYLANDGLINTEGRATION_H
+#ifndef QWAYLANDWINDOWMANAGERINTEGRATION_H
+#define QWAYLANDWINDOWMANAGERINTEGRATION_H
 
-#include <QtCore/qglobal.h>
+#include <QtCore/QObject>
+#include <QtCore/QScopedPointer>
+
+#include "wayland-client.h"
+#include "qwaylanddisplay.h"
+#include <qpa/qplatformservices.h>
+
+#include "QtWaylandClient/private/qwayland-windowmanager.h"
 
 QT_BEGIN_NAMESPACE
 
 class QWaylandWindow;
-class QWaylandDisplay;
-class QWindow;
+class QWaylandWindowManagerIntegrationPrivate;
 
-class QPlatformOpenGLContext;
-class QSurfaceFormat;
-
-class QWaylandGLIntegration
+class Q_WAYLAND_CLIENT_EXPORT QWaylandWindowManagerIntegration : public QObject, public QPlatformServices, public QtWayland::qt_windowmanager
 {
+    Q_OBJECT
+    Q_DECLARE_PRIVATE(QWaylandWindowManagerIntegration)
 public:
-    QWaylandGLIntegration();
-    virtual ~QWaylandGLIntegration();
+    explicit QWaylandWindowManagerIntegration(QWaylandDisplay *waylandDisplay);
+    virtual ~QWaylandWindowManagerIntegration();
 
-    virtual void initialize() = 0;
-    virtual bool waitingForEvents() { return false; }
+    QByteArray desktopEnvironment() const;
 
-    virtual bool supportsThreadedOpenGL() const { return false; }
+    bool openUrl(const QUrl &url);
+    bool openDocument(const QUrl &url);
 
-    virtual QWaylandWindow *createEglWindow(QWindow *window) = 0;
-    virtual QPlatformOpenGLContext *createPlatformOpenGLContext(const QSurfaceFormat &glFormat, QPlatformOpenGLContext *share) const = 0;
+    bool showIsFullScreen() const;
 
-    static QWaylandGLIntegration *createGLIntegration(QWaylandDisplay *waylandDisplay);
+private:
+    static void wlHandleListenerGlobal(void *data, wl_registry *registry, uint32_t id,
+                                       const QString &interface, uint32_t version);
+
+    QScopedPointer<QWaylandWindowManagerIntegrationPrivate> d_ptr;
+
+    void windowmanager_hints(int32_t showIsFullScreen) Q_DECL_OVERRIDE;
+    void windowmanager_quit() Q_DECL_OVERRIDE;
+
+    void openUrl_helper(const QUrl &url);
 };
 
 QT_END_NAMESPACE
 
-#endif // QWAYLANDGLINTEGRATION_H
+#endif // QWAYLANDWINDOWMANAGERINTEGRATION_H

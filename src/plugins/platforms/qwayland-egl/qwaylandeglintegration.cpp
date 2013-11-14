@@ -41,7 +41,7 @@
 
 #include "qwaylandeglintegration.h"
 
-#include "qwaylandglintegration.h"
+#include <QtWaylandClient/qwaylandglintegration.h>
 
 #include "qwaylandeglwindow.h"
 #include "qwaylandglcontext.h"

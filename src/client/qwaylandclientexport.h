@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the plugins of the Qt Toolkit.
@@ -39,28 +39,22 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDBUFFER_H
-#define QWAYLANDBUFFER_H
+#ifndef QWAYLANDCLIENTEXPORT_H
+#define QWAYLANDCLIENTEXPORT_H
 
-#include <QtCore/QSize>
-#include <QtCore/QRect>
-
-#include <wayland-client.h>
-#include <wayland-client-protocol.h>
+#include <QtCore/qglobal.h>
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandBuffer {
-public:
-    QWaylandBuffer() { }
-    virtual ~QWaylandBuffer() { }
-    wl_buffer *buffer() {return mBuffer;}
-    virtual QSize size() const = 0;
-
-protected:
-    struct wl_buffer *mBuffer;
-};
+#if !defined(Q_WAYLAND_CLIENT_EXPORT)
+#  if defined(QT_SHARED)
+#    define Q_WAYLAND_CLIENT_EXPORT Q_DECL_EXPORT
+#  else
+#    define Q_WAYLAND_CLIENT_EXPORT
+#  endif
+#endif
 
 QT_END_NAMESPACE
 
-#endif // QWAYLANDBUFFER_H
+#endif //QWAYLANDCLIENTEXPORT_H
+

@@ -45,7 +45,7 @@
 
 #include "wayland-util.h"
 
-#include "qwayland-server-qtkey-extension.h"
+#include <QtCompositor/private/qwayland-server-qtkey-extension.h>
 
 QT_BEGIN_NAMESPACE
 

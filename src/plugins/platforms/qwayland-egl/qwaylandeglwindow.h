@@ -42,7 +42,7 @@
 #ifndef QWAYLANDEGLWINDOW_H
 #define QWAYLANDEGLWINDOW_H
 
-#include "qwaylandwindow.h"
+#include <QtWaylandClient/qwaylandwindow.h>
 #include "qwaylandeglinclude.h"
 #include "qwaylandeglintegration.h"
 

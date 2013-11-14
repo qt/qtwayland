@@ -47,7 +47,7 @@
 #include <QtCore/QList>
 #include <QtCore/QPoint>
 
-#include <qwayland-server-wayland.h>
+#include <QtCompositor/private/qwayland-server-wayland.h>
 
 #include <stdint.h>
 

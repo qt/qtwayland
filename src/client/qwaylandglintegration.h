@@ -39,54 +39,38 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDDATAOFFER_H
-#define QWAYLANDDATAOFFER_H
+#ifndef QWAYLANDGLINTEGRATION_H
+#define QWAYLANDGLINTEGRATION_H
 
-#include "qwaylanddisplay.h"
-
-#include <QtGui/private/qdnd_p.h>
+#include <QtCore/qglobal.h>
+#include <QtWaylandClient/qwaylandclientexport.h>
 
 QT_BEGIN_NAMESPACE
 
+class QWaylandWindow;
 class QWaylandDisplay;
-class QWaylandMimeData;
+class QWindow;
 
-class QWaylandDataOffer : public QtWayland::wl_data_offer
+class QPlatformOpenGLContext;
+class QSurfaceFormat;
+
+class Q_WAYLAND_CLIENT_EXPORT QWaylandGLIntegration
 {
 public:
-    explicit QWaylandDataOffer(QWaylandDisplay *display, struct ::wl_data_offer *offer);
-    ~QWaylandDataOffer();
+    QWaylandGLIntegration();
+    virtual ~QWaylandGLIntegration();
 
-    QString firstFormat() const;
+    virtual void initialize() = 0;
+    virtual bool waitingForEvents() { return false; }
 
-    QMimeData *mimeData();
+    virtual bool supportsThreadedOpenGL() const { return false; }
 
-protected:
-    void data_offer_offer(const QString &mime_type) Q_DECL_OVERRIDE;
+    virtual QWaylandWindow *createEglWindow(QWindow *window) = 0;
+    virtual QPlatformOpenGLContext *createPlatformOpenGLContext(const QSurfaceFormat &glFormat, QPlatformOpenGLContext *share) const = 0;
 
-private:
-    QScopedPointer<QWaylandMimeData> m_mimeData;
-};
-
-
-class QWaylandMimeData : public QInternalMimeData {
-public:
-    explicit QWaylandMimeData(QWaylandDataOffer *dataOffer, QWaylandDisplay *display);
-    ~QWaylandMimeData();
-
-    void appendFormat(const QString &mimeType);
-
-protected:
-    bool hasFormat_sys(const QString &mimeType) const Q_DECL_OVERRIDE;
-    QStringList formats_sys() const Q_DECL_OVERRIDE;
-    QVariant retrieveData_sys(const QString &mimeType, QVariant::Type type) const Q_DECL_OVERRIDE;
-
-private:
-    mutable QWaylandDataOffer *m_dataOffer;
-    QWaylandDisplay *m_display;
-    QStringList m_offered_mime_types;
+    static QWaylandGLIntegration *createGLIntegration(QWaylandDisplay *waylandDisplay);
 };
 
 QT_END_NAMESPACE
 
-#endif
+#endif // QWAYLANDGLINTEGRATION_H

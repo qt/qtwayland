@@ -53,7 +53,7 @@
 
 #include <wayland-client.h>
 
-#include "qwayland-wayland.h"
+#include <QtWaylandClient/private/qwayland-wayland.h>
 
 #ifndef QT_NO_WAYLAND_XKB
 struct xkb_context;
@@ -67,7 +67,12 @@ class QWaylandWindow;
 class QWaylandDisplay;
 class QWaylandDataDevice;
 
-class QWaylandInputDevice : public QObject, public QtWayland::wl_pointer, public QtWayland::wl_keyboard, public QtWayland::wl_touch, public QtWayland::wl_seat
+class Q_WAYLAND_CLIENT_EXPORT QWaylandInputDevice
+                            : public QObject
+                            , public QtWayland::wl_pointer
+                            , public QtWayland::wl_keyboard
+                            , public QtWayland::wl_touch
+                            , public QtWayland::wl_seat
 {
     Q_OBJECT
 public:

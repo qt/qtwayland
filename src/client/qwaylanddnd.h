@@ -39,58 +39,42 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDGLCONTEXT_H
-#define QWAYLANDGLCONTEXT_H
+#ifndef QWAYLANDDND_H
+#define QWAYLANDDND_H
 
-#include <QtWaylandClient/qwaylanddisplay.h>
+#include <qpa/qplatformdrag.h>
+#include <QtGui/private/qsimpledrag_p.h>
 
-#include <qpa/qplatformopenglcontext.h>
-#include <QtGui/QOpenGLFunctions>
-
-#include "qwaylandeglinclude.h"
+#include <QtGui/QDrag>
+#include <QtCore/QMimeData>
+#include "qwaylanddisplay.h"
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandWindow;
-class QWaylandGLWindowSurface;
-class QOpenGLShaderProgram;
-class QOpenGLTextureCache;
-
-class QWaylandGLContext : public QPlatformOpenGLContext, protected QOpenGLFunctions
+class Q_WAYLAND_CLIENT_EXPORT QWaylandDrag : public QBasicDrag
 {
 public:
-    QWaylandGLContext(EGLDisplay eglDisplay, const QSurfaceFormat &format, QPlatformOpenGLContext *share);
-    ~QWaylandGLContext();
+    QWaylandDrag(QWaylandDisplay *display);
+    ~QWaylandDrag();
 
-    void swapBuffers(QPlatformSurface *surface);
+    QMimeData *platformDropData() Q_DECL_OVERRIDE;
 
-    bool makeCurrent(QPlatformSurface *surface);
-    void doneCurrent();
+    void updateTarget(const QString &mimeType);
+    void setResponse(const QPlatformDragQtResponse &response);
+    void finishDrag(const QPlatformDropQtResponse &response);
 
-    GLuint defaultFramebufferObject(QPlatformSurface *surface) const;
+protected:
+    void startDrag() Q_DECL_OVERRIDE;
+    void cancel() Q_DECL_OVERRIDE;
+    void move(const QMouseEvent *me) Q_DECL_OVERRIDE;
+    void drop(const QMouseEvent *me) Q_DECL_OVERRIDE;
+    void endDrag() Q_DECL_OVERRIDE;
 
-    bool isSharing() const;
-    bool isValid() const;
-
-    void (*getProcAddress(const QByteArray &procName)) ();
-
-    QSurfaceFormat format() const { return m_format; }
-
-    EGLConfig eglConfig() const;
-    EGLContext eglContext() const { return m_context; }
 
 private:
-    EGLDisplay m_eglDisplay;
-
-    EGLContext m_context;
-    EGLContext m_shareEGLContext;
-    EGLConfig m_config;
-    QSurfaceFormat m_format;
-    QOpenGLShaderProgram *m_blitProgram;
-    QOpenGLTextureCache *m_textureCache;
-    bool mUseNativeDefaultFbo;
+    QWaylandDisplay *m_display;
 };
 
 QT_END_NAMESPACE
 
-#endif // QWAYLANDGLCONTEXT_H
+#endif // QWAYLANDDND_H

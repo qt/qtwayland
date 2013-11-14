@@ -43,7 +43,7 @@
 
 #include <QtCompositor/qwaylandexport.h>
 
-#include <qwayland-server-input-method.h>
+#include <QtCompositor/private/qwayland-server-input-method.h>
 
 #include <QRect>
 #include <QScopedPointer>

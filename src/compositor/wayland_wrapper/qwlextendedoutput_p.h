@@ -47,7 +47,7 @@
 
 #include <QtCore/qnamespace.h>
 
-#include <qwayland-server-output-extension.h>
+#include <QtCompositor/private/qwayland-server-output-extension.h>
 
 QT_BEGIN_NAMESPACE
 

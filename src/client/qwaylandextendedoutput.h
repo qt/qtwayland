@@ -39,32 +39,31 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDCLIPBOARD_H
-#define QWAYLANDCLIPBOARD_H
+#ifndef QWAYLANDEXTENDEDOUTPUT_H
+#define QWAYLANDEXTENDEDOUTPUT_H
 
-#include <qpa/qplatformclipboard.h>
-#include <QtCore/QVariant>
+#include "qwaylanddisplay.h"
+#include <QtWaylandClient/private/qwayland-output-extension.h>
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandDisplay;
+class QWaylandExtendedOutput;
 
-class QWaylandClipboard : public QPlatformClipboard
+class Q_WAYLAND_CLIENT_EXPORT QWaylandExtendedOutput : public QtWayland::qt_extended_output
 {
 public:
-    QWaylandClipboard(QWaylandDisplay *display);
+    QWaylandExtendedOutput(QWaylandScreen *screen, struct ::qt_extended_output *extended_output);
 
-    ~QWaylandClipboard();
-
-    QMimeData *mimeData(QClipboard::Mode mode = QClipboard::Clipboard) Q_DECL_OVERRIDE;
-    void setMimeData(QMimeData *data, QClipboard::Mode mode = QClipboard::Clipboard) Q_DECL_OVERRIDE;
-    bool supportsMode(QClipboard::Mode mode) const Q_DECL_OVERRIDE;
-    bool ownsMode(QClipboard::Mode mode) const Q_DECL_OVERRIDE;
+    Qt::ScreenOrientation currentOrientation() const;
+    void setOrientationUpdateMask(Qt::ScreenOrientations mask);
 
 private:
-    QWaylandDisplay *mDisplay;
+    void extended_output_set_screen_rotation(int32_t rotation) Q_DECL_OVERRIDE;
+
+    QWaylandScreen *m_screen;
+    Qt::ScreenOrientation m_orientation;
 };
 
 QT_END_NAMESPACE
 
-#endif // QWAYLANDCLIPBOARD_H
+#endif // QWAYLANDEXTENDEDOUTPUT_H

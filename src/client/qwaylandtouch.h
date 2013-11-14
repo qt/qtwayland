@@ -39,33 +39,59 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDSUBSURFACE_H
-#define QWAYLANDSUBSURFACE_H
+#ifndef QWAYLANDTOUCh_H
+#define QWAYLANDTOUCH_H
 
-#include <wayland-client.h>
+#include "qwaylanddisplay.h"
+#include <qpa/qwindowsysteminterface.h>
 
-#include <QtCore/qglobal.h>
-
-#include <qwayland-sub-surface-extension.h>
+#include <QtWaylandClient/private/qwayland-touch-extension.h>
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandDisplay;
-class QWaylandWindow;
-class QWaylandSubSurface;
-
-class QWaylandSubSurface : public QtWayland::qt_sub_surface
+class Q_WAYLAND_CLIENT_EXPORT QWaylandTouchExtension : public QtWayland::qt_touch_extension
 {
 public:
-    QWaylandSubSurface(QWaylandWindow *window, struct ::qt_sub_surface *sub_surface);
+    QWaylandTouchExtension(QWaylandDisplay *display, uint32_t id);
 
-    void setParent(const QWaylandWindow *parent);
-    void adjustPositionOfChildren();
+    void touchCanceled();
 
 private:
-    QWaylandWindow *m_window;
+    void registerDevice(int caps);
+
+    QWaylandDisplay *mDisplay;
+
+    void touch_extension_touch(uint32_t time,
+                               uint32_t id,
+                               uint32_t state,
+                               int32_t x,
+                               int32_t y,
+                               int32_t normalized_x,
+                               int32_t normalized_y,
+                               int32_t width,
+                               int32_t height,
+                               uint32_t pressure,
+                               int32_t velocity_x,
+                               int32_t velocity_y,
+                               uint32_t flags,
+                               struct wl_array *rawdata) Q_DECL_OVERRIDE;
+    void touch_extension_configure(uint32_t flags) Q_DECL_OVERRIDE;
+
+    void sendTouchEvent();
+
+    QList<QWindowSystemInterface::TouchPoint> mTouchPoints;
+    QList<QWindowSystemInterface::TouchPoint> mPrevTouchPoints;
+    QTouchDevice *mTouchDevice;
+    uint32_t mTimestamp;
+    int mPointsLeft;
+    uint32_t mFlags;
+    int mMouseSourceId;
+    QPointF mLastMouseLocal;
+    QPointF mLastMouseGlobal;
+    QWindow *mTargetWindow;
+    QWaylandInputDevice *mInputDevice;
 };
 
 QT_END_NAMESPACE
 
-#endif // QWAYLANDSUBSURFACE_H
+#endif // QWAYLANDTOUCH_H

@@ -43,7 +43,7 @@
 
 #include <wayland-server.h>
 
-#include "qwayland-server-surface-extension.h"
+#include <QtCompositor/private/qwayland-server-surface-extension.h>
 #include <private/qwlsurface_p.h>
 #include <QtCompositor/qwaylandsurface.h>
 

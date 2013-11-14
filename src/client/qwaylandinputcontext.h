@@ -43,7 +43,7 @@
 
 #include <qpa/qplatforminputcontext.h>
 
-#include <qwayland-text.h>
+#include <QtWaylandClient/private/qwayland-text.h>
 
 QT_BEGIN_NAMESPACE
 

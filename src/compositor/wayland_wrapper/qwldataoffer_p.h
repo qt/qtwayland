@@ -41,7 +41,7 @@
 #ifndef WLDATAOFFER_H
 #define WLDATAOFFER_H
 
-#include <qwayland-server-wayland.h>
+#include <QtCompositor/private/qwayland-server-wayland.h>
 
 QT_BEGIN_NAMESPACE
 

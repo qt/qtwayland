@@ -41,7 +41,7 @@
 #ifndef WLDATADEVICE_H
 #define WLDATADEVICE_H
 
-#include <qwayland-server-wayland.h>
+#include <QtCompositor/private/qwayland-server-wayland.h>
 #include <qwlpointer_p.h>
 
 QT_BEGIN_NAMESPACE

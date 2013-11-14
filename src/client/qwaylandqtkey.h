@@ -39,71 +39,38 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDSCREEN_H
-#define QWAYLANDSCREEN_H
+#ifndef QWAYLANDQTKEY_H
+#define QWAYLANDQTKEY_H
 
-#include <qpa/qplatformscreen.h>
+#include "qwaylanddisplay.h"
+#include <qpa/qwindowsysteminterface.h>
 
-#include <qwayland-wayland.h>
+#include <QtWaylandClient/private/qwayland-qtkey-extension.h>
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandDisplay;
-class QWaylandCursor;
-class QWaylandExtendedOutput;
-
-class QWaylandScreen : public QPlatformScreen, QtWayland::wl_output
+class Q_WAYLAND_CLIENT_EXPORT QWaylandQtKeyExtension : public QtWayland::qt_key_extension
 {
 public:
-    QWaylandScreen(QWaylandDisplay *waylandDisplay, uint32_t id);
-    ~QWaylandScreen();
-
-    QWaylandDisplay *display() const;
-
-    QRect geometry() const;
-    int depth() const;
-    QImage::Format format() const;
-
-    QDpi logicalDpi() const Q_DECL_OVERRIDE;
-
-    void setOrientationUpdateMask(Qt::ScreenOrientations mask);
-
-    Qt::ScreenOrientation orientation() const;
-    qreal refreshRate() const;
-
-    QString name() const { return mOutputName; }
-
-    QPlatformCursor *cursor() const;
-    QWaylandCursor *waylandCursor() const { return mWaylandCursor; };
-
-    ::wl_output *output() { return object(); }
-
-    QWaylandExtendedOutput *extendedOutput() const;
-    void createExtendedOutput();
-
-    static QWaylandScreen *waylandScreenFromWindow(QWindow *window);
+    QWaylandQtKeyExtension(QWaylandDisplay *display, uint32_t id);
 
 private:
-    void output_mode(uint32_t flags, int width, int height, int refresh) Q_DECL_OVERRIDE;
-    void output_geometry(int32_t x, int32_t y,
-                         int32_t width, int32_t height,
-                         int subpixel,
-                         const QString &make,
-                         const QString &model,
-                         int32_t transform) Q_DECL_OVERRIDE;
+    QWaylandDisplay *m_display;
 
-    QWaylandDisplay *mWaylandDisplay;
-    QWaylandExtendedOutput *mExtendedOutput;
-    QRect mGeometry;
-    int mDepth;
-    int mRefreshRate;
-    QImage::Format mFormat;
-    QSize mPhysicalSize;
-    QString mOutputName;
+    void key_extension_qtkey(struct wl_surface *surface,
+                             uint32_t time,
+                             uint32_t type,
+                             uint32_t key,
+                             uint32_t modifiers,
+                             uint32_t nativeScanCode,
+                             uint32_t nativeVirtualKey,
+                             uint32_t nativeModifiers,
+                             const QString &text,
+                             uint32_t autorep,
+                             uint32_t count) Q_DECL_OVERRIDE;
 
-    QWaylandCursor *mWaylandCursor;
 };
 
 QT_END_NAMESPACE
 
-#endif // QWAYLANDSCREEN_H
+#endif // QWAYLANDQTKEY_H

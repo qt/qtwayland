@@ -39,31 +39,47 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDDATADEVICEMANAGER_H
-#define QWAYLANDDATADEVICEMANAGER_H
+#ifndef QWAYLANDEXTENDEDSURFACE_H
+#define QWAYLANDEXTENDEDSURFACE_H
 
-#include "qwaylanddisplay.h"
+#include <QtCore/QString>
+#include <QtCore/QVariant>
+
+#include <QtWaylandClient/qwaylandclientexport.h>
+
+#include <wayland-client.h>
+#include <QtWaylandClient/private/qwayland-surface-extension.h>
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandDataDevice;
-class QWaylandDataSource;
+class QWaylandDisplay;
+class QWaylandWindow;
 
-class QWaylandDataDeviceManager : public QtWayland::wl_data_device_manager
+class Q_WAYLAND_CLIENT_EXPORT QWaylandExtendedSurface : public QtWayland::qt_extended_surface
 {
 public:
-    QWaylandDataDeviceManager(QWaylandDisplay *display, uint32_t id);
-    ~QWaylandDataDeviceManager();
+    QWaylandExtendedSurface(QWaylandWindow *window, struct ::qt_extended_surface *extended_surface);
+    ~QWaylandExtendedSurface();
 
-    QWaylandDataDevice *getDataDevice(QWaylandInputDevice *inputDevice);
+    void setContentOrientation(Qt::ScreenOrientation orientation);
 
-    QWaylandDisplay *display() const;
+    void updateGenericProperty(const QString &name, const QVariant &value);
+
+    QVariantMap properties() const;
+    QVariant property(const QString &name);
+    QVariant property(const QString &name, const QVariant &defaultValue);
+
+    Qt::WindowFlags setWindowFlags(Qt::WindowFlags flags);
 
 private:
-    struct wl_data_device_manager *m_data_device_manager;
-    QWaylandDisplay *m_display;
+    void extended_surface_onscreen_visibility(int32_t visibility) Q_DECL_OVERRIDE;
+    void extended_surface_set_generic_property(const QString &name, wl_array *value) Q_DECL_OVERRIDE;
+    void extended_surface_close() Q_DECL_OVERRIDE;
+
+    QWaylandWindow *m_window;
+    QVariantMap m_properties;
 };
 
 QT_END_NAMESPACE
 
-#endif // QWAYLANDDATADEVICEMANAGER_H
+#endif // QWAYLANDEXTENDEDSURFACE_H

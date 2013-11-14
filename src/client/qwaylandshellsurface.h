@@ -3,7 +3,7 @@
 ** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
-** This file is part of the plugins of the Qt Toolkit.
+** This file is part of the config.tests of the Qt Toolkit.
 **
 ** $QT_BEGIN_LICENSE:LGPL$
 ** Commercial License Usage
@@ -39,59 +39,58 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDTOUCh_H
-#define QWAYLANDTOUCH_H
+#ifndef QWAYLANDSHELLSURFACE_H
+#define QWAYLANDSHELLSURFACE_H
 
-#include "qwaylanddisplay.h"
-#include <qpa/qwindowsysteminterface.h>
+#include <QtCore/QSize>
 
-#include <qwayland-touch-extension.h>
+#include <wayland-client.h>
+
+#include <QtWaylandClient/private/qwayland-wayland.h>
+#include <QtWaylandClient/qwaylandclientexport.h>
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandTouchExtension : public QtWayland::qt_touch_extension
+class QWaylandWindow;
+class QWaylandInputDevice;
+class QWindow;
+
+class Q_WAYLAND_CLIENT_EXPORT QWaylandShellSurface : public QtWayland::wl_shell_surface
 {
 public:
-    QWaylandTouchExtension(QWaylandDisplay *display, uint32_t id);
+    QWaylandShellSurface(struct ::wl_shell_surface *shell_surface, QWaylandWindow *window);
+    ~QWaylandShellSurface();
 
-    void touchCanceled();
+    using QtWayland::wl_shell_surface::resize;
+    void resize(QWaylandInputDevice *inputDevice, enum wl_shell_surface_resize edges);
+
+    using QtWayland::wl_shell_surface::move;
+    void move(QWaylandInputDevice *inputDevice);
 
 private:
-    void registerDevice(int caps);
+    void setMaximized();
+    void setFullscreen();
+    void setNormal();
+    void setMinimized();
 
-    QWaylandDisplay *mDisplay;
+    void setTopLevel();
+    void updateTransientParent(QWindow *parent);
+    void setPopup(QWaylandWindow *parent, QWaylandInputDevice *device, int serial);
 
-    void touch_extension_touch(uint32_t time,
-                               uint32_t id,
-                               uint32_t state,
-                               int32_t x,
-                               int32_t y,
-                               int32_t normalized_x,
-                               int32_t normalized_y,
-                               int32_t width,
-                               int32_t height,
-                               uint32_t pressure,
-                               int32_t velocity_x,
-                               int32_t velocity_y,
-                               uint32_t flags,
-                               struct wl_array *rawdata) Q_DECL_OVERRIDE;
-    void touch_extension_configure(uint32_t flags) Q_DECL_OVERRIDE;
+    QWaylandWindow *m_window;
+    bool m_maximized;
+    bool m_fullscreen;
+    QSize m_size;
 
-    void sendTouchEvent();
+    void shell_surface_ping(uint32_t serial) Q_DECL_OVERRIDE;
+    void shell_surface_configure(uint32_t edges,
+                                 int32_t width,
+                                 int32_t height) Q_DECL_OVERRIDE;
+    void shell_surface_popup_done() Q_DECL_OVERRIDE;
 
-    QList<QWindowSystemInterface::TouchPoint> mTouchPoints;
-    QList<QWindowSystemInterface::TouchPoint> mPrevTouchPoints;
-    QTouchDevice *mTouchDevice;
-    uint32_t mTimestamp;
-    int mPointsLeft;
-    uint32_t mFlags;
-    int mMouseSourceId;
-    QPointF mLastMouseLocal;
-    QPointF mLastMouseGlobal;
-    QWindow *mTargetWindow;
-    QWaylandInputDevice *mInputDevice;
+    friend class QWaylandWindow;
 };
 
 QT_END_NAMESPACE
 
-#endif // QWAYLANDTOUCH_H
+#endif // QWAYLANDSHELLSURFACE_H

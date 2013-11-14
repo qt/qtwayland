@@ -61,7 +61,7 @@
 #include "qwaylandtouch.h"
 #include "qwaylandqtkey.h"
 
-#include "qwayland-text.h"
+#include <QtWaylandClient/private/qwayland-text.h>
 
 #include <QtCore/QAbstractEventDispatcher>
 #include <QtGui/private/qguiapplication_p.h>
@@ -135,7 +135,7 @@ QWaylandDisplay::QWaylandDisplay()
     connect(mEventThreadObject, SIGNAL(newEventsRead()), this, SLOT(flushRequests()));
 
 #ifdef QT_WAYLAND_GL_SUPPORT
-    mEglIntegration = QWaylandGLIntegration::createGLIntegration(this);
+    //mEglIntegration = QWaylandGLIntegration::createGLIntegration(this);
 #endif
 
     mWindowManagerIntegration = new QWaylandWindowManagerIntegration(this);

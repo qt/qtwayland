@@ -3,7 +3,7 @@
 ** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
-** This file is part of the config.tests of the Qt Toolkit.
+** This file is part of the plugins of the Qt Toolkit.
 **
 ** $QT_BEGIN_LICENSE:LGPL$
 ** Commercial License Usage
@@ -39,57 +39,72 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDSHELLSURFACE_H
-#define QWAYLANDSHELLSURFACE_H
+#ifndef QWAYLANDSCREEN_H
+#define QWAYLANDSCREEN_H
 
-#include <QtCore/QSize>
+#include <qpa/qplatformscreen.h>
+#include <QtWaylandClient/qwaylandclientexport.h>
 
-#include <wayland-client.h>
-
-#include "qwayland-wayland.h"
+#include <QtWaylandClient/private/qwayland-wayland.h>
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandWindow;
-class QWaylandInputDevice;
-class QWindow;
+class QWaylandDisplay;
+class QWaylandCursor;
+class QWaylandExtendedOutput;
 
-class QWaylandShellSurface : public QtWayland::wl_shell_surface
+class Q_WAYLAND_CLIENT_EXPORT QWaylandScreen : public QPlatformScreen, QtWayland::wl_output
 {
 public:
-    QWaylandShellSurface(struct ::wl_shell_surface *shell_surface, QWaylandWindow *window);
-    ~QWaylandShellSurface();
+    QWaylandScreen(QWaylandDisplay *waylandDisplay, uint32_t id);
+    ~QWaylandScreen();
 
-    using QtWayland::wl_shell_surface::resize;
-    void resize(QWaylandInputDevice *inputDevice, enum wl_shell_surface_resize edges);
+    QWaylandDisplay *display() const;
 
-    using QtWayland::wl_shell_surface::move;
-    void move(QWaylandInputDevice *inputDevice);
+    QRect geometry() const;
+    int depth() const;
+    QImage::Format format() const;
+
+    QDpi logicalDpi() const Q_DECL_OVERRIDE;
+
+    void setOrientationUpdateMask(Qt::ScreenOrientations mask);
+
+    Qt::ScreenOrientation orientation() const;
+    qreal refreshRate() const;
+
+    QString name() const { return mOutputName; }
+
+    QPlatformCursor *cursor() const;
+    QWaylandCursor *waylandCursor() const { return mWaylandCursor; };
+
+    ::wl_output *output() { return object(); }
+
+    QWaylandExtendedOutput *extendedOutput() const;
+    void createExtendedOutput();
+
+    static QWaylandScreen *waylandScreenFromWindow(QWindow *window);
 
 private:
-    void setMaximized();
-    void setFullscreen();
-    void setNormal();
-    void setMinimized();
+    void output_mode(uint32_t flags, int width, int height, int refresh) Q_DECL_OVERRIDE;
+    void output_geometry(int32_t x, int32_t y,
+                         int32_t width, int32_t height,
+                         int subpixel,
+                         const QString &make,
+                         const QString &model,
+                         int32_t transform) Q_DECL_OVERRIDE;
 
-    void setTopLevel();
-    void updateTransientParent(QWindow *parent);
-    void setPopup(QWaylandWindow *parent, QWaylandInputDevice *device, int serial);
+    QWaylandDisplay *mWaylandDisplay;
+    QWaylandExtendedOutput *mExtendedOutput;
+    QRect mGeometry;
+    int mDepth;
+    int mRefreshRate;
+    QImage::Format mFormat;
+    QSize mPhysicalSize;
+    QString mOutputName;
 
-    QWaylandWindow *m_window;
-    bool m_maximized;
-    bool m_fullscreen;
-    QSize m_size;
-
-    void shell_surface_ping(uint32_t serial) Q_DECL_OVERRIDE;
-    void shell_surface_configure(uint32_t edges,
-                                 int32_t width,
-                                 int32_t height) Q_DECL_OVERRIDE;
-    void shell_surface_popup_done() Q_DECL_OVERRIDE;
-
-    friend class QWaylandWindow;
+    QWaylandCursor *mWaylandCursor;
 };
 
 QT_END_NAMESPACE
 
-#endif // QWAYLANDSHELLSURFACE_H
+#endif // QWAYLANDSCREEN_H

@@ -39,38 +39,30 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDQTKEY_H
-#define QWAYLANDQTKEY_H
+#ifndef QWAYLANDBUFFER_H
+#define QWAYLANDBUFFER_H
 
-#include "qwaylanddisplay.h"
-#include <qpa/qwindowsysteminterface.h>
+#include "qwaylandclientexport.h"
 
-#include "qwayland-qtkey-extension.h"
+#include <QtCore/QSize>
+#include <QtCore/QRect>
+
+#include <wayland-client.h>
+#include <wayland-client-protocol.h>
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandQtKeyExtension : public QtWayland::qt_key_extension
-{
+class Q_WAYLAND_CLIENT_EXPORT QWaylandBuffer {
 public:
-    QWaylandQtKeyExtension(QWaylandDisplay *display, uint32_t id);
+    QWaylandBuffer() { }
+    virtual ~QWaylandBuffer() { }
+    wl_buffer *buffer() {return mBuffer;}
+    virtual QSize size() const = 0;
 
-private:
-    QWaylandDisplay *m_display;
-
-    void key_extension_qtkey(struct wl_surface *surface,
-                             uint32_t time,
-                             uint32_t type,
-                             uint32_t key,
-                             uint32_t modifiers,
-                             uint32_t nativeScanCode,
-                             uint32_t nativeVirtualKey,
-                             uint32_t nativeModifiers,
-                             const QString &text,
-                             uint32_t autorep,
-                             uint32_t count) Q_DECL_OVERRIDE;
-
+protected:
+    struct wl_buffer *mBuffer;
 };
 
 QT_END_NAMESPACE
 
-#endif // QWAYLANDQTKEY_H
+#endif // QWAYLANDBUFFER_H

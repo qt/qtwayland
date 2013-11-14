@@ -43,7 +43,7 @@
 
 #include <private/qwlsurface_p.h>
 
-#include "wayland-sub-surface-extension-server-protocol.h"
+#include <QtCompositor/private/wayland-sub-surface-extension-server-protocol.h>
 
 #include <QtCore/QLinkedList>
 

@@ -39,62 +39,78 @@
 **
 ****************************************************************************/
 
-#ifndef QPLATFORMINTEGRATION_WAYLAND_H
-#define QPLATFORMINTEGRATION_WAYLAND_H
+#ifndef QWAYLANDCURSOR_H
+#define QWAYLANDCURSOR_H
 
-#include <qpa/qplatformintegration.h>
+#include <qpa/qplatformcursor.h>
+#include <QtCore/QMap>
+#include <QtWaylandClient/qwaylandclientexport.h>
+
+struct wl_cursor;
+struct wl_cursor_image;
+struct wl_cursor_theme;
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandBuffer;
 class QWaylandDisplay;
+class QWaylandScreen;
 
-class QWaylandIntegration : public QPlatformIntegration
+class Q_WAYLAND_CLIENT_EXPORT QWaylandCursor : public QPlatformCursor
 {
 public:
-    QWaylandIntegration();
-    ~QWaylandIntegration();
+    QWaylandCursor(QWaylandScreen *screen);
+    ~QWaylandCursor();
 
-    bool hasCapability(QPlatformIntegration::Capability cap) const;
-    QPlatformWindow *createPlatformWindow(QWindow *window) const;
-    QPlatformOpenGLContext *createPlatformOpenGLContext(QOpenGLContext *context) const;
-    QPlatformBackingStore *createPlatformBackingStore(QWindow *window) const;
+    void changeCursor(QCursor *cursor, QWindow *window);
+    void pointerEvent(const QMouseEvent &event);
+    QPoint pos() const;
+    void setPos(const QPoint &pos);
 
-    QAbstractEventDispatcher *createEventDispatcher() const;
-    void initialize();
-
-    QPlatformFontDatabase *fontDatabase() const;
-
-    QPlatformNativeInterface *nativeInterface() const;
-
-    QPlatformClipboard *clipboard() const;
-
-    QPlatformDrag *drag() const;
-
-    QPlatformInputContext *inputContext() const;
-
-    QVariant styleHint(StyleHint hint) const;
-
-    QPlatformAccessibility *accessibility() const;
-
-    QPlatformServices *services() const;
-
-    QWaylandDisplay *display() const;
-
-    QStringList themeNames() const;
-
-    QPlatformTheme *createPlatformTheme(const QString &name) const;
+    struct wl_cursor_image *cursorImage(Qt::CursorShape shape);
 
 private:
-    QPlatformFontDatabase *mFontDb;
-    QPlatformClipboard *mClipboard;
-    QPlatformDrag *mDrag;
+    enum WaylandCursor {
+        ArrowCursor = Qt::ArrowCursor,
+        UpArrowCursor,
+        CrossCursor,
+        WaitCursor,
+        IBeamCursor,
+        SizeVerCursor,
+        SizeHorCursor,
+        SizeBDiagCursor,
+        SizeFDiagCursor,
+        SizeAllCursor,
+        BlankCursor,
+        SplitVCursor,
+        SplitHCursor,
+        PointingHandCursor,
+        ForbiddenCursor,
+        WhatsThisCursor,
+        BusyCursor,
+        OpenHandCursor,
+        ClosedHandCursor,
+        DragCopyCursor,
+        DragMoveCursor,
+        DragLinkCursor,
+        ResizeNorthCursor = Qt::CustomCursor + 1,
+        ResizeSouthCursor,
+        ResizeEastCursor,
+        ResizeWestCursor,
+        ResizeNorthWestCursor,
+        ResizeSouthEastCursor,
+        ResizeNorthEastCursor,
+        ResizeSouthWestCursor
+    };
+
+    struct wl_cursor* requestCursor(WaylandCursor shape);
+    void initCursorMap();
     QWaylandDisplay *mDisplay;
-    QPlatformNativeInterface *mNativeInterface;
-    QScopedPointer<QPlatformInputContext> mInputContext;
-    QPlatformAccessibility *mAccessibility;
+    struct wl_cursor_theme *mCursorTheme;
+    QPoint mLastPos;
+    QMap<WaylandCursor, wl_cursor *> mCursors;
+    QMultiMap<WaylandCursor, QByteArray> mCursorNamesMap;
 };
 
 QT_END_NAMESPACE
 
-#endif
+#endif // QWAYLANDCURSOR_H

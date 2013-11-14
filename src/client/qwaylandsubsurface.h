@@ -39,77 +39,35 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDCURSOR_H
-#define QWAYLANDCURSOR_H
+#ifndef QWAYLANDSUBSURFACE_H
+#define QWAYLANDSUBSURFACE_H
 
-#include <qpa/qplatformcursor.h>
-#include <QMap>
+#include <wayland-client.h>
 
-struct wl_cursor;
-struct wl_cursor_image;
-struct wl_cursor_theme;
+#include <QtCore/qglobal.h>
+
+#include <QtWaylandClient/qwaylandclientexport.h>
+
+#include <QtWaylandClient/private/qwayland-sub-surface-extension.h>
 
 QT_BEGIN_NAMESPACE
 
 class QWaylandDisplay;
-class QWaylandScreen;
+class QWaylandWindow;
+class QWaylandSubSurface;
 
-class QWaylandCursor : public QPlatformCursor
+class Q_WAYLAND_CLIENT_EXPORT QWaylandSubSurface : public QtWayland::qt_sub_surface
 {
 public:
-    QWaylandCursor(QWaylandScreen *screen);
-    ~QWaylandCursor();
+    QWaylandSubSurface(QWaylandWindow *window, struct ::qt_sub_surface *sub_surface);
 
-    void changeCursor(QCursor *cursor, QWindow *window);
-    void pointerEvent(const QMouseEvent &event);
-    QPoint pos() const;
-    void setPos(const QPoint &pos);
-
-    struct wl_cursor_image *cursorImage(Qt::CursorShape shape);
+    void setParent(const QWaylandWindow *parent);
+    void adjustPositionOfChildren();
 
 private:
-    enum WaylandCursor {
-        ArrowCursor = Qt::ArrowCursor,
-        UpArrowCursor,
-        CrossCursor,
-        WaitCursor,
-        IBeamCursor,
-        SizeVerCursor,
-        SizeHorCursor,
-        SizeBDiagCursor,
-        SizeFDiagCursor,
-        SizeAllCursor,
-        BlankCursor,
-        SplitVCursor,
-        SplitHCursor,
-        PointingHandCursor,
-        ForbiddenCursor,
-        WhatsThisCursor,
-        BusyCursor,
-        OpenHandCursor,
-        ClosedHandCursor,
-        DragCopyCursor,
-        DragMoveCursor,
-        DragLinkCursor,
-        ResizeNorthCursor = Qt::CustomCursor + 1,
-        ResizeSouthCursor,
-        ResizeEastCursor,
-        ResizeWestCursor,
-        ResizeNorthWestCursor,
-        ResizeSouthEastCursor,
-        ResizeNorthEastCursor,
-        ResizeSouthWestCursor
-    };
-
-    struct wl_cursor* requestCursor(WaylandCursor shape);
-    void initCursorMap();
-    QWaylandDisplay *mDisplay;
-    struct wl_cursor_theme *mCursorTheme;
-    QPoint mLastPos;
-    QMap<WaylandCursor, wl_cursor *> mCursors;
-    QMultiMap<WaylandCursor, QByteArray> mCursorNamesMap;
+    QWaylandWindow *m_window;
 };
 
 QT_END_NAMESPACE
 
-#endif // QWAYLANDCURSOR_H
+#endif // QWAYLANDSUBSURFACE_H

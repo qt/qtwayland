@@ -42,7 +42,7 @@
 #define WLTOUCH_H
 
 #include <private/qwlcompositor_p.h>
-#include "qwayland-server-touch-extension.h"
+#include <QtCompositor/private/qwayland-server-touch-extension.h>
 #include "wayland-util.h"
 
 QT_BEGIN_NAMESPACE

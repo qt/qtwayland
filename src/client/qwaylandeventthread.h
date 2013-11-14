@@ -5,11 +5,13 @@
 #include <QMutex>
 #include <wayland-client.h>
 
+#include <QtWaylandClient/qwaylandclientexport.h>
+
 QT_BEGIN_NAMESPACE
 
 class QSocketNotifier;
 
-class QWaylandEventThread : public QObject
+class Q_WAYLAND_CLIENT_EXPORT QWaylandEventThread : public QObject
 {
     Q_OBJECT
 public:

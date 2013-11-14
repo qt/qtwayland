@@ -48,7 +48,9 @@
 #include <QtCore/QWaitCondition>
 
 #include <wayland-client.h>
-#include <qwayland-wayland.h>
+#include <QtWaylandClient/private/qwayland-wayland.h>
+
+#include <QtWaylandClient/qwaylandclientexport.h>
 
 struct wl_cursor_image;
 
@@ -82,7 +84,7 @@ typedef void (*RegistryListener)(void *data,
                                  const QString &interface,
                                  uint32_t version);
 
-class QWaylandDisplay : public QObject, public QtWayland::wl_registry {
+class Q_WAYLAND_CLIENT_EXPORT QWaylandDisplay : public QObject, public QtWayland::wl_registry {
     Q_OBJECT
 
 public:

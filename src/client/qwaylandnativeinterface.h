@@ -39,31 +39,41 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDEXTENDEDOUTPUT_H
-#define QWAYLANDEXTENDEDOUTPUT_H
+#ifndef QWAYLANDNATIVEINTERFACE_H
+#define QWAYLANDNATIVEINTERFACE_H
 
-#include "qwaylanddisplay.h"
-#include "qwayland-output-extension.h"
+#include "qwaylandscreen.h"
+#include <QVariantMap>
+#include <qpa/qplatformnativeinterface.h>
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandExtendedOutput;
+class QWaylandIntegration;
 
-class QWaylandExtendedOutput : public QtWayland::qt_extended_output
+class Q_WAYLAND_CLIENT_EXPORT QWaylandNativeInterface : public QPlatformNativeInterface
 {
 public:
-    QWaylandExtendedOutput(QWaylandScreen *screen, struct ::qt_extended_output *extended_output);
+    QWaylandNativeInterface(QWaylandIntegration *integration);
+    void *nativeResourceForIntegration(const QByteArray &resource);
+    void *nativeResourceForWindow(const QByteArray &resourceString,
+				  QWindow *window);
+    void *nativeResourceForScreen(const QByteArray &resourceString,
+                                  QScreen *screen);
 
-    Qt::ScreenOrientation currentOrientation() const;
-    void setOrientationUpdateMask(Qt::ScreenOrientations mask);
+    QVariantMap windowProperties(QPlatformWindow *window) const;
+    QVariant windowProperty(QPlatformWindow *window, const QString &name) const;
+    QVariant windowProperty(QPlatformWindow *window, const QString &name, const QVariant &defaultValue) const;
+    void setWindowProperty(QPlatformWindow *window, const QString &name, const QVariant &value);
+
+    void emitWindowPropertyChanged(QPlatformWindow *window, const QString &name);
+private:
+    static QWaylandScreen *qPlatformScreenForWindow(QWindow *window);
 
 private:
-    void extended_output_set_screen_rotation(int32_t rotation) Q_DECL_OVERRIDE;
-
-    QWaylandScreen *m_screen;
-    Qt::ScreenOrientation m_orientation;
+    QWaylandIntegration *m_integration;
+    QHash<QPlatformWindow*, QVariantMap> m_windowProperties;
 };
 
 QT_END_NAMESPACE
 
-#endif // QWAYLANDEXTENDEDOUTPUT_H
+#endif // QWAYLANDNATIVEINTERFACE_H

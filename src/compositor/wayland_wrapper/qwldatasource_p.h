@@ -41,7 +41,7 @@
 #ifndef WLDATASOURCE_H
 #define WLDATASOURCE_H
 
-#include <qwayland-server-wayland.h>
+#include <QtCompositor/private/qwayland-server-wayland.h>
 
 #include <QtCore/QList>
 

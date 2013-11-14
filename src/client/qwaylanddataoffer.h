@@ -39,45 +39,54 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDEXTENDEDSURFACE_H
-#define QWAYLANDEXTENDEDSURFACE_H
+#ifndef QWAYLANDDATAOFFER_H
+#define QWAYLANDDATAOFFER_H
 
-#include <QtCore/QString>
-#include <QtCore/QVariant>
+#include "qwaylanddisplay.h"
 
-#include <wayland-client.h>
-#include <qwayland-surface-extension.h>
+#include <QtGui/private/qdnd_p.h>
 
 QT_BEGIN_NAMESPACE
 
 class QWaylandDisplay;
-class QWaylandWindow;
+class QWaylandMimeData;
 
-class QWaylandExtendedSurface : public QtWayland::qt_extended_surface
+class Q_WAYLAND_CLIENT_EXPORT QWaylandDataOffer : public QtWayland::wl_data_offer
 {
 public:
-    QWaylandExtendedSurface(QWaylandWindow *window, struct ::qt_extended_surface *extended_surface);
-    ~QWaylandExtendedSurface();
+    explicit QWaylandDataOffer(QWaylandDisplay *display, struct ::wl_data_offer *offer);
+    ~QWaylandDataOffer();
 
-    void setContentOrientation(Qt::ScreenOrientation orientation);
+    QString firstFormat() const;
 
-    void updateGenericProperty(const QString &name, const QVariant &value);
+    QMimeData *mimeData();
 
-    QVariantMap properties() const;
-    QVariant property(const QString &name);
-    QVariant property(const QString &name, const QVariant &defaultValue);
-
-    Qt::WindowFlags setWindowFlags(Qt::WindowFlags flags);
+protected:
+    void data_offer_offer(const QString &mime_type) Q_DECL_OVERRIDE;
 
 private:
-    void extended_surface_onscreen_visibility(int32_t visibility) Q_DECL_OVERRIDE;
-    void extended_surface_set_generic_property(const QString &name, wl_array *value) Q_DECL_OVERRIDE;
-    void extended_surface_close() Q_DECL_OVERRIDE;
+    QScopedPointer<QWaylandMimeData> m_mimeData;
+};
 
-    QWaylandWindow *m_window;
-    QVariantMap m_properties;
+
+class QWaylandMimeData : public QInternalMimeData {
+public:
+    explicit QWaylandMimeData(QWaylandDataOffer *dataOffer, QWaylandDisplay *display);
+    ~QWaylandMimeData();
+
+    void appendFormat(const QString &mimeType);
+
+protected:
+    bool hasFormat_sys(const QString &mimeType) const Q_DECL_OVERRIDE;
+    QStringList formats_sys() const Q_DECL_OVERRIDE;
+    QVariant retrieveData_sys(const QString &mimeType, QVariant::Type type) const Q_DECL_OVERRIDE;
+
+private:
+    mutable QWaylandDataOffer *m_dataOffer;
+    QWaylandDisplay *m_display;
+    QStringList m_offered_mime_types;
 };
 
 QT_END_NAMESPACE
 
-#endif // QWAYLANDEXTENDEDSURFACE_H
+#endif

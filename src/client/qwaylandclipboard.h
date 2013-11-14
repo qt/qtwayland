@@ -39,51 +39,34 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDWINDOWMANAGERINTEGRATION_H
-#define QWAYLANDWINDOWMANAGERINTEGRATION_H
+#ifndef QWAYLANDCLIPBOARD_H
+#define QWAYLANDCLIPBOARD_H
 
-#include <QtCore/QObject>
-#include <QtCore/QScopedPointer>
+#include <qpa/qplatformclipboard.h>
+#include <QtCore/QVariant>
 
-#include "wayland-client.h"
-#include "qwaylanddisplay.h"
-#include <qpa/qplatformservices.h>
-
-#include "qwayland-windowmanager.h"
+#include <QtWaylandClient/qwaylandclientexport.h>
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandWindow;
+class QWaylandDisplay;
 
-class QWaylandWindowManagerIntegrationPrivate;
-
-class QWaylandWindowManagerIntegration : public QObject, public QPlatformServices, public QtWayland::qt_windowmanager
+class Q_WAYLAND_CLIENT_EXPORT QWaylandClipboard : public QPlatformClipboard
 {
-    Q_OBJECT
-    Q_DECLARE_PRIVATE(QWaylandWindowManagerIntegration)
 public:
-    explicit QWaylandWindowManagerIntegration(QWaylandDisplay *waylandDisplay);
-    virtual ~QWaylandWindowManagerIntegration();
+    QWaylandClipboard(QWaylandDisplay *display);
 
-    QByteArray desktopEnvironment() const;
+    ~QWaylandClipboard();
 
-    bool openUrl(const QUrl &url);
-    bool openDocument(const QUrl &url);
-
-    bool showIsFullScreen() const;
+    QMimeData *mimeData(QClipboard::Mode mode = QClipboard::Clipboard) Q_DECL_OVERRIDE;
+    void setMimeData(QMimeData *data, QClipboard::Mode mode = QClipboard::Clipboard) Q_DECL_OVERRIDE;
+    bool supportsMode(QClipboard::Mode mode) const Q_DECL_OVERRIDE;
+    bool ownsMode(QClipboard::Mode mode) const Q_DECL_OVERRIDE;
 
 private:
-    static void wlHandleListenerGlobal(void *data, wl_registry *registry, uint32_t id,
-                                       const QString &interface, uint32_t version);
-
-    QScopedPointer<QWaylandWindowManagerIntegrationPrivate> d_ptr;
-
-    void windowmanager_hints(int32_t showIsFullScreen) Q_DECL_OVERRIDE;
-    void windowmanager_quit() Q_DECL_OVERRIDE;
-
-    void openUrl_helper(const QUrl &url);
+    QWaylandDisplay *mDisplay;
 };
 
 QT_END_NAMESPACE
 
-#endif // QWAYLANDWINDOWMANAGERINTEGRATION_H
+#endif // QWAYLANDCLIPBOARD_H

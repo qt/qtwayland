@@ -49,6 +49,7 @@
 #include <QtGui/QColor>
 #include <QtGui/QStaticText>
 #include <QtGui/QImage>
+#include <QtWaylandClient/qwaylandclientexport.h>
 
 #include <wayland-client.h>
 
@@ -64,7 +65,7 @@ class QWaylandScreen;
 class QWaylandWindow;
 class QWaylandInputDevice;
 
-class QWaylandDecoration
+class Q_WAYLAND_CLIENT_EXPORT QWaylandDecoration
 {
 public:
     QWaylandDecoration(QWaylandWindow *window);

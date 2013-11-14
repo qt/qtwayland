@@ -45,7 +45,7 @@
 #include <QtCompositor/qwaylandexport.h>
 
 #include <QObject>
-#include <qwayland-server-wayland.h>
+#include <QtCompositor/private/qwayland-server-wayland.h>
 
 #include <QtCore/QByteArray>
 

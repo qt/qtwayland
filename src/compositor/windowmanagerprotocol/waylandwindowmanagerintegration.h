@@ -42,7 +42,7 @@
 #define WAYLANDWINDOWMANAGERINTEGRATION_H
 
 #include <QtCompositor/qwaylandexport.h>
-#include "qwayland-server-windowmanager.h"
+#include <QtCompositor/private/qwayland-server-windowmanager.h>
 
 #include <QObject>
 #include <QMap>

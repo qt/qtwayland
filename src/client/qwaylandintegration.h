@@ -39,41 +39,63 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDNATIVEINTERFACE_H
-#define QWAYLANDNATIVEINTERFACE_H
+#ifndef QPLATFORMINTEGRATION_WAYLAND_H
+#define QPLATFORMINTEGRATION_WAYLAND_H
 
-#include "qwaylandscreen.h"
-#include <QVariantMap>
-#include <qpa/qplatformnativeinterface.h>
+#include <qpa/qplatformintegration.h>
 
+#include <QtWaylandClient/qwaylandclientexport.h>
 QT_BEGIN_NAMESPACE
 
-class QWaylandIntegration;
+class QWaylandBuffer;
+class QWaylandDisplay;
 
-class QWaylandNativeInterface : public QPlatformNativeInterface
+class Q_WAYLAND_CLIENT_EXPORT QWaylandIntegration : public QPlatformIntegration
 {
 public:
-    QWaylandNativeInterface(QWaylandIntegration *integration);
-    void *nativeResourceForIntegration(const QByteArray &resource);
-    void *nativeResourceForWindow(const QByteArray &resourceString,
-				  QWindow *window);
-    void *nativeResourceForScreen(const QByteArray &resourceString,
-                                  QScreen *screen);
+    QWaylandIntegration();
+    ~QWaylandIntegration();
 
-    QVariantMap windowProperties(QPlatformWindow *window) const;
-    QVariant windowProperty(QPlatformWindow *window, const QString &name) const;
-    QVariant windowProperty(QPlatformWindow *window, const QString &name, const QVariant &defaultValue) const;
-    void setWindowProperty(QPlatformWindow *window, const QString &name, const QVariant &value);
+    bool hasCapability(QPlatformIntegration::Capability cap) const;
+    QPlatformWindow *createPlatformWindow(QWindow *window) const;
+    QPlatformOpenGLContext *createPlatformOpenGLContext(QOpenGLContext *context) const;
+    QPlatformBackingStore *createPlatformBackingStore(QWindow *window) const;
 
-    void emitWindowPropertyChanged(QPlatformWindow *window, const QString &name);
+    QAbstractEventDispatcher *createEventDispatcher() const;
+    void initialize();
+
+    QPlatformFontDatabase *fontDatabase() const;
+
+    QPlatformNativeInterface *nativeInterface() const;
+
+    QPlatformClipboard *clipboard() const;
+
+    QPlatformDrag *drag() const;
+
+    QPlatformInputContext *inputContext() const;
+
+    QVariant styleHint(StyleHint hint) const;
+
+    QPlatformAccessibility *accessibility() const;
+
+    QPlatformServices *services() const;
+
+    QWaylandDisplay *display() const;
+
+    QStringList themeNames() const;
+
+    QPlatformTheme *createPlatformTheme(const QString &name) const;
+
 private:
-    static QWaylandScreen *qPlatformScreenForWindow(QWindow *window);
-
-private:
-    QWaylandIntegration *m_integration;
-    QHash<QPlatformWindow*, QVariantMap> m_windowProperties;
+    QPlatformFontDatabase *mFontDb;
+    QPlatformClipboard *mClipboard;
+    QPlatformDrag *mDrag;
+    QWaylandDisplay *mDisplay;
+    QPlatformNativeInterface *mNativeInterface;
+    QScopedPointer<QPlatformInputContext> mInputContext;
+    QPlatformAccessibility *mAccessibility;
 };
 
 QT_END_NAMESPACE
 
-#endif // QWAYLANDNATIVEINTERFACE_H
+#endif

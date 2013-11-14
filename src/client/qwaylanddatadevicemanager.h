@@ -39,39 +39,31 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDDATASOURCE_H
-#define QWAYLANDDATASOURCE_H
+#ifndef QWAYLANDDATADEVICEMANAGER_H
+#define QWAYLANDDATADEVICEMANAGER_H
 
 #include "qwaylanddisplay.h"
 
 QT_BEGIN_NAMESPACE
 
-class QMimeData;
-class QWaylandDataDeviceManager;
+class QWaylandDataDevice;
+class QWaylandDataSource;
 
-class QWaylandDataSource : public QObject, public QtWayland::wl_data_source
+class Q_WAYLAND_CLIENT_EXPORT QWaylandDataDeviceManager : public QtWayland::wl_data_device_manager
 {
-    Q_OBJECT
 public:
-    QWaylandDataSource(QWaylandDataDeviceManager *dataDeviceManager, QMimeData *mimeData);
-    ~QWaylandDataSource();
+    QWaylandDataDeviceManager(QWaylandDisplay *display, uint32_t id);
+    ~QWaylandDataDeviceManager();
 
-    QMimeData *mimeData() const;
+    QWaylandDataDevice *getDataDevice(QWaylandInputDevice *inputDevice);
 
-Q_SIGNALS:
-    void targetChanged(const QString &mime_type);
-    void cancelled();
-
-protected:
-    void data_source_cancelled() Q_DECL_OVERRIDE;
-    void data_source_send(const QString &mime_type, int32_t fd) Q_DECL_OVERRIDE;
-    void data_source_target(const QString &mime_type) Q_DECL_OVERRIDE;
+    QWaylandDisplay *display() const;
 
 private:
+    struct wl_data_device_manager *m_data_device_manager;
     QWaylandDisplay *m_display;
-    QMimeData *m_mime_data;
 };
 
 QT_END_NAMESPACE
 
-#endif // QWAYLANDDATASOURCE_H
+#endif // QWAYLANDDATADEVICEMANAGER_H

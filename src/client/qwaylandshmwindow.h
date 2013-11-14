@@ -49,7 +49,7 @@ QT_BEGIN_NAMESPACE
 
 class QWaylandShmBackingStore;
 
-class QWaylandShmWindow : public QWaylandWindow
+class Q_WAYLAND_CLIENT_EXPORT QWaylandShmWindow : public QWaylandWindow
 {
 public:
     QWaylandShmWindow(QWindow *window);

@@ -50,7 +50,7 @@
 #include <QSet>
 #include <private/qwlpointer_p.h>
 
-#include <qwayland-server-wayland.h>
+#include <QtCompositor/private/qwayland-server-wayland.h>
 
 QT_BEGIN_NAMESPACE
 

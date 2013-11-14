@@ -50,7 +50,7 @@
 
 #include "qwaylanddisplay.h"
 
-#include "qwayland-wayland.h"
+#include <QtWaylandClient/private/qwayland-wayland.h>
 
 struct wl_egl_window;
 
@@ -63,7 +63,7 @@ class QWaylandExtendedSurface;
 class QWaylandSubSurface;
 class QWaylandDecoration;
 
-class QWaylandWindowConfigure
+class Q_WAYLAND_CLIENT_EXPORT QWaylandWindowConfigure
 {
 public:
     QWaylandWindowConfigure()
@@ -83,7 +83,7 @@ public:
     uint32_t edges;
 };
 
-class QWaylandWindow : public QObject, public QPlatformWindow, public QtWayland::wl_surface
+class Q_WAYLAND_CLIENT_EXPORT QWaylandWindow : public QObject, public QPlatformWindow, public QtWayland::wl_surface
 {
     Q_OBJECT
 public:

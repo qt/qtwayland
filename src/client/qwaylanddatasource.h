@@ -39,42 +39,39 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDDND_H
-#define QWAYLANDDND_H
+#ifndef QWAYLANDDATASOURCE_H
+#define QWAYLANDDATASOURCE_H
 
-#include <qpa/qplatformdrag.h>
-#include <QtGui/private/qsimpledrag_p.h>
-
-#include <QtGui/QDrag>
-#include <QtCore/QMimeData>
 #include "qwaylanddisplay.h"
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandDrag : public QBasicDrag
+class QMimeData;
+class QWaylandDataDeviceManager;
+
+class Q_WAYLAND_CLIENT_EXPORT QWaylandDataSource : public QObject, public QtWayland::wl_data_source
 {
+    Q_OBJECT
 public:
-    QWaylandDrag(QWaylandDisplay *display);
-    ~QWaylandDrag();
+    QWaylandDataSource(QWaylandDataDeviceManager *dataDeviceManager, QMimeData *mimeData);
+    ~QWaylandDataSource();
 
-    QMimeData *platformDropData() Q_DECL_OVERRIDE;
+    QMimeData *mimeData() const;
 
-    void updateTarget(const QString &mimeType);
-    void setResponse(const QPlatformDragQtResponse &response);
-    void finishDrag(const QPlatformDropQtResponse &response);
+Q_SIGNALS:
+    void targetChanged(const QString &mime_type);
+    void cancelled();
 
 protected:
-    void startDrag() Q_DECL_OVERRIDE;
-    void cancel() Q_DECL_OVERRIDE;
-    void move(const QMouseEvent *me) Q_DECL_OVERRIDE;
-    void drop(const QMouseEvent *me) Q_DECL_OVERRIDE;
-    void endDrag() Q_DECL_OVERRIDE;
-
+    void data_source_cancelled() Q_DECL_OVERRIDE;
+    void data_source_send(const QString &mime_type, int32_t fd) Q_DECL_OVERRIDE;
+    void data_source_target(const QString &mime_type) Q_DECL_OVERRIDE;
 
 private:
     QWaylandDisplay *m_display;
+    QMimeData *m_mime_data;
 };
 
 QT_END_NAMESPACE
 
-#endif // QWAYLANDDND_H
+#endif // QWAYLANDDATASOURCE_H

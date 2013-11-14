@@ -41,7 +41,7 @@
 #ifndef QTWAYLAND_QWLTEXTINPUTMANAGER_P_H
 #define QTWAYLAND_QWLTEXTINPUTMANAGER_P_H
 
-#include <qwayland-server-text.h>
+#include <QtCompositor/private/qwayland-server-text.h>
 
 QT_BEGIN_NAMESPACE
 

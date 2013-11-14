@@ -55,7 +55,7 @@ QT_BEGIN_NAMESPACE
 
 class QWaylandDisplay;
 
-class QWaylandShmBuffer : public QWaylandBuffer {
+class Q_WAYLAND_CLIENT_EXPORT QWaylandShmBuffer : public QWaylandBuffer {
 public:
     QWaylandShmBuffer(QWaylandDisplay *display,
            const QSize &size, QImage::Format format);
@@ -71,7 +71,7 @@ private:
     QImage *mMarginsImage;
 };
 
-class QWaylandShmBackingStore : public QPlatformBackingStore
+class Q_WAYLAND_CLIENT_EXPORT QWaylandShmBackingStore : public QPlatformBackingStore
 {
 public:
     QWaylandShmBackingStore(QWindow *window);

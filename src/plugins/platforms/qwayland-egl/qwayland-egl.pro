@@ -1,11 +1,12 @@
 PLUGIN_TYPE = platforms
 load(qt_plugin)
 
-include(../wayland_common/wayland_common.pri)
+QT += waylandclient-private
 
 OTHER_FILES += \
     qwayland-egl.json
 
+DEFINES += QT_WAYLAND_GL_SUPPORT
 !contains(QT_CONFIG, no-pkg-config) {
     CONFIG += link_pkgconfig
     PKGCONFIG += wayland-egl egl

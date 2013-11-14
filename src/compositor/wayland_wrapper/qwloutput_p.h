@@ -44,7 +44,7 @@
 #include <QtCore/QRect>
 #include <QtCore/QList>
 
-#include <qwayland-server-wayland.h>
+#include <QtCompositor/private/qwayland-server-wayland.h>
 
 QT_BEGIN_NAMESPACE
 

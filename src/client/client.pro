@@ -1,7 +1,45 @@
-TEMPLATE = lib
-CONFIG += staticlib
+TARGET = QtWaylandClient
+QT += core-private gui-private
+QT_FOR_PRIVATE += platformsupport-private
 
-include ($$PWD/wayland_common_share.pri)
+MODULE=waylandclient
+load(qt_module)
+
+CONFIG += link_pkgconfig qpa/genericunixfontdatabase wayland-scanner
+
+!equals(QT_WAYLAND_GL_CONFIG, nogl) {
+    DEFINES += QT_WAYLAND_GL_SUPPORT
+}
+
+config_xkbcommon {
+    !contains(QT_CONFIG, no-pkg-config) {
+        PKGCONFIG += xkbcommon
+    } else {
+        LIBS += -lxkbcommon
+    }
+} else {
+    DEFINES += QT_NO_WAYLAND_XKB
+}
+
+!contains(QT_CONFIG, no-pkg-config) {
+    PKGCONFIG += wayland-client wayland-cursor
+    contains(QT_CONFIG, glib): PKGCONFIG_PRIVATE += glib-2.0
+} else {
+    LIBS += -lwayland-client -lwayland-cursor $$QT_LIBS_GLIB
+}
+
+INCLUDEPATH += $$PWD/../shared
+
+WAYLANDCLIENTSOURCES += \
+            ../3rdparty/protocol/wayland.xml \
+            ../extensions/surface-extension.xml \
+            ../extensions/sub-surface-extension.xml \
+            ../extensions/output-extension.xml \
+            ../extensions/touch-extension.xml \
+            ../extensions/qtkey-extension.xml \
+            ../extensions/windowmanager.xml \
+            ../3rdparty/protocol/text.xml \
+
 
 SOURCES +=  qwaylandintegration.cpp \
             qwaylandnativeinterface.cpp \
@@ -23,7 +61,7 @@ SOURCES +=  qwaylandintegration.cpp \
             qwaylandsubsurface.cpp \
             qwaylandtouch.cpp \
             qwaylandqtkey.cpp \
-            ../../../shared/qwaylandmimehelper.cpp \
+            ../shared/qwaylandmimehelper.cpp \
             qwaylanddecoration.cpp \
             qwaylandeventthread.cpp\
             qwaylandwindowmanagerintegration.cpp \
@@ -51,7 +89,7 @@ HEADERS +=  qwaylandintegration.h \
             qwaylandsubsurface.h \
             qwaylandtouch.h \
             qwaylandqtkey.h \
-            ../../../shared/qwaylandmimehelper.h \
+            ../shared/qwaylandmimehelper.h \
             qwaylanddecoration.h \
             qwaylandeventthread.h \
             qwaylandwindowmanagerintegration.h \
@@ -63,16 +101,3 @@ contains(DEFINES, QT_WAYLAND_GL_SUPPORT) {
     HEADERS += qwaylandglintegration.h
 }
 
-CONFIG += wayland-scanner
-WAYLANDCLIENTSOURCES += \
-            ../../../extensions/surface-extension.xml \
-            ../../../extensions/sub-surface-extension.xml \
-            ../../../extensions/output-extension.xml \
-            ../../../extensions/touch-extension.xml \
-            ../../../extensions/qtkey-extension.xml \
-            ../../../extensions/windowmanager.xml \
-            ../../../3rdparty/protocol/text.xml \
-
-PLUGIN_TYPE = platforms
-
-load(qt_common)

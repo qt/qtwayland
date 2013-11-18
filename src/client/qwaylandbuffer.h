@@ -42,7 +42,7 @@
 #ifndef QWAYLANDBUFFER_H
 #define QWAYLANDBUFFER_H
 
-#include "qwaylandclientexport.h"
+#include <QtWaylandClient/qwaylandclientexport.h>
 
 #include <QtCore/QSize>
 #include <QtCore/QRect>

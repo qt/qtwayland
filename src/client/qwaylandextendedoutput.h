@@ -42,7 +42,7 @@
 #ifndef QWAYLANDEXTENDEDOUTPUT_H
 #define QWAYLANDEXTENDEDOUTPUT_H
 
-#include "qwaylanddisplay.h"
+#include <QtWaylandClient/qwaylanddisplay.h>
 #include <QtWaylandClient/private/qwayland-output-extension.h>
 
 QT_BEGIN_NAMESPACE

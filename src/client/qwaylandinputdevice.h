@@ -42,7 +42,7 @@
 #ifndef QWAYLANDINPUTDEVICE_H
 #define QWAYLANDINPUTDEVICE_H
 
-#include "qwaylandwindow.h"
+#include <QtWaylandClient/qwaylandwindow.h>
 
 #include <QSocketNotifier>
 #include <QObject>

@@ -48,8 +48,8 @@
 #include <QtCore/QWaitCondition>
 
 #include <wayland-client.h>
-#include <QtWaylandClient/private/qwayland-wayland.h>
 
+#include <QtWaylandClient/private/qwayland-wayland.h>
 #include <QtWaylandClient/qwaylandclientexport.h>
 
 struct wl_cursor_image;

@@ -48,7 +48,7 @@
 
 #include <qpa/qplatformwindow.h>
 
-#include "qwaylanddisplay.h"
+#include <QtWaylandClient/qwaylanddisplay.h>
 
 #include <QtWaylandClient/private/qwayland-wayland.h>
 

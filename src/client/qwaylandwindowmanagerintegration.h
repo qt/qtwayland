@@ -46,10 +46,10 @@
 #include <QtCore/QScopedPointer>
 
 #include "wayland-client.h"
-#include "qwaylanddisplay.h"
+#include <QtWaylandClient/qwaylanddisplay.h>
 #include <qpa/qplatformservices.h>
 
-#include "QtWaylandClient/private/qwayland-windowmanager.h"
+#include <QtWaylandClient/private/qwayland-windowmanager.h>
 
 QT_BEGIN_NAMESPACE
 

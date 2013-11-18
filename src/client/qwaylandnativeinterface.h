@@ -42,7 +42,7 @@
 #ifndef QWAYLANDNATIVEINTERFACE_H
 #define QWAYLANDNATIVEINTERFACE_H
 
-#include "qwaylandscreen.h"
+#include <QtWaylandClient/qwaylandscreen.h>
 #include <QVariantMap>
 #include <qpa/qplatformnativeinterface.h>
 

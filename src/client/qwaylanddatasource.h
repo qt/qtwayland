@@ -42,7 +42,9 @@
 #ifndef QWAYLANDDATASOURCE_H
 #define QWAYLANDDATASOURCE_H
 
-#include "qwaylanddisplay.h"
+#include <QtWaylandClient/qwaylanddatadevicemanager.h>
+
+#include <QtWaylandClient/private/wayland-wayland-client-protocol.h>
 
 QT_BEGIN_NAMESPACE
 

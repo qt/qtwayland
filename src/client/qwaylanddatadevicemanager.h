@@ -42,7 +42,7 @@
 #ifndef QWAYLANDDATADEVICEMANAGER_H
 #define QWAYLANDDATADEVICEMANAGER_H
 
-#include "qwaylanddisplay.h"
+#include <QtWaylandClient/qwaylanddisplay.h>
 
 QT_BEGIN_NAMESPACE
 

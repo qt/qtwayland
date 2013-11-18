@@ -42,7 +42,7 @@
 #ifndef QWAYLANDSHMWINDOW_H
 #define QWAYLANDSHMWINDOW_H
 
-#include "qwaylandwindow.h"
+#include <QtWaylandClient/qwaylandwindow.h>
 #include <QtGui/QRegion>
 
 QT_BEGIN_NAMESPACE

@@ -42,10 +42,10 @@
 #ifndef QWAYLANDSHMBACKINGSTORE_H
 #define QWAYLANDSHMBACKINGSTORE_H
 
-#include "qwaylandbuffer.h"
+#include <QtWaylandClient/qwaylandbuffer.h>
 
-#include "qwaylanddecoration.h"
-#include "qwaylandshmwindow.h"
+#include <QtWaylandClient/qwaylanddecoration.h>
+#include <QtWaylandClient/qwaylandshmwindow.h>
 
 #include <qpa/qplatformbackingstore.h>
 #include <QtGui/QImage>

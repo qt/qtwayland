@@ -42,7 +42,7 @@
 #ifndef QWAYLANDQTKEY_H
 #define QWAYLANDQTKEY_H
 
-#include "qwaylanddisplay.h"
+#include <QtWaylandClient/qwaylanddisplay.h>
 #include <qpa/qwindowsysteminterface.h>
 
 #include <QtWaylandClient/private/qwayland-qtkey-extension.h>

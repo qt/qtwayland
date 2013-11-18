@@ -45,6 +45,7 @@
 #include "qwlcompositor_p.h"
 
 #include <unistd.h>
+#include <QtCompositor/private/wayland-wayland-server-protocol.h>
 
 QT_BEGIN_NAMESPACE
 

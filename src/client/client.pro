@@ -40,7 +40,6 @@ WAYLANDCLIENTSOURCES += \
             ../extensions/windowmanager.xml \
             ../3rdparty/protocol/text.xml \
 
-
 SOURCES +=  qwaylandintegration.cpp \
             qwaylandnativeinterface.cpp \
             qwaylandshmbackingstore.cpp \
@@ -100,4 +99,3 @@ contains(DEFINES, QT_WAYLAND_GL_SUPPORT) {
     SOURCES += qwaylandglintegration.cpp
     HEADERS += qwaylandglintegration.h
 }
-

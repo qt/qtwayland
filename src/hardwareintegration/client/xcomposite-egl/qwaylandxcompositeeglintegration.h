@@ -42,7 +42,7 @@
 #ifndef QWAYLANDXCOMPOSITEEGLINTEGRATION_H
 #define QWAYLANDXCOMPOSITEEGLINTEGRATION_H
 
-#include "qwaylandglintegration.h"
+#include <QtWaylandClient/qwaylandglintegration.h>
 #include "wayland-client.h"
 
 #include <QtCore/QTextStream>

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the plugins of the Qt Toolkit.
@@ -39,69 +39,29 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDXCOMPOSITEGLXINTEGRATION_H
-#define QWAYLANDXCOMPOSITEGLXINTEGRATION_H
+#ifndef QWAYLANDEGLPLATFORMINTEGRATION_H
+#define QWAYLANDEGLPLATFORMINTEGRATION_H
 
-#include "qwaylandglintegration.h"
-#include "wayland-client.h"
-
-#include <QtCore/QTextStream>
-#include <QtCore/QDataStream>
-#include <QtCore/QMetaType>
-#include <QtCore/QVariant>
-#include <QtGui/QWindow>
-
-#include <X11/Xlib.h>
-
-// avoid clashes with Qt::CursorShape
-#ifdef CursorShape
-#   define X_CursorShape CursorShape
-#   undef CursorShape
-#endif
-
-struct qt_xcomposite;
+#include <QtWaylandClient/qwaylandintegration.h>
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandXCompositeGLXIntegration : public QWaylandGLIntegration
+class QWaylandGenericPlatformIntegration : public QWaylandIntegration
 {
 public:
-    QWaylandXCompositeGLXIntegration(QWaylandDisplay * waylandDispaly);
-    ~QWaylandXCompositeGLXIntegration();
+    QWaylandGenericPlatformIntegration()
+        : QWaylandIntegration()
+        , m_gl_integration(0)
+    {
+    }
 
-    void initialize();
-    bool waitingForEvents() { return !mDisplay; }
-
-    QWaylandWindow *createEglWindow(QWindow *window);
-    QPlatformOpenGLContext *createPlatformOpenGLContext(const QSurfaceFormat &glFormat, QPlatformOpenGLContext *share) const;
-
-    QWaylandDisplay *waylandDisplay() const;
-    struct qt_xcomposite *waylandXComposite() const;
-
-    Display *xDisplay() const;
-    int screen() const;
-    Window rootWindow() const;
-
-    bool supportsThreadedOpenGL() const { return true; }
+    QWaylandGLIntegration *glIntegration() const
+    { return m_gl_integration; }
 
 private:
-    QWaylandDisplay *mWaylandDisplay;
-    struct qt_xcomposite *mWaylandComposite;
-
-    Display *mDisplay;
-    int mScreen;
-    Window mRootWindow;
-
-    static void wlDisplayHandleGlobal(void *data, struct wl_registry *registry, uint32_t id,
-                                      const QString &interface, uint32_t version);
-
-    static const struct qt_xcomposite_listener xcomposite_listener;
-    static void rootInformation(void *data,
-                 struct qt_xcomposite *xcomposite,
-                 const char *display_name,
-                 uint32_t root_window);
+    QWaylandGLIntegration *m_gl_integration;
 };
 
 QT_END_NAMESPACE
 
-#endif // QWAYLANDXCOMPOSITEGLXINTEGRATION_H
+#endif

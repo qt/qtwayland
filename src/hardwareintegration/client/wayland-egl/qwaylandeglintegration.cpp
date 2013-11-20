@@ -57,8 +57,9 @@ static const char *qwaylandegl_threadedgl_blacklist_vendor[] = {
     0
 };
 
-QWaylandEglIntegration::QWaylandEglIntegration(struct wl_display *waylandDisplay)
-    : m_waylandDisplay(waylandDisplay), m_supportsThreading(false)
+QWaylandEglIntegration::QWaylandEglIntegration(QWaylandDisplay *display)
+    : m_waylandDisplay(display->wl_display())
+    , m_supportsThreading(false)
 {
     qDebug() << "Using Wayland-EGL";
 }
@@ -118,11 +119,6 @@ QPlatformOpenGLContext *QWaylandEglIntegration::createPlatformOpenGLContext(cons
 EGLDisplay QWaylandEglIntegration::eglDisplay() const
 {
     return m_eglDisplay;
-}
-
-QWaylandGLIntegration *QWaylandGLIntegration::createGLIntegration(QWaylandDisplay *waylandDisplay)
-{
-    return new QWaylandEglIntegration(waylandDisplay->wl_display());
 }
 
 QT_END_NAMESPACE

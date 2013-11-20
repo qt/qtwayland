@@ -39,39 +39,36 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDEGLINTEGRATION_H
-#define QWAYLANDEGLINTEGRATION_H
-
-#include <QtWaylandClient/qwaylandglintegration.h>
-
-#include "qwaylandeglinclude.h"
+#include <qpa/qplatformintegrationplugin.h>
+#include "qwaylandgenericplatformintegration.h"
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandWindow;
-class QWindow;
-
-class QWaylandEglIntegration : public QWaylandGLIntegration
+class QWaylandIntegrationPlugin : public QPlatformIntegrationPlugin
 {
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QPA.QPlatformIntegrationFactoryInterface.5.2" FILE "qwayland-generic.json")
 public:
-    QWaylandEglIntegration(struct wl_display *waylandDisplay);
-    ~QWaylandEglIntegration();
-
-    void initialize();
-    bool supportsThreadedOpenGL() const;
-
-    QWaylandWindow *createEglWindow(QWindow *window);
-    QPlatformOpenGLContext *createPlatformOpenGLContext(const QSurfaceFormat &glFormat, QPlatformOpenGLContext *share) const;
-
-    EGLDisplay eglDisplay() const;
-
-private:
-    struct wl_display *m_waylandDisplay;
-
-    EGLDisplay m_eglDisplay;
-    bool m_supportsThreading;
+    QStringList keys() const;
+    QPlatformIntegration *create(const QString&, const QStringList&);
 };
+
+QStringList QWaylandIntegrationPlugin::keys() const
+{
+    QStringList list;
+    list << "wayland";
+    return list;
+}
+
+QPlatformIntegration *QWaylandIntegrationPlugin::create(const QString& system, const QStringList& paramList)
+{
+    Q_UNUSED(paramList);
+    if (system.toLower() == "wayland")
+        return new QWaylandGenericPlatformIntegration();
+
+    return 0;
+}
 
 QT_END_NAMESPACE
 
-#endif // QWAYLANDEGLINTEGRATION_H
+#include "main.moc"

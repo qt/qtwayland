@@ -39,36 +39,29 @@
 **
 ****************************************************************************/
 
-#include <qpa/qplatformintegrationplugin.h>
-#include "qwaylandintegration.h"
+#ifndef QWAYLANDXCOMPOSITEBUFFER_H
+#define QWAYLANDXCOMPOSITEBUFFER_H
+
+#include <QtWaylandClient/qwaylandbuffer.h>
+#include <stdint.h>
+
+struct qt_xcomposite;
+struct wl_visual;
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandIntegrationPlugin : public QPlatformIntegrationPlugin
+class QWaylandXCompositeBuffer : public QWaylandBuffer
 {
-    Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QPA.QPlatformIntegrationFactoryInterface.5.2" FILE "qwayland-xcomposite-glx.json")
 public:
-    QStringList keys() const;
-    QPlatformIntegration *create(const QString&, const QStringList&);
+    QWaylandXCompositeBuffer(qt_xcomposite *xcomposite,
+                             uint32_t window,
+                             const QSize &size);
+
+    QSize size() const;
+private:
+    QSize mSize;
 };
-
-QStringList QWaylandIntegrationPlugin::keys() const
-{
-    QStringList list;
-    list << "wayland-xcomposite-glx";
-    return list;
-}
-
-QPlatformIntegration *QWaylandIntegrationPlugin::create(const QString& system, const QStringList& paramList)
-{
-    Q_UNUSED(paramList);
-    if (system.toLower() == "wayland-xcomposite-glx")
-        return new QWaylandXCompositeGlxPlatformIntegration();
-
-    return 0;
-}
 
 QT_END_NAMESPACE
 
-#include "main.moc"
+#endif // QWAYLANDXCOMPOSITEBUFFER_H

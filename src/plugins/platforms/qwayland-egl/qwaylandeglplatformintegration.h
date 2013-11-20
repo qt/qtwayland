@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the plugins of the Qt Toolkit.
@@ -39,36 +39,32 @@
 **
 ****************************************************************************/
 
-#include <qpa/qplatformintegrationplugin.h>
-#include "qwaylandintegration.h"
+#ifndef QWAYLANDEGLPLATFORMINTEGRATION_H
+#define QWAYLANDEGLPLATFORMINTEGRATION_H
+
+#include <QtWaylandClient/qwaylandintegration.h>
+
+#include "qwaylandeglintegration.h"
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandIntegrationPlugin : public QPlatformIntegrationPlugin
+class QWaylandEglPlatformIntegration : public QWaylandIntegration
 {
-    Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QPA.QPlatformIntegrationFactoryInterface.5.2" FILE "qwayland-xcomposite-glx.json")
 public:
-    QStringList keys() const;
-    QPlatformIntegration *create(const QString&, const QStringList&);
+    QWaylandEglPlatformIntegration()
+        : QWaylandIntegration()
+        , m_gl_integration(new QWaylandEglIntegration(display()))
+    {
+        m_gl_integration->initialize();
+    }
+
+    QWaylandGLIntegration *glIntegration() const
+    { return m_gl_integration; }
+
+private:
+    QWaylandGLIntegration *m_gl_integration;
 };
-
-QStringList QWaylandIntegrationPlugin::keys() const
-{
-    QStringList list;
-    list << "wayland-xcomposite-glx";
-    return list;
-}
-
-QPlatformIntegration *QWaylandIntegrationPlugin::create(const QString& system, const QStringList& paramList)
-{
-    Q_UNUSED(paramList);
-    if (system.toLower() == "wayland-xcomposite-glx")
-        return new QWaylandXCompositeGlxPlatformIntegration();
-
-    return 0;
-}
 
 QT_END_NAMESPACE
 
-#include "main.moc"
+#endif

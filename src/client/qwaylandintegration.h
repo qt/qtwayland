@@ -49,6 +49,7 @@ QT_BEGIN_NAMESPACE
 
 class QWaylandBuffer;
 class QWaylandDisplay;
+class QWaylandGLIntegration;
 
 class Q_WAYLAND_CLIENT_EXPORT QWaylandIntegration : public QPlatformIntegration
 {
@@ -86,6 +87,7 @@ public:
 
     QPlatformTheme *createPlatformTheme(const QString &name) const;
 
+    virtual QWaylandGLIntegration *glIntegration() const;
 private:
     QPlatformFontDatabase *mFontDb;
     QPlatformClipboard *mClipboard;

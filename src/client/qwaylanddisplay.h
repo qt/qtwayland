@@ -69,6 +69,7 @@ class QWaylandTouchExtension;
 class QWaylandQtKeyExtension;
 class QWaylandWindow;
 class QWaylandEventThread;
+class QWaylandIntegration;
 
 namespace QtWayland {
     class qt_output_extension;
@@ -88,7 +89,7 @@ class Q_WAYLAND_CLIENT_EXPORT QWaylandDisplay : public QObject, public QtWayland
     Q_OBJECT
 
 public:
-    QWaylandDisplay(void);
+    QWaylandDisplay(QWaylandIntegration *waylandIntegration);
     ~QWaylandDisplay(void);
 
     QList<QPlatformScreen *> screens() const { return mScreens; }
@@ -97,11 +98,9 @@ public:
 
     struct wl_surface *createSurface(void *handle);
 
-#ifdef QT_WAYLAND_GL_SUPPORT
-    QWaylandGLIntegration *eglIntegration();
-#endif
+    QWaylandGLIntegration *glIntegration() const;
 
-    QWaylandWindowManagerIntegration *windowManagerIntegration();
+    QWaylandWindowManagerIntegration *windowManagerIntegration() const;
 
     void setCursor(struct wl_buffer *buffer, struct wl_cursor_image *image);
 
@@ -161,6 +160,7 @@ private:
     QList<QPlatformScreen *> mScreens;
     QList<QWaylandInputDevice *> mInputDevices;
     QList<Listener> mRegistryListeners;
+    QWaylandIntegration *mWaylandIntegration;
     QWaylandInputDevice *mLastKeyboardFocusInputDevice;
     QWaylandDataDeviceManager *mDndSelectionHandler;
     QtWayland::qt_surface_extension *mWindowExtension;
@@ -177,10 +177,6 @@ private:
     bool mScreensInitialized;
 
     void registry_global(uint32_t id, const QString &interface, uint32_t version) Q_DECL_OVERRIDE;
-
-#ifdef QT_WAYLAND_GL_SUPPORT
-    QWaylandGLIntegration *mEglIntegration;
-#endif
 
     static void shellHandleConfigure(void *data, struct wl_shell *shell,
                                      uint32_t time, uint32_t edges,

@@ -39,36 +39,39 @@
 **
 ****************************************************************************/
 
-#include <qpa/qplatformintegrationplugin.h>
-#include "qwaylandintegration.h"
+#ifndef QWAYLANDXCOMPOSITEEGLWINDOW_H
+#define QWAYLANDXCOMPOSITEEGLWINDOW_H
+
+#include <QtWaylandClient/qwaylandwindow.h>
+#include <QtWaylandClient/qwaylandbuffer.h>
+
+#include "qwaylandxcompositeeglintegration.h"
+#include "qwaylandxcompositeeglcontext.h"
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandIntegrationPlugin : public QPlatformIntegrationPlugin
+class QWaylandXCompositeEGLWindow : public QWaylandWindow
 {
-    Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QPA.QPlatformIntegrationFactoryInterface.5.2" FILE "qwayland-xcomposite-glx.json")
 public:
-    QStringList keys() const;
-    QPlatformIntegration *create(const QString&, const QStringList&);
+    QWaylandXCompositeEGLWindow(QWindow *window, QWaylandXCompositeEGLIntegration *glxIntegration);
+    WindowType windowType() const;
+
+    void setGeometry(const QRect &rect);
+
+    EGLSurface eglSurface() const;
+
+private:
+    void createEglSurface();
+
+    QWaylandXCompositeEGLIntegration *m_glxIntegration;
+    QWaylandXCompositeEGLContext *m_context;
+    QWaylandBuffer *m_buffer;
+
+    Window m_xWindow;
+    EGLConfig m_config;
+    EGLSurface m_surface;
 };
-
-QStringList QWaylandIntegrationPlugin::keys() const
-{
-    QStringList list;
-    list << "wayland-xcomposite-glx";
-    return list;
-}
-
-QPlatformIntegration *QWaylandIntegrationPlugin::create(const QString& system, const QStringList& paramList)
-{
-    Q_UNUSED(paramList);
-    if (system.toLower() == "wayland-xcomposite-glx")
-        return new QWaylandXCompositeGlxPlatformIntegration();
-
-    return 0;
-}
 
 QT_END_NAMESPACE
 
-#include "main.moc"
+#endif // QWAYLANDXCOMPOSITEEGLWINDOW_H

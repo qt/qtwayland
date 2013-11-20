@@ -42,6 +42,7 @@
 #include "qwaylanddisplay.h"
 
 #include "qwaylandeventthread.h"
+#include "qwaylandintegration.h"
 #include "qwaylandwindow.h"
 #include "qwaylandscreen.h"
 #include "qwaylandcursor.h"
@@ -49,9 +50,7 @@
 #include "qwaylandclipboard.h"
 #include "qwaylanddatadevicemanager.h"
 
-#ifdef QT_WAYLAND_GL_SUPPORT
 #include "qwaylandglintegration.h"
-#endif
 
 #include "qwaylandwindowmanagerintegration.h"
 
@@ -79,14 +78,12 @@ struct wl_surface *QWaylandDisplay::createSurface(void *handle)
     return surface;
 }
 
-#ifdef QT_WAYLAND_GL_SUPPORT
-QWaylandGLIntegration * QWaylandDisplay::eglIntegration()
+QWaylandGLIntegration * QWaylandDisplay::glIntegration() const
 {
-    return mEglIntegration;
+    return mWaylandIntegration->glIntegration();
 }
-#endif
 
-QWaylandWindowManagerIntegration *QWaylandDisplay::windowManagerIntegration()
+QWaylandWindowManagerIntegration *QWaylandDisplay::windowManagerIntegration() const
 {
     return mWindowManagerIntegration;
 }
@@ -103,8 +100,9 @@ void QWaylandDisplay::setLastKeyboardFocusInputDevice(QWaylandInputDevice *devic
 
 static QWaylandDisplay *display = 0;
 
-QWaylandDisplay::QWaylandDisplay()
-    : mLastKeyboardFocusInputDevice(0)
+QWaylandDisplay::QWaylandDisplay(QWaylandIntegration *waylandIntegration)
+    : mWaylandIntegration(waylandIntegration)
+    , mLastKeyboardFocusInputDevice(0)
     , mDndSelectionHandler(0)
     , mWindowExtension(0)
     , mSubSurfaceExtension(0)
@@ -134,30 +132,15 @@ QWaylandDisplay::QWaylandDisplay()
 
     connect(mEventThreadObject, SIGNAL(newEventsRead()), this, SLOT(flushRequests()));
 
-#ifdef QT_WAYLAND_GL_SUPPORT
-    //mEglIntegration = QWaylandGLIntegration::createGLIntegration(this);
-#endif
-
     mWindowManagerIntegration = new QWaylandWindowManagerIntegration(this);
 
     blockingReadEvents();
-
-#ifdef QT_WAYLAND_GL_SUPPORT
-    mEglIntegration->initialize();
-
-    flushRequests();
-    while (mEglIntegration->waitingForEvents())
-        blockingReadEvents();
-#endif
 
     waitForScreens();
 }
 
 QWaylandDisplay::~QWaylandDisplay(void)
 {
-#ifdef QT_WAYLAND_GL_SUPPORT
-    delete mEglIntegration;
-#endif
     mEventThread->quit();
     mEventThread->wait();
     delete mEventThreadObject;
@@ -171,6 +154,7 @@ void QWaylandDisplay::flushRequests()
     }
     wl_display_flush(mDisplay);
 }
+
 
 void QWaylandDisplay::blockingReadEvents()
 {

@@ -49,11 +49,6 @@
 
 QT_BEGIN_NAMESPACE
 
-QWaylandGLIntegration * QWaylandGLIntegration::createGLIntegration(QWaylandDisplay *waylandDisplay)
-{
-    return new QWaylandXCompositeEGLIntegration(waylandDisplay);
-}
-
 QWaylandXCompositeEGLIntegration::QWaylandXCompositeEGLIntegration(QWaylandDisplay * waylandDisplay)
     : QWaylandGLIntegration()
     , mWaylandDisplay(waylandDisplay)

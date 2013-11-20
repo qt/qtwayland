@@ -39,39 +39,30 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDXCOMPOSITEEGLWINDOW_H
-#define QWAYLANDXCOMPOSITEEGLWINDOW_H
+#ifndef QWAYLANDXCOMPOSITEEGLPLATFROMINTEGRATION_H
+#define QWAYLANDXCOMPOSITEEGLPLATFROMINTEGRATION_H
 
-#include "qwaylandwindow.h"
-#include "qwaylandbuffer.h"
+#include <QtWaylandClient/qwaylandintegration.h>
 
 #include "qwaylandxcompositeeglintegration.h"
-#include "qwaylandxcompositeeglcontext.h"
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandXCompositeEGLWindow : public QWaylandWindow
+class QWaylandXCompositeEglPlatformIntegration : public QWaylandIntegration
 {
 public:
-    QWaylandXCompositeEGLWindow(QWindow *window, QWaylandXCompositeEGLIntegration *glxIntegration);
-    WindowType windowType() const;
+    QWaylandXCompositeEglPlatformIntegration()
+        : QWaylandIntegration()
+        , m_gl_integration(new QWaylandXCompositeEGLIntegration(display()))
+    { }
 
-    void setGeometry(const QRect &rect);
-
-    EGLSurface eglSurface() const;
+    QWaylandGLIntegration *glIntegration() const Q_DECL_OVERRIDE
+    { return m_gl_integration; }
 
 private:
-    void createEglSurface();
-
-    QWaylandXCompositeEGLIntegration *m_glxIntegration;
-    QWaylandXCompositeEGLContext *m_context;
-    QWaylandBuffer *m_buffer;
-
-    Window m_xWindow;
-    EGLConfig m_config;
-    EGLSurface m_surface;
+    QWaylandGLIntegration *m_gl_integration;
 };
 
 QT_END_NAMESPACE
 
-#endif // QWAYLANDXCOMPOSITEEGLWINDOW_H
+#endif

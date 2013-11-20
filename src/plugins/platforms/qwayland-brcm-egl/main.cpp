@@ -40,7 +40,7 @@
 ****************************************************************************/
 
 #include <qpa/qplatformintegrationplugin.h>
-#include "qwaylandintegration.h"
+#include "qwaylandbrcmeglplatformintegration.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -64,7 +64,7 @@ QPlatformIntegration *QWaylandIntegrationPlugin::create(const QString& system, c
 {
     Q_UNUSED(paramList);
     if (system.toLower() == "wayland-brcm")
-        return new QWaylandIntegration();
+        return new QWaylandBrcmEglPlatformIntegration();
 
     return 0;
 }

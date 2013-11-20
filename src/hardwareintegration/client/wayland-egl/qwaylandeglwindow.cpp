@@ -56,7 +56,7 @@ QT_BEGIN_NAMESPACE
 
 QWaylandEglWindow::QWaylandEglWindow(QWindow *window)
     : QWaylandWindow(window)
-    , m_eglIntegration(static_cast<QWaylandEglIntegration *>(mDisplay->eglIntegration()))
+    , m_eglIntegration(static_cast<QWaylandEglIntegration *>(mDisplay->glIntegration()))
     , m_waylandEglWindow(0)
     , m_eglSurface(0)
     , m_eglConfig(0)

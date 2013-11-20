@@ -39,36 +39,69 @@
 **
 ****************************************************************************/
 
-#include <qpa/qplatformintegrationplugin.h>
-#include "qwaylandintegration.h"
+#ifndef QWAYLANDXCOMPOSITEGLXINTEGRATION_H
+#define QWAYLANDXCOMPOSITEGLXINTEGRATION_H
+
+#include <QtWaylandClient/qwaylandglintegration.h>
+#include "wayland-client.h"
+
+#include <QtCore/QTextStream>
+#include <QtCore/QDataStream>
+#include <QtCore/QMetaType>
+#include <QtCore/QVariant>
+#include <QtGui/QWindow>
+
+#include <X11/Xlib.h>
+
+// avoid clashes with Qt::CursorShape
+#ifdef CursorShape
+#   define X_CursorShape CursorShape
+#   undef CursorShape
+#endif
+
+struct qt_xcomposite;
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandIntegrationPlugin : public QPlatformIntegrationPlugin
+class QWaylandXCompositeGLXIntegration : public QWaylandGLIntegration
 {
-    Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QPA.QPlatformIntegrationFactoryInterface.5.2" FILE "qwayland-xcomposite-glx.json")
 public:
-    QStringList keys() const;
-    QPlatformIntegration *create(const QString&, const QStringList&);
+    QWaylandXCompositeGLXIntegration(QWaylandDisplay * waylandDispaly);
+    ~QWaylandXCompositeGLXIntegration();
+
+    void initialize();
+    bool waitingForEvents() { return !mDisplay; }
+
+    QWaylandWindow *createEglWindow(QWindow *window);
+    QPlatformOpenGLContext *createPlatformOpenGLContext(const QSurfaceFormat &glFormat, QPlatformOpenGLContext *share) const;
+
+    QWaylandDisplay *waylandDisplay() const;
+    struct qt_xcomposite *waylandXComposite() const;
+
+    Display *xDisplay() const;
+    int screen() const;
+    Window rootWindow() const;
+
+    bool supportsThreadedOpenGL() const { return true; }
+
+private:
+    QWaylandDisplay *mWaylandDisplay;
+    struct qt_xcomposite *mWaylandComposite;
+
+    Display *mDisplay;
+    int mScreen;
+    Window mRootWindow;
+
+    static void wlDisplayHandleGlobal(void *data, struct wl_registry *registry, uint32_t id,
+                                      const QString &interface, uint32_t version);
+
+    static const struct qt_xcomposite_listener xcomposite_listener;
+    static void rootInformation(void *data,
+                 struct qt_xcomposite *xcomposite,
+                 const char *display_name,
+                 uint32_t root_window);
 };
-
-QStringList QWaylandIntegrationPlugin::keys() const
-{
-    QStringList list;
-    list << "wayland-xcomposite-glx";
-    return list;
-}
-
-QPlatformIntegration *QWaylandIntegrationPlugin::create(const QString& system, const QStringList& paramList)
-{
-    Q_UNUSED(paramList);
-    if (system.toLower() == "wayland-xcomposite-glx")
-        return new QWaylandXCompositeGlxPlatformIntegration();
-
-    return 0;
-}
 
 QT_END_NAMESPACE
 
-#include "main.moc"
+#endif // QWAYLANDXCOMPOSITEGLXINTEGRATION_H

@@ -110,7 +110,7 @@ QWaylandIntegration::QWaylandIntegration()
     , mAccessibility(0)
 #endif
 {
-    mDisplay = new QWaylandDisplay();
+    mDisplay = new QWaylandDisplay(this);
     mClipboard = new QWaylandClipboard(mDisplay);
     mDrag = new QWaylandDrag(mDisplay);
 
@@ -141,17 +141,9 @@ bool QWaylandIntegration::hasCapability(QPlatformIntegration::Capability cap) co
     switch (cap) {
     case ThreadedPixmaps: return true;
     case OpenGL:
-#ifdef QT_WAYLAND_GL_SUPPORT
-        return true;
-#else
-        return false;
-#endif
+        return mDisplay->glIntegration();
     case ThreadedOpenGL:
-#ifdef QT_WAYLAND_GL_SUPPORT
-        return mDisplay->eglIntegration()->supportsThreadedOpenGL();
-#else
-        return false;
-#endif
+        return mDisplay->glIntegration() && mDisplay->glIntegration()->supportsThreadedOpenGL();
     case BufferQueueingOpenGL:
         return true;
     case MultipleWindows:
@@ -163,21 +155,16 @@ bool QWaylandIntegration::hasCapability(QPlatformIntegration::Capability cap) co
 
 QPlatformWindow *QWaylandIntegration::createPlatformWindow(QWindow *window) const
 {
-#ifdef QT_WAYLAND_GL_SUPPORT
-    if (window->surfaceType() == QWindow::OpenGLSurface)
-        return mDisplay->eglIntegration()->createEglWindow(window);
-#endif
+    if (window->surfaceType() == QWindow::OpenGLSurface && mDisplay->glIntegration())
+        return mDisplay->glIntegration()->createEglWindow(window);
     return new QWaylandShmWindow(window);
 }
 
 QPlatformOpenGLContext *QWaylandIntegration::createPlatformOpenGLContext(QOpenGLContext *context) const
 {
-#ifdef QT_WAYLAND_GL_SUPPORT
-    return mDisplay->eglIntegration()->createPlatformOpenGLContext(context->format(), context->shareHandle());
-#else
-    Q_UNUSED(context);
+    if (mDisplay->glIntegration())
+        return mDisplay->glIntegration()->createPlatformOpenGLContext(context->format(), context->shareHandle());
     return 0;
-#endif
 }
 
 QPlatformBackingStore *QWaylandIntegration::createPlatformBackingStore(QWindow *window) const
@@ -247,6 +234,11 @@ QStringList QWaylandIntegration::themeNames() const
 QPlatformTheme *QWaylandIntegration::createPlatformTheme(const QString &name) const
 {
     return GenericWaylandTheme::createUnixTheme(name);
+}
+
+QWaylandGLIntegration *QWaylandIntegration::glIntegration() const
+{
+    return 0;
 }
 
 QT_END_NAMESPACE

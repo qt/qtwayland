@@ -40,7 +40,7 @@
 ****************************************************************************/
 
 #include <qpa/qplatformintegrationplugin.h>
-#include "qwaylandintegration.h"
+#include "qwaylandeglplatformintegration.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -56,15 +56,15 @@ public:
 QStringList QWaylandIntegrationPlugin::keys() const
 {
     QStringList list;
-    list << "wayland" << "wayland-egl";
+    list << "wayland-egl";
     return list;
 }
 
 QPlatformIntegration *QWaylandIntegrationPlugin::create(const QString& system, const QStringList& paramList)
 {
     Q_UNUSED(paramList);
-    if (system.toLower() == "wayland" || system.toLower() == "wayland-egl")
-        return new QWaylandIntegration();
+    if (system.toLower() == "wayland-egl")
+        return new QWaylandEglPlatformIntegration();
 
     return 0;
 }

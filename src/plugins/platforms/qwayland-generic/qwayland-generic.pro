@@ -3,10 +3,8 @@ load(qt_plugin)
 
 QT += waylandclient-private
 
-include(../../../hardwareintegration/client/wayland-egl/wayland-egl.pri)
-
 OTHER_FILES += \
-    qwayland-egl.json
+    qwayland-generic.json
 
 SOURCES += main.cpp
 

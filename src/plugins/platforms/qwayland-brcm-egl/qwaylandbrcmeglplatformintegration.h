@@ -39,29 +39,31 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDXCOMPOSITEBUFFER_H
-#define QWAYLANDXCOMPOSITEBUFFER_H
+#ifndef QWAYLANDBRCMEGLPLATFORMINTEGRATION_H
+#define QWAYLANDBRCMEGLPLATFORMINTEGRATION_H
 
-#include "qwaylandbuffer.h"
-#include <stdint.h>
-
-struct qt_xcomposite;
-struct wl_visual;
+#include <QtWaylandClient/qwaylandintegration.h>
+#include "qwaylandbrcmeglintegration.h"
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandXCompositeBuffer : public QWaylandBuffer
+class QWaylandBrcmEglPlatformIntegration : public QWaylandIntegration
 {
 public:
-    QWaylandXCompositeBuffer(qt_xcomposite *xcomposite,
-                             uint32_t window,
-                             const QSize &size);
+    QWaylandBrcmEglPlatformIntegration()
+        : QWaylandIntegration()
+        , m_gl_integration(new QWaylandBrcmEglIntegration(display())
+    {
+    }
 
-    QSize size() const;
+    QWaylandGLIntegration *glIntegration() const Q_DECL_OVERRIDE
+    {
+        return m_gl_integration;
+    }
 private:
-    QSize mSize;
+    QWaylandGLIntegration *m_gl_integration;
 };
 
 QT_END_NAMESPACE
 
-#endif // QWAYLANDXCOMPOSITEBUFFER_H
+#endif

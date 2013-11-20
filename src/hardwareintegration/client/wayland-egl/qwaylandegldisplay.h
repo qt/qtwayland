@@ -39,36 +39,26 @@
 **
 ****************************************************************************/
 
-#include <qpa/qplatformintegrationplugin.h>
-#include "qwaylandintegration.h"
+#ifndef QWAYLANDEGLWINDOW_H
+#define QWAYLANDEGLWINDOW_H
+
+#include <QtWaylandClient/qwaylanddisplay.h>
+
+#include "qwaylandeglintegration.h"
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandIntegrationPlugin : public QPlatformIntegrationPlugin
+class QWaylandEglDisplay : public QWaylandDisplay
 {
-    Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QPA.QPlatformIntegrationFactoryInterface.5.2" FILE "qwayland-xcomposite-glx.json")
 public:
-    QStringList keys() const;
-    QPlatformIntegration *create(const QString&, const QStringList&);
+
+    QWaylandEglDisplay()
+        : QWaylandDisplay()
+    { }
+
+protected:
+    QWaylandGLIntegration *createGLIntegration()
+    { return new QWaylandEglIntegration(); }
 };
 
-QStringList QWaylandIntegrationPlugin::keys() const
-{
-    QStringList list;
-    list << "wayland-xcomposite-glx";
-    return list;
-}
-
-QPlatformIntegration *QWaylandIntegrationPlugin::create(const QString& system, const QStringList& paramList)
-{
-    Q_UNUSED(paramList);
-    if (system.toLower() == "wayland-xcomposite-glx")
-        return new QWaylandXCompositeGlxPlatformIntegration();
-
-    return 0;
-}
-
 QT_END_NAMESPACE
-
-#include "main.moc"

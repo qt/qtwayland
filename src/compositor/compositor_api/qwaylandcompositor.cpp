@@ -250,7 +250,6 @@ void QWaylandCompositor::setCursorSurface(QWaylandSurface *surface, int hotspotX
     Q_UNUSED(surface);
     Q_UNUSED(hotspotX);
     Q_UNUSED(hotspotY);
-    qDebug() << "changeCursor" << surface->size() << hotspotX << hotspotY;
 }
 
 void QWaylandCompositor::configureTouchExtension(TouchExtensionFlags flags)

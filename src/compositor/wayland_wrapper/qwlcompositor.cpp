@@ -413,8 +413,7 @@ void Compositor::setScreenOrientation(Qt::ScreenOrientation orientation)
     for (int i = 0; i < clientList.length(); ++i) {
         struct wl_client *client = clientList.at(i);
         Output *output = m_output_global->outputForClient(client);
-        Q_ASSERT(output);
-        if (output->extendedOutput)
+        if (output && output->extendedOutput)
             output->extendedOutput->sendOutputOrientation(orientation);
     }
 }

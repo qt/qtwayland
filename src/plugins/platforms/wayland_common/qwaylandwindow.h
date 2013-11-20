@@ -136,6 +136,8 @@ public:
     void raise() Q_DECL_OVERRIDE;
     void lower() Q_DECL_OVERRIDE;
 
+    void requestActivateWindow() Q_DECL_OVERRIDE;
+
     QWaylandDecoration *decoration() const;
     void setDecoration(QWaylandDecoration *decoration);
 

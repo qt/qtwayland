@@ -1,16 +1,15 @@
 TEMPLATE=subdirs
 
-#config_wayland_egl {
-#    SUBDIRS += qwayland-egl
-#}
-#config_brcm_egl {
-#    SUBDIRS += qwayland-brcm-egl
-#}
-#config_xcomposite {
-#    config_egl {
-#        SUBDIRS += qwayland-xcomposite-egl
-#    }
-#    config_glx {
-#        SUBDIRS += qwayland-xcomposite-glx
-#    }
-#}
+config_wayland_egl: \
+    SUBDIRS += wayland-egl
+
+config_brcm_egl: \
+    SUBDIRS += brcm-egl
+
+config_xcomposite {
+    config_egl: \
+        SUBDIRS += xcomposite-egl
+
+    !contains(QT_CONFIG, opengles2):config_glx: \
+        SUBDIRS += xcomposite-glx
+}

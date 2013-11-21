@@ -55,8 +55,8 @@ static const char *qwaylandegl_threadedgl_blacklist_vendor[] = {
     0
 };
 
-QWaylandEglClientBufferIntegration::QWaylandEglClientBufferIntegration(QWaylandDisplay *display)
-    : m_waylandDisplay(display->wl_display())
+QWaylandEglClientBufferIntegration::QWaylandEglClientBufferIntegration()
+    : m_waylandDisplay(0)
     , m_supportsThreading(false)
 {
     qDebug() << "Using Wayland-EGL";
@@ -68,12 +68,14 @@ QWaylandEglClientBufferIntegration::~QWaylandEglClientBufferIntegration()
     eglTerminate(m_eglDisplay);
 }
 
-void QWaylandEglClientBufferIntegration::initialize()
+void QWaylandEglClientBufferIntegration::initialize(QWaylandDisplay *display)
 {
     QByteArray eglPlatform = qgetenv("EGL_PLATFORM");
     if (eglPlatform.isEmpty()) {
         setenv("EGL_PLATFORM","wayland",true);
     }
+
+    m_waylandDisplay = display->wl_display();
 
     EGLint major,minor;
     m_eglDisplay = eglGetDisplay((EGLNativeDisplayType) m_waylandDisplay);

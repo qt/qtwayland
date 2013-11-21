@@ -53,8 +53,10 @@ class QWaylandXCompositeEglPlatformIntegration : public QWaylandIntegration
 public:
     QWaylandXCompositeEglPlatformIntegration()
         : QWaylandIntegration()
-        , m_client_buffer_integration(new QWaylandXCompositeEGLClientBufferIntegration(display()))
-    { }
+        , m_client_buffer_integration(new QWaylandXCompositeEGLClientBufferIntegration())
+    {
+        m_client_buffer_integration->initialize(display());
+    }
 
     QWaylandClientBufferIntegration *clientBufferIntegration() const Q_DECL_OVERRIDE
     { return m_client_buffer_integration; }

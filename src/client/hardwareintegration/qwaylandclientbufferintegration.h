@@ -60,7 +60,7 @@ public:
     QWaylandClientBufferIntegration();
     virtual ~QWaylandClientBufferIntegration();
 
-    virtual void initialize() = 0;
+    virtual void initialize(QWaylandDisplay *display) = 0;
     virtual bool waitingForEvents() { return false; }
 
     virtual bool supportsThreadedOpenGL() const { return false; }

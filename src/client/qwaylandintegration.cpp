@@ -258,6 +258,8 @@ void QWaylandIntegration::initializeBufferIntegration()
     if (keys.contains(targetKey)) {
         mClientBufferIntegration = QWaylandClientBufferIntegrationFactory::create(targetKey, QStringList());
     }
+    if (mClientBufferIntegration)
+        mClientBufferIntegration->initialize(mDisplay);
 }
 
 QT_END_NAMESPACE

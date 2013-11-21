@@ -54,14 +54,14 @@ class QWindow;
 class QWaylandEglClientBufferIntegration : public QWaylandClientBufferIntegration
 {
 public:
-    QWaylandEglClientBufferIntegration(QWaylandDisplay *display);
+    QWaylandEglClientBufferIntegration();
     ~QWaylandEglClientBufferIntegration();
 
-    void initialize();
-    bool supportsThreadedOpenGL() const;
+    void initialize(QWaylandDisplay *display) Q_DECL_OVERRIDE;
+    bool supportsThreadedOpenGL() const Q_DECL_OVERRIDE;
 
-    QWaylandWindow *createEglWindow(QWindow *window);
-    QPlatformOpenGLContext *createPlatformOpenGLContext(const QSurfaceFormat &glFormat, QPlatformOpenGLContext *share) const;
+    QWaylandWindow *createEglWindow(QWindow *window) Q_DECL_OVERRIDE;
+    QPlatformOpenGLContext *createPlatformOpenGLContext(const QSurfaceFormat &glFormat, QPlatformOpenGLContext *share) const Q_DECL_OVERRIDE;
 
     EGLDisplay eglDisplay() const;
 

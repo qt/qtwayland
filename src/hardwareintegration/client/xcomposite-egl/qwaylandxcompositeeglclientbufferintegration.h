@@ -71,14 +71,14 @@ QT_BEGIN_NAMESPACE
 class QWaylandXCompositeEGLClientBufferIntegration : public QWaylandClientBufferIntegration
 {
 public:
-    QWaylandXCompositeEGLClientBufferIntegration(QWaylandDisplay * waylandDispaly);
+    QWaylandXCompositeEGLClientBufferIntegration();
     ~QWaylandXCompositeEGLClientBufferIntegration();
 
-    void initialize();
-    bool waitingForEvents() { return !mDisplay; }
+    void initialize(QWaylandDisplay *dispaly) Q_DECL_OVERRIDE;
+    bool waitingForEvents() Q_DECL_OVERRIDE { return !mDisplay; }
 
-    QWaylandWindow *createEglWindow(QWindow *window);
-    QPlatformOpenGLContext *createPlatformOpenGLContext(const QSurfaceFormat &glFormat, QPlatformOpenGLContext *share) const;
+    QWaylandWindow *createEglWindow(QWindow *window) Q_DECL_OVERRIDE;
+    QPlatformOpenGLContext *createPlatformOpenGLContext(const QSurfaceFormat &glFormat, QPlatformOpenGLContext *share) const Q_DECL_OVERRIDE;
 
     QWaylandDisplay *waylandDisplay() const;
     struct qt_xcomposite *waylandXComposite() const;

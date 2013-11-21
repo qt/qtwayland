@@ -50,7 +50,7 @@ QT_BEGIN_NAMESPACE
 
 #ifndef QT_NO_LIBRARY
 Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
-    (QWaylandGraphicsHardwareIntegrationFactoryInterface_iid, QLatin1String("/waylandcompositors"), Qt::CaseInsensitive))
+    (QWaylandGraphicsHardwareIntegrationFactoryInterface_iid, QLatin1String("/wayland-graphics-integration"), Qt::CaseInsensitive))
 Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, directLoader,
                           (QWaylandGraphicsHardwareIntegrationFactoryInterface_iid, QLatin1String(""), Qt::CaseInsensitive))
 #endif

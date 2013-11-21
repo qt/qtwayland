@@ -39,7 +39,7 @@
 **
 ****************************************************************************/
 
-#include <QtCompositor/qwaylandgraphicshardwareintegrationplugin.h>
+#include <QtCompositor/qwaylandclientbufferintegrationplugin.h>
 #include "xcompositeglxintegration.h"
 
 QT_BEGIN_NAMESPACE
@@ -56,14 +56,14 @@ public:
 QStringList QWaylandIntegrationPlugin::keys() const
 {
     QStringList list;
-    list << "wayland-xcomposite";
+    list << "wayland-xcomposite-glx";
     return list;
 }
 
 QWaylandGraphicsHardwareIntegration *QWaylandIntegrationPlugin::create(const QString& system, const QStringList& paramList)
 {
     Q_UNUSED(paramList);
-    if (system.toLower() == "wayland-xcomposite")
+    if (system.toLower() == "wayland-xcomposite-glx")
         return new XCompositeGLXIntegration();
 
     return 0;

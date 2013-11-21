@@ -48,13 +48,13 @@
 #include "wayland-xcomposite-client-protocol.h"
 
 #include <X11/extensions/Xcomposite.h>
-#include "qwaylandxcompositeeglintegration.h"
+#include "qwaylandxcompositeeglclientbufferintegration.h"
 
 #include <QtCore/QDebug>
 
 QT_BEGIN_NAMESPACE
 
-QWaylandXCompositeEGLWindow::QWaylandXCompositeEGLWindow(QWindow *window, QWaylandXCompositeEGLIntegration *glxIntegration)
+QWaylandXCompositeEGLWindow::QWaylandXCompositeEGLWindow(QWindow *window, QWaylandXCompositeEGLClientBufferIntegration *glxIntegration)
     : QWaylandWindow(window)
     , m_glxIntegration(glxIntegration)
     , m_context(0)

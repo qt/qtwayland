@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the plugins of the Qt Toolkit.
@@ -39,29 +39,38 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDEGLPLATFORMINTEGRATION_H
-#define QWAYLANDEGLPLATFORMINTEGRATION_H
+#ifndef QWAYLANDCLIENTBUFFERINTEGRATION_H
+#define QWAYLANDCLIENTBUFFERINTEGRATION_H
 
-#include <QtWaylandClient/qwaylandintegration.h>
+#include <QtCore/qglobal.h>
+#include <QtWaylandClient/qwaylandclientexport.h>
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandGenericPlatformIntegration : public QWaylandIntegration
+class QWaylandWindow;
+class QWaylandDisplay;
+class QWindow;
+
+class QPlatformOpenGLContext;
+class QSurfaceFormat;
+
+class Q_WAYLAND_CLIENT_EXPORT QWaylandClientBufferIntegration
 {
 public:
-    QWaylandGenericPlatformIntegration()
-        : QWaylandIntegration()
-        , m_gl_integration(0)
-    {
-    }
+    QWaylandClientBufferIntegration();
+    virtual ~QWaylandClientBufferIntegration();
 
-    QWaylandGLIntegration *glIntegration() const
-    { return m_gl_integration; }
+    virtual void initialize() = 0;
+    virtual bool waitingForEvents() { return false; }
 
-private:
-    QWaylandGLIntegration *m_gl_integration;
+    virtual bool supportsThreadedOpenGL() const { return false; }
+
+    virtual QWaylandWindow *createEglWindow(QWindow *window) = 0;
+    virtual QPlatformOpenGLContext *createPlatformOpenGLContext(const QSurfaceFormat &glFormat, QPlatformOpenGLContext *share) const = 0;
+
+    static QWaylandClientBufferIntegration *createGLIntegration(QWaylandDisplay *waylandDisplay);
 };
 
 QT_END_NAMESPACE
 
-#endif
+#endif // QWAYLANDCLIENTBUFFERINTEGRATION_H

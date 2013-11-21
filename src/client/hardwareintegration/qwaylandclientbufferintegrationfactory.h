@@ -1,9 +1,9 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
-** This file is part of the plugins of the Qt Toolkit.
+** This file is part of the QtGui module of the Qt Toolkit.
 **
 ** $QT_BEGIN_LICENSE:LGPL$
 ** Commercial License Usage
@@ -39,39 +39,23 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDEGLINTEGRATION_H
-#define QWAYLANDEGLINTEGRATION_H
+#ifndef QWAYLANDCLIENTBUFFERINTEGRATIONFACTORY_H
+#define QWAYLANDCLIENTBUFFERINTEGRATIONFACTORY_H
 
-#include <QtWaylandClient/qwaylandglintegration.h>
-
-#include "qwaylandeglinclude.h"
+#include <QtWaylandClient/qwaylandclientexport.h>
+#include <QtCore/QStringList>
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandWindow;
-class QWindow;
+class QWaylandClientBufferIntegration;
 
-class QWaylandEglIntegration : public QWaylandGLIntegration
+class Q_WAYLAND_CLIENT_EXPORT QWaylandClientBufferIntegrationFactory
 {
 public:
-    QWaylandEglIntegration(QWaylandDisplay *display);
-    ~QWaylandEglIntegration();
-
-    void initialize();
-    bool supportsThreadedOpenGL() const;
-
-    QWaylandWindow *createEglWindow(QWindow *window);
-    QPlatformOpenGLContext *createPlatformOpenGLContext(const QSurfaceFormat &glFormat, QPlatformOpenGLContext *share) const;
-
-    EGLDisplay eglDisplay() const;
-
-private:
-    struct wl_display *m_waylandDisplay;
-
-    EGLDisplay m_eglDisplay;
-    bool m_supportsThreading;
+    static QStringList keys(const QString &pluginPath = QString());
+    static QWaylandClientBufferIntegration *create(const QString &name, const QStringList &args, const QString &pluginPath = QString());
 };
 
 QT_END_NAMESPACE
 
-#endif // QWAYLANDEGLINTEGRATION_H
+#endif // QWAYLANDCLIENTBUFFERINTEGRATIONFACTORY_H

@@ -40,7 +40,7 @@
 ****************************************************************************/
 
 #include <qpa/qplatformintegrationplugin.h>
-#include "qwaylandgenericplatformintegration.h"
+#include <QtWaylandClient/qwaylandintegration.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -64,7 +64,7 @@ QPlatformIntegration *QWaylandIntegrationPlugin::create(const QString& system, c
 {
     Q_UNUSED(paramList);
     if (system.toLower() == "wayland")
-        return new QWaylandGenericPlatformIntegration();
+        return new QWaylandIntegration();
 
     return 0;
 }

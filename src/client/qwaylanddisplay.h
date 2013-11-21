@@ -62,7 +62,7 @@ class QSocketNotifier;
 class QWaylandBuffer;
 class QPlatformScreen;
 class QWaylandScreen;
-class QWaylandGLIntegration;
+class QWaylandClientBufferIntegration;
 class QWaylandWindowManagerIntegration;
 class QWaylandDataDeviceManager;
 class QWaylandTouchExtension;
@@ -98,7 +98,7 @@ public:
 
     struct wl_surface *createSurface(void *handle);
 
-    QWaylandGLIntegration *glIntegration() const;
+    QWaylandClientBufferIntegration *clientBufferIntegration() const;
 
     QWaylandWindowManagerIntegration *windowManagerIntegration() const;
 

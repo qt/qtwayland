@@ -44,7 +44,7 @@
 
 #include <QtWaylandClient/qwaylandintegration.h>
 
-#include "qwaylandeglintegration.h"
+#include "qwaylandeglclientbufferintegration.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -53,16 +53,16 @@ class QWaylandEglPlatformIntegration : public QWaylandIntegration
 public:
     QWaylandEglPlatformIntegration()
         : QWaylandIntegration()
-        , m_gl_integration(new QWaylandEglIntegration(display()))
+        , m_client_buffer_integration(new QWaylandEglClientBufferIntegration(display()))
     {
-        m_gl_integration->initialize();
+        m_client_buffer_integration->initialize();
     }
 
-    QWaylandGLIntegration *glIntegration() const
-    { return m_gl_integration; }
+    QWaylandEglClientBufferIntegration *clientBufferIntegration() const
+    { return m_client_buffer_integration; }
 
 private:
-    QWaylandGLIntegration *m_gl_integration;
+    QWaylandEglClientBufferIntegration *m_client_buffer_integration;
 };
 
 QT_END_NAMESPACE

@@ -39,7 +39,7 @@
 **
 ****************************************************************************/
 
-#include "qwaylandxcompositeeglintegration.h"
+#include "qwaylandxcompositeeglclientbufferintegration.h"
 
 #include "qwaylandxcompositeeglwindow.h"
 
@@ -49,81 +49,81 @@
 
 QT_BEGIN_NAMESPACE
 
-QWaylandXCompositeEGLIntegration::QWaylandXCompositeEGLIntegration(QWaylandDisplay * waylandDisplay)
-    : QWaylandGLIntegration()
+QWaylandXCompositeEGLClientBufferIntegration::QWaylandXCompositeEGLClientBufferIntegration(QWaylandDisplay * waylandDisplay)
+    : QWaylandClientBufferIntegration()
     , mWaylandDisplay(waylandDisplay)
 {
     qDebug() << "Using XComposite-EGL";
     waylandDisplay->addRegistryListener(&wlDisplayHandleGlobal, this);
 }
 
-QWaylandXCompositeEGLIntegration::~QWaylandXCompositeEGLIntegration()
+QWaylandXCompositeEGLClientBufferIntegration::~QWaylandXCompositeEGLClientBufferIntegration()
 {
     XCloseDisplay(mDisplay);
 }
 
-void QWaylandXCompositeEGLIntegration::initialize()
+void QWaylandXCompositeEGLClientBufferIntegration::initialize()
 {
 }
 
-QWaylandWindow * QWaylandXCompositeEGLIntegration::createEglWindow(QWindow *window)
+QWaylandWindow * QWaylandXCompositeEGLClientBufferIntegration::createEglWindow(QWindow *window)
 {
     return new QWaylandXCompositeEGLWindow(window,this);
 }
 
-QPlatformOpenGLContext *QWaylandXCompositeEGLIntegration::createPlatformOpenGLContext(const QSurfaceFormat &glFormat, QPlatformOpenGLContext *share) const
+QPlatformOpenGLContext *QWaylandXCompositeEGLClientBufferIntegration::createPlatformOpenGLContext(const QSurfaceFormat &glFormat, QPlatformOpenGLContext *share) const
 {
     return new QWaylandXCompositeEGLContext(glFormat, share, eglDisplay());
 }
 
-Display * QWaylandXCompositeEGLIntegration::xDisplay() const
+Display * QWaylandXCompositeEGLClientBufferIntegration::xDisplay() const
 {
     return mDisplay;
 }
 
-EGLDisplay QWaylandXCompositeEGLIntegration::eglDisplay() const
+EGLDisplay QWaylandXCompositeEGLClientBufferIntegration::eglDisplay() const
 {
     return mEglDisplay;
 }
 
-int QWaylandXCompositeEGLIntegration::screen() const
+int QWaylandXCompositeEGLClientBufferIntegration::screen() const
 {
     return mScreen;
 }
 
-Window QWaylandXCompositeEGLIntegration::rootWindow() const
+Window QWaylandXCompositeEGLClientBufferIntegration::rootWindow() const
 {
     return mRootWindow;
 }
 
-QWaylandDisplay * QWaylandXCompositeEGLIntegration::waylandDisplay() const
+QWaylandDisplay * QWaylandXCompositeEGLClientBufferIntegration::waylandDisplay() const
 {
     return mWaylandDisplay;
 }
-qt_xcomposite * QWaylandXCompositeEGLIntegration::waylandXComposite() const
+qt_xcomposite * QWaylandXCompositeEGLClientBufferIntegration::waylandXComposite() const
 {
     return mWaylandComposite;
 }
 
-const struct qt_xcomposite_listener QWaylandXCompositeEGLIntegration::xcomposite_listener = {
-    QWaylandXCompositeEGLIntegration::rootInformation
+const struct qt_xcomposite_listener QWaylandXCompositeEGLClientBufferIntegration::xcomposite_listener = {
+    QWaylandXCompositeEGLClientBufferIntegration::rootInformation
 };
 
-void QWaylandXCompositeEGLIntegration::wlDisplayHandleGlobal(void *data, wl_registry *registry, uint32_t id, const QString &interface, uint32_t version)
+void QWaylandXCompositeEGLClientBufferIntegration::wlDisplayHandleGlobal(void *data, wl_registry *registry, uint32_t id, const QString &interface, uint32_t version)
 {
     Q_UNUSED(version);
     if (interface == "qt_xcomposite") {
-        QWaylandXCompositeEGLIntegration *integration = static_cast<QWaylandXCompositeEGLIntegration *>(data);
+        QWaylandXCompositeEGLClientBufferIntegration *integration = static_cast<QWaylandXCompositeEGLClientBufferIntegration *>(data);
         integration->mWaylandComposite = static_cast<struct qt_xcomposite *>(wl_registry_bind(registry,id,&qt_xcomposite_interface,1));
         qt_xcomposite_add_listener(integration->mWaylandComposite,&xcomposite_listener,integration);
     }
 
 }
 
-void QWaylandXCompositeEGLIntegration::rootInformation(void *data, qt_xcomposite *xcomposite, const char *display_name, uint32_t root_window)
+void QWaylandXCompositeEGLClientBufferIntegration::rootInformation(void *data, qt_xcomposite *xcomposite, const char *display_name, uint32_t root_window)
 {
     Q_UNUSED(xcomposite);
-    QWaylandXCompositeEGLIntegration *integration = static_cast<QWaylandXCompositeEGLIntegration *>(data);
+    QWaylandXCompositeEGLClientBufferIntegration *integration = static_cast<QWaylandXCompositeEGLClientBufferIntegration *>(data);
 
     integration->mDisplay = XOpenDisplay(display_name);
     integration->mRootWindow = (Window) root_window;

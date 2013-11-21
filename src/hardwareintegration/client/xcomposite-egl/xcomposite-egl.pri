@@ -10,10 +10,10 @@ include($$PWD/../xcomposite_share/xcomposite_share.pri)
 
 SOURCES += \
     $$PWD/qwaylandxcompositeeglcontext.cpp \
-    $$PWD/qwaylandxcompositeeglintegration.cpp \
+    $$PWD/qwaylandxcompositeeglclientbufferintegration.cpp \
     $$PWD/qwaylandxcompositeeglwindow.cpp
 
 HEADERS += \
     $$PWD/qwaylandxcompositeeglcontext.h \
-    $$PWD/qwaylandxcompositeeglintegration.h \
+    $$PWD/qwaylandxcompositeeglclientbufferintegration.h \
     $$PWD/qwaylandxcompositeeglwindow.h

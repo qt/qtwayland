@@ -45,7 +45,7 @@
 #include <QtWaylandClient/qwaylandwindow.h>
 #include <QtWaylandClient/qwaylandbuffer.h>
 
-#include "qwaylandxcompositeeglintegration.h"
+#include "qwaylandxcompositeeglclientbufferintegration.h"
 #include "qwaylandxcompositeeglcontext.h"
 
 QT_BEGIN_NAMESPACE
@@ -53,7 +53,7 @@ QT_BEGIN_NAMESPACE
 class QWaylandXCompositeEGLWindow : public QWaylandWindow
 {
 public:
-    QWaylandXCompositeEGLWindow(QWindow *window, QWaylandXCompositeEGLIntegration *glxIntegration);
+    QWaylandXCompositeEGLWindow(QWindow *window, QWaylandXCompositeEGLClientBufferIntegration *glxIntegration);
     WindowType windowType() const;
 
     void setGeometry(const QRect &rect);
@@ -63,7 +63,7 @@ public:
 private:
     void createEglSurface();
 
-    QWaylandXCompositeEGLIntegration *m_glxIntegration;
+    QWaylandXCompositeEGLClientBufferIntegration *m_glxIntegration;
     QWaylandXCompositeEGLContext *m_context;
     QWaylandBuffer *m_buffer;
 

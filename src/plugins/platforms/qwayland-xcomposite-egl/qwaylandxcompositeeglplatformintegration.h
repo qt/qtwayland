@@ -44,7 +44,7 @@
 
 #include <QtWaylandClient/qwaylandintegration.h>
 
-#include "qwaylandxcompositeeglintegration.h"
+#include "qwaylandxcompositeeglclientbufferintegration.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -53,14 +53,14 @@ class QWaylandXCompositeEglPlatformIntegration : public QWaylandIntegration
 public:
     QWaylandXCompositeEglPlatformIntegration()
         : QWaylandIntegration()
-        , m_gl_integration(new QWaylandXCompositeEGLIntegration(display()))
+        , m_client_buffer_integration(new QWaylandXCompositeEGLClientBufferIntegration(display()))
     { }
 
-    QWaylandGLIntegration *glIntegration() const Q_DECL_OVERRIDE
-    { return m_gl_integration; }
+    QWaylandClientBufferIntegration *clientBufferIntegration() const Q_DECL_OVERRIDE
+    { return m_client_buffer_integration; }
 
 private:
-    QWaylandGLIntegration *m_gl_integration;
+    QWaylandClientBufferIntegration *m_client_buffer_integration;
 };
 
 QT_END_NAMESPACE

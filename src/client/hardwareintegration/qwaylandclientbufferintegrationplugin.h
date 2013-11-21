@@ -1,9 +1,9 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
-** This file is part of the plugins of the Qt Toolkit.
+** This file is part of the QtGui module of the Qt Toolkit.
 **
 ** $QT_BEGIN_LICENSE:LGPL$
 ** Commercial License Usage
@@ -39,50 +39,31 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDEGLWINDOW_H
-#define QWAYLANDEGLWINDOW_H
+#ifndef QWAYLANDCLIENTBUFFERINTEGRATIONPLUGIN_H
+#define QWAYLANDCLIENTBUFFERINTEGRATIONPLUGIN_H
 
-#include <QtWaylandClient/qwaylandwindow.h>
-#include "qwaylandeglinclude.h"
-#include "qwaylandeglclientbufferintegration.h"
+#include <QtWaylandClient/qwaylandclientexport.h>
+
+#include <QtCore/qplugin.h>
+#include <QtCore/qfactoryinterface.h>
+#include <QtCore/QObject>
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandGLContext;
-class QOpenGLFramebufferObject;
+class QWaylandClientBufferIntegration;
 
-class QWaylandEglWindow : public QWaylandWindow
+#define QWaylandClientBufferIntegrationFactoryInterface_iid "org.qt-project.Qt.WaylandClient.QWaylandClientBufferIntegrationFactoryInterface.5.1"
+
+class Q_WAYLAND_CLIENT_EXPORT QWaylandClientBufferIntegrationPlugin : public QObject
 {
+    Q_OBJECT
 public:
-    QWaylandEglWindow(QWindow *window);
-    ~QWaylandEglWindow();
-    WindowType windowType() const;
+    explicit QWaylandClientBufferIntegrationPlugin(QObject *parent = 0);
+    ~QWaylandClientBufferIntegrationPlugin();
 
-    virtual void setGeometry(const QRect &rect);
-    QRect contentsRect() const;
-
-    EGLSurface eglSurface() const;
-    GLuint contentFBO() const;
-    GLuint contentTexture() const;
-
-    QSurfaceFormat format() const;
-
-    void bindContentFBO();
-
-private:
-    QWaylandEglClientBufferIntegration *m_clientBufferIntegration;
-    mutable struct wl_egl_window *m_waylandEglWindow;
-
-    const QWaylandWindow *m_parentWindow;
-
-    mutable EGLSurface m_eglSurface;
-    mutable EGLConfig m_eglConfig;
-    mutable QOpenGLFramebufferObject *m_contentFBO;
-    mutable bool m_resize;
-
-    QSurfaceFormat m_format;
+    virtual QWaylandClientBufferIntegration *create(const QString &key, const QStringList &paramList) = 0;
 };
 
 QT_END_NAMESPACE
 
-#endif // QWAYLANDEGLWINDOW_H
+#endif // QWAYLANDCLIENTBUFFERINTEGRATIONPLUGIN_H

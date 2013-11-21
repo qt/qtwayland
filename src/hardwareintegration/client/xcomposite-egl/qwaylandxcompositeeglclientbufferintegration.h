@@ -39,10 +39,10 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDXCOMPOSITEEGLINTEGRATION_H
-#define QWAYLANDXCOMPOSITEEGLINTEGRATION_H
+#ifndef QWAYLANDXCOMPOSITEEGLCLIENTBUFFERINTEGRATION_H
+#define QWAYLANDXCOMPOSITEEGLCLIENTBUFFERINTEGRATION_H
 
-#include <QtWaylandClient/qwaylandglintegration.h>
+#include <QtWaylandClient/qwaylandclientbufferintegration.h>
 #include "wayland-client.h"
 
 #include <QtCore/QTextStream>
@@ -68,11 +68,11 @@ struct qt_xcomposite;
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandXCompositeEGLIntegration : public QWaylandGLIntegration
+class QWaylandXCompositeEGLClientBufferIntegration : public QWaylandClientBufferIntegration
 {
 public:
-    QWaylandXCompositeEGLIntegration(QWaylandDisplay * waylandDispaly);
-    ~QWaylandXCompositeEGLIntegration();
+    QWaylandXCompositeEGLClientBufferIntegration(QWaylandDisplay * waylandDispaly);
+    ~QWaylandXCompositeEGLClientBufferIntegration();
 
     void initialize();
     bool waitingForEvents() { return !mDisplay; }
@@ -111,4 +111,4 @@ private:
 
 QT_END_NAMESPACE
 
-#endif // QWAYLANDXCOMPOSITEEGLINTEGRATION_H
+#endif // QWAYLANDXCOMPOSITEEGLCLIENTBUFFERINTEGRATION_H

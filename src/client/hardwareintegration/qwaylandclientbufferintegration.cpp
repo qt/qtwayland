@@ -39,50 +39,18 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDEGLWINDOW_H
-#define QWAYLANDEGLWINDOW_H
-
-#include <QtWaylandClient/qwaylandwindow.h>
-#include "qwaylandeglinclude.h"
-#include "qwaylandeglclientbufferintegration.h"
+#include "qwaylandclientbufferintegration.h"
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandGLContext;
-class QOpenGLFramebufferObject;
-
-class QWaylandEglWindow : public QWaylandWindow
+QWaylandClientBufferIntegration::QWaylandClientBufferIntegration()
 {
-public:
-    QWaylandEglWindow(QWindow *window);
-    ~QWaylandEglWindow();
-    WindowType windowType() const;
 
-    virtual void setGeometry(const QRect &rect);
-    QRect contentsRect() const;
+}
 
-    EGLSurface eglSurface() const;
-    GLuint contentFBO() const;
-    GLuint contentTexture() const;
+QWaylandClientBufferIntegration::~QWaylandClientBufferIntegration()
+{
 
-    QSurfaceFormat format() const;
-
-    void bindContentFBO();
-
-private:
-    QWaylandEglClientBufferIntegration *m_clientBufferIntegration;
-    mutable struct wl_egl_window *m_waylandEglWindow;
-
-    const QWaylandWindow *m_parentWindow;
-
-    mutable EGLSurface m_eglSurface;
-    mutable EGLConfig m_eglConfig;
-    mutable QOpenGLFramebufferObject *m_contentFBO;
-    mutable bool m_resize;
-
-    QSurfaceFormat m_format;
-};
+}
 
 QT_END_NAMESPACE
-
-#endif // QWAYLANDEGLWINDOW_H

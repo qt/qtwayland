@@ -44,7 +44,7 @@
 
 #include <qpa/qplatformopenglcontext.h>
 
-#include "qwaylandxcompositeeglintegration.h"
+#include "qwaylandxcompositeeglclientbufferintegration.h"
 
 #include <QtPlatformSupport/private/qeglplatformcontext_p.h>
 

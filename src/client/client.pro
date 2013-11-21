@@ -95,7 +95,4 @@ HEADERS +=  qwaylandintegration.h \
             qwaylandinputcontext.h \
             qwaylanddatadevice.h \
 
-contains(DEFINES, QT_WAYLAND_GL_SUPPORT) {
-    SOURCES += qwaylandglintegration.cpp
-    HEADERS += qwaylandglintegration.h
-}
+include(hardwareintegration/hardwareintegration.pri)

@@ -50,7 +50,7 @@
 #include "qwaylandclipboard.h"
 #include "qwaylanddatadevicemanager.h"
 
-#include "qwaylandglintegration.h"
+#include "qwaylandclientbufferintegration.h"
 
 #include "qwaylandwindowmanagerintegration.h"
 
@@ -78,9 +78,9 @@ struct wl_surface *QWaylandDisplay::createSurface(void *handle)
     return surface;
 }
 
-QWaylandGLIntegration * QWaylandDisplay::glIntegration() const
+QWaylandClientBufferIntegration * QWaylandDisplay::clientBufferIntegration() const
 {
-    return mWaylandIntegration->glIntegration();
+    return mWaylandIntegration->clientBufferIntegration();
 }
 
 QWaylandWindowManagerIntegration *QWaylandDisplay::windowManagerIntegration() const

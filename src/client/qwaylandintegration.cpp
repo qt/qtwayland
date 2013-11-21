@@ -65,9 +65,8 @@
 #include <qpa/qplatformaccessibility.h>
 #include <qpa/qplatforminputcontext.h>
 
-#ifdef QT_WAYLAND_GL_SUPPORT
-#include "qwaylandglintegration.h"
-#endif
+#include "qwaylandclientbufferintegration.h"
+#include "qwaylandclientbufferintegrationfactory.h"
 
 
 QT_BEGIN_NAMESPACE
@@ -102,13 +101,15 @@ public:
 };
 
 QWaylandIntegration::QWaylandIntegration()
-    : mFontDb(new QGenericUnixFontDatabase())
+    : mClientBufferIntegration(0)
+    , mFontDb(new QGenericUnixFontDatabase())
     , mNativeInterface(new QWaylandNativeInterface(this))
 #ifndef QT_NO_ACCESSIBILITY
     , mAccessibility(new QPlatformAccessibility())
 #else
     , mAccessibility(0)
 #endif
+    , mClientBufferIntegrationInitialized(false)
 {
     mDisplay = new QWaylandDisplay(this);
     mClipboard = new QWaylandClipboard(mDisplay);
@@ -141,9 +142,9 @@ bool QWaylandIntegration::hasCapability(QPlatformIntegration::Capability cap) co
     switch (cap) {
     case ThreadedPixmaps: return true;
     case OpenGL:
-        return mDisplay->glIntegration();
+        return mDisplay->clientBufferIntegration();
     case ThreadedOpenGL:
-        return mDisplay->glIntegration() && mDisplay->glIntegration()->supportsThreadedOpenGL();
+        return mDisplay->clientBufferIntegration() && mDisplay->clientBufferIntegration()->supportsThreadedOpenGL();
     case BufferQueueingOpenGL:
         return true;
     case MultipleWindows:
@@ -155,15 +156,15 @@ bool QWaylandIntegration::hasCapability(QPlatformIntegration::Capability cap) co
 
 QPlatformWindow *QWaylandIntegration::createPlatformWindow(QWindow *window) const
 {
-    if (window->surfaceType() == QWindow::OpenGLSurface && mDisplay->glIntegration())
-        return mDisplay->glIntegration()->createEglWindow(window);
+    if (window->surfaceType() == QWindow::OpenGLSurface && mDisplay->clientBufferIntegration())
+        return mDisplay->clientBufferIntegration()->createEglWindow(window);
     return new QWaylandShmWindow(window);
 }
 
 QPlatformOpenGLContext *QWaylandIntegration::createPlatformOpenGLContext(QOpenGLContext *context) const
 {
-    if (mDisplay->glIntegration())
-        return mDisplay->glIntegration()->createPlatformOpenGLContext(context->format(), context->shareHandle());
+    if (mDisplay->clientBufferIntegration())
+        return mDisplay->clientBufferIntegration()->createPlatformOpenGLContext(context->format(), context->shareHandle());
     return 0;
 }
 
@@ -236,9 +237,27 @@ QPlatformTheme *QWaylandIntegration::createPlatformTheme(const QString &name) co
     return GenericWaylandTheme::createUnixTheme(name);
 }
 
-QWaylandGLIntegration *QWaylandIntegration::glIntegration() const
+QWaylandClientBufferIntegration *QWaylandIntegration::clientBufferIntegration() const
 {
-    return 0;
+    if (!mClientBufferIntegrationInitialized)
+        const_cast<QWaylandIntegration *>(this)->initializeBufferIntegration();
+
+    return mClientBufferIntegration;
+}
+
+void QWaylandIntegration::initializeBufferIntegration()
+{
+    mClientBufferIntegrationInitialized = true;
+
+    QByteArray clientBufferIntegrationName = qgetenv("QT_WAYLAND_CLIENT_BUFFER_INTEGRATION");
+    if (clientBufferIntegrationName.isEmpty())
+        clientBufferIntegrationName = QByteArrayLiteral("wayland-egl");
+
+    QStringList keys = QWaylandClientBufferIntegrationFactory::keys();
+    QString targetKey = QString::fromLocal8Bit(clientBufferIntegrationName);
+    if (keys.contains(targetKey)) {
+        mClientBufferIntegration = QWaylandClientBufferIntegrationFactory::create(targetKey, QStringList());
+    }
 }
 
 QT_END_NAMESPACE

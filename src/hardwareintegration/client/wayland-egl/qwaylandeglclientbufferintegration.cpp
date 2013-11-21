@@ -39,9 +39,7 @@
 **
 ****************************************************************************/
 
-#include "qwaylandeglintegration.h"
-
-#include <QtWaylandClient/qwaylandglintegration.h>
+#include "qwaylandeglclientbufferintegration.h"
 
 #include "qwaylandeglwindow.h"
 #include "qwaylandglcontext.h"
@@ -57,7 +55,7 @@ static const char *qwaylandegl_threadedgl_blacklist_vendor[] = {
     0
 };
 
-QWaylandEglIntegration::QWaylandEglIntegration(QWaylandDisplay *display)
+QWaylandEglClientBufferIntegration::QWaylandEglClientBufferIntegration(QWaylandDisplay *display)
     : m_waylandDisplay(display->wl_display())
     , m_supportsThreading(false)
 {
@@ -65,12 +63,12 @@ QWaylandEglIntegration::QWaylandEglIntegration(QWaylandDisplay *display)
 }
 
 
-QWaylandEglIntegration::~QWaylandEglIntegration()
+QWaylandEglClientBufferIntegration::~QWaylandEglClientBufferIntegration()
 {
     eglTerminate(m_eglDisplay);
 }
 
-void QWaylandEglIntegration::initialize()
+void QWaylandEglClientBufferIntegration::initialize()
 {
     QByteArray eglPlatform = qgetenv("EGL_PLATFORM");
     if (eglPlatform.isEmpty()) {
@@ -101,22 +99,22 @@ void QWaylandEglIntegration::initialize()
     }
 }
 
-bool QWaylandEglIntegration::supportsThreadedOpenGL() const
+bool QWaylandEglClientBufferIntegration::supportsThreadedOpenGL() const
 {
     return m_supportsThreading;
 }
 
-QWaylandWindow *QWaylandEglIntegration::createEglWindow(QWindow *window)
+QWaylandWindow *QWaylandEglClientBufferIntegration::createEglWindow(QWindow *window)
 {
     return new QWaylandEglWindow(window);
 }
 
-QPlatformOpenGLContext *QWaylandEglIntegration::createPlatformOpenGLContext(const QSurfaceFormat &glFormat, QPlatformOpenGLContext *share) const
+QPlatformOpenGLContext *QWaylandEglClientBufferIntegration::createPlatformOpenGLContext(const QSurfaceFormat &glFormat, QPlatformOpenGLContext *share) const
 {
     return new QWaylandGLContext(m_eglDisplay, glFormat, share);
 }
 
-EGLDisplay QWaylandEglIntegration::eglDisplay() const
+EGLDisplay QWaylandEglClientBufferIntegration::eglDisplay() const
 {
     return m_eglDisplay;
 }

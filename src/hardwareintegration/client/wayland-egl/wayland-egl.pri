@@ -6,11 +6,11 @@ INCLUDEPATH += $$PWD
     LIBS += -lwayland-egl -lEGL
 }
 
-SOURCES += $$PWD/qwaylandeglintegration.cpp \
+SOURCES += $$PWD/qwaylandeglclientbufferintegration.cpp \
            $$PWD/qwaylandglcontext.cpp \
            $$PWD/qwaylandeglwindow.cpp
 
-HEADERS += $$PWD/qwaylandeglintegration.h \
+HEADERS += $$PWD/qwaylandeglclientbufferintegration.h \
            $$PWD/qwaylandglcontext.h \
            $$PWD/qwaylandeglwindow.h \
            $$PWD/qwaylandeglinclude.h

@@ -39,38 +39,39 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDGLINTEGRATION_H
-#define QWAYLANDGLINTEGRATION_H
+#ifndef QWAYLANDEGLINTEGRATION_H
+#define QWAYLANDEGLINTEGRATION_H
 
-#include <QtCore/qglobal.h>
-#include <QtWaylandClient/qwaylandclientexport.h>
+#include <QtWaylandClient/qwaylandclientbufferintegration.h>
+
+#include "qwaylandeglinclude.h"
 
 QT_BEGIN_NAMESPACE
 
 class QWaylandWindow;
-class QWaylandDisplay;
 class QWindow;
 
-class QPlatformOpenGLContext;
-class QSurfaceFormat;
-
-class Q_WAYLAND_CLIENT_EXPORT QWaylandGLIntegration
+class QWaylandEglClientBufferIntegration : public QWaylandClientBufferIntegration
 {
 public:
-    QWaylandGLIntegration();
-    virtual ~QWaylandGLIntegration();
+    QWaylandEglClientBufferIntegration(QWaylandDisplay *display);
+    ~QWaylandEglClientBufferIntegration();
 
-    virtual void initialize() = 0;
-    virtual bool waitingForEvents() { return false; }
+    void initialize();
+    bool supportsThreadedOpenGL() const;
 
-    virtual bool supportsThreadedOpenGL() const { return false; }
+    QWaylandWindow *createEglWindow(QWindow *window);
+    QPlatformOpenGLContext *createPlatformOpenGLContext(const QSurfaceFormat &glFormat, QPlatformOpenGLContext *share) const;
 
-    virtual QWaylandWindow *createEglWindow(QWindow *window) = 0;
-    virtual QPlatformOpenGLContext *createPlatformOpenGLContext(const QSurfaceFormat &glFormat, QPlatformOpenGLContext *share) const = 0;
+    EGLDisplay eglDisplay() const;
 
-    static QWaylandGLIntegration *createGLIntegration(QWaylandDisplay *waylandDisplay);
+private:
+    struct wl_display *m_waylandDisplay;
+
+    EGLDisplay m_eglDisplay;
+    bool m_supportsThreading;
 };
 
 QT_END_NAMESPACE
 
-#endif // QWAYLANDGLINTEGRATION_H
+#endif // QWAYLANDEGLINTEGRATION_H

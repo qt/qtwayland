@@ -69,6 +69,7 @@ private:
     struct wl_display *m_waylandDisplay;
 
     EGLDisplay m_eglDisplay;
+    bool m_supportsThreading;
 };
 
 QT_END_NAMESPACE

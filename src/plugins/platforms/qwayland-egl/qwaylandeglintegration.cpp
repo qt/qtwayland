@@ -52,8 +52,13 @@
 
 QT_BEGIN_NAMESPACE
 
+static const char *qwaylandegl_threadedgl_blacklist_vendor[] = {
+    "Mesa Project",
+    0
+};
+
 QWaylandEglIntegration::QWaylandEglIntegration(struct wl_display *waylandDisplay)
-    : m_waylandDisplay(waylandDisplay)
+    : m_waylandDisplay(waylandDisplay), m_supportsThreading(false)
 {
     qDebug() << "Using Wayland-EGL";
 }
@@ -81,11 +86,23 @@ void QWaylandEglIntegration::initialize()
             return;
         }
     }
+
+    m_supportsThreading = true;
+    if (qEnvironmentVariableIsSet("QT_OPENGL_NO_SANITY_CHECK"))
+        return;
+
+    const char *vendor = eglQueryString(m_eglDisplay, EGL_VENDOR);
+    for (int i = 0; qwaylandegl_threadedgl_blacklist_vendor[i]; ++i) {
+        if (strstr(vendor, qwaylandegl_threadedgl_blacklist_vendor[i]) != 0) {
+            m_supportsThreading = false;
+            break;
+        }
+    }
 }
 
 bool QWaylandEglIntegration::supportsThreadedOpenGL() const
 {
-    return true;
+    return m_supportsThreading;
 }
 
 QWaylandWindow *QWaylandEglIntegration::createEglWindow(QWindow *window)

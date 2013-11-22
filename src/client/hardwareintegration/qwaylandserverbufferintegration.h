@@ -39,72 +39,33 @@
 **
 ****************************************************************************/
 
-#ifndef QPLATFORMINTEGRATION_WAYLAND_H
-#define QPLATFORMINTEGRATION_WAYLAND_H
+#ifndef QWAYLANDSERVERBUFFERINTEGRATION_H
+#define QWAYLANDSERVERBUFFERINTEGRATION_H
 
-#include <qpa/qplatformintegration.h>
+#include <QtGui/qopengl.h>
 
+#include <QtWaylandClient/private/qwayland-server-buffer-extension.h>
 #include <QtWaylandClient/qwaylandclientexport.h>
+
 QT_BEGIN_NAMESPACE
 
-class QWaylandBuffer;
 class QWaylandDisplay;
-class QWaylandClientBufferIntegration;
-class QWaylandServerBufferIntegration;
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandIntegration : public QPlatformIntegration
+class Q_WAYLAND_CLIENT_EXPORT QWaylandServerBufferIntegration
 {
 public:
-    QWaylandIntegration();
-    ~QWaylandIntegration();
+    QWaylandServerBufferIntegration();
+    virtual ~QWaylandServerBufferIntegration();
 
-    bool hasCapability(QPlatformIntegration::Capability cap) const;
-    QPlatformWindow *createPlatformWindow(QWindow *window) const;
-    QPlatformOpenGLContext *createPlatformOpenGLContext(QOpenGLContext *context) const;
-    QPlatformBackingStore *createPlatformBackingStore(QWindow *window) const;
+    virtual void initialize(QWaylandDisplay *display) = 0;
 
-    QAbstractEventDispatcher *createEventDispatcher() const;
-    void initialize();
+    //creates new texture for buffer
+    virtual GLuint createTextureFor(struct qt_server_buffer *buffer) = 0;
 
-    QPlatformFontDatabase *fontDatabase() const;
-
-    QPlatformNativeInterface *nativeInterface() const;
-
-    QPlatformClipboard *clipboard() const;
-
-    QPlatformDrag *drag() const;
-
-    QPlatformInputContext *inputContext() const;
-
-    QVariant styleHint(StyleHint hint) const;
-
-    QPlatformAccessibility *accessibility() const;
-
-    QPlatformServices *services() const;
-
-    QWaylandDisplay *display() const;
-
-    QStringList themeNames() const;
-
-    QPlatformTheme *createPlatformTheme(const QString &name) const;
-
-    virtual QWaylandClientBufferIntegration *clientBufferIntegration() const;
-    virtual QWaylandServerBufferIntegration *serverBufferIntegration() const;
-protected:
-    QWaylandClientBufferIntegration *mClientBufferIntegration;
-    QWaylandServerBufferIntegration *mServerBufferIntegration;
-private:
-    void initializeClientBufferIntegration();
-    void initializeServerBufferIntegration();
-    QPlatformFontDatabase *mFontDb;
-    QPlatformClipboard *mClipboard;
-    QPlatformDrag *mDrag;
-    QWaylandDisplay *mDisplay;
-    QPlatformNativeInterface *mNativeInterface;
-    QScopedPointer<QPlatformInputContext> mInputContext;
-    QPlatformAccessibility *mAccessibility;
-    bool mClientBufferIntegrationInitialized;
-    bool mServerBufferIntegrationInitialized;
+    //does not clean up textures. Just lets server know that it does
+    //not intend to use the buffer anymore. Textures should have been
+    //deleted prior to calling this function
+    virtual void release(struct qt_server_buffer *buffer) = 0;
 };
 
 QT_END_NAMESPACE

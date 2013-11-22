@@ -38,7 +38,7 @@
  $QT_END_LICENSE$
     </copyright>
 
-    <interface name="qt_server_buffer_extension" version="1">
+    <interface name="qt_server_buffer" version="1">
         <description summary="buffers managed by the compositor">
           Server buffer is an extension which makes it possible to share a
           buffer created by the compositor to share it with arbitrary
@@ -47,9 +47,6 @@
 
           Server buffers main purpose is to help implement caches
         </description>
-        <event name="destroy" type="destructor">
-        </event>
-
         <request name="release">
         </request>
     </interface>

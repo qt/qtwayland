@@ -68,6 +68,8 @@
 #include "qwaylandclientbufferintegration.h"
 #include "qwaylandclientbufferintegrationfactory.h"
 
+#include "qwaylandserverbufferintegration.h"
+#include "qwaylandserverbufferintegrationfactory.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -110,6 +112,7 @@ QWaylandIntegration::QWaylandIntegration()
     , mAccessibility(0)
 #endif
     , mClientBufferIntegrationInitialized(false)
+    , mServerBufferIntegrationInitialized(false)
 {
     mDisplay = new QWaylandDisplay(this);
     mClipboard = new QWaylandClipboard(mDisplay);
@@ -240,12 +243,20 @@ QPlatformTheme *QWaylandIntegration::createPlatformTheme(const QString &name) co
 QWaylandClientBufferIntegration *QWaylandIntegration::clientBufferIntegration() const
 {
     if (!mClientBufferIntegrationInitialized)
-        const_cast<QWaylandIntegration *>(this)->initializeBufferIntegration();
+        const_cast<QWaylandIntegration *>(this)->initializeClientBufferIntegration();
 
     return mClientBufferIntegration;
 }
 
-void QWaylandIntegration::initializeBufferIntegration()
+QWaylandServerBufferIntegration *QWaylandIntegration::serverBufferIntegration() const
+{
+    if (!mServerBufferIntegrationInitialized)
+        const_cast<QWaylandIntegration *>(this)->initializeServerBufferIntegration();
+
+    return mServerBufferIntegration;
+}
+
+void QWaylandIntegration::initializeClientBufferIntegration()
 {
     mClientBufferIntegrationInitialized = true;
 
@@ -260,6 +271,23 @@ void QWaylandIntegration::initializeBufferIntegration()
     }
     if (mClientBufferIntegration)
         mClientBufferIntegration->initialize(mDisplay);
+}
+
+void QWaylandIntegration::initializeServerBufferIntegration()
+{
+    mServerBufferIntegrationInitialized = true;
+
+    QByteArray serverBufferIntegrationName = qgetenv("QT_WAYLAND_SERVER_BUFFER_INTEGRATION");
+    if (serverBufferIntegrationName.isEmpty())
+        serverBufferIntegrationName = QByteArrayLiteral("wayland-egl");
+
+    QStringList keys = QWaylandServerBufferIntegrationFactory::keys();
+    QString targetKey = QString::fromLocal8Bit(serverBufferIntegrationName);
+    if (keys.contains(targetKey)) {
+        mServerBufferIntegration = QWaylandServerBufferIntegrationFactory::create(targetKey, QStringList());
+    }
+    if (mServerBufferIntegration)
+        mServerBufferIntegration->initialize(mDisplay);
 }
 
 QT_END_NAMESPACE

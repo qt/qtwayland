@@ -67,8 +67,6 @@ public:
 
     virtual QWaylandWindow *createEglWindow(QWindow *window) = 0;
     virtual QPlatformOpenGLContext *createPlatformOpenGLContext(const QSurfaceFormat &glFormat, QPlatformOpenGLContext *share) const = 0;
-
-    static QWaylandClientBufferIntegration *createGLIntegration(QWaylandDisplay *waylandDisplay);
 };
 
 QT_END_NAMESPACE

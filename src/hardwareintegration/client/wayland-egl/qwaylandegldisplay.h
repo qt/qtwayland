@@ -55,10 +55,6 @@ public:
     QWaylandEglDisplay()
         : QWaylandDisplay()
     { }
-
-protected:
-    QWaylandGLIntegration *createGLIntegration()
-    { return new QWaylandEglIntegration(); }
 };
 
 QT_END_NAMESPACE

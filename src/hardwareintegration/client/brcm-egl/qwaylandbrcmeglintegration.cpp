@@ -124,9 +124,4 @@ EGLDisplay QWaylandBrcmEglIntegration::eglDisplay() const
     return m_eglDisplay;
 }
 
-QWaylandGLIntegration *QWaylandGLIntegration::createGLIntegration(QWaylandDisplay *waylandDisplay)
-{
-    return new QWaylandBrcmEglIntegration(waylandDisplay);
-}
-
 QT_END_NAMESPACE

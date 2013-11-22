@@ -126,6 +126,7 @@ void QWaylandTextInput::updateState()
 
 void QWaylandTextInput::text_input_commit_string(uint32_t serial, const QString &text)
 {
+    Q_UNUSED(serial);
     if (!QGuiApplication::focusObject())
         return;
 
@@ -146,6 +147,9 @@ void QWaylandTextInput::text_input_leave()
 
 void QWaylandTextInput::text_input_keysym(uint32_t serial, uint32_t time, uint32_t sym, uint32_t state, uint32_t modifiers)
 {
+    Q_UNUSED(serial);
+    Q_UNUSED(time);
+    Q_UNUSED(modifiers);
     if (!QGuiApplication::focusObject())
         return;
 
@@ -191,6 +195,7 @@ void QWaylandInputContext::commit()
 
 void QWaylandInputContext::update(Qt::InputMethodQueries queries)
 {
+    Q_UNUSED(queries);
     if (!ensureTextInput())
         return;
 

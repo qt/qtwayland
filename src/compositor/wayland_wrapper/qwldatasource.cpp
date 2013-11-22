@@ -120,6 +120,7 @@ void DataSource::data_source_destroy(Resource *resource)
 
 void DataSource::data_source_destroy_resource(QtWaylandServer::wl_data_source::Resource *resource)
 {
+    Q_UNUSED(resource);
     delete this;
 }
 

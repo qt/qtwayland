@@ -67,12 +67,15 @@ DataOffer::~DataOffer()
 
 void DataOffer::data_offer_accept(Resource *resource, uint32_t serial, const QString &mimeType)
 {
+    Q_UNUSED(resource);
+    Q_UNUSED(serial);
     if (m_dataSource)
         m_dataSource->accept(mimeType);
 }
 
 void DataOffer::data_offer_receive(Resource *resource, const QString &mimeType, int32_t fd)
 {
+    Q_UNUSED(resource);
     if (m_dataSource)
         m_dataSource->send(mimeType, fd);
     else

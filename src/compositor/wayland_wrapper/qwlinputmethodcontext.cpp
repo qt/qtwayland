@@ -114,14 +114,24 @@ void InputMethodContext::input_method_context_preedit_styling(Resource *, uint32
 
 void InputMethodContext::input_method_context_grab_keyboard(Resource *, uint32_t keyboard)
 {
+    Q_UNUSED(keyboard);
 }
 
 void InputMethodContext::input_method_context_key(Resource *, uint32_t serial, uint32_t time, uint32_t key, uint32_t state)
 {
+    Q_UNUSED(serial);
+    Q_UNUSED(time);
+    Q_UNUSED(key);
+    Q_UNUSED(state);
 }
 
 void InputMethodContext::input_method_context_modifiers(Resource *, uint32_t serial, uint32_t mods_depressed, uint32_t mods_latched, uint32_t mods_locked, uint32_t group)
 {
+    Q_UNUSED(serial);
+    Q_UNUSED(mods_depressed);
+    Q_UNUSED(mods_latched);
+    Q_UNUSED(mods_locked);
+    Q_UNUSED(group);
 }
 
 } // namespace QtWayland

@@ -108,7 +108,7 @@ void QWaylandDataDevice::cancelDrag()
 
 void QWaylandDataDevice::data_device_data_offer(struct ::wl_data_offer *id)
 {
-    QWaylandDataOffer *offer = new QWaylandDataOffer(m_display, id);
+    new QWaylandDataOffer(m_display, id);
 }
 
 void QWaylandDataDevice::data_device_drop()

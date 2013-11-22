@@ -230,7 +230,7 @@ void QWaylandDisplay::registry_global(uint32_t id, const QString &interface, uin
         mTouchExtension = new QWaylandTouchExtension(this, id);
     } else if (interface == QStringLiteral("qt_key_extension")) {
         mQtKeyExtension = new QWaylandQtKeyExtension(this, id);
-    } else if (interface == "wl_text_input_manager") {
+    } else if (interface == QStringLiteral("wl_text_input_manager")) {
         mTextInputManager = new QtWayland::wl_text_input_manager(registry, id);
     }
 

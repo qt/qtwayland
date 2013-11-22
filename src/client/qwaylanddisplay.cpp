@@ -205,30 +205,30 @@ void QWaylandDisplay::registry_global(uint32_t id, const QString &interface, uin
 
     struct ::wl_registry *registry = object();
 
-    if (interface == "wl_output") {
+    if (interface == QStringLiteral("wl_output")) {
         mScreens.append(new QWaylandScreen(this, id));
-    } else if (interface == "wl_compositor") {
+    } else if (interface == QStringLiteral("wl_compositor")) {
         mCompositor.init(registry, id);
-    } else if (interface == "wl_shm") {
+    } else if (interface == QStringLiteral("wl_shm")) {
         mShm = static_cast<struct wl_shm *>(wl_registry_bind(registry, id, &wl_shm_interface,1));
-    } else if (interface == "wl_shell"){
+    } else if (interface == QStringLiteral("wl_shell")){
         mShell = new QtWayland::wl_shell(registry, id);
-    } else if (interface == "wl_seat") {
+    } else if (interface == QStringLiteral("wl_seat")) {
         QWaylandInputDevice *inputDevice = new QWaylandInputDevice(this, id);
         mInputDevices.append(inputDevice);
-    } else if (interface == "wl_data_device_manager") {
+    } else if (interface == QStringLiteral("wl_data_device_manager")) {
         mDndSelectionHandler = new QWaylandDataDeviceManager(this, id);
-    } else if (interface == "qt_output_extension") {
+    } else if (interface == QStringLiteral("qt_output_extension")) {
         mOutputExtension = new QtWayland::qt_output_extension(registry, id);
         foreach (QPlatformScreen *screen, screens())
             static_cast<QWaylandScreen *>(screen)->createExtendedOutput();
-    } else if (interface == "qt_surface_extension") {
+    } else if (interface == QStringLiteral("qt_surface_extension")) {
         mWindowExtension = new QtWayland::qt_surface_extension(registry, id);
-    } else if (interface == "qt_sub_surface_extension") {
+    } else if (interface == QStringLiteral("qt_sub_surface_extension")) {
         mSubSurfaceExtension = new QtWayland::qt_sub_surface_extension(registry, id);
-    } else if (interface == "qt_touch_extension") {
+    } else if (interface == QStringLiteral("qt_touch_extension")) {
         mTouchExtension = new QWaylandTouchExtension(this, id);
-    } else if (interface == "qt_key_extension") {
+    } else if (interface == QStringLiteral("qt_key_extension")) {
         mQtKeyExtension = new QWaylandQtKeyExtension(this, id);
     } else if (interface == "wl_text_input_manager") {
         mTextInputManager = new QtWayland::wl_text_input_manager(registry, id);

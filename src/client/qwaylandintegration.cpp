@@ -90,7 +90,7 @@ public:
                 desktopEnvironment != QByteArrayLiteral("MATE") &&
                 desktopEnvironment != QByteArrayLiteral("XFCE") &&
                 desktopEnvironment != QByteArrayLiteral("LXDE"))
-                result.push_back(desktopEnvironment.toLower());
+                result.push_back(QString::fromLocal8Bit(desktopEnvironment.toLower()));
         }
 
         if (result.isEmpty())

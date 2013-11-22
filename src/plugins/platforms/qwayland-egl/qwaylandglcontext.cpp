@@ -67,7 +67,23 @@ QWaylandGLContext::QWaylandGLContext(EGLDisplay eglDisplay, const QSurfaceFormat
 {
     m_shareEGLContext = share ? static_cast<QWaylandGLContext *>(share)->eglContext() : EGL_NO_CONTEXT;
 
-    eglBindAPI(EGL_OPENGL_ES_API);
+    switch (m_format.renderableType()) {
+    case QSurfaceFormat::OpenVG:
+        eglBindAPI(EGL_OPENVG_API);
+        break;
+#ifdef EGL_VERSION_1_4
+#  if !defined(QT_OPENGL_ES_2)
+    case QSurfaceFormat::DefaultRenderableType:
+#  endif
+    case QSurfaceFormat::OpenGL:
+        eglBindAPI(EGL_OPENGL_API);
+        break;
+#endif
+    case QSurfaceFormat::OpenGLES:
+    default:
+        eglBindAPI(EGL_OPENGL_ES_API);
+        break;
+    }
 
     QVector<EGLint> eglContextAttrs;
     eglContextAttrs.append(EGL_CONTEXT_CLIENT_VERSION);
@@ -91,6 +107,9 @@ QWaylandGLContext::~QWaylandGLContext()
 
 bool QWaylandGLContext::makeCurrent(QPlatformSurface *surface)
 {
+    if (!isInitialized(QOpenGLFunctions::d_ptr))
+        initializeOpenGLFunctions();
+
     QWaylandEglWindow *window = static_cast<QWaylandEglWindow *>(surface);
 
     window->setCanResize(false);

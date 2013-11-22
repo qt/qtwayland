@@ -45,6 +45,7 @@
 #include "qwaylanddisplay.h"
 
 #include <qpa/qplatformopenglcontext.h>
+#include <QtGui/QOpenGLFunctions>
 
 #include "qwaylandeglinclude.h"
 
@@ -55,7 +56,8 @@ class QWaylandGLWindowSurface;
 class QOpenGLShaderProgram;
 class QOpenGLTextureCache;
 
-class QWaylandGLContext : public QPlatformOpenGLContext {
+class QWaylandGLContext : public QPlatformOpenGLContext, protected QOpenGLFunctions
+{
 public:
     QWaylandGLContext(EGLDisplay eglDisplay, const QSurfaceFormat &format, QPlatformOpenGLContext *share);
     ~QWaylandGLContext();

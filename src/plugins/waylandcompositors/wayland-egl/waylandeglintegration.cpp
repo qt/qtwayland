@@ -54,9 +54,6 @@
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
 
-#include <GLES2/gl2.h>
-#include <GLES2/gl2ext.h>
-
 #ifndef EGL_WL_bind_wayland_display
 typedef EGLBoolean (EGLAPIENTRYP PFNEGLBINDWAYLANDDISPLAYWL) (EGLDisplay dpy, struct wl_display *display);
 typedef EGLBoolean (EGLAPIENTRYP PFNEGLUNBINDWAYLANDDISPLAYWL) (EGLDisplay dpy, struct wl_display *display);

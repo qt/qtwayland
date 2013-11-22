@@ -133,7 +133,7 @@ void WaylandEglClientBufferIntegration::initializeHardware(QtWayland::Display *w
 
     d->egl_bind_wayland_display = reinterpret_cast<PFNEGLBINDWAYLANDDISPLAYWL>(eglGetProcAddress("eglBindWaylandDisplayWL"));
     d->egl_unbind_wayland_display = reinterpret_cast<PFNEGLUNBINDWAYLANDDISPLAYWL>(eglGetProcAddress("eglUnbindWaylandDisplayWL"));
-    if (!d->egl_bind_wayland_display || !d->egl_unbind_wayland_display && !ignoreBindDisplay) {
+    if ((!d->egl_bind_wayland_display || !d->egl_unbind_wayland_display) && !ignoreBindDisplay) {
         qWarning("Failed to initialize egl display. Could not find eglBindWaylandDisplayWL and eglUnbindWaylandDisplayWL.\n");
         return;
     }
@@ -201,9 +201,9 @@ GLuint WaylandEglClientBufferIntegration::createTextureFromBuffer(struct ::wl_re
 
 bool WaylandEglClientBufferIntegration::isYInverted(struct ::wl_resource *buffer) const
 {
+#if defined(EGL_WAYLAND_Y_INVERTED_WL)
     Q_D(const WaylandEglClientBufferIntegration);
 
-#if defined(EGL_WAYLAND_Y_INVERTED_WL)
     EGLint isYInverted;
     EGLBoolean ret;
     ret = d->egl_query_wayland_buffer(d->egl_display, reinterpret_cast<struct ::wl_buffer *>(buffer), EGL_WAYLAND_Y_INVERTED_WL, &isYInverted);

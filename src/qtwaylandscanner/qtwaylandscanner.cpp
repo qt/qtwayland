@@ -226,7 +226,7 @@ const WaylandArgument *newIdArgument(const QList<WaylandArgument> &arguments)
     return 0;
 }
 
-void printEvent(const WaylandEvent &e, const char *interfaceName, bool omitNames = false, bool withResource = false)
+void printEvent(const WaylandEvent &e, bool omitNames = false, bool withResource = false)
 {
     printf("%s(", e.name.constData());
     bool needsComma = false;
@@ -453,10 +453,10 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath)
                 printf("\n");
                 foreach (const WaylandEvent &e, interface.events) {
                     printf("        void send_");
-                    printEvent(e, interfaceName);
+                    printEvent(e);
                     printf(";\n");
                     printf("        void send_");
-                    printEvent(e, interfaceName, false, true);
+                    printEvent(e, false, true);
                     printf(";\n");
                 }
             }
@@ -474,7 +474,7 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath)
                 printf("\n");
                 foreach (const WaylandEvent &e, interface.requests) {
                     printf("        virtual void %s_", interfaceNameStripped);
-                    printEvent(e, interfaceName);
+                    printEvent(e);
                     printf(";\n");
                 }
             }
@@ -664,7 +664,7 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath)
                 foreach (const WaylandEvent &e, interface.requests) {
                     printf("\n");
                     printf("    void %s::%s_", interfaceName, interfaceNameStripped);
-                    printEvent(e, interfaceName, true);
+                    printEvent(e, true);
                     printf("\n");
                     printf("    {\n");
                     printf("    }\n");
@@ -704,7 +704,7 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath)
                 printf("\n");
                 const WaylandEvent &e = interface.events.at(i);
                 printf("    void %s::send_", interfaceName);
-                printEvent(e, interfaceName);
+                printEvent(e);
                 printf("\n");
                 printf("    {\n");
                 printf("        send_%s(\n", e.name.constData());
@@ -719,7 +719,7 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath)
                 printf("\n");
 
                 printf("    void %s::send_", interfaceName);
-                printEvent(e, interfaceName, false, true);
+                printEvent(e, false, true);
                 printf("\n");
                 printf("    {\n");
 
@@ -826,7 +826,7 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath)
                 foreach (const WaylandEvent &e, interface.requests) {
                     const WaylandArgument *new_id = newIdArgument(e.arguments);
                     printf("        %s", new_id ? (new_id->interface.isEmpty() ? "void *" : "struct ::" + new_id->interface + " *").constData() : "void ");
-                    printEvent(e, interfaceName);
+                    printEvent(e);
                     printf(";\n");
                 }
             }
@@ -838,7 +838,7 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath)
                 printf("    protected:\n");
                 foreach (const WaylandEvent &e, interface.events) {
                     printf("        virtual void %s_", interfaceNameStripped);
-                    printEvent(e, interfaceName);
+                    printEvent(e);
                     printf(";\n");
                 }
             }
@@ -942,7 +942,7 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath)
                 const WaylandEvent &e = interface.requests.at(i);
                 const WaylandArgument *new_id = newIdArgument(e.arguments);
                 printf("    %s%s::", new_id ? (new_id->interface.isEmpty() ? "void *" : "struct ::" + new_id->interface + " *").constData() : "void ", interfaceName);
-                printEvent(e, interfaceName);
+                printEvent(e);
                 printf("\n");
                 printf("    {\n");
                 for (int i = 0; i < e.arguments.size(); ++i) {
@@ -994,7 +994,7 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath)
                 for (int i = 0; i < interface.events.size(); ++i) {
                     const WaylandEvent &e = interface.events.at(i);
                     printf("    void %s::%s_", interfaceName, interfaceNameStripped);
-                    printEvent(e, interfaceName, true);
+                    printEvent(e, true);
                     printf("\n");
                     printf("    {\n");
                     printf("    }\n");

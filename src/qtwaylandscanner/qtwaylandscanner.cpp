@@ -344,6 +344,11 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath)
         return;
     }
 
+    //We should convert - to _ so that the preprocessor wont generate code which will lead to unexpected behavior
+    //However, the wayland-scanner doesn't do so we will do the same for now
+    //QByteArray preProcessorProtocolName = QByteArray(protocolName).replace('-', '_').toUpper();
+    QByteArray preProcessorProtocolName = QByteArray(protocolName).toUpper();
+
     QList<WaylandInterface> interfaces;
 
     while (xml.readNextStartElement()) {
@@ -357,7 +362,7 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath)
         return;
 
     if (option == ServerHeader) {
-        QByteArray inclusionGuard = "QT_WAYLAND_SERVER_" + protocolName.toUpper();
+        QByteArray inclusionGuard = QByteArray("QT_WAYLAND_SERVER_") + preProcessorProtocolName.constData();
         printf("#ifndef %s\n", inclusionGuard.constData());
         printf("#define %s\n", inclusionGuard.constData());
         printf("\n");
@@ -381,13 +386,15 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath)
         printf("\n");
         printf("QT_BEGIN_NAMESPACE\n");
 
+        QByteArray serverExport;
         if (headerPath.size()) {
+            serverExport = QByteArray("Q_WAYLAND_SERVER_") + preProcessorProtocolName + "_EXPORT";
             printf("\n");
-            printf("#if !defined(Q_WAYLAND_SERVER_%s_EXPORT)\n", protocolName.toUpper().constData());
+            printf("#if !defined(%s)\n", serverExport.constData());
             printf("#  if defined(QT_SHARED)\n");
-            printf("#    define Q_WAYLAND_SERVER_%s_EXPORT Q_DECL_EXPORT\n", protocolName.toUpper().constData());
+            printf("#    define %s Q_DECL_EXPORT\n", serverExport.constData());
             printf("#  else\n");
-            printf("#    define Q_WAYLAND_SERVER_%s_EXPORT\n", protocolName.toUpper().constData());
+            printf("#    define %s\n", serverExport.constData());
             printf("#  endif\n");
             printf("#endif\n");
         }
@@ -405,10 +412,7 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath)
             QByteArray stripped = stripInterfaceName(interface.name);
             const char *interfaceNameStripped = stripped.constData();
 
-            if (headerPath.isEmpty())
-                printf("    class %s\n    {\n", interfaceName);
-            else
-                printf("    class Q_WAYLAND_SERVER_%s_EXPORT %s\n    {\n",protocolName.toUpper().constData(), interfaceName);
+            printf("    class %s %s\n    {\n", serverExport.constData(), interfaceName);
             printf("    public:\n");
             printf("        %s(struct ::wl_client *client, int id);\n", interfaceName);
             printf("        %s(struct ::wl_display *display);\n", interfaceName);
@@ -764,7 +768,7 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath)
     }
 
     if (option == ClientHeader) {
-        QByteArray inclusionGuard = "QT_WAYLAND_" + protocolName.toUpper();
+        QByteArray inclusionGuard = QByteArray("QT_WAYLAND_") + preProcessorProtocolName.constData();
         printf("#ifndef %s\n", inclusionGuard.constData());
         printf("#define %s\n", inclusionGuard.constData());
         printf("\n");
@@ -777,13 +781,16 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath)
         printf("\n");
         printf("QT_BEGIN_NAMESPACE\n");
 
+        QByteArray clientExport;
+
         if (headerPath.size()) {
+            clientExport = QByteArray("Q_WAYLAND_CLIENT_") + preProcessorProtocolName + "_EXPORT";
             printf("\n");
-            printf("#if !defined(Q_WAYLAND_CLIENT_%s_EXPORT)\n", protocolName.toUpper().constData());
+            printf("#if !defined(%s)\n", clientExport.constData());
             printf("#  if defined(QT_SHARED)\n");
-            printf("#    define Q_WAYLAND_CLIENT_%s_EXPORT Q_DECL_EXPORT\n", protocolName.toUpper().constData());
+            printf("#    define %s Q_DECL_EXPORT\n", clientExport.constData());
             printf("#  else\n");
-            printf("#    define Q_WAYLAND_CLIENT_%s_EXPORT\n", protocolName.toUpper().constData());
+            printf("#    define %s\n", clientExport.constData());
             printf("#  endif\n");
             printf("#endif\n");
         }
@@ -800,10 +807,7 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath)
             QByteArray stripped = stripInterfaceName(interface.name);
             const char *interfaceNameStripped = stripped.constData();
 
-            if (headerPath.isEmpty())
-                printf("    class %s\n    {\n", interfaceName);
-            else
-                printf("    class Q_WAYLAND_CLIENT_%s_EXPORT %s\n    {\n",protocolName.toUpper().constData(), interfaceName);
+            printf("    class %s %s\n    {\n", clientExport.constData(), interfaceName);
             printf("    public:\n");
             printf("        %s(struct ::wl_registry *registry, int id);\n", interfaceName);
             printf("        %s(struct ::%s *object);\n", interfaceName, interfaceName);

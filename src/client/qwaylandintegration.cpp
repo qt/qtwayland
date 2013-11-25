@@ -65,6 +65,7 @@
 #include <qpa/qplatformaccessibility.h>
 #include <qpa/qplatforminputcontext.h>
 
+#include "qwaylandhardwareintegration.h"
 #include "qwaylandclientbufferintegration.h"
 #include "qwaylandclientbufferintegrationfactory.h"
 
@@ -260,34 +261,61 @@ void QWaylandIntegration::initializeClientBufferIntegration()
 {
     mClientBufferIntegrationInitialized = true;
 
-    QByteArray clientBufferIntegrationName = qgetenv("QT_WAYLAND_CLIENT_BUFFER_INTEGRATION");
-    if (clientBufferIntegrationName.isEmpty())
-        clientBufferIntegrationName = QByteArrayLiteral("wayland-egl");
+    QString targetKey;
+    bool disableHardwareIntegration = qEnvironmentVariableIsSet("QT_WAYLAND_DISABLE_HW_INTEGRATION");
+    disableHardwareIntegration = disableHardwareIntegration || !mDisplay->hardwareIntegration();
+    if (disableHardwareIntegration) {
+        QByteArray clientBufferIntegrationName = qgetenv("QT_WAYLAND_CLIENT_BUFFER_INTEGRATION");
+        if (clientBufferIntegrationName.isEmpty())
+            clientBufferIntegrationName = QByteArrayLiteral("wayland-egl");
+        targetKey = QString::fromLocal8Bit(clientBufferIntegrationName);
+    } else {
+        targetKey = mDisplay->hardwareIntegration()->clientBufferIntegration();
+    }
+
+    if (targetKey.isEmpty()) {
+        qWarning("Failed to determin what client buffer integration to use");
+        return;
+    }
 
     QStringList keys = QWaylandClientBufferIntegrationFactory::keys();
-    QString targetKey = QString::fromLocal8Bit(clientBufferIntegrationName);
     if (keys.contains(targetKey)) {
         mClientBufferIntegration = QWaylandClientBufferIntegrationFactory::create(targetKey, QStringList());
     }
     if (mClientBufferIntegration)
         mClientBufferIntegration->initialize(mDisplay);
+    else
+        qWarning("Failed to load client buffer intgration: %s\n", qPrintable(targetKey));
 }
 
 void QWaylandIntegration::initializeServerBufferIntegration()
 {
     mServerBufferIntegrationInitialized = true;
 
-    QByteArray serverBufferIntegrationName = qgetenv("QT_WAYLAND_SERVER_BUFFER_INTEGRATION");
-    if (serverBufferIntegrationName.isEmpty())
-        serverBufferIntegrationName = QByteArrayLiteral("wayland-egl");
+    QString targetKey;
+
+    bool disableHardwareIntegration = qEnvironmentVariableIsSet("QT_WAYLAND_DISABLE_HW_INTEGRATION");
+    disableHardwareIntegration = disableHardwareIntegration || !mDisplay->hardwareIntegration();
+    if (disableHardwareIntegration) {
+        QByteArray serverBufferIntegrationName = qgetenv("QT_WAYLAND_SERVER_BUFFER_INTEGRATION");
+        QString targetKey = QString::fromLocal8Bit(serverBufferIntegrationName);
+    } else {
+        targetKey = mDisplay->hardwareIntegration()->serverBufferIntegration();
+    }
+
+    if (targetKey.isEmpty()) {
+        qWarning("Failed to determin what server buffer integration to use");
+        return;
+    }
 
     QStringList keys = QWaylandServerBufferIntegrationFactory::keys();
-    QString targetKey = QString::fromLocal8Bit(serverBufferIntegrationName);
     if (keys.contains(targetKey)) {
         mServerBufferIntegration = QWaylandServerBufferIntegrationFactory::create(targetKey, QStringList());
     }
     if (mServerBufferIntegration)
         mServerBufferIntegration->initialize(mDisplay);
+    else
+        qWarning("Failed to load server buffer integration %s\n", qPrintable(targetKey));
 }
 
 QT_END_NAMESPACE

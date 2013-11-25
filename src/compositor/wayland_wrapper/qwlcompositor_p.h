@@ -79,6 +79,7 @@ class TouchExtensionGlobal;
 class QtKeyExtensionGlobal;
 class TextInputManager;
 class InputPanel;
+class HardwareIntegration;
 
 class Q_COMPOSITOR_EXPORT Compositor : public QObject
 {
@@ -205,8 +206,9 @@ private:
     bool m_directRenderActive;
 
 #ifdef QT_COMPOSITOR_WAYLAND_GL
-    QWaylandClientBufferIntegration *m_client_buffer_integration;
-    QWaylandServerBufferIntegration *m_server_buffer_integration;
+    QScopedPointer<HardwareIntegration> m_hw_integration;
+    QScopedPointer<QWaylandClientBufferIntegration> m_client_buffer_integration;
+    QScopedPointer<QWaylandServerBufferIntegration> m_server_buffer_integration;
 #endif
 
     //extensions

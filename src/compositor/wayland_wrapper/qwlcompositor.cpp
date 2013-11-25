@@ -84,6 +84,7 @@
 
 #include <wayland-server.h>
 
+#include "hardware_integration/qwlhwintegration_p.h"
 #include "hardware_integration/qwaylandclientbufferintegration.h"
 #include "hardware_integration/qwaylandserverbufferintegration.h"
 #include "waylandwindowmanagerintegration.h"
@@ -140,6 +141,7 @@ Compositor::Compositor(QWaylandCompositor *qt_compositor, QWaylandCompositor::Ex
     , m_directRenderContext(0)
     , m_directRenderActive(false)
 #if defined (QT_COMPOSITOR_WAYLAND_GL)
+    , m_hw_integration(0)
     , m_client_buffer_integration(0)
     , m_server_buffer_integration(0)
 #endif
@@ -156,14 +158,6 @@ Compositor::Compositor(QWaylandCompositor *qt_compositor, QWaylandCompositor::Ex
     m_timer.start();
     compositor = this;
 
-#if defined (QT_COMPOSITOR_WAYLAND_GL)
-    QWindow *window = qt_compositor->window();
-    if (window && window->surfaceType() != QWindow::RasterSurface) {
-        loadClientBufferIntegration();
-        loadServerBufferIntegration();
-    }
-#endif
-
     if (extensions & QWaylandCompositor::WindowManagerExtension)
         m_windowManagerIntegration = new WindowManagerServerIntegration(qt_compositor, this);
 
@@ -177,6 +171,16 @@ Compositor::Compositor(QWaylandCompositor *qt_compositor, QWaylandCompositor::Ex
 
     m_shell = new Shell();
     wl_display_add_global(m_display->handle(), &wl_shell_interface, m_shell, Shell::bind_func);
+
+#if defined (QT_COMPOSITOR_WAYLAND_GL)
+    if (extensions & QWaylandCompositor::HardwareIntegrationExtension)
+        m_hw_integration.reset(new HardwareIntegration(this));
+    QWindow *window = qt_compositor->window();
+    if (window && window->surfaceType() != QWindow::RasterSurface) {
+        loadClientBufferIntegration();
+        loadServerBufferIntegration();
+    }
+#endif
 
     if (extensions & QWaylandCompositor::OutputExtension)
         m_outputExtension = new OutputExtensionGlobal(this);
@@ -224,10 +228,6 @@ Compositor::~Compositor()
     delete m_default_wayland_input_device;
     delete m_data_device_manager;
 
-#ifdef QT_COMPOSITOR_WAYLAND_GL
-    delete m_client_buffer_integration;
-    delete m_server_buffer_integration;
-#endif
     delete m_output_global;
     delete m_display;
 }
@@ -321,7 +321,7 @@ QWindow *Compositor::window() const
 QWaylandClientBufferIntegration * Compositor::clientBufferIntegration() const
 {
 #ifdef QT_COMPOSITOR_WAYLAND_GL
-    return m_client_buffer_integration;
+    return m_client_buffer_integration.data();
 #else
     return 0;
 #endif
@@ -330,7 +330,7 @@ QWaylandClientBufferIntegration * Compositor::clientBufferIntegration() const
 QWaylandServerBufferIntegration * Compositor::serverBufferIntegration() const
 {
 #ifdef QT_COMPOSITOR_WAYLAND_GL
-    return m_server_buffer_integration;
+    return m_server_buffer_integration.data();
 #else
     return 0;
 #endif
@@ -569,9 +569,11 @@ void Compositor::loadClientBufferIntegration()
     }
 
     if (!targetKey.isEmpty()) {
-        m_client_buffer_integration = QWaylandClientBufferIntegrationFactory::create(targetKey, QStringList());
+        m_client_buffer_integration.reset(QWaylandClientBufferIntegrationFactory::create(targetKey, QStringList()));
         if (m_client_buffer_integration) {
             m_client_buffer_integration->setCompositor(m_qt_compositor);
+            if (m_hw_integration)
+                m_hw_integration->setClientBufferIntegration(targetKey);
         }
     }
     //BUG: if there is no client buffer integration, bad things will when opengl is used
@@ -586,7 +588,9 @@ void Compositor::loadServerBufferIntegration()
         targetKey = QString::fromLocal8Bit(serverBufferIntegration.constData());
     }
     if (!targetKey.isEmpty()) {
-        m_server_buffer_integration = QWaylandServerBufferIntegrationFactory::create(targetKey, QStringList());
+        m_server_buffer_integration.reset(QWaylandServerBufferIntegrationFactory::create(targetKey, QStringList()));
+        if (m_hw_integration)
+            m_hw_integration->setServerBufferIntegration(targetKey);
     }
 }
 

@@ -1,5 +1,6 @@
 WAYLANDCLIENTSOURCES += \
-            $$PWD/../../extensions/server-buffer-extension.xml
+            $$PWD/../../extensions/server-buffer-extension.xml \
+            $$PWD/../../extensions/hardware-integration.xml
 
 SOURCES += \
            $$PWD/qwaylandclientbufferintegration.cpp \
@@ -7,7 +8,8 @@ SOURCES += \
            $$PWD/qwaylandclientbufferintegrationfactory.cpp \
            $$PWD/qwaylandserverbufferintegration.cpp \
            $$PWD/qwaylandserverbufferintegrationplugin.cpp \
-           $$PWD/qwaylandserverbufferintegrationfactory.cpp
+           $$PWD/qwaylandserverbufferintegrationfactory.cpp \
+           $$PWD/qwaylandhardwareintegration.cpp
 
 HEADERS += \
            $$PWD/qwaylandclientbufferintegration.h \
@@ -15,5 +17,6 @@ HEADERS += \
            $$PWD/qwaylandclientbufferintegrationfactory.h \
            $$PWD/qwaylandserverbufferintegration.h \
            $$PWD/qwaylandserverbufferintegrationplugin.h \
-           $$PWD/qwaylandserverbufferintegrationfactory.h
+           $$PWD/qwaylandserverbufferintegrationfactory.h \
+           $$PWD/qwaylandhardwareintegration.h
 

@@ -70,6 +70,7 @@ class QWaylandQtKeyExtension;
 class QWaylandWindow;
 class QWaylandEventThread;
 class QWaylandIntegration;
+class QWaylandHardwareIntegration;
 
 namespace QtWayland {
     class qt_output_extension;
@@ -127,6 +128,7 @@ public:
     QtWayland::qt_output_extension *outputExtension() const { return mOutputExtension; }
     QWaylandTouchExtension *touchExtension() const { return mTouchExtension; }
     QtWayland::wl_text_input_manager *textInputManager() const { return mTextInputManager; }
+    QWaylandHardwareIntegration *hardwareIntegration() const { return mHardwareIntegration; }
 
     /* wl_registry_add_listener does not add but rather sets a listener, so this function is used
      * to enable many listeners at once. */
@@ -170,6 +172,7 @@ private:
     QWaylandQtKeyExtension *mQtKeyExtension;
     QWaylandWindowManagerIntegration *mWindowManagerIntegration;
     QtWayland::wl_text_input_manager *mTextInputManager;
+    QWaylandHardwareIntegration *mHardwareIntegration;
 
     QSocketNotifier *mReadNotifier;
     int mFd;

@@ -73,8 +73,9 @@ public:
         TouchExtension = 0x10,
         SubSurfaceExtension = 0x20,
         TextInputExtension = 0x40,
+        HardwareIntegrationExtension = 0x80,
 
-        DefaultExtensions = WindowManagerExtension | OutputExtension | SurfaceExtension | QtKeyExtension | TouchExtension
+        DefaultExtensions = WindowManagerExtension | OutputExtension | SurfaceExtension | QtKeyExtension | TouchExtension | HardwareIntegrationExtension
     };
     Q_DECLARE_FLAGS(ExtensionFlags, ExtensionFlag)
 

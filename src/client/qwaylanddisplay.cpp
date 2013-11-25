@@ -49,8 +49,8 @@
 #include "qwaylandinputdevice.h"
 #include "qwaylandclipboard.h"
 #include "qwaylanddatadevicemanager.h"
+#include "qwaylandhardwareintegration.h"
 
-#include "qwaylandclientbufferintegration.h"
 
 #include "qwaylandwindowmanagerintegration.h"
 
@@ -110,6 +110,7 @@ QWaylandDisplay::QWaylandDisplay(QWaylandIntegration *waylandIntegration)
     , mTouchExtension(0)
     , mQtKeyExtension(0)
     , mTextInputManager(0)
+    , mHardwareIntegration(0)
 {
     display = this;
     qRegisterMetaType<uint32_t>("uint32_t");
@@ -232,6 +233,8 @@ void QWaylandDisplay::registry_global(uint32_t id, const QString &interface, uin
         mQtKeyExtension = new QWaylandQtKeyExtension(this, id);
     } else if (interface == QStringLiteral("wl_text_input_manager")) {
         mTextInputManager = new QtWayland::wl_text_input_manager(registry, id);
+    } else if (interface == QStringLiteral("qt_hardware_integration")) {
+        mHardwareIntegration = new  QWaylandHardwareIntegration(registry, id);
     }
 
     foreach (Listener l, mRegistryListeners)

@@ -126,7 +126,6 @@ void QWaylandSurfaceItem::init(QWaylandSurface *surface)
 
     m_surface = surface;
     m_surface->setSurfaceItem(this);
-    m_surface->sendOnScreenVisibilityChange(m_clientRenderingEnabled);
 
     if (m_resizeSurfaceToItem) {
         updateSurfaceSize();

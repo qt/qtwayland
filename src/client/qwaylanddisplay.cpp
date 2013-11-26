@@ -85,7 +85,7 @@ QWaylandClientBufferIntegration * QWaylandDisplay::clientBufferIntegration() con
 
 QWaylandWindowManagerIntegration *QWaylandDisplay::windowManagerIntegration() const
 {
-    return mWindowManagerIntegration;
+    return mWindowManagerIntegration.data();
 }
 
 QWaylandInputDevice *QWaylandDisplay::lastKeyboardFocusInputDevice() const
@@ -133,7 +133,7 @@ QWaylandDisplay::QWaylandDisplay(QWaylandIntegration *waylandIntegration)
 
     connect(mEventThreadObject, SIGNAL(newEventsRead()), this, SLOT(flushRequests()));
 
-    mWindowManagerIntegration = new QWaylandWindowManagerIntegration(this);
+    mWindowManagerIntegration.reset(new QWaylandWindowManagerIntegration(this));
 
     blockingReadEvents();
 
@@ -213,28 +213,28 @@ void QWaylandDisplay::registry_global(uint32_t id, const QString &interface, uin
     } else if (interface == QStringLiteral("wl_shm")) {
         mShm = static_cast<struct wl_shm *>(wl_registry_bind(registry, id, &wl_shm_interface,1));
     } else if (interface == QStringLiteral("wl_shell")){
-        mShell = new QtWayland::wl_shell(registry, id);
+        mShell.reset(new QtWayland::wl_shell(registry, id));
     } else if (interface == QStringLiteral("wl_seat")) {
         QWaylandInputDevice *inputDevice = new QWaylandInputDevice(this, id);
         mInputDevices.append(inputDevice);
     } else if (interface == QStringLiteral("wl_data_device_manager")) {
-        mDndSelectionHandler = new QWaylandDataDeviceManager(this, id);
+        mDndSelectionHandler.reset(new QWaylandDataDeviceManager(this, id));
     } else if (interface == QStringLiteral("qt_output_extension")) {
-        mOutputExtension = new QtWayland::qt_output_extension(registry, id);
+        mOutputExtension.reset(new QtWayland::qt_output_extension(registry, id));
         foreach (QPlatformScreen *screen, screens())
             static_cast<QWaylandScreen *>(screen)->createExtendedOutput();
     } else if (interface == QStringLiteral("qt_surface_extension")) {
-        mWindowExtension = new QtWayland::qt_surface_extension(registry, id);
+        mWindowExtension.reset(new QtWayland::qt_surface_extension(registry, id));
     } else if (interface == QStringLiteral("qt_sub_surface_extension")) {
-        mSubSurfaceExtension = new QtWayland::qt_sub_surface_extension(registry, id);
+        mSubSurfaceExtension.reset(new QtWayland::qt_sub_surface_extension(registry, id));
     } else if (interface == QStringLiteral("qt_touch_extension")) {
-        mTouchExtension = new QWaylandTouchExtension(this, id);
+        mTouchExtension.reset(new QWaylandTouchExtension(this, id));
     } else if (interface == QStringLiteral("qt_key_extension")) {
-        mQtKeyExtension = new QWaylandQtKeyExtension(this, id);
+        mQtKeyExtension.reset(new QWaylandQtKeyExtension(this, id));
     } else if (interface == QStringLiteral("wl_text_input_manager")) {
-        mTextInputManager = new QtWayland::wl_text_input_manager(registry, id);
+        mTextInputManager.reset(new QtWayland::wl_text_input_manager(registry, id));
     } else if (interface == QStringLiteral("qt_hardware_integration")) {
-        mHardwareIntegration = new  QWaylandHardwareIntegration(registry, id);
+        mHardwareIntegration.reset(new  QWaylandHardwareIntegration(registry, id));
     }
 
     foreach (Listener l, mRegistryListeners)

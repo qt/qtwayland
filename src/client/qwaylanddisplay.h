@@ -112,7 +112,7 @@ public:
     const struct wl_compositor *wl_compositor() const { return mCompositor.object(); }
     QtWayland::wl_compositor *compositor() { return &mCompositor; }
 
-    QtWayland::wl_shell *shell() { return mShell; }
+    QtWayland::wl_shell *shell() { return mShell.data(); }
 
     QList<QWaylandInputDevice *> inputDevices() const { return mInputDevices; }
     QWaylandInputDevice *defaultInputDevice() const;
@@ -121,14 +121,14 @@ public:
     QWaylandInputDevice *lastKeyboardFocusInputDevice() const;
     void setLastKeyboardFocusInputDevice(QWaylandInputDevice *device);
 
-    QWaylandDataDeviceManager *dndSelectionHandler() const { return mDndSelectionHandler; }
+    QWaylandDataDeviceManager *dndSelectionHandler() const { return mDndSelectionHandler.data(); }
 
-    QtWayland::qt_surface_extension *windowExtension() const { return mWindowExtension; }
-    QtWayland::qt_sub_surface_extension *subSurfaceExtension() const { return mSubSurfaceExtension; }
-    QtWayland::qt_output_extension *outputExtension() const { return mOutputExtension; }
-    QWaylandTouchExtension *touchExtension() const { return mTouchExtension; }
-    QtWayland::wl_text_input_manager *textInputManager() const { return mTextInputManager; }
-    QWaylandHardwareIntegration *hardwareIntegration() const { return mHardwareIntegration; }
+    QtWayland::qt_surface_extension *windowExtension() const { return mWindowExtension.data(); }
+    QtWayland::qt_sub_surface_extension *subSurfaceExtension() const { return mSubSurfaceExtension.data(); }
+    QtWayland::qt_output_extension *outputExtension() const { return mOutputExtension.data(); }
+    QWaylandTouchExtension *touchExtension() const { return mTouchExtension.data(); }
+    QtWayland::wl_text_input_manager *textInputManager() const { return mTextInputManager.data(); }
+    QWaylandHardwareIntegration *hardwareIntegration() const { return mHardwareIntegration.data(); }
 
     /* wl_registry_add_listener does not add but rather sets a listener, so this function is used
      * to enable many listeners at once. */
@@ -158,21 +158,21 @@ private:
     struct wl_shm *mShm;
     QThread *mEventThread;
     QWaylandEventThread *mEventThreadObject;
-    QtWayland::wl_shell *mShell;
+    QScopedPointer<QtWayland::wl_shell> mShell;
     QList<QPlatformScreen *> mScreens;
     QList<QWaylandInputDevice *> mInputDevices;
     QList<Listener> mRegistryListeners;
     QWaylandIntegration *mWaylandIntegration;
     QWaylandInputDevice *mLastKeyboardFocusInputDevice;
-    QWaylandDataDeviceManager *mDndSelectionHandler;
-    QtWayland::qt_surface_extension *mWindowExtension;
-    QtWayland::qt_sub_surface_extension *mSubSurfaceExtension;
-    QtWayland::qt_output_extension *mOutputExtension;
-    QWaylandTouchExtension *mTouchExtension;
-    QWaylandQtKeyExtension *mQtKeyExtension;
-    QWaylandWindowManagerIntegration *mWindowManagerIntegration;
-    QtWayland::wl_text_input_manager *mTextInputManager;
-    QWaylandHardwareIntegration *mHardwareIntegration;
+    QScopedPointer<QWaylandDataDeviceManager> mDndSelectionHandler;
+    QScopedPointer<QtWayland::qt_surface_extension> mWindowExtension;
+    QScopedPointer<QtWayland::qt_sub_surface_extension> mSubSurfaceExtension;
+    QScopedPointer<QtWayland::qt_output_extension> mOutputExtension;
+    QScopedPointer<QWaylandTouchExtension> mTouchExtension;
+    QScopedPointer<QWaylandQtKeyExtension> mQtKeyExtension;
+    QScopedPointer<QWaylandWindowManagerIntegration> mWindowManagerIntegration;
+    QScopedPointer<QtWayland::wl_text_input_manager> mTextInputManager;
+    QScopedPointer<QWaylandHardwareIntegration> mHardwareIntegration;
 
     QSocketNotifier *mReadNotifier;
     int mFd;

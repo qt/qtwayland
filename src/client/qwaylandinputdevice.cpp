@@ -594,12 +594,29 @@ static const uint32_t KeyTbl[] = {
     XKB_KEY_Mode_switch,             Qt::Key_Mode_switch,
     XKB_KEY_script_switch,           Qt::Key_Mode_switch,
 
+    XKB_KEY_XF86Back,                Qt::Key_Back,
+    XKB_KEY_XF86Forward,             Qt::Key_Forward,
+
     XKB_KEY_XF86AudioPlay,           Qt::Key_MediaTogglePlayPause, //there isn't a PlayPause keysym, however just play keys are not common
     XKB_KEY_XF86AudioPause,          Qt::Key_MediaPause,
     XKB_KEY_XF86AudioStop,           Qt::Key_MediaStop,
     XKB_KEY_XF86AudioPrev,           Qt::Key_MediaPrevious,
     XKB_KEY_XF86AudioNext,           Qt::Key_MediaNext,
+    XKB_KEY_XF86AudioRewind,         Qt::Key_MediaPrevious,
+    XKB_KEY_XF86AudioForward,        Qt::Key_MediaNext,
     XKB_KEY_XF86AudioRecord,         Qt::Key_MediaRecord,
+
+    XKB_KEY_XF86AudioMute,           Qt::Key_VolumeMute,
+    XKB_KEY_XF86AudioLowerVolume,    Qt::Key_VolumeDown,
+    XKB_KEY_XF86AudioRaiseVolume,    Qt::Key_VolumeUp,
+
+    XKB_KEY_XF86AudioRandomPlay,     Qt::Key_AudioRandomPlay,
+    XKB_KEY_XF86AudioRepeat,         Qt::Key_AudioRepeat,
+
+    XKB_KEY_XF86ZoomIn,              Qt::Key_ZoomIn,
+    XKB_KEY_XF86ZoomOut,             Qt::Key_ZoomOut,
+
+    XKB_KEY_XF86Eject,               Qt::Key_Eject,
 
     0,                          0
 };

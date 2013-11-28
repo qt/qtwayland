@@ -64,6 +64,7 @@ QWaylandGLContext::QWaylandGLContext(EGLDisplay eglDisplay, const QSurfaceFormat
     , m_format(q_glFormatFromConfig(m_eglDisplay, m_config))
     , m_blitProgram(0)
     , m_textureCache(0)
+    , mUseNativeDefaultFbo(false)
 {
     m_shareEGLContext = share ? static_cast<QWaylandGLContext *>(share)->eglContext() : EGL_NO_CONTEXT;
 
@@ -107,9 +108,6 @@ QWaylandGLContext::~QWaylandGLContext()
 
 bool QWaylandGLContext::makeCurrent(QPlatformSurface *surface)
 {
-    if (!isInitialized(QOpenGLFunctions::d_ptr))
-        initializeOpenGLFunctions();
-
     QWaylandEglWindow *window = static_cast<QWaylandEglWindow *>(surface);
 
     window->setCanResize(false);
@@ -139,6 +137,7 @@ void QWaylandGLContext::swapBuffers(QPlatformSurface *surface)
     if (window->decoration()) {
         makeCurrent(surface);
         if (!m_blitProgram) {
+            initializeOpenGLFunctions();
             m_blitProgram = new QOpenGLShaderProgram();
             m_blitProgram->addShaderFromSourceCode(QOpenGLShader::Vertex, "attribute vec4 position;\n\
                                                                         attribute vec4 texCoords;\n\
@@ -165,9 +164,14 @@ void QWaylandGLContext::swapBuffers(QPlatformSurface *surface)
             m_textureCache = new QOpenGLTextureCache(this->context());
         }
 
+        QRect windowRect = window->window()->frameGeometry();
+        glViewport(0, 0, windowRect.width(), windowRect.height());
+
         glDisable(GL_DEPTH_TEST);
         glDisable(GL_BLEND);
+        mUseNativeDefaultFbo = true;
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        mUseNativeDefaultFbo = false;
 
         static const GLfloat squareVertices[] = {
             -1.f, -1.f,
@@ -190,13 +194,14 @@ void QWaylandGLContext::swapBuffers(QPlatformSurface *surface)
             1.0f,  1.0f,
         };
 
+        m_blitProgram->bind();
+
         m_blitProgram->setUniformValue("texture", 0);
 
         m_blitProgram->enableAttributeArray("position");
         m_blitProgram->enableAttributeArray("texCoords");
         m_blitProgram->setAttributeArray("texCoords", textureVertices, 2);
 
-        m_blitProgram->bind();
         glActiveTexture(GL_TEXTURE0);
 
         //Draw Decoration
@@ -205,8 +210,6 @@ void QWaylandGLContext::swapBuffers(QPlatformSurface *surface)
         m_textureCache->bindTexture(context(), decorationImage);
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        QRect windowRect = window->window()->frameGeometry();
-        glViewport(0, 0, windowRect.width(), windowRect.height());
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
         //Draw Content
@@ -229,6 +232,9 @@ void QWaylandGLContext::swapBuffers(QPlatformSurface *surface)
 
 GLuint QWaylandGLContext::defaultFramebufferObject(QPlatformSurface *surface) const
 {
+    if (mUseNativeDefaultFbo)
+        return 0;
+
     return static_cast<QWaylandEglWindow *>(surface)->contentFBO();
 }
 

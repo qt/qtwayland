@@ -88,6 +88,7 @@ private:
     QSurfaceFormat m_format;
     QOpenGLShaderProgram *m_blitProgram;
     QOpenGLTextureCache *m_textureCache;
+    bool mUseNativeDefaultFbo;
 };
 
 QT_END_NAMESPACE

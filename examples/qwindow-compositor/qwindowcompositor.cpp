@@ -54,7 +54,7 @@
 #include <QtCompositor/qwaylandinput.h>
 
 QWindowCompositor::QWindowCompositor(QOpenGLWindow *window)
-    : QWaylandCompositor(window, 0, static_cast<ExtensionFlag>(DefaultExtensions | SubSurfaceExtension))
+    : QWaylandCompositor(window, 0, DefaultExtensions | SubSurfaceExtension)
     , m_window(window)
     , m_textureBlitter(0)
     , m_renderScheduler(this)

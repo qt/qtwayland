@@ -76,8 +76,9 @@ public:
 
         DefaultExtensions = WindowManagerExtension | OutputExtension | SurfaceExtension | QtKeyExtension | TouchExtension
     };
+    Q_DECLARE_FLAGS(ExtensionFlags, ExtensionFlag)
 
-    QWaylandCompositor(QWindow *window = 0, const char *socketName = 0, ExtensionFlag extensions = DefaultExtensions);
+    QWaylandCompositor(QWindow *window = 0, const char *socketName = 0, ExtensionFlags extensions = DefaultExtensions);
     virtual ~QWaylandCompositor();
 
     struct wl_display *waylandDisplay() const;
@@ -145,6 +146,7 @@ private:
     QByteArray m_socket_name;
 };
 
+Q_DECLARE_OPERATORS_FOR_FLAGS(QWaylandCompositor::ExtensionFlags)
 Q_DECLARE_OPERATORS_FOR_FLAGS(QWaylandCompositor::TouchExtensionFlags)
 
 QT_END_NAMESPACE

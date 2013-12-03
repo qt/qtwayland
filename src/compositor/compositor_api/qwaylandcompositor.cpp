@@ -61,7 +61,7 @@
 
 QT_BEGIN_NAMESPACE
 
-QWaylandCompositor::QWaylandCompositor(QWindow *window, const char *socketName, ExtensionFlag extensions)
+QWaylandCompositor::QWaylandCompositor(QWindow *window, const char *socketName, ExtensionFlags extensions)
     : m_compositor(0)
     , m_toplevel_window(window)
     , m_socket_name(socketName)

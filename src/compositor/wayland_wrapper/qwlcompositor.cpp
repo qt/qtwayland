@@ -125,7 +125,7 @@ Compositor *Compositor::instance()
     return compositor;
 }
 
-Compositor::Compositor(QWaylandCompositor *qt_compositor, QWaylandCompositor::ExtensionFlag extensions)
+Compositor::Compositor(QWaylandCompositor *qt_compositor, QWaylandCompositor::ExtensionFlags extensions)
     : m_extensions(extensions)
     , m_display(new Display)
     , m_default_input_device(0)
@@ -460,7 +460,7 @@ void Compositor::setClientFullScreenHint(bool value)
         m_windowManagerIntegration->setShowIsFullScreen(value);
 }
 
-QWaylandCompositor::ExtensionFlag Compositor::extensions() const
+QWaylandCompositor::ExtensionFlags Compositor::extensions() const
 {
     return m_extensions;
 }

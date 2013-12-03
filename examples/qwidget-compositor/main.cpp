@@ -69,7 +69,7 @@ class QWidgetCompositor : public QWidget, public WaylandCompositor
     Q_OBJECT
 public:
     QWidgetCompositor()
-        : QWaylandCompositor(windowHandle(), 0, static_cast<ExtensionFlag>(DefaultExtensions | SubSurfaceExtension))
+        : QWaylandCompositor(windowHandle(), 0, DefaultExtensions | SubSurfaceExtension)
 #ifdef QT_COMPOSITOR_WAYLAND_GL
         , m_surfaceCompositorFbo(0)
         , m_textureBlitter(0)

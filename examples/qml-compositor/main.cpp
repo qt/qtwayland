@@ -59,7 +59,7 @@ class QmlCompositor : public QQuickView, public QWaylandCompositor
 
 public:
     QmlCompositor()
-        : QWaylandCompositor(this, 0, static_cast<ExtensionFlag>(DefaultExtensions | SubSurfaceExtension))
+        : QWaylandCompositor(this, 0, DefaultExtensions | SubSurfaceExtension)
         , m_fullscreenSurface(0)
     {
         setSource(QUrl("main.qml"));

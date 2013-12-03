@@ -84,7 +84,7 @@ class Q_COMPOSITOR_EXPORT Compositor : public QObject
     Q_OBJECT
 
 public:
-    Compositor(QWaylandCompositor *qt_compositor, QWaylandCompositor::ExtensionFlag extensions);
+    Compositor(QWaylandCompositor *qt_compositor, QWaylandCompositor::ExtensionFlags extensions);
     ~Compositor();
 
     void frameFinished(Surface *surface = 0);
@@ -137,7 +137,7 @@ public:
 
     void setClientFullScreenHint(bool value);
 
-    QWaylandCompositor::ExtensionFlag extensions() const;
+    QWaylandCompositor::ExtensionFlags extensions() const;
 
     TouchExtensionGlobal *touchExtension() { return m_touchExtension; }
     void configureTouchExtension(int flags);
@@ -165,7 +165,7 @@ private slots:
     void processWaylandEvents();
 
 private:
-    QWaylandCompositor::ExtensionFlag m_extensions;
+    QWaylandCompositor::ExtensionFlags m_extensions;
 
     Display *m_display;
 

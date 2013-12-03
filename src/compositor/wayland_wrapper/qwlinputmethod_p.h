@@ -79,6 +79,9 @@ protected:
 private slots:
     void focusChanged(Surface *surface);
 
+private slots:
+    void focusChanged(Surface *surface);
+
 private:
     Compositor *m_compositor;
     InputDevice *m_seat;

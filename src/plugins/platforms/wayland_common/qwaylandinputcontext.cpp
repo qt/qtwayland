@@ -253,6 +253,7 @@ bool QWaylandInputContext::ensureTextInput()
         return false;
 
     mTextInput.reset(new QWaylandTextInput(mDisplay->textInputManager()->create_text_input()));
+    return true;
 }
 
 QT_END_NAMESPACE

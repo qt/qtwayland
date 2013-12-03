@@ -67,8 +67,6 @@ public:
     void activate(TextInput *textInput);
     void deactivate();
 
-    void focusChanged(Surface *surface);
-
     bool isBound() const;
 
     InputMethodContext *context() const;
@@ -76,6 +74,9 @@ public:
 
 protected:
     void input_method_bind_resource(Resource *resource);
+
+private slots:
+    void focusChanged(Surface *surface);
 
 private:
     Compositor *m_compositor;

@@ -75,7 +75,10 @@ QWaylandSurface *QWaylandInputPanel::focus() const
 {
     Q_D(const QWaylandInputPanel);
 
-    return d->inputPanel->focus()->waylandSurface();
+    QtWayland::Surface *surface = d->inputPanel->focus();
+    if (surface)
+        return surface->waylandSurface();
+    return 0;
 }
 
 bool QWaylandInputPanel::visible() const

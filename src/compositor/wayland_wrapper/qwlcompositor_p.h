@@ -146,6 +146,8 @@ public:
 
     InputPanel *inputPanel() const;
 
+    DataDeviceManager *dataDeviceManager() const;
+
     bool isDragging() const;
     void sendDragMoveEvent(const QPoint &global, const QPoint &local, Surface *surface);
     void sendDragEndEvent();

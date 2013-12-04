@@ -504,6 +504,11 @@ InputPanel *Compositor::inputPanel() const
     return m_inputPanel.data();
 }
 
+DataDeviceManager *Compositor::dataDeviceManager() const
+{
+    return m_data_device_manager;
+}
+
 void Compositor::setRetainedSelectionEnabled(bool enabled)
 {
     m_retainSelection = enabled;

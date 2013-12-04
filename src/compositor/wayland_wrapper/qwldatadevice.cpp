@@ -48,6 +48,7 @@
 #include "qwlpointer_p.h"
 #include "qwlsurface_p.h"
 #include "qwltouch_p.h"
+#include "qwldatadevicemanager_p.h"
 
 #include "qwaylanddrag.h"
 
@@ -202,6 +203,7 @@ void DataDevice::data_device_set_selection(Resource *, struct ::wl_resource *sou
         m_selectionSource->cancel();
 
     m_selectionSource = dataSource;
+    m_compositor->dataDeviceManager()->setCurrentSelectionSource(m_selectionSource);
     if (m_selectionSource)
         m_selectionSource->setDevice(this);
 

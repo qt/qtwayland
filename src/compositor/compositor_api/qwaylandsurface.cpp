@@ -178,6 +178,13 @@ QWaylandSurface::WindowFlags QWaylandSurface::windowFlags() const
     return d->surface->extendedSurface()->windowFlags();
 }
 
+QWaylandSurface::WindowType QWaylandSurface::windowType() const
+{
+    Q_D(const QWaylandSurface);
+    if (d->surface->shellSurface())
+        return d->surface->shellSurface()->windowType();
+    return QWaylandSurface::None;
+}
 
 QImage QWaylandSurface::image() const
 {

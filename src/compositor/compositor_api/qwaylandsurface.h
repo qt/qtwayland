@@ -76,13 +76,14 @@ class Q_COMPOSITOR_EXPORT QWaylandSurface : public QObject
     Q_PROPERTY(QSize size READ size NOTIFY sizeChanged)
     Q_PROPERTY(QPointF pos READ pos WRITE setPos NOTIFY posChanged)
     Q_PROPERTY(QWaylandSurface::WindowFlags windowFlags READ windowFlags NOTIFY windowFlagsChanged)
+    Q_PROPERTY(QWaylandSurface::WindowType windowType READ windowType NOTIFY windowTypeChanged)
     Q_PROPERTY(Qt::ScreenOrientation contentOrientation READ contentOrientation NOTIFY contentOrientationChanged)
     Q_PROPERTY(QString className READ className NOTIFY classNameChanged)
     Q_PROPERTY(QString title READ title NOTIFY titleChanged)
     Q_PROPERTY(Qt::ScreenOrientations orientationUpdateMask READ orientationUpdateMask NOTIFY orientationUpdateMaskChanged)
     Q_PROPERTY(QWindow::Visibility visibility READ visibility WRITE setVisibility NOTIFY visibilityChanged)
 
-    Q_ENUMS(WindowFlag)
+    Q_ENUMS(WindowFlag WindowType)
     Q_FLAGS(WindowFlag WindowFlags)
 
 public:
@@ -92,6 +93,13 @@ public:
         BypassWindowManager         = 0x0004
     };
     Q_DECLARE_FLAGS(WindowFlags, WindowFlag)
+
+    enum WindowType {
+        None,
+        Toplevel,
+        Transient,
+        Popup
+    };
 
     enum Type {
         Invalid,
@@ -120,6 +128,8 @@ public:
     Qt::ScreenOrientation contentOrientation() const;
 
     WindowFlags windowFlags() const;
+
+    WindowType windowType() const;
 
     QImage image() const;
 #ifdef QT_COMPOSITOR_WAYLAND_GL
@@ -174,6 +184,7 @@ signals:
     void posChanged();
     void windowPropertyChanged(const QString &name, const QVariant &value);
     void windowFlagsChanged(WindowFlags flags);
+    void windowTypeChanged(WindowType type);
     void contentOrientationChanged();
     void orientationUpdateMaskChanged();
     void extendedSurfaceReady();

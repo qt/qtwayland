@@ -42,6 +42,7 @@
 #define WLSHELLSURFACE_H
 
 #include <QtCompositor/qwaylandexport.h>
+#include <QtCompositor/qwaylandsurface.h>
 
 #include <wayland-server.h>
 #include <QHash>
@@ -84,12 +85,6 @@ private:
 class Q_COMPOSITOR_EXPORT ShellSurface : public QtWaylandServer::wl_shell_surface
 {
 public:
-    enum WindowType {
-        None,
-        Toplevel,
-        Popup
-    };
-
     ShellSurface(Shell *shell, struct wl_client *client, uint32_t id, Surface *surface);
     void sendConfigure(uint32_t edges, int32_t width, int32_t height);
     void ping();
@@ -104,7 +99,7 @@ public:
     ShellSurface *transientParent() const;
     void setOffset(const QPointF &offset);
 
-    WindowType windowType() const;
+    QWaylandSurface::WindowType windowType() const;
 
     void mapPopup();
 
@@ -121,7 +116,7 @@ private:
     int32_t m_xOffset;
     int32_t m_yOffset;
 
-    WindowType m_windowType;
+    QWaylandSurface::WindowType m_windowType;
 
     QPointF m_popupLocation;
     uint32_t m_popupSerial;

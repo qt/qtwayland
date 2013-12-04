@@ -97,7 +97,7 @@ ShellSurface::ShellSurface(Shell *shell, wl_client *client, uint32_t id, Surface
     , m_transientParent(0)
     , m_xOffset(0)
     , m_yOffset(0)
-    , m_windowType(None)
+    , m_windowType(QWaylandSurface::None)
     , m_popupLocation()
     , m_popupSerial()
 {
@@ -170,7 +170,7 @@ void ShellSurface::setOffset(const QPointF &offset)
     m_yOffset = offset.y();
 }
 
-ShellSurface::WindowType ShellSurface::windowType() const
+QWaylandSurface::WindowType ShellSurface::windowType() const
 {
     return m_windowType;
 }
@@ -247,6 +247,11 @@ void ShellSurface::shell_surface_set_toplevel(Resource *resource)
     m_xOffset = 0;
     m_yOffset = 0;
 
+    if (m_windowType != QWaylandSurface::Toplevel) {
+        m_windowType = QWaylandSurface::Toplevel;
+        emit m_surface->waylandSurface()->windowTypeChanged(m_windowType);
+    }
+
     if (m_surface->extendedSurface())
         m_surface->extendedSurface()->setVisibility(QWindow::Windowed, false);
 }
@@ -266,6 +271,11 @@ void ShellSurface::shell_surface_set_transient(Resource *resource,
     m_yOffset = y;
     if (flags & WL_SHELL_SURFACE_TRANSIENT_INACTIVE)
         surface()->setTransientInactive(true);
+
+    if (m_windowType != QWaylandSurface::Transient) {
+        m_windowType = QWaylandSurface::Transient;
+        emit m_surface->waylandSurface()->windowTypeChanged(m_windowType);
+    }
 
     if (m_surface->extendedSurface())
         m_surface->extendedSurface()->setVisibility(QWindow::AutomaticVisibility, false);
@@ -300,7 +310,10 @@ void ShellSurface::shell_surface_set_popup(Resource *resource, wl_resource *inpu
     m_transientParent = Surface::fromResource(parent)->shellSurface();
     m_popupLocation = QPointF(x, y);
 
-    m_windowType = Popup;
+    if (m_windowType != QWaylandSurface::Popup) {
+        m_windowType = QWaylandSurface::Popup;
+        emit m_surface->waylandSurface()->windowTypeChanged(m_windowType);
+    }
 
     if (m_surface->extendedSurface())
         m_surface->extendedSurface()->setVisibility(QWindow::AutomaticVisibility, false);

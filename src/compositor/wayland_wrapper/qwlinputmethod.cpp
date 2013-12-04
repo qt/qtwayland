@@ -141,6 +141,12 @@ void InputMethod::input_method_bind_resource(Resource *resource)
     m_resource = resource;
 }
 
+void InputMethod::input_method_destroy_resource(Resource *resource)
+{
+    Q_ASSERT(resource == m_resource);
+    m_resource = 0;
+}
+
 } // namespace QtWayland
 
 QT_END_NAMESPACE

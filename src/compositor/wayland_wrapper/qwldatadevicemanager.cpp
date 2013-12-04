@@ -89,7 +89,7 @@ void DataDeviceManager::setCurrentSelectionSource(DataSource *source)
     //    2. make it possible for the compositor to participate in copy-paste
     // The downside is decreased performance, therefore this mode has to be enabled
     // explicitly in the compositors.
-    if (m_compositor->wantsRetainedSelection()) {
+    if (m_compositor->retainedSelectionEnabled()) {
         m_retainedData.clear();
         m_retainedReadIndex = 0;
         retain();

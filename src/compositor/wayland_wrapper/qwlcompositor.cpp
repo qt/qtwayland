@@ -148,7 +148,7 @@ Compositor::Compositor(QWaylandCompositor *qt_compositor, QWaylandCompositor::Ex
     , m_qtkeyExtension(0)
     , m_textInputManager()
     , m_inputPanel()
-    , m_retainNotify(0)
+    , m_retainSelection(false)
 {
     m_timer.start();
     compositor = this;
@@ -504,22 +504,20 @@ InputPanel *Compositor::inputPanel() const
     return m_inputPanel.data();
 }
 
-void Compositor::setRetainedSelectionWatcher(RetainedSelectionFunc func, void *param)
+void Compositor::setRetainedSelectionEnabled(bool enabled)
 {
-    m_retainNotify = func;
-    m_retainNotifyParam = param;
+    m_retainSelection = enabled;
 }
 
-bool Compositor::wantsRetainedSelection() const
+bool Compositor::retainedSelectionEnabled() const
 {
-    return m_retainNotify != 0;
+    return m_retainSelection;
 }
 
 void Compositor::feedRetainedSelectionData(QMimeData *data)
 {
-    if (m_retainNotify) {
-        m_retainNotify(data, m_retainNotifyParam);
-    }
+    if (m_retainSelection)
+        m_qt_compositor->retainedSelectionReceived(data);
 }
 
 void Compositor::scheduleReleaseBuffer(SurfaceBuffer *screenBuffer)
@@ -527,7 +525,7 @@ void Compositor::scheduleReleaseBuffer(SurfaceBuffer *screenBuffer)
     QMetaObject::invokeMethod(this,"releaseBuffer",Q_ARG(QPlatformScreenBuffer*,screenBuffer));
 }
 
-void Compositor::overrideSelection(QMimeData *data)
+void Compositor::overrideSelection(const QMimeData *data)
 {
     m_data_device_manager->overrideSelection(*data);
 }

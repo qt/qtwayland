@@ -105,9 +105,9 @@ public:
 
     QtWayland::Compositor *handle() const;
 
-    void setRetainedSelectionEnabled(bool enable);
-    virtual void retainedSelectionReceived(QMimeData *mimeData);
-    void overrideSelection(QMimeData *data);
+    void setRetainedSelectionEnabled(bool enabled);
+    bool retainedSelectionEnabled() const;
+    void overrideSelection(const QMimeData *data);
 
     void setClientFullScreenHint(bool value);
 
@@ -138,9 +138,11 @@ public:
     Q_DECLARE_FLAGS(TouchExtensionFlags, TouchExtensionFlag)
     void configureTouchExtension(TouchExtensionFlags flags);
 
-private:
-    static void retainedSelectionChanged(QMimeData *mimeData, void *param);
+protected:
+    virtual void retainedSelectionReceived(QMimeData *mimeData);
 
+private:
+    friend class QtWayland::Compositor;
     QtWayland::Compositor *m_compositor;
     QWindow  *m_toplevel_window;
     QByteArray m_socket_name;

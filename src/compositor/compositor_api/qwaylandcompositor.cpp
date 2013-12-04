@@ -178,25 +178,21 @@ QtWayland::Compositor * QWaylandCompositor::handle() const
     return m_compositor;
 }
 
-void QWaylandCompositor::setRetainedSelectionEnabled(bool enable)
+void QWaylandCompositor::setRetainedSelectionEnabled(bool enabled)
 {
-    if (enable)
-        m_compositor->setRetainedSelectionWatcher(retainedSelectionChanged, this);
-    else
-        m_compositor->setRetainedSelectionWatcher(0, 0);
+    m_compositor->setRetainedSelectionEnabled(enabled);
 }
 
-void QWaylandCompositor::retainedSelectionChanged(QMimeData *mimeData, void *param)
+bool QWaylandCompositor::retainedSelectionEnabled() const
 {
-    QWaylandCompositor *self = static_cast<QWaylandCompositor *>(param);
-    self->retainedSelectionReceived(mimeData);
+    return m_compositor->retainedSelectionEnabled();
 }
 
 void QWaylandCompositor::retainedSelectionReceived(QMimeData *)
 {
 }
 
-void QWaylandCompositor::overrideSelection(QMimeData *data)
+void QWaylandCompositor::overrideSelection(const QMimeData *data)
 {
     m_compositor->overrideSelection(data);
 }

@@ -134,6 +134,8 @@ void QWaylandSurfaceItem::init(QWaylandSurface *surface)
         setHeight(surface->size().height());
     }
 
+    updatePosition();
+
     setSmooth(true);
     setFlag(ItemHasContents);
     setAcceptedMouseButtons(Qt::LeftButton | Qt::MiddleButton | Qt::RightButton |

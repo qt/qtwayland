@@ -42,7 +42,9 @@
 
 #include <QGuiApplication>
 #include <QWindow>
+#ifndef QT_NO_WAYLAND_XKB
 #include <xkbcommon/xkbcommon.h>
+#endif
 
 #include "qwaylanddisplay.h"
 #include "qwaylandinputdevice.h"
@@ -52,6 +54,7 @@ QT_BEGIN_NAMESPACE
 
 static Qt::Key toQtKey(uint32_t sym)
 {
+#ifndef QT_NO_WAYLAND_XKB
     switch (static_cast<xkb_keysym_t>(sym)) {
     case XKB_KEY_BackSpace:
         return Qt::Key_Backspace;
@@ -68,6 +71,9 @@ static Qt::Key toQtKey(uint32_t sym)
     default:
         return Qt::Key_unknown;
     }
+#else
+    return Qt::Key_unknown;
+#endif
 }
 
 static QEvent::Type toQEventType(uint32_t state)

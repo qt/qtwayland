@@ -88,7 +88,7 @@ void QWaylandShellSurface::setFullscreen()
 {
     m_fullscreen = true;
     m_size = m_window->window()->geometry().size();
-    set_fullscreen(0, 0, 0);
+    set_fullscreen(WL_SHELL_SURFACE_FULLSCREEN_METHOD_DEFAULT, 0, 0);
 }
 
 void QWaylandShellSurface::setNormal()

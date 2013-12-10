@@ -240,7 +240,7 @@ void DataDeviceManager::offerRetainedSelection(wl_resource *clientDataDeviceReso
 
 void DataDeviceManager::data_device_manager_create_data_source(Resource *resource, uint32_t id)
 {
-    new DataSource(resource->client(), id, Compositor::currentTimeMsecs());
+    new DataSource(resource->client(), id, m_compositor->currentTimeMsecs());
 }
 
 void DataDeviceManager::data_device_manager_get_data_device(Resource *resource, uint32_t id, struct ::wl_resource *seat)

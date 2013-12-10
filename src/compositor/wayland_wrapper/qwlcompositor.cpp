@@ -150,6 +150,7 @@ Compositor::Compositor(QWaylandCompositor *qt_compositor, QWaylandCompositor::Ex
     , m_inputPanel()
     , m_retainNotify(0)
 {
+    m_timer.start();
     compositor = this;
 
 #if defined (QT_COMPOSITOR_WAYLAND_GL)
@@ -265,14 +266,9 @@ void Compositor::createSurface(struct wl_client *client, uint32_t id)
     m_qt_compositor->surfaceCreated(surface->waylandSurface());
 }
 
-uint Compositor::currentTimeMsecs()
+uint Compositor::currentTimeMsecs() const
 {
-    //### we throw away the time information
-    struct timeval tv;
-    int ret = gettimeofday(&tv, 0);
-    if (ret == 0)
-        return tv.tv_sec*1000 + tv.tv_usec/1000;
-    return 0;
+    return m_timer.elapsed();
 }
 
 void Compositor::releaseBuffer(QPlatformScreenBuffer *screenBuffer)

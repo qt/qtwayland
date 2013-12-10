@@ -229,7 +229,7 @@ void Surface::sendFrameCallback()
 
     bool updateNeeded = advanceBufferQueue();
 
-    uint time = Compositor::currentTimeMsecs();
+    uint time = m_compositor->currentTimeMsecs();
     struct wl_resource *frame_callback, *next;
     wl_list_for_each_safe(frame_callback, next, &m_frame_callback_list, link) {
         wl_callback_send_done(frame_callback, time);

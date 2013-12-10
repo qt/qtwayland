@@ -44,6 +44,8 @@
 #include <QtCompositor/qwaylandexport.h>
 #include <QtCompositor/qwaylandcompositor.h>
 
+
+#include <QtCore/QElapsedTimer>
 #include <QtCore/QSet>
 #include <QtGui/QWindow>
 
@@ -95,7 +97,7 @@ public:
 
     void destroyClient(WaylandClient *client);
 
-    static uint currentTimeMsecs();
+    uint currentTimeMsecs() const;
 
     QWindow *window() const;
 
@@ -179,6 +181,7 @@ private:
 
     DataDeviceManager *m_data_device_manager;
 
+    QElapsedTimer m_timer;
     QList<Surface *> m_surfaces;
     QSet<Surface *> m_dirty_surfaces;
 

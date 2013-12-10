@@ -122,6 +122,11 @@ void QWaylandInputDevice::sendFullKeyEvent(QKeyEvent *event)
     d->sendFullKeyEvent(event);
 }
 
+void QWaylandInputDevice::sendFullKeyEvent(QWaylandSurface *surface, QKeyEvent *event)
+{
+    d->sendFullKeyEvent(surface->handle(), event);
+}
+
 QWaylandSurface *QWaylandInputDevice::keyboardFocus() const
 {
     QtWayland::Surface *wlsurface = d->keyboardFocus();

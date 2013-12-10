@@ -212,6 +212,13 @@ void InputDevice::sendFullKeyEvent(QKeyEvent *event)
         m_keyboard->sendKeyReleaseEvent(event->nativeScanCode());
 }
 
+void InputDevice::sendFullKeyEvent(Surface *surface, QKeyEvent *event)
+{
+    QtKeyExtensionGlobal *ext = m_compositor->qtkeyExtension();
+    if (ext)
+        ext->postQtKeyEvent(event, surface);
+}
+
 void InputDevice::sendFullTouchEvent(QTouchEvent *event)
 {
     if (!mouseFocus()) {

@@ -50,25 +50,26 @@ QWaylandQtKeyExtension::QWaylandQtKeyExtension(QWaylandDisplay *display, uint32_
 {
 }
 
-void QWaylandQtKeyExtension::key_extension_qtkey(uint32_t time,
-                                                   uint32_t type,
-                                                   uint32_t key,
-                                                   uint32_t modifiers,
-                                                   uint32_t nativeScanCode,
-                                                   uint32_t nativeVirtualKey,
-                                                   uint32_t nativeModifiers,
-                                                   const QString &text,
-                                                   uint32_t autorep,
-                                                   uint32_t count)
+void QWaylandQtKeyExtension::key_extension_qtkey(struct wl_surface *surface,
+                                                 uint32_t time,
+                                                 uint32_t type,
+                                                 uint32_t key,
+                                                 uint32_t modifiers,
+                                                 uint32_t nativeScanCode,
+                                                 uint32_t nativeVirtualKey,
+                                                 uint32_t nativeModifiers,
+                                                 const QString &text,
+                                                 uint32_t autorep,
+                                                 uint32_t count)
 {
     QList<QWaylandInputDevice *> inputDevices = m_display->inputDevices();
-    if (inputDevices.isEmpty()) {
+    if (!surface && inputDevices.isEmpty()) {
         qWarning("qt_key_extension: handle_qtkey: No input device");
         return;
     }
 
     QWaylandInputDevice *dev = inputDevices.first();
-    QWaylandWindow *win = dev->mKeyboardFocus;
+    QWaylandWindow *win = surface ? QWaylandWindow::fromWlSurface(surface) : dev->mKeyboardFocus;
 
     if (!win || !win->window()) {
         qWarning("qt_key_extension: handle_qtkey: No keyboard focus");

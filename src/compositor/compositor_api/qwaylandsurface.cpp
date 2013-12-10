@@ -47,6 +47,9 @@
 #include "wayland_wrapper/qwlsubsurface_p.h"
 #include "wayland_wrapper/qwlcompositor_p.h"
 #include "wayland_wrapper/qwlshellsurface_p.h"
+#include "wayland_wrapper/qwlinputdevice_p.h"
+#include "wayland_wrapper/qwldatadevice_p.h"
+#include "wayland_wrapper/qwldatadevicemanager_p.h"
 
 #include "qwaylandcompositor.h"
 #include "waylandwindowmanagerintegration.h"
@@ -371,6 +374,24 @@ void QWaylandSurface::ping()
     Q_D(QWaylandSurface);
     if (d->surface->shellSurface())
         d->surface->shellSurface()->ping();
+}
+
+/*!
+    Updates the surface with the compositor's retained clipboard selection. While this
+    is done automatically when the surface receives keyboard focus, this function is
+    useful for updating clients which do not have keyboard focus.
+*/
+void QWaylandSurface::updateSelection()
+{
+    Q_D(QWaylandSurface);
+    const QtWayland::InputDevice *inputDevice = d->surface->compositor()->defaultInputDevice();
+    if (inputDevice) {
+        const QtWayland::DataDevice *dataDevice = inputDevice->dataDevice();
+        if (dataDevice) {
+            d->surface->compositor()->dataDeviceManager()->offerRetainedSelection(
+                        dataDevice->resourceMap().value(d->surface->resource()->client())->handle);
+        }
+    }
 }
 
 QT_END_NAMESPACE

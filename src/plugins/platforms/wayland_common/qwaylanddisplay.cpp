@@ -111,6 +111,7 @@ QWaylandDisplay::QWaylandDisplay()
     , mOutputExtension(0)
     , mTouchExtension(0)
     , mQtKeyExtension(0)
+    , mTextInputManager(0)
 {
     display = this;
     qRegisterMetaType<uint32_t>("uint32_t");

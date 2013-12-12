@@ -327,6 +327,7 @@ bool QWaylandDecoration::handleMouse(QWaylandInputDevice *inputDevice, const QPo
         processMouseRight(inputDevice,local,b,mods);
     } else {
         m_wayland_window->restoreMouseCursor(inputDevice);
+        m_mouseButtons = b;
         return false;
     }
 

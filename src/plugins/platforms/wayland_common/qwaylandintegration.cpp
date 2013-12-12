@@ -154,6 +154,9 @@ bool QWaylandIntegration::hasCapability(QPlatformIntegration::Capability cap) co
 #endif
     case BufferQueueingOpenGL:
         return true;
+    case MultipleWindows:
+    case NonFullScreenWindows:
+        return true;
     default: return QPlatformIntegration::hasCapability(cap);
     }
 }

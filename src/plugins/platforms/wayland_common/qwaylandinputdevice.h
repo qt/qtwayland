@@ -46,6 +46,7 @@
 
 #include <QSocketNotifier>
 #include <QObject>
+#include <QTimer>
 #include <qpa/qplatformintegration.h>
 #include <qpa/qplatformscreen.h>
 #include <qpa/qwindowsysteminterface.h>
@@ -66,8 +67,9 @@ class QWaylandWindow;
 class QWaylandDisplay;
 class QWaylandDataDevice;
 
-class QWaylandInputDevice : public QtWayland::wl_pointer, public QtWayland::wl_keyboard, public QtWayland::wl_touch, public QtWayland::wl_seat
+class QWaylandInputDevice : public QObject, public QtWayland::wl_pointer, public QtWayland::wl_keyboard, public QtWayland::wl_touch, public QtWayland::wl_seat
 {
+    Q_OBJECT
 public:
     QWaylandInputDevice(QWaylandDisplay *display, uint32_t id);
     ~QWaylandInputDevice();
@@ -91,6 +93,9 @@ public:
 
     uint32_t serial() const;
     uint32_t cursorSerial() const { return mCursorSerial; }
+
+private slots:
+    void repeatKey();
 
 private:
     QWaylandDisplay *mQDisplay;
@@ -173,6 +178,12 @@ private:
     xkb_keymap *mXkbMap;
     xkb_state *mXkbState;
 #endif
+
+    int mRepeatKey;
+    uint32_t mRepeatCode;
+    uint32_t mRepeatTime;
+    QString mRepeatText;
+    QTimer mRepeatTimer;
 
     friend class QWaylandTouchExtension;
     friend class QWaylandQtKeyExtension;

@@ -70,7 +70,8 @@
 QT_BEGIN_NAMESPACE
 
 QWaylandInputDevice::QWaylandInputDevice(QWaylandDisplay *display, uint32_t id)
-    : QtWayland::wl_seat(display->wl_registry(), id)
+    : QObject()
+    , QtWayland::wl_seat(display->wl_registry(), id)
     , mQDisplay(display)
     , mDisplay(display->wl_display())
     , mFocusCallback(0)
@@ -114,6 +115,8 @@ QWaylandInputDevice::QWaylandInputDevice(QWaylandDisplay *display, uint32_t id)
     if (mQDisplay->dndSelectionHandler()) {
         mDataDevice = mQDisplay->dndSelectionHandler()->getDataDevice(this);
     }
+
+    connect(&mRepeatTimer, SIGNAL(timeout()), this, SLOT(repeatKey()));
 }
 
 QWaylandInputDevice::~QWaylandInputDevice()
@@ -156,8 +159,10 @@ void QWaylandInputDevice::handleWindowDestroyed(QWaylandWindow *window)
 {
     if (window == mPointerFocus)
         mPointerFocus = 0;
-    if (window == mKeyboardFocus)
+    if (window == mKeyboardFocus) {
         mKeyboardFocus = 0;
+        mRepeatTimer.stop();
+    }
 }
 
 void QWaylandInputDevice::setDataDevice(QWaylandDataDevice *device)
@@ -555,6 +560,7 @@ void QWaylandInputDevice::keyboard_leave(uint32_t time, struct wl_surface *surfa
         mFocusCallback = wl_display_sync(mDisplay);
         wl_callback_add_listener(mFocusCallback, &QWaylandInputDevice::callback, this);
     }
+    mRepeatTimer.stop();
 }
 
 const wl_callback_listener QWaylandInputDevice::callback = {
@@ -589,6 +595,7 @@ void QWaylandInputDevice::keyboard_key(uint32_t serial, uint32_t time, uint32_t 
     uint32_t numSyms = xkb_key_get_syms(mXkbState, code, &syms);
     xkb_state_update_key(mXkbState, code,
                          isDown ? XKB_KEY_DOWN : XKB_KEY_UP);
+    QEvent::Type type = isDown ? QEvent::KeyPress : QEvent::KeyRelease;
 
     if (!window) {
         // We destroyed the keyboard focus surface, but the server
@@ -596,15 +603,17 @@ void QWaylandInputDevice::keyboard_key(uint32_t serial, uint32_t time, uint32_t 
         return;
     }
 
+    int qtkey = key + 8;  // qt-compositor substracts 8 for some reason
+    QString text;
+
     if (numSyms == 1) {
         xkb_keysym_t sym = syms[0];
         Qt::KeyboardModifiers modifiers = this->modifiers();
-        QEvent::Type type = isDown ? QEvent::KeyPress : QEvent::KeyRelease;
 
         uint utf32 = xkb_keysym_to_utf32(sym);
-        QString text = QString::fromUcs4(&utf32, 1);
+        text = QString::fromUcs4(&utf32, 1);
 
-        int qtkey = keysymToQtKey(sym, modifiers, text);
+        qtkey = keysymToQtKey(sym, modifiers, text);
 
         QWindowSystemInterface::handleExtendedKeyEvent(window->window(),
                                                        time, type, qtkey,
@@ -615,12 +624,32 @@ void QWaylandInputDevice::keyboard_key(uint32_t serial, uint32_t time, uint32_t 
     // Generic fallback for single hard keys: Assume 'key' is a Qt key code.
     if (window) {
         QWindowSystemInterface::handleExtendedKeyEvent(window->window(),
-                                                       time, state ? QEvent::KeyPress : QEvent::KeyRelease,
-                                                       key + 8, // qt-compositor substracts 8 for some reason
+                                                       time, type,
+                                                       qtkey,
                                                        Qt::NoModifier,
-                                                       key + 8, 0, 0);
+                                                       code, 0, 0);
     }
 #endif
+
+    if (state == WL_KEYBOARD_KEY_STATE_PRESSED) {
+        mRepeatKey = qtkey;
+        mRepeatCode = code;
+        mRepeatTime = time;
+        mRepeatText = text;
+        mRepeatTimer.setInterval(400);
+        mRepeatTimer.start();
+    } else {
+        mRepeatTimer.stop();
+    }
+}
+
+void QWaylandInputDevice::repeatKey()
+{
+    mRepeatTimer.setInterval(25);
+    QWindowSystemInterface::handleExtendedKeyEvent(mKeyboardFocus->window(),
+                                                   mRepeatTime, QEvent::KeyPress, mRepeatKey,
+                                                   Qt::NoModifier,
+                                                   mRepeatCode, 0, 0, mRepeatText);
 }
 
 void QWaylandInputDevice::keyboard_modifiers(uint32_t serial,

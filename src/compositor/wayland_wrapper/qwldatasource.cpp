@@ -53,14 +53,17 @@ namespace QtWayland {
 DataSource::DataSource(struct wl_client *client, uint32_t id, uint32_t time)
     : QtWaylandServer::wl_data_source(client, id)
     , m_time(time)
+    , m_device(0)
+    , m_manager(0)
 {
-    m_manager = 0;
 }
 
 DataSource::~DataSource()
 {
     if (m_manager)
         m_manager->sourceDestroyed(this);
+    if (m_device)
+        m_device->sourceDestroyed(this);
 }
 
 uint32_t DataSource::time() const
@@ -92,6 +95,11 @@ void DataSource::cancel()
 void DataSource::setManager(DataDeviceManager *mgr)
 {
     m_manager = mgr;
+}
+
+void DataSource::setDevice(DataDevice *device)
+{
+    m_device = device;
 }
 
 DataSource *DataSource::fromResource(struct ::wl_resource *resource)

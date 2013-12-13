@@ -64,6 +64,8 @@ public:
 
     Surface *dragIcon() const;
 
+    void sourceDestroyed(DataSource *source);
+
     void focus() Q_DECL_OVERRIDE;
     void motion(uint32_t time) Q_DECL_OVERRIDE;
     void button(uint32_t time, Qt::MouseButton button, uint32_t state) Q_DECL_OVERRIDE;

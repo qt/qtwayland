@@ -50,6 +50,7 @@ QT_BEGIN_NAMESPACE
 namespace QtWayland {
 
 class DataOffer;
+class DataDevice;
 class DataDeviceManager;
 
 class DataSource : public QtWaylandServer::wl_data_source
@@ -65,6 +66,7 @@ public:
     void cancel();
 
     void setManager(DataDeviceManager *mgr);
+    void setDevice(DataDevice *device);
 
     static DataSource *fromResource(struct ::wl_resource *resource);
 
@@ -77,6 +79,7 @@ private:
     uint32_t m_time;
     QList<QString> m_mimeTypes;
 
+    DataDevice *m_device;
     DataDeviceManager *m_manager;
 };
 

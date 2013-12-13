@@ -125,6 +125,12 @@ Surface *DataDevice::dragIcon() const
     return m_dragIcon;
 }
 
+void DataDevice::sourceDestroyed(DataSource *source)
+{
+    if (m_selectionSource == source)
+        m_selectionSource = 0;
+}
+
 void DataDevice::focus()
 {
     Surface *focus = m_compositor->pickSurface(m_pointer->currentPosition());
@@ -196,6 +202,8 @@ void DataDevice::data_device_set_selection(Resource *, struct ::wl_resource *sou
         m_selectionSource->cancel();
 
     m_selectionSource = dataSource;
+    if (m_selectionSource)
+        m_selectionSource->setDevice(this);
 
     QtWaylandServer::wl_keyboard::Resource *focusResource = m_inputDevice->keyboardDevice()->focusResource();
     Resource *resource = focusResource ? resourceMap().value(focusResource->client()) : 0;

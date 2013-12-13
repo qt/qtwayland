@@ -98,7 +98,6 @@ void DataDeviceManager::setCurrentSelectionSource(DataSource *source)
 
 void DataDeviceManager::sourceDestroyed(DataSource *source)
 {
-    Q_UNUSED(source);
     if (m_current_selection_source == source)
         finishReadFromClient();
 }

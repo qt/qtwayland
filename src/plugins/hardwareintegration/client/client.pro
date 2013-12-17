@@ -13,3 +13,7 @@ config_xcomposite {
     !contains(QT_CONFIG, opengles2):config_glx: \
         SUBDIRS += xcomposite-glx
 }
+
+# we should try and resolve all symbols
+# and they should be type deffed if not present
+SUBDIRS += drm-egl-server

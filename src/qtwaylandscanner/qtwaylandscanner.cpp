@@ -437,6 +437,7 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath)
             printf("        void init(struct ::wl_client *client, int id);\n");
             printf("        void init(struct ::wl_display *display);\n");
             printf("\n");
+            printf("        Resource *add(struct ::wl_client *client);\n");
             printf("        Resource *add(struct ::wl_client *client, int id);\n");
             printf("        Resource *add(struct wl_list *resource_list, struct ::wl_client *client, int id);\n");
             printf("\n");
@@ -585,6 +586,14 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath)
             printf("    }\n");
             printf("\n");
 
+            printf("    %s::Resource *%s::add(struct ::wl_client *client)\n", interfaceName, interfaceName);
+            printf("    {\n");
+            printf("        Resource *resource = bind(client, 0);\n");
+            printf("        m_resource_map.insert(client, resource);\n");
+            printf("        return resource;\n");
+            printf("    }\n");
+            printf("\n");
+
             printf("    %s::Resource *%s::add(struct ::wl_client *client, int id)\n", interfaceName, interfaceName);
             printf("    {\n");
             printf("        Resource *resource = bind(client, id);\n");
@@ -639,6 +648,8 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath)
 
             QByteArray interfaceMember = hasRequests ? "&m_" + interface.name + "_interface" : QByteArray("0");
 
+            //We should consider changing bind so that it doesn't special case id == 0
+            //and use function overloading instead. Jan do you have a lot of code dependent on this behavior?
             printf("    %s::Resource *%s::bind(struct ::wl_client *client, uint32_t id)\n", interfaceName, interfaceName);
             printf("    {\n");
             printf("        Resource *resource = %s_allocate();\n", interfaceNameStripped);

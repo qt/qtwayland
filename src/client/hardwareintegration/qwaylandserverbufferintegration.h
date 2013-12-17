@@ -51,6 +51,32 @@ QT_BEGIN_NAMESPACE
 
 class QWaylandDisplay;
 
+class Q_WAYLAND_CLIENT_EXPORT QWaylandServerBuffer
+{
+public:
+    enum Format {
+        RGBA32,
+        A8
+    };
+
+    QWaylandServerBuffer();
+    virtual ~QWaylandServerBuffer();
+
+    //creates new texture for buffer
+    virtual GLuint createTexture() = 0;
+
+    void setUserData(void *userData);
+    void *userData() const;
+
+    Format format() const;
+
+protected:
+    Format m_format;
+
+private:
+    void *m_user_data;
+};
+
 class Q_WAYLAND_CLIENT_EXPORT QWaylandServerBufferIntegration
 {
 public:
@@ -59,13 +85,7 @@ public:
 
     virtual void initialize(QWaylandDisplay *display) = 0;
 
-    //creates new texture for buffer
-    virtual GLuint createTextureFor(struct qt_server_buffer *buffer) = 0;
-
-    //does not clean up textures. Just lets server know that it does
-    //not intend to use the buffer anymore. Textures should have been
-    //deleted prior to calling this function
-    virtual void release(struct qt_server_buffer *buffer) = 0;
+    virtual QWaylandServerBuffer *serverBuffer(struct qt_server_buffer *buffer) = 0;
 };
 
 QT_END_NAMESPACE

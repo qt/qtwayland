@@ -40,28 +40,26 @@
 
 #include "qwaylandserverbufferintegration.h"
 
-QWaylandServerBuffer::QWaylandServerBuffer()
+QT_BEGIN_NAMESPACE
+
+QWaylandServerBuffer::QWaylandServerBuffer(const QSize &size, QWaylandServerBuffer::Format format)
+    : m_size(size)
+    , m_format(format)
 { }
 QWaylandServerBuffer::~QWaylandServerBuffer()
 { }
 
-void QWaylandServerBuffer::sendToClient(struct ::wl_client *)
-{ }
 
-GLuint QWaylandServerBuffer::createTexture(QOpenGLContext *)
+bool QWaylandServerBuffer::isYInverted() const
 {
-    return 0;
-}
-
-bool QWaylandServerBuffer::isYInverted(struct ::wl_resource *) const
-{
-    return true;
+    return false;
 }
 
 QSize QWaylandServerBuffer::size() const
-{
-    return QSize();
-}
+{ return m_size; }
+
+QWaylandServerBuffer::Format QWaylandServerBuffer::format() const
+{ return m_format; }
 
 QWaylandServerBufferIntegration::QWaylandServerBufferIntegration()
 { }
@@ -74,8 +72,11 @@ void QWaylandServerBufferIntegration::initializeHardware(QWaylandCompositor *com
     Q_UNUSED(compositor);
 }
 
-QWaylandServerBuffer *QWaylandServerBufferIntegration::createServerBuffer()
+QWaylandServerBuffer *QWaylandServerBufferIntegration::createServerBuffer(const QSize &size, QWaylandServerBuffer::Format format)
 {
+    Q_UNUSED(size);
+    Q_UNUSED(format);
     return 0;
 }
 
+QT_END_NAMESPACE

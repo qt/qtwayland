@@ -61,15 +61,24 @@ namespace QtWayland {
 class Q_COMPOSITOR_EXPORT QWaylandServerBuffer
 {
 public:
-    QWaylandServerBuffer();
+    enum Format {
+        RGBA32,
+        A8
+    };
+
+    QWaylandServerBuffer(const QSize &size, QWaylandServerBuffer::Format format);
     virtual ~QWaylandServerBuffer();
 
-    virtual void sendToClient(struct ::wl_client *);
+    virtual struct ::wl_resource *resourceForClient(struct ::wl_client *) = 0;
 
-    virtual GLuint createTexture(QOpenGLContext *);
-    virtual bool isYInverted(struct ::wl_resource *) const;
+    virtual GLuint createTexture() = 0;
+    virtual bool isYInverted() const;
 
-    virtual QSize size() const;
+    QSize size() const;
+    Format format() const;
+protected:
+    QSize m_size;
+    Format m_format;
 };
 
 class Q_COMPOSITOR_EXPORT QWaylandServerBufferIntegration
@@ -80,7 +89,7 @@ public:
 
     virtual void initializeHardware(QWaylandCompositor *);
 
-    virtual QWaylandServerBuffer *createServerBuffer();
+    virtual QWaylandServerBuffer *createServerBuffer(const QSize &size, QWaylandServerBuffer::Format format);
 };
 
 QT_END_NAMESPACE

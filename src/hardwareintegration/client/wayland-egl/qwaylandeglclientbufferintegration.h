@@ -42,7 +42,7 @@
 #ifndef QWAYLANDEGLINTEGRATION_H
 #define QWAYLANDEGLINTEGRATION_H
 
-#include <QtWaylandClient/qwaylandclientbufferintegration.h>
+#include <QtWaylandClient/private/qwaylandclientbufferintegration_p.h>
 
 #include "qwaylandeglinclude.h"
 

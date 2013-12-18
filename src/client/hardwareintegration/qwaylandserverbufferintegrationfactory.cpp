@@ -39,8 +39,8 @@
 **
 ****************************************************************************/
 
-#include "qwaylandserverbufferintegrationfactory.h"
-#include "qwaylandserverbufferintegrationplugin.h"
+#include "qwaylandserverbufferintegrationfactory_p.h"
+#include "qwaylandserverbufferintegrationplugin_p.h"
 
 #include <QtCore/private/qfactoryloader_p.h>
 #include <QtCore/QCoreApplication>

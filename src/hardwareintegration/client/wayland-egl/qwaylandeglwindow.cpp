@@ -41,7 +41,7 @@
 
 #include "qwaylandeglwindow.h"
 
-#include "qwaylandscreen.h"
+#include <QtWaylandClient/private/qwaylandscreen_p.h>
 #include "qwaylandglcontext.h"
 
 #include <QtPlatformSupport/private/qeglconvenience_p.h>

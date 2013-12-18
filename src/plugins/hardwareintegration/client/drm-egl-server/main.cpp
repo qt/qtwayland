@@ -39,7 +39,7 @@
 **
 ****************************************************************************/
 
-#include <QtWaylandClient/qwaylandserverbufferintegrationplugin.h>
+#include <QtWaylandClient/private/qwaylandserverbufferintegrationplugin_p.h>
 #include "drmeglserverbufferintegration.h"
 
 QT_BEGIN_NAMESPACE

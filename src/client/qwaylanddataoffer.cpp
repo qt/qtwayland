@@ -39,8 +39,8 @@
 **
 ****************************************************************************/
 
-#include "qwaylanddataoffer.h"
-#include "qwaylanddatadevicemanager.h"
+#include "qwaylanddataoffer_p.h"
+#include "qwaylanddatadevicemanager_p.h"
 
 #include <QtCore/private/qcore_unix_p.h>
 #include <QtGui/private/qguiapplication_p.h>

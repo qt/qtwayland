@@ -39,7 +39,7 @@
 **
 ****************************************************************************/
 
-#include "qwaylandclientbufferintegrationplugin.h"
+#include "qwaylandclientbufferintegrationplugin_p.h"
 
 QT_BEGIN_NAMESPACE
 

@@ -38,14 +38,14 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
-#include "qwaylandshmbackingstore.h"
+#include "qwaylandshmbackingstore_p.h"
 
 #include <QtCore/qdebug.h>
 
-#include "qwaylanddisplay.h"
-#include "qwaylandshmwindow.h"
-#include "qwaylandscreen.h"
-#include "qwaylanddecoration.h"
+#include "qwaylanddisplay_p.h"
+#include "qwaylandshmwindow_p.h"
+#include "qwaylandscreen_p.h"
+#include "qwaylanddecoration_p.h"
 
 #include <QtGui/QPainter>
 

@@ -67,32 +67,32 @@ SOURCES +=  qwaylandintegration.cpp \
             qwaylandinputcontext.cpp \
             qwaylanddatadevice.cpp \
 
-HEADERS +=  qwaylandintegration.h \
-            qwaylandnativeinterface.h \
-            qwaylandcursor.h \
-            qwaylanddisplay.h \
-            qwaylandwindow.h \
-            qwaylandscreen.h \
-            qwaylandshmbackingstore.h \
-            qwaylandinputdevice.h \
-            qwaylandbuffer.h \
-            qwaylandshmwindow.h \
-            qwaylandclipboard.h \
-            qwaylanddnd.h \
-            qwaylanddataoffer.h \
-            qwaylanddatadevicemanager.h \
-            qwaylanddatasource.h \
-            qwaylandshellsurface.h \
-            qwaylandextendedoutput.h \
-            qwaylandextendedsurface.h \
-            qwaylandsubsurface.h \
-            qwaylandtouch.h \
-            qwaylandqtkey.h \
+HEADERS +=  qwaylandintegration_p.h \
+            qwaylandnativeinterface_p.h \
+            qwaylandcursor_p.h \
+            qwaylanddisplay_p.h \
+            qwaylandwindow_p.h \
+            qwaylandscreen_p.h \
+            qwaylandshmbackingstore_p.h \
+            qwaylandinputdevice_p.h \
+            qwaylandbuffer_p.h \
+            qwaylandshmwindow_p.h \
+            qwaylandclipboard_p.h \
+            qwaylanddnd_p.h \
+            qwaylanddataoffer_p.h \
+            qwaylanddatadevicemanager_p.h \
+            qwaylanddatasource_p.h \
+            qwaylandshellsurface_p.h \
+            qwaylandextendedoutput_p.h \
+            qwaylandextendedsurface_p.h \
+            qwaylandsubsurface_p.h \
+            qwaylandtouch_p.h \
+            qwaylandqtkey_p.h \
             ../shared/qwaylandmimehelper.h \
-            qwaylanddecoration.h \
-            qwaylandeventthread.h \
-            qwaylandwindowmanagerintegration.h \
-            qwaylandinputcontext.h \
-            qwaylanddatadevice.h \
+            qwaylanddecoration_p.h \
+            qwaylandeventthread_p.h \
+            qwaylandwindowmanagerintegration_p.h \
+            qwaylandinputcontext_p.h \
+            qwaylanddatadevice_p.h \
 
 include(hardwareintegration/hardwareintegration.pri)

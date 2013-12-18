@@ -42,7 +42,7 @@
 #ifndef QWAYLANDXCOMPOSITEEGLPLATFROMINTEGRATION_H
 #define QWAYLANDXCOMPOSITEEGLPLATFROMINTEGRATION_H
 
-#include <QtWaylandClient/qwaylandintegration.h>
+#include <QtWaylandClient/private/qwaylandintegration_p.h>
 
 #include "qwaylandxcompositeeglclientbufferintegration.h"
 

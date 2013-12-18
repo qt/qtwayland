@@ -39,12 +39,12 @@
 **
 ****************************************************************************/
 
-#include "qwaylanddnd.h"
+#include "qwaylanddnd_p.h"
 
-#include "qwaylanddatadevice.h"
-#include "qwaylanddatadevicemanager.h"
-#include "qwaylanddataoffer.h"
-#include "qwaylandinputdevice.h"
+#include "qwaylanddatadevice_p.h"
+#include "qwaylanddatadevicemanager_p.h"
+#include "qwaylanddataoffer_p.h"
+#include "qwaylandinputdevice_p.h"
 
 #include <QtGui/private/qshapedpixmapdndwindow_p.h>
 

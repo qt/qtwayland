@@ -44,10 +44,10 @@
 
 #include <QtWaylandClient/private/qwayland-wayland.h>
 #include "qwayland-drm-egl-server-buffer.h"
-#include <QtWaylandClient/qwaylandserverbufferintegration.h>
+#include <QtWaylandClient/private/qwaylandserverbufferintegration_p.h>
 
 #include "drmeglserverbufferintegration.h"
-#include <QtWaylandClient/qwaylanddisplay.h>
+#include <QtWaylandClient/private/qwaylanddisplay_p.h>
 #include <QtCore/QTextStream>
 
 #include <EGL/egl.h>

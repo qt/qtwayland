@@ -39,12 +39,12 @@
 **
 ****************************************************************************/
 
-#include "qwaylandclipboard.h"
-#include "qwaylanddisplay.h"
-#include "qwaylandinputdevice.h"
-#include "qwaylanddataoffer.h"
-#include "qwaylanddatasource.h"
-#include "qwaylanddatadevice.h"
+#include "qwaylandclipboard_p.h"
+#include "qwaylanddisplay_p.h"
+#include "qwaylandinputdevice_p.h"
+#include "qwaylanddataoffer_p.h"
+#include "qwaylanddatasource_p.h"
+#include "qwaylanddatadevice_p.h"
 
 QT_BEGIN_NAMESPACE
 

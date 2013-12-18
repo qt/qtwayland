@@ -39,11 +39,11 @@
 **
 ****************************************************************************/
 
-#include "qwaylandscreen.h"
+#include "qwaylandscreen_p.h"
 
-#include "qwaylanddisplay.h"
-#include "qwaylandcursor.h"
-#include "qwaylandextendedoutput.h"
+#include "qwaylanddisplay_p.h"
+#include "qwaylandcursor_p.h"
+#include "qwaylandextendedoutput_p.h"
 
 #include <qpa/qwindowsysteminterface.h>
 

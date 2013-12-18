@@ -39,9 +39,9 @@
 **
 ****************************************************************************/
 
-#include "qwaylandhardwareintegration.h"
+#include "qwaylandhardwareintegration_p.h"
 
-#include "qwaylanddisplay.h"
+#include "qwaylanddisplay_p.h"
 QT_BEGIN_NAMESPACE
 
 QWaylandHardwareIntegration::QWaylandHardwareIntegration(struct ::wl_registry *registry, int id)

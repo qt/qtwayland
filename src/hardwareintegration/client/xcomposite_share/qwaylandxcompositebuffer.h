@@ -42,7 +42,7 @@
 #ifndef QWAYLANDXCOMPOSITEBUFFER_H
 #define QWAYLANDXCOMPOSITEBUFFER_H
 
-#include <QtWaylandClient/qwaylandbuffer.h>
+#include <QtWaylandClient/private/qwaylandbuffer_p.h>
 #include <stdint.h>
 
 struct qt_xcomposite;

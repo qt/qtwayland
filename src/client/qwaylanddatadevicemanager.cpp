@@ -39,11 +39,11 @@
 **
 ****************************************************************************/
 
-#include "qwaylanddatadevicemanager.h"
+#include "qwaylanddatadevicemanager_p.h"
 
-#include "qwaylandinputdevice.h"
-#include "qwaylanddatadevice.h"
-#include "qwaylanddataoffer.h"
+#include "qwaylandinputdevice_p.h"
+#include "qwaylanddatadevice_p.h"
+#include "qwaylanddataoffer_p.h"
 
 #include <QtCore/QDebug>
 

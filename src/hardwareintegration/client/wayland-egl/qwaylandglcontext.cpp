@@ -41,10 +41,10 @@
 
 #include "qwaylandglcontext.h"
 
-#include "qwaylanddisplay.h"
-#include "qwaylandwindow.h"
+#include <QtWaylandClient/private/qwaylanddisplay_p.h>
+#include <QtWaylandClient/private/qwaylandwindow_p.h>
+#include <QtWaylandClient/private/qwaylanddecoration_p.h>
 #include "qwaylandeglwindow.h"
-#include "qwaylanddecoration.h"
 
 #include <QDebug>
 #include <QtPlatformSupport/private/qeglconvenience_p.h>

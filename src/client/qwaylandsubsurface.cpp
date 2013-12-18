@@ -39,9 +39,9 @@
 **
 ****************************************************************************/
 
-#include "qwaylandsubsurface.h"
+#include "qwaylandsubsurface_p.h"
 
-#include "qwaylandwindow.h"
+#include "qwaylandwindow_p.h"
 
 #include <QtCore/QDebug>
 

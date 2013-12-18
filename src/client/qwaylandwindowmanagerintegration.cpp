@@ -39,9 +39,9 @@
 **
 ****************************************************************************/
 
-#include "qwaylandwindowmanagerintegration.h"
-#include "qwaylandscreen.h"
-#include "qwaylandwindow.h"
+#include "qwaylandwindowmanagerintegration_p.h"
+#include "qwaylandscreen_p.h"
+#include "qwaylandwindow_p.h"
 
 #include <stdint.h>
 #include <QtCore/QEvent>

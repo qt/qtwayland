@@ -39,8 +39,8 @@
 **
 ****************************************************************************/
 
-#include "qwaylandtouch.h"
-#include "qwaylandinputdevice.h"
+#include "qwaylandtouch_p.h"
+#include "qwaylandinputdevice_p.h"
 
 QT_BEGIN_NAMESPACE
 

@@ -39,13 +39,13 @@
 **
 ****************************************************************************/
 
-#include "qwaylandnativeinterface.h"
-#include "qwaylanddisplay.h"
-#include "qwaylandwindow.h"
-#include "qwaylandextendedsurface.h"
-#include "qwaylandintegration.h"
-#include "qwaylanddisplay.h"
-#include "qwaylandwindowmanagerintegration.h"
+#include "qwaylandnativeinterface_p.h"
+#include "qwaylanddisplay_p.h"
+#include "qwaylandwindow_p.h"
+#include "qwaylandextendedsurface_p.h"
+#include "qwaylandintegration_p.h"
+#include "qwaylanddisplay_p.h"
+#include "qwaylandwindowmanagerintegration_p.h"
 #include <QtGui/private/qguiapplication_p.h>
 #include <QtGui/QScreen>
 

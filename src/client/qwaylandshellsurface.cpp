@@ -39,13 +39,13 @@
 **
 ****************************************************************************/
 
-#include "qwaylandshellsurface.h"
+#include "qwaylandshellsurface_p.h"
 
-#include "qwaylanddisplay.h"
-#include "qwaylandwindow.h"
-#include "qwaylandinputdevice.h"
-#include "qwaylanddecoration.h"
-#include "qwaylandscreen.h"
+#include "qwaylanddisplay_p.h"
+#include "qwaylandwindow_p.h"
+#include "qwaylandinputdevice_p.h"
+#include "qwaylanddecoration_p.h"
+#include "qwaylandscreen_p.h"
 
 #include <QtCore/QDebug>
 

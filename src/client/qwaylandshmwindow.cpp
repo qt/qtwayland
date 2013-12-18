@@ -39,9 +39,9 @@
 **
 ****************************************************************************/
 
-#include "qwaylandshmwindow.h"
+#include "qwaylandshmwindow_p.h"
 
-#include "qwaylandbuffer.h"
+#include "qwaylandbuffer_p.h"
 
 #include <QtCore/QVector>
 

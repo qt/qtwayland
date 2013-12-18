@@ -42,7 +42,7 @@
 #ifndef QWAYLANDXCOMPOSITEEGLCLIENTBUFFERINTEGRATION_H
 #define QWAYLANDXCOMPOSITEEGLCLIENTBUFFERINTEGRATION_H
 
-#include <QtWaylandClient/qwaylandclientbufferintegration.h>
+#include <QtWaylandClient/private/qwaylandclientbufferintegration_p.h>
 #include "wayland-client.h"
 
 #include <QtCore/QTextStream>

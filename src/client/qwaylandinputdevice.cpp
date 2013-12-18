@@ -39,16 +39,16 @@
 **
 ****************************************************************************/
 
-#include "qwaylandinputdevice.h"
+#include "qwaylandinputdevice_p.h"
 
-#include "qwaylandintegration.h"
-#include "qwaylandwindow.h"
-#include "qwaylandbuffer.h"
-#include "qwaylanddatadevice.h"
-#include "qwaylanddatadevicemanager.h"
-#include "qwaylandtouch.h"
-#include "qwaylandscreen.h"
-#include "qwaylandcursor.h"
+#include "qwaylandintegration_p.h"
+#include "qwaylandwindow_p.h"
+#include "qwaylandbuffer_p.h"
+#include "qwaylanddatadevice_p.h"
+#include "qwaylanddatadevicemanager_p.h"
+#include "qwaylandtouch_p.h"
+#include "qwaylandscreen_p.h"
+#include "qwaylandcursor_p.h"
 
 #include <QtGui/private/qpixmap_raster_p.h>
 #include <qpa/qplatformwindow.h>

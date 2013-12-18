@@ -40,7 +40,7 @@
 ****************************************************************************/
 
 #include "drmeglserverbufferintegration.h"
-#include <QtWaylandClient/qwaylanddisplay.h>
+#include <QtWaylandClient/private/qwaylanddisplay_p.h>
 #include <QDebug>
 #include <QtGui/QOpenGLContext>
 

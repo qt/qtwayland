@@ -42,8 +42,8 @@
 #ifndef QWAYLANDXCOMPOSITEEGLWINDOW_H
 #define QWAYLANDXCOMPOSITEEGLWINDOW_H
 
-#include <QtWaylandClient/qwaylandwindow.h>
-#include <QtWaylandClient/qwaylandbuffer.h>
+#include <QtWaylandClient/private/qwaylandwindow_p.h>
+#include <QtWaylandClient/private/qwaylandbuffer_p.h>
 
 #include "qwaylandxcompositeeglclientbufferintegration.h"
 #include "qwaylandxcompositeeglcontext.h"

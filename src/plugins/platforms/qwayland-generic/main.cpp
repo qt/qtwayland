@@ -40,7 +40,7 @@
 ****************************************************************************/
 
 #include <qpa/qplatformintegrationplugin.h>
-#include <QtWaylandClient/qwaylandintegration.h>
+#include <QtWaylandClient/private/qwaylandintegration_p.h>
 
 QT_BEGIN_NAMESPACE
 

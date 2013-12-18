@@ -39,12 +39,12 @@
 **
 ****************************************************************************/
 
-#include "qwaylanddecoration.h"
+#include "qwaylanddecoration_p.h"
 
-#include "qwaylandwindow.h"
-#include "qwaylandshellsurface.h"
-#include "qwaylandinputdevice.h"
-#include "qwaylandscreen.h"
+#include "qwaylandwindow_p.h"
+#include "qwaylandshellsurface_p.h"
+#include "qwaylandinputdevice_p.h"
+#include "qwaylandscreen_p.h"
 
 #include <QtGui/QGuiApplication>
 #include <QtGui/QImage>

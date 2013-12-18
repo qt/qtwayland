@@ -38,13 +38,13 @@
 **
 ****************************************************************************/
 
-#include "qwaylanddatadevice.h"
+#include "qwaylanddatadevice_p.h"
 
-#include "qwaylanddatadevicemanager.h"
-#include "qwaylanddataoffer.h"
-#include "qwaylanddatasource.h"
-#include "qwaylanddnd.h"
-#include "qwaylandinputdevice.h"
+#include "qwaylanddatadevicemanager_p.h"
+#include "qwaylanddataoffer_p.h"
+#include "qwaylanddatasource_p.h"
+#include "qwaylanddnd_p.h"
+#include "qwaylandinputdevice_p.h"
 
 #include <QtCore/QMimeData>
 #include <QtGui/QGuiApplication>

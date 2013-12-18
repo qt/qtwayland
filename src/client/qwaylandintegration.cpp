@@ -39,16 +39,16 @@
 **
 ****************************************************************************/
 
-#include "qwaylandintegration.h"
+#include "qwaylandintegration_p.h"
 
-#include "qwaylanddisplay.h"
-#include "qwaylandinputcontext.h"
-#include "qwaylandshmbackingstore.h"
-#include "qwaylandshmwindow.h"
-#include "qwaylandnativeinterface.h"
-#include "qwaylandclipboard.h"
-#include "qwaylanddnd.h"
-#include "qwaylandwindowmanagerintegration.h"
+#include "qwaylanddisplay_p.h"
+#include "qwaylandinputcontext_p.h"
+#include "qwaylandshmbackingstore_p.h"
+#include "qwaylandshmwindow_p.h"
+#include "qwaylandnativeinterface_p.h"
+#include "qwaylandclipboard_p.h"
+#include "qwaylanddnd_p.h"
+#include "qwaylandwindowmanagerintegration_p.h"
 
 #include "QtPlatformSupport/private/qgenericunixfontdatabase_p.h"
 #include <QtPlatformSupport/private/qgenericunixeventdispatcher_p.h>
@@ -65,12 +65,12 @@
 #include <qpa/qplatformaccessibility.h>
 #include <qpa/qplatforminputcontext.h>
 
-#include "qwaylandhardwareintegration.h"
-#include "qwaylandclientbufferintegration.h"
-#include "qwaylandclientbufferintegrationfactory.h"
+#include "qwaylandhardwareintegration_p.h"
+#include "qwaylandclientbufferintegration_p.h"
+#include "qwaylandclientbufferintegrationfactory_p.h"
 
-#include "qwaylandserverbufferintegration.h"
-#include "qwaylandserverbufferintegrationfactory.h"
+#include "qwaylandserverbufferintegration_p.h"
+#include "qwaylandserverbufferintegrationfactory_p.h"
 
 QT_BEGIN_NAMESPACE
 

@@ -39,17 +39,17 @@
 **
 ****************************************************************************/
 
-#include "qwaylandwindow.h"
+#include "qwaylandwindow_p.h"
 
-#include "qwaylandbuffer.h"
-#include "qwaylanddisplay.h"
-#include "qwaylandinputdevice.h"
-#include "qwaylandscreen.h"
-#include "qwaylandshellsurface.h"
-#include "qwaylandextendedsurface.h"
-#include "qwaylandsubsurface.h"
-#include "qwaylanddecoration.h"
-#include "qwaylandwindowmanagerintegration.h"
+#include "qwaylandbuffer_p.h"
+#include "qwaylanddisplay_p.h"
+#include "qwaylandinputdevice_p.h"
+#include "qwaylandscreen_p.h"
+#include "qwaylandshellsurface_p.h"
+#include "qwaylandextendedsurface_p.h"
+#include "qwaylandsubsurface_p.h"
+#include "qwaylanddecoration_p.h"
+#include "qwaylandwindowmanagerintegration_p.h"
 
 #include <QtCore/QFileInfo>
 #include <QtGui/QWindow>

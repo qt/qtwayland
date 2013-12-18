@@ -1,4 +1,4 @@
-#include "qwaylandserverbufferintegration.h"
+#include "qwaylandserverbufferintegration_p.h"
 
 QT_BEGIN_NAMESPACE
 

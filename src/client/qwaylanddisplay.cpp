@@ -39,26 +39,26 @@
 **
 ****************************************************************************/
 
-#include "qwaylanddisplay.h"
+#include "qwaylanddisplay_p.h"
 
-#include "qwaylandeventthread.h"
-#include "qwaylandintegration.h"
-#include "qwaylandwindow.h"
-#include "qwaylandscreen.h"
-#include "qwaylandcursor.h"
-#include "qwaylandinputdevice.h"
-#include "qwaylandclipboard.h"
-#include "qwaylanddatadevicemanager.h"
-#include "qwaylandhardwareintegration.h"
+#include "qwaylandeventthread_p.h"
+#include "qwaylandintegration_p.h"
+#include "qwaylandwindow_p.h"
+#include "qwaylandscreen_p.h"
+#include "qwaylandcursor_p.h"
+#include "qwaylandinputdevice_p.h"
+#include "qwaylandclipboard_p.h"
+#include "qwaylanddatadevicemanager_p.h"
+#include "qwaylandhardwareintegration_p.h"
 
 
-#include "qwaylandwindowmanagerintegration.h"
+#include "qwaylandwindowmanagerintegration_p.h"
 
-#include "qwaylandextendedoutput.h"
-#include "qwaylandextendedsurface.h"
-#include "qwaylandsubsurface.h"
-#include "qwaylandtouch.h"
-#include "qwaylandqtkey.h"
+#include "qwaylandextendedoutput_p.h"
+#include "qwaylandextendedsurface_p.h"
+#include "qwaylandsubsurface_p.h"
+#include "qwaylandtouch_p.h"
+#include "qwaylandqtkey_p.h"
 
 #include <QtWaylandClient/private/qwayland-text.h>
 

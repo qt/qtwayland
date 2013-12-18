@@ -39,12 +39,12 @@
 **
 ****************************************************************************/
 
-#include "qwaylandcursor.h"
+#include "qwaylandcursor_p.h"
 
-#include "qwaylanddisplay.h"
-#include "qwaylandinputdevice.h"
-#include "qwaylandscreen.h"
-#include "qwaylandshmbackingstore.h"
+#include "qwaylanddisplay_p.h"
+#include "qwaylandinputdevice_p.h"
+#include "qwaylandscreen_p.h"
+#include "qwaylandshmbackingstore_p.h"
 
 #include <QtGui/QImageReader>
 #include <QDebug>

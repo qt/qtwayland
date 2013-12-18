@@ -39,15 +39,15 @@
 **
 ****************************************************************************/
 
-#include "qwaylandextendedsurface.h"
+#include "qwaylandextendedsurface_p.h"
 
-#include "qwaylandwindow.h"
+#include "qwaylandwindow_p.h"
 
 #include "wayland-client.h"
 
-#include "qwaylanddisplay.h"
+#include "qwaylanddisplay_p.h"
 
-#include "qwaylandnativeinterface.h"
+#include "qwaylandnativeinterface_p.h"
 
 #include <QtGui/QGuiApplication>
 #include <qpa/qplatformnativeinterface.h>

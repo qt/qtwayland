@@ -38,7 +38,7 @@
 **
 ****************************************************************************/
 
-#include "qwaylandinputcontext.h"
+#include "qwaylandinputcontext_p.h"
 
 #include <QGuiApplication>
 #include <QWindow>
@@ -46,9 +46,9 @@
 #include <xkbcommon/xkbcommon.h>
 #endif
 
-#include "qwaylanddisplay.h"
-#include "qwaylandinputdevice.h"
-#include "qwaylandwindow.h"
+#include "qwaylanddisplay_p.h"
+#include "qwaylandinputdevice_p.h"
+#include "qwaylandwindow_p.h"
 
 QT_BEGIN_NAMESPACE
 

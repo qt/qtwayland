@@ -1,4 +1,4 @@
-#include "qwaylandeventthread.h"
+#include "qwaylandeventthread_p.h"
 #include <QtCore/QSocketNotifier>
 #include <QCoreApplication>
 

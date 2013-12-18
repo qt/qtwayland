@@ -39,7 +39,7 @@
 **
 ****************************************************************************/
 
-#include <QtWaylandClient/qwaylandclientbufferintegrationplugin.h>
+#include <QtWaylandClient/private/qwaylandclientbufferintegrationplugin_p.h>
 #include "qwaylandxcompositeeglclientbufferintegration.h"
 
 QT_BEGIN_NAMESPACE

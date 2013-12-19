@@ -59,6 +59,7 @@
 
 #ifdef QT_COMPOSITOR_QUICK
 #include "qwaylandsurfaceitem.h"
+#include <QtQml/QQmlPropertyMap>
 #endif
 
 QT_BEGIN_NAMESPACE
@@ -70,6 +71,7 @@ public:
         : surface(srfc)
 #ifdef QT_COMPOSITOR_QUICK
         , surface_item(0)
+        , windowPropertyMap(new QQmlPropertyMap)
 #endif
     {}
 
@@ -78,18 +80,28 @@ public:
 #ifdef QT_COMPOSITOR_QUICK
         if (surface_item)
             surface_item->setSurface(0);
+        if (windowPropertyMap)
+            windowPropertyMap->deleteLater();
 #endif
     }
 
     QtWayland::Surface *surface;
 #ifdef QT_COMPOSITOR_QUICK
     QWaylandSurfaceItem *surface_item;
+    QQmlPropertyMap *windowPropertyMap;
 #endif
 };
 
 QWaylandSurface::QWaylandSurface(QtWayland::Surface *surface)
     : QObject(*new QWaylandSurfacePrivate(surface))
 {
+#ifdef QT_COMPOSITOR_QUICK
+    Q_D(QWaylandSurface);
+    connect(this, &QWaylandSurface::windowPropertyChanged,
+            d->windowPropertyMap, &QQmlPropertyMap::insert);
+    connect(d->windowPropertyMap, &QQmlPropertyMap::valueChanged,
+            this, &QWaylandSurface::setWindowProperty);
+#endif
 }
 
 WaylandClient *QWaylandSurface::client() const
@@ -226,6 +238,13 @@ void QWaylandSurface::setSurfaceItem(QWaylandSurfaceItem *surfaceItem)
     Q_D(QWaylandSurface);
     d->surface_item = surfaceItem;
 }
+
+QObject *QWaylandSurface::windowPropertyMap() const
+{
+    Q_D(const QWaylandSurface);
+    return d->windowPropertyMap;
+}
+
 #endif //QT_COMPOSITOR_QUICK
 
 qint64 QWaylandSurface::processId() const

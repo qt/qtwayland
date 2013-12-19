@@ -82,6 +82,9 @@ class Q_COMPOSITOR_EXPORT QWaylandSurface : public QObject
     Q_PROPERTY(QString title READ title NOTIFY titleChanged)
     Q_PROPERTY(Qt::ScreenOrientations orientationUpdateMask READ orientationUpdateMask NOTIFY orientationUpdateMaskChanged)
     Q_PROPERTY(QWindow::Visibility visibility READ visibility WRITE setVisibility NOTIFY visibilityChanged)
+#ifdef QT_COMPOSITOR_QUICK
+    Q_PROPERTY(QObject * windowProperties READ windowPropertyMap CONSTANT)
+#endif
 
     Q_ENUMS(WindowFlag WindowType)
     Q_FLAGS(WindowFlag WindowFlags)
@@ -151,6 +154,8 @@ public:
 #ifdef QT_COMPOSITOR_QUICK
     QWaylandSurfaceItem *surfaceItem() const;
     void setSurfaceItem(QWaylandSurfaceItem *surfaceItem);
+
+    QObject *windowPropertyMap() const;
 #endif
 
     qint64 processId() const;

@@ -48,24 +48,30 @@ DrmEglServerBuffer::DrmEglServerBuffer(DrmEglServerBufferIntegration *integratio
     : QWaylandServerBuffer(size,format)
     , m_integration(integration)
 {
-    m_format = RGBA32;
+    m_format = format;
 
+    EGLint egl_format;
     switch (m_format) {
         case RGBA32:
             m_drm_format = QtWaylandServer::qt_drm_egl_server_buffer::format_RGBA32;
+            egl_format = EGL_DRM_BUFFER_FORMAT_ARGB32_MESA;
             break;
+#ifdef EGL_DRM_BUFFER_FORMAT_A8_MESA
         case A8:
             m_drm_format = QtWaylandServer::qt_drm_egl_server_buffer::format_A8;
+            egl_format = EGL_DRM_BUFFER_FORMAT_A8_MESA;
             break;
+#endif
         default:
-            qWarning("DrmEglServerBuffer: invalid format");
+            qWarning("DrmEglServerBuffer: unsupported format");
             m_drm_format = QtWaylandServer::qt_drm_egl_server_buffer::format_RGBA32;
+            egl_format = EGL_DRM_BUFFER_FORMAT_ARGB32_MESA;
             break;
     }
     EGLint imageAttribs[] = {
         EGL_WIDTH, m_size.width(),
         EGL_HEIGHT, m_size.height(),
-        EGL_DRM_BUFFER_FORMAT_MESA, EGL_DRM_BUFFER_FORMAT_ARGB32_MESA,
+        EGL_DRM_BUFFER_FORMAT_MESA, egl_format,
         EGL_DRM_BUFFER_USE_MESA, EGL_DRM_BUFFER_USE_SHARE_MESA,
         EGL_NONE
     };
@@ -106,7 +112,13 @@ GLuint DrmEglServerBuffer::createTexture()
     GLuint  texture;
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
+
     m_integration->glEGLImageTargetTexture2DOES(GL_TEXTURE_2D, m_image);
+
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
     return texture;
 }

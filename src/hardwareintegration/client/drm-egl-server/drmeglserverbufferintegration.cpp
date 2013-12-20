@@ -54,31 +54,43 @@ DrmServerBuffer::DrmServerBuffer(DrmEglServerBufferIntegration *integration
                                 , int32_t height
                                 , int32_t stride
                                 , int32_t format)
-    : m_integration(integration)
+    : QWaylandServerBuffer()
+    , m_integration(integration)
 {
+    m_size = QSize(width, height);
+    EGLint egl_format;
+    int32_t format_stride;
+    switch (format) {
+        case QtWayland::qt_drm_egl_server_buffer::format_RGBA32:
+            m_format = QWaylandServerBuffer::RGBA32;
+            egl_format = EGL_DRM_BUFFER_FORMAT_ARGB32_MESA;
+            format_stride = stride / 4;
+            break;
+#ifdef EGL_DRM_BUFFER_FORMAT_A8_MESA
+        case QtWayland::qt_drm_egl_server_buffer::format_A8:
+            m_format = QWaylandServerBuffer::A8;
+            egl_format = EGL_DRM_BUFFER_FORMAT_A8_MESA;
+            format_stride = stride;
+            break;
+#endif
+        default:
+            qWarning("DrmServerBuffer: unknown format");
+            m_format = QWaylandServerBuffer::RGBA32;
+            egl_format = EGL_DRM_BUFFER_FORMAT_ARGB32_MESA;
+            format_stride = stride / 4;
+            break;
+    }
     EGLint attribs[] = {
         EGL_WIDTH,                      width,
         EGL_HEIGHT,                     height,
-        EGL_DRM_BUFFER_STRIDE_MESA,     stride /4,
-        EGL_DRM_BUFFER_FORMAT_MESA,     EGL_DRM_BUFFER_FORMAT_ARGB32_MESA,
+        EGL_DRM_BUFFER_STRIDE_MESA,     format_stride,
+        EGL_DRM_BUFFER_FORMAT_MESA,     egl_format,
         EGL_NONE
     };
 
     qintptr name_pointer = name;
     m_image = integration->eglCreateImageKHR(EGL_NO_CONTEXT, EGL_DRM_BUFFER_MESA, (EGLClientBuffer) name_pointer, attribs);
 
-    switch (format) {
-        case QtWayland::qt_drm_egl_server_buffer::format_RGBA32:
-            m_format = QWaylandServerBuffer::RGBA32;
-            break;
-        case QtWayland::qt_drm_egl_server_buffer::format_A8:
-            m_format = QWaylandServerBuffer::A8;
-            break;
-        default:
-            qWarning("DrmServerBuffer: unknown format");
-            m_format = QWaylandServerBuffer::RGBA32;
-            break;
-    }
 }
 
 DrmServerBuffer::~DrmServerBuffer()
@@ -96,10 +108,10 @@ GLuint DrmServerBuffer::createTexture()
     glBindTexture(GL_TEXTURE_2D, texture_id);
     m_integration->glEGLImageTargetTexture2DOES(GL_TEXTURE_2D, m_image);
 
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     return texture_id;
 
 }

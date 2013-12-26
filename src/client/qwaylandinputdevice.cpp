@@ -638,7 +638,7 @@ void QWaylandInputDevice::keyboard_key(uint32_t serial, uint32_t time, uint32_t 
         mRepeatText = text;
         mRepeatTimer.setInterval(400);
         mRepeatTimer.start();
-    } else {
+    } else if (mRepeatCode == code) {
         mRepeatTimer.stop();
     }
 }
@@ -648,7 +648,7 @@ void QWaylandInputDevice::repeatKey()
     mRepeatTimer.setInterval(25);
     QWindowSystemInterface::handleExtendedKeyEvent(mKeyboardFocus->window(),
                                                    mRepeatTime, QEvent::KeyPress, mRepeatKey,
-                                                   Qt::NoModifier,
+                                                   modifiers(),
                                                    mRepeatCode, 0, 0, mRepeatText);
 }
 

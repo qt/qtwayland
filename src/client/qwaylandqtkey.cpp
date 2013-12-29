@@ -69,7 +69,7 @@ void QWaylandQtKeyExtension::key_extension_qtkey(struct wl_surface *surface,
     }
 
     QWaylandInputDevice *dev = inputDevices.first();
-    QWaylandWindow *win = surface ? QWaylandWindow::fromWlSurface(surface) : dev->mKeyboardFocus;
+    QWaylandWindow *win = surface ? QWaylandWindow::fromWlSurface(surface) : dev->keyboardFocus();
 
     if (!win || !win->window()) {
         qWarning("qt_key_extension: handle_qtkey: No keyboard focus");

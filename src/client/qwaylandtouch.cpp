@@ -83,11 +83,11 @@ void QWaylandTouchExtension::touch_extension_touch(uint32_t time,
         }
         mInputDevice = inputDevices.first();
     }
-    QWaylandWindow *win = mInputDevice->mTouchFocus;
+    QWaylandWindow *win = mInputDevice->touchFocus();
     if (!win)
-        win = mInputDevice->mPointerFocus;
+        win = mInputDevice->pointerFocus();
     if (!win)
-        win = mInputDevice->mKeyboardFocus;
+        win = mInputDevice->keyboardFocus();
     if (!win || !win->window()) {
         qWarning("qt_touch_extension: handle_touch: No pointer focus");
         return;

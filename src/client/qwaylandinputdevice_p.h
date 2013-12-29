@@ -69,9 +69,6 @@ class QWaylandDataDevice;
 
 class Q_WAYLAND_CLIENT_EXPORT QWaylandInputDevice
                             : public QObject
-                            , public QtWayland::wl_pointer
-                            , public QtWayland::wl_keyboard
-                            , public QtWayland::wl_touch
                             , public QtWayland::wl_seat
 {
     Q_OBJECT
@@ -93,102 +90,43 @@ public:
     void removeMouseButtonFromState(Qt::MouseButton button);
 
     QWaylandWindow *pointerFocus() const;
+    QWaylandWindow *keyboardFocus() const;
+    QWaylandWindow *touchFocus() const;
 
     Qt::KeyboardModifiers modifiers() const;
 
     uint32_t serial() const;
-    uint32_t cursorSerial() const { return mCursorSerial; }
+    uint32_t cursorSerial() const;
 
 private slots:
     void repeatKey();
 
 private:
+    class Keyboard;
+    class Pointer;
+    class Touch;
+
     QWaylandDisplay *mQDisplay;
     struct wl_display *mDisplay;
-    struct wl_callback *mFocusCallback;
 
     uint32_t mCaps;
 
     struct wl_surface *pointerSurface;
 
     QWaylandDataDevice *mDataDevice;
-    QWaylandWindow *mPointerFocus;
-    QWaylandWindow *mKeyboardFocus;
-    QWaylandWindow *mTouchFocus;
 
-    Qt::MouseButtons mButtons;
-    QPointF mSurfacePos;
-    QPointF mGlobalPos;
+    Keyboard *mKeyboard;
+    Pointer *mPointer;
+    Touch *mTouch;
+
     uint32_t mTime;
     uint32_t mSerial;
-    uint32_t mEnterSerial;
-    uint32_t mCursorSerial;
+    QTimer mRepeatTimer;
 
     void seat_capabilities(uint32_t caps) Q_DECL_OVERRIDE;
-
-    void pointer_enter(uint32_t serial, struct wl_surface *surface,
-                       wl_fixed_t sx, wl_fixed_t sy) Q_DECL_OVERRIDE;
-    void pointer_leave(uint32_t time, struct wl_surface *surface);
-    void pointer_motion(uint32_t time,
-                        wl_fixed_t sx, wl_fixed_t sy) Q_DECL_OVERRIDE;
-    void pointer_button(uint32_t serial, uint32_t time,
-                        uint32_t button, uint32_t state) Q_DECL_OVERRIDE;
-    void pointer_axis(uint32_t time,
-                      uint32_t axis,
-                      wl_fixed_t value) Q_DECL_OVERRIDE;
-
-    void keyboard_keymap(uint32_t format,
-                         int32_t fd,
-                         uint32_t size) Q_DECL_OVERRIDE;
-    void keyboard_enter(uint32_t time,
-                        struct wl_surface *surface,
-                        struct wl_array *keys) Q_DECL_OVERRIDE;
-    void keyboard_leave(uint32_t time,
-                        struct wl_surface *surface) Q_DECL_OVERRIDE;
-    void keyboard_key(uint32_t serial, uint32_t time,
-                      uint32_t key, uint32_t state) Q_DECL_OVERRIDE;
-    void keyboard_modifiers(uint32_t serial,
-                            uint32_t mods_depressed,
-                            uint32_t mods_latched,
-                            uint32_t mods_locked,
-                            uint32_t group) Q_DECL_OVERRIDE;
-
-    void touch_down(uint32_t serial,
-                    uint32_t time,
-                    struct wl_surface *surface,
-                    int32_t id,
-                    wl_fixed_t x,
-                    wl_fixed_t y) Q_DECL_OVERRIDE;
-    void touch_up(uint32_t serial,
-                  uint32_t time,
-                  int32_t id) Q_DECL_OVERRIDE;
-    void touch_motion(uint32_t time,
-                      int32_t id,
-                      wl_fixed_t x,
-                      wl_fixed_t y) Q_DECL_OVERRIDE;
-    void touch_frame() Q_DECL_OVERRIDE;
-    void touch_cancel() Q_DECL_OVERRIDE;
-
     void handleTouchPoint(int id, double x, double y, Qt::TouchPointState state);
 
-    static const wl_callback_listener callback;
-    static void focusCallback(void *data, struct wl_callback *callback, uint32_t time);
-
-    QList<QWindowSystemInterface::TouchPoint> mTouchPoints;
-    QList<QWindowSystemInterface::TouchPoint> mPrevTouchPoints;
     QTouchDevice *mTouchDevice;
-
-#ifndef QT_NO_WAYLAND_XKB
-    xkb_context *mXkbContext;
-    xkb_keymap *mXkbMap;
-    xkb_state *mXkbState;
-#endif
-
-    int mRepeatKey;
-    uint32_t mRepeatCode;
-    uint32_t mRepeatTime;
-    QString mRepeatText;
-    QTimer mRepeatTimer;
 
     friend class QWaylandTouchExtension;
     friend class QWaylandQtKeyExtension;

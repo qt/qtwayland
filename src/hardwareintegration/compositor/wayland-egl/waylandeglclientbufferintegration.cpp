@@ -54,10 +54,12 @@
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
 
+/* Needed for compatibility with Mesa older than 10.0. */
+typedef EGLBoolean (EGLAPIENTRYP PFNEGLQUERYWAYLANDBUFFERWL_compat) (EGLDisplay dpy, struct wl_resource *buffer, EGLint attribute, EGLint *value);
+
 #ifndef EGL_WL_bind_wayland_display
 typedef EGLBoolean (EGLAPIENTRYP PFNEGLBINDWAYLANDDISPLAYWL) (EGLDisplay dpy, struct wl_display *display);
 typedef EGLBoolean (EGLAPIENTRYP PFNEGLUNBINDWAYLANDDISPLAYWL) (EGLDisplay dpy, struct wl_display *display);
-typedef EGLBoolean (EGLAPIENTRYP PFNEGLQUERYWAYLANDBUFFERWL) (EGLDisplay dpy, struct wl_buffer *buffer, EGLint attribute, EGLint *value);
 #endif
 
 #ifndef EGL_KHR_image
@@ -91,7 +93,7 @@ public:
     bool display_bound;
     PFNEGLBINDWAYLANDDISPLAYWL egl_bind_wayland_display;
     PFNEGLUNBINDWAYLANDDISPLAYWL egl_unbind_wayland_display;
-    PFNEGLQUERYWAYLANDBUFFERWL egl_query_wayland_buffer;
+    PFNEGLQUERYWAYLANDBUFFERWL_compat egl_query_wayland_buffer;
 
     PFNEGLCREATEIMAGEKHRPROC egl_create_image;
     PFNEGLDESTROYIMAGEKHRPROC egl_destroy_image;
@@ -136,7 +138,7 @@ void WaylandEglClientBufferIntegration::initializeHardware(QtWayland::Display *w
         return;
     }
 
-    d->egl_query_wayland_buffer = reinterpret_cast<PFNEGLQUERYWAYLANDBUFFERWL>(eglGetProcAddress("eglQueryWaylandBufferWL"));
+    d->egl_query_wayland_buffer = reinterpret_cast<PFNEGLQUERYWAYLANDBUFFERWL_compat>(eglGetProcAddress("eglQueryWaylandBufferWL"));
     if (!d->egl_query_wayland_buffer) {
         qWarning("Failed to initialize egl display. Could not find eglQueryWaylandBufferWL.\n");
         return;
@@ -197,7 +199,7 @@ bool WaylandEglClientBufferIntegration::isYInverted(struct ::wl_resource *buffer
 
     EGLint isYInverted;
     EGLBoolean ret;
-    ret = d->egl_query_wayland_buffer(d->egl_display, reinterpret_cast<struct ::wl_buffer *>(buffer), EGL_WAYLAND_Y_INVERTED_WL, &isYInverted);
+    ret = d->egl_query_wayland_buffer(d->egl_display, buffer, EGL_WAYLAND_Y_INVERTED_WL, &isYInverted);
 
     // Yes, this looks strange, but the specification says that EGL_FALSE return
     // value (not supported) should be treated the same as EGL_TRUE return value
@@ -233,8 +235,8 @@ QSize WaylandEglClientBufferIntegration::bufferSize(struct ::wl_resource *buffer
     Q_D(const WaylandEglClientBufferIntegration);
 
     int width, height;
-    d->egl_query_wayland_buffer(d->egl_display, reinterpret_cast<struct ::wl_buffer *>(buffer), EGL_WIDTH, &width);
-    d->egl_query_wayland_buffer(d->egl_display, reinterpret_cast<struct ::wl_buffer *>(buffer), EGL_HEIGHT, &height);
+    d->egl_query_wayland_buffer(d->egl_display, buffer, EGL_WIDTH, &width);
+    d->egl_query_wayland_buffer(d->egl_display, buffer, EGL_HEIGHT, &height);
 
     return QSize(width, height);
 }

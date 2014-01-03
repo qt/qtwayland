@@ -69,7 +69,6 @@ private:
 
     QWaylandSurfaceItem *m_item;
     bool m_textureUpdated;
-    bool m_useTextureAlpha;
 };
 
 QT_END_NAMESPACE

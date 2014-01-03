@@ -52,7 +52,6 @@ QT_BEGIN_NAMESPACE
 QWaylandSurfaceNode::QWaylandSurfaceNode(QWaylandSurfaceItem *item)
     : m_item(item)
     , m_textureUpdated(false)
-    , m_useTextureAlpha(false)
 {
     if (m_item)
         m_item->m_node = this;

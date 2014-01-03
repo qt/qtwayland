@@ -11,6 +11,16 @@ QWaylandServerBuffer::~QWaylandServerBuffer()
 {
 }
 
+QWaylandServerBuffer::Format QWaylandServerBuffer::format() const
+{
+    return m_format;
+}
+
+QSize QWaylandServerBuffer::size() const
+{
+    return m_size;
+}
+
 void QWaylandServerBuffer::setUserData(void *userData)
 {
     m_user_data = userData;
@@ -19,11 +29,6 @@ void QWaylandServerBuffer::setUserData(void *userData)
 void *QWaylandServerBuffer::userData() const
 {
     return m_user_data;
-}
-
-QWaylandServerBuffer::Format QWaylandServerBuffer::format() const
-{
-    return m_format;
 }
 
 QWaylandServerBufferIntegration::QWaylandServerBufferIntegration()

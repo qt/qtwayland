@@ -75,7 +75,6 @@ public:
 private:
     DrmEglServerBufferIntegration *m_integration;
     EGLImageKHR m_image;
-    QSize m_size;
 };
 
 class DrmEglServerBufferIntegration

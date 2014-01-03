@@ -42,6 +42,7 @@
 #ifndef QWAYLANDSERVERBUFFERINTEGRATION_H
 #define QWAYLANDSERVERBUFFERINTEGRATION_H
 
+#include <QtCore/QSize>
 #include <QtGui/qopengl.h>
 
 #include <QtWaylandClient/private/qwayland-server-buffer-extension.h>
@@ -65,13 +66,15 @@ public:
     //creates new texture for buffer
     virtual GLuint createTexture() = 0;
 
+    Format format() const;
+    QSize size() const;
+
     void setUserData(void *userData);
     void *userData() const;
 
-    Format format() const;
-
 protected:
     Format m_format;
+    QSize m_size;
 
 private:
     void *m_user_data;

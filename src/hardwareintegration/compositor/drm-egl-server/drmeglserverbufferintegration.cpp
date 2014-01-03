@@ -163,6 +163,22 @@ void DrmEglServerBufferIntegration::initializeHardware(QWaylandCompositor *compo
     QtWaylandServer::qt_drm_egl_server_buffer::init(compositor->waylandDisplay());
 }
 
+bool DrmEglServerBufferIntegration::supportsFormat(QWaylandServerBuffer::Format format) const
+{
+    switch (format) {
+        case QWaylandServerBuffer::RGBA32:
+            return true;
+        case QWaylandServerBuffer::A8:
+#ifdef EGL_DRM_BUFFER_FORMAT_A8_MESA
+            return true;
+#else
+            return false;
+#endif
+        default:
+            return false;
+    }
+}
+
 QWaylandServerBuffer *DrmEglServerBufferIntegration::createServerBuffer(const QSize &size, QWaylandServerBuffer::Format format)
 {
     return new DrmEglServerBuffer(this, size, format);

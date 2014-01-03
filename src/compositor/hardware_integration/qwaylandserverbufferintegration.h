@@ -89,7 +89,8 @@ public:
 
     virtual void initializeHardware(QWaylandCompositor *);
 
-    virtual QWaylandServerBuffer *createServerBuffer(const QSize &size, QWaylandServerBuffer::Format format);
+    virtual bool supportsFormat(QWaylandServerBuffer::Format format) const = 0;
+    virtual QWaylandServerBuffer *createServerBuffer(const QSize &size, QWaylandServerBuffer::Format format) = 0;
 };
 
 QT_END_NAMESPACE

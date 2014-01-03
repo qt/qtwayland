@@ -72,11 +72,4 @@ void QWaylandServerBufferIntegration::initializeHardware(QWaylandCompositor *com
     Q_UNUSED(compositor);
 }
 
-QWaylandServerBuffer *QWaylandServerBufferIntegration::createServerBuffer(const QSize &size, QWaylandServerBuffer::Format format)
-{
-    Q_UNUSED(size);
-    Q_UNUSED(format);
-    return 0;
-}
-
 QT_END_NAMESPACE

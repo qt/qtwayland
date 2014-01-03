@@ -102,6 +102,7 @@ public:
 
     void initializeHardware(QWaylandCompositor *);
 
+    bool supportsFormat(QWaylandServerBuffer::Format format) const Q_DECL_OVERRIDE;
     QWaylandServerBuffer *createServerBuffer(const QSize &size, QWaylandServerBuffer::Format format) Q_DECL_OVERRIDE;
 
     EGLDisplay display() const { return m_egl_display; }

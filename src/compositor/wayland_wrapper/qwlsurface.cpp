@@ -204,14 +204,13 @@ QImage Surface::image() const
 }
 
 #ifdef QT_COMPOSITOR_WAYLAND_GL
-GLuint Surface::textureId(QOpenGLContext *context) const
+GLuint Surface::textureId() const
 {
     const SurfaceBuffer *surfacebuffer = currentSurfaceBuffer();
 
     if (m_compositor->clientBufferIntegration() && type() == QWaylandSurface::Texture
          && !surfacebuffer->textureCreated()) {
-        QWaylandClientBufferIntegration *hwIntegration = m_compositor->clientBufferIntegration();
-        const_cast<SurfaceBuffer *>(surfacebuffer)->createTexture(hwIntegration,context);
+        const_cast<SurfaceBuffer *>(surfacebuffer)->createTexture();
     }
     return surfacebuffer->texture();
 }

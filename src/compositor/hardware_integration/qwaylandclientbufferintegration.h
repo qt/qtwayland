@@ -63,10 +63,14 @@ public:
 
     virtual void initializeHardware(QtWayland::Display *waylandDisplay) = 0;
 
-    /** Bind the Wayland buffer to the textureId. The correct context is the current context,
-        so there is no need to do makeCurrent in this function.
-     **/
-    virtual GLuint createTextureFromBuffer(struct ::wl_resource *buffer, QOpenGLContext *context) = 0;
+    // Used when the hardware integration wants to provide its own texture for a given buffer.
+    // In most cases the compositor creates and manages the texture so this is not needed.
+    virtual GLuint textureForBuffer(struct ::wl_resource *buffer) { Q_UNUSED(buffer); return 0; }
+    virtual void destroyTextureForBuffer(struct ::wl_resource *buffer) { Q_UNUSED(buffer); }
+
+    // Called with the texture bound.
+    virtual void bindTextureToBuffer(struct ::wl_resource *buffer) = 0;
+
     virtual bool isYInverted(struct ::wl_resource *) const { return true; }
 
     virtual bool setDirectRenderSurface(QWaylandSurface *) {return false;}

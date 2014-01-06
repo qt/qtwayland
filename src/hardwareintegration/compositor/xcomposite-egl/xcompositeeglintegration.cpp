@@ -91,7 +91,7 @@ void XCompositeEglClientBufferIntegration::initializeHardware(QtWayland::Display
     new XCompositeHandler(m_compositor->handle(), mDisplay);
 }
 
-GLuint XCompositeEglClientBufferIntegration::createTextureFromBuffer(struct ::wl_resource *buffer, QOpenGLContext *)
+void XCompositeEglClientBufferIntegration::bindTextureToBuffer(struct ::wl_resource *buffer)
 {
     XCompositeBuffer *compositorBuffer = XCompositeBuffer::fromResource(buffer);
     Pixmap pixmap = XCompositeNameWindowPixmap(mDisplay, compositorBuffer->window());
@@ -103,7 +103,7 @@ GLuint XCompositeEglClientBufferIntegration::createTextureFromBuffer(struct ::wl
     bool matched = eglChooseConfig(mEglDisplay,eglConfigSpec.constData(),&config,1,&matching);
     if (!matched || !matching) {
         qWarning("Could not retrieve a suitable EGL config");
-        return 0;
+        return;
     }
 
     QVector<EGLint> attribList;
@@ -121,17 +121,11 @@ GLuint XCompositeEglClientBufferIntegration::createTextureFromBuffer(struct ::wl
 
     compositorBuffer->setInvertedY(true);
 
-    GLuint textureId;
-    glGenTextures(1,&textureId);
-    glBindTexture(GL_TEXTURE_2D, textureId);
-
     if (!eglBindTexImage(mEglDisplay,surface,EGL_BACK_BUFFER)) {
         qDebug() << "Failed to bind";
     }
 
     //    eglDestroySurface(mEglDisplay,surface);
-
-    return textureId;
 }
 
 bool XCompositeEglClientBufferIntegration::isYInverted(struct ::wl_resource *buffer) const

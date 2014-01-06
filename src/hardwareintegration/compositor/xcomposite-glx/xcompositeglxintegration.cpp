@@ -112,7 +112,7 @@ void XCompositeGLXClientBufferIntegration::initializeHardware(QtWayland::Display
     delete glContext;
 }
 
-GLuint XCompositeGLXClientBufferIntegration::createTextureFromBuffer(struct ::wl_resource *buffer, QOpenGLContext *)
+void XCompositeGLXClientBufferIntegration::updateTextureFromBuffer(struct ::wl_resource *buffer)
 {
     XCompositeBuffer *compositorBuffer = XCompositeBuffer::fromResource(buffer);
     Pixmap pixmap = XCompositeNameWindowPixmap(mDisplay, compositorBuffer->window());
@@ -135,14 +135,10 @@ GLuint XCompositeGLXClientBufferIntegration::createTextureFromBuffer(struct ::wl
 
     XFree(configs);
 
-    GLuint textureId;
-    glGenTextures(1,&textureId);
-    glBindTexture(GL_TEXTURE_2D, textureId);
     m_glxBindTexImageEXT(mDisplay,glxPixmap,GLX_FRONT_EXT, 0);
     //Do we need to change the api so that we do bind and release in the painevent?
     //The specification states that when deleting the texture the color buffer is deleted
 //    m_glxReleaseTexImageEXT(mDisplay,glxPixmap,GLX_FRONT_EXT);
-    return textureId;
 }
 
 bool XCompositeGLXClientBufferIntegration::isYInverted(struct ::wl_resource *buffer) const

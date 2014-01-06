@@ -53,7 +53,6 @@
 #include <QtCore/QMetaType>
 
 #ifdef QT_COMPOSITOR_WAYLAND_GL
-#include <QtGui/QOpenGLContext>
 #include <QtGui/qopengl.h>
 #endif
 
@@ -102,7 +101,7 @@ public:
     QImage image() const;
 
 #ifdef QT_COMPOSITOR_WAYLAND_GL
-    GLuint textureId(QOpenGLContext *context) const;
+    GLuint textureId() const;
 #endif
 
     void sendFrameCallback();

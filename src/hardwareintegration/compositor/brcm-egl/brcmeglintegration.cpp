@@ -124,29 +124,24 @@ void BrcmEglIntegration::initializeHardware(QtWayland::Display *waylandDisplay)
     }
 }
 
-GLuint BrcmEglIntegration::createTextureFromBuffer(struct ::wl_resource *buffer, QOpenGLContext *)
+void BrcmEglIntegration::bindTextureToBuffer(struct ::wl_resource *buffer)
 {
     Q_D(BrcmEglIntegration);
     if (!d->valid) {
-        qWarning("createTextureFromBuffer() failed\n");
-        return 0;
+        qWarning("bindTextureToBuffer failed!");
+        return;
     }
 
     BrcmBuffer *brcmBuffer = BrcmBuffer::fromResource(buffer);
 
     if (!d->eglQueryGlobalImageBRCM(brcmBuffer->handle(), brcmBuffer->handle() + 2)) {
         qWarning("eglQueryGlobalImageBRCM failed!");
-        return 0;
+        return;
     }
 
     EGLImageKHR image = d->eglCreateImageKHR(d->egl_display, EGL_NO_CONTEXT, EGL_NATIVE_PIXMAP_KHR, (EGLClientBuffer)brcmBuffer->handle(), NULL);
     if (image == EGL_NO_IMAGE_KHR)
         qWarning("eglCreateImageKHR() failed: %x\n", eglGetError());
-
-    GLuint textureId;
-    glGenTextures(1, &textureId);
-
-    glBindTexture(GL_TEXTURE_2D, textureId);
 
     d->glEGLImageTargetTexture2DOES(GL_TEXTURE_2D, image);
 
@@ -156,8 +151,6 @@ GLuint BrcmEglIntegration::createTextureFromBuffer(struct ::wl_resource *buffer,
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
     d->eglDestroyImageKHR(d->egl_display, image);
-
-    return textureId;
 }
 
 bool BrcmEglIntegration::isYInverted(struct ::wl_resource *) const

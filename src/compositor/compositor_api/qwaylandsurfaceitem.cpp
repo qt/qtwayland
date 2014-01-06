@@ -365,12 +365,11 @@ void QWaylandSurfaceItem::updateTexture()
         m_damaged = false;
         QSGTexture *oldTexture = texture;
         if (m_surface->type() == QWaylandSurface::Texture) {
-            QOpenGLContext *context = QOpenGLContext::currentContext();
             QQuickWindow::CreateTextureOptions opt = 0;
             if (useTextureAlpha()) {
                 opt |= QQuickWindow::TextureHasAlphaChannel;
             }
-            texture = window()->createTextureFromId(m_surface->texture(context), m_surface->size(), opt);
+            texture = window()->createTextureFromId(m_surface->texture(), m_surface->size(), opt);
         } else {
             texture = window()->createTextureFromImage(m_surface->image());
         }

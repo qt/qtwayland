@@ -48,7 +48,6 @@
 #include <QtGui/QWindow>
 #include <QtCore/QVariantMap>
 
-#include <QtGui/QOpenGLContext>
 #ifdef QT_COMPOSITOR_WAYLAND_GL
 #include <QtGui/qopengl.h>
 #endif
@@ -136,9 +135,9 @@ public:
 
     QImage image() const;
 #ifdef QT_COMPOSITOR_WAYLAND_GL
-    GLuint texture(QOpenGLContext *context) const;
+    GLuint texture() const;
 #else
-    uint texture(QOpenGLContext *context) const;
+    uint texture() const;
 #endif
 
     QWindow::Visibility visibility() const;

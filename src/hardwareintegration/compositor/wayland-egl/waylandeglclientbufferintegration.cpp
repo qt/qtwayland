@@ -170,22 +170,17 @@ void WaylandEglClientBufferIntegration::initializeHardware(QtWayland::Display *w
     qWarning("EGL Wayland extension successfully initialized.%s\n", !d->display_bound ? " eglBindWaylandDisplayWL ignored" : "");
 }
 
-GLuint WaylandEglClientBufferIntegration::createTextureFromBuffer(struct ::wl_resource *buffer, QOpenGLContext *)
+void WaylandEglClientBufferIntegration::bindTextureToBuffer(struct ::wl_resource *buffer)
 {
     Q_D(WaylandEglClientBufferIntegration);
     if (!d->valid) {
-        qWarning("createTextureFromBuffer() failed\n");
-        return 0;
+        qWarning("bindTextureToBuffer() failed");
+        return;
     }
 
     EGLImageKHR image = d->egl_create_image(d->egl_display, EGL_NO_CONTEXT,
                                           EGL_WAYLAND_BUFFER_WL,
                                           buffer, NULL);
-
-    GLuint textureId;
-    glGenTextures(1,&textureId);
-
-    glBindTexture(GL_TEXTURE_2D, textureId);
 
     d->gl_egl_image_target_texture_2d(GL_TEXTURE_2D, image);
 
@@ -195,8 +190,6 @@ GLuint WaylandEglClientBufferIntegration::createTextureFromBuffer(struct ::wl_re
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
     d->egl_destroy_image(d->egl_display, image);
-
-    return textureId;
 }
 
 bool WaylandEglClientBufferIntegration::isYInverted(struct ::wl_resource *buffer) const

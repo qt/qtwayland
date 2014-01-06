@@ -208,13 +208,13 @@ QImage QWaylandSurface::image() const
 }
 
 #ifdef QT_COMPOSITOR_WAYLAND_GL
-GLuint QWaylandSurface::texture(QOpenGLContext *context) const
+GLuint QWaylandSurface::texture() const
 {
     Q_D(const QWaylandSurface);
-    return d->surface->textureId(context);
+    return d->surface->textureId();
 }
 #else //QT_COMPOSITOR_WAYLAND_GL
-uint QWaylandSurface::texture(QOpenGLContext *) const
+uint QWaylandSurface::texture() const
 {
     return 0;
 }

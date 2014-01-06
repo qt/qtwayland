@@ -61,7 +61,7 @@ public:
 
     void initializeHardware(QtWayland::Display *waylandDisplay) Q_DECL_OVERRIDE;
 
-    GLuint createTextureFromBuffer(struct ::wl_resource *buffer, QOpenGLContext *context) Q_DECL_OVERRIDE;
+    void bindTextureToBuffer(struct ::wl_resource *buffer) Q_DECL_OVERRIDE;
     bool isYInverted(struct ::wl_resource *) const Q_DECL_OVERRIDE;
 
     QSize bufferSize(struct ::wl_resource *buffer) const Q_DECL_OVERRIDE;

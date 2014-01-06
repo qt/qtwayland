@@ -147,7 +147,7 @@ protected:
         if (surface->type() == QWaylandSurface::Shm) {
             texture = m_textureCache->bindTexture(context()->contextHandle(), surface->image());
         } else {
-            texture = surface->texture(QOpenGLContext::currentContext());
+            texture = surface->texture();
         }
 
         functions->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
@@ -173,7 +173,7 @@ protected:
             if (size.isValid()) {
                 GLuint texture = 0;
                 if (subSurface->type() == QWaylandSurface::Texture) {
-                    texture = subSurface->texture(QOpenGLContext::currentContext());
+                    texture = subSurface->texture();
                 } else if (surface->type() == QWaylandSurface::Shm ) {
                     texture = m_textureCache->bindTexture(context()->contextHandle(), surface->image());
                 }

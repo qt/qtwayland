@@ -46,6 +46,7 @@
 #include <QTimer>
 #include <QPainter>
 #include <QMouseEvent>
+#include <QOpenGLContext>
 
 #include <QQmlContext>
 

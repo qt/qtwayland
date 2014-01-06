@@ -7,6 +7,7 @@ qtCompileTest(egl)
 qtCompileTest(brcm_egl)
 qtCompileTest(glx)
 qtCompileTest(xcomposite)
+qtCompileTest(drm_egl_server)
 
 load(qt_parts)
 

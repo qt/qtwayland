@@ -13,6 +13,5 @@ config_xcomposite {
         SUBDIRS += xcomposite-glx
 }
 
-# we should try and resolve all symbols
-# and they should be type deffed if not present
-SUBDIRS += drm-egl-server
+config_drm_egl_server: \
+    SUBDIRS += drm-egl-server

@@ -71,7 +71,7 @@ class DrmServerBuffer : public QWaylandServerBuffer
 public:
     DrmServerBuffer(DrmEglServerBufferIntegration *integration, int32_t name, int32_t width, int32_t height, int32_t stride, int32_t format);
     ~DrmServerBuffer();
-    GLuint createTexture() Q_DECL_OVERRIDE;
+    void bindTextureToBuffer() Q_DECL_OVERRIDE;
 private:
     DrmEglServerBufferIntegration *m_integration;
     EGLImageKHR m_image;

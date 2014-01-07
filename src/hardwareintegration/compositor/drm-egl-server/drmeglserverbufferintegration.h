@@ -80,7 +80,7 @@ public:
     DrmEglServerBuffer(DrmEglServerBufferIntegration *integration, const QSize &size, QWaylandServerBuffer::Format format);
 
     struct ::wl_resource *resourceForClient(struct ::wl_client *) Q_DECL_OVERRIDE;
-    GLuint createTexture() Q_DECL_OVERRIDE;
+    void bindTextureToBuffer() Q_DECL_OVERRIDE;
 
 private:
     DrmEglServerBufferIntegration *m_integration;

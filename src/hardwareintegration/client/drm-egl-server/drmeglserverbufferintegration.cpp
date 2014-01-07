@@ -98,22 +98,17 @@ DrmServerBuffer::~DrmServerBuffer()
     m_integration->eglDestroyImageKHR(m_image);
 }
 
-GLuint DrmServerBuffer::createTexture()
+void DrmServerBuffer::bindTextureToBuffer()
 {
     if (!QOpenGLContext::currentContext())
         qWarning("DrmServerBuffer: creating texture with no current context");
 
-    GLuint texture_id = 0;
-    glGenTextures(1,&texture_id);
-    glBindTexture(GL_TEXTURE_2D, texture_id);
     m_integration->glEGLImageTargetTexture2DOES(GL_TEXTURE_2D, m_image);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    return texture_id;
-
 }
 
 void DrmEglServerBufferIntegration::initialize(QWaylandDisplay *display)

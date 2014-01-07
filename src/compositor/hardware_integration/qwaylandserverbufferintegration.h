@@ -71,7 +71,8 @@ public:
 
     virtual struct ::wl_resource *resourceForClient(struct ::wl_client *) = 0;
 
-    virtual GLuint createTexture() = 0;
+    virtual void bindTextureToBuffer() = 0;
+
     virtual bool isYInverted() const;
 
     QSize size() const;

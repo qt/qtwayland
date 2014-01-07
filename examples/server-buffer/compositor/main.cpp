@@ -171,8 +171,10 @@ private slots:
 
                 m_server_buffer_32_bit = sbi->createServerBuffer(image.size(),QWaylandServerBuffer::RGBA32);
 
-                GLuint texture_32_bit = m_server_buffer_32_bit->createTexture();
+                GLuint texture_32_bit;
+                glGenTextures(1, &texture_32_bit);
                 glBindTexture(GL_TEXTURE_2D, texture_32_bit);
+                m_server_buffer_32_bit->bindTextureToBuffer();
                 glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, image.width(), image.height(), GL_RGBA, GL_UNSIGNED_BYTE, image.constBits());
                 glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -188,8 +190,10 @@ private slots:
             QImage img = distanceField.toImage(QImage::Format_Indexed8);
 
             m_server_buffer_8_bit = sbi->createServerBuffer(img.size(), QWaylandServerBuffer::A8);
-            GLuint texture_8_bit = m_server_buffer_8_bit->createTexture();
+            GLuint texture_8_bit;
+            glGenTextures(1, &texture_8_bit);
             glBindTexture(GL_TEXTURE_2D, texture_8_bit);
+            m_server_buffer_8_bit->bindTextureToBuffer();
 
             glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, img.width(), img.height(), GL_ALPHA, GL_UNSIGNED_BYTE, img.constBits());
         }

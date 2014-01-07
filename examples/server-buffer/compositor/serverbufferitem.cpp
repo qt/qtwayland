@@ -86,7 +86,11 @@ void ServerBufferItem::updateTexture()
         return;
 
     QQuickWindow::CreateTextureOptions opt = QQuickWindow::TextureHasAlphaChannel;
-    m_provider->setTexture(window()->createTextureFromId(m_server_buffer->createTexture(), m_server_buffer->size(), opt));
+    GLuint texture;
+    glGenTextures(1,&texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    m_server_buffer->bindTextureToBuffer();
+    m_provider->setTexture(window()->createTextureFromId(texture, m_server_buffer->size(), opt));
 }
 
 QSGNode *ServerBufferItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *)

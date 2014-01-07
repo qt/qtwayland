@@ -63,8 +63,7 @@ public:
     QWaylandServerBuffer();
     virtual ~QWaylandServerBuffer();
 
-    //creates new texture for buffer
-    virtual GLuint createTexture() = 0;
+    virtual void bindTextureToBuffer() = 0;
 
     Format format() const;
     QSize size() const;

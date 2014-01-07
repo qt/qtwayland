@@ -102,16 +102,12 @@ struct ::wl_resource *DrmEglServerBuffer::resourceForClient(struct ::wl_client *
     return (*it)->handle;
 }
 
-GLuint DrmEglServerBuffer::createTexture()
+void DrmEglServerBuffer::bindTextureToBuffer()
 {
     if (!QOpenGLContext::currentContext()) {
         qWarning("DrmEglServerBuffer: No current context when creating buffer. Texture loading will fail");
-        return 0;
+        return;
     }
-
-    GLuint  texture;
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
 
     m_integration->glEGLImageTargetTexture2DOES(GL_TEXTURE_2D, m_image);
 
@@ -119,8 +115,6 @@ GLuint DrmEglServerBuffer::createTexture()
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-    return texture;
 }
 
 DrmEglServerBufferIntegration::DrmEglServerBufferIntegration()

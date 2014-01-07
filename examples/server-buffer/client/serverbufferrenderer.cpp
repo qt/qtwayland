@@ -96,7 +96,9 @@ ServerBufferRenderer::ServerBufferRenderer(QWaylandServerBuffer *serverBuffer)
         qDebug() << m_program->log();
     }
 
-    m_texture = serverBuffer->createTexture();
+    glGenTextures(1,&m_texture);
+    glBindTexture(GL_TEXTURE_2D, m_texture);
+    serverBuffer->bindTextureToBuffer();
 
     glGenBuffers(1, &m_vertexbuffer);
     glBindBuffer(GL_ARRAY_BUFFER, m_vertexbuffer);

@@ -112,6 +112,7 @@ public:
         if (mXkbContext)
             xkb_context_unref(mXkbContext);
 #endif
+        wl_keyboard_destroy(object());
     }
 
     void keyboard_keymap(uint32_t format,
@@ -161,6 +162,7 @@ public:
     }
     ~Pointer()
     {
+        wl_pointer_destroy(object());
     }
 
     void pointer_enter(uint32_t serial, struct wl_surface *surface,
@@ -193,6 +195,7 @@ public:
     }
     ~Touch()
     {
+        wl_touch_destroy(object());
     }
 
     void touch_down(uint32_t serial,

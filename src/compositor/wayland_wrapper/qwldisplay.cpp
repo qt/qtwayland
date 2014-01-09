@@ -42,7 +42,7 @@
 
 #include <QtCore/QDebug>
 
-#include <wayland-wayland-server-protocol.h>
+#include <QtCompositor/private/wayland-wayland-server-protocol.h>
 
 QT_BEGIN_NAMESPACE
 

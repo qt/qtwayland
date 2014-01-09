@@ -43,8 +43,10 @@
 #include "qwaylandinput.h"
 
 #include "wayland_wrapper/qwlcompositor_p.h"
+#include "wayland_wrapper/qwldatadevice_p.h"
 #include "wayland_wrapper/qwlsurface_p.h"
 #include "wayland_wrapper/qwlinputdevice_p.h"
+#include "wayland_wrapper/qwlinputpanel_p.h"
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QStringList>
@@ -59,7 +61,7 @@
 
 QT_BEGIN_NAMESPACE
 
-QWaylandCompositor::QWaylandCompositor(QWindow *window, const char *socketName)
+QWaylandCompositor::QWaylandCompositor(QWindow *window, const char *socketName, ExtensionFlags extensions)
     : m_compositor(0)
     , m_toplevel_window(window)
     , m_socket_name(socketName)
@@ -70,7 +72,7 @@ QWaylandCompositor::QWaylandCompositor(QWindow *window, const char *socketName)
     if (socketArg != -1 && socketArg + 1 < arguments.size())
         m_socket_name = arguments.at(socketArg + 1).toLocal8Bit();
 
-    m_compositor = new QtWayland::Compositor(this);
+    m_compositor = new QtWayland::Compositor(this, extensions);
 #ifdef QT_COMPOSITOR_QUICK
     qmlRegisterType<QWaylandSurfaceItem>("WaylandCompositor", 1, 0, "WaylandSurfaceItem");
     qmlRegisterType<QWaylandSurface>("WaylandCompositor", 1, 0, "WaylandSurface");
@@ -145,6 +147,21 @@ void QWaylandCompositor::surfaceAboutToBeDestroyed(QWaylandSurface *surface)
     Q_UNUSED(surface);
 }
 
+QWaylandSurface *QWaylandCompositor::pickSurface(const QPointF &globalPosition) const
+{
+    Q_FOREACH (QtWayland::Surface *surface, m_compositor->surfaces()) {
+        if (QRectF(surface->pos(), surface->size()).contains(globalPosition))
+            return surface->waylandSurface();
+    }
+
+    return 0;
+}
+
+QPointF QWaylandCompositor::mapToSurface(QWaylandSurface *surface, const QPointF &globalPosition) const
+{
+    return globalPosition - surface->pos();
+}
+
 /*!
     Override this to handle QDesktopServices::openUrl() requests from the clients.
 
@@ -161,25 +178,21 @@ QtWayland::Compositor * QWaylandCompositor::handle() const
     return m_compositor;
 }
 
-void QWaylandCompositor::setRetainedSelectionEnabled(bool enable)
+void QWaylandCompositor::setRetainedSelectionEnabled(bool enabled)
 {
-    if (enable)
-        m_compositor->setRetainedSelectionWatcher(retainedSelectionChanged, this);
-    else
-        m_compositor->setRetainedSelectionWatcher(0, 0);
+    m_compositor->setRetainedSelectionEnabled(enabled);
 }
 
-void QWaylandCompositor::retainedSelectionChanged(QMimeData *mimeData, void *param)
+bool QWaylandCompositor::retainedSelectionEnabled() const
 {
-    QWaylandCompositor *self = static_cast<QWaylandCompositor *>(param);
-    self->retainedSelectionReceived(mimeData);
+    return m_compositor->retainedSelectionEnabled();
 }
 
 void QWaylandCompositor::retainedSelectionReceived(QMimeData *)
 {
 }
 
-void QWaylandCompositor::overrideSelection(QMimeData *data)
+void QWaylandCompositor::overrideSelection(const QMimeData *data)
 {
     m_compositor->overrideSelection(data);
 }
@@ -229,6 +242,16 @@ QWaylandInputDevice *QWaylandCompositor::defaultInputDevice() const
     return m_compositor->defaultInputDevice()->handle();
 }
 
+QWaylandInputPanel *QWaylandCompositor::inputPanel() const
+{
+    return m_compositor->inputPanel()->handle();
+}
+
+QWaylandDrag *QWaylandCompositor::drag() const
+{
+    return m_compositor->defaultInputDevice()->dragHandle();
+}
+
 bool QWaylandCompositor::isDragging() const
 {
     return m_compositor->isDragging();
@@ -250,17 +273,6 @@ void QWaylandCompositor::setCursorSurface(QWaylandSurface *surface, int hotspotX
     Q_UNUSED(surface);
     Q_UNUSED(hotspotX);
     Q_UNUSED(hotspotY);
-    qDebug() << "changeCursor" << surface->size() << hotspotX << hotspotY;
-}
-
-void QWaylandCompositor::enableSubSurfaceExtension()
-{
-    m_compositor->enableSubSurfaceExtension();
-}
-
-void QWaylandCompositor::enableTouchExtension()
-{
-    // nothing to do here
 }
 
 void QWaylandCompositor::configureTouchExtension(TouchExtensionFlags flags)

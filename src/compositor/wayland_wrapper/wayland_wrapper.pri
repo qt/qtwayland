@@ -1,3 +1,4 @@
+CONFIG += wayland-scanner
 WAYLANDSERVERSOURCES += \
     ../extensions/surface-extension.xml \
     ../extensions/sub-surface-extension.xml \
@@ -5,7 +6,9 @@ WAYLANDSERVERSOURCES += \
     ../extensions/touch-extension.xml \
     ../extensions/qtkey-extension.xml \
     ../extensions/windowmanager.xml \
-    ../3rdparty/protocol/wayland.xml
+    ../3rdparty/protocol/wayland.xml \
+    ../3rdparty/protocol/input-method.xml \
+    ../3rdparty/protocol/text.xml
 
 HEADERS += \
     wayland_wrapper/qwlcompositor_p.h \
@@ -17,6 +20,10 @@ HEADERS += \
     wayland_wrapper/qwlextendedoutput_p.h \
     wayland_wrapper/qwlextendedsurface_p.h \
     wayland_wrapper/qwlinputdevice_p.h \
+    wayland_wrapper/qwlinputmethod_p.h \
+    wayland_wrapper/qwlinputmethodcontext_p.h \
+    wayland_wrapper/qwlinputpanel_p.h \
+    wayland_wrapper/qwlinputpanelsurface_p.h \
     wayland_wrapper/qwlkeyboard_p.h \
     wayland_wrapper/qwloutput_p.h \
     wayland_wrapper/qwlpointer_p.h \
@@ -27,7 +34,9 @@ HEADERS += \
     wayland_wrapper/qwlsubsurface_p.h \
     wayland_wrapper/qwlsurface_p.h \
     wayland_wrapper/qwlsurfacebuffer_p.h \
-    wayland_wrapper/qwltouch_p.h
+    wayland_wrapper/qwltextinput_p.h \
+    wayland_wrapper/qwltextinputmanager_p.h \
+    wayland_wrapper/qwltouch_p.h \
 
 SOURCES += \
     wayland_wrapper/qwlcompositor.cpp \
@@ -39,6 +48,10 @@ SOURCES += \
     wayland_wrapper/qwlextendedoutput.cpp \
     wayland_wrapper/qwlextendedsurface.cpp \
     wayland_wrapper/qwlinputdevice.cpp \
+    wayland_wrapper/qwlinputmethod.cpp \
+    wayland_wrapper/qwlinputmethodcontext.cpp \
+    wayland_wrapper/qwlinputpanel.cpp \
+    wayland_wrapper/qwlinputpanelsurface.cpp \
     wayland_wrapper/qwlkeyboard.cpp \
     wayland_wrapper/qwloutput.cpp \
     wayland_wrapper/qwlpointer.cpp \
@@ -49,15 +62,17 @@ SOURCES += \
     wayland_wrapper/qwlsubsurface.cpp \
     wayland_wrapper/qwlsurface.cpp \
     wayland_wrapper/qwlsurfacebuffer.cpp \
-    wayland_wrapper/qwltouch.cpp
+    wayland_wrapper/qwltextinput.cpp \
+    wayland_wrapper/qwltextinputmanager.cpp \
+    wayland_wrapper/qwltouch.cpp \
 
 INCLUDEPATH += wayland_wrapper
 
 config_xkbcommon {
     !contains(QT_CONFIG, no-pkg-config) {
-        PKGCONFIG += xkbcommon
+        PKGCONFIG_PRIVATE += xkbcommon
     } else {
-        LIBS += -lxkbcommon
+        LIBS_PRIVATE += -lxkbcommon
     }
 } else {
     DEFINES += QT_NO_WAYLAND_XKB

@@ -10,7 +10,7 @@ CONFIG += link_pkgconfig
 DEFINES += QT_WAYLAND_WINDOWMANAGER_SUPPORT
 
 !contains(QT_CONFIG, no-pkg-config) {
-    PKGCONFIG += wayland-server
+    PKGCONFIG_PRIVATE += wayland-server
 } else {
     LIBS += -lwayland-server
 }
@@ -18,7 +18,6 @@ DEFINES += QT_WAYLAND_WINDOWMANAGER_SUPPORT
 INCLUDEPATH += ../shared
 HEADERS += ../shared/qwaylandmimehelper.h
 SOURCES += ../shared/qwaylandmimehelper.cpp
-HEADERS += qwayland-server-wayland.h
 
 include ($$PWD/global/global.pri)
 include ($$PWD/wayland_wrapper/wayland_wrapper.pri)

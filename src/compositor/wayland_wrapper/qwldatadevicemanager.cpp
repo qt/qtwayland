@@ -59,12 +59,13 @@ QT_BEGIN_NAMESPACE
 namespace QtWayland {
 
 DataDeviceManager::DataDeviceManager(Compositor *compositor)
-    : m_compositor(compositor)
+    : QObject(0)
+    , wl_data_device_manager(compositor->wl_display())
+    , m_compositor(compositor)
     , m_current_selection_source(0)
     , m_retainedReadNotifier(0)
     , m_compositorOwnsSelection(false)
 {
-    wl_display_add_global(compositor->wl_display(), &wl_data_device_manager_interface, this, DataDeviceManager::bind_func_drag);
 }
 
 void DataDeviceManager::setCurrentSelectionSource(DataSource *source)
@@ -88,7 +89,7 @@ void DataDeviceManager::setCurrentSelectionSource(DataSource *source)
     //    2. make it possible for the compositor to participate in copy-paste
     // The downside is decreased performance, therefore this mode has to be enabled
     // explicitly in the compositors.
-    if (m_compositor->wantsRetainedSelection()) {
+    if (m_compositor->retainedSelectionEnabled()) {
         m_retainedData.clear();
         m_retainedReadIndex = 0;
         retain();
@@ -97,20 +98,19 @@ void DataDeviceManager::setCurrentSelectionSource(DataSource *source)
 
 void DataDeviceManager::sourceDestroyed(DataSource *source)
 {
-    Q_UNUSED(source);
     if (m_current_selection_source == source)
         finishReadFromClient();
 }
 
 void DataDeviceManager::retain()
 {
-    QList<QByteArray> offers = m_current_selection_source->offerList();
+    QList<QString> offers = m_current_selection_source->mimeTypes();
     finishReadFromClient();
     if (m_retainedReadIndex >= offers.count()) {
         m_compositor->feedRetainedSelectionData(&m_retainedData);
         return;
     }
-    QByteArray mimeType = offers.at(m_retainedReadIndex);
+    QString mimeType = offers.at(m_retainedReadIndex);
     m_retainedReadBuf.clear();
     int fd[2];
     if (pipe(fd) == -1) {
@@ -118,8 +118,7 @@ void DataDeviceManager::retain()
         return;
     }
     fcntl(fd[0], F_SETFL, fcntl(fd[0], F_GETFL, 0) | O_NONBLOCK);
-    m_current_selection_source->postSendEvent(mimeType, fd[1]);
-    close(fd[1]);
+    m_current_selection_source->send(mimeType, fd[1]);
     m_retainedReadNotifier = new QSocketNotifier(fd[0], QSocketNotifier::Read, this);
     connect(m_retainedReadNotifier, SIGNAL(activated(int)), SLOT(readFromClient(int)));
 }
@@ -167,8 +166,8 @@ void DataDeviceManager::readFromClient(int fd)
     if (n <= 0) {
         if (n != -1 || (errno != EAGAIN && errno != EWOULDBLOCK)) {
             finishReadFromClient(true);
-            QList<QByteArray> offers = m_current_selection_source->offerList();
-            QString mimeType = QString::fromLatin1(offers.at(m_retainedReadIndex));
+            QList<QString> offers = m_current_selection_source->mimeTypes();
+            QString mimeType = offers.at(m_retainedReadIndex);
             m_retainedData.setData(mimeType, m_retainedReadBuf);
             ++m_retainedReadIndex;
             retain();
@@ -188,43 +187,6 @@ struct wl_display *DataDeviceManager::display() const
     return m_compositor->wl_display();
 }
 
-void DataDeviceManager::bind_func_drag(struct wl_client *client, void *data, uint32_t version, uint32_t id)
-{
-    Q_UNUSED(version);
-    wl_client_add_object(client,&wl_data_device_manager_interface,&drag_interface,id,data);
-}
-
-void DataDeviceManager::bind_func_data(struct wl_client *client, void *data, uint32_t version, uint32_t id)
-{
-    Q_UNUSED(client);
-    Q_UNUSED(data);
-    Q_UNUSED(version);
-    Q_UNUSED(id);
-}
-
-void DataDeviceManager::get_data_device(struct wl_client *client,
-                      struct wl_resource *data_device_manager_resource,
-                      uint32_t id,
-                      struct wl_resource *input_device_resource)
-{
-    DataDeviceManager *data_device_manager = static_cast<DataDeviceManager *>(data_device_manager_resource->data);
-    InputDevice *input_device = InputDevice::fromSeatResource(input_device_resource);
-    input_device->clientRequestedDataDevice(data_device_manager,client,id);
-}
-
-void DataDeviceManager::create_data_source(struct wl_client *client,
-                               struct wl_resource *data_device_manager_resource,
-                               uint32_t id)
-{
-    Q_UNUSED(data_device_manager_resource);
-    new DataSource(client,id, Compositor::currentTimeMsecs());
-}
-
-struct wl_data_device_manager_interface DataDeviceManager::drag_interface = {
-    DataDeviceManager::create_data_source,
-    DataDeviceManager::get_data_device
-};
-
 void DataDeviceManager::overrideSelection(const QMimeData &mimeData)
 {
     QStringList formats = mimeData.formats();
@@ -243,7 +205,7 @@ void DataDeviceManager::overrideSelection(const QMimeData &mimeData)
     Surface *focusSurface = dev->keyboardFocus();
     if (focusSurface)
         offerFromCompositorToClient(
-                    dev->dataDevice(focusSurface->resource()->client())->dataDeviceResource());
+                    dev->dataDevice()->resourceMap().value(focusSurface->resource()->client())->handle);
 }
 
 bool DataDeviceManager::offerFromCompositorToClient(wl_resource *clientDataDeviceResource)
@@ -273,6 +235,17 @@ void DataDeviceManager::offerRetainedSelection(wl_resource *clientDataDeviceReso
 
     m_compositorOwnsSelection = true;
     offerFromCompositorToClient(clientDataDeviceResource);
+}
+
+void DataDeviceManager::data_device_manager_create_data_source(Resource *resource, uint32_t id)
+{
+    new DataSource(resource->client(), id, m_compositor->currentTimeMsecs());
+}
+
+void DataDeviceManager::data_device_manager_get_data_device(Resource *resource, uint32_t id, struct ::wl_resource *seat)
+{
+    InputDevice *input_device = InputDevice::fromSeatResource(seat);
+    input_device->clientRequestedDataDevice(this, resource->client(), id);
 }
 
 void DataDeviceManager::comp_accept(wl_client *, wl_resource *, uint32_t, const char *)

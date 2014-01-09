@@ -54,8 +54,10 @@
 #include "qwlqttouch_p.h"
 #include "qwlqtkey_p.h"
 #include "qwlinputdevice_p.h"
+#include "qwlinputpanel_p.h"
 #include "qwlregion_p.h"
 #include "qwlpointer_p.h"
+#include "qwltextinputmanager_p.h"
 
 #include <QWindow>
 #include <QSocketNotifier>
@@ -82,10 +84,13 @@
 
 #include <wayland-server.h>
 
-#include "hardware_integration/qwaylandgraphicshardwareintegration.h"
+#include "hardware_integration/qwlhwintegration_p.h"
+#include "hardware_integration/qwaylandclientbufferintegration.h"
+#include "hardware_integration/qwaylandserverbufferintegration.h"
 #include "waylandwindowmanagerintegration.h"
 
-#include "hardware_integration/qwaylandgraphicshardwareintegrationfactory.h"
+#include "hardware_integration/qwaylandclientbufferintegrationfactory.h"
+#include "hardware_integration/qwaylandserverbufferintegrationfactory.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -123,8 +128,9 @@ Compositor *Compositor::instance()
     return compositor;
 }
 
-Compositor::Compositor(QWaylandCompositor *qt_compositor)
-    : m_display(new Display)
+Compositor::Compositor(QWaylandCompositor *qt_compositor, QWaylandCompositor::ExtensionFlags extensions)
+    : m_extensions(extensions)
+    , m_display(new Display)
     , m_default_input_device(0)
     , m_pageFlipper(0)
     , m_current_frame(0)
@@ -135,41 +141,25 @@ Compositor::Compositor(QWaylandCompositor *qt_compositor)
     , m_directRenderContext(0)
     , m_directRenderActive(false)
 #if defined (QT_COMPOSITOR_WAYLAND_GL)
-    , m_graphics_hw_integration(0)
+    , m_hw_integration(0)
+    , m_client_buffer_integration(0)
+    , m_server_buffer_integration(0)
 #endif
+    , m_windowManagerIntegration(0)
     , m_outputExtension(0)
     , m_surfaceExtension(0)
     , m_subSurfaceExtension(0)
     , m_touchExtension(0)
-    , m_retainNotify(0)
+    , m_qtkeyExtension(0)
+    , m_textInputManager()
+    , m_inputPanel()
+    , m_retainSelection(false)
 {
+    m_timer.start();
     compositor = this;
 
-#if defined (QT_COMPOSITOR_WAYLAND_GL)
-    QWindow *window = qt_compositor->window();
-    if (window && window->surfaceType() != QWindow::RasterSurface) {
-        QStringList keys = QWaylandGraphicsHardwareIntegrationFactory::keys();
-        QString targetKey;
-        QByteArray hardwareIntegration = qgetenv("QT_WAYLAND_HARDWARE_INTEGRATION");
-        if (keys.contains(QString::fromLocal8Bit(hardwareIntegration.constData()))) {
-            targetKey = QString::fromLocal8Bit(hardwareIntegration.constData());
-        } else if (keys.contains(QString::fromLatin1("wayland-egl"))) {
-            targetKey = QString::fromLatin1("wayland-egl");
-        } else if (!keys.isEmpty()) {
-            targetKey = keys.first();
-        }
-
-        if (!targetKey.isEmpty()) {
-            m_graphics_hw_integration = QWaylandGraphicsHardwareIntegrationFactory::create(targetKey, QStringList());
-            if (m_graphics_hw_integration) {
-                m_graphics_hw_integration->setCompositor(qt_compositor);
-            }
-        }
-        //BUG: if there is no hw_integration, bad things will probably happen
-
-    }
-#endif
-    m_windowManagerIntegration = new WindowManagerServerIntegration(qt_compositor, this);
+    if (extensions & QWaylandCompositor::WindowManagerExtension)
+        m_windowManagerIntegration = new WindowManagerServerIntegration(qt_compositor, this);
 
     wl_display_add_global(m_display->handle(),&wl_compositor_interface,this,Compositor::bind_func);
 
@@ -182,10 +172,30 @@ Compositor::Compositor(QWaylandCompositor *qt_compositor)
     m_shell = new Shell();
     wl_display_add_global(m_display->handle(), &wl_shell_interface, m_shell, Shell::bind_func);
 
-    m_outputExtension = new OutputExtensionGlobal(this);
-    m_surfaceExtension = new SurfaceExtensionGlobal(this);
-    m_qtkeyExtension = new QtKeyExtensionGlobal(this);
-    m_touchExtension = new TouchExtensionGlobal(this);
+#if defined (QT_COMPOSITOR_WAYLAND_GL)
+    if (extensions & QWaylandCompositor::HardwareIntegrationExtension)
+        m_hw_integration.reset(new HardwareIntegration(this));
+    QWindow *window = qt_compositor->window();
+    if (window && window->surfaceType() != QWindow::RasterSurface) {
+        loadClientBufferIntegration();
+        loadServerBufferIntegration();
+    }
+#endif
+
+    if (extensions & QWaylandCompositor::OutputExtension)
+        m_outputExtension = new OutputExtensionGlobal(this);
+    if (extensions & QWaylandCompositor::SurfaceExtension)
+        m_surfaceExtension = new SurfaceExtensionGlobal(this);
+    if (extensions & QWaylandCompositor::SubSurfaceExtension)
+        m_subSurfaceExtension = new SubSurfaceExtensionGlobal(this);
+    if (extensions & QWaylandCompositor::TouchExtension)
+        m_touchExtension = new TouchExtensionGlobal(this);
+    if (extensions & QWaylandCompositor::QtKeyExtension)
+        m_qtkeyExtension = new QtKeyExtensionGlobal(this);
+    if (extensions & QWaylandCompositor::TextInputExtension) {
+        m_textInputManager.reset(new TextInputManager(this));
+        m_inputPanel.reset(new InputPanel(this));
+    }
 
     if (wl_display_add_socket(m_display->handle(), qt_compositor->socketName())) {
         fprintf(stderr, "Fatal: Failed to open server socket\n");
@@ -218,9 +228,6 @@ Compositor::~Compositor()
     delete m_default_wayland_input_device;
     delete m_data_device_manager;
 
-#ifdef QT_COMPOSITOR_WAYLAND_GL
-    delete m_graphics_hw_integration;
-#endif
     delete m_output_global;
     delete m_display;
 }
@@ -247,14 +254,9 @@ void Compositor::createSurface(struct wl_client *client, uint32_t id)
     m_qt_compositor->surfaceCreated(surface->waylandSurface());
 }
 
-uint Compositor::currentTimeMsecs()
+uint Compositor::currentTimeMsecs() const
 {
-    //### we throw away the time information
-    struct timeval tv;
-    int ret = gettimeofday(&tv, 0);
-    if (ret == 0)
-        return tv.tv_sec*1000 + tv.tv_usec/1000;
-    return 0;
+    return m_timer.elapsed();
 }
 
 void Compositor::releaseBuffer(QPlatformScreenBuffer *screenBuffer)
@@ -305,7 +307,8 @@ void Compositor::destroyClient(WaylandClient *c)
     if (!client)
         return;
 
-    m_windowManagerIntegration->sendQuitMessage(client);
+    if (m_windowManagerIntegration)
+        m_windowManagerIntegration->sendQuitMessage(client);
 
     wl_client_destroy(client);
 }
@@ -315,10 +318,19 @@ QWindow *Compositor::window() const
     return m_qt_compositor->window();
 }
 
-QWaylandGraphicsHardwareIntegration * Compositor::graphicsHWIntegration() const
+QWaylandClientBufferIntegration * Compositor::clientBufferIntegration() const
 {
 #ifdef QT_COMPOSITOR_WAYLAND_GL
-    return m_graphics_hw_integration;
+    return m_client_buffer_integration.data();
+#else
+    return 0;
+#endif
+}
+
+QWaylandServerBufferIntegration * Compositor::serverBufferIntegration() const
+{
+#ifdef QT_COMPOSITOR_WAYLAND_GL
+    return m_server_buffer_integration.data();
 #else
     return 0;
 #endif
@@ -327,8 +339,10 @@ QWaylandGraphicsHardwareIntegration * Compositor::graphicsHWIntegration() const
 void Compositor::initializeHardwareIntegration()
 {
 #ifdef QT_COMPOSITOR_WAYLAND_GL
-    if (m_graphics_hw_integration)
-        m_graphics_hw_integration->initializeHardware(m_display);
+    if (m_client_buffer_integration)
+        m_client_buffer_integration->initializeHardware(m_display);
+    if (m_server_buffer_integration)
+        m_server_buffer_integration->initializeHardware(m_qt_compositor);
 #endif
 }
 
@@ -340,14 +354,8 @@ void Compositor::initializeDefaultInputDevice()
 
 void Compositor::initializeWindowManagerProtocol()
 {
-    m_windowManagerIntegration->initialize(m_display);
-}
-
-void Compositor::enableSubSurfaceExtension()
-{
-    if (!m_subSurfaceExtension) {
-        m_subSurfaceExtension = new SubSurfaceExtensionGlobal(this);
-    }
+    if (m_windowManagerIntegration)
+        m_windowManagerIntegration->initialize(m_display);
 }
 
 bool Compositor::setDirectRenderSurface(Surface *surface, QOpenGLContext *context)
@@ -360,7 +368,7 @@ bool Compositor::setDirectRenderSurface(Surface *surface, QOpenGLContext *contex
     if (!surface)
         setDirectRenderingActive(false);
 
-    if (m_graphics_hw_integration && m_graphics_hw_integration->setDirectRenderSurface(surface ? surface->waylandSurface() : 0)) {
+    if (m_client_buffer_integration && m_client_buffer_integration->setDirectRenderSurface(surface ? surface->waylandSurface() : 0)) {
         m_directRenderSurface = surface;
         m_directRenderContext = context;
         return true;
@@ -409,8 +417,7 @@ void Compositor::setScreenOrientation(Qt::ScreenOrientation orientation)
     for (int i = 0; i < clientList.length(); ++i) {
         struct wl_client *client = clientList.at(i);
         Output *output = m_output_global->outputForClient(client);
-        Q_ASSERT(output);
-        if (output->extendedOutput)
+        if (output && output->extendedOutput)
             output->extendedOutput->sendOutputOrientation(orientation);
     }
 }
@@ -448,7 +455,13 @@ int Compositor::outputRefreshRate() const
 
 void Compositor::setClientFullScreenHint(bool value)
 {
-    m_windowManagerIntegration->setShowIsFullScreen(value);
+    if (m_windowManagerIntegration)
+        m_windowManagerIntegration->setShowIsFullScreen(value);
+}
+
+QWaylandCompositor::ExtensionFlags Compositor::extensions() const
+{
+    return m_extensions;
 }
 
 InputDevice* Compositor::defaultInputDevice()
@@ -468,28 +481,47 @@ QList<QtWayland::Surface *> Compositor::surfacesForClient(wl_client *client)
     return ret;
 }
 
+Surface *Compositor::pickSurface(const QPointF &globalPosition)
+{
+    QWaylandSurface *surface = m_qt_compositor->pickSurface(globalPosition);
+    return surface ? surface->handle() : 0;
+}
+
+QPointF Compositor::mapToSurface(Surface *surface, const QPointF &globalPosition)
+{
+    return m_qt_compositor->mapToSurface(surface->waylandSurface(), globalPosition);
+}
+
 void Compositor::configureTouchExtension(int flags)
 {
     if (m_touchExtension)
         m_touchExtension->setFlags(flags);
 }
 
-void Compositor::setRetainedSelectionWatcher(RetainedSelectionFunc func, void *param)
+InputPanel *Compositor::inputPanel() const
 {
-    m_retainNotify = func;
-    m_retainNotifyParam = param;
+    return m_inputPanel.data();
 }
 
-bool Compositor::wantsRetainedSelection() const
+DataDeviceManager *Compositor::dataDeviceManager() const
 {
-    return m_retainNotify != 0;
+    return m_data_device_manager;
+}
+
+void Compositor::setRetainedSelectionEnabled(bool enabled)
+{
+    m_retainSelection = enabled;
+}
+
+bool Compositor::retainedSelectionEnabled() const
+{
+    return m_retainSelection;
 }
 
 void Compositor::feedRetainedSelectionData(QMimeData *data)
 {
-    if (m_retainNotify) {
-        m_retainNotify(data, m_retainNotifyParam);
-    }
+    if (m_retainSelection)
+        m_qt_compositor->retainedSelectionReceived(data);
 }
 
 void Compositor::scheduleReleaseBuffer(SurfaceBuffer *screenBuffer)
@@ -497,7 +529,7 @@ void Compositor::scheduleReleaseBuffer(SurfaceBuffer *screenBuffer)
     QMetaObject::invokeMethod(this,"releaseBuffer",Q_ARG(QPlatformScreenBuffer*,screenBuffer));
 }
 
-void Compositor::overrideSelection(QMimeData *data)
+void Compositor::overrideSelection(const QMimeData *data)
 {
     m_data_device_manager->overrideSelection(*data);
 }
@@ -519,6 +551,47 @@ void Compositor::sendDragMoveEvent(const QPoint &global, const QPoint &local,
 void Compositor::sendDragEndEvent()
 {
 //    Drag::instance()->dragEnd();
+}
+
+void Compositor::loadClientBufferIntegration()
+{
+    QStringList keys = QWaylandClientBufferIntegrationFactory::keys();
+    QString targetKey;
+    QByteArray clientBufferIntegration = qgetenv("QT_WAYLAND_HARDWARE_INTEGRATION");
+    if (clientBufferIntegration.isEmpty())
+        clientBufferIntegration = qgetenv("QT_WAYLAND_CLIENT_BUFFER_INTEGRATION");
+    if (keys.contains(QString::fromLocal8Bit(clientBufferIntegration.constData()))) {
+        targetKey = QString::fromLocal8Bit(clientBufferIntegration.constData());
+    } else if (keys.contains(QString::fromLatin1("wayland-egl"))) {
+        targetKey = QString::fromLatin1("wayland-egl");
+    } else if (!keys.isEmpty()) {
+        targetKey = keys.first();
+    }
+
+    if (!targetKey.isEmpty()) {
+        m_client_buffer_integration.reset(QWaylandClientBufferIntegrationFactory::create(targetKey, QStringList()));
+        if (m_client_buffer_integration) {
+            m_client_buffer_integration->setCompositor(m_qt_compositor);
+            if (m_hw_integration)
+                m_hw_integration->setClientBufferIntegration(targetKey);
+        }
+    }
+    //BUG: if there is no client buffer integration, bad things will when opengl is used
+}
+
+void Compositor::loadServerBufferIntegration()
+{
+    QStringList keys = QWaylandServerBufferIntegrationFactory::keys();
+    QString targetKey;
+    QByteArray serverBufferIntegration = qgetenv("QT_WAYLAND_SERVER_BUFFER_INTEGRATION");
+    if (keys.contains(QString::fromLocal8Bit(serverBufferIntegration.constData()))) {
+        targetKey = QString::fromLocal8Bit(serverBufferIntegration.constData());
+    }
+    if (!targetKey.isEmpty()) {
+        m_server_buffer_integration.reset(QWaylandServerBufferIntegrationFactory::create(targetKey, QStringList()));
+        if (m_hw_integration)
+            m_hw_integration->setServerBufferIntegration(targetKey);
+    }
 }
 
 } // namespace Wayland

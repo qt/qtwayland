@@ -38,12 +38,13 @@
  $QT_END_LICENSE$
     </copyright>
 
-    <interface name="qt_key_extension" version="1">
+    <interface name="qt_key_extension" version="2">
         <event name="qtkey">
           <description summary="qtkey event">
              Serialized QKeyEvent
           </description>
 
+          <arg name="surface" type="object" interface="wl_surface"/>
           <arg name="time" type="uint"/>
           <arg name="type" type="uint"/>
           <arg name="key" type="uint"/>

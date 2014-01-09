@@ -47,7 +47,7 @@ QT_BEGIN_NAMESPACE
 class QWaylandIntegrationPlugin : public QPlatformIntegrationPlugin
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QPA.QPlatformIntegrationFactoryInterface.5.3" FILE "qwayland-xcomposite-glx.json")
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QPA.QPlatformIntegrationFactoryInterface.5.2" FILE "qwayland-xcomposite-glx.json")
 public:
     QStringList keys() const;
     QPlatformIntegration *create(const QString&, const QStringList&);
@@ -56,15 +56,15 @@ public:
 QStringList QWaylandIntegrationPlugin::keys() const
 {
     QStringList list;
-    list << "wayland-xcomposite";
+    list << "wayland-xcomposite-glx";
     return list;
 }
 
 QPlatformIntegration *QWaylandIntegrationPlugin::create(const QString& system, const QStringList& paramList)
 {
     Q_UNUSED(paramList);
-    if (system.toLower() == "wayland-xcomposite")
-        return new QWaylandIntegration();
+    if (system.toLower() == "wayland-xcomposite-glx")
+        return new QWaylandXCompositeGlxPlatformIntegration();
 
     return 0;
 }

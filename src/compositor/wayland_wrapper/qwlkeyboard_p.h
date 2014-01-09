@@ -42,7 +42,10 @@
 #ifndef QTWAYLAND_QWLKEYBOARD_P_H
 #define QTWAYLAND_QWLKEYBOARD_P_H
 
-#include <qwayland-server-wayland.h>
+#include <QtCompositor/qwaylandexport.h>
+
+#include <QObject>
+#include <QtCompositor/private/qwayland-server-wayland.h>
 
 #include <QtCore/QByteArray>
 
@@ -58,8 +61,10 @@ class Compositor;
 class InputDevice;
 class Surface;
 
-class Keyboard : public QtWaylandServer::wl_keyboard
+class Q_COMPOSITOR_EXPORT Keyboard : public QObject, public QtWaylandServer::wl_keyboard
 {
+    Q_OBJECT
+
 public:
     Keyboard(Compositor *compositor, InputDevice *seat);
     ~Keyboard();
@@ -71,6 +76,10 @@ public:
     void sendKeyReleaseEvent(uint code);
 
     Surface *focus() const;
+    Resource *focusResource() const;
+
+Q_SIGNALS:
+    void focusChanged(Surface *surface);
 
 protected:
     void keyboard_bind_resource(Resource *resource);

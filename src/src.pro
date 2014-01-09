@@ -8,4 +8,4 @@ contains(CONFIG, wayland-compositor) {
     SUBDIRS += compositor
 }
 
-SUBDIRS += plugins
+SUBDIRS += client plugins

@@ -59,7 +59,7 @@
 #include <wayland-server.h>
 
 #ifdef QT_COMPOSITOR_WAYLAND_GL
-#include "hardware_integration/qwaylandgraphicshardwareintegration.h"
+#include "hardware_integration/qwaylandclientbufferintegration.h"
 #include <qpa/qplatformopenglcontext.h>
 #endif
 
@@ -83,6 +83,7 @@ Surface::Surface(struct wl_client *client, uint32_t id, Compositor *compositor)
     , m_extendedSurface(0)
     , m_subSurface(0)
     , m_shellSurface(0)
+    , m_inputPanelSurface(0)
     , m_transientInactive(false)
     , m_isCursorSurface(false)
 {
@@ -125,14 +126,14 @@ bool Surface::isYInverted() const
 {
     bool ret = false;
     static bool negateReturn = qgetenv("QT_COMPOSITOR_NEGATE_INVERTED_Y").toInt();
-    QWaylandGraphicsHardwareIntegration *graphicsHWIntegration = m_compositor->graphicsHWIntegration();
+    QWaylandClientBufferIntegration *clientBufferIntegration = m_compositor->clientBufferIntegration();
 
 #ifdef QT_COMPOSITOR_WAYLAND_GL
     SurfaceBuffer *surfacebuffer = currentSurfaceBuffer();
     if (!surfacebuffer) {
         ret = false;
-    } else if (graphicsHWIntegration && surfacebuffer->waylandBufferHandle() && type() != QWaylandSurface::Shm) {
-        ret = graphicsHWIntegration->isYInverted(surfacebuffer->waylandBufferHandle());
+    } else if (clientBufferIntegration && surfacebuffer->waylandBufferHandle() && type() != QWaylandSurface::Shm) {
+        ret = clientBufferIntegration->isYInverted(surfacebuffer->waylandBufferHandle());
     } else
 #endif
         ret = true;
@@ -203,14 +204,13 @@ QImage Surface::image() const
 }
 
 #ifdef QT_COMPOSITOR_WAYLAND_GL
-GLuint Surface::textureId(QOpenGLContext *context) const
+GLuint Surface::textureId() const
 {
     const SurfaceBuffer *surfacebuffer = currentSurfaceBuffer();
 
-    if (m_compositor->graphicsHWIntegration() && type() == QWaylandSurface::Texture
+    if (m_compositor->clientBufferIntegration() && type() == QWaylandSurface::Texture
          && !surfacebuffer->textureCreated()) {
-        QWaylandGraphicsHardwareIntegration *hwIntegration = m_compositor->graphicsHWIntegration();
-        const_cast<SurfaceBuffer *>(surfacebuffer)->createTexture(hwIntegration,context);
+        const_cast<SurfaceBuffer *>(surfacebuffer)->createTexture();
     }
     return surfacebuffer->texture();
 }
@@ -228,7 +228,7 @@ void Surface::sendFrameCallback()
 
     bool updateNeeded = advanceBufferQueue();
 
-    uint time = Compositor::currentTimeMsecs();
+    uint time = m_compositor->currentTimeMsecs();
     struct wl_resource *frame_callback, *next;
     wl_list_for_each_safe(frame_callback, next, &m_frame_callback_list, link) {
         wl_callback_send_done(frame_callback, time);
@@ -287,6 +287,16 @@ ShellSurface *Surface::shellSurface() const
     return m_shellSurface;
 }
 
+void Surface::setInputPanelSurface(InputPanelSurface *inputPanelSurface)
+{
+    m_inputPanelSurface = inputPanelSurface;
+}
+
+InputPanelSurface *Surface::inputPanelSurface() const
+{
+    return m_inputPanelSurface;
+}
+
 Compositor *Surface::compositor() const
 {
     return m_compositor;
@@ -298,8 +308,13 @@ bool Surface::advanceBufferQueue()
     //do we have another buffer in the queue
     //and does it have a valid damage rect
 
-    if (m_backBuffer && !m_backBuffer->isDisplayed())
-        return true;
+    if (m_backBuffer && !m_backBuffer->isDisplayed()) {
+        if (m_backBuffer->waylandBufferHandle()) {
+            return true;
+        } else {
+            m_backBuffer->disown();
+        }
+    }
     if (m_bufferQueue.size()) {
         QSize size;
         if (m_backBuffer && m_backBuffer->waylandBufferHandle()) {

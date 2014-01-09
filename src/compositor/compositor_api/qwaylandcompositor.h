@@ -54,6 +54,8 @@ class QUrl;
 class QOpenGLContext;
 class QWaylandSurface;
 class QWaylandInputDevice;
+class QWaylandInputPanel;
+class QWaylandDrag;
 
 namespace QtWayland
 {
@@ -63,7 +65,21 @@ namespace QtWayland
 class Q_COMPOSITOR_EXPORT QWaylandCompositor
 {
 public:
-    QWaylandCompositor(QWindow *window = 0, const char *socketName = 0);
+    enum ExtensionFlag {
+        WindowManagerExtension = 0x01,
+        OutputExtension = 0x02,
+        SurfaceExtension = 0x04,
+        QtKeyExtension = 0x08,
+        TouchExtension = 0x10,
+        SubSurfaceExtension = 0x20,
+        TextInputExtension = 0x40,
+        HardwareIntegrationExtension = 0x80,
+
+        DefaultExtensions = WindowManagerExtension | OutputExtension | SurfaceExtension | QtKeyExtension | TouchExtension | HardwareIntegrationExtension
+    };
+    Q_DECLARE_FLAGS(ExtensionFlags, ExtensionFlag)
+
+    QWaylandCompositor(QWindow *window = 0, const char *socketName = 0, ExtensionFlags extensions = DefaultExtensions);
     virtual ~QWaylandCompositor();
 
     struct wl_display *waylandDisplay() const;
@@ -83,13 +99,16 @@ public:
     virtual void surfaceCreated(QWaylandSurface *surface) = 0;
     virtual void surfaceAboutToBeDestroyed(QWaylandSurface *surface);
 
+    virtual QWaylandSurface *pickSurface(const QPointF &globalPosition) const;
+    virtual QPointF mapToSurface(QWaylandSurface *surface, const QPointF &surfacePosition) const;
+
     virtual void openUrl(WaylandClient *client, const QUrl &url);
 
     QtWayland::Compositor *handle() const;
 
-    void setRetainedSelectionEnabled(bool enable);
-    virtual void retainedSelectionReceived(QMimeData *mimeData);
-    void overrideSelection(QMimeData *data);
+    void setRetainedSelectionEnabled(bool enabled);
+    bool retainedSelectionEnabled() const;
+    void overrideSelection(const QMimeData *data);
 
     void setClientFullScreenHint(bool value);
 
@@ -105,29 +124,32 @@ public:
 
     QWaylandInputDevice *defaultInputDevice() const;
 
+    QWaylandInputPanel *inputPanel() const;
+    QWaylandDrag *drag() const;
+
     bool isDragging() const;
     void sendDragMoveEvent(const QPoint &global, const QPoint &local, QWaylandSurface *surface);
     void sendDragEndEvent();
 
     virtual void setCursorSurface(QWaylandSurface *surface, int hotspotX, int hotspotY);
 
-    void enableSubSurfaceExtension();
-
-    void enableTouchExtension();
     enum TouchExtensionFlag {
         TouchExtMouseFromTouch = 0x01
     };
     Q_DECLARE_FLAGS(TouchExtensionFlags, TouchExtensionFlag)
     void configureTouchExtension(TouchExtensionFlags flags);
 
-private:
-    static void retainedSelectionChanged(QMimeData *mimeData, void *param);
+protected:
+    virtual void retainedSelectionReceived(QMimeData *mimeData);
 
+private:
+    friend class QtWayland::Compositor;
     QtWayland::Compositor *m_compositor;
     QWindow  *m_toplevel_window;
     QByteArray m_socket_name;
 };
 
+Q_DECLARE_OPERATORS_FOR_FLAGS(QWaylandCompositor::ExtensionFlags)
 Q_DECLARE_OPERATORS_FOR_FLAGS(QWaylandCompositor::TouchExtensionFlags)
 
 QT_END_NAMESPACE

@@ -42,10 +42,12 @@
 
 #include "qwlcompositor_p.h"
 #include "qwldatadevice_p.h"
+#include "qwlinputmethod_p.h"
 #include "qwlsurface_p.h"
 #include "qwlqttouch_p.h"
 #include "qwlqtkey_p.h"
 #include "qwaylandcompositor.h"
+#include "qwaylanddrag.h"
 #include "qwlpointer_p.h"
 #include "qwlkeyboard_p.h"
 #include "qwltouch_p.h"
@@ -59,16 +61,18 @@ namespace QtWayland {
 InputDevice::InputDevice(QWaylandInputDevice *handle, Compositor *compositor)
     : QtWaylandServer::wl_seat(compositor->wl_display())
     , m_handle(handle)
+    , m_dragHandle(new QWaylandDrag(this))
     , m_compositor(compositor)
     , m_pointer(new Pointer(m_compositor, this))
     , m_keyboard(new Keyboard(m_compositor, this))
     , m_touch(new Touch(m_compositor))
+    , m_inputMethod(m_compositor->extensions() & QWaylandCompositor::TextInputExtension ? new InputMethod(m_compositor, this) : 0)
+    , m_data_device()
 {
 }
 
 InputDevice::~InputDevice()
 {
-    qDeleteAll(m_data_devices);
 }
 
 Pointer *InputDevice::pointerDevice()
@@ -86,6 +90,11 @@ Touch *InputDevice::touchDevice()
     return m_touch.data();
 }
 
+InputMethod *InputDevice::inputMethod()
+{
+    return m_inputMethod.data();
+}
+
 const Pointer *InputDevice::pointerDevice() const
 {
     return m_pointer.data();
@@ -101,9 +110,9 @@ const Touch *InputDevice::touchDevice() const
     return m_touch.data();
 }
 
-void InputDevice::seat_destroy_resource(wl_seat::Resource *resource)
+void InputDevice::seat_destroy_resource(wl_seat::Resource *)
 {
-    cleanupDataDeviceForClient(resource->client(), true);
+//    cleanupDataDeviceForClient(resource->client(), true);
 }
 
 void InputDevice::seat_bind_resource(wl_seat::Resource *resource)
@@ -203,6 +212,13 @@ void InputDevice::sendFullKeyEvent(QKeyEvent *event)
         m_keyboard->sendKeyReleaseEvent(event->nativeScanCode());
 }
 
+void InputDevice::sendFullKeyEvent(Surface *surface, QKeyEvent *event)
+{
+    QtKeyExtensionGlobal *ext = m_compositor->qtkeyExtension();
+    if (ext)
+        ext->postQtKeyEvent(event, surface);
+}
+
 void InputDevice::sendFullTouchEvent(QTouchEvent *event)
 {
     if (!mouseFocus()) {
@@ -247,8 +263,8 @@ bool InputDevice::setKeyboardFocus(Surface *surface)
     if (surface && surface->transientInactive())
         return false;
 
-    sendSelectionFocus(surface);
     m_keyboard->setFocus(surface);
+    m_data_device->setFocus(m_keyboard->focusResource());
     return true;
 }
 
@@ -266,35 +282,11 @@ void InputDevice::setMouseFocus(Surface *surface, const QPointF &localPos, const
     m_touch->setFocus(surface);
 }
 
-void InputDevice::cleanupDataDeviceForClient(struct wl_client *client, bool destroyDev)
+void InputDevice::clientRequestedDataDevice(DataDeviceManager *, struct wl_client *client, uint32_t id)
 {
-    for (int i = 0; i < m_data_devices.size(); i++) {
-        struct wl_resource *data_device_resource =
-                m_data_devices.at(i)->dataDeviceResource();
-        if (data_device_resource->client == client) {
-            if (destroyDev)
-                delete m_data_devices.at(i);
-            m_data_devices.removeAt(i);
-            break;
-        }
-    }
-}
-
-void InputDevice::clientRequestedDataDevice(DataDeviceManager *data_device_manager, struct wl_client *client, uint32_t id)
-{
-    cleanupDataDeviceForClient(client, false);
-    DataDevice *dataDevice = new DataDevice(data_device_manager,client,id);
-    m_data_devices.append(dataDevice);
-}
-
-void InputDevice::sendSelectionFocus(Surface *surface)
-{
-    if (!surface)
-        return;
-    DataDevice *device = dataDevice(surface->resource()->client());
-    if (device) {
-        device->sendSelectionFocus();
-    }
+    if (!m_data_device)
+        m_data_device.reset(new DataDevice(this));
+    m_data_device->add(client, id);
 }
 
 Compositor *InputDevice::compositor() const
@@ -307,14 +299,14 @@ QWaylandInputDevice *InputDevice::handle() const
     return m_handle;
 }
 
-DataDevice *InputDevice::dataDevice(struct wl_client *client) const
+QWaylandDrag *InputDevice::dragHandle() const
 {
-    for (int i = 0; i < m_data_devices.size();i++) {
-        if (m_data_devices.at(i)->dataDeviceResource()->client == client) {
-            return m_data_devices.at(i);
-        }
-    }
-    return 0;
+    return m_dragHandle;
+}
+
+const DataDevice *InputDevice::dataDevice() const
+{
+    return m_data_device.data();
 }
 
 }

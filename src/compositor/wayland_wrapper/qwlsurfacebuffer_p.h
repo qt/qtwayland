@@ -51,8 +51,7 @@
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandGraphicsHardwareIntegration;
-class QOpenGLContext;
+class QWaylandClientBufferIntegration;
 
 namespace QtWayland {
 
@@ -99,7 +98,7 @@ public:
 
     inline bool textureCreated() const { return m_texture; }
 
-    void createTexture(QWaylandGraphicsHardwareIntegration *hwIntegration, QOpenGLContext *context);
+    void createTexture();
     inline GLuint texture() const;
     void destroyTexture();
 

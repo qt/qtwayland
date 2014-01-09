@@ -47,6 +47,9 @@
 #include "wayland_wrapper/qwlsubsurface_p.h"
 #include "wayland_wrapper/qwlcompositor_p.h"
 #include "wayland_wrapper/qwlshellsurface_p.h"
+#include "wayland_wrapper/qwlinputdevice_p.h"
+#include "wayland_wrapper/qwldatadevice_p.h"
+#include "wayland_wrapper/qwldatadevicemanager_p.h"
 
 #include "qwaylandcompositor.h"
 #include "waylandwindowmanagerintegration.h"
@@ -56,6 +59,7 @@
 
 #ifdef QT_COMPOSITOR_QUICK
 #include "qwaylandsurfaceitem.h"
+#include <QtQml/QQmlPropertyMap>
 #endif
 
 QT_BEGIN_NAMESPACE
@@ -67,6 +71,7 @@ public:
         : surface(srfc)
 #ifdef QT_COMPOSITOR_QUICK
         , surface_item(0)
+        , windowPropertyMap(new QQmlPropertyMap)
 #endif
     {}
 
@@ -75,18 +80,28 @@ public:
 #ifdef QT_COMPOSITOR_QUICK
         if (surface_item)
             surface_item->setSurface(0);
+        if (windowPropertyMap)
+            windowPropertyMap->deleteLater();
 #endif
     }
 
     QtWayland::Surface *surface;
 #ifdef QT_COMPOSITOR_QUICK
     QWaylandSurfaceItem *surface_item;
+    QQmlPropertyMap *windowPropertyMap;
 #endif
 };
 
 QWaylandSurface::QWaylandSurface(QtWayland::Surface *surface)
     : QObject(*new QWaylandSurfacePrivate(surface))
 {
+#ifdef QT_COMPOSITOR_QUICK
+    Q_D(QWaylandSurface);
+    connect(this, &QWaylandSurface::windowPropertyChanged,
+            d->windowPropertyMap, &QQmlPropertyMap::insert);
+    connect(d->windowPropertyMap, &QQmlPropertyMap::valueChanged,
+            this, &QWaylandSurface::setWindowProperty);
+#endif
 }
 
 WaylandClient *QWaylandSurface::client() const
@@ -178,6 +193,13 @@ QWaylandSurface::WindowFlags QWaylandSurface::windowFlags() const
     return d->surface->extendedSurface()->windowFlags();
 }
 
+QWaylandSurface::WindowType QWaylandSurface::windowType() const
+{
+    Q_D(const QWaylandSurface);
+    if (d->surface->shellSurface())
+        return d->surface->shellSurface()->windowType();
+    return QWaylandSurface::None;
+}
 
 QImage QWaylandSurface::image() const
 {
@@ -186,13 +208,13 @@ QImage QWaylandSurface::image() const
 }
 
 #ifdef QT_COMPOSITOR_WAYLAND_GL
-GLuint QWaylandSurface::texture(QOpenGLContext *context) const
+GLuint QWaylandSurface::texture() const
 {
     Q_D(const QWaylandSurface);
-    return d->surface->textureId(context);
+    return d->surface->textureId();
 }
 #else //QT_COMPOSITOR_WAYLAND_GL
-uint QWaylandSurface::texture(QOpenGLContext *) const
+uint QWaylandSurface::texture() const
 {
     return 0;
 }
@@ -216,6 +238,13 @@ void QWaylandSurface::setSurfaceItem(QWaylandSurfaceItem *surfaceItem)
     Q_D(QWaylandSurface);
     d->surface_item = surfaceItem;
 }
+
+QObject *QWaylandSurface::windowPropertyMap() const
+{
+    Q_D(const QWaylandSurface);
+    return d->windowPropertyMap;
+}
+
 #endif //QT_COMPOSITOR_QUICK
 
 qint64 QWaylandSurface::processId() const
@@ -326,6 +355,13 @@ bool QWaylandSurface::hasShellSurface() const
     return false;
 }
 
+bool QWaylandSurface::hasInputPanelSurface() const
+{
+    Q_D(const QWaylandSurface);
+
+    return d->surface->inputPanelSurface() != 0;
+}
+
 /*!
  * \return True if WL_SHELL_SURFACE_TRANSIENT_INACTIVE was set for this surface, meaning it should not receive keyboard focus.
  */
@@ -350,6 +386,31 @@ void QWaylandSurface::destroySurfaceByForce()
     Q_D(QWaylandSurface);
    wl_resource *surface_resource = d->surface->resource()->handle;
    wl_resource_destroy(surface_resource);
+}
+
+void QWaylandSurface::ping()
+{
+    Q_D(QWaylandSurface);
+    if (d->surface->shellSurface())
+        d->surface->shellSurface()->ping();
+}
+
+/*!
+    Updates the surface with the compositor's retained clipboard selection. While this
+    is done automatically when the surface receives keyboard focus, this function is
+    useful for updating clients which do not have keyboard focus.
+*/
+void QWaylandSurface::updateSelection()
+{
+    Q_D(QWaylandSurface);
+    const QtWayland::InputDevice *inputDevice = d->surface->compositor()->defaultInputDevice();
+    if (inputDevice) {
+        const QtWayland::DataDevice *dataDevice = inputDevice->dataDevice();
+        if (dataDevice) {
+            d->surface->compositor()->dataDeviceManager()->offerRetainedSelection(
+                        dataDevice->resourceMap().value(d->surface->resource()->client())->handle);
+        }
+    }
 }
 
 QT_END_NAMESPACE

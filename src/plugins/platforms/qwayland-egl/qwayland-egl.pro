@@ -1,24 +1,12 @@
 PLUGIN_TYPE = platforms
 load(qt_plugin)
 
-include(../wayland_common/wayland_common.pri)
+QT += waylandclient-private
+
+include(../../../hardwareintegration/client/wayland-egl/wayland-egl.pri)
 
 OTHER_FILES += \
     qwayland-egl.json
 
-!contains(QT_CONFIG, no-pkg-config) {
-    CONFIG += link_pkgconfig
-    PKGCONFIG += wayland-egl egl
-} else {
-    LIBS += -lwayland-egl -lEGL
-}
+SOURCES += main.cpp
 
-SOURCES += qwaylandeglintegration.cpp \
-           qwaylandglcontext.cpp \
-           qwaylandeglwindow.cpp \
-           main.cpp
-
-HEADERS += qwaylandeglintegration.h \
-           qwaylandglcontext.h \
-           qwaylandeglwindow.h \
-           qwaylandeglinclude.h

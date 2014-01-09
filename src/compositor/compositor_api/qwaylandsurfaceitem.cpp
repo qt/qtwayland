@@ -126,7 +126,6 @@ void QWaylandSurfaceItem::init(QWaylandSurface *surface)
 
     m_surface = surface;
     m_surface->setSurfaceItem(this);
-    m_surface->sendOnScreenVisibilityChange(m_clientRenderingEnabled);
 
     if (m_resizeSurfaceToItem) {
         updateSurfaceSize();
@@ -134,6 +133,8 @@ void QWaylandSurfaceItem::init(QWaylandSurface *surface)
         setWidth(surface->size().width());
         setHeight(surface->size().height());
     }
+
+    updatePosition();
 
     setSmooth(true);
     setFlag(ItemHasContents);
@@ -287,6 +288,9 @@ void QWaylandSurfaceItem::surfaceUnmapped()
 
 void QWaylandSurfaceItem::surfaceDestroyed(QObject *)
 {
+    if (m_surface)
+        m_surface->setSurfaceItem(0);
+
     m_surface = 0;
 }
 
@@ -361,12 +365,11 @@ void QWaylandSurfaceItem::updateTexture()
         m_damaged = false;
         QSGTexture *oldTexture = texture;
         if (m_surface->type() == QWaylandSurface::Texture) {
-            QOpenGLContext *context = QOpenGLContext::currentContext();
             QQuickWindow::CreateTextureOptions opt = 0;
             if (useTextureAlpha()) {
                 opt |= QQuickWindow::TextureHasAlphaChannel;
             }
-            texture = window()->createTextureFromId(m_surface->texture(context), m_surface->size(), opt);
+            texture = window()->createTextureFromId(m_surface->texture(), m_surface->size(), opt);
         } else {
             texture = window()->createTextureFromImage(m_surface->image());
         }

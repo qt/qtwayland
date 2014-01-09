@@ -40,14 +40,14 @@
 ****************************************************************************/
 
 #include <qpa/qplatformintegrationplugin.h>
-#include "qwaylandintegration.h"
+#include "qwaylandbrcmeglplatformintegration.h"
 
 QT_BEGIN_NAMESPACE
 
 class QWaylandIntegrationPlugin : public QPlatformIntegrationPlugin
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QPA.QPlatformIntegrationFactoryInterface.5.3" FILE "qwayland-brcm-egl.json")
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QPA.QPlatformIntegrationFactoryInterface.5.2" FILE "qwayland-brcm-egl.json")
 public:
     QStringList keys() const;
     QPlatformIntegration *create(const QString&, const QStringList&);
@@ -64,7 +64,7 @@ QPlatformIntegration *QWaylandIntegrationPlugin::create(const QString& system, c
 {
     Q_UNUSED(paramList);
     if (system.toLower() == "wayland-brcm")
-        return new QWaylandIntegration();
+        return new QWaylandBrcmEglPlatformIntegration();
 
     return 0;
 }

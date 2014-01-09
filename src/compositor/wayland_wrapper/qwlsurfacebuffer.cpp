@@ -44,7 +44,7 @@
 #include "qwlcompositor_p.h"
 
 #ifdef QT_COMPOSITOR_WAYLAND_GL
-#include "hardware_integration/qwaylandgraphicshardwareintegration.h"
+#include "hardware_integration/qwaylandclientbufferintegration.h"
 #include <qpa/qplatformopenglcontext.h>
 #endif
 
@@ -110,18 +110,19 @@ void SurfaceBuffer::destructBufferState()
     destroyTexture();
 
     if (m_buffer) {
+        sendRelease();
+
         if (m_handle) {
             if (m_shmBuffer) {
                 delete static_cast<QImage *>(m_handle);
 #ifdef QT_COMPOSITOR_WAYLAND_GL
             } else {
-                QWaylandGraphicsHardwareIntegration *hwIntegration = m_compositor->graphicsHWIntegration();
+                QWaylandClientBufferIntegration *hwIntegration = m_compositor->clientBufferIntegration();
                 hwIntegration->unlockNativeBuffer(m_handle, m_compositor->directRenderContext());
 #endif
             }
         }
         wl_list_remove(&m_destroy_listener.listener.link);
-        sendRelease();
     }
     m_buffer = 0;
     m_handle = 0;
@@ -138,7 +139,7 @@ QSize SurfaceBuffer::size() const
             m_size = QSize(wl_shm_buffer_get_width(m_shmBuffer), wl_shm_buffer_get_height(m_shmBuffer));
 #ifdef QT_COMPOSITOR_WAYLAND_GL
         } else {
-            QWaylandGraphicsHardwareIntegration *hwIntegration = m_compositor->graphicsHWIntegration();
+            QWaylandClientBufferIntegration *hwIntegration = m_compositor->clientBufferIntegration();
             m_size = hwIntegration->bufferSize(m_buffer);
 #endif
         }
@@ -217,12 +218,16 @@ void SurfaceBuffer::destroyTexture()
 {
 #ifdef QT_COMPOSITOR_WAYLAND_GL
     if (m_texture) {
-        Q_ASSERT(m_guard);
         /* When QOpenGLSharedResourceGuard is freed, destroyTexture might be reentered
-            to cause double free. So clear m_texture first. */
+           to cause double free. So clear m_texture first. */
         m_texture = 0;
-        m_guard->free();
-        m_guard = 0;
+        if (m_guard) {
+            m_guard->free();
+            m_guard = 0;
+        } else {
+            QWaylandClientBufferIntegration *hwIntegration = m_compositor->clientBufferIntegration();
+            hwIntegration->destroyTextureForBuffer(m_buffer);
+        }
     }
 #endif
 }
@@ -253,8 +258,8 @@ void *SurfaceBuffer::handle() const
             that->m_handle = image;
 #ifdef QT_COMPOSITOR_WAYLAND_GL
         } else {
-            QWaylandGraphicsHardwareIntegration *hwIntegration = m_compositor->graphicsHWIntegration();
-            that->m_handle = hwIntegration->lockNativeBuffer(m_buffer, m_compositor->directRenderContext());
+            QWaylandClientBufferIntegration *clientBufferIntegration = m_compositor->clientBufferIntegration();
+            that->m_handle = clientBufferIntegration->lockNativeBuffer(m_buffer, m_compositor->directRenderContext());
 #endif
         }
     }
@@ -295,11 +300,18 @@ void freeTexture(QOpenGLFunctions *, GLuint id)
     glDeleteTextures(1, &id);
 }
 
-void SurfaceBuffer::createTexture(QWaylandGraphicsHardwareIntegration *hwIntegration, QOpenGLContext *context)
+void SurfaceBuffer::createTexture()
 {
+    QWaylandClientBufferIntegration *hwIntegration = m_compositor->clientBufferIntegration();
 #ifdef QT_COMPOSITOR_WAYLAND_GL
-    m_texture = hwIntegration->createTextureFromBuffer(m_buffer, context);
-    m_guard = new QOpenGLSharedResourceGuard(QOpenGLContext::currentContext(), m_texture, freeTexture);
+    if (!m_texture)
+        m_texture = hwIntegration->textureForBuffer(m_buffer);
+    if (!m_texture) {
+        glGenTextures(1, &m_texture);
+        m_guard = new QOpenGLSharedResourceGuard(QOpenGLContext::currentContext(), m_texture, freeTexture);
+    }
+    glBindTexture(GL_TEXTURE_2D, m_texture);
+    hwIntegration->bindTextureToBuffer(m_buffer);
 #else
     Q_UNUSED(hwIntegration);
     Q_UNUSED(context);

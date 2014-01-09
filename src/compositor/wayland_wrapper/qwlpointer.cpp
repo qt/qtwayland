@@ -86,6 +86,9 @@ Pointer::Pointer(Compositor *compositor, InputDevice *seat)
     , m_compositor(compositor)
     , m_seat(seat)
     , m_grab(this)
+    , m_grabButton()
+    , m_grabTime()
+    , m_grabSerial()
     , m_position(100, 100)
     , m_focus()
     , m_focusResource()
@@ -146,6 +149,26 @@ bool Pointer::buttonPressed() const
     return m_buttonCount > 0;
 }
 
+PointerGrabber *Pointer::currentGrab() const
+{
+    return m_grab;
+}
+
+Qt::MouseButton Pointer::grabButton() const
+{
+    return m_grabButton;
+}
+
+uint32_t Pointer::grabTime() const
+{
+    return m_grabTime;
+}
+
+uint32_t Pointer::grabSerial() const
+{
+    return m_grabSerial;
+}
+
 Surface *Pointer::focusSurface() const
 {
     return m_focus;
@@ -159,6 +182,16 @@ Surface *Pointer::current() const
 QPointF Pointer::position() const
 {
     return m_position;
+}
+
+QPointF Pointer::currentPosition() const
+{
+    return m_currentPoint;
+}
+
+QtWaylandServer::wl_pointer::Resource *Pointer::focusResource() const
+{
+    return m_focusResource;
 }
 
 void Pointer::pointer_destroy_resource(wl_pointer::Resource *resource)
@@ -177,20 +210,36 @@ void Pointer::setMouseFocus(Surface *surface, const QPointF &localPos, const QPo
     m_grab->focus();
 }
 
+void Pointer::sendButton(uint32_t time, Qt::MouseButton button, uint32_t state)
+{
+    uint32_t serial = wl_display_next_serial(m_compositor->wl_display());
+    send_button(m_focusResource->handle, serial, time, toWaylandButton(button), state);
+}
+
 void Pointer::sendMousePressEvent(Qt::MouseButton button, const QPointF &localPos, const QPointF &globalPos)
 {
     sendMouseMoveEvent(localPos, globalPos);
-    m_buttonCount++;
     uint32_t time = m_compositor->currentTimeMsecs();
+    if (m_buttonCount == 0) {
+        m_grabButton = button;
+        m_grabTime = time;
+    }
+    m_buttonCount++;
     m_grab->button(time, button, WL_POINTER_BUTTON_STATE_PRESSED);
+
+    if (m_buttonCount == 1)
+        m_grabSerial = wl_display_get_serial(m_compositor->wl_display());
 }
 
 void Pointer::sendMouseReleaseEvent(Qt::MouseButton button, const QPointF &localPos, const QPointF &globalPos)
 {
     sendMouseMoveEvent(localPos, globalPos);
-    m_buttonCount--;
     uint32_t time = m_compositor->currentTimeMsecs();
+    m_buttonCount--;
     m_grab->button(time, button, WL_POINTER_BUTTON_STATE_RELEASED);
+
+    if (m_buttonCount == 1)
+        m_grabSerial = wl_display_get_serial(m_compositor->wl_display());
 }
 
 void Pointer::sendMouseMoveEvent(const QPointF &localPos, const QPointF &globalPos)
@@ -234,8 +283,7 @@ void Pointer::motion(uint32_t time)
 void Pointer::button(uint32_t time, Qt::MouseButton button, uint32_t state)
 {
     if (m_focusResource) {
-        uint32_t serial = wl_display_next_serial(m_compositor->wl_display());
-        send_button(m_focusResource->handle, serial, time, toWaylandButton(button), state);
+        sendButton(time, button, state);
     }
 
     if (!buttonPressed() && state == WL_POINTER_BUTTON_STATE_RELEASED)

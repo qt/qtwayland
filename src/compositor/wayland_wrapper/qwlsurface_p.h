@@ -53,13 +53,12 @@
 #include <QtCore/QMetaType>
 
 #ifdef QT_COMPOSITOR_WAYLAND_GL
-#include <QtGui/QOpenGLContext>
 #include <QtGui/qopengl.h>
 #endif
 
 #include <wayland-util.h>
 
-#include "qwayland-server-wayland.h"
+#include <QtCompositor/private/qwayland-server-wayland.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -70,6 +69,7 @@ namespace QtWayland {
 class Compositor;
 class Buffer;
 class ExtendedSurface;
+class InputPanelSurface;
 class SubSurface;
 class ShellSurface;
 
@@ -101,7 +101,7 @@ public:
     QImage image() const;
 
 #ifdef QT_COMPOSITOR_WAYLAND_GL
-    GLuint textureId(QOpenGLContext *context) const;
+    GLuint textureId() const;
 #endif
 
     void sendFrameCallback();
@@ -120,6 +120,9 @@ public:
 
     void setShellSurface(ShellSurface *shellSurface);
     ShellSurface *shellSurface() const;
+
+    void setInputPanelSurface(InputPanelSurface *inputPanelSurface);
+    InputPanelSurface *inputPanelSurface() const;
 
     Compositor *compositor() const;
 
@@ -154,6 +157,7 @@ private:
     ExtendedSurface *m_extendedSurface;
     SubSurface *m_subSurface;
     ShellSurface *m_shellSurface;
+    InputPanelSurface *m_inputPanelSurface;
 
     QRegion m_inputRegion;
     QRegion m_opaqueRegion;

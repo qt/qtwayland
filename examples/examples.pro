@@ -12,4 +12,6 @@ contains(CONFIG, wayland-compositor) {
     qtHaveModule(quick) {
         SUBDIRS += qml-compositor
     }
+
+    SUBDIRS += server-buffer
 }

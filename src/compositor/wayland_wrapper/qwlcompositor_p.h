@@ -42,7 +42,10 @@
 #define WL_COMPOSITOR_H
 
 #include <QtCompositor/qwaylandexport.h>
+#include <QtCompositor/qwaylandcompositor.h>
 
+
+#include <QtCore/QElapsedTimer>
 #include <QtCore/QSet>
 #include <QtGui/QWindow>
 
@@ -54,7 +57,8 @@ QT_BEGIN_NAMESPACE
 
 class QWaylandCompositor;
 class QWaylandInputDevice;
-class QWaylandGraphicsHardwareIntegration;
+class QWaylandClientBufferIntegration;
+class QWaylandServerBufferIntegration;
 class WindowManagerServerIntegration;
 class QMimeData;
 class QPlatformScreenPageFlipper;
@@ -73,13 +77,16 @@ class SubSurfaceExtensionGlobal;
 class Shell;
 class TouchExtensionGlobal;
 class QtKeyExtensionGlobal;
+class TextInputManager;
+class InputPanel;
+class HardwareIntegration;
 
 class Q_COMPOSITOR_EXPORT Compositor : public QObject
 {
     Q_OBJECT
 
 public:
-    Compositor(QWaylandCompositor *qt_compositor);
+    Compositor(QWaylandCompositor *qt_compositor, QWaylandCompositor::ExtensionFlags extensions);
     ~Compositor();
 
     void frameFinished(Surface *surface = 0);
@@ -92,15 +99,15 @@ public:
 
     void destroyClient(WaylandClient *client);
 
-    static uint currentTimeMsecs();
+    uint currentTimeMsecs() const;
 
     QWindow *window() const;
 
-    QWaylandGraphicsHardwareIntegration *graphicsHWIntegration() const;
+    QWaylandClientBufferIntegration *clientBufferIntegration() const;
+    QWaylandServerBufferIntegration *serverBufferIntegration() const;
     void initializeHardwareIntegration();
     void initializeDefaultInputDevice();
     void initializeWindowManagerProtocol();
-    void enableSubSurfaceExtension();
     bool setDirectRenderSurface(Surface *surface, QOpenGLContext *context);
     Surface *directRenderSurface() const {return m_directRenderSurface;}
     QOpenGLContext *directRenderContext() const {return m_directRenderContext;}
@@ -111,7 +118,11 @@ public:
     QList<Surface*> surfacesForClient(wl_client* client);
     QWaylandCompositor *waylandCompositor() const { return m_qt_compositor; }
 
+    Surface *pickSurface(const QPointF &globalPosition);
+    QPointF mapToSurface(Surface *surface, const QPointF &globalPosition);
+
     struct wl_display *wl_display() const { return m_display->handle(); }
+    Display *display() const { return m_display; }
 
     static Compositor *instance();
 
@@ -130,20 +141,24 @@ public:
 
     void setClientFullScreenHint(bool value);
 
+    QWaylandCompositor::ExtensionFlags extensions() const;
+
     TouchExtensionGlobal *touchExtension() { return m_touchExtension; }
     void configureTouchExtension(int flags);
 
     QtKeyExtensionGlobal *qtkeyExtension() { return m_qtkeyExtension; }
 
+    InputPanel *inputPanel() const;
+
+    DataDeviceManager *dataDeviceManager() const;
+
     bool isDragging() const;
     void sendDragMoveEvent(const QPoint &global, const QPoint &local, Surface *surface);
     void sendDragEndEvent();
 
-    typedef void (*RetainedSelectionFunc)(QMimeData *, void *);
-    void setRetainedSelectionWatcher(RetainedSelectionFunc func, void *param);
-    void overrideSelection(QMimeData *data);
-
-    bool wantsRetainedSelection() const;
+    void setRetainedSelectionEnabled(bool enabled);
+    bool retainedSelectionEnabled() const;
+    void overrideSelection(const QMimeData *data);
     void feedRetainedSelectionData(QMimeData *data);
 
     void scheduleReleaseBuffer(SurfaceBuffer *screenBuffer);
@@ -154,6 +169,11 @@ private slots:
     void processWaylandEvents();
 
 private:
+    void loadClientBufferIntegration();
+    void loadServerBufferIntegration();
+
+    QWaylandCompositor::ExtensionFlags m_extensions;
+
     Display *m_display;
 
     /* Input */
@@ -168,6 +188,7 @@ private:
 
     DataDeviceManager *m_data_device_manager;
 
+    QElapsedTimer m_timer;
     QList<Surface *> m_surfaces;
     QSet<Surface *> m_dirty_surfaces;
 
@@ -185,7 +206,9 @@ private:
     bool m_directRenderActive;
 
 #ifdef QT_COMPOSITOR_WAYLAND_GL
-    QWaylandGraphicsHardwareIntegration *m_graphics_hw_integration;
+    QScopedPointer<HardwareIntegration> m_hw_integration;
+    QScopedPointer<QWaylandClientBufferIntegration> m_client_buffer_integration;
+    QScopedPointer<QWaylandServerBufferIntegration> m_server_buffer_integration;
 #endif
 
     //extensions
@@ -197,12 +220,13 @@ private:
     SubSurfaceExtensionGlobal *m_subSurfaceExtension;
     TouchExtensionGlobal *m_touchExtension;
     QtKeyExtensionGlobal *m_qtkeyExtension;
+    QScopedPointer<TextInputManager> m_textInputManager;
+    QScopedPointer<InputPanel> m_inputPanel;
 
     static void bind_func(struct wl_client *client, void *data,
                           uint32_t version, uint32_t id);
 
-    RetainedSelectionFunc m_retainNotify;
-    void *m_retainNotifyParam;
+    bool m_retainSelection;
 };
 
 }

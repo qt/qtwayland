@@ -100,6 +100,7 @@ void Keyboard::setFocus(Surface *surface)
 
     m_focusResource = resource;
     m_focus = surface;
+    Q_EMIT focusChanged(m_focus);
 }
 
 void Keyboard::sendKeyModifiers(wl_keyboard::Resource *resource, uint32_t serial)
@@ -120,6 +121,11 @@ void Keyboard::sendKeyReleaseEvent(uint code)
 Surface *Keyboard::focus() const
 {
     return m_focus;
+}
+
+QtWaylandServer::wl_keyboard::Resource *Keyboard::focusResource() const
+{
+    return m_focusResource;
 }
 
 void Keyboard::keyboard_bind_resource(wl_keyboard::Resource *resource)

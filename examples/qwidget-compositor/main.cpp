@@ -69,7 +69,7 @@ class QWidgetCompositor : public QWidget, public WaylandCompositor
     Q_OBJECT
 public:
     QWidgetCompositor()
-        : QWaylandCompositor(windowHandle())
+        : QWaylandCompositor(windowHandle(), 0, DefaultExtensions | SubSurfaceExtension)
 #ifdef QT_COMPOSITOR_WAYLAND_GL
         , m_surfaceCompositorFbo(0)
         , m_textureBlitter(0)
@@ -79,7 +79,6 @@ public:
         , m_dragSourceSurface(0)
         , m_cursorSurface(0)
     {
-        enableSubSurfaceExtension();
         setMouseTracking(true);
         setRetainedSelectionEnabled(true);
         m_background = QImage(QLatin1String(":/background.jpg"));
@@ -148,7 +147,7 @@ protected:
         if (surface->type() == QWaylandSurface::Shm) {
             texture = m_textureCache->bindTexture(context()->contextHandle(), surface->image());
         } else {
-            texture = surface->texture(QOpenGLContext::currentContext());
+            texture = surface->texture();
         }
 
         functions->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
@@ -174,7 +173,7 @@ protected:
             if (size.isValid()) {
                 GLuint texture = 0;
                 if (subSurface->type() == QWaylandSurface::Texture) {
-                    texture = subSurface->texture(QOpenGLContext::currentContext());
+                    texture = subSurface->texture();
                 } else if (surface->type() == QWaylandSurface::Shm ) {
                     texture = m_textureCache->bindTexture(context()->contextHandle(), surface->image());
                 }

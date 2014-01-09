@@ -41,78 +41,55 @@
 #include "qwldataoffer_p.h"
 
 #include "qwldatadevice_p.h"
+#include "qwldatasource_p.h"
 
-#include <wayland-server.h>
-
-#include <sys/time.h>
 #include <unistd.h>
-
-#include <QtCore/QDebug>
 
 QT_BEGIN_NAMESPACE
 
 namespace QtWayland
 {
 
-DataOffer::DataOffer(DataSource *data_source)
-    : m_data_source(data_source)
+DataOffer::DataOffer(DataSource *dataSource, QtWaylandServer::wl_data_device::Resource *target)
+    : QtWaylandServer::wl_data_offer(dataSource->resource()->client(), 0)
+    , m_dataSource(dataSource)
 {
-
+    // FIXME: connect to dataSource and reset m_dataSource on destroy
+    target->data_device->send_data_offer(target->handle, resource()->handle);
+    Q_FOREACH (const QString &mimeType, dataSource->mimeTypes()) {
+        send_offer(mimeType);
+    }
 }
 
 DataOffer::~DataOffer()
 {
 }
 
-struct wl_resource *DataOffer::addDataDeviceResource(struct wl_resource *data_device_resource)
+void DataOffer::data_offer_accept(Resource *resource, uint32_t serial, const QString &mimeType)
 {
-    if (resourceForClient(data_device_resource->client)) {
-        qDebug() << "This should not happen, the client tries to add twice to a data offer";
-        return 0;
-    }
-    struct wl_resource *new_object =
-             wl_client_new_object(data_device_resource->client,&wl_data_offer_interface,&data_interface,this);
-    wl_data_device_send_data_offer(data_device_resource, new_object);
-
-    registerResource(new_object);
-    QList<QByteArray> offer_list = m_data_source->offerList();
-    for (int i = 0; i < offer_list.size(); i++) {
-        wl_data_offer_send_offer(new_object, offer_list.at(i).constData());
-    }
-    return new_object;
-}
-
-const struct wl_data_offer_interface DataOffer::data_interface = {
-    DataOffer::accept,
-    DataOffer::receive,
-    DataOffer::destroy
-};
-
-void DataOffer::accept(wl_client *client, wl_resource *resource, uint32_t time, const char *type)
-{
-    Q_UNUSED(client);
     Q_UNUSED(resource);
-    Q_UNUSED(time);
-    Q_UNUSED(type);
+    Q_UNUSED(serial);
+    if (m_dataSource)
+        m_dataSource->accept(mimeType);
 }
 
-void DataOffer::receive(wl_client *client, wl_resource *resource, const char *mime_type, int32_t fd)
+void DataOffer::data_offer_receive(Resource *resource, const QString &mimeType, int32_t fd)
 {
-    Q_UNUSED(client);
-
-    DataOffer *offer = static_cast<DataOffer *>(resource->data);
-    offer->m_data_source->postSendEvent(mime_type,fd);
-    close(fd);
+    Q_UNUSED(resource);
+    if (m_dataSource)
+        m_dataSource->send(mimeType, fd);
+    else
+        close(fd);
 }
 
-void DataOffer::destroy(wl_client *client, wl_resource *resource)
+void DataOffer::data_offer_destroy(Resource *resource)
 {
-    Q_UNUSED(client);
-    DataOffer *data_offer = static_cast<DataOffer *>(resource->data);
+    wl_resource_destroy(resource->handle);
+}
 
-    if (data_offer->resourceListIsEmpty()) {
-        delete data_offer;
-    }
+void DataOffer::data_offer_destroy_resource(Resource *)
+{
+    delete this;
 }
 
 }

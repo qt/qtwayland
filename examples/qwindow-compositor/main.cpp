@@ -58,6 +58,7 @@ int main(int argc, char *argv[])
 
     QSurfaceFormat format;
     format.setDepthBufferSize(16);
+    format.setStencilBufferSize(8);
 
     QRect geom = screenGeometry;
     if (QCoreApplication::arguments().contains(QLatin1String("-nofullscreen")))

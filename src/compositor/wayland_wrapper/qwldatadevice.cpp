@@ -40,11 +40,17 @@
 
 #include "qwldatadevice_p.h"
 
+#include "qwlcompositor_p.h"
 #include "qwldatasource_p.h"
 #include "qwldataoffer_p.h"
+#include "qwlinputdevice_p.h"
+#include "qwlkeyboard_p.h"
+#include "qwlpointer_p.h"
+#include "qwlsurface_p.h"
+#include "qwltouch_p.h"
 #include "qwldatadevicemanager_p.h"
 
-#include <stdlib.h>
+#include "qwaylanddrag.h"
 
 #include <QDebug>
 
@@ -52,78 +58,164 @@ QT_BEGIN_NAMESPACE
 
 namespace QtWayland {
 
-void DataDevice::start_drag(struct wl_client *client,
-                   struct wl_resource *resource,
-                   struct wl_resource *source,
-                   struct wl_resource *surface,
-                   struct wl_resource *icon,
-                   uint32_t time)
+DataDevice::DataDevice(InputDevice *inputDevice)
+    : wl_data_device()
+    , m_compositor(inputDevice->compositor())
+    , m_inputDevice(inputDevice)
+    , m_selectionSource(0)
+    , m_dragClient(0)
+    , m_dragDataSource(0)
+    , m_dragFocus(0)
+    , m_dragFocusResource(0)
+    , m_dragIcon(0)
 {
-    Q_UNUSED(client);
-    Q_UNUSED(surface);
-    Q_UNUSED(icon);
-    Q_UNUSED(time);
-    DataDevice *data_device = static_cast<DataDevice *>(resource->data);
-    DataSource *data_source = static_cast<DataSource *>(source->data);
-    Q_UNUSED(data_device);
-    Q_UNUSED(data_source);
 }
 
-void DataDevice::set_selection(struct wl_client *client,
-                      struct wl_resource *data_device_resource,
-                      struct wl_resource *source,
-                      uint32_t time)
+void DataDevice::setFocus(QtWaylandServer::wl_keyboard::Resource *focusResource)
 {
-    Q_UNUSED(client);
-    Q_UNUSED(time);
-    DataDevice *data_device = static_cast<DataDevice *>(data_device_resource->data);
-    DataSource *data_source = static_cast<DataSource *>(source->data);
-
-    data_device->m_data_device_manager->setCurrentSelectionSource(data_source);
-
-}
-
-const struct wl_data_device_interface DataDevice::data_device_interface = {
-    DataDevice::start_drag,
-    DataDevice::set_selection
-};
-
-DataDevice::DataDevice(DataDeviceManager *data_device_manager, struct wl_client *client, uint32_t id)
-    : m_data_device_manager(data_device_manager)
-    , m_sent_selection_time(0)
-{
-
-    //static int i = 0;
-    //qDebug() << "data device" << ++i;
-    m_data_device_resource =
-            wl_client_add_object(client,&wl_data_device_interface,&data_device_interface,id, this);
-}
-
-void DataDevice::sendSelectionFocus()
-{
-    if (m_data_device_manager->offerFromCompositorToClient(m_data_device_resource))
+    if (!focusResource)
         return;
 
-    DataSource *source = m_data_device_manager->currentSelectionSource();
-    if (!source || !source->client()) {
-        m_data_device_manager->offerRetainedSelection(m_data_device_resource);
+    Resource *resource = resourceMap().value(focusResource->client());
+
+    if (!resource)
         return;
+
+    if (m_selectionSource) {
+        DataOffer *offer = new DataOffer(m_selectionSource, resource);
+        send_selection(resource->handle, offer->resource()->handle);
     }
-    if (source->time() > m_sent_selection_time) { //this makes sure we don't resend
-        if (source->client() != m_data_device_resource->client) { //don't send selection to the client that owns the selection
-            DataOffer *data_offer = source->dataOffer();
-            wl_resource *client_resource =
-                    data_offer->addDataDeviceResource(m_data_device_resource);
-            //qDebug() << "sending data_offer for source" << source;
-            wl_data_device_send_selection(m_data_device_resource,client_resource);
-            m_sent_selection_time = source->time();
+}
+
+void DataDevice::setDragFocus(Surface *focus, const QPointF &localPosition)
+{
+    if (m_dragFocusResource) {
+        send_leave(m_dragFocusResource->handle);
+        m_dragFocus = 0;
+        m_dragFocusResource = 0;
+    }
+
+    if (!focus)
+        return;
+
+    if (!m_dragDataSource && m_dragClient != focus->resource()->client())
+        return;
+
+    Resource *resource = resourceMap().value(focus->resource()->client());
+
+    if (!resource)
+        return;
+
+    uint32_t serial = wl_display_next_serial(m_compositor->wl_display());
+
+    DataOffer *offer = m_dragDataSource ? new DataOffer(m_dragDataSource, resource) : 0;
+
+    if (m_dragDataSource && !offer)
+        return;
+
+    send_enter(resource->handle, serial, focus->resource()->handle,
+               wl_fixed_from_double(localPosition.x()), wl_fixed_from_double(localPosition.y()),
+               offer->resource()->handle);
+
+    m_dragFocus = focus;
+    m_dragFocusResource = resource;
+}
+
+Surface *DataDevice::dragIcon() const
+{
+    return m_dragIcon;
+}
+
+void DataDevice::sourceDestroyed(DataSource *source)
+{
+    if (m_selectionSource == source)
+        m_selectionSource = 0;
+}
+
+void DataDevice::focus()
+{
+    Surface *focus = m_compositor->pickSurface(m_pointer->currentPosition());
+
+    if (focus != m_dragFocus)
+        setDragFocus(focus, m_compositor->mapToSurface(focus, m_pointer->currentPosition()));
+}
+
+void DataDevice::motion(uint32_t time)
+{
+    if (m_dragIcon) {
+        m_dragIcon->setPos(m_pointer->currentPosition());
+    }
+
+    if (m_dragFocusResource && m_dragFocus) {
+        const QPointF &surfacePoint = m_compositor->mapToSurface(m_dragFocus, m_pointer->currentPosition());
+        qDebug() << Q_FUNC_INFO << m_pointer->currentPosition() << surfacePoint;
+        send_motion(m_dragFocusResource->handle, time,
+                    wl_fixed_from_double(surfacePoint.x()), wl_fixed_from_double(surfacePoint.y()));
+    }
+}
+
+void DataDevice::button(uint32_t time, Qt::MouseButton button, uint32_t state)
+{
+    Q_UNUSED(time);
+
+    if (m_dragFocusResource &&
+        m_pointer->grabButton() == button &&
+        state == Pointer::button_state_released)
+        send_drop(m_dragFocusResource->handle);
+
+    if (!m_pointer->buttonPressed() &&
+        state == Pointer::button_state_released) {
+
+        if (m_dragIcon) {
+            m_dragIcon = 0;
+            Q_EMIT m_inputDevice->dragHandle()->iconChanged();
         }
+
+        setDragFocus(0, QPointF());
+        m_pointer->endGrab();
     }
 }
 
-struct wl_resource *DataDevice::dataDeviceResource() const
+void DataDevice::data_device_start_drag(Resource *resource, struct ::wl_resource *source, struct ::wl_resource *origin, struct ::wl_resource *icon, uint32_t serial)
 {
-    return m_data_device_resource;
+    if (m_inputDevice->pointerDevice()->grabSerial() == serial) {
+        if (!m_inputDevice->pointerDevice()->buttonPressed() ||
+             m_inputDevice->pointerDevice()->focusSurface() != Surface::fromResource(origin))
+            return;
+
+        m_dragClient = resource->client();
+        m_dragDataSource = source != 0 ? DataSource::fromResource(source) : 0;
+        m_dragIcon = icon != 0 ? Surface::fromResource(icon) : 0;
+        Q_EMIT m_inputDevice->dragHandle()->iconChanged();
+
+        m_inputDevice->pointerDevice()->setFocus(0, QPointF());
+        m_inputDevice->pointerDevice()->startGrab(this);
+    }
+}
+
+void DataDevice::data_device_set_selection(Resource *, struct ::wl_resource *source, uint32_t serial)
+{
+    Q_UNUSED(serial);
+
+    DataSource *dataSource = source ? DataSource::fromResource(source) : 0;
+
+    if (m_selectionSource)
+        m_selectionSource->cancel();
+
+    m_selectionSource = dataSource;
+    m_compositor->dataDeviceManager()->setCurrentSelectionSource(m_selectionSource);
+    if (m_selectionSource)
+        m_selectionSource->setDevice(this);
+
+    QtWaylandServer::wl_keyboard::Resource *focusResource = m_inputDevice->keyboardDevice()->focusResource();
+    Resource *resource = focusResource ? resourceMap().value(focusResource->client()) : 0;
+
+    if (resource && m_selectionSource) {
+        DataOffer *offer = new DataOffer(m_selectionSource, resource);
+        send_selection(resource->handle, offer->resource()->handle);
+    } else if (resource) {
+        send_selection(resource->handle, 0);
+    }
 }
 
 }

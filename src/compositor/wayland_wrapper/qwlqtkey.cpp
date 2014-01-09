@@ -63,6 +63,7 @@ bool QtKeyExtensionGlobal::postQtKeyEvent(QKeyEvent *event, Surface *surface)
 
     if (target) {
         send_qtkey(target->handle,
+                   surface ? surface->resource()->handle : 0,
                    time, event->type(), event->key(), event->modifiers(),
                    event->nativeScanCode(),
                    event->nativeVirtualKey(),

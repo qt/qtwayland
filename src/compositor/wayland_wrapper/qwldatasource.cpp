@@ -40,39 +40,31 @@
 
 #include "qwldatasource_p.h"
 #include "qwldataoffer_p.h"
+#include "qwldatadevice_p.h"
 #include "qwldatadevicemanager_p.h"
 #include "qwlcompositor_p.h"
 
-#include <wayland-wayland-server-protocol.h>
-
-#include <QtCore/QDebug>
+#include <unistd.h>
+#include <QtCompositor/private/wayland-wayland-server-protocol.h>
 
 QT_BEGIN_NAMESPACE
 
 namespace QtWayland {
 
 DataSource::DataSource(struct wl_client *client, uint32_t id, uint32_t time)
-    : m_time(time)
+    : QtWaylandServer::wl_data_source(client, id)
+    , m_time(time)
+    , m_device(0)
+    , m_manager(0)
 {
-    m_data_source_resource = wl_client_add_object(client, &wl_data_source_interface, &DataSource::data_source_interface,id,this);
-    m_data_source_resource->destroy = resource_destroy;
-    m_data_offer = new DataOffer(this);
-    m_manager = 0;
 }
 
 DataSource::~DataSource()
 {
     if (m_manager)
         m_manager->sourceDestroyed(this);
-    wl_resource_destroy(m_data_source_resource);
-}
-
-void DataSource::resource_destroy(wl_resource *resource)
-{
-    DataSource *source = static_cast<DataSource *>(resource->data);
-    if (source && source->m_data_source_resource == resource)
-        source->m_data_source_resource = 0;
-    free(resource);
+    if (m_device)
+        m_device->sourceDestroyed(this);
 }
 
 uint32_t DataSource::time() const
@@ -80,55 +72,56 @@ uint32_t DataSource::time() const
     return m_time;
 }
 
-QList<QByteArray> DataSource::offerList() const
+QList<QString> DataSource::mimeTypes() const
 {
-    return m_offers;
+    return m_mimeTypes;
 }
 
-struct wl_data_source_interface DataSource::data_source_interface = {
-    DataSource::offer,
-    DataSource::destroy
-};
-
-void DataSource::offer(struct wl_client *client,
-              struct wl_resource *resource,
-              const char *type)
+void DataSource::accept(const QString &mimeType)
 {
-    Q_UNUSED(client);
-    //qDebug() << "received offer" << type;
-    static_cast<DataSource *>(resource->data)->m_offers.append(type);
+    send_target(mimeType);
 }
 
-void DataSource::destroy(struct wl_client *client,
-                struct wl_resource *resource)
+void DataSource::send(const QString &mimeType, int fd)
 {
-    Q_UNUSED(client);
-    DataSource *self = static_cast<DataSource *>(resource->data);
-    delete self;
+    send_send(mimeType, fd);
+    close(fd);
 }
 
-DataOffer * DataSource::dataOffer() const
+void DataSource::cancel()
 {
-    return m_data_offer;
-}
-
-void DataSource::postSendEvent(const QByteArray &mimeType, int fd)
-{
-    if (m_data_source_resource) {
-        wl_data_source_send_send(m_data_source_resource, mimeType.constData(), fd);
-    }
-}
-
-struct wl_client *DataSource::client() const
-{
-    if (m_data_source_resource)
-        return m_data_source_resource->client;
-    return 0;
+    send_cancelled();
 }
 
 void DataSource::setManager(DataDeviceManager *mgr)
 {
     m_manager = mgr;
+}
+
+void DataSource::setDevice(DataDevice *device)
+{
+    m_device = device;
+}
+
+DataSource *DataSource::fromResource(struct ::wl_resource *resource)
+{
+    return static_cast<DataSource *>(Resource::fromResource(resource)->data_source);
+}
+
+void DataSource::data_source_offer(Resource *, const QString &mime_type)
+{
+    m_mimeTypes.append(mime_type);
+}
+
+void DataSource::data_source_destroy(Resource *resource)
+{
+    wl_resource_destroy(resource->handle);
+}
+
+void DataSource::data_source_destroy_resource(QtWaylandServer::wl_data_source::Resource *resource)
+{
+    Q_UNUSED(resource);
+    delete this;
 }
 
 }

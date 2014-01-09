@@ -54,7 +54,7 @@
 #include <QtCompositor/qwaylandinput.h>
 
 QWindowCompositor::QWindowCompositor(QOpenGLWindow *window)
-    : QWaylandCompositor(window)
+    : QWaylandCompositor(window, 0, DefaultExtensions | SubSurfaceExtension)
     , m_window(window)
     , m_textureBlitter(0)
     , m_renderScheduler(this)
@@ -65,7 +65,6 @@ QWindowCompositor::QWindowCompositor(QOpenGLWindow *window)
     , m_cursorHotspotY(0)
     , m_modifiers(Qt::NoModifier)
 {
-    enableSubSurfaceExtension();
     m_window->makeCurrent();
 
     m_textureCache = new QOpenGLTextureCache(m_window->context());
@@ -248,7 +247,7 @@ GLuint QWindowCompositor::composeSurface(QWaylandSurface *surface)
     if (surface->type() == QWaylandSurface::Shm) {
         texture = m_textureCache->bindTexture(QOpenGLContext::currentContext(),surface->image());
     } else if (surface->type() == QWaylandSurface::Texture) {
-        texture = surface->texture(QOpenGLContext::currentContext());
+        texture = surface->texture();
     }
 
     functions->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
@@ -273,7 +272,7 @@ void QWindowCompositor::paintChildren(QWaylandSurface *surface, QWaylandSurface 
         if (subSurface->size().isValid()) {
             GLuint texture = 0;
             if (subSurface->type() == QWaylandSurface::Texture) {
-                texture = subSurface->texture(QOpenGLContext::currentContext());
+                texture = subSurface->texture();
             } else if (surface->type() == QWaylandSurface::Shm ) {
                 texture = m_textureCache->bindTexture(QOpenGLContext::currentContext(),surface->image());
             }

@@ -48,7 +48,6 @@
 #include <QtGui/QWindow>
 #include <QtCore/QVariantMap>
 
-#include <QtGui/QOpenGLContext>
 #ifdef QT_COMPOSITOR_WAYLAND_GL
 #include <QtGui/qopengl.h>
 #endif
@@ -76,21 +75,33 @@ class Q_COMPOSITOR_EXPORT QWaylandSurface : public QObject
     Q_PROPERTY(QSize size READ size NOTIFY sizeChanged)
     Q_PROPERTY(QPointF pos READ pos WRITE setPos NOTIFY posChanged)
     Q_PROPERTY(QWaylandSurface::WindowFlags windowFlags READ windowFlags NOTIFY windowFlagsChanged)
+    Q_PROPERTY(QWaylandSurface::WindowType windowType READ windowType NOTIFY windowTypeChanged)
     Q_PROPERTY(Qt::ScreenOrientation contentOrientation READ contentOrientation NOTIFY contentOrientationChanged)
     Q_PROPERTY(QString className READ className NOTIFY classNameChanged)
     Q_PROPERTY(QString title READ title NOTIFY titleChanged)
     Q_PROPERTY(Qt::ScreenOrientations orientationUpdateMask READ orientationUpdateMask NOTIFY orientationUpdateMaskChanged)
     Q_PROPERTY(QWindow::Visibility visibility READ visibility WRITE setVisibility NOTIFY visibilityChanged)
+#ifdef QT_COMPOSITOR_QUICK
+    Q_PROPERTY(QObject * windowProperties READ windowPropertyMap CONSTANT)
+#endif
 
-    Q_ENUMS(WindowFlag)
+    Q_ENUMS(WindowFlag WindowType)
     Q_FLAGS(WindowFlag WindowFlags)
 
 public:
     enum WindowFlag {
         OverridesSystemGestures     = 0x0001,
-        StaysOnTop                  = 0x0002
+        StaysOnTop                  = 0x0002,
+        BypassWindowManager         = 0x0004
     };
     Q_DECLARE_FLAGS(WindowFlags, WindowFlag)
+
+    enum WindowType {
+        None,
+        Toplevel,
+        Transient,
+        Popup
+    };
 
     enum Type {
         Invalid,
@@ -120,11 +131,13 @@ public:
 
     WindowFlags windowFlags() const;
 
+    WindowType windowType() const;
+
     QImage image() const;
 #ifdef QT_COMPOSITOR_WAYLAND_GL
-    GLuint texture(QOpenGLContext *context) const;
+    GLuint texture() const;
 #else
-    uint texture(QOpenGLContext *context) const;
+    uint texture() const;
 #endif
 
     QWindow::Visibility visibility() const;
@@ -140,6 +153,8 @@ public:
 #ifdef QT_COMPOSITOR_QUICK
     QWaylandSurfaceItem *surfaceItem() const;
     void setSurfaceItem(QWaylandSurfaceItem *surfaceItem);
+
+    QObject *windowPropertyMap() const;
 #endif
 
     qint64 processId() const;
@@ -157,11 +172,17 @@ public:
     QString title() const;
 
     bool hasShellSurface() const;
+    bool hasInputPanelSurface() const;
 
     bool transientInactive() const;
 
     Q_INVOKABLE void destroySurface();
     Q_INVOKABLE void destroySurfaceByForce();
+    Q_INVOKABLE void ping();
+
+public slots:
+    void updateSelection();
+
 signals:
     void mapped();
     void unmapped();
@@ -171,6 +192,7 @@ signals:
     void posChanged();
     void windowPropertyChanged(const QString &name, const QVariant &value);
     void windowFlagsChanged(WindowFlags flags);
+    void windowTypeChanged(WindowType type);
     void contentOrientationChanged();
     void orientationUpdateMaskChanged();
     void extendedSurfaceReady();
@@ -179,6 +201,7 @@ signals:
     void raiseRequested();
     void lowerRequested();
     void visibilityChanged();
+    void pong();
 };
 
 QT_END_NAMESPACE

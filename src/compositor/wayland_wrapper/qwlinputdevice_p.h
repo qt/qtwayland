@@ -43,6 +43,8 @@
 
 #include <stdint.h>
 
+#include <QtCompositor/qwaylandexport.h>
+
 #include <QtCore/QList>
 #include <QtCore/QPoint>
 #include <QtCore/QScopedPointer>
@@ -51,13 +53,14 @@
 #include <xkbcommon/xkbcommon.h>
 #endif
 
-#include <qwayland-server-wayland.h>
+#include <QtCompositor/private/qwayland-server-wayland.h>
 
 QT_BEGIN_NAMESPACE
 
 class QKeyEvent;
 class QTouchEvent;
 class QWaylandInputDevice;
+class QWaylandDrag;
 
 namespace QtWayland {
 
@@ -68,8 +71,9 @@ class DataDeviceManager;
 class Pointer;
 class Keyboard;
 class Touch;
+class InputMethod;
 
-class InputDevice : public QtWaylandServer::wl_seat, public QtWaylandServer::wl_touch
+class Q_COMPOSITOR_EXPORT InputDevice : public QtWaylandServer::wl_seat
 {
 public:
     InputDevice(QWaylandInputDevice *handle, Compositor *compositor);
@@ -86,6 +90,8 @@ public:
     void sendTouchCancelEvent();
 
     void sendFullKeyEvent(QKeyEvent *event);
+    void sendFullKeyEvent(Surface *surface, QKeyEvent *event);
+
     void sendFullTouchEvent(QTouchEvent *event);
 
     Surface *keyboardFocus() const;
@@ -95,15 +101,16 @@ public:
     void setMouseFocus(Surface *surface, const QPointF &localPos, const QPointF &globalPos);
 
     void clientRequestedDataDevice(DataDeviceManager *dndSelection, struct wl_client *client, uint32_t id);
-    DataDevice *dataDevice(struct wl_client *client) const;
-    void sendSelectionFocus(Surface *surface);
+    const DataDevice *dataDevice() const;
 
     Compositor *compositor() const;
     QWaylandInputDevice *handle() const;
+    QWaylandDrag *dragHandle() const;
 
     Pointer *pointerDevice();
     Keyboard *keyboardDevice();
     Touch *touchDevice();
+    InputMethod *inputMethod();
 
     const Pointer *pointerDevice() const;
     const Keyboard *keyboardDevice() const;
@@ -115,15 +122,15 @@ public:
     }
 
 private:
-    void cleanupDataDeviceForClient(struct wl_client *client, bool destroyDev);
-
     QWaylandInputDevice *m_handle;
+    QWaylandDrag *m_dragHandle;
     Compositor *m_compositor;
-    QList<DataDevice *> m_data_devices;
 
     QScopedPointer<Pointer> m_pointer;
     QScopedPointer<Keyboard> m_keyboard;
-    QScopedPointer<Touch>  m_touch;
+    QScopedPointer<Touch> m_touch;
+    QScopedPointer<InputMethod> m_inputMethod;
+    QScopedPointer<DataDevice> m_data_device;
 
     void seat_bind_resource(wl_seat::Resource *resource) Q_DECL_OVERRIDE;
 

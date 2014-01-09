@@ -40,14 +40,14 @@
 ****************************************************************************/
 
 #include <qpa/qplatformintegrationplugin.h>
-#include "qwaylandintegration.h"
+#include "qwaylandxcompositeeglplatformintegration.h"
 
 QT_BEGIN_NAMESPACE
 
 class QWaylandIntegrationPlugin : public QPlatformIntegrationPlugin
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QPA.QPlatformIntegrationFactoryInterface.5.3" FILE "qwayland-xcomposite-egl.json")
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QPA.QPlatformIntegrationFactoryInterface.5.2" FILE "qwayland-xcomposite-egl.json")
 public:
     QStringList keys() const;
     QPlatformIntegration *create(const QString&, const QStringList&);
@@ -56,15 +56,15 @@ public:
 QStringList QWaylandIntegrationPlugin::keys() const
 {
     QStringList list;
-    list << "wayland-xcomposite";
+    list << "wayland-xcomposite" << "wayland-xcomposite-egl";
     return list;
 }
 
 QPlatformIntegration *QWaylandIntegrationPlugin::create(const QString& system, const QStringList& paramList)
 {
     Q_UNUSED(paramList);
-    if (system.toLower() == "wayland-xcomposite")
-        return new QWaylandIntegration();
+    if (system.toLower() == "wayland-xcomposite" || system.toLower() == "wayland-xcomposite-egl")
+        return new QWaylandXCompositeEglPlatformIntegration();
 
     return 0;
 }

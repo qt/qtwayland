@@ -48,6 +48,8 @@
 #include <QtGui/QClipboard>
 #include <QtCore/QMimeData>
 
+#include <QtCompositor/private/qwayland-server-wayland.h>
+
 QT_BEGIN_NAMESPACE
 
 class QSocketNotifier;
@@ -59,7 +61,7 @@ class Compositor;
 class DataDevice;
 class DataSource;
 
-class DataDeviceManager : public QObject
+class DataDeviceManager : public QObject, public QtWaylandServer::wl_data_device_manager
 {
     Q_OBJECT
 
@@ -77,6 +79,10 @@ public:
     bool offerFromCompositorToClient(wl_resource *clientDataDeviceResource);
     void offerRetainedSelection(wl_resource *clientDataDeviceResource);
 
+protected:
+    void data_device_manager_create_data_source(Resource *resource, uint32_t id) Q_DECL_OVERRIDE;
+    void data_device_manager_get_data_device(Resource *resource, uint32_t id, struct ::wl_resource *seat) Q_DECL_OVERRIDE;
+
 private slots:
     void readFromClient(int fd);
 
@@ -88,19 +94,6 @@ private:
     QList<DataDevice *> m_data_device_list;
 
     DataSource *m_current_selection_source;
-
-    static void bind_func_drag(struct wl_client *client, void *data,
-                     uint32_t version, uint32_t id);
-    static void bind_func_data(struct wl_client *client, void *data,
-                                          uint32_t version, uint32_t id);
-    static void get_data_device(struct wl_client *client,
-                          struct wl_resource *resource,
-                          uint32_t id,
-                          struct wl_resource *input_device);
-    static void create_data_source(struct wl_client *client,
-                                   struct wl_resource *resource,
-                                   uint32_t id);
-    static struct wl_data_device_manager_interface drag_interface;
 
     QMimeData m_retainedData;
     QSocketNotifier *m_retainedReadNotifier;

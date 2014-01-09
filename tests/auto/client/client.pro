@@ -10,6 +10,7 @@ QT += core-private gui-private
     LIBS += -lwayland-client -lwayland-server
 }
 
+CONFIG += wayland-scanner
 WAYLANDSERVERSOURCES += \
     ../../../src/3rdparty/protocol/wayland.xml
 

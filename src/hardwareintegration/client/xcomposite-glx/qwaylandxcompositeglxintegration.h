@@ -43,7 +43,7 @@
 #define QWAYLANDXCOMPOSITEGLXINTEGRATION_H
 
 #include <QtWaylandClient/qwaylandglintegration.h>
-#include "wayland-client.h"
+#include <wayland-client.h>
 
 #include <QtCore/QTextStream>
 #include <QtCore/QDataStream>

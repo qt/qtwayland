@@ -39,7 +39,7 @@
 **
 ****************************************************************************/
 
-#include "wayland-client.h"
+#include <wayland-client.h>
 
 #include <QObject>
 #include <QImage>

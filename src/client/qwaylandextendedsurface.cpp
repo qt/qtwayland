@@ -43,8 +43,6 @@
 
 #include "qwaylandwindow_p.h"
 
-#include "wayland-client.h"
-
 #include "qwaylanddisplay_p.h"
 
 #include "qwaylandnativeinterface_p.h"

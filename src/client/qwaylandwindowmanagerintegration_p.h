@@ -45,7 +45,7 @@
 #include <QtCore/QObject>
 #include <QtCore/QScopedPointer>
 
-#include "wayland-client.h"
+#include <wayland-client.h>
 #include <QtWaylandClient/private/qwaylanddisplay_p.h>
 #include <qpa/qplatformservices.h>
 

@@ -53,8 +53,8 @@
 #define EGL_EGLEXT_PROTOTYPES
 #include <EGL/eglext_brcm.h>
 
+#include <wayland-client.h>
 #include "wayland-brcm-client-protocol.h"
-#include "wayland-client.h"
 
 QT_BEGIN_NAMESPACE
 

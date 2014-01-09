@@ -339,7 +339,7 @@ bool Surface::advanceBufferQueue()
         setSize(size);
 
 
-        if (m_backBuffer &&  (!m_subSurface || !m_subSurface->parent()) && !m_surfaceMapped) {
+        if ((m_backBuffer && m_backBuffer->waylandBufferHandle()) &&  (!m_subSurface || !m_subSurface->parent()) && !m_surfaceMapped) {
             m_surfaceMapped = true;
             emit m_waylandSurface->mapped();
         } else if (m_backBuffer && !m_backBuffer->waylandBufferHandle() && m_surfaceMapped) {

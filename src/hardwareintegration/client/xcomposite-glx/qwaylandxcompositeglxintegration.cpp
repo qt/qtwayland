@@ -49,15 +49,14 @@
 
 QT_BEGIN_NAMESPACE
 
-QWaylandXCompositeGLXIntegration::QWaylandXCompositeGLXIntegration(QWaylandDisplay *waylandDisplay)
-    : mWaylandDisplay(waylandDisplay)
+QWaylandXCompositeGLXIntegration::QWaylandXCompositeGLXIntegration()
+    : mWaylandDisplay(0)
     , mWaylandComposite(0)
     , mDisplay(0)
     , mScreen(0)
     , mRootWindow(0)
 {
     qDebug() << "Using XComposite-GLX";
-    waylandDisplay->addRegistryListener(QWaylandXCompositeGLXIntegration::wlDisplayHandleGlobal, this);
 }
 
 QWaylandXCompositeGLXIntegration::~QWaylandXCompositeGLXIntegration()
@@ -65,8 +64,10 @@ QWaylandXCompositeGLXIntegration::~QWaylandXCompositeGLXIntegration()
     XCloseDisplay(mDisplay);
 }
 
-void QWaylandXCompositeGLXIntegration::initialize()
+void QWaylandXCompositeGLXIntegration::initialize(QWaylandDisplay *display)
 {
+    mWaylandDisplay = display;
+    mWaylandDisplay->addRegistryListener(QWaylandXCompositeGLXIntegration::wlDisplayHandleGlobal, this);
 }
 
 QWaylandWindow * QWaylandXCompositeGLXIntegration::createEglWindow(QWindow *window)

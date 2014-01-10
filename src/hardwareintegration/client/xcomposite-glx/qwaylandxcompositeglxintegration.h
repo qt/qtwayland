@@ -42,7 +42,7 @@
 #ifndef QWAYLANDXCOMPOSITEGLXINTEGRATION_H
 #define QWAYLANDXCOMPOSITEGLXINTEGRATION_H
 
-#include <QtWaylandClient/qwaylandglintegration.h>
+#include <QtWaylandClient/private/qwaylandclientbufferintegration_p.h>
 #include <wayland-client.h>
 
 #include <QtCore/QTextStream>
@@ -63,13 +63,13 @@ struct qt_xcomposite;
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandXCompositeGLXIntegration : public QWaylandGLIntegration
+class QWaylandXCompositeGLXIntegration : public QWaylandClientBufferIntegration
 {
 public:
-    QWaylandXCompositeGLXIntegration(QWaylandDisplay * waylandDispaly);
+    QWaylandXCompositeGLXIntegration();
     ~QWaylandXCompositeGLXIntegration();
 
-    void initialize();
+    void initialize(QWaylandDisplay *display);
     bool waitingForEvents() { return !mDisplay; }
 
     QWaylandWindow *createEglWindow(QWindow *window);

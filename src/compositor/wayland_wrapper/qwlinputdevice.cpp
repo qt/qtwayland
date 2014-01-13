@@ -264,7 +264,8 @@ bool InputDevice::setKeyboardFocus(Surface *surface)
         return false;
 
     m_keyboard->setFocus(surface);
-    m_data_device->setFocus(m_keyboard->focusResource());
+    if (m_data_device)
+        m_data_device->setFocus(m_keyboard->focusResource());
     return true;
 }
 

@@ -119,7 +119,7 @@ QWaylandWindow::QWaylandWindow(QWindow *window)
 
     setWindowFlags(window->flags());
     setGeometry(window->geometry());
-    setWindowState(window->windowState());
+    setWindowStateInternal(window->windowState());
 }
 
 QWaylandWindow::~QWaylandWindow()
@@ -409,31 +409,8 @@ void QWaylandWindow::handleContentOrientationChange(Qt::ScreenOrientation orient
 
 void QWaylandWindow::setWindowState(Qt::WindowState state)
 {
-    if (mState == state) {
-        return;
-    }
-
-    // As of february 2013 QWindow::setWindowState sets the new state value after
-    // QPlatformWindow::setWindowState returns, so we cannot rely on QWindow::windowState
-    // here. We use then this mState variable.
-    mState = state;
-    createDecoration();
-    switch (state) {
-        case Qt::WindowFullScreen:
-            mShellSurface->setFullscreen();
-            break;
-        case Qt::WindowMaximized:
-            mShellSurface->setMaximized();
-            break;
-        case Qt::WindowMinimized:
-            mShellSurface->setMinimized();
-            break;
-        default:
-            mShellSurface->setNormal();
-    }
-
-    QWindowSystemInterface::handleWindowStateChanged(window(), mState);
-    QWindowSystemInterface::flushWindowSystemEvents(); // Required for oldState to work on WindowStateChanged
+    if (setWindowStateInternal(state))
+        QWindowSystemInterface::flushWindowSystemEvents(); // Required for oldState to work on WindowStateChanged
 }
 
 void QWaylandWindow::setWindowFlags(Qt::WindowFlags flags)
@@ -602,6 +579,35 @@ bool QWaylandWindow::setMouseGrabEnabled(bool grab)
     }
 
     mMouseGrab = grab ? this : 0;
+    return true;
+}
+
+bool QWaylandWindow::setWindowStateInternal(Qt::WindowState state)
+{
+    if (mState == state) {
+        return false;
+    }
+
+    // As of february 2013 QWindow::setWindowState sets the new state value after
+    // QPlatformWindow::setWindowState returns, so we cannot rely on QWindow::windowState
+    // here. We use then this mState variable.
+    mState = state;
+    createDecoration();
+    switch (state) {
+        case Qt::WindowFullScreen:
+            mShellSurface->setFullscreen();
+            break;
+        case Qt::WindowMaximized:
+            mShellSurface->setMaximized();
+            break;
+        case Qt::WindowMinimized:
+            mShellSurface->setMinimized();
+            break;
+        default:
+            mShellSurface->setNormal();
+    }
+
+    QWindowSystemInterface::handleWindowStateChanged(window(), mState);
     return true;
 }
 

@@ -68,9 +68,6 @@ public:
     bool makeCurrent(EGLContext context);
     void swapBuffers();
 
-private slots:
-    void flushBuffers();
-
 private:
     void createEglSurfaces();
     void destroyEglSurfaces();
@@ -92,8 +89,6 @@ private:
 
     int m_current;
     int m_count;
-
-    QList<QWaylandBrcmBuffer *> m_pending;
 
     QMutex m_mutex;
 };

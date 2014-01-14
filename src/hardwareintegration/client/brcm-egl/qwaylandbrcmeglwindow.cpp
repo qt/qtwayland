@@ -249,36 +249,12 @@ void QWaylandBrcmEglWindow::swapBuffers()
     }
 
     m_buffers[m_current]->bind();
-
-    m_mutex.lock();
-    m_pending << m_buffers[m_current];
-    m_mutex.unlock();
-
-    // can't use a direct call since swapBuffers might be called from a separate thread
-    QMetaObject::invokeMethod(this, "flushBuffers");
+    attach(m_buffers[m_current], 0, 0);
+    damage(QRect(QPoint(), geometry().size()));
+    commit();
 
     m_current = (m_current + 1) % m_count;
-
     m_buffers[m_current]->waitForRelease();
-}
-
-void QWaylandBrcmEglWindow::flushBuffers()
-{
-    if (m_pending.isEmpty())
-        return;
-
-    QSize size = geometry().size();
-
-    m_mutex.lock();
-    while (!m_pending.isEmpty()) {
-        QWaylandBrcmBuffer *buffer = m_pending.takeFirst();
-        attach(buffer, 0, 0);
-        damage(QRect(QPoint(), size));
-        commit();
-    }
-    m_mutex.unlock();
-
-    mDisplay->flushRequests();
 }
 
 bool QWaylandBrcmEglWindow::makeCurrent(EGLContext context)

@@ -42,7 +42,7 @@
 #ifndef QWAYLANDBRCMEGLINTEGRATION_H
 #define QWAYLANDBRCMEGLINTEGRATION_H
 
-#include "qwaylandglintegration.h"
+#include <QtWaylandClient/private/qwaylandclientbufferintegration_p.h>
 
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
@@ -59,13 +59,13 @@ class QWindow;
 
 struct qt_brcm;
 
-class QWaylandBrcmEglIntegration : public QWaylandGLIntegration
+class QWaylandBrcmEglIntegration : public QWaylandClientBufferIntegration
 {
 public:
-    QWaylandBrcmEglIntegration(QWaylandDisplay *waylandDisplay);
+    QWaylandBrcmEglIntegration();
     ~QWaylandBrcmEglIntegration();
 
-    void initialize();
+    void initialize(QWaylandDisplay *waylandDisplay);
 
     bool supportsThreadedOpenGL() const { return true; }
 

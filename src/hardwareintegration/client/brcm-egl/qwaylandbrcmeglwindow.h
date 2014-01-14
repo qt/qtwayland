@@ -42,7 +42,7 @@
 #ifndef QWAYLANDBRCMEGLWINDOW_H
 #define QWAYLANDBRCMEGLWINDOW_H
 
-#include "qwaylandwindow.h"
+#include <QtWaylandClient/private/qwaylandwindow_p.h>
 #include "qwaylandbrcmeglintegration.h"
 
 #include <QMutex>

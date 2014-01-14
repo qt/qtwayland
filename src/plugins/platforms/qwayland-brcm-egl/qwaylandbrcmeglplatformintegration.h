@@ -42,7 +42,7 @@
 #ifndef QWAYLANDBRCMEGLPLATFORMINTEGRATION_H
 #define QWAYLANDBRCMEGLPLATFORMINTEGRATION_H
 
-#include <QtWaylandClient/qwaylandintegration.h>
+#include <QtWaylandClient/private/qwaylandintegration_p.h>
 #include "qwaylandbrcmeglintegration.h"
 
 QT_BEGIN_NAMESPACE
@@ -52,16 +52,17 @@ class QWaylandBrcmEglPlatformIntegration : public QWaylandIntegration
 public:
     QWaylandBrcmEglPlatformIntegration()
         : QWaylandIntegration()
-        , m_gl_integration(new QWaylandBrcmEglIntegration(display())
+        , m_gl_integration(new QWaylandBrcmEglIntegration())
     {
+        m_gl_integration->initialize(display());
     }
 
-    QWaylandGLIntegration *glIntegration() const Q_DECL_OVERRIDE
+    QWaylandClientBufferIntegration *clientBufferIntegration() const Q_DECL_OVERRIDE
     {
         return m_gl_integration;
     }
 private:
-    QWaylandGLIntegration *m_gl_integration;
+    QWaylandClientBufferIntegration *m_gl_integration;
 };
 
 QT_END_NAMESPACE

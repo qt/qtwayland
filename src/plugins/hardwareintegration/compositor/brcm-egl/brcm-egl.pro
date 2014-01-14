@@ -10,4 +10,4 @@ LIBS += -lEGL
 SOURCES += \
     main.cpp
 
-include($PWD/../../../../hardwareintegration/compositor/brcm-egl/brcm-egl.pri)
+include(../../../../hardwareintegration/compositor/brcm-egl/brcm-egl.pri)

@@ -41,7 +41,7 @@
 
 #include "qwaylandbrcmeglintegration.h"
 
-#include "qwaylandglintegration.h"
+#include <QtWaylandClient/private/qwaylandclientbufferintegration_p.h>
 
 #include "qwaylandbrcmeglwindow.h"
 #include "qwaylandbrcmglcontext.h"
@@ -52,11 +52,10 @@
 
 QT_BEGIN_NAMESPACE
 
-QWaylandBrcmEglIntegration::QWaylandBrcmEglIntegration(QWaylandDisplay *waylandDisplay)
-    : m_waylandDisplay(waylandDisplay->wl_display())
+QWaylandBrcmEglIntegration::QWaylandBrcmEglIntegration()
+    : m_waylandDisplay(0)
 {
     qDebug() << "Using Brcm-EGL";
-    waylandDisplay->addRegistryListener(wlDisplayHandleGlobal, this);
 }
 
 void QWaylandBrcmEglIntegration::wlDisplayHandleGlobal(void *data, struct wl_registry *registry, uint32_t id, const QString &interface, uint32_t version)
@@ -78,8 +77,10 @@ QWaylandBrcmEglIntegration::~QWaylandBrcmEglIntegration()
     eglTerminate(m_eglDisplay);
 }
 
-void QWaylandBrcmEglIntegration::initialize()
+void QWaylandBrcmEglIntegration::initialize(QWaylandDisplay *waylandDisplay)
 {
+    m_waylandDisplay = waylandDisplay->wl_display();
+    waylandDisplay->addRegistryListener(wlDisplayHandleGlobal, this);
     EGLint major,minor;
     m_eglDisplay = eglGetDisplay((EGLNativeDisplayType)EGL_DEFAULT_DISPLAY);
     if (m_eglDisplay == NULL) {

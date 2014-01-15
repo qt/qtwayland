@@ -736,26 +736,26 @@ void QWaylandInputDevice::Keyboard::keyboard_key(uint32_t serial, uint32_t time,
 {
     Q_UNUSED(serial);
     QWaylandWindow *window = mFocus;
+    uint32_t code = key + 8;
+    bool isDown = state != 0;
+    QEvent::Type type = isDown ? QEvent::KeyPress : QEvent::KeyRelease;
+    QString text;
+    int qtkey = key + 8;  // qt-compositor substracts 8 for some reason
+
 #ifndef QT_NO_WAYLAND_XKB
     if (!mXkbMap)
         return;
 
-    uint32_t code = key + 8;
-    bool isDown = state != 0;
     const xkb_keysym_t *syms;
     uint32_t numSyms = xkb_key_get_syms(mXkbState, code, &syms);
     xkb_state_update_key(mXkbState, code,
                          isDown ? XKB_KEY_DOWN : XKB_KEY_UP);
-    QEvent::Type type = isDown ? QEvent::KeyPress : QEvent::KeyRelease;
 
     if (!window) {
         // We destroyed the keyboard focus surface, but the server
         // didn't get the message yet.
         return;
     }
-
-    int qtkey = key + 8;  // qt-compositor substracts 8 for some reason
-    QString text;
 
     if (numSyms == 1) {
         xkb_keysym_t sym = syms[0];

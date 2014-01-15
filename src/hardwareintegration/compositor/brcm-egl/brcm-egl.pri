@@ -4,7 +4,13 @@ load(qt_plugin)
 QT = compositor compositor-private core-private gui-private
 
 INCLUDEPATH += $$PWD
-LIBS += -lwayland-server
+
+!contains(QT_CONFIG, no-pkg-config) {
+    CONFIG += link_pkgconfig
+    PKGCONFIG += wayland-server
+} else {
+    LIBS += -lwayland-server
+}
 
 for(p, QMAKE_LIBDIR_EGL) {
     exists($$p):LIBS += -L$$p

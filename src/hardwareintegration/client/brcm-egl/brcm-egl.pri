@@ -1,5 +1,12 @@
 INCLUDEPATH += $$PWD
 
+contains(QT_CONFIG, no-pkg-config) {
+    CONFIG += link_pkgconfig
+    PKGCONFIG += wayland-client
+} else {
+    LIBS += -lwayland-client
+}
+
 for(p, QMAKE_LIBDIR_EGL) {
     exists($$p):LIBS += -L$$p
 }

@@ -285,7 +285,7 @@ void QWaylandIntegration::initializeClientBufferIntegration()
     if (mClientBufferIntegration)
         mClientBufferIntegration->initialize(mDisplay);
     else
-        qWarning("Failed to load client buffer intgration: %s\n", qPrintable(targetKey));
+        qWarning("Failed to load client buffer integration: %s\n", qPrintable(targetKey));
 }
 
 void QWaylandIntegration::initializeServerBufferIntegration()
@@ -304,7 +304,7 @@ void QWaylandIntegration::initializeServerBufferIntegration()
     }
 
     if (targetKey.isEmpty()) {
-        qWarning("Failed to determin what server buffer integration to use");
+        qWarning("Failed to determine what server buffer integration to use");
         return;
     }
 

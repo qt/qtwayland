@@ -3,7 +3,7 @@ load(qt_plugin)
 
 QT = compositor compositor-private core-private gui-private
 
-INCLUDEPATH = $$PWD
+INCLUDEPATH += $$PWD
 LIBS += -lwayland-server
 
 for(p, QMAKE_LIBDIR_EGL) {

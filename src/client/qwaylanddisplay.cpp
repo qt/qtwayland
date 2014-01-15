@@ -175,12 +175,6 @@ QWaylandScreen *QWaylandDisplay::screenForOutput(struct wl_output *output) const
     return 0;
 }
 
-void QWaylandDisplay::addRegistryListener(RegistryListener listener, void *data)
-{
-    Listener l = { listener, data };
-    mRegistryListeners.append(l);
-}
-
 void QWaylandDisplay::waitForScreens()
 {
     flushRequests();
@@ -234,11 +228,31 @@ void QWaylandDisplay::registry_global(uint32_t id, const QString &interface, uin
     } else if (interface == QStringLiteral("wl_text_input_manager")) {
         mTextInputManager.reset(new QtWayland::wl_text_input_manager(registry, id));
     } else if (interface == QStringLiteral("qt_hardware_integration")) {
-        mHardwareIntegration.reset(new  QWaylandHardwareIntegration(registry, id));
+        mHardwareIntegration.reset(new QWaylandHardwareIntegration(registry, id));
     }
+
+    mGlobals.append(RegistryGlobal(id, interface, version, registry));
 
     foreach (Listener l, mRegistryListeners)
         (*l.listener)(l.data, registry, id, interface, version);
+}
+
+void QWaylandDisplay::registry_global_remove(uint32_t id)
+{
+    for (int i = 0, ie = mGlobals.count(); i != ie; ++i) {
+        if (mGlobals[i].id == id) {
+            mGlobals.removeAt(i);
+            break;
+        }
+    }
+}
+
+void QWaylandDisplay::addRegistryListener(RegistryListener listener, void *data)
+{
+    Listener l = { listener, data };
+    mRegistryListeners.append(l);
+    for (int i = 0, ie = mGlobals.count(); i != ie; ++i)
+        (*l.listener)(l.data, mGlobals[i].registry, mGlobals[i].id, mGlobals[i].interface, mGlobals[i].version);
 }
 
 uint32_t QWaylandDisplay::currentTimeMillisec()

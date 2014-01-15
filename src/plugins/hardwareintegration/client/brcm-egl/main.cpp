@@ -56,14 +56,14 @@ public:
 QStringList QWaylandBrcmEglClientBufferPlugin::keys() const
 {
     QStringList list;
-    list << "brcm";
+    list << "wayland-brcm";
     return list;
 }
 
 QWaylandClientBufferIntegration *QWaylandBrcmEglClientBufferPlugin::create(const QString& system, const QStringList& paramList)
 {
     Q_UNUSED(paramList);
-    if (system.toLower() == "brcm")
+    if (system.toLower() == "wayland-brcm")
         return new QWaylandBrcmEglIntegration();
 
     return 0;

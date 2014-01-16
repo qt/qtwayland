@@ -480,7 +480,7 @@ void Surface::surface_damage(Resource *, int32_t x, int32_t y, int32_t width, in
 
 void Surface::surface_frame(Resource *resource, uint32_t callback)
 {
-    struct wl_resource *frame_callback = wl_client_add_object(resource->client(), &wl_callback_interface, 0, callback, this);
+    struct wl_resource *frame_callback = wl_resource_create(resource->client(), &wl_callback_interface, wl_callback_interface.version, callback);
     wl_list_insert(&m_frame_callback_list, &frame_callback->link);
 }
 

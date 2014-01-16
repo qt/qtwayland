@@ -50,16 +50,18 @@ namespace QtWayland {
 SubSurfaceExtensionGlobal::SubSurfaceExtensionGlobal(Compositor *compositor)
     : m_compositor(compositor)
 {
-    wl_display_add_global(m_compositor->wl_display(),
-                          &qt_sub_surface_extension_interface,
-                          this,
-                          SubSurfaceExtensionGlobal::bind_func);
+    wl_global_create(m_compositor->wl_display(),
+                     &qt_sub_surface_extension_interface,
+                     qt_sub_surface_extension_interface.version,
+                     this,
+                     SubSurfaceExtensionGlobal::bind_func);
 }
 
 void SubSurfaceExtensionGlobal::bind_func(wl_client *client, void *data, uint32_t version, uint32_t id)
 {
     Q_UNUSED(version);
-    wl_client_add_object(client, &qt_sub_surface_extension_interface,&sub_surface_extension_interface,id,data);
+    struct wl_resource *resource = wl_resource_create(client, &qt_sub_surface_extension_interface,version,id);
+    wl_resource_set_implementation(resource, &sub_surface_extension_interface, data, 0);
 }
 
 void SubSurfaceExtensionGlobal::get_sub_surface_aware_surface(wl_client *client, wl_resource *sub_surface_extension_resource, uint32_t id, wl_resource *surface_resource)
@@ -78,11 +80,8 @@ SubSurface::SubSurface(wl_client *client, uint32_t id, Surface *surface)
     , m_parent(0)
 {
     surface->setSubSurface(this);
-    m_sub_surface_resource = wl_client_add_object(client,
-                                                       &qt_sub_surface_interface,
-                                                       &sub_surface_interface,
-                                                       id,
-                                                       this);
+    m_sub_surface_resource = wl_resource_create(client, &qt_sub_surface_interface, qt_sub_surface_interface.version, id);
+    wl_resource_set_implementation(m_sub_surface_resource, &sub_surface_interface, this, 0);
 }
 
 SubSurface::~SubSurface()

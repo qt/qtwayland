@@ -217,7 +217,8 @@ bool DataDeviceManager::offerFromCompositorToClient(wl_resource *clientDataDevic
     //qDebug("compositor offers %d types to %p", m_retainedData.formats().count(), client);
 
     struct wl_resource *selectionOffer =
-             wl_client_new_object(client, &wl_data_offer_interface, &compositor_offer_interface, this);
+             wl_resource_create(client, &wl_data_offer_interface, -1, 0);
+    wl_resource_set_implementation(selectionOffer, &compositor_offer_interface, this, 0);
     wl_data_device_send_data_offer(clientDataDeviceResource, selectionOffer);
     foreach (const QString &format, m_retainedData.formats()) {
         QByteArray ba = format.toLatin1();

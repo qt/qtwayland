@@ -604,7 +604,7 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath)
 
             printf("    void %s::init(struct ::wl_display *display)\n", interfaceName);
             printf("    {\n");
-            printf("        m_global = wl_display_add_global(display, &::%s_interface, this, bind_func);\n", interfaceName);
+            printf("        m_global = wl_global_create(display, &::%s_interface, ::%s_interface.version, this, bind_func);\n", interfaceName, interfaceName);
             printf("    }\n");
             printf("\n");
 
@@ -655,9 +655,9 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath)
             printf("        Resource *resource = %s_allocate();\n", interfaceNameStripped);
             printf("        resource->%s = this;\n", interfaceNameStripped);
             printf("\n");
-            printf("        struct ::wl_resource *handle = id != 0 ? wl_client_add_object(client, &::%s_interface, %s, id, resource) : wl_client_new_object(client, &::%s_interface, %s, resource);\n", interfaceName, interfaceMember.constData(), interfaceName, interfaceMember.constData());
+            printf("        struct ::wl_resource *handle = wl_resource_create(client, &::%s_interface, ::%s_interface.version, id);\n", interfaceName, interfaceName);
+            printf("        wl_resource_set_implementation(handle, %s, resource, destroy_func);", interfaceMember.constData());
             printf("\n");
-            printf("        handle->destroy = destroy_func;\n");
             printf("        resource->handle = handle;\n");
             printf("        %s_bind_resource(resource);\n", interfaceNameStripped);
             printf("        return resource;\n");

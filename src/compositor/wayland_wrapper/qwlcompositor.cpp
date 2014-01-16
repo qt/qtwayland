@@ -120,7 +120,8 @@ void Compositor::bind_func(struct wl_client *client, void *data,
                       uint32_t version, uint32_t id)
 {
     Q_UNUSED(version);
-    wl_client_add_object(client,&wl_compositor_interface, &compositor_interface, id,data);
+    struct wl_resource *resource = wl_resource_create(client, &wl_compositor_interface, version, id);
+    wl_resource_set_implementation(resource, &compositor_interface, data, 0);
 }
 
 Compositor *Compositor::instance()
@@ -161,7 +162,11 @@ Compositor::Compositor(QWaylandCompositor *qt_compositor, QWaylandCompositor::Ex
     if (extensions & QWaylandCompositor::WindowManagerExtension)
         m_windowManagerIntegration = new WindowManagerServerIntegration(qt_compositor, this);
 
-    wl_display_add_global(m_display->handle(),&wl_compositor_interface,this,Compositor::bind_func);
+    wl_global_create(m_display->handle(),
+                     &wl_compositor_interface,
+                     wl_compositor_interface.version,
+                     this,
+                     Compositor::bind_func);
 
     m_data_device_manager =  new DataDeviceManager(this);
 
@@ -170,7 +175,11 @@ Compositor::Compositor(QWaylandCompositor *qt_compositor, QWaylandCompositor::Ex
     m_output_global = new OutputGlobal(m_display->handle());
 
     m_shell = new Shell();
-    wl_display_add_global(m_display->handle(), &wl_shell_interface, m_shell, Shell::bind_func);
+    wl_global_create(m_display->handle(),
+                     &wl_shell_interface,
+                     wl_shell_interface.version,
+                     m_shell,
+                     Shell::bind_func);
 
 #if defined (QT_COMPOSITOR_WAYLAND_GL)
     if (extensions & QWaylandCompositor::HardwareIntegrationExtension)

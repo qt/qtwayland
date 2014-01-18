@@ -43,7 +43,6 @@
 
 #include <QtCore/QRect>
 #include <QtGui/qopengl.h>
-#include <qpa/qplatformscreenpageflipper.h>
 #include <QImage>
 
 #include <wayland-server.h>
@@ -63,7 +62,7 @@ struct surface_buffer_destroy_listener
     class SurfaceBuffer *surfaceBuffer;
 };
 
-class SurfaceBuffer : public QPlatformScreenBuffer
+class SurfaceBuffer
 {
 public:
     SurfaceBuffer(Surface *surface);
@@ -80,9 +79,6 @@ public:
     inline bool isRegisteredWithBuffer() const { return m_is_registered_for_buffer; }
 
     void sendRelease();
-    void setPageFlipperHasBuffer(bool owns);
-    bool pageFlipperHasBuffer() const { return m_page_flipper_has_buffer; }
-    void release();
     void disown();
 
     void setDisplayed();
@@ -95,6 +91,8 @@ public:
     void setDamage(const QRect &rect);
 
     inline bool textureCreated() const { return m_texture; }
+
+    bool isDestroyed() { return m_destroyed; }
 
     void createTexture();
     inline GLuint texture() const;
@@ -118,7 +116,7 @@ private:
     bool m_committed;
     bool m_is_registered_for_buffer;
     bool m_surface_has_buffer;
-    bool m_page_flipper_has_buffer;
+    bool m_destroyed;
 
     bool m_is_displayed;
 #ifdef QT_COMPOSITOR_WAYLAND_GL

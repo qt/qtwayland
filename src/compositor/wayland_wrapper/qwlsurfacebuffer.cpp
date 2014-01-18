@@ -55,14 +55,13 @@ QT_BEGIN_NAMESPACE
 namespace QtWayland {
 
 SurfaceBuffer::SurfaceBuffer(Surface *surface)
-    : QPlatformScreenBuffer()
-    , m_surface(surface)
+    : m_surface(surface)
     , m_compositor(surface->compositor())
     , m_buffer(0)
     , m_committed(false)
     , m_is_registered_for_buffer(false)
     , m_surface_has_buffer(false)
-    , m_page_flipper_has_buffer(false)
+    , m_destroyed(false)
     , m_is_displayed(false)
     , m_texture(0)
     , m_is_shm_resolved(false)
@@ -86,7 +85,6 @@ void SurfaceBuffer::initialize(struct ::wl_resource *buffer)
     m_committed = false;
     m_is_registered_for_buffer = true;
     m_surface_has_buffer = true;
-    m_page_flipper_has_buffer = false;
     m_is_displayed = false;
     m_destroyed = false;
     m_handle = 0;
@@ -103,8 +101,6 @@ void SurfaceBuffer::initialize(struct ::wl_resource *buffer)
 
 void SurfaceBuffer::destructBufferState()
 {
-    Q_ASSERT(!m_page_flipper_has_buffer);
-
     destroyTexture();
 
     if (m_buffer) {
@@ -116,7 +112,7 @@ void SurfaceBuffer::destructBufferState()
 #ifdef QT_COMPOSITOR_WAYLAND_GL
             } else {
                 QWaylandClientBufferIntegration *hwIntegration = m_compositor->clientBufferIntegration();
-                hwIntegration->unlockNativeBuffer(m_handle, m_compositor->directRenderContext());
+                hwIntegration->unlockNativeBuffer(m_handle, 0);
 #endif
             }
         }
@@ -166,22 +162,10 @@ void SurfaceBuffer::sendRelease()
     wl_buffer_send_release(m_buffer);
 }
 
-void SurfaceBuffer::setPageFlipperHasBuffer(bool owns)
-{
-    m_page_flipper_has_buffer = owns;
-}
-
-void SurfaceBuffer::release()
-{
-}
-
 void SurfaceBuffer::disown()
 {
     m_surface_has_buffer = false;
-
-    if (!m_page_flipper_has_buffer) {
-        destructBufferState();
-    }
+    destructBufferState();
 }
 
 void SurfaceBuffer::setDisplayed()
@@ -243,7 +227,7 @@ void *SurfaceBuffer::handle() const
 #ifdef QT_COMPOSITOR_WAYLAND_GL
         } else {
             QWaylandClientBufferIntegration *clientBufferIntegration = m_compositor->clientBufferIntegration();
-            that->m_handle = clientBufferIntegration->lockNativeBuffer(m_buffer, m_compositor->directRenderContext());
+            that->m_handle = clientBufferIntegration->lockNativeBuffer(m_buffer, 0);
 #endif
         }
     }

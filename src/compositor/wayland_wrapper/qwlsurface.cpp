@@ -98,10 +98,8 @@ Surface::~Surface()
     delete m_waylandSurface;
     delete m_subSurface;
 
-    for (int i = 0; i < buffer_pool_size; i++) {
-        if (!m_bufferPool[i]->pageFlipperHasBuffer())
-            delete m_bufferPool[i];
-    }
+    for (int i = 0; i < buffer_pool_size; i++)
+        delete m_bufferPool[i];
 }
 
 void Surface::releaseSurfaces()

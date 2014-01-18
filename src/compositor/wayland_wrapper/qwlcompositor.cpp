@@ -64,7 +64,6 @@
 #include <QScreen>
 #include <qpa/qplatformscreen.h>
 #include <QGuiApplication>
-#include <qpa/qplatformscreenpageflipper.h>
 #include <QDebug>
 
 #include <QtCore/QAbstractEventDispatcher>
@@ -136,14 +135,10 @@ Compositor::Compositor(QWaylandCompositor *qt_compositor, QWaylandCompositor::Ex
     : m_extensions(extensions)
     , m_display(new Display)
     , m_default_input_device(0)
-    , m_pageFlipper(0)
     , m_current_frame(0)
     , m_last_queued_buf(-1)
     , m_qt_compositor(qt_compositor)
     , m_orientation(Qt::PrimaryOrientation)
-    , m_directRenderSurface(0)
-    , m_directRenderContext(0)
-    , m_directRenderActive(false)
 #if defined (QT_COMPOSITOR_WAYLAND_GL)
     , m_hw_integration(0)
     , m_client_buffer_integration(0)
@@ -300,8 +295,6 @@ void Compositor::destroySurface(Surface *surface)
 
     m_surfaces.removeOne(surface);
     m_dirty_surfaces.remove(surface);
-    if (m_directRenderSurface == surface)
-        setDirectRenderSurface(0, 0);
 
     waylandCompositor()->surfaceAboutToBeDestroyed(surface->waylandSurface());
 
@@ -379,37 +372,6 @@ void Compositor::initializeWindowManagerProtocol()
 {
     if (m_windowManagerIntegration)
         m_windowManagerIntegration->initialize(m_display);
-}
-
-bool Compositor::setDirectRenderSurface(Surface *surface, QOpenGLContext *context)
-{
-#ifdef QT_COMPOSITOR_WAYLAND_GL
-    if (!m_pageFlipper) {
-        m_pageFlipper = QGuiApplication::primaryScreen()->handle()->pageFlipper();
-    }
-
-    if (!surface)
-        setDirectRenderingActive(false);
-
-    if (m_client_buffer_integration && m_client_buffer_integration->setDirectRenderSurface(surface ? surface->waylandSurface() : 0)) {
-        m_directRenderSurface = surface;
-        m_directRenderContext = context;
-        return true;
-    }
-#else
-    Q_UNUSED(surface);
-#endif
-    return false;
-}
-
-void Compositor::setDirectRenderingActive(bool active)
-{
-    if (m_directRenderActive == active)
-        return;
-    m_directRenderActive = active;
-
-    if (m_pageFlipper)
-        QMetaObject::invokeMethod(m_pageFlipper, "setDirectRenderingActive", Q_ARG(bool, active));
 }
 
 QList<struct wl_client *> Compositor::clients() const
@@ -545,11 +507,6 @@ void Compositor::feedRetainedSelectionData(QMimeData *data)
 {
     if (m_retainSelection)
         m_qt_compositor->retainedSelectionReceived(data);
-}
-
-void Compositor::scheduleReleaseBuffer(SurfaceBuffer *screenBuffer)
-{
-    QMetaObject::invokeMethod(this,"releaseBuffer",Q_ARG(QPlatformScreenBuffer*,screenBuffer));
 }
 
 void Compositor::overrideSelection(const QMimeData *data)

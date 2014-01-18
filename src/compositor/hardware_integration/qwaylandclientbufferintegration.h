@@ -73,8 +73,6 @@ public:
 
     virtual bool isYInverted(struct ::wl_resource *) const { return true; }
 
-    virtual bool setDirectRenderSurface(QWaylandSurface *) {return false;}
-
     virtual void *lockNativeBuffer(struct ::wl_resource *, QOpenGLContext *) const { return 0; }
     virtual void unlockNativeBuffer(void *, QOpenGLContext *) const { return; }
 

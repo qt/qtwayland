@@ -61,7 +61,6 @@ class QWaylandClientBufferIntegration;
 class QWaylandServerBufferIntegration;
 class WindowManagerServerIntegration;
 class QMimeData;
-class QPlatformScreenPageFlipper;
 class QPlatformScreenBuffer;
 
 namespace QtWayland {
@@ -108,11 +107,6 @@ public:
     void initializeHardwareIntegration();
     void initializeDefaultInputDevice();
     void initializeWindowManagerProtocol();
-    bool setDirectRenderSurface(Surface *surface, QOpenGLContext *context);
-    Surface *directRenderSurface() const {return m_directRenderSurface;}
-    QOpenGLContext *directRenderContext() const {return m_directRenderContext;}
-    QPlatformScreenPageFlipper *pageFlipper() const { return m_pageFlipper; }
-    void setDirectRenderingActive(bool active);
 
     QList<Surface*> surfaces() const { return m_surfaces; }
     QList<Surface*> surfacesForClient(wl_client* client);
@@ -161,8 +155,6 @@ public:
     void overrideSelection(const QMimeData *data);
     void feedRetainedSelectionData(QMimeData *data);
 
-    void scheduleReleaseBuffer(SurfaceBuffer *screenBuffer);
-
     void bufferWasDestroyed(SurfaceBuffer *buffer) { m_destroyed_buffers << buffer; }
 public slots:
     void cleanupGraphicsResources();
@@ -185,8 +177,6 @@ private:
     /* Output */
     //make this a list of the available screens
     OutputGlobal *m_output_global;
-    //This one should be part of the outputs
-    QPlatformScreenPageFlipper *m_pageFlipper;
 
     DataDeviceManager *m_data_device_manager;
 
@@ -204,10 +194,6 @@ private:
 
     QWaylandCompositor *m_qt_compositor;
     Qt::ScreenOrientation m_orientation;
-
-    Surface *m_directRenderSurface;
-    QOpenGLContext *m_directRenderContext;
-    bool m_directRenderActive;
 
 #ifdef QT_COMPOSITOR_WAYLAND_GL
     QScopedPointer<HardwareIntegration> m_hw_integration;

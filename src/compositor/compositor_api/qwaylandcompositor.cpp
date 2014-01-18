@@ -126,17 +126,6 @@ QList<QWaylandSurface *> QWaylandCompositor::surfacesForClient(WaylandClient* c)
     return result;
 }
 
-bool QWaylandCompositor::setDirectRenderSurface(QWaylandSurface *surface, QOpenGLContext *context)
-{
-    return m_compositor->setDirectRenderSurface(surface ? surface->handle() : 0, context);
-}
-
-QWaylandSurface *QWaylandCompositor::directRenderSurface() const
-{
-    QtWayland::Surface *surf = m_compositor->directRenderSurface();
-    return surf ? surf->waylandSurface() : 0;
-}
-
 QWindow * QWaylandCompositor::window() const
 {
     return m_toplevel_window;

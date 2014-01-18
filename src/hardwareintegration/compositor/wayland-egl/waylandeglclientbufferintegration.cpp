@@ -79,7 +79,6 @@ public:
         : egl_display(EGL_NO_DISPLAY)
         , valid(false)
         , display_bound(false)
-        , flipperConnected(false)
         , egl_bind_wayland_display(0)
         , egl_unbind_wayland_display(0)
         , egl_query_wayland_buffer(0)
@@ -90,7 +89,6 @@ public:
     EGLDisplay egl_display;
     bool valid;
     bool display_bound;
-    bool flipperConnected;
     PFNEGLBINDWAYLANDDISPLAYWL egl_bind_wayland_display;
     PFNEGLUNBINDWAYLANDDISPLAYWL egl_unbind_wayland_display;
     PFNEGLQUERYWAYLANDBUFFERWL egl_query_wayland_buffer;
@@ -211,20 +209,6 @@ bool WaylandEglClientBufferIntegration::isYInverted(struct ::wl_resource *buffer
     return QWaylandClientBufferIntegration::isYInverted(buffer);
 }
 
-
-bool WaylandEglClientBufferIntegration::setDirectRenderSurface(QWaylandSurface *surface)
-{
-    Q_D(WaylandEglClientBufferIntegration);
-
-    QPlatformScreen *screen = QPlatformScreen::platformScreenForWindow(m_compositor->window());
-    QPlatformScreenPageFlipper *flipper = screen ? screen->pageFlipper() : 0;
-    if (flipper && !d->flipperConnected) {
-        QObject::connect(flipper, SIGNAL(bufferReleased(QPlatformScreenBuffer*)), m_compositor->handle(), SLOT(releaseBuffer(QPlatformScreenBuffer*)));
-        d->flipperConnected = true;
-    }
-    Q_UNUSED(surface);
-    return flipper;
-}
 
 void *WaylandEglClientBufferIntegration::lockNativeBuffer(struct ::wl_resource *buffer, QOpenGLContext *) const
 {

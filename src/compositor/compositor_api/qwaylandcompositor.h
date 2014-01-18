@@ -91,9 +91,6 @@ public:
 
     QList<QWaylandSurface *> surfacesForClient(WaylandClient* client) const;
 
-    bool setDirectRenderSurface(QWaylandSurface *surface, QOpenGLContext *context);
-    QWaylandSurface *directRenderSurface() const;
-
     QWindow *window()const;
 
     virtual void surfaceCreated(QWaylandSurface *surface) = 0;

@@ -133,6 +133,8 @@ public:
 
     virtual void setCursorSurface(QWaylandSurface *surface, int hotspotX, int hotspotY);
 
+    void cleanupGraphicsResources();
+
     enum TouchExtensionFlag {
         TouchExtMouseFromTouch = 0x01
     };

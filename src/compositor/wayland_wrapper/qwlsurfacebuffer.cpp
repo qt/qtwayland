@@ -65,7 +65,6 @@ SurfaceBuffer::SurfaceBuffer(Surface *surface)
     , m_page_flipper_has_buffer(false)
     , m_is_displayed(false)
     , m_texture(0)
-    , m_guard(0)
     , m_is_shm_resolved(false)
     , m_shmBuffer(0)
     , m_isSizeResolved(false)
@@ -84,7 +83,6 @@ void SurfaceBuffer::initialize(struct ::wl_resource *buffer)
 {
     m_buffer = buffer;
     m_texture = 0;
-    m_guard = 0;
     m_committed = false;
     m_is_registered_for_buffer = true;
     m_surface_has_buffer = true;
@@ -175,17 +173,6 @@ void SurfaceBuffer::setPageFlipperHasBuffer(bool owns)
 
 void SurfaceBuffer::release()
 {
-    m_compositor->scheduleReleaseBuffer(this);
-}
-
-void SurfaceBuffer::scheduledRelease()
-{
-    m_page_flipper_has_buffer = false;
-    if (!m_surface_has_buffer)
-        destructBufferState();
-    if (!m_surface) {
-        delete this;
-    }
 }
 
 void SurfaceBuffer::disown()
@@ -218,16 +205,13 @@ void SurfaceBuffer::destroyTexture()
 {
 #ifdef QT_COMPOSITOR_WAYLAND_GL
     if (m_texture) {
-        /* When QOpenGLSharedResourceGuard is freed, destroyTexture might be reentered
-           to cause double free. So clear m_texture first. */
-        m_texture = 0;
-        if (m_guard) {
-            m_guard->free();
-            m_guard = 0;
-        } else {
-            QWaylandClientBufferIntegration *hwIntegration = m_compositor->clientBufferIntegration();
+        Q_ASSERT(QOpenGLContext::currentContext());
+        QWaylandClientBufferIntegration *hwIntegration = m_compositor->clientBufferIntegration();
+        if (hwIntegration->textureForBuffer(m_buffer) == 0)
+            glDeleteTextures(1, &m_texture);
+        else
             hwIntegration->destroyTextureForBuffer(m_buffer);
-        }
+        m_texture = 0;
     }
 #endif
 }
@@ -284,20 +268,20 @@ QImage SurfaceBuffer::image()
     return m_image;
 }
 
-void SurfaceBuffer::destroy_listener_callback(wl_listener *listener, void *data)
+void SurfaceBuffer::bufferWasDestroyed()
 {
-        Q_UNUSED(data);
-        struct surface_buffer_destroy_listener *destroy_listener =
-                reinterpret_cast<struct surface_buffer_destroy_listener *>(listener);
-        SurfaceBuffer *d = destroy_listener->surfaceBuffer;
-        d->destroyTexture();
-        d->m_destroyed = true;
-        d->m_buffer = 0;
+    destroyTexture();
+    m_destroyed = true;
+    m_buffer = 0;
 }
 
-void freeTexture(QOpenGLFunctions *, GLuint id)
+void SurfaceBuffer::destroy_listener_callback(wl_listener *listener, void *data)
 {
-    glDeleteTextures(1, &id);
+    Q_UNUSED(data);
+    struct surface_buffer_destroy_listener *destroy_listener =
+            reinterpret_cast<struct surface_buffer_destroy_listener *>(listener);
+    SurfaceBuffer *d = destroy_listener->surfaceBuffer;
+    d->m_compositor->bufferWasDestroyed(d);
 }
 
 void SurfaceBuffer::createTexture()
@@ -306,10 +290,8 @@ void SurfaceBuffer::createTexture()
 #ifdef QT_COMPOSITOR_WAYLAND_GL
     if (!m_texture)
         m_texture = hwIntegration->textureForBuffer(m_buffer);
-    if (!m_texture) {
+    if (!m_texture)
         glGenTextures(1, &m_texture);
-        m_guard = new QOpenGLSharedResourceGuard(QOpenGLContext::currentContext(), m_texture, freeTexture);
-    }
     glBindTexture(GL_TEXTURE_2D, m_texture);
     hwIntegration->bindTextureToBuffer(m_buffer);
 #else

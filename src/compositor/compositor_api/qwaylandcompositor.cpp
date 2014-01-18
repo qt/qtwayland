@@ -142,6 +142,11 @@ QWindow * QWaylandCompositor::window() const
     return m_toplevel_window;
 }
 
+void QWaylandCompositor::cleanupGraphicsResources()
+{
+    m_compositor->cleanupGraphicsResources();
+}
+
 void QWaylandCompositor::surfaceAboutToBeDestroyed(QWaylandSurface *surface)
 {
     Q_UNUSED(surface);

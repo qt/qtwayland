@@ -72,7 +72,7 @@ protected:
     QWaylandSurface* surfaceAt(const QPointF &point, QPointF *local = 0);
 
     GLuint composeSurface(QWaylandSurface *surface, bool *textureOwned);
-    void paintChildren(QWaylandSurface *surface, QWaylandSurface *window);
+    void paintChildren(QWaylandSurface *surface, QWaylandSurface *window, const QSize &windowSize);
 
 
     bool eventFilter(QObject *obj, QEvent *event);

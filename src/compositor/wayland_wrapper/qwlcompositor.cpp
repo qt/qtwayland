@@ -70,6 +70,10 @@
 #include <QtCore/QAbstractEventDispatcher>
 #include <QtGui/private/qguiapplication_p.h>
 
+#ifdef QT_COMPOSITOR_QUICK
+#include <QtQuick/QQuickWindow>
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -214,6 +218,17 @@ Compositor::Compositor(QWaylandCompositor *qt_compositor, QWaylandCompositor::Ex
 
     qRegisterMetaType<SurfaceBuffer*>("SurfaceBuffer*");
     //initialize distancefieldglyphcache here
+
+#ifdef QT_COMPOSITOR_QUICK
+    if (QQuickWindow *w = qobject_cast<QQuickWindow *>(window)) {
+        connect(w, SIGNAL(beforeSynchronizing()), this, SLOT(cleanupGraphicsResources()), Qt::DirectConnection);
+    } else
+#endif
+    {
+#if !defined(QT_NO_DEBUG) && !defined(QT_WAYLAND_NO_CLEANUP_WARNING)
+        qWarning("QWaylandCompositor::cleanupGraphicsResources() must be called manually");
+#endif
+    }
 }
 
 Compositor::~Compositor()
@@ -259,11 +274,6 @@ uint Compositor::currentTimeMsecs() const
     return m_timer.elapsed();
 }
 
-void Compositor::releaseBuffer(QPlatformScreenBuffer *screenBuffer)
-{
-    static_cast<SurfaceBuffer *>(screenBuffer)->scheduledRelease();
-}
-
 void Compositor::processWaylandEvents()
 {
     int ret = wl_event_loop_dispatch(m_loop, 0);
@@ -272,7 +282,7 @@ void Compositor::processWaylandEvents()
     wl_display_flush_clients(m_display->handle());
 }
 
-void Compositor::surfaceDestroyed(Surface *surface)
+void Compositor::destroySurface(Surface *surface)
 {
     InputDevice *dev = defaultInputDevice();
     if (dev->mouseFocus() == surface) {
@@ -294,6 +304,19 @@ void Compositor::surfaceDestroyed(Surface *surface)
         setDirectRenderSurface(0, 0);
 
     waylandCompositor()->surfaceAboutToBeDestroyed(surface->waylandSurface());
+
+    surface->releaseSurfaces();
+    m_destroyed_surfaces << surface;
+}
+
+void Compositor::cleanupGraphicsResources()
+{
+    foreach (SurfaceBuffer *s, m_destroyed_buffers)
+        s->bufferWasDestroyed();
+    m_destroyed_buffers.clear();
+
+    qDeleteAll(m_destroyed_surfaces);
+    m_destroyed_surfaces.clear();
 }
 
 void Compositor::markSurfaceAsDirty(QtWayland::Surface *surface)

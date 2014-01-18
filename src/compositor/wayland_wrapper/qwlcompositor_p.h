@@ -94,7 +94,7 @@ public:
     InputDevice *defaultInputDevice(); //we just have 1 default device for now (since QPA doesn't give us anything else)
 
     void createSurface(struct wl_client *client, uint32_t id);
-    void surfaceDestroyed(Surface *surface);
+    void destroySurface(Surface *surface);
     void markSurfaceAsDirty(Surface *surface);
 
     void destroyClient(WaylandClient *client);
@@ -163,9 +163,11 @@ public:
 
     void scheduleReleaseBuffer(SurfaceBuffer *screenBuffer);
 
-private slots:
+    void bufferWasDestroyed(SurfaceBuffer *buffer) { m_destroyed_buffers << buffer; }
+public slots:
+    void cleanupGraphicsResources();
 
-    void releaseBuffer(QPlatformScreenBuffer *screenBuffer);
+private slots:
     void processWaylandEvents();
 
 private:
@@ -191,6 +193,8 @@ private:
     QElapsedTimer m_timer;
     QList<Surface *> m_surfaces;
     QSet<Surface *> m_dirty_surfaces;
+    QSet<Surface *> m_destroyed_surfaces;
+    QSet<SurfaceBuffer *> m_destroyed_buffers;
 
     /* Render state */
     uint32_t m_current_frame;

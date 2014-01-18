@@ -138,6 +138,9 @@ public:
     bool isCursorSurface() const { return m_isCursorSurface; }
     void setCursorSurface(bool isCursor) { m_isCursorSurface = isCursor; }
 
+    void advanceBufferQueue();
+    void releaseSurfaces();
+
 private:
     Q_DISABLE_COPY(Surface)
 
@@ -174,11 +177,8 @@ private:
 
     inline SurfaceBuffer *currentSurfaceBuffer() const;
     void damage(const QRect &rect);
-    bool advanceBufferQueue();
-    void doUpdate();
+    void setBackBuffer(SurfaceBuffer *buffer);
     SurfaceBuffer *createSurfaceBuffer(struct ::wl_resource *buffer);
-    void frameFinishedInternal();
-    bool postBuffer();
 
     void attach(struct ::wl_resource *buffer);
 

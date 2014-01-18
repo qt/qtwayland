@@ -389,8 +389,14 @@ QSGNode *QWaylandSurfaceItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeD
         return 0;
     }
 
-    updateTexture();
-    if (!m_provider->t || !m_paintEnabled) {
+    // Order here is important, as the state of visible is that of the pending
+    // buffer but will be replaced after we advance the buffer queue.
+    bool visible = m_surface->visible();
+    surface()->advanceBufferQueue();
+    if (visible)
+        updateTexture();
+
+    if (!visible || !m_provider->t || !m_paintEnabled) {
         delete oldNode;
         return 0;
     }

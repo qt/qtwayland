@@ -139,6 +139,9 @@ protected:
         GLuint texture = 0;
         QOpenGLFunctions *functions = QOpenGLContext::currentContext()->functions();
 
+        QSize windowSize = surface->size();
+        surface->advanceBufferQueue();
+
         if (!m_surfaceCompositorFbo)
             functions->glGenFramebuffers(1,&m_surfaceCompositorFbo);
 
@@ -152,7 +155,7 @@ protected:
 
         functions->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
                                            GL_TEXTURE_2D, texture, 0);
-        paintChildren(surface,surface);
+        paintChildren(surface,surface,windowSize);
         functions->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
                                            GL_TEXTURE_2D, 0, 0);
 
@@ -160,7 +163,7 @@ protected:
         return texture;
     }
 
-    void paintChildren(QWaylandSurface *surface, QWaylandSurface *window) {
+    void paintChildren(QWaylandSurface *surface, QWaylandSurface *window, const QSize &windowSize) {
 
         if (surface->subSurfaces().size() == 0)
             return;
@@ -170,6 +173,7 @@ protected:
             QWaylandSurface *subSurface = i.next();
             QPointF p = subSurface->mapTo(window,QPoint(0,0));
             QSize size = subSurface->size();
+            subSurface->advanceBufferQueue();
             if (size.isValid()) {
                 GLuint texture = 0;
                 if (subSurface->type() == QWaylandSurface::Texture) {
@@ -177,9 +181,9 @@ protected:
                 } else if (surface->type() == QWaylandSurface::Shm ) {
                     texture = m_textureCache->bindTexture(context()->contextHandle(), surface->image());
                 }
-                m_textureBlitter->drawTexture(texture,QRect(p.toPoint(),size),window->size(),0,window->isYInverted(),subSurface->isYInverted());
+                m_textureBlitter->drawTexture(texture,QRect(p.toPoint(),size),windowSize,0,window->isYInverted(),subSurface->isYInverted());
             }
-            paintChildren(subSurface,window);
+            paintChildren(subSurface,window,windowSize);
         }
     }
 #else //hmmm, this is actually untested :(
@@ -220,6 +224,7 @@ protected:
             p.drawPixmap(rect(), m_backgroundScaled);
 
 #ifdef QT_COMPOSITOR_WAYLAND_GL
+        cleanupGraphicsResources();
         if (!m_textureCache) {
             m_textureCache = new QOpenGLTextureCache(context()->contextHandle());
         }

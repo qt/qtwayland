@@ -80,6 +80,8 @@ QWaylandWindow::QWaylandWindow(QWindow *window)
     , mFrameCallback(0)
     , mRequestResizeSent(false)
     , mCanResize(true)
+    , mResizeDirty(false)
+    , mResizeAfterSwap(!qEnvironmentVariableIsSet("QT_WAYLAND_RESIZE_AFTER_SWAP"))
     , mSentInitialResize(false)
     , mMouseDevice(0)
     , mMouseSerial(0)
@@ -195,10 +197,11 @@ void QWaylandWindow::setGeometry(const QRect &rect)
     if (mWindowDecoration && window()->isVisible())
         mWindowDecoration->update();
 
-    if (mConfigure.isEmpty()) {
+    if (mResizeAfterSwap)
+        mResizeDirty = true;
+    else
         QWindowSystemInterface::handleGeometryChange(window(), geometry());
-        QWindowSystemInterface::handleExposeEvent(window(), QRegion(geometry()));
-    }
+    QWindowSystemInterface::handleExposeEvent(window(), QRegion(geometry()));
 }
 
 void QWaylandWindow::setVisible(bool visible)
@@ -287,7 +290,6 @@ void QWaylandWindow::doResize()
     setGeometry(geometry);
 
     mConfigure.clear();
-    QWindowSystemInterface::handleGeometryChange(window(), geometry);
 }
 
 void QWaylandWindow::setCanResize(bool canResize)
@@ -295,9 +297,17 @@ void QWaylandWindow::setCanResize(bool canResize)
     QMutexLocker lock(&mResizeLock);
     mCanResize = canResize;
 
-    if (canResize && !mConfigure.isEmpty()) {
-        doResize();
-        QWindowSystemInterface::handleExposeEvent(window(), geometry());
+    if (canResize) {
+        if (mResizeDirty) {
+            QWindowSystemInterface::handleGeometryChange(window(), geometry());
+        }
+        if (!mConfigure.isEmpty()) {
+            doResize();
+            QWindowSystemInterface::handleExposeEvent(window(), geometry());
+        } else if (mResizeDirty) {
+            QWindowSystemInterface::handleExposeEvent(window(), geometry());
+            mResizeDirty = false;
+        }
     }
 }
 

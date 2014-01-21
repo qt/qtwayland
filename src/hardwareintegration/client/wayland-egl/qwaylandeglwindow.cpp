@@ -90,7 +90,7 @@ void QWaylandEglWindow::setGeometry(const QRect &rect)
 
     createDecoration();
     QMargins margins = frameMargins();
-    QSize sizeWithMargins = geometry().size() + QSize(margins.left() + margins.right(), margins.top() + margins.bottom());
+    QSize sizeWithMargins = rect.size() + QSize(margins.left() + margins.right(), margins.top() + margins.bottom());
 
     if (m_waylandEglWindow) {
         int current_width, current_height;

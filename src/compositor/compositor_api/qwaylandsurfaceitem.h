@@ -143,6 +143,7 @@ private:
     QWaylandSurfaceTextureProvider *m_provider;
     QWaylandSurfaceNode *m_node;
     bool m_paintEnabled;
+    bool m_mapped;
     bool m_useTextureAlpha;
     bool m_clientRenderingEnabled;
     bool m_touchEventsEnabled;

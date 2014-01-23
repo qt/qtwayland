@@ -92,6 +92,7 @@ QWaylandSurfaceItem::QWaylandSurfaceItem(QQuickItem *parent)
     , m_provider(0)
     , m_node(0)
     , m_paintEnabled(true)
+    , m_mapped(false)
     , m_useTextureAlpha(false)
     , m_clientRenderingEnabled(true)
     , m_touchEventsEnabled(false)
@@ -107,6 +108,7 @@ QWaylandSurfaceItem::QWaylandSurfaceItem(QWaylandSurface *surface, QQuickItem *p
     , m_provider(0)
     , m_node(0)
     , m_paintEnabled(true)
+    , m_mapped(false)
     , m_useTextureAlpha(false)
     , m_clientRenderingEnabled(true)
     , m_touchEventsEnabled(false)
@@ -278,12 +280,14 @@ void QWaylandSurfaceItem::takeFocus()
 
 void QWaylandSurfaceItem::surfaceMapped()
 {
-    setPaintEnabled(true);
+    m_mapped = true;
+    update();
 }
 
 void QWaylandSurfaceItem::surfaceUnmapped()
 {
-    setPaintEnabled(false);
+    m_mapped = false;
+    update();
 }
 
 void QWaylandSurfaceItem::surfaceDestroyed(QObject *)
@@ -396,7 +400,7 @@ QSGNode *QWaylandSurfaceItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeD
     if (visible)
         updateTexture();
 
-    if (!visible || !m_provider->t || !m_paintEnabled) {
+    if (!visible || !m_provider->t || !m_paintEnabled || !m_mapped) {
         delete oldNode;
         return 0;
     }

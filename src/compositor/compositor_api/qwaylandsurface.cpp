@@ -305,12 +305,6 @@ QWaylandCompositor *QWaylandSurface::compositor() const
     return d->surface->compositor()->waylandCompositor();
 }
 
-void QWaylandSurface::frameFinished()
-{
-    Q_D(QWaylandSurface);
-    d->surface->frameFinished();
-}
-
 QWaylandSurface *QWaylandSurface::transientParent() const
 {
     Q_D(const QWaylandSurface);

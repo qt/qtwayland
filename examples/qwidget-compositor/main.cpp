@@ -245,7 +245,7 @@ protected:
 #endif //QT_COMPOSITOR_WAYLAND_GL
         }
 
-        frameFinished();
+        sendFrameCallbacks(surfaces());
 
 #ifdef QT_COMPOSITOR_WAYLAND_GL
         //jl:FIX FIX FIX:)

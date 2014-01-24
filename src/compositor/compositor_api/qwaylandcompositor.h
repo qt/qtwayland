@@ -84,12 +84,13 @@ public:
 
     struct wl_display *waylandDisplay() const;
 
-    void frameFinished(QWaylandSurface *surface = 0);
+    void sendFrameCallbacks(QList<QWaylandSurface *> visibleSurfaces);
 
     void destroyClientForSurface(QWaylandSurface *surface);
     void destroyClient(WaylandClient *client);
 
     QList<QWaylandSurface *> surfacesForClient(WaylandClient* client) const;
+    QList<QWaylandSurface *> surfaces() const;
 
     QWindow *window()const;
 

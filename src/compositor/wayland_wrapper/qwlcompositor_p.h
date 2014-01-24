@@ -62,6 +62,7 @@ class QWaylandServerBufferIntegration;
 class WindowManagerServerIntegration;
 class QMimeData;
 class QPlatformScreenBuffer;
+class QWaylandSurface;
 
 namespace QtWayland {
 
@@ -88,13 +89,12 @@ public:
     Compositor(QWaylandCompositor *qt_compositor, QWaylandCompositor::ExtensionFlags extensions);
     ~Compositor();
 
-    void frameFinished(Surface *surface = 0);
+    void sendFrameCallbacks(QList<QWaylandSurface *> visibleSurfaces);
 
     InputDevice *defaultInputDevice(); //we just have 1 default device for now (since QPA doesn't give us anything else)
 
     void createSurface(struct wl_client *client, uint32_t id);
     void destroySurface(Surface *surface);
-    void markSurfaceAsDirty(Surface *surface);
 
     void destroyClient(WaylandClient *client);
 
@@ -182,7 +182,6 @@ private:
 
     QElapsedTimer m_timer;
     QList<Surface *> m_surfaces;
-    QSet<Surface *> m_dirty_surfaces;
     QSet<Surface *> m_destroyed_surfaces;
     QSet<SurfaceBuffer *> m_destroyed_buffers;
 

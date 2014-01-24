@@ -73,6 +73,7 @@ class ExtendedSurface;
 class InputPanelSurface;
 class SubSurface;
 class ShellSurface;
+class FrameCallback;
 
 class Q_COMPOSITOR_EXPORT Surface : public QtWaylandServer::wl_surface
 {
@@ -106,8 +107,7 @@ public:
 #endif
 
     void sendFrameCallback();
-
-    void frameFinished();
+    void removeFrameCallback(FrameCallback *callback);
 
     QWaylandSurface *waylandSurface() const;
 
@@ -156,7 +156,8 @@ private:
     QPoint m_lastLocalMousePos;
     QPoint m_lastGlobalMousePos;
 
-    struct wl_list m_frame_callback_list;
+    QList<FrameCallback *> m_pendingFrameCallbacks;
+    QList<FrameCallback *> m_frameCallbacks;
 
     ExtendedSurface *m_extendedSurface;
     SubSurface *m_subSurface;

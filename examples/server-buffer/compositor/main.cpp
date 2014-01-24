@@ -83,7 +83,7 @@ public:
         create();
         grabWindow();
 
-        connect(this, SIGNAL(frameSwapped()), this, SLOT(frameSwappedSlot()));
+        connect(this, SIGNAL(afterRendering()), this, SLOT(sendCallbacks()), Qt::DirectConnection);
 
         connect(this, SIGNAL(sceneGraphInitialized()), this, SLOT(initiateServerBuffer()),Qt::DirectConnection);
         connect(this, SIGNAL(serverBuffersCreated()), this, SLOT(createServerBufferItems()));
@@ -134,8 +134,8 @@ private slots:
         emit windowDestroyed(QVariant::fromValue(item));
     }
 
-    void frameSwappedSlot() {
-        frameFinished();
+    void sendCallbacks() {
+        sendFrameCallbacks(surfaces());
     }
 
     void initiateServerBuffer()

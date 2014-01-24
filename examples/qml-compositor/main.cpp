@@ -67,7 +67,7 @@ public:
         setColor(Qt::black);
         winId();
 
-	connect(this, SIGNAL(frameSwapped()), this, SLOT(frameSwappedSlot()));
+        connect(this, SIGNAL(afterRendering()), this, SLOT(sendCallbacks()), Qt::DirectConnection);
     }
 
     QWaylandSurface *fullscreenSurface() const
@@ -130,8 +130,11 @@ private slots:
         emit windowDestroyed(QVariant::fromValue(item));
     }
 
-    void frameSwappedSlot() {
-        frameFinished(m_fullscreenSurface);
+    void sendCallbacks() {
+        if (m_fullscreenSurface)
+            sendFrameCallbacks(QList<QWaylandSurface *>() << m_fullscreenSurface);
+        else
+            sendFrameCallbacks(surfaces());
     }
 
 protected:

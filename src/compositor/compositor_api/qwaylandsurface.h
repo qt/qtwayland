@@ -144,8 +144,6 @@ public:
     void setVisibility(QWindow::Visibility visibility);
     Q_INVOKABLE void sendOnScreenVisibilityChange(bool visible); // Compat
 
-    void frameFinished();
-
     QWaylandSurface *transientParent() const;
 
     QtWayland::Surface *handle() const;

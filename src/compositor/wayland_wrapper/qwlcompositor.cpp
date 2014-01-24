@@ -242,16 +242,10 @@ Compositor::~Compositor()
     delete m_display;
 }
 
-void Compositor::frameFinished(Surface *surface)
+void Compositor::sendFrameCallbacks(QList<QWaylandSurface *> visibleSurfaces)
 {
-    if (surface && m_dirty_surfaces.contains(surface)) {
-        m_dirty_surfaces.remove(surface);
-        surface->sendFrameCallback();
-    } else if (!surface) {
-        QSet<Surface *> dirty = m_dirty_surfaces;
-        m_dirty_surfaces.clear();
-        foreach (Surface *surface, dirty)
-            surface->sendFrameCallback();
+    foreach (QWaylandSurface *surface, visibleSurfaces) {
+        surface->handle()->sendFrameCallback();
     }
 }
 
@@ -294,7 +288,6 @@ void Compositor::destroySurface(Surface *surface)
         dev->setKeyboardFocus(0);
 
     m_surfaces.removeOne(surface);
-    m_dirty_surfaces.remove(surface);
 
     waylandCompositor()->surfaceAboutToBeDestroyed(surface->waylandSurface());
 
@@ -310,11 +303,6 @@ void Compositor::cleanupGraphicsResources()
 
     qDeleteAll(m_destroyed_surfaces);
     m_destroyed_surfaces.clear();
-}
-
-void Compositor::markSurfaceAsDirty(QtWayland::Surface *surface)
-{
-    m_dirty_surfaces.insert(surface);
 }
 
 void Compositor::destroyClient(WaylandClient *c)

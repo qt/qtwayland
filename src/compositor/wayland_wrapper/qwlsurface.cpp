@@ -73,6 +73,39 @@ namespace QtWayland {
 
 static bool QT_WAYLAND_PRINT_BUFFERING_WARNINGS = qEnvironmentVariableIsSet("QT_WAYLAND_PRINT_BUFFERING_WARNINGS");
 
+class FrameCallback {
+public:
+    FrameCallback(Surface *surf, wl_resource *res)
+        : surface(surf)
+        , resource(res)
+    {
+        wl_resource_set_implementation(res, 0, this, destroyCallback);
+    }
+    ~FrameCallback()
+    {
+    }
+    void destroy()
+    {
+        if (resource)
+            wl_resource_destroy(resource);
+        else
+            delete this;
+    }
+    void send(uint time)
+    {
+        wl_callback_send_done(resource, time);
+        wl_resource_destroy(resource);
+    }
+    static void destroyCallback(wl_resource *res)
+    {
+        FrameCallback *_this = static_cast<FrameCallback *>(wl_resource_get_user_data(res));
+        _this->surface->removeFrameCallback(_this);
+        delete _this;
+    }
+    Surface *surface;
+    wl_resource *resource;
+};
+
 Surface::Surface(struct wl_client *client, uint32_t id, Compositor *compositor)
     : QtWaylandServer::wl_surface(client, id)
     , m_compositor(compositor)
@@ -87,7 +120,6 @@ Surface::Surface(struct wl_client *client, uint32_t id, Compositor *compositor)
     , m_transientInactive(false)
     , m_isCursorSurface(false)
 {
-    wl_list_init(&m_frame_callback_list);
 }
 
 Surface::~Surface()
@@ -97,6 +129,11 @@ Surface::~Surface()
 
     for (int i = 0; i < m_bufferPool.size(); i++)
         delete m_bufferPool[i];
+
+    foreach (FrameCallback *c, m_pendingFrameCallbacks)
+        c->destroy();
+    foreach (FrameCallback *c, m_frameCallbacks)
+        c->destroy();
 }
 
 void Surface::releaseSurfaces()
@@ -146,9 +183,8 @@ bool Surface::isYInverted() const
 
 bool Surface::visible() const
 {
-
     SurfaceBuffer *surfacebuffer = currentSurfaceBuffer();
-    return surfacebuffer->waylandBufferHandle();
+    return surfacebuffer ? surfacebuffer->waylandBufferHandle() : 0;
 }
 
 QPointF Surface::pos() const
@@ -222,17 +258,15 @@ GLuint Surface::textureId() const
 void Surface::sendFrameCallback()
 {
     uint time = m_compositor->currentTimeMsecs();
-    struct wl_resource *frame_callback, *next;
-    wl_list_for_each_safe(frame_callback, next, &m_frame_callback_list, link) {
-        wl_callback_send_done(frame_callback, time);
-        wl_resource_destroy(frame_callback);
-    }
-    wl_list_init(&m_frame_callback_list);
+    foreach (FrameCallback *callback, m_frameCallbacks)
+        callback->send(time);
+    m_frameCallbacks.clear();
 }
 
-void Surface::frameFinished()
+void Surface::removeFrameCallback(FrameCallback *callback)
 {
-    m_compositor->frameFinished(this);
+    m_pendingFrameCallbacks.removeOne(callback);
+    m_frameCallbacks.removeOne(callback);
 }
 
 QWaylandSurface * Surface::waylandSurface() const
@@ -344,7 +378,6 @@ void Surface::setBackBuffer(SurfaceBuffer *buffer)
              emit m_waylandSurface->unmapped();
         }
 
-        m_compositor->markSurfaceAsDirty(this);
         emit m_waylandSurface->damaged(m_backBuffer->damageRect());
     } else {
         InputDevice *inputDevice = m_compositor->defaultInputDevice();
@@ -438,7 +471,7 @@ void Surface::surface_damage(Resource *, int32_t x, int32_t y, int32_t width, in
 void Surface::surface_frame(Resource *resource, uint32_t callback)
 {
     struct wl_resource *frame_callback = wl_client_add_object(resource->client(), &wl_callback_interface, 0, callback, this);
-    wl_list_insert(&m_frame_callback_list, &frame_callback->link);
+    m_pendingFrameCallbacks << new FrameCallback(this, frame_callback);
 }
 
 void Surface::surface_set_opaque_region(Resource *, struct wl_resource *region)
@@ -474,6 +507,9 @@ void Surface::surface_commit(Resource *)
         setBackBuffer(surfaceBuffer);
         m_bufferQueue.takeFirst();
     }
+
+    m_frameCallbacks << m_pendingFrameCallbacks;
+    m_pendingFrameCallbacks.clear();
 }
 
 void Surface::setClassName(const QString &className)

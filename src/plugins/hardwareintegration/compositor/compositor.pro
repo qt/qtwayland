@@ -15,3 +15,6 @@ config_xcomposite {
 
 config_drm_egl_server: \
     SUBDIRS += drm-egl-server
+
+config_libhybris_egl_server: \
+    SUBDIRS += libhybris-egl-server

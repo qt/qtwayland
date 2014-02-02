@@ -145,8 +145,8 @@ void QWaylandSurfaceItem::init(QWaylandSurface *surface)
     setAcceptHoverEvents(true);
     connect(surface, SIGNAL(mapped()), this, SLOT(surfaceMapped()));
     connect(surface, SIGNAL(unmapped()), this, SLOT(surfaceUnmapped()));
-    connect(surface, SIGNAL(destroyed(QObject *)), this, SLOT(surfaceDestroyed(QObject *)));
-    connect(surface, SIGNAL(damaged(const QRect &)), this, SLOT(surfaceDamaged(const QRect &)));
+    connect(surface, SIGNAL(destroyed(QObject*)), this, SLOT(surfaceDestroyed(QObject*)));
+    connect(surface, SIGNAL(damaged(QRect)), this, SLOT(surfaceDamaged(QRect)));
     connect(surface, SIGNAL(parentChanged(QWaylandSurface*,QWaylandSurface*)),
             this, SLOT(parentChanged(QWaylandSurface*,QWaylandSurface*)));
     connect(surface, SIGNAL(sizeChanged()), this, SLOT(updateSize()));

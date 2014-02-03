@@ -185,7 +185,7 @@ private slots:
 
         if (sbi->supportsFormat(QWaylandServerBuffer::A8)) {
             QRawFont defaultRaw = QRawFont::fromFont(QFont(), QFontDatabase::Latin);
-            QVector<quint32> index = defaultRaw.glyphIndexesForString(QStringLiteral("A"));
+            QVector<quint32> index = defaultRaw.glyphIndexesForString(QStringLiteral("R"));
             QDistanceField distanceField(defaultRaw, index.front(), true);
             QImage img = distanceField.toImage(QImage::Format_Indexed8);
 

@@ -43,10 +43,10 @@
 #include <QtGui/QOpenGLVertexArrayObject>
 #include <QtGui/QOpenGLShaderProgram>
 static const GLfloat uv_coords[] = {
-    1,1,
-    1,0,
-    0,1,
     0,0,
+    0,1,
+    1,0,
+    1,1,
 };
 
 static const GLfloat vertex_coords[] = {

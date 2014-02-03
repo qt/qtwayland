@@ -232,6 +232,7 @@ QWaylandInputDevice::QWaylandInputDevice(QWaylandDisplay *display, uint32_t id)
     , mTouch(0)
     , mTime(0)
     , mSerial(0)
+    , mTouchDevice(0)
 {
     if (mQDisplay->dndSelectionHandler()) {
         mDataDevice = mQDisplay->dndSelectionHandler()->getDataDevice(this);

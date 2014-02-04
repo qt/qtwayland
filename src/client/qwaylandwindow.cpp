@@ -207,9 +207,6 @@ void QWaylandWindow::setGeometry(const QRect &rect)
 void QWaylandWindow::setVisible(bool visible)
 {
     if (visible) {
-        if (mBuffer)
-            attach(mBuffer->buffer(), 0, 0);
-
         if (window()->type() == Qt::Popup && transientParent()) {
             QWaylandWindow *parent = transientParent();
             mMouseDevice = parent->mMouseDevice;
@@ -230,10 +227,10 @@ void QWaylandWindow::setVisible(bool visible)
         // QWaylandShmBackingStore::beginPaint().
     } else {
         QWindowSystemInterface::handleExposeEvent(window(), QRegion());
+        QWindowSystemInterface::flushWindowSystemEvents();
         attach(static_cast<QWaylandBuffer *>(0), 0, 0);
+        commit();
     }
-    damage(QRect(QPoint(0,0),geometry().size()));
-    commit();
 }
 
 

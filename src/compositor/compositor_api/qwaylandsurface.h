@@ -180,6 +180,8 @@ public:
     Q_INVOKABLE void destroySurfaceByForce();
     Q_INVOKABLE void ping();
 
+    void advanceBufferQueue();
+
 public slots:
     void updateSelection();
 

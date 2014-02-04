@@ -193,6 +193,8 @@ protected:
     QWaylandWindowConfigure mConfigure;
     bool mRequestResizeSent;
     bool mCanResize;
+    bool mResizeDirty;
+    bool mResizeAfterSwap;
 
     bool mSentInitialResize;
     QPoint mOffset;
@@ -204,6 +206,8 @@ protected:
     Qt::WindowState mState;
 
 private:
+    bool setWindowStateInternal(Qt::WindowState flags);
+
     void handleMouseEventWithDecoration(QWaylandInputDevice *inputDevice,
                                         ulong timestamp,
                                         const QPointF & local,

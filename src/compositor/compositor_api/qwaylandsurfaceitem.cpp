@@ -39,7 +39,6 @@
 ****************************************************************************/
 
 #include "qwaylandsurfaceitem.h"
-#include "qwaylandsurfacenode_p.h"
 #include "qwaylandsurface.h"
 #include "qwaylandcompositor.h"
 #include "qwaylandinput.h"
@@ -51,7 +50,7 @@
 #include <QtGui/QGuiApplication>
 #include <QtGui/QScreen>
 
-#include <QtQuick/QSGSimpleRectNode>
+#include <QtQuick/QSGSimpleTextureNode>
 #include <QtQuick/QQuickWindow>
 
 #include <QtCore/QMutexLocker>
@@ -90,8 +89,8 @@ QWaylandSurfaceItem::QWaylandSurfaceItem(QQuickItem *parent)
     : QQuickItem(parent)
     , m_surface(0)
     , m_provider(0)
-    , m_node(0)
     , m_paintEnabled(true)
+    , m_mapped(false)
     , m_useTextureAlpha(false)
     , m_clientRenderingEnabled(true)
     , m_touchEventsEnabled(false)
@@ -105,8 +104,8 @@ QWaylandSurfaceItem::QWaylandSurfaceItem(QWaylandSurface *surface, QQuickItem *p
     : QQuickItem(parent)
     , m_surface(0)
     , m_provider(0)
-    , m_node(0)
     , m_paintEnabled(true)
+    , m_mapped(false)
     , m_useTextureAlpha(false)
     , m_clientRenderingEnabled(true)
     , m_touchEventsEnabled(false)
@@ -146,8 +145,8 @@ void QWaylandSurfaceItem::init(QWaylandSurface *surface)
     setAcceptHoverEvents(true);
     connect(surface, SIGNAL(mapped()), this, SLOT(surfaceMapped()));
     connect(surface, SIGNAL(unmapped()), this, SLOT(surfaceUnmapped()));
-    connect(surface, SIGNAL(destroyed(QObject *)), this, SLOT(surfaceDestroyed(QObject *)));
-    connect(surface, SIGNAL(damaged(const QRect &)), this, SLOT(surfaceDamaged(const QRect &)));
+    connect(surface, SIGNAL(destroyed(QObject*)), this, SLOT(surfaceDestroyed(QObject*)));
+    connect(surface, SIGNAL(damaged(QRect)), this, SLOT(surfaceDamaged(QRect)));
     connect(surface, SIGNAL(parentChanged(QWaylandSurface*,QWaylandSurface*)),
             this, SLOT(parentChanged(QWaylandSurface*,QWaylandSurface*)));
     connect(surface, SIGNAL(sizeChanged()), this, SLOT(updateSize()));
@@ -162,8 +161,6 @@ void QWaylandSurfaceItem::init(QWaylandSurface *surface)
 QWaylandSurfaceItem::~QWaylandSurfaceItem()
 {
     QMutexLocker locker(mutex);
-    if (m_node)
-        m_node->setItem(0);
     if (m_surface)
         m_surface->setSurfaceItem(0);
     if (m_provider)
@@ -278,12 +275,14 @@ void QWaylandSurfaceItem::takeFocus()
 
 void QWaylandSurfaceItem::surfaceMapped()
 {
-    setPaintEnabled(true);
+    m_mapped = true;
+    update();
 }
 
 void QWaylandSurfaceItem::surfaceUnmapped()
 {
-    setPaintEnabled(false);
+    m_mapped = false;
+    update();
 }
 
 void QWaylandSurfaceItem::surfaceDestroyed(QObject *)
@@ -389,27 +388,28 @@ QSGNode *QWaylandSurfaceItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeD
         return 0;
     }
 
-    updateTexture();
-    if (!m_provider->t || !m_paintEnabled) {
+    // Order here is important, as the state of visible is that of the pending
+    // buffer but will be replaced after we advance the buffer queue.
+    bool visible = m_surface->visible();
+    surface()->advanceBufferQueue();
+    if (visible)
+        updateTexture();
+
+    if (!visible || !m_provider->t || !m_paintEnabled || !m_mapped) {
         delete oldNode;
         return 0;
     }
 
-    QWaylandSurfaceNode *node = static_cast<QWaylandSurfaceNode *>(oldNode);
+    QSGSimpleTextureNode *node = static_cast<QSGSimpleTextureNode *>(oldNode);
 
-    if (!node) {
-        node = new QWaylandSurfaceNode(this);
-    }
-
-    node->updateTexture();
-
+    if (!node)
+        node = new QSGSimpleTextureNode();
+    node->setTexture(m_provider->t);
     if (surface()->isYInverted()) {
         node->setRect(0, height(), width(), -height());
     } else {
         node->setRect(0, 0, width(), height());
     }
-
-    node->setTextureUpdated(true);
 
     return node;
 }

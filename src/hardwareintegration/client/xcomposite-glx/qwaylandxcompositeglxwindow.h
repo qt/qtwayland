@@ -42,13 +42,13 @@
 #ifndef QWAYLANDXCOMPOSITEGLXWINDOW_H
 #define QWAYLANDXCOMPOSITEGLXWINDOW_H
 
-#include "qwaylandwindow.h"
+#include <QtWaylandClient/private/qwaylandwindow_p.h>
 #include "qwaylandxcompositeglxintegration.h"
 #include "qwaylandxcompositeglxcontext.h"
 
 #include <QtCore/QWaitCondition>
 
-#include "qwaylandbuffer.h"
+#include <QtWaylandClient/private/qwaylandbuffer_p.h>
 
 QT_BEGIN_NAMESPACE
 

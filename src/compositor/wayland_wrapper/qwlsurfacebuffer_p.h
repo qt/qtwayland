@@ -43,8 +43,6 @@
 
 #include <QtCore/QRect>
 #include <QtGui/qopengl.h>
-#include <QtGui/private/qopenglcontext_p.h>
-#include <qpa/qplatformscreenpageflipper.h>
 #include <QImage>
 
 #include <wayland-server.h>
@@ -64,7 +62,7 @@ struct surface_buffer_destroy_listener
     class SurfaceBuffer *surfaceBuffer;
 };
 
-class SurfaceBuffer : public QPlatformScreenBuffer
+class SurfaceBuffer
 {
 public:
     SurfaceBuffer(Surface *surface);
@@ -81,10 +79,6 @@ public:
     inline bool isRegisteredWithBuffer() const { return m_is_registered_for_buffer; }
 
     void sendRelease();
-    void setPageFlipperHasBuffer(bool owns);
-    bool pageFlipperHasBuffer() const { return m_page_flipper_has_buffer; }
-    void release();
-    void scheduledRelease();
     void disown();
 
     void setDisplayed();
@@ -98,6 +92,8 @@ public:
 
     inline bool textureCreated() const { return m_texture; }
 
+    bool isDestroyed() { return m_destroyed; }
+
     void createTexture();
     inline GLuint texture() const;
     void destroyTexture();
@@ -106,6 +102,8 @@ public:
 
     void handleAboutToBeDisplayed();
     void handleDisplayed();
+
+    void bufferWasDestroyed();
 
     void *handle() const;
     QImage image();
@@ -118,15 +116,13 @@ private:
     bool m_committed;
     bool m_is_registered_for_buffer;
     bool m_surface_has_buffer;
-    bool m_page_flipper_has_buffer;
+    bool m_destroyed;
 
     bool m_is_displayed;
 #ifdef QT_COMPOSITOR_WAYLAND_GL
     GLuint m_texture;
-    QOpenGLSharedResourceGuard *m_guard;
 #else
     uint m_texture;
-    uint m_guard;
 #endif
     void *m_handle;
     mutable bool m_is_shm_resolved;

@@ -56,6 +56,7 @@
 QWindowCompositor::QWindowCompositor(QOpenGLWindow *window)
     : QWaylandCompositor(window, 0, DefaultExtensions | SubSurfaceExtension)
     , m_window(window)
+    , m_backgroundTexture(0)
     , m_textureBlitter(0)
     , m_renderScheduler(this)
     , m_draggingWindow(0)
@@ -67,7 +68,6 @@ QWindowCompositor::QWindowCompositor(QOpenGLWindow *window)
 {
     m_window->makeCurrent();
 
-    m_textureCache = new QOpenGLTextureCache(m_window->context());
     m_textureBlitter = new TextureBlitter();
     m_backgroundImage = makeBackgroundImage(QLatin1String(":/background.jpg"));
     m_renderScheduler.setSingleShot(true);
@@ -86,8 +86,8 @@ QWindowCompositor::QWindowCompositor(QOpenGLWindow *window)
 
 QWindowCompositor::~QWindowCompositor()
 {
+    glDeleteTextures(1, &m_backgroundTexture);
     delete m_textureBlitter;
-    delete m_textureCache;
 }
 
 
@@ -237,30 +237,48 @@ QWaylandSurface *QWindowCompositor::surfaceAt(const QPointF &point, QPointF *loc
     return 0;
 }
 
-GLuint QWindowCompositor::composeSurface(QWaylandSurface *surface)
+static GLuint textureFromImage(const QImage &image)
 {
     GLuint texture = 0;
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    QImage tx = image.convertToFormat(QImage::Format_RGBA8888_Premultiplied);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tx.width(), tx.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, tx.constBits());
+    glBindTexture(GL_TEXTURE_2D, 0);
+    return texture;
+}
+
+GLuint QWindowCompositor::composeSurface(QWaylandSurface *surface, bool *textureOwned)
+{
+    GLuint texture = 0;
+
+    QSize windowSize = surface->size();
+    surface->advanceBufferQueue();
 
     QOpenGLFunctions *functions = QOpenGLContext::currentContext()->functions();
     functions->glBindFramebuffer(GL_FRAMEBUFFER, m_surface_fbo);
 
     if (surface->type() == QWaylandSurface::Shm) {
-        texture = m_textureCache->bindTexture(QOpenGLContext::currentContext(),surface->image());
+        texture = textureFromImage(surface->image());
+        *textureOwned = true;
     } else if (surface->type() == QWaylandSurface::Texture) {
         texture = surface->texture();
+        *textureOwned = false;
     }
 
     functions->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
                                        GL_TEXTURE_2D, texture, 0);
-    paintChildren(surface,surface);
+    paintChildren(surface, surface,windowSize);
     functions->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
                                        GL_TEXTURE_2D,0, 0);
 
     functions->glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+
     return texture;
 }
 
-void QWindowCompositor::paintChildren(QWaylandSurface *surface, QWaylandSurface *window) {
+void QWindowCompositor::paintChildren(QWaylandSurface *surface, QWaylandSurface *window, const QSize &windowSize) {
 
     if (surface->subSurfaces().size() == 0)
         return;
@@ -269,17 +287,22 @@ void QWindowCompositor::paintChildren(QWaylandSurface *surface, QWaylandSurface 
     while (i.hasNext()) {
         QWaylandSurface *subSurface = i.next();
         QPointF p = subSurface->mapTo(window,QPointF(0,0));
-        if (subSurface->size().isValid()) {
+        QSize subSize = subSurface->size();
+        subSurface->advanceBufferQueue();
+        if (subSize.isValid()) {
             GLuint texture = 0;
             if (subSurface->type() == QWaylandSurface::Texture) {
                 texture = subSurface->texture();
-            } else if (surface->type() == QWaylandSurface::Shm ) {
-                texture = m_textureCache->bindTexture(QOpenGLContext::currentContext(),surface->image());
+            } else if (surface->type() == QWaylandSurface::Shm) {
+                texture = textureFromImage(subSurface->image());
             }
-            QRect geo(p.toPoint(),subSurface->size());
-            m_textureBlitter->drawTexture(texture,geo,window->size(),0,window->isYInverted(),subSurface->isYInverted());
+            QRect geo(p.toPoint(),subSize);
+            if (texture > 0)
+                m_textureBlitter->drawTexture(texture,geo,windowSize,0,window->isYInverted(),subSurface->isYInverted());
+            if (surface->type() == QWaylandSurface::Shm)
+                glDeleteTextures(1, &texture);
         }
-        paintChildren(subSurface,window);
+        paintChildren(subSurface,window,windowSize);
     }
 }
 
@@ -287,7 +310,11 @@ void QWindowCompositor::paintChildren(QWaylandSurface *surface, QWaylandSurface 
 void QWindowCompositor::render()
 {
     m_window->makeCurrent();
-    m_backgroundTexture = m_textureCache->bindTexture(QOpenGLContext::currentContext(),m_backgroundImage);
+
+    cleanupGraphicsResources();
+
+    if (!m_backgroundTexture)
+        m_backgroundTexture = textureFromImage(m_backgroundImage);
 
     m_textureBlitter->bind();
     // Draw the background image texture
@@ -299,9 +326,12 @@ void QWindowCompositor::render()
     foreach (QWaylandSurface *surface, m_surfaces) {
         if (!surface->visible())
             continue;
-        GLuint texture = composeSurface(surface);
+        bool ownsTexture;
+        GLuint texture = composeSurface(surface, &ownsTexture);
         QRect geo(surface->pos().toPoint(),surface->size());
         m_textureBlitter->drawTexture(texture,geo,m_window->size(),0,false,surface->isYInverted());
+        if (ownsTexture)
+            glDeleteTextures(1, &texture);
     }
 
     m_textureBlitter->release();

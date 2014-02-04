@@ -61,7 +61,6 @@ class QWaylandClientBufferIntegration;
 class QWaylandServerBufferIntegration;
 class WindowManagerServerIntegration;
 class QMimeData;
-class QPlatformScreenPageFlipper;
 class QPlatformScreenBuffer;
 
 namespace QtWayland {
@@ -94,7 +93,7 @@ public:
     InputDevice *defaultInputDevice(); //we just have 1 default device for now (since QPA doesn't give us anything else)
 
     void createSurface(struct wl_client *client, uint32_t id);
-    void surfaceDestroyed(Surface *surface);
+    void destroySurface(Surface *surface);
     void markSurfaceAsDirty(Surface *surface);
 
     void destroyClient(WaylandClient *client);
@@ -108,11 +107,6 @@ public:
     void initializeHardwareIntegration();
     void initializeDefaultInputDevice();
     void initializeWindowManagerProtocol();
-    bool setDirectRenderSurface(Surface *surface, QOpenGLContext *context);
-    Surface *directRenderSurface() const {return m_directRenderSurface;}
-    QOpenGLContext *directRenderContext() const {return m_directRenderContext;}
-    QPlatformScreenPageFlipper *pageFlipper() const { return m_pageFlipper; }
-    void setDirectRenderingActive(bool active);
 
     QList<Surface*> surfaces() const { return m_surfaces; }
     QList<Surface*> surfacesForClient(wl_client* client);
@@ -161,11 +155,11 @@ public:
     void overrideSelection(const QMimeData *data);
     void feedRetainedSelectionData(QMimeData *data);
 
-    void scheduleReleaseBuffer(SurfaceBuffer *screenBuffer);
+    void bufferWasDestroyed(SurfaceBuffer *buffer) { m_destroyed_buffers << buffer; }
+public slots:
+    void cleanupGraphicsResources();
 
 private slots:
-
-    void releaseBuffer(QPlatformScreenBuffer *screenBuffer);
     void processWaylandEvents();
 
 private:
@@ -183,14 +177,14 @@ private:
     /* Output */
     //make this a list of the available screens
     OutputGlobal *m_output_global;
-    //This one should be part of the outputs
-    QPlatformScreenPageFlipper *m_pageFlipper;
 
     DataDeviceManager *m_data_device_manager;
 
     QElapsedTimer m_timer;
     QList<Surface *> m_surfaces;
     QSet<Surface *> m_dirty_surfaces;
+    QSet<Surface *> m_destroyed_surfaces;
+    QSet<SurfaceBuffer *> m_destroyed_buffers;
 
     /* Render state */
     uint32_t m_current_frame;
@@ -200,10 +194,6 @@ private:
 
     QWaylandCompositor *m_qt_compositor;
     Qt::ScreenOrientation m_orientation;
-
-    Surface *m_directRenderSurface;
-    QOpenGLContext *m_directRenderContext;
-    bool m_directRenderActive;
 
 #ifdef QT_COMPOSITOR_WAYLAND_GL
     QScopedPointer<HardwareIntegration> m_hw_integration;

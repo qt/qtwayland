@@ -3,7 +3,7 @@ include($$PWD/../xcomposite_share/xcomposite_share.pri)
 
 !contains(QT_CONFIG, no-pkg-config) {
     CONFIG += link_pkgconfig
-    PKGCONFIG += xcomposite egl x11
+    PKGCONFIG += wayland-client xcomposite egl x11
 } else {
     LIBS += -lXcomposite -lEGL -lX11
 }

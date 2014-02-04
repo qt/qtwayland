@@ -41,8 +41,8 @@
 
 #include "qwaylandbrcmglcontext.h"
 
-#include "qwaylanddisplay.h"
-#include "qwaylandwindow.h"
+#include <QtWaylandClient/private/qwaylanddisplay_p.h>
+#include <QtWaylandClient/private/qwaylandwindow_p.h>
 #include "qwaylandbrcmeglwindow.h"
 
 #include <QtPlatformSupport/private/qeglconvenience_p.h>

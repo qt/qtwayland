@@ -54,10 +54,12 @@
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
 
+/* Needed for compatibility with Mesa older than 10.0. */
+typedef EGLBoolean (EGLAPIENTRYP PFNEGLQUERYWAYLANDBUFFERWL_compat) (EGLDisplay dpy, struct wl_resource *buffer, EGLint attribute, EGLint *value);
+
 #ifndef EGL_WL_bind_wayland_display
 typedef EGLBoolean (EGLAPIENTRYP PFNEGLBINDWAYLANDDISPLAYWL) (EGLDisplay dpy, struct wl_display *display);
 typedef EGLBoolean (EGLAPIENTRYP PFNEGLUNBINDWAYLANDDISPLAYWL) (EGLDisplay dpy, struct wl_display *display);
-typedef EGLBoolean (EGLAPIENTRYP PFNEGLQUERYWAYLANDBUFFERWL) (EGLDisplay dpy, struct wl_buffer *buffer, EGLint attribute, EGLint *value);
 #endif
 
 #ifndef EGL_KHR_image
@@ -79,7 +81,6 @@ public:
         : egl_display(EGL_NO_DISPLAY)
         , valid(false)
         , display_bound(false)
-        , flipperConnected(false)
         , egl_bind_wayland_display(0)
         , egl_unbind_wayland_display(0)
         , egl_query_wayland_buffer(0)
@@ -90,10 +91,9 @@ public:
     EGLDisplay egl_display;
     bool valid;
     bool display_bound;
-    bool flipperConnected;
     PFNEGLBINDWAYLANDDISPLAYWL egl_bind_wayland_display;
     PFNEGLUNBINDWAYLANDDISPLAYWL egl_unbind_wayland_display;
-    PFNEGLQUERYWAYLANDBUFFERWL egl_query_wayland_buffer;
+    PFNEGLQUERYWAYLANDBUFFERWL_compat egl_query_wayland_buffer;
 
     PFNEGLCREATEIMAGEKHRPROC egl_create_image;
     PFNEGLDESTROYIMAGEKHRPROC egl_destroy_image;
@@ -138,7 +138,7 @@ void WaylandEglClientBufferIntegration::initializeHardware(QtWayland::Display *w
         return;
     }
 
-    d->egl_query_wayland_buffer = reinterpret_cast<PFNEGLQUERYWAYLANDBUFFERWL>(eglGetProcAddress("eglQueryWaylandBufferWL"));
+    d->egl_query_wayland_buffer = reinterpret_cast<PFNEGLQUERYWAYLANDBUFFERWL_compat>(eglGetProcAddress("eglQueryWaylandBufferWL"));
     if (!d->egl_query_wayland_buffer) {
         qWarning("Failed to initialize egl display. Could not find eglQueryWaylandBufferWL.\n");
         return;
@@ -211,20 +211,6 @@ bool WaylandEglClientBufferIntegration::isYInverted(struct ::wl_resource *buffer
     return QWaylandClientBufferIntegration::isYInverted(buffer);
 }
 
-
-bool WaylandEglClientBufferIntegration::setDirectRenderSurface(QWaylandSurface *surface)
-{
-    Q_D(WaylandEglClientBufferIntegration);
-
-    QPlatformScreen *screen = QPlatformScreen::platformScreenForWindow(m_compositor->window());
-    QPlatformScreenPageFlipper *flipper = screen ? screen->pageFlipper() : 0;
-    if (flipper && !d->flipperConnected) {
-        QObject::connect(flipper, SIGNAL(bufferReleased(QPlatformScreenBuffer*)), m_compositor->handle(), SLOT(releaseBuffer(QPlatformScreenBuffer*)));
-        d->flipperConnected = true;
-    }
-    Q_UNUSED(surface);
-    return flipper;
-}
 
 void *WaylandEglClientBufferIntegration::lockNativeBuffer(struct ::wl_resource *buffer, QOpenGLContext *) const
 {

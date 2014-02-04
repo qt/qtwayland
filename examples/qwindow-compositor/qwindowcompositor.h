@@ -71,8 +71,8 @@ protected:
 
     QWaylandSurface* surfaceAt(const QPointF &point, QPointF *local = 0);
 
-    GLuint composeSurface(QWaylandSurface *surface);
-    void paintChildren(QWaylandSurface *surface, QWaylandSurface *window);
+    GLuint composeSurface(QWaylandSurface *surface, bool *textureOwned);
+    void paintChildren(QWaylandSurface *surface, QWaylandSurface *window, const QSize &windowSize);
 
 
     bool eventFilter(QObject *obj, QEvent *event);
@@ -93,7 +93,6 @@ private:
     GLuint m_backgroundTexture;
     QList<QWaylandSurface *> m_surfaces;
     TextureBlitter *m_textureBlitter;
-    QOpenGLTextureCache *m_textureCache;
     GLuint m_surface_fbo;
     QTimer m_renderScheduler;
 

@@ -46,6 +46,7 @@
 #include <private/qwlsurfacebuffer_p.h>
 #include <QtCompositor/qwaylandsurface.h>
 
+#include <QtCore/QVector>
 #include <QtCore/QRect>
 #include <QtGui/QImage>
 
@@ -138,6 +139,9 @@ public:
     bool isCursorSurface() const { return m_isCursorSurface; }
     void setCursorSurface(bool isCursor) { m_isCursorSurface = isCursor; }
 
+    void advanceBufferQueue();
+    void releaseSurfaces();
+
 private:
     Q_DISABLE_COPY(Surface)
 
@@ -162,8 +166,7 @@ private:
     QRegion m_inputRegion;
     QRegion m_opaqueRegion;
 
-    static const int buffer_pool_size = 3;
-    SurfaceBuffer *m_bufferPool[buffer_pool_size];
+    QVector<SurfaceBuffer *> m_bufferPool;
 
     QPointF m_position;
     QSize m_size;
@@ -174,11 +177,8 @@ private:
 
     inline SurfaceBuffer *currentSurfaceBuffer() const;
     void damage(const QRect &rect);
-    bool advanceBufferQueue();
-    void doUpdate();
+    void setBackBuffer(SurfaceBuffer *buffer);
     SurfaceBuffer *createSurfaceBuffer(struct ::wl_resource *buffer);
-    void frameFinishedInternal();
-    bool postBuffer();
 
     void attach(struct ::wl_resource *buffer);
 

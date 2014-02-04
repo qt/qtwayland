@@ -91,9 +91,6 @@ public:
 
     QList<QWaylandSurface *> surfacesForClient(WaylandClient* client) const;
 
-    bool setDirectRenderSurface(QWaylandSurface *surface, QOpenGLContext *context);
-    QWaylandSurface *directRenderSurface() const;
-
     QWindow *window()const;
 
     virtual void surfaceCreated(QWaylandSurface *surface) = 0;
@@ -132,6 +129,8 @@ public:
     void sendDragEndEvent();
 
     virtual void setCursorSurface(QWaylandSurface *surface, int hotspotX, int hotspotY);
+
+    void cleanupGraphicsResources();
 
     enum TouchExtensionFlag {
         TouchExtMouseFromTouch = 0x01

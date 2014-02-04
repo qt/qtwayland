@@ -52,7 +52,6 @@
 QT_BEGIN_NAMESPACE
 
 class QWaylandSurfaceTextureProvider;
-class QWaylandSurfaceNode;
 class QMutex;
 
 Q_DECLARE_METATYPE(QWaylandSurface*)
@@ -141,8 +140,8 @@ private:
 
     QWaylandSurface *m_surface;
     QWaylandSurfaceTextureProvider *m_provider;
-    QWaylandSurfaceNode *m_node;
     bool m_paintEnabled;
+    bool m_mapped;
     bool m_useTextureAlpha;
     bool m_clientRenderingEnabled;
     bool m_touchEventsEnabled;

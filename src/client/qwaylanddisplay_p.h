@@ -130,6 +130,15 @@ public:
     QtWayland::wl_text_input_manager *textInputManager() const { return mTextInputManager.data(); }
     QWaylandHardwareIntegration *hardwareIntegration() const { return mHardwareIntegration.data(); }
 
+    struct RegistryGlobal {
+        uint32_t id;
+        QString interface;
+        uint32_t version;
+        struct ::wl_registry *registry;
+        RegistryGlobal(uint32_t id_, const QString &interface_, uint32_t version_, struct ::wl_registry *registry_)
+            : id(id_), interface(interface_), version(version_), registry(registry_) { }
+    };
+
     /* wl_registry_add_listener does not add but rather sets a listener, so this function is used
      * to enable many listeners at once. */
     void addRegistryListener(RegistryListener listener, void *data);
@@ -173,13 +182,14 @@ private:
     QScopedPointer<QWaylandWindowManagerIntegration> mWindowManagerIntegration;
     QScopedPointer<QtWayland::wl_text_input_manager> mTextInputManager;
     QScopedPointer<QWaylandHardwareIntegration> mHardwareIntegration;
-
     QSocketNotifier *mReadNotifier;
     int mFd;
     int mWritableNotificationFd;
     bool mScreensInitialized;
+    QList<RegistryGlobal> mGlobals;
 
     void registry_global(uint32_t id, const QString &interface, uint32_t version) Q_DECL_OVERRIDE;
+    void registry_global_remove(uint32_t id) Q_DECL_OVERRIDE;
 
     static void shellHandleConfigure(void *data, struct wl_shell *shell,
                                      uint32_t time, uint32_t edges,

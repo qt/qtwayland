@@ -39,8 +39,8 @@
 **
 ****************************************************************************/
 
-#include <QtWaylandClient/qwaylandclientbufferintegrationplugin.h>
-#include "qwaylandbrcmeglclientbufferintegration.h"
+#include <QtWaylandClient/private/qwaylandclientbufferintegrationplugin_p.h>
+#include "qwaylandbrcmeglintegration.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -56,15 +56,15 @@ public:
 QStringList QWaylandBrcmEglClientBufferPlugin::keys() const
 {
     QStringList list;
-    list << "brcm";
+    list << "wayland-brcm";
     return list;
 }
 
-QWaylandEglClientBufferIntegration *QWaylandBrcmEglClientBufferPlugin::create(const QString& system, const QStringList& paramList)
+QWaylandClientBufferIntegration *QWaylandBrcmEglClientBufferPlugin::create(const QString& system, const QStringList& paramList)
 {
     Q_UNUSED(paramList);
-    if (system.toLower() == "brcm")
-        return new QWaylandBrcmEglClientBufferIntegration();
+    if (system.toLower() == "wayland-brcm")
+        return new QWaylandBrcmEglIntegration();
 
     return 0;
 }

@@ -18,12 +18,10 @@ QT += core-private
 
 qtHaveModule(quick) {
     SOURCES += \
-        compositor_api/qwaylandsurfaceitem.cpp \
-        compositor_api/qwaylandsurfacenode.cpp
+        compositor_api/qwaylandsurfaceitem.cpp
 
     HEADERS += \
-        compositor_api/qwaylandsurfaceitem.h \
-        compositor_api/qwaylandsurfacenode_p.h
+        compositor_api/qwaylandsurfaceitem.h
 
     DEFINES += QT_COMPOSITOR_QUICK
 

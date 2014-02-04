@@ -39,8 +39,8 @@
 **
 ****************************************************************************/
 
-#include <QtWaylandClient/qwaylandclientbufferintegrationplugin.h>
-#include "qwaylandxcompositeglxclientbufferintegration.h"
+#include <QtWaylandClient/private/qwaylandclientbufferintegrationplugin_p.h>
+#include "qwaylandxcompositeglxintegration.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -64,7 +64,7 @@ QWaylandClientBufferIntegration *QWaylandXCompositeGlxClientBufferIntegrationPlu
 {
     Q_UNUSED(paramList);
     if (system.toLower() == "xcomposite-glx")
-        return new QWaylandXCompositeGLXClientBufferIntegration();
+        return new QWaylandXCompositeGLXIntegration();
 
     return 0;
 }

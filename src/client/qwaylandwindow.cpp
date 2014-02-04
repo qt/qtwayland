@@ -80,6 +80,8 @@ QWaylandWindow::QWaylandWindow(QWindow *window)
     , mFrameCallback(0)
     , mRequestResizeSent(false)
     , mCanResize(true)
+    , mResizeDirty(false)
+    , mResizeAfterSwap(!qEnvironmentVariableIsSet("QT_WAYLAND_RESIZE_AFTER_SWAP"))
     , mSentInitialResize(false)
     , mMouseDevice(0)
     , mMouseSerial(0)
@@ -119,7 +121,7 @@ QWaylandWindow::QWaylandWindow(QWindow *window)
 
     setWindowFlags(window->flags());
     setGeometry(window->geometry());
-    setWindowState(window->windowState());
+    setWindowStateInternal(window->windowState());
 }
 
 QWaylandWindow::~QWaylandWindow()
@@ -195,18 +197,16 @@ void QWaylandWindow::setGeometry(const QRect &rect)
     if (mWindowDecoration && window()->isVisible())
         mWindowDecoration->update();
 
-    if (mConfigure.isEmpty()) {
+    if (mResizeAfterSwap)
+        mResizeDirty = true;
+    else
         QWindowSystemInterface::handleGeometryChange(window(), geometry());
-        QWindowSystemInterface::handleExposeEvent(window(), QRegion(geometry()));
-    }
+    QWindowSystemInterface::handleExposeEvent(window(), QRegion(geometry()));
 }
 
 void QWaylandWindow::setVisible(bool visible)
 {
     if (visible) {
-        if (mBuffer)
-            attach(mBuffer->buffer(), 0, 0);
-
         if (window()->type() == Qt::Popup && transientParent()) {
             QWaylandWindow *parent = transientParent();
             mMouseDevice = parent->mMouseDevice;
@@ -227,10 +227,10 @@ void QWaylandWindow::setVisible(bool visible)
         // QWaylandShmBackingStore::beginPaint().
     } else {
         QWindowSystemInterface::handleExposeEvent(window(), QRegion());
+        QWindowSystemInterface::flushWindowSystemEvents();
         attach(static_cast<QWaylandBuffer *>(0), 0, 0);
+        commit();
     }
-    damage(QRect(QPoint(0,0),geometry().size()));
-    commit();
 }
 
 
@@ -287,7 +287,6 @@ void QWaylandWindow::doResize()
     setGeometry(geometry);
 
     mConfigure.clear();
-    QWindowSystemInterface::handleGeometryChange(window(), geometry);
 }
 
 void QWaylandWindow::setCanResize(bool canResize)
@@ -295,9 +294,17 @@ void QWaylandWindow::setCanResize(bool canResize)
     QMutexLocker lock(&mResizeLock);
     mCanResize = canResize;
 
-    if (canResize && !mConfigure.isEmpty()) {
-        doResize();
-        QWindowSystemInterface::handleExposeEvent(window(), geometry());
+    if (canResize) {
+        if (mResizeDirty) {
+            QWindowSystemInterface::handleGeometryChange(window(), geometry());
+        }
+        if (!mConfigure.isEmpty()) {
+            doResize();
+            QWindowSystemInterface::handleExposeEvent(window(), geometry());
+        } else if (mResizeDirty) {
+            QWindowSystemInterface::handleExposeEvent(window(), geometry());
+            mResizeDirty = false;
+        }
     }
 }
 
@@ -409,31 +416,8 @@ void QWaylandWindow::handleContentOrientationChange(Qt::ScreenOrientation orient
 
 void QWaylandWindow::setWindowState(Qt::WindowState state)
 {
-    if (mState == state) {
-        return;
-    }
-
-    // As of february 2013 QWindow::setWindowState sets the new state value after
-    // QPlatformWindow::setWindowState returns, so we cannot rely on QWindow::windowState
-    // here. We use then this mState variable.
-    mState = state;
-    createDecoration();
-    switch (state) {
-        case Qt::WindowFullScreen:
-            mShellSurface->setFullscreen();
-            break;
-        case Qt::WindowMaximized:
-            mShellSurface->setMaximized();
-            break;
-        case Qt::WindowMinimized:
-            mShellSurface->setMinimized();
-            break;
-        default:
-            mShellSurface->setNormal();
-    }
-
-    QWindowSystemInterface::handleWindowStateChanged(window(), mState);
-    QWindowSystemInterface::flushWindowSystemEvents(); // Required for oldState to work on WindowStateChanged
+    if (setWindowStateInternal(state))
+        QWindowSystemInterface::flushWindowSystemEvents(); // Required for oldState to work on WindowStateChanged
 }
 
 void QWaylandWindow::setWindowFlags(Qt::WindowFlags flags)
@@ -602,6 +586,35 @@ bool QWaylandWindow::setMouseGrabEnabled(bool grab)
     }
 
     mMouseGrab = grab ? this : 0;
+    return true;
+}
+
+bool QWaylandWindow::setWindowStateInternal(Qt::WindowState state)
+{
+    if (mState == state) {
+        return false;
+    }
+
+    // As of february 2013 QWindow::setWindowState sets the new state value after
+    // QPlatformWindow::setWindowState returns, so we cannot rely on QWindow::windowState
+    // here. We use then this mState variable.
+    mState = state;
+    createDecoration();
+    switch (state) {
+        case Qt::WindowFullScreen:
+            mShellSurface->setFullscreen();
+            break;
+        case Qt::WindowMaximized:
+            mShellSurface->setMaximized();
+            break;
+        case Qt::WindowMinimized:
+            mShellSurface->setMinimized();
+            break;
+        default:
+            mShellSurface->setNormal();
+    }
+
+    QWindowSystemInterface::handleWindowStateChanged(window(), mState);
     return true;
 }
 

@@ -142,6 +142,7 @@ public:
 
     void swapBuffers();
     void releaseSurfaces();
+    void frameStarted();
 
 private:
     Q_DISABLE_COPY(Surface)

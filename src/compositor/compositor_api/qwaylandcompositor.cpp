@@ -99,6 +99,12 @@ void QWaylandCompositor::sendFrameCallbacks(QList<QWaylandSurface *> visibleSurf
     m_compositor->sendFrameCallbacks(visibleSurfaces);
 }
 
+void QWaylandCompositor::frameStarted()
+{
+    for (QtWayland::Surface *surf: m_compositor->surfaces())
+        surf->frameStarted();
+}
+
 void QWaylandCompositor::destroyClientForSurface(QWaylandSurface *surface)
 {
     destroyClient(surface->client());

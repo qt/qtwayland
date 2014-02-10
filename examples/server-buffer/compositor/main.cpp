@@ -83,6 +83,7 @@ public:
         create();
         grabWindow();
 
+        connect(this, SIGNAL(beforeSynchronizing()), this, SLOT(startFrame()), Qt::DirectConnection);
         connect(this, SIGNAL(afterRendering()), this, SLOT(sendCallbacks()), Qt::DirectConnection);
 
         connect(this, SIGNAL(sceneGraphInitialized()), this, SLOT(initiateServerBuffer()),Qt::DirectConnection);
@@ -125,6 +126,10 @@ private slots:
         QWaylandSurface *surface = static_cast<QWaylandSurface *>(object);
         QQuickItem *item = surface->surfaceItem();
         emit windowDestroyed(QVariant::fromValue(item));
+    }
+
+    void startFrame() {
+        frameStarted();
     }
 
     void sendCallbacks() {

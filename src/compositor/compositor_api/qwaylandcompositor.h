@@ -84,6 +84,7 @@ public:
 
     struct wl_display *waylandDisplay() const;
 
+    void frameStarted();
     void sendFrameCallbacks(QList<QWaylandSurface *> visibleSurfaces);
 
     void destroyClientForSurface(QWaylandSurface *surface);

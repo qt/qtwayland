@@ -78,6 +78,7 @@ public:
     FrameCallback(Surface *surf, wl_resource *res)
         : surface(surf)
         , resource(res)
+        , canSend(false)
     {
 #if WAYLAND_VERSION_MAJOR < 1 || (WAYLAND_VERSION_MAJOR == 1 && WAYLAND_VERSION_MINOR <= 2)
         res->data = this;
@@ -113,6 +114,7 @@ public:
     }
     Surface *surface;
     wl_resource *resource;
+    bool canSend;
 };
 
 Surface::Surface(struct wl_client *client, uint32_t id, Compositor *compositor)
@@ -269,9 +271,12 @@ GLuint Surface::textureId() const
 void Surface::sendFrameCallback()
 {
     uint time = m_compositor->currentTimeMsecs();
-    foreach (FrameCallback *callback, m_frameCallbacks)
-        callback->send(time);
-    m_frameCallbacks.clear();
+    foreach (FrameCallback *callback, m_frameCallbacks) {
+        if (callback->canSend) {
+            callback->send(time);
+            m_frameCallbacks.removeOne(callback);
+        }
+    }
 }
 
 void Surface::removeFrameCallback(FrameCallback *callback)
@@ -478,6 +483,12 @@ void Surface::surface_commit(Resource *)
 
     m_frameCallbacks << m_pendingFrameCallbacks;
     m_pendingFrameCallbacks.clear();
+}
+
+void Surface::frameStarted()
+{
+    foreach (FrameCallback *c, m_frameCallbacks)
+        c->canSend = true;
 }
 
 void Surface::setClassName(const QString &className)

@@ -220,6 +220,7 @@ protected:
     void paintEvent(QPaintEvent *) {
         QPainter p(this);
 
+        frameStarted();
         if (!m_background.isNull())
             p.drawPixmap(rect(), m_backgroundScaled);
 

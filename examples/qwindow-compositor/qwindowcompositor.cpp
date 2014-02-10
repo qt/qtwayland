@@ -310,6 +310,7 @@ void QWindowCompositor::paintChildren(QWaylandSurface *surface, QWaylandSurface 
 void QWindowCompositor::render()
 {
     m_window->makeCurrent();
+    frameStarted();
 
     cleanupGraphicsResources();
 

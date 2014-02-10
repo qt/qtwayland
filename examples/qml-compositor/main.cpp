@@ -67,6 +67,7 @@ public:
         setColor(Qt::black);
         winId();
 
+        connect(this, SIGNAL(beforeSynchronizing()), this, SLOT(startFrame()), Qt::DirectConnection);
         connect(this, SIGNAL(afterRendering()), this, SLOT(sendCallbacks()), Qt::DirectConnection);
     }
 
@@ -135,6 +136,9 @@ private slots:
             sendFrameCallbacks(QList<QWaylandSurface *>() << m_fullscreenSurface);
         else
             sendFrameCallbacks(surfaces());
+    }
+    void startFrame() {
+        frameStarted();
     }
 
 protected:

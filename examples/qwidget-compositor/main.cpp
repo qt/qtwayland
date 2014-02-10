@@ -110,13 +110,13 @@ private slots:
         update();
     }
 
-    void surfaceDamaged(const QRect &rect) {
+    void surfaceDamaged(const QRegion &rect) {
         QWaylandSurface *surface = qobject_cast<QWaylandSurface *>(sender());
         surfaceDamaged(surface, rect);
     }
 
 protected:
-    void surfaceDamaged(QWaylandSurface *surface, const QRect &rect)
+    void surfaceDamaged(QWaylandSurface *surface, const QRegion &rect)
     {
 #ifdef QT_COMPOSITOR_WAYLAND_GL
         Q_UNUSED(surface);
@@ -130,7 +130,7 @@ protected:
     void surfaceCreated(QWaylandSurface *surface) {
         connect(surface, SIGNAL(destroyed(QObject *)), this, SLOT(surfaceDestroyed(QObject *)));
         connect(surface, SIGNAL(mapped()), this, SLOT(surfaceMapped()));
-        connect(surface, SIGNAL(damaged(const QRect &)), this, SLOT(surfaceDamaged(const QRect &)));
+        connect(surface, SIGNAL(damaged(const QRegion &)), this, SLOT(surfaceDamaged(const QRegion &)));
         update();
     }
 
@@ -140,7 +140,7 @@ protected:
         QOpenGLFunctions *functions = QOpenGLContext::currentContext()->functions();
 
         QSize windowSize = surface->size();
-        surface->advanceBufferQueue();
+        surface->swapBuffers();
 
         if (!m_surfaceCompositorFbo)
             functions->glGenFramebuffers(1,&m_surfaceCompositorFbo);
@@ -173,7 +173,7 @@ protected:
             QWaylandSurface *subSurface = i.next();
             QPointF p = subSurface->mapTo(window,QPoint(0,0));
             QSize size = subSurface->size();
-            subSurface->advanceBufferQueue();
+            subSurface->swapBuffers();
             if (size.isValid()) {
                 GLuint texture = 0;
                 if (subSurface->type() == QWaylandSurface::Texture) {

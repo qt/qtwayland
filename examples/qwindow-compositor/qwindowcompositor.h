@@ -61,12 +61,12 @@ private slots:
     void surfaceDestroyed(QObject *object);
     void surfaceMapped();
     void surfaceUnmapped();
-    void surfaceDamaged(const QRect &rect);
+    void surfaceDamaged(const QRegion &rect);
     void surfacePosChanged();
 
     void render();
 protected:
-    void surfaceDamaged(QWaylandSurface *surface, const QRect &rect);
+    void surfaceDamaged(QWaylandSurface *surface, const QRegion &rect);
     void surfaceCreated(QWaylandSurface *surface);
 
     QWaylandSurface* surfaceAt(const QPointF &point, QPointF *local = 0);

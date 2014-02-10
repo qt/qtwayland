@@ -159,7 +159,7 @@ void QWindowCompositor::surfaceUnmapped()
     ensureKeyboardFocusSurface(surface);
 }
 
-void QWindowCompositor::surfaceDamaged(const QRect &rect)
+void QWindowCompositor::surfaceDamaged(const QRegion &rect)
 {
     QWaylandSurface *surface = qobject_cast<QWaylandSurface *>(sender());
     surfaceDamaged(surface, rect);
@@ -170,7 +170,7 @@ void QWindowCompositor::surfacePosChanged()
     m_renderScheduler.start(0);
 }
 
-void QWindowCompositor::surfaceDamaged(QWaylandSurface *surface, const QRect &rect)
+void QWindowCompositor::surfaceDamaged(QWaylandSurface *surface, const QRegion &rect)
 {
     Q_UNUSED(surface)
     Q_UNUSED(rect)
@@ -182,7 +182,7 @@ void QWindowCompositor::surfaceCreated(QWaylandSurface *surface)
     connect(surface, SIGNAL(destroyed(QObject *)), this, SLOT(surfaceDestroyed(QObject *)));
     connect(surface, SIGNAL(mapped()), this, SLOT(surfaceMapped()));
     connect(surface, SIGNAL(unmapped()), this, SLOT(surfaceUnmapped()));
-    connect(surface, SIGNAL(damaged(const QRect &)), this, SLOT(surfaceDamaged(const QRect &)));
+    connect(surface, SIGNAL(damaged(const QRegion &)), this, SLOT(surfaceDamaged(const QRegion &)));
     connect(surface, SIGNAL(extendedSurfaceReady()), this, SLOT(sendExpose()));
     connect(surface, SIGNAL(posChanged()), this, SLOT(surfacePosChanged()));
     m_renderScheduler.start(0);
@@ -253,7 +253,7 @@ GLuint QWindowCompositor::composeSurface(QWaylandSurface *surface, bool *texture
     GLuint texture = 0;
 
     QSize windowSize = surface->size();
-    surface->advanceBufferQueue();
+    surface->swapBuffers();
 
     QOpenGLFunctions *functions = QOpenGLContext::currentContext()->functions();
     functions->glBindFramebuffer(GL_FRAMEBUFFER, m_surface_fbo);
@@ -288,7 +288,7 @@ void QWindowCompositor::paintChildren(QWaylandSurface *surface, QWaylandSurface 
         QWaylandSurface *subSurface = i.next();
         QPointF p = subSurface->mapTo(window,QPointF(0,0));
         QSize subSize = subSurface->size();
-        subSurface->advanceBufferQueue();
+        subSurface->swapBuffers();
         if (subSize.isValid()) {
             GLuint texture = 0;
             if (subSurface->type() == QWaylandSurface::Texture) {

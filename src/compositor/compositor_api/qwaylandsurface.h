@@ -178,7 +178,7 @@ public:
     Q_INVOKABLE void destroySurfaceByForce();
     Q_INVOKABLE void ping();
 
-    void advanceBufferQueue();
+    void swapBuffers();
 
 public slots:
     void updateSelection();
@@ -186,7 +186,7 @@ public slots:
 signals:
     void mapped();
     void unmapped();
-    void damaged(const QRect &rect);
+    void damaged(const QRegion &rect);
     void parentChanged(QWaylandSurface *newParent, QWaylandSurface *oldParent);
     void sizeChanged();
     void posChanged();

@@ -298,7 +298,7 @@ void QWaylandSurfaceItem::setDamagedFlag(bool on)
 }
 
 
-void QWaylandSurfaceItem::surfaceDamaged(const QRect &)
+void QWaylandSurfaceItem::surfaceDamaged(const QRegion &)
 {
     m_damaged = true;
     if (m_surface) {
@@ -390,7 +390,7 @@ QSGNode *QWaylandSurfaceItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeD
     // Order here is important, as the state of visible is that of the pending
     // buffer but will be replaced after we advance the buffer queue.
     bool visible = m_surface->visible();
-    surface()->advanceBufferQueue();
+    surface()->swapBuffers();
     if (visible)
         updateTexture();
 

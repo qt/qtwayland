@@ -48,6 +48,7 @@
 
 #include <QtCore/QVector>
 #include <QtCore/QRect>
+#include <QtGui/QRegion>
 #include <QtGui/QImage>
 
 #include <QtCore/QTextStream>
@@ -139,7 +140,7 @@ public:
     bool isCursorSurface() const { return m_isCursorSurface; }
     void setCursorSurface(bool isCursor) { m_isCursorSurface = isCursor; }
 
-    void advanceBufferQueue();
+    void swapBuffers();
     void releaseSurfaces();
 
 private:
@@ -149,9 +150,16 @@ private:
     QWaylandSurface *m_waylandSurface;
 
     SurfaceBuffer *m_backBuffer;
+    QRegion m_damage;
     SurfaceBuffer *m_frontBuffer;
-    QList<SurfaceBuffer *> m_bufferQueue;
     bool m_surfaceMapped;
+
+    struct {
+        SurfaceBuffer *buffer;
+        QRegion damage;
+        QPoint offset;
+        bool newlyAttached;
+    } m_pending;
 
     QPoint m_lastLocalMousePos;
     QPoint m_lastGlobalMousePos;
@@ -177,11 +185,8 @@ private:
     bool m_isCursorSurface;
 
     inline SurfaceBuffer *currentSurfaceBuffer() const;
-    void damage(const QRect &rect);
     void setBackBuffer(SurfaceBuffer *buffer);
     SurfaceBuffer *createSurfaceBuffer(struct ::wl_resource *buffer);
-
-    void attach(struct ::wl_resource *buffer);
 
     void surface_destroy_resource(Resource *resource) Q_DECL_OVERRIDE;
 

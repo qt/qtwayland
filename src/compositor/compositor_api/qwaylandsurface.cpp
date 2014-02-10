@@ -104,10 +104,10 @@ QWaylandSurface::QWaylandSurface(QtWayland::Surface *surface)
 #endif
 }
 
-void QWaylandSurface::advanceBufferQueue()
+void QWaylandSurface::swapBuffers()
 {
     Q_D(const QWaylandSurface);
-    d->surface->advanceBufferQueue();
+    d->surface->swapBuffers();
 }
 
 WaylandClient *QWaylandSurface::client() const

@@ -148,7 +148,7 @@ bool Surface::visible() const
 {
 
     SurfaceBuffer *surfacebuffer = currentSurfaceBuffer();
-    return surfacebuffer->waylandBufferHandle();
+    return surfacebuffer ? bool(surfacebuffer->waylandBufferHandle()) : false;
 }
 
 QPointF Surface::pos() const

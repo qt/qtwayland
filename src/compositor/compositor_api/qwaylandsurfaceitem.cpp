@@ -90,7 +90,6 @@ QWaylandSurfaceItem::QWaylandSurfaceItem(QQuickItem *parent)
     , m_surface(0)
     , m_provider(0)
     , m_paintEnabled(true)
-    , m_mapped(false)
     , m_useTextureAlpha(false)
     , m_clientRenderingEnabled(true)
     , m_touchEventsEnabled(false)
@@ -105,7 +104,6 @@ QWaylandSurfaceItem::QWaylandSurfaceItem(QWaylandSurface *surface, QQuickItem *p
     , m_surface(0)
     , m_provider(0)
     , m_paintEnabled(true)
-    , m_mapped(false)
     , m_useTextureAlpha(false)
     , m_clientRenderingEnabled(true)
     , m_touchEventsEnabled(false)
@@ -274,13 +272,11 @@ void QWaylandSurfaceItem::takeFocus()
 
 void QWaylandSurfaceItem::surfaceMapped()
 {
-    m_mapped = true;
     update();
 }
 
 void QWaylandSurfaceItem::surfaceUnmapped()
 {
-    m_mapped = false;
     update();
 }
 
@@ -389,12 +385,12 @@ QSGNode *QWaylandSurfaceItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeD
 
     // Order here is important, as the state of visible is that of the pending
     // buffer but will be replaced after we advance the buffer queue.
-    bool visible = m_surface->visible();
+    bool mapped = m_surface->isMapped();
     surface()->advanceBufferQueue();
-    if (visible)
+    if (mapped)
         updateTexture();
 
-    if (!visible || !m_provider->t || !m_paintEnabled || !m_mapped) {
+    if (!mapped|| !m_provider || !m_provider->t || !m_paintEnabled) {
         delete oldNode;
         return 0;
     }

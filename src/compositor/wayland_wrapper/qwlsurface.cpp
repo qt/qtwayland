@@ -144,7 +144,7 @@ bool Surface::isYInverted() const
     return ret != negateReturn;
 }
 
-bool Surface::visible() const
+bool Surface::mapped() const
 {
 
     SurfaceBuffer *surfacebuffer = currentSurfaceBuffer();

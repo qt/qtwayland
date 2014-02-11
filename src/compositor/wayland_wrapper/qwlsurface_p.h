@@ -85,7 +85,7 @@ public:
     QWaylandSurface::Type type() const;
     bool isYInverted() const;
 
-    bool visible() const;
+    bool mapped() const;
 
     using QtWaylandServer::wl_surface::resource;
 

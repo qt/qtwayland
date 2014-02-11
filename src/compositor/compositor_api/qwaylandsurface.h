@@ -120,6 +120,7 @@ public:
     bool isYInverted() const;
 
     bool visible() const;
+    bool isMapped() const;
 
     QPointF pos() const;
     void setPos(const QPointF &pos);

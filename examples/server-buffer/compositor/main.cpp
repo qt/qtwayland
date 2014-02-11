@@ -111,14 +111,7 @@ public slots:
 private slots:
     void surfaceMapped() {
         QWaylandSurface *surface = qobject_cast<QWaylandSurface *>(sender());
-
-        QWaylandSurfaceItem *item = surface->surfaceItem();
-        if (!item) {
-            item = new QWaylandSurfaceItem(surface, rootObject());
-            item->setUseTextureAlpha(true);
-        }
-
-        item->setTouchEventsEnabled(true);
+        QQuickItem *item = surface->surfaceItem();
         emit windowAdded(QVariant::fromValue(static_cast<QQuickItem *>(item)));
     }
 
@@ -221,6 +214,10 @@ protected:
     }
 
     void surfaceCreated(QWaylandSurface *surface) {
+        QWaylandSurfaceItem *item = new QWaylandSurfaceItem(surface, rootObject());
+        item->setUseTextureAlpha(true);
+        item->setTouchEventsEnabled(true);
+
         connect(surface, SIGNAL(destroyed(QObject *)), this, SLOT(surfaceDestroyed(QObject *)));
         connect(surface, SIGNAL(mapped()), this, SLOT(surfaceMapped()));
         connect(surface,SIGNAL(unmapped()), this,SLOT(surfaceUnmapped()));

@@ -38,13 +38,17 @@
 **
 ****************************************************************************/
 
-#include "qwaylandclientbufferintegration.h"
+#include "qwlclientbufferintegration_p.h"
 
 QT_BEGIN_NAMESPACE
 
-QWaylandClientBufferIntegration::QWaylandClientBufferIntegration()
+namespace QtWayland {
+
+ClientBufferIntegration::ClientBufferIntegration()
     : m_compositor(0)
 {
+}
+
 }
 
 QT_END_NAMESPACE

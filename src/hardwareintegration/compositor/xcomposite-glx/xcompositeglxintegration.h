@@ -41,7 +41,7 @@
 #ifndef XCOMPOSITEGLXINTEGRATION_H
 #define XCOMPOSITEGLXINTEGRATION_H
 
-#include <QtCompositor/qwaylandclientbufferintegration.h>
+#include <QtCompositor/private/qwlclientbufferintegration_p.h>
 
 #include "xlibinclude.h"
 
@@ -53,7 +53,7 @@ QT_BEGIN_NAMESPACE
 
 class XCompositeHandler;
 
-class XCompositeGLXClientBufferIntegration : public QWaylandClientBufferIntegration
+class XCompositeGLXClientBufferIntegration : public QtWayland::ClientBufferIntegration
 {
 public:
     XCompositeGLXClientBufferIntegration();

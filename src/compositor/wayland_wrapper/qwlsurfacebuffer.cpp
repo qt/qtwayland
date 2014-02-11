@@ -44,7 +44,7 @@
 #include "qwlcompositor_p.h"
 
 #ifdef QT_COMPOSITOR_WAYLAND_GL
-#include "hardware_integration/qwaylandclientbufferintegration.h"
+#include "hardware_integration/qwlclientbufferintegration_p.h"
 #include <qpa/qplatformopenglcontext.h>
 #endif
 
@@ -111,7 +111,7 @@ void SurfaceBuffer::destructBufferState()
                 delete static_cast<QImage *>(m_handle);
 #ifdef QT_COMPOSITOR_WAYLAND_GL
             } else {
-                QWaylandClientBufferIntegration *hwIntegration = m_compositor->clientBufferIntegration();
+                ClientBufferIntegration *hwIntegration = m_compositor->clientBufferIntegration();
                 hwIntegration->unlockNativeBuffer(m_handle, 0);
 #endif
             }
@@ -133,7 +133,7 @@ QSize SurfaceBuffer::size() const
             m_size = QSize(wl_shm_buffer_get_width(m_shmBuffer), wl_shm_buffer_get_height(m_shmBuffer));
 #ifdef QT_COMPOSITOR_WAYLAND_GL
         } else {
-            QWaylandClientBufferIntegration *hwIntegration = m_compositor->clientBufferIntegration();
+            ClientBufferIntegration *hwIntegration = m_compositor->clientBufferIntegration();
             m_size = hwIntegration->bufferSize(m_buffer);
 #endif
         }
@@ -190,7 +190,7 @@ void SurfaceBuffer::destroyTexture()
 #ifdef QT_COMPOSITOR_WAYLAND_GL
     if (m_texture) {
         Q_ASSERT(QOpenGLContext::currentContext());
-        QWaylandClientBufferIntegration *hwIntegration = m_compositor->clientBufferIntegration();
+        ClientBufferIntegration *hwIntegration = m_compositor->clientBufferIntegration();
         if (hwIntegration->textureForBuffer(m_buffer) == 0)
             glDeleteTextures(1, &m_texture);
         else
@@ -226,7 +226,7 @@ void *SurfaceBuffer::handle() const
             that->m_handle = image;
 #ifdef QT_COMPOSITOR_WAYLAND_GL
         } else {
-            QWaylandClientBufferIntegration *clientBufferIntegration = m_compositor->clientBufferIntegration();
+            ClientBufferIntegration *clientBufferIntegration = m_compositor->clientBufferIntegration();
             that->m_handle = clientBufferIntegration->lockNativeBuffer(m_buffer, 0);
 #endif
         }
@@ -270,7 +270,7 @@ void SurfaceBuffer::destroy_listener_callback(wl_listener *listener, void *data)
 
 void SurfaceBuffer::createTexture()
 {
-    QWaylandClientBufferIntegration *hwIntegration = m_compositor->clientBufferIntegration();
+    ClientBufferIntegration *hwIntegration = m_compositor->clientBufferIntegration();
 #ifdef QT_COMPOSITOR_WAYLAND_GL
     if (!m_texture)
         m_texture = hwIntegration->textureForBuffer(m_buffer);

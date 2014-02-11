@@ -38,62 +38,53 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDSERVERBUFFERINTEGRATION_H
-#define QWAYLANDSERVERBUFFERINTEGRATION_H
-
-#include <QtCore/qglobal.h>
-#include <QtCore/QSize>
-#include <QtGui/qopengl.h>
+#ifndef QWAYLANDCLIENTBUFFERINTEGRATION_H
+#define QWAYLANDCLIENTBUFFERINTEGRATION_H
 
 #include <QtCompositor/qwaylandexport.h>
+#include <QtCore/QSize>
+#include <QtGui/qopengl.h>
+#include <QtGui/QOpenGLContext>
+#include <wayland-server.h>
 
 QT_BEGIN_NAMESPACE
 
 class QWaylandCompositor;
-class QOpenGLContext;
-struct wl_client;
-struct wl_resource;
 
 namespace QtWayland {
-    class Display;
-}
+class Display;
 
-class Q_COMPOSITOR_EXPORT QWaylandServerBuffer
+class Q_COMPOSITOR_EXPORT ClientBufferIntegration
 {
 public:
-    enum Format {
-        RGBA32,
-        A8
-    };
+    ClientBufferIntegration();
+    virtual ~ClientBufferIntegration() { }
 
-    QWaylandServerBuffer(const QSize &size, QWaylandServerBuffer::Format format);
-    virtual ~QWaylandServerBuffer();
+    void setCompositor(QWaylandCompositor *compositor) { m_compositor = compositor; }
 
-    virtual struct ::wl_resource *resourceForClient(struct ::wl_client *) = 0;
+    virtual void initializeHardware(QtWayland::Display *waylandDisplay) = 0;
 
-    virtual void bindTextureToBuffer() = 0;
+    // Used when the hardware integration wants to provide its own texture for a given buffer.
+    // In most cases the compositor creates and manages the texture so this is not needed.
+    virtual GLuint textureForBuffer(struct ::wl_resource *buffer) { Q_UNUSED(buffer); return 0; }
+    virtual void destroyTextureForBuffer(struct ::wl_resource *buffer) { Q_UNUSED(buffer); }
 
-    virtual bool isYInverted() const;
+    // Called with the texture bound.
+    virtual void bindTextureToBuffer(struct ::wl_resource *buffer) = 0;
 
-    QSize size() const;
-    Format format() const;
+    virtual bool isYInverted(struct ::wl_resource *) const { return true; }
+
+    virtual void *lockNativeBuffer(struct ::wl_resource *, QOpenGLContext *) const { return 0; }
+    virtual void unlockNativeBuffer(void *, QOpenGLContext *) const { return; }
+
+    virtual QSize bufferSize(struct ::wl_resource *) const { return QSize(); }
+
 protected:
-    QSize m_size;
-    Format m_format;
+    QWaylandCompositor *m_compositor;
 };
 
-class Q_COMPOSITOR_EXPORT QWaylandServerBufferIntegration
-{
-public:
-    QWaylandServerBufferIntegration();
-    virtual ~QWaylandServerBufferIntegration();
-
-    virtual void initializeHardware(QWaylandCompositor *);
-
-    virtual bool supportsFormat(QWaylandServerBuffer::Format format) const = 0;
-    virtual QWaylandServerBuffer *createServerBuffer(const QSize &size, QWaylandServerBuffer::Format format) = 0;
-};
+}
 
 QT_END_NAMESPACE
 
-#endif //QWAYLANDSERVERBUFFERINTEGRATION_H
+#endif // QWAYLANDCLIENTBUFFERINTEGRATION_H

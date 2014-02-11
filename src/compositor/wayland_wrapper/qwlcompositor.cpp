@@ -88,12 +88,12 @@
 #include <wayland-server.h>
 
 #include "hardware_integration/qwlhwintegration_p.h"
-#include "hardware_integration/qwaylandclientbufferintegration.h"
-#include "hardware_integration/qwaylandserverbufferintegration.h"
+#include "hardware_integration/qwlclientbufferintegration_p.h"
+#include "hardware_integration/qwlserverbufferintegration_p.h"
 #include "waylandwindowmanagerintegration.h"
 
-#include "hardware_integration/qwaylandclientbufferintegrationfactory.h"
-#include "hardware_integration/qwaylandserverbufferintegrationfactory.h"
+#include "hardware_integration/qwlclientbufferintegrationfactory_p.h"
+#include "hardware_integration/qwlserverbufferintegrationfactory_p.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -315,7 +315,7 @@ QWindow *Compositor::window() const
     return m_qt_compositor->window();
 }
 
-QWaylandClientBufferIntegration * Compositor::clientBufferIntegration() const
+ClientBufferIntegration * Compositor::clientBufferIntegration() const
 {
 #ifdef QT_COMPOSITOR_WAYLAND_GL
     return m_client_buffer_integration.data();
@@ -324,7 +324,7 @@ QWaylandClientBufferIntegration * Compositor::clientBufferIntegration() const
 #endif
 }
 
-QWaylandServerBufferIntegration * Compositor::serverBufferIntegration() const
+ServerBufferIntegration * Compositor::serverBufferIntegration() const
 {
 #ifdef QT_COMPOSITOR_WAYLAND_GL
     return m_server_buffer_integration.data();
@@ -540,7 +540,7 @@ void Compositor::sendDragEndEvent()
 
 void Compositor::loadClientBufferIntegration()
 {
-    QStringList keys = QWaylandClientBufferIntegrationFactory::keys();
+    QStringList keys = ClientBufferIntegrationFactory::keys();
     QString targetKey;
     QByteArray clientBufferIntegration = qgetenv("QT_WAYLAND_HARDWARE_INTEGRATION");
     if (clientBufferIntegration.isEmpty())
@@ -554,7 +554,7 @@ void Compositor::loadClientBufferIntegration()
     }
 
     if (!targetKey.isEmpty()) {
-        m_client_buffer_integration.reset(QWaylandClientBufferIntegrationFactory::create(targetKey, QStringList()));
+        m_client_buffer_integration.reset(ClientBufferIntegrationFactory::create(targetKey, QStringList()));
         if (m_client_buffer_integration) {
             m_client_buffer_integration->setCompositor(m_qt_compositor);
             if (m_hw_integration)
@@ -566,14 +566,14 @@ void Compositor::loadClientBufferIntegration()
 
 void Compositor::loadServerBufferIntegration()
 {
-    QStringList keys = QWaylandServerBufferIntegrationFactory::keys();
+    QStringList keys = ServerBufferIntegrationFactory::keys();
     QString targetKey;
     QByteArray serverBufferIntegration = qgetenv("QT_WAYLAND_SERVER_BUFFER_INTEGRATION");
     if (keys.contains(QString::fromLocal8Bit(serverBufferIntegration.constData()))) {
         targetKey = QString::fromLocal8Bit(serverBufferIntegration.constData());
     }
     if (!targetKey.isEmpty()) {
-        m_server_buffer_integration.reset(QWaylandServerBufferIntegrationFactory::create(targetKey, QStringList()));
+        m_server_buffer_integration.reset(ServerBufferIntegrationFactory::create(targetKey, QStringList()));
         if (m_hw_integration)
             m_hw_integration->setServerBufferIntegration(targetKey);
     }

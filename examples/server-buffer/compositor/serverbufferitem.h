@@ -49,21 +49,24 @@
 QT_BEGIN_NAMESPACE
 
 class ServerBufferTextureProvider;
-class QWaylandServerBuffer;
+
+namespace QtWayland {
+class ServerBuffer;
+}
 
 class ServerBufferItem : public QQuickItem
 {
     Q_OBJECT
-    Q_PROPERTY(QWaylandServerBuffer *serverBuffer READ serverBuffer CONSTANT)
+    Q_PROPERTY(QtWayland::ServerBuffer *serverBuffer READ serverBuffer CONSTANT)
     Q_PROPERTY(bool useTextureAlpha READ useTextureAlpha WRITE setUseTextureAlpha NOTIFY useTextureAlphaChanged)
     Q_PROPERTY(bool isYInverted READ isYInverted NOTIFY yInvertedChanged)
     Q_PROPERTY(int depth READ depth CONSTANT)
 
 public:
-    ServerBufferItem(QWaylandServerBuffer *serverBuffer, QQuickItem *parent = 0);
+    ServerBufferItem(QtWayland::ServerBuffer *serverBuffer, QQuickItem *parent = 0);
     ~ServerBufferItem();
 
-    QWaylandServerBuffer *serverBuffer() const { return m_server_buffer; }
+    QtWayland::ServerBuffer *serverBuffer() const { return m_server_buffer; }
 
     bool isYInverted() const;
     int depth() const;
@@ -86,7 +89,7 @@ protected:
 
 private:
     void updateTexture();
-    QWaylandServerBuffer *m_server_buffer;
+    QtWayland::ServerBuffer *m_server_buffer;
     ServerBufferTextureProvider *m_provider;
     bool m_useTextureAlpha;
 };

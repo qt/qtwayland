@@ -38,38 +38,42 @@
 **
 ****************************************************************************/
 
-#include "qwaylandserverbufferintegration.h"
+#include "qwlserverbufferintegration_p.h"
 
 QT_BEGIN_NAMESPACE
 
-QWaylandServerBuffer::QWaylandServerBuffer(const QSize &size, QWaylandServerBuffer::Format format)
+namespace QtWayland {
+
+ServerBuffer::ServerBuffer(const QSize &size, ServerBuffer::Format format)
     : m_size(size)
     , m_format(format)
 { }
-QWaylandServerBuffer::~QWaylandServerBuffer()
+ServerBuffer::~ServerBuffer()
 { }
 
 
-bool QWaylandServerBuffer::isYInverted() const
+bool ServerBuffer::isYInverted() const
 {
     return false;
 }
 
-QSize QWaylandServerBuffer::size() const
+QSize ServerBuffer::size() const
 { return m_size; }
 
-QWaylandServerBuffer::Format QWaylandServerBuffer::format() const
+ServerBuffer::Format ServerBuffer::format() const
 { return m_format; }
 
-QWaylandServerBufferIntegration::QWaylandServerBufferIntegration()
+ServerBufferIntegration::ServerBufferIntegration()
 { }
 
-QWaylandServerBufferIntegration::~QWaylandServerBufferIntegration()
+ServerBufferIntegration::~ServerBufferIntegration()
 { }
 
-void QWaylandServerBufferIntegration::initializeHardware(QWaylandCompositor *compositor)
+void ServerBufferIntegration::initializeHardware(QWaylandCompositor *compositor)
 {
     Q_UNUSED(compositor);
+}
+
 }
 
 QT_END_NAMESPACE

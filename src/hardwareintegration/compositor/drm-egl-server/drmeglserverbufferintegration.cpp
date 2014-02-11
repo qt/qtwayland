@@ -44,8 +44,8 @@
 
 QT_BEGIN_NAMESPACE
 
-DrmEglServerBuffer::DrmEglServerBuffer(DrmEglServerBufferIntegration *integration, const QSize &size, QWaylandServerBuffer::Format format)
-    : QWaylandServerBuffer(size,format)
+DrmEglServerBuffer::DrmEglServerBuffer(DrmEglServerBufferIntegration *integration, const QSize &size, QtWayland::ServerBuffer::Format format)
+    : QtWayland::ServerBuffer(size,format)
     , m_integration(integration)
 {
     m_format = format;
@@ -169,12 +169,12 @@ void DrmEglServerBufferIntegration::initializeHardware(QWaylandCompositor *compo
     QtWaylandServer::qt_drm_egl_server_buffer::init(compositor->waylandDisplay());
 }
 
-bool DrmEglServerBufferIntegration::supportsFormat(QWaylandServerBuffer::Format format) const
+bool DrmEglServerBufferIntegration::supportsFormat(QtWayland::ServerBuffer::Format format) const
 {
     switch (format) {
-        case QWaylandServerBuffer::RGBA32:
+        case QtWayland::ServerBuffer::RGBA32:
             return true;
-        case QWaylandServerBuffer::A8:
+        case QtWayland::ServerBuffer::A8:
 #ifdef EGL_DRM_BUFFER_FORMAT_A8_MESA
             return true;
 #else
@@ -185,7 +185,7 @@ bool DrmEglServerBufferIntegration::supportsFormat(QWaylandServerBuffer::Format 
     }
 }
 
-QWaylandServerBuffer *DrmEglServerBufferIntegration::createServerBuffer(const QSize &size, QWaylandServerBuffer::Format format)
+QtWayland::ServerBuffer *DrmEglServerBufferIntegration::createServerBuffer(const QSize &size, QtWayland::ServerBuffer::Format format)
 {
     return new DrmEglServerBuffer(this, size, format);
 }

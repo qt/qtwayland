@@ -39,30 +39,21 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDSERVERBUFFERINTEGRATIONPLUGIN_H
-#define QWAYLANDSERVERBUFFERINTEGRATIONPLUGIN_H
-
-#include <QtCompositor/qwaylandexport.h>
-
-#include <QtCore/qplugin.h>
-#include <QtCore/qfactoryinterface.h>
+#include "qwlclientbufferintegrationplugin_p.h"
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandServerBufferIntegration;
+namespace QtWayland {
 
-#define QWaylandServerBufferIntegrationFactoryInterface_iid "org.qt-project.Qt.Compositor.QWaylandServerBufferIntegrationFactoryInterface.5.3"
-
-class Q_COMPOSITOR_EXPORT QWaylandServerBufferIntegrationPlugin : public QObject
+ClientBufferIntegrationPlugin::ClientBufferIntegrationPlugin(QObject *parent) :
+    QObject(parent)
 {
-    Q_OBJECT
-public:
-    explicit QWaylandServerBufferIntegrationPlugin(QObject *parent = 0);
-    ~QWaylandServerBufferIntegrationPlugin();
+}
 
-    virtual QWaylandServerBufferIntegration *create(const QString &key, const QStringList &paramList) = 0;
-};
+ClientBufferIntegrationPlugin::~ClientBufferIntegrationPlugin()
+{
+}
+
+}
 
 QT_END_NAMESPACE
-
-#endif // QWAYLANDSERVERBUFFERINTEGRATIONPLUGIN_H

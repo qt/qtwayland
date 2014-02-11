@@ -47,14 +47,18 @@
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandClientBufferIntegration;
+namespace QtWayland {
 
-class Q_COMPOSITOR_EXPORT QWaylandClientBufferIntegrationFactory
+class ClientBufferIntegration;
+
+class Q_COMPOSITOR_EXPORT ClientBufferIntegrationFactory
 {
 public:
     static QStringList keys(const QString &pluginPath = QString());
-    static QWaylandClientBufferIntegration *create(const QString &name, const QStringList &args, const QString &pluginPath = QString());
+    static ClientBufferIntegration *create(const QString &name, const QStringList &args, const QString &pluginPath = QString());
 };
+
+}
 
 QT_END_NAMESPACE
 

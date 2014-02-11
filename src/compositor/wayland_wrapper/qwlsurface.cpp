@@ -59,7 +59,7 @@
 #include <wayland-server.h>
 
 #ifdef QT_COMPOSITOR_WAYLAND_GL
-#include "hardware_integration/qwaylandclientbufferintegration.h"
+#include "hardware_integration/qwlclientbufferintegration_p.h"
 #include <qpa/qplatformopenglcontext.h>
 #endif
 
@@ -129,7 +129,7 @@ bool Surface::isYInverted() const
 {
     bool ret = false;
     static bool negateReturn = qgetenv("QT_COMPOSITOR_NEGATE_INVERTED_Y").toInt();
-    QWaylandClientBufferIntegration *clientBufferIntegration = m_compositor->clientBufferIntegration();
+    ClientBufferIntegration *clientBufferIntegration = m_compositor->clientBufferIntegration();
 
 #ifdef QT_COMPOSITOR_WAYLAND_GL
     SurfaceBuffer *surfacebuffer = currentSurfaceBuffer();

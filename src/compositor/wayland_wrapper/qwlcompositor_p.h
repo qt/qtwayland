@@ -105,6 +105,7 @@ public:
     QWaylandClientBufferIntegration *clientBufferIntegration() const;
     QWaylandServerBufferIntegration *serverBufferIntegration() const;
     void initializeHardwareIntegration();
+    void initializeExtensions();
     void initializeDefaultInputDevice();
     void initializeWindowManagerProtocol();
 

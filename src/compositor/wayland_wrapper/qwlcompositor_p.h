@@ -57,8 +57,6 @@ QT_BEGIN_NAMESPACE
 
 class QWaylandCompositor;
 class QWaylandInputDevice;
-class QWaylandClientBufferIntegration;
-class QWaylandServerBufferIntegration;
 class WindowManagerServerIntegration;
 class QMimeData;
 class QPlatformScreenBuffer;
@@ -80,6 +78,8 @@ class QtKeyExtensionGlobal;
 class TextInputManager;
 class InputPanel;
 class HardwareIntegration;
+class ClientBufferIntegration;
+class ServerBufferIntegration;
 
 class Q_COMPOSITOR_EXPORT Compositor : public QObject
 {
@@ -102,9 +102,10 @@ public:
 
     QWindow *window() const;
 
-    QWaylandClientBufferIntegration *clientBufferIntegration() const;
-    QWaylandServerBufferIntegration *serverBufferIntegration() const;
+    ClientBufferIntegration *clientBufferIntegration() const;
+    ServerBufferIntegration *serverBufferIntegration() const;
     void initializeHardwareIntegration();
+    void initializeExtensions();
     void initializeDefaultInputDevice();
     void initializeWindowManagerProtocol();
 
@@ -196,8 +197,8 @@ private:
 
 #ifdef QT_COMPOSITOR_WAYLAND_GL
     QScopedPointer<HardwareIntegration> m_hw_integration;
-    QScopedPointer<QWaylandClientBufferIntegration> m_client_buffer_integration;
-    QScopedPointer<QWaylandServerBufferIntegration> m_server_buffer_integration;
+    QScopedPointer<ClientBufferIntegration> m_client_buffer_integration;
+    QScopedPointer<ServerBufferIntegration> m_server_buffer_integration;
 #endif
 
     //extensions

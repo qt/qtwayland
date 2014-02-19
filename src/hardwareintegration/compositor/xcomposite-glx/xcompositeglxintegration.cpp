@@ -72,7 +72,7 @@ QVector<int> qglx_buildSpec()
 
 
 XCompositeGLXClientBufferIntegration::XCompositeGLXClientBufferIntegration()
-    : QWaylandClientBufferIntegration()
+    : QtWayland::ClientBufferIntegration()
     , mDisplay(0)
     , mHandler(0)
 {

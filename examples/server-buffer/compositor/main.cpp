@@ -55,7 +55,7 @@
 
 #include "qwayland-server-share-buffer.h"
 #include <QtCompositor/private/qwlcompositor_p.h>
-#include <QtCompositor/qwaylandserverbufferintegration.h>
+#include <QtCompositor/private/qwlserverbufferintegration_p.h>
 
 #include "serverbufferitem.h"
 
@@ -111,14 +111,7 @@ public slots:
 private slots:
     void surfaceMapped() {
         QWaylandSurface *surface = qobject_cast<QWaylandSurface *>(sender());
-
-        QWaylandSurfaceItem *item = surface->surfaceItem();
-        if (!item) {
-            item = new QWaylandSurfaceItem(surface, rootObject());
-            item->setUseTextureAlpha(true);
-        }
-
-        item->setTouchEventsEnabled(true);
+        QQuickItem *item = surface->surfaceItem();
         emit windowAdded(QVariant::fromValue(static_cast<QQuickItem *>(item)));
     }
 
@@ -145,12 +138,12 @@ private slots:
 
         openglContext()->makeCurrent(this);
 
-        QWaylandServerBufferIntegration *sbi = QWaylandCompositor::handle()->serverBufferIntegration();
+        QtWayland::ServerBufferIntegration *sbi = QWaylandCompositor::handle()->serverBufferIntegration();
         if (!sbi) {
             qWarning("Could not find a Server Buffer Integration");
             return;
         }
-        if (sbi->supportsFormat(QWaylandServerBuffer::RGBA32)) {
+        if (sbi->supportsFormat(QtWayland::ServerBuffer::RGBA32)) {
                 QImage image(100,100,QImage::Format_ARGB32_Premultiplied);
                 image.fill(QColor(0x55,0x0,0x55,0x01));
                 {
@@ -169,7 +162,7 @@ private slots:
                 }
                 image = image.convertToFormat(QImage::Format_RGBA8888);
 
-                m_server_buffer_32_bit = sbi->createServerBuffer(image.size(),QWaylandServerBuffer::RGBA32);
+                m_server_buffer_32_bit = sbi->createServerBuffer(image.size(),QtWayland::ServerBuffer::RGBA32);
 
                 GLuint texture_32_bit;
                 glGenTextures(1, &texture_32_bit);
@@ -183,13 +176,13 @@ private slots:
 
         }
 
-        if (sbi->supportsFormat(QWaylandServerBuffer::A8)) {
+        if (sbi->supportsFormat(QtWayland::ServerBuffer::A8)) {
             QRawFont defaultRaw = QRawFont::fromFont(QFont(), QFontDatabase::Latin);
-            QVector<quint32> index = defaultRaw.glyphIndexesForString(QStringLiteral("A"));
+            QVector<quint32> index = defaultRaw.glyphIndexesForString(QStringLiteral("R"));
             QDistanceField distanceField(defaultRaw, index.front(), true);
             QImage img = distanceField.toImage(QImage::Format_Indexed8);
 
-            m_server_buffer_8_bit = sbi->createServerBuffer(img.size(), QWaylandServerBuffer::A8);
+            m_server_buffer_8_bit = sbi->createServerBuffer(img.size(), QtWayland::ServerBuffer::A8);
             GLuint texture_8_bit;
             glGenTextures(1, &texture_8_bit);
             glBindTexture(GL_TEXTURE_2D, texture_8_bit);
@@ -221,6 +214,10 @@ protected:
     }
 
     void surfaceCreated(QWaylandSurface *surface) {
+        QWaylandSurfaceItem *item = new QWaylandSurfaceItem(surface, rootObject());
+        item->setUseTextureAlpha(true);
+        item->setTouchEventsEnabled(true);
+
         connect(surface, SIGNAL(destroyed(QObject *)), this, SLOT(surfaceDestroyed(QObject *)));
         connect(surface, SIGNAL(mapped()), this, SLOT(surfaceMapped()));
         connect(surface,SIGNAL(unmapped()), this,SLOT(surfaceUnmapped()));
@@ -243,9 +240,9 @@ protected:
     }
 
 private:
-    QWaylandServerBuffer *m_server_buffer_32_bit;
+    QtWayland::ServerBuffer *m_server_buffer_32_bit;
     ServerBufferItem *m_server_buffer_item_32_bit;
-    QWaylandServerBuffer *m_server_buffer_8_bit;
+    QtWayland::ServerBuffer *m_server_buffer_8_bit;
     ServerBufferItem *m_server_buffer_item_8_bit;
 };
 

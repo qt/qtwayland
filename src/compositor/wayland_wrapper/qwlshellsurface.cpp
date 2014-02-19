@@ -62,7 +62,8 @@ void Shell::bind_func(struct wl_client *client, void *data,
                             uint32_t version, uint32_t id)
 {
     Q_UNUSED(version);
-    wl_client_add_object(client,&wl_shell_interface,&shell_interface,id,data);
+    struct wl_resource *resource = wl_resource_create(client, &wl_shell_interface, version, id);
+    wl_resource_set_implementation(resource, &shell_interface, data, 0);
 }
 
 ShellSurfacePopupGrabber *Shell::getPopupGrabber(InputDevice *input)

@@ -88,12 +88,12 @@
 #include <wayland-server.h>
 
 #include "hardware_integration/qwlhwintegration_p.h"
-#include "hardware_integration/qwaylandclientbufferintegration.h"
-#include "hardware_integration/qwaylandserverbufferintegration.h"
+#include "hardware_integration/qwlclientbufferintegration_p.h"
+#include "hardware_integration/qwlserverbufferintegration_p.h"
 #include "waylandwindowmanagerintegration.h"
 
-#include "hardware_integration/qwaylandclientbufferintegrationfactory.h"
-#include "hardware_integration/qwaylandserverbufferintegrationfactory.h"
+#include "hardware_integration/qwlclientbufferintegrationfactory_p.h"
+#include "hardware_integration/qwlserverbufferintegrationfactory_p.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -123,7 +123,8 @@ void Compositor::bind_func(struct wl_client *client, void *data,
                       uint32_t version, uint32_t id)
 {
     Q_UNUSED(version);
-    wl_client_add_object(client,&wl_compositor_interface, &compositor_interface, id,data);
+    struct wl_resource *resource = wl_resource_create(client, &wl_compositor_interface, version, id);
+    wl_resource_set_implementation(resource, &compositor_interface, data, 0);
 }
 
 Compositor *Compositor::instance()
@@ -157,10 +158,11 @@ Compositor::Compositor(QWaylandCompositor *qt_compositor, QWaylandCompositor::Ex
     m_timer.start();
     compositor = this;
 
-    if (extensions & QWaylandCompositor::WindowManagerExtension)
-        m_windowManagerIntegration = new WindowManagerServerIntegration(qt_compositor, this);
-
-    wl_display_add_global(m_display->handle(),&wl_compositor_interface,this,Compositor::bind_func);
+    wl_global_create(m_display->handle(),
+                     &wl_compositor_interface,
+                     wl_compositor_interface.version,
+                     this,
+                     Compositor::bind_func);
 
     m_data_device_manager =  new DataDeviceManager(this);
 
@@ -169,32 +171,11 @@ Compositor::Compositor(QWaylandCompositor *qt_compositor, QWaylandCompositor::Ex
     m_output_global = new OutputGlobal(m_display->handle());
 
     m_shell = new Shell();
-    wl_display_add_global(m_display->handle(), &wl_shell_interface, m_shell, Shell::bind_func);
-
-#if defined (QT_COMPOSITOR_WAYLAND_GL)
-    if (extensions & QWaylandCompositor::HardwareIntegrationExtension)
-        m_hw_integration.reset(new HardwareIntegration(this));
-    QWindow *window = qt_compositor->window();
-    if (window && window->surfaceType() != QWindow::RasterSurface) {
-        loadClientBufferIntegration();
-        loadServerBufferIntegration();
-    }
-#endif
-
-    if (extensions & QWaylandCompositor::OutputExtension)
-        m_outputExtension = new OutputExtensionGlobal(this);
-    if (extensions & QWaylandCompositor::SurfaceExtension)
-        m_surfaceExtension = new SurfaceExtensionGlobal(this);
-    if (extensions & QWaylandCompositor::SubSurfaceExtension)
-        m_subSurfaceExtension = new SubSurfaceExtensionGlobal(this);
-    if (extensions & QWaylandCompositor::TouchExtension)
-        m_touchExtension = new TouchExtensionGlobal(this);
-    if (extensions & QWaylandCompositor::QtKeyExtension)
-        m_qtkeyExtension = new QtKeyExtensionGlobal(this);
-    if (extensions & QWaylandCompositor::TextInputExtension) {
-        m_textInputManager.reset(new TextInputManager(this));
-        m_inputPanel.reset(new InputPanel(this));
-    }
+    wl_global_create(m_display->handle(),
+                     &wl_shell_interface,
+                     wl_shell_interface.version,
+                     m_shell,
+                     Shell::bind_func);
 
     if (wl_display_add_socket(m_display->handle(), qt_compositor->socketName())) {
         fprintf(stderr, "Fatal: Failed to open server socket\n");
@@ -215,7 +196,7 @@ Compositor::Compositor(QWaylandCompositor *qt_compositor, QWaylandCompositor::Ex
     //initialize distancefieldglyphcache here
 
 #ifdef QT_COMPOSITOR_QUICK
-    if (QQuickWindow *w = qobject_cast<QQuickWindow *>(window)) {
+    if (QQuickWindow *w = qobject_cast<QQuickWindow *>(qt_compositor->window())) {
         connect(w, SIGNAL(beforeSynchronizing()), this, SLOT(cleanupGraphicsResources()), Qt::DirectConnection);
     } else
 #endif
@@ -322,7 +303,7 @@ QWindow *Compositor::window() const
     return m_qt_compositor->window();
 }
 
-QWaylandClientBufferIntegration * Compositor::clientBufferIntegration() const
+ClientBufferIntegration * Compositor::clientBufferIntegration() const
 {
 #ifdef QT_COMPOSITOR_WAYLAND_GL
     return m_client_buffer_integration.data();
@@ -331,7 +312,7 @@ QWaylandClientBufferIntegration * Compositor::clientBufferIntegration() const
 #endif
 }
 
-QWaylandServerBufferIntegration * Compositor::serverBufferIntegration() const
+ServerBufferIntegration * Compositor::serverBufferIntegration() const
 {
 #ifdef QT_COMPOSITOR_WAYLAND_GL
     return m_server_buffer_integration.data();
@@ -343,6 +324,14 @@ QWaylandServerBufferIntegration * Compositor::serverBufferIntegration() const
 void Compositor::initializeHardwareIntegration()
 {
 #ifdef QT_COMPOSITOR_WAYLAND_GL
+    if (m_extensions & QWaylandCompositor::HardwareIntegrationExtension)
+        m_hw_integration.reset(new HardwareIntegration(this));
+    QWindow *window = m_qt_compositor->window();
+    if (window && window->surfaceType() != QWindow::RasterSurface) {
+        loadClientBufferIntegration();
+        loadServerBufferIntegration();
+    }
+
     if (m_client_buffer_integration)
         m_client_buffer_integration->initializeHardware(m_display);
     if (m_server_buffer_integration)
@@ -350,16 +339,32 @@ void Compositor::initializeHardwareIntegration()
 #endif
 }
 
+void Compositor::initializeExtensions()
+{
+    if (m_extensions & QWaylandCompositor::OutputExtension)
+        m_outputExtension = new OutputExtensionGlobal(this);
+    if (m_extensions & QWaylandCompositor::SurfaceExtension)
+        m_surfaceExtension = new SurfaceExtensionGlobal(this);
+    if (m_extensions & QWaylandCompositor::SubSurfaceExtension)
+        m_subSurfaceExtension = new SubSurfaceExtensionGlobal(this);
+    if (m_extensions & QWaylandCompositor::TouchExtension)
+        m_touchExtension = new TouchExtensionGlobal(this);
+    if (m_extensions & QWaylandCompositor::QtKeyExtension)
+        m_qtkeyExtension = new QtKeyExtensionGlobal(this);
+    if (m_extensions & QWaylandCompositor::TextInputExtension) {
+        m_textInputManager.reset(new TextInputManager(this));
+        m_inputPanel.reset(new InputPanel(this));
+    }
+    if (m_extensions & QWaylandCompositor::WindowManagerExtension) {
+        m_windowManagerIntegration = new WindowManagerServerIntegration(m_qt_compositor, this);
+        m_windowManagerIntegration->initialize(m_display);
+    }
+}
+
 void Compositor::initializeDefaultInputDevice()
 {
     m_default_wayland_input_device = new QWaylandInputDevice(m_qt_compositor);
     m_default_input_device = m_default_wayland_input_device->handle();
-}
-
-void Compositor::initializeWindowManagerProtocol()
-{
-    if (m_windowManagerIntegration)
-        m_windowManagerIntegration->initialize(m_display);
 }
 
 QList<struct wl_client *> Compositor::clients() const
@@ -523,7 +528,7 @@ void Compositor::sendDragEndEvent()
 
 void Compositor::loadClientBufferIntegration()
 {
-    QStringList keys = QWaylandClientBufferIntegrationFactory::keys();
+    QStringList keys = ClientBufferIntegrationFactory::keys();
     QString targetKey;
     QByteArray clientBufferIntegration = qgetenv("QT_WAYLAND_HARDWARE_INTEGRATION");
     if (clientBufferIntegration.isEmpty())
@@ -537,7 +542,7 @@ void Compositor::loadClientBufferIntegration()
     }
 
     if (!targetKey.isEmpty()) {
-        m_client_buffer_integration.reset(QWaylandClientBufferIntegrationFactory::create(targetKey, QStringList()));
+        m_client_buffer_integration.reset(ClientBufferIntegrationFactory::create(targetKey, QStringList()));
         if (m_client_buffer_integration) {
             m_client_buffer_integration->setCompositor(m_qt_compositor);
             if (m_hw_integration)
@@ -549,14 +554,14 @@ void Compositor::loadClientBufferIntegration()
 
 void Compositor::loadServerBufferIntegration()
 {
-    QStringList keys = QWaylandServerBufferIntegrationFactory::keys();
+    QStringList keys = ServerBufferIntegrationFactory::keys();
     QString targetKey;
     QByteArray serverBufferIntegration = qgetenv("QT_WAYLAND_SERVER_BUFFER_INTEGRATION");
     if (keys.contains(QString::fromLocal8Bit(serverBufferIntegration.constData()))) {
         targetKey = QString::fromLocal8Bit(serverBufferIntegration.constData());
     }
     if (!targetKey.isEmpty()) {
-        m_server_buffer_integration.reset(QWaylandServerBufferIntegrationFactory::create(targetKey, QStringList()));
+        m_server_buffer_integration.reset(ServerBufferIntegrationFactory::create(targetKey, QStringList()));
         if (m_hw_integration)
             m_hw_integration->setServerBufferIntegration(targetKey);
     }

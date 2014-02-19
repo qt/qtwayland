@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the Qt Compositor.
@@ -38,38 +38,11 @@
 **
 ****************************************************************************/
 
-#include "qwaylandserverbufferintegration.h"
+#include <wayland-cursor.h>
 
-QT_BEGIN_NAMESPACE
-
-QWaylandServerBuffer::QWaylandServerBuffer(const QSize &size, QWaylandServerBuffer::Format format)
-    : m_size(size)
-    , m_format(format)
-{ }
-QWaylandServerBuffer::~QWaylandServerBuffer()
-{ }
-
-
-bool QWaylandServerBuffer::isYInverted() const
+int main()
 {
-    return false;
+    struct wl_cursor_image *image = 0;
+
+    return 0;
 }
-
-QSize QWaylandServerBuffer::size() const
-{ return m_size; }
-
-QWaylandServerBuffer::Format QWaylandServerBuffer::format() const
-{ return m_format; }
-
-QWaylandServerBufferIntegration::QWaylandServerBufferIntegration()
-{ }
-
-QWaylandServerBufferIntegration::~QWaylandServerBufferIntegration()
-{ }
-
-void QWaylandServerBufferIntegration::initializeHardware(QWaylandCompositor *compositor)
-{
-    Q_UNUSED(compositor);
-}
-
-QT_END_NAMESPACE

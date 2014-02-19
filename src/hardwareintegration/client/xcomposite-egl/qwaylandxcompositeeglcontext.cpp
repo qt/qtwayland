@@ -64,6 +64,7 @@ void QWaylandXCompositeEGLContext::swapBuffers(QPlatformSurface *surface)
 
     QSize size = w->geometry().size();
 
+    w->attach(w->buffer(), 0, 0);
     w->damage(QRect(QPoint(), size));
     w->commit();
     w->waitForFrameSync();

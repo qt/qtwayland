@@ -47,7 +47,7 @@ QT_BEGIN_NAMESPACE
 class QWaylandXCompositeGlxClientBufferIntegrationPlugin : public QWaylandClientBufferIntegrationPlugin
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.WaylandClient.QWaylandClientBufferIntegrationFactoryInterface.5.2" FILE "xcomposite-glx.json")
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.WaylandClient.QWaylandClientBufferIntegrationFactoryInterface.5.3" FILE "xcomposite-glx.json")
 public:
     QStringList keys() const;
     QWaylandClientBufferIntegration *create(const QString&, const QStringList&);

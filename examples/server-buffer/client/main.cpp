@@ -128,7 +128,7 @@ public slots:
 
             const QSizeF buffer_size = m_server_buffer_list.at(i)->size();
             qreal scale_x = buffer_size.width() / width();
-            qreal scale_y = buffer_size.height() / height();
+            qreal scale_y = buffer_size.height() / height() * - 1;
             qreal translate_left = (((buffer_size.width() / 2) / width()) * 2) - 1;
             qreal translate_top = -(((buffer_size.height() / 2) / height()) * 2) + 1;
             qreal translate_x = translate_left + ((x / width())*2);

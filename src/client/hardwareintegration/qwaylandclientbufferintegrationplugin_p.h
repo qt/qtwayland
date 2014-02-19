@@ -52,7 +52,7 @@ QT_BEGIN_NAMESPACE
 
 class QWaylandClientBufferIntegration;
 
-#define QWaylandClientBufferIntegrationFactoryInterface_iid "org.qt-project.Qt.WaylandClient.QWaylandClientBufferIntegrationFactoryInterface.5.2"
+#define QWaylandClientBufferIntegrationFactoryInterface_iid "org.qt-project.Qt.WaylandClient.QWaylandClientBufferIntegrationFactoryInterface.5.3"
 
 class Q_WAYLAND_CLIENT_EXPORT QWaylandClientBufferIntegrationPlugin : public QObject
 {

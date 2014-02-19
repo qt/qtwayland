@@ -43,15 +43,17 @@
 int main()
 {
 #if WAYLAND_VERSION_MAJOR < 1
-# error Wayland 1.1.0 or higher required
+# error Wayland 1.3.0 or higher required
 #endif
-#if WAYLAND_VERSION_MINOR < 1
-#  error Wayland 1.1.0 or higher required
-#endif
-#if WAYLAND_VERSION_MINOR < 2
-//#  if WAYLAND_VERSION_MICRO < 0
-//#  error Wayland 1.1.0 or higher required
-//# endif
+#if WAYLAND_VERSION_MAJOR == 1
+# if WAYLAND_VERSION_MINOR < 3
+#  error Wayland 1.3.0 or higher required
 # endif
+# if WAYLAND_VERSION_MINOR == 3
+#  if WAYLAND_VERSION_MICRO < 0
+#   error Wayland 1.3.0 or higher required
+#  endif
+# endif
+#endif
     return 0;
 }

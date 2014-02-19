@@ -45,11 +45,11 @@
 #include <QtQuick/QSGSimpleTextureNode>
 #include <QtQuick/QQuickWindow>
 
-#include <QtCompositor/qwaylandserverbufferintegration.h>
+#include <QtCompositor/private/qwlserverbufferintegration_p.h>
 
 QT_BEGIN_NAMESPACE
 
-ServerBufferItem::ServerBufferItem(QWaylandServerBuffer *serverBuffer, QQuickItem *parent)
+ServerBufferItem::ServerBufferItem(QtWayland::ServerBuffer *serverBuffer, QQuickItem *parent)
     : QQuickItem(parent)
     , m_server_buffer(serverBuffer)
     , m_provider(new ServerBufferTextureProvider)
@@ -72,7 +72,7 @@ bool ServerBufferItem::isYInverted() const
 
 int ServerBufferItem::depth() const
 {
-    return m_server_buffer->format() == QWaylandServerBuffer::RGBA32 ? 32 : 8;
+    return m_server_buffer->format() == QtWayland::ServerBuffer::RGBA32 ? 32 : 8;
 }
 
 QSGTextureProvider *ServerBufferItem::textureProvider() const

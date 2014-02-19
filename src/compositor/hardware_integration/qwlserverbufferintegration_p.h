@@ -55,10 +55,9 @@ struct wl_client;
 struct wl_resource;
 
 namespace QtWayland {
-    class Display;
-}
+class Display;
 
-class Q_COMPOSITOR_EXPORT QWaylandServerBuffer
+class Q_COMPOSITOR_EXPORT ServerBuffer
 {
 public:
     enum Format {
@@ -66,8 +65,8 @@ public:
         A8
     };
 
-    QWaylandServerBuffer(const QSize &size, QWaylandServerBuffer::Format format);
-    virtual ~QWaylandServerBuffer();
+    ServerBuffer(const QSize &size, ServerBuffer::Format format);
+    virtual ~ServerBuffer();
 
     virtual struct ::wl_resource *resourceForClient(struct ::wl_client *) = 0;
 
@@ -82,17 +81,19 @@ protected:
     Format m_format;
 };
 
-class Q_COMPOSITOR_EXPORT QWaylandServerBufferIntegration
+class Q_COMPOSITOR_EXPORT ServerBufferIntegration
 {
 public:
-    QWaylandServerBufferIntegration();
-    virtual ~QWaylandServerBufferIntegration();
+    ServerBufferIntegration();
+    virtual ~ServerBufferIntegration();
 
     virtual void initializeHardware(QWaylandCompositor *);
 
-    virtual bool supportsFormat(QWaylandServerBuffer::Format format) const = 0;
-    virtual QWaylandServerBuffer *createServerBuffer(const QSize &size, QWaylandServerBuffer::Format format) = 0;
+    virtual bool supportsFormat(ServerBuffer::Format format) const = 0;
+    virtual ServerBuffer *createServerBuffer(const QSize &size, ServerBuffer::Format format) = 0;
 };
+
+}
 
 QT_END_NAMESPACE
 

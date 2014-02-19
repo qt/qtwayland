@@ -39,17 +39,21 @@
 **
 ****************************************************************************/
 
-#include "qwaylandclientbufferintegrationplugin.h"
+#include "qwlclientbufferintegrationplugin_p.h"
 
 QT_BEGIN_NAMESPACE
 
-QWaylandClientBufferIntegrationPlugin::QWaylandClientBufferIntegrationPlugin(QObject *parent) :
+namespace QtWayland {
+
+ClientBufferIntegrationPlugin::ClientBufferIntegrationPlugin(QObject *parent) :
     QObject(parent)
 {
 }
 
-QWaylandClientBufferIntegrationPlugin::~QWaylandClientBufferIntegrationPlugin()
+ClientBufferIntegrationPlugin::~ClientBufferIntegrationPlugin()
 {
+}
+
 }
 
 QT_END_NAMESPACE

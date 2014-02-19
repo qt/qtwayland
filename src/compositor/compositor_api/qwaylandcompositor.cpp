@@ -80,7 +80,7 @@ QWaylandCompositor::QWaylandCompositor(QWindow *window, const char *socketName, 
     qRegisterMetaType<QWaylandSurface*>("WaylandSurface*");
 #endif
     m_compositor->initializeHardwareIntegration();
-    m_compositor->initializeWindowManagerProtocol();
+    m_compositor->initializeExtensions();
     m_compositor->initializeDefaultInputDevice();
 }
 

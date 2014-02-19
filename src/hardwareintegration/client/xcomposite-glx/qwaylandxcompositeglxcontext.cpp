@@ -50,11 +50,21 @@
 QT_BEGIN_NAMESPACE
 
 QWaylandXCompositeGLXContext::QWaylandXCompositeGLXContext(const QSurfaceFormat &format, QPlatformOpenGLContext *share, Display *display, int screen)
-    : m_display(display)
+    : m_display(display),
+      m_format(format)
 {
     qDebug("creating XComposite-GLX context");
+
+    if (m_format.renderableType() == QSurfaceFormat::DefaultRenderableType)
+        m_format.setRenderableType(QSurfaceFormat::OpenGL);
+
+    if (m_format.renderableType() != QSurfaceFormat::OpenGL) {
+        qWarning("Unsupported renderable type");
+        return;
+    }
+
     GLXContext shareContext = share ? static_cast<QWaylandXCompositeGLXContext *>(share)->m_context : 0;
-    GLXFBConfig config = qglx_findConfig(display, screen, format, GLX_WINDOW_BIT | GLX_PIXMAP_BIT);
+    GLXFBConfig config = qglx_findConfig(display, screen, m_format, GLX_WINDOW_BIT | GLX_PIXMAP_BIT);
     XVisualInfo *visualInfo = glXGetVisualFromFBConfig(display, config);
     m_context = glXCreateContext(display, visualInfo, shareContext, true);
     qglx_surfaceFormatFromGLXFBConfig(&m_format, display, config, m_context);
@@ -80,6 +90,7 @@ void QWaylandXCompositeGLXContext::swapBuffers(QPlatformSurface *surface)
 
     glXSwapBuffers(m_display, w->xWindow());
 
+    w->attach(w->buffer(), 0, 0);
     w->damage(QRect(QPoint(), size));
     w->commit();
     w->waitForFrameSync();

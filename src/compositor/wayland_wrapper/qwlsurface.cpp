@@ -59,7 +59,7 @@
 #include <wayland-server.h>
 
 #ifdef QT_COMPOSITOR_WAYLAND_GL
-#include "hardware_integration/qwaylandclientbufferintegration.h"
+#include "hardware_integration/qwlclientbufferintegration_p.h"
 #include <qpa/qplatformopenglcontext.h>
 #endif
 
@@ -175,7 +175,7 @@ bool Surface::isYInverted() const
 {
     bool ret = false;
     static bool negateReturn = qgetenv("QT_COMPOSITOR_NEGATE_INVERTED_Y").toInt();
-    QWaylandClientBufferIntegration *clientBufferIntegration = m_compositor->clientBufferIntegration();
+    ClientBufferIntegration *clientBufferIntegration = m_compositor->clientBufferIntegration();
 
 #ifdef QT_COMPOSITOR_WAYLAND_GL
     SurfaceBuffer *surfacebuffer = currentSurfaceBuffer();
@@ -193,7 +193,7 @@ bool Surface::isYInverted() const
 bool Surface::visible() const
 {
     SurfaceBuffer *surfacebuffer = currentSurfaceBuffer();
-    return surfacebuffer ? surfacebuffer->waylandBufferHandle() : 0;
+    return surfacebuffer ? bool(surfacebuffer->waylandBufferHandle()) : false;
 }
 
 QPointF Surface::pos() const
@@ -479,7 +479,7 @@ void Surface::surface_damage(Resource *, int32_t x, int32_t y, int32_t width, in
 
 void Surface::surface_frame(Resource *resource, uint32_t callback)
 {
-    struct wl_resource *frame_callback = wl_client_add_object(resource->client(), &wl_callback_interface, 0, callback, this);
+    struct wl_resource *frame_callback = wl_resource_create(resource->client(), &wl_callback_interface, wl_callback_interface.version, callback);
     m_pendingFrameCallbacks << new FrameCallback(this, frame_callback);
 }
 

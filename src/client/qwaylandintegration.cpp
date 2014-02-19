@@ -84,15 +84,18 @@ public:
         if (QGuiApplication::desktopSettingsAware()) {
             const QByteArray desktopEnvironment = QGuiApplicationPrivate::platformIntegration()->services()->desktopEnvironment();
 
-            // Ignore X11 desktop environments
-            if (!desktopEnvironment.isEmpty() &&
+            if (desktopEnvironment == QByteArrayLiteral("KDE")) {
+#ifndef QT_NO_SETTINGS
+                result.push_back(QStringLiteral("kde"));
+#endif
+            } else if (!desktopEnvironment.isEmpty() &&
                 desktopEnvironment != QByteArrayLiteral("UNKNOWN") &&
-                desktopEnvironment != QByteArrayLiteral("KDE") &&
                 desktopEnvironment != QByteArrayLiteral("GNOME") &&
                 desktopEnvironment != QByteArrayLiteral("UNITY") &&
                 desktopEnvironment != QByteArrayLiteral("MATE") &&
                 desktopEnvironment != QByteArrayLiteral("XFCE") &&
                 desktopEnvironment != QByteArrayLiteral("LXDE"))
+                // Ignore X11 desktop environments
                 result.push_back(QString::fromLocal8Bit(desktopEnvironment.toLower()));
         }
 

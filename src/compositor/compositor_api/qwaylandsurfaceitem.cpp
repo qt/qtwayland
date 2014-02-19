@@ -143,16 +143,15 @@ void QWaylandSurfaceItem::init(QWaylandSurface *surface)
         Qt::ExtraButton9 | Qt::ExtraButton10 | Qt::ExtraButton11 |
         Qt::ExtraButton12 | Qt::ExtraButton13);
     setAcceptHoverEvents(true);
-    connect(surface, SIGNAL(mapped()), this, SLOT(surfaceMapped()));
-    connect(surface, SIGNAL(unmapped()), this, SLOT(surfaceUnmapped()));
-    connect(surface, SIGNAL(destroyed(QObject*)), this, SLOT(surfaceDestroyed(QObject*)));
-    connect(surface, SIGNAL(damaged(QRect)), this, SLOT(surfaceDamaged(QRect)));
-    connect(surface, SIGNAL(parentChanged(QWaylandSurface*,QWaylandSurface*)),
-            this, SLOT(parentChanged(QWaylandSurface*,QWaylandSurface*)));
-    connect(surface, SIGNAL(sizeChanged()), this, SLOT(updateSize()));
-    connect(surface, SIGNAL(posChanged()), this, SLOT(updatePosition()));
-    connect(this, SIGNAL(widthChanged()), this, SLOT(updateSurfaceSize()));
-    connect(this, SIGNAL(heightChanged()), this, SLOT(updateSurfaceSize()));
+    connect(surface, &QWaylandSurface::mapped, this, &QWaylandSurfaceItem::surfaceMapped);
+    connect(surface, &QWaylandSurface::unmapped, this, &QWaylandSurfaceItem::surfaceUnmapped);
+    connect(surface, &QWaylandSurface::destroyed, this, &QWaylandSurfaceItem::surfaceDestroyed);
+    connect(surface, &QWaylandSurface::damaged, this, &QWaylandSurfaceItem::surfaceDamaged);
+    connect(surface, &QWaylandSurface::parentChanged, this, &QWaylandSurfaceItem::parentChanged);
+    connect(surface, &QWaylandSurface::sizeChanged, this, &QWaylandSurfaceItem::updateSize);
+    connect(surface, &QWaylandSurface::posChanged, this, &QWaylandSurfaceItem::updatePosition);
+    connect(this, &QWaylandSurfaceItem::widthChanged, this, &QWaylandSurfaceItem::updateSurfaceSize);
+    connect(this, &QWaylandSurfaceItem::heightChanged, this, &QWaylandSurfaceItem::updateSurfaceSize);
 
     m_damaged = false;
     m_yInverted = surface ? surface->isYInverted() : true;
@@ -191,7 +190,7 @@ void QWaylandSurfaceItem::ensureProvider()
 {
     if (!m_provider) {
         m_provider = new QWaylandSurfaceTextureProvider();
-        connect(window(), SIGNAL(sceneGraphInvalidated()), m_provider, SLOT(invalidate()), Qt::DirectConnection);
+        connect(window(), &QQuickWindow::sceneGraphInvalidated, m_provider, &QWaylandSurfaceTextureProvider::invalidate, Qt::DirectConnection);
     }
 }
 

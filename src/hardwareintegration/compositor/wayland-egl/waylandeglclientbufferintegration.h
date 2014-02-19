@@ -41,14 +41,14 @@
 #ifndef WAYLANDEGLINTEGRATION_H
 #define WAYLANDEGLINTEGRATION_H
 
-#include <QtCompositor/qwaylandclientbufferintegration.h>
+#include <QtCompositor/private/qwlclientbufferintegration_p.h>
 #include <QtCore/QScopedPointer>
 
 QT_BEGIN_NAMESPACE
 
 class WaylandEglClientBufferIntegrationPrivate;
 
-class WaylandEglClientBufferIntegration : public QWaylandClientBufferIntegration
+class WaylandEglClientBufferIntegration : public QtWayland::ClientBufferIntegration
 {
     Q_DECLARE_PRIVATE(WaylandEglClientBufferIntegration)
 public:

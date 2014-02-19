@@ -102,7 +102,7 @@ public:
 };
 
 WaylandEglClientBufferIntegration::WaylandEglClientBufferIntegration()
-    : QWaylandClientBufferIntegration()
+    : QtWayland::ClientBufferIntegration()
     , d_ptr(new WaylandEglClientBufferIntegrationPrivate)
 {
 }
@@ -208,7 +208,7 @@ bool WaylandEglClientBufferIntegration::isYInverted(struct ::wl_resource *buffer
         return true;
 #endif
 
-    return QWaylandClientBufferIntegration::isYInverted(buffer);
+    return QtWayland::ClientBufferIntegration::isYInverted(buffer);
 }
 
 

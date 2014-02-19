@@ -39,18 +39,18 @@
 **
 ****************************************************************************/
 
-#include <QtCompositor/qwaylandserverbufferintegrationplugin.h>
+#include <QtCompositor/private/qwlserverbufferintegrationplugin_p.h>
 #include "drmeglserverbufferintegration.h"
 
 QT_BEGIN_NAMESPACE
 
-class DrmEglServerBufferIntegrationPlugin : public QWaylandServerBufferIntegrationPlugin
+class DrmEglServerBufferIntegrationPlugin : public QtWayland::ServerBufferIntegrationPlugin
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.Compositor.QWaylandServerBufferIntegrationFactoryInterface.5.2" FILE "drm-egl-server.json")
+    Q_PLUGIN_METADATA(IID QtWaylandServerBufferIntegrationFactoryInterface_iid FILE "drm-egl-server.json")
 public:
     QStringList keys() const;
-    QWaylandServerBufferIntegration *create(const QString&, const QStringList&);
+    QtWayland::ServerBufferIntegration *create(const QString&, const QStringList&);
 };
 
 QStringList DrmEglServerBufferIntegrationPlugin::keys() const
@@ -60,7 +60,7 @@ QStringList DrmEglServerBufferIntegrationPlugin::keys() const
     return list;
 }
 
-QWaylandServerBufferIntegration *DrmEglServerBufferIntegrationPlugin::create(const QString& system, const QStringList& paramList)
+QtWayland::ServerBufferIntegration *DrmEglServerBufferIntegrationPlugin::create(const QString& system, const QStringList& paramList)
 {
     Q_UNUSED(paramList);
     if (system.toLower() == "drm-egl-server")

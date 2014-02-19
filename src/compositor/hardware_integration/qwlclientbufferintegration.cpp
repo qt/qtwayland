@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the Qt Compositor.
@@ -38,62 +38,17 @@
 **
 ****************************************************************************/
 
-#ifndef SERVERBUFFERITEM_H
-#define SERVERBUFFERITEM_H
-
-#include <QtQuick/QQuickItem>
-#include <QtQuick/qsgtexture.h>
-
-#include <QtQuick/qsgtextureprovider.h>
+#include "qwlclientbufferintegration_p.h"
 
 QT_BEGIN_NAMESPACE
 
-class ServerBufferTextureProvider;
-
 namespace QtWayland {
-class ServerBuffer;
+
+ClientBufferIntegration::ClientBufferIntegration()
+    : m_compositor(0)
+{
 }
 
-class ServerBufferItem : public QQuickItem
-{
-    Q_OBJECT
-    Q_PROPERTY(QtWayland::ServerBuffer *serverBuffer READ serverBuffer CONSTANT)
-    Q_PROPERTY(bool useTextureAlpha READ useTextureAlpha WRITE setUseTextureAlpha NOTIFY useTextureAlphaChanged)
-    Q_PROPERTY(bool isYInverted READ isYInverted NOTIFY yInvertedChanged)
-    Q_PROPERTY(int depth READ depth CONSTANT)
-
-public:
-    ServerBufferItem(QtWayland::ServerBuffer *serverBuffer, QQuickItem *parent = 0);
-    ~ServerBufferItem();
-
-    QtWayland::ServerBuffer *serverBuffer() const { return m_server_buffer; }
-
-    bool isYInverted() const;
-    int depth() const;
-
-    bool isTextureProvider() const { return true; }
-    QSGTextureProvider *textureProvider() const;
-
-    bool useTextureAlpha() const  { return m_useTextureAlpha; }
-    void setUseTextureAlpha(bool useTextureAlpha);
-
-    void setDamagedFlag(bool on);
-
-signals:
-    void useTextureAlphaChanged();
-    void yInvertedChanged();
-    void serverBufferChanged();
-
-protected:
-    QSGNode *updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *);
-
-private:
-    void updateTexture();
-    QtWayland::ServerBuffer *m_server_buffer;
-    ServerBufferTextureProvider *m_provider;
-    bool m_useTextureAlpha;
-};
+}
 
 QT_END_NAMESPACE
-
-#endif

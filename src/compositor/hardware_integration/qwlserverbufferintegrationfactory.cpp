@@ -39,23 +39,25 @@
 **
 ****************************************************************************/
 
-#include "qwaylandclientbufferintegrationfactory.h"
-#include "qwaylandclientbufferintegrationplugin.h"
-#include "qwaylandclientbufferintegration.h"
+#include "qwlserverbufferintegrationfactory_p.h"
+#include "qwlserverbufferintegrationplugin_p.h"
+#include "qwlserverbufferintegration_p.h"
 #include <QtCore/private/qfactoryloader_p.h>
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDir>
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWayland {
+
 #ifndef QT_NO_LIBRARY
 Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
-    (QWaylandClientBufferIntegrationFactoryInterface_iid, QLatin1String("/wayland-graphics-integration/server"), Qt::CaseInsensitive))
+    (QtWaylandServerBufferIntegrationFactoryInterface_iid, QLatin1String("/wayland-graphics-integration/server"), Qt::CaseInsensitive))
 Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, directLoader,
-                          (QWaylandClientBufferIntegrationFactoryInterface_iid, QLatin1String(""), Qt::CaseInsensitive))
+                          (QtWaylandServerBufferIntegrationFactoryInterface_iid, QLatin1String(""), Qt::CaseInsensitive))
 #endif
 
-QStringList QWaylandClientBufferIntegrationFactory::keys(const QString &pluginPath)
+QStringList ServerBufferIntegrationFactory::keys(const QString &pluginPath)
 {
 #ifndef QT_NO_LIBRARY
     QStringList list;
@@ -78,19 +80,21 @@ QStringList QWaylandClientBufferIntegrationFactory::keys(const QString &pluginPa
 #endif
 }
 
-QWaylandClientBufferIntegration *QWaylandClientBufferIntegrationFactory::create(const QString &name, const QStringList &args, const QString &pluginPath)
+ServerBufferIntegration *ServerBufferIntegrationFactory::create(const QString &name, const QStringList &args, const QString &pluginPath)
 {
 #ifndef QT_NO_LIBRARY
     // Try loading the plugin from platformPluginPath first:
     if (!pluginPath.isEmpty()) {
         QCoreApplication::addLibraryPath(pluginPath);
-        if (QWaylandClientBufferIntegration *ret = qLoadPlugin1<QWaylandClientBufferIntegration, QWaylandClientBufferIntegrationPlugin>(directLoader(), name, args))
+        if (ServerBufferIntegration *ret = qLoadPlugin1<ServerBufferIntegration, ServerBufferIntegrationPlugin>(directLoader(), name, args))
             return ret;
     }
-    if (QWaylandClientBufferIntegration *ret = qLoadPlugin1<QWaylandClientBufferIntegration, QWaylandClientBufferIntegrationPlugin>(loader(), name, args))
+    if (ServerBufferIntegration *ret = qLoadPlugin1<ServerBufferIntegration, ServerBufferIntegrationPlugin>(loader(), name, args))
         return ret;
 #endif
     return 0;
+}
+
 }
 
 QT_END_NAMESPACE

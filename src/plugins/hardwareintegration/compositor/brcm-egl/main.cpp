@@ -39,18 +39,18 @@
 **
 ****************************************************************************/
 
-#include <QtCompositor/qwaylandclientbufferintegrationplugin.h>
+#include <QtCompositor/private/qwlclientbufferintegrationplugin_p.h>
 #include "brcmeglintegration.h"
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandBrcmClientBufferIntegration : public QWaylandClientBufferIntegrationPlugin
+class QWaylandBrcmClientBufferIntegration : public QtWayland::ClientBufferIntegrationPlugin
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.Compositor.QWaylandClientBufferIntegrationFactoryInterface.5.2" FILE "brcm-egl.json")
+    Q_PLUGIN_METADATA(IID QtWaylandClientBufferIntegrationFactoryInterface_iid FILE "brcm-egl.json")
 public:
     QStringList keys() const;
-    QWaylandClientBufferIntegration *create(const QString&, const QStringList&);
+    QtWayland::ClientBufferIntegration *create(const QString&, const QStringList&);
 };
 
 QStringList QWaylandBrcmClientBufferIntegration::keys() const
@@ -60,7 +60,7 @@ QStringList QWaylandBrcmClientBufferIntegration::keys() const
     return list;
 }
 
-QWaylandClientBufferIntegration *QWaylandBrcmClientBufferIntegration::create(const QString& system, const QStringList& paramList)
+QtWayland::ClientBufferIntegration *QWaylandBrcmClientBufferIntegration::create(const QString& system, const QStringList& paramList)
 {
     Q_UNUSED(paramList);
     if (system.toLower() == "wayland-brcm")

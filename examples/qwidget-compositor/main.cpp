@@ -110,27 +110,22 @@ private slots:
         update();
     }
 
-    void surfaceDamaged(const QRegion &rect) {
+    void surfaceCommitted() {
         QWaylandSurface *surface = qobject_cast<QWaylandSurface *>(sender());
-        surfaceDamaged(surface, rect);
+        surfaceCommitted(surface);
     }
 
 protected:
-    void surfaceDamaged(QWaylandSurface *surface, const QRegion &rect)
+    void surfaceCommitted(QWaylandSurface *surface)
     {
-#ifdef QT_COMPOSITOR_WAYLAND_GL
         Q_UNUSED(surface);
-        Q_UNUSED(rect);
         update();
-#else
-        update(rect.translated(surface->geometry().topLeft()));
-#endif
     }
 
     void surfaceCreated(QWaylandSurface *surface) {
         connect(surface, SIGNAL(destroyed(QObject *)), this, SLOT(surfaceDestroyed(QObject *)));
         connect(surface, SIGNAL(mapped()), this, SLOT(surfaceMapped()));
-        connect(surface, SIGNAL(damaged(const QRegion &)), this, SLOT(surfaceDamaged(const QRegion &)));
+        connect(surface, SIGNAL(committed()), this, SLOT(surfaceCommitted()));
         update();
     }
 
@@ -265,7 +260,7 @@ protected:
 
     void raise(QWaylandSurface *surface) {
         defaultInputDevice()->setKeyboardFocus(surface);
-        surfaceDamaged(surface, QRect(QPoint(), surface->size()));
+        update();
         m_surfaces.removeOne(surface);
         m_surfaces.append(surface);
     }

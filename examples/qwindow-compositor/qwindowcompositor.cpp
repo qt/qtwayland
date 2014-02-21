@@ -159,10 +159,10 @@ void QWindowCompositor::surfaceUnmapped()
     ensureKeyboardFocusSurface(surface);
 }
 
-void QWindowCompositor::surfaceDamaged(const QRegion &rect)
+void QWindowCompositor::surfaceCommitted()
 {
     QWaylandSurface *surface = qobject_cast<QWaylandSurface *>(sender());
-    surfaceDamaged(surface, rect);
+    surfaceCommitted(surface);
 }
 
 void QWindowCompositor::surfacePosChanged()
@@ -170,10 +170,9 @@ void QWindowCompositor::surfacePosChanged()
     m_renderScheduler.start(0);
 }
 
-void QWindowCompositor::surfaceDamaged(QWaylandSurface *surface, const QRegion &rect)
+void QWindowCompositor::surfaceCommitted(QWaylandSurface *surface)
 {
     Q_UNUSED(surface)
-    Q_UNUSED(rect)
     m_renderScheduler.start(0);
 }
 
@@ -182,7 +181,7 @@ void QWindowCompositor::surfaceCreated(QWaylandSurface *surface)
     connect(surface, SIGNAL(destroyed(QObject *)), this, SLOT(surfaceDestroyed(QObject *)));
     connect(surface, SIGNAL(mapped()), this, SLOT(surfaceMapped()));
     connect(surface, SIGNAL(unmapped()), this, SLOT(surfaceUnmapped()));
-    connect(surface, SIGNAL(damaged(const QRegion &)), this, SLOT(surfaceDamaged(const QRegion &)));
+    connect(surface, SIGNAL(committed()), this, SLOT(surfaceCommitted()));
     connect(surface, SIGNAL(extendedSurfaceReady()), this, SLOT(sendExpose()));
     connect(surface, SIGNAL(posChanged()), this, SLOT(surfacePosChanged()));
     m_renderScheduler.start(0);

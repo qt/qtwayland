@@ -483,6 +483,8 @@ void Surface::surface_commit(Resource *)
 
     m_frameCallbacks << m_pendingFrameCallbacks;
     m_pendingFrameCallbacks.clear();
+
+    emit m_waylandSurface->committed();
 }
 
 void Surface::frameStarted()

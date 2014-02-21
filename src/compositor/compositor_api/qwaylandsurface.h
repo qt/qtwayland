@@ -187,6 +187,7 @@ signals:
     void mapped();
     void unmapped();
     void damaged(const QRegion &rect);
+    void committed();
     void parentChanged(QWaylandSurface *newParent, QWaylandSurface *oldParent);
     void sizeChanged();
     void posChanged();

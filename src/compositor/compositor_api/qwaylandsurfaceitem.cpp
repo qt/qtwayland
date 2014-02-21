@@ -147,6 +147,7 @@ void QWaylandSurfaceItem::init(QWaylandSurface *surface)
     connect(surface, &QWaylandSurface::unmapped, this, &QWaylandSurfaceItem::surfaceUnmapped);
     connect(surface, &QWaylandSurface::destroyed, this, &QWaylandSurfaceItem::surfaceDestroyed);
     connect(surface, &QWaylandSurface::damaged, this, &QWaylandSurfaceItem::surfaceDamaged);
+    connect(surface, &QWaylandSurface::committed, this, &QQuickItem::update);
     connect(surface, &QWaylandSurface::parentChanged, this, &QWaylandSurfaceItem::parentChanged);
     connect(surface, &QWaylandSurface::sizeChanged, this, &QWaylandSurfaceItem::updateSize);
     connect(surface, &QWaylandSurface::posChanged, this, &QWaylandSurfaceItem::updatePosition);
@@ -309,7 +310,6 @@ void QWaylandSurfaceItem::surfaceDamaged(const QRegion &)
         }
     }
     emit textureChanged();
-    update();
 }
 
 void QWaylandSurfaceItem::parentChanged(QWaylandSurface *newParent, QWaylandSurface *oldParent)

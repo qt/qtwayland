@@ -228,6 +228,7 @@ void Compositor::sendFrameCallbacks(QList<QWaylandSurface *> visibleSurfaces)
     foreach (QWaylandSurface *surface, visibleSurfaces) {
         surface->handle()->sendFrameCallback();
     }
+    wl_display_flush_clients(m_display->handle());
 }
 
 void Compositor::createSurface(struct wl_client *client, uint32_t id)

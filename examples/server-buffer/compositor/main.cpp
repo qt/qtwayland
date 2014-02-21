@@ -84,7 +84,7 @@ public:
         grabWindow();
 
         connect(this, SIGNAL(beforeSynchronizing()), this, SLOT(startFrame()), Qt::DirectConnection);
-        connect(this, SIGNAL(afterRendering()), this, SLOT(sendCallbacks()), Qt::DirectConnection);
+        connect(this, SIGNAL(afterRendering()), this, SLOT(sendCallbacks()));
 
         connect(this, SIGNAL(sceneGraphInitialized()), this, SLOT(initiateServerBuffer()),Qt::DirectConnection);
         connect(this, SIGNAL(serverBuffersCreated()), this, SLOT(createServerBufferItems()));

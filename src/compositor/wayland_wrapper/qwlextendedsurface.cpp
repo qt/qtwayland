@@ -72,6 +72,7 @@ ExtendedSurface::ExtendedSurface(struct wl_client *client, uint32_t id, Surface 
 
 ExtendedSurface::~ExtendedSurface()
 {
+    m_surface->setExtendedSurface(0);
 }
 
 void ExtendedSurface::sendGenericProperty(const QString &name, const QVariant &variant)

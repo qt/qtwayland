@@ -43,11 +43,12 @@
 #define QTWAYLAND_QWLKEYBOARD_P_H
 
 #include <QtCompositor/qwaylandexport.h>
+#include <QtCompositor/qwaylandinput.h>
 
 #include <QObject>
 #include <QtCompositor/private/qwayland-server-wayland.h>
 
-#include <QtCore/QByteArray>
+#include <QtCore/QVector>
 
 #ifndef QT_NO_WAYLAND_XKB
 #include <xkbcommon/xkbcommon.h>
@@ -70,6 +71,7 @@ public:
     ~Keyboard();
 
     void setFocus(Surface *surface);
+    void setKeymap(const QWaylandKeymap &keymap);
 
     void sendKeyModifiers(Resource *resource, uint32_t serial);
     void sendKeyPressEvent(uint code);
@@ -88,9 +90,11 @@ protected:
 private:
     void sendKeyEvent(uint code, uint32_t state);
     void updateModifierState(uint code, uint32_t state);
+    void updateKeymap();
 
 #ifndef QT_NO_WAYLAND_XKB
     void initXKB();
+    void createXKBKeymap();
 #endif
 
     Compositor *m_compositor;
@@ -99,16 +103,19 @@ private:
     Surface *m_focus;
     Resource *m_focusResource;
 
-    QByteArray m_keys;
+    QVector<uint32_t> m_keys;
     uint32_t m_modsDepressed;
     uint32_t m_modsLatched;
     uint32_t m_modsLocked;
     uint32_t m_group;
 
+    QWaylandKeymap m_keymap;
+    bool m_pendingKeymap;
 #ifndef QT_NO_WAYLAND_XKB
     size_t m_keymap_size;
     int m_keymap_fd;
     char *m_keymap_area;
+    struct xkb_context *m_context;
     struct xkb_state *m_state;
 #endif
 };

@@ -48,6 +48,17 @@
 
 QT_BEGIN_NAMESPACE
 
+QWaylandKeymap::QWaylandKeymap(const QString &layout, const QString &variant, const QString &options, const QString &model, const QString &rules)
+              : m_layout(layout)
+              , m_variant(variant)
+              , m_options(options)
+              , m_rules(rules)
+              , m_model(model)
+{
+}
+
+
+
 QWaylandInputDevice::QWaylandInputDevice(QWaylandCompositor *compositor)
     : d(new QtWayland::InputDevice(this,compositor->handle()))
 {
@@ -139,6 +150,12 @@ bool QWaylandInputDevice::setKeyboardFocus(QWaylandSurface *surface)
 {
     QtWayland::Surface *wlsurface = surface?surface->handle():0;
     return d->setKeyboardFocus(wlsurface);
+}
+
+void QWaylandInputDevice::setKeymap(const QWaylandKeymap &keymap)
+{
+    if (handle()->keyboardDevice())
+        handle()->keyboardDevice()->setKeymap(keymap);
 }
 
 QWaylandSurface *QWaylandInputDevice::mouseFocus() const

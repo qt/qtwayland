@@ -130,6 +130,7 @@ QWaylandWindow::QWaylandWindow(QWindow *window)
         mShellSurface->setTopLevel();
     }
 
+    setOrientationMask(window->screen()->orientationUpdateMask());
     setWindowFlags(window->flags());
     setGeometry_helper(window->geometry());
     setWindowStateInternal(window->windowState());
@@ -436,6 +437,12 @@ void QWaylandWindow::handleContentOrientationChange(Qt::ScreenOrientation orient
 {
     if (mExtendedWindow)
         mExtendedWindow->setContentOrientation(orientation);
+}
+
+void QWaylandWindow::setOrientationMask(Qt::ScreenOrientations mask)
+{
+    if (mExtendedWindow)
+        mExtendedWindow->setContentOrientationMask(mask);
 }
 
 void QWaylandWindow::setWindowState(Qt::WindowState state)

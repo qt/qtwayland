@@ -101,6 +101,7 @@ private:
     QImage::Format mFormat;
     QSize mPhysicalSize;
     QString mOutputName;
+    Qt::ScreenOrientation m_orientation;
 
     QWaylandCursor *mWaylandCursor;
 };

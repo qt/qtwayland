@@ -52,6 +52,7 @@ OutputGlobal::OutputGlobal(struct ::wl_display *display)
     : QtWaylandServer::wl_output(display)
     , m_displayId(-1)
     , m_numQueued(0)
+    , m_transform(WL_OUTPUT_TRANSFORM_NORMAL)
 {
     QScreen *screen = QGuiApplication::primaryScreen();
     m_geometry = QRect(QPoint(0, 0), screen->availableGeometry().size());
@@ -65,7 +66,7 @@ OutputGlobal::~OutputGlobal()
 void OutputGlobal::output_bind_resource(Resource *resource)
 {
     wl_output_send_geometry(resource->handle, 0, 0,
-                            size().width(), size().height(), 0, "", "", 0);
+                            size().width(), size().height(), 0, "", "", m_transform);
 
     wl_output_send_mode(resource->handle, WL_OUTPUT_MODE_CURRENT|WL_OUTPUT_MODE_PREFERRED,
                         size().width(), size().height(), refreshRate());
@@ -79,6 +80,34 @@ void OutputGlobal::setGeometry(const QRect &geometry)
 void OutputGlobal::setRefreshRate(int rate)
 {
     m_refreshRate = rate;
+}
+
+void OutputGlobal::sendOutputOrientation(Qt::ScreenOrientation orientation)
+{
+    QScreen *screen = QGuiApplication::primaryScreen();
+    bool isPortrait = screen->primaryOrientation() == Qt::PortraitOrientation;
+    switch (orientation) {
+        case Qt::PrimaryOrientation:
+            m_transform = WL_OUTPUT_TRANSFORM_NORMAL;
+            break;
+        case Qt::PortraitOrientation:
+            m_transform = isPortrait ? WL_OUTPUT_TRANSFORM_NORMAL : WL_OUTPUT_TRANSFORM_90;
+            break;
+        case Qt::LandscapeOrientation:
+            m_transform = isPortrait ? WL_OUTPUT_TRANSFORM_270 : WL_OUTPUT_TRANSFORM_NORMAL;
+            break;
+        case Qt::InvertedPortraitOrientation:
+            m_transform = isPortrait ? WL_OUTPUT_TRANSFORM_180 : WL_OUTPUT_TRANSFORM_270;
+            break;
+        case Qt::InvertedLandscapeOrientation:
+            m_transform = isPortrait ? WL_OUTPUT_TRANSFORM_90 : WL_OUTPUT_TRANSFORM_180;
+            break;
+    }
+
+    foreach (Resource *res, resourceMap()) {
+        wl_output_send_geometry(res->handle, 0, 0,
+                                size().width(), size().height(), 0, "", "", m_transform);
+    }
 }
 
 Output *OutputGlobal::outputForClient(wl_client *client) const

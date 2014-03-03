@@ -167,7 +167,9 @@ void QWaylandSurface::requestSize(const QSize &size)
 Qt::ScreenOrientations QWaylandSurface::orientationUpdateMask() const
 {
     Q_D(const QWaylandSurface);
-    return d->compositor()->orientationUpdateMaskForClient(static_cast<wl_client *>(client()));
+    if (!d->extendedSurface())
+        return Qt::PrimaryOrientation;
+    return d->extendedSurface()->contentOrientationMask();
 }
 
 Qt::ScreenOrientation QWaylandSurface::contentOrientation() const

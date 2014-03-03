@@ -73,6 +73,7 @@ public:
 
     void setRefreshRate(int rate);
     int refreshRate() const { return m_refreshRate; }
+    void sendOutputOrientation(Qt::ScreenOrientation orientation);
 
     Output *outputForClient(struct wl_client *client) const;
 
@@ -84,6 +85,7 @@ private:
     int m_refreshRate;
     int m_displayId;
     int m_numQueued;
+    wl_output_transform m_transform;
 };
 
 #if 0

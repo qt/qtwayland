@@ -61,10 +61,7 @@ class ExtendedOutput : public QtWaylandServer::qt_extended_output::Resource
 public:
     ExtendedOutput() : output(0) {}
 
-    void sendOutputOrientation(Qt::ScreenOrientation orientation);
-
     Output *output;
-    Qt::ScreenOrientations orientationUpdateMask;
 };
 
 class OutputExtensionGlobal : public QtWaylandServer::qt_output_extension, public QtWaylandServer::qt_extended_output
@@ -76,9 +73,6 @@ private:
     Compositor *m_compositor;
 
     qt_extended_output::Resource *extended_output_allocate() Q_DECL_OVERRIDE { return new ExtendedOutput; }
-
-    void extended_output_set_orientation_update_mask(qt_extended_output::Resource *resource,
-                                                     int32_t orientation_update_mask) Q_DECL_OVERRIDE;
 
     void output_extension_get_extended_output(qt_output_extension::Resource *resource,
                                               uint32_t id,

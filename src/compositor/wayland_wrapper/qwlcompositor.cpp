@@ -330,26 +330,10 @@ QList<struct wl_client *> Compositor::clients() const
     return list;
 }
 
-Qt::ScreenOrientations Compositor::orientationUpdateMaskForClient(wl_client *client)
-{
-    Output *output = m_output_global->outputForClient(client);
-    Q_ASSERT(output);
-    if (output->extendedOutput)
-        return output->extendedOutput->orientationUpdateMask;
-    return 0;
-}
-
 void Compositor::setScreenOrientation(Qt::ScreenOrientation orientation)
 {
     m_orientation = orientation;
-
-    QList<struct wl_client*> clientList = clients();
-    for (int i = 0; i < clientList.length(); ++i) {
-        struct wl_client *client = clientList.at(i);
-        Output *output = m_output_global->outputForClient(client);
-        if (output && output->extendedOutput)
-            output->extendedOutput->sendOutputOrientation(orientation);
-    }
+    m_output_global->sendOutputOrientation(orientation);
 }
 
 Qt::ScreenOrientation Compositor::screenOrientation() const

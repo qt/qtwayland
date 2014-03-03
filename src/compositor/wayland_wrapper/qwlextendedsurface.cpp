@@ -142,6 +142,11 @@ Qt::ScreenOrientation ExtendedSurface::contentOrientation() const
     return m_contentOrientation;
 }
 
+Qt::ScreenOrientations ExtendedSurface::contentOrientationMask() const
+{
+    return m_contentOrientationMask;
+}
+
 void ExtendedSurface::extended_surface_set_content_orientation(Resource *resource, int32_t orientation)
 {
     Q_UNUSED(resource);
@@ -149,6 +154,28 @@ void ExtendedSurface::extended_surface_set_content_orientation(Resource *resourc
     m_contentOrientation = screenOrientationFromWaylandOrientation(orientation);
     if (m_contentOrientation != oldOrientation)
         emit m_surface->waylandSurface()->contentOrientationChanged();
+}
+
+void ExtendedSurface::extended_surface_set_content_orientation_mask(Resource *resource, int32_t orientation)
+{
+    Q_UNUSED(resource);
+    Qt::ScreenOrientations mask = 0;
+    if (orientation & QT_EXTENDED_SURFACE_ORIENTATION_PORTRAITORIENTATION)
+        mask |= Qt::PortraitOrientation;
+    if (orientation & QT_EXTENDED_SURFACE_ORIENTATION_LANDSCAPEORIENTATION)
+        mask |= Qt::LandscapeOrientation;
+    if (orientation & QT_EXTENDED_SURFACE_ORIENTATION_INVERTEDPORTRAITORIENTATION)
+        mask |= Qt::InvertedPortraitOrientation;
+    if (orientation & QT_EXTENDED_SURFACE_ORIENTATION_INVERTEDLANDSCAPEORIENTATION)
+        mask |= Qt::InvertedLandscapeOrientation;
+    if (orientation & QT_EXTENDED_SURFACE_ORIENTATION_PRIMARYORIENTATION)
+        mask |= Qt::PrimaryOrientation;
+
+    Qt::ScreenOrientations oldMask = m_contentOrientationMask;
+    m_contentOrientationMask = mask;
+
+    if (mask != oldMask)
+        emit m_surface->waylandSurface()->orientationUpdateMaskChanged();
 }
 
 QVariantMap ExtendedSurface::windowProperties() const

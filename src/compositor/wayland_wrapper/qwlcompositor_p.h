@@ -130,8 +130,6 @@ public:
     void setOutputRefreshRate(int rate);
     int outputRefreshRate() const;
 
-    Qt::ScreenOrientations orientationUpdateMaskForClient(wl_client *client);
-
     void setClientFullScreenHint(bool value);
 
     QWaylandCompositor::ExtensionFlags extensions() const;

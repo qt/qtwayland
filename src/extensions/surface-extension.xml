@@ -74,6 +74,9 @@
         <request name="set_content_orientation">
             <arg name="orientation" type="int"/>
         </request>
+        <request name="set_content_orientation_mask">
+            <arg name="orientation" type="int"/>
+        </request>
 
         <enum name="windowflag">
             <entry name="OverridesSystemGestures" value="1"/>

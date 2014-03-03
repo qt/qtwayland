@@ -44,8 +44,12 @@
 #include "qwaylanddisplay_p.h"
 #include "qwaylandcursor_p.h"
 #include "qwaylandextendedoutput_p.h"
+#include "qwaylandwindow_p.h"
+
+#include <QtGui/QGuiApplication>
 
 #include <qpa/qwindowsysteminterface.h>
+#include <qpa/qplatformwindow.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -57,6 +61,7 @@ QWaylandScreen::QWaylandScreen(QWaylandDisplay *waylandDisplay, uint32_t id)
     , mRefreshRate(60000)
     , mFormat(QImage::Format_ARGB32_Premultiplied)
     , mOutputName(QStringLiteral("Screen%1").arg(id))
+    , m_orientation(Qt::PrimaryOrientation)
     , mWaylandCursor(new QWaylandCursor(this))
 {
     // handle case of output extension global being sent after outputs
@@ -99,15 +104,16 @@ QDpi QWaylandScreen::logicalDpi() const
 
 void QWaylandScreen::setOrientationUpdateMask(Qt::ScreenOrientations mask)
 {
-    if (mExtendedOutput)
-        mExtendedOutput->setOrientationUpdateMask(mask);
+    foreach (QWindow *window, QGuiApplication::allWindows()) {
+        QWaylandWindow *w = static_cast<QWaylandWindow *>(window->handle());
+        if (w && w->screen() == this)
+            w->setOrientationMask(mask);
+    }
 }
 
 Qt::ScreenOrientation QWaylandScreen::orientation() const
 {
-    if (mExtendedOutput)
-        return mExtendedOutput->currentOrientation();
-    return QPlatformScreen::orientation();
+    return m_orientation;
 }
 
 qreal QWaylandScreen::refreshRate() const
@@ -166,7 +172,30 @@ void QWaylandScreen::output_geometry(int32_t x, int32_t y,
 {
     Q_UNUSED(subpixel);
     Q_UNUSED(make);
-    Q_UNUSED(transform);
+
+    bool isPortrait = screen() && screen()->primaryOrientation() == Qt::PortraitOrientation;
+    switch (transform) {
+        case WL_OUTPUT_TRANSFORM_NORMAL:
+            m_orientation = isPortrait ? Qt::PortraitOrientation : Qt::LandscapeOrientation;
+            break;
+        case WL_OUTPUT_TRANSFORM_90:
+            m_orientation = isPortrait ? Qt::InvertedLandscapeOrientation : Qt::PortraitOrientation;
+            break;
+        case WL_OUTPUT_TRANSFORM_180:
+            m_orientation = isPortrait ? Qt::InvertedPortraitOrientation : Qt::InvertedLandscapeOrientation;
+            break;
+        case WL_OUTPUT_TRANSFORM_270:
+            m_orientation = isPortrait ? Qt::LandscapeOrientation : Qt::InvertedPortraitOrientation;
+            break;
+        // Ignore these ones, at least for now
+        case WL_OUTPUT_TRANSFORM_FLIPPED:
+        case WL_OUTPUT_TRANSFORM_FLIPPED_90:
+        case WL_OUTPUT_TRANSFORM_FLIPPED_180:
+        case WL_OUTPUT_TRANSFORM_FLIPPED_270:
+            break;
+    }
+
+    QWindowSystemInterface::handleScreenOrientationChange(screen(), m_orientation);
 
     if (!model.isEmpty())
         mOutputName = model;

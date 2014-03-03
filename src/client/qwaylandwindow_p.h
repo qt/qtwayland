@@ -128,8 +128,10 @@ public:
     QWaylandShellSurface *shellSurface() const;
     QWaylandExtendedSurface *extendedWindow() const;
     QWaylandSubSurface *subSurfaceWindow() const;
+    QWaylandScreen *screen() const { return mScreen; }
 
     void handleContentOrientationChange(Qt::ScreenOrientation orientation);
+    void setOrientationMask(Qt::ScreenOrientations mask);
 
     void setWindowState(Qt::WindowState state);
     void setWindowFlags(Qt::WindowFlags flags);

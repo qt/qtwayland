@@ -56,14 +56,9 @@ class Q_WAYLAND_CLIENT_EXPORT QWaylandExtendedOutput : public QtWayland::qt_exte
 public:
     QWaylandExtendedOutput(QWaylandScreen *screen, struct ::qt_extended_output *extended_output);
 
-    Qt::ScreenOrientation currentOrientation() const;
-    void setOrientationUpdateMask(Qt::ScreenOrientations mask);
-
 private:
-    void extended_output_set_screen_rotation(int32_t rotation) Q_DECL_OVERRIDE;
 
     QWaylandScreen *m_screen;
-    Qt::ScreenOrientation m_orientation;
 };
 
 QT_END_NAMESPACE

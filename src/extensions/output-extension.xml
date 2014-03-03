@@ -46,19 +46,6 @@
     </interface>
 
     <interface name="qt_extended_output" version="1">
-        <enum name="rotation">
-            <entry name="PortraitOrientation" value="1"/>
-            <entry name="LandscapeOrientation" value="2"/>
-            <entry name="InvertedPortraitOrientation" value="4"/>
-            <entry name="InvertedLandscapeOrientation" value="8"/>
-        </enum>
 
-        <event name="set_screen_rotation">
-            <arg name="rotation" type="int"/>
-        </event>
-
-        <request name="set_orientation_update_mask">
-            <arg name="orientation" type="int"/>
-        </request>
     </interface>
 </protocol>

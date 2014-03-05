@@ -59,12 +59,15 @@ QWaylandEglWindow::QWaylandEglWindow(QWindow *window)
     , m_clientBufferIntegration(static_cast<QWaylandEglClientBufferIntegration *>(mDisplay->clientBufferIntegration()))
     , m_waylandEglWindow(0)
     , m_eglSurface(0)
-    , m_eglConfig(0)
+    , m_eglConfig(q_configFromGLFormat(m_clientBufferIntegration->eglDisplay(), window->requestedFormat(), true))
     , m_contentFBO(0)
     , m_resize(false)
-    , m_format(window->requestedFormat())
+    , m_format(q_glFormatFromConfig(m_clientBufferIntegration->eglDisplay(), m_eglConfig))
 {
     setGeometry(window->geometry());
+
+    EGLNativeWindowType eglw = (EGLNativeWindowType) m_waylandEglWindow;
+    m_eglSurface = eglCreateWindowSurface(m_clientBufferIntegration->eglDisplay(), m_eglConfig, eglw, 0);
 }
 
 QWaylandEglWindow::~QWaylandEglWindow()
@@ -129,9 +132,6 @@ EGLSurface QWaylandEglWindow::eglSurface() const
     }
 
     if (!m_eglSurface) {
-        m_eglConfig = q_configFromGLFormat(m_clientBufferIntegration->eglDisplay(), window()->format(), true);
-        const_cast<QWaylandEglWindow *>(this)->m_format = q_glFormatFromConfig(m_clientBufferIntegration->eglDisplay(),m_eglConfig);
-
         EGLNativeWindowType window = (EGLNativeWindowType) m_waylandEglWindow;
         m_eglSurface = eglCreateWindowSurface(m_clientBufferIntegration->eglDisplay(), m_eglConfig, window, 0);
     }

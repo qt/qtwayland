@@ -101,32 +101,6 @@ namespace QtWayland {
 
 static Compositor *compositor;
 
-void compositor_create_surface(struct wl_client *client,
-                               struct wl_resource *resource, uint32_t id)
-{
-     static_cast<Compositor *>(resource->data)->createSurface(client,id);
-}
-
-void compositor_create_region(struct wl_client *client,
-                              struct wl_resource *compositor, uint32_t id)
-{
-    Q_UNUSED(compositor);
-    new Region(client, id);
-}
-
-const static struct wl_compositor_interface compositor_interface = {
-    compositor_create_surface,
-    compositor_create_region
-};
-
-void Compositor::bind_func(struct wl_client *client, void *data,
-                      uint32_t version, uint32_t id)
-{
-    Q_UNUSED(version);
-    struct wl_resource *resource = wl_resource_create(client, &wl_compositor_interface, version, id);
-    wl_resource_set_implementation(resource, &compositor_interface, data, 0);
-}
-
 Compositor *Compositor::instance()
 {
     return compositor;
@@ -158,11 +132,7 @@ Compositor::Compositor(QWaylandCompositor *qt_compositor, QWaylandCompositor::Ex
     m_timer.start();
     compositor = this;
 
-    wl_global_create(m_display->handle(),
-                     &wl_compositor_interface,
-                     wl_compositor_interface.version,
-                     this,
-                     Compositor::bind_func);
+    wl_compositor::init(m_display->handle());
 
     m_data_device_manager =  new DataDeviceManager(this);
 
@@ -236,15 +206,6 @@ void Compositor::frameFinished(Surface *surface)
     }
 }
 
-void Compositor::createSurface(struct wl_client *client, uint32_t id)
-{
-    Surface *surface = new Surface(client,id, this);
-
-    m_surfaces << surface;
-    //BUG: This may not be an on-screen window surface though
-    m_qt_compositor->surfaceCreated(surface->waylandSurface());
-}
-
 uint Compositor::currentTimeMsecs() const
 {
     return m_timer.elapsed();
@@ -291,6 +252,20 @@ void Compositor::cleanupGraphicsResources()
 
     qDeleteAll(m_destroyed_surfaces);
     m_destroyed_surfaces.clear();
+}
+
+void Compositor::compositor_create_surface(Resource *resource, uint32_t id)
+{
+    Surface *surface = new Surface(resource->client(), id, this);
+    m_surfaces << surface;
+    //BUG: This may not be an on-screen window surface though
+    m_qt_compositor->surfaceCreated(surface->waylandSurface());
+}
+
+void Compositor::compositor_create_region(Resource *resource, uint32_t id)
+{
+    Q_UNUSED(compositor);
+    new Region(resource->client(), id);
 }
 
 void Compositor::markSurfaceAsDirty(QtWayland::Surface *surface)

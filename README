@@ -15,6 +15,9 @@ include "wayland-compositor" when building the QtWayland module:
 qmake CONFIG+=wayland-compositor
 make
 
+Note: make sure the source tree is clean before running those commands. If in
+doubt, run git clean -f -d -x.
+
 To build the QtWayland module you need the external dependencies:
 xkbcommon 0.2.0 - http://xkbcommon.org/
 wayland 1.2.0 - http://wayland.freedesktop.org/

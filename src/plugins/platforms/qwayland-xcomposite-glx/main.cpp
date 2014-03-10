@@ -40,7 +40,9 @@
 ****************************************************************************/
 
 #include <qpa/qplatformintegrationplugin.h>
-#include "qwaylandintegration.h"
+#include <QtWaylandClient/private/qwaylandintegration_p.h>
+
+#include "qwaylandxcompositeglxplatformintegration.h"
 
 QT_BEGIN_NAMESPACE
 

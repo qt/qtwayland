@@ -68,6 +68,10 @@ void QWaylandXCompositeGLXIntegration::initialize(QWaylandDisplay *display)
 {
     mWaylandDisplay = display;
     mWaylandDisplay->addRegistryListener(QWaylandXCompositeGLXIntegration::wlDisplayHandleGlobal, this);
+    while (!mDisplay) {
+        display->flushRequests();
+        display->blockingReadEvents();
+    }
 }
 
 QWaylandWindow * QWaylandXCompositeGLXIntegration::createEglWindow(QWindow *window)

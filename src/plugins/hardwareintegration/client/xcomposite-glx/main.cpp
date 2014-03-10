@@ -56,14 +56,14 @@ public:
 QStringList QWaylandXCompositeGlxClientBufferIntegrationPlugin::keys() const
 {
     QStringList list;
-    list << "xcomposite-glx";
+    list << "wayland-xcomposite-glx";
     return list;
 }
 
 QWaylandClientBufferIntegration *QWaylandXCompositeGlxClientBufferIntegrationPlugin::create(const QString& system, const QStringList& paramList)
 {
     Q_UNUSED(paramList);
-    if (system.toLower() == "xcomposite-glx")
+    if (system.toLower() == "wayland-xcomposite-glx")
         return new QWaylandXCompositeGLXIntegration();
 
     return 0;

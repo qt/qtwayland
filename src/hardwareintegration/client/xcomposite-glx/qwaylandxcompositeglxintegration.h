@@ -69,11 +69,10 @@ public:
     QWaylandXCompositeGLXIntegration();
     ~QWaylandXCompositeGLXIntegration();
 
-    void initialize(QWaylandDisplay *display);
-    bool waitingForEvents() { return !mDisplay; }
+    void initialize(QWaylandDisplay *display) Q_DECL_OVERRIDE;
 
-    QWaylandWindow *createEglWindow(QWindow *window);
-    QPlatformOpenGLContext *createPlatformOpenGLContext(const QSurfaceFormat &glFormat, QPlatformOpenGLContext *share) const;
+    QWaylandWindow *createEglWindow(QWindow *window) Q_DECL_OVERRIDE;
+    QPlatformOpenGLContext *createPlatformOpenGLContext(const QSurfaceFormat &glFormat, QPlatformOpenGLContext *share) const Q_DECL_OVERRIDE;
 
     QWaylandDisplay *waylandDisplay() const;
     struct qt_xcomposite *waylandXComposite() const;

@@ -10,3 +10,5 @@ OTHER_FILES += qwayland-xcomposite-glx.json
 SOURCES += \
     main.cpp
 
+HEADERS += \
+    qwaylandxcompositeglxplatformintegration.h

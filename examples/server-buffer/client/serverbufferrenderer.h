@@ -42,14 +42,14 @@
 #define SERVERBUFFERRENDERER_H
 
 #include <QtWaylandClient/private/qwaylandserverbufferintegration_p.h>
-
+#include <QtGui/QOpenGLFunctions>
 #include <QMatrix4x4>
 QT_BEGIN_NAMESPACE
 
 class QOpenGLVertexArrayObject;
 class QOpenGLShaderProgram;
 
-class ServerBufferRenderer
+class ServerBufferRenderer : public QOpenGLFunctions
 {
 public:
     ServerBufferRenderer(QWaylandServerBuffer *serverBuffer);

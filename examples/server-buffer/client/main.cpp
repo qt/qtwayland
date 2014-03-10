@@ -112,8 +112,8 @@ public slots:
         }
 
         m_context->makeCurrent(this);
-
-        glBindFramebuffer(GL_FRAMEBUFFER, m_context->defaultFramebufferObject());
+        QOpenGLFunctions *funcs = m_context->functions();
+        funcs->glBindFramebuffer(GL_FRAMEBUFFER, m_context->defaultFramebufferObject());
 
         glViewport(0, 0, width() * devicePixelRatio(), height() * devicePixelRatio());
         glClearColor(0.f, 0.f, 0.0f, 1.f);

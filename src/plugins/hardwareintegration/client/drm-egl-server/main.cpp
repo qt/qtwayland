@@ -47,26 +47,16 @@ QT_BEGIN_NAMESPACE
 class DrmEglServerBufferPlugin : public QWaylandServerBufferIntegrationPlugin
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.WaylandClient.QWaylandServerBufferIntegrationFactoryInterface.5.3" FILE "drm-egl-server.json")
+    Q_PLUGIN_METADATA(IID QWaylandServerBufferIntegrationFactoryInterface_iid FILE "drm-egl-server.json")
 public:
-    QStringList keys() const;
-    QWaylandServerBufferIntegration *create(const QString&, const QStringList&);
+    QWaylandServerBufferIntegration *create(const QString&, const QStringList&) Q_DECL_OVERRIDE;
 };
-
-QStringList DrmEglServerBufferPlugin::keys() const
-{
-    QStringList list;
-    list << "drm-egl-server";
-    return list;
-}
 
 QWaylandServerBufferIntegration *DrmEglServerBufferPlugin::create(const QString& system, const QStringList& paramList)
 {
     Q_UNUSED(paramList);
-    if (system.toLower() == "drm-egl-server")
-        return new DrmEglServerBufferIntegration();
-
-    return 0;
+    Q_UNUSED(system);
+    return new DrmEglServerBufferIntegration();
 }
 
 QT_END_NAMESPACE

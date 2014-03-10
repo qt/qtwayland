@@ -49,24 +49,14 @@ class QWaylandXCompositeClientBufferIntegration : public QtWayland::ClientBuffer
     Q_OBJECT
     Q_PLUGIN_METADATA(IID QtWaylandClientBufferIntegrationFactoryInterface_iid FILE "xcomposite-glx.json")
 public:
-    QStringList keys() const;
-    QtWayland::ClientBufferIntegration *create(const QString&, const QStringList&);
+    QtWayland::ClientBufferIntegration *create(const QString&, const QStringList&) Q_DECL_OVERRIDE;
 };
-
-QStringList QWaylandXCompositeClientBufferIntegration::keys() const
-{
-    QStringList list;
-    list << "wayland-xcomposite-glx";
-    return list;
-}
 
 QtWayland::ClientBufferIntegration *QWaylandXCompositeClientBufferIntegration::create(const QString& system, const QStringList& paramList)
 {
     Q_UNUSED(paramList);
-    if (system.toLower() == "wayland-xcomposite-glx")
-        return new XCompositeGLXClientBufferIntegration();
-
-    return 0;
+    Q_UNUSED(system);
+    return new XCompositeGLXClientBufferIntegration();
 }
 
 QT_END_NAMESPACE

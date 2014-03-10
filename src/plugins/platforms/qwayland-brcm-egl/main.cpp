@@ -47,10 +47,9 @@ QT_BEGIN_NAMESPACE
 class QWaylandIntegrationPlugin : public QPlatformIntegrationPlugin
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QPA.QPlatformIntegrationFactoryInterface.5.2" FILE "qwayland-brcm-egl.json")
+    Q_PLUGIN_METADATA(IID QPlatformIntegrationFactoryInterface_iid FILE "qwayland-brcm-egl.json")
 public:
-    QStringList keys() const;
-    QPlatformIntegration *create(const QString&, const QStringList&);
+    QPlatformIntegration *create(const QString&, const QStringList&) Q_DECL_OVERRIDE;
 };
 
 QStringList QWaylandIntegrationPlugin::keys() const
@@ -63,10 +62,8 @@ QStringList QWaylandIntegrationPlugin::keys() const
 QPlatformIntegration *QWaylandIntegrationPlugin::create(const QString& system, const QStringList& paramList)
 {
     Q_UNUSED(paramList);
-    if (system.toLower() == "wayland-brcm")
-        return new QWaylandBrcmEglPlatformIntegration();
-
-    return 0;
+    Q_UNUSED(system);
+    return new QWaylandBrcmEglPlatformIntegration();
 }
 
 QT_END_NAMESPACE

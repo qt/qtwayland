@@ -47,26 +47,16 @@ QT_BEGIN_NAMESPACE
 class QWaylandXCompositeEglClientBufferIntegrationPlugin : public QWaylandClientBufferIntegrationPlugin
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.WaylandClient.QWaylandClientBufferIntegrationFactoryInterface.5.3" FILE "xcomposite-egl.json")
+    Q_PLUGIN_METADATA(IID QWaylandClientBufferIntegrationFactoryInterface_iid FILE "xcomposite-egl.json")
 public:
-    QStringList keys() const;
-    QWaylandClientBufferIntegration *create(const QString&, const QStringList&);
+    QWaylandClientBufferIntegration *create(const QString&, const QStringList&) Q_DECL_OVERRIDE;
 };
-
-QStringList QWaylandXCompositeEglClientBufferIntegrationPlugin::keys() const
-{
-    QStringList list;
-    list << "xcomposite" << "xcomposite-egl";
-    return list;
-}
 
 QWaylandClientBufferIntegration *QWaylandXCompositeEglClientBufferIntegrationPlugin::create(const QString& system, const QStringList& paramList)
 {
     Q_UNUSED(paramList);
-    if (system.toLower() == "xcomposite" || system.toLower() == "xcomposite-egl")
-        return new QWaylandXCompositeEGLClientBufferIntegration();
-
-    return 0;
+    Q_UNUSED(system);
+    return new QWaylandXCompositeEGLClientBufferIntegration();
 }
 
 QT_END_NAMESPACE

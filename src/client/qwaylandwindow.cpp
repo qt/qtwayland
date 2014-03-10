@@ -122,6 +122,7 @@ QWaylandWindow::QWaylandWindow(QWindow *window)
     setWindowFlags(window->flags());
     setGeometry(window->geometry());
     setWindowStateInternal(window->windowState());
+    handleContentOrientationChange(window->contentOrientation());
 }
 
 QWaylandWindow::~QWaylandWindow()

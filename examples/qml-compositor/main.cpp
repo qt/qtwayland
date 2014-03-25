@@ -95,10 +95,6 @@ public slots:
 private slots:
     void surfaceMapped() {
         QWaylandQuickSurface *surface = qobject_cast<QWaylandQuickSurface *>(sender());
-        //Ignore surface if it's not a window surface
-        if (!surface->hasShellSurface())
-            return;
-
         emit windowAdded(QVariant::fromValue(surface));
     }
     void surfaceUnmapped() {

@@ -85,7 +85,7 @@ protected:
 
 private slots:
     void sendExpose();
-    void updateCursor();
+    void updateCursor(bool hasBuffer);
 
 private:
     QOpenGLWindow *m_window;

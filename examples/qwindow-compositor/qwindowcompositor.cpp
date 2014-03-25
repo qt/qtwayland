@@ -191,11 +191,10 @@ void QWindowCompositor::surfaceMapped()
     } else {
         m_surfaces.removeOne(surface);
     }
-    //Sometimes surfaces dont have shell_surfaces, so don't render them
-    if (surface->hasShellSurface()) {
-        m_surfaces.append(surface);
-        defaultInputDevice()->setKeyboardFocus(surface);
-    }
+
+    m_surfaces.append(surface);
+    defaultInputDevice()->setKeyboardFocus(surface);
+
     m_renderScheduler.start(0);
 }
 
@@ -245,8 +244,9 @@ void QWindowCompositor::sendExpose()
     surface->sendOnScreenVisibilityChange(true);
 }
 
-void QWindowCompositor::updateCursor()
+void QWindowCompositor::updateCursor(bool hasBuffer)
 {
+    Q_UNUSED(hasBuffer)
     if (!m_cursorSurface)
         return;
 
@@ -270,7 +270,7 @@ QPointF QWindowCompositor::toSurface(QWaylandSurface *surface, const QPointF &po
 void QWindowCompositor::setCursorSurface(QWaylandSurface *surface, int hotspotX, int hotspotY)
 {
     if ((m_cursorSurface != surface) && surface)
-        connect(surface, SIGNAL(configure()), this, SLOT(updateCursor()));
+        connect(surface, SIGNAL(configure(bool)), this, SLOT(updateCursor(bool)));
 
     m_cursorSurface = surface;
     m_cursorHotspotX = hotspotX;

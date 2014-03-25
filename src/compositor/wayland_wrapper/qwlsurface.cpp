@@ -311,14 +311,6 @@ void Surface::setBackBuffer(SurfaceBuffer *buffer)
         bool valid = m_buffer->waylandBufferHandle() != 0;
         setSize(valid ? m_buffer->size() : QSize());
 
-        if ((!m_subSurface || !m_subSurface->parent()) && !m_surfaceMapped) {
-             m_surfaceMapped = true;
-             emit m_waylandSurface->mapped();
-        } else if (!valid && m_surfaceMapped) {
-             m_surfaceMapped = false;
-             emit m_waylandSurface->unmapped();
-        }
-
         m_damage = m_damage.intersected(QRect(QPoint(), m_size));
         emit m_waylandSurface->damaged(m_damage);
     } else {
@@ -329,6 +321,17 @@ void Surface::setBackBuffer(SurfaceBuffer *buffer)
             inputDevice->setMouseFocus(0, QPointF(), QPointF());
     }
     m_damage = QRegion();
+}
+
+void Surface::setMapped(bool mapped)
+{
+    if (!m_surfaceMapped && mapped) {
+        m_surfaceMapped = true;
+        emit m_waylandSurface->mapped();
+    } else if (!mapped && m_surfaceMapped) {
+        m_surfaceMapped = false;
+        emit m_waylandSurface->unmapped();
+    }
 }
 
 SurfaceBuffer *Surface::createSurfaceBuffer(struct ::wl_resource *buffer)
@@ -407,16 +410,11 @@ void Surface::surface_commit(Resource *)
 
     if (m_pending.buffer || m_pending.newlyAttached) {
         setBackBuffer(m_pending.buffer);
-        if (!m_buffer && m_surfaceMapped) {
-            m_surfaceMapped = false;
-            emit m_waylandSurface->unmapped();
-        }
-
         m_bufferRef = QWaylandBufferRef(m_buffer);
 
         if (m_attacher)
             m_attacher->attach(m_bufferRef);
-        emit m_waylandSurface->configure();
+        emit m_waylandSurface->configure(m_bufferRef);
     }
 
     m_pending.buffer = 0;

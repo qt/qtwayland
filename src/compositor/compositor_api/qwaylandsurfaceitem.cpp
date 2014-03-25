@@ -309,8 +309,10 @@ void QWaylandSurfaceItem::setPaintEnabled(bool enabled)
     update();
 }
 
-void QWaylandSurfaceItem::updateBuffer()
+void QWaylandSurfaceItem::updateBuffer(bool hasBuffer)
 {
+    Q_UNUSED(hasBuffer)
+
     bool inv = m_yInverted;
     m_yInverted = surface()->isYInverted();
     if (inv != m_yInverted)

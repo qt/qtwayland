@@ -196,7 +196,7 @@ void QWaylandQuickSurface::setUseTextureAlpha(bool useTextureAlpha)
     if (d->useTextureAlpha != useTextureAlpha) {
         d->useTextureAlpha = useTextureAlpha;
         emit useTextureAlphaChanged();
-        emit configure();
+        emit configure(d->buffer->bufferRef);
     }
 }
 

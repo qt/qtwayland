@@ -108,7 +108,7 @@ private slots:
     void updateSize();
     void updateSurfaceSize();
     void updatePosition();
-    void updateBuffer();
+    void updateBuffer(bool hasBuffer);
 
 signals:
     void touchEventsEnabledChanged();

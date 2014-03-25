@@ -288,15 +288,6 @@ QString QWaylandSurface::title() const
     return d->title();
 }
 
-bool QWaylandSurface::hasShellSurface() const
-{
-    Q_D(const QWaylandSurface);
-    if (d->shellSurface())
-        return true;
-
-    return false;
-}
-
 bool QWaylandSurface::hasInputPanelSurface() const
 {
     Q_D(const QWaylandSurface);

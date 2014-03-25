@@ -161,7 +161,6 @@ public:
 
     QString title() const;
 
-    bool hasShellSurface() const;
     bool hasInputPanelSurface() const;
 
     bool transientInactive() const;
@@ -203,7 +202,7 @@ signals:
     void pong();
     void surfaceDestroyed();
 
-    void configure();
+    void configure(bool hasBuffer);
     void redraw();
 };
 

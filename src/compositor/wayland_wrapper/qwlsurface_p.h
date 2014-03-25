@@ -134,6 +134,8 @@ public:
     void releaseSurfaces();
     void frameStarted();
 
+    void setMapped(bool mapped);
+
     inline bool isDestroyed() const { return m_destroyed; }
 
 protected:

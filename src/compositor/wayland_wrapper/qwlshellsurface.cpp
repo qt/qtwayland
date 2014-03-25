@@ -103,6 +103,7 @@ ShellSurface::ShellSurface(Shell *shell, wl_client *client, uint32_t id, Surface
     , m_popupSerial()
 {
     surface->setShellSurface(this);
+    connect(surface->waylandSurface(), &QWaylandSurface::configure, this, &ShellSurface::configure);
 }
 
 void ShellSurface::sendConfigure(uint32_t edges, int32_t width, int32_t height)
@@ -184,6 +185,11 @@ void ShellSurface::mapPopup()
         send_popup_done();
         m_popupGrabber->setClient(0);
     }
+}
+
+void ShellSurface::configure(bool hasBuffer)
+{
+    m_surface->setMapped(hasBuffer);
 }
 
 void ShellSurface::shell_surface_destroy_resource(Resource *)

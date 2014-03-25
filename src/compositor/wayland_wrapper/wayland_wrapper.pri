@@ -37,6 +37,7 @@ HEADERS += \
     wayland_wrapper/qwltextinput_p.h \
     wayland_wrapper/qwltextinputmanager_p.h \
     wayland_wrapper/qwltouch_p.h \
+    wayland_wrapper/qwllistener_p.h \
 
 SOURCES += \
     wayland_wrapper/qwlcompositor.cpp \
@@ -65,6 +66,7 @@ SOURCES += \
     wayland_wrapper/qwltextinput.cpp \
     wayland_wrapper/qwltextinputmanager.cpp \
     wayland_wrapper/qwltouch.cpp \
+    wayland_wrapper/qwllistener.cpp \
 
 INCLUDEPATH += wayland_wrapper
 

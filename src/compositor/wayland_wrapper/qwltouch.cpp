@@ -54,10 +54,15 @@ Touch::Touch(Compositor *compositor)
     , m_grab(this)
 {
     m_grab->setTouch(this);
+    connect(&m_focusDestroyListener, &WlListener::fired, this, &Touch::focusDestroyed);
 }
 
 void Touch::setFocus(Surface *surface)
 {
+    m_focusDestroyListener.reset();
+    if (surface)
+        m_focusDestroyListener.listenForDestruction(surface->resource()->handle);
+
     m_focus = surface;
     m_focusResource = surface ? resourceMap().value(surface->resource()->client()) : 0;
 }
@@ -71,6 +76,15 @@ void Touch::startGrab(TouchGrabber *grab)
 void Touch::endGrab()
 {
     m_grab = this;
+}
+
+void Touch::focusDestroyed(void *data)
+{
+    Q_UNUSED(data)
+    m_focusDestroyListener.reset();
+
+    m_focus = 0;
+    m_focusResource = 0;
 }
 
 void Touch::sendCancel()

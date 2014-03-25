@@ -39,6 +39,7 @@
 ****************************************************************************/
 
 import QtQuick 2.0
+import QtCompositor 1.0
 
 Item {
     id: root
@@ -58,15 +59,21 @@ Item {
         anchors.fill: parent
     }
 
+    Component {
+        id: windowItem
+        WaylandSurfaceItem {
+            onSurfaceDestroyed: {
+                destroy();
+            }
+        }
+    }
+
     function windowAdded(window) {
-        window.parent = root;
+        var item = windowItem.createObject(root);
+        item.surface = window;
     }
 
     function windowResized(window) {
-    }
-
-    function windowDestroyed(window) {
-        compositor.destroyWindow(window);
     }
 
     function removeWindow(window) {

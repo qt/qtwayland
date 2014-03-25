@@ -141,13 +141,14 @@ public:
     void configureTouchExtension(TouchExtensionFlags flags);
 
 protected:
+    QWaylandCompositor(QWindow *window, const char *socketName, QtWayland::Compositor *dptr);
     virtual void retainedSelectionReceived(QMimeData *mimeData);
 
-private:
     friend class QtWayland::Compositor;
     QtWayland::Compositor *m_compositor;
+
+private:
     QWindow  *m_toplevel_window;
-    QByteArray m_socket_name;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QWaylandCompositor::ExtensionFlags)

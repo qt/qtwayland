@@ -69,10 +69,6 @@
 #include <QtCore/QAbstractEventDispatcher>
 #include <QtGui/private/qguiapplication_p.h>
 
-#ifdef QT_COMPOSITOR_QUICK
-#include <QtQuick/QQuickWindow>
-#endif
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -131,6 +127,15 @@ Compositor::Compositor(QWaylandCompositor *qt_compositor, QWaylandCompositor::Ex
 {
     m_timer.start();
     compositor = this;
+}
+
+void Compositor::init()
+{
+    QStringList arguments = QCoreApplication::instance()->arguments();
+
+    int socketArg = arguments.indexOf(QLatin1String("--wayland-socket-name"));
+    if (socketArg != -1 && socketArg + 1 < arguments.size())
+        m_socket_name = arguments.at(socketArg + 1).toLocal8Bit();
 
     wl_compositor::init(m_display->handle());
 
@@ -147,7 +152,7 @@ Compositor::Compositor(QWaylandCompositor *qt_compositor, QWaylandCompositor::Ex
                      m_shell,
                      Shell::bind_func);
 
-    if (wl_display_add_socket(m_display->handle(), qt_compositor->socketName())) {
+    if (wl_display_add_socket(m_display->handle(), m_qt_compositor->socketName())) {
         fprintf(stderr, "Fatal: Failed to open server socket\n");
         exit(EXIT_FAILURE);
     }
@@ -163,18 +168,12 @@ Compositor::Compositor(QWaylandCompositor *qt_compositor, QWaylandCompositor::Ex
     connect(dispatcher, SIGNAL(aboutToBlock()), this, SLOT(processWaylandEvents()));
 
     qRegisterMetaType<SurfaceBuffer*>("SurfaceBuffer*");
+    qRegisterMetaType<QWaylandSurface*>("WaylandSurface*");
     //initialize distancefieldglyphcache here
 
-#ifdef QT_COMPOSITOR_QUICK
-    if (QQuickWindow *w = qobject_cast<QQuickWindow *>(qt_compositor->window())) {
-        connect(w, SIGNAL(beforeSynchronizing()), this, SLOT(cleanupGraphicsResources()), Qt::DirectConnection);
-    } else
-#endif
-    {
-#if !defined(QT_NO_DEBUG) && !defined(QT_WAYLAND_NO_CLEANUP_WARNING)
-        qWarning("QWaylandCompositor::cleanupGraphicsResources() must be called manually");
-#endif
-    }
+    initializeHardwareIntegration();
+    initializeExtensions();
+    initializeDefaultInputDevice();
 }
 
 Compositor::~Compositor()
@@ -216,44 +215,26 @@ void Compositor::processWaylandEvents()
 
 void Compositor::destroySurface(Surface *surface)
 {
-    InputDevice *dev = defaultInputDevice();
-    if (dev->mouseFocus() == surface) {
-        dev->setMouseFocus(0, QPointF(), QPointF());
-        // Make sure the surface is reset regardless of what the grabber
-        // interface's focus() does. (e.g. the default implementation does
-        // nothing when a button is down which would be disastrous here)
-        dev->pointerDevice()->setFocus(0, QPointF());
-    }
-    if (dev->pointerDevice()->current() == surface) {
-        dev->pointerDevice()->setCurrent(0, QPointF());
-    }
-    if (dev->keyboardFocus() == surface)
-        dev->setKeyboardFocus(0);
-
     m_surfaces.removeOne(surface);
 
     waylandCompositor()->surfaceAboutToBeDestroyed(surface->waylandSurface());
 
     surface->releaseSurfaces();
-    m_destroyed_surfaces << surface;
+    m_destroyed_surfaces << surface->waylandSurface();
 }
 
 void Compositor::cleanupGraphicsResources()
 {
-    foreach (SurfaceBuffer *s, m_destroyed_buffers)
-        s->bufferWasDestroyed();
-    m_destroyed_buffers.clear();
-
     qDeleteAll(m_destroyed_surfaces);
     m_destroyed_surfaces.clear();
 }
 
 void Compositor::compositor_create_surface(Resource *resource, uint32_t id)
 {
-    Surface *surface = new Surface(resource->client(), id, this);
-    m_surfaces << surface;
+    QWaylandSurface *surface = new QWaylandSurface(resource->client(), id, m_qt_compositor);
+    m_surfaces << surface->handle();
     //BUG: This may not be an on-screen window surface though
-    m_qt_compositor->surfaceCreated(surface->waylandSurface());
+    m_qt_compositor->surfaceCreated(surface);
 }
 
 void Compositor::compositor_create_region(Resource *resource, uint32_t id)

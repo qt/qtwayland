@@ -58,7 +58,7 @@ public:
     ~QWindowCompositor();
 
 private slots:
-    void surfaceDestroyed(QObject *object);
+    void surfaceDestroyed();
     void surfaceMapped();
     void surfaceUnmapped();
     void surfaceCommitted();
@@ -71,7 +71,7 @@ protected:
 
     QWaylandSurface* surfaceAt(const QPointF &point, QPointF *local = 0);
 
-    GLuint composeSurface(QWaylandSurface *surface, bool *textureOwned);
+    GLuint composeSurface(QWaylandSurface *surface);
     void paintChildren(QWaylandSurface *surface, QWaylandSurface *window, const QSize &windowSize);
 
 

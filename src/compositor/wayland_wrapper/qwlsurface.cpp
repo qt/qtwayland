@@ -41,10 +41,6 @@
 #include "qwlsurface_p.h"
 
 #include "qwaylandsurface.h"
-#ifdef QT_COMPOSITOR_QUICK
-#include "qwaylandsurfaceitem.h"
-#endif
-
 #include "qwlcompositor_p.h"
 #include "qwlinputdevice_p.h"
 #include "qwlextendedsurface_p.h"
@@ -57,11 +53,6 @@
 #include <QTouchEvent>
 
 #include <wayland-server.h>
-
-#ifdef QT_COMPOSITOR_WAYLAND_GL
-#include "hardware_integration/qwlclientbufferintegration_p.h"
-#include <qpa/qplatformopenglcontext.h>
-#endif
 
 #ifdef QT_WAYLAND_WINDOWMANAGER_SUPPORT
 #include "waylandwindowmanagerintegration.h"
@@ -117,19 +108,20 @@ public:
     bool canSend;
 };
 
-Surface::Surface(struct wl_client *client, uint32_t id, Compositor *compositor)
+Surface::Surface(struct wl_client *client, uint32_t id, QWaylandCompositor *compositor, QWaylandSurface *surface)
     : QtWaylandServer::wl_surface(client, id)
-    , m_compositor(compositor)
-    , m_waylandSurface(new QWaylandSurface(this))
-    , m_backBuffer(0)
-    , m_frontBuffer(0)
+    , m_compositor(compositor->handle())
+    , m_waylandSurface(surface)
+    , m_buffer(0)
     , m_surfaceMapped(false)
+    , m_attacher(0)
     , m_extendedSurface(0)
     , m_subSurface(0)
     , m_shellSurface(0)
     , m_inputPanelSurface(0)
     , m_transientInactive(false)
     , m_isCursorSurface(false)
+    , m_destroyed(false)
 {
     m_pending.buffer = 0;
     m_pending.newlyAttached = false;
@@ -137,8 +129,9 @@ Surface::Surface(struct wl_client *client, uint32_t id, Compositor *compositor)
 
 Surface::~Surface()
 {
-    delete m_waylandSurface;
     delete m_subSurface;
+
+    m_bufferRef = QWaylandBufferRef();
 
     for (int i = 0; i < m_bufferPool.size(); i++)
         delete m_bufferPool[i];
@@ -151,10 +144,7 @@ Surface::~Surface()
 
 void Surface::releaseSurfaces()
 {
-    delete m_waylandSurface;
-    m_waylandSurface = 0;
-    delete m_subSurface;
-    m_subSurface = 0;
+
 }
 
 Surface *Surface::fromResource(struct ::wl_resource *resource)
@@ -164,9 +154,8 @@ Surface *Surface::fromResource(struct ::wl_resource *resource)
 
 QWaylandSurface::Type Surface::type() const
 {
-    SurfaceBuffer *surfaceBuffer = currentSurfaceBuffer();
-    if (surfaceBuffer && surfaceBuffer->waylandBufferHandle()) {
-        if (surfaceBuffer->isShmBuffer()) {
+    if (m_buffer && m_buffer->waylandBufferHandle()) {
+        if (m_buffer->isShmBuffer()) {
             return QWaylandSurface::Shm;
         } else {
             return QWaylandSurface::Texture;
@@ -177,27 +166,14 @@ QWaylandSurface::Type Surface::type() const
 
 bool Surface::isYInverted() const
 {
-    bool ret = false;
-    static bool negateReturn = qgetenv("QT_COMPOSITOR_NEGATE_INVERTED_Y").toInt();
-    ClientBufferIntegration *clientBufferIntegration = m_compositor->clientBufferIntegration();
-
-#ifdef QT_COMPOSITOR_WAYLAND_GL
-    SurfaceBuffer *surfacebuffer = currentSurfaceBuffer();
-    if (!surfacebuffer) {
-        ret = false;
-    } else if (clientBufferIntegration && surfacebuffer->waylandBufferHandle() && type() != QWaylandSurface::Shm) {
-        ret = clientBufferIntegration->isYInverted(surfacebuffer->waylandBufferHandle());
-    } else
-#endif
-        ret = true;
-
-    return ret != negateReturn;
+    if (m_buffer)
+        return m_buffer->isYInverted();
+    return false;
 }
 
 bool Surface::mapped() const
 {
-    SurfaceBuffer *surfacebuffer = currentSurfaceBuffer();
-    return surfacebuffer ? bool(surfacebuffer->waylandBufferHandle()) : false;
+    return m_buffer ? bool(m_buffer->waylandBufferHandle()) : false;
 }
 
 QPointF Surface::pos() const
@@ -245,28 +221,6 @@ QRegion Surface::opaqueRegion() const
 {
     return m_opaqueRegion;
 }
-
-QImage Surface::image() const
-{
-    SurfaceBuffer *surfacebuffer = currentSurfaceBuffer();
-    if (surfacebuffer && !surfacebuffer->isDestroyed() && type() == QWaylandSurface::Shm) {
-        return surfacebuffer->image();
-    }
-    return QImage();
-}
-
-#ifdef QT_COMPOSITOR_WAYLAND_GL
-GLuint Surface::textureId() const
-{
-    const SurfaceBuffer *surfacebuffer = m_frontBuffer;
-
-    if (m_compositor->clientBufferIntegration() && type() == QWaylandSurface::Texture
-         && !surfacebuffer->textureCreated()) {
-        const_cast<SurfaceBuffer *>(surfacebuffer)->createTexture();
-    }
-    return surfacebuffer->texture();
-}
-#endif // QT_COMPOSITOR_WAYLAND_GL
 
 void Surface::sendFrameCallback()
 {
@@ -342,25 +296,6 @@ Compositor *Surface::compositor() const
     return m_compositor;
 }
 
-void Surface::swapBuffers()
- {
-    SurfaceBuffer *front = m_frontBuffer;
-
-    // Advance current back buffer to the front buffer.
-    if (m_backBuffer) {
-        if (m_backBuffer->isDestroyed()) {
-            m_backBuffer->disown();
-            m_backBuffer = 0;
-         }
-        m_frontBuffer = m_backBuffer;
-        m_backBuffer = 0;
-    }
-
-    // Release the old front buffer if we changed it.
-    if (front && front != m_frontBuffer)
-        front->disown();
-}
-
 /*!
  * Sets the backbuffer for this surface. The back buffer is not yet on
  * screen and will become live during the next swapBuffers().
@@ -370,11 +305,11 @@ void Surface::swapBuffers()
  */
 void Surface::setBackBuffer(SurfaceBuffer *buffer)
 {
-    m_backBuffer = buffer;
+    m_buffer = buffer;
 
-    if (m_backBuffer) {
-        bool valid = m_backBuffer->waylandBufferHandle() != 0;
-        setSize(valid ? m_backBuffer->size() : QSize());
+    if (m_buffer) {
+        bool valid = m_buffer->waylandBufferHandle() != 0;
+        setSize(valid ? m_buffer->size() : QSize());
 
         if ((!m_subSurface || !m_subSurface->parent()) && !m_surfaceMapped) {
              m_surfaceMapped = true;
@@ -426,7 +361,9 @@ void Surface::surface_destroy_resource(Resource *)
         m_extendedSurface = 0;
     }
 
-    compositor()->destroySurface(this);
+    m_destroyed = true;
+    m_waylandSurface->destroy();
+    emit m_waylandSurface->surfaceDestroyed();
 }
 
 void Surface::surface_destroy(Resource *resource)
@@ -469,14 +406,17 @@ void Surface::surface_commit(Resource *)
     m_damage = m_pending.damage;
 
     if (m_pending.buffer || m_pending.newlyAttached) {
-        if (m_backBuffer && m_backBuffer != m_pending.buffer)
-            m_backBuffer->disown();
-
         setBackBuffer(m_pending.buffer);
-        if (!m_backBuffer && m_surfaceMapped) {
+        if (!m_buffer && m_surfaceMapped) {
             m_surfaceMapped = false;
             emit m_waylandSurface->unmapped();
         }
+
+        m_bufferRef = QWaylandBufferRef(m_buffer);
+
+        if (m_attacher)
+            m_attacher->attach(m_bufferRef);
+        emit m_waylandSurface->configure();
     }
 
     m_pending.buffer = 0;
@@ -484,13 +424,13 @@ void Surface::surface_commit(Resource *)
     m_pending.newlyAttached = false;
     m_pending.damage = QRegion();
 
-    if (m_backBuffer)
-        m_backBuffer->setCommitted();
+    if (m_buffer)
+        m_buffer->setCommitted();
 
     m_frameCallbacks << m_pendingFrameCallbacks;
     m_pendingFrameCallbacks.clear();
 
-    emit m_waylandSurface->committed();
+    emit m_waylandSurface->redraw();
 }
 
 void Surface::frameStarted()

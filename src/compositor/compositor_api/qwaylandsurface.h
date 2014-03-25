@@ -48,25 +48,31 @@
 #include <QtGui/QWindow>
 #include <QtCore/QVariantMap>
 
-#ifdef QT_COMPOSITOR_WAYLAND_GL
-#include <QtGui/qopengl.h>
-#endif
+struct wl_client;
 
 QT_BEGIN_NAMESPACE
 
 class QTouchEvent;
 class QWaylandSurfacePrivate;
 class QWaylandCompositor;
-
-#ifdef QT_COMPOSITOR_QUICK
-class QWaylandSurfaceItem;
-#endif
+class QWaylandBufferRef;
 
 namespace QtWayland {
 class Surface;
 class SurfacePrivate;
 class ExtendedSurface;
 }
+
+class Q_COMPOSITOR_EXPORT QWaylandBufferAttacher
+{
+public:
+    virtual ~QWaylandBufferAttacher() {}
+
+protected:
+    virtual void attach(const QWaylandBufferRef &ref) = 0;
+
+    friend class QtWayland::Surface;
+};
 
 class Q_COMPOSITOR_EXPORT QWaylandSurface : public QObject
 {
@@ -81,9 +87,7 @@ class Q_COMPOSITOR_EXPORT QWaylandSurface : public QObject
     Q_PROPERTY(QString title READ title NOTIFY titleChanged)
     Q_PROPERTY(Qt::ScreenOrientations orientationUpdateMask READ orientationUpdateMask NOTIFY orientationUpdateMaskChanged)
     Q_PROPERTY(QWindow::Visibility visibility READ visibility WRITE setVisibility NOTIFY visibilityChanged)
-#ifdef QT_COMPOSITOR_QUICK
-    Q_PROPERTY(QObject * windowProperties READ windowPropertyMap CONSTANT)
-#endif
+    Q_PROPERTY(QSize size READ size NOTIFY sizeChanged)
 
     Q_ENUMS(WindowFlag WindowType)
     Q_FLAGS(WindowFlag WindowFlags)
@@ -109,7 +113,8 @@ public:
         Texture
     };
 
-    QWaylandSurface(QtWayland::Surface *surface = 0);
+    QWaylandSurface(wl_client *client, quint32 id, QWaylandCompositor *compositor);
+    virtual ~QWaylandSurface();
 
     WaylandClient *client() const;
 
@@ -134,27 +139,13 @@ public:
 
     WindowType windowType() const;
 
-    QImage image() const;
-#ifdef QT_COMPOSITOR_WAYLAND_GL
-    GLuint texture() const;
-#else
-    uint texture() const;
-#endif
-
     QWindow::Visibility visibility() const;
     void setVisibility(QWindow::Visibility visibility);
     Q_INVOKABLE void sendOnScreenVisibilityChange(bool visible); // Compat
 
     QWaylandSurface *transientParent() const;
 
-    QtWayland::Surface *handle() const;
-
-#ifdef QT_COMPOSITOR_QUICK
-    QWaylandSurfaceItem *surfaceItem() const;
-    void setSurfaceItem(QWaylandSurfaceItem *surfaceItem);
-
-    QObject *windowPropertyMap() const;
-#endif
+    QtWayland::Surface *handle();
 
     qint64 processId() const;
     QByteArray authenticationToken() const;
@@ -175,20 +166,26 @@ public:
 
     bool transientInactive() const;
 
+    Q_INVOKABLE void destroy();
     Q_INVOKABLE void destroySurface();
     Q_INVOKABLE void destroySurfaceByForce();
     Q_INVOKABLE void ping();
 
-    void swapBuffers();
+    void ref();
+
+    void setBufferAttacher(QWaylandBufferAttacher *attacher);
+    QWaylandBufferAttacher *bufferAttacher() const;
 
 public slots:
     void updateSelection();
+
+protected:
+    QWaylandSurface(QWaylandSurfacePrivate *dptr);
 
 signals:
     void mapped();
     void unmapped();
     void damaged(const QRegion &rect);
-    void committed();
     void parentChanged(QWaylandSurface *newParent, QWaylandSurface *oldParent);
     void sizeChanged();
     void posChanged();
@@ -204,6 +201,10 @@ signals:
     void lowerRequested();
     void visibilityChanged();
     void pong();
+    void surfaceDestroyed();
+
+    void configure();
+    void redraw();
 };
 
 QT_END_NAMESPACE

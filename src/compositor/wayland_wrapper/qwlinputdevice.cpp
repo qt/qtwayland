@@ -260,7 +260,7 @@ Surface *InputDevice::keyboardFocus() const
  */
 bool InputDevice::setKeyboardFocus(Surface *surface)
 {
-    if (surface && surface->transientInactive())
+    if (surface && (surface->transientInactive() || surface->isDestroyed()))
         return false;
 
     m_keyboard->setFocus(surface);
@@ -276,6 +276,9 @@ Surface *InputDevice::mouseFocus() const
 
 void InputDevice::setMouseFocus(Surface *surface, const QPointF &localPos, const QPointF &globalPos)
 {
+    if (surface && surface->isDestroyed())
+        return;
+
     m_pointer->setMouseFocus(surface, localPos, globalPos);
 
     // We have no separate touch focus management so make it match the pointer focus always.

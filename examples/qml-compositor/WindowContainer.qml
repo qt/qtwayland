@@ -40,6 +40,7 @@
 
 import QtQuick 2.0
 import QtQuick.Window 2.0
+import QtCompositor 1.0
 
 Item {
     id: container
@@ -52,8 +53,18 @@ Item {
 
     visible: isFullscreen || !root.hasFullscreenWindow
     onVisibleChanged: {
-        child.clientRenderingEnabled = visible
+        child.surface.clientRenderingEnabled = visible
         console.log("visibility changed: " + visible);
+    }
+
+    WaylandSurfaceItem {
+        id: surfaceItem
+        anchors.fill: parent
+        touchEventsEnabled: true
+
+        onSurfaceDestroyed: {
+            destroyAnimation.start();
+        }
     }
 
     opacity: 0
@@ -64,7 +75,7 @@ Item {
     property real targetHeight
     property real targetScale
 
-    property variant child: null
+    property variant child: surfaceItem
     property variant chrome: null
     property bool animationsEnabled: false
     property bool isFullscreen: state === "fullscreen"
@@ -168,11 +179,17 @@ Item {
         NumberAnimation { target: scaleTransform; property: "yScale"; easing.type: Easing.Linear; to: 0.01; duration: 200; }
         NumberAnimation { target: scaleTransform; property: "xScale"; easing.type: Easing.Linear; to: 0.01; duration: 150; }
         NumberAnimation { target: container; property: "opacity"; easing.type: Easing.Linear; to: 0.0; duration: 150; }
-        ScriptAction { script: container.parent.removeWindow(child); }
+        ScriptAction { script: container.parent.removeWindow(container) }
+    }
+    SequentialAnimation {
+        id: unmapAnimation
+        NumberAnimation { target: container; property: "opacity"; easing.type: Easing.Linear; to: 0.0; duration: 150; }
+        ScriptAction { script: container.parent.removeWindow(container) }
     }
 
-    function runDestroyAnimation() {
-        destroyAnimation.start();
+    Connections {
+        target: container.child.surface
+        onUnmapped: unmapAnimation.start()
     }
 
     Image {

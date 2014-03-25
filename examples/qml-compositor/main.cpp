@@ -38,9 +38,8 @@
 **
 ****************************************************************************/
 
-#include "qwaylandcompositor.h"
-#include "qwaylandsurface.h"
-#include "qwaylandsurfaceitem.h"
+#include "qwaylandquickcompositor.h"
+#include "qwaylandquicksurface.h"
 
 #include <QGuiApplication>
 #include <QTimer>
@@ -52,14 +51,14 @@
 #include <QQuickItem>
 #include <QQuickView>
 
-class QmlCompositor : public QQuickView, public QWaylandCompositor
+class QmlCompositor : public QQuickView, public QWaylandQuickCompositor
 {
     Q_OBJECT
-    Q_PROPERTY(QWaylandSurface* fullscreenSurface READ fullscreenSurface WRITE setFullscreenSurface NOTIFY fullscreenSurfaceChanged)
+    Q_PROPERTY(QWaylandQuickSurface* fullscreenSurface READ fullscreenSurface WRITE setFullscreenSurface NOTIFY fullscreenSurfaceChanged)
 
 public:
     QmlCompositor()
-        : QWaylandCompositor(this, 0, DefaultExtensions | SubSurfaceExtension)
+        : QWaylandQuickCompositor(this, 0, DefaultExtensions | SubSurfaceExtension)
         , m_fullscreenSurface(0)
     {
         setSource(QUrl("main.qml"));
@@ -67,11 +66,10 @@ public:
         setColor(Qt::black);
         winId();
 
-        connect(this, SIGNAL(beforeSynchronizing()), this, SLOT(startFrame()), Qt::DirectConnection);
         connect(this, SIGNAL(afterRendering()), this, SLOT(sendCallbacks()));
     }
 
-    QWaylandSurface *fullscreenSurface() const
+    QWaylandQuickSurface *fullscreenSurface() const
     {
         return m_fullscreenSurface;
     }
@@ -87,12 +85,7 @@ public slots:
         qvariant_cast<QObject *>(window)->deleteLater();
     }
 
-    void destroyClientForWindow(QVariant window) {
-        QWaylandSurface *surface = qobject_cast<QWaylandSurfaceItem *>(qvariant_cast<QObject *>(window))->surface();
-        destroyClientForSurface(surface);
-    }
-
-    void setFullscreenSurface(QWaylandSurface *surface) {
+    void setFullscreenSurface(QWaylandQuickSurface *surface) {
         if (surface == m_fullscreenSurface)
             return;
         m_fullscreenSurface = surface;
@@ -101,34 +94,25 @@ public slots:
 
 private slots:
     void surfaceMapped() {
-        QWaylandSurface *surface = qobject_cast<QWaylandSurface *>(sender());
+        QWaylandQuickSurface *surface = qobject_cast<QWaylandQuickSurface *>(sender());
         //Ignore surface if it's not a window surface
         if (!surface->hasShellSurface())
             return;
 
-        QWaylandSurfaceItem *item = surface->surfaceItem();
-        //Create a WaylandSurfaceItem if we have not yet
-        if (!item)
-            item = new QWaylandSurfaceItem(surface, rootObject());
-
-        item->setTouchEventsEnabled(true);
-        //item->takeFocus();
-        emit windowAdded(QVariant::fromValue(static_cast<QQuickItem *>(item)));
+        emit windowAdded(QVariant::fromValue(surface));
     }
     void surfaceUnmapped() {
-        QWaylandSurface *surface = qobject_cast<QWaylandSurface *>(sender());
+        QWaylandQuickSurface *surface = qobject_cast<QWaylandQuickSurface *>(sender());
         if (surface == m_fullscreenSurface)
             m_fullscreenSurface = 0;
-        QQuickItem *item = surface->surfaceItem();
-        emit windowDestroyed(QVariant::fromValue(item));
+        emit windowDestroyed(QVariant::fromValue(surface));
     }
 
     void surfaceDestroyed(QObject *object) {
-        QWaylandSurface *surface = static_cast<QWaylandSurface *>(object);
+        QWaylandQuickSurface *surface = static_cast<QWaylandQuickSurface *>(object);
         if (surface == m_fullscreenSurface)
             m_fullscreenSurface = 0;
-        QQuickItem *item = surface->surfaceItem();
-        emit windowDestroyed(QVariant::fromValue(item));
+        emit windowDestroyed(QVariant::fromValue(surface));
     }
 
     void sendCallbacks() {
@@ -136,9 +120,6 @@ private slots:
             sendFrameCallbacks(QList<QWaylandSurface *>() << m_fullscreenSurface);
         else
             sendFrameCallbacks(surfaces());
-    }
-    void startFrame() {
-        frameStarted();
     }
 
 protected:
@@ -155,7 +136,7 @@ protected:
     }
 
 private:
-    QWaylandSurface *m_fullscreenSurface;
+    QWaylandQuickSurface *m_fullscreenSurface;
 };
 
 int main(int argc, char *argv[])
@@ -170,7 +151,6 @@ int main(int argc, char *argv[])
     compositor.rootContext()->setContextProperty("compositor", &compositor);
 
     QObject::connect(&compositor, SIGNAL(windowAdded(QVariant)), compositor.rootObject(), SLOT(windowAdded(QVariant)));
-    QObject::connect(&compositor, SIGNAL(windowDestroyed(QVariant)), compositor.rootObject(), SLOT(windowDestroyed(QVariant)));
     QObject::connect(&compositor, SIGNAL(windowResized(QVariant)), compositor.rootObject(), SLOT(windowResized(QVariant)));
 
     return app.exec();

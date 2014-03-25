@@ -44,12 +44,14 @@
 #include <QtCore/QRect>
 #include <QtGui/qopengl.h>
 #include <QImage>
+#include <QAtomicInt>
 
 #include <wayland-server.h>
 
 QT_BEGIN_NAMESPACE
 
 class QWaylandClientBufferIntegration;
+class QWaylandBufferRef;
 
 namespace QtWayland {
 
@@ -75,6 +77,7 @@ public:
     QSize size() const;
 
     bool isShmBuffer() const;
+    bool isYInverted() const;
 
     inline bool isRegisteredWithBuffer() const { return m_is_registered_for_buffer; }
 
@@ -131,10 +134,13 @@ private:
 
     mutable bool m_isSizeResolved;
     mutable QSize m_size;
+    QAtomicInt m_refCount;
 
     QImage m_image;
 
     static void destroy_listener_callback(wl_listener *listener, void *data);
+
+    friend class ::QWaylandBufferRef;
 };
 
 GLuint SurfaceBuffer::texture() const

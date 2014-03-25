@@ -52,6 +52,55 @@
 #include <QPainter>
 
 #include <QtCompositor/qwaylandinput.h>
+#include <QtCompositor/qwaylandbufferref.h>
+
+static GLuint textureFromImage(const QImage &image)
+{
+    GLuint texture = 0;
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    QImage tx = image.convertToFormat(QImage::Format_RGBA8888_Premultiplied);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tx.width(), tx.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, tx.constBits());
+    glBindTexture(GL_TEXTURE_2D, 0);
+    return texture;
+}
+
+class BufferAttacher : public QWaylandBufferAttacher
+{
+public:
+    void attach(const QWaylandBufferRef &ref) Q_DECL_OVERRIDE
+    {
+        if (bufferRef) {
+            if (ownTexture)
+                glDeleteTextures(1, &texture);
+            else
+                bufferRef.destroyTexture();
+        }
+
+        bufferRef = ref;
+
+        if (bufferRef) {
+            if (bufferRef.isShm()) {
+                texture = textureFromImage(bufferRef.image());
+                ownTexture = true;
+            } else {
+                texture = bufferRef.createTexture();
+                ownTexture = false;
+            }
+        }
+    }
+
+    QImage image() const
+    {
+        if (!bufferRef || !bufferRef.isShm())
+            return QImage();
+        return bufferRef.image();
+    }
+
+    QWaylandBufferRef bufferRef;
+    GLuint texture;
+    bool ownTexture;
+};
 
 QWindowCompositor::QWindowCompositor(QOpenGLWindow *window)
     : QWaylandCompositor(window, 0, DefaultExtensions | SubSurfaceExtension)
@@ -118,9 +167,9 @@ void QWindowCompositor::ensureKeyboardFocusSurface(QWaylandSurface *oldSurface)
         defaultInputDevice()->setKeyboardFocus(m_surfaces.isEmpty() ? 0 : m_surfaces.last());
 }
 
-void QWindowCompositor::surfaceDestroyed(QObject *object)
+void QWindowCompositor::surfaceDestroyed()
 {
-    QWaylandSurface *surface = static_cast<QWaylandSurface *>(object);
+    QWaylandSurface *surface = static_cast<QWaylandSurface *>(sender());
     m_surfaces.removeOne(surface);
     ensureKeyboardFocusSurface(surface);
     m_renderScheduler.start(0);
@@ -157,6 +206,7 @@ void QWindowCompositor::surfaceUnmapped()
         m_surfaces.insert(0, surface);
 
     ensureKeyboardFocusSurface(surface);
+    m_renderScheduler.start(0);
 }
 
 void QWindowCompositor::surfaceCommitted()
@@ -178,13 +228,15 @@ void QWindowCompositor::surfaceCommitted(QWaylandSurface *surface)
 
 void QWindowCompositor::surfaceCreated(QWaylandSurface *surface)
 {
-    connect(surface, SIGNAL(destroyed(QObject *)), this, SLOT(surfaceDestroyed(QObject *)));
+    connect(surface, SIGNAL(surfaceDestroyed()), this, SLOT(surfaceDestroyed()));
     connect(surface, SIGNAL(mapped()), this, SLOT(surfaceMapped()));
     connect(surface, SIGNAL(unmapped()), this, SLOT(surfaceUnmapped()));
-    connect(surface, SIGNAL(committed()), this, SLOT(surfaceCommitted()));
+    connect(surface, SIGNAL(redraw()), this, SLOT(surfaceCommitted()));
     connect(surface, SIGNAL(extendedSurfaceReady()), this, SLOT(sendExpose()));
     connect(surface, SIGNAL(posChanged()), this, SLOT(surfacePosChanged()));
     m_renderScheduler.start(0);
+
+    surface->setBufferAttacher(new BufferAttacher);
 }
 
 void QWindowCompositor::sendExpose()
@@ -197,7 +249,10 @@ void QWindowCompositor::updateCursor()
 {
     if (!m_cursorSurface)
         return;
-    QCursor cursor(QPixmap::fromImage(m_cursorSurface->image()), m_cursorHotspotX, m_cursorHotspotY);
+
+    QImage image = static_cast<BufferAttacher *>(m_cursorSurface->bufferAttacher())->image();
+
+    QCursor cursor(QPixmap::fromImage(image), m_cursorHotspotX, m_cursorHotspotY);
     static bool cursorIsSet = false;
     if (cursorIsSet) {
         QGuiApplication::changeOverrideCursor(cursor);
@@ -215,11 +270,13 @@ QPointF QWindowCompositor::toSurface(QWaylandSurface *surface, const QPointF &po
 void QWindowCompositor::setCursorSurface(QWaylandSurface *surface, int hotspotX, int hotspotY)
 {
     if ((m_cursorSurface != surface) && surface)
-        connect(surface, SIGNAL(damaged(QRect)), this, SLOT(updateCursor()));
+        connect(surface, SIGNAL(configure()), this, SLOT(updateCursor()));
 
     m_cursorSurface = surface;
     m_cursorHotspotX = hotspotX;
     m_cursorHotspotY = hotspotY;
+    if (!m_cursorSurface->bufferAttacher())
+        m_cursorSurface->setBufferAttacher(new BufferAttacher);
 }
 
 QWaylandSurface *QWindowCompositor::surfaceAt(const QPointF &point, QPointF *local)
@@ -236,34 +293,14 @@ QWaylandSurface *QWindowCompositor::surfaceAt(const QPointF &point, QPointF *loc
     return 0;
 }
 
-static GLuint textureFromImage(const QImage &image)
+GLuint QWindowCompositor::composeSurface(QWaylandSurface *surface)
 {
-    GLuint texture = 0;
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
-    QImage tx = image.convertToFormat(QImage::Format_RGBA8888_Premultiplied);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tx.width(), tx.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, tx.constBits());
-    glBindTexture(GL_TEXTURE_2D, 0);
-    return texture;
-}
-
-GLuint QWindowCompositor::composeSurface(QWaylandSurface *surface, bool *textureOwned)
-{
-    GLuint texture = 0;
-
     QSize windowSize = surface->size();
-    surface->swapBuffers();
 
     QOpenGLFunctions *functions = QOpenGLContext::currentContext()->functions();
     functions->glBindFramebuffer(GL_FRAMEBUFFER, m_surface_fbo);
 
-    if (surface->type() == QWaylandSurface::Shm) {
-        texture = textureFromImage(surface->image());
-        *textureOwned = true;
-    } else if (surface->type() == QWaylandSurface::Texture) {
-        texture = surface->texture();
-        *textureOwned = false;
-    }
+    GLuint texture = static_cast<BufferAttacher *>(surface->bufferAttacher())->texture;
 
     functions->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
                                        GL_TEXTURE_2D, texture, 0);
@@ -287,19 +324,11 @@ void QWindowCompositor::paintChildren(QWaylandSurface *surface, QWaylandSurface 
         QWaylandSurface *subSurface = i.next();
         QPointF p = subSurface->mapTo(window,QPointF(0,0));
         QSize subSize = subSurface->size();
-        subSurface->swapBuffers();
         if (subSize.isValid()) {
-            GLuint texture = 0;
-            if (subSurface->type() == QWaylandSurface::Texture) {
-                texture = subSurface->texture();
-            } else if (surface->type() == QWaylandSurface::Shm) {
-                texture = textureFromImage(subSurface->image());
-            }
+            GLuint texture = static_cast<BufferAttacher *>(subSurface->bufferAttacher())->texture;
             QRect geo(p.toPoint(),subSize);
             if (texture > 0)
                 m_textureBlitter->drawTexture(texture,geo,windowSize,0,window->isYInverted(),subSurface->isYInverted());
-            if (surface->type() == QWaylandSurface::Shm)
-                glDeleteTextures(1, &texture);
         }
         paintChildren(subSurface,window,windowSize);
     }
@@ -326,12 +355,9 @@ void QWindowCompositor::render()
     foreach (QWaylandSurface *surface, m_surfaces) {
         if (!surface->visible())
             continue;
-        bool ownsTexture;
-        GLuint texture = composeSurface(surface, &ownsTexture);
+        GLuint texture = composeSurface(surface);
         QRect geo(surface->pos().toPoint(),surface->size());
         m_textureBlitter->drawTexture(texture,geo,m_window->size(),0,false,surface->isYInverted());
-        if (ownsTexture)
-            glDeleteTextures(1, &texture);
     }
 
     m_textureBlitter->release();

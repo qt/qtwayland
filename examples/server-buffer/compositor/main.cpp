@@ -38,9 +38,8 @@
 **
 ****************************************************************************/
 
-#include "qwaylandcompositor.h"
+#include "qwaylandquickcompositor.h"
 #include "qwaylandsurface.h"
-#include "qwaylandsurfaceitem.h"
 
 #include <QGuiApplication>
 #include <QTimer>
@@ -63,14 +62,14 @@
 
 class QmlCompositor
     : public QQuickView
-    , public QWaylandCompositor
+    , public QWaylandQuickCompositor
     , public QtWaylandServer::qt_share_buffer
 {
     Q_OBJECT
 
 public:
     QmlCompositor()
-        : QWaylandCompositor(this, 0, DefaultExtensions | SubSurfaceExtension)
+        : QWaylandQuickCompositor(this, 0, DefaultExtensions | SubSurfaceExtension)
         , QtWaylandServer::qt_share_buffer(QWaylandCompositor::handle()->wl_display())
         , m_server_buffer_32_bit(0)
         , m_server_buffer_item_32_bit(0)
@@ -83,7 +82,6 @@ public:
         create();
         grabWindow();
 
-        connect(this, SIGNAL(beforeSynchronizing()), this, SLOT(startFrame()), Qt::DirectConnection);
         connect(this, SIGNAL(afterRendering()), this, SLOT(sendCallbacks()));
 
         connect(this, SIGNAL(sceneGraphInitialized()), this, SLOT(initiateServerBuffer()),Qt::DirectConnection);
@@ -98,38 +96,26 @@ signals:
     void serverBuffersCreated();
 
 public slots:
-    void destroyWindow(QVariant window)
-    {
-        qvariant_cast<QObject *>(window)->deleteLater();
-    }
-
     void destroyClientForWindow(QVariant window)
     {
-        QWaylandSurface *surface = qobject_cast<QWaylandSurfaceItem *>(qvariant_cast<QObject *>(window))->surface();
+        QWaylandSurface *surface = qobject_cast<QWaylandSurface *>(qvariant_cast<QObject *>(window));
         destroyClientForSurface(surface);
     }
 
 private slots:
     void surfaceMapped() {
         QWaylandSurface *surface = qobject_cast<QWaylandSurface *>(sender());
-        QQuickItem *item = surface->surfaceItem();
-        emit windowAdded(QVariant::fromValue(static_cast<QQuickItem *>(item)));
+        emit windowAdded(QVariant::fromValue(surface));
     }
 
     void surfaceUnmapped() {
         QWaylandSurface *surface = qobject_cast<QWaylandSurface *>(sender());
-        QQuickItem *item = surface->surfaceItem();
-        emit windowDestroyed(QVariant::fromValue(item));
+        emit windowDestroyed(QVariant::fromValue(surface));
     }
 
     void surfaceDestroyed(QObject *object) {
         QWaylandSurface *surface = static_cast<QWaylandSurface *>(object);
-        QQuickItem *item = surface->surfaceItem();
-        emit windowDestroyed(QVariant::fromValue(item));
-    }
-
-    void startFrame() {
-        frameStarted();
+        emit windowDestroyed(QVariant::fromValue(surface));
     }
 
     void sendCallbacks() {
@@ -219,11 +205,6 @@ protected:
     }
 
     void surfaceCreated(QWaylandSurface *surface) {
-        QWaylandSurfaceItem *item = new QWaylandSurfaceItem(surface, rootObject());
-        item->setUseTextureAlpha(true);
-        item->setTouchEventsEnabled(true);
-
-        connect(surface, SIGNAL(destroyed(QObject *)), this, SLOT(surfaceDestroyed(QObject *)));
         connect(surface, SIGNAL(mapped()), this, SLOT(surfaceMapped()));
         connect(surface,SIGNAL(unmapped()), this,SLOT(surfaceUnmapped()));
     }
@@ -270,7 +251,6 @@ int main(int argc, char *argv[])
     compositor.rootContext()->setContextProperty("compositor", &compositor);
 
     QObject::connect(&compositor, SIGNAL(windowAdded(QVariant)), compositor.rootObject(), SLOT(windowAdded(QVariant)));
-    QObject::connect(&compositor, SIGNAL(windowDestroyed(QVariant)), compositor.rootObject(), SLOT(windowDestroyed(QVariant)));
     QObject::connect(&compositor, SIGNAL(windowResized(QVariant)), compositor.rootObject(), SLOT(windowResized(QVariant)));
     QObject::connect(&compositor, SIGNAL(serverBufferItemCreated(QVariant)), compositor.rootObject(), SLOT(serverBufferItemCreated(QVariant)));
 

@@ -42,38 +42,37 @@
 #define QWAYLANDSURFACEITEM_H
 
 #include <QtCompositor/qwaylandexport.h>
-#include <QtCompositor/qwaylandsurface.h>
 
 #include <QtQuick/QQuickItem>
 #include <QtQuick/qsgtexture.h>
 
 #include <QtQuick/qsgtextureprovider.h>
 
+#include "qwaylandquicksurface.h"
+
 QT_BEGIN_NAMESPACE
 
 class QWaylandSurfaceTextureProvider;
 class QMutex;
 
-Q_DECLARE_METATYPE(QWaylandSurface*)
+Q_DECLARE_METATYPE(QWaylandQuickSurface*)
 
-class Q_COMPOSITOR_EXPORT QWaylandSurfaceItem : public QQuickItem
+class QWaylandSurfaceItem : public QQuickItem
 {
     Q_OBJECT
-    Q_PROPERTY(QWaylandSurface* surface READ surface WRITE setSurface NOTIFY surfaceChanged)
+    Q_PROPERTY(QWaylandQuickSurface* surface READ surface WRITE setSurface NOTIFY surfaceChanged)
     Q_PROPERTY(bool paintEnabled READ paintEnabled WRITE setPaintEnabled)
-    Q_PROPERTY(bool useTextureAlpha READ useTextureAlpha WRITE setUseTextureAlpha NOTIFY useTextureAlphaChanged)
-    Q_PROPERTY(bool clientRenderingEnabled READ clientRenderingEnabled WRITE setClientRenderingEnabled NOTIFY clientRenderingEnabledChanged)
     Q_PROPERTY(bool touchEventsEnabled READ touchEventsEnabled WRITE setTouchEventsEnabled NOTIFY touchEventsEnabledChanged)
     Q_PROPERTY(bool isYInverted READ isYInverted NOTIFY yInvertedChanged)
     Q_PROPERTY(bool resizeSurfaceToItem READ resizeSurfaceToItem WRITE setResizeSurfaceToItem NOTIFY resizeSurfaceToItemChanged)
 
 public:
     QWaylandSurfaceItem(QQuickItem *parent = 0);
-    QWaylandSurfaceItem(QWaylandSurface *surface, QQuickItem *parent = 0);
+    QWaylandSurfaceItem(QWaylandQuickSurface *surface, QQuickItem *parent = 0);
     ~QWaylandSurfaceItem();
 
-    void setSurface(QWaylandSurface *surface);
-    QWaylandSurface *surface() const {return m_surface; }
+    void setSurface(QWaylandQuickSurface *surface);
+    QWaylandQuickSurface *surface() const {return m_surface; }
 
     Q_INVOKABLE bool isYInverted() const;
 
@@ -81,17 +80,11 @@ public:
     QSGTextureProvider *textureProvider() const;
 
     bool paintEnabled() const;
-    bool useTextureAlpha() const  { return m_useTextureAlpha; }
-    bool clientRenderingEnabled() const { return m_clientRenderingEnabled; }
     bool touchEventsEnabled() const { return m_touchEventsEnabled; }
     bool resizeSurfaceToItem() const { return m_resizeSurfaceToItem; }
 
-    void setUseTextureAlpha(bool useTextureAlpha);
-    void setClientRenderingEnabled(bool enabled);
     void setTouchEventsEnabled(bool enabled);
     void setResizeSurfaceToItem(bool enabled);
-
-    void setDamagedFlag(bool on);
 
 protected:
     void mousePressEvent(QMouseEvent *event);
@@ -111,21 +104,18 @@ public slots:
 private slots:
     void surfaceMapped();
     void surfaceUnmapped();
-    void surfaceDestroyed(QObject *object);
-    void surfaceDamaged(const QRegion &);
     void parentChanged(QWaylandSurface *newParent, QWaylandSurface *oldParent);
     void updateSize();
     void updateSurfaceSize();
     void updatePosition();
+    void updateBuffer();
 
 signals:
-    void textureChanged();
-    void useTextureAlphaChanged();
-    void clientRenderingEnabledChanged();
     void touchEventsEnabledChanged();
     void yInvertedChanged();
     void surfaceChanged();
     void resizeSurfaceToItemChanged();
+    void surfaceDestroyed();
 
 protected:
     QSGNode *updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *);
@@ -133,20 +123,17 @@ protected:
 private:
     friend class QWaylandSurfaceNode;
     void updateTexture();
-    void init(QWaylandSurface *);
-    void ensureProvider();
+    void init(QWaylandQuickSurface *);
 
     static QMutex *mutex;
 
-    QWaylandSurface *m_surface;
-    QWaylandSurfaceTextureProvider *m_provider;
+    QWaylandQuickSurface *m_surface;
+    mutable QWaylandSurfaceTextureProvider *m_provider;
     bool m_paintEnabled;
-    bool m_useTextureAlpha;
-    bool m_clientRenderingEnabled;
     bool m_touchEventsEnabled;
-    bool m_damaged;
     bool m_yInverted;
     bool m_resizeSurfaceToItem;
+    bool m_newTexture;
 };
 
 QT_END_NAMESPACE

@@ -55,33 +55,26 @@
 
 #include <QDebug>
 
-#ifdef QT_COMPOSITOR_QUICK
-#include "qwaylandsurfaceitem.h"
-#endif
-
 QT_BEGIN_NAMESPACE
 
 QWaylandCompositor::QWaylandCompositor(QWindow *window, const char *socketName, ExtensionFlags extensions)
-    : m_compositor(0)
+    : m_compositor(new QtWayland::Compositor(this, extensions))
     , m_toplevel_window(window)
-    , m_socket_name(socketName)
 {
-    QStringList arguments = QCoreApplication::instance()->arguments();
+    m_compositor->m_socket_name = socketName;
+    m_compositor->init();
 
-    int socketArg = arguments.indexOf(QLatin1String("--wayland-socket-name"));
-    if (socketArg != -1 && socketArg + 1 < arguments.size())
-        m_socket_name = arguments.at(socketArg + 1).toLocal8Bit();
-
-    m_compositor = new QtWayland::Compositor(this, extensions);
-#ifdef QT_COMPOSITOR_QUICK
-    qmlRegisterType<QWaylandSurfaceItem>("WaylandCompositor", 1, 0, "WaylandSurfaceItem");
-    qmlRegisterType<QWaylandSurface>("WaylandCompositor", 1, 0, "WaylandSurface");
-#else
-    qRegisterMetaType<QWaylandSurface*>("WaylandSurface*");
+#if !defined(QT_NO_DEBUG) && !defined(QT_WAYLAND_NO_CLEANUP_WARNING)
+    qWarning("QWaylandCompositor::cleanupGraphicsResources() must be called manually");
 #endif
-    m_compositor->initializeHardwareIntegration();
-    m_compositor->initializeExtensions();
-    m_compositor->initializeDefaultInputDevice();
+}
+
+QWaylandCompositor::QWaylandCompositor(QWindow *window, const char *socketName, QtWayland::Compositor *dptr)
+    : m_compositor(dptr)
+    , m_toplevel_window(window)
+{
+    m_compositor->m_socket_name = socketName;
+    m_compositor->init();
 }
 
 QWaylandCompositor::~QWaylandCompositor()
@@ -213,9 +206,9 @@ void QWaylandCompositor::setClientFullScreenHint(bool value)
 
 const char *QWaylandCompositor::socketName() const
 {
-    if (m_socket_name.isEmpty())
+    if (m_compositor->m_socket_name.isEmpty())
         return 0;
-    return m_socket_name.constData();
+    return m_compositor->m_socket_name.constData();
 }
 
 /*!

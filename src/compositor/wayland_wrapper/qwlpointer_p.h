@@ -46,10 +46,13 @@
 
 #include <QtCore/QList>
 #include <QtCore/QPoint>
+#include <QtCore/QObject>
 
 #include <QtCompositor/private/qwayland-server-wayland.h>
 
 #include <stdint.h>
+
+#include "qwllistener_p.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -71,7 +74,7 @@ public:
     Pointer *m_pointer;
 };
 
-class Q_COMPOSITOR_EXPORT Pointer : public QtWaylandServer::wl_pointer, public PointerGrabber
+class Q_COMPOSITOR_EXPORT Pointer : public QObject, public QtWaylandServer::wl_pointer, public PointerGrabber
 {
 public:
     Pointer(Compositor *compositor, InputDevice *seat);
@@ -112,6 +115,8 @@ protected:
     void pointer_destroy_resource(Resource *resource) Q_DECL_OVERRIDE;
 
 private:
+    void focusDestroyed(void *data);
+
     Compositor *m_compositor;
     InputDevice *m_seat;
 
@@ -129,6 +134,8 @@ private:
     QPointF m_currentPoint;
 
     int m_buttonCount;
+
+    WlListener m_focusDestroyListener;
 };
 
 } // namespace QtWayland

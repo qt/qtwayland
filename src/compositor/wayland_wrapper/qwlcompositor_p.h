@@ -90,7 +90,9 @@ public:
     Compositor(QWaylandCompositor *qt_compositor, QWaylandCompositor::ExtensionFlags extensions);
     ~Compositor();
 
+    void init();
     void sendFrameCallbacks(QList<QWaylandSurface *> visibleSurfaces);
+    void frameFinished(Surface *surface = 0);
 
     InputDevice *defaultInputDevice(); //we just have 1 default device for now (since QPA doesn't give us anything else)
 
@@ -155,8 +157,6 @@ public:
     bool retainedSelectionEnabled() const;
     void overrideSelection(const QMimeData *data);
     void feedRetainedSelectionData(QMimeData *data);
-
-    void bufferWasDestroyed(SurfaceBuffer *buffer) { m_destroyed_buffers << buffer; }
 public slots:
     void cleanupGraphicsResources();
 
@@ -166,13 +166,14 @@ protected:
 private slots:
     void processWaylandEvents();
 
-private:
+protected:
     void loadClientBufferIntegration();
     void loadServerBufferIntegration();
 
     QWaylandCompositor::ExtensionFlags m_extensions;
 
     Display *m_display;
+    QByteArray m_socket_name;
 
     /* Input */
     QWaylandInputDevice *m_default_wayland_input_device;
@@ -186,8 +187,7 @@ private:
 
     QElapsedTimer m_timer;
     QList<Surface *> m_surfaces;
-    QSet<Surface *> m_destroyed_surfaces;
-    QSet<SurfaceBuffer *> m_destroyed_buffers;
+    QSet<QWaylandSurface *> m_destroyed_surfaces;
 
     /* Render state */
     uint32_t m_current_frame;
@@ -220,6 +220,8 @@ private:
                           uint32_t version, uint32_t id);
 
     bool m_retainSelection;
+
+    friend class ::QWaylandCompositor;
 };
 
 }

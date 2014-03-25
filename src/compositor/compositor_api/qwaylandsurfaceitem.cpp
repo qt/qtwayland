@@ -39,12 +39,9 @@
 ****************************************************************************/
 
 #include "qwaylandsurfaceitem.h"
-#include "qwaylandsurface.h"
-#include "qwaylandcompositor.h"
-#include "qwaylandinput.h"
-
-#include "qwlsurface_p.h"
-#include "qwlextendedsurface_p.h"
+#include "qwaylandquicksurface.h"
+#include <QtCompositor/qwaylandcompositor.h>
+#include <QtCompositor/qwaylandinput.h>
 
 #include <QtGui/QKeyEvent>
 #include <QtGui/QGuiApplication>
@@ -58,15 +55,15 @@
 
 QT_BEGIN_NAMESPACE
 
+QMutex *QWaylandSurfaceItem::mutex = 0;
+
 class QWaylandSurfaceTextureProvider : public QSGTextureProvider
 {
-    Q_OBJECT
-
 public:
     QWaylandSurfaceTextureProvider() : t(0) { }
-    ~QWaylandSurfaceTextureProvider() { delete t; }
 
-    QSGTexture *texture() const {
+    QSGTexture *texture() const Q_DECL_OVERRIDE
+    {
         if (t)
             t->setFiltering(smooth ? QSGTexture::Linear : QSGTexture::Nearest);
         return t;
@@ -74,55 +71,45 @@ public:
 
     bool smooth;
     QSGTexture *t;
-
-public slots:
-    void invalidate()
-    {
-        delete t;
-        t = 0;
-    }
 };
-
-QMutex *QWaylandSurfaceItem::mutex = 0;
 
 QWaylandSurfaceItem::QWaylandSurfaceItem(QQuickItem *parent)
     : QQuickItem(parent)
     , m_surface(0)
     , m_provider(0)
     , m_paintEnabled(true)
-    , m_useTextureAlpha(false)
-    , m_clientRenderingEnabled(true)
     , m_touchEventsEnabled(false)
     , m_resizeSurfaceToItem(false)
+    , m_newTexture(false)
 {
     if (!mutex)
         mutex = new QMutex;
+
+        setFlag(ItemHasContents);
 }
 
-QWaylandSurfaceItem::QWaylandSurfaceItem(QWaylandSurface *surface, QQuickItem *parent)
+QWaylandSurfaceItem::QWaylandSurfaceItem(QWaylandQuickSurface *surface, QQuickItem *parent)
     : QQuickItem(parent)
     , m_surface(0)
     , m_provider(0)
     , m_paintEnabled(true)
-    , m_useTextureAlpha(false)
-    , m_clientRenderingEnabled(true)
     , m_touchEventsEnabled(false)
     , m_resizeSurfaceToItem(false)
 {
     init(surface);
 }
 
-void QWaylandSurfaceItem::init(QWaylandSurface *surface)
+void QWaylandSurfaceItem::init(QWaylandQuickSurface *surface)
 {
+    if (m_surface)
+        m_surface->destroy();
+
     if (!surface)
         return;
 
-    if (m_surface) {
-        m_surface->setSurfaceItem(0);
-    }
-
     m_surface = surface;
-    m_surface->setSurfaceItem(this);
+    surface->ref();
+    update();
 
     if (m_resizeSurfaceToItem) {
         updateSurfaceSize();
@@ -134,7 +121,7 @@ void QWaylandSurfaceItem::init(QWaylandSurface *surface)
     updatePosition();
 
     setSmooth(true);
-    setFlag(ItemHasContents);
+
     setAcceptedMouseButtons(Qt::LeftButton | Qt::MiddleButton | Qt::RightButton |
         Qt::ExtraButton1 | Qt::ExtraButton2 | Qt::ExtraButton3 | Qt::ExtraButton4 |
         Qt::ExtraButton5 | Qt::ExtraButton6 | Qt::ExtraButton7 | Qt::ExtraButton8 |
@@ -143,29 +130,29 @@ void QWaylandSurfaceItem::init(QWaylandSurface *surface)
     setAcceptHoverEvents(true);
     connect(surface, &QWaylandSurface::mapped, this, &QWaylandSurfaceItem::surfaceMapped);
     connect(surface, &QWaylandSurface::unmapped, this, &QWaylandSurfaceItem::surfaceUnmapped);
-    connect(surface, &QWaylandSurface::destroyed, this, &QWaylandSurfaceItem::surfaceDestroyed);
-    connect(surface, &QWaylandSurface::damaged, this, &QWaylandSurfaceItem::surfaceDamaged);
-    connect(surface, &QWaylandSurface::committed, this, &QQuickItem::update);
+    connect(surface, &QWaylandSurface::surfaceDestroyed, this, &QWaylandSurfaceItem::surfaceDestroyed);
     connect(surface, &QWaylandSurface::parentChanged, this, &QWaylandSurfaceItem::parentChanged);
     connect(surface, &QWaylandSurface::sizeChanged, this, &QWaylandSurfaceItem::updateSize);
     connect(surface, &QWaylandSurface::posChanged, this, &QWaylandSurfaceItem::updatePosition);
+    connect(surface, &QWaylandSurface::configure, this, &QWaylandSurfaceItem::updateBuffer);
+    connect(surface, &QWaylandSurface::redraw, this, &QQuickItem::update);
     connect(this, &QWaylandSurfaceItem::widthChanged, this, &QWaylandSurfaceItem::updateSurfaceSize);
     connect(this, &QWaylandSurfaceItem::heightChanged, this, &QWaylandSurfaceItem::updateSurfaceSize);
 
-    m_damaged = false;
     m_yInverted = surface ? surface->isYInverted() : true;
+    emit yInvertedChanged();
 }
 
 QWaylandSurfaceItem::~QWaylandSurfaceItem()
 {
     QMutexLocker locker(mutex);
     if (m_surface)
-        m_surface->setSurfaceItem(0);
+        m_surface->destroy();
     if (m_provider)
         m_provider->deleteLater();
 }
 
-void QWaylandSurfaceItem::setSurface(QWaylandSurface *surface)
+void QWaylandSurfaceItem::setSurface(QWaylandQuickSurface *surface)
 {
     if (surface == m_surface)
         return;
@@ -181,16 +168,9 @@ bool QWaylandSurfaceItem::isYInverted() const
 
 QSGTextureProvider *QWaylandSurfaceItem::textureProvider() const
 {
-    const_cast<QWaylandSurfaceItem *>(this)->ensureProvider();
-    return m_provider;
-}
-
-void QWaylandSurfaceItem::ensureProvider()
-{
-    if (!m_provider) {
+    if (!m_provider)
         m_provider = new QWaylandSurfaceTextureProvider();
-        connect(window(), &QQuickWindow::sceneGraphInvalidated, m_provider, &QWaylandSurfaceTextureProvider::invalidate, Qt::DirectConnection);
-    }
+    return m_provider;
 }
 
 void QWaylandSurfaceItem::mousePressEvent(QMouseEvent *event)
@@ -281,39 +261,9 @@ void QWaylandSurfaceItem::surfaceUnmapped()
     update();
 }
 
-void QWaylandSurfaceItem::surfaceDestroyed(QObject *)
-{
-    if (m_surface)
-        m_surface->setSurfaceItem(0);
-
-    m_surface = 0;
-}
-
-void QWaylandSurfaceItem::setDamagedFlag(bool on)
-{
-    m_damaged = on;
-}
-
-
-void QWaylandSurfaceItem::surfaceDamaged(const QRegion &)
-{
-    m_damaged = true;
-    if (m_surface) {
-        bool inverted = m_surface->isYInverted();
-        if (inverted  != m_yInverted) {
-            m_yInverted = inverted;
-            emit yInvertedChanged();
-        }
-    }
-    emit textureChanged();
-}
-
 void QWaylandSurfaceItem::parentChanged(QWaylandSurface *newParent, QWaylandSurface *oldParent)
 {
     Q_UNUSED(oldParent);
-
-    QWaylandSurfaceItem *item = newParent? newParent->surfaceItem():0;
-    setParentItem(item);
 
     if (newParent) {
         setPaintEnabled(true);
@@ -340,6 +290,14 @@ void QWaylandSurfaceItem::updatePosition()
     setPosition(m_surface->pos());
 }
 
+/*!
+    \qmlproperty bool QtWayland::QWaylandSurfaceItem::paintEnabled
+
+    If this property is true, the \l item is hidden, though the texture
+    will still be updated. As opposed to hiding the \l item by
+    setting \l{Item::visible}{visible} to false, setting this property to true
+    will not prevent mouse or keyboard input from reaching \l item.
+*/
 bool QWaylandSurfaceItem::paintEnabled() const
 {
     return m_paintEnabled;
@@ -351,29 +309,14 @@ void QWaylandSurfaceItem::setPaintEnabled(bool enabled)
     update();
 }
 
-void QWaylandSurfaceItem::updateTexture()
+void QWaylandSurfaceItem::updateBuffer()
 {
-    ensureProvider();
-    QSGTexture *texture = m_provider->t;
-    if (m_damaged) {
-        m_damaged = false;
-        QSGTexture *oldTexture = texture;
-        if (m_surface->type() == QWaylandSurface::Texture) {
-            QQuickWindow::CreateTextureOptions opt = 0;
-            if (useTextureAlpha()) {
-                opt |= QQuickWindow::TextureHasAlphaChannel;
-            }
-            texture = window()->createTextureFromId(m_surface->texture(), m_surface->size(), opt);
-        } else {
-            texture = window()->createTextureFromImage(m_surface->image());
-        }
-        texture->bind();
-        delete oldTexture;
-    }
+    bool inv = m_yInverted;
+    m_yInverted = surface()->isYInverted();
+    if (inv != m_yInverted)
+        emit yInvertedChanged();
 
-    m_provider->t = texture;
-    emit m_provider->textureChanged();
-    m_provider->smooth = smooth();
+    m_newTexture = true;
 }
 
 QSGNode *QWaylandSurfaceItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *)
@@ -383,14 +326,20 @@ QSGNode *QWaylandSurfaceItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeD
         return 0;
     }
 
+    if (!m_provider)
+        m_provider = new QWaylandSurfaceTextureProvider();
+
     // Order here is important, as the state of visible is that of the pending
     // buffer but will be replaced after we advance the buffer queue.
     bool mapped = m_surface->isMapped();
-    surface()->swapBuffers();
     if (mapped)
-        updateTexture();
+        m_provider->t = surface()->texture();
+    m_provider->smooth = smooth();
+    if (m_newTexture)
+        emit m_provider->textureChanged();
+    m_newTexture = false;
 
-    if (!mapped|| !m_provider || !m_provider->t || !m_paintEnabled) {
+    if (!mapped || !m_provider->t || !m_paintEnabled) {
         delete oldNode;
         return 0;
     }
@@ -407,28 +356,6 @@ QSGNode *QWaylandSurfaceItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeD
     }
 
     return node;
-}
-
-void QWaylandSurfaceItem::setUseTextureAlpha(bool useTextureAlpha)
-{
-    m_useTextureAlpha = useTextureAlpha;
-
-    if ((flags() & ItemHasContents) != 0) {
-        update();
-    }
-}
-
-void QWaylandSurfaceItem::setClientRenderingEnabled(bool enabled)
-{
-    if (m_clientRenderingEnabled != enabled) {
-        m_clientRenderingEnabled = enabled;
-
-        if (m_surface) {
-            m_surface->sendOnScreenVisibilityChange(enabled);
-        }
-
-        emit clientRenderingEnabledChanged();
-    }
 }
 
 void QWaylandSurfaceItem::setTouchEventsEnabled(bool enabled)
@@ -448,5 +375,3 @@ void QWaylandSurfaceItem::setResizeSurfaceToItem(bool enabled)
 }
 
 QT_END_NAMESPACE
-
-#include "qwaylandsurfaceitem.moc"

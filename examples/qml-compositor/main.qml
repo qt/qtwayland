@@ -39,6 +39,7 @@
 ****************************************************************************/
 
 import QtQuick 2.0
+import QtCompositor 1.0
 import "compositor.js" as CompositorLogic
 
 Item {
@@ -84,15 +85,15 @@ Item {
     function windowAdded(window) {
         var windowContainerComponent = Qt.createComponent("WindowContainer.qml");
         var windowContainer = windowContainerComponent.createObject(root);
+        console.log(windowContainerComponent.errorString());
 
-        window.parent = windowContainer;
+        windowContainer.child.surface = window;
 
-        windowContainer.targetWidth = window.width;
-        windowContainer.targetHeight = window.height;
-        windowContainer.child = window;
+        windowContainer.targetWidth = window.size.width;
+        windowContainer.targetHeight = window.size.height;
 
         var windowChromeComponent = Qt.createComponent("WindowChrome.qml");
-        var windowChrome = windowChromeComponent.createObject(window);
+        var windowChrome = windowChromeComponent.createObject(windowContainer.child);
 
         CompositorLogic.addWindow(windowContainer);
 
@@ -102,25 +103,16 @@ Item {
     }
 
     function windowResized(window) {
-        var windowContainer = window.parent;
-        windowContainer.width = window.width;
-        windowContainer.height = window.height;
+        window.width = window.surface.size.width;
+        window.height = window.surface.size.height;
 
         CompositorLogic.relayout();
     }
 
-    function windowDestroyed(window) {
-        var windowContainer = window.parent;
-        if (windowContainer.runDestroyAnimation)
-            windowContainer.runDestroyAnimation();
-    }
-
     function removeWindow(window) {
-        var windowContainer = window.parent;
-        CompositorLogic.removeWindow(windowContainer);
-        windowContainer.chrome.destroy();
-        windowContainer.destroy();
-        compositor.destroyWindow(window);
+        CompositorLogic.removeWindow(window);
+        window.chrome.destroy();
+        window.destroy();
     }
 
     onHeightChanged: CompositorLogic.relayout();

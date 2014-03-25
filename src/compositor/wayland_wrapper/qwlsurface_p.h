@@ -45,6 +45,7 @@
 
 #include <private/qwlsurfacebuffer_p.h>
 #include <QtCompositor/qwaylandsurface.h>
+#include <QtCompositor/qwaylandbufferref.h>
 
 #include <QtCore/QVector>
 #include <QtCore/QRect>
@@ -53,10 +54,6 @@
 
 #include <QtCore/QTextStream>
 #include <QtCore/QMetaType>
-
-#ifdef QT_COMPOSITOR_WAYLAND_GL
-#include <QtGui/qopengl.h>
-#endif
 
 #include <wayland-util.h>
 
@@ -79,7 +76,7 @@ class FrameCallback;
 class Q_COMPOSITOR_EXPORT Surface : public QtWaylandServer::wl_surface
 {
 public:
-    Surface(struct wl_client *client, uint32_t id, Compositor *compositor);
+    Surface(struct wl_client *client, uint32_t id, QWaylandCompositor *compositor, QWaylandSurface *surface);
     ~Surface();
 
     static Surface *fromResource(struct ::wl_resource *resource);
@@ -100,12 +97,6 @@ public:
 
     QRegion inputRegion() const;
     QRegion opaqueRegion() const;
-
-    QImage image() const;
-
-#ifdef QT_COMPOSITOR_WAYLAND_GL
-    GLuint textureId() const;
-#endif
 
     void sendFrameCallback();
     void removeFrameCallback(FrameCallback *callback);
@@ -140,20 +131,37 @@ public:
     bool isCursorSurface() const { return m_isCursorSurface; }
     void setCursorSurface(bool isCursor) { m_isCursorSurface = isCursor; }
 
-    void swapBuffers();
     void releaseSurfaces();
     void frameStarted();
 
-private:
+    inline bool isDestroyed() const { return m_destroyed; }
+
+protected:
+    void surface_destroy_resource(Resource *resource) Q_DECL_OVERRIDE;
+
+    void surface_destroy(Resource *resource) Q_DECL_OVERRIDE;
+    void surface_attach(Resource *resource,
+                        struct wl_resource *buffer, int x, int y) Q_DECL_OVERRIDE;
+    void surface_damage(Resource *resource,
+                        int32_t x, int32_t y, int32_t width, int32_t height) Q_DECL_OVERRIDE;
+    void surface_frame(Resource *resource,
+                       uint32_t callback) Q_DECL_OVERRIDE;
+    void surface_set_opaque_region(Resource *resource,
+                                   struct wl_resource *region) Q_DECL_OVERRIDE;
+    void surface_set_input_region(Resource *resource,
+                                  struct wl_resource *region) Q_DECL_OVERRIDE;
+    void surface_commit(Resource *resource) Q_DECL_OVERRIDE;
+
     Q_DISABLE_COPY(Surface)
 
     Compositor *m_compositor;
     QWaylandSurface *m_waylandSurface;
 
-    SurfaceBuffer *m_backBuffer;
     QRegion m_damage;
-    SurfaceBuffer *m_frontBuffer;
+    SurfaceBuffer *m_buffer;
+    QWaylandBufferRef m_bufferRef;
     bool m_surfaceMapped;
+    QWaylandBufferAttacher *m_attacher;
 
     struct {
         SurfaceBuffer *buffer;
@@ -184,31 +192,11 @@ private:
     QString m_title;
     bool m_transientInactive;
     bool m_isCursorSurface;
+    bool m_destroyed;
 
-    inline SurfaceBuffer *currentSurfaceBuffer() const;
     void setBackBuffer(SurfaceBuffer *buffer);
     SurfaceBuffer *createSurfaceBuffer(struct ::wl_resource *buffer);
-
-    void surface_destroy_resource(Resource *resource) Q_DECL_OVERRIDE;
-
-    void surface_destroy(Resource *resource) Q_DECL_OVERRIDE;
-    void surface_attach(Resource *resource,
-                        struct wl_resource *buffer, int x, int y) Q_DECL_OVERRIDE;
-    void surface_damage(Resource *resource,
-                        int32_t x, int32_t y, int32_t width, int32_t height) Q_DECL_OVERRIDE;
-    void surface_frame(Resource *resource,
-                       uint32_t callback) Q_DECL_OVERRIDE;
-    void surface_set_opaque_region(Resource *resource,
-                                   struct wl_resource *region) Q_DECL_OVERRIDE;
-    void surface_set_input_region(Resource *resource,
-                                  struct wl_resource *region) Q_DECL_OVERRIDE;
-    void surface_commit(Resource *resource) Q_DECL_OVERRIDE;
-
 };
-
-inline SurfaceBuffer *Surface::currentSurfaceBuffer() const {
-    return m_backBuffer? m_backBuffer : m_frontBuffer;
-}
 
 }
 

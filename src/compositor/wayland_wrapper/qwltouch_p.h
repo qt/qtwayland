@@ -45,8 +45,11 @@
 #include <QtCompositor/qwaylandexport.h>
 
 #include <QtCore/QPoint>
+#include <QtCore/QObject>
 
 #include <QtCompositor/private/qwayland-server-wayland.h>
+
+#include "qwllistener_p.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -73,7 +76,7 @@ private:
     Touch *m_touch;
 };
 
-class Q_COMPOSITOR_EXPORT Touch : public QtWaylandServer::wl_touch, public TouchGrabber
+class Q_COMPOSITOR_EXPORT Touch : public QObject, public QtWaylandServer::wl_touch, public TouchGrabber
 {
 public:
     explicit Touch(Compositor *compositor);
@@ -95,10 +98,13 @@ public:
     void motion(uint32_t time, int touch_id, const QPointF &position);
 
 private:
+    void focusDestroyed(void *data);
+
     Compositor *m_compositor;
 
     Surface *m_focus;
     Resource *m_focusResource;
+    WlListener m_focusDestroyListener;
 
     TouchGrabber *m_grab;
 };

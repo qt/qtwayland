@@ -53,74 +53,51 @@
 
 #include "qwaylandcompositor.h"
 #include "waylandwindowmanagerintegration.h"
+#include "qwaylandsurface_p.h"
+#include "qwaylandbufferref.h"
 
 #include <QtGui/QGuiApplication>
 #include <QtGui/QScreen>
 
-#ifdef QT_COMPOSITOR_QUICK
-#include "qwaylandsurfaceitem.h"
-#include <QtQml/QQmlPropertyMap>
-#endif
-
 QT_BEGIN_NAMESPACE
 
-class QWaylandSurfacePrivate : public QObjectPrivate
+QWaylandSurfacePrivate::QWaylandSurfacePrivate(wl_client *client, quint32 id, QWaylandCompositor *compositor, QWaylandSurface *surface)
+    : QtWayland::Surface(client, id, compositor, surface)
+    , closing(false)
+    , refCount(1)
+{}
+
+
+
+QWaylandSurface::QWaylandSurface(wl_client *client, quint32 id, QWaylandCompositor *compositor)
+    : QObject(*new QWaylandSurfacePrivate(client, id, compositor, this))
 {
-public:
-    QWaylandSurfacePrivate(QtWayland::Surface *srfc)
-        : surface(srfc)
-#ifdef QT_COMPOSITOR_QUICK
-        , surface_item(0)
-        , windowPropertyMap(new QQmlPropertyMap)
-#endif
-    {}
 
-    ~QWaylandSurfacePrivate()
-    {
-#ifdef QT_COMPOSITOR_QUICK
-        if (surface_item)
-            surface_item->setSurface(0);
-        if (windowPropertyMap)
-            windowPropertyMap->deleteLater();
-#endif
-    }
-
-    QtWayland::Surface *surface;
-#ifdef QT_COMPOSITOR_QUICK
-    QWaylandSurfaceItem *surface_item;
-    QQmlPropertyMap *windowPropertyMap;
-#endif
-};
-
-QWaylandSurface::QWaylandSurface(QtWayland::Surface *surface)
-    : QObject(*new QWaylandSurfacePrivate(surface))
-{
-#ifdef QT_COMPOSITOR_QUICK
-    Q_D(QWaylandSurface);
-    connect(this, &QWaylandSurface::windowPropertyChanged,
-            d->windowPropertyMap, &QQmlPropertyMap::insert);
-    connect(d->windowPropertyMap, &QQmlPropertyMap::valueChanged,
-            this, &QWaylandSurface::setWindowProperty);
-#endif
 }
 
-void QWaylandSurface::swapBuffers()
+QWaylandSurface::QWaylandSurface(QWaylandSurfacePrivate *dptr)
+               : QObject(*dptr)
 {
-    Q_D(const QWaylandSurface);
-    d->surface->swapBuffers();
+
+}
+
+QWaylandSurface::~QWaylandSurface()
+{
+    Q_D(QWaylandSurface);
+    delete d->m_attacher;
 }
 
 WaylandClient *QWaylandSurface::client() const
 {
     Q_D(const QWaylandSurface);
-    return d->surface->resource()->client();
+    return d->resource()->client();
 }
 
 QWaylandSurface *QWaylandSurface::parentSurface() const
 {
     Q_D(const QWaylandSurface);
-    if (d->surface->subSurface() && d->surface->subSurface()->parent()) {
-        return d->surface->subSurface()->parent()->waylandSurface();
+    if (d->subSurface() && d->subSurface()->parent()) {
+        return d->subSurface()->parent()->waylandSurface();
     }
     return 0;
 }
@@ -128,8 +105,8 @@ QWaylandSurface *QWaylandSurface::parentSurface() const
 QLinkedList<QWaylandSurface *> QWaylandSurface::subSurfaces() const
 {
     Q_D(const QWaylandSurface);
-    if (d->surface->subSurface()) {
-        return d->surface->subSurface()->subSurfaces();
+    if (d->subSurface()) {
+        return d->subSurface()->subSurfaces();
     }
     return QLinkedList<QWaylandSurface *>();
 }
@@ -137,13 +114,13 @@ QLinkedList<QWaylandSurface *> QWaylandSurface::subSurfaces() const
 QWaylandSurface::Type QWaylandSurface::type() const
 {
     Q_D(const QWaylandSurface);
-    return d->surface->type();
+    return d->type();
 }
 
 bool QWaylandSurface::isYInverted() const
 {
     Q_D(const QWaylandSurface);
-    return d->surface->isYInverted();
+    return d->isYInverted();
 }
 
 bool QWaylandSurface::visible() const
@@ -154,109 +131,69 @@ bool QWaylandSurface::visible() const
 bool QWaylandSurface::isMapped() const
 {
     Q_D(const QWaylandSurface);
-    return d->surface->mapped();
+    return d->mapped();
 }
 
 QPointF QWaylandSurface::pos() const
 {
     Q_D(const QWaylandSurface);
-    return d->surface->pos();
+    return d->pos();
 }
 
 void QWaylandSurface::setPos(const QPointF &pos)
 {
     Q_D(QWaylandSurface);
-    d->surface->setPos(pos);
+    d->setPos(pos);
 }
 
 QSize QWaylandSurface::size() const
 {
     Q_D(const QWaylandSurface);
-    return d->surface->size();
+    return d->size();
 }
 
 void QWaylandSurface::requestSize(const QSize &size)
 {
     Q_D(QWaylandSurface);
-    if (d->surface->shellSurface())
-        d->surface->shellSurface()->sendConfigure(WL_SHELL_SURFACE_RESIZE_BOTTOM_RIGHT, size.width(), size.height());
+    if (d->shellSurface())
+        d->shellSurface()->sendConfigure(WL_SHELL_SURFACE_RESIZE_BOTTOM_RIGHT, size.width(), size.height());
 }
 
 Qt::ScreenOrientations QWaylandSurface::orientationUpdateMask() const
 {
     Q_D(const QWaylandSurface);
-    return d->surface->compositor()->orientationUpdateMaskForClient(static_cast<wl_client *>(client()));
+    return d->compositor()->orientationUpdateMaskForClient(static_cast<wl_client *>(client()));
 }
 
 Qt::ScreenOrientation QWaylandSurface::contentOrientation() const
 {
     Q_D(const QWaylandSurface);
-    if (!d->surface->extendedSurface())
+    if (!d->extendedSurface())
         return Qt::PrimaryOrientation;
-    return d->surface->extendedSurface()->contentOrientation();
+    return d->extendedSurface()->contentOrientation();
 }
 
 QWaylandSurface::WindowFlags QWaylandSurface::windowFlags() const
 {
     Q_D(const QWaylandSurface);
-    if (!d->surface->extendedSurface())
+    if (!d->extendedSurface())
         return QWaylandSurface::WindowFlags(0);
-    return d->surface->extendedSurface()->windowFlags();
+    return d->extendedSurface()->windowFlags();
 }
 
 QWaylandSurface::WindowType QWaylandSurface::windowType() const
 {
     Q_D(const QWaylandSurface);
-    if (d->surface->shellSurface())
-        return d->surface->shellSurface()->windowType();
+    if (d->shellSurface())
+        return d->shellSurface()->windowType();
     return QWaylandSurface::None;
 }
 
-QImage QWaylandSurface::image() const
-{
-    Q_D(const QWaylandSurface);
-    return d->surface->image();
-}
-
-#ifdef QT_COMPOSITOR_WAYLAND_GL
-GLuint QWaylandSurface::texture() const
-{
-    Q_D(const QWaylandSurface);
-    return d->surface->textureId();
-}
-#else //QT_COMPOSITOR_WAYLAND_GL
-uint QWaylandSurface::texture() const
-{
-    return 0;
-}
-#endif
-
-QtWayland::Surface * QWaylandSurface::handle() const
-{
-    Q_D(const QWaylandSurface);
-    return d->surface;
-}
-
-#ifdef QT_COMPOSITOR_QUICK
-QWaylandSurfaceItem *QWaylandSurface::surfaceItem() const
-{
-    Q_D(const QWaylandSurface);
-    return d->surface_item;
-}
-
-void QWaylandSurface::setSurfaceItem(QWaylandSurfaceItem *surfaceItem)
+QtWayland::Surface * QWaylandSurface::handle()
 {
     Q_D(QWaylandSurface);
-    d->surface_item = surfaceItem;
+    return d;
 }
-
-QObject *QWaylandSurface::windowPropertyMap() const
-{
-    Q_D(const QWaylandSurface);
-    return d->windowPropertyMap;
-}
-
-#endif //QT_COMPOSITOR_QUICK
 
 qint64 QWaylandSurface::processId() const
 {
@@ -269,19 +206,19 @@ qint64 QWaylandSurface::processId() const
 QVariantMap QWaylandSurface::windowProperties() const
 {
     Q_D(const QWaylandSurface);
-    if (!d->surface->extendedSurface())
+    if (!d->extendedSurface())
         return QVariantMap();
 
-    return d->surface->extendedSurface()->windowProperties();
+    return d->extendedSurface()->windowProperties();
 }
 
 void QWaylandSurface::setWindowProperty(const QString &name, const QVariant &value)
 {
     Q_D(QWaylandSurface);
-    if (!d->surface->extendedSurface())
+    if (!d->extendedSurface())
         return;
 
-    d->surface->extendedSurface()->setWindowProperty(name, value);
+    d->extendedSurface()->setWindowProperty(name, value);
 }
 
 QPointF QWaylandSurface::mapToParent(const QPointF &pos) const
@@ -307,22 +244,22 @@ QPointF QWaylandSurface::mapTo(QWaylandSurface *parent, const QPointF &pos) cons
 QWaylandCompositor *QWaylandSurface::compositor() const
 {
     Q_D(const QWaylandSurface);
-    return d->surface->compositor()->waylandCompositor();
+    return d->compositor()->waylandCompositor();
 }
 
 QWaylandSurface *QWaylandSurface::transientParent() const
 {
     Q_D(const QWaylandSurface);
-    if (d->surface->shellSurface() && d->surface->shellSurface()->transientParent())
-        return d->surface->shellSurface()->transientParent()->surface()->waylandSurface();
+    if (d->shellSurface() && d->shellSurface()->transientParent())
+        return d->shellSurface()->transientParent()->surface()->waylandSurface();
     return 0;
 }
 
 QWindow::Visibility QWaylandSurface::visibility() const
 {
     Q_D(const QWaylandSurface);
-    if (d->surface->extendedSurface())
-        return d->surface->extendedSurface()->visibility();
+    if (d->extendedSurface())
+        return d->extendedSurface()->visibility();
 
     return QWindow::AutomaticVisibility;
 }
@@ -330,8 +267,8 @@ QWindow::Visibility QWaylandSurface::visibility() const
 void QWaylandSurface::setVisibility(QWindow::Visibility visibility)
 {
     Q_D(QWaylandSurface);
-    if (d->surface->extendedSurface())
-        d->surface->extendedSurface()->setVisibility(visibility);
+    if (d->extendedSurface())
+        d->extendedSurface()->setVisibility(visibility);
 }
 
 void QWaylandSurface::sendOnScreenVisibilityChange(bool visible)
@@ -342,19 +279,19 @@ void QWaylandSurface::sendOnScreenVisibilityChange(bool visible)
 QString QWaylandSurface::className() const
 {
     Q_D(const QWaylandSurface);
-    return d->surface->className();
+    return d->className();
 }
 
 QString QWaylandSurface::title() const
 {
     Q_D(const QWaylandSurface);
-    return d->surface->title();
+    return d->title();
 }
 
 bool QWaylandSurface::hasShellSurface() const
 {
     Q_D(const QWaylandSurface);
-    if (d->surface->shellSurface())
+    if (d->shellSurface())
         return true;
 
     return false;
@@ -364,7 +301,7 @@ bool QWaylandSurface::hasInputPanelSurface() const
 {
     Q_D(const QWaylandSurface);
 
-    return d->surface->inputPanelSurface() != 0;
+    return d->inputPanelSurface() != 0;
 }
 
 /*!
@@ -373,14 +310,21 @@ bool QWaylandSurface::hasInputPanelSurface() const
 bool QWaylandSurface::transientInactive() const
 {
     Q_D(const QWaylandSurface);
-    return d->surface->transientInactive();
+    return d->transientInactive();
+}
+
+void QWaylandSurface::destroy()
+{
+    Q_D(QWaylandSurface);
+    if (--d->refCount == 0)
+        compositor()->handle()->destroySurface(d);
 }
 
 void QWaylandSurface::destroySurface()
 {
     Q_D(QWaylandSurface);
-    if (d->surface->extendedSurface()) {
-        d->surface->extendedSurface()->send_close();
+    if (d->extendedSurface()) {
+        d->extendedSurface()->send_close();
     } else {
         destroySurfaceByForce();
     }
@@ -389,15 +333,15 @@ void QWaylandSurface::destroySurface()
 void QWaylandSurface::destroySurfaceByForce()
 {
     Q_D(QWaylandSurface);
-   wl_resource *surface_resource = d->surface->resource()->handle;
+   wl_resource *surface_resource = d->resource()->handle;
    wl_resource_destroy(surface_resource);
 }
 
 void QWaylandSurface::ping()
 {
     Q_D(QWaylandSurface);
-    if (d->surface->shellSurface())
-        d->surface->shellSurface()->ping();
+    if (d->shellSurface())
+        d->shellSurface()->ping();
 }
 
 /*!
@@ -408,14 +352,32 @@ void QWaylandSurface::ping()
 void QWaylandSurface::updateSelection()
 {
     Q_D(QWaylandSurface);
-    const QtWayland::InputDevice *inputDevice = d->surface->compositor()->defaultInputDevice();
+    const QtWayland::InputDevice *inputDevice = d->compositor()->defaultInputDevice();
     if (inputDevice) {
         const QtWayland::DataDevice *dataDevice = inputDevice->dataDevice();
         if (dataDevice) {
-            d->surface->compositor()->dataDeviceManager()->offerRetainedSelection(
-                        dataDevice->resourceMap().value(d->surface->resource()->client())->handle);
+            d->compositor()->dataDeviceManager()->offerRetainedSelection(
+                        dataDevice->resourceMap().value(d->resource()->client())->handle);
         }
     }
+}
+
+void QWaylandSurface::ref()
+{
+    Q_D(QWaylandSurface);
+    ++d->refCount;
+}
+
+void QWaylandSurface::setBufferAttacher(QWaylandBufferAttacher *attacher)
+{
+    Q_D(QWaylandSurface);
+    d->m_attacher = attacher;
+}
+
+QWaylandBufferAttacher *QWaylandSurface::bufferAttacher() const
+{
+    Q_D(const QWaylandSurface);
+    return d->m_attacher;
 }
 
 QT_END_NAMESPACE

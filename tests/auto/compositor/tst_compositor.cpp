@@ -42,6 +42,8 @@
 #include "mockclient.h"
 #include "testcompositor.h"
 
+#include "qwaylandbufferref.h"
+
 #include <QtTest/QtTest>
 
 class tst_WaylandCompositor : public QObject
@@ -186,6 +188,24 @@ static void registerFrameCallback(wl_surface *surface, int *counter)
 
 void tst_WaylandCompositor::frameCallback()
 {
+    class BufferAttacher : public QWaylandBufferAttacher
+    {
+    public:
+        void attach(const QWaylandBufferRef &ref) Q_DECL_OVERRIDE
+        {
+            bufferRef = ref;
+        }
+
+        QImage image() const
+        {
+            if (!bufferRef || !bufferRef.isShm())
+                return QImage();
+            return bufferRef.image();
+        }
+
+        QWaylandBufferRef bufferRef;
+    };
+
     TestCompositor compositor;
 
     MockClient client;
@@ -200,7 +220,9 @@ void tst_WaylandCompositor::frameCallback()
 
     QTRY_COMPARE(compositor.surfaces.size(), 1);
     QWaylandSurface *waylandSurface = compositor.surfaces.at(0);
-    QSignalSpy damagedSpy(waylandSurface, SIGNAL(damaged(const QRect &)));
+    BufferAttacher attacher;
+    waylandSurface->setBufferAttacher(&attacher);
+    QSignalSpy damagedSpy(waylandSurface, SIGNAL(damaged(const QRegion &)));
 
     for (int i = 0; i < 10; ++i) {
         registerFrameCallback(surface, &frameCounter);
@@ -209,7 +231,7 @@ void tst_WaylandCompositor::frameCallback()
         QTRY_COMPARE(waylandSurface->type(), QWaylandSurface::Shm);
         QTRY_COMPARE(damagedSpy.count(), i + 1);
 
-        QCOMPARE(waylandSurface->image(), buffer.image);
+        QCOMPARE(static_cast<BufferAttacher *>(waylandSurface->bufferAttacher())->image(), buffer.image);
         compositor.sendFrameCallbacks(QList<QWaylandSurface *>() << waylandSurface);
 
         QTRY_COMPARE(frameCounter, i + 1);

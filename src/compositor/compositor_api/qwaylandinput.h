@@ -43,6 +43,7 @@
 
 #include <QtCore/qnamespace.h>
 #include <QtCore/QPoint>
+#include <QtCore/QString>
 
 #include <QtCompositor/qwaylandexport.h>
 
@@ -56,6 +57,26 @@ QT_BEGIN_NAMESPACE
 namespace QtWayland {
 class InputDevice;
 }
+
+class Q_COMPOSITOR_EXPORT QWaylandKeymap
+{
+public:
+    QWaylandKeymap(const QString &layout = QLatin1String("us"), const QString &variant = QString(), const QString &options = QString(),
+                   const QString &model = QLatin1String("pc105"), const QString &rules = QLatin1String("evdev"));
+
+    inline QString layout() const { return m_layout; }
+    inline QString variant() const { return m_variant; }
+    inline QString options() const { return m_options; }
+    inline QString rules() const { return m_rules; }
+    inline QString model() const { return m_model; }
+
+private:
+    QString m_layout;
+    QString m_variant;
+    QString m_options;
+    QString m_rules;
+    QString m_model;
+};
 
 class Q_COMPOSITOR_EXPORT QWaylandInputDevice
 {
@@ -83,6 +104,7 @@ public:
 
     QWaylandSurface *keyboardFocus() const;
     bool setKeyboardFocus(QWaylandSurface *surface);
+    void setKeymap(const QWaylandKeymap &keymap);
 
     QWaylandSurface *mouseFocus() const;
     void setMouseFocus(QWaylandSurface *surface, const QPointF &local_pos, const QPointF &global_pos = QPointF());

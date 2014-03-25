@@ -112,7 +112,7 @@ private slots:
     void surfaceMapped();
     void surfaceUnmapped();
     void surfaceDestroyed(QObject *object);
-    void surfaceDamaged(const QRect &);
+    void surfaceDamaged(const QRegion &);
     void parentChanged(QWaylandSurface *newParent, QWaylandSurface *oldParent);
     void updateSize();
     void updateSurfaceSize();

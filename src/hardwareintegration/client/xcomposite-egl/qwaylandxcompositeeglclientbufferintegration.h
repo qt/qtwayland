@@ -75,7 +75,6 @@ public:
     ~QWaylandXCompositeEGLClientBufferIntegration();
 
     void initialize(QWaylandDisplay *dispaly) Q_DECL_OVERRIDE;
-    bool waitingForEvents() Q_DECL_OVERRIDE { return !mDisplay; }
 
     QWaylandWindow *createEglWindow(QWindow *window) Q_DECL_OVERRIDE;
     QPlatformOpenGLContext *createPlatformOpenGLContext(const QSurfaceFormat &glFormat, QPlatformOpenGLContext *share) const Q_DECL_OVERRIDE;

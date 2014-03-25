@@ -87,9 +87,6 @@ public:
     inline void setCommitted() { m_committed = true; }
     inline bool isDisplayed() const { return m_is_displayed; }
 
-    inline QRect damageRect() const { return m_damageRect; }
-    void setDamage(const QRect &rect);
-
     inline bool textureCreated() const { return m_texture; }
 
     bool isDestroyed() { return m_destroyed; }
@@ -112,7 +109,6 @@ private:
     Compositor *m_compositor;
     struct ::wl_resource *m_buffer;
     struct surface_buffer_destroy_listener m_destroy_listener;
-    QRect m_damageRect;
     bool m_committed;
     bool m_is_registered_for_buffer;
     bool m_surface_has_buffer;

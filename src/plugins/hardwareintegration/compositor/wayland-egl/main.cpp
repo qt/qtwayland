@@ -50,24 +50,14 @@ class QWaylandIntegrationPlugin : public QtWayland::ClientBufferIntegrationPlugi
     Q_OBJECT
     Q_PLUGIN_METADATA(IID QtWaylandClientBufferIntegrationFactoryInterface_iid FILE "wayland-egl.json")
 public:
-    QStringList keys() const;
-    QtWayland::ClientBufferIntegration *create(const QString&, const QStringList&);
+    QtWayland::ClientBufferIntegration *create(const QString&, const QStringList&) Q_DECL_OVERRIDE;
 };
-
-QStringList QWaylandIntegrationPlugin::keys() const
-{
-    QStringList list;
-    list << "wayland-egl";
-    return list;
-}
 
 QtWayland::ClientBufferIntegration *QWaylandIntegrationPlugin::create(const QString& system, const QStringList& paramList)
 {
     Q_UNUSED(paramList);
-    if (system.toLower() == "wayland-egl")
-        return new WaylandEglClientBufferIntegration();
-
-    return 0;
+    Q_UNUSED(system);
+    return new WaylandEglClientBufferIntegration();
 }
 
 QT_END_NAMESPACE

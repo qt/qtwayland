@@ -96,7 +96,6 @@ void SurfaceBuffer::initialize(struct ::wl_resource *buffer)
     m_destroy_listener.listener.notify = destroy_listener_callback;
     if (buffer)
         wl_signal_add(&buffer->destroy_signal, &m_destroy_listener.listener);
-    m_damageRect = QRect();
 }
 
 void SurfaceBuffer::destructBufferState()
@@ -171,18 +170,6 @@ void SurfaceBuffer::disown()
 void SurfaceBuffer::setDisplayed()
 {
     m_is_displayed = true;
-    m_damageRect = QRect();
-}
-
-void SurfaceBuffer::setDamage(const QRect &rect)
-{
-    if (m_damageRect.isValid()) {
-        m_damageRect = m_damageRect.united(rect);
-    } else {
-        m_damageRect = rect;
-    }
-    m_image = QImage();
-
 }
 
 void SurfaceBuffer::destroyTexture()

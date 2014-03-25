@@ -104,10 +104,10 @@ QWaylandSurface::QWaylandSurface(QtWayland::Surface *surface)
 #endif
 }
 
-void QWaylandSurface::advanceBufferQueue()
+void QWaylandSurface::swapBuffers()
 {
     Q_D(const QWaylandSurface);
-    d->surface->advanceBufferQueue();
+    d->surface->swapBuffers();
 }
 
 WaylandClient *QWaylandSurface::client() const
@@ -308,12 +308,6 @@ QWaylandCompositor *QWaylandSurface::compositor() const
 {
     Q_D(const QWaylandSurface);
     return d->surface->compositor()->waylandCompositor();
-}
-
-void QWaylandSurface::frameFinished()
-{
-    Q_D(QWaylandSurface);
-    d->surface->frameFinished();
 }
 
 QWaylandSurface *QWaylandSurface::transientParent() const

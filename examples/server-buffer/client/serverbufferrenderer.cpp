@@ -42,6 +42,7 @@
 
 #include <QtGui/QOpenGLVertexArrayObject>
 #include <QtGui/QOpenGLShaderProgram>
+
 static const GLfloat uv_coords[] = {
     0,0,
     0,1,
@@ -74,7 +75,8 @@ static const char fragment_shader[] =
     "}";
 
 ServerBufferRenderer::ServerBufferRenderer(QWaylandServerBuffer *serverBuffer)
-    : m_server_buffer(serverBuffer)
+    : QOpenGLFunctions(QOpenGLContext::currentContext())
+    , m_server_buffer(serverBuffer)
     , m_texture(0)
     , m_vao(new QOpenGLVertexArrayObject())
     , m_program(new QOpenGLShaderProgram())

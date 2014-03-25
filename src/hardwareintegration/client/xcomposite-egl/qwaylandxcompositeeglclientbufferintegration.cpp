@@ -52,6 +52,7 @@ QT_BEGIN_NAMESPACE
 QWaylandXCompositeEGLClientBufferIntegration::QWaylandXCompositeEGLClientBufferIntegration()
     : QWaylandClientBufferIntegration()
     , mWaylandDisplay(0)
+    , mDisplay(0)
 {
     qDebug() << "Using XComposite-EGL";
 }
@@ -65,6 +66,10 @@ void QWaylandXCompositeEGLClientBufferIntegration::initialize(QWaylandDisplay *d
 {
     mWaylandDisplay = display;
     mWaylandDisplay->addRegistryListener(&wlDisplayHandleGlobal, this);
+    while (!mDisplay) {
+        display->flushRequests();
+        display->blockingReadEvents();
+    }
 }
 
 QWaylandWindow * QWaylandXCompositeEGLClientBufferIntegration::createEglWindow(QWindow *window)

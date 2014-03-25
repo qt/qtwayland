@@ -48,6 +48,7 @@
 
 #include <QtCore/QVector>
 #include <QtCore/QRect>
+#include <QtGui/QRegion>
 #include <QtGui/QImage>
 
 #include <QtCore/QTextStream>
@@ -73,6 +74,7 @@ class ExtendedSurface;
 class InputPanelSurface;
 class SubSurface;
 class ShellSurface;
+class FrameCallback;
 
 class Q_COMPOSITOR_EXPORT Surface : public QtWaylandServer::wl_surface
 {
@@ -106,8 +108,7 @@ public:
 #endif
 
     void sendFrameCallback();
-
-    void frameFinished();
+    void removeFrameCallback(FrameCallback *callback);
 
     QWaylandSurface *waylandSurface() const;
 
@@ -139,8 +140,9 @@ public:
     bool isCursorSurface() const { return m_isCursorSurface; }
     void setCursorSurface(bool isCursor) { m_isCursorSurface = isCursor; }
 
-    void advanceBufferQueue();
+    void swapBuffers();
     void releaseSurfaces();
+    void frameStarted();
 
 private:
     Q_DISABLE_COPY(Surface)
@@ -149,14 +151,22 @@ private:
     QWaylandSurface *m_waylandSurface;
 
     SurfaceBuffer *m_backBuffer;
+    QRegion m_damage;
     SurfaceBuffer *m_frontBuffer;
-    QList<SurfaceBuffer *> m_bufferQueue;
     bool m_surfaceMapped;
+
+    struct {
+        SurfaceBuffer *buffer;
+        QRegion damage;
+        QPoint offset;
+        bool newlyAttached;
+    } m_pending;
 
     QPoint m_lastLocalMousePos;
     QPoint m_lastGlobalMousePos;
 
-    struct wl_list m_frame_callback_list;
+    QList<FrameCallback *> m_pendingFrameCallbacks;
+    QList<FrameCallback *> m_frameCallbacks;
 
     ExtendedSurface *m_extendedSurface;
     SubSurface *m_subSurface;
@@ -176,11 +186,8 @@ private:
     bool m_isCursorSurface;
 
     inline SurfaceBuffer *currentSurfaceBuffer() const;
-    void damage(const QRect &rect);
     void setBackBuffer(SurfaceBuffer *buffer);
     SurfaceBuffer *createSurfaceBuffer(struct ::wl_resource *buffer);
-
-    void attach(struct ::wl_resource *buffer);
 
     void surface_destroy_resource(Resource *resource) Q_DECL_OVERRIDE;
 

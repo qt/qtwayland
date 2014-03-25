@@ -159,10 +159,10 @@ void QWindowCompositor::surfaceUnmapped()
     ensureKeyboardFocusSurface(surface);
 }
 
-void QWindowCompositor::surfaceDamaged(const QRect &rect)
+void QWindowCompositor::surfaceCommitted()
 {
     QWaylandSurface *surface = qobject_cast<QWaylandSurface *>(sender());
-    surfaceDamaged(surface, rect);
+    surfaceCommitted(surface);
 }
 
 void QWindowCompositor::surfacePosChanged()
@@ -170,10 +170,9 @@ void QWindowCompositor::surfacePosChanged()
     m_renderScheduler.start(0);
 }
 
-void QWindowCompositor::surfaceDamaged(QWaylandSurface *surface, const QRect &rect)
+void QWindowCompositor::surfaceCommitted(QWaylandSurface *surface)
 {
     Q_UNUSED(surface)
-    Q_UNUSED(rect)
     m_renderScheduler.start(0);
 }
 
@@ -182,7 +181,7 @@ void QWindowCompositor::surfaceCreated(QWaylandSurface *surface)
     connect(surface, SIGNAL(destroyed(QObject *)), this, SLOT(surfaceDestroyed(QObject *)));
     connect(surface, SIGNAL(mapped()), this, SLOT(surfaceMapped()));
     connect(surface, SIGNAL(unmapped()), this, SLOT(surfaceUnmapped()));
-    connect(surface, SIGNAL(damaged(const QRect &)), this, SLOT(surfaceDamaged(const QRect &)));
+    connect(surface, SIGNAL(committed()), this, SLOT(surfaceCommitted()));
     connect(surface, SIGNAL(extendedSurfaceReady()), this, SLOT(sendExpose()));
     connect(surface, SIGNAL(posChanged()), this, SLOT(surfacePosChanged()));
     m_renderScheduler.start(0);
@@ -253,7 +252,7 @@ GLuint QWindowCompositor::composeSurface(QWaylandSurface *surface, bool *texture
     GLuint texture = 0;
 
     QSize windowSize = surface->size();
-    surface->advanceBufferQueue();
+    surface->swapBuffers();
 
     QOpenGLFunctions *functions = QOpenGLContext::currentContext()->functions();
     functions->glBindFramebuffer(GL_FRAMEBUFFER, m_surface_fbo);
@@ -288,7 +287,7 @@ void QWindowCompositor::paintChildren(QWaylandSurface *surface, QWaylandSurface 
         QWaylandSurface *subSurface = i.next();
         QPointF p = subSurface->mapTo(window,QPointF(0,0));
         QSize subSize = subSurface->size();
-        subSurface->advanceBufferQueue();
+        subSurface->swapBuffers();
         if (subSize.isValid()) {
             GLuint texture = 0;
             if (subSurface->type() == QWaylandSurface::Texture) {
@@ -310,6 +309,7 @@ void QWindowCompositor::paintChildren(QWaylandSurface *surface, QWaylandSurface 
 void QWindowCompositor::render()
 {
     m_window->makeCurrent();
+    frameStarted();
 
     cleanupGraphicsResources();
 
@@ -335,7 +335,8 @@ void QWindowCompositor::render()
     }
 
     m_textureBlitter->release();
-    frameFinished();
+    sendFrameCallbacks(surfaces());
+
     // N.B. Never call glFinish() here as the busylooping with vsync 'feature' of the nvidia binary driver is not desirable.
     m_window->swapBuffers();
 }

@@ -62,7 +62,7 @@ public:
 
     Window xWindow() const;
 
-    QWaylandBuffer *buffer() { return m_buffer; }
+    QWaylandBuffer *buffer() { return mBuffer; }
 
 private:
     void createSurface();
@@ -71,8 +71,6 @@ private:
 
     Window m_xWindow;
     GLXFBConfig m_config;
-
-    QWaylandBuffer *m_buffer;
 };
 
 QT_END_NAMESPACE

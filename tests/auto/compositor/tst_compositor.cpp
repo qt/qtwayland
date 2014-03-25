@@ -210,7 +210,7 @@ void tst_WaylandCompositor::frameCallback()
         QTRY_COMPARE(damagedSpy.count(), i + 1);
 
         QCOMPARE(waylandSurface->image(), buffer.image);
-        waylandSurface->frameFinished();
+        compositor.sendFrameCallbacks(QList<QWaylandSurface *>() << waylandSurface);
 
         QTRY_COMPARE(frameCounter, i + 1);
     }

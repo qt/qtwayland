@@ -313,8 +313,10 @@ void printEnums(const QList<WaylandEnum> &enums)
     }
 }
 
-QByteArray stripInterfaceName(const QByteArray &name)
+QByteArray stripInterfaceName(const QByteArray &name, const QByteArray &prefix)
 {
+    if (!prefix.isEmpty() && name.startsWith(prefix))
+        return name.mid(prefix.size());
     if (name.startsWith("qt_") || name.startsWith("wl_"))
         return name.mid(3);
 
@@ -327,7 +329,7 @@ bool ignoreInterface(const QByteArray &name)
            || (isServerSide() && name == "wl_registry");
 }
 
-void process(QXmlStreamReader &xml, const QByteArray &headerPath)
+void process(QXmlStreamReader &xml, const QByteArray &headerPath, const QByteArray &prefix)
 {
     if (!xml.readNextStartElement())
         return;
@@ -409,7 +411,7 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath)
 
             const char *interfaceName = interface.name.constData();
 
-            QByteArray stripped = stripInterfaceName(interface.name);
+            QByteArray stripped = stripInterfaceName(interface.name, prefix);
             const char *interfaceNameStripped = stripped.constData();
 
             printf("    class %s %s\n    {\n", serverExport.constData(), interfaceName);
@@ -546,7 +548,7 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath)
 
             const char *interfaceName = interface.name.constData();
 
-            QByteArray stripped = stripInterfaceName(interface.name);
+            QByteArray stripped = stripInterfaceName(interface.name, prefix);
             const char *interfaceNameStripped = stripped.constData();
 
             printf("    %s::%s(struct ::wl_client *client, int id)\n", interfaceName, interfaceName);
@@ -815,7 +817,7 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath)
 
             const char *interfaceName = interface.name.constData();
 
-            QByteArray stripped = stripInterfaceName(interface.name);
+            QByteArray stripped = stripInterfaceName(interface.name, prefix);
             const char *interfaceNameStripped = stripped.constData();
 
             printf("    class %s %s\n    {\n", clientExport.constData(), interfaceName);
@@ -901,7 +903,7 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath)
 
             const char *interfaceName = interface.name.constData();
 
-            QByteArray stripped = stripInterfaceName(interface.name);
+            QByteArray stripped = stripInterfaceName(interface.name, prefix);
             const char *interfaceNameStripped = stripped.constData();
 
             bool hasEvents = !interface.events.isEmpty();
@@ -1065,15 +1067,18 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath)
 int main(int argc, char **argv)
 {
     if (argc <= 2 || !parseOption(argv[1], &option)) {
-        fprintf(stderr, "Usage: %s [client-header|server-header|client-code|server-code] specfile [header-path]\n", argv[0]);
+        fprintf(stderr, "Usage: %s [client-header|server-header|client-code|server-code] specfile [header-path] [prefix]\n", argv[0]);
         return 1;
     }
 
     QCoreApplication app(argc, argv);
 
     QByteArray headerPath;
-    if (argc == 4)
+    if (argc >= 4)
         headerPath = QByteArray(argv[3]);
+    QByteArray prefix;
+    if (argc == 5)
+        prefix = QByteArray(argv[4]);
     QFile file(argv[2]);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         fprintf(stderr, "Unable to open file %s\n", argv[2]);
@@ -1081,7 +1086,7 @@ int main(int argc, char **argv)
     }
 
     QXmlStreamReader xml(&file);
-    process(xml, headerPath);
+    process(xml, headerPath, prefix);
 
     if (xml.hasError()) {
         fprintf(stderr, "XML error: %s\nLine %lld, column %lld\n", xml.errorString().toLocal8Bit().constData(), xml.lineNumber(), xml.columnNumber());

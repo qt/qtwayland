@@ -38,7 +38,7 @@
 	The sync request asks the server to emit the 'done' event
 	on the returned wl_callback object.  Since requests are
 	handled in-order and events are delivered in-order, this can
-	be used as a barrier to ensure all previous requests and the
+	used as a barrier to ensure all previous requests and the
 	resulting events have been handled.
 
 	The object returned by this request will be destroyed by the
@@ -274,73 +274,10 @@
 
     <enum name="format">
       <description summary="pixel formats">
-       This describes the memory layout of an individual pixel.
-
-       All renderers should support argb8888 and xrgb8888 but any other
-       formats are optional and may not be supported by the particular
-       renderer in use.
+	This describes the memory layout of an individual pixel.
       </description>
       <entry name="argb8888" value="0" summary="32-bit ARGB format"/>
       <entry name="xrgb8888" value="1" summary="32-bit RGB format"/>
-      <!-- The drm format codes match the #defines in drm_fourcc.h.
-           The formats actually supported by the compositor will be
-           reported by the format event. -->
-      <entry name="c8" value="0x20203843"/>
-      <entry name="rgb332" value="0x38424752"/>
-      <entry name="bgr233" value="0x38524742"/>
-      <entry name="xrgb4444" value="0x32315258"/>
-      <entry name="xbgr4444" value="0x32314258"/>
-      <entry name="rgbx4444" value="0x32315852"/>
-      <entry name="bgrx4444" value="0x32315842"/>
-      <entry name="argb4444" value="0x32315241"/>
-      <entry name="abgr4444" value="0x32314241"/>
-      <entry name="rgba4444" value="0x32314152"/>
-      <entry name="bgra4444" value="0x32314142"/>
-      <entry name="xrgb1555" value="0x35315258"/>
-      <entry name="xbgr1555" value="0x35314258"/>
-      <entry name="rgbx5551" value="0x35315852"/>
-      <entry name="bgrx5551" value="0x35315842"/>
-      <entry name="argb1555" value="0x35315241"/>
-      <entry name="abgr1555" value="0x35314241"/>
-      <entry name="rgba5551" value="0x35314152"/>
-      <entry name="bgra5551" value="0x35314142"/>
-      <entry name="rgb565" value="0x36314752"/>
-      <entry name="bgr565" value="0x36314742"/>
-      <entry name="rgb888" value="0x34324752"/>
-      <entry name="bgr888" value="0x34324742"/>
-      <entry name="xbgr8888" value="0x34324258"/>
-      <entry name="rgbx8888" value="0x34325852"/>
-      <entry name="bgrx8888" value="0x34325842"/>
-      <entry name="abgr8888" value="0x34324241"/>
-      <entry name="rgba8888" value="0x34324152"/>
-      <entry name="bgra8888" value="0x34324142"/>
-      <entry name="xrgb2101010" value="0x30335258"/>
-      <entry name="xbgr2101010" value="0x30334258"/>
-      <entry name="rgbx1010102" value="0x30335852"/>
-      <entry name="bgrx1010102" value="0x30335842"/>
-      <entry name="argb2101010" value="0x30335241"/>
-      <entry name="abgr2101010" value="0x30334241"/>
-      <entry name="rgba1010102" value="0x30334152"/>
-      <entry name="bgra1010102" value="0x30334142"/>
-      <entry name="yuyv" value="0x56595559"/>
-      <entry name="yvyu" value="0x55595659"/>
-      <entry name="uyvy" value="0x59565955"/>
-      <entry name="vyuy" value="0x59555956"/>
-      <entry name="ayuv" value="0x56555941"/>
-      <entry name="nv12" value="0x3231564e"/>
-      <entry name="nv21" value="0x3132564e"/>
-      <entry name="nv16" value="0x3631564e"/>
-      <entry name="nv61" value="0x3136564e"/>
-      <entry name="yuv410" value="0x39565559"/>
-      <entry name="yvu410" value="0x39555659"/>
-      <entry name="yuv411" value="0x31315559"/>
-      <entry name="yvu411" value="0x31315659"/>
-      <entry name="yuv420" value="0x32315559"/>
-      <entry name="yvu420" value="0x32315659"/>
-      <entry name="yuv422" value="0x36315559"/>
-      <entry name="yvu422" value="0x36315659"/>
-      <entry name="yuv444" value="0x34325559"/>
-      <entry name="yvu444" value="0x34325659"/>
     </enum>
 
     <request name="create_pool">
@@ -584,7 +521,7 @@
       <description summary="initiate drag-and-drop session">
 	This event is sent when an active drag-and-drop pointer enters
 	a surface owned by the client.  The position of the pointer at
-	enter time is provided by the x and y arguments, in surface
+	enter time is provided by the x an y arguments, in surface
 	local coordinates.
       </description>
 
@@ -607,7 +544,7 @@
       <description summary="drag-and-drop session motion">
 	This event is sent when the drag-and-drop pointer moves within
 	the currently focused surface. The new position of the pointer
-	is provided by the x and y arguments, in surface local
+	is provided by the x an y arguments, in surface local
 	coordinates.
       </description>
       <arg name="time" type="uint" summary="timestamp with millisecond granularity"/>
@@ -640,7 +577,7 @@
 
   <interface name="wl_data_device_manager" version="1">
     <description summary="data transfer interface">
-      The wl_data_device_manager is a singleton global object that
+      The wl_data_device_manager is a a singleton global object that
       provides access to inter-client data transfer mechanisms such as
       copy-and-paste and drag-and-drop.  These mechanisms are tied to
       a wl_seat and this interface lets a client get a wl_data_device
@@ -909,9 +846,9 @@
 	Set a class for the surface.
 
 	The surface class identifies the general class of applications
-	to which the surface belongs. A common convention is to use the
-	file name (or the full path if it is a non-standard location) of
-	the application's .desktop file as the class.
+	to which the surface belongs. A common convention is to use
+	the file name (full path if non-standard location) of the
+	applications .desktop file as the class.
       </description>
       <arg name="class_" type="string"/>
     </request>
@@ -953,7 +890,7 @@
     <event name="popup_done">
       <description summary="popup interaction is done">
 	The popup_done event is sent out when a popup grab is broken,
-	that is, when the user clicks a surface that doesn't belong
+	that is, when the users clicks a surface that doesn't belong
 	to the client owning the popup surface.
       </description>
     </event>
@@ -1015,10 +952,10 @@
 
 	Destroying the wl_buffer after wl_buffer.release does not change
 	the surface contents. However, if the client destroys the
-	wl_buffer before receiving the wl_buffer.release event, the surface
+	wl_buffer before receiving wl_buffer.release, the surface
 	contents become undefined immediately.
 
-	If wl_surface.attach is sent with a NULL wl_buffer, the
+	Only if wl_surface.attach is sent with a NULL wl_buffer, the
 	following wl_surface.commit will remove the surface content.
       </description>
 
@@ -1235,7 +1172,7 @@
     </request>
    </interface>
 
-  <interface name="wl_seat" version="3">
+  <interface name="wl_seat" version="2">
     <description summary="group of input devices">
       A seat is a group of keyboards, pointer and touch devices. This
       object is published as a global during start up, or when such a
@@ -1308,7 +1245,7 @@
 
   </interface>
 
-  <interface name="wl_pointer" version="3">
+  <interface name="wl_pointer" version="1">
     <description summary="pointer input device">
       The wl_pointer interface represents one or more input devices,
       such as mice, which control the pointer location and pointer_focus
@@ -1355,10 +1292,6 @@
       <arg name="surface" type="object" interface="wl_surface" allow-null="true"/>
       <arg name="hotspot_x" type="int" summary="x coordinate in surface-relative coordinates"/>
       <arg name="hotspot_y" type="int" summary="y coordinate in surface-relative coordinates"/>
-    </request>
-
-    <request name="release" type="destructor" since="3">
-      <description summary="release the pointer object"/>
     </request>
 
     <event name="enter">
@@ -1460,15 +1393,11 @@
     </event>
   </interface>
 
-  <interface name="wl_keyboard" version="3">
+  <interface name="wl_keyboard" version="1">
     <description summary="keyboard input device">
       The wl_keyboard interface represents one or more keyboards
       associated with a seat.
     </description>
-
-    <request name="release" type="destructor" since="3">
-      <description summary="release the keyboard object"/>
-    </request>
 
     <enum name="keymap_format">
       <description summary="keyboard mapping format">
@@ -1547,7 +1476,7 @@
     </event>
   </interface>
 
-  <interface name="wl_touch" version="3">
+  <interface name="wl_touch" version="1">
     <description summary="touchscreen input device">
       The wl_touch interface represents a touchscreen
       associated with a seat.
@@ -1558,10 +1487,6 @@
       and ending with an up event. Events relating to the same
       contact point can be identified by the ID of the sequence.
     </description>
-
-    <request name="release" type="destructor" since="3">
-      <description summary="release the touch object"/>
-    </request>
 
     <event name="down">
       <description summary="touch down event and beginning of a touch sequence">

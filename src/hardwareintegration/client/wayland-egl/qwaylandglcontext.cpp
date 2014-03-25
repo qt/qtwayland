@@ -210,6 +210,10 @@ void QWaylandGLContext::swapBuffers(QPlatformSurface *surface)
         m_textureCache->bindTexture(context(), decorationImage);
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        if (!context()->functions()->hasOpenGLFeature(QOpenGLFunctions::NPOTTextureRepeat)) {
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        }
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
         //Draw Content

@@ -42,7 +42,8 @@
 #ifndef QWAYLANDXCOMPOSITEGLXPLATFORMINTEGRATION_H
 #define QWAYLANDXCOMPOSITEGLXPLATFORMINTEGRATION_H
 
-#include <QtWaylandClient/qwaylandintegration.h>
+#include <QtWaylandClient/private/qwaylandintegration_p.h>
+#include <QtWaylandClient/private/qwaylanddisplay_p.h>
 
 #include "qwaylandxcompositeglxintegration.h"
 
@@ -51,14 +52,16 @@ class QWaylandXCompositeGlxPlatformIntegration : public QWaylandIntegration
 public:
     QWaylandXCompositeGlxPlatformIntegration()
         : QWaylandIntegration()
-        , m_gl_integration(new QWaylandXCompositeGLXIntegration(display()))
-    { }
+        , m_client_buffer_integration(new QWaylandXCompositeGLXIntegration())
+    {
+        m_client_buffer_integration->initialize(display());
+    }
 
-    QWaylandGLIntegration *glIntegration() const Q_DECL_OVERRIDE
-    { return m_gl_integration; }
+    QWaylandClientBufferIntegration *clientBufferIntegration() const Q_DECL_OVERRIDE
+    { return m_client_buffer_integration; }
 
 private:
-    QWaylandGLIntegration *m_gl_integration;
+    QWaylandClientBufferIntegration *m_client_buffer_integration;
 };
 
 #endif

@@ -76,7 +76,7 @@ private:
     const QWaylandWindow *m_parentWindow;
 
     mutable EGLSurface m_eglSurface;
-    mutable EGLConfig m_eglConfig;
+    EGLConfig m_eglConfig;
     mutable QOpenGLFramebufferObject *m_contentFBO;
     mutable bool m_resize;
 

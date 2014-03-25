@@ -93,10 +93,16 @@ struct wl_display *QWaylandCompositor::waylandDisplay() const
 {
     return m_compositor->wl_display();
 }
-void QWaylandCompositor::frameFinished(QWaylandSurface *surface)
+
+void QWaylandCompositor::sendFrameCallbacks(QList<QWaylandSurface *> visibleSurfaces)
 {
-    QtWayland::Surface *surfaceImpl = surface? surface->handle():0;
-    m_compositor->frameFinished(surfaceImpl);
+    m_compositor->sendFrameCallbacks(visibleSurfaces);
+}
+
+void QWaylandCompositor::frameStarted()
+{
+    for (QtWayland::Surface *surf: m_compositor->surfaces())
+        surf->frameStarted();
 }
 
 void QWaylandCompositor::destroyClientForSurface(QWaylandSurface *surface)
@@ -124,6 +130,15 @@ QList<QWaylandSurface *> QWaylandCompositor::surfacesForClient(WaylandClient* c)
     }
 
     return result;
+}
+
+QList<QWaylandSurface *> QWaylandCompositor::surfaces() const
+{
+    QList<QtWayland::Surface *> surfaces = m_compositor->surfaces();
+    QList<QWaylandSurface *> surfs;
+    foreach (QtWayland::Surface *s, surfaces)
+        surfs << s->waylandSurface();
+    return surfs;
 }
 
 QWindow * QWaylandCompositor::window() const

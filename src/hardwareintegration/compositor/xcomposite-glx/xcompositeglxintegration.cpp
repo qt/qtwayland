@@ -76,6 +76,7 @@ XCompositeGLXClientBufferIntegration::XCompositeGLXClientBufferIntegration()
     , mDisplay(0)
     , mHandler(0)
 {
+    qDebug() << "Loading GLX integration";
 }
 
 XCompositeGLXClientBufferIntegration::~XCompositeGLXClientBufferIntegration()
@@ -85,6 +86,7 @@ XCompositeGLXClientBufferIntegration::~XCompositeGLXClientBufferIntegration()
 
 void XCompositeGLXClientBufferIntegration::initializeHardware(QtWayland::Display *)
 {
+    qDebug() << "Initializing GLX integration";
     QPlatformNativeInterface *nativeInterface = QGuiApplicationPrivate::platformIntegration()->nativeInterface();
     if (nativeInterface) {
         mDisplay = static_cast<Display *>(nativeInterface->nativeResourceForWindow("Display",m_compositor->window()));
@@ -112,7 +114,7 @@ void XCompositeGLXClientBufferIntegration::initializeHardware(QtWayland::Display
     delete glContext;
 }
 
-void XCompositeGLXClientBufferIntegration::updateTextureFromBuffer(struct ::wl_resource *buffer)
+void XCompositeGLXClientBufferIntegration::bindTextureToBuffer(struct ::wl_resource *buffer)
 {
     XCompositeBuffer *compositorBuffer = XCompositeBuffer::fromResource(buffer);
     Pixmap pixmap = XCompositeNameWindowPixmap(mDisplay, compositorBuffer->window());

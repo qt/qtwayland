@@ -49,24 +49,14 @@ class QWaylandBrcmClientBufferIntegration : public QtWayland::ClientBufferIntegr
     Q_OBJECT
     Q_PLUGIN_METADATA(IID QtWaylandClientBufferIntegrationFactoryInterface_iid FILE "brcm-egl.json")
 public:
-    QStringList keys() const;
-    QtWayland::ClientBufferIntegration *create(const QString&, const QStringList&);
+    QtWayland::ClientBufferIntegration *create(const QString&, const QStringList&) Q_DECL_OVERRIDE;
 };
-
-QStringList QWaylandBrcmClientBufferIntegration::keys() const
-{
-    QStringList list;
-    list << "wayland-brcm";
-    return list;
-}
 
 QtWayland::ClientBufferIntegration *QWaylandBrcmClientBufferIntegration::create(const QString& system, const QStringList& paramList)
 {
     Q_UNUSED(paramList);
-    if (system.toLower() == "wayland-brcm")
-        return new BrcmEglIntegration();
-
-    return 0;
+    Q_UNUSED(system);
+    return new BrcmEglIntegration();
 }
 
 QT_END_NAMESPACE

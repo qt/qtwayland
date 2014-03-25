@@ -67,6 +67,8 @@ Keyboard::Keyboard(Compositor *compositor, InputDevice *seat)
     , m_modsLatched()
     , m_modsLocked()
     , m_group()
+    , m_pendingKeymap(false)
+    , m_state(0)
 {
 #ifndef QT_NO_WAYLAND_XKB
     initXKB();
@@ -79,6 +81,7 @@ Keyboard::~Keyboard()
     if (m_keymap_area)
         munmap(m_keymap_area, m_keymap_size);
     close(m_keymap_fd);
+    xkb_context_unref(m_context);
     xkb_state_unref(m_state);
 #endif
 }
@@ -95,12 +98,18 @@ void Keyboard::setFocus(Surface *surface)
     if (resource && (m_focus != surface || m_focusResource != resource)) {
         uint32_t serial = wl_display_next_serial(m_compositor->wl_display());
         send_modifiers(resource->handle, serial, m_modsDepressed, m_modsLatched, m_modsLocked, m_group);
-        send_enter(resource->handle, serial, surface->resource()->handle, m_keys);
+        send_enter(resource->handle, serial, surface->resource()->handle, QByteArray::fromRawData((char *)m_keys.data(), m_keys.size() * sizeof(uint32_t)));
     }
 
     m_focusResource = resource;
     m_focus = surface;
     Q_EMIT focusChanged(m_focus);
+}
+
+void Keyboard::setKeymap(const QWaylandKeymap &keymap)
+{
+    m_keymap = keymap;
+    m_pendingKeymap = true;
 }
 
 void Keyboard::sendKeyModifiers(wl_keyboard::Resource *resource, uint32_t serial)
@@ -149,10 +158,24 @@ void Keyboard::keyboard_destroy_resource(wl_keyboard::Resource *resource)
 
 void Keyboard::sendKeyEvent(uint code, uint32_t state)
 {
+    // There must be no keys pressed when changing the keymap,
+    // see http://lists.freedesktop.org/archives/wayland-devel/2013-October/011395.html
+    if (m_pendingKeymap && m_keys.isEmpty())
+        updateKeymap();
     if (m_focusResource) {
         uint32_t time = m_compositor->currentTimeMsecs();
         uint32_t serial = wl_display_next_serial(m_compositor->wl_display());
-        send_key(m_focusResource->handle, serial, time, code - 8, state);
+        uint key = code - 8;
+        send_key(m_focusResource->handle, serial, time, key, state);
+        if (state == WL_KEYBOARD_KEY_STATE_PRESSED) {
+            m_keys << key;
+        } else {
+            for (int i = 0; i < m_keys.size(); ++i) {
+                if (m_keys.at(i) == key) {
+                    m_keys.remove(i);
+                }
+            }
+        }
     }
     updateModifierState(code, state);
 }
@@ -164,7 +187,7 @@ void Keyboard::updateModifierState(uint code, uint32_t state)
 
     uint32_t modsDepressed = xkb_state_serialize_mods(m_state, (xkb_state_component)XKB_STATE_DEPRESSED);
     uint32_t modsLatched = xkb_state_serialize_mods(m_state, (xkb_state_component)XKB_STATE_LATCHED);
-    uint32_t modsLocked = xkb_state_serialize_mods(m_state, (xkb_state_component)XKB_STATE_LATCHED);
+    uint32_t modsLocked = xkb_state_serialize_mods(m_state, (xkb_state_component)XKB_STATE_LOCKED);
     uint32_t group = xkb_state_serialize_group(m_state, (xkb_state_component)XKB_STATE_EFFECTIVE);
 
     if (modsDepressed == m_modsDepressed
@@ -183,6 +206,21 @@ void Keyboard::updateModifierState(uint code, uint32_t state)
 #else
     Q_UNUSED(code);
     Q_UNUSED(state);
+#endif
+}
+
+void Keyboard::updateKeymap()
+{
+    m_pendingKeymap = false;
+#ifndef QT_NO_WAYLAND_XKB
+    createXKBKeymap();
+    foreach (Resource *res, resourceMap()) {
+        send_keymap(res->handle, WL_KEYBOARD_KEYMAP_FORMAT_XKB_V1, m_keymap_fd, m_keymap_size);
+    }
+
+    xkb_state_update_mask(m_state, 0, m_modsLatched, m_modsLocked, 0, 0, 0);
+    if (m_focusResource)
+        sendKeyModifiers(m_focusResource, wl_display_next_serial(m_compositor->wl_display()));
 #endif
 }
 
@@ -217,10 +255,21 @@ static int createAnonymousFile(size_t size)
 
 void Keyboard::initXKB()
 {
-    struct xkb_context *context = xkb_context_new(static_cast<xkb_context_flags>(0));
+    m_context = xkb_context_new(static_cast<xkb_context_flags>(0));
+    createXKBKeymap();
+}
 
-    struct xkb_rule_names rule_names = {0, 0, 0, 0, 0};
-    struct xkb_keymap *keymap = xkb_keymap_new_from_names(context, &rule_names, static_cast<xkb_keymap_compile_flags>(0));
+void Keyboard::createXKBKeymap()
+{
+    if (m_state)
+        xkb_state_unref(m_state);
+
+    struct xkb_rule_names rule_names = { strdup(qPrintable(m_keymap.rules())),
+                                         strdup(qPrintable(m_keymap.model())),
+                                         strdup(qPrintable(m_keymap.layout())),
+                                         strdup(qPrintable(m_keymap.variant())),
+                                         strdup(qPrintable(m_keymap.options())) };
+    struct xkb_keymap *keymap = xkb_keymap_new_from_names(m_context, &rule_names, static_cast<xkb_keymap_compile_flags>(0));
 
     char *keymap_str = xkb_keymap_get_as_string(keymap, XKB_KEYMAP_FORMAT_TEXT_V1);
     if (!keymap_str)
@@ -242,7 +291,12 @@ void Keyboard::initXKB()
     m_state = xkb_state_new(keymap);
 
     xkb_keymap_unref(keymap);
-    xkb_context_unref(context);
+
+    free((char *)rule_names.rules);
+    free((char *)rule_names.model);
+    free((char *)rule_names.layout);
+    free((char *)rule_names.variant);
+    free((char *)rule_names.options);
 }
 #endif
 

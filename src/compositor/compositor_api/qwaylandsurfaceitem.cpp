@@ -145,6 +145,7 @@ void QWaylandSurfaceItem::init(QWaylandSurface *surface)
     connect(surface, &QWaylandSurface::unmapped, this, &QWaylandSurfaceItem::surfaceUnmapped);
     connect(surface, &QWaylandSurface::destroyed, this, &QWaylandSurfaceItem::surfaceDestroyed);
     connect(surface, &QWaylandSurface::damaged, this, &QWaylandSurfaceItem::surfaceDamaged);
+    connect(surface, &QWaylandSurface::committed, this, &QQuickItem::update);
     connect(surface, &QWaylandSurface::parentChanged, this, &QWaylandSurfaceItem::parentChanged);
     connect(surface, &QWaylandSurface::sizeChanged, this, &QWaylandSurfaceItem::updateSize);
     connect(surface, &QWaylandSurface::posChanged, this, &QWaylandSurfaceItem::updatePosition);
@@ -294,7 +295,7 @@ void QWaylandSurfaceItem::setDamagedFlag(bool on)
 }
 
 
-void QWaylandSurfaceItem::surfaceDamaged(const QRect &)
+void QWaylandSurfaceItem::surfaceDamaged(const QRegion &)
 {
     m_damaged = true;
     if (m_surface) {
@@ -305,7 +306,6 @@ void QWaylandSurfaceItem::surfaceDamaged(const QRect &)
         }
     }
     emit textureChanged();
-    update();
 }
 
 void QWaylandSurfaceItem::parentChanged(QWaylandSurface *newParent, QWaylandSurface *oldParent)
@@ -386,7 +386,7 @@ QSGNode *QWaylandSurfaceItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeD
     // Order here is important, as the state of visible is that of the pending
     // buffer but will be replaced after we advance the buffer queue.
     bool mapped = m_surface->isMapped();
-    surface()->advanceBufferQueue();
+    surface()->swapBuffers();
     if (mapped)
         updateTexture();
 

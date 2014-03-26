@@ -46,6 +46,8 @@
 #include "qwaylandinputdevice_p.h"
 #include "qwaylandscreen_p.h"
 #include "qwaylandshellsurface_p.h"
+#include "qwaylandwlshellsurface_p.h"
+#include "qwaylandxdgsurface_p.h"
 #include "qwaylandextendedsurface_p.h"
 #include "qwaylandsubsurface_p.h"
 #include "qwaylanddecoration_p.h"
@@ -92,8 +94,16 @@ QWaylandWindow::QWaylandWindow(QWindow *window)
     static WId id = 1;
     mWindowId = id++;
 
-    if (mDisplay->shell() && window->type() & Qt::Window && !(window->flags() & Qt::BypassWindowManagerHint))
-        mShellSurface = new QWaylandShellSurface(mDisplay->shell()->get_shell_surface(object()), this);
+    if (!(window->flags() & Qt::BypassWindowManagerHint)) {
+        if (mDisplay->shellXdg()) {
+           if (window->type() & Qt::Window) {
+                mShellSurface = new QWaylandXdgSurface(mDisplay->shellXdg()->get_xdg_surface(object()), this);
+            }
+        } else if (mDisplay->shell() && window->type() & Qt::Window) {
+            mShellSurface = new QWaylandWlShellSurface(mDisplay->shell()->get_shell_surface(object()), this);
+        }
+    }
+
     if (mDisplay->windowExtension())
         mExtendedWindow = new QWaylandExtendedSurface(this, mDisplay->windowExtension()->get_extended_surface(object()));
     if (mDisplay->subSurfaceExtension())
@@ -101,12 +111,12 @@ QWaylandWindow::QWaylandWindow(QWindow *window)
 
     if (mShellSurface) {
         // Set initial surface title
-        mShellSurface->set_title(window->title());
+        mShellSurface->setTitle(window->title());
 
         // Set surface class to the .desktop file name (obtained from executable name)
         QFileInfo exeFileInfo(qApp->applicationFilePath());
         QString className = exeFileInfo.baseName() + QLatin1String(".desktop");
-        mShellSurface->set_class(className);
+        mShellSurface->setAppId(className);
     }
 
     if (QPlatformWindow::parent() && mSubSurfaceWindow) {
@@ -171,7 +181,7 @@ void QWaylandWindow::setParent(const QPlatformWindow *parent)
 void QWaylandWindow::setWindowTitle(const QString &title)
 {
     if (mShellSurface) {
-        mShellSurface->set_title(title);
+        mShellSurface->setTitle(title);
     }
 
     if (mWindowDecoration && window()->isVisible())
@@ -223,8 +233,10 @@ void QWaylandWindow::setVisible(bool visible)
             mMouseDevice = parent->mMouseDevice;
             mMouseSerial = parent->mMouseSerial;
 
-            if (mMouseDevice)
-                mShellSurface->setPopup(transientParent(), mMouseDevice, mMouseSerial);
+            QWaylandWlShellSurface *wlshellSurface = dynamic_cast<QWaylandWlShellSurface*>(mShellSurface);
+            if (mMouseDevice && wlshellSurface) {
+                wlshellSurface->setPopup(transientParent(), mMouseDevice, mMouseSerial);
+            }
         }
 
         setGeometry(window()->geometry());
@@ -434,6 +446,20 @@ void QWaylandWindow::setWindowFlags(Qt::WindowFlags flags)
 
 bool QWaylandWindow::createDecoration()
 {
+    // so far only xdg-shell support this "unminimize" trick, may be moved elsewhere
+    if (mState == Qt::WindowMinimized) {
+        QWaylandXdgSurface *xdgSurface = dynamic_cast<QWaylandXdgSurface *>(mShellSurface);
+        if ( xdgSurface ) {
+            if (xdgSurface->isFullscreen()) {
+                setWindowStateInternal(Qt::WindowFullScreen);
+            } else if (xdgSurface->isMaximized()) {
+                setWindowStateInternal(Qt::WindowMaximized);
+            } else {
+                setWindowStateInternal(Qt::WindowNoState);
+            }
+        }
+    }
+
     static bool disableWaylandDecorations = !qgetenv("QT_WAYLAND_DISABLE_WINDOWDECORATION").isEmpty();
     if (disableWaylandDecorations)
         return false;

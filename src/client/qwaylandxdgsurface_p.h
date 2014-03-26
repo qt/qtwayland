@@ -39,15 +39,16 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDSHELLSURFACE_H
-#define QWAYLANDSHELLSURFACE_H
+#ifndef QWAYLANDXDGSURFACE_H
+#define QWAYLANDXDGSURFACE_H
 
 #include <QtCore/QSize>
 
 #include <wayland-client.h>
 
-#include <QtWaylandClient/private/qwayland-wayland.h>
+#include <QtWaylandClient/private/qwayland-xdg-shell.h>
 #include <QtWaylandClient/private/qwaylandclientexport_p.h>
+#include "qwaylandshellsurface_p.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -55,28 +56,50 @@ class QWaylandWindow;
 class QWaylandInputDevice;
 class QWindow;
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandShellSurface
+class Q_WAYLAND_CLIENT_EXPORT QWaylandXdgSurface : public QtWayland::xdg_surface
+        , public QWaylandShellSurface
 {
 public:
-    virtual ~QWaylandShellSurface() {}
-    virtual void resize(QWaylandInputDevice * /*inputDevice*/, enum wl_shell_surface_resize /*edges*/)
-    {}
+    QWaylandXdgSurface(struct ::xdg_surface *shell_surface, QWaylandWindow *window);
+    virtual ~QWaylandXdgSurface();
 
-    virtual void move(QWaylandInputDevice * /*inputDevice*/) {}
-    virtual void setTitle(const QString & /*title*/) {}
-    virtual void setAppId(const QString & /*appId*/) {}
+    using QtWayland::xdg_surface::resize;
+    void resize(QWaylandInputDevice *inputDevice, enum resize_edge edges);
+
+    void resize(QWaylandInputDevice *inputDevice, enum wl_shell_surface_resize edges) Q_DECL_OVERRIDE;
+
+    using QtWayland::xdg_surface::move;
+    void move(QWaylandInputDevice *inputDevice) Q_DECL_OVERRIDE;
+
+    void setTitle(const QString &title) Q_DECL_OVERRIDE;
+    void setAppId(const QString &appId) Q_DECL_OVERRIDE;
+
+    bool isFullscreen() const { return m_fullscreen; }
+    bool isMaximized() const { return m_maximized; }
 
 private:
-    virtual void setMaximized() {}
-    virtual void setFullscreen() {}
-    virtual void setNormal() {}
-    virtual void setMinimized() {}
+    void setMaximized() Q_DECL_OVERRIDE;
+    void setFullscreen() Q_DECL_OVERRIDE;
+    void setNormal() Q_DECL_OVERRIDE;
+    void setMinimized() Q_DECL_OVERRIDE;
 
-    virtual void setTopLevel() {}
-    virtual void updateTransientParent(QWindow * /*parent*/) {}
+    void setTopLevel() Q_DECL_OVERRIDE;
+    void updateTransientParent(QWindow *parent) Q_DECL_OVERRIDE;
+
+private:
+    QWaylandWindow *m_window;
+    bool m_maximized;
+    bool m_minimized;
+    bool m_fullscreen;
+    QSize m_size;
+
+    void xdg_surface_ping(uint32_t serial) Q_DECL_OVERRIDE;
+    void xdg_surface_configure(uint32_t edges,
+                               int32_t width,
+                               int32_t height) Q_DECL_OVERRIDE;
     friend class QWaylandWindow;
 };
 
 QT_END_NAMESPACE
 
-#endif // QWAYLANDSHELLSURFACE_H
+#endif // QWAYLANDXDGSURFACE_H

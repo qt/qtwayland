@@ -39,8 +39,8 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDSHELLSURFACE_H
-#define QWAYLANDSHELLSURFACE_H
+#ifndef QWAYLANDWLSHELLSURFACE_H
+#define QWAYLANDWLSHELLSURFACE_H
 
 #include <QtCore/QSize>
 
@@ -48,6 +48,7 @@
 
 #include <QtWaylandClient/private/qwayland-wayland.h>
 #include <QtWaylandClient/private/qwaylandclientexport_p.h>
+#include "qwaylandshellsurface_p.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -55,25 +56,43 @@ class QWaylandWindow;
 class QWaylandInputDevice;
 class QWindow;
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandShellSurface
+class Q_WAYLAND_CLIENT_EXPORT QWaylandWlShellSurface : public QtWayland::wl_shell_surface
+        , public QWaylandShellSurface
 {
 public:
-    virtual ~QWaylandShellSurface() {}
-    virtual void resize(QWaylandInputDevice * /*inputDevice*/, enum wl_shell_surface_resize /*edges*/)
-    {}
+    QWaylandWlShellSurface(struct ::wl_shell_surface *shell_surface, QWaylandWindow *window);
+    virtual ~QWaylandWlShellSurface();
 
-    virtual void move(QWaylandInputDevice * /*inputDevice*/) {}
-    virtual void setTitle(const QString & /*title*/) {}
-    virtual void setAppId(const QString & /*appId*/) {}
+    using QtWayland::wl_shell_surface::resize;
+    void resize(QWaylandInputDevice *inputDevice, enum wl_shell_surface_resize edges) Q_DECL_OVERRIDE;
+
+    using QtWayland::wl_shell_surface::move;
+    void move(QWaylandInputDevice *inputDevice) Q_DECL_OVERRIDE;
+
+    void setTitle(const QString & title) Q_DECL_OVERRIDE;
+    void setAppId(const QString &appId) Q_DECL_OVERRIDE;
 
 private:
-    virtual void setMaximized() {}
-    virtual void setFullscreen() {}
-    virtual void setNormal() {}
-    virtual void setMinimized() {}
+    void setMaximized() Q_DECL_OVERRIDE;
+    void setFullscreen() Q_DECL_OVERRIDE;
+    void setNormal() Q_DECL_OVERRIDE;
+    void setMinimized() Q_DECL_OVERRIDE;
 
-    virtual void setTopLevel() {}
-    virtual void updateTransientParent(QWindow * /*parent*/) {}
+    void setTopLevel() Q_DECL_OVERRIDE;
+    void updateTransientParent(QWindow *parent) Q_DECL_OVERRIDE;
+    void setPopup(QWaylandWindow *parent, QWaylandInputDevice *device, int serial);
+
+    QWaylandWindow *m_window;
+    bool m_maximized;
+    bool m_fullscreen;
+    QSize m_size;
+
+    void shell_surface_ping(uint32_t serial) Q_DECL_OVERRIDE;
+    void shell_surface_configure(uint32_t edges,
+                                 int32_t width,
+                                 int32_t height) Q_DECL_OVERRIDE;
+    void shell_surface_popup_done() Q_DECL_OVERRIDE;
+
     friend class QWaylandWindow;
 };
 

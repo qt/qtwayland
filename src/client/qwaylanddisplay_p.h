@@ -51,6 +51,7 @@
 
 #include <QtWaylandClient/private/qwayland-wayland.h>
 #include <QtWaylandClient/private/qwaylandclientexport_p.h>
+#include <QtWaylandClient/private/qwayland-xdg-shell.h>
 
 struct wl_cursor_image;
 
@@ -78,6 +79,7 @@ namespace QtWayland {
     class qt_sub_surface_extension;
     class qt_surface_extension;
     class wl_text_input_manager;
+    class xdg_shell;
 }
 
 typedef void (*RegistryListener)(void *data,
@@ -113,6 +115,7 @@ public:
     QtWayland::wl_compositor *compositor() { return &mCompositor; }
 
     QtWayland::wl_shell *shell() { return mShell.data(); }
+    QtWayland::xdg_shell *shellXdg() { return mShellXdg.data(); }
 
     QList<QWaylandInputDevice *> inputDevices() const { return mInputDevices; }
     QWaylandInputDevice *defaultInputDevice() const;
@@ -168,6 +171,7 @@ private:
     QThread *mEventThread;
     QWaylandEventThread *mEventThreadObject;
     QScopedPointer<QtWayland::wl_shell> mShell;
+    QScopedPointer<QtWayland::xdg_shell> mShellXdg;
     QList<QPlatformScreen *> mScreens;
     QList<QWaylandInputDevice *> mInputDevices;
     QList<Listener> mRegistryListeners;

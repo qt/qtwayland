@@ -68,7 +68,9 @@ Keyboard::Keyboard(Compositor *compositor, InputDevice *seat)
     , m_modsLocked()
     , m_group()
     , m_pendingKeymap(false)
+#ifndef QT_NO_WAYLAND_XKB
     , m_state(0)
+#endif
 {
 #ifndef QT_NO_WAYLAND_XKB
     initXKB();

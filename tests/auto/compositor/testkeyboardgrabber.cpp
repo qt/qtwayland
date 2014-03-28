@@ -1,6 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (c) 2014 LG Electronics, Inc., author: <mikko.levonmaa@lge.com>
+**
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the test suite of the Qt Toolkit.
@@ -39,20 +40,35 @@
 **
 ****************************************************************************/
 
-#include "testcompositor.h"
+#include "testkeyboardgrabber.h"
 
-TestCompositor::TestCompositor(QWaylandCompositor::ExtensionFlag flags) : QWaylandCompositor(0, 0, flags)
-{
+namespace QtWayland {
+    KeyboardGrabber::~KeyboardGrabber() {}
 }
 
-void TestCompositor::surfaceCreated(QWaylandSurface *surface)
+void TestKeyboardGrabber::focused(QtWayland::Surface *surface)
 {
-    surfaces << surface;
+    Q_UNUSED(surface);
+    Q_EMIT focusedCalled();
 }
 
-void TestCompositor::surfaceAboutToBeDestroyed(QWaylandSurface *surface)
+void TestKeyboardGrabber::key(uint32_t serial, uint32_t time, uint32_t key, uint32_t state)
 {
-    surfaces.removeOne(surface);
+    Q_UNUSED(serial);
+    Q_UNUSED(time);
+    Q_UNUSED(key);
+    Q_UNUSED(state);
+    Q_EMIT keyCalled();
 }
 
+void TestKeyboardGrabber::modifiers(uint32_t serial, uint32_t mods_depressed,
+        uint32_t mods_latched, uint32_t mods_locked, uint32_t group)
+{
+    Q_UNUSED(serial);
+    Q_UNUSED(mods_depressed);
+    Q_UNUSED(mods_latched);
+    Q_UNUSED(mods_locked);
+    Q_UNUSED(group);
+    Q_EMIT modifiersCalled();
+}
 

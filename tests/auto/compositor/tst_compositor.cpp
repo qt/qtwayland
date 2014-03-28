@@ -41,6 +41,10 @@
 
 #include "mockclient.h"
 #include "testcompositor.h"
+#include "testkeyboardgrabber.h"
+
+#include "QtCompositor/private/qwlkeyboard_p.h"
+#include "QtCompositor/private/qwlinputdevice_p.h"
 
 #include "qwaylandbufferref.h"
 
@@ -59,6 +63,7 @@ public:
 
 private slots:
     void inputDeviceCapabilities();
+    void keyboardGrab();
     void singleClient();
     void multipleClients();
     void geometry();
@@ -131,6 +136,53 @@ void tst_WaylandCompositor::multipleClients()
     wl_surface_destroy(sc);
 
     QTRY_COMPARE(compositor.surfaces.size(), 0);
+}
+
+void tst_WaylandCompositor::keyboardGrab()
+{
+    TestCompositor compositor((QWaylandCompositor::ExtensionFlag)0);
+    MockClient mc;
+
+    mc.createSurface();
+    // This is needed for timing purposes, otherwise the query for the
+    // compositor surfaces will return null
+    QTRY_COMPARE(compositor.surfaces.size(), 1);
+
+    // Set the focused surface so that key event will flow through
+    QWaylandSurface *waylandSurface = compositor.surfaces.at(0);
+    QWaylandInputDevice* inputDevice = compositor.defaultInputDevice();
+    inputDevice->handle()->keyboardDevice()->setFocus(waylandSurface->handle());
+
+    TestKeyboardGrabber grab;
+    QSignalSpy grabFocusSpy(&grab, SIGNAL(focusedCalled()));
+    QSignalSpy grabKeySpy(&grab, SIGNAL(keyCalled()));
+    QSignalSpy grabModifierSpy(&grab, SIGNAL(modifiersCalled()));
+
+    QtWayland::Keyboard *keyboard = inputDevice->handle()->keyboardDevice();
+    keyboard->startGrab(&grab);
+
+    QTRY_COMPARE(grabFocusSpy.count(), 1);
+    QCOMPARE(grab.m_keyboard, inputDevice->handle()->keyboardDevice());
+
+    QKeyEvent ke(QEvent::KeyPress, Qt::Key_A, Qt::NoModifier, 30, 0, 0);
+    QKeyEvent ke1(QEvent::KeyRelease, Qt::Key_A, Qt::NoModifier, 30, 0, 0);
+    inputDevice->sendFullKeyEvent(&ke);
+    inputDevice->sendFullKeyEvent(&ke1);
+    QTRY_COMPARE(grabKeySpy.count(), 2);
+
+    QKeyEvent ke2(QEvent::KeyPress, Qt::Key_Shift, Qt::NoModifier, 50, 0, 0);
+    QKeyEvent ke3(QEvent::KeyRelease, Qt::Key_Shift, Qt::NoModifier, 50, 0, 0);
+    inputDevice->sendFullKeyEvent(&ke2);
+    inputDevice->sendFullKeyEvent(&ke3);
+    QTRY_COMPARE(grabModifierSpy.count(), 2);
+    // Modifiers are also keys
+    QTRY_COMPARE(grabKeySpy.count(), 4);
+
+    // Stop grabbing
+    keyboard->endGrab();
+    inputDevice->sendFullKeyEvent(&ke);
+    inputDevice->sendFullKeyEvent(&ke1);
+    QTRY_COMPARE(grabKeySpy.count(), 4);
 }
 
 void tst_WaylandCompositor::geometry()

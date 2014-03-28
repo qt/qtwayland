@@ -20,5 +20,11 @@ config_xkbcommon {
     DEFINES += QT_NO_WAYLAND_XKB
 }
 
-SOURCES += tst_compositor.cpp testcompositor.cpp mockclient.cpp
-HEADERS += testcompositor.h mockclient.h
+SOURCES += tst_compositor.cpp \
+           testcompositor.cpp \
+           testkeyboardgrabber.cpp \
+           mockclient.cpp \
+
+HEADERS += testcompositor.h \
+           testkeyboardgrabber.h \
+           mockclient.h \

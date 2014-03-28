@@ -63,8 +63,20 @@ namespace QtWayland {
 class Compositor;
 class InputDevice;
 class Surface;
+class Keyboard;
 
-class Q_COMPOSITOR_EXPORT Keyboard : public QObject, public QtWaylandServer::wl_keyboard
+class Q_COMPOSITOR_EXPORT KeyboardGrabber {
+    public:
+        virtual ~KeyboardGrabber();
+        virtual void focused(Surface *surface) = 0;
+        virtual void key(uint32_t serial, uint32_t time, uint32_t key, uint32_t state) = 0;
+        virtual void modifiers(uint32_t serial, uint32_t mods_depressed,
+                uint32_t mods_latched, uint32_t mods_locked, uint32_t group) = 0;
+
+        Keyboard *m_keyboard;
+};
+
+class Q_COMPOSITOR_EXPORT Keyboard : public QObject, public QtWaylandServer::wl_keyboard, public KeyboardGrabber
 {
     Q_OBJECT
 
@@ -81,6 +93,16 @@ public:
 
     Surface *focus() const;
     Resource *focusResource() const;
+
+    void focused(Surface* surface);
+    void key(uint32_t serial, uint32_t time, uint32_t key, uint32_t state);
+    void modifiers(uint32_t serial, uint32_t mods_depressed,
+                uint32_t mods_latched, uint32_t mods_locked, uint32_t group);
+
+   void startGrab(KeyboardGrabber *grab);
+   void endGrab();
+   KeyboardGrabber *currentGrab() const;
+
 
 Q_SIGNALS:
     void focusChanged(Surface *surface);
@@ -103,6 +125,7 @@ private:
     Compositor *m_compositor;
     InputDevice *m_seat;
 
+    KeyboardGrabber* m_grab;
     Surface *m_focus;
     Resource *m_focusResource;
     WlListener m_focusDestroyListener;

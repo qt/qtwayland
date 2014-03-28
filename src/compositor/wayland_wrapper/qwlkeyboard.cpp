@@ -60,6 +60,7 @@ Keyboard::Keyboard(Compositor *compositor, InputDevice *seat)
     : QtWaylandServer::wl_keyboard()
     , m_compositor(compositor)
     , m_seat(seat)
+    , m_grab(this)
     , m_focus()
     , m_focusResource()
     , m_keys()
@@ -89,7 +90,28 @@ Keyboard::~Keyboard()
 #endif
 }
 
-void Keyboard::setFocus(Surface *surface)
+KeyboardGrabber::~KeyboardGrabber()
+{
+}
+
+void Keyboard::startGrab(KeyboardGrabber *grab)
+{
+    m_grab = grab;
+    m_grab->m_keyboard = this;
+    m_grab->focused(m_focus);
+}
+
+void Keyboard::endGrab()
+{
+    m_grab = this;
+}
+
+KeyboardGrabber *Keyboard::currentGrab() const
+{
+    return m_grab;
+}
+
+void Keyboard::focused(Surface *surface)
 {
     if (m_focusResource && m_focus != surface) {
         uint32_t serial = wl_display_next_serial(m_compositor->wl_display());
@@ -109,6 +131,11 @@ void Keyboard::setFocus(Surface *surface)
     m_focusResource = resource;
     m_focus = surface;
     Q_EMIT focusChanged(m_focus);
+}
+
+void Keyboard::setFocus(Surface* surface)
+{
+    m_grab->focused(surface);
 }
 
 void Keyboard::setKeymap(const QWaylandKeymap &keymap)
@@ -170,28 +197,42 @@ void Keyboard::keyboard_destroy_resource(wl_keyboard::Resource *resource)
         m_focusResource = 0;
 }
 
+void Keyboard::key(uint32_t serial, uint32_t time, uint32_t key, uint32_t state)
+{
+    if (m_focusResource) {
+        send_key(m_focusResource->handle, serial, time, key, state);
+    }
+}
+
 void Keyboard::sendKeyEvent(uint code, uint32_t state)
 {
     // There must be no keys pressed when changing the keymap,
     // see http://lists.freedesktop.org/archives/wayland-devel/2013-October/011395.html
     if (m_pendingKeymap && m_keys.isEmpty())
         updateKeymap();
-    if (m_focusResource) {
-        uint32_t time = m_compositor->currentTimeMsecs();
-        uint32_t serial = wl_display_next_serial(m_compositor->wl_display());
-        uint key = code - 8;
-        send_key(m_focusResource->handle, serial, time, key, state);
-        if (state == WL_KEYBOARD_KEY_STATE_PRESSED) {
-            m_keys << key;
-        } else {
-            for (int i = 0; i < m_keys.size(); ++i) {
-                if (m_keys.at(i) == key) {
-                    m_keys.remove(i);
-                }
+
+    uint32_t time = m_compositor->currentTimeMsecs();
+    uint32_t serial = wl_display_next_serial(m_compositor->wl_display());
+    uint key = code - 8;
+    m_grab->key(serial, time, key, state);
+    if (state == WL_KEYBOARD_KEY_STATE_PRESSED) {
+        m_keys << key;
+    } else {
+        for (int i = 0; i < m_keys.size(); ++i) {
+            if (m_keys.at(i) == key) {
+                m_keys.remove(i);
             }
         }
     }
     updateModifierState(code, state);
+}
+
+void Keyboard::modifiers(uint32_t serial, uint32_t mods_depressed,
+                         uint32_t mods_latched, uint32_t mods_locked, uint32_t group)
+{
+    if (m_focusResource) {
+        send_modifiers(m_focusResource->handle, serial, mods_depressed, mods_latched, mods_locked, group);
+    }
 }
 
 void Keyboard::updateModifierState(uint code, uint32_t state)
@@ -215,8 +256,7 @@ void Keyboard::updateModifierState(uint code, uint32_t state)
     m_modsLocked = modsLocked;
     m_group = group;
 
-    if (m_focusResource)
-        sendKeyModifiers(m_focusResource, wl_display_next_serial(m_compositor->wl_display()));
+    m_grab->modifiers(wl_display_next_serial(m_compositor->wl_display()), m_modsDepressed, m_modsLatched, m_modsLocked, m_group);
 #else
     Q_UNUSED(code);
     Q_UNUSED(state);

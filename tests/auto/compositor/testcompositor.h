@@ -45,6 +45,8 @@
 class TestCompositor : public QWaylandCompositor
 {
 public:
+    TestCompositor(QWaylandCompositor::ExtensionFlag flags = QWaylandCompositor::DefaultExtensions);
+
     void surfaceCreated(QWaylandSurface *surface);
     void surfaceAboutToBeDestroyed(QWaylandSurface *surface);
 

@@ -1,6 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (c) 2014 LG Electronics, Inc., author: <mikko.levonmaa@lge.com>
+**
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the test suite of the Qt Toolkit.
@@ -39,20 +40,27 @@
 **
 ****************************************************************************/
 
-#include "testcompositor.h"
+#include "QtCompositor/private/qwlkeyboard_p.h"
+#include "QtCompositor/private/qwlsurface_p.h"
 
-TestCompositor::TestCompositor(QWaylandCompositor::ExtensionFlag flags) : QWaylandCompositor(0, 0, flags)
+class TestKeyboardGrabber : public QObject, public QtWayland::KeyboardGrabber
 {
-}
+    Q_OBJECT
 
-void TestCompositor::surfaceCreated(QWaylandSurface *surface)
-{
-    surfaces << surface;
-}
+public:
 
-void TestCompositor::surfaceAboutToBeDestroyed(QWaylandSurface *surface)
-{
-    surfaces.removeOne(surface);
-}
+    TestKeyboardGrabber() {}
+    ~TestKeyboardGrabber() {}
+
+    void focused(QtWayland::Surface *surface);
+    void key(uint32_t serial, uint32_t time, uint32_t key, uint32_t state);
+    void modifiers(uint32_t serial, uint32_t mods_depressed,
+            uint32_t mods_latched, uint32_t mods_locked, uint32_t group);
+
+signals:
+    void focusedCalled();
+    void keyCalled();
+    void modifiersCalled();
+};
 
 

@@ -88,10 +88,6 @@ public:
 
     using QtWaylandServer::wl_surface::resource;
 
-    QPointF pos() const;
-    QPointF nonAdjustedPos() const;
-    void setPos(const QPointF  &pos);
-
     QSize size() const;
     void setSize(const QSize &size);
 
@@ -161,6 +157,7 @@ protected:
 
     QRegion m_damage;
     SurfaceBuffer *m_buffer;
+    ShellSurface *m_shellSurface;
     QWaylandBufferRef m_bufferRef;
     bool m_surfaceMapped;
     QWaylandBufferAttacher *m_attacher;
@@ -180,7 +177,6 @@ protected:
 
     ExtendedSurface *m_extendedSurface;
     SubSurface *m_subSurface;
-    ShellSurface *m_shellSurface;
     InputPanelSurface *m_inputPanelSurface;
 
     QRegion m_inputRegion;
@@ -188,7 +184,6 @@ protected:
 
     QVector<SurfaceBuffer *> m_bufferPool;
 
-    QPointF m_position;
     QSize m_size;
     QString m_className;
     QString m_title;
@@ -198,6 +193,8 @@ protected:
 
     void setBackBuffer(SurfaceBuffer *buffer);
     SurfaceBuffer *createSurfaceBuffer(struct ::wl_resource *buffer);
+
+    friend QWaylandSurface;
 };
 
 }

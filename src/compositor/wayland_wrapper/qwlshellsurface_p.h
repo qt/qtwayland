@@ -54,6 +54,8 @@
 
 QT_BEGIN_NAMESPACE
 
+class QWaylandSurfaceView;
+
 namespace QtWayland {
 
 class Compositor;
@@ -92,11 +94,10 @@ public:
     Surface *surface() const;
 
     void adjustPosInResize();
-    QPointF adjustedPosToTransientParent() const;
     void resetResizeGrabber();
     void resetMoveGrabber();
 
-    ShellSurface *transientParent() const;
+    Surface *transientParent() const;
     void setOffset(const QPointF &offset);
 
     QWaylandSurface::WindowType windowType() const;
@@ -107,12 +108,13 @@ public:
 private:
     Shell *m_shell;
     Surface *m_surface;
+    QWaylandSurfaceView *m_view;
 
     ShellSurfaceResizeGrabber *m_resizeGrabber;
     ShellSurfaceMoveGrabber *m_moveGrabber;
     ShellSurfacePopupGrabber *m_popupGrabber;
 
-    ShellSurface *m_transientParent;
+    Surface *m_transientParent;
 
     int32_t m_xOffset;
     int32_t m_yOffset;
@@ -158,6 +160,8 @@ private:
                                  const QString &title) Q_DECL_OVERRIDE;
     void shell_surface_set_class(Resource *resource,
                                  const QString &class_) Q_DECL_OVERRIDE;
+
+    friend class ShellSurfaceMoveGrabber;
 };
 
 class ShellSurfaceGrabber : public PointerGrabber

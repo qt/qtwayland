@@ -43,6 +43,7 @@
 
 #include "qwlcompositor_p.h"
 #include "qwlsurface_p.h"
+#include "qwaylandsurfaceview.h"
 
 namespace QtWayland {
 
@@ -57,14 +58,14 @@ Touch::Touch(Compositor *compositor)
     connect(&m_focusDestroyListener, &WlListener::fired, this, &Touch::focusDestroyed);
 }
 
-void Touch::setFocus(Surface *surface)
+void Touch::setFocus(QWaylandSurfaceView *surface)
 {
     m_focusDestroyListener.reset();
     if (surface)
-        m_focusDestroyListener.listenForDestruction(surface->resource()->handle);
+        m_focusDestroyListener.listenForDestruction(surface->surface()->handle()->resource()->handle);
 
     m_focus = surface;
-    m_focusResource = surface ? resourceMap().value(surface->resource()->client()) : 0;
+    m_focusResource = surface ? resourceMap().value(surface->surface()->handle()->resource()->client()) : 0;
 }
 
 void Touch::startGrab(TouchGrabber *grab)
@@ -121,7 +122,7 @@ void Touch::down(uint32_t time, int touch_id, const QPointF &position)
 
     uint32_t serial = wl_display_next_serial(m_compositor->wl_display());
 
-    send_down(m_focusResource->handle, serial, time, m_focus->resource()->handle, touch_id,
+    send_down(m_focusResource->handle, serial, time, m_focus->surface()->handle()->resource()->handle, touch_id,
               wl_fixed_from_double(position.x()), wl_fixed_from_double(position.y()));
 }
 

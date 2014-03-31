@@ -41,6 +41,7 @@
 #include "qwaylandcompositor.h"
 
 #include "qwaylandinput.h"
+#include "qwaylandsurfaceview.h"
 
 #include "wayland_wrapper/qwlcompositor_p.h"
 #include "wayland_wrapper/qwldatadevice_p.h"
@@ -149,17 +150,18 @@ void QWaylandCompositor::surfaceAboutToBeDestroyed(QWaylandSurface *surface)
     Q_UNUSED(surface);
 }
 
-QWaylandSurface *QWaylandCompositor::pickSurface(const QPointF &globalPosition) const
+QWaylandSurfaceView *QWaylandCompositor::pickView(const QPointF &globalPosition) const
 {
     Q_FOREACH (QtWayland::Surface *surface, m_compositor->surfaces()) {
-        if (QRectF(surface->pos(), surface->size()).contains(globalPosition))
-            return surface->waylandSurface();
+        foreach (QWaylandSurfaceView *view, surface->waylandSurface()->views())
+            if (QRectF(view->pos(), surface->size()).contains(globalPosition))
+                return view;
     }
 
     return 0;
 }
 
-QPointF QWaylandCompositor::mapToSurface(QWaylandSurface *surface, const QPointF &globalPosition) const
+QPointF QWaylandCompositor::mapToView(QWaylandSurfaceView *surface, const QPointF &globalPosition) const
 {
     return globalPosition - surface->pos();
 }
@@ -280,6 +282,11 @@ void QWaylandCompositor::setCursorSurface(QWaylandSurface *surface, int hotspotX
 void QWaylandCompositor::configureTouchExtension(TouchExtensionFlags flags)
 {
     m_compositor->configureTouchExtension(flags);
+}
+
+QWaylandSurfaceView *QWaylandCompositor::createView(QWaylandSurface *surface)
+{
+    return new QWaylandSurfaceView(surface);
 }
 
 QT_END_NAMESPACE

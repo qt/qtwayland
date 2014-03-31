@@ -73,52 +73,25 @@ public:
     QSGTexture *t;
 };
 
-QWaylandSurfaceItem::QWaylandSurfaceItem(QQuickItem *parent)
+QWaylandSurfaceItem::QWaylandSurfaceItem(QWaylandQuickSurface *surface, QQuickItem *parent)
     : QQuickItem(parent)
-    , m_surface(0)
+    , QWaylandSurfaceView(surface)
     , m_provider(0)
     , m_paintEnabled(true)
     , m_touchEventsEnabled(false)
     , m_resizeSurfaceToItem(false)
     , m_newTexture(false)
+
 {
     if (!mutex)
         mutex = new QMutex;
 
-        setFlag(ItemHasContents);
-}
+    setFlag(ItemHasContents);
 
-QWaylandSurfaceItem::QWaylandSurfaceItem(QWaylandQuickSurface *surface, QQuickItem *parent)
-    : QQuickItem(parent)
-    , m_surface(0)
-    , m_provider(0)
-    , m_paintEnabled(true)
-    , m_touchEventsEnabled(false)
-    , m_resizeSurfaceToItem(false)
-{
-    init(surface);
-}
-
-void QWaylandSurfaceItem::init(QWaylandQuickSurface *surface)
-{
-    if (m_surface)
-        m_surface->destroy();
-
-    if (!surface)
-        return;
-
-    m_surface = surface;
-    surface->ref();
     update();
 
-    if (m_resizeSurfaceToItem) {
-        updateSurfaceSize();
-    } else {
-        setWidth(surface->size().width());
-        setHeight(surface->size().height());
-    }
-
-    updatePosition();
+    setWidth(surface->size().width());
+    setHeight(surface->size().height());
 
     setSmooth(true);
 
@@ -133,11 +106,11 @@ void QWaylandSurfaceItem::init(QWaylandQuickSurface *surface)
     connect(surface, &QWaylandSurface::surfaceDestroyed, this, &QWaylandSurfaceItem::surfaceDestroyed);
     connect(surface, &QWaylandSurface::parentChanged, this, &QWaylandSurfaceItem::parentChanged);
     connect(surface, &QWaylandSurface::sizeChanged, this, &QWaylandSurfaceItem::updateSize);
-    connect(surface, &QWaylandSurface::posChanged, this, &QWaylandSurfaceItem::updatePosition);
     connect(surface, &QWaylandSurface::configure, this, &QWaylandSurfaceItem::updateBuffer);
     connect(surface, &QWaylandSurface::redraw, this, &QQuickItem::update);
     connect(this, &QWaylandSurfaceItem::widthChanged, this, &QWaylandSurfaceItem::updateSurfaceSize);
     connect(this, &QWaylandSurfaceItem::heightChanged, this, &QWaylandSurfaceItem::updateSurfaceSize);
+
 
     m_yInverted = surface ? surface->isYInverted() : true;
     emit yInvertedChanged();
@@ -146,19 +119,8 @@ void QWaylandSurfaceItem::init(QWaylandQuickSurface *surface)
 QWaylandSurfaceItem::~QWaylandSurfaceItem()
 {
     QMutexLocker locker(mutex);
-    if (m_surface)
-        m_surface->destroy();
     if (m_provider)
         m_provider->deleteLater();
-}
-
-void QWaylandSurfaceItem::setSurface(QWaylandQuickSurface *surface)
-{
-    if (surface == m_surface)
-        return;
-
-    init(surface);
-    emit surfaceChanged();
 }
 
 bool QWaylandSurfaceItem::isYInverted() const
@@ -175,65 +137,55 @@ QSGTextureProvider *QWaylandSurfaceItem::textureProvider() const
 
 void QWaylandSurfaceItem::mousePressEvent(QMouseEvent *event)
 {
-    if (m_surface) {
-        QWaylandInputDevice *inputDevice = m_surface->compositor()->defaultInputDevice();
-        if (inputDevice->mouseFocus() != m_surface)
-            inputDevice->setMouseFocus(m_surface, event->localPos(), event->windowPos());
-        inputDevice->sendMousePressEvent(event->button(), event->localPos(), event->windowPos());
-    }
+    QWaylandInputDevice *inputDevice = compositor()->defaultInputDevice();
+    if (inputDevice->mouseFocus() != this)
+        inputDevice->setMouseFocus(this, event->localPos(), event->windowPos());
+    inputDevice->sendMousePressEvent(event->button(), event->localPos(), event->windowPos());
 }
 
 void QWaylandSurfaceItem::mouseMoveEvent(QMouseEvent *event)
 {
-    if (m_surface){
-        QWaylandInputDevice *inputDevice = m_surface->compositor()->defaultInputDevice();
-        inputDevice->sendMouseMoveEvent(m_surface, event->localPos(), event->windowPos());
-    }
+    QWaylandInputDevice *inputDevice = compositor()->defaultInputDevice();
+    inputDevice->sendMouseMoveEvent(this, event->localPos(), event->windowPos());
 }
 
 void QWaylandSurfaceItem::mouseReleaseEvent(QMouseEvent *event)
 {
-    if (m_surface){
-        QWaylandInputDevice *inputDevice = m_surface->compositor()->defaultInputDevice();
-        inputDevice->sendMouseReleaseEvent(event->button(), event->localPos(), event->windowPos());
-    }
+    QWaylandInputDevice *inputDevice = compositor()->defaultInputDevice();
+    inputDevice->sendMouseReleaseEvent(event->button(), event->localPos(), event->windowPos());
 }
 
 void QWaylandSurfaceItem::wheelEvent(QWheelEvent *event)
 {
-    if (m_surface) {
-        QWaylandInputDevice *inputDevice = m_surface->compositor()->defaultInputDevice();
-        inputDevice->sendMouseWheelEvent(event->orientation(), event->delta());
-    }
+    QWaylandInputDevice *inputDevice = compositor()->defaultInputDevice();
+    inputDevice->sendMouseWheelEvent(event->orientation(), event->delta());
 }
 
 void QWaylandSurfaceItem::keyPressEvent(QKeyEvent *event)
 {
-    if (m_surface && hasFocus()) {
-        QWaylandInputDevice *inputDevice = m_surface->compositor()->defaultInputDevice();
-        inputDevice->sendFullKeyEvent(event);
-    }
+    QWaylandInputDevice *inputDevice = compositor()->defaultInputDevice();
+    inputDevice->sendFullKeyEvent(event);
 }
 
 void QWaylandSurfaceItem::keyReleaseEvent(QKeyEvent *event)
 {
-    if (m_surface && hasFocus()) {
-        QWaylandInputDevice *inputDevice = m_surface->compositor()->defaultInputDevice();
+    if (surface() && hasFocus()) {
+        QWaylandInputDevice *inputDevice = compositor()->defaultInputDevice();
         inputDevice->sendFullKeyEvent(event);
     }
 }
 
 void QWaylandSurfaceItem::touchEvent(QTouchEvent *event)
 {
-    if (m_touchEventsEnabled && m_surface) {
-        QWaylandInputDevice *inputDevice = m_surface->compositor()->defaultInputDevice();
+    if (m_touchEventsEnabled) {
+        QWaylandInputDevice *inputDevice = compositor()->defaultInputDevice();
         event->accept();
-        if (inputDevice->mouseFocus() != m_surface) {
+        if (inputDevice->mouseFocus() != this) {
             QPoint pointPos;
             QList<QTouchEvent::TouchPoint> points = event->touchPoints();
             if (!points.isEmpty())
                 pointPos = points.at(0).pos().toPoint();
-            inputDevice->setMouseFocus(m_surface, pointPos, pointPos);
+            inputDevice->setMouseFocus(this, pointPos, pointPos);
         }
         inputDevice->sendFullTouchEvent(event);
     } else {
@@ -245,10 +197,8 @@ void QWaylandSurfaceItem::takeFocus()
 {
     setFocus(true);
 
-    if (m_surface) {
-        QWaylandInputDevice *inputDevice = m_surface->compositor()->defaultInputDevice();
-        inputDevice->setKeyboardFocus(m_surface);
-    }
+    QWaylandInputDevice *inputDevice = compositor()->defaultInputDevice();
+    inputDevice->setKeyboardFocus(surface());
 }
 
 void QWaylandSurfaceItem::surfaceMapped()
@@ -275,19 +225,24 @@ void QWaylandSurfaceItem::parentChanged(QWaylandSurface *newParent, QWaylandSurf
 
 void QWaylandSurfaceItem::updateSize()
 {
-    setSize(m_surface->size());
+    setSize(surface()->size());
 }
 
 void QWaylandSurfaceItem::updateSurfaceSize()
 {
     if (m_resizeSurfaceToItem) {
-        m_surface->requestSize(QSize(width(), height()));
+        surface()->requestSize(QSize(width(), height()));
     }
 }
 
-void QWaylandSurfaceItem::updatePosition()
+void QWaylandSurfaceItem::setPos(const QPointF &pos)
 {
-    setPosition(m_surface->pos());
+    setPosition(pos);
+}
+
+QPointF QWaylandSurfaceItem::pos() const
+{
+    return position();
 }
 
 /*!
@@ -323,19 +278,14 @@ void QWaylandSurfaceItem::updateBuffer(bool hasBuffer)
 
 QSGNode *QWaylandSurfaceItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *)
 {
-    if (!m_surface) {
-        delete oldNode;
-        return 0;
-    }
-
     if (!m_provider)
         m_provider = new QWaylandSurfaceTextureProvider();
 
     // Order here is important, as the state of visible is that of the pending
     // buffer but will be replaced after we advance the buffer queue.
-    bool mapped = m_surface->isMapped();
+    bool mapped = surface()->isMapped();
     if (mapped)
-        m_provider->t = surface()->texture();
+        m_provider->t = static_cast<QWaylandQuickSurface *>(surface())->texture();
     m_provider->smooth = smooth();
     if (m_newTexture)
         emit m_provider->textureChanged();

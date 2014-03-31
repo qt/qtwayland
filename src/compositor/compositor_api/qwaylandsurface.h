@@ -56,6 +56,7 @@ class QTouchEvent;
 class QWaylandSurfacePrivate;
 class QWaylandCompositor;
 class QWaylandBufferRef;
+class QWaylandSurfaceView;
 
 namespace QtWayland {
 class Surface;
@@ -79,7 +80,6 @@ class Q_COMPOSITOR_EXPORT QWaylandSurface : public QObject
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandSurface)
     Q_PROPERTY(QSize size READ size NOTIFY sizeChanged)
-    Q_PROPERTY(QPointF pos READ pos WRITE setPos NOTIFY posChanged)
     Q_PROPERTY(QWaylandSurface::WindowFlags windowFlags READ windowFlags NOTIFY windowFlagsChanged)
     Q_PROPERTY(QWaylandSurface::WindowType windowType READ windowType NOTIFY windowTypeChanged)
     Q_PROPERTY(Qt::ScreenOrientation contentOrientation READ contentOrientation NOTIFY contentOrientationChanged)
@@ -127,8 +127,6 @@ public:
     bool visible() const;
     bool isMapped() const;
 
-    QPointF pos() const;
-    void setPos(const QPointF &pos);
     QSize size() const;
     Q_INVOKABLE void requestSize(const QSize &size);
 
@@ -152,9 +150,6 @@ public:
     QVariantMap windowProperties() const;
     void setWindowProperty(const QString &name, const QVariant &value);
 
-    QPointF mapToParent(const QPointF &) const;
-    QPointF mapTo(QWaylandSurface *, const QPointF &) const;
-
     QWaylandCompositor *compositor() const;
 
     QString className() const;
@@ -175,6 +170,8 @@ public:
     void setBufferAttacher(QWaylandBufferAttacher *attacher);
     QWaylandBufferAttacher *bufferAttacher() const;
 
+    QList<QWaylandSurfaceView *> views() const;
+
 public slots:
     void updateSelection();
 
@@ -187,7 +184,6 @@ signals:
     void damaged(const QRegion &rect);
     void parentChanged(QWaylandSurface *newParent, QWaylandSurface *oldParent);
     void sizeChanged();
-    void posChanged();
     void windowPropertyChanged(const QString &name, const QVariant &value);
     void windowFlagsChanged(WindowFlags flags);
     void windowTypeChanged(WindowType type);
@@ -204,6 +200,8 @@ signals:
 
     void configure(bool hasBuffer);
     void redraw();
+
+    friend class QWaylandSurfaceView;
 };
 
 QT_END_NAMESPACE

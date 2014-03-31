@@ -41,6 +41,8 @@
 #include "qwaylandquickcompositor.h"
 #include "qwaylandquicksurface.h"
 
+#include <QtCompositor/qwaylandsurfaceitem.h>
+
 #include <QGuiApplication>
 #include <QTimer>
 #include <QPainter>
@@ -72,6 +74,11 @@ public:
     QWaylandQuickSurface *fullscreenSurface() const
     {
         return m_fullscreenSurface;
+    }
+
+    Q_INVOKABLE QWaylandSurfaceItem *item(QWaylandSurface *surf)
+    {
+        return static_cast<QWaylandSurfaceItem *>(surf->views().first());
     }
 
 signals:

@@ -46,6 +46,8 @@
 
 QT_BEGIN_NAMESPACE
 
+class QWaylandSurfaceView;
+
 namespace QtWayland {
 
 class Compositor;
@@ -60,9 +62,9 @@ public:
 
     void setFocus(QtWaylandServer::wl_keyboard::Resource *focusResource);
 
-    void setDragFocus(Surface *focus, const QPointF &localPosition);
+    void setDragFocus(QWaylandSurfaceView *focus, const QPointF &localPosition);
 
-    Surface *dragIcon() const;
+    QWaylandSurfaceView *dragIcon() const;
 
     void sourceDestroyed(DataSource *source);
 
@@ -82,10 +84,10 @@ private:
     struct ::wl_client *m_dragClient;
     DataSource *m_dragDataSource;
 
-    Surface *m_dragFocus;
+    QWaylandSurfaceView *m_dragFocus;
     Resource *m_dragFocusResource;
 
-    Surface *m_dragIcon;
+    QWaylandSurfaceView *m_dragIcon;
 };
 
 }

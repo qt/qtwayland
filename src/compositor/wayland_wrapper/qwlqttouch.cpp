@@ -40,6 +40,7 @@
 
 #include "qwlqttouch_p.h"
 #include "qwlsurface_p.h"
+#include "qwaylandsurfaceview.h"
 #include <QTouchEvent>
 #include <QWindow>
 
@@ -67,15 +68,15 @@ static inline int toFixed(qreal f)
     return int(f * 10000);
 }
 
-bool TouchExtensionGlobal::postTouchEvent(QTouchEvent *event, Surface *surface)
+bool TouchExtensionGlobal::postTouchEvent(QTouchEvent *event, QWaylandSurfaceView *view)
 {
     const QList<QTouchEvent::TouchPoint> points = event->touchPoints();
     const int pointCount = points.count();
     if (!pointCount)
         return false;
 
-    QPointF surfacePos = surface->pos();
-    wl_client *surfaceClient = surface->resource()->client();
+    QPointF surfacePos = view->pos();
+    wl_client *surfaceClient = view->surface()->handle()->resource()->client();
     uint32_t time = m_compositor->currentTimeMsecs();
     const int rescount = m_resources.count();
 

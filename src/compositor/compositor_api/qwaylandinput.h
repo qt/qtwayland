@@ -51,6 +51,7 @@ class QWaylandCompositor;
 class QWaylandSurface;
 class QKeyEvent;
 class QTouchEvent;
+class QWaylandSurfaceView;
 
 QT_BEGIN_NAMESPACE
 
@@ -87,7 +88,7 @@ public:
     void sendMousePressEvent(Qt::MouseButton button, const QPointF &localPos, const QPointF &globalPos = QPointF());
     void sendMouseReleaseEvent(Qt::MouseButton button, const QPointF &localPos, const QPointF &globalPos = QPointF());
     void sendMouseMoveEvent(const QPointF &localPos, const QPointF &globalPos = QPointF());
-    void sendMouseMoveEvent(QWaylandSurface *surface , const QPointF &localPos, const QPointF &globalPos = QPointF());
+    void sendMouseMoveEvent(QWaylandSurfaceView *surface , const QPointF &localPos, const QPointF &globalPos = QPointF());
     void sendMouseWheelEvent(Qt::Orientation orientation, int delta);
 
     void sendKeyPressEvent(uint code);
@@ -106,8 +107,8 @@ public:
     bool setKeyboardFocus(QWaylandSurface *surface);
     void setKeymap(const QWaylandKeymap &keymap);
 
-    QWaylandSurface *mouseFocus() const;
-    void setMouseFocus(QWaylandSurface *surface, const QPointF &local_pos, const QPointF &global_pos = QPointF());
+    QWaylandSurfaceView *mouseFocus() const;
+    void setMouseFocus(QWaylandSurfaceView *surface, const QPointF &local_pos, const QPointF &global_pos = QPointF());
 
     QWaylandCompositor *compositor() const;
     QtWayland::InputDevice *handle() const;

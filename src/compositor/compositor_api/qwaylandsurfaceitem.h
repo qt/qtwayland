@@ -48,6 +48,7 @@
 
 #include <QtQuick/qsgtextureprovider.h>
 
+#include "qwaylandsurfaceview.h"
 #include "qwaylandquicksurface.h"
 
 QT_BEGIN_NAMESPACE
@@ -57,22 +58,18 @@ class QMutex;
 
 Q_DECLARE_METATYPE(QWaylandQuickSurface*)
 
-class QWaylandSurfaceItem : public QQuickItem
+class QWaylandSurfaceItem : public QQuickItem, public QWaylandSurfaceView
 {
     Q_OBJECT
-    Q_PROPERTY(QWaylandQuickSurface* surface READ surface WRITE setSurface NOTIFY surfaceChanged)
+    Q_PROPERTY(QWaylandSurface* surface READ surface CONSTANT)
     Q_PROPERTY(bool paintEnabled READ paintEnabled WRITE setPaintEnabled)
     Q_PROPERTY(bool touchEventsEnabled READ touchEventsEnabled WRITE setTouchEventsEnabled NOTIFY touchEventsEnabledChanged)
     Q_PROPERTY(bool isYInverted READ isYInverted NOTIFY yInvertedChanged)
     Q_PROPERTY(bool resizeSurfaceToItem READ resizeSurfaceToItem WRITE setResizeSurfaceToItem NOTIFY resizeSurfaceToItemChanged)
 
 public:
-    QWaylandSurfaceItem(QQuickItem *parent = 0);
     QWaylandSurfaceItem(QWaylandQuickSurface *surface, QQuickItem *parent = 0);
     ~QWaylandSurfaceItem();
-
-    void setSurface(QWaylandQuickSurface *surface);
-    QWaylandQuickSurface *surface() const {return m_surface; }
 
     Q_INVOKABLE bool isYInverted() const;
 
@@ -85,6 +82,9 @@ public:
 
     void setTouchEventsEnabled(bool enabled);
     void setResizeSurfaceToItem(bool enabled);
+
+    void setPos(const QPointF &pos) Q_DECL_OVERRIDE;
+    QPointF pos() const Q_DECL_OVERRIDE;
 
 protected:
     void mousePressEvent(QMouseEvent *event);
@@ -107,13 +107,11 @@ private slots:
     void parentChanged(QWaylandSurface *newParent, QWaylandSurface *oldParent);
     void updateSize();
     void updateSurfaceSize();
-    void updatePosition();
     void updateBuffer(bool hasBuffer);
 
 signals:
     void touchEventsEnabledChanged();
     void yInvertedChanged();
-    void surfaceChanged();
     void resizeSurfaceToItemChanged();
     void surfaceDestroyed();
 
@@ -127,7 +125,6 @@ private:
 
     static QMutex *mutex;
 
-    QWaylandQuickSurface *m_surface;
     mutable QWaylandSurfaceTextureProvider *m_provider;
     bool m_paintEnabled;
     bool m_touchEventsEnabled;

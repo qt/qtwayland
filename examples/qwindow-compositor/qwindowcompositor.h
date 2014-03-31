@@ -50,6 +50,8 @@
 #include <QObject>
 #include <QTimer>
 
+class QWaylandSurfaceView;
+
 class QWindowCompositor : public QObject, public QWaylandCompositor
 {
     Q_OBJECT
@@ -69,14 +71,10 @@ protected:
     void surfaceCommitted(QWaylandSurface *surface);
     void surfaceCreated(QWaylandSurface *surface);
 
-    QWaylandSurface* surfaceAt(const QPointF &point, QPointF *local = 0);
-
-    GLuint composeSurface(QWaylandSurface *surface);
-    void paintChildren(QWaylandSurface *surface, QWaylandSurface *window, const QSize &windowSize);
-
+    QWaylandSurfaceView* viewAt(const QPointF &point, QPointF *local = 0);
 
     bool eventFilter(QObject *obj, QEvent *event);
-    QPointF toSurface(QWaylandSurface *surface, const QPointF &pos) const;
+    QPointF toView(QWaylandSurfaceView *view, const QPointF &pos) const;
 
     void setCursorSurface(QWaylandSurface *surface, int hotspotX, int hotspotY);
 
@@ -88,6 +86,8 @@ private slots:
     void updateCursor(bool hasBuffer);
 
 private:
+    void drawSubSurface(const QPoint &offset, QWaylandSurface *surface);
+
     QOpenGLWindow *m_window;
     QImage m_backgroundImage;
     GLuint m_backgroundTexture;
@@ -97,7 +97,7 @@ private:
     QTimer m_renderScheduler;
 
     //Dragging windows around
-    QWaylandSurface *m_draggingWindow;
+    QWaylandSurfaceView *m_draggingWindow;
     bool m_dragKeyIsPressed;
     QPointF m_drag_diff;
 

@@ -39,29 +39,51 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDQUICKCOMPOSITOR_H
-#define QWAYLANDQUICKCOMPOSITOR_H
-
-#include <QtCompositor/qwaylandcompositor.h>
+#include "qwaylandsurfaceview.h"
+#include "qwaylandsurface.h"
+#include "qwaylandsurface_p.h"
 
 QT_BEGIN_NAMESPACE
 
-class QQuickWindow;
-class QWaylandQuickCompositorPrivate;
-class QWaylandSurfaceView;
-
-class Q_COMPOSITOR_EXPORT QWaylandQuickCompositor : public QWaylandCompositor
+class QWaylandSurfaceViewPrivate
 {
 public:
-    QWaylandQuickCompositor(QQuickWindow *window = 0, const char *socketName = 0, QWaylandCompositor::ExtensionFlags extensions = DefaultExtensions);
-
-    void update();
-
-    QWaylandSurfaceView *createView(QWaylandSurface *surf) Q_DECL_OVERRIDE;
-
-private:
-    friend class QWaylandQuickCompositorPrivate;
-    QWaylandQuickCompositorPrivate *d_ptr();
+    QWaylandSurface *surface;
+    QPointF pos;
 };
 
-#endif
+QWaylandSurfaceView::QWaylandSurfaceView(QWaylandSurface *surf)
+                   : d(new QWaylandSurfaceViewPrivate)
+{
+    d->surface = surf;
+    surf->d_func()->views << this;
+    surf->ref();
+}
+
+QWaylandSurfaceView::~QWaylandSurfaceView()
+{
+    d->surface->destroy();
+    delete d;
+}
+
+QWaylandSurface *QWaylandSurfaceView::surface() const
+{
+    return d->surface;
+}
+
+QWaylandCompositor *QWaylandSurfaceView::compositor() const
+{
+    return d->surface->compositor();
+}
+
+void QWaylandSurfaceView::setPos(const QPointF &pos)
+{
+    d->pos = pos;
+}
+
+QPointF QWaylandSurfaceView::pos() const
+{
+    return d->pos;
+}
+
+QT_END_NAMESPACE

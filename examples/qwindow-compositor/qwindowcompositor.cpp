@@ -53,6 +53,7 @@
 
 #include <QtCompositor/qwaylandinput.h>
 #include <QtCompositor/qwaylandbufferref.h>
+#include <QtCompositor/qwaylandsurfaceview.h>
 
 static GLuint textureFromImage(const QImage &image)
 {
@@ -187,7 +188,8 @@ void QWindowCompositor::surfaceMapped()
             py = 1 + (qrand() % (m_window->height() - surface->size().height() - 2));
         }
         pos = QPoint(px, py);
-        surface->setPos(pos);
+        QWaylandSurfaceView *view = surface->views().first();
+        view->setPos(pos);
     } else {
         m_surfaces.removeOne(surface);
     }
@@ -232,7 +234,6 @@ void QWindowCompositor::surfaceCreated(QWaylandSurface *surface)
     connect(surface, SIGNAL(unmapped()), this, SLOT(surfaceUnmapped()));
     connect(surface, SIGNAL(redraw()), this, SLOT(surfaceCommitted()));
     connect(surface, SIGNAL(extendedSurfaceReady()), this, SLOT(sendExpose()));
-    connect(surface, SIGNAL(posChanged()), this, SLOT(surfacePosChanged()));
     m_renderScheduler.start(0);
 
     surface->setBufferAttacher(new BufferAttacher);
@@ -262,9 +263,9 @@ void QWindowCompositor::updateCursor(bool hasBuffer)
     }
 }
 
-QPointF QWindowCompositor::toSurface(QWaylandSurface *surface, const QPointF &pos) const
+QPointF QWindowCompositor::toView(QWaylandSurfaceView *view, const QPointF &pos) const
 {
-    return pos - surface->pos();
+    return pos - view->pos();
 }
 
 void QWindowCompositor::setCursorSurface(QWaylandSurface *surface, int hotspotX, int hotspotY)
@@ -279,61 +280,21 @@ void QWindowCompositor::setCursorSurface(QWaylandSurface *surface, int hotspotX,
         m_cursorSurface->setBufferAttacher(new BufferAttacher);
 }
 
-QWaylandSurface *QWindowCompositor::surfaceAt(const QPointF &point, QPointF *local)
+QWaylandSurfaceView *QWindowCompositor::viewAt(const QPointF &point, QPointF *local)
 {
     for (int i = m_surfaces.size() - 1; i >= 0; --i) {
         QWaylandSurface *surface = m_surfaces.at(i);
-        QRectF geo(surface->pos(), surface->size());
-        if (geo.contains(point)) {
-            if (local)
-                *local = toSurface(surface, point);
-            return surface;
+        foreach (QWaylandSurfaceView *view, surface->views()) {
+            QRectF geo(view->pos(), surface->size());
+            if (geo.contains(point)) {
+                if (local)
+                    *local = toView(view, point);
+                return view;
+            }
         }
     }
     return 0;
 }
-
-GLuint QWindowCompositor::composeSurface(QWaylandSurface *surface)
-{
-    QSize windowSize = surface->size();
-
-    QOpenGLFunctions *functions = QOpenGLContext::currentContext()->functions();
-    functions->glBindFramebuffer(GL_FRAMEBUFFER, m_surface_fbo);
-
-    GLuint texture = static_cast<BufferAttacher *>(surface->bufferAttacher())->texture;
-
-    functions->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-                                       GL_TEXTURE_2D, texture, 0);
-    paintChildren(surface, surface,windowSize);
-    functions->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-                                       GL_TEXTURE_2D,0, 0);
-
-    functions->glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-
-    return texture;
-}
-
-void QWindowCompositor::paintChildren(QWaylandSurface *surface, QWaylandSurface *window, const QSize &windowSize) {
-
-    if (surface->subSurfaces().size() == 0)
-        return;
-
-    QLinkedListIterator<QWaylandSurface *> i(surface->subSurfaces());
-    while (i.hasNext()) {
-        QWaylandSurface *subSurface = i.next();
-        QPointF p = subSurface->mapTo(window,QPointF(0,0));
-        QSize subSize = subSurface->size();
-        if (subSize.isValid()) {
-            GLuint texture = static_cast<BufferAttacher *>(subSurface->bufferAttacher())->texture;
-            QRect geo(p.toPoint(),subSize);
-            if (texture > 0)
-                m_textureBlitter->drawTexture(texture,geo,windowSize,0,window->isYInverted(),subSurface->isYInverted());
-        }
-        paintChildren(subSurface,window,windowSize);
-    }
-}
-
 
 void QWindowCompositor::render()
 {
@@ -355,9 +316,14 @@ void QWindowCompositor::render()
     foreach (QWaylandSurface *surface, m_surfaces) {
         if (!surface->visible())
             continue;
-        GLuint texture = composeSurface(surface);
-        QRect geo(surface->pos().toPoint(),surface->size());
-        m_textureBlitter->drawTexture(texture,geo,m_window->size(),0,false,surface->isYInverted());
+        GLuint texture = static_cast<BufferAttacher *>(surface->bufferAttacher())->texture;
+        foreach (QWaylandSurfaceView *view, surface->views()) {
+            QRect geo(view->pos().toPoint(),surface->size());
+            m_textureBlitter->drawTexture(texture,geo,m_window->size(),0,false,surface->isYInverted());
+            foreach (QWaylandSurface *child, surface->subSurfaces()) {
+                drawSubSurface(view->pos().toPoint(), child);
+            }
+        }
     }
 
     m_textureBlitter->release();
@@ -365,6 +331,18 @@ void QWindowCompositor::render()
 
     // N.B. Never call glFinish() here as the busylooping with vsync 'feature' of the nvidia binary driver is not desirable.
     m_window->swapBuffers();
+}
+
+void QWindowCompositor::drawSubSurface(const QPoint &offset, QWaylandSurface *surface)
+{
+    GLuint texture = static_cast<BufferAttacher *>(surface->bufferAttacher())->texture;
+    QWaylandSurfaceView *view = surface->views().first();
+    QPoint pos = view->pos().toPoint() + offset;
+    QRect geo(pos, surface->size());
+    m_textureBlitter->drawTexture(texture, geo, m_window->size(), 0, false, surface->isYInverted());
+    foreach (QWaylandSurface *child, surface->subSurfaces()) {
+        drawSubSurface(pos, child);
+    }
 }
 
 bool QWindowCompositor::eventFilter(QObject *obj, QEvent *event)
@@ -394,15 +372,15 @@ bool QWindowCompositor::eventFilter(QObject *obj, QEvent *event)
     case QEvent::MouseButtonPress: {
         QPointF local;
         QMouseEvent *me = static_cast<QMouseEvent *>(event);
-        QWaylandSurface *targetSurface = surfaceAt(me->localPos(), &local);
-        if (m_dragKeyIsPressed && targetSurface) {
-            m_draggingWindow = targetSurface;
+        QWaylandSurfaceView *target = viewAt(me->localPos(), &local);
+        if (m_dragKeyIsPressed && target) {
+            m_draggingWindow = target;
             m_drag_diff = local;
         } else {
-            if (targetSurface && input->keyboardFocus() != targetSurface) {
-                input->setKeyboardFocus(targetSurface);
-                m_surfaces.removeOne(targetSurface);
-                m_surfaces.append(targetSurface);
+            if (target && input->keyboardFocus() != target->surface()) {
+                input->setKeyboardFocus(target->surface());
+                m_surfaces.removeOne(target->surface());
+                m_surfaces.append(target->surface());
                 m_renderScheduler.start(0);
             }
             input->sendMousePressEvent(me->button(), local, me->localPos());
@@ -410,15 +388,15 @@ bool QWindowCompositor::eventFilter(QObject *obj, QEvent *event)
         return true;
     }
     case QEvent::MouseButtonRelease: {
-        QWaylandSurface *targetSurface = input->mouseFocus();
+        QWaylandSurfaceView *target = input->mouseFocus();
         if (m_draggingWindow) {
             m_draggingWindow = 0;
             m_drag_diff = QPointF();
         } else {
             QMouseEvent *me = static_cast<QMouseEvent *>(event);
             QPointF localPos;
-            if (targetSurface)
-                localPos = toSurface(targetSurface, me->localPos());
+            if (target)
+                localPos = toView(target, me->localPos());
             input->sendMouseReleaseEvent(me->button(), localPos, me->localPos());
         }
         return true;
@@ -430,8 +408,8 @@ bool QWindowCompositor::eventFilter(QObject *obj, QEvent *event)
             m_renderScheduler.start(0);
         } else {
             QPointF local;
-            QWaylandSurface *targetSurface = surfaceAt(me->localPos(), &local);
-            input->sendMouseMoveEvent(targetSurface, local, me->localPos());
+            QWaylandSurfaceView *target = viewAt(me->localPos(), &local);
+            input->sendMouseMoveEvent(target, local, me->localPos());
         }
         break;
     }
@@ -466,16 +444,16 @@ bool QWindowCompositor::eventFilter(QObject *obj, QEvent *event)
     case QEvent::TouchUpdate:
     case QEvent::TouchEnd:
     {
-        QWaylandSurface *targetSurface = 0;
+        QWaylandSurfaceView *target = 0;
         QTouchEvent *te = static_cast<QTouchEvent *>(event);
         QList<QTouchEvent::TouchPoint> points = te->touchPoints();
         QPoint pointPos;
         if (!points.isEmpty()) {
             pointPos = points.at(0).pos().toPoint();
-            targetSurface = surfaceAt(pointPos);
+            target = viewAt(pointPos);
         }
-        if (targetSurface && targetSurface != input->mouseFocus())
-            input->setMouseFocus(targetSurface, pointPos, pointPos);
+        if (target && target != input->mouseFocus())
+            input->setMouseFocus(target, pointPos, pointPos);
         if (input->mouseFocus())
             input->sendFullTouchEvent(te);
         break;

@@ -87,7 +87,9 @@ Item {
         var windowContainer = windowContainerComponent.createObject(root);
         console.log(windowContainerComponent.errorString());
 
-        windowContainer.child.surface = window;
+        windowContainer.child = compositor.item(window);
+        windowContainer.child.parent = windowContainer;
+        windowContainer.child.touchEventsEnabled = true;
 
         windowContainer.targetWidth = window.size.width;
         windowContainer.targetHeight = window.size.height;

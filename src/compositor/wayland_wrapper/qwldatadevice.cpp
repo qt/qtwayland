@@ -51,6 +51,7 @@
 #include "qwldatadevicemanager_p.h"
 
 #include "qwaylanddrag.h"
+#include "qwaylandsurfaceview.h"
 
 #include <QDebug>
 
@@ -87,7 +88,7 @@ void DataDevice::setFocus(QtWaylandServer::wl_keyboard::Resource *focusResource)
     }
 }
 
-void DataDevice::setDragFocus(Surface *focus, const QPointF &localPosition)
+void DataDevice::setDragFocus(QWaylandSurfaceView *focus, const QPointF &localPosition)
 {
     if (m_dragFocusResource) {
         send_leave(m_dragFocusResource->handle);
@@ -98,10 +99,10 @@ void DataDevice::setDragFocus(Surface *focus, const QPointF &localPosition)
     if (!focus)
         return;
 
-    if (!m_dragDataSource && m_dragClient != focus->resource()->client())
+    if (!m_dragDataSource && m_dragClient != focus->surface()->handle()->resource()->client())
         return;
 
-    Resource *resource = resourceMap().value(focus->resource()->client());
+    Resource *resource = resourceMap().value(focus->surface()->handle()->resource()->client());
 
     if (!resource)
         return;
@@ -113,7 +114,7 @@ void DataDevice::setDragFocus(Surface *focus, const QPointF &localPosition)
     if (m_dragDataSource && !offer)
         return;
 
-    send_enter(resource->handle, serial, focus->resource()->handle,
+    send_enter(resource->handle, serial, focus->surface()->handle()->resource()->handle,
                wl_fixed_from_double(localPosition.x()), wl_fixed_from_double(localPosition.y()),
                offer->resource()->handle);
 
@@ -121,7 +122,7 @@ void DataDevice::setDragFocus(Surface *focus, const QPointF &localPosition)
     m_dragFocusResource = resource;
 }
 
-Surface *DataDevice::dragIcon() const
+QWaylandSurfaceView *DataDevice::dragIcon() const
 {
     return m_dragIcon;
 }
@@ -134,10 +135,10 @@ void DataDevice::sourceDestroyed(DataSource *source)
 
 void DataDevice::focus()
 {
-    Surface *focus = m_compositor->pickSurface(m_pointer->currentPosition());
+    QWaylandSurfaceView *focus = m_compositor->waylandCompositor()->pickView(m_pointer->currentPosition());
 
     if (focus != m_dragFocus)
-        setDragFocus(focus, m_compositor->mapToSurface(focus, m_pointer->currentPosition()));
+        setDragFocus(focus, m_compositor->waylandCompositor()->mapToView(focus, m_pointer->currentPosition()));
 }
 
 void DataDevice::motion(uint32_t time)
@@ -147,7 +148,7 @@ void DataDevice::motion(uint32_t time)
     }
 
     if (m_dragFocusResource && m_dragFocus) {
-        const QPointF &surfacePoint = m_compositor->mapToSurface(m_dragFocus, m_pointer->currentPosition());
+        const QPointF &surfacePoint = m_compositor->waylandCompositor()->mapToView(m_dragFocus, m_pointer->currentPosition());
         qDebug() << Q_FUNC_INFO << m_pointer->currentPosition() << surfacePoint;
         send_motion(m_dragFocusResource->handle, time,
                     wl_fixed_from_double(surfacePoint.x()), wl_fixed_from_double(surfacePoint.y()));
@@ -180,12 +181,12 @@ void DataDevice::data_device_start_drag(Resource *resource, struct ::wl_resource
 {
     if (m_inputDevice->pointerDevice()->grabSerial() == serial) {
         if (!m_inputDevice->pointerDevice()->buttonPressed() ||
-             m_inputDevice->pointerDevice()->focusSurface() != Surface::fromResource(origin))
+             m_inputDevice->pointerDevice()->focusSurface()->surface()->handle() != Surface::fromResource(origin))
             return;
 
         m_dragClient = resource->client();
         m_dragDataSource = source != 0 ? DataSource::fromResource(source) : 0;
-        m_dragIcon = icon != 0 ? Surface::fromResource(icon) : 0;
+        m_dragIcon = icon != 0 ? m_compositor->waylandCompositor()->createView(Surface::fromResource(icon)->waylandSurface()) : 0;
         Q_EMIT m_inputDevice->dragHandle()->iconChanged();
 
         m_inputDevice->pointerDevice()->setFocus(0, QPointF());

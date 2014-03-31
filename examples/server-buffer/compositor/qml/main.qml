@@ -59,18 +59,10 @@ Item {
         anchors.fill: parent
     }
 
-    Component {
-        id: windowItem
-        WaylandSurfaceItem {
-            onSurfaceDestroyed: {
-                destroy();
-            }
-        }
-    }
-
     function windowAdded(window) {
-        var item = windowItem.createObject(root);
-        item.surface = window;
+        var item = compositor.item(window);
+        item.parent = root;
+        item.surfaceDestroyed.connect(item.destroy);
     }
 
     function windowResized(window) {

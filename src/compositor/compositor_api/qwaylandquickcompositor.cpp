@@ -82,7 +82,7 @@ QWaylandQuickCompositor::QWaylandQuickCompositor(QQuickWindow *window, const cha
 {
     window->connect(window, &QQuickWindow::beforeSynchronizing, d_ptr(), &QWaylandQuickCompositorPrivate::updateStarted, Qt::DirectConnection);
 
-    qmlRegisterType<QWaylandSurfaceItem>("QtCompositor", 1, 0, "WaylandSurfaceItem");
+    qmlRegisterUncreatableType<QWaylandSurfaceItem>("QtCompositor", 1, 0, "WaylandSurfaceItem", QObject::tr("Cannot create instance of WaylandSurfaceItem"));
     qmlRegisterUncreatableType<QWaylandQuickSurface>("QtCompositor", 1, 0, "WaylandQuickSurface", QObject::tr("Cannot create instance of WaylandQuickSurface"));
 }
 
@@ -97,6 +97,11 @@ void QWaylandQuickCompositor::update()
         static_cast<QQuickWindow *>(window())->update();
         d_ptr()->updateScheduled = true;
     }
+}
+
+QWaylandSurfaceView *QWaylandQuickCompositor::createView(QWaylandSurface *surf)
+{
+    return new QWaylandSurfaceItem(static_cast<QWaylandQuickSurface *>(surf));
 }
 
 QT_END_NAMESPACE

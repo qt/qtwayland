@@ -56,6 +56,7 @@ class QWaylandSurface;
 class QWaylandInputDevice;
 class QWaylandInputPanel;
 class QWaylandDrag;
+class QWaylandSurfaceView;
 
 namespace QtWayland
 {
@@ -98,8 +99,8 @@ public:
     virtual void surfaceCreated(QWaylandSurface *surface) = 0;
     virtual void surfaceAboutToBeDestroyed(QWaylandSurface *surface);
 
-    virtual QWaylandSurface *pickSurface(const QPointF &globalPosition) const;
-    virtual QPointF mapToSurface(QWaylandSurface *surface, const QPointF &surfacePosition) const;
+    virtual QWaylandSurfaceView *pickView(const QPointF &globalPosition) const;
+    virtual QPointF mapToView(QWaylandSurfaceView *view, const QPointF &surfacePosition) const;
 
     virtual void openUrl(WaylandClient *client, const QUrl &url);
 
@@ -139,6 +140,8 @@ public:
     };
     Q_DECLARE_FLAGS(TouchExtensionFlags, TouchExtensionFlag)
     void configureTouchExtension(TouchExtensionFlags flags);
+
+    virtual QWaylandSurfaceView *createView(QWaylandSurface *surface);
 
 protected:
     QWaylandCompositor(QWindow *window, const char *socketName, QtWayland::Compositor *dptr);

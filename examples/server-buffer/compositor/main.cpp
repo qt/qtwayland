@@ -40,6 +40,7 @@
 
 #include "qwaylandquickcompositor.h"
 #include "qwaylandsurface.h"
+#include "qwaylandsurfaceitem.h"
 
 #include <QGuiApplication>
 #include <QTimer>
@@ -86,6 +87,11 @@ public:
 
         connect(this, SIGNAL(sceneGraphInitialized()), this, SLOT(initiateServerBuffer()),Qt::DirectConnection);
         connect(this, SIGNAL(serverBuffersCreated()), this, SLOT(createServerBufferItems()));
+    }
+
+    Q_INVOKABLE QWaylandSurfaceItem *item(QWaylandSurface *surf)
+    {
+        return static_cast<QWaylandSurfaceItem *>(surf->views().first());
     }
 
 signals:

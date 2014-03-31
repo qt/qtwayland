@@ -58,6 +58,7 @@
 #include "qwlregion_p.h"
 #include "qwlpointer_p.h"
 #include "qwltextinputmanager_p.h"
+#include "qwaylandsurfaceview.h"
 
 #include <QWindow>
 #include <QSocketNotifier>
@@ -169,6 +170,7 @@ void Compositor::init()
 
     qRegisterMetaType<SurfaceBuffer*>("SurfaceBuffer*");
     qRegisterMetaType<QWaylandSurface*>("WaylandSurface*");
+    qRegisterMetaType<QWaylandSurfaceView*>("WaylandSurfaceView*");
     //initialize distancefieldglyphcache here
 
     initializeHardwareIntegration();
@@ -414,17 +416,6 @@ QList<QtWayland::Surface *> Compositor::surfacesForClient(wl_client *client)
         }
     }
     return ret;
-}
-
-Surface *Compositor::pickSurface(const QPointF &globalPosition)
-{
-    QWaylandSurface *surface = m_qt_compositor->pickSurface(globalPosition);
-    return surface ? surface->handle() : 0;
-}
-
-QPointF Compositor::mapToSurface(Surface *surface, const QPointF &globalPosition)
-{
-    return m_qt_compositor->mapToSurface(surface->waylandSurface(), globalPosition);
 }
 
 void Compositor::configureTouchExtension(int flags)

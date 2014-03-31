@@ -57,16 +57,6 @@ Item {
         console.log("visibility changed: " + visible);
     }
 
-    WaylandSurfaceItem {
-        id: surfaceItem
-        anchors.fill: parent
-        touchEventsEnabled: true
-
-        onSurfaceDestroyed: {
-            destroyAnimation.start();
-        }
-    }
-
     opacity: 0
 
     property real targetX
@@ -75,7 +65,7 @@ Item {
     property real targetHeight
     property real targetScale
 
-    property variant child: surfaceItem
+    property variant child: null
     property variant chrome: null
     property bool animationsEnabled: false
     property bool isFullscreen: state === "fullscreen"
@@ -116,7 +106,7 @@ Item {
     ContrastEffect {
         id: effect
         source: child
-        anchors.fill: child
+        anchors.fill: parent
         blend: { if (child && chrome && (chrome.selected || child.focus)) 0.0; else 0.6 }
         opacity: 1.0
         z: 1
@@ -188,8 +178,14 @@ Item {
     }
 
     Connections {
-        target: container.child.surface
+        target: container.child ? container.child.surface : null
         onUnmapped: unmapAnimation.start()
+    }
+    Connections {
+        target: container.child
+        onSurfaceDestroyed: {
+            destroyAnimation.start();
+        }
     }
 
     Image {

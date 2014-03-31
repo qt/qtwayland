@@ -42,6 +42,7 @@
 
 #include "qwlcompositor_p.h"
 #include "qwaylandsurface.h"
+#include "qwaylandsurfaceview.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -101,7 +102,8 @@ void SubSurface::setSubSurface(SubSurface *subSurface, int x, int y)
         m_sub_surfaces.append(subSurface->m_surface->waylandSurface());
         subSurface->setParent(this);
     }
-    subSurface->m_surface->setPos(QPointF(x,y));
+    foreach (QWaylandSurfaceView *view, subSurface->m_surface->waylandSurface()->views())
+        view->setPos(QPointF(x,y));
 }
 
 void SubSurface::removeSubSurface(SubSurface *subSurfaces)

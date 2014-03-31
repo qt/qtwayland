@@ -46,6 +46,7 @@
 #include "qwlkeyboard_p.h"
 #include "qwlsurface_p.h"
 #include "qwaylandcompositor.h"
+#include "qwaylandsurfaceview.h"
 
 namespace QtWayland {
 
@@ -99,28 +100,28 @@ Pointer::Pointer(Compositor *compositor, InputDevice *seat)
     connect(&m_focusDestroyListener, &WlListener::fired, this, &Pointer::focusDestroyed);
 }
 
-void Pointer::setFocus(Surface *surface, const QPointF &position)
+void Pointer::setFocus(QWaylandSurfaceView *surface, const QPointF &position)
 {
     if (m_focusResource && m_focus != surface) {
         uint32_t serial = wl_display_next_serial(m_compositor->wl_display());
-        send_leave(m_focusResource->handle, serial, m_focus->resource()->handle);
+        send_leave(m_focusResource->handle, serial, m_focus->surface()->handle()->resource()->handle);
         m_focusDestroyListener.reset();
     }
 
-    Resource *resource = surface ? resourceMap().value(surface->resource()->client()) : 0;
+    Resource *resource = surface ? resourceMap().value(surface->surface()->handle()->resource()->client()) : 0;
 
     if (resource && (m_focus != surface || resource != m_focusResource)) {
         uint32_t serial = wl_display_next_serial(m_compositor->wl_display());
         Keyboard *keyboard = m_seat->keyboardDevice();
         if (keyboard) {
-            wl_keyboard::Resource *kr = keyboard->resourceMap().value(surface->resource()->client());
+            wl_keyboard::Resource *kr = keyboard->resourceMap().value(surface->surface()->handle()->resource()->client());
             if (kr)
                 keyboard->sendKeyModifiers(kr, serial);
         }
-        send_enter(resource->handle, serial, surface->resource()->handle,
+        send_enter(resource->handle, serial, surface->surface()->handle()->resource()->handle,
                    wl_fixed_from_double(position.x()), wl_fixed_from_double(position.y()));
 
-        m_focusDestroyListener.listenForDestruction(surface->resource()->handle);
+        m_focusDestroyListener.listenForDestruction(surface->surface()->handle()->resource()->handle);
     }
 
     m_focusResource = resource;
@@ -152,7 +153,7 @@ void Pointer::endGrab()
     m_grab->focus();
 }
 
-void Pointer::setCurrent(Surface *surface, const QPointF &point)
+void Pointer::setCurrent(QWaylandSurfaceView *surface, const QPointF &point)
 {
     m_current = surface;
     m_currentPoint = point;
@@ -183,12 +184,12 @@ uint32_t Pointer::grabSerial() const
     return m_grabSerial;
 }
 
-Surface *Pointer::focusSurface() const
+QWaylandSurfaceView *Pointer::focusSurface() const
 {
     return m_focus;
 }
 
-Surface *Pointer::current() const
+QWaylandSurfaceView *Pointer::current() const
 {
     return m_current;
 }
@@ -214,7 +215,7 @@ void Pointer::pointer_destroy_resource(wl_pointer::Resource *resource)
         m_focusResource = 0;
 }
 
-void Pointer::setMouseFocus(Surface *surface, const QPointF &localPos, const QPointF &globalPos)
+void Pointer::setMouseFocus(QWaylandSurfaceView *surface, const QPointF &localPos, const QPointF &globalPos)
 {
     m_position = globalPos;
 

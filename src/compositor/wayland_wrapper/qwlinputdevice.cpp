@@ -51,6 +51,7 @@
 #include "qwlpointer_p.h"
 #include "qwlkeyboard_p.h"
 #include "qwltouch_p.h"
+#include "qwaylandsurfaceview.h"
 
 #include <QtGui/QTouchEvent>
 
@@ -154,7 +155,7 @@ void InputDevice::sendMouseMoveEvent(const QPointF &localPos, const QPointF &glo
     pointerDevice()->sendMouseMoveEvent(localPos, globalPos);
 }
 
-void InputDevice::sendMouseMoveEvent(Surface *surface, const QPointF &localPos, const QPointF &globalPos)
+void InputDevice::sendMouseMoveEvent(QWaylandSurfaceView *surface, const QPointF &localPos, const QPointF &globalPos)
 {
     setMouseFocus(surface,localPos,globalPos);
     sendMouseMoveEvent(localPos,globalPos);
@@ -269,21 +270,21 @@ bool InputDevice::setKeyboardFocus(Surface *surface)
     return true;
 }
 
-Surface *InputDevice::mouseFocus() const
+QWaylandSurfaceView *InputDevice::mouseFocus() const
 {
     return m_pointer->focusSurface();
 }
 
-void InputDevice::setMouseFocus(Surface *surface, const QPointF &localPos, const QPointF &globalPos)
+void InputDevice::setMouseFocus(QWaylandSurfaceView *view, const QPointF &localPos, const QPointF &globalPos)
 {
-    if (surface && surface->isDestroyed())
+    if (view && view->surface()->handle()->isDestroyed())
         return;
 
-    m_pointer->setMouseFocus(surface, localPos, globalPos);
+    m_pointer->setMouseFocus(view, localPos, globalPos);
 
     // We have no separate touch focus management so make it match the pointer focus always.
     // No wl_touch_set_focus() is available so set it manually.
-    m_touch->setFocus(surface);
+    m_touch->setFocus(view);
 }
 
 void InputDevice::clientRequestedDataDevice(DataDeviceManager *, struct wl_client *client, uint32_t id)

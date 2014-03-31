@@ -53,6 +53,8 @@
 
 QT_BEGIN_NAMESPACE
 
+class QWaylandSurfaceView;
+
 namespace QtWayland {
 
 class Compositor;
@@ -81,7 +83,7 @@ class Q_COMPOSITOR_EXPORT Touch : public QObject, public QtWaylandServer::wl_tou
 public:
     explicit Touch(Compositor *compositor);
 
-    void setFocus(Surface *surface);
+    void setFocus(QWaylandSurfaceView *surface);
 
     void startGrab(TouchGrabber *grab);
     void endGrab();
@@ -102,7 +104,7 @@ private:
 
     Compositor *m_compositor;
 
-    Surface *m_focus;
+    QWaylandSurfaceView *m_focus;
     Resource *m_focusResource;
     WlListener m_focusDestroyListener;
 

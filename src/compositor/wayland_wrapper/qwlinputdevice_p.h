@@ -61,6 +61,7 @@ class QKeyEvent;
 class QTouchEvent;
 class QWaylandInputDevice;
 class QWaylandDrag;
+class QWaylandSurfaceView;
 
 namespace QtWayland {
 
@@ -82,7 +83,7 @@ public:
     void sendMousePressEvent(Qt::MouseButton button, const QPointF &localPos, const QPointF &globalPos = QPointF());
     void sendMouseReleaseEvent(Qt::MouseButton button, const QPointF &localPos, const QPointF &globalPos = QPointF());
     void sendMouseMoveEvent(const QPointF &localPos, const QPointF &globalPos = QPointF());
-    void sendMouseMoveEvent(Surface *surface, const QPointF &localPos, const QPointF &globalPos = QPointF());
+    void sendMouseMoveEvent(QWaylandSurfaceView *surface, const QPointF &localPos, const QPointF &globalPos = QPointF());
     void sendMouseWheelEvent(Qt::Orientation orientation, int delta);
 
     void sendTouchPointEvent(int id, double x, double y, Qt::TouchPointState state);
@@ -97,8 +98,8 @@ public:
     Surface *keyboardFocus() const;
     bool setKeyboardFocus(Surface *surface);
 
-    Surface *mouseFocus() const;
-    void setMouseFocus(Surface *surface, const QPointF &localPos, const QPointF &globalPos);
+    QWaylandSurfaceView *mouseFocus() const;
+    void setMouseFocus(QWaylandSurfaceView *surface, const QPointF &localPos, const QPointF &globalPos);
 
     void clientRequestedDataDevice(DataDeviceManager *dndSelection, struct wl_client *client, uint32_t id);
     const DataDevice *dataDevice() const;

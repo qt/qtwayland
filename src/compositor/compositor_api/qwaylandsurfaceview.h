@@ -39,29 +39,35 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDQUICKCOMPOSITOR_H
-#define QWAYLANDQUICKCOMPOSITOR_H
+#ifndef QWAYLANDSURFACEVIEW_H
+#define QWAYLANDSURFACEVIEW_H
 
-#include <QtCompositor/qwaylandcompositor.h>
+#include <QPointF>
+
+#include <QtCompositor/qwaylandexport.h>
 
 QT_BEGIN_NAMESPACE
 
-class QQuickWindow;
-class QWaylandQuickCompositorPrivate;
-class QWaylandSurfaceView;
+class QWaylandSurface;
+class QWaylandCompositor;
 
-class Q_COMPOSITOR_EXPORT QWaylandQuickCompositor : public QWaylandCompositor
+class Q_COMPOSITOR_EXPORT QWaylandSurfaceView
 {
 public:
-    QWaylandQuickCompositor(QQuickWindow *window = 0, const char *socketName = 0, QWaylandCompositor::ExtensionFlags extensions = DefaultExtensions);
+    QWaylandSurfaceView(QWaylandSurface *surface);
+    virtual ~QWaylandSurfaceView();
 
-    void update();
+    QWaylandCompositor *compositor() const;
+    QWaylandSurface *surface() const;
 
-    QWaylandSurfaceView *createView(QWaylandSurface *surf) Q_DECL_OVERRIDE;
+    virtual void setPos(const QPointF &pos);
+    virtual QPointF pos() const;
 
 private:
-    friend class QWaylandQuickCompositorPrivate;
-    QWaylandQuickCompositorPrivate *d_ptr();
+    class QWaylandSurfaceViewPrivate *const d;
+    friend class QWaylandSurfaceViewPrivate;
 };
+
+QT_END_NAMESPACE
 
 #endif

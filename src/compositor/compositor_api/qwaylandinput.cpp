@@ -45,6 +45,7 @@
 #include "qwaylandcompositor.h"
 #include "qwlsurface_p.h"
 #include "qwlcompositor_p.h"
+#include "qwaylandsurfaceview.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -87,10 +88,9 @@ void QWaylandInputDevice::sendMouseMoveEvent(const QPointF &localPos, const QPoi
 /** Convenience function that will set the mouse focus to the surface, then send the mouse move event.
  *  If the mouse focus is the same surface as the surface passed in, then only the move event is sent
  **/
-void QWaylandInputDevice::sendMouseMoveEvent(QWaylandSurface *surface, const QPointF &localPos, const QPointF &globalPos)
+void QWaylandInputDevice::sendMouseMoveEvent(QWaylandSurfaceView *surface, const QPointF &localPos, const QPointF &globalPos)
 {
-    QtWayland::Surface *wlsurface = surface? surface->handle():0;
-    d->sendMouseMoveEvent(wlsurface,localPos,globalPos);
+    d->sendMouseMoveEvent(surface,localPos,globalPos);
 }
 
 void QWaylandInputDevice::sendMouseWheelEvent(Qt::Orientation orientation, int delta)
@@ -158,18 +158,14 @@ void QWaylandInputDevice::setKeymap(const QWaylandKeymap &keymap)
         handle()->keyboardDevice()->setKeymap(keymap);
 }
 
-QWaylandSurface *QWaylandInputDevice::mouseFocus() const
+QWaylandSurfaceView *QWaylandInputDevice::mouseFocus() const
 {
-    QtWayland::Surface *wlsurface = d->mouseFocus();
-    if (wlsurface)
-        return  wlsurface->waylandSurface();
-    return 0;
+    return d->mouseFocus();
 }
 
-void QWaylandInputDevice::setMouseFocus(QWaylandSurface *surface, const QPointF &localPos, const QPointF &globalPos)
+void QWaylandInputDevice::setMouseFocus(QWaylandSurfaceView *surface, const QPointF &localPos, const QPointF &globalPos)
 {
-    QtWayland::Surface *wlsurface = surface?surface->handle():0;
-    d->setMouseFocus(wlsurface,localPos,globalPos);
+    d->setMouseFocus(surface,localPos,globalPos);
 }
 
 QWaylandCompositor *QWaylandInputDevice::compositor() const

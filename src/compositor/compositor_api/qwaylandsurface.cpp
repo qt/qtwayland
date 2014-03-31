@@ -134,18 +134,6 @@ bool QWaylandSurface::isMapped() const
     return d->mapped();
 }
 
-QPointF QWaylandSurface::pos() const
-{
-    Q_D(const QWaylandSurface);
-    return d->pos();
-}
-
-void QWaylandSurface::setPos(const QPointF &pos)
-{
-    Q_D(QWaylandSurface);
-    d->setPos(pos);
-}
-
 QSize QWaylandSurface::size() const
 {
     Q_D(const QWaylandSurface);
@@ -221,26 +209,6 @@ void QWaylandSurface::setWindowProperty(const QString &name, const QVariant &val
     d->extendedSurface()->setWindowProperty(name, value);
 }
 
-QPointF QWaylandSurface::mapToParent(const QPointF &pos) const
-{
-    return pos + this->pos();
-}
-
-QPointF QWaylandSurface::mapTo(QWaylandSurface *parent, const QPointF &pos) const
-{
-    QPointF p = pos;
-    if (parent) {
-        const QWaylandSurface * surface = this;
-        while (surface != parent) {
-            Q_ASSERT_X(surface, "WaylandSurface::mapTo(WaylandSurface *parent, const QPoint &pos)",
-                       "parent must be in parent hierarchy");
-            p = surface->mapToParent(p);
-            surface = surface->parentSurface();
-        }
-    }
-    return p;
-}
-
 QWaylandCompositor *QWaylandSurface::compositor() const
 {
     Q_D(const QWaylandSurface);
@@ -251,7 +219,7 @@ QWaylandSurface *QWaylandSurface::transientParent() const
 {
     Q_D(const QWaylandSurface);
     if (d->shellSurface() && d->shellSurface()->transientParent())
-        return d->shellSurface()->transientParent()->surface()->waylandSurface();
+        return d->shellSurface()->transientParent()->waylandSurface();
     return 0;
 }
 
@@ -269,6 +237,13 @@ void QWaylandSurface::setVisibility(QWindow::Visibility visibility)
     Q_D(QWaylandSurface);
     if (d->extendedSurface())
         d->extendedSurface()->setVisibility(visibility);
+}
+
+void QWaylandSurface::ping()
+{
+    Q_D(QWaylandSurface);
+    if (d->shellSurface())
+        d->shellSurface()->ping();
 }
 
 void QWaylandSurface::sendOnScreenVisibilityChange(bool visible)
@@ -328,13 +303,6 @@ void QWaylandSurface::destroySurfaceByForce()
    wl_resource_destroy(surface_resource);
 }
 
-void QWaylandSurface::ping()
-{
-    Q_D(QWaylandSurface);
-    if (d->shellSurface())
-        d->shellSurface()->ping();
-}
-
 /*!
     Updates the surface with the compositor's retained clipboard selection. While this
     is done automatically when the surface receives keyboard focus, this function is
@@ -369,6 +337,12 @@ QWaylandBufferAttacher *QWaylandSurface::bufferAttacher() const
 {
     Q_D(const QWaylandSurface);
     return d->m_attacher;
+}
+
+QList<QWaylandSurfaceView *> QWaylandSurface::views() const
+{
+    Q_D(const QWaylandSurface);
+    return d->views;
 }
 
 QT_END_NAMESPACE

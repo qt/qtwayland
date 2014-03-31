@@ -51,6 +51,7 @@ QT_BEGIN_NAMESPACE
 
 class QWaylandCompositor;
 class QWaylandSurface;
+class QWaylandSurfaceView;
 
 class Q_COMPOSITOR_EXPORT QWaylandSurfacePrivate : public QObjectPrivate, public QtWayland::Surface
 {
@@ -59,6 +60,7 @@ public:
 
     bool closing;
     int refCount;
+    QList<QWaylandSurfaceView *> views;
 
     friend class QWaylandSurface;
 };

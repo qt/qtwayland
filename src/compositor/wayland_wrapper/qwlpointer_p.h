@@ -56,6 +56,8 @@
 
 QT_BEGIN_NAMESPACE
 
+class QWaylandSurfaceView;
+
 namespace QtWayland {
 
 class Compositor;
@@ -79,7 +81,7 @@ class Q_COMPOSITOR_EXPORT Pointer : public QObject, public QtWaylandServer::wl_p
 public:
     Pointer(Compositor *compositor, InputDevice *seat);
 
-    void setFocus(Surface *surface, const QPointF &position);
+    void setFocus(QWaylandSurfaceView *surface, const QPointF &position);
 
     void startGrab(PointerGrabber *currentGrab);
     void endGrab();
@@ -88,8 +90,8 @@ public:
     uint32_t grabTime() const;
     uint32_t grabSerial() const;
 
-    void setCurrent(Surface *surface, const QPointF &point);
-    void setMouseFocus(Surface *surface, const QPointF &localPos, const QPointF &globalPos);
+    void setCurrent(QWaylandSurfaceView *surface, const QPointF &point);
+    void setMouseFocus(QWaylandSurfaceView *surface, const QPointF &localPos, const QPointF &globalPos);
 
     void sendButton(uint32_t time, Qt::MouseButton button, uint32_t state);
 
@@ -98,8 +100,8 @@ public:
     void sendMouseMoveEvent(const QPointF &localPos, const QPointF &globalPos);
     void sendMouseWheelEvent(Qt::Orientation orientation, int delta);
 
-    Surface *focusSurface() const;
-    Surface *current() const;
+    QWaylandSurfaceView *focusSurface() const;
+    QWaylandSurfaceView *current() const;
     QPointF position() const;
     QPointF currentPosition() const;
     Resource *focusResource() const;
@@ -127,10 +129,10 @@ private:
 
     QPointF m_position;
 
-    Surface *m_focus;
+    QWaylandSurfaceView *m_focus;
     Resource *m_focusResource;
 
-    Surface *m_current;
+    QWaylandSurfaceView *m_current;
     QPointF m_currentPoint;
 
     int m_buttonCount;

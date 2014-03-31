@@ -47,6 +47,8 @@
 #include "qwlpointer_p.h"
 #include "qwlextendedsurface_p.h"
 
+#include "qwaylandsurfaceview.h"
+
 #include <QtCore/qglobal.h>
 #include <QtCore/QDebug>
 
@@ -103,6 +105,7 @@ ShellSurface::ShellSurface(Shell *shell, wl_client *client, uint32_t id, Surface
     , m_popupSerial()
 {
     surface->setShellSurface(this);
+    m_view = surface->compositor()->waylandCompositor()->createView(surface->waylandSurface());
     connect(surface->waylandSurface(), &QWaylandSurface::configure, this, &ShellSurface::configure);
 }
 
@@ -113,7 +116,7 @@ void ShellSurface::sendConfigure(uint32_t edges, int32_t width, int32_t height)
 
 void ShellSurface::ping()
 {
-    uint32_t serial = wl_display_next_serial(m_surface->compositor()->wl_display());
+    uint32_t serial = wl_display_next_serial(m_view->surface()->compositor()->waylandDisplay());
     m_pings.insert(serial);
     send_ping(serial);
 }
@@ -132,23 +135,14 @@ void ShellSurface::adjustPosInResize()
 
     int bottomLeftX = m_resizeGrabber->point.x() + m_resizeGrabber->width;
     int bottomLeftY = m_resizeGrabber->point.y() + m_resizeGrabber->height;
-    qreal x = surface()->pos().x();
-    qreal y = surface()->pos().y();
+    qreal x = m_view->pos().x();
+    qreal y = m_view->pos().y();
     if (m_resizeGrabber->resize_edges & WL_SHELL_SURFACE_RESIZE_TOP)
-        y = bottomLeftY - surface()->size().height();
+        y = bottomLeftY - m_view->surface()->size().height();
     if (m_resizeGrabber->resize_edges & WL_SHELL_SURFACE_RESIZE_LEFT)
-        x = bottomLeftX - surface()->size().width();
+        x = bottomLeftX - m_view->surface()->size().width();
     QPointF newPos(x,y);
-    surface()->setPos(newPos);
-}
-
-QPointF ShellSurface::adjustedPosToTransientParent() const
-{
-    if (!m_transientParent ||
-            (m_surface->subSurface() && m_surface->subSurface()->parent()))
-        return m_surface->nonAdjustedPos();
-
-    return m_transientParent->surface()->pos() + QPoint(m_xOffset,m_yOffset);
+    m_view->setPos(newPos);
 }
 
 void ShellSurface::resetResizeGrabber()
@@ -161,7 +155,7 @@ void ShellSurface::resetMoveGrabber()
     m_moveGrabber = 0;
 }
 
-ShellSurface *ShellSurface::transientParent() const
+Surface *ShellSurface::transientParent() const
 {
     return m_transientParent;
 }
@@ -215,7 +209,7 @@ void ShellSurface::shell_surface_move(Resource *resource,
     InputDevice *input_device = InputDevice::fromSeatResource(input_device_super);
     Pointer *pointer = input_device->pointerDevice();
 
-    m_moveGrabber = new ShellSurfaceMoveGrabber(this, pointer->position() - surface()->pos());
+    m_moveGrabber = new ShellSurfaceMoveGrabber(this, pointer->position() - m_view->pos());
 
     pointer->startGrab(m_moveGrabber);
 }
@@ -241,8 +235,8 @@ void ShellSurface::shell_surface_resize(Resource *resource,
 
     m_resizeGrabber->point = pointer->position();
     m_resizeGrabber->resize_edges = static_cast<wl_shell_surface_resize>(edges);
-    m_resizeGrabber->width = surface()->size().width();
-    m_resizeGrabber->height = surface()->size().height();
+    m_resizeGrabber->width = m_view->surface()->size().width();
+    m_resizeGrabber->height = m_view->surface()->size().height();
 
     pointer->startGrab(m_resizeGrabber);
 }
@@ -273,11 +267,11 @@ void ShellSurface::shell_surface_set_transient(Resource *resource,
     Q_UNUSED(resource);
     Q_UNUSED(flags);
     Surface *parent_surface = Surface::fromResource(parent_surface_resource);
-    m_transientParent = parent_surface->shellSurface();
+    m_transientParent = parent_surface;
     m_xOffset = x;
     m_yOffset = y;
     if (flags & WL_SHELL_SURFACE_TRANSIENT_INACTIVE)
-        surface()->setTransientInactive(true);
+        m_surface->setTransientInactive(true);
 
     if (m_windowType != QWaylandSurface::Transient) {
         m_windowType = QWaylandSurface::Transient;
@@ -314,7 +308,7 @@ void ShellSurface::shell_surface_set_popup(Resource *resource, wl_resource *inpu
     m_popupGrabber = m_shell->getPopupGrabber(input);
 
     m_popupSerial = serial;
-    m_transientParent = Surface::fromResource(parent)->shellSurface();
+    m_transientParent = Surface::fromResource(parent);
     m_popupLocation = QPointF(x, y);
 
     if (m_windowType != QWaylandSurface::Popup) {
@@ -352,14 +346,14 @@ void ShellSurface::shell_surface_set_title(Resource *resource,
                              const QString &title)
 {
     Q_UNUSED(resource);
-    surface()->setTitle(title);
+    m_surface->setTitle(title);
 }
 
 void ShellSurface::shell_surface_set_class(Resource *resource,
                              const QString &className)
 {
     Q_UNUSED(resource);
-    surface()->setClassName(className);
+    m_surface->setClassName(className);
 }
 
 ShellSurfaceGrabber::ShellSurfaceGrabber(ShellSurface *shellSurface)
@@ -429,9 +423,12 @@ void ShellSurfaceMoveGrabber::motion(uint32_t time)
     Q_UNUSED(time);
 
     QPointF pos(m_pointer->position() - m_offset);
-    shell_surface->surface()->setPos(pos);
-    if (shell_surface->transientParent())
-        shell_surface->setOffset(pos - shell_surface->transientParent()->surface()->pos());
+    shell_surface->m_view->setPos(pos);
+    if (shell_surface->m_transientParent) {
+        QWaylandSurfaceView *view = shell_surface->m_transientParent->waylandSurface()->views().first();
+        if (view)
+            shell_surface->setOffset(pos - view->pos());
+    }
 
 }
 
@@ -498,7 +495,7 @@ void ShellSurfacePopupGrabber::removePopup(ShellSurface *surface)
 
 void ShellSurfacePopupGrabber::focus()
 {
-    if (m_pointer->current() && m_pointer->current()->resource()->client() == m_client)
+    if (m_pointer->current() && m_pointer->current()->surface()->handle()->resource()->client() == m_client)
         m_pointer->setFocus(m_pointer->current(), m_pointer->currentPosition());
     else
         m_pointer->setFocus(0, QPointF());

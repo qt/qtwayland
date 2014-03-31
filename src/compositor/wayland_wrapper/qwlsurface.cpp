@@ -48,6 +48,7 @@
 #include "qwlsubsurface_p.h"
 #include "qwlsurfacebuffer_p.h"
 #include "qwlshellsurface_p.h"
+#include "qwaylandsurfaceview.h"
 
 #include <QtCore/QDebug>
 #include <QTouchEvent>
@@ -176,24 +177,6 @@ bool Surface::mapped() const
     return m_buffer ? bool(m_buffer->waylandBufferHandle()) : false;
 }
 
-QPointF Surface::pos() const
-{
-    return m_shellSurface ? m_shellSurface->adjustedPosToTransientParent() : m_position;
-}
-
-QPointF Surface::nonAdjustedPos() const
-{
-    return m_position;
-}
-
-void Surface::setPos(const QPointF &pos)
-{
-    bool emitChange = pos != m_position;
-    m_position = pos;
-    if (emitChange)
-        m_waylandSurface->posChanged();
-}
-
 QSize Surface::size() const
 {
     return m_size;
@@ -205,9 +188,6 @@ void Surface::setSize(const QSize &size)
         m_opaqueRegion = QRegion();
         m_inputRegion = QRegion(QRect(QPoint(), size));
         m_size = size;
-        if (m_shellSurface) {
-            m_shellSurface->adjustPosInResize();
-        }
         m_waylandSurface->sizeChanged();
     }
 }
@@ -317,7 +297,7 @@ void Surface::setBackBuffer(SurfaceBuffer *buffer)
         InputDevice *inputDevice = m_compositor->defaultInputDevice();
         if (inputDevice->keyboardFocus() == this)
             inputDevice->setKeyboardFocus(0);
-        if (inputDevice->mouseFocus() == this)
+        if (inputDevice->mouseFocus() && inputDevice->mouseFocus()->surface() == waylandSurface())
             inputDevice->setMouseFocus(0, QPointF(), QPointF());
     }
     m_damage = QRegion();

@@ -39,7 +39,7 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDTOUCh_H
+#ifndef QWAYLANDTOUCH_H
 #define QWAYLANDTOUCH_H
 
 #include <QtWaylandClient/private/qwaylanddisplay_p.h>

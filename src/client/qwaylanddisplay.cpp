@@ -149,7 +149,7 @@ QWaylandDisplay::~QWaylandDisplay(void)
 
 void QWaylandDisplay::flushRequests()
 {
-    if (wl_display_dispatch_queue_pending(mDisplay, mEventQueue) == -1 && errno == EPIPE) {
+    if (wl_display_dispatch_queue_pending(mDisplay, mEventQueue) == -1 && (errno == EPIPE || errno == ECONNRESET)) {
         qWarning("The Wayland connection broke. Did the Wayland compositor die?");
         ::exit(1);
     }
@@ -159,7 +159,7 @@ void QWaylandDisplay::flushRequests()
 
 void QWaylandDisplay::blockingReadEvents()
 {
-    if (wl_display_dispatch_queue(mDisplay, mEventQueue) == -1 && errno == EPIPE) {
+    if (wl_display_dispatch_queue(mDisplay, mEventQueue) == -1 && (errno == EPIPE || errno == ECONNRESET)) {
         qWarning("The Wayland connection broke. Did the Wayland compositor die?");
         ::exit(1);
     }

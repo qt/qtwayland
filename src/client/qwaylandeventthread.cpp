@@ -32,7 +32,7 @@ void QWaylandEventThread::displayConnect()
 
 void QWaylandEventThread::readWaylandEvents()
 {
-    if (wl_display_dispatch(m_display) == -1 && errno == EPIPE) {
+    if (wl_display_dispatch(m_display) == -1 && (errno == EPIPE || errno == ECONNRESET)) {
         qWarning("The Wayland connection broke. Did the Wayland compositor die?");
         ::exit(1);
     }

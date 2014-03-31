@@ -46,6 +46,8 @@
 
 #include <QtTest/QtTest>
 
+#include <QtCompositor/private/qwlinputdevice_p.h>
+
 class tst_WaylandCompositor : public QObject
 {
     Q_OBJECT
@@ -56,6 +58,7 @@ public:
     }
 
 private slots:
+    void inputDeviceCapabilities();
     void singleClient();
     void multipleClients();
     void geometry();
@@ -238,6 +241,26 @@ void tst_WaylandCompositor::frameCallback()
     }
 
     wl_surface_destroy(surface);
+}
+
+void tst_WaylandCompositor::inputDeviceCapabilities()
+{
+    TestCompositor compositor;
+    QtWayland::InputDevice dev(NULL, compositor.handle(), QWaylandInputDevice::Pointer);
+
+    QTRY_VERIFY(dev.pointerDevice());
+    QTRY_VERIFY(!dev.keyboardDevice());
+    QTRY_VERIFY(!dev.touchDevice());
+
+    dev.setCapabilities(QWaylandInputDevice::Keyboard | QWaylandInputDevice::Touch);
+    QTRY_VERIFY(!dev.pointerDevice());
+    QTRY_VERIFY(dev.keyboardDevice());
+    QTRY_VERIFY(dev.touchDevice());
+
+    // Test that existing devices do not change when another is removed
+    QtWayland::Keyboard *k = dev.keyboardDevice();
+    dev.setCapabilities(QWaylandInputDevice::Keyboard);
+    QTRY_COMPARE(k, dev.keyboardDevice());
 }
 
 #include <tst_compositor.moc>

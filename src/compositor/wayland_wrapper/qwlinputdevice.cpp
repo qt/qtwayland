@@ -59,14 +59,15 @@ QT_BEGIN_NAMESPACE
 
 namespace QtWayland {
 
-InputDevice::InputDevice(QWaylandInputDevice *handle, Compositor *compositor)
+InputDevice::InputDevice(QWaylandInputDevice *handle, Compositor *compositor, QWaylandInputDevice::CapabilityFlags caps)
     : QtWaylandServer::wl_seat(compositor->wl_display())
     , m_handle(handle)
     , m_dragHandle(new QWaylandDrag(this))
     , m_compositor(compositor)
-    , m_pointer(new Pointer(m_compositor, this))
-    , m_keyboard(new Keyboard(m_compositor, this))
-    , m_touch(new Touch(m_compositor))
+    , m_capabilities(caps)
+    , m_pointer(m_capabilities & QWaylandInputDevice::Pointer ? new Pointer(m_compositor, this) : 0)
+    , m_keyboard(m_capabilities & QWaylandInputDevice::Keyboard ? new Keyboard(m_compositor, this) : 0)
+    , m_touch(m_capabilities & QWaylandInputDevice::Touch ? new Touch(m_compositor) : 0)
     , m_inputMethod(m_compositor->extensions() & QWaylandCompositor::TextInputExtension ? new InputMethod(m_compositor, this) : 0)
     , m_data_device()
 {
@@ -118,26 +119,54 @@ void InputDevice::seat_destroy_resource(wl_seat::Resource *)
 
 void InputDevice::seat_bind_resource(wl_seat::Resource *resource)
 {
-    uint32_t caps = WL_SEAT_CAPABILITY_POINTER | WL_SEAT_CAPABILITY_KEYBOARD;
-    if (!QTouchDevice::devices().isEmpty())
-        caps |= WL_SEAT_CAPABILITY_TOUCH;
+    // The order of m_capabilities matches the order defined in the wayland protocol
+    wl_seat::send_capabilities(resource->handle, (uint32_t)m_capabilities);
+}
 
-    wl_seat::send_capabilities(resource->handle, caps);
+void InputDevice::setCapabilities(QWaylandInputDevice::CapabilityFlags caps)
+{
+    if (m_capabilities != caps) {
+        QWaylandInputDevice::CapabilityFlags changed = caps ^ m_capabilities;
+
+        if (changed & QWaylandInputDevice::Pointer) {
+            m_pointer.reset(m_pointer.isNull() ? new Pointer(m_compositor, this) : 0);
+        }
+
+        if (changed & QWaylandInputDevice::Keyboard) {
+            m_keyboard.reset(m_keyboard.isNull() ? new Keyboard(m_compositor, this) : 0);
+        }
+
+        if (changed & QWaylandInputDevice::Touch) {
+            m_touch.reset(m_touch.isNull() ? new Touch(m_compositor) : 0);
+        }
+
+        m_capabilities = caps;
+        QList<Resource *> resources = resourceMap().values();
+        for (int i = 0; i < resources.size(); i++) {
+            wl_seat::send_capabilities(resources.at(i)->handle, (uint32_t)m_capabilities);
+        }
+    }
 }
 
 void InputDevice::seat_get_pointer(wl_seat::Resource *resource, uint32_t id)
 {
-    m_pointer->add(resource->client(), id);
+    if (!m_pointer.isNull()) {
+        m_pointer->add(resource->client(), id);
+    }
 }
 
 void InputDevice::seat_get_keyboard(wl_seat::Resource *resource, uint32_t id)
 {
-    m_keyboard->add(resource->client(), id);
+    if (!m_keyboard.isNull()) {
+        m_keyboard->add(resource->client(), id);
+    }
 }
 
 void InputDevice::seat_get_touch(wl_seat::Resource *resource, uint32_t id)
 {
-    m_touch->add(resource->client(), id);
+    if (!m_touch.isNull()) {
+        m_touch->add(resource->client(), id);
+    }
 }
 
 void InputDevice::sendMousePressEvent(Qt::MouseButton button, const QPointF &localPos, const QPointF &globalPos)
@@ -168,6 +197,10 @@ void InputDevice::sendMouseWheelEvent(Qt::Orientation orientation, int delta)
 
 void InputDevice::sendTouchPointEvent(int id, double x, double y, Qt::TouchPointState state)
 {
+    if (m_touch.isNull()) {
+        return;
+    }
+
     switch (state) {
     case Qt::TouchPointPressed:
         m_touch->sendDown(id, QPointF(x, y));
@@ -188,12 +221,16 @@ void InputDevice::sendTouchPointEvent(int id, double x, double y, Qt::TouchPoint
 
 void InputDevice::sendTouchFrameEvent()
 {
-    m_touch->sendFrame();
+    if (!m_touch.isNull()) {
+        m_touch->sendFrame();
+    }
 }
 
 void InputDevice::sendTouchCancelEvent()
 {
-    m_touch->sendCancel();
+    if (!m_touch.isNull()) {
+        m_touch->sendCancel();
+    }
 }
 
 void InputDevice::sendFullKeyEvent(QKeyEvent *event)
@@ -207,10 +244,12 @@ void InputDevice::sendFullKeyEvent(QKeyEvent *event)
     if (ext && ext->postQtKeyEvent(event, keyboardFocus()))
         return;
 
-    if (event->type() == QEvent::KeyPress)
-        m_keyboard->sendKeyPressEvent(event->nativeScanCode());
-    else if (event->type() == QEvent::KeyRelease)
-        m_keyboard->sendKeyReleaseEvent(event->nativeScanCode());
+    if (!m_keyboard.isNull()) {
+        if (event->type() == QEvent::KeyPress)
+            m_keyboard->sendKeyPressEvent(event->nativeScanCode());
+        else if (event->type() == QEvent::KeyRelease)
+            m_keyboard->sendKeyReleaseEvent(event->nativeScanCode());
+    }
 }
 
 void InputDevice::sendFullKeyEvent(Surface *surface, QKeyEvent *event)
@@ -253,7 +292,7 @@ void InputDevice::sendFullTouchEvent(QTouchEvent *event)
 
 Surface *InputDevice::keyboardFocus() const
 {
-    return m_keyboard->focus();
+    return m_keyboard.isNull() ? 0 : m_keyboard->focus();
 }
 
 /*!
@@ -264,15 +303,18 @@ bool InputDevice::setKeyboardFocus(Surface *surface)
     if (surface && (surface->transientInactive() || surface->isDestroyed()))
         return false;
 
-    m_keyboard->setFocus(surface);
-    if (m_data_device)
-        m_data_device->setFocus(m_keyboard->focusResource());
-    return true;
+    if (!m_keyboard.isNull()) {
+        m_keyboard->setFocus(surface);
+        if (m_data_device)
+            m_data_device->setFocus(m_keyboard->focusResource());
+        return true;
+    }
+    return false;
 }
 
 QWaylandSurfaceView *InputDevice::mouseFocus() const
 {
-    return m_pointer->focusSurface();
+    return m_pointer.isNull() ? 0 : m_pointer->focusSurface();
 }
 
 void InputDevice::setMouseFocus(QWaylandSurfaceView *view, const QPointF &localPos, const QPointF &globalPos)
@@ -280,11 +322,15 @@ void InputDevice::setMouseFocus(QWaylandSurfaceView *view, const QPointF &localP
     if (view && view->surface()->handle()->isDestroyed())
         return;
 
-    m_pointer->setMouseFocus(view, localPos, globalPos);
+    if (!m_pointer.isNull()) {
+        m_pointer->setMouseFocus(view, localPos, globalPos);
+    }
 
-    // We have no separate touch focus management so make it match the pointer focus always.
-    // No wl_touch_set_focus() is available so set it manually.
-    m_touch->setFocus(view);
+    if (!m_touch.isNull()) {
+        // We have no separate touch focus management so make it match the pointer focus always.
+        // No wl_touch_set_focus() is available so set it manually.
+        m_touch->setFocus(view);
+    }
 }
 
 void InputDevice::clientRequestedDataDevice(DataDeviceManager *, struct wl_client *client, uint32_t id)

@@ -60,8 +60,8 @@ QWaylandKeymap::QWaylandKeymap(const QString &layout, const QString &variant, co
 
 
 
-QWaylandInputDevice::QWaylandInputDevice(QWaylandCompositor *compositor)
-    : d(new QtWayland::InputDevice(this,compositor->handle()))
+QWaylandInputDevice::QWaylandInputDevice(QWaylandCompositor *compositor, CapabilityFlags caps)
+    : d(new QtWayland::InputDevice(this,compositor->handle(), caps))
 {
 }
 
@@ -176,6 +176,11 @@ QWaylandCompositor *QWaylandInputDevice::compositor() const
 QtWayland::InputDevice *QWaylandInputDevice::handle() const
 {
     return d;
+}
+
+QWaylandInputDevice::CapabilityFlags QWaylandInputDevice::capabilities()
+{
+    return d->capabilities();
 }
 
 QT_END_NAMESPACE

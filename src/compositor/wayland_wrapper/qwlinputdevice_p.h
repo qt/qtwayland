@@ -44,6 +44,7 @@
 #include <stdint.h>
 
 #include <QtCompositor/qwaylandexport.h>
+#include <QtCompositor/qwaylandinput.h>
 
 #include <QtCore/QList>
 #include <QtCore/QPoint>
@@ -77,7 +78,7 @@ class InputMethod;
 class Q_COMPOSITOR_EXPORT InputDevice : public QtWaylandServer::wl_seat
 {
 public:
-    InputDevice(QWaylandInputDevice *handle, Compositor *compositor);
+    InputDevice(QWaylandInputDevice *handle, Compositor *compositor, QWaylandInputDevice::CapabilityFlags caps);
     ~InputDevice();
 
     void sendMousePressEvent(Qt::MouseButton button, const QPointF &localPos, const QPointF &globalPos = QPointF());
@@ -122,10 +123,14 @@ public:
         return static_cast<InputDevice *>(wl_seat::Resource::fromResource(resource)->seat);
     }
 
+    QWaylandInputDevice::CapabilityFlags capabilities() { return m_capabilities; }
+    void setCapabilities(QWaylandInputDevice::CapabilityFlags caps);
+
 private:
     QWaylandInputDevice *m_handle;
     QWaylandDrag *m_dragHandle;
     Compositor *m_compositor;
+    QWaylandInputDevice::CapabilityFlags m_capabilities;
 
     QScopedPointer<Pointer> m_pointer;
     QScopedPointer<Keyboard> m_keyboard;

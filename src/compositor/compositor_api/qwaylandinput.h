@@ -82,7 +82,17 @@ private:
 class Q_COMPOSITOR_EXPORT QWaylandInputDevice
 {
 public:
-    QWaylandInputDevice(QWaylandCompositor *compositor);
+    enum CapabilityFlag {
+        // The order should match the enum WL_SEAT_CAPABILITY_*
+        Pointer = 0x01,
+        Keyboard = 0x02,
+        Touch = 0x04,
+
+        DefaultCapabilities = Pointer | Keyboard | Touch
+    };
+    Q_DECLARE_FLAGS(CapabilityFlags, CapabilityFlag)
+
+    QWaylandInputDevice(QWaylandCompositor *compositor, CapabilityFlags caps = DefaultCapabilities);
     ~QWaylandInputDevice();
 
     void sendMousePressEvent(Qt::MouseButton button, const QPointF &localPos, const QPointF &globalPos = QPointF());
@@ -113,10 +123,14 @@ public:
     QWaylandCompositor *compositor() const;
     QtWayland::InputDevice *handle() const;
 
+    QWaylandInputDevice::CapabilityFlags capabilities();
+
 private:
     QtWayland::InputDevice *d;
     Q_DISABLE_COPY(QWaylandInputDevice)
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(QWaylandInputDevice::CapabilityFlags)
 
 QT_END_NAMESPACE
 

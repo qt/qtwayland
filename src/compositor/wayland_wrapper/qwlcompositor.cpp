@@ -109,7 +109,6 @@ Compositor *Compositor::instance()
 Compositor::Compositor(QWaylandCompositor *qt_compositor, QWaylandCompositor::ExtensionFlags extensions)
     : m_extensions(extensions)
     , m_display(new Display)
-    , m_default_input_device(0)
     , m_current_frame(0)
     , m_last_queued_buf(-1)
     , m_qt_compositor(qt_compositor)
@@ -188,6 +187,7 @@ Compositor::~Compositor()
     delete m_touchExtension;
     delete m_qtkeyExtension;
 
+    removeInputDevice(m_default_wayland_input_device);
     delete m_default_wayland_input_device;
     delete m_data_device_manager;
 
@@ -224,6 +224,16 @@ void Compositor::destroySurface(Surface *surface)
 
     surface->releaseSurfaces();
     m_destroyed_surfaces << surface->waylandSurface();
+}
+
+void Compositor::resetInputDevice(Surface *surface)
+{
+    foreach (QWaylandInputDevice *dev, m_inputDevices) {
+        if (dev->keyboardFocus() == surface->waylandSurface())
+            dev->setKeyboardFocus(0);
+        if (dev->mouseFocus() && dev->mouseFocus()->surface() == surface->waylandSurface())
+            dev->setMouseFocus(0, QPointF(), QPointF());
+    }
 }
 
 void Compositor::cleanupGraphicsResources()
@@ -323,7 +333,7 @@ void Compositor::initializeExtensions()
 void Compositor::initializeDefaultInputDevice()
 {
     m_default_wayland_input_device = new QWaylandInputDevice(m_qt_compositor);
-    m_default_input_device = m_default_wayland_input_device->handle();
+    registerInputDevice(m_default_wayland_input_device);
 }
 
 QList<QWaylandClient *> Compositor::clients() const
@@ -381,7 +391,8 @@ QWaylandCompositor::ExtensionFlags Compositor::extensions() const
 
 InputDevice* Compositor::defaultInputDevice()
 {
-    return m_default_input_device;
+    // The list gets prepended so that default is the last element
+    return m_inputDevices.last()->handle();
 }
 
 QList<QtWayland::Surface *> Compositor::surfacesForClient(wl_client *client)
@@ -497,6 +508,32 @@ void Compositor::loadServerBufferIntegration()
         if (m_hw_integration)
             m_hw_integration->setServerBufferIntegration(targetKey);
     }
+}
+
+void Compositor::registerInputDevice(QWaylandInputDevice *device)
+{
+    // The devices get prepended as the first input device that gets added
+    // is assumed to be the default and it will claim to accept all the input
+    // events if asked
+    m_inputDevices.prepend(device);
+}
+
+void Compositor::removeInputDevice(QWaylandInputDevice *device)
+{
+    m_inputDevices.removeOne(device);
+}
+
+QWaylandInputDevice *Compositor::inputDeviceFor(QInputEvent *inputEvent)
+{
+    QWaylandInputDevice *dev = NULL;
+    for (int i = 0; i < m_inputDevices.size(); i++) {
+        QWaylandInputDevice *candidate = m_inputDevices.at(i);
+        if (candidate->isOwner(inputEvent)) {
+            dev = candidate;
+            break;
+        }
+    }
+    return dev;
 }
 
 } // namespace Wayland

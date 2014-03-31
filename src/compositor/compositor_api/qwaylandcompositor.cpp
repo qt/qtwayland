@@ -297,4 +297,9 @@ QWaylandSurfaceView *QWaylandCompositor::createView(QWaylandSurface *surface)
     return new QWaylandSurfaceView(surface);
 }
 
+QWaylandInputDevice *QWaylandCompositor::inputDeviceFor(QInputEvent *inputEvent)
+{
+    return m_compositor->inputDeviceFor(inputEvent);
+}
+
 QT_END_NAMESPACE

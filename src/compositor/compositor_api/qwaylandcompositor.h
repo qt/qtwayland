@@ -51,6 +51,8 @@ struct wl_display;
 
 QT_BEGIN_NAMESPACE
 
+class QInputEvent;
+
 class QMimeData;
 class QUrl;
 class QOpenGLContext;
@@ -148,6 +150,8 @@ public:
     void configureTouchExtension(TouchExtensionFlags flags);
 
     virtual QWaylandSurfaceView *createView(QWaylandSurface *surface);
+
+    QWaylandInputDevice *inputDeviceFor(QInputEvent *inputEvent);
 
 protected:
     QWaylandCompositor(QWindow *window, const char *socketName, QtWayland::Compositor *dptr);

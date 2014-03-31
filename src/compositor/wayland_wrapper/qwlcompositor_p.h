@@ -59,6 +59,8 @@ QT_BEGIN_NAMESPACE
 
 class QWaylandClient;
 class QWaylandClientPrivate;
+class QInputEvent;
+
 class QWaylandCompositor;
 class QWaylandInputDevice;
 class WindowManagerServerIntegration;
@@ -96,7 +98,12 @@ public:
     void sendFrameCallbacks(QList<QWaylandSurface *> visibleSurfaces);
     void frameFinished(Surface *surface = 0);
 
-    InputDevice *defaultInputDevice(); //we just have 1 default device for now (since QPA doesn't give us anything else)
+    InputDevice *defaultInputDevice();
+
+    void registerInputDevice(QWaylandInputDevice *device);
+    QList<QWaylandInputDevice *> inputDevices() const { return m_inputDevices; }
+    QWaylandInputDevice *inputDeviceFor(QInputEvent *inputEvent);
+    void removeInputDevice(QWaylandInputDevice *device);
 
     void destroySurface(Surface *surface);
 
@@ -156,6 +163,8 @@ public:
     void feedRetainedSelectionData(QMimeData *data);
 
     static void bindGlobal(wl_client *client, void *data, uint32_t version, uint32_t id);
+    void resetInputDevice(Surface *surface);
+
 public slots:
     void cleanupGraphicsResources();
 
@@ -176,7 +185,8 @@ protected:
 
     /* Input */
     QWaylandInputDevice *m_default_wayland_input_device;
-    InputDevice *m_default_input_device;
+
+    QList<QWaylandInputDevice *> m_inputDevices;
 
     /* Output */
     //make this a list of the available screens

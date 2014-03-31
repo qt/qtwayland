@@ -40,6 +40,7 @@
 ****************************************************************************/
 
 #include "mockclient.h"
+#include "mockseat.h"
 
 #include <QElapsedTimer>
 #include <QSocketNotifier>
@@ -145,6 +146,9 @@ void MockClient::handleGlobal(uint32_t id, const QByteArray &interface)
         shm = static_cast<wl_shm *>(wl_registry_bind(registry, id, &wl_shm_interface, 1));
     } else if (interface == "wl_shell") {
         wlshell = static_cast<wl_shell *>(wl_registry_bind(registry, id, &wl_shell_interface, 1));
+    } else if (interface == "wl_seat") {
+        wl_seat *s = static_cast<wl_seat *>(wl_registry_bind(registry, id, &wl_seat_interface, 1));
+        m_seats << new MockSeat(s);
     }
 }
 

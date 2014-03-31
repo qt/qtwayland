@@ -54,6 +54,7 @@ class QWaylandSurface;
 class QKeyEvent;
 class QTouchEvent;
 class QWaylandSurfaceView;
+class QInputEvent;
 
 namespace QtWayland {
 class InputDevice;
@@ -124,6 +125,8 @@ public:
     QtWayland::InputDevice *handle() const;
 
     QWaylandInputDevice::CapabilityFlags capabilities();
+
+    virtual bool isOwner(QInputEvent *inputEvent);
 
 private:
     QtWayland::InputDevice *d;

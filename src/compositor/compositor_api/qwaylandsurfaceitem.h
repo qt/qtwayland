@@ -57,6 +57,7 @@ QT_BEGIN_NAMESPACE
 
 class QWaylandSurfaceTextureProvider;
 class QMutex;
+class QWaylandInputDevice;
 
 class Q_COMPOSITOR_EXPORT QWaylandSurfaceItem : public QQuickItem, public QWaylandSurfaceView
 {
@@ -101,7 +102,7 @@ protected:
     void touchEvent(QTouchEvent *event);
 
 public slots:
-    void takeFocus();
+    virtual void takeFocus(QWaylandInputDevice *device = 0);
     void setPaintEnabled(bool paintEnabled);
 
 private slots:

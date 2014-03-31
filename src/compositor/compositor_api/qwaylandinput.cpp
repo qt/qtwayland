@@ -183,4 +183,10 @@ QWaylandInputDevice::CapabilityFlags QWaylandInputDevice::capabilities()
     return d->capabilities();
 }
 
+bool QWaylandInputDevice::isOwner(QInputEvent *inputEvent)
+{
+    Q_UNUSED(inputEvent);
+    return true;
+}
+
 QT_END_NAMESPACE

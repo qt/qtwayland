@@ -44,6 +44,9 @@
 #include <QObject>
 #include <QImage>
 #include <QRect>
+#include <QList>
+
+class MockSeat;
 
 class ShmBuffer
 {
@@ -73,6 +76,8 @@ public:
     wl_shm *shm;
     wl_registry *registry;
     wl_shell *wlshell;
+
+    QList<MockSeat *> m_seats;
 
     QRect geometry;
 

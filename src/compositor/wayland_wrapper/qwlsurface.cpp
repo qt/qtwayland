@@ -294,11 +294,7 @@ void Surface::setBackBuffer(SurfaceBuffer *buffer)
         m_damage = m_damage.intersected(QRect(QPoint(), m_size));
         emit m_waylandSurface->damaged(m_damage);
     } else {
-        InputDevice *inputDevice = m_compositor->defaultInputDevice();
-        if (inputDevice->keyboardFocus() == this)
-            inputDevice->setKeyboardFocus(0);
-        if (inputDevice->mouseFocus() && inputDevice->mouseFocus()->surface() == waylandSurface())
-            inputDevice->setMouseFocus(0, QPointF(), QPointF());
+        m_compositor->resetInputDevice(this);
     }
     m_damage = QRegion();
 }

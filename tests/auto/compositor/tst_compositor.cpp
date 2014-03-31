@@ -45,6 +45,8 @@
 
 #include "QtCompositor/private/qwlkeyboard_p.h"
 #include "QtCompositor/private/qwlinputdevice_p.h"
+#include "QtCompositor/private/qwlcompositor_p.h"
+#include "testinputdevice.h"
 
 #include "qwaylandbufferref.h"
 
@@ -64,6 +66,8 @@ public:
 private slots:
     void inputDeviceCapabilities();
     void keyboardGrab();
+    void inputDeviceCreation();
+    void inputDeviceKeyboardFocus();
     void singleClient();
     void multipleClients();
     void geometry();
@@ -321,6 +325,75 @@ void tst_WaylandCompositor::inputDeviceCapabilities()
     QtWayland::Keyboard *k = dev.keyboardDevice();
     dev.setCapabilities(QWaylandInputDevice::Keyboard);
     QTRY_COMPARE(k, dev.keyboardDevice());
+}
+
+void tst_WaylandCompositor::inputDeviceCreation()
+{
+    TestCompositor compositor;
+    TestInputDevice dev1(&compositor, QWaylandInputDevice::Pointer | QWaylandInputDevice::Keyboard);
+    TestInputDevice dev2(&compositor, QWaylandInputDevice::Pointer | QWaylandInputDevice::Keyboard);
+
+    compositor.handle()->registerInputDevice(&dev1);
+    compositor.handle()->registerInputDevice(&dev2);
+
+    // The compositor will create the default input device
+    QTRY_COMPARE(compositor.handle()->inputDevices().count(), 3);
+    // Test the order
+    QTRY_COMPARE(compositor.handle()->inputDevices().at(0), &dev2);
+    QTRY_COMPARE(compositor.handle()->inputDevices().at(1), &dev1);
+    QTRY_COMPARE(compositor.handle()->inputDevices().at(2), compositor.defaultInputDevice());
+
+    QList<QMouseEvent *> allEvents;
+    allEvents += dev1.createMouseEvents(2);
+    allEvents += dev2.createMouseEvents(5);
+    foreach (QMouseEvent *me, allEvents) {
+        compositor.inputDeviceFor(me);
+    }
+
+    // The first input device will only get called exatly the number of times it has created
+    // the events
+    QTRY_COMPARE(dev1.queryCount(), 2);
+    // The second will get called the total number of times as it sits as the first item in
+    // the registered input devices list
+    QTRY_COMPARE(dev2.queryCount(), 7);
+}
+
+void tst_WaylandCompositor::inputDeviceKeyboardFocus()
+{
+    TestCompositor compositor;
+
+
+    TestInputDevice dev1(&compositor, QWaylandInputDevice::Keyboard);
+    TestInputDevice dev2(&compositor, QWaylandInputDevice::Keyboard);
+
+    compositor.handle()->registerInputDevice(&dev1);
+    compositor.handle()->registerInputDevice(&dev2);
+
+    // Create client after all the input devices have been set up as the mock client
+    // does not dynamically listen to new seats
+    MockClient client;
+    wl_surface *surface = client.createSurface();
+    QTRY_COMPARE(compositor.surfaces.size(), 1);
+
+    QWaylandSurface *waylandSurface = compositor.surfaces.at(0);
+    QList<QWaylandInputDevice *> devices = compositor.handle()->inputDevices();
+    foreach (QWaylandInputDevice *dev, devices) {
+        dev->setKeyboardFocus(waylandSurface);
+    }
+    QTRY_COMPARE(compositor.defaultInputDevice()->keyboardFocus(), waylandSurface);
+    QTRY_COMPARE(dev1.keyboardFocus(), waylandSurface);
+    QTRY_COMPARE(dev2.keyboardFocus(), waylandSurface);
+
+    wl_surface_destroy(surface);
+    QTRY_VERIFY(compositor.surfaces.size() == 0);
+    // This will normally be called for example in the quick compositor
+    // but here call it manually to get rid of the surface and have it reset
+    // the focus
+    compositor.handle()->cleanupGraphicsResources();
+
+   QTRY_VERIFY(!compositor.defaultInputDevice()->keyboardFocus());
+   QTRY_VERIFY(!dev1.keyboardFocus());
+   QTRY_VERIFY(!dev2.keyboardFocus());
 }
 
 #include <tst_compositor.moc>

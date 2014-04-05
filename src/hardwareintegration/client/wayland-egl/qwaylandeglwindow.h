@@ -71,11 +71,11 @@ public:
 
 private:
     QWaylandEglClientBufferIntegration *m_clientBufferIntegration;
-    mutable struct wl_egl_window *m_waylandEglWindow;
+    struct wl_egl_window *m_waylandEglWindow;
 
     const QWaylandWindow *m_parentWindow;
 
-    mutable EGLSurface m_eglSurface;
+    EGLSurface m_eglSurface;
     EGLConfig m_eglConfig;
     mutable QOpenGLFramebufferObject *m_contentFBO;
     mutable bool m_resize;

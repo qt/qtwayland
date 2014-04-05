@@ -65,9 +65,6 @@ QWaylandEglWindow::QWaylandEglWindow(QWindow *window)
     , m_format(q_glFormatFromConfig(m_clientBufferIntegration->eglDisplay(), m_eglConfig))
 {
     setGeometry(window->geometry());
-
-    EGLNativeWindowType eglw = (EGLNativeWindowType) m_waylandEglWindow;
-    m_eglSurface = eglCreateWindowSurface(m_clientBufferIntegration->eglDisplay(), m_eglConfig, eglw, 0);
 }
 
 QWaylandEglWindow::~QWaylandEglWindow()
@@ -95,17 +92,38 @@ void QWaylandEglWindow::setGeometry(const QRect &rect)
     QMargins margins = frameMargins();
     QSize sizeWithMargins = rect.size() + QSize(margins.left() + margins.right(), margins.top() + margins.bottom());
 
-    if (m_waylandEglWindow) {
-        int current_width, current_height;
-        wl_egl_window_get_attached_size(m_waylandEglWindow,&current_width,&current_height);
-        if (current_width != sizeWithMargins.width() || current_height != sizeWithMargins.height()) {
-            wl_egl_window_resize(m_waylandEglWindow, sizeWithMargins.width(), sizeWithMargins.height(), mOffset.x(), mOffset.y());
-            mOffset = QPoint();
-
-            m_resize = true;
+    // wl_egl_windows must have both width and height > 0
+    // mesa's egl returns NULL if we try to create a, invalid wl_egl_window, however not all EGL
+    // implementations may do that, so check the size ourself. Besides, we must deal with resizing
+    // a valid window to 0x0, which would make it invalid. Hence, destroy it.
+    if (sizeWithMargins.isEmpty()) {
+        if (m_eglSurface) {
+            eglDestroySurface(m_clientBufferIntegration->eglDisplay(), m_eglSurface);
+            m_eglSurface = 0;
         }
+        if (m_waylandEglWindow) {
+            wl_egl_window_destroy(m_waylandEglWindow);
+            m_waylandEglWindow = 0;
+        }
+        mOffset = QPoint();
     } else {
-        m_waylandEglWindow = wl_egl_window_create(object(), sizeWithMargins.width(), sizeWithMargins.height());
+        if (m_waylandEglWindow) {
+            int current_width, current_height;
+            wl_egl_window_get_attached_size(m_waylandEglWindow,&current_width,&current_height);
+            if (current_width != sizeWithMargins.width() || current_height != sizeWithMargins.height()) {
+                wl_egl_window_resize(m_waylandEglWindow, sizeWithMargins.width(), sizeWithMargins.height(), mOffset.x(), mOffset.y());
+                mOffset = QPoint();
+
+                m_resize = true;
+            }
+        } else {
+            m_waylandEglWindow = wl_egl_window_create(object(), sizeWithMargins.width(), sizeWithMargins.height());
+        }
+
+        if (!m_eglSurface) {
+            EGLNativeWindowType eglw = (EGLNativeWindowType) m_waylandEglWindow;
+            m_eglSurface = eglCreateWindowSurface(m_clientBufferIntegration->eglDisplay(), m_eglConfig, eglw, 0);
+        }
     }
 }
 
@@ -123,19 +141,6 @@ QSurfaceFormat QWaylandEglWindow::format() const
 
 EGLSurface QWaylandEglWindow::eglSurface() const
 {
-    if (!m_waylandEglWindow) {
-        QWaylandEglWindow *self = const_cast<QWaylandEglWindow *>(this);
-        self->createDecoration();
-        QMargins margins = frameMargins();
-        QSize sizeWithMargins = geometry().size() + QSize(margins.left() + margins.right(), margins.top() + margins.bottom());
-        m_waylandEglWindow = wl_egl_window_create(self->object(), sizeWithMargins.width(), sizeWithMargins.height());
-    }
-
-    if (!m_eglSurface) {
-        EGLNativeWindowType window = (EGLNativeWindowType) m_waylandEglWindow;
-        m_eglSurface = eglCreateWindowSurface(m_clientBufferIntegration->eglDisplay(), m_eglConfig, window, 0);
-    }
-
     return m_eglSurface;
 }
 

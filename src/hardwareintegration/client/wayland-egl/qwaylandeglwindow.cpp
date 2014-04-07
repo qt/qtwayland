@@ -139,6 +139,14 @@ QSurfaceFormat QWaylandEglWindow::format() const
     return m_format;
 }
 
+void QWaylandEglWindow::invalidateSurface()
+{
+    if (m_eglSurface) {
+        eglDestroySurface(m_clientBufferIntegration->eglDisplay(), m_eglSurface);
+        m_eglSurface = 0;
+    }
+}
+
 EGLSurface QWaylandEglWindow::eglSurface() const
 {
     return m_eglSurface;

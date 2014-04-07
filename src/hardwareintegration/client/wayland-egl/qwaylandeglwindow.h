@@ -69,6 +69,8 @@ public:
 
     void bindContentFBO();
 
+    void invalidateSurface() Q_DECL_OVERRIDE;
+
 private:
     QWaylandEglClientBufferIntegration *m_clientBufferIntegration;
     struct wl_egl_window *m_waylandEglWindow;

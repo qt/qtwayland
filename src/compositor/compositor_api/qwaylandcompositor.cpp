@@ -41,6 +41,7 @@
 #include "qwaylandcompositor.h"
 
 #include "qwaylandinput.h"
+#include "qwaylandglobalinterface.h"
 #include "qwaylandsurfaceview.h"
 
 #include "wayland_wrapper/qwlcompositor_p.h"
@@ -48,6 +49,7 @@
 #include "wayland_wrapper/qwlsurface_p.h"
 #include "wayland_wrapper/qwlinputdevice_p.h"
 #include "wayland_wrapper/qwlinputpanel_p.h"
+#include "wayland_wrapper/qwlshellsurface_p.h"
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QStringList>
@@ -81,6 +83,13 @@ QWaylandCompositor::QWaylandCompositor(QWindow *window, const char *socketName, 
 QWaylandCompositor::~QWaylandCompositor()
 {
     delete m_compositor;
+    qDeleteAll(m_compositor->m_globals);
+}
+
+void QWaylandCompositor::addGlobalInterface(QWaylandGlobalInterface *interface)
+{
+    wl_global_create(m_compositor->wl_display(), interface->interface(), interface->version(), interface, QtWayland::Compositor::bindGlobal);
+    m_compositor->m_globals << interface;
 }
 
 struct wl_display *QWaylandCompositor::waylandDisplay() const
@@ -287,6 +296,11 @@ void QWaylandCompositor::configureTouchExtension(TouchExtensionFlags flags)
 QWaylandSurfaceView *QWaylandCompositor::createView(QWaylandSurface *surface)
 {
     return new QWaylandSurfaceView(surface);
+}
+
+void QWaylandCompositor::initShell()
+{
+    addGlobalInterface(new QtWayland::Shell);
 }
 
 QT_END_NAMESPACE

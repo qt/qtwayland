@@ -58,6 +58,7 @@
 #include "qwlregion_p.h"
 #include "qwlpointer_p.h"
 #include "qwltextinputmanager_p.h"
+#include "qwaylandglobalinterface.h"
 #include "qwaylandsurfaceview.h"
 
 #include <QWindow>
@@ -146,13 +147,6 @@ void Compositor::init()
 
     m_output_global = new OutputGlobal(m_display->handle());
 
-    m_shell = new Shell();
-    wl_global_create(m_display->handle(),
-                     &wl_shell_interface,
-                     wl_shell_interface.version,
-                     m_shell,
-                     Shell::bind_func);
-
     if (wl_display_add_socket(m_display->handle(), m_qt_compositor->socketName())) {
         fprintf(stderr, "Fatal: Failed to open server socket\n");
         exit(EXIT_FAILURE);
@@ -176,11 +170,11 @@ void Compositor::init()
     initializeHardwareIntegration();
     initializeExtensions();
     initializeDefaultInputDevice();
+    m_qt_compositor->initShell();
 }
 
 Compositor::~Compositor()
 {
-    delete m_shell;
     delete m_outputExtension;
     delete m_surfaceExtension;
     delete m_subSurfaceExtension;
@@ -473,6 +467,12 @@ void Compositor::sendDragEndEvent()
 {
 //    Drag::instance()->dragEnd();
 }
+
+void Compositor::bindGlobal(wl_client *client, void *data, uint32_t version, uint32_t id)
+{
+    QWaylandGlobalInterface *iface = static_cast<QWaylandGlobalInterface *>(data);
+    iface->bind(client, version, id);
+};
 
 void Compositor::loadClientBufferIntegration()
 {

@@ -56,6 +56,7 @@ class QWaylandSurface;
 class QWaylandInputDevice;
 class QWaylandInputPanel;
 class QWaylandDrag;
+class QWaylandGlobalInterface;
 class QWaylandSurfaceView;
 
 namespace QtWayland
@@ -83,6 +84,7 @@ public:
     QWaylandCompositor(QWindow *window = 0, const char *socketName = 0, ExtensionFlags extensions = DefaultExtensions);
     virtual ~QWaylandCompositor();
 
+    void addGlobalInterface(QWaylandGlobalInterface *interface);
     struct wl_display *waylandDisplay() const;
 
     void frameStarted();
@@ -146,6 +148,7 @@ public:
 protected:
     QWaylandCompositor(QWindow *window, const char *socketName, QtWayland::Compositor *dptr);
     virtual void retainedSelectionReceived(QMimeData *mimeData);
+    virtual void initShell();
 
     friend class QtWayland::Compositor;
     QtWayland::Compositor *m_compositor;

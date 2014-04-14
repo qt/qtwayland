@@ -9,7 +9,9 @@ HEADERS += \
     compositor_api/qwaylandinputpanel.h \
     compositor_api/qwaylanddrag.h \
     compositor_api/qwaylandbufferref.h \
-    compositor_api/qwaylandsurfaceview.h
+    compositor_api/qwaylandsurfaceview.h \
+    compositor_api/qwaylandglobalinterface.h \
+    compositor_api/qwaylandshellsurface.h
 
 SOURCES += \
     compositor_api/qwaylandcompositor.cpp \
@@ -18,7 +20,9 @@ SOURCES += \
     compositor_api/qwaylandinputpanel.cpp \
     compositor_api/qwaylanddrag.cpp \
     compositor_api/qwaylandbufferref.cpp \
-    compositor_api/qwaylandsurfaceview.cpp
+    compositor_api/qwaylandsurfaceview.cpp \
+    compositor_api/qwaylandglobalinterface.cpp \
+    compositor_api/qwaylandshellsurface.cpp
 
 QT += core-private
 

@@ -43,6 +43,8 @@
 
 #include <QtCompositor/qwaylandexport.h>
 #include <QtCompositor/qwaylandsurface.h>
+#include <QtCompositor/qwaylandglobalinterface.h>
+#include <QtCompositor/qwaylandshellsurface.h>
 
 #include <wayland-server.h>
 #include <QHash>
@@ -65,45 +67,42 @@ class ShellSurfaceResizeGrabber;
 class ShellSurfaceMoveGrabber;
 class ShellSurfacePopupGrabber;
 
-class Shell
+class Shell : public QWaylandGlobalInterface, public QtWaylandServer::wl_shell
 {
 public:
     Shell();
 
-    static void bind_func(struct wl_client *client, void *data,
-                          uint32_t version, uint32_t id);
+    const wl_interface *interface() const Q_DECL_OVERRIDE;
+
+    void bind(struct wl_client *client, uint32_t version, uint32_t id) Q_DECL_OVERRIDE;
 
     ShellSurfacePopupGrabber* getPopupGrabber(InputDevice *input);
+
 private:
-    static void get_shell_surface(struct wl_client *client,
-                  struct wl_resource *resource,
-                  uint32_t id,
-                  struct wl_resource *surface);
-    static const struct wl_shell_interface shell_interface;
+    void shell_get_shell_surface(Resource *resource, uint32_t id, struct ::wl_resource *surface) Q_DECL_OVERRIDE;
 
     QHash<InputDevice*, ShellSurfacePopupGrabber*> m_popupGrabber;
 };
 
-class Q_COMPOSITOR_EXPORT ShellSurface : public QObject, public QtWaylandServer::wl_shell_surface
+class Q_COMPOSITOR_EXPORT ShellSurface : public QWaylandShellSurface, public QtWaylandServer::wl_shell_surface
 {
 public:
     ShellSurface(Shell *shell, struct wl_client *client, uint32_t id, Surface *surface);
     void sendConfigure(uint32_t edges, int32_t width, int32_t height);
-    void ping();
-
-    Surface *surface() const;
 
     void adjustPosInResize();
     void resetResizeGrabber();
     void resetMoveGrabber();
 
-    Surface *transientParent() const;
     void setOffset(const QPointF &offset);
 
-    QWaylandSurface::WindowType windowType() const;
+    QWaylandSurface::WindowType windowType() const Q_DECL_OVERRIDE;
 
     void mapPopup();
     void configure(bool hasBuffer);
+
+    void requestSize(const QSize &size) Q_DECL_OVERRIDE;
+    void ping(uint32_t serial) Q_DECL_OVERRIDE;
 
 private:
     Shell *m_shell;

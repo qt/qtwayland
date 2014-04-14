@@ -182,7 +182,7 @@ Item {
         onUnmapped: unmapAnimation.start()
     }
     Connections {
-        target: container.child
+        target: container.child ? container.child : null
         onSurfaceDestroyed: {
             destroyAnimation.start();
         }

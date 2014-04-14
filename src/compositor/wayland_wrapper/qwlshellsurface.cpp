@@ -60,12 +60,15 @@ Shell::Shell()
 {
 }
 
-void Shell::bind_func(struct wl_client *client, void *data,
-                            uint32_t version, uint32_t id)
+const wl_interface *Shell::interface() const
 {
-    Q_UNUSED(version);
-    struct wl_resource *resource = wl_resource_create(client, &wl_shell_interface, version, id);
-    wl_resource_set_implementation(resource, &shell_interface, data, 0);
+    return &wl_shell_interface;
+}
+
+void Shell::bind(struct wl_client *client, uint32_t version, uint32_t id)
+{
+    Q_UNUSED(version)
+    add(client, id);
 }
 
 ShellSurfacePopupGrabber *Shell::getPopupGrabber(InputDevice *input)
@@ -76,22 +79,17 @@ ShellSurfacePopupGrabber *Shell::getPopupGrabber(InputDevice *input)
     return m_popupGrabber.value(input);
 }
 
-void Shell::get_shell_surface(struct wl_client *client,
-              struct wl_resource *shell_resource,
-              uint32_t id,
-              struct wl_resource *surface_super)
+void Shell::shell_get_shell_surface(Resource *resource, uint32_t id, struct ::wl_resource *surface_res)
 {
-    Shell *shell = static_cast<Shell*>(shell_resource->data);
-    Surface *surface = Surface::fromResource(surface_super);
-    new ShellSurface(shell, client, id, surface);
+    Surface *surface = Surface::fromResource(surface_res);
+    new ShellSurface(this, resource->client(), id, surface);
 }
 
-const struct wl_shell_interface Shell::shell_interface = {
-    Shell::get_shell_surface
-};
+
 
 ShellSurface::ShellSurface(Shell *shell, wl_client *client, uint32_t id, Surface *surface)
-    : wl_shell_surface(client, id)
+    : QWaylandShellSurface(surface->waylandSurface())
+    , wl_shell_surface(client, id)
     , m_shell(shell)
     , m_surface(surface)
     , m_resizeGrabber(0)
@@ -104,7 +102,6 @@ ShellSurface::ShellSurface(Shell *shell, wl_client *client, uint32_t id, Surface
     , m_popupLocation()
     , m_popupSerial()
 {
-    surface->setShellSurface(this);
     m_view = surface->compositor()->waylandCompositor()->createView(surface->waylandSurface());
     connect(surface->waylandSurface(), &QWaylandSurface::configure, this, &ShellSurface::configure);
 }
@@ -114,16 +111,10 @@ void ShellSurface::sendConfigure(uint32_t edges, int32_t width, int32_t height)
     send_configure(edges, width, height);
 }
 
-void ShellSurface::ping()
+void ShellSurface::ping(uint32_t serial)
 {
-    uint32_t serial = wl_display_next_serial(m_view->surface()->compositor()->waylandDisplay());
     m_pings.insert(serial);
     send_ping(serial);
-}
-
-Surface *ShellSurface::surface() const
-{
-    return m_surface;
 }
 
 void ShellSurface::adjustPosInResize()
@@ -155,11 +146,6 @@ void ShellSurface::resetMoveGrabber()
     m_moveGrabber = 0;
 }
 
-Surface *ShellSurface::transientParent() const
-{
-    return m_transientParent;
-}
-
 void ShellSurface::setOffset(const QPointF &offset)
 {
     m_xOffset = offset.x();
@@ -184,6 +170,11 @@ void ShellSurface::mapPopup()
 void ShellSurface::configure(bool hasBuffer)
 {
     m_surface->setMapped(hasBuffer);
+}
+
+void ShellSurface::requestSize(const QSize &size)
+{
+    send_configure(WL_SHELL_SURFACE_RESIZE_BOTTOM_RIGHT, size.width(), size.height());
 }
 
 void ShellSurface::shell_surface_destroy_resource(Resource *)

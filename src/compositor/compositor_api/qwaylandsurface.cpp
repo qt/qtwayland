@@ -143,8 +143,12 @@ QSize QWaylandSurface::size() const
 void QWaylandSurface::requestSize(const QSize &size)
 {
     Q_D(QWaylandSurface);
-    if (d->shellSurface())
-        d->shellSurface()->sendConfigure(WL_SHELL_SURFACE_RESIZE_BOTTOM_RIGHT, size.width(), size.height());
+    if (d->shellSurface()) {
+        d->shellSurface()->requestSize(size);
+    } else {
+        int id = wl_resource_get_id(d->resource()->handle);
+        qWarning("No shell surface attached to this surface (wl_surface@%d). Cannot forward requestSize call.", id);
+    }
 }
 
 Qt::ScreenOrientations QWaylandSurface::orientationUpdateMask() const
@@ -219,14 +223,6 @@ QWaylandCompositor *QWaylandSurface::compositor() const
     return d->compositor()->waylandCompositor();
 }
 
-QWaylandSurface *QWaylandSurface::transientParent() const
-{
-    Q_D(const QWaylandSurface);
-    if (d->shellSurface() && d->shellSurface()->transientParent())
-        return d->shellSurface()->transientParent()->waylandSurface();
-    return 0;
-}
-
 QWindow::Visibility QWaylandSurface::visibility() const
 {
     Q_D(const QWaylandSurface);
@@ -246,8 +242,13 @@ void QWaylandSurface::setVisibility(QWindow::Visibility visibility)
 void QWaylandSurface::ping()
 {
     Q_D(QWaylandSurface);
-    if (d->shellSurface())
-        d->shellSurface()->ping();
+    if (d->shellSurface()) {
+        uint32_t serial = wl_display_next_serial(compositor()->waylandDisplay());
+        d->shellSurface()->ping(serial);
+    } else {
+        int id = wl_resource_get_id(d->resource()->handle);
+        qWarning("No shell surface attached to this surface (wl_surface@%d). Cannot forward ping call.", id);
+    }
 }
 
 void QWaylandSurface::sendOnScreenVisibilityChange(bool visible)

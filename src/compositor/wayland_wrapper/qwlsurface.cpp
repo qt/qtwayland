@@ -47,8 +47,8 @@
 #include "qwlregion_p.h"
 #include "qwlsubsurface_p.h"
 #include "qwlsurfacebuffer_p.h"
-#include "qwlshellsurface_p.h"
 #include "qwaylandsurfaceview.h"
+#include "qwaylandshellsurface.h"
 
 #include <QtCore/QDebug>
 #include <QTouchEvent>
@@ -114,11 +114,11 @@ Surface::Surface(struct wl_client *client, uint32_t id, QWaylandCompositor *comp
     , m_compositor(compositor->handle())
     , m_waylandSurface(surface)
     , m_buffer(0)
+    , m_shellSurface(0)
     , m_surfaceMapped(false)
     , m_attacher(0)
     , m_extendedSurface(0)
     , m_subSurface(0)
-    , m_shellSurface(0)
     , m_inputPanelSurface(0)
     , m_transientInactive(false)
     , m_isCursorSurface(false)
@@ -131,6 +131,7 @@ Surface::Surface(struct wl_client *client, uint32_t id, QWaylandCompositor *comp
 Surface::~Surface()
 {
     delete m_subSurface;
+    delete m_shellSurface;
 
     m_bufferRef = QWaylandBufferRef();
 
@@ -251,12 +252,12 @@ SubSurface *Surface::subSurface() const
     return m_subSurface;
 }
 
-void Surface::setShellSurface(ShellSurface *shellSurface)
+void Surface::setShellSurface(QWaylandShellSurface *shellSurface)
 {
     m_shellSurface = shellSurface;
 }
 
-ShellSurface *Surface::shellSurface() const
+QWaylandShellSurface *Surface::shellSurface() const
 {
     return m_shellSurface;
 }

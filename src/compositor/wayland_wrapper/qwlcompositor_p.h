@@ -73,7 +73,6 @@ class OutputGlobal;
 class OutputExtensionGlobal;
 class SurfaceExtensionGlobal;
 class SubSurfaceExtensionGlobal;
-class Shell;
 class TouchExtensionGlobal;
 class QtKeyExtensionGlobal;
 class TextInputManager;
@@ -154,6 +153,8 @@ public:
     bool retainedSelectionEnabled() const;
     void overrideSelection(const QMimeData *data);
     void feedRetainedSelectionData(QMimeData *data);
+
+    static void bindGlobal(wl_client *client, void *data, uint32_t version, uint32_t id);
 public slots:
     void cleanupGraphicsResources();
 
@@ -204,7 +205,6 @@ protected:
     //extensions
     WindowManagerServerIntegration *m_windowManagerIntegration;
 
-    Shell *m_shell;
     OutputExtensionGlobal *m_outputExtension;
     SurfaceExtensionGlobal *m_surfaceExtension;
     SubSurfaceExtensionGlobal *m_subSurfaceExtension;
@@ -212,6 +212,7 @@ protected:
     QtKeyExtensionGlobal *m_qtkeyExtension;
     QScopedPointer<TextInputManager> m_textInputManager;
     QScopedPointer<InputPanel> m_inputPanel;
+    QList<QWaylandGlobalInterface *> m_globals;
 
     static void bind_func(struct wl_client *client, void *data,
                           uint32_t version, uint32_t id);

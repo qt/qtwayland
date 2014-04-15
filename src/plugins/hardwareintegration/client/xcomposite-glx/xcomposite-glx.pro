@@ -1,4 +1,4 @@
-PLUGIN_TYPE = wayland-graphics-integration/client
+PLUGIN_TYPE = wayland-graphics-integration-client
 load(qt_plugin)
 
 QT += waylandclient-private

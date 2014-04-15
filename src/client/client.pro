@@ -3,6 +3,8 @@ QT += core-private gui-private
 QT_FOR_PRIVATE += platformsupport-private
 
 MODULE=waylandclient
+MODULE_PLUGIN_TYPES = wayland-graphics-integration-client
+
 load(qt_module)
 
 CONFIG += link_pkgconfig qpa/genericunixfontdatabase wayland-scanner

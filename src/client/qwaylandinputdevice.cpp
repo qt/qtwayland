@@ -517,6 +517,12 @@ void QWaylandInputDevice::Pointer::pointer_axis(uint32_t time, uint32_t axis, in
     QPoint pixelDelta;
     QPoint angleDelta;
 
+    if (window == NULL) {
+        // We destroyed the pointer focus surface, but the server
+        // didn't get the message yet.
+        return;
+    }
+
     //normalize value and inverse axis
     int valueDelta = wl_fixed_to_int(value) * -12;
 

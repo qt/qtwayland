@@ -58,6 +58,7 @@ public:
     ~QWaylandEglWindow();
     WindowType windowType() const;
 
+    void create();
     virtual void setGeometry(const QRect &rect);
     QRect contentsRect() const;
 

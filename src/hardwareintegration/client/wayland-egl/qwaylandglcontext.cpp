@@ -113,6 +113,10 @@ bool QWaylandGLContext::makeCurrent(QPlatformSurface *surface)
     window->setCanResize(false);
 
     EGLSurface eglSurface = window->eglSurface();
+    if (!eglSurface) {
+        window->create();
+        eglSurface = window->eglSurface();
+    }
     if (!eglMakeCurrent(m_eglDisplay, eglSurface, eglSurface, m_context)) {
         qWarning("QEGLPlatformContext::makeCurrent: eglError: %x, this: %p \n", eglGetError(), this);
         return false;

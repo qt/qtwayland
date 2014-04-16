@@ -64,7 +64,7 @@ QWaylandEglWindow::QWaylandEglWindow(QWindow *window)
     , m_resize(false)
     , m_format(q_glFormatFromConfig(m_clientBufferIntegration->eglDisplay(), m_eglConfig))
 {
-    setGeometry(window->geometry());
+    create();
 }
 
 QWaylandEglWindow::~QWaylandEglWindow()
@@ -87,9 +87,14 @@ QWaylandWindow::WindowType QWaylandEglWindow::windowType() const
 void QWaylandEglWindow::setGeometry(const QRect &rect)
 {
     QWaylandWindow::setGeometry(rect);
+    create();
+}
 
+void QWaylandEglWindow::create()
+{
     createDecoration();
     QMargins margins = frameMargins();
+    QRect rect = geometry();
     QSize sizeWithMargins = rect.size() + QSize(margins.left() + margins.right(), margins.top() + margins.bottom());
 
     // wl_egl_windows must have both width and height > 0

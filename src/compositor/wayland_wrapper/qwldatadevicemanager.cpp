@@ -70,7 +70,7 @@ DataDeviceManager::DataDeviceManager(Compositor *compositor)
 
 void DataDeviceManager::setCurrentSelectionSource(DataSource *source)
 {
-    if (m_current_selection_source
+    if (m_current_selection_source && source
             && m_current_selection_source->time() > source->time()) {
         qDebug() << "Trying to set older selection";
         return;
@@ -81,7 +81,8 @@ void DataDeviceManager::setCurrentSelectionSource(DataSource *source)
     finishReadFromClient();
 
     m_current_selection_source = source;
-    source->setManager(this);
+    if (source)
+        source->setManager(this);
 
     // When retained selection is enabled, the compositor will query all the data from the client.
     // This makes it possible to
@@ -89,7 +90,7 @@ void DataDeviceManager::setCurrentSelectionSource(DataSource *source)
     //    2. make it possible for the compositor to participate in copy-paste
     // The downside is decreased performance, therefore this mode has to be enabled
     // explicitly in the compositors.
-    if (m_compositor->retainedSelectionEnabled()) {
+    if (source && m_compositor->retainedSelectionEnabled()) {
         m_retainedData.clear();
         m_retainedReadIndex = 0;
         retain();

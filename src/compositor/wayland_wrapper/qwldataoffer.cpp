@@ -51,7 +51,7 @@ namespace QtWayland
 {
 
 DataOffer::DataOffer(DataSource *dataSource, QtWaylandServer::wl_data_device::Resource *target)
-    : QtWaylandServer::wl_data_offer(dataSource->resource()->client(), 0)
+    : QtWaylandServer::wl_data_offer(target->client(), 0)
     , m_dataSource(dataSource)
 {
     // FIXME: connect to dataSource and reset m_dataSource on destroy

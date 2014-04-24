@@ -84,6 +84,8 @@ QWaylandDataSource *QWaylandDataDevice::selectionSource() const
 void QWaylandDataDevice::setSelectionSource(QWaylandDataSource *source)
 {
     m_selectionSource.reset(source);
+    if (source)
+        connect(source, &QWaylandDataSource::cancelled, this, &QWaylandDataDevice::selectionSourceCancelled);
     set_selection(source ? source->object() : 0, 0 /* TODO m_display->serial() */);
 }
 
@@ -95,7 +97,7 @@ QWaylandDataOffer *QWaylandDataDevice::dragOffer() const
 void QWaylandDataDevice::startDrag(QMimeData *mimeData, QWaylandWindow *icon)
 {
     m_dragSource.reset(new QWaylandDataSource(m_display->dndSelectionHandler(), mimeData));
-
+    connect(m_dragSource.data(), &QWaylandDataSource::cancelled, this, &QWaylandDataDevice::dragSourceCancelled);
     QWaylandWindow *origin = m_display->currentInputDevice()->pointerFocus();
 
     start_drag(m_dragSource->object(), origin->object(), icon->object(), m_display->currentInputDevice()->serial());

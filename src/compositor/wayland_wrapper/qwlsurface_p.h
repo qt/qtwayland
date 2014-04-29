@@ -194,7 +194,7 @@ protected:
     void setBackBuffer(SurfaceBuffer *buffer);
     SurfaceBuffer *createSurfaceBuffer(struct ::wl_resource *buffer);
 
-    friend QWaylandSurface;
+    friend class QWaylandSurface;
 };
 
 }

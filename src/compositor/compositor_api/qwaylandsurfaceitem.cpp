@@ -221,6 +221,30 @@ void QWaylandSurfaceItem::mouseReleaseEvent(QMouseEvent *event)
     }
 }
 
+void QWaylandSurfaceItem::hoverEnterEvent(QHoverEvent *event)
+{
+    if (m_surface) {
+        QWaylandInputDevice *inputDevice = m_surface->compositor()->defaultInputDevice();
+        inputDevice->sendMouseMoveEvent(m_surface, event->pos());
+    }
+}
+
+void QWaylandSurfaceItem::hoverMoveEvent(QHoverEvent *event)
+{
+    if (m_surface) {
+        QWaylandInputDevice *inputDevice = m_surface->compositor()->defaultInputDevice();
+        inputDevice->sendMouseMoveEvent(m_surface, event->pos());
+    }
+}
+
+void QWaylandSurfaceItem::hoverLeaveEvent(QHoverEvent *event)
+{
+    if (m_surface) {
+        QWaylandInputDevice *inputDevice = m_surface->compositor()->defaultInputDevice();
+        inputDevice->sendMouseMoveEvent(m_surface, event->pos());
+    }
+}
+
 void QWaylandSurfaceItem::wheelEvent(QWheelEvent *event)
 {
     if (m_surface) {

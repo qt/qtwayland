@@ -118,7 +118,6 @@ private:
 
     QWaylandSurface::WindowType m_windowType;
 
-    QPointF m_popupLocation;
     uint32_t m_popupSerial;
 
     QSet<uint32_t> m_pings;

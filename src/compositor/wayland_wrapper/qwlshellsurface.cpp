@@ -99,7 +99,6 @@ ShellSurface::ShellSurface(Shell *shell, wl_client *client, uint32_t id, Surface
     , m_xOffset(0)
     , m_yOffset(0)
     , m_windowType(QWaylandSurface::None)
-    , m_popupLocation()
     , m_popupSerial()
 {
     surface->setShellSurface(this);
@@ -309,7 +308,8 @@ void ShellSurface::shell_surface_set_popup(Resource *resource, wl_resource *inpu
 
     m_popupSerial = serial;
     m_transientParent = Surface::fromResource(parent)->shellSurface();
-    m_popupLocation = QPointF(x, y);
+    m_xOffset = x;
+    m_yOffset = y;
 
     if (m_windowType != QWaylandSurface::Popup) {
         m_windowType = QWaylandSurface::Popup;

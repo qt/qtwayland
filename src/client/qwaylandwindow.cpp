@@ -81,7 +81,7 @@ QWaylandWindow::QWaylandWindow(QWindow *window)
     , mRequestResizeSent(false)
     , mCanResize(true)
     , mResizeDirty(false)
-    , mResizeAfterSwap(!qEnvironmentVariableIsSet("QT_WAYLAND_RESIZE_AFTER_SWAP"))
+    , mResizeAfterSwap(qEnvironmentVariableIsSet("QT_WAYLAND_RESIZE_AFTER_SWAP"))
     , mSentInitialResize(false)
     , mMouseDevice(0)
     , mMouseSerial(0)
@@ -198,7 +198,7 @@ void QWaylandWindow::setGeometry(const QRect &rect)
     if (mWindowDecoration && window()->isVisible())
         mWindowDecoration->update();
 
-    if (mResizeAfterSwap)
+    if (mResizeAfterSwap && windowType() == Egl)
         mResizeDirty = true;
     else
         QWindowSystemInterface::handleGeometryChange(window(), geometry());

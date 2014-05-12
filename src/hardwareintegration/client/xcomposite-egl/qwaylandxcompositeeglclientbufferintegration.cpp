@@ -44,6 +44,7 @@
 #include "qwaylandxcompositeeglwindow.h"
 
 #include <QtCore/QDebug>
+#include <QtPlatformSupport/private/qeglconvenience_p.h>
 
 #include "wayland-xcomposite-client-protocol.h"
 
@@ -79,7 +80,9 @@ QWaylandWindow * QWaylandXCompositeEGLClientBufferIntegration::createEglWindow(Q
 
 QPlatformOpenGLContext *QWaylandXCompositeEGLClientBufferIntegration::createPlatformOpenGLContext(const QSurfaceFormat &glFormat, QPlatformOpenGLContext *share) const
 {
-    return new QWaylandXCompositeEGLContext(glFormat, share, eglDisplay());
+    EGLDisplay display = eglDisplay();
+    EGLConfig config = q_configFromGLFormat(display, glFormat, true, EGL_WINDOW_BIT | EGL_PIXMAP_BIT);
+    return new QWaylandXCompositeEGLContext(glFormat, share, display, config);
 }
 
 Display * QWaylandXCompositeEGLClientBufferIntegration::xDisplay() const

@@ -55,7 +55,7 @@ class QWaylandXCompositeEGLWindow;
 class QWaylandXCompositeEGLContext : public QEGLPlatformContext
 {
 public:
-    QWaylandXCompositeEGLContext(const QSurfaceFormat &format, QPlatformOpenGLContext *share, EGLDisplay display);
+    QWaylandXCompositeEGLContext(const QSurfaceFormat &format, QPlatformOpenGLContext *share, EGLDisplay display, EGLConfig config);
 
     void swapBuffers(QPlatformSurface *surface);
 

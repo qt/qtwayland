@@ -50,8 +50,8 @@
 
 QT_BEGIN_NAMESPACE
 
-QWaylandXCompositeEGLContext::QWaylandXCompositeEGLContext(const QSurfaceFormat &format, QPlatformOpenGLContext *share, EGLDisplay display)
-    : QEGLPlatformContext(format, share, display, q_configFromGLFormat(display, format, true, EGL_WINDOW_BIT | EGL_PIXMAP_BIT))
+QWaylandXCompositeEGLContext::QWaylandXCompositeEGLContext(const QSurfaceFormat &format, QPlatformOpenGLContext *share, EGLDisplay display, EGLConfig config)
+    : QEGLPlatformContext(format, share, display, &config)
 {
 }
 

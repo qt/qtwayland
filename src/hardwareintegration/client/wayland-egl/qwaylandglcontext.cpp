@@ -118,7 +118,7 @@ bool QWaylandGLContext::makeCurrent(QPlatformSurface *surface)
         eglSurface = window->eglSurface();
     }
     if (!eglMakeCurrent(m_eglDisplay, eglSurface, eglSurface, m_context)) {
-        qWarning("QEGLPlatformContext::makeCurrent: eglError: %x, this: %p \n", eglGetError(), this);
+        qWarning("QWaylandGLContext::makeCurrent: eglError: %x, this: %p \n", eglGetError(), this);
         return false;
     }
 

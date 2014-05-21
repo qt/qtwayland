@@ -243,6 +243,9 @@ void QWaylandBrcmEglWindow::swapBuffers()
         glFinish();
     }
 
+    if (!m_count)
+        return;
+
     m_buffers[m_current]->bind();
     attach(m_buffers[m_current], 0, 0);
     damage(QRect(QPoint(), geometry().size()));

@@ -114,7 +114,7 @@ bool QWaylandGLContext::makeCurrent(QPlatformSurface *surface)
 
     EGLSurface eglSurface = window->eglSurface();
     if (!eglSurface) {
-        window->create();
+        window->updateSurface(true);
         eglSurface = window->eglSurface();
     }
     if (!eglMakeCurrent(m_eglDisplay, eglSurface, eglSurface, m_context)) {

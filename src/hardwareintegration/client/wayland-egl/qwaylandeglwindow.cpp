@@ -64,7 +64,7 @@ QWaylandEglWindow::QWaylandEglWindow(QWindow *window)
     , m_resize(false)
     , m_format(q_glFormatFromConfig(m_clientBufferIntegration->eglDisplay(), m_eglConfig))
 {
-    create();
+    updateSurface(true);
 }
 
 QWaylandEglWindow::~QWaylandEglWindow()
@@ -87,10 +87,14 @@ QWaylandWindow::WindowType QWaylandEglWindow::windowType() const
 void QWaylandEglWindow::setGeometry(const QRect &rect)
 {
     QWaylandWindow::setGeometry(rect);
-    create();
+    // If the surface was invalidated through invalidateSurface() and
+    // we're now getting a resize we don't want to create it again.
+    // Just resize the wl_egl_window, the EGLSurface will be created
+    // the next time makeCurrent is called.
+    updateSurface(false);
 }
 
-void QWaylandEglWindow::create()
+void QWaylandEglWindow::updateSurface(bool create)
 {
     createDecoration();
     QMargins margins = frameMargins();
@@ -125,7 +129,7 @@ void QWaylandEglWindow::create()
             m_waylandEglWindow = wl_egl_window_create(object(), sizeWithMargins.width(), sizeWithMargins.height());
         }
 
-        if (!m_eglSurface) {
+        if (!m_eglSurface && create) {
             EGLNativeWindowType eglw = (EGLNativeWindowType) m_waylandEglWindow;
             m_eglSurface = eglCreateWindowSurface(m_clientBufferIntegration->eglDisplay(), m_eglConfig, eglw, 0);
         }

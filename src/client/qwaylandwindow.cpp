@@ -120,7 +120,7 @@ QWaylandWindow::QWaylandWindow(QWindow *window)
     }
 
     setWindowFlags(window->flags());
-    setGeometry(window->geometry());
+    setGeometry_helper(window->geometry());
     setWindowStateInternal(window->windowState());
     handleContentOrientationChange(window->contentOrientation());
 }
@@ -186,7 +186,7 @@ void QWaylandWindow::setWindowIcon(const QIcon &icon)
         mWindowDecoration->update();
 }
 
-void QWaylandWindow::setGeometry(const QRect &rect)
+void QWaylandWindow::setGeometry_helper(const QRect &rect)
 {
     QPlatformWindow::setGeometry(QRect(rect.x(), rect.y(),
                 qBound(window()->minimumWidth(), rect.width(), window()->maximumWidth()),
@@ -194,15 +194,25 @@ void QWaylandWindow::setGeometry(const QRect &rect)
 
     if (shellSurface() && window()->transientParent() && window()->type() != Qt::Popup)
         shellSurface()->updateTransientParent(window()->transientParent());
+}
 
-    if (mWindowDecoration && window()->isVisible())
-        mWindowDecoration->update();
+void QWaylandWindow::setGeometry(const QRect &rect)
+{
+    setGeometry_helper(rect);
 
-    if (mResizeAfterSwap && windowType() == Egl)
-        mResizeDirty = true;
-    else
-        QWindowSystemInterface::handleGeometryChange(window(), geometry());
-    QWindowSystemInterface::handleExposeEvent(window(), QRegion(geometry()));
+    if (window()->isVisible()) {
+        if (mWindowDecoration)
+            mWindowDecoration->update();
+
+        if (mResizeAfterSwap && windowType() == Egl && mSentInitialResize)
+            mResizeDirty = true;
+        else
+            QWindowSystemInterface::handleGeometryChange(window(), geometry());
+
+        QWindowSystemInterface::handleExposeEvent(window(), QRect(QPoint(), geometry().size()));
+
+        mSentInitialResize = true;
+    }
 }
 
 void QWaylandWindow::setVisible(bool visible)
@@ -217,12 +227,7 @@ void QWaylandWindow::setVisible(bool visible)
                 mShellSurface->setPopup(transientParent(), mMouseDevice, mMouseSerial);
         }
 
-        if (!mSentInitialResize) {
-            QWindowSystemInterface::handleGeometryChange(window(), geometry());
-            mSentInitialResize = true;
-        }
-
-        QWindowSystemInterface::handleExposeEvent(window(), QRect(QPoint(), geometry().size()));
+        setGeometry(window()->geometry());
         // Don't flush the events here, or else the newly visible window may start drawing, but since
         // there was no frame before it will be stuck at the waitForFrameSync() in
         // QWaylandShmBackingStore::beginPaint().

@@ -207,6 +207,7 @@ protected:
 
 private:
     bool setWindowStateInternal(Qt::WindowState flags);
+    void setGeometry_helper(const QRect &rect);
 
     void handleMouseEventWithDecoration(QWaylandInputDevice *inputDevice,
                                         ulong timestamp,

@@ -67,7 +67,7 @@ QWaylandXCompositeGLXContext::QWaylandXCompositeGLXContext(const QSurfaceFormat 
     GLXFBConfig config = qglx_findConfig(display, screen, m_format, GLX_WINDOW_BIT | GLX_PIXMAP_BIT);
     XVisualInfo *visualInfo = glXGetVisualFromFBConfig(display, config);
     m_context = glXCreateContext(display, visualInfo, shareContext, true);
-    qglx_surfaceFormatFromGLXFBConfig(&m_format, display, config, m_context);
+    qglx_surfaceFormatFromGLXFBConfig(&m_format, display, config);
 }
 
 bool QWaylandXCompositeGLXContext::makeCurrent(QPlatformSurface *surface)

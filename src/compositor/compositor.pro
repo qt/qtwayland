@@ -6,6 +6,7 @@ contains(QT_CONFIG, opengl):MODULE_DEFINES = QT_COMPOSITOR_WAYLAND_GL
 MODULE_PLUGIN_TYPES = wayland-graphics-integration-server
 load(qt_module)
 
+CONFIG -= precompile_header
 CONFIG += link_pkgconfig
 
 DEFINES += QT_WAYLAND_WINDOWMANAGER_SUPPORT

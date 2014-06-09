@@ -64,7 +64,6 @@ ExtendedSurface::ExtendedSurface(struct wl_client *client, uint32_t id, Surface 
     : QWaylandSurfaceInterface(surface->waylandSurface())
     , QtWaylandServer::qt_extended_surface(client,id)
     , m_surface(surface)
-    , m_contentOrientation(Qt::PrimaryOrientation)
     , m_windowFlags(0)
     , m_visibility(QWindow::Hidden)
 {
@@ -126,34 +125,9 @@ void ExtendedSurface::extended_surface_update_generic_property(Resource *resourc
     setWindowProperty(name,variantValue,false);
 }
 
-static Qt::ScreenOrientation screenOrientationFromWaylandOrientation(int32_t orientation)
-{
-    switch (orientation) {
-    case QT_EXTENDED_SURFACE_ORIENTATION_PORTRAITORIENTATION: return Qt::PortraitOrientation;
-    case QT_EXTENDED_SURFACE_ORIENTATION_INVERTEDPORTRAITORIENTATION: return Qt::InvertedPortraitOrientation;
-    case QT_EXTENDED_SURFACE_ORIENTATION_LANDSCAPEORIENTATION: return Qt::LandscapeOrientation;
-    case QT_EXTENDED_SURFACE_ORIENTATION_INVERTEDLANDSCAPEORIENTATION: return Qt::InvertedLandscapeOrientation;
-    default: return Qt::PrimaryOrientation;
-    }
-}
-
-Qt::ScreenOrientation ExtendedSurface::contentOrientation() const
-{
-    return m_contentOrientation;
-}
-
 Qt::ScreenOrientations ExtendedSurface::contentOrientationMask() const
 {
     return m_contentOrientationMask;
-}
-
-void ExtendedSurface::extended_surface_set_content_orientation(Resource *resource, int32_t orientation)
-{
-    Q_UNUSED(resource);
-    Qt::ScreenOrientation oldOrientation = m_contentOrientation;
-    m_contentOrientation = screenOrientationFromWaylandOrientation(orientation);
-    if (m_contentOrientation != oldOrientation)
-        emit m_surface->waylandSurface()->contentOrientationChanged();
 }
 
 void ExtendedSurface::extended_surface_set_content_orientation_mask(Resource *resource, int32_t orientation)

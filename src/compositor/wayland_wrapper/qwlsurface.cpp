@@ -51,6 +51,8 @@
 
 #include <QtCore/QDebug>
 #include <QTouchEvent>
+#include <QGuiApplication>
+#include <QScreen>
 
 #include <wayland-server.h>
 
@@ -117,6 +119,7 @@ Surface::Surface(struct wl_client *client, uint32_t id, QWaylandCompositor *comp
     , m_transientInactive(false)
     , m_isCursorSurface(false)
     , m_destroyed(false)
+    , m_contentOrientation(Qt::PrimaryOrientation)
 {
     m_pending.buffer = 0;
     m_pending.newlyAttached = false;
@@ -320,6 +323,11 @@ SurfaceBuffer *Surface::createSurfaceBuffer(struct ::wl_resource *buffer)
     return newBuffer;
 }
 
+Qt::ScreenOrientation Surface::contentOrientation() const
+{
+    return m_contentOrientation;
+}
+
 void Surface::surface_destroy_resource(Resource *)
 {
     if (m_extendedSurface) {
@@ -393,6 +401,29 @@ void Surface::surface_commit(Resource *)
     m_pendingFrameCallbacks.clear();
 
     emit m_waylandSurface->redraw();
+}
+
+void Surface::surface_set_buffer_transform(Resource *resource, int32_t orientation)
+{
+    Q_UNUSED(resource);
+    QScreen *screen = QGuiApplication::primaryScreen();
+    bool isPortrait = screen->primaryOrientation() == Qt::PortraitOrientation;
+    Qt::ScreenOrientation oldOrientation = m_contentOrientation;
+    switch (orientation) {
+        case WL_OUTPUT_TRANSFORM_90:
+            m_contentOrientation = isPortrait ? Qt::InvertedLandscapeOrientation : Qt::PortraitOrientation;
+            break;
+        case WL_OUTPUT_TRANSFORM_180:
+            m_contentOrientation = isPortrait ? Qt::InvertedPortraitOrientation : Qt::InvertedLandscapeOrientation;
+            break;
+        case WL_OUTPUT_TRANSFORM_270:
+            m_contentOrientation = isPortrait ? Qt::LandscapeOrientation : Qt::InvertedPortraitOrientation;
+            break;
+        default:
+            m_contentOrientation = Qt::PrimaryOrientation;
+    }
+    if (m_contentOrientation != oldOrientation)
+        emit waylandSurface()->contentOrientationChanged();
 }
 
 void Surface::frameStarted()

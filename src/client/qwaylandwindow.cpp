@@ -435,8 +435,28 @@ QWaylandSubSurface *QWaylandWindow::subSurfaceWindow() const
 
 void QWaylandWindow::handleContentOrientationChange(Qt::ScreenOrientation orientation)
 {
-    if (mExtendedWindow)
-        mExtendedWindow->setContentOrientation(orientation);
+    wl_output_transform transform;
+    bool isPortrait = window()->screen() && window()->screen()->primaryOrientation() == Qt::PortraitOrientation;
+    switch (orientation) {
+        case Qt::PrimaryOrientation:
+            transform = WL_OUTPUT_TRANSFORM_NORMAL;
+            break;
+        case Qt::LandscapeOrientation:
+            transform = isPortrait ? WL_OUTPUT_TRANSFORM_270 : WL_OUTPUT_TRANSFORM_NORMAL;
+            break;
+        case Qt::PortraitOrientation:
+            transform = isPortrait ? WL_OUTPUT_TRANSFORM_NORMAL : WL_OUTPUT_TRANSFORM_90;
+            break;
+        case Qt::InvertedLandscapeOrientation:
+            transform = isPortrait ? WL_OUTPUT_TRANSFORM_90 : WL_OUTPUT_TRANSFORM_180;
+            break;
+        case Qt::InvertedPortraitOrientation:
+            transform = isPortrait ? WL_OUTPUT_TRANSFORM_180 : WL_OUTPUT_TRANSFORM_270;
+            break;
+    }
+    set_buffer_transform(transform);
+    // set_buffer_transform is double buffered, we need to commit.
+    commit();
 }
 
 void QWaylandWindow::setOrientationMask(Qt::ScreenOrientations mask)

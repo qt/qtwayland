@@ -130,6 +130,8 @@ public:
 
     inline bool isDestroyed() const { return m_destroyed; }
 
+    Qt::ScreenOrientation contentOrientation() const;
+
 protected:
     void surface_destroy_resource(Resource *resource) Q_DECL_OVERRIDE;
 
@@ -145,6 +147,7 @@ protected:
     void surface_set_input_region(Resource *resource,
                                   struct wl_resource *region) Q_DECL_OVERRIDE;
     void surface_commit(Resource *resource) Q_DECL_OVERRIDE;
+    void surface_set_buffer_transform(Resource *resource, int32_t transform) Q_DECL_OVERRIDE;
 
     Q_DISABLE_COPY(Surface)
 
@@ -185,6 +188,7 @@ protected:
     bool m_transientInactive;
     bool m_isCursorSurface;
     bool m_destroyed;
+    Qt::ScreenOrientation m_contentOrientation;
 
     void setBackBuffer(SurfaceBuffer *buffer);
     SurfaceBuffer *createSurfaceBuffer(struct ::wl_resource *buffer);

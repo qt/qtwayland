@@ -175,9 +175,7 @@ Qt::ScreenOrientations QWaylandSurface::orientationUpdateMask() const
 Qt::ScreenOrientation QWaylandSurface::contentOrientation() const
 {
     Q_D(const QWaylandSurface);
-    if (!d->extendedSurface())
-        return Qt::PrimaryOrientation;
-    return d->extendedSurface()->contentOrientation();
+    return d->contentOrientation();
 }
 
 QWaylandSurface::WindowFlags QWaylandSurface::windowFlags() const

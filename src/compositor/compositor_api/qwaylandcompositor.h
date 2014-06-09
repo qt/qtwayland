@@ -85,6 +85,7 @@ public:
     virtual ~QWaylandCompositor();
 
     void addGlobalInterface(QWaylandGlobalInterface *interface);
+    void addDefaultShell();
     struct wl_display *waylandDisplay() const;
 
     void frameStarted();
@@ -148,7 +149,6 @@ public:
 protected:
     QWaylandCompositor(QWindow *window, const char *socketName, QtWayland::Compositor *dptr);
     virtual void retainedSelectionReceived(QMimeData *mimeData);
-    virtual void initShell();
 
     friend class QtWayland::Compositor;
     QtWayland::Compositor *m_compositor;

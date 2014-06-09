@@ -67,6 +67,7 @@ public:
         setResizeMode(QQuickView::SizeRootObjectToView);
         setColor(Qt::black);
         winId();
+        addDefaultShell();
 
         connect(this, SIGNAL(afterRendering()), this, SLOT(sendCallbacks()));
     }

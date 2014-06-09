@@ -170,7 +170,6 @@ void Compositor::init()
     initializeHardwareIntegration();
     initializeExtensions();
     initializeDefaultInputDevice();
-    m_qt_compositor->initShell();
 }
 
 Compositor::~Compositor()

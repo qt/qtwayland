@@ -82,6 +82,7 @@ public:
         setColor(Qt::black);
         create();
         grabWindow();
+        addDefaultShell();
 
         connect(this, SIGNAL(afterRendering()), this, SLOT(sendCallbacks()));
 

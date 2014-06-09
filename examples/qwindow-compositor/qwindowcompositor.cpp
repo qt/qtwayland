@@ -132,6 +132,7 @@ QWindowCompositor::QWindowCompositor(QOpenGLWindow *window)
 
     setOutputGeometry(QRect(QPoint(0, 0), window->size()));
     setOutputRefreshRate(qRound(qGuiApp->primaryScreen()->refreshRate() * 1000.0));
+    addDefaultShell();
 }
 
 QWindowCompositor::~QWindowCompositor()

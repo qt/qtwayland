@@ -92,6 +92,11 @@ void QWaylandCompositor::addGlobalInterface(QWaylandGlobalInterface *interface)
     m_compositor->m_globals << interface;
 }
 
+void QWaylandCompositor::addDefaultShell()
+{
+    addGlobalInterface(new QtWayland::Shell);
+}
+
 struct wl_display *QWaylandCompositor::waylandDisplay() const
 {
     return m_compositor->wl_display();
@@ -296,11 +301,6 @@ void QWaylandCompositor::configureTouchExtension(TouchExtensionFlags flags)
 QWaylandSurfaceView *QWaylandCompositor::createView(QWaylandSurface *surface)
 {
     return new QWaylandSurfaceView(surface);
-}
-
-void QWaylandCompositor::initShell()
-{
-    addGlobalInterface(new QtWayland::Shell);
 }
 
 QT_END_NAMESPACE

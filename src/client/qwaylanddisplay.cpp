@@ -50,7 +50,7 @@
 #include "qwaylandclipboard_p.h"
 #include "qwaylanddatadevicemanager_p.h"
 #include "qwaylandhardwareintegration_p.h"
-
+#include "qwaylandxdgshell_p.h"
 
 #include "qwaylandwindowmanagerintegration_p.h"
 
@@ -209,8 +209,7 @@ void QWaylandDisplay::registry_global(uint32_t id, const QString &interface, uin
         mShm = static_cast<struct wl_shm *>(wl_registry_bind(registry, id, &wl_shm_interface,1));
     } else if (interface == QStringLiteral("xdg_shell")
                && qEnvironmentVariableIsSet("QT_WAYLAND_USE_XDG_SHELL")) {
-        mShellXdg.reset(new QtWayland::xdg_shell(registry, id));
-        mShellXdg->use_unstable_version(QtWayland::xdg_shell::version_current);
+        mShellXdg.reset(new QWaylandXdgShell(registry,id));
     } else if (interface == QStringLiteral("wl_shell")){
         mShell.reset(new QtWayland::wl_shell(registry, id));
     } else if (interface == QStringLiteral("wl_seat")) {
@@ -273,6 +272,11 @@ uint32_t QWaylandDisplay::currentTimeMillisec()
 void QWaylandDisplay::forceRoundTrip()
 {
     wl_display_roundtrip(mDisplay);
+}
+
+QtWayland::xdg_shell *QWaylandDisplay::shellXdg()
+{
+    return mShellXdg.data();
 }
 
 QT_END_NAMESPACE

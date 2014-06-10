@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Eurogiciel, author: <philippe.coval@eurogiciel.fr>
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the config.tests of the Qt Toolkit.
@@ -39,8 +39,8 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDXDGSURFACE_H
-#define QWAYLANDXDGSURFACE_H
+#ifndef QWAYLANDXDGSHELL_H
+#define QWAYLANDXDGSHELL_H
 
 #include <QtCore/QSize>
 
@@ -56,55 +56,18 @@ class QWaylandWindow;
 class QWaylandInputDevice;
 class QWindow;
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandXdgSurface : public QtWayland::xdg_surface
-        , public QWaylandShellSurface
+class Q_WAYLAND_CLIENT_EXPORT QWaylandXdgShell : public QtWayland::xdg_shell
 {
 public:
-    QWaylandXdgSurface(struct ::xdg_surface *shell_surface, QWaylandWindow *window);
-    virtual ~QWaylandXdgSurface();
+    QWaylandXdgShell(struct ::xdg_shell *shell);
+    QWaylandXdgShell(struct ::wl_registry *registry, uint32_t id);
 
-    using QtWayland::xdg_surface::resize;
-    void resize(QWaylandInputDevice *inputDevice, enum resize_edge edges);
-
-    void resize(QWaylandInputDevice *inputDevice, enum wl_shell_surface_resize edges) Q_DECL_OVERRIDE;
-
-    using QtWayland::xdg_surface::move;
-    void move(QWaylandInputDevice *inputDevice) Q_DECL_OVERRIDE;
-
-    void setTitle(const QString &title) Q_DECL_OVERRIDE;
-    void setAppId(const QString &appId) Q_DECL_OVERRIDE;
-
-    bool isFullscreen() const { return m_fullscreen; }
-    bool isMaximized() const { return m_maximized; }
+    virtual ~QWaylandXdgShell();
 
 private:
-    void setMaximized() Q_DECL_OVERRIDE;
-    void setFullscreen() Q_DECL_OVERRIDE;
-    void setNormal() Q_DECL_OVERRIDE;
-    void setMinimized() Q_DECL_OVERRIDE;
-
-    void setTopLevel() Q_DECL_OVERRIDE;
-    void updateTransientParent(QWindow *parent) Q_DECL_OVERRIDE;
-
-private:
-    QWaylandWindow *m_window;
-    bool m_maximized;
-    bool m_minimized;
-    bool m_fullscreen;
-    QSize m_size;
-
-    void xdg_surface_configure(int32_t width,
-                               int32_t height) Q_DECL_OVERRIDE;
-    void xdg_surface_change_state(uint32_t state,
-                                  uint32_t value,
-                                  uint32_t serial) Q_DECL_OVERRIDE;
-    void xdg_surface_activated() Q_DECL_OVERRIDE;
-    void xdg_surface_deactivated() Q_DECL_OVERRIDE;
-    void xdg_surface_close() Q_DECL_OVERRIDE;
-
-    friend class QWaylandWindow;
+    void xdg_shell_ping(uint32_t serial) Q_DECL_OVERRIDE;
 };
 
 QT_END_NAMESPACE
 
-#endif // QWAYLANDXDGSURFACE_H
+#endif // QWAYLANDXDGSHELL_H

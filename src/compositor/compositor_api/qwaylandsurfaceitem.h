@@ -58,7 +58,7 @@ class QMutex;
 
 Q_DECLARE_METATYPE(QWaylandQuickSurface*)
 
-class QWaylandSurfaceItem : public QQuickItem, public QWaylandSurfaceView
+class Q_COMPOSITOR_EXPORT QWaylandSurfaceItem : public QQuickItem, public QWaylandSurfaceView
 {
     Q_OBJECT
     Q_PROPERTY(QWaylandSurface* surface READ surface CONSTANT)

@@ -115,7 +115,7 @@ void ExtendedOutput::sendOutputOrientation(Qt::ScreenOrientation orientation)
         sendOperation = QT_EXTENDED_OUTPUT_ROTATION_PORTRAITORIENTATION;
     }
 
-    extended_output->send_set_screen_rotation(handle, sendOperation);
+    extended_output_object->send_set_screen_rotation(handle, sendOperation);
 }
 
 }

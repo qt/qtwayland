@@ -55,7 +55,7 @@ DataOffer::DataOffer(DataSource *dataSource, QtWaylandServer::wl_data_device::Re
     , m_dataSource(dataSource)
 {
     // FIXME: connect to dataSource and reset m_dataSource on destroy
-    target->data_device->send_data_offer(target->handle, resource()->handle);
+    target->data_device_object->send_data_offer(target->handle, resource()->handle);
     Q_FOREACH (const QString &mimeType, dataSource->mimeTypes()) {
         send_offer(mimeType);
     }

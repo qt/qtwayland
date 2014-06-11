@@ -151,7 +151,7 @@ void Surface::releaseSurfaces()
 
 Surface *Surface::fromResource(struct ::wl_resource *resource)
 {
-    return static_cast<Surface *>(Resource::fromResource(resource)->surface);
+    return static_cast<Surface *>(Resource::fromResource(resource)->surface_object);
 }
 
 QWaylandSurface::Type Surface::type() const

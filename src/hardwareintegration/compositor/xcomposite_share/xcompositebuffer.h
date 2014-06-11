@@ -68,7 +68,7 @@ public:
 
     QSize size() const { return mSize; }
 
-    static XCompositeBuffer *fromResource(struct ::wl_resource *resource) { return static_cast<XCompositeBuffer*>(Resource::fromResource(resource)->buffer); }
+    static XCompositeBuffer *fromResource(struct ::wl_resource *resource) { return static_cast<XCompositeBuffer*>(Resource::fromResource(resource)->buffer_object); }
 
 protected:
     void buffer_destroy_resource(Resource *) Q_DECL_OVERRIDE;

@@ -425,10 +425,10 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath, const QByteArr
             printf("        class Resource\n");
             printf("        {\n");
             printf("        public:\n");
-            printf("            Resource() : %s(0), handle(0) {}\n", interfaceNameStripped);
+            printf("            Resource() : %s_object(0), handle(0) {}\n", interfaceNameStripped);
             printf("            virtual ~Resource() {}\n");
             printf("\n");
-            printf("            %s *%s;\n", interfaceName, interfaceNameStripped);
+            printf("            %s *%s_object;\n", interfaceName, interfaceNameStripped);
             printf("            struct ::wl_resource *handle;\n");
             printf("\n");
             printf("            struct ::wl_client *client() const { return handle->client; }\n");
@@ -636,7 +636,7 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath, const QByteArr
             printf("    void %s::destroy_func(struct ::wl_resource *client_resource)\n", interfaceName);
             printf("    {\n");
             printf("        Resource *resource = Resource::fromResource(client_resource);\n");
-            printf("        %s *that = resource->%s;\n", interfaceName, interfaceNameStripped);
+            printf("        %s *that = resource->%s_object;\n", interfaceName, interfaceNameStripped);
             printf("        that->m_resource_map.remove(resource->client(), resource);\n");
             printf("        that->%s_destroy_resource(resource);\n", interfaceNameStripped);
             printf("        delete resource;\n");
@@ -655,7 +655,7 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath, const QByteArr
             printf("    %s::Resource *%s::bind(struct ::wl_client *client, uint32_t id)\n", interfaceName, interfaceName);
             printf("    {\n");
             printf("        Resource *resource = %s_allocate();\n", interfaceNameStripped);
-            printf("        resource->%s = this;\n", interfaceNameStripped);
+            printf("        resource->%s_object = this;\n", interfaceNameStripped);
             printf("\n");
             printf("        struct ::wl_resource *handle = wl_resource_create(client, &::%s_interface, ::%s_interface.version, id);\n", interfaceName, interfaceName);
             printf("        wl_resource_set_implementation(handle, %s, resource, destroy_func);", interfaceMember.constData());
@@ -699,7 +699,7 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath, const QByteArr
                     printf("    {\n");
                     printf("        Q_UNUSED(client);\n");
                     printf("        Resource *r = Resource::fromResource(resource);\n");
-                    printf("        static_cast<%s *>(r->%s)->%s_%s(\n", interfaceName, interfaceNameStripped, interfaceNameStripped, e.name.constData());
+                    printf("        static_cast<%s *>(r->%s_object)->%s_%s(\n", interfaceName, interfaceNameStripped, interfaceNameStripped, e.name.constData());
                     printf("            r");
                     for (int i = 0; i < e.arguments.size(); ++i) {
                         printf(",\n");

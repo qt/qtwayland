@@ -105,7 +105,7 @@ void DataSource::setDevice(DataDevice *device)
 
 DataSource *DataSource::fromResource(struct ::wl_resource *resource)
 {
-    return static_cast<DataSource *>(Resource::fromResource(resource)->data_source);
+    return static_cast<DataSource *>(Resource::fromResource(resource)->data_source_object);
 }
 
 void DataSource::data_source_offer(Resource *, const QString &mime_type)

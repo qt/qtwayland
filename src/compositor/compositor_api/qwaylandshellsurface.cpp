@@ -63,7 +63,7 @@ QWaylandShellSurface::QWaylandShellSurface(QWaylandSurface *surf)
 QWaylandShellSurface::~QWaylandShellSurface()
 {
     Q_D(QWaylandShellSurface);
-    d->surface->handle()->setShellSurface(this);
+    d->surface->handle()->setShellSurface(Q_NULLPTR);
 }
 
 QT_END_NAMESPACE

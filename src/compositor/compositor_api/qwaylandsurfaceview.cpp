@@ -56,13 +56,16 @@ QWaylandSurfaceView::QWaylandSurfaceView(QWaylandSurface *surf)
                    : d(new QWaylandSurfaceViewPrivate)
 {
     d->surface = surf;
-    surf->d_func()->views << this;
-    surf->ref();
+    if (surf) {
+        surf->d_func()->views << this;
+        surf->ref();
+    }
 }
 
 QWaylandSurfaceView::~QWaylandSurfaceView()
 {
-    d->surface->destroy();
+    if (d->surface)
+        d->surface->destroy();
     delete d;
 }
 
@@ -73,7 +76,7 @@ QWaylandSurface *QWaylandSurfaceView::surface() const
 
 QWaylandCompositor *QWaylandSurfaceView::compositor() const
 {
-    return d->surface->compositor();
+    return d->surface ? d->surface->compositor() : 0;
 }
 
 void QWaylandSurfaceView::setPos(const QPointF &pos)

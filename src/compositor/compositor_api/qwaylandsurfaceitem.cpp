@@ -90,8 +90,10 @@ QWaylandSurfaceItem::QWaylandSurfaceItem(QWaylandQuickSurface *surface, QQuickIt
 
     update();
 
-    setWidth(surface->size().width());
-    setHeight(surface->size().height());
+    if (surface) {
+        setWidth(surface->size().width());
+        setHeight(surface->size().height());
+    }
 
     setSmooth(true);
 
@@ -101,13 +103,15 @@ QWaylandSurfaceItem::QWaylandSurfaceItem(QWaylandQuickSurface *surface, QQuickIt
         Qt::ExtraButton9 | Qt::ExtraButton10 | Qt::ExtraButton11 |
         Qt::ExtraButton12 | Qt::ExtraButton13);
     setAcceptHoverEvents(true);
-    connect(surface, &QWaylandSurface::mapped, this, &QWaylandSurfaceItem::surfaceMapped);
-    connect(surface, &QWaylandSurface::unmapped, this, &QWaylandSurfaceItem::surfaceUnmapped);
-    connect(surface, &QWaylandSurface::surfaceDestroyed, this, &QWaylandSurfaceItem::surfaceDestroyed);
-    connect(surface, &QWaylandSurface::parentChanged, this, &QWaylandSurfaceItem::parentChanged);
-    connect(surface, &QWaylandSurface::sizeChanged, this, &QWaylandSurfaceItem::updateSize);
-    connect(surface, &QWaylandSurface::configure, this, &QWaylandSurfaceItem::updateBuffer);
-    connect(surface, &QWaylandSurface::redraw, this, &QQuickItem::update);
+    if (surface) {
+        connect(surface, &QWaylandSurface::mapped, this, &QWaylandSurfaceItem::surfaceMapped);
+        connect(surface, &QWaylandSurface::unmapped, this, &QWaylandSurfaceItem::surfaceUnmapped);
+        connect(surface, &QWaylandSurface::surfaceDestroyed, this, &QWaylandSurfaceItem::surfaceDestroyed);
+        connect(surface, &QWaylandSurface::parentChanged, this, &QWaylandSurfaceItem::parentChanged);
+        connect(surface, &QWaylandSurface::sizeChanged, this, &QWaylandSurfaceItem::updateSize);
+        connect(surface, &QWaylandSurface::configure, this, &QWaylandSurfaceItem::updateBuffer);
+        connect(surface, &QWaylandSurface::redraw, this, &QQuickItem::update);
+    }
     connect(this, &QWaylandSurfaceItem::widthChanged, this, &QWaylandSurfaceItem::updateSurfaceSize);
     connect(this, &QWaylandSurfaceItem::heightChanged, this, &QWaylandSurfaceItem::updateSurfaceSize);
 
@@ -283,7 +287,7 @@ QSGNode *QWaylandSurfaceItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeD
 
     // Order here is important, as the state of visible is that of the pending
     // buffer but will be replaced after we advance the buffer queue.
-    bool mapped = surface()->isMapped();
+    bool mapped = surface() && surface()->isMapped();
     if (mapped)
         m_provider->t = static_cast<QWaylandQuickSurface *>(surface())->texture();
     m_provider->smooth = smooth();

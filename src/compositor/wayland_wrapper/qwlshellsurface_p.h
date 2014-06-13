@@ -88,6 +88,7 @@ class Q_COMPOSITOR_EXPORT ShellSurface : public QWaylandShellSurface, public QtW
 {
 public:
     ShellSurface(Shell *shell, struct wl_client *client, uint32_t id, Surface *surface);
+    ~ShellSurface();
     void sendConfigure(uint32_t edges, int32_t width, int32_t height);
 
     void adjustPosInResize();
@@ -108,6 +109,7 @@ private:
     Shell *m_shell;
     Surface *m_surface;
     QWaylandSurfaceView *m_view;
+    bool m_deleting;
 
     ShellSurfaceResizeGrabber *m_resizeGrabber;
     ShellSurfaceMoveGrabber *m_moveGrabber;

@@ -45,3 +45,4 @@ src/plugins/platforms/wayland_common/libwayland_common.a
 src/plugins/platforms/wayland_common/libwayland_common.prl
 tests/auto/client/tst_client
 tests/auto/compositor/tst_compositor
+*~

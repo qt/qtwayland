@@ -275,7 +275,7 @@ bool SurfaceBuffer::isYInverted() const
     ClientBufferIntegration *clientBufferIntegration = m_compositor->clientBufferIntegration();
 
 #ifdef QT_COMPOSITOR_WAYLAND_GL
-    if (clientBufferIntegration && waylandBufferHandle() && isShmBuffer()) {
+    if (clientBufferIntegration && waylandBufferHandle() && !isShmBuffer()) {
         ret = clientBufferIntegration->isYInverted(waylandBufferHandle());
     } else
 #endif

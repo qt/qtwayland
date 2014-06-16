@@ -42,14 +42,16 @@
 #ifndef QWAYLANDDATASOURCE_H
 #define QWAYLANDDATASOURCE_H
 
-#include <QtWaylandClient/private/qwaylanddatadevicemanager_p.h>
+#include <QObject>
 
-#include <QtWaylandClient/private/wayland-wayland-client-protocol.h>
+#include <QtWaylandClient/private/qwayland-wayland.h>
+#include <QtWaylandClient/private/qwaylandclientexport_p.h>
 
 QT_BEGIN_NAMESPACE
 
 class QMimeData;
 class QWaylandDataDeviceManager;
+class QWaylandDisplay;
 
 class Q_WAYLAND_CLIENT_EXPORT QWaylandDataSource : public QObject, public QtWayland::wl_data_source
 {

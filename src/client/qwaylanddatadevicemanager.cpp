@@ -44,6 +44,7 @@
 #include "qwaylandinputdevice_p.h"
 #include "qwaylanddatadevice_p.h"
 #include "qwaylanddataoffer_p.h"
+#include "qwaylanddisplay_p.h"
 
 #include <QtCore/QDebug>
 

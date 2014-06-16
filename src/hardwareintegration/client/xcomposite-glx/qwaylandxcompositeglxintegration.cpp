@@ -47,6 +47,8 @@
 
 #include "wayland-xcomposite-client-protocol.h"
 
+#include <QtWaylandClient/private/qwaylanddisplay_p.h>
+
 QT_BEGIN_NAMESPACE
 
 QWaylandXCompositeGLXIntegration::QWaylandXCompositeGLXIntegration()

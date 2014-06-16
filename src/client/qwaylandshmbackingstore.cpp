@@ -290,6 +290,24 @@ void QWaylandShmBackingStore::updateDecorations()
     decorationPainter.drawImage(target, sourceImage, target);
 }
 
+QWaylandDecoration *QWaylandShmBackingStore::windowDecoration() const
+{
+    return waylandWindow()->decoration();
+}
+
+QMargins QWaylandShmBackingStore::windowDecorationMargins() const
+{
+    if (windowDecoration())
+        return windowDecoration()->margins();
+    return QMargins();
+}
+
+QWaylandShmWindow *QWaylandShmBackingStore::waylandWindow() const
+{
+    return static_cast<QWaylandShmWindow *>(window()->handle());
+}
+
+
 void QWaylandShmBackingStore::done(void *data, wl_callback *callback, uint32_t time)
 {
     Q_UNUSED(time);

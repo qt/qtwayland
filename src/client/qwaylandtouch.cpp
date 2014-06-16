@@ -41,6 +41,7 @@
 
 #include "qwaylandtouch_p.h"
 #include "qwaylandinputdevice_p.h"
+#include "qwaylanddisplay_p.h"
 
 QT_BEGIN_NAMESPACE
 

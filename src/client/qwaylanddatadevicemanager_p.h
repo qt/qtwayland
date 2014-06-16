@@ -42,12 +42,15 @@
 #ifndef QWAYLANDDATADEVICEMANAGER_H
 #define QWAYLANDDATADEVICEMANAGER_H
 
-#include <QtWaylandClient/private/qwaylanddisplay_p.h>
+#include <QtWaylandClient/private/qwaylandclientexport_p.h>
+#include <QtWaylandClient/private/qwayland-wayland.h>
 
 QT_BEGIN_NAMESPACE
 
+class QWaylandDisplay;
 class QWaylandDataDevice;
 class QWaylandDataSource;
+class QWaylandInputDevice;
 
 class Q_WAYLAND_CLIENT_EXPORT QWaylandDataDeviceManager : public QtWayland::wl_data_device_manager
 {

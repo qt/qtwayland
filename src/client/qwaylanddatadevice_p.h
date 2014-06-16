@@ -41,15 +41,21 @@
 #ifndef QWAYLANDDATADEVICE_H
 #define QWAYLANDDATADEVICE_H
 
-#include "qwaylanddisplay_p.h"
+#include <QObject>
+#include <QPoint>
+
+#include <QtWaylandClient/private/qwayland-wayland.h>
 
 QT_BEGIN_NAMESPACE
 
+class QWaylandDisplay;
 class QMimeData;
 class QWaylandDataDeviceManager;
 class QWaylandDataOffer;
 class QWaylandDataSource;
 class QWindow;
+class QWaylandInputDevice;
+class QWaylandWindow;
 
 class QWaylandDataDevice : public QObject, public QtWayland::wl_data_device
 {

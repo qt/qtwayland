@@ -47,9 +47,12 @@
 
 #include <QtGui/QDrag>
 #include <QtCore/QMimeData>
-#include <QtWaylandClient/private/qwaylanddisplay_p.h>
+
+#include <QtWaylandClient/private/qwaylandclientexport_p.h>
 
 QT_BEGIN_NAMESPACE
+
+class QWaylandDisplay;
 
 class Q_WAYLAND_CLIENT_EXPORT QWaylandDrag : public QBasicDrag
 {

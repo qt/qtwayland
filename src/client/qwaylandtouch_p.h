@@ -42,12 +42,15 @@
 #ifndef QWAYLANDTOUCH_H
 #define QWAYLANDTOUCH_H
 
-#include <QtWaylandClient/private/qwaylanddisplay_p.h>
 #include <qpa/qwindowsysteminterface.h>
 
 #include <QtWaylandClient/private/qwayland-touch-extension.h>
+#include <QtWaylandClient/private/qwaylandclientexport_p.h>
 
 QT_BEGIN_NAMESPACE
+
+class QWaylandDisplay;
+class QWaylandInputDevice;
 
 class Q_WAYLAND_CLIENT_EXPORT QWaylandTouchExtension : public QtWayland::qt_touch_extension
 {

@@ -42,12 +42,14 @@
 #ifndef QWAYLANDQTKEY_H
 #define QWAYLANDQTKEY_H
 
-#include <QtWaylandClient/private/qwaylanddisplay_p.h>
 #include <qpa/qwindowsysteminterface.h>
 
+#include <QtWaylandClient/private/qwaylandclientexport_p.h>
 #include <QtWaylandClient/private/qwayland-qtkey-extension.h>
 
 QT_BEGIN_NAMESPACE
+
+class QWaylandDisplay;
 
 class Q_WAYLAND_CLIENT_EXPORT QWaylandQtKeyExtension : public QtWayland::qt_key_extension
 {

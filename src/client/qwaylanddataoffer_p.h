@@ -42,9 +42,10 @@
 #ifndef QWAYLANDDATAOFFER_H
 #define QWAYLANDDATAOFFER_H
 
-#include "qwaylanddisplay_p.h"
-
 #include <QtGui/private/qdnd_p.h>
+
+#include <QtWaylandClient/private/qwaylandclientexport_p.h>
+#include <QtWaylandClient/private/qwayland-wayland.h>
 
 QT_BEGIN_NAMESPACE
 

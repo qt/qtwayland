@@ -45,6 +45,7 @@
 #include "qwaylanddatadevicemanager_p.h"
 #include "qwaylanddataoffer_p.h"
 #include "qwaylandinputdevice_p.h"
+#include "qwaylanddisplay_p.h"
 
 #include <QtGui/private/qshapedpixmapdndwindow_p.h>
 

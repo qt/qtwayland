@@ -46,6 +46,8 @@
 #include <QtCore/QDebug>
 #include <QtPlatformSupport/private/qeglconvenience_p.h>
 
+#include <QtWaylandClient/private/qwaylanddisplay_p.h>
+
 #include "wayland-xcomposite-client-protocol.h"
 
 QT_BEGIN_NAMESPACE

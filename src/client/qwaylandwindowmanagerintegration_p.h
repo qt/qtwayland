@@ -46,14 +46,16 @@
 #include <QtCore/QScopedPointer>
 
 #include <wayland-client.h>
-#include <QtWaylandClient/private/qwaylanddisplay_p.h>
 #include <qpa/qplatformservices.h>
 
 #include <QtWaylandClient/private/qwayland-windowmanager.h>
+#include <QtWaylandClient/private/qwaylandclientexport_p.h>
 
 QT_BEGIN_NAMESPACE
 
 class QWaylandWindow;
+class QWaylandDisplay;
+
 class QWaylandWindowManagerIntegrationPrivate;
 
 class Q_WAYLAND_CLIENT_EXPORT QWaylandWindowManagerIntegration : public QObject, public QPlatformServices, public QtWayland::qt_windowmanager

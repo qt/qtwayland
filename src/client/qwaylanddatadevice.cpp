@@ -45,6 +45,7 @@
 #include "qwaylanddatasource_p.h"
 #include "qwaylanddnd_p.h"
 #include "qwaylandinputdevice_p.h"
+#include "qwaylanddisplay_p.h"
 
 #include <QtCore/QMimeData>
 #include <QtGui/QGuiApplication>

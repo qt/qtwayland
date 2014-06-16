@@ -44,9 +44,6 @@
 
 #include <QtWaylandClient/private/qwaylandbuffer_p.h>
 
-#include <QtWaylandClient/private/qwaylanddecoration_p.h>
-#include <QtWaylandClient/private/qwaylandshmwindow_p.h>
-
 #include <qpa/qplatformbackingstore.h>
 #include <QtGui/QImage>
 #include <qpa/qplatformwindow.h>
@@ -54,6 +51,8 @@
 QT_BEGIN_NAMESPACE
 
 class QWaylandDisplay;
+class QWaylandDecoration;
+class QWaylandShmWindow;
 
 class Q_WAYLAND_CLIENT_EXPORT QWaylandShmBuffer : public QWaylandBuffer {
 public:
@@ -111,23 +110,6 @@ private:
              uint32_t time);
     struct wl_callback *mFrameCallback;
 };
-
-inline QWaylandDecoration *QWaylandShmBackingStore::windowDecoration() const
-{
-    return waylandWindow()->decoration();
-}
-
-inline QMargins QWaylandShmBackingStore::windowDecorationMargins() const
-{
-    if (windowDecoration())
-        return windowDecoration()->margins();
-    return QMargins();
-}
-
-inline QWaylandShmWindow *QWaylandShmBackingStore::waylandWindow() const
-{
-    return static_cast<QWaylandShmWindow *>(window()->handle());
-}
 
 QT_END_NAMESPACE
 

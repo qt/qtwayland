@@ -42,11 +42,13 @@
 #ifndef QWAYLANDEXTENDEDOUTPUT_H
 #define QWAYLANDEXTENDEDOUTPUT_H
 
-#include <QtWaylandClient/private/qwaylanddisplay_p.h>
 #include <QtWaylandClient/private/qwayland-output-extension.h>
+#include <QtWaylandClient/private/qwaylandclientexport_p.h>
 
 QT_BEGIN_NAMESPACE
 
+class QWaylandDisplay;
+class QWaylandScreen;
 class QWaylandExtendedOutput;
 
 class Q_WAYLAND_CLIENT_EXPORT QWaylandExtendedOutput : public QtWayland::qt_extended_output

@@ -49,6 +49,7 @@
 #include "qwaylandtouch_p.h"
 #include "qwaylandscreen_p.h"
 #include "qwaylandcursor_p.h"
+#include "qwaylanddisplay_p.h"
 
 #include <QtGui/private/qpixmap_raster_p.h>
 #include <qpa/qplatformwindow.h>

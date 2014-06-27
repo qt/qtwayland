@@ -143,6 +143,7 @@ QWaylandDisplay::QWaylandDisplay(QWaylandIntegration *waylandIntegration)
 
 QWaylandDisplay::~QWaylandDisplay(void)
 {
+    delete mDndSelectionHandler.take();
     mEventThread->quit();
     mEventThread->wait();
     delete mEventThreadObject;

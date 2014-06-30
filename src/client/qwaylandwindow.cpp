@@ -54,6 +54,7 @@
 #include "qwaylandwindowmanagerintegration_p.h"
 
 #include <QtCore/QFileInfo>
+#include <QtCore/QPointer>
 #include <QtGui/QWindow>
 
 #include <QGuiApplication>
@@ -245,9 +246,14 @@ void QWaylandWindow::setVisible(bool visible)
         // QWaylandShmBackingStore::beginPaint().
     } else {
         QWindowSystemInterface::handleExposeEvent(window(), QRegion());
+        // when flushing the event queue, it could contain a close event, in which
+        // case 'this' will be deleted. When that happens, we must abort right away.
+        QPointer<QWaylandWindow> deleteGuard(this);
         QWindowSystemInterface::flushWindowSystemEvents();
-        attach(static_cast<QWaylandBuffer *>(0), 0, 0);
-        commit();
+        if (!deleteGuard.isNull()) {
+            attach(static_cast<QWaylandBuffer *>(0), 0, 0);
+            commit();
+        }
     }
 }
 

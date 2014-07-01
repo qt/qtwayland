@@ -51,6 +51,7 @@ class QWaylandBuffer;
 class QWaylandDisplay;
 class QWaylandClientBufferIntegration;
 class QWaylandServerBufferIntegration;
+class QWaylandShellIntegration;
 
 class Q_WAYLAND_CLIENT_EXPORT QWaylandIntegration : public QPlatformIntegration
 {
@@ -90,12 +91,15 @@ public:
 
     virtual QWaylandClientBufferIntegration *clientBufferIntegration() const;
     virtual QWaylandServerBufferIntegration *serverBufferIntegration() const;
+    virtual QWaylandShellIntegration *shellIntegration() const;
 protected:
     QWaylandClientBufferIntegration *mClientBufferIntegration;
     QWaylandServerBufferIntegration *mServerBufferIntegration;
+    QWaylandShellIntegration *mShellIntegration;
 private:
     void initializeClientBufferIntegration();
     void initializeServerBufferIntegration();
+    void initializeShellIntegration();
     QPlatformFontDatabase *mFontDb;
     QPlatformClipboard *mClipboard;
     QPlatformDrag *mDrag;
@@ -105,6 +109,7 @@ private:
     QPlatformAccessibility *mAccessibility;
     bool mClientBufferIntegrationInitialized;
     bool mServerBufferIntegrationInitialized;
+    bool mShellIntegrationInitialized;
 };
 
 QT_END_NAMESPACE

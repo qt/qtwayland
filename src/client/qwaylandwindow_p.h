@@ -45,6 +45,7 @@
 #include <QtCore/QWaitCondition>
 #include <QtCore/QMutex>
 #include <QtGui/QIcon>
+#include <QtCore/QVariant>
 
 #include <qpa/qplatformwindow.h>
 
@@ -58,7 +59,6 @@ QT_BEGIN_NAMESPACE
 class QWaylandDisplay;
 class QWaylandBuffer;
 class QWaylandShellSurface;
-class QWaylandExtendedSurface;
 class QWaylandSubSurface;
 class QWaylandDecoration;
 class QWaylandInputDevice;
@@ -125,8 +125,8 @@ public:
 
     static QWaylandWindow *fromWlSurface(::wl_surface *surface);
 
+    QWaylandDisplay *display() const { return mDisplay; }
     QWaylandShellSurface *shellSurface() const;
-    QWaylandExtendedSurface *extendedWindow() const;
     QWaylandSubSurface *subSurfaceWindow() const;
     QWaylandScreen *screen() const { return mScreen; }
 
@@ -140,6 +140,7 @@ public:
     void lower() Q_DECL_OVERRIDE;
 
     void requestActivateWindow() Q_DECL_OVERRIDE;
+    bool isExposed() const Q_DECL_OVERRIDE;
 
     QWaylandDecoration *decoration() const;
     void setDecoration(QWaylandDecoration *decoration);
@@ -171,6 +172,13 @@ public:
     bool setMouseGrabEnabled(bool grab);
     static QWaylandWindow *mouseGrab() { return mMouseGrab; }
 
+    void sendProperty(const QString &name, const QVariant &value);
+    void setProperty(const QString &name, const QVariant &value);
+
+    QVariantMap properties() const;
+    QVariant property(const QString &name);
+    QVariant property(const QString &name, const QVariant &defaultValue);
+
 public slots:
     void requestResize();
 
@@ -178,7 +186,6 @@ protected:
     QWaylandScreen *mScreen;
     QWaylandDisplay *mDisplay;
     QWaylandShellSurface *mShellSurface;
-    QWaylandExtendedSurface *mExtendedWindow;
     QWaylandSubSurface *mSubSurfaceWindow;
 
     QWaylandDecoration *mWindowDecoration;
@@ -198,6 +205,7 @@ protected:
     bool mCanResize;
     bool mResizeDirty;
     bool mResizeAfterSwap;
+    QVariantMap m_properties;
 
     bool mSentInitialResize;
     QPoint mOffset;

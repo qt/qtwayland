@@ -51,8 +51,11 @@
 #include "qwaylanddatadevicemanager_p.h"
 #include "qwaylandhardwareintegration_p.h"
 #include "qwaylandxdgshell_p.h"
+#include "qwaylandxdgsurface_p.h"
+#include "qwaylandwlshellsurface_p.h"
 
 #include "qwaylandwindowmanagerintegration_p.h"
+#include "qwaylandshellintegration_p.h"
 
 #include "qwaylandextendedoutput_p.h"
 #include "qwaylandextendedsurface_p.h"
@@ -77,6 +80,20 @@ struct wl_surface *QWaylandDisplay::createSurface(void *handle)
     struct wl_surface *surface = mCompositor.create_surface();
     wl_surface_set_user_data(surface, handle);
     return surface;
+}
+
+QWaylandShellSurface *QWaylandDisplay::createShellSurface(QWaylandWindow *window)
+{
+    if (mWaylandIntegration->shellIntegration())
+        return mWaylandIntegration->shellIntegration()->createShellSurface(window);
+
+    if (shellXdg()) {
+        return new QWaylandXdgSurface(shellXdg()->get_xdg_surface(window->object()), window);
+    } else if (shell()) {
+        return new QWaylandWlShellSurface(shell()->get_shell_surface(window->object()), window);
+    }
+
+    return Q_NULLPTR;
 }
 
 QWaylandClientBufferIntegration * QWaylandDisplay::clientBufferIntegration() const

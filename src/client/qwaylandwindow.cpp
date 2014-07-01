@@ -48,10 +48,10 @@
 #include "qwaylandshellsurface_p.h"
 #include "qwaylandwlshellsurface_p.h"
 #include "qwaylandxdgsurface_p.h"
-#include "qwaylandextendedsurface_p.h"
 #include "qwaylandsubsurface_p.h"
 #include "qwaylanddecoration_p.h"
 #include "qwaylandwindowmanagerintegration_p.h"
+#include "qwaylandnativeinterface_p.h"
 
 #include <QtCore/QFileInfo>
 #include <QtCore/QPointer>
@@ -72,7 +72,6 @@ QWaylandWindow::QWaylandWindow(QWindow *window)
     , mScreen(QWaylandScreen::waylandScreenFromWindow(window))
     , mDisplay(mScreen->display())
     , mShellSurface(0)
-    , mExtendedWindow(0)
     , mSubSurfaceWindow(0)
     , mWindowDecoration(0)
     , mMouseEventsInContentArea(false)
@@ -95,20 +94,12 @@ QWaylandWindow::QWaylandWindow(QWindow *window)
     static WId id = 1;
     mWindowId = id++;
 
-    if (!(window->flags() & Qt::BypassWindowManagerHint)) {
-        if (mDisplay->shellXdg()) {
-           if (window->type() & Qt::Window) {
-                mShellSurface = new QWaylandXdgSurface(mDisplay->shellXdg()->get_xdg_surface(object()), this);
-            }
-        } else if (mDisplay->shell() && window->type() & Qt::Window) {
-            mShellSurface = new QWaylandWlShellSurface(mDisplay->shell()->get_shell_surface(object()), this);
-        }
-    }
-
-    if (mDisplay->windowExtension())
-        mExtendedWindow = new QWaylandExtendedSurface(this, mDisplay->windowExtension()->get_extended_surface(object()));
     if (mDisplay->subSurfaceExtension())
         mSubSurfaceWindow = new QWaylandSubSurface(this, mDisplay->subSurfaceExtension()->get_sub_surface_aware_surface(object()));
+
+    if (!(window->flags() & Qt::BypassWindowManagerHint)) {
+        mShellSurface = mDisplay->createShellSurface(this);
+    }
 
     if (mShellSurface) {
         // Set initial surface title
@@ -141,7 +132,6 @@ QWaylandWindow::~QWaylandWindow()
 {
     if (isInitialized()) {
         delete mShellSurface;
-        delete mExtendedWindow;
         destroy();
     }
     if (mFrameCallback)
@@ -221,10 +211,10 @@ void QWaylandWindow::setGeometry(const QRect &rect)
         else
             QWindowSystemInterface::handleGeometryChange(window(), geometry());
 
-        QWindowSystemInterface::handleExposeEvent(window(), QRect(QPoint(), geometry().size()));
-
         mSentInitialResize = true;
     }
+
+    QWindowSystemInterface::handleExposeEvent(window(), QRect(QPoint(), geometry().size()));
 }
 
 void QWaylandWindow::setVisible(bool visible)
@@ -261,15 +251,15 @@ void QWaylandWindow::setVisible(bool visible)
 
 void QWaylandWindow::raise()
 {
-    if (mExtendedWindow)
-        mExtendedWindow->raise();
+    if (mShellSurface)
+        mShellSurface->raise();
 }
 
 
 void QWaylandWindow::lower()
 {
-    if (mExtendedWindow)
-        mExtendedWindow->lower();
+    if (mShellSurface)
+        mShellSurface->lower();
 }
 
 void QWaylandWindow::configure(uint32_t edges, int32_t width, int32_t height)
@@ -423,11 +413,6 @@ QWaylandShellSurface *QWaylandWindow::shellSurface() const
     return mShellSurface;
 }
 
-QWaylandExtendedSurface *QWaylandWindow::extendedWindow() const
-{
-    return mExtendedWindow;
-}
-
 QWaylandSubSurface *QWaylandWindow::subSurfaceWindow() const
 {
     return mSubSurfaceWindow;
@@ -461,8 +446,8 @@ void QWaylandWindow::handleContentOrientationChange(Qt::ScreenOrientation orient
 
 void QWaylandWindow::setOrientationMask(Qt::ScreenOrientations mask)
 {
-    if (mExtendedWindow)
-        mExtendedWindow->setContentOrientationMask(mask);
+    if (mShellSurface)
+        mShellSurface->setContentOrientationMask(mask);
 }
 
 void QWaylandWindow::setWindowState(Qt::WindowState state)
@@ -473,8 +458,8 @@ void QWaylandWindow::setWindowState(Qt::WindowState state)
 
 void QWaylandWindow::setWindowFlags(Qt::WindowFlags flags)
 {
-    if (mExtendedWindow)
-        mExtendedWindow->setWindowFlags(flags);
+    if (mShellSurface)
+        mShellSurface->setWindowFlags(flags);
 }
 
 bool QWaylandWindow::createDecoration()
@@ -643,6 +628,13 @@ void QWaylandWindow::requestActivateWindow()
     // we rely on compositor setting keyboard focus based on window stacking.
 }
 
+bool QWaylandWindow::isExposed() const
+{
+    if (mShellSurface)
+        return window()->isVisible() && mShellSurface->isExposed();
+    return QPlatformWindow::isExposed();
+}
+
 bool QWaylandWindow::setMouseGrabEnabled(bool grab)
 {
     if (window()->type() != Qt::Popup) {
@@ -681,6 +673,39 @@ bool QWaylandWindow::setWindowStateInternal(Qt::WindowState state)
 
     QWindowSystemInterface::handleWindowStateChanged(window(), mState);
     return true;
+}
+
+void QWaylandWindow::sendProperty(const QString &name, const QVariant &value)
+{
+    m_properties.insert(name, value);
+    QWaylandNativeInterface *nativeInterface = static_cast<QWaylandNativeInterface *>(
+                QGuiApplication::platformNativeInterface());
+    nativeInterface->emitWindowPropertyChanged(this, name);
+    if (mShellSurface)
+        mShellSurface->sendProperty(name, value);
+}
+
+void QWaylandWindow::setProperty(const QString &name, const QVariant &value)
+{
+    m_properties.insert(name, value);
+    QWaylandNativeInterface *nativeInterface = static_cast<QWaylandNativeInterface *>(
+                QGuiApplication::platformNativeInterface());
+    nativeInterface->emitWindowPropertyChanged(this, name);
+}
+
+QVariantMap QWaylandWindow::properties() const
+{
+    return m_properties;
+}
+
+QVariant QWaylandWindow::property(const QString &name)
+{
+    return m_properties.value(name);
+}
+
+QVariant QWaylandWindow::property(const QString &name, const QVariant &defaultValue)
+{
+    return m_properties.value(name, defaultValue);
 }
 
 QT_END_NAMESPACE

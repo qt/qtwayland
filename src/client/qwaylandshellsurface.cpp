@@ -40,3 +40,20 @@
 ****************************************************************************/
 
 #include "qwaylandshellsurface_p.h"
+#include "qwaylandwindow_p.h"
+#include "qwaylandextendedsurface_p.h"
+
+QWaylandShellSurface::QWaylandShellSurface(QWaylandWindow *window)
+                    : m_window(window)
+{
+}
+
+void QWaylandShellSurface::setWindowFlags(Qt::WindowFlags flags)
+{
+}
+
+void QWaylandShellSurface::sendProperty(const QString &name, const QVariant &value)
+{
+    Q_UNUSED(name)
+    Q_UNUSED(value)
+}

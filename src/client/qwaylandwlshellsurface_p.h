@@ -55,6 +55,7 @@ QT_BEGIN_NAMESPACE
 class QWaylandWindow;
 class QWaylandInputDevice;
 class QWindow;
+class QWaylandExtendedSurface;
 
 class Q_WAYLAND_CLIENT_EXPORT QWaylandWlShellSurface : public QtWayland::wl_shell_surface
         , public QWaylandShellSurface
@@ -72,6 +73,12 @@ public:
     void setTitle(const QString & title) Q_DECL_OVERRIDE;
     void setAppId(const QString &appId) Q_DECL_OVERRIDE;
 
+    void raise() Q_DECL_OVERRIDE;
+    void lower() Q_DECL_OVERRIDE;
+    void setContentOrientationMask(Qt::ScreenOrientations orientation) Q_DECL_OVERRIDE;
+    void setWindowFlags(Qt::WindowFlags flags) Q_DECL_OVERRIDE;
+    void sendProperty(const QString &name, const QVariant &value) Q_DECL_OVERRIDE;
+
 private:
     void setMaximized() Q_DECL_OVERRIDE;
     void setFullscreen() Q_DECL_OVERRIDE;
@@ -86,6 +93,7 @@ private:
     bool m_maximized;
     bool m_fullscreen;
     QSize m_size;
+    QWaylandExtendedSurface *m_extendedWindow;
 
     void shell_surface_ping(uint32_t serial) Q_DECL_OVERRIDE;
     void shell_surface_configure(uint32_t edges,

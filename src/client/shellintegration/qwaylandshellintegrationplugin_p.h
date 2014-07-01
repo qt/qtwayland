@@ -1,9 +1,9 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Jolla Ltd
 ** Contact: http://www.qt-project.org/legal
 **
-** This file is part of the plugins of the Qt Toolkit.
+** This file is part of the QtGui module of the Qt Toolkit.
 **
 ** $QT_BEGIN_LICENSE:LGPL$
 ** Commercial License Usage
@@ -39,43 +39,31 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDEXTENDEDSURFACE_H
-#define QWAYLANDEXTENDEDSURFACE_H
-
-#include <QtCore/QString>
-#include <QtCore/QVariant>
+#ifndef QWAYLANDSHELLINTEGRATIONPLUGIN_H
+#define QWAYLANDSHELLINTEGRATIONPLUGIN_H
 
 #include <QtWaylandClient/private/qwaylandclientexport_p.h>
 
-#include <wayland-client.h>
-#include <QtWaylandClient/private/qwayland-surface-extension.h>
+#include <QtCore/qplugin.h>
+#include <QtCore/qfactoryinterface.h>
+#include <QtCore/QObject>
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandDisplay;
-class QWaylandWindow;
+class QWaylandShellIntegration;
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandExtendedSurface : public QtWayland::qt_extended_surface
+#define QWaylandShellIntegrationFactoryInterface_iid "org.qt-project.Qt.WaylandClient.QWaylandShellIntegrationFactoryInterface.5.3"
+
+class Q_WAYLAND_CLIENT_EXPORT QWaylandShellIntegrationPlugin : public QObject
 {
+    Q_OBJECT
 public:
-    QWaylandExtendedSurface(QWaylandWindow *window);
-    ~QWaylandExtendedSurface();
+    explicit QWaylandShellIntegrationPlugin(QObject *parent = 0);
+    ~QWaylandShellIntegrationPlugin();
 
-    void setContentOrientationMask(Qt::ScreenOrientations mask);
-
-    void updateGenericProperty(const QString &name, const QVariant &value);
-
-    Qt::WindowFlags setWindowFlags(Qt::WindowFlags flags);
-
-private:
-    void extended_surface_onscreen_visibility(int32_t visibility) Q_DECL_OVERRIDE;
-    void extended_surface_set_generic_property(const QString &name, wl_array *value) Q_DECL_OVERRIDE;
-    void extended_surface_close() Q_DECL_OVERRIDE;
-
-    QWaylandWindow *m_window;
-    QVariantMap m_properties;
+    virtual QWaylandShellIntegration *create(const QString &key, const QStringList &paramList) = 0;
 };
 
 QT_END_NAMESPACE
 
-#endif // QWAYLANDEXTENDEDSURFACE_H
+#endif // QWAYLANDSHELLINTEGRATIONPLUGIN_H

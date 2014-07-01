@@ -53,8 +53,8 @@
 
 QT_BEGIN_NAMESPACE
 
-QWaylandExtendedSurface::QWaylandExtendedSurface(QWaylandWindow *window, struct ::qt_extended_surface *extended_surface)
-    : QtWayland::qt_extended_surface(extended_surface)
+QWaylandExtendedSurface::QWaylandExtendedSurface(QWaylandWindow *window)
+    : QtWayland::qt_extended_surface(window->display()->windowExtension()->get_extended_surface(window->object()))
     , m_window(window)
 {
 }
@@ -71,11 +71,6 @@ void QWaylandExtendedSurface::updateGenericProperty(const QString &name, const Q
     ds << value;
 
     update_generic_property(name, byteValue);
-
-    m_properties.insert(name, value);
-    QWaylandNativeInterface *nativeInterface = static_cast<QWaylandNativeInterface *>(
-                QGuiApplication::platformNativeInterface());
-    nativeInterface->emitWindowPropertyChanged(m_window, name);
 }
 
 void QWaylandExtendedSurface::setContentOrientationMask(Qt::ScreenOrientations mask)
@@ -94,21 +89,6 @@ void QWaylandExtendedSurface::setContentOrientationMask(Qt::ScreenOrientations m
     set_content_orientation_mask(wlmask);
 }
 
-QVariantMap QWaylandExtendedSurface::properties() const
-{
-    return m_properties;
-}
-
-QVariant QWaylandExtendedSurface::property(const QString &name)
-{
-    return m_properties.value(name);
-}
-
-QVariant QWaylandExtendedSurface::property(const QString &name, const QVariant &defaultValue)
-{
-    return m_properties.value(name,defaultValue);
-}
-
 void QWaylandExtendedSurface::extended_surface_onscreen_visibility(int32_t visibility)
 {
     m_window->window()->setVisibility(static_cast<QWindow::Visibility>(visibility));
@@ -122,11 +102,7 @@ void QWaylandExtendedSurface::extended_surface_set_generic_property(const QStrin
     QDataStream ds(data);
     ds >> variantValue;
 
-    m_properties.insert(name, variantValue);
-
-    QWaylandNativeInterface *nativeInterface = static_cast<QWaylandNativeInterface *>(
-        QGuiApplication::platformNativeInterface());
-    nativeInterface->emitWindowPropertyChanged(m_window, name);
+    m_window->setProperty(name, variantValue);
 }
 
 void QWaylandExtendedSurface::extended_surface_close()

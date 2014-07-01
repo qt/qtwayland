@@ -55,6 +55,7 @@ QT_BEGIN_NAMESPACE
 class QWaylandWindow;
 class QWaylandInputDevice;
 class QWindow;
+class QWaylandExtendedSurface;
 
 class Q_WAYLAND_CLIENT_EXPORT QWaylandXdgSurface : public QtWayland::xdg_surface
         , public QWaylandShellSurface
@@ -74,6 +75,12 @@ public:
     void setTitle(const QString &title) Q_DECL_OVERRIDE;
     void setAppId(const QString &appId) Q_DECL_OVERRIDE;
 
+    void raise() Q_DECL_OVERRIDE;
+    void lower() Q_DECL_OVERRIDE;
+    void setContentOrientationMask(Qt::ScreenOrientations orientation) Q_DECL_OVERRIDE;
+    void setWindowFlags(Qt::WindowFlags flags) Q_DECL_OVERRIDE;
+    void sendProperty(const QString &name, const QVariant &value) Q_DECL_OVERRIDE;
+
     bool isFullscreen() const { return m_fullscreen; }
     bool isMaximized() const { return m_maximized; }
 
@@ -92,6 +99,7 @@ private:
     bool m_minimized;
     bool m_fullscreen;
     QSize m_size;
+    QWaylandExtendedSurface *m_extendedWindow;
 
     void xdg_surface_configure(int32_t width,
                                int32_t height) Q_DECL_OVERRIDE;

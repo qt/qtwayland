@@ -107,3 +107,4 @@ HEADERS +=  qwaylandintegration_p.h \
             qwaylanddatadevice_p.h \
 
 include(hardwareintegration/hardwareintegration.pri)
+include(shellintegration/shellintegration.pri)

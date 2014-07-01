@@ -73,6 +73,7 @@ class QWaylandEventThread;
 class QWaylandIntegration;
 class QWaylandHardwareIntegration;
 class QWaylandXdgShell;
+class QWaylandShellSurface;
 
 namespace QtWayland {
     class qt_output_extension;
@@ -101,6 +102,7 @@ public:
     QWaylandScreen *screenForOutput(struct wl_output *output) const;
 
     struct wl_surface *createSurface(void *handle);
+    QWaylandShellSurface *createShellSurface(QWaylandWindow *window);
 
     QWaylandClientBufferIntegration *clientBufferIntegration() const;
 
@@ -142,6 +144,7 @@ public:
         RegistryGlobal(uint32_t id_, const QString &interface_, uint32_t version_, struct ::wl_registry *registry_)
             : id(id_), interface(interface_), version(version_), registry(registry_) { }
     };
+    QList<RegistryGlobal> globals() const { return mGlobals; }
 
     /* wl_registry_add_listener does not add but rather sets a listener, so this function is used
      * to enable many listeners at once. */

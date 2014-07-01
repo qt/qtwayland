@@ -99,34 +99,25 @@ void *QWaylandNativeInterface::nativeResourceForScreen(const QByteArray &resourc
 QVariantMap QWaylandNativeInterface::windowProperties(QPlatformWindow *window) const
 {
     QWaylandWindow *waylandWindow = static_cast<QWaylandWindow *>(window);
-    if (QWaylandExtendedSurface *extendedWindow = waylandWindow->extendedWindow())
-        return extendedWindow->properties();
-    return QVariantMap();
+    return waylandWindow->properties();
 }
-
 
 QVariant QWaylandNativeInterface::windowProperty(QPlatformWindow *window, const QString &name) const
 {
     QWaylandWindow *waylandWindow = static_cast<QWaylandWindow *>(window);
-    if (QWaylandExtendedSurface *extendedWindow = waylandWindow->extendedWindow())
-        return extendedWindow->property(name);
-    return QVariant();
+    return waylandWindow->property(name);
 }
 
 QVariant QWaylandNativeInterface::windowProperty(QPlatformWindow *window, const QString &name, const QVariant &defaultValue) const
 {
     QWaylandWindow *waylandWindow = static_cast<QWaylandWindow *>(window);
-    if (QWaylandExtendedSurface *extendedWindow = waylandWindow->extendedWindow()) {
-        return extendedWindow->property(name,defaultValue);
-    }
-    return defaultValue;
+    return waylandWindow->property(name, defaultValue);
 }
 
 void QWaylandNativeInterface::setWindowProperty(QPlatformWindow *window, const QString &name, const QVariant &value)
 {
     QWaylandWindow *wlWindow = static_cast<QWaylandWindow*>(window);
-    if (QWaylandExtendedSurface *extendedWindow = wlWindow->extendedWindow())
-        extendedWindow->updateGenericProperty(name,value);
+    wlWindow->sendProperty(name, value);
 }
 
 void QWaylandNativeInterface::emitWindowPropertyChanged(QPlatformWindow *window, const QString &name)

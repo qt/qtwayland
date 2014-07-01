@@ -72,6 +72,9 @@
 #include "qwaylandserverbufferintegration_p.h"
 #include "qwaylandserverbufferintegrationfactory_p.h"
 
+#include "qwaylandshellintegration_p.h"
+#include "qwaylandshellintegrationfactory_p.h"
+
 QT_BEGIN_NAMESPACE
 
 class GenericWaylandTheme: public QGenericUnixTheme
@@ -108,6 +111,7 @@ public:
 
 QWaylandIntegration::QWaylandIntegration()
     : mClientBufferIntegration(0)
+    , mShellIntegration(Q_NULLPTR)
     , mFontDb(new QGenericUnixFontDatabase())
     , mNativeInterface(new QWaylandNativeInterface(this))
 #ifndef QT_NO_ACCESSIBILITY
@@ -117,6 +121,7 @@ QWaylandIntegration::QWaylandIntegration()
 #endif
     , mClientBufferIntegrationInitialized(false)
     , mServerBufferIntegrationInitialized(false)
+    , mShellIntegrationInitialized(false)
 {
     mDisplay = new QWaylandDisplay(this);
     mClipboard = new QWaylandClipboard(mDisplay);
@@ -260,6 +265,14 @@ QWaylandServerBufferIntegration *QWaylandIntegration::serverBufferIntegration() 
     return mServerBufferIntegration;
 }
 
+QWaylandShellIntegration *QWaylandIntegration::shellIntegration() const
+{
+    if (!mShellIntegrationInitialized)
+        const_cast<QWaylandIntegration *>(this)->initializeShellIntegration();
+
+    return mShellIntegration;
+}
+
 void QWaylandIntegration::initializeClientBufferIntegration()
 {
     mClientBufferIntegrationInitialized = true;
@@ -319,6 +332,30 @@ void QWaylandIntegration::initializeServerBufferIntegration()
         mServerBufferIntegration->initialize(mDisplay);
     else
         qWarning("Failed to load server buffer integration %s\n", qPrintable(targetKey));
+}
+
+void QWaylandIntegration::initializeShellIntegration()
+{
+    mShellIntegrationInitialized = true;
+
+    QByteArray integrationName = qgetenv("QT_WAYLAND_SHELL_INTEGRATION");
+    QString targetKey = QString::fromLocal8Bit(integrationName);
+
+    if (targetKey.isEmpty()) {
+        return;
+    }
+
+    QStringList keys = QWaylandShellIntegrationFactory::keys();
+    if (keys.contains(targetKey)) {
+        mShellIntegration = QWaylandShellIntegrationFactory::create(targetKey, QStringList());
+    }
+    if (mShellIntegration && mShellIntegration->initialize(mDisplay)) {
+        qDebug("Using the '%s' shell integration", qPrintable(targetKey));
+    } else {
+        delete mShellIntegration;
+        mShellIntegration = Q_NULLPTR;
+        qWarning("Failed to load shell integration %s", qPrintable(targetKey));
+    }
 }
 
 QT_END_NAMESPACE

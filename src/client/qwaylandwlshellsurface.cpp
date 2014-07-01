@@ -46,6 +46,7 @@
 #include "qwaylandinputdevice_p.h"
 #include "qwaylanddecoration_p.h"
 #include "qwaylandscreen_p.h"
+#include "qwaylandextendedsurface_p.h"
 
 #include <QtCore/QDebug>
 
@@ -53,15 +54,20 @@ QT_BEGIN_NAMESPACE
 
 QWaylandWlShellSurface::QWaylandWlShellSurface(struct ::wl_shell_surface *shell_surface, QWaylandWindow *window)
     : QtWayland::wl_shell_surface(shell_surface)
+    , QWaylandShellSurface(window)
     , m_window(window)
     , m_maximized(false)
     , m_fullscreen(false)
+    , m_extendedWindow(Q_NULLPTR)
 {
+    if (window->display()->windowExtension())
+        m_extendedWindow = new QWaylandExtendedSurface(window);
 }
 
 QWaylandWlShellSurface::~QWaylandWlShellSurface()
 {
     wl_shell_surface_destroy(object());
+    delete m_extendedWindow;
 }
 
 void QWaylandWlShellSurface::resize(QWaylandInputDevice *inputDevice, enum wl_shell_surface_resize edges)
@@ -85,6 +91,36 @@ void QWaylandWlShellSurface::setTitle(const QString & title)
 void QWaylandWlShellSurface::setAppId(const QString & appId)
 {
     return QtWayland::wl_shell_surface::set_class(appId);
+}
+
+void QWaylandWlShellSurface::raise()
+{
+    if (m_extendedWindow)
+        m_extendedWindow->raise();
+}
+
+void QWaylandWlShellSurface::lower()
+{
+    if (m_extendedWindow)
+        m_extendedWindow->lower();
+}
+
+void QWaylandWlShellSurface::setContentOrientationMask(Qt::ScreenOrientations orientation)
+{
+    if (m_extendedWindow)
+        m_extendedWindow->setContentOrientationMask(orientation);
+}
+
+void QWaylandWlShellSurface::setWindowFlags(Qt::WindowFlags flags)
+{
+    if (m_extendedWindow)
+        m_extendedWindow->setWindowFlags(flags);
+}
+
+void QWaylandWlShellSurface::sendProperty(const QString &name, const QVariant &value)
+{
+    if (m_extendedWindow)
+        m_extendedWindow->updateGenericProperty(name, value);
 }
 
 void QWaylandWlShellSurface::setMaximized()

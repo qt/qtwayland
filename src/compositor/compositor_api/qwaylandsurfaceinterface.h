@@ -43,6 +43,7 @@
 
 #include <QWindow>
 
+#include "qwaylandsurface.h"
 #include <QtCompositor/qwaylandexport.h>
 #include <wayland-server.h>
 
@@ -109,6 +110,10 @@ public:
 
 protected:
     virtual bool runOperation(QWaylandSurfaceOp *op) = 0;
+
+    void setSurfaceType(QWaylandSurface::WindowType type);
+    void setSurfaceClassName(const QString &name);
+    void setSurfaceTitle(const QString &title);
 
 private:
     class Private;

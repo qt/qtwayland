@@ -141,7 +141,6 @@ public:
     WindowFlags windowFlags() const;
 
     WindowType windowType() const;
-    void setWindowType(WindowType type);
 
     QWindow::Visibility visibility() const;
     void setVisibility(QWindow::Visibility visibility);
@@ -214,6 +213,7 @@ signals:
     void redraw();
 
     friend class QWaylandSurfaceView;
+    friend class QWaylandSurfaceInterface;
 };
 
 QT_END_NAMESPACE

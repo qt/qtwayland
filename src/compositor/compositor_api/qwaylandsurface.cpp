@@ -192,15 +192,6 @@ QWaylandSurface::WindowType QWaylandSurface::windowType() const
     return d->windowType;
 }
 
-void QWaylandSurface::setWindowType(WindowType type)
-{
-    Q_D(QWaylandSurface);
-    if (d->windowType != type) {
-        d->windowType = type;
-        emit windowTypeChanged(type);
-    }
-}
-
 QtWayland::Surface * QWaylandSurface::handle()
 {
     Q_D(QWaylandSurface);
@@ -393,6 +384,33 @@ QWaylandSurface *QWaylandSurface::fromResource(::wl_resource *res)
     if (s)
         return s->waylandSurface();
     return Q_NULLPTR;
+}
+
+void QWaylandSurfacePrivate::setTitle(const QString &title)
+{
+    Q_Q(QWaylandSurface);
+    if (m_title != title) {
+        m_title = title;
+        emit q->titleChanged();
+    }
+}
+
+void QWaylandSurfacePrivate::setClassName(const QString &className)
+{
+    Q_Q(QWaylandSurface);
+    if (m_className != className) {
+        m_className = className;
+        emit q->classNameChanged();
+    }
+}
+
+void QWaylandSurfacePrivate::setType(QWaylandSurface::WindowType type)
+{
+    Q_Q(QWaylandSurface);
+    if (windowType != type) {
+        windowType = type;
+        emit q->windowTypeChanged(type);
+    }
 }
 
 QT_END_NAMESPACE

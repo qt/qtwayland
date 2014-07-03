@@ -40,6 +40,7 @@
 
 #include "qwaylandsurfaceinterface.h"
 #include "qwaylandsurface.h"
+#include "qwaylandsurface_p.h"
 
 class QWaylandSurfaceInterface::Private
 {
@@ -62,6 +63,21 @@ QWaylandSurfaceInterface::~QWaylandSurfaceInterface()
 QWaylandSurface *QWaylandSurfaceInterface::surface() const
 {
     return d->surface;
+}
+
+void QWaylandSurfaceInterface::setSurfaceType(QWaylandSurface::WindowType type)
+{
+    surface()->d_func()->setType(type);
+}
+
+void QWaylandSurfaceInterface::setSurfaceClassName(const QString &name)
+{
+    surface()->d_func()->setClassName(name);
+}
+
+void QWaylandSurfaceInterface::setSurfaceTitle(const QString &title)
+{
+    surface()->d_func()->setTitle(title);
 }
 
 

@@ -264,7 +264,7 @@ void ShellSurface::shell_surface_set_toplevel(Resource *resource)
     m_xOffset = 0;
     m_yOffset = 0;
 
-    surface()->setWindowType(QWaylandSurface::Toplevel);
+    setSurfaceType(QWaylandSurface::Toplevel);
 
     if (m_surface->extendedSurface())
         m_surface->extendedSurface()->setVisibility(QWindow::Windowed, false);
@@ -286,7 +286,7 @@ void ShellSurface::shell_surface_set_transient(Resource *resource,
     if (flags & WL_SHELL_SURFACE_TRANSIENT_INACTIVE)
         m_surface->setTransientInactive(true);
 
-    surface()->setWindowType(QWaylandSurface::Transient);
+    setSurfaceType(QWaylandSurface::Transient);
 
     if (m_surface->extendedSurface())
         m_surface->extendedSurface()->setVisibility(QWindow::AutomaticVisibility, false);
@@ -321,7 +321,7 @@ void ShellSurface::shell_surface_set_popup(Resource *resource, wl_resource *inpu
     m_transientParent = Surface::fromResource(parent);
     m_popupLocation = QPointF(x, y);
 
-    surface()->setWindowType(QWaylandSurface::Popup);
+    setSurfaceType(QWaylandSurface::Popup);
 
     if (m_surface->extendedSurface())
         m_surface->extendedSurface()->setVisibility(QWindow::AutomaticVisibility, false);

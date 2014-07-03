@@ -56,16 +56,18 @@ class QWaylandSurfaceInterface;
 
 class Q_COMPOSITOR_EXPORT QWaylandSurfacePrivate : public QObjectPrivate, public QtWayland::Surface
 {
+    Q_DECLARE_PUBLIC(QWaylandSurface)
 public:
     QWaylandSurfacePrivate(wl_client *client, quint32 id, QWaylandCompositor *compositor, QWaylandSurface *surface);
+    void setType(QWaylandSurface::WindowType type);
+    void setTitle(const QString &title);
+    void setClassName(const QString &className);
 
     bool closing;
     int refCount;
     QWaylandSurface::WindowType windowType;
     QList<QWaylandSurfaceView *> views;
     QList<QWaylandSurfaceInterface *> interfaces;
-
-    friend class QWaylandSurface;
 };
 
 QT_END_NAMESPACE

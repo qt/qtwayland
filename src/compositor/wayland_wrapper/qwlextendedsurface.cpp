@@ -61,7 +61,8 @@ void SurfaceExtensionGlobal::surface_extension_get_extended_surface(Resource *re
 }
 
 ExtendedSurface::ExtendedSurface(struct wl_client *client, uint32_t id, Surface *surface)
-    : QtWaylandServer::qt_extended_surface(client,id)
+    : QWaylandSurfaceInterface(surface->waylandSurface())
+    , QtWaylandServer::qt_extended_surface(client,id)
     , m_surface(surface)
     , m_contentOrientation(Qt::PrimaryOrientation)
     , m_windowFlags(0)
@@ -96,6 +97,21 @@ void ExtendedSurface::setVisibility(QWindow::Visibility visibility, bool updateC
     // If this change came from the client, we shouldn't update it
     if (updateClient)
         send_onscreen_visibility(m_visibility);
+}
+
+bool ExtendedSurface::runOperation(QWaylandSurfaceOp *op)
+{
+    switch (op->type()) {
+        case QWaylandSurfaceOp::Close:
+            send_close();
+            return true;
+        case QWaylandSurfaceOp::SetVisibility:
+            setVisibility(static_cast<QWaylandSurfaceSetVisibilityOp *>(op)->visibility());
+            return true;
+        default:
+            break;
+    }
+    return false;
 }
 
 void ExtendedSurface::extended_surface_update_generic_property(Resource *resource,

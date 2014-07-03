@@ -46,6 +46,7 @@
 #include <QtCompositor/private/qwayland-server-surface-extension.h>
 #include <private/qwlsurface_p.h>
 #include <QtCompositor/qwaylandsurface.h>
+#include <QtCompositor/qwaylandsurfaceinterface.h>
 
 #include <QtCore/QVariant>
 #include <QtCore/QLinkedList>
@@ -71,7 +72,7 @@ private:
 
 };
 
-class ExtendedSurface : public QtWaylandServer::qt_extended_surface
+class ExtendedSurface : public QWaylandSurfaceInterface, public QtWaylandServer::qt_extended_surface
 {
 public:
     ExtendedSurface(struct wl_client *client, uint32_t id, Surface *surface);
@@ -95,6 +96,9 @@ public:
     QVariantMap windowProperties() const;
     QVariant windowProperty(const QString &propertyName) const;
     void setWindowProperty(const QString &name, const QVariant &value, bool writeUpdateToClient = true);
+
+protected:
+    bool runOperation(QWaylandSurfaceOp *op) Q_DECL_OVERRIDE;
 
 private:
     Surface *m_surface;

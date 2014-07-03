@@ -54,6 +54,7 @@
 #include "qwaylandcompositor.h"
 #include "qwaylandsurface_p.h"
 #include "qwaylandbufferref.h"
+#include "qwaylandsurfaceinterface.h"
 
 #include <QtGui/QGuiApplication>
 #include <QtGui/QScreen>
@@ -64,6 +65,7 @@ QWaylandSurfacePrivate::QWaylandSurfacePrivate(wl_client *client, quint32 id, QW
     : QtWayland::Surface(client, id, compositor, surface)
     , closing(false)
     , refCount(1)
+    , windowType(QWaylandSurface::WindowType::None)
 {}
 
 
@@ -83,6 +85,7 @@ QWaylandSurface::QWaylandSurface(QWaylandSurfacePrivate *dptr)
 QWaylandSurface::~QWaylandSurface()
 {
     Q_D(QWaylandSurface);
+    qDeleteAll(d->interfaces);
     delete d->m_attacher;
 }
 
@@ -108,6 +111,18 @@ QLinkedList<QWaylandSurface *> QWaylandSurface::subSurfaces() const
         return d->subSurface()->subSurfaces();
     }
     return QLinkedList<QWaylandSurface *>();
+}
+
+void QWaylandSurface::addInterface(QWaylandSurfaceInterface *iface)
+{
+    Q_D(QWaylandSurface);
+    d->interfaces.prepend(iface);
+}
+
+void QWaylandSurface::removeInterface(QWaylandSurfaceInterface *iface)
+{
+    Q_D(QWaylandSurface);
+    d->interfaces.removeOne(iface);
 }
 
 QWaylandSurface::Type QWaylandSurface::type() const
@@ -142,11 +157,10 @@ QSize QWaylandSurface::size() const
 void QWaylandSurface::requestSize(const QSize &size)
 {
     Q_D(QWaylandSurface);
-    if (d->shellSurface()) {
-        d->shellSurface()->requestSize(size);
-    } else {
+    QWaylandSurfaceResizeOp op(size);
+    if (!sendInterfaceOp(op)) {
         int id = wl_resource_get_id(d->resource()->handle);
-        qWarning("No shell surface attached to this surface (wl_surface@%d). Cannot forward requestSize call.", id);
+        qWarning("No surface interface forwarded the resize request for this surface (wl_surface@%d).", id);
     }
 }
 
@@ -175,9 +189,16 @@ QWaylandSurface::WindowFlags QWaylandSurface::windowFlags() const
 QWaylandSurface::WindowType QWaylandSurface::windowType() const
 {
     Q_D(const QWaylandSurface);
-    if (d->shellSurface())
-        return d->shellSurface()->windowType();
-    return QWaylandSurface::None;
+    return d->windowType;
+}
+
+void QWaylandSurface::setWindowType(WindowType type)
+{
+    Q_D(QWaylandSurface);
+    if (d->windowType != type) {
+        d->windowType = type;
+        emit windowTypeChanged(type);
+    }
 }
 
 QtWayland::Surface * QWaylandSurface::handle()
@@ -233,20 +254,28 @@ QWindow::Visibility QWaylandSurface::visibility() const
 
 void QWaylandSurface::setVisibility(QWindow::Visibility visibility)
 {
+    QWaylandSurfaceSetVisibilityOp op(visibility);
+    sendInterfaceOp(op);
+}
+
+bool QWaylandSurface::sendInterfaceOp(QWaylandSurfaceOp &op)
+{
     Q_D(QWaylandSurface);
-    if (d->extendedSurface())
-        d->extendedSurface()->setVisibility(visibility);
+    foreach (QWaylandSurfaceInterface *iface, d->interfaces) {
+        if (iface->runOperation(&op))
+            return true;
+    }
+    return false;
 }
 
 void QWaylandSurface::ping()
 {
     Q_D(QWaylandSurface);
-    if (d->shellSurface()) {
-        uint32_t serial = wl_display_next_serial(compositor()->waylandDisplay());
-        d->shellSurface()->ping(serial);
-    } else {
+    uint32_t serial = wl_display_next_serial(compositor()->waylandDisplay());
+    QWaylandSurfacePingOp op(serial);
+    if (!sendInterfaceOp(op)) {
         int id = wl_resource_get_id(d->resource()->handle);
-        qWarning("No shell surface attached to this surface (wl_surface@%d). Cannot forward ping call.", id);
+        qWarning("No surface interface forwarded the ping for this surface (wl_surface@%d).", id);
     }
 }
 
@@ -292,12 +321,9 @@ void QWaylandSurface::destroy()
 
 void QWaylandSurface::destroySurface()
 {
-    Q_D(QWaylandSurface);
-    if (d->extendedSurface()) {
-        d->extendedSurface()->send_close();
-    } else {
+    QWaylandSurfaceOp op(QWaylandSurfaceOp::Close);
+    if (!sendInterfaceOp(op))
         destroySurfaceByForce();
-    }
 }
 
 void QWaylandSurface::destroySurfaceByForce()
@@ -331,6 +357,12 @@ void QWaylandSurface::ref()
     ++d->refCount;
 }
 
+void QWaylandSurface::setMapped(bool mapped)
+{
+    Q_D(QWaylandSurface);
+    d->setMapped(mapped);
+}
+
 void QWaylandSurface::setBufferAttacher(QWaylandBufferAttacher *attacher)
 {
     Q_D(QWaylandSurface);
@@ -347,6 +379,20 @@ QList<QWaylandSurfaceView *> QWaylandSurface::views() const
 {
     Q_D(const QWaylandSurface);
     return d->views;
+}
+
+QList<QWaylandSurfaceInterface *> QWaylandSurface::interfaces() const
+{
+    Q_D(const QWaylandSurface);
+    return d->interfaces;
+}
+
+QWaylandSurface *QWaylandSurface::fromResource(::wl_resource *res)
+{
+    QtWayland::Surface *s = QtWayland::Surface::fromResource(res);
+    if (s)
+        return s->waylandSurface();
+    return Q_NULLPTR;
 }
 
 QT_END_NAMESPACE

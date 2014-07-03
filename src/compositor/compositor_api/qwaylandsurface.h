@@ -49,6 +49,7 @@
 #include <QtCore/QVariantMap>
 
 struct wl_client;
+struct wl_resource;
 
 QT_BEGIN_NAMESPACE
 
@@ -57,6 +58,8 @@ class QWaylandSurfacePrivate;
 class QWaylandCompositor;
 class QWaylandBufferRef;
 class QWaylandSurfaceView;
+class QWaylandSurfaceInterface;
+class QWaylandSurfaceOp;
 
 namespace QtWayland {
 class Surface;
@@ -120,6 +123,8 @@ public:
 
     QWaylandSurface *parentSurface() const;
     QLinkedList<QWaylandSurface *> subSurfaces() const;
+    void addInterface(QWaylandSurfaceInterface *interface);
+    void removeInterface(QWaylandSurfaceInterface *interface);
 
     Type type() const;
     bool isYInverted() const;
@@ -136,6 +141,7 @@ public:
     WindowFlags windowFlags() const;
 
     WindowType windowType() const;
+    void setWindowType(WindowType type);
 
     QWindow::Visibility visibility() const;
     void setVisibility(QWindow::Visibility visibility);
@@ -166,11 +172,17 @@ public:
     Q_INVOKABLE void ping();
 
     void ref();
+    void setMapped(bool mapped);
 
     void setBufferAttacher(QWaylandBufferAttacher *attacher);
     QWaylandBufferAttacher *bufferAttacher() const;
 
     QList<QWaylandSurfaceView *> views() const;
+    QList<QWaylandSurfaceInterface *> interfaces() const;
+
+    bool sendInterfaceOp(QWaylandSurfaceOp &op);
+
+    static QWaylandSurface *fromResource(::wl_resource *resource);
 
 public slots:
     void updateSelection();

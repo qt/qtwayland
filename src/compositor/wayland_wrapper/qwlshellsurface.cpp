@@ -88,7 +88,7 @@ void Shell::shell_get_shell_surface(Resource *resource, uint32_t id, struct ::wl
 
 
 ShellSurface::ShellSurface(Shell *shell, wl_client *client, uint32_t id, Surface *surface)
-    : QWaylandShellSurface(surface->waylandSurface())
+    : QWaylandSurfaceInterface(surface->waylandSurface())
     , wl_shell_surface(client, id)
     , m_shell(shell)
     , m_surface(surface)
@@ -99,7 +99,6 @@ ShellSurface::ShellSurface(Shell *shell, wl_client *client, uint32_t id, Surface
     , m_transientParent(0)
     , m_xOffset(0)
     , m_yOffset(0)
-    , m_windowType(QWaylandSurface::None)
     , m_popupLocation()
     , m_popupSerial()
 {
@@ -164,11 +163,6 @@ void ShellSurface::setOffset(const QPointF &offset)
     m_yOffset = offset.y();
 }
 
-QWaylandSurface::WindowType ShellSurface::windowType() const
-{
-    return m_windowType;
-}
-
 void ShellSurface::mapPopup()
 {
     if (m_popupGrabber->grabSerial() == m_popupSerial) {
@@ -182,6 +176,21 @@ void ShellSurface::mapPopup()
 void ShellSurface::configure(bool hasBuffer)
 {
     m_surface->setMapped(hasBuffer);
+}
+
+bool ShellSurface::runOperation(QWaylandSurfaceOp *op)
+{
+    switch (op->type()) {
+        case QWaylandSurfaceOp::Ping:
+            ping(static_cast<QWaylandSurfacePingOp *>(op)->serial());
+            return true;
+        case QWaylandSurfaceOp::Resize:
+            requestSize(static_cast<QWaylandSurfaceResizeOp *>(op)->size());
+            return true;
+        default:
+            break;
+    }
+    return false;
 }
 
 void ShellSurface::requestSize(const QSize &size)
@@ -255,10 +264,7 @@ void ShellSurface::shell_surface_set_toplevel(Resource *resource)
     m_xOffset = 0;
     m_yOffset = 0;
 
-    if (m_windowType != QWaylandSurface::Toplevel) {
-        m_windowType = QWaylandSurface::Toplevel;
-        emit m_surface->waylandSurface()->windowTypeChanged(m_windowType);
-    }
+    surface()->setWindowType(QWaylandSurface::Toplevel);
 
     if (m_surface->extendedSurface())
         m_surface->extendedSurface()->setVisibility(QWindow::Windowed, false);
@@ -280,10 +286,7 @@ void ShellSurface::shell_surface_set_transient(Resource *resource,
     if (flags & WL_SHELL_SURFACE_TRANSIENT_INACTIVE)
         m_surface->setTransientInactive(true);
 
-    if (m_windowType != QWaylandSurface::Transient) {
-        m_windowType = QWaylandSurface::Transient;
-        emit m_surface->waylandSurface()->windowTypeChanged(m_windowType);
-    }
+    surface()->setWindowType(QWaylandSurface::Transient);
 
     if (m_surface->extendedSurface())
         m_surface->extendedSurface()->setVisibility(QWindow::AutomaticVisibility, false);
@@ -318,10 +321,7 @@ void ShellSurface::shell_surface_set_popup(Resource *resource, wl_resource *inpu
     m_transientParent = Surface::fromResource(parent);
     m_popupLocation = QPointF(x, y);
 
-    if (m_windowType != QWaylandSurface::Popup) {
-        m_windowType = QWaylandSurface::Popup;
-        emit m_surface->waylandSurface()->windowTypeChanged(m_windowType);
-    }
+    surface()->setWindowType(QWaylandSurface::Popup);
 
     if (m_surface->extendedSurface())
         m_surface->extendedSurface()->setVisibility(QWindow::AutomaticVisibility, false);

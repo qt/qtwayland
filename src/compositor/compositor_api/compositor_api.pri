@@ -11,7 +11,7 @@ HEADERS += \
     compositor_api/qwaylandbufferref.h \
     compositor_api/qwaylandsurfaceview.h \
     compositor_api/qwaylandglobalinterface.h \
-    compositor_api/qwaylandshellsurface.h
+    compositor_api/qwaylandsurfaceinterface.h
 
 SOURCES += \
     compositor_api/qwaylandcompositor.cpp \
@@ -22,7 +22,7 @@ SOURCES += \
     compositor_api/qwaylandbufferref.cpp \
     compositor_api/qwaylandsurfaceview.cpp \
     compositor_api/qwaylandglobalinterface.cpp \
-    compositor_api/qwaylandshellsurface.cpp
+    compositor_api/qwaylandsurfaceinterface.cpp
 
 QT += core-private
 

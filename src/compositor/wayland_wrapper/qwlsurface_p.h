@@ -62,7 +62,6 @@
 QT_BEGIN_NAMESPACE
 
 class QTouchEvent;
-class QWaylandShellSurface;
 
 namespace QtWayland {
 
@@ -106,9 +105,6 @@ public:
 
     void setSubSurface(SubSurface *subSurface);
     SubSurface *subSurface() const;
-
-    void setShellSurface(QWaylandShellSurface *shellSurface);
-    QWaylandShellSurface *shellSurface() const;
 
     void setInputPanelSurface(InputPanelSurface *inputPanelSurface);
     InputPanelSurface *inputPanelSurface() const;
@@ -157,7 +153,6 @@ protected:
 
     QRegion m_damage;
     SurfaceBuffer *m_buffer;
-    QWaylandShellSurface *m_shellSurface;
     QWaylandBufferRef m_bufferRef;
     bool m_surfaceMapped;
     QWaylandBufferAttacher *m_attacher;

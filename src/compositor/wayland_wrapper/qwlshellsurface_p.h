@@ -44,7 +44,7 @@
 #include <QtCompositor/qwaylandexport.h>
 #include <QtCompositor/qwaylandsurface.h>
 #include <QtCompositor/qwaylandglobalinterface.h>
-#include <QtCompositor/qwaylandshellsurface.h>
+#include <QtCompositor/qwaylandsurfaceinterface.h>
 
 #include <wayland-server.h>
 #include <QHash>
@@ -84,7 +84,7 @@ private:
     QHash<InputDevice*, ShellSurfacePopupGrabber*> m_popupGrabber;
 };
 
-class Q_COMPOSITOR_EXPORT ShellSurface : public QWaylandShellSurface, public QtWaylandServer::wl_shell_surface
+class Q_COMPOSITOR_EXPORT ShellSurface : public QObject, public QWaylandSurfaceInterface, public QtWaylandServer::wl_shell_surface
 {
 public:
     ShellSurface(Shell *shell, struct wl_client *client, uint32_t id, Surface *surface);
@@ -97,13 +97,14 @@ public:
 
     void setOffset(const QPointF &offset);
 
-    QWaylandSurface::WindowType windowType() const Q_DECL_OVERRIDE;
-
     void mapPopup();
     void configure(bool hasBuffer);
 
-    void requestSize(const QSize &size) Q_DECL_OVERRIDE;
-    void ping(uint32_t serial) Q_DECL_OVERRIDE;
+    void requestSize(const QSize &size);
+    void ping(uint32_t serial);
+
+protected:
+    bool runOperation(QWaylandSurfaceOp *op) Q_DECL_OVERRIDE;
 
 private:
     Shell *m_shell;
@@ -119,8 +120,6 @@ private:
 
     int32_t m_xOffset;
     int32_t m_yOffset;
-
-    QWaylandSurface::WindowType m_windowType;
 
     QPointF m_popupLocation;
     uint32_t m_popupSerial;

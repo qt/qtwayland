@@ -48,8 +48,8 @@
 
 #include <QtQuick/qsgtextureprovider.h>
 
-#include "qwaylandsurfaceview.h"
-#include "qwaylandquicksurface.h"
+#include <QtCompositor/qwaylandsurfaceview.h>
+#include <QtCompositor/qwaylandquicksurface.h>
 
 QT_BEGIN_NAMESPACE
 

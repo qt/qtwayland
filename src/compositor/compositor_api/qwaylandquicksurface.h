@@ -42,7 +42,7 @@
 #ifndef QQUICKWAYLANDSURFACE_H
 #define QQUICKWAYLANDSURFACE_H
 
-#include "qwaylandsurface.h"
+#include <QtCompositor/qwaylandsurface.h>
 
 struct wl_client;
 

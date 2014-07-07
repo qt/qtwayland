@@ -46,7 +46,7 @@
 
 #include <QtCompositor/qwaylandexport.h>
 
-#include "qwaylandsurface.h"
+#include "QtCompositor/qwaylandsurface.h"
 
 QT_BEGIN_NAMESPACE
 

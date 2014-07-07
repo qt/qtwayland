@@ -42,6 +42,8 @@
 #ifndef QWAYLANDBUFFERREF_H
 #define QWAYLANDBUFFERREF_H
 
+#include <QImage>
+
 #ifdef QT_COMPOSITOR_WAYLAND_GL
 #include <QtGui/qopengl.h>
 #endif

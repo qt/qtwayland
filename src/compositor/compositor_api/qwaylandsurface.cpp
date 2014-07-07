@@ -52,7 +52,6 @@
 #include "wayland_wrapper/qwldatadevicemanager_p.h"
 
 #include "qwaylandcompositor.h"
-#include "waylandwindowmanagerintegration.h"
 #include "qwaylandsurface_p.h"
 #include "qwaylandbufferref.h"
 

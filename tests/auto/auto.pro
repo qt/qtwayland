@@ -5,4 +5,5 @@ TEMPLATE=subdirs
 contains(CONFIG, wayland-compositor) {
     SUBDIRS += compositor
     SUBDIRS += client
+    SUBDIRS += cmake
 }

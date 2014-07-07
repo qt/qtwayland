@@ -1,7 +1,7 @@
 INCLUDEPATH += $$PWD
 
 HEADERS += \
-    windowmanagerprotocol/waylandwindowmanagerintegration.h
+    windowmanagerprotocol/waylandwindowmanagerintegration_p.h
 
 SOURCES += \
     windowmanagerprotocol/waylandwindowmanagerintegration.cpp

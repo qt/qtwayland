@@ -42,14 +42,13 @@
 #ifndef QQUICKWAYLANDSURFACE_H
 #define QQUICKWAYLANDSURFACE_H
 
-#include <QSGTexture>
-#include <QSGTextureProvider>
-
 #include "qwaylandsurface.h"
 
 struct wl_client;
 
 QT_BEGIN_NAMESPACE
+
+class QSGTexture;
 
 class QWaylandSurfaceItem;
 class QWaylandQuickSurfacePrivate;

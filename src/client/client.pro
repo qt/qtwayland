@@ -8,6 +8,7 @@ MODULE_PLUGIN_TYPES = wayland-graphics-integration-client
 load(qt_module)
 
 CONFIG -= precompile_header
+CONFIG -= create_cmake
 CONFIG += link_pkgconfig qpa/genericunixfontdatabase wayland-scanner
 
 !equals(QT_WAYLAND_GL_CONFIG, nogl) {

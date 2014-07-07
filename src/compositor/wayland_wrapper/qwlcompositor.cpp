@@ -88,7 +88,7 @@
 #include "hardware_integration/qwlhwintegration_p.h"
 #include "hardware_integration/qwlclientbufferintegration_p.h"
 #include "hardware_integration/qwlserverbufferintegration_p.h"
-#include "waylandwindowmanagerintegration.h"
+#include "windowmanagerprotocol/waylandwindowmanagerintegration_p.h"
 
 #include "hardware_integration/qwlclientbufferintegrationfactory_p.h"
 #include "hardware_integration/qwlserverbufferintegrationfactory_p.h"

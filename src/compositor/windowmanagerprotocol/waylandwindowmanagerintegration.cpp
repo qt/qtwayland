@@ -38,7 +38,7 @@
 **
 ****************************************************************************/
 
-#include "waylandwindowmanagerintegration.h"
+#include <windowmanagerprotocol/waylandwindowmanagerintegration_p.h>
 
 #include <wayland_wrapper/qwldisplay_p.h>
 #include <wayland_wrapper/qwlcompositor_p.h>

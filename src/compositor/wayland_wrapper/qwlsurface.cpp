@@ -55,10 +55,6 @@
 
 #include <wayland-server.h>
 
-#ifdef QT_WAYLAND_WINDOWMANAGER_SUPPORT
-#include "waylandwindowmanagerintegration.h"
-#endif
-
 QT_BEGIN_NAMESPACE
 
 namespace QtWayland {

@@ -192,6 +192,18 @@ QWaylandSurface::WindowType QWaylandSurface::windowType() const
     return d->windowType;
 }
 
+QWaylandSurface *QWaylandSurface::transientParent() const
+{
+    Q_D(const QWaylandSurface);
+    return d->transientParent()->waylandSurface();
+}
+
+QPointF QWaylandSurface::transientOffset() const
+{
+    Q_D(const QWaylandSurface);
+    return d->m_transientOffset;
+}
+
 QtWayland::Surface * QWaylandSurface::handle()
 {
     Q_D(QWaylandSurface);

@@ -116,11 +116,6 @@ private:
     ShellSurfaceMoveGrabber *m_moveGrabber;
     ShellSurfacePopupGrabber *m_popupGrabber;
 
-    Surface *m_transientParent;
-
-    int32_t m_xOffset;
-    int32_t m_yOffset;
-
     uint32_t m_popupSerial;
 
     QSet<uint32_t> m_pings;

@@ -116,7 +116,9 @@ Surface::Surface(struct wl_client *client, uint32_t id, QWaylandCompositor *comp
     , m_extendedSurface(0)
     , m_subSurface(0)
     , m_inputPanelSurface(0)
+    , m_transientParent(0)
     , m_transientInactive(false)
+    , m_transientOffset(QPointF(0, 0))
     , m_isCursorSurface(false)
     , m_destroyed(false)
     , m_contentOrientation(Qt::PrimaryOrientation)
@@ -139,6 +141,12 @@ Surface::~Surface()
         c->destroy();
     foreach (FrameCallback *c, m_frameCallbacks)
         c->destroy();
+}
+
+void Surface::setTransientOffset(qreal x, qreal y)
+{
+    m_transientOffset.setX(x);
+    m_transientOffset.setY(y);
 }
 
 void Surface::releaseSurfaces()

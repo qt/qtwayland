@@ -91,6 +91,8 @@ class Q_COMPOSITOR_EXPORT QWaylandSurface : public QObject
     Q_PROPERTY(Qt::ScreenOrientations orientationUpdateMask READ orientationUpdateMask NOTIFY orientationUpdateMaskChanged)
     Q_PROPERTY(QWindow::Visibility visibility READ visibility WRITE setVisibility NOTIFY visibilityChanged)
     Q_PROPERTY(QSize size READ size NOTIFY sizeChanged)
+    Q_PROPERTY(QWaylandSurface *transientParent READ transientParent)
+    Q_PROPERTY(QPointF transientOffset READ transientOffset)
 
     Q_ENUMS(WindowFlag WindowType)
     Q_FLAGS(WindowFlag WindowFlags)
@@ -147,6 +149,8 @@ public:
     Q_INVOKABLE void sendOnScreenVisibilityChange(bool visible); // Compat
 
     QWaylandSurface *transientParent() const;
+
+    QPointF transientOffset() const;
 
     QtWayland::Surface *handle();
 

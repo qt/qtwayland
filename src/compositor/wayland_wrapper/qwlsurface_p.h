@@ -118,8 +118,13 @@ public:
     QString title() const { return m_title; }
     void setTitle(const QString &title);
 
+    Surface *transientParent() const { return m_transientParent; }
+    void setTransientParent(Surface *parent) { m_transientParent = parent; }
+
     bool transientInactive() const { return m_transientInactive; }
     void setTransientInactive(bool v) { m_transientInactive = v; }
+
+    void setTransientOffset(qreal x, qreal y);
 
     bool isCursorSurface() const { return m_isCursorSurface; }
     void setCursorSurface(bool isCursor) { m_isCursorSurface = isCursor; }
@@ -186,7 +191,9 @@ protected:
     QSize m_size;
     QString m_className;
     QString m_title;
+    Surface *m_transientParent;
     bool m_transientInactive;
+    QPointF m_transientOffset;
     bool m_isCursorSurface;
     bool m_destroyed;
     Qt::ScreenOrientation m_contentOrientation;

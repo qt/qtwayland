@@ -137,9 +137,7 @@ QWaylandDisplay::QWaylandDisplay(QWaylandIntegration *waylandIntegration)
 
     mWindowManagerIntegration.reset(new QWaylandWindowManagerIntegration(this));
 
-    blockingReadEvents();
-
-    waitForScreens();
+    forceRoundTrip();
 }
 
 QWaylandDisplay::~QWaylandDisplay(void)
@@ -235,6 +233,9 @@ void QWaylandDisplay::registry_global(uint32_t id, const QString &interface, uin
         mTextInputManager.reset(new QtWayland::wl_text_input_manager(registry, id));
     } else if (interface == QStringLiteral("qt_hardware_integration")) {
         mHardwareIntegration.reset(new QWaylandHardwareIntegration(registry, id));
+        // make a roundtrip here since we need to receive the events sent by
+        // qt_hardware_integration before creating windows
+        forceRoundTrip();
     }
 
     mGlobals.append(RegistryGlobal(id, interface, version, registry));
@@ -271,9 +272,35 @@ uint32_t QWaylandDisplay::currentTimeMillisec()
     return 0;
 }
 
+static void
+sync_callback(void *data, struct wl_callback *callback, uint32_t serial)
+{
+    Q_UNUSED(serial)
+    bool *done = static_cast<bool *>(data);
+
+    *done = true;
+    wl_callback_destroy(callback);
+}
+
+static const struct wl_callback_listener sync_listener = {
+    sync_callback
+};
+
 void QWaylandDisplay::forceRoundTrip()
 {
-    wl_display_roundtrip(mDisplay);
+    // wl_display_roundtrip() works on the main queue only,
+    // but we use a separate one, so basically reimplement it here
+    int ret = 0;
+    bool done = false;
+    wl_callback *callback = wl_display_sync(mDisplay);
+    wl_proxy_set_queue((struct wl_proxy *)callback, mEventQueue);
+    wl_callback_add_listener(callback, &sync_listener, &done);
+    flushRequests();
+    while (!done && ret >= 0)
+        ret = wl_display_dispatch_queue(mDisplay, mEventQueue);
+
+    if (ret == -1 && !done)
+        wl_callback_destroy(callback);
 }
 
 QtWayland::xdg_shell *QWaylandDisplay::shellXdg()

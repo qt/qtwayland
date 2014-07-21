@@ -264,7 +264,6 @@ void SurfaceBuffer::createTexture()
     hwIntegration->bindTextureToBuffer(m_buffer);
 #else
     Q_UNUSED(hwIntegration);
-    Q_UNUSED(context);
 #endif
 }
 

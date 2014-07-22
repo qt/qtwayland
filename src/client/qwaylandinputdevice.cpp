@@ -788,7 +788,11 @@ void QWaylandInputDevice::Keyboard::keyboard_key(uint32_t serial, uint32_t time,
                                                     code, 0, 0);
 #endif
 
-    if (state == WL_KEYBOARD_KEY_STATE_PRESSED) {
+    if (state == WL_KEYBOARD_KEY_STATE_PRESSED
+#ifndef QT_NO_WAYLAND_XKB
+        && xkb_keymap_key_repeats(mXkbMap, code)
+#endif
+        ) {
         mRepeatKey = qtkey;
         mRepeatCode = code;
         mRepeatTime = time;

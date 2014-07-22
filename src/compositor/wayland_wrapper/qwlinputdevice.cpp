@@ -244,7 +244,7 @@ void InputDevice::sendFullKeyEvent(QKeyEvent *event)
     if (ext && ext->postQtKeyEvent(event, keyboardFocus()))
         return;
 
-    if (!m_keyboard.isNull()) {
+    if (!m_keyboard.isNull() && !event->isAutoRepeat()) {
         if (event->type() == QEvent::KeyPress)
             m_keyboard->sendKeyPressEvent(event->nativeScanCode());
         else if (event->type() == QEvent::KeyRelease)

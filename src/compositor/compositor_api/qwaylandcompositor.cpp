@@ -185,10 +185,10 @@ QPointF QWaylandCompositor::mapToView(QWaylandSurfaceView *surface, const QPoint
 
     The default implementation simply forwards the request to QDesktopServices::openUrl().
 */
-void QWaylandCompositor::openUrl(WaylandClient *client, const QUrl &url)
+bool QWaylandCompositor::openUrl(WaylandClient *client, const QUrl &url)
 {
     Q_UNUSED(client);
-    QDesktopServices::openUrl(url);
+    return QDesktopServices::openUrl(url);
 }
 
 QtWayland::Compositor * QWaylandCompositor::handle() const

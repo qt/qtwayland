@@ -64,7 +64,7 @@ QWaylandBufferRef::QWaylandBufferRef(QtWayland::SurfaceBuffer *buffer)
 {
     d->buffer = buffer;
     if (buffer)
-        buffer->m_refCount.ref();
+        buffer->ref();
 }
 
 QWaylandBufferRef::QWaylandBufferRef(const QWaylandBufferRef &ref)
@@ -76,19 +76,19 @@ QWaylandBufferRef::QWaylandBufferRef(const QWaylandBufferRef &ref)
 
 QWaylandBufferRef::~QWaylandBufferRef()
 {
-    if (d->buffer && !d->buffer->m_refCount.deref())
-        d->buffer->disown();
+    if (d->buffer)
+        d->buffer->deref();
     delete d;
 }
 
 QWaylandBufferRef &QWaylandBufferRef::operator=(const QWaylandBufferRef &ref)
 {
-    if (d->buffer && !d->buffer->m_refCount.deref())
-        d->buffer->disown();
+    if (d->buffer)
+        d->buffer->deref();
 
     d->buffer = ref.d->buffer;
     if (d->buffer)
-        d->buffer->m_refCount.ref();
+        d->buffer->ref();
 
     return *this;
 }

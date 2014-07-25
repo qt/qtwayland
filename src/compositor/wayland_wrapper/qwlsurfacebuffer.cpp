@@ -68,6 +68,8 @@ SurfaceBuffer::SurfaceBuffer(Surface *surface)
     , m_shmBuffer(0)
     , m_isSizeResolved(false)
     , m_size()
+    , m_used(false)
+    , m_destroyIfUnused(false)
     , m_image(0)
 {
 }
@@ -100,6 +102,7 @@ void SurfaceBuffer::initialize(struct ::wl_resource *buffer)
 
 void SurfaceBuffer::destructBufferState()
 {
+    destroyTexture();
     if (m_buffer) {
         sendRelease();
 
@@ -163,6 +166,7 @@ void SurfaceBuffer::disown()
 {
     m_surface_has_buffer = false;
     destructBufferState();
+    destroyIfUnused();
 }
 
 void SurfaceBuffer::setDisplayed()
@@ -281,6 +285,30 @@ bool SurfaceBuffer::isYInverted() const
         ret = true;
 
     return ret != negateReturn;
+}
+
+void SurfaceBuffer::ref()
+{
+    m_used = m_refCount.ref();
+}
+
+void SurfaceBuffer::deref()
+{
+    m_used = m_refCount.deref();
+    if (!m_used)
+        disown();
+}
+
+void SurfaceBuffer::setDestroyIfUnused(bool destroy)
+{
+    m_destroyIfUnused = destroy;
+    destroyIfUnused();
+}
+
+void SurfaceBuffer::destroyIfUnused()
+{
+    if (!m_used && m_destroyIfUnused)
+        delete this;
 }
 
 }

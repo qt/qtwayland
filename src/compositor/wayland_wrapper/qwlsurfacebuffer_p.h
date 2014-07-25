@@ -104,10 +104,15 @@ public:
     void handleDisplayed();
 
     void bufferWasDestroyed();
+    void setDestroyIfUnused(bool destroy);
 
     void *handle() const;
     QImage image();
 private:
+    void ref();
+    void deref();
+    void destroyIfUnused();
+
     Surface *m_surface;
     Compositor *m_compositor;
     struct ::wl_resource *m_buffer;
@@ -135,6 +140,8 @@ private:
     mutable bool m_isSizeResolved;
     mutable QSize m_size;
     QAtomicInt m_refCount;
+    bool m_used;
+    bool m_destroyIfUnused;
 
     QImage m_image;
 

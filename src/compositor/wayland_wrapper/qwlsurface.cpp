@@ -132,7 +132,7 @@ Surface::~Surface()
     m_bufferRef = QWaylandBufferRef();
 
     for (int i = 0; i < m_bufferPool.size(); i++)
-        delete m_bufferPool[i];
+        m_bufferPool[i]->setDestroyIfUnused(true);
 
     foreach (FrameCallback *c, m_pendingFrameCallbacks)
         c->destroy();

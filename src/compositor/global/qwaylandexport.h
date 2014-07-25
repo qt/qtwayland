@@ -53,8 +53,6 @@ QT_BEGIN_NAMESPACE
 #  endif
 #endif
 
-typedef void WaylandClient;
-
 QT_END_NAMESPACE
 
 #endif //WAYLANDEXPORT_H

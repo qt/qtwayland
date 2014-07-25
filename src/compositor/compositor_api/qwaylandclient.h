@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the Qt Compositor.
@@ -38,75 +38,50 @@
 **
 ****************************************************************************/
 
-#include <windowmanagerprotocol/waylandwindowmanagerintegration_p.h>
+#ifndef QWAYLANDCLIENT_H
+#define QWAYLANDCLIENT_H
 
-#include <wayland_wrapper/qwldisplay_p.h>
-#include <wayland_wrapper/qwlcompositor_p.h>
+#include <QtCompositor/qwaylandexport.h>
 
-#include <compositor_api/qwaylandclient.h>
-#include <compositor_api/qwaylandcompositor.h>
+#include <QObject>
+
+#include <signal.h>
 
 #include <wayland-server.h>
 
-#include <QUrl>
-
 QT_BEGIN_NAMESPACE
 
-WindowManagerServerIntegration::WindowManagerServerIntegration(QWaylandCompositor *compositor, QObject *parent)
-    : QObject(parent)
-    , QtWaylandServer::qt_windowmanager()
-    , m_showIsFullScreen(false)
-    , m_compositor(compositor)
+class QWaylandClientPrivate;
+
+class Q_COMPOSITOR_EXPORT QWaylandClient : public QObject
 {
-}
+    Q_OBJECT
+    Q_DECLARE_PRIVATE(QWaylandClient)
 
-WindowManagerServerIntegration::~WindowManagerServerIntegration()
-{
-}
+    Q_PROPERTY(qint64 userId READ userId CONSTANT)
+    Q_PROPERTY(qint64 groupId READ groupId CONSTANT)
+    Q_PROPERTY(qint64 processId READ processId CONSTANT)
+public:
+    ~QWaylandClient();
 
-void WindowManagerServerIntegration::initialize(QtWayland::Display *waylandDisplay)
-{
-    init(waylandDisplay->handle());
-}
+    static QWaylandClient *fromWlClient(wl_client *wlClient);
 
-void WindowManagerServerIntegration::setShowIsFullScreen(bool value)
-{
-    m_showIsFullScreen = value;
-    Q_FOREACH (Resource *resource, resourceMap().values()) {
-        send_hints(resource->handle, static_cast<int32_t>(m_showIsFullScreen));
-    }
-}
+    wl_client *client() const;
 
-void WindowManagerServerIntegration::sendQuitMessage(wl_client *client)
-{
-    Resource *resource = resourceMap().value(client);
+    qint64 userId() const;
+    qint64 groupId() const;
 
-    if (resource)
-        send_quit(resource->handle);
-}
+    qint64 processId() const;
 
-void WindowManagerServerIntegration::windowmanager_bind_resource(Resource *resource)
-{
-    send_hints(resource->handle, static_cast<int32_t>(m_showIsFullScreen));
-}
+    Q_INVOKABLE void kill(int sig = SIGTERM);
 
-void WindowManagerServerIntegration::windowmanager_destroy_resource(Resource *resource)
-{
-    m_urls.remove(resource);
-}
+public Q_SLOTS:
+    void close();
 
-void WindowManagerServerIntegration::windowmanager_open_url(Resource *resource, uint32_t remaining, const QString &newUrl)
-{
-    QString url = m_urls.value(resource, QString());
-
-    url.append(newUrl);
-
-    if (remaining)
-        m_urls.insert(resource, url);
-    else {
-        m_urls.remove(resource);
-        m_compositor->openUrl(QWaylandClient::fromWlClient(resource->client()), QUrl(url));
-    }
-}
+private:
+    explicit QWaylandClient(wl_client *client);
+};
 
 QT_END_NAMESPACE
+
+#endif // QWAYLANDCLIENT_H

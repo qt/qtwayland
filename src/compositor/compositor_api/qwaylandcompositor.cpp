@@ -118,21 +118,19 @@ void QWaylandCompositor::destroyClientForSurface(QWaylandSurface *surface)
     destroyClient(surface->client());
 }
 
-void QWaylandCompositor::destroyClient(WaylandClient *client)
+void QWaylandCompositor::destroyClient(QWaylandClient *client)
 {
     m_compositor->destroyClient(client);
 }
 
-QList<QWaylandSurface *> QWaylandCompositor::surfacesForClient(WaylandClient* c) const
+QList<QWaylandSurface *> QWaylandCompositor::surfacesForClient(QWaylandClient* client) const
 {
-    wl_client *client = static_cast<wl_client *>(c);
-
     QList<QtWayland::Surface *> surfaces = m_compositor->surfaces();
 
     QList<QWaylandSurface *> result;
 
     for (int i = 0; i < surfaces.count(); ++i) {
-        if (surfaces.at(i)->resource()->client() == client) {
+        if (surfaces.at(i)->waylandSurface()->client() == client) {
             result.append(surfaces.at(i)->waylandSurface());
         }
     }
@@ -185,7 +183,7 @@ QPointF QWaylandCompositor::mapToView(QWaylandSurfaceView *surface, const QPoint
 
     The default implementation simply forwards the request to QDesktopServices::openUrl().
 */
-bool QWaylandCompositor::openUrl(WaylandClient *client, const QUrl &url)
+bool QWaylandCompositor::openUrl(QWaylandClient *client, const QUrl &url)
 {
     Q_UNUSED(client);
     return QDesktopServices::openUrl(url);

@@ -1,5 +1,6 @@
 /****************************************************************************
 **
+** Copyright (C) 2014 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
 ** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
@@ -56,6 +57,8 @@
 
 QT_BEGIN_NAMESPACE
 
+class QWaylandClient;
+class QWaylandClientPrivate;
 class QWaylandCompositor;
 class QWaylandInputDevice;
 class WindowManagerServerIntegration;
@@ -97,7 +100,7 @@ public:
 
     void destroySurface(Surface *surface);
 
-    void destroyClient(WaylandClient *client);
+    void destroyClient(QWaylandClient *client);
 
     uint currentTimeMsecs() const;
 
@@ -119,7 +122,7 @@ public:
 
     static Compositor *instance();
 
-    QList<struct wl_client *> clients() const;
+    QList<QWaylandClient *> clients() const;
 
     WindowManagerServerIntegration *windowManagerIntegration() const { return m_windowManagerIntegration; }
 
@@ -193,6 +196,7 @@ protected:
 
     QWaylandCompositor *m_qt_compositor;
     Qt::ScreenOrientation m_orientation;
+    QList<QWaylandClient *> m_clients;
 
 #ifdef QT_COMPOSITOR_WAYLAND_GL
     QScopedPointer<HardwareIntegration> m_hw_integration;
@@ -218,6 +222,8 @@ protected:
     bool m_retainSelection;
 
     friend class QT_PREPEND_NAMESPACE(QWaylandCompositor);
+    friend class QT_PREPEND_NAMESPACE(QWaylandClient);
+    friend class QT_PREPEND_NAMESPACE(QWaylandClientPrivate);
 };
 
 }

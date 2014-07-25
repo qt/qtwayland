@@ -43,6 +43,7 @@
 
 #include <QtCompositor/private/qwlcompositor_p.h>
 
+#include "qwaylandclient.h"
 #include "qwaylandquickcompositor.h"
 #include "qwaylandquicksurface.h"
 #include "qwaylandsurfaceitem.h"
@@ -84,6 +85,7 @@ QWaylandQuickCompositor::QWaylandQuickCompositor(QQuickWindow *window, const cha
 
     qmlRegisterUncreatableType<QWaylandSurfaceItem>("QtCompositor", 1, 0, "WaylandSurfaceItem", QObject::tr("Cannot create instance of WaylandSurfaceItem"));
     qmlRegisterUncreatableType<QWaylandQuickSurface>("QtCompositor", 1, 0, "WaylandQuickSurface", QObject::tr("Cannot create instance of WaylandQuickSurface"));
+    qmlRegisterUncreatableType<QWaylandClient>("QtCompositor", 1, 0, "WaylandClient", QObject::tr("Cannot create instance of WaylandClient"));
 }
 
 QWaylandQuickCompositorPrivate *QWaylandQuickCompositor::d_ptr()

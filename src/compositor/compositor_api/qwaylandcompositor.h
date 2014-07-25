@@ -54,6 +54,7 @@ QT_BEGIN_NAMESPACE
 class QMimeData;
 class QUrl;
 class QOpenGLContext;
+class QWaylandClient;
 class QWaylandSurface;
 class QWaylandInputDevice;
 class QWaylandInputPanel;
@@ -94,9 +95,9 @@ public:
     void sendFrameCallbacks(QList<QWaylandSurface *> visibleSurfaces);
 
     void destroyClientForSurface(QWaylandSurface *surface);
-    void destroyClient(WaylandClient *client);
+    void destroyClient(QWaylandClient *client);
 
-    QList<QWaylandSurface *> surfacesForClient(WaylandClient* client) const;
+    QList<QWaylandSurface *> surfacesForClient(QWaylandClient* client) const;
     QList<QWaylandSurface *> surfaces() const;
 
     QWindow *window()const;
@@ -107,7 +108,7 @@ public:
     virtual QWaylandSurfaceView *pickView(const QPointF &globalPosition) const;
     virtual QPointF mapToView(QWaylandSurfaceView *view, const QPointF &surfacePosition) const;
 
-    virtual bool openUrl(WaylandClient *client, const QUrl &url);
+    virtual bool openUrl(QWaylandClient *client, const QUrl &url);
 
     QtWayland::Compositor *handle() const;
 

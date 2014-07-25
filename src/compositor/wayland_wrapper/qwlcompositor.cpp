@@ -1,5 +1,6 @@
 /****************************************************************************
 **
+** Copyright (C) 2014 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
 ** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
@@ -44,6 +45,7 @@
 #include "qwldisplay_p.h"
 #include "qwloutput_p.h"
 #include "qwlsurface_p.h"
+#include "qwaylandclient.h"
 #include "qwaylandcompositor.h"
 #include "qwldatadevicemanager_p.h"
 #include "qwldatadevice_p.h"
@@ -163,6 +165,7 @@ void Compositor::init()
     connect(dispatcher, SIGNAL(aboutToBlock()), this, SLOT(processWaylandEvents()));
 
     qRegisterMetaType<SurfaceBuffer*>("SurfaceBuffer*");
+    qRegisterMetaType<QWaylandClient*>("WaylandClient*");
     qRegisterMetaType<QWaylandSurface*>("WaylandSurface*");
     qRegisterMetaType<QWaylandSurfaceView*>("WaylandSurfaceView*");
     //initialize distancefieldglyphcache here
@@ -174,6 +177,8 @@ void Compositor::init()
 
 Compositor::~Compositor()
 {
+    qDeleteAll(m_clients);
+
     delete m_outputExtension;
     delete m_surfaceExtension;
     delete m_subSurfaceExtension;
@@ -238,16 +243,15 @@ void Compositor::compositor_create_region(Resource *resource, uint32_t id)
     new Region(resource->client(), id);
 }
 
-void Compositor::destroyClient(WaylandClient *c)
+void Compositor::destroyClient(QWaylandClient *client)
 {
-    wl_client *client = static_cast<wl_client *>(c);
     if (!client)
         return;
 
     if (m_windowManagerIntegration)
-        m_windowManagerIntegration->sendQuitMessage(client);
+        m_windowManagerIntegration->sendQuitMessage(client->client());
 
-    wl_client_destroy(client);
+    wl_client_destroy(client->client());
 }
 
 QWindow *Compositor::window() const
@@ -319,15 +323,9 @@ void Compositor::initializeDefaultInputDevice()
     m_default_input_device = m_default_wayland_input_device->handle();
 }
 
-QList<struct wl_client *> Compositor::clients() const
+QList<QWaylandClient *> Compositor::clients() const
 {
-    QList<struct wl_client *> list;
-    foreach (Surface *surface, m_surfaces) {
-        struct wl_client *client = surface->resource()->client();
-        if (!list.contains(client))
-            list.append(client);
-    }
-    return list;
+    return m_clients;
 }
 
 void Compositor::setScreenOrientation(Qt::ScreenOrientation orientation)

@@ -1,5 +1,6 @@
 /****************************************************************************
 **
+** Copyright (C) 2014 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
 ** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
@@ -52,6 +53,7 @@
 #include "wayland_wrapper/qwldatadevicemanager_p.h"
 
 #include "qwaylandcompositor.h"
+#include "qwaylandclient.h"
 #include "qwaylandsurface_p.h"
 #include "qwaylandbufferref.h"
 #include "qwaylandsurfaceinterface.h"
@@ -61,10 +63,11 @@
 
 QT_BEGIN_NAMESPACE
 
-QWaylandSurfacePrivate::QWaylandSurfacePrivate(wl_client *client, quint32 id, QWaylandCompositor *compositor, QWaylandSurface *surface)
-    : QtWayland::Surface(client, id, compositor, surface)
+QWaylandSurfacePrivate::QWaylandSurfacePrivate(wl_client *wlClient, quint32 id, QWaylandCompositor *compositor, QWaylandSurface *surface)
+    : QtWayland::Surface(wlClient, id, compositor, surface)
     , closing(false)
     , refCount(1)
+    , client(QWaylandClient::fromWlClient(wlClient))
     , windowType(QWaylandSurface::WindowType::None)
 {}
 
@@ -89,10 +92,13 @@ QWaylandSurface::~QWaylandSurface()
     delete d->m_attacher;
 }
 
-WaylandClient *QWaylandSurface::client() const
+QWaylandClient *QWaylandSurface::client() const
 {
     Q_D(const QWaylandSurface);
-    return d->resource()->client();
+
+    if (!d->compositor()->clients().contains(d->client))
+        return Q_NULLPTR;
+    return d->client;
 }
 
 QWaylandSurface *QWaylandSurface::parentSurface() const
@@ -208,18 +214,6 @@ QtWayland::Surface * QWaylandSurface::handle()
 {
     Q_D(QWaylandSurface);
     return d;
-}
-
-qint64 QWaylandSurface::processId() const
-{
-    Q_D(const QWaylandSurface);
-    if (d->isDestroyed())
-        return -1;
-
-    struct wl_client *client = static_cast<struct wl_client *>(this->client());
-    pid_t pid;
-    wl_client_get_credentials(client,&pid, 0,0);
-    return pid;
 }
 
 QVariantMap QWaylandSurface::windowProperties() const

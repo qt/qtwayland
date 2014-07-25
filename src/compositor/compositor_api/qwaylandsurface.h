@@ -1,5 +1,6 @@
 /****************************************************************************
 **
+** Copyright (C) 2014 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
 ** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
@@ -54,6 +55,7 @@ struct wl_resource;
 QT_BEGIN_NAMESPACE
 
 class QTouchEvent;
+class QWaylandClient;
 class QWaylandSurfacePrivate;
 class QWaylandCompositor;
 class QWaylandBufferRef;
@@ -82,6 +84,7 @@ class Q_COMPOSITOR_EXPORT QWaylandSurface : public QObject
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandSurface)
+    Q_PROPERTY(QWaylandClient *client READ client CONSTANT)
     Q_PROPERTY(QSize size READ size NOTIFY sizeChanged)
     Q_PROPERTY(QWaylandSurface::WindowFlags windowFlags READ windowFlags NOTIFY windowFlagsChanged)
     Q_PROPERTY(QWaylandSurface::WindowType windowType READ windowType NOTIFY windowTypeChanged)
@@ -121,7 +124,7 @@ public:
     QWaylandSurface(wl_client *client, quint32 id, QWaylandCompositor *compositor);
     virtual ~QWaylandSurface();
 
-    WaylandClient *client() const;
+    QWaylandClient *client() const;
 
     QWaylandSurface *parentSurface() const;
     QLinkedList<QWaylandSurface *> subSurfaces() const;
@@ -154,7 +157,6 @@ public:
 
     QtWayland::Surface *handle();
 
-    qint64 processId() const;
     QByteArray authenticationToken() const;
     QVariantMap windowProperties() const;
     void setWindowProperty(const QString &name, const QVariant &value);

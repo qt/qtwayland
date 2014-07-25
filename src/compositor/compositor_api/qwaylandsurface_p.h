@@ -1,5 +1,6 @@
 /****************************************************************************
 **
+** Copyright (C) 2014 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
 ** Copyright (C) 2014 Jolla Ltd, author: <giulio.camuffo@jollamobile.com>
 ** Contact: http://www.qt-project.org/legal
 **
@@ -58,13 +59,16 @@ class Q_COMPOSITOR_EXPORT QWaylandSurfacePrivate : public QObjectPrivate, public
 {
     Q_DECLARE_PUBLIC(QWaylandSurface)
 public:
-    QWaylandSurfacePrivate(wl_client *client, quint32 id, QWaylandCompositor *compositor, QWaylandSurface *surface);
+    QWaylandSurfacePrivate(wl_client *wlClient, quint32 id, QWaylandCompositor *compositor, QWaylandSurface *surface);
     void setType(QWaylandSurface::WindowType type);
     void setTitle(const QString &title);
     void setClassName(const QString &className);
 
     bool closing;
     int refCount;
+
+    QWaylandClient *client;
+
     QWaylandSurface::WindowType windowType;
     QList<QWaylandSurfaceView *> views;
     QList<QWaylandSurfaceInterface *> interfaces;

@@ -206,6 +206,7 @@ bool WaylandEglClientBufferIntegration::isYInverted(struct ::wl_resource *buffer
     // and EGL_TRUE in value.
     if (ret == EGL_FALSE || isYInverted == EGL_TRUE)
         return true;
+    return false;
 #endif
 
     return QtWayland::ClientBufferIntegration::isYInverted(buffer);

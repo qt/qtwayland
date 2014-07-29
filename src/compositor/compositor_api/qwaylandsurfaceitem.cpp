@@ -321,10 +321,13 @@ QSGNode *QWaylandSurfaceItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeD
     if (!node)
         node = new QSGSimpleTextureNode();
     node->setTexture(m_provider->t);
+    // Surface textures come by default with the OpenGL coordinate system, which is inverted relative
+    // to the QtQuick one. So we're dealing with a double invertion here, and if isYInverted() returns
+    // true it means it is NOT inverted relative to QtQuick, while if it returns false it means it IS.
     if (surface()->isYInverted()) {
-        node->setRect(0, height(), width(), -height());
-    } else {
         node->setRect(0, 0, width(), height());
+    } else {
+        node->setRect(0, height(), width(), -height());
     }
 
     return node;

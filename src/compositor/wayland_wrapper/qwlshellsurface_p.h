@@ -121,7 +121,6 @@ private:
     int32_t m_xOffset;
     int32_t m_yOffset;
 
-    QPointF m_popupLocation;
     uint32_t m_popupSerial;
 
     QSet<uint32_t> m_pings;

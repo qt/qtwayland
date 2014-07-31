@@ -166,6 +166,30 @@ void QWaylandSurfaceItem::mouseReleaseEvent(QMouseEvent *event)
     }
 }
 
+void QWaylandSurfaceItem::hoverEnterEvent(QHoverEvent *event)
+{
+    if (surface()) {
+        QWaylandInputDevice *inputDevice = compositor()->defaultInputDevice();
+        inputDevice->sendMouseMoveEvent(this, event->pos());
+    }
+}
+
+void QWaylandSurfaceItem::hoverMoveEvent(QHoverEvent *event)
+{
+    if (surface()) {
+        QWaylandInputDevice *inputDevice = compositor()->defaultInputDevice();
+        inputDevice->sendMouseMoveEvent(this, event->pos());
+    }
+}
+
+void QWaylandSurfaceItem::hoverLeaveEvent(QHoverEvent *event)
+{
+    if (surface()) {
+        QWaylandInputDevice *inputDevice = compositor()->defaultInputDevice();
+        inputDevice->sendMouseMoveEvent(this, event->pos());
+    }
+}
+
 void QWaylandSurfaceItem::wheelEvent(QWheelEvent *event)
 {
     if (surface()) {

@@ -173,7 +173,7 @@ void QWaylandScreen::output_geometry(int32_t x, int32_t y,
     Q_UNUSED(subpixel);
     Q_UNUSED(make);
 
-    bool isPortrait = screen() && screen()->primaryOrientation() == Qt::PortraitOrientation;
+    bool isPortrait = height > width;
     switch (transform) {
         case WL_OUTPUT_TRANSFORM_NORMAL:
             m_orientation = isPortrait ? Qt::PortraitOrientation : Qt::LandscapeOrientation;

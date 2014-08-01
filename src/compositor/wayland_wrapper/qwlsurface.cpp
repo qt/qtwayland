@@ -120,6 +120,7 @@ Surface::Surface(struct wl_client *client, uint32_t id, QWaylandCompositor *comp
     , m_isCursorSurface(false)
     , m_destroyed(false)
     , m_contentOrientation(Qt::PrimaryOrientation)
+    , m_visibility(QWindow::Hidden)
 {
     m_pending.buffer = 0;
     m_pending.newlyAttached = false;

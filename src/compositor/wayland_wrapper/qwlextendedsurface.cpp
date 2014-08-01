@@ -65,7 +65,6 @@ ExtendedSurface::ExtendedSurface(struct wl_client *client, uint32_t id, Surface 
     , QtWaylandServer::qt_extended_surface(client,id)
     , m_surface(surface)
     , m_windowFlags(0)
-    , m_visibility(QWindow::Hidden)
 {
     Q_ASSERT(surface->extendedSurface() == 0);
     surface->setExtendedSurface(this);
@@ -87,15 +86,9 @@ void ExtendedSurface::sendGenericProperty(const QString &name, const QVariant &v
 
 void ExtendedSurface::setVisibility(QWindow::Visibility visibility, bool updateClient)
 {
-    if (visibility == m_visibility)
-        return;
-
-    m_visibility = visibility;
-    emit m_surface->waylandSurface()->visibilityChanged();
-
     // If this change came from the client, we shouldn't update it
     if (updateClient)
-        send_onscreen_visibility(m_visibility);
+        send_onscreen_visibility(visibility);
 }
 
 bool ExtendedSurface::runOperation(QWaylandSurfaceOp *op)

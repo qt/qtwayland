@@ -237,16 +237,20 @@ QWaylandCompositor *QWaylandSurface::compositor() const
 QWindow::Visibility QWaylandSurface::visibility() const
 {
     Q_D(const QWaylandSurface);
-    if (d->extendedSurface())
-        return d->extendedSurface()->visibility();
-
-    return QWindow::AutomaticVisibility;
+    return d->m_visibility;
 }
 
-void QWaylandSurface::setVisibility(QWindow::Visibility visibility)
+void QWaylandSurface::setVisibility(QWindow::Visibility v)
 {
-    QWaylandSurfaceSetVisibilityOp op(visibility);
+    Q_D(QWaylandSurface);
+    if (v == visibility())
+        return;
+
+    d->m_visibility = v;
+    QWaylandSurfaceSetVisibilityOp op(v);
     sendInterfaceOp(op);
+
+    emit visibilityChanged();
 }
 
 bool QWaylandSurface::sendInterfaceOp(QWaylandSurfaceOp &op)

@@ -80,7 +80,6 @@ public:
 
     void sendGenericProperty(const QString &name, const QVariant &variant);
 
-    QWindow::Visibility visibility() const { return m_visibility; }
     void setVisibility(QWindow::Visibility visibility, bool updateClient = true);
 
     void setSubSurface(ExtendedSurface *subSurface,int x, int y);
@@ -106,7 +105,6 @@ private:
     Qt::ScreenOrientations m_contentOrientationMask;
 
     QWaylandSurface::WindowFlags m_windowFlags;
-    QWindow::Visibility m_visibility;
 
     QByteArray m_authenticationToken;
     QVariantMap m_windowProperties;

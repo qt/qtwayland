@@ -51,6 +51,7 @@
 #include <QtCore/QRect>
 #include <QtGui/QRegion>
 #include <QtGui/QImage>
+#include <QtGui/QWindow>
 
 #include <QtCore/QTextStream>
 #include <QtCore/QMetaType>
@@ -189,6 +190,7 @@ protected:
     bool m_isCursorSurface;
     bool m_destroyed;
     Qt::ScreenOrientation m_contentOrientation;
+    QWindow::Visibility m_visibility;
 
     void setBackBuffer(SurfaceBuffer *buffer);
     SurfaceBuffer *createSurfaceBuffer(struct ::wl_resource *buffer);

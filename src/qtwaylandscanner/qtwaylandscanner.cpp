@@ -935,7 +935,7 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath, const QByteArr
 
             printf("    void %s::init(struct ::wl_registry *registry, int id)\n", interfaceName);
             printf("    {\n");
-            printf("        m_%s = static_cast<struct ::%s *>(wl_registry_bind(registry, id, &%s_interface, %d));\n", interfaceName, interfaceName, interfaceName, 1);
+            printf("        m_%s = static_cast<struct ::%s *>(wl_registry_bind(registry, id, &%s_interface, %s_interface.version));\n", interfaceName, interfaceName, interfaceName, interfaceName);
             if (hasEvents)
                 printf("        init_listener();\n");
             printf("    }\n");

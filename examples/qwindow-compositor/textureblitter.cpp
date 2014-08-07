@@ -44,6 +44,8 @@
 #include <QtGui/QOpenGLContext>
 #include <QtGui/QOpenGLFunctions>
 
+QT_BEGIN_NAMESPACE
+
 TextureBlitter::TextureBlitter()
     : m_shaderProgram(new QOpenGLShaderProgram)
 {
@@ -160,3 +162,5 @@ void TextureBlitter::drawTexture(int textureId, const QRectF &targetRect, const 
     currentContext->functions()->glDisableVertexAttribArray(m_vertexCoordEntry);
     currentContext->functions()->glDisableVertexAttribArray(m_textureCoordEntry);
 }
+
+QT_END_NAMESPACE

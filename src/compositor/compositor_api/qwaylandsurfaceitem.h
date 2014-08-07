@@ -51,12 +51,12 @@
 #include <QtCompositor/qwaylandsurfaceview.h>
 #include <QtCompositor/qwaylandquicksurface.h>
 
+Q_DECLARE_METATYPE(QWaylandQuickSurface*)
+
 QT_BEGIN_NAMESPACE
 
 class QWaylandSurfaceTextureProvider;
 class QMutex;
-
-Q_DECLARE_METATYPE(QWaylandQuickSurface*)
 
 class Q_COMPOSITOR_EXPORT QWaylandSurfaceItem : public QQuickItem, public QWaylandSurfaceView
 {

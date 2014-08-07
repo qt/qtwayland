@@ -45,6 +45,8 @@
 #include "qwlsurface_p.h"
 #include "qwaylandsurfaceview.h"
 
+QT_BEGIN_NAMESPACE
+
 namespace QtWayland {
 
 Touch::Touch(Compositor *compositor)
@@ -170,3 +172,5 @@ void TouchGrabber::setTouch(Touch *touch)
 }
 
 } // namespace QtWayland
+
+QT_END_NAMESPACE

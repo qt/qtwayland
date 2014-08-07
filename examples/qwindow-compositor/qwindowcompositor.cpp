@@ -55,6 +55,8 @@
 #include <QtCompositor/qwaylandbufferref.h>
 #include <QtCompositor/qwaylandsurfaceview.h>
 
+QT_BEGIN_NAMESPACE
+
 static GLuint textureFromImage(const QImage &image)
 {
     GLuint texture = 0;
@@ -464,3 +466,5 @@ bool QWindowCompositor::eventFilter(QObject *obj, QEvent *event)
     }
     return false;
 }
+
+QT_END_NAMESPACE

@@ -47,13 +47,13 @@
 
 #include <QtCompositor/qwaylandexport.h>
 
+QT_BEGIN_NAMESPACE
+
 class QWaylandCompositor;
 class QWaylandSurface;
 class QKeyEvent;
 class QTouchEvent;
 class QWaylandSurfaceView;
-
-QT_BEGIN_NAMESPACE
 
 namespace QtWayland {
 class InputDevice;

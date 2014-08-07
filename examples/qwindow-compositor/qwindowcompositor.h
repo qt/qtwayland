@@ -50,6 +50,8 @@
 #include <QObject>
 #include <QTimer>
 
+QT_BEGIN_NAMESPACE
+
 class QWaylandSurfaceView;
 
 class QWindowCompositor : public QObject, public QWaylandCompositor
@@ -108,5 +110,7 @@ private:
 
     Qt::KeyboardModifiers m_modifiers;
 };
+
+QT_END_NAMESPACE
 
 #endif // QWINDOWCOMPOSITOR_H

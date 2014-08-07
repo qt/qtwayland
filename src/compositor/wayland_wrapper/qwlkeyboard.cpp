@@ -54,6 +54,8 @@
 #include <sys/types.h>
 #endif
 
+QT_BEGIN_NAMESPACE
+
 namespace QtWayland {
 
 Keyboard::Keyboard(Compositor *compositor, InputDevice *seat)
@@ -355,3 +357,5 @@ void Keyboard::createXKBKeymap()
 #endif
 
 } // namespace QtWayland
+
+QT_END_NAMESPACE

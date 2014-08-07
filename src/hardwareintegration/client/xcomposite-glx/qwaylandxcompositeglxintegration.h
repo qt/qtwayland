@@ -60,6 +60,7 @@
 #endif
 
 struct qt_xcomposite;
+struct qt_xcomposite_listener;
 
 QT_BEGIN_NAMESPACE
 

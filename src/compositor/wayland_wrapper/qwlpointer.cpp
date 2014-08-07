@@ -48,6 +48,8 @@
 #include "qwaylandcompositor.h"
 #include "qwaylandsurfaceview.h"
 
+QT_BEGIN_NAMESPACE
+
 namespace QtWayland {
 
 using QtWaylandServer::wl_keyboard;
@@ -325,3 +327,5 @@ PointerGrabber::~PointerGrabber()
 }
 
 } // namespace QtWayland
+
+QT_END_NAMESPACE

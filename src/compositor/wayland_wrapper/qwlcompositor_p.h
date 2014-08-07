@@ -217,7 +217,7 @@ protected:
 
     bool m_retainSelection;
 
-    friend class ::QWaylandCompositor;
+    friend class QT_PREPEND_NAMESPACE(QWaylandCompositor);
 };
 
 }

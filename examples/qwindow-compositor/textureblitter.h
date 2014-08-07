@@ -43,6 +43,8 @@
 
 #include <QtGui/QMatrix4x4>
 
+QT_BEGIN_NAMESPACE
+
 class QOpenGLShaderProgram;
 class TextureBlitter
 {
@@ -63,5 +65,7 @@ private:
     int m_vertexCoordEntry;
     int m_textureCoordEntry;
 };
+
+QT_END_NAMESPACE
 
 #endif // TEXTUREBLITTER_H

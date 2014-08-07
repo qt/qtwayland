@@ -47,6 +47,8 @@
 #include <QImage>
 #include <QRect>
 
+struct wl_display;
+
 QT_BEGIN_NAMESPACE
 
 class QMimeData;
@@ -86,7 +88,7 @@ public:
 
     void addGlobalInterface(QWaylandGlobalInterface *interface);
     void addDefaultShell();
-    struct wl_display *waylandDisplay() const;
+    ::wl_display *waylandDisplay() const;
 
     void frameStarted();
     void sendFrameCallbacks(QList<QWaylandSurface *> visibleSurfaces);

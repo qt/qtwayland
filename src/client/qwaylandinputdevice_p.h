@@ -61,6 +61,8 @@ struct xkb_keymap;
 struct xkb_state;
 #endif
 
+struct wl_cursor_image;
+
 QT_BEGIN_NAMESPACE
 
 class QWaylandWindow;
@@ -81,7 +83,7 @@ public:
     struct ::wl_seat *wl_seat() { return QtWayland::wl_seat::object(); }
 
     void setCursor(Qt::CursorShape cursor, QWaylandScreen *screen);
-    void setCursor(struct wl_buffer *buffer, struct wl_cursor_image *image);
+    void setCursor(struct wl_buffer *buffer, struct ::wl_cursor_image *image);
     void handleWindowDestroyed(QWaylandWindow *window);
 
     void setDataDevice(QWaylandDataDevice *device);

@@ -47,12 +47,13 @@
 
 #include <QtCompositor/qwaylandexport.h>
 
+struct wl_client;
+struct wl_resource;
+
 QT_BEGIN_NAMESPACE
 
 class QWaylandCompositor;
 class QOpenGLContext;
-struct wl_client;
-struct wl_resource;
 
 namespace QtWayland {
 class Display;

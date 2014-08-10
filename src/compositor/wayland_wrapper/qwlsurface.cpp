@@ -106,6 +106,11 @@ public:
     bool canSend;
 };
 
+static QRegion infiniteRegion() {
+    return QRegion(QRect(QPoint(std::numeric_limits<int>::min(), std::numeric_limits<int>::min()),
+                         QPoint(std::numeric_limits<int>::max(), std::numeric_limits<int>::max())));
+}
+
 Surface::Surface(struct wl_client *client, uint32_t id, QWaylandCompositor *compositor, QWaylandSurface *surface)
     : QtWaylandServer::wl_surface(client, id)
     , m_compositor(compositor->handle())
@@ -116,6 +121,7 @@ Surface::Surface(struct wl_client *client, uint32_t id, QWaylandCompositor *comp
     , m_extendedSurface(0)
     , m_subSurface(0)
     , m_inputPanelSurface(0)
+    , m_inputRegion(infiniteRegion())
     , m_transientParent(0)
     , m_transientInactive(false)
     , m_transientOffset(QPointF(0, 0))
@@ -126,6 +132,7 @@ Surface::Surface(struct wl_client *client, uint32_t id, QWaylandCompositor *comp
 {
     m_pending.buffer = 0;
     m_pending.newlyAttached = false;
+    m_pending.inputRegion = infiniteRegion();
 }
 
 Surface::~Surface()
@@ -192,7 +199,6 @@ void Surface::setSize(const QSize &size)
 {
     if (size != m_size) {
         m_opaqueRegion = QRegion();
-        m_inputRegion = QRegion(QRect(QPoint(), size));
         m_size = size;
         m_waylandSurface->sizeChanged();
     }
@@ -382,7 +388,11 @@ void Surface::surface_set_opaque_region(Resource *, struct wl_resource *region)
 
 void Surface::surface_set_input_region(Resource *, struct wl_resource *region)
 {
-    m_inputRegion = region ? Region::fromResource(region)->region() : QRegion(QRect(QPoint(), size()));
+    if (region) {
+        m_pending.inputRegion = Region::fromResource(region)->region();
+    } else {
+        m_pending.inputRegion = infiniteRegion();
+    }
 }
 
 void Surface::surface_commit(Resource *)
@@ -408,6 +418,8 @@ void Surface::surface_commit(Resource *)
 
     m_frameCallbacks << m_pendingFrameCallbacks;
     m_pendingFrameCallbacks.clear();
+
+    m_inputRegion = m_pending.inputRegion.intersected(QRect(QPoint(), m_size));
 
     emit m_waylandSurface->redraw();
 }

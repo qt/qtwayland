@@ -96,6 +96,16 @@ QWaylandShellSurface *QWaylandDisplay::createShellSurface(QWaylandWindow *window
     return Q_NULLPTR;
 }
 
+struct ::wl_region *QWaylandDisplay::createRegion(const QRegion &qregion)
+{
+    struct ::wl_region *region = mCompositor.create_region();
+
+    Q_FOREACH (const QRect &rect, qregion.rects())
+        wl_region_add(region, rect.x(), rect.y(), rect.width(), rect.height());
+
+    return region;
+}
+
 QWaylandClientBufferIntegration * QWaylandDisplay::clientBufferIntegration() const
 {
     return mWaylandIntegration->clientBufferIntegration();

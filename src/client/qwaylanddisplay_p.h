@@ -103,6 +103,7 @@ public:
 
     struct wl_surface *createSurface(void *handle);
     QWaylandShellSurface *createShellSurface(QWaylandWindow *window);
+    struct ::wl_region *createRegion(const QRegion &qregion);
 
     QWaylandClientBufferIntegration *clientBufferIntegration() const;
 

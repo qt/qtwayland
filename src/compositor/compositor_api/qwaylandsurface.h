@@ -169,6 +169,8 @@ public:
 
     bool transientInactive() const;
 
+    bool inputRegionContains(const QPoint &p) const;
+
     Q_INVOKABLE void destroy();
     Q_INVOKABLE void destroySurface();
     Q_INVOKABLE void destroySurfaceByForce();

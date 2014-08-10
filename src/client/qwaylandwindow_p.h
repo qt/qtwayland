@@ -139,6 +139,8 @@ public:
     void raise() Q_DECL_OVERRIDE;
     void lower() Q_DECL_OVERRIDE;
 
+    void setMask(const QRegion &region) Q_DECL_OVERRIDE;
+
     void requestActivateWindow() Q_DECL_OVERRIDE;
     bool isExposed() const Q_DECL_OVERRIDE;
 
@@ -215,6 +217,7 @@ protected:
     int mMouseSerial;
 
     Qt::WindowState mState;
+    QRegion mMask;
 
 private:
     bool setWindowStateInternal(Qt::WindowState flags);

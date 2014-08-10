@@ -144,6 +144,11 @@ void QWaylandSurfaceItem::mousePressEvent(QMouseEvent *event)
     if (!surface())
         return;
 
+    if (!surface()->inputRegionContains(event->pos())) {
+        event->ignore();
+        return;
+    }
+
     QWaylandInputDevice *inputDevice = compositor()->defaultInputDevice();
     if (inputDevice->mouseFocus() != this)
         inputDevice->setMouseFocus(this, event->localPos(), event->windowPos());
@@ -193,6 +198,11 @@ void QWaylandSurfaceItem::hoverLeaveEvent(QHoverEvent *event)
 void QWaylandSurfaceItem::wheelEvent(QWheelEvent *event)
 {
     if (surface()) {
+        if (!surface()->inputRegionContains(event->pos())) {
+            event->ignore();
+            return;
+        }
+
         QWaylandInputDevice *inputDevice = compositor()->defaultInputDevice();
         inputDevice->sendMouseWheelEvent(event->orientation(), event->delta());
     }
@@ -218,12 +228,19 @@ void QWaylandSurfaceItem::touchEvent(QTouchEvent *event)
 {
     if (m_touchEventsEnabled) {
         QWaylandInputDevice *inputDevice = compositor()->defaultInputDevice();
+
+        QPoint pointPos;
+        const QList<QTouchEvent::TouchPoint> &points = event->touchPoints();
+        if (!points.isEmpty())
+            pointPos = points.at(0).pos().toPoint();
+
+        if (event->type() == QEvent::TouchBegin && !surface()->inputRegionContains(pointPos)) {
+            event->ignore();
+            return;
+        }
+
         event->accept();
         if (inputDevice->mouseFocus() != this) {
-            QPoint pointPos;
-            QList<QTouchEvent::TouchPoint> points = event->touchPoints();
-            if (!points.isEmpty())
-                pointPos = points.at(0).pos().toPoint();
             inputDevice->setMouseFocus(this, pointPos, pointPos);
         }
         inputDevice->sendFullTouchEvent(event);

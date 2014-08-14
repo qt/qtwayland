@@ -194,6 +194,7 @@ void QWaylandIntegration::initialize()
 {
     QAbstractEventDispatcher *dispatcher = QGuiApplicationPrivate::eventDispatcher;
     QObject::connect(dispatcher, SIGNAL(aboutToBlock()), mDisplay, SLOT(flushRequests()));
+    QObject::connect(dispatcher, SIGNAL(awake()), mDisplay, SLOT(flushRequests()));
 }
 
 QPlatformFontDatabase *QWaylandIntegration::fontDatabase() const

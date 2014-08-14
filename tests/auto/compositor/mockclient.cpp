@@ -61,6 +61,7 @@ MockClient::MockClient()
     , compositor(0)
     , output(0)
     , registry(0)
+    , wlshell(0)
 {
     if (!display)
         qFatal("MockClient(): wl_display_connect() failed");
@@ -135,6 +136,8 @@ void MockClient::handleGlobal(uint32_t id, const QByteArray &interface)
         wl_output_add_listener(output, &outputListener, this);
     } else if (interface == "wl_shm") {
         shm = static_cast<wl_shm *>(wl_registry_bind(registry, id, &wl_shm_interface, 1));
+    } else if (interface == "wl_shell") {
+        wlshell = static_cast<wl_shell *>(wl_registry_bind(registry, id, &wl_shell_interface, 1));
     }
 }
 
@@ -142,6 +145,12 @@ wl_surface *MockClient::createSurface()
 {
     flushDisplay();
     return wl_compositor_create_surface(compositor);
+}
+
+wl_shell_surface *MockClient::createShellSurface(wl_surface *surface)
+{
+    flushDisplay();
+    return wl_shell_get_shell_surface(wlshell, surface);
 }
 
 ShmBuffer::ShmBuffer(const QSize &size, wl_shm *shm)

@@ -216,8 +216,11 @@ void tst_WaylandCompositor::mapSurface()
     QSize size(256, 256);
     ShmBuffer buffer(size, client.shm);
 
+    // we need to create a shell surface here or the surface won't be mapped
+    client.createShellSurface(surface);
     wl_surface_attach(surface, buffer.handle, 0, 0);
     wl_surface_damage(surface, 0, 0, size.width(), size.height());
+    wl_surface_commit(surface);
 
     QTRY_COMPARE(waylandSurface->size(), size);
     QTRY_COMPARE(waylandSurface->type(), QWaylandSurface::Shm);
@@ -265,11 +268,7 @@ void tst_WaylandCompositor::frameCallback()
 
     MockClient client;
 
-    QSize size(8, 8);
-    ShmBuffer buffer(size, client.shm);
-
     wl_surface *surface = client.createSurface();
-    wl_surface_attach(surface, buffer.handle, 0, 0);
 
     int frameCounter = 0;
 
@@ -280,13 +279,20 @@ void tst_WaylandCompositor::frameCallback()
     QSignalSpy damagedSpy(waylandSurface, SIGNAL(damaged(const QRegion &)));
 
     for (int i = 0; i < 10; ++i) {
+        QSize size(i * 8 + 2, i * 8 + 2);
+        ShmBuffer buffer(size, client.shm);
+
+        // attach a new buffer every frame, else the damage signal won't be fired
+        wl_surface_attach(surface, buffer.handle, 0, 0);
         registerFrameCallback(surface, &frameCounter);
         wl_surface_damage(surface, 0, 0, size.width(), size.height());
+        wl_surface_commit(surface);
 
         QTRY_COMPARE(waylandSurface->type(), QWaylandSurface::Shm);
         QTRY_COMPARE(damagedSpy.count(), i + 1);
 
         QCOMPARE(static_cast<BufferAttacher *>(waylandSurface->bufferAttacher())->image(), buffer.image);
+        compositor.frameStarted();
         compositor.sendFrameCallbacks(QList<QWaylandSurface *>() << waylandSurface);
 
         QTRY_COMPARE(frameCounter, i + 1);

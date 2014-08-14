@@ -65,12 +65,14 @@ public:
     ~MockClient();
 
     wl_surface *createSurface();
+    wl_shell_surface *createShellSurface(wl_surface *surface);
 
     wl_display *display;
     wl_compositor *compositor;
     wl_output *output;
     wl_shm *shm;
     wl_registry *registry;
+    wl_shell *wlshell;
 
     QRect geometry;
 

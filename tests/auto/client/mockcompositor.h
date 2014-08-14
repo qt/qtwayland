@@ -81,6 +81,7 @@ public:
 
     void addSurface(Surface *surface);
     void removeSurface(Surface *surface);
+    void discardSurfaces();
 
     static void setKeyboardFocus(void *data, const QList<QVariant> &parameters);
     static void sendMousePress(void *data, const QList<QVariant> &parameters);
@@ -154,6 +155,7 @@ public:
     void sendKeyRelease(const QSharedPointer<MockSurface> &surface, uint code);
 
     QSharedPointer<MockSurface> surface();
+    void discardSurfaces();
 
     void lock();
     void unlock();

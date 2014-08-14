@@ -119,6 +119,9 @@ public:
     {
         QSocketNotifier *notifier = new QSocketNotifier(compositor->waylandFileDescriptor(), QSocketNotifier::Read, this);
         connect(notifier, SIGNAL(activated(int)), this, SLOT(processWaylandEvents()));
+        // connect to the event dispatcher to make sure to flush out the outgoing message queue
+        connect(QCoreApplication::eventDispatcher(), &QAbstractEventDispatcher::awake, this, &tst_WaylandClient::processWaylandEvents);
+        connect(QCoreApplication::eventDispatcher(), &QAbstractEventDispatcher::aboutToBlock, this, &tst_WaylandClient::processWaylandEvents);
     }
 
 public slots:
@@ -146,7 +149,11 @@ private:
 
 void tst_WaylandClient::screen()
 {
+    QCoreApplication::processEvents(QEventLoop::AllEvents);
+
     QTRY_COMPARE(QGuiApplication::primaryScreen()->size(), screenSize);
+    // discard the cursor surface created by the QWaylandInputDevice
+    compositor->discardSurfaces();
 }
 
 void tst_WaylandClient::createDestroyWindow()

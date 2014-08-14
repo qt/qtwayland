@@ -189,6 +189,11 @@ void *MockCompositor::run(void *data)
     return 0;
 }
 
+void MockCompositor::discardSurfaces()
+{
+    m_compositor->discardSurfaces();
+}
+
 namespace Impl {
 
 Compositor::Compositor()
@@ -291,6 +296,11 @@ void Compositor::removeSurface(Surface *surface)
         m_keyboard->setFocus(0);
     if (m_pointer->focus() == surface)
         m_pointer->setFocus(0, QPoint());
+}
+
+void Compositor::discardSurfaces()
+{
+    m_surfaces.clear();
 }
 
 }

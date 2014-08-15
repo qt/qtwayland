@@ -38,6 +38,8 @@
 **
 ****************************************************************************/
 
+#include <wayland-server.h>
+
 #include "qwaylandsurfaceinterface.h"
 #include "qwaylandsurface.h"
 #include "qwaylandsurface_p.h"

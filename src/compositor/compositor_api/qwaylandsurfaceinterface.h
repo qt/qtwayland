@@ -45,7 +45,6 @@
 
 #include "qwaylandsurface.h"
 #include <QtCompositor/qwaylandexport.h>
-#include <wayland-server.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -93,11 +92,11 @@ private:
 class Q_COMPOSITOR_EXPORT QWaylandSurfacePingOp : public QWaylandSurfaceOp
 {
 public:
-    QWaylandSurfacePingOp(uint32_t serial);
-    uint32_t serial() const;
+    QWaylandSurfacePingOp(quint32 serial);
+    quint32 serial() const;
 
 private:
-    uint32_t m_serial;
+    quint32 m_serial;
 };
 
 class Q_COMPOSITOR_EXPORT QWaylandSurfaceInterface

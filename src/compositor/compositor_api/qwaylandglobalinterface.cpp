@@ -41,6 +41,8 @@
 
 #include "qwaylandglobalinterface.h"
 
+#include <wayland-server.h>
+
 QT_BEGIN_NAMESPACE
 
 QWaylandGlobalInterface::QWaylandGlobalInterface()
@@ -53,7 +55,7 @@ QWaylandGlobalInterface::~QWaylandGlobalInterface()
 
 }
 
-uint32_t QWaylandGlobalInterface::version() const
+quint32 QWaylandGlobalInterface::version() const
 {
     return interface()->version;
 }

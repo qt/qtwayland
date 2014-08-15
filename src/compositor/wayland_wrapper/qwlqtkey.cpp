@@ -43,8 +43,6 @@
 #include <QKeyEvent>
 #include <QWindow>
 
-#include "qwaylandresourcecollection.h"
-
 QT_BEGIN_NAMESPACE
 
 namespace QtWayland {

@@ -1,7 +1,6 @@
 /****************************************************************************
 **
-** Copyright (c) 2014 LG Electronics, Inc., author: <mikko.levonmaa@lge.com>
-**
+** Copyright (C) 2014 LG Electronics, Inc., author: <mikko.levonmaa@lge.com>
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the test suite of the Qt Toolkit.

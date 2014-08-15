@@ -335,9 +335,9 @@ void QWaylandWindow::setCanResize(bool canResize)
         }
         if (!mConfigure.isEmpty()) {
             doResize();
-            QWindowSystemInterface::handleExposeEvent(window(), geometry());
+            QWindowSystemInterface::handleExposeEvent(window(), QRect(QPoint(), geometry().size()));
         } else if (mResizeDirty) {
-            QWindowSystemInterface::handleExposeEvent(window(), geometry());
+            QWindowSystemInterface::handleExposeEvent(window(), QRect(QPoint(), geometry().size()));
             mResizeDirty = false;
         }
     }
@@ -353,7 +353,7 @@ void QWaylandWindow::requestResize()
 
     mRequestResizeSent = false;
     lock.unlock();
-    QWindowSystemInterface::handleExposeEvent(window(), geometry());
+    QWindowSystemInterface::handleExposeEvent(window(), QRect(QPoint(), geometry().size()));
     QWindowSystemInterface::flushWindowSystemEvents();
 }
 

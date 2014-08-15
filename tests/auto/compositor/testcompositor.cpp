@@ -43,6 +43,7 @@
 
 TestCompositor::TestCompositor(QWaylandCompositor::ExtensionFlag flags) : QWaylandCompositor(0, 0, flags)
 {
+    addDefaultShell();
 }
 
 void TestCompositor::surfaceCreated(QWaylandSurface *surface)

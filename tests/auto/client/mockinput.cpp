@@ -164,6 +164,13 @@ void Keyboard::sendKey(uint32_t key, uint32_t state)
     }
 }
 
+
+void Keyboard::keyboard_destroy_resource(wl_keyboard::Resource *resource)
+{
+    if (m_focusResource == resource)
+        m_focusResource = 0;
+}
+
 Pointer::Pointer(Compositor *compositor)
     : wl_pointer()
     , m_compositor(compositor)
@@ -208,6 +215,12 @@ void Pointer::sendButton(uint32_t button, uint32_t state)
         send_button(m_focusResource->handle, serial, m_compositor->time(),
                     button, state);
     }
+}
+
+void Pointer::pointer_destroy_resource(wl_pointer::Resource *resource)
+{
+    if (m_focusResource == resource)
+        m_focusResource = 0;
 }
 
 }

@@ -88,6 +88,9 @@ public:
 
     void sendKey(uint32_t key, uint32_t state);
 
+protected:
+    void keyboard_destroy_resource(wl_keyboard::Resource *resource) Q_DECL_OVERRIDE;
+
 private:
     Compositor *m_compositor;
 
@@ -106,6 +109,9 @@ public:
     void setFocus(Surface *surface, const QPoint &pos);
     void sendMotion(const QPoint &pos);
     void sendButton(uint32_t button, uint32_t state);
+
+protected:
+    void pointer_destroy_resource(wl_pointer::Resource *resource) Q_DECL_OVERRIDE;
 
 private:
     Compositor *m_compositor;

@@ -44,7 +44,8 @@
 
 #include <QtCompositor/qwaylandexport.h>
 
-#include <wayland-server.h>
+struct wl_interface;
+struct wl_client;
 
 QT_BEGIN_NAMESPACE
 
@@ -59,10 +60,10 @@ public:
     virtual ~QWaylandGlobalInterface();
 
     virtual const wl_interface *interface() const = 0;
-    virtual uint32_t version() const;
+    virtual quint32 version() const;
 
 protected:
-    virtual void bind(wl_client *client, uint32_t version, uint32_t id) = 0;
+    virtual void bind(wl_client *client, quint32 version, quint32 id) = 0;
 
     friend class QtWayland::Compositor;
 };

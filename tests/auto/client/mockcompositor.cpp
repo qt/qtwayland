@@ -291,7 +291,7 @@ void Compositor::addSurface(Surface *surface)
 
 void Compositor::removeSurface(Surface *surface)
 {
-    m_surfaces.remove(m_surfaces.indexOf(surface));
+    m_surfaces.removeOne(surface);
     if (m_keyboard->focus() == surface)
         m_keyboard->setFocus(0);
     if (m_pointer->focus() == surface)

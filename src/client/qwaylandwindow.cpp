@@ -438,6 +438,8 @@ void QWaylandWindow::handleContentOrientationChange(Qt::ScreenOrientation orient
         case Qt::InvertedPortraitOrientation:
             transform = isPortrait ? WL_OUTPUT_TRANSFORM_180 : WL_OUTPUT_TRANSFORM_270;
             break;
+        default:
+            Q_UNREACHABLE();
     }
     set_buffer_transform(transform);
     // set_buffer_transform is double buffered, we need to commit.

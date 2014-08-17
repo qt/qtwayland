@@ -156,6 +156,8 @@ QWaylandDisplay::QWaylandDisplay(QWaylandIntegration *waylandIntegration)
 
 QWaylandDisplay::~QWaylandDisplay(void)
 {
+    qDeleteAll(mScreens);
+    mScreens.clear();
     delete mDndSelectionHandler.take();
     mEventThread->quit();
     mEventThread->wait();

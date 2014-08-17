@@ -66,10 +66,6 @@ QWaylandCompositor::QWaylandCompositor(QWindow *window, const char *socketName, 
 {
     m_compositor->m_socket_name = socketName;
     m_compositor->init();
-
-#if !defined(QT_NO_DEBUG) && !defined(QT_WAYLAND_NO_CLEANUP_WARNING)
-    qWarning("QWaylandCompositor::cleanupGraphicsResources() must be called manually");
-#endif
 }
 
 QWaylandCompositor::QWaylandCompositor(QWindow *window, const char *socketName, QtWayland::Compositor *dptr)

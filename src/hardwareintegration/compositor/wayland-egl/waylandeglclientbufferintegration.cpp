@@ -115,66 +115,68 @@ void WaylandEglClientBufferIntegration::initializeHardware(QtWayland::Display *w
 
     QPlatformNativeInterface *nativeInterface = QGuiApplication::platformNativeInterface();
     if (!nativeInterface) {
-        qWarning("Failed to initialize egl display. No native platform interface available.\n");
+        qWarning("QtCompositor: Failed to initialize EGL display. No native platform interface available.");
         return;
     }
 
     d->egl_display = nativeInterface->nativeResourceForWindow("EglDisplay", m_compositor->window());
     if (!d->egl_display) {
-        qWarning("Failed to initialize egl display. Could not get EglDisplay for window.\n");
+        qWarning("QtCompositor: Failed to initialize EGL display. Could not get EglDisplay for window.");
         return;
     }
 
     const char *extensionString = eglQueryString(d->egl_display, EGL_EXTENSIONS);
     if ((!extensionString || !strstr(extensionString, "EGL_WL_bind_wayland_display")) && !ignoreBindDisplay) {
-        qWarning("Failed to initialize egl display. There is no EGL_WL_bind_wayland_display extension.\n");
+        qWarning("QtCompositor: Failed to initialize EGL display. There is no EGL_WL_bind_wayland_display extension.");
         return;
     }
 
     d->egl_bind_wayland_display = reinterpret_cast<PFNEGLBINDWAYLANDDISPLAYWL>(eglGetProcAddress("eglBindWaylandDisplayWL"));
     d->egl_unbind_wayland_display = reinterpret_cast<PFNEGLUNBINDWAYLANDDISPLAYWL>(eglGetProcAddress("eglUnbindWaylandDisplayWL"));
     if ((!d->egl_bind_wayland_display || !d->egl_unbind_wayland_display) && !ignoreBindDisplay) {
-        qWarning("Failed to initialize egl display. Could not find eglBindWaylandDisplayWL and eglUnbindWaylandDisplayWL.\n");
+        qWarning("QtCompositor: Failed to initialize EGL display. Could not find eglBindWaylandDisplayWL and eglUnbindWaylandDisplayWL.");
         return;
     }
 
     d->egl_query_wayland_buffer = reinterpret_cast<PFNEGLQUERYWAYLANDBUFFERWL_compat>(eglGetProcAddress("eglQueryWaylandBufferWL"));
     if (!d->egl_query_wayland_buffer) {
-        qWarning("Failed to initialize egl display. Could not find eglQueryWaylandBufferWL.\n");
+        qWarning("QtCompositor: Failed to initialize EGL display. Could not find eglQueryWaylandBufferWL.");
         return;
     }
 
     d->egl_create_image = reinterpret_cast<PFNEGLCREATEIMAGEKHRPROC>(eglGetProcAddress("eglCreateImageKHR"));
     d->egl_destroy_image = reinterpret_cast<PFNEGLDESTROYIMAGEKHRPROC>(eglGetProcAddress("eglDestroyImageKHR"));
     if (!d->egl_create_image || !d->egl_destroy_image) {
-        qWarning("Failed to initialize egl display. Could not find eglCreateImageKHR and eglDestroyImageKHR.\n");
+        qWarning("QtCompositor: Failed to initialize EGL display. Could not find eglCreateImageKHR and eglDestroyImageKHR.");
         return;
     }
 
     d->gl_egl_image_target_texture_2d = reinterpret_cast<PFNGLEGLIMAGETARGETTEXTURE2DOESPROC>(eglGetProcAddress("glEGLImageTargetTexture2DOES"));
     if (!d->gl_egl_image_target_texture_2d) {
-        qWarning("Failed to initialize egl display. Could not find glEGLImageTargetTexture2DOES.\n");
+        qWarning("QtCompositor: Failed to initialize EGL display. Could not find glEGLImageTargetTexture2DOES.");
         return;
     }
 
     if (d->egl_bind_wayland_display && d->egl_unbind_wayland_display) {
         d->display_bound = d->egl_bind_wayland_display(d->egl_display, waylandDisplay->handle());
-        if (!d->display_bound && !ignoreBindDisplay) {
-            qWarning("Failed to initialize egl display. Could not bind Wayland display.\n");
-            return;
+        if (!d->display_bound) {
+            if (!ignoreBindDisplay) {
+                qWarning("QtCompositor: Failed to initialize EGL display. Could not bind Wayland display.");
+                return;
+            } else {
+                qWarning("QtCompositor: Could not bind Wayland display. Ignoring.");
+            }
         }
     }
 
     d->valid = true;
-
-    qWarning("EGL Wayland extension successfully initialized.%s\n", !d->display_bound ? " eglBindWaylandDisplayWL ignored" : "");
 }
 
 void WaylandEglClientBufferIntegration::bindTextureToBuffer(struct ::wl_resource *buffer)
 {
     Q_D(WaylandEglClientBufferIntegration);
     if (!d->valid) {
-        qWarning("bindTextureToBuffer() failed");
+        qWarning("QtCompositor: bindTextureToBuffer() failed");
         return;
     }
 

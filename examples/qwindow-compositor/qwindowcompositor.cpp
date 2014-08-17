@@ -279,7 +279,7 @@ void QWindowCompositor::setCursorSurface(QWaylandSurface *surface, int hotspotX,
     m_cursorSurface = surface;
     m_cursorHotspotX = hotspotX;
     m_cursorHotspotY = hotspotY;
-    if (!m_cursorSurface->bufferAttacher())
+    if (m_cursorSurface && !m_cursorSurface->bufferAttacher())
         m_cursorSurface->setBufferAttacher(new BufferAttacher);
 }
 

@@ -116,8 +116,6 @@ void QWaylandDisplay::setLastKeyboardFocusInputDevice(QWaylandInputDevice *devic
     mLastKeyboardFocusInputDevice = device;
 }
 
-static QWaylandDisplay *display = 0;
-
 QWaylandDisplay::QWaylandDisplay(QWaylandIntegration *waylandIntegration)
     : mWaylandIntegration(waylandIntegration)
     , mLastKeyboardFocusInputDevice(0)
@@ -130,7 +128,6 @@ QWaylandDisplay::QWaylandDisplay(QWaylandIntegration *waylandIntegration)
     , mTextInputManager(0)
     , mHardwareIntegration(0)
 {
-    display = this;
     qRegisterMetaType<uint32_t>("uint32_t");
 
     mEventThreadObject = new QWaylandEventThread(0);

@@ -657,18 +657,21 @@ bool QWaylandWindow::setWindowStateInternal(Qt::WindowState state)
     // here. We use then this mState variable.
     mState = state;
     createDecoration();
-    switch (state) {
-        case Qt::WindowFullScreen:
-            mShellSurface->setFullscreen();
-            break;
-        case Qt::WindowMaximized:
-            mShellSurface->setMaximized();
-            break;
-        case Qt::WindowMinimized:
-            mShellSurface->setMinimized();
-            break;
-        default:
-            mShellSurface->setNormal();
+
+    if (mShellSurface) {
+        switch (state) {
+            case Qt::WindowFullScreen:
+                mShellSurface->setFullscreen();
+                break;
+            case Qt::WindowMaximized:
+                mShellSurface->setMaximized();
+                break;
+            case Qt::WindowMinimized:
+                mShellSurface->setMinimized();
+                break;
+            default:
+                mShellSurface->setNormal();
+        }
     }
 
     QWindowSystemInterface::handleWindowStateChanged(window(), mState);

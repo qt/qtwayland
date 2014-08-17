@@ -96,6 +96,10 @@ Item {
         windowContainer.targetHeight = window.size.height;
 
         var windowChromeComponent = Qt.createComponent("WindowChrome.qml");
+        if (windowChromeComponent.status != Component.Ready) {
+            console.warn("Error loading WindowChrome.qml: " + windowChromeComponent.errorString());
+            return;
+        }
         var windowChrome = windowChromeComponent.createObject(windowContainer.child);
 
         CompositorLogic.addWindow(windowContainer);

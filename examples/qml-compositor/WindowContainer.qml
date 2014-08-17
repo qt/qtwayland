@@ -54,7 +54,6 @@ Item {
     visible: isFullscreen || !root.hasFullscreenWindow
     onVisibleChanged: {
         child.surface.clientRenderingEnabled = visible
-        console.log("visibility changed: " + visible);
     }
 
     opacity: 0

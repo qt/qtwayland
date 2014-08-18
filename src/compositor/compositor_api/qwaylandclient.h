@@ -47,7 +47,7 @@
 
 #include <signal.h>
 
-#include <wayland-server.h>
+struct wl_client;
 
 QT_BEGIN_NAMESPACE
 

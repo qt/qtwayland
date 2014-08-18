@@ -44,6 +44,7 @@
 #include "qwaylandcompositor.h"
 #include "qwaylandclient.h"
 
+#include <wayland-server.h>
 #include <wayland-util.h>
 
 QT_BEGIN_NAMESPACE

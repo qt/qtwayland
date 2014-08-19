@@ -166,16 +166,8 @@ QWaylandDisplay::~QWaylandDisplay(void)
 
 void QWaylandDisplay::flushRequests()
 {
-    if (wl_display_dispatch_queue_pending(mDisplay, mEventQueue) < 0) {
-        int ecode = wl_display_get_error(mDisplay);
-        if ((ecode == EPIPE || ecode == ECONNRESET)) {
-            // special case this to provide a nicer error
-            qWarning("The Wayland connection broke. Did the Wayland compositor die?");
-        } else {
-            qErrnoWarning(ecode, "The Wayland connection experienced a fatal error");
-        }
-        ::exit(1);
-    }
+    if (wl_display_dispatch_queue_pending(mDisplay, mEventQueue) < 0)
+        mEventThreadObject->checkErrorAndExit();
 
     wl_display_flush(mDisplay);
 }
@@ -183,16 +175,8 @@ void QWaylandDisplay::flushRequests()
 
 void QWaylandDisplay::blockingReadEvents()
 {
-    if (wl_display_dispatch_queue(mDisplay, mEventQueue) < 0) {
-        int ecode = wl_display_get_error(mDisplay);
-        if ((ecode == EPIPE || ecode == ECONNRESET)) {
-            // special case this to provide a nicer error
-            qWarning("The Wayland connection broke. Did the Wayland compositor die?");
-        } else {
-            qErrnoWarning(ecode, "The Wayland connection experienced a fatal error");
-        }
-        ::exit(1);
-    }
+    if (wl_display_dispatch_queue(mDisplay, mEventQueue) < 0)
+        mEventThreadObject->checkErrorAndExit();
 }
 
 QWaylandScreen *QWaylandDisplay::screenForOutput(struct wl_output *output) const

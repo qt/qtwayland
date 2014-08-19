@@ -63,6 +63,8 @@ public:
 
     wl_display *display() const;
 
+    void checkErrorAndExit();
+
 private slots:
     void readWaylandEvents();
 

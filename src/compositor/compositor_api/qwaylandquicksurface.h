@@ -75,7 +75,7 @@ public:
 
     QObject *windowPropertyMap() const;
 
-signals:
+Q_SIGNALS:
     void useTextureAlphaChanged();
     void clientRenderingEnabledChanged();
 

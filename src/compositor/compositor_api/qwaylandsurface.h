@@ -193,7 +193,7 @@ public slots:
 protected:
     QWaylandSurface(QWaylandSurfacePrivate *dptr);
 
-signals:
+Q_SIGNALS:
     void mapped();
     void unmapped();
     void damaged(const QRegion &rect);

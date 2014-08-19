@@ -166,18 +166,31 @@ QWaylandDisplay::~QWaylandDisplay(void)
 
 void QWaylandDisplay::flushRequests()
 {
-    if (wl_display_dispatch_queue_pending(mDisplay, mEventQueue) == -1 && (errno == EPIPE || errno == ECONNRESET)) {
-        qWarning("The Wayland connection broke. Did the Wayland compositor die?");
+    if (wl_display_dispatch_queue_pending(mDisplay, mEventQueue) < 0) {
+        int ecode = wl_display_get_error(mDisplay);
+        if ((ecode == EPIPE || ecode == ECONNRESET)) {
+            // special case this to provide a nicer error
+            qWarning("The Wayland connection broke. Did the Wayland compositor die?");
+        } else {
+            qErrnoWarning(ecode, "The Wayland connection experienced a fatal error");
+        }
         ::exit(1);
     }
+
     wl_display_flush(mDisplay);
 }
 
 
 void QWaylandDisplay::blockingReadEvents()
 {
-    if (wl_display_dispatch_queue(mDisplay, mEventQueue) == -1 && (errno == EPIPE || errno == ECONNRESET)) {
-        qWarning("The Wayland connection broke. Did the Wayland compositor die?");
+    if (wl_display_dispatch_queue(mDisplay, mEventQueue) < 0) {
+        int ecode = wl_display_get_error(mDisplay);
+        if ((ecode == EPIPE || ecode == ECONNRESET)) {
+            // special case this to provide a nicer error
+            qWarning("The Wayland connection broke. Did the Wayland compositor die?");
+        } else {
+            qErrnoWarning(ecode, "The Wayland connection experienced a fatal error");
+        }
         ::exit(1);
     }
 }

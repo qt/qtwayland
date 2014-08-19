@@ -68,7 +68,7 @@ TextureBlitter::TextureBlitter()
 
     //Enable transparent windows
     glEnable(GL_BLEND);
-    glBlendFunc (GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     m_shaderProgram->addShaderFromSourceCode(QOpenGLShader::Vertex, textureVertexProgram);
     m_shaderProgram->addShaderFromSourceCode(QOpenGLShader::Fragment, textureFragmentProgram);

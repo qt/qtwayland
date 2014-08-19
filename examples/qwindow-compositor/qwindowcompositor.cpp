@@ -44,6 +44,7 @@
 #include <QKeyEvent>
 #include <QTouchEvent>
 #include <QOpenGLFunctions>
+#include <QOpenGLTexture>
 #include <QGuiApplication>
 #include <QCursor>
 #include <QPixmap>
@@ -57,25 +58,25 @@
 
 QT_BEGIN_NAMESPACE
 
-static GLuint textureFromImage(const QImage &image)
-{
-    GLuint texture = 0;
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
-    QImage tx = image.convertToFormat(QImage::Format_RGBA8888_Premultiplied);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tx.width(), tx.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, tx.constBits());
-    glBindTexture(GL_TEXTURE_2D, 0);
-    return texture;
-}
-
 class BufferAttacher : public QWaylandBufferAttacher
 {
 public:
+    BufferAttacher()
+        : QWaylandBufferAttacher()
+        , shmTex(0)
+    {
+    }
+
+    ~BufferAttacher()
+    {
+        delete shmTex;
+    }
+
     void attach(const QWaylandBufferRef &ref) Q_DECL_OVERRIDE
     {
         if (bufferRef) {
-            if (ownTexture)
-                glDeleteTextures(1, &texture);
+            if (bufferRef.isShm())
+                delete shmTex;
             else
                 bufferRef.destroyTexture();
         }
@@ -84,11 +85,10 @@ public:
 
         if (bufferRef) {
             if (bufferRef.isShm()) {
-                texture = textureFromImage(bufferRef.image());
-                ownTexture = true;
+                shmTex = new QOpenGLTexture(bufferRef.image(), QOpenGLTexture::DontGenerateMipMaps);
+                texture = shmTex->textureId();
             } else {
                 texture = bufferRef.createTexture();
-                ownTexture = false;
             }
         }
     }
@@ -100,9 +100,9 @@ public:
         return bufferRef.image();
     }
 
+    QOpenGLTexture *shmTex;
     QWaylandBufferRef bufferRef;
     GLuint texture;
-    bool ownTexture;
 };
 
 QWindowCompositor::QWindowCompositor(QOpenGLWindow *window)
@@ -139,7 +139,6 @@ QWindowCompositor::QWindowCompositor(QOpenGLWindow *window)
 
 QWindowCompositor::~QWindowCompositor()
 {
-    glDeleteTextures(1, &m_backgroundTexture);
     delete m_textureBlitter;
 }
 
@@ -314,11 +313,11 @@ void QWindowCompositor::render()
     cleanupGraphicsResources();
 
     if (!m_backgroundTexture)
-        m_backgroundTexture = textureFromImage(m_backgroundImage);
+        m_backgroundTexture = new QOpenGLTexture(m_backgroundImage, QOpenGLTexture::DontGenerateMipMaps);
 
     m_textureBlitter->bind();
     // Draw the background image texture
-    m_textureBlitter->drawTexture(m_backgroundTexture,
+    m_textureBlitter->drawTexture(m_backgroundTexture->textureId(),
                                   QRect(QPoint(0, 0), m_backgroundImage.size()),
                                   window()->size(),
                                   0, false, true);

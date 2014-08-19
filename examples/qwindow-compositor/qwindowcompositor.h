@@ -53,6 +53,7 @@
 QT_BEGIN_NAMESPACE
 
 class QWaylandSurfaceView;
+class QOpenGLTexture;
 
 class QWindowCompositor : public QObject, public QWaylandCompositor
 {
@@ -92,7 +93,7 @@ private:
 
     QOpenGLWindow *m_window;
     QImage m_backgroundImage;
-    GLuint m_backgroundTexture;
+    QOpenGLTexture *m_backgroundTexture;
     QList<QWaylandSurface *> m_surfaces;
     TextureBlitter *m_textureBlitter;
     GLuint m_surface_fbo;

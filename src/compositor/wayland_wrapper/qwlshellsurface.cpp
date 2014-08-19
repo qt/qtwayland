@@ -100,6 +100,7 @@ ShellSurface::ShellSurface(Shell *shell, wl_client *client, uint32_t id, Surface
 {
     m_view = surface->compositor()->waylandCompositor()->createView(surface->waylandSurface());
     connect(surface->waylandSurface(), &QWaylandSurface::configure, this, &ShellSurface::configure);
+    connect(surface->waylandSurface(), &QWaylandSurface::mapped, this, &ShellSurface::mapped);
 }
 
 ShellSurface::~ShellSurface()
@@ -158,16 +159,6 @@ void ShellSurface::setOffset(const QPointF &offset)
     m_surface->setTransientOffset(offset.x(), offset.y());
 }
 
-void ShellSurface::mapPopup()
-{
-    if (m_popupGrabber->grabSerial() == m_popupSerial) {
-        m_popupGrabber->addPopup(this);
-    } else {
-        send_popup_done();
-        m_popupGrabber->setClient(0);
-    }
-}
-
 void ShellSurface::configure(bool hasBuffer)
 {
     m_surface->setMapped(hasBuffer);
@@ -186,6 +177,18 @@ bool ShellSurface::runOperation(QWaylandSurfaceOp *op)
             break;
     }
     return false;
+}
+
+void ShellSurface::mapped()
+{
+    if (m_surface->waylandSurface()->windowType() == QWaylandSurface::Popup) {
+        if (m_surface->mapped() && m_popupGrabber->grabSerial() == m_popupSerial) {
+            m_popupGrabber->addPopup(this);
+        } else {
+            send_popup_done();
+            m_popupGrabber->setClient(0);
+        }
+    }
 }
 
 void ShellSurface::requestSize(const QSize &size)

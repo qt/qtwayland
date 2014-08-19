@@ -135,8 +135,13 @@ QSharedPointer<MockSurface> MockCompositor::surface()
     QSharedPointer<MockSurface> result;
     lock();
     QVector<Impl::Surface *> surfaces = m_compositor->surfaces();
-    if (!surfaces.isEmpty())
-        result = surfaces.first()->mockSurface();
+    foreach (Impl::Surface *surface, surfaces) {
+        // we don't want to mistake the cursor surface for a window surface
+        if (surface->isMapped()) {
+            result = surface->mockSurface();
+            break;
+        }
+    }
     unlock();
     return result;
 }
@@ -187,11 +192,6 @@ void *MockCompositor::run(void *data)
     }
 
     return 0;
-}
-
-void MockCompositor::discardSurfaces()
-{
-    m_compositor->discardSurfaces();
 }
 
 namespace Impl {
@@ -296,11 +296,6 @@ void Compositor::removeSurface(Surface *surface)
         m_keyboard->setFocus(0);
     if (m_pointer->focus() == surface)
         m_pointer->setFocus(0, QPoint());
-}
-
-void Compositor::discardSurfaces()
-{
-    m_surfaces.clear();
 }
 
 }

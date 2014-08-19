@@ -130,6 +130,8 @@ void Seat::seat_get_pointer(Resource *resource, uint32_t id)
 Keyboard::Keyboard(Compositor *compositor)
     : wl_keyboard()
     , m_compositor(compositor)
+    , m_focusResource(Q_NULLPTR)
+    , m_focus(Q_NULLPTR)
 {
 }
 
@@ -174,6 +176,8 @@ void Keyboard::keyboard_destroy_resource(wl_keyboard::Resource *resource)
 Pointer::Pointer(Compositor *compositor)
     : wl_pointer()
     , m_compositor(compositor)
+    , m_focusResource(Q_NULLPTR)
+    , m_focus(Q_NULLPTR)
 {
 }
 

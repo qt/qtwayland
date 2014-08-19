@@ -149,11 +149,7 @@ private:
 
 void tst_WaylandClient::screen()
 {
-    QCoreApplication::processEvents(QEventLoop::AllEvents);
-
     QTRY_COMPARE(QGuiApplication::primaryScreen()->size(), screenSize);
-    // discard the cursor surface created by the QWaylandInputDevice
-    compositor->discardSurfaces();
 }
 
 void tst_WaylandClient::createDestroyWindow()

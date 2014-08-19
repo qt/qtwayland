@@ -46,15 +46,31 @@ namespace Impl {
 
 Surface::Surface(wl_client *client, uint32_t id, Compositor *compositor)
     : QtWaylandServer::wl_surface(client, id)
+    , m_buffer(Q_NULLPTR)
     , m_compositor(compositor)
     , m_mockSurface(new MockSurface(this))
+    , m_mapped(false)
 {
-    wl_list_init(&m_frameCallbackList);
 }
 
 Surface::~Surface()
 {
     m_mockSurface->m_surface = 0;
+}
+
+void Surface::map()
+{
+    m_mapped = true;
+}
+
+bool Surface::isMapped() const
+{
+    return m_mapped;
+}
+
+Surface *Surface::fromResource(struct ::wl_resource *resource)
+{
+    return static_cast<Surface *>(Resource::fromResource(resource)->surface_object);
 }
 
 void Surface::surface_destroy_resource(Resource *)
@@ -88,47 +104,44 @@ void Surface::surface_damage(Resource *resource,
     Q_UNUSED(y);
     Q_UNUSED(width);
     Q_UNUSED(height);
-
-    if (!m_buffer)
-        return;
-
-#if WAYLAND_VERSION_CHECK(1, 2, 0)
-    struct ::wl_shm_buffer *shm_buffer = wl_shm_buffer_get(m_buffer);
-#else
-    struct ::wl_buffer *shm_buffer = 0;
-    if (wl_buffer_is_shm(static_cast<struct ::wl_buffer*>(m_buffer->data)))
-        shm_buffer = static_cast<struct ::wl_buffer*>(m_buffer->data);
-#endif
-
-    if (shm_buffer) {
-        int stride = wl_shm_buffer_get_stride(shm_buffer);
-        uint format = wl_shm_buffer_get_format(shm_buffer);
-        Q_UNUSED(format);
-        void *data = wl_shm_buffer_get_data(shm_buffer);
-        const uchar *char_data = static_cast<const uchar *>(data);
-        QImage img(char_data, wl_shm_buffer_get_width(shm_buffer), wl_shm_buffer_get_height(shm_buffer), stride, QImage::Format_ARGB32_Premultiplied);
-        m_mockSurface->image = img;
-    }
-
-    wl_resource *frameCallback;
-    wl_list_for_each(frameCallback, &m_frameCallbackList, link) {
-        wl_callback_send_done(frameCallback, m_compositor->time());
-        wl_resource_destroy(frameCallback);
-    }
-
-    wl_list_init(&m_frameCallbackList);
 }
 
 void Surface::surface_frame(Resource *resource,
                             uint32_t callback)
 {
     wl_resource *frameCallback = wl_client_add_object(resource->client(), &wl_callback_interface, 0, callback, this);
-    wl_list_insert(&m_frameCallbackList, &frameCallback->link);
+    m_frameCallbackList << frameCallback;
 }
 
 void Surface::surface_commit(Resource *resource)
 {
     Q_UNUSED(resource);
+
+    if (m_buffer) {
+#if WAYLAND_VERSION_CHECK(1, 2, 0)
+        struct ::wl_shm_buffer *shm_buffer = wl_shm_buffer_get(m_buffer);
+#else
+        struct ::wl_buffer *shm_buffer = 0;
+        if (wl_buffer_is_shm(static_cast<struct ::wl_buffer*>(m_buffer->data)))
+            shm_buffer = static_cast<struct ::wl_buffer*>(m_buffer->data);
+#endif
+
+        if (shm_buffer) {
+            int stride = wl_shm_buffer_get_stride(shm_buffer);
+            uint format = wl_shm_buffer_get_format(shm_buffer);
+            Q_UNUSED(format);
+            void *data = wl_shm_buffer_get_data(shm_buffer);
+            const uchar *char_data = static_cast<const uchar *>(data);
+            QImage img(char_data, wl_shm_buffer_get_width(shm_buffer), wl_shm_buffer_get_height(shm_buffer), stride, QImage::Format_ARGB32_Premultiplied);
+            m_mockSurface->image = img;
+        }
+    }
+
+    foreach (wl_resource *frameCallback, m_frameCallbackList) {
+        wl_callback_send_done(frameCallback, m_compositor->time());
+        wl_resource_destroy(frameCallback);
+    }
+    m_frameCallbackList.clear();
 }
 
 }

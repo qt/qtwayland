@@ -184,17 +184,24 @@ void QWindowCompositor::surfaceMapped()
     QWaylandSurface *surface = qobject_cast<QWaylandSurface *>(sender());
     QPoint pos;
     if (!m_surfaces.contains(surface)) {
-        uint px = 0;
-        uint py = 0;
-        if (!QCoreApplication::arguments().contains(QLatin1String("-stickytopleft"))) {
-            px = 1 + (qrand() % (m_window->width() - surface->size().width() - 2));
-            py = 1 + (qrand() % (m_window->height() - surface->size().height() - 2));
+        if (surface->windowType() != QWaylandSurface::Popup) {
+            uint px = 0;
+            uint py = 0;
+            if (!QCoreApplication::arguments().contains(QLatin1String("-stickytopleft"))) {
+                px = 1 + (qrand() % (m_window->width() - surface->size().width() - 2));
+                py = 1 + (qrand() % (m_window->height() - surface->size().height() - 2));
+            }
+            pos = QPoint(px, py);
+            QWaylandSurfaceView *view = surface->views().first();
+            view->setPos(pos);
         }
-        pos = QPoint(px, py);
-        QWaylandSurfaceView *view = surface->views().first();
-        view->setPos(pos);
     } else {
         m_surfaces.removeOne(surface);
+    }
+
+    if (surface->windowType() == QWaylandSurface::Popup) {
+        QWaylandSurfaceView *view = surface->views().first();
+        view->setPos(surface->transientParent()->views().first()->pos() + surface->transientOffset());
     }
 
     m_surfaces.append(surface);

@@ -39,7 +39,7 @@
 **
 ****************************************************************************/
 
-#include "qwaylanddecoration_p.h"
+#include "qwaylandabstractdecoration_p.h"
 
 #include "qwaylandwindow_p.h"
 #include "qwaylandshellsurface_p.h"
@@ -123,7 +123,7 @@ static const char * const qt_normalizeup_xpm[] = {
 #  define BUTTON_WIDTH 22
 #endif
 
-QWaylandDecoration::QWaylandDecoration(QWaylandWindow *window)
+QWaylandAbstractDecoration::QWaylandAbstractDecoration(QWaylandWindow *window)
     : m_window(window->window())
     , m_wayland_window(window)
     , m_isDirty(true)
@@ -142,12 +142,12 @@ QWaylandDecoration::QWaylandDecoration(QWaylandWindow *window)
     m_windowTitle.setTextOption(option);
 }
 
-QWaylandDecoration::~QWaylandDecoration()
+QWaylandAbstractDecoration::~QWaylandAbstractDecoration()
 {
     m_wayland_window->setDecoration(0);
 }
 
-const QImage &QWaylandDecoration::contentImage()
+const QImage &QWaylandAbstractDecoration::contentImage()
 {
     if (m_isDirty) {
         //Update the decoration backingstore
@@ -162,12 +162,12 @@ const QImage &QWaylandDecoration::contentImage()
     return m_decorationContentImage;
 }
 
-void QWaylandDecoration::update()
+void QWaylandAbstractDecoration::update()
 {
     m_isDirty = true;
 }
 
-void QWaylandDecoration::paint(QPaintDevice *device)
+void QWaylandAbstractDecoration::paint(QPaintDevice *device)
 {
     QRect surfaceRect(QPoint(), window()->frameGeometry().size());
     QRect clips[] =
@@ -305,7 +305,7 @@ void QWaylandDecoration::paint(QPaintDevice *device)
 #endif
 }
 
-bool QWaylandDecoration::handleMouse(QWaylandInputDevice *inputDevice, const QPointF &local, const QPointF &global, Qt::MouseButtons b, Qt::KeyboardModifiers mods)
+bool QWaylandAbstractDecoration::handleMouse(QWaylandInputDevice *inputDevice, const QPointF &local, const QPointF &global, Qt::MouseButtons b, Qt::KeyboardModifiers mods)
 
 {
     Q_UNUSED(global);
@@ -335,7 +335,7 @@ bool QWaylandDecoration::handleMouse(QWaylandInputDevice *inputDevice, const QPo
     return true;
 }
 
-bool QWaylandDecoration::handleTouch(QWaylandInputDevice *inputDevice, const QPointF &local, const QPointF &global, Qt::TouchPointState state, Qt::KeyboardModifiers mods)
+bool QWaylandAbstractDecoration::handleTouch(QWaylandInputDevice *inputDevice, const QPointF &local, const QPointF &global, Qt::TouchPointState state, Qt::KeyboardModifiers mods)
 {
     Q_UNUSED(inputDevice);
     Q_UNUSED(global);
@@ -357,12 +357,12 @@ bool QWaylandDecoration::handleTouch(QWaylandInputDevice *inputDevice, const QPo
     return handled;
 }
 
-bool QWaylandDecoration::inMouseButtonPressedState() const
+bool QWaylandAbstractDecoration::inMouseButtonPressedState() const
 {
     return m_mouseButtons & Qt::NoButton;
 }
 
-void QWaylandDecoration::startResize(QWaylandInputDevice *inputDevice, enum wl_shell_surface_resize resize, Qt::MouseButtons buttons)
+void QWaylandAbstractDecoration::startResize(QWaylandInputDevice *inputDevice, enum wl_shell_surface_resize resize, Qt::MouseButtons buttons)
 {
     if (isLeftClicked(buttons)) {
         m_wayland_window->shellSurface()->resize(inputDevice, resize);
@@ -370,7 +370,7 @@ void QWaylandDecoration::startResize(QWaylandInputDevice *inputDevice, enum wl_s
     }
 }
 
-void QWaylandDecoration::startMove(QWaylandInputDevice *inputDevice, Qt::MouseButtons buttons)
+void QWaylandAbstractDecoration::startMove(QWaylandInputDevice *inputDevice, Qt::MouseButtons buttons)
 {
     if (isLeftClicked(buttons)) {
         m_wayland_window->shellSurface()->move(inputDevice);
@@ -378,7 +378,7 @@ void QWaylandDecoration::startMove(QWaylandInputDevice *inputDevice, Qt::MouseBu
     }
 }
 
-void QWaylandDecoration::processMouseTop(QWaylandInputDevice *inputDevice, const QPointF &local, Qt::MouseButtons b, Qt::KeyboardModifiers mods)
+void QWaylandAbstractDecoration::processMouseTop(QWaylandInputDevice *inputDevice, const QPointF &local, Qt::MouseButtons b, Qt::KeyboardModifiers mods)
 {
     Q_UNUSED(mods);
     if (local.y() <= m_margins.bottom()) {
@@ -402,7 +402,7 @@ void QWaylandDecoration::processMouseTop(QWaylandInputDevice *inputDevice, const
 
 }
 
-void QWaylandDecoration::processMouseBottom(QWaylandInputDevice *inputDevice, const QPointF &local, Qt::MouseButtons b, Qt::KeyboardModifiers mods)
+void QWaylandAbstractDecoration::processMouseBottom(QWaylandInputDevice *inputDevice, const QPointF &local, Qt::MouseButtons b, Qt::KeyboardModifiers mods)
 {
     Q_UNUSED(mods);
     if (local.x() <= margins().left()) {
@@ -420,7 +420,7 @@ void QWaylandDecoration::processMouseBottom(QWaylandInputDevice *inputDevice, co
     }
 }
 
-void QWaylandDecoration::processMouseLeft(QWaylandInputDevice *inputDevice, const QPointF &local, Qt::MouseButtons b, Qt::KeyboardModifiers mods)
+void QWaylandAbstractDecoration::processMouseLeft(QWaylandInputDevice *inputDevice, const QPointF &local, Qt::MouseButtons b, Qt::KeyboardModifiers mods)
 {
     Q_UNUSED(local);
     Q_UNUSED(mods);
@@ -428,7 +428,7 @@ void QWaylandDecoration::processMouseLeft(QWaylandInputDevice *inputDevice, cons
     startResize(inputDevice,WL_SHELL_SURFACE_RESIZE_LEFT,b);
 }
 
-void QWaylandDecoration::processMouseRight(QWaylandInputDevice *inputDevice, const QPointF &local, Qt::MouseButtons b, Qt::KeyboardModifiers mods)
+void QWaylandAbstractDecoration::processMouseRight(QWaylandInputDevice *inputDevice, const QPointF &local, Qt::MouseButtons b, Qt::KeyboardModifiers mods)
 {
     Q_UNUSED(local);
     Q_UNUSED(mods);
@@ -436,33 +436,33 @@ void QWaylandDecoration::processMouseRight(QWaylandInputDevice *inputDevice, con
     startResize(inputDevice, WL_SHELL_SURFACE_RESIZE_RIGHT,b);
 }
 
-bool QWaylandDecoration::isLeftClicked(Qt::MouseButtons newMouseButtonState)
+bool QWaylandAbstractDecoration::isLeftClicked(Qt::MouseButtons newMouseButtonState)
 {
     if ((!m_mouseButtons & Qt::LeftButton) && (newMouseButtonState & Qt::LeftButton))
         return true;
     return false;
 }
 
-bool QWaylandDecoration::isLeftReleased(Qt::MouseButtons newMouseButtonState)
+bool QWaylandAbstractDecoration::isLeftReleased(Qt::MouseButtons newMouseButtonState)
 {
     if ((m_mouseButtons & Qt::LeftButton) && !(newMouseButtonState & Qt::LeftButton))
         return true;
     return false;
 }
 
-QRectF QWaylandDecoration::closeButtonRect() const
+QRectF QWaylandAbstractDecoration::closeButtonRect() const
 {
     return QRectF(window()->frameGeometry().width() - BUTTON_WIDTH - BUTTON_SPACING * 2,
                   (m_margins.top() - BUTTON_WIDTH) / 2, BUTTON_WIDTH, BUTTON_WIDTH);
 }
 
-QRectF QWaylandDecoration::maximizeButtonRect() const
+QRectF QWaylandAbstractDecoration::maximizeButtonRect() const
 {
     return QRectF(window()->frameGeometry().width() - BUTTON_WIDTH * 2 - BUTTON_SPACING * 3,
                   (m_margins.top() - BUTTON_WIDTH) / 2, BUTTON_WIDTH, BUTTON_WIDTH);
 }
 
-QRectF QWaylandDecoration::minimizeButtonRect() const
+QRectF QWaylandAbstractDecoration::minimizeButtonRect() const
 {
     return QRectF(window()->frameGeometry().width() - BUTTON_WIDTH * 3 - BUTTON_SPACING * 4,
                   (m_margins.top() - BUTTON_WIDTH) / 2, BUTTON_WIDTH, BUTTON_WIDTH);

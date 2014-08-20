@@ -42,7 +42,7 @@
 #include "qwaylandwindow_p.h"
 #include "qwaylanddisplay_p.h"
 #include "qwaylandscreen_p.h"
-#include "qwaylanddecoration_p.h"
+#include "qwaylandabstractdecoration_p.h"
 
 #include <QtCore/qdebug.h>
 #include <QtGui/QPainter>
@@ -295,7 +295,7 @@ void QWaylandShmBackingStore::updateDecorations()
     decorationPainter.drawImage(target, sourceImage, target);
 }
 
-QWaylandDecoration *QWaylandShmBackingStore::windowDecoration() const
+QWaylandAbstractDecoration *QWaylandShmBackingStore::windowDecoration() const
 {
     return waylandWindow()->decoration();
 }

@@ -39,8 +39,8 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDDECORATION_H
-#define QWAYLANDDECORATION_H
+#ifndef QWAYLANDABSTRACTDECORATION_H
+#define QWAYLANDABSTRACTDECORATION_H
 
 #include <QtCore/QMargins>
 #include <QtCore/QPointF>
@@ -65,11 +65,11 @@ class QWaylandScreen;
 class QWaylandWindow;
 class QWaylandInputDevice;
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandDecoration
+class Q_WAYLAND_CLIENT_EXPORT QWaylandAbstractDecoration
 {
 public:
-    QWaylandDecoration(QWaylandWindow *window);
-    virtual ~QWaylandDecoration();
+    QWaylandAbstractDecoration(QWaylandWindow *window);
+    virtual ~QWaylandAbstractDecoration();
 
     void update();
     bool isDirty() const;
@@ -115,26 +115,26 @@ private:
     QStaticText m_windowTitle;
 };
 
-inline bool QWaylandDecoration::isDirty() const
+inline bool QWaylandAbstractDecoration::isDirty() const
 {
     return m_isDirty;
 }
 
-inline QMargins QWaylandDecoration::margins() const
+inline QMargins QWaylandAbstractDecoration::margins() const
 {
     return m_margins;
 }
 
-inline QWindow *QWaylandDecoration::window() const
+inline QWindow *QWaylandAbstractDecoration::window() const
 {
     return m_window;
 }
 
-inline QWaylandWindow *QWaylandDecoration::waylandWindow() const
+inline QWaylandWindow *QWaylandAbstractDecoration::waylandWindow() const
 {
     return m_wayland_window;
 }
 
 QT_END_NAMESPACE
 
-#endif // QWAYLANDDECORATION_H
+#endif // QWAYLANDABSTRACTDECORATION_H

@@ -50,7 +50,7 @@
 #include "qwaylandwlshellsurface_p.h"
 #include "qwaylandxdgsurface_p.h"
 #include "qwaylandsubsurface_p.h"
-#include "qwaylanddecoration_p.h"
+#include "qwaylandabstractdecoration_p.h"
 #include "qwaylandwindowmanagerintegration_p.h"
 #include "qwaylandnativeinterface_p.h"
 
@@ -505,7 +505,7 @@ bool QWaylandWindow::createDecoration()
 
     if (decoration) {
         if (!mWindowDecoration)
-            mWindowDecoration = new QWaylandDecoration(this);
+            mWindowDecoration = new QWaylandAbstractDecoration(this);
     } else {
         delete mWindowDecoration;
         mWindowDecoration = 0;
@@ -514,12 +514,12 @@ bool QWaylandWindow::createDecoration()
     return mWindowDecoration;
 }
 
-QWaylandDecoration *QWaylandWindow::decoration() const
+QWaylandAbstractDecoration *QWaylandWindow::decoration() const
 {
     return mWindowDecoration;
 }
 
-void QWaylandWindow::setDecoration(QWaylandDecoration *decoration)
+void QWaylandWindow::setDecoration(QWaylandAbstractDecoration *decoration)
 {
     mWindowDecoration = decoration;
     if (subSurfaceWindow()) {

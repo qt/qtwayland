@@ -130,6 +130,8 @@ QWaylandWindow::QWaylandWindow(QWindow *window)
 
 QWaylandWindow::~QWaylandWindow()
 {
+    delete mWindowDecoration;
+
     if (isInitialized()) {
         delete mShellSurface;
         destroy();

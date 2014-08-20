@@ -1,10 +1,9 @@
 /****************************************************************************
 **
 ** Copyright (C) 2014 Robin Burchell <robin.burchell@viroteck.net>
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
-** This file is part of the plugins of the Qt Toolkit.
+** This file is part of the QtGui module of the Qt Toolkit.
 **
 ** $QT_BEGIN_LICENSE:LGPL$
 ** Commercial License Usage
@@ -40,66 +39,16 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDABSTRACTDECORATION_H
-#define QWAYLANDABSTRACTDECORATION_H
-
-#include <QtCore/QMargins>
-#include <QtCore/QPointF>
-#include <QtGui/QGuiApplication>
-#include <QtGui/QCursor>
-#include <QtGui/QColor>
-#include <QtGui/QStaticText>
-#include <QtGui/QImage>
-#include <QtWaylandClient/private/qwaylandclientexport_p.h>
-
-#include <wayland-client.h>
-
-#include <QtCore/QDebug>
+#include "qwaylanddecorationplugin_p.h"
 
 QT_BEGIN_NAMESPACE
 
-class QWindow;
-class QPaintDevice;
-class QPainter;
-class QEvent;
-class QWaylandScreen;
-class QWaylandWindow;
-class QWaylandInputDevice;
-class QWaylandAbstractDecorationPrivate;
-
-class Q_WAYLAND_CLIENT_EXPORT QWaylandAbstractDecoration : public QObject
+QWaylandDecorationPlugin::QWaylandDecorationPlugin(QObject *parent)
+    : QObject(parent)
 {
-    Q_OBJECT
-    Q_DECLARE_PRIVATE(QWaylandAbstractDecoration)
-public:
-    QWaylandAbstractDecoration();
-    virtual ~QWaylandAbstractDecoration();
-
-    void setWaylandWindow(QWaylandWindow *window);
-    QWaylandWindow *waylandWindow() const;
-
-    void update();
-    bool isDirty() const;
-
-    virtual QMargins margins() const = 0;
-    QWindow *window() const;
-    const QImage &contentImage();
-
-    virtual bool handleMouse(QWaylandInputDevice *inputDevice, const QPointF &local, const QPointF &global,Qt::MouseButtons b,Qt::KeyboardModifiers mods) = 0;
-    virtual bool handleTouch(QWaylandInputDevice *inputDevice, const QPointF &local, const QPointF &global, Qt::TouchPointState state, Qt::KeyboardModifiers mods) = 0;
-
-protected:
-    virtual void paint(QPaintDevice *device) = 0;
-
-    void setMouseButtons(Qt::MouseButtons mb);
-
-    void startResize(QWaylandInputDevice *inputDevice,enum wl_shell_surface_resize resize, Qt::MouseButtons buttons);
-    void startMove(QWaylandInputDevice *inputDevice, Qt::MouseButtons buttons);
-
-    bool isLeftClicked(Qt::MouseButtons newMouseButtonState);
-    bool isLeftReleased(Qt::MouseButtons newMouseButtonState);
-};
+}
+QWaylandDecorationPlugin::~QWaylandDecorationPlugin()
+{
+}
 
 QT_END_NAMESPACE
-
-#endif // QWAYLANDABSTRACTDECORATION_H

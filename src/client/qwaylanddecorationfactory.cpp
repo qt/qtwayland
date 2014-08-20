@@ -1,7 +1,6 @@
 /****************************************************************************
 **
 ** Copyright (C) 2014 Robin Burchell <robin.burchell@viroteck.net>
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the plugins of the Qt Toolkit.
@@ -40,66 +39,59 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDABSTRACTDECORATION_H
-#define QWAYLANDABSTRACTDECORATION_H
+#include "qwaylanddecorationfactory_p.h"
+#include "qwaylanddecorationplugin_p.h"
 
-#include <QtCore/QMargins>
-#include <QtCore/QPointF>
-#include <QtGui/QGuiApplication>
-#include <QtGui/QCursor>
-#include <QtGui/QColor>
-#include <QtGui/QStaticText>
-#include <QtGui/QImage>
-#include <QtWaylandClient/private/qwaylandclientexport_p.h>
-
-#include <wayland-client.h>
-
-#include <QtCore/QDebug>
+#include <QtCore/private/qfactoryloader_p.h>
+#include <QtCore/QCoreApplication>
+#include <QtCore/QDir>
 
 QT_BEGIN_NAMESPACE
 
-class QWindow;
-class QPaintDevice;
-class QPainter;
-class QEvent;
-class QWaylandScreen;
-class QWaylandWindow;
-class QWaylandInputDevice;
-class QWaylandAbstractDecorationPrivate;
+#ifndef QT_NO_LIBRARY
+Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
+    (QWaylandDecorationFactoryInterface_iid, QLatin1String("/wayland-decoration-client"), Qt::CaseInsensitive))
+Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, directLoader,
+                          (QWaylandDecorationFactoryInterface_iid, QLatin1String(""), Qt::CaseInsensitive))
+#endif
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandAbstractDecoration : public QObject
+QStringList QWaylandDecorationFactory::keys(const QString &pluginPath)
 {
-    Q_OBJECT
-    Q_DECLARE_PRIVATE(QWaylandAbstractDecoration)
-public:
-    QWaylandAbstractDecoration();
-    virtual ~QWaylandAbstractDecoration();
+#ifndef QT_NO_LIBRARY
+    QStringList list;
+    if (!pluginPath.isEmpty()) {
+        QCoreApplication::addLibraryPath(pluginPath);
+        list = directLoader()->keyMap().values();
+        if (!list.isEmpty()) {
+            const QString postFix = QStringLiteral(" (from ")
+                                    + QDir::toNativeSeparators(pluginPath)
+                                    + QLatin1Char(')');
+            const QStringList::iterator end = list.end();
+            for (QStringList::iterator it = list.begin(); it != end; ++it)
+                (*it).append(postFix);
+        }
+    }
+    list.append(loader()->keyMap().values());
+    return list;
+#else
+    return QStringList();
+#endif
+}
 
-    void setWaylandWindow(QWaylandWindow *window);
-    QWaylandWindow *waylandWindow() const;
+QWaylandAbstractDecoration *QWaylandDecorationFactory::create(const QString &name, const QStringList &args, const QString &pluginPath)
+{
+#ifndef QT_NO_LIBRARY
+    // Try loading the plugin from platformPluginPath first:
+    if (!pluginPath.isEmpty()) {
+        QCoreApplication::addLibraryPath(pluginPath);
+        if (QWaylandAbstractDecoration *ret = qLoadPlugin1<QWaylandAbstractDecoration, QWaylandDecorationPlugin>(directLoader(), name, args))
+            return ret;
+    }
+    if (QWaylandAbstractDecoration *ret = qLoadPlugin1<QWaylandAbstractDecoration, QWaylandDecorationPlugin>(loader(), name, args))
+        return ret;
+#endif
 
-    void update();
-    bool isDirty() const;
-
-    virtual QMargins margins() const = 0;
-    QWindow *window() const;
-    const QImage &contentImage();
-
-    virtual bool handleMouse(QWaylandInputDevice *inputDevice, const QPointF &local, const QPointF &global,Qt::MouseButtons b,Qt::KeyboardModifiers mods) = 0;
-    virtual bool handleTouch(QWaylandInputDevice *inputDevice, const QPointF &local, const QPointF &global, Qt::TouchPointState state, Qt::KeyboardModifiers mods) = 0;
-
-protected:
-    virtual void paint(QPaintDevice *device) = 0;
-
-    void setMouseButtons(Qt::MouseButtons mb);
-
-    void startResize(QWaylandInputDevice *inputDevice,enum wl_shell_surface_resize resize, Qt::MouseButtons buttons);
-    void startMove(QWaylandInputDevice *inputDevice, Qt::MouseButtons buttons);
-
-    bool isLeftClicked(Qt::MouseButtons newMouseButtonState);
-    bool isLeftReleased(Qt::MouseButtons newMouseButtonState);
-};
+    return 0;
+}
 
 QT_END_NAMESPACE
-
-#endif // QWAYLANDABSTRACTDECORATION_H

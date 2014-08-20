@@ -53,6 +53,7 @@
 #include "qwaylandabstractdecoration_p.h"
 #include "qwaylandwindowmanagerintegration_p.h"
 #include "qwaylandnativeinterface_p.h"
+#include "qwaylanddecorationfactory_p.h"
 
 #include <QtCore/QFileInfo>
 #include <QtCore/QPointer>
@@ -486,6 +487,7 @@ bool QWaylandWindow::createDecoration()
     if (!mDisplay->supportsWindowDecoration())
         return false;
 
+    static bool decorationPluginFailed = false;
     bool decoration = false;
     switch (window()->type()) {
         case Qt::Window:
@@ -503,9 +505,37 @@ bool QWaylandWindow::createDecoration()
     if (window()->flags() & Qt::BypassWindowManagerHint)
         decoration = false;
 
-    if (decoration) {
-        if (!mWindowDecoration)
-            mWindowDecoration = new QWaylandAbstractDecoration(this);
+    if (decoration && !decorationPluginFailed) {
+        if (!mWindowDecoration) {
+            QStringList decorations = QWaylandDecorationFactory::keys();
+            if (decorations.empty()) {
+                qWarning() << "No decoration plugins available. Running with no decorations.";
+                decorationPluginFailed = true;
+                return false;
+            }
+
+            QString targetKey;
+            QByteArray decorationPluginName = qgetenv("QT_WAYLAND_DECORATION");
+            if (!decorationPluginName.isEmpty()) {
+                targetKey = QString::fromLocal8Bit(decorationPluginName);
+                if (!decorations.contains(targetKey)) {
+                    qWarning() << "Requested decoration " << targetKey << " not found, falling back to default";
+                    targetKey = QString(); // fallthrough
+                }
+            }
+
+            if (targetKey.isEmpty())
+                targetKey = decorations.first(); // first come, first served.
+
+
+            mWindowDecoration = QWaylandDecorationFactory::create(targetKey, QStringList());
+            if (!mWindowDecoration) {
+                qWarning() << "Could not create decoration from factory! Running with no decorations.";
+                decorationPluginFailed = true;
+                return false;
+            }
+            mWindowDecoration->setWaylandWindow(this);
+        }
     } else {
         delete mWindowDecoration;
         mWindowDecoration = 0;
@@ -519,6 +549,7 @@ QWaylandAbstractDecoration *QWaylandWindow::decoration() const
     return mWindowDecoration;
 }
 
+// ### can't this go away? we directly set up our decorations, after all
 void QWaylandWindow::setDecoration(QWaylandAbstractDecoration *decoration)
 {
     mWindowDecoration = decoration;

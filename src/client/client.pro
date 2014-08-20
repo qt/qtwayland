@@ -3,7 +3,7 @@ QT += core-private gui-private
 QT_FOR_PRIVATE += platformsupport-private
 
 MODULE=waylandclient
-MODULE_PLUGIN_TYPES = wayland-graphics-integration-client
+MODULE_PLUGIN_TYPES = wayland-graphics-integration-client wayland-decoration-client
 
 load(qt_module)
 
@@ -70,6 +70,8 @@ SOURCES +=  qwaylandintegration.cpp \
             qwaylandqtkey.cpp \
             ../shared/qwaylandmimehelper.cpp \
             qwaylandabstractdecoration.cpp \
+            qwaylanddecorationfactory.cpp \
+            qwaylanddecorationplugin.cpp \
             qwaylandeventthread.cpp\
             qwaylandwindowmanagerintegration.cpp \
             qwaylandinputcontext.cpp \
@@ -101,6 +103,8 @@ HEADERS +=  qwaylandintegration_p.h \
             qwaylandqtkey_p.h \
             ../shared/qwaylandmimehelper.h \
             qwaylandabstractdecoration_p.h \
+            qwaylanddecorationfactory_p.h \
+            qwaylanddecorationplugin_p.h \
             qwaylandeventthread_p.h \
             qwaylandwindowmanagerintegration_p.h \
             qwaylandinputcontext_p.h \

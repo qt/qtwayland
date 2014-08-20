@@ -145,8 +145,6 @@ public:
     void unfocus();
 
     QWaylandAbstractDecoration *decoration() const;
-    void setDecoration(QWaylandAbstractDecoration *decoration);
-
 
     void handleMouse(QWaylandInputDevice *inputDevice,
                      ulong timestamp,

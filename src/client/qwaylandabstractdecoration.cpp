@@ -80,7 +80,6 @@ QWaylandAbstractDecorationPrivate::QWaylandAbstractDecorationPrivate()
 
 QWaylandAbstractDecorationPrivate::~QWaylandAbstractDecorationPrivate()
 {
-    m_wayland_window->setDecoration(0);
 }
 
 QWaylandAbstractDecoration::QWaylandAbstractDecoration()
@@ -103,7 +102,6 @@ void QWaylandAbstractDecoration::setWaylandWindow(QWaylandWindow *window)
 
     d->m_window = window->window();
     d->m_wayland_window = window;
-    d->m_wayland_window->setDecoration(this);
 }
 
 const QImage &QWaylandAbstractDecoration::contentImage()

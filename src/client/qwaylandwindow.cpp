@@ -535,6 +535,9 @@ bool QWaylandWindow::createDecoration()
                 return false;
             }
             mWindowDecoration->setWaylandWindow(this);
+            if (subSurfaceWindow()) {
+                subSurfaceWindow()->adjustPositionOfChildren();
+            }
         }
     } else {
         delete mWindowDecoration;
@@ -547,15 +550,6 @@ bool QWaylandWindow::createDecoration()
 QWaylandAbstractDecoration *QWaylandWindow::decoration() const
 {
     return mWindowDecoration;
-}
-
-// ### can't this go away? we directly set up our decorations, after all
-void QWaylandWindow::setDecoration(QWaylandAbstractDecoration *decoration)
-{
-    mWindowDecoration = decoration;
-    if (subSurfaceWindow()) {
-        subSurfaceWindow()->adjustPositionOfChildren();
-    }
 }
 
 static QWindow *topLevelWindow(QWindow *window)

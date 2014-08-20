@@ -87,7 +87,6 @@ private:
     EGLConfig m_config;
     QSurfaceFormat m_format;
     QOpenGLShaderProgram *m_blitProgram;
-    QOpenGLTextureCache *m_textureCache;
     bool mUseNativeDefaultFbo;
 };
 

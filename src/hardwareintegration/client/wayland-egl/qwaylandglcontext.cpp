@@ -63,7 +63,6 @@ QWaylandGLContext::QWaylandGLContext(EGLDisplay eglDisplay, const QSurfaceFormat
     , m_config(q_configFromGLFormat(m_eglDisplay, format, true))
     , m_format(q_glFormatFromConfig(m_eglDisplay, m_config))
     , m_blitProgram(0)
-    , m_textureCache(0)
     , mUseNativeDefaultFbo(false)
 {
     m_shareEGLContext = share ? static_cast<QWaylandGLContext *>(share)->eglContext() : EGL_NO_CONTEXT;
@@ -102,7 +101,6 @@ QWaylandGLContext::QWaylandGLContext(EGLDisplay eglDisplay, const QSurfaceFormat
 QWaylandGLContext::~QWaylandGLContext()
 {
     delete m_blitProgram;
-    delete m_textureCache;
     eglDestroyContext(m_eglDisplay, m_context);
 }
 
@@ -164,9 +162,7 @@ void QWaylandGLContext::swapBuffers(QPlatformSurface *surface)
             }
         }
 
-        if (!m_textureCache) {
-            m_textureCache = new QOpenGLTextureCache(this->context());
-        }
+        QOpenGLTextureCache *cache = QOpenGLTextureCache::cacheForContext(context());
 
         QRect windowRect = window->window()->frameGeometry();
         glViewport(0, 0, windowRect.width(), windowRect.height());
@@ -211,7 +207,7 @@ void QWaylandGLContext::swapBuffers(QPlatformSurface *surface)
         //Draw Decoration
         m_blitProgram->setAttributeArray("position", inverseSquareVertices, 2);
         QImage decorationImage = window->decoration()->contentImage();
-        m_textureCache->bindTexture(context(), decorationImage);
+        cache->bindTexture(context(), decorationImage);
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         if (!context()->functions()->hasOpenGLFeature(QOpenGLFunctions::NPOTTextureRepeat)) {

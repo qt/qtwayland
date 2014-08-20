@@ -186,7 +186,7 @@ void QWaylandDecoration::paint(QPaintDevice *device)
     // Title bar
     QPoint gradCenter(top.center()+ QPoint(30, 60));
     QLinearGradient grad(top.topLeft(), top.bottomLeft());
-    QColor base(backgroundColor());
+    QColor base(m_backgroundColor);
     grad.setColorAt(0, base.lighter(100));
     grad.setColorAt(1, base.darker(180));
     QPainterPath roundedRect;
@@ -444,16 +444,6 @@ QRectF QWaylandDecoration::minimizeButtonRect() const
 {
     return QRectF(window()->frameGeometry().width() - BUTTON_WIDTH * 3 - BUTTON_SPACING * 4,
                   (m_margins.top() - BUTTON_WIDTH) / 2, BUTTON_WIDTH, BUTTON_WIDTH);
-}
-
-void QWaylandDecoration::setForegroundColor(const QColor &c)
-{
-    m_foregroundColor = c;
-}
-
-void QWaylandDecoration::setBackgroundColor(const QColor &c)
-{
-    m_backgroundColor = c;
 }
 
 QT_END_NAMESPACE

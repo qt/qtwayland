@@ -84,12 +84,6 @@ public:
     QWaylandWindow *waylandWindow() const;
     const QImage &contentImage();
 
-    void setForegroundColor(const QColor &c);
-    inline QColor foregroundColor() const;
-
-    void setBackgroundColor(const QColor &c);
-    inline QColor backgroundColor() const;
-
 protected:
     void paint(QPaintDevice *device);
 
@@ -138,16 +132,6 @@ inline QWindow *QWaylandDecoration::window() const
 inline QWaylandWindow *QWaylandDecoration::waylandWindow() const
 {
     return m_wayland_window;
-}
-
-inline QColor QWaylandDecoration::foregroundColor() const
-{
-    return m_foregroundColor;
-}
-
-inline QColor QWaylandDecoration::backgroundColor() const
-{
-    return m_backgroundColor;
 }
 
 QT_END_NAMESPACE

@@ -75,10 +75,12 @@ public:
     void attach(const QWaylandBufferRef &ref) Q_DECL_OVERRIDE
     {
         if (bufferRef) {
-            if (bufferRef.isShm())
+            if (bufferRef.isShm()) {
                 delete shmTex;
-            else
+                shmTex = 0;
+            } else {
                 bufferRef.destroyTexture();
+            }
         }
 
         bufferRef = ref;

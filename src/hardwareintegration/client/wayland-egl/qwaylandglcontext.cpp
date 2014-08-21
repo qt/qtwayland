@@ -60,7 +60,7 @@ QT_BEGIN_NAMESPACE
 QWaylandGLContext::QWaylandGLContext(EGLDisplay eglDisplay, const QSurfaceFormat &format, QPlatformOpenGLContext *share)
     : QPlatformOpenGLContext()
     , m_eglDisplay(eglDisplay)
-    , m_config(q_configFromGLFormat(m_eglDisplay, format, true))
+    , m_config(q_configFromGLFormat(m_eglDisplay, format))
     , m_format(q_glFormatFromConfig(m_eglDisplay, m_config))
     , m_blitProgram(0)
     , mUseNativeDefaultFbo(false)

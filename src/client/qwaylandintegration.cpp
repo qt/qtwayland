@@ -291,7 +291,7 @@ void QWaylandIntegration::initializeClientBufferIntegration()
     }
 
     if (targetKey.isEmpty()) {
-        qWarning("Failed to determin what client buffer integration to use");
+        qWarning("Failed to determine what client buffer integration to use");
         return;
     }
 

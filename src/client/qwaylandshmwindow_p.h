@@ -47,8 +47,6 @@
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandShmBackingStore;
-
 class Q_WAYLAND_CLIENT_EXPORT QWaylandShmWindow : public QWaylandWindow
 {
 public:
@@ -57,18 +55,7 @@ public:
 
     WindowType windowType() const;
     QSurfaceFormat format() const { return QSurfaceFormat(); }
-
-    void setBackingStore(QWaylandShmBackingStore *backingStore);
-    QWaylandShmBackingStore *backingStore() const;
-
-private:
-    QWaylandShmBackingStore *mBackingStore;
 };
-
-inline QWaylandShmBackingStore *QWaylandShmWindow::backingStore() const
-{
-    return mBackingStore;
-}
 
 QT_END_NAMESPACE
 

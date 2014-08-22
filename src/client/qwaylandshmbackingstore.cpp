@@ -39,14 +39,12 @@
 **
 ****************************************************************************/
 #include "qwaylandshmbackingstore_p.h"
-
-#include <QtCore/qdebug.h>
-
+#include "qwaylandwindow_p.h"
 #include "qwaylanddisplay_p.h"
-#include "qwaylandshmwindow_p.h"
 #include "qwaylandscreen_p.h"
 #include "qwaylanddecoration_p.h"
 
+#include <QtCore/qdebug.h>
 #include <QtGui/QPainter>
 
 #include <wayland-client.h>
@@ -156,9 +154,7 @@ QWaylandShmBackingStore::~QWaylandShmBackingStore()
 
 QPaintDevice *QWaylandShmBackingStore::paintDevice()
 {
-    if (!windowDecoration())
-        return mBackBuffer->image();
-    return mBackBuffer->imageInsideMargins(windowDecorationMargins());
+    return contentSurface();
 }
 
 void QWaylandShmBackingStore::beginPaint(const QRegion &)
@@ -166,13 +162,11 @@ void QWaylandShmBackingStore::beginPaint(const QRegion &)
     mPainting = true;
     ensureSize();
 
-    if (waylandWindow()->attached() && mBackBuffer == waylandWindow()->attached() && mFrameCallback) {
-        QWaylandShmWindow *waylandWindow = static_cast<QWaylandShmWindow *>(window()->handle());
-        Q_ASSERT(waylandWindow->windowType() == QWaylandWindow::Shm);
-        waylandWindow->waitForFrameSync();
-    }
+    QWaylandWindow *window = waylandWindow();
+    if (window->attached() && mBackBuffer == window->attached() && mFrameCallback)
+        window->waitForFrameSync();
 
-    waylandWindow()->setCanResize(false);
+    window->setCanResize(false);
 }
 
 void QWaylandShmBackingStore::endPaint()
@@ -190,9 +184,15 @@ void QWaylandShmBackingStore::ensureSize()
 
 void QWaylandShmBackingStore::flush(QWindow *window, const QRegion &region, const QPoint &offset)
 {
+    // Invoked when the window is of type RasterSurface or when the window is
+    // RasterGLSurface and there are no child widgets requiring OpenGL composition.
+
+    // For the case of RasterGLSurface + having to compose, the composeAndFlush() is
+    // called instead. The default implementation from QPlatformBackingStore is sufficient
+    // however so no need to reimplement that.
+
     Q_UNUSED(window);
     Q_UNUSED(offset);
-    Q_ASSERT(waylandWindow()->windowType() == QWaylandWindow::Shm);
 
     if (windowDecoration() && windowDecoration()->isDirty())
         updateDecorations();
@@ -260,6 +260,11 @@ QImage *QWaylandShmBackingStore::entireSurface() const
     return mBackBuffer->image();
 }
 
+QImage *QWaylandShmBackingStore::contentSurface() const
+{
+    return windowDecoration() ? mBackBuffer->imageInsideMargins(windowDecorationMargins()) : mBackBuffer->image();
+}
+
 void QWaylandShmBackingStore::updateDecorations()
 {
     QPainter decorationPainter(entireSurface());
@@ -302,11 +307,19 @@ QMargins QWaylandShmBackingStore::windowDecorationMargins() const
     return QMargins();
 }
 
-QWaylandShmWindow *QWaylandShmBackingStore::waylandWindow() const
+QWaylandWindow *QWaylandShmBackingStore::waylandWindow() const
 {
-    return static_cast<QWaylandShmWindow *>(window()->handle());
+    return static_cast<QWaylandWindow *>(window()->handle());
 }
 
+QImage QWaylandShmBackingStore::toImage() const
+{
+    // Invoked from QPlatformBackingStore::composeAndFlush() that is called
+    // instead of flush() for widgets that have renderToTexture children
+    // (QOpenGLWidget, QQuickWidget).
+
+    return *contentSurface();
+}
 
 void QWaylandShmBackingStore::done(void *data, wl_callback *callback, uint32_t time)
 {
@@ -315,7 +328,7 @@ void QWaylandShmBackingStore::done(void *data, wl_callback *callback, uint32_t t
             static_cast<QWaylandShmBackingStore *>(data);
     if (callback != self->mFrameCallback) // others, like QWaylandWindow, may trigger callbacks too
         return;
-    QWaylandShmWindow *window = self->waylandWindow();
+    QWaylandWindow *window = self->waylandWindow();
     wl_callback_destroy(self->mFrameCallback);
     self->mFrameCallback = 0;
 

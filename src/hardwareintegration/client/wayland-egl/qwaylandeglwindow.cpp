@@ -64,7 +64,10 @@ QWaylandEglWindow::QWaylandEglWindow(QWindow *window)
     , m_resize(false)
     , m_format(q_glFormatFromConfig(m_clientBufferIntegration->eglDisplay(), m_eglConfig))
 {
-    updateSurface(true);
+    // Do not create anything from here. This platform window may belong to a
+    // RasterGLSurface window which may have pure raster content.  In this case, where the
+    // window is never actually made current, creating a wl_egl_window and EGL surface
+    // should be avoided.
 }
 
 QWaylandEglWindow::~QWaylandEglWindow()
@@ -74,7 +77,8 @@ QWaylandEglWindow::~QWaylandEglWindow()
         m_eglSurface = 0;
     }
 
-    wl_egl_window_destroy(m_waylandEglWindow);
+    if (m_waylandEglWindow)
+        wl_egl_window_destroy(m_waylandEglWindow);
 
     delete m_contentFBO;
 }
@@ -125,7 +129,7 @@ void QWaylandEglWindow::updateSurface(bool create)
 
                 m_resize = true;
             }
-        } else {
+        } else if (create) {
             m_waylandEglWindow = wl_egl_window_create(object(), sizeWithMargins.width(), sizeWithMargins.height());
         }
 

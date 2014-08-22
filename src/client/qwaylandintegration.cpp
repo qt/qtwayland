@@ -42,9 +42,9 @@
 #include "qwaylandintegration_p.h"
 
 #include "qwaylanddisplay_p.h"
+#include "qwaylandshmwindow_p.h"
 #include "qwaylandinputcontext_p.h"
 #include "qwaylandshmbackingstore_p.h"
-#include "qwaylandshmwindow_p.h"
 #include "qwaylandnativeinterface_p.h"
 #include "qwaylandclipboard_p.h"
 #include "qwaylanddnd_p.h"
@@ -162,14 +162,18 @@ bool QWaylandIntegration::hasCapability(QPlatformIntegration::Capability cap) co
     case MultipleWindows:
     case NonFullScreenWindows:
         return true;
+    case RasterGLSurface:
+        return true;
     default: return QPlatformIntegration::hasCapability(cap);
     }
 }
 
 QPlatformWindow *QWaylandIntegration::createPlatformWindow(QWindow *window) const
 {
-    if (window->surfaceType() == QWindow::OpenGLSurface && mDisplay->clientBufferIntegration())
+    if ((window->surfaceType() == QWindow::OpenGLSurface || window->surfaceType() == QWindow::RasterGLSurface)
+        && mDisplay->clientBufferIntegration())
         return mDisplay->clientBufferIntegration()->createEglWindow(window);
+
     return new QWaylandShmWindow(window);
 }
 
@@ -255,7 +259,7 @@ QWaylandClientBufferIntegration *QWaylandIntegration::clientBufferIntegration() 
     if (!mClientBufferIntegrationInitialized)
         const_cast<QWaylandIntegration *>(this)->initializeClientBufferIntegration();
 
-    return mClientBufferIntegration;
+    return mClientBufferIntegration && mClientBufferIntegration->isValid() ? mClientBufferIntegration : 0;
 }
 
 QWaylandServerBufferIntegration *QWaylandIntegration::serverBufferIntegration() const

@@ -248,6 +248,11 @@ int main(int argc, char **argv)
     setenv("XDG_RUNTIME_DIR", ".", 1);
     setenv("QT_QPA_PLATFORM", "wayland", 1); // force QGuiApplication to use wayland plugin
 
+    // wayland-egl hangs in the test setup when we try to initialize. Until it gets
+    // figured out, avoid clientBufferIntegration() from being called in
+    // QWaylandWindow::createDecorations().
+    setenv("QT_WAYLAND_DISABLE_WINDOWDECORATION", "1", 1);
+
     MockCompositor compositor;
     compositor.setOutputGeometry(QRect(QPoint(), screenSize));
 

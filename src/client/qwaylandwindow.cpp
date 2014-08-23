@@ -52,6 +52,7 @@
 #include "qwaylanddecoration_p.h"
 #include "qwaylandwindowmanagerintegration_p.h"
 #include "qwaylandnativeinterface_p.h"
+#include "qwaylandclientbufferintegration_p.h"
 
 #include <QtCore/QFileInfo>
 #include <QtCore/QPointer>
@@ -482,7 +483,9 @@ bool QWaylandWindow::createDecoration()
         }
     }
 
-    static bool disableWaylandDecorations = !qgetenv("QT_WAYLAND_DISABLE_WINDOWDECORATION").isEmpty();
+    static bool disableWaylandDecorations = !qgetenv("QT_WAYLAND_DISABLE_WINDOWDECORATION").isEmpty()
+        || (mDisplay->clientBufferIntegration() && !mDisplay->clientBufferIntegration()->supportsWindowDecoration());
+
     if (disableWaylandDecorations)
         return false;
 

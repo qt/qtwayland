@@ -114,6 +114,11 @@ bool QWaylandEglClientBufferIntegration::supportsThreadedOpenGL() const
     return m_supportsThreading;
 }
 
+bool QWaylandEglClientBufferIntegration::supportsWindowDecoration() const
+{
+    return true;
+}
+
 QWaylandWindow *QWaylandEglClientBufferIntegration::createEglWindow(QWindow *window)
 {
     return new QWaylandEglWindow(window);

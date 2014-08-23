@@ -57,7 +57,7 @@ QWaylandXdgShell::QWaylandXdgShell(struct ::xdg_shell *shell)
 }
 
 QWaylandXdgShell::QWaylandXdgShell(struct ::wl_registry *registry, uint32_t id)
-    : QtWayland::xdg_shell(registry, id)
+    : QtWayland::xdg_shell(registry, id, 1)
 {
     use_unstable_version(QtWayland::xdg_shell::version_current);
 }

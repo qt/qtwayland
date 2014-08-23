@@ -46,7 +46,7 @@
 QT_BEGIN_NAMESPACE
 
 QWaylandQtKeyExtension::QWaylandQtKeyExtension(QWaylandDisplay *display, uint32_t id)
-    : QtWayland::qt_key_extension(display->wl_registry(), id)
+    : QtWayland::qt_key_extension(display->wl_registry(), id, 2)
     , m_display(display)
 {
 }

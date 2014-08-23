@@ -149,7 +149,7 @@ protected:
     {
         Q_UNUSED(version);
         if (interface == QStringLiteral("qt_share_buffer")) {
-            QtWayland::qt_share_buffer::init(QtWayland::wl_registry::object(), name);
+            QtWayland::qt_share_buffer::init(QtWayland::wl_registry::object(), name, 1);
         }
     }
 

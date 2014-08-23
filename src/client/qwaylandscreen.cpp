@@ -55,7 +55,7 @@ QT_BEGIN_NAMESPACE
 
 QWaylandScreen::QWaylandScreen(QWaylandDisplay *waylandDisplay, uint32_t id)
     : QPlatformScreen()
-    , QtWayland::wl_output(waylandDisplay->wl_registry(), id)
+    , QtWayland::wl_output(waylandDisplay->wl_registry(), id, 2)
     , mWaylandDisplay(waylandDisplay)
     , mExtendedOutput(0)
     , mDepth(32)

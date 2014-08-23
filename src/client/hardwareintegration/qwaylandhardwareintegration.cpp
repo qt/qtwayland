@@ -45,7 +45,7 @@
 QT_BEGIN_NAMESPACE
 
 QWaylandHardwareIntegration::QWaylandHardwareIntegration(struct ::wl_registry *registry, int id)
-    : qt_hardware_integration(registry, id)
+    : qt_hardware_integration(registry, id, 1)
 {
 }
 

@@ -219,33 +219,33 @@ void QWaylandDisplay::registry_global(uint32_t id, const QString &interface, uin
         // We need to get the output events before creating surfaces
         forceRoundTrip();
     } else if (interface == QStringLiteral("wl_compositor")) {
-        mCompositor.init(registry, id);
+        mCompositor.init(registry, id, 3);
     } else if (interface == QStringLiteral("wl_shm")) {
         mShm = static_cast<struct wl_shm *>(wl_registry_bind(registry, id, &wl_shm_interface,1));
     } else if (interface == QStringLiteral("xdg_shell")
                && qEnvironmentVariableIsSet("QT_WAYLAND_USE_XDG_SHELL")) {
         mShellXdg.reset(new QWaylandXdgShell(registry,id));
     } else if (interface == QStringLiteral("wl_shell")){
-        mShell.reset(new QtWayland::wl_shell(registry, id));
+        mShell.reset(new QtWayland::wl_shell(registry, id, 1));
     } else if (interface == QStringLiteral("wl_seat")) {
         QWaylandInputDevice *inputDevice = new QWaylandInputDevice(this, id);
         mInputDevices.append(inputDevice);
     } else if (interface == QStringLiteral("wl_data_device_manager")) {
         mDndSelectionHandler.reset(new QWaylandDataDeviceManager(this, id));
     } else if (interface == QStringLiteral("qt_output_extension")) {
-        mOutputExtension.reset(new QtWayland::qt_output_extension(registry, id));
+        mOutputExtension.reset(new QtWayland::qt_output_extension(registry, id, 1));
         foreach (QPlatformScreen *screen, screens())
             static_cast<QWaylandScreen *>(screen)->createExtendedOutput();
     } else if (interface == QStringLiteral("qt_surface_extension")) {
-        mWindowExtension.reset(new QtWayland::qt_surface_extension(registry, id));
+        mWindowExtension.reset(new QtWayland::qt_surface_extension(registry, id, 1));
     } else if (interface == QStringLiteral("qt_sub_surface_extension")) {
-        mSubSurfaceExtension.reset(new QtWayland::qt_sub_surface_extension(registry, id));
+        mSubSurfaceExtension.reset(new QtWayland::qt_sub_surface_extension(registry, id, 1));
     } else if (interface == QStringLiteral("qt_touch_extension")) {
         mTouchExtension.reset(new QWaylandTouchExtension(this, id));
     } else if (interface == QStringLiteral("qt_key_extension")) {
         mQtKeyExtension.reset(new QWaylandQtKeyExtension(this, id));
     } else if (interface == QStringLiteral("wl_text_input_manager")) {
-        mTextInputManager.reset(new QtWayland::wl_text_input_manager(registry, id));
+        mTextInputManager.reset(new QtWayland::wl_text_input_manager(registry, id, 1));
     } else if (interface == QStringLiteral("qt_hardware_integration")) {
         mHardwareIntegration.reset(new QWaylandHardwareIntegration(registry, id));
         // make a roundtrip here since we need to receive the events sent by

@@ -141,6 +141,8 @@ class StateGuard
 {
 public:
     StateGuard() {
+        QOpenGLFunctions glFuncs(QOpenGLContext::currentContext());
+
         glGetIntegerv(GL_CURRENT_PROGRAM, (GLint *) &m_program);
         glGetIntegerv(GL_ACTIVE_TEXTURE, (GLint *) &m_activeTextureUnit);
         glGetIntegerv(GL_TEXTURE_BINDING_2D, (GLint *) &m_texture);
@@ -153,13 +155,13 @@ public:
         m_cull = glIsEnabled(GL_CULL_FACE);
         m_scissor = glIsEnabled(GL_SCISSOR_TEST);
         for (int i = 0; i < STATE_GUARD_VERTEX_ATTRIB_COUNT; ++i) {
-            glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_ENABLED, (GLint *) &m_vertexAttribs[i].enabled);
-            glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_BUFFER_BINDING, (GLint *) &m_vertexAttribs[i].arrayBuffer);
-            glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_SIZE, &m_vertexAttribs[i].size);
-            glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_STRIDE, &m_vertexAttribs[i].stride);
-            glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_TYPE, (GLint *) &m_vertexAttribs[i].type);
-            glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_NORMALIZED, (GLint *) &m_vertexAttribs[i].normalized);
-            glGetVertexAttribPointerv(i, GL_VERTEX_ATTRIB_ARRAY_POINTER, &m_vertexAttribs[i].pointer);
+            glFuncs.glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_ENABLED, (GLint *) &m_vertexAttribs[i].enabled);
+            glFuncs.glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_BUFFER_BINDING, (GLint *) &m_vertexAttribs[i].arrayBuffer);
+            glFuncs.glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_SIZE, &m_vertexAttribs[i].size);
+            glFuncs.glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_STRIDE, &m_vertexAttribs[i].stride);
+            glFuncs.glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_TYPE, (GLint *) &m_vertexAttribs[i].type);
+            glFuncs.glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_NORMALIZED, (GLint *) &m_vertexAttribs[i].normalized);
+            glFuncs.glGetVertexAttribPointerv(i, GL_VERTEX_ATTRIB_ARRAY_POINTER, &m_vertexAttribs[i].pointer);
         }
         glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, (GLint *) &m_minFilter);
         glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, (GLint *) &m_magFilter);
@@ -168,10 +170,12 @@ public:
     }
 
     ~StateGuard() {
-        glUseProgram(m_program);
+        QOpenGLFunctions glFuncs(QOpenGLContext::currentContext());
+
+        glFuncs.glUseProgram(m_program);
         glActiveTexture(m_activeTextureUnit);
         glBindTexture(GL_TEXTURE_2D, m_texture);
-        glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
+        glFuncs.glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
         glViewport(m_viewport[0], m_viewport[1], m_viewport[2], m_viewport[3]);
         glDepthMask(m_depthWriteMask);
         glColorMask(m_colorWriteMask[0], m_colorWriteMask[1], m_colorWriteMask[2], m_colorWriteMask[3]);
@@ -185,14 +189,14 @@ public:
             glEnable(GL_SCISSOR_TEST);
         for (int i = 0; i < STATE_GUARD_VERTEX_ATTRIB_COUNT; ++i) {
             if (m_vertexAttribs[i].enabled)
-                glEnableVertexAttribArray(i);
+                glFuncs.glEnableVertexAttribArray(i);
             GLuint prevBuf;
             glGetIntegerv(GL_ARRAY_BUFFER_BINDING, (GLint *) &prevBuf);
-            glBindBuffer(GL_ARRAY_BUFFER, m_vertexAttribs[i].arrayBuffer);
-            glVertexAttribPointer(i, m_vertexAttribs[i].size, m_vertexAttribs[i].type,
-                                  m_vertexAttribs[i].normalized, m_vertexAttribs[i].stride,
-                                  m_vertexAttribs[i].pointer);
-            glBindBuffer(GL_ARRAY_BUFFER, prevBuf);
+            glFuncs.glBindBuffer(GL_ARRAY_BUFFER, m_vertexAttribs[i].arrayBuffer);
+            glFuncs.glVertexAttribPointer(i, m_vertexAttribs[i].size, m_vertexAttribs[i].type,
+                                          m_vertexAttribs[i].normalized, m_vertexAttribs[i].stride,
+                                          m_vertexAttribs[i].pointer);
+            glFuncs.glBindBuffer(GL_ARRAY_BUFFER, prevBuf);
         }
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, m_minFilter);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, m_magFilter);

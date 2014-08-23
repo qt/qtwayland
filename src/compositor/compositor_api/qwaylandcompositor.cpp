@@ -78,8 +78,8 @@ QWaylandCompositor::QWaylandCompositor(QWindow *window, const char *socketName, 
 
 QWaylandCompositor::~QWaylandCompositor()
 {
-    delete m_compositor;
     qDeleteAll(m_compositor->m_globals);
+    delete m_compositor;
 }
 
 void QWaylandCompositor::addGlobalInterface(QWaylandGlobalInterface *interface)

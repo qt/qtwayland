@@ -74,8 +74,8 @@ public:
 
     virtual bool isYInverted(struct ::wl_resource *) const { return true; }
 
-    virtual void *lockNativeBuffer(struct ::wl_resource *, QOpenGLContext *) const { return 0; }
-    virtual void unlockNativeBuffer(void *, QOpenGLContext *) const { return; }
+    virtual void *lockNativeBuffer(struct ::wl_resource *) const { return 0; }
+    virtual void unlockNativeBuffer(void *) const { return; }
 
     virtual QSize bufferSize(struct ::wl_resource *) const { return QSize(); }
 

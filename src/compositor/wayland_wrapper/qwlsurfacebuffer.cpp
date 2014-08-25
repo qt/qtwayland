@@ -112,7 +112,7 @@ void SurfaceBuffer::destructBufferState()
 #ifdef QT_COMPOSITOR_WAYLAND_GL
             } else {
                 ClientBufferIntegration *hwIntegration = m_compositor->clientBufferIntegration();
-                hwIntegration->unlockNativeBuffer(m_handle, 0);
+                hwIntegration->unlockNativeBuffer(m_handle);
 #endif
             }
         }
@@ -216,7 +216,7 @@ void *SurfaceBuffer::handle() const
 #ifdef QT_COMPOSITOR_WAYLAND_GL
         } else {
             ClientBufferIntegration *clientBufferIntegration = m_compositor->clientBufferIntegration();
-            that->m_handle = clientBufferIntegration->lockNativeBuffer(m_buffer, 0);
+            that->m_handle = clientBufferIntegration->lockNativeBuffer(m_buffer);
 #endif
         }
     }

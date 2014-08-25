@@ -215,7 +215,7 @@ bool WaylandEglClientBufferIntegration::isYInverted(struct ::wl_resource *buffer
 }
 
 
-void *WaylandEglClientBufferIntegration::lockNativeBuffer(struct ::wl_resource *buffer, QOpenGLContext *) const
+void *WaylandEglClientBufferIntegration::lockNativeBuffer(struct ::wl_resource *buffer) const
 {
     Q_D(const WaylandEglClientBufferIntegration);
 
@@ -225,7 +225,7 @@ void *WaylandEglClientBufferIntegration::lockNativeBuffer(struct ::wl_resource *
     return image;
 }
 
-void WaylandEglClientBufferIntegration::unlockNativeBuffer(void *native_buffer, QOpenGLContext *) const
+void WaylandEglClientBufferIntegration::unlockNativeBuffer(void *native_buffer) const
 {
     Q_D(const WaylandEglClientBufferIntegration);
     EGLImageKHR image = static_cast<EGLImageKHR>(native_buffer);

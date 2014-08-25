@@ -89,6 +89,7 @@ public:
     Window rootWindow() const;
 
     bool supportsThreadedOpenGL() const { return true; }
+    bool supportsWindowDecoration() const { return false; }
 
 private:
     QWaylandDisplay *mWaylandDisplay;

@@ -19,5 +19,6 @@ SUBDIRS += sub_client
 
 sub_plugins.subdir = plugins
 sub_plugins.depends = sub-qtwaylandscanner sub-client
+contains(CONFIG, wayland-compositor): sub_plugins.depends += sub-compositor
 sub_plugins.target = sub-plugins
 SUBDIRS += sub_plugins

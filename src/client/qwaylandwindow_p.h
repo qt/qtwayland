@@ -142,6 +142,7 @@ public:
 
     void requestActivateWindow() Q_DECL_OVERRIDE;
     bool isExposed() const Q_DECL_OVERRIDE;
+    void unfocus();
 
     QWaylandDecoration *decoration() const;
     void setDecoration(QWaylandDecoration *decoration);

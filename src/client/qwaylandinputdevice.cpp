@@ -717,6 +717,11 @@ void QWaylandInputDevice::Keyboard::keyboard_leave(uint32_t time, struct wl_surf
     Q_UNUSED(time);
     Q_UNUSED(surface);
 
+    if (surface) {
+        QWaylandWindow *window = QWaylandWindow::fromWlSurface(surface);
+        window->unfocus();
+    }
+
     mFocus = NULL;
 
     // Use a callback to set the focus because we may get a leave/enter pair, and

@@ -77,6 +77,11 @@ QWaylandDataOffer *QWaylandDataDevice::selectionOffer() const
     return m_selectionOffer.data();
 }
 
+void QWaylandDataDevice::invalidateSelectionOffer()
+{
+    m_selectionOffer.reset();
+}
+
 QWaylandDataSource *QWaylandDataDevice::selectionSource() const
 {
     return m_selectionSource.data();

@@ -42,6 +42,7 @@
 #include "qwaylandwindow_p.h"
 
 #include "qwaylandbuffer_p.h"
+#include "qwaylanddatadevice_p.h"
 #include "qwaylanddisplay_p.h"
 #include "qwaylandinputdevice_p.h"
 #include "qwaylandscreen_p.h"
@@ -640,6 +641,14 @@ void QWaylandWindow::requestActivateWindow()
 {
     // no-op. Wayland does not have activation protocol,
     // we rely on compositor setting keyboard focus based on window stacking.
+}
+
+void QWaylandWindow::unfocus()
+{
+    QWaylandInputDevice *inputDevice = mDisplay->currentInputDevice();
+    if (inputDevice && inputDevice->dataDevice()) {
+        inputDevice->dataDevice()->invalidateSelectionOffer();
+    }
 }
 
 bool QWaylandWindow::isExposed() const

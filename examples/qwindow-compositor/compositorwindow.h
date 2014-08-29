@@ -1,9 +1,9 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
-** This file is part of the Qt Compositor.
+** This file is part of the examples of the Qt Wayland module
 **
 ** $QT_BEGIN_LICENSE:BSD$
 ** You may use this file under the terms of the BSD license as follows:
@@ -38,24 +38,27 @@
 **
 ****************************************************************************/
 
-#include "qopenglwindow.h"
-#include <QTouchEvent>
+#ifndef COMPOSITORWINDOW_H
+#define COMPOSITORWINDOW_H
 
-QOpenGLWindow::QOpenGLWindow(const QSurfaceFormat &format, const QRect &geometry)
-    : m_format(format)
-{
-    setSurfaceType(QWindow::OpenGLSurface);
-    setGeometry(geometry);
-    setFormat(format);
-    create();
-    m_context = new QOpenGLContext;
-    m_context->setFormat(format);
-    m_context->create();
-}
+#include <QWindow>
+#include <QOpenGLContext>
+#include <QSurfaceFormat>
 
-void QOpenGLWindow::touchEvent(QTouchEvent *event)
+class CompositorWindow : public QWindow
 {
-    // Do not want any automatically synthesized mouse events
-    // so make sure the touch is always accepted.
-    event->accept();
-}
+public:
+    CompositorWindow(const QSurfaceFormat &format, const QRect &geometry);
+    QOpenGLContext* context() { return m_context; }
+    bool makeCurrent() { return m_context->makeCurrent(this); }
+    void swapBuffers() { m_context->swapBuffers(this); }
+
+protected:
+    void touchEvent(QTouchEvent *event);
+
+private:
+    QOpenGLContext *m_context;
+    QSurfaceFormat m_format;
+};
+
+#endif // COMPOSITORWINDOW_H

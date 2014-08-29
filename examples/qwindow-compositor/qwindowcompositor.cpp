@@ -107,7 +107,7 @@ public:
     GLuint texture;
 };
 
-QWindowCompositor::QWindowCompositor(QOpenGLWindow *window)
+QWindowCompositor::QWindowCompositor(CompositorWindow *window)
     : QWaylandCompositor(window, 0, DefaultExtensions | SubSurfaceExtension)
     , m_window(window)
     , m_backgroundTexture(0)

@@ -44,7 +44,7 @@
 #include "qwaylandcompositor.h"
 #include "qwaylandsurface.h"
 #include "textureblitter.h"
-#include "qopenglwindow.h"
+#include "compositorwindow.h"
 
 #include <QtGui/private/qopengltexturecache_p.h>
 #include <QObject>
@@ -59,7 +59,7 @@ class QWindowCompositor : public QObject, public QWaylandCompositor
 {
     Q_OBJECT
 public:
-    QWindowCompositor(QOpenGLWindow *window);
+    QWindowCompositor(CompositorWindow *window);
     ~QWindowCompositor();
 
 private slots:
@@ -91,7 +91,7 @@ private slots:
 private:
     void drawSubSurface(const QPoint &offset, QWaylandSurface *surface);
 
-    QOpenGLWindow *m_window;
+    CompositorWindow *m_window;
     QImage m_backgroundImage;
     QOpenGLTexture *m_backgroundTexture;
     QList<QWaylandSurface *> m_surfaces;

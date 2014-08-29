@@ -96,6 +96,10 @@ QWaylandGLContext::QWaylandGLContext(EGLDisplay eglDisplay, const QSurfaceFormat
         m_context = eglCreateContext(m_eglDisplay, m_config, EGL_NO_CONTEXT, eglContextAttrs.constData());
         m_shareEGLContext = EGL_NO_CONTEXT;
     }
+
+    EGLint error = eglGetError();
+    if (error != EGL_SUCCESS)
+        qWarning("QWaylandGLContext: failed to create EGLContext, error=%x", error);
 }
 
 QWaylandGLContext::~QWaylandGLContext()

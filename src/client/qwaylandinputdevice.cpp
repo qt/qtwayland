@@ -220,6 +220,8 @@ public:
     void touch_frame() Q_DECL_OVERRIDE;
     void touch_cancel() Q_DECL_OVERRIDE;
 
+    bool allTouchPointsReleased();
+
     QWaylandInputDevice *mParent;
     QWaylandWindow *mFocus;
     QList<QWindowSystemInterface::TouchPoint> mTouchPoints;
@@ -863,6 +865,13 @@ void QWaylandInputDevice::Touch::touch_up(uint32_t serial, uint32_t time, int32_
     Q_UNUSED(time);
     mFocus = 0;
     mParent->handleTouchPoint(id, 0, 0, Qt::TouchPointReleased);
+
+    // As of Weston 1.5.90 there is no touch_frame after the last touch_up
+    // (i.e. when the last finger is released). To accommodate for this, issue a
+    // touch_frame. This cannot hurt since it is safe to call the touch_frame
+    // handler multiple times when there are no points left.
+    if (allTouchPointsReleased())
+        touch_frame();
 }
 
 void QWaylandInputDevice::Touch::touch_motion(uint32_t time, int32_t id, wl_fixed_t x, wl_fixed_t y)
@@ -921,6 +930,15 @@ void QWaylandInputDevice::handleTouchPoint(int id, double x, double y, Qt::Touch
     mTouch->mTouchPoints.append(tp);
 }
 
+bool QWaylandInputDevice::Touch::allTouchPointsReleased()
+{
+    for (int i = 0; i < mTouchPoints.count(); ++i)
+        if (mTouchPoints.at(i).state != Qt::TouchPointReleased)
+            return false;
+
+    return true;
+}
+
 void QWaylandInputDevice::Touch::touch_frame()
 {
     // Copy all points, that are in the previous but not in the current list, as stationary.
@@ -950,13 +968,7 @@ void QWaylandInputDevice::Touch::touch_frame()
 
     QWindowSystemInterface::handleTouchEvent(window, mParent->mTouchDevice, mTouchPoints);
 
-    bool allReleased = true;
-    for (int i = 0; i < mTouchPoints.count(); ++i)
-        if (mTouchPoints.at(i).state != Qt::TouchPointReleased) {
-            allReleased = false;
-            break;
-        }
-
+    const bool allReleased = allTouchPointsReleased();
     mPrevTouchPoints = mTouchPoints;
     mTouchPoints.clear();
 

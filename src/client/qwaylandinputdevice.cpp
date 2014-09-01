@@ -921,7 +921,7 @@ void QWaylandInputDevice::handleTouchPoint(int id, double x, double y, Qt::Touch
 
         tp.area = QRectF(0, 0, 8, 8);
         QMargins margins = win->frameMargins();
-        tp.area.moveCenter(win->window()->mapToGlobal(QPoint(x+margins.left(), y+margins.top())));
+        tp.area.moveCenter(win->window()->mapToGlobal(QPoint(x - margins.left(), y - margins.top())));
     }
 
     tp.state = state;

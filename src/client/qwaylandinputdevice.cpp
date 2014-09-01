@@ -853,8 +853,8 @@ void QWaylandInputDevice::Touch::touch_down(uint32_t serial,
                                      wl_fixed_t x,
                                      wl_fixed_t y)
 {
-    Q_UNUSED(serial);
-    Q_UNUSED(time);
+    mParent->mTime = time;
+    mParent->mSerial = serial;
     mFocus = QWaylandWindow::fromWlSurface(surface);
     mParent->handleTouchPoint(id, wl_fixed_to_double(x), wl_fixed_to_double(y), Qt::TouchPointPressed);
 }
@@ -966,6 +966,12 @@ void QWaylandInputDevice::Touch::touch_frame()
 
     QWindow *window = mFocus ? mFocus->window() : 0;
 
+    if (mFocus) {
+        const QWindowSystemInterface::TouchPoint &tp = mTouchPoints.last();
+        QPointF localPos(window->mapFromGlobal(tp.area.center().toPoint()));
+        if (mFocus->touchDragDecoration(mParent, localPos, tp.area.center(), tp.state, mParent->modifiers()))
+            return;
+    }
     QWindowSystemInterface::handleTouchEvent(window, mParent->mTouchDevice, mTouchPoints);
 
     const bool allReleased = allTouchPointsReleased();

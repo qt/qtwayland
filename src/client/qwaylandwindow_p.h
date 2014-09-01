@@ -156,6 +156,9 @@ public:
     void handleMouseEnter(QWaylandInputDevice *inputDevice);
     void handleMouseLeave(QWaylandInputDevice *inputDevice);
 
+    bool touchDragDecoration(QWaylandInputDevice *inputDevice, const QPointF &local, const QPointF &global,
+                             Qt::TouchPointState state, Qt::KeyboardModifiers mods);
+
     bool createDecoration();
 
     inline bool isMaximized() const { return mState == Qt::WindowMaximized; }

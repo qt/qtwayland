@@ -583,6 +583,13 @@ void QWaylandWindow::handleMouseLeave(QWaylandInputDevice *inputDevice)
     restoreMouseCursor(inputDevice);
 }
 
+bool QWaylandWindow::touchDragDecoration(QWaylandInputDevice *inputDevice, const QPointF &local, const QPointF &global, Qt::TouchPointState state, Qt::KeyboardModifiers mods)
+{
+    if (!mWindowDecoration)
+        return false;
+    return mWindowDecoration->handleTouch(inputDevice, local, global, state, mods);
+}
+
 void QWaylandWindow::handleMouseEventWithDecoration(QWaylandInputDevice *inputDevice, ulong timestamp, const QPointF &local, const QPointF &global, Qt::MouseButtons b, Qt::KeyboardModifiers mods)
 {
     if (mWindowDecoration->handleMouse(inputDevice,local,global,b,mods))

@@ -335,6 +335,19 @@ bool QWaylandDecoration::handleMouse(QWaylandInputDevice *inputDevice, const QPo
     return true;
 }
 
+bool QWaylandDecoration::handleTouch(QWaylandInputDevice *inputDevice, const QPointF &local, const QPointF &global, Qt::TouchPointState state, Qt::KeyboardModifiers mods)
+{
+    Q_UNUSED(inputDevice);
+    Q_UNUSED(global);
+    Q_UNUSED(mods);
+
+    if (state == Qt::TouchPointPressed && local.y() <= m_margins.top()) {
+        m_wayland_window->shellSurface()->move(inputDevice);
+        return true;
+    }
+    return false;
+}
+
 bool QWaylandDecoration::inMouseButtonPressedState() const
 {
     return m_mouseButtons & Qt::NoButton;

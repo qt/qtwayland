@@ -209,6 +209,8 @@ Compositor::Compositor()
 
     wl_display_add_global(m_display, &wl_compositor_interface, this, bindCompositor);
 
+    m_data_device_manager.reset(new DataDeviceManager(this, m_display));
+
     wl_display_init_shm(m_display);
 
     m_seat.reset(new Seat(this, m_display));

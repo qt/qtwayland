@@ -227,4 +227,35 @@ void Pointer::pointer_destroy_resource(wl_pointer::Resource *resource)
         m_focusResource = 0;
 }
 
+DataDevice::DataDevice(Compositor *compositor)
+    : wl_data_device()
+    , m_compositor(compositor)
+{
+
+}
+
+DataDevice::~DataDevice()
+{
+
+}
+
+DataDeviceManager::DataDeviceManager(Compositor *compositor, wl_display *display)
+    : wl_data_device_manager(display)
+    , m_compositor(compositor)
+{
+
+}
+
+DataDeviceManager::~DataDeviceManager()
+{
+
+}
+
+void DataDeviceManager::data_device_manager_get_data_device(Resource *resource, uint32_t id, struct ::wl_resource *seat)
+{
+    if (!m_data_device)
+        m_data_device.reset(new DataDevice(m_compositor));
+    m_data_device->add(resource->client(), id);
+}
+
 }

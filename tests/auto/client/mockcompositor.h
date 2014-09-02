@@ -61,6 +61,7 @@ typedef void (**Implementation)(void);
 class Keyboard;
 class Pointer;
 class Seat;
+class DataDeviceManager;
 class Surface;
 
 class Compositor
@@ -111,6 +112,7 @@ private:
     QScopedPointer<Seat> m_seat;
     Pointer *m_pointer;
     Keyboard *m_keyboard;
+    QScopedPointer<DataDeviceManager> m_data_device_manager;
     QVector<Surface *> m_surfaces;
 };
 

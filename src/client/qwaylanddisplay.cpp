@@ -262,7 +262,17 @@ void QWaylandDisplay::registry_global(uint32_t id, const QString &interface, uin
 void QWaylandDisplay::registry_global_remove(uint32_t id)
 {
     for (int i = 0, ie = mGlobals.count(); i != ie; ++i) {
-        if (mGlobals[i].id == id) {
+        RegistryGlobal &global = mGlobals[i];
+        if (global.id == id) {
+            if (global.interface == QStringLiteral("wl_output")) {
+                foreach (QWaylandScreen *screen, mScreens) {
+                    if (screen->outputId() == id) {
+                        delete screen;
+                        mScreens.removeOne(screen);
+                        break;
+                    }
+                }
+            }
             mGlobals.removeAt(i);
             break;
         }

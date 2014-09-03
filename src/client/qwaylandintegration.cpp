@@ -49,6 +49,7 @@
 #include "qwaylandclipboard_p.h"
 #include "qwaylanddnd_p.h"
 #include "qwaylandwindowmanagerintegration_p.h"
+#include "qwaylandscreen_p.h"
 
 #include "QtPlatformSupport/private/qgenericunixfontdatabase_p.h"
 #include <QtPlatformSupport/private/qgenericunixeventdispatcher_p.h>
@@ -127,7 +128,7 @@ QWaylandIntegration::QWaylandIntegration()
     mClipboard = new QWaylandClipboard(mDisplay);
     mDrag = new QWaylandDrag(mDisplay);
 
-    foreach (QPlatformScreen *screen, mDisplay->screens())
+    foreach (QWaylandScreen *screen, mDisplay->screens())
         screenAdded(screen);
 
     mInputContext.reset(new QWaylandInputContext(mDisplay));

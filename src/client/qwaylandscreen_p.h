@@ -77,6 +77,7 @@ public:
     QPlatformCursor *cursor() const;
     QWaylandCursor *waylandCursor() const { return mWaylandCursor; };
 
+    uint32_t outputId() const { return m_outputId; }
     ::wl_output *output() { return object(); }
 
     QWaylandExtendedOutput *extendedOutput() const;
@@ -93,6 +94,7 @@ private:
                          const QString &model,
                          int32_t transform) Q_DECL_OVERRIDE;
 
+    int m_outputId;
     QWaylandDisplay *mWaylandDisplay;
     QWaylandExtendedOutput *mExtendedOutput;
     QRect mGeometry;

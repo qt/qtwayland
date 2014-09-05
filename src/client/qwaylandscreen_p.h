@@ -65,6 +65,8 @@ public:
     int depth() const;
     QImage::Format format() const;
 
+    QSizeF physicalSize() const Q_DECL_OVERRIDE;
+
     QDpi logicalDpi() const Q_DECL_OVERRIDE;
 
     void setOrientationUpdateMask(Qt::ScreenOrientations mask);
@@ -93,6 +95,7 @@ private:
                          const QString &make,
                          const QString &model,
                          int32_t transform) Q_DECL_OVERRIDE;
+    void output_done() Q_DECL_OVERRIDE;
 
     int m_outputId;
     QWaylandDisplay *mWaylandDisplay;

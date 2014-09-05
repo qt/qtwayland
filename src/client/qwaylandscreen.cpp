@@ -95,6 +95,11 @@ QImage::Format QWaylandScreen::format() const
     return mFormat;
 }
 
+QSizeF QWaylandScreen::physicalSize() const
+{
+    return mPhysicalSize;
+}
+
 QDpi QWaylandScreen::logicalDpi() const
 {
     static int force_dpi = !qgetenv("QT_WAYLAND_FORCE_DPI").isEmpty() ? qgetenv("QT_WAYLAND_FORCE_DPI").toInt() : -1;
@@ -153,16 +158,11 @@ void QWaylandScreen::output_mode(uint32_t flags, int width, int height, int refr
 
     QSize size(width, height);
 
-    if (size != mGeometry.size()) {
+    if (size != mGeometry.size())
         mGeometry.setSize(size);
-        QWindowSystemInterface::handleScreenGeometryChange(screen(), mGeometry);
-        QWindowSystemInterface::handleScreenAvailableGeometryChange(screen(), mGeometry);
-    }
 
-    if (refresh != mRefreshRate) {
+    if (refresh != mRefreshRate)
         mRefreshRate = refresh;
-        QWindowSystemInterface::handleScreenRefreshRateChange(screen(), refreshRate());
-    }
 }
 
 void QWaylandScreen::output_geometry(int32_t x, int32_t y,
@@ -202,14 +202,18 @@ void QWaylandScreen::output_geometry(int32_t x, int32_t y,
     if (!model.isEmpty())
         mOutputName = model;
 
-    QRect geom(x, y, width, height);
+    mPhysicalSize = QSize(width, height);
+    mGeometry.moveTopLeft(QPoint(x, y));
+}
 
-    if (mGeometry == geom)
-        return;
-
-    mGeometry = geom;
+void QWaylandScreen::output_done()
+{
+    // the done event is sent after all the geometry and the mode events are sent,
+    // and the last mode event to be sent is the active one, so we can trust the
+    // values of mGeometry and mRefreshRate here
     QWindowSystemInterface::handleScreenGeometryChange(screen(), mGeometry);
     QWindowSystemInterface::handleScreenAvailableGeometryChange(screen(), mGeometry);
+    QWindowSystemInterface::handleScreenRefreshRateChange(screen(), refreshRate());
 }
 
 QT_END_NAMESPACE

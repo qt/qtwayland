@@ -103,6 +103,7 @@ private:
                                 int width,
                                 int height,
                                 int refresh);
+    static void outputDone(void *data, wl_output *output);
 
     void handleGlobal(uint32_t id, const QByteArray &interface);
 

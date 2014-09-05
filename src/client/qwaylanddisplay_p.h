@@ -156,6 +156,8 @@ public:
 
     void forceRoundTrip();
 
+    bool supportsWindowDecoration() const;
+
 public slots:
     void blockingReadEvents();
     void flushRequests();

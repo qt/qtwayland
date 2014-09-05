@@ -44,12 +44,14 @@
 #include <QtWaylandClient/private/qwaylanddisplay_p.h>
 #include <QtWaylandClient/private/qwaylandwindow_p.h>
 #include <QtWaylandClient/private/qwaylanddecoration_p.h>
+#include <QtWaylandClient/private/qwaylandintegration_p.h>
 #include "qwaylandeglwindow.h"
 
 #include <QDebug>
 #include <QtPlatformSupport/private/qeglconvenience_p.h>
 #include <QtGui/private/qopenglcontext_p.h>
 #include <QtGui/private/qopengltexturecache_p.h>
+#include <QtGui/private/qguiapplication_p.h>
 
 #include <qpa/qplatformopenglcontext.h>
 #include <QtGui/QSurfaceFormat>
@@ -60,11 +62,14 @@ QT_BEGIN_NAMESPACE
 QWaylandGLContext::QWaylandGLContext(EGLDisplay eglDisplay, const QSurfaceFormat &format, QPlatformOpenGLContext *share)
     : QPlatformOpenGLContext()
     , m_eglDisplay(eglDisplay)
-    , m_config(q_configFromGLFormat(m_eglDisplay, format))
-    , m_format(q_glFormatFromConfig(m_eglDisplay, m_config))
     , m_blitProgram(0)
     , mUseNativeDefaultFbo(false)
 {
+    QSurfaceFormat fmt = format;
+    if (static_cast<QWaylandIntegration *>(QGuiApplicationPrivate::platformIntegration())->display()->supportsWindowDecoration())
+        fmt.setAlphaBufferSize(8);
+    m_config = q_configFromGLFormat(m_eglDisplay, fmt);
+    m_format = q_glFormatFromConfig(m_eglDisplay, m_config);
     m_shareEGLContext = share ? static_cast<QWaylandGLContext *>(share)->eglContext() : EGL_NO_CONTEXT;
 
     switch (m_format.renderableType()) {

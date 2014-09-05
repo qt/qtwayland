@@ -56,6 +56,7 @@
 
 #include "qwaylandwindowmanagerintegration_p.h"
 #include "qwaylandshellintegration_p.h"
+#include "qwaylandclientbufferintegration_p.h"
 
 #include "qwaylandextendedoutput_p.h"
 #include "qwaylandextendedsurface_p.h"
@@ -333,6 +334,18 @@ void QWaylandDisplay::forceRoundTrip()
 QtWayland::xdg_shell *QWaylandDisplay::shellXdg()
 {
     return mShellXdg.data();
+}
+
+bool QWaylandDisplay::supportsWindowDecoration() const
+{
+    static bool disabled = qgetenv("QT_WAYLAND_DISABLE_WINDOWDECORATION").toInt();
+    // Stop early when disabled via the environment. Do not try to load the integration in
+    // order to play nice with SHM-only, buffer integration-less systems.
+    if (disabled)
+        return false;
+
+    static bool integrationSupport = clientBufferIntegration() && clientBufferIntegration()->supportsWindowDecoration();
+    return integrationSupport;
 }
 
 QT_END_NAMESPACE

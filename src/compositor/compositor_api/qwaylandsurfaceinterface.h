@@ -43,7 +43,7 @@
 
 #include <QWindow>
 
-#include "qwaylandsurface.h"
+#include <QtCompositor/qwaylandsurface.h>
 #include <QtCompositor/qwaylandexport.h>
 
 QT_BEGIN_NAMESPACE

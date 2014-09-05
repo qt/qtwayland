@@ -40,8 +40,6 @@
 
 #include "qwlinputmethod_p.h"
 
-#include <QDebug>
-
 #include "qwlcompositor_p.h"
 #include "qwlinputdevice_p.h"
 #include "qwlinputmethodcontext_p.h"
@@ -71,7 +69,7 @@ InputMethod::~InputMethod()
 void InputMethod::activate(TextInput *textInput)
 {
     if (!m_resource) {
-        qDebug() << "Cannout activate no input method running.";
+        qDebug("Cannot activate (no input method running).");
         return;
     }
 
@@ -92,7 +90,7 @@ void InputMethod::activate(TextInput *textInput)
 void InputMethod::deactivate()
 {
     if (!m_resource) {
-        qDebug() << "Cannout deactivate no input method running.";
+        qDebug("Cannot deactivate (no input method running).");
         return;
     }
 

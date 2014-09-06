@@ -340,12 +340,21 @@ bool QWaylandDecoration::handleTouch(QWaylandInputDevice *inputDevice, const QPo
     Q_UNUSED(inputDevice);
     Q_UNUSED(global);
     Q_UNUSED(mods);
-
-    if (state == Qt::TouchPointPressed && local.y() <= m_margins.top()) {
-        m_wayland_window->shellSurface()->move(inputDevice);
-        return true;
+    bool handled = state == Qt::TouchPointPressed;
+    if (handled) {
+        if (closeButtonRect().contains(local))
+            QWindowSystemInterface::handleCloseEvent(m_window);
+        else if (maximizeButtonRect().contains(local))
+            m_window->setWindowState(m_wayland_window->isMaximized() ? Qt::WindowNoState : Qt::WindowMaximized);
+        else if (minimizeButtonRect().contains(local))
+            m_window->setWindowState(Qt::WindowMinimized);
+        else if (local.y() <= m_margins.top())
+            m_wayland_window->shellSurface()->move(inputDevice);
+        else
+            handled = false;
     }
-    return false;
+
+    return handled;
 }
 
 bool QWaylandDecoration::inMouseButtonPressedState() const

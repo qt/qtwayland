@@ -983,14 +983,12 @@ void QWaylandInputDevice::Touch::touch_frame()
     }
     QWindowSystemInterface::handleTouchEvent(window, mParent->mTouchDevice, mTouchPoints);
 
-    const bool allReleased = allTouchPointsReleased();
-    mPrevTouchPoints = mTouchPoints;
-    mTouchPoints.clear();
-
-    if (allReleased) {
-        QWindowSystemInterface::handleTouchEvent(window, mParent->mTouchDevice, mTouchPoints);
+    if (allTouchPointsReleased())
         mPrevTouchPoints.clear();
-    }
+    else
+        mPrevTouchPoints = mTouchPoints;
+
+    mTouchPoints.clear();
 }
 
 QT_END_NAMESPACE

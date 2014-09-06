@@ -128,6 +128,9 @@ QWaylandDisplay::QWaylandDisplay(QWaylandIntegration *waylandIntegration)
     , mQtKeyExtension(0)
     , mTextInputManager(0)
     , mHardwareIntegration(0)
+    , mLastInputSerial(0)
+    , mLastInputDevice(0)
+    , mLastInputWindow(0)
 {
     qRegisterMetaType<uint32_t>("uint32_t");
 
@@ -357,6 +360,13 @@ bool QWaylandDisplay::supportsWindowDecoration() const
 
     static bool integrationSupport = clientBufferIntegration() && clientBufferIntegration()->supportsWindowDecoration();
     return integrationSupport;
+}
+
+void QWaylandDisplay::setLastInputDevice(QWaylandInputDevice *device, uint32_t serial, QWaylandWindow *win)
+{
+    mLastInputDevice = device;
+    mLastInputSerial = serial;
+    mLastInputWindow = win;
 }
 
 QT_END_NAMESPACE

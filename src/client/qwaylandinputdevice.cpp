@@ -476,7 +476,6 @@ void QWaylandInputDevice::Pointer::pointer_motion(uint32_t time, wl_fixed_t surf
 void QWaylandInputDevice::Pointer::pointer_button(uint32_t serial, uint32_t time,
                                                   uint32_t button, uint32_t state)
 {
-    Q_UNUSED(serial);
     QWaylandWindow *window = mFocus;
     Qt::MouseButton qt_button;
 
@@ -509,6 +508,8 @@ void QWaylandInputDevice::Pointer::pointer_button(uint32_t serial, uint32_t time
 
     mParent->mTime = time;
     mParent->mSerial = serial;
+    if (state)
+        mParent->mQDisplay->setLastInputDevice(mParent, serial, window);
 
     QWaylandWindow *grab = QWaylandWindow::mouseGrab();
     if (grab && grab != mFocus) {
@@ -754,7 +755,6 @@ void QWaylandInputDevice::Keyboard::focusCallback(void *data, struct wl_callback
 
 void QWaylandInputDevice::Keyboard::keyboard_key(uint32_t serial, uint32_t time, uint32_t key, uint32_t state)
 {
-    Q_UNUSED(serial);
     QWaylandWindow *window = mFocus;
     uint32_t code = key + 8;
     bool isDown = state != 0;
@@ -768,6 +768,9 @@ void QWaylandInputDevice::Keyboard::keyboard_key(uint32_t serial, uint32_t time,
         // didn't get the message yet.
         return;
     }
+
+    if (isDown)
+        mParent->mQDisplay->setLastInputDevice(mParent, serial, window);
 
 #ifndef QT_NO_WAYLAND_XKB
     if (!mXkbMap)
@@ -875,6 +878,7 @@ void QWaylandInputDevice::Touch::touch_down(uint32_t serial,
     mParent->mTime = time;
     mParent->mSerial = serial;
     mFocus = QWaylandWindow::fromWlSurface(surface);
+    mParent->mQDisplay->setLastInputDevice(mParent, serial, mFocus);
     mParent->handleTouchPoint(id, wl_fixed_to_double(x), wl_fixed_to_double(y), Qt::TouchPointPressed);
 }
 

@@ -220,8 +220,6 @@ protected:
     QPoint mOffset;
 
     QIcon mWindowIcon;
-    QWaylandInputDevice *mMouseDevice;
-    int mMouseSerial;
 
     Qt::WindowState mState;
 

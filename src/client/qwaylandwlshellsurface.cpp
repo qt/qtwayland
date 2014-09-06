@@ -187,8 +187,14 @@ void QWaylandWlShellSurface::updateTransientParent(QWindow *parent)
 void QWaylandWlShellSurface::setPopup(QWaylandWindow *parent, QWaylandInputDevice *device, int serial)
 {
     QWaylandWindow *parent_wayland_window = parent;
-    if (!parent_wayland_window)
+    if (!parent_wayland_window) {
+        qWarning("setPopup called without parent window");
         return;
+    }
+    if (!device) {
+        qWarning("setPopup called without input device");
+        return;
+    }
 
     // set_popup expects a position relative to the parent
     QPoint transientPos = m_window->geometry().topLeft(); // this is absolute

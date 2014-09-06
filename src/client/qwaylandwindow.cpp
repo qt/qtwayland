@@ -88,8 +88,6 @@ QWaylandWindow::QWaylandWindow(QWindow *window)
     , mResizeDirty(false)
     , mResizeAfterSwap(qEnvironmentVariableIsSet("QT_WAYLAND_RESIZE_AFTER_SWAP"))
     , mSentInitialResize(false)
-    , mMouseDevice(0)
-    , mMouseSerial(0)
     , mState(Qt::WindowNoState)
     , mBackingStore(Q_NULLPTR)
 {
@@ -229,18 +227,14 @@ void QWaylandWindow::setVisible(bool visible)
         if (window()->type() == Qt::Popup) {
             QWaylandWindow *parent = transientParent();
             if (!parent) {
-                // Try with the current focus window. It may be the wrong one but we need to have
-                // some parent to have popups act as popups.
-                parent = mDisplay->currentInputDevice()->pointerFocus();
+                // Try with the current focus window. It should be the right one and anyway
+                // better than having no parent at all.
+                parent = mDisplay->lastInputWindow();
             }
             if (parent) {
-                mMouseDevice = parent->mMouseDevice;
-                mMouseSerial = parent->mMouseSerial;
-
                 QWaylandWlShellSurface *wlshellSurface = dynamic_cast<QWaylandWlShellSurface*>(mShellSurface);
-                if (mMouseDevice && wlshellSurface) {
-                    wlshellSurface->setPopup(parent, mMouseDevice, mMouseSerial);
-                }
+                if (wlshellSurface)
+                    wlshellSurface->setPopup(parent, mDisplay->lastInputDevice(), mDisplay->lastInputSerial());
             }
         }
 
@@ -579,7 +573,7 @@ QWaylandWindow *QWaylandWindow::transientParent() const
     if (window()->transientParent()) {
         // Take the top level window here, since the transient parent may be a QWidgetWindow
         // or some other window without a shell surface, which is then not able to get mouse
-        // events, nor set mMouseSerial and mMouseDevice.
+        // events.
         return static_cast<QWaylandWindow *>(topLevelWindow(window()->transientParent())->handle());
     }
     return 0;
@@ -587,10 +581,6 @@ QWaylandWindow *QWaylandWindow::transientParent() const
 
 void QWaylandWindow::handleMouse(QWaylandInputDevice *inputDevice, ulong timestamp, const QPointF &local, const QPointF &global, Qt::MouseButtons b, Qt::KeyboardModifiers mods)
 {
-    if (b != Qt::NoButton) {
-        mMouseSerial = inputDevice->serial();
-        mMouseDevice = inputDevice;
-    }
 
     if (mWindowDecoration) {
         handleMouseEventWithDecoration(inputDevice, timestamp,local,global,b,mods);

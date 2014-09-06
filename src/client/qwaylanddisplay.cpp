@@ -215,9 +215,11 @@ void QWaylandDisplay::registry_global(uint32_t id, const QString &interface, uin
     struct ::wl_registry *registry = object();
 
     if (interface == QStringLiteral("wl_output")) {
-        mScreens.append(new QWaylandScreen(this, id));
+        QWaylandScreen *screen = new QWaylandScreen(this, id);
+        mScreens.append(screen);
         // We need to get the output events before creating surfaces
         forceRoundTrip();
+        mWaylandIntegration->screenAdded(screen);
     } else if (interface == QStringLiteral("wl_compositor")) {
         mCompositor.init(registry, id, 3);
     } else if (interface == QStringLiteral("wl_shm")) {

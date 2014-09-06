@@ -128,9 +128,6 @@ QWaylandIntegration::QWaylandIntegration()
     mClipboard = new QWaylandClipboard(mDisplay);
     mDrag = new QWaylandDrag(mDisplay);
 
-    foreach (QWaylandScreen *screen, mDisplay->screens())
-        screenAdded(screen);
-
     mInputContext.reset(new QWaylandInputContext(mDisplay));
 }
 

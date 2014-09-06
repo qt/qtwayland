@@ -187,6 +187,9 @@ public:
     void setBackingStore(QWaylandShmBackingStore *backingStore) { mBackingStore = backingStore; }
     QWaylandShmBackingStore *backingStore() const { return mBackingStore; }
 
+    bool setKeyboardGrabEnabled(bool) Q_DECL_OVERRIDE { return false; }
+    void propagateSizeHints() Q_DECL_OVERRIDE { }
+
 public slots:
     void requestResize();
 

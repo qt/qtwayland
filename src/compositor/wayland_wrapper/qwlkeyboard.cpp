@@ -303,8 +303,10 @@ static int createAnonymousFile(size_t size)
     if (fd < 0)
         return -1;
 
-    if (ftruncate(fd, size) < 0)
+    if (ftruncate(fd, size) < 0) {
+        close(fd);
         return -1;
+    }
 
     return fd;
 }

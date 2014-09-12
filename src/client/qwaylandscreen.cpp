@@ -97,7 +97,10 @@ QImage::Format QWaylandScreen::format() const
 
 QSizeF QWaylandScreen::physicalSize() const
 {
-    return mPhysicalSize;
+    if (mPhysicalSize.isNull())
+        return QPlatformScreen::physicalSize();
+    else
+        return mPhysicalSize;
 }
 
 QDpi QWaylandScreen::logicalDpi() const

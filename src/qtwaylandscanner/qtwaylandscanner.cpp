@@ -88,6 +88,7 @@ struct WaylandArgument {
 struct WaylandEvent {
     bool request;
     QByteArray name;
+    QByteArray type;
     QList<WaylandArgument> arguments;
 };
 
@@ -124,6 +125,7 @@ WaylandEvent readEvent(QXmlStreamReader &xml, bool request)
     WaylandEvent event;
     event.request = request;
     event.name = byteArrayValue(xml, "name");
+    event.type = byteArrayValue(xml, "type");
     while (xml.readNextStartElement()) {
         if (xml.name() == "arg") {
             WaylandArgument argument;
@@ -998,6 +1000,8 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath, const QByteArr
                     }
                 }
                 printf(");\n");
+                if (e.type == "destructor")
+                    printf("        m_%s = 0;\n", interfaceName);
                 printf("    }\n");
             }
 

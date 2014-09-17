@@ -97,7 +97,7 @@ QImage::Format QWaylandScreen::format() const
 
 QSizeF QWaylandScreen::physicalSize() const
 {
-    if (mPhysicalSize.isNull())
+    if (mPhysicalSize.isEmpty())
         return QPlatformScreen::physicalSize();
     else
         return mPhysicalSize;

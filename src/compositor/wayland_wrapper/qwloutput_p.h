@@ -71,6 +71,7 @@ public:
     int y() const { return m_geometry.y(); }
     QSize size() const { return m_geometry.size(); }
 
+    void setPhysicalSize(const QSize &size);
     void setRefreshRate(int rate);
     int refreshRate() const { return m_refreshRate; }
     void sendOutputOrientation(Qt::ScreenOrientation orientation);
@@ -82,6 +83,7 @@ public:
 
 private:
     QRect m_geometry;
+    QSize m_physicalSize;
     int m_refreshRate;
     int m_displayId;
     int m_numQueued;

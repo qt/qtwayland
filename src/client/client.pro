@@ -3,7 +3,9 @@ QT += core-private gui-private
 QT_FOR_PRIVATE += platformsupport-private
 
 MODULE=waylandclient
-MODULE_PLUGIN_TYPES = wayland-graphics-integration-client
+MODULE_PLUGIN_TYPES = \
+            wayland-graphics-integration-client \
+            wayland-inputdevice-integration
 
 load(qt_module)
 
@@ -108,3 +110,4 @@ HEADERS +=  qwaylandintegration_p.h \
 
 include(hardwareintegration/hardwareintegration.pri)
 include(shellintegration/shellintegration.pri)
+include(inputdeviceintegration/inputdeviceintegration.pri)

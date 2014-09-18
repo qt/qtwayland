@@ -241,7 +241,7 @@ void QWaylandDisplay::registry_global(uint32_t id, const QString &interface, uin
     } else if (interface == QStringLiteral("wl_shell")){
         mShell.reset(new QtWayland::wl_shell(registry, id, 1));
     } else if (interface == QStringLiteral("wl_seat")) {
-        QWaylandInputDevice *inputDevice = new QWaylandInputDevice(this, id);
+        QWaylandInputDevice *inputDevice = mWaylandIntegration->createInputDevice(this, id);
         mInputDevices.append(inputDevice);
     } else if (interface == QStringLiteral("wl_data_device_manager")) {
         mDndSelectionHandler.reset(new QWaylandDataDeviceManager(this, id));

@@ -43,6 +43,7 @@
 
 #include "qwaylanddisplay_p.h"
 #include "qwaylandshmwindow_p.h"
+#include "qwaylandinputdevice_p.h"
 #include "qwaylandinputcontext_p.h"
 #include "qwaylandshmbackingstore_p.h"
 #include "qwaylandnativeinterface_p.h"
@@ -75,6 +76,9 @@
 
 #include "qwaylandshellintegration_p.h"
 #include "qwaylandshellintegrationfactory_p.h"
+
+#include "qwaylandinputdeviceintegration_p.h"
+#include "qwaylandinputdeviceintegrationfactory_p.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -113,6 +117,7 @@ public:
 QWaylandIntegration::QWaylandIntegration()
     : mClientBufferIntegration(0)
     , mShellIntegration(Q_NULLPTR)
+    , mInputDeviceIntegration(Q_NULLPTR)
     , mFontDb(new QGenericUnixFontDatabase())
     , mNativeInterface(new QWaylandNativeInterface(this))
 #ifndef QT_NO_ACCESSIBILITY
@@ -124,6 +129,7 @@ QWaylandIntegration::QWaylandIntegration()
     , mServerBufferIntegrationInitialized(false)
     , mShellIntegrationInitialized(false)
 {
+    initializeInputDeviceIntegration();
     mDisplay = new QWaylandDisplay(this);
     mClipboard = new QWaylandClipboard(mDisplay);
     mDrag = new QWaylandDrag(mDisplay);
@@ -358,6 +364,32 @@ void QWaylandIntegration::initializeShellIntegration()
         delete mShellIntegration;
         mShellIntegration = Q_NULLPTR;
         qWarning("Failed to load shell integration %s", qPrintable(targetKey));
+    }
+}
+
+QWaylandInputDevice *QWaylandIntegration::createInputDevice(QWaylandDisplay *display, uint32_t id)
+{
+    if (mInputDeviceIntegration) {
+        return mInputDeviceIntegration->createInputDevice(display, id);
+    }
+    return new QWaylandInputDevice(display, id);
+}
+
+void QWaylandIntegration::initializeInputDeviceIntegration()
+{
+    QByteArray integrationName = qgetenv("QT_WAYLAND_INPUTDEVICE_INTEGRATION");
+    QString targetKey = QString::fromLocal8Bit(integrationName);
+
+    if (targetKey.isEmpty()) {
+        return;
+    }
+
+    QStringList keys = QWaylandInputDeviceIntegrationFactory::keys();
+    if (keys.contains(targetKey)) {
+        mInputDeviceIntegration = QWaylandInputDeviceIntegrationFactory::create(targetKey, QStringList());
+        qDebug("Using the '%s' input device integration", qPrintable(targetKey));
+    } else {
+        qWarning("Wayland inputdevice integration '%s' not found, using default", qPrintable(targetKey));
     }
 }
 

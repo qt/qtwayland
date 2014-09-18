@@ -52,6 +52,8 @@ class QWaylandDisplay;
 class QWaylandClientBufferIntegration;
 class QWaylandServerBufferIntegration;
 class QWaylandShellIntegration;
+class QWaylandInputDeviceIntegration;
+class QWaylandInputDevice;
 
 class Q_WAYLAND_CLIENT_EXPORT QWaylandIntegration : public QPlatformIntegration
 {
@@ -89,17 +91,24 @@ public:
 
     QPlatformTheme *createPlatformTheme(const QString &name) const;
 
+    QWaylandInputDevice *createInputDevice(QWaylandDisplay *display, uint32_t id);
+
     virtual QWaylandClientBufferIntegration *clientBufferIntegration() const;
     virtual QWaylandServerBufferIntegration *serverBufferIntegration() const;
     virtual QWaylandShellIntegration *shellIntegration() const;
+
 protected:
     QWaylandClientBufferIntegration *mClientBufferIntegration;
     QWaylandServerBufferIntegration *mServerBufferIntegration;
     QWaylandShellIntegration *mShellIntegration;
+    QWaylandInputDeviceIntegration *mInputDeviceIntegration;
+
 private:
     void initializeClientBufferIntegration();
     void initializeServerBufferIntegration();
     void initializeShellIntegration();
+    void initializeInputDeviceIntegration();
+
     QPlatformFontDatabase *mFontDb;
     QPlatformClipboard *mClipboard;
     QPlatformDrag *mDrag;

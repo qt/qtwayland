@@ -56,14 +56,16 @@
 #include <QtWaylandClient/private/qwayland-wayland.h>
 
 #ifndef QT_NO_WAYLAND_XKB
-struct xkb_context;
-struct xkb_keymap;
-struct xkb_state;
+#include <xkbcommon/xkbcommon.h>
+#include <xkbcommon/xkbcommon-keysyms.h>
 #endif
+
+#include <QtCore/QDebug>
 
 struct wl_cursor_image;
 
 QT_BEGIN_NAMESPACE
+
 
 class QWaylandWindow;
 class QWaylandDisplay;
@@ -75,6 +77,10 @@ class Q_WAYLAND_CLIENT_EXPORT QWaylandInputDevice
 {
     Q_OBJECT
 public:
+    class Keyboard;
+    class Pointer;
+    class Touch;
+
     QWaylandInputDevice(QWaylandDisplay *display, uint32_t id);
     ~QWaylandInputDevice();
 
@@ -100,14 +106,11 @@ public:
     uint32_t serial() const;
     uint32_t cursorSerial() const;
 
-private slots:
-    void repeatKey();
+    virtual Keyboard *createKeyboard(QWaylandInputDevice *device);
+    virtual Pointer *createPointer(QWaylandInputDevice *device);
+    virtual Touch *createTouch(QWaylandInputDevice *device);
 
 private:
-    class Keyboard;
-    class Pointer;
-    class Touch;
-
     QWaylandDisplay *mQDisplay;
     struct wl_display *mDisplay;
 
@@ -123,7 +126,6 @@ private:
 
     uint32_t mTime;
     uint32_t mSerial;
-    QTimer mRepeatTimer;
 
     void seat_capabilities(uint32_t caps) Q_DECL_OVERRIDE;
     void handleTouchPoint(int id, double x, double y, Qt::TouchPointState state);
@@ -138,6 +140,127 @@ inline uint32_t QWaylandInputDevice::serial() const
 {
     return mSerial;
 }
+
+
+class Q_WAYLAND_CLIENT_EXPORT QWaylandInputDevice::Keyboard : public QObject, public QtWayland::wl_keyboard
+{
+    Q_OBJECT
+
+public:
+    Keyboard(QWaylandInputDevice *p);
+    virtual ~Keyboard();
+
+    void stopRepeat();
+
+    void keyboard_keymap(uint32_t format,
+                         int32_t fd,
+                         uint32_t size) Q_DECL_OVERRIDE;
+    void keyboard_enter(uint32_t time,
+                        struct wl_surface *surface,
+                        struct wl_array *keys) Q_DECL_OVERRIDE;
+    void keyboard_leave(uint32_t time,
+                        struct wl_surface *surface) Q_DECL_OVERRIDE;
+    void keyboard_key(uint32_t serial, uint32_t time,
+                      uint32_t key, uint32_t state) Q_DECL_OVERRIDE;
+    void keyboard_modifiers(uint32_t serial,
+                            uint32_t mods_depressed,
+                            uint32_t mods_latched,
+                            uint32_t mods_locked,
+                            uint32_t group) Q_DECL_OVERRIDE;
+
+    QWaylandInputDevice *mParent;
+    QWaylandWindow *mFocus;
+#ifndef QT_NO_WAYLAND_XKB
+    xkb_context *mXkbContext;
+    xkb_keymap *mXkbMap;
+    xkb_state *mXkbState;
+#endif
+    struct wl_callback *mFocusCallback;
+    uint32_t mNativeModifiers;
+
+    int mRepeatKey;
+    uint32_t mRepeatCode;
+    uint32_t mRepeatTime;
+    QString mRepeatText;
+#ifndef QT_NO_WAYLAND_XKB
+    xkb_keysym_t mRepeatSym;
+#endif
+    QTimer mRepeatTimer;
+
+    static const wl_callback_listener callback;
+    static void focusCallback(void *data, struct wl_callback *callback, uint32_t time);
+
+    Qt::KeyboardModifiers modifiers() const;
+
+private slots:
+    void repeatKey();
+
+private:
+#ifndef QT_NO_WAYLAND_XKB
+    bool createDefaultKeyMap();
+    void releaseKeyMap();
+#endif
+
+};
+
+class Q_WAYLAND_CLIENT_EXPORT QWaylandInputDevice::Pointer : public QtWayland::wl_pointer
+{
+
+public:
+    Pointer(QWaylandInputDevice *p);
+    virtual ~Pointer();
+
+    void pointer_enter(uint32_t serial, struct wl_surface *surface,
+                       wl_fixed_t sx, wl_fixed_t sy) Q_DECL_OVERRIDE;
+    void pointer_leave(uint32_t time, struct wl_surface *surface);
+    void pointer_motion(uint32_t time,
+                        wl_fixed_t sx, wl_fixed_t sy) Q_DECL_OVERRIDE;
+    void pointer_button(uint32_t serial, uint32_t time,
+                        uint32_t button, uint32_t state) Q_DECL_OVERRIDE;
+    void pointer_axis(uint32_t time,
+                      uint32_t axis,
+                      wl_fixed_t value) Q_DECL_OVERRIDE;
+
+    QWaylandInputDevice *mParent;
+    QWaylandWindow *mFocus;
+    uint32_t mEnterSerial;
+    uint32_t mCursorSerial;
+    QPointF mSurfacePos;
+    QPointF mGlobalPos;
+    Qt::MouseButtons mButtons;
+};
+
+class Q_WAYLAND_CLIENT_EXPORT QWaylandInputDevice::Touch : public QtWayland::wl_touch
+{
+public:
+    Touch(QWaylandInputDevice *p);
+    virtual ~Touch();
+
+    void touch_down(uint32_t serial,
+                    uint32_t time,
+                    struct wl_surface *surface,
+                    int32_t id,
+                    wl_fixed_t x,
+                    wl_fixed_t y) Q_DECL_OVERRIDE;
+    void touch_up(uint32_t serial,
+                  uint32_t time,
+                  int32_t id) Q_DECL_OVERRIDE;
+    void touch_motion(uint32_t time,
+                      int32_t id,
+                      wl_fixed_t x,
+                      wl_fixed_t y) Q_DECL_OVERRIDE;
+    void touch_frame() Q_DECL_OVERRIDE;
+    void touch_cancel() Q_DECL_OVERRIDE;
+
+    bool allTouchPointsReleased();
+
+    QWaylandInputDevice *mParent;
+    QWaylandWindow *mFocus;
+    QList<QWindowSystemInterface::TouchPoint> mTouchPoints;
+    QList<QWindowSystemInterface::TouchPoint> mPrevTouchPoints;
+};
+
+
 
 QT_END_NAMESPACE
 

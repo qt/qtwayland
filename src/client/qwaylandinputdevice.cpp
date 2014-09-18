@@ -63,170 +63,99 @@
 
 #include <QtGui/QGuiApplication>
 
-#ifndef QT_NO_WAYLAND_XKB
-#include <xkbcommon/xkbcommon.h>
-#include <xkbcommon/xkbcommon-keysyms.h>
-#endif
-
 QT_BEGIN_NAMESPACE
 
-class QWaylandInputDevice::Keyboard : public QtWayland::wl_keyboard
-{
-public:
-    Keyboard(QWaylandInputDevice *p)
-        : mParent(p)
-        , mFocus(0)
+QWaylandInputDevice::Keyboard::Keyboard(QWaylandInputDevice *p)
+    : mParent(p)
+    , mFocus(0)
 #ifndef QT_NO_WAYLAND_XKB
-        , mXkbContext(0)
-        , mXkbMap(0)
-        , mXkbState(0)
+    , mXkbContext(0)
+    , mXkbMap(0)
+    , mXkbState(0)
 #endif
-        , mFocusCallback(0)
-        , mNativeModifiers(0)
-    {
-#ifndef QT_NO_WAYLAND_XKB
-        xkb_rule_names names;
-        names.rules = strdup("evdev");
-        names.model = strdup("pc105");
-        names.layout = strdup("us");
-        names.variant = strdup("");
-        names.options = strdup("");
+    , mFocusCallback(0)
+    , mNativeModifiers(0)
+{
+    connect(&mRepeatTimer, SIGNAL(timeout()), this, SLOT(repeatKey()));
+}
 
-        mXkbContext = xkb_context_new(xkb_context_flags(0));
-        if (mXkbContext) {
-            mXkbMap = xkb_map_new_from_names(mXkbContext, &names, xkb_map_compile_flags(0));
-            if (mXkbMap) {
-                mXkbState = xkb_state_new(mXkbMap);
-            }
+#ifndef QT_NO_WAYLAND_XKB
+bool QWaylandInputDevice::Keyboard::createDefaultKeyMap()
+{
+    if (mXkbContext && mXkbMap && mXkbState) {
+        return true;
+    }
+
+    xkb_rule_names names;
+    names.rules = strdup("evdev");
+    names.model = strdup("pc105");
+    names.layout = strdup("us");
+    names.variant = strdup("");
+    names.options = strdup("");
+
+    mXkbContext = xkb_context_new(xkb_context_flags(0));
+    if (mXkbContext) {
+        mXkbMap = xkb_map_new_from_names(mXkbContext, &names, xkb_map_compile_flags(0));
+        if (mXkbMap) {
+            mXkbState = xkb_state_new(mXkbMap);
         }
-
-        if (!mXkbContext || !mXkbMap || !mXkbState)
-            qWarning() << "xkb_map_new_from_names failed, no key input";
-#endif
-    }
-    ~Keyboard()
-    {
-#ifndef QT_NO_WAYLAND_XKB
-        if (mXkbState)
-            xkb_state_unref(mXkbState);
-        if (mXkbMap)
-            xkb_map_unref(mXkbMap);
-        if (mXkbContext)
-            xkb_context_unref(mXkbContext);
-#endif
-        wl_keyboard_destroy(object());
     }
 
-    void keyboard_keymap(uint32_t format,
-                         int32_t fd,
-                         uint32_t size) Q_DECL_OVERRIDE;
-    void keyboard_enter(uint32_t time,
-                        struct wl_surface *surface,
-                        struct wl_array *keys) Q_DECL_OVERRIDE;
-    void keyboard_leave(uint32_t time,
-                        struct wl_surface *surface) Q_DECL_OVERRIDE;
-    void keyboard_key(uint32_t serial, uint32_t time,
-                      uint32_t key, uint32_t state) Q_DECL_OVERRIDE;
-    void keyboard_modifiers(uint32_t serial,
-                            uint32_t mods_depressed,
-                            uint32_t mods_latched,
-                            uint32_t mods_locked,
-                            uint32_t group) Q_DECL_OVERRIDE;
+    if (!mXkbContext || !mXkbMap || !mXkbState) {
+        qWarning() << "xkb_map_new_from_names failed, no key input";
+        return false;
+    }
+    return true;
+}
 
-    QWaylandInputDevice *mParent;
-    QWaylandWindow *mFocus;
-#ifndef QT_NO_WAYLAND_XKB
-    xkb_context *mXkbContext;
-    xkb_keymap *mXkbMap;
-    xkb_state *mXkbState;
-#endif
-    struct wl_callback *mFocusCallback;
-    uint32_t mNativeModifiers;
-
-    int mRepeatKey;
-    uint32_t mRepeatCode;
-    uint32_t mRepeatTime;
-    QString mRepeatText;
-#ifndef QT_NO_WAYLAND_XKB
-    xkb_keysym_t mRepeatSym;
-#endif
-
-    static const wl_callback_listener callback;
-    static void focusCallback(void *data, struct wl_callback *callback, uint32_t time);
-};
-
-class QWaylandInputDevice::Pointer : public QtWayland::wl_pointer
+void QWaylandInputDevice::Keyboard::releaseKeyMap()
 {
-public:
-    Pointer(QWaylandInputDevice *p)
-        : mParent(p)
-        , mFocus(0)
-        , mEnterSerial(0)
-        , mCursorSerial(0)
-        , mButtons(0)
-    {
-    }
-    ~Pointer()
-    {
-        wl_pointer_destroy(object());
-    }
+    if (mXkbState)
+        xkb_state_unref(mXkbState);
+    if (mXkbMap)
+        xkb_map_unref(mXkbMap);
+    if (mXkbContext)
+        xkb_context_unref(mXkbContext);
+}
+#endif
 
-    void pointer_enter(uint32_t serial, struct wl_surface *surface,
-                       wl_fixed_t sx, wl_fixed_t sy) Q_DECL_OVERRIDE;
-    void pointer_leave(uint32_t time, struct wl_surface *surface);
-    void pointer_motion(uint32_t time,
-                        wl_fixed_t sx, wl_fixed_t sy) Q_DECL_OVERRIDE;
-    void pointer_button(uint32_t serial, uint32_t time,
-                        uint32_t button, uint32_t state) Q_DECL_OVERRIDE;
-    void pointer_axis(uint32_t time,
-                      uint32_t axis,
-                      wl_fixed_t value) Q_DECL_OVERRIDE;
-
-    QWaylandInputDevice *mParent;
-    QWaylandWindow *mFocus;
-    uint32_t mEnterSerial;
-    uint32_t mCursorSerial;
-    QPointF mSurfacePos;
-    QPointF mGlobalPos;
-    Qt::MouseButtons mButtons;
-};
-
-class QWaylandInputDevice::Touch : public QtWayland::wl_touch
+QWaylandInputDevice::Keyboard::~Keyboard()
 {
-public:
-    Touch(QWaylandInputDevice *p)
-        : mParent(p)
-        , mFocus(0)
-    {
-    }
-    ~Touch()
-    {
-        wl_touch_destroy(object());
-    }
+#ifndef QT_NO_WAYLAND_XKB
+    releaseKeyMap();
+#endif
+    wl_keyboard_destroy(object());
+}
 
-    void touch_down(uint32_t serial,
-                    uint32_t time,
-                    struct wl_surface *surface,
-                    int32_t id,
-                    wl_fixed_t x,
-                    wl_fixed_t y) Q_DECL_OVERRIDE;
-    void touch_up(uint32_t serial,
-                  uint32_t time,
-                  int32_t id) Q_DECL_OVERRIDE;
-    void touch_motion(uint32_t time,
-                      int32_t id,
-                      wl_fixed_t x,
-                      wl_fixed_t y) Q_DECL_OVERRIDE;
-    void touch_frame() Q_DECL_OVERRIDE;
-    void touch_cancel() Q_DECL_OVERRIDE;
+void QWaylandInputDevice::Keyboard::stopRepeat()
+{
+    mRepeatTimer.stop();
+}
 
-    bool allTouchPointsReleased();
+QWaylandInputDevice::Pointer::Pointer(QWaylandInputDevice *p)
+    : mParent(p)
+    , mFocus(0)
+    , mEnterSerial(0)
+    , mCursorSerial(0)
+    , mButtons(0)
+{
+}
 
-    QWaylandInputDevice *mParent;
-    QWaylandWindow *mFocus;
-    QList<QWindowSystemInterface::TouchPoint> mTouchPoints;
-    QList<QWindowSystemInterface::TouchPoint> mPrevTouchPoints;
-};
+QWaylandInputDevice::Pointer::~Pointer()
+{
+    wl_pointer_destroy(object());
+}
+
+QWaylandInputDevice::Touch::Touch(QWaylandInputDevice *p)
+    : mParent(p)
+    , mFocus(0)
+{
+}
+
+QWaylandInputDevice::Touch::~Touch()
+{
+    wl_touch_destroy(object());
+}
 
 QWaylandInputDevice::QWaylandInputDevice(QWaylandDisplay *display, uint32_t id)
     : QObject()
@@ -246,7 +175,6 @@ QWaylandInputDevice::QWaylandInputDevice(QWaylandDisplay *display, uint32_t id)
         mDataDevice = mQDisplay->dndSelectionHandler()->getDataDevice(this);
     }
 
-    connect(&mRepeatTimer, SIGNAL(timeout()), this, SLOT(repeatKey()));
 }
 
 QWaylandInputDevice::~QWaylandInputDevice()
@@ -261,16 +189,15 @@ void QWaylandInputDevice::seat_capabilities(uint32_t caps)
     mCaps = caps;
 
     if (caps & WL_SEAT_CAPABILITY_KEYBOARD && !mKeyboard) {
-        mKeyboard = new Keyboard(this);
+        mKeyboard = createKeyboard(this);
         mKeyboard->init(get_keyboard());
     } else if (!(caps & WL_SEAT_CAPABILITY_KEYBOARD) && mKeyboard) {
         delete mKeyboard;
         mKeyboard = 0;
-        mRepeatTimer.stop();
     }
 
     if (caps & WL_SEAT_CAPABILITY_POINTER && !mPointer) {
-        mPointer = new Pointer(this);
+        mPointer = createPointer(this);
         mPointer->init(get_pointer());
         pointerSurface = mQDisplay->createSurface(this);
     } else if (!(caps & WL_SEAT_CAPABILITY_POINTER) && mPointer) {
@@ -279,7 +206,7 @@ void QWaylandInputDevice::seat_capabilities(uint32_t caps)
     }
 
     if (caps & WL_SEAT_CAPABILITY_TOUCH && !mTouch) {
-        mTouch = new Touch(this);
+        mTouch = createTouch(this);
         mTouch->init(get_touch());
 
         if (!mTouchDevice) {
@@ -294,13 +221,28 @@ void QWaylandInputDevice::seat_capabilities(uint32_t caps)
     }
 }
 
+QWaylandInputDevice::Keyboard *QWaylandInputDevice::createKeyboard(QWaylandInputDevice *device)
+{
+    return new Keyboard(device);
+}
+
+QWaylandInputDevice::Pointer *QWaylandInputDevice::createPointer(QWaylandInputDevice *device)
+{
+    return new Pointer(device);
+}
+
+QWaylandInputDevice::Touch *QWaylandInputDevice::createTouch(QWaylandInputDevice *device)
+{
+    return new Touch(device);
+}
+
 void QWaylandInputDevice::handleWindowDestroyed(QWaylandWindow *window)
 {
     if (mPointer && window == mPointer->mFocus)
         mPointer->mFocus = 0;
     if (mKeyboard && window == mKeyboard->mFocus) {
         mKeyboard->mFocus = 0;
-        mRepeatTimer.stop();
+        mKeyboard->stopRepeat();
     }
 }
 
@@ -341,20 +283,25 @@ Qt::KeyboardModifiers QWaylandInputDevice::modifiers() const
     if (!mKeyboard)
         return Qt::NoModifier;
 
+    return mKeyboard->modifiers();
+}
+
+Qt::KeyboardModifiers QWaylandInputDevice::Keyboard::modifiers() const
+{
     Qt::KeyboardModifiers ret = Qt::NoModifier;
 
 #ifndef QT_NO_WAYLAND_XKB
     xkb_state_component cstate = static_cast<xkb_state_component>(XKB_STATE_DEPRESSED | XKB_STATE_LATCHED);
 
-    if (xkb_state_mod_name_is_active(mKeyboard->mXkbState, "Shift", cstate))
+    if (xkb_state_mod_name_is_active(mXkbState, "Shift", cstate))
         ret |= Qt::ShiftModifier;
-    if (xkb_state_mod_name_is_active(mKeyboard->mXkbState, "Control", cstate))
+    if (xkb_state_mod_name_is_active(mXkbState, "Control", cstate))
         ret |= Qt::ControlModifier;
-    if (xkb_state_mod_name_is_active(mKeyboard->mXkbState, "Alt", cstate))
+    if (xkb_state_mod_name_is_active(mXkbState, "Alt", cstate))
         ret |= Qt::AltModifier;
-    if (xkb_state_mod_name_is_active(mKeyboard->mXkbState, "Mod1", cstate))
+    if (xkb_state_mod_name_is_active(mXkbState, "Mod1", cstate))
         ret |= Qt::AltModifier;
-    if (xkb_state_mod_name_is_active(mKeyboard->mXkbState, "Mod4", cstate))
+    if (xkb_state_mod_name_is_active(mXkbState, "Mod4", cstate))
         ret |= Qt::MetaModifier;
 #endif
 
@@ -682,6 +629,11 @@ void QWaylandInputDevice::Keyboard::keyboard_keymap(uint32_t format, int32_t fd,
         return;
     }
 
+    // Release the old keymap resources in the case they were already created in
+    // the key event or when the compositor issues a new map
+    releaseKeyMap();
+
+    mXkbContext = xkb_context_new(xkb_context_flags(0));
     mXkbMap = xkb_map_new_from_string(mXkbContext, map_str, XKB_KEYMAP_FORMAT_TEXT_V1, (xkb_keymap_compile_flags)0);
     munmap(map_str, size);
     close(fd);
@@ -731,7 +683,7 @@ void QWaylandInputDevice::Keyboard::keyboard_leave(uint32_t time, struct wl_surf
         mFocusCallback = wl_display_sync(mParent->mDisplay);
         wl_callback_add_listener(mFocusCallback, &QWaylandInputDevice::Keyboard::callback, this);
     }
-    mParent->mRepeatTimer.stop();
+    mRepeatTimer.stop();
 }
 
 const wl_callback_listener QWaylandInputDevice::Keyboard::callback = {
@@ -769,8 +721,9 @@ void QWaylandInputDevice::Keyboard::keyboard_key(uint32_t serial, uint32_t time,
     }
 
 #ifndef QT_NO_WAYLAND_XKB
-    if (!mXkbMap)
+    if (!createDefaultKeyMap()) {
         return;
+    }
 
     const xkb_keysym_t sym = xkb_state_key_get_one_sym(mXkbState, code);
     xkb_state_update_key(mXkbState, code, isDown ? XKB_KEY_DOWN : XKB_KEY_UP);
@@ -807,26 +760,26 @@ void QWaylandInputDevice::Keyboard::keyboard_key(uint32_t serial, uint32_t time,
 #ifndef QT_NO_WAYLAND_XKB
         mRepeatSym = sym;
 #endif
-        mParent->mRepeatTimer.setInterval(400);
-        mParent->mRepeatTimer.start();
+        mRepeatTimer.setInterval(400);
+        mRepeatTimer.start();
     } else if (mRepeatCode == code) {
-        mParent->mRepeatTimer.stop();
+        mRepeatTimer.stop();
     }
 }
 
-void QWaylandInputDevice::repeatKey()
+void QWaylandInputDevice::Keyboard::repeatKey()
 {
     mRepeatTimer.setInterval(25);
-    QWindowSystemInterface::handleExtendedKeyEvent(mKeyboard->mFocus->window(),
-                                                   mKeyboard->mRepeatTime, QEvent::KeyPress, mKeyboard->mRepeatKey,
+    QWindowSystemInterface::handleExtendedKeyEvent(mFocus->window(),
+                                                   mRepeatTime, QEvent::KeyPress, mRepeatKey,
                                                    modifiers(),
-                                                   mKeyboard->mRepeatCode,
+                                                   mRepeatCode,
 #ifndef QT_NO_WAYLAND_XKB
-                                                   mKeyboard->mRepeatSym, mKeyboard->mNativeModifiers,
+                                                   mRepeatSym, mNativeModifiers,
 #else
                                                    0, 0,
 #endif
-                                                   mKeyboard->mRepeatText, true);
+                                                   mRepeatText, true);
 }
 
 void QWaylandInputDevice::Keyboard::keyboard_modifiers(uint32_t serial,

@@ -61,6 +61,7 @@ typedef void (**Implementation)(void);
 class Keyboard;
 class Pointer;
 class Seat;
+class DataDeviceManager;
 class Surface;
 
 class Compositor
@@ -81,7 +82,6 @@ public:
 
     void addSurface(Surface *surface);
     void removeSurface(Surface *surface);
-    void discardSurfaces();
 
     static void setKeyboardFocus(void *data, const QList<QVariant> &parameters);
     static void sendMousePress(void *data, const QList<QVariant> &parameters);
@@ -112,6 +112,7 @@ private:
     QScopedPointer<Seat> m_seat;
     Pointer *m_pointer;
     Keyboard *m_keyboard;
+    QScopedPointer<DataDeviceManager> m_data_device_manager;
     QVector<Surface *> m_surfaces;
 };
 
@@ -155,7 +156,6 @@ public:
     void sendKeyRelease(const QSharedPointer<MockSurface> &surface, uint code);
 
     QSharedPointer<MockSurface> surface();
-    void discardSurfaces();
 
     void lock();
     void unlock();

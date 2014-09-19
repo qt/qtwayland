@@ -51,23 +51,16 @@ QT_BEGIN_NAMESPACE
 
 QWaylandShmWindow::QWaylandShmWindow(QWindow *window)
     : QWaylandWindow(window)
-    , mBackingStore(0)
 {
 }
 
 QWaylandShmWindow::~QWaylandShmWindow()
 {
-
 }
 
 QWaylandWindow::WindowType QWaylandShmWindow::windowType() const
 {
     return QWaylandWindow::Shm;
-}
-
-void QWaylandShmWindow::setBackingStore(QWaylandShmBackingStore *backingStore)
-{
-    mBackingStore = backingStore;
 }
 
 QT_END_NAMESPACE

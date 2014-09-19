@@ -42,6 +42,7 @@
 #include "qwaylandwindow_p.h"
 
 #include "qwaylandbuffer_p.h"
+#include "qwaylanddatadevice_p.h"
 #include "qwaylanddisplay_p.h"
 #include "qwaylandinputdevice_p.h"
 #include "qwaylandscreen_p.h"
@@ -132,6 +133,8 @@ QWaylandWindow::QWaylandWindow(QWindow *window)
 
 QWaylandWindow::~QWaylandWindow()
 {
+    delete mWindowDecoration;
+
     if (isInitialized()) {
         delete mShellSurface;
         destroy();
@@ -458,6 +461,8 @@ void QWaylandWindow::handleContentOrientationChange(Qt::ScreenOrientation orient
         case Qt::InvertedPortraitOrientation:
             transform = isPortrait ? WL_OUTPUT_TRANSFORM_180 : WL_OUTPUT_TRANSFORM_270;
             break;
+        default:
+            Q_UNREACHABLE();
     }
     set_buffer_transform(transform);
     // set_buffer_transform is double buffered, we need to commit.
@@ -498,8 +503,7 @@ bool QWaylandWindow::createDecoration()
         }
     }
 
-    static bool disableWaylandDecorations = !qgetenv("QT_WAYLAND_DISABLE_WINDOWDECORATION").isEmpty();
-    if (disableWaylandDecorations)
+    if (!mDisplay->supportsWindowDecoration())
         return false;
 
     bool decoration = false;
@@ -596,6 +600,13 @@ void QWaylandWindow::handleMouseLeave(QWaylandInputDevice *inputDevice)
     restoreMouseCursor(inputDevice);
 }
 
+bool QWaylandWindow::touchDragDecoration(QWaylandInputDevice *inputDevice, const QPointF &local, const QPointF &global, Qt::TouchPointState state, Qt::KeyboardModifiers mods)
+{
+    if (!mWindowDecoration)
+        return false;
+    return mWindowDecoration->handleTouch(inputDevice, local, global, state, mods);
+}
+
 void QWaylandWindow::handleMouseEventWithDecoration(QWaylandInputDevice *inputDevice, ulong timestamp, const QPointF &local, const QPointF &global, Qt::MouseButtons b, Qt::KeyboardModifiers mods)
 {
     if (mWindowDecoration->handleMouse(inputDevice,local,global,b,mods))
@@ -648,6 +659,14 @@ void QWaylandWindow::requestActivateWindow()
     // we rely on compositor setting keyboard focus based on window stacking.
 }
 
+void QWaylandWindow::unfocus()
+{
+    QWaylandInputDevice *inputDevice = mDisplay->currentInputDevice();
+    if (inputDevice && inputDevice->dataDevice()) {
+        inputDevice->dataDevice()->invalidateSelectionOffer();
+    }
+}
+
 bool QWaylandWindow::isExposed() const
 {
     if (mShellSurface)
@@ -677,18 +696,21 @@ bool QWaylandWindow::setWindowStateInternal(Qt::WindowState state)
     // here. We use then this mState variable.
     mState = state;
     createDecoration();
-    switch (state) {
-        case Qt::WindowFullScreen:
-            mShellSurface->setFullscreen();
-            break;
-        case Qt::WindowMaximized:
-            mShellSurface->setMaximized();
-            break;
-        case Qt::WindowMinimized:
-            mShellSurface->setMinimized();
-            break;
-        default:
-            mShellSurface->setNormal();
+
+    if (mShellSurface) {
+        switch (state) {
+            case Qt::WindowFullScreen:
+                mShellSurface->setFullscreen();
+                break;
+            case Qt::WindowMaximized:
+                mShellSurface->setMaximized();
+                break;
+            case Qt::WindowMinimized:
+                mShellSurface->setMinimized();
+                break;
+            default:
+                mShellSurface->setNormal();
+        }
     }
 
     QWindowSystemInterface::handleWindowStateChanged(window(), mState);

@@ -51,7 +51,7 @@
 QT_BEGIN_NAMESPACE
 
 QWaylandDataDeviceManager::QWaylandDataDeviceManager(QWaylandDisplay *display, uint32_t id)
-    : wl_data_device_manager(display->wl_registry(), id)
+    : wl_data_device_manager(display->wl_registry(), id, 1)
     , m_display(display)
 {
     // Create transfer devices for all input devices.

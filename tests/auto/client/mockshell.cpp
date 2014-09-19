@@ -40,6 +40,7 @@
 ****************************************************************************/
 
 #include "mockcompositor.h"
+#include "mocksurface.h"
 
 namespace Impl {
 
@@ -173,6 +174,8 @@ static void get_shell_surface(wl_client *client, wl_resource *compositorResource
 
     Q_UNUSED(compositorResource);
     wl_client_add_object(client, &wl_shell_surface_interface, &shellSurfaceInterface, id, surfaceResource->data);
+    Surface *surf = Surface::fromResource(surfaceResource);
+    surf->map();
 }
 
 void Compositor::bindShell(wl_client *client, void *compositorData, uint32_t version, uint32_t id)

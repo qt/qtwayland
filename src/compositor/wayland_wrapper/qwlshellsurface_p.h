@@ -97,7 +97,6 @@ public:
 
     void setOffset(const QPointF &offset);
 
-    void mapPopup();
     void configure(bool hasBuffer);
 
     void requestSize(const QSize &size);
@@ -105,6 +104,9 @@ public:
 
 protected:
     bool runOperation(QWaylandSurfaceOp *op) Q_DECL_OVERRIDE;
+
+private Q_SLOTS:
+    void mapped();
 
 private:
     Shell *m_shell;

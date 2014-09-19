@@ -59,8 +59,8 @@ public:
     void bindTextureToBuffer(struct ::wl_resource *buffer) Q_DECL_OVERRIDE;
     bool isYInverted(struct ::wl_resource *) const Q_DECL_OVERRIDE;
 
-    void *lockNativeBuffer(struct ::wl_resource *buffer, QOpenGLContext *context) const Q_DECL_OVERRIDE;
-    void unlockNativeBuffer(void *native_buffer, QOpenGLContext *context) const Q_DECL_OVERRIDE;
+    void *lockNativeBuffer(struct ::wl_resource *buffer) const Q_DECL_OVERRIDE;
+    void unlockNativeBuffer(void *native_buffer) const Q_DECL_OVERRIDE;
 
     QSize bufferSize(struct ::wl_resource *buffer) const Q_DECL_OVERRIDE;
 

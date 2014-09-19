@@ -63,6 +63,7 @@ class QWaylandSubSurface;
 class QWaylandDecoration;
 class QWaylandInputDevice;
 class QWaylandScreen;
+class QWaylandShmBackingStore;
 
 class Q_WAYLAND_CLIENT_EXPORT QWaylandWindowConfigure
 {
@@ -143,6 +144,7 @@ public:
 
     void requestActivateWindow() Q_DECL_OVERRIDE;
     bool isExposed() const Q_DECL_OVERRIDE;
+    void unfocus();
 
     QWaylandDecoration *decoration() const;
     void setDecoration(QWaylandDecoration *decoration);
@@ -156,6 +158,9 @@ public:
                      Qt::KeyboardModifiers mods);
     void handleMouseEnter(QWaylandInputDevice *inputDevice);
     void handleMouseLeave(QWaylandInputDevice *inputDevice);
+
+    bool touchDragDecoration(QWaylandInputDevice *inputDevice, const QPointF &local, const QPointF &global,
+                             Qt::TouchPointState state, Qt::KeyboardModifiers mods);
 
     bool createDecoration();
 
@@ -180,6 +185,12 @@ public:
     QVariantMap properties() const;
     QVariant property(const QString &name);
     QVariant property(const QString &name, const QVariant &defaultValue);
+
+    void setBackingStore(QWaylandShmBackingStore *backingStore) { mBackingStore = backingStore; }
+    QWaylandShmBackingStore *backingStore() const { return mBackingStore; }
+
+    bool setKeyboardGrabEnabled(bool) Q_DECL_OVERRIDE { return false; }
+    void propagateSizeHints() Q_DECL_OVERRIDE { }
 
 public slots:
     void requestResize();
@@ -218,6 +229,8 @@ protected:
 
     Qt::WindowState mState;
     QRegion mMask;
+
+    QWaylandShmBackingStore *mBackingStore;
 
 private:
     bool setWindowStateInternal(Qt::WindowState flags);

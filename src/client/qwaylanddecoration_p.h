@@ -75,6 +75,7 @@ public:
     bool isDirty() const;
 
     bool handleMouse(QWaylandInputDevice *inputDevice, const QPointF &local, const QPointF &global,Qt::MouseButtons b,Qt::KeyboardModifiers mods);
+    bool handleTouch(QWaylandInputDevice *inputDevice, const QPointF &local, const QPointF &global, Qt::TouchPointState state, Qt::KeyboardModifiers mods);
     bool inMouseButtonPressedState() const;
 
     void startResize(QWaylandInputDevice *inputDevice,enum wl_shell_surface_resize resize, Qt::MouseButtons buttons);
@@ -83,12 +84,6 @@ public:
     QWindow *window() const;
     QWaylandWindow *waylandWindow() const;
     const QImage &contentImage();
-
-    void setForegroundColor(const QColor &c);
-    inline QColor foregroundColor() const;
-
-    void setBackgroundColor(const QColor &c);
-    inline QColor backgroundColor() const;
 
 protected:
     void paint(QPaintDevice *device);
@@ -138,16 +133,6 @@ inline QWindow *QWaylandDecoration::window() const
 inline QWaylandWindow *QWaylandDecoration::waylandWindow() const
 {
     return m_wayland_window;
-}
-
-inline QColor QWaylandDecoration::foregroundColor() const
-{
-    return m_foregroundColor;
-}
-
-inline QColor QWaylandDecoration::backgroundColor() const
-{
-    return m_backgroundColor;
 }
 
 QT_END_NAMESPACE

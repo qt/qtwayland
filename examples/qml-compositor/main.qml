@@ -48,8 +48,6 @@ Item {
     property variant selectedWindow: null
     property bool hasFullscreenWindow: typeof compositor != "undefined" && compositor.fullscreenSurface !== null
 
-    onHasFullscreenWindowChanged: console.log("has fullscreen window: " + hasFullscreenWindow);
-
     Image {
         id: background
         Behavior on opacity {
@@ -84,8 +82,11 @@ Item {
 
     function windowAdded(window) {
         var windowContainerComponent = Qt.createComponent("WindowContainer.qml");
+        if (windowContainerComponent.status != Component.Ready) {
+            console.warn("Error loading WindowContainer.qml: " +  windowContainerComponent.errorString());
+            return;
+        }
         var windowContainer = windowContainerComponent.createObject(root);
-        console.log(windowContainerComponent.errorString());
 
         windowContainer.child = compositor.item(window);
         windowContainer.child.parent = windowContainer;
@@ -95,6 +96,10 @@ Item {
         windowContainer.targetHeight = window.size.height;
 
         var windowChromeComponent = Qt.createComponent("WindowChrome.qml");
+        if (windowChromeComponent.status != Component.Ready) {
+            console.warn("Error loading WindowChrome.qml: " + windowChromeComponent.errorString());
+            return;
+        }
         var windowChrome = windowChromeComponent.createObject(windowContainer.child);
 
         CompositorLogic.addWindow(windowContainer);

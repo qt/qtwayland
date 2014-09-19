@@ -120,6 +120,31 @@ private:
     Surface *m_focus;
 };
 
+class DataDevice : public QtWaylandServer::wl_data_device
+{
+public:
+    DataDevice(Compositor *compositor);
+    ~DataDevice();
+
+private:
+    Compositor *m_compositor;
+};
+
+class DataDeviceManager : public QtWaylandServer::wl_data_device_manager
+{
+public:
+    DataDeviceManager(Compositor *compositor, struct ::wl_display *display);
+    ~DataDeviceManager();
+
+protected:
+    void data_device_manager_get_data_device(Resource *resource, uint32_t id, struct ::wl_resource *seat) Q_DECL_OVERRIDE;
+
+private:
+    Compositor *m_compositor;
+
+    QScopedPointer<DataDevice> m_data_device;
+};
+
 }
 
 #endif // MOCKINPUT_H

@@ -4,12 +4,12 @@ LIBS += -L ../../lib
 #include (../../src/qt-compositor/qt-compositor.pri)
 
 HEADERS += \
-    qopenglwindow.h \
+    compositorwindow.h \
     qwindowcompositor.h \
     textureblitter.h
 
 SOURCES += main.cpp \
-    qopenglwindow.cpp \
+    compositorwindow.cpp \
     qwindowcompositor.cpp \
     textureblitter.cpp
 

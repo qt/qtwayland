@@ -54,6 +54,9 @@ public:
     ~Surface();
 
     Compositor *compositor() const { return m_compositor; }
+    static Surface *fromResource(struct ::wl_resource *resource);
+    void map();
+    bool isMapped() const;
 
     QSharedPointer<MockSurface> mockSurface() const { return m_mockSurface; }
 
@@ -74,8 +77,8 @@ private:
 
     Compositor *m_compositor;
     QSharedPointer<MockSurface> m_mockSurface;
-
-    wl_list m_frameCallbackList;
+    QList<wl_resource *> m_frameCallbackList;
+    bool m_mapped;
 };
 
 }

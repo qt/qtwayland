@@ -38,7 +38,7 @@
 **
 ****************************************************************************/
 
-#include "qopenglwindow.h"
+#include "compositorwindow.h"
 #include "qwindowcompositor.h"
 
 #include <QGuiApplication>
@@ -65,7 +65,7 @@ int main(int argc, char *argv[])
         geom = QRect(screenGeometry.width() / 4, screenGeometry.height() / 4,
                      screenGeometry.width() / 2, screenGeometry.height() / 2);
 
-    QOpenGLWindow window(format, geom);
+    CompositorWindow window(format, geom);
     QWindowCompositor compositor(&window);
 
     window.show();

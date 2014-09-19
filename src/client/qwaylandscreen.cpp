@@ -54,7 +54,9 @@
 QT_BEGIN_NAMESPACE
 
 QWaylandScreen::QWaylandScreen(QWaylandDisplay *waylandDisplay, uint32_t id)
-    : QtWayland::wl_output(waylandDisplay->wl_registry(), id)
+    : QPlatformScreen()
+    , QtWayland::wl_output(waylandDisplay->wl_registry(), id, 2)
+    , m_outputId(id)
     , mWaylandDisplay(waylandDisplay)
     , mExtendedOutput(0)
     , mDepth(32)
@@ -91,6 +93,14 @@ int QWaylandScreen::depth() const
 QImage::Format QWaylandScreen::format() const
 {
     return mFormat;
+}
+
+QSizeF QWaylandScreen::physicalSize() const
+{
+    if (mPhysicalSize.isEmpty())
+        return QPlatformScreen::physicalSize();
+    else
+        return mPhysicalSize;
 }
 
 QDpi QWaylandScreen::logicalDpi() const
@@ -151,16 +161,11 @@ void QWaylandScreen::output_mode(uint32_t flags, int width, int height, int refr
 
     QSize size(width, height);
 
-    if (size != mGeometry.size()) {
+    if (size != mGeometry.size())
         mGeometry.setSize(size);
-        QWindowSystemInterface::handleScreenGeometryChange(screen(), mGeometry);
-        QWindowSystemInterface::handleScreenAvailableGeometryChange(screen(), mGeometry);
-    }
 
-    if (refresh != mRefreshRate) {
+    if (refresh != mRefreshRate)
         mRefreshRate = refresh;
-        QWindowSystemInterface::handleScreenRefreshRateChange(screen(), refreshRate());
-    }
 }
 
 void QWaylandScreen::output_geometry(int32_t x, int32_t y,
@@ -200,14 +205,17 @@ void QWaylandScreen::output_geometry(int32_t x, int32_t y,
     if (!model.isEmpty())
         mOutputName = model;
 
-    QRect geom(x, y, width, height);
+    mPhysicalSize = QSize(width, height);
+    mGeometry.moveTopLeft(QPoint(x, y));
+}
 
-    if (mGeometry == geom)
-        return;
-
-    mGeometry = geom;
-    QWindowSystemInterface::handleScreenGeometryChange(screen(), mGeometry);
-    QWindowSystemInterface::handleScreenAvailableGeometryChange(screen(), mGeometry);
+void QWaylandScreen::output_done()
+{
+    // the done event is sent after all the geometry and the mode events are sent,
+    // and the last mode event to be sent is the active one, so we can trust the
+    // values of mGeometry and mRefreshRate here
+    QWindowSystemInterface::handleScreenGeometryChange(screen(), mGeometry, mGeometry);
+    QWindowSystemInterface::handleScreenRefreshRateChange(screen(), refreshRate());
 }
 
 QT_END_NAMESPACE

@@ -13,12 +13,23 @@ qtCompileTest(libhybris_egl_server)
 
 load(qt_parts)
 
-!config_wayland: error("QtWayland requires Wayland 1.2.0 or higher")
-!config_wayland_scanner: error("QtWayland requires wayland-scanner")
-!config_wayland_cursor: error("QtWayland requires wayland-cursor")
+!config_wayland {
+    warning("QtWayland requires Wayland 1.2.0 or higher, QtWayland will not be built")
+    SUBDIRS =
+}
 
 !config_xkbcommon {
     warning("No xkbcommon 0.2.0 or higher found, disabling support for it")
+}
+
+!config_wayland_scanner {
+    warning("QtWayland requires wayland-scanner, QtWayland will not be built")
+    SUBDIRS =
+}
+
+!config_wayland_cursor {
+    warning("QtWayland requires wayland-cursor, QtWayland will not be built")
+    SUBDIRS =
 }
 
 !config_wayland_egl {

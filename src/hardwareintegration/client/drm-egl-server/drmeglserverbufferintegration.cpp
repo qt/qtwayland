@@ -150,7 +150,7 @@ void DrmEglServerBufferIntegration::registry_global(uint32_t name, const QString
     Q_UNUSED(version);
     if (interface == QStringLiteral("qt_drm_egl_server_buffer")) {
         struct ::wl_registry *registry = QtWayland::wl_registry::object();
-        QtWayland::qt_drm_egl_server_buffer::init(registry, name);
+        QtWayland::qt_drm_egl_server_buffer::init(registry, name, 1);
     }
 }
 

@@ -46,7 +46,7 @@
 QT_BEGIN_NAMESPACE
 
 QWaylandTouchExtension::QWaylandTouchExtension(QWaylandDisplay *display, uint32_t id)
-    : QtWayland::qt_touch_extension(display->wl_registry(), id),
+    : QtWayland::qt_touch_extension(display->wl_registry(), id, 1),
       mDisplay(display),
       mTouchDevice(0),
       mPointsLeft(0),

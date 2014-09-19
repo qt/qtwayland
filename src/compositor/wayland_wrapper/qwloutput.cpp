@@ -66,10 +66,24 @@ OutputGlobal::~OutputGlobal()
 void OutputGlobal::output_bind_resource(Resource *resource)
 {
     wl_output_send_geometry(resource->handle, 0, 0,
-                            size().width(), size().height(), 0, "", "", m_transform);
+                            m_physicalSize.width(), m_physicalSize.height(), 0, "", "", m_transform);
 
     wl_output_send_mode(resource->handle, WL_OUTPUT_MODE_CURRENT|WL_OUTPUT_MODE_PREFERRED,
                         size().width(), size().height(), refreshRate());
+    wl_output_send_done(resource->handle);
+}
+
+void OutputGlobal::setPhysicalSize(const QSize &size)
+{
+    if (m_physicalSize != size) {
+        m_physicalSize = size;
+
+        foreach (Resource *res, resourceMap()) {
+            wl_output_send_geometry(res->handle, 0, 0,
+                                    m_physicalSize.width(), m_physicalSize.height(), 0, "", "", m_transform);
+            wl_output_send_done(res->handle);
+        }
+    }
 }
 
 void OutputGlobal::setGeometry(const QRect &geometry)
@@ -106,7 +120,8 @@ void OutputGlobal::sendOutputOrientation(Qt::ScreenOrientation orientation)
 
     foreach (Resource *res, resourceMap()) {
         wl_output_send_geometry(res->handle, 0, 0,
-                                size().width(), size().height(), 0, "", "", m_transform);
+                                m_physicalSize.width(), m_physicalSize.height(), 0, "", "", m_transform);
+        wl_output_send_done(res->handle);
     }
 }
 

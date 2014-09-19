@@ -97,7 +97,7 @@ public:
     QWaylandDisplay(QWaylandIntegration *waylandIntegration);
     ~QWaylandDisplay(void);
 
-    QList<QPlatformScreen *> screens() const { return mScreens; }
+    QList<QWaylandScreen *> screens() const { return mScreens; }
 
     QWaylandScreen *screenForOutput(struct wl_output *output) const;
 
@@ -157,6 +157,8 @@ public:
 
     void forceRoundTrip();
 
+    bool supportsWindowDecoration() const;
+
 public slots:
     void blockingReadEvents();
     void flushRequests();
@@ -177,7 +179,7 @@ private:
     QWaylandEventThread *mEventThreadObject;
     QScopedPointer<QtWayland::wl_shell> mShell;
     QScopedPointer<QWaylandXdgShell> mShellXdg;
-    QList<QPlatformScreen *> mScreens;
+    QList<QWaylandScreen *> mScreens;
     QList<QWaylandInputDevice *> mInputDevices;
     QList<Listener> mRegistryListeners;
     QWaylandIntegration *mWaylandIntegration;

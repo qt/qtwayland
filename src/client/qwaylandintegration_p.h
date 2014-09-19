@@ -110,6 +110,8 @@ private:
     bool mClientBufferIntegrationInitialized;
     bool mServerBufferIntegrationInitialized;
     bool mShellIntegrationInitialized;
+
+    friend class QWaylandDisplay;
 };
 
 QT_END_NAMESPACE

@@ -60,8 +60,6 @@ QT_BEGIN_NAMESPACE
 
 namespace QtWayland {
 
-static bool QT_WAYLAND_PRINT_BUFFERING_WARNINGS = qEnvironmentVariableIsSet("QT_WAYLAND_PRINT_BUFFERING_WARNINGS");
-
 class FrameCallback {
 public:
     FrameCallback(Surface *surf, wl_resource *res)

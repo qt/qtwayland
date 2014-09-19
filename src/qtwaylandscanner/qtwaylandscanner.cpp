@@ -822,13 +822,13 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath, const QByteArr
 
             printf("    class %s %s\n    {\n", clientExport.constData(), interfaceName);
             printf("    public:\n");
-            printf("        %s(struct ::wl_registry *registry, int id);\n", interfaceName);
+            printf("        %s(struct ::wl_registry *registry, int id, int version);\n", interfaceName);
             printf("        %s(struct ::%s *object);\n", interfaceName, interfaceName);
             printf("        %s();\n", interfaceName);
             printf("\n");
             printf("        virtual ~%s();\n", interfaceName);
             printf("\n");
-            printf("        void init(struct ::wl_registry *registry, int id);\n");
+            printf("        void init(struct ::wl_registry *registry, int id, int version);\n");
             printf("        void init(struct ::%s *object);\n", interfaceName);
             printf("\n");
             printf("        struct ::%s *object() { return m_%s; }\n", interfaceName, interfaceName);
@@ -908,9 +908,9 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath, const QByteArr
 
             bool hasEvents = !interface.events.isEmpty();
 
-            printf("    %s::%s(struct ::wl_registry *registry, int id)\n", interfaceName, interfaceName);
+            printf("    %s::%s(struct ::wl_registry *registry, int id, int version)\n", interfaceName, interfaceName);
             printf("    {\n");
-            printf("        init(registry, id);\n");
+            printf("        init(registry, id, version);\n");
             printf("    }\n");
             printf("\n");
 
@@ -933,9 +933,9 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath, const QByteArr
             printf("    }\n");
             printf("\n");
 
-            printf("    void %s::init(struct ::wl_registry *registry, int id)\n", interfaceName);
+            printf("    void %s::init(struct ::wl_registry *registry, int id, int version)\n", interfaceName);
             printf("    {\n");
-            printf("        m_%s = static_cast<struct ::%s *>(wl_registry_bind(registry, id, &%s_interface, %s_interface.version));\n", interfaceName, interfaceName, interfaceName, interfaceName);
+            printf("        m_%s = static_cast<struct ::%s *>(wl_registry_bind(registry, id, &%s_interface, version));\n", interfaceName, interfaceName, interfaceName);
             if (hasEvents)
                 printf("        init_listener();\n");
             printf("    }\n");

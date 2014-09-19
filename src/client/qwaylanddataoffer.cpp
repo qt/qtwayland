@@ -94,30 +94,18 @@ QWaylandMimeData::~QWaylandMimeData()
 
 void QWaylandMimeData::appendFormat(const QString &mimeType)
 {
-    if (m_types.contains(mimeType))
-        close(m_types.take(mimeType)); // Unconsumed data
+    m_types << mimeType;
     m_data.remove(mimeType); // Clear previous contents
-
-    int pipefd[2];
-    if (::pipe2(pipefd, O_CLOEXEC|O_NONBLOCK) == -1) {
-        qWarning("QWaylandMimeData: pipe2() failed");
-        return;
-    }
-
-    m_dataOffer->receive(mimeType, pipefd[1]);
-    m_display->forceRoundTrip();
-    close(pipefd[1]);
-    m_types.insert(mimeType, pipefd[0]);
 }
 
 bool QWaylandMimeData::hasFormat_sys(const QString &mimeType) const
 {
-    return m_types.contains(mimeType) || m_data.contains(mimeType);
+    return m_types.contains(mimeType);
 }
 
 QStringList QWaylandMimeData::formats_sys() const
 {
-    return m_types.keys() << m_data.keys();
+    return m_types;
 }
 
 QVariant QWaylandMimeData::retrieveData_sys(const QString &mimeType, QVariant::Type type) const
@@ -130,14 +118,24 @@ QVariant QWaylandMimeData::retrieveData_sys(const QString &mimeType, QVariant::T
     if (!m_types.contains(mimeType))
         return QVariant();
 
+    int pipefd[2];
+    if (::pipe2(pipefd, O_CLOEXEC|O_NONBLOCK) == -1) {
+        qWarning("QWaylandMimeData: pipe2() failed");
+        return QVariant();
+    }
+
+    m_dataOffer->receive(mimeType, pipefd[1]);
+    m_display->flushRequests();
+
+    close(pipefd[1]);
+
     QByteArray content;
-    int fd = m_types.take(mimeType);
-    if (readData(fd, content) != 0) {
+    if (readData(pipefd[0], content) != 0) {
         qWarning("QWaylandDataOffer: error reading data for mimeType %s", qPrintable(mimeType));
         content = QByteArray();
     }
 
-    close(fd);
+    close(pipefd[0]);
     m_data.insert(mimeType, content);
     return content;
 }

@@ -68,8 +68,6 @@ public:
     void setWindowProperty(QPlatformWindow *window, const QString &name, const QVariant &value);
 
     void emitWindowPropertyChanged(QPlatformWindow *window, const QString &name);
-private:
-    static QWaylandScreen *qPlatformScreenForWindow(QWindow *window);
 
 private:
     QWaylandIntegration *m_integration;

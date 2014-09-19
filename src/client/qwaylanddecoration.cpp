@@ -186,7 +186,7 @@ void QWaylandDecoration::paint(QPaintDevice *device)
     // Title bar
     QPoint gradCenter(top.center()+ QPoint(30, 60));
     QLinearGradient grad(top.topLeft(), top.bottomLeft());
-    QColor base(backgroundColor());
+    QColor base(m_backgroundColor);
     grad.setColorAt(0, base.lighter(100));
     grad.setColorAt(1, base.darker(180));
     QPainterPath roundedRect;
@@ -335,6 +335,28 @@ bool QWaylandDecoration::handleMouse(QWaylandInputDevice *inputDevice, const QPo
     return true;
 }
 
+bool QWaylandDecoration::handleTouch(QWaylandInputDevice *inputDevice, const QPointF &local, const QPointF &global, Qt::TouchPointState state, Qt::KeyboardModifiers mods)
+{
+    Q_UNUSED(inputDevice);
+    Q_UNUSED(global);
+    Q_UNUSED(mods);
+    bool handled = state == Qt::TouchPointPressed;
+    if (handled) {
+        if (closeButtonRect().contains(local))
+            QWindowSystemInterface::handleCloseEvent(m_window);
+        else if (maximizeButtonRect().contains(local))
+            m_window->setWindowState(m_wayland_window->isMaximized() ? Qt::WindowNoState : Qt::WindowMaximized);
+        else if (minimizeButtonRect().contains(local))
+            m_window->setWindowState(Qt::WindowMinimized);
+        else if (local.y() <= m_margins.top())
+            m_wayland_window->shellSurface()->move(inputDevice);
+        else
+            handled = false;
+    }
+
+    return handled;
+}
+
 bool QWaylandDecoration::inMouseButtonPressedState() const
 {
     return m_mouseButtons & Qt::NoButton;
@@ -444,16 +466,6 @@ QRectF QWaylandDecoration::minimizeButtonRect() const
 {
     return QRectF(window()->frameGeometry().width() - BUTTON_WIDTH * 3 - BUTTON_SPACING * 4,
                   (m_margins.top() - BUTTON_WIDTH) / 2, BUTTON_WIDTH, BUTTON_WIDTH);
-}
-
-void QWaylandDecoration::setForegroundColor(const QColor &c)
-{
-    m_foregroundColor = c;
-}
-
-void QWaylandDecoration::setBackgroundColor(const QColor &c)
-{
-    m_backgroundColor = c;
 }
 
 QT_END_NAMESPACE

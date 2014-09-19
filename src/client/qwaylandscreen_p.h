@@ -65,6 +65,8 @@ public:
     int depth() const;
     QImage::Format format() const;
 
+    QSizeF physicalSize() const Q_DECL_OVERRIDE;
+
     QDpi logicalDpi() const Q_DECL_OVERRIDE;
 
     void setOrientationUpdateMask(Qt::ScreenOrientations mask);
@@ -77,6 +79,7 @@ public:
     QPlatformCursor *cursor() const;
     QWaylandCursor *waylandCursor() const { return mWaylandCursor; };
 
+    uint32_t outputId() const { return m_outputId; }
     ::wl_output *output() { return object(); }
 
     QWaylandExtendedOutput *extendedOutput() const;
@@ -92,7 +95,9 @@ private:
                          const QString &make,
                          const QString &model,
                          int32_t transform) Q_DECL_OVERRIDE;
+    void output_done() Q_DECL_OVERRIDE;
 
+    int m_outputId;
     QWaylandDisplay *mWaylandDisplay;
     QWaylandExtendedOutput *mExtendedOutput;
     QRect mGeometry;

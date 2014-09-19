@@ -62,7 +62,10 @@ public:
 
     virtual void initialize(QWaylandDisplay *display) = 0;
 
+    virtual bool isValid() const { return true; }
+
     virtual bool supportsThreadedOpenGL() const { return false; }
+    virtual bool supportsWindowDecoration() const { return false; }
 
     virtual QWaylandWindow *createEglWindow(QWindow *window) = 0;
     virtual QPlatformOpenGLContext *createPlatformOpenGLContext(const QSurfaceFormat &glFormat, QPlatformOpenGLContext *share) const = 0;

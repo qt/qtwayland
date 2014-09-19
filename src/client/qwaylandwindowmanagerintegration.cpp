@@ -95,7 +95,7 @@ void QWaylandWindowManagerIntegration::wlHandleListenerGlobal(void *data, wl_reg
 {
     Q_UNUSED(version);
     if (interface == QStringLiteral("qt_windowmanager"))
-        static_cast<QWaylandWindowManagerIntegration *>(data)->init(registry, id);
+        static_cast<QWaylandWindowManagerIntegration *>(data)->init(registry, id, 1);
 }
 
 void QWaylandWindowManagerIntegration::windowmanager_hints(int32_t showIsFullScreen)

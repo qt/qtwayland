@@ -87,7 +87,7 @@ private:
 
     mutable QWaylandDataOffer *m_dataOffer;
     QWaylandDisplay *m_display;
-    mutable QHash<QString, int> m_types;
+    mutable QStringList m_types;
     mutable QHash<QString, QByteArray> m_data;
 };
 

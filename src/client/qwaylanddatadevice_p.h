@@ -65,6 +65,7 @@ public:
     ~QWaylandDataDevice();
 
     QWaylandDataOffer *selectionOffer() const;
+    void invalidateSelectionOffer();
     QWaylandDataSource *selectionSource() const;
     void setSelectionSource(QWaylandDataSource *source);
 

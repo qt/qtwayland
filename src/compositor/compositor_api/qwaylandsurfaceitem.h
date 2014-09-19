@@ -112,7 +112,7 @@ private slots:
     void updateSurfaceSize();
     void updateBuffer(bool hasBuffer);
 
-signals:
+Q_SIGNALS:
     void touchEventsEnabledChanged();
     void yInvertedChanged();
     void resizeSurfaceToItemChanged();

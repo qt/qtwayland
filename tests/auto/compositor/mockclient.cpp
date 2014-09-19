@@ -89,7 +89,8 @@ MockClient::MockClient()
 
 const wl_output_listener MockClient::outputListener = {
     MockClient::outputGeometryEvent,
-    MockClient::outputModeEvent
+    MockClient::outputModeEvent,
+    MockClient::outputDone
 };
 
 MockClient::~MockClient()
@@ -103,12 +104,18 @@ void MockClient::outputGeometryEvent(void *data, wl_output *,
                                      int, const char *, const char *,
                                      int32_t )
 {
-    resolve(data)->geometry = QRect(x, y, width, height);
+    resolve(data)->geometry.moveTopLeft(QPoint(x, y));
 }
 
-void MockClient::outputModeEvent(void *, wl_output *, uint32_t,
-                                 int, int, int)
+void MockClient::outputModeEvent(void *data, wl_output *, uint32_t,
+                                 int w, int h, int)
 {
+    resolve(data)->geometry.setSize(QSize(w, h));
+}
+
+void MockClient::outputDone(void *, wl_output *)
+{
+
 }
 
 void MockClient::readEvents()
@@ -132,7 +139,7 @@ void MockClient::handleGlobal(uint32_t id, const QByteArray &interface)
     if (interface == "wl_compositor") {
         compositor = static_cast<wl_compositor *>(wl_registry_bind(registry, id, &wl_compositor_interface, 1));
     } else if (interface == "wl_output") {
-        output = static_cast<wl_output *>(wl_registry_bind(registry, id, &wl_output_interface, 1));
+        output = static_cast<wl_output *>(wl_registry_bind(registry, id, &wl_output_interface, 2));
         wl_output_add_listener(output, &outputListener, this);
     } else if (interface == "wl_shm") {
         shm = static_cast<wl_shm *>(wl_registry_bind(registry, id, &wl_shm_interface, 1));

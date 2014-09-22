@@ -61,6 +61,7 @@ QWaylandScreen::QWaylandScreen(QWaylandDisplay *waylandDisplay, uint32_t id)
     , mExtendedOutput(0)
     , mDepth(32)
     , mRefreshRate(60000)
+    , mTransform(-1)
     , mFormat(QImage::Format_ARGB32_Premultiplied)
     , mOutputName(QStringLiteral("Screen%1").arg(id))
     , m_orientation(Qt::PrimaryOrientation)
@@ -178,29 +179,7 @@ void QWaylandScreen::output_geometry(int32_t x, int32_t y,
     Q_UNUSED(subpixel);
     Q_UNUSED(make);
 
-    bool isPortrait = height > width;
-    switch (transform) {
-        case WL_OUTPUT_TRANSFORM_NORMAL:
-            m_orientation = isPortrait ? Qt::PortraitOrientation : Qt::LandscapeOrientation;
-            break;
-        case WL_OUTPUT_TRANSFORM_90:
-            m_orientation = isPortrait ? Qt::InvertedLandscapeOrientation : Qt::PortraitOrientation;
-            break;
-        case WL_OUTPUT_TRANSFORM_180:
-            m_orientation = isPortrait ? Qt::InvertedPortraitOrientation : Qt::InvertedLandscapeOrientation;
-            break;
-        case WL_OUTPUT_TRANSFORM_270:
-            m_orientation = isPortrait ? Qt::LandscapeOrientation : Qt::InvertedPortraitOrientation;
-            break;
-        // Ignore these ones, at least for now
-        case WL_OUTPUT_TRANSFORM_FLIPPED:
-        case WL_OUTPUT_TRANSFORM_FLIPPED_90:
-        case WL_OUTPUT_TRANSFORM_FLIPPED_180:
-        case WL_OUTPUT_TRANSFORM_FLIPPED_270:
-            break;
-    }
-
-    QWindowSystemInterface::handleScreenOrientationChange(screen(), m_orientation);
+    mTransform = transform;
 
     if (!model.isEmpty())
         mOutputName = model;
@@ -214,6 +193,33 @@ void QWaylandScreen::output_done()
     // the done event is sent after all the geometry and the mode events are sent,
     // and the last mode event to be sent is the active one, so we can trust the
     // values of mGeometry and mRefreshRate here
+
+    if (mTransform >= 0) {
+        bool isPortrait = mGeometry.height() > mGeometry.width();
+        switch (mTransform) {
+            case WL_OUTPUT_TRANSFORM_NORMAL:
+                m_orientation = isPortrait ? Qt::PortraitOrientation : Qt::LandscapeOrientation;
+                break;
+            case WL_OUTPUT_TRANSFORM_90:
+                m_orientation = isPortrait ? Qt::InvertedLandscapeOrientation : Qt::PortraitOrientation;
+                break;
+            case WL_OUTPUT_TRANSFORM_180:
+                m_orientation = isPortrait ? Qt::InvertedPortraitOrientation : Qt::InvertedLandscapeOrientation;
+                break;
+            case WL_OUTPUT_TRANSFORM_270:
+                m_orientation = isPortrait ? Qt::LandscapeOrientation : Qt::InvertedPortraitOrientation;
+                break;
+            // Ignore these ones, at least for now
+            case WL_OUTPUT_TRANSFORM_FLIPPED:
+            case WL_OUTPUT_TRANSFORM_FLIPPED_90:
+            case WL_OUTPUT_TRANSFORM_FLIPPED_180:
+            case WL_OUTPUT_TRANSFORM_FLIPPED_270:
+                break;
+        }
+
+        QWindowSystemInterface::handleScreenOrientationChange(screen(), m_orientation);
+        mTransform = -1;
+    }
     QWindowSystemInterface::handleScreenGeometryChange(screen(), mGeometry, mGeometry);
     QWindowSystemInterface::handleScreenRefreshRateChange(screen(), refreshRate());
 }

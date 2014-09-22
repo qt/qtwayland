@@ -103,6 +103,7 @@ private:
     QRect mGeometry;
     int mDepth;
     int mRefreshRate;
+    int mTransform;
     QImage::Format mFormat;
     QSize mPhysicalSize;
     QString mOutputName;

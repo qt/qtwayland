@@ -817,6 +817,18 @@ void QWaylandInputDevice::Keyboard::keyboard_key(uint32_t serial, uint32_t time,
 void QWaylandInputDevice::repeatKey()
 {
     mRepeatTimer.setInterval(25);
+
+    QWindowSystemInterface::handleExtendedKeyEvent(mKeyboard->mFocus->window(),
+                                                   mKeyboard->mRepeatTime, QEvent::KeyRelease, mKeyboard->mRepeatKey,
+                                                   modifiers(),
+                                                   mKeyboard->mRepeatCode,
+#ifndef QT_NO_WAYLAND_XKB
+                                                   mKeyboard->mRepeatSym, mKeyboard->mNativeModifiers,
+#else
+                                                   0, 0,
+#endif
+                                                   mKeyboard->mRepeatText, true);
+
     QWindowSystemInterface::handleExtendedKeyEvent(mKeyboard->mFocus->window(),
                                                    mKeyboard->mRepeatTime, QEvent::KeyPress, mKeyboard->mRepeatKey,
                                                    modifiers(),

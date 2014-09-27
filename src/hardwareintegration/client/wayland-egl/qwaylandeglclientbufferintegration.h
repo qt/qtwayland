@@ -68,7 +68,7 @@ public:
     EGLDisplay eglDisplay() const;
 
 private:
-    struct wl_display *m_waylandDisplay;
+    QWaylandDisplay *m_display;
 
     EGLDisplay m_eglDisplay;
     bool m_supportsThreading;

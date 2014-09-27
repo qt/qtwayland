@@ -700,7 +700,6 @@ bool QWaylandWindow::setWindowStateInternal(Qt::WindowState state)
     // QPlatformWindow::setWindowState returns, so we cannot rely on QWindow::windowState
     // here. We use then this mState variable.
     mState = state;
-    createDecoration();
 
     if (mShellSurface) {
         switch (state) {

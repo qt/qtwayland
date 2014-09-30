@@ -48,7 +48,7 @@ QT_BEGIN_NAMESPACE
 namespace QtWayland {
 
 SurfaceExtensionGlobal::SurfaceExtensionGlobal(Compositor *compositor)
-    : QtWaylandServer::qt_surface_extension(compositor->wl_display())
+    : QtWaylandServer::qt_surface_extension(compositor->wl_display(), 1)
 {
 }
 
@@ -57,12 +57,12 @@ void SurfaceExtensionGlobal::surface_extension_get_extended_surface(Resource *re
                                                                     struct wl_resource *surface_resource)
 {
     Surface *surface = Surface::fromResource(surface_resource);
-    new ExtendedSurface(resource->client(),id,surface);
+    new ExtendedSurface(resource->client(),id, wl_resource_get_version(resource->handle), surface);
 }
 
-ExtendedSurface::ExtendedSurface(struct wl_client *client, uint32_t id, Surface *surface)
+ExtendedSurface::ExtendedSurface(struct wl_client *client, uint32_t id, int version, Surface *surface)
     : QWaylandSurfaceInterface(surface->waylandSurface())
-    , QtWaylandServer::qt_extended_surface(client,id)
+    , QtWaylandServer::qt_extended_surface(client, id, version)
     , m_surface(surface)
     , m_windowFlags(0)
 {

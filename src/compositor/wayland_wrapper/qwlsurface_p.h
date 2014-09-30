@@ -76,7 +76,7 @@ class FrameCallback;
 class Q_COMPOSITOR_EXPORT Surface : public QtWaylandServer::wl_surface
 {
 public:
-    Surface(struct wl_client *client, uint32_t id, QWaylandCompositor *compositor, QWaylandSurface *surface);
+    Surface(struct wl_client *client, uint32_t id, int version, QWaylandCompositor *compositor, QWaylandSurface *surface);
     ~Surface();
 
     static Surface *fromResource(struct ::wl_resource *resource);

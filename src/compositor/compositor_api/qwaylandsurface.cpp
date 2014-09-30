@@ -61,8 +61,8 @@
 
 QT_BEGIN_NAMESPACE
 
-QWaylandSurfacePrivate::QWaylandSurfacePrivate(wl_client *client, quint32 id, QWaylandCompositor *compositor, QWaylandSurface *surface)
-    : QtWayland::Surface(client, id, compositor, surface)
+QWaylandSurfacePrivate::QWaylandSurfacePrivate(wl_client *client, quint32 id, int version, QWaylandCompositor *compositor, QWaylandSurface *surface)
+    : QtWayland::Surface(client, id, version, compositor, surface)
     , closing(false)
     , refCount(1)
     , windowType(QWaylandSurface::WindowType::None)
@@ -70,8 +70,8 @@ QWaylandSurfacePrivate::QWaylandSurfacePrivate(wl_client *client, quint32 id, QW
 
 
 
-QWaylandSurface::QWaylandSurface(wl_client *client, quint32 id, QWaylandCompositor *compositor)
-    : QObject(*new QWaylandSurfacePrivate(client, id, compositor, this))
+QWaylandSurface::QWaylandSurface(wl_client *client, quint32 id, int version, QWaylandCompositor *compositor)
+    : QObject(*new QWaylandSurfacePrivate(client, id, version, compositor, this))
 {
 
 }

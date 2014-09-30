@@ -124,8 +124,8 @@ public:
 class QWaylandQuickSurfacePrivate : public QWaylandSurfacePrivate
 {
 public:
-    QWaylandQuickSurfacePrivate(wl_client *client, quint32 id, QWaylandQuickCompositor *c, QWaylandQuickSurface *surf)
-        : QWaylandSurfacePrivate(client, id, c, surf)
+    QWaylandQuickSurfacePrivate(wl_client *client, quint32 id, int version, QWaylandQuickCompositor *c, QWaylandQuickSurface *surf)
+        : QWaylandSurfacePrivate(client, id, version, c, surf)
         , buffer(new BufferAttacher)
         , compositor(c)
         , useTextureAlpha(true)
@@ -158,8 +158,8 @@ public:
     bool clientRenderingEnabled;
 };
 
-QWaylandQuickSurface::QWaylandQuickSurface(wl_client *client, quint32 id, QWaylandQuickCompositor *compositor)
-                    : QWaylandSurface(new QWaylandQuickSurfacePrivate(client, id, compositor, this))
+QWaylandQuickSurface::QWaylandQuickSurface(wl_client *client, quint32 id, int version, QWaylandQuickCompositor *compositor)
+                    : QWaylandSurface(new QWaylandQuickSurfacePrivate(client, id, version, compositor, this))
 {
     Q_D(QWaylandQuickSurface);
     d->buffer->surface = this;

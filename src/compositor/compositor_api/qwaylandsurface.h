@@ -117,7 +117,7 @@ public:
         Texture
     };
 
-    QWaylandSurface(wl_client *client, quint32 id, QWaylandCompositor *compositor);
+    QWaylandSurface(wl_client *client, quint32 id, int version, QWaylandCompositor *compositor);
     virtual ~QWaylandSurface();
 
     WaylandClient *client() const;

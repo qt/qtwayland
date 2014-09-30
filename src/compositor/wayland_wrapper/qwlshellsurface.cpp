@@ -67,8 +67,7 @@ const wl_interface *Shell::interface() const
 
 void Shell::bind(struct wl_client *client, uint32_t version, uint32_t id)
 {
-    Q_UNUSED(version)
-    add(client, id);
+    add(client, id, version);
 }
 
 ShellSurfacePopupGrabber *Shell::getPopupGrabber(InputDevice *input)
@@ -89,7 +88,7 @@ void Shell::shell_get_shell_surface(Resource *resource, uint32_t id, struct ::wl
 
 ShellSurface::ShellSurface(Shell *shell, wl_client *client, uint32_t id, Surface *surface)
     : QWaylandSurfaceInterface(surface->waylandSurface())
-    , wl_shell_surface(client, id)
+    , wl_shell_surface(client, id, 1)
     , m_shell(shell)
     , m_surface(surface)
     , m_deleting(false)

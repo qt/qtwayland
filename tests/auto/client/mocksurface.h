@@ -50,7 +50,7 @@ namespace Impl {
 class Surface : public QtWaylandServer::wl_surface
 {
 public:
-    Surface(wl_client *client, uint32_t id, Compositor *compositor);
+    Surface(wl_client *client, uint32_t id, int v, Compositor *compositor);
     ~Surface();
 
     Compositor *compositor() const { return m_compositor; }

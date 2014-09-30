@@ -60,7 +60,7 @@ namespace QtWayland {
 
 DataDeviceManager::DataDeviceManager(Compositor *compositor)
     : QObject(0)
-    , wl_data_device_manager(compositor->wl_display())
+    , wl_data_device_manager(compositor->wl_display(), 1)
     , m_compositor(compositor)
     , m_current_selection_source(0)
     , m_retainedReadNotifier(0)

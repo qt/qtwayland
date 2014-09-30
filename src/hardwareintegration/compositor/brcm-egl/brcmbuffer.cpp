@@ -48,7 +48,7 @@
 QT_BEGIN_NAMESPACE
 
 BrcmBuffer::BrcmBuffer(struct ::wl_client *client, uint32_t id, const QSize &size, EGLint *data, size_t count)
-    : QtWaylandServer::wl_buffer(client, id)
+    : QtWaylandServer::wl_buffer(client, id, 1)
     , m_handle(count)
     , m_invertedY(false)
     , m_size(size)

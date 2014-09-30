@@ -47,7 +47,7 @@ QT_BEGIN_NAMESPACE
 namespace QtWayland {
 
 Region::Region(struct wl_client *client, uint32_t id)
-    : QtWaylandServer::wl_region(client, id)
+    : QtWaylandServer::wl_region(client, id, 1)
 {
 }
 

@@ -139,7 +139,7 @@ void Compositor::init()
     if (socketArg != -1 && socketArg + 1 < arguments.size())
         m_socket_name = arguments.at(socketArg + 1).toLocal8Bit();
 
-    wl_compositor::init(m_display->handle());
+    wl_compositor::init(m_display->handle(), 3);
 
     m_data_device_manager =  new DataDeviceManager(this);
 
@@ -229,7 +229,7 @@ void Compositor::cleanupGraphicsResources()
 
 void Compositor::compositor_create_surface(Resource *resource, uint32_t id)
 {
-    QWaylandSurface *surface = new QWaylandSurface(resource->client(), id, m_qt_compositor);
+    QWaylandSurface *surface = new QWaylandSurface(resource->client(), id, resource->version(), m_qt_compositor);
     m_surfaces << surface->handle();
     //BUG: This may not be an on-screen window surface though
     m_qt_compositor->surfaceCreated(surface);
@@ -457,7 +457,7 @@ void Compositor::sendDragEndEvent()
 void Compositor::bindGlobal(wl_client *client, void *data, uint32_t version, uint32_t id)
 {
     QWaylandGlobalInterface *iface = static_cast<QWaylandGlobalInterface *>(data);
-    iface->bind(client, version, id);
+    iface->bind(client, qMin(iface->version(), version), id);
 };
 
 void Compositor::loadClientBufferIntegration()

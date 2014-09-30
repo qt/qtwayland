@@ -101,7 +101,7 @@ void Compositor::sendKeyRelease(void *data, const QList<QVariant> &parameters)
 }
 
 Seat::Seat(Compositor *compositor, struct ::wl_display *display)
-    : wl_seat(display)
+    : wl_seat(display, 2)
     , m_compositor(compositor)
     , m_keyboard(new Keyboard(compositor))
     , m_pointer(new Pointer(compositor))
@@ -119,12 +119,12 @@ void Seat::seat_bind_resource(Resource *resource)
 
 void Seat::seat_get_keyboard(Resource *resource, uint32_t id)
 {
-    m_keyboard->add(resource->client(), id);
+    m_keyboard->add(resource->client(), id, resource->version());
 }
 
 void Seat::seat_get_pointer(Resource *resource, uint32_t id)
 {
-    m_pointer->add(resource->client(), id);
+    m_pointer->add(resource->client(), id, resource->version());
 }
 
 Keyboard::Keyboard(Compositor *compositor)
@@ -240,7 +240,7 @@ DataDevice::~DataDevice()
 }
 
 DataDeviceManager::DataDeviceManager(Compositor *compositor, wl_display *display)
-    : wl_data_device_manager(display)
+    : wl_data_device_manager(display, 1)
     , m_compositor(compositor)
 {
 
@@ -255,7 +255,7 @@ void DataDeviceManager::data_device_manager_get_data_device(Resource *resource, 
 {
     if (!m_data_device)
         m_data_device.reset(new DataDevice(m_compositor));
-    m_data_device->add(resource->client(), id);
+    m_data_device->add(resource->client(), id, 1);
 }
 
 }

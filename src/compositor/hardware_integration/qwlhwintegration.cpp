@@ -47,7 +47,7 @@ QT_BEGIN_NAMESPACE
 namespace QtWayland {
 
 HardwareIntegration::HardwareIntegration(Compositor *compositor)
-    : qt_hardware_integration(compositor->wl_display())
+    : qt_hardware_integration(compositor->wl_display(), 1)
 {
 }
 void HardwareIntegration::setClientBufferIntegration(const QString &name)

@@ -104,8 +104,8 @@ public:
     bool canSend;
 };
 
-Surface::Surface(struct wl_client *client, uint32_t id, QWaylandCompositor *compositor, QWaylandSurface *surface)
-    : QtWaylandServer::wl_surface(client, id)
+Surface::Surface(struct wl_client *client, uint32_t id, int version, QWaylandCompositor *compositor, QWaylandSurface *surface)
+    : QtWaylandServer::wl_surface(client, id, version)
     , m_compositor(compositor->handle())
     , m_waylandSurface(surface)
     , m_buffer(0)

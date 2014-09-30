@@ -65,7 +65,7 @@ WindowManagerServerIntegration::~WindowManagerServerIntegration()
 
 void WindowManagerServerIntegration::initialize(QtWayland::Display *waylandDisplay)
 {
-    init(waylandDisplay->handle());
+    init(waylandDisplay->handle(), 1);
 }
 
 void WindowManagerServerIntegration::setShowIsFullScreen(bool value)

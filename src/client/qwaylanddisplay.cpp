@@ -149,6 +149,7 @@ QWaylandDisplay::QWaylandDisplay(QWaylandIntegration *waylandIntegration)
     init(registry);
 
     connect(mEventThreadObject, SIGNAL(newEventsRead()), this, SLOT(flushRequests()));
+    connect(mEventThreadObject, &QWaylandEventThread::fatalError, this, &QWaylandDisplay::exitWithError);
 
     mWindowManagerIntegration.reset(new QWaylandWindowManagerIntegration(this));
 
@@ -167,8 +168,10 @@ QWaylandDisplay::~QWaylandDisplay(void)
 
 void QWaylandDisplay::flushRequests()
 {
-    if (wl_display_dispatch_queue_pending(mDisplay, mEventQueue) < 0)
-        mEventThreadObject->checkErrorAndExit();
+    if (wl_display_dispatch_queue_pending(mDisplay, mEventQueue) < 0) {
+        mEventThreadObject->checkError();
+        exitWithError();
+    }
 
     wl_display_flush(mDisplay);
 }
@@ -176,8 +179,15 @@ void QWaylandDisplay::flushRequests()
 
 void QWaylandDisplay::blockingReadEvents()
 {
-    if (wl_display_dispatch_queue(mDisplay, mEventQueue) < 0)
-        mEventThreadObject->checkErrorAndExit();
+    if (wl_display_dispatch_queue(mDisplay, mEventQueue) < 0) {
+        mEventThreadObject->checkError();
+        exitWithError();
+    }
+}
+
+void QWaylandDisplay::exitWithError()
+{
+    ::exit(1);
 }
 
 QWaylandScreen *QWaylandDisplay::screenForOutput(struct wl_output *output) const

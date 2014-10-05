@@ -88,7 +88,7 @@ private Q_SLOTS:
 
 private:
     QWaylandDisplay *m_display;
-
+    QWaylandInputDevice *m_inputDevice;
     uint32_t m_enterSerial;
     QWindow *m_dragWindow;
     QPoint m_dragPoint;

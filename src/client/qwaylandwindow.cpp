@@ -54,6 +54,7 @@
 #include "qwaylandwindowmanagerintegration_p.h"
 #include "qwaylandnativeinterface_p.h"
 #include "qwaylanddecorationfactory_p.h"
+#include "qwaylandshmbackingstore_p.h"
 
 #include <QtCore/QFileInfo>
 #include <QtCore/QPointer>
@@ -90,6 +91,7 @@ QWaylandWindow::QWaylandWindow(QWindow *window)
     , mMouseDevice(0)
     , mMouseSerial(0)
     , mState(Qt::WindowNoState)
+    , mBackingStore(Q_NULLPTR)
 {
     init(mDisplay->createSurface(static_cast<QtWayland::wl_surface *>(this)));
 
@@ -248,6 +250,9 @@ void QWaylandWindow::setVisible(bool visible)
         if (!deleteGuard.isNull()) {
             attach(static_cast<QWaylandBuffer *>(0), 0, 0);
             commit();
+            if (mBackingStore) {
+                mBackingStore->hidden();
+            }
         }
     }
 }

@@ -82,6 +82,7 @@ public:
     void resize(const QSize &size);
     void beginPaint(const QRegion &);
     void endPaint();
+    void hidden();
 
     QWaylandAbstractDecoration *windowDecoration() const;
 

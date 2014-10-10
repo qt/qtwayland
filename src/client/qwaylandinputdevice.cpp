@@ -228,9 +228,9 @@ public:
     QList<QWindowSystemInterface::TouchPoint> mPrevTouchPoints;
 };
 
-QWaylandInputDevice::QWaylandInputDevice(QWaylandDisplay *display, uint32_t id)
+QWaylandInputDevice::QWaylandInputDevice(QWaylandDisplay *display, int version, uint32_t id)
     : QObject()
-    , QtWayland::wl_seat(display->wl_registry(), id, 2)
+    , QtWayland::wl_seat(display->wl_registry(), id, qMin(version, 2))
     , mQDisplay(display)
     , mDisplay(display->wl_display())
     , mCaps(0)

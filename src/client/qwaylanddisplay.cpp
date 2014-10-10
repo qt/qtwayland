@@ -226,13 +226,14 @@ void QWaylandDisplay::registry_global(uint32_t id, const QString &interface, uin
     struct ::wl_registry *registry = object();
 
     if (interface == QStringLiteral("wl_output")) {
-        QWaylandScreen *screen = new QWaylandScreen(this, id);
+        QWaylandScreen *screen = new QWaylandScreen(this, version, id);
         mScreens.append(screen);
         // We need to get the output events before creating surfaces
         forceRoundTrip();
         mWaylandIntegration->screenAdded(screen);
     } else if (interface == QStringLiteral("wl_compositor")) {
-        mCompositor.init(registry, id, 3);
+        mCompositorVersion = qMin((int)version, 3);
+        mCompositor.init(registry, id, mCompositorVersion);
     } else if (interface == QStringLiteral("wl_shm")) {
         mShm = static_cast<struct wl_shm *>(wl_registry_bind(registry, id, &wl_shm_interface,1));
     } else if (interface == QStringLiteral("xdg_shell")
@@ -241,7 +242,7 @@ void QWaylandDisplay::registry_global(uint32_t id, const QString &interface, uin
     } else if (interface == QStringLiteral("wl_shell")){
         mShell.reset(new QtWayland::wl_shell(registry, id, 1));
     } else if (interface == QStringLiteral("wl_seat")) {
-        QWaylandInputDevice *inputDevice = new QWaylandInputDevice(this, id);
+        QWaylandInputDevice *inputDevice = new QWaylandInputDevice(this, version, id);
         mInputDevices.append(inputDevice);
     } else if (interface == QStringLiteral("wl_data_device_manager")) {
         mDndSelectionHandler.reset(new QWaylandDataDeviceManager(this, id));

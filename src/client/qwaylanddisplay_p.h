@@ -116,6 +116,7 @@ public:
 
     const struct wl_compositor *wl_compositor() const { return mCompositor.object(); }
     QtWayland::wl_compositor *compositor() { return &mCompositor; }
+    int compositorVersion() const { return mCompositorVersion; }
 
     QtWayland::wl_shell *shell() { return mShell.data(); }
     QtWayland::xdg_shell *shellXdg();
@@ -198,6 +199,7 @@ private:
     int mWritableNotificationFd;
     bool mScreensInitialized;
     QList<RegistryGlobal> mGlobals;
+    int mCompositorVersion;
 
     void registry_global(uint32_t id, const QString &interface, uint32_t version) Q_DECL_OVERRIDE;
     void registry_global_remove(uint32_t id) Q_DECL_OVERRIDE;

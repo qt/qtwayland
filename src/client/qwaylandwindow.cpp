@@ -429,6 +429,9 @@ QWaylandSubSurface *QWaylandWindow::subSurfaceWindow() const
 
 void QWaylandWindow::handleContentOrientationChange(Qt::ScreenOrientation orientation)
 {
+    if (mDisplay->compositorVersion() < 2)
+        return;
+
     wl_output_transform transform;
     bool isPortrait = window()->screen() && window()->screen()->primaryOrientation() == Qt::PortraitOrientation;
     switch (orientation) {

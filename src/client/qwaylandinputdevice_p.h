@@ -75,7 +75,7 @@ class Q_WAYLAND_CLIENT_EXPORT QWaylandInputDevice
 {
     Q_OBJECT
 public:
-    QWaylandInputDevice(QWaylandDisplay *display, uint32_t id);
+    QWaylandInputDevice(QWaylandDisplay *display, int version, uint32_t id);
     ~QWaylandInputDevice();
 
     uint32_t capabilities() const { return mCaps; }

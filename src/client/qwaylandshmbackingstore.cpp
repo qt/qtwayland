@@ -323,6 +323,7 @@ QWaylandWindow *QWaylandShmBackingStore::waylandWindow() const
     return static_cast<QWaylandWindow *>(window()->handle());
 }
 
+#ifndef QT_NO_OPENGL
 QImage QWaylandShmBackingStore::toImage() const
 {
     // Invoked from QPlatformBackingStore::composeAndFlush() that is called
@@ -331,6 +332,7 @@ QImage QWaylandShmBackingStore::toImage() const
 
     return *contentSurface();
 }
+#endif // QT_NO_OPENGL
 
 void QWaylandShmBackingStore::done(void *data, wl_callback *callback, uint32_t time)
 {

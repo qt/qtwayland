@@ -61,7 +61,9 @@ public:
 
     bool hasCapability(QPlatformIntegration::Capability cap) const;
     QPlatformWindow *createPlatformWindow(QWindow *window) const;
+#ifndef QT_NO_OPENGL
     QPlatformOpenGLContext *createPlatformOpenGLContext(QOpenGLContext *context) const;
+#endif
     QPlatformBackingStore *createPlatformBackingStore(QWindow *window) const;
 
     QAbstractEventDispatcher *createEventDispatcher() const;

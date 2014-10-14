@@ -94,7 +94,9 @@ public:
     QWaylandWindow *waylandWindow() const;
     void iterateBuffer();
 
+#ifndef QT_NO_OPENGL
     QImage toImage() const Q_DECL_OVERRIDE;
+#endif
 
 private:
     void updateDecorations();

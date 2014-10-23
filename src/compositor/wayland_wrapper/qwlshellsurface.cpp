@@ -91,7 +91,6 @@ ShellSurface::ShellSurface(Shell *shell, wl_client *client, uint32_t id, Surface
     , wl_shell_surface(client, id, 1)
     , m_shell(shell)
     , m_surface(surface)
-    , m_deleting(false)
     , m_resizeGrabber(0)
     , m_moveGrabber(0)
     , m_popupGrabber(0)
@@ -104,13 +103,6 @@ ShellSurface::ShellSurface(Shell *shell, wl_client *client, uint32_t id, Surface
 
 ShellSurface::~ShellSurface()
 {
-    // We must destroy the wl_resource here, but be careful not to do it
-    // if we're here from shell_surface_destroy_resource(), i.e. if the
-    // wl_resource was destroyed already
-    if (!m_deleting) {
-        m_deleting = true;
-        wl_resource_destroy(resource()->handle);
-    }
 }
 
 void ShellSurface::sendConfigure(uint32_t edges, int32_t width, int32_t height)
@@ -200,11 +192,7 @@ void ShellSurface::shell_surface_destroy_resource(Resource *)
     if (m_popupGrabber)
         m_popupGrabber->removePopup(this);
 
-    // If we're here from the destructor don't delete this again
-    if (!m_deleting) {
-        m_deleting = true;
-        delete this;
-    }
+    delete this;
 }
 
 void ShellSurface::shell_surface_move(Resource *resource,

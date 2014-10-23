@@ -338,8 +338,7 @@ Qt::ScreenOrientation Surface::contentOrientation() const
 void Surface::surface_destroy_resource(Resource *)
 {
     if (m_extendedSurface) {
-        if (m_extendedSurface->resource())
-            wl_resource_destroy(m_extendedSurface->resource()->handle);
+        m_extendedSurface->setParentSurface(Q_NULLPTR);
         m_extendedSurface = 0;
     }
 

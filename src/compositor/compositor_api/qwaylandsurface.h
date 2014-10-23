@@ -170,7 +170,6 @@ public:
 
     Q_INVOKABLE void destroy();
     Q_INVOKABLE void destroySurface();
-    Q_INVOKABLE void destroySurfaceByForce();
     Q_INVOKABLE void ping();
 
     void ref();

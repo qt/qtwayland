@@ -330,14 +330,7 @@ void QWaylandSurface::destroySurface()
 {
     QWaylandSurfaceOp op(QWaylandSurfaceOp::Close);
     if (!sendInterfaceOp(op))
-        destroySurfaceByForce();
-}
-
-void QWaylandSurface::destroySurfaceByForce()
-{
-    Q_D(QWaylandSurface);
-   wl_resource *surface_resource = d->resource()->handle;
-   wl_resource_destroy(surface_resource);
+        emit surfaceDestroyed();
 }
 
 /*!

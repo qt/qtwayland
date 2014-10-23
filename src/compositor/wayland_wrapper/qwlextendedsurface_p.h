@@ -87,6 +87,7 @@ public:
     ExtendedSurface *parent() const;
     void setParent(ExtendedSurface *parent);
     QLinkedList<QWaylandSurface *> subSurfaces() const;
+    void setParentSurface(Surface *s);
 
     Qt::ScreenOrientations contentOrientationMask() const;
 

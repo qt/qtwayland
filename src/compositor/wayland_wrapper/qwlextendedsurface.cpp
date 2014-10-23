@@ -72,7 +72,8 @@ ExtendedSurface::ExtendedSurface(struct wl_client *client, uint32_t id, int vers
 
 ExtendedSurface::~ExtendedSurface()
 {
-    m_surface->setExtendedSurface(0);
+    if (m_surface)
+        m_surface->setExtendedSurface(0);
 }
 
 void ExtendedSurface::sendGenericProperty(const QString &name, const QVariant &variant)
@@ -89,6 +90,11 @@ void ExtendedSurface::setVisibility(QWindow::Visibility visibility, bool updateC
     // If this change came from the client, we shouldn't update it
     if (updateClient)
         send_onscreen_visibility(visibility);
+}
+
+void ExtendedSurface::setParentSurface(Surface *surface)
+{
+    m_surface = surface;
 }
 
 bool ExtendedSurface::runOperation(QWaylandSurfaceOp *op)
@@ -141,7 +147,7 @@ void ExtendedSurface::extended_surface_set_content_orientation_mask(Resource *re
     Qt::ScreenOrientations oldMask = m_contentOrientationMask;
     m_contentOrientationMask = mask;
 
-    if (mask != oldMask)
+    if (m_surface && mask != oldMask)
         emit m_surface->waylandSurface()->orientationUpdateMaskChanged();
 }
 
@@ -168,7 +174,7 @@ void ExtendedSurface::extended_surface_set_window_flags(Resource *resource, int3
 {
     Q_UNUSED(resource);
     QWaylandSurface::WindowFlags windowFlags(flags);
-    if (windowFlags== m_windowFlags)
+    if (m_surface || windowFlags == m_windowFlags)
         return;
     m_windowFlags = windowFlags;
     emit m_surface->waylandSurface()->windowFlagsChanged(windowFlags);
@@ -181,12 +187,14 @@ void ExtendedSurface::extended_surface_destroy_resource(Resource *)
 
 void ExtendedSurface::extended_surface_raise(Resource *)
 {
-    emit m_surface->waylandSurface()->raiseRequested();
+    if (m_surface)
+        emit m_surface->waylandSurface()->raiseRequested();
 }
 
 void ExtendedSurface::extended_surface_lower(Resource *)
 {
-    emit m_surface->waylandSurface()->lowerRequested();
+    if (m_surface)
+        emit m_surface->waylandSurface()->lowerRequested();
 }
 
 }

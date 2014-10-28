@@ -94,7 +94,7 @@ public:
     Q_DECLARE_FLAGS(CapabilityFlags, CapabilityFlag)
 
     QWaylandInputDevice(QWaylandCompositor *compositor, CapabilityFlags caps = DefaultCapabilities);
-    ~QWaylandInputDevice();
+    virtual ~QWaylandInputDevice();
 
     void sendMousePressEvent(Qt::MouseButton button, const QPointF &localPos, const QPointF &globalPos = QPointF());
     void sendMouseReleaseEvent(Qt::MouseButton button, const QPointF &localPos, const QPointF &globalPos = QPointF());

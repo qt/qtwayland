@@ -168,8 +168,6 @@ void QWaylandClient::kill(int sig)
 
 void QWaylandClient::close()
 {
-    Q_D(QWaylandClient);
-
     QtWayland::Compositor::instance()->waylandCompositor()->destroyClient(this);
 }
 

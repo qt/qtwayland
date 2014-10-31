@@ -320,13 +320,11 @@ void QWaylandSurfaceItem::updateBuffer(bool hasBuffer)
     m_newTexture = true;
 }
 
-QSGNode *QWaylandSurfaceItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *)
+void QWaylandSurfaceItem::updateTexture()
 {
     if (!m_provider)
         m_provider = new QWaylandSurfaceTextureProvider();
 
-    // Order here is important, as the state of visible is that of the pending
-    // buffer but will be replaced after we advance the buffer queue.
     bool mapped = surface() && surface()->isMapped();
     if (mapped)
         m_provider->t = static_cast<QWaylandQuickSurface *>(surface())->texture();
@@ -334,6 +332,11 @@ QSGNode *QWaylandSurfaceItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeD
     if (m_newTexture)
         emit m_provider->textureChanged();
     m_newTexture = false;
+}
+
+QSGNode *QWaylandSurfaceItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *)
+{
+    bool mapped = surface() && surface()->isMapped();
 
     if (!mapped || !m_provider->t || !m_paintEnabled) {
         delete oldNode;

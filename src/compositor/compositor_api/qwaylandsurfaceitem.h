@@ -79,6 +79,7 @@ public:
     bool paintEnabled() const;
     bool touchEventsEnabled() const { return m_touchEventsEnabled; }
     bool resizeSurfaceToItem() const { return m_resizeSurfaceToItem; }
+    void updateTexture();
 
     void setTouchEventsEnabled(bool enabled);
     void setResizeSurfaceToItem(bool enabled);
@@ -123,7 +124,6 @@ protected:
 
 private:
     friend class QWaylandSurfaceNode;
-    void updateTexture();
     void init(QWaylandQuickSurface *);
 
     static QMutex *mutex;

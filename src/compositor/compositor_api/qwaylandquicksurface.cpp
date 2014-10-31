@@ -212,12 +212,16 @@ void QWaylandQuickSurface::updateTexture()
     Q_D(QWaylandQuickSurface);
     if (d->buffer->update)
         d->buffer->createTexture();
+    foreach (QWaylandSurfaceView *view, views())
+        static_cast<QWaylandSurfaceItem *>(view)->updateTexture();
 }
 
 void QWaylandQuickSurface::invalidateTexture()
 {
     Q_D(QWaylandQuickSurface);
     d->buffer->invalidateTexture();
+    foreach (QWaylandSurfaceView *view, views())
+        static_cast<QWaylandSurfaceItem *>(view)->updateTexture();
 }
 
 bool QWaylandQuickSurface::clientRenderingEnabled() const

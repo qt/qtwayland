@@ -48,7 +48,7 @@ QT_BEGIN_NAMESPACE
 namespace QtWayland {
 
 InputPanelSurface::InputPanelSurface(wl_client *client, int id, Surface *surface)
-    : QtWaylandServer::wl_input_panel_surface(client, id)
+    : QtWaylandServer::wl_input_panel_surface(client, id, 1)
     , m_surface(surface)
     , m_type(Invalid)
     , m_output(0)

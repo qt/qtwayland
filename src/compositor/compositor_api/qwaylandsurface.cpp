@@ -63,8 +63,8 @@
 
 QT_BEGIN_NAMESPACE
 
-QWaylandSurfacePrivate::QWaylandSurfacePrivate(wl_client *wlClient, quint32 id, QWaylandCompositor *compositor, QWaylandSurface *surface)
-    : QtWayland::Surface(wlClient, id, compositor, surface)
+QWaylandSurfacePrivate::QWaylandSurfacePrivate(wl_client *wlClient, quint32 id, int version, QWaylandCompositor *compositor, QWaylandSurface *surface)
+    : QtWayland::Surface(wlClient, id, version, compositor, surface)
     , closing(false)
     , refCount(1)
     , client(QWaylandClient::fromWlClient(wlClient))
@@ -73,8 +73,8 @@ QWaylandSurfacePrivate::QWaylandSurfacePrivate(wl_client *wlClient, quint32 id, 
 
 
 
-QWaylandSurface::QWaylandSurface(wl_client *client, quint32 id, QWaylandCompositor *compositor)
-    : QObject(*new QWaylandSurfacePrivate(client, id, compositor, this))
+QWaylandSurface::QWaylandSurface(wl_client *client, quint32 id, int version, QWaylandCompositor *compositor)
+    : QObject(*new QWaylandSurfacePrivate(client, id, version, compositor, this))
 {
 
 }
@@ -330,14 +330,7 @@ void QWaylandSurface::destroySurface()
 {
     QWaylandSurfaceOp op(QWaylandSurfaceOp::Close);
     if (!sendInterfaceOp(op))
-        destroySurfaceByForce();
-}
-
-void QWaylandSurface::destroySurfaceByForce()
-{
-    Q_D(QWaylandSurface);
-   wl_resource *surface_resource = d->resource()->handle;
-   wl_resource_destroy(surface_resource);
+        emit surfaceDestroyed();
 }
 
 /*!

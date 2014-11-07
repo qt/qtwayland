@@ -54,7 +54,7 @@ QT_BEGIN_NAMESPACE
 namespace QtWayland {
 
 InputPanel::InputPanel(Compositor *compositor)
-    : QtWaylandServer::wl_input_panel(compositor->wl_display())
+    : QtWaylandServer::wl_input_panel(compositor->wl_display(), 1)
     , m_compositor(compositor)
     , m_handle(new QWaylandInputPanel(this))
     , m_focus()

@@ -81,7 +81,7 @@ public:
     class Pointer;
     class Touch;
 
-    QWaylandInputDevice(QWaylandDisplay *display, uint32_t id);
+    QWaylandInputDevice(QWaylandDisplay *display, int version, uint32_t id);
     ~QWaylandInputDevice();
 
     uint32_t capabilities() const { return mCaps; }

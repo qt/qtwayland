@@ -60,7 +60,7 @@ QT_BEGIN_NAMESPACE
 namespace QtWayland {
 
 InputDevice::InputDevice(QWaylandInputDevice *handle, Compositor *compositor, QWaylandInputDevice::CapabilityFlags caps)
-    : QtWaylandServer::wl_seat(compositor->wl_display())
+    : QtWaylandServer::wl_seat(compositor->wl_display(), 2)
     , m_handle(handle)
     , m_dragHandle(new QWaylandDrag(this))
     , m_compositor(compositor)
@@ -151,21 +151,21 @@ void InputDevice::setCapabilities(QWaylandInputDevice::CapabilityFlags caps)
 void InputDevice::seat_get_pointer(wl_seat::Resource *resource, uint32_t id)
 {
     if (!m_pointer.isNull()) {
-        m_pointer->add(resource->client(), id);
+        m_pointer->add(resource->client(), id, resource->version());
     }
 }
 
 void InputDevice::seat_get_keyboard(wl_seat::Resource *resource, uint32_t id)
 {
     if (!m_keyboard.isNull()) {
-        m_keyboard->add(resource->client(), id);
+        m_keyboard->add(resource->client(), id, resource->version());
     }
 }
 
 void InputDevice::seat_get_touch(wl_seat::Resource *resource, uint32_t id)
 {
     if (!m_touch.isNull()) {
-        m_touch->add(resource->client(), id);
+        m_touch->add(resource->client(), id, resource->version());
     }
 }
 
@@ -337,7 +337,7 @@ void InputDevice::clientRequestedDataDevice(DataDeviceManager *, struct wl_clien
 {
     if (!m_data_device)
         m_data_device.reset(new DataDevice(this));
-    m_data_device->add(client, id);
+    m_data_device->add(client, id, 1);
 }
 
 Compositor *InputDevice::compositor() const

@@ -73,7 +73,7 @@ void QWaylandEventThread::displayConnect()
 
 // ### be careful what you do, this function may also be called from other
 // threads to clean up & exit.
-void QWaylandEventThread::checkErrorAndExit()
+void QWaylandEventThread::checkError() const
 {
     int ecode = wl_display_get_error(m_display);
     if ((ecode == EPIPE || ecode == ECONNRESET)) {
@@ -82,13 +82,16 @@ void QWaylandEventThread::checkErrorAndExit()
     } else {
         qErrnoWarning(ecode, "The Wayland connection experienced a fatal error");
     }
-    ::exit(1);
 }
 
 void QWaylandEventThread::readWaylandEvents()
 {
-    if (wl_display_dispatch(m_display) < 0)
-        checkErrorAndExit();
+    if (wl_display_dispatch(m_display) < 0) {
+        checkError();
+        m_readNotifier->setEnabled(false);
+        emit fatalError();
+        return;
+    }
 
     emit newEventsRead();
 }

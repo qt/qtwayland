@@ -60,6 +60,7 @@
 QWaylandDataDevice::QWaylandDataDevice(QWaylandDataDeviceManager *manager, QWaylandInputDevice *inputDevice)
     : QtWayland::wl_data_device(manager->get_data_device(inputDevice->wl_seat()))
     , m_display(manager->display())
+    , m_inputDevice(inputDevice)
     , m_enterSerial(0)
     , m_dragWindow(0)
     , m_dragPoint()
@@ -92,7 +93,7 @@ void QWaylandDataDevice::setSelectionSource(QWaylandDataSource *source)
     m_selectionSource.reset(source);
     if (source)
         connect(source, &QWaylandDataSource::cancelled, this, &QWaylandDataDevice::selectionSourceCancelled);
-    set_selection(source ? source->object() : 0, 0 /* TODO m_display->serial() */);
+    set_selection(source ? source->object() : Q_NULLPTR, m_inputDevice->serial());
 }
 
 QWaylandDataOffer *QWaylandDataDevice::dragOffer() const

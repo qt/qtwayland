@@ -157,9 +157,9 @@ QWaylandInputDevice::Touch::~Touch()
     wl_touch_destroy(object());
 }
 
-QWaylandInputDevice::QWaylandInputDevice(QWaylandDisplay *display, uint32_t id)
+QWaylandInputDevice::QWaylandInputDevice(QWaylandDisplay *display, int version, uint32_t id)
     : QObject()
-    , QtWayland::wl_seat(display->wl_registry(), id, 2)
+    , QtWayland::wl_seat(display->wl_registry(), id, qMin(version, 2))
     , mQDisplay(display)
     , mDisplay(display->wl_display())
     , mCaps(0)
@@ -770,6 +770,17 @@ void QWaylandInputDevice::Keyboard::keyboard_key(uint32_t serial, uint32_t time,
 void QWaylandInputDevice::Keyboard::repeatKey()
 {
     mRepeatTimer.setInterval(25);
+    QWindowSystemInterface::handleExtendedKeyEvent(mFocus->window(),
+                                                   mRepeatTime, QEvent::KeyRelease, mRepeatKey,
+                                                   modifiers(),
+                                                   mRepeatCode,
+#ifndef QT_NO_WAYLAND_XKB
+                                                   mRepeatSym, mNativeModifiers,
+#else
+                                                   0, 0,
+#endif
+                                                   mRepeatText, true);
+
     QWindowSystemInterface::handleExtendedKeyEvent(mFocus->window(),
                                                    mRepeatTime, QEvent::KeyPress, mRepeatKey,
                                                    modifiers(),

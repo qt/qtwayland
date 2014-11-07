@@ -1,5 +1,6 @@
 /****************************************************************************
 **
+** Copyright (C) 2014 Robin Burchell <robin.burchell@viroteck.net>
 ** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
@@ -39,8 +40,8 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDDECORATION_H
-#define QWAYLANDDECORATION_H
+#ifndef QWAYLANDABSTRACTDECORATION_H
+#define QWAYLANDABSTRACTDECORATION_H
 
 #include <QtCore/QMargins>
 #include <QtCore/QPointF>
@@ -64,77 +65,41 @@ class QEvent;
 class QWaylandScreen;
 class QWaylandWindow;
 class QWaylandInputDevice;
+class QWaylandAbstractDecorationPrivate;
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandDecoration
+class Q_WAYLAND_CLIENT_EXPORT QWaylandAbstractDecoration : public QObject
 {
+    Q_OBJECT
+    Q_DECLARE_PRIVATE(QWaylandAbstractDecoration)
 public:
-    QWaylandDecoration(QWaylandWindow *window);
-    virtual ~QWaylandDecoration();
+    QWaylandAbstractDecoration();
+    virtual ~QWaylandAbstractDecoration();
+
+    void setWaylandWindow(QWaylandWindow *window);
+    QWaylandWindow *waylandWindow() const;
 
     void update();
     bool isDirty() const;
 
-    bool handleMouse(QWaylandInputDevice *inputDevice, const QPointF &local, const QPointF &global,Qt::MouseButtons b,Qt::KeyboardModifiers mods);
-    bool handleTouch(QWaylandInputDevice *inputDevice, const QPointF &local, const QPointF &global, Qt::TouchPointState state, Qt::KeyboardModifiers mods);
-    bool inMouseButtonPressedState() const;
+    virtual QMargins margins() const = 0;
+    QWindow *window() const;
+    const QImage &contentImage();
+
+    virtual bool handleMouse(QWaylandInputDevice *inputDevice, const QPointF &local, const QPointF &global,Qt::MouseButtons b,Qt::KeyboardModifiers mods) = 0;
+    virtual bool handleTouch(QWaylandInputDevice *inputDevice, const QPointF &local, const QPointF &global, Qt::TouchPointState state, Qt::KeyboardModifiers mods) = 0;
+
+protected:
+    virtual void paint(QPaintDevice *device) = 0;
+
+    void setMouseButtons(Qt::MouseButtons mb);
 
     void startResize(QWaylandInputDevice *inputDevice,enum wl_shell_surface_resize resize, Qt::MouseButtons buttons);
     void startMove(QWaylandInputDevice *inputDevice, Qt::MouseButtons buttons);
-    QMargins margins() const;
-    QWindow *window() const;
-    QWaylandWindow *waylandWindow() const;
-    const QImage &contentImage();
-
-protected:
-    void paint(QPaintDevice *device);
-
-private:
-    void processMouseTop(QWaylandInputDevice *inputDevice, const QPointF &local, Qt::MouseButtons b,Qt::KeyboardModifiers mods);
-    void processMouseBottom(QWaylandInputDevice *inputDevice, const QPointF &local, Qt::MouseButtons b,Qt::KeyboardModifiers mods);
-    void processMouseLeft(QWaylandInputDevice *inputDevice, const QPointF &local, Qt::MouseButtons b,Qt::KeyboardModifiers mods);
-    void processMouseRight(QWaylandInputDevice *inputDevice, const QPointF &local, Qt::MouseButtons b,Qt::KeyboardModifiers mods);
 
     bool isLeftClicked(Qt::MouseButtons newMouseButtonState);
     bool isLeftReleased(Qt::MouseButtons newMouseButtonState);
-
-    QRectF closeButtonRect() const;
-    QRectF maximizeButtonRect() const;
-    QRectF minimizeButtonRect() const;
-
-    QWindow *m_window;
-    QWaylandWindow *m_wayland_window;
-
-    bool m_isDirty;
-    QImage m_decorationContentImage;
-
-    QMargins m_margins;
-    Qt::MouseButtons m_mouseButtons;
-
-    QColor m_foregroundColor;
-    QColor m_backgroundColor;
-    QStaticText m_windowTitle;
 };
-
-inline bool QWaylandDecoration::isDirty() const
-{
-    return m_isDirty;
-}
-
-inline QMargins QWaylandDecoration::margins() const
-{
-    return m_margins;
-}
-
-inline QWindow *QWaylandDecoration::window() const
-{
-    return m_window;
-}
-
-inline QWaylandWindow *QWaylandDecoration::waylandWindow() const
-{
-    return m_wayland_window;
-}
 
 QT_END_NAMESPACE
 
-#endif // QWAYLANDDECORATION_H
+#endif // QWAYLANDABSTRACTDECORATION_H

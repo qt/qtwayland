@@ -23,7 +23,7 @@ INCLUDEPATH += $$PWD/../../include
 
 RESOURCES += qwindow-compositor.qrc
 
-target.path = $$[QT_INSTALL_EXAMPLES]/qtwayland/qwindow-compositor
+target.path = $$[QT_INSTALL_EXAMPLES]/wayland/qwindow-compositor
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS qwindow-compositor.pro
-sources.path = $$[QT_INSTALL_EXAMPLES]/qtwayland/qwindow-compositor
+sources.path = $$[QT_INSTALL_EXAMPLES]/wayland/qwindow-compositor
 INSTALLS += target sources

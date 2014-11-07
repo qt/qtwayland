@@ -45,7 +45,6 @@
 #include <QtWaylandClient/private/qwaylanddisplay_p.h>
 
 #include <qpa/qplatformopenglcontext.h>
-#include <QtGui/QOpenGLFunctions>
 
 #include "qwaylandeglinclude.h"
 
@@ -55,11 +54,12 @@ class QWaylandWindow;
 class QWaylandGLWindowSurface;
 class QOpenGLShaderProgram;
 class QOpenGLTextureCache;
+class DecorationsBlitter;
 
-class QWaylandGLContext : public QPlatformOpenGLContext, protected QOpenGLFunctions
+class QWaylandGLContext : public QPlatformOpenGLContext
 {
 public:
-    QWaylandGLContext(EGLDisplay eglDisplay, const QSurfaceFormat &format, QPlatformOpenGLContext *share);
+    QWaylandGLContext(EGLDisplay eglDisplay, QWaylandDisplay *display, const QSurfaceFormat &format, QPlatformOpenGLContext *share);
     ~QWaylandGLContext();
 
     void swapBuffers(QPlatformSurface *surface);
@@ -80,14 +80,18 @@ public:
     EGLContext eglContext() const { return m_context; }
 
 private:
-    EGLDisplay m_eglDisplay;
+    void updateGLFormat();
 
+    EGLDisplay m_eglDisplay;
+    QWaylandDisplay *m_display;
     EGLContext m_context;
     EGLContext m_shareEGLContext;
     EGLConfig m_config;
     QSurfaceFormat m_format;
-    QOpenGLShaderProgram *m_blitProgram;
+    DecorationsBlitter *m_blitter;
     bool mUseNativeDefaultFbo;
+
+    friend class DecorationsBlitter;
 };
 
 QT_END_NAMESPACE

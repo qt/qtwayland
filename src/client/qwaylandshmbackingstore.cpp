@@ -42,7 +42,7 @@
 #include "qwaylandwindow_p.h"
 #include "qwaylanddisplay_p.h"
 #include "qwaylandscreen_p.h"
-#include "qwaylanddecoration_p.h"
+#include "qwaylandabstractdecoration_p.h"
 
 #include <QtCore/qdebug.h>
 #include <QtGui/QPainter>
@@ -140,6 +140,9 @@ QWaylandShmBackingStore::QWaylandShmBackingStore(QWindow *window)
 
 QWaylandShmBackingStore::~QWaylandShmBackingStore()
 {
+    if (QWaylandWindow *w = waylandWindow())
+        w->setBackingStore(Q_NULLPTR);
+
     if (mFrameCallback)
         wl_callback_destroy(mFrameCallback);
 
@@ -173,6 +176,14 @@ void QWaylandShmBackingStore::endPaint()
 {
     mPainting = false;
     waylandWindow()->setCanResize(true);
+}
+
+void QWaylandShmBackingStore::hidden()
+{
+    if (mFrameCallback) {
+        wl_callback_destroy(mFrameCallback);
+        mFrameCallback = Q_NULLPTR;
+    }
 }
 
 void QWaylandShmBackingStore::ensureSize()
@@ -295,7 +306,7 @@ void QWaylandShmBackingStore::updateDecorations()
     decorationPainter.drawImage(target, sourceImage, target);
 }
 
-QWaylandDecoration *QWaylandShmBackingStore::windowDecoration() const
+QWaylandAbstractDecoration *QWaylandShmBackingStore::windowDecoration() const
 {
     return waylandWindow()->decoration();
 }
@@ -312,6 +323,7 @@ QWaylandWindow *QWaylandShmBackingStore::waylandWindow() const
     return static_cast<QWaylandWindow *>(window()->handle());
 }
 
+#ifndef QT_NO_OPENGL
 QImage QWaylandShmBackingStore::toImage() const
 {
     // Invoked from QPlatformBackingStore::composeAndFlush() that is called
@@ -320,6 +332,7 @@ QImage QWaylandShmBackingStore::toImage() const
 
     return *contentSurface();
 }
+#endif // QT_NO_OPENGL
 
 void QWaylandShmBackingStore::done(void *data, wl_callback *callback, uint32_t time)
 {

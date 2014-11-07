@@ -181,12 +181,14 @@ QPlatformWindow *QWaylandIntegration::createPlatformWindow(QWindow *window) cons
     return new QWaylandShmWindow(window);
 }
 
+#ifndef QT_NO_OPENGL
 QPlatformOpenGLContext *QWaylandIntegration::createPlatformOpenGLContext(QOpenGLContext *context) const
 {
     if (mDisplay->clientBufferIntegration())
         return mDisplay->clientBufferIntegration()->createPlatformOpenGLContext(context->format(), context->shareHandle());
     return 0;
 }
+#endif // QT_NO_OPENGL
 
 QPlatformBackingStore *QWaylandIntegration::createPlatformBackingStore(QWindow *window) const
 {
@@ -367,12 +369,12 @@ void QWaylandIntegration::initializeShellIntegration()
     }
 }
 
-QWaylandInputDevice *QWaylandIntegration::createInputDevice(QWaylandDisplay *display, uint32_t id)
+QWaylandInputDevice *QWaylandIntegration::createInputDevice(QWaylandDisplay *display, int version, uint32_t id)
 {
     if (mInputDeviceIntegration) {
-        return mInputDeviceIntegration->createInputDevice(display, id);
+        return mInputDeviceIntegration->createInputDevice(display, version, id);
     }
-    return new QWaylandInputDevice(display, id);
+    return new QWaylandInputDevice(display, version, id);
 }
 
 void QWaylandIntegration::initializeInputDeviceIntegration()

@@ -62,7 +62,7 @@ class Q_COMPOSITOR_EXPORT QWaylandQuickSurface : public QWaylandSurface
     Q_PROPERTY(bool clientRenderingEnabled READ clientRenderingEnabled WRITE setClientRenderingEnabled NOTIFY clientRenderingEnabledChanged)
     Q_PROPERTY(QObject *windowProperties READ windowPropertyMap CONSTANT)
 public:
-    QWaylandQuickSurface(wl_client *client, quint32 id, QWaylandQuickCompositor *compositor);
+    QWaylandQuickSurface(wl_client *client, quint32 id, int version, QWaylandQuickCompositor *compositor);
     ~QWaylandQuickSurface();
 
     QSGTexture *texture() const;

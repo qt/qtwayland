@@ -60,7 +60,7 @@ class QWaylandDisplay;
 class QWaylandBuffer;
 class QWaylandShellSurface;
 class QWaylandSubSurface;
-class QWaylandDecoration;
+class QWaylandAbstractDecoration;
 class QWaylandInputDevice;
 class QWaylandScreen;
 class QWaylandShmBackingStore;
@@ -146,9 +146,7 @@ public:
     bool isExposed() const Q_DECL_OVERRIDE;
     void unfocus();
 
-    QWaylandDecoration *decoration() const;
-    void setDecoration(QWaylandDecoration *decoration);
-
+    QWaylandAbstractDecoration *decoration() const;
 
     void handleMouse(QWaylandInputDevice *inputDevice,
                      ulong timestamp,
@@ -201,7 +199,7 @@ protected:
     QWaylandShellSurface *mShellSurface;
     QWaylandSubSurface *mSubSurfaceWindow;
 
-    QWaylandDecoration *mWindowDecoration;
+    QWaylandAbstractDecoration *mWindowDecoration;
     bool mMouseEventsInContentArea;
     Qt::MouseButtons mMousePressedInContentArea;
     Qt::CursorShape m_cursorShape;

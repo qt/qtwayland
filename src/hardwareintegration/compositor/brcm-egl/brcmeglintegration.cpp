@@ -120,7 +120,7 @@ void BrcmEglIntegration::initializeHardware(QtWayland::Display *waylandDisplay)
             return;
         }
         d->valid = true;
-        init(waylandDisplay->handle());
+        init(waylandDisplay->handle(), 1);
     }
 }
 

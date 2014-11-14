@@ -64,8 +64,10 @@ QWaylandSurfaceView::QWaylandSurfaceView(QWaylandSurface *surf)
 
 QWaylandSurfaceView::~QWaylandSurfaceView()
 {
-    if (d->surface)
+    if (d->surface) {
         d->surface->destroy();
+        d->surface->d_func()->views.removeOne(this);
+    }
     delete d;
 }
 

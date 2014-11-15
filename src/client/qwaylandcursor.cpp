@@ -66,12 +66,15 @@ QWaylandCursor::QWaylandCursor(QWaylandScreen *screen)
     if (!hasCursorSize || cursorSize <= 0)
         cursorSize = 32;
     mCursorTheme = wl_cursor_theme_load(cursorTheme, cursorSize, mDisplay->shm());
+    if (!mCursorTheme)
+        qDebug() << "Could not load theme" << cursorTheme;
     initCursorMap();
 }
 
 QWaylandCursor::~QWaylandCursor()
 {
-    wl_cursor_theme_destroy(mCursorTheme);
+    if (mCursorTheme)
+        wl_cursor_theme_destroy(mCursorTheme);
 }
 
 struct wl_cursor_image *QWaylandCursor::cursorImage(Qt::CursorShape newShape)
@@ -160,6 +163,9 @@ wl_cursor *QWaylandCursor::requestCursor(WaylandCursor shape)
 
     //If the cursor has not been loaded already, load it
     if (!cursor) {
+        if (!mCursorTheme)
+            return NULL;
+
         QList<QByteArray> cursorNames = mCursorNamesMap.values(shape);
         foreach (QByteArray name, cursorNames) {
             cursor = wl_cursor_theme_get_cursor(mCursorTheme, name.constData());

@@ -43,7 +43,7 @@
 
 #include <QtWaylandClient/private/qwaylanddisplay_p.h>
 #include <QtWaylandClient/private/qwaylandwindow_p.h>
-#include <QtWaylandClient/private/qwaylanddecoration_p.h>
+#include <QtWaylandClient/private/qwaylandabstractdecoration_p.h>
 #include <QtWaylandClient/private/qwaylandintegration_p.h>
 #include "qwaylandeglwindow.h"
 
@@ -56,13 +56,174 @@
 #include <qpa/qplatformopenglcontext.h>
 #include <QtGui/QSurfaceFormat>
 #include <QtGui/QOpenGLShaderProgram>
+#include <QtGui/QOpenGLFunctions>
+
+// Constants from EGL_KHR_create_context
+#ifndef EGL_CONTEXT_MINOR_VERSION_KHR
+#define EGL_CONTEXT_MINOR_VERSION_KHR 0x30FB
+#endif
+#ifndef EGL_CONTEXT_FLAGS_KHR
+#define EGL_CONTEXT_FLAGS_KHR 0x30FC
+#endif
+#ifndef EGL_CONTEXT_OPENGL_PROFILE_MASK_KHR
+#define EGL_CONTEXT_OPENGL_PROFILE_MASK_KHR 0x30FD
+#endif
+#ifndef EGL_CONTEXT_OPENGL_DEBUG_BIT_KHR
+#define EGL_CONTEXT_OPENGL_DEBUG_BIT_KHR 0x00000001
+#endif
+#ifndef EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE_BIT_KHR
+#define EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE_BIT_KHR 0x00000002
+#endif
+#ifndef EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT_KHR
+#define EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT_KHR 0x00000001
+#endif
+#ifndef EGL_CONTEXT_OPENGL_COMPATIBILITY_PROFILE_BIT_KHR
+#define EGL_CONTEXT_OPENGL_COMPATIBILITY_PROFILE_BIT_KHR 0x00000002
+#endif
+
+// Constants for OpenGL which are not available in the ES headers.
+#ifndef GL_CONTEXT_FLAGS
+#define GL_CONTEXT_FLAGS 0x821E
+#endif
+#ifndef GL_CONTEXT_FLAG_FORWARD_COMPATIBLE_BIT
+#define GL_CONTEXT_FLAG_FORWARD_COMPATIBLE_BIT 0x0001
+#endif
+#ifndef GL_CONTEXT_FLAG_DEBUG_BIT
+#define GL_CONTEXT_FLAG_DEBUG_BIT 0x00000002
+#endif
+#ifndef GL_CONTEXT_PROFILE_MASK
+#define GL_CONTEXT_PROFILE_MASK 0x9126
+#endif
+#ifndef GL_CONTEXT_CORE_PROFILE_BIT
+#define GL_CONTEXT_CORE_PROFILE_BIT 0x00000001
+#endif
+#ifndef GL_CONTEXT_COMPATIBILITY_PROFILE_BIT
+#define GL_CONTEXT_COMPATIBILITY_PROFILE_BIT 0x00000002
+#endif
 
 QT_BEGIN_NAMESPACE
 
-QWaylandGLContext::QWaylandGLContext(EGLDisplay eglDisplay, const QSurfaceFormat &format, QPlatformOpenGLContext *share)
+class DecorationsBlitter : public QOpenGLFunctions
+{
+public:
+    DecorationsBlitter(QWaylandGLContext *context)
+        : m_context(context)
+    {
+        initializeOpenGLFunctions();
+        m_blitProgram = new QOpenGLShaderProgram();
+        m_blitProgram->addShaderFromSourceCode(QOpenGLShader::Vertex, "attribute vec4 position;\n\
+                                                                    attribute vec4 texCoords;\n\
+                                                                    varying vec2 outTexCoords;\n\
+                                                                    void main()\n\
+                                                                    {\n\
+                                                                        gl_Position = position;\n\
+                                                                        outTexCoords = texCoords.xy;\n\
+                                                                    }");
+        m_blitProgram->addShaderFromSourceCode(QOpenGLShader::Fragment, "varying highp vec2 outTexCoords;\n\
+                                                                        uniform sampler2D texture;\n\
+                                                                        void main()\n\
+                                                                        {\n\
+                                                                            gl_FragColor = texture2D(texture, outTexCoords);\n\
+                                                                        }");
+
+        m_blitProgram->bindAttributeLocation("position", 0);
+        m_blitProgram->bindAttributeLocation("texCoords", 1);
+
+        if (!m_blitProgram->link()) {
+            qDebug() << "Shader Program link failed.";
+            qDebug() << m_blitProgram->log();
+        }
+    }
+    ~DecorationsBlitter()
+    {
+        delete m_blitProgram;
+    }
+    void blit(QWaylandEglWindow *window)
+    {
+        QOpenGLTextureCache *cache = QOpenGLTextureCache::cacheForContext(m_context->context());
+
+        QRect windowRect = window->window()->frameGeometry();
+        glViewport(0, 0, windowRect.width(), windowRect.height());
+
+        glDisable(GL_DEPTH_TEST);
+        glDisable(GL_BLEND);
+        glDisable(GL_CULL_FACE);
+        glDisable(GL_SCISSOR_TEST);
+        glDepthMask(GL_FALSE);
+        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+
+        m_context->mUseNativeDefaultFbo = true;
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        m_context->mUseNativeDefaultFbo = false;
+
+        static const GLfloat squareVertices[] = {
+            -1.f, -1.f,
+            1.0f, -1.f,
+            -1.f,  1.0f,
+            1.0f,  1.0f
+        };
+
+        static const GLfloat inverseSquareVertices[] = {
+            -1.f, 1.f,
+            1.f, 1.f,
+            -1.f, -1.f,
+            1.f, -1.f
+        };
+
+        static const GLfloat textureVertices[] = {
+            0.0f,  0.0f,
+            1.0f,  0.0f,
+            0.0f,  1.0f,
+            1.0f,  1.0f,
+        };
+
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        m_blitProgram->bind();
+
+        m_blitProgram->enableAttributeArray(0);
+        m_blitProgram->enableAttributeArray(1);
+        m_blitProgram->setAttributeArray(1, textureVertices, 2);
+
+        glActiveTexture(GL_TEXTURE0);
+
+        //Draw Decoration
+        m_blitProgram->setAttributeArray(0, inverseSquareVertices, 2);
+        QImage decorationImage = window->decoration()->contentImage();
+        cache->bindTexture(m_context->context(), decorationImage);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        if (m_context->context()->functions()->hasOpenGLFeature(QOpenGLFunctions::NPOTTextureRepeat)) {
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        } else {
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        }
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+        //Draw Content
+        m_blitProgram->setAttributeArray(0, squareVertices, 2);
+        glBindTexture(GL_TEXTURE_2D, window->contentTexture());
+        QRect r = window->contentsRect();
+        glViewport(r.x(), r.y(), r.width(), r.height());
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+        //Cleanup
+        m_blitProgram->disableAttributeArray(0);
+        m_blitProgram->disableAttributeArray(1);
+    }
+
+    QOpenGLShaderProgram *m_blitProgram;
+    QWaylandGLContext *m_context;
+};
+
+
+
+QWaylandGLContext::QWaylandGLContext(EGLDisplay eglDisplay, QWaylandDisplay *display, const QSurfaceFormat &format, QPlatformOpenGLContext *share)
     : QPlatformOpenGLContext()
     , m_eglDisplay(eglDisplay)
-    , m_blitProgram(0)
+    , m_display(display)
+    , m_blitter(0)
     , mUseNativeDefaultFbo(false)
 {
     QSurfaceFormat fmt = format;
@@ -71,6 +232,36 @@ QWaylandGLContext::QWaylandGLContext(EGLDisplay eglDisplay, const QSurfaceFormat
     m_config = q_configFromGLFormat(m_eglDisplay, fmt);
     m_format = q_glFormatFromConfig(m_eglDisplay, m_config);
     m_shareEGLContext = share ? static_cast<QWaylandGLContext *>(share)->eglContext() : EGL_NO_CONTEXT;
+
+    QVector<EGLint> eglContextAttrs;
+    eglContextAttrs.append(EGL_CONTEXT_CLIENT_VERSION);
+    eglContextAttrs.append(format.majorVersion());
+    const bool hasKHRCreateContext = q_hasEglExtension(m_eglDisplay, "EGL_KHR_create_context");
+    if (hasKHRCreateContext) {
+        eglContextAttrs.append(EGL_CONTEXT_MINOR_VERSION_KHR);
+        eglContextAttrs.append(format.minorVersion());
+        int flags = 0;
+        // The debug bit is supported both for OpenGL and OpenGL ES.
+        if (format.testOption(QSurfaceFormat::DebugContext))
+            flags |= EGL_CONTEXT_OPENGL_DEBUG_BIT_KHR;
+        // The fwdcompat bit is only for OpenGL 3.0+.
+        if (m_format.renderableType() == QSurfaceFormat::OpenGL
+            && format.majorVersion() >= 3
+            && !format.testOption(QSurfaceFormat::DeprecatedFunctions))
+            flags |= EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE_BIT_KHR;
+        if (flags) {
+            eglContextAttrs.append(EGL_CONTEXT_FLAGS_KHR);
+            eglContextAttrs.append(flags);
+        }
+        // Profiles are OpenGL only and mandatory in 3.2+. The value is silently ignored for < 3.2.
+        if (m_format.renderableType() == QSurfaceFormat::OpenGL) {
+            eglContextAttrs.append(EGL_CONTEXT_OPENGL_PROFILE_MASK_KHR);
+            eglContextAttrs.append(format.profile() == QSurfaceFormat::CoreProfile
+                                ? EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT_KHR
+                                : EGL_CONTEXT_OPENGL_COMPATIBILITY_PROFILE_BIT_KHR);
+        }
+    }
+    eglContextAttrs.append(EGL_NONE);
 
     switch (m_format.renderableType()) {
     case QSurfaceFormat::OpenVG:
@@ -90,11 +281,6 @@ QWaylandGLContext::QWaylandGLContext(EGLDisplay eglDisplay, const QSurfaceFormat
         break;
     }
 
-    QVector<EGLint> eglContextAttrs;
-    eglContextAttrs.append(EGL_CONTEXT_CLIENT_VERSION);
-    eglContextAttrs.append(format.majorVersion() == 1 ? 1 : 2);
-    eglContextAttrs.append(EGL_NONE);
-
     m_context = eglCreateContext(m_eglDisplay, m_config, m_shareEGLContext, eglContextAttrs.constData());
 
     if (m_context == EGL_NO_CONTEXT) {
@@ -103,13 +289,75 @@ QWaylandGLContext::QWaylandGLContext(EGLDisplay eglDisplay, const QSurfaceFormat
     }
 
     EGLint error = eglGetError();
-    if (error != EGL_SUCCESS)
+    if (error != EGL_SUCCESS) {
         qWarning("QWaylandGLContext: failed to create EGLContext, error=%x", error);
+        return;
+    }
+
+    updateGLFormat();
+}
+
+void QWaylandGLContext::updateGLFormat()
+{
+    // Have to save & restore to prevent QOpenGLContext::currentContext() from becoming
+    // inconsistent after QOpenGLContext::create().
+    EGLDisplay prevDisplay = eglGetCurrentDisplay();
+    if (prevDisplay == EGL_NO_DISPLAY) // when no context is current
+        prevDisplay = m_eglDisplay;
+    EGLContext prevContext = eglGetCurrentContext();
+    EGLSurface prevSurfaceDraw = eglGetCurrentSurface(EGL_DRAW);
+    EGLSurface prevSurfaceRead = eglGetCurrentSurface(EGL_READ);
+
+    wl_surface *wlSurface = m_display->createSurface(Q_NULLPTR);
+    wl_egl_window *eglWindow = wl_egl_window_create(wlSurface, 1, 1);
+    EGLSurface eglSurface = eglCreateWindowSurface(m_eglDisplay, m_config, eglWindow, 0);
+
+    if (eglMakeCurrent(m_eglDisplay, eglSurface, eglSurface, m_context)) {
+        if (m_format.renderableType() == QSurfaceFormat::OpenGL
+            || m_format.renderableType() == QSurfaceFormat::OpenGLES) {
+            const GLubyte *s = glGetString(GL_VERSION);
+            if (s) {
+                QByteArray version = QByteArray(reinterpret_cast<const char *>(s));
+                int major, minor;
+                if (QPlatformOpenGLContext::parseOpenGLVersion(version, major, minor)) {
+                    m_format.setMajorVersion(major);
+                    m_format.setMinorVersion(minor);
+                }
+            }
+            m_format.setProfile(QSurfaceFormat::NoProfile);
+            m_format.setOptions(QSurfaceFormat::FormatOptions());
+            if (m_format.renderableType() == QSurfaceFormat::OpenGL) {
+                // Check profile and options.
+                if (m_format.majorVersion() < 3) {
+                    m_format.setOption(QSurfaceFormat::DeprecatedFunctions);
+                } else {
+                    GLint value = 0;
+                    glGetIntegerv(GL_CONTEXT_FLAGS, &value);
+                    if (!(value & GL_CONTEXT_FLAG_FORWARD_COMPATIBLE_BIT))
+                        m_format.setOption(QSurfaceFormat::DeprecatedFunctions);
+                    if (value & GL_CONTEXT_FLAG_DEBUG_BIT)
+                        m_format.setOption(QSurfaceFormat::DebugContext);
+                    if (m_format.version() >= qMakePair(3, 2)) {
+                        value = 0;
+                        glGetIntegerv(GL_CONTEXT_PROFILE_MASK, &value);
+                        if (value & GL_CONTEXT_CORE_PROFILE_BIT)
+                            m_format.setProfile(QSurfaceFormat::CoreProfile);
+                        else if (value & GL_CONTEXT_COMPATIBILITY_PROFILE_BIT)
+                            m_format.setProfile(QSurfaceFormat::CompatibilityProfile);
+                    }
+                }
+            }
+        }
+        eglMakeCurrent(prevDisplay, prevSurfaceDraw, prevSurfaceRead, prevContext);
+    }
+    eglDestroySurface(m_eglDisplay, eglSurface);
+    wl_egl_window_destroy(eglWindow);
+    wl_surface_destroy(wlSurface);
 }
 
 QWaylandGLContext::~QWaylandGLContext()
 {
-    delete m_blitProgram;
+    delete m_blitter;
     eglDestroyContext(m_eglDisplay, m_context);
 }
 
@@ -122,6 +370,13 @@ bool QWaylandGLContext::makeCurrent(QPlatformSurface *surface)
         return true;
 
     window->setCanResize(false);
+    // Core profiles mandate the use of VAOs when rendering. We would then need to use one
+    // in DecorationsBlitter, but for that we would need a QOpenGLFunctions_3_2_Core instead
+    // of the QOpenGLFunctions we use, but that would break when using a lower version context.
+    // Instead of going crazy, just disable decorations for core profiles until we use
+    // subsurfaces for them.
+    if (m_format.profile() != QSurfaceFormat::CoreProfile && !window->decoration())
+        window->createDecoration();
 
     if (eglSurface == EGL_NO_SURFACE) {
         window->updateSurface(true);
@@ -253,104 +508,9 @@ void QWaylandGLContext::swapBuffers(QPlatformSurface *surface)
         // for random context state changes in a swapBuffers() call.
         StateGuard stateGuard;
 
-        if (!m_blitProgram) {
-            initializeOpenGLFunctions();
-            m_blitProgram = new QOpenGLShaderProgram();
-            m_blitProgram->addShaderFromSourceCode(QOpenGLShader::Vertex, "attribute vec4 position;\n\
-                                                                        attribute vec4 texCoords;\n\
-                                                                        varying vec2 outTexCoords;\n\
-                                                                        void main()\n\
-                                                                        {\n\
-                                                                            gl_Position = position;\n\
-                                                                            outTexCoords = texCoords.xy;\n\
-                                                                        }");
-            m_blitProgram->addShaderFromSourceCode(QOpenGLShader::Fragment, "varying highp vec2 outTexCoords;\n\
-                                                                            uniform sampler2D texture;\n\
-                                                                            void main()\n\
-                                                                            {\n\
-                                                                                gl_FragColor = texture2D(texture, outTexCoords);\n\
-                                                                            }");
-
-            m_blitProgram->bindAttributeLocation("position", 0);
-            m_blitProgram->bindAttributeLocation("texCoords", 1);
-
-            if (!m_blitProgram->link()) {
-                qDebug() << "Shader Program link failed.";
-                qDebug() << m_blitProgram->log();
-            }
-        }
-
-        QOpenGLTextureCache *cache = QOpenGLTextureCache::cacheForContext(context());
-
-        QRect windowRect = window->window()->frameGeometry();
-        glViewport(0, 0, windowRect.width(), windowRect.height());
-
-        glDisable(GL_DEPTH_TEST);
-        glDisable(GL_BLEND);
-        glDisable(GL_CULL_FACE);
-        glDisable(GL_SCISSOR_TEST);
-        glDepthMask(GL_FALSE);
-        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-
-        mUseNativeDefaultFbo = true;
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        mUseNativeDefaultFbo = false;
-
-        static const GLfloat squareVertices[] = {
-            -1.f, -1.f,
-            1.0f, -1.f,
-            -1.f,  1.0f,
-            1.0f,  1.0f
-        };
-
-        static const GLfloat inverseSquareVertices[] = {
-            -1.f, 1.f,
-            1.f, 1.f,
-            -1.f, -1.f,
-            1.f, -1.f
-        };
-
-        static const GLfloat textureVertices[] = {
-            0.0f,  0.0f,
-            1.0f,  0.0f,
-            0.0f,  1.0f,
-            1.0f,  1.0f,
-        };
-
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        m_blitProgram->bind();
-
-        m_blitProgram->enableAttributeArray(0);
-        m_blitProgram->enableAttributeArray(1);
-        m_blitProgram->setAttributeArray(1, textureVertices, 2);
-
-        glActiveTexture(GL_TEXTURE0);
-
-        //Draw Decoration
-        m_blitProgram->setAttributeArray(0, inverseSquareVertices, 2);
-        QImage decorationImage = window->decoration()->contentImage();
-        cache->bindTexture(context(), decorationImage);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        if (context()->functions()->hasOpenGLFeature(QOpenGLFunctions::NPOTTextureRepeat)) {
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        } else {
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        }
-        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-
-        //Draw Content
-        m_blitProgram->setAttributeArray(0, squareVertices, 2);
-        glBindTexture(GL_TEXTURE_2D, window->contentTexture());
-        QRect r = window->contentsRect();
-        glViewport(r.x(), r.y(), r.width(), r.height());
-        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-
-        //Cleanup
-        m_blitProgram->disableAttributeArray(0);
-        m_blitProgram->disableAttributeArray(1);
+        if (!m_blitter)
+            m_blitter = new DecorationsBlitter(this);
+        m_blitter->blit(window);
     }
 
     eglSwapBuffers(m_eglDisplay, eglSurface);

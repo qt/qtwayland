@@ -89,7 +89,7 @@ struct ::wl_resource *LibHybrisEglServerBuffer::resourceForClient(struct ::wl_cl
             return 0;
         }
         struct ::wl_resource *egl_resource = (*egl_it)->handle;
-        Resource *resource = add(client);
+        Resource *resource = add(client, 1, 1);
         wl_resource *bufRes = wl_client_new_object(client, &qt_libhybris_buffer_interface, 0, 0);
 
         m_integration->send_server_buffer_created(egl_resource, resource->handle, bufRes, m_fds.size(), QByteArray((char *)m_ints.data(), m_ints.size() * sizeof(int32_t)),
@@ -174,7 +174,7 @@ void LibHybrisEglServerBufferIntegration::initializeHardware(QWaylandCompositor 
         return;
     }
 
-    QtWaylandServer::qt_libhybris_egl_server_buffer::init(compositor->waylandDisplay());
+    QtWaylandServer::qt_libhybris_egl_server_buffer::init(compositor->waylandDisplay(), 1);
 }
 
 bool LibHybrisEglServerBufferIntegration::supportsFormat(QtWayland::ServerBuffer::Format format) const

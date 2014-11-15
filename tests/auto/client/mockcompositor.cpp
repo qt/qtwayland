@@ -238,7 +238,7 @@ void Compositor::dispatchEvents(int timeout)
 static void compositor_create_surface(wl_client *client, wl_resource *compositorResource, uint32_t id)
 {
     Compositor *compositor = static_cast<Compositor *>(compositorResource->data);
-    compositor->addSurface(new Surface(client, id, compositor));
+    compositor->addSurface(new Surface(client, id, wl_resource_get_version(compositorResource), compositor));
 }
 
 static void compositor_create_region(wl_client *client, wl_resource *compositorResource, uint32_t id)

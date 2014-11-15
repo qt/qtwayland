@@ -54,7 +54,7 @@ QT_BEGIN_NAMESPACE
 namespace QtWayland {
 
 TextInput::TextInput(Compositor *compositor, struct ::wl_client *client, int id)
-    : wl_text_input(client, id)
+    : wl_text_input(client, id, 1)
     , m_compositor(compositor)
     , m_focus()
     , m_inputPanelVisible()

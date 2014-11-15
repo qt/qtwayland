@@ -93,7 +93,6 @@ class Q_COMPOSITOR_EXPORT QWaylandSurface : public QObject
     Q_PROPERTY(QString title READ title NOTIFY titleChanged)
     Q_PROPERTY(Qt::ScreenOrientations orientationUpdateMask READ orientationUpdateMask NOTIFY orientationUpdateMaskChanged)
     Q_PROPERTY(QWindow::Visibility visibility READ visibility WRITE setVisibility NOTIFY visibilityChanged)
-    Q_PROPERTY(QSize size READ size NOTIFY sizeChanged)
     Q_PROPERTY(QWaylandSurface *transientParent READ transientParent)
     Q_PROPERTY(QPointF transientOffset READ transientOffset)
 
@@ -121,7 +120,7 @@ public:
         Texture
     };
 
-    QWaylandSurface(wl_client *client, quint32 id, QWaylandCompositor *compositor);
+    QWaylandSurface(wl_client *client, quint32 id, int version, QWaylandCompositor *compositor);
     virtual ~QWaylandSurface();
 
     QWaylandClient *client() const;
@@ -175,7 +174,6 @@ public:
 
     Q_INVOKABLE void destroy();
     Q_INVOKABLE void destroySurface();
-    Q_INVOKABLE void destroySurfaceByForce();
     Q_INVOKABLE void ping();
 
     void ref();

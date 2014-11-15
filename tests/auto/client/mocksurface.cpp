@@ -44,8 +44,8 @@
 
 namespace Impl {
 
-Surface::Surface(wl_client *client, uint32_t id, Compositor *compositor)
-    : QtWaylandServer::wl_surface(client, id)
+Surface::Surface(wl_client *client, uint32_t id, int v, Compositor *compositor)
+    : QtWaylandServer::wl_surface(client, id, v)
     , m_buffer(Q_NULLPTR)
     , m_compositor(compositor)
     , m_mockSurface(new MockSurface(this))

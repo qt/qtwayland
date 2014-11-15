@@ -56,7 +56,7 @@ static const char *qwaylandegl_threadedgl_blacklist_vendor[] = {
 };
 
 QWaylandEglClientBufferIntegration::QWaylandEglClientBufferIntegration()
-    : m_waylandDisplay(0)
+    : m_display(0)
     , m_eglDisplay(EGL_NO_DISPLAY)
     , m_supportsThreading(false)
 {
@@ -76,10 +76,10 @@ void QWaylandEglClientBufferIntegration::initialize(QWaylandDisplay *display)
         setenv("EGL_PLATFORM","wayland",true);
     }
 
-    m_waylandDisplay = display->wl_display();
+    m_display = display;
 
     EGLint major,minor;
-    m_eglDisplay = eglGetDisplay((EGLNativeDisplayType) m_waylandDisplay);
+    m_eglDisplay = eglGetDisplay((EGLNativeDisplayType) display->wl_display());
     if (m_eglDisplay == EGL_NO_DISPLAY) {
         qWarning("EGL not available");
         return;
@@ -126,7 +126,7 @@ QWaylandWindow *QWaylandEglClientBufferIntegration::createEglWindow(QWindow *win
 
 QPlatformOpenGLContext *QWaylandEglClientBufferIntegration::createPlatformOpenGLContext(const QSurfaceFormat &glFormat, QPlatformOpenGLContext *share) const
 {
-    return new QWaylandGLContext(m_eglDisplay, glFormat, share);
+    return new QWaylandGLContext(m_eglDisplay, m_display, glFormat, share);
 }
 
 EGLDisplay QWaylandEglClientBufferIntegration::eglDisplay() const

@@ -47,7 +47,7 @@ QT_BEGIN_NAMESPACE
 namespace QtWayland {
 
 InputMethodContext::InputMethodContext(wl_client *client, TextInput *textInput)
-    : QtWaylandServer::wl_input_method_context(client, 0)
+    : QtWaylandServer::wl_input_method_context(client, 0, 1)
     , m_textInput(textInput)
 {
 }

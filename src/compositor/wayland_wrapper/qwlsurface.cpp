@@ -109,8 +109,8 @@ static QRegion infiniteRegion() {
                          QPoint(std::numeric_limits<int>::max(), std::numeric_limits<int>::max())));
 }
 
-Surface::Surface(struct wl_client *client, uint32_t id, QWaylandCompositor *compositor, QWaylandSurface *surface)
-    : QtWaylandServer::wl_surface(client, id)
+Surface::Surface(struct wl_client *client, uint32_t id, int version, QWaylandCompositor *compositor, QWaylandSurface *surface)
+    : QtWaylandServer::wl_surface(client, id, version)
     , m_compositor(compositor->handle())
     , m_waylandSurface(surface)
     , m_buffer(0)
@@ -340,8 +340,7 @@ Qt::ScreenOrientation Surface::contentOrientation() const
 void Surface::surface_destroy_resource(Resource *)
 {
     if (m_extendedSurface) {
-        if (m_extendedSurface->resource())
-            wl_resource_destroy(m_extendedSurface->resource()->handle);
+        m_extendedSurface->setParentSurface(Q_NULLPTR);
         m_extendedSurface = 0;
     }
 

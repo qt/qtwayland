@@ -50,9 +50,11 @@
 #include "qwaylandwlshellsurface_p.h"
 #include "qwaylandxdgsurface_p.h"
 #include "qwaylandsubsurface_p.h"
-#include "qwaylanddecoration_p.h"
+#include "qwaylandabstractdecoration_p.h"
 #include "qwaylandwindowmanagerintegration_p.h"
 #include "qwaylandnativeinterface_p.h"
+#include "qwaylanddecorationfactory_p.h"
+#include "qwaylandshmbackingstore_p.h"
 
 #include <QtCore/QFileInfo>
 #include <QtCore/QPointer>
@@ -90,6 +92,7 @@ QWaylandWindow::QWaylandWindow(QWindow *window)
     , mMouseSerial(0)
     , mState(Qt::WindowNoState)
     , mMask()
+    , mBackingStore(Q_NULLPTR)
 {
     init(mDisplay->createSurface(static_cast<QtWayland::wl_surface *>(this)));
 
@@ -249,6 +252,9 @@ void QWaylandWindow::setVisible(bool visible)
         if (!deleteGuard.isNull()) {
             attach(static_cast<QWaylandBuffer *>(0), 0, 0);
             commit();
+            if (mBackingStore) {
+                mBackingStore->hidden();
+            }
         }
     }
 }
@@ -443,6 +449,9 @@ QWaylandSubSurface *QWaylandWindow::subSurfaceWindow() const
 
 void QWaylandWindow::handleContentOrientationChange(Qt::ScreenOrientation orientation)
 {
+    if (mDisplay->compositorVersion() < 2)
+        return;
+
     wl_output_transform transform;
     bool isPortrait = window()->screen() && window()->screen()->primaryOrientation() == Qt::PortraitOrientation;
     switch (orientation) {
@@ -506,6 +515,7 @@ bool QWaylandWindow::createDecoration()
     if (!mDisplay->supportsWindowDecoration())
         return false;
 
+    static bool decorationPluginFailed = false;
     bool decoration = false;
     switch (window()->type()) {
         case Qt::Window:
@@ -523,9 +533,40 @@ bool QWaylandWindow::createDecoration()
     if (window()->flags() & Qt::BypassWindowManagerHint)
         decoration = false;
 
-    if (decoration) {
-        if (!mWindowDecoration)
-            mWindowDecoration = new QWaylandDecoration(this);
+    if (decoration && !decorationPluginFailed) {
+        if (!mWindowDecoration) {
+            QStringList decorations = QWaylandDecorationFactory::keys();
+            if (decorations.empty()) {
+                qWarning() << "No decoration plugins available. Running with no decorations.";
+                decorationPluginFailed = true;
+                return false;
+            }
+
+            QString targetKey;
+            QByteArray decorationPluginName = qgetenv("QT_WAYLAND_DECORATION");
+            if (!decorationPluginName.isEmpty()) {
+                targetKey = QString::fromLocal8Bit(decorationPluginName);
+                if (!decorations.contains(targetKey)) {
+                    qWarning() << "Requested decoration " << targetKey << " not found, falling back to default";
+                    targetKey = QString(); // fallthrough
+                }
+            }
+
+            if (targetKey.isEmpty())
+                targetKey = decorations.first(); // first come, first served.
+
+
+            mWindowDecoration = QWaylandDecorationFactory::create(targetKey, QStringList());
+            if (!mWindowDecoration) {
+                qWarning() << "Could not create decoration from factory! Running with no decorations.";
+                decorationPluginFailed = true;
+                return false;
+            }
+            mWindowDecoration->setWaylandWindow(this);
+            if (subSurfaceWindow()) {
+                subSurfaceWindow()->adjustPositionOfChildren();
+            }
+        }
     } else {
         delete mWindowDecoration;
         mWindowDecoration = 0;
@@ -534,17 +575,9 @@ bool QWaylandWindow::createDecoration()
     return mWindowDecoration;
 }
 
-QWaylandDecoration *QWaylandWindow::decoration() const
+QWaylandAbstractDecoration *QWaylandWindow::decoration() const
 {
     return mWindowDecoration;
-}
-
-void QWaylandWindow::setDecoration(QWaylandDecoration *decoration)
-{
-    mWindowDecoration = decoration;
-    if (subSurfaceWindow()) {
-        subSurfaceWindow()->adjustPositionOfChildren();
-    }
 }
 
 static QWindow *topLevelWindow(QWindow *window)
@@ -695,7 +728,6 @@ bool QWaylandWindow::setWindowStateInternal(Qt::WindowState state)
     // QPlatformWindow::setWindowState returns, so we cannot rely on QWindow::windowState
     // here. We use then this mState variable.
     mState = state;
-    createDecoration();
 
     if (mShellSurface) {
         switch (state) {

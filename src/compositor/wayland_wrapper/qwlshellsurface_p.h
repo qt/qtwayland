@@ -112,7 +112,6 @@ private:
     Shell *m_shell;
     Surface *m_surface;
     QWaylandSurfaceView *m_view;
-    bool m_deleting;
 
     ShellSurfaceResizeGrabber *m_resizeGrabber;
     ShellSurfaceMoveGrabber *m_moveGrabber;

@@ -52,7 +52,7 @@ QT_BEGIN_NAMESPACE
 namespace QtWayland {
 
 InputMethod::InputMethod(Compositor *compositor, InputDevice *seat)
-    : QtWaylandServer::wl_input_method(seat->compositor()->wl_display())
+    : QtWaylandServer::wl_input_method(seat->compositor()->wl_display(), 1)
     , m_compositor(compositor)
     , m_seat(seat)
     , m_resource(0)

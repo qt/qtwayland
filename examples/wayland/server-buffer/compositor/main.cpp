@@ -71,7 +71,7 @@ class QmlCompositor
 public:
     QmlCompositor()
         : QWaylandQuickCompositor(this, 0, DefaultExtensions | SubSurfaceExtension)
-        , QtWaylandServer::qt_share_buffer(QWaylandCompositor::handle()->wl_display())
+        , QtWaylandServer::qt_share_buffer(QWaylandCompositor::handle()->wl_display(), 1)
         , m_server_buffer_32_bit(0)
         , m_server_buffer_item_32_bit(0)
         , m_server_buffer_8_bit(0)

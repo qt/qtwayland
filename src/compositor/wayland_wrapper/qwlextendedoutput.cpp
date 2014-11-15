@@ -49,7 +49,7 @@ QT_BEGIN_NAMESPACE
 namespace QtWayland {
 
 OutputExtensionGlobal::OutputExtensionGlobal(Compositor *compositor)
-    : QtWaylandServer::qt_output_extension(compositor->wl_display())
+    : QtWaylandServer::qt_output_extension(compositor->wl_display(), 1)
     , m_compositor(compositor)
 {
 }
@@ -59,7 +59,7 @@ void OutputExtensionGlobal::output_extension_get_extended_output(qt_output_exten
     Output *output = static_cast<Output *>(OutputGlobal::Resource::fromResource(output_resource));
     Q_ASSERT(output->extendedOutput == 0);
 
-    ExtendedOutput *extendedOutput = static_cast<ExtendedOutput *>(qt_extended_output::add(resource->client(), id));
+    ExtendedOutput *extendedOutput = static_cast<ExtendedOutput *>(qt_extended_output::add(resource->client(), id, resource->version()));
 
     Q_ASSERT(!output->extendedOutput);
     output->extendedOutput = extendedOutput;

@@ -56,7 +56,7 @@ public:
     QWaylandInputDeviceIntegration() {}
     virtual ~QWaylandInputDeviceIntegration() {}
 
-    virtual QWaylandInputDevice *createInputDevice(QWaylandDisplay *d, uint32_t id) = 0;
+    virtual QWaylandInputDevice *createInputDevice(QWaylandDisplay *d, int version, uint32_t id) = 0;
 };
 
 QT_END_NAMESPACE

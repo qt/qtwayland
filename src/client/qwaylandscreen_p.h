@@ -56,7 +56,7 @@ class QWaylandExtendedOutput;
 class Q_WAYLAND_CLIENT_EXPORT QWaylandScreen : public QPlatformScreen, QtWayland::wl_output
 {
 public:
-    QWaylandScreen(QWaylandDisplay *waylandDisplay, uint32_t id);
+    QWaylandScreen(QWaylandDisplay *waylandDisplay, int version, uint32_t id);
     ~QWaylandScreen();
 
     QWaylandDisplay *display() const;
@@ -103,6 +103,7 @@ private:
     QRect mGeometry;
     int mDepth;
     int mRefreshRate;
+    int mTransform;
     QImage::Format mFormat;
     QSize mPhysicalSize;
     QString mOutputName;

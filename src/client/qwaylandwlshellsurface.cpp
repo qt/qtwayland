@@ -44,7 +44,7 @@
 #include "qwaylanddisplay_p.h"
 #include "qwaylandwindow_p.h"
 #include "qwaylandinputdevice_p.h"
-#include "qwaylanddecoration_p.h"
+#include "qwaylandabstractdecoration_p.h"
 #include "qwaylandscreen_p.h"
 #include "qwaylandextendedsurface_p.h"
 

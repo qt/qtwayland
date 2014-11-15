@@ -95,7 +95,7 @@ struct ::wl_resource *DrmEglServerBuffer::resourceForClient(struct ::wl_client *
             return 0;
         }
         struct ::wl_resource *drm_egl_resource = (*drm_egl_it)->handle;
-        Resource *resource = add(client);
+        Resource *resource = add(client, 1, 1);
         m_integration->send_server_buffer_created(drm_egl_resource, resource->handle, m_name, m_size.width(), m_size.height(), m_stride, m_drm_format);
         return resource->handle;
     }
@@ -166,7 +166,7 @@ void DrmEglServerBufferIntegration::initializeHardware(QWaylandCompositor *compo
         return;
     }
 
-    QtWaylandServer::qt_drm_egl_server_buffer::init(compositor->waylandDisplay());
+    QtWaylandServer::qt_drm_egl_server_buffer::init(compositor->waylandDisplay(), 1);
 }
 
 bool DrmEglServerBufferIntegration::supportsFormat(QtWayland::ServerBuffer::Format format) const

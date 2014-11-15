@@ -84,11 +84,13 @@ Keyboard::Keyboard(Compositor *compositor, InputDevice *seat)
 Keyboard::~Keyboard()
 {
 #ifndef QT_NO_WAYLAND_XKB
-    if (m_keymap_area)
-        munmap(m_keymap_area, m_keymap_size);
-    close(m_keymap_fd);
-    xkb_context_unref(m_context);
-    xkb_state_unref(m_state);
+    if (m_context) {
+        if (m_keymap_area)
+            munmap(m_keymap_area, m_keymap_size);
+        close(m_keymap_fd);
+        xkb_context_unref(m_context);
+        xkb_state_unref(m_state);
+    }
 #endif
 }
 
@@ -183,14 +185,16 @@ QtWaylandServer::wl_keyboard::Resource *Keyboard::focusResource() const
 void Keyboard::keyboard_bind_resource(wl_keyboard::Resource *resource)
 {
 #ifndef QT_NO_WAYLAND_XKB
-    send_keymap(resource->handle, WL_KEYBOARD_KEYMAP_FORMAT_XKB_V1,
-                m_keymap_fd, m_keymap_size);
-#else
+    if (m_context) {
+        send_keymap(resource->handle, WL_KEYBOARD_KEYMAP_FORMAT_XKB_V1,
+                    m_keymap_fd, m_keymap_size);
+        return;
+    }
+#endif
     int null_fd = open("/dev/null", O_RDONLY);
     send_keymap(resource->handle, 0 /* WL_KEYBOARD_KEYMAP_FORMAT_NO_KEYMAP */,
                 null_fd, 0);
     close(null_fd);
-#endif
 }
 
 void Keyboard::keyboard_destroy_resource(wl_keyboard::Resource *resource)
@@ -240,6 +244,9 @@ void Keyboard::modifiers(uint32_t serial, uint32_t mods_depressed,
 void Keyboard::updateModifierState(uint code, uint32_t state)
 {
 #ifndef QT_NO_WAYLAND_XKB
+    if (!m_context)
+        return;
+
     xkb_state_update_key(m_state, code, state == WL_KEYBOARD_KEY_STATE_PRESSED ? XKB_KEY_DOWN : XKB_KEY_UP);
 
     uint32_t modsDepressed = xkb_state_serialize_mods(m_state, (xkb_state_component)XKB_STATE_DEPRESSED);
@@ -269,6 +276,9 @@ void Keyboard::updateKeymap()
 {
     m_pendingKeymap = false;
 #ifndef QT_NO_WAYLAND_XKB
+    if (!m_context)
+        return;
+
     createXKBKeymap();
     foreach (Resource *res, resourceMap()) {
         send_keymap(res->handle, WL_KEYBOARD_KEYMAP_FORMAT_XKB_V1, m_keymap_fd, m_keymap_size);
@@ -303,8 +313,10 @@ static int createAnonymousFile(size_t size)
     if (fd < 0)
         return -1;
 
-    if (ftruncate(fd, size) < 0)
+    if (ftruncate(fd, size) < 0) {
+        close(fd);
         return -1;
+    }
 
     return fd;
 }
@@ -312,11 +324,19 @@ static int createAnonymousFile(size_t size)
 void Keyboard::initXKB()
 {
     m_context = xkb_context_new(static_cast<xkb_context_flags>(0));
+    if (!m_context) {
+        qWarning("Failed to create a XKB context: keymap will not be supported");
+        return;
+    }
+
     createXKBKeymap();
 }
 
 void Keyboard::createXKBKeymap()
 {
+    if (!m_context)
+        return;
+
     if (m_state)
         xkb_state_unref(m_state);
 

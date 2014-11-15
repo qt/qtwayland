@@ -416,8 +416,8 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath, const QByteArr
 
             printf("    class %s %s\n    {\n", serverExport.constData(), interfaceName);
             printf("    public:\n");
-            printf("        %s(struct ::wl_client *client, int id);\n", interfaceName);
-            printf("        %s(struct ::wl_display *display);\n", interfaceName);
+            printf("        %s(struct ::wl_client *client, int id, int version);\n", interfaceName);
+            printf("        %s(struct ::wl_display *display, int version);\n", interfaceName);
             printf("        %s();\n", interfaceName);
             printf("\n");
             printf("        virtual ~%s();\n", interfaceName);
@@ -432,16 +432,17 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath, const QByteArr
             printf("            struct ::wl_resource *handle;\n");
             printf("\n");
             printf("            struct ::wl_client *client() const { return handle->client; }\n");
+            printf("            int version() const { return wl_resource_get_version(handle); }\n");
             printf("\n");
             printf("            static Resource *fromResource(struct ::wl_resource *resource) { return static_cast<Resource *>(resource->data); }\n");
             printf("        };\n");
             printf("\n");
-            printf("        void init(struct ::wl_client *client, int id);\n");
-            printf("        void init(struct ::wl_display *display);\n");
+            printf("        void init(struct ::wl_client *client, int id, int version);\n");
+            printf("        void init(struct ::wl_display *display, int version);\n");
             printf("\n");
-            printf("        Resource *add(struct ::wl_client *client);\n");
-            printf("        Resource *add(struct ::wl_client *client, int id);\n");
-            printf("        Resource *add(struct wl_list *resource_list, struct ::wl_client *client, int id);\n");
+            printf("        Resource *add(struct ::wl_client *client, int version);\n");
+            printf("        Resource *add(struct ::wl_client *client, int id, int version);\n");
+            printf("        Resource *add(struct wl_list *resource_list, struct ::wl_client *client, int id, int version);\n");
             printf("\n");
             printf("        Resource *resource() { return m_resource; }\n");
             printf("        const Resource *resource() const { return m_resource; }\n");
@@ -491,7 +492,7 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath, const QByteArr
             printf("        static void bind_func(struct ::wl_client *client, void *data, uint32_t version, uint32_t id);\n");
             printf("        static void destroy_func(struct ::wl_resource *client_resource);\n");
             printf("\n");
-            printf("        Resource *bind(struct ::wl_client *client, uint32_t id);\n");
+            printf("        Resource *bind(struct ::wl_client *client, uint32_t id, int version);\n");
 
             if (hasRequests) {
                 printf("\n");
@@ -511,6 +512,7 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath, const QByteArr
             printf("        QMultiMap<struct ::wl_client*, Resource*> m_resource_map;\n");
             printf("        Resource *m_resource;\n");
             printf("        struct ::wl_global *m_global;\n");
+            printf("        uint32_t m_globalVersion;\n");
             printf("    };\n");
 
             if (j < interfaces.size() - 1)
@@ -551,21 +553,21 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath, const QByteArr
             QByteArray stripped = stripInterfaceName(interface.name, prefix);
             const char *interfaceNameStripped = stripped.constData();
 
-            printf("    %s::%s(struct ::wl_client *client, int id)\n", interfaceName, interfaceName);
+            printf("    %s::%s(struct ::wl_client *client, int id, int version)\n", interfaceName, interfaceName);
             printf("        : m_resource_map()\n");
             printf("        , m_resource(0)\n");
             printf("        , m_global(0)\n");
             printf("    {\n");
-            printf("        init(client, id);\n");
+            printf("        init(client, id, version);\n");
             printf("    }\n");
             printf("\n");
 
-            printf("    %s::%s(struct ::wl_display *display)\n", interfaceName, interfaceName);
+            printf("    %s::%s(struct ::wl_display *display, int version)\n", interfaceName, interfaceName);
             printf("        : m_resource_map()\n");
             printf("        , m_resource(0)\n");
             printf("        , m_global(0)\n");
             printf("    {\n");
-            printf("        init(display);\n");
+            printf("        init(display, version);\n");
             printf("    }\n");
             printf("\n");
 
@@ -582,31 +584,32 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath, const QByteArr
             printf("    }\n");
             printf("\n");
 
-            printf("    void %s::init(struct ::wl_client *client, int id)\n", interfaceName);
+            printf("    void %s::init(struct ::wl_client *client, int id, int version)\n", interfaceName);
             printf("    {\n");
-            printf("        m_resource = bind(client, id);\n");
+            printf("        m_resource = bind(client, id, version);\n");
             printf("    }\n");
             printf("\n");
 
-            printf("    %s::Resource *%s::add(struct ::wl_client *client)\n", interfaceName, interfaceName);
+            printf("    %s::Resource *%s::add(struct ::wl_client *client, int version)\n", interfaceName, interfaceName);
             printf("    {\n");
-            printf("        Resource *resource = bind(client, 0);\n");
+            printf("        Resource *resource = bind(client, 0, version);\n");
             printf("        m_resource_map.insert(client, resource);\n");
             printf("        return resource;\n");
             printf("    }\n");
             printf("\n");
 
-            printf("    %s::Resource *%s::add(struct ::wl_client *client, int id)\n", interfaceName, interfaceName);
+            printf("    %s::Resource *%s::add(struct ::wl_client *client, int id, int version)\n", interfaceName, interfaceName);
             printf("    {\n");
-            printf("        Resource *resource = bind(client, id);\n");
+            printf("        Resource *resource = bind(client, id, version);\n");
             printf("        m_resource_map.insert(client, resource);\n");
             printf("        return resource;\n");
             printf("    }\n");
             printf("\n");
 
-            printf("    void %s::init(struct ::wl_display *display)\n", interfaceName);
+            printf("    void %s::init(struct ::wl_display *display, int version)\n", interfaceName);
             printf("    {\n");
-            printf("        m_global = wl_global_create(display, &::%s_interface, ::%s_interface.version, this, bind_func);\n", interfaceName, interfaceName);
+            printf("        m_global = wl_global_create(display, &::%s_interface, version, this, bind_func);\n", interfaceName);
+            printf("        m_globalVersion = version;\n");
             printf("    }\n");
             printf("\n");
 
@@ -628,8 +631,8 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath, const QByteArr
 
             printf("    void %s::bind_func(struct ::wl_client *client, void *data, uint32_t version, uint32_t id)\n", interfaceName);
             printf("    {\n");
-            printf("        Q_UNUSED(version);\n");
-            printf("        static_cast<%s *>(data)->add(client, id);\n", interfaceName);
+            printf("        %s *that = static_cast<%s *>(data);\n", interfaceName, interfaceName);
+            printf("        that->add(client, id, qMin(that->m_globalVersion, version));\n");
             printf("    }\n");
             printf("\n");
 
@@ -652,12 +655,12 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath, const QByteArr
 
             //We should consider changing bind so that it doesn't special case id == 0
             //and use function overloading instead. Jan do you have a lot of code dependent on this behavior?
-            printf("    %s::Resource *%s::bind(struct ::wl_client *client, uint32_t id)\n", interfaceName, interfaceName);
+            printf("    %s::Resource *%s::bind(struct ::wl_client *client, uint32_t id, int version)\n", interfaceName, interfaceName);
             printf("    {\n");
             printf("        Resource *resource = %s_allocate();\n", interfaceNameStripped);
             printf("        resource->%s_object = this;\n", interfaceNameStripped);
             printf("\n");
-            printf("        struct ::wl_resource *handle = wl_resource_create(client, &::%s_interface, ::%s_interface.version, id);\n", interfaceName, interfaceName);
+            printf("        struct ::wl_resource *handle = wl_resource_create(client, &::%s_interface, version, id);\n", interfaceName);
             printf("        wl_resource_set_implementation(handle, %s, resource, destroy_func);", interfaceMember.constData());
             printf("\n");
             printf("        resource->handle = handle;\n");

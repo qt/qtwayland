@@ -16,7 +16,7 @@ SOURCES += main.cpp
 
 OTHER_FILES = ContrastEffect.qml  main.qml  WindowChrome.qml  WindowContainer.qml background.jpg closebutton.png compositor.js
 
-target.path = $$[QT_INSTALL_EXAMPLES]/qtwayland/qml-compositor
+target.path = $$[QT_INSTALL_EXAMPLES]/wayland/qml-compositor
 sources.files = $$OTHER_FILES $$SOURCES $$HEADERS $$RESOURCES $$FORMS qml-compositor.pro
-sources.path = $$[QT_INSTALL_EXAMPLES]/qtwayland/qml-compositor
+sources.path = $$[QT_INSTALL_EXAMPLES]/wayland/qml-compositor
 INSTALLS += target sources

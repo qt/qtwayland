@@ -92,6 +92,8 @@ QWaylandSurface::~QWaylandSurface()
 WaylandClient *QWaylandSurface::client() const
 {
     Q_D(const QWaylandSurface);
+    if (d->isDestroyed())
+        return Q_NULLPTR;
     return d->resource()->client();
 }
 

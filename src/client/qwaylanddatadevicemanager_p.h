@@ -63,7 +63,6 @@ public:
     QWaylandDisplay *display() const;
 
 private:
-    struct wl_data_device_manager *m_data_device_manager;
     QWaylandDisplay *m_display;
 };
 

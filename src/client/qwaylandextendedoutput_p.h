@@ -55,10 +55,6 @@ class Q_WAYLAND_CLIENT_EXPORT QWaylandExtendedOutput : public QtWayland::qt_exte
 {
 public:
     QWaylandExtendedOutput(QWaylandScreen *screen, struct ::qt_extended_output *extended_output);
-
-private:
-
-    QWaylandScreen *m_screen;
 };
 
 QT_END_NAMESPACE

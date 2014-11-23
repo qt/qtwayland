@@ -51,8 +51,8 @@ QT_BEGIN_NAMESPACE
 
 QWaylandExtendedOutput::QWaylandExtendedOutput(QWaylandScreen *screen, ::qt_extended_output *extended_output)
     : QtWayland::qt_extended_output(extended_output)
-    , m_screen(screen)
 {
+    Q_UNUSED(screen);
 }
 
 QT_END_NAMESPACE

@@ -57,9 +57,10 @@ class QWaylandInputDevice;
 class QWindow;
 class QWaylandExtendedSurface;
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandXdgSurface : public QtWayland::xdg_surface
-        , public QWaylandShellSurface
+class Q_WAYLAND_CLIENT_EXPORT QWaylandXdgSurface : public QWaylandShellSurface
+        , public QtWayland::xdg_surface
 {
+    Q_OBJECT
 public:
     QWaylandXdgSurface(struct ::xdg_surface *shell_surface, QWaylandWindow *window);
     virtual ~QWaylandXdgSurface();

@@ -232,7 +232,7 @@ void QWaylandWindow::setVisible(bool visible)
                 parent = mDisplay->lastInputWindow();
             }
             if (parent) {
-                QWaylandWlShellSurface *wlshellSurface = dynamic_cast<QWaylandWlShellSurface*>(mShellSurface);
+                QWaylandWlShellSurface *wlshellSurface = qobject_cast<QWaylandWlShellSurface*>(mShellSurface);
                 if (wlshellSurface)
                     wlshellSurface->setPopup(parent, mDisplay->lastInputDevice(), mDisplay->lastInputSerial());
             }
@@ -481,7 +481,7 @@ bool QWaylandWindow::createDecoration()
 {
     // so far only xdg-shell support this "unminimize" trick, may be moved elsewhere
     if (mState == Qt::WindowMinimized) {
-        QWaylandXdgSurface *xdgSurface = dynamic_cast<QWaylandXdgSurface *>(mShellSurface);
+        QWaylandXdgSurface *xdgSurface = qobject_cast<QWaylandXdgSurface *>(mShellSurface);
         if ( xdgSurface ) {
             if (xdgSurface->isFullscreen()) {
                 setWindowStateInternal(Qt::WindowFullScreen);

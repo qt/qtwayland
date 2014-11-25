@@ -84,7 +84,6 @@ public:
 
 signals:
     void windowAdded(QVariant window);
-    void windowDestroyed(QVariant window);
     void windowResized(QVariant window);
     void fullscreenSurfaceChanged();
 
@@ -109,14 +108,12 @@ private slots:
         QWaylandQuickSurface *surface = qobject_cast<QWaylandQuickSurface *>(sender());
         if (surface == m_fullscreenSurface)
             m_fullscreenSurface = 0;
-        emit windowDestroyed(QVariant::fromValue(surface));
     }
 
     void surfaceDestroyed() {
         QWaylandQuickSurface *surface = static_cast<QWaylandQuickSurface *>(sender());
         if (surface == m_fullscreenSurface)
             m_fullscreenSurface = 0;
-        emit windowDestroyed(QVariant::fromValue(surface));
     }
 
     void sendCallbacks() {

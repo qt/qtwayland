@@ -95,7 +95,12 @@ public:
     bool isDestroyed() { return m_destroyed; }
 
     void createTexture();
+#ifdef QT_COMPOSITOR_WAYLAND_GL
     inline GLuint texture() const;
+#else
+    inline uint texture() const;
+#endif
+
     void destroyTexture();
 
     inline struct ::wl_resource *waylandBufferHandle() const { return m_buffer; }
@@ -150,12 +155,19 @@ private:
     friend class ::QWaylandBufferRef;
 };
 
+#ifdef QT_COMPOSITOR_WAYLAND_GL
 GLuint SurfaceBuffer::texture() const
 {
     if (m_buffer)
         return m_texture;
     return 0;
 }
+#else
+uint SurfaceBuffer::texture() const
+{
+    return 0;
+}
+#endif
 
 }
 

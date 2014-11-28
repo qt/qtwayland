@@ -89,9 +89,11 @@
 
 #include <wayland-server.h>
 
+#if defined (QT_COMPOSITOR_WAYLAND_GL)
 #include "hardware_integration/qwlhwintegration_p.h"
 #include "hardware_integration/qwlclientbufferintegration_p.h"
 #include "hardware_integration/qwlserverbufferintegration_p.h"
+#endif
 #include "windowmanagerprotocol/waylandwindowmanagerintegration_p.h"
 
 #include "hardware_integration/qwlclientbufferintegrationfactory_p.h"
@@ -470,6 +472,7 @@ void Compositor::bindGlobal(wl_client *client, void *data, uint32_t version, uin
 
 void Compositor::loadClientBufferIntegration()
 {
+#ifdef QT_COMPOSITOR_WAYLAND_GL
     QStringList keys = ClientBufferIntegrationFactory::keys();
     QString targetKey;
     QByteArray clientBufferIntegration = qgetenv("QT_WAYLAND_HARDWARE_INTEGRATION");
@@ -491,11 +494,13 @@ void Compositor::loadClientBufferIntegration()
                 m_hw_integration->setClientBufferIntegration(targetKey);
         }
     }
-    //BUG: if there is no client buffer integration, bad things will when opengl is used
+    //BUG: if there is no client buffer integration, bad things will happen when opengl is used
+#endif
 }
 
 void Compositor::loadServerBufferIntegration()
 {
+#ifdef QT_COMPOSITOR_WAYLAND_GL
     QStringList keys = ServerBufferIntegrationFactory::keys();
     QString targetKey;
     QByteArray serverBufferIntegration = qgetenv("QT_WAYLAND_SERVER_BUFFER_INTEGRATION");
@@ -507,6 +512,7 @@ void Compositor::loadServerBufferIntegration()
         if (m_hw_integration)
             m_hw_integration->setServerBufferIntegration(targetKey);
     }
+#endif
 }
 
 void Compositor::registerInputDevice(QWaylandInputDevice *device)

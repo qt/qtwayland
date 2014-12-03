@@ -129,6 +129,33 @@ QPlatformOpenGLContext *QWaylandEglClientBufferIntegration::createPlatformOpenGL
     return new QWaylandGLContext(m_eglDisplay, m_display, glFormat, share);
 }
 
+void *QWaylandEglClientBufferIntegration::nativeResource(NativeResource resource)
+{
+    switch (resource) {
+    case EglDisplay:
+        return m_eglDisplay;
+    default:
+        break;
+    }
+    return Q_NULLPTR;
+}
+
+void *QWaylandEglClientBufferIntegration::nativeResourceForContext(NativeResource resource, QPlatformOpenGLContext *context)
+{
+    Q_ASSERT(context);
+    switch (resource) {
+    case EglConfig:
+        return static_cast<QWaylandGLContext *>(context)->eglConfig();
+    case EglContext:
+        return static_cast<QWaylandGLContext *>(context)->eglContext();
+    case EglDisplay:
+        return m_eglDisplay;
+    default:
+        break;
+    }
+    return Q_NULLPTR;
+}
+
 EGLDisplay QWaylandEglClientBufferIntegration::eglDisplay() const
 {
     return m_eglDisplay;

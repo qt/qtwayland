@@ -69,6 +69,14 @@ public:
 
     virtual QWaylandWindow *createEglWindow(QWindow *window) = 0;
     virtual QPlatformOpenGLContext *createPlatformOpenGLContext(const QSurfaceFormat &glFormat, QPlatformOpenGLContext *share) const = 0;
+
+    enum NativeResource {
+        EglDisplay,
+        EglConfig,
+        EglContext
+    };
+    virtual void *nativeResource(NativeResource /*resource*/) { return Q_NULLPTR; }
+    virtual void *nativeResourceForContext(NativeResource /*resource*/, QPlatformOpenGLContext */*context*/) { return Q_NULLPTR; }
 };
 
 QT_END_NAMESPACE

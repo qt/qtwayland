@@ -65,6 +65,9 @@ public:
     QWaylandWindow *createEglWindow(QWindow *window) Q_DECL_OVERRIDE;
     QPlatformOpenGLContext *createPlatformOpenGLContext(const QSurfaceFormat &glFormat, QPlatformOpenGLContext *share) const Q_DECL_OVERRIDE;
 
+    void *nativeResource(NativeResource resource) Q_DECL_OVERRIDE;
+    void *nativeResourceForContext(NativeResource resource, QPlatformOpenGLContext *context) Q_DECL_OVERRIDE;
+
     EGLDisplay eglDisplay() const;
 
 private:

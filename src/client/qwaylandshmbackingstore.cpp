@@ -58,7 +58,8 @@ QT_BEGIN_NAMESPACE
 
 QWaylandShmBuffer::QWaylandShmBuffer(QWaylandDisplay *display,
                      const QSize &size, QImage::Format format)
-    : mMarginsImage(0)
+    : mShmPool(0)
+    , mMarginsImage(0)
 {
     int stride = size.width() * 4;
     int alloc = stride * size.height();
@@ -97,9 +98,12 @@ QWaylandShmBuffer::QWaylandShmBuffer(QWaylandDisplay *display,
 QWaylandShmBuffer::~QWaylandShmBuffer(void)
 {
     delete mMarginsImage;
-    munmap((void *) mImage.constBits(), mImage.byteCount());
-    wl_buffer_destroy(mBuffer);
-    wl_shm_pool_destroy(mShmPool);
+    if (mImage.constBits())
+        munmap((void *) mImage.constBits(), mImage.byteCount());
+    if (mBuffer)
+        wl_buffer_destroy(mBuffer);
+    if (mShmPool)
+        wl_shm_pool_destroy(mShmPool);
 }
 
 QImage *QWaylandShmBuffer::imageInsideMargins(const QMargins &margins)

@@ -47,6 +47,7 @@
 #include <qpa/qplatformbackingstore.h>
 #include <QtGui/QImage>
 #include <qpa/qplatformwindow.h>
+#include <QMutex>
 
 QT_BEGIN_NAMESPACE
 
@@ -106,6 +107,7 @@ private:
     QWaylandShmBuffer *mBackBuffer;
     bool mFrontBufferIsDirty;
     bool mPainting;
+    QMutex mMutex;
 
     QSize mRequestedSize;
     Qt::WindowFlags mCurrentWindowFlags;

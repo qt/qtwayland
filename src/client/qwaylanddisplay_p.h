@@ -202,7 +202,6 @@ private:
     QSocketNotifier *mReadNotifier;
     int mFd;
     int mWritableNotificationFd;
-    bool mScreensInitialized;
     QList<RegistryGlobal> mGlobals;
     int mCompositorVersion;
     uint32_t mLastInputSerial;

@@ -5,8 +5,6 @@ QT = compositor compositor-private core-private gui-private
 
 OTHER_FILES += brcm-egl.json
 
-LIBS += -lEGL
-
 SOURCES += \
     main.cpp
 

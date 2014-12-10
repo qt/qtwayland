@@ -5,8 +5,6 @@ QT += waylandclient-private
 
 include(../../../../hardwareintegration/client/brcm-egl/brcm-egl.pri)
 
-LIBS += -lEGL
-
 OTHER_FILES += \
     brcm-egl.json
 

@@ -41,6 +41,7 @@
 #ifndef WLDATAOFFER_H
 #define WLDATAOFFER_H
 
+#include <QPointer>
 #include <QtCompositor/private/qwayland-server-wayland.h>
 
 QT_BEGIN_NAMESPACE
@@ -63,7 +64,7 @@ protected:
     void data_offer_destroy_resource(Resource *resource) Q_DECL_OVERRIDE;
 
 private:
-    DataSource *m_dataSource;
+    QPointer<DataSource> m_dataSource;
 };
 
 }

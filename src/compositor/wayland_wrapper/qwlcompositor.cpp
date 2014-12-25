@@ -62,6 +62,7 @@
 #include "qwltextinputmanager_p.h"
 #include "qwaylandglobalinterface.h"
 #include "qwaylandsurfaceview.h"
+#include "qwaylandshmformathelper.h"
 
 #include <QWindow>
 #include <QSocketNotifier>
@@ -145,6 +146,9 @@ void Compositor::init()
     m_data_device_manager =  new DataDeviceManager(this);
 
     wl_display_init_shm(m_display->handle());
+    QVector<wl_shm_format> formats = QWaylandShmFormatHelper::supportedWaylandFormats();
+    foreach (wl_shm_format format, formats)
+        wl_display_add_shm_format(m_display->handle(), format);
 
     m_output_global = new OutputGlobal(m_display->handle());
 

@@ -46,6 +46,7 @@
 
 #include <QtCore/qdebug.h>
 #include <QtGui/QPainter>
+#include <QMutexLocker>
 
 #include <wayland-client.h>
 #include <unistd.h>
@@ -185,6 +186,7 @@ void QWaylandShmBackingStore::endPaint()
 
 void QWaylandShmBackingStore::hidden()
 {
+    QMutexLocker lock(&mMutex);
     if (mFrameCallback) {
         wl_callback_destroy(mFrameCallback);
         mFrameCallback = Q_NULLPTR;
@@ -347,6 +349,7 @@ void QWaylandShmBackingStore::done(void *data, wl_callback *callback, uint32_t t
             static_cast<QWaylandShmBackingStore *>(data);
     if (callback != self->mFrameCallback) // others, like QWaylandWindow, may trigger callbacks too
         return;
+    QMutexLocker lock(&self->mMutex);
     QWaylandWindow *window = self->waylandWindow();
     wl_callback_destroy(self->mFrameCallback);
     self->mFrameCallback = 0;

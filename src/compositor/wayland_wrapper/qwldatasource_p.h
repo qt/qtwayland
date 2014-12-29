@@ -42,7 +42,7 @@
 #define WLDATASOURCE_H
 
 #include <QtCompositor/private/qwayland-server-wayland.h>
-
+#include <QObject>
 #include <QtCore/QList>
 
 QT_BEGIN_NAMESPACE
@@ -53,7 +53,7 @@ class DataOffer;
 class DataDevice;
 class DataDeviceManager;
 
-class DataSource : public QtWaylandServer::wl_data_source
+class DataSource : public QObject, public QtWaylandServer::wl_data_source
 {
 public:
     DataSource(struct wl_client *client, uint32_t id, uint32_t time);

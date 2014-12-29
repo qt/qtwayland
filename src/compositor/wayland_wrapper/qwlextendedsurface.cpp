@@ -174,7 +174,7 @@ void ExtendedSurface::extended_surface_set_window_flags(Resource *resource, int3
 {
     Q_UNUSED(resource);
     QWaylandSurface::WindowFlags windowFlags(flags);
-    if (m_surface || windowFlags == m_windowFlags)
+    if (!m_surface || windowFlags == m_windowFlags)
         return;
     m_windowFlags = windowFlags;
     emit m_surface->waylandSurface()->windowFlagsChanged(windowFlags);

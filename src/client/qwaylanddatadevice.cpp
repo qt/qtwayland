@@ -126,7 +126,7 @@ void QWaylandDataDevice::data_device_drop()
 
     qDebug() << Q_FUNC_INFO << drag << m_dragOffer.data();
 
-    QMimeData *dragData;
+    QMimeData *dragData = 0;
     Qt::DropActions supportedActions;
     if (drag) {
         dragData = drag->mimeData();

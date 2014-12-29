@@ -95,8 +95,7 @@ QWaylandSurface::~QWaylandSurface()
 QWaylandClient *QWaylandSurface::client() const
 {
     Q_D(const QWaylandSurface);
-
-    if (!d->compositor()->clients().contains(d->client))
+    if (d->isDestroyed() || !d->compositor()->clients().contains(d->client))
         return Q_NULLPTR;
     return d->client;
 }

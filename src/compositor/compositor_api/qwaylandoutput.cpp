@@ -49,6 +49,7 @@
 #include "wayland_wrapper/qwloutput_p.h"
 #include "qwaylandcompositor.h"
 #include "qwaylandoutput.h"
+#include "qwaylandsurface.h"
 
 QWaylandOutput::QWaylandOutput(QWaylandCompositor *compositor, QWindow *window,
                                const QString &manufacturer, const QString &model)
@@ -243,4 +244,14 @@ QWindow *QWaylandOutput::window() const
 QtWayland::Output *QWaylandOutput::handle()
 {
     return d_ptr;
+}
+
+QList<QWaylandSurface *> QWaylandOutput::surfaces() const
+{
+    QList<QWaylandSurface *> list;
+    Q_FOREACH (QWaylandSurface *surface, d_ptr->compositor()->waylandCompositor()->surfaces()) {
+        if (surface->outputs().contains(const_cast<QWaylandOutput *>(this)))
+            list.append(surface);
+    }
+    return list;
 }

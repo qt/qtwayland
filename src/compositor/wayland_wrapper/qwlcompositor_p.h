@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
+** Copyright (C) 2014-2015 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
 ** Copyright (C) 2015 The Qt Company Ltd.
 ** Contact: http://www.qt.io/licensing/
 **
@@ -95,7 +95,6 @@ public:
 
     void init();
     void sendFrameCallbacks(QList<QWaylandSurface *> visibleSurfaces);
-    void frameFinished(Surface *surface = 0);
 
     InputDevice *defaultInputDevice();
 
@@ -126,8 +125,8 @@ public:
     void initializeDefaultInputDevice();
     void initializeWindowManagerProtocol();
 
-    QList<Surface*> surfaces() const { return m_surfaces; }
-    QList<Surface*> surfacesForClient(wl_client* client);
+    QList<Surface *> surfaces() const { return m_surfaces; }
+
     QWaylandCompositor *waylandCompositor() const { return m_qt_compositor; }
 
     struct wl_display *wl_display() const { return m_display->handle(); }

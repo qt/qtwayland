@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
+** Copyright (C) 2014-2015 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
 ** Copyright (C) 2015 The Qt Company Ltd.
 ** Contact: http://www.qt.io/licensing/
 **
@@ -79,6 +79,38 @@ protected:
     virtual void attach(const QWaylandBufferRef &ref) = 0;
 
     friend class QtWayland::Surface;
+};
+
+class QWaylandSurfaceEnterEventPrivate;
+
+class Q_COMPOSITOR_EXPORT QWaylandSurfaceEnterEvent : public QEvent
+{
+public:
+    QWaylandSurfaceEnterEvent(QWaylandOutput *output);
+    ~QWaylandSurfaceEnterEvent();
+
+    QWaylandOutput *output() const;
+
+    static const QEvent::Type WaylandSurfaceEnter;
+
+private:
+    QWaylandSurfaceEnterEventPrivate *d;
+};
+
+class QWaylandSurfaceLeaveEventPrivate;
+
+class Q_COMPOSITOR_EXPORT QWaylandSurfaceLeaveEvent : public QEvent
+{
+public:
+    QWaylandSurfaceLeaveEvent(QWaylandOutput *output);
+    ~QWaylandSurfaceLeaveEvent();
+
+    QWaylandOutput *output() const;
+
+    static const QEvent::Type WaylandSurfaceLeave;
+
+private:
+    QWaylandSurfaceLeaveEventPrivate *d;
 };
 
 class Q_COMPOSITOR_EXPORT QWaylandSurface : public QObject
@@ -163,7 +195,10 @@ public:
 
     QWaylandCompositor *compositor() const;
 
-    QWaylandOutput *output() const;
+    QWaylandOutput *mainOutput() const;
+    void setMainOutput(QWaylandOutput *mainOutput);
+
+    QList<QWaylandOutput *> outputs() const;
 
     QString className() const;
 
@@ -223,6 +258,7 @@ Q_SIGNALS:
 
     friend class QWaylandSurfaceView;
     friend class QWaylandSurfaceInterface;
+    friend class QtWayland::Surface;
 };
 
 QT_END_NAMESPACE

@@ -1,5 +1,6 @@
 /****************************************************************************
 **
+** Copyright (C) 2015 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
 ** Copyright (C) 2015 The Qt Company Ltd.
 ** Contact: http://www.qt.io/licensing/
 **
@@ -40,6 +41,7 @@
 
 #include "qwaylandcompositor.h"
 
+#include "qwaylandclient.h"
 #include "qwaylandinput.h"
 #include "qwaylandoutput.h"
 #include "qwaylandglobalinterface.h"
@@ -175,13 +177,20 @@ void QWaylandCompositor::surfaceAboutToBeDestroyed(QWaylandSurface *surface)
 
 QWaylandSurfaceView *QWaylandCompositor::pickView(const QPointF &globalPosition) const
 {
-    Q_FOREACH (QtWayland::Surface *surface, m_compositor->surfaces()) {
-        foreach (QWaylandSurfaceView *view, surface->waylandSurface()->views())
-            if (QRectF(view->pos(), surface->size()).contains(globalPosition))
-                return view;
+    Q_FOREACH (QWaylandOutput *output, outputs()) {
+        // Skip coordinates not in output
+        if (!QRectF(output->geometry()).contains(globalPosition))
+            continue;
+
+        Q_FOREACH (QWaylandSurface *surface, output->surfaces()) {
+            Q_FOREACH (QWaylandSurfaceView *view, surface->views()) {
+                if (QRectF(view->pos(), surface->size()).contains(globalPosition))
+                    return view;
+            }
+        }
     }
 
-    return 0;
+    return Q_NULLPTR;
 }
 
 QPointF QWaylandCompositor::mapToView(QWaylandSurfaceView *surface, const QPointF &globalPosition) const

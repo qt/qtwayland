@@ -114,7 +114,7 @@ Surface::Surface(struct wl_client *client, uint32_t id, int version, QWaylandCom
     : QtWaylandServer::wl_surface(client, id, version)
     , m_compositor(compositor->handle())
     , m_waylandSurface(surface)
-    , m_output(m_compositor->primaryOutput()->handle())
+    , m_mainOutput(0)
     , m_buffer(0)
     , m_surfaceMapped(false)
     , m_attacher(0)
@@ -278,9 +278,66 @@ Compositor *Surface::compositor() const
     return m_compositor;
 }
 
-Output *Surface::output() const
+Output *Surface::mainOutput() const
 {
-    return m_output;
+    if (!m_mainOutput)
+        return m_compositor->primaryOutput()->handle();
+    return m_mainOutput;
+}
+
+void Surface::setMainOutput(Output *output)
+{
+    m_mainOutput = output;
+}
+
+QList<Output *> Surface::outputs() const
+{
+    return m_outputs;
+}
+
+void Surface::addToOutput(Output *output)
+{
+    if (!output)
+        return;
+
+    if (!m_mainOutput)
+        m_mainOutput = output;
+
+    if (m_outputs.contains(output))
+        return;
+
+    m_outputs.append(output);
+
+    QWaylandSurfaceEnterEvent event(output->waylandOutput());
+    QCoreApplication::sendEvent(waylandSurface(), &event);
+
+    // Send surface enter event
+    Q_FOREACH (Resource *resource, resourceMap().values()) {
+        QList<Output::Resource *> outputs = output->resourceMap().values();
+        for (int i = 0; i < outputs.size(); i++)
+            send_enter(resource->handle, outputs.at(i)->handle);
+    }
+}
+
+void Surface::removeFromOutput(Output *output)
+{
+    if (!output)
+        return;
+
+    m_outputs.removeOne(output);
+
+    if (m_outputs.size() == 0)
+        m_mainOutput = m_compositor->primaryOutput()->handle();
+
+    QWaylandSurfaceLeaveEvent event(output->waylandOutput());
+    QCoreApplication::sendEvent(waylandSurface(), &event);
+
+    // Send surface leave event
+    Q_FOREACH (Resource *resource, resourceMap().values()) {
+        QList<Output::Resource *> outputs = output->resourceMap().values();
+        for (int i = 0; i < outputs.size(); i++)
+            send_leave(resource->handle, outputs.at(i)->handle);
+    }
 }
 
 /*!

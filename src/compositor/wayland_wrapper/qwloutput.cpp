@@ -43,9 +43,12 @@
 
 #include "qwlcompositor_p.h"
 #include "qwlextendedoutput_p.h"
+#include "qwlsurface_p.h"
 
 #include <QtGui/QWindow>
 #include <QRect>
+#include <QtCompositor/QWaylandSurface>
+#include <QtCompositor/QWaylandOutput>
 
 QT_BEGIN_NAMESPACE
 

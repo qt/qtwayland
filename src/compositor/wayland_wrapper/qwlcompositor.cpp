@@ -300,6 +300,7 @@ void Compositor::compositor_create_surface(Resource *resource, uint32_t id)
 {
     QWaylandSurface *surface = new QWaylandSurface(resource->client(), id, resource->version(), m_qt_compositor);
     m_surfaces << surface->handle();
+    surface->handle()->addToOutput(primaryOutput()->handle());
     //BUG: This may not be an on-screen window surface though
     m_qt_compositor->surfaceCreated(surface);
 }
@@ -403,18 +404,6 @@ InputDevice* Compositor::defaultInputDevice()
 {
     // The list gets prepended so that default is the last element
     return m_inputDevices.last()->handle();
-}
-
-QList<QtWayland::Surface *> Compositor::surfacesForClient(wl_client *client)
-{
-    QList<QtWayland::Surface *> ret;
-
-    for (int i=0; i < m_surfaces.count(); ++i) {
-        if (m_surfaces.at(i)->resource()->client() == client) {
-            ret.append(m_surfaces.at(i));
-        }
-    }
-    return ret;
 }
 
 void Compositor::configureTouchExtension(int flags)

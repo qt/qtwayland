@@ -70,6 +70,7 @@ class Q_COMPOSITOR_EXPORT QWaylandOutput : public QObject
     Q_PROPERTY(QWaylandOutput::Subpixel subpixel READ subpixel WRITE setSubpixel NOTIFY subpixelChanged)
     Q_PROPERTY(QWaylandOutput::Transform transform READ transform WRITE setTransform NOTIFY transformChanged)
     Q_PROPERTY(int scaleFactor READ scaleFactor WRITE setScaleFactor NOTIFY scaleFactorChanged)
+    Q_PROPERTY(QWaylandCompositor *compositor READ compositor CONSTANT)
     Q_PROPERTY(QWindow *window READ window CONSTANT)
     Q_ENUMS(Subpixel Transform)
 public:

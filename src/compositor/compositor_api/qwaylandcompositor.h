@@ -71,6 +71,7 @@ class Q_COMPOSITOR_EXPORT QWaylandCompositor : public QObject
     Q_OBJECT
     Q_PROPERTY(QByteArray socketName READ socketName WRITE setSocketName)
     Q_PROPERTY(QWaylandCompositor::ExtensionFlags extensionFlags READ extensionFlags WRITE setExtensionFlags)
+    Q_PROPERTY(QWaylandOutput *primaryOutput READ primaryOutput WRITE setPrimaryOutput NOTIFY primaryOutputChanged)
 
 public:
     enum ExtensionFlag {
@@ -169,6 +170,8 @@ public:
 signals:
     void surfaceCreated(QWaylandSurface *surface);
     void surfaceAboutToBeDestroyed(QWaylandSurface *surface);
+
+    void primaryOutputChanged();
 
 protected:
     QWaylandCompositor(QtWayland::Compositor *dptr);

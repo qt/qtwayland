@@ -305,6 +305,7 @@ void Compositor::setPrimaryOutput(QWaylandOutput *output)
 
     m_outputs.removeAt(i);
     m_outputs.prepend(output);
+    emit m_qt_compositor->primaryOutputChanged();
 }
 
 void Compositor::processWaylandEvents()

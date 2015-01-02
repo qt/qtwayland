@@ -10,4 +10,5 @@ contains(CONFIG, wayland-compositor) {
     }
 
     SUBDIRS += server-buffer
+    SUBDIRS += pure-qml
 }

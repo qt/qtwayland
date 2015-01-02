@@ -43,14 +43,24 @@ QT_BEGIN_NAMESPACE
 
 class Q_COMPOSITOR_EXPORT QWaylandQuickCompositor : public QWaylandCompositor
 {
+    Q_OBJECT
+    Q_PROPERTY(bool initializeLegazyQmlNames READ initializeLegazyQmlNames WRITE setInitializeLegazyQmlNames)
 public:
     QWaylandQuickCompositor(QObject *parent = 0);
+    void create() Q_DECL_OVERRIDE;
+
+    static void registerLegacyQmlNames();
+    bool initializeLegazyQmlNames() const;
+    void setInitializeLegazyQmlNames(bool init);
 
     QWaylandSurfaceView *createView(QWaylandSurface *surf) Q_DECL_OVERRIDE;
     QWaylandOutput *createOutput(QWindow *window,
                                  const QString &manufacturer,
                                  const QString &model) Q_DECL_OVERRIDE;
     QWaylandSurface *createSurface(QWaylandClient *client, quint32 id, int version) Q_DECL_OVERRIDE;
+
+private:
+    bool m_initializeLegazyQmlNames;
 };
 
 QT_END_NAMESPACE

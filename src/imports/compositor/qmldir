@@ -1,0 +1,4 @@
+module QtWayland.Compositor
+plugin qwaylandcompositorplugin
+classname QWaylandCompositorPlugin
+typeinfo plugins.qmltypes

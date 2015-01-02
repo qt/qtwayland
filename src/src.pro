@@ -10,6 +10,11 @@ contains(CONFIG, wayland-compositor) {
     sub_compositor.depends = sub-qtwaylandscanner
     sub_compositor.target = sub-compositor
     SUBDIRS += sub_compositor
+
+    sub_imports.subdir = imports
+    sub_imports.depends += sub-client
+    sub_imports.target = sub-imports
+    SUBDIRS += sub_imports
 }
 
 sub_client.subdir = client

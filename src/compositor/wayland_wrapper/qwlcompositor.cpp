@@ -49,7 +49,6 @@
 #include "qwaylandcompositor.h"
 #include "qwldatadevicemanager_p.h"
 #include "qwldatadevice_p.h"
-#include "qwlextendedoutput_p.h"
 #include "qwlextendedsurface_p.h"
 #include "qwlsubsurface_p.h"
 #include "qwlshellsurface_p.h"
@@ -121,7 +120,6 @@ Compositor::Compositor(QWaylandCompositor *qt_compositor, QWaylandCompositor::Ex
     , m_server_buffer_integration(0)
 #endif
     , m_windowManagerIntegration(0)
-    , m_outputExtension(0)
     , m_surfaceExtension(0)
     , m_subSurfaceExtension(0)
     , m_touchExtension(0)
@@ -185,7 +183,6 @@ Compositor::~Compositor()
 
     qDeleteAll(m_outputs);
 
-    delete m_outputExtension;
     delete m_surfaceExtension;
     delete m_subSurfaceExtension;
     delete m_touchExtension;
@@ -357,8 +354,6 @@ void Compositor::initializeHardwareIntegration()
 
 void Compositor::initializeExtensions()
 {
-    if (m_extensions & QWaylandCompositor::OutputExtension)
-        m_outputExtension = new OutputExtensionGlobal(this);
     if (m_extensions & QWaylandCompositor::SurfaceExtension)
         m_surfaceExtension = new SurfaceExtensionGlobal(this);
     if (m_extensions & QWaylandCompositor::SubSurfaceExtension)

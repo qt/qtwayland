@@ -2,7 +2,6 @@ CONFIG += wayland-scanner
 WAYLANDSERVERSOURCES += \
     ../extensions/surface-extension.xml \
     ../extensions/sub-surface-extension.xml \
-    ../extensions/output-extension.xml \
     ../extensions/touch-extension.xml \
     ../extensions/qtkey-extension.xml \
     ../extensions/windowmanager.xml \
@@ -17,7 +16,6 @@ HEADERS += \
     wayland_wrapper/qwldataoffer_p.h \
     wayland_wrapper/qwldatasource_p.h \
     wayland_wrapper/qwldisplay_p.h \
-    wayland_wrapper/qwlextendedoutput_p.h \
     wayland_wrapper/qwlextendedsurface_p.h \
     wayland_wrapper/qwlinputdevice_p.h \
     wayland_wrapper/qwlinputmethod_p.h \
@@ -46,7 +44,6 @@ SOURCES += \
     wayland_wrapper/qwldataoffer.cpp \
     wayland_wrapper/qwldatasource.cpp \
     wayland_wrapper/qwldisplay.cpp \
-    wayland_wrapper/qwlextendedoutput.cpp \
     wayland_wrapper/qwlextendedsurface.cpp \
     wayland_wrapper/qwlinputdevice.cpp \
     wayland_wrapper/qwlinputmethod.cpp \

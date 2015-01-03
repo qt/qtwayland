@@ -50,7 +50,6 @@
 #include "qwaylandshellintegration_p.h"
 #include "qwaylandclientbufferintegration_p.h"
 
-#include "qwaylandextendedoutput_p.h"
 #include "qwaylandextendedsurface_p.h"
 #include "qwaylandsubsurface_p.h"
 #include "qwaylandtouch_p.h"
@@ -127,7 +126,6 @@ QWaylandDisplay::QWaylandDisplay(QWaylandIntegration *waylandIntegration)
     , mDndSelectionHandler(0)
     , mWindowExtension(0)
     , mSubSurfaceExtension(0)
-    , mOutputExtension(0)
     , mTouchExtension(0)
     , mQtKeyExtension(0)
     , mTextInputManager(0)
@@ -255,10 +253,6 @@ void QWaylandDisplay::registry_global(uint32_t id, const QString &interface, uin
         mInputDevices.append(inputDevice);
     } else if (interface == QStringLiteral("wl_data_device_manager")) {
         mDndSelectionHandler.reset(new QWaylandDataDeviceManager(this, id));
-    } else if (interface == QStringLiteral("qt_output_extension")) {
-        mOutputExtension.reset(new QtWayland::qt_output_extension(registry, id, 1));
-        foreach (QPlatformScreen *screen, screens())
-            static_cast<QWaylandScreen *>(screen)->createExtendedOutput();
     } else if (interface == QStringLiteral("qt_surface_extension")) {
         mWindowExtension.reset(new QtWayland::qt_surface_extension(registry, id, 1));
     } else if (interface == QStringLiteral("qt_sub_surface_extension")) {

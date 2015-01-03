@@ -128,7 +128,6 @@ public:
 
     QtWayland::qt_surface_extension *windowExtension() const { return mWindowExtension.data(); }
     QtWayland::qt_sub_surface_extension *subSurfaceExtension() const { return mSubSurfaceExtension.data(); }
-    QtWayland::qt_output_extension *outputExtension() const { return mOutputExtension.data(); }
     QWaylandTouchExtension *touchExtension() const { return mTouchExtension.data(); }
     QtWayland::wl_text_input_manager *textInputManager() const { return mTextInputManager.data(); }
     QWaylandHardwareIntegration *hardwareIntegration() const { return mHardwareIntegration.data(); }
@@ -189,7 +188,6 @@ private:
     QScopedPointer<QWaylandDataDeviceManager> mDndSelectionHandler;
     QScopedPointer<QtWayland::qt_surface_extension> mWindowExtension;
     QScopedPointer<QtWayland::qt_sub_surface_extension> mSubSurfaceExtension;
-    QScopedPointer<QtWayland::qt_output_extension> mOutputExtension;
     QScopedPointer<QWaylandTouchExtension> mTouchExtension;
     QScopedPointer<QWaylandQtKeyExtension> mQtKeyExtension;
     QScopedPointer<QWaylandWindowManagerIntegration> mWindowManagerIntegration;

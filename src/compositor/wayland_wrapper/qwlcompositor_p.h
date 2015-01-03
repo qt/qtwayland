@@ -74,7 +74,6 @@ class SurfaceBuffer;
 class InputDevice;
 class DataDeviceManager;
 class OutputGlobal;
-class OutputExtensionGlobal;
 class SurfaceExtensionGlobal;
 class SubSurfaceExtensionGlobal;
 class TouchExtensionGlobal;
@@ -215,7 +214,6 @@ protected:
     //extensions
     WindowManagerServerIntegration *m_windowManagerIntegration;
 
-    OutputExtensionGlobal *m_outputExtension;
     SurfaceExtensionGlobal *m_surfaceExtension;
     SubSurfaceExtensionGlobal *m_subSurfaceExtension;
     TouchExtensionGlobal *m_touchExtension;

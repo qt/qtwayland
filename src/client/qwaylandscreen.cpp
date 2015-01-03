@@ -35,7 +35,6 @@
 
 #include "qwaylanddisplay_p.h"
 #include "qwaylandcursor_p.h"
-#include "qwaylandextendedoutput_p.h"
 #include "qwaylandwindow_p.h"
 
 #include <QtGui/QGuiApplication>
@@ -52,7 +51,6 @@ QWaylandScreen::QWaylandScreen(QWaylandDisplay *waylandDisplay, int version, uin
     , QtWayland::wl_output(waylandDisplay->wl_registry(), id, qMin(version, 2))
     , m_outputId(id)
     , mWaylandDisplay(waylandDisplay)
-    , mExtendedOutput(0)
     , mScale(1)
     , mDepth(32)
     , mRefreshRate(60000)
@@ -62,8 +60,6 @@ QWaylandScreen::QWaylandScreen(QWaylandDisplay *waylandDisplay, int version, uin
     , m_orientation(Qt::PrimaryOrientation)
     , mWaylandCursor(new QWaylandCursor(this))
 {
-    // handle case of output extension global being sent after outputs
-    createExtendedOutput();
 }
 
 QWaylandScreen::~QWaylandScreen()
@@ -150,18 +146,6 @@ qreal QWaylandScreen::refreshRate() const
 QPlatformCursor *QWaylandScreen::cursor() const
 {
     return  mWaylandCursor;
-}
-
-QWaylandExtendedOutput *QWaylandScreen::extendedOutput() const
-{
-    return mExtendedOutput;
-}
-
-void QWaylandScreen::createExtendedOutput()
-{
-    QtWayland::qt_output_extension *extension = mWaylandDisplay->outputExtension();
-    if (!mExtendedOutput && extension)
-        mExtendedOutput = new QWaylandExtendedOutput(this, extension->get_extended_output(output()));
 }
 
 QWaylandScreen * QWaylandScreen::waylandScreenFromWindow(QWindow *window)

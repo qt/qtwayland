@@ -57,12 +57,10 @@ class QWindow;
 namespace QtWayland {
 
 class Compositor;
-class ExtendedOutput;
 
 struct OutputResource : public QtWaylandServer::wl_output::Resource
 {
-    OutputResource() : extendedOutput(0) {}
-    ExtendedOutput *extendedOutput;
+    OutputResource() {}
 };
 
 class Output : public QtWaylandServer::wl_output

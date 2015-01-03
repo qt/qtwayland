@@ -45,7 +45,6 @@ namespace QtWaylandClient {
 
 class QWaylandDisplay;
 class QWaylandCursor;
-class QWaylandExtendedOutput;
 
 class Q_WAYLAND_CLIENT_EXPORT QWaylandScreen : public QPlatformScreen, QtWayland::wl_output
 {
@@ -79,9 +78,6 @@ public:
     uint32_t outputId() const { return m_outputId; }
     ::wl_output *output() { return object(); }
 
-    QWaylandExtendedOutput *extendedOutput() const;
-    void createExtendedOutput();
-
     static QWaylandScreen *waylandScreenFromWindow(QWindow *window);
 
 private:
@@ -97,7 +93,6 @@ private:
 
     int m_outputId;
     QWaylandDisplay *mWaylandDisplay;
-    QWaylandExtendedOutput *mExtendedOutput;
     QRect mGeometry;
     int mScale;
     int mDepth;

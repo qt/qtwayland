@@ -75,15 +75,14 @@ class Q_COMPOSITOR_EXPORT QWaylandCompositor
 public:
     enum ExtensionFlag {
         WindowManagerExtension = 0x01,
-        OutputExtension = 0x02,
-        SurfaceExtension = 0x04,
-        QtKeyExtension = 0x08,
-        TouchExtension = 0x10,
-        SubSurfaceExtension = 0x20,
-        TextInputExtension = 0x40,
-        HardwareIntegrationExtension = 0x80,
+        SurfaceExtension = 0x02,
+        QtKeyExtension = 0x04,
+        TouchExtension = 0x08,
+        SubSurfaceExtension = 0x10,
+        TextInputExtension = 0x20,
+        HardwareIntegrationExtension = 0x40,
 
-        DefaultExtensions = WindowManagerExtension | OutputExtension | SurfaceExtension | QtKeyExtension | TouchExtension | HardwareIntegrationExtension
+        DefaultExtensions = WindowManagerExtension | SurfaceExtension | QtKeyExtension | TouchExtension | HardwareIntegrationExtension
     };
     Q_DECLARE_FLAGS(ExtensionFlags, ExtensionFlag)
 

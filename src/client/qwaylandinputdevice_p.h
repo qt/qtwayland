@@ -260,7 +260,29 @@ public:
     QList<QWindowSystemInterface::TouchPoint> mPrevTouchPoints;
 };
 
+class QWaylandPointerEvent
+{
+public:
+    enum Type {
+        Enter,
+        Motion
+    };
+    inline QWaylandPointerEvent(Type t, ulong ts, const QPointF &l, const QPointF &g, Qt::MouseButtons b, Qt::KeyboardModifiers m)
+        : type(t)
+        , timestamp(ts)
+        , local(l)
+        , global(g)
+        , buttons(b)
+        , modifiers(m)
+    {}
 
+    Type type;
+    ulong timestamp;
+    QPointF local;
+    QPointF global;
+    Qt::MouseButtons buttons;
+    Qt::KeyboardModifiers modifiers;
+};
 
 QT_END_NAMESPACE
 

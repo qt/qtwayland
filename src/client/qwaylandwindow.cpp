@@ -603,27 +603,28 @@ QWaylandWindow *QWaylandWindow::transientParent() const
     return 0;
 }
 
-void QWaylandWindow::handleMouse(QWaylandInputDevice *inputDevice, ulong timestamp, const QPointF &local, const QPointF &global, Qt::MouseButtons b, Qt::KeyboardModifiers mods)
+void QWaylandWindow::handleMouse(QWaylandInputDevice *inputDevice, const QWaylandPointerEvent &e)
 {
-    if (b != Qt::NoButton) {
+    if (e.buttons != Qt::NoButton) {
         mMouseSerial = inputDevice->serial();
         mMouseDevice = inputDevice;
     }
 
     if (mWindowDecoration) {
-        handleMouseEventWithDecoration(inputDevice, timestamp,local,global,b,mods);
-        return;
+        handleMouseEventWithDecoration(inputDevice, e);
+    } else {
+        switch (e.type) {
+            case QWaylandPointerEvent::Enter:
+                QWindowSystemInterface::handleEnterEvent(window(), e.local, e.global);
+                break;
+            case QWaylandPointerEvent::Motion:
+                QWindowSystemInterface::handleMouseEvent(window(), e.timestamp, e.local, e.global, e.buttons, e.modifiers);
+                break;
+        }
     }
 
-    QWindowSystemInterface::handleMouseEvent(window(),timestamp,local,global,b,mods);
-}
-
-void QWaylandWindow::handleMouseEnter(QWaylandInputDevice *inputDevice)
-{
-    if (!mWindowDecoration) {
-        QWindowSystemInterface::handleEnterEvent(window());
-    }
-    restoreMouseCursor(inputDevice);
+    if (e.type == QWaylandPointerEvent::Enter)
+        restoreMouseCursor(inputDevice);
 }
 
 void QWaylandWindow::handleMouseLeave(QWaylandInputDevice *inputDevice)
@@ -645,19 +646,22 @@ bool QWaylandWindow::touchDragDecoration(QWaylandInputDevice *inputDevice, const
     return mWindowDecoration->handleTouch(inputDevice, local, global, state, mods);
 }
 
-void QWaylandWindow::handleMouseEventWithDecoration(QWaylandInputDevice *inputDevice, ulong timestamp, const QPointF &local, const QPointF &global, Qt::MouseButtons b, Qt::KeyboardModifiers mods)
+void QWaylandWindow::handleMouseEventWithDecoration(QWaylandInputDevice *inputDevice, const QWaylandPointerEvent &e)
 {
-    if (mWindowDecoration->handleMouse(inputDevice,local,global,b,mods))
+    if (mWindowDecoration->handleMouse(inputDevice, e.local, e.global, e.buttons, e.modifiers)) {
+        if (mMouseEventsInContentArea)
+            QWindowSystemInterface::handleLeaveEvent(window());
         return;
+    }
 
     QMargins marg = frameMargins();
     QRect windowRect(0 + marg.left(),
                      0 + marg.top(),
                      geometry().size().width() - marg.right(),
                      geometry().size().height() - marg.bottom());
-    if (windowRect.contains(local.toPoint()) || mMousePressedInContentArea != Qt::NoButton) {
-        QPointF localTranslated = local;
-        QPointF globalTranslated = global;
+    if (windowRect.contains(e.local.toPoint()) || mMousePressedInContentArea != Qt::NoButton) {
+        QPointF localTranslated = e.local;
+        QPointF globalTranslated = e.global;
         localTranslated.setX(localTranslated.x() - marg.left());
         localTranslated.setY(localTranslated.y() - marg.top());
         globalTranslated.setX(globalTranslated.x() - marg.left());
@@ -666,15 +670,23 @@ void QWaylandWindow::handleMouseEventWithDecoration(QWaylandInputDevice *inputDe
             restoreMouseCursor(inputDevice);
             QWindowSystemInterface::handleEnterEvent(window());
         }
-        QWindowSystemInterface::handleMouseEvent(window(), timestamp, localTranslated, globalTranslated, b, mods);
+
+        switch (e.type) {
+            case QWaylandPointerEvent::Enter:
+                QWindowSystemInterface::handleEnterEvent(window(), localTranslated, globalTranslated);
+                break;
+            case QWaylandPointerEvent::Motion:
+                QWindowSystemInterface::handleMouseEvent(window(), e.timestamp, localTranslated, globalTranslated, e.buttons, e.modifiers);
+                break;
+        }
+
         mMouseEventsInContentArea = true;
-        mMousePressedInContentArea = b;
+        mMousePressedInContentArea = e.buttons;
     } else {
         if (mMouseEventsInContentArea) {
             QWindowSystemInterface::handleLeaveEvent(window());
             mMouseEventsInContentArea = false;
         }
-        mWindowDecoration->handleMouse(inputDevice,local,global,b,mods);
     }
 }
 

@@ -64,6 +64,7 @@ class QWaylandAbstractDecoration;
 class QWaylandInputDevice;
 class QWaylandScreen;
 class QWaylandShmBackingStore;
+class QWaylandPointerEvent;
 
 class Q_WAYLAND_CLIENT_EXPORT QWaylandWindowConfigure
 {
@@ -151,13 +152,7 @@ public:
 
     QWaylandAbstractDecoration *decoration() const;
 
-    void handleMouse(QWaylandInputDevice *inputDevice,
-                     ulong timestamp,
-                     const QPointF & local,
-                     const QPointF & global,
-                     Qt::MouseButtons b,
-                     Qt::KeyboardModifiers mods);
-    void handleMouseEnter(QWaylandInputDevice *inputDevice);
+    void handleMouse(QWaylandInputDevice *inputDevice, const QWaylandPointerEvent &e);
     void handleMouseLeave(QWaylandInputDevice *inputDevice);
 
     bool touchDragDecoration(QWaylandInputDevice *inputDevice, const QPointF &local, const QPointF &global,
@@ -237,12 +232,7 @@ private:
     bool setWindowStateInternal(Qt::WindowState flags);
     void setGeometry_helper(const QRect &rect);
 
-    void handleMouseEventWithDecoration(QWaylandInputDevice *inputDevice,
-                                        ulong timestamp,
-                                        const QPointF & local,
-                                        const QPointF & global,
-                                        Qt::MouseButtons b,
-                                        Qt::KeyboardModifiers mods);
+    void handleMouseEventWithDecoration(QWaylandInputDevice *inputDevice, const QWaylandPointerEvent &e);
 
     static const wl_callback_listener callbackListener;
     static void frameCallback(void *data, struct wl_callback *wl_callback, uint32_t time);

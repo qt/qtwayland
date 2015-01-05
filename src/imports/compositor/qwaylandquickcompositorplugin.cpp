@@ -33,6 +33,7 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
+#include <QtCore/QDir>
 
 #include <QtQml/qqmlextensionplugin.h>
 
@@ -97,13 +98,22 @@ public:
     virtual void registerTypes(const char *uri)
     {
         Q_ASSERT(QLatin1String(uri) == QLatin1String("QtWayland.Compositor"));
-        Q_UNUSED(uri);
-        defineModule();
+        defineModule(uri);
+
+        bool useResource = true;
+        QDir qmlDir(baseUrl().toLocalFile());
+        if (qmlDir.exists(QStringLiteral("WaylandSurfaceChrome.qml")))
+            useResource = false;
+
+        QUrl waylandSurfaceChromeUrl = useResource ?
+            QUrl("qrc:/QtWayland/Compositor/WaylandSurfaceChrome.qml") :
+            QUrl::fromLocalFile(qmlDir.filePath("WaylandSurfaceChrome.qml"));
+        qmlRegisterType(waylandSurfaceChromeUrl, uri, 1, 0, "WaylandSurfaceChrome");
+
     }
 
-    static void defineModule()
+    static void defineModule(const char *uri)
     {
-        const char uri[] = "QtWayland.Compositor";
         qmlRegisterType<QWaylandQuickCompositorImpl>(uri, 1, 0, "WaylandCompositor");
         qmlRegisterUncreatableType<QWaylandSurfaceItem>(uri, 1, 0, "WaylandSurfaceItem", QObject::tr("Cannot create instance of WaylandSurfaceItem"));
         qmlRegisterUncreatableType<QWaylandQuickSurface>(uri, 1, 0, "WaylandQuickSurface", QObject::tr("Cannot create instance of WaylandQuickSurface"));

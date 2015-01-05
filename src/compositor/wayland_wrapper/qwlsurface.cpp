@@ -115,6 +115,7 @@ Surface::Surface(struct wl_client *client, uint32_t id, int version, QWaylandCom
     , m_buffer(0)
     , m_surfaceMapped(false)
     , m_attacher(0)
+    , m_shellSurface(0)
     , m_extendedSurface(0)
     , m_subSurface(0)
     , m_inputPanelSurface(0)

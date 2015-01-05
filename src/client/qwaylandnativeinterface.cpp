@@ -86,6 +86,8 @@ void *QWaylandNativeInterface::nativeResourceForWindow(const QByteArray &resourc
     if (lowerCaseResource == "surface") {
         return ((QWaylandWindow *) window->handle())->object();
     }
+    if (lowerCaseResource == "egldisplay" && m_integration->clientBufferIntegration())
+        return m_integration->clientBufferIntegration()->nativeResource(QWaylandClientBufferIntegration::EglDisplay);
 
     return NULL;
 }

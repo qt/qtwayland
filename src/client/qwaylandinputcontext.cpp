@@ -124,6 +124,18 @@ void QWaylandTextInput::updateState()
     commit_state(++m_serial);
 }
 
+void QWaylandTextInput::text_input_preedit_string(uint32_t serial, const QString &text, const QString &commit)
+{
+    Q_UNUSED(serial)
+    if (!QGuiApplication::focusObject())
+        return;
+
+    m_commit = commit;
+    QList<QInputMethodEvent::Attribute> attributes;
+    QInputMethodEvent event(text, attributes);
+    QCoreApplication::sendEvent(QGuiApplication::focusObject(), &event);
+}
+
 void QWaylandTextInput::text_input_commit_string(uint32_t serial, const QString &text)
 {
     Q_UNUSED(serial);
@@ -133,6 +145,8 @@ void QWaylandTextInput::text_input_commit_string(uint32_t serial, const QString 
     QInputMethodEvent event;
     event.setCommitString(text);
     QCoreApplication::sendEvent(QGuiApplication::focusObject(), &event);
+
+    m_commit = QString();
 }
 
 void QWaylandTextInput::text_input_enter(wl_surface *)
@@ -143,6 +157,8 @@ void QWaylandTextInput::text_input_enter(wl_surface *)
 
 void QWaylandTextInput::text_input_leave()
 {
+    if (!m_commit.isEmpty())
+        text_input_commit_string(0, m_commit);
 }
 
 void QWaylandTextInput::text_input_keysym(uint32_t serial, uint32_t time, uint32_t sym, uint32_t state, uint32_t modifiers)

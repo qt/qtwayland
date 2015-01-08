@@ -52,11 +52,18 @@ QT_BEGIN_NAMESPACE
 class QWaylandQuickCompositorImpl : public QWaylandQuickCompositor
 {
     Q_OBJECT
+    Q_PROPERTY(QQmlListProperty<QObject> data READ data DESIGNABLE false)
+    Q_CLASSINFO("DefaultProperty", "data")
 public:
     QWaylandQuickCompositorImpl(QObject *parent = 0)
         : QWaylandQuickCompositor(parent)
     {
         setInitializeLegazyQmlNames(false);
+    }
+
+    QQmlListProperty<QObject> data()
+    {
+        return QQmlListProperty<QObject>(this, m_objects);
     }
 
 protected:
@@ -70,6 +77,8 @@ protected:
         create();
         QWaylandQuickCompositor::componentComplete();
     }
+private:
+    QList<QObject *> m_objects;
 };
 
 /*!

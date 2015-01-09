@@ -154,7 +154,9 @@ public:
     void sendDragMoveEvent(const QPoint &global, const QPoint &local, QWaylandSurface *surface);
     void sendDragEndEvent();
 
-    virtual void setCursorSurface(QWaylandSurface *surface, int hotspotX, int hotspotY);
+#if QT_DEPRECATED_SINCE(5, 5)
+    QT_DEPRECATED virtual void setCursorSurface(QWaylandSurface *surface, int hotspotX, int hotspotY);
+#endif
 
     void cleanupGraphicsResources();
 
@@ -171,6 +173,8 @@ public:
 signals:
     void surfaceCreated(QWaylandSurface *surface);
     void surfaceAboutToBeDestroyed(QWaylandSurface *surface);
+
+    void currentCurserSurfaceRequest(QWaylandSurface *surface, int hotspotX, int hotspotY);
 
     void primaryOutputChanged();
 

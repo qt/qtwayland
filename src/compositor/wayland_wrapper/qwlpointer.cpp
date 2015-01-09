@@ -308,19 +308,27 @@ void Pointer::button(uint32_t time, Qt::MouseButton button, uint32_t state)
         setFocus(m_current, m_currentPoint);
 }
 
+static void requestCursorSurface(QWaylandCompositor *compositor, QWaylandSurface *surface, int32_t hotspot_x, int hotspot_y)
+{
+#if QT_DEPRECATED_SINCE(5, 5)
+    compositor->setCursorSurface(surface, hotspot_x, hotspot_y);
+#endif
+    compositor->currentCurserSurfaceRequest(surface, hotspot_x, hotspot_y);
+}
+
 void Pointer::pointer_set_cursor(wl_pointer::Resource *resource, uint32_t serial, wl_resource *surface, int32_t hotspot_x, int32_t hotspot_y)
 {
     Q_UNUSED(resource);
     Q_UNUSED(serial);
 
     if (!surface) {
-        m_compositor->waylandCompositor()->setCursorSurface(NULL, 0, 0);
+        requestCursorSurface(m_compositor->waylandCompositor(), Q_NULLPTR, 0, 0);
         return;
     }
 
     Surface *s = Surface::fromResource(surface);
     s->setCursorSurface(true);
-    m_compositor->waylandCompositor()->setCursorSurface(s->waylandSurface(), hotspot_x, hotspot_y);
+    requestCursorSurface(m_compositor->waylandCompositor(), s->waylandSurface(), hotspot_x, hotspot_y);
 }
 
 PointerGrabber::~PointerGrabber()

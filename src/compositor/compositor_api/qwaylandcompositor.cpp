@@ -356,12 +356,14 @@ void QWaylandCompositor::sendDragEndEvent()
     m_compositor->sendDragEndEvent();
 }
 
+#if QT_DEPRECATED_SINCE(5, 5)
 void QWaylandCompositor::setCursorSurface(QWaylandSurface *surface, int hotspotX, int hotspotY)
 {
     Q_UNUSED(surface);
     Q_UNUSED(hotspotX);
     Q_UNUSED(hotspotY);
 }
+#endif
 
 void QWaylandCompositor::configureTouchExtension(TouchExtensionFlags flags)
 {

@@ -79,7 +79,7 @@ protected:
     bool eventFilter(QObject *obj, QEvent *event);
     QPointF toView(QWaylandSurfaceView *view, const QPointF &pos) const;
 
-    void setCursorSurface(QWaylandSurface *surface, int hotspotX, int hotspotY);
+    void adjustCursorSurface(QWaylandSurface *surface, int hotspotX, int hotspotY);
 
     void ensureKeyboardFocusSurface(QWaylandSurface *oldSurface);
     QImage makeBackgroundImage(const QString &fileName);

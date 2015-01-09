@@ -140,6 +140,7 @@ QWindowCompositor::QWindowCompositor(CompositorWindow *window)
     m_renderScheduler.setSingleShot(true);
     connect(&m_renderScheduler,SIGNAL(timeout()),this,SLOT(render()));
     connect(this, &QWaylandCompositor::surfaceCreated, this, &QWindowCompositor::onSurfaceCreated);
+    connect(this, &QWaylandCompositor::currentCurserSurfaceRequest, this, &QWindowCompositor::adjustCursorSurface);
 
     QOpenGLFunctions *functions = m_window->context()->functions();
     functions->glGenFramebuffers(1, &m_surface_fbo);
@@ -292,7 +293,7 @@ QPointF QWindowCompositor::toView(QWaylandSurfaceView *view, const QPointF &pos)
     return pos - view->pos();
 }
 
-void QWindowCompositor::setCursorSurface(QWaylandSurface *surface, int hotspotX, int hotspotY)
+void QWindowCompositor::adjustCursorSurface(QWaylandSurface *surface, int hotspotX, int hotspotY)
 {
     if ((m_cursorSurface != surface) && surface)
         connect(surface, SIGNAL(configure(bool)), this, SLOT(updateCursor(bool)));

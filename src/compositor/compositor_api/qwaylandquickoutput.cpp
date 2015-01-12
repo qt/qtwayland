@@ -44,10 +44,14 @@ QWaylandQuickOutput::QWaylandQuickOutput(QWaylandCompositor *compositor, QQuickW
                                          const QString &manufacturer, const QString &model)
     : QWaylandOutput(compositor, window, manufacturer, model)
     , m_updateScheduled(false)
+    , m_automaticFrameCallbacks(false)
 {
     connect(window, &QQuickWindow::beforeSynchronizing,
             this, &QWaylandQuickOutput::updateStarted,
             Qt::DirectConnection);
+
+    connect(window, &QQuickWindow::beforeRendering,
+            this, &QWaylandQuickOutput::doFrameCallbacks);
 }
 
 QQuickWindow *QWaylandQuickOutput::quickWindow() const
@@ -63,6 +67,16 @@ void QWaylandQuickOutput::update()
     }
 }
 
+bool QWaylandQuickOutput::automaticFrameCallbacks() const
+{
+    return m_automaticFrameCallbacks;
+}
+
+void QWaylandQuickOutput::setAutomaticFrameCallbacks(bool automatic)
+{
+    m_automaticFrameCallbacks = automatic;
+}
+
 void QWaylandQuickOutput::updateStarted()
 {
     m_updateScheduled = false;
@@ -70,4 +84,9 @@ void QWaylandQuickOutput::updateStarted()
     compositor()->cleanupGraphicsResources();
 }
 
+void QWaylandQuickOutput::doFrameCallbacks()
+{
+    if (m_automaticFrameCallbacks)
+        sendFrameCallbacks(surfaces());
+}
 QT_END_NAMESPACE

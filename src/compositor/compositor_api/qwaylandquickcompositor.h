@@ -38,13 +38,16 @@
 #define QWAYLANDQUICKCOMPOSITOR_H
 
 #include <QtCompositor/qwaylandcompositor.h>
+#include <QtQml/QQmlParserStatus>
 
 QT_BEGIN_NAMESPACE
 
-class Q_COMPOSITOR_EXPORT QWaylandQuickCompositor : public QWaylandCompositor
+class Q_COMPOSITOR_EXPORT QWaylandQuickCompositor : public QWaylandCompositor, public QQmlParserStatus
 {
+    Q_INTERFACES(QQmlParserStatus)
     Q_OBJECT
     Q_PROPERTY(bool initializeLegazyQmlNames READ initializeLegazyQmlNames WRITE setInitializeLegazyQmlNames)
+    Q_PROPERTY(bool exposeDefaultShell READ exposeDefaultShell WRITE setExposeDefaultShell)
 public:
     QWaylandQuickCompositor(QObject *parent = 0);
     void create() Q_DECL_OVERRIDE;
@@ -53,14 +56,22 @@ public:
     bool initializeLegazyQmlNames() const;
     void setInitializeLegazyQmlNames(bool init);
 
+    bool exposeDefaultShell() const;
+    void setExposeDefaultShell(bool defaultShell);
+
     QWaylandSurfaceView *createView(QWaylandSurface *surf) Q_DECL_OVERRIDE;
     QWaylandOutput *createOutput(QWindow *window,
                                  const QString &manufacturer,
                                  const QString &model) Q_DECL_OVERRIDE;
     QWaylandSurface *createSurface(QWaylandClient *client, quint32 id, int version) Q_DECL_OVERRIDE;
 
+protected:
+    void classBegin() Q_DECL_OVERRIDE;
+    void componentComplete() Q_DECL_OVERRIDE;
+
 private:
     bool m_initializeLegazyQmlNames;
+    bool m_exposeDefaultShell;
 };
 
 QT_END_NAMESPACE

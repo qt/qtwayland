@@ -35,11 +35,21 @@ import QtQuick 2.0
 
 Item {
     id: chrome
+
+    width: childrenRect.width
+    height: childrenRect.height
+
     property QtObject surface
-    property QtObject view
+    property Item view
 
     property bool automaticUseShellView: false
     property bool automaticDestroyOnSurfaceDestroy: true
+
+    property bool followRequestedPosition: false
+    property real requestedXPosition
+    property real requestedYPosition
+
+    signal surfaceDestroyed
 
     Connections {
         target: surface
@@ -64,8 +74,10 @@ Item {
     onViewChanged: {
         if (view) {
             view.parent = chrome;
-            chrome.anchors = Qt.binding(function() { return view.anchors; })
-            chrome.visible = Qt.binding(function() { return view.visible; })
+            view.followRequestedPosition = Qt.binding(function() { return chrome.followRequestedPosition; });
+            chrome.visible = Qt.binding(function() { return view.visible; });
+            chrome.requestedXPosition = Qt.binding(function() { return view.requestedXPosition; });
+            chrome.requestedYPosition = Qt.binding(function() { return view.requestedYPosition; });
         } else {
             chrome.visible = false;
         }

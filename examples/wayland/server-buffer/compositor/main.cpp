@@ -243,8 +243,8 @@ int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
 
-    if (!app.arguments().contains(QStringLiteral("--invert"))) {
-        qDebug() << "iverting";
+    if (app.arguments().contains(QStringLiteral("--invert"))) {
+        qDebug() << "inverting";
         qputenv("QT_COMPOSITOR_NEGATE_INVERTED_Y", "1");
     }
 

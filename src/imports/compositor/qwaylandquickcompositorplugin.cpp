@@ -81,6 +81,27 @@ private:
     QList<QObject *> m_objects;
 };
 
+class QmlUrlResolver
+{
+public:
+    QmlUrlResolver(bool useResource, const QDir &qmlDir, const QString &qrcPath)
+        : m_useResource(useResource)
+        , m_qmlDir(qmlDir)
+        , m_qrcPath(qrcPath)
+    { }
+
+    QUrl get(const QString &fileName)
+    {
+        return m_useResource ? QUrl(m_qrcPath + fileName) :
+            QUrl::fromLocalFile(m_qmlDir.filePath(fileName));
+    }
+private:
+    bool m_useResource;
+    const QDir &m_qmlDir;
+    const QString &m_qrcPath;
+};
+
+
 /*!
     \qmlmodule QtWayland.Compositor 1.0
     \title Qt Wayland Compositor QML Types
@@ -114,15 +135,11 @@ public:
         if (qmlDir.exists(QStringLiteral("WaylandSurfaceChrome.qml")))
             useResource = false;
 
-        QUrl waylandSurfaceChromeUrl = useResource ?
-            QUrl("qrc:/QtWayland/Compositor/WaylandSurfaceChrome.qml") :
-            QUrl::fromLocalFile(qmlDir.filePath("WaylandSurfaceChrome.qml"));
-        qmlRegisterType(waylandSurfaceChromeUrl, uri, 1, 0, "WaylandSurfaceChrome");
+        QmlUrlResolver resolver(useResource, qmlDir, QStringLiteral("qrc:/QtWayland/Compositor/"));
 
-        QUrl waylandOutputWindow = useResource ?
-            QUrl("qrc:/QtWayland/Compositor/WaylandOutputWindow.qml") :
-            QUrl::fromLocalFile(qmlDir.filePath("WaylandOutputWindow.qml"));
-        qmlRegisterType(waylandOutputWindow, uri, 1, 0, "WaylandOutputWindow");
+        qmlRegisterType(resolver.get(QStringLiteral("WaylandSurfaceChrome.qml")), uri, 1, 0, "WaylandSurfaceChrome");
+        qmlRegisterType(resolver.get(QStringLiteral("WaylandOutputWindow.qml")), uri, 1, 0, "WaylandOutputWindow");
+        qmlRegisterType(resolver.get(QStringLiteral("WaylandCursorItem.qml")), uri, 1, 0, "WaylandCursorItem");
     }
 
     static void defineModule(const char *uri)

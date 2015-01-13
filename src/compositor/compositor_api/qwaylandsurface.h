@@ -126,6 +126,7 @@ class Q_COMPOSITOR_EXPORT QWaylandSurface : public QObject
     Q_PROPERTY(QWaylandSurface *transientParent READ transientParent)
     Q_PROPERTY(QPointF transientOffset READ transientOffset)
     Q_PROPERTY(QWaylandOutput *output READ output NOTIFY outputChanged)
+    Q_PROPERTY(bool isYInverted READ isYInverted NOTIFY yInvertedChanged)
 
     Q_ENUMS(WindowFlag WindowType)
     Q_FLAGS(WindowFlag WindowFlags)
@@ -255,6 +256,7 @@ Q_SIGNALS:
     void surfaceDestroyed();
     void shellViewCreated();
     void outputChanged(QWaylandOutput *newOutput, QWaylandOutput *oldOutput);
+    void yInvertedChanged();
 
     void configure(bool hasBuffer);
     void redraw();

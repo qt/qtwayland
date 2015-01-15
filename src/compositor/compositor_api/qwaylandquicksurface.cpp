@@ -111,6 +111,7 @@ public:
     {
         delete texture;
         texture = 0;
+        update = true;
     }
 
     QWaylandQuickSurface *surface;

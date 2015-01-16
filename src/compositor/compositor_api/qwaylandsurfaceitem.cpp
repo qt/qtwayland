@@ -217,6 +217,12 @@ void QWaylandSurfaceItem::keyReleaseEvent(QKeyEvent *event)
 void QWaylandSurfaceItem::touchEvent(QTouchEvent *event)
 {
     if (m_touchEventsEnabled) {
+        if (event->type() == QEvent::TouchBegin) {
+            QQuickItem *grabber = window()->mouseGrabberItem();
+            if (grabber != this)
+                grabMouse();
+        }
+
         QWaylandInputDevice *inputDevice = compositor()->defaultInputDevice();
         event->accept();
         if (inputDevice->mouseFocus() != this) {
@@ -229,6 +235,14 @@ void QWaylandSurfaceItem::touchEvent(QTouchEvent *event)
         inputDevice->sendFullTouchEvent(event);
     } else {
         event->ignore();
+    }
+}
+
+void QWaylandSurfaceItem::mouseUngrabEvent()
+{
+    if (surface()) {
+        QTouchEvent e(QEvent::TouchCancel);
+        touchEvent(&e);
     }
 }
 

@@ -100,6 +100,7 @@ protected:
     void keyReleaseEvent(QKeyEvent *event);
 
     void touchEvent(QTouchEvent *event);
+    void mouseUngrabEvent() Q_DECL_OVERRIDE;
 
 public slots:
     void takeFocus();

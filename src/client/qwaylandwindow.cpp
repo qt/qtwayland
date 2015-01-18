@@ -226,14 +226,21 @@ void QWaylandWindow::setGeometry(const QRect &rect)
 void QWaylandWindow::setVisible(bool visible)
 {
     if (visible) {
-        if (window()->type() == Qt::Popup && transientParent()) {
+        if (window()->type() == Qt::Popup) {
             QWaylandWindow *parent = transientParent();
-            mMouseDevice = parent->mMouseDevice;
-            mMouseSerial = parent->mMouseSerial;
+            if (!parent) {
+                // Try with the current focus window. It may be the wrong one but we need to have
+                // some parent to have popups act as popups.
+                parent = mDisplay->currentInputDevice()->pointerFocus();
+            }
+            if (parent) {
+                mMouseDevice = parent->mMouseDevice;
+                mMouseSerial = parent->mMouseSerial;
 
-            QWaylandWlShellSurface *wlshellSurface = dynamic_cast<QWaylandWlShellSurface*>(mShellSurface);
-            if (mMouseDevice && wlshellSurface) {
-                wlshellSurface->setPopup(transientParent(), mMouseDevice, mMouseSerial);
+                QWaylandWlShellSurface *wlshellSurface = dynamic_cast<QWaylandWlShellSurface*>(mShellSurface);
+                if (mMouseDevice && wlshellSurface) {
+                    wlshellSurface->setPopup(parent, mMouseDevice, mMouseSerial);
+                }
             }
         }
 

@@ -208,7 +208,7 @@ void QWaylandWindow::setGeometry(const QRect &rect)
 {
     setGeometry_helper(rect);
 
-    if (window()->isVisible()) {
+    if (window()->isVisible() && rect.isValid()) {
         if (mWindowDecoration)
             mWindowDecoration->update();
 
@@ -336,7 +336,7 @@ void QWaylandWindow::requestResize()
 {
     QMutexLocker lock(&mResizeLock);
 
-    if (mCanResize) {
+    if (mCanResize || !mSentInitialResize) {
         doResize();
     }
 

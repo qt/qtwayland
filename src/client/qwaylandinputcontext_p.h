@@ -60,6 +60,7 @@ public:
     void updateState();
 
 protected:
+    void text_input_preedit_string(uint32_t serial, const QString &text, const QString &commit) Q_DECL_OVERRIDE;
     void text_input_commit_string(uint32_t serial, const QString &text) Q_DECL_OVERRIDE;
     void text_input_enter(wl_surface *surface) Q_DECL_OVERRIDE;
     void text_input_leave() Q_DECL_OVERRIDE;

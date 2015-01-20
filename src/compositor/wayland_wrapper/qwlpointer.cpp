@@ -91,8 +91,6 @@ Pointer::Pointer(Compositor *compositor, InputDevice *seat)
     , m_position(100, 100)
     , m_focus()
     , m_focusResource()
-    , m_current()
-    , m_currentPoint()
     , m_buttonCount()
 {
     connect(&m_focusDestroyListener, &WlListener::fired, this, &Pointer::focusDestroyed);
@@ -141,7 +139,7 @@ void Pointer::startGrab(PointerGrabber *grab)
     m_grab = grab;
     grab->m_pointer = this;
 
-    if (m_current)
+    if (m_currentPosition.view())
         grab->focus();
 }
 
@@ -153,8 +151,7 @@ void Pointer::endGrab()
 
 void Pointer::setCurrent(QWaylandSurfaceView *surface, const QPointF &point)
 {
-    m_current = surface;
-    m_currentPoint = point;
+    m_currentPosition.setCurrent(surface, point);
 }
 
 bool Pointer::buttonPressed() const
@@ -189,7 +186,7 @@ QWaylandSurfaceView *Pointer::focusSurface() const
 
 QWaylandSurfaceView *Pointer::current() const
 {
-    return m_current;
+    return m_currentPosition.view();
 }
 
 QPointF Pointer::position() const
@@ -199,7 +196,7 @@ QPointF Pointer::position() const
 
 QPointF Pointer::currentPosition() const
 {
-    return m_currentPoint;
+    return m_currentPosition.position();
 }
 
 QtWaylandServer::wl_pointer::Resource *Pointer::focusResource() const
@@ -222,8 +219,7 @@ void Pointer::setMouseFocus(QWaylandSurfaceView *surface, const QPointF &localPo
 {
     m_position = globalPos;
 
-    m_current = surface;
-    m_currentPoint = localPos;
+    m_currentPosition.setCurrent(surface, localPos);
 
     m_grab->focus();
 }
@@ -265,7 +261,8 @@ void Pointer::sendMouseMoveEvent(const QPointF &localPos, const QPointF &globalP
     uint32_t time = m_compositor->currentTimeMsecs();
 
     m_position = globalPos;
-    m_currentPoint = localPos;
+
+    m_currentPosition.updatePosition(localPos);
 
     m_grab->motion(time);
 }
@@ -286,15 +283,15 @@ void Pointer::focus()
     if (buttonPressed())
         return;
 
-    setFocus(m_current, m_currentPoint);
+    setFocus(m_currentPosition.view(), m_currentPosition.position());
 }
 
 void Pointer::motion(uint32_t time)
 {
     if (m_focusResource)
         send_motion(m_focusResource->handle, time,
-                    wl_fixed_from_double(m_currentPoint.x()),
-                    wl_fixed_from_double(m_currentPoint.y()));
+                    wl_fixed_from_double(m_currentPosition.x()),
+                    wl_fixed_from_double(m_currentPosition.y()));
 
 }
 
@@ -305,7 +302,7 @@ void Pointer::button(uint32_t time, Qt::MouseButton button, uint32_t state)
     }
 
     if (!buttonPressed() && state == WL_POINTER_BUTTON_STATE_RELEASED)
-        setFocus(m_current, m_currentPoint);
+        setFocus(m_currentPosition.view(), m_currentPosition.position());
 }
 
 static void requestCursorSurface(QWaylandCompositor *compositor, QWaylandSurface *surface, int32_t hotspot_x, int hotspot_y)

@@ -45,6 +45,8 @@
 #include <QtCore/QObject>
 
 #include <QtCompositor/private/qwayland-server-wayland.h>
+#include <QtCompositor/QWaylandSurfaceView>
+#include <QtCompositor/QWaylandSurface>
 
 #include <stdint.h>
 
@@ -70,6 +72,50 @@ public:
     virtual void button(uint32_t time, Qt::MouseButton button, uint32_t state) = 0;
 
     Pointer *m_pointer;
+};
+
+class CurrentPosition
+{
+public:
+    CurrentPosition()
+        : m_view(Q_NULLPTR)
+     {}
+
+    void updatePosition(const QPointF &position)
+    {
+        Q_ASSERT(m_view || position.isNull());
+        m_point = position;
+        //we adjust if the mouse position is on the edge
+        //to work around Qt's event propogation
+        if (position.isNull())
+            return;
+        if (m_view->surface()) {
+            QSizeF size(m_view->surface()->size());
+            if (m_point.x() ==  size.width())
+                m_point.rx() -= 0.01;
+
+            if (m_point.y() == size.height())
+                m_point.ry() -= 0.01;
+        }
+    }
+
+    QPointF position() const { return m_point; }
+    qreal x() const { return m_point.x(); }
+    qreal y() const { return m_point.y(); }
+
+    void setView(QWaylandSurfaceView *view) { m_view = view; }
+    QWaylandSurfaceView *view() const { return m_view; }
+
+    void setCurrent(QWaylandSurfaceView *view, const QPointF &position)
+    {
+        QPointF toSet = view || position.isNull() ? position : QPointF();
+        setView(view);
+        updatePosition(toSet);
+    }
+
+private:
+    QWaylandSurfaceView *m_view;
+    QPointF m_point;
 };
 
 class Q_COMPOSITOR_EXPORT Pointer : public QObject, public QtWaylandServer::wl_pointer, public PointerGrabber
@@ -129,8 +175,7 @@ private:
     QWaylandSurfaceView *m_focus;
     Resource *m_focusResource;
 
-    QWaylandSurfaceView *m_current;
-    QPointF m_currentPoint;
+    CurrentPosition m_currentPosition;
 
     int m_buttonCount;
 

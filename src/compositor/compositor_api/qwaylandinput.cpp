@@ -94,6 +94,16 @@ void QWaylandInputDevice::sendMouseWheelEvent(Qt::Orientation orientation, int d
     d->sendMouseWheelEvent(orientation, delta);
 }
 
+void QWaylandInputDevice::sendMouseEnterEvent(QWaylandSurfaceView *view, const QPointF &localPos)
+{
+    d->sendMouseEnterEvent(view,localPos);
+}
+
+void QWaylandInputDevice::sendMouseLeaveEvent(QWaylandSurfaceView *view)
+{
+    d->sendMouseLeaveEvent(view);
+}
+
 void QWaylandInputDevice::sendKeyPressEvent(uint code)
 {
     d->keyboardDevice()->sendKeyPressEvent(code);

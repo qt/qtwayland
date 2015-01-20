@@ -172,7 +172,7 @@ void QWaylandSurfaceItem::hoverEnterEvent(QHoverEvent *event)
             return;
         }
         QWaylandInputDevice *inputDevice = compositor()->inputDeviceFor(event);
-        inputDevice->sendMouseMoveEvent(this, event->pos());
+        inputDevice->sendMouseEnterEvent(this, event->pos());
     }
 }
 
@@ -184,7 +184,7 @@ void QWaylandSurfaceItem::hoverMoveEvent(QHoverEvent *event)
             return;
         }
         QWaylandInputDevice *inputDevice = compositor()->inputDeviceFor(event);
-        inputDevice->sendMouseMoveEvent(this, event->pos());
+        inputDevice->sendMouseLeaveEvent(this);
     }
 }
 

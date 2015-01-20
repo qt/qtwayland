@@ -191,6 +191,16 @@ void InputDevice::sendMouseWheelEvent(Qt::Orientation orientation, int delta)
     pointerDevice()->sendMouseWheelEvent(orientation, delta);
 }
 
+void InputDevice::sendMouseEnterEvent(QWaylandSurfaceView *view, const QPointF &localPos)
+{
+    pointerDevice()->sendMouseEnterEvent(view, localPos);
+}
+
+void InputDevice::sendMouseLeaveEvent(QWaylandSurfaceView *view)
+{
+    pointerDevice()->sendMouseLeaveEvent(view);
+}
+
 void InputDevice::sendTouchPointEvent(int id, double x, double y, Qt::TouchPointState state)
 {
     if (m_touch.isNull()) {

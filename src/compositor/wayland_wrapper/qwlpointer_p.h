@@ -141,6 +141,8 @@ public:
     void sendMouseReleaseEvent(Qt::MouseButton button, const QPointF &localPos, const QPointF &globalPos);
     void sendMouseMoveEvent(const QPointF &localPos, const QPointF &globalPos);
     void sendMouseWheelEvent(Qt::Orientation orientation, int delta);
+    void sendMouseEnterEvent(QWaylandSurfaceView *view, const QPointF &localPos);
+    void sendMouseLeaveEvent(QWaylandSurfaceView *view);
 
     QWaylandSurfaceView *focusSurface() const;
     QWaylandSurfaceView *current() const;

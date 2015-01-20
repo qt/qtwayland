@@ -97,6 +97,8 @@ public:
     void sendMouseMoveEvent(const QPointF &localPos, const QPointF &globalPos = QPointF());
     void sendMouseMoveEvent(QWaylandSurfaceView *surface , const QPointF &localPos, const QPointF &globalPos = QPointF());
     void sendMouseWheelEvent(Qt::Orientation orientation, int delta);
+    void sendMouseEnterEvent(QWaylandSurfaceView *view, const QPointF &localPos);
+    void sendMouseLeaveEvent(QWaylandSurfaceView *view);
 
     void sendKeyPressEvent(uint code);
     void sendKeyReleaseEvent(uint code);

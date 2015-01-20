@@ -278,6 +278,25 @@ void Pointer::sendMouseWheelEvent(Qt::Orientation orientation, int delta)
     send_axis(m_focusResource->handle, time, axis, wl_fixed_from_int(-delta / 12));
 }
 
+void Pointer::sendMouseEnterEvent(QWaylandSurfaceView *view, const QPointF &localPos)
+{
+    if (view == m_currentPosition.view()) {
+        qWarning("Possible input state error. Want to send enter event for the current input surface");
+    }
+
+    setMouseFocus(view, localPos, QPointF());
+}
+
+void Pointer::sendMouseLeaveEvent(QWaylandSurfaceView *view)
+{
+    if (view != m_currentPosition.view()) {
+        qWarning("Possible input state error. Want to send leave event for not current surface");
+        return;
+    }
+
+    setMouseFocus(Q_NULLPTR, QPointF(), QPointF());
+}
+
 void Pointer::focus()
 {
     if (buttonPressed())

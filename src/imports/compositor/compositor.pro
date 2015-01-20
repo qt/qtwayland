@@ -3,12 +3,17 @@ TARGET  = qwaylandcompositorplugin
 TARGETPATH = QtWayland/Compositor
 IMPORT_VERSION = 1.0
 
+HEADERS += \
+    qwaylandmousetracker_p.h
+
 SOURCES += \
-    qwaylandquickcompositorplugin.cpp
+    qwaylandquickcompositorplugin.cpp \
+    qwaylandmousetracker.cpp
 
 COMPOSITOR_QML_FILES += \
     WaylandSurfaceChrome.qml \
     WaylandOutputWindow.qml \
+    WaylandCursorItem.qml \
     qmldir
 
 # Create the resource file
@@ -37,6 +42,6 @@ RESOURCES += $$GENERATED_RESOURCE_FILE
 CONFIG(debug, debug|release): QML_FILES += $$COMPOSITOR_QML_FILES
 
 DEFINES += QT_COMPOSITOR_QUICK
-QT += quick-private qml-private compositor compositor-private
+QT += quick-private qml-private gui-private core-private compositor compositor-private
 
 load(qml_plugin)

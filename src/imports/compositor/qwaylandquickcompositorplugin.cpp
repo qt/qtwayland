@@ -47,9 +47,12 @@
 
 #include <QtCompositor/private/qwlcompositor_p.h>
 
+#include <QtCompositor/qwaylandexport.h>
+#include "qwaylandmousetracker_p.h"
+
 QT_BEGIN_NAMESPACE
 
-class QWaylandQuickCompositorImpl : public QWaylandQuickCompositor
+class Q_COMPOSITOR_EXPORT QWaylandQuickCompositorImpl : public QWaylandQuickCompositor
 {
     Q_OBJECT
     Q_PROPERTY(QQmlListProperty<QObject> data READ data DESIGNABLE false)
@@ -146,6 +149,7 @@ public:
     {
         qmlRegisterType<QWaylandQuickCompositorImpl>(uri, 1, 0, "WaylandCompositor");
         qmlRegisterType<QWaylandSurfaceItem>(uri, 1, 0, "WaylandSurfaceView");
+        qmlRegisterType<QWaylandMouseTracker>(uri, 1, 0, "WaylandMouseTracker");
         qmlRegisterUncreatableType<QWaylandQuickSurface>(uri, 1, 0, "WaylandQuickSurface", QObject::tr("Cannot create instance of WaylandQuickSurface"));
         qmlRegisterUncreatableType<QWaylandClient>(uri, 1, 0, "WaylandClient", QObject::tr("Cannot create instance of WaylandClient"));
         qmlRegisterUncreatableType<QWaylandOutput>(uri, 1, 0, "WaylandOutput", QObject::tr("Cannot create instance of WaylandOutput"));

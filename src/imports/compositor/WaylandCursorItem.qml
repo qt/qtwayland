@@ -32,35 +32,28 @@
 ****************************************************************************/
 
 import QtQuick 2.0
+import QtWayland.Compositor 1.0
 
-Item {
+WaylandSurfaceView {
     id: cursorItem
     property QtObject compositor
-    property QtObject surface
-    property Item view
     property int hotspotX: 0
     property int hotspotY: 0
 
-    visible: surface != null
+    visible: cursorItem.surface != null
+    inputEventsEnabled: false
 
     Component.onCompleted: {
         if (!compositor) {
             console.warn("WaylandCursorItem initiated without compositor. This leads to undefined behavior");
             return;
         }
-        compositor.currentCurserSurfaceRequest.connect(setSurface);
+        compositor.currentCurserSurfaceRequest.connect(setCursorSurface);
     }
 
-    function setSurface(surface, hotspotX, hotspotY) {
+    function setCursorSurface(surface, hotspotX, hotspotY) {
         cursorItem.surface = surface;
         cursorItem.hotspotX = hotspotX;
         cursorItem.hotspotY = hotspotY;
-    }
-    onSurfaceChanged: {
-        if (view)
-            view.destroy();
-        if (surface) {
-           view = Qt.createQmlObject("WaylandSurfaceItem { }", cursorItem);
-        }
     }
 }

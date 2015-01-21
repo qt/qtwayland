@@ -149,7 +149,6 @@ public:
     bool isCursorSurface() const { return m_isCursorSurface; }
     void setCursorSurface(bool isCursor) { m_isCursorSurface = isCursor; }
 
-    void releaseSurfaces();
     void frameStarted();
 
     void addUnmapLock(QWaylandUnmapLock *l);

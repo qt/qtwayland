@@ -322,7 +322,6 @@ void Compositor::destroySurface(Surface *surface)
 
     waylandCompositor()->surfaceAboutToBeDestroyed(surface->waylandSurface());
 
-    surface->releaseSurfaces();
     m_destroyed_surfaces << surface->waylandSurface();
 }
 

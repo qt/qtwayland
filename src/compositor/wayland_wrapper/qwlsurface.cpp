@@ -168,11 +168,6 @@ void Surface::setTransientOffset(qreal x, qreal y)
     m_transientOffset.setY(y);
 }
 
-void Surface::releaseSurfaces()
-{
-
-}
-
 Surface *Surface::fromResource(struct ::wl_resource *resource)
 {
     return static_cast<Surface *>(Resource::fromResource(resource)->surface_object);

@@ -58,6 +58,8 @@ QWaylandOutput::QWaylandOutput(QWaylandCompositor *compositor, QWindow *window,
     d_ptr->setManufacturer(manufacturer);
     d_ptr->setModel(model);
     d_ptr->compositor()->addOutput(this);
+    QObject::connect(window, &QWindow::widthChanged, this, &QWaylandOutput::setWidth);
+    QObject::connect(window, &QWindow::heightChanged, this, &QWaylandOutput::setHeight);
 }
 
 QWaylandOutput::~QWaylandOutput()
@@ -233,6 +235,16 @@ void QWaylandOutput::setScaleFactor(int scale)
 
 }
 
+bool QWaylandOutput::sizeFollowsWindow() const
+{
+    return d_ptr->sizeFollowsWindow();
+}
+
+void QWaylandOutput::setSizeFollowsWindow(bool follow)
+{
+    d_ptr->setSizeFollowsWindow(follow);
+}
+
 QWindow *QWaylandOutput::window() const
 {
     return d_ptr->window();
@@ -271,6 +283,16 @@ void QWaylandOutput::removeSurface(QWaylandSurface *surface)
 QtWayland::Output *QWaylandOutput::handle() const
 {
     return d_ptr.data();
+}
+
+void QWaylandOutput::setWidth(int newWidth)
+{
+    d_ptr->setWidth(newWidth);
+}
+
+void QWaylandOutput::setHeight(int newHeight)
+{
+    d_ptr->setHeight(newHeight);
 }
 
 QT_END_NAMESPACE

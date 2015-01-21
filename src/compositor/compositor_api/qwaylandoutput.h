@@ -72,7 +72,9 @@ class Q_COMPOSITOR_EXPORT QWaylandOutput : public QObject
     Q_PROPERTY(int scaleFactor READ scaleFactor WRITE setScaleFactor NOTIFY scaleFactorChanged)
     Q_PROPERTY(QWaylandCompositor *compositor READ compositor CONSTANT)
     Q_PROPERTY(QWindow *window READ window CONSTANT)
+    Q_PROPERTY(bool sizeFollowsWindow READ sizeFollowsWindow WRITE setSizeFollowsWindow NOTIFY sizeFollowsWindowChanged)
     Q_ENUMS(Subpixel Transform)
+
 public:
     enum Subpixel {
       SubpixelUnknown = 0,
@@ -122,6 +124,8 @@ public:
 
     QRect geometry() const;
     void setGeometry(const QRect &geometry);
+    void setWidth(int newWidth);
+    void setHeight(int newHeight);
 
     QRect availableGeometry() const;
     void setAvailableGeometry(const QRect &availableGeometry);
@@ -139,6 +143,12 @@ public:
     void setScaleFactor(int scale);
 
     QWindow *window() const;
+
+    bool sizeFollowsWindow() const;
+    void setSizeFollowsWindow(bool follow);
+
+    bool physicalSizeFollowsSize() const;
+    void setPhysicalSizeFollowsSize(bool follow);
 
     void frameStarted();
     void sendFrameCallbacks(QList<QWaylandSurface *> visibleSurfaces);
@@ -159,6 +169,8 @@ Q_SIGNALS:
     void scaleFactorChanged();
     void subpixelChanged();
     void transformChanged();
+    void sizeFollowsWindowChanged();
+    void physicalSizeFollowsSizeChanged();
 
 protected:
     QScopedPointer<QtWayland::Output> d_ptr;

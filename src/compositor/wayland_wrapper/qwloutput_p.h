@@ -79,6 +79,11 @@ public:
 
     QRect geometry() const;
     void setGeometry(const QRect &geometry);
+    void setWidth(int newWidth);
+    void setHeight(int newHeight);
+
+    bool sizeFollowsWindow() const;
+    void setSizeFollowsWindow(bool follow);
 
     QWaylandOutput::Mode mode() const { return m_mode; }
     void setMode(const QWaylandOutput::Mode &mode);
@@ -131,6 +136,7 @@ private:
     QWaylandOutput::Transform m_transform;
     int m_scaleFactor;
     QList<QWaylandSurface *> m_surfaces;
+    bool m_sizeFollowsWindow;
 
     void sendGeometryInfo();
 };

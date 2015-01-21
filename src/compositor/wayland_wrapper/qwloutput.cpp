@@ -109,6 +109,7 @@ Output::Output(Compositor *compositor, QWindow *window)
     , m_subpixel(QWaylandOutput::SubpixelUnknown)
     , m_transform(QWaylandOutput::TransformNormal)
     , m_scaleFactor(1)
+    , m_sizeFollowsWindow(true)
 {
     m_mode.size = window ? window->size() : QSize();
     m_mode.refreshRate = 60;
@@ -175,6 +176,26 @@ QRect Output::geometry() const
     return QRect(m_position, m_mode.size);
 }
 
+bool Output::sizeFollowsWindow() const
+{
+    return m_sizeFollowsWindow;
+}
+
+void Output::setSizeFollowsWindow(bool follow)
+{
+    if (follow != m_sizeFollowsWindow) {
+        if (follow) {
+            QObject::connect(m_window, &QWindow::widthChanged, m_output, &QWaylandOutput::setWidth);
+            QObject::connect(m_window, &QWindow::heightChanged, m_output, &QWaylandOutput::setHeight);
+        } else {
+            QObject::disconnect(m_window, &QWindow::widthChanged, m_output, &QWaylandOutput::setWidth);
+            QObject::disconnect(m_window, &QWindow::heightChanged, m_output, &QWaylandOutput::setHeight);
+        }
+        m_sizeFollowsWindow = follow;
+        m_output->sizeFollowsWindowChanged();
+    }
+}
+
 void Output::setGeometry(const QRect &geometry)
 {
     if (m_position == geometry.topLeft() && m_mode.size == geometry.size())
@@ -195,6 +216,26 @@ void Output::setGeometry(const QRect &geometry)
         if (resource->version() >= 2)
             send_done(resource->handle);
     }
+}
+
+void Output::setWidth(int newWidth)
+{
+    if (m_mode.size.width() == newWidth)
+        return;
+
+    QSize s = m_mode.size;
+    s.setWidth(newWidth);
+    setGeometry(QRect(m_position, s));
+}
+
+void Output::setHeight(int newHeight)
+{
+    if (m_mode.size.height() == newHeight)
+        return;
+
+    QSize s = m_mode.size;
+    s.setHeight(newHeight);
+    setGeometry(QRect(m_position, s));
 }
 
 void Output::setAvailableGeometry(const QRect &availableGeometry)

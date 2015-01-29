@@ -419,7 +419,7 @@ void QWaylandInputDevice::Pointer::pointer_enter(uint32_t serial, struct wl_surf
     QWaylandWindow *grab = QWaylandWindow::mouseGrab();
     if (!grab) {
         window->handleMouseEnter(mParent);
-        window->handleMouse(mParent, mParent->mTime, mSurfacePos, mGlobalPos, mButtons, Qt::NoModifier);
+        window->handleMouse(mParent, mParent->mTime, mSurfacePos, mGlobalPos, mButtons, mParent->modifiers());
     }
 }
 
@@ -468,9 +468,9 @@ void QWaylandInputDevice::Pointer::pointer_motion(uint32_t time, wl_fixed_t surf
         // so we just set it outside of the window boundaries.
         pos = QPointF(-1, -1);
         global = grab->window()->mapToGlobal(pos.toPoint());
-        grab->handleMouse(mParent, time, pos, global, mButtons, Qt::NoModifier);
+        grab->handleMouse(mParent, time, pos, global, mButtons, mParent->modifiers());
     } else
-        window->handleMouse(mParent, time, mSurfacePos, mGlobalPos, mButtons, Qt::NoModifier);
+        window->handleMouse(mParent, time, mSurfacePos, mGlobalPos, mButtons, mParent->modifiers());
 }
 
 void QWaylandInputDevice::Pointer::pointer_button(uint32_t serial, uint32_t time,
@@ -514,9 +514,9 @@ void QWaylandInputDevice::Pointer::pointer_button(uint32_t serial, uint32_t time
     if (grab && grab != mFocus) {
         QPointF pos = QPointF(-1, -1);
         QPointF global = grab->window()->mapToGlobal(pos.toPoint());
-        grab->handleMouse(mParent, time, pos, global, mButtons, Qt::NoModifier);
+        grab->handleMouse(mParent, time, pos, global, mButtons, mParent->modifiers());
     } else if (window)
-        window->handleMouse(mParent, time, mSurfacePos, mGlobalPos, mButtons, Qt::NoModifier);
+        window->handleMouse(mParent, time, mSurfacePos, mGlobalPos, mButtons, mParent->modifiers());
 }
 
 void QWaylandInputDevice::Pointer::pointer_axis(uint32_t time, uint32_t axis, int32_t value)

@@ -56,6 +56,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 QWaylandShmBuffer::QWaylandShmBuffer(QWaylandDisplay *display,
                      const QSize &size, QImage::Format format, int scale)
     : mMarginsImage(0)
@@ -371,5 +373,7 @@ void QWaylandShmBackingStore::done(void *data, wl_callback *callback, uint32_t t
 const struct wl_callback_listener QWaylandShmBackingStore::frameCallbackListener = {
     QWaylandShmBackingStore::done
 };
+
+}
 
 QT_END_NAMESPACE

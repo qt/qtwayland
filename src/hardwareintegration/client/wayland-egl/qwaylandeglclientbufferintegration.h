@@ -48,8 +48,11 @@
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandWindow;
 class QWindow;
+
+namespace QtWaylandClient {
+
+class QWaylandWindow;
 
 class QWaylandEglClientBufferIntegration : public QWaylandClientBufferIntegration
 {
@@ -78,5 +81,7 @@ private:
 };
 
 QT_END_NAMESPACE
+
+}
 
 #endif // QWAYLANDEGLINTEGRATION_H

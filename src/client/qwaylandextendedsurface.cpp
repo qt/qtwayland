@@ -53,6 +53,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 QWaylandExtendedSurface::QWaylandExtendedSurface(QWaylandWindow *window)
     : QtWayland::qt_extended_surface(window->display()->windowExtension()->get_extended_surface(window->object()))
     , m_window(window)
@@ -121,6 +123,8 @@ Qt::WindowFlags QWaylandExtendedSurface::setWindowFlags(Qt::WindowFlags flags)
     set_window_flags(wlFlags);
 
     return flags & (Qt::WindowStaysOnTopHint | Qt::WindowOverridesSystemGestures | Qt::BypassWindowManagerHint);
+}
+
 }
 
 QT_END_NAMESPACE

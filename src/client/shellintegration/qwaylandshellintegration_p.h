@@ -47,6 +47,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 class QWaylandWindow;
 class QWaylandDisplay;
 class QWaylandShellSurface;
@@ -60,6 +62,8 @@ public:
     virtual bool initialize(QWaylandDisplay *display) = 0;
     virtual QWaylandShellSurface *createShellSurface(QWaylandWindow *window) = 0;
 };
+
+}
 
 QT_END_NAMESPACE
 

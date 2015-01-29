@@ -51,6 +51,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 QWaylandDataOffer::QWaylandDataOffer(QWaylandDisplay *display, struct ::wl_data_offer *offer)
     : QtWayland::wl_data_offer(offer)
     , m_mimeData(new QWaylandMimeData(this, display))
@@ -159,6 +161,8 @@ int QWaylandMimeData::readData(int fd, QByteArray &data) const
         n = readData(fd, data);
     }
     return n;
+}
+
 }
 
 QT_END_NAMESPACE

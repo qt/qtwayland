@@ -52,6 +52,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 class QWaylandXCompositeGLXWindow : public QWaylandWindow
 {
 public:
@@ -72,6 +74,8 @@ private:
     Window m_xWindow;
     GLXFBConfig m_config;
 };
+
+}
 
 QT_END_NAMESPACE
 

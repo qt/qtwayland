@@ -43,6 +43,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 QWaylandInputDeviceIntegrationPlugin::QWaylandInputDeviceIntegrationPlugin(QObject *parent)
                               : QObject(parent)
 {
@@ -50,6 +52,8 @@ QWaylandInputDeviceIntegrationPlugin::QWaylandInputDeviceIntegrationPlugin(QObje
 
 QWaylandInputDeviceIntegrationPlugin::~QWaylandInputDeviceIntegrationPlugin()
 {
+}
+
 }
 
 QT_END_NAMESPACE

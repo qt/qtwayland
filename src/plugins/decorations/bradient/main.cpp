@@ -54,6 +54,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 #define BUTTON_SPACING 5
 
 #ifndef QT_NO_IMAGEFORMAT_XPM
@@ -446,6 +448,7 @@ QWaylandAbstractDecoration *QWaylandBradientDecorationPlugin::create(const QStri
     return new QWaylandBradientDecoration();
 }
 
+}
 
 QT_END_NAMESPACE
 

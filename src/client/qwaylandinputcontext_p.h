@@ -47,6 +47,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 class QWaylandDisplay;
 
 class QWaylandTextInput : public QtWayland::wl_text_input
@@ -98,6 +100,8 @@ private:
     QWaylandDisplay *mDisplay;
     QScopedPointer<QWaylandTextInput> mTextInput;
 };
+
+}
 
 QT_END_NAMESPACE
 

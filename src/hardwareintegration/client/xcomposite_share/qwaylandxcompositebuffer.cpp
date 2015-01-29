@@ -46,6 +46,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 QWaylandXCompositeBuffer::QWaylandXCompositeBuffer(qt_xcomposite *xcomposite, uint32_t window, const QSize &size)
     :mSize(size)
 {
@@ -58,6 +60,8 @@ QWaylandXCompositeBuffer::QWaylandXCompositeBuffer(qt_xcomposite *xcomposite, ui
 QSize QWaylandXCompositeBuffer::size() const
 {
     return mSize;
+}
+
 }
 
 QT_END_NAMESPACE

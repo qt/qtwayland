@@ -53,6 +53,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 QWaylandCursor::QWaylandCursor(QWaylandScreen *screen)
     : mDisplay(screen->display())
 {
@@ -303,6 +305,8 @@ void QWaylandCursor::initCursorMap()
 
     mCursorNamesMap.insert(ResizeSouthWestCursor, "sw-resize");
     mCursorNamesMap.insert(ResizeSouthWestCursor, "bottom_left_corner");
+}
+
 }
 
 QT_END_NAMESPACE

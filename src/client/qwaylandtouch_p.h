@@ -49,6 +49,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 class QWaylandDisplay;
 class QWaylandInputDevice;
 
@@ -94,6 +96,8 @@ private:
     QWindow *mTargetWindow;
     QWaylandInputDevice *mInputDevice;
 };
+
+}
 
 QT_END_NAMESPACE
 

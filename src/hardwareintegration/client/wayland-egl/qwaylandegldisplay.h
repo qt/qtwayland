@@ -48,6 +48,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 class QWaylandEglDisplay : public QWaylandDisplay
 {
 public:
@@ -56,5 +58,7 @@ public:
         : QWaylandDisplay()
     { }
 };
+
+}
 
 QT_END_NAMESPACE

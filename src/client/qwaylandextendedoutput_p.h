@@ -47,6 +47,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 class QWaylandDisplay;
 class QWaylandScreen;
 class QWaylandExtendedOutput;
@@ -56,6 +58,8 @@ class Q_WAYLAND_CLIENT_EXPORT QWaylandExtendedOutput : public QtWayland::qt_exte
 public:
     QWaylandExtendedOutput(QWaylandScreen *screen, struct ::qt_extended_output *extended_output);
 };
+
+}
 
 QT_END_NAMESPACE
 

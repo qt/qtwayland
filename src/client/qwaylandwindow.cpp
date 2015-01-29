@@ -67,6 +67,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 QWaylandWindow *QWaylandWindow::mMouseGrab = 0;
 
 QWaylandWindow::QWaylandWindow(QWindow *window)
@@ -807,6 +809,8 @@ QVariant QWaylandWindow::property(const QString &name)
 QVariant QWaylandWindow::property(const QString &name, const QVariant &defaultValue)
 {
     return m_properties.value(name, defaultValue);
+}
+
 }
 
 QT_END_NAMESPACE

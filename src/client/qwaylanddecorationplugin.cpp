@@ -43,12 +43,16 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 QWaylandDecorationPlugin::QWaylandDecorationPlugin(QObject *parent)
     : QObject(parent)
 {
 }
 QWaylandDecorationPlugin::~QWaylandDecorationPlugin()
 {
+}
+
 }
 
 QT_END_NAMESPACE

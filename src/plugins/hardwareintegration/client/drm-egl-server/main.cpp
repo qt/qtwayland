@@ -44,6 +44,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 class DrmEglServerBufferPlugin : public QWaylandServerBufferIntegrationPlugin
 {
     Q_OBJECT
@@ -57,6 +59,8 @@ QWaylandServerBufferIntegration *DrmEglServerBufferPlugin::create(const QString&
     Q_UNUSED(paramList);
     Q_UNUSED(system);
     return new DrmEglServerBufferIntegration();
+}
+
 }
 
 QT_END_NAMESPACE

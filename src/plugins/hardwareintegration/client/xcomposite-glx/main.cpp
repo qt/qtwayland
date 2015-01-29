@@ -44,6 +44,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 class QWaylandXCompositeGlxClientBufferIntegrationPlugin : public QWaylandClientBufferIntegrationPlugin
 {
     Q_OBJECT
@@ -57,6 +59,8 @@ QWaylandClientBufferIntegration *QWaylandXCompositeGlxClientBufferIntegrationPlu
     Q_UNUSED(paramList);
     Q_UNUSED(system);
     return new QWaylandXCompositeGLXIntegration();
+}
+
 }
 
 QT_END_NAMESPACE

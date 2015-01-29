@@ -52,6 +52,8 @@ struct wl_cursor_theme;
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 class QWaylandDisplay;
 class QWaylandScreen;
 
@@ -110,6 +112,8 @@ private:
     QMap<WaylandCursor, wl_cursor *> mCursors;
     QMultiMap<WaylandCursor, QByteArray> mCursorNamesMap;
 };
+
+}
 
 QT_END_NAMESPACE
 

@@ -50,6 +50,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 QWaylandXCompositeEGLContext::QWaylandXCompositeEGLContext(const QSurfaceFormat &format, QPlatformOpenGLContext *share, EGLDisplay display, EGLConfig config)
     : QEGLPlatformContext(format, share, display, &config)
 {
@@ -73,6 +75,8 @@ void QWaylandXCompositeEGLContext::swapBuffers(QPlatformSurface *surface)
 EGLSurface QWaylandXCompositeEGLContext::eglSurfaceForPlatformSurface(QPlatformSurface *surface)
 {
     return static_cast<QWaylandXCompositeEGLWindow *>(surface)->eglSurface();
+}
+
 }
 
 QT_END_NAMESPACE

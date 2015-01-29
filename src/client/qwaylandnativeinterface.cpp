@@ -53,6 +53,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 QWaylandNativeInterface::QWaylandNativeInterface(QWaylandIntegration *integration)
     : m_integration(integration)
 {
@@ -145,6 +147,8 @@ void QWaylandNativeInterface::setWindowProperty(QPlatformWindow *window, const Q
 void QWaylandNativeInterface::emitWindowPropertyChanged(QPlatformWindow *window, const QString &name)
 {
     emit windowPropertyChanged(window,name);
+}
+
 }
 
 QT_END_NAMESPACE

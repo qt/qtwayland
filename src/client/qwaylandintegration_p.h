@@ -47,6 +47,8 @@
 #include <QtWaylandClient/private/qwaylandclientexport_p.h>
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 class QWaylandBuffer;
 class QWaylandDisplay;
 class QWaylandClientBufferIntegration;
@@ -124,6 +126,8 @@ private:
 
     friend class QWaylandDisplay;
 };
+
+}
 
 QT_END_NAMESPACE
 

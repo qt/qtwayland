@@ -50,6 +50,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 QWaylandDataDeviceManager::QWaylandDataDeviceManager(QWaylandDisplay *display, uint32_t id)
     : wl_data_device_manager(display->wl_registry(), id, 1)
     , m_display(display)
@@ -77,5 +79,6 @@ QWaylandDisplay *QWaylandDataDeviceManager::display() const
     return m_display;
 }
 
+}
 
 QT_END_NAMESPACE

@@ -50,6 +50,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 class QWaylandInputDeviceIntegration;
 
 #define QWaylandInputDeviceIntegrationFactoryInterface_iid "org.qt-project.Qt.WaylandClient.QWaylandInputDeviceIntegrationFactoryInterface.5.3"
@@ -63,6 +65,8 @@ public:
 
     virtual QWaylandInputDeviceIntegration *create(const QString &key, const QStringList &paramList) = 0;
 };
+
+}
 
 QT_END_NAMESPACE
 

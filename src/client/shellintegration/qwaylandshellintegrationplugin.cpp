@@ -43,6 +43,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 QWaylandShellIntegrationPlugin::QWaylandShellIntegrationPlugin(QObject *parent)
                               : QObject(parent)
 {
@@ -50,6 +52,8 @@ QWaylandShellIntegrationPlugin::QWaylandShellIntegrationPlugin(QObject *parent)
 
 QWaylandShellIntegrationPlugin::~QWaylandShellIntegrationPlugin()
 {
+}
+
 }
 
 QT_END_NAMESPACE

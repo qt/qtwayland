@@ -51,6 +51,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 class QWaylandDisplay;
 class QWaylandAbstractDecoration;
 class QWaylandWindow;
@@ -119,6 +121,8 @@ private:
              uint32_t time);
     struct wl_callback *mFrameCallback;
 };
+
+}
 
 QT_END_NAMESPACE
 

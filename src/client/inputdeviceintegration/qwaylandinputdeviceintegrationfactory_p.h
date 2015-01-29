@@ -47,6 +47,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 class QWaylandInputDeviceIntegration;
 
 class Q_WAYLAND_CLIENT_EXPORT QWaylandInputDeviceIntegrationFactory
@@ -55,6 +57,8 @@ public:
     static QStringList keys(const QString &pluginPath = QString());
     static QWaylandInputDeviceIntegration *create(const QString &name, const QStringList &args, const QString &pluginPath = QString());
 };
+
+}
 
 QT_END_NAMESPACE
 

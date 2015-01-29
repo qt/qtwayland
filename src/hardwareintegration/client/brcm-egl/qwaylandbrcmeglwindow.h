@@ -51,6 +51,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 class QWaylandGLContext;
 class QWaylandBrcmBuffer;
 
@@ -92,6 +94,8 @@ private:
 
     QMutex m_mutex;
 };
+
+}
 
 QT_END_NAMESPACE
 

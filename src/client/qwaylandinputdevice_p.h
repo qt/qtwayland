@@ -66,6 +66,7 @@ struct wl_cursor_image;
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
 
 class QWaylandWindow;
 class QWaylandDisplay;
@@ -283,6 +284,8 @@ public:
     Qt::MouseButtons buttons;
     Qt::KeyboardModifiers modifiers;
 };
+
+}
 
 QT_END_NAMESPACE
 

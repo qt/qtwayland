@@ -49,6 +49,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 class QWaylandDisplay;
 
 class Q_WAYLAND_CLIENT_EXPORT QWaylandQtKeyExtension : public QtWayland::qt_key_extension
@@ -72,6 +74,8 @@ private:
                              uint32_t count) Q_DECL_OVERRIDE;
 
 };
+
+}
 
 QT_END_NAMESPACE
 

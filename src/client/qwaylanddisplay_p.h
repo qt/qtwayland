@@ -58,10 +58,22 @@ struct wl_cursor_image;
 QT_BEGIN_NAMESPACE
 
 class QAbstractEventDispatcher;
-class QWaylandInputDevice;
 class QSocketNotifier;
-class QWaylandBuffer;
 class QPlatformScreen;
+
+namespace QtWayland {
+    class qt_output_extension;
+    class qt_shell;
+    class qt_sub_surface_extension;
+    class qt_surface_extension;
+    class wl_text_input_manager;
+    class xdg_shell;
+}
+
+namespace QtWaylandClient {
+
+class QWaylandInputDevice;
+class QWaylandBuffer;
 class QWaylandScreen;
 class QWaylandClientBufferIntegration;
 class QWaylandWindowManagerIntegration;
@@ -74,15 +86,6 @@ class QWaylandIntegration;
 class QWaylandHardwareIntegration;
 class QWaylandXdgShell;
 class QWaylandShellSurface;
-
-namespace QtWayland {
-    class qt_output_extension;
-    class qt_shell;
-    class qt_sub_surface_extension;
-    class qt_surface_extension;
-    class wl_text_input_manager;
-    class xdg_shell;
-}
 
 typedef void (*RegistryListener)(void *data,
                                  struct wl_registry *registry,
@@ -210,6 +213,8 @@ private:
                                      struct wl_surface *surface,
                                      int32_t width, int32_t height);
 };
+
+}
 
 QT_END_NAMESPACE
 

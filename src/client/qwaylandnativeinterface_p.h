@@ -49,6 +49,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 class QWaylandIntegration;
 class QWaylandScreen;
 
@@ -74,6 +76,8 @@ private:
     QWaylandIntegration *m_integration;
     QHash<QPlatformWindow*, QVariantMap> m_windowProperties;
 };
+
+}
 
 QT_END_NAMESPACE
 

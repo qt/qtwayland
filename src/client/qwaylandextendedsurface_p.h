@@ -52,6 +52,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 class QWaylandDisplay;
 class QWaylandWindow;
 
@@ -75,6 +77,8 @@ private:
     QWaylandWindow *m_window;
     QVariantMap m_properties;
 };
+
+}
 
 QT_END_NAMESPACE
 

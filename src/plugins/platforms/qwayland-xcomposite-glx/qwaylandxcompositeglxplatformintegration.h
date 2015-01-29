@@ -47,6 +47,10 @@
 
 #include "qwaylandxcompositeglxintegration.h"
 
+QT_BEGIN_NAMESPACE
+
+namespace QtWaylandClient {
+
 class QWaylandXCompositeGlxPlatformIntegration : public QWaylandIntegration
 {
 public:
@@ -63,5 +67,9 @@ public:
 private:
     QWaylandClientBufferIntegration *m_client_buffer_integration;
 };
+
+}
+
+QT_END_NAMESPACE
 
 #endif

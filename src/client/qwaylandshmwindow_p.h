@@ -47,6 +47,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 class Q_WAYLAND_CLIENT_EXPORT QWaylandShmWindow : public QWaylandWindow
 {
 public:
@@ -56,6 +58,8 @@ public:
     WindowType windowType() const;
     QSurfaceFormat format() const { return QSurfaceFormat(); }
 };
+
+}
 
 QT_END_NAMESPACE
 

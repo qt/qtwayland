@@ -50,6 +50,9 @@
 QT_BEGIN_NAMESPACE
 
 class QMimeData;
+
+namespace QtWaylandClient {
+
 class QWaylandDataDeviceManager;
 class QWaylandDisplay;
 
@@ -75,6 +78,8 @@ private:
     QWaylandDisplay *m_display;
     QMimeData *m_mime_data;
 };
+
+}
 
 QT_END_NAMESPACE
 

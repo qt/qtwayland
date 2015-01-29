@@ -49,10 +49,13 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 QWaylandExtendedOutput::QWaylandExtendedOutput(QWaylandScreen *screen, ::qt_extended_output *extended_output)
     : QtWayland::qt_extended_output(extended_output)
 {
     Q_UNUSED(screen);
 }
 
+}
 QT_END_NAMESPACE

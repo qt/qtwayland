@@ -52,9 +52,12 @@
 QT_BEGIN_NAMESPACE
 
 class QVariant;
+class QWindow;
+
+namespace QtWaylandClient {
+
 class QWaylandWindow;
 class QWaylandInputDevice;
-class QWindow;
 
 class Q_WAYLAND_CLIENT_EXPORT QWaylandShellSurface
 {
@@ -93,6 +96,8 @@ private:
     QWaylandWindow *m_window;
     friend class QWaylandWindow;
 };
+
+}
 
 QT_END_NAMESPACE
 

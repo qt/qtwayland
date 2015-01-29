@@ -44,6 +44,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 class QWaylandIntegrationPlugin : public QPlatformIntegrationPlugin
 {
     Q_OBJECT
@@ -57,6 +59,8 @@ QPlatformIntegration *QWaylandIntegrationPlugin::create(const QString& system, c
     Q_UNUSED(paramList);
     Q_UNUSED(system);
     return new QWaylandEglPlatformIntegration();
+}
+
 }
 
 QT_END_NAMESPACE

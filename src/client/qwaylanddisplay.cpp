@@ -76,6 +76,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 struct wl_surface *QWaylandDisplay::createSurface(void *handle)
 {
     struct wl_surface *surface = mCompositor.create_surface();
@@ -369,6 +371,8 @@ bool QWaylandDisplay::supportsWindowDecoration() const
 
     static bool integrationSupport = clientBufferIntegration() && clientBufferIntegration()->supportsWindowDecoration();
     return integrationSupport;
+}
+
 }
 
 QT_END_NAMESPACE

@@ -49,6 +49,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 QWaylandXCompositeGLXContext::QWaylandXCompositeGLXContext(const QSurfaceFormat &format, QPlatformOpenGLContext *share, Display *display, int screen)
     : m_display(display),
       m_format(format)
@@ -104,6 +106,8 @@ void (*QWaylandXCompositeGLXContext::getProcAddress(const QByteArray &procName))
 QSurfaceFormat QWaylandXCompositeGLXContext::format() const
 {
     return m_format;
+}
+
 }
 
 QT_END_NAMESPACE

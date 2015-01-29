@@ -50,6 +50,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 static const char *qwaylandegl_threadedgl_blacklist_vendor[] = {
     "Mesa Project",
     0
@@ -159,6 +161,8 @@ void *QWaylandEglClientBufferIntegration::nativeResourceForContext(NativeResourc
 EGLDisplay QWaylandEglClientBufferIntegration::eglDisplay() const
 {
     return m_eglDisplay;
+}
+
 }
 
 QT_END_NAMESPACE

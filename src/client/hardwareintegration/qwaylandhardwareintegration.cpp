@@ -44,6 +44,8 @@
 #include "qwaylanddisplay_p.h"
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 QWaylandHardwareIntegration::QWaylandHardwareIntegration(struct ::wl_registry *registry, int id)
     : qt_hardware_integration(registry, id, 1)
 {
@@ -67,6 +69,8 @@ void QWaylandHardwareIntegration::hardware_integration_client_backend(const QStr
 void QWaylandHardwareIntegration::hardware_integration_server_backend(const QString &name)
 {
     m_server_buffer = name;
+}
+
 }
 
 QT_END_NAMESPACE

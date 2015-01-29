@@ -47,6 +47,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 class QWaylandDisplay;
 class QWaylandDataDevice;
 class QWaylandDataSource;
@@ -65,6 +67,8 @@ public:
 private:
     QWaylandDisplay *m_display;
 };
+
+}
 
 QT_END_NAMESPACE
 

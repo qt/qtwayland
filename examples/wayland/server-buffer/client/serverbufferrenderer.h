@@ -52,11 +52,11 @@ class QOpenGLShaderProgram;
 class ServerBufferRenderer : public QOpenGLFunctions
 {
 public:
-    ServerBufferRenderer(QWaylandServerBuffer *serverBuffer);
+    ServerBufferRenderer(QtWaylandClient::QWaylandServerBuffer *serverBuffer);
 
     void render(const QMatrix4x4 &transform);
 private:
-    QWaylandServerBuffer *m_server_buffer;
+    QtWaylandClient::QWaylandServerBuffer *m_server_buffer;
     GLuint m_texture;
 
     QOpenGLVertexArrayObject *m_vao;

@@ -49,6 +49,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 class QWaylandDisplay;
 class QWaylandCursor;
 class QWaylandExtendedOutput;
@@ -115,6 +117,8 @@ private:
 
     QWaylandCursor *mWaylandCursor;
 };
+
+}
 
 QT_END_NAMESPACE
 

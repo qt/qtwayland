@@ -52,6 +52,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 static Qt::Key toQtKey(uint32_t sym)
 {
 #ifndef QT_NO_WAYLAND_XKB
@@ -275,6 +277,8 @@ bool QWaylandInputContext::ensureTextInput()
 
     mTextInput.reset(new QWaylandTextInput(mDisplay->textInputManager()->create_text_input()));
     return true;
+}
+
 }
 
 QT_END_NAMESPACE

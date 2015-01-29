@@ -53,9 +53,12 @@
 
 QT_BEGIN_NAMESPACE
 
+class QWindow;
+
+namespace QtWaylandClient {
+
 class QWaylandWindow;
 class QWaylandInputDevice;
-class QWindow;
 class QWaylandExtendedSurface;
 
 class Q_WAYLAND_CLIENT_EXPORT QWaylandXdgSurface : public QtWayland::xdg_surface
@@ -113,5 +116,7 @@ private:
 };
 
 QT_END_NAMESPACE
+
+}
 
 #endif // QWAYLANDXDGSURFACE_H

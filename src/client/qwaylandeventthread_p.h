@@ -52,6 +52,8 @@ QT_BEGIN_NAMESPACE
 
 class QSocketNotifier;
 
+namespace QtWaylandClient {
+
 class Q_WAYLAND_CLIENT_EXPORT QWaylandEventThread : public QObject
 {
     Q_OBJECT
@@ -84,6 +86,8 @@ private:
     QMutex *m_displayLock;
 
 };
+
+}
 
 QT_END_NAMESPACE
 

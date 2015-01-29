@@ -43,6 +43,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 QWaylandServerBuffer::QWaylandServerBuffer()
     : m_user_data(0)
 {
@@ -77,6 +79,8 @@ QWaylandServerBufferIntegration::QWaylandServerBufferIntegration()
 }
 QWaylandServerBufferIntegration::~QWaylandServerBufferIntegration()
 {
+}
+
 }
 
 QT_END_NAMESPACE

@@ -45,6 +45,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 QWaylandQtKeyExtension::QWaylandQtKeyExtension(QWaylandDisplay *display, uint32_t id)
     : QtWayland::qt_key_extension(display->wl_registry(), id, 2)
     , m_display(display)
@@ -81,6 +83,8 @@ void QWaylandQtKeyExtension::key_extension_qtkey(struct wl_surface *surface,
     QWindowSystemInterface::handleExtendedKeyEvent(window, time, QEvent::Type(type), key, Qt::KeyboardModifiers(modifiers),
                                                    nativeScanCode, nativeVirtualKey, nativeModifiers, text,
                                                    autorep, count);
+}
+
 }
 
 QT_END_NAMESPACE

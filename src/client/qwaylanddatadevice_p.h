@@ -48,12 +48,15 @@
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandDisplay;
 class QMimeData;
+class QWindow;
+
+namespace QtWaylandClient {
+
+class QWaylandDisplay;
 class QWaylandDataDeviceManager;
 class QWaylandDataOffer;
 class QWaylandDataSource;
-class QWindow;
 class QWaylandInputDevice;
 class QWaylandWindow;
 
@@ -98,6 +101,8 @@ private:
 
     QScopedPointer<QWaylandDataSource> m_dragSource;
 };
+
+}
 
 QT_END_NAMESPACE
 

@@ -57,6 +57,10 @@
 
 #include <QDebug>
 
+QT_BEGIN_NAMESPACE
+
+namespace QtWaylandClient {
+
 QWaylandDataDevice::QWaylandDataDevice(QWaylandDataDeviceManager *manager, QWaylandInputDevice *inputDevice)
     : QtWayland::wl_data_device(manager->get_data_device(inputDevice->wl_seat()))
     , m_display(manager->display())
@@ -249,3 +253,7 @@ void QWaylandDataDevice::dragSourceTargetChanged(const QString &mimeType)
 {
     static_cast<QWaylandDrag *>(QGuiApplicationPrivate::platformIntegration()->drag())->updateTarget(mimeType);
 }
+
+}
+
+QT_END_NAMESPACE

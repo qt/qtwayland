@@ -47,6 +47,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 QWaylandSubSurface::QWaylandSubSurface(QWaylandWindow *window, struct ::qt_sub_surface *sub_surface)
     : QtWayland::qt_sub_surface(sub_surface)
     , m_window(window)
@@ -86,6 +88,8 @@ void QWaylandSubSurface::adjustPositionOfChildren()
         qDebug() << "QWaylandSubSurface::adjustPositionOfChildren not called for toplevel window";
     }
     setPositionToParent(m_window);
+}
+
 }
 
 QT_END_NAMESPACE

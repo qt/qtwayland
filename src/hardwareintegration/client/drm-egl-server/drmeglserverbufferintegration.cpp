@@ -48,6 +48,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 DrmServerBuffer::DrmServerBuffer(DrmEglServerBufferIntegration *integration
                                 , int32_t name
                                 , int32_t width
@@ -163,6 +165,8 @@ void DrmEglServerBufferIntegration::drm_egl_server_buffer_server_buffer_created(
 {
     DrmServerBuffer *server_buffer = new DrmServerBuffer(this, name, width, height, stride, format);
     qt_server_buffer_set_user_data(id, server_buffer);
+}
+
 }
 
 QT_END_NAMESPACE

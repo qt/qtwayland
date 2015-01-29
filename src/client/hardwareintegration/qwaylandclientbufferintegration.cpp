@@ -43,6 +43,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 QWaylandClientBufferIntegration::QWaylandClientBufferIntegration()
 {
 
@@ -50,6 +52,8 @@ QWaylandClientBufferIntegration::QWaylandClientBufferIntegration()
 
 QWaylandClientBufferIntegration::~QWaylandClientBufferIntegration()
 {
+
+}
 
 }
 

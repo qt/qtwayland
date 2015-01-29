@@ -47,6 +47,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 class QWaylandDisplay;
 
 class Q_WAYLAND_CLIENT_EXPORT QWaylandHardwareIntegration : public QtWayland::qt_hardware_integration
@@ -65,6 +67,8 @@ private:
     QString m_client_buffer;
     QString m_server_buffer;
 };
+
+}
 
 QT_END_NAMESPACE
 

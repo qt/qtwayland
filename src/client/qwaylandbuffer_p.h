@@ -52,6 +52,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 class Q_WAYLAND_CLIENT_EXPORT QWaylandBuffer {
 public:
     QWaylandBuffer() { }
@@ -63,6 +65,8 @@ public:
 protected:
     struct wl_buffer *mBuffer;
 };
+
+}
 
 QT_END_NAMESPACE
 

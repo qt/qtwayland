@@ -48,8 +48,11 @@
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandGLContext;
 class QOpenGLFramebufferObject;
+
+namespace QtWaylandClient {
+
+class QWaylandGLContext;
 
 class QWaylandEglWindow : public QWaylandWindow
 {
@@ -85,6 +88,8 @@ private:
 
     QSurfaceFormat m_format;
 };
+
+}
 
 QT_END_NAMESPACE
 

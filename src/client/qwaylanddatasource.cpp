@@ -53,6 +53,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 QWaylandDataSource::QWaylandDataSource(QWaylandDataDeviceManager *dataDeviceManager, QMimeData *mimeData)
     : QtWayland::wl_data_source(dataDeviceManager->create_data_source())
     , m_mime_data(mimeData)
@@ -91,6 +93,8 @@ void QWaylandDataSource::data_source_send(const QString &mime_type, int32_t fd)
 void QWaylandDataSource::data_source_target(const QString &mime_type)
 {
     Q_EMIT targetChanged(mime_type);
+}
+
 }
 
 QT_END_NAMESPACE

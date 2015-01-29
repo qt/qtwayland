@@ -52,9 +52,12 @@
 
 QT_BEGIN_NAMESPACE
 
+class QWindow;
+
+namespace QtWaylandClient {
+
 class QWaylandWindow;
 class QWaylandInputDevice;
-class QWindow;
 
 class Q_WAYLAND_CLIENT_EXPORT QWaylandXdgShell : public QtWayland::xdg_shell
 {
@@ -69,5 +72,7 @@ private:
 };
 
 QT_END_NAMESPACE
+
+}
 
 #endif // QWAYLANDXDGSHELL_H

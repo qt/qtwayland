@@ -62,6 +62,9 @@ class QWindow;
 class QPaintDevice;
 class QPainter;
 class QEvent;
+
+namespace QtWaylandClient {
+
 class QWaylandScreen;
 class QWaylandWindow;
 class QWaylandInputDevice;
@@ -99,6 +102,8 @@ protected:
     bool isLeftClicked(Qt::MouseButtons newMouseButtonState);
     bool isLeftReleased(Qt::MouseButtons newMouseButtonState);
 };
+
+}
 
 QT_END_NAMESPACE
 

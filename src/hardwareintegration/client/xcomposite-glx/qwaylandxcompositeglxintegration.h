@@ -64,6 +64,8 @@ struct qt_xcomposite_listener;
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 class QWaylandXCompositeGLXIntegration : public QWaylandClientBufferIntegration
 {
 public:
@@ -102,6 +104,8 @@ private:
                  const char *display_name,
                  uint32_t root_window);
 };
+
+}
 
 QT_END_NAMESPACE
 

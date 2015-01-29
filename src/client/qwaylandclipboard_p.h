@@ -49,6 +49,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 class QWaylandDisplay;
 
 class Q_WAYLAND_CLIENT_EXPORT QWaylandClipboard : public QPlatformClipboard
@@ -66,6 +68,8 @@ public:
 private:
     QWaylandDisplay *mDisplay;
 };
+
+}
 
 QT_END_NAMESPACE
 

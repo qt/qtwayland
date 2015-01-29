@@ -50,6 +50,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 class QWaylandDisplay;
 
 class Q_WAYLAND_CLIENT_EXPORT QWaylandServerBuffer
@@ -89,6 +91,8 @@ public:
 
     virtual QWaylandServerBuffer *serverBuffer(struct qt_server_buffer *buffer) = 0;
 };
+
+}
 
 QT_END_NAMESPACE
 

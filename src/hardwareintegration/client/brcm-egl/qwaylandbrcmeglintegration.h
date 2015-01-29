@@ -52,12 +52,15 @@
 
 #include <QtCore/qglobal.h>
 
+struct qt_brcm;
+
 QT_BEGIN_NAMESPACE
 
-class QWaylandWindow;
 class QWindow;
 
-struct qt_brcm;
+namespace QtWaylandClient {
+
+class QWaylandWindow;
 
 class QWaylandBrcmEglIntegration : public QWaylandClientBufferIntegration
 {
@@ -89,6 +92,8 @@ private:
 
     EGLDisplay m_eglDisplay;
 };
+
+}
 
 QT_END_NAMESPACE
 

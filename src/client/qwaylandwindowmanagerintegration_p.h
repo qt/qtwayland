@@ -53,6 +53,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 class QWaylandWindow;
 class QWaylandDisplay;
 
@@ -86,5 +88,7 @@ private:
 };
 
 QT_END_NAMESPACE
+
+}
 
 #endif // QWAYLANDWINDOWMANAGERINTEGRATION_H

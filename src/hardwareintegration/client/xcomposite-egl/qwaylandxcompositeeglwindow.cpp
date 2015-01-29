@@ -54,6 +54,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 QWaylandXCompositeEGLWindow::QWaylandXCompositeEGLWindow(QWindow *window, QWaylandXCompositeEGLClientBufferIntegration *glxIntegration)
     : QWaylandWindow(window)
     , m_glxIntegration(glxIntegration)
@@ -131,6 +133,8 @@ void QWaylandXCompositeEGLWindow::createEglSurface()
     m_buffer = new QWaylandXCompositeBuffer(m_glxIntegration->waylandXComposite(),
                                            (uint32_t)m_xWindow,
                                            size);
+}
+
 }
 
 QT_END_NAMESPACE

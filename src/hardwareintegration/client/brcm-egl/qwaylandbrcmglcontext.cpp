@@ -52,6 +52,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 extern QSurfaceFormat brcmFixFormat(const QSurfaceFormat &format);
 
 QWaylandBrcmGLContext::QWaylandBrcmGLContext(EGLDisplay eglDisplay, const QSurfaceFormat &format, QPlatformOpenGLContext *share)
@@ -100,6 +102,8 @@ void (*QWaylandBrcmGLContext::getProcAddress(const QByteArray &procName)) ()
 EGLConfig QWaylandBrcmGLContext::eglConfig() const
 {
     return m_config;
+}
+
 }
 
 QT_END_NAMESPACE

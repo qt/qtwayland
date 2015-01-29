@@ -49,6 +49,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 class QWaylandDisplay;
 class QWaylandMimeData;
 
@@ -90,6 +92,8 @@ private:
     mutable QStringList m_types;
     mutable QHash<QString, QByteArray> m_data;
 };
+
+}
 
 QT_END_NAMESPACE
 

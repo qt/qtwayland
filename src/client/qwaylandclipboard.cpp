@@ -48,6 +48,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 QWaylandClipboard::QWaylandClipboard(QWaylandDisplay *display)
     : mDisplay(display)
 {
@@ -106,6 +108,8 @@ bool QWaylandClipboard::ownsMode(QClipboard::Mode mode) const
         return false;
 
     return inputDevice->dataDevice()->selectionSource() != 0;
+}
+
 }
 
 QT_END_NAMESPACE

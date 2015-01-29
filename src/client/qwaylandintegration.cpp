@@ -82,6 +82,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 class GenericWaylandTheme: public QGenericUnixTheme
 {
 public:
@@ -393,6 +395,8 @@ void QWaylandIntegration::initializeInputDeviceIntegration()
     } else {
         qWarning("Wayland inputdevice integration '%s' not found, using default", qPrintable(targetKey));
     }
+}
+
 }
 
 QT_END_NAMESPACE

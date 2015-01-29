@@ -83,7 +83,7 @@ public:
             return;
         }
 
-        QWaylandIntegration *wayland_integration = static_cast<QWaylandIntegration *>(QGuiApplicationPrivate::platformIntegration());
+        QtWaylandClient::QWaylandIntegration *wayland_integration = static_cast<QtWaylandClient::QWaylandIntegration *>(QGuiApplicationPrivate::platformIntegration());
 
         m_server_buffer_integration = wayland_integration->serverBufferIntegration();
         if (!m_server_buffer_integration) {
@@ -93,7 +93,7 @@ public:
         }
 
 
-        QWaylandDisplay *wayland_display = wayland_integration->display();
+        QtWaylandClient::QWaylandDisplay *wayland_display = wayland_integration->display();
         struct ::wl_registry *registry = wl_display_get_registry(wayland_display->wl_display());
         wl_proxy_set_queue(reinterpret_cast<struct wl_proxy *>(registry), wayland_display->wl_event_queue());
         QtWayland::wl_registry::init(registry);
@@ -155,7 +155,7 @@ protected:
 
     void share_buffer_cross_buffer(struct ::qt_server_buffer *buffer) Q_DECL_OVERRIDE
     {
-        QWaylandServerBuffer *serverBuffer = m_server_buffer_integration->serverBuffer(buffer);
+        QtWaylandClient::QWaylandServerBuffer *serverBuffer = m_server_buffer_integration->serverBuffer(buffer);
         if (m_server_buffer_list.isEmpty()) {
             setWidth(serverBuffer->size().width());
             setHeight(serverBuffer->size().height());
@@ -168,8 +168,8 @@ protected:
     }
 
 private:
-    QWaylandServerBufferIntegration *m_server_buffer_integration;
-    QList<QWaylandServerBuffer *>m_server_buffer_list;
+    QtWaylandClient::QWaylandServerBufferIntegration *m_server_buffer_integration;
+    QList<QtWaylandClient::QWaylandServerBuffer *>m_server_buffer_list;
     GLuint m_server_buffer_texture;
     QOpenGLContext *m_context;
     QOpenGLVertexArrayObject *m_vao;

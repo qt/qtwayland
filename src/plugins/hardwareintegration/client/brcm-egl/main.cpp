@@ -44,6 +44,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 class QWaylandBrcmEglClientBufferPlugin : public QWaylandClientBufferIntegrationPlugin
 {
     Q_OBJECT
@@ -57,6 +59,8 @@ QWaylandClientBufferIntegration *QWaylandBrcmEglClientBufferPlugin::create(const
     Q_UNUSED(paramList);
     Q_UNUSED(system);
     return new QWaylandBrcmEglIntegration();
+}
+
 }
 
 QT_END_NAMESPACE

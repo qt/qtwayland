@@ -52,6 +52,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 QWaylandBrcmEglIntegration::QWaylandBrcmEglIntegration()
     : m_waylandDisplay(0)
 {
@@ -123,6 +125,8 @@ QPlatformOpenGLContext *QWaylandBrcmEglIntegration::createPlatformOpenGLContext(
 EGLDisplay QWaylandBrcmEglIntegration::eglDisplay() const
 {
     return m_eglDisplay;
+}
+
 }
 
 QT_END_NAMESPACE

@@ -47,6 +47,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 class QWaylandBrcmEglPlatformIntegration : public QWaylandIntegration
 {
 public:
@@ -64,6 +66,8 @@ public:
 private:
     QWaylandClientBufferIntegration *m_gl_integration;
 };
+
+}
 
 QT_END_NAMESPACE
 

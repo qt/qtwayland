@@ -53,6 +53,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 QWaylandScreen::QWaylandScreen(QWaylandDisplay *waylandDisplay, int version, uint32_t id)
     : QPlatformScreen()
     , QtWayland::wl_output(waylandDisplay->wl_registry(), id, qMin(version, 2))
@@ -240,6 +242,8 @@ void QWaylandScreen::output_done()
     }
     QWindowSystemInterface::handleScreenGeometryChange(screen(), mGeometry, mGeometry);
     QWindowSystemInterface::handleScreenRefreshRateChange(screen(), refreshRate());
+}
+
 }
 
 QT_END_NAMESPACE

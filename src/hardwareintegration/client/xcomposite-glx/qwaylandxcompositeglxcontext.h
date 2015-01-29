@@ -49,6 +49,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 class QWaylandXCompositeGLXWindow;
 class QWaylandShmBuffer;
 
@@ -72,6 +74,8 @@ private:
     Display *m_display;
     QSurfaceFormat m_format;
 };
+
+}
 
 QT_END_NAMESPACE
 

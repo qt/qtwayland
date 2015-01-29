@@ -51,6 +51,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 QWaylandXCompositeGLXIntegration::QWaylandXCompositeGLXIntegration()
     : mWaylandDisplay(0)
     , mWaylandComposite(0)
@@ -136,6 +138,8 @@ void QWaylandXCompositeGLXIntegration::rootInformation(void *data, qt_xcomposite
     integration->mDisplay = XOpenDisplay(display_name);
     integration->mRootWindow = (Window) root_window;
     integration->mScreen = XDefaultScreen(integration->mDisplay);
+}
+
 }
 
 QT_END_NAMESPACE

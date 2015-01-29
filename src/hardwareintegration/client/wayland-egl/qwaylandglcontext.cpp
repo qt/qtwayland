@@ -103,6 +103,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 class DecorationsBlitter : public QOpenGLFunctions
 {
 public:
@@ -545,6 +547,8 @@ void (*QWaylandGLContext::getProcAddress(const QByteArray &procName)) ()
 EGLConfig QWaylandGLContext::eglConfig() const
 {
     return m_config;
+}
+
 }
 
 QT_END_NAMESPACE

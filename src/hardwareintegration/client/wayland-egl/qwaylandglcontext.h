@@ -50,10 +50,13 @@
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandWindow;
-class QWaylandGLWindowSurface;
 class QOpenGLShaderProgram;
 class QOpenGLTextureCache;
+
+namespace QtWaylandClient {
+
+class QWaylandWindow;
+class QWaylandGLWindowSurface;
 class DecorationsBlitter;
 
 class QWaylandGLContext : public QPlatformOpenGLContext
@@ -93,6 +96,8 @@ private:
 
     friend class DecorationsBlitter;
 };
+
+}
 
 QT_END_NAMESPACE
 

@@ -56,6 +56,8 @@ struct wl_egl_window;
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 class QWaylandDisplay;
 class QWaylandBuffer;
 class QWaylandShellSurface;
@@ -252,5 +254,7 @@ inline QPoint QWaylandWindow::attachOffset() const
 }
 
 QT_END_NAMESPACE
+
+}
 
 #endif // QWAYLANDWINDOW_H

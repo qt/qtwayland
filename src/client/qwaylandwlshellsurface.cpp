@@ -52,6 +52,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 QWaylandWlShellSurface::QWaylandWlShellSurface(struct ::wl_shell_surface *shell_surface, QWaylandWindow *window)
     : QtWayland::wl_shell_surface(shell_surface)
     , QWaylandShellSurface(window)
@@ -217,6 +219,8 @@ void QWaylandWlShellSurface::shell_surface_configure(uint32_t edges,
 void QWaylandWlShellSurface::shell_surface_popup_done()
 {
     QCoreApplication::postEvent(m_window->window(), new QCloseEvent());
+}
+
 }
 
 QT_END_NAMESPACE

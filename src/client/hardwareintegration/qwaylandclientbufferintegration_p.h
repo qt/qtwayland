@@ -47,12 +47,14 @@
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandWindow;
-class QWaylandDisplay;
 class QWindow;
-
 class QPlatformOpenGLContext;
 class QSurfaceFormat;
+
+namespace QtWaylandClient {
+
+class QWaylandWindow;
+class QWaylandDisplay;
 
 class Q_WAYLAND_CLIENT_EXPORT QWaylandClientBufferIntegration
 {
@@ -78,6 +80,8 @@ public:
     virtual void *nativeResource(NativeResource /*resource*/) { return Q_NULLPTR; }
     virtual void *nativeResourceForContext(NativeResource /*resource*/, QPlatformOpenGLContext */*context*/) { return Q_NULLPTR; }
 };
+
+}
 
 QT_END_NAMESPACE
 

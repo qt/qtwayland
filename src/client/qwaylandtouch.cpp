@@ -45,6 +45,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 QWaylandTouchExtension::QWaylandTouchExtension(QWaylandDisplay *display, uint32_t id)
     : QtWayland::qt_touch_extension(display->wl_registry(), id, 1),
       mDisplay(display),
@@ -205,6 +207,8 @@ void QWaylandTouchExtension::touchCanceled()
 void QWaylandTouchExtension::touch_extension_configure(uint32_t flags)
 {
     mFlags = flags;
+}
+
 }
 
 QT_END_NAMESPACE

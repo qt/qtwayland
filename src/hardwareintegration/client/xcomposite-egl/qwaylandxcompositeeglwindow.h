@@ -50,6 +50,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 class QWaylandXCompositeEGLWindow : public QWaylandWindow
 {
 public:
@@ -73,6 +75,8 @@ private:
     EGLConfig m_config;
     EGLSurface m_surface;
 };
+
+}
 
 QT_END_NAMESPACE
 

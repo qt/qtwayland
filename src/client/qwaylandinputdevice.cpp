@@ -65,6 +65,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 QWaylandInputDevice::Keyboard::Keyboard(QWaylandInputDevice *p)
     : mParent(p)
     , mFocus(0)
@@ -971,6 +973,8 @@ void QWaylandInputDevice::Touch::touch_frame()
         mPrevTouchPoints = mTouchPoints;
 
     mTouchPoints.clear();
+}
+
 }
 
 QT_END_NAMESPACE

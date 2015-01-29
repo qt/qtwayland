@@ -43,6 +43,10 @@
 #include "qwaylandwindow_p.h"
 #include "qwaylandextendedsurface_p.h"
 
+QT_BEGIN_NAMESPACE
+
+namespace QtWaylandClient {
+
 QWaylandShellSurface::QWaylandShellSurface(QWaylandWindow *window)
                     : m_window(window)
 {
@@ -58,3 +62,7 @@ void QWaylandShellSurface::sendProperty(const QString &name, const QVariant &val
     Q_UNUSED(name)
     Q_UNUSED(value)
 }
+
+}
+
+QT_END_NAMESPACE

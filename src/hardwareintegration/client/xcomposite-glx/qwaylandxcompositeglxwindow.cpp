@@ -51,6 +51,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 QWaylandXCompositeGLXWindow::QWaylandXCompositeGLXWindow(QWindow *window, QWaylandXCompositeGLXIntegration *glxIntegration)
     : QWaylandWindow(window)
     , m_glxIntegration(glxIntegration)
@@ -115,6 +117,8 @@ void QWaylandXCompositeGLXWindow::createSurface()
     mBuffer = new QWaylandXCompositeBuffer(m_glxIntegration->waylandXComposite(),
                                             (uint32_t)m_xWindow,
                                             size);
+}
+
 }
 
 QT_END_NAMESPACE

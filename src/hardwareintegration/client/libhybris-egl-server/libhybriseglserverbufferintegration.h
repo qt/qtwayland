@@ -68,6 +68,8 @@ typedef EGLBoolean (EGLAPIENTRYP PFNEGLHYBRISCREATEREMOTEBUFFERPROC)(EGLint widt
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 class LibHybrisEglServerBufferIntegration;
 
 class LibHybrisServerBuffer : public QWaylandServerBuffer, public QtWayland::qt_libhybris_buffer
@@ -153,6 +155,9 @@ EGLBoolean LibHybrisEglServerBufferIntegration::eglHybrisCreateRemoteBuffer(EGLi
     }
     return m_egl_create_buffer(width, height, usage, format, stride, num_ints, ints, num_fds, fds, buffer);
 }
+
+}
+
 QT_END_NAMESPACE
 
 #endif

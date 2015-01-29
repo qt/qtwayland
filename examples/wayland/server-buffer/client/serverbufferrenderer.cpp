@@ -74,7 +74,7 @@ static const char fragment_shader[] =
     "   gl_FragColor = texture2D(textureSampler, uv);"
     "}";
 
-ServerBufferRenderer::ServerBufferRenderer(QWaylandServerBuffer *serverBuffer)
+ServerBufferRenderer::ServerBufferRenderer(QtWaylandClient::QWaylandServerBuffer *serverBuffer)
     : QOpenGLFunctions(QOpenGLContext::currentContext())
     , m_server_buffer(serverBuffer)
     , m_texture(0)

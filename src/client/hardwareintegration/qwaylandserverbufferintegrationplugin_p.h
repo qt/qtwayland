@@ -50,6 +50,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 class QWaylandServerBufferIntegration;
 
 #define QWaylandServerBufferIntegrationFactoryInterface_iid "org.qt-project.Qt.WaylandClient.QWaylandServerBufferIntegrationFactoryInterface.5.3"
@@ -63,6 +65,8 @@ public:
 
     virtual QWaylandServerBufferIntegration *create(const QString &key, const QStringList &paramList) = 0;
 };
+
+}
 
 QT_END_NAMESPACE
 

@@ -50,6 +50,8 @@ struct wl_visual;
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 class QWaylandXCompositeBuffer : public QWaylandBuffer
 {
 public:
@@ -61,6 +63,8 @@ public:
 private:
     QSize mSize;
 };
+
+}
 
 QT_END_NAMESPACE
 

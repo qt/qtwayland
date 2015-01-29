@@ -52,6 +52,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 QWaylandXCompositeEGLClientBufferIntegration::QWaylandXCompositeEGLClientBufferIntegration()
     : QWaylandClientBufferIntegration()
     , mWaylandDisplay(0)
@@ -147,6 +149,8 @@ void QWaylandXCompositeEGLClientBufferIntegration::rootInformation(void *data, q
     }
     eglSwapInterval(integration->eglDisplay(),0);
     qDebug() << "ROOT INFORMATION" << integration->mDisplay << integration->mRootWindow << integration->mScreen;
+}
+
 }
 
 QT_END_NAMESPACE

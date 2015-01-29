@@ -64,6 +64,8 @@ typedef void (GL_APIENTRYP PFNGLEGLIMAGETARGETTEXTURE2DOESPROC) (GLenum target, 
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 class DrmEglServerBufferIntegration;
 
 class DrmServerBuffer : public QWaylandServerBuffer
@@ -126,6 +128,9 @@ void DrmEglServerBufferIntegration::glEGLImageTargetTexture2DOES (GLenum target,
     }
     m_gl_egl_image_target_texture(target,image);
 }
+
+}
+
 QT_END_NAMESPACE
 
 #endif

@@ -50,6 +50,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 QWaylandXdgShell::QWaylandXdgShell(struct ::xdg_shell *shell)
     : QtWayland::xdg_shell(shell)
 {
@@ -72,5 +74,6 @@ void QWaylandXdgShell::xdg_shell_ping(uint32_t serial)
     pong(serial);
 }
 
+}
 
 QT_END_NAMESPACE

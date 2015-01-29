@@ -48,6 +48,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 #ifndef QT_NO_LIBRARY
 Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
     (QWaylandInputDeviceIntegrationFactoryInterface_iid, QLatin1String("/wayland-inputdevice-integration"), Qt::CaseInsensitive))
@@ -91,6 +93,8 @@ QWaylandInputDeviceIntegration *QWaylandInputDeviceIntegrationFactory::create(co
         return ret;
 #endif
     return Q_NULLPTR;
+}
+
 }
 
 QT_END_NAMESPACE

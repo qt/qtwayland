@@ -54,6 +54,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 QWaylandEglWindow::QWaylandEglWindow(QWindow *window)
     : QWaylandWindow(window)
     , m_clientBufferIntegration(static_cast<QWaylandEglClientBufferIntegration *>(mDisplay->clientBufferIntegration()))
@@ -196,6 +198,8 @@ void QWaylandEglWindow::bindContentFBO()
         contentFBO();
         m_contentFBO->bind();
     }
+}
+
 }
 
 QT_END_NAMESPACE

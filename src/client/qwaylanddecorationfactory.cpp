@@ -48,6 +48,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 #ifndef QT_NO_LIBRARY
 Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
     (QWaylandDecorationFactoryInterface_iid, QLatin1String("/wayland-decoration-client"), Qt::CaseInsensitive))
@@ -92,6 +94,8 @@ QWaylandAbstractDecoration *QWaylandDecorationFactory::create(const QString &nam
 #endif
 
     return 0;
+}
+
 }
 
 QT_END_NAMESPACE

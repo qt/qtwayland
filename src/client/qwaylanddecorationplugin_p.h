@@ -50,6 +50,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 class QWaylandAbstractDecoration;
 
 #define QWaylandDecorationFactoryInterface_iid "org.qt-project.Qt.WaylandClient.QWaylandDecorationFactoryInterface.5.4"
@@ -63,6 +65,8 @@ public:
 
     virtual QWaylandAbstractDecoration *create(const QString &key, const QStringList &paramList) = 0;
 };
+
+}
 
 QT_END_NAMESPACE
 

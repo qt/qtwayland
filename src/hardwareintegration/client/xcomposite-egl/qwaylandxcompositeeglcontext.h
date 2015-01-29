@@ -50,6 +50,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 class QWaylandXCompositeEGLWindow;
 
 class QWaylandXCompositeEGLContext : public QEGLPlatformContext
@@ -62,6 +64,8 @@ public:
 private:
     EGLSurface eglSurfaceForPlatformSurface(QPlatformSurface *surface);
 };
+
+}
 
 QT_END_NAMESPACE
 

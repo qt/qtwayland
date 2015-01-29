@@ -47,6 +47,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 class QWaylandDisplay;
 class QWaylandInputDevice;
 
@@ -58,6 +60,8 @@ public:
 
     virtual QWaylandInputDevice *createInputDevice(QWaylandDisplay *d, int version, uint32_t id) = 0;
 };
+
+}
 
 QT_END_NAMESPACE
 

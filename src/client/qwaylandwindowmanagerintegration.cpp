@@ -57,6 +57,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 class QWaylandWindowManagerIntegrationPrivate {
 public:
     QWaylandWindowManagerIntegrationPrivate(QWaylandDisplay *waylandDisplay);
@@ -155,6 +157,8 @@ bool QWaylandWindowManagerIntegration::openDocument(const QUrl &url)
 {
     openUrl_helper(url);
     return true;
+}
+
 }
 
 QT_END_NAMESPACE

@@ -50,6 +50,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 class QWaylandShellIntegration;
 
 #define QWaylandShellIntegrationFactoryInterface_iid "org.qt-project.Qt.WaylandClient.QWaylandShellIntegrationFactoryInterface.5.3"
@@ -63,6 +65,8 @@ public:
 
     virtual QWaylandShellIntegration *create(const QString &key, const QStringList &paramList) = 0;
 };
+
+}
 
 QT_END_NAMESPACE
 

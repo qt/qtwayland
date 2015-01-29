@@ -58,6 +58,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 class QWaylandBrcmBuffer : public QWaylandBuffer
 {
 public:
@@ -262,6 +264,8 @@ bool QWaylandBrcmEglWindow::makeCurrent(EGLContext context)
     if (!m_count)
         const_cast<QWaylandBrcmEglWindow *>(this)->createEglSurfaces();
     return eglMakeCurrent(m_eglIntegration->eglDisplay(), m_eglSurfaces[m_current], m_eglSurfaces[m_current], context);
+}
+
 }
 
 QT_END_NAMESPACE

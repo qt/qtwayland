@@ -53,6 +53,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 QWaylandDrag::QWaylandDrag(QWaylandDisplay *display)
     : m_display(display)
 {
@@ -132,6 +134,8 @@ void QWaylandDrag::finishDrag(const QPlatformDropQtResponse &response)
     setExecutedDropAction(response.acceptedAction());
     QKeyEvent event(QEvent::KeyPress, Qt::Key_Escape, Qt::NoModifier);
     eventFilter(shapedPixmapWindow(), &event);
+}
+
 }
 
 QT_END_NAMESPACE

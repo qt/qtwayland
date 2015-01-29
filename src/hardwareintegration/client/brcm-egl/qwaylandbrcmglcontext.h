@@ -50,6 +50,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 class QWaylandWindow;
 class QWaylandGLWindowSurface;
 
@@ -77,6 +79,8 @@ private:
     EGLConfig m_config;
     QSurfaceFormat m_format;
 };
+
+}
 
 QT_END_NAMESPACE
 

@@ -49,6 +49,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 QWaylandShmWindow::QWaylandShmWindow(QWindow *window)
     : QWaylandWindow(window)
 {
@@ -61,6 +63,8 @@ QWaylandShmWindow::~QWaylandShmWindow()
 QWaylandWindow::WindowType QWaylandShmWindow::windowType() const
 {
     return QWaylandWindow::Shm;
+}
+
 }
 
 QT_END_NAMESPACE

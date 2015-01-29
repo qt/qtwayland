@@ -52,6 +52,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 class QWaylandAbstractDecorationPrivate : public QObjectPrivate
 {
     Q_DECLARE_PUBLIC(QWaylandAbstractDecoration)
@@ -182,6 +184,8 @@ QWaylandWindow *QWaylandAbstractDecoration::waylandWindow() const
 {
     Q_D(const QWaylandAbstractDecoration);
     return d->m_wayland_window;
+}
+
 }
 
 QT_END_NAMESPACE

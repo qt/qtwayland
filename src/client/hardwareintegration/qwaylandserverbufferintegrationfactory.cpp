@@ -48,6 +48,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 #ifndef QT_NO_LIBRARY
 Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
     (QWaylandServerBufferIntegrationFactoryInterface_iid, QLatin1String("/wayland-graphics-integration-client"), Qt::CaseInsensitive))
@@ -91,6 +93,8 @@ QWaylandServerBufferIntegration *QWaylandServerBufferIntegrationFactory::create(
         return ret;
 #endif
     return 0;
+}
+
 }
 
 QT_END_NAMESPACE

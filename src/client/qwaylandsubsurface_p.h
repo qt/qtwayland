@@ -52,6 +52,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 class QWaylandDisplay;
 class QWaylandWindow;
 class QWaylandSubSurface;
@@ -69,5 +71,7 @@ private:
 };
 
 QT_END_NAMESPACE
+
+}
 
 #endif // QWAYLANDSUBSURFACE_H

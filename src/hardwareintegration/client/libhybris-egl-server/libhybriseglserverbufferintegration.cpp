@@ -49,6 +49,8 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWaylandClient {
+
 LibHybrisServerBuffer::LibHybrisServerBuffer(LibHybrisEglServerBufferIntegration *integration
                                             , int32_t numFds
                                             , wl_array *ints
@@ -176,6 +178,8 @@ void LibHybrisEglServerBufferIntegration::libhybris_egl_server_buffer_server_buf
     LibHybrisServerBuffer *server_buffer = new LibHybrisServerBuffer(this, numFds, ints, name, width, height, stride, format);
     server_buffer->QtWayland::qt_libhybris_buffer::init(id);
     qt_server_buffer_set_user_data(qid, server_buffer);
+}
+
 }
 
 QT_END_NAMESPACE

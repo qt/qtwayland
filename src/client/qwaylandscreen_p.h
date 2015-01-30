@@ -68,6 +68,7 @@ public:
     QSizeF physicalSize() const Q_DECL_OVERRIDE;
 
     QDpi logicalDpi() const Q_DECL_OVERRIDE;
+    QList<QPlatformScreen *> virtualSiblings() const Q_DECL_OVERRIDE;
 
     void setOrientationUpdateMask(Qt::ScreenOrientations mask);
 

@@ -113,6 +113,14 @@ QDpi QWaylandScreen::logicalDpi() const
     return QPlatformScreen::logicalDpi();
 }
 
+QList<QPlatformScreen *> QWaylandScreen::virtualSiblings() const
+{
+    QList<QPlatformScreen *> list;
+    foreach (QWaylandScreen *screen, mWaylandDisplay->screens())
+        list << screen;
+    return list;
+}
+
 void QWaylandScreen::setOrientationUpdateMask(Qt::ScreenOrientations mask)
 {
     foreach (QWindow *window, QGuiApplication::allWindows()) {

@@ -2,7 +2,6 @@ INCLUDEPATH += compositor_api
 
 HEADERS += \
     compositor_api/qwaylandcompositor.h \
-    compositor_api/qwaylandcompositor_p.h \
     compositor_api/qwaylandclient.h \
     compositor_api/qwaylandsurface.h \
     compositor_api/qwaylandsurface_p.h \

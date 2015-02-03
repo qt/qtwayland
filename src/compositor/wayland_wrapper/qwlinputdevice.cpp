@@ -60,7 +60,7 @@ QT_BEGIN_NAMESPACE
 namespace QtWayland {
 
 InputDevice::InputDevice(QWaylandInputDevice *handle, Compositor *compositor, QWaylandInputDevice::CapabilityFlags caps)
-    : QtWaylandServer::wl_seat(compositor->wl_display(), 2)
+    : QtWaylandServer::wl_seat(compositor->wl_display(), 3)
     , m_handle(handle)
     , m_dragHandle(new QWaylandDrag(this))
     , m_compositor(compositor)

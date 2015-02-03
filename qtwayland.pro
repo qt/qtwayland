@@ -14,7 +14,7 @@ qtCompileTest(libhybris_egl_server)
 load(qt_parts)
 
 !config_wayland {
-    warning("QtWayland requires Wayland 1.2.0 or higher, QtWayland will not be built")
+    warning("QtWayland requires Wayland 1.4.0 or higher, QtWayland will not be built")
     SUBDIRS =
 }
 

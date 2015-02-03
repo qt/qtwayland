@@ -110,6 +110,7 @@ Q_SIGNALS:
 protected:
     void keyboard_bind_resource(Resource *resource);
     void keyboard_destroy_resource(Resource *resource);
+    void keyboard_release(Resource *resource) Q_DECL_OVERRIDE;
 
 private:
     void sendKeyEvent(uint code, uint32_t state);

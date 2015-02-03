@@ -126,7 +126,10 @@ QWaylandInputDevice::Keyboard::~Keyboard()
 #ifndef QT_NO_WAYLAND_XKB
     releaseKeyMap();
 #endif
-    wl_keyboard_destroy(object());
+    if (mParent->mVersion >= 3)
+        wl_keyboard_release(object());
+    else
+        wl_keyboard_destroy(object());
 }
 
 void QWaylandInputDevice::Keyboard::stopRepeat()
@@ -145,7 +148,10 @@ QWaylandInputDevice::Pointer::Pointer(QWaylandInputDevice *p)
 
 QWaylandInputDevice::Pointer::~Pointer()
 {
-    wl_pointer_destroy(object());
+    if (mParent->mVersion >= 3)
+        wl_pointer_release(object());
+    else
+        wl_pointer_destroy(object());
 }
 
 QWaylandInputDevice::Touch::Touch(QWaylandInputDevice *p)
@@ -156,14 +162,18 @@ QWaylandInputDevice::Touch::Touch(QWaylandInputDevice *p)
 
 QWaylandInputDevice::Touch::~Touch()
 {
-    wl_touch_destroy(object());
+    if (mParent->mVersion >= 3)
+        wl_touch_release(object());
+    else
+        wl_touch_destroy(object());
 }
 
 QWaylandInputDevice::QWaylandInputDevice(QWaylandDisplay *display, int version, uint32_t id)
     : QObject()
-    , QtWayland::wl_seat(display->wl_registry(), id, qMin(version, 2))
+    , QtWayland::wl_seat(display->wl_registry(), id, qMin(version, 3))
     , mQDisplay(display)
     , mDisplay(display->wl_display())
+    , mVersion(qMin(version, 3))
     , mCaps(0)
     , mDataDevice(0)
     , mKeyboard(0)

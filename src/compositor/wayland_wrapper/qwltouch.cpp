@@ -90,6 +90,17 @@ void Touch::focusDestroyed(void *data)
     m_focusResource = 0;
 }
 
+void Touch::touch_destroy_resource(Resource *resource)
+{
+    if (m_focusResource == resource)
+        m_focusResource = 0;
+}
+
+void Touch::touch_release(Resource *resource)
+{
+    wl_resource_destroy(resource->handle);
+}
+
 void Touch::sendCancel()
 {
     if (m_focusResource)

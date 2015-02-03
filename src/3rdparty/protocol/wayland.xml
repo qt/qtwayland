@@ -4,6 +4,7 @@
   <copyright>
     Copyright © 2008-2011 Kristian Høgsberg
     Copyright © 2010-2011 Intel Corporation
+    Copyright © 2012-2013 Collabora, Ltd.
 
     Permission to use, copy, modify, distribute, and sell this
     software and its documentation for any purpose is hereby granted
@@ -38,12 +39,14 @@
 	The sync request asks the server to emit the 'done' event
 	on the returned wl_callback object.  Since requests are
 	handled in-order and events are delivered in-order, this can
-	used as a barrier to ensure all previous requests and the
+	be used as a barrier to ensure all previous requests and the
 	resulting events have been handled.
 
 	The object returned by this request will be destroyed by the
 	compositor after the callback is fired and as such the client must not
 	attempt to use it after that point.
+
+	The callback_data passed in the callback is the event serial.
       </description>
       <arg name="callback" type="new_id" interface="wl_callback"/>
     </request>
@@ -54,7 +57,7 @@
 	to list and bind the global objects available from the
 	compositor.
       </description>
-      <arg name="callback" type="new_id" interface="wl_registry"/>
+      <arg name="registry" type="new_id" interface="wl_registry"/>
     </request>
 
     <event name="error">
@@ -169,7 +172,7 @@
       <description summary="done event">
        Notify the client when the related request is done.
       </description>
-      <arg name="serial" type="uint" summary="serial of the event"/>
+      <arg name="callback_data" type="uint" summary="request-specific data for the wl_callback"/>
     </event>
   </interface>
 
@@ -274,10 +277,73 @@
 
     <enum name="format">
       <description summary="pixel formats">
-	This describes the memory layout of an individual pixel.
+       This describes the memory layout of an individual pixel.
+
+       All renderers should support argb8888 and xrgb8888 but any other
+       formats are optional and may not be supported by the particular
+       renderer in use.
       </description>
       <entry name="argb8888" value="0" summary="32-bit ARGB format"/>
       <entry name="xrgb8888" value="1" summary="32-bit RGB format"/>
+      <!-- The drm format codes match the #defines in drm_fourcc.h.
+           The formats actually supported by the compositor will be
+           reported by the format event. -->
+      <entry name="c8" value="0x20203843"/>
+      <entry name="rgb332" value="0x38424752"/>
+      <entry name="bgr233" value="0x38524742"/>
+      <entry name="xrgb4444" value="0x32315258"/>
+      <entry name="xbgr4444" value="0x32314258"/>
+      <entry name="rgbx4444" value="0x32315852"/>
+      <entry name="bgrx4444" value="0x32315842"/>
+      <entry name="argb4444" value="0x32315241"/>
+      <entry name="abgr4444" value="0x32314241"/>
+      <entry name="rgba4444" value="0x32314152"/>
+      <entry name="bgra4444" value="0x32314142"/>
+      <entry name="xrgb1555" value="0x35315258"/>
+      <entry name="xbgr1555" value="0x35314258"/>
+      <entry name="rgbx5551" value="0x35315852"/>
+      <entry name="bgrx5551" value="0x35315842"/>
+      <entry name="argb1555" value="0x35315241"/>
+      <entry name="abgr1555" value="0x35314241"/>
+      <entry name="rgba5551" value="0x35314152"/>
+      <entry name="bgra5551" value="0x35314142"/>
+      <entry name="rgb565" value="0x36314752"/>
+      <entry name="bgr565" value="0x36314742"/>
+      <entry name="rgb888" value="0x34324752"/>
+      <entry name="bgr888" value="0x34324742"/>
+      <entry name="xbgr8888" value="0x34324258"/>
+      <entry name="rgbx8888" value="0x34325852"/>
+      <entry name="bgrx8888" value="0x34325842"/>
+      <entry name="abgr8888" value="0x34324241"/>
+      <entry name="rgba8888" value="0x34324152"/>
+      <entry name="bgra8888" value="0x34324142"/>
+      <entry name="xrgb2101010" value="0x30335258"/>
+      <entry name="xbgr2101010" value="0x30334258"/>
+      <entry name="rgbx1010102" value="0x30335852"/>
+      <entry name="bgrx1010102" value="0x30335842"/>
+      <entry name="argb2101010" value="0x30335241"/>
+      <entry name="abgr2101010" value="0x30334241"/>
+      <entry name="rgba1010102" value="0x30334152"/>
+      <entry name="bgra1010102" value="0x30334142"/>
+      <entry name="yuyv" value="0x56595559"/>
+      <entry name="yvyu" value="0x55595659"/>
+      <entry name="uyvy" value="0x59565955"/>
+      <entry name="vyuy" value="0x59555956"/>
+      <entry name="ayuv" value="0x56555941"/>
+      <entry name="nv12" value="0x3231564e"/>
+      <entry name="nv21" value="0x3132564e"/>
+      <entry name="nv16" value="0x3631564e"/>
+      <entry name="nv61" value="0x3136564e"/>
+      <entry name="yuv410" value="0x39565559"/>
+      <entry name="yvu410" value="0x39555659"/>
+      <entry name="yuv411" value="0x31315559"/>
+      <entry name="yvu411" value="0x31315659"/>
+      <entry name="yuv420" value="0x32315559"/>
+      <entry name="yvu420" value="0x32315659"/>
+      <entry name="yuv422" value="0x36315559"/>
+      <entry name="yvu422" value="0x36315659"/>
+      <entry name="yuv444" value="0x34325559"/>
+      <entry name="yvu444" value="0x34325659"/>
     </enum>
 
     <request name="create_pool">
@@ -521,7 +587,7 @@
       <description summary="initiate drag-and-drop session">
 	This event is sent when an active drag-and-drop pointer enters
 	a surface owned by the client.  The position of the pointer at
-	enter time is provided by the x an y arguments, in surface
+	enter time is provided by the x and y arguments, in surface
 	local coordinates.
       </description>
 
@@ -544,7 +610,7 @@
       <description summary="drag-and-drop session motion">
 	This event is sent when the drag-and-drop pointer moves within
 	the currently focused surface. The new position of the pointer
-	is provided by the x an y arguments, in surface local
+	is provided by the x and y arguments, in surface local
 	coordinates.
       </description>
       <arg name="time" type="uint" summary="timestamp with millisecond granularity"/>
@@ -577,7 +643,7 @@
 
   <interface name="wl_data_device_manager" version="1">
     <description summary="data transfer interface">
-      The wl_data_device_manager is a a singleton global object that
+      The wl_data_device_manager is a singleton global object that
       provides access to inter-client data transfer mechanisms such as
       copy-and-paste and drag-and-drop.  These mechanisms are tied to
       a wl_seat and this interface lets a client get a wl_data_device
@@ -846,9 +912,9 @@
 	Set a class for the surface.
 
 	The surface class identifies the general class of applications
-	to which the surface belongs. A common convention is to use
-	the file name (full path if non-standard location) of the
-	applications .desktop file as the class.
+	to which the surface belongs. A common convention is to use the
+	file name (or the full path if it is a non-standard location) of
+	the application's .desktop file as the class.
       </description>
       <arg name="class_" type="string"/>
     </request>
@@ -890,7 +956,7 @@
     <event name="popup_done">
       <description summary="popup interaction is done">
 	The popup_done event is sent out when a popup grab is broken,
-	that is, when the users clicks a surface that doesn't belong
+	that is, when the user clicks a surface that doesn't belong
 	to the client owning the popup surface.
       </description>
     </event>
@@ -952,10 +1018,10 @@
 
 	Destroying the wl_buffer after wl_buffer.release does not change
 	the surface contents. However, if the client destroys the
-	wl_buffer before receiving wl_buffer.release, the surface
+	wl_buffer before receiving the wl_buffer.release event, the surface
 	contents become undefined immediately.
 
-	Only if wl_surface.attach is sent with a NULL wl_buffer, the
+	If wl_surface.attach is sent with a NULL wl_buffer, the
 	following wl_surface.commit will remove the surface content.
       </description>
 
@@ -1012,6 +1078,9 @@
 	The object returned by this request will be destroyed by the
 	compositor after the callback is fired and as such the client must not
 	attempt to use it after that point.
+
+	The callback_data passed in the callback is the current time, in
+	milliseconds.
       </description>
 
       <arg name="callback" type="new_id" interface="wl_callback"/>
@@ -1172,7 +1241,7 @@
     </request>
    </interface>
 
-  <interface name="wl_seat" version="2">
+  <interface name="wl_seat" version="3">
     <description summary="group of input devices">
       A seat is a group of keyboards, pointer and touch devices. This
       object is published as a global during start up, or when such a
@@ -1245,7 +1314,7 @@
 
   </interface>
 
-  <interface name="wl_pointer" version="1">
+  <interface name="wl_pointer" version="3">
     <description summary="pointer input device">
       The wl_pointer interface represents one or more input devices,
       such as mice, which control the pointer location and pointer_focus
@@ -1292,6 +1361,10 @@
       <arg name="surface" type="object" interface="wl_surface" allow-null="true"/>
       <arg name="hotspot_x" type="int" summary="x coordinate in surface-relative coordinates"/>
       <arg name="hotspot_y" type="int" summary="y coordinate in surface-relative coordinates"/>
+    </request>
+
+    <request name="release" type="destructor" since="3">
+      <description summary="release the pointer object"/>
     </request>
 
     <event name="enter">
@@ -1393,11 +1466,15 @@
     </event>
   </interface>
 
-  <interface name="wl_keyboard" version="1">
+  <interface name="wl_keyboard" version="3">
     <description summary="keyboard input device">
       The wl_keyboard interface represents one or more keyboards
       associated with a seat.
     </description>
+
+    <request name="release" type="destructor" since="3">
+      <description summary="release the keyboard object"/>
+    </request>
 
     <enum name="keymap_format">
       <description summary="keyboard mapping format">
@@ -1476,7 +1553,7 @@
     </event>
   </interface>
 
-  <interface name="wl_touch" version="1">
+  <interface name="wl_touch" version="3">
     <description summary="touchscreen input device">
       The wl_touch interface represents a touchscreen
       associated with a seat.
@@ -1487,6 +1564,10 @@
       and ending with an up event. Events relating to the same
       contact point can be identified by the ID of the sequence.
     </description>
+
+    <request name="release" type="destructor" since="3">
+      <description summary="release the touch object"/>
+    </request>
 
     <event name="down">
       <description summary="touch down event and beginning of a touch sequence">
@@ -1716,6 +1797,227 @@
       <arg name="y" type="int"/>
       <arg name="width" type="int"/>
       <arg name="height" type="int"/>
+    </request>
+
+  </interface>
+
+  <interface name="wl_subcompositor" version="1">
+    <description summary="sub-surface compositing">
+      The global interface exposing sub-surface compositing capabilities.
+      A wl_surface, that has sub-surfaces associated, is called the
+      parent surface. Sub-surfaces can be arbitrarily nested and create
+      a tree of sub-surfaces.
+
+      The root surface in a tree of sub-surfaces is the main
+      surface. The main surface cannot be a sub-surface, because
+      sub-surfaces must always have a parent.
+
+      A main surface with its sub-surfaces forms a (compound) window.
+      For window management purposes, this set of wl_surface objects is
+      to be considered as a single window, and it should also behave as
+      such.
+
+      The aim of sub-surfaces is to offload some of the compositing work
+      within a window from clients to the compositor. A prime example is
+      a video player with decorations and video in separate wl_surface
+      objects. This should allow the compositor to pass YUV video buffer
+      processing to dedicated overlay hardware when possible.
+    </description>
+
+    <request name="destroy" type="destructor">
+      <description summary="unbind from the subcompositor interface">
+	Informs the server that the client will not be using this
+	protocol object anymore. This does not affect any other
+	objects, wl_subsurface objects included.
+      </description>
+    </request>
+
+    <enum name="error">
+      <entry name="bad_surface" value="0"
+             summary="the to-be sub-surface is invalid"/>
+    </enum>
+
+    <request name="get_subsurface">
+      <description summary="give a surface the role sub-surface">
+	Create a sub-surface interface for the given surface, and
+	associate it with the given parent surface. This turns a
+	plain wl_surface into a sub-surface.
+
+	The to-be sub-surface must not already have a dedicated
+	purpose, like any shell surface type, cursor image, drag icon,
+	or sub-surface. Otherwise a protocol error is raised.
+      </description>
+
+      <arg name="id" type="new_id" interface="wl_subsurface"
+           summary="the new subsurface object id"/>
+      <arg name="surface" type="object" interface="wl_surface"
+           summary="the surface to be turned into a sub-surface"/>
+      <arg name="parent" type="object" interface="wl_surface"
+           summary="the parent surface"/>
+    </request>
+  </interface>
+
+  <interface name="wl_subsurface" version="1">
+    <description summary="sub-surface interface to a wl_surface">
+      An additional interface to a wl_surface object, which has been
+      made a sub-surface. A sub-surface has one parent surface. A
+      sub-surface's size and position are not limited to that of the parent.
+      Particularly, a sub-surface is not automatically clipped to its
+      parent's area.
+
+      A sub-surface becomes mapped, when a non-NULL wl_buffer is applied
+      and the parent surface is mapped. The order of which one happens
+      first is irrelevant. A sub-surface is hidden if the parent becomes
+      hidden, or if a NULL wl_buffer is applied. These rules apply
+      recursively through the tree of surfaces.
+
+      The behaviour of wl_surface.commit request on a sub-surface
+      depends on the sub-surface's mode. The possible modes are
+      synchronized and desynchronized, see methods
+      wl_subsurface.set_sync and wl_subsurface.set_desync. Synchronized
+      mode caches the wl_surface state to be applied when the parent's
+      state gets applied, and desynchronized mode applies the pending
+      wl_surface state directly. A sub-surface is initially in the
+      synchronized mode.
+
+      Sub-surfaces have also other kind of state, which is managed by
+      wl_subsurface requests, as opposed to wl_surface requests. This
+      state includes the sub-surface position relative to the parent
+      surface (wl_subsurface.set_position), and the stacking order of
+      the parent and its sub-surfaces (wl_subsurface.place_above and
+      .place_below). This state is applied when the parent surface's
+      wl_surface state is applied, regardless of the sub-surface's mode.
+      As the exception, set_sync and set_desync are effective immediately.
+
+      The main surface can be thought to be always in desynchronized mode,
+      since it does not have a parent in the sub-surfaces sense.
+
+      Even if a sub-surface is in desynchronized mode, it will behave as
+      in synchronized mode, if its parent surface behaves as in
+      synchronized mode. This rule is applied recursively throughout the
+      tree of surfaces. This means, that one can set a sub-surface into
+      synchronized mode, and then assume that all its child and grand-child
+      sub-surfaces are synchronized, too, without explicitly setting them.
+
+      If the wl_surface associated with the wl_subsurface is destroyed, the
+      wl_subsurface object becomes inert. Note, that destroying either object
+      takes effect immediately. If you need to synchronize the removal
+      of a sub-surface to the parent surface update, unmap the sub-surface
+      first by attaching a NULL wl_buffer, update parent, and then destroy
+      the sub-surface.
+
+      If the parent wl_surface object is destroyed, the sub-surface is
+      unmapped.
+    </description>
+
+    <request name="destroy" type="destructor">
+      <description summary="remove sub-surface interface">
+	The sub-surface interface is removed from the wl_surface object
+	that was turned into a sub-surface with
+	wl_subcompositor.get_subsurface request. The wl_surface's association
+	to the parent is deleted, and the wl_surface loses its role as
+	a sub-surface. The wl_surface is unmapped.
+      </description>
+    </request>
+
+    <enum name="error">
+      <entry name="bad_surface" value="0"
+             summary="wl_surface is not a sibling or the parent"/>
+    </enum>
+
+    <request name="set_position">
+      <description summary="reposition the sub-surface">
+	This schedules a sub-surface position change.
+	The sub-surface will be moved so, that its origin (top-left
+	corner pixel) will be at the location x, y of the parent surface
+	coordinate system. The coordinates are not restricted to the parent
+	surface area. Negative values are allowed.
+
+	The next wl_surface.commit on the parent surface will reset
+	the sub-surface's position to the scheduled coordinates.
+
+	If more than one set_position request is invoked by the client before
+	the commit of the parent surface, the position of a new request always
+	replaces the scheduled position from any previous request.
+
+	The initial position is 0, 0.
+      </description>
+
+      <arg name="x" type="int" summary="coordinate in the parent surface"/>
+      <arg name="y" type="int" summary="coordinate in the parent surface"/>
+    </request>
+
+    <request name="place_above">
+      <description summary="restack the sub-surface">
+	This sub-surface is taken from the stack, and put back just
+	above the reference surface, changing the z-order of the sub-surfaces.
+	The reference surface must be one of the sibling surfaces, or the
+	parent surface. Using any other surface, including this sub-surface,
+	will cause a protocol error.
+
+	The z-order is double-buffered. Requests are handled in order and
+	applied immediately to a pending state, then committed to the active
+	state on the next commit of the parent surface.
+	See wl_surface.commit and wl_subcompositor.get_subsurface.
+
+	A new sub-surface is initially added as the top-most in the stack
+	of its siblings and parent.
+      </description>
+
+      <arg name="sibling" type="object" interface="wl_surface"
+           summary="the reference surface"/>
+    </request>
+
+    <request name="place_below">
+      <description summary="restack the sub-surface">
+	The sub-surface is placed just below of the reference surface.
+	See wl_subsurface.place_above.
+      </description>
+
+      <arg name="sibling" type="object" interface="wl_surface"
+           summary="the reference surface"/>
+    </request>
+
+    <request name="set_sync">
+      <description summary="set sub-surface to synchronized mode">
+	Change the commit behaviour of the sub-surface to synchronized
+	mode, also described as the parent dependant mode.
+
+	In synchronized mode, wl_surface.commit on a sub-surface will
+	accumulate the committed state in a cache, but the state will
+	not be applied and hence will not change the compositor output.
+	The cached state is applied to the sub-surface immediately after
+	the parent surface's state is applied. This ensures atomic
+	updates of the parent and all its synchronized sub-surfaces.
+	Applying the cached state will invalidate the cache, so further
+	parent surface commits do not (re-)apply old state.
+
+	See wl_subsurface for the recursive effect of this mode.
+      </description>
+    </request>
+
+    <request name="set_desync">
+      <description summary="set sub-surface to desynchronized mode">
+	Change the commit behaviour of the sub-surface to desynchronized
+	mode, also described as independent or freely running mode.
+
+	In desynchronized mode, wl_surface.commit on a sub-surface will
+	apply the pending state directly, without caching, as happens
+	normally with a wl_surface. Calling wl_surface.commit on the
+	parent surface has no effect on the sub-surface's wl_surface
+	state. This mode allows a sub-surface to be updated on its own.
+
+	If cached state exists when wl_surface.commit is called in
+	desynchronized mode, the pending state is added to the cached
+	state, and applied as whole. This invalidates the cache.
+
+	Note: even if a sub-surface is set to desynchronized, a parent
+	sub-surface may override it to behave as synchronized. For details,
+	see wl_subsurface.
+
+	If a surface's parent surface behaves as desynchronized, then
+	the cached state is applied on set_desync.
+      </description>
     </request>
 
   </interface>

@@ -217,6 +217,11 @@ void Pointer::pointer_destroy_resource(wl_pointer::Resource *resource)
         m_focusResource = 0;
 }
 
+void Pointer::pointer_release(wl_pointer::Resource *resource)
+{
+    wl_resource_destroy(resource->handle);
+}
+
 void Pointer::setMouseFocus(QWaylandSurfaceView *surface, const QPointF &localPos, const QPointF &globalPos)
 {
     m_position = globalPos;

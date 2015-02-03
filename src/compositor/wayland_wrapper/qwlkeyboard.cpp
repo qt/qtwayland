@@ -203,6 +203,11 @@ void Keyboard::keyboard_destroy_resource(wl_keyboard::Resource *resource)
         m_focusResource = 0;
 }
 
+void Keyboard::keyboard_release(wl_keyboard::Resource *resource)
+{
+    wl_resource_destroy(resource->handle);
+}
+
 void Keyboard::key(uint32_t serial, uint32_t time, uint32_t key, uint32_t state)
 {
     if (m_focusResource) {

@@ -115,6 +115,7 @@ private:
     QWaylandDisplay *mQDisplay;
     struct wl_display *mDisplay;
 
+    int mVersion;
     uint32_t mCaps;
 
     struct wl_surface *pointerSurface;

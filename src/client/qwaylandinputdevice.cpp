@@ -778,7 +778,8 @@ void QWaylandInputDevice::Keyboard::keyboard_key(uint32_t serial, uint32_t time,
     Qt::KeyboardModifiers modifiers = mParent->modifiers();
 
     uint utf32 = xkb_keysym_to_utf32(sym);
-    text = QString::fromUcs4(&utf32, 1);
+    if (utf32)
+        text = QString::fromUcs4(&utf32, 1);
 
     qtkey = keysymToQtKey(sym, modifiers, text);
 

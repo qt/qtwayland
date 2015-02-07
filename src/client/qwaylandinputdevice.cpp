@@ -761,6 +761,7 @@ void QWaylandInputDevice::Keyboard::keyboard_key(uint32_t serial, uint32_t time,
     QEvent::Type type = isDown ? QEvent::KeyPress : QEvent::KeyRelease;
     QString text;
     int qtkey = key + 8;  // qt-compositor substracts 8 for some reason
+    mParent->mSerial = serial;
 
     if (!window) {
         // We destroyed the keyboard focus surface, but the server

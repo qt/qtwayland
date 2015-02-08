@@ -71,7 +71,7 @@ void QWaylandQuickOutput::update()
 void QWaylandQuickOutput::updateStarted()
 {
     m_updateScheduled = false;
-    frameStarted();
+    compositor()->frameStarted();
     compositor()->cleanupGraphicsResources();
 }
 

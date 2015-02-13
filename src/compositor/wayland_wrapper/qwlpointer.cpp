@@ -131,7 +131,9 @@ void Pointer::focusDestroyed(void *data)
 
     m_focus = 0;
     m_focusResource = 0;
+    m_buttonCount = 0;
     setMouseFocus(0, QPointF(), QPointF());
+    endGrab();
 }
 
 void Pointer::startGrab(PointerGrabber *grab)
@@ -290,7 +292,6 @@ void Pointer::sendMouseEnterEvent(QWaylandSurfaceView *view, const QPointF &loca
 void Pointer::sendMouseLeaveEvent(QWaylandSurfaceView *view)
 {
     if (view != m_currentPosition.view()) {
-        qWarning("Possible input state error. Want to send leave event for not current surface");
         return;
     }
 

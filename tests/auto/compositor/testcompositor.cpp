@@ -35,6 +35,7 @@
 
 TestCompositor::TestCompositor(QWaylandCompositor::ExtensionFlag flags) : QWaylandCompositor(0, flags)
 {
+    createOutput(0, "", "");
     addDefaultShell();
 }
 

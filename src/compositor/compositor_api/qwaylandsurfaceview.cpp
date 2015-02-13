@@ -69,7 +69,7 @@ QWaylandSurfaceView::~QWaylandSurfaceView()
     if (d->surface) {
         QWaylandInputDevice *i = d->surface->compositor()->defaultInputDevice();
         if (i->mouseFocus() == this)
-            i->setMouseFocus(nullptr, QPointF());
+            i->setMouseFocus(Q_NULLPTR, QPointF());
 
         d->surface->destroy();
         d->surface->d_func()->views.removeOne(this);

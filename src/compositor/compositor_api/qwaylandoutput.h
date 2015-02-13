@@ -174,6 +174,10 @@ Q_SIGNALS:
 
 protected:
     QScopedPointer<QtWayland::Output> d_ptr;
+
+private slots:
+    void windowDestroyed();
+
 };
 
 Q_DECLARE_METATYPE(QWaylandOutput::Mode)

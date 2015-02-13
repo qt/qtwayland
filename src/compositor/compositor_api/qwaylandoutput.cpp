@@ -60,6 +60,7 @@ QWaylandOutput::QWaylandOutput(QWaylandCompositor *compositor, QWindow *window,
     d_ptr->compositor()->addOutput(this);
     QObject::connect(window, &QWindow::widthChanged, this, &QWaylandOutput::setWidth);
     QObject::connect(window, &QWindow::heightChanged, this, &QWaylandOutput::setHeight);
+    QObject::connect(window, &QObject::destroyed, this, &QWaylandOutput::windowDestroyed);
 }
 
 QWaylandOutput::~QWaylandOutput()
@@ -293,6 +294,11 @@ void QWaylandOutput::setWidth(int newWidth)
 void QWaylandOutput::setHeight(int newHeight)
 {
     d_ptr->setHeight(newHeight);
+}
+
+void QWaylandOutput::windowDestroyed()
+{
+    delete this;
 }
 
 QT_END_NAMESPACE

@@ -229,6 +229,12 @@ void QWaylandSurfaceItem::touchEvent(QTouchEvent *event)
     if (m_touchEventsEnabled) {
         QWaylandInputDevice *inputDevice = compositor()->inputDeviceFor(event);
 
+        if (event->type() == QEvent::TouchBegin) {
+            QQuickItem *grabber = window()->mouseGrabberItem();
+            if (grabber != this)
+                grabMouse();
+        }
+
         QPoint pointPos;
         const QList<QTouchEvent::TouchPoint> &points = event->touchPoints();
         if (!points.isEmpty())
@@ -246,6 +252,14 @@ void QWaylandSurfaceItem::touchEvent(QTouchEvent *event)
         inputDevice->sendFullTouchEvent(event);
     } else {
         event->ignore();
+    }
+}
+
+void QWaylandSurfaceItem::mouseUngrabEvent()
+{
+    if (surface()) {
+        QTouchEvent e(QEvent::TouchCancel);
+        touchEvent(&e);
     }
 }
 

@@ -53,6 +53,11 @@ QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
 
+static QString utf8Text()
+{
+    return QStringLiteral("text/plain;charset=utf-8");
+}
+
 QWaylandDataOffer::QWaylandDataOffer(QWaylandDisplay *display, struct ::wl_data_offer *offer)
     : QtWayland::wl_data_offer(offer)
     , m_mimeData(new QWaylandMimeData(this, display))
@@ -102,7 +107,13 @@ void QWaylandMimeData::appendFormat(const QString &mimeType)
 
 bool QWaylandMimeData::hasFormat_sys(const QString &mimeType) const
 {
-    return m_types.contains(mimeType);
+    if (m_types.contains(mimeType))
+        return true;
+
+    if (mimeType == QStringLiteral("text/plain") && m_types.contains(utf8Text()))
+        return true;
+
+    return false;
 }
 
 QStringList QWaylandMimeData::formats_sys() const
@@ -117,8 +128,14 @@ QVariant QWaylandMimeData::retrieveData_sys(const QString &mimeType, QVariant::T
     if (m_data.contains(mimeType))
         return m_data.value(mimeType);
 
-    if (!m_types.contains(mimeType))
-        return QVariant();
+    QString mime = mimeType;
+
+    if (!m_types.contains(mimeType)) {
+        if (mimeType == QStringLiteral("text/plain") && m_types.contains(utf8Text()))
+            mime = utf8Text();
+        else
+            return QVariant();
+    }
 
     int pipefd[2];
     if (::pipe2(pipefd, O_CLOEXEC|O_NONBLOCK) == -1) {
@@ -126,7 +143,7 @@ QVariant QWaylandMimeData::retrieveData_sys(const QString &mimeType, QVariant::T
         return QVariant();
     }
 
-    m_dataOffer->receive(mimeType, pipefd[1]);
+    m_dataOffer->receive(mime, pipefd[1]);
     m_display->flushRequests();
 
     close(pipefd[1]);

@@ -42,6 +42,8 @@
 #include "qwaylandsurfaceview.h"
 #include "qwaylandsurface.h"
 #include "qwaylandsurface_p.h"
+#include "qwaylandcompositor.h"
+#include "qwaylandinput.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -65,6 +67,10 @@ QWaylandSurfaceView::QWaylandSurfaceView(QWaylandSurface *surf)
 QWaylandSurfaceView::~QWaylandSurfaceView()
 {
     if (d->surface) {
+        QWaylandInputDevice *i = d->surface->compositor()->defaultInputDevice();
+        if (i->mouseFocus() == this)
+            i->setMouseFocus(nullptr, QPointF());
+
         d->surface->destroy();
         d->surface->d_func()->views.removeOne(this);
     }

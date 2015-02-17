@@ -126,6 +126,11 @@ void QWaylandBufferRef::destroyTexture()
         d->buffer->destroyTexture();
     }
 }
+
+void *QWaylandBufferRef::nativeBuffer() const
+{
+    return d->buffer->handle();
+}
 #endif
 
 QT_END_NAMESPACE

@@ -77,6 +77,7 @@ public:
      */
     GLuint createTexture();
     void destroyTexture();
+    void *nativeBuffer() const;
 #endif
 
 private:

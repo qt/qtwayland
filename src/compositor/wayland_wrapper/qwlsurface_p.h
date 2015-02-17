@@ -117,6 +117,8 @@ public:
 
     void setSubSurface(SubSurface *subSurface);
     SubSurface *subSurface() const;
+    void addSubSurface(SubSurface *ss);
+    void removeSubSurface(SubSurface *ss);
 
     void setInputPanelSurface(InputPanelSurface *inputPanelSurface);
     InputPanelSurface *inputPanelSurface() const;
@@ -225,6 +227,7 @@ protected:
     bool m_destroyed;
     Qt::ScreenOrientation m_contentOrientation;
     QWindow::Visibility m_visibility;
+    QVector<SubSurface *> m_subsurfaces;
 
     const SurfaceRole *m_role;
     RoleBase *m_roleHandler;

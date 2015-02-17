@@ -88,6 +88,8 @@ public:
     void setPos(const QPointF &pos) Q_DECL_OVERRIDE;
     QPointF pos() const Q_DECL_OVERRIDE;
 
+    void setParentView(QWaylandSurfaceView *view) Q_DECL_OVERRIDE;
+
 protected:
     void mousePressEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);

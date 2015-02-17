@@ -51,7 +51,7 @@ public:
     {
     }
 
-    void compositor_create_surface(Resource *resource, uint32_t id) Q_DECL_OVERRIDE
+    void compositor_create_surface(wl_compositor::Resource *resource, uint32_t id) Q_DECL_OVERRIDE
     {
         QWaylandQuickSurface *surface = new QWaylandQuickSurface(resource->client(), id, wl_resource_get_version(resource->handle), static_cast<QWaylandQuickCompositor *>(m_qt_compositor));
         surface->handle()->addToOutput(primaryOutput()->handle());

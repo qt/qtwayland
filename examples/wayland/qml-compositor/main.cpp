@@ -120,10 +120,7 @@ private slots:
     }
 
     void sendCallbacks() {
-        if (m_fullscreenSurface)
-            sendFrameCallbacks(QList<QWaylandSurface *>() << m_fullscreenSurface);
-        else
-            sendFrameCallbacks(surfaces());
+        sendFrameCallbacks(surfaces());
     }
 
 protected:

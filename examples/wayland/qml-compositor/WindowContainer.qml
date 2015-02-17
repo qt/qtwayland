@@ -108,7 +108,7 @@ Item {
         anchors.fill: parent
         blend: { if (child && chrome && (chrome.selected || child.focus)) 0.0; else 0.6 }
         opacity: 1.0
-        z: 1
+        z: -1
 
         Behavior on blend {
             enabled: true;

@@ -173,7 +173,6 @@ Compositor::Compositor(QWaylandCompositor *qt_compositor, QWaylandCompositor::Ex
 #endif
     , m_windowManagerIntegration(0)
     , m_surfaceExtension(0)
-    , m_subSurfaceExtension(0)
     , m_touchExtension(0)
     , m_qtkeyExtension(0)
     , m_textInputManager()
@@ -196,6 +195,7 @@ void Compositor::init()
         m_socket_name = arguments.at(socketArg + 1).toLocal8Bit();
 
     wl_compositor::init(m_display->handle(), 3);
+    wl_subcompositor::init(m_display->handle(), 1);
 
     m_data_device_manager =  new DataDeviceManager(this);
 
@@ -239,7 +239,6 @@ Compositor::~Compositor()
     qDeleteAll(m_outputs);
 
     delete m_surfaceExtension;
-    delete m_subSurfaceExtension;
     delete m_touchExtension;
     delete m_qtkeyExtension;
 
@@ -348,7 +347,7 @@ void Compositor::cleanupGraphicsResources()
     m_destroyed_surfaces.clear();
 }
 
-void Compositor::compositor_create_surface(Resource *resource, uint32_t id)
+void Compositor::compositor_create_surface(wl_compositor::Resource *resource, uint32_t id)
 {
     QWaylandSurface *surface = new QWaylandSurface(resource->client(), id, resource->version(), m_qt_compositor);
     m_surfaces << surface->handle();
@@ -357,7 +356,7 @@ void Compositor::compositor_create_surface(Resource *resource, uint32_t id)
     m_qt_compositor->surfaceCreated(surface);
 }
 
-void Compositor::compositor_create_region(Resource *resource, uint32_t id)
+void Compositor::compositor_create_region(wl_compositor::Resource *resource, uint32_t id)
 {
     Q_UNUSED(compositor);
     new Region(resource->client(), id);
@@ -372,6 +371,33 @@ void Compositor::destroyClient(QWaylandClient *client)
         m_windowManagerIntegration->sendQuitMessage(client->client());
 
     wl_client_destroy(client->client());
+}
+
+void Compositor::subcompositor_destroy(wl_subcompositor::Resource *resource)
+{
+    wl_resource_destroy(resource->handle);
+}
+
+void Compositor::subcompositor_get_subsurface(wl_subcompositor::Resource *resource, uint32_t id, wl_resource *surface, wl_resource *parent)
+{
+    Surface *s = Surface::fromResource(surface);
+    Surface *p = Surface::fromResource(parent);
+
+    static const char where[] = "get_subsurface: wl_subsurface@";
+    if (s == p) {
+        wl_resource_post_error(resource->handle, WL_SUBCOMPOSITOR_ERROR_BAD_SURFACE, "%s%d: wl_surface@%d cannot be its own parent", where, id, wl_resource_get_id(surface));
+        return;
+    }
+    if (SubSurface::get(s)) {
+        wl_resource_post_error(resource->handle, WL_SUBCOMPOSITOR_ERROR_BAD_SURFACE, "%s%d: wl_surface@%d is already a sub-surface", where, id, wl_resource_get_id(surface));
+        return;
+    }
+
+    if (!s->setRole(SubSurface::role(), resource->handle, WL_SUBCOMPOSITOR_ERROR_BAD_SURFACE))
+        return;
+
+    SubSurface *ss = new SubSurface(s, p, resource->client(), id, resource->version());
+    s->setRoleHandler(ss);
 }
 
 ClientBufferIntegration * Compositor::clientBufferIntegration() const
@@ -412,8 +438,6 @@ void Compositor::initializeExtensions()
 {
     if (m_extensions & QWaylandCompositor::SurfaceExtension)
         m_surfaceExtension = new SurfaceExtensionGlobal(this);
-    if (m_extensions & QWaylandCompositor::SubSurfaceExtension)
-        m_subSurfaceExtension = new SubSurfaceExtensionGlobal(this);
     if (m_extensions & QWaylandCompositor::TouchExtension)
         m_touchExtension = new TouchExtensionGlobal(this);
     if (m_extensions & QWaylandCompositor::QtKeyExtension)

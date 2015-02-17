@@ -43,8 +43,9 @@
 
 #include <private/qwlsurface_p.h>
 
-#include <QtCompositor/private/wayland-sub-surface-extension-server-protocol.h>
+#include <QtCompositor/private/qwayland-server-wayland.h>
 
+#include <QtCore/QObject>
 #include <QtCore/QLinkedList>
 
 QT_BEGIN_NAMESPACE
@@ -54,77 +55,35 @@ class QWaylandSurface;
 
 namespace QtWayland {
 
-class SubSurfaceExtensionGlobal
+class SubSurface : public QObject, public QtWaylandServer::wl_subsurface, public SurfaceRoleHandler<SubSurface>
 {
 public:
-    SubSurfaceExtensionGlobal(Compositor *compositor);
-
-private:
-    Compositor *m_compositor;
-
-    static void bind_func(struct wl_client *client, void *data,
-                          uint32_t version, uint32_t id);
-    static void get_sub_surface_aware_surface(struct wl_client *client,
-                                          struct wl_resource *sub_surface_extension_resource,
-                                          uint32_t id,
-                                          struct wl_resource *surface_resource);
-
-    static const struct qt_sub_surface_extension_interface sub_surface_extension_interface;
-};
-
-class SubSurface
-{
-public:
-    SubSurface(struct wl_client *client, uint32_t id, Surface *surface);
+    SubSurface(Surface *surface, Surface *parent, wl_client *client, uint32_t id, int version);
     ~SubSurface();
 
-    void setSubSurface(SubSurface *subSurface, int x, int y);
-    void removeSubSurface(SubSurface *subSurfaces);
+    static const SurfaceRole *role();
 
-    SubSurface *parent() const;
-    void setParent(SubSurface *parent);
+    void parentCommit();
 
-    QLinkedList<QWaylandSurface *> subSurfaces() const;
-
-    Surface *surface() const;
-    QWaylandSurface *waylandSurface() const;
+protected:
+    void configure(int dx, int dy) Q_DECL_OVERRIDE;
+    void subsurface_destroy_resource(Resource *resource) Q_DECL_OVERRIDE;
+    void subsurface_destroy(Resource *resource) Q_DECL_OVERRIDE;
+    void subsurface_set_position(Resource *resource, int32_t x, int32_t y) Q_DECL_OVERRIDE;
+    void subsurface_place_above(Resource *resource, ::wl_resource *sibling) Q_DECL_OVERRIDE;
+    void subsurface_place_below(Resource *resource, ::wl_resource *sibling) Q_DECL_OVERRIDE;
+    void subsurface_set_sync(Resource *resource) Q_DECL_OVERRIDE;
+    void subsurface_set_desync(Resource *resource) Q_DECL_OVERRIDE;
 
 private:
-    void parentDestroyed();
-    struct wl_resource *m_sub_surface_resource;
+    void createSubView(QWaylandSurfaceView *view);
+
     Surface *m_surface;
-
-    SubSurface *m_parent;
-    QLinkedList<QWaylandSurface *> m_sub_surfaces;
-
-    static void attach_sub_surface(struct wl_client *client,
-                                   struct wl_resource *sub_surface_parent_resource,
-                                   struct wl_resource *sub_surface_child_resource,
-                                   int32_t x,
-                                   int32_t y);
-    static void move_sub_surface(struct wl_client *client,
-                                 struct wl_resource *sub_surface_parent_resource,
-                                 struct wl_resource *sub_surface_child_resource,
-                                 int32_t x,
-                                 int32_t y);
-    static void raise(struct wl_client *client,
-                      struct wl_resource *sub_surface_parent_resource,
-                      struct wl_resource *sub_surface_child_resource);
-    static void lower(struct wl_client *client,
-                      struct wl_resource *sub_surface_parent_resource,
-                      struct wl_resource *sub_surface_child_resource);
-    static const struct qt_sub_surface_interface sub_surface_interface;
+    Surface *m_parent;
+    QPoint m_position;
+    bool m_synchronized;
+    QVector<QWaylandSurfaceView *> m_views;
 };
-
-inline Surface *SubSurface::surface() const
-{
-    return m_surface;
-}
-
-inline QWaylandSurface *SubSurface::waylandSurface() const
-{
-    return m_surface->waylandSurface();
-}
 
 }
 

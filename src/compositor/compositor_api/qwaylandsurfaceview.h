@@ -55,6 +55,8 @@ public:
     virtual void setPos(const QPointF &pos);
     virtual QPointF pos() const;
 
+    virtual void setParentView(QWaylandSurfaceView *view) { Q_UNUSED(view) }
+
 private:
     class QWaylandSurfaceViewPrivate *const d;
     friend class QWaylandSurfaceViewPrivate;

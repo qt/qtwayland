@@ -45,7 +45,6 @@
 
 #include "wayland_wrapper/qwlsurface_p.h"
 #include "wayland_wrapper/qwlextendedsurface_p.h"
-#include "wayland_wrapper/qwlsubsurface_p.h"
 #include "wayland_wrapper/qwlcompositor_p.h"
 #include "wayland_wrapper/qwlshellsurface_p.h"
 #include "wayland_wrapper/qwlinputdevice_p.h"
@@ -158,24 +157,6 @@ QWaylandClient *QWaylandSurface::client() const
     if (d->isDestroyed() || !d->compositor()->clients().contains(d->client))
         return Q_NULLPTR;
     return d->client;
-}
-
-QWaylandSurface *QWaylandSurface::parentSurface() const
-{
-    Q_D(const QWaylandSurface);
-    if (d->subSurface() && d->subSurface()->parent()) {
-        return d->subSurface()->parent()->waylandSurface();
-    }
-    return 0;
-}
-
-QLinkedList<QWaylandSurface *> QWaylandSurface::subSurfaces() const
-{
-    Q_D(const QWaylandSurface);
-    if (d->subSurface()) {
-        return d->subSurface()->subSurfaces();
-    }
-    return QLinkedList<QWaylandSurface *>();
 }
 
 void QWaylandSurface::addInterface(QWaylandSurfaceInterface *iface)

@@ -276,6 +276,21 @@ SubSurface *Surface::subSurface() const
     return m_subSurface;
 }
 
+void Surface::addSubSurface(SubSurface *ss)
+{
+    m_subsurfaces << ss;
+}
+
+void Surface::removeSubSurface(SubSurface *ss)
+{
+    for (QVector<SubSurface *>::iterator i = m_subsurfaces.begin(); i != m_subsurfaces.end(); ++i) {
+        if (*i == ss) {
+            m_subsurfaces.erase(i);
+            return;
+        }
+    }
+}
+
 void Surface::setInputPanelSurface(InputPanelSurface *inputPanelSurface)
 {
     m_inputPanelSurface = inputPanelSurface;
@@ -505,6 +520,9 @@ void Surface::surface_commit(Resource *)
     m_pending.offset = QPoint();
     m_pending.newlyAttached = false;
     m_pending.damage = QRegion();
+
+    foreach (SubSurface *ss, m_subsurfaces)
+        ss->parentCommit();
 
     if (m_buffer)
         m_buffer->setCommitted();

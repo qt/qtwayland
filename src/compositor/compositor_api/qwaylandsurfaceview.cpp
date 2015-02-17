@@ -53,6 +53,7 @@ QWaylandSurfaceView::QWaylandSurfaceView(QWaylandSurface *surf)
     if (surf) {
         surf->d_func()->views << this;
         surf->ref();
+        emit surf->viewAdded(this);
     }
 }
 
@@ -65,6 +66,7 @@ QWaylandSurfaceView::~QWaylandSurfaceView()
 
         d->surface->destroy();
         d->surface->d_func()->views.removeOne(this);
+        emit d->surface->viewRemoved(this);
     }
     delete d;
 }

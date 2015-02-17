@@ -85,7 +85,7 @@ class HardwareIntegration;
 class ClientBufferIntegration;
 class ServerBufferIntegration;
 
-class Q_COMPOSITOR_EXPORT Compositor : public QObject, public QtWaylandServer::wl_compositor
+class Q_COMPOSITOR_EXPORT Compositor : public QObject, public QtWaylandServer::wl_compositor, public QtWaylandServer::wl_subcompositor
 {
     Q_OBJECT
 
@@ -167,8 +167,11 @@ public slots:
     void cleanupGraphicsResources();
 
 protected:
-    void compositor_create_surface(Resource *resource, uint32_t id) Q_DECL_OVERRIDE;
-    void compositor_create_region(Resource *resource, uint32_t id) Q_DECL_OVERRIDE;
+    void compositor_create_surface(wl_compositor::Resource *resource, uint32_t id) Q_DECL_OVERRIDE;
+    void compositor_create_region(wl_compositor::Resource *resource, uint32_t id) Q_DECL_OVERRIDE;
+    void subcompositor_destroy(wl_subcompositor::Resource *resource) Q_DECL_OVERRIDE;
+    void subcompositor_get_subsurface(wl_subcompositor::Resource *resource, uint32_t id, wl_resource *surface, wl_resource *parent) Q_DECL_OVERRIDE;
+
 private slots:
     void processWaylandEvents();
 
@@ -215,7 +218,6 @@ protected:
     WindowManagerServerIntegration *m_windowManagerIntegration;
 
     SurfaceExtensionGlobal *m_surfaceExtension;
-    SubSurfaceExtensionGlobal *m_subSurfaceExtension;
     TouchExtensionGlobal *m_touchExtension;
     QtKeyExtensionGlobal *m_qtkeyExtension;
     QScopedPointer<TextInputManager> m_textInputManager;

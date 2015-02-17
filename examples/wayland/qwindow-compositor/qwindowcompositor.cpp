@@ -118,7 +118,7 @@ public:
 };
 
 QWindowCompositor::QWindowCompositor(CompositorWindow *window)
-    : QWaylandCompositor(0, DefaultExtensions | SubSurfaceExtension)
+    : QWaylandCompositor(0, DefaultExtensions)
     , m_window(window)
     , m_backgroundTexture(0)
     , m_textureBlitter(0)
@@ -340,9 +340,6 @@ void QWindowCompositor::render()
         foreach (QWaylandSurfaceView *view, surface->views()) {
             QRect geo(view->pos().toPoint(),surface->size());
             m_textureBlitter->drawTexture(texture,geo,m_window->size(),0,false,surface->isYInverted());
-            foreach (QWaylandSurface *child, surface->subSurfaces()) {
-                drawSubSurface(view->pos().toPoint(), child);
-            }
         }
     }
 
@@ -351,18 +348,6 @@ void QWindowCompositor::render()
 
     // N.B. Never call glFinish() here as the busylooping with vsync 'feature' of the nvidia binary driver is not desirable.
     m_window->swapBuffers();
-}
-
-void QWindowCompositor::drawSubSurface(const QPoint &offset, QWaylandSurface *surface)
-{
-    GLuint texture = static_cast<BufferAttacher *>(surface->bufferAttacher())->texture;
-    QWaylandSurfaceView *view = surface->views().first();
-    QPoint pos = view->pos().toPoint() + offset;
-    QRect geo(pos, surface->size());
-    m_textureBlitter->drawTexture(texture, geo, m_window->size(), 0, false, surface->isYInverted());
-    foreach (QWaylandSurface *child, surface->subSurfaces()) {
-        drawSubSurface(pos, child);
-    }
 }
 
 bool QWindowCompositor::eventFilter(QObject *obj, QEvent *event)

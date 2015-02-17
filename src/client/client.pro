@@ -45,7 +45,6 @@ INCLUDEPATH += $$PWD/../shared
 WAYLANDCLIENTSOURCES += \
             ../3rdparty/protocol/wayland.xml \
             ../extensions/surface-extension.xml \
-            ../extensions/sub-surface-extension.xml \
             ../extensions/touch-extension.xml \
             ../extensions/qtkey-extension.xml \
             ../extensions/windowmanager.xml \

@@ -323,6 +323,11 @@ QPointF QWaylandSurfaceItem::pos() const
     return position();
 }
 
+void QWaylandSurfaceItem::setParentView(QWaylandSurfaceView *view)
+{
+    setParentItem(static_cast<QWaylandSurfaceItem *>(view));
+}
+
 /*!
     \qmlproperty bool QtWayland::QWaylandSurfaceItem::paintEnabled
 

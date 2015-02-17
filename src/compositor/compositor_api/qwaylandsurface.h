@@ -159,8 +159,6 @@ public:
 
     QWaylandClient *client() const;
 
-    QWaylandSurface *parentSurface() const;
-    QLinkedList<QWaylandSurface *> subSurfaces() const;
     void addInterface(QWaylandSurfaceInterface *interface);
     void removeInterface(QWaylandSurfaceInterface *interface);
 
@@ -253,6 +251,9 @@ Q_SIGNALS:
     void visibilityChanged();
     void pong();
     void surfaceDestroyed();
+
+    void viewAdded(QWaylandSurfaceView *view);
+    void viewRemoved(QWaylandSurfaceView *view);
 
     void configure(bool hasBuffer);
     void redraw();

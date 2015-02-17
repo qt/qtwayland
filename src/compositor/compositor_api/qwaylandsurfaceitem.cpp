@@ -174,6 +174,10 @@ void QWaylandSurfaceItem::mouseReleaseEvent(QMouseEvent *event)
 void QWaylandSurfaceItem::hoverEnterEvent(QHoverEvent *event)
 {
     if (surface()) {
+        if (!surface()->inputRegionContains(event->pos())) {
+            event->ignore();
+            return;
+        }
         QWaylandInputDevice *inputDevice = compositor()->inputDeviceFor(event);
         inputDevice->sendMouseMoveEvent(this, event->pos());
     }
@@ -182,14 +186,10 @@ void QWaylandSurfaceItem::hoverEnterEvent(QHoverEvent *event)
 void QWaylandSurfaceItem::hoverMoveEvent(QHoverEvent *event)
 {
     if (surface()) {
-        QWaylandInputDevice *inputDevice = compositor()->inputDeviceFor(event);
-        inputDevice->sendMouseMoveEvent(this, event->pos());
-    }
-}
-
-void QWaylandSurfaceItem::hoverLeaveEvent(QHoverEvent *event)
-{
-    if (surface()) {
+        if (!surface()->inputRegionContains(event->pos())) {
+            event->ignore();
+            return;
+        }
         QWaylandInputDevice *inputDevice = compositor()->inputDeviceFor(event);
         inputDevice->sendMouseMoveEvent(this, event->pos());
     }

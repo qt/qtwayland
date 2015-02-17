@@ -383,4 +383,6 @@ void QWaylandDisplay::setLastInputDevice(QWaylandInputDevice *device, uint32_t s
     mLastInputWindow = win;
 }
 
+}
+
 QT_END_NAMESPACE

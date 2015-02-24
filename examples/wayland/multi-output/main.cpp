@@ -38,35 +38,18 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.0
-import QtWayland.Compositor 1.0
+#include <QtCore/QUrl>
+#include <QtCore/QDebug>
 
-WaylandCompositor {
-    id: compositor
+#include <QtGui/QGuiApplication>
 
-    Component {
-        id: screenComponent
-        Screen { }
-    }
+#include <QtQml/QQmlApplicationEngine>
 
-    Component {
-        id: chromeComponent
-        Chrome { }
-    }
+int main(int argc, char *argv[])
+{
+    QGuiApplication app(argc, argv);
 
-    exposeDefaultShell: true
+    QQmlApplicationEngine appEngine(QUrl("qrc:///qml/main.qml"));
 
-    Component.onCompleted: {
-        addScreen();
-    }
-
-    function addScreen() {
-        var screen = screenComponent.createObject(0, { "compositor" : compositor } );
-        var output = compositor.addOutput(screen);
-        output.automaticFrameCallbacks = true;
-    }
-
-    onSurfaceCreated: {
-       var chrome = chromeComponent.createObject(surface.primaryOutputWindow.surfacesArea, { "surface" : surface } );
-    }
+    return app.exec();
 }

@@ -41,32 +41,52 @@
 import QtQuick 2.0
 import QtWayland.Compositor 1.0
 
-WaylandCompositor {
-    id: compositor
+Item {
+    id: rootChrome
+    x: clampXPos()
+    y: clampYPos()
+    width: childrenRect.width
+    height: childrenRect.height
 
-    Component {
-        id: screenComponent
-        Screen { }
+    property alias surface: chrome.surface
+
+    WaylandSurfaceChrome {
+        id: chrome
+        automaticUseShellView: true
+        automaticDestroyOnSurfaceDestroy: false
+
+        onSurfaceDestroyed: {
+            destroyAnimation.start();
+        }
     }
 
-    Component {
-        id: chromeComponent
-        Chrome { }
+    SequentialAnimation {
+        id: destroyAnimation
+        ParallelAnimation {
+            NumberAnimation { target: scaleTransform; property: "yScale"; to: 2/height; duration: 150 }
+            NumberAnimation { target: scaleTransform; property: "xScale"; to: 0.4; duration: 150 }
+        }
+        NumberAnimation { target: scaleTransform; property: "xScale"; to: 0; duration: 150 }
+        ScriptAction { script: { rootChrome.destroy(); } }
     }
 
-    exposeDefaultShell: true
+    transform: [
+        Scale {
+            id:scaleTransform
+            origin.x: rootChrome.width / 2
+            origin.y: rootChrome.height / 2
 
-    Component.onCompleted: {
-        addScreen();
+        }
+    ]
+    function clampXPos() {
+        if (!parent)
+            return chrome.requestedXPosition;
+        return Math.max(Math.min(chrome.requestedXPosition, parent.width - 10), 0)
+    }
+    function clampYPos() {
+        if (!parent)
+            return chrome.requestedYPosition;
+        return Math.max(Math.min(chrome.requestedYPosition, parent.height - 30), 0)
     }
 
-    function addScreen() {
-        var screen = screenComponent.createObject(0, { "compositor" : compositor } );
-        var output = compositor.addOutput(screen);
-        output.automaticFrameCallbacks = true;
-    }
-
-    onSurfaceCreated: {
-       var chrome = chromeComponent.createObject(surface.primaryOutputWindow.surfacesArea, { "surface" : surface } );
-    }
 }

@@ -39,34 +39,43 @@
 ****************************************************************************/
 
 import QtQuick 2.0
+import QtQuick.Window 2.2
 import QtWayland.Compositor 1.0
 
-WaylandCompositor {
-    id: compositor
+Window {
+    id: screen
+    property alias surfacesArea: background
 
-    Component {
-        id: screenComponent
-        Screen { }
-    }
+    property QtObject compositor
 
-    Component {
-        id: chromeComponent
-        Chrome { }
-    }
+    width: 1024
+    height: 760
+    visible: true
 
-    exposeDefaultShell: true
+    WaylandMouseTracker {
+        id: mouseTracker
+        anchors.fill: parent
 
-    Component.onCompleted: {
-        addScreen();
-    }
+        enableWSCursor: true
+        Image {
+            id: background
+            anchors.fill: parent
+            fillMode: Image.Tile
+            source: "qrc:/images/background.jpg"
+            smooth: true
+        }
+        WaylandCursorItem {
+            id: cursor
+            inputEventsEnabled: false
+            x: mouseTracker.mouseX - hotspotX
+            y: mouseTracker.mouseY - hotspotY
 
-    function addScreen() {
-        var screen = screenComponent.createObject(0, { "compositor" : compositor } );
-        var output = compositor.addOutput(screen);
-        output.automaticFrameCallbacks = true;
-    }
-
-    onSurfaceCreated: {
-       var chrome = chromeComponent.createObject(surface.primaryOutputWindow.surfacesArea, { "surface" : surface } );
+            compositor: screen.compositor
+        }
+        focus: true
+        Keys.onPressed: {
+            if (event.key == Qt.Key_N && event.modifiers & Qt.ControlModifier)
+                compositor.addScreen();
+        }
     }
 }

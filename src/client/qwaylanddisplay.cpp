@@ -344,8 +344,15 @@ void QWaylandDisplay::forceRoundTrip()
     wl_proxy_set_queue((struct wl_proxy *)callback, mEventQueue);
     wl_callback_add_listener(callback, &sync_listener, &done);
     flushRequests();
-    while (!done && ret >= 0)
-        ret = wl_display_dispatch_queue(mDisplay, mEventQueue);
+    if (QThread::currentThread()->eventDispatcher()) {
+        while (!done && ret >= 0) {
+            QThread::currentThread()->eventDispatcher()->processEvents(QEventLoop::WaitForMoreEvents);
+            ret = wl_display_dispatch_queue_pending(mDisplay, mEventQueue);
+        }
+    } else {
+        while (!done && ret >= 0)
+            ret = wl_display_dispatch_queue(mDisplay, mEventQueue);
+    }
 
     if (ret == -1 && !done)
         wl_callback_destroy(callback);

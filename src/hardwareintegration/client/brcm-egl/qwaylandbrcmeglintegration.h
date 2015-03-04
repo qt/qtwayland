@@ -43,6 +43,7 @@
 #define QWAYLANDBRCMEGLINTEGRATION_H
 
 #include <QtWaylandClient/private/qwaylandclientbufferintegration_p.h>
+#include <wayland-client.h>
 
 #include <EGL/egl.h>
 #include <EGL/eglext.h>

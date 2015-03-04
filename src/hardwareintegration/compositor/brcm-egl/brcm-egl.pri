@@ -2,6 +2,8 @@ QT = compositor compositor-private core-private gui-private
 
 INCLUDEPATH += $$PWD
 
+DEFINES += QT_NO_OPENGL_ES_3
+
 !contains(QT_CONFIG, no-pkg-config) {
     CONFIG += link_pkgconfig
     PKGCONFIG += wayland-server

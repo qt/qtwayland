@@ -1,6 +1,3 @@
-PLUGIN_TYPE = waylandcompositors
-load(qt_plugin)
-
 QT = compositor compositor-private core-private gui-private
 
 INCLUDEPATH += $$PWD

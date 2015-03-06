@@ -127,9 +127,10 @@ void Output::output_bind_resource(Resource *resource)
               m_mode.size.width(), m_mode.size.height(),
               m_mode.refreshRate);
 
-    send_scale(resource->handle, m_scaleFactor);
-
-    send_done(resource->handle);
+    if (resource->version() >= 2) {
+        send_scale(resource->handle, m_scaleFactor);
+        send_done(resource->handle);
+    }
 }
 
 void Output::setManufacturer(const QString &manufacturer)
@@ -163,7 +164,8 @@ void Output::setMode(const QWaylandOutput::Mode &mode)
         send_mode(resource->handle, mode_current,
                   m_mode.size.width(), m_mode.size.height(),
                   m_mode.refreshRate * 1000);
-        send_done(resource->handle);
+        if (resource->version() >= 2)
+            send_done(resource->handle);
     }
 }
 
@@ -189,7 +191,8 @@ void Output::setGeometry(const QRect &geometry)
         send_mode(resource->handle, mode_current,
                   m_mode.size.width(), m_mode.size.height(),
                   m_mode.refreshRate * 1000);
-        send_done(resource->handle);
+        if (resource->version() >= 2)
+            send_done(resource->handle);
     }
 }
 
@@ -236,8 +239,10 @@ void Output::setScaleFactor(int scale)
     m_scaleFactor = scale;
 
     Q_FOREACH (Resource *resource, resourceMap().values()) {
-        send_scale(resource->handle, m_scaleFactor);
-        send_done(resource->handle);
+        if (resource->version() >= 2) {
+            send_scale(resource->handle, m_scaleFactor);
+            send_done(resource->handle);
+        }
     }
 }
 
@@ -254,7 +259,8 @@ void Output::sendGeometryInfo()
                       m_physicalSize.width(), m_physicalSize.height(),
                       toWlSubpixel(m_subpixel), m_manufacturer, m_model,
                       toWlTransform(m_transform));
-        send_done(resource->handle);
+        if (resource->version() >= 2)
+            send_done(resource->handle);
     }
 }
 

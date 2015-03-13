@@ -36,6 +36,7 @@
 
 #include <QtCore/QObject>
 #include <QtCore/QRect>
+#include <QtCore/QPointer>
 
 #include <QtCore/QWaitCondition>
 
@@ -157,7 +158,7 @@ public:
 
     uint32_t lastInputSerial() const { return mLastInputSerial; }
     QWaylandInputDevice *lastInputDevice() const { return mLastInputDevice; }
-    QWaylandWindow *lastInputWindow() const { return mLastInputWindow; }
+    QWaylandWindow *lastInputWindow() const;
     void setLastInputDevice(QWaylandInputDevice *device, uint32_t serial, QWaylandWindow *window);
 
 public slots:
@@ -202,7 +203,7 @@ private:
     int mCompositorVersion;
     uint32_t mLastInputSerial;
     QWaylandInputDevice *mLastInputDevice;
-    QWaylandWindow *mLastInputWindow;
+    QPointer<QWaylandWindow> mLastInputWindow;
 
     void registry_global(uint32_t id, const QString &interface, uint32_t version) Q_DECL_OVERRIDE;
     void registry_global_remove(uint32_t id) Q_DECL_OVERRIDE;

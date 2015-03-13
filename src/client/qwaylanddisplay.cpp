@@ -375,6 +375,11 @@ bool QWaylandDisplay::supportsWindowDecoration() const
     return integrationSupport;
 }
 
+QWaylandWindow *QWaylandDisplay::lastInputWindow() const
+{
+    return mLastInputWindow.data();
+}
+
 void QWaylandDisplay::setLastInputDevice(QWaylandInputDevice *device, uint32_t serial, QWaylandWindow *win)
 {
     mLastInputDevice = device;

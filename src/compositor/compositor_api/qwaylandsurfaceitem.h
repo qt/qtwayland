@@ -94,7 +94,6 @@ protected:
     void mouseReleaseEvent(QMouseEvent *event);
     void hoverEnterEvent(QHoverEvent *event);
     void hoverMoveEvent(QHoverEvent *event);
-    void hoverLeaveEvent(QHoverEvent *event);
     void wheelEvent(QWheelEvent *event);
 
     void keyPressEvent(QKeyEvent *event);

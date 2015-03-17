@@ -10,6 +10,9 @@ MODULE_PLUGIN_TYPES = \
 
 load(qt_module)
 
+# We have a bunch of C code with casts, so we can't have this option
+QMAKE_CXXFLAGS_WARN_ON -= -Wcast-qual
+
 CONFIG -= precompile_header
 CONFIG -= create_cmake
 CONFIG += link_pkgconfig qpa/genericunixfontdatabase wayland-scanner

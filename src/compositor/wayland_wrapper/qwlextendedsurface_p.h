@@ -80,7 +80,7 @@ public:
 
     void sendGenericProperty(const QString &name, const QVariant &variant);
 
-    void setVisibility(QWindow::Visibility visibility, bool updateClient = true);
+    void setVisibility(QWindow::Visibility visibility);
 
     void setSubSurface(ExtendedSurface *subSurface,int x, int y);
     void removeSubSurface(ExtendedSurface *subSurfaces);

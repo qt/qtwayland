@@ -85,11 +85,10 @@ void ExtendedSurface::sendGenericProperty(const QString &name, const QVariant &v
 
 }
 
-void ExtendedSurface::setVisibility(QWindow::Visibility visibility, bool updateClient)
+void ExtendedSurface::setVisibility(QWindow::Visibility visibility)
 {
     // If this change came from the client, we shouldn't update it
-    if (updateClient)
-        send_onscreen_visibility(visibility);
+    send_onscreen_visibility(visibility);
 }
 
 void ExtendedSurface::setParentSurface(Surface *surface)

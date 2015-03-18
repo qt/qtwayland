@@ -136,6 +136,7 @@ public:
     void frameStarted();
 
     void setMapped(bool mapped);
+    void setVisibility(QWindow::Visibility visibility) { m_visibility = visibility; }
 
     inline bool isDestroyed() const { return m_destroyed; }
 

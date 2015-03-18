@@ -33,7 +33,7 @@
 
 #include "testcompositor.h"
 
-TestCompositor::TestCompositor(QWaylandCompositor::ExtensionFlag flags) : QWaylandCompositor(0, 0, flags)
+TestCompositor::TestCompositor(QWaylandCompositor::ExtensionFlag flags) : QWaylandCompositor(0, flags)
 {
     addDefaultShell();
 }

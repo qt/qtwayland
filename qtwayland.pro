@@ -1,3 +1,5 @@
+requires(linux:!android)
+
 load(configure)
 qtCompileTest(wayland)
 qtCompileTest(xkbcommon)

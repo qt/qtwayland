@@ -251,6 +251,9 @@ void tst_WaylandCompositor::frameCallback()
         {
             bufferRef = ref;
         }
+        void unmap() Q_DECL_OVERRIDE
+        {
+        }
 
         QImage image() const
         {

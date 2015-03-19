@@ -200,7 +200,7 @@ bool Surface::isYInverted() const
 
 bool Surface::mapped() const
 {
-    return m_buffer ? bool(m_buffer->waylandBufferHandle()) : false;
+    return !m_unmapLocks.isEmpty() || (m_buffer && bool(m_buffer->waylandBufferHandle()));
 }
 
 QSize Surface::size() const
@@ -366,7 +366,8 @@ void Surface::setBackBuffer(SurfaceBuffer *buffer)
 
     if (m_buffer) {
         bool valid = m_buffer->waylandBufferHandle() != 0;
-        setSize(valid ? m_buffer->size() : QSize());
+        if (valid)
+            setSize(m_buffer->size());
 
         m_damage = m_damage.intersected(QRect(QPoint(), m_size));
         emit m_waylandSurface->damaged(m_damage);
@@ -384,6 +385,20 @@ void Surface::setMapped(bool mapped)
     } else if (!mapped && m_surfaceMapped) {
         m_surfaceMapped = false;
         emit m_waylandSurface->unmapped();
+    }
+}
+
+void Surface::addUnmapLock(QWaylandUnmapLock *l)
+{
+    m_unmapLocks << l;
+}
+
+void Surface::removeUnmapLock(QWaylandUnmapLock *l)
+{
+    m_unmapLocks.removeOne(l);
+    if (!mapped() && m_attacher) {
+        setSize(QSize());
+        m_attacher->unmap();
     }
 }
 
@@ -473,8 +488,14 @@ void Surface::surface_commit(Resource *)
         setBackBuffer(m_pending.buffer);
         m_bufferRef = QWaylandBufferRef(m_buffer);
 
-        if (m_attacher)
-            m_attacher->attach(m_bufferRef);
+        if (m_attacher) {
+            if (m_bufferRef) {
+                m_attacher->attach(m_bufferRef);
+            } else if (!mapped()) {
+                setSize(QSize());
+                m_attacher->unmap();
+            }
+        }
         emit m_waylandSurface->configure(m_bufferRef);
         if (m_roleHandler)
             m_roleHandler->configure(m_pending.offset.x(), m_pending.offset.y());

@@ -98,6 +98,13 @@ public:
         }
     }
 
+    void unmap()
+    {
+        delete shmTex;
+        shmTex = 0;
+        bufferRef = QWaylandBufferRef();
+    }
+
     QImage image() const
     {
         if (!bufferRef || !bufferRef.isShm())

@@ -77,6 +77,7 @@ public:
 
 protected:
     virtual void attach(const QWaylandBufferRef &ref) = 0;
+    virtual void unmap() = 0;
 
     friend class QtWayland::Surface;
 };
@@ -259,6 +260,17 @@ Q_SIGNALS:
     friend class QWaylandSurfaceView;
     friend class QWaylandSurfaceInterface;
     friend class QtWayland::Surface;
+};
+
+class QWaylandUnmapLockPrivate;
+class Q_COMPOSITOR_EXPORT QWaylandUnmapLock
+{
+public:
+    QWaylandUnmapLock(QWaylandSurface *surface);
+    ~QWaylandUnmapLock();
+
+private:
+    QWaylandUnmapLockPrivate *const d;
 };
 
 QT_END_NAMESPACE

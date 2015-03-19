@@ -65,7 +65,8 @@ public:
 #ifdef QT_COMPOSITOR_WAYLAND_GL
     /**
      * There must be a GL context bound when calling this function.
-     * It is responsibility of the caller to call destroyTexture() later.
+     * The texture will be automatically destroyed when the last QWaylandBufferRef
+     * referring to the same underlying buffer will be destroyed or reset.
      */
     GLuint createTexture();
     void destroyTexture();

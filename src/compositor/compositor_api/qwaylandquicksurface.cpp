@@ -73,19 +73,12 @@ public:
 
     void createTexture()
     {
-        if (bufferRef)
-            bufferRef.destroyTexture();
         bufferRef = nextBuffer;
+        delete texture;
+        texture = 0;
 
         QQuickWindow *window = static_cast<QQuickWindow *>(surface->mainOutput()->window());
-
-        // If the next buffer is NULL do not delete the current texture. If the client called
-        // attach(0) the surface is going to be unmapped anyway, if instead the client attached
-        // a valid buffer but died before we got here we want to keep the old buffer around
-        // in case some destroy animation is run.
-        if (bufferRef) {
-            delete texture;
-
+        if (nextBuffer) {
             if (bufferRef.isShm()) {
                 texture = window->createTextureFromImage(bufferRef.image());
             } else {
@@ -99,6 +92,12 @@ public:
         }
 
         update = false;
+    }
+
+    void unmap() Q_DECL_OVERRIDE
+    {
+        nextBuffer = QWaylandBufferRef();
+        update = true;
     }
 
     void invalidateTexture()
@@ -141,9 +140,6 @@ public:
 
     void surface_commit(Resource *resource) Q_DECL_OVERRIDE
     {
-        if (m_pending.newlyAttached) {
-            buffer->update = true;
-        }
         QWaylandSurfacePrivate::surface_commit(resource);
 
         Q_FOREACH (QtWayland::Output *output, outputs())

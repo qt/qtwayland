@@ -358,6 +358,8 @@ bool QWindowCompositor::eventFilter(QObject *obj, QEvent *event)
     QWaylandInputDevice *input = defaultInputDevice();
 
     switch (event->type()) {
+    case QEvent::FocusOut:
+        m_dragKeyIsPressed = false;
     case QEvent::Expose:
         m_renderScheduler.start(0);
         if (m_window->isExposed()) {

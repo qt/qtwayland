@@ -83,11 +83,10 @@ public:
 
     void updatePosition(const QPointF &position)
     {
-        Q_ASSERT(m_view || position.isNull());
         m_point = position;
         //we adjust if the mouse position is on the edge
         //to work around Qt's event propogation
-        if (position.isNull())
+        if (!m_view || position.isNull())
             return;
         if (m_view->surface()) {
             QSizeF size(m_view->surface()->size());

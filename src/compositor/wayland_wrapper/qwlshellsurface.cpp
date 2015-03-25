@@ -96,6 +96,7 @@ ShellSurface::ShellSurface(Shell *shell, wl_client *client, uint32_t id, Surface
     , m_popupSerial()
 {
     m_view = surface->compositor()->waylandCompositor()->createSurfaceView(surface->waylandSurface());
+    m_view->setOutput(surface->waylandSurface()->primaryOutput());
     connect(surface->waylandSurface(), &QWaylandSurface::configure, this, &ShellSurface::configure);
     connect(surface->waylandSurface(), &QWaylandSurface::mapped, this, &ShellSurface::mapped);
     connect(surface->waylandSurface(), &QWaylandSurface::offsetForNextFrame, this, &ShellSurface::adjustOffset);

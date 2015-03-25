@@ -63,6 +63,7 @@ public:
     QWindowCompositor(CompositorWindow *window);
     ~QWindowCompositor();
 
+    void create() Q_DECL_OVERRIDE;
 private slots:
     void surfaceDestroyed();
     void surfaceMapped();

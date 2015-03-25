@@ -105,32 +105,37 @@ QWindowCompositor::QWindowCompositor(CompositorWindow *window)
     , m_modifiers(Qt::NoModifier)
 {
     setExtensionFlags(DefaultExtensions | SubSurfaceExtension);
-    create();
 
     m_window->makeCurrent();
 
     m_textureBlitter = new TextureBlitter();
     m_backgroundImage = makeBackgroundImage(QLatin1String(":/background.jpg"));
-    m_renderScheduler.setSingleShot(true);
-    connect(&m_renderScheduler,SIGNAL(timeout()),this,SLOT(render()));
-    connect(this, &QWaylandCompositor::surfaceCreated, this, &QWindowCompositor::onSurfaceCreated);
-    connect(this, &QWaylandCompositor::currentCurserSurfaceRequest, this, &QWindowCompositor::adjustCursorSurface);
 
     QOpenGLFunctions *functions = m_window->context()->functions();
     functions->glGenFramebuffers(1, &m_surface_fbo);
-
-    window->installEventFilter(this);
-
-    setRetainedSelectionEnabled(true);
-
-    primaryOutputSpace()->addOutputWindow(window, "", "");
-
-    addDefaultShell();
 }
 
 QWindowCompositor::~QWindowCompositor()
 {
     delete m_textureBlitter;
+}
+
+void QWindowCompositor::create()
+{
+    QWaylandCompositor::create();
+
+    primaryOutputSpace()->addOutputWindow(window, "", "");
+
+    m_renderScheduler.setSingleShot(true);
+    connect(&m_renderScheduler,SIGNAL(timeout()),this,SLOT(render()));
+    connect(this, &QWaylandCompositor::surfaceCreated, this, &QWindowCompositor::onSurfaceCreated);
+    connect(this, &QWaylandCompositor::currentCurserSurfaceRequest, this, &QWindowCompositor::adjustCursorSurface);
+
+    m_window->installEventFilter(this);
+
+    setRetainedSelectionEnabled(true);
+
+    addDefaultShell();
 }
 
 QImage QWindowCompositor::makeBackgroundImage(const QString &fileName)

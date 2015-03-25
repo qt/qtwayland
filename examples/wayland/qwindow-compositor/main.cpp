@@ -67,6 +67,7 @@ int main(int argc, char *argv[])
 
     CompositorWindow window(format, geom);
     QWindowCompositor compositor(&window);
+    compositor.create();
 
     window.show();
 

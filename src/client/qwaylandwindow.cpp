@@ -619,7 +619,8 @@ bool QWaylandWindow::touchDragDecoration(QWaylandInputDevice *inputDevice, const
 
 void QWaylandWindow::handleMouseEventWithDecoration(QWaylandInputDevice *inputDevice, ulong timestamp, const QPointF &local, const QPointF &global, Qt::MouseButtons b, Qt::KeyboardModifiers mods)
 {
-    if (mWindowDecoration->handleMouse(inputDevice,local,global,b,mods))
+    if (mMousePressedInContentArea == Qt::NoButton &&
+        mWindowDecoration->handleMouse(inputDevice,local,global,b,mods))
         return;
 
     QMargins marg = frameMargins();

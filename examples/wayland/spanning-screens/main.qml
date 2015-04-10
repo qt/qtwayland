@@ -47,6 +47,7 @@ WaylandCompositor {
 
     WaylandOutput {
         compositor: wlcompositor
+        sizeFollowsWindow: true
         window: Window {
             id: topSurfaceArea
             width: 1024
@@ -59,6 +60,7 @@ WaylandCompositor {
 
     WaylandOutput {
         compositor: wlcompositor
+        sizeFollowsWindow: true
         window: Window {
             id: bottomSurfaceArea
             width: 1024

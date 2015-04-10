@@ -67,8 +67,11 @@ Compositor::~Compositor()
 
 void Compositor::create()
 {
-    new QWaylandOutput(this, m_window);
+    QWaylandOutput *output = new QWaylandOutput(this, m_window);
+    QWaylandOutputMode mode(QSize(800, 600), 60000);
+    output->addMode(mode, true);
     QWaylandCompositor::create();
+    output->setCurrentMode(mode);
 
     connect(this, &QWaylandCompositor::surfaceCreated, this, &Compositor::onSurfaceCreated);
 }

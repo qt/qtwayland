@@ -47,6 +47,7 @@ WaylandCompositor {
     // The output defines the screen.
     WaylandOutput {
         compositor: wlcompositor
+        sizeFollowsWindow: true
         window: Window {
             width: 1024
             height: 768

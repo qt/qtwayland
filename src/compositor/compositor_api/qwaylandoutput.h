@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2014-2015 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
+** Copyright (C) 2014-2016 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
 ** Copyright (C) 2013 Klarälvdalens Datakonsult AB (KDAB).
 ** Contact: http://www.qt.io/licensing/
 **
@@ -39,6 +39,7 @@
 #define QWAYLANDOUTPUT_H
 
 #include <QtWaylandCompositor/qwaylandcompositorextension.h>
+#include <QtWaylandCompositor/QWaylandOutputMode>
 #include <QtCore/QObject>
 
 #include <QObject>
@@ -66,7 +67,6 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandOutput : public QWaylandObject
     Q_PROPERTY(QString manufacturer READ manufacturer WRITE setManufacturer NOTIFY manufacturerChanged)
     Q_PROPERTY(QString model READ model WRITE setModel NOTIFY modelChanged)
     Q_PROPERTY(QPoint position READ position WRITE setPosition NOTIFY positionChanged)
-    Q_PROPERTY(QWaylandOutput::Mode mode READ mode WRITE setMode NOTIFY modeChanged)
     Q_PROPERTY(QRect geometry READ geometry NOTIFY geometryChanged)
     Q_PROPERTY(QRect availableGeometry READ availableGeometry WRITE setAvailableGeometry NOTIFY availableGeometryChanged)
     Q_PROPERTY(QSize physicalSize READ physicalSize WRITE setPhysicalSize NOTIFY physicalSizeChanged)
@@ -99,12 +99,6 @@ public:
     };
     Q_ENUM(Transform)
 
-    struct Mode
-    {
-        QSize size;
-        qreal refreshRate;
-    };
-
     QWaylandOutput();
     QWaylandOutput(QWaylandCompositor *compositor, QWindow *window);
     ~QWaylandOutput();
@@ -127,13 +121,14 @@ public:
     QPoint position() const;
     void setPosition(const QPoint &pt);
 
-    Mode mode() const;
-    void setMode(const Mode &mode);
+    QList<QWaylandOutputMode> modes() const;
+
+    void addMode(const QWaylandOutputMode &mode, bool preferred = false);
+
+    QWaylandOutputMode currentMode() const;
+    void setCurrentMode(const QWaylandOutputMode &mode);
 
     QRect geometry() const;
-    void setGeometry(const QRect &geometry);
-    void setWidth(int newWidth);
-    void setHeight(int newHeight);
 
     QRect availableGeometry() const;
     void setAvailableGeometry(const QRect &availableGeometry);
@@ -169,7 +164,8 @@ Q_SIGNALS:
     void windowChanged();
     void positionChanged();
     void geometryChanged();
-    void modeChanged();
+    void modeAdded();
+    void currentModeChanged();
     void availableGeometryChanged();
     void physicalSizeChanged();
     void scaleFactorChanged();
@@ -182,6 +178,8 @@ Q_SIGNALS:
     void windowDestroyed();
 
 private Q_SLOTS:
+    void handleSetWidth(int newWidth);
+    void handleSetHeight(int newHeight);
     void handleWindowDestroyed();
 
 protected:
@@ -191,7 +189,5 @@ protected:
 };
 
 QT_END_NAMESPACE
-
-Q_DECLARE_METATYPE(QWaylandOutput::Mode)
 
 #endif // QWAYLANDOUTPUT_H

@@ -52,6 +52,7 @@ MockClient::MockClient()
     , wlshell(0)
     , xdgShell(nullptr)
     , iviApplication(nullptr)
+    , refreshRate(-1)
     , error(0 /* means no error according to spec */)
     , protocolError({0, 0, nullptr})
 {
@@ -102,10 +103,22 @@ void MockClient::outputGeometryEvent(void *data, wl_output *,
     resolve(data)->geometry.moveTopLeft(QPoint(x, y));
 }
 
-void MockClient::outputModeEvent(void *data, wl_output *, uint32_t,
-                                 int w, int h, int)
+void MockClient::outputModeEvent(void *data, wl_output *, uint32_t flags,
+                                 int w, int h, int refreshRate)
 {
-    resolve(data)->geometry.setSize(QSize(w, h));
+    QWaylandOutputMode mode(QSize(w, h), refreshRate);
+
+    if (flags & WL_OUTPUT_MODE_CURRENT) {
+        resolve(data)->geometry.setSize(QSize(w, h));
+        resolve(data)->resolution = QSize(w, h);
+        resolve(data)->refreshRate = refreshRate;
+        resolve(data)->currentMode = mode;
+    }
+
+    if (flags & WL_OUTPUT_MODE_PREFERRED)
+        resolve(data)->preferredMode = mode;
+
+    resolve(data)->modes.append(mode);
 }
 
 void MockClient::outputDone(void *, wl_output *)

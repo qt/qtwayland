@@ -45,6 +45,7 @@ import QtWayland.Compositor 1.0
 WaylandOutput {
     id: output
     property alias surfaceArea: background
+    sizeFollowsWindow: true
     window: Window {
         id: screen
 

@@ -35,6 +35,7 @@
 #include "qwaylandbufferref.h"
 #include "qwaylandseat.h"
 
+#include <QtGui/QScreen>
 #include <QtWaylandCompositor/QWaylandXdgShellV5>
 #include <QtWaylandCompositor/QWaylandIviApplication>
 #include <QtWaylandCompositor/QWaylandIviSurface>
@@ -58,6 +59,8 @@ private slots:
     void singleClient();
     void multipleClients();
     void geometry();
+    void modes();
+    void sizeFollowsWindow();
     void mapSurface();
     void frameCallback();
 
@@ -202,12 +205,61 @@ void tst_WaylandCompositor::geometry()
     TestCompositor compositor;
     compositor.create();
 
-    QRect geometry(0, 0, 4096, 3072);
-    compositor.defaultOutput()->setGeometry(geometry);
+    QWaylandOutputMode mode(QSize(4096, 3072), 60000);
+    compositor.defaultOutput()->setPosition(QPoint(1024, 0));
+    compositor.defaultOutput()->addMode(mode, true);
+    compositor.defaultOutput()->setCurrentMode(mode);
 
     MockClient client;
 
-    QTRY_COMPARE(client.geometry, geometry);
+    QTRY_COMPARE(client.geometry, QRect(QPoint(1024, 0), QSize(4096, 3072)));
+    QTRY_COMPARE(client.resolution, QSize(4096, 3072));
+    QTRY_COMPARE(client.refreshRate, 60000);
+}
+
+void tst_WaylandCompositor::modes()
+{
+    TestCompositor compositor;
+    compositor.create();
+
+    // mode3 is current, mode4 is preferred
+    QWaylandOutputMode mode1(QSize(800, 600), 120000);
+    QWaylandOutputMode mode2(QSize(1024, 768), 100000);
+    QWaylandOutputMode mode3(QSize(1920, 1080), 60000);
+    QWaylandOutputMode mode4(QSize(2560, 1440), 59000);
+    compositor.defaultOutput()->addMode(mode1);
+    compositor.defaultOutput()->addMode(mode2, true);
+    compositor.defaultOutput()->addMode(mode3);
+    compositor.defaultOutput()->addMode(mode4, true);
+    compositor.defaultOutput()->setCurrentMode(mode3);
+
+    MockClient client;
+
+    QTRY_COMPARE(client.modes.size(), 4);
+    QTRY_COMPARE(client.currentMode, mode3);
+    QTRY_COMPARE(client.preferredMode, mode4);
+    QTRY_COMPARE(client.geometry, QRect(QPoint(0, 0), QSize(1920, 1080)));
+}
+
+void tst_WaylandCompositor::sizeFollowsWindow()
+{
+    TestCompositor compositor;
+
+    QWindow window;
+    window.resize(800, 600);
+
+    auto output = new QWaylandOutput(&compositor, &window);
+    output->setSizeFollowsWindow(true);
+
+    compositor.create();
+
+    QWaylandOutputMode mode(window.size(), qFloor(window.screen()->refreshRate() * 1000));
+
+    MockClient client;
+
+    QTRY_COMPARE(client.modes.size(), 1);
+    QTRY_COMPARE(client.currentMode, mode);
+    QTRY_COMPARE(client.preferredMode, mode);
 }
 
 void tst_WaylandCompositor::mapSurface()

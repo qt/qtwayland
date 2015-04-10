@@ -17,6 +17,8 @@ HEADERS += \
     compositor_api/qwaylandtouch.h \
     compositor_api/qwaylandtouch_p.h \
     compositor_api/qwaylandoutput.h \
+    compositor_api/qwaylandoutputmode.h \
+    compositor_api/qwaylandoutputmode_p.h \
     compositor_api/qwaylanddrag.h \
     compositor_api/qwaylandbufferref.h \
     compositor_api/qwaylanddestroylistener.h \
@@ -26,7 +28,8 @@ HEADERS += \
     compositor_api/qwaylandresource.h \
     compositor_api/qwaylandsurfacegrabber.h \
     compositor_api/qwaylandinputmethodcontrol.h \
-    compositor_api/qwaylandinputmethodcontrol_p.h
+    compositor_api/qwaylandinputmethodcontrol_p.h \
+    compositor_api/qwaylandoutputmode_p.h
 
 SOURCES += \
     compositor_api/qwaylandcompositor.cpp \
@@ -38,6 +41,7 @@ SOURCES += \
     compositor_api/qwaylandpointer.cpp \
     compositor_api/qwaylandtouch.cpp \
     compositor_api/qwaylandoutput.cpp \
+    compositor_api/qwaylandoutputmode.cpp \
     compositor_api/qwaylanddrag.cpp \
     compositor_api/qwaylandbufferref.cpp \
     compositor_api/qwaylanddestroylistener.cpp \

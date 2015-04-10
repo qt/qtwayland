@@ -34,6 +34,7 @@
 #include <QImage>
 #include <QRect>
 #include <QList>
+#include <QWaylandOutputMode>
 
 class MockSeat;
 
@@ -73,6 +74,11 @@ public:
     QList<MockSeat *> m_seats;
 
     QRect geometry;
+    QSize resolution;
+    int refreshRate;
+    QWaylandOutputMode currentMode;
+    QWaylandOutputMode preferredMode;
+    QList<QWaylandOutputMode> modes;
 
     int fd;
     int error;
@@ -106,7 +112,7 @@ private:
                                 uint32_t flags,
                                 int width,
                                 int height,
-                                int refresh);
+                                int refreshRate);
     static void outputDone(void *data, wl_output *output);
     static void outputScale(void *data, wl_output *output, int factor);
 

@@ -35,6 +35,7 @@
 #define QWAYLANDSHELLSURFACE_H
 
 #include <QtCore/QSize>
+#include <QObject>
 
 #include <wayland-client.h>
 
@@ -51,8 +52,9 @@ namespace QtWaylandClient {
 class QWaylandWindow;
 class QWaylandInputDevice;
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandShellSurface
+class Q_WAYLAND_CLIENT_EXPORT QWaylandShellSurface : public QObject
 {
+    Q_OBJECT
 public:
     explicit QWaylandShellSurface(QWaylandWindow *window);
     virtual ~QWaylandShellSurface() {}

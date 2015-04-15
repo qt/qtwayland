@@ -105,7 +105,7 @@ void QWaylandCompositor::sendFrameCallbacks(QList<QWaylandSurface *> visibleSurf
 
 void QWaylandCompositor::frameStarted()
 {
-    for (QtWayland::Surface *surf: m_compositor->surfaces())
+    foreach (QtWayland::Surface *surf, m_compositor->surfaces())
         surf->frameStarted();
 }
 

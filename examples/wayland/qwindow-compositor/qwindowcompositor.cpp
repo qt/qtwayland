@@ -90,6 +90,7 @@ public:
         if (bufferRef) {
             if (bufferRef.isShm()) {
                 shmTex = new QOpenGLTexture(bufferRef.image(), QOpenGLTexture::DontGenerateMipMaps);
+                shmTex->setWrapMode(QOpenGLTexture::ClampToEdge);
                 texture = shmTex->textureId();
             } else {
                 texture = bufferRef.createTexture();

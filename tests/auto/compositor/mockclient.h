@@ -101,6 +101,7 @@ private:
                                 int height,
                                 int refresh);
     static void outputDone(void *data, wl_output *output);
+    static void outputScale(void *data, wl_output *output, int factor);
 
     void handleGlobal(uint32_t id, const QByteArray &interface);
 

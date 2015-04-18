@@ -83,7 +83,8 @@ MockClient::MockClient()
 const wl_output_listener MockClient::outputListener = {
     MockClient::outputGeometryEvent,
     MockClient::outputModeEvent,
-    MockClient::outputDone
+    MockClient::outputDone,
+    MockClient::outputScale
 };
 
 MockClient::~MockClient()
@@ -107,6 +108,11 @@ void MockClient::outputModeEvent(void *data, wl_output *, uint32_t,
 }
 
 void MockClient::outputDone(void *, wl_output *)
+{
+
+}
+
+void MockClient::outputScale(void *, wl_output *, int)
 {
 
 }
@@ -185,7 +191,7 @@ ShmBuffer::ShmBuffer(const QSize &size, wl_shm *shm)
         return;
     }
 
-    image = QImage(static_cast<uchar *>(data), size.width(), size.height(), stride, QImage::Format_ARGB32_Premultiplied);
+    image = QImage(static_cast<uchar *>(data), size.width(), size.height(), stride, QImage::Format_ARGB32);
     shm_pool = wl_shm_create_pool(shm,fd,alloc);
     handle = wl_shm_pool_create_buffer(shm_pool,0, size.width(), size.height(),
                                    stride, WL_SHM_FORMAT_ARGB8888);

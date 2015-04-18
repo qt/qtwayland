@@ -100,7 +100,6 @@ public:
 
 signals:
     void windowAdded(QVariant window);
-    void windowDestroyed(QVariant window);
     void windowResized(QVariant window);
     void serverBufferItemCreated(QVariant);
     void serverBuffersCreated();
@@ -116,16 +115,6 @@ private slots:
     void surfaceMapped() {
         QWaylandSurface *surface = qobject_cast<QWaylandSurface *>(sender());
         emit windowAdded(QVariant::fromValue(surface));
-    }
-
-    void surfaceUnmapped() {
-        QWaylandSurface *surface = qobject_cast<QWaylandSurface *>(sender());
-        emit windowDestroyed(QVariant::fromValue(surface));
-    }
-
-    void surfaceDestroyed(QObject *object) {
-        QWaylandSurface *surface = static_cast<QWaylandSurface *>(object);
-        emit windowDestroyed(QVariant::fromValue(surface));
     }
 
     void sendCallbacks() {
@@ -216,7 +205,6 @@ protected:
 
     void surfaceCreated(QWaylandSurface *surface) {
         connect(surface, SIGNAL(mapped()), this, SLOT(surfaceMapped()));
-        connect(surface,SIGNAL(unmapped()), this,SLOT(surfaceUnmapped()));
     }
 
     void share_buffer_bind_resource(Resource *resource) Q_DECL_OVERRIDE

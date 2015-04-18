@@ -48,7 +48,10 @@ namespace QtWaylandClient {
 
 class Q_WAYLAND_CLIENT_EXPORT QWaylandBuffer {
 public:
-    QWaylandBuffer() { }
+    QWaylandBuffer()
+        : mBuffer(0)
+    {
+    }
     virtual ~QWaylandBuffer() { }
     wl_buffer *buffer() {return mBuffer;}
     virtual QSize size() const = 0;

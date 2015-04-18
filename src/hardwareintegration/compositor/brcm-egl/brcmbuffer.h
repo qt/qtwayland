@@ -64,7 +64,7 @@ public:
 
     QSize size() { return m_size; }
 
-    static BrcmBuffer *fromResource(struct ::wl_resource *resource) { return static_cast<BrcmBuffer*>(Resource::fromResource(resource)->buffer); }
+    static BrcmBuffer *fromResource(struct ::wl_resource *resource) { return static_cast<BrcmBuffer*>(Resource::fromResource(resource)->buffer_object); }
 
 protected:
     void buffer_destroy_resource(Resource *resource) Q_DECL_OVERRIDE;

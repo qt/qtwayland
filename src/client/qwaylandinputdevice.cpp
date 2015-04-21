@@ -759,7 +759,6 @@ void QWaylandInputDevice::Keyboard::keyboard_key(uint32_t serial, uint32_t time,
     }
 
     const xkb_keysym_t sym = xkb_state_key_get_one_sym(mXkbState, code);
-    xkb_state_update_key(mXkbState, code, isDown ? XKB_KEY_DOWN : XKB_KEY_UP);
 
     Qt::KeyboardModifiers modifiers = mParent->modifiers();
 

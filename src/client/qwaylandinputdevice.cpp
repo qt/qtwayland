@@ -297,15 +297,13 @@ Qt::KeyboardModifiers QWaylandInputDevice::Keyboard::modifiers() const
 #ifndef QT_NO_WAYLAND_XKB
     xkb_state_component cstate = static_cast<xkb_state_component>(XKB_STATE_DEPRESSED | XKB_STATE_LATCHED);
 
-    if (xkb_state_mod_name_is_active(mXkbState, "Shift", cstate))
+    if (xkb_state_mod_name_is_active(mXkbState, XKB_MOD_NAME_SHIFT, cstate))
         ret |= Qt::ShiftModifier;
-    if (xkb_state_mod_name_is_active(mXkbState, "Control", cstate))
+    if (xkb_state_mod_name_is_active(mXkbState, XKB_MOD_NAME_CTRL, cstate))
         ret |= Qt::ControlModifier;
-    if (xkb_state_mod_name_is_active(mXkbState, "Alt", cstate))
+    if (xkb_state_mod_name_is_active(mXkbState, XKB_MOD_NAME_ALT, cstate))
         ret |= Qt::AltModifier;
-    if (xkb_state_mod_name_is_active(mXkbState, "Mod1", cstate))
-        ret |= Qt::AltModifier;
-    if (xkb_state_mod_name_is_active(mXkbState, "Mod4", cstate))
+    if (xkb_state_mod_name_is_active(mXkbState, XKB_MOD_NAME_LOGO, cstate))
         ret |= Qt::MetaModifier;
 #endif
 

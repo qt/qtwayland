@@ -223,12 +223,9 @@ void Keyboard::key(uint32_t serial, uint32_t time, uint32_t key, uint32_t state)
     }
 }
 
-void Keyboard::sendKeyEvent(uint code, uint32_t state)
+void Keyboard::keyEvent(uint code, uint32_t state)
 {
-    uint32_t time = m_compositor->currentTimeMsecs();
-    uint32_t serial = wl_display_next_serial(m_compositor->wl_display());
     uint key = code - 8;
-    m_grab->key(serial, time, key, state);
     if (state == WL_KEYBOARD_KEY_STATE_PRESSED) {
         m_keys << key;
     } else {
@@ -238,11 +235,14 @@ void Keyboard::sendKeyEvent(uint code, uint32_t state)
             }
         }
     }
-    updateModifierState(code, state);
+}
 
-    // If keys are no longer pressed, update the keymap
-    if (m_pendingKeymap && m_keys.isEmpty())
-        updateKeymap();
+void Keyboard::sendKeyEvent(uint code, uint32_t state)
+{
+    uint32_t time = m_compositor->currentTimeMsecs();
+    uint32_t serial = wl_display_next_serial(m_compositor->wl_display());
+    uint key = code - 8;
+    m_grab->key(serial, time, key, state);
 }
 
 void Keyboard::modifiers(uint32_t serial, uint32_t mods_depressed,
@@ -286,6 +286,11 @@ void Keyboard::updateModifierState(uint code, uint32_t state)
 
 void Keyboard::updateKeymap()
 {
+    // There must be no keys pressed when changing the keymap,
+    // see http://lists.freedesktop.org/archives/wayland-devel/2013-October/011395.html
+    if (!m_pendingKeymap || !m_keys.isEmpty())
+        return;
+
     m_pendingKeymap = false;
 #ifndef QT_NO_WAYLAND_XKB
     if (!m_context)

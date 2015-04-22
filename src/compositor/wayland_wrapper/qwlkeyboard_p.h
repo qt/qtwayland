@@ -99,10 +99,18 @@ public:
     void modifiers(uint32_t serial, uint32_t mods_depressed,
                 uint32_t mods_latched, uint32_t mods_locked, uint32_t group);
 
+    void keyEvent(uint code, uint32_t state);
+    void updateModifierState(uint code, uint32_t state);
+    void updateKeymap();
+
    void startGrab(KeyboardGrabber *grab);
    void endGrab();
    KeyboardGrabber *currentGrab() const;
 
+#ifndef QT_NO_WAYLAND_XKB
+    struct xkb_state *xkbState() const { return m_state; }
+    uint32_t xkbModsMask() const { return m_modsDepressed | m_modsLatched | m_modsLocked; }
+#endif
 
 Q_SIGNALS:
     void focusChanged(Surface *surface);
@@ -114,8 +122,6 @@ protected:
 
 private:
     void sendKeyEvent(uint code, uint32_t state);
-    void updateModifierState(uint code, uint32_t state);
-    void updateKeymap();
     void focusDestroyed(void *data);
 
 #ifndef QT_NO_WAYLAND_XKB

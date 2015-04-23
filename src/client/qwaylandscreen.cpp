@@ -60,7 +60,7 @@ QWaylandScreen::QWaylandScreen(QWaylandDisplay *waylandDisplay, int version, uin
     , mFormat(QImage::Format_ARGB32_Premultiplied)
     , mOutputName(QStringLiteral("Screen%1").arg(id))
     , m_orientation(Qt::PrimaryOrientation)
-    , mWaylandCursor(new QWaylandCursor(this))
+    , mWaylandCursor(0)
 {
     // handle case of output extension global being sent after outputs
     createExtendedOutput();
@@ -69,6 +69,11 @@ QWaylandScreen::QWaylandScreen(QWaylandDisplay *waylandDisplay, int version, uin
 QWaylandScreen::~QWaylandScreen()
 {
     delete mWaylandCursor;
+}
+
+void QWaylandScreen::init()
+{
+    mWaylandCursor = new QWaylandCursor(this);
 }
 
 QWaylandDisplay * QWaylandScreen::display() const

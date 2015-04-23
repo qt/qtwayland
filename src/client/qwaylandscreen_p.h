@@ -53,6 +53,7 @@ public:
     QWaylandScreen(QWaylandDisplay *waylandDisplay, int version, uint32_t id);
     ~QWaylandScreen();
 
+    void init();
     QWaylandDisplay *display() const;
 
     QRect geometry() const;

@@ -136,7 +136,7 @@ QVariant QWaylandMimeData::retrieveData_sys(const QString &mimeType, QVariant::T
     }
 
     m_dataOffer->receive(mime, pipefd[1]);
-    m_display->flushRequests();
+    wl_display_flush(m_display->wl_display());
 
     close(pipefd[1]);
 

@@ -94,10 +94,10 @@ QWaylandDataSource *QWaylandDataDevice::selectionSource() const
 
 void QWaylandDataDevice::setSelectionSource(QWaylandDataSource *source)
 {
-    m_selectionSource.reset(source);
     if (source)
         connect(source, &QWaylandDataSource::cancelled, this, &QWaylandDataDevice::selectionSourceCancelled);
     set_selection(source ? source->object() : Q_NULLPTR, m_inputDevice->serial());
+    m_selectionSource.reset(source);
 }
 
 QWaylandDataOffer *QWaylandDataDevice::dragOffer() const

@@ -118,6 +118,10 @@ QWaylandInputDevice::Keyboard::~Keyboard()
 #ifndef QT_NO_WAYLAND_XKB
     releaseKeyMap();
 #endif
+    if (mFocus)
+        QWindowSystemInterface::handleWindowActivated(0);
+    if (mFocusCallback)
+        wl_callback_destroy(mFocusCallback);
     if (mParent->mVersion >= 3)
         wl_keyboard_release(object());
     else

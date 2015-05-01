@@ -77,6 +77,11 @@
 struct wl_cursor_image;
 #endif
 
+#if QT_CONFIG(xkbcommon_evdev)
+struct xkb_compose_state;
+struct xkb_compose_table;
+#endif
+
 QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
@@ -208,6 +213,8 @@ public:
     xkb_context *mXkbContext;
     xkb_keymap *mXkbMap;
     xkb_state *mXkbState;
+    xkb_compose_table *mXkbComposeTable = nullptr;
+    xkb_compose_state *mXkbComposeState = nullptr;
 #endif
     uint32_t mNativeModifiers;
 
@@ -229,6 +236,8 @@ private:
 #if QT_CONFIG(xkbcommon_evdev)
     bool createDefaultKeyMap();
     void releaseKeyMap();
+    void createComposeState();
+    void releaseComposeState();
 #endif
 
 };

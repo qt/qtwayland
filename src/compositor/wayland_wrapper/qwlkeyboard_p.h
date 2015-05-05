@@ -121,6 +121,7 @@ private:
 #ifndef QT_NO_WAYLAND_XKB
     void initXKB();
     void createXKBKeymap();
+    void createXKBState(xkb_keymap *keymap);
 #endif
 
     Compositor *m_compositor;

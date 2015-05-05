@@ -72,6 +72,7 @@ Keyboard::Keyboard(Compositor *compositor, InputDevice *seat)
     , m_group()
     , m_pendingKeymap(false)
 #ifndef QT_NO_WAYLAND_XKB
+    , m_keymap_fd(-1)
     , m_state(0)
 #endif
 {
@@ -337,13 +338,43 @@ void Keyboard::initXKB()
     createXKBKeymap();
 }
 
+void Keyboard::createXKBState(xkb_keymap *keymap)
+{
+    char *keymap_str = xkb_keymap_get_as_string(keymap, XKB_KEYMAP_FORMAT_TEXT_V1);
+    if (!keymap_str) {
+        qWarning("Failed to compile global XKB keymap");
+        return;
+    }
+
+    m_keymap_size = strlen(keymap_str) + 1;
+    if (m_keymap_fd >= 0)
+        close(m_keymap_fd);
+    m_keymap_fd = createAnonymousFile(m_keymap_size);
+    if (m_keymap_fd < 0) {
+        qWarning("Failed to create anonymous file of size %lu", static_cast<unsigned long>(m_keymap_size));
+        return;
+    }
+
+    m_keymap_area = static_cast<char *>(mmap(0, m_keymap_size, PROT_READ | PROT_WRITE, MAP_SHARED, m_keymap_fd, 0));
+    if (m_keymap_area == MAP_FAILED) {
+        close(m_keymap_fd);
+        m_keymap_fd = -1;
+        qWarning("Failed to map shared memory segment");
+        return;
+    }
+
+    strcpy(m_keymap_area, keymap_str);
+    free(keymap_str);
+
+    if (m_state)
+        xkb_state_unref(m_state);
+    m_state = xkb_state_new(keymap);
+}
+
 void Keyboard::createXKBKeymap()
 {
     if (!m_context)
         return;
-
-    if (m_state)
-        xkb_state_unref(m_state);
 
     struct xkb_rule_names rule_names = { strdup(qPrintable(m_keymap.rules())),
                                          strdup(qPrintable(m_keymap.model())),
@@ -352,27 +383,12 @@ void Keyboard::createXKBKeymap()
                                          strdup(qPrintable(m_keymap.options())) };
     struct xkb_keymap *keymap = xkb_keymap_new_from_names(m_context, &rule_names, static_cast<xkb_keymap_compile_flags>(0));
 
-    char *keymap_str = xkb_keymap_get_as_string(keymap, XKB_KEYMAP_FORMAT_TEXT_V1);
-    if (!keymap_str)
-        qFatal("Failed to compile global XKB keymap");
-
-    m_keymap_size = strlen(keymap_str) + 1;
-    m_keymap_fd = createAnonymousFile(m_keymap_size);
-    if (m_keymap_fd < 0)
-        qFatal("Failed to create anonymous file of size %lu", static_cast<unsigned long>(m_keymap_size));
-
-    m_keymap_area = static_cast<char *>(mmap(0, m_keymap_size, PROT_READ | PROT_WRITE, MAP_SHARED, m_keymap_fd, 0));
-    if (m_keymap_area == MAP_FAILED) {
-        close(m_keymap_fd);
-        qFatal("Failed to map shared memory segment");
+    if (keymap) {
+        createXKBState(keymap);
+        xkb_keymap_unref(keymap);
+    } else {
+        qWarning("Failed to load the '%s' XKB keymap.", qPrintable(m_keymap.layout()));
     }
-
-    strcpy(m_keymap_area, keymap_str);
-    free(keymap_str);
-
-    m_state = xkb_state_new(keymap);
-
-    xkb_keymap_unref(keymap);
 
     free((char *)rule_names.rules);
     free((char *)rule_names.model);

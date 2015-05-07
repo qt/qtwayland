@@ -57,6 +57,7 @@ QWaylandPointerPrivate::QWaylandPointerPrivate(QWaylandPointer *pointer, QWaylan
     , m_grabTime()
     , m_grabSerial()
     , m_focusResource()
+    , m_hasSentEnter(false)
     , m_buttonCount()
 {
 }
@@ -67,7 +68,7 @@ void QWaylandPointerPrivate::startGrab(QWaylandPointerGrabber *grab)
     m_grab = grab;
     grab->pointer = q;
 
-    if (m_currentPosition.view())
+    if (focusView())
         grab->focus();
 }
 
@@ -146,29 +147,37 @@ void QWaylandPointerPrivate::sendMouseReleaseEvent(Qt::MouseButton button)
 void QWaylandPointerPrivate::sendMouseMoveEvent(QWaylandSurfaceView *view, const QPointF &localPos, const QPointF &outputSpacePos)
 {
     Q_Q(QWaylandPointer);
-    if (m_focusResource && focusView() != view) {
-        uint32_t serial = wl_display_next_serial(compositor()->waylandDisplay());
-        send_leave(m_focusResource->handle, serial, focusView()->surface()->handle()->resource()->handle);
-        m_focusDestroyListener.reset();
+    m_seat->setMouseFocus(view);
+    m_localPosition = localPos;
+    m_spacePosition = outputSpacePos;
+
+    //we adjust if the mouse position is on the edge
+    //to work around Qt's event propogation
+    if (view && view->surface()) {
+        QSizeF size(view->surface()->size());
+        if (m_localPosition.x() ==  size.width())
+            m_localPosition.rx() -= 0.01;
+
+        if (m_localPosition.y() == size.height())
+            m_localPosition.ry() -= 0.01;
     }
 
     Resource *resource = view ? resourceMap().value(view->surface()->handle()->resource()->client()) : 0;
-
-    if (resource && (focusView() != view || resource != m_focusResource)) {
-        uint32_t serial = wl_display_next_serial(compositor()->waylandDisplay());
+    if (resource && !m_hasSentEnter) {
+        uint32_t serial = compositor()->nextSerial();
         QWaylandKeyboard *keyboard = m_seat->keyboard();
         if (keyboard) {
             keyboard->sendKeyModifiers(view->surface()->client(), serial);
         }
         send_enter(resource->handle, serial, view->surface()->handle()->resource()->handle,
-                   wl_fixed_from_double(currentLocalPosition().x()), wl_fixed_from_double(currentLocalPosition().y()));
+                   wl_fixed_from_double(m_localPosition.x()), wl_fixed_from_double(m_localPosition.y()));
 
         m_focusDestroyListener.listenForDestruction(view->surface()->handle()->resource()->handle);
+        m_hasSentEnter = true;
     }
 
     m_focusResource = resource;
-    m_currentPosition.updatePosition(view, localPos);
-    m_spacePosition = outputSpacePos;
+
     if (view && view->output())
         q->setOutput(view->output());
 

@@ -79,14 +79,13 @@ class Q_COMPOSITOR_EXPORT QWaylandInputDevicePrivate : public QObjectPrivate, pu
 public:
     Q_DECLARE_PUBLIC(QWaylandInputDevice)
 
-    QWaylandInputDevicePrivate(QWaylandInputDevice *device, QWaylandCompositor *compositor, QWaylandInputDevice::CapabilityFlags caps);
+    QWaylandInputDevicePrivate(QWaylandInputDevice *device, QWaylandCompositor *compositor);
     ~QWaylandInputDevicePrivate();
 
     void sendMousePressEvent(Qt::MouseButton button);
     void sendMouseReleaseEvent(Qt::MouseButton button);
     void sendMouseMoveEvent(QWaylandSurfaceView *surface, const QPointF &localPos, const QPointF &spacePos = QPointF());
     void sendMouseWheelEvent(Qt::Orientation orientation, int delta);
-    void sendResetCurrentMouseView();
 
     void sendTouchPointEvent(int id, const QPointF &point, Qt::TouchPointState state);
     void sendTouchFrameEvent();
@@ -101,6 +100,7 @@ public:
     bool setKeyboardFocus(QWaylandSurface *surface);
 
     QWaylandSurfaceView *mouseFocus() const;
+    void setMouseFocus(QWaylandSurfaceView *focus);
 
     void clientRequestedDataDevice(QtWayland::DataDeviceManager *dndSelection, struct wl_client *client, uint32_t id);
     const QtWayland::DataDevice *dataDevice() const;
@@ -129,6 +129,7 @@ private:
     QScopedPointer<QWaylandDrag> m_dragHandle;
     QWaylandCompositor *m_compositor;
     QWaylandOutputSpace *m_outputSpace;
+    QWaylandSurfaceView *m_mouseFocus;
     QWaylandInputDevice::CapabilityFlags m_capabilities;
 
     QScopedPointer<QWaylandPointer> m_pointer;

@@ -42,6 +42,8 @@
 #include <QtCompositor/QWaylandDestroyListener>
 #include <QtCompositor/QWaylandTouch>
 #include <QtCompositor/QWaylandInputDevice>
+#include <QtCompositor/QWaylandClient>
+#include <QtCompositor/QWaylandSurfaceView>
 
 #include <QtCore/QPoint>
 #include <QtCore/private/qobject_p.h>
@@ -75,14 +77,25 @@ public:
     void sendFullTouchEvent(QTouchEvent *event);
 
     Resource *focusResource() const { return m_focusResource; }
+
+    void setFocusResource()
+    {
+        if (m_focusResource)
+            return;
+
+        QWaylandSurfaceView *mouseFocus = m_seat->mouseFocus();
+        if (!mouseFocus || !mouseFocus->surface())
+            return;
+
+        m_focusResource = resourceMap().value(mouseFocus->surface()->client()->client());
+    }
 private:
-    void focusDestroyed(void *data);
+    void resetFocusState();
     void touch_destroy_resource(Resource *resource) Q_DECL_OVERRIDE;
     void touch_release(Resource *resource) Q_DECL_OVERRIDE;
 
     QWaylandInputDevice *m_seat;
 
-    QWaylandSurfaceView *m_focus;
     Resource *m_focusResource;
     QWaylandDestroyListener m_focusDestroyListener;
 

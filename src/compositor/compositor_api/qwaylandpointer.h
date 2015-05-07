@@ -104,7 +104,6 @@ public:
     virtual void sendMouseMoveEvent(QWaylandSurfaceView *view, const QPointF &localPos, const QPointF &outputSpacePos);
     virtual void sendMouseWheelEvent(Qt::Orientation orientation, int delta);
 
-    void resetCurrentView();
     QWaylandSurfaceView *currentView() const;
     QPointF currentLocalPosition() const;
     QPointF currentSpacePosition() const;
@@ -123,7 +122,7 @@ Q_SIGNALS:
 
 private:
     void focusDestroyed(void *data);
-    void pointerFocusChanged();
+    void pointerFocusChanged(QWaylandSurfaceView *newFocus, QWaylandSurfaceView *oldFocus);
 };
 
 QT_END_NAMESPACE

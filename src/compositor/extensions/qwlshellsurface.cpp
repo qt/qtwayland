@@ -474,7 +474,6 @@ void ShellSurfaceMoveGrabber::button(uint32_t time, Qt::MouseButton button, uint
     Q_UNUSED(time)
 
     if (button == Qt::LeftButton && !state) {
-        pointer->resetCurrentView();
         pointer->endGrab();
         shell_surface->resetMoveGrabber();
         delete this;

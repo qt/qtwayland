@@ -106,7 +106,6 @@ public:
     void sendMouseReleaseEvent(Qt::MouseButton button);
     void sendMouseMoveEvent(QWaylandSurfaceView *surface , const QPointF &localPos, const QPointF &globalPos = QPointF());
     void sendMouseWheelEvent(Qt::Orientation orientation, int delta);
-    void sendResetCurrentMouseView();
 
     void sendKeyPressEvent(uint code);
     void sendKeyReleaseEvent(uint code);
@@ -122,6 +121,8 @@ public:
 
     QWaylandPointer *pointer() const;
 
+    //Normally set by the mouse device,
+    //But can be set manually for use with touch or can reset unset the current mouse focus;
     QWaylandSurfaceView *mouseFocus() const;
     void setMouseFocus(QWaylandSurfaceView *view);
 
@@ -144,7 +145,7 @@ public:
     virtual bool isOwner(QInputEvent *inputEvent) const;
 
 Q_SIGNALS:
-    void mouseFocusChanged();
+    void mouseFocusChanged(QWaylandSurfaceView *newFocus, QWaylandSurfaceView *oldFocus);
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QWaylandInputDevice::CapabilityFlags)

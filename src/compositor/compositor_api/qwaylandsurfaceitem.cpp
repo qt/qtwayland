@@ -249,7 +249,7 @@ void QWaylandSurfaceItem::hoverLeaveEvent(QHoverEvent *event)
 {
     if (shouldSendInputEvents()) {
         QWaylandInputDevice *inputDevice = compositor()->inputDeviceFor(event);
-        inputDevice->sendResetCurrentMouseView();
+        inputDevice->setMouseFocus(Q_NULLPTR);
     } else {
         event->ignore();
     }

@@ -52,7 +52,6 @@ QWaylandTouchPrivate::QWaylandTouchPrivate(QWaylandTouch *touch, QWaylandInputDe
     , m_grab(&m_defaultGrab)
 {
     m_grab->touch = touch;
-    connect(&m_focusDestroyListener, &QWaylandDestroyListener::fired, this, &QWaylandTouchPrivate::focusDestroyed);
 }
 
 void QWaylandTouchPrivate::startGrab(QWaylandTouchGrabber *grab)
@@ -67,19 +66,17 @@ void QWaylandTouchPrivate::endGrab()
     m_grab = &m_defaultGrab;
 }
 
-void QWaylandTouchPrivate::focusDestroyed(void *data)
+void QWaylandTouchPrivate::resetFocusState()
 {
-    Q_UNUSED(data)
     m_focusDestroyListener.reset();
-
-    m_focus = 0;
     m_focusResource = 0;
 }
 
 void QWaylandTouchPrivate::touch_destroy_resource(Resource *resource)
 {
-    if (m_focusResource == resource)
-        m_focusResource = 0;
+    if (m_focusResource == resource) {
+        resetFocusState();
+    }
 }
 
 void QWaylandTouchPrivate::touch_release(Resource *resource)

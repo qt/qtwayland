@@ -57,8 +57,9 @@ QWaylandKeymap::QWaylandKeymap(const QString &layout, const QString &variant, co
 
 
 QWaylandInputDevice::QWaylandInputDevice(QWaylandCompositor *compositor, CapabilityFlags caps)
-    : QObject(*new QWaylandInputDevicePrivate(this,compositor, caps))
+    : QObject(*new QWaylandInputDevicePrivate(this,compositor))
 {
+    d_func()->setCapabilities(caps);
 }
 
 QWaylandInputDevice::~QWaylandInputDevice()
@@ -90,12 +91,6 @@ void QWaylandInputDevice::sendMouseWheelEvent(Qt::Orientation orientation, int d
 {
     Q_D(QWaylandInputDevice);
     d->sendMouseWheelEvent(orientation, delta);
-}
-
-void QWaylandInputDevice::sendResetCurrentMouseView()
-{
-    Q_D(QWaylandInputDevice);
-    d->sendResetCurrentMouseView();
 }
 
 void QWaylandInputDevice::sendKeyPressEvent(uint code)
@@ -173,6 +168,12 @@ QWaylandSurfaceView *QWaylandInputDevice::mouseFocus() const
 {
     Q_D(const QWaylandInputDevice);
     return d->mouseFocus();
+}
+
+void QWaylandInputDevice::setMouseFocus(QWaylandSurfaceView *view)
+{
+    Q_D(QWaylandInputDevice);
+    d->setMouseFocus(view);
 }
 
 QWaylandOutputSpace *QWaylandInputDevice::outputSpace() const

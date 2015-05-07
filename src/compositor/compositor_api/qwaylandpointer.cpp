@@ -49,6 +49,7 @@ QWaylandPointer::QWaylandPointer(QWaylandInputDevice *seat, QObject *parent)
     : QObject(* new QWaylandPointerPrivate(this, seat), parent)
 {
     connect(&d_func()->m_focusDestroyListener, &QWaylandDestroyListener::fired, this, &QWaylandPointer::focusDestroyed);
+    connect(seat, &QWaylandInputDevice::mouseFocusChanged, this, &QWaylandPointer::pointerFocusChanged);
 }
 
 void QWaylandDefaultPointerGrabber::focus()
@@ -160,12 +161,6 @@ void QWaylandPointer::sendMouseWheelEvent(Qt::Orientation orientation, int delta
     d->sendMouseWheelEvent(orientation, delta);
 }
 
-void QWaylandPointer::resetCurrentView()
-{
-    Q_D(QWaylandPointer);
-    d->resetCurrentState();
-}
-
 QWaylandSurfaceView *QWaylandPointer::currentView() const
 {
     Q_D(const QWaylandPointer);
@@ -199,6 +194,9 @@ void QWaylandPointer::addClient(QWaylandClient *client, uint32_t id)
 struct wl_resource *QWaylandPointer::focusResource() const
 {
     Q_D(const QWaylandPointer);
+    if (!d->focusResource())
+        return Q_NULLPTR;
+
     if (!d->focusResource())
         return Q_NULLPTR;
 
@@ -247,10 +245,25 @@ void QWaylandPointer::focusDestroyed(void *data)
     Q_UNUSED(data)
     d->m_focusDestroyListener.reset();
 
-    d->m_currentPosition.reset();
+    inputDevice()->setMouseFocus(Q_NULLPTR);
     d->m_focusResource = 0;
     d->m_buttonCount = 0;
     endGrab();
+}
+
+void QWaylandPointer::pointerFocusChanged(QWaylandSurfaceView *newFocus, QWaylandSurfaceView *oldFocus)
+{
+    Q_UNUSED(newFocus);
+    Q_D(QWaylandPointer);
+    d->m_localPosition = QPointF();
+    d->m_hasSentEnter = false;
+    if (d->m_focusResource && oldFocus) {
+        uint32_t serial = compositor()->nextSerial();
+        d->send_leave(d->m_focusResource->handle, serial, oldFocus->surfaceResource());
+        d->m_focusDestroyListener.reset();
+        d->m_focusResource = 0;
+    }
+
 }
 
 QT_END_NAMESPACE

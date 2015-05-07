@@ -54,16 +54,14 @@
 
 QT_BEGIN_NAMESPACE
 
-QWaylandInputDevicePrivate::QWaylandInputDevicePrivate(QWaylandInputDevice *inputdevice, QWaylandCompositor *compositor, QWaylandInputDevice::CapabilityFlags caps)
+QWaylandInputDevicePrivate::QWaylandInputDevicePrivate(QWaylandInputDevice *inputdevice, QWaylandCompositor *compositor)
     : QObjectPrivate()
     , QtWaylandServer::wl_seat(compositor->waylandDisplay(), 3)
     , m_dragHandle(new QWaylandDrag(inputdevice))
     , m_compositor(compositor)
     , m_outputSpace(compositor->primaryOutputSpace())
-    , m_capabilities(caps)
-    , m_pointer(m_capabilities & QWaylandInputDevice::Pointer ? new QWaylandPointer(inputdevice) : 0)
-    , m_keyboard(m_capabilities & QWaylandInputDevice::Keyboard ? new QWaylandKeyboard(inputdevice) : 0)
-    , m_touch(m_capabilities & QWaylandInputDevice::Touch ? new QWaylandTouch(inputdevice) : 0)
+    , m_mouseFocus(Q_NULLPTR)
+    , m_capabilities()
     , m_inputMethod(m_compositor->extensionFlags() & QWaylandCompositor::TextInputExtension ? new QtWayland::InputMethod(m_compositor, inputdevice) : 0)
     , m_data_device()
 {
@@ -172,11 +170,6 @@ void QWaylandInputDevicePrivate::sendMouseWheelEvent(Qt::Orientation orientation
     pointerDevice()->sendMouseWheelEvent(orientation, delta);
 }
 
-void QWaylandInputDevicePrivate::sendResetCurrentMouseView()
-{
-    pointerDevice()->resetCurrentView();
-}
-
 void QWaylandInputDevicePrivate::sendTouchPointEvent(int id, const QPointF &point, Qt::TouchPointState state)
 {
     if (m_touch.isNull()) {
@@ -265,7 +258,18 @@ bool QWaylandInputDevicePrivate::setKeyboardFocus(QWaylandSurface *surface)
 
 QWaylandSurfaceView *QWaylandInputDevicePrivate::mouseFocus() const
 {
-    return m_pointer.isNull() ? 0 : m_pointer->currentView();
+    return m_mouseFocus;
+}
+
+void QWaylandInputDevicePrivate::setMouseFocus(QWaylandSurfaceView *focus)
+{
+    Q_Q(QWaylandInputDevice);
+    if (focus == m_mouseFocus)
+        return;
+
+    QWaylandSurfaceView *oldFocus = m_mouseFocus;
+    m_mouseFocus = focus;
+    q->mouseFocusChanged(m_mouseFocus, oldFocus);
 }
 
 void QWaylandInputDevicePrivate::clientRequestedDataDevice(QtWayland::DataDeviceManager *, struct wl_client *client, uint32_t id)

@@ -63,49 +63,6 @@ namespace QtWayland {
 class Compositor;
 class Surface;
 
-class CurrentPosition
-{
-public:
-    CurrentPosition()
-        : m_view(Q_NULLPTR)
-     {}
-
-    void reset()
-    {
-        m_point = QPointF();
-        m_view = Q_NULLPTR;
-    }
-
-    void updatePosition(QWaylandSurfaceView *view, const QPointF &position)
-    {
-        m_view = view;
-        m_point = position;
-        //we adjust if the mouse position is on the edge
-        //to work around Qt's event propogation
-        if (!m_view || position.isNull())
-            return;
-        if (m_view->surface()) {
-            QSizeF size(m_view->surface()->size());
-            if (m_point.x() ==  size.width())
-                m_point.rx() -= 0.01;
-
-            if (m_point.y() == size.height())
-                m_point.ry() -= 0.01;
-        }
-    }
-
-    QPointF position() const { return m_point; }
-    qreal x() const { return m_point.x(); }
-    qreal y() const { return m_point.y(); }
-
-    QWaylandSurfaceView *view() const { return m_view; }
-
-private:
-    QWaylandSurfaceView *m_view;
-    QPointF m_point;
-};
-
-
 } // namespace QtWayland
 
 class Q_COMPOSITOR_EXPORT QWaylandPointerPrivate : public QObjectPrivate
@@ -138,17 +95,15 @@ public:
     void sendMouseWheelEvent(Qt::Orientation orientation, int delta);
 
     Resource *focusResource() const { return m_focusResource; }
-    QWaylandSurfaceView *focusView() const { return m_currentPosition.view(); }
+    QWaylandSurfaceView *focusView() const { return m_seat->mouseFocus(); }
 
     bool buttonPressed() const;
 
     QWaylandInputDevice *seat() const { return m_seat; }
     QWaylandCompositor *compositor() const { return m_seat->compositor(); }
 
-    void resetCurrentState() { m_currentPosition.reset(); }
-    QWaylandSurfaceView *currentView() const { return m_currentPosition.view(); }
     QPointF currentSpacePosition() const { return m_spacePosition; }
-    QPointF currentLocalPosition() const { return m_currentPosition.position(); }
+    QPointF currentLocalPosition() const { return m_localPosition; }
 protected:
     void pointer_set_cursor(Resource *resource, uint32_t serial, wl_resource *surface, int32_t hotspot_x, int32_t hotspot_y) Q_DECL_OVERRIDE;
     void pointer_release(Resource *resource) Q_DECL_OVERRIDE;
@@ -160,7 +115,8 @@ private:
     QWaylandInputDevice *m_seat;
     QWaylandOutput *m_output;
     QWaylandDefaultPointerGrabber m_defaultGrab;
-    QtWayland::CurrentPosition m_currentPosition;
+
+    QPointF m_localPosition;
     QPointF m_spacePosition;
 
     QWaylandPointerGrabber *m_grab;
@@ -169,7 +125,7 @@ private:
     uint32_t m_grabSerial;
 
     Resource *m_focusResource;
-
+    bool m_hasSentEnter;
 
     int m_buttonCount;
 

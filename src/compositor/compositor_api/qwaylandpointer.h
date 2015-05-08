@@ -104,7 +104,7 @@ public:
     virtual void sendMouseMoveEvent(QWaylandSurfaceView *view, const QPointF &localPos, const QPointF &outputSpacePos);
     virtual void sendMouseWheelEvent(Qt::Orientation orientation, int delta);
 
-    QWaylandSurfaceView *currentView() const;
+    QWaylandSurfaceView *mouseFocus() const;
     QPointF currentLocalPosition() const;
     QPointF currentSpacePosition() const;
 

@@ -95,7 +95,7 @@ public:
     void sendMouseWheelEvent(Qt::Orientation orientation, int delta);
 
     Resource *focusResource() const { return m_focusResource; }
-    QWaylandSurfaceView *focusView() const { return m_seat->mouseFocus(); }
+    QWaylandSurfaceView *mouseFocus() const { return m_seat->mouseFocus(); }
 
     bool buttonPressed() const;
 

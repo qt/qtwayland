@@ -132,7 +132,7 @@ void DataDevice::sourceDestroyed(DataSource *source)
 
 void DataDevice::focus()
 {
-    QWaylandSurfaceView *focus = pointer->currentView();
+    QWaylandSurfaceView *focus = pointer->mouseFocus();
     if (focus != m_dragFocus) {
         setDragFocus(focus, pointer->currentLocalPosition());
     }
@@ -177,7 +177,7 @@ void DataDevice::data_device_start_drag(Resource *resource, struct ::wl_resource
 {
     if (QWaylandInputDevicePrivate::get(m_inputDevice)->pointerDevice()->grabSerial() == serial) {
         if (!QWaylandInputDevicePrivate::get(m_inputDevice)->pointerDevice()->isButtonPressed() ||
-             QWaylandInputDevicePrivate::get(m_inputDevice)->pointerDevice()->currentView()->surface()->handle() != Surface::fromResource(origin))
+             m_inputDevice->mouseFocus()->surfaceResource() != origin)
             return;
 
         m_dragClient = resource->client();

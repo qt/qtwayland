@@ -68,7 +68,7 @@ void QWaylandPointerPrivate::startGrab(QWaylandPointerGrabber *grab)
     m_grab = grab;
     grab->pointer = q;
 
-    if (focusView())
+    if (mouseFocus())
         grab->focus();
 }
 

@@ -161,10 +161,10 @@ void QWaylandPointer::sendMouseWheelEvent(Qt::Orientation orientation, int delta
     d->sendMouseWheelEvent(orientation, delta);
 }
 
-QWaylandSurfaceView *QWaylandPointer::currentView() const
+QWaylandSurfaceView *QWaylandPointer::mouseFocus() const
 {
     Q_D(const QWaylandPointer);
-    return d->focusView();
+    return d->mouseFocus();
 }
 
 QPointF QWaylandPointer::currentLocalPosition() const

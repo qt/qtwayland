@@ -108,4 +108,22 @@ void QWaylandKeyboard::setKeymap(const QWaylandKeymap &keymap)
     d->setKeymap(keymap);
 }
 
+void QWaylandKeyboard::startGrab(QWaylandKeyboardGrabber *grab)
+{
+    Q_D(QWaylandKeyboard);
+    d->startGrab(grab);
+}
+
+void QWaylandKeyboard::endGrab()
+{
+    Q_D(QWaylandKeyboard);
+    d->endGrab();
+}
+
+QWaylandKeyboardGrabber *QWaylandKeyboard::currentGrab() const
+{
+    Q_D(const QWaylandKeyboard);
+    return d->currentGrab();
+}
+
 QT_END_NAMESPACE

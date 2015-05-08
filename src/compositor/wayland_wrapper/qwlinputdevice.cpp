@@ -139,7 +139,7 @@ void QWaylandInputDevicePrivate::seat_get_pointer(wl_seat::Resource *resource, u
 void QWaylandInputDevicePrivate::seat_get_keyboard(wl_seat::Resource *resource, uint32_t id)
 {
     if (!m_keyboard.isNull()) {
-        QWaylandKeyboardPrivate::get(m_keyboard.data())->add(resource->client(), id, resource->version());
+        m_keyboard->addClient(QWaylandClient::fromWlClient(resource->client()), id);
     }
 }
 

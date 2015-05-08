@@ -110,7 +110,7 @@ public:
 
     bool isButtonPressed() const;
 
-    void addClient(QWaylandClient *client, uint32_t id);
+    virtual void addClient(QWaylandClient *client, uint32_t id);
 
     struct wl_resource *focusResource() const;
 

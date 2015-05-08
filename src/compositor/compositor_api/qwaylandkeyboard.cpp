@@ -126,4 +126,10 @@ QWaylandKeyboardGrabber *QWaylandKeyboard::currentGrab() const
     return d->currentGrab();
 }
 
+void QWaylandKeyboard::addClient(QWaylandClient *client, uint32_t id)
+{
+    Q_D(QWaylandKeyboard);
+    d->add(client->client(), id, QtWaylandServer::wl_keyboard::interfaceVersion());
+}
+
 QT_END_NAMESPACE

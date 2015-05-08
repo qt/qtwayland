@@ -102,8 +102,11 @@ public:
     void endGrab();
     QWaylandKeyboardGrabber *currentGrab() const;
 
+    virtual void addClient(QWaylandClient *client, uint32_t id);
+
 Q_SIGNALS:
     void focusChanged(QWaylandSurface *surface);
+
 private:
     void focusDestroyed(void *data);
 };

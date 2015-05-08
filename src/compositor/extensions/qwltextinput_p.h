@@ -50,7 +50,7 @@ class Compositor;
 class InputMethod;
 class Surface;
 
-class TextInput : public QWaylandExtension, public QtWaylandServer::wl_text_input
+class TextInput : public QWaylandExtensionTemplate<TextInput>, public QtWaylandServer::wl_text_input
 {
 public:
     explicit TextInput(QWaylandExtensionContainer *container, Compositor *compositor, struct ::wl_client *client, int id);
@@ -62,7 +62,6 @@ public:
 
     void deactivate(InputMethod *inputMethod);
 
-    const struct wl_interface *interface() const Q_DECL_OVERRIDE { return wl_text_input::interface(); }
 protected:
     void text_input_destroy_resource(Resource *resource) Q_DECL_OVERRIDE;
 

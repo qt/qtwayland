@@ -138,7 +138,7 @@ void QWaylandTouchPrivate::sendFullTouchEvent(QTouchEvent *event)
         return;
     }
 
-    QtWayland::TouchExtensionGlobal *ext = qobject_cast<QtWayland::TouchExtensionGlobal *>(compositor()->extension(QtWaylandServer::qt_touch_extension::name()));
+    QtWayland::TouchExtensionGlobal *ext = QtWayland::TouchExtensionGlobal::get(compositor());
     if (ext && ext->postTouchEvent(event, m_seat->mouseFocus()))
         return;
 

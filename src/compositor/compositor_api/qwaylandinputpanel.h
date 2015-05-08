@@ -53,7 +53,7 @@ namespace QtWayland {
 class InputPanel;
 }
 
-class Q_COMPOSITOR_EXPORT QWaylandInputPanel : public QWaylandExtensionTemplate
+class Q_COMPOSITOR_EXPORT QWaylandInputPanel : public QWaylandExtensionTemplate<QWaylandInputPanel>
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandInputPanel)
@@ -69,7 +69,8 @@ public:
     bool visible() const;
     QRect cursorRectangle() const;
 
-    static QWaylandInputPanel *get(QWaylandExtensionContainer *container);
+    static const struct wl_interface *interface();
+    static QByteArray interfaceName();
 Q_SIGNALS:
     void focusChanged();
     void visibleChanged();

@@ -74,9 +74,14 @@ QRect QWaylandInputPanel::cursorRectangle() const
     return d->cursorRectangle();
 }
 
-QWaylandInputPanel *QWaylandInputPanel::get(QWaylandExtensionContainer *container)
+const struct wl_interface *QWaylandInputPanel::interface()
 {
-    return static_cast<QWaylandInputPanel *>(container->extension(QtWaylandServer::wl_input_panel::name()));
+    return QWaylandInputPanelPrivate::interface();
+}
+
+QByteArray QWaylandInputPanel::interfaceName()
+{
+    return QWaylandInputPanelPrivate::interfaceName();
 }
 
 QT_END_NAMESPACE

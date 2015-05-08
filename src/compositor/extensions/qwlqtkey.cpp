@@ -44,7 +44,7 @@ QT_BEGIN_NAMESPACE
 namespace QtWayland {
 
 QtKeyExtensionGlobal::QtKeyExtensionGlobal(Compositor *compositor)
-    : QWaylandExtension(compositor->waylandCompositor())
+    : QWaylandExtensionTemplate(compositor->waylandCompositor())
     , QtWaylandServer::qt_key_extension(compositor->wl_display(), 2)
     , m_compositor(compositor)
 {
@@ -71,11 +71,6 @@ bool QtKeyExtensionGlobal::postQtKeyEvent(QKeyEvent *event, Surface *surface)
     }
 
     return false;
-}
-
-QtKeyExtensionGlobal *QtKeyExtensionGlobal::get(QWaylandExtensionContainer *container)
-{
-    return static_cast<QtKeyExtensionGlobal *>(container->extension(qt_key_extension::name()));
 }
 
 }

@@ -45,7 +45,7 @@ QT_BEGIN_NAMESPACE
 namespace QtWayland {
 
 SubSurfaceExtensionGlobal::SubSurfaceExtensionGlobal(QWaylandCompositor *compositor)
-    : QWaylandExtension(compositor)
+    : QWaylandExtensionTemplate(compositor)
     , qt_sub_surface_extension(compositor->waylandDisplay(), 1)
     , m_compositor(compositor)
 {
@@ -60,7 +60,7 @@ void SubSurfaceExtensionGlobal::sub_surface_extension_get_sub_surface_aware_surf
 }
 
 SubSurface::SubSurface(wl_client *client, uint32_t id, QWaylandSurface *surface)
-    : QWaylandExtension(surface)
+    : QWaylandExtensionTemplate(surface)
     , qt_sub_surface(client, id, 1)
     , m_surface(surface)
     , m_parent(0)

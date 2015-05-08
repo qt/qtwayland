@@ -62,13 +62,11 @@ class ShellSurfaceResizeGrabber;
 class ShellSurfaceMoveGrabber;
 class ShellSurfacePopupGrabber;
 
-class Shell : public QWaylandExtension, public QtWaylandServer::wl_shell
+class Shell : public QWaylandExtensionTemplate<Shell>, public QtWaylandServer::wl_shell
 {
     Q_OBJECT
 public:
     Shell(QWaylandCompositor *compositor);
-
-    const wl_interface *interface() const Q_DECL_OVERRIDE;
 
     ShellSurfacePopupGrabber* getPopupGrabber(QWaylandInputDevice *input);
 
@@ -78,7 +76,7 @@ private:
     QHash<QWaylandInputDevice *, ShellSurfacePopupGrabber*> m_popupGrabber;
 };
 
-class Q_COMPOSITOR_EXPORT ShellSurface : public QWaylandExtension, public QtWaylandServer::wl_shell_surface
+class Q_COMPOSITOR_EXPORT ShellSurface : public QWaylandExtensionTemplate<ShellSurface>, public QtWaylandServer::wl_shell_surface
 {
     Q_OBJECT
     Q_PROPERTY(SurfaceType surfaceType READ surfaceType WRITE setSurfaceType NOTIFY surfaceTypeChanged)
@@ -89,8 +87,6 @@ public:
         Transient,
         Popup
     };
-
-    static ShellSurface *get(QWaylandSurface *surface);
 
     ShellSurface(Shell *shell, struct wl_client *client, uint32_t id, Surface *surface);
     ~ShellSurface();
@@ -111,8 +107,6 @@ public:
 
     QWaylandSurfaceView *view() { return m_view; }
 
-    const struct wl_interface *interface() const Q_DECL_OVERRIDE { return QtWaylandServer::wl_shell_surface::interface(); }
-
     void setSurfaceType(SurfaceType type);
     SurfaceType surfaceType() const;
 
@@ -122,6 +116,7 @@ public:
     void setTransientParent(QWaylandSurface *parent) { m_transientParent = parent; }
 
     void setTransientOffset(const QPointF &offset) { m_transientOffset = offset; }
+    QPointF transientOffset() const { return m_transientOffset; }
 
 Q_SIGNALS:
     void surfaceTypeChanged();

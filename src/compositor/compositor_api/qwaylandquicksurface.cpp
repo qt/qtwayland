@@ -169,8 +169,9 @@ void QWaylandQuickSurface::setClientRenderingEnabled(bool enabled)
     if (d->clientRenderingEnabled != enabled) {
         d->clientRenderingEnabled = enabled;
 
-        if (QWaylandExtension *extension = this->extension(QtWaylandServer::qt_extended_surface::name()))
-            static_cast<QtWayland::ExtendedSurface*>(extension)->setVisibility(enabled ? QWindow::AutomaticVisibility : QWindow::Hidden);
+        if (QtWayland::ExtendedSurface *extSurface = QtWayland::ExtendedSurface::get(this))
+            extSurface->setVisibility(enabled ? QWindow::AutomaticVisibility : QWindow::Hidden);
+
         emit clientRenderingEnabledChanged();
     }
 }

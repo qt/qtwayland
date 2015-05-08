@@ -50,7 +50,7 @@ QT_BEGIN_NAMESPACE
 namespace QtWayland {
 
 TextInput::TextInput(QWaylandExtensionContainer *container, Compositor *compositor, struct ::wl_client *client, int id)
-    : QWaylandExtension(container)
+    : QWaylandExtensionTemplate(container)
     , wl_text_input(client, id, 1)
     , m_compositor(compositor)
     , m_focus()

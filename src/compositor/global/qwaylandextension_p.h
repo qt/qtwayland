@@ -56,25 +56,10 @@ public:
 
 class Q_COMPOSITOR_EXPORT QWaylandExtensionTemplatePrivate : public QWaylandExtensionPrivate
 {
-    Q_DECLARE_PUBLIC(QWaylandExtension)
-
 public:
     QWaylandExtensionTemplatePrivate(QWaylandExtensionContainer *container)
         : QWaylandExtensionPrivate(container)
-    {}
-
-    virtual const struct wl_interface *interface() const = 0;
-};
-
-template <typename T>
-class Q_COMPOSITOR_EXPORT QWaylandExtensionTemplatePrivateImpl : public QWaylandExtensionTemplatePrivate, public T
-{
-public:
-    QWaylandExtensionTemplatePrivateImpl(QWaylandExtensionContainer *container)
-        : QWaylandExtensionTemplatePrivate(container)
     { }
-
-    const struct wl_interface *interface() const Q_DECL_OVERRIDE { return T::interface(); }
 };
 
 #endif  /*QWAYLANDEXTENSION_P_H*/

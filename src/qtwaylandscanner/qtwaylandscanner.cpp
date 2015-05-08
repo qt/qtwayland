@@ -451,7 +451,7 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath, const QByteArr
             printf("        bool isResource() const { return m_resource != 0; }\n");
             printf("\n");
             printf("        static const struct ::wl_interface *interface();\n");
-            printf("        static QByteArray name() { return interface()->name; }\n");
+            printf("        static QByteArray interfaceName() { return interface()->name; }\n");
             printf("        static int interfaceVersion() { return interface()->version; }\n");
             printf("\n");
 

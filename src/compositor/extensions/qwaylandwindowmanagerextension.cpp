@@ -50,7 +50,7 @@ QWaylandWindowManagerExtension::QWaylandWindowManagerExtension(QWaylandComposito
 }
 
 QWaylandWindowManagerExtensionPrivate::QWaylandWindowManagerExtensionPrivate(QWaylandCompositor *compositor)
-    : QWaylandExtensionTemplatePrivateImpl(compositor)
+    : QWaylandExtensionTemplatePrivate(compositor)
     , m_showIsFullScreen(false)
     , m_compositor(compositor)
 {
@@ -73,11 +73,6 @@ void QWaylandWindowManagerExtension::sendQuitMessage(wl_client *client)
 
     if (resource)
         d->send_quit(resource->handle);
-}
-
-QWaylandWindowManagerExtension *QWaylandWindowManagerExtension::get(QWaylandExtensionContainer *container)
-{
-    return static_cast<QWaylandWindowManagerExtension *>(container->extension(QtWaylandServer::qt_windowmanager::interface()));
 }
 
 void QWaylandWindowManagerExtensionPrivate::windowmanager_bind_resource(Resource *resource)
@@ -104,5 +99,16 @@ void QWaylandWindowManagerExtensionPrivate::windowmanager_open_url(Resource *res
         q->openUrl(QWaylandClient::fromWlClient(m_compositor, resource->client()), QUrl(url));
     }
 }
+
+const struct wl_interface *QWaylandWindowManagerExtension::interface()
+{
+    return QWaylandWindowManagerExtensionPrivate::interface();
+}
+
+QByteArray QWaylandWindowManagerExtension::interfaceName()
+{
+    return QWaylandWindowManagerExtensionPrivate::interfaceName();
+}
+
 
 QT_END_NAMESPACE

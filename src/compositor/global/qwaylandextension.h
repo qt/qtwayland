@@ -46,26 +46,9 @@
 QT_BEGIN_NAMESPACE
 
 class QWaylandCompositor;
-class QWaylandExtensionContainer;
+class QWaylandExtension;
 class QWaylandExtensionPrivate;
 class QWaylandExtensionTemplatePrivate;
-
-class Q_COMPOSITOR_EXPORT QWaylandExtension : public QObject
-{
-    Q_OBJECT
-    Q_DECLARE_PRIVATE(QWaylandExtension)
-public:
-    QWaylandExtension(QWaylandExtensionContainer *container, QObject *parent = 0);
-    virtual ~QWaylandExtension();
-
-    virtual const struct wl_interface *interface() const = 0;
-
-    const QByteArray name() const { return interface()->name; }
-    quint32 version() const { return interface()->version; }
-
-protected:
-    QWaylandExtension(QWaylandExtensionPrivate &dd, QObject *parent = 0);
-};
 
 class Q_COMPOSITOR_EXPORT QWaylandExtensionContainer
 {
@@ -82,17 +65,44 @@ protected:
     QVector<QWaylandExtension *> extension_vector;
 };
 
-class Q_COMPOSITOR_EXPORT QWaylandExtensionTemplate : public QWaylandExtension
+class Q_COMPOSITOR_EXPORT QWaylandExtension : public QObject
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QWaylandExtensionTemplate)
+    Q_DECLARE_PRIVATE(QWaylandExtension)
 public:
-    QWaylandExtensionTemplate(QWaylandExtensionContainer *container, QObject *parent = 0);
+    QWaylandExtension(QWaylandExtensionContainer *container, QObject *parent = 0);
+    virtual ~QWaylandExtension();
 
-    const struct wl_interface *interface() const Q_DECL_OVERRIDE;
+    virtual const struct wl_interface *extensionInterface() const = 0;
 
 protected:
-    QWaylandExtensionTemplate(QWaylandExtensionTemplatePrivate &dd, QObject *parent = 0);
+    QWaylandExtension(QWaylandExtensionPrivate &dd, QObject *parent = 0);
+};
+
+template <typename T>
+class Q_COMPOSITOR_EXPORT QWaylandExtensionTemplate : public QWaylandExtension
+{
+    Q_DECLARE_PRIVATE(QWaylandExtensionTemplate)
+public:
+    QWaylandExtensionTemplate(QWaylandExtensionContainer *container, QObject *parent = 0)
+        : QWaylandExtension(container, parent)
+    { }
+
+    const struct wl_interface *extensionInterface() const Q_DECL_OVERRIDE
+    {
+        return T::interface();
+    }
+
+    static T *get(QWaylandExtensionContainer *container)
+    {
+        if (!container) return Q_NULLPTR;
+        return qobject_cast<T *>(container->extension(T::interfaceName()));
+    }
+
+protected:
+    QWaylandExtensionTemplate(QWaylandExtensionTemplatePrivate &dd, QObject *parent = 0)
+        : QWaylandExtension(dd, parent)
+    { }
 };
 
 QT_END_NAMESPACE

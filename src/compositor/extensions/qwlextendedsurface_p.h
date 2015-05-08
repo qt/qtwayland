@@ -56,12 +56,10 @@ namespace QtWayland {
 
 class Compositor;
 
-class SurfaceExtensionGlobal : public QWaylandExtension, public QtWaylandServer::qt_surface_extension
+class SurfaceExtensionGlobal : public QWaylandExtensionTemplate<SurfaceExtensionGlobal>, public QtWaylandServer::qt_surface_extension
 {
 public:
     SurfaceExtensionGlobal(Compositor *compositor);
-
-    const wl_interface *interface() const Q_DECL_OVERRIDE { return QtWaylandServer::qt_surface_extension::interface(); }
 
 private:
     void surface_extension_get_extended_surface(Resource *resource,
@@ -70,7 +68,7 @@ private:
 
 };
 
-class Q_COMPOSITOR_EXPORT ExtendedSurface : public QWaylandExtension, public QtWaylandServer::qt_extended_surface
+class Q_COMPOSITOR_EXPORT ExtendedSurface : public QWaylandExtensionTemplate<ExtendedSurface>, public QtWaylandServer::qt_extended_surface
 {
     Q_OBJECT
     Q_PROPERTY(Qt::ScreenOrientations contentOrientationMask READ contentOrientationMask NOTIFY contentOrientationMaskChanged)
@@ -83,8 +81,6 @@ public:
         BypassWindowManager         = 0x0004
     };
     Q_DECLARE_FLAGS(WindowFlags, WindowFlag)
-
-    static ExtendedSurface *get(QWaylandSurface *surface);
 
     ExtendedSurface(struct wl_client *client, uint32_t id, int version, Surface *surface);
     ~ExtendedSurface();
@@ -108,8 +104,6 @@ public:
     QVariantMap windowProperties() const;
     QVariant windowProperty(const QString &propertyName) const;
     void setWindowProperty(const QString &name, const QVariant &value);
-
-    const wl_interface *interface() const Q_DECL_OVERRIDE { return QtWaylandServer::qt_extended_surface::interface(); }
 
 Q_SIGNALS:
     void contentOrientationMaskChanged();

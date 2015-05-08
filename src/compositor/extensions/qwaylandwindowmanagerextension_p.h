@@ -43,7 +43,7 @@
 
 #include <QMap>
 
-class Q_COMPOSITOR_EXPORT QWaylandWindowManagerExtensionPrivate : public QWaylandExtensionTemplatePrivateImpl<QtWaylandServer::qt_windowmanager>
+class Q_COMPOSITOR_EXPORT QWaylandWindowManagerExtensionPrivate : public QWaylandExtensionTemplatePrivate, public QtWaylandServer::qt_windowmanager
 {
     Q_DECLARE_PUBLIC(QWaylandWindowManagerExtension)
 public:

@@ -46,14 +46,13 @@ namespace QtWayland {
 
 class Compositor;
 
-class TextInputManager : public QWaylandExtension, public QtWaylandServer::wl_text_input_manager, public QWaylandExtensionContainer
+class TextInputManager : public QWaylandExtensionTemplate<TextInputManager>, public QtWaylandServer::wl_text_input_manager, public QWaylandExtensionContainer
 {
     Q_OBJECT
 public:
     TextInputManager(Compositor *compositor);
     ~TextInputManager();
 
-    const struct wl_interface *interface() const Q_DECL_OVERRIDE { return wl_text_input_manager::interface(); }
 protected:
     void text_input_manager_create_text_input(Resource *resource, uint32_t id) Q_DECL_OVERRIDE;
 

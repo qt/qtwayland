@@ -44,7 +44,7 @@ QT_BEGIN_NAMESPACE
 namespace QtWayland {
 
 TextInputManager::TextInputManager(Compositor *compositor)
-    : QWaylandExtension(compositor->waylandCompositor())
+    : QWaylandExtensionTemplate(compositor->waylandCompositor())
     , QtWaylandServer::wl_text_input_manager(compositor->wl_display(), 1)
     , m_compositor(compositor)
 {

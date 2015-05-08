@@ -50,7 +50,7 @@ class QWaylandSurfaceView;
 
 namespace QtWayland {
 
-class TouchExtensionGlobal : public QWaylandExtension, public QtWaylandServer::qt_touch_extension
+class TouchExtensionGlobal : public QWaylandExtensionTemplate<TouchExtensionGlobal>, public QtWaylandServer::qt_touch_extension
 {
     Q_OBJECT
     Q_PROPERTY(BehaviorFlags behaviorFlags READ behaviorFlags WRITE setBehviorFlags NOTIFY behaviorFlagsChanged)
@@ -70,9 +70,6 @@ public:
     void setBehviorFlags(BehaviorFlags flags);
     BehaviorFlags behaviorFlags() const { return m_flags; }
 
-    const struct wl_interface *interface() const Q_DECL_OVERRIDE { return QtWaylandServer::qt_touch_extension::interface(); }
-
-    static TouchExtensionGlobal *get(QWaylandExtensionContainer *container);
 Q_SIGNALS:
     void behaviorFlagsChanged();
 

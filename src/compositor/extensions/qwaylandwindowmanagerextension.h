@@ -52,7 +52,7 @@ class QWaylandCompositor;
 
 class QWaylandWindowManagerExtensionPrivate;
 
-class Q_COMPOSITOR_EXPORT QWaylandWindowManagerExtension : public QWaylandExtensionTemplate
+class Q_COMPOSITOR_EXPORT QWaylandWindowManagerExtension : public QWaylandExtensionTemplate<QWaylandWindowManagerExtension>
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandWindowManagerExtension)
@@ -62,7 +62,8 @@ public:
     void setShowIsFullScreen(bool value);
     void sendQuitMessage(wl_client *client);
 
-    static QWaylandWindowManagerExtension *get(QWaylandExtensionContainer *container);
+    static const struct wl_interface *interface();
+    static QByteArray interfaceName();
 Q_SIGNALS:
     void openUrl(QWaylandClient *client, const QUrl &url);
 };

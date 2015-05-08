@@ -56,14 +56,9 @@ QT_BEGIN_NAMESPACE
 namespace QtWayland {
 
 Shell::Shell(QWaylandCompositor *compositor)
-    : QWaylandExtension(compositor)
+    : QWaylandExtensionTemplate(compositor)
     , wl_shell(compositor->waylandDisplay(), 1)
 {
-}
-
-const wl_interface *Shell::interface() const
-{
-    return &wl_shell_interface;
 }
 
 ShellSurfacePopupGrabber *Shell::getPopupGrabber(QWaylandInputDevice *input)
@@ -80,13 +75,8 @@ void Shell::shell_get_shell_surface(Resource *resource, uint32_t id, struct ::wl
     new ShellSurface(this, resource->client(), id, surface);
 }
 
-ShellSurface *ShellSurface::get(QWaylandSurface *surface)
-{
-    return static_cast<ShellSurface *>(surface->extension(wl_shell_surface::name()));
-}
-
 ShellSurface::ShellSurface(Shell *shell, wl_client *client, uint32_t id, Surface *surface)
-    : QWaylandExtension(surface->waylandSurface())
+    : QWaylandExtensionTemplate(surface->waylandSurface())
     , wl_shell_surface(client, id, 1)
     , m_shell(shell)
     , m_surface(surface)

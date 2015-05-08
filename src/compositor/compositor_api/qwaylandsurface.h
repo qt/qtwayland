@@ -133,10 +133,6 @@ public:
 
     Origin origin() const;
 
-    QWaylandSurface *transientParent() const;
-
-    QPointF transientOffset() const;
-
     QtWayland::Surface *handle();
 
     QByteArray authenticationToken() const;

@@ -48,7 +48,8 @@
 QT_BEGIN_NAMESPACE
 
 QWaylandInputPanelPrivate::QWaylandInputPanelPrivate(QtWayland::Compositor *compositor)
-    : QWaylandExtensionTemplatePrivateImpl(compositor->waylandCompositor())
+    : QWaylandExtensionTemplatePrivate(compositor->waylandCompositor())
+    , QtWaylandServer::wl_input_panel()
     , m_compositor(compositor)
     , m_focus()
     , m_inputPanelVisible(false)
@@ -115,16 +116,16 @@ void QWaylandInputPanelPrivate::setCursorRectangle(const QRect &cursorRectangle)
     Q_EMIT q->cursorRectangleChanged();
 }
 
-QWaylandInputPanelPrivate *QWaylandInputPanelPrivate::get(QWaylandExtensionContainer *container)
-{
-    QWaylandInputPanel *panel = static_cast<QWaylandInputPanel *>(container->extension(wl_input_panel::name()));
-    if (panel)
-        return panel->d_func();
-    return Q_NULLPTR;
-}
-
 QWaylandInputPanelPrivate *QWaylandInputPanelPrivate::get(QWaylandInputPanel *panel)
 {
+    return panel->d_func();
+}
+
+QWaylandInputPanelPrivate *QWaylandInputPanelPrivate::get(QWaylandExtensionContainer *container)
+{
+    QWaylandInputPanel *panel = QWaylandInputPanel::get(container);
+    if (!panel)
+        return Q_NULLPTR;
     return panel->d_func();
 }
 

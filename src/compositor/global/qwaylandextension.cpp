@@ -70,7 +70,7 @@ QWaylandExtensionContainer::~QWaylandExtensionContainer()
 QWaylandExtension *QWaylandExtensionContainer::extension(const QByteArray &name)
 {
     for (int i = 0; i < extension_vector.size(); i++) {
-        if (extension_vector.at(i)->name() == name)
+        if (extension_vector.at(i)->extensionInterface()->name == name)
             return extension_vector.at(i);
     }
     return Q_NULLPTR;
@@ -79,7 +79,7 @@ QWaylandExtension *QWaylandExtensionContainer::extension(const QByteArray &name)
 QWaylandExtension *QWaylandExtensionContainer::extension(const wl_interface *interface)
 {
     for (int i = 0; i < extension_vector.size(); i++) {
-        if (extension_vector.at(i)->interface() == interface)
+        if (extension_vector.at(i)->extensionInterface() == interface)
             return extension_vector.at(i);
     }
     return Q_NULLPTR;
@@ -99,20 +99,6 @@ void QWaylandExtensionContainer::addExtension(QWaylandExtension *extension)
 void QWaylandExtensionContainer::removeExtension(QWaylandExtension *extension)
 {
     extension_vector.removeOne(extension);
-}
-
-QWaylandExtensionTemplate::QWaylandExtensionTemplate(QWaylandExtensionContainer *container, QObject *parent)
-    : QWaylandExtension(container, parent)
-{ }
-
-QWaylandExtensionTemplate::QWaylandExtensionTemplate(QWaylandExtensionTemplatePrivate &dd, QObject *parent)
-    : QWaylandExtension(dd, parent)
-{ }
-
-const struct wl_interface *QWaylandExtensionTemplate::interface() const
-{
-    Q_D(const QWaylandExtensionTemplate);
-    return d->interface();
 }
 
 QT_END_NAMESPACE

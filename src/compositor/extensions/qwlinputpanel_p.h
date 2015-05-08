@@ -55,7 +55,7 @@ class TextInput;
 }
 
 
-class Q_COMPOSITOR_EXPORT QWaylandInputPanelPrivate : public QWaylandExtensionTemplatePrivateImpl<QtWaylandServer::wl_input_panel>
+class Q_COMPOSITOR_EXPORT QWaylandInputPanelPrivate : public QWaylandExtensionTemplatePrivate, public QtWaylandServer::wl_input_panel
 {
     Q_DECLARE_PUBLIC(QWaylandInputPanel)
 public:
@@ -73,8 +73,8 @@ public:
     QRect cursorRectangle() const;
     void setCursorRectangle(const QRect &cursorRectangle);
 
-    static QWaylandInputPanelPrivate *get(QWaylandExtensionContainer *container);
     static QWaylandInputPanelPrivate *get(QWaylandInputPanel *panel);
+    static QWaylandInputPanelPrivate *get(QWaylandExtensionContainer *container);
 protected:
     void input_panel_get_input_panel_surface(Resource *resource, uint32_t id, struct ::wl_resource *surface) Q_DECL_OVERRIDE;
 

@@ -199,7 +199,7 @@ void QWindowCompositor::surfaceMapped()
 
     if (shellSurface && shellSurface->surfaceType() == QtWayland::ShellSurface::Popup) {
         QWaylandSurfaceView *view = surface->views().first();
-        view->setRequestedPosition(surface->transientParent()->views().first()->pos() + surface->transientOffset());
+        view->setRequestedPosition(shellSurface->transientParent()->views().first()->pos() + shellSurface->transientOffset());
     }
 
     m_surfaces.append(surface);

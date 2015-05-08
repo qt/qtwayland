@@ -51,7 +51,7 @@ class QKeyEvent;
 
 namespace QtWayland {
 
-class QtKeyExtensionGlobal : public QWaylandExtension, public QtWaylandServer::qt_key_extension
+class QtKeyExtensionGlobal : public QWaylandExtensionTemplate<QtKeyExtensionGlobal>, public QtWaylandServer::qt_key_extension
 {
     Q_OBJECT
 public:
@@ -59,9 +59,6 @@ public:
 
     bool postQtKeyEvent(QKeyEvent *event, Surface *surface);
 
-    const struct wl_interface *interface() const Q_DECL_OVERRIDE { return qt_key_extension::interface(); }
-
-    static QtKeyExtensionGlobal *get(QWaylandExtensionContainer *container);
 private:
     Compositor *m_compositor;
 };

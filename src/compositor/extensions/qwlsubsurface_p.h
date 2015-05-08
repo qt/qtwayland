@@ -50,20 +50,19 @@ class QWaylandSurface;
 
 namespace QtWayland {
 
-class SubSurfaceExtensionGlobal : public QWaylandExtension, public QtWaylandServer::qt_sub_surface_extension
+class SubSurfaceExtensionGlobal : public QWaylandExtensionTemplate<SubSurfaceExtensionGlobal>, public QtWaylandServer::qt_sub_surface_extension
 {
     Q_OBJECT
 public:
     SubSurfaceExtensionGlobal(QWaylandCompositor *compositor);
 
-    const struct wl_interface *interface() const { return qt_sub_surface_extension::interface(); }
 private:
     QWaylandCompositor *m_compositor;
 
     void sub_surface_extension_get_sub_surface_aware_surface(Resource *resource, uint32_t id, struct ::wl_resource *surface) Q_DECL_OVERRIDE;
 };
 
-class SubSurface : public QWaylandExtension, public QtWaylandServer::qt_sub_surface
+class SubSurface : public QWaylandExtensionTemplate<SubSurface>, public QtWaylandServer::qt_sub_surface
 {
     Q_OBJECT
     Q_PROPERTY(SubSurface *parent READ parent WRITE setParent NOTIFY parentChanged)
@@ -80,8 +79,6 @@ public:
     QLinkedList<QWaylandSurface *> subSurfaces() const;
 
     QWaylandSurface *surface() const;
-
-    const struct wl_interface *interface() const { return qt_sub_surface::interface(); }
 
 Q_SIGNALS:
     void parentChanged(SubSurface *newParent, SubSurface *oldParent);

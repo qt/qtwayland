@@ -149,6 +149,7 @@ public Q_SLOTS:
 protected:
     void compositor_create_surface(Resource *resource, uint32_t id) Q_DECL_OVERRIDE;
     void compositor_create_region(Resource *resource, uint32_t id) Q_DECL_OVERRIDE;
+
 private Q_SLOTS:
     void processWaylandEvents();
 

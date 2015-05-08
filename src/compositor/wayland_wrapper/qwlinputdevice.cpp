@@ -110,15 +110,15 @@ void QWaylandInputDevicePrivate::setCapabilities(QWaylandInputDevice::Capability
         QWaylandInputDevice::CapabilityFlags changed = caps ^ m_capabilities;
 
         if (changed & QWaylandInputDevice::Pointer) {
-            m_pointer.reset(m_pointer.isNull() ? new QWaylandPointer(q) : 0);
+            m_pointer.reset(m_pointer.isNull() ? compositor()->createPointerDevice(q) : 0);
         }
 
         if (changed & QWaylandInputDevice::Keyboard) {
-            m_keyboard.reset(m_keyboard.isNull() ? new QWaylandKeyboard(q) : 0);
+            m_keyboard.reset(m_keyboard.isNull() ? compositor()->createKeyboardDevice(q) : 0);
         }
 
         if (changed & QWaylandInputDevice::Touch) {
-            m_touch.reset(m_touch.isNull() ? new QWaylandTouch(q) : 0);
+            m_touch.reset(m_touch.isNull() ? compositor()->createTouchDevice(q) : 0);
         }
 
         m_capabilities = caps;

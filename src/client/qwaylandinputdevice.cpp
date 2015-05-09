@@ -494,6 +494,15 @@ void QWaylandInputDevice::Pointer::pointer_button(uint32_t serial, uint32_t time
     }
 }
 
+class WheelEvent : public QWaylandPointerEvent
+{
+public:
+    WheelEvent(ulong t, const QPointF &l, const QPointF &g, const QPoint &pd, const QPoint &ad)
+        : QWaylandPointerEvent(QWaylandPointerEvent::Wheel, t, l, g, pd, ad)
+    {
+    }
+};
+
 void QWaylandInputDevice::Pointer::pointer_axis(uint32_t time, uint32_t axis, int32_t value)
 {
     QWaylandWindow *window = mFocus;
@@ -517,10 +526,8 @@ void QWaylandInputDevice::Pointer::pointer_axis(uint32_t time, uint32_t axis, in
         angleDelta.setY(valueDelta);
     }
 
-    QWindowSystemInterface::handleWheelEvent(window->window(),
-                                             time, mSurfacePos,
-                                             mGlobalPos, pixelDelta,
-                                             angleDelta);
+    WheelEvent e(time, mSurfacePos, mGlobalPos, pixelDelta, angleDelta);
+    window->handleMouse(mParent, e);
 }
 
 #ifndef QT_NO_WAYLAND_XKB

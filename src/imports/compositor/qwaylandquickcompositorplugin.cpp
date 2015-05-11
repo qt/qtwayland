@@ -40,7 +40,7 @@
 #include <QtQuick/QQuickItem>
 
 #include <QtCompositor/QWaylandQuickCompositor>
-#include <QtCompositor/QWaylandQuickView>
+#include <QtCompositor/QWaylandQuickItem>
 #include <QtCompositor/QWaylandQuickSurface>
 #include <QtCompositor/QWaylandClient>
 #include <QtCompositor/QWaylandOutput>

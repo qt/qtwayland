@@ -69,9 +69,9 @@ public:
     QWaylandDefaultPointerGrabber()
         : QWaylandPointerGrabber()
     {}
-    QWaylandDefaultPointerGrabber(QWaylandPointer *pointer)
+    QWaylandDefaultPointerGrabber(QWaylandPointer *_pointer)
         : QWaylandPointerGrabber()
-    { this->pointer = pointer; }
+    { this->pointer = _pointer; }
 
     void focus() Q_DECL_OVERRIDE;
     void motion(uint32_t time) Q_DECL_OVERRIDE;

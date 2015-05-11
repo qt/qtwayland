@@ -77,7 +77,7 @@ class Q_COMPOSITOR_EXPORT QWaylandCompositor : public QObject, public QWaylandEx
     Q_PROPERTY(QWaylandCompositor::ExtensionFlags extensionFlags READ extensionFlags WRITE setExtensionFlags)
     Q_PROPERTY(bool retainedSelection READ retainedSelectionEnabled WRITE setRetainedSelectionEnabled)
     Q_PROPERTY(QWaylandOutputSpace *primaryOutputSpace READ primaryOutputSpace WRITE setPrimaryOutputSpace NOTIFY primaryOutputSpaceChanged)
-    Q_PROPERTY(QWaylandOutput *primaryOutput READ primaryOutput NOTIFY primaryOutputChanged);
+    Q_PROPERTY(QWaylandOutput *primaryOutput READ primaryOutput NOTIFY primaryOutputChanged)
 
 public:
     enum ExtensionFlag {

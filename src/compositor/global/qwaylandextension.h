@@ -84,8 +84,8 @@ class Q_COMPOSITOR_EXPORT QWaylandExtensionTemplate : public QWaylandExtension
 {
     Q_DECLARE_PRIVATE(QWaylandExtensionTemplate)
 public:
-    QWaylandExtensionTemplate(QWaylandExtensionContainer *container, QObject *parent = 0)
-        : QWaylandExtension(container, parent)
+    QWaylandExtensionTemplate(QWaylandExtensionContainer *container, QObject *_parent = 0)
+        : QWaylandExtension(container, _parent)
     { }
 
     const struct wl_interface *extensionInterface() const Q_DECL_OVERRIDE
@@ -100,8 +100,8 @@ public:
     }
 
 protected:
-    QWaylandExtensionTemplate(QWaylandExtensionTemplatePrivate &dd, QObject *parent = 0)
-        : QWaylandExtension(dd, parent)
+    QWaylandExtensionTemplate(QWaylandExtensionTemplatePrivate &dd, QObject *_parent = 0)
+        : QWaylandExtension(dd, _parent)
     { }
 };
 

@@ -108,7 +108,7 @@ class Q_COMPOSITOR_EXPORT QWaylandSurface : public QObject, public QWaylandExten
     Q_PROPERTY(QString className READ className NOTIFY classNameChanged)
     Q_PROPERTY(QString title READ title NOTIFY titleChanged)
     Q_PROPERTY(QWaylandOutput *primaryOutput READ primaryOutput WRITE setPrimaryOutput NOTIFY primaryOutputChanged)
-    Q_PROPERTY(QWaylandSurface::Origin origin READ origin NOTIFY originChanged);
+    Q_PROPERTY(QWaylandSurface::Origin origin READ origin NOTIFY originChanged)
 
 public:
     enum Origin {

@@ -47,7 +47,6 @@
 #include "qwlpointer_p.h"
 #include "qwlkeyboard_p.h"
 #include "qwltouch_p.h"
-#include "qwlshellsurface_p.h"
 #include "qwaylandview.h"
 #include <QtCompositor/QWaylandClient>
 

@@ -106,6 +106,7 @@ public:
     void ping(uint32_t serial);
 
     QWaylandView *view() { return m_view; }
+    void setView(QWaylandView *view) { m_view = view; }
 
     void setSurfaceType(SurfaceType type);
     SurfaceType surfaceType() const;

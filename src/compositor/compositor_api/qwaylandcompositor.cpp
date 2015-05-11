@@ -201,11 +201,6 @@ void QWaylandCompositor::cleanupGraphicsResources()
     m_compositor->cleanupGraphicsResources();
 }
 
-QWaylandView *QWaylandCompositor::createView()
-{
-    return new QWaylandView();
-}
-
 QWaylandInputDevice *QWaylandCompositor::createInputDevice()
 {
     return new QWaylandInputDevice(this);
@@ -345,13 +340,6 @@ void QWaylandCompositor::setCursorSurface(QWaylandSurface *surface, int hotspotX
     Q_UNUSED(hotspotY);
 }
 #endif
-
-QWaylandView *QWaylandCompositor::createSurfaceView(QWaylandSurface *surface)
-{
-    QWaylandView *view = createView();
-    view->setSurface(surface);
-    return view;
-}
 
 QWaylandInputDevice *QWaylandCompositor::inputDeviceFor(QInputEvent *inputEvent)
 {

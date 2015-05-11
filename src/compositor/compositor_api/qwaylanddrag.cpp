@@ -63,7 +63,7 @@ QWaylandDrag::QWaylandDrag(QWaylandInputDevice *inputDevice)
 {
 }
 
-QWaylandView *QWaylandDrag::icon() const
+QWaylandSurface *QWaylandDrag::icon() const
 {
     Q_D(const QWaylandDrag);
 
@@ -72,6 +72,16 @@ QWaylandView *QWaylandDrag::icon() const
         return 0;
 
     return dataDevice->dragIcon();
+}
+
+QPointF QWaylandDrag::position() const
+{
+    Q_D(const QWaylandDrag);
+
+    const QtWayland::DataDevice *dataDevice = QWaylandInputDevicePrivate::get(d->inputDevice)->dataDevice();
+    if (!dataDevice)
+        return QPointF();
+    return dataDevice->dragIconPosition();
 }
 
 bool QWaylandDrag::visible() const

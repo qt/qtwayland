@@ -120,13 +120,6 @@ QWaylandOutput *QWaylandQuickCompositor::createOutput(QWaylandOutputSpace *outpu
     return output;
 }
 
-QWaylandView *QWaylandQuickCompositor::createView()
-{
-    QWaylandQuickItem *view = new QWaylandQuickItem();
-    QQmlEngine::setObjectOwnership(view, QQmlEngine::JavaScriptOwnership);
-    return view;
-}
-
 QWaylandSurface *QWaylandQuickCompositor::createSurface(QWaylandClient *client, quint32 id, int version)
 {
     return new QWaylandQuickSurface(client->client(), id, version, this);

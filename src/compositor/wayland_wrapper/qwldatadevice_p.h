@@ -63,7 +63,8 @@ public:
 
     void setDragFocus(QWaylandView *focus, const QPointF &localPosition);
 
-    QWaylandView *dragIcon() const;
+    QWaylandSurface *dragIcon() const;
+    QPointF dragIconPosition() const;
 
     void sourceDestroyed(DataSource *source);
 
@@ -87,7 +88,8 @@ private:
     QWaylandView *m_dragFocus;
     Resource *m_dragFocusResource;
 
-    QWaylandView *m_dragIcon;
+    QWaylandSurface *m_dragIcon;
+    QPointF m_dragIconPosition;
 };
 
 }

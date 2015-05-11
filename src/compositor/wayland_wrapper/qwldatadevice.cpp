@@ -50,6 +50,7 @@
 #include "qwaylandview.h"
 #include <QtCompositor/QWaylandClient>
 
+#include <QtCore/QPointF>
 #include <QDebug>
 
 QT_BEGIN_NAMESPACE
@@ -119,9 +120,14 @@ void DataDevice::setDragFocus(QWaylandView *focus, const QPointF &localPosition)
     m_dragFocusResource = resource;
 }
 
-QWaylandView *DataDevice::dragIcon() const
+QWaylandSurface *DataDevice::dragIcon() const
 {
     return m_dragIcon;
+}
+
+QPointF DataDevice::dragIconPosition() const
+{
+    return m_dragIconPosition;
 }
 
 void DataDevice::sourceDestroyed(DataSource *source)
@@ -140,9 +146,8 @@ void DataDevice::focus()
 
 void DataDevice::motion(uint32_t time)
 {
-    if (m_dragIcon) {
-        m_dragIcon->setRequestedPosition(pointer->currentSpacePosition());
-    }
+    Q_EMIT QWaylandInputDevicePrivate::get(m_inputDevice)->dragHandle()->positionChanged();
+    m_dragIconPosition = pointer->currentSpacePosition();
 
     if (m_dragFocusResource && m_dragFocus) {
         const QPointF &surfacePoint = outputSpace()->mapToView(m_dragFocus, pointer->currentSpacePosition());
@@ -165,6 +170,8 @@ void DataDevice::button(uint32_t time, Qt::MouseButton button, uint32_t state)
 
         if (m_dragIcon) {
             m_dragIcon = 0;
+            m_dragIconPosition = QPointF();
+            Q_EMIT QWaylandInputDevicePrivate::get(m_inputDevice)->dragHandle()->positionChanged();
             Q_EMIT QWaylandInputDevicePrivate::get(m_inputDevice)->dragHandle()->iconChanged();
         }
 
@@ -182,7 +189,9 @@ void DataDevice::data_device_start_drag(Resource *resource, struct ::wl_resource
 
         m_dragClient = resource->client();
         m_dragDataSource = source != 0 ? DataSource::fromResource(source) : 0;
-        m_dragIcon = icon != 0 ? m_compositor->createSurfaceView(Surface::fromResource(icon)->waylandSurface()) : 0;
+        m_dragIcon = icon != 0 ? QWaylandSurface::fromResource(icon) : 0;
+        m_dragIconPosition = QPointF();
+        Q_EMIT QWaylandInputDevicePrivate::get(m_inputDevice)->dragHandle()->positionChanged();
         Q_EMIT QWaylandInputDevicePrivate::get(m_inputDevice)->dragHandle()->iconChanged();
 
         QWaylandInputDevicePrivate::get(m_inputDevice)->pointerDevice()->startGrab(this);

@@ -39,7 +39,8 @@
 
 #include <QtCompositor/qwaylandexport.h>
 
-#include <QObject>
+#include <QtCore/QObject>
+#include <QtCore/QPointF>
 
 QT_BEGIN_NAMESPACE
 
@@ -53,17 +54,20 @@ class Q_COMPOSITOR_EXPORT QWaylandDrag : public QObject
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandDrag)
 
-    Q_PROPERTY(QWaylandView* icon READ icon NOTIFY iconChanged)
+    Q_PROPERTY(QWaylandSurface *icon READ icon NOTIFY iconChanged)
+    Q_PROPERTY(QPointF position READ position NOTIFY positionChanged)
     Q_PROPERTY(bool visible READ visible NOTIFY iconChanged)
 
 public:
     explicit QWaylandDrag(QWaylandInputDevice *inputDevice);
 
-    QWaylandView *icon() const;
+    QWaylandSurface *icon() const;
+    QPointF position() const;
     bool visible() const;
 
 Q_SIGNALS:
     void iconChanged();
+    void positionChanged();
 };
 
 QT_END_NAMESPACE

@@ -181,7 +181,6 @@ protected:
                                          const QString &manufacturer,
                                          const QString &model);
     virtual QWaylandSurface *createSurface(QWaylandClient *client, quint32 id, int version);
-    virtual QWaylandView *createView();
     virtual QWaylandInputDevice *createInputDevice();
 
     friend class QtWayland::Compositor;

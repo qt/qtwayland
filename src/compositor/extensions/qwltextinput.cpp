@@ -130,7 +130,7 @@ void TextInput::text_input_show_input_panel(Resource *)
     m_inputPanelVisible = true;
 
     if (std::find_if(m_activeInputMethods.cbegin(), m_activeInputMethods.cend(), isInputMethodBound) != m_activeInputMethods.cend()){
-        QWaylandInputPanelPrivate *panel = QWaylandInputPanelPrivate::get(m_compositor->waylandCompositor());
+        QWaylandInputPanelPrivate *panel = QWaylandInputPanelPrivate::findIn(m_compositor->waylandCompositor());
         if (panel)
             panel->setInputPanelVisible(true);
     }
@@ -141,7 +141,7 @@ void TextInput::text_input_hide_input_panel(Resource *)
     m_inputPanelVisible = false;
 
     if (std::find_if(m_activeInputMethods.cbegin(), m_activeInputMethods.cend(), isInputMethodBound) != m_activeInputMethods.cend()) {
-        QWaylandInputPanelPrivate *panel = QWaylandInputPanelPrivate::get(m_compositor->waylandCompositor());
+        QWaylandInputPanelPrivate *panel = QWaylandInputPanelPrivate::findIn(m_compositor->waylandCompositor());
         if (panel)
             panel->setInputPanelVisible(false);
     }
@@ -152,7 +152,7 @@ void TextInput::text_input_set_cursor_rectangle(Resource *, int32_t x, int32_t y
     m_cursorRectangle = QRect(x, y, width, height);
 
     if (!m_activeInputMethods.isEmpty()) {
-        QWaylandInputPanelPrivate *panel = QWaylandInputPanelPrivate::get(m_compositor->waylandCompositor());
+        QWaylandInputPanelPrivate *panel = QWaylandInputPanelPrivate::findIn(m_compositor->waylandCompositor());
         if (panel)
             panel->setCursorRectangle(m_cursorRectangle);
     }

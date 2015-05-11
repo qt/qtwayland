@@ -73,8 +73,7 @@ public:
     QRect cursorRectangle() const;
     void setCursorRectangle(const QRect &cursorRectangle);
 
-    static QWaylandInputPanelPrivate *get(QWaylandInputPanel *panel);
-    static QWaylandInputPanelPrivate *get(QWaylandExtensionContainer *container);
+    static QWaylandInputPanelPrivate *findIn(QWaylandExtensionContainer *container);
 protected:
     void input_panel_get_input_panel_surface(Resource *resource, uint32_t id, struct ::wl_resource *surface) Q_DECL_OVERRIDE;
 

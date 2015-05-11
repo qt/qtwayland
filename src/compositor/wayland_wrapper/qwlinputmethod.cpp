@@ -78,7 +78,7 @@ void InputMethod::activate(TextInput *textInput)
 
     send_activate(m_resource->handle, m_context->resource()->handle);
 
-    QWaylandInputPanelPrivate *panel = QWaylandInputPanelPrivate::get(m_compositor);
+    QWaylandInputPanelPrivate *panel = QWaylandInputPanelPrivate::findIn(m_compositor);
     if (panel) {
         panel->setFocus(textInput->focus());
         panel->setCursorRectangle(textInput->cursorRectangle());
@@ -97,7 +97,7 @@ void InputMethod::deactivate()
     m_textInput = 0;
     m_context = 0;
 
-    QWaylandInputPanelPrivate *panel = QWaylandInputPanelPrivate::get(m_compositor);
+    QWaylandInputPanelPrivate *panel = QWaylandInputPanelPrivate::findIn(m_compositor);
     if (panel) {
         panel->setFocus(0);
         panel->setCursorRectangle(QRect());

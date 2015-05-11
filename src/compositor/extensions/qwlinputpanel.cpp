@@ -116,14 +116,9 @@ void QWaylandInputPanelPrivate::setCursorRectangle(const QRect &cursorRectangle)
     Q_EMIT q->cursorRectangleChanged();
 }
 
-QWaylandInputPanelPrivate *QWaylandInputPanelPrivate::get(QWaylandInputPanel *panel)
+QWaylandInputPanelPrivate *QWaylandInputPanelPrivate::findIn(QWaylandExtensionContainer *container)
 {
-    return panel->d_func();
-}
-
-QWaylandInputPanelPrivate *QWaylandInputPanelPrivate::get(QWaylandExtensionContainer *container)
-{
-    QWaylandInputPanel *panel = QWaylandInputPanel::get(container);
+    QWaylandInputPanel *panel = QWaylandInputPanel::findIn(container);
     if (!panel)
         return Q_NULLPTR;
     return panel->d_func();

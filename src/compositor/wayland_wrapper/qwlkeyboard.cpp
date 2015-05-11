@@ -135,7 +135,7 @@ void QWaylandKeyboardPrivate::focused(QWaylandSurface *surface)
 
 bool QWaylandKeyboardPrivate::setFocus(QWaylandSurface* surface)
 {
-    QtWayland::ShellSurface *shellsurface = QtWayland::ShellSurface::get(surface);
+    QtWayland::ShellSurface *shellsurface = QtWayland::ShellSurface::findIn(surface);
     if (shellsurface &&  shellsurface->isTransientInactive())
             return false;
     m_grab->focused(surface);

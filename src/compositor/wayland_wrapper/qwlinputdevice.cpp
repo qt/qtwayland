@@ -200,7 +200,7 @@ void QWaylandInputDevicePrivate::sendFullKeyEvent(QKeyEvent *event)
         return;
     }
 
-    QtWayland::QtKeyExtensionGlobal *ext = QtWayland::QtKeyExtensionGlobal::get(m_compositor);
+    QtWayland::QtKeyExtensionGlobal *ext = QtWayland::QtKeyExtensionGlobal::findIn(m_compositor);
     if (ext && ext->postQtKeyEvent(event, keyboardFocus()->handle()))
         return;
 
@@ -214,7 +214,7 @@ void QWaylandInputDevicePrivate::sendFullKeyEvent(QKeyEvent *event)
 
 void QWaylandInputDevicePrivate::sendFullKeyEvent(QWaylandSurface *surface, QKeyEvent *event)
 {
-    QtWayland::QtKeyExtensionGlobal *ext = QtWayland::QtKeyExtensionGlobal::get(m_compositor);
+    QtWayland::QtKeyExtensionGlobal *ext = QtWayland::QtKeyExtensionGlobal::findIn(m_compositor);
     if (ext)
         ext->postQtKeyEvent(event, surface->handle());
 }

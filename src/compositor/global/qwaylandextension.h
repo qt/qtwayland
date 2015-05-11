@@ -93,7 +93,7 @@ public:
         return T::interface();
     }
 
-    static T *get(QWaylandExtensionContainer *container)
+    static T *findIn(QWaylandExtensionContainer *container)
     {
         if (!container) return Q_NULLPTR;
         return qobject_cast<T *>(container->extension(T::interfaceName()));

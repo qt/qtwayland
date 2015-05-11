@@ -331,7 +331,7 @@ void Compositor::destroyClient(QWaylandClient *client)
     if (!client)
         return;
 
-    WindowManagerServerIntegration *wmExtension = static_cast<WindowManagerServerIntegration *>(waylandCompositor()->extension(QtWaylandServer::qt_windowmanager::name()));
+    QWaylandWindowManagerExtension *wmExtension = QWaylandWindowManagerExtension::findIn(waylandCompositor());
     if (wmExtension)
         wmExtension->sendQuitMessage(client->client());
 

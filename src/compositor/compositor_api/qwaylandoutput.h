@@ -38,7 +38,8 @@
 #ifndef QWAYLANDOUTPUT_H
 #define QWAYLANDOUTPUT_H
 
-#include <QtCompositor/qwaylandexport.h>
+#include <QtCompositor/qwaylandextension.h>
+#include <QtCore/QObject>
 
 #include <QObject>
 #include <QRect>
@@ -59,7 +60,7 @@ namespace QtWayland {
     class Output;
 }
 
-class Q_COMPOSITOR_EXPORT QWaylandOutput : public QObject
+class Q_COMPOSITOR_EXPORT QWaylandOutput : public QObject, public QWaylandExtensionContainer
 {
     Q_OBJECT
     Q_PROPERTY(QString manufacturer READ manufacturer CONSTANT)

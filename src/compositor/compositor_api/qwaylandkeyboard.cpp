@@ -146,6 +146,10 @@ void QWaylandKeyboardPrivate::focused(QWaylandSurface *surface)
 
 void QWaylandKeyboardPrivate::keyboard_bind_resource(wl_keyboard::Resource *resource)
 {
+    // Send repeat information
+    if (resource->version() >= WL_KEYBOARD_REPEAT_INFO_SINCE_VERSION)
+        send_repeat_info(resource->handle, repeatRate, repeatDelay);
+
 #ifndef QT_NO_WAYLAND_XKB
     if (xkb_context) {
         send_keymap(resource->handle, WL_KEYBOARD_KEYMAP_FORMAT_XKB_V1,
@@ -368,6 +372,14 @@ void QWaylandKeyboardPrivate::createXKBKeymap()
 }
 #endif
 
+void QWaylandKeyboardPrivate::sendRepeatInfo()
+{
+    Q_FOREACH (Resource *resource, resourceMap()) {
+        if (resource->version() >= WL_KEYBOARD_REPEAT_INFO_SINCE_VERSION)
+            send_repeat_info(resource->handle, repeatRate, repeatDelay);
+    }
+}
+
 /*!
  * \class QWaylandKeyboard
  * \inmodule QtWaylandCompositor
@@ -477,12 +489,7 @@ void QWaylandKeyboard::setRepeatRate(quint32 rate)
     if (d->repeatRate == rate)
         return;
 
-    // TODO: As of today 2015-11-25, we don't support Wayland 1.6
-    // because of CI limitations. Once the protocol is updated
-    // we can send keyboard repeat information to the client as
-    // per wl_seat version 4
-
-    qWarning("Setting QWaylandKeyboard::repeatRate has no effect until QtWaylandCompositor support wl_seat 4");
+    d->sendRepeatInfo();
 
     d->repeatRate = rate;
     Q_EMIT repeatRateChanged(rate);
@@ -507,12 +514,7 @@ void QWaylandKeyboard::setRepeatDelay(quint32 delay)
     if (d->repeatDelay == delay)
         return;
 
-    // TODO: As of today 2015-11-25, we don't support Wayland 1.6
-    // because of CI limitations. Once the protocol is updated
-    // we can send keyboard repeat information to the client as
-    // per wl_seat version 4
-
-    qWarning("Setting QWaylandKeyboard::repeatDelay has no effect until QtWaylandCompositor support wl_seat 4");
+    d->sendRepeatInfo();
 
     d->repeatDelay = delay;
     Q_EMIT repeatDelayChanged(delay);

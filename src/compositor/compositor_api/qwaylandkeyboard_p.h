@@ -109,6 +109,8 @@ private:
 #endif
     static uint toWaylandXkbV1Key(const uint nativeScanCode);
 
+    void sendRepeatInfo();
+
     QWaylandInputDevice *seat;
 
     QWaylandSurface *focus;

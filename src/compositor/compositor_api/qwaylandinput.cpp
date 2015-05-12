@@ -53,7 +53,7 @@ QT_BEGIN_NAMESPACE
 
 QWaylandInputDevicePrivate::QWaylandInputDevicePrivate(QWaylandInputDevice *inputdevice, QWaylandCompositor *compositor)
     : QObjectPrivate()
-    , QtWaylandServer::wl_seat(compositor->display(), 3)
+    , QtWaylandServer::wl_seat(compositor->display(), 4)
     , compositor(compositor)
     , mouseFocus(Q_NULLPTR)
     , capabilities()

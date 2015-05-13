@@ -388,8 +388,6 @@ void Compositor::initializeExtensions()
     }
     if (m_extensions & QWaylandCompositor::WindowManagerExtension)
         new QWaylandWindowManagerExtension(waylandCompositor());
-    if (m_extensions & QWaylandCompositor::DefaultShellExtension)
-        new Shell(waylandCompositor());
 }
 
 void Compositor::initializeDefaultInputDevice()

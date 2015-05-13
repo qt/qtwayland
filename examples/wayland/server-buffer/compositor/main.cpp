@@ -79,7 +79,7 @@ public:
         , m_server_buffer_8_bit(0)
         , m_server_buffer_item_8_bit(0)
     {
-        setExtensionFlags(extensionFlags() | QWaylandCompositor::DefaultShellExtension);
+        setExtensionFlags(extensionFlags());
 
         create();
         m_view.setSource(QUrl("qrc:/qml/main.qml"));

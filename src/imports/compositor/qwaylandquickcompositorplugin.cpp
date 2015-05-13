@@ -136,12 +136,11 @@ public:
 
         bool useResource = true;
         QDir qmlDir(baseUrl().toLocalFile());
-        if (qmlDir.exists(QStringLiteral("WaylandSurfaceChrome.qml")))
+        if (qmlDir.exists(QStringLiteral("WaylandCursorItem.qml")))
             useResource = false;
 
         QmlUrlResolver resolver(useResource, qmlDir, QStringLiteral("qrc:/QtWayland/Compositor/"));
 
-        qmlRegisterType(resolver.get(QStringLiteral("WaylandSurfaceChrome.qml")), uri, 1, 0, "WaylandSurfaceChrome");
         qmlRegisterType(resolver.get(QStringLiteral("WaylandOutputWindow.qml")), uri, 1, 0, "WaylandOutputWindow");
         qmlRegisterType(resolver.get(QStringLiteral("WaylandCursorItem.qml")), uri, 1, 0, "WaylandCursorItem");
     }
@@ -151,7 +150,7 @@ public:
         qmlRegisterType<QWaylandQuickCompositorImpl>(uri, 1, 0, "WaylandCompositor");
         qmlRegisterType<QWaylandQuickItem>(uri, 1, 0, "WaylandView");
         qmlRegisterType<QWaylandMouseTracker>(uri, 1, 0, "WaylandMouseTracker");
-        qmlRegisterUncreatableType<QWaylandQuickSurface>(uri, 1, 0, "WaylandQuickSurface", QObject::tr("Cannot create instance of WaylandQuickSurface"));
+        qmlRegisterUncreatableType<QWaylandQuickSurface>(uri, 1, 0, "WaylandSurface", QObject::tr("Cannot create instance of WaylandQuickSurface"));
         qmlRegisterUncreatableType<QWaylandClient>(uri, 1, 0, "WaylandClient", QObject::tr("Cannot create instance of WaylandClient"));
         qmlRegisterUncreatableType<QWaylandOutput>(uri, 1, 0, "WaylandOutput", QObject::tr("Cannot create instance of WaylandOutput"));
         qmlRegisterUncreatableType<QWaylandOutputSpace>(uri, 1, 0, "WaylandOutputSpace", QObject::tr("Cannot create instance of WaylandOutputSpace"));

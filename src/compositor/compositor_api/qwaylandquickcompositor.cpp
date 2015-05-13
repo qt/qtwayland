@@ -51,7 +51,6 @@ QT_BEGIN_NAMESPACE
 QWaylandQuickCompositor::QWaylandQuickCompositor(QObject *parent)
     : QWaylandCompositor(parent)
     , m_initializeLegazyQmlNames(true)
-    , m_exposeDefaultShell(false)
 {
 }
 
@@ -59,11 +58,6 @@ void QWaylandQuickCompositor::create()
 {
     if (m_initializeLegazyQmlNames)
         registerLegacyQmlNames();
-
-    if (m_exposeDefaultShell)
-        setExtensionFlags(extensionFlags() | QWaylandCompositor::DefaultShellExtension);
-    else
-        setExtensionFlags(extensionFlags() & !QWaylandCompositor::DefaultShellExtension);
 
     QWaylandCompositor::create();
 }
@@ -90,18 +84,6 @@ void QWaylandQuickCompositor::setInitializeLegazyQmlNames(bool init)
     if (isCreated())
         qWarning() << Q_FUNC_INFO << "modifying initializeLegazyQmlNames after the compositor is created is not supported";
     m_initializeLegazyQmlNames = init;
-}
-
-bool QWaylandQuickCompositor::exposeDefaultShell() const
-{
-    return m_exposeDefaultShell;
-}
-
-void QWaylandQuickCompositor::setExposeDefaultShell(bool defaultShell)
-{
-    if (isCreated())
-        qWarning() << Q_FUNC_INFO << "modifying exposeDefaultShell after the compositor is created is not supported";
-    m_exposeDefaultShell = defaultShell;
 }
 
 QWaylandOutput *QWaylandQuickCompositor::createOutput(QWaylandOutputSpace *outputSpace,
@@ -131,9 +113,6 @@ void QWaylandQuickCompositor::classBegin()
 
 void QWaylandQuickCompositor::componentComplete()
 {
-    //if (m_exposeDefaultShell)
-        //addDefaultShell();
-
 }
 
 QT_END_NAMESPACE

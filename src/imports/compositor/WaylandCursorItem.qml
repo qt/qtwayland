@@ -34,7 +34,7 @@
 import QtQuick 2.0
 import QtWayland.Compositor 1.0
 
-WaylandSurfaceView {
+WaylandView {
     id: cursorItem
     property QtObject compositor
     property int hotspotX: 0

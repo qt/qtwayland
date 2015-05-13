@@ -51,7 +51,6 @@ class Q_COMPOSITOR_EXPORT QWaylandQuickCompositor : public QWaylandCompositor, p
     Q_INTERFACES(QQmlParserStatus)
     Q_OBJECT
     Q_PROPERTY(bool initializeLegazyQmlNames READ initializeLegazyQmlNames WRITE setInitializeLegazyQmlNames)
-    Q_PROPERTY(bool exposeDefaultShell READ exposeDefaultShell WRITE setExposeDefaultShell)
 public:
     QWaylandQuickCompositor(QObject *parent = 0);
     void create() Q_DECL_OVERRIDE;
@@ -59,9 +58,6 @@ public:
     static void registerLegacyQmlNames();
     bool initializeLegazyQmlNames() const;
     void setInitializeLegazyQmlNames(bool init);
-
-    bool exposeDefaultShell() const;
-    void setExposeDefaultShell(bool defaultShell);
 
     QWaylandOutput *createOutput(QWaylandOutputSpace *outputSpace,
                                  QWindow *window,
@@ -75,7 +71,6 @@ protected:
 
 private:
     bool m_initializeLegazyQmlNames;
-    bool m_exposeDefaultShell;
 };
 
 QT_END_NAMESPACE

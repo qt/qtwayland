@@ -125,7 +125,7 @@ QWindowCompositor::~QWindowCompositor()
 
 void QWindowCompositor::create()
 {
-    setExtensionFlags(extensionFlags() | QWaylandCompositor::DefaultShellExtension);
+    setExtensionFlags(extensionFlags());
 
     QWaylandCompositor::create();
 

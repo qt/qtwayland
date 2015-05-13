@@ -11,7 +11,6 @@ SOURCES += \
     qwaylandmousetracker.cpp
 
 COMPOSITOR_QML_FILES += \
-    WaylandSurfaceChrome.qml \
     WaylandOutputWindow.qml \
     WaylandCursorItem.qml \
     qmldir

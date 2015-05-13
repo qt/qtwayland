@@ -54,8 +54,6 @@ WaylandCompositor {
         Chrome { }
     }
 
-    exposeDefaultShell: true
-
     Component.onCompleted: {
         addScreen();
     }
@@ -67,6 +65,6 @@ WaylandCompositor {
     }
 
     onSurfaceCreated: {
-       var chrome = chromeComponent.createObject(surface.primaryOutputWindow.surfacesArea, { "surface" : surface } );
+        var chrome = chromeComponent.createObject(surface.primaryOutputWindow.surfacesArea, { "surface" : surface } );
     }
 }

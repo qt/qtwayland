@@ -53,8 +53,8 @@ void QWaylandViewPrivate::markSurfaceAsDestroyed(QWaylandSurface *surface)
     Q_Q(QWaylandView);
     Q_ASSERT(surface == this->surface);
 
-    q->waylandSurfaceDestroyed();
     q->setSurface(Q_NULLPTR);
+    q->waylandSurfaceDestroyed();
 }
 
 QWaylandView::QWaylandView()
@@ -86,6 +86,12 @@ QWaylandSurface *QWaylandView::surface() const
 void QWaylandView::setSurface(QWaylandSurface *newSurface)
 {
     Q_D(QWaylandView);
+    if (d->surface == newSurface)
+        return;
+
+    if (!d->output && newSurface && !d->surface)
+        setOutput(newSurface->primaryOutput());
+
     QWaylandSurface *oldSurface = d->surface;
     d->surface = newSurface;
 

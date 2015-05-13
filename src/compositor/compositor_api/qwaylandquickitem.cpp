@@ -34,7 +34,7 @@
 **
 ****************************************************************************/
 
-#include "qwaylandquickview.h"
+#include "qwaylandquickitem.h"
 #include "qwaylandquicksurface.h"
 #include <QtCompositor/qwaylandcompositor.h>
 #include <QtCompositor/qwaylandinput.h>

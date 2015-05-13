@@ -20,7 +20,6 @@ HEADERS += \
     compositor_api/qwaylandview.h \
     compositor_api/qwaylandview_p.h
 
-
 SOURCES += \
     compositor_api/qwaylandcompositor.cpp \
     compositor_api/qwaylandclient.cpp \
@@ -44,13 +43,13 @@ qtHaveModule(quick) {
         compositor_api/qwaylandquickcompositor.cpp \
         compositor_api/qwaylandquicksurface.cpp \
         compositor_api/qwaylandquickoutput.cpp \
-        compositor_api/qwaylandquickview.cpp
+        compositor_api/qwaylandquickitem.cpp
 
     HEADERS += \
         compositor_api/qwaylandquickcompositor.h \
         compositor_api/qwaylandquicksurface.h \
         compositor_api/qwaylandquickoutput.h \
-        compositor_api/qwaylandquickview.h
+        compositor_api/qwaylandquickitem.h
 
     QT += qml quick
 }

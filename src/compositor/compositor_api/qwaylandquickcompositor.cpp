@@ -44,7 +44,8 @@
 #include "qwaylandquickcompositor.h"
 #include "qwaylandquicksurface.h"
 #include "qwaylandquickoutput.h"
-#include "qwaylandquickview.h"
+#include "qwaylandquickitem.h"
+#include "qwaylandoutput.h"
 
 QT_BEGIN_NAMESPACE
 

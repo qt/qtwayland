@@ -41,7 +41,7 @@
 
 #include "qwaylandquickcompositor.h"
 #include "qwaylandsurface.h"
-#include "qwaylandquickview.h"
+#include "qwaylandquickitem.h"
 #include "qwaylandoutputspace.h"
 
 #include <QGuiApplication>

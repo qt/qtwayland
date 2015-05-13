@@ -42,7 +42,7 @@
 #include "qwaylandquicksurface.h"
 #include "qwaylandquickcompositor.h"
 #include "qwaylandoutput.h"
-#include "qwaylandquickview.h"
+#include "qwaylandquickitem.h"
 #include <QtCompositor/qwaylandbufferref.h>
 #include <QtCompositor/private/qwaylandsurface_p.h>
 

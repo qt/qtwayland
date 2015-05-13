@@ -45,7 +45,6 @@ QT_BEGIN_NAMESPACE
 namespace QtWaylandClient {
 
 static const char *qwaylandegl_threadedgl_blacklist_vendor[] = {
-    "Mesa Project",
     0
 };
 

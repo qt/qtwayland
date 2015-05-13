@@ -154,6 +154,7 @@ QWaylandQuickItem::QWaylandQuickItem(QQuickItem *parent)
 
 QWaylandQuickItem::~QWaylandQuickItem()
 {
+    disconnect(this, &QQuickItem::windowChanged, this, &QWaylandQuickItem::updateWindow);
     QMutexLocker locker(mutex);
     if (m_provider)
         m_provider->deleteLater();

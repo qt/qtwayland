@@ -51,6 +51,7 @@
 #include "qwaylandcompositor.h"
 #include "qwaylandclient.h"
 #include "qwaylandsurface_p.h"
+#include "qwaylandview_p.h"
 #include "qwaylandbufferref.h"
 #include "qwaylandoutput.h"
 
@@ -70,6 +71,13 @@ QWaylandSurfacePrivate::QWaylandSurfacePrivate(wl_client *wlClient, quint32 id, 
     , client(QWaylandClient::fromWlClient(compositor, wlClient))
 {}
 
+QWaylandSurfacePrivate::~QWaylandSurfacePrivate()
+{
+    for (int i = 0; i < views.size(); i++) {
+        QWaylandViewPrivate::get(views.at(i))->markSurfaceAsDestroyed(q_func());
+    }
+    views.clear();
+}
 
 class QWaylandSurfaceEnterEventPrivate
 {

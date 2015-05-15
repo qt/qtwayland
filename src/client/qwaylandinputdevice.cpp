@@ -299,6 +299,9 @@ Qt::KeyboardModifiers QWaylandInputDevice::Keyboard::modifiers() const
     Qt::KeyboardModifiers ret = Qt::NoModifier;
 
 #ifndef QT_NO_WAYLAND_XKB
+    if (!mXkbState)
+        return ret;
+
     xkb_state_component cstate = static_cast<xkb_state_component>(XKB_STATE_DEPRESSED | XKB_STATE_LATCHED);
 
     if (xkb_state_mod_name_is_active(mXkbState, XKB_MOD_NAME_SHIFT, cstate))

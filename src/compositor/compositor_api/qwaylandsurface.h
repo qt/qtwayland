@@ -227,7 +227,7 @@ public:
 
     static QWaylandSurface *fromResource(::wl_resource *resource);
 
-public slots:
+public Q_SLOTS:
     void updateSelection();
 
 protected:

@@ -102,11 +102,11 @@ protected:
     void touchEvent(QTouchEvent *event);
     void mouseUngrabEvent() Q_DECL_OVERRIDE;
 
-public slots:
+public Q_SLOTS:
     virtual void takeFocus(QWaylandInputDevice *device = 0);
     void setPaintEnabled(bool paintEnabled);
 
-private slots:
+private Q_SLOTS:
     void surfaceMapped();
     void surfaceUnmapped();
     void parentChanged(QWaylandSurface *newParent, QWaylandSurface *oldParent);

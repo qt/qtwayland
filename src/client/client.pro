@@ -8,6 +8,8 @@ MODULE_PLUGIN_TYPES = \
             wayland-inputdevice-integration \
             wayland-decoration-client
 
+CONFIG += generated_privates
+
 load(qt_module)
 
 # We have a bunch of C code with casts, so we can't have this option

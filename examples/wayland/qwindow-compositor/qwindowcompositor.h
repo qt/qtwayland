@@ -53,6 +53,11 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtWayland {
+    class Shell;
+    class ShellSurface;
+}
+
 class QWaylandView;
 class QOpenGLTexture;
 
@@ -73,6 +78,7 @@ private slots:
 
     void render();
     void onSurfaceCreated(QWaylandSurface *surface);
+    void onShellSurfaceCreated(QWaylandSurface *surface, QtWayland::ShellSurface *shellSurface);
 protected:
     QWaylandView *createView() Q_DECL_OVERRIDE;
     void surfaceCommitted(QWaylandSurface *surface);

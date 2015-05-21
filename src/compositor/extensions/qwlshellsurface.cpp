@@ -73,7 +73,8 @@ ShellSurfacePopupGrabber *Shell::getPopupGrabber(QWaylandInputDevice *input)
 void Shell::shell_get_shell_surface(Resource *resource, uint32_t id, struct ::wl_resource *surface_res)
 {
     Surface *surface = Surface::fromResource(surface_res);
-    new ShellSurface(this, resource->client(), id, surface);
+    ShellSurface *shell_surface = new ShellSurface(this, resource->client(), id, surface);
+    emit shellSurfaceCreated(surface->waylandSurface(), shell_surface);
 }
 
 ShellSurface::ShellSurface(Shell *shell, wl_client *client, uint32_t id, Surface *surface)

@@ -62,13 +62,16 @@ class ShellSurfaceResizeGrabber;
 class ShellSurfaceMoveGrabber;
 class ShellSurfacePopupGrabber;
 
-class Shell : public QWaylandExtensionTemplate<Shell>, public QtWaylandServer::wl_shell
+class Q_COMPOSITOR_EXPORT Shell : public QWaylandExtensionTemplate<Shell>, public QtWaylandServer::wl_shell
 {
     Q_OBJECT
 public:
     Shell(QWaylandCompositor *compositor);
 
     ShellSurfacePopupGrabber* getPopupGrabber(QWaylandInputDevice *input);
+
+Q_SIGNALS:
+    void shellSurfaceCreated(QWaylandSurface *surface, ShellSurface *shellSurface);
 
 private:
     void shell_get_shell_surface(Resource *resource, uint32_t id, struct ::wl_resource *surface) Q_DECL_OVERRIDE;

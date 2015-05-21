@@ -116,6 +116,9 @@ QWindowCompositor::QWindowCompositor(CompositorWindow *window)
 
     QOpenGLFunctions *functions = m_window->context()->functions();
     functions->glGenFramebuffers(1, &m_surface_fbo);
+
+    QtWayland::Shell *shell = new QtWayland::Shell(this);
+    connect(shell, &QtWayland::Shell::shellSurfaceCreated, this, &QWindowCompositor::onShellSurfaceCreated);
 }
 
 QWindowCompositor::~QWindowCompositor()
@@ -218,11 +221,6 @@ void QWindowCompositor::surfaceUnmapped()
     m_renderScheduler.start(0);
 }
 
-QWaylandView *QWindowCompositor::createView()
-{
-    return new SurfaceView();
-}
-
 void QWindowCompositor::surfaceCommitted()
 {
     QWaylandSurface *surface = qobject_cast<QWaylandSurface *>(sender());
@@ -247,6 +245,13 @@ void QWindowCompositor::onSurfaceCreated(QWaylandSurface *surface)
     connect(surface, SIGNAL(unmapped()), this, SLOT(surfaceUnmapped()));
     connect(surface, SIGNAL(redraw()), this, SLOT(surfaceCommitted()));
     connect(surface, SIGNAL(extendedSurfaceReady()), this, SLOT(sendExpose()));
+}
+
+void QWindowCompositor::onShellSurfaceCreated(QWaylandSurface *surface, QtWayland::ShellSurface *shellSurface)
+{
+    SurfaceView *newView = new SurfaceView();
+    newView->setSurface(surface);
+    shellSurface->setView(newView);
     m_renderScheduler.start(0);
 }
 

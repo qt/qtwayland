@@ -118,6 +118,10 @@ QWaylandInputDevice::Keyboard::~Keyboard()
 #ifndef QT_NO_WAYLAND_XKB
     releaseKeyMap();
 #endif
+    if (mFocus)
+        QWindowSystemInterface::handleWindowActivated(0);
+    if (mFocusCallback)
+        wl_callback_destroy(mFocusCallback);
     if (mParent->mVersion >= 3)
         wl_keyboard_release(object());
     else
@@ -295,17 +299,18 @@ Qt::KeyboardModifiers QWaylandInputDevice::Keyboard::modifiers() const
     Qt::KeyboardModifiers ret = Qt::NoModifier;
 
 #ifndef QT_NO_WAYLAND_XKB
+    if (!mXkbState)
+        return ret;
+
     xkb_state_component cstate = static_cast<xkb_state_component>(XKB_STATE_DEPRESSED | XKB_STATE_LATCHED);
 
-    if (xkb_state_mod_name_is_active(mXkbState, "Shift", cstate))
+    if (xkb_state_mod_name_is_active(mXkbState, XKB_MOD_NAME_SHIFT, cstate))
         ret |= Qt::ShiftModifier;
-    if (xkb_state_mod_name_is_active(mXkbState, "Control", cstate))
+    if (xkb_state_mod_name_is_active(mXkbState, XKB_MOD_NAME_CTRL, cstate))
         ret |= Qt::ControlModifier;
-    if (xkb_state_mod_name_is_active(mXkbState, "Alt", cstate))
+    if (xkb_state_mod_name_is_active(mXkbState, XKB_MOD_NAME_ALT, cstate))
         ret |= Qt::AltModifier;
-    if (xkb_state_mod_name_is_active(mXkbState, "Mod1", cstate))
-        ret |= Qt::AltModifier;
-    if (xkb_state_mod_name_is_active(mXkbState, "Mod4", cstate))
+    if (xkb_state_mod_name_is_active(mXkbState, XKB_MOD_NAME_LOGO, cstate))
         ret |= Qt::MetaModifier;
 #endif
 
@@ -592,12 +597,29 @@ static const uint32_t KeyTbl[] = {
     XKB_KEY_Mode_switch,             Qt::Key_Mode_switch,
     XKB_KEY_script_switch,           Qt::Key_Mode_switch,
 
+    XKB_KEY_XF86Back,                Qt::Key_Back,
+    XKB_KEY_XF86Forward,             Qt::Key_Forward,
+
     XKB_KEY_XF86AudioPlay,           Qt::Key_MediaTogglePlayPause, //there isn't a PlayPause keysym, however just play keys are not common
     XKB_KEY_XF86AudioPause,          Qt::Key_MediaPause,
     XKB_KEY_XF86AudioStop,           Qt::Key_MediaStop,
     XKB_KEY_XF86AudioPrev,           Qt::Key_MediaPrevious,
     XKB_KEY_XF86AudioNext,           Qt::Key_MediaNext,
+    XKB_KEY_XF86AudioRewind,         Qt::Key_MediaPrevious,
+    XKB_KEY_XF86AudioForward,        Qt::Key_MediaNext,
     XKB_KEY_XF86AudioRecord,         Qt::Key_MediaRecord,
+
+    XKB_KEY_XF86AudioMute,           Qt::Key_VolumeMute,
+    XKB_KEY_XF86AudioLowerVolume,    Qt::Key_VolumeDown,
+    XKB_KEY_XF86AudioRaiseVolume,    Qt::Key_VolumeUp,
+
+    XKB_KEY_XF86AudioRandomPlay,     Qt::Key_AudioRandomPlay,
+    XKB_KEY_XF86AudioRepeat,         Qt::Key_AudioRepeat,
+
+    XKB_KEY_XF86ZoomIn,              Qt::Key_ZoomIn,
+    XKB_KEY_XF86ZoomOut,             Qt::Key_ZoomOut,
+
+    XKB_KEY_XF86Eject,               Qt::Key_Eject,
 
     0,                          0
 };
@@ -759,7 +781,6 @@ void QWaylandInputDevice::Keyboard::keyboard_key(uint32_t serial, uint32_t time,
     }
 
     const xkb_keysym_t sym = xkb_state_key_get_one_sym(mXkbState, code);
-    xkb_state_update_key(mXkbState, code, isDown ? XKB_KEY_DOWN : XKB_KEY_UP);
 
     Qt::KeyboardModifiers modifiers = mParent->modifiers();
 

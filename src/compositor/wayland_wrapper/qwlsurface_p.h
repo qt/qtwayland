@@ -121,7 +121,13 @@ public:
 
     Compositor *compositor() const;
 
-    Output *output() const;
+    Output *mainOutput() const;
+    void setMainOutput(Output *output);
+
+    QList<Output *> outputs() const;
+
+    void addToOutput(Output *output);
+    void removeFromOutput(Output *output);
 
     QString className() const { return m_className; }
     void setClassName(const QString &className);
@@ -171,7 +177,8 @@ protected:
 
     Compositor *m_compositor;
     QWaylandSurface *m_waylandSurface;
-    Output *m_output;
+    Output *m_mainOutput;
+    QList<Output *> m_outputs;
 
     QRegion m_damage;
     SurfaceBuffer *m_buffer;

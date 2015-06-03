@@ -85,6 +85,7 @@ private:
     QSurfaceFormat m_format;
     DecorationsBlitter *m_blitter;
     bool mUseNativeDefaultFbo;
+    uint m_api;
 
     friend class DecorationsBlitter;
 };

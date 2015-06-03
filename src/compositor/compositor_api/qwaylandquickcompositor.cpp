@@ -1,5 +1,6 @@
 /****************************************************************************
 **
+** Copyright (C) 2015 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
 ** Copyright (C) 2014 Jolla Ltd, author: <giulio.camuffo@jollamobile.com>
 ** Contact: http://www.qt.io/licensing/
 **
@@ -32,6 +33,7 @@
 ****************************************************************************/
 
 #include <QtCompositor/private/qwlcompositor_p.h>
+#include <QtCompositor/private/qwlsurface_p.h>
 
 #include "qwaylandclient.h"
 #include "qwaylandquickcompositor.h"
@@ -46,26 +48,17 @@ class QWaylandQuickCompositorPrivate : public QtWayland::Compositor
 public:
     QWaylandQuickCompositorPrivate(QWaylandQuickCompositor *compositor, QWaylandCompositor::ExtensionFlags extensions)
         : QtWayland::Compositor(compositor, extensions)
-        , updateScheduled(false)
     {
     }
 
     void compositor_create_surface(Resource *resource, uint32_t id) Q_DECL_OVERRIDE
     {
         QWaylandQuickSurface *surface = new QWaylandQuickSurface(resource->client(), id, wl_resource_get_version(resource->handle), static_cast<QWaylandQuickCompositor *>(m_qt_compositor));
+        surface->handle()->addToOutput(primaryOutput()->handle());
         m_surfaces << surface->handle();
         //BUG: This may not be an on-screen window surface though
         m_qt_compositor->surfaceCreated(surface);
     }
-
-    void updateStarted()
-    {
-        updateScheduled = false;
-        m_qt_compositor->frameStarted();
-        m_qt_compositor->cleanupGraphicsResources();
-    }
-
-    bool updateScheduled;
 };
 
 

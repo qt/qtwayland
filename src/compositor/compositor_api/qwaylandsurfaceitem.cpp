@@ -372,7 +372,7 @@ QSGNode *QWaylandSurfaceItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeD
 {
     bool mapped = surface() && surface()->isMapped();
 
-    if (!mapped || !m_provider->t || !m_paintEnabled) {
+    if (!mapped || !m_provider || !m_provider->t || !m_paintEnabled) {
         delete oldNode;
         return 0;
     }

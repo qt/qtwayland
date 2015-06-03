@@ -260,21 +260,22 @@ QWaylandGLContext::QWaylandGLContext(EGLDisplay eglDisplay, QWaylandDisplay *dis
 
     switch (m_format.renderableType()) {
     case QSurfaceFormat::OpenVG:
-        eglBindAPI(EGL_OPENVG_API);
+        m_api = EGL_OPENVG_API;
         break;
 #ifdef EGL_VERSION_1_4
 #  if !defined(QT_OPENGL_ES_2)
     case QSurfaceFormat::DefaultRenderableType:
 #  endif
     case QSurfaceFormat::OpenGL:
-        eglBindAPI(EGL_OPENGL_API);
+        m_api = EGL_OPENGL_API;
         break;
 #endif
     case QSurfaceFormat::OpenGLES:
     default:
-        eglBindAPI(EGL_OPENGL_ES_API);
+        m_api = EGL_OPENGL_ES_API;
         break;
     }
+    eglBindAPI(m_api);
 
     m_context = eglCreateContext(m_eglDisplay, m_config, m_shareEGLContext, eglContextAttrs.constData());
 
@@ -358,6 +359,15 @@ QWaylandGLContext::~QWaylandGLContext()
 
 bool QWaylandGLContext::makeCurrent(QPlatformSurface *surface)
 {
+    // in QWaylandGLContext() we called eglBindAPI with the correct value. However,
+    // eglBindAPI's documentation says:
+    // "eglBindAPI defines the current rendering API for EGL in the thread it is called from"
+    // Since makeCurrent() can be called from a different thread than the one we created the
+    // context in make sure to call eglBindAPI in the correct thread.
+    if (eglQueryAPI() != m_api) {
+        eglBindAPI(m_api);
+    }
+
     QWaylandEglWindow *window = static_cast<QWaylandEglWindow *>(surface);
     EGLSurface eglSurface = window->eglSurface();
 

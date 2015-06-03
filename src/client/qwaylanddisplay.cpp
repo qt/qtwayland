@@ -237,6 +237,7 @@ void QWaylandDisplay::registry_global(uint32_t id, const QString &interface, uin
         mScreens.append(screen);
         // We need to get the output events before creating surfaces
         forceRoundTrip();
+        screen->init();
         mWaylandIntegration->screenAdded(screen);
     } else if (interface == QStringLiteral("wl_compositor")) {
         mCompositorVersion = qMin((int)version, 3);
@@ -367,6 +368,11 @@ bool QWaylandDisplay::supportsWindowDecoration() const
 
     static bool integrationSupport = clientBufferIntegration() && clientBufferIntegration()->supportsWindowDecoration();
     return integrationSupport;
+}
+
+QWaylandWindow *QWaylandDisplay::lastInputWindow() const
+{
+    return mLastInputWindow.data();
 }
 
 void QWaylandDisplay::setLastInputDevice(QWaylandInputDevice *device, uint32_t serial, QWaylandWindow *win)

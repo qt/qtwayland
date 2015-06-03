@@ -67,6 +67,9 @@ public:
 
     QObject *windowPropertyMap() const;
 
+private:
+    bool event(QEvent *event) Q_DECL_OVERRIDE;
+
 Q_SIGNALS:
     void useTextureAlphaChanged();
     void clientRenderingEnabledChanged();

@@ -46,6 +46,8 @@
 
 #include <QtGui/QWindow>
 #include <QRect>
+#include <QtCompositor/QWaylandSurface>
+#include <QtCompositor/QWaylandOutput>
 
 QT_BEGIN_NAMESPACE
 

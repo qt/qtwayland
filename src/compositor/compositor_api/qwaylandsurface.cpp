@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
+** Copyright (C) 2014-2015 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
 ** Copyright (C) 2015 The Qt Company Ltd.
 ** Contact: http://www.qt.io/licensing/
 **
@@ -63,6 +63,9 @@
 
 QT_BEGIN_NAMESPACE
 
+const QEvent::Type QWaylandSurfaceEnterEvent::WaylandSurfaceEnter = (QEvent::Type)QEvent::registerEventType();
+const QEvent::Type QWaylandSurfaceLeaveEvent::WaylandSurfaceLeave = (QEvent::Type)QEvent::registerEventType();
+
 QWaylandSurfacePrivate::QWaylandSurfacePrivate(wl_client *wlClient, quint32 id, int version, QWaylandCompositor *compositor, QWaylandSurface *surface)
     : QtWayland::Surface(wlClient, id, version, compositor, surface)
     , closing(false)
@@ -71,6 +74,63 @@ QWaylandSurfacePrivate::QWaylandSurfacePrivate(wl_client *wlClient, quint32 id, 
     , windowType(QWaylandSurface::WindowType::None)
 {}
 
+
+class QWaylandSurfaceEnterEventPrivate
+{
+public:
+    QWaylandSurfaceEnterEventPrivate(QWaylandOutput *_output)
+        : output(_output)
+    {
+    }
+
+    QWaylandOutput *output;
+};
+
+
+QWaylandSurfaceEnterEvent::QWaylandSurfaceEnterEvent(QWaylandOutput *output)
+    : QEvent(WaylandSurfaceEnter)
+    , d(new QWaylandSurfaceEnterEventPrivate(output))
+{
+}
+
+QWaylandSurfaceEnterEvent::~QWaylandSurfaceEnterEvent()
+{
+    delete d;
+}
+
+QWaylandOutput *QWaylandSurfaceEnterEvent::output() const
+{
+    return d->output;
+}
+
+
+class QWaylandSurfaceLeaveEventPrivate
+{
+public:
+    QWaylandSurfaceLeaveEventPrivate(QWaylandOutput *_output)
+        : output(_output)
+    {
+    }
+
+    QWaylandOutput *output;
+};
+
+
+QWaylandSurfaceLeaveEvent::QWaylandSurfaceLeaveEvent(QWaylandOutput *output)
+    : QEvent(WaylandSurfaceLeave)
+    , d(new QWaylandSurfaceLeaveEventPrivate(output))
+{
+}
+
+QWaylandSurfaceLeaveEvent::~QWaylandSurfaceLeaveEvent()
+{
+    delete d;
+}
+
+QWaylandOutput *QWaylandSurfaceLeaveEvent::output() const
+{
+    return d->output;
+}
 
 
 QWaylandSurface::QWaylandSurface(wl_client *client, quint32 id, int version, QWaylandCompositor *compositor)
@@ -239,12 +299,32 @@ QWaylandCompositor *QWaylandSurface::compositor() const
     return d->compositor()->waylandCompositor();
 }
 
-QWaylandOutput *QWaylandSurface::output() const
+QWaylandOutput *QWaylandSurface::mainOutput() const
 {
     Q_D(const QWaylandSurface);
-    if (!d->output())
-        return Q_NULLPTR;
-    return d->output()->waylandOutput();
+
+    // Returns the output that contains the most if not all
+    // the surface (window managers will take care of setting
+    // this, defaults to the first output)
+    return d->mainOutput()->waylandOutput();
+}
+
+void QWaylandSurface::setMainOutput(QWaylandOutput *mainOutput)
+{
+    Q_D(QWaylandSurface);
+
+    if (mainOutput)
+        d->setMainOutput(mainOutput->handle());
+}
+
+QList<QWaylandOutput *> QWaylandSurface::outputs() const
+{
+    Q_D(const QWaylandSurface);
+
+    QList<QWaylandOutput *> list;
+    Q_FOREACH (QtWayland::Output *output, d->outputs())
+        list.append(output->waylandOutput());
+    return list;
 }
 
 QWindow::Visibility QWaylandSurface::visibility() const

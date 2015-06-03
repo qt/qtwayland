@@ -126,6 +126,7 @@ private:
     QWaylandOutput::Subpixel m_subpixel;
     QWaylandOutput::Transform m_transform;
     int m_scaleFactor;
+    QList<QWaylandSurface *> m_surfaces;
 
     void sendGeometryInfo();
 };

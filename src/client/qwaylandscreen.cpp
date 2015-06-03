@@ -58,13 +58,18 @@ QWaylandScreen::QWaylandScreen(QWaylandDisplay *waylandDisplay, int version, uin
     , mFormat(QImage::Format_ARGB32_Premultiplied)
     , mOutputName(QStringLiteral("Screen%1").arg(id))
     , m_orientation(Qt::PrimaryOrientation)
-    , mWaylandCursor(new QWaylandCursor(this))
+    , mWaylandCursor(0)
 {
 }
 
 QWaylandScreen::~QWaylandScreen()
 {
     delete mWaylandCursor;
+}
+
+void QWaylandScreen::init()
+{
+    mWaylandCursor = new QWaylandCursor(this);
 }
 
 QWaylandDisplay * QWaylandScreen::display() const

@@ -147,7 +147,7 @@ void QWaylandAbstractDecoration::startMove(QWaylandInputDevice *inputDevice, Qt:
 bool QWaylandAbstractDecoration::isLeftClicked(Qt::MouseButtons newMouseButtonState)
 {
     Q_D(QWaylandAbstractDecoration);
-    if ((!d->m_mouseButtons & Qt::LeftButton) && (newMouseButtonState & Qt::LeftButton))
+    if (!(d->m_mouseButtons & Qt::LeftButton) && (newMouseButtonState & Qt::LeftButton))
         return true;
     return false;
 }

@@ -80,7 +80,7 @@ void XCompositeEglClientBufferIntegration::initializeHardware(QtWayland::Display
     if (nativeInterface) {
         mDisplay = static_cast<Display *>(nativeInterface->nativeResourceForIntegration("Display"));
         if (!mDisplay)
-            qFatal("could not retireve Display from platform integration");
+            qFatal("could not retrieve Display from platform integration");
         mEglDisplay = static_cast<EGLDisplay>(nativeInterface->nativeResourceForIntegration("EGLDisplay"));
         if (!mEglDisplay)
             qFatal("could not retrieve EGLDisplay from platform integration");

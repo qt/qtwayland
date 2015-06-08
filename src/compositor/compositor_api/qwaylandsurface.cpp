@@ -322,7 +322,9 @@ QList<QWaylandOutput *> QWaylandSurface::outputs() const
     Q_D(const QWaylandSurface);
 
     QList<QWaylandOutput *> list;
-    Q_FOREACH (QtWayland::Output *output, d->outputs())
+    const QList<QtWayland::Output *> outputs = d->outputs();
+    list.reserve(outputs.count());
+    Q_FOREACH (QtWayland::Output *output, outputs)
         list.append(output->waylandOutput());
     return list;
 }

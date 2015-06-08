@@ -140,6 +140,7 @@ QList<QWaylandSurface *> QWaylandCompositor::surfaces() const
 {
     QList<QtWayland::Surface *> surfaces = m_compositor->surfaces();
     QList<QWaylandSurface *> surfs;
+    surfs.reserve(surfaces.count());
     foreach (QtWayland::Surface *s, surfaces)
         surfs << s->waylandSurface();
     return surfs;

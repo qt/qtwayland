@@ -114,7 +114,9 @@ QDpi QWaylandScreen::logicalDpi() const
 QList<QPlatformScreen *> QWaylandScreen::virtualSiblings() const
 {
     QList<QPlatformScreen *> list;
-    foreach (QWaylandScreen *screen, mWaylandDisplay->screens())
+    const QList<QWaylandScreen*> screens = mWaylandDisplay->screens();
+    list.reserve(screens.count());
+    foreach (QWaylandScreen *screen, screens)
         list << screen;
     return list;
 }

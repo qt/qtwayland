@@ -128,7 +128,15 @@ QWaylandIntegration::QWaylandIntegration()
     mClipboard = new QWaylandClipboard(mDisplay);
     mDrag = new QWaylandDrag(mDisplay);
 
-    mInputContext.reset(new QWaylandInputContext(mDisplay));
+    //try to use the input context using the wl_text_input interface
+    QPlatformInputContext *ctx = new QWaylandInputContext(mDisplay);
+    mInputContext.reset(ctx);
+
+    //use the traditional way for on screen keyboards for now
+    if (!mInputContext.data()->isValid()) {
+        ctx = QPlatformInputContextFactory::create();
+        mInputContext.reset(ctx);
+    }
 }
 
 QWaylandIntegration::~QWaylandIntegration()

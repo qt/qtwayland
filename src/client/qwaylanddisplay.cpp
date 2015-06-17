@@ -147,12 +147,7 @@ QWaylandDisplay::QWaylandDisplay(QWaylandIntegration *waylandIntegration)
     mEventThreadObject->displayConnect();
     mDisplay = mEventThreadObject->display(); //blocks until display is available
 
-    //Create a new even queue for the QtGui thread
-    mEventQueue = wl_display_create_queue(mDisplay);
-
     struct ::wl_registry *registry = wl_display_get_registry(mDisplay);
-    wl_proxy_set_queue((struct wl_proxy *)registry, mEventQueue);
-
     init(registry);
 
     connect(mEventThreadObject, SIGNAL(newEventsRead()), this, SLOT(flushRequests()));
@@ -180,7 +175,7 @@ QWaylandDisplay::~QWaylandDisplay(void)
 
 void QWaylandDisplay::flushRequests()
 {
-    if (wl_display_dispatch_queue_pending(mDisplay, mEventQueue) < 0) {
+    if (wl_display_dispatch_pending(mDisplay) < 0) {
         mEventThreadObject->checkError();
         exitWithError();
     }
@@ -191,7 +186,7 @@ void QWaylandDisplay::flushRequests()
 
 void QWaylandDisplay::blockingReadEvents()
 {
-    if (wl_display_dispatch_queue(mDisplay, mEventQueue) < 0) {
+    if (wl_display_dispatch(mDisplay) < 0) {
         mEventThreadObject->checkError();
         exitWithError();
     }
@@ -345,17 +340,16 @@ void QWaylandDisplay::forceRoundTrip()
     int ret = 0;
     bool done = false;
     wl_callback *callback = wl_display_sync(mDisplay);
-    wl_proxy_set_queue((struct wl_proxy *)callback, mEventQueue);
     wl_callback_add_listener(callback, &sync_listener, &done);
     flushRequests();
     if (QThread::currentThread()->eventDispatcher()) {
         while (!done && ret >= 0) {
             QThread::currentThread()->eventDispatcher()->processEvents(QEventLoop::WaitForMoreEvents);
-            ret = wl_display_dispatch_queue_pending(mDisplay, mEventQueue);
+            ret = wl_display_dispatch_pending(mDisplay);
         }
     } else {
         while (!done && ret >= 0)
-            ret = wl_display_dispatch_queue(mDisplay, mEventQueue);
+            ret = wl_display_dispatch(mDisplay);
     }
 
     if (ret == -1 && !done)

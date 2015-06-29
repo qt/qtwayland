@@ -62,6 +62,8 @@ public:
     };
 
     QWaylandSurfaceOp(int t);
+    virtual ~QWaylandSurfaceOp();
+
     int type() const;
 
 private:

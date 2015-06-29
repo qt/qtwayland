@@ -83,8 +83,6 @@ private:
 
     int m_current;
     int m_count;
-
-    QMutex m_mutex;
 };
 
 }

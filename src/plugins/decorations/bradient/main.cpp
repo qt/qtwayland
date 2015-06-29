@@ -116,6 +116,14 @@ static const char * const qt_normalizeup_xpm[] = {
 #  define BUTTON_WIDTH 22
 #endif
 
+enum Button
+{
+    None,
+    Close,
+    Maximize,
+    Minimize
+};
+
 class Q_WAYLAND_CLIENT_EXPORT QWaylandBradientDecoration : public QWaylandAbstractDecoration
 {
 public:
@@ -130,6 +138,7 @@ private:
     void processMouseBottom(QWaylandInputDevice *inputDevice, const QPointF &local, Qt::MouseButtons b,Qt::KeyboardModifiers mods);
     void processMouseLeft(QWaylandInputDevice *inputDevice, const QPointF &local, Qt::MouseButtons b,Qt::KeyboardModifiers mods);
     void processMouseRight(QWaylandInputDevice *inputDevice, const QPointF &local, Qt::MouseButtons b,Qt::KeyboardModifiers mods);
+    bool clickButton(Qt::MouseButtons b, Button btn);
 
     QRectF closeButtonRect() const;
     QRectF maximizeButtonRect() const;
@@ -138,12 +147,14 @@ private:
     QColor m_foregroundColor;
     QColor m_backgroundColor;
     QStaticText m_windowTitle;
+    Button m_clicking;
 };
 
 
 
 QWaylandBradientDecoration::QWaylandBradientDecoration()
     : QWaylandAbstractDecoration()
+    , m_clicking(None)
 {
     QPalette palette;
     m_foregroundColor = palette.color(QPalette::Active, QPalette::HighlightedText);
@@ -315,18 +326,37 @@ void QWaylandBradientDecoration::paint(QPaintDevice *device)
 #endif
 }
 
+bool QWaylandBradientDecoration::clickButton(Qt::MouseButtons b, Button btn)
+{
+    if (isLeftClicked(b)) {
+        m_clicking = btn;
+        return false;
+    } else if (isLeftReleased(b)) {
+        if (m_clicking == btn) {
+            m_clicking = None;
+            return true;
+        } else {
+            m_clicking = None;
+        }
+    }
+    return false;
+}
+
 bool QWaylandBradientDecoration::handleMouse(QWaylandInputDevice *inputDevice, const QPointF &local, const QPointF &global, Qt::MouseButtons b, Qt::KeyboardModifiers mods)
 
 {
     Q_UNUSED(global);
 
     // Figure out what area mouse is in
-    if (closeButtonRect().contains(local) && isLeftClicked(b)) {
-        QWindowSystemInterface::handleCloseEvent(window());
-    } else if (maximizeButtonRect().contains(local) && isLeftClicked(b)) {
-        window()->setWindowState(waylandWindow()->isMaximized() ? Qt::WindowNoState : Qt::WindowMaximized);
-    } else if (minimizeButtonRect().contains(local) && isLeftClicked(b)) {
-        window()->setWindowState(Qt::WindowMinimized);
+    if (closeButtonRect().contains(local)) {
+        if (clickButton(b, Close))
+            QWindowSystemInterface::handleCloseEvent(window());
+    } else if (maximizeButtonRect().contains(local)) {
+        if (clickButton(b, Maximize))
+            window()->setWindowState(waylandWindow()->isMaximized() ? Qt::WindowNoState : Qt::WindowMaximized);
+    } else if (minimizeButtonRect().contains(local)) {
+        if (clickButton(b, Minimize))
+            window()->setWindowState(Qt::WindowMinimized);
     } else if (local.y() <= margins().top()) {
         processMouseTop(inputDevice,local,b,mods);
     } else if (local.y() > window()->height() - margins().bottom() + margins().top()) {

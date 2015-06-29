@@ -356,6 +356,11 @@ void QWaylandSurfaceItem::updateBuffer(bool hasBuffer)
 
 void QWaylandSurfaceItem::updateTexture()
 {
+    updateTexture(false);
+}
+
+void QWaylandSurfaceItem::updateTexture(bool changed)
+{
     if (!m_provider)
         m_provider = new QWaylandSurfaceTextureProvider();
 
@@ -363,7 +368,7 @@ void QWaylandSurfaceItem::updateTexture()
     if (mapped)
         m_provider->t = static_cast<QWaylandQuickSurface *>(surface())->texture();
     m_provider->smooth = smooth();
-    if (m_newTexture)
+    if (m_newTexture || changed)
         emit m_provider->textureChanged();
     m_newTexture = false;
 }

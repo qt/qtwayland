@@ -352,7 +352,7 @@ QWaylandInputDevice *InputDevice::handle() const
 
 QWaylandDrag *InputDevice::dragHandle() const
 {
-    return m_dragHandle;
+    return m_dragHandle.data();
 }
 
 const DataDevice *InputDevice::dataDevice() const

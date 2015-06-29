@@ -85,6 +85,7 @@ public:
     ~QWaylandBrcmBuffer()
     {
         wl_array_release(&m_array);
+        wl_buffer_destroy(mBuffer);
     }
 
     QSize size() const { return m_size; }
@@ -241,6 +242,9 @@ void QWaylandBrcmEglWindow::swapBuffers()
         glFlush();
         glFinish();
     }
+
+    if (!m_count)
+        return;
 
     m_buffers[m_current]->bind();
     attach(m_buffers[m_current], 0, 0);

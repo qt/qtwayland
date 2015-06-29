@@ -259,7 +259,8 @@ class QWaylandPointerEvent
 public:
     enum Type {
         Enter,
-        Motion
+        Motion,
+        Wheel
     };
     inline QWaylandPointerEvent(Type t, ulong ts, const QPointF &l, const QPointF &g, Qt::MouseButtons b, Qt::KeyboardModifiers m)
         : type(t)
@@ -269,6 +270,14 @@ public:
         , buttons(b)
         , modifiers(m)
     {}
+    inline QWaylandPointerEvent(Type t, ulong ts, const QPointF &l, const QPointF &g, const QPoint &pd, const QPoint &ad)
+        : type(t)
+        , timestamp(ts)
+        , local(l)
+        , global(g)
+        , pixelDelta(pd)
+        , angleDelta(ad)
+    {}
 
     Type type;
     ulong timestamp;
@@ -276,6 +285,8 @@ public:
     QPointF global;
     Qt::MouseButtons buttons;
     Qt::KeyboardModifiers modifiers;
+    QPoint pixelDelta;
+    QPoint angleDelta;
 };
 
 }

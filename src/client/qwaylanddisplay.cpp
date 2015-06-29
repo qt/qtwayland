@@ -163,6 +163,9 @@ QWaylandDisplay::QWaylandDisplay(QWaylandIntegration *waylandIntegration)
 
 QWaylandDisplay::~QWaylandDisplay(void)
 {
+    qDeleteAll(mInputDevices);
+    mInputDevices.clear();
+
     foreach (QWaylandScreen *screen, mScreens) {
         mWaylandIntegration->destroyScreen(screen);
     }

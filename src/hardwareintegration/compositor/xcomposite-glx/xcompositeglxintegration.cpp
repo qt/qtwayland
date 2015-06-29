@@ -91,7 +91,7 @@ void XCompositeGLXClientBufferIntegration::initializeHardware(QtWayland::Display
     if (nativeInterface) {
         mDisplay = static_cast<Display *>(nativeInterface->nativeResourceForIntegration("Display"));
         if (!mDisplay)
-            qFatal("could not retireve Display from platform integration");
+            qFatal("could not retrieve Display from platform integration");
     } else {
         qFatal("Platform integration doesn't have native interface");
     }

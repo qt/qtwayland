@@ -128,7 +128,7 @@ public:
 
 private:
     QWaylandInputDevice *m_handle;
-    QWaylandDrag *m_dragHandle;
+    QScopedPointer<QWaylandDrag> m_dragHandle;
     Compositor *m_compositor;
     QWaylandInputDevice::CapabilityFlags m_capabilities;
 

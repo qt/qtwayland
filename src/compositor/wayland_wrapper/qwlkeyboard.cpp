@@ -375,6 +375,7 @@ void Keyboard::createXKBKeymap()
     }
 
     strcpy(m_keymap_area, keymap_str);
+    free(keymap_str);
 
     m_state = xkb_state_new(keymap);
 

@@ -103,9 +103,12 @@ public:
 
     void invalidateTexture()
     {
+        if (bufferRef)
+            bufferRef.destroyTexture();
         delete texture;
         texture = 0;
         update = true;
+        bufferRef = QWaylandBufferRef();
     }
 
     QWaylandQuickSurface *surface;
@@ -209,6 +212,8 @@ bool QWaylandQuickSurface::event(QEvent *e)
                        this, &QWaylandQuickSurface::updateTexture);
             disconnect(oldWindow, &QQuickWindow::sceneGraphInvalidated,
                        this, &QWaylandQuickSurface::invalidateTexture);
+            disconnect(oldWindow, &QQuickWindow::sceneGraphAboutToStop,
+                       this, &QWaylandQuickSurface::invalidateTexture);
         }
 
         return true;
@@ -225,6 +230,9 @@ bool QWaylandQuickSurface::event(QEvent *e)
             connect(window, &QQuickWindow::sceneGraphInvalidated,
                     this, &QWaylandQuickSurface::invalidateTexture,
                     Qt::DirectConnection);
+            connect(window, &QQuickWindow::sceneGraphAboutToStop,
+                    this, &QWaylandQuickSurface::invalidateTexture,
+                    Qt::DirectConnection);
         }
 
         return true;
@@ -236,10 +244,11 @@ bool QWaylandQuickSurface::event(QEvent *e)
 void QWaylandQuickSurface::updateTexture()
 {
     Q_D(QWaylandQuickSurface);
+    const bool update = d->buffer->update;
     if (d->buffer->update)
         d->buffer->createTexture();
     foreach (QWaylandSurfaceView *view, views())
-        static_cast<QWaylandSurfaceItem *>(view)->updateTexture();
+        static_cast<QWaylandSurfaceItem *>(view)->updateTexture(update);
 }
 
 void QWaylandQuickSurface::invalidateTexture()
@@ -247,7 +256,8 @@ void QWaylandQuickSurface::invalidateTexture()
     Q_D(QWaylandQuickSurface);
     d->buffer->invalidateTexture();
     foreach (QWaylandSurfaceView *view, views())
-        static_cast<QWaylandSurfaceItem *>(view)->updateTexture();
+        static_cast<QWaylandSurfaceItem *>(view)->updateTexture(true);
+    emit redraw();
 }
 
 bool QWaylandQuickSurface::clientRenderingEnabled() const

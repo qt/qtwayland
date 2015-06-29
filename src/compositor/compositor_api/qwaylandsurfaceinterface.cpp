@@ -60,6 +60,7 @@ QWaylandSurfaceInterface::QWaylandSurfaceInterface(QWaylandSurface *surface)
 QWaylandSurfaceInterface::~QWaylandSurfaceInterface()
 {
     d->surface->removeInterface(this);
+    delete d;
 }
 
 QWaylandSurface *QWaylandSurfaceInterface::surface() const
@@ -94,6 +95,11 @@ QWaylandSurfaceOp::QWaylandSurfaceOp(int t)
                  : d(new Private)
 {
     d->type = t;
+}
+
+QWaylandSurfaceOp::~QWaylandSurfaceOp()
+{
+    delete d;
 }
 
 int QWaylandSurfaceOp::type() const

@@ -125,7 +125,9 @@ protected:
 
 private:
     friend class QWaylandSurfaceNode;
+    friend class QWaylandQuickSurface;
     void init(QWaylandQuickSurface *);
+    void updateTexture(bool changed);
 
     static QMutex *mutex;
 

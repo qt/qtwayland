@@ -86,21 +86,49 @@ QWaylandWindow::QWaylandWindow(QWindow *window)
     , mMask()
     , mBackingStore(Q_NULLPTR)
 {
-    init(mDisplay->createSurface(static_cast<QtWayland::wl_surface *>(this)));
-
     static WId id = 1;
     mWindowId = id++;
 
-    if (mDisplay->subSurfaceExtension())
-        mSubSurfaceWindow = new QWaylandSubSurface(this, mDisplay->subSurfaceExtension()->get_sub_surface_aware_surface(object()));
+    initWindow();
+}
 
-    if (!(window->flags() & Qt::BypassWindowManagerHint)) {
+QWaylandWindow::~QWaylandWindow()
+{
+    delete mWindowDecoration;
+
+    if (isInitialized())
+        reset();
+
+    QList<QWaylandInputDevice *> inputDevices = mDisplay->inputDevices();
+    for (int i = 0; i < inputDevices.size(); ++i)
+        inputDevices.at(i)->handleWindowDestroyed(this);
+
+    const QWindow *parent = window();
+    foreach (QWindow *w, QGuiApplication::topLevelWindows()) {
+        if (w->transientParent() == parent)
+            QWindowSystemInterface::handleCloseEvent(w);
+    }
+
+    if (mMouseGrab == this) {
+        mMouseGrab = 0;
+    }
+}
+
+void QWaylandWindow::initWindow()
+{
+    init(mDisplay->createSurface(static_cast<QtWayland::wl_surface *>(this)));
+    if (QPlatformWindow::parent()) {
+        QWaylandWindow *p = static_cast<QWaylandWindow *>(QPlatformWindow::parent());
+        if (::wl_subsurface *ss = mDisplay->createSubSurface(this, p)) {
+            mSubSurfaceWindow = new QWaylandSubSurface(this, p, ss);
+        }
+    } else if (!(window()->flags() & Qt::BypassWindowManagerHint)) {
         mShellSurface = mDisplay->createShellSurface(this);
     }
 
     if (mShellSurface) {
         // Set initial surface title
-        mShellSurface->setTitle(window->title());
+        mShellSurface->setTitle(window()->title());
 
         // The appId is the desktop entry identifier that should follow the
         // reverse DNS convention (see http://standards.freedesktop.org/desktop-entry-spec/latest/ar01s02.html),
@@ -122,14 +150,14 @@ QWaylandWindow::QWaylandWindow(QWindow *window)
         }
     }
 
-    if (QPlatformWindow::parent() && mSubSurfaceWindow) {
-        mSubSurfaceWindow->setParent(static_cast<const QWaylandWindow *>(QPlatformWindow::parent()));
-    } else if (window->transientParent() && mShellSurface) {
-        if (window->type() != Qt::Popup) {
-            mShellSurface->updateTransientParent(window->transientParent());
+    if (mShellSurface) {
+        if (window()->transientParent()) {
+            if (window()->type() != Qt::Popup) {
+                mShellSurface->updateTransientParent(window()->transientParent());
+            }
+        } else {
+            mShellSurface->setTopLevel();
         }
-    } else if (mShellSurface) {
-        mShellSurface->setTopLevel();
     }
 
     // Enable high-dpi rendering. Scale() returns the screen scale factor and will
@@ -138,38 +166,25 @@ QWaylandWindow::QWaylandWindow(QWindow *window)
     if (mDisplay->compositorVersion() >= 3)
         set_buffer_scale(scale());
 
-    setOrientationMask(window->screen()->orientationUpdateMask());
-    setWindowFlags(window->flags());
-    setGeometry_helper(window->geometry());
-    setMask(window->mask());
-    setWindowStateInternal(window->windowState());
-    handleContentOrientationChange(window->contentOrientation());
+    if (QScreen *s = window()->screen())
+        setOrientationMask(s->orientationUpdateMask());
+    setWindowFlags(window()->flags());
+    setGeometry_helper(window()->geometry());
+    setMask(window()->mask());
+    setWindowStateInternal(window()->windowState());
+    handleContentOrientationChange(window()->contentOrientation());
 }
 
-QWaylandWindow::~QWaylandWindow()
+void QWaylandWindow::reset()
 {
-    delete mWindowDecoration;
+    delete mShellSurface;
+    mShellSurface = 0;
+    delete mSubSurfaceWindow;
+    mSubSurfaceWindow = 0;
+    destroy();
 
-    if (isInitialized()) {
-        delete mShellSurface;
-        destroy();
-    }
     if (mFrameCallback)
         wl_callback_destroy(mFrameCallback);
-
-    QList<QWaylandInputDevice *> inputDevices = mDisplay->inputDevices();
-    for (int i = 0; i < inputDevices.size(); ++i)
-        inputDevices.at(i)->handleWindowDestroyed(this);
-
-    const QWindow *parent = window();
-    foreach (QWindow *w, QGuiApplication::topLevelWindows()) {
-        if (w->transientParent() == parent)
-            QWindowSystemInterface::handleCloseEvent(w);
-    }
-
-    if (mMouseGrab == this) {
-        mMouseGrab = 0;
-    }
 }
 
 QWaylandWindow *QWaylandWindow::fromWlSurface(::wl_surface *surface)
@@ -184,9 +199,17 @@ WId QWaylandWindow::winId() const
 
 void QWaylandWindow::setParent(const QPlatformWindow *parent)
 {
-    const QWaylandWindow *parentWaylandWindow = static_cast<const QWaylandWindow *>(parent);
-    if (subSurfaceWindow()) {
-        subSurfaceWindow()->setParent(parentWaylandWindow);
+    QWaylandWindow *oldparent = mSubSurfaceWindow ? mSubSurfaceWindow->parent() : 0;
+    if (oldparent == parent)
+        return;
+
+    if (mSubSurfaceWindow && parent) { // new parent, but we were a subsurface already
+        delete mSubSurfaceWindow;
+        QWaylandWindow *p = const_cast<QWaylandWindow *>(static_cast<const QWaylandWindow *>(parent));
+        mSubSurfaceWindow = new QWaylandSubSurface(this, p, mDisplay->createSubSurface(this, p));
+    } else { // we're changing role, need to make a new wl_surface
+        reset();
+        initWindow();
     }
 }
 
@@ -214,7 +237,10 @@ void QWaylandWindow::setGeometry_helper(const QRect &rect)
                 qBound(window()->minimumWidth(), rect.width(), window()->maximumWidth()),
                 qBound(window()->minimumHeight(), rect.height(), window()->maximumHeight())));
 
-    if (shellSurface() && window()->transientParent() && window()->type() != Qt::Popup)
+    if (mSubSurfaceWindow) {
+        QMargins m = QPlatformWindow::parent()->frameMargins();
+        mSubSurfaceWindow->set_position(rect.x() + m.left(), rect.y() + m.top());
+    } else if (shellSurface() && window()->transientParent() && window()->type() != Qt::Popup)
         shellSurface()->updateTransientParent(window()->transientParent());
 }
 
@@ -546,7 +572,10 @@ bool QWaylandWindow::createDecoration()
         decoration = false;
     if (window()->flags() & Qt::BypassWindowManagerHint)
         decoration = false;
+    if (mSubSurfaceWindow)
+        decoration = false;
 
+    bool hadDecoration = mWindowDecoration;
     if (decoration && !decorationPluginFailed) {
         if (!mWindowDecoration) {
             QStringList decorations = QWaylandDecorationFactory::keys();
@@ -577,13 +606,18 @@ bool QWaylandWindow::createDecoration()
                 return false;
             }
             mWindowDecoration->setWaylandWindow(this);
-            if (subSurfaceWindow()) {
-                subSurfaceWindow()->adjustPositionOfChildren();
-            }
         }
     } else {
         delete mWindowDecoration;
         mWindowDecoration = 0;
+    }
+
+    if (hadDecoration != (bool)mWindowDecoration) {
+        foreach (QWaylandSubSurface *subsurf, mChildren) {
+            QPoint pos = subsurf->window()->geometry().topLeft();
+            QMargins m = frameMargins();
+            subsurf->set_position(pos.x() + m.left(), pos.y() + m.top());
+        }
     }
 
     return mWindowDecoration;

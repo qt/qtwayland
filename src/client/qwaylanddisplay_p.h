@@ -100,6 +100,7 @@ public:
     struct wl_surface *createSurface(void *handle);
     QWaylandShellSurface *createShellSurface(QWaylandWindow *window);
     struct ::wl_region *createRegion(const QRegion &qregion);
+    struct ::wl_subsurface *createSubSurface(QWaylandWindow *window, QWaylandWindow *parent);
 
     QWaylandClientBufferIntegration *clientBufferIntegration() const;
 
@@ -128,7 +129,6 @@ public:
     QWaylandDataDeviceManager *dndSelectionHandler() const { return mDndSelectionHandler.data(); }
 
     QtWayland::qt_surface_extension *windowExtension() const { return mWindowExtension.data(); }
-    QtWayland::qt_sub_surface_extension *subSurfaceExtension() const { return mSubSurfaceExtension.data(); }
     QWaylandTouchExtension *touchExtension() const { return mTouchExtension.data(); }
     QtWayland::wl_text_input_manager *textInputManager() const { return mTextInputManager.data(); }
     QWaylandHardwareIntegration *hardwareIntegration() const { return mHardwareIntegration.data(); }
@@ -188,7 +188,7 @@ private:
     QWaylandInputDevice *mLastKeyboardFocusInputDevice;
     QScopedPointer<QWaylandDataDeviceManager> mDndSelectionHandler;
     QScopedPointer<QtWayland::qt_surface_extension> mWindowExtension;
-    QScopedPointer<QtWayland::qt_sub_surface_extension> mSubSurfaceExtension;
+    QScopedPointer<QtWayland::wl_subcompositor> mSubCompositor;
     QScopedPointer<QWaylandTouchExtension> mTouchExtension;
     QScopedPointer<QWaylandQtKeyExtension> mQtKeyExtension;
     QScopedPointer<QWaylandWindowManagerIntegration> mWindowManagerIntegration;

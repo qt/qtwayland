@@ -100,6 +100,15 @@ struct ::wl_region *QWaylandDisplay::createRegion(const QRegion &qregion)
     return region;
 }
 
+::wl_subsurface *QWaylandDisplay::createSubSurface(QWaylandWindow *window, QWaylandWindow *parent)
+{
+    if (!mSubCompositor) {
+        return NULL;
+    }
+
+    return mSubCompositor->get_subsurface(window->object(), parent->object());
+}
+
 QWaylandClientBufferIntegration * QWaylandDisplay::clientBufferIntegration() const
 {
     return mWaylandIntegration->clientBufferIntegration();
@@ -125,7 +134,7 @@ QWaylandDisplay::QWaylandDisplay(QWaylandIntegration *waylandIntegration)
     , mLastKeyboardFocusInputDevice(0)
     , mDndSelectionHandler(0)
     , mWindowExtension(0)
-    , mSubSurfaceExtension(0)
+    , mSubCompositor(0)
     , mTouchExtension(0)
     , mQtKeyExtension(0)
     , mTextInputManager(0)
@@ -259,8 +268,8 @@ void QWaylandDisplay::registry_global(uint32_t id, const QString &interface, uin
         mDndSelectionHandler.reset(new QWaylandDataDeviceManager(this, id));
     } else if (interface == QStringLiteral("qt_surface_extension")) {
         mWindowExtension.reset(new QtWayland::qt_surface_extension(registry, id, 1));
-    } else if (interface == QStringLiteral("qt_sub_surface_extension")) {
-        mSubSurfaceExtension.reset(new QtWayland::qt_sub_surface_extension(registry, id, 1));
+    } else if (interface == QStringLiteral("wl_subcompositor")) {
+        mSubCompositor.reset(new QtWayland::wl_subcompositor(registry, id, 1));
     } else if (interface == QStringLiteral("qt_touch_extension")) {
         mTouchExtension.reset(new QWaylandTouchExtension(this, id));
     } else if (interface == QStringLiteral("qt_key_extension")) {

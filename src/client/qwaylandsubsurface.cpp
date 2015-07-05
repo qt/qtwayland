@@ -41,45 +41,18 @@ QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
 
-QWaylandSubSurface::QWaylandSubSurface(QWaylandWindow *window, struct ::qt_sub_surface *sub_surface)
-    : QtWayland::qt_sub_surface(sub_surface)
+QWaylandSubSurface::QWaylandSubSurface(QWaylandWindow *window, QWaylandWindow *parent, ::wl_subsurface *sub_surface)
+    : QtWayland::wl_subsurface(sub_surface)
     , m_window(window)
+    , m_parent(parent)
 {
+    m_parent->mChildren << this;
+    set_desync();
 }
 
-void QWaylandSubSurface::setParent(const QWaylandWindow *parent)
+QWaylandSubSurface::~QWaylandSubSurface()
 {
-    QWaylandSubSurface *parentSurface = parent ? parent->subSurfaceWindow() : 0;
-    if (parentSurface) {
-        int x = m_window->geometry().x() + parent->frameMargins().left();
-        int y = m_window->geometry().y() + parent->frameMargins().top();
-        parentSurface->attach_sub_surface(object(), x, y);
-    }
-}
-
-static void setPositionToParent(QWaylandWindow *parentWaylandWindow)
-{
-    QObjectList children = parentWaylandWindow->window()->children();
-    for (int i = 0; i < children.size(); i++) {
-        QWindow *childWindow = qobject_cast<QWindow *>(children.at(i));
-        if (!childWindow)
-            continue;
-
-        if (childWindow->handle()) {
-            QWaylandWindow *waylandWindow = static_cast<QWaylandWindow *>(childWindow->handle());
-            waylandWindow->subSurfaceWindow()->setParent(parentWaylandWindow);
-            setPositionToParent(waylandWindow);
-        }
-    }
-}
-
-void QWaylandSubSurface::adjustPositionOfChildren()
-{
-    QWindow *window = m_window->window();
-    if (window->parent()) {
-        qDebug() << "QWaylandSubSurface::adjustPositionOfChildren not called for toplevel window";
-    }
-    setPositionToParent(m_window);
+    m_parent->mChildren.removeOne(this);
 }
 
 }

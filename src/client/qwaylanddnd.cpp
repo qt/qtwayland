@@ -89,15 +89,15 @@ void QWaylandDrag::cancel()
     m_display->currentInputDevice()->dataDevice()->cancelDrag();
 }
 
-void QWaylandDrag::move(const QMouseEvent *me)
+void QWaylandDrag::move(const QPoint &globalPos)
 {
-    Q_UNUSED(me);
+    Q_UNUSED(globalPos);
     // Do nothing
 }
 
-void QWaylandDrag::drop(const QMouseEvent *me)
+void QWaylandDrag::drop(const QPoint &globalPos)
 {
-    Q_UNUSED(me);
+    Q_UNUSED(globalPos);
     // Do nothing
 }
 

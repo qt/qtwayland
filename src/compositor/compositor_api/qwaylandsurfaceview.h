@@ -49,15 +49,20 @@ class QWaylandCompositor;
 class Q_COMPOSITOR_EXPORT QWaylandSurfaceView
 {
 public:
-    QWaylandSurfaceView(QWaylandSurface *surface);
+    QWaylandSurfaceView();
     virtual ~QWaylandSurfaceView();
 
     QWaylandCompositor *compositor() const;
+
     QWaylandSurface *surface() const;
+    void setSurface(QWaylandSurface *surface);
 
     virtual void setRequestedPosition(const QPointF &pos);
     virtual QPointF requestedPosition() const;
     virtual QPointF pos() const;
+
+protected:
+    virtual void waylandSurfaceChanged(QWaylandSurface *newSurface, QWaylandSurface *oldSurface);
 
 private:
     class QWaylandSurfaceViewPrivate *const d;

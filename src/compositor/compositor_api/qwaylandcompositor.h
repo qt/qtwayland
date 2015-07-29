@@ -166,7 +166,7 @@ public:
     Q_DECLARE_FLAGS(TouchExtensionFlags, TouchExtensionFlag)
     void configureTouchExtension(TouchExtensionFlags flags);
 
-    virtual QWaylandSurfaceView *createView(QWaylandSurface *surface);
+    QWaylandSurfaceView *createSurfaceView(QWaylandSurface *surface);
 
     QWaylandInputDevice *inputDeviceFor(QInputEvent *inputEvent);
 
@@ -185,6 +185,7 @@ protected:
                                          const QString &manufacturer,
                                          const QString &model);
     virtual QWaylandSurface *createSurface(QWaylandClient *client, quint32 id, int version);
+    virtual QWaylandSurfaceView *createView();
 
     friend class QtWayland::Compositor;
     QtWayland::Compositor *m_compositor;

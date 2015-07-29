@@ -45,18 +45,16 @@ QT_BEGIN_NAMESPACE
 class QWaylandSurfaceViewPrivate
 {
 public:
+    QWaylandSurfaceViewPrivate()
+        : surface(Q_NULLPTR)
+    { }
     QWaylandSurface *surface;
     QPointF requestedPos;
 };
 
-QWaylandSurfaceView::QWaylandSurfaceView(QWaylandSurface *surf)
+QWaylandSurfaceView::QWaylandSurfaceView()
                    : d(new QWaylandSurfaceViewPrivate)
 {
-    d->surface = surf;
-    if (surf) {
-        surf->d_func()->views << this;
-        surf->ref();
-    }
 }
 
 QWaylandSurfaceView::~QWaylandSurfaceView()
@@ -68,13 +66,29 @@ QWaylandSurfaceView::~QWaylandSurfaceView()
 
         d->surface->destroy();
         d->surface->d_func()->views.removeOne(this);
+        d->surface->deref();
     }
+
     delete d;
 }
 
 QWaylandSurface *QWaylandSurfaceView::surface() const
 {
     return d->surface;
+}
+
+void QWaylandSurfaceView::setSurface(QWaylandSurface *newSurface)
+{
+    QWaylandSurface *oldSurface = d->surface;
+    d->surface = newSurface;
+
+    if (oldSurface)
+        QWaylandSurfacePrivate::get(oldSurface)->derefView(this);
+
+    if (newSurface)
+        QWaylandSurfacePrivate::get(newSurface)->refView(this);
+
+    waylandSurfaceChanged(newSurface, oldSurface);
 }
 
 QWaylandCompositor *QWaylandSurfaceView::compositor() const
@@ -95,6 +109,12 @@ QPointF QWaylandSurfaceView::requestedPosition() const
 QPointF QWaylandSurfaceView::pos() const
 {
     return d->requestedPos;
+}
+
+void QWaylandSurfaceView::waylandSurfaceChanged(QWaylandSurface *newSurface, QWaylandSurface *oldSurface)
+{
+    Q_UNUSED(newSurface);
+    Q_UNUSED(oldSurface);
 }
 
 QT_END_NAMESPACE

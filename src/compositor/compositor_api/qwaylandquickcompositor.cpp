@@ -97,11 +97,6 @@ void QWaylandQuickCompositor::setExposeDefaultShell(bool defaultShell)
     m_exposeDefaultShell = defaultShell;
 }
 
-QWaylandSurfaceView *QWaylandQuickCompositor::createView(QWaylandSurface *surf)
-{
-    return new QWaylandSurfaceItem(static_cast<QWaylandQuickSurface *>(surf));
-}
-
 QWaylandOutput *QWaylandQuickCompositor::createOutput(QWindow *window,
                                                       const QString &manufacturer,
                                                       const QString &model)
@@ -111,6 +106,11 @@ QWaylandOutput *QWaylandQuickCompositor::createOutput(QWindow *window,
         qFatal("%s: couldn't cast QWindow to QQuickWindow. All output windows must "
                "be QQuickWindow derivates when using QWaylandQuickCompositor", Q_FUNC_INFO);
     return new QWaylandQuickOutput(this, quickWindow, manufacturer, model);
+}
+
+QWaylandSurfaceView *QWaylandQuickCompositor::createView()
+{
+    return new QWaylandSurfaceItem();
 }
 
 QWaylandSurface *QWaylandQuickCompositor::createSurface(QWaylandClient *client, quint32 id, int version)

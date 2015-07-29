@@ -69,12 +69,13 @@ public:
     QSGTexture *t;
 };
 
-QWaylandSurfaceItem::QWaylandSurfaceItem(QWaylandQuickSurface *surface, QQuickItem *parent)
+QWaylandSurfaceItem::QWaylandSurfaceItem(QQuickItem *parent)
     : QQuickItem(parent)
-    , QWaylandSurfaceView(surface)
+    , QWaylandSurfaceView()
     , m_provider(0)
     , m_paintEnabled(true)
     , m_touchEventsEnabled(false)
+    , m_yInverted(false)
     , m_resizeSurfaceToItem(false)
     , m_newTexture(false)
     , m_followRequestedPos(true)
@@ -86,11 +87,6 @@ QWaylandSurfaceItem::QWaylandSurfaceItem(QWaylandQuickSurface *surface, QQuickIt
 
     update();
 
-    if (surface) {
-        setWidth(surface->size().width());
-        setHeight(surface->size().height());
-    }
-
     setSmooth(true);
 
     setAcceptedMouseButtons(Qt::LeftButton | Qt::MiddleButton | Qt::RightButton |
@@ -99,20 +95,11 @@ QWaylandSurfaceItem::QWaylandSurfaceItem(QWaylandQuickSurface *surface, QQuickIt
         Qt::ExtraButton9 | Qt::ExtraButton10 | Qt::ExtraButton11 |
         Qt::ExtraButton12 | Qt::ExtraButton13);
     setAcceptHoverEvents(true);
-    if (surface) {
-        connect(surface, &QWaylandSurface::mapped, this, &QWaylandSurfaceItem::surfaceMapped);
-        connect(surface, &QWaylandSurface::unmapped, this, &QWaylandSurfaceItem::surfaceUnmapped);
-        connect(surface, &QWaylandSurface::surfaceDestroyed, this, &QWaylandSurfaceItem::surfaceDestroyed);
-        connect(surface, &QWaylandSurface::parentChanged, this, &QWaylandSurfaceItem::parentChanged);
-        connect(surface, &QWaylandSurface::sizeChanged, this, &QWaylandSurfaceItem::updateSize);
-        connect(surface, &QWaylandSurface::configure, this, &QWaylandSurfaceItem::updateBuffer);
-        connect(surface, &QWaylandSurface::redraw, this, &QQuickItem::update);
-    }
+
     connect(this, &QWaylandSurfaceItem::widthChanged, this, &QWaylandSurfaceItem::updateSurfaceSize);
     connect(this, &QWaylandSurfaceItem::heightChanged, this, &QWaylandSurfaceItem::updateSurfaceSize);
 
 
-    m_yInverted = surface ? surface->isYInverted() : true;
     emit yInvertedChanged();
 }
 
@@ -121,6 +108,16 @@ QWaylandSurfaceItem::~QWaylandSurfaceItem()
     QMutexLocker locker(mutex);
     if (m_provider)
         m_provider->deleteLater();
+}
+
+QWaylandQuickSurface *QWaylandSurfaceItem::surface() const
+{
+    return static_cast<QWaylandQuickSurface *>(QWaylandSurfaceView::surface());
+}
+
+void QWaylandSurfaceItem::setSurface(QWaylandQuickSurface *surface)
+{
+    QWaylandSurfaceView::setSurface(surface);
 }
 
 bool QWaylandSurfaceItem::isYInverted() const
@@ -257,6 +254,36 @@ void QWaylandSurfaceItem::mouseUngrabEvent()
         QTouchEvent e(QEvent::TouchCancel);
         touchEvent(&e);
     }
+}
+
+void QWaylandSurfaceItem::waylandSurfaceChanged(QWaylandSurface *newSurface, QWaylandSurface *oldSurface)
+{
+    if (oldSurface) {
+        disconnect(oldSurface, &QWaylandSurface::mapped, this, &QWaylandSurfaceItem::surfaceMapped);
+        disconnect(oldSurface, &QWaylandSurface::unmapped, this, &QWaylandSurfaceItem::surfaceUnmapped);
+        disconnect(oldSurface, &QWaylandSurface::surfaceDestroyed, this, &QWaylandSurfaceItem::surfaceDestroyed);
+        disconnect(oldSurface, &QWaylandSurface::parentChanged, this, &QWaylandSurfaceItem::parentChanged);
+        disconnect(oldSurface, &QWaylandSurface::sizeChanged, this, &QWaylandSurfaceItem::updateSize);
+        disconnect(oldSurface, &QWaylandSurface::configure, this, &QWaylandSurfaceItem::updateBuffer);
+        disconnect(oldSurface, &QWaylandSurface::redraw, this, &QQuickItem::update);
+    }
+    if (newSurface) {
+        connect(newSurface, &QWaylandSurface::mapped, this, &QWaylandSurfaceItem::surfaceMapped);
+        connect(newSurface, &QWaylandSurface::unmapped, this, &QWaylandSurfaceItem::surfaceUnmapped);
+        connect(newSurface, &QWaylandSurface::surfaceDestroyed, this, &QWaylandSurfaceItem::surfaceDestroyed);
+        connect(newSurface, &QWaylandSurface::parentChanged, this, &QWaylandSurfaceItem::parentChanged);
+        connect(newSurface, &QWaylandSurface::sizeChanged, this, &QWaylandSurfaceItem::updateSize);
+        connect(newSurface, &QWaylandSurface::configure, this, &QWaylandSurfaceItem::updateBuffer);
+        connect(newSurface, &QWaylandSurface::redraw, this, &QQuickItem::update);
+        setWidth(surface()->size().width());
+        setHeight(surface()->size().height());
+        if (newSurface->isYInverted() != m_yInverted) {
+            m_yInverted = newSurface->isYInverted();
+            emit yInvertedChanged();
+        }
+    }
+
+    emit surfaceChanged();
 }
 
 void QWaylandSurfaceItem::takeFocus(QWaylandInputDevice *device)

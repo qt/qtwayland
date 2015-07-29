@@ -58,7 +58,7 @@ class QWaylandInputDevice;
 class Q_COMPOSITOR_EXPORT QWaylandSurfaceItem : public QQuickItem, public QWaylandSurfaceView
 {
     Q_OBJECT
-    Q_PROPERTY(QWaylandSurface* surface READ surface CONSTANT)
+    Q_PROPERTY(QWaylandQuickSurface* surface READ surface WRITE setSurface NOTIFY surfaceChanged)
     Q_PROPERTY(bool paintEnabled READ paintEnabled WRITE setPaintEnabled)
     Q_PROPERTY(bool touchEventsEnabled READ touchEventsEnabled WRITE setTouchEventsEnabled NOTIFY touchEventsEnabledChanged)
     Q_PROPERTY(bool isYInverted READ isYInverted NOTIFY yInvertedChanged)
@@ -68,10 +68,13 @@ class Q_COMPOSITOR_EXPORT QWaylandSurfaceItem : public QQuickItem, public QWayla
     Q_PROPERTY(qreal requestedYPosition READ requestedYPosition WRITE setRequestedYPosition NOTIFY requestedYPositionChanged)
 
 public:
-    QWaylandSurfaceItem(QWaylandQuickSurface *surface, QQuickItem *parent = 0);
+    QWaylandSurfaceItem(QQuickItem *parent = 0);
     ~QWaylandSurfaceItem();
 
-    Q_INVOKABLE bool isYInverted() const;
+    QWaylandQuickSurface *surface() const;
+    void setSurface(QWaylandQuickSurface *surface);
+
+    bool isYInverted() const;
 
     bool isTextureProvider() const { return true; }
     QSGTextureProvider *textureProvider() const;
@@ -108,6 +111,8 @@ protected:
     void touchEvent(QTouchEvent *event);
     void mouseUngrabEvent() Q_DECL_OVERRIDE;
 
+    void waylandSurfaceChanged(QWaylandSurface *newSurface, QWaylandSurface *oldSurface) Q_DECL_OVERRIDE;
+
 public Q_SLOTS:
     virtual void takeFocus(QWaylandInputDevice *device = 0);
     void setPaintEnabled(bool paintEnabled);
@@ -121,6 +126,7 @@ private Q_SLOTS:
     void updateBuffer(bool hasBuffer);
 
 Q_SIGNALS:
+    void surfaceChanged();
     void touchEventsEnabledChanged();
     void yInvertedChanged();
     void resizeSurfaceToItemChanged();

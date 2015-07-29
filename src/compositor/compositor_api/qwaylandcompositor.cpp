@@ -202,6 +202,11 @@ void QWaylandCompositor::cleanupGraphicsResources()
     m_compositor->cleanupGraphicsResources();
 }
 
+QWaylandSurfaceView *QWaylandCompositor::createView()
+{
+    return new QWaylandSurfaceView();
+}
+
 QWaylandSurfaceView *QWaylandCompositor::pickView(const QPointF &globalPosition) const
 {
     Q_FOREACH (QWaylandOutput *output, outputs()) {
@@ -370,9 +375,12 @@ void QWaylandCompositor::configureTouchExtension(TouchExtensionFlags flags)
     m_compositor->configureTouchExtension(flags);
 }
 
-QWaylandSurfaceView *QWaylandCompositor::createView(QWaylandSurface *surface)
+
+QWaylandSurfaceView *QWaylandCompositor::createSurfaceView(QWaylandSurface *surface)
 {
-    return new QWaylandSurfaceView(surface);
+    QWaylandSurfaceView *view = createView();
+    view->setSurface(surface);
+    return view;
 }
 
 QWaylandInputDevice *QWaylandCompositor::inputDeviceFor(QInputEvent *inputEvent)

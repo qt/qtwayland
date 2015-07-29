@@ -412,9 +412,7 @@ bool QWaylandSurface::inputRegionContains(const QPoint &p) const
 
 void QWaylandSurface::destroy()
 {
-    Q_D(QWaylandSurface);
-    if (--d->refCount == 0)
-        compositor()->handle()->destroySurface(d);
+    deref();
 }
 
 void QWaylandSurface::destroySurface()
@@ -446,6 +444,13 @@ void QWaylandSurface::ref()
 {
     Q_D(QWaylandSurface);
     ++d->refCount;
+}
+
+void QWaylandSurface::deref()
+{
+    Q_D(QWaylandSurface);
+    if (--d->refCount == 0)
+        compositor()->handle()->destroySurface(d);
 }
 
 void QWaylandSurface::setMapped(bool mapped)
@@ -486,6 +491,11 @@ QWaylandSurface *QWaylandSurface::fromResource(::wl_resource *res)
     return Q_NULLPTR;
 }
 
+QWaylandSurfacePrivate *QWaylandSurfacePrivate::get(QWaylandSurface *surface)
+{
+    return surface ? surface->d_func() : Q_NULLPTR;
+}
+
 void QWaylandSurfacePrivate::setTitle(const QString &title)
 {
     Q_Q(QWaylandSurface);
@@ -510,6 +520,24 @@ void QWaylandSurfacePrivate::setType(QWaylandSurface::WindowType type)
     if (windowType != type) {
         windowType = type;
         emit q->windowTypeChanged(type);
+    }
+}
+
+void QWaylandSurfacePrivate::refView(QWaylandSurfaceView *view)
+{
+    if (views.contains(view))
+        return;
+
+    views.append(view);
+    waylandSurface()->ref();
+}
+
+void QWaylandSurfacePrivate::derefView(QWaylandSurfaceView *view)
+{
+    int nViews = views.removeAll(view);
+
+    for (int i = 0; i < nViews && refCount > 0; i++) {
+        waylandSurface()->deref();
     }
 }
 

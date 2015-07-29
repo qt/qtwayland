@@ -214,6 +214,7 @@ public:
     Q_INVOKABLE void ping();
 
     void ref();
+    void deref();
     void setMapped(bool mapped);
 
     void setBufferAttacher(QWaylandBufferAttacher *attacher);
@@ -261,7 +262,6 @@ Q_SIGNALS:
     void configure(bool hasBuffer);
     void redraw();
 
-    friend class QWaylandSurfaceView;
     friend class QWaylandSurfaceInterface;
     friend class QtWayland::Surface;
 };

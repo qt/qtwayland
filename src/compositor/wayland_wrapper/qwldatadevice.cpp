@@ -182,7 +182,7 @@ void DataDevice::data_device_start_drag(Resource *resource, struct ::wl_resource
 
         m_dragClient = resource->client();
         m_dragDataSource = source != 0 ? DataSource::fromResource(source) : 0;
-        m_dragIcon = icon != 0 ? m_compositor->waylandCompositor()->createView(Surface::fromResource(icon)->waylandSurface()) : 0;
+        m_dragIcon = icon != 0 ? m_compositor->waylandCompositor()->createSurfaceView(Surface::fromResource(icon)->waylandSurface()) : 0;
         Q_EMIT m_inputDevice->dragHandle()->iconChanged();
 
         m_inputDevice->pointerDevice()->setFocus(0, QPointF());

@@ -59,10 +59,10 @@ public:
     bool exposeDefaultShell() const;
     void setExposeDefaultShell(bool defaultShell);
 
-    QWaylandSurfaceView *createView(QWaylandSurface *surf) Q_DECL_OVERRIDE;
     QWaylandOutput *createOutput(QWindow *window,
                                  const QString &manufacturer,
                                  const QString &model) Q_DECL_OVERRIDE;
+    QWaylandSurfaceView *createView() Q_DECL_OVERRIDE;
     QWaylandSurface *createSurface(QWaylandClient *client, quint32 id, int version) Q_DECL_OVERRIDE;
 
 protected:

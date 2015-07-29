@@ -54,10 +54,13 @@ class Q_COMPOSITOR_EXPORT QWaylandSurfacePrivate : public QObjectPrivate, public
 {
     Q_DECLARE_PUBLIC(QWaylandSurface)
 public:
+    static QWaylandSurfacePrivate *get(QWaylandSurface *surface);
     QWaylandSurfacePrivate(wl_client *wlClient, quint32 id, int version, QWaylandCompositor *compositor, QWaylandSurface *surface);
     void setType(QWaylandSurface::WindowType type);
     void setTitle(const QString &title);
     void setClassName(const QString &className);
+    void refView(QWaylandSurfaceView *view);
+    void derefView(QWaylandSurfaceView *view);
 
     bool closing;
     int refCount;

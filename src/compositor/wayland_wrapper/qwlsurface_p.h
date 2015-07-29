@@ -234,6 +234,8 @@ protected:
     void setBackBuffer(SurfaceBuffer *buffer);
     SurfaceBuffer *createSurfaceBuffer(struct ::wl_resource *buffer);
 
+    QList<QWaylandSurfaceView *> views;
+
     friend class QWaylandSurface;
     friend class RoleBase;
 };

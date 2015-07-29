@@ -98,6 +98,7 @@ public:
     void requestSize(const QSize &size);
     void ping(uint32_t serial);
 
+    QWaylandSurfaceView *view() { return m_view; }
 protected:
     bool runOperation(QWaylandSurfaceOp *op) Q_DECL_OVERRIDE;
 

@@ -67,6 +67,7 @@ namespace QtWayland {
 
 class Compositor;
 class Buffer;
+class ShellSurface;
 class ExtendedSurface;
 class InputPanelSurface;
 class SubSurface;
@@ -107,6 +108,9 @@ public:
     QWaylandSurface *waylandSurface() const;
 
     QPoint lastMousePos() const;
+
+    void setShellSurface(ShellSurface *shellSurface);
+    ShellSurface *shellSurface() const;
 
     void setExtendedSurface(ExtendedSurface *extendedSurface);
     ExtendedSurface *extendedSurface() const;
@@ -203,6 +207,7 @@ protected:
     QList<FrameCallback *> m_pendingFrameCallbacks;
     QList<FrameCallback *> m_frameCallbacks;
 
+    ShellSurface *m_shellSurface;
     ExtendedSurface *m_extendedSurface;
     SubSurface *m_subSurface;
     InputPanelSurface *m_inputPanelSurface;

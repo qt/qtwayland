@@ -98,6 +98,7 @@ ShellSurface::ShellSurface(Shell *shell, wl_client *client, uint32_t id, Surface
     m_view = surface->compositor()->waylandCompositor()->createView(surface->waylandSurface());
     connect(surface->waylandSurface(), &QWaylandSurface::configure, this, &ShellSurface::configure);
     connect(surface->waylandSurface(), &QWaylandSurface::mapped, this, &ShellSurface::mapped);
+    surface->setShellSurface(this);
 }
 
 ShellSurface::~ShellSurface()

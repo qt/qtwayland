@@ -344,6 +344,12 @@ void QWaylandSurface::setVisibility(QWindow::Visibility v)
     emit visibilityChanged();
 }
 
+QWaylandSurfaceView *QWaylandSurface::shellView() const
+{
+    Q_D(const QWaylandSurface);
+    return d->shellSurface() ? d->shellSurface()->view() : Q_NULLPTR;
+}
+
 bool QWaylandSurface::sendInterfaceOp(QWaylandSurfaceOp &op)
 {
     Q_D(QWaylandSurface);

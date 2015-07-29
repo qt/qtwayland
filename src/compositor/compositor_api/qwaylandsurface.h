@@ -220,6 +220,8 @@ public:
     QList<QWaylandSurfaceView *> views() const;
     QList<QWaylandSurfaceInterface *> interfaces() const;
 
+    QWaylandSurfaceView *shellView() const;
+
     bool sendInterfaceOp(QWaylandSurfaceOp &op);
 
     static QWaylandSurface *fromResource(::wl_resource *resource);
@@ -249,6 +251,7 @@ Q_SIGNALS:
     void visibilityChanged();
     void pong();
     void surfaceDestroyed();
+    void shellViewCreated();
 
     void configure(bool hasBuffer);
     void redraw();

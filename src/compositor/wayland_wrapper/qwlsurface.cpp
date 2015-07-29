@@ -43,6 +43,7 @@
 #include "qwlregion_p.h"
 #include "qwlsubsurface_p.h"
 #include "qwlsurfacebuffer_p.h"
+#include "qwlshellsurface_p.h"
 #include "qwaylandsurfaceview.h"
 #include "qwaylandoutput.h"
 
@@ -249,6 +250,18 @@ QWaylandSurface * Surface::waylandSurface() const
 QPoint Surface::lastMousePos() const
 {
     return m_lastLocalMousePos;
+}
+
+void Surface::setShellSurface(ShellSurface *shellSurface)
+{
+    m_shellSurface = shellSurface;
+    if (m_shellSurface)
+        emit m_waylandSurface->shellViewCreated();
+}
+
+ShellSurface *Surface::shellSurface() const
+{
+    return m_shellSurface;
 }
 
 void Surface::setExtendedSurface(ExtendedSurface *extendedSurface)

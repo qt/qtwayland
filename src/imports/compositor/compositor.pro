@@ -8,6 +8,7 @@ SOURCES += \
 
 COMPOSITOR_QML_FILES += \
     WaylandSurfaceChrome.qml \
+    WaylandOutputWindow.qml \
     qmldir
 
 # Create the resource file

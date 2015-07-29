@@ -110,6 +110,10 @@ public:
             QUrl::fromLocalFile(qmlDir.filePath("WaylandSurfaceChrome.qml"));
         qmlRegisterType(waylandSurfaceChromeUrl, uri, 1, 0, "WaylandSurfaceChrome");
 
+        QUrl waylandOutputWindow = useResource ?
+            QUrl("qrc:/QtWayland/Compositor/WaylandOutputWindow.qml") :
+            QUrl::fromLocalFile(qmlDir.filePath("WaylandOutputWindow.qml"));
+        qmlRegisterType(waylandOutputWindow, uri, 1, 0, "WaylandOutputWindow");
     }
 
     static void defineModule(const char *uri)

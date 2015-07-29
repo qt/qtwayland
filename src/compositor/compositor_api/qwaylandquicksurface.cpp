@@ -166,7 +166,6 @@ QWaylandQuickSurface::QWaylandQuickSurface(wl_client *client, quint32 id, int ve
     connect(this, &QWaylandSurface::windowPropertyChanged, d->windowPropertyMap, &QQmlPropertyMap::insert);
     connect(d->windowPropertyMap, &QQmlPropertyMap::valueChanged, this, &QWaylandSurface::setWindowProperty);
     connect(this, &QWaylandSurface::shellViewCreated, this, &QWaylandQuickSurface::shellViewCreated);
-    connect(this, &QWaylandSurface::outputChanged, this, &QWaylandQuickSurface::onOutputChanged);
 }
 
 QWaylandQuickSurface::~QWaylandQuickSurface()
@@ -205,6 +204,11 @@ QObject *QWaylandQuickSurface::windowPropertyMap() const
 QWaylandSurfaceItem *QWaylandQuickSurface::shellView() const
 {
     return static_cast<QWaylandSurfaceItem *>(QWaylandSurface::shellView());
+}
+
+QWindow *QWaylandQuickSurface::outputWindow() const
+{
+    return output() ? output()->window() : Q_NULLPTR;
 }
 
 bool QWaylandQuickSurface::event(QEvent *e)

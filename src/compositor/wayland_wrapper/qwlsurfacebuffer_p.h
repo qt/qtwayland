@@ -42,6 +42,8 @@
 #include <QImage>
 #include <QAtomicInt>
 
+#include <QtCompositor/QWaylandSurface>
+
 #include <wayland-server.h>
 
 QT_BEGIN_NAMESPACE
@@ -70,11 +72,6 @@ public:
     void initialize(struct ::wl_resource *bufferResource);
     void destructBufferState();
 
-    QSize size() const;
-
-    bool isShmBuffer() const;
-    bool isYInverted() const;
-
     inline bool isRegisteredWithBuffer() const { return m_is_registered_for_buffer; }
 
     void sendRelease();
@@ -86,29 +83,19 @@ public:
     inline void setCommitted() { m_committed = true; }
     inline bool isDisplayed() const { return m_is_displayed; }
 
-    inline bool textureCreated() const { return m_texture; }
-
     bool isDestroyed() { return m_destroyed; }
-
-    void createTexture();
-#ifdef QT_COMPOSITOR_WAYLAND_GL
-    inline GLuint texture() const;
-#else
-    inline uint texture() const;
-#endif
-
-    void destroyTexture();
 
     inline struct ::wl_resource *waylandBufferHandle() const { return m_buffer; }
 
-    void handleAboutToBeDisplayed();
-    void handleDisplayed();
-
-    void bufferWasDestroyed();
     void setDestroyIfUnused(bool destroy);
 
-    void *handle() const;
-    QImage image();
+    QSize size() const;
+    QWaylandSurface::Origin origin() const;
+    bool isShm() const { return wl_shm_buffer_get(m_buffer); }
+
+    QImage image() const;
+    void bindToTexture() const;
+
 private:
     void ref();
     void deref();
@@ -124,46 +111,15 @@ private:
     bool m_destroyed;
 
     bool m_is_displayed;
-#ifdef QT_COMPOSITOR_WAYLAND_GL
-    GLuint m_texture;
-#else
-    uint m_texture;
-#endif
-    void *m_handle;
-    mutable bool m_is_shm_resolved;
 
-#if (WAYLAND_VERSION_MAJOR >= 1) && (WAYLAND_VERSION_MINOR >= 2)
-    mutable struct ::wl_shm_buffer *m_shmBuffer;
-#else
-    mutable struct ::wl_buffer *m_shmBuffer;
-#endif
-
-    mutable bool m_isSizeResolved;
-    mutable QSize m_size;
     QAtomicInt m_refCount;
     bool m_used;
     bool m_destroyIfUnused;
-
-    QImage m_image;
 
     static void destroy_listener_callback(wl_listener *listener, void *data);
 
     friend class ::QWaylandBufferRef;
 };
-
-#ifdef QT_COMPOSITOR_WAYLAND_GL
-GLuint SurfaceBuffer::texture() const
-{
-    if (m_buffer)
-        return m_texture;
-    return 0;
-}
-#else
-uint SurfaceBuffer::texture() const
-{
-    return 0;
-}
-#endif
 
 }
 

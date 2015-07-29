@@ -89,9 +89,6 @@ public:
 
     static Surface *fromResource(struct ::wl_resource *resource);
 
-    QWaylandSurface::Type type() const;
-    bool isYInverted() const;
-
     bool mapped() const;
 
     using QtWaylandServer::wl_surface::resource;
@@ -161,6 +158,9 @@ public:
 
     Qt::ScreenOrientation contentOrientation() const;
 
+    QWaylandSurface::Origin origin() const { return m_buffer ? m_buffer->origin() : QWaylandSurface::OriginTopLeft; }
+
+    QWaylandBufferRef currentBufferRef() const { return m_bufferRef; }
 protected:
     void surface_destroy_resource(Resource *resource) Q_DECL_OVERRIDE;
 
@@ -189,7 +189,6 @@ protected:
     SurfaceBuffer *m_buffer;
     QWaylandBufferRef m_bufferRef;
     bool m_surfaceMapped;
-    QWaylandBufferAttacher *m_attacher;
     QVector<QWaylandUnmapLock *> m_unmapLocks;
 
     struct {
@@ -230,10 +229,9 @@ protected:
     const SurfaceRole *m_role;
     RoleBase *m_roleHandler;
 
-    void setBackBuffer(SurfaceBuffer *buffer);
-    SurfaceBuffer *createSurfaceBuffer(struct ::wl_resource *buffer);
+    void setBackBuffer(SurfaceBuffer *buffer, const QRegion &damage);
 
-    QList<QWaylandSurfaceView *> views;
+    SurfaceBuffer *createSurfaceBuffer(struct ::wl_resource *buffer);
 
     friend class QWaylandSurface;
     friend class RoleBase;

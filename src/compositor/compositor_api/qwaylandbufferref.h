@@ -43,7 +43,10 @@
 #include <QtGui/qopengl.h>
 #endif
 
+#include <QtCompositor/QWaylandSurface>
 #include <QtCompositor/qwaylandexport.h>
+
+struct wl_resource;
 
 QT_BEGIN_NAMESPACE
 
@@ -61,20 +64,22 @@ public:
     ~QWaylandBufferRef();
 
     QWaylandBufferRef &operator=(const QWaylandBufferRef &ref);
-    operator bool() const;
-    bool isShm() const;
+    bool isNull() const;
+    bool hasBuffer() const;
+    bool operator==(const QWaylandBufferRef &ref);
+    bool operator!=(const QWaylandBufferRef &ref);
 
+    wl_resource *wl_buffer() const;
+
+    QSize size() const;
+    QWaylandSurface::Origin origin() const;
+
+    bool isShm() const;
     QImage image() const;
-#ifdef QT_COMPOSITOR_WAYLAND_GL
-    /**
-     * There must be a GL context bound when calling this function.
-     * The texture will be automatically destroyed when the last QWaylandBufferRef
-     * referring to the same underlying buffer will be destroyed or reset.
-     */
-    GLuint createTexture();
-    void destroyTexture();
+
+    void bindToTexture() const;
+
     void *nativeBuffer() const;
-#endif
 
 private:
     class QWaylandBufferRefPrivate *const d;

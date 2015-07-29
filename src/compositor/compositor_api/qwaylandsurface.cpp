@@ -132,20 +132,17 @@ QWaylandOutput *QWaylandSurfaceLeaveEvent::output() const
 QWaylandSurface::QWaylandSurface(wl_client *client, quint32 id, int version, QWaylandCompositor *compositor)
     : QObject(*new QWaylandSurfacePrivate(client, id, version, compositor, this))
 {
-
 }
 
 QWaylandSurface::QWaylandSurface(QWaylandSurfacePrivate *dptr)
                : QObject(*dptr)
 {
-
 }
 
 QWaylandSurface::~QWaylandSurface()
 {
     Q_D(QWaylandSurface);
     qDeleteAll(d->interfaces);
-    delete d->m_attacher;
 }
 
 QWaylandClient *QWaylandSurface::client() const
@@ -184,18 +181,6 @@ void QWaylandSurface::removeInterface(QWaylandSurfaceInterface *iface)
 {
     Q_D(QWaylandSurface);
     d->interfaces.removeOne(iface);
-}
-
-QWaylandSurface::Type QWaylandSurface::type() const
-{
-    Q_D(const QWaylandSurface);
-    return d->type();
-}
-
-bool QWaylandSurface::isYInverted() const
-{
-    Q_D(const QWaylandSurface);
-    return d->isYInverted();
 }
 
 bool QWaylandSurface::visible() const
@@ -251,6 +236,12 @@ QWaylandSurface::WindowType QWaylandSurface::windowType() const
 {
     Q_D(const QWaylandSurface);
     return d->windowType;
+}
+
+QWaylandSurface::Origin QWaylandSurface::origin() const
+{
+    Q_D(const QWaylandSurface);
+    return d->origin();
 }
 
 QWaylandSurface *QWaylandSurface::transientParent() const
@@ -457,18 +448,6 @@ void QWaylandSurface::setMapped(bool mapped)
 {
     Q_D(QWaylandSurface);
     d->setMapped(mapped);
-}
-
-void QWaylandSurface::setBufferAttacher(QWaylandBufferAttacher *attacher)
-{
-    Q_D(QWaylandSurface);
-    d->m_attacher = attacher;
-}
-
-QWaylandBufferAttacher *QWaylandSurface::bufferAttacher() const
-{
-    Q_D(const QWaylandSurface);
-    return d->m_attacher;
 }
 
 QList<QWaylandSurfaceView *> QWaylandSurface::views() const

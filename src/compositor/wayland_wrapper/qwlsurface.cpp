@@ -47,6 +47,8 @@
 #include "qwaylandsurfaceview.h"
 #include "qwaylandoutput.h"
 
+#include "qwaylandsurface_p.h"
+
 #include <QtCore/QDebug>
 #include <QTouchEvent>
 #include <QGuiApplication>
@@ -114,7 +116,6 @@ Surface::Surface(struct wl_client *client, uint32_t id, int version, QWaylandCom
     , m_mainOutput(0)
     , m_buffer(0)
     , m_surfaceMapped(false)
-    , m_attacher(0)
     , m_shellSurface(0)
     , m_extendedSurface(0)
     , m_subSurface(0)
@@ -171,25 +172,6 @@ void Surface::setTransientOffset(qreal x, qreal y)
 Surface *Surface::fromResource(struct ::wl_resource *resource)
 {
     return static_cast<Surface *>(Resource::fromResource(resource)->surface_object);
-}
-
-QWaylandSurface::Type Surface::type() const
-{
-    if (m_buffer && m_buffer->waylandBufferHandle()) {
-        if (m_buffer->isShmBuffer()) {
-            return QWaylandSurface::Shm;
-        } else {
-            return QWaylandSurface::Texture;
-        }
-    }
-    return QWaylandSurface::Invalid;
-}
-
-bool Surface::isYInverted() const
-{
-    if (m_buffer)
-        return m_buffer->isYInverted();
-    return false;
 }
 
 bool Surface::mapped() const
@@ -379,9 +361,10 @@ void Surface::removeFromOutput()
  * The backbuffer represents the current state of the surface for the
  * purpose of GUI-thread accessible properties such as size and visibility.
  */
-void Surface::setBackBuffer(SurfaceBuffer *buffer)
+void Surface::setBackBuffer(SurfaceBuffer *buffer, const QRegion &damage)
 {
     m_buffer = buffer;
+    m_bufferRef = QWaylandBufferRef(m_buffer);
 
     if (m_buffer) {
         bool valid = m_buffer->waylandBufferHandle() != 0;
@@ -393,7 +376,16 @@ void Surface::setBackBuffer(SurfaceBuffer *buffer)
     } else {
         m_compositor->resetInputDevice(this);
     }
-    m_damage = QRegion();
+    m_damage = damage;
+
+    QWaylandSurfacePrivate *priv = QWaylandSurfacePrivate::get(waylandSurface());
+    for (int i = 0; i < priv->views.size(); i++) {
+        priv->views.at(i)->attach(m_bufferRef);
+    }
+
+    emit m_waylandSurface->configure(m_bufferRef.hasBuffer());
+    if (!m_pending.offset.isNull())
+        emit m_waylandSurface->offsetForNextFrame(m_pending.offset);
 }
 
 void Surface::setMapped(bool mapped)
@@ -502,26 +494,8 @@ void Surface::surface_set_input_region(Resource *, struct wl_resource *region)
 
 void Surface::surface_commit(Resource *)
 {
-    m_damage = m_pending.damage;
-
     if (m_pending.buffer || m_pending.newlyAttached) {
-        setBackBuffer(m_pending.buffer);
-        m_bufferRef = QWaylandBufferRef(m_buffer);
-
-        if (m_attacher) {
-            if (m_bufferRef) {
-                m_attacher->attach(m_bufferRef);
-            } else if (!mapped()) {
-                setSize(QSize());
-                m_attacher->unmap();
-            }
-        }
-        emit m_waylandSurface->configure(m_bufferRef);
-        if (m_roleHandler)
-            m_roleHandler->configure(m_pending.offset.x(), m_pending.offset.y());
-
-        if (!m_pending.offset.isNull())
-            emit m_waylandSurface->offsetForNextFrame(m_pending.offset);
+        setBackBuffer(m_pending.buffer, m_pending.damage);
     }
 
     m_pending.buffer = 0;

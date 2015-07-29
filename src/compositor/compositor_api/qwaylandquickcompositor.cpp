@@ -38,6 +38,8 @@
 #include <QtCompositor/private/qwlcompositor_p.h>
 #include <QtCompositor/private/qwlsurface_p.h>
 
+#include <QtQml/QQmlEngine>
+
 #include "qwaylandclient.h"
 #include "qwaylandquickcompositor.h"
 #include "qwaylandquicksurface.h"
@@ -101,16 +103,22 @@ QWaylandOutput *QWaylandQuickCompositor::createOutput(QWindow *window,
                                                       const QString &manufacturer,
                                                       const QString &model)
 {
+    QQmlEngine::setObjectOwnership(window, QQmlEngine::CppOwnership);
+
     QQuickWindow *quickWindow = qobject_cast<QQuickWindow *>(window);
     if (!quickWindow)
         qFatal("%s: couldn't cast QWindow to QQuickWindow. All output windows must "
                "be QQuickWindow derivates when using QWaylandQuickCompositor", Q_FUNC_INFO);
-    return new QWaylandQuickOutput(this, quickWindow, manufacturer, model);
+    QWaylandQuickOutput *output = new QWaylandQuickOutput(this, quickWindow, manufacturer, model);
+    QQmlEngine::setObjectOwnership(output, QQmlEngine::CppOwnership);
+    return output;
 }
 
 QWaylandSurfaceView *QWaylandQuickCompositor::createView()
 {
-    return new QWaylandSurfaceItem();
+    QWaylandSurfaceItem *view = new QWaylandSurfaceItem();
+    QQmlEngine::setObjectOwnership(view, QQmlEngine::JavaScriptOwnership);
+    return view;
 }
 
 QWaylandSurface *QWaylandQuickCompositor::createSurface(QWaylandClient *client, quint32 id, int version)

@@ -62,14 +62,8 @@ SurfaceBuffer::SurfaceBuffer(Surface *surface)
     , m_surface_has_buffer(false)
     , m_destroyed(false)
     , m_is_displayed(false)
-    , m_texture(0)
-    , m_is_shm_resolved(false)
-    , m_shmBuffer(0)
-    , m_isSizeResolved(false)
-    , m_size()
     , m_used(false)
     , m_destroyIfUnused(false)
-    , m_image(0)
 {
 }
 
@@ -82,17 +76,11 @@ SurfaceBuffer::~SurfaceBuffer()
 void SurfaceBuffer::initialize(struct ::wl_resource *buffer)
 {
     m_buffer = buffer;
-    m_texture = 0;
     m_committed = false;
     m_is_registered_for_buffer = true;
     m_surface_has_buffer = true;
     m_is_displayed = false;
     m_destroyed = false;
-    m_handle = 0;
-    m_is_shm_resolved = false;
-    m_shmBuffer = 0;
-    m_isSizeResolved = false;
-    m_size = QSize();
     m_destroy_listener.surfaceBuffer = this;
     m_destroy_listener.listener.notify = destroy_listener_callback;
     if (buffer)
@@ -101,58 +89,14 @@ void SurfaceBuffer::initialize(struct ::wl_resource *buffer)
 
 void SurfaceBuffer::destructBufferState()
 {
-    destroyTexture();
     if (m_buffer) {
         sendRelease();
-
-        if (m_handle) {
-            if (m_shmBuffer) {
-                delete static_cast<QImage *>(m_handle);
-#ifdef QT_COMPOSITOR_WAYLAND_GL
-            } else {
-                ClientBufferIntegration *hwIntegration = m_compositor->clientBufferIntegration();
-                hwIntegration->unlockNativeBuffer(m_handle);
-#endif
-            }
-        }
         wl_list_remove(&m_destroy_listener.listener.link);
     }
     m_buffer = 0;
-    m_handle = 0;
     m_committed = false;
     m_is_registered_for_buffer = false;
     m_is_displayed = false;
-    m_image = QImage();
-}
-
-QSize SurfaceBuffer::size() const
-{
-    if (!m_isSizeResolved) {
-        if (isShmBuffer()) {
-            m_size = QSize(wl_shm_buffer_get_width(m_shmBuffer), wl_shm_buffer_get_height(m_shmBuffer));
-#ifdef QT_COMPOSITOR_WAYLAND_GL
-        } else {
-            ClientBufferIntegration *hwIntegration = m_compositor->clientBufferIntegration();
-            m_size = hwIntegration->bufferSize(m_buffer);
-#endif
-        }
-    }
-
-    return m_size;
-}
-
-bool SurfaceBuffer::isShmBuffer() const
-{
-    if (!m_is_shm_resolved) {
-#if (WAYLAND_VERSION_MAJOR >= 1) && (WAYLAND_VERSION_MINOR >= 2)
-        m_shmBuffer = wl_shm_buffer_get(m_buffer);
-#else
-        if (wl_buffer_is_shm(static_cast<struct ::wl_buffer*>(m_buffer->data)))
-            m_shmBuffer = static_cast<struct ::wl_buffer*>(m_buffer->data);
-#endif
-        m_is_shm_resolved = true;
-    }
-    return m_shmBuffer != 0;
 }
 
 void SurfaceBuffer::sendRelease()
@@ -173,74 +117,6 @@ void SurfaceBuffer::setDisplayed()
     m_is_displayed = true;
 }
 
-void SurfaceBuffer::destroyTexture()
-{
-#ifdef QT_COMPOSITOR_WAYLAND_GL
-    if (m_texture) {
-        Q_ASSERT(QOpenGLContext::currentContext());
-        ClientBufferIntegration *hwIntegration = m_compositor->clientBufferIntegration();
-        if (hwIntegration->textureForBuffer(m_buffer) == 0)
-            glDeleteTextures(1, &m_texture);
-        else
-            hwIntegration->destroyTextureForBuffer(m_buffer);
-        m_texture = 0;
-    }
-#endif
-}
-
-void SurfaceBuffer::handleAboutToBeDisplayed()
-{
-    qDebug() << Q_FUNC_INFO;
-}
-
-void SurfaceBuffer::handleDisplayed()
-{
-    qDebug() << Q_FUNC_INFO;
-}
-
-void *SurfaceBuffer::handle() const
-{
-    if (!m_buffer)
-        return 0;
-
-    if (!m_handle) {
-        SurfaceBuffer *that = const_cast<SurfaceBuffer *>(this);
-        if (isShmBuffer()) {
-            const uchar *data = static_cast<const uchar *>(wl_shm_buffer_get_data(m_shmBuffer));
-            int stride = wl_shm_buffer_get_stride(m_shmBuffer);
-            int width = wl_shm_buffer_get_width(m_shmBuffer);
-            int height = wl_shm_buffer_get_height(m_shmBuffer);
-            QImage *image = new QImage(data,width,height,stride, QImage::Format_ARGB32_Premultiplied);
-            that->m_handle = image;
-#ifdef QT_COMPOSITOR_WAYLAND_GL
-        } else {
-            ClientBufferIntegration *clientBufferIntegration = m_compositor->clientBufferIntegration();
-            that->m_handle = clientBufferIntegration->lockNativeBuffer(m_buffer);
-#endif
-        }
-    }
-    return m_handle;
-}
-
-QImage SurfaceBuffer::image()
-{
-    /* This api may be available on non-shm buffer. But be sure about it's format. */
-    if (!m_buffer || !isShmBuffer())
-        return QImage();
-
-    if (m_image.isNull())
-    {
-        const uchar *data = static_cast<const uchar *>(wl_shm_buffer_get_data(m_shmBuffer));
-        int stride = wl_shm_buffer_get_stride(m_shmBuffer);
-        int width = wl_shm_buffer_get_width(m_shmBuffer);
-        int height = wl_shm_buffer_get_height(m_shmBuffer);
-        QImage::Format format = QWaylandShmFormatHelper::fromWaylandShmFormat(wl_shm_format(wl_shm_buffer_get_format(m_shmBuffer)));
-        m_image = QImage(data, width, height, stride, format);
-    }
-
-    return m_image;
-}
-
 void SurfaceBuffer::destroy_listener_callback(wl_listener *listener, void *data)
 {
     Q_UNUSED(data);
@@ -252,39 +128,6 @@ void SurfaceBuffer::destroy_listener_callback(wl_listener *listener, void *data)
     // touching it before it is properly cleaned up.
     d->m_destroyed = true;
     d->m_buffer = 0;
-}
-
-void SurfaceBuffer::createTexture()
-{
-    destroyTexture();
-
-    ClientBufferIntegration *hwIntegration = m_compositor->clientBufferIntegration();
-#ifdef QT_COMPOSITOR_WAYLAND_GL
-    if (!m_texture)
-        m_texture = hwIntegration->textureForBuffer(m_buffer);
-    if (!m_texture)
-        glGenTextures(1, &m_texture);
-    glBindTexture(GL_TEXTURE_2D, m_texture);
-    hwIntegration->bindTextureToBuffer(m_buffer);
-#else
-    Q_UNUSED(hwIntegration);
-#endif
-}
-
-bool SurfaceBuffer::isYInverted() const
-{
-    bool ret = false;
-    static bool negateReturn = qgetenv("QT_COMPOSITOR_NEGATE_INVERTED_Y").toInt();
-    ClientBufferIntegration *clientBufferIntegration = m_compositor->clientBufferIntegration();
-
-#ifdef QT_COMPOSITOR_WAYLAND_GL
-    if (clientBufferIntegration && waylandBufferHandle() && !isShmBuffer()) {
-        ret = clientBufferIntegration->isYInverted(waylandBufferHandle());
-    } else
-#endif
-        ret = true;
-
-    return ret != negateReturn;
 }
 
 void SurfaceBuffer::ref()
@@ -309,6 +152,68 @@ void SurfaceBuffer::destroyIfUnused()
 {
     if (!m_used && m_destroyIfUnused)
         delete this;
+}
+
+QSize SurfaceBuffer::size() const
+{
+    if (wl_shm_buffer *shmBuffer = wl_shm_buffer_get(m_buffer)) {
+        int width = wl_shm_buffer_get_width(shmBuffer);
+        int height = wl_shm_buffer_get_height(shmBuffer);
+        return QSize(width, height);
+    }
+    if (ClientBufferIntegration *integration = m_compositor->clientBufferIntegration()) {
+        return integration->bufferSize(m_buffer);
+    }
+
+    return QSize();
+}
+
+QWaylandSurface::Origin SurfaceBuffer::origin() const
+{
+    if (isShm()) {
+        return QWaylandSurface::OriginTopLeft;
+    }
+
+    if (ClientBufferIntegration *integration = m_compositor->clientBufferIntegration()) {
+        return integration->origin(m_buffer);
+    }
+    return QWaylandSurface::OriginTopLeft;
+}
+
+QImage SurfaceBuffer::image() const
+{
+    if (wl_shm_buffer *shmBuffer = wl_shm_buffer_get(m_buffer)) {
+        int width = wl_shm_buffer_get_width(shmBuffer);
+        int height = wl_shm_buffer_get_height(shmBuffer);
+        int bytesPerLine = wl_shm_buffer_get_stride(shmBuffer);
+        uchar *data = static_cast<uchar *>(wl_shm_buffer_get_data(shmBuffer));
+        return QImage(data, width, height, bytesPerLine, QImage::Format_ARGB32_Premultiplied);
+    }
+
+    return QImage();
+}
+
+void SurfaceBuffer::bindToTexture() const
+{
+    Q_ASSERT(m_compositor);
+    if (isShm()) {
+        QImage image = this->image();
+        if (image.hasAlphaChannel()) {
+            if (image.format() != QImage::Format_RGBA8888) {
+                image = image.convertToFormat(QImage::Format_RGBA8888);
+            }
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image.width(), image.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, image.constBits());
+        } else {
+            if (image.format() != QImage::Format_RGBX8888) {
+                image = image.convertToFormat(QImage::Format_RGBX8888);
+            }
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image.width(), image.height(), 0, GL_RGB, GL_UNSIGNED_BYTE, image.constBits());
+        }
+    } else {
+        if (QtWayland::ClientBufferIntegration *clientInt = m_compositor->clientBufferIntegration()) {
+            clientInt->bindTextureToBuffer(m_buffer);
+        }
+    }
 }
 
 }

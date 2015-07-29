@@ -60,61 +60,35 @@
 
 QT_BEGIN_NAMESPACE
 
-class BufferAttacher : public QWaylandBufferAttacher
+class SurfaceView : public QWaylandSurfaceView
 {
 public:
-    BufferAttacher()
-        : QWaylandBufferAttacher()
-        , shmTex(0)
+    SurfaceView()
+        : QWaylandSurfaceView()
+        , m_texture(0)
+    {}
+
+    ~SurfaceView()
     {
+        if (m_texture)
+            glDeleteTextures(1, &m_texture);
     }
 
-    ~BufferAttacher()
+    GLuint updateTextureToCurrentBuffer()
     {
-        delete shmTex;
-    }
+        if (advance()) {
+            if (m_texture)
+                glDeleteTextures(1, &m_texture);
 
-    void attach(const QWaylandBufferRef &ref) Q_DECL_OVERRIDE
-    {
-        if (bufferRef) {
-            if (bufferRef.isShm()) {
-                delete shmTex;
-                shmTex = 0;
-            } else {
-                bufferRef.destroyTexture();
-            }
+            glGenTextures(1, &m_texture);
+            glBindTexture(GL_TEXTURE_2D, m_texture);
+            currentBuffer().bindToTexture();
         }
-
-        bufferRef = ref;
-
-        if (bufferRef) {
-            if (bufferRef.isShm()) {
-                shmTex = new QOpenGLTexture(bufferRef.image(), QOpenGLTexture::DontGenerateMipMaps);
-                shmTex->setWrapMode(QOpenGLTexture::ClampToEdge);
-                texture = shmTex->textureId();
-            } else {
-                texture = bufferRef.createTexture();
-            }
-        }
+        return m_texture;
     }
 
-    void unmap()
-    {
-        delete shmTex;
-        shmTex = 0;
-        bufferRef = QWaylandBufferRef();
-    }
-
-    QImage image() const
-    {
-        if (!bufferRef || !bufferRef.isShm())
-            return QImage();
-        return bufferRef.image();
-    }
-
-    QOpenGLTexture *shmTex;
-    QWaylandBufferRef bufferRef;
-    GLuint texture;
+private:
+    GLuint m_texture;
 };
 
 QWindowCompositor::QWindowCompositor(CompositorWindow *window)
@@ -125,7 +99,6 @@ QWindowCompositor::QWindowCompositor(CompositorWindow *window)
     , m_renderScheduler(this)
     , m_draggingWindow(0)
     , m_dragKeyIsPressed(false)
-    , m_cursorSurface(0)
     , m_cursorHotspotX(0)
     , m_cursorHotspotY(0)
     , m_modifiers(Qt::NoModifier)
@@ -157,7 +130,6 @@ QWindowCompositor::~QWindowCompositor()
 {
     delete m_textureBlitter;
 }
-
 
 QImage QWindowCompositor::makeBackgroundImage(const QString &fileName)
 {
@@ -235,6 +207,11 @@ void QWindowCompositor::surfaceUnmapped()
     m_renderScheduler.start(0);
 }
 
+QWaylandSurfaceView *QWindowCompositor::createView()
+{
+    return new SurfaceView();
+}
+
 void QWindowCompositor::surfaceCommitted()
 {
     QWaylandSurface *surface = qobject_cast<QWaylandSurface *>(sender());
@@ -260,8 +237,6 @@ void QWindowCompositor::onSurfaceCreated(QWaylandSurface *surface)
     connect(surface, SIGNAL(redraw()), this, SLOT(surfaceCommitted()));
     connect(surface, SIGNAL(extendedSurfaceReady()), this, SLOT(sendExpose()));
     m_renderScheduler.start(0);
-
-    surface->setBufferAttacher(new BufferAttacher);
 }
 
 void QWindowCompositor::sendExpose()
@@ -273,10 +248,12 @@ void QWindowCompositor::sendExpose()
 void QWindowCompositor::updateCursor(bool hasBuffer)
 {
     Q_UNUSED(hasBuffer)
-    if (!m_cursorSurface)
+    if (!m_cursorView.surface())
         return;
 
-    QImage image = static_cast<BufferAttacher *>(m_cursorSurface->bufferAttacher())->image();
+    m_cursorView.advance();
+
+    QImage image = m_cursorView.currentBuffer().image();
 
     QCursor cursor(QPixmap::fromImage(image), m_cursorHotspotX, m_cursorHotspotY);
     static bool cursorIsSet = false;
@@ -295,14 +272,16 @@ QPointF QWindowCompositor::toView(QWaylandSurfaceView *view, const QPointF &pos)
 
 void QWindowCompositor::adjustCursorSurface(QWaylandSurface *surface, int hotspotX, int hotspotY)
 {
-    if ((m_cursorSurface != surface) && surface)
-        connect(surface, SIGNAL(configure(bool)), this, SLOT(updateCursor(bool)));
+    if ((m_cursorView.surface() != surface)) {
+        if (m_cursorView.surface())
+            disconnect(m_cursorView.surface(), &QWaylandSurface::configure, this, &QWindowCompositor::updateCursor);
+        if (surface)
+            connect(surface, &QWaylandSurface::configure, this, &QWindowCompositor::updateCursor);
+    }
 
-    m_cursorSurface = surface;
+    m_cursorView.setSurface(surface);
     m_cursorHotspotX = hotspotX;
     m_cursorHotspotY = hotspotY;
-    if (m_cursorSurface && !m_cursorSurface->bufferAttacher())
-        m_cursorSurface->setBufferAttacher(new BufferAttacher);
 }
 
 QWaylandSurfaceView *QWindowCompositor::viewAt(const QPointF &point, QPointF *local)
@@ -341,14 +320,7 @@ void QWindowCompositor::render()
     foreach (QWaylandSurface *surface, m_surfaces) {
         if (!surface->visible())
             continue;
-        GLuint texture = static_cast<BufferAttacher *>(surface->bufferAttacher())->texture;
-        foreach (QWaylandSurfaceView *view, surface->views()) {
-            QRect geo(view->pos().toPoint(),surface->size());
-            m_textureBlitter->drawTexture(texture,geo,m_window->size(),0,false,surface->isYInverted());
-            foreach (QWaylandSurface *child, surface->subSurfaces()) {
-                drawSubSurface(view->pos().toPoint(), child);
-            }
-        }
+        drawSubSurface(QPoint(), surface);
     }
 
     m_textureBlitter->release();
@@ -360,11 +332,12 @@ void QWindowCompositor::render()
 
 void QWindowCompositor::drawSubSurface(const QPoint &offset, QWaylandSurface *surface)
 {
-    GLuint texture = static_cast<BufferAttacher *>(surface->bufferAttacher())->texture;
-    QWaylandSurfaceView *view = surface->views().first();
+    SurfaceView *view = static_cast<SurfaceView *>(surface->views().first());
+    GLuint texture = view->updateTextureToCurrentBuffer();
+    bool invert_y = view->currentBuffer().origin() == QWaylandSurface::OriginTopLeft;
     QPoint pos = view->pos().toPoint() + offset;
     QRect geo(pos, surface->size());
-    m_textureBlitter->drawTexture(texture, geo, m_window->size(), 0, false, surface->isYInverted());
+    m_textureBlitter->drawTexture(texture, geo, m_window->size(), 0, false, invert_y);
     foreach (QWaylandSurface *child, surface->subSurfaces()) {
         drawSubSurface(pos, child);
     }

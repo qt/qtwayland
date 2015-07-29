@@ -39,6 +39,7 @@
 
 #include <private/qwlcompositor_p.h>
 #include <qwayland-server-wayland.h>
+#include <QtCompositor/QWaylandSurface>
 
 #include <QtCore/QSize>
 
@@ -59,8 +60,8 @@ public:
 
     Window window();
 
-    bool isYInverted() const { return mInvertedY; }
-    void setInvertedY(bool inverted) { mInvertedY = inverted; }
+    QWaylandSurface::Origin origin() const { return mOrigin; }
+    void setOrigin(QWaylandSurface::Origin origin) { mOrigin = origin; }
 
     QSize size() const { return mSize; }
 
@@ -72,7 +73,7 @@ protected:
 
 private:
     Window mWindow;
-    bool mInvertedY;
+    QWaylandSurface::Origin mOrigin;
     QSize mSize;
 };
 

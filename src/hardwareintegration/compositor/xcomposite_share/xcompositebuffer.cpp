@@ -42,7 +42,7 @@ XCompositeBuffer::XCompositeBuffer(Window window, const QSize &size,
                                    struct ::wl_client *client, uint32_t id)
     : QtWaylandServer::wl_buffer(client, id, 1)
     , mWindow(window)
-    , mInvertedY(false)
+    , mOrigin(QWaylandSurface::OriginBottomLeft)
     , mSize(size)
 {
 }

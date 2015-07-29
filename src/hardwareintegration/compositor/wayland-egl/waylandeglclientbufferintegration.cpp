@@ -190,7 +190,7 @@ void WaylandEglClientBufferIntegration::bindTextureToBuffer(struct ::wl_resource
     d->egl_destroy_image(d->egl_display, image);
 }
 
-bool WaylandEglClientBufferIntegration::isYInverted(struct ::wl_resource *buffer) const
+QWaylandSurface::Origin WaylandEglClientBufferIntegration::origin(struct ::wl_resource *buffer) const
 {
 #if defined(EGL_WAYLAND_Y_INVERTED_WL)
     Q_D(const WaylandEglClientBufferIntegration);
@@ -203,11 +203,11 @@ bool WaylandEglClientBufferIntegration::isYInverted(struct ::wl_resource *buffer
     // value (not supported) should be treated the same as EGL_TRUE return value
     // and EGL_TRUE in value.
     if (ret == EGL_FALSE || isYInverted == EGL_TRUE)
-        return true;
-    return false;
+        return QWaylandSurface::OriginTopLeft;
+    return QWaylandSurface::OriginBottomLeft;
 #endif
 
-    return QtWayland::ClientBufferIntegration::isYInverted(buffer);
+    return QtWayland::ClientBufferIntegration::origin(buffer);
 }
 
 

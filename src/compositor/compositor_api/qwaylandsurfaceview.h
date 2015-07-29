@@ -39,6 +39,7 @@
 
 #include <QPointF>
 
+#include <QtCompositor/QWaylandBufferRef>
 #include <QtCompositor/qwaylandexport.h>
 
 QT_BEGIN_NAMESPACE
@@ -61,6 +62,9 @@ public:
     virtual QPointF requestedPosition() const;
     virtual QPointF pos() const;
 
+    virtual void attach(const QWaylandBufferRef &ref);
+    virtual bool advance();
+    virtual QWaylandBufferRef currentBuffer();
 protected:
     virtual void waylandSurfaceChanged(QWaylandSurface *newSurface, QWaylandSurface *oldSurface);
 

@@ -115,7 +115,7 @@ void XCompositeEglClientBufferIntegration::bindTextureToBuffer(struct ::wl_resou
         qDebug() << "Failed to create eglsurface" << pixmap << compositorBuffer->window();
     }
 
-    compositorBuffer->setInvertedY(true);
+    compositorBuffer->setOrigin(QWaylandSurface::OriginTopLeft);
 
     if (!eglBindTexImage(mEglDisplay,surface,EGL_BACK_BUFFER)) {
         qDebug() << "Failed to bind";
@@ -124,10 +124,10 @@ void XCompositeEglClientBufferIntegration::bindTextureToBuffer(struct ::wl_resou
     //    eglDestroySurface(mEglDisplay,surface);
 }
 
-bool XCompositeEglClientBufferIntegration::isYInverted(struct ::wl_resource *buffer) const
+QWaylandSurface::Origin XCompositeEglClientBufferIntegration::origin(struct ::wl_resource *buffer) const
 {
     XCompositeBuffer *compositorBuffer = XCompositeBuffer::fromResource(buffer);
-    return compositorBuffer->isYInverted();
+    return compositorBuffer->origin();
 }
 
 QSize XCompositeEglClientBufferIntegration::bufferSize(struct ::wl_resource *buffer) const

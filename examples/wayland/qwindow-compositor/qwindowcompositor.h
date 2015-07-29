@@ -41,8 +41,9 @@
 #ifndef QWINDOWCOMPOSITOR_H
 #define QWINDOWCOMPOSITOR_H
 
-#include "qwaylandcompositor.h"
-#include "qwaylandsurface.h"
+#include <QtCompositor/QWaylandCompositor>
+#include <QtCompositor/QWaylandSurface>
+#include <QtCompositor/QWaylandSurfaceView>
 #include "textureblitter.h"
 #include "compositorwindow.h"
 
@@ -72,6 +73,7 @@ private slots:
     void render();
     void onSurfaceCreated(QWaylandSurface *surface);
 protected:
+    QWaylandSurfaceView *createView() Q_DECL_OVERRIDE;
     void surfaceCommitted(QWaylandSurface *surface);
 
     QWaylandSurfaceView* viewAt(const QPointF &point, QPointF *local = 0);
@@ -105,7 +107,7 @@ private:
     QPointF m_drag_diff;
 
     //Cursor
-    QWaylandSurface *m_cursorSurface;
+    QWaylandSurfaceView m_cursorView;
     int m_cursorHotspotX;
     int m_cursorHotspotY;
 

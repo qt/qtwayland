@@ -40,6 +40,8 @@
 #include "qwaylandcompositor.h"
 #include "qwaylandinput.h"
 
+#include <QtCore/QMutex>
+
 QT_BEGIN_NAMESPACE
 
 class QWaylandSurfaceViewPrivate
@@ -50,6 +52,9 @@ public:
     { }
     QWaylandSurface *surface;
     QPointF requestedPos;
+    QMutex bufferMutex;
+    QWaylandBufferRef currentBuffer;
+    QWaylandBufferRef nextBuffer;
 };
 
 QWaylandSurfaceView::QWaylandSurfaceView()
@@ -89,6 +94,8 @@ void QWaylandSurfaceView::setSurface(QWaylandSurface *newSurface)
         QWaylandSurfacePrivate::get(newSurface)->refView(this);
 
     waylandSurfaceChanged(newSurface, oldSurface);
+    d->currentBuffer = QWaylandBufferRef();
+    d->nextBuffer = QWaylandBufferRef();
 }
 
 QWaylandCompositor *QWaylandSurfaceView::compositor() const
@@ -109,6 +116,28 @@ QPointF QWaylandSurfaceView::requestedPosition() const
 QPointF QWaylandSurfaceView::pos() const
 {
     return d->requestedPos;
+}
+
+void QWaylandSurfaceView::attach(const QWaylandBufferRef &ref)
+{
+    QMutexLocker locker(&d->bufferMutex);
+    d->nextBuffer = ref;
+}
+
+bool QWaylandSurfaceView::advance()
+{
+    QMutexLocker locker(&d->bufferMutex);
+    if (d->currentBuffer == d->nextBuffer)
+        return false;
+
+    d->currentBuffer = d->nextBuffer;
+    return true;
+}
+
+QWaylandBufferRef QWaylandSurfaceView::currentBuffer()
+{
+    QMutexLocker locker(&d->bufferMutex);
+    return d->currentBuffer;
 }
 
 void QWaylandSurfaceView::waylandSurfaceChanged(QWaylandSurface *newSurface, QWaylandSurface *oldSurface)

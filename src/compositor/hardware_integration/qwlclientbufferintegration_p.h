@@ -38,6 +38,7 @@
 #define QWAYLANDCLIENTBUFFERINTEGRATION_H
 
 #include <QtCompositor/qwaylandexport.h>
+#include <QtCompositor/qwaylandsurface.h>
 #include <QtCore/QSize>
 #include <QtGui/qopengl.h>
 #include <QtGui/QOpenGLContext>
@@ -68,7 +69,7 @@ public:
     // Called with the texture bound.
     virtual void bindTextureToBuffer(struct ::wl_resource *buffer) = 0;
 
-    virtual bool isYInverted(struct ::wl_resource *) const { return true; }
+    virtual QWaylandSurface::Origin origin(struct ::wl_resource *) const { return QWaylandSurface::OriginBottomLeft; }
 
     virtual void *lockNativeBuffer(struct ::wl_resource *) const { return 0; }
     virtual void unlockNativeBuffer(void *) const { return; }

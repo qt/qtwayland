@@ -66,18 +66,6 @@ class SurfacePrivate;
 class ExtendedSurface;
 }
 
-class Q_COMPOSITOR_EXPORT QWaylandBufferAttacher
-{
-public:
-    virtual ~QWaylandBufferAttacher() {}
-
-protected:
-    virtual void attach(const QWaylandBufferRef &ref) = 0;
-    virtual void unmap() = 0;
-
-    friend class QtWayland::Surface;
-};
-
 class QWaylandSurfaceEnterEventPrivate;
 
 class Q_COMPOSITOR_EXPORT QWaylandSurfaceEnterEvent : public QEvent
@@ -126,7 +114,7 @@ class Q_COMPOSITOR_EXPORT QWaylandSurface : public QObject
     Q_PROPERTY(QWaylandSurface *transientParent READ transientParent)
     Q_PROPERTY(QPointF transientOffset READ transientOffset)
     Q_PROPERTY(QWaylandOutput *output READ output NOTIFY outputChanged)
-    Q_PROPERTY(bool isYInverted READ isYInverted NOTIFY yInvertedChanged)
+    Q_PROPERTY(QWaylandSurface::Origin origin READ origin NOTIFY originChanged);
 
     Q_ENUMS(WindowFlag WindowType)
     Q_FLAGS(WindowFlag WindowFlags)
@@ -146,10 +134,9 @@ public:
         Popup
     };
 
-    enum Type {
-        Invalid,
-        Shm,
-        Texture
+    enum Origin {
+        OriginTopLeft,
+        OriginBottomLeft
     };
 
     QWaylandSurface(wl_client *client, quint32 id, int version, QWaylandCompositor *compositor);
@@ -161,9 +148,6 @@ public:
     QLinkedList<QWaylandSurface *> subSurfaces() const;
     void addInterface(QWaylandSurfaceInterface *interface);
     void removeInterface(QWaylandSurfaceInterface *interface);
-
-    Type type() const;
-    bool isYInverted() const;
 
     bool visible() const;
     bool isMapped() const;
@@ -177,6 +161,7 @@ public:
     WindowFlags windowFlags() const;
 
     WindowType windowType() const;
+    Origin origin() const;
 
     QWindow::Visibility visibility() const;
     void setVisibility(QWindow::Visibility visibility);
@@ -217,9 +202,6 @@ public:
     void deref();
     void setMapped(bool mapped);
 
-    void setBufferAttacher(QWaylandBufferAttacher *attacher);
-    QWaylandBufferAttacher *bufferAttacher() const;
-
     QList<QWaylandSurfaceView *> views() const;
     QList<QWaylandSurfaceInterface *> interfaces() const;
 
@@ -257,7 +239,7 @@ Q_SIGNALS:
     void surfaceDestroyed();
     void shellViewCreated();
     void outputChanged(QWaylandOutput *newOutput, QWaylandOutput *oldOutput);
-    void yInvertedChanged();
+    void originChanged();
 
     void configure(bool hasBuffer);
     void redraw();

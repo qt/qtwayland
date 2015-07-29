@@ -43,8 +43,6 @@ struct wl_client;
 
 QT_BEGIN_NAMESPACE
 
-class QSGTexture;
-
 class QWaylandSurfaceItem;
 class QWaylandQuickSurfacePrivate;
 class QWaylandQuickCompositor;
@@ -61,8 +59,6 @@ class Q_COMPOSITOR_EXPORT QWaylandQuickSurface : public QWaylandSurface
 public:
     QWaylandQuickSurface(wl_client *client, quint32 id, int version, QWaylandQuickCompositor *compositor);
     ~QWaylandQuickSurface();
-
-    QSGTexture *texture() const;
 
     bool useTextureAlpha() const;
     void setUseTextureAlpha(bool useTextureAlpha);
@@ -83,12 +79,6 @@ Q_SIGNALS:
     void clientRenderingEnabledChanged();
     void shellViewCreated();
     void outputWindowChanged();
-
-private:
-    void updateTexture();
-    void invalidateTexture();
-
-    void onOutputChanged(QWaylandOutput *newOutput, QWaylandOutput *oldOutput);
 };
 
 QT_END_NAMESPACE

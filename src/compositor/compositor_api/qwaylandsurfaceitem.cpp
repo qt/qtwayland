@@ -38,6 +38,9 @@
 #include "qwaylandquicksurface.h"
 #include <QtCompositor/qwaylandcompositor.h>
 #include <QtCompositor/qwaylandinput.h>
+#include <QtCompositor/qwaylandbufferref.h>
+#include <QtCompositor/private/qwlcompositor_p.h>
+#include <QtCompositor/private/qwlclientbufferintegration_p.h>
 
 #include <QtGui/QKeyEvent>
 #include <QtGui/QGuiApplication>
@@ -49,6 +52,8 @@
 #include <QtCore/QMutexLocker>
 #include <QtCore/QMutex>
 
+#include <wayland-server.h>
+#include <QThread>
 QT_BEGIN_NAMESPACE
 
 QMutex *QWaylandSurfaceItem::mutex = 0;
@@ -56,30 +61,76 @@ QMutex *QWaylandSurfaceItem::mutex = 0;
 class QWaylandSurfaceTextureProvider : public QSGTextureProvider
 {
 public:
-    QWaylandSurfaceTextureProvider() : t(0) { }
+    QWaylandSurfaceTextureProvider()
+        : m_smooth(false)
+        , m_sgTex(0)
+    {
+    }
+
+    ~QWaylandSurfaceTextureProvider()
+    {
+        if (m_sgTex)
+            m_sgTex->deleteLater();
+    }
+
+    void setBufferRef(QWaylandSurfaceItem *surfaceItem, const QWaylandBufferRef &buffer)
+    {
+        Q_ASSERT(QThread::currentThread() == thread());
+        m_ref = buffer;
+        delete m_sgTex;
+        m_sgTex = 0;
+        if (m_ref.hasBuffer()) {
+            if (buffer.isShm()) {
+                m_sgTex = surfaceItem->window()->createTextureFromImage(buffer.image());
+                m_invertY = false;
+                if (m_sgTex) {
+                    m_sgTex->bind();
+                }
+            } else {
+                QQuickWindow::CreateTextureOptions opt = QQuickWindow::TextureOwnsGLTexture;
+                if (surfaceItem->surface()->useTextureAlpha()) {
+                    opt |= QQuickWindow::TextureHasAlphaChannel;
+                }
+
+                GLuint texture;
+                glGenTextures(1, &texture);
+                glBindTexture(GL_TEXTURE_2D, texture);
+                buffer.bindToTexture();
+                m_sgTex = surfaceItem->window()->createTextureFromId(texture , QSize(surfaceItem->width(), surfaceItem->height()), opt);
+                m_invertY = buffer.origin() == QWaylandSurface::OriginBottomLeft;
+            }
+        }
+        emit textureChanged();
+    }
 
     QSGTexture *texture() const Q_DECL_OVERRIDE
     {
-        if (t)
-            t->setFiltering(smooth ? QSGTexture::Linear : QSGTexture::Nearest);
-        return t;
+        if (m_sgTex)
+            m_sgTex->setFiltering(m_smooth ? QSGTexture::Linear : QSGTexture::Nearest);
+        return m_sgTex;
     }
 
-    bool smooth;
-    QSGTexture *t;
+    void setSmooth(bool smooth) { m_smooth = smooth; }
+    bool invertY() const { return m_invertY; }
+private:
+    bool m_smooth;
+    bool m_invertY;
+    QSGTexture *m_sgTex;
+    QWaylandBufferRef m_ref;
 };
 
 QWaylandSurfaceItem::QWaylandSurfaceItem(QQuickItem *parent)
     : QQuickItem(parent)
     , QWaylandSurfaceView()
-    , m_provider(0)
+    , m_provider(Q_NULLPTR)
     , m_paintEnabled(true)
     , m_touchEventsEnabled(false)
-    , m_yInverted(false)
     , m_resizeSurfaceToItem(false)
-    , m_newTexture(false)
     , m_followRequestedPos(true)
     , m_inputEventsEnabled(true)
+    , m_newTexture(false)
+    , m_connectedWindow(Q_NULLPTR)
+    , m_origin(QWaylandSurface::OriginTopLeft)
 {
     setAcceptHoverEvents(true);
     if (!mutex)
@@ -98,11 +149,7 @@ QWaylandSurfaceItem::QWaylandSurfaceItem(QQuickItem *parent)
         Qt::ExtraButton12 | Qt::ExtraButton13);
     setAcceptHoverEvents(true);
 
-    connect(this, &QWaylandSurfaceItem::widthChanged, this, &QWaylandSurfaceItem::updateSurfaceSize);
-    connect(this, &QWaylandSurfaceItem::heightChanged, this, &QWaylandSurfaceItem::updateSurfaceSize);
-
-
-    emit yInvertedChanged();
+    connect(this, &QQuickItem::windowChanged, this, &QWaylandSurfaceItem::updateWindow);
 }
 
 QWaylandSurfaceItem::~QWaylandSurfaceItem()
@@ -122,15 +169,13 @@ void QWaylandSurfaceItem::setSurface(QWaylandQuickSurface *surface)
     QWaylandSurfaceView::setSurface(surface);
 }
 
-bool QWaylandSurfaceItem::isYInverted() const
+QWaylandSurface::Origin QWaylandSurfaceItem::origin() const
 {
-    return m_yInverted;
+    return m_origin;
 }
 
 QSGTextureProvider *QWaylandSurfaceItem::textureProvider() const
 {
-    if (!m_provider)
-        m_provider = new QWaylandSurfaceTextureProvider();
     return m_provider;
 }
 
@@ -291,7 +336,7 @@ void QWaylandSurfaceItem::waylandSurfaceChanged(QWaylandSurface *newSurface, QWa
     if (oldSurface) {
         disconnect(oldSurface, &QWaylandSurface::mapped, this, &QWaylandSurfaceItem::surfaceMapped);
         disconnect(oldSurface, &QWaylandSurface::unmapped, this, &QWaylandSurfaceItem::surfaceUnmapped);
-        disconnect(oldSurface, &QWaylandSurface::surfaceDestroyed, this, &QWaylandSurfaceItem::surfaceDestroyed);
+        disconnect(oldSurface, &QWaylandSurface::surfaceDestroyed, this, &QWaylandSurfaceItem::handleSurfaceDestroyed);
         disconnect(oldSurface, &QWaylandSurface::parentChanged, this, &QWaylandSurfaceItem::parentChanged);
         disconnect(oldSurface, &QWaylandSurface::sizeChanged, this, &QWaylandSurfaceItem::updateSize);
         disconnect(oldSurface, &QWaylandSurface::configure, this, &QWaylandSurfaceItem::updateBuffer);
@@ -300,16 +345,16 @@ void QWaylandSurfaceItem::waylandSurfaceChanged(QWaylandSurface *newSurface, QWa
     if (newSurface) {
         connect(newSurface, &QWaylandSurface::mapped, this, &QWaylandSurfaceItem::surfaceMapped);
         connect(newSurface, &QWaylandSurface::unmapped, this, &QWaylandSurfaceItem::surfaceUnmapped);
-        connect(newSurface, &QWaylandSurface::surfaceDestroyed, this, &QWaylandSurfaceItem::surfaceDestroyed);
+        connect(newSurface, &QWaylandSurface::surfaceDestroyed, this, &QWaylandSurfaceItem::handleSurfaceDestroyed);
         connect(newSurface, &QWaylandSurface::parentChanged, this, &QWaylandSurfaceItem::parentChanged);
         connect(newSurface, &QWaylandSurface::sizeChanged, this, &QWaylandSurfaceItem::updateSize);
         connect(newSurface, &QWaylandSurface::configure, this, &QWaylandSurfaceItem::updateBuffer);
         connect(newSurface, &QWaylandSurface::redraw, this, &QQuickItem::update);
         setWidth(surface()->size().width());
         setHeight(surface()->size().height());
-        if (newSurface->isYInverted() != m_yInverted) {
-            m_yInverted = newSurface->isYInverted();
-            emit yInvertedChanged();
+        if (newSurface->origin() != m_origin) {
+            m_origin = newSurface->origin();
+            emit originChanged();
         }
     }
 
@@ -359,10 +404,13 @@ void QWaylandSurfaceItem::updateSize()
     }
 }
 
-void QWaylandSurfaceItem::updateSurfaceSize()
+void QWaylandSurfaceItem::geometryChanged(const QRectF &newGeometry,
+                                          const QRectF &oldGeometry)
 {
+    QQuickItem::geometryChanged(newGeometry, oldGeometry);
+
     if (surface() && m_resizeSurfaceToItem) {
-        surface()->requestSize(QSize(width(), height()));
+        surface()->requestSize(newGeometry.size().toSize());
     }
 }
 
@@ -422,6 +470,11 @@ void QWaylandSurfaceItem::setRequestedYPosition(qreal yPos)
     setRequestedPosition(reqPos);
 }
 
+void QWaylandSurfaceItem::syncGraphicsState()
+{
+
+}
+
 /*!
     \qmlproperty bool QtWayland::QWaylandSurfaceItem::paintEnabled
 
@@ -443,38 +496,39 @@ void QWaylandSurfaceItem::setPaintEnabled(bool enabled)
 
 void QWaylandSurfaceItem::updateBuffer(bool hasBuffer)
 {
-    Q_UNUSED(hasBuffer)
-
-    bool inv = m_yInverted;
-    m_yInverted = surface()->isYInverted();
-    if (inv != m_yInverted)
-        emit yInvertedChanged();
-
-    m_newTexture = true;
+    Q_UNUSED(hasBuffer);
+    if (m_origin != surface()->origin()) {
+        m_origin = surface()->origin();
+        emit originChanged();
+    }
 }
 
-void QWaylandSurfaceItem::updateTexture()
+void QWaylandSurfaceItem::updateWindow()
 {
-    updateTexture(false);
+    if (m_connectedWindow) {
+        disconnect(m_connectedWindow, &QQuickWindow::beforeSynchronizing, this, &QWaylandSurfaceItem::beforeSync);
+    }
+
+    m_connectedWindow = window();
+
+    if (m_connectedWindow) {
+        connect(m_connectedWindow, &QQuickWindow::beforeSynchronizing, this, &QWaylandSurfaceItem::beforeSync, Qt::DirectConnection);
+    }
 }
 
-void QWaylandSurfaceItem::updateTexture(bool changed)
+void QWaylandSurfaceItem::beforeSync()
 {
-    if (!m_provider)
-        m_provider = new QWaylandSurfaceTextureProvider();
-
-    m_provider->t = static_cast<QWaylandQuickSurface *>(surface())->texture();
-    m_provider->smooth = smooth();
-    if (m_newTexture || changed)
-        emit m_provider->textureChanged();
-    m_newTexture = false;
+    if (advance()) {
+        m_newTexture = true;
+        update();
+    }
 }
 
 QSGNode *QWaylandSurfaceItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *)
 {
-    bool mapped = surface() && surface()->isMapped();
+    bool mapped = surface() && surface()->isMapped() && currentBuffer().hasBuffer();
 
-    if (!mapped || !m_provider || !m_provider->t || !m_paintEnabled) {
+    if (!mapped || !m_paintEnabled) {
         delete oldNode;
         return 0;
     }
@@ -483,14 +537,21 @@ QSGNode *QWaylandSurfaceItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeD
 
     if (!node)
         node = new QSGSimpleTextureNode();
-    node->setTexture(m_provider->t);
-    // Surface textures come by default with the OpenGL coordinate system, which is inverted relative
-    // to the QtQuick one. So we're dealing with a double invertion here, and if isYInverted() returns
-    // true it means it is NOT inverted relative to QtQuick, while if it returns false it means it IS.
-    if (surface()->isYInverted()) {
-        node->setRect(0, 0, width(), height());
+
+    if (!m_provider)
+        m_provider = new QWaylandSurfaceTextureProvider();
+
+    if (m_newTexture) {
+        m_provider->setBufferRef(this, currentBuffer());
+        node->setTexture(m_provider->texture());
+    }
+
+    m_provider->setSmooth(smooth());
+
+    if (m_provider->invertY()) {
+            node->setRect(0, height(), width(), -height());
     } else {
-        node->setRect(0, height(), width(), -height());
+            node->setRect(0, 0, width(), height());
     }
 
     return node;
@@ -519,6 +580,12 @@ void QWaylandSurfaceItem::setInputEventsEnabled(bool enabled)
         setAcceptHoverEvents(enabled);
         emit inputEventsEnabledChanged();
     }
+}
+
+void QWaylandSurfaceItem::handleSurfaceDestroyed()
+{
+    emit surfaceDestroyed();
+    setSurface(Q_NULLPTR);
 }
 
 QT_END_NAMESPACE

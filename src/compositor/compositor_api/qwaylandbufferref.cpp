@@ -46,6 +46,10 @@ class QWaylandBufferRefPrivate
 {
 public:
     QtWayland::SurfaceBuffer *buffer;
+
+    bool nullOrDestroyed() {
+        return !buffer || buffer->isDestroyed();
+    }
 };
 
 QWaylandBufferRef::QWaylandBufferRef()
@@ -65,8 +69,9 @@ QWaylandBufferRef::QWaylandBufferRef(QtWayland::SurfaceBuffer *buffer)
 QWaylandBufferRef::QWaylandBufferRef(const QWaylandBufferRef &ref)
                  : d(new QWaylandBufferRefPrivate)
 {
-    d->buffer = 0;
-    *this = ref;
+    d->buffer = ref.d->buffer;
+    if (d->buffer)
+        d->buffer->ref();
 }
 
 QWaylandBufferRef::~QWaylandBufferRef()
@@ -88,44 +93,75 @@ QWaylandBufferRef &QWaylandBufferRef::operator=(const QWaylandBufferRef &ref)
     return *this;
 }
 
-QWaylandBufferRef::operator bool() const
+bool QWaylandBufferRef::operator==(const QWaylandBufferRef &ref)
 {
-    return d->buffer && d->buffer->waylandBufferHandle();
+    return d->buffer == ref.d->buffer;
+}
+
+bool QWaylandBufferRef::operator!=(const QWaylandBufferRef &ref)
+{
+    return d->buffer != ref.d->buffer;
+}
+
+bool QWaylandBufferRef::isNull() const
+{
+    return !d->buffer;
+}
+
+bool QWaylandBufferRef::hasBuffer() const
+{
+    return d->buffer && !d->buffer->isDestroyed();
+}
+
+struct ::wl_resource *QWaylandBufferRef::wl_buffer() const
+{
+    return d->buffer ? d->buffer->waylandBufferHandle() : Q_NULLPTR;
+}
+
+QSize QWaylandBufferRef::size() const
+{
+    if (d->nullOrDestroyed())
+        return QSize();
+
+    return d->buffer->size();
+}
+
+QWaylandSurface::Origin QWaylandBufferRef::origin() const
+{
+    if (d->nullOrDestroyed())
+        return QWaylandSurface::OriginBottomLeft;
+
+    return d->buffer->origin();
 }
 
 bool QWaylandBufferRef::isShm() const
 {
-    return d->buffer->isShmBuffer();
+    if (d->nullOrDestroyed())
+        return false;
+
+    return d->buffer->isShm();
 }
 
 QImage QWaylandBufferRef::image() const
 {
-    if (d->buffer->isShmBuffer())
-        return d->buffer->image();
-    return QImage();
+    if (d->nullOrDestroyed())
+        return QImage();
+
+    return d->buffer->image();
 }
 
-#ifdef QT_COMPOSITOR_WAYLAND_GL
-
-GLuint QWaylandBufferRef::createTexture()
+void QWaylandBufferRef::bindToTexture() const
 {
-    if (!d->buffer->isShmBuffer() && !d->buffer->textureCreated()) {
-        d->buffer->createTexture();
-    }
-    return d->buffer->texture();
-}
+    if (d->nullOrDestroyed())
+        return;
 
-void QWaylandBufferRef::destroyTexture()
-{
-    if (!d->buffer->isShmBuffer() && d->buffer->textureCreated()) {
-        d->buffer->destroyTexture();
-    }
+    return d->buffer->bindToTexture();
+
 }
 
 void *QWaylandBufferRef::nativeBuffer() const
 {
     return d->buffer->handle();
 }
-#endif
 
 QT_END_NAMESPACE

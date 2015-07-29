@@ -47,6 +47,8 @@
 #include "qwaylandoutput.h"
 #include "qwaylandsurface.h"
 
+QT_BEGIN_NAMESPACE
+
 QWaylandOutput::QWaylandOutput(QWaylandCompositor *compositor, QWindow *window,
                                const QString &manufacturer, const QString &model)
     : QObject()
@@ -251,3 +253,5 @@ QList<QWaylandSurface *> QWaylandOutput::surfaces() const
     }
     return list;
 }
+
+QT_END_NAMESPACE

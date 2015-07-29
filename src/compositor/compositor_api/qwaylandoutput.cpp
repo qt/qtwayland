@@ -63,7 +63,6 @@ QWaylandOutput::QWaylandOutput(QWaylandCompositor *compositor, QWindow *window,
 QWaylandOutput::~QWaylandOutput()
 {
     d_ptr->compositor()->removeOutput(this);
-    delete d_ptr;
 }
 
 QWaylandOutput *QWaylandOutput::fromResource(wl_resource *resource)
@@ -241,17 +240,37 @@ QWindow *QWaylandOutput::window() const
 
 QtWayland::Output *QWaylandOutput::handle()
 {
-    return d_ptr;
+    return d_ptr.data();
+}
+
+void QWaylandOutput::frameStarted()
+{
+    d_ptr->frameStarted();
+}
+
+void QWaylandOutput::sendFrameCallbacks(QList<QWaylandSurface *> visibleSurfaces)
+{
+    d_ptr->sendFrameCallbacks(visibleSurfaces);
 }
 
 QList<QWaylandSurface *> QWaylandOutput::surfaces() const
 {
-    QList<QWaylandSurface *> list;
-    Q_FOREACH (QWaylandSurface *surface, d_ptr->compositor()->waylandCompositor()->surfaces()) {
-        if (surface->outputs().contains(const_cast<QWaylandOutput *>(this)))
-            list.append(surface);
-    }
-    return list;
+    return d_ptr->surfaces();
+}
+
+QList<QWaylandSurface *> QWaylandOutput::surfacesForClient(QWaylandClient *client) const
+{
+    return d_ptr->surfacesForClient(client);
+}
+
+void QWaylandOutput::addSurface(QWaylandSurface *surface)
+{
+    d_ptr->addSurface(surface);
+}
+
+void QWaylandOutput::removeSurface(QWaylandSurface *surface)
+{
+    d_ptr->removeSurface(surface);
 }
 
 QT_END_NAMESPACE

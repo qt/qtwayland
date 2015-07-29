@@ -139,9 +139,15 @@ public:
 
     QWindow *window() const;
 
-    QtWayland::Output *handle();
+    void frameStarted();
+    void sendFrameCallbacks(QList<QWaylandSurface *> visibleSurfaces);
 
     QList<QWaylandSurface *> surfaces() const;
+    QList<QWaylandSurface *> surfacesForClient(QWaylandClient *client) const;
+    void addSurface(QWaylandSurface *surface);
+    void removeSurface(QWaylandSurface *surface);
+
+    QtWayland::Output *handle();
 
 Q_SIGNALS:
     void positionChanged();
@@ -153,8 +159,8 @@ Q_SIGNALS:
     void subpixelChanged();
     void transformChanged();
 
-private:
-    QtWayland::Output *const d_ptr;
+protected:
+    QScopedPointer<QtWayland::Output> d_ptr;
 };
 
 Q_DECLARE_METATYPE(QWaylandOutput::Mode)

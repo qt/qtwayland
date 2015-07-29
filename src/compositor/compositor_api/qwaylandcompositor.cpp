@@ -96,17 +96,6 @@ struct wl_display *QWaylandCompositor::waylandDisplay() const
     return m_compositor->wl_display();
 }
 
-void QWaylandCompositor::sendFrameCallbacks(QList<QWaylandSurface *> visibleSurfaces)
-{
-    m_compositor->sendFrameCallbacks(visibleSurfaces);
-}
-
-void QWaylandCompositor::frameStarted()
-{
-    foreach (QtWayland::Surface *surf, m_compositor->surfaces())
-        surf->frameStarted();
-}
-
 void QWaylandCompositor::destroyClientForSurface(QWaylandSurface *surface)
 {
     destroyClient(surface->client());
@@ -117,30 +106,40 @@ void QWaylandCompositor::destroyClient(QWaylandClient *client)
     m_compositor->destroyClient(client);
 }
 
+#if QT_DEPRECATED_SINCE(5, 5)
+void QWaylandCompositor::frameStarted()
+{
+    foreach (QWaylandOutput *output, outputs())
+        output->frameStarted();
+}
+
+void QWaylandCompositor::sendFrameCallbacks(QList<QWaylandSurface *> visibleSurfaces)
+{
+    Q_FOREACH (QWaylandSurface *surface, visibleSurfaces) {
+        surface->handle()->sendFrameCallback();
+    }
+}
+
 QList<QWaylandSurface *> QWaylandCompositor::surfacesForClient(QWaylandClient* client) const
 {
-    QList<QtWayland::Surface *> surfaces = m_compositor->surfaces();
-
-    QList<QWaylandSurface *> result;
-
-    for (int i = 0; i < surfaces.count(); ++i) {
-        if (surfaces.at(i)->waylandSurface()->client() == client) {
-            result.append(surfaces.at(i)->waylandSurface());
-        }
-    }
-
-    return result;
+    QList<QWaylandSurface *> surfs;
+    foreach (QWaylandOutput *output, outputs())
+        surfs.append(output->surfacesForClient(client));
+    return surfs;
 }
 
 QList<QWaylandSurface *> QWaylandCompositor::surfaces() const
 {
-    QList<QtWayland::Surface *> surfaces = m_compositor->surfaces();
     QList<QWaylandSurface *> surfs;
-    surfs.reserve(surfaces.count());
-    foreach (QtWayland::Surface *s, surfaces)
-        surfs << s->waylandSurface();
+    foreach (QWaylandOutput *output, outputs()) {
+        foreach (QWaylandSurface *surface, output->surfaces()) {
+            if (!surfs.contains(surface))
+                surfs.append(surface);
+        }
+    }
     return surfs;
 }
+#endif //QT_DEPRECATED_SINCE(5, 5)
 
 QList<QWaylandOutput *> QWaylandCompositor::outputs() const
 {

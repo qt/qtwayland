@@ -90,6 +90,7 @@ public:
     ~Compositor();
 
     void init();
+
     void sendFrameCallbacks(QList<QWaylandSurface *> visibleSurfaces);
 
     InputDevice *defaultInputDevice();
@@ -120,8 +121,6 @@ public:
     void initializeExtensions();
     void initializeDefaultInputDevice();
     void initializeWindowManagerProtocol();
-
-    QList<Surface *> surfaces() const { return m_surfaces; }
 
     QWaylandCompositor *waylandCompositor() const { return m_qt_compositor; }
 
@@ -188,7 +187,6 @@ protected:
     DataDeviceManager *m_data_device_manager;
 
     QElapsedTimer m_timer;
-    QList<Surface *> m_surfaces;
     QSet<QWaylandSurface *> m_destroyed_surfaces;
 
     /* Render state */

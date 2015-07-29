@@ -98,6 +98,14 @@ public:
     int scaleFactor() const { return m_scaleFactor; }
     void setScaleFactor(int scale);
 
+    void frameStarted();
+    void sendFrameCallbacks(QList<QWaylandSurface *> visibleSurfaces);
+
+    QList<QWaylandSurface *> surfaces() const { return m_surfaces; }
+    QList<QWaylandSurface *> surfacesForClient(QWaylandClient *client) const;
+    void addSurface(QWaylandSurface *surface);
+    void removeSurface(QWaylandSurface *surface);
+
     QWindow *window() const { return m_window; }
 
     OutputResource *outputForClient(struct wl_client *client) const;

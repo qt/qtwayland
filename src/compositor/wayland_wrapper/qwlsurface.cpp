@@ -135,6 +135,7 @@ Surface::Surface(struct wl_client *client, uint32_t id, int version, QWaylandCom
 
 Surface::~Surface()
 {
+    removeFromOutput();
     delete m_subSurface;
 
     m_bufferRef = QWaylandBufferRef();
@@ -317,6 +318,8 @@ void Surface::addToOutput(Output *output)
 
     m_outputs.append(output);
 
+    output->addSurface(waylandSurface());
+
     QWaylandSurfaceEnterEvent event(output->waylandOutput());
     QCoreApplication::sendEvent(waylandSurface(), &event);
 
@@ -333,11 +336,15 @@ void Surface::removeFromOutput(Output *output)
     if (!output)
         return;
 
+    if (!m_outputs.contains(output))
+        return;
+
     m_outputs.removeOne(output);
 
-    if (m_outputs.size() == 0)
-        m_mainOutput = m_compositor->primaryOutput()->handle();
+    if (m_mainOutput == output)
+        setMainOutput(Q_NULLPTR);
 
+    output->removeSurface(waylandSurface());
     QWaylandSurfaceLeaveEvent event(output->waylandOutput());
     QCoreApplication::sendEvent(waylandSurface(), &event);
 
@@ -346,6 +353,13 @@ void Surface::removeFromOutput(Output *output)
         QList<Output::Resource *> outputs = output->resourceMap().values();
         for (int i = 0; i < outputs.size(); i++)
             send_leave(resource->handle, outputs.at(i)->handle);
+    }
+}
+
+void Surface::removeFromOutput()
+{
+    Q_FOREACH (Output *output, m_outputs) {
+        removeFromOutput(output);
     }
 }
 

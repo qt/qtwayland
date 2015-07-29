@@ -45,6 +45,9 @@
 #include <QtCompositor/QWaylandSurface>
 #include <QtCompositor/QWaylandOutput>
 
+#include <QtCompositor/QWaylandSurface>
+#include <QtCompositor/QWaylandClient>
+
 QT_BEGIN_NAMESPACE
 
 namespace QtWayland {
@@ -260,6 +263,53 @@ void Output::sendGeometryInfo()
         if (resource->version() >= 2)
             send_done(resource->handle);
     }
+}
+
+
+void Output::frameStarted()
+{
+    foreach (QWaylandSurface *surface, m_surfaces)
+        surface->handle()->frameStarted();
+}
+
+void Output::sendFrameCallbacks(QList<QWaylandSurface *> visibleSurfaces)
+{
+    foreach (QWaylandSurface *surface, visibleSurfaces) {
+        surface->handle()->sendFrameCallback();
+    }
+    wl_display_flush_clients(m_compositor->wl_display());
+}
+
+QList<QWaylandSurface *> Output::surfacesForClient(QWaylandClient *client) const
+{
+    QList<QWaylandSurface *> result;
+
+    foreach (QWaylandSurface *surface, m_surfaces) {
+        if (surface->client() == client)
+            result.append(result);
+    }
+
+    return result;
+}
+
+void Output::addSurface(QWaylandSurface *surface)
+{
+    if (m_surfaces.contains(surface))
+        return;
+
+    m_surfaces.append(surface);
+
+    surface->handle()->addToOutput(this);
+}
+
+void Output::removeSurface(QWaylandSurface *surface)
+{
+    if (!m_surfaces.contains(surface))
+        return;
+
+    m_surfaces.removeOne(surface);
+
+    surface->handle()->removeFromOutput(this);
 }
 
 } // namespace Wayland

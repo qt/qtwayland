@@ -246,14 +246,6 @@ Compositor::~Compositor()
     delete m_display;
 }
 
-void Compositor::sendFrameCallbacks(QList<QWaylandSurface *> visibleSurfaces)
-{
-    foreach (QWaylandSurface *surface, visibleSurfaces) {
-        surface->handle()->sendFrameCallback();
-    }
-    wl_display_flush_clients(m_display->handle());
-}
-
 uint Compositor::currentTimeMsecs() const
 {
     return m_timer.elapsed();
@@ -320,7 +312,7 @@ void Compositor::processWaylandEvents()
 
 void Compositor::destroySurface(Surface *surface)
 {
-    m_surfaces.removeOne(surface);
+    surface->removeFromOutput();
 
     waylandCompositor()->surfaceAboutToBeDestroyed(surface->waylandSurface());
 
@@ -347,8 +339,9 @@ void Compositor::cleanupGraphicsResources()
 void Compositor::compositor_create_surface(Resource *resource, uint32_t id)
 {
     QWaylandSurface *surface = new QWaylandSurface(resource->client(), id, resource->version(), m_qt_compositor);
-    m_surfaces << surface->handle();
-    surface->handle()->addToOutput(primaryOutput()->handle());
+
+    primaryOutput()->addSurface(surface);
+
     //BUG: This may not be an on-screen window surface though
     m_qt_compositor->surfaceCreated(surface);
 }

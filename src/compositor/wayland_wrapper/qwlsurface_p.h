@@ -126,6 +126,7 @@ public:
 
     void addToOutput(Output *output);
     void removeFromOutput(Output *output);
+    void removeFromOutput();
 
     QString className() const { return m_className; }
     void setClassName(const QString &className);

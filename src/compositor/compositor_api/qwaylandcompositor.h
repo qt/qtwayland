@@ -89,14 +89,16 @@ public:
     void addDefaultShell();
     ::wl_display *waylandDisplay() const;
 
-    void frameStarted();
-    void sendFrameCallbacks(QList<QWaylandSurface *> visibleSurfaces);
-
     void destroyClientForSurface(QWaylandSurface *surface);
     void destroyClient(QWaylandClient *client);
 
-    QList<QWaylandSurface *> surfacesForClient(QWaylandClient* client) const;
-    QList<QWaylandSurface *> surfaces() const;
+#if QT_DEPRECATED_SINCE(5, 5)
+    QT_DEPRECATED void frameStarted();
+    QT_DEPRECATED void sendFrameCallbacks(QList<QWaylandSurface *> visibleSurfaces);
+
+    QT_DEPRECATED QList<QWaylandSurface *> surfacesForClient(QWaylandClient* client) const;
+    QT_DEPRECATED QList<QWaylandSurface *> surfaces() const;
+#endif //QT_DEPRECATED_SINCE(5, 5)
 
     QList<QWaylandOutput *> outputs() const;
     QWaylandOutput *output(QWindow *window);

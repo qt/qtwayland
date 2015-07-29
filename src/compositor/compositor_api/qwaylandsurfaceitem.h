@@ -66,6 +66,7 @@ class Q_COMPOSITOR_EXPORT QWaylandSurfaceItem : public QQuickItem, public QWayla
     Q_PROPERTY(bool followRequestedPosition READ followRequestedPosition WRITE setFollowRequestedPosition NOTIFY followRequestedPositionChanged)
     Q_PROPERTY(qreal requestedXPosition READ requestedXPosition WRITE setRequestedXPosition NOTIFY requestedXPositionChanged)
     Q_PROPERTY(qreal requestedYPosition READ requestedYPosition WRITE setRequestedYPosition NOTIFY requestedYPositionChanged)
+    Q_PROPERTY(bool inputEventsEnabled READ inputEventsEnabled WRITE setInputEventsEnabled NOTIFY inputEventsEnabledChanged)
 
 public:
     QWaylandSurfaceItem(QQuickItem *parent = 0);
@@ -86,6 +87,9 @@ public:
 
     void setTouchEventsEnabled(bool enabled);
     void setResizeSurfaceToItem(bool enabled);
+
+    bool inputEventsEnabled() const { return m_inputEventsEnabled; }
+    void setInputEventsEnabled(bool enabled);
 
     void setRequestedPosition(const QPointF &pos) Q_DECL_OVERRIDE;
     QPointF pos() const Q_DECL_OVERRIDE;
@@ -134,6 +138,7 @@ Q_SIGNALS:
     void followRequestedPositionChanged();
     void requestedXPositionChanged();
     void requestedYPositionChanged();
+    void inputEventsEnabledChanged();
 
 protected:
     QSGNode *updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *);
@@ -143,6 +148,7 @@ private:
     friend class QWaylandQuickSurface;
     void init(QWaylandQuickSurface *);
     void updateTexture(bool changed);
+    bool shouldSendInputEvents() const { return surface() && m_inputEventsEnabled; }
 
     static QMutex *mutex;
 
@@ -153,6 +159,7 @@ private:
     bool m_resizeSurfaceToItem;
     bool m_newTexture;
     bool m_followRequestedPos;
+    bool m_inputEventsEnabled;
 };
 
 QT_END_NAMESPACE

@@ -79,7 +79,9 @@ QWaylandSurfaceItem::QWaylandSurfaceItem(QQuickItem *parent)
     , m_resizeSurfaceToItem(false)
     , m_newTexture(false)
     , m_followRequestedPos(true)
+    , m_inputEventsEnabled(true)
 {
+    setAcceptHoverEvents(true);
     if (!mutex)
         mutex = new QMutex;
 
@@ -134,8 +136,10 @@ QSGTextureProvider *QWaylandSurfaceItem::textureProvider() const
 
 void QWaylandSurfaceItem::mousePressEvent(QMouseEvent *event)
 {
-    if (!surface())
+    if (!shouldSendInputEvents()) {
+        event->ignore();
         return;
+    }
 
     if (!surface()->inputRegionContains(event->pos())) {
         event->ignore();
@@ -150,17 +154,21 @@ void QWaylandSurfaceItem::mousePressEvent(QMouseEvent *event)
 
 void QWaylandSurfaceItem::mouseMoveEvent(QMouseEvent *event)
 {
-    if (surface()) {
+    if (shouldSendInputEvents()) {
         QWaylandInputDevice *inputDevice = compositor()->inputDeviceFor(event);
         inputDevice->sendMouseMoveEvent(this, event->localPos(), event->windowPos());
+    } else {
+        event->ignore();
     }
 }
 
 void QWaylandSurfaceItem::mouseReleaseEvent(QMouseEvent *event)
 {
-    if (surface()) {
+    if (shouldSendInputEvents()) {
         QWaylandInputDevice *inputDevice = compositor()->inputDeviceFor(event);
         inputDevice->sendMouseReleaseEvent(event->button(), event->localPos(), event->windowPos());
+    } else {
+        event->ignore();
     }
 }
 
@@ -171,8 +179,11 @@ void QWaylandSurfaceItem::hoverEnterEvent(QHoverEvent *event)
             event->ignore();
             return;
         }
+    if (shouldSendInputEvents()) {
         QWaylandInputDevice *inputDevice = compositor()->inputDeviceFor(event);
         inputDevice->sendMouseEnterEvent(this, event->pos());
+    } else {
+        event->ignore();
     }
 }
 
@@ -183,14 +194,27 @@ void QWaylandSurfaceItem::hoverMoveEvent(QHoverEvent *event)
             event->ignore();
             return;
         }
+    if (shouldSendInputEvents()) {
+        QWaylandInputDevice *inputDevice = compositor()->inputDeviceFor(event);
+        inputDevice->sendMouseMoveEvent(this, event->pos());
+    } else {
+        event->ignore();
+    }
+}
+
+void QWaylandSurfaceItem::hoverLeaveEvent(QHoverEvent *event)
+{
+    if (shouldSendInputEvents()) {
         QWaylandInputDevice *inputDevice = compositor()->inputDeviceFor(event);
         inputDevice->sendMouseLeaveEvent(this);
+    } else {
+        event->ignore();
     }
 }
 
 void QWaylandSurfaceItem::wheelEvent(QWheelEvent *event)
 {
-    if (surface()) {
+    if (shouldSendInputEvents()) {
         if (!surface()->inputRegionContains(event->pos())) {
             event->ignore();
             return;
@@ -198,28 +222,34 @@ void QWaylandSurfaceItem::wheelEvent(QWheelEvent *event)
 
         QWaylandInputDevice *inputDevice = compositor()->inputDeviceFor(event);
         inputDevice->sendMouseWheelEvent(event->orientation(), event->delta());
+    } else {
+        event->ignore();
     }
 }
 
 void QWaylandSurfaceItem::keyPressEvent(QKeyEvent *event)
 {
-    if (surface()) {
+    if (shouldSendInputEvents()) {
         QWaylandInputDevice *inputDevice = compositor()->inputDeviceFor(event);
         inputDevice->sendFullKeyEvent(event);
+    } else {
+        event->ignore();
     }
 }
 
 void QWaylandSurfaceItem::keyReleaseEvent(QKeyEvent *event)
 {
-    if (surface() && hasFocus()) {
+    if (shouldSendInputEvents() && hasFocus()) {
         QWaylandInputDevice *inputDevice = compositor()->inputDeviceFor(event);
         inputDevice->sendFullKeyEvent(event);
+    } else {
+        event->ignore();
     }
 }
 
 void QWaylandSurfaceItem::touchEvent(QTouchEvent *event)
 {
-    if (m_touchEventsEnabled) {
+    if (shouldSendInputEvents() && m_touchEventsEnabled) {
         QWaylandInputDevice *inputDevice = compositor()->inputDeviceFor(event);
 
         if (event->type() == QEvent::TouchBegin) {
@@ -479,6 +509,15 @@ void QWaylandSurfaceItem::setResizeSurfaceToItem(bool enabled)
     if (m_resizeSurfaceToItem != enabled) {
         m_resizeSurfaceToItem = enabled;
         emit resizeSurfaceToItemChanged();
+    }
+}
+
+void QWaylandSurfaceItem::setInputEventsEnabled(bool enabled)
+{
+    if (m_inputEventsEnabled != enabled) {
+        m_inputEventsEnabled = enabled;
+        setAcceptHoverEvents(enabled);
+        emit inputEventsEnabledChanged();
     }
 }
 

@@ -84,6 +84,7 @@ private:
     void updateTexture();
     void invalidateTexture();
 
+    void onOutputChanged(QWaylandOutput *newOutput, QWaylandOutput *oldOutput);
 };
 
 QT_END_NAMESPACE

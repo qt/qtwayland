@@ -125,6 +125,7 @@ class Q_COMPOSITOR_EXPORT QWaylandSurface : public QObject
     Q_PROPERTY(QWindow::Visibility visibility READ visibility WRITE setVisibility NOTIFY visibilityChanged)
     Q_PROPERTY(QWaylandSurface *transientParent READ transientParent)
     Q_PROPERTY(QPointF transientOffset READ transientOffset)
+    Q_PROPERTY(QWaylandOutput *output READ output NOTIFY outputChanged)
 
     Q_ENUMS(WindowFlag WindowType)
     Q_FLAGS(WindowFlag WindowFlags)
@@ -252,6 +253,7 @@ Q_SIGNALS:
     void pong();
     void surfaceDestroyed();
     void shellViewCreated();
+    void outputChanged(QWaylandOutput *newOutput, QWaylandOutput *oldOutput);
 
     void configure(bool hasBuffer);
     void redraw();

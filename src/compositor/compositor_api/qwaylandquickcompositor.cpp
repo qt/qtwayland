@@ -46,27 +46,8 @@
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandQuickCompositorPrivate : public QtWayland::Compositor
-{
-public:
-    QWaylandQuickCompositorPrivate(QWaylandQuickCompositor *compositor, QWaylandCompositor::ExtensionFlags extensions)
-        : QtWayland::Compositor(compositor, extensions)
-    {
-    }
-
-    void compositor_create_surface(Resource *resource, uint32_t id) Q_DECL_OVERRIDE
-    {
-        QWaylandQuickSurface *surface = new QWaylandQuickSurface(resource->client(), id, wl_resource_get_version(resource->handle), static_cast<QWaylandQuickCompositor *>(m_qt_compositor));
-        primaryOutput()->addSurface(surface);
-
-        //BUG: This may not be an on-screen window surface though
-        m_qt_compositor->surfaceCreated(surface);
-    }
-};
-
-
 QWaylandQuickCompositor::QWaylandQuickCompositor(const char *socketName, ExtensionFlags extensions)
-                       : QWaylandCompositor(socketName, new QWaylandQuickCompositorPrivate(this, extensions))
+                       : QWaylandCompositor(socketName, extensions)
 {
     qmlRegisterUncreatableType<QWaylandSurfaceItem>("QtCompositor", 1, 0, "WaylandSurfaceItem", QObject::tr("Cannot create instance of WaylandSurfaceItem"));
     qmlRegisterUncreatableType<QWaylandQuickSurface>("QtCompositor", 1, 0, "WaylandQuickSurface", QObject::tr("Cannot create instance of WaylandQuickSurface"));
@@ -88,6 +69,11 @@ QWaylandOutput *QWaylandQuickCompositor::createOutput(QWindow *window,
         qFatal("%s: couldn't cast QWindow to QQuickWindow. All output windows must "
                "be QQuickWindow derivates when using QWaylandQuickCompositor", Q_FUNC_INFO);
     return new QWaylandQuickOutput(this, quickWindow, manufacturer, model);
+}
+
+QWaylandSurface *QWaylandQuickCompositor::createSurface(QWaylandClient *client, quint32 id, int version)
+{
+    return new QWaylandQuickSurface(client->client(), id, version, this);
 }
 
 QT_END_NAMESPACE

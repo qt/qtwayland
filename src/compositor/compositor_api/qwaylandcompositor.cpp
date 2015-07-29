@@ -42,6 +42,7 @@
 #include "qwaylandoutput.h"
 #include "qwaylandglobalinterface.h"
 #include "qwaylandsurfaceview.h"
+#include "qwaylandclient.h"
 
 #include "wayland_wrapper/qwlcompositor_p.h"
 #include "wayland_wrapper/qwldatadevice_p.h"
@@ -159,6 +160,11 @@ QWaylandOutput *QWaylandCompositor::primaryOutput() const
 void QWaylandCompositor::setPrimaryOutput(QWaylandOutput *output)
 {
     m_compositor->setPrimaryOutput(output);
+}
+
+QWaylandSurface *QWaylandCompositor::createSurface(QWaylandClient *client, quint32 id, int version)
+{
+    return new QWaylandSurface(client->client(), id, version, this);
 }
 
 void QWaylandCompositor::cleanupGraphicsResources()

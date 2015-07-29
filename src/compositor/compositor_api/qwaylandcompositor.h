@@ -160,10 +160,10 @@ public:
 protected:
     QWaylandCompositor(const char *socketName, QtWayland::Compositor *dptr);
     virtual void retainedSelectionReceived(QMimeData *mimeData);
-
     virtual QWaylandOutput *createOutput(QWindow *window,
                                          const QString &manufacturer,
                                          const QString &model);
+    virtual QWaylandSurface *createSurface(QWaylandClient *client, quint32 id, int version);
 
     friend class QtWayland::Compositor;
     QtWayland::Compositor *m_compositor;

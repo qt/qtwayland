@@ -338,11 +338,9 @@ void Compositor::cleanupGraphicsResources()
 
 void Compositor::compositor_create_surface(Resource *resource, uint32_t id)
 {
-    QWaylandSurface *surface = new QWaylandSurface(resource->client(), id, resource->version(), m_qt_compositor);
-
+    QWaylandClient *client = QWaylandClient::fromWlClient(resource->client());
+    QWaylandSurface *surface = m_qt_compositor->createSurface(client, id, resource->version());
     primaryOutput()->addSurface(surface);
-
-    //BUG: This may not be an on-screen window surface though
     m_qt_compositor->surfaceCreated(surface);
 }
 

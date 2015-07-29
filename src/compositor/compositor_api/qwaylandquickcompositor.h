@@ -41,11 +41,6 @@
 
 QT_BEGIN_NAMESPACE
 
-class QQuickWindow;
-class QWaylandQuickCompositorPrivate;
-class QWaylandSurfaceView;
-class QWaylandOutput;
-
 class Q_COMPOSITOR_EXPORT QWaylandQuickCompositor : public QWaylandCompositor
 {
 public:
@@ -55,6 +50,7 @@ public:
     QWaylandOutput *createOutput(QWindow *window,
                                  const QString &manufacturer,
                                  const QString &model) Q_DECL_OVERRIDE;
+    QWaylandSurface *createSurface(QWaylandClient *client, quint32 id, int version) Q_DECL_OVERRIDE;
 };
 
 QT_END_NAMESPACE

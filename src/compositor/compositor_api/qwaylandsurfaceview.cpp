@@ -46,7 +46,7 @@ class QWaylandSurfaceViewPrivate
 {
 public:
     QWaylandSurface *surface;
-    QPointF pos;
+    QPointF requestedPos;
 };
 
 QWaylandSurfaceView::QWaylandSurfaceView(QWaylandSurface *surf)
@@ -82,14 +82,19 @@ QWaylandCompositor *QWaylandSurfaceView::compositor() const
     return d->surface ? d->surface->compositor() : 0;
 }
 
-void QWaylandSurfaceView::setPos(const QPointF &pos)
+void QWaylandSurfaceView::setRequestedPosition(const QPointF &pos)
 {
-    d->pos = pos;
+    d->requestedPos = pos;
+}
+
+QPointF QWaylandSurfaceView::requestedPosition() const
+{
+    return d->requestedPos;
 }
 
 QPointF QWaylandSurfaceView::pos() const
 {
-    return d->pos;
+    return d->requestedPos;
 }
 
 QT_END_NAMESPACE

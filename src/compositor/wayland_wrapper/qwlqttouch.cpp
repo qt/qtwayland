@@ -71,7 +71,7 @@ bool TouchExtensionGlobal::postTouchEvent(QTouchEvent *event, QWaylandSurfaceVie
     if (!pointCount)
         return false;
 
-    QPointF surfacePos = view->pos();
+    QPointF surfacePos = view->requestedPosition();
     wl_client *surfaceClient = view->surface()->handle()->resource()->client();
     uint32_t time = m_compositor->currentTimeMsecs();
     const int rescount = m_resources.count();

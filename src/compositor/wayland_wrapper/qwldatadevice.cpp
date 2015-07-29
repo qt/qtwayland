@@ -140,7 +140,7 @@ void DataDevice::focus()
 void DataDevice::motion(uint32_t time)
 {
     if (m_dragIcon) {
-        m_dragIcon->setPos(m_pointer->currentPosition());
+        m_dragIcon->setRequestedPosition(m_pointer->currentPosition());
     }
 
     if (m_dragFocusResource && m_dragFocus) {

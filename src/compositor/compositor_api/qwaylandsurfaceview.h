@@ -55,7 +55,8 @@ public:
     QWaylandCompositor *compositor() const;
     QWaylandSurface *surface() const;
 
-    virtual void setPos(const QPointF &pos);
+    virtual void setRequestedPosition(const QPointF &pos);
+    virtual QPointF requestedPosition() const;
     virtual QPointF pos() const;
 
 private:

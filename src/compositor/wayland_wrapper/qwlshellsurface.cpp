@@ -127,14 +127,14 @@ void ShellSurface::adjustPosInResize()
 
     int bottomLeftX = m_resizeGrabber->point.x() + m_resizeGrabber->width;
     int bottomLeftY = m_resizeGrabber->point.y() + m_resizeGrabber->height;
-    qreal x = m_view->pos().x();
-    qreal y = m_view->pos().y();
+    qreal x = m_view->requestedPosition().x();
+    qreal y = m_view->requestedPosition().y();
     if (m_resizeGrabber->resize_edges & WL_SHELL_SURFACE_RESIZE_TOP)
         y = bottomLeftY - m_view->surface()->size().height();
     if (m_resizeGrabber->resize_edges & WL_SHELL_SURFACE_RESIZE_LEFT)
         x = bottomLeftX - m_view->surface()->size().width();
     QPointF newPos(x,y);
-    m_view->setPos(newPos);
+    m_view->setRequestedPosition(newPos);
 }
 
 void ShellSurface::resetResizeGrabber()
@@ -187,8 +187,8 @@ void ShellSurface::mapped()
 void ShellSurface::adjustOffset(const QPoint &p)
 {
     QPointF offset(p);
-    QPointF pos = m_view->pos();
-    m_view->setPos(pos + offset);
+    QPointF pos = m_view->requestedPosition();
+    m_view->setRequestedPosition(pos + offset);
 }
 
 void ShellSurface::requestSize(const QSize &size)
@@ -219,7 +219,7 @@ void ShellSurface::shell_surface_move(Resource *resource,
     InputDevice *input_device = InputDevice::fromSeatResource(input_device_super);
     Pointer *pointer = input_device->pointerDevice();
 
-    m_moveGrabber = new ShellSurfaceMoveGrabber(this, pointer->position() - m_view->pos());
+    m_moveGrabber = new ShellSurfaceMoveGrabber(this, pointer->position() - m_view->requestedPosition());
 
     pointer->startGrab(m_moveGrabber);
 }
@@ -309,7 +309,7 @@ void ShellSurface::shell_surface_set_fullscreen(Resource *resource,
     }
     QSize outputSize = output->geometry().size();
 
-    m_view->setPos(output->geometry().topLeft());
+    m_view->setRequestedPosition(output->geometry().topLeft());
     send_configure(resize_bottom_right, outputSize.width(), outputSize.height());
 
     m_surface->setVisibility(QWindow::FullScreen);
@@ -357,7 +357,7 @@ void ShellSurface::shell_surface_set_maximized(Resource *resource,
     }
     QSize outputSize = output->availableGeometry().size();
 
-    m_view->setPos(output->availableGeometry().topLeft());
+    m_view->setRequestedPosition(output->availableGeometry().topLeft());
     send_configure(resize_bottom_right, outputSize.width(), outputSize.height());
 
     m_surface->setVisibility(QWindow::Maximized);
@@ -454,11 +454,11 @@ void ShellSurfaceMoveGrabber::motion(uint32_t time)
     Q_UNUSED(time);
 
     QPointF pos(m_pointer->position() - m_offset);
-    shell_surface->m_view->setPos(pos);
+    shell_surface->m_view->setRequestedPosition(pos);
     if (shell_surface->m_surface->transientParent()) {
         QWaylandSurfaceView *view = shell_surface->m_surface->transientParent()->waylandSurface()->views().first();
         if (view)
-            shell_surface->setOffset(pos - view->pos());
+            shell_surface->setOffset(pos - view->requestedPosition());
     }
 
 }

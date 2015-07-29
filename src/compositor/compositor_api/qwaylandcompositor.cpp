@@ -208,10 +208,9 @@ QWaylandSurfaceView *QWaylandCompositor::pickView(const QPointF &globalPosition)
         // Skip coordinates not in output
         if (!QRectF(output->geometry()).contains(globalPosition))
             continue;
-
         Q_FOREACH (QWaylandSurface *surface, output->surfaces()) {
             Q_FOREACH (QWaylandSurfaceView *view, surface->views()) {
-                if (QRectF(view->pos(), surface->size()).contains(globalPosition))
+                if (QRectF(view->requestedPosition(), surface->size()).contains(globalPosition))
                     return view;
             }
         }
@@ -222,7 +221,7 @@ QWaylandSurfaceView *QWaylandCompositor::pickView(const QPointF &globalPosition)
 
 QPointF QWaylandCompositor::mapToView(QWaylandSurfaceView *surface, const QPointF &globalPosition) const
 {
-    return globalPosition - surface->pos();
+    return globalPosition - surface->requestedPosition();
 }
 
 /*!

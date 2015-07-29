@@ -77,7 +77,7 @@ QWaylandSurfaceItem::QWaylandSurfaceItem(QWaylandQuickSurface *surface, QQuickIt
     , m_touchEventsEnabled(false)
     , m_resizeSurfaceToItem(false)
     , m_newTexture(false)
-
+    , m_followRequestedPos(true)
 {
     if (!mutex)
         mutex = new QMutex;
@@ -309,14 +309,60 @@ void QWaylandSurfaceItem::updateSurfaceSize()
     }
 }
 
-void QWaylandSurfaceItem::setPos(const QPointF &pos)
+void QWaylandSurfaceItem::setRequestedPosition(const QPointF &pos)
 {
-    setPosition(pos);
+    bool xChanged = pos.x() != requestedPosition().x();
+    bool yChanged = pos.y() != requestedPosition().y();
+    QWaylandSurfaceView::setRequestedPosition(pos);
+    if (xChanged)
+        emit requestedXPositionChanged();
+    if (yChanged)
+        emit requestedYPositionChanged();
+    if (m_followRequestedPos)
+        setPosition(pos);
 }
 
 QPointF QWaylandSurfaceItem::pos() const
 {
     return position();
+}
+
+
+bool QWaylandSurfaceItem::followRequestedPosition() const
+{
+    return m_followRequestedPos;
+}
+
+void QWaylandSurfaceItem::setFollowRequestedPosition(bool follow)
+{
+    if (m_followRequestedPos != follow) {
+        m_followRequestedPos = follow;
+        emit followRequestedPositionChanged();
+    }
+}
+
+qreal QWaylandSurfaceItem::requestedXPosition() const
+{
+    return requestedPosition().x();
+}
+
+void QWaylandSurfaceItem::setRequestedXPosition(qreal xPos)
+{
+    QPointF reqPos = requestedPosition();
+    reqPos.setX(xPos);
+    setRequestedPosition(reqPos);
+}
+
+qreal QWaylandSurfaceItem::requestedYPosition() const
+{
+    return requestedPosition().y();
+}
+
+void QWaylandSurfaceItem::setRequestedYPosition(qreal yPos)
+{
+    QPointF reqPos = requestedPosition();
+    reqPos.setY(yPos);
+    setRequestedPosition(reqPos);
 }
 
 /*!

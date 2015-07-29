@@ -276,7 +276,7 @@ void InputDevice::sendFullTouchEvent(QTouchEvent *event)
         return;
 
     const int pointCount = points.count();
-    QPointF pos = mouseFocus()->pos();
+    QPointF pos = mouseFocus()->requestedPosition();
     for (int i = 0; i < pointCount; ++i) {
         const QTouchEvent::TouchPoint &tp(points.at(i));
         // Convert the local pos in the compositor window to surface-relative.

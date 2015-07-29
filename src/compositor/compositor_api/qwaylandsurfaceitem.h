@@ -63,6 +63,9 @@ class Q_COMPOSITOR_EXPORT QWaylandSurfaceItem : public QQuickItem, public QWayla
     Q_PROPERTY(bool touchEventsEnabled READ touchEventsEnabled WRITE setTouchEventsEnabled NOTIFY touchEventsEnabledChanged)
     Q_PROPERTY(bool isYInverted READ isYInverted NOTIFY yInvertedChanged)
     Q_PROPERTY(bool resizeSurfaceToItem READ resizeSurfaceToItem WRITE setResizeSurfaceToItem NOTIFY resizeSurfaceToItemChanged)
+    Q_PROPERTY(bool followRequestedPosition READ followRequestedPosition WRITE setFollowRequestedPosition NOTIFY followRequestedPositionChanged)
+    Q_PROPERTY(qreal requestedXPosition READ requestedXPosition WRITE setRequestedXPosition NOTIFY requestedXPositionChanged)
+    Q_PROPERTY(qreal requestedYPosition READ requestedYPosition WRITE setRequestedYPosition NOTIFY requestedYPositionChanged)
 
 public:
     QWaylandSurfaceItem(QWaylandQuickSurface *surface, QQuickItem *parent = 0);
@@ -81,8 +84,15 @@ public:
     void setTouchEventsEnabled(bool enabled);
     void setResizeSurfaceToItem(bool enabled);
 
-    void setPos(const QPointF &pos) Q_DECL_OVERRIDE;
+    void setRequestedPosition(const QPointF &pos) Q_DECL_OVERRIDE;
     QPointF pos() const Q_DECL_OVERRIDE;
+
+    bool followRequestedPosition() const;
+    void setFollowRequestedPosition(bool follow);
+    qreal requestedXPosition() const;
+    void setRequestedXPosition(qreal xPos);
+    qreal requestedYPosition() const;
+    void setRequestedYPosition(qreal yPos);
 
 protected:
     void mousePressEvent(QMouseEvent *event);
@@ -115,6 +125,9 @@ Q_SIGNALS:
     void yInvertedChanged();
     void resizeSurfaceToItemChanged();
     void surfaceDestroyed();
+    void followRequestedPositionChanged();
+    void requestedXPositionChanged();
+    void requestedYPositionChanged();
 
 protected:
     QSGNode *updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *);
@@ -133,6 +146,7 @@ private:
     bool m_yInverted;
     bool m_resizeSurfaceToItem;
     bool m_newTexture;
+    bool m_followRequestedPos;
 };
 
 QT_END_NAMESPACE

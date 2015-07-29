@@ -99,7 +99,7 @@ void SubSurface::setSubSurface(SubSurface *subSurface, int x, int y)
         subSurface->setParent(this);
     }
     foreach (QWaylandSurfaceView *view, subSurface->m_surface->waylandSurface()->views())
-        view->setPos(QPointF(x,y));
+        view->setRequestedPosition(QPointF(x,y));
 }
 
 void SubSurface::removeSubSurface(SubSurface *subSurfaces)

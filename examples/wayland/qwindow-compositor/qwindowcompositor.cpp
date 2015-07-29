@@ -207,7 +207,7 @@ void QWindowCompositor::surfaceMapped()
             }
             pos = QPoint(px, py);
             QWaylandSurfaceView *view = surface->views().first();
-            view->setPos(pos);
+            view->setRequestedPosition(pos);
         }
     } else {
         m_surfaces.removeOne(surface);
@@ -215,7 +215,7 @@ void QWindowCompositor::surfaceMapped()
 
     if (surface->windowType() == QWaylandSurface::Popup) {
         QWaylandSurfaceView *view = surface->views().first();
-        view->setPos(surface->transientParent()->views().first()->pos() + surface->transientOffset());
+        view->setRequestedPosition(surface->transientParent()->views().first()->pos() + surface->transientOffset());
     }
 
     m_surfaces.append(surface);
@@ -428,7 +428,7 @@ bool QWindowCompositor::eventFilter(QObject *obj, QEvent *event)
     case QEvent::MouseMove: {
         QMouseEvent *me = static_cast<QMouseEvent *>(event);
         if (m_draggingWindow) {
-            m_draggingWindow->setPos(me->localPos() - m_drag_diff);
+            m_draggingWindow->setRequestedPosition(me->localPos() - m_drag_diff);
             m_renderScheduler.start(0);
         } else {
             QPointF local;

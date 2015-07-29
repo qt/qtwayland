@@ -155,8 +155,8 @@ Compositor *Compositor::instance()
     return compositor;
 }
 
-Compositor::Compositor(QWaylandCompositor *qt_compositor, QWaylandCompositor::ExtensionFlags extensions)
-    : m_extensions(extensions)
+Compositor::Compositor(QWaylandCompositor *qt_compositor)
+    : m_extensions(QWaylandCompositor::DefaultExtensions)
     , m_display(new Display)
     , m_current_frame(0)
     , m_last_queued_buf(-1)
@@ -176,6 +176,7 @@ Compositor::Compositor(QWaylandCompositor *qt_compositor, QWaylandCompositor::Ex
     , m_inputPanel()
     , m_eventHandler(new WindowSystemEventHandler(this))
     , m_retainSelection(false)
+    , m_initialized(false)
 {
     m_timer.start();
     compositor = this;
@@ -200,9 +201,11 @@ void Compositor::init()
     foreach (wl_shm_format format, formats)
         wl_display_add_shm_format(m_display->handle(), format);
 
-    if (wl_display_add_socket(m_display->handle(), m_qt_compositor->socketName())) {
-        fprintf(stderr, "Fatal: Failed to open server socket\n");
-        exit(EXIT_FAILURE);
+    const char *socketName = 0;
+    if (m_socket_name.size())
+        socketName = m_socket_name.constData();
+    if (wl_display_add_socket(m_display->handle(), socketName)) {
+        qFatal("Fatal: Failed to open server socket\n");
     }
 
     m_loop = wl_display_get_event_loop(m_display->handle());
@@ -224,6 +227,8 @@ void Compositor::init()
     initializeHardwareIntegration();
     initializeExtensions();
     initializeDefaultInputDevice();
+
+    m_initialized = true;
 }
 
 Compositor::~Compositor()
@@ -341,7 +346,7 @@ void Compositor::compositor_create_surface(Resource *resource, uint32_t id)
     QWaylandClient *client = QWaylandClient::fromWlClient(resource->client());
     QWaylandSurface *surface = m_qt_compositor->createSurface(client, id, resource->version());
     primaryOutput()->addSurface(surface);
-    m_qt_compositor->surfaceCreated(surface);
+    emit m_qt_compositor->surfaceCreated(surface);
 }
 
 void Compositor::compositor_create_region(Resource *resource, uint32_t id)

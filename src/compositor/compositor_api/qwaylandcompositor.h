@@ -66,8 +66,12 @@ namespace QtWayland
     class Compositor;
 }
 
-class Q_COMPOSITOR_EXPORT QWaylandCompositor
+class Q_COMPOSITOR_EXPORT QWaylandCompositor : public QObject
 {
+    Q_OBJECT
+    Q_PROPERTY(QByteArray socketName READ socketName WRITE setSocketName)
+    Q_PROPERTY(QWaylandCompositor::ExtensionFlags extensionFlags READ extensionFlags WRITE setExtensionFlags)
+
 public:
     enum ExtensionFlag {
         WindowManagerExtension = 0x01,
@@ -82,11 +86,21 @@ public:
     };
     Q_DECLARE_FLAGS(ExtensionFlags, ExtensionFlag)
 
-    QWaylandCompositor(const char *socketName = 0, ExtensionFlags extensions = DefaultExtensions);
+    QWaylandCompositor(QObject *parent = 0);
     virtual ~QWaylandCompositor();
+
+    virtual void create();
+    bool isCreated() const;
+
+    void setSocketName(const QByteArray &name);
+    QByteArray socketName() const;
+
+    void setExtensionFlags(ExtensionFlags flags);
+    ExtensionFlags extensionFlags() const;
 
     void addGlobalInterface(QWaylandGlobalInterface *interface);
     void addDefaultShell();
+
     ::wl_display *waylandDisplay() const;
 
     void destroyClientForSurface(QWaylandSurface *surface);
@@ -106,9 +120,6 @@ public:
     QWaylandOutput *primaryOutput() const;
     void setPrimaryOutput(QWaylandOutput *output);
 
-    virtual void surfaceCreated(QWaylandSurface *surface) = 0;
-    virtual void surfaceAboutToBeDestroyed(QWaylandSurface *surface);
-
     virtual QWaylandSurfaceView *pickView(const QPointF &globalPosition) const;
     virtual QPointF mapToView(QWaylandSurfaceView *view, const QPointF &surfacePosition) const;
 
@@ -121,8 +132,6 @@ public:
     void overrideSelection(const QMimeData *data);
 
     void setClientFullScreenHint(bool value);
-
-    const char *socketName() const;
 
 #if QT_DEPRECATED_SINCE(5, 5)
     void setScreenOrientation(Qt::ScreenOrientation orientation);
@@ -157,8 +166,12 @@ public:
 
     QWaylandInputDevice *inputDeviceFor(QInputEvent *inputEvent);
 
+signals:
+    void surfaceCreated(QWaylandSurface *surface);
+    void surfaceAboutToBeDestroyed(QWaylandSurface *surface);
+
 protected:
-    QWaylandCompositor(const char *socketName, QtWayland::Compositor *dptr);
+    QWaylandCompositor(QtWayland::Compositor *dptr);
     virtual void retainedSelectionReceived(QMimeData *mimeData);
     virtual QWaylandOutput *createOutput(QWindow *window,
                                          const QString &manufacturer,

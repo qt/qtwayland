@@ -55,24 +55,27 @@
 #include <QQuickItem>
 #include <QQuickView>
 
-class QmlCompositor : public QQuickView, public QWaylandQuickCompositor
+class QmlCompositor : public QQuickView
 {
     Q_OBJECT
     Q_PROPERTY(QWaylandQuickSurface* fullscreenSurface READ fullscreenSurface WRITE setFullscreenSurface NOTIFY fullscreenSurfaceChanged)
 
 public:
     QmlCompositor()
-        : QWaylandQuickCompositor(0, DefaultExtensions | SubSurfaceExtension)
-        , m_fullscreenSurface(0)
+        : m_fullscreenSurface(0)
     {
+        m_compositor.setExtensionFlags(QWaylandCompositor::DefaultExtensions | QWaylandCompositor::SubSurfaceExtension);
+        m_compositor.create();
+
         setSource(QUrl("main.qml"));
         setResizeMode(QQuickView::SizeRootObjectToView);
         setColor(Qt::black);
         winId();
-        addDefaultShell();
-        createOutput(this, "", "");
+        m_compositor.addDefaultShell();
+        m_compositor.createOutput(this, "", "");
 
         connect(this, SIGNAL(afterRendering()), this, SLOT(sendCallbacks()));
+        connect(&m_compositor, &QWaylandCompositor::surfaceCreated, this, &QmlCompositor::onSurfaceCreated);
     }
 
     QWaylandQuickSurface *fullscreenSurface() const
@@ -121,9 +124,15 @@ private slots:
 
     void sendCallbacks() {
         if (m_fullscreenSurface)
-            sendFrameCallbacks(QList<QWaylandSurface *>() << m_fullscreenSurface);
+            m_compositor.sendFrameCallbacks(QList<QWaylandSurface *>() << m_fullscreenSurface);
         else
-            sendFrameCallbacks(surfaces());
+            m_compositor.sendFrameCallbacks(m_compositor.surfaces());
+    }
+
+    void onSurfaceCreated(QWaylandSurface *surface) {
+        connect(surface, SIGNAL(destroyed(QObject *)), this, SLOT(surfaceDestroyed(QObject *)));
+        connect(surface, SIGNAL(mapped()), this, SLOT(surfaceMapped()));
+        connect(surface,SIGNAL(unmapped()), this,SLOT(surfaceUnmapped()));
     }
 
 protected:
@@ -140,6 +149,7 @@ protected:
     }
 
 private:
+    QWaylandQuickCompositor m_compositor;
     QWaylandQuickSurface *m_fullscreenSurface;
 };
 

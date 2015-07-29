@@ -61,24 +61,54 @@
 
 QT_BEGIN_NAMESPACE
 
-QWaylandCompositor::QWaylandCompositor(const char *socketName, ExtensionFlags extensions)
-    : m_compositor(new QtWayland::Compositor(this, extensions))
+QWaylandCompositor::QWaylandCompositor(QObject *parent)
+    : QObject(parent)
+    , m_compositor(new QtWayland::Compositor(this))
 {
-    m_compositor->m_socket_name = socketName;
-    m_compositor->init();
-}
-
-QWaylandCompositor::QWaylandCompositor(const char *socketName, QtWayland::Compositor *dptr)
-    : m_compositor(dptr)
-{
-    m_compositor->m_socket_name = socketName;
-    m_compositor->init();
 }
 
 QWaylandCompositor::~QWaylandCompositor()
 {
     qDeleteAll(m_compositor->m_globals);
     delete m_compositor;
+}
+
+void QWaylandCompositor::create()
+{
+    m_compositor->init();
+}
+
+bool QWaylandCompositor::isCreated() const
+{
+    return m_compositor->m_initialized;
+}
+
+void QWaylandCompositor::setSocketName(const QByteArray &name)
+{
+    if (m_compositor->m_initialized) {
+        qWarning("%s: It is not supported to alter the compostors socket name after the compositor is initialized\n", Q_FUNC_INFO);
+        return;
+    }
+    m_compositor->m_socket_name = name;
+}
+
+QByteArray QWaylandCompositor::socketName() const
+{
+    return m_compositor->m_socket_name;
+}
+
+void QWaylandCompositor::setExtensionFlags(QWaylandCompositor::ExtensionFlags flags)
+{
+    if (m_compositor->m_initialized) {
+        qWarning("%s: It is not supported to alter the extension flags after the compositor is initialized\n", Q_FUNC_INFO);
+        return;
+    }
+    m_compositor->m_extensions = flags;
+}
+
+QWaylandCompositor::ExtensionFlags QWaylandCompositor::extensionFlags() const
+{
+    return m_compositor->extensions();
 }
 
 void QWaylandCompositor::addGlobalInterface(QWaylandGlobalInterface *interface)
@@ -172,11 +202,6 @@ void QWaylandCompositor::cleanupGraphicsResources()
     m_compositor->cleanupGraphicsResources();
 }
 
-void QWaylandCompositor::surfaceAboutToBeDestroyed(QWaylandSurface *surface)
-{
-    Q_UNUSED(surface);
-}
-
 QWaylandSurfaceView *QWaylandCompositor::pickView(const QPointF &globalPosition) const
 {
     Q_FOREACH (QWaylandOutput *output, outputs()) {
@@ -238,13 +263,6 @@ void QWaylandCompositor::overrideSelection(const QMimeData *data)
 void QWaylandCompositor::setClientFullScreenHint(bool value)
 {
     m_compositor->setClientFullScreenHint(value);
-}
-
-const char *QWaylandCompositor::socketName() const
-{
-    if (m_compositor->m_socket_name.isEmpty())
-        return 0;
-    return m_compositor->m_socket_name.constData();
 }
 
 #if QT_DEPRECATED_SINCE(5, 5)

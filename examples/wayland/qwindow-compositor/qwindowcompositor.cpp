@@ -118,7 +118,7 @@ public:
 };
 
 QWindowCompositor::QWindowCompositor(CompositorWindow *window)
-    : QWaylandCompositor(0, DefaultExtensions | SubSurfaceExtension)
+    : QWaylandCompositor()
     , m_window(window)
     , m_backgroundTexture(0)
     , m_textureBlitter(0)
@@ -130,12 +130,16 @@ QWindowCompositor::QWindowCompositor(CompositorWindow *window)
     , m_cursorHotspotY(0)
     , m_modifiers(Qt::NoModifier)
 {
+    setExtensionFlags(DefaultExtensions | SubSurfaceExtension);
+    create();
+
     m_window->makeCurrent();
 
     m_textureBlitter = new TextureBlitter();
     m_backgroundImage = makeBackgroundImage(QLatin1String(":/background.jpg"));
     m_renderScheduler.setSingleShot(true);
     connect(&m_renderScheduler,SIGNAL(timeout()),this,SLOT(render()));
+    connect(this, &QWaylandCompositor::surfaceCreated, this, &QWindowCompositor::onSurfaceCreated);
 
     QOpenGLFunctions *functions = m_window->context()->functions();
     functions->glGenFramebuffers(1, &m_surface_fbo);
@@ -247,7 +251,7 @@ void QWindowCompositor::surfaceCommitted(QWaylandSurface *surface)
     m_renderScheduler.start(0);
 }
 
-void QWindowCompositor::surfaceCreated(QWaylandSurface *surface)
+void QWindowCompositor::onSurfaceCreated(QWaylandSurface *surface)
 {
     connect(surface, SIGNAL(surfaceDestroyed()), this, SLOT(surfaceDestroyed()));
     connect(surface, SIGNAL(mapped()), this, SLOT(surfaceMapped()));

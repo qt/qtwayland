@@ -46,8 +46,8 @@
 
 QT_BEGIN_NAMESPACE
 
-QWaylandQuickCompositor::QWaylandQuickCompositor(const char *socketName, ExtensionFlags extensions)
-                       : QWaylandCompositor(socketName, extensions)
+QWaylandQuickCompositor::QWaylandQuickCompositor(QObject *parent)
+    : QWaylandCompositor(parent)
 {
     qmlRegisterUncreatableType<QWaylandSurfaceItem>("QtCompositor", 1, 0, "WaylandSurfaceItem", QObject::tr("Cannot create instance of WaylandSurfaceItem"));
     qmlRegisterUncreatableType<QWaylandQuickSurface>("QtCompositor", 1, 0, "WaylandQuickSurface", QObject::tr("Cannot create instance of WaylandQuickSurface"));

@@ -44,7 +44,7 @@ QT_BEGIN_NAMESPACE
 class Q_COMPOSITOR_EXPORT QWaylandQuickCompositor : public QWaylandCompositor
 {
 public:
-    QWaylandQuickCompositor(const char *socketName = 0, QWaylandCompositor::ExtensionFlags extensions = DefaultExtensions);
+    QWaylandQuickCompositor(QObject *parent = 0);
 
     QWaylandSurfaceView *createView(QWaylandSurface *surf) Q_DECL_OVERRIDE;
     QWaylandOutput *createOutput(QWindow *window,

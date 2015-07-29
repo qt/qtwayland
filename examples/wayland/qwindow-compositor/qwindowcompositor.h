@@ -55,7 +55,7 @@ QT_BEGIN_NAMESPACE
 class QWaylandSurfaceView;
 class QOpenGLTexture;
 
-class QWindowCompositor : public QObject, public QWaylandCompositor
+class QWindowCompositor : public QWaylandCompositor
 {
     Q_OBJECT
 public:
@@ -70,9 +70,9 @@ private slots:
     void surfacePosChanged();
 
     void render();
+    void onSurfaceCreated(QWaylandSurface *surface);
 protected:
     void surfaceCommitted(QWaylandSurface *surface);
-    void surfaceCreated(QWaylandSurface *surface);
 
     QWaylandSurfaceView* viewAt(const QPointF &point, QPointF *local = 0);
 

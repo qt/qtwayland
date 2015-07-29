@@ -85,7 +85,7 @@ class Q_COMPOSITOR_EXPORT Compositor : public QObject, public QtWaylandServer::w
     Q_OBJECT
 
 public:
-    Compositor(QWaylandCompositor *qt_compositor, QWaylandCompositor::ExtensionFlags extensions);
+    Compositor(QWaylandCompositor *qt_compositor);
     ~Compositor();
 
     void init();
@@ -220,6 +220,7 @@ protected:
                           uint32_t version, uint32_t id);
 
     bool m_retainSelection;
+    bool m_initialized;
 
     friend class QT_PREPEND_NAMESPACE(QWaylandCompositor);
     friend class QT_PREPEND_NAMESPACE(QWaylandClient);

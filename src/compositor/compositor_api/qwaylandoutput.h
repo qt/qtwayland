@@ -147,7 +147,7 @@ public:
     void addSurface(QWaylandSurface *surface);
     void removeSurface(QWaylandSurface *surface);
 
-    QtWayland::Output *handle();
+    QtWayland::Output *handle() const;
 
 Q_SIGNALS:
     void positionChanged();

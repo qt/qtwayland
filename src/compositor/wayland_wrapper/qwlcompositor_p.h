@@ -70,7 +70,6 @@ class Surface;
 class SurfaceBuffer;
 class InputDevice;
 class DataDeviceManager;
-class OutputGlobal;
 class SurfaceExtensionGlobal;
 class SubSurfaceExtensionGlobal;
 class TouchExtensionGlobal;

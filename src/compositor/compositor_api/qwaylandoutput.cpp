@@ -238,11 +238,6 @@ QWindow *QWaylandOutput::window() const
     return d_ptr->window();
 }
 
-QtWayland::Output *QWaylandOutput::handle()
-{
-    return d_ptr.data();
-}
-
 void QWaylandOutput::frameStarted()
 {
     d_ptr->frameStarted();
@@ -271,6 +266,11 @@ void QWaylandOutput::addSurface(QWaylandSurface *surface)
 void QWaylandOutput::removeSurface(QWaylandSurface *surface)
 {
     d_ptr->removeSurface(surface);
+}
+
+QtWayland::Output *QWaylandOutput::handle() const
+{
+    return d_ptr.data();
 }
 
 QT_END_NAMESPACE

@@ -98,6 +98,7 @@ ShellSurface::ShellSurface(Shell *shell, wl_client *client, uint32_t id, Surface
     m_view = surface->compositor()->waylandCompositor()->createView(surface->waylandSurface());
     connect(surface->waylandSurface(), &QWaylandSurface::configure, this, &ShellSurface::configure);
     connect(surface->waylandSurface(), &QWaylandSurface::mapped, this, &ShellSurface::mapped);
+    connect(surface->waylandSurface(), &QWaylandSurface::offsetForNextFrame, this, &ShellSurface::adjustOffset);
     surface->setShellSurface(this);
 }
 
@@ -183,6 +184,13 @@ void ShellSurface::mapped()
     }
 }
 
+void ShellSurface::adjustOffset(const QPoint &p)
+{
+    QPointF offset(p);
+    QPointF pos = m_view->pos();
+    m_view->setPos(pos + offset);
+}
+
 void ShellSurface::requestSize(const QSize &size)
 {
     send_configure(WL_SHELL_SURFACE_RESIZE_BOTTOM_RIGHT, size.width(), size.height());
@@ -223,7 +231,6 @@ void ShellSurface::shell_surface_resize(Resource *resource,
 {
     Q_UNUSED(resource);
     Q_UNUSED(time);
-    Q_UNUSED(edges);
 
     if (m_moveGrabber || m_resizeGrabber) {
         qDebug() << "invalid state2";

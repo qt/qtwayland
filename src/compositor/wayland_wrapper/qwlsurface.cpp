@@ -523,6 +523,9 @@ void Surface::surface_commit(Resource *)
         emit m_waylandSurface->configure(m_bufferRef);
         if (m_roleHandler)
             m_roleHandler->configure(m_pending.offset.x(), m_pending.offset.y());
+
+        if (!m_pending.offset.isNull())
+            emit m_waylandSurface->offsetForNextFrame(m_pending.offset);
     }
 
     m_pending.buffer = 0;

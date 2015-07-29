@@ -104,6 +104,7 @@ protected:
 
 private Q_SLOTS:
     void mapped();
+    void adjustOffset(const QPoint &p);
 
 private:
     Shell *m_shell;

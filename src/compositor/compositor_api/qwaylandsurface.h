@@ -239,6 +239,7 @@ Q_SIGNALS:
     void damaged(const QRegion &rect);
     void parentChanged(QWaylandSurface *newParent, QWaylandSurface *oldParent);
     void sizeChanged();
+    void offsetForNextFrame(const QPoint &offset);
     void windowPropertyChanged(const QString &name, const QVariant &value);
     void windowFlagsChanged(WindowFlags flags);
     void windowTypeChanged(WindowType type);

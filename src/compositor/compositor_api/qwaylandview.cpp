@@ -34,8 +34,8 @@
 **
 ****************************************************************************/
 
-#include "qwaylandsurfaceview.h"
-#include "qwaylandsurfaceview_p.h"
+#include "qwaylandview.h"
+#include "qwaylandview_p.h"
 #include "qwaylandsurface.h"
 #include "qwaylandsurface_p.h"
 
@@ -43,26 +43,28 @@
 
 QT_BEGIN_NAMESPACE
 
-QWaylandSurfaceViewPrivate *QWaylandSurfaceViewPrivate::get(QWaylandSurfaceView *view)
+QWaylandViewPrivate *QWaylandViewPrivate::get(QWaylandView *view)
 {
-    return view->d;
+    return view->d_func();
 }
 
-void QWaylandSurfaceViewPrivate::markSurfaceAsDestroyed(QWaylandSurface *surface)
+void QWaylandViewPrivate::markSurfaceAsDestroyed(QWaylandSurface *surface)
 {
+    Q_Q(QWaylandView);
     Q_ASSERT(surface == this->surface);
 
-    q_ptr->waylandSurfaceDestroyed();
-    q_ptr->setSurface(Q_NULLPTR);
+    q->waylandSurfaceDestroyed();
+    q->setSurface(Q_NULLPTR);
 }
 
-QWaylandSurfaceView::QWaylandSurfaceView()
-                   : d(new QWaylandSurfaceViewPrivate(this))
+QWaylandView::QWaylandView()
+                   : d_ptr(new QWaylandViewPrivate(this))
 {
 }
 
-QWaylandSurfaceView::~QWaylandSurfaceView()
+QWaylandView::~QWaylandView()
 {
+    Q_D(QWaylandView);
     if (d->output)
         d->output->handle()->removeView(this);
     if (d->surface) {
@@ -76,13 +78,15 @@ QWaylandSurfaceView::~QWaylandSurfaceView()
     delete d;
 }
 
-QWaylandSurface *QWaylandSurfaceView::surface() const
+QWaylandSurface *QWaylandView::surface() const
 {
+    Q_D(const QWaylandView);
     return d->surface;
 }
 
-void QWaylandSurfaceView::setSurface(QWaylandSurface *newSurface)
+void QWaylandView::setSurface(QWaylandSurface *newSurface)
 {
+    Q_D(QWaylandView);
     QWaylandSurface *oldSurface = d->surface;
     d->surface = newSurface;
 
@@ -99,13 +103,15 @@ void QWaylandSurfaceView::setSurface(QWaylandSurface *newSurface)
     d->nextBuffer = QWaylandBufferRef();
 }
 
-QWaylandOutput *QWaylandSurfaceView::output() const
+QWaylandOutput *QWaylandView::output() const
 {
+    Q_D(const QWaylandView);
     return d->output;
 }
 
-void QWaylandSurfaceView::setOutput(QWaylandOutput *newOutput)
+void QWaylandView::setOutput(QWaylandOutput *newOutput)
 {
+    Q_D(QWaylandView);
     if (d->output == newOutput)
         return;
 
@@ -115,13 +121,15 @@ void QWaylandSurfaceView::setOutput(QWaylandOutput *newOutput)
     waylandOutputChanged(newOutput, oldOutput);
 }
 
-QWaylandCompositor *QWaylandSurfaceView::compositor() const
+QWaylandCompositor *QWaylandView::compositor() const
 {
+    Q_D(const QWaylandView);
     return d->surface ? d->surface->compositor() : 0;
 }
 
-void QWaylandSurfaceView::setRequestedPosition(const QPointF &pos)
+void QWaylandView::setRequestedPosition(const QPointF &pos)
 {
+    Q_D(QWaylandView);
     d->requestedPos = pos;
     if (d->shouldBroadcastRequestedPositionChanged()) {
         Q_ASSERT(d->output->outputSpace());
@@ -130,24 +138,28 @@ void QWaylandSurfaceView::setRequestedPosition(const QPointF &pos)
     }
 }
 
-QPointF QWaylandSurfaceView::requestedPosition() const
+QPointF QWaylandView::requestedPosition() const
 {
+    Q_D(const QWaylandView);
     return d->requestedPos;
 }
 
-QPointF QWaylandSurfaceView::pos() const
+QPointF QWaylandView::pos() const
 {
+    Q_D(const QWaylandView);
     return d->requestedPos;
 }
 
-void QWaylandSurfaceView::attach(const QWaylandBufferRef &ref)
+void QWaylandView::attach(const QWaylandBufferRef &ref)
 {
+    Q_D(QWaylandView);
     QMutexLocker locker(&d->bufferMutex);
     d->nextBuffer = ref;
 }
 
-bool QWaylandSurfaceView::advance()
+bool QWaylandView::advance()
 {
+    Q_D(QWaylandView);
     if (d->currentBuffer == d->nextBuffer)
         return false;
 
@@ -159,50 +171,57 @@ bool QWaylandSurfaceView::advance()
     return true;
 }
 
-QWaylandBufferRef QWaylandSurfaceView::currentBuffer()
+QWaylandBufferRef QWaylandView::currentBuffer()
 {
+    Q_D(QWaylandView);
     QMutexLocker locker(&d->bufferMutex);
     return d->currentBuffer;
 }
 
-bool QWaylandSurfaceView::lockedBuffer() const
+bool QWaylandView::lockedBuffer() const
 {
+    Q_D(const QWaylandView);
     return d->lockedBuffer;
 }
 
-void QWaylandSurfaceView::setLockedBuffer(bool locked)
+void QWaylandView::setLockedBuffer(bool locked)
 {
+    Q_D(QWaylandView);
     d->lockedBuffer = locked;
 }
 
-bool QWaylandSurfaceView::broadcastRequestedPositionChanged() const
+bool QWaylandView::broadcastRequestedPositionChanged() const
 {
+    Q_D(const QWaylandView);
     return d->broadcastRequestedPositionChanged;
 }
 
-void QWaylandSurfaceView::setBroadcastRequestedPositionChanged(bool broadcast)
+void QWaylandView::setBroadcastRequestedPositionChanged(bool broadcast)
 {
+    Q_D(QWaylandView);
     d->broadcastRequestedPositionChanged = broadcast;
 }
 
-struct wl_resource *QWaylandSurfaceView::surfaceResource() const
+struct wl_resource *QWaylandView::surfaceResource() const
 {
+    Q_D(const QWaylandView);
     if (!d->surface)
         return Q_NULLPTR;
     return d->surface->resource();
 }
 
-void QWaylandSurfaceView::waylandSurfaceChanged(QWaylandSurface *newSurface, QWaylandSurface *oldSurface)
+void QWaylandView::waylandSurfaceChanged(QWaylandSurface *newSurface, QWaylandSurface *oldSurface)
 {
+    Q_D(QWaylandView);
     if (d->output)
         d->output->handle()->updateSurfaceForView(this, newSurface, oldSurface);
 }
 
-void QWaylandSurfaceView::waylandSurfaceDestroyed()
+void QWaylandView::waylandSurfaceDestroyed()
 {
 }
 
-void QWaylandSurfaceView::waylandOutputChanged(QWaylandOutput *newOutput, QWaylandOutput *oldOutput)
+void QWaylandView::waylandOutputChanged(QWaylandOutput *newOutput, QWaylandOutput *oldOutput)
 {
     if (oldOutput)
         oldOutput->handle()->removeView(this);

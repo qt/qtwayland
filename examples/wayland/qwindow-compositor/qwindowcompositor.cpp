@@ -55,7 +55,7 @@
 
 #include <QtCompositor/qwaylandinput.h>
 #include <QtCompositor/qwaylandbufferref.h>
-#include <QtCompositor/qwaylandsurfaceview.h>
+#include <QtCompositor/qwaylandview.h>
 #include <QtCompositor/qwaylandoutput.h>
 #include <QtCompositor/qwaylandoutputspace.h>
 
@@ -64,11 +64,11 @@
 
 QT_BEGIN_NAMESPACE
 
-class SurfaceView : public QWaylandSurfaceView
+class SurfaceView : public QWaylandView
 {
 public:
     SurfaceView()
-        : QWaylandSurfaceView()
+        : QWaylandView()
         , m_texture(0)
     {}
 
@@ -179,7 +179,7 @@ void QWindowCompositor::surfaceDestroyed()
 void QWindowCompositor::surfaceMapped()
 {
     QWaylandSurface *surface = qobject_cast<QWaylandSurface *>(sender());
-    QtWayland::ShellSurface *shellSurface = QtWayland::ShellSurface::get(surface);
+    QtWayland::ShellSurface *shellSurface = QtWayland::ShellSurface::findIn(surface);
     QPoint pos;
     if (!m_surfaces.contains(surface)) {
         if (!shellSurface || (shellSurface->surfaceType() != QtWayland::ShellSurface::Popup)) {
@@ -190,7 +190,7 @@ void QWindowCompositor::surfaceMapped()
                 py = 1 + (qrand() % (m_window->height() - surface->size().height() - 2));
             }
             pos = QPoint(px, py);
-            QWaylandSurfaceView *view = surface->views().first();
+            QWaylandView *view = surface->views().first();
             view->setRequestedPosition(pos);
         }
     } else {
@@ -198,7 +198,7 @@ void QWindowCompositor::surfaceMapped()
     }
 
     if (shellSurface && shellSurface->surfaceType() == QtWayland::ShellSurface::Popup) {
-        QWaylandSurfaceView *view = surface->views().first();
+        QWaylandView *view = surface->views().first();
         view->setRequestedPosition(shellSurface->transientParent()->views().first()->pos() + shellSurface->transientOffset());
     }
 
@@ -218,7 +218,7 @@ void QWindowCompositor::surfaceUnmapped()
     m_renderScheduler.start(0);
 }
 
-QWaylandSurfaceView *QWindowCompositor::createView()
+QWaylandView *QWindowCompositor::createView()
 {
     return new SurfaceView();
 }
@@ -253,7 +253,7 @@ void QWindowCompositor::onSurfaceCreated(QWaylandSurface *surface)
 void QWindowCompositor::sendExpose()
 {
     QWaylandSurface *surface = qobject_cast<QWaylandSurface *>(sender());
-    QtWayland::ExtendedSurface *extendedSurface = QtWayland::ExtendedSurface::get(surface);
+    QtWayland::ExtendedSurface *extendedSurface = QtWayland::ExtendedSurface::findIn(surface);
     if (extendedSurface)
         extendedSurface->sendOnScreenVisibilityChange(true);
 }
@@ -278,7 +278,7 @@ void QWindowCompositor::updateCursor(bool hasBuffer)
     }
 }
 
-QPointF QWindowCompositor::toView(QWaylandSurfaceView *view, const QPointF &pos) const
+QPointF QWindowCompositor::toView(QWaylandView *view, const QPointF &pos) const
 {
     return pos - view->pos();
 }
@@ -297,11 +297,11 @@ void QWindowCompositor::adjustCursorSurface(QWaylandSurface *surface, int hotspo
     m_cursorHotspotY = hotspotY;
 }
 
-QWaylandSurfaceView *QWindowCompositor::viewAt(const QPointF &point, QPointF *local)
+QWaylandView *QWindowCompositor::viewAt(const QPointF &point, QPointF *local)
 {
     for (int i = m_surfaces.size() - 1; i >= 0; --i) {
         QWaylandSurface *surface = m_surfaces.at(i);
-        foreach (QWaylandSurfaceView *view, surface->views()) {
+        foreach (QWaylandView *view, surface->views()) {
             QRectF geo(view->pos(), surface->size());
             if (geo.contains(point)) {
                 if (local)
@@ -385,7 +385,7 @@ bool QWindowCompositor::eventFilter(QObject *obj, QEvent *event)
     case QEvent::MouseButtonPress: {
         QPointF local;
         QMouseEvent *me = static_cast<QMouseEvent *>(event);
-        QWaylandSurfaceView *target = viewAt(me->localPos(), &local);
+        QWaylandView *target = viewAt(me->localPos(), &local);
         if (m_dragKeyIsPressed && target) {
             m_draggingWindow = target;
             m_drag_diff = local;
@@ -401,7 +401,7 @@ bool QWindowCompositor::eventFilter(QObject *obj, QEvent *event)
         return true;
     }
     case QEvent::MouseButtonRelease: {
-        QWaylandSurfaceView *target = input->mouseFocus();
+        QWaylandView *target = input->mouseFocus();
         if (m_draggingWindow) {
             m_draggingWindow = 0;
             m_drag_diff = QPointF();
@@ -421,7 +421,7 @@ bool QWindowCompositor::eventFilter(QObject *obj, QEvent *event)
             m_renderScheduler.start(0);
         } else {
             QPointF local;
-            QWaylandSurfaceView *target = viewAt(me->localPos(), &local);
+            QWaylandView *target = viewAt(me->localPos(), &local);
             input->sendMouseMoveEvent(target, local, me->localPos());
         }
         break;
@@ -457,7 +457,7 @@ bool QWindowCompositor::eventFilter(QObject *obj, QEvent *event)
     case QEvent::TouchUpdate:
     case QEvent::TouchEnd:
     {
-        QWaylandSurfaceView *target = 0;
+        QWaylandView *target = 0;
         QTouchEvent *te = static_cast<QTouchEvent *>(event);
         QList<QTouchEvent::TouchPoint> points = te->touchPoints();
         QPoint pointPos;

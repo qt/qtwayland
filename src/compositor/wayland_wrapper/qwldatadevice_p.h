@@ -45,7 +45,7 @@
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandSurfaceView;
+class QWaylandView;
 
 namespace QtWayland {
 
@@ -61,9 +61,9 @@ public:
 
     void setFocus(QWaylandClient *client);
 
-    void setDragFocus(QWaylandSurfaceView *focus, const QPointF &localPosition);
+    void setDragFocus(QWaylandView *focus, const QPointF &localPosition);
 
-    QWaylandSurfaceView *dragIcon() const;
+    QWaylandView *dragIcon() const;
 
     void sourceDestroyed(DataSource *source);
 
@@ -84,10 +84,10 @@ private:
     struct ::wl_client *m_dragClient;
     DataSource *m_dragDataSource;
 
-    QWaylandSurfaceView *m_dragFocus;
+    QWaylandView *m_dragFocus;
     Resource *m_dragFocusResource;
 
-    QWaylandSurfaceView *m_dragIcon;
+    QWaylandView *m_dragIcon;
 };
 
 }

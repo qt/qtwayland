@@ -38,7 +38,7 @@
 
 #include <QtCompositor/QWaylandCompositor>
 #include <QtCompositor/QWaylandInputDevice>
-#include <QtCompositor/QWaylandSurfaceView>
+#include <QtCompositor/QWaylandView>
 #include <QtCompositor/QWaylandClient>
 
 #include "qwltouch_p.h"
@@ -156,7 +156,7 @@ struct wl_resource *QWaylandTouch::focusResource() const
     return d->focusResource()->handle;
 }
 
-QWaylandSurfaceView *QWaylandTouch::mouseFocus() const
+QWaylandView *QWaylandTouch::mouseFocus() const
 {
     Q_D(const QWaylandTouch);
     return d->m_seat->mouseFocus();
@@ -169,7 +169,7 @@ void QWaylandTouch::focusDestroyed(void *data)
     d->resetFocusState();
 }
 
-void QWaylandTouch::mouseFocusChanged(QWaylandSurfaceView *newFocus, QWaylandSurfaceView *oldFocus)
+void QWaylandTouch::mouseFocusChanged(QWaylandView *newFocus, QWaylandView *oldFocus)
 {
     Q_UNUSED(newFocus);
     Q_UNUSED(oldFocus);

@@ -37,7 +37,7 @@
 #include "qwaylandoutputspace.h"
 #include "qwaylandoutputspace_p.h"
 #include "qwaylandcompositor.h"
-#include <QtCompositor/QWaylandSurfaceView>
+#include <QtCompositor/QWaylandView>
 #include <QtCompositor/QWaylandOutput>
 
 QT_BEGIN_NAMESPACE
@@ -171,7 +171,7 @@ QList<QWaylandOutput *>QWaylandOutputSpace::outputs(const QPoint &point) const
     return retOutputs;
 }
 
-QWaylandSurfaceView *QWaylandOutputSpace::pickView(const QPointF &globalPosition) const
+QWaylandView *QWaylandOutputSpace::pickView(const QPointF &globalPosition) const
 {
     Q_D(const QWaylandOutputSpace);
     foreach (QWaylandOutput *output, d->outputs) {
@@ -183,12 +183,12 @@ QWaylandSurfaceView *QWaylandOutputSpace::pickView(const QPointF &globalPosition
     return 0;
 }
 
-QPointF QWaylandOutputSpace::mapToView(QWaylandSurfaceView *view, const QPointF &globalPosition) const
+QPointF QWaylandOutputSpace::mapToView(QWaylandView *view, const QPointF &globalPosition) const
 {
     return globalPosition - (view->requestedPosition() + view->output()->geometry().topLeft());
 }
 
-QPointF QWaylandOutputSpace::mapToSpace(QWaylandSurfaceView *view, const QPointF &local) const
+QPointF QWaylandOutputSpace::mapToSpace(QWaylandView *view, const QPointF &local) const
 {
     return local + view->requestedPosition() + view->output()->geometry().topLeft();
 }

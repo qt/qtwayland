@@ -56,7 +56,7 @@ class QWaylandClient;
 class QWaylandSurfacePrivate;
 class QWaylandCompositor;
 class QWaylandBufferRef;
-class QWaylandSurfaceView;
+class QWaylandView;
 class QWaylandSurfaceOp;
 class QWaylandOutput;
 
@@ -158,7 +158,7 @@ public:
     void deref();
     void setMapped(bool mapped);
 
-    QList<QWaylandSurfaceView *> views() const;
+    QList<QWaylandView *> views() const;
 
     static QWaylandSurface *fromResource(::wl_resource *resource);
     struct wl_resource *resource() const;

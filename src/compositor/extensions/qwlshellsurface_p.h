@@ -51,7 +51,7 @@
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandSurfaceView;
+class QWaylandView;
 
 namespace QtWayland {
 
@@ -105,7 +105,7 @@ public:
     Q_INVOKABLE void ping();
     void ping(uint32_t serial);
 
-    QWaylandSurfaceView *view() { return m_view; }
+    QWaylandView *view() { return m_view; }
 
     void setSurfaceType(SurfaceType type);
     SurfaceType surfaceType() const;
@@ -128,7 +128,7 @@ private Q_SLOTS:
 private:
     Shell *m_shell;
     Surface *m_surface;
-    QWaylandSurfaceView *m_view;
+    QWaylandView *m_view;
 
     ShellSurfaceResizeGrabber *m_resizeGrabber;
     ShellSurfaceMoveGrabber *m_moveGrabber;

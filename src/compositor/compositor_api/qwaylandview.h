@@ -46,12 +46,14 @@ QT_BEGIN_NAMESPACE
 
 class QWaylandSurface;
 class QWaylandCompositor;
+class QWaylandViewPrivate;
 
-class Q_COMPOSITOR_EXPORT QWaylandSurfaceView
+class Q_COMPOSITOR_EXPORT QWaylandView
 {
+    Q_DECLARE_PRIVATE(QWaylandView)
 public:
-    QWaylandSurfaceView();
-    virtual ~QWaylandSurfaceView();
+    QWaylandView();
+    virtual ~QWaylandView();
 
     QWaylandCompositor *compositor() const;
 
@@ -82,8 +84,7 @@ protected:
     virtual void waylandOutputChanged(QWaylandOutput *newOutput, QWaylandOutput *oldOutput);
 
 private:
-    class QWaylandSurfaceViewPrivate *const d;
-    friend class QWaylandSurfaceViewPrivate;
+    QScopedPointer<QWaylandViewPrivate> d_ptr;
 };
 
 QT_END_NAMESPACE

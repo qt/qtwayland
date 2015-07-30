@@ -42,7 +42,7 @@
 #include "qwlkeyboard_p.h"
 #include "qwlsurface_p.h"
 #include "qwaylandcompositor.h"
-#include "qwaylandsurfaceview.h"
+#include "qwaylandview.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -144,7 +144,7 @@ void QWaylandPointerPrivate::sendMouseReleaseEvent(Qt::MouseButton button)
         q->buttonPressedChanged();
 }
 
-void QWaylandPointerPrivate::sendMouseMoveEvent(QWaylandSurfaceView *view, const QPointF &localPos, const QPointF &outputSpacePos)
+void QWaylandPointerPrivate::sendMouseMoveEvent(QWaylandView *view, const QPointF &localPos, const QPointF &outputSpacePos)
 {
     Q_Q(QWaylandPointer);
     m_seat->setMouseFocus(view);

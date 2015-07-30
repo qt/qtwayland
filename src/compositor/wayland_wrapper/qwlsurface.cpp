@@ -38,7 +38,8 @@
 
 #include "qwaylandsurface.h"
 #include "qwaylandsurface_p.h"
-#include "qwaylandsurfaceview_p.h"
+#include "qwaylandview.h"
+#include "qwaylandview_p.h"
 #include "qwaylandoutput.h"
 #include "qwlcompositor_p.h"
 #include "qwlinputdevice_p.h"
@@ -46,9 +47,7 @@
 #include "qwlregion_p.h"
 #include "qwlsubsurface_p.h"
 #include "qwlsurfacebuffer_p.h"
-#include "qwaylandsurfaceview.h"
 #include "qwaylandoutput.h"
-
 #include "qwaylandsurface_p.h"
 
 #include <QtCore/QDebug>
@@ -350,8 +349,8 @@ Qt::ScreenOrientation Surface::contentOrientation() const
 
 void Surface::notifyViewsAboutDestruction()
 {
-    foreach (QWaylandSurfaceView *view, m_waylandSurface->views()) {
-        QWaylandSurfaceViewPrivate::get(view)->markSurfaceAsDestroyed(m_waylandSurface);
+    foreach (QWaylandView *view, m_waylandSurface->views()) {
+        QWaylandViewPrivate::get(view)->markSurfaceAsDestroyed(m_waylandSurface);
     }
 }
 

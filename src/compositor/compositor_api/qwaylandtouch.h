@@ -47,7 +47,7 @@ QT_BEGIN_NAMESPACE
 class QWaylandTouch;
 class QWaylandTouchPrivate;
 class QWaylandInputDevice;
-class QWaylandSurfaceView;
+class QWaylandView;
 class QWaylandClient;
 
 class Q_COMPOSITOR_EXPORT QWaylandTouchGrabber {
@@ -95,10 +95,10 @@ public:
 
     struct wl_resource *focusResource() const;
 
-    QWaylandSurfaceView *mouseFocus() const;
+    QWaylandView *mouseFocus() const;
 private:
     void focusDestroyed(void *data);
-    void mouseFocusChanged(QWaylandSurfaceView *newFocus, QWaylandSurfaceView *oldFocus);
+    void mouseFocusChanged(QWaylandView *newFocus, QWaylandView *oldFocus);
 };
 
 QT_END_NAMESPACE

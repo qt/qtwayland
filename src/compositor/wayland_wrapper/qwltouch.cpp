@@ -39,7 +39,7 @@
 
 #include "qwlcompositor_p.h"
 #include "qwlsurface_p.h"
-#include "qwaylandsurfaceview.h"
+#include "qwaylandview.h"
 #include "qwlqttouch_p.h"
 
 QT_BEGIN_NAMESPACE

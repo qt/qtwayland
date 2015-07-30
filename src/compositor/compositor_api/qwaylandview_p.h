@@ -47,12 +47,13 @@ QT_BEGIN_NAMESPACE
 class QWaylandSurface;
 class QWaylandOutput;
 
-class QWaylandSurfaceViewPrivate
+class QWaylandViewPrivate
 {
+    Q_DECLARE_PUBLIC(QWaylandView)
 public:
-    static QWaylandSurfaceViewPrivate *get(QWaylandSurfaceView *view);
+    static QWaylandViewPrivate *get(QWaylandView *view);
 
-    QWaylandSurfaceViewPrivate(QWaylandSurfaceView *view)
+    QWaylandViewPrivate(QWaylandView *view)
         : q_ptr(view)
         , surface(Q_NULLPTR)
         , output(Q_NULLPTR)
@@ -66,7 +67,7 @@ public:
         return broadcastRequestedPositionChanged && output && surface && surface->primaryOutput() == output;
     }
 
-    QWaylandSurfaceView *q_ptr;
+    QWaylandView *q_ptr;
     QWaylandSurface *surface;
     QWaylandOutput *output;
     QPointF requestedPos;

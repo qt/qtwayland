@@ -51,7 +51,7 @@ struct wl_resource;
 class QWaylandCompositor;
 class QWindow;
 class QWaylandSurface;
-class QWaylandSurfaceView;
+class QWaylandView;
 class QWaylandClient;
 class QWaylandOutputSpace;
 
@@ -161,8 +161,8 @@ public:
 
     QtWayland::Output *handle() const;
 
-    Q_INVOKABLE virtual QWaylandSurfaceView *pickView(const QPointF &outputPosition) const;
-    Q_INVOKABLE virtual QPointF mapToView(QWaylandSurfaceView *view, const QPointF &surfacePosition) const;
+    Q_INVOKABLE virtual QWaylandView *pickView(const QPointF &outputPosition) const;
+    Q_INVOKABLE virtual QPointF mapToView(QWaylandView *view, const QPointF &surfacePosition) const;
 
     Q_INVOKABLE QPointF mapToOutputSpace(const QPointF &point);
 

@@ -44,7 +44,7 @@ QT_BEGIN_NAMESPACE
 class QWaylandPointer;
 class QWaylandPointerPrivate;
 class QWaylandInputDevice;
-class QWaylandSurfaceView;
+class QWaylandView;
 class QWaylandOutput;
 class QWaylandClient;
 
@@ -101,10 +101,10 @@ public:
 
     virtual void sendMousePressEvent(Qt::MouseButton button);
     virtual void sendMouseReleaseEvent(Qt::MouseButton button);
-    virtual void sendMouseMoveEvent(QWaylandSurfaceView *view, const QPointF &localPos, const QPointF &outputSpacePos);
+    virtual void sendMouseMoveEvent(QWaylandView *view, const QPointF &localPos, const QPointF &outputSpacePos);
     virtual void sendMouseWheelEvent(Qt::Orientation orientation, int delta);
 
-    QWaylandSurfaceView *mouseFocus() const;
+    QWaylandView *mouseFocus() const;
     QPointF currentLocalPosition() const;
     QPointF currentSpacePosition() const;
 
@@ -122,7 +122,7 @@ Q_SIGNALS:
 
 private:
     void focusDestroyed(void *data);
-    void pointerFocusChanged(QWaylandSurfaceView *newFocus, QWaylandSurfaceView *oldFocus);
+    void pointerFocusChanged(QWaylandView *newFocus, QWaylandView *oldFocus);
 };
 
 QT_END_NAMESPACE

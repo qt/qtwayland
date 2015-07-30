@@ -65,7 +65,7 @@ struct SurfaceViewMapper
     {}
 
     QWaylandSurface *surface;
-    QVector<QWaylandSurfaceView *> views;
+    QVector<QWaylandView *> views;
 };
 
 //Just for naming convenience
@@ -124,11 +124,11 @@ public:
     void frameStarted();
     void sendFrameCallbacks();
 
-    void addView(QWaylandSurfaceView *view);
-    void addView(QWaylandSurfaceView *view, QWaylandSurface *surface);
-    void removeView(QWaylandSurfaceView *view);
-    void removeView(QWaylandSurfaceView *view, QWaylandSurface *surface);
-    void updateSurfaceForView(QWaylandSurfaceView *view, QWaylandSurface *newSurface, QWaylandSurface *oldSurface);
+    void addView(QWaylandView *view);
+    void addView(QWaylandView *view, QWaylandSurface *surface);
+    void removeView(QWaylandView *view);
+    void removeView(QWaylandView *view, QWaylandSurface *surface);
+    void updateSurfaceForView(QWaylandView *view, QWaylandSurface *newSurface, QWaylandSurface *oldSurface);
 
     QWindow *window() const { return m_window; }
 

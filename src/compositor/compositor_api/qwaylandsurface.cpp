@@ -328,7 +328,7 @@ void QWaylandSurface::setMapped(bool mapped)
     d->setMapped(mapped);
 }
 
-QList<QWaylandSurfaceView *> QWaylandSurface::views() const
+QList<QWaylandView *> QWaylandSurface::views() const
 {
     Q_D(const QWaylandSurface);
     return d->views;
@@ -371,7 +371,7 @@ void QWaylandSurfacePrivate::setClassName(const QString &className)
     }
 }
 
-void QWaylandSurfacePrivate::refView(QWaylandSurfaceView *view)
+void QWaylandSurfacePrivate::refView(QWaylandView *view)
 {
     if (views.contains(view))
         return;
@@ -380,7 +380,7 @@ void QWaylandSurfacePrivate::refView(QWaylandSurfaceView *view)
     waylandSurface()->ref();
 }
 
-void QWaylandSurfacePrivate::derefView(QWaylandSurfaceView *view)
+void QWaylandSurfacePrivate::derefView(QWaylandView *view)
 {
     int nViews = views.removeAll(view);
 

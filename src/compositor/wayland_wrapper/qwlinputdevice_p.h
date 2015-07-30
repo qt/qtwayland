@@ -59,7 +59,7 @@ class QKeyEvent;
 class QTouchEvent;
 class QWaylandInputDevice;
 class QWaylandDrag;
-class QWaylandSurfaceView;
+class QWaylandView;
 
 namespace QtWayland {
 
@@ -84,7 +84,7 @@ public:
 
     void sendMousePressEvent(Qt::MouseButton button);
     void sendMouseReleaseEvent(Qt::MouseButton button);
-    void sendMouseMoveEvent(QWaylandSurfaceView *surface, const QPointF &localPos, const QPointF &spacePos = QPointF());
+    void sendMouseMoveEvent(QWaylandView *surface, const QPointF &localPos, const QPointF &spacePos = QPointF());
     void sendMouseWheelEvent(Qt::Orientation orientation, int delta);
 
     void sendTouchPointEvent(int id, const QPointF &point, Qt::TouchPointState state);
@@ -99,8 +99,8 @@ public:
     QWaylandSurface *keyboardFocus() const;
     bool setKeyboardFocus(QWaylandSurface *surface);
 
-    QWaylandSurfaceView *mouseFocus() const;
-    void setMouseFocus(QWaylandSurfaceView *focus);
+    QWaylandView *mouseFocus() const;
+    void setMouseFocus(QWaylandView *focus);
 
     void clientRequestedDataDevice(QtWayland::DataDeviceManager *dndSelection, struct wl_client *client, uint32_t id);
     const QtWayland::DataDevice *dataDevice() const;
@@ -129,7 +129,7 @@ private:
     QScopedPointer<QWaylandDrag> m_dragHandle;
     QWaylandCompositor *m_compositor;
     QWaylandOutputSpace *m_outputSpace;
-    QWaylandSurfaceView *m_mouseFocus;
+    QWaylandView *m_mouseFocus;
     QWaylandInputDevice::CapabilityFlags m_capabilities;
 
     QScopedPointer<QWaylandPointer> m_pointer;

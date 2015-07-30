@@ -47,7 +47,7 @@
 #include "qwldatadevicemanager_p.h"
 
 #include "qwaylanddrag.h"
-#include "qwaylandsurfaceview.h"
+#include "qwaylandview.h"
 #include <QtCompositor/QWaylandClient>
 
 #include <QDebug>
@@ -85,7 +85,7 @@ void DataDevice::setFocus(QWaylandClient *focusClient)
     }
 }
 
-void DataDevice::setDragFocus(QWaylandSurfaceView *focus, const QPointF &localPosition)
+void DataDevice::setDragFocus(QWaylandView *focus, const QPointF &localPosition)
 {
     if (m_dragFocusResource) {
         send_leave(m_dragFocusResource->handle);
@@ -119,7 +119,7 @@ void DataDevice::setDragFocus(QWaylandSurfaceView *focus, const QPointF &localPo
     m_dragFocusResource = resource;
 }
 
-QWaylandSurfaceView *DataDevice::dragIcon() const
+QWaylandView *DataDevice::dragIcon() const
 {
     return m_dragIcon;
 }
@@ -132,7 +132,7 @@ void DataDevice::sourceDestroyed(DataSource *source)
 
 void DataDevice::focus()
 {
-    QWaylandSurfaceView *focus = pointer->mouseFocus();
+    QWaylandView *focus = pointer->mouseFocus();
     if (focus != m_dragFocus) {
         setDragFocus(focus, pointer->currentLocalPosition());
     }

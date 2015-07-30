@@ -45,8 +45,9 @@
 #include "qwlpointer_p.h"
 #include "qwlextendedsurface_p.h"
 
+#include "qwaylandview.h"
 #include "qwaylandoutput.h"
-#include "qwaylandsurfaceview.h"
+#include "qwaylandview.h"
 
 #include <QtCore/qglobal.h>
 #include <QtCore/QDebug>
@@ -456,7 +457,7 @@ void ShellSurfaceMoveGrabber::motion(uint32_t time)
     QPointF pos(pointer->currentSpacePosition() - m_offset);
     shell_surface->m_view->setRequestedPosition(pos);
     if (shell_surface->transientParent()) {
-        QWaylandSurfaceView *view = shell_surface->transientParent()->views().first();
+        QWaylandView *view = shell_surface->transientParent()->views().first();
         if (view)
             shell_surface->setOffset(pos - view->requestedPosition());
     }

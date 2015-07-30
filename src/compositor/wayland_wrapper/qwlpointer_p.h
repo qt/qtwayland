@@ -48,7 +48,7 @@
 #include <QtCore/private/qobject_p.h>
 
 #include <QtCompositor/private/qwayland-server-wayland.h>
-#include <QtCompositor/QWaylandSurfaceView>
+#include <QtCompositor/QWaylandView>
 #include <QtCompositor/QWaylandSurface>
 #include <QtCompositor/QWaylandInputDevice>
 
@@ -56,7 +56,7 @@
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandSurfaceView;
+class QWaylandView;
 
 namespace QtWayland {
 
@@ -91,11 +91,11 @@ public:
 
     void sendMousePressEvent(Qt::MouseButton button);
     void sendMouseReleaseEvent(Qt::MouseButton button);
-    void sendMouseMoveEvent(QWaylandSurfaceView *view, const QPointF &localPos, const QPointF &outputSpacePos);
+    void sendMouseMoveEvent(QWaylandView *view, const QPointF &localPos, const QPointF &outputSpacePos);
     void sendMouseWheelEvent(Qt::Orientation orientation, int delta);
 
     Resource *focusResource() const { return m_focusResource; }
-    QWaylandSurfaceView *mouseFocus() const { return m_seat->mouseFocus(); }
+    QWaylandView *mouseFocus() const { return m_seat->mouseFocus(); }
 
     bool buttonPressed() const;
 

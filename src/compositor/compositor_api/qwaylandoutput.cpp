@@ -38,7 +38,7 @@
 #include "qwaylandoutput.h"
 
 #include "qwaylandcompositor.h"
-#include "qwaylandsurfaceview.h"
+#include "qwaylandview.h"
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QtMath>
@@ -277,12 +277,12 @@ QtWayland::Output *QWaylandOutput::handle() const
     return d_ptr.data();
 }
 
-QWaylandSurfaceView *QWaylandOutput::pickView(const QPointF &outputPosition) const
+QWaylandView *QWaylandOutput::pickView(const QPointF &outputPosition) const
 {
     const QVector<QtWayland::SurfaceViewMapper> surfaceViewMappers = d_ptr->surfaceMappers();
     for (int nSurface = 0; surfaceViewMappers.size(); nSurface++) {
         const QWaylandSurface *surface = surfaceViewMappers.at(nSurface).surface;
-        const QVector<QWaylandSurfaceView *> views = surfaceViewMappers.at(nSurface).views;
+        const QVector<QWaylandView *> views = surfaceViewMappers.at(nSurface).views;
         for (int nView = 0; views.size(); nView++) {
             if (QRectF(views.at(nView)->requestedPosition(), surface->size()).contains(outputPosition))
                 return views.at(nView);
@@ -291,7 +291,7 @@ QWaylandSurfaceView *QWaylandOutput::pickView(const QPointF &outputPosition) con
     return Q_NULLPTR;
 }
 
-QPointF QWaylandOutput::mapToView(QWaylandSurfaceView *view, const QPointF &outputPosition) const
+QPointF QWaylandOutput::mapToView(QWaylandView *view, const QPointF &outputPosition) const
 {
     return outputPosition - view->requestedPosition();
 }

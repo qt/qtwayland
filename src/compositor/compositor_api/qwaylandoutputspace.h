@@ -85,9 +85,9 @@ public:
     Q_INVOKABLE QList<QWaylandOutput *>outputs() const;
     Q_INVOKABLE QList<QWaylandOutput *>outputs(const QPoint &point) const;
 
-    Q_INVOKABLE QWaylandSurfaceView *pickView(const QPointF &globalPosition) const;
-    Q_INVOKABLE QPointF mapToView(QWaylandSurfaceView *view, const QPointF &spacePoint) const;
-    Q_INVOKABLE QPointF mapToSpace(QWaylandSurfaceView *view, const QPointF &local) const;
+    Q_INVOKABLE QWaylandView *pickView(const QPointF &globalPosition) const;
+    Q_INVOKABLE QPointF mapToView(QWaylandView *view, const QPointF &spacePoint) const;
+    Q_INVOKABLE QPointF mapToSpace(QWaylandView *view, const QPointF &local) const;
 
 Q_SIGNALS:
     void surfaceRequestedPositionChanged(QWaylandSurface *surface, const QPointF &point);

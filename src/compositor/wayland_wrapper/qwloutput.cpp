@@ -46,7 +46,8 @@
 
 #include <QtCompositor/QWaylandSurface>
 #include <QtCompositor/QWaylandClient>
-#include <QtCompositor/QWaylandSurfaceView>
+#include <QtCompositor/QWaylandView>
+#include <QtCompositor/QWaylandOutput>
 
 QT_BEGIN_NAMESPACE
 
@@ -348,12 +349,12 @@ void Output::sendFrameCallbacks()
     wl_display_flush_clients(compositor()->waylandDisplay());
 }
 
-void Output::addView(QWaylandSurfaceView *view)
+void Output::addView(QWaylandView *view)
 {
     addView(view, view->surface());
 }
 
-void Output::addView(QWaylandSurfaceView *view, QWaylandSurface *surface)
+void Output::addView(QWaylandView *view, QWaylandSurface *surface)
 {
     for (int i = 0; i < m_surfaceViews.size(); i++) {
         if (surface == m_surfaceViews.at(i).surface) {
@@ -372,12 +373,12 @@ void Output::addView(QWaylandSurfaceView *view, QWaylandSurface *surface)
         surface->enter(waylandOutput());
 }
 
-void Output::removeView(QWaylandSurfaceView *view)
+void Output::removeView(QWaylandView *view)
 {
     removeView(view, view->surface());
 }
 
-void Output::removeView(QWaylandSurfaceView *view, QWaylandSurface *surface)
+void Output::removeView(QWaylandView *view, QWaylandSurface *surface)
 {
     for (int i = 0; i < m_surfaceViews.size(); i++) {
         if (surface == m_surfaceViews.at(i).surface) {
@@ -393,7 +394,7 @@ void Output::removeView(QWaylandSurfaceView *view, QWaylandSurface *surface)
     qWarning("%s Could not find view %p for surface %p to remove. Possible invalid state", Q_FUNC_INFO, view, surface);
 }
 
-void Output::updateSurfaceForView(QWaylandSurfaceView *view, QWaylandSurface *newSurface, QWaylandSurface *oldSurface)
+void Output::updateSurfaceForView(QWaylandView *view, QWaylandSurface *newSurface, QWaylandSurface *oldSurface)
 {
     removeView(view, oldSurface);
     addView(view, newSurface);

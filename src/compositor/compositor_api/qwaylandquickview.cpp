@@ -34,7 +34,7 @@
 **
 ****************************************************************************/
 
-#include "qwaylandsurfaceitem.h"
+#include "qwaylandquickview.h"
 #include "qwaylandquicksurface.h"
 #include <QtCompositor/qwaylandcompositor.h>
 #include <QtCompositor/qwaylandinput.h>
@@ -56,7 +56,7 @@
 #include <QThread>
 QT_BEGIN_NAMESPACE
 
-QMutex *QWaylandSurfaceItem::mutex = 0;
+QMutex *QWaylandQuickView::mutex = 0;
 
 class QWaylandSurfaceTextureProvider : public QSGTextureProvider
 {
@@ -73,7 +73,7 @@ public:
             m_sgTex->deleteLater();
     }
 
-    void setBufferRef(QWaylandSurfaceItem *surfaceItem, const QWaylandBufferRef &buffer)
+    void setBufferRef(QWaylandQuickView *surfaceItem, const QWaylandBufferRef &buffer)
     {
         Q_ASSERT(QThread::currentThread() == thread());
         m_ref = buffer;
@@ -119,9 +119,9 @@ private:
     QWaylandBufferRef m_ref;
 };
 
-QWaylandSurfaceItem::QWaylandSurfaceItem(QQuickItem *parent)
+QWaylandQuickView::QWaylandQuickView(QQuickItem *parent)
     : QQuickItem(parent)
-    , QWaylandSurfaceView()
+    , QWaylandView()
     , m_provider(Q_NULLPTR)
     , m_paintEnabled(true)
     , m_touchEventsEnabled(false)
@@ -149,37 +149,37 @@ QWaylandSurfaceItem::QWaylandSurfaceItem(QQuickItem *parent)
         Qt::ExtraButton12 | Qt::ExtraButton13);
     setAcceptHoverEvents(true);
 
-    connect(this, &QQuickItem::windowChanged, this, &QWaylandSurfaceItem::updateWindow);
+    connect(this, &QQuickItem::windowChanged, this, &QWaylandQuickView::updateWindow);
 }
 
-QWaylandSurfaceItem::~QWaylandSurfaceItem()
+QWaylandQuickView::~QWaylandQuickView()
 {
     QMutexLocker locker(mutex);
     if (m_provider)
         m_provider->deleteLater();
 }
 
-QWaylandQuickSurface *QWaylandSurfaceItem::surface() const
+QWaylandQuickSurface *QWaylandQuickView::surface() const
 {
-    return static_cast<QWaylandQuickSurface *>(QWaylandSurfaceView::surface());
+    return static_cast<QWaylandQuickSurface *>(QWaylandView::surface());
 }
 
-void QWaylandSurfaceItem::setSurface(QWaylandQuickSurface *surface)
+void QWaylandQuickView::setSurface(QWaylandQuickSurface *surface)
 {
-    QWaylandSurfaceView::setSurface(surface);
+    QWaylandView::setSurface(surface);
 }
 
-QWaylandSurface::Origin QWaylandSurfaceItem::origin() const
+QWaylandSurface::Origin QWaylandQuickView::origin() const
 {
     return m_origin;
 }
 
-QSGTextureProvider *QWaylandSurfaceItem::textureProvider() const
+QSGTextureProvider *QWaylandQuickView::textureProvider() const
 {
     return m_provider;
 }
 
-void QWaylandSurfaceItem::mousePressEvent(QMouseEvent *event)
+void QWaylandQuickView::mousePressEvent(QMouseEvent *event)
 {
     if (!shouldSendInputEvents()) {
         event->ignore();
@@ -195,7 +195,7 @@ void QWaylandSurfaceItem::mousePressEvent(QMouseEvent *event)
     inputDevice->sendMousePressEvent(event->button());
 }
 
-void QWaylandSurfaceItem::mouseMoveEvent(QMouseEvent *event)
+void QWaylandQuickView::mouseMoveEvent(QMouseEvent *event)
 {
     if (shouldSendInputEvents()) {
         QWaylandInputDevice *inputDevice = compositor()->inputDeviceFor(event);
@@ -205,7 +205,7 @@ void QWaylandSurfaceItem::mouseMoveEvent(QMouseEvent *event)
     }
 }
 
-void QWaylandSurfaceItem::mouseReleaseEvent(QMouseEvent *event)
+void QWaylandQuickView::mouseReleaseEvent(QMouseEvent *event)
 {
     if (shouldSendInputEvents()) {
         QWaylandInputDevice *inputDevice = compositor()->inputDeviceFor(event);
@@ -215,7 +215,7 @@ void QWaylandSurfaceItem::mouseReleaseEvent(QMouseEvent *event)
     }
 }
 
-void QWaylandSurfaceItem::hoverEnterEvent(QHoverEvent *event)
+void QWaylandQuickView::hoverEnterEvent(QHoverEvent *event)
 {
     if (surface()) {
         if (!surface()->inputRegionContains(event->pos())) {
@@ -230,7 +230,7 @@ void QWaylandSurfaceItem::hoverEnterEvent(QHoverEvent *event)
     }
 }
 
-void QWaylandSurfaceItem::hoverMoveEvent(QHoverEvent *event)
+void QWaylandQuickView::hoverMoveEvent(QHoverEvent *event)
 {
     if (surface()) {
         if (!surface()->inputRegionContains(event->pos())) {
@@ -245,7 +245,7 @@ void QWaylandSurfaceItem::hoverMoveEvent(QHoverEvent *event)
     }
 }
 
-void QWaylandSurfaceItem::hoverLeaveEvent(QHoverEvent *event)
+void QWaylandQuickView::hoverLeaveEvent(QHoverEvent *event)
 {
     if (shouldSendInputEvents()) {
         QWaylandInputDevice *inputDevice = compositor()->inputDeviceFor(event);
@@ -255,7 +255,7 @@ void QWaylandSurfaceItem::hoverLeaveEvent(QHoverEvent *event)
     }
 }
 
-void QWaylandSurfaceItem::wheelEvent(QWheelEvent *event)
+void QWaylandQuickView::wheelEvent(QWheelEvent *event)
 {
     if (shouldSendInputEvents()) {
         if (!surface()->inputRegionContains(event->pos())) {
@@ -270,7 +270,7 @@ void QWaylandSurfaceItem::wheelEvent(QWheelEvent *event)
     }
 }
 
-void QWaylandSurfaceItem::keyPressEvent(QKeyEvent *event)
+void QWaylandQuickView::keyPressEvent(QKeyEvent *event)
 {
     if (shouldSendInputEvents()) {
         QWaylandInputDevice *inputDevice = compositor()->inputDeviceFor(event);
@@ -280,7 +280,7 @@ void QWaylandSurfaceItem::keyPressEvent(QKeyEvent *event)
     }
 }
 
-void QWaylandSurfaceItem::keyReleaseEvent(QKeyEvent *event)
+void QWaylandQuickView::keyReleaseEvent(QKeyEvent *event)
 {
     if (shouldSendInputEvents() && hasFocus()) {
         QWaylandInputDevice *inputDevice = compositor()->inputDeviceFor(event);
@@ -290,7 +290,7 @@ void QWaylandSurfaceItem::keyReleaseEvent(QKeyEvent *event)
     }
 }
 
-void QWaylandSurfaceItem::touchEvent(QTouchEvent *event)
+void QWaylandQuickView::touchEvent(QTouchEvent *event)
 {
     if (shouldSendInputEvents() && m_touchEventsEnabled) {
         QWaylandInputDevice *inputDevice = compositor()->inputDeviceFor(event);
@@ -329,23 +329,23 @@ void QWaylandSurfaceItem::mouseUngrabEvent()
     }
 }
 
-void QWaylandSurfaceItem::waylandSurfaceChanged(QWaylandSurface *newSurface, QWaylandSurface *oldSurface)
+void QWaylandQuickView::waylandSurfaceChanged(QWaylandSurface *newSurface, QWaylandSurface *oldSurface)
 {
-    QWaylandSurfaceView::waylandSurfaceChanged(newSurface, oldSurface);
+    QWaylandView::waylandSurfaceChanged(newSurface, oldSurface);
     if (oldSurface) {
-        disconnect(oldSurface, &QWaylandSurface::mapped, this, &QWaylandSurfaceItem::surfaceMapped);
-        disconnect(oldSurface, &QWaylandSurface::unmapped, this, &QWaylandSurfaceItem::surfaceUnmapped);
-        disconnect(oldSurface, &QWaylandSurface::parentChanged, this, &QWaylandSurfaceItem::parentChanged);
-        disconnect(oldSurface, &QWaylandSurface::sizeChanged, this, &QWaylandSurfaceItem::updateSize);
-        disconnect(oldSurface, &QWaylandSurface::configure, this, &QWaylandSurfaceItem::updateBuffer);
+        disconnect(oldSurface, &QWaylandSurface::mapped, this, &QWaylandQuickView::surfaceMapped);
+        disconnect(oldSurface, &QWaylandSurface::unmapped, this, &QWaylandQuickView::surfaceUnmapped);
+        disconnect(oldSurface, &QWaylandSurface::parentChanged, this, &QWaylandQuickView::parentChanged);
+        disconnect(oldSurface, &QWaylandSurface::sizeChanged, this, &QWaylandQuickView::updateSize);
+        disconnect(oldSurface, &QWaylandSurface::configure, this, &QWaylandQuickView::updateBuffer);
         disconnect(oldSurface, &QWaylandSurface::redraw, this, &QQuickItem::update);
     }
     if (newSurface) {
-        connect(newSurface, &QWaylandSurface::mapped, this, &QWaylandSurfaceItem::surfaceMapped);
-        connect(newSurface, &QWaylandSurface::unmapped, this, &QWaylandSurfaceItem::surfaceUnmapped);
-        connect(newSurface, &QWaylandSurface::parentChanged, this, &QWaylandSurfaceItem::parentChanged);
-        connect(newSurface, &QWaylandSurface::sizeChanged, this, &QWaylandSurfaceItem::updateSize);
-        connect(newSurface, &QWaylandSurface::configure, this, &QWaylandSurfaceItem::updateBuffer);
+        connect(newSurface, &QWaylandSurface::mapped, this, &QWaylandQuickView::surfaceMapped);
+        connect(newSurface, &QWaylandSurface::unmapped, this, &QWaylandQuickView::surfaceUnmapped);
+        connect(newSurface, &QWaylandSurface::parentChanged, this, &QWaylandQuickView::parentChanged);
+        connect(newSurface, &QWaylandSurface::sizeChanged, this, &QWaylandQuickView::updateSize);
+        connect(newSurface, &QWaylandSurface::configure, this, &QWaylandQuickView::updateBuffer);
         connect(newSurface, &QWaylandSurface::redraw, this, &QQuickItem::update);
         setWidth(surface()->size().width());
         setHeight(surface()->size().height());
@@ -358,12 +358,12 @@ void QWaylandSurfaceItem::waylandSurfaceChanged(QWaylandSurface *newSurface, QWa
     emit surfaceChanged();
 }
 
-void QWaylandSurfaceItem::waylandSurfaceDestroyed()
+void QWaylandQuickView::waylandSurfaceDestroyed()
 {
     emit surfaceDestroyed();
 }
 
-void QWaylandSurfaceItem::takeFocus(QWaylandInputDevice *device)
+void QWaylandQuickView::takeFocus(QWaylandInputDevice *device)
 {
     setFocus(true);
 
@@ -377,17 +377,17 @@ void QWaylandSurfaceItem::takeFocus(QWaylandInputDevice *device)
     target->setKeyboardFocus(surface());
 }
 
-void QWaylandSurfaceItem::surfaceMapped()
+void QWaylandQuickView::surfaceMapped()
 {
     update();
 }
 
-void QWaylandSurfaceItem::surfaceUnmapped()
+void QWaylandQuickView::surfaceUnmapped()
 {
     update();
 }
 
-void QWaylandSurfaceItem::parentChanged(QWaylandSurface *newParent, QWaylandSurface *oldParent)
+void QWaylandQuickView::parentChanged(QWaylandSurface *newParent, QWaylandSurface *oldParent)
 {
     Q_UNUSED(oldParent);
 
@@ -399,18 +399,18 @@ void QWaylandSurfaceItem::parentChanged(QWaylandSurface *newParent, QWaylandSurf
     }
 }
 
-void QWaylandSurfaceItem::updateSize()
+void QWaylandQuickView::updateSize()
 {
     if (surface()) {
         setSize(surface()->size());
     }
 }
 
-void QWaylandSurfaceItem::setRequestedPosition(const QPointF &pos)
+void QWaylandQuickView::setRequestedPosition(const QPointF &pos)
 {
     bool xChanged = pos.x() != requestedPosition().x();
     bool yChanged = pos.y() != requestedPosition().y();
-    QWaylandSurfaceView::setRequestedPosition(pos);
+    QWaylandView::setRequestedPosition(pos);
     if (xChanged)
         emit requestedXPositionChanged();
     if (yChanged)
@@ -419,18 +419,18 @@ void QWaylandSurfaceItem::setRequestedPosition(const QPointF &pos)
         setPosition(pos);
 }
 
-QPointF QWaylandSurfaceItem::pos() const
+QPointF QWaylandQuickView::pos() const
 {
     return position();
 }
 
 
-bool QWaylandSurfaceItem::followRequestedPosition() const
+bool QWaylandQuickView::followRequestedPosition() const
 {
     return m_followRequestedPos;
 }
 
-void QWaylandSurfaceItem::setFollowRequestedPosition(bool follow)
+void QWaylandQuickView::setFollowRequestedPosition(bool follow)
 {
     if (m_followRequestedPos != follow) {
         m_followRequestedPos = follow;
@@ -438,44 +438,44 @@ void QWaylandSurfaceItem::setFollowRequestedPosition(bool follow)
     }
 }
 
-qreal QWaylandSurfaceItem::requestedXPosition() const
+qreal QWaylandQuickView::requestedXPosition() const
 {
     return requestedPosition().x();
 }
 
-void QWaylandSurfaceItem::setRequestedXPosition(qreal xPos)
+void QWaylandQuickView::setRequestedXPosition(qreal xPos)
 {
     QPointF reqPos = requestedPosition();
     reqPos.setX(xPos);
     setRequestedPosition(reqPos);
 }
 
-qreal QWaylandSurfaceItem::requestedYPosition() const
+qreal QWaylandQuickView::requestedYPosition() const
 {
     return requestedPosition().y();
 }
 
-void QWaylandSurfaceItem::setRequestedYPosition(qreal yPos)
+void QWaylandQuickView::setRequestedYPosition(qreal yPos)
 {
     QPointF reqPos = requestedPosition();
     reqPos.setY(yPos);
     setRequestedPosition(reqPos);
 }
 
-void QWaylandSurfaceItem::syncGraphicsState()
+void QWaylandQuickView::syncGraphicsState()
 {
 
 }
 
-bool QWaylandSurfaceItem::lockedBuffer() const
+bool QWaylandQuickView::lockedBuffer() const
 {
-    return QWaylandSurfaceView::lockedBuffer();
+    return QWaylandView::lockedBuffer();
 }
 
-void QWaylandSurfaceItem::setLockedBuffer(bool locked)
+void QWaylandQuickView::setLockedBuffer(bool locked)
 {
     if (locked != lockedBuffer()) {
-        QWaylandSurfaceView::setLockedBuffer(locked);
+        QWaylandView::setLockedBuffer(locked);
         lockedBufferChanged();
     }
 }
@@ -488,18 +488,18 @@ void QWaylandSurfaceItem::setLockedBuffer(bool locked)
     setting \l{Item::visible}{visible} to false, setting this property to true
     will not prevent mouse or keyboard input from reaching \l item.
 */
-bool QWaylandSurfaceItem::paintEnabled() const
+bool QWaylandQuickView::paintEnabled() const
 {
     return m_paintEnabled;
 }
 
-void QWaylandSurfaceItem::setPaintEnabled(bool enabled)
+void QWaylandQuickView::setPaintEnabled(bool enabled)
 {
     m_paintEnabled = enabled;
     update();
 }
 
-void QWaylandSurfaceItem::updateBuffer(bool hasBuffer)
+void QWaylandQuickView::updateBuffer(bool hasBuffer)
 {
     Q_UNUSED(hasBuffer);
     if (m_origin != surface()->origin()) {
@@ -508,16 +508,16 @@ void QWaylandSurfaceItem::updateBuffer(bool hasBuffer)
     }
 }
 
-void QWaylandSurfaceItem::updateWindow()
+void QWaylandQuickView::updateWindow()
 {
     if (m_connectedWindow) {
-        disconnect(m_connectedWindow, &QQuickWindow::beforeSynchronizing, this, &QWaylandSurfaceItem::beforeSync);
+        disconnect(m_connectedWindow, &QQuickWindow::beforeSynchronizing, this, &QWaylandQuickView::beforeSync);
     }
 
     m_connectedWindow = window();
 
     if (m_connectedWindow) {
-        connect(m_connectedWindow, &QQuickWindow::beforeSynchronizing, this, &QWaylandSurfaceItem::beforeSync, Qt::DirectConnection);
+        connect(m_connectedWindow, &QQuickWindow::beforeSynchronizing, this, &QWaylandQuickView::beforeSync, Qt::DirectConnection);
     }
 
     if (compositor() && m_connectedWindow) {
@@ -527,7 +527,7 @@ void QWaylandSurfaceItem::updateWindow()
     }
 }
 
-void QWaylandSurfaceItem::beforeSync()
+void QWaylandQuickView::beforeSync()
 {
     if (advance()) {
         m_newTexture = true;
@@ -535,7 +535,7 @@ void QWaylandSurfaceItem::beforeSync()
     }
 }
 
-QSGNode *QWaylandSurfaceItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *)
+QSGNode *QWaylandQuickView::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *)
 {
     bool mapped = (surface() && surface()->isMapped() && currentBuffer().hasBuffer())
         || (lockedBuffer() && m_provider);
@@ -570,7 +570,7 @@ QSGNode *QWaylandSurfaceItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeD
     return node;
 }
 
-void QWaylandSurfaceItem::setTouchEventsEnabled(bool enabled)
+void QWaylandQuickView::setTouchEventsEnabled(bool enabled)
 {
     if (m_touchEventsEnabled != enabled) {
         m_touchEventsEnabled = enabled;
@@ -578,7 +578,7 @@ void QWaylandSurfaceItem::setTouchEventsEnabled(bool enabled)
     }
 }
 
-void QWaylandSurfaceItem::setResizeSurfaceToItem(bool enabled)
+void QWaylandQuickView::setResizeSurfaceToItem(bool enabled)
 {
     if (m_resizeSurfaceToItem != enabled) {
         m_resizeSurfaceToItem = enabled;
@@ -586,7 +586,7 @@ void QWaylandSurfaceItem::setResizeSurfaceToItem(bool enabled)
     }
 }
 
-void QWaylandSurfaceItem::setInputEventsEnabled(bool enabled)
+void QWaylandQuickView::setInputEventsEnabled(bool enabled)
 {
     if (m_inputEventsEnabled != enabled) {
         m_inputEventsEnabled = enabled;

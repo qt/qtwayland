@@ -149,7 +149,7 @@ void QWaylandPointer::sendMouseReleaseEvent(Qt::MouseButton button)
     Q_D(QWaylandPointer);
     d->sendMouseReleaseEvent(button);
 }
-void QWaylandPointer::sendMouseMoveEvent(QWaylandSurfaceView *view, const QPointF &localPos, const QPointF &outputSpacePos)
+void QWaylandPointer::sendMouseMoveEvent(QWaylandView *view, const QPointF &localPos, const QPointF &outputSpacePos)
 {
     Q_D(QWaylandPointer);
     d->sendMouseMoveEvent(view, localPos, outputSpacePos);
@@ -161,7 +161,7 @@ void QWaylandPointer::sendMouseWheelEvent(Qt::Orientation orientation, int delta
     d->sendMouseWheelEvent(orientation, delta);
 }
 
-QWaylandSurfaceView *QWaylandPointer::mouseFocus() const
+QWaylandView *QWaylandPointer::mouseFocus() const
 {
     Q_D(const QWaylandPointer);
     return d->mouseFocus();
@@ -251,7 +251,7 @@ void QWaylandPointer::focusDestroyed(void *data)
     endGrab();
 }
 
-void QWaylandPointer::pointerFocusChanged(QWaylandSurfaceView *newFocus, QWaylandSurfaceView *oldFocus)
+void QWaylandPointer::pointerFocusChanged(QWaylandView *newFocus, QWaylandView *oldFocus)
 {
     Q_UNUSED(newFocus);
     Q_D(QWaylandPointer);

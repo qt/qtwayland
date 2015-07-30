@@ -48,7 +48,7 @@
 #include "qwlkeyboard_p.h"
 #include "qwltouch_p.h"
 #include "qwlshellsurface_p.h"
-#include "qwaylandsurfaceview.h"
+#include "qwaylandview.h"
 #include <QtCompositor/QWaylandClient>
 
 #include <QtGui/QTouchEvent>
@@ -161,7 +161,7 @@ void QWaylandInputDevicePrivate::sendMouseReleaseEvent(Qt::MouseButton button)
     pointerDevice()->sendMouseReleaseEvent(button);
 }
 
-void QWaylandInputDevicePrivate::sendMouseMoveEvent(QWaylandSurfaceView *surface, const QPointF &localPos, const QPointF &globalPos)
+void QWaylandInputDevicePrivate::sendMouseMoveEvent(QWaylandView *surface, const QPointF &localPos, const QPointF &globalPos)
 {
     pointerDevice()->sendMouseMoveEvent(surface, localPos,globalPos);
 }
@@ -256,18 +256,18 @@ bool QWaylandInputDevicePrivate::setKeyboardFocus(QWaylandSurface *surface)
     return false;
 }
 
-QWaylandSurfaceView *QWaylandInputDevicePrivate::mouseFocus() const
+QWaylandView *QWaylandInputDevicePrivate::mouseFocus() const
 {
     return m_mouseFocus;
 }
 
-void QWaylandInputDevicePrivate::setMouseFocus(QWaylandSurfaceView *focus)
+void QWaylandInputDevicePrivate::setMouseFocus(QWaylandView *focus)
 {
     Q_Q(QWaylandInputDevice);
     if (focus == m_mouseFocus)
         return;
 
-    QWaylandSurfaceView *oldFocus = m_mouseFocus;
+    QWaylandView *oldFocus = m_mouseFocus;
     m_mouseFocus = focus;
     q->mouseFocusChanged(m_mouseFocus, oldFocus);
 }

@@ -44,7 +44,7 @@
 
 #include <QtQuick/qsgtextureprovider.h>
 
-#include <QtCompositor/qwaylandsurfaceview.h>
+#include <QtCompositor/qwaylandview.h>
 #include <QtCompositor/qwaylandquicksurface.h>
 
 Q_DECLARE_METATYPE(QWaylandQuickSurface*)
@@ -55,7 +55,7 @@ class QWaylandSurfaceTextureProvider;
 class QMutex;
 class QWaylandInputDevice;
 
-class Q_COMPOSITOR_EXPORT QWaylandSurfaceItem : public QQuickItem, public QWaylandSurfaceView
+class Q_COMPOSITOR_EXPORT QWaylandQuickView : public QQuickItem, public QWaylandView
 {
     Q_OBJECT
     Q_PROPERTY(QWaylandQuickSurface* surface READ surface WRITE setSurface NOTIFY surfaceChanged)
@@ -70,8 +70,8 @@ class Q_COMPOSITOR_EXPORT QWaylandSurfaceItem : public QQuickItem, public QWayla
     Q_PROPERTY(bool lockedBuffer READ lockedBuffer WRITE setLockedBuffer NOTIFY lockedBufferChanged)
 
 public:
-    QWaylandSurfaceItem(QQuickItem *parent = 0);
-    ~QWaylandSurfaceItem();
+    QWaylandQuickView(QQuickItem *parent = 0);
+    ~QWaylandQuickView();
 
     QWaylandQuickSurface *surface() const;
     void setSurface(QWaylandQuickSurface *surface);

@@ -43,7 +43,7 @@
 
 #include <QtCompositor/QWaylandCompositor>
 #include <QtCompositor/QWaylandSurface>
-#include <QtCompositor/QWaylandSurfaceView>
+#include <QtCompositor/QWaylandView>
 #include "textureblitter.h"
 #include "compositorwindow.h"
 
@@ -53,7 +53,7 @@
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandSurfaceView;
+class QWaylandView;
 class QOpenGLTexture;
 
 class QWindowCompositor : public QWaylandCompositor
@@ -74,13 +74,13 @@ private slots:
     void render();
     void onSurfaceCreated(QWaylandSurface *surface);
 protected:
-    QWaylandSurfaceView *createView() Q_DECL_OVERRIDE;
+    QWaylandView *createView() Q_DECL_OVERRIDE;
     void surfaceCommitted(QWaylandSurface *surface);
 
-    QWaylandSurfaceView* viewAt(const QPointF &point, QPointF *local = 0);
+    QWaylandView* viewAt(const QPointF &point, QPointF *local = 0);
 
     bool eventFilter(QObject *obj, QEvent *event);
-    QPointF toView(QWaylandSurfaceView *view, const QPointF &pos) const;
+    QPointF toView(QWaylandView *view, const QPointF &pos) const;
 
     void adjustCursorSurface(QWaylandSurface *surface, int hotspotX, int hotspotY);
 
@@ -103,12 +103,12 @@ private:
     QTimer m_renderScheduler;
 
     //Dragging windows around
-    QWaylandSurfaceView *m_draggingWindow;
+    QWaylandView *m_draggingWindow;
     bool m_dragKeyIsPressed;
     QPointF m_drag_diff;
 
     //Cursor
-    QWaylandSurfaceView m_cursorView;
+    QWaylandView m_cursorView;
     int m_cursorHotspotX;
     int m_cursorHotspotY;
 

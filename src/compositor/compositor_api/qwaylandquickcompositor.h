@@ -42,6 +42,10 @@
 
 QT_BEGIN_NAMESPACE
 
+class QQuickWindow;
+class QWaylandQuickCompositorPrivate;
+class QWaylandView;
+
 class Q_COMPOSITOR_EXPORT QWaylandQuickCompositor : public QWaylandCompositor, public QQmlParserStatus
 {
     Q_INTERFACES(QQmlParserStatus)
@@ -63,7 +67,7 @@ public:
                                  QWindow *window,
                                  const QString &manufacturer,
                                  const QString &model) Q_DECL_OVERRIDE;
-    QWaylandSurfaceView *createView() Q_DECL_OVERRIDE;
+    QWaylandView *createView() Q_DECL_OVERRIDE;
     QWaylandSurface *createSurface(QWaylandClient *client, quint32 id, int version) Q_DECL_OVERRIDE;
 
 protected:

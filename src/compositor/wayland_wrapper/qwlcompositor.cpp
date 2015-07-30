@@ -55,7 +55,7 @@
 #include "qwlpointer_p.h"
 #include "qwltextinputmanager_p.h"
 #include <QtCompositor/QWaylandInputPanel>
-#include "qwaylandsurfaceview.h"
+#include "qwaylandview.h"
 #include "qwaylandshmformathelper.h"
 #include "qwaylandoutput.h"
 #include "qwlkeyboard_p.h"
@@ -208,7 +208,7 @@ void Compositor::init()
     qRegisterMetaType<SurfaceBuffer*>("SurfaceBuffer*");
     qRegisterMetaType<QWaylandClient*>("WaylandClient*");
     qRegisterMetaType<QWaylandSurface*>("WaylandSurface*");
-    qRegisterMetaType<QWaylandSurfaceView*>("WaylandSurfaceView*");
+    qRegisterMetaType<QWaylandView*>("WaylandSurfaceView*");
     //initialize distancefieldglyphcache here
 
     initializeHardwareIntegration();

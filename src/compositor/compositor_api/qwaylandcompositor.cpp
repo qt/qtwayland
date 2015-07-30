@@ -40,7 +40,7 @@
 #include "qwaylandclient.h"
 #include "qwaylandinput.h"
 #include "qwaylandoutput.h"
-#include "qwaylandsurfaceview.h"
+#include "qwaylandview.h"
 #include "qwaylandclient.h"
 #include "qwaylandkeyboard.h"
 #include "qwaylandpointer.h"
@@ -201,9 +201,9 @@ void QWaylandCompositor::cleanupGraphicsResources()
     m_compositor->cleanupGraphicsResources();
 }
 
-QWaylandSurfaceView *QWaylandCompositor::createView()
+QWaylandView *QWaylandCompositor::createView()
 {
-    return new QWaylandSurfaceView();
+    return new QWaylandView();
 }
 
 QWaylandInputDevice *QWaylandCompositor::createInputDevice()
@@ -346,9 +346,9 @@ void QWaylandCompositor::setCursorSurface(QWaylandSurface *surface, int hotspotX
 }
 #endif
 
-QWaylandSurfaceView *QWaylandCompositor::createSurfaceView(QWaylandSurface *surface)
+QWaylandView *QWaylandCompositor::createSurfaceView(QWaylandSurface *surface)
 {
-    QWaylandSurfaceView *view = createView();
+    QWaylandView *view = createView();
     view->setSurface(surface);
     return view;
 }

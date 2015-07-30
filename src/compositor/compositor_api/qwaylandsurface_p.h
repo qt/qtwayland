@@ -47,7 +47,7 @@ QT_BEGIN_NAMESPACE
 
 class QWaylandCompositor;
 class QWaylandSurface;
-class QWaylandSurfaceView;
+class QWaylandView;
 class QWaylandSurfaceInterface;
 
 class Q_COMPOSITOR_EXPORT QWaylandSurfacePrivate : public QObjectPrivate, public QtWayland::Surface
@@ -58,15 +58,15 @@ public:
     QWaylandSurfacePrivate(wl_client *wlClient, quint32 id, int version, QWaylandCompositor *compositor, QWaylandSurface *surface);
     void setTitle(const QString &title);
     void setClassName(const QString &className);
-    void refView(QWaylandSurfaceView *view);
-    void derefView(QWaylandSurfaceView *view);
+    void refView(QWaylandView *view);
+    void derefView(QWaylandView *view);
 
     bool closing;
     int refCount;
 
     QWaylandClient *client;
 
-    QList<QWaylandSurfaceView *> views;
+    QList<QWaylandView *> views;
 };
 
 QT_END_NAMESPACE

@@ -36,7 +36,7 @@
 
 #include "qwlqttouch_p.h"
 #include "qwlsurface_p.h"
-#include "qwaylandsurfaceview.h"
+#include "qwaylandview.h"
 #include <QTouchEvent>
 #include <QWindow>
 
@@ -65,7 +65,7 @@ static inline int toFixed(qreal f)
     return int(f * 10000);
 }
 
-bool TouchExtensionGlobal::postTouchEvent(QTouchEvent *event, QWaylandSurfaceView *view)
+bool TouchExtensionGlobal::postTouchEvent(QTouchEvent *event, QWaylandView *view)
 {
     const QList<QTouchEvent::TouchPoint> points = event->touchPoints();
     const int pointCount = points.count();

@@ -43,7 +43,7 @@
 #include <QtCompositor/QWaylandTouch>
 #include <QtCompositor/QWaylandInputDevice>
 #include <QtCompositor/QWaylandClient>
-#include <QtCompositor/QWaylandSurfaceView>
+#include <QtCompositor/QWaylandView>
 
 #include <QtCore/QPoint>
 #include <QtCore/private/qobject_p.h>
@@ -52,7 +52,7 @@
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandSurfaceView;
+class QWaylandView;
 class QWaylandCompositor;
 
 class Q_COMPOSITOR_EXPORT QWaylandTouchPrivate : public QObjectPrivate, public QtWaylandServer::wl_touch
@@ -83,7 +83,7 @@ public:
         if (m_focusResource)
             return;
 
-        QWaylandSurfaceView *mouseFocus = m_seat->mouseFocus();
+        QWaylandView *mouseFocus = m_seat->mouseFocus();
         if (!mouseFocus || !mouseFocus->surface())
             return;
 

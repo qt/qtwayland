@@ -13,12 +13,12 @@ HEADERS += \
     compositor_api/qwaylandoutput.h \
     compositor_api/qwaylanddrag.h \
     compositor_api/qwaylandbufferref.h \
-    compositor_api/qwaylandsurfaceview.h \
-    compositor_api/qwaylandsurfaceview_p.h \
     compositor_api/qwaylandoutputspace.h \
     compositor_api/qwaylandoutputspace_p.h \
     compositor_api/qwaylanddestroylistener.h \
     compositor_api/qwaylanddestroylistener_p.h \
+    compositor_api/qwaylandview.h \
+    compositor_api/qwaylandview_p.h
 
 
 SOURCES += \
@@ -33,9 +33,9 @@ SOURCES += \
     compositor_api/qwaylandoutput.cpp \
     compositor_api/qwaylanddrag.cpp \
     compositor_api/qwaylandbufferref.cpp \
-    compositor_api/qwaylandsurfaceview.cpp \
     compositor_api/qwaylandoutputspace.cpp \
     compositor_api/qwaylanddestroylistener.cpp \
+    compositor_api/qwaylandview.cpp
 
 QT += core-private
 
@@ -44,13 +44,13 @@ qtHaveModule(quick) {
         compositor_api/qwaylandquickcompositor.cpp \
         compositor_api/qwaylandquicksurface.cpp \
         compositor_api/qwaylandquickoutput.cpp \
-        compositor_api/qwaylandsurfaceitem.cpp
+        compositor_api/qwaylandquickview.cpp
 
     HEADERS += \
         compositor_api/qwaylandquickcompositor.h \
         compositor_api/qwaylandquicksurface.h \
         compositor_api/qwaylandquickoutput.h \
-        compositor_api/qwaylandsurfaceitem.h
+        compositor_api/qwaylandquickview.h
 
     QT += qml quick
 }

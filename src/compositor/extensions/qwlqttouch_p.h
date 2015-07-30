@@ -46,7 +46,7 @@ QT_BEGIN_NAMESPACE
 class Compositor;
 class Surface;
 class QTouchEvent;
-class QWaylandSurfaceView;
+class QWaylandView;
 
 namespace QtWayland {
 
@@ -65,7 +65,7 @@ public:
     TouchExtensionGlobal(Compositor *compositor);
     ~TouchExtensionGlobal();
 
-    bool postTouchEvent(QTouchEvent *event, QWaylandSurfaceView *view);
+    bool postTouchEvent(QTouchEvent *event, QWaylandView *view);
 
     void setBehviorFlags(BehaviorFlags flags);
     BehaviorFlags behaviorFlags() const { return m_flags; }

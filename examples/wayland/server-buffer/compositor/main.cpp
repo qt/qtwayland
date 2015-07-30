@@ -41,7 +41,7 @@
 
 #include "qwaylandquickcompositor.h"
 #include "qwaylandsurface.h"
-#include "qwaylandsurfaceitem.h"
+#include "qwaylandquickview.h"
 #include "qwaylandoutputspace.h"
 
 #include <QGuiApplication>
@@ -108,9 +108,9 @@ public:
         m_view.show();
     }
 
-    Q_INVOKABLE QWaylandSurfaceItem *item(QWaylandSurface *surf)
+    Q_INVOKABLE QWaylandQuickView *item(QWaylandSurface *surf)
     {
-        return static_cast<QWaylandSurfaceItem *>(surf->views().first());
+        return static_cast<QWaylandQuickView *>(surf->views().first());
     }
 
 signals:

@@ -42,7 +42,7 @@
 #include "qwlinputdevice_p.h"
 #include "qwldatadevice_p.h"
 #include "qwlsurface_p.h"
-#include "qwaylandsurfaceview.h"
+#include "qwaylandview.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -63,7 +63,7 @@ QWaylandDrag::QWaylandDrag(QWaylandInputDevice *inputDevice)
 {
 }
 
-QWaylandSurfaceView *QWaylandDrag::icon() const
+QWaylandView *QWaylandDrag::icon() const
 {
     Q_D(const QWaylandDrag);
 

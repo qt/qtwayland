@@ -58,7 +58,7 @@ class QWaylandSurface;
 class QWaylandInputDevice;
 class QWaylandDrag;
 class QWaylandGlobalInterface;
-class QWaylandSurfaceView;
+class QWaylandView;
 class QWaylandOutput;
 class QWaylandOutputSpace;
 class QWaylandPointer;
@@ -155,7 +155,7 @@ public:
 
     void cleanupGraphicsResources();
 
-    QWaylandSurfaceView *createSurfaceView(QWaylandSurface *surface);
+    QWaylandView *createSurfaceView(QWaylandSurface *surface);
 
     QWaylandInputDevice *inputDeviceFor(QInputEvent *inputEvent);
 
@@ -181,7 +181,7 @@ protected:
                                          const QString &manufacturer,
                                          const QString &model);
     virtual QWaylandSurface *createSurface(QWaylandClient *client, quint32 id, int version);
-    virtual QWaylandSurfaceView *createView();
+    virtual QWaylandView *createView();
     virtual QWaylandInputDevice *createInputDevice();
 
     friend class QtWayland::Compositor;

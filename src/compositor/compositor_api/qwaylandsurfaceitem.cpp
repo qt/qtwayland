@@ -333,10 +333,10 @@ void QWaylandSurfaceItem::mouseUngrabEvent()
 
 void QWaylandSurfaceItem::waylandSurfaceChanged(QWaylandSurface *newSurface, QWaylandSurface *oldSurface)
 {
+    QWaylandSurfaceView::waylandSurfaceChanged(newSurface, oldSurface);
     if (oldSurface) {
         disconnect(oldSurface, &QWaylandSurface::mapped, this, &QWaylandSurfaceItem::surfaceMapped);
         disconnect(oldSurface, &QWaylandSurface::unmapped, this, &QWaylandSurfaceItem::surfaceUnmapped);
-        disconnect(oldSurface, &QWaylandSurface::surfaceDestroyed, this, &QWaylandSurfaceItem::handleSurfaceDestroyed);
         disconnect(oldSurface, &QWaylandSurface::parentChanged, this, &QWaylandSurfaceItem::parentChanged);
         disconnect(oldSurface, &QWaylandSurface::sizeChanged, this, &QWaylandSurfaceItem::updateSize);
         disconnect(oldSurface, &QWaylandSurface::configure, this, &QWaylandSurfaceItem::updateBuffer);
@@ -345,7 +345,6 @@ void QWaylandSurfaceItem::waylandSurfaceChanged(QWaylandSurface *newSurface, QWa
     if (newSurface) {
         connect(newSurface, &QWaylandSurface::mapped, this, &QWaylandSurfaceItem::surfaceMapped);
         connect(newSurface, &QWaylandSurface::unmapped, this, &QWaylandSurfaceItem::surfaceUnmapped);
-        connect(newSurface, &QWaylandSurface::surfaceDestroyed, this, &QWaylandSurfaceItem::handleSurfaceDestroyed);
         connect(newSurface, &QWaylandSurface::parentChanged, this, &QWaylandSurfaceItem::parentChanged);
         connect(newSurface, &QWaylandSurface::sizeChanged, this, &QWaylandSurfaceItem::updateSize);
         connect(newSurface, &QWaylandSurface::configure, this, &QWaylandSurfaceItem::updateBuffer);
@@ -359,6 +358,11 @@ void QWaylandSurfaceItem::waylandSurfaceChanged(QWaylandSurface *newSurface, QWa
     }
 
     emit surfaceChanged();
+}
+
+void QWaylandSurfaceItem::waylandSurfaceDestroyed()
+{
+    emit surfaceDestroyed();
 }
 
 void QWaylandSurfaceItem::takeFocus(QWaylandInputDevice *device)
@@ -475,6 +479,19 @@ void QWaylandSurfaceItem::syncGraphicsState()
 
 }
 
+bool QWaylandSurfaceItem::lockedBuffer() const
+{
+    return QWaylandSurfaceView::lockedBuffer();
+}
+
+void QWaylandSurfaceItem::setLockedBuffer(bool locked)
+{
+    if (locked != lockedBuffer()) {
+        QWaylandSurfaceView::setLockedBuffer(locked);
+        lockedBufferChanged();
+    }
+}
+
 /*!
     \qmlproperty bool QtWayland::QWaylandSurfaceItem::paintEnabled
 
@@ -514,6 +531,12 @@ void QWaylandSurfaceItem::updateWindow()
     if (m_connectedWindow) {
         connect(m_connectedWindow, &QQuickWindow::beforeSynchronizing, this, &QWaylandSurfaceItem::beforeSync, Qt::DirectConnection);
     }
+
+    if (compositor() && m_connectedWindow) {
+        QWaylandOutput *output = compositor()->output(m_connectedWindow);
+        Q_ASSERT(output);
+        setOutput(output);
+    }
 }
 
 void QWaylandSurfaceItem::beforeSync()
@@ -526,7 +549,8 @@ void QWaylandSurfaceItem::beforeSync()
 
 QSGNode *QWaylandSurfaceItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *)
 {
-    bool mapped = surface() && surface()->isMapped() && currentBuffer().hasBuffer();
+    bool mapped = (surface() && surface()->isMapped() && currentBuffer().hasBuffer())
+        || (lockedBuffer() && m_provider);
 
     if (!mapped || !m_paintEnabled) {
         delete oldNode;
@@ -542,6 +566,7 @@ QSGNode *QWaylandSurfaceItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeD
         m_provider = new QWaylandSurfaceTextureProvider();
 
     if (m_newTexture) {
+        m_newTexture = false;
         m_provider->setBufferRef(this, currentBuffer());
         node->setTexture(m_provider->texture());
     }
@@ -580,12 +605,6 @@ void QWaylandSurfaceItem::setInputEventsEnabled(bool enabled)
         setAcceptHoverEvents(enabled);
         emit inputEventsEnabledChanged();
     }
-}
-
-void QWaylandSurfaceItem::handleSurfaceDestroyed()
-{
-    emit surfaceDestroyed();
-    setSurface(Q_NULLPTR);
 }
 
 QT_END_NAMESPACE

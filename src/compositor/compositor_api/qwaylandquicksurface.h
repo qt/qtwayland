@@ -55,7 +55,7 @@ class Q_COMPOSITOR_EXPORT QWaylandQuickSurface : public QWaylandSurface
     Q_PROPERTY(bool clientRenderingEnabled READ clientRenderingEnabled WRITE setClientRenderingEnabled NOTIFY clientRenderingEnabledChanged)
     Q_PROPERTY(QObject *windowProperties READ windowPropertyMap CONSTANT)
     Q_PROPERTY(QWaylandSurfaceItem *shellView READ shellView NOTIFY shellViewCreated)
-    Q_PROPERTY(QWindow *outputWindow READ outputWindow NOTIFY outputWindowChanged)
+    Q_PROPERTY(QWindow *primaryOutputWindow READ primaryOutputWindow NOTIFY primaryOutputWindowChanged)
 public:
     QWaylandQuickSurface(wl_client *client, quint32 id, int version, QWaylandQuickCompositor *compositor);
     ~QWaylandQuickSurface();
@@ -72,13 +72,13 @@ public:
 private:
     bool event(QEvent *event) Q_DECL_OVERRIDE;
 
-    QWindow *outputWindow() const;
+    QWindow *primaryOutputWindow() const;
 
 Q_SIGNALS:
     void useTextureAlphaChanged();
     void clientRenderingEnabledChanged();
     void shellViewCreated();
-    void outputWindowChanged();
+    void primaryOutputWindowChanged();
 };
 
 QT_END_NAMESPACE

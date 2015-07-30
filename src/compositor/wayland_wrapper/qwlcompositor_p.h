@@ -157,6 +157,8 @@ public:
     static void bindGlobal(wl_client *client, void *data, uint32_t version, uint32_t id);
     void resetInputDevice(Surface *surface);
 
+    void unregisterSurface(QWaylandSurface *surface);
+
 public slots:
     void cleanupGraphicsResources();
 
@@ -182,6 +184,8 @@ protected:
 
     /* Output */
     QList<QWaylandOutput *> m_outputs;
+
+    QList<QWaylandSurface *> m_all_surfaces;
 
     DataDeviceManager *m_data_device_manager;
 

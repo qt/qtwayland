@@ -53,6 +53,7 @@
 #include "qwaylandsurface_p.h"
 #include "qwaylandbufferref.h"
 #include "qwaylandsurfaceinterface.h"
+#include "qwaylandoutput.h"
 
 #include <QtGui/QGuiApplication>
 #include <QtGui/QScreen>
@@ -143,6 +144,8 @@ QWaylandSurface::~QWaylandSurface()
 {
     Q_D(QWaylandSurface);
     qDeleteAll(d->interfaces);
+    d->m_compositor->unregisterSurface(this);
+    d->notifyViewsAboutDestruction();
 }
 
 QWaylandClient *QWaylandSurface::client() const
@@ -286,34 +289,18 @@ QWaylandCompositor *QWaylandSurface::compositor() const
     return d->compositor()->waylandCompositor();
 }
 
-QWaylandOutput *QWaylandSurface::mainOutput() const
+QWaylandOutput *QWaylandSurface::primaryOutput() const
 {
     Q_D(const QWaylandSurface);
-
-    // Returns the output that contains the most if not all
-    // the surface (window managers will take care of setting
-    // this, defaults to the first output)
-    return d->mainOutput()->waylandOutput();
+    if (!d->primaryOutput())
+        return Q_NULLPTR;
+    return d->primaryOutput()->waylandOutput();
 }
 
-void QWaylandSurface::setMainOutput(QWaylandOutput *mainOutput)
+void QWaylandSurface::setPrimaryOutput(QWaylandOutput *output)
 {
     Q_D(QWaylandSurface);
-
-    if (mainOutput)
-        d->setMainOutput(mainOutput->handle());
-}
-
-QList<QWaylandOutput *> QWaylandSurface::outputs() const
-{
-    Q_D(const QWaylandSurface);
-
-    QList<QWaylandOutput *> list;
-    const QList<QtWayland::Output *> outputs = d->outputs();
-    list.reserve(outputs.count());
-    Q_FOREACH (QtWayland::Output *output, outputs)
-        list.append(output->waylandOutput());
-    return list;
+    d->setPrimaryOutput(output->handle());
 }
 
 QWindow::Visibility QWaylandSurface::visibility() const
@@ -411,6 +398,22 @@ void QWaylandSurface::destroySurface()
     QWaylandSurfaceOp op(QWaylandSurfaceOp::Close);
     if (!sendInterfaceOp(op))
         emit surfaceDestroyed();
+}
+
+void QWaylandSurface::enter(QWaylandOutput *output)
+{
+    Q_D(QWaylandSurface);
+    QtWayland::OutputResource *outputResource = output->handle()->outputForClient(d->resource()->client());
+    if (outputResource)
+        handle()->send_enter(outputResource->handle);
+}
+
+void QWaylandSurface::leave(QWaylandOutput *output)
+{
+    Q_D(QWaylandSurface);
+    QtWayland::OutputResource *outputResource = output->handle()->outputForClient(d->resource()->client());
+    if (outputResource)
+        d->send_leave(outputResource->handle);
 }
 
 /*!

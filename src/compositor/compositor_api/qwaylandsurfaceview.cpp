@@ -35,42 +35,41 @@
 ****************************************************************************/
 
 #include "qwaylandsurfaceview.h"
+#include "qwaylandsurfaceview_p.h"
 #include "qwaylandsurface.h"
 #include "qwaylandsurface_p.h"
-#include "qwaylandcompositor.h"
-#include "qwaylandinput.h"
 
 #include <QtCore/QMutex>
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandSurfaceViewPrivate
+QWaylandSurfaceViewPrivate *QWaylandSurfaceViewPrivate::get(QWaylandSurfaceView *view)
 {
-public:
-    QWaylandSurfaceViewPrivate()
-        : surface(Q_NULLPTR)
-    { }
-    QWaylandSurface *surface;
-    QPointF requestedPos;
-    QMutex bufferMutex;
-    QWaylandBufferRef currentBuffer;
-    QWaylandBufferRef nextBuffer;
-};
+    return view->d;
+}
+
+void QWaylandSurfaceViewPrivate::markSurfaceAsDestroyed(QWaylandSurface *surface)
+{
+    Q_ASSERT(surface == this->surface);
+
+    q_ptr->waylandSurfaceDestroyed();
+    q_ptr->setSurface(Q_NULLPTR);
+}
 
 QWaylandSurfaceView::QWaylandSurfaceView()
-                   : d(new QWaylandSurfaceViewPrivate)
+                   : d(new QWaylandSurfaceViewPrivate(this))
 {
 }
 
 QWaylandSurfaceView::~QWaylandSurfaceView()
 {
+    if (d->output)
+        d->output->handle()->removeView(this);
     if (d->surface) {
         QWaylandInputDevice *i = d->surface->compositor()->defaultInputDevice();
         if (i->mouseFocus() == this)
             i->setMouseFocus(Q_NULLPTR, QPointF());
 
-        d->surface->destroy();
-        d->surface->d_func()->views.removeOne(this);
         d->surface->deref();
     }
 
@@ -94,8 +93,26 @@ void QWaylandSurfaceView::setSurface(QWaylandSurface *newSurface)
         QWaylandSurfacePrivate::get(newSurface)->refView(this);
 
     waylandSurfaceChanged(newSurface, oldSurface);
-    d->currentBuffer = QWaylandBufferRef();
+    if (!d->lockedBuffer)
+        d->currentBuffer = QWaylandBufferRef();
+
     d->nextBuffer = QWaylandBufferRef();
+}
+
+QWaylandOutput *QWaylandSurfaceView::output() const
+{
+    return d->output;
+}
+
+void QWaylandSurfaceView::setOutput(QWaylandOutput *newOutput)
+{
+    if (d->output == newOutput)
+        return;
+
+    QWaylandOutput *oldOutput = d->output;
+    d->output = newOutput;
+
+    waylandOutputChanged(newOutput, oldOutput);
 }
 
 QWaylandCompositor *QWaylandSurfaceView::compositor() const
@@ -126,10 +143,13 @@ void QWaylandSurfaceView::attach(const QWaylandBufferRef &ref)
 
 bool QWaylandSurfaceView::advance()
 {
-    QMutexLocker locker(&d->bufferMutex);
     if (d->currentBuffer == d->nextBuffer)
         return false;
 
+    if (d->lockedBuffer)
+        return false;
+
+    QMutexLocker locker(&d->bufferMutex);
     d->currentBuffer = d->nextBuffer;
     return true;
 }
@@ -140,10 +160,33 @@ QWaylandBufferRef QWaylandSurfaceView::currentBuffer()
     return d->currentBuffer;
 }
 
+bool QWaylandSurfaceView::lockedBuffer() const
+{
+    return d->lockedBuffer;
+}
+
+void QWaylandSurfaceView::setLockedBuffer(bool locked)
+{
+    d->lockedBuffer = locked;
+}
+
 void QWaylandSurfaceView::waylandSurfaceChanged(QWaylandSurface *newSurface, QWaylandSurface *oldSurface)
 {
-    Q_UNUSED(newSurface);
-    Q_UNUSED(oldSurface);
+    if (d->output)
+        d->output->handle()->updateSurfaceForView(this, newSurface, oldSurface);
+}
+
+void QWaylandSurfaceView::waylandSurfaceDestroyed()
+{
+}
+
+void QWaylandSurfaceView::waylandOutputChanged(QWaylandOutput *newOutput, QWaylandOutput *oldOutput)
+{
+    if (oldOutput)
+        oldOutput->handle()->removeView(this);
+
+    if (newOutput)
+        newOutput->handle()->addView(this);
 }
 
 QT_END_NAMESPACE

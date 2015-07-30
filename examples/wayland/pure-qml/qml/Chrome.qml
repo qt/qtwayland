@@ -57,7 +57,11 @@ Item {
 
         onSurfaceDestroyed: {
             destroyAnimation.start();
+            if (view) {
+                view.lockedBuffer = true;
+            }
         }
+
     }
 
     SequentialAnimation {

@@ -66,6 +66,7 @@ public:
     QWaylandBufferRef &operator=(const QWaylandBufferRef &ref);
     bool isNull() const;
     bool hasBuffer() const;
+    bool isDestroyed() const;
     bool operator==(const QWaylandBufferRef &ref);
     bool operator!=(const QWaylandBufferRef &ref);
 

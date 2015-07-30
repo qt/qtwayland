@@ -47,6 +47,7 @@
 
 #include <QtCompositor/QWaylandSurface>
 #include <QtCompositor/QWaylandClient>
+#include <QtCompositor/QWaylandSurfaceView>
 
 QT_BEGIN_NAMESPACE
 
@@ -309,14 +310,22 @@ void Output::sendGeometryInfo()
 
 void Output::frameStarted()
 {
-    foreach (QWaylandSurface *surface, m_surfaces)
-        surface->handle()->frameStarted();
+    for (int i = 0; i < m_surfaceViews.size(); i++) {
+        SurfaceViewMapper &surfacemapper = m_surfaceViews[i];
+        if (surfacemapper.surface && (!surfacemapper.surface->primaryOutput()
+                                      || surfacemapper.surface->primaryOutput()->handle() == this))
+            surfacemapper.surface->handle()->frameStarted();
+    }
 }
 
-void Output::sendFrameCallbacks(QList<QWaylandSurface *> visibleSurfaces)
+void Output::sendFrameCallbacks()
 {
-    foreach (QWaylandSurface *surface, visibleSurfaces) {
-        surface->handle()->sendFrameCallback();
+    for (int i = 0; i < m_surfaceViews.size(); i++) {
+        const SurfaceViewMapper &surfacemapper = m_surfaceViews.at(i);
+        if (surfacemapper.surface && surfacemapper.surface->isMapped()
+            && (!surfacemapper.surface->primaryOutput()
+                || surfacemapper.surface->primaryOutput()->handle() == this))
+            surfacemapper.surface->handle()->sendFrameCallback();
     }
     wl_display_flush_clients(m_compositor->wl_display());
 }
@@ -325,32 +334,64 @@ QList<QWaylandSurface *> Output::surfacesForClient(QWaylandClient *client) const
 {
     QList<QWaylandSurface *> result;
 
-    foreach (QWaylandSurface *surface, m_surfaces) {
-        if (surface->client() == client)
+    for (int i = 0; i < m_surfaceViews.size(); i ++) {
+        if (m_surfaceViews.at(i).surface
+            && m_surfaceViews.at(i).surface->client() == client)
             result.append(result);
     }
 
     return result;
 }
 
-void Output::addSurface(QWaylandSurface *surface)
+void Output::addView(QWaylandSurfaceView *view)
 {
-    if (m_surfaces.contains(surface))
-        return;
-
-    m_surfaces.append(surface);
-
-    surface->handle()->addToOutput(this);
+    addView(view, view->surface());
 }
 
-void Output::removeSurface(QWaylandSurface *surface)
+void Output::addView(QWaylandSurfaceView *view, QWaylandSurface *surface)
 {
-    if (!m_surfaces.contains(surface))
-        return;
+    for (int i = 0; i < m_surfaceViews.size(); i++) {
+        if (surface == m_surfaceViews.at(i).surface) {
+            if (!m_surfaceViews.at(i).views.contains(view)) {
+                m_surfaceViews[i].views.append(view);
+            }
+            return;
+        }
+    }
 
-    m_surfaces.removeOne(surface);
+    SurfaceViewMapper surfaceViewMapper;
+    surfaceViewMapper.surface = surface;
+    surfaceViewMapper.views.append(view);
+    m_surfaceViews.append(surfaceViewMapper);
+    if (surface)
+        surface->enter(waylandOutput());
+}
 
-    surface->handle()->removeFromOutput(this);
+void Output::removeView(QWaylandSurfaceView *view)
+{
+    removeView(view, view->surface());
+}
+
+void Output::removeView(QWaylandSurfaceView *view, QWaylandSurface *surface)
+{
+    for (int i = 0; i < m_surfaceViews.size(); i++) {
+        if (surface == m_surfaceViews.at(i).surface) {
+            bool removed = m_surfaceViews[i].views.removeOne(view);
+            if (m_surfaceViews.at(i).views.isEmpty() && removed) {
+                m_surfaceViews.remove(i);
+                if (surface)
+                    surface->leave(waylandOutput());
+            }
+            return;
+        }
+    }
+    qWarning("%s Could not find view %p for surface %p to remove. Possible invalid state", Q_FUNC_INFO, view, surface);
+}
+
+void Output::updateSurfaceForView(QWaylandSurfaceView *view, QWaylandSurface *newSurface, QWaylandSurface *oldSurface)
+{
+    removeView(view, oldSurface);
+    addView(view, newSurface);
 }
 
 } // namespace Wayland

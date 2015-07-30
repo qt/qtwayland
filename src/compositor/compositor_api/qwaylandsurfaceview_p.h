@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Jolla Ltd, author: <giulio.camuffo@jollamobile.com>
+** Copyright (C) 2015 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the QtWaylandCompositor module of the Qt Toolkit.
@@ -34,53 +34,43 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDSURFACEVIEW_H
-#define QWAYLANDSURFACEVIEW_H
+#ifndef QWAYLANDSURFACEVIEW_P_H
+#define QWAYLANDSURFACEVIEW_P_H
 
-#include <QPointF>
+#include <QtCore/QPoint>
+#include <QtCore/QMutex>
 
 #include <QtCompositor/QWaylandBufferRef>
-#include <QtCompositor/qwaylandexport.h>
 
 QT_BEGIN_NAMESPACE
 
 class QWaylandSurface;
-class QWaylandCompositor;
+class QWaylandOutput;
 
-class Q_COMPOSITOR_EXPORT QWaylandSurfaceView
+class QWaylandSurfaceViewPrivate
 {
 public:
-    QWaylandSurfaceView();
-    virtual ~QWaylandSurfaceView();
+    static QWaylandSurfaceViewPrivate *get(QWaylandSurfaceView *view);
 
-    QWaylandCompositor *compositor() const;
+    QWaylandSurfaceViewPrivate(QWaylandSurfaceView *view)
+        : q_ptr(view)
+        , surface(Q_NULLPTR)
+        , output(Q_NULLPTR)
+        , lockedBuffer(false)
+    { }
 
-    QWaylandSurface *surface() const;
-    void setSurface(QWaylandSurface *surface);
+    void markSurfaceAsDestroyed(QWaylandSurface *surface);
 
-    QWaylandOutput *output() const;
-    void setOutput(QWaylandOutput *output);
-
-    virtual void setRequestedPosition(const QPointF &pos);
-    virtual QPointF requestedPosition() const;
-    virtual QPointF pos() const;
-
-    virtual void attach(const QWaylandBufferRef &ref);
-    virtual bool advance();
-    virtual QWaylandBufferRef currentBuffer();
-
-    bool lockedBuffer() const;
-    void setLockedBuffer(bool locked);
-protected:
-    virtual void waylandSurfaceChanged(QWaylandSurface *newSurface, QWaylandSurface *oldSurface);
-    virtual void waylandSurfaceDestroyed();
-    virtual void waylandOutputChanged(QWaylandOutput *newOutput, QWaylandOutput *oldOutput);
-
-private:
-    class QWaylandSurfaceViewPrivate *const d;
-    friend class QWaylandSurfaceViewPrivate;
+    QWaylandSurfaceView *q_ptr;
+    QWaylandSurface *surface;
+    QWaylandOutput *output;
+    QPointF requestedPos;
+    QMutex bufferMutex;
+    QWaylandBufferRef currentBuffer;
+    QWaylandBufferRef nextBuffer;
+    bool lockedBuffer;
 };
 
 QT_END_NAMESPACE
 
-#endif
+#endif  /*QWAYLANDSURFACEVIEW_P_H*/

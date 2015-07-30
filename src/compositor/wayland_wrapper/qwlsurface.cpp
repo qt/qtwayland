@@ -37,6 +37,9 @@
 #include "qwlsurface_p.h"
 
 #include "qwaylandsurface.h"
+#include "qwaylandsurface_p.h"
+#include "qwaylandsurfaceview_p.h"
+#include "qwaylandoutput.h"
 #include "qwlcompositor_p.h"
 #include "qwlinputdevice_p.h"
 #include "qwlextendedsurface_p.h"
@@ -113,7 +116,7 @@ Surface::Surface(struct wl_client *client, uint32_t id, int version, QWaylandCom
     : QtWaylandServer::wl_surface(client, id, version)
     , m_compositor(compositor->handle())
     , m_waylandSurface(surface)
-    , m_mainOutput(0)
+    , m_primaryOutput(0)
     , m_buffer(0)
     , m_surfaceMapped(false)
     , m_shellSurface(0)
@@ -279,79 +282,21 @@ Compositor *Surface::compositor() const
     return m_compositor;
 }
 
-Output *Surface::mainOutput() const
+void Surface::setPrimaryOutput(Output *output)
 {
-    if (!m_mainOutput)
-        return m_compositor->primaryOutput()->handle();
-    return m_mainOutput;
-}
-
-void Surface::setMainOutput(Output *output)
-{
-    m_mainOutput = output;
-}
-
-QList<Output *> Surface::outputs() const
-{
-    return m_outputs;
-}
-
-void Surface::addToOutput(Output *output)
-{
-    if (!output)
+    if (m_primaryOutput == output)
         return;
 
-    if (!m_mainOutput)
-        m_mainOutput = output;
+    QWaylandOutput *new_output = output ? output->waylandOutput() : Q_NULLPTR;
+    QWaylandOutput *old_output = m_primaryOutput ? m_primaryOutput->waylandOutput() : Q_NULLPTR;
+    m_primaryOutput = output;
 
-    if (m_outputs.contains(output))
-        return;
-
-    m_outputs.append(output);
-
-    output->addSurface(waylandSurface());
-
-    QWaylandSurfaceEnterEvent event(output->waylandOutput());
-    QCoreApplication::sendEvent(waylandSurface(), &event);
-
-    // Send surface enter event
-    Q_FOREACH (Resource *resource, resourceMap().values()) {
-        QList<Output::Resource *> outputs = output->resourceMap().values();
-        for (int i = 0; i < outputs.size(); i++)
-            send_enter(resource->handle, outputs.at(i)->handle);
-    }
+    waylandSurface()->primaryOutputChanged(new_output, old_output);
 }
 
-void Surface::removeFromOutput(Output *output)
+Output *Surface::primaryOutput() const
 {
-    if (!output)
-        return;
-
-    if (!m_outputs.contains(output))
-        return;
-
-    m_outputs.removeOne(output);
-
-    if (m_mainOutput == output)
-        setMainOutput(Q_NULLPTR);
-
-    output->removeSurface(waylandSurface());
-    QWaylandSurfaceLeaveEvent event(output->waylandOutput());
-    QCoreApplication::sendEvent(waylandSurface(), &event);
-
-    // Send surface leave event
-    Q_FOREACH (Resource *resource, resourceMap().values()) {
-        QList<Output::Resource *> outputs = output->resourceMap().values();
-        for (int i = 0; i < outputs.size(); i++)
-            send_leave(resource->handle, outputs.at(i)->handle);
-    }
-}
-
-void Surface::removeFromOutput()
-{
-    Q_FOREACH (Output *output, m_outputs) {
-        removeFromOutput(output);
-    }
+    return m_primaryOutput;
 }
 
 /*!
@@ -440,6 +385,12 @@ Qt::ScreenOrientation Surface::contentOrientation() const
     return m_contentOrientation;
 }
 
+void Surface::notifyViewsAboutDestruction()
+{
+    foreach (QWaylandSurfaceView *view, m_waylandSurface->views()) {
+        QWaylandSurfaceViewPrivate::get(view)->markSurfaceAsDestroyed(m_waylandSurface);
+    }
+}
 
 void Surface::surface_destroy_resource(Resource *)
 {
@@ -447,6 +398,8 @@ void Surface::surface_destroy_resource(Resource *)
         m_extendedSurface->setParentSurface(Q_NULLPTR);
         m_extendedSurface = 0;
     }
+
+    notifyViewsAboutDestruction();
 
     m_destroyed = true;
     m_waylandSurface->destroy();
@@ -512,6 +465,9 @@ void Surface::surface_commit(Resource *)
     m_inputRegion = m_pending.inputRegion.intersected(QRect(QPoint(), m_size));
 
     emit m_waylandSurface->redraw();
+
+    if (primaryOutput())
+        primaryOutput()->waylandOutput()->update();
 }
 
 void Surface::surface_set_buffer_transform(Resource *resource, int32_t orientation)

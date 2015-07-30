@@ -70,8 +70,10 @@ public:
     {
         QWaylandSurfacePrivate::surface_commit(resource);
 
-        Q_FOREACH (QtWayland::Output *output, outputs())
-            output->waylandOutput()->update();
+        Q_FOREACH (QWaylandSurfaceView *view, views) {
+            if (view->output())
+                view->output()->update();
+        }
     }
 
     QWaylandQuickCompositor *compositor;
@@ -85,7 +87,7 @@ QWaylandQuickSurface::QWaylandQuickSurface(wl_client *client, quint32 id, int ve
 {
     Q_D(QWaylandQuickSurface);
     connect(this, &QWaylandSurface::shellViewCreated, this, &QWaylandQuickSurface::shellViewCreated);
-    connect(this, &QWaylandSurface::outputChanged, this, &QWaylandQuickSurface::outputWindowChanged);
+    connect(this, &QWaylandSurface::primaryOutputChanged, this, &QWaylandQuickSurface::primaryOutputWindowChanged);
     connect(this, &QWaylandSurface::windowPropertyChanged, d->windowPropertyMap, &QQmlPropertyMap::insert);
     connect(d->windowPropertyMap, &QQmlPropertyMap::valueChanged, this, &QWaylandSurface::setWindowProperty);
 
@@ -126,9 +128,9 @@ QWaylandSurfaceItem *QWaylandQuickSurface::shellView() const
     return static_cast<QWaylandSurfaceItem *>(QWaylandSurface::shellView());
 }
 
-QWindow *QWaylandQuickSurface::outputWindow() const
+QWindow *QWaylandQuickSurface::primaryOutputWindow() const
 {
-    return output() ? output()->window() : Q_NULLPTR;
+    return primaryOutput() ? primaryOutput()->window() : Q_NULLPTR;
 }
 
 bool QWaylandQuickSurface::event(QEvent *e)

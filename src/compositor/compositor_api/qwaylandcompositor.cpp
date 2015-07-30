@@ -159,18 +159,12 @@ QList<QWaylandSurface *> QWaylandCompositor::surfacesForClient(QWaylandClient* c
     return surfs;
 }
 
+#endif //QT_DEPRECATED_SINCE(5, 5)
+
 QList<QWaylandSurface *> QWaylandCompositor::surfaces() const
 {
-    QList<QWaylandSurface *> surfs;
-    foreach (QWaylandOutput *output, outputs()) {
-        foreach (QWaylandSurface *surface, output->surfaces()) {
-            if (!surfs.contains(surface))
-                surfs.append(surface);
-        }
-    }
-    return surfs;
+    return m_compositor->m_all_surfaces;
 }
-#endif //QT_DEPRECATED_SINCE(5, 5)
 
 QList<QWaylandOutput *> QWaylandCompositor::outputs() const
 {
@@ -207,18 +201,14 @@ QWaylandSurfaceView *QWaylandCompositor::createView()
     return new QWaylandSurfaceView();
 }
 
+#if QT_DEPRECATED_SINCE(5, 5)
 QWaylandSurfaceView *QWaylandCompositor::pickView(const QPointF &globalPosition) const
 {
     Q_FOREACH (QWaylandOutput *output, outputs()) {
         // Skip coordinates not in output
         if (!QRectF(output->geometry()).contains(globalPosition))
             continue;
-        Q_FOREACH (QWaylandSurface *surface, output->surfaces()) {
-            Q_FOREACH (QWaylandSurfaceView *view, surface->views()) {
-                if (QRectF(view->requestedPosition(), surface->size()).contains(globalPosition))
-                    return view;
-            }
-        }
+        output->pickView(globalPosition);
     }
 
     return Q_NULLPTR;
@@ -228,6 +218,7 @@ QPointF QWaylandCompositor::mapToView(QWaylandSurfaceView *surface, const QPoint
 {
     return globalPosition - surface->requestedPosition();
 }
+#endif //QT_DEPRECATED_SINCE(5, 5)
 
 /*!
     Override this to handle QDesktopServices::openUrl() requests from the clients.

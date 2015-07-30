@@ -42,6 +42,7 @@
 
 #include <QtCore/QRect>
 #include <QtCore/QList>
+#include <QtCore/QVector>
 
 #include <QtCompositor/private/qwayland-server-wayland.h>
 #include <QtCompositor/qwaylandoutput.h>
@@ -53,6 +54,17 @@ class QWindow;
 namespace QtWayland {
 
 class Compositor;
+
+struct SurfaceViewMapper
+{
+    SurfaceViewMapper()
+        : surface(0)
+        , views()
+    {}
+
+    QWaylandSurface *surface;
+    QVector<QWaylandSurfaceView *> views;
+};
 
 struct OutputResource : public QtWaylandServer::wl_output::Resource
 {
@@ -104,12 +116,15 @@ public:
     void setScaleFactor(int scale);
 
     void frameStarted();
-    void sendFrameCallbacks(QList<QWaylandSurface *> visibleSurfaces);
+    void sendFrameCallbacks();
 
-    QList<QWaylandSurface *> surfaces() const { return m_surfaces; }
     QList<QWaylandSurface *> surfacesForClient(QWaylandClient *client) const;
-    void addSurface(QWaylandSurface *surface);
-    void removeSurface(QWaylandSurface *surface);
+
+    void addView(QWaylandSurfaceView *view);
+    void addView(QWaylandSurfaceView *view, QWaylandSurface *surface);
+    void removeView(QWaylandSurfaceView *view);
+    void removeView(QWaylandSurfaceView *view, QWaylandSurface *surface);
+    void updateSurfaceForView(QWaylandSurfaceView *view, QWaylandSurface *newSurface, QWaylandSurface *oldSurface);
 
     QWindow *window() const { return m_window; }
 
@@ -120,6 +135,7 @@ public:
     void output_bind_resource(Resource *resource) Q_DECL_OVERRIDE;
     Resource *output_allocate() Q_DECL_OVERRIDE { return new OutputResource; }
 
+    const QVector<SurfaceViewMapper> surfaceMappers() const { return m_surfaceViews; }
 private:
     friend class QT_PREPEND_NAMESPACE(QWaylandOutput);
 
@@ -131,6 +147,7 @@ private:
     QPoint m_position;
     QWaylandOutput::Mode m_mode;
     QRect m_availableGeometry;
+    QVector<SurfaceViewMapper> m_surfaceViews;
     QSize m_physicalSize;
     QWaylandOutput::Subpixel m_subpixel;
     QWaylandOutput::Transform m_transform;

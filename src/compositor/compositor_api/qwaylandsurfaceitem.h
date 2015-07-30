@@ -67,6 +67,7 @@ class Q_COMPOSITOR_EXPORT QWaylandSurfaceItem : public QQuickItem, public QWayla
     Q_PROPERTY(qreal requestedXPosition READ requestedXPosition WRITE setRequestedXPosition NOTIFY requestedXPositionChanged)
     Q_PROPERTY(qreal requestedYPosition READ requestedYPosition WRITE setRequestedYPosition NOTIFY requestedYPositionChanged)
     Q_PROPERTY(bool inputEventsEnabled READ inputEventsEnabled WRITE setInputEventsEnabled NOTIFY inputEventsEnabledChanged)
+    Q_PROPERTY(bool lockedBuffer READ lockedBuffer WRITE setLockedBuffer NOTIFY lockedBufferChanged)
 
 public:
     QWaylandSurfaceItem(QQuickItem *parent = 0);
@@ -102,7 +103,9 @@ public:
 
     Q_INVOKABLE void syncGraphicsState();
 
-    void markForNewBuffer();
+    bool lockedBuffer() const;
+    void setLockedBuffer(bool locked);
+
 protected:
     void mousePressEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
@@ -118,6 +121,7 @@ protected:
     void mouseUngrabEvent() Q_DECL_OVERRIDE;
 
     void waylandSurfaceChanged(QWaylandSurface *newSurface, QWaylandSurface *oldSurface) Q_DECL_OVERRIDE;
+    void waylandSurfaceDestroyed() Q_DECL_OVERRIDE;
 
     void geometryChanged(const QRectF &newGeometry,
                          const QRectF &oldGeometry) Q_DECL_OVERRIDE;
@@ -144,6 +148,7 @@ Q_SIGNALS:
     void requestedXPositionChanged();
     void requestedYPositionChanged();
     void inputEventsEnabledChanged();
+    void lockedBufferChanged();
 
 protected:
     QSGNode *updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *);
@@ -152,7 +157,6 @@ private:
     friend class QWaylandSurfaceNode;
     friend class QWaylandQuickSurface;
     bool shouldSendInputEvents() const { return surface() && m_inputEventsEnabled; }
-    void handleSurfaceDestroyed();
 
     static QMutex *mutex;
 

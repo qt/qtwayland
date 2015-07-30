@@ -35,6 +35,11 @@
 **
 ****************************************************************************/
 
+#include "qwaylandoutput.h"
+
+#include "qwaylandcompositor.h"
+#include "qwaylandsurfaceview.h"
+
 #include <QtCore/QCoreApplication>
 #include <QtCore/QtMath>
 #include <QtGui/QWindow>
@@ -43,9 +48,6 @@
 
 #include "wayland_wrapper/qwlcompositor_p.h"
 #include "wayland_wrapper/qwloutput_p.h"
-#include "qwaylandcompositor.h"
-#include "qwaylandoutput.h"
-#include "qwaylandsurface.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -256,14 +258,9 @@ void QWaylandOutput::frameStarted()
     d_ptr->frameStarted();
 }
 
-void QWaylandOutput::sendFrameCallbacks(QList<QWaylandSurface *> visibleSurfaces)
+void QWaylandOutput::sendFrameCallbacks()
 {
-    d_ptr->sendFrameCallbacks(visibleSurfaces);
-}
-
-QList<QWaylandSurface *> QWaylandOutput::surfaces() const
-{
-    return d_ptr->surfaces();
+    d_ptr->sendFrameCallbacks();
 }
 
 QList<QWaylandSurface *> QWaylandOutput::surfacesForClient(QWaylandClient *client) const
@@ -271,19 +268,28 @@ QList<QWaylandSurface *> QWaylandOutput::surfacesForClient(QWaylandClient *clien
     return d_ptr->surfacesForClient(client);
 }
 
-void QWaylandOutput::addSurface(QWaylandSurface *surface)
-{
-    d_ptr->addSurface(surface);
-}
-
-void QWaylandOutput::removeSurface(QWaylandSurface *surface)
-{
-    d_ptr->removeSurface(surface);
-}
-
 QtWayland::Output *QWaylandOutput::handle() const
 {
     return d_ptr.data();
+}
+
+QWaylandSurfaceView *QWaylandOutput::pickView(const QPointF &outputPosition) const
+{
+    const QVector<QtWayland::SurfaceViewMapper> surfaceViewMappers = d_ptr->surfaceMappers();
+    for (int nSurface = 0; surfaceViewMappers.size(); nSurface++) {
+        const QWaylandSurface *surface = surfaceViewMappers.at(nSurface).surface;
+        const QVector<QWaylandSurfaceView *> views = surfaceViewMappers.at(nSurface).views;
+        for (int nView = 0; views.size(); nView++) {
+            if (QRectF(views.at(nView)->requestedPosition(), surface->size()).contains(outputPosition))
+                return views.at(nView);
+        }
+    }
+    return Q_NULLPTR;
+}
+
+QPointF QWaylandOutput::mapToView(QWaylandSurfaceView *view, const QPointF &outputPosition) const
+{
+    return outputPosition - view->requestedPosition();
 }
 
 void QWaylandOutput::setWidth(int newWidth)

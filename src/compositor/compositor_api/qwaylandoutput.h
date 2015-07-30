@@ -51,6 +51,7 @@ struct wl_resource;
 class QWaylandCompositor;
 class QWindow;
 class QWaylandSurface;
+class QWaylandSurfaceView;
 class QWaylandClient;
 
 namespace QtWayland {
@@ -151,14 +152,14 @@ public:
     void setPhysicalSizeFollowsSize(bool follow);
 
     void frameStarted();
-    void sendFrameCallbacks(QList<QWaylandSurface *> visibleSurfaces);
+    void sendFrameCallbacks();
 
-    QList<QWaylandSurface *> surfaces() const;
     QList<QWaylandSurface *> surfacesForClient(QWaylandClient *client) const;
-    void addSurface(QWaylandSurface *surface);
-    void removeSurface(QWaylandSurface *surface);
 
     QtWayland::Output *handle() const;
+
+    Q_INVOKABLE virtual QWaylandSurfaceView *pickView(const QPointF &outputPosition) const;
+    Q_INVOKABLE virtual QPointF mapToView(QWaylandSurfaceView *view, const QPointF &surfacePosition) const;
 
 Q_SIGNALS:
     void positionChanged();

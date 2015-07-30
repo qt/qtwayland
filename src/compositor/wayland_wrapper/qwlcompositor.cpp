@@ -318,8 +318,6 @@ void Compositor::processWaylandEvents()
 
 void Compositor::destroySurface(Surface *surface)
 {
-    surface->removeFromOutput();
-
     waylandCompositor()->surfaceAboutToBeDestroyed(surface->waylandSurface());
 
     m_destroyed_surfaces << surface->waylandSurface();
@@ -335,6 +333,12 @@ void Compositor::resetInputDevice(Surface *surface)
     }
 }
 
+void Compositor::unregisterSurface(QWaylandSurface *surface)
+{
+    if (!m_all_surfaces.removeOne(surface))
+        qWarning("%s Unexpected state. Cant find registered surface\n", Q_FUNC_INFO);
+}
+
 void Compositor::cleanupGraphicsResources()
 {
     qDeleteAll(m_destroyed_surfaces);
@@ -345,7 +349,9 @@ void Compositor::compositor_create_surface(Resource *resource, uint32_t id)
 {
     QWaylandClient *client = QWaylandClient::fromWlClient(resource->client());
     QWaylandSurface *surface = m_qt_compositor->createSurface(client, id, resource->version());
-    primaryOutput()->addSurface(surface);
+    m_all_surfaces.append(surface);
+    if (primaryOutput())
+        surface->setPrimaryOutput(primaryOutput());
     emit m_qt_compositor->surfaceCreated(surface);
 }
 

@@ -60,7 +60,6 @@ Item {
         }
 
         onSurfaceDestroyed: {
-            chrome.surfaceDestroyed();
             if (automaticDestroyOnSurfaceDestroy)
                 chrome.destroy();
         }
@@ -78,6 +77,7 @@ Item {
             chrome.visible = Qt.binding(function() { return view.visible; });
             chrome.requestedXPosition = Qt.binding(function() { return view.requestedXPosition; });
             chrome.requestedYPosition = Qt.binding(function() { return view.requestedYPosition; });
+            view.surfaceDestroyed.connect(function() { chrome.surfaceDestroyed(); });
         } else {
             chrome.visible = false;
         }

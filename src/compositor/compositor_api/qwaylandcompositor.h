@@ -113,8 +113,9 @@ public:
     QT_DEPRECATED void sendFrameCallbacks(QList<QWaylandSurface *> visibleSurfaces);
 
     QT_DEPRECATED QList<QWaylandSurface *> surfacesForClient(QWaylandClient* client) const;
-    QT_DEPRECATED QList<QWaylandSurface *> surfaces() const;
 #endif //QT_DEPRECATED_SINCE(5, 5)
+
+    QT_DEPRECATED QList<QWaylandSurface *> surfaces() const;
 
     Q_INVOKABLE QList<QWaylandOutput *> outputs() const;
     Q_INVOKABLE QWaylandOutput *output(QWindow *window);
@@ -122,8 +123,10 @@ public:
     QWaylandOutput *primaryOutput() const;
     void setPrimaryOutput(QWaylandOutput *output);
 
+#if QT_DEPRECATED_SINCE(5, 5)
     Q_INVOKABLE virtual QWaylandSurfaceView *pickView(const QPointF &globalPosition) const;
     Q_INVOKABLE virtual QPointF mapToView(QWaylandSurfaceView *view, const QPointF &surfacePosition) const;
+#endif // QT_DEPRECATED_SINCE(5 5)
 
     virtual bool openUrl(QWaylandClient *client, const QUrl &url);
 

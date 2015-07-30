@@ -87,6 +87,6 @@ void QWaylandQuickOutput::updateStarted()
 void QWaylandQuickOutput::doFrameCallbacks()
 {
     if (m_automaticFrameCallbacks)
-        sendFrameCallbacks(surfaces());
+        sendFrameCallbacks();
 }
 QT_END_NAMESPACE

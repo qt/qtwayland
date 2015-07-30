@@ -113,7 +113,7 @@ class Q_COMPOSITOR_EXPORT QWaylandSurface : public QObject
     Q_PROPERTY(QWindow::Visibility visibility READ visibility WRITE setVisibility NOTIFY visibilityChanged)
     Q_PROPERTY(QWaylandSurface *transientParent READ transientParent)
     Q_PROPERTY(QPointF transientOffset READ transientOffset)
-    Q_PROPERTY(QWaylandOutput *output READ output NOTIFY outputChanged)
+    Q_PROPERTY(QWaylandOutput *primaryOutput READ primaryOutput WRITE setPrimaryOutput NOTIFY primaryOutputChanged)
     Q_PROPERTY(QWaylandSurface::Origin origin READ origin NOTIFY originChanged);
 
     Q_ENUMS(WindowFlag WindowType)
@@ -179,10 +179,8 @@ public:
 
     QWaylandCompositor *compositor() const;
 
-    QWaylandOutput *mainOutput() const;
-    void setMainOutput(QWaylandOutput *mainOutput);
-
-    QList<QWaylandOutput *> outputs() const;
+    QWaylandOutput *primaryOutput() const;
+    void setPrimaryOutput(QWaylandOutput *output);
 
     QString className() const;
 
@@ -211,6 +209,9 @@ public:
 
     static QWaylandSurface *fromResource(::wl_resource *resource);
 
+    void enter(QWaylandOutput *output);
+    void leave(QWaylandOutput *output);
+
 public Q_SLOTS:
     void updateSelection();
 
@@ -238,7 +239,7 @@ Q_SIGNALS:
     void pong();
     void surfaceDestroyed();
     void shellViewCreated();
-    void outputChanged(QWaylandOutput *newOutput, QWaylandOutput *oldOutput);
+    void primaryOutputChanged(QWaylandOutput *newOutput, QWaylandOutput *oldOutput);
     void originChanged();
 
     void configure(bool hasBuffer);

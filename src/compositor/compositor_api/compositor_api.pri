@@ -11,6 +11,7 @@ HEADERS += \
     compositor_api/qwaylanddrag.h \
     compositor_api/qwaylandbufferref.h \
     compositor_api/qwaylandsurfaceview.h \
+    compositor_api/qwaylandsurfaceview_p.h \
     compositor_api/qwaylandglobalinterface.h \
     compositor_api/qwaylandsurfaceinterface.h
 

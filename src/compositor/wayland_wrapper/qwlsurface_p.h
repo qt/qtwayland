@@ -120,14 +120,8 @@ public:
 
     Compositor *compositor() const;
 
-    Output *mainOutput() const;
-    void setMainOutput(Output *output);
-
-    QList<Output *> outputs() const;
-
-    void addToOutput(Output *output);
-    void removeFromOutput(Output *output);
-    void removeFromOutput();
+    Output *primaryOutput() const;
+    void setPrimaryOutput(Output *output);
 
     QString className() const { return m_className; }
     void setClassName(const QString &className);
@@ -161,6 +155,8 @@ public:
     QWaylandSurface::Origin origin() const { return m_buffer ? m_buffer->origin() : QWaylandSurface::OriginTopLeft; }
 
     QWaylandBufferRef currentBufferRef() const { return m_bufferRef; }
+
+    void notifyViewsAboutDestruction();
 protected:
     void surface_destroy_resource(Resource *resource) Q_DECL_OVERRIDE;
 
@@ -182,8 +178,7 @@ protected:
 
     Compositor *m_compositor;
     QWaylandSurface *m_waylandSurface;
-    Output *m_mainOutput;
-    QList<Output *> m_outputs;
+    Output *m_primaryOutput;
 
     QRegion m_damage;
     SurfaceBuffer *m_buffer;

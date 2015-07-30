@@ -110,7 +110,12 @@ bool QWaylandBufferRef::isNull() const
 
 bool QWaylandBufferRef::hasBuffer() const
 {
-    return d->buffer && !d->buffer->isDestroyed();
+    return d->buffer;
+}
+
+bool QWaylandBufferRef::isDestroyed() const
+{
+    return d->buffer && d->buffer->isDestroyed();
 }
 
 struct ::wl_resource *QWaylandBufferRef::wl_buffer() const
@@ -128,10 +133,10 @@ QSize QWaylandBufferRef::size() const
 
 QWaylandSurface::Origin QWaylandBufferRef::origin() const
 {
-    if (d->nullOrDestroyed())
-        return QWaylandSurface::OriginBottomLeft;
+    if (d->buffer)
+        return d->buffer->origin();
 
-    return d->buffer->origin();
+    return QWaylandSurface::OriginBottomLeft;
 }
 
 bool QWaylandBufferRef::isShm() const

@@ -25,6 +25,6 @@ include ($$PWD/global/global.pri)
 include ($$PWD/wayland_wrapper/wayland_wrapper.pri)
 include ($$PWD/hardware_integration/hardware_integration.pri)
 include ($$PWD/compositor_api/compositor_api.pri)
-include ($$PWD/windowmanagerprotocol/windowmanagerprotocol.pri)
+include ($$PWD/extensions/extensions.pri)
 
 

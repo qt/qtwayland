@@ -51,11 +51,10 @@
 #include "qwlqttouch_p.h"
 #include "qwlqtkey_p.h"
 #include "qwlinputdevice_p.h"
-#include "qwlinputpanel_p.h"
 #include "qwlregion_p.h"
 #include "qwlpointer_p.h"
 #include "qwltextinputmanager_p.h"
-#include "qwaylandglobalinterface.h"
+#include <QtCompositor/QWaylandInputPanel>
 #include "qwaylandsurfaceview.h"
 #include "qwaylandshmformathelper.h"
 #include "qwaylandoutput.h"
@@ -90,7 +89,7 @@
 #include "hardware_integration/qwlclientbufferintegration_p.h"
 #include "hardware_integration/qwlserverbufferintegration_p.h"
 #endif
-#include "windowmanagerprotocol/waylandwindowmanagerintegration_p.h"
+#include "extensions/qwaylandwindowmanagerextension.h"
 
 #include "hardware_integration/qwlclientbufferintegrationfactory_p.h"
 #include "hardware_integration/qwlserverbufferintegrationfactory_p.h"
@@ -167,13 +166,6 @@ Compositor::Compositor(QWaylandCompositor *qt_compositor)
     , m_client_buffer_integration(0)
     , m_server_buffer_integration(0)
 #endif
-    , m_windowManagerIntegration(0)
-    , m_surfaceExtension(0)
-    , m_subSurfaceExtension(0)
-    , m_touchExtension(0)
-    , m_qtkeyExtension(0)
-    , m_textInputManager()
-    , m_inputPanel()
     , m_eventHandler(new WindowSystemEventHandler(this))
     , m_retainSelection(false)
     , m_initialized(false)
@@ -239,11 +231,6 @@ Compositor::~Compositor()
     qDeleteAll(m_clients);
 
     qDeleteAll(m_outputSpaces);
-
-    delete m_surfaceExtension;
-    delete m_subSurfaceExtension;
-    delete m_touchExtension;
-    delete m_qtkeyExtension;
 
     removeInputDevice(m_default_wayland_input_device);
     delete m_default_wayland_input_device;
@@ -361,8 +348,9 @@ void Compositor::destroyClient(QWaylandClient *client)
     if (!client)
         return;
 
-    if (m_windowManagerIntegration)
-        m_windowManagerIntegration->sendQuitMessage(client->client());
+    WindowManagerServerIntegration *wmExtension = static_cast<WindowManagerServerIntegration *>(waylandCompositor()->extension(QtWaylandServer::qt_windowmanager::name()));
+    if (wmExtension)
+        wmExtension->sendQuitMessage(client->client());
 
     wl_client_destroy(client->client());
 }
@@ -404,20 +392,23 @@ void Compositor::initializeHardwareIntegration()
 void Compositor::initializeExtensions()
 {
     if (m_extensions & QWaylandCompositor::SurfaceExtension)
-        m_surfaceExtension = new SurfaceExtensionGlobal(this);
+        new SurfaceExtensionGlobal(this);
     if (m_extensions & QWaylandCompositor::SubSurfaceExtension)
-        m_subSurfaceExtension = new SubSurfaceExtensionGlobal(this);
+        new SubSurfaceExtensionGlobal(waylandCompositor());
     if (m_extensions & QWaylandCompositor::TouchExtension)
-        m_touchExtension = new TouchExtensionGlobal(this);
+        new TouchExtensionGlobal(this);
     if (m_extensions & QWaylandCompositor::QtKeyExtension)
-        m_qtkeyExtension = new QtKeyExtensionGlobal(this);
+        new QtKeyExtensionGlobal(this);
     if (m_extensions & QWaylandCompositor::TextInputExtension) {
-        m_textInputManager.reset(new TextInputManager(this));
-        m_inputPanel.reset(new InputPanel(this));
+        new TextInputManager(this);
+        new QWaylandInputPanel(waylandCompositor());
     }
     if (m_extensions & QWaylandCompositor::WindowManagerExtension) {
-        m_windowManagerIntegration = new WindowManagerServerIntegration(m_qt_compositor, this);
-        m_windowManagerIntegration->initialize(m_display);
+        WindowManagerServerIntegration *wmint = new WindowManagerServerIntegration(m_qt_compositor, this);
+        wmint->initialize(m_display);
+    }
+    if (m_extensions & QWaylandCompositor::DefaultShellExtension) {
+        new Shell(waylandCompositor());
     }
 }
 
@@ -434,8 +425,9 @@ QList<QWaylandClient *> Compositor::clients() const
 
 void Compositor::setClientFullScreenHint(bool value)
 {
-    if (m_windowManagerIntegration)
-        m_windowManagerIntegration->setShowIsFullScreen(value);
+    WindowManagerServerIntegration *wmExtension = static_cast<WindowManagerServerIntegration *>(waylandCompositor()->extension(QtWaylandServer::qt_windowmanager::name()));
+    if (wmExtension)
+        wmExtension->setShowIsFullScreen(value);
 }
 
 QWaylandCompositor::ExtensionFlags Compositor::extensions() const
@@ -447,17 +439,6 @@ InputDevice* Compositor::defaultInputDevice()
 {
     // The list gets prepended so that default is the last element
     return m_inputDevices.last()->handle();
-}
-
-void Compositor::configureTouchExtension(int flags)
-{
-    if (m_touchExtension)
-        m_touchExtension->setFlags(flags);
-}
-
-InputPanel *Compositor::inputPanel() const
-{
-    return m_inputPanel.data();
 }
 
 DataDeviceManager *Compositor::dataDeviceManager() const
@@ -504,12 +485,6 @@ void Compositor::sendDragEndEvent()
 {
 //    Drag::instance()->dragEnd();
 }
-
-void Compositor::bindGlobal(wl_client *client, void *data, uint32_t version, uint32_t id)
-{
-    QWaylandGlobalInterface *iface = static_cast<QWaylandGlobalInterface *>(data);
-    iface->bind(client, qMin(iface->version(), version), id);
-};
 
 void Compositor::loadClientBufferIntegration()
 {

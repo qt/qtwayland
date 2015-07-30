@@ -38,6 +38,7 @@
 #define QWAYLANDINPUTPANEL_H
 
 #include <QtCompositor/qwaylandexport.h>
+#include <QtCompositor/qwaylandextension.h>
 
 #include <QObject>
 #include <QRect>
@@ -52,7 +53,7 @@ namespace QtWayland {
 class InputPanel;
 }
 
-class Q_COMPOSITOR_EXPORT QWaylandInputPanel : public QObject
+class Q_COMPOSITOR_EXPORT QWaylandInputPanel : public QWaylandExtensionTemplate
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandInputPanel)
@@ -62,14 +63,13 @@ class Q_COMPOSITOR_EXPORT QWaylandInputPanel : public QObject
     Q_PROPERTY(QRect cursorRectangle READ cursorRectangle NOTIFY cursorRectangleChanged)
 
 public:
-    explicit QWaylandInputPanel(QtWayland::InputPanel *inputPanel);
-
-    QtWayland::InputPanel *handle() const;
+    explicit QWaylandInputPanel(QWaylandCompositor *compositor);
 
     QWaylandSurface *focus() const;
     bool visible() const;
     QRect cursorRectangle() const;
 
+    static QWaylandInputPanel *get(QWaylandExtensionContainer *container);
 Q_SIGNALS:
     void focusChanged();
     void visibleChanged();

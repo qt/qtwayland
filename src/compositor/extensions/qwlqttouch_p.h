@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Klarälvdalens Datakonsult AB (KDAB).
+** Copyright (C) 2015 The Qt Company Ltd.
 ** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the QtWaylandCompositor module of the Qt Toolkit.
@@ -34,30 +34,63 @@
 **
 ****************************************************************************/
 
-#include "qwltextinputmanager_p.h"
+#ifndef WLTOUCH_H
+#define WLTOUCH_H
 
-#include "qwlcompositor_p.h"
-#include "qwltextinput_p.h"
+#include <private/qwlcompositor_p.h>
+#include <QtCompositor/private/qwayland-server-touch-extension.h>
+#include "wayland-util.h"
 
 QT_BEGIN_NAMESPACE
 
+class Compositor;
+class Surface;
+class QTouchEvent;
+class QWaylandSurfaceView;
+
 namespace QtWayland {
 
-TextInputManager::TextInputManager(Compositor *compositor)
-    : QtWaylandServer::wl_text_input_manager(compositor->wl_display(), 1)
-    , m_compositor(compositor)
+class TouchExtensionGlobal : public QWaylandExtension, public QtWaylandServer::qt_touch_extension
 {
-}
+    Q_OBJECT
+    Q_PROPERTY(BehaviorFlags behaviorFlags READ behaviorFlags WRITE setBehviorFlags NOTIFY behaviorFlagsChanged)
+public:
 
-TextInputManager::~TextInputManager()
-{
-}
+    enum BehaviorFlag{
+        None = 0x00,
+        MouseFromTouch = 0x01
+    };
+    Q_DECLARE_FLAGS(BehaviorFlags, BehaviorFlag)
 
-void TextInputManager::text_input_manager_create_text_input(Resource *resource, uint32_t id)
-{
-    new TextInput(m_compositor, resource->client(), id);
-}
+    TouchExtensionGlobal(Compositor *compositor);
+    ~TouchExtensionGlobal();
 
-} // namespace QtWayland
+    bool postTouchEvent(QTouchEvent *event, QWaylandSurfaceView *view);
+
+    void setBehviorFlags(BehaviorFlags flags);
+    BehaviorFlags behaviorFlags() const { return m_flags; }
+
+    const struct wl_interface *interface() const Q_DECL_OVERRIDE { return QtWaylandServer::qt_touch_extension::interface(); }
+
+    static TouchExtensionGlobal *get(QWaylandExtensionContainer *container);
+signals:
+    void behaviorFlagsChanged();
+
+protected:
+    void touch_extension_bind_resource(Resource *resource) Q_DECL_OVERRIDE;
+    void touch_extension_destroy_resource(Resource *resource) Q_DECL_OVERRIDE;
+
+private:
+    Compositor *m_compositor;
+    BehaviorFlags m_flags;
+    QList<Resource *> m_resources;
+    QVector<float> m_posData;
+};
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(TouchExtensionGlobal::BehaviorFlags)
+
+}
 
 QT_END_NAMESPACE
+
+#endif // WLTOUCH_H

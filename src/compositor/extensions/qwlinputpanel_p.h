@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2015 The Qt Company Ltd.
+** Copyright (C) 2013 Klarälvdalens Datakonsult AB (KDAB).
 ** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the QtWaylandCompositor module of the Qt Toolkit.
@@ -34,44 +34,58 @@
 **
 ****************************************************************************/
 
-#include "qwlqtkey_p.h"
-#include "qwlsurface_p.h"
-#include <QKeyEvent>
-#include <QWindow>
+#ifndef QTWAYLAND_QWLINPUTPANEL_P_H
+#define QTWAYLAND_QWLINPUTPANEL_P_H
+
+#include <QtCompositor/qwaylandexport.h>
+#include <QtCompositor/qwaylandinputpanel.h>
+
+#include <QtCompositor/private/qwaylandextension_p.h>
+#include <QtCompositor/private/qwayland-server-input-method.h>
+
+#include <QRect>
+#include <QScopedPointer>
 
 QT_BEGIN_NAMESPACE
 
 namespace QtWayland {
+class Compositor;
+class Surface;
+class TextInput;
+}
 
-QtKeyExtensionGlobal::QtKeyExtensionGlobal(Compositor *compositor)
-    : QtWaylandServer::qt_key_extension(compositor->wl_display(), 2)
-    , m_compositor(compositor)
+
+class Q_COMPOSITOR_EXPORT QWaylandInputPanelPrivate : public QWaylandExtensionTemplatePrivateImpl<QtWaylandServer::wl_input_panel>
 {
-}
+    Q_DECLARE_PUBLIC(QWaylandInputPanel)
+public:
+    QWaylandInputPanelPrivate(QtWayland::Compositor *compositor);
+    ~QWaylandInputPanelPrivate();
 
-bool QtKeyExtensionGlobal::postQtKeyEvent(QKeyEvent *event, Surface *surface)
-{
-    uint32_t time = m_compositor->currentTimeMsecs();
+    QWaylandInputPanel *waylandInputPanel() const;
 
-    Resource *target = surface ? resourceMap().value(surface->resource()->client()) : 0;
+    QtWayland::Surface *focus() const;
+    void setFocus(QtWayland::Surface *focus);
 
-    if (target) {
-        send_qtkey(target->handle,
-                   surface ? surface->resource()->handle : 0,
-                   time, event->type(), event->key(), event->modifiers(),
-                   event->nativeScanCode(),
-                   event->nativeVirtualKey(),
-                   event->nativeModifiers(),
-                   event->text(),
-                   event->isAutoRepeat(),
-                   event->count());
+    bool inputPanelVisible() const;
+    void setInputPanelVisible(bool inputPanelVisible);
 
-        return true;
-    }
+    QRect cursorRectangle() const;
+    void setCursorRectangle(const QRect &cursorRectangle);
 
-    return false;
-}
+    static QWaylandInputPanelPrivate *get(QWaylandExtensionContainer *container);
+    static QWaylandInputPanelPrivate *get(QWaylandInputPanel *panel);
+protected:
+    void input_panel_get_input_panel_surface(Resource *resource, uint32_t id, struct ::wl_resource *surface) Q_DECL_OVERRIDE;
 
-}
+private:
+    QtWayland::Compositor *m_compositor;
+
+    QtWayland::Surface *m_focus;
+    bool m_inputPanelVisible;
+    QRect m_cursorRectangle;
+};
 
 QT_END_NAMESPACE
+
+#endif // QTWAYLAND_QWLINPUTPANEL_P_H

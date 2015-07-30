@@ -106,12 +106,6 @@ public:
 
     QPoint lastMousePos() const;
 
-    void setShellSurface(ShellSurface *shellSurface);
-    ShellSurface *shellSurface() const;
-
-    void setExtendedSurface(ExtendedSurface *extendedSurface);
-    ExtendedSurface *extendedSurface() const;
-
     void setSubSurface(SubSurface *subSurface);
     SubSurface *subSurface() const;
 
@@ -200,8 +194,6 @@ protected:
     QList<FrameCallback *> m_pendingFrameCallbacks;
     QList<FrameCallback *> m_frameCallbacks;
 
-    ShellSurface *m_shellSurface;
-    ExtendedSurface *m_extendedSurface;
     SubSurface *m_subSurface;
     InputPanelSurface *m_inputPanelSurface;
 

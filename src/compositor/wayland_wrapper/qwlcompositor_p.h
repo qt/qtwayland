@@ -71,7 +71,6 @@ class SurfaceBuffer;
 class InputDevice;
 class DataDeviceManager;
 class SurfaceExtensionGlobal;
-class SubSurfaceExtensionGlobal;
 class TouchExtensionGlobal;
 class QtKeyExtensionGlobal;
 class TextInputManager;
@@ -129,16 +128,9 @@ public:
 
     QList<QWaylandClient *> clients() const;
 
-    WindowManagerServerIntegration *windowManagerIntegration() const { return m_windowManagerIntegration; }
-
     void setClientFullScreenHint(bool value);
 
     QWaylandCompositor::ExtensionFlags extensions() const;
-
-    TouchExtensionGlobal *touchExtension() { return m_touchExtension; }
-    void configureTouchExtension(int flags);
-
-    QtKeyExtensionGlobal *qtkeyExtension() { return m_qtkeyExtension; }
 
     InputPanel *inputPanel() const;
 
@@ -153,7 +145,6 @@ public:
     void overrideSelection(const QMimeData *data);
     void feedRetainedSelectionData(QMimeData *data);
 
-    static void bindGlobal(wl_client *client, void *data, uint32_t version, uint32_t id);
     void resetInputDevice(Surface *surface);
 
     void unregisterSurface(QWaylandSurface *surface);
@@ -207,16 +198,6 @@ protected:
     QScopedPointer<ServerBufferIntegration> m_server_buffer_integration;
 #endif
 
-    //extensions
-    WindowManagerServerIntegration *m_windowManagerIntegration;
-
-    SurfaceExtensionGlobal *m_surfaceExtension;
-    SubSurfaceExtensionGlobal *m_subSurfaceExtension;
-    TouchExtensionGlobal *m_touchExtension;
-    QtKeyExtensionGlobal *m_qtkeyExtension;
-    QScopedPointer<TextInputManager> m_textInputManager;
-    QScopedPointer<InputPanel> m_inputPanel;
-    QList<QWaylandGlobalInterface *> m_globals;
     QScopedPointer<QWindowSystemEventHandler> m_eventHandler;
 
     static void bind_func(struct wl_client *client, void *data,

@@ -37,6 +37,7 @@
 #ifndef QTWAYLAND_QWLTEXTINPUT_P_H
 #define QTWAYLAND_QWLTEXTINPUT_P_H
 
+#include <QtCompositor/QWaylandExtension>
 #include <QtCompositor/private/qwayland-server-text.h>
 
 #include <QRect>
@@ -49,10 +50,10 @@ class Compositor;
 class InputMethod;
 class Surface;
 
-class TextInput : public QtWaylandServer::wl_text_input
+class TextInput : public QWaylandExtension, public QtWaylandServer::wl_text_input
 {
 public:
-    explicit TextInput(Compositor *compositor, struct ::wl_client *client, int id);
+    explicit TextInput(QWaylandExtensionContainer *container, Compositor *compositor, struct ::wl_client *client, int id);
 
     Surface *focus() const;
 
@@ -61,6 +62,7 @@ public:
 
     void deactivate(InputMethod *inputMethod);
 
+    const struct wl_interface *interface() const Q_DECL_OVERRIDE { return wl_text_input::interface(); }
 protected:
     void text_input_destroy_resource(Resource *resource) Q_DECL_OVERRIDE;
 

@@ -79,13 +79,14 @@ public:
         , m_server_buffer_8_bit(0)
         , m_server_buffer_item_8_bit(0)
     {
+        setExtensionFlags(extensionFlags() | QWaylandCompositor::DefaultShellExtension);
+
         create();
         m_view.setSource(QUrl("qrc:/qml/main.qml"));
         m_view.setResizeMode(QQuickView::SizeRootObjectToView);
         m_view.setColor(Qt::black);
         m_view.create();
         m_output = primaryOutputSpace()->addOutputWindow(&m_view, "", "");
-        addDefaultShell();
 
         connect(&m_view, &QQuickView::afterRendering, this, &QmlCompositor::sendCallbacks);
 

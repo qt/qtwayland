@@ -408,16 +408,6 @@ void QWaylandSurfaceItem::updateSize()
     }
 }
 
-void QWaylandSurfaceItem::geometryChanged(const QRectF &newGeometry,
-                                          const QRectF &oldGeometry)
-{
-    QQuickItem::geometryChanged(newGeometry, oldGeometry);
-
-    if (surface() && m_resizeSurfaceToItem) {
-        surface()->requestSize(newGeometry.size().toSize());
-    }
-}
-
 void QWaylandSurfaceItem::setRequestedPosition(const QPointF &pos)
 {
     bool xChanged = pos.x() != requestedPosition().x();

@@ -78,9 +78,12 @@ void InputMethod::activate(TextInput *textInput)
 
     send_activate(m_resource->handle, m_context->resource()->handle);
 
-    m_compositor->inputPanel()->setFocus(textInput->focus());
-    m_compositor->inputPanel()->setCursorRectangle(textInput->cursorRectangle());
-    m_compositor->inputPanel()->setInputPanelVisible(textInput->inputPanelVisible());
+    QWaylandInputPanelPrivate *panel = QWaylandInputPanelPrivate::get(m_compositor->waylandCompositor());
+    if (panel) {
+        panel->setFocus(textInput->focus());
+        panel->setCursorRectangle(textInput->cursorRectangle());
+        panel->setInputPanelVisible(textInput->inputPanelVisible());
+    }
 }
 
 void InputMethod::deactivate()
@@ -94,9 +97,12 @@ void InputMethod::deactivate()
     m_textInput = 0;
     m_context = 0;
 
-    m_compositor->inputPanel()->setFocus(0);
-    m_compositor->inputPanel()->setCursorRectangle(QRect());
-    m_compositor->inputPanel()->setInputPanelVisible(false);
+    QWaylandInputPanelPrivate *panel = QWaylandInputPanelPrivate::get(m_compositor->waylandCompositor());
+    if (panel) {
+        panel->setFocus(0);
+        panel->setCursorRectangle(QRect());
+        panel->setInputPanelVisible(false);
+    }
 }
 
 void InputMethod::focusChanged(Surface *surface)

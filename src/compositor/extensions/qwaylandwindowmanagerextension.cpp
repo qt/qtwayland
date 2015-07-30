@@ -34,7 +34,7 @@
 **
 ****************************************************************************/
 
-#include <windowmanagerprotocol/waylandwindowmanagerintegration_p.h>
+#include "qwaylandwindowmanagerextension.h"
 
 #include <wayland_wrapper/qwldisplay_p.h>
 #include <wayland_wrapper/qwlcompositor_p.h>
@@ -49,7 +49,7 @@
 QT_BEGIN_NAMESPACE
 
 WindowManagerServerIntegration::WindowManagerServerIntegration(QWaylandCompositor *compositor, QObject *parent)
-    : QObject(parent)
+    : QWaylandExtension(compositor)
     , QtWaylandServer::qt_windowmanager()
     , m_showIsFullScreen(false)
     , m_compositor(compositor)

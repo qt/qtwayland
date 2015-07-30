@@ -62,11 +62,11 @@ WaylandCompositor {
 
     function addScreen() {
         var screen = screenComponent.createObject(0, { "compositor" : compositor } );
-        var output = compositor.addOutput(screen);
+        var output = compositor.primaryOutputSpace.addOutputWindow(screen);
         output.automaticFrameCallbacks = true;
     }
 
     onSurfaceCreated: {
-       var chrome = chromeComponent.createObject(surface.outputWindow.surfacesArea, { "surface" : surface } );
+       var chrome = chromeComponent.createObject(surface.primaryOutput.window.surfacesArea, { "surface" : surface } );
     }
 }

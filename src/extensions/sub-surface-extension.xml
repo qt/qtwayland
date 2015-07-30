@@ -47,7 +47,7 @@
 
     <interface name="qt_sub_surface" version="1">
         <request name="attach_sub_surface">
-            <arg name="sub_surface" type="object" interface="qt_sub_surface"/>
+            <arg name="child" type="object" interface="qt_sub_surface"/>
             <arg name="x" type="int"/>
             <arg name="y" type="int"/>
         </request>

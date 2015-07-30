@@ -66,14 +66,13 @@ public:
         : m_fullscreenSurface(0)
         , m_output(0)
     {
-        m_compositor.setExtensionFlags(QWaylandCompositor::DefaultExtensions | QWaylandCompositor::SubSurfaceExtension);
+        m_compositor.setExtensionFlags(QWaylandCompositor::DefaultExtensions | QWaylandCompositor::SubSurfaceExtension | QWaylandCompositor::DefaultShellExtension);
         m_compositor.create();
 
         setSource(QUrl("main.qml"));
         setResizeMode(QQuickView::SizeRootObjectToView);
         setColor(Qt::black);
         winId();
-        m_compositor.addDefaultShell();
         m_output = m_compositor.primaryOutputSpace()->addOutputWindow(this, "", "");
 
         connect(this, SIGNAL(afterRendering()), this, SLOT(sendCallbacks()));

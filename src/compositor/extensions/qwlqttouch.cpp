@@ -47,7 +47,8 @@ namespace QtWayland {
 static const int maxRawPos = 24;
 
 TouchExtensionGlobal::TouchExtensionGlobal(Compositor *compositor)
-    : QtWaylandServer::qt_touch_extension(compositor->wl_display(), 1)
+    : QWaylandExtension(compositor->waylandCompositor())
+    , QtWaylandServer::qt_touch_extension(compositor->wl_display(), 1)
     , m_compositor(compositor)
     , m_flags(0)
     , m_resources()
@@ -139,6 +140,20 @@ bool TouchExtensionGlobal::postTouchEvent(QTouchEvent *event, QWaylandSurfaceVie
     }
 
     return false;
+}
+
+void TouchExtensionGlobal::setBehviorFlags(BehaviorFlags flags)
+{
+    if (m_flags == flags)
+        return;
+
+    m_flags = flags;
+    behaviorFlagsChanged();
+}
+
+TouchExtensionGlobal *TouchExtensionGlobal::get(QWaylandExtensionContainer *container)
+{
+    return static_cast<TouchExtensionGlobal *>(container->extension(qt_touch_extension::name()));
 }
 
 void TouchExtensionGlobal::touch_extension_bind_resource(Resource *resource)

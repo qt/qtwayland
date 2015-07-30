@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Klarälvdalens Datakonsult AB (KDAB).
+** Copyright (C) 2015 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the QtWaylandCompositor module of the Qt Toolkit.
@@ -34,32 +34,47 @@
 **
 ****************************************************************************/
 
-#ifndef QTWAYLAND_QWLTEXTINPUTMANAGER_P_H
-#define QTWAYLAND_QWLTEXTINPUTMANAGER_P_H
+#ifndef QWAYLANDEXTENSION_P_H
+#define QWAYLANDEXTENSION_P_H
 
-#include <QtCompositor/private/qwayland-server-text.h>
+#include "qwaylandextension.h"
+#include <QtCore/private/qobject_p.h>
 
-QT_BEGIN_NAMESPACE
-
-namespace QtWayland {
-
-class Compositor;
-
-class TextInputManager : public QtWaylandServer::wl_text_input_manager
+class Q_COMPOSITOR_EXPORT QWaylandExtensionPrivate : public QObjectPrivate
 {
+    Q_DECLARE_PUBLIC(QWaylandExtension)
+
 public:
-    TextInputManager(Compositor *compositor);
-    ~TextInputManager();
+    QWaylandExtensionPrivate(QWaylandExtensionContainer *container)
+        : QObjectPrivate()
+        , extension_container(container)
+    {
+    }
 
-protected:
-    void text_input_manager_create_text_input(Resource *resource, uint32_t id) Q_DECL_OVERRIDE;
-
-private:
-    Compositor *m_compositor;
+    QWaylandExtensionContainer *extension_container;
 };
 
-} // namespace QtWayland
+class Q_COMPOSITOR_EXPORT QWaylandExtensionTemplatePrivate : public QWaylandExtensionPrivate
+{
+    Q_DECLARE_PUBLIC(QWaylandExtension)
 
-QT_END_NAMESPACE
+public:
+    QWaylandExtensionTemplatePrivate(QWaylandExtensionContainer *container)
+        : QWaylandExtensionPrivate(container)
+    {}
 
-#endif // QTWAYLAND_QWLTEXTINPUTMANAGER_P_H
+    virtual const struct wl_interface *interface() const = 0;
+};
+
+template <typename T>
+class Q_COMPOSITOR_EXPORT QWaylandExtensionTemplatePrivateImpl : public QWaylandExtensionTemplatePrivate, public T
+{
+public:
+    QWaylandExtensionTemplatePrivateImpl(QWaylandExtensionContainer *container)
+        : QWaylandExtensionTemplatePrivate(container)
+    { }
+
+    const struct wl_interface *interface() const Q_DECL_OVERRIDE { return T::interface(); }
+};
+
+#endif  /*QWAYLANDEXTENSION_P_H*/

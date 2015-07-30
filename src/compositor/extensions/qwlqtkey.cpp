@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Jolla Ltd, author: <giulio.camuffo@jollamobile.com>
+** Copyright (C) 2015 The Qt Company Ltd.
 ** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the QtWaylandCompositor module of the Qt Toolkit.
@@ -34,90 +34,50 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDSURFACEINTERFACE_H
-#define QWAYLANDSURFACEINTERFACE_H
-
+#include "qwlqtkey_p.h"
+#include "qwlsurface_p.h"
+#include <QKeyEvent>
 #include <QWindow>
-
-#include <QtCompositor/qwaylandsurface.h>
-#include <QtCompositor/qwaylandexport.h>
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandSurface;
+namespace QtWayland {
 
-class Q_COMPOSITOR_EXPORT QWaylandSurfaceOp
+QtKeyExtensionGlobal::QtKeyExtensionGlobal(Compositor *compositor)
+    : QWaylandExtension(compositor->waylandCompositor())
+    , QtWaylandServer::qt_key_extension(compositor->wl_display(), 2)
+    , m_compositor(compositor)
 {
-public:
-    enum Type {
-        Close,
-        SetVisibility,
-        Resize,
-        Ping,
-        UserType = 1000
-    };
+}
 
-    QWaylandSurfaceOp(int t);
-    virtual ~QWaylandSurfaceOp();
-
-    int type() const;
-
-private:
-    class Private;
-    Private *const d;
-};
-
-class Q_COMPOSITOR_EXPORT QWaylandSurfaceSetVisibilityOp : public QWaylandSurfaceOp
+bool QtKeyExtensionGlobal::postQtKeyEvent(QKeyEvent *event, Surface *surface)
 {
-public:
-    QWaylandSurfaceSetVisibilityOp(QWindow::Visibility visibility);
-    QWindow::Visibility visibility() const;
+    uint32_t time = m_compositor->currentTimeMsecs();
 
-private:
-    QWindow::Visibility m_visibility;
-};
+    Resource *target = surface ? resourceMap().value(surface->resource()->client()) : 0;
 
-class Q_COMPOSITOR_EXPORT QWaylandSurfaceResizeOp : public QWaylandSurfaceOp
+    if (target) {
+        send_qtkey(target->handle,
+                   surface ? surface->resource()->handle : 0,
+                   time, event->type(), event->key(), event->modifiers(),
+                   event->nativeScanCode(),
+                   event->nativeVirtualKey(),
+                   event->nativeModifiers(),
+                   event->text(),
+                   event->isAutoRepeat(),
+                   event->count());
+
+        return true;
+    }
+
+    return false;
+}
+
+QtKeyExtensionGlobal *QtKeyExtensionGlobal::get(QWaylandExtensionContainer *container)
 {
-public:
-    QWaylandSurfaceResizeOp(const QSize &size);
-    QSize size() const;
+    return static_cast<QtKeyExtensionGlobal *>(container->extension(qt_key_extension::name()));
+}
 
-private:
-    QSize m_size;
-};
-
-class Q_COMPOSITOR_EXPORT QWaylandSurfacePingOp : public QWaylandSurfaceOp
-{
-public:
-    QWaylandSurfacePingOp(quint32 serial);
-    quint32 serial() const;
-
-private:
-    quint32 m_serial;
-};
-
-class Q_COMPOSITOR_EXPORT QWaylandSurfaceInterface
-{
-public:
-    QWaylandSurfaceInterface(QWaylandSurface *surf);
-    virtual ~QWaylandSurfaceInterface();
-
-    QWaylandSurface *surface() const;
-
-protected:
-    virtual bool runOperation(QWaylandSurfaceOp *op) = 0;
-
-    void setSurfaceType(QWaylandSurface::WindowType type);
-    void setSurfaceClassName(const QString &name);
-    void setSurfaceTitle(const QString &title);
-
-private:
-    class Private;
-    Private *const d;
-    friend class QWaylandSurface;
-};
+}
 
 QT_END_NAMESPACE
-
-#endif

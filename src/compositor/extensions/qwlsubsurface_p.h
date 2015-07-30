@@ -39,7 +39,7 @@
 
 #include <private/qwlsurface_p.h>
 
-#include <QtCompositor/private/wayland-sub-surface-extension-server-protocol.h>
+#include <QtCompositor/private/qwayland-server-sub-surface-extension.h>
 
 #include <QtCore/QLinkedList>
 
@@ -50,28 +50,25 @@ class QWaylandSurface;
 
 namespace QtWayland {
 
-class SubSurfaceExtensionGlobal
+class SubSurfaceExtensionGlobal : public QWaylandExtension, public QtWaylandServer::qt_sub_surface_extension
 {
+    Q_OBJECT
 public:
-    SubSurfaceExtensionGlobal(Compositor *compositor);
+    SubSurfaceExtensionGlobal(QWaylandCompositor *compositor);
 
+    const struct wl_interface *interface() const { return qt_sub_surface_extension::interface(); }
 private:
-    Compositor *m_compositor;
+    QWaylandCompositor *m_compositor;
 
-    static void bind_func(struct wl_client *client, void *data,
-                          uint32_t version, uint32_t id);
-    static void get_sub_surface_aware_surface(struct wl_client *client,
-                                          struct wl_resource *sub_surface_extension_resource,
-                                          uint32_t id,
-                                          struct wl_resource *surface_resource);
-
-    static const struct qt_sub_surface_extension_interface sub_surface_extension_interface;
+    void sub_surface_extension_get_sub_surface_aware_surface(Resource *resource, uint32_t id, struct ::wl_resource *surface) Q_DECL_OVERRIDE;
 };
 
-class SubSurface
+class SubSurface : public QWaylandExtension, public QtWaylandServer::qt_sub_surface
 {
+    Q_OBJECT
+    Q_PROPERTY(SubSurface *parent READ parent WRITE setParent NOTIFY parentChanged)
 public:
-    SubSurface(struct wl_client *client, uint32_t id, Surface *surface);
+    SubSurface(struct wl_client *client, uint32_t id, QWaylandSurface *surface);
     ~SubSurface();
 
     void setSubSurface(SubSurface *subSurface, int x, int y);
@@ -82,44 +79,32 @@ public:
 
     QLinkedList<QWaylandSurface *> subSurfaces() const;
 
-    Surface *surface() const;
-    QWaylandSurface *waylandSurface() const;
+    QWaylandSurface *surface() const;
+
+    const struct wl_interface *interface() const { return qt_sub_surface::interface(); }
+
+signals:
+    void parentChanged(SubSurface *newParent, SubSurface *oldParent);
+
+protected:
+    void sub_surface_attach_sub_surface(Resource *resource, struct ::wl_resource *sub_surface, int32_t x, int32_t y) Q_DECL_OVERRIDE;
+    void sub_surface_move_sub_surface(Resource *resource, struct ::wl_resource *sub_surface, int32_t x, int32_t y) Q_DECL_OVERRIDE;
+    void sub_surface_raise(Resource *resource, struct ::wl_resource *sub_surface) Q_DECL_OVERRIDE;
+    void sub_surface_lower(Resource *resource, struct ::wl_resource *sub_surface) Q_DECL_OVERRIDE;
 
 private:
     void parentDestroyed();
     struct wl_resource *m_sub_surface_resource;
-    Surface *m_surface;
+    QWaylandSurface *m_surface;
 
     SubSurface *m_parent;
     QLinkedList<QWaylandSurface *> m_sub_surfaces;
 
-    static void attach_sub_surface(struct wl_client *client,
-                                   struct wl_resource *sub_surface_parent_resource,
-                                   struct wl_resource *sub_surface_child_resource,
-                                   int32_t x,
-                                   int32_t y);
-    static void move_sub_surface(struct wl_client *client,
-                                 struct wl_resource *sub_surface_parent_resource,
-                                 struct wl_resource *sub_surface_child_resource,
-                                 int32_t x,
-                                 int32_t y);
-    static void raise(struct wl_client *client,
-                      struct wl_resource *sub_surface_parent_resource,
-                      struct wl_resource *sub_surface_child_resource);
-    static void lower(struct wl_client *client,
-                      struct wl_resource *sub_surface_parent_resource,
-                      struct wl_resource *sub_surface_child_resource);
-    static const struct qt_sub_surface_interface sub_surface_interface;
 };
 
-inline Surface *SubSurface::surface() const
+inline QWaylandSurface *SubSurface::surface() const
 {
     return m_surface;
-}
-
-inline QWaylandSurface *SubSurface::waylandSurface() const
-{
-    return m_surface->waylandSurface();
 }
 
 }

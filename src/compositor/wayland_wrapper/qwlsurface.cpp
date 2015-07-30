@@ -119,8 +119,6 @@ Surface::Surface(struct wl_client *client, uint32_t id, int version, QWaylandCom
     , m_primaryOutput(0)
     , m_buffer(0)
     , m_surfaceMapped(false)
-    , m_shellSurface(0)
-    , m_extendedSurface(0)
     , m_subSurface(0)
     , m_inputPanelSurface(0)
     , m_inputRegion(infiniteRegion())
@@ -231,30 +229,6 @@ QWaylandSurface * Surface::waylandSurface() const
 QPoint Surface::lastMousePos() const
 {
     return m_lastLocalMousePos;
-}
-
-void Surface::setShellSurface(ShellSurface *shellSurface)
-{
-    m_shellSurface = shellSurface;
-    if (m_shellSurface)
-        emit m_waylandSurface->shellViewCreated();
-}
-
-ShellSurface *Surface::shellSurface() const
-{
-    return m_shellSurface;
-}
-
-void Surface::setExtendedSurface(ExtendedSurface *extendedSurface)
-{
-    m_extendedSurface = extendedSurface;
-    if (m_extendedSurface)
-        emit m_waylandSurface->extendedSurfaceReady();
-}
-
-ExtendedSurface *Surface::extendedSurface() const
-{
-    return m_extendedSurface;
 }
 
 void Surface::setSubSurface(SubSurface *subSurface)
@@ -394,11 +368,6 @@ void Surface::notifyViewsAboutDestruction()
 
 void Surface::surface_destroy_resource(Resource *)
 {
-    if (m_extendedSurface) {
-        m_extendedSurface->setParentSurface(Q_NULLPTR);
-        m_extendedSurface = 0;
-    }
-
     notifyViewsAboutDestruction();
 
     m_destroyed = true;

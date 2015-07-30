@@ -370,6 +370,7 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath, const QByteArr
         printf("#include <QByteArray>\n");
         printf("#include <QMultiMap>\n");
         printf("#include <QString>\n");
+        printf("\n");
 
         printf("\n");
         printf("#ifndef WAYLAND_VERSION_CHECK\n");
@@ -381,7 +382,9 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath, const QByteArr
 
         printf("\n");
         printf("QT_BEGIN_NAMESPACE\n");
-
+        printf("\n");
+        printf("class QWaylandExtensionContainer;\n");
+        printf("\n");
         QByteArray serverExport;
         if (headerPath.size()) {
             serverExport = QByteArray("Q_WAYLAND_SERVER_") + preProcessorProtocolName + "_EXPORT";
@@ -446,6 +449,11 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath, const QByteArr
             printf("\n");
             printf("        bool isGlobal() const { return m_global != 0; }\n");
             printf("        bool isResource() const { return m_resource != 0; }\n");
+            printf("\n");
+            printf("        static const struct ::wl_interface *interface();\n");
+            printf("        static QByteArray name() { return interface()->name; }\n");
+            printf("        static int interfaceVersion() { return interface()->version; }\n");
+            printf("\n");
 
             printEnums(interface.enums);
 
@@ -525,6 +533,7 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath, const QByteArr
             printf("#include \"qwayland-server-%s.h\"\n", QByteArray(protocolName).replace('_', '-').constData());
         else
             printf("#include <%s/qwayland-server-%s.h>\n", headerPath.constData(), QByteArray(protocolName).replace('_', '-').constData());
+        printf("#include <QtCompositor/QWaylandExtension>\n");
         printf("\n");
         printf("QT_BEGIN_NAMESPACE\n");
         printf("\n");
@@ -604,6 +613,12 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath, const QByteArr
             printf("    {\n");
             printf("        m_global = wl_global_create(display, &::%s_interface, version, this, bind_func);\n", interfaceName);
             printf("        m_globalVersion = version;\n");
+            printf("    }\n");
+            printf("\n");
+
+            printf("    const struct wl_interface *%s::interface()\n", interfaceName);
+            printf("    {\n");
+            printf("        return &::%s_interface;\n", interfaceName);
             printf("    }\n");
             printf("\n");
 

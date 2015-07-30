@@ -62,7 +62,7 @@ WaylandCompositor {
 
     function addScreen() {
         var screen = screenComponent.createObject(0, { "compositor" : compositor } );
-        var output = compositor.primaryOutputSpace.addOutputWindow(screen);
+        var output = compositor.primaryOutputSpace.addOutputWindow(screen, "", "");
         output.automaticFrameCallbacks = true;
     }
 

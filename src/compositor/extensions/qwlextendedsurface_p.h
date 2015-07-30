@@ -42,7 +42,7 @@
 #include <QtCompositor/private/qwayland-server-surface-extension.h>
 #include <private/qwlsurface_p.h>
 #include <QtCompositor/qwaylandsurface.h>
-#include <QtCompositor/qwaylandsurfaceinterface.h>
+#include <QtCompositor/qwaylandextension.h>
 
 #include <QtCore/QVariant>
 #include <QtCore/QLinkedList>
@@ -56,10 +56,12 @@ namespace QtWayland {
 
 class Compositor;
 
-class SurfaceExtensionGlobal : public QtWaylandServer::qt_surface_extension
+class SurfaceExtensionGlobal : public QWaylandExtension, public QtWaylandServer::qt_surface_extension
 {
 public:
     SurfaceExtensionGlobal(Compositor *compositor);
+
+    const wl_interface *interface() const Q_DECL_OVERRIDE { return QtWaylandServer::qt_surface_extension::interface(); }
 
 private:
     void surface_extension_get_extended_surface(Resource *resource,
@@ -68,14 +70,28 @@ private:
 
 };
 
-class ExtendedSurface : public QWaylandSurfaceInterface, public QtWaylandServer::qt_extended_surface
+class Q_COMPOSITOR_EXPORT ExtendedSurface : public QWaylandExtension, public QtWaylandServer::qt_extended_surface
 {
+    Q_OBJECT
+    Q_PROPERTY(Qt::ScreenOrientations contentOrientationMask READ contentOrientationMask NOTIFY contentOrientationMaskChanged)
+    Q_PROPERTY(WindowFlags windowFlags READ windowFlags NOTIFY windowFlagsChanged)
+    Q_FLAGS(WindowFlag WindowFlags)
 public:
+    enum WindowFlag {
+        OverridesSystemGestures     = 0x0001,
+        StaysOnTop                  = 0x0002,
+        BypassWindowManager         = 0x0004
+    };
+    Q_DECLARE_FLAGS(WindowFlags, WindowFlag)
+
+    static ExtendedSurface *get(QWaylandSurface *surface);
+
     ExtendedSurface(struct wl_client *client, uint32_t id, int version, Surface *surface);
     ~ExtendedSurface();
 
     void sendGenericProperty(const QString &name, const QVariant &variant);
 
+    void sendOnScreenVisibilityChange(bool onScreen);
     void setVisibility(QWindow::Visibility visibility);
 
     void setSubSurface(ExtendedSurface *subSurface,int x, int y);
@@ -87,21 +103,27 @@ public:
 
     Qt::ScreenOrientations contentOrientationMask() const;
 
-    QWaylandSurface::WindowFlags windowFlags() const { return m_windowFlags; }
+    WindowFlags windowFlags() const { return m_windowFlags; }
 
     QVariantMap windowProperties() const;
     QVariant windowProperty(const QString &propertyName) const;
-    void setWindowProperty(const QString &name, const QVariant &value, bool writeUpdateToClient = true);
+    void setWindowProperty(const QString &name, const QVariant &value);
 
-protected:
-    bool runOperation(QWaylandSurfaceOp *op) Q_DECL_OVERRIDE;
+    const wl_interface *interface() const Q_DECL_OVERRIDE { return QtWaylandServer::qt_extended_surface::interface(); }
+
+signals:
+    void contentOrientationMaskChanged();
+    void windowFlagsChanged();
+    void windowPropertyChanged(const QString &name, const QVariant &value);
 
 private:
+    void setWindowPropertyImpl(const QString &name, const QVariant &value);
+
     Surface *m_surface;
 
     Qt::ScreenOrientations m_contentOrientationMask;
 
-    QWaylandSurface::WindowFlags m_windowFlags;
+    WindowFlags m_windowFlags;
 
     QByteArray m_authenticationToken;
     QVariantMap m_windowProperties;

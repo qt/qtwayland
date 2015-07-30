@@ -39,6 +39,7 @@
 #define QWAYLANDSURFACE_H
 
 #include <QtCompositor/qwaylandexport.h>
+#include <QtCompositor/qwaylandextension.h>
 
 #include <QtCore/QScopedPointer>
 #include <QtGui/QImage>
@@ -56,7 +57,6 @@ class QWaylandSurfacePrivate;
 class QWaylandCompositor;
 class QWaylandBufferRef;
 class QWaylandSurfaceView;
-class QWaylandSurfaceInterface;
 class QWaylandSurfaceOp;
 class QWaylandOutput;
 
@@ -98,42 +98,21 @@ private:
     QWaylandSurfaceLeaveEventPrivate *d;
 };
 
-class Q_COMPOSITOR_EXPORT QWaylandSurface : public QObject
+class Q_COMPOSITOR_EXPORT QWaylandSurface : public QObject, public QWaylandExtensionContainer
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandSurface)
     Q_PROPERTY(QWaylandClient *client READ client CONSTANT)
     Q_PROPERTY(QSize size READ size NOTIFY sizeChanged)
-    Q_PROPERTY(QWaylandSurface::WindowFlags windowFlags READ windowFlags NOTIFY windowFlagsChanged)
-    Q_PROPERTY(QWaylandSurface::WindowType windowType READ windowType NOTIFY windowTypeChanged)
     Q_PROPERTY(Qt::ScreenOrientation contentOrientation READ contentOrientation NOTIFY contentOrientationChanged)
     Q_PROPERTY(QString className READ className NOTIFY classNameChanged)
     Q_PROPERTY(QString title READ title NOTIFY titleChanged)
-    Q_PROPERTY(Qt::ScreenOrientations orientationUpdateMask READ orientationUpdateMask NOTIFY orientationUpdateMaskChanged)
-    Q_PROPERTY(QWindow::Visibility visibility READ visibility WRITE setVisibility NOTIFY visibilityChanged)
     Q_PROPERTY(QWaylandSurface *transientParent READ transientParent)
     Q_PROPERTY(QPointF transientOffset READ transientOffset)
     Q_PROPERTY(QWaylandOutput *primaryOutput READ primaryOutput WRITE setPrimaryOutput NOTIFY primaryOutputChanged)
     Q_PROPERTY(QWaylandSurface::Origin origin READ origin NOTIFY originChanged);
 
-    Q_ENUMS(WindowFlag WindowType)
-    Q_FLAGS(WindowFlag WindowFlags)
-
 public:
-    enum WindowFlag {
-        OverridesSystemGestures     = 0x0001,
-        StaysOnTop                  = 0x0002,
-        BypassWindowManager         = 0x0004
-    };
-    Q_DECLARE_FLAGS(WindowFlags, WindowFlag)
-
-    enum WindowType {
-        None,
-        Toplevel,
-        Transient,
-        Popup
-    };
-
     enum Origin {
         OriginTopLeft,
         OriginBottomLeft
@@ -146,26 +125,15 @@ public:
 
     QWaylandSurface *parentSurface() const;
     QLinkedList<QWaylandSurface *> subSurfaces() const;
-    void addInterface(QWaylandSurfaceInterface *interface);
-    void removeInterface(QWaylandSurfaceInterface *interface);
 
     bool visible() const;
     bool isMapped() const;
 
     QSize size() const;
-    Q_INVOKABLE void requestSize(const QSize &size);
 
-    Qt::ScreenOrientations orientationUpdateMask() const;
     Qt::ScreenOrientation contentOrientation() const;
 
-    WindowFlags windowFlags() const;
-
-    WindowType windowType() const;
     Origin origin() const;
-
-    QWindow::Visibility visibility() const;
-    void setVisibility(QWindow::Visibility visibility);
-    Q_INVOKABLE void sendOnScreenVisibilityChange(bool visible); // Compat
 
     QWaylandSurface *transientParent() const;
 
@@ -174,8 +142,6 @@ public:
     QtWayland::Surface *handle();
 
     QByteArray authenticationToken() const;
-    QVariantMap windowProperties() const;
-    void setWindowProperty(const QString &name, const QVariant &value);
 
     QWaylandCompositor *compositor() const;
 
@@ -193,8 +159,6 @@ public:
     bool inputRegionContains(const QPoint &p) const;
 
     Q_INVOKABLE void destroy();
-    Q_INVOKABLE void destroySurface();
-    Q_INVOKABLE void ping();
 
     Q_INVOKABLE void sendFrameCallbacks();
 
@@ -203,11 +167,6 @@ public:
     void setMapped(bool mapped);
 
     QList<QWaylandSurfaceView *> views() const;
-    QList<QWaylandSurfaceInterface *> interfaces() const;
-
-    QWaylandSurfaceView *shellView() const;
-
-    bool sendInterfaceOp(QWaylandSurfaceOp &op);
 
     static QWaylandSurface *fromResource(::wl_resource *resource);
 
@@ -227,27 +186,20 @@ Q_SIGNALS:
     void parentChanged(QWaylandSurface *newParent, QWaylandSurface *oldParent);
     void sizeChanged();
     void offsetForNextFrame(const QPoint &offset);
-    void windowPropertyChanged(const QString &name, const QVariant &value);
-    void windowFlagsChanged(WindowFlags flags);
-    void windowTypeChanged(WindowType type);
     void contentOrientationChanged();
-    void orientationUpdateMaskChanged();
     void extendedSurfaceReady();
     void classNameChanged();
     void titleChanged();
     void raiseRequested();
     void lowerRequested();
-    void visibilityChanged();
     void pong();
     void surfaceDestroyed();
-    void shellViewCreated();
     void primaryOutputChanged(QWaylandOutput *newOutput, QWaylandOutput *oldOutput);
     void originChanged();
 
     void configure(bool hasBuffer);
     void redraw();
 
-    friend class QWaylandSurfaceInterface;
     friend class QtWayland::Surface;
 };
 

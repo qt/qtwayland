@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Jolla Ltd, author: <giulio.camuffo@jollamobile.com>
+** Copyright (C) 2015 The Qt Company Ltd.
 ** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the QtWaylandCompositor module of the Qt Toolkit.
@@ -34,25 +34,40 @@
 **
 ****************************************************************************/
 
-#include "qwaylandglobalinterface.h"
+#ifndef WLQTKEY_H
+#define WLQTKEY_H
 
-#include <wayland-server.h>
+#include  <private/qwlcompositor_p.h>
+
+#include "wayland-util.h"
+
+#include <QtCompositor/private/qwayland-server-qtkey-extension.h>
 
 QT_BEGIN_NAMESPACE
 
-QWaylandGlobalInterface::QWaylandGlobalInterface()
+class Compositor;
+class Surface;
+class QKeyEvent;
+
+namespace QtWayland {
+
+class QtKeyExtensionGlobal : public QWaylandExtension, public QtWaylandServer::qt_key_extension
 {
+    Q_OBJECT
+public:
+    QtKeyExtensionGlobal(Compositor *compositor);
 
-}
+    bool postQtKeyEvent(QKeyEvent *event, Surface *surface);
 
-QWaylandGlobalInterface::~QWaylandGlobalInterface()
-{
+    const struct wl_interface *interface() const Q_DECL_OVERRIDE { return qt_key_extension::interface(); }
 
-}
+    static QtKeyExtensionGlobal *get(QWaylandExtensionContainer *container);
+private:
+    Compositor *m_compositor;
+};
 
-quint32 QWaylandGlobalInterface::version() const
-{
-    return interface()->version;
 }
 
 QT_END_NAMESPACE
+
+#endif // WLQTKEY_H

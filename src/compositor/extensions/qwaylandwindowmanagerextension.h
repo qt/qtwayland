@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Klarälvdalens Datakonsult AB (KDAB).
+** Copyright (C) 2015 The Qt Company Ltd.
 ** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the QtWaylandCompositor module of the Qt Toolkit.
@@ -34,90 +34,47 @@
 **
 ****************************************************************************/
 
-#include "qwlinputpanel_p.h"
+#ifndef WAYLANDWINDOWMANAGERINTEGRATION_H
+#define WAYLANDWINDOWMANAGERINTEGRATION_H
 
-#include <QtCompositor/qwaylandinputpanel.h>
+#include <QtCompositor/qwaylandexport.h>
+#include <QtCompositor/private/qwayland-server-windowmanager.h>
 
-#include "qwlcompositor_p.h"
-#include "qwlinputdevice_p.h"
-#include "qwlinputmethod_p.h"
-#include "qwlinputpanelsurface_p.h"
-#include "qwlsurface_p.h"
-#include "qwltextinput_p.h"
+#include <QtCompositor/QWaylandExtension>
+#include <QMap>
 
 QT_BEGIN_NAMESPACE
 
 namespace QtWayland {
-
-InputPanel::InputPanel(Compositor *compositor)
-    : QtWaylandServer::wl_input_panel(compositor->wl_display(), 1)
-    , m_compositor(compositor)
-    , m_handle(new QWaylandInputPanel(this))
-    , m_focus()
-    , m_inputPanelVisible(false)
-    , m_cursorRectangle()
-{
+    class Display;
 }
 
-InputPanel::~InputPanel()
+class QWaylandCompositor;
+
+class Q_COMPOSITOR_EXPORT WindowManagerServerIntegration : public QWaylandExtension, public QtWaylandServer::qt_windowmanager
 {
-}
+    Q_OBJECT
+public:
+    explicit WindowManagerServerIntegration(QWaylandCompositor *compositor, QObject *parent = 0);
+    ~WindowManagerServerIntegration();
 
-QWaylandInputPanel *InputPanel::handle() const
-{
-    return m_handle.data();
-}
+    void initialize(QtWayland::Display *waylandDisplay);
 
-Surface *InputPanel::focus() const
-{
-    return m_focus;
-}
+    void setShowIsFullScreen(bool value);
+    void sendQuitMessage(wl_client *client);
 
-void InputPanel::setFocus(Surface *focus)
-{
-    if (m_focus == focus)
-        return;
+    const wl_interface *interface() const Q_DECL_OVERRIDE { return QtWaylandServer::qt_windowmanager::interface(); }
+protected:
+    void windowmanager_bind_resource(Resource *resource) Q_DECL_OVERRIDE;
+    void windowmanager_destroy_resource(Resource *resource) Q_DECL_OVERRIDE;
+    void windowmanager_open_url(Resource *resource, uint32_t remaining, const QString &url) Q_DECL_OVERRIDE;
 
-    m_focus = focus;
-
-    Q_EMIT handle()->focusChanged();
-}
-
-bool InputPanel::inputPanelVisible() const
-{
-    return m_inputPanelVisible;
-}
-
-void InputPanel::setInputPanelVisible(bool inputPanelVisible)
-{
-    if (m_inputPanelVisible == inputPanelVisible)
-        return;
-
-    m_inputPanelVisible = inputPanelVisible;
-
-    Q_EMIT handle()->visibleChanged();
-}
-
-QRect InputPanel::cursorRectangle() const
-{
-    return m_cursorRectangle;
-}
-
-void InputPanel::setCursorRectangle(const QRect &cursorRectangle)
-{
-    if (m_cursorRectangle == cursorRectangle)
-        return;
-
-    m_cursorRectangle = cursorRectangle;
-
-    Q_EMIT handle()->cursorRectangleChanged();
-}
-
-void InputPanel::input_panel_get_input_panel_surface(Resource *resource, uint32_t id, wl_resource *surface)
-{
-    new InputPanelSurface(resource->client(), id, Surface::fromResource(surface));
-}
-
-} // namespace QtWayland
+private:
+    bool m_showIsFullScreen;
+    QWaylandCompositor *m_compositor;
+    QMap<Resource*, QString> m_urls;
+};
 
 QT_END_NAMESPACE
+
+#endif // WAYLANDWINDOWMANAGERINTEGRATION_H

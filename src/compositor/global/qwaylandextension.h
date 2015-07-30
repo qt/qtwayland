@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Jolla Ltd, author: <giulio.camuffo@jollamobile.com>
+** Copyright (C) 2015 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the QtWaylandCompositor module of the Qt Toolkit.
@@ -34,33 +34,65 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDGLOBALINTERFACE_H
-#define QWAYLANDGLOBALINTERFACE_H
+#ifndef QWAYLANDEXTENSION_H
+#define QWAYLANDEXTENSION_H
 
 #include <QtCompositor/qwaylandexport.h>
+#include <wayland-server.h>
 
-struct wl_interface;
-struct wl_client;
+#include <QtCore/QObject>
+#include <QtCore/QVector>
 
 QT_BEGIN_NAMESPACE
 
-namespace QtWayland {
-class Compositor;
-}
+class QWaylandCompositor;
+class QWaylandExtensionContainer;
+class QWaylandExtensionPrivate;
 
-class Q_COMPOSITOR_EXPORT QWaylandGlobalInterface
+class Q_COMPOSITOR_EXPORT QWaylandExtension : public QObject
 {
+    Q_OBJECT
+    Q_DECLARE_PRIVATE(QWaylandExtension)
 public:
-    QWaylandGlobalInterface();
-    virtual ~QWaylandGlobalInterface();
+    QWaylandExtension(QWaylandExtensionContainer *container, QObject *parent = 0);
+    virtual ~QWaylandExtension();
 
-    virtual const wl_interface *interface() const = 0;
-    virtual quint32 version() const;
+    virtual const struct wl_interface *interface() const = 0;
+
+    const QByteArray name() const { return interface()->name; }
+    quint32 version() const { return interface()->version; }
 
 protected:
-    virtual void bind(wl_client *client, quint32 version, quint32 id) = 0;
+    QWaylandExtension(QWaylandExtensionPrivate &dd, QObject *parent = 0);
+};
 
-    friend class QtWayland::Compositor;
+class Q_COMPOSITOR_EXPORT QWaylandExtensionContainer
+{
+public:
+    virtual ~QWaylandExtensionContainer();
+
+    QWaylandExtension *extension(const QByteArray &name);
+    QWaylandExtension *extension(const wl_interface *interface);
+    QVector<QWaylandExtension *> extensions() const;
+    void addExtension(QWaylandExtension *extension);
+    void removeExtension(QWaylandExtension *extension);
+
+protected:
+    QVector<QWaylandExtension *> extension_vector;
+};
+
+class QWaylandExtensionTemplatePrivate;
+class Q_COMPOSITOR_EXPORT QWaylandExtensionTemplate : public QWaylandExtension
+{
+    Q_OBJECT
+    Q_DECLARE_PRIVATE(QWaylandExtensionTemplate)
+public:
+    QWaylandExtensionTemplate(QWaylandExtensionContainer *container, QObject *parent = 0);
+
+    const struct wl_interface *interface() const Q_DECL_OVERRIDE;
+
+protected:
+    QWaylandExtensionTemplate(QWaylandExtensionTemplatePrivate &dd, QObject *parent = 0);
 };
 
 QT_END_NAMESPACE

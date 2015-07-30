@@ -60,6 +60,11 @@ void QWaylandQuickCompositor::create()
     if (m_initializeLegazyQmlNames)
         registerLegacyQmlNames();
 
+    if (m_exposeDefaultShell)
+        setExtensionFlags(extensionFlags() | QWaylandCompositor::DefaultShellExtension);
+    else
+        setExtensionFlags(extensionFlags() & !QWaylandCompositor::DefaultShellExtension);
+
     QWaylandCompositor::create();
 }
 
@@ -133,8 +138,8 @@ void QWaylandQuickCompositor::classBegin()
 
 void QWaylandQuickCompositor::componentComplete()
 {
-    if (m_exposeDefaultShell)
-        addDefaultShell();
+    //if (m_exposeDefaultShell)
+        //addDefaultShell();
 
 }
 

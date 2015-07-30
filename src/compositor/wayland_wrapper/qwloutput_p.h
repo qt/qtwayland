@@ -68,9 +68,9 @@ struct SurfaceViewMapper
     QVector<QWaylandSurfaceView *> views;
 };
 
-struct OutputResource : public QtWaylandServer::wl_output::Resource
+//Just for naming convenience
+class OutputResource : public QtWaylandServer::wl_output::Resource
 {
-    OutputResource() {}
 };
 
 class Output : public QtWaylandServer::wl_output

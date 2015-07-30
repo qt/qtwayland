@@ -38,7 +38,6 @@
 #include <QOpenGLTexture>
 #include <QQuickWindow>
 #include <QDebug>
-#include <QQmlPropertyMap>
 
 #include "qwaylandquicksurface.h"
 #include "qwaylandquickcompositor.h"
@@ -46,6 +45,9 @@
 #include "qwaylandoutput.h"
 #include <QtCompositor/qwaylandbufferref.h>
 #include <QtCompositor/private/qwaylandsurface_p.h>
+
+#include <QtCompositor/private/qwayland-server-surface-extension.h>
+#include <QtCompositor/private/qwlextendedsurface_p.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -56,14 +58,12 @@ public:
         : QWaylandSurfacePrivate(client, id, version, c, surf)
         , compositor(c)
         , useTextureAlpha(true)
-        , windowPropertyMap(new QQmlPropertyMap)
         , clientRenderingEnabled(true)
     {
     }
 
     ~QWaylandQuickSurfacePrivate()
     {
-        windowPropertyMap->deleteLater();
     }
 
     void surface_commit(Resource *resource) Q_DECL_OVERRIDE
@@ -78,18 +78,13 @@ public:
 
     QWaylandQuickCompositor *compositor;
     bool useTextureAlpha;
-    QQmlPropertyMap *windowPropertyMap;
     bool clientRenderingEnabled;
 };
 
 QWaylandQuickSurface::QWaylandQuickSurface(wl_client *client, quint32 id, int version, QWaylandQuickCompositor *compositor)
                     : QWaylandSurface(new QWaylandQuickSurfacePrivate(client, id, version, compositor, this))
 {
-    Q_D(QWaylandQuickSurface);
-    connect(this, &QWaylandSurface::shellViewCreated, this, &QWaylandQuickSurface::shellViewCreated);
     connect(this, &QWaylandSurface::primaryOutputChanged, this, &QWaylandQuickSurface::primaryOutputWindowChanged);
-    connect(this, &QWaylandSurface::windowPropertyChanged, d->windowPropertyMap, &QQmlPropertyMap::insert);
-    connect(d->windowPropertyMap, &QQmlPropertyMap::valueChanged, this, &QWaylandSurface::setWindowProperty);
 
     connect(this, &QWaylandSurface::windowPropertyChanged, d->windowPropertyMap, &QQmlPropertyMap::insert);
     connect(d->windowPropertyMap, &QQmlPropertyMap::valueChanged, this, &QWaylandSurface::setWindowProperty);
@@ -115,17 +110,6 @@ void QWaylandQuickSurface::setUseTextureAlpha(bool useTextureAlpha)
         emit useTextureAlphaChanged();
         emit configure(handle()->currentBufferRef().hasBuffer());
     }
-}
-
-QObject *QWaylandQuickSurface::windowPropertyMap() const
-{
-    Q_D(const QWaylandQuickSurface);
-    return d->windowPropertyMap;
-}
-
-QWaylandSurfaceItem *QWaylandQuickSurface::shellView() const
-{
-    return static_cast<QWaylandSurfaceItem *>(QWaylandSurface::shellView());
 }
 
 QWindow *QWaylandQuickSurface::primaryOutputWindow() const
@@ -185,8 +169,8 @@ void QWaylandQuickSurface::setClientRenderingEnabled(bool enabled)
     if (d->clientRenderingEnabled != enabled) {
         d->clientRenderingEnabled = enabled;
 
-        sendOnScreenVisibilityChange(enabled);
-
+        if (QWaylandExtension *extension = this->extension(QtWaylandServer::qt_extended_surface::name()))
+            static_cast<QtWayland::ExtendedSurface*>(extension)->setVisibility(enabled ? QWindow::AutomaticVisibility : QWindow::Hidden);
         emit clientRenderingEnabledChanged();
     }
 }

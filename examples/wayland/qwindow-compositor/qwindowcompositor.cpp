@@ -59,6 +59,9 @@
 #include <QtCompositor/qwaylandoutput.h>
 #include <QtCompositor/qwaylandoutputspace.h>
 
+#include <QtCompositor/private/qwlshellsurface_p.h>
+#include <QtCompositor/private/qwlextendedsurface_p.h>
+
 QT_BEGIN_NAMESPACE
 
 class SurfaceView : public QWaylandSurfaceView
@@ -122,9 +125,11 @@ QWindowCompositor::~QWindowCompositor()
 
 void QWindowCompositor::create()
 {
+    setExtensionFlags(extensionFlags() | QWaylandCompositor::DefaultShellExtension);
+
     QWaylandCompositor::create();
 
-    primaryOutputSpace()->addOutputWindow(window, "", "");
+    primaryOutputSpace()->addOutputWindow(m_window, "", "");
 
     m_renderScheduler.setSingleShot(true);
     connect(&m_renderScheduler,SIGNAL(timeout()),this,SLOT(render()));
@@ -134,8 +139,6 @@ void QWindowCompositor::create()
     m_window->installEventFilter(this);
 
     setRetainedSelectionEnabled(true);
-
-    addDefaultShell();
 }
 
 QImage QWindowCompositor::makeBackgroundImage(const QString &fileName)
@@ -176,9 +179,10 @@ void QWindowCompositor::surfaceDestroyed()
 void QWindowCompositor::surfaceMapped()
 {
     QWaylandSurface *surface = qobject_cast<QWaylandSurface *>(sender());
+    QtWayland::ShellSurface *shellSurface = QtWayland::ShellSurface::get(surface);
     QPoint pos;
     if (!m_surfaces.contains(surface)) {
-        if (surface->windowType() != QWaylandSurface::Popup) {
+        if (!shellSurface || (shellSurface->surfaceType() != QtWayland::ShellSurface::Popup)) {
             uint px = 0;
             uint py = 0;
             if (!QCoreApplication::arguments().contains(QLatin1String("-stickytopleft"))) {
@@ -193,7 +197,7 @@ void QWindowCompositor::surfaceMapped()
         m_surfaces.removeOne(surface);
     }
 
-    if (surface->windowType() == QWaylandSurface::Popup) {
+    if (shellSurface && shellSurface->surfaceType() == QtWayland::ShellSurface::Popup) {
         QWaylandSurfaceView *view = surface->views().first();
         view->setRequestedPosition(surface->transientParent()->views().first()->pos() + surface->transientOffset());
     }
@@ -249,7 +253,9 @@ void QWindowCompositor::onSurfaceCreated(QWaylandSurface *surface)
 void QWindowCompositor::sendExpose()
 {
     QWaylandSurface *surface = qobject_cast<QWaylandSurface *>(sender());
-    surface->sendOnScreenVisibilityChange(true);
+    QtWayland::ExtendedSurface *extendedSurface = QtWayland::ExtendedSurface::get(surface);
+    if (extendedSurface)
+        extendedSurface->sendOnScreenVisibilityChange(true);
 }
 
 void QWindowCompositor::updateCursor(bool hasBuffer)

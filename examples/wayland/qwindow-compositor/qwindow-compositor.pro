@@ -1,4 +1,4 @@
-QT += gui gui-private core-private compositor
+QT += gui gui-private core-private compositor compositor-private
 
 LIBS += -L ../../lib
 #include (../../src/qt-compositor/qt-compositor.pri)

@@ -55,18 +55,15 @@ QT_BEGIN_NAMESPACE
 
 namespace QtWayland {
 
-Shell::Shell()
+Shell::Shell(QWaylandCompositor *compositor)
+    : QWaylandExtension(compositor)
+    , wl_shell(compositor->waylandDisplay(), 1)
 {
 }
 
 const wl_interface *Shell::interface() const
 {
     return &wl_shell_interface;
-}
-
-void Shell::bind(struct wl_client *client, uint32_t version, uint32_t id)
-{
-    add(client, id, version);
 }
 
 ShellSurfacePopupGrabber *Shell::getPopupGrabber(InputDevice *input)
@@ -84,9 +81,13 @@ void Shell::shell_get_shell_surface(Resource *resource, uint32_t id, struct ::wl
 }
 
 
+ShellSurface *ShellSurface::get(QWaylandSurface *surface)
+{
+    return static_cast<ShellSurface *>(surface->extension(wl_shell_surface::name()));
+}
 
 ShellSurface::ShellSurface(Shell *shell, wl_client *client, uint32_t id, Surface *surface)
-    : QWaylandSurfaceInterface(surface->waylandSurface())
+    : QWaylandExtension(surface->waylandSurface())
     , wl_shell_surface(client, id, 1)
     , m_shell(shell)
     , m_surface(surface)
@@ -94,13 +95,13 @@ ShellSurface::ShellSurface(Shell *shell, wl_client *client, uint32_t id, Surface
     , m_moveGrabber(0)
     , m_popupGrabber(0)
     , m_popupSerial()
+    , m_surfaceType(None)
 {
     m_view = surface->compositor()->waylandCompositor()->createSurfaceView(surface->waylandSurface());
     m_view->setOutput(surface->waylandSurface()->primaryOutput());
     connect(surface->waylandSurface(), &QWaylandSurface::configure, this, &ShellSurface::configure);
     connect(surface->waylandSurface(), &QWaylandSurface::mapped, this, &ShellSurface::mapped);
     connect(surface->waylandSurface(), &QWaylandSurface::offsetForNextFrame, this, &ShellSurface::adjustOffset);
-    surface->setShellSurface(this);
 }
 
 ShellSurface::~ShellSurface()
@@ -113,10 +114,30 @@ void ShellSurface::sendConfigure(uint32_t edges, int32_t width, int32_t height)
     send_configure(edges, width, height);
 }
 
+void ShellSurface::ping()
+{
+    uint32_t serial = wl_display_next_serial(m_surface->compositor()->wl_display());
+    ping(serial);
+}
+
 void ShellSurface::ping(uint32_t serial)
 {
     m_pings.insert(serial);
     send_ping(serial);
+}
+
+void ShellSurface::setSurfaceType(SurfaceType type)
+{
+    if (m_surfaceType == type)
+        return;
+
+    m_surfaceType = type;
+    emit surfaceTypeChanged();
+}
+
+ShellSurface::SurfaceType ShellSurface::surfaceType() const
+{
+    return m_surfaceType;
 }
 
 void ShellSurface::adjustPosInResize()
@@ -158,24 +179,9 @@ void ShellSurface::configure(bool hasBuffer)
     m_surface->setMapped(hasBuffer);
 }
 
-bool ShellSurface::runOperation(QWaylandSurfaceOp *op)
-{
-    switch (op->type()) {
-        case QWaylandSurfaceOp::Ping:
-            ping(static_cast<QWaylandSurfacePingOp *>(op)->serial());
-            return true;
-        case QWaylandSurfaceOp::Resize:
-            requestSize(static_cast<QWaylandSurfaceResizeOp *>(op)->size());
-            return true;
-        default:
-            break;
-    }
-    return false;
-}
-
 void ShellSurface::mapped()
 {
-    if (m_surface->waylandSurface()->windowType() == QWaylandSurface::Popup) {
+    if (m_surfaceType == Popup) {
         if (m_surface->mapped() && m_popupGrabber->grabSerial() == m_popupSerial) {
             m_popupGrabber->addPopup(this);
         } else {
@@ -290,7 +296,6 @@ void ShellSurface::shell_surface_set_fullscreen(Resource *resource,
     Q_UNUSED(resource);
     Q_UNUSED(method);
     Q_UNUSED(framerate);
-
     QWaylandOutput *output = output_resource
             ? QWaylandOutput::fromResource(output_resource)
             : Q_NULLPTR;

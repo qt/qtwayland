@@ -327,9 +327,6 @@ void Pointer::button(uint32_t time, Qt::MouseButton button, uint32_t state)
 
 static void requestCursorSurface(QWaylandCompositor *compositor, QWaylandSurface *surface, int32_t hotspot_x, int hotspot_y)
 {
-#if QT_DEPRECATED_SINCE(5, 5)
-    compositor->setCursorSurface(surface, hotspot_x, hotspot_y);
-#endif
     compositor->currentCurserSurfaceRequest(surface, hotspot_x, hotspot_y);
 }
 

@@ -36,6 +36,8 @@
 
 #include "qwaylandinputpanel.h"
 
+#include <QtCompositor/QWaylandCompositor>
+
 #include <private/qobject_p.h>
 
 #include "qwlinputpanel_p.h"
@@ -43,35 +45,16 @@
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandInputPanelPrivate : public QObjectPrivate
+QWaylandInputPanel::QWaylandInputPanel(QWaylandCompositor *compositor)
+    : QWaylandExtensionTemplate(*new QWaylandInputPanelPrivate(compositor->handle()))
 {
-public:
-    QWaylandInputPanelPrivate(QtWayland::InputPanel *panel)
-        : inputPanel(panel)
-    {
-    }
-
-    QtWayland::InputPanel *inputPanel;
-};
-
-
-QWaylandInputPanel::QWaylandInputPanel(QtWayland::InputPanel *inputPanel)
-    : QObject(*new QWaylandInputPanelPrivate(inputPanel))
-{
-}
-
-QtWayland::InputPanel *QWaylandInputPanel::handle() const
-{
-    Q_D(const QWaylandInputPanel);
-
-    return d->inputPanel;
 }
 
 QWaylandSurface *QWaylandInputPanel::focus() const
 {
-    Q_D(const QWaylandInputPanel);
+   Q_D(const QWaylandInputPanel);
 
-    QtWayland::Surface *surface = d->inputPanel->focus();
+    QtWayland::Surface *surface = d->focus();
     if (surface)
         return surface->waylandSurface();
     return 0;
@@ -81,14 +64,19 @@ bool QWaylandInputPanel::visible() const
 {
     Q_D(const QWaylandInputPanel);
 
-    return d->inputPanel->inputPanelVisible();
+    return d->inputPanelVisible();
 }
 
 QRect QWaylandInputPanel::cursorRectangle() const
 {
     Q_D(const QWaylandInputPanel);
 
-    return d->inputPanel->cursorRectangle();
+    return d->cursorRectangle();
+}
+
+QWaylandInputPanel *QWaylandInputPanel::get(QWaylandExtensionContainer *container)
+{
+    return static_cast<QWaylandInputPanel *>(container->extension(QtWaylandServer::wl_input_panel::name()));
 }
 
 QT_END_NAMESPACE

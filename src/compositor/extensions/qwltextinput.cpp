@@ -49,8 +49,9 @@ QT_BEGIN_NAMESPACE
 
 namespace QtWayland {
 
-TextInput::TextInput(Compositor *compositor, struct ::wl_client *client, int id)
-    : wl_text_input(client, id, 1)
+TextInput::TextInput(QWaylandExtensionContainer *container, Compositor *compositor, struct ::wl_client *client, int id)
+    : QWaylandExtension(container)
+    , wl_text_input(client, id, 1)
     , m_compositor(compositor)
     , m_focus()
     , m_inputPanelVisible()
@@ -128,24 +129,33 @@ void TextInput::text_input_show_input_panel(Resource *)
 {
     m_inputPanelVisible = true;
 
-    if (std::find_if(m_activeInputMethods.cbegin(), m_activeInputMethods.cend(), isInputMethodBound) != m_activeInputMethods.cend())
-        m_compositor->inputPanel()->setInputPanelVisible(true);
+    if (std::find_if(m_activeInputMethods.cbegin(), m_activeInputMethods.cend(), isInputMethodBound) != m_activeInputMethods.cend()){
+        QWaylandInputPanelPrivate *panel = QWaylandInputPanelPrivate::get(m_compositor->waylandCompositor());
+        if (panel)
+            panel->setInputPanelVisible(true);
+    }
 }
 
 void TextInput::text_input_hide_input_panel(Resource *)
 {
     m_inputPanelVisible = false;
 
-    if (std::find_if(m_activeInputMethods.cbegin(), m_activeInputMethods.cend(), isInputMethodBound) != m_activeInputMethods.cend())
-        m_compositor->inputPanel()->setInputPanelVisible(false);
+    if (std::find_if(m_activeInputMethods.cbegin(), m_activeInputMethods.cend(), isInputMethodBound) != m_activeInputMethods.cend()) {
+        QWaylandInputPanelPrivate *panel = QWaylandInputPanelPrivate::get(m_compositor->waylandCompositor());
+        if (panel)
+            panel->setInputPanelVisible(false);
+    }
 }
 
 void TextInput::text_input_set_cursor_rectangle(Resource *, int32_t x, int32_t y, int32_t width, int32_t height)
 {
     m_cursorRectangle = QRect(x, y, width, height);
 
-    if (!m_activeInputMethods.isEmpty())
-        m_compositor->inputPanel()->setCursorRectangle(m_cursorRectangle);
+    if (!m_activeInputMethods.isEmpty()) {
+        QWaylandInputPanelPrivate *panel = QWaylandInputPanelPrivate::get(m_compositor->waylandCompositor());
+        if (panel)
+            panel->setCursorRectangle(m_cursorRectangle);
+    }
 }
 
 void TextInput::text_input_reset(Resource *)

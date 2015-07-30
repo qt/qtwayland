@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2015 The Qt Company Ltd.
+** Copyright (C) 2013 Klarälvdalens Datakonsult AB (KDAB).
 ** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the QtWaylandCompositor module of the Qt Toolkit.
@@ -34,36 +34,31 @@
 **
 ****************************************************************************/
 
-#ifndef WLQTKEY_H
-#define WLQTKEY_H
+#include "qwltextinputmanager_p.h"
 
-#include  <private/qwlcompositor_p.h>
-
-#include "wayland-util.h"
-
-#include <QtCompositor/private/qwayland-server-qtkey-extension.h>
+#include "qwlcompositor_p.h"
+#include "qwltextinput_p.h"
 
 QT_BEGIN_NAMESPACE
 
-class Compositor;
-class Surface;
-class QKeyEvent;
-
 namespace QtWayland {
 
-class QtKeyExtensionGlobal : public QtWaylandServer::qt_key_extension
+TextInputManager::TextInputManager(Compositor *compositor)
+    : QWaylandExtension(compositor->waylandCompositor())
+    , QtWaylandServer::wl_text_input_manager(compositor->wl_display(), 1)
+    , m_compositor(compositor)
 {
-public:
-    QtKeyExtensionGlobal(Compositor *compositor);
-
-    bool postQtKeyEvent(QKeyEvent *event, Surface *surface);
-
-private:
-    Compositor *m_compositor;
-};
-
 }
 
-QT_END_NAMESPACE
+TextInputManager::~TextInputManager()
+{
+}
 
-#endif // WLQTKEY_H
+void TextInputManager::text_input_manager_create_text_input(Resource *resource, uint32_t id)
+{
+    new TextInput(this, m_compositor, resource->client(), id);
+}
+
+} // namespace QtWayland
+
+QT_END_NAMESPACE

@@ -123,8 +123,6 @@ protected:
     void waylandSurfaceChanged(QWaylandSurface *newSurface, QWaylandSurface *oldSurface) Q_DECL_OVERRIDE;
     void waylandSurfaceDestroyed() Q_DECL_OVERRIDE;
 
-    void geometryChanged(const QRectF &newGeometry,
-                         const QRectF &oldGeometry) Q_DECL_OVERRIDE;
 public Q_SLOTS:
     virtual void takeFocus(QWaylandInputDevice *device = 0);
     void setPaintEnabled(bool paintEnabled);

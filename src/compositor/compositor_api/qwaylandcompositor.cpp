@@ -40,7 +40,6 @@
 #include "qwaylandclient.h"
 #include "qwaylandinput.h"
 #include "qwaylandoutput.h"
-#include "qwaylandglobalinterface.h"
 #include "qwaylandsurfaceview.h"
 #include "qwaylandclient.h"
 
@@ -48,8 +47,9 @@
 #include "wayland_wrapper/qwldatadevice_p.h"
 #include "wayland_wrapper/qwlsurface_p.h"
 #include "wayland_wrapper/qwlinputdevice_p.h"
-#include "wayland_wrapper/qwlinputpanel_p.h"
-#include "wayland_wrapper/qwlshellsurface_p.h"
+
+#include "extensions/qwlinputpanel_p.h"
+#include "extensions/qwlshellsurface_p.h"
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QStringList>
@@ -69,7 +69,6 @@ QWaylandCompositor::QWaylandCompositor(QObject *parent)
 
 QWaylandCompositor::~QWaylandCompositor()
 {
-    qDeleteAll(m_compositor->m_globals);
     delete m_compositor;
 }
 
@@ -109,17 +108,6 @@ void QWaylandCompositor::setExtensionFlags(QWaylandCompositor::ExtensionFlags fl
 QWaylandCompositor::ExtensionFlags QWaylandCompositor::extensionFlags() const
 {
     return m_compositor->extensions();
-}
-
-void QWaylandCompositor::addGlobalInterface(QWaylandGlobalInterface *interface)
-{
-    wl_global_create(m_compositor->wl_display(), interface->interface(), interface->version(), interface, QtWayland::Compositor::bindGlobal);
-    m_compositor->m_globals << interface;
-}
-
-void QWaylandCompositor::addDefaultShell()
-{
-    addGlobalInterface(new QtWayland::Shell);
 }
 
 struct wl_display *QWaylandCompositor::waylandDisplay() const
@@ -311,11 +299,6 @@ QWaylandInputDevice *QWaylandCompositor::defaultInputDevice() const
     return m_compositor->defaultInputDevice()->handle();
 }
 
-QWaylandInputPanel *QWaylandCompositor::inputPanel() const
-{
-    return m_compositor->inputPanel()->handle();
-}
-
 QWaylandDrag *QWaylandCompositor::drag() const
 {
     return m_compositor->defaultInputDevice()->dragHandle();
@@ -345,12 +328,6 @@ void QWaylandCompositor::setCursorSurface(QWaylandSurface *surface, int hotspotX
     Q_UNUSED(hotspotY);
 }
 #endif
-
-void QWaylandCompositor::configureTouchExtension(TouchExtensionFlags flags)
-{
-    m_compositor->configureTouchExtension(flags);
-}
-
 
 QWaylandSurfaceView *QWaylandCompositor::createSurfaceView(QWaylandSurface *surface)
 {

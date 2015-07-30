@@ -43,8 +43,11 @@ import QtWayland.Compositor 1.0
 
 Item {
     id: rootChrome
-    x: clampXPos()
-    y: clampYPos()
+    //x: clampXPos()
+    //y: clampYPos()
+    x: chrome.requestedXPosition
+    y: chrome.requestedYPosition
+
     width: childrenRect.width
     height: childrenRect.height
 

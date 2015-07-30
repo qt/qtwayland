@@ -40,19 +40,18 @@
 #include <private/qobject_p.h>
 
 #include "wayland_wrapper/qwlsurface_p.h"
-#include "wayland_wrapper/qwlextendedsurface_p.h"
-#include "wayland_wrapper/qwlsubsurface_p.h"
 #include "wayland_wrapper/qwlcompositor_p.h"
-#include "wayland_wrapper/qwlshellsurface_p.h"
 #include "wayland_wrapper/qwlinputdevice_p.h"
 #include "wayland_wrapper/qwldatadevice_p.h"
 #include "wayland_wrapper/qwldatadevicemanager_p.h"
+
+#include "extensions/qwlextendedsurface_p.h"
+#include "extensions/qwlsubsurface_p.h"
 
 #include "qwaylandcompositor.h"
 #include "qwaylandclient.h"
 #include "qwaylandsurface_p.h"
 #include "qwaylandbufferref.h"
-#include "qwaylandsurfaceinterface.h"
 #include "qwaylandoutput.h"
 
 #include <QtGui/QGuiApplication>
@@ -136,14 +135,13 @@ QWaylandSurface::QWaylandSurface(wl_client *client, quint32 id, int version, QWa
 }
 
 QWaylandSurface::QWaylandSurface(QWaylandSurfacePrivate *dptr)
-               : QObject(*dptr)
+    : QObject(*dptr)
 {
 }
 
 QWaylandSurface::~QWaylandSurface()
 {
     Q_D(QWaylandSurface);
-    qDeleteAll(d->interfaces);
     d->m_compositor->unregisterSurface(this);
     d->notifyViewsAboutDestruction();
 }
@@ -160,7 +158,7 @@ QWaylandSurface *QWaylandSurface::parentSurface() const
 {
     Q_D(const QWaylandSurface);
     if (d->subSurface() && d->subSurface()->parent()) {
-        return d->subSurface()->parent()->waylandSurface();
+        return d->subSurface()->parent()->surface();
     }
     return 0;
 }
@@ -172,18 +170,6 @@ QLinkedList<QWaylandSurface *> QWaylandSurface::subSurfaces() const
         return d->subSurface()->subSurfaces();
     }
     return QLinkedList<QWaylandSurface *>();
-}
-
-void QWaylandSurface::addInterface(QWaylandSurfaceInterface *iface)
-{
-    Q_D(QWaylandSurface);
-    d->interfaces.prepend(iface);
-}
-
-void QWaylandSurface::removeInterface(QWaylandSurfaceInterface *iface)
-{
-    Q_D(QWaylandSurface);
-    d->interfaces.removeOne(iface);
 }
 
 bool QWaylandSurface::visible() const
@@ -203,42 +189,10 @@ QSize QWaylandSurface::size() const
     return d->size();
 }
 
-void QWaylandSurface::requestSize(const QSize &size)
-{
-    Q_D(QWaylandSurface);
-    QWaylandSurfaceResizeOp op(size);
-    if (!sendInterfaceOp(op)) {
-        int id = wl_resource_get_id(d->resource()->handle);
-        qWarning("No surface interface forwarded the resize request for this surface (wl_surface@%d).", id);
-    }
-}
-
-Qt::ScreenOrientations QWaylandSurface::orientationUpdateMask() const
-{
-    Q_D(const QWaylandSurface);
-    if (!d->extendedSurface())
-        return Qt::PrimaryOrientation;
-    return d->extendedSurface()->contentOrientationMask();
-}
-
 Qt::ScreenOrientation QWaylandSurface::contentOrientation() const
 {
     Q_D(const QWaylandSurface);
     return d->contentOrientation();
-}
-
-QWaylandSurface::WindowFlags QWaylandSurface::windowFlags() const
-{
-    Q_D(const QWaylandSurface);
-    if (!d->extendedSurface())
-        return QWaylandSurface::WindowFlags(0);
-    return d->extendedSurface()->windowFlags();
-}
-
-QWaylandSurface::WindowType QWaylandSurface::windowType() const
-{
-    Q_D(const QWaylandSurface);
-    return d->windowType;
 }
 
 QWaylandSurface::Origin QWaylandSurface::origin() const
@@ -265,24 +219,6 @@ QtWayland::Surface * QWaylandSurface::handle()
     return d;
 }
 
-QVariantMap QWaylandSurface::windowProperties() const
-{
-    Q_D(const QWaylandSurface);
-    if (!d->extendedSurface())
-        return QVariantMap();
-
-    return d->extendedSurface()->windowProperties();
-}
-
-void QWaylandSurface::setWindowProperty(const QString &name, const QVariant &value)
-{
-    Q_D(QWaylandSurface);
-    if (!d->extendedSurface())
-        return;
-
-    d->extendedSurface()->setWindowProperty(name, value);
-}
-
 QWaylandCompositor *QWaylandSurface::compositor() const
 {
     Q_D(const QWaylandSurface);
@@ -303,61 +239,10 @@ void QWaylandSurface::setPrimaryOutput(QWaylandOutput *output)
     d->setPrimaryOutput(output->handle());
 }
 
-QWindow::Visibility QWaylandSurface::visibility() const
-{
-    Q_D(const QWaylandSurface);
-    return d->m_visibility;
-}
-
-void QWaylandSurface::setVisibility(QWindow::Visibility v)
-{
-    Q_D(QWaylandSurface);
-    if (v == visibility())
-        return;
-
-    d->m_visibility = v;
-    QWaylandSurfaceSetVisibilityOp op(v);
-    sendInterfaceOp(op);
-
-    emit visibilityChanged();
-}
-
-QWaylandSurfaceView *QWaylandSurface::shellView() const
-{
-    Q_D(const QWaylandSurface);
-    return d->shellSurface() ? d->shellSurface()->view() : Q_NULLPTR;
-}
-
-bool QWaylandSurface::sendInterfaceOp(QWaylandSurfaceOp &op)
-{
-    Q_D(QWaylandSurface);
-    foreach (QWaylandSurfaceInterface *iface, d->interfaces) {
-        if (iface->runOperation(&op))
-            return true;
-    }
-    return false;
-}
-
-void QWaylandSurface::ping()
-{
-    Q_D(QWaylandSurface);
-    uint32_t serial = wl_display_next_serial(compositor()->waylandDisplay());
-    QWaylandSurfacePingOp op(serial);
-    if (!sendInterfaceOp(op)) {
-        int id = wl_resource_get_id(d->resource()->handle);
-        qWarning("No surface interface forwarded the ping for this surface (wl_surface@%d).", id);
-    }
-}
-
 void QWaylandSurface::sendFrameCallbacks()
 {
     Q_D(QWaylandSurface);
     d->sendFrameCallback();
-}
-
-void QWaylandSurface::sendOnScreenVisibilityChange(bool visible)
-{
-    setVisibility(visible ? QWindow::AutomaticVisibility : QWindow::Hidden);
 }
 
 QString QWaylandSurface::className() const
@@ -397,13 +282,6 @@ bool QWaylandSurface::inputRegionContains(const QPoint &p) const
 void QWaylandSurface::destroy()
 {
     deref();
-}
-
-void QWaylandSurface::destroySurface()
-{
-    QWaylandSurfaceOp op(QWaylandSurfaceOp::Close);
-    if (!sendInterfaceOp(op))
-        emit surfaceDestroyed();
 }
 
 void QWaylandSurface::enter(QWaylandOutput *output)
@@ -465,12 +343,6 @@ QList<QWaylandSurfaceView *> QWaylandSurface::views() const
     return d->views;
 }
 
-QList<QWaylandSurfaceInterface *> QWaylandSurface::interfaces() const
-{
-    Q_D(const QWaylandSurface);
-    return d->interfaces;
-}
-
 QWaylandSurface *QWaylandSurface::fromResource(::wl_resource *res)
 {
     QtWayland::Surface *s = QtWayland::Surface::fromResource(res);
@@ -499,15 +371,6 @@ void QWaylandSurfacePrivate::setClassName(const QString &className)
     if (m_className != className) {
         m_className = className;
         emit q->classNameChanged();
-    }
-}
-
-void QWaylandSurfacePrivate::setType(QWaylandSurface::WindowType type)
-{
-    Q_Q(QWaylandSurface);
-    if (windowType != type) {
-        windowType = type;
-        emit q->windowTypeChanged(type);
     }
 }
 

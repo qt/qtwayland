@@ -39,8 +39,7 @@
 
 #include <QtCompositor/qwaylandexport.h>
 #include <QtCompositor/qwaylandsurface.h>
-#include <QtCompositor/qwaylandglobalinterface.h>
-#include <QtCompositor/qwaylandsurfaceinterface.h>
+#include <QtCompositor/qwaylandextension.h>
 
 #include <wayland-server.h>
 #include <QHash>
@@ -63,14 +62,13 @@ class ShellSurfaceResizeGrabber;
 class ShellSurfaceMoveGrabber;
 class ShellSurfacePopupGrabber;
 
-class Shell : public QWaylandGlobalInterface, public QtWaylandServer::wl_shell
+class Shell : public QWaylandExtension, public QtWaylandServer::wl_shell
 {
+    Q_OBJECT
 public:
-    Shell();
+    Shell(QWaylandCompositor *compositor);
 
     const wl_interface *interface() const Q_DECL_OVERRIDE;
-
-    void bind(struct wl_client *client, uint32_t version, uint32_t id) Q_DECL_OVERRIDE;
 
     ShellSurfacePopupGrabber* getPopupGrabber(InputDevice *input);
 
@@ -80,9 +78,20 @@ private:
     QHash<InputDevice*, ShellSurfacePopupGrabber*> m_popupGrabber;
 };
 
-class Q_COMPOSITOR_EXPORT ShellSurface : public QObject, public QWaylandSurfaceInterface, public QtWaylandServer::wl_shell_surface
+class Q_COMPOSITOR_EXPORT ShellSurface : public QWaylandExtension, public QtWaylandServer::wl_shell_surface
 {
+    Q_OBJECT
+    Q_PROPERTY(SurfaceType surfaceType READ surfaceType WRITE setSurfaceType NOTIFY surfaceTypeChanged)
 public:
+    enum SurfaceType {
+        None,
+        Toplevel,
+        Transient,
+        Popup
+    };
+
+    static ShellSurface *get(QWaylandSurface *surface);
+
     ShellSurface(Shell *shell, struct wl_client *client, uint32_t id, Surface *surface);
     ~ShellSurface();
     void sendConfigure(uint32_t edges, int32_t width, int32_t height);
@@ -96,11 +105,19 @@ public:
     void configure(bool hasBuffer);
 
     void requestSize(const QSize &size);
+
+    Q_INVOKABLE void ping();
     void ping(uint32_t serial);
 
     QWaylandSurfaceView *view() { return m_view; }
-protected:
-    bool runOperation(QWaylandSurfaceOp *op) Q_DECL_OVERRIDE;
+
+    const struct wl_interface *interface() const Q_DECL_OVERRIDE { return QtWaylandServer::wl_shell_surface::interface(); }
+
+    void setSurfaceType(SurfaceType type);
+    SurfaceType surfaceType() const;
+
+signals:
+    void surfaceTypeChanged();
 
 private Q_SLOTS:
     void mapped();
@@ -118,6 +135,8 @@ private:
     uint32_t m_popupSerial;
 
     QSet<uint32_t> m_pings;
+
+    SurfaceType m_surfaceType;
 
     void shell_surface_destroy_resource(Resource *resource) Q_DECL_OVERRIDE;
 

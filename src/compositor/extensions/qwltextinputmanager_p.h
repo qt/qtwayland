@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2015 The Qt Company Ltd.
+** Copyright (C) 2013 Klarälvdalens Datakonsult AB (KDAB).
 ** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the QtWaylandCompositor module of the Qt Toolkit.
@@ -34,46 +34,35 @@
 **
 ****************************************************************************/
 
-#ifndef WAYLANDWINDOWMANAGERINTEGRATION_H
-#define WAYLANDWINDOWMANAGERINTEGRATION_H
+#ifndef QTWAYLAND_QWLTEXTINPUTMANAGER_P_H
+#define QTWAYLAND_QWLTEXTINPUTMANAGER_P_H
 
-#include <QtCompositor/qwaylandexport.h>
-#include <QtCompositor/private/qwayland-server-windowmanager.h>
-
-#include <QObject>
-#include <QMap>
+#include <QtCompositor/QWaylandExtension>
+#include <QtCompositor/private/qwayland-server-text.h>
 
 QT_BEGIN_NAMESPACE
 
 namespace QtWayland {
-    class Display;
-}
 
-class QWaylandCompositor;
+class Compositor;
 
-class Q_COMPOSITOR_EXPORT WindowManagerServerIntegration : public QObject, public QtWaylandServer::qt_windowmanager
+class TextInputManager : public QWaylandExtension, public QtWaylandServer::wl_text_input_manager, public QWaylandExtensionContainer
 {
     Q_OBJECT
 public:
-    explicit WindowManagerServerIntegration(QWaylandCompositor *compositor, QObject *parent = 0);
-    ~WindowManagerServerIntegration();
+    TextInputManager(Compositor *compositor);
+    ~TextInputManager();
 
-    void initialize(QtWayland::Display *waylandDisplay);
-
-    void setShowIsFullScreen(bool value);
-    void sendQuitMessage(wl_client *client);
-
+    const struct wl_interface *interface() const Q_DECL_OVERRIDE { return wl_text_input_manager::interface(); }
 protected:
-    void windowmanager_bind_resource(Resource *resource) Q_DECL_OVERRIDE;
-    void windowmanager_destroy_resource(Resource *resource) Q_DECL_OVERRIDE;
-    void windowmanager_open_url(Resource *resource, uint32_t remaining, const QString &url) Q_DECL_OVERRIDE;
+    void text_input_manager_create_text_input(Resource *resource, uint32_t id) Q_DECL_OVERRIDE;
 
 private:
-    bool m_showIsFullScreen;
-    QWaylandCompositor *m_compositor;
-    QMap<Resource*, QString> m_urls;
+    Compositor *m_compositor;
 };
+
+} // namespace QtWayland
 
 QT_END_NAMESPACE
 
-#endif // WAYLANDWINDOWMANAGERINTEGRATION_H
+#endif // QTWAYLAND_QWLTEXTINPUTMANAGER_P_H

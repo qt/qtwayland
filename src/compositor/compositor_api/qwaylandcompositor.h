@@ -38,6 +38,7 @@
 #define QWAYLANDCOMPOSITOR_H
 
 #include <QtCompositor/qwaylandexport.h>
+#include <QtCompositor/qwaylandextension.h>
 
 #include <QObject>
 #include <QImage>
@@ -55,7 +56,6 @@ class QOpenGLContext;
 class QWaylandClient;
 class QWaylandSurface;
 class QWaylandInputDevice;
-class QWaylandInputPanel;
 class QWaylandDrag;
 class QWaylandGlobalInterface;
 class QWaylandSurfaceView;
@@ -67,7 +67,7 @@ namespace QtWayland
     class Compositor;
 }
 
-class Q_COMPOSITOR_EXPORT QWaylandCompositor : public QObject
+class Q_COMPOSITOR_EXPORT QWaylandCompositor : public QObject, public QWaylandExtensionContainer
 {
     Q_OBJECT
     Q_PROPERTY(QByteArray socketName READ socketName WRITE setSocketName)
@@ -85,6 +85,7 @@ public:
         SubSurfaceExtension = 0x10,
         TextInputExtension = 0x20,
         HardwareIntegrationExtension = 0x40,
+        DefaultShellExtension = 0x80,
 
         DefaultExtensions = WindowManagerExtension | SurfaceExtension | QtKeyExtension | TouchExtension | HardwareIntegrationExtension
     };
@@ -101,9 +102,6 @@ public:
 
     void setExtensionFlags(ExtensionFlags flags);
     ExtensionFlags extensionFlags() const;
-
-    void addGlobalInterface(QWaylandGlobalInterface *interface);
-    void addDefaultShell();
 
     ::wl_display *waylandDisplay() const;
 
@@ -143,7 +141,6 @@ public:
 
     QWaylandInputDevice *defaultInputDevice() const;
 
-    QWaylandInputPanel *inputPanel() const;
     QWaylandDrag *drag() const;
 
     bool isDragging() const;
@@ -155,12 +152,6 @@ public:
 #endif
 
     void cleanupGraphicsResources();
-
-    enum TouchExtensionFlag {
-        TouchExtMouseFromTouch = 0x01
-    };
-    Q_DECLARE_FLAGS(TouchExtensionFlags, TouchExtensionFlag)
-    void configureTouchExtension(TouchExtensionFlags flags);
 
     QWaylandSurfaceView *createSurfaceView(QWaylandSurface *surface);
 
@@ -192,7 +183,6 @@ protected:
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QWaylandCompositor::ExtensionFlags)
-Q_DECLARE_OPERATORS_FOR_FLAGS(QWaylandCompositor::TouchExtensionFlags)
 
 QT_END_NAMESPACE
 

@@ -247,7 +247,7 @@ void InputDevice::sendFullKeyEvent(QKeyEvent *event)
         return;
     }
 
-    QtKeyExtensionGlobal *ext = m_compositor->qtkeyExtension();
+    QtKeyExtensionGlobal *ext = QtKeyExtensionGlobal::get(m_compositor->waylandCompositor());
     if (ext && ext->postQtKeyEvent(event, keyboardFocus()))
         return;
 
@@ -261,7 +261,7 @@ void InputDevice::sendFullKeyEvent(QKeyEvent *event)
 
 void InputDevice::sendFullKeyEvent(Surface *surface, QKeyEvent *event)
 {
-    QtKeyExtensionGlobal *ext = m_compositor->qtkeyExtension();
+    QtKeyExtensionGlobal *ext = QtKeyExtensionGlobal::get(m_compositor->waylandCompositor());
     if (ext)
         ext->postQtKeyEvent(event, surface);
 }
@@ -278,7 +278,7 @@ void InputDevice::sendFullTouchEvent(QTouchEvent *event)
         return;
     }
 
-    TouchExtensionGlobal *ext = m_compositor->touchExtension();
+    TouchExtensionGlobal *ext = TouchExtensionGlobal::get(m_compositor->waylandCompositor());
     if (ext && ext->postTouchEvent(event, mouseFocus()))
         return;
 

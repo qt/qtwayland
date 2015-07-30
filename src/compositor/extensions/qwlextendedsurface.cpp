@@ -44,7 +44,8 @@ QT_BEGIN_NAMESPACE
 namespace QtWayland {
 
 SurfaceExtensionGlobal::SurfaceExtensionGlobal(Compositor *compositor)
-    : QtWaylandServer::qt_surface_extension(compositor->wl_display(), 1)
+    : QWaylandExtension(compositor->waylandCompositor())
+    , QtWaylandServer::qt_surface_extension(compositor->wl_display(), 1)
 {
 }
 
@@ -56,20 +57,21 @@ void SurfaceExtensionGlobal::surface_extension_get_extended_surface(Resource *re
     new ExtendedSurface(resource->client(),id, wl_resource_get_version(resource->handle), surface);
 }
 
+ExtendedSurface *ExtendedSurface::get(QWaylandSurface *surface)
+{
+    return static_cast<ExtendedSurface *>(surface->extension(qt_extended_surface::name()));
+}
+
 ExtendedSurface::ExtendedSurface(struct wl_client *client, uint32_t id, int version, Surface *surface)
-    : QWaylandSurfaceInterface(surface->waylandSurface())
+    : QWaylandExtension(surface->waylandSurface())
     , QtWaylandServer::qt_extended_surface(client, id, version)
     , m_surface(surface)
     , m_windowFlags(0)
 {
-    Q_ASSERT(surface->extendedSurface() == 0);
-    surface->setExtendedSurface(this);
 }
 
 ExtendedSurface::~ExtendedSurface()
 {
-    if (m_surface)
-        m_surface->setExtendedSurface(0);
 }
 
 void ExtendedSurface::sendGenericProperty(const QString &name, const QVariant &variant)
@@ -81,30 +83,19 @@ void ExtendedSurface::sendGenericProperty(const QString &name, const QVariant &v
 
 }
 
+void ExtendedSurface::sendOnScreenVisibilityChange(bool onScreen)
+{
+    setVisibility(onScreen ? QWindow::AutomaticVisibility : QWindow::Hidden);
+}
+
 void ExtendedSurface::setVisibility(QWindow::Visibility visibility)
 {
-    // If this change came from the client, we shouldn't update it
     send_onscreen_visibility(visibility);
 }
 
 void ExtendedSurface::setParentSurface(Surface *surface)
 {
     m_surface = surface;
-}
-
-bool ExtendedSurface::runOperation(QWaylandSurfaceOp *op)
-{
-    switch (op->type()) {
-        case QWaylandSurfaceOp::Close:
-            send_close();
-            return true;
-        case QWaylandSurfaceOp::SetVisibility:
-            setVisibility(static_cast<QWaylandSurfaceSetVisibilityOp *>(op)->visibility());
-            return true;
-        default:
-            break;
-    }
-    return false;
 }
 
 void ExtendedSurface::extended_surface_update_generic_property(Resource *resource,
@@ -116,7 +107,7 @@ void ExtendedSurface::extended_surface_update_generic_property(Resource *resourc
     QByteArray byteValue((const char*)value->data, value->size);
     QDataStream ds(&byteValue, QIODevice::ReadOnly);
     ds >> variantValue;
-    setWindowProperty(name,variantValue,false);
+    setWindowPropertyImpl(name,variantValue);
 }
 
 Qt::ScreenOrientations ExtendedSurface::contentOrientationMask() const
@@ -142,8 +133,8 @@ void ExtendedSurface::extended_surface_set_content_orientation_mask(Resource *re
     Qt::ScreenOrientations oldMask = m_contentOrientationMask;
     m_contentOrientationMask = mask;
 
-    if (m_surface && mask != oldMask)
-        emit m_surface->waylandSurface()->orientationUpdateMaskChanged();
+    if (mask != oldMask)
+        emit contentOrientationMaskChanged();
 }
 
 QVariantMap ExtendedSurface::windowProperties() const
@@ -157,22 +148,26 @@ QVariant ExtendedSurface::windowProperty(const QString &propertyName) const
     return props.value(propertyName);
 }
 
-void ExtendedSurface::setWindowProperty(const QString &name, const QVariant &value, bool writeUpdateToClient)
+void ExtendedSurface::setWindowProperty(const QString &name, const QVariant &value)
+{
+    setWindowPropertyImpl(name,value);
+    sendGenericProperty(name, value);
+}
+
+void ExtendedSurface::setWindowPropertyImpl(const QString &name, const QVariant &value)
 {
     m_windowProperties.insert(name, value);
-    m_surface->waylandSurface()->windowPropertyChanged(name,value);
-    if (writeUpdateToClient)
-        sendGenericProperty(name, value);
+    emit windowPropertyChanged(name,value);
 }
 
 void ExtendedSurface::extended_surface_set_window_flags(Resource *resource, int32_t flags)
 {
     Q_UNUSED(resource);
-    QWaylandSurface::WindowFlags windowFlags(flags);
-    if (!m_surface || windowFlags == m_windowFlags)
+    WindowFlags windowFlags(flags);
+    if (windowFlags == m_windowFlags)
         return;
     m_windowFlags = windowFlags;
-    emit m_surface->waylandSurface()->windowFlagsChanged(windowFlags);
+    emit windowFlagsChanged();
 }
 
 void ExtendedSurface::extended_surface_destroy_resource(Resource *)

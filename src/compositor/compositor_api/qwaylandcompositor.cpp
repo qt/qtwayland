@@ -137,41 +137,22 @@ void QWaylandCompositor::destroyClient(QWaylandClient *client)
     m_compositor->destroyClient(client);
 }
 
-#if QT_DEPRECATED_SINCE(5, 5)
-void QWaylandCompositor::frameStarted()
-{
-    foreach (QWaylandOutput *output, outputs())
-        output->frameStarted();
-}
-
-void QWaylandCompositor::sendFrameCallbacks(QList<QWaylandSurface *> visibleSurfaces)
-{
-    Q_FOREACH (QWaylandSurface *surface, visibleSurfaces) {
-        surface->handle()->sendFrameCallback();
-    }
-}
-
 QList<QWaylandSurface *> QWaylandCompositor::surfacesForClient(QWaylandClient* client) const
 {
     QList<QWaylandSurface *> surfs;
-    foreach (QWaylandOutput *output, outputs())
-        surfs.append(output->surfacesForClient(client));
+    foreach (QWaylandSurface *surface, m_compositor->m_all_surfaces) {
+        if (surface->client() == client)
+            surfs.append(surface);
+    }
     return surfs;
 }
-
-#endif //QT_DEPRECATED_SINCE(5, 5)
 
 QList<QWaylandSurface *> QWaylandCompositor::surfaces() const
 {
     return m_compositor->m_all_surfaces;
 }
 
-QList<QWaylandOutput *> QWaylandCompositor::outputs() const
-{
-    return m_compositor->outputs();
-}
-
-QWaylandOutput *QWaylandCompositor::output(QWindow *window)
+QWaylandOutput *QWaylandCompositor::output(QWindow *window) const
 {
     return m_compositor->output(window);
 }
@@ -181,9 +162,32 @@ QWaylandOutput *QWaylandCompositor::primaryOutput() const
     return m_compositor->primaryOutput();
 }
 
-void QWaylandCompositor::setPrimaryOutput(QWaylandOutput *output)
+QWaylandOutputSpace *QWaylandCompositor::primaryOutputSpace() const
 {
-    m_compositor->setPrimaryOutput(output);
+    return m_compositor->primaryOutputSpace();
+}
+
+void QWaylandCompositor::setPrimaryOutputSpace(QWaylandOutputSpace *outputSpace)
+{
+    m_compositor->setPrimaryOutputSpace(outputSpace);
+}
+
+void QWaylandCompositor::addOutputSpace(QWaylandOutputSpace *outputSpace)
+{
+    m_compositor->addOutputSpace(outputSpace);
+}
+
+void QWaylandCompositor::removeOutputSpace(QWaylandOutputSpace *outputSpace)
+{
+    m_compositor->removeOutputSpace(outputSpace);
+}
+
+QWaylandOutput *QWaylandCompositor::createOutput(QWaylandOutputSpace *outputSpace,
+                                                 QWindow *window,
+                                                 const QString &manufacturer,
+                                                 const QString &model)
+{
+    return new QWaylandOutput(outputSpace, window, manufacturer, model);
 }
 
 QWaylandSurface *QWaylandCompositor::createSurface(QWaylandClient *client, quint32 id, int version)
@@ -200,25 +204,6 @@ QWaylandSurfaceView *QWaylandCompositor::createView()
 {
     return new QWaylandSurfaceView();
 }
-
-#if QT_DEPRECATED_SINCE(5, 5)
-QWaylandSurfaceView *QWaylandCompositor::pickView(const QPointF &globalPosition) const
-{
-    Q_FOREACH (QWaylandOutput *output, outputs()) {
-        // Skip coordinates not in output
-        if (!QRectF(output->geometry()).contains(globalPosition))
-            continue;
-        output->pickView(globalPosition);
-    }
-
-    return Q_NULLPTR;
-}
-
-QPointF QWaylandCompositor::mapToView(QWaylandSurfaceView *surface, const QPointF &globalPosition) const
-{
-    return globalPosition - surface->requestedPosition();
-}
-#endif //QT_DEPRECATED_SINCE(5, 5)
 
 /*!
     Override this to handle QDesktopServices::openUrl() requests from the clients.
@@ -377,13 +362,6 @@ QWaylandSurfaceView *QWaylandCompositor::createSurfaceView(QWaylandSurface *surf
 QWaylandInputDevice *QWaylandCompositor::inputDeviceFor(QInputEvent *inputEvent)
 {
     return m_compositor->inputDeviceFor(inputEvent);
-}
-
-QWaylandOutput *QWaylandCompositor::createOutput(QWindow *window,
-                                                 const QString &manufacturer,
-                                                 const QString &model)
-{
-    return new QWaylandOutput(this, window, manufacturer, model);
 }
 
 QT_END_NAMESPACE

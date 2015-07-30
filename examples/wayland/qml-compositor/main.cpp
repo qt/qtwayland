@@ -44,6 +44,7 @@
 
 #include <QtCompositor/qwaylandsurfaceitem.h>
 #include <QtCompositor/qwaylandoutput.h>
+#include <QtCompositor/qwaylandoutputspace.h>
 
 #include <QGuiApplication>
 #include <QTimer>
@@ -63,6 +64,7 @@ class QmlCompositor : public QQuickView
 public:
     QmlCompositor()
         : m_fullscreenSurface(0)
+        , m_output(0)
     {
         m_compositor.setExtensionFlags(QWaylandCompositor::DefaultExtensions | QWaylandCompositor::SubSurfaceExtension);
         m_compositor.create();
@@ -72,7 +74,7 @@ public:
         setColor(Qt::black);
         winId();
         m_compositor.addDefaultShell();
-        m_compositor.createOutput(this, "", "");
+        m_output = m_compositor.primaryOutputSpace()->addOutputWindow(this, "", "");
 
         connect(this, SIGNAL(afterRendering()), this, SLOT(sendCallbacks()));
         connect(&m_compositor, &QWaylandCompositor::surfaceCreated, this, &QmlCompositor::onSurfaceCreated);
@@ -124,9 +126,10 @@ private slots:
 
     void sendCallbacks() {
         if (m_fullscreenSurface)
-            m_compositor.sendFrameCallbacks(QList<QWaylandSurface *>() << m_fullscreenSurface);
+            m_fullscreenSurface->sendFrameCallbacks();
+
         else
-            m_compositor.sendFrameCallbacks(m_compositor.surfaces());
+            m_output->sendFrameCallbacks();
     }
 
     void onSurfaceCreated(QWaylandSurface *surface) {
@@ -151,6 +154,7 @@ protected:
 private:
     QWaylandQuickCompositor m_compositor;
     QWaylandQuickSurface *m_fullscreenSurface;
+    QWaylandOutput *m_output;
 };
 
 int main(int argc, char *argv[])

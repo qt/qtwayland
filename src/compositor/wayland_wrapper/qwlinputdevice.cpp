@@ -60,6 +60,7 @@ InputDevice::InputDevice(QWaylandInputDevice *handle, Compositor *compositor, QW
     , m_handle(handle)
     , m_dragHandle(new QWaylandDrag(this))
     , m_compositor(compositor)
+    , m_outputSpace(compositor->primaryOutputSpace())
     , m_capabilities(caps)
     , m_pointer(m_capabilities & QWaylandInputDevice::Pointer ? new Pointer(m_compositor, this) : 0)
     , m_keyboard(m_capabilities & QWaylandInputDevice::Keyboard ? new Keyboard(m_compositor, this) : 0)
@@ -364,6 +365,16 @@ QWaylandDrag *InputDevice::dragHandle() const
 const DataDevice *InputDevice::dataDevice() const
 {
     return m_data_device.data();
+}
+
+QWaylandOutputSpace *InputDevice::outputSpace() const
+{
+    return m_outputSpace;
+}
+
+void InputDevice::setOutputSpace(QWaylandOutputSpace *outputSpace)
+{
+    m_outputSpace = outputSpace;
 }
 
 }

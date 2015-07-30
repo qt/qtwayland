@@ -51,15 +51,13 @@
 
 QT_BEGIN_NAMESPACE
 
-QWaylandOutput::QWaylandOutput(QWaylandCompositor *compositor, QWindow *window,
+QWaylandOutput::QWaylandOutput(QWaylandOutputSpace *outputSpace, QWindow *window,
                                const QString &manufacturer, const QString &model)
     : QObject()
-    , d_ptr(new QtWayland::Output(compositor->handle(), window))
+    , d_ptr(new QtWayland::Output(this, outputSpace, window))
 {
-    d_ptr->m_output = this;
     d_ptr->setManufacturer(manufacturer);
     d_ptr->setModel(model);
-    d_ptr->compositor()->addOutput(this);
     QObject::connect(window, &QWindow::widthChanged, this, &QWaylandOutput::setWidth);
     QObject::connect(window, &QWindow::heightChanged, this, &QWaylandOutput::setHeight);
     QObject::connect(window, &QObject::destroyed, this, &QWaylandOutput::windowDestroyed);
@@ -67,7 +65,7 @@ QWaylandOutput::QWaylandOutput(QWaylandCompositor *compositor, QWindow *window,
 
 QWaylandOutput::~QWaylandOutput()
 {
-    d_ptr->compositor()->removeOutput(this);
+    d_ptr->outputSpace()->removeOutput(this);
 }
 
 QWaylandOutput *QWaylandOutput::fromResource(wl_resource *resource)
@@ -81,7 +79,18 @@ QWaylandOutput *QWaylandOutput::fromResource(wl_resource *resource)
     if (!output)
         return Q_NULLPTR;
 
-    return output->output();
+    return output->waylandOutput();
+}
+
+void QWaylandOutput::setOutputSpace(QWaylandOutputSpace *outputSpace)
+{
+    Q_ASSERT(outputSpace);
+    d_ptr->setOutputSpace(outputSpace, true);
+}
+
+QWaylandOutputSpace *QWaylandOutput::outputSpace() const
+{
+    return d_ptr->outputSpace();
 }
 
 void QWaylandOutput::update()
@@ -94,7 +103,7 @@ void QWaylandOutput::update()
 
 QWaylandCompositor *QWaylandOutput::compositor() const
 {
-    return d_ptr->compositor()->waylandCompositor();
+    return d_ptr->outputSpace()->compositor();
 }
 
 QString QWaylandOutput::manufacturer() const
@@ -261,11 +270,6 @@ void QWaylandOutput::frameStarted()
 void QWaylandOutput::sendFrameCallbacks()
 {
     d_ptr->sendFrameCallbacks();
-}
-
-QList<QWaylandSurface *> QWaylandOutput::surfacesForClient(QWaylandClient *client) const
-{
-    return d_ptr->surfacesForClient(client);
 }
 
 QtWayland::Output *QWaylandOutput::handle() const

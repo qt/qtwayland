@@ -60,6 +60,7 @@ class QWaylandDrag;
 class QWaylandGlobalInterface;
 class QWaylandSurfaceView;
 class QWaylandOutput;
+class QWaylandOutputSpace;
 
 namespace QtWayland
 {
@@ -72,7 +73,8 @@ class Q_COMPOSITOR_EXPORT QWaylandCompositor : public QObject
     Q_PROPERTY(QByteArray socketName READ socketName WRITE setSocketName)
     Q_PROPERTY(QWaylandCompositor::ExtensionFlags extensionFlags READ extensionFlags WRITE setExtensionFlags)
     Q_PROPERTY(bool retainedSelection READ retainedSelectionEnabled WRITE setRetainedSelectionEnabled)
-    Q_PROPERTY(QWaylandOutput *primaryOutput READ primaryOutput WRITE setPrimaryOutput NOTIFY primaryOutputChanged)
+    Q_PROPERTY(QWaylandOutputSpace *primaryOutputSpace READ primaryOutputSpace WRITE setPrimaryOutputSpace NOTIFY primaryOutputSpaceChanged)
+    Q_PROPERTY(QWaylandOutput *primaryOutput READ primaryOutput NOTIFY primaryOutputChanged);
 
 public:
     enum ExtensionFlag {
@@ -108,25 +110,16 @@ public:
     Q_INVOKABLE void destroyClientForSurface(QWaylandSurface *surface);
     Q_INVOKABLE void destroyClient(QWaylandClient *client);
 
-#if QT_DEPRECATED_SINCE(5, 5)
-    QT_DEPRECATED void frameStarted();
-    QT_DEPRECATED void sendFrameCallbacks(QList<QWaylandSurface *> visibleSurfaces);
+    QList<QWaylandSurface *> surfaces() const;
+    QList<QWaylandSurface *> surfacesForClient(QWaylandClient* client) const;
 
-    QT_DEPRECATED QList<QWaylandSurface *> surfacesForClient(QWaylandClient* client) const;
-#endif //QT_DEPRECATED_SINCE(5, 5)
-
-    QT_DEPRECATED QList<QWaylandSurface *> surfaces() const;
-
-    Q_INVOKABLE QList<QWaylandOutput *> outputs() const;
-    Q_INVOKABLE QWaylandOutput *output(QWindow *window);
+    QWaylandOutput *output(QWindow *window) const;
 
     QWaylandOutput *primaryOutput() const;
-    void setPrimaryOutput(QWaylandOutput *output);
-
-#if QT_DEPRECATED_SINCE(5, 5)
-    Q_INVOKABLE virtual QWaylandSurfaceView *pickView(const QPointF &globalPosition) const;
-    Q_INVOKABLE virtual QPointF mapToView(QWaylandSurfaceView *view, const QPointF &surfacePosition) const;
-#endif // QT_DEPRECATED_SINCE(5 5)
+    QWaylandOutputSpace *primaryOutputSpace() const;
+    void setPrimaryOutputSpace(QWaylandOutputSpace *outputSpace);
+    void addOutputSpace(QWaylandOutputSpace *outputSpace);
+    void removeOutputSpace(QWaylandOutputSpace *outputSpace);
 
     virtual bool openUrl(QWaylandClient *client, const QUrl &url);
 
@@ -179,18 +172,22 @@ signals:
 
     void currentCurserSurfaceRequest(QWaylandSurface *surface, int hotspotX, int hotspotY);
 
+    void primaryOutputSpaceChanged();
     void primaryOutputChanged();
+    void outputSpacesChanged();
 
 protected:
     QWaylandCompositor(QtWayland::Compositor *dptr);
     virtual void retainedSelectionReceived(QMimeData *mimeData);
-    virtual QWaylandOutput *createOutput(QWindow *window,
+    virtual QWaylandOutput *createOutput(QWaylandOutputSpace *outputSpace,
+                                         QWindow *window,
                                          const QString &manufacturer,
                                          const QString &model);
     virtual QWaylandSurface *createSurface(QWaylandClient *client, quint32 id, int version);
     virtual QWaylandSurfaceView *createView();
 
     friend class QtWayland::Compositor;
+    friend class QWaylandOutputSpacePrivate;
     QtWayland::Compositor *m_compositor;
 };
 

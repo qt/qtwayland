@@ -99,11 +99,11 @@ static QtWaylandServer::wl_output::transform toWlTransform(const QWaylandOutput:
     return QtWaylandServer::wl_output::transform_normal;
 }
 
-Output::Output(Compositor *compositor, QWindow *window)
-    : QtWaylandServer::wl_output(compositor->wl_display(), 2)
-    , m_compositor(compositor)
+Output::Output(QWaylandOutput *output, QWaylandOutputSpace *outputSpace, QWindow *window)
+    : QtWaylandServer::wl_output(outputSpace->compositor()->waylandDisplay(), 2)
     , m_window(window)
-    , m_output(Q_NULLPTR)
+    , m_output(output)
+    , m_outputSpace(Q_NULLPTR)
     , m_position(QPoint())
     , m_availableGeometry(QRect())
     , m_physicalSize(QSize())
@@ -114,6 +114,7 @@ Output::Output(Compositor *compositor, QWindow *window)
 {
     m_mode.size = window ? window->size() : QSize();
     m_mode.refreshRate = 60;
+    setOutputSpace(outputSpace, false);
 
     qRegisterMetaType<QWaylandOutput::Mode>("WaylandOutput::Mode");
 }
@@ -289,6 +290,24 @@ void Output::setScaleFactor(int scale)
     }
 }
 
+void Output::setOutputSpace(QWaylandOutputSpace *outputSpace, bool setOutputSpace)
+{
+    if (m_outputSpace == outputSpace)
+        return;
+
+    if (m_outputSpace) {
+        m_outputSpace->removeOutput(waylandOutput());
+    }
+
+    m_outputSpace = outputSpace;
+
+    if (outputSpace && setOutputSpace) {
+        outputSpace->addOutput(waylandOutput());
+    }
+
+    waylandOutput()->outputSpaceChanged();
+}
+
 OutputResource *Output::outputForClient(wl_client *client) const
 {
     return static_cast<OutputResource *>(resourceMap().value(client));
@@ -327,20 +346,7 @@ void Output::sendFrameCallbacks()
                 || surfacemapper.surface->primaryOutput()->handle() == this))
             surfacemapper.surface->handle()->sendFrameCallback();
     }
-    wl_display_flush_clients(m_compositor->wl_display());
-}
-
-QList<QWaylandSurface *> Output::surfacesForClient(QWaylandClient *client) const
-{
-    QList<QWaylandSurface *> result;
-
-    for (int i = 0; i < m_surfaceViews.size(); i ++) {
-        if (m_surfaceViews.at(i).surface
-            && m_surfaceViews.at(i).surface->client() == client)
-            result.append(result);
-    }
-
-    return result;
+    wl_display_flush_clients(compositor()->waylandDisplay());
 }
 
 void Output::addView(QWaylandSurfaceView *view)

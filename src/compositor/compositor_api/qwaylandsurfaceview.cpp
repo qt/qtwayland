@@ -123,6 +123,11 @@ QWaylandCompositor *QWaylandSurfaceView::compositor() const
 void QWaylandSurfaceView::setRequestedPosition(const QPointF &pos)
 {
     d->requestedPos = pos;
+    if (d->shouldBroadcastRequestedPositionChanged()) {
+        Q_ASSERT(d->output->outputSpace());
+        QWaylandOutputSpacePrivate *outputSpacePriv = QWaylandOutputSpacePrivate::get(d->output->outputSpace());
+        outputSpacePriv->emitSurfacePositionChanged(d->surface, pos);
+    }
 }
 
 QPointF QWaylandSurfaceView::requestedPosition() const
@@ -168,6 +173,16 @@ bool QWaylandSurfaceView::lockedBuffer() const
 void QWaylandSurfaceView::setLockedBuffer(bool locked)
 {
     d->lockedBuffer = locked;
+}
+
+bool QWaylandSurfaceView::broadcastRequestedPositionChanged() const
+{
+    return d->broadcastRequestedPositionChanged;
+}
+
+void QWaylandSurfaceView::setBroadcastRequestedPositionChanged(bool broadcast)
+{
+    d->broadcastRequestedPositionChanged = broadcast;
 }
 
 void QWaylandSurfaceView::waylandSurfaceChanged(QWaylandSurface *newSurface, QWaylandSurface *oldSurface)

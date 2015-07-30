@@ -51,6 +51,7 @@ class QKeyEvent;
 class QTouchEvent;
 class QWaylandSurfaceView;
 class QInputEvent;
+class QWaylandOutputSpace;
 
 namespace QtWayland {
 class InputDevice;
@@ -118,6 +119,9 @@ public:
 
     QWaylandSurfaceView *mouseFocus() const;
     void setMouseFocus(QWaylandSurfaceView *surface, const QPointF &local_pos, const QPointF &global_pos = QPointF());
+
+    QWaylandOutputSpace *outputSpace() const;
+    void setOutputSpace(QWaylandOutputSpace *outputSpace);
 
     QWaylandCompositor *compositor() const;
     QtWayland::InputDevice *handle() const;

@@ -131,10 +131,10 @@ void DataDevice::sourceDestroyed(DataSource *source)
 
 void DataDevice::focus()
 {
-    QWaylandSurfaceView *focus = m_compositor->waylandCompositor()->pickView(m_pointer->currentPosition());
+    QWaylandSurfaceView *focus = outputSpace()->pickView(m_pointer->currentPosition());
 
     if (focus != m_dragFocus)
-        setDragFocus(focus, m_compositor->waylandCompositor()->mapToView(focus, m_pointer->currentPosition()));
+        setDragFocus(focus, outputSpace()->mapToView(focus, m_pointer->currentPosition()));
 }
 
 void DataDevice::motion(uint32_t time)
@@ -144,8 +144,7 @@ void DataDevice::motion(uint32_t time)
     }
 
     if (m_dragFocusResource && m_dragFocus) {
-        const QPointF &surfacePoint = m_compositor->waylandCompositor()->mapToView(m_dragFocus, m_pointer->currentPosition());
-        qDebug() << Q_FUNC_INFO << m_pointer->currentPosition() << surfacePoint;
+        const QPointF &surfacePoint = outputSpace()->mapToView(m_dragFocus, m_pointer->currentPosition());
         send_motion(m_dragFocusResource->handle, time,
                     wl_fixed_from_double(surfacePoint.x()), wl_fixed_from_double(surfacePoint.y()));
     }

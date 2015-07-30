@@ -42,6 +42,7 @@
 #include "qwaylandquickcompositor.h"
 #include "qwaylandsurface.h"
 #include "qwaylandsurfaceitem.h"
+#include "qwaylandoutputspace.h"
 
 #include <QGuiApplication>
 #include <QTimer>
@@ -83,7 +84,7 @@ public:
         m_view.setResizeMode(QQuickView::SizeRootObjectToView);
         m_view.setColor(Qt::black);
         m_view.create();
-        createOutput(&m_view, "", "");
+        m_output = primaryOutputSpace()->addOutputWindow(&m_view, "", "");
         addDefaultShell();
 
         connect(&m_view, &QQuickView::afterRendering, this, &QmlCompositor::sendCallbacks);
@@ -131,7 +132,7 @@ private slots:
     }
 
     void sendCallbacks() {
-        sendFrameCallbacks(surfaces());
+        m_output->sendFrameCallbacks();
     }
 
     void initiateServerBuffer()
@@ -237,6 +238,7 @@ protected:
 
 private:
     QQuickView m_view;
+    QWaylandOutput *m_output;
     QtWayland::ServerBuffer *m_server_buffer_32_bit;
     ServerBufferItem *m_server_buffer_item_32_bit;
     QtWayland::ServerBuffer *m_server_buffer_8_bit;

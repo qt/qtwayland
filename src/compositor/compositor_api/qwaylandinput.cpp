@@ -174,6 +174,16 @@ void QWaylandInputDevice::setMouseFocus(QWaylandSurfaceView *surface, const QPoi
     d->setMouseFocus(surface,localPos,globalPos);
 }
 
+QWaylandOutputSpace *QWaylandInputDevice::outputSpace() const
+{
+    return d->outputSpace();
+}
+
+void QWaylandInputDevice::setOutputSpace(QWaylandOutputSpace *outputSpace)
+{
+    d->setOutputSpace(outputSpace);
+}
+
 QWaylandCompositor *QWaylandInputDevice::compositor() const
 {
     return d->compositor()->waylandCompositor();

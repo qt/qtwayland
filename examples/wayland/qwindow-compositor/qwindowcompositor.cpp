@@ -57,6 +57,7 @@
 #include <QtCompositor/qwaylandbufferref.h>
 #include <QtCompositor/qwaylandsurfaceview.h>
 #include <QtCompositor/qwaylandoutput.h>
+#include <QtCompositor/qwaylandoutputspace.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -122,7 +123,8 @@ QWindowCompositor::QWindowCompositor(CompositorWindow *window)
 
     setRetainedSelectionEnabled(true);
 
-    createOutput(window, "", "");
+    primaryOutputSpace()->addOutputWindow(window, "", "");
+
     addDefaultShell();
 }
 
@@ -303,7 +305,7 @@ QWaylandSurfaceView *QWindowCompositor::viewAt(const QPointF &point, QPointF *lo
 void QWindowCompositor::render()
 {
     m_window->makeCurrent();
-    frameStarted();
+    primaryOutput()->frameStarted();
 
     cleanupGraphicsResources();
 
@@ -324,7 +326,7 @@ void QWindowCompositor::render()
     }
 
     m_textureBlitter->release();
-    sendFrameCallbacks(surfaces());
+    primaryOutput()->sendFrameCallbacks();
 
     // N.B. Never call glFinish() here as the busylooping with vsync 'feature' of the nvidia binary driver is not desirable.
     m_window->swapBuffers();

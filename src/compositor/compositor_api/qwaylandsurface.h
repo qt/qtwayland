@@ -196,6 +196,8 @@ public:
     Q_INVOKABLE void destroySurface();
     Q_INVOKABLE void ping();
 
+    Q_INVOKABLE void sendFrameCallbacks();
+
     void ref();
     void deref();
     void setMapped(bool mapped);

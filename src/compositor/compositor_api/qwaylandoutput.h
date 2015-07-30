@@ -53,6 +53,7 @@ class QWindow;
 class QWaylandSurface;
 class QWaylandSurfaceView;
 class QWaylandClient;
+class QWaylandOutputSpace;
 
 namespace QtWayland {
     class Output;
@@ -74,6 +75,7 @@ class Q_COMPOSITOR_EXPORT QWaylandOutput : public QObject
     Q_PROPERTY(QWaylandCompositor *compositor READ compositor CONSTANT)
     Q_PROPERTY(QWindow *window READ window CONSTANT)
     Q_PROPERTY(bool sizeFollowsWindow READ sizeFollowsWindow WRITE setSizeFollowsWindow NOTIFY sizeFollowsWindowChanged)
+    Q_PROPERTY(QWaylandOutputSpace *outputSpace READ outputSpace WRITE setOutputSpace NOTIFY outputSpaceChanged)
     Q_ENUMS(Subpixel Transform)
 
 public:
@@ -103,11 +105,14 @@ public:
         int refreshRate;
     };
 
-    QWaylandOutput(QWaylandCompositor *compositor, QWindow *window,
+    QWaylandOutput(QWaylandOutputSpace *outputSpace, QWindow *window,
                    const QString &manufacturer, const QString &model);
     ~QWaylandOutput();
 
     static QWaylandOutput *fromResource(wl_resource *resource);
+
+    void setOutputSpace(QWaylandOutputSpace *outputSpace);
+    QWaylandOutputSpace *outputSpace() const;
 
     virtual void update();
 
@@ -154,8 +159,6 @@ public:
     void frameStarted();
     void sendFrameCallbacks();
 
-    QList<QWaylandSurface *> surfacesForClient(QWaylandClient *client) const;
-
     QtWayland::Output *handle() const;
 
     Q_INVOKABLE virtual QWaylandSurfaceView *pickView(const QPointF &outputPosition) const;
@@ -172,6 +175,7 @@ Q_SIGNALS:
     void transformChanged();
     void sizeFollowsWindowChanged();
     void physicalSizeFollowsSizeChanged();
+    void outputSpaceChanged();
 
 protected:
     QScopedPointer<QtWayland::Output> d_ptr;

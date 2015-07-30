@@ -61,6 +61,11 @@ public:
 
     void markSurfaceAsDestroyed(QWaylandSurface *surface);
 
+    bool shouldBroadcastRequestedPositionChanged() const
+    {
+        return broadcastRequestedPositionChanged && output && surface && surface->primaryOutput() == output;
+    }
+
     QWaylandSurfaceView *q_ptr;
     QWaylandSurface *surface;
     QWaylandOutput *output;
@@ -69,6 +74,7 @@ public:
     QWaylandBufferRef currentBuffer;
     QWaylandBufferRef nextBuffer;
     bool lockedBuffer;
+    bool broadcastRequestedPositionChanged;
 };
 
 QT_END_NAMESPACE

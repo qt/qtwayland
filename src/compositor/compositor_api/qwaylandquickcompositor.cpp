@@ -99,7 +99,8 @@ void QWaylandQuickCompositor::setExposeDefaultShell(bool defaultShell)
     m_exposeDefaultShell = defaultShell;
 }
 
-QWaylandOutput *QWaylandQuickCompositor::createOutput(QWindow *window,
+QWaylandOutput *QWaylandQuickCompositor::createOutput(QWaylandOutputSpace *outputSpace,
+                                                      QWindow *window,
                                                       const QString &manufacturer,
                                                       const QString &model)
 {
@@ -109,7 +110,7 @@ QWaylandOutput *QWaylandQuickCompositor::createOutput(QWindow *window,
     if (!quickWindow)
         qFatal("%s: couldn't cast QWindow to QQuickWindow. All output windows must "
                "be QQuickWindow derivates when using QWaylandQuickCompositor", Q_FUNC_INFO);
-    QWaylandQuickOutput *output = new QWaylandQuickOutput(this, quickWindow, manufacturer, model);
+    QWaylandQuickOutput *output = new QWaylandQuickOutput(outputSpace, quickWindow, manufacturer, model);
     QQmlEngine::setObjectOwnership(output, QQmlEngine::CppOwnership);
     return output;
 }

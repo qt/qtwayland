@@ -105,14 +105,13 @@ public:
 
     uint currentTimeMsecs() const;
 
-    QList<QWaylandOutput *> outputs() const;
     QWaylandOutput *output(QWindow *window) const;
 
-    void addOutput(QWaylandOutput *output);
-    void removeOutput(QWaylandOutput *output);
-
     QWaylandOutput *primaryOutput() const;
-    void setPrimaryOutput(QWaylandOutput *output);
+    QWaylandOutputSpace *primaryOutputSpace() const;
+    void setPrimaryOutputSpace(QWaylandOutputSpace *outputSpace);
+    void addOutputSpace(QWaylandOutputSpace *outputSpace);
+    void removeOutputSpace(QWaylandOutputSpace *outputSpace);
 
     ClientBufferIntegration *clientBufferIntegration() const;
     ServerBufferIntegration *serverBufferIntegration() const;
@@ -183,7 +182,7 @@ protected:
     QList<QWaylandInputDevice *> m_inputDevices;
 
     /* Output */
-    QList<QWaylandOutput *> m_outputs;
+    QList<QWaylandOutputSpace *> m_outputSpaces;
 
     QList<QWaylandSurface *> m_all_surfaces;
 

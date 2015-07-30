@@ -38,7 +38,9 @@
 #define WLDATADEVICE_H
 
 #include <QtCompositor/private/qwayland-server-wayland.h>
+#include <qwlinputdevice_p.h>
 #include <qwlpointer_p.h>
+#include <QtCompositor/QWaylandOutputSpace>
 
 QT_BEGIN_NAMESPACE
 
@@ -72,6 +74,7 @@ protected:
     void data_device_set_selection(Resource *resource, struct ::wl_resource *source, uint32_t serial) Q_DECL_OVERRIDE;
 
 private:
+    QWaylandOutputSpace *outputSpace() const { return m_inputDevice->handle()->outputSpace(); }
     Compositor *m_compositor;
     InputDevice *m_inputDevice;
 

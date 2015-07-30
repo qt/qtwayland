@@ -349,6 +349,12 @@ void QWaylandSurface::ping()
     }
 }
 
+void QWaylandSurface::sendFrameCallbacks()
+{
+    Q_D(QWaylandSurface);
+    d->sendFrameCallback();
+}
+
 void QWaylandSurface::sendOnScreenVisibilityChange(bool visible)
 {
     setVisibility(visible ? QWindow::AutomaticVisibility : QWindow::Hidden);

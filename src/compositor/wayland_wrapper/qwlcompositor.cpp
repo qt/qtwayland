@@ -178,6 +178,7 @@ Compositor::Compositor(QWaylandCompositor *qt_compositor)
     , m_retainSelection(false)
     , m_initialized(false)
 {
+    m_outputSpaces.append(new QWaylandOutputSpace(qt_compositor));
     m_timer.start();
     compositor = this;
 
@@ -237,7 +238,7 @@ Compositor::~Compositor()
         qWarning("QWaylandCompositor::cleanupGraphicsResources() must be called manually");
     qDeleteAll(m_clients);
 
-    qDeleteAll(m_outputs);
+    qDeleteAll(m_outputSpaces);
 
     delete m_surfaceExtension;
     delete m_subSurfaceExtension;
@@ -256,56 +257,50 @@ uint Compositor::currentTimeMsecs() const
     return m_timer.elapsed();
 }
 
-QList<QWaylandOutput *> Compositor::outputs() const
-{
-    return m_outputs;
-}
-
 QWaylandOutput *Compositor::output(QWindow *window) const
 {
-    Q_FOREACH (QWaylandOutput *output, m_outputs) {
-        if (output->window() == window)
+    foreach (QWaylandOutputSpace *outputSpace, m_outputSpaces) {
+        QWaylandOutput *output = outputSpace->output(window);
+        if (output)
             return output;
     }
 
     return Q_NULLPTR;
 }
 
-void Compositor::addOutput(QWaylandOutput *output)
-{
-    Q_ASSERT(output->handle());
-
-    if (m_outputs.contains(output))
-        return;
-
-    m_outputs.append(output);
-}
-
-void Compositor::removeOutput(QWaylandOutput *output)
-{
-    Q_ASSERT(output->handle());
-
-    m_outputs.removeOne(output);
-}
-
 QWaylandOutput *Compositor::primaryOutput() const
 {
-    if (m_outputs.size() == 0)
-        return Q_NULLPTR;
-    return m_outputs.at(0);
+    return primaryOutputSpace()->primaryOutput();
 }
 
-void Compositor::setPrimaryOutput(QWaylandOutput *output)
+QWaylandOutputSpace *Compositor::primaryOutputSpace() const
 {
-    Q_ASSERT(output->handle());
+    Q_ASSERT(!m_outputSpaces.isEmpty());
+    return m_outputSpaces.first();
+}
 
-    int i = m_outputs.indexOf(output);
-    if (i <= 0)
+void Compositor::setPrimaryOutputSpace(QWaylandOutputSpace *outputSpace)
+{
+    Q_ASSERT(!m_outputSpaces.isEmpty());
+    if (m_outputSpaces.first() == outputSpace)
         return;
+    if (m_outputSpaces.removeOne(outputSpace)) {
+        m_outputSpaces.prepend(outputSpace);
+        waylandCompositor()->primaryOutputSpaceChanged();
+    }
+}
 
-    m_outputs.removeAt(i);
-    m_outputs.prepend(output);
-    emit m_qt_compositor->primaryOutputChanged();
+void Compositor::addOutputSpace(QWaylandOutputSpace *outputSpace)
+{
+    Q_ASSERT(!m_outputSpaces.contains(outputSpace));
+    m_outputSpaces.append(outputSpace);
+    waylandCompositor()->outputSpacesChanged();
+}
+
+void Compositor::removeOutputSpace(QWaylandOutputSpace *outputSpace)
+{
+    if (m_outputSpaces.removeOne(outputSpace))
+        waylandCompositor()->outputSpacesChanged();
 }
 
 void Compositor::processWaylandEvents()

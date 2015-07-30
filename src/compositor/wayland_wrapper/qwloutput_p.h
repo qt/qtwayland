@@ -44,6 +44,8 @@
 #include <QtCore/QList>
 #include <QtCore/QVector>
 
+#include <QtCompositor/QWaylandOutputSpace>
+
 #include <QtCompositor/private/qwayland-server-wayland.h>
 #include <QtCompositor/qwaylandoutput.h>
 
@@ -74,11 +76,11 @@ struct OutputResource : public QtWaylandServer::wl_output::Resource
 class Output : public QtWaylandServer::wl_output
 {
 public:
-    explicit Output(Compositor *compositor, QWindow *window = 0);
+    Output(QWaylandOutput *output, QWaylandOutputSpace *outputSpace, QWindow *window);
 
-    Compositor *compositor() const { return m_compositor; }
+    QWaylandCompositor *compositor() const { return m_outputSpace->compositor(); }
 
-    QWaylandOutput *output() const { return m_output; }
+    QWaylandOutput *waylandOutput() const { return m_output; }
 
     QString manufacturer() const { return m_manufacturer; }
     void setManufacturer(const QString &manufacturer);
@@ -115,10 +117,11 @@ public:
     int scaleFactor() const { return m_scaleFactor; }
     void setScaleFactor(int scale);
 
+    void setOutputSpace(QWaylandOutputSpace *outputSpace, bool setOutputSpace);
+    QWaylandOutputSpace *outputSpace() const { return m_outputSpace; }
+
     void frameStarted();
     void sendFrameCallbacks();
-
-    QList<QWaylandSurface *> surfacesForClient(QWaylandClient *client) const;
 
     void addView(QWaylandSurfaceView *view);
     void addView(QWaylandSurfaceView *view, QWaylandSurface *surface);
@@ -130,8 +133,6 @@ public:
 
     OutputResource *outputForClient(struct wl_client *client) const;
 
-    QWaylandOutput *waylandOutput() const { return m_output; }
-
     void output_bind_resource(Resource *resource) Q_DECL_OVERRIDE;
     Resource *output_allocate() Q_DECL_OVERRIDE { return new OutputResource; }
 
@@ -139,9 +140,9 @@ public:
 private:
     friend class QT_PREPEND_NAMESPACE(QWaylandOutput);
 
-    Compositor *m_compositor;
     QWindow *m_window;
     QWaylandOutput *m_output;
+    QWaylandOutputSpace *m_outputSpace;
     QString m_manufacturer;
     QString m_model;
     QPoint m_position;

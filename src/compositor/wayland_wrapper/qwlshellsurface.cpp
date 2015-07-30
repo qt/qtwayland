@@ -295,7 +295,7 @@ void ShellSurface::shell_surface_set_fullscreen(Resource *resource,
             : Q_NULLPTR;
     if (!output) {
         // Look for an output that can contain this surface
-        Q_FOREACH (QWaylandOutput *curOutput, m_surface->compositor()->outputs()) {
+        Q_FOREACH (QWaylandOutput *curOutput, m_surface->compositor()->primaryOutputSpace()->outputs()) {
             if (curOutput->geometry().size().width() >= m_surface->size().width() &&
                     curOutput->geometry().size().height() >= m_surface->size().height()) {
                 output = curOutput;
@@ -343,7 +343,7 @@ void ShellSurface::shell_surface_set_maximized(Resource *resource,
             : Q_NULLPTR;
     if (!output) {
         // Look for an output that can contain this surface
-        Q_FOREACH (QWaylandOutput *curOutput, m_surface->compositor()->outputs()) {
+        Q_FOREACH (QWaylandOutput *curOutput, m_surface->compositor()->primaryOutputSpace()->outputs()) {
             if (curOutput->geometry().size().width() >= m_surface->size().width() &&
                     curOutput->geometry().size().height() >= m_surface->size().height()) {
                 output = curOutput;

@@ -71,6 +71,9 @@ public:
 
     bool lockedBuffer() const;
     void setLockedBuffer(bool locked);
+
+    bool broadcastRequestedPositionChanged() const;
+    void setBroadcastRequestedPositionChanged(bool broadcast);
 protected:
     virtual void waylandSurfaceChanged(QWaylandSurface *newSurface, QWaylandSurface *oldSurface);
     virtual void waylandSurfaceDestroyed();

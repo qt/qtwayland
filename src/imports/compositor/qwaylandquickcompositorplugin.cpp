@@ -44,6 +44,7 @@
 #include <QtCompositor/QWaylandQuickSurface>
 #include <QtCompositor/QWaylandClient>
 #include <QtCompositor/QWaylandOutput>
+#include <QtCompositor/QWaylandOutputSpace>
 
 #include <QtCompositor/private/qwlcompositor_p.h>
 
@@ -153,6 +154,7 @@ public:
         qmlRegisterUncreatableType<QWaylandQuickSurface>(uri, 1, 0, "WaylandQuickSurface", QObject::tr("Cannot create instance of WaylandQuickSurface"));
         qmlRegisterUncreatableType<QWaylandClient>(uri, 1, 0, "WaylandClient", QObject::tr("Cannot create instance of WaylandClient"));
         qmlRegisterUncreatableType<QWaylandOutput>(uri, 1, 0, "WaylandOutput", QObject::tr("Cannot create instance of WaylandOutput"));
+        qmlRegisterUncreatableType<QWaylandOutputSpace>(uri, 1, 0, "WaylandOutputSpace", QObject::tr("Cannot create instance of WaylandOutputSpace"));
     }
 };
 //![class decl]

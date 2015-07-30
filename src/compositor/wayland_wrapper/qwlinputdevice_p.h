@@ -103,6 +103,9 @@ public:
     void clientRequestedDataDevice(DataDeviceManager *dndSelection, struct wl_client *client, uint32_t id);
     const DataDevice *dataDevice() const;
 
+    QWaylandOutputSpace *outputSpace() const;
+    void setOutputSpace(QWaylandOutputSpace *outputSpace);
+
     Compositor *compositor() const;
     QWaylandInputDevice *handle() const;
     QWaylandDrag *dragHandle() const;
@@ -128,6 +131,7 @@ private:
     QWaylandInputDevice *m_handle;
     QScopedPointer<QWaylandDrag> m_dragHandle;
     Compositor *m_compositor;
+    QWaylandOutputSpace *m_outputSpace;
     QWaylandInputDevice::CapabilityFlags m_capabilities;
 
     QScopedPointer<Pointer> m_pointer;

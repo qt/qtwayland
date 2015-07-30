@@ -67,7 +67,7 @@ QWaylandSurfacePrivate::QWaylandSurfacePrivate(wl_client *wlClient, quint32 id, 
     , closing(false)
     , refCount(1)
     , client(QWaylandClient::fromWlClient(wlClient))
-    , windowType(QWaylandSurface::None)
+    , client(QWaylandClient::fromWlClient(compositor, wlClient))
 {}
 
 

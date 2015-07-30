@@ -88,6 +88,9 @@ class Q_COMPOSITOR_EXPORT QWaylandKeyboard : public QObject, public QWaylandExte
 public:
     QWaylandKeyboard(QWaylandInputDevice *seat, QObject *parent = 0);
 
+    QWaylandInputDevice *inputDevice() const;
+    QWaylandCompositor *compositor() const;
+
     void setFocus(QWaylandSurface *surface);
     virtual void setKeymap(const QWaylandKeymap &keymap);
 

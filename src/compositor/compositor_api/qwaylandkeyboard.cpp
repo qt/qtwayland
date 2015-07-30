@@ -53,6 +53,18 @@ QWaylandKeyboard::QWaylandKeyboard(QWaylandInputDevice *seat, QObject *parent)
     connect(&d->m_focusDestroyListener, &QWaylandDestroyListener::fired, this, &QWaylandKeyboard::focusDestroyed);
 }
 
+QWaylandInputDevice *QWaylandKeyboard::inputDevice() const
+{
+    Q_D(const QWaylandKeyboard);
+    return d->m_seat;
+}
+
+QWaylandCompositor *QWaylandKeyboard::compositor() const
+{
+    Q_D(const QWaylandKeyboard);
+    return d->m_seat->compositor();
+}
+
 void QWaylandKeyboard::focusDestroyed(void *data)
 {
     Q_UNUSED(data);
@@ -68,7 +80,7 @@ QWaylandClient *QWaylandKeyboard::focusClient() const
     Q_D(const QWaylandKeyboard);
     if (!d->focusResource())
         return Q_NULLPTR;
-    return QWaylandClient::fromWlClient(d->focusResource()->client());
+    return QWaylandClient::fromWlClient(compositor(), d->focusResource()->client());
 }
 
 void QWaylandKeyboard::sendKeyModifiers(QWaylandClient *client, uint serial)

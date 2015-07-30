@@ -48,8 +48,9 @@ QT_BEGIN_NAMESPACE
 class QWaylandClientPrivate : public QObjectPrivate
 {
 public:
-    QWaylandClientPrivate(wl_client *_client)
-        : client(_client)
+    QWaylandClientPrivate(QWaylandCompositor *compositor, wl_client *_client)
+        : compositor(compositor)
+        , client(_client)
     {
         // Save client credentials
         wl_client_get_credentials(client, &pid, &uid, &gid);
@@ -65,10 +66,10 @@ public:
 
         QWaylandClient *client = reinterpret_cast<Listener *>(listener)->parent;
         Q_ASSERT(client != 0);
-        QtWayland::Compositor::instance()->m_clients.removeOne(client);
         delete client;
     }
 
+    QWaylandCompositor *compositor;
     wl_client *client;
 
     uid_t uid;
@@ -82,8 +83,8 @@ public:
     Listener listener;
 };
 
-QWaylandClient::QWaylandClient(wl_client *client)
-    : QObject(*new QWaylandClientPrivate(client))
+QWaylandClient::QWaylandClient(QWaylandCompositor *compositor, wl_client *client)
+    : QObject(*new QWaylandClientPrivate(compositor, client))
 {
     Q_D(QWaylandClient);
 
@@ -91,6 +92,8 @@ QWaylandClient::QWaylandClient(wl_client *client)
     d->listener.parent = this;
     d->listener.listener.notify = QWaylandClientPrivate::client_destroy_callback;
     wl_client_add_destroy_listener(client, &d->listener.listener);
+
+    compositor->handle()->m_clients.append(this);
 }
 
 QWaylandClient::~QWaylandClient()
@@ -99,9 +102,11 @@ QWaylandClient::~QWaylandClient()
 
     // Remove listener from signal
     wl_list_remove(&d->listener.listener.link);
+
+    d->compositor->handle()->m_clients.removeOne(this);
 }
 
-QWaylandClient *QWaylandClient::fromWlClient(wl_client *wlClient)
+QWaylandClient *QWaylandClient::fromWlClient(QWaylandCompositor *compositor, wl_client *wlClient)
 {
     if (!wlClient)
         return 0;
@@ -120,8 +125,7 @@ QWaylandClient *QWaylandClient::fromWlClient(wl_client *wlClient)
         // bind several times resulting in multiple QWaylandClient
         // instances for the same wl_client therefore we create it from
         // here on demand
-        client = new QWaylandClient(wlClient);
-        QtWayland::Compositor::instance()->m_clients.append(client);
+        client = new QWaylandClient(compositor, wlClient);
     }
 
     return client;
@@ -164,7 +168,8 @@ void QWaylandClient::kill(int sig)
 
 void QWaylandClient::close()
 {
-    QtWayland::Compositor::instance()->waylandCompositor()->destroyClient(this);
+    Q_D(QWaylandClient);
+    d->compositor->destroyClient(this);
 }
 
 QT_END_NAMESPACE

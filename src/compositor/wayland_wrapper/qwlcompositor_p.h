@@ -122,8 +122,6 @@ public:
     struct wl_display *wl_display() const { return m_display->handle(); }
     Display *display() const { return m_display; }
 
-    static Compositor *instance();
-
     QList<QWaylandClient *> clients() const;
 
     QWaylandCompositor::ExtensionFlags extensions() const;

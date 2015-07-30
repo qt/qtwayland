@@ -48,6 +48,7 @@ struct wl_client;
 QT_BEGIN_NAMESPACE
 
 class QWaylandClientPrivate;
+class QWaylandCompositor;
 
 class Q_COMPOSITOR_EXPORT QWaylandClient : public QObject
 {
@@ -60,7 +61,7 @@ class Q_COMPOSITOR_EXPORT QWaylandClient : public QObject
 public:
     ~QWaylandClient();
 
-    static QWaylandClient *fromWlClient(wl_client *wlClient);
+    static QWaylandClient *fromWlClient(QWaylandCompositor *compositor, wl_client *wlClient);
 
     wl_client *client() const;
 
@@ -75,7 +76,7 @@ public Q_SLOTS:
     void close();
 
 private:
-    explicit QWaylandClient(wl_client *client);
+    explicit QWaylandClient(QWaylandCompositor *compositor, wl_client *client);
 };
 
 QT_END_NAMESPACE

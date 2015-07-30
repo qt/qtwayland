@@ -149,11 +149,6 @@ public:
     Compositor *compositor;
 };
 
-Compositor *Compositor::instance()
-{
-    return compositor;
-}
-
 Compositor::Compositor(QWaylandCompositor *qt_compositor)
     : m_extensions(QWaylandCompositor::DefaultExtensions)
     , m_display(new Display)
@@ -172,7 +167,6 @@ Compositor::Compositor(QWaylandCompositor *qt_compositor)
 {
     m_outputSpaces.append(new QWaylandOutputSpace(qt_compositor));
     m_timer.start();
-    compositor = this;
 
     QWindowSystemInterfacePrivate::installWindowSystemEventHandler(m_eventHandler.data());
 }
@@ -319,7 +313,7 @@ void Compositor::cleanupGraphicsResources()
 
 void Compositor::compositor_create_surface(Resource *resource, uint32_t id)
 {
-    QWaylandClient *client = QWaylandClient::fromWlClient(resource->client());
+    QWaylandClient *client = QWaylandClient::fromWlClient(m_qt_compositor, resource->client());
     QWaylandSurface *surface = m_qt_compositor->createSurface(client, id, resource->version());
     m_all_surfaces.append(surface);
     if (primaryOutput())
@@ -329,7 +323,6 @@ void Compositor::compositor_create_surface(Resource *resource, uint32_t id)
 
 void Compositor::compositor_create_region(Resource *resource, uint32_t id)
 {
-    Q_UNUSED(compositor);
     new Region(resource->client(), id);
 }
 

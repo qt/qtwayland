@@ -101,7 +101,7 @@ void QWaylandWindowManagerExtensionPrivate::windowmanager_open_url(Resource *res
         m_urls.insert(resource, url);
     else {
         m_urls.remove(resource);
-        q->openUrl(QWaylandClient::fromWlClient(resource->client()), QUrl(url));
+        q->openUrl(QWaylandClient::fromWlClient(m_compositor, resource->client()), QUrl(url));
     }
 }
 

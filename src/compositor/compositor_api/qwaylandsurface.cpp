@@ -201,18 +201,6 @@ QWaylandSurface::Origin QWaylandSurface::origin() const
     return d->origin();
 }
 
-QWaylandSurface *QWaylandSurface::transientParent() const
-{
-    Q_D(const QWaylandSurface);
-    return d->transientParent() ? d->transientParent()->waylandSurface() : 0;
-}
-
-QPointF QWaylandSurface::transientOffset() const
-{
-    Q_D(const QWaylandSurface);
-    return d->m_transientOffset;
-}
-
 QtWayland::Surface * QWaylandSurface::handle()
 {
     Q_D(QWaylandSurface);
@@ -262,15 +250,6 @@ bool QWaylandSurface::hasInputPanelSurface() const
     Q_D(const QWaylandSurface);
 
     return d->inputPanelSurface() != 0;
-}
-
-/*!
- * \return True if WL_SHELL_SURFACE_TRANSIENT_INACTIVE was set for this surface, meaning it should not receive keyboard focus.
- */
-bool QWaylandSurface::transientInactive() const
-{
-    Q_D(const QWaylandSurface);
-    return d->transientInactive();
 }
 
 bool QWaylandSurface::inputRegionContains(const QPoint &p) const

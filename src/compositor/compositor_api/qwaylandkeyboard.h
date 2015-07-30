@@ -91,7 +91,7 @@ public:
     QWaylandInputDevice *inputDevice() const;
     QWaylandCompositor *compositor() const;
 
-    void setFocus(QWaylandSurface *surface);
+    virtual bool setFocus(QWaylandSurface *surface);
     virtual void setKeymap(const QWaylandKeymap &keymap);
 
     virtual void sendKeyModifiers(QWaylandClient *client, uint32_t serial);

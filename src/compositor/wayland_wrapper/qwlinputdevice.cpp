@@ -47,6 +47,7 @@
 #include "qwlpointer_p.h"
 #include "qwlkeyboard_p.h"
 #include "qwltouch_p.h"
+#include "qwlshellsurface_p.h"
 #include "qwaylandsurfaceview.h"
 #include <QtCompositor/QWaylandClient>
 
@@ -244,11 +245,10 @@ QWaylandSurface *QWaylandInputDevicePrivate::keyboardFocus() const
  */
 bool QWaylandInputDevicePrivate::setKeyboardFocus(QWaylandSurface *surface)
 {
-    if (surface && (surface->transientInactive() || surface->handle()->isDestroyed()))
+    if (surface && surface->handle()->isDestroyed())
         return false;
 
-    if (!m_keyboard.isNull()) {
-        m_keyboard->setFocus(surface);
+    if (!m_keyboard.isNull() && m_keyboard->setFocus(surface)) {
         if (m_data_device)
             m_data_device->setFocus(m_keyboard->focusClient());
         return true;

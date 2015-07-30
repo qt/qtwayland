@@ -75,7 +75,7 @@ public:
     ~QWaylandKeyboardPrivate();
 
     QWaylandCompositor *compositor() const { return m_seat->compositor(); }
-    void setFocus(QWaylandSurface *surface);
+    bool setFocus(QWaylandSurface *surface);
     void setKeymap(const QWaylandKeymap &keymap);
 
     void sendKeyModifiers(Resource *resource, uint32_t serial);

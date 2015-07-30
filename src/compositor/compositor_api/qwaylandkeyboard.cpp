@@ -108,10 +108,10 @@ QWaylandSurface *QWaylandKeyboard::focus() const
     return d->focus();
 }
 
-void QWaylandKeyboard::setFocus(QWaylandSurface *surface)
+bool QWaylandKeyboard::setFocus(QWaylandSurface *surface)
 {
     Q_D(QWaylandKeyboard);
-    d->setFocus(surface);
+    return d->setFocus(surface);
 }
 
 void QWaylandKeyboard::setKeymap(const QWaylandKeymap &keymap)

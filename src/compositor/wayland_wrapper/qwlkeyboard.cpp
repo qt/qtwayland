@@ -36,7 +36,7 @@
 ****************************************************************************/
 
 #include "qwlkeyboard_p.h"
-
+#include "qwlshellsurface_p.h"
 #include <QFile>
 #include <QStandardPaths>
 
@@ -133,9 +133,13 @@ void QWaylandKeyboardPrivate::focused(QWaylandSurface *surface)
     Q_EMIT q_func()->focusChanged(m_focus);
 }
 
-void QWaylandKeyboardPrivate::setFocus(QWaylandSurface* surface)
+bool QWaylandKeyboardPrivate::setFocus(QWaylandSurface* surface)
 {
+    QtWayland::ShellSurface *shellsurface = QtWayland::ShellSurface::get(surface);
+    if (shellsurface &&  shellsurface->isTransientInactive())
+            return false;
     m_grab->focused(surface);
+    return true;
 }
 
 void QWaylandKeyboardPrivate::setKeymap(const QWaylandKeymap &keymap)

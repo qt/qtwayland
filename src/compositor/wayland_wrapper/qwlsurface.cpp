@@ -46,7 +46,6 @@
 #include "qwlregion_p.h"
 #include "qwlsubsurface_p.h"
 #include "qwlsurfacebuffer_p.h"
-#include "qwlshellsurface_p.h"
 #include "qwaylandsurfaceview.h"
 #include "qwaylandoutput.h"
 
@@ -122,9 +121,6 @@ Surface::Surface(struct wl_client *client, uint32_t id, int version, QWaylandCom
     , m_subSurface(0)
     , m_inputPanelSurface(0)
     , m_inputRegion(infiniteRegion())
-    , m_transientParent(0)
-    , m_transientInactive(false)
-    , m_transientOffset(QPointF(0, 0))
     , m_isCursorSurface(false)
     , m_destroyed(false)
     , m_contentOrientation(Qt::PrimaryOrientation)
@@ -162,12 +158,6 @@ bool Surface::setRole(const SurfaceRole *role, wl_resource *errorResource, uint3
     }
     m_role = role;
     return true;
-}
-
-void Surface::setTransientOffset(qreal x, qreal y)
-{
-    m_transientOffset.setX(x);
-    m_transientOffset.setY(y);
 }
 
 Surface *Surface::fromResource(struct ::wl_resource *resource)

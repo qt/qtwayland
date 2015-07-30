@@ -107,8 +107,6 @@ class Q_COMPOSITOR_EXPORT QWaylandSurface : public QObject, public QWaylandExten
     Q_PROPERTY(Qt::ScreenOrientation contentOrientation READ contentOrientation NOTIFY contentOrientationChanged)
     Q_PROPERTY(QString className READ className NOTIFY classNameChanged)
     Q_PROPERTY(QString title READ title NOTIFY titleChanged)
-    Q_PROPERTY(QWaylandSurface *transientParent READ transientParent)
-    Q_PROPERTY(QPointF transientOffset READ transientOffset)
     Q_PROPERTY(QWaylandOutput *primaryOutput READ primaryOutput WRITE setPrimaryOutput NOTIFY primaryOutputChanged)
     Q_PROPERTY(QWaylandSurface::Origin origin READ origin NOTIFY originChanged);
 
@@ -153,8 +151,6 @@ public:
     QString title() const;
 
     bool hasInputPanelSurface() const;
-
-    bool transientInactive() const;
 
     bool inputRegionContains(const QPoint &p) const;
 

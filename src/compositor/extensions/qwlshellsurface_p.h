@@ -116,6 +116,13 @@ public:
     void setSurfaceType(SurfaceType type);
     SurfaceType surfaceType() const;
 
+    bool isTransientInactive() const { return m_transientInactive; }
+
+    QWaylandSurface *transientParent() const { return m_transientParent; }
+    void setTransientParent(QWaylandSurface *parent) { m_transientParent = parent; }
+
+    void setTransientOffset(const QPointF &offset) { m_transientOffset = offset; }
+
 Q_SIGNALS:
     void surfaceTypeChanged();
 
@@ -137,6 +144,10 @@ private:
     QSet<uint32_t> m_pings;
 
     SurfaceType m_surfaceType;
+    bool m_transientInactive;
+
+    QWaylandSurface *m_transientParent;
+    QPointF m_transientOffset;
 
     void shell_surface_destroy_resource(Resource *resource) Q_DECL_OVERRIDE;
 

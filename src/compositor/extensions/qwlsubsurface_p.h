@@ -83,7 +83,7 @@ public:
 
     const struct wl_interface *interface() const { return qt_sub_surface::interface(); }
 
-signals:
+Q_SIGNALS:
     void parentChanged(SubSurface *newParent, SubSurface *oldParent);
 
 protected:

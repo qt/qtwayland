@@ -182,7 +182,7 @@ Q_SIGNALS:
 protected:
     QScopedPointer<QtWayland::Output> d_ptr;
 
-private slots:
+private Q_SLOTS:
     void windowDestroyed();
 
 };

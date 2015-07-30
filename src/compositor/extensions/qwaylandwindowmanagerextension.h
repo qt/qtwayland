@@ -63,7 +63,7 @@ public:
     void sendQuitMessage(wl_client *client);
 
     static QWaylandWindowManagerExtension *get(QWaylandExtensionContainer *container);
-signals:
+Q_SIGNALS:
     void openUrl(QWaylandClient *client, const QUrl &url);
 };
 

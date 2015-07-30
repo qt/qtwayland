@@ -111,7 +111,7 @@ public:
 
     const wl_interface *interface() const Q_DECL_OVERRIDE { return QtWaylandServer::qt_extended_surface::interface(); }
 
-signals:
+Q_SIGNALS:
     void contentOrientationMaskChanged();
     void windowFlagsChanged();
     void windowPropertyChanged(const QString &name, const QVariant &value);

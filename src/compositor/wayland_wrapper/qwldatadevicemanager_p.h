@@ -79,7 +79,7 @@ protected:
     void data_device_manager_create_data_source(Resource *resource, uint32_t id) Q_DECL_OVERRIDE;
     void data_device_manager_get_data_device(Resource *resource, uint32_t id, struct ::wl_resource *seat) Q_DECL_OVERRIDE;
 
-private slots:
+private Q_SLOTS:
     void readFromClient(int fd);
 
 private:

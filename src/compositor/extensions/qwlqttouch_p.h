@@ -73,7 +73,7 @@ public:
     const struct wl_interface *interface() const Q_DECL_OVERRIDE { return QtWaylandServer::qt_touch_extension::interface(); }
 
     static TouchExtensionGlobal *get(QWaylandExtensionContainer *container);
-signals:
+Q_SIGNALS:
     void behaviorFlagsChanged();
 
 protected:

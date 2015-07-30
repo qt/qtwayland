@@ -116,7 +116,7 @@ public:
     void setSurfaceType(SurfaceType type);
     SurfaceType surfaceType() const;
 
-signals:
+Q_SIGNALS:
     void surfaceTypeChanged();
 
 private Q_SLOTS:

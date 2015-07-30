@@ -73,7 +73,7 @@ protected:
     void input_method_bind_resource(Resource *resource);
     void input_method_destroy_resource(Resource *resource);
 
-private slots:
+private Q_SLOTS:
     void focusChanged(Surface *surface);
 
 private:

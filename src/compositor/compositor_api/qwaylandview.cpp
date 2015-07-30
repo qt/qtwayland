@@ -75,7 +75,6 @@ QWaylandView::~QWaylandView()
         d->surface->deref();
     }
 
-    delete d;
 }
 
 QWaylandSurface *QWaylandView::surface() const

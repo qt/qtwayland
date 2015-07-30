@@ -49,16 +49,16 @@ QT_BEGIN_NAMESPACE
 class QWaylandDragPrivate : public QObjectPrivate
 {
 public:
-    QWaylandDragPrivate(QtWayland::InputDevice *id)
+    QWaylandDragPrivate(QWaylandInputDevice *id)
         : inputDevice(id)
     {
     }
 
-    QtWayland::InputDevice *inputDevice;
+    QWaylandInputDevice *inputDevice;
 };
 
 
-QWaylandDrag::QWaylandDrag(QtWayland::InputDevice *inputDevice)
+QWaylandDrag::QWaylandDrag(QWaylandInputDevice *inputDevice)
     : QObject(* new QWaylandDragPrivate(inputDevice))
 {
 }
@@ -67,7 +67,7 @@ QWaylandSurfaceView *QWaylandDrag::icon() const
 {
     Q_D(const QWaylandDrag);
 
-    const QtWayland::DataDevice *dataDevice = d->inputDevice->dataDevice();
+    const QtWayland::DataDevice *dataDevice = QWaylandInputDevicePrivate::get(d->inputDevice)->dataDevice();
     if (!dataDevice)
         return 0;
 
@@ -78,7 +78,7 @@ bool QWaylandDrag::visible() const
 {
     Q_D(const QWaylandDrag);
 
-    const QtWayland::DataDevice *dataDevice = d->inputDevice->dataDevice();
+    const QtWayland::DataDevice *dataDevice = QWaylandInputDevicePrivate::get(d->inputDevice)->dataDevice();
     if (!dataDevice)
         return false;
 

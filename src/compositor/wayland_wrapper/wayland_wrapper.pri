@@ -21,7 +21,6 @@ HEADERS += \
     wayland_wrapper/qwlsurface_p.h \
     wayland_wrapper/qwlsurfacebuffer_p.h \
     wayland_wrapper/qwltouch_p.h \
-    wayland_wrapper/qwllistener_p.h \
     ../shared/qwaylandxkb.h \
 
 SOURCES += \
@@ -41,7 +40,6 @@ SOURCES += \
     wayland_wrapper/qwlsurface.cpp \
     wayland_wrapper/qwlsurfacebuffer.cpp \
     wayland_wrapper/qwltouch.cpp \
-    wayland_wrapper/qwllistener.cpp \
     ../shared/qwaylandxkb.cpp \
 
 INCLUDEPATH += wayland_wrapper

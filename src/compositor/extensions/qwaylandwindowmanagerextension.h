@@ -37,11 +37,10 @@
 #ifndef WAYLANDWINDOWMANAGERINTEGRATION_H
 #define WAYLANDWINDOWMANAGERINTEGRATION_H
 
-#include <QtCompositor/qwaylandexport.h>
-#include <QtCompositor/private/qwayland-server-windowmanager.h>
+#include <QtCompositor/qwaylandextension.h>
+#include <QtCompositor/QWaylandClient>
 
-#include <QtCompositor/QWaylandExtension>
-#include <QMap>
+#include <QtCore/QUrl>
 
 QT_BEGIN_NAMESPACE
 
@@ -51,28 +50,21 @@ namespace QtWayland {
 
 class QWaylandCompositor;
 
-class Q_COMPOSITOR_EXPORT WindowManagerServerIntegration : public QWaylandExtension, public QtWaylandServer::qt_windowmanager
+class QWaylandWindowManagerExtensionPrivate;
+
+class Q_COMPOSITOR_EXPORT QWaylandWindowManagerExtension : public QWaylandExtensionTemplate
 {
     Q_OBJECT
+    Q_DECLARE_PRIVATE(QWaylandWindowManagerExtension)
 public:
-    explicit WindowManagerServerIntegration(QWaylandCompositor *compositor, QObject *parent = 0);
-    ~WindowManagerServerIntegration();
-
-    void initialize(QtWayland::Display *waylandDisplay);
+    explicit QWaylandWindowManagerExtension(QWaylandCompositor *compositor, QObject *parent = 0);
 
     void setShowIsFullScreen(bool value);
     void sendQuitMessage(wl_client *client);
 
-    const wl_interface *interface() const Q_DECL_OVERRIDE { return QtWaylandServer::qt_windowmanager::interface(); }
-protected:
-    void windowmanager_bind_resource(Resource *resource) Q_DECL_OVERRIDE;
-    void windowmanager_destroy_resource(Resource *resource) Q_DECL_OVERRIDE;
-    void windowmanager_open_url(Resource *resource, uint32_t remaining, const QString &url) Q_DECL_OVERRIDE;
-
-private:
-    bool m_showIsFullScreen;
-    QWaylandCompositor *m_compositor;
-    QMap<Resource*, QString> m_urls;
+    static QWaylandWindowManagerExtension *get(QWaylandExtensionContainer *container);
+signals:
+    void openUrl(QWaylandClient *client, const QUrl &url);
 };
 
 QT_END_NAMESPACE

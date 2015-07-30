@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Jolla Ltd, author: <giulio.camuffo@jollamobile.com>
+** Copyright (C) 2015 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the QtWaylandCompositor module of the Qt Toolkit.
@@ -34,58 +34,28 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDSURFACEVIEW_H
-#define QWAYLANDSURFACEVIEW_H
+#ifndef QWAYLANDWINDOWMANAGEREXTENSION_P_H
+#define QWAYLANDWINDOWMANAGEREXTENSION_P_H
 
-#include <QPointF>
+#include <QtCompositor/private/qwaylandextension_p.h>
 
-#include <QtCompositor/QWaylandBufferRef>
-#include <QtCompositor/qwaylandexport.h>
+#include <QtCompositor/private/qwayland-server-windowmanager.h>
 
-QT_BEGIN_NAMESPACE
+#include <QMap>
 
-class QWaylandSurface;
-class QWaylandCompositor;
-
-class Q_COMPOSITOR_EXPORT QWaylandSurfaceView
+class Q_COMPOSITOR_EXPORT QWaylandWindowManagerExtensionPrivate : public QWaylandExtensionTemplatePrivateImpl<QtWaylandServer::qt_windowmanager>
 {
+    Q_DECLARE_PUBLIC(QWaylandWindowManagerExtension)
 public:
-    QWaylandSurfaceView();
-    virtual ~QWaylandSurfaceView();
+        QWaylandWindowManagerExtensionPrivate(QWaylandCompositor *compositor);
 
-    QWaylandCompositor *compositor() const;
-
-    QWaylandSurface *surface() const;
-    void setSurface(QWaylandSurface *surface);
-
-    QWaylandOutput *output() const;
-    void setOutput(QWaylandOutput *output);
-
-    virtual void setRequestedPosition(const QPointF &pos);
-    virtual QPointF requestedPosition() const;
-    virtual QPointF pos() const;
-
-    virtual void attach(const QWaylandBufferRef &ref);
-    virtual bool advance();
-    virtual QWaylandBufferRef currentBuffer();
-
-    bool lockedBuffer() const;
-    void setLockedBuffer(bool locked);
-
-    bool broadcastRequestedPositionChanged() const;
-    void setBroadcastRequestedPositionChanged(bool broadcast);
-
-    struct wl_resource *surfaceResource() const;
 protected:
-    virtual void waylandSurfaceChanged(QWaylandSurface *newSurface, QWaylandSurface *oldSurface);
-    virtual void waylandSurfaceDestroyed();
-    virtual void waylandOutputChanged(QWaylandOutput *newOutput, QWaylandOutput *oldOutput);
-
+    void windowmanager_bind_resource(Resource *resource) Q_DECL_OVERRIDE;
+    void windowmanager_destroy_resource(Resource *resource) Q_DECL_OVERRIDE;
+    void windowmanager_open_url(Resource *resource, uint32_t remaining, const QString &url) Q_DECL_OVERRIDE;
 private:
-    class QWaylandSurfaceViewPrivate *const d;
-    friend class QWaylandSurfaceViewPrivate;
+    bool m_showIsFullScreen;
+    QWaylandCompositor *m_compositor;
+    QMap<Resource*, QString> m_urls;
 };
-
-QT_END_NAMESPACE
-
-#endif
+#endif  /*QWAYLANDWINDOWMANAGEREXTENSION_P_H*/

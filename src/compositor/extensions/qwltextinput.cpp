@@ -102,7 +102,7 @@ void TextInput::text_input_activate(Resource *, wl_resource *seat, wl_resource *
 
     bool wasEmpty = m_activeInputMethods.isEmpty();
 
-    InputMethod *inputMethod = InputDevice::fromSeatResource(seat)->inputMethod();
+    InputMethod *inputMethod = QWaylandInputDevicePrivate::fromSeatResource(seat)->inputMethod();
 
     if (!m_activeInputMethods.contains(inputMethod)) {
         m_activeInputMethods.append(inputMethod);
@@ -115,7 +115,7 @@ void TextInput::text_input_activate(Resource *, wl_resource *seat, wl_resource *
 
 void TextInput::text_input_deactivate(Resource *, wl_resource *seat)
 {
-    InputMethod *inputMethod = InputDevice::fromSeatResource(seat)->inputMethod();
+    InputMethod *inputMethod = QWaylandInputDevicePrivate::fromSeatResource(seat)->inputMethod();
 
     deactivate(inputMethod);
 }

@@ -46,10 +46,8 @@ QT_BEGIN_NAMESPACE
 class QWaylandDragPrivate;
 class QWaylandSurface;
 class QWaylandSurfaceView;
+class QWaylandInputDevice;
 
-namespace QtWayland {
-class InputDevice;
-}
 class Q_COMPOSITOR_EXPORT QWaylandDrag : public QObject
 {
     Q_OBJECT
@@ -59,7 +57,7 @@ class Q_COMPOSITOR_EXPORT QWaylandDrag : public QObject
     Q_PROPERTY(bool visible READ visible NOTIFY iconChanged)
 
 public:
-    explicit QWaylandDrag(QtWayland::InputDevice *inputDevice);
+    explicit QWaylandDrag(QWaylandInputDevice *inputDevice);
 
     QWaylandSurfaceView *icon() const;
     bool visible() const;

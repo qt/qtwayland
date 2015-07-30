@@ -44,10 +44,11 @@
 
 QT_BEGIN_NAMESPACE
 
+class QWaylandInputDevice;
+class QWaylandCompositor;
+
 namespace QtWayland {
 
-class Compositor;
-class InputDevice;
 class InputMethodContext;
 class TextInput;
 class Surface;
@@ -57,7 +58,7 @@ class InputMethod : public QObject, public QtWaylandServer::wl_input_method
     Q_OBJECT
 
 public:
-    explicit InputMethod(Compositor *compositor, InputDevice *seat);
+    explicit InputMethod(QWaylandCompositor *compositor, QWaylandInputDevice *seat);
     ~InputMethod();
 
     void activate(TextInput *textInput);
@@ -76,8 +77,8 @@ private slots:
     void focusChanged(Surface *surface);
 
 private:
-    Compositor *m_compositor;
-    InputDevice *m_seat;
+    QWaylandCompositor *m_compositor;
+    QWaylandInputDevice *m_seat;
     Resource *m_resource;
     TextInput *m_textInput;
     InputMethodContext *m_context;

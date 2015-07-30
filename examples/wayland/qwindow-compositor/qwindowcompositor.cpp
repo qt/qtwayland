@@ -396,7 +396,7 @@ bool QWindowCompositor::eventFilter(QObject *obj, QEvent *event)
                 m_surfaces.append(target->surface());
                 m_renderScheduler.start(0);
             }
-            input->sendMousePressEvent(me->button(), local, me->localPos());
+            input->sendMousePressEvent(me->button());
         }
         return true;
     }
@@ -410,7 +410,7 @@ bool QWindowCompositor::eventFilter(QObject *obj, QEvent *event)
             QPointF localPos;
             if (target)
                 localPos = toView(target, me->localPos());
-            input->sendMouseReleaseEvent(me->button(), localPos, me->localPos());
+            input->sendMouseReleaseEvent(me->button());
         }
         return true;
     }
@@ -466,7 +466,7 @@ bool QWindowCompositor::eventFilter(QObject *obj, QEvent *event)
             target = viewAt(pointPos);
         }
         if (target && target != input->mouseFocus())
-            input->setMouseFocus(target, pointPos, pointPos);
+            input->sendMouseMoveEvent(target, pointPos, pointPos);
         if (input->mouseFocus())
             input->sendFullTouchEvent(te);
         break;

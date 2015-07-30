@@ -57,28 +57,24 @@ QWaylandKeymap::QWaylandKeymap(const QString &layout, const QString &variant, co
 
 
 QWaylandInputDevice::QWaylandInputDevice(QWaylandCompositor *compositor, CapabilityFlags caps)
-    : d(new QtWayland::InputDevice(this,compositor->handle(), caps))
+    : QObject(*new QWaylandInputDevicePrivate(this,compositor, caps))
 {
 }
 
 QWaylandInputDevice::~QWaylandInputDevice()
 {
-    delete d;
 }
 
-void QWaylandInputDevice::sendMousePressEvent(Qt::MouseButton button, const QPointF &localPos, const QPointF &globalPos)
+void QWaylandInputDevice::sendMousePressEvent(Qt::MouseButton button)
 {
-    d->sendMousePressEvent(button,localPos,globalPos);
+    Q_D(QWaylandInputDevice);
+    d->sendMousePressEvent(button);
 }
 
-void QWaylandInputDevice::sendMouseReleaseEvent(Qt::MouseButton button, const QPointF &localPos, const QPointF &globalPos)
+void QWaylandInputDevice::sendMouseReleaseEvent(Qt::MouseButton button)
 {
-    d->sendMouseReleaseEvent(button,localPos,globalPos);
-}
-
-void QWaylandInputDevice::sendMouseMoveEvent(const QPointF &localPos, const QPointF &globalPos)
-{
-    d->sendMouseMoveEvent(localPos,globalPos);
+    Q_D(QWaylandInputDevice);
+    d->sendMouseReleaseEvent(button);
 }
 
 /** Convenience function that will set the mouse focus to the surface, then send the mouse move event.
@@ -86,120 +82,130 @@ void QWaylandInputDevice::sendMouseMoveEvent(const QPointF &localPos, const QPoi
  **/
 void QWaylandInputDevice::sendMouseMoveEvent(QWaylandSurfaceView *surface, const QPointF &localPos, const QPointF &globalPos)
 {
+    Q_D(QWaylandInputDevice);
     d->sendMouseMoveEvent(surface,localPos,globalPos);
 }
 
 void QWaylandInputDevice::sendMouseWheelEvent(Qt::Orientation orientation, int delta)
 {
+    Q_D(QWaylandInputDevice);
     d->sendMouseWheelEvent(orientation, delta);
 }
 
-void QWaylandInputDevice::sendMouseEnterEvent(QWaylandSurfaceView *view, const QPointF &localPos)
+void QWaylandInputDevice::sendResetCurrentMouseView()
 {
-    d->sendMouseEnterEvent(view,localPos);
-}
-
-void QWaylandInputDevice::sendMouseLeaveEvent(QWaylandSurfaceView *view)
-{
-    d->sendMouseLeaveEvent(view);
+    Q_D(QWaylandInputDevice);
+    d->sendResetCurrentMouseView();
 }
 
 void QWaylandInputDevice::sendKeyPressEvent(uint code)
 {
-    d->keyboardDevice()->sendKeyPressEvent(code);
+    keyboard()->sendKeyPressEvent(code);
 }
 
 void QWaylandInputDevice::sendKeyReleaseEvent(uint code)
 {
-    d->keyboardDevice()->sendKeyReleaseEvent(code);
+    keyboard()->sendKeyReleaseEvent(code);
 }
 
-void QWaylandInputDevice::sendTouchPointEvent(int id, double x, double y, Qt::TouchPointState state)
+void QWaylandInputDevice::sendTouchPointEvent(int id, const QPointF &point, Qt::TouchPointState state)
 {
-    d->sendTouchPointEvent(id,x,y,state);
+    Q_D(QWaylandInputDevice);
+    d->sendTouchPointEvent(id, point, state);
 }
 
 void QWaylandInputDevice::sendTouchFrameEvent()
 {
+    Q_D(QWaylandInputDevice);
     d->sendTouchFrameEvent();
 }
 
 void QWaylandInputDevice::sendTouchCancelEvent()
 {
+    Q_D(QWaylandInputDevice);
     d->sendTouchCancelEvent();
 }
 
 void QWaylandInputDevice::sendFullTouchEvent(QTouchEvent *event)
 {
+    Q_D(QWaylandInputDevice);
     d->sendFullTouchEvent(event);
 }
 
 void QWaylandInputDevice::sendFullKeyEvent(QKeyEvent *event)
 {
+    Q_D(QWaylandInputDevice);
     d->sendFullKeyEvent(event);
 }
 
 void QWaylandInputDevice::sendFullKeyEvent(QWaylandSurface *surface, QKeyEvent *event)
 {
-    d->sendFullKeyEvent(surface->handle(), event);
+    Q_D(QWaylandInputDevice);
+    d->sendFullKeyEvent(surface, event);
+}
+
+QWaylandKeyboard *QWaylandInputDevice::keyboard() const
+{
+    Q_D(const QWaylandInputDevice);
+    return d->keyboardDevice();
 }
 
 QWaylandSurface *QWaylandInputDevice::keyboardFocus() const
 {
-    QtWayland::Surface *wlsurface = d->keyboardFocus();
-    if (wlsurface)
-        return  wlsurface->waylandSurface();
-    return 0;
+    Q_D(const QWaylandInputDevice);
+    QWaylandSurface *surface = d->keyboardFocus();
+    return surface;
 }
 
 bool QWaylandInputDevice::setKeyboardFocus(QWaylandSurface *surface)
 {
-    QtWayland::Surface *wlsurface = surface?surface->handle():0;
-    return d->setKeyboardFocus(wlsurface);
+    Q_D(QWaylandInputDevice);
+    return d->setKeyboardFocus(surface);
 }
 
 void QWaylandInputDevice::setKeymap(const QWaylandKeymap &keymap)
 {
-    if (handle()->keyboardDevice())
-        handle()->keyboardDevice()->setKeymap(keymap);
+    if (keyboard())
+        keyboard()->setKeymap(keymap);
 }
 
 QWaylandSurfaceView *QWaylandInputDevice::mouseFocus() const
 {
+    Q_D(const QWaylandInputDevice);
     return d->mouseFocus();
-}
-
-void QWaylandInputDevice::setMouseFocus(QWaylandSurfaceView *surface, const QPointF &localPos, const QPointF &globalPos)
-{
-    d->setMouseFocus(surface,localPos,globalPos);
 }
 
 QWaylandOutputSpace *QWaylandInputDevice::outputSpace() const
 {
+    Q_D(const QWaylandInputDevice);
     return d->outputSpace();
 }
 
 void QWaylandInputDevice::setOutputSpace(QWaylandOutputSpace *outputSpace)
 {
+    Q_D(QWaylandInputDevice);
     d->setOutputSpace(outputSpace);
 }
 
 QWaylandCompositor *QWaylandInputDevice::compositor() const
 {
-    return d->compositor()->waylandCompositor();
+    Q_D(const QWaylandInputDevice);
+    return d->compositor();
 }
 
-QtWayland::InputDevice *QWaylandInputDevice::handle() const
+QWaylandDrag *QWaylandInputDevice::drag() const
 {
-    return d;
+    Q_D(const QWaylandInputDevice);
+    return d->dragHandle();
 }
 
-QWaylandInputDevice::CapabilityFlags QWaylandInputDevice::capabilities()
+QWaylandInputDevice::CapabilityFlags QWaylandInputDevice::capabilities() const
 {
+    Q_D(const QWaylandInputDevice);
     return d->capabilities();
 }
 
-bool QWaylandInputDevice::isOwner(QInputEvent *inputEvent)
+bool QWaylandInputDevice::isOwner(QInputEvent *inputEvent) const
 {
     Q_UNUSED(inputEvent);
     return true;

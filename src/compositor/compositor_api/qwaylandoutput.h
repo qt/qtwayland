@@ -164,6 +164,8 @@ public:
     Q_INVOKABLE virtual QWaylandSurfaceView *pickView(const QPointF &outputPosition) const;
     Q_INVOKABLE virtual QPointF mapToView(QWaylandSurfaceView *view, const QPointF &surfacePosition) const;
 
+    Q_INVOKABLE QPointF mapToOutputSpace(const QPointF &point);
+
 Q_SIGNALS:
     void positionChanged();
     void geometryChanged();

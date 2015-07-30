@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2015 The Qt Company Ltd.
+** Copyright (C) 2015 Digia Plc and/or its subsidi ary(-ies).
 ** Copyright (C) 2013 Klarälvdalens Datakonsult AB (KDAB).
 ** Contact: http://www.qt.io/licensing/
 **
@@ -35,61 +35,77 @@
 **
 ****************************************************************************/
 
-#ifndef QTWAYLAND_QWLTOUCH_P_H
-#define QTWAYLAND_QWLTOUCH_P_H
-
-#include <QtCompositor/qwaylandexport.h>
-#include <QtCompositor/QWaylandDestroyListener>
-#include <QtCompositor/QWaylandTouch>
+#include "qwaylandkeyboard.h"
+#include "qwlkeyboard_p.h"
 #include <QtCompositor/QWaylandInputDevice>
-
-#include <QtCore/QPoint>
-#include <QtCore/private/qobject_p.h>
-
-#include <QtCompositor/private/qwayland-server-wayland.h>
+#include <QtCompositor/QWaylandClient>
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandSurfaceView;
-class QWaylandCompositor;
-
-class Q_COMPOSITOR_EXPORT QWaylandTouchPrivate : public QObjectPrivate, public QtWaylandServer::wl_touch
+QWaylandKeyboardGrabber::~QWaylandKeyboardGrabber()
 {
-    Q_DECLARE_PUBLIC(QWaylandTouch)
-public:
-    explicit QWaylandTouchPrivate(QWaylandTouch *touch, QWaylandInputDevice *seat);
+}
 
-    QWaylandCompositor *compositor() const { return m_seat->compositor(); }
+QWaylandKeyboard::QWaylandKeyboard(QWaylandInputDevice *seat, QObject *parent)
+    : QObject(* new QWaylandKeyboardPrivate(seat), parent)
+{
+    Q_D(QWaylandKeyboard);
+    connect(&d->m_focusDestroyListener, &QWaylandDestroyListener::fired, this, &QWaylandKeyboard::focusDestroyed);
+}
 
-    void startGrab(QWaylandTouchGrabber *grab);
-    void endGrab();
+void QWaylandKeyboard::focusDestroyed(void *data)
+{
+    Q_UNUSED(data);
+    Q_D(QWaylandKeyboard);
+    d->m_focusDestroyListener.reset();
 
-    void sendCancel();
-    void sendFrame();
+    d->m_focus = 0;
+    d->m_focusResource = 0;
+}
 
-    void sendTouchPoint(int id, const QPointF &point, Qt::TouchPointState state);
-    void sendDown(int touch_id, const QPointF &position);
-    void sendMotion(int touch_id, const QPointF &position);
-    void sendUp(int touch_id);
+QWaylandClient *QWaylandKeyboard::focusClient() const
+{
+    Q_D(const QWaylandKeyboard);
+    if (!d->focusResource())
+        return Q_NULLPTR;
+    return QWaylandClient::fromWlClient(d->focusResource()->client());
+}
 
-    void sendFullTouchEvent(QTouchEvent *event);
+void QWaylandKeyboard::sendKeyModifiers(QWaylandClient *client, uint serial)
+{
+    Q_D(QWaylandKeyboard);
+    QtWaylandServer::wl_keyboard::Resource *resource = d->resourceMap().value(client->client());
+    if (resource)
+        d->sendKeyModifiers(resource, serial);
+}
+void QWaylandKeyboard::sendKeyPressEvent(uint code)
+{
+    Q_D(QWaylandKeyboard);
+    d->sendKeyPressEvent(code);
+}
 
-    Resource *focusResource() const { return m_focusResource; }
-private:
-    void focusDestroyed(void *data);
-    void touch_destroy_resource(Resource *resource) Q_DECL_OVERRIDE;
-    void touch_release(Resource *resource) Q_DECL_OVERRIDE;
+void QWaylandKeyboard::sendKeyReleaseEvent(uint code)
+{
+    Q_D(QWaylandKeyboard);
+    d->sendKeyReleaseEvent(code);
+}
 
-    QWaylandInputDevice *m_seat;
+QWaylandSurface *QWaylandKeyboard::focus() const
+{
+    Q_D(const QWaylandKeyboard);
+    return d->focus();
+}
 
-    QWaylandSurfaceView *m_focus;
-    Resource *m_focusResource;
-    QWaylandDestroyListener m_focusDestroyListener;
+void QWaylandKeyboard::setFocus(QWaylandSurface *surface)
+{
+    Q_D(QWaylandKeyboard);
+    d->setFocus(surface);
+}
 
-    QWaylandDefaultTouchGrabber m_defaultGrab;
-    QWaylandTouchGrabber *m_grab;
-};
+void QWaylandKeyboard::setKeymap(const QWaylandKeymap &keymap)
+{
+    Q_D(QWaylandKeyboard);
+    d->setKeymap(keymap);
+}
 
 QT_END_NAMESPACE
-
-#endif // QTWAYLAND_QWLTOUCH_P_H

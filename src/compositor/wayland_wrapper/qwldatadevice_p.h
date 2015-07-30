@@ -39,6 +39,7 @@
 
 #include <QtCompositor/private/qwayland-server-wayland.h>
 #include <qwlinputdevice_p.h>
+#include <QtCompositor/QWaylandPointerGrabber>
 #include <qwlpointer_p.h>
 #include <QtCompositor/QWaylandOutputSpace>
 
@@ -53,12 +54,12 @@ class DataSource;
 class InputDevice;
 class Surface;
 
-class DataDevice : public QtWaylandServer::wl_data_device, public PointerGrabber
+class DataDevice : public QtWaylandServer::wl_data_device, public QWaylandPointerGrabber
 {
 public:
-    DataDevice(InputDevice *inputDevice);
+    DataDevice(QWaylandInputDevice *inputDevice);
 
-    void setFocus(QtWaylandServer::wl_keyboard::Resource *focusResource);
+    void setFocus(QWaylandClient *client);
 
     void setDragFocus(QWaylandSurfaceView *focus, const QPointF &localPosition);
 
@@ -74,9 +75,9 @@ protected:
     void data_device_set_selection(Resource *resource, struct ::wl_resource *source, uint32_t serial) Q_DECL_OVERRIDE;
 
 private:
-    QWaylandOutputSpace *outputSpace() const { return m_inputDevice->handle()->outputSpace(); }
-    Compositor *m_compositor;
-    InputDevice *m_inputDevice;
+    QWaylandOutputSpace *outputSpace() const { return m_inputDevice->outputSpace(); }
+    QWaylandCompositor *m_compositor;
+    QWaylandInputDevice *m_inputDevice;
 
     DataSource *m_selectionSource;
 

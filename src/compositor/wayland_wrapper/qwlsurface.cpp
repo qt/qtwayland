@@ -292,9 +292,8 @@ void Surface::setBackBuffer(SurfaceBuffer *buffer, const QRegion &damage)
 
         m_damage = m_damage.intersected(QRect(QPoint(), m_size));
         emit m_waylandSurface->damaged(m_damage);
-    } else {
-        m_compositor->resetInputDevice(this);
     }
+
     m_damage = damage;
 
     QWaylandSurfacePrivate *priv = QWaylandSurfacePrivate::get(waylandSurface());

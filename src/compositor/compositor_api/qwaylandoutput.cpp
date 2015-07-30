@@ -306,6 +306,11 @@ void QWaylandOutput::setHeight(int newHeight)
     d_ptr->setHeight(newHeight);
 }
 
+QPointF QWaylandOutput::mapToOutputSpace(const QPointF &point)
+{
+    return point + d_ptr->topLeft();
+}
+
 void QWaylandOutput::windowDestroyed()
 {
     delete this;

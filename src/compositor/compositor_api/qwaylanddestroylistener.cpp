@@ -34,32 +34,39 @@
 **
 ****************************************************************************/
 
-#include "qwllistener_p.h"
+#include "qwaylanddestroylistener.h"
+#include "qwaylanddestroylistener_p.h"
 
 QT_BEGIN_NAMESPACE
 
-WlListener::WlListener()
+QWaylandDestroyListenerPrivate::QWaylandDestroyListenerPrivate()
 {
-    m_listener.parent = this;
-    m_listener.listener.notify = handler;
-    wl_list_init(&m_listener.listener.link);
+    listener.parent = this;
+    listener.listener.notify = handler;
+    wl_list_init(&listener.listener.link);
 }
 
-void WlListener::listenForDestruction(::wl_resource *resource)
+QWaylandDestroyListener::QWaylandDestroyListener(QObject *parent)
+    : QObject(* new QWaylandDestroyListenerPrivate(), parent)
 {
-    wl_resource_add_destroy_listener(resource, &m_listener.listener);
+}
+void QWaylandDestroyListener::listenForDestruction(::wl_resource *resource)
+{
+    Q_D(QWaylandDestroyListener);
+    wl_resource_add_destroy_listener(resource, &d->listener.listener);
 }
 
-void WlListener::reset()
+void QWaylandDestroyListener::reset()
 {
-    wl_list_remove(&m_listener.listener.link);
-    wl_list_init(&m_listener.listener.link);
+    Q_D(QWaylandDestroyListener);
+    wl_list_remove(&d->listener.listener.link);
+    wl_list_init(&d->listener.listener.link);
 }
 
-void WlListener::handler(wl_listener *listener, void *data)
+void QWaylandDestroyListenerPrivate::handler(wl_listener *listener, void *data)
 {
-    WlListener *that = reinterpret_cast<Listener *>(listener)->parent;
-    emit that->fired(data);
+    QWaylandDestroyListenerPrivate *that = reinterpret_cast<Listener *>(listener)->parent;
+    emit that->q_func()->fired(data);
 }
 
 QT_END_NAMESPACE

@@ -45,6 +45,7 @@
 #include <QtCore/QList>
 #include <QtCore/QPoint>
 #include <QtCore/QScopedPointer>
+#include <QtCore/private/qobject_p.h>
 
 #ifndef QT_NO_WAYLAND_XKB
 #include <xkbcommon/xkbcommon.h>
@@ -71,74 +72,70 @@ class Keyboard;
 class Touch;
 class InputMethod;
 
-class Q_COMPOSITOR_EXPORT InputDevice : public QtWaylandServer::wl_seat
+}
+
+class Q_COMPOSITOR_EXPORT QWaylandInputDevicePrivate : public QObjectPrivate, public QtWaylandServer::wl_seat
 {
 public:
-    InputDevice(QWaylandInputDevice *handle, Compositor *compositor, QWaylandInputDevice::CapabilityFlags caps);
-    ~InputDevice();
+    Q_DECLARE_PUBLIC(QWaylandInputDevice)
 
-    void sendMousePressEvent(Qt::MouseButton button, const QPointF &localPos, const QPointF &globalPos = QPointF());
-    void sendMouseReleaseEvent(Qt::MouseButton button, const QPointF &localPos, const QPointF &globalPos = QPointF());
-    void sendMouseMoveEvent(const QPointF &localPos, const QPointF &globalPos = QPointF());
-    void sendMouseMoveEvent(QWaylandSurfaceView *surface, const QPointF &localPos, const QPointF &globalPos = QPointF());
+    QWaylandInputDevicePrivate(QWaylandInputDevice *device, QWaylandCompositor *compositor, QWaylandInputDevice::CapabilityFlags caps);
+    ~QWaylandInputDevicePrivate();
+
+    void sendMousePressEvent(Qt::MouseButton button);
+    void sendMouseReleaseEvent(Qt::MouseButton button);
+    void sendMouseMoveEvent(QWaylandSurfaceView *surface, const QPointF &localPos, const QPointF &spacePos = QPointF());
     void sendMouseWheelEvent(Qt::Orientation orientation, int delta);
-    void sendMouseEnterEvent(QWaylandSurfaceView *view, const QPointF &localPos);
-    void sendMouseLeaveEvent(QWaylandSurfaceView *view);
+    void sendResetCurrentMouseView();
 
-    void sendTouchPointEvent(int id, double x, double y, Qt::TouchPointState state);
+    void sendTouchPointEvent(int id, const QPointF &point, Qt::TouchPointState state);
     void sendTouchFrameEvent();
     void sendTouchCancelEvent();
 
     void sendFullKeyEvent(QKeyEvent *event);
-    void sendFullKeyEvent(Surface *surface, QKeyEvent *event);
+    void sendFullKeyEvent(QWaylandSurface *surface, QKeyEvent *event);
 
     void sendFullTouchEvent(QTouchEvent *event);
 
-    Surface *keyboardFocus() const;
-    bool setKeyboardFocus(Surface *surface);
+    QWaylandSurface *keyboardFocus() const;
+    bool setKeyboardFocus(QWaylandSurface *surface);
 
     QWaylandSurfaceView *mouseFocus() const;
-    void setMouseFocus(QWaylandSurfaceView *surface, const QPointF &localPos, const QPointF &globalPos);
 
-    void clientRequestedDataDevice(DataDeviceManager *dndSelection, struct wl_client *client, uint32_t id);
-    const DataDevice *dataDevice() const;
+    void clientRequestedDataDevice(QtWayland::DataDeviceManager *dndSelection, struct wl_client *client, uint32_t id);
+    const QtWayland::DataDevice *dataDevice() const;
 
     QWaylandOutputSpace *outputSpace() const;
     void setOutputSpace(QWaylandOutputSpace *outputSpace);
 
-    Compositor *compositor() const;
-    QWaylandInputDevice *handle() const;
+    QWaylandCompositor *compositor() const;
     QWaylandDrag *dragHandle() const;
 
-    Pointer *pointerDevice();
-    Keyboard *keyboardDevice();
-    Touch *touchDevice();
-    InputMethod *inputMethod();
+    QWaylandPointer *pointerDevice() const;
+    QWaylandKeyboard *keyboardDevice() const;
+    QWaylandTouch *touchDevice() const;
+    QtWayland::InputMethod *inputMethod();
 
-    const Pointer *pointerDevice() const;
-    const Keyboard *keyboardDevice() const;
-    const Touch *touchDevice() const;
-
-    static InputDevice *fromSeatResource(struct ::wl_resource *resource)
+    static QWaylandInputDevicePrivate *fromSeatResource(struct ::wl_resource *resource)
     {
-        return static_cast<InputDevice *>(wl_seat::Resource::fromResource(resource)->seat_object);
+        return static_cast<QWaylandInputDevicePrivate *>(wl_seat::Resource::fromResource(resource)->seat_object);
     }
 
-    QWaylandInputDevice::CapabilityFlags capabilities() { return m_capabilities; }
+    QWaylandInputDevice::CapabilityFlags capabilities() const { return m_capabilities; }
     void setCapabilities(QWaylandInputDevice::CapabilityFlags caps);
 
+    static QWaylandInputDevicePrivate *get(QWaylandInputDevice *device);
 private:
-    QWaylandInputDevice *m_handle;
     QScopedPointer<QWaylandDrag> m_dragHandle;
-    Compositor *m_compositor;
+    QWaylandCompositor *m_compositor;
     QWaylandOutputSpace *m_outputSpace;
     QWaylandInputDevice::CapabilityFlags m_capabilities;
 
-    QScopedPointer<Pointer> m_pointer;
-    QScopedPointer<Keyboard> m_keyboard;
-    QScopedPointer<Touch> m_touch;
-    QScopedPointer<InputMethod> m_inputMethod;
-    QScopedPointer<DataDevice> m_data_device;
+    QScopedPointer<QWaylandPointer> m_pointer;
+    QScopedPointer<QWaylandKeyboard> m_keyboard;
+    QScopedPointer<QWaylandTouch> m_touch;
+    QScopedPointer<QtWayland::InputMethod> m_inputMethod;
+    QScopedPointer<QtWayland::DataDevice> m_data_device;
 
     void seat_bind_resource(wl_seat::Resource *resource) Q_DECL_OVERRIDE;
 
@@ -151,8 +148,6 @@ private:
 
     void seat_destroy_resource(wl_seat::Resource *resource) Q_DECL_OVERRIDE;
 };
-
-}
 
 QT_END_NAMESPACE
 

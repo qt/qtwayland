@@ -48,6 +48,7 @@ QT_BEGIN_NAMESPACE
 class QWaylandCompositor;
 class QWaylandExtensionContainer;
 class QWaylandExtensionPrivate;
+class QWaylandExtensionTemplatePrivate;
 
 class Q_COMPOSITOR_EXPORT QWaylandExtension : public QObject
 {
@@ -81,7 +82,6 @@ protected:
     QVector<QWaylandExtension *> extension_vector;
 };
 
-class QWaylandExtensionTemplatePrivate;
 class Q_COMPOSITOR_EXPORT QWaylandExtensionTemplate : public QWaylandExtension
 {
     Q_OBJECT

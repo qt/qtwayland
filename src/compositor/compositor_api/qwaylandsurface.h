@@ -169,9 +169,13 @@ public:
     QList<QWaylandSurfaceView *> views() const;
 
     static QWaylandSurface *fromResource(::wl_resource *resource);
+    struct wl_resource *resource() const;
 
     void enter(QWaylandOutput *output);
     void leave(QWaylandOutput *output);
+
+    void markAsCursorSurface(bool cursorSurface);
+    bool isCursorSurface() const;
 
 public Q_SLOTS:
     void updateSelection();

@@ -1,7 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2015 The Qt Company Ltd.
-** Copyright (C) 2013 Klarälvdalens Datakonsult AB (KDAB).
+** Copyright (C) 2014 Jolla Ltd, author: <giulio.camuffo@jollamobile.com>
 ** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the QtWaylandCompositor module of the Qt Toolkit.
@@ -35,61 +34,33 @@
 **
 ****************************************************************************/
 
-#ifndef QTWAYLAND_QWLTOUCH_P_H
-#define QTWAYLAND_QWLTOUCH_P_H
+#ifndef QTWAYLAND_QWLLISTENER_H
+#define QTWAYLAND_QWLLISTENER_H
 
-#include <QtCompositor/qwaylandexport.h>
-#include <QtCompositor/QWaylandDestroyListener>
-#include <QtCompositor/QWaylandTouch>
-#include <QtCompositor/QWaylandInputDevice>
+#include "qwaylanddestroylistener.h"
 
-#include <QtCore/QPoint>
 #include <QtCore/private/qobject_p.h>
 
-#include <QtCompositor/private/qwayland-server-wayland.h>
+#include <wayland-server.h>
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandSurfaceView;
-class QWaylandCompositor;
-
-class Q_COMPOSITOR_EXPORT QWaylandTouchPrivate : public QObjectPrivate, public QtWaylandServer::wl_touch
+class QWaylandDestroyListenerPrivate : public QObjectPrivate
 {
-    Q_DECLARE_PUBLIC(QWaylandTouch)
 public:
-    explicit QWaylandTouchPrivate(QWaylandTouch *touch, QWaylandInputDevice *seat);
+    Q_DECLARE_PUBLIC(QWaylandDestroyListener)
 
-    QWaylandCompositor *compositor() const { return m_seat->compositor(); }
+    QWaylandDestroyListenerPrivate();
 
-    void startGrab(QWaylandTouchGrabber *grab);
-    void endGrab();
+    static void handler(wl_listener *listener, void *data);
 
-    void sendCancel();
-    void sendFrame();
-
-    void sendTouchPoint(int id, const QPointF &point, Qt::TouchPointState state);
-    void sendDown(int touch_id, const QPointF &position);
-    void sendMotion(int touch_id, const QPointF &position);
-    void sendUp(int touch_id);
-
-    void sendFullTouchEvent(QTouchEvent *event);
-
-    Resource *focusResource() const { return m_focusResource; }
-private:
-    void focusDestroyed(void *data);
-    void touch_destroy_resource(Resource *resource) Q_DECL_OVERRIDE;
-    void touch_release(Resource *resource) Q_DECL_OVERRIDE;
-
-    QWaylandInputDevice *m_seat;
-
-    QWaylandSurfaceView *m_focus;
-    Resource *m_focusResource;
-    QWaylandDestroyListener m_focusDestroyListener;
-
-    QWaylandDefaultTouchGrabber m_defaultGrab;
-    QWaylandTouchGrabber *m_grab;
+    struct Listener {
+        wl_listener listener;
+        QWaylandDestroyListenerPrivate *parent;
+    };
+    Listener listener;
 };
 
 QT_END_NAMESPACE
 
-#endif // QTWAYLAND_QWLTOUCH_P_H
+#endif

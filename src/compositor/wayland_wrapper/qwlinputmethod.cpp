@@ -47,15 +47,15 @@ QT_BEGIN_NAMESPACE
 
 namespace QtWayland {
 
-InputMethod::InputMethod(Compositor *compositor, InputDevice *seat)
-    : QtWaylandServer::wl_input_method(seat->compositor()->wl_display(), 1)
+InputMethod::InputMethod(QWaylandCompositor *compositor, QWaylandInputDevice *seat)
+    : QtWaylandServer::wl_input_method(seat->compositor()->waylandDisplay(), 1)
     , m_compositor(compositor)
     , m_seat(seat)
     , m_resource(0)
     , m_textInput()
     , m_context()
 {
-    connect(seat->keyboardDevice(), SIGNAL(focusChanged(Surface*)), this, SLOT(focusChanged(Surface*)));
+    connect(seat->keyboard(), SIGNAL(focusChanged(Surface*)), this, SLOT(focusChanged(Surface*)));
 }
 
 InputMethod::~InputMethod()
@@ -78,7 +78,7 @@ void InputMethod::activate(TextInput *textInput)
 
     send_activate(m_resource->handle, m_context->resource()->handle);
 
-    QWaylandInputPanelPrivate *panel = QWaylandInputPanelPrivate::get(m_compositor->waylandCompositor());
+    QWaylandInputPanelPrivate *panel = QWaylandInputPanelPrivate::get(m_compositor);
     if (panel) {
         panel->setFocus(textInput->focus());
         panel->setCursorRectangle(textInput->cursorRectangle());
@@ -97,7 +97,7 @@ void InputMethod::deactivate()
     m_textInput = 0;
     m_context = 0;
 
-    QWaylandInputPanelPrivate *panel = QWaylandInputPanelPrivate::get(m_compositor->waylandCompositor());
+    QWaylandInputPanelPrivate *panel = QWaylandInputPanelPrivate::get(m_compositor);
     if (panel) {
         panel->setFocus(0);
         panel->setCursorRectangle(QRect());

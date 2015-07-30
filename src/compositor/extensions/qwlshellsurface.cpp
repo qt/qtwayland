@@ -66,7 +66,7 @@ const wl_interface *Shell::interface() const
     return &wl_shell_interface;
 }
 
-ShellSurfacePopupGrabber *Shell::getPopupGrabber(InputDevice *input)
+ShellSurfacePopupGrabber *Shell::getPopupGrabber(QWaylandInputDevice *input)
 {
     if (!m_popupGrabber.contains(input))
         m_popupGrabber.insert(input, new ShellSurfacePopupGrabber(input));
@@ -223,10 +223,10 @@ void ShellSurface::shell_surface_move(Resource *resource,
         return;
     }
 
-    InputDevice *input_device = InputDevice::fromSeatResource(input_device_super);
-    Pointer *pointer = input_device->pointerDevice();
+    QWaylandInputDevicePrivate *input_device = QWaylandInputDevicePrivate::fromSeatResource(input_device_super);
+    QWaylandPointer *pointer = input_device->pointerDevice();
 
-    m_moveGrabber = new ShellSurfaceMoveGrabber(this, pointer->position() - m_view->requestedPosition());
+    m_moveGrabber = new ShellSurfaceMoveGrabber(this, pointer->currentSpacePosition() - m_view->requestedPosition());
 
     pointer->startGrab(m_moveGrabber);
 }
@@ -246,10 +246,10 @@ void ShellSurface::shell_surface_resize(Resource *resource,
 
     m_resizeGrabber = new ShellSurfaceResizeGrabber(this);
 
-    InputDevice *input_device = InputDevice::fromSeatResource(input_device_super);
-    Pointer *pointer = input_device->pointerDevice();
+    QWaylandInputDevicePrivate *input_device = QWaylandInputDevicePrivate::fromSeatResource(input_device_super);
+    QWaylandPointer *pointer = input_device->pointerDevice();
 
-    m_resizeGrabber->point = pointer->position();
+    m_resizeGrabber->point = pointer->currentSpacePosition();
     m_resizeGrabber->resize_edges = static_cast<wl_shell_surface_resize>(edges);
     m_resizeGrabber->width = m_view->surface()->size().width();
     m_resizeGrabber->height = m_view->surface()->size().height();
@@ -327,8 +327,8 @@ void ShellSurface::shell_surface_set_popup(Resource *resource, wl_resource *inpu
     Q_UNUSED(input_device);
     Q_UNUSED(flags);
 
-    InputDevice *input = InputDevice::fromSeatResource(input_device);
-    m_popupGrabber = m_shell->getPopupGrabber(input);
+    QWaylandInputDevicePrivate *input = QWaylandInputDevicePrivate::fromSeatResource(input_device);
+    m_popupGrabber = m_shell->getPopupGrabber(input->q_func());
 
     m_popupSerial = serial;
     m_surface->setTransientParent(Surface::fromResource(parent));
@@ -394,7 +394,7 @@ void ShellSurface::shell_surface_set_class(Resource *resource,
 }
 
 ShellSurfaceGrabber::ShellSurfaceGrabber(ShellSurface *shellSurface)
-    : PointerGrabber()
+    : QWaylandPointerGrabber()
     , shell_surface(shellSurface)
 {
 }
@@ -416,8 +416,8 @@ void ShellSurfaceResizeGrabber::motion(uint32_t time)
 {
     Q_UNUSED(time);
 
-    int width_delta = point.x() - m_pointer->position().x();
-    int height_delta = point.y() - m_pointer->position().y();
+    int width_delta = point.x() - pointer->currentSpacePosition().x();
+    int height_delta = point.y() - pointer->currentSpacePosition().y();
 
     int new_height = height;
     if (resize_edges & WL_SHELL_SURFACE_RESIZE_TOP)
@@ -439,7 +439,7 @@ void ShellSurfaceResizeGrabber::button(uint32_t time, Qt::MouseButton button, ui
     Q_UNUSED(time)
 
     if (button == Qt::LeftButton && !state) {
-        m_pointer->endGrab();
+        pointer->endGrab();
         shell_surface->resetResizeGrabber();
         delete this;
     }
@@ -459,7 +459,7 @@ void ShellSurfaceMoveGrabber::motion(uint32_t time)
 {
     Q_UNUSED(time);
 
-    QPointF pos(m_pointer->position() - m_offset);
+    QPointF pos(pointer->currentSpacePosition() - m_offset);
     shell_surface->m_view->setRequestedPosition(pos);
     if (shell_surface->m_surface->transientParent()) {
         QWaylandSurfaceView *view = shell_surface->m_surface->transientParent()->waylandSurface()->views().first();
@@ -474,15 +474,15 @@ void ShellSurfaceMoveGrabber::button(uint32_t time, Qt::MouseButton button, uint
     Q_UNUSED(time)
 
     if (button == Qt::LeftButton && !state) {
-        m_pointer->setFocus(0, QPointF());
-        m_pointer->endGrab();
+        pointer->resetCurrentView();
+        pointer->endGrab();
         shell_surface->resetMoveGrabber();
         delete this;
     }
 }
 
-ShellSurfacePopupGrabber::ShellSurfacePopupGrabber(InputDevice *inputDevice)
-    : PointerGrabber()
+ShellSurfacePopupGrabber::ShellSurfacePopupGrabber(QWaylandInputDevice *inputDevice)
+    : QWaylandDefaultPointerGrabber()
     , m_inputDevice(inputDevice)
     , m_client(0)
     , m_surfaces()
@@ -492,7 +492,7 @@ ShellSurfacePopupGrabber::ShellSurfacePopupGrabber(InputDevice *inputDevice)
 
 uint32_t ShellSurfacePopupGrabber::grabSerial() const
 {
-    return m_inputDevice->pointerDevice()->grabSerial();
+    return QWaylandInputDevicePrivate::get(m_inputDevice)->pointerDevice()->grabSerial();
 }
 
 struct ::wl_client *ShellSurfacePopupGrabber::client() const
@@ -510,11 +510,11 @@ void ShellSurfacePopupGrabber::addPopup(ShellSurface *surface)
     if (m_surfaces.isEmpty()) {
         m_client = surface->resource()->client();
 
-        if (m_inputDevice->pointerDevice()->buttonPressed())
+        if (QWaylandInputDevicePrivate::get(m_inputDevice)->pointerDevice()->isButtonPressed())
             m_initialUp = false;
 
         m_surfaces.append(surface);
-        m_inputDevice->pointerDevice()->startGrab(this);
+        QWaylandInputDevicePrivate::get(m_inputDevice)->pointerDevice()->startGrab(this);
     } else {
         m_surfaces.append(surface);
     }
@@ -527,30 +527,17 @@ void ShellSurfacePopupGrabber::removePopup(ShellSurface *surface)
 
     m_surfaces.removeOne(surface);
     if (m_surfaces.isEmpty())
-        m_inputDevice->pointerDevice()->endGrab();
-}
-
-void ShellSurfacePopupGrabber::focus()
-{
-    if (m_pointer->current() && m_pointer->current()->surface()->handle()->resource()->client() == m_client)
-        m_pointer->setFocus(m_pointer->current(), m_pointer->currentPosition());
-    else
-        m_pointer->setFocus(0, QPointF());
-}
-
-void ShellSurfacePopupGrabber::motion(uint32_t time)
-{
-    m_pointer->motion(time);
+        QWaylandInputDevicePrivate::get(m_inputDevice)->pointerDevice()->endGrab();
 }
 
 void ShellSurfacePopupGrabber::button(uint32_t time, Qt::MouseButton button, uint32_t state)
 {
-    if (m_pointer->focusResource()) {
-        m_pointer->sendButton(time, button, state);
+    if (pointer->focusResource()) {
+        pointer->sendButton(pointer->focusResource(), time, button, state);
     } else if (state == QtWaylandServer::wl_pointer::button_state_pressed &&
-               (m_initialUp || time - m_pointer->grabTime() > 500) &&
-               m_pointer->currentGrab() == this) {
-        m_pointer->endGrab();
+               (m_initialUp || time - pointer->grabTime() > 500) &&
+               pointer->currentGrab() == this) {
+        pointer->endGrab();
         Q_FOREACH (ShellSurface *surface, m_surfaces) {
             surface->send_popup_done();
         }

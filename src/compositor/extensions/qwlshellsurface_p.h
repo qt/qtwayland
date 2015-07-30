@@ -70,12 +70,12 @@ public:
 
     const wl_interface *interface() const Q_DECL_OVERRIDE;
 
-    ShellSurfacePopupGrabber* getPopupGrabber(InputDevice *input);
+    ShellSurfacePopupGrabber* getPopupGrabber(QWaylandInputDevice *input);
 
 private:
     void shell_get_shell_surface(Resource *resource, uint32_t id, struct ::wl_resource *surface) Q_DECL_OVERRIDE;
 
-    QHash<InputDevice*, ShellSurfacePopupGrabber*> m_popupGrabber;
+    QHash<QWaylandInputDevice *, ShellSurfacePopupGrabber*> m_popupGrabber;
 };
 
 class Q_COMPOSITOR_EXPORT ShellSurface : public QWaylandExtension, public QtWaylandServer::wl_shell_surface
@@ -176,7 +176,7 @@ private:
     friend class ShellSurfaceMoveGrabber;
 };
 
-class ShellSurfaceGrabber : public PointerGrabber
+class ShellSurfaceGrabber : public QWaylandPointerGrabber
 {
 public:
     ShellSurfaceGrabber(ShellSurface *shellSurface);
@@ -213,10 +213,10 @@ private:
     QPointF m_offset;
 };
 
-class ShellSurfacePopupGrabber : public PointerGrabber
+class ShellSurfacePopupGrabber : public QWaylandDefaultPointerGrabber
 {
 public:
-    ShellSurfacePopupGrabber(InputDevice *inputDevice);
+    ShellSurfacePopupGrabber(QWaylandInputDevice *inputDevice);
 
     uint32_t grabSerial() const;
 
@@ -226,12 +226,10 @@ public:
     void addPopup(ShellSurface *surface);
     void removePopup(ShellSurface *surface);
 
-    void focus() Q_DECL_OVERRIDE;
-    void motion(uint32_t time) Q_DECL_OVERRIDE;
     void button(uint32_t time, Qt::MouseButton button, uint32_t state) Q_DECL_OVERRIDE;
 
 private:
-    InputDevice *m_inputDevice;
+    QWaylandInputDevice *m_inputDevice;
     struct ::wl_client *m_client;
     QList<ShellSurface *> m_surfaces;
     bool m_initialUp;

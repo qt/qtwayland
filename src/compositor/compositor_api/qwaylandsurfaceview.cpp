@@ -185,6 +185,13 @@ void QWaylandSurfaceView::setBroadcastRequestedPositionChanged(bool broadcast)
     d->broadcastRequestedPositionChanged = broadcast;
 }
 
+struct wl_resource *QWaylandSurfaceView::surfaceResource() const
+{
+    if (!d->surface)
+        return Q_NULLPTR;
+    return d->surface->resource();
+}
+
 void QWaylandSurfaceView::waylandSurfaceChanged(QWaylandSurface *newSurface, QWaylandSurface *oldSurface)
 {
     if (d->output)

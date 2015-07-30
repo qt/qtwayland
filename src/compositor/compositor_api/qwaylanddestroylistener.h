@@ -1,6 +1,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2014 Jolla Ltd, author: <giulio.camuffo@jollamobile.com>
+** Copyright (C) 2015 Digia Plc and/or its subsidi ary(-ies).
 ** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the QtWaylandCompositor module of the Qt Toolkit.
@@ -34,37 +35,30 @@
 **
 ****************************************************************************/
 
-#ifndef QTWAYLAND_QWLLISTENER_H
-#define QTWAYLAND_QWLLISTENER_H
+#ifndef QWAYLANDDESTROYLISTENER_H
+#define QWAYLANDDESTROYLISTENER_H
 
-#include <QObject>
-
-#include <wayland-server.h>
+#include <QtCore/QObject>
+#include <QtCompositor/qwaylandexport.h>
 
 QT_BEGIN_NAMESPACE
 
-class WlListener : public QObject
+class QWaylandDestroyListenerPrivate;
+
+class Q_COMPOSITOR_EXPORT QWaylandDestroyListener : public QObject
 {
     Q_OBJECT
+    Q_DECLARE_PRIVATE(QWaylandDestroyListener)
 public:
-    WlListener();
-
-    void listenForDestruction(::wl_resource *resource);
+    QWaylandDestroyListener(QObject *parent = 0);
+    void listenForDestruction(struct wl_resource *resource);
     void reset();
 
-signals:
+Q_SIGNALS:
     void fired(void *data);
 
-private:
-    static void handler(wl_listener *listener, void *data);
-
-    struct Listener {
-        wl_listener listener;
-        WlListener *parent;
-    };
-    Listener m_listener;
 };
 
 QT_END_NAMESPACE
 
-#endif
+#endif  /*QWAYLANDDESTROYLISTENER_H*/

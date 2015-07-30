@@ -61,6 +61,9 @@ class QWaylandGlobalInterface;
 class QWaylandSurfaceView;
 class QWaylandOutput;
 class QWaylandOutputSpace;
+class QWaylandPointer;
+class QWaylandKeyboard;
+class QWaylandTouch;
 
 namespace QtWayland
 {
@@ -104,6 +107,7 @@ public:
     ExtensionFlags extensionFlags() const;
 
     ::wl_display *waylandDisplay() const;
+    uint32_t nextSerial();
 
     Q_INVOKABLE void destroyClientForSurface(QWaylandSurface *surface);
     Q_INVOKABLE void destroyClient(QWaylandClient *client);
@@ -119,15 +123,13 @@ public:
     void addOutputSpace(QWaylandOutputSpace *outputSpace);
     void removeOutputSpace(QWaylandOutputSpace *outputSpace);
 
-    virtual bool openUrl(QWaylandClient *client, const QUrl &url);
+    uint currentTimeMsecs() const;
 
     QtWayland::Compositor *handle() const;
 
     void setRetainedSelectionEnabled(bool enabled);
     bool retainedSelectionEnabled() const;
     void overrideSelection(const QMimeData *data);
-
-    void setClientFullScreenHint(bool value);
 
 #if QT_DEPRECATED_SINCE(5, 5)
     void setScreenOrientation(Qt::ScreenOrientation orientation);
@@ -176,6 +178,10 @@ protected:
                                          const QString &model);
     virtual QWaylandSurface *createSurface(QWaylandClient *client, quint32 id, int version);
     virtual QWaylandSurfaceView *createView();
+    virtual QWaylandInputDevice *createInputDevice();
+    virtual QWaylandPointer *createPointerDevice(QWaylandInputDevice *inputDevice);
+    virtual QWaylandKeyboard *createKeyboardDevice(QWaylandInputDevice *inputDevice);
+    virtual QWaylandTouch *createTouchDevice(QWaylandInputDevice *inputDevice);
 
     friend class QtWayland::Compositor;
     friend class QWaylandOutputSpacePrivate;

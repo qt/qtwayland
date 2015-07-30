@@ -188,4 +188,9 @@ QPointF QWaylandOutputSpace::mapToView(QWaylandSurfaceView *view, const QPointF 
     return globalPosition - (view->requestedPosition() + view->output()->geometry().topLeft());
 }
 
+QPointF QWaylandOutputSpace::mapToSpace(QWaylandSurfaceView *view, const QPointF &local) const
+{
+    return local + view->requestedPosition() + view->output()->geometry().topLeft();
+}
+
 QT_END_NAMESPACE

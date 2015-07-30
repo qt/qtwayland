@@ -89,9 +89,7 @@ public:
 
     void init();
 
-    void sendFrameCallbacks(QList<QWaylandSurface *> visibleSurfaces);
-
-    InputDevice *defaultInputDevice();
+    QWaylandInputDevice *defaultInputDevice();
 
     void registerInputDevice(QWaylandInputDevice *device);
     QList<QWaylandInputDevice *> inputDevices() const { return m_inputDevices; }
@@ -128,8 +126,6 @@ public:
 
     QList<QWaylandClient *> clients() const;
 
-    void setClientFullScreenHint(bool value);
-
     QWaylandCompositor::ExtensionFlags extensions() const;
 
     InputPanel *inputPanel() const;
@@ -144,8 +140,6 @@ public:
     bool retainedSelectionEnabled() const;
     void overrideSelection(const QMimeData *data);
     void feedRetainedSelectionData(QMimeData *data);
-
-    void resetInputDevice(Surface *surface);
 
     void unregisterSurface(QWaylandSurface *surface);
 

@@ -40,8 +40,10 @@
 
 #include <QtCompositor/qwaylandexport.h>
 #include <QtCompositor/qwaylandinput.h>
+#include <QtCompositor/qwaylandkeyboard.h>
+#include <QtCompositor/qwaylanddestroylistener.h>
 
-#include <QObject>
+#include <QtCore/private/qobject_p.h>
 #include <QtCompositor/private/qwayland-server-wayland.h>
 
 #include <QtCore/QVector>
@@ -50,7 +52,6 @@
 #include <xkbcommon/xkbcommon.h>
 #endif
 
-#include "qwllistener_p.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -61,55 +62,39 @@ class InputDevice;
 class Surface;
 class Keyboard;
 
-class Q_COMPOSITOR_EXPORT KeyboardGrabber {
-    public:
-        virtual ~KeyboardGrabber();
-        virtual void focused(Surface *surface) = 0;
-        virtual void key(uint32_t serial, uint32_t time, uint32_t key, uint32_t state) = 0;
-        virtual void modifiers(uint32_t serial, uint32_t mods_depressed,
-                uint32_t mods_latched, uint32_t mods_locked, uint32_t group) = 0;
+}
 
-        Keyboard *m_keyboard;
-};
-
-class Q_COMPOSITOR_EXPORT Keyboard : public QObject, public QtWaylandServer::wl_keyboard, public KeyboardGrabber
+class Q_COMPOSITOR_EXPORT QWaylandKeyboardPrivate : public QObjectPrivate
+                                                  , public QtWaylandServer::wl_keyboard
+                                                  , public QWaylandKeyboardGrabber
 {
-    Q_OBJECT
-
 public:
-    Keyboard(Compositor *compositor, InputDevice *seat);
-    ~Keyboard();
+    Q_DECLARE_PUBLIC(QWaylandKeyboard)
 
-    void setFocus(Surface *surface);
+    QWaylandKeyboardPrivate(QWaylandInputDevice *seat);
+    ~QWaylandKeyboardPrivate();
+
+    QWaylandCompositor *compositor() const { return m_seat->compositor(); }
+    void setFocus(QWaylandSurface *surface);
     void setKeymap(const QWaylandKeymap &keymap);
 
     void sendKeyModifiers(Resource *resource, uint32_t serial);
     void sendKeyPressEvent(uint code);
     void sendKeyReleaseEvent(uint code);
 
-    Surface *focus() const;
-    Resource *focusResource() const;
+    QWaylandSurface *focus() const;
+    Resource *focusResource() const { return m_focusResource; }
 
-    void focused(Surface* surface);
+    void focused(QWaylandSurface* surface);
     void key(uint32_t serial, uint32_t time, uint32_t key, uint32_t state);
     void modifiers(uint32_t serial, uint32_t mods_depressed,
-                uint32_t mods_latched, uint32_t mods_locked, uint32_t group);
+                   uint32_t mods_latched, uint32_t mods_locked, uint32_t group);
 
-    void keyEvent(uint code, uint32_t state);
-    void updateModifierState(uint code, uint32_t state);
-    void updateKeymap();
+    void startGrab(QWaylandKeyboardGrabber *grab);
+    void endGrab();
+    QWaylandKeyboardGrabber *currentGrab() const;
 
-   void startGrab(KeyboardGrabber *grab);
-   void endGrab();
-   KeyboardGrabber *currentGrab() const;
-
-#ifndef QT_NO_WAYLAND_XKB
-    struct xkb_state *xkbState() const { return m_state; }
-    uint32_t xkbModsMask() const { return m_modsDepressed | m_modsLatched | m_modsLocked; }
-#endif
-
-Q_SIGNALS:
-    void focusChanged(Surface *surface);
+    static QWaylandKeyboardPrivate *get(QWaylandKeyboard *keyboard);
 
 protected:
     void keyboard_bind_resource(Resource *resource);
@@ -118,20 +103,20 @@ protected:
 
 private:
     void sendKeyEvent(uint code, uint32_t state);
-    void focusDestroyed(void *data);
+    void updateModifierState(uint code, uint32_t state);
+    void updateKeymap();
 
 #ifndef QT_NO_WAYLAND_XKB
     void initXKB();
     void createXKBKeymap();
 #endif
 
-    Compositor *m_compositor;
-    InputDevice *m_seat;
+    QWaylandInputDevice *m_seat;
 
-    KeyboardGrabber* m_grab;
-    Surface *m_focus;
+    QWaylandKeyboardGrabber* m_grab;
+    QWaylandSurface *m_focus;
     Resource *m_focusResource;
-    WlListener m_focusDestroyListener;
+    QWaylandDestroyListener m_focusDestroyListener;
 
     QVector<uint32_t> m_keys;
     uint32_t m_modsDepressed;
@@ -149,8 +134,6 @@ private:
     struct xkb_state *m_state;
 #endif
 };
-
-} // namespace QtWayland
 
 QT_END_NAMESPACE
 

@@ -39,18 +39,20 @@
 #define QTWAYLAND_QWLPOINTER_P_H
 
 #include <QtCompositor/qwaylandexport.h>
+#include <QtCompositor/QWaylandDestroyListener>
+#include <QtCompositor/QWaylandPointer>
 
 #include <QtCore/QList>
 #include <QtCore/QPoint>
 #include <QtCore/QObject>
+#include <QtCore/private/qobject_p.h>
 
 #include <QtCompositor/private/qwayland-server-wayland.h>
 #include <QtCompositor/QWaylandSurfaceView>
 #include <QtCompositor/QWaylandSurface>
+#include <QtCompositor/QWaylandInputDevice>
 
 #include <stdint.h>
-
-#include "qwllistener_p.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -59,20 +61,7 @@ class QWaylandSurfaceView;
 namespace QtWayland {
 
 class Compositor;
-class InputDevice;
-class Pointer;
 class Surface;
-
-class Q_COMPOSITOR_EXPORT PointerGrabber {
-public:
-    virtual ~PointerGrabber();
-
-    virtual void focus() = 0;
-    virtual void motion(uint32_t time) = 0;
-    virtual void button(uint32_t time, Qt::MouseButton button, uint32_t state) = 0;
-
-    Pointer *m_pointer;
-};
 
 class CurrentPosition
 {
@@ -81,8 +70,15 @@ public:
         : m_view(Q_NULLPTR)
      {}
 
-    void updatePosition(const QPointF &position)
+    void reset()
     {
+        m_point = QPointF();
+        m_view = Q_NULLPTR;
+    }
+
+    void updatePosition(QWaylandSurfaceView *view, const QPointF &position)
+    {
+        m_view = view;
         m_point = position;
         //we adjust if the mouse position is on the edge
         //to work around Qt's event propogation
@@ -102,59 +98,57 @@ public:
     qreal x() const { return m_point.x(); }
     qreal y() const { return m_point.y(); }
 
-    void setView(QWaylandSurfaceView *view) { m_view = view; }
     QWaylandSurfaceView *view() const { return m_view; }
-
-    void setCurrent(QWaylandSurfaceView *view, const QPointF &position)
-    {
-        QPointF toSet = view || position.isNull() ? position : QPointF();
-        setView(view);
-        updatePosition(toSet);
-    }
 
 private:
     QWaylandSurfaceView *m_view;
     QPointF m_point;
 };
 
-class Q_COMPOSITOR_EXPORT Pointer : public QObject, public QtWaylandServer::wl_pointer, public PointerGrabber
+
+} // namespace QtWayland
+
+class Q_COMPOSITOR_EXPORT QWaylandPointerPrivate : public QObjectPrivate
+                                                 , public QtWaylandServer::wl_pointer
 {
+    Q_DECLARE_PUBLIC(QWaylandPointer)
 public:
-    Pointer(Compositor *compositor, InputDevice *seat);
+    QWaylandPointerPrivate(QWaylandPointer *pointer, QWaylandInputDevice *seat);
 
-    void setFocus(QWaylandSurfaceView *surface, const QPointF &position);
+    QWaylandOutput *output() const { return m_output; }
+    void setOutput(QWaylandOutput *output)
+    {
+        if (m_output == output) return;
+        Q_Q(QWaylandPointer);
+        m_output = output;
+        q->outputChanged();
+    }
 
-    void startGrab(PointerGrabber *currentGrab);
+
+    void startGrab(QWaylandPointerGrabber *currentGrab);
     void endGrab();
-    PointerGrabber *currentGrab() const;
+    QWaylandPointerGrabber *currentGrab() const;
     Qt::MouseButton grabButton() const;
     uint32_t grabTime() const;
     uint32_t grabSerial() const;
 
-    void setCurrent(QWaylandSurfaceView *surface, const QPointF &point);
-    void setMouseFocus(QWaylandSurfaceView *surface, const QPointF &localPos, const QPointF &globalPos);
-
-    void sendButton(uint32_t time, Qt::MouseButton button, uint32_t state);
-
-    void sendMousePressEvent(Qt::MouseButton button, const QPointF &localPos, const QPointF &globalPos);
-    void sendMouseReleaseEvent(Qt::MouseButton button, const QPointF &localPos, const QPointF &globalPos);
-    void sendMouseMoveEvent(const QPointF &localPos, const QPointF &globalPos);
+    void sendMousePressEvent(Qt::MouseButton button);
+    void sendMouseReleaseEvent(Qt::MouseButton button);
+    void sendMouseMoveEvent(QWaylandSurfaceView *view, const QPointF &localPos, const QPointF &outputSpacePos);
     void sendMouseWheelEvent(Qt::Orientation orientation, int delta);
-    void sendMouseEnterEvent(QWaylandSurfaceView *view, const QPointF &localPos);
-    void sendMouseLeaveEvent(QWaylandSurfaceView *view);
 
-    QWaylandSurfaceView *focusSurface() const;
-    QWaylandSurfaceView *current() const;
-    QPointF position() const;
-    QPointF currentPosition() const;
-    Resource *focusResource() const;
+    Resource *focusResource() const { return m_focusResource; }
+    QWaylandSurfaceView *focusView() const { return m_currentPosition.view(); }
 
     bool buttonPressed() const;
 
-    void focus() Q_DECL_OVERRIDE;
-    void motion(uint32_t time) Q_DECL_OVERRIDE;
-    void button(uint32_t time, Qt::MouseButton button, uint32_t state) Q_DECL_OVERRIDE;
+    QWaylandInputDevice *seat() const { return m_seat; }
+    QWaylandCompositor *compositor() const { return m_seat->compositor(); }
 
+    void resetCurrentState() { m_currentPosition.reset(); }
+    QWaylandSurfaceView *currentView() const { return m_currentPosition.view(); }
+    QPointF currentSpacePosition() const { return m_spacePosition; }
+    QPointF currentLocalPosition() const { return m_currentPosition.position(); }
 protected:
     void pointer_set_cursor(Resource *resource, uint32_t serial, wl_resource *surface, int32_t hotspot_x, int32_t hotspot_y) Q_DECL_OVERRIDE;
     void pointer_release(Resource *resource) Q_DECL_OVERRIDE;
@@ -163,27 +157,24 @@ protected:
 private:
     void focusDestroyed(void *data);
 
-    Compositor *m_compositor;
-    InputDevice *m_seat;
+    QWaylandInputDevice *m_seat;
+    QWaylandOutput *m_output;
+    QWaylandDefaultPointerGrabber m_defaultGrab;
+    QtWayland::CurrentPosition m_currentPosition;
+    QPointF m_spacePosition;
 
-    PointerGrabber *m_grab;
+    QWaylandPointerGrabber *m_grab;
     Qt::MouseButton m_grabButton;
     uint32_t m_grabTime;
     uint32_t m_grabSerial;
 
-    QPointF m_position;
-
-    QWaylandSurfaceView *m_focus;
     Resource *m_focusResource;
 
-    CurrentPosition m_currentPosition;
 
     int m_buttonCount;
 
-    WlListener m_focusDestroyListener;
+    QWaylandDestroyListener m_focusDestroyListener;
 };
-
-} // namespace QtWayland
 
 QT_END_NAMESPACE
 

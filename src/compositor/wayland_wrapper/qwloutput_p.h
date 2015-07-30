@@ -95,6 +95,7 @@ public:
     void setGeometry(const QRect &geometry);
     void setWidth(int newWidth);
     void setHeight(int newHeight);
+    QPoint topLeft() const { return geometry().topLeft(); }
 
     bool sizeFollowsWindow() const;
     void setSizeFollowsWindow(bool follow);

@@ -42,6 +42,9 @@
 #include "qwaylandoutput.h"
 #include "qwaylandsurfaceview.h"
 #include "qwaylandclient.h"
+#include "qwaylandkeyboard.h"
+#include "qwaylandpointer.h"
+#include "qwaylandtouch.h"
 
 #include "wayland_wrapper/qwlcompositor_p.h"
 #include "wayland_wrapper/qwldatadevice_p.h"
@@ -115,6 +118,11 @@ struct wl_display *QWaylandCompositor::waylandDisplay() const
     return m_compositor->wl_display();
 }
 
+uint32_t QWaylandCompositor::nextSerial()
+{
+    return wl_display_next_serial(waylandDisplay());
+}
+
 void QWaylandCompositor::destroyClientForSurface(QWaylandSurface *surface)
 {
     destroyClient(surface->client());
@@ -170,6 +178,11 @@ void QWaylandCompositor::removeOutputSpace(QWaylandOutputSpace *outputSpace)
     m_compositor->removeOutputSpace(outputSpace);
 }
 
+uint QWaylandCompositor::currentTimeMsecs() const
+{
+    return m_compositor->currentTimeMsecs();
+}
+
 QWaylandOutput *QWaylandCompositor::createOutput(QWaylandOutputSpace *outputSpace,
                                                  QWindow *window,
                                                  const QString &manufacturer,
@@ -193,15 +206,24 @@ QWaylandSurfaceView *QWaylandCompositor::createView()
     return new QWaylandSurfaceView();
 }
 
-/*!
-    Override this to handle QDesktopServices::openUrl() requests from the clients.
-
-    The default implementation simply forwards the request to QDesktopServices::openUrl().
-*/
-bool QWaylandCompositor::openUrl(QWaylandClient *client, const QUrl &url)
+QWaylandInputDevice *QWaylandCompositor::createInputDevice()
 {
-    Q_UNUSED(client);
-    return QDesktopServices::openUrl(url);
+    return new QWaylandInputDevice(this);
+}
+
+QWaylandPointer *QWaylandCompositor::createPointerDevice(QWaylandInputDevice *inputDevice)
+{
+    return new QWaylandPointer(inputDevice);
+}
+
+QWaylandKeyboard *QWaylandCompositor::createKeyboardDevice(QWaylandInputDevice *inputDevice)
+{
+    return new QWaylandKeyboard(inputDevice);
+}
+
+QWaylandTouch *QWaylandCompositor::createTouchDevice(QWaylandInputDevice *inputDevice)
+{
+    return new QWaylandTouch(inputDevice);
 }
 
 QtWayland::Compositor * QWaylandCompositor::handle() const
@@ -226,11 +248,6 @@ void QWaylandCompositor::retainedSelectionReceived(QMimeData *)
 void QWaylandCompositor::overrideSelection(const QMimeData *data)
 {
     m_compositor->overrideSelection(data);
-}
-
-void QWaylandCompositor::setClientFullScreenHint(bool value)
-{
-    m_compositor->setClientFullScreenHint(value);
 }
 
 #if QT_DEPRECATED_SINCE(5, 5)
@@ -296,12 +313,12 @@ int QWaylandCompositor::outputRefreshRate() const
 
 QWaylandInputDevice *QWaylandCompositor::defaultInputDevice() const
 {
-    return m_compositor->defaultInputDevice()->handle();
+    return m_compositor->defaultInputDevice();
 }
 
 QWaylandDrag *QWaylandCompositor::drag() const
 {
-    return m_compositor->defaultInputDevice()->dragHandle();
+    return m_compositor->defaultInputDevice()->drag();
 }
 
 bool QWaylandCompositor::isDragging() const

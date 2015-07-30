@@ -305,16 +305,6 @@ void Compositor::destroySurface(Surface *surface)
     m_destroyed_surfaces << surface->waylandSurface();
 }
 
-void Compositor::resetInputDevice(Surface *surface)
-{
-    foreach (QWaylandInputDevice *dev, m_inputDevices) {
-        if (dev->keyboardFocus() == surface->waylandSurface())
-            dev->setKeyboardFocus(0);
-        if (dev->mouseFocus() && dev->mouseFocus()->surface() == surface->waylandSurface())
-            dev->setMouseFocus(0, QPointF(), QPointF());
-    }
-}
-
 void Compositor::unregisterSurface(QWaylandSurface *surface)
 {
     if (!m_all_surfaces.removeOne(surface))
@@ -403,18 +393,15 @@ void Compositor::initializeExtensions()
         new TextInputManager(this);
         new QWaylandInputPanel(waylandCompositor());
     }
-    if (m_extensions & QWaylandCompositor::WindowManagerExtension) {
-        WindowManagerServerIntegration *wmint = new WindowManagerServerIntegration(m_qt_compositor, this);
-        wmint->initialize(m_display);
-    }
-    if (m_extensions & QWaylandCompositor::DefaultShellExtension) {
+    if (m_extensions & QWaylandCompositor::WindowManagerExtension)
+        new QWaylandWindowManagerExtension(waylandCompositor());
+    if (m_extensions & QWaylandCompositor::DefaultShellExtension)
         new Shell(waylandCompositor());
-    }
 }
 
 void Compositor::initializeDefaultInputDevice()
 {
-    m_default_wayland_input_device = new QWaylandInputDevice(m_qt_compositor);
+    m_default_wayland_input_device = m_qt_compositor->createInputDevice();
     registerInputDevice(m_default_wayland_input_device);
 }
 
@@ -423,22 +410,15 @@ QList<QWaylandClient *> Compositor::clients() const
     return m_clients;
 }
 
-void Compositor::setClientFullScreenHint(bool value)
-{
-    WindowManagerServerIntegration *wmExtension = static_cast<WindowManagerServerIntegration *>(waylandCompositor()->extension(QtWaylandServer::qt_windowmanager::name()));
-    if (wmExtension)
-        wmExtension->setShowIsFullScreen(value);
-}
-
 QWaylandCompositor::ExtensionFlags Compositor::extensions() const
 {
     return m_extensions;
 }
 
-InputDevice* Compositor::defaultInputDevice()
+QWaylandInputDevice *Compositor::defaultInputDevice()
 {
     // The list gets prepended so that default is the last element
-    return m_inputDevices.last()->handle();
+    return m_inputDevices.last();
 }
 
 DataDeviceManager *Compositor::dataDeviceManager() const

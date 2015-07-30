@@ -13,6 +13,7 @@ HEADERS += \
     extensions/qwlqtkey_p.h \
     extensions/qwlshellsurface_p.h \
     extensions/qwaylandwindowmanagerextension.h \
+    extensions/qwaylandwindowmanagerextension_p.h \
     extensions/qwltextinput_p.h \
     extensions/qwltextinputmanager_p.h \
     extensions/qwlinputpanel_p.h \

@@ -300,6 +300,18 @@ void QWaylandSurface::leave(QWaylandOutput *output)
         d->send_leave(outputResource->handle);
 }
 
+void QWaylandSurface::markAsCursorSurface(bool cursorSurface)
+{
+    Q_D(QWaylandSurface);
+    d->setCursorSurface(cursorSurface);
+}
+
+bool QWaylandSurface::isCursorSurface() const
+{
+    Q_D(const QWaylandSurface);
+    return d->isCursorSurface();
+}
+
 /*!
     Updates the surface with the compositor's retained clipboard selection. While this
     is done automatically when the surface receives keyboard focus, this function is
@@ -308,9 +320,9 @@ void QWaylandSurface::leave(QWaylandOutput *output)
 void QWaylandSurface::updateSelection()
 {
     Q_D(QWaylandSurface);
-    const QtWayland::InputDevice *inputDevice = d->compositor()->defaultInputDevice();
+    QWaylandInputDevice *inputDevice = d->compositor()->defaultInputDevice();
     if (inputDevice) {
-        const QtWayland::DataDevice *dataDevice = inputDevice->dataDevice();
+        const QtWayland::DataDevice *dataDevice = QWaylandInputDevicePrivate::get(inputDevice)->dataDevice();
         if (dataDevice) {
             d->compositor()->dataDeviceManager()->offerRetainedSelection(
                         dataDevice->resourceMap().value(d->resource()->client())->handle);
@@ -349,6 +361,12 @@ QWaylandSurface *QWaylandSurface::fromResource(::wl_resource *res)
     if (s)
         return s->waylandSurface();
     return Q_NULLPTR;
+}
+
+struct wl_resource *QWaylandSurface::resource() const
+{
+    Q_D(const QWaylandSurface);
+    return d->resource()->handle;
 }
 
 QWaylandSurfacePrivate *QWaylandSurfacePrivate::get(QWaylandSurface *surface)

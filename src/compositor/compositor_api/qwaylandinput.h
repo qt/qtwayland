@@ -42,6 +42,8 @@
 #include <QtCore/QString>
 
 #include <QtCompositor/qwaylandexport.h>
+#include <QtCompositor/qwaylandextension.h>
+#include <QtCompositor/qwaylandkeyboard.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -52,6 +54,11 @@ class QTouchEvent;
 class QWaylandSurfaceView;
 class QInputEvent;
 class QWaylandOutputSpace;
+class QWaylandInputDevicePrivate;
+class QWaylandDrag;
+class QWaylandKeyboard;
+class QWaylandPointer;
+class QWaylandTouch;
 
 namespace QtWayland {
 class InputDevice;
@@ -77,8 +84,10 @@ private:
     QString m_model;
 };
 
-class Q_COMPOSITOR_EXPORT QWaylandInputDevice
+class Q_COMPOSITOR_EXPORT QWaylandInputDevice : public QObject, public QWaylandExtensionContainer
 {
+    Q_OBJECT
+    Q_DECLARE_PRIVATE(QWaylandInputDevice)
 public:
     enum CapabilityFlag {
         // The order should match the enum WL_SEAT_CAPABILITY_*
@@ -93,13 +102,11 @@ public:
     QWaylandInputDevice(QWaylandCompositor *compositor, CapabilityFlags caps = DefaultCapabilities);
     virtual ~QWaylandInputDevice();
 
-    void sendMousePressEvent(Qt::MouseButton button, const QPointF &localPos, const QPointF &globalPos = QPointF());
-    void sendMouseReleaseEvent(Qt::MouseButton button, const QPointF &localPos, const QPointF &globalPos = QPointF());
-    void sendMouseMoveEvent(const QPointF &localPos, const QPointF &globalPos = QPointF());
+    void sendMousePressEvent(Qt::MouseButton button);
+    void sendMouseReleaseEvent(Qt::MouseButton button);
     void sendMouseMoveEvent(QWaylandSurfaceView *surface , const QPointF &localPos, const QPointF &globalPos = QPointF());
     void sendMouseWheelEvent(Qt::Orientation orientation, int delta);
-    void sendMouseEnterEvent(QWaylandSurfaceView *view, const QPointF &localPos);
-    void sendMouseLeaveEvent(QWaylandSurfaceView *view);
+    void sendResetCurrentMouseView();
 
     void sendKeyPressEvent(uint code);
     void sendKeyReleaseEvent(uint code);
@@ -107,32 +114,37 @@ public:
     void sendFullKeyEvent(QKeyEvent *event);
     void sendFullKeyEvent(QWaylandSurface *surface, QKeyEvent *event);
 
-    void sendTouchPointEvent(int id, double x, double y, Qt::TouchPointState state);
+    void sendTouchPointEvent(int id, const QPointF &point, Qt::TouchPointState state);
     void sendTouchFrameEvent();
     void sendTouchCancelEvent();
 
     void sendFullTouchEvent(QTouchEvent *event);
 
+    QWaylandPointer *pointer() const;
+
+    QWaylandSurfaceView *mouseFocus() const;
+    void setMouseFocus(QWaylandSurfaceView *view);
+
+    QWaylandKeyboard *keyboard() const;
     QWaylandSurface *keyboardFocus() const;
     bool setKeyboardFocus(QWaylandSurface *surface);
     void setKeymap(const QWaylandKeymap &keymap);
 
-    QWaylandSurfaceView *mouseFocus() const;
-    void setMouseFocus(QWaylandSurfaceView *surface, const QPointF &local_pos, const QPointF &global_pos = QPointF());
+    QWaylandTouch *touch() const;
 
     QWaylandOutputSpace *outputSpace() const;
     void setOutputSpace(QWaylandOutputSpace *outputSpace);
 
     QWaylandCompositor *compositor() const;
-    QtWayland::InputDevice *handle() const;
 
-    QWaylandInputDevice::CapabilityFlags capabilities();
+    QWaylandDrag *drag() const;
 
-    virtual bool isOwner(QInputEvent *inputEvent);
+    QWaylandInputDevice::CapabilityFlags capabilities() const;
 
-private:
-    QtWayland::InputDevice *d;
-    Q_DISABLE_COPY(QWaylandInputDevice)
+    virtual bool isOwner(QInputEvent *inputEvent) const;
+
+Q_SIGNALS:
+    void mouseFocusChanged();
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QWaylandInputDevice::CapabilityFlags)

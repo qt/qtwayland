@@ -35,64 +35,64 @@
 ****************************************************************************/
 
 #include "qwaylandwindowmanagerextension.h"
+#include "qwaylandwindowmanagerextension_p.h"
 
-#include <wayland_wrapper/qwldisplay_p.h>
-#include <wayland_wrapper/qwlcompositor_p.h>
+#include <QtCompositor/QWaylandCompositor>
+#include <QtCompositor/QWaylandClient>
 
-#include <compositor_api/qwaylandclient.h>
-#include <compositor_api/qwaylandcompositor.h>
-
-#include <wayland-server.h>
-
-#include <QUrl>
+#include <QtCore/QUrl>
 
 QT_BEGIN_NAMESPACE
 
-WindowManagerServerIntegration::WindowManagerServerIntegration(QWaylandCompositor *compositor, QObject *parent)
-    : QWaylandExtension(compositor)
-    , QtWaylandServer::qt_windowmanager()
+QWaylandWindowManagerExtension::QWaylandWindowManagerExtension(QWaylandCompositor *compositor, QObject *parent)
+    : QWaylandExtensionTemplate(*new QWaylandWindowManagerExtensionPrivate(compositor), parent)
+{
+}
+
+QWaylandWindowManagerExtensionPrivate::QWaylandWindowManagerExtensionPrivate(QWaylandCompositor *compositor)
+    : QWaylandExtensionTemplatePrivateImpl(compositor)
     , m_showIsFullScreen(false)
     , m_compositor(compositor)
 {
+    init(compositor->waylandDisplay(), 1);
 }
 
-WindowManagerServerIntegration::~WindowManagerServerIntegration()
+void QWaylandWindowManagerExtension::setShowIsFullScreen(bool value)
 {
-}
-
-void WindowManagerServerIntegration::initialize(QtWayland::Display *waylandDisplay)
-{
-    init(waylandDisplay->handle(), 1);
-}
-
-void WindowManagerServerIntegration::setShowIsFullScreen(bool value)
-{
-    m_showIsFullScreen = value;
-    Q_FOREACH (Resource *resource, resourceMap().values()) {
-        send_hints(resource->handle, static_cast<int32_t>(m_showIsFullScreen));
+    Q_D(QWaylandWindowManagerExtension);
+    d->m_showIsFullScreen = value;
+    Q_FOREACH (QWaylandWindowManagerExtensionPrivate::Resource *resource, d->resourceMap().values()) {
+        d->send_hints(resource->handle, static_cast<int32_t>(d->m_showIsFullScreen));
     }
 }
 
-void WindowManagerServerIntegration::sendQuitMessage(wl_client *client)
+void QWaylandWindowManagerExtension::sendQuitMessage(wl_client *client)
 {
-    Resource *resource = resourceMap().value(client);
+    Q_D(QWaylandWindowManagerExtension);
+    QWaylandWindowManagerExtensionPrivate::Resource *resource = d->resourceMap().value(client);
 
     if (resource)
-        send_quit(resource->handle);
+        d->send_quit(resource->handle);
 }
 
-void WindowManagerServerIntegration::windowmanager_bind_resource(Resource *resource)
+QWaylandWindowManagerExtension *QWaylandWindowManagerExtension::get(QWaylandExtensionContainer *container)
+{
+    return static_cast<QWaylandWindowManagerExtension *>(container->extension(QtWaylandServer::qt_windowmanager::interface()));
+}
+
+void QWaylandWindowManagerExtensionPrivate::windowmanager_bind_resource(Resource *resource)
 {
     send_hints(resource->handle, static_cast<int32_t>(m_showIsFullScreen));
 }
 
-void WindowManagerServerIntegration::windowmanager_destroy_resource(Resource *resource)
+void QWaylandWindowManagerExtensionPrivate::windowmanager_destroy_resource(Resource *resource)
 {
     m_urls.remove(resource);
 }
 
-void WindowManagerServerIntegration::windowmanager_open_url(Resource *resource, uint32_t remaining, const QString &newUrl)
+void QWaylandWindowManagerExtensionPrivate::windowmanager_open_url(Resource *resource, uint32_t remaining, const QString &newUrl)
 {
+    Q_Q(QWaylandWindowManagerExtension);
     QString url = m_urls.value(resource, QString());
 
     url.append(newUrl);
@@ -101,7 +101,7 @@ void WindowManagerServerIntegration::windowmanager_open_url(Resource *resource, 
         m_urls.insert(resource, url);
     else {
         m_urls.remove(resource);
-        m_compositor->openUrl(QWaylandClient::fromWlClient(resource->client()), QUrl(url));
+        q->openUrl(QWaylandClient::fromWlClient(resource->client()), QUrl(url));
     }
 }
 

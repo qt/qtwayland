@@ -43,7 +43,7 @@ struct wl_client;
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandQuickView;
+class QWaylandQuickItem;
 class QWaylandQuickSurfacePrivate;
 class QWaylandQuickCompositor;
 

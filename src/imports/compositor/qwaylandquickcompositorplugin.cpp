@@ -149,7 +149,7 @@ public:
     static void defineModule(const char *uri)
     {
         qmlRegisterType<QWaylandQuickCompositorImpl>(uri, 1, 0, "WaylandCompositor");
-        qmlRegisterType<QWaylandQuickView>(uri, 1, 0, "WaylandView");
+        qmlRegisterType<QWaylandQuickItem>(uri, 1, 0, "WaylandView");
         qmlRegisterType<QWaylandMouseTracker>(uri, 1, 0, "WaylandMouseTracker");
         qmlRegisterUncreatableType<QWaylandQuickSurface>(uri, 1, 0, "WaylandQuickSurface", QObject::tr("Cannot create instance of WaylandQuickSurface"));
         qmlRegisterUncreatableType<QWaylandClient>(uri, 1, 0, "WaylandClient", QObject::tr("Cannot create instance of WaylandClient"));

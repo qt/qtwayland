@@ -108,9 +108,9 @@ public:
         m_view.show();
     }
 
-    Q_INVOKABLE QWaylandQuickView *item(QWaylandSurface *surf)
+    Q_INVOKABLE QWaylandQuickItem *item(QWaylandSurface *surf)
     {
-        return static_cast<QWaylandQuickView *>(surf->views().first());
+        return static_cast<QWaylandQuickItem *>(surf->views().first());
     }
 
 signals:

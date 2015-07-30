@@ -55,7 +55,7 @@ class QWaylandSurfaceTextureProvider;
 class QMutex;
 class QWaylandInputDevice;
 
-class Q_COMPOSITOR_EXPORT QWaylandQuickView : public QQuickItem, public QWaylandView
+class Q_COMPOSITOR_EXPORT QWaylandQuickItem : public QQuickItem, public QWaylandView
 {
     Q_OBJECT
     Q_PROPERTY(QWaylandQuickSurface* surface READ surface WRITE setSurface NOTIFY surfaceChanged)
@@ -70,8 +70,8 @@ class Q_COMPOSITOR_EXPORT QWaylandQuickView : public QQuickItem, public QWayland
     Q_PROPERTY(bool lockedBuffer READ lockedBuffer WRITE setLockedBuffer NOTIFY lockedBufferChanged)
 
 public:
-    QWaylandQuickView(QQuickItem *parent = 0);
-    ~QWaylandQuickView();
+    QWaylandQuickItem(QQuickItem *parent = 0);
+    ~QWaylandQuickItem();
 
     QWaylandQuickSurface *surface() const;
     void setSurface(QWaylandQuickSurface *surface);

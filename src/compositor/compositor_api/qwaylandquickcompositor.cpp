@@ -72,7 +72,7 @@ void QWaylandQuickCompositor::registerLegacyQmlNames()
 {
     static bool initialized = false;
     if (!initialized) {
-        qmlRegisterUncreatableType<QWaylandQuickView>("QtCompositor", 1, 0, "WaylandSurfaceItem", QObject::tr("Cannot create instance of WaylandSurfaceItem"));
+        qmlRegisterUncreatableType<QWaylandQuickItem>("QtCompositor", 1, 0, "WaylandSurfaceItem", QObject::tr("Cannot create instance of WaylandSurfaceItem"));
         qmlRegisterUncreatableType<QWaylandQuickSurface>("QtCompositor", 1, 0, "WaylandQuickSurface", QObject::tr("Cannot create instance of WaylandQuickSurface"));
         qmlRegisterUncreatableType<QWaylandClient>("QtCompositor", 1, 0, "WaylandClient", QObject::tr("Cannot create instance of WaylandClient"));
         qmlRegisterUncreatableType<QWaylandOutput>("QtCompositor", 1, 0, "WaylandOutput", QObject::tr("Cannot create instance of WaylandOutput"));
@@ -122,7 +122,7 @@ QWaylandOutput *QWaylandQuickCompositor::createOutput(QWaylandOutputSpace *outpu
 
 QWaylandView *QWaylandQuickCompositor::createView()
 {
-    QWaylandQuickView *view = new QWaylandQuickView();
+    QWaylandQuickItem *view = new QWaylandQuickItem();
     QQmlEngine::setObjectOwnership(view, QQmlEngine::JavaScriptOwnership);
     return view;
 }

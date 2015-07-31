@@ -110,7 +110,7 @@ public:
     {
         if (e->type == QWindowSystemInterfacePrivate::Key) {
             QWindowSystemInterfacePrivate::KeyEvent *ke = static_cast<QWindowSystemInterfacePrivate::KeyEvent *>(e);
-            Keyboard *keyb = compositor->defaultInputDevice()->keyboardDevice();
+            QWaylandKeyboardPrivate *keyb = QWaylandKeyboardPrivate::get(compositor->defaultInputDevice()->keyboard());
 
             uint32_t code = ke->nativeScanCode;
             bool isDown = ke->keyType == QEvent::KeyPress;

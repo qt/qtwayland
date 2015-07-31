@@ -96,12 +96,17 @@ public:
 
     static QWaylandKeyboardPrivate *get(QWaylandKeyboard *keyboard);
 
+#ifndef QT_NO_WAYLAND_XKB
+    struct xkb_state *xkbState() const { return m_state; }
+    uint32_t xkbModsMask() const { return m_modsDepressed | m_modsLatched | m_modsLocked; }
+#endif
 protected:
     void keyboard_bind_resource(Resource *resource);
     void keyboard_destroy_resource(Resource *resource);
     void keyboard_release(Resource *resource) Q_DECL_OVERRIDE;
 
 private:
+    void keyEvent(uint code, uint32_t state);
     void sendKeyEvent(uint code, uint32_t state);
     void updateModifierState(uint code, uint32_t state);
     void updateKeymap();

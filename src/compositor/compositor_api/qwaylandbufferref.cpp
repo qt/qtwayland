@@ -166,7 +166,7 @@ void QWaylandBufferRef::bindToTexture() const
 
 void *QWaylandBufferRef::nativeBuffer() const
 {
-    return d->buffer->handle();
+    return d->buffer->waylandBufferHandle();
 }
 
 QT_END_NAMESPACE

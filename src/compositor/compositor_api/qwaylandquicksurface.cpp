@@ -44,6 +44,7 @@
 #include "qwaylandoutput.h"
 #include "qwaylandquickitem.h"
 #include <QtCompositor/qwaylandbufferref.h>
+#include <QtCompositor/QWaylandView>
 #include <QtCompositor/private/qwaylandsurface_p.h>
 
 #include <QtCompositor/private/qwayland-server-surface-extension.h>
@@ -70,7 +71,7 @@ public:
     {
         QWaylandSurfacePrivate::surface_commit(resource);
 
-        Q_FOREACH (QWaylandSurfaceView *view, views) {
+        Q_FOREACH (QWaylandView *view, views) {
             if (view->output())
                 view->output()->update();
         }
@@ -85,10 +86,6 @@ QWaylandQuickSurface::QWaylandQuickSurface(wl_client *client, quint32 id, int ve
                     : QWaylandSurface(new QWaylandQuickSurfacePrivate(client, id, version, compositor, this))
 {
     connect(this, &QWaylandSurface::primaryOutputChanged, this, &QWaylandQuickSurface::primaryOutputWindowChanged);
-
-    connect(this, &QWaylandSurface::windowPropertyChanged, d->windowPropertyMap, &QQmlPropertyMap::insert);
-    connect(d->windowPropertyMap, &QQmlPropertyMap::valueChanged, this, &QWaylandSurface::setWindowProperty);
-    connect(this, &QWaylandSurface::shellViewCreated, this, &QWaylandQuickSurface::shellViewCreated);
 }
 
 QWaylandQuickSurface::~QWaylandQuickSurface()

@@ -134,7 +134,6 @@ Surface::Surface(struct wl_client *client, uint32_t id, int version, QWaylandCom
 
 Surface::~Surface()
 {
-    removeFromOutput();
     delete m_subSurface;
 
     m_bufferRef = QWaylandBufferRef();
@@ -166,7 +165,7 @@ Surface *Surface::fromResource(struct ::wl_resource *resource)
 
 bool Surface::mapped() const
 {
-    return !m_unmapLocks.isEmpty() || (m_buffer && bool(m_buffer->waylandBufferHandle()));
+    return m_buffer && bool(m_buffer->waylandBufferHandle());
 }
 
 QSize Surface::size() const
@@ -303,20 +302,6 @@ void Surface::setMapped(bool mapped)
     } else if (!mapped && m_surfaceMapped) {
         m_surfaceMapped = false;
         emit m_waylandSurface->unmapped();
-    }
-}
-
-void Surface::addUnmapLock(QWaylandUnmapLock *l)
-{
-    m_unmapLocks << l;
-}
-
-void Surface::removeUnmapLock(QWaylandUnmapLock *l)
-{
-    m_unmapLocks.removeOne(l);
-    if (!mapped() && m_attacher) {
-        setSize(QSize());
-        m_attacher->unmap();
     }
 }
 

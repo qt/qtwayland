@@ -67,7 +67,6 @@ QWaylandSurfacePrivate::QWaylandSurfacePrivate(wl_client *wlClient, quint32 id, 
     : QtWayland::Surface(wlClient, id, version, compositor, surface)
     , closing(false)
     , refCount(1)
-    , client(QWaylandClient::fromWlClient(wlClient))
     , client(QWaylandClient::fromWlClient(compositor, wlClient))
 {}
 
@@ -395,32 +394,6 @@ void QWaylandSurfacePrivate::derefView(QWaylandView *view)
     for (int i = 0; i < nViews && refCount > 0; i++) {
         waylandSurface()->deref();
     }
-}
-
-class QWaylandUnmapLockPrivate
-{
-public:
-    QWaylandSurface *surface;
-};
-
-/*!
-    Constructs a QWaylandUnmapLock object.
-
-    The lock will act on the \a surface parameter, and will prevent the surface to
-    be unmapped, retaining the last valid buffer when the client attachs a NULL buffer.
-    The lock will be automatically released when deleted.
-*/
-QWaylandUnmapLock::QWaylandUnmapLock(QWaylandSurface *surface)
-                 : d(new QWaylandUnmapLockPrivate)
-{
-    d->surface = surface;
-    surface->handle()->addUnmapLock(this);
-}
-
-QWaylandUnmapLock::~QWaylandUnmapLock()
-{
-    d->surface->handle()->removeUnmapLock(this);
-    delete d;
 }
 
 QT_END_NAMESPACE

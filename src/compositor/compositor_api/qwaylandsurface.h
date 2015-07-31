@@ -199,17 +199,6 @@ Q_SIGNALS:
     friend class QtWayland::Surface;
 };
 
-class QWaylandUnmapLockPrivate;
-class Q_COMPOSITOR_EXPORT QWaylandUnmapLock
-{
-public:
-    QWaylandUnmapLock(QWaylandSurface *surface);
-    ~QWaylandUnmapLock();
-
-private:
-    QWaylandUnmapLockPrivate *const d;
-};
-
 QT_END_NAMESPACE
 
 #endif // QWAYLANDSURFACE_H

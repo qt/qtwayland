@@ -63,8 +63,8 @@ public:
 class Q_COMPOSITOR_EXPORT QWaylandKeymap
 {
 public:
-    QWaylandKeymap(const QString &layout = QLatin1String("us"), const QString &variant = QString(), const QString &options = QString(),
-                   const QString &model = QLatin1String("pc105"), const QString &rules = QLatin1String("evdev"));
+    QWaylandKeymap(const QString &layout = QString(), const QString &variant = QString(), const QString &options = QString(),
+                   const QString &model = QString(), const QString &rules = QString());
 
     inline QString layout() const { return m_layout; }
     inline QString variant() const { return m_variant; }

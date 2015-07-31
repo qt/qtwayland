@@ -209,15 +209,8 @@ void QWaylandKeyboardPrivate::key(uint32_t serial, uint32_t time, uint32_t key, 
     }
 }
 
-void QWaylandKeyboardPrivate::sendKeyEvent(uint code, uint32_t state)
+void QWaylandKeyboardPrivate::keyEvent(uint code, uint32_t state)
 {
-    // There must be no keys pressed when changing the keymap,
-    // see http://lists.freedesktop.org/archives/wayland-devel/2013-October/011395.html
-    if (m_pendingKeymap && m_keys.isEmpty())
-        updateKeymap();
-
-    uint32_t time = compositor()->currentTimeMsecs();
-    uint32_t serial = wl_display_next_serial(compositor()->waylandDisplay());
     uint key = code - 8;
     if (state == WL_KEYBOARD_KEY_STATE_PRESSED) {
         m_keys << key;
@@ -230,10 +223,10 @@ void QWaylandKeyboardPrivate::sendKeyEvent(uint code, uint32_t state)
     }
 }
 
-void Keyboard::sendKeyEvent(uint code, uint32_t state)
+void QWaylandKeyboardPrivate::sendKeyEvent(uint code, uint32_t state)
 {
-    uint32_t time = m_compositor->currentTimeMsecs();
-    uint32_t serial = wl_display_next_serial(m_compositor->wl_display());
+    uint32_t time = compositor()->currentTimeMsecs();
+    uint32_t serial = wl_display_next_serial(compositor()->waylandDisplay());
     uint key = code - 8;
     m_grab->key(serial, time, key, state);
 }

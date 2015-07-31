@@ -223,6 +223,7 @@ void QWaylandQuickItem::hoverEnterEvent(QHoverEvent *event)
             event->ignore();
             return;
         }
+    }
     if (shouldSendInputEvents()) {
         QWaylandInputDevice *inputDevice = compositor()->inputDeviceFor(event);
         inputDevice->sendMouseMoveEvent(this, event->pos(), QPoint());

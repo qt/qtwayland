@@ -38,7 +38,9 @@
 #include "qwaylandview_p.h"
 #include "qwaylandsurface.h"
 #include "qwaylandsurface_p.h"
-
+#include <QtCompositor/QWaylandInputDevice>
+#include <QtCompositor/QWaylandCompositor>
+#include <QtCompositor/private/qwaylandoutputspace_p.h>
 #include <QtCore/QMutex>
 
 QT_BEGIN_NAMESPACE
@@ -70,7 +72,7 @@ QWaylandView::~QWaylandView()
     if (d->surface) {
         QWaylandInputDevice *i = d->surface->compositor()->defaultInputDevice();
         if (i->mouseFocus() == this)
-            i->setMouseFocus(Q_NULLPTR, QPointF());
+            i->setMouseFocus(Q_NULLPTR);
 
         d->surface->deref();
     }

@@ -61,8 +61,6 @@ QT_BEGIN_NAMESPACE
 
 class QTouchEvent;
 
-class QWaylandUnmapLock;
-
 namespace QtWayland {
 
 class Compositor;
@@ -127,9 +125,6 @@ public:
 
     void frameStarted();
 
-    void addUnmapLock(QWaylandUnmapLock *l);
-    void removeUnmapLock(QWaylandUnmapLock *l);
-
     void setMapped(bool mapped);
     void setVisibility(QWindow::Visibility visibility) { m_visibility = visibility; }
 
@@ -169,7 +164,6 @@ protected:
     SurfaceBuffer *m_buffer;
     QWaylandBufferRef m_bufferRef;
     bool m_surfaceMapped;
-    QVector<QWaylandUnmapLock *> m_unmapLocks;
 
     struct {
         SurfaceBuffer *buffer;

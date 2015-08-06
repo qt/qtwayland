@@ -141,7 +141,7 @@ protected:
     void resizeEvent(QResizeEvent *event)
     {
         QQuickView::resizeEvent(event);
-        QWaylandCompositor::setOutputGeometry(QRect(0, 0, width(), height()));
+        m_output->setGeometry(QRect(0, 0, width(), height()));
     }
 
     void surfaceCreated(QWaylandSurface *surface) {

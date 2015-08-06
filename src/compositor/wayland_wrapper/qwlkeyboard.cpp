@@ -113,6 +113,8 @@ QWaylandKeyboardPrivate *QWaylandKeyboardPrivate::get(QWaylandKeyboard *keyboard
 
 void QWaylandKeyboardPrivate::focused(QWaylandSurface *surface)
 {
+    if (surface && surface->isCursorSurface())
+        surface = Q_NULLPTR;
     if (m_focusResource && m_focus != surface) {
         uint32_t serial = wl_display_next_serial(compositor()->waylandDisplay());
         send_leave(m_focusResource->handle, serial, m_focus->handle()->resource()->handle);

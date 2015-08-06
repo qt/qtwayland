@@ -101,8 +101,6 @@ public:
 
     void setOffset(const QPointF &offset);
 
-    void configure(bool hasBuffer);
-
     void requestSize(const QSize &size);
 
     Q_INVOKABLE void ping();
@@ -126,7 +124,7 @@ Q_SIGNALS:
     void surfaceTypeChanged();
 
 private Q_SLOTS:
-    void mapped();
+    void mappedChanged();
     void adjustOffset(const QPoint &p);
 
 private:

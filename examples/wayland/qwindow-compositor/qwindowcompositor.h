@@ -70,9 +70,8 @@ public:
 
     void create() Q_DECL_OVERRIDE;
 private slots:
+    void surfaceMappedChanged();
     void surfaceDestroyed();
-    void surfaceMapped();
-    void surfaceUnmapped();
     void surfaceCommitted();
     void surfacePosChanged();
 
@@ -98,6 +97,8 @@ private slots:
     void updateCursor(bool hasBuffer);
 
 private:
+    void surfaceMapped(QWaylandSurface *surface);
+    void surfaceUnmapped(QWaylandSurface *surface);
     void drawSubSurface(const QPoint &offset, QWaylandSurface *surface);
 
     CompositorWindow *m_window;

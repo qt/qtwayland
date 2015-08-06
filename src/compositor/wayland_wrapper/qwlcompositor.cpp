@@ -100,8 +100,6 @@ QT_BEGIN_NAMESPACE
 
 namespace QtWayland {
 
-static Compositor *compositor;
-
 class WindowSystemEventHandler : public QWindowSystemEventHandler
 {
 public:

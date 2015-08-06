@@ -92,8 +92,7 @@ ShellSurface::ShellSurface(Shell *shell, wl_client *client, uint32_t id, Surface
     , m_transientParent(0)
     , m_transientOffset()
 {
-    connect(surface->waylandSurface(), &QWaylandSurface::configure, this, &ShellSurface::configure);
-    connect(surface->waylandSurface(), &QWaylandSurface::mapped, this, &ShellSurface::mapped);
+    connect(surface->waylandSurface(), &QWaylandSurface::mappedChanged, this, &ShellSurface::mappedChanged);
     connect(surface->waylandSurface(), &QWaylandSurface::offsetForNextFrame, this, &ShellSurface::adjustOffset);
 }
 
@@ -169,13 +168,11 @@ void ShellSurface::setOffset(const QPointF &offset)
     setTransientOffset(offset);
 }
 
-void ShellSurface::configure(bool hasBuffer)
+void ShellSurface::mappedChanged()
 {
-    m_surface->setMapped(hasBuffer);
-}
+    if (!m_surface->waylandSurface()->isMapped())
+        return;
 
-void ShellSurface::mapped()
-{
     if (m_surfaceType == Popup) {
         if (m_surface->mapped() && m_popupGrabber->grabSerial() == m_popupSerial) {
             m_popupGrabber->addPopup(this);

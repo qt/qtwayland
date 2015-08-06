@@ -67,9 +67,10 @@ public:
     virtual QPointF requestedPosition() const;
     virtual QPointF pos() const;
 
-    virtual void attach(const QWaylandBufferRef &ref);
+    virtual void attach(const QWaylandBufferRef &ref, const QRegion &damage);
     virtual bool advance();
     virtual QWaylandBufferRef currentBuffer();
+    virtual QRegion currentDamage();
 
     bool lockedBuffer() const;
     void setLockedBuffer(bool locked);

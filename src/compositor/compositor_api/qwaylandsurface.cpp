@@ -58,10 +58,9 @@
 #include <QtGui/QGuiApplication>
 #include <QtGui/QScreen>
 
-QT_BEGIN_NAMESPACE
+#include <QtCore/QDebug>
 
-const QEvent::Type QWaylandSurfaceEnterEvent::WaylandSurfaceEnter = (QEvent::Type)QEvent::registerEventType();
-const QEvent::Type QWaylandSurfaceLeaveEvent::WaylandSurfaceLeave = (QEvent::Type)QEvent::registerEventType();
+QT_BEGIN_NAMESPACE
 
 QWaylandSurfacePrivate::QWaylandSurfacePrivate(wl_client *wlClient, quint32 id, int version, QWaylandCompositor *compositor, QWaylandSurface *surface)
     : QtWayland::Surface(wlClient, id, version, compositor, surface)
@@ -77,64 +76,6 @@ QWaylandSurfacePrivate::~QWaylandSurfacePrivate()
     }
     views.clear();
 }
-
-class QWaylandSurfaceEnterEventPrivate
-{
-public:
-    QWaylandSurfaceEnterEventPrivate(QWaylandOutput *_output)
-        : output(_output)
-    {
-    }
-
-    QWaylandOutput *output;
-};
-
-
-QWaylandSurfaceEnterEvent::QWaylandSurfaceEnterEvent(QWaylandOutput *output)
-    : QEvent(WaylandSurfaceEnter)
-    , d(new QWaylandSurfaceEnterEventPrivate(output))
-{
-}
-
-QWaylandSurfaceEnterEvent::~QWaylandSurfaceEnterEvent()
-{
-    delete d;
-}
-
-QWaylandOutput *QWaylandSurfaceEnterEvent::output() const
-{
-    return d->output;
-}
-
-
-class QWaylandSurfaceLeaveEventPrivate
-{
-public:
-    QWaylandSurfaceLeaveEventPrivate(QWaylandOutput *_output)
-        : output(_output)
-    {
-    }
-
-    QWaylandOutput *output;
-};
-
-
-QWaylandSurfaceLeaveEvent::QWaylandSurfaceLeaveEvent(QWaylandOutput *output)
-    : QEvent(WaylandSurfaceLeave)
-    , d(new QWaylandSurfaceLeaveEventPrivate(output))
-{
-}
-
-QWaylandSurfaceLeaveEvent::~QWaylandSurfaceLeaveEvent()
-{
-    delete d;
-}
-
-QWaylandOutput *QWaylandSurfaceLeaveEvent::output() const
-{
-    return d->output;
-}
-
 
 QWaylandSurface::QWaylandSurface(wl_client *client, quint32 id, int version, QWaylandCompositor *compositor)
     : QObject(*new QWaylandSurfacePrivate(client, id, version, compositor, this))
@@ -158,6 +99,7 @@ QWaylandClient *QWaylandSurface::client() const
     Q_D(const QWaylandSurface);
     if (d->isDestroyed() || !d->compositor()->clients().contains(d->client))
         return Q_NULLPTR;
+
     return d->client;
 }
 
@@ -327,12 +269,6 @@ void QWaylandSurface::deref()
     Q_D(QWaylandSurface);
     if (--d->refCount == 0)
         compositor()->handle()->destroySurface(d);
-}
-
-void QWaylandSurface::setMapped(bool mapped)
-{
-    Q_D(QWaylandSurface);
-    d->setMapped(mapped);
 }
 
 QList<QWaylandView *> QWaylandSurface::views() const

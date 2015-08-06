@@ -112,6 +112,7 @@ protected:
     void mouseReleaseEvent(QMouseEvent *event);
     void hoverEnterEvent(QHoverEvent *event);
     void hoverMoveEvent(QHoverEvent *event);
+    void hoverLeaveEvent(QHoverEvent *event);
     void wheelEvent(QWheelEvent *event);
 
     void keyPressEvent(QKeyEvent *event);
@@ -128,8 +129,7 @@ public Q_SLOTS:
     void setPaintEnabled(bool paintEnabled);
 
 private Q_SLOTS:
-    void surfaceMapped();
-    void surfaceUnmapped();
+    void surfaceMappedChanged();
     void parentChanged(QWaylandSurface *newParent, QWaylandSurface *oldParent);
     void updateSize();
     void updateBuffer(bool hasBuffer);

@@ -163,11 +163,6 @@ Surface *Surface::fromResource(struct ::wl_resource *resource)
     return static_cast<Surface *>(Resource::fromResource(resource)->surface_object);
 }
 
-bool Surface::mapped() const
-{
-    return m_buffer && bool(m_buffer->waylandBufferHandle());
-}
-
 QSize Surface::size() const
 {
     return m_size;
@@ -278,31 +273,35 @@ void Surface::setBackBuffer(SurfaceBuffer *buffer, const QRegion &damage)
         if (valid)
             setSize(m_buffer->size());
 
-        m_damage = m_damage.intersected(QRect(QPoint(), m_size));
-        emit m_waylandSurface->damaged(m_damage);
+        m_damage = damage.intersected(QRect(QPoint(), m_size));
+    } else  {
+        setSize(QSize());
+        m_damage = QRect();
     }
-
-    m_damage = damage;
 
     QWaylandSurfacePrivate *priv = QWaylandSurfacePrivate::get(waylandSurface());
     for (int i = 0; i < priv->views.size(); i++) {
-        priv->views.at(i)->attach(m_bufferRef);
+        priv->views.at(i)->attach(m_bufferRef, m_damage);
     }
 
-    emit m_waylandSurface->configure(m_bufferRef.hasBuffer());
+    emit m_waylandSurface->damaged(m_damage);
+    setMapped(m_bufferRef.hasBuffer());
     if (!m_pending.offset.isNull())
         emit m_waylandSurface->offsetForNextFrame(m_pending.offset);
 }
 
+bool Surface::mapped() const
+{
+    return m_buffer && bool(m_buffer->waylandBufferHandle());
+}
+
 void Surface::setMapped(bool mapped)
 {
-    if (!m_surfaceMapped && mapped) {
-        m_surfaceMapped = true;
-        emit m_waylandSurface->mapped();
-    } else if (!mapped && m_surfaceMapped) {
-        m_surfaceMapped = false;
-        emit m_waylandSurface->unmapped();
-    }
+    if (m_surfaceMapped == mapped)
+        return;
+
+    m_surfaceMapped = mapped;
+    emit m_waylandSurface->mappedChanged();
 }
 
 SurfaceBuffer *Surface::createSurfaceBuffer(struct ::wl_resource *buffer)

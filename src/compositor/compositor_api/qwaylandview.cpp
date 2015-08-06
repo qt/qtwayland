@@ -104,10 +104,13 @@ void QWaylandView::setSurface(QWaylandSurface *newSurface)
         QWaylandSurfacePrivate::get(newSurface)->refView(this);
 
     waylandSurfaceChanged(newSurface, oldSurface);
-    if (!d->lockedBuffer)
+    if (!d->lockedBuffer) {
         d->currentBuffer = QWaylandBufferRef();
+        d->currentDamage = QRegion();
+    }
 
     d->nextBuffer = QWaylandBufferRef();
+    d->nextDamage = QRegion();
 }
 
 QWaylandOutput *QWaylandView::output() const
@@ -157,11 +160,12 @@ QPointF QWaylandView::pos() const
     return d->requestedPos;
 }
 
-void QWaylandView::attach(const QWaylandBufferRef &ref)
+void QWaylandView::attach(const QWaylandBufferRef &ref, const QRegion &damage)
 {
     Q_D(QWaylandView);
     QMutexLocker locker(&d->bufferMutex);
     d->nextBuffer = ref;
+    d->nextDamage = damage;
 }
 
 bool QWaylandView::advance()
@@ -175,6 +179,7 @@ bool QWaylandView::advance()
 
     QMutexLocker locker(&d->bufferMutex);
     d->currentBuffer = d->nextBuffer;
+    d->currentDamage = d->nextDamage;
     return true;
 }
 
@@ -183,6 +188,13 @@ QWaylandBufferRef QWaylandView::currentBuffer()
     Q_D(QWaylandView);
     QMutexLocker locker(&d->bufferMutex);
     return d->currentBuffer;
+}
+
+QRegion QWaylandView::currentDamage()
+{
+    Q_D(QWaylandView);
+    QMutexLocker locker(&d->bufferMutex);
+    return d->currentDamage;
 }
 
 bool QWaylandView::lockedBuffer() const

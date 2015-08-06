@@ -239,6 +239,7 @@ void QWaylandQuickItem::hoverMoveEvent(QHoverEvent *event)
             event->ignore();
             return;
         }
+    }
     if (shouldSendInputEvents()) {
         QWaylandInputDevice *inputDevice = compositor()->inputDeviceFor(event);
         inputDevice->sendMouseMoveEvent(this, event->pos());
@@ -335,16 +336,14 @@ void QWaylandQuickItem::waylandSurfaceChanged(QWaylandSurface *newSurface, QWayl
 {
     QWaylandView::waylandSurfaceChanged(newSurface, oldSurface);
     if (oldSurface) {
-        disconnect(oldSurface, &QWaylandSurface::mapped, this, &QWaylandQuickItem::surfaceMapped);
-        disconnect(oldSurface, &QWaylandSurface::unmapped, this, &QWaylandQuickItem::surfaceUnmapped);
+        disconnect(oldSurface, &QWaylandSurface::mappedChanged, this, &QWaylandQuickItem::surfaceMappedChanged);
         disconnect(oldSurface, &QWaylandSurface::parentChanged, this, &QWaylandQuickItem::parentChanged);
         disconnect(oldSurface, &QWaylandSurface::sizeChanged, this, &QWaylandQuickItem::updateSize);
         disconnect(oldSurface, &QWaylandSurface::configure, this, &QWaylandQuickItem::updateBuffer);
         disconnect(oldSurface, &QWaylandSurface::redraw, this, &QQuickItem::update);
     }
     if (newSurface) {
-        connect(newSurface, &QWaylandSurface::mapped, this, &QWaylandQuickItem::surfaceMapped);
-        connect(newSurface, &QWaylandSurface::unmapped, this, &QWaylandQuickItem::surfaceUnmapped);
+        connect(newSurface, &QWaylandSurface::mappedChanged, this, &QWaylandQuickItem::surfaceMappedChanged);
         connect(newSurface, &QWaylandSurface::parentChanged, this, &QWaylandQuickItem::parentChanged);
         connect(newSurface, &QWaylandSurface::sizeChanged, this, &QWaylandQuickItem::updateSize);
         connect(newSurface, &QWaylandSurface::configure, this, &QWaylandQuickItem::updateBuffer);
@@ -379,12 +378,7 @@ void QWaylandQuickItem::takeFocus(QWaylandInputDevice *device)
     target->setKeyboardFocus(surface());
 }
 
-void QWaylandQuickItem::surfaceMapped()
-{
-    update();
-}
-
-void QWaylandQuickItem::surfaceUnmapped()
+void QWaylandQuickItem::surfaceMappedChanged()
 {
     update();
 }

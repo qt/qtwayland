@@ -282,6 +282,8 @@ QWaylandView *QWaylandOutput::pickView(const QPointF &outputPosition) const
     const QVector<QtWayland::SurfaceViewMapper> surfaceViewMappers = d_ptr->surfaceMappers();
     for (int nSurface = 0; surfaceViewMappers.size(); nSurface++) {
         const QWaylandSurface *surface = surfaceViewMappers.at(nSurface).surface;
+        if (surface->isCursorSurface())
+            continue;
         const QVector<QWaylandView *> views = surfaceViewMappers.at(nSurface).views;
         for (int nView = 0; views.size(); nView++) {
             if (QRectF(views.at(nView)->requestedPosition(), surface->size()).contains(outputPosition))

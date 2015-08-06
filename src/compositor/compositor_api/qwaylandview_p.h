@@ -73,7 +73,9 @@ public:
     QPointF requestedPos;
     QMutex bufferMutex;
     QWaylandBufferRef currentBuffer;
+    QRegion currentDamage;
     QWaylandBufferRef nextBuffer;
+    QRegion nextDamage;
     bool lockedBuffer;
     bool broadcastRequestedPositionChanged;
 };

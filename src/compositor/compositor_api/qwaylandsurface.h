@@ -66,38 +66,6 @@ class SurfacePrivate;
 class ExtendedSurface;
 }
 
-class QWaylandSurfaceEnterEventPrivate;
-
-class Q_COMPOSITOR_EXPORT QWaylandSurfaceEnterEvent : public QEvent
-{
-public:
-    QWaylandSurfaceEnterEvent(QWaylandOutput *output);
-    ~QWaylandSurfaceEnterEvent();
-
-    QWaylandOutput *output() const;
-
-    static const QEvent::Type WaylandSurfaceEnter;
-
-private:
-    QWaylandSurfaceEnterEventPrivate *d;
-};
-
-class QWaylandSurfaceLeaveEventPrivate;
-
-class Q_COMPOSITOR_EXPORT QWaylandSurfaceLeaveEvent : public QEvent
-{
-public:
-    QWaylandSurfaceLeaveEvent(QWaylandOutput *output);
-    ~QWaylandSurfaceLeaveEvent();
-
-    QWaylandOutput *output() const;
-
-    static const QEvent::Type WaylandSurfaceLeave;
-
-private:
-    QWaylandSurfaceLeaveEventPrivate *d;
-};
-
 class Q_COMPOSITOR_EXPORT QWaylandSurface : public QObject, public QWaylandExtensionContainer
 {
     Q_OBJECT
@@ -109,6 +77,7 @@ class Q_COMPOSITOR_EXPORT QWaylandSurface : public QObject, public QWaylandExten
     Q_PROPERTY(QString title READ title NOTIFY titleChanged)
     Q_PROPERTY(QWaylandOutput *primaryOutput READ primaryOutput WRITE setPrimaryOutput NOTIFY primaryOutputChanged)
     Q_PROPERTY(QWaylandSurface::Origin origin READ origin NOTIFY originChanged)
+    Q_PROPERTY(bool isMapped READ isMapped NOTIFY mappedChanged)
 
 public:
     enum Origin {
@@ -156,7 +125,6 @@ public:
 
     void ref();
     void deref();
-    void setMapped(bool mapped);
 
     QList<QWaylandView *> views() const;
 
@@ -176,8 +144,7 @@ protected:
     QWaylandSurface(QWaylandSurfacePrivate *dptr);
 
 Q_SIGNALS:
-    void mapped();
-    void unmapped();
+    void mappedChanged();
     void damaged(const QRegion &rect);
     void parentChanged(QWaylandSurface *newParent, QWaylandSurface *oldParent);
     void sizeChanged();

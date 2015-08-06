@@ -65,8 +65,6 @@ public:
     void setClientRenderingEnabled(bool enabled);
 
     QWindow *primaryOutputWindow() const;
-protected:
-    bool event(QEvent *event) Q_DECL_OVERRIDE;
 
 Q_SIGNALS:
     void useTextureAlphaChanged();

@@ -179,9 +179,16 @@ void QWindowCompositor::surfaceDestroyed()
     m_renderScheduler.start(0);
 }
 
-void QWindowCompositor::surfaceMapped()
+void QWindowCompositor::surfaceMappedChanged()
 {
     QWaylandSurface *surface = qobject_cast<QWaylandSurface *>(sender());
+    if (surface->isMapped())
+        surfaceMapped(surface);
+    else
+        surfaceUnmapped(surface);
+}
+void QWindowCompositor::surfaceMapped(QWaylandSurface *surface)
+{
     QtWayland::ShellSurface *shellSurface = QtWayland::ShellSurface::findIn(surface);
     QPoint pos;
     if (!m_surfaces.contains(surface)) {
@@ -206,16 +213,15 @@ void QWindowCompositor::surfaceMapped()
     }
 
     m_surfaces.append(surface);
-    defaultInputDevice()->setKeyboardFocus(surface);
+    if (!surface->isCursorSurface())
+        defaultInputDevice()->setKeyboardFocus(surface);
 
     m_renderScheduler.start(0);
 }
 
-void QWindowCompositor::surfaceUnmapped()
+void QWindowCompositor::surfaceUnmapped(QWaylandSurface *surface)
 {
-    QWaylandSurface *surface = qobject_cast<QWaylandSurface *>(sender());
-    if (m_surfaces.removeOne(surface))
-        m_surfaces.insert(0, surface);
+    m_surfaces.removeOne(surface);
 
     ensureKeyboardFocusSurface(surface);
     m_renderScheduler.start(0);
@@ -241,8 +247,7 @@ void QWindowCompositor::surfaceCommitted(QWaylandSurface *surface)
 void QWindowCompositor::onSurfaceCreated(QWaylandSurface *surface)
 {
     connect(surface, SIGNAL(surfaceDestroyed()), this, SLOT(surfaceDestroyed()));
-    connect(surface, SIGNAL(mapped()), this, SLOT(surfaceMapped()));
-    connect(surface, SIGNAL(unmapped()), this, SLOT(surfaceUnmapped()));
+    connect(surface, SIGNAL(mappedChanged()), this, SLOT(surfaceMappedChanged()));
     connect(surface, SIGNAL(redraw()), this, SLOT(surfaceCommitted()));
     connect(surface, SIGNAL(extendedSurfaceReady()), this, SLOT(sendExpose()));
 }

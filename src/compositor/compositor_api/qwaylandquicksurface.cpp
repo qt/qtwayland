@@ -114,46 +114,6 @@ QWindow *QWaylandQuickSurface::primaryOutputWindow() const
     return primaryOutput() ? primaryOutput()->window() : Q_NULLPTR;
 }
 
-bool QWaylandQuickSurface::event(QEvent *e)
-{
-    if (e->type() == static_cast<QEvent::Type>(QWaylandSurfaceLeaveEvent::WaylandSurfaceLeave)) {
-        QWaylandSurfaceLeaveEvent *event = static_cast<QWaylandSurfaceLeaveEvent *>(e);
-
-        if (event->output()) {
-            QQuickWindow *oldWindow = static_cast<QQuickWindow *>(event->output()->window());
-            disconnect(oldWindow, &QQuickWindow::beforeSynchronizing,
-                       this, &QWaylandQuickSurface::updateTexture);
-            disconnect(oldWindow, &QQuickWindow::sceneGraphInvalidated,
-                       this, &QWaylandQuickSurface::invalidateTexture);
-            disconnect(oldWindow, &QQuickWindow::sceneGraphAboutToStop,
-                       this, &QWaylandQuickSurface::invalidateTexture);
-        }
-
-        return true;
-    }
-
-    if (e->type() == static_cast<QEvent::Type>(QWaylandSurfaceEnterEvent::WaylandSurfaceEnter)) {
-        QWaylandSurfaceEnterEvent *event = static_cast<QWaylandSurfaceEnterEvent *>(e);
-
-        if (event->output()) {
-            QQuickWindow *window = static_cast<QQuickWindow *>(event->output()->window());
-            connect(window, &QQuickWindow::beforeSynchronizing,
-                    this, &QWaylandQuickSurface::updateTexture,
-                    Qt::DirectConnection);
-            connect(window, &QQuickWindow::sceneGraphInvalidated,
-                    this, &QWaylandQuickSurface::invalidateTexture,
-                    Qt::DirectConnection);
-            connect(window, &QQuickWindow::sceneGraphAboutToStop,
-                    this, &QWaylandQuickSurface::invalidateTexture,
-                    Qt::DirectConnection);
-        }
-
-        return true;
-    }
-
-    return QObject::event(e);
-}
-
 bool QWaylandQuickSurface::clientRenderingEnabled() const
 {
     Q_D(const QWaylandQuickSurface);

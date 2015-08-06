@@ -147,6 +147,8 @@ void QWaylandPointerPrivate::sendMouseReleaseEvent(Qt::MouseButton button)
 void QWaylandPointerPrivate::sendMouseMoveEvent(QWaylandView *view, const QPointF &localPos, const QPointF &outputSpacePos)
 {
     Q_Q(QWaylandPointer);
+    if (view && (!view->surface() || view->surface()->isCursorSurface()))
+        view = Q_NULLPTR;
     m_seat->setMouseFocus(view);
     m_localPosition = localPos;
     m_spacePosition = outputSpacePos;

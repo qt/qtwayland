@@ -130,16 +130,6 @@ public:
     bool retainedSelectionEnabled() const;
     void overrideSelection(const QMimeData *data);
 
-#if QT_DEPRECATED_SINCE(5, 5)
-    void setScreenOrientation(Qt::ScreenOrientation orientation);
-
-    void setOutputGeometry(const QRect &outputGeometry);
-    QRect outputGeometry() const;
-
-    void setOutputRefreshRate(int refreshRate);
-    int outputRefreshRate() const;
-#endif
-
     QWaylandInputDevice *defaultInputDevice() const;
 
     QWaylandDrag *drag() const;
@@ -147,10 +137,6 @@ public:
     bool isDragging() const;
     void sendDragMoveEvent(const QPoint &global, const QPoint &local, QWaylandSurface *surface);
     void sendDragEndEvent();
-
-#if QT_DEPRECATED_SINCE(5, 5)
-    QT_DEPRECATED virtual void setCursorSurface(QWaylandSurface *surface, int hotspotX, int hotspotY);
-#endif
 
     void cleanupGraphicsResources();
 

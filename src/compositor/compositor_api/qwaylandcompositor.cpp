@@ -245,67 +245,6 @@ void QWaylandCompositor::overrideSelection(const QMimeData *data)
     m_compositor->overrideSelection(data);
 }
 
-#if QT_DEPRECATED_SINCE(5, 5)
-/*!
-  Set the screen orientation based on accelerometer data or similar.
-*/
-void QWaylandCompositor::setScreenOrientation(Qt::ScreenOrientation orientation)
-{
-    QWaylandOutput *output = primaryOutput();
-    if (output) {
-        bool isPortrait = output->window()->screen()->primaryOrientation() == Qt::PortraitOrientation;
-
-        switch (orientation) {
-        case Qt::PrimaryOrientation:
-            output->setTransform(QWaylandOutput::TransformNormal);
-            break;
-        case Qt::LandscapeOrientation:
-            output->setTransform(isPortrait ? QWaylandOutput::Transform270 : QWaylandOutput::TransformNormal);
-            break;
-        case Qt::PortraitOrientation:
-            output->setTransform(isPortrait ? QWaylandOutput::TransformNormal : QWaylandOutput::Transform90);
-            break;
-        case Qt::InvertedLandscapeOrientation:
-            output->setTransform(isPortrait ? QWaylandOutput::Transform90 : QWaylandOutput::Transform180);
-            break;
-        case Qt::InvertedPortraitOrientation:
-            output->setTransform(isPortrait ? QWaylandOutput::Transform180 : QWaylandOutput::Transform270);
-            break;
-        }
-    }
-}
-
-void QWaylandCompositor::setOutputGeometry(const QRect &geometry)
-{
-    QWaylandOutput *output = primaryOutput();
-    if (output)
-        output->setGeometry(geometry);
-}
-
-QRect QWaylandCompositor::outputGeometry() const
-{
-    QWaylandOutput *output = primaryOutput();
-    if (output)
-        return output->geometry();
-    return QRect();
-}
-
-void QWaylandCompositor::setOutputRefreshRate(int rate)
-{
-    QWaylandOutput *output = primaryOutput();
-    if (output)
-        output->setMode({output->mode().size, rate});
-}
-
-int QWaylandCompositor::outputRefreshRate() const
-{
-    QWaylandOutput *output = primaryOutput();
-    if (output)
-        return output->mode().refreshRate;
-    return 0;
-}
-#endif
-
 QWaylandInputDevice *QWaylandCompositor::defaultInputDevice() const
 {
     return m_compositor->defaultInputDevice();
@@ -331,15 +270,6 @@ void QWaylandCompositor::sendDragEndEvent()
 {
     m_compositor->sendDragEndEvent();
 }
-
-#if QT_DEPRECATED_SINCE(5, 5)
-void QWaylandCompositor::setCursorSurface(QWaylandSurface *surface, int hotspotX, int hotspotY)
-{
-    Q_UNUSED(surface);
-    Q_UNUSED(hotspotX);
-    Q_UNUSED(hotspotY);
-}
-#endif
 
 QWaylandInputDevice *QWaylandCompositor::inputDeviceFor(QInputEvent *inputEvent)
 {

@@ -214,7 +214,7 @@ private slots:
 protected:
     void sizeAdjusted()
     {
-        setOutputGeometry(QRect(QPoint(0, 0), m_view.size()));
+        primaryOutputSpace()->primaryOutput()->setGeometry(QRect(QPoint(0, 0), m_view.size()));
     }
 
     void onSurfaceCreated(QWaylandSurface *surface) {

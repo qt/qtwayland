@@ -40,11 +40,13 @@
 
 #include <QtCompositor/qwaylandexport.h>
 
+#include <QtCompositor/QWaylandClient>
 #include <QtCore/QRect>
 #include <QtCore/QList>
 #include <QtCore/QVector>
 
 #include <QtCompositor/QWaylandOutputSpace>
+#include <QtCompositor/QWaylandSurface>
 
 #include <QtCompositor/private/qwayland-server-wayland.h>
 #include <QtCompositor/qwaylandoutput.h>
@@ -62,10 +64,21 @@ struct SurfaceViewMapper
     SurfaceViewMapper()
         : surface(0)
         , views()
+        , has_entered(false)
     {}
+
+    QWaylandView *maybeThrottelingView() const
+    {
+        for (int i = 0; i < views.size(); i++) {
+            if (surface && surface->throttlingView() == views.at(i))
+                return views.at(i);
+        }
+        return Q_NULLPTR;
+    }
 
     QWaylandSurface *surface;
     QVector<QWaylandView *> views;
+    bool has_entered;
 };
 
 //Just for naming convenience
@@ -124,6 +137,9 @@ public:
     void frameStarted();
     void sendFrameCallbacks();
 
+    void surfaceEnter(QWaylandSurface *surface);
+    void surfaceLeave(QWaylandSurface *surface);
+
     void addView(QWaylandView *view);
     void addView(QWaylandView *view, QWaylandSurface *surface);
     void removeView(QWaylandView *view);
@@ -132,6 +148,7 @@ public:
 
     QWindow *window() const { return m_window; }
 
+    OutputResource *outputForClient(QWaylandClient *client) const { return outputForClient(client->client()); }
     OutputResource *outputForClient(struct wl_client *client) const;
 
     void output_bind_resource(Resource *resource) Q_DECL_OVERRIDE;
@@ -154,7 +171,6 @@ private:
     QWaylandOutput::Subpixel m_subpixel;
     QWaylandOutput::Transform m_transform;
     int m_scaleFactor;
-    QList<QWaylandSurface *> m_surfaces;
     bool m_sizeFollowsWindow;
 
     void sendGeometryInfo();

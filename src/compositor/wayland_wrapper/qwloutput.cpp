@@ -331,8 +331,7 @@ void Output::frameStarted()
 {
     for (int i = 0; i < m_surfaceViews.size(); i++) {
         SurfaceViewMapper &surfacemapper = m_surfaceViews[i];
-        if (surfacemapper.surface && (!surfacemapper.surface->primaryOutput()
-                                      || surfacemapper.surface->primaryOutput()->handle() == this))
+        if (surfacemapper.maybeThrottelingView())
             surfacemapper.surface->handle()->frameStarted();
     }
 }
@@ -341,12 +340,29 @@ void Output::sendFrameCallbacks()
 {
     for (int i = 0; i < m_surfaceViews.size(); i++) {
         const SurfaceViewMapper &surfacemapper = m_surfaceViews.at(i);
-        if (surfacemapper.surface && surfacemapper.surface->isMapped()
-            && (!surfacemapper.surface->primaryOutput()
-                || surfacemapper.surface->primaryOutput()->handle() == this))
-            surfacemapper.surface->handle()->sendFrameCallback();
+        if (surfacemapper.surface && surfacemapper.surface->isMapped()) {
+            if (!surfacemapper.has_entered) {
+                surfaceEnter(surfacemapper.surface);
+            }
+            if (surfacemapper.maybeThrottelingView())
+                surfacemapper.surface->handle()->sendFrameCallback();
+        }
     }
     wl_display_flush_clients(compositor()->waylandDisplay());
+}
+
+void Output::surfaceEnter(QWaylandSurface *surface)
+{
+    if (!surface)
+        return;
+    surface->handle()->send_enter(outputForClient(surface->client())->handle);
+}
+
+void Output::surfaceLeave(QWaylandSurface *surface)
+{
+    if (!surface)
+        return;
+    surface->handle()->send_leave(outputForClient(surface->client())->handle);
 }
 
 void Output::addView(QWaylandView *view)
@@ -369,8 +385,6 @@ void Output::addView(QWaylandView *view, QWaylandSurface *surface)
     surfaceViewMapper.surface = surface;
     surfaceViewMapper.views.append(view);
     m_surfaceViews.append(surfaceViewMapper);
-    if (surface)
-        surface->enter(waylandOutput());
 }
 
 void Output::removeView(QWaylandView *view)
@@ -384,9 +398,9 @@ void Output::removeView(QWaylandView *view, QWaylandSurface *surface)
         if (surface == m_surfaceViews.at(i).surface) {
             bool removed = m_surfaceViews[i].views.removeOne(view);
             if (m_surfaceViews.at(i).views.isEmpty() && removed) {
+                if (m_surfaceViews.at(i).has_entered)
+                    surfaceLeave(surface);
                 m_surfaceViews.remove(i);
-                if (surface)
-                    surface->leave(waylandOutput());
             }
             return;
         }

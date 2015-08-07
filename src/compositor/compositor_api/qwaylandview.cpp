@@ -91,9 +91,6 @@ void QWaylandView::setSurface(QWaylandSurface *newSurface)
     if (d->surface == newSurface)
         return;
 
-    if (!d->output && newSurface && !d->surface)
-        setOutput(newSurface->primaryOutput());
-
     QWaylandSurface *oldSurface = d->surface;
     d->surface = newSurface;
 

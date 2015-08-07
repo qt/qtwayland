@@ -160,6 +160,9 @@ public:
     void frameStarted();
     void sendFrameCallbacks();
 
+    void surfaceEnter(QWaylandSurface *surface);
+    void surfaceLeave(QWaylandSurface *surface);
+
     QtWayland::Output *handle() const;
 
     Q_INVOKABLE virtual QWaylandView *pickView(const QPointF &outputPosition) const;

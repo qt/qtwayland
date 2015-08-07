@@ -64,7 +64,7 @@ public:
 
     bool shouldBroadcastRequestedPositionChanged() const
     {
-        return broadcastRequestedPositionChanged && output && surface && surface->primaryOutput() == output;
+        return broadcastRequestedPositionChanged && output;
     }
 
     QWaylandView *q_ptr;

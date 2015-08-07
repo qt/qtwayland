@@ -272,6 +272,16 @@ void QWaylandOutput::sendFrameCallbacks()
     d_ptr->sendFrameCallbacks();
 }
 
+void QWaylandOutput::surfaceEnter(QWaylandSurface *surface)
+{
+    d_ptr->surfaceEnter(surface);
+}
+
+void QWaylandOutput::surfaceLeave(QWaylandSurface *surface)
+{
+    d_ptr->surfaceLeave(surface);
+}
+
 QtWayland::Output *QWaylandOutput::handle() const
 {
     return d_ptr.data();

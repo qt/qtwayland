@@ -47,6 +47,7 @@ QT_BEGIN_NAMESPACE
 class QWaylandSurface;
 class QWaylandCompositor;
 class QWaylandViewPrivate;
+class QWaylandOutput;
 
 class Q_COMPOSITOR_EXPORT QWaylandView
 {

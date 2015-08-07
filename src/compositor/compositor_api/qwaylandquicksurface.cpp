@@ -41,7 +41,6 @@
 
 #include "qwaylandquicksurface.h"
 #include "qwaylandquickcompositor.h"
-#include "qwaylandoutput.h"
 #include "qwaylandquickitem.h"
 #include <QtCompositor/qwaylandbufferref.h>
 #include <QtCompositor/QWaylandView>
@@ -67,16 +66,6 @@ public:
     {
     }
 
-    void surface_commit(Resource *resource) Q_DECL_OVERRIDE
-    {
-        QWaylandSurfacePrivate::surface_commit(resource);
-
-        Q_FOREACH (QWaylandView *view, views) {
-            if (view->output())
-                view->output()->update();
-        }
-    }
-
     QWaylandQuickCompositor *compositor;
     bool useTextureAlpha;
     bool clientRenderingEnabled;
@@ -85,7 +74,6 @@ public:
 QWaylandQuickSurface::QWaylandQuickSurface(wl_client *client, quint32 id, int version, QWaylandQuickCompositor *compositor)
                     : QWaylandSurface(new QWaylandQuickSurfacePrivate(client, id, version, compositor, this))
 {
-    connect(this, &QWaylandSurface::primaryOutputChanged, this, &QWaylandQuickSurface::primaryOutputWindowChanged);
 }
 
 QWaylandQuickSurface::~QWaylandQuickSurface()
@@ -107,11 +95,6 @@ void QWaylandQuickSurface::setUseTextureAlpha(bool useTextureAlpha)
         emit useTextureAlphaChanged();
         emit configure(handle()->currentBufferRef().hasBuffer());
     }
-}
-
-QWindow *QWaylandQuickSurface::primaryOutputWindow() const
-{
-    return primaryOutput() ? primaryOutput()->window() : Q_NULLPTR;
 }
 
 bool QWaylandQuickSurface::clientRenderingEnabled() const

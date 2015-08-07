@@ -150,6 +150,7 @@ QWaylandQuickItem::QWaylandQuickItem(QQuickItem *parent)
     setAcceptHoverEvents(true);
 
     connect(this, &QQuickItem::windowChanged, this, &QWaylandQuickItem::updateWindow);
+    connect(this, &QQuickItem::windowChanged, this, &QWaylandQuickItem::outputHasChanged);
 }
 
 QWaylandQuickItem::~QWaylandQuickItem()
@@ -354,6 +355,10 @@ void QWaylandQuickItem::waylandSurfaceChanged(QWaylandSurface *newSurface, QWayl
             m_origin = newSurface->origin();
             emit originChanged();
         }
+        if (window()) {
+            QWaylandOutput *output = newSurface->compositor()->output(window());
+            setOutput(output);
+        }
     }
 
     emit surfaceChanged();
@@ -529,6 +534,16 @@ void QWaylandQuickItem::beforeSync()
         m_newTexture = true;
         update();
     }
+}
+
+void QWaylandQuickItem::outputHasChanged()
+{
+    if (!compositor())
+        return;
+    QWaylandOutput *output = Q_NULLPTR;
+    if (window())
+        output = compositor()->output(window());
+    setOutput(output);
 }
 
 QSGNode *QWaylandQuickItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *)

@@ -58,7 +58,6 @@ class QWaylandCompositor;
 class QWaylandBufferRef;
 class QWaylandView;
 class QWaylandSurfaceOp;
-class QWaylandOutput;
 
 namespace QtWayland {
 class Surface;
@@ -75,7 +74,6 @@ class Q_COMPOSITOR_EXPORT QWaylandSurface : public QObject, public QWaylandExten
     Q_PROPERTY(Qt::ScreenOrientation contentOrientation READ contentOrientation NOTIFY contentOrientationChanged)
     Q_PROPERTY(QString className READ className NOTIFY classNameChanged)
     Q_PROPERTY(QString title READ title NOTIFY titleChanged)
-    Q_PROPERTY(QWaylandOutput *primaryOutput READ primaryOutput WRITE setPrimaryOutput NOTIFY primaryOutputChanged)
     Q_PROPERTY(QWaylandSurface::Origin origin READ origin NOTIFY originChanged)
     Q_PROPERTY(bool isMapped READ isMapped NOTIFY mappedChanged)
 
@@ -108,9 +106,6 @@ public:
 
     QWaylandCompositor *compositor() const;
 
-    QWaylandOutput *primaryOutput() const;
-    void setPrimaryOutput(QWaylandOutput *output);
-
     QString className() const;
 
     QString title() const;
@@ -126,13 +121,13 @@ public:
     void ref();
     void deref();
 
+    QWaylandView *throttlingView() const;
+    void setThrottlingView(QWaylandView *view);
+
     QList<QWaylandView *> views() const;
 
     static QWaylandSurface *fromResource(::wl_resource *resource);
     struct wl_resource *resource() const;
-
-    void enter(QWaylandOutput *output);
-    void leave(QWaylandOutput *output);
 
     void markAsCursorSurface(bool cursorSurface);
     bool isCursorSurface() const;
@@ -157,7 +152,6 @@ Q_SIGNALS:
     void lowerRequested();
     void pong();
     void surfaceDestroyed();
-    void primaryOutputChanged(QWaylandOutput *newOutput, QWaylandOutput *oldOutput);
     void originChanged();
 
     void configure(bool hasBuffer);

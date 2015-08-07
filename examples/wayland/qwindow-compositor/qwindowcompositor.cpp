@@ -256,6 +256,7 @@ void QWindowCompositor::onShellSurfaceCreated(QWaylandSurface *surface, QtWaylan
 {
     SurfaceView *newView = new SurfaceView();
     newView->setSurface(surface);
+    newView->setOutput(output(m_window));
     shellSurface->setView(newView);
     m_renderScheduler.start(0);
 }

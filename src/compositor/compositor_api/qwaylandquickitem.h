@@ -135,6 +135,7 @@ private Q_SLOTS:
     void updateBuffer(bool hasBuffer);
     void updateWindow();
     void beforeSync();
+    void outputHasChanged();
 
 Q_SIGNALS:
     void surfaceChanged();

@@ -53,7 +53,6 @@ class Q_COMPOSITOR_EXPORT QWaylandQuickSurface : public QWaylandSurface
     Q_DECLARE_PRIVATE(QWaylandQuickSurface)
     Q_PROPERTY(bool useTextureAlpha READ useTextureAlpha WRITE setUseTextureAlpha NOTIFY useTextureAlphaChanged)
     Q_PROPERTY(bool clientRenderingEnabled READ clientRenderingEnabled WRITE setClientRenderingEnabled NOTIFY clientRenderingEnabledChanged)
-    Q_PROPERTY(QWindow *primaryOutputWindow READ primaryOutputWindow NOTIFY primaryOutputWindowChanged)
 public:
     QWaylandQuickSurface(wl_client *client, quint32 id, int version, QWaylandQuickCompositor *compositor);
     ~QWaylandQuickSurface();
@@ -64,12 +63,9 @@ public:
     bool clientRenderingEnabled() const;
     void setClientRenderingEnabled(bool enabled);
 
-    QWindow *primaryOutputWindow() const;
-
 Q_SIGNALS:
     void useTextureAlphaChanged();
     void clientRenderingEnabledChanged();
-    void primaryOutputWindowChanged();
 };
 
 QT_END_NAMESPACE

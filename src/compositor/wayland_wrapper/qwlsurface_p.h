@@ -40,7 +40,6 @@
 #include <QtCompositor/qwaylandexport.h>
 
 #include <private/qwlsurfacebuffer_p.h>
-#include <private/qwloutput_p.h>
 #include <QtCompositor/qwaylandsurface.h>
 #include <QtCompositor/qwaylandbufferref.h>
 
@@ -111,9 +110,6 @@ public:
 
     Compositor *compositor() const;
 
-    Output *primaryOutput() const;
-    void setPrimaryOutput(Output *output);
-
     QString className() const { return m_className; }
     void setClassName(const QString &className);
 
@@ -158,7 +154,6 @@ protected:
 
     Compositor *m_compositor;
     QWaylandSurface *m_waylandSurface;
-    Output *m_primaryOutput;
 
     QRegion m_damage;
     SurfaceBuffer *m_buffer;

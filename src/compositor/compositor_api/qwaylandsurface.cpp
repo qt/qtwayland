@@ -53,7 +53,6 @@
 #include "qwaylandsurface_p.h"
 #include "qwaylandview_p.h"
 #include "qwaylandbufferref.h"
-#include "qwaylandoutput.h"
 
 #include <QtGui/QGuiApplication>
 #include <QtGui/QScreen>
@@ -162,20 +161,6 @@ QWaylandCompositor *QWaylandSurface::compositor() const
     return d->compositor()->waylandCompositor();
 }
 
-QWaylandOutput *QWaylandSurface::primaryOutput() const
-{
-    Q_D(const QWaylandSurface);
-    if (!d->primaryOutput())
-        return Q_NULLPTR;
-    return d->primaryOutput()->waylandOutput();
-}
-
-void QWaylandSurface::setPrimaryOutput(QWaylandOutput *output)
-{
-    Q_D(QWaylandSurface);
-    d->setPrimaryOutput(output->handle());
-}
-
 void QWaylandSurface::sendFrameCallbacks()
 {
     Q_D(QWaylandSurface);
@@ -210,22 +195,6 @@ bool QWaylandSurface::inputRegionContains(const QPoint &p) const
 void QWaylandSurface::destroy()
 {
     deref();
-}
-
-void QWaylandSurface::enter(QWaylandOutput *output)
-{
-    Q_D(QWaylandSurface);
-    QtWayland::OutputResource *outputResource = output->handle()->outputForClient(d->resource()->client());
-    if (outputResource)
-        handle()->send_enter(outputResource->handle);
-}
-
-void QWaylandSurface::leave(QWaylandOutput *output)
-{
-    Q_D(QWaylandSurface);
-    QtWayland::OutputResource *outputResource = output->handle()->outputForClient(d->resource()->client());
-    if (outputResource)
-        d->send_leave(outputResource->handle);
 }
 
 void QWaylandSurface::markAsCursorSurface(bool cursorSurface)
@@ -269,6 +238,31 @@ void QWaylandSurface::deref()
     Q_D(QWaylandSurface);
     if (--d->refCount == 0)
         compositor()->handle()->destroySurface(d);
+}
+
+QWaylandView *QWaylandSurface::throttlingView() const
+{
+    Q_D(const QWaylandSurface);
+    if (d->views.isEmpty())
+        return Q_NULLPTR;
+    return d->views.first();
+}
+
+void QWaylandSurface::setThrottlingView(QWaylandView *view)
+{
+    Q_D(QWaylandSurface);
+
+    if (!view)
+        return;
+
+    int index = d->views.indexOf(view);
+
+    if (index < 0) {
+        view->setSurface(this);
+        index = d->views.indexOf(view);
+    }
+
+    d->views.move(index, 0);
 }
 
 QList<QWaylandView *> QWaylandSurface::views() const

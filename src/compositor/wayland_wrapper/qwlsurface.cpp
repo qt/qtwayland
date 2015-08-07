@@ -114,7 +114,6 @@ Surface::Surface(struct wl_client *client, uint32_t id, int version, QWaylandCom
     : QtWaylandServer::wl_surface(client, id, version)
     , m_compositor(compositor->handle())
     , m_waylandSurface(surface)
-    , m_primaryOutput(0)
     , m_buffer(0)
     , m_surfaceMapped(false)
     , m_subSurface(0)
@@ -237,23 +236,6 @@ InputPanelSurface *Surface::inputPanelSurface() const
 Compositor *Surface::compositor() const
 {
     return m_compositor;
-}
-
-void Surface::setPrimaryOutput(Output *output)
-{
-    if (m_primaryOutput == output)
-        return;
-
-    QWaylandOutput *new_output = output ? output->waylandOutput() : Q_NULLPTR;
-    QWaylandOutput *old_output = m_primaryOutput ? m_primaryOutput->waylandOutput() : Q_NULLPTR;
-    m_primaryOutput = output;
-
-    waylandSurface()->primaryOutputChanged(new_output, old_output);
-}
-
-Output *Surface::primaryOutput() const
-{
-    return m_primaryOutput;
 }
 
 /*!
@@ -406,9 +388,6 @@ void Surface::surface_commit(Resource *)
     m_inputRegion = m_pending.inputRegion.intersected(QRect(QPoint(), m_size));
 
     emit m_waylandSurface->redraw();
-
-    if (primaryOutput())
-        primaryOutput()->waylandOutput()->update();
 }
 
 void Surface::surface_set_buffer_transform(Resource *resource, int32_t orientation)

@@ -314,8 +314,6 @@ void Compositor::compositor_create_surface(Resource *resource, uint32_t id)
     QWaylandClient *client = QWaylandClient::fromWlClient(m_qt_compositor, resource->client());
     QWaylandSurface *surface = m_qt_compositor->createSurface(client, id, resource->version());
     m_all_surfaces.append(surface);
-    if (primaryOutput())
-        surface->setPrimaryOutput(primaryOutput());
     emit m_qt_compositor->surfaceCreated(surface);
 }
 

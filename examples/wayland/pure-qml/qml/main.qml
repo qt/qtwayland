@@ -65,6 +65,6 @@ WaylandCompositor {
     }
 
     onSurfaceCreated: {
-        var chrome = chromeComponent.createObject(surface.primaryOutputWindow.surfacesArea, { "surface" : surface } );
+        var chrome = chromeComponent.createObject(primaryOutputSpace.primaryOutput.window.surfacesArea, { "surface" : surface } );
     }
 }

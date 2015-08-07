@@ -69,19 +69,11 @@ class InputPanelSurface;
 class SubSurface;
 class FrameCallback;
 
-class SurfaceRole;
-class RoleBase;
-
 class Q_COMPOSITOR_EXPORT Surface : public QtWaylandServer::wl_surface
 {
 public:
     Surface(struct wl_client *client, uint32_t id, int version, QWaylandCompositor *compositor, QWaylandSurface *surface);
     ~Surface();
-
-    bool setRole(const SurfaceRole *role, wl_resource *errorResource, uint32_t errorCode);
-    const SurfaceRole *role() const { return m_role; }
-    template<class T>
-    bool setRoleHandler(T *handler);
 
     static Surface *fromResource(struct ::wl_resource *resource);
 
@@ -190,66 +182,12 @@ protected:
     Qt::ScreenOrientation m_contentOrientation;
     QWindow::Visibility m_visibility;
 
-    const SurfaceRole *m_role;
-    RoleBase *m_roleHandler;
-
     void setBackBuffer(SurfaceBuffer *buffer, const QRegion &damage);
 
     SurfaceBuffer *createSurfaceBuffer(struct ::wl_resource *buffer);
 
     friend class QWaylandSurface;
-    friend class RoleBase;
 };
-
-class SurfaceRole
-{
-public:
-    const char *name;
-};
-
-class RoleBase
-{
-public:
-    virtual ~RoleBase() {
-        if (m_surface) {
-            m_surface->m_roleHandler = 0; m_surface = 0;
-        }
-    }
-
-protected:
-    RoleBase() : m_surface(0) {}
-    static inline RoleBase *roleOf(Surface *s) { return s->m_roleHandler; }
-
-    virtual void configure(int dx, int dy) = 0;
-
-private:
-    Surface *m_surface;
-    friend class Surface;
-};
-
-template<class T>
-class SurfaceRoleHandler : public RoleBase
-{
-public:
-    static T *get(Surface *surface) {
-        if (surface->role() == T::role()) {
-            return static_cast<T *>(roleOf(surface));
-        }
-        return 0;
-    }
-};
-
-template<class T>
-bool Surface::setRoleHandler(T *handler)
-{
-    RoleBase *base = handler;
-    if (m_role == T::role()) {
-        m_roleHandler = base;
-        base->m_surface = this;
-        return true;
-    }
-    return false;
-}
 
 }
 

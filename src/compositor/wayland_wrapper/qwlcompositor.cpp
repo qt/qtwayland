@@ -40,7 +40,7 @@
 #include "qwaylandinput.h"
 #include "qwldisplay_p.h"
 #include "qwloutput_p.h"
-#include "qwlsurface_p.h"
+#include "qwaylandsurface_p.h"
 #include "qwaylandclient.h"
 #include "qwaylandcompositor.h"
 #include "qwldatadevicemanager_p.h"
@@ -290,11 +290,11 @@ void Compositor::processWaylandEvents()
     wl_display_flush_clients(m_display->handle());
 }
 
-void Compositor::destroySurface(Surface *surface)
+void Compositor::destroySurface(QWaylandSurface *surface)
 {
-    waylandCompositor()->surfaceAboutToBeDestroyed(surface->waylandSurface());
+    waylandCompositor()->surfaceAboutToBeDestroyed(surface);
 
-    m_destroyed_surfaces << surface->waylandSurface();
+    m_destroyed_surfaces << surface;
 }
 
 void Compositor::unregisterSurface(QWaylandSurface *surface)
@@ -440,7 +440,7 @@ bool Compositor::isDragging() const
 }
 
 void Compositor::sendDragMoveEvent(const QPoint &global, const QPoint &local,
-                                            Surface *surface)
+                                   QWaylandSurface *surface)
 {
     Q_UNUSED(global);
     Q_UNUSED(local);

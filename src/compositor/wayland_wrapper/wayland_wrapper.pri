@@ -18,7 +18,6 @@ HEADERS += \
     wayland_wrapper/qwloutput_p.h \
     wayland_wrapper/qwlpointer_p.h \
     wayland_wrapper/qwlregion_p.h \
-    wayland_wrapper/qwlsurface_p.h \
     wayland_wrapper/qwlsurfacebuffer_p.h \
     wayland_wrapper/qwltouch_p.h \
     ../shared/qwaylandxkb.h \
@@ -37,7 +36,6 @@ SOURCES += \
     wayland_wrapper/qwloutput.cpp \
     wayland_wrapper/qwlpointer.cpp \
     wayland_wrapper/qwlregion.cpp \
-    wayland_wrapper/qwlsurface.cpp \
     wayland_wrapper/qwlsurfacebuffer.cpp \
     wayland_wrapper/qwltouch.cpp \
     ../shared/qwaylandxkb.cpp \

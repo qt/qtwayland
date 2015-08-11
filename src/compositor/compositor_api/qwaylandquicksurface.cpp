@@ -54,8 +54,8 @@ QT_BEGIN_NAMESPACE
 class QWaylandQuickSurfacePrivate : public QWaylandSurfacePrivate
 {
 public:
-    QWaylandQuickSurfacePrivate(wl_client *client, quint32 id, int version, QWaylandQuickCompositor *c, QWaylandQuickSurface *surf)
-        : QWaylandSurfacePrivate(client, id, version, c, surf)
+    QWaylandQuickSurfacePrivate(wl_client *client, quint32 id, int version, QWaylandQuickCompositor *c)
+        : QWaylandSurfacePrivate(client, id, version, c)
         , compositor(c)
         , useTextureAlpha(true)
         , clientRenderingEnabled(true)
@@ -72,7 +72,7 @@ public:
 };
 
 QWaylandQuickSurface::QWaylandQuickSurface(wl_client *client, quint32 id, int version, QWaylandQuickCompositor *compositor)
-                    : QWaylandSurface(new QWaylandQuickSurfacePrivate(client, id, version, compositor, this))
+                    : QWaylandSurface(new QWaylandQuickSurfacePrivate(client, id, version, compositor))
 {
 }
 
@@ -93,7 +93,7 @@ void QWaylandQuickSurface::setUseTextureAlpha(bool useTextureAlpha)
     if (d->useTextureAlpha != useTextureAlpha) {
         d->useTextureAlpha = useTextureAlpha;
         emit useTextureAlphaChanged();
-        emit configure(handle()->currentBufferRef().hasBuffer());
+        emit configure(d->currentBufferRef().hasBuffer());
     }
 }
 

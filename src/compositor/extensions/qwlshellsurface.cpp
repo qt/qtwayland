@@ -38,7 +38,6 @@
 #include "qwlshellsurface_p.h"
 
 #include "qwlcompositor_p.h"
-#include "qwlsurface_p.h"
 #include "qwloutput_p.h"
 #include "qwlinputdevice_p.h"
 #include "qwlsubsurface_p.h"
@@ -72,13 +71,13 @@ ShellSurfacePopupGrabber *Shell::getPopupGrabber(QWaylandInputDevice *input)
 
 void Shell::shell_get_shell_surface(Resource *resource, uint32_t id, struct ::wl_resource *surface_res)
 {
-    Surface *surface = Surface::fromResource(surface_res);
+    QWaylandSurface *surface = QWaylandSurface::fromResource(surface_res);
     ShellSurface *shell_surface = new ShellSurface(this, resource->client(), id, surface);
-    emit shellSurfaceCreated(surface->waylandSurface(), shell_surface);
+    emit shellSurfaceCreated(surface, shell_surface);
 }
 
-ShellSurface::ShellSurface(Shell *shell, wl_client *client, uint32_t id, Surface *surface)
-    : QWaylandExtensionTemplate(surface->waylandSurface())
+ShellSurface::ShellSurface(Shell *shell, wl_client *client, uint32_t id, QWaylandSurface *surface)
+    : QWaylandExtensionTemplate(surface)
     , wl_shell_surface(client, id, 1)
     , m_shell(shell)
     , m_surface(surface)
@@ -92,8 +91,8 @@ ShellSurface::ShellSurface(Shell *shell, wl_client *client, uint32_t id, Surface
     , m_transientParent(0)
     , m_transientOffset()
 {
-    connect(surface->waylandSurface(), &QWaylandSurface::mappedChanged, this, &ShellSurface::mappedChanged);
-    connect(surface->waylandSurface(), &QWaylandSurface::offsetForNextFrame, this, &ShellSurface::adjustOffset);
+    connect(surface, &QWaylandSurface::mappedChanged, this, &ShellSurface::mappedChanged);
+    connect(surface, &QWaylandSurface::offsetForNextFrame, this, &ShellSurface::adjustOffset);
 }
 
 ShellSurface::~ShellSurface()
@@ -108,7 +107,7 @@ void ShellSurface::sendConfigure(uint32_t edges, int32_t width, int32_t height)
 
 void ShellSurface::ping()
 {
-    uint32_t serial = wl_display_next_serial(m_surface->compositor()->wl_display());
+    uint32_t serial = wl_display_next_serial(m_surface->compositor()->waylandDisplay());
     ping(serial);
 }
 
@@ -170,11 +169,11 @@ void ShellSurface::setOffset(const QPointF &offset)
 
 void ShellSurface::mappedChanged()
 {
-    if (!m_surface->waylandSurface()->isMapped())
+    if (!m_surface->isMapped())
         return;
 
     if (m_surfaceType == Popup) {
-        if (m_surface->mapped() && m_popupGrabber->grabSerial() == m_popupSerial) {
+        if (m_surface->isMapped() && m_popupGrabber->grabSerial() == m_popupSerial) {
             m_popupGrabber->addPopup(this);
         } else {
             send_popup_done();
@@ -261,8 +260,6 @@ void ShellSurface::shell_surface_set_toplevel(Resource *resource)
     setTransientOffset(QPointF(0, 0));
 
     setSurfaceType(Toplevel);
-
-    m_surface->setVisibility(QWindow::Windowed);
 }
 
 void ShellSurface::shell_surface_set_transient(Resource *resource,
@@ -283,8 +280,6 @@ void ShellSurface::shell_surface_set_transient(Resource *resource,
         m_transientInactive = false;
 
     setSurfaceType(Transient);
-
-    m_surface->setVisibility(QWindow::AutomaticVisibility);
 }
 
 void ShellSurface::shell_surface_set_fullscreen(Resource *resource,
@@ -317,7 +312,6 @@ void ShellSurface::shell_surface_set_fullscreen(Resource *resource,
     m_view->setRequestedPosition(output->geometry().topLeft());
     send_configure(resize_bottom_right, outputSize.width(), outputSize.height());
 
-    m_surface->setVisibility(QWindow::FullScreen);
 }
 
 void ShellSurface::shell_surface_set_popup(Resource *resource, wl_resource *input_device, uint32_t serial, wl_resource *parent, int32_t x, int32_t y, uint32_t flags)
@@ -335,7 +329,6 @@ void ShellSurface::shell_surface_set_popup(Resource *resource, wl_resource *inpu
 
     setSurfaceType(Popup);
 
-    m_surface->setVisibility(QWindow::AutomaticVisibility);
 }
 
 void ShellSurface::shell_surface_set_maximized(Resource *resource,
@@ -365,7 +358,6 @@ void ShellSurface::shell_surface_set_maximized(Resource *resource,
     m_view->setRequestedPosition(output->availableGeometry().topLeft());
     send_configure(resize_bottom_right, outputSize.width(), outputSize.height());
 
-    m_surface->setVisibility(QWindow::Maximized);
 }
 
 void ShellSurface::shell_surface_pong(Resource *resource,
@@ -373,7 +365,7 @@ void ShellSurface::shell_surface_pong(Resource *resource,
 {
     Q_UNUSED(resource);
     if (m_pings.remove(serial))
-        emit m_surface->waylandSurface()->pong();
+        emit pong();
     else
         qWarning("Received an unexpected pong!");
 }
@@ -382,14 +374,16 @@ void ShellSurface::shell_surface_set_title(Resource *resource,
                              const QString &title)
 {
     Q_UNUSED(resource);
-    m_surface->setTitle(title);
+    m_title = title;
+    emit titleChanged();
 }
 
 void ShellSurface::shell_surface_set_class(Resource *resource,
                              const QString &className)
 {
     Q_UNUSED(resource);
-    m_surface->setClassName(className);
+    m_className = className;
+    emit classNameChanged();
 }
 
 ShellSurfaceGrabber::ShellSurfaceGrabber(ShellSurface *shellSurface)

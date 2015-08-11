@@ -40,7 +40,6 @@
 #include "qwlcompositor_p.h"
 #include "qwlinputdevice_p.h"
 #include "qwlkeyboard_p.h"
-#include "qwlsurface_p.h"
 #include "qwaylandcompositor.h"
 #include "qwaylandview.h"
 
@@ -164,17 +163,17 @@ void QWaylandPointerPrivate::sendMouseMoveEvent(QWaylandView *view, const QPoint
             m_localPosition.ry() -= 0.01;
     }
 
-    Resource *resource = view ? resourceMap().value(view->surface()->handle()->resource()->client()) : 0;
+    Resource *resource = view ? resourceMap().value(view->surface()->waylandClient()) : 0;
     if (resource && !m_hasSentEnter) {
         uint32_t serial = compositor()->nextSerial();
         QWaylandKeyboard *keyboard = m_seat->keyboard();
         if (keyboard) {
             keyboard->sendKeyModifiers(view->surface()->client(), serial);
         }
-        send_enter(resource->handle, serial, view->surface()->handle()->resource()->handle,
+        send_enter(resource->handle, serial, view->surface()->resource(),
                    wl_fixed_from_double(m_localPosition.x()), wl_fixed_from_double(m_localPosition.y()));
 
-        m_focusDestroyListener.listenForDestruction(view->surface()->handle()->resource()->handle);
+        m_focusDestroyListener.listenForDestruction(view->surface()->resource());
         m_hasSentEnter = true;
     }
 

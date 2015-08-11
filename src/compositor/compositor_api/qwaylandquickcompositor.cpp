@@ -36,7 +36,6 @@
 ****************************************************************************/
 
 #include <QtCompositor/private/qwlcompositor_p.h>
-#include <QtCompositor/private/qwlsurface_p.h>
 
 #include <QtQml/QQmlEngine>
 

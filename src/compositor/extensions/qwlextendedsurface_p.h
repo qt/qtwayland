@@ -40,7 +40,6 @@
 #include <wayland-server.h>
 
 #include <QtCompositor/private/qwayland-server-surface-extension.h>
-#include <private/qwlsurface_p.h>
 #include <QtCompositor/qwaylandsurface.h>
 #include <QtCompositor/qwaylandextension.h>
 
@@ -82,7 +81,7 @@ public:
     };
     Q_DECLARE_FLAGS(WindowFlags, WindowFlag)
 
-    ExtendedSurface(struct wl_client *client, uint32_t id, int version, Surface *surface);
+    ExtendedSurface(struct wl_client *client, uint32_t id, int version, QWaylandSurface *surface);
     ~ExtendedSurface();
 
     void sendGenericProperty(const QString &name, const QVariant &variant);
@@ -95,7 +94,7 @@ public:
     ExtendedSurface *parent() const;
     void setParent(ExtendedSurface *parent);
     QLinkedList<QWaylandSurface *> subSurfaces() const;
-    void setParentSurface(Surface *s);
+    void setParentSurface(QWaylandSurface *s);
 
     Qt::ScreenOrientations contentOrientationMask() const;
 
@@ -109,11 +108,13 @@ Q_SIGNALS:
     void contentOrientationMaskChanged();
     void windowFlagsChanged();
     void windowPropertyChanged(const QString &name, const QVariant &value);
+    void raiseRequested();
+    void lowerRequested();
 
 private:
     void setWindowPropertyImpl(const QString &name, const QVariant &value);
 
-    Surface *m_surface;
+    QWaylandSurface *m_surface;
 
     Qt::ScreenOrientations m_contentOrientationMask;
 

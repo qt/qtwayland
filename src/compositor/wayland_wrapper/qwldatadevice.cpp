@@ -42,7 +42,7 @@
 #include "qwlinputdevice_p.h"
 #include "qwlkeyboard_p.h"
 #include "qwlpointer_p.h"
-#include "qwlsurface_p.h"
+#include "qwaylandsurface_p.h"
 #include "qwltouch_p.h"
 #include "qwldatadevicemanager_p.h"
 
@@ -97,10 +97,10 @@ void DataDevice::setDragFocus(QWaylandView *focus, const QPointF &localPosition)
     if (!focus)
         return;
 
-    if (!m_dragDataSource && m_dragClient != focus->surface()->handle()->resource()->client())
+    if (!m_dragDataSource && m_dragClient != focus->surface()->waylandClient())
         return;
 
-    Resource *resource = resourceMap().value(focus->surface()->handle()->resource()->client());
+    Resource *resource = resourceMap().value(focus->surface()->waylandClient());
 
     if (!resource)
         return;
@@ -112,7 +112,7 @@ void DataDevice::setDragFocus(QWaylandView *focus, const QPointF &localPosition)
     if (m_dragDataSource && !offer)
         return;
 
-    send_enter(resource->handle, serial, focus->surface()->handle()->resource()->handle,
+    send_enter(resource->handle, serial, focus->surface()->resource(),
                wl_fixed_from_double(localPosition.x()), wl_fixed_from_double(localPosition.y()),
                offer->resource()->handle);
 

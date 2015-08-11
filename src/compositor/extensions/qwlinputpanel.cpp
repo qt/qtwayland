@@ -42,7 +42,6 @@
 #include "qwlinputdevice_p.h"
 #include "qwlinputmethod_p.h"
 #include "qwlinputpanelsurface_p.h"
-#include "qwlsurface_p.h"
 #include "qwltextinput_p.h"
 
 QT_BEGIN_NAMESPACE
@@ -68,12 +67,12 @@ QWaylandInputPanel *QWaylandInputPanelPrivate::waylandInputPanel() const
     return panel;
 }
 
-QtWayland::Surface *QWaylandInputPanelPrivate::focus() const
+QWaylandSurface *QWaylandInputPanelPrivate::focus() const
 {
     return m_focus;
 }
 
-void QWaylandInputPanelPrivate::setFocus(QtWayland::Surface *focus)
+void QWaylandInputPanelPrivate::setFocus(QWaylandSurface *focus)
 {
     Q_Q(QWaylandInputPanel);
     if (m_focus == focus)
@@ -126,7 +125,7 @@ QWaylandInputPanelPrivate *QWaylandInputPanelPrivate::findIn(QWaylandExtensionCo
 
 void QWaylandInputPanelPrivate::input_panel_get_input_panel_surface(Resource *resource, uint32_t id, wl_resource *surface)
 {
-    new QtWayland::InputPanelSurface(resource->client(), id, QtWayland::Surface::fromResource(surface));
+    new QtWayland::InputPanelSurface(resource->client(), id, QWaylandSurface::fromResource(surface));
 }
 
 QT_END_NAMESPACE

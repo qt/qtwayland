@@ -38,7 +38,6 @@
 #include "qwltouch_p.h"
 
 #include "qwlcompositor_p.h"
-#include "qwlsurface_p.h"
 #include "qwaylandview.h"
 #include "qwlqttouch_p.h"
 

@@ -108,6 +108,7 @@ public:
     ::wl_display *waylandDisplay() const;
     uint32_t nextSerial();
 
+    QList<QWaylandClient *>clients() const;
     Q_INVOKABLE void destroyClientForSurface(QWaylandSurface *surface);
     Q_INVOKABLE void destroyClient(QWaylandClient *client);
 

@@ -41,7 +41,25 @@
 #include <QtCompositor/qwaylandexport.h>
 #include <private/qobject_p.h>
 
-#include <QtCompositor/private/qwlsurface_p.h>
+#include <private/qwlsurfacebuffer_p.h>
+#include <QtCompositor/qwaylandsurface.h>
+#include <QtCompositor/qwaylandbufferref.h>
+
+#include <QtCompositor/private/qwlinputpanelsurface_p.h>
+#include <QtCompositor/private/qwlregion_p.h>
+
+#include <QtCore/QVector>
+#include <QtCore/QRect>
+#include <QtGui/QRegion>
+#include <QtGui/QImage>
+#include <QtGui/QWindow>
+
+#include <QtCore/QTextStream>
+#include <QtCore/QMetaType>
+
+#include <wayland-util.h>
+
+#include <QtCompositor/private/qwayland-server-wayland.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -50,24 +68,116 @@ class QWaylandSurface;
 class QWaylandView;
 class QWaylandSurfaceInterface;
 
-class Q_COMPOSITOR_EXPORT QWaylandSurfacePrivate : public QObjectPrivate, public QtWayland::Surface
+namespace QtWayland {
+class FrameCallback;
+}
+
+class Q_COMPOSITOR_EXPORT QWaylandSurfacePrivate : public QObjectPrivate, public QtWaylandServer::wl_surface
 {
-    Q_DECLARE_PUBLIC(QWaylandSurface)
 public:
     static QWaylandSurfacePrivate *get(QWaylandSurface *surface);
-    QWaylandSurfacePrivate(wl_client *wlClient, quint32 id, int version, QWaylandCompositor *compositor, QWaylandSurface *surface);
+
+    QWaylandSurfacePrivate(wl_client *wlClient, quint32 id, int version, QWaylandCompositor *compositor);
     ~QWaylandSurfacePrivate();
-    void setTitle(const QString &title);
-    void setClassName(const QString &className);
+
     void refView(QWaylandView *view);
     void derefView(QWaylandView *view);
 
-    bool closing;
+    static QWaylandSurfacePrivate *fromResource(struct ::wl_resource *resource)
+    { return static_cast<QWaylandSurfacePrivate *>(Resource::fromResource(resource)->surface_object); }
+
+    bool mapped() const { return QtWayland::SurfaceBuffer::hasContent(m_buffer); }
+
+    using QtWaylandServer::wl_surface::resource;
+
+    QSize size() const { return m_size; }
+    void setSize(const QSize &size);
+
+    QRegion inputRegion() const { return m_inputRegion; }
+    QRegion opaqueRegion() const { return m_opaqueRegion; }
+
+    void sendFrameCallback();
+    void removeFrameCallback(QtWayland::FrameCallback *callback);
+
+    QPoint lastMousePos() const { return m_lastLocalMousePos; }
+
+    void setInputPanelSurface(QtWayland::InputPanelSurface *inputPanelSurface) { m_inputPanelSurface = inputPanelSurface; }
+    QtWayland::InputPanelSurface *inputPanelSurface() const { return m_inputPanelSurface; }
+
+    QWaylandCompositor *compositor() const { return m_compositor; }
+
+    bool isCursorSurface() const { return m_isCursorSurface; }
+    void setCursorSurface(bool isCursor) { m_isCursorSurface = isCursor; }
+
+    void frameStarted();
+
+    inline bool isDestroyed() const { return m_destroyed; }
+
+    Qt::ScreenOrientation contentOrientation() const { return m_contentOrientation; }
+
+    QWaylandSurface::Origin origin() const { return m_buffer ? m_buffer->origin() : QWaylandSurface::OriginTopLeft; }
+
+    QWaylandBufferRef currentBufferRef() const { return m_bufferRef; }
+
+    void notifyViewsAboutDestruction();
+protected:
+    void surface_destroy_resource(Resource *resource) Q_DECL_OVERRIDE;
+
+    void surface_destroy(Resource *resource) Q_DECL_OVERRIDE;
+    void surface_attach(Resource *resource,
+                        struct wl_resource *buffer, int x, int y) Q_DECL_OVERRIDE;
+    void surface_damage(Resource *resource,
+                        int32_t x, int32_t y, int32_t width, int32_t height) Q_DECL_OVERRIDE;
+    void surface_frame(Resource *resource,
+                       uint32_t callback) Q_DECL_OVERRIDE;
+    void surface_set_opaque_region(Resource *resource,
+                                   struct wl_resource *region) Q_DECL_OVERRIDE;
+    void surface_set_input_region(Resource *resource,
+                                  struct wl_resource *region) Q_DECL_OVERRIDE;
+    void surface_commit(Resource *resource) Q_DECL_OVERRIDE;
+    void surface_set_buffer_transform(Resource *resource, int32_t transform) Q_DECL_OVERRIDE;
+
+    void setBackBuffer(QtWayland::SurfaceBuffer *buffer, const QRegion &damage);
+    QtWayland::SurfaceBuffer *createSurfaceBuffer(struct ::wl_resource *buffer);
+
+protected: //member variables
+    QWaylandCompositor *m_compositor;
     int refCount;
-
     QWaylandClient *client;
-
     QList<QWaylandView *> views;
+    QRegion m_damage;
+    QtWayland::SurfaceBuffer *m_buffer;
+    QWaylandBufferRef m_bufferRef;
+
+    struct {
+        QtWayland::SurfaceBuffer *buffer;
+        QRegion damage;
+        QPoint offset;
+        bool newlyAttached;
+        QRegion inputRegion;
+    } m_pending;
+
+    QPoint m_lastLocalMousePos;
+    QPoint m_lastGlobalMousePos;
+
+    QList<QtWayland::FrameCallback *> m_pendingFrameCallbacks;
+    QList<QtWayland::FrameCallback *> m_frameCallbacks;
+
+    QtWayland::InputPanelSurface *m_inputPanelSurface;
+
+    QRegion m_inputRegion;
+    QRegion m_opaqueRegion;
+
+    QVector<QtWayland::SurfaceBuffer *> m_bufferPool;
+
+    QSize m_size;
+    bool m_isCursorSurface;
+    bool m_destroyed;
+    Qt::ScreenOrientation m_contentOrientation;
+    QWindow::Visibility m_visibility;
+
+    Q_DECLARE_PUBLIC(QWaylandSurface)
+    Q_DISABLE_COPY(QWaylandSurfacePrivate)
 };
 
 QT_END_NAMESPACE

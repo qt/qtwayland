@@ -74,7 +74,8 @@ SubSurface::~SubSurface()
     }
     QLinkedList<QWaylandSurface *>::iterator it;
     for (it = m_sub_surfaces.begin(); it != m_sub_surfaces.end(); ++it) {
-        (*it)->handle()->subSurface()->parentDestroyed();
+        SubSurface *subSurfaceSub = SubSurface::findIn(*it);
+        subSurfaceSub->parentDestroyed();
     }
 }
 

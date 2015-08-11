@@ -41,7 +41,6 @@
 #include "qwlinputdevice_p.h"
 #include "qwlcompositor_p.h"
 #include "qwldataoffer_p.h"
-#include "qwlsurface_p.h"
 #include "qwaylandmimehelper.h"
 
 #include <QtCompositor/private/qwaylandsurface_p.h>
@@ -204,7 +203,7 @@ void DataDeviceManager::overrideSelection(const QMimeData &mimeData)
     QWaylandSurface *focusSurface = QWaylandInputDevicePrivate::get(dev)->keyboardFocus();
     if (focusSurface)
         offerFromCompositorToClient(
-                    QWaylandInputDevicePrivate::get(dev)->dataDevice()->resourceMap().value(QWaylandSurfacePrivate::get(focusSurface)->resource()->client())->handle);
+                    QWaylandInputDevicePrivate::get(dev)->dataDevice()->resourceMap().value(focusSurface->waylandClient())->handle);
 }
 
 bool DataDeviceManager::offerFromCompositorToClient(wl_resource *clientDataDeviceResource)

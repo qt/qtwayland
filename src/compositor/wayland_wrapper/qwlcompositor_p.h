@@ -96,7 +96,7 @@ public:
     QWaylandInputDevice *inputDeviceFor(QInputEvent *inputEvent);
     void removeInputDevice(QWaylandInputDevice *device);
 
-    void destroySurface(Surface *surface);
+    void destroySurface(QWaylandSurface *surface);
 
     void destroyClient(QWaylandClient *client);
 
@@ -131,7 +131,7 @@ public:
     DataDeviceManager *dataDeviceManager() const;
 
     bool isDragging() const;
-    void sendDragMoveEvent(const QPoint &global, const QPoint &local, Surface *surface);
+    void sendDragMoveEvent(const QPoint &global, const QPoint &local, QWaylandSurface *surface);
     void sendDragEndEvent();
 
     void setRetainedSelectionEnabled(bool enabled);

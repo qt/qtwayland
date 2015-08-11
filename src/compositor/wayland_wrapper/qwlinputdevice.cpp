@@ -39,7 +39,6 @@
 #include "qwlcompositor_p.h"
 #include "qwldatadevice_p.h"
 #include "qwlinputmethod_p.h"
-#include "qwlsurface_p.h"
 #include "qwlqttouch_p.h"
 #include "qwlqtkey_p.h"
 #include "qwaylandcompositor.h"
@@ -160,9 +159,9 @@ void QWaylandInputDevicePrivate::sendMouseReleaseEvent(Qt::MouseButton button)
     pointerDevice()->sendMouseReleaseEvent(button);
 }
 
-void QWaylandInputDevicePrivate::sendMouseMoveEvent(QWaylandView *surface, const QPointF &localPos, const QPointF &globalPos)
+void QWaylandInputDevicePrivate::sendMouseMoveEvent(QWaylandView *view, const QPointF &localPos, const QPointF &globalPos)
 {
-    pointerDevice()->sendMouseMoveEvent(surface, localPos,globalPos);
+    pointerDevice()->sendMouseMoveEvent(view, localPos,globalPos);
 }
 
 void QWaylandInputDevicePrivate::sendMouseWheelEvent(Qt::Orientation orientation, int delta)
@@ -200,7 +199,7 @@ void QWaylandInputDevicePrivate::sendFullKeyEvent(QKeyEvent *event)
     }
 
     QtWayland::QtKeyExtensionGlobal *ext = QtWayland::QtKeyExtensionGlobal::findIn(m_compositor);
-    if (ext && ext->postQtKeyEvent(event, keyboardFocus()->handle()))
+    if (ext && ext->postQtKeyEvent(event, keyboardFocus()))
         return;
 
     if (!m_keyboard.isNull() && !event->isAutoRepeat()) {
@@ -215,7 +214,7 @@ void QWaylandInputDevicePrivate::sendFullKeyEvent(QWaylandSurface *surface, QKey
 {
     QtWayland::QtKeyExtensionGlobal *ext = QtWayland::QtKeyExtensionGlobal::findIn(m_compositor);
     if (ext)
-        ext->postQtKeyEvent(event, surface->handle());
+        ext->postQtKeyEvent(event, surface);
 }
 
 void QWaylandInputDevicePrivate::sendFullTouchEvent(QTouchEvent *event)
@@ -244,7 +243,7 @@ QWaylandSurface *QWaylandInputDevicePrivate::keyboardFocus() const
  */
 bool QWaylandInputDevicePrivate::setKeyboardFocus(QWaylandSurface *surface)
 {
-    if (surface && surface->handle()->isDestroyed())
+    if (surface && surface->isDestroyed())
         return false;
 
     if (!m_keyboard.isNull() && m_keyboard->setFocus(surface)) {

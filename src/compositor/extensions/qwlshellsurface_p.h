@@ -83,6 +83,8 @@ class Q_COMPOSITOR_EXPORT ShellSurface : public QWaylandExtensionTemplate<ShellS
 {
     Q_OBJECT
     Q_PROPERTY(SurfaceType surfaceType READ surfaceType WRITE setSurfaceType NOTIFY surfaceTypeChanged)
+    Q_PROPERTY(QString title READ title NOTIFY titleChanged)
+    Q_PROPERTY(QString className READ className NOTIFY classNameChanged)
 public:
     enum SurfaceType {
         None,
@@ -91,7 +93,7 @@ public:
         Popup
     };
 
-    ShellSurface(Shell *shell, struct wl_client *client, uint32_t id, Surface *surface);
+    ShellSurface(Shell *shell, struct wl_client *client, uint32_t id, QWaylandSurface *surface);
     ~ShellSurface();
     void sendConfigure(uint32_t edges, int32_t width, int32_t height);
 
@@ -120,8 +122,13 @@ public:
     void setTransientOffset(const QPointF &offset) { m_transientOffset = offset; }
     QPointF transientOffset() const { return m_transientOffset; }
 
+    QString title() const { return m_title; }
+    QString className() const { return m_className; }
 Q_SIGNALS:
     void surfaceTypeChanged();
+    void titleChanged();
+    void classNameChanged();
+    void pong();
 
 private Q_SLOTS:
     void mappedChanged();
@@ -129,7 +136,7 @@ private Q_SLOTS:
 
 private:
     Shell *m_shell;
-    Surface *m_surface;
+    QWaylandSurface *m_surface;
     QWaylandView *m_view;
 
     ShellSurfaceResizeGrabber *m_resizeGrabber;
@@ -145,6 +152,9 @@ private:
 
     QWaylandSurface *m_transientParent;
     QPointF m_transientOffset;
+
+    QString m_title;
+    QString m_className;
 
     void shell_surface_destroy_resource(Resource *resource) Q_DECL_OVERRIDE;
 

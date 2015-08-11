@@ -43,7 +43,6 @@
 #include <QtCompositor/QWaylandClient>
 
 #include "qwlcompositor_p.h"
-#include "qwlsurface_p.h"
 
 #include <fcntl.h>
 #include <unistd.h>
@@ -117,11 +116,11 @@ void QWaylandKeyboardPrivate::focused(QWaylandSurface *surface)
         surface = Q_NULLPTR;
     if (m_focusResource && m_focus != surface) {
         uint32_t serial = wl_display_next_serial(compositor()->waylandDisplay());
-        send_leave(m_focusResource->handle, serial, m_focus->handle()->resource()->handle);
+        send_leave(m_focusResource->handle, serial, m_focus->resource());
         m_focusDestroyListener.reset();
     }
 
-    Resource *resource = surface ? resourceMap().value(surface->client()->client()) : 0;
+    Resource *resource = surface ? resourceMap().value(surface->waylandClient()) : 0;
 
     if (resource && (m_focus != surface || m_focusResource != resource)) {
         uint32_t serial = wl_display_next_serial(compositor()->waylandDisplay());

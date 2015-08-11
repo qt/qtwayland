@@ -87,7 +87,7 @@ public:
         if (!mouseFocus || !mouseFocus->surface())
             return;
 
-        m_focusResource = resourceMap().value(mouseFocus->surface()->client()->client());
+        m_focusResource = resourceMap().value(mouseFocus->surface()->waylandClient());
     }
 private:
     void resetFocusState();

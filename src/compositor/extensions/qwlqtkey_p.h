@@ -45,8 +45,8 @@
 
 QT_BEGIN_NAMESPACE
 
+class QWaylandSurface;
 class Compositor;
-class Surface;
 class QKeyEvent;
 
 namespace QtWayland {
@@ -57,7 +57,7 @@ class QtKeyExtensionGlobal : public QWaylandExtensionTemplate<QtKeyExtensionGlob
 public:
     QtKeyExtensionGlobal(Compositor *compositor);
 
-    bool postQtKeyEvent(QKeyEvent *event, Surface *surface);
+    bool postQtKeyEvent(QKeyEvent *event, QWaylandSurface *surface);
 
 private:
     Compositor *m_compositor;

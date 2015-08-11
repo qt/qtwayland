@@ -40,6 +40,7 @@
 
 #include <QtCompositor/qwaylandexport.h>
 #include <QtCompositor/qwaylandextension.h>
+#include <QtCompositor/qwaylandclient.h>
 
 #include <QtCore/QScopedPointer>
 #include <QtGui/QImage>
@@ -59,12 +60,6 @@ class QWaylandBufferRef;
 class QWaylandView;
 class QWaylandSurfaceOp;
 
-namespace QtWayland {
-class Surface;
-class SurfacePrivate;
-class ExtendedSurface;
-}
-
 class Q_COMPOSITOR_EXPORT QWaylandSurface : public QObject, public QWaylandExtensionContainer
 {
     Q_OBJECT
@@ -72,8 +67,6 @@ class Q_COMPOSITOR_EXPORT QWaylandSurface : public QObject, public QWaylandExten
     Q_PROPERTY(QWaylandClient *client READ client CONSTANT)
     Q_PROPERTY(QSize size READ size NOTIFY sizeChanged)
     Q_PROPERTY(Qt::ScreenOrientation contentOrientation READ contentOrientation NOTIFY contentOrientationChanged)
-    Q_PROPERTY(QString className READ className NOTIFY classNameChanged)
-    Q_PROPERTY(QString title READ title NOTIFY titleChanged)
     Q_PROPERTY(QWaylandSurface::Origin origin READ origin NOTIFY originChanged)
     Q_PROPERTY(bool isMapped READ isMapped NOTIFY mappedChanged)
 
@@ -87,11 +80,8 @@ public:
     virtual ~QWaylandSurface();
 
     QWaylandClient *client() const;
+    struct wl_client *waylandClient() const { return client()->client(); }
 
-    QWaylandSurface *parentSurface() const;
-    QLinkedList<QWaylandSurface *> subSurfaces() const;
-
-    bool visible() const;
     bool isMapped() const;
 
     QSize size() const;
@@ -100,21 +90,14 @@ public:
 
     Origin origin() const;
 
-    QtWayland::Surface *handle();
-
-    QByteArray authenticationToken() const;
-
     QWaylandCompositor *compositor() const;
-
-    QString className() const;
-
-    QString title() const;
 
     bool hasInputPanelSurface() const;
 
     bool inputRegionContains(const QPoint &p) const;
 
     Q_INVOKABLE void destroy();
+    bool isDestroyed() const;
 
     Q_INVOKABLE void sendFrameCallbacks();
 
@@ -145,19 +128,12 @@ Q_SIGNALS:
     void sizeChanged();
     void offsetForNextFrame(const QPoint &offset);
     void contentOrientationChanged();
-    void extendedSurfaceReady();
-    void classNameChanged();
-    void titleChanged();
-    void raiseRequested();
-    void lowerRequested();
     void pong();
     void surfaceDestroyed();
     void originChanged();
 
     void configure(bool hasBuffer);
     void redraw();
-
-    friend class QtWayland::Surface;
 };
 
 QT_END_NAMESPACE

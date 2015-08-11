@@ -50,11 +50,9 @@ QT_BEGIN_NAMESPACE
 
 class QWaylandClientBufferIntegration;
 class QWaylandBufferRef;
+class QWaylandCompositor;
 
 namespace QtWayland {
-
-class Surface;
-class Compositor;
 
 struct surface_buffer_destroy_listener
 {
@@ -65,7 +63,7 @@ struct surface_buffer_destroy_listener
 class SurfaceBuffer
 {
 public:
-    SurfaceBuffer(Surface *surface);
+    SurfaceBuffer(QWaylandSurface *surface);
 
     ~SurfaceBuffer();
 
@@ -96,13 +94,14 @@ public:
     QImage image() const;
     void bindToTexture() const;
 
+    static bool hasContent(SurfaceBuffer *buffer) { return buffer && buffer->isRegisteredWithBuffer(); }
 private:
     void ref();
     void deref();
     void destroyIfUnused();
 
-    Surface *m_surface;
-    Compositor *m_compositor;
+    QWaylandSurface *m_surface;
+    QWaylandCompositor *m_compositor;
     struct ::wl_resource *m_buffer;
     struct surface_buffer_destroy_listener m_destroy_listener;
     bool m_committed;

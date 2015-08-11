@@ -36,7 +36,6 @@
 
 #include "qwlsurfacebuffer_p.h"
 
-#include "qwlsurface_p.h"
 #include "qwlcompositor_p.h"
 
 #ifdef QT_COMPOSITOR_WAYLAND_GL
@@ -53,7 +52,7 @@ QT_BEGIN_NAMESPACE
 
 namespace QtWayland {
 
-SurfaceBuffer::SurfaceBuffer(Surface *surface)
+SurfaceBuffer::SurfaceBuffer(QWaylandSurface *surface)
     : m_surface(surface)
     , m_compositor(surface->compositor())
     , m_buffer(0)
@@ -161,7 +160,7 @@ QSize SurfaceBuffer::size() const
         int height = wl_shm_buffer_get_height(shmBuffer);
         return QSize(width, height);
     }
-    if (ClientBufferIntegration *integration = m_compositor->clientBufferIntegration()) {
+    if (ClientBufferIntegration *integration = m_compositor->handle()->clientBufferIntegration()) {
         return integration->bufferSize(m_buffer);
     }
 
@@ -174,7 +173,7 @@ QWaylandSurface::Origin SurfaceBuffer::origin() const
         return QWaylandSurface::OriginTopLeft;
     }
 
-    if (ClientBufferIntegration *integration = m_compositor->clientBufferIntegration()) {
+    if (ClientBufferIntegration *integration = m_compositor->handle()->clientBufferIntegration()) {
         return integration->origin(m_buffer);
     }
     return QWaylandSurface::OriginTopLeft;
@@ -210,7 +209,7 @@ void SurfaceBuffer::bindToTexture() const
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image.width(), image.height(), 0, GL_RGB, GL_UNSIGNED_BYTE, image.constBits());
         }
     } else {
-        if (QtWayland::ClientBufferIntegration *clientInt = m_compositor->clientBufferIntegration()) {
+        if (QtWayland::ClientBufferIntegration *clientInt = m_compositor->handle()->clientBufferIntegration()) {
             clientInt->bindTextureToBuffer(m_buffer);
         }
     }

@@ -50,7 +50,6 @@ QT_BEGIN_NAMESPACE
 
 namespace QtWayland {
 class Compositor;
-class Surface;
 class TextInput;
 }
 
@@ -64,8 +63,8 @@ public:
 
     QWaylandInputPanel *waylandInputPanel() const;
 
-    QtWayland::Surface *focus() const;
-    void setFocus(QtWayland::Surface *focus);
+    QWaylandSurface *focus() const;
+    void setFocus(QWaylandSurface *focus);
 
     bool inputPanelVisible() const;
     void setInputPanelVisible(bool inputPanelVisible);
@@ -80,7 +79,7 @@ protected:
 private:
     QtWayland::Compositor *m_compositor;
 
-    QtWayland::Surface *m_focus;
+    QWaylandSurface *m_focus;
     bool m_inputPanelVisible;
     QRect m_cursorRectangle;
 };

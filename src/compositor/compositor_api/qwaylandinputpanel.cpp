@@ -41,7 +41,6 @@
 #include <private/qobject_p.h>
 
 #include "qwlinputpanel_p.h"
-#include "qwlsurface_p.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -54,10 +53,7 @@ QWaylandSurface *QWaylandInputPanel::focus() const
 {
    Q_D(const QWaylandInputPanel);
 
-    QtWayland::Surface *surface = d->focus();
-    if (surface)
-        return surface->waylandSurface();
-    return 0;
+    return d->focus();
 }
 
 bool QWaylandInputPanel::visible() const

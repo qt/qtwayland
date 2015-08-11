@@ -37,7 +37,6 @@
 #include "qwlextendedsurface_p.h"
 
 #include "qwlcompositor_p.h"
-#include "qwlsurface_p.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -53,12 +52,12 @@ void SurfaceExtensionGlobal::surface_extension_get_extended_surface(Resource *re
                                                                     uint32_t id,
                                                                     struct wl_resource *surface_resource)
 {
-    Surface *surface = Surface::fromResource(surface_resource);
+    QWaylandSurface *surface = QWaylandSurface::fromResource(surface_resource);
     new ExtendedSurface(resource->client(),id, wl_resource_get_version(resource->handle), surface);
 }
 
-ExtendedSurface::ExtendedSurface(struct wl_client *client, uint32_t id, int version, Surface *surface)
-    : QWaylandExtensionTemplate(surface->waylandSurface())
+ExtendedSurface::ExtendedSurface(struct wl_client *client, uint32_t id, int version, QWaylandSurface *surface)
+    : QWaylandExtensionTemplate(surface)
     , QtWaylandServer::qt_extended_surface(client, id, version)
     , m_surface(surface)
     , m_windowFlags(0)
@@ -88,7 +87,7 @@ void ExtendedSurface::setVisibility(QWindow::Visibility visibility)
     send_onscreen_visibility(visibility);
 }
 
-void ExtendedSurface::setParentSurface(Surface *surface)
+void ExtendedSurface::setParentSurface(QWaylandSurface *surface)
 {
     m_surface = surface;
 }
@@ -172,14 +171,12 @@ void ExtendedSurface::extended_surface_destroy_resource(Resource *)
 
 void ExtendedSurface::extended_surface_raise(Resource *)
 {
-    if (m_surface)
-        emit m_surface->waylandSurface()->raiseRequested();
+    emit raiseRequested();
 }
 
 void ExtendedSurface::extended_surface_lower(Resource *)
 {
-    if (m_surface)
-        emit m_surface->waylandSurface()->lowerRequested();
+    emit lowerRequested();
 }
 
 }

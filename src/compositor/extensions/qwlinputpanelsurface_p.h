@@ -40,12 +40,13 @@
 
 #include <QtCompositor/private/qwayland-server-input-method.h>
 
+#include <QWaylandSurface>
+
 QT_BEGIN_NAMESPACE
 
 namespace QtWayland {
 
 class Output;
-class Surface;
 
 class InputPanelSurface : public QtWaylandServer::wl_input_panel_surface
 {
@@ -56,7 +57,7 @@ public:
         OverlayPanel
     };
 
-    InputPanelSurface(struct ::wl_client *client, int id, Surface *surface);
+    InputPanelSurface(struct ::wl_client *client, int id, QWaylandSurface *surface);
 
     Type type() const;
 
@@ -68,7 +69,7 @@ protected:
     void input_panel_surface_set_toplevel(Resource *resource, wl_resource *output_resource, uint32_t position) Q_DECL_OVERRIDE;
 
 private:
-    Surface *m_surface;
+    QWaylandSurface *m_surface;
 
     Type m_type;
 

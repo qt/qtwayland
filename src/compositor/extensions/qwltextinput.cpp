@@ -41,7 +41,6 @@
 #include "qwlinputmethod_p.h"
 #include "qwlinputmethodcontext_p.h"
 #include "qwlinputpanel_p.h"
-#include "qwlsurface_p.h"
 
 #include <algorithm>
 
@@ -59,7 +58,7 @@ TextInput::TextInput(QWaylandExtensionContainer *container, Compositor *composit
 {
 }
 
-Surface *TextInput::focus() const
+QWaylandSurface *TextInput::focus() const
 {
     return m_focus;
 }
@@ -94,8 +93,8 @@ void TextInput::text_input_destroy_resource(Resource *)
 
 void TextInput::text_input_activate(Resource *, wl_resource *seat, wl_resource *surface)
 {
-    Surface *oldSurface = m_focus;
-    m_focus = Surface::fromResource(surface);
+    QWaylandSurface *oldSurface = m_focus;
+    m_focus = QWaylandSurface::fromResource(surface);
 
     if (oldSurface != m_focus)
         send_leave();

@@ -55,7 +55,7 @@ InputMethod::InputMethod(QWaylandCompositor *compositor, QWaylandInputDevice *se
     , m_textInput()
     , m_context()
 {
-    connect(seat->keyboard(), SIGNAL(focusChanged(Surface*)), this, SLOT(focusChanged(Surface*)));
+    connect(seat->keyboard(), &QWaylandKeyboard::focusChanged, this, &InputMethod::focusChanged);
 }
 
 InputMethod::~InputMethod()
@@ -105,7 +105,7 @@ void InputMethod::deactivate()
     }
 }
 
-void InputMethod::focusChanged(Surface *surface)
+void InputMethod::focusChanged(QWaylandSurface *surface)
 {
     if (!m_textInput)
         return;

@@ -35,7 +35,7 @@
 ****************************************************************************/
 
 #include "qwlqtkey_p.h"
-#include "qwlsurface_p.h"
+#include <QtCompositor/QWaylandSurface>
 #include <QKeyEvent>
 #include <QWindow>
 
@@ -50,15 +50,15 @@ QtKeyExtensionGlobal::QtKeyExtensionGlobal(Compositor *compositor)
 {
 }
 
-bool QtKeyExtensionGlobal::postQtKeyEvent(QKeyEvent *event, Surface *surface)
+bool QtKeyExtensionGlobal::postQtKeyEvent(QKeyEvent *event, QWaylandSurface *surface)
 {
     uint32_t time = m_compositor->currentTimeMsecs();
 
-    Resource *target = surface ? resourceMap().value(surface->resource()->client()) : 0;
+    Resource *target = surface ? resourceMap().value(surface->waylandClient()) : 0;
 
     if (target) {
         send_qtkey(target->handle,
-                   surface ? surface->resource()->handle : 0,
+                   surface ? surface->resource() : 0,
                    time, event->type(), event->key(), event->modifiers(),
                    event->nativeScanCode(),
                    event->nativeVirtualKey(),

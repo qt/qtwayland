@@ -42,6 +42,8 @@
 #include <QObject>
 #include <QScopedPointer>
 
+#include <QtCompositor/QWaylandSurface>
+
 QT_BEGIN_NAMESPACE
 
 class QWaylandInputDevice;
@@ -51,7 +53,6 @@ namespace QtWayland {
 
 class InputMethodContext;
 class TextInput;
-class Surface;
 
 class InputMethod : public QObject, public QtWaylandServer::wl_input_method
 {
@@ -74,7 +75,7 @@ protected:
     void input_method_destroy_resource(Resource *resource);
 
 private Q_SLOTS:
-    void focusChanged(Surface *surface);
+    void focusChanged(QWaylandSurface *surface);
 
 private:
     QWaylandCompositor *m_compositor;

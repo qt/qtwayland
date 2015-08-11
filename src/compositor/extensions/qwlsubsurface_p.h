@@ -37,16 +37,16 @@
 #ifndef WLSUBSURFACE_H
 #define WLSUBSURFACE_H
 
-#include <private/qwlsurface_p.h>
-
 #include <QtCompositor/private/qwayland-server-sub-surface-extension.h>
+
+#include <QtCompositor/QWaylandExtension>
+#include <QtCompositor/QWaylandSurface>
 
 #include <QtCore/QLinkedList>
 
 QT_BEGIN_NAMESPACE
 
 class Compositor;
-class QWaylandSurface;
 
 namespace QtWayland {
 
@@ -62,7 +62,7 @@ private:
     void sub_surface_extension_get_sub_surface_aware_surface(Resource *resource, uint32_t id, struct ::wl_resource *surface) Q_DECL_OVERRIDE;
 };
 
-class SubSurface : public QWaylandExtensionTemplate<SubSurface>, public QtWaylandServer::qt_sub_surface
+class Q_COMPOSITOR_EXPORT SubSurface : public QWaylandExtensionTemplate<SubSurface>, public QtWaylandServer::qt_sub_surface
 {
     Q_OBJECT
     Q_PROPERTY(SubSurface *parent READ parent WRITE setParent NOTIFY parentChanged)

@@ -41,7 +41,6 @@
 #include "qwlcompositor_p.h"
 #include "qwlinputdevice_p.h"
 #include "qwldatadevice_p.h"
-#include "qwlsurface_p.h"
 #include "qwaylandview.h"
 
 QT_BEGIN_NAMESPACE

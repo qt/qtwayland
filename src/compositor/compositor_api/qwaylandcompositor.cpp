@@ -46,9 +46,10 @@
 #include "qwaylandpointer.h"
 #include "qwaylandtouch.h"
 
+#include "qwaylandsurface_p.h"
+
 #include "wayland_wrapper/qwlcompositor_p.h"
 #include "wayland_wrapper/qwldatadevice_p.h"
-#include "wayland_wrapper/qwlsurface_p.h"
 #include "wayland_wrapper/qwlinputdevice_p.h"
 
 #include "extensions/qwlinputpanel_p.h"
@@ -121,6 +122,11 @@ struct wl_display *QWaylandCompositor::waylandDisplay() const
 uint32_t QWaylandCompositor::nextSerial()
 {
     return wl_display_next_serial(waylandDisplay());
+}
+
+QList<QWaylandClient *>QWaylandCompositor::clients() const
+{
+    return m_compositor->clients();
 }
 
 void QWaylandCompositor::destroyClientForSurface(QWaylandSurface *surface)
@@ -263,7 +269,7 @@ bool QWaylandCompositor::isDragging() const
 void QWaylandCompositor::sendDragMoveEvent(const QPoint &global, const QPoint &local,
                                           QWaylandSurface *surface)
 {
-    m_compositor->sendDragMoveEvent(global, local, surface ? surface->handle() : 0);
+    m_compositor->sendDragMoveEvent(global, local, surface);
 }
 
 void QWaylandCompositor::sendDragEndEvent()

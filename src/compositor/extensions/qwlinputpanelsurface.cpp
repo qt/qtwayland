@@ -38,20 +38,21 @@
 #include "qwlinputpanelsurface_p.h"
 
 #include "qwloutput_p.h"
-#include "qwlsurface_p.h"
+
+#include <QtCompositor/private/qwaylandsurface_p.h>
 
 QT_BEGIN_NAMESPACE
 
 namespace QtWayland {
 
-InputPanelSurface::InputPanelSurface(wl_client *client, int id, Surface *surface)
+InputPanelSurface::InputPanelSurface(wl_client *client, int id, QWaylandSurface *surface)
     : QtWaylandServer::wl_input_panel_surface(client, id, 1)
     , m_surface(surface)
     , m_type(Invalid)
     , m_output(0)
     , m_position()
 {
-    surface->setInputPanelSurface(this);
+    QWaylandSurfacePrivate::get(surface)->setInputPanelSurface(this);
 }
 
 InputPanelSurface::Type InputPanelSurface::type() const

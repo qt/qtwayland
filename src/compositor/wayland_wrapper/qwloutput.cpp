@@ -37,7 +37,6 @@
 
 #include "qwloutput_p.h"
 #include "qwlcompositor_p.h"
-#include "qwlsurface_p.h"
 
 #include <QtGui/QWindow>
 #include <QRect>
@@ -48,6 +47,8 @@
 #include <QtCompositor/QWaylandClient>
 #include <QtCompositor/QWaylandView>
 #include <QtCompositor/QWaylandOutput>
+
+#include <QtCompositor/private/qwaylandsurface_p.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -332,7 +333,7 @@ void Output::frameStarted()
     for (int i = 0; i < m_surfaceViews.size(); i++) {
         SurfaceViewMapper &surfacemapper = m_surfaceViews[i];
         if (surfacemapper.maybeThrottelingView())
-            surfacemapper.surface->handle()->frameStarted();
+            QWaylandSurfacePrivate::get(surfacemapper.surface)->frameStarted();
     }
 }
 
@@ -345,7 +346,7 @@ void Output::sendFrameCallbacks()
                 surfaceEnter(surfacemapper.surface);
             }
             if (surfacemapper.maybeThrottelingView())
-                surfacemapper.surface->handle()->sendFrameCallback();
+                QWaylandSurfacePrivate::get(surfacemapper.surface)->sendFrameCallback();
         }
     }
     wl_display_flush_clients(compositor()->waylandDisplay());
@@ -355,14 +356,14 @@ void Output::surfaceEnter(QWaylandSurface *surface)
 {
     if (!surface)
         return;
-    surface->handle()->send_enter(outputForClient(surface->client())->handle);
+    QWaylandSurfacePrivate::get(surface)->send_enter(outputForClient(surface->client())->handle);
 }
 
 void Output::surfaceLeave(QWaylandSurface *surface)
 {
     if (!surface)
         return;
-    surface->handle()->send_leave(outputForClient(surface->client())->handle);
+    QWaylandSurfacePrivate::get(surface)->send_leave(outputForClient(surface->client())->handle);
 }
 
 void Output::addView(QWaylandView *view)

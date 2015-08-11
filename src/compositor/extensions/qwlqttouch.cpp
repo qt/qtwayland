@@ -35,7 +35,6 @@
 ****************************************************************************/
 
 #include "qwlqttouch_p.h"
-#include "qwlsurface_p.h"
 #include "qwaylandview.h"
 #include <QTouchEvent>
 #include <QWindow>
@@ -73,7 +72,7 @@ bool TouchExtensionGlobal::postTouchEvent(QTouchEvent *event, QWaylandView *view
         return false;
 
     QPointF surfacePos = view->requestedPosition();
-    wl_client *surfaceClient = view->surface()->handle()->resource()->client();
+    wl_client *surfaceClient = view->surface()->client()->client();
     uint32_t time = m_compositor->currentTimeMsecs();
     const int rescount = m_resources.count();
 

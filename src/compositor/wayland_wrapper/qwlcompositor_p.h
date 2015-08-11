@@ -141,6 +141,13 @@ public:
 
     void unregisterSurface(QWaylandSurface *surface);
 
+    QWaylandPointer *callCreatePointerDevice(QWaylandInputDevice *inputDevice)
+    { return m_qt_compositor->createPointerDevice(inputDevice); }
+    QWaylandKeyboard *callCreateKeyboardDevice(QWaylandInputDevice *inputDevice)
+    { return m_qt_compositor->createKeyboardDevice(inputDevice); }
+    QWaylandTouch *callCreateTouchDevice(QWaylandInputDevice *inputDevice)
+    { return m_qt_compositor->createTouchDevice(inputDevice); }
+
 public Q_SLOTS:
     void cleanupGraphicsResources();
 

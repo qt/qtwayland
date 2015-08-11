@@ -145,10 +145,6 @@ public:
 
     QWaylandInputDevice *inputDeviceFor(QInputEvent *inputEvent);
 
-    virtual QWaylandPointer *createPointerDevice(QWaylandInputDevice *inputDevice);
-    virtual QWaylandKeyboard *createKeyboardDevice(QWaylandInputDevice *inputDevice);
-    virtual QWaylandTouch *createTouchDevice(QWaylandInputDevice *inputDevice);
-
 Q_SIGNALS:
     void surfaceCreated(QWaylandSurface *surface);
     void surfaceAboutToBeDestroyed(QWaylandSurface *surface);
@@ -168,6 +164,10 @@ protected:
                                          const QString &model);
     virtual QWaylandSurface *createSurface(QWaylandClient *client, quint32 id, int version);
     virtual QWaylandInputDevice *createInputDevice();
+    virtual QWaylandPointer *createPointerDevice(QWaylandInputDevice *inputDevice);
+    virtual QWaylandKeyboard *createKeyboardDevice(QWaylandInputDevice *inputDevice);
+    virtual QWaylandTouch *createTouchDevice(QWaylandInputDevice *inputDevice);
+
 
     friend class QtWayland::Compositor;
     friend class QWaylandOutputSpacePrivate;

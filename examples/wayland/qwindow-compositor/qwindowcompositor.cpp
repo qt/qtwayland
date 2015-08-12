@@ -65,6 +65,19 @@
 
 QT_BEGIN_NAMESPACE
 
+class Surface : public QWaylandSurface
+{
+public:
+    Surface(QWaylandClient *client, quint32 id, int version, QWaylandCompositor *compositor)
+        : QWaylandSurface(client, id, version, compositor)
+        , extSurface(Q_NULLPTR)
+        , hasSentOnScreen(false)
+    { }
+
+    QtWayland::ExtendedSurface *extSurface;
+    bool hasSentOnScreen;
+};
+
 class SurfaceView : public QWaylandView
 {
 public:
@@ -136,9 +149,12 @@ void QWindowCompositor::create()
     primaryOutputSpace()->addOutputWindow(m_window, "", "");
 
     m_renderScheduler.setSingleShot(true);
-    connect(&m_renderScheduler,SIGNAL(timeout()),this,SLOT(render()));
+    connect(&m_renderScheduler, &QTimer::timeout, this, &QWindowCompositor::render);
     connect(this, &QWaylandCompositor::surfaceCreated, this, &QWindowCompositor::onSurfaceCreated);
     connect(this, &QWaylandCompositor::currentCurserSurfaceRequest, this, &QWindowCompositor::adjustCursorSurface);
+
+    QtWayland::SurfaceExtensionGlobal *extSurfGlob = QtWayland::SurfaceExtensionGlobal::findIn(this);
+    connect(extSurfGlob, &QtWayland::SurfaceExtensionGlobal::extendedSurfaceReady, this, &QWindowCompositor::extendedSurfaceCreated);
 
     m_window->installEventFilter(this);
 
@@ -228,7 +244,7 @@ void QWindowCompositor::surfaceUnmapped(QWaylandSurface *surface)
     m_renderScheduler.start(0);
 }
 
-void QWindowCompositor::surfaceCommitted()
+void QWindowCompositor::surfaceCommittedSlot()
 {
     QWaylandSurface *surface = qobject_cast<QWaylandSurface *>(sender());
     surfaceCommitted(surface);
@@ -247,10 +263,9 @@ void QWindowCompositor::surfaceCommitted(QWaylandSurface *surface)
 
 void QWindowCompositor::onSurfaceCreated(QWaylandSurface *surface)
 {
-    connect(surface, SIGNAL(surfaceDestroyed()), this, SLOT(surfaceDestroyed()));
-    connect(surface, SIGNAL(mappedChanged()), this, SLOT(surfaceMappedChanged()));
-    connect(surface, SIGNAL(redraw()), this, SLOT(surfaceCommitted()));
-    connect(surface, SIGNAL(extendedSurfaceReady()), this, SLOT(sendExpose()));
+    connect(surface, &QWaylandSurface::surfaceDestroyed, this, &QWindowCompositor::surfaceDestroyed);
+    connect(surface, &QWaylandSurface::mappedChanged, this, &QWindowCompositor::surfaceMappedChanged);
+    connect(surface, &QWaylandSurface::redraw, this, &QWindowCompositor::surfaceCommittedSlot);
 }
 
 void QWindowCompositor::onShellSurfaceCreated(QWaylandSurface *surface, QtWayland::ShellSurface *shellSurface)
@@ -262,12 +277,11 @@ void QWindowCompositor::onShellSurfaceCreated(QWaylandSurface *surface, QtWaylan
     m_renderScheduler.start(0);
 }
 
-void QWindowCompositor::sendExpose()
+void QWindowCompositor::extendedSurfaceCreated(QtWayland::ExtendedSurface *extendedSurface, QWaylandSurface *surface)
 {
-    QWaylandSurface *surface = qobject_cast<QWaylandSurface *>(sender());
-    QtWayland::ExtendedSurface *extendedSurface = QtWayland::ExtendedSurface::findIn(surface);
-    if (extendedSurface)
-        extendedSurface->sendOnScreenVisibilityChange(true);
+    Surface *s = static_cast<Surface *>(surface);
+    Q_ASSERT(!s->extSurface);
+    s->extSurface = extendedSurface;
 }
 
 void QWindowCompositor::updateCursor(bool hasBuffer)
@@ -307,6 +321,11 @@ void QWindowCompositor::adjustCursorSurface(QWaylandSurface *surface, int hotspo
     m_cursorView.setSurface(surface);
     m_cursorHotspotX = hotspotX;
     m_cursorHotspotY = hotspotY;
+}
+
+QWaylandSurface *QWindowCompositor::createSurface(QWaylandClient *client, quint32 id, int version)
+{
+    return new Surface(client, id, version, this);
 }
 
 QWaylandView *QWindowCompositor::viewAt(const QPointF &point, QPointF *local)
@@ -355,19 +374,28 @@ void QWindowCompositor::render()
     m_window->swapBuffers();
 }
 
-void QWindowCompositor::drawSubSurface(const QPoint &offset, QWaylandSurface *surface)
+void QWindowCompositor::drawSubSurface(const QPoint &offset, QWaylandSurface *s)
 {
+    Surface *surface = static_cast<Surface *>(s);
     SurfaceView *view = static_cast<SurfaceView *>(surface->views().first());
     GLuint texture = view->updateTextureToCurrentBuffer();
     bool invert_y = view->currentBuffer().origin() == QWaylandSurface::OriginTopLeft;
     QPoint pos = view->pos().toPoint() + offset;
     QRect geo(pos, surface->size());
-    m_textureBlitter->drawTexture(texture, geo, m_window->size(), 0, false, invert_y);
+    bool onscreen = (QRect(QPoint(0, 0), m_window->size()).contains(pos));
+    if (surface->extSurface && onscreen != surface->hasSentOnScreen) {
+        surface->extSurface->sendOnScreenVisibilityChange(onscreen);
+        surface->hasSentOnScreen = onscreen;
+    }
 
-    QtWayland::SubSurface *subSurface = QtWayland::SubSurface::findIn(surface);
-    if (subSurface) {
-        foreach (QWaylandSurface *child, subSurface->subSurfaces()) {
-            drawSubSurface(pos, child);
+    if (onscreen) {
+        m_textureBlitter->drawTexture(texture, geo, m_window->size(), 0, false, invert_y);
+
+        QtWayland::SubSurface *subSurface = QtWayland::SubSurface::findIn(surface);
+        if (subSurface) {
+            foreach (QWaylandSurface *child, subSurface->subSurfaces()) {
+                drawSubSurface(pos, child);
+            }
         }
     }
 }

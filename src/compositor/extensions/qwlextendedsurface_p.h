@@ -54,10 +54,16 @@ class QWaylandSurface;
 
 namespace QtWayland {
 
-class SurfaceExtensionGlobal : public QWaylandExtensionTemplate<SurfaceExtensionGlobal>, public QtWaylandServer::qt_surface_extension
+class ExtendedSurface;
+
+class Q_COMPOSITOR_EXPORT SurfaceExtensionGlobal : public QWaylandExtensionTemplate<SurfaceExtensionGlobal>, public QtWaylandServer::qt_surface_extension
 {
+    Q_OBJECT
 public:
     SurfaceExtensionGlobal(QWaylandCompositor *compositor);
+
+Q_SIGNALS:
+    void extendedSurfaceReady(ExtendedSurface *extSurface, QWaylandSurface *surface);
 
 private:
     void surface_extension_get_extended_surface(Resource *resource,

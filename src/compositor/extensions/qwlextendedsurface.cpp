@@ -53,7 +53,8 @@ void SurfaceExtensionGlobal::surface_extension_get_extended_surface(Resource *re
                                                                     struct wl_resource *surface_resource)
 {
     QWaylandSurface *surface = QWaylandSurface::fromResource(surface_resource);
-    new ExtendedSurface(resource->client(),id, wl_resource_get_version(resource->handle), surface);
+    ExtendedSurface *extSurface = new ExtendedSurface(resource->client(),id, wl_resource_get_version(resource->handle), surface);
+    emit extendedSurfaceReady(extSurface, surface);
 }
 
 ExtendedSurface::ExtendedSurface(struct wl_client *client, uint32_t id, int version, QWaylandSurface *surface)

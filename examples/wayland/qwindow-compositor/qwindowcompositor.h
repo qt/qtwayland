@@ -56,6 +56,7 @@ QT_BEGIN_NAMESPACE
 namespace QtWayland {
     class Shell;
     class ShellSurface;
+    class ExtendedSurface;
 }
 
 class QWaylandView;
@@ -72,14 +73,14 @@ public:
 private slots:
     void surfaceMappedChanged();
     void surfaceDestroyed();
-    void surfaceCommitted();
+    void surfaceCommittedSlot();
     void surfacePosChanged();
 
     void render();
     void onSurfaceCreated(QWaylandSurface *surface);
     void onShellSurfaceCreated(QWaylandSurface *surface, QtWayland::ShellSurface *shellSurface);
 protected:
-    QWaylandView *createView() Q_DECL_OVERRIDE;
+    QWaylandSurface *createSurface(QWaylandClient *client, quint32 id, int version) Q_DECL_OVERRIDE;
     void surfaceCommitted(QWaylandSurface *surface);
 
     QWaylandView* viewAt(const QPointF &point, QPointF *local = 0);
@@ -93,7 +94,7 @@ protected:
     QImage makeBackgroundImage(const QString &fileName);
 
 private slots:
-    void sendExpose();
+    void extendedSurfaceCreated(QtWayland::ExtendedSurface *extSurface, QWaylandSurface *surface);
     void updateCursor(bool hasBuffer);
 
 private:

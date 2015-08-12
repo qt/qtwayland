@@ -102,7 +102,7 @@ QWaylandOutput *QWaylandQuickCompositor::createOutput(QWaylandOutputSpace *outpu
 
 QWaylandSurface *QWaylandQuickCompositor::createSurface(QWaylandClient *client, quint32 id, int version)
 {
-    return new QWaylandQuickSurface(client->client(), id, version, this);
+    return new QWaylandQuickSurface(client, id, version, this);
 }
 
 void QWaylandQuickCompositor::classBegin()

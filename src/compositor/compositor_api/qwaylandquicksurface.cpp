@@ -54,7 +54,7 @@ QT_BEGIN_NAMESPACE
 class QWaylandQuickSurfacePrivate : public QWaylandSurfacePrivate
 {
 public:
-    QWaylandQuickSurfacePrivate(wl_client *client, quint32 id, int version, QWaylandQuickCompositor *c)
+    QWaylandQuickSurfacePrivate(QWaylandClient *client, quint32 id, int version, QWaylandQuickCompositor *c)
         : QWaylandSurfacePrivate(client, id, version, c)
         , compositor(c)
         , useTextureAlpha(true)
@@ -71,7 +71,7 @@ public:
     bool clientRenderingEnabled;
 };
 
-QWaylandQuickSurface::QWaylandQuickSurface(wl_client *client, quint32 id, int version, QWaylandQuickCompositor *compositor)
+QWaylandQuickSurface::QWaylandQuickSurface(QWaylandClient *client, quint32 id, int version, QWaylandQuickCompositor *compositor)
                     : QWaylandSurface(new QWaylandQuickSurfacePrivate(client, id, version, compositor))
 {
 }

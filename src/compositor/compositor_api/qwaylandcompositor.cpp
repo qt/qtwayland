@@ -512,7 +512,7 @@ QWaylandOutput *QWaylandCompositor::createOutput(QWaylandOutputSpace *outputSpac
 
 QWaylandSurface *QWaylandCompositor::createSurface(QWaylandClient *client, quint32 id, int version)
 {
-    return new QWaylandSurface(client->client(), id, version, this);
+    return new QWaylandSurface(client, id, version, this);
 }
 
 void QWaylandCompositor::cleanupGraphicsResources()

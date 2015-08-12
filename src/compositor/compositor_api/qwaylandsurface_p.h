@@ -77,7 +77,7 @@ class Q_COMPOSITOR_EXPORT QWaylandSurfacePrivate : public QObjectPrivate, public
 public:
     static QWaylandSurfacePrivate *get(QWaylandSurface *surface);
 
-    QWaylandSurfacePrivate(wl_client *wlClient, quint32 id, int version, QWaylandCompositor *compositor);
+    QWaylandSurfacePrivate(QWaylandClient *client, quint32 id, int version, QWaylandCompositor *compositor);
     ~QWaylandSurfacePrivate();
 
     void refView(QWaylandView *view);

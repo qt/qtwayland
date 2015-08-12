@@ -113,11 +113,11 @@ static QRegion infiniteRegion() {
                          QPoint(std::numeric_limits<int>::max(), std::numeric_limits<int>::max())));
 }
 
-QWaylandSurfacePrivate::QWaylandSurfacePrivate(wl_client *client, quint32 id, int version, QWaylandCompositor *compositor)
-    : QtWaylandServer::wl_surface(client, id, version)
+QWaylandSurfacePrivate::QWaylandSurfacePrivate(QWaylandClient *client, quint32 id, int version, QWaylandCompositor *compositor)
+    : QtWaylandServer::wl_surface(client->client(), id, version)
     , m_compositor(compositor)
     , refCount(1)
-    , client(QWaylandClient::fromWlClient(compositor, client))
+    , client(client)
     , m_buffer(0)
     , m_inputPanelSurface(0)
     , m_inputRegion(infiniteRegion())
@@ -339,7 +339,7 @@ QtWayland::SurfaceBuffer *QWaylandSurfacePrivate::createSurfaceBuffer(struct ::w
     return newBuffer;
 }
 
-QWaylandSurface::QWaylandSurface(wl_client *client, quint32 id, int version, QWaylandCompositor *compositor)
+QWaylandSurface::QWaylandSurface(QWaylandClient *client, quint32 id, int version, QWaylandCompositor *compositor)
     : QObject(*new QWaylandSurfacePrivate(client, id, version, compositor))
 {
 }

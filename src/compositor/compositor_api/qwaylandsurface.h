@@ -76,7 +76,7 @@ public:
         OriginBottomLeft
     };
 
-    QWaylandSurface(wl_client *client, quint32 id, int version, QWaylandCompositor *compositor);
+    QWaylandSurface(QWaylandClient *client, quint32 id, int version, QWaylandCompositor *compositor);
     virtual ~QWaylandSurface();
 
     QWaylandClient *client() const;

@@ -36,14 +36,14 @@
 
 #include "qwlhwintegration_p.h"
 
-#include "qwlcompositor_p.h"
+#include <QtCompositor/QWaylandCompositor>
 
 QT_BEGIN_NAMESPACE
 
 namespace QtWayland {
 
-HardwareIntegration::HardwareIntegration(Compositor *compositor)
-    : qt_hardware_integration(compositor->wl_display(), 1)
+HardwareIntegration::HardwareIntegration(QWaylandCompositor *compositor)
+    : qt_hardware_integration(compositor->display(), 1)
 {
 }
 void HardwareIntegration::setClientBufferIntegration(const QString &name)

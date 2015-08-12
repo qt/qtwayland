@@ -43,14 +43,14 @@
 
 QT_BEGIN_NAMESPACE
 
-namespace QtWayland {
+class QWaylandCompositor;
 
-class Compositor;
+namespace QtWayland {
 
 class HardwareIntegration : public QtWaylandServer::qt_hardware_integration
 {
 public:
-    HardwareIntegration(Compositor *compositor);
+    HardwareIntegration(QWaylandCompositor *compositor);
 
     void setClientBufferIntegration(const QString &name);
     void setServerBufferIntegration(const QString &name);

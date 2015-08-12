@@ -36,7 +36,7 @@
 
 #include "qwlinputmethod_p.h"
 
-#include "qwlcompositor_p.h"
+#include <QtCompositor/QWaylandCompositor>
 #include "qwlinputdevice_p.h"
 #include "qwlinputmethodcontext_p.h"
 #include "qwlinputpanel_p.h"
@@ -48,7 +48,7 @@ QT_BEGIN_NAMESPACE
 namespace QtWayland {
 
 InputMethod::InputMethod(QWaylandCompositor *compositor, QWaylandInputDevice *seat)
-    : QtWaylandServer::wl_input_method(seat->compositor()->waylandDisplay(), 1)
+    : QtWaylandServer::wl_input_method(compositor->display(), 1)
     , m_compositor(compositor)
     , m_seat(seat)
     , m_resource(0)

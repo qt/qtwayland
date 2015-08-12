@@ -43,8 +43,8 @@
 
 QT_BEGIN_NAMESPACE
 
-XCompositeHandler::XCompositeHandler(QtWayland::Compositor *compositor, Display *display)
-    : QtWaylandServer::qt_xcomposite(compositor->wl_display(), 1)
+XCompositeHandler::XCompositeHandler(QWaylandCompositor *compositor, Display *display)
+    : QtWaylandServer::qt_xcomposite(compositor->display(), 1)
 {
     mFakeRootWindow = new QWindow();
     mFakeRootWindow->setGeometry(QRect(-1,-1,1,1));

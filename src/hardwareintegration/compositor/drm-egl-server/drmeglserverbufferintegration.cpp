@@ -161,7 +161,7 @@ void DrmEglServerBufferIntegration::initializeHardware(QWaylandCompositor *compo
         return;
     }
 
-    QtWaylandServer::qt_drm_egl_server_buffer::init(compositor->waylandDisplay(), 1);
+    QtWaylandServer::qt_drm_egl_server_buffer::init(compositor->display(), 1);
 }
 
 bool DrmEglServerBufferIntegration::supportsFormat(QtWayland::ServerBuffer::Format format) const

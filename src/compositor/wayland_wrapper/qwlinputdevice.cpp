@@ -36,12 +36,12 @@
 
 #include "qwlinputdevice_p.h"
 
-#include "qwlcompositor_p.h"
+#include <QtCompositor/QWaylandCompositor>
+#include <QtCompositor/private/qwaylandcompositor_p.h>
 #include "qwldatadevice_p.h"
 #include "qwlinputmethod_p.h"
 #include "qwlqttouch_p.h"
 #include "qwlqtkey_p.h"
-#include "qwaylandcompositor.h"
 #include "qwaylanddrag.h"
 #include "qwlpointer_p.h"
 #include "qwlkeyboard_p.h"
@@ -55,7 +55,7 @@ QT_BEGIN_NAMESPACE
 
 QWaylandInputDevicePrivate::QWaylandInputDevicePrivate(QWaylandInputDevice *inputdevice, QWaylandCompositor *compositor)
     : QObjectPrivate()
-    , QtWaylandServer::wl_seat(compositor->waylandDisplay(), 3)
+    , QtWaylandServer::wl_seat(compositor->display(), 3)
     , m_dragHandle(new QWaylandDrag(inputdevice))
     , m_compositor(compositor)
     , m_outputSpace(compositor->primaryOutputSpace())
@@ -109,15 +109,15 @@ void QWaylandInputDevicePrivate::setCapabilities(QWaylandInputDevice::Capability
         QWaylandInputDevice::CapabilityFlags changed = caps ^ m_capabilities;
 
         if (changed & QWaylandInputDevice::Pointer) {
-            m_pointer.reset(m_pointer.isNull() ? compositor()->handle()->callCreatePointerDevice(q) : 0);
+            m_pointer.reset(m_pointer.isNull() ? QWaylandCompositorPrivate::get(compositor())->callCreatePointerDevice(q) : 0);
         }
 
         if (changed & QWaylandInputDevice::Keyboard) {
-            m_keyboard.reset(m_keyboard.isNull() ? compositor()->handle()->callCreateKeyboardDevice(q) : 0);
+            m_keyboard.reset(m_keyboard.isNull() ? QWaylandCompositorPrivate::get(compositor())->callCreateKeyboardDevice(q) : 0);
         }
 
         if (changed & QWaylandInputDevice::Touch) {
-            m_touch.reset(m_touch.isNull() ? compositor()->handle()->callCreateTouchDevice(q) : 0);
+            m_touch.reset(m_touch.isNull() ? QWaylandCompositorPrivate::get(compositor())->callCreateTouchDevice(q) : 0);
         }
 
         m_capabilities = caps;

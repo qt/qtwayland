@@ -37,13 +37,13 @@
 #ifndef WLTOUCH_H
 #define WLTOUCH_H
 
-#include <private/qwlcompositor_p.h>
 #include <QtCompositor/private/qwayland-server-touch-extension.h>
+#include <QtCompositor/QWaylandCompositor>
+#include <QtCompositor/QWaylandExtensionTemplate>
 #include "wayland-util.h"
 
 QT_BEGIN_NAMESPACE
 
-class Compositor;
 class Surface;
 class QTouchEvent;
 class QWaylandView;
@@ -62,7 +62,7 @@ public:
     };
     Q_DECLARE_FLAGS(BehaviorFlags, BehaviorFlag)
 
-    TouchExtensionGlobal(Compositor *compositor);
+    TouchExtensionGlobal(QWaylandCompositor *compositor);
     ~TouchExtensionGlobal();
 
     bool postTouchEvent(QTouchEvent *event, QWaylandView *view);
@@ -78,7 +78,7 @@ protected:
     void touch_extension_destroy_resource(Resource *resource) Q_DECL_OVERRIDE;
 
 private:
-    Compositor *m_compositor;
+    QWaylandCompositor *m_compositor;
     BehaviorFlags m_flags;
     QList<Resource *> m_resources;
     QVector<float> m_posData;

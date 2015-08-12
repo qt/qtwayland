@@ -37,7 +37,7 @@
 
 #include "qwltouch_p.h"
 
-#include "qwlcompositor_p.h"
+#include <QtCompositor/QWaylandCompositor>
 #include "qwaylandview.h"
 #include "qwlqttouch_p.h"
 

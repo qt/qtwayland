@@ -50,7 +50,7 @@ class WaylandEglClientBufferIntegration : public QtWayland::ClientBufferIntegrat
 public:
     WaylandEglClientBufferIntegration();
 
-    void initializeHardware(QtWayland::Display *waylandDisplay) Q_DECL_OVERRIDE;
+    void initializeHardware(struct ::wl_display *display) Q_DECL_OVERRIDE;
 
     void bindTextureToBuffer(struct ::wl_resource *buffer) Q_DECL_OVERRIDE;
     QWaylandSurface::Origin origin(struct ::wl_resource *) const Q_DECL_OVERRIDE;

@@ -38,7 +38,7 @@
 
 #include "wayland-xcomposite-server-protocol.h"
 
-#include <QtCompositor/private/qwlcompositor_p.h>
+#include <QtCompositor/QWaylandCompositor>
 #include <QtGui/QGuiApplication>
 #include <qpa/qplatformnativeinterface.h>
 #include <qpa/qplatformopenglcontext.h>
@@ -70,7 +70,7 @@ XCompositeEglClientBufferIntegration::XCompositeEglClientBufferIntegration()
 
 }
 
-void XCompositeEglClientBufferIntegration::initializeHardware(QtWayland::Display *)
+void XCompositeEglClientBufferIntegration::initializeHardware(struct ::wl_display *)
 {
     QPlatformNativeInterface *nativeInterface = QGuiApplication::platformNativeInterface();
     if (nativeInterface) {
@@ -84,7 +84,7 @@ void XCompositeEglClientBufferIntegration::initializeHardware(QtWayland::Display
         qFatal("Platform integration doesn't have native interface");
     }
     mScreen = XDefaultScreen(mDisplay);
-    new XCompositeHandler(m_compositor->handle(), mDisplay);
+    new XCompositeHandler(m_compositor, mDisplay);
 }
 
 void XCompositeEglClientBufferIntegration::bindTextureToBuffer(struct ::wl_resource *buffer)

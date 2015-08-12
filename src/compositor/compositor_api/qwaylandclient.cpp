@@ -34,11 +34,12 @@
 **
 ****************************************************************************/
 
-#include <private/qobject_p.h>
-
-#include "wayland_wrapper/qwlcompositor_p.h"
-#include "qwaylandcompositor.h"
 #include "qwaylandclient.h"
+#include <QtCore/private/qobject_p.h>
+
+#include <QtCompositor/QWaylandCompositor>
+#include <QtCompositor/private/qwaylandcompositor_p.h>
+
 
 #include <wayland-server.h>
 #include <wayland-util.h>
@@ -93,7 +94,7 @@ QWaylandClient::QWaylandClient(QWaylandCompositor *compositor, wl_client *client
     d->listener.listener.notify = QWaylandClientPrivate::client_destroy_callback;
     wl_client_add_destroy_listener(client, &d->listener.listener);
 
-    compositor->handle()->m_clients.append(this);
+    QWaylandCompositorPrivate::get(compositor)->addClient(this);
 }
 
 QWaylandClient::~QWaylandClient()
@@ -103,7 +104,7 @@ QWaylandClient::~QWaylandClient()
     // Remove listener from signal
     wl_list_remove(&d->listener.listener.link);
 
-    d->compositor->handle()->m_clients.removeOne(this);
+    QWaylandCompositorPrivate::get(d->compositor)->removeClient(this);
 }
 
 QWaylandClient *QWaylandClient::fromWlClient(QWaylandCompositor *compositor, wl_client *wlClient)

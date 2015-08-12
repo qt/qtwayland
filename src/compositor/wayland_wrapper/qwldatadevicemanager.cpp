@@ -36,14 +36,14 @@
 
 #include "qwldatadevicemanager_p.h"
 
+#include <QtCompositor/QWaylandCompositor>
+
+#include <QtCompositor/private/qwaylandcompositor_p.h>
 #include "qwldatadevice_p.h"
 #include "qwldatasource_p.h"
 #include "qwlinputdevice_p.h"
-#include "qwlcompositor_p.h"
 #include "qwldataoffer_p.h"
 #include "qwaylandmimehelper.h"
-
-#include <QtCompositor/private/qwaylandsurface_p.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QSocketNotifier>
@@ -55,9 +55,9 @@ QT_BEGIN_NAMESPACE
 
 namespace QtWayland {
 
-DataDeviceManager::DataDeviceManager(Compositor *compositor)
+DataDeviceManager::DataDeviceManager(QWaylandCompositor *compositor)
     : QObject(0)
-    , wl_data_device_manager(compositor->wl_display(), 1)
+    , wl_data_device_manager(compositor->display(), 1)
     , m_compositor(compositor)
     , m_current_selection_source(0)
     , m_retainedReadNotifier(0)
@@ -105,7 +105,7 @@ void DataDeviceManager::retain()
     QList<QString> offers = m_current_selection_source->mimeTypes();
     finishReadFromClient();
     if (m_retainedReadIndex >= offers.count()) {
-        m_compositor->feedRetainedSelectionData(&m_retainedData);
+        QWaylandCompositorPrivate::get(m_compositor)->feedRetainedSelectionData(&m_retainedData);
         return;
     }
     QString mimeType = offers.at(m_retainedReadIndex);
@@ -182,7 +182,7 @@ DataSource *DataDeviceManager::currentSelectionSource()
 
 struct wl_display *DataDeviceManager::display() const
 {
-    return m_compositor->wl_display();
+    return m_compositor->display();
 }
 
 void DataDeviceManager::overrideSelection(const QMimeData &mimeData)
@@ -195,7 +195,7 @@ void DataDeviceManager::overrideSelection(const QMimeData &mimeData)
     foreach (const QString &format, formats)
         m_retainedData.setData(format, mimeData.data(format));
 
-    m_compositor->feedRetainedSelectionData(&m_retainedData);
+    QWaylandCompositorPrivate::get(m_compositor)->feedRetainedSelectionData(&m_retainedData);
 
     m_compositorOwnsSelection = true;
 

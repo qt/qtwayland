@@ -49,7 +49,6 @@
 QT_BEGIN_NAMESPACE
 
 namespace QtWayland {
-class Compositor;
 class TextInput;
 }
 
@@ -58,7 +57,7 @@ class Q_COMPOSITOR_EXPORT QWaylandInputPanelPrivate : public QWaylandExtensionTe
 {
     Q_DECLARE_PUBLIC(QWaylandInputPanel)
 public:
-    QWaylandInputPanelPrivate(QtWayland::Compositor *compositor);
+    QWaylandInputPanelPrivate(QWaylandCompositor *compositor);
     ~QWaylandInputPanelPrivate();
 
     QWaylandInputPanel *waylandInputPanel() const;
@@ -77,7 +76,7 @@ protected:
     void input_panel_get_input_panel_surface(Resource *resource, uint32_t id, struct ::wl_resource *surface) Q_DECL_OVERRIDE;
 
 private:
-    QtWayland::Compositor *m_compositor;
+    QWaylandCompositor *m_compositor;
 
     QWaylandSurface *m_focus;
     bool m_inputPanelVisible;

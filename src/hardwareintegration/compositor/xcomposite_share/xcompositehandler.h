@@ -37,7 +37,7 @@
 #ifndef XCOMPOSITEHANDLER_H
 #define XCOMPOSITEHANDLER_H
 
-#include <QtCompositor/private/qwlcompositor_p.h>
+#include <QtCompositor/QWaylandCompositor>
 
 #include "xlibinclude.h"
 
@@ -49,7 +49,7 @@ QT_BEGIN_NAMESPACE
 class XCompositeHandler : public QtWaylandServer::qt_xcomposite
 {
 public:
-    XCompositeHandler(QtWayland::Compositor *compositor, Display *display);
+    XCompositeHandler(QWaylandCompositor *compositor, Display *display);
 
 private:
     QWindow *mFakeRootWindow;

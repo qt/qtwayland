@@ -38,7 +38,6 @@
 #include "qwldataoffer_p.h"
 #include "qwldatadevice_p.h"
 #include "qwldatadevicemanager_p.h"
-#include "qwlcompositor_p.h"
 
 #include <unistd.h>
 #include <QtCompositor/private/wayland-wayland-server-protocol.h>

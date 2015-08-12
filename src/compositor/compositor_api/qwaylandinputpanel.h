@@ -49,10 +49,6 @@ class QWaylandCompositor;
 class QWaylandInputPanelPrivate;
 class QWaylandSurface;
 
-namespace QtWayland {
-class InputPanel;
-}
-
 class Q_COMPOSITOR_EXPORT QWaylandInputPanel : public QWaylandExtensionTemplate<QWaylandInputPanel>
 {
     Q_OBJECT

@@ -37,12 +37,12 @@
 #ifndef WLDATADEVICEMANAGER_H
 #define WLDATADEVICEMANAGER_H
 
-#include <private/qwlcompositor_p.h>
-
 #include <QtCore/QList>
 #include <QtCore/QMap>
 #include <QtGui/QClipboard>
 #include <QtCore/QMimeData>
+
+#include <QtCompositor/QWaylandCompositor>
 
 #include <QtCompositor/private/qwayland-server-wayland.h>
 
@@ -52,8 +52,6 @@ class QSocketNotifier;
 
 namespace QtWayland {
 
-class Compositor;
-
 class DataDevice;
 class DataSource;
 
@@ -62,7 +60,7 @@ class DataDeviceManager : public QObject, public QtWaylandServer::wl_data_device
     Q_OBJECT
 
 public:
-    DataDeviceManager(Compositor *compositor);
+    DataDeviceManager(QWaylandCompositor *compositor);
 
     void setCurrentSelectionSource(DataSource *source);
     DataSource *currentSelectionSource();
@@ -86,7 +84,7 @@ private:
     void retain();
     void finishReadFromClient(bool exhausted = false);
 
-    Compositor *m_compositor;
+    QWaylandCompositor *m_compositor;
     QList<DataDevice *> m_data_device_list;
 
     DataSource *m_current_selection_source;

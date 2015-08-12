@@ -36,7 +36,7 @@
 
 #include "waylandeglclientbufferintegration.h"
 
-#include <QtCompositor/private/qwlcompositor_p.h>
+#include <QtCompositor/QWaylandCompositor>
 #include <qpa/qplatformnativeinterface.h>
 #include <QtGui/QGuiApplication>
 #include <QtGui/QOpenGLContext>
@@ -102,7 +102,7 @@ WaylandEglClientBufferIntegration::WaylandEglClientBufferIntegration()
 {
 }
 
-void WaylandEglClientBufferIntegration::initializeHardware(QtWayland::Display *waylandDisplay)
+void WaylandEglClientBufferIntegration::initializeHardware(struct wl_display *display)
 {
     Q_D(WaylandEglClientBufferIntegration);
 
@@ -153,7 +153,7 @@ void WaylandEglClientBufferIntegration::initializeHardware(QtWayland::Display *w
     }
 
     if (d->egl_bind_wayland_display && d->egl_unbind_wayland_display) {
-        d->display_bound = d->egl_bind_wayland_display(d->egl_display, waylandDisplay->handle());
+        d->display_bound = d->egl_bind_wayland_display(d->egl_display, display);
         if (!d->display_bound) {
             if (!ignoreBindDisplay) {
                 qWarning("QtCompositor: Failed to initialize EGL display. Could not bind Wayland display.");

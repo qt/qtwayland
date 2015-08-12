@@ -53,6 +53,7 @@ class QInputEvent;
 class QMimeData;
 class QUrl;
 class QOpenGLContext;
+class QWaylandCompositorPrivate;
 class QWaylandClient;
 class QWaylandSurface;
 class QWaylandInputDevice;
@@ -65,14 +66,10 @@ class QWaylandPointer;
 class QWaylandKeyboard;
 class QWaylandTouch;
 
-namespace QtWayland
-{
-    class Compositor;
-}
-
 class Q_COMPOSITOR_EXPORT QWaylandCompositor : public QObject, public QWaylandExtensionContainer
 {
     Q_OBJECT
+    Q_DECLARE_PRIVATE(QWaylandCompositor)
     Q_PROPERTY(QByteArray socketName READ socketName WRITE setSocketName)
     Q_PROPERTY(QWaylandCompositor::ExtensionFlags extensionFlags READ extensionFlags WRITE setExtensionFlags)
     Q_PROPERTY(bool retainedSelection READ retainedSelectionEnabled WRITE setRetainedSelectionEnabled)
@@ -105,7 +102,7 @@ public:
     void setExtensionFlags(ExtensionFlags flags);
     ExtensionFlags extensionFlags() const;
 
-    ::wl_display *waylandDisplay() const;
+    ::wl_display *display() const;
     uint32_t nextSerial();
 
     QList<QWaylandClient *>clients() const;
@@ -125,8 +122,6 @@ public:
 
     uint currentTimeMsecs() const;
 
-    QtWayland::Compositor *handle() const;
-
     void setRetainedSelectionEnabled(bool enabled);
     bool retainedSelectionEnabled() const;
     void overrideSelection(const QMimeData *data);
@@ -139,11 +134,13 @@ public:
     void sendDragMoveEvent(const QPoint &global, const QPoint &local, QWaylandSurface *surface);
     void sendDragEndEvent();
 
-    void cleanupGraphicsResources();
-
     QWaylandView *createSurfaceView(QWaylandSurface *surface);
 
     QWaylandInputDevice *inputDeviceFor(QInputEvent *inputEvent);
+
+public Q_SLOTS:
+    void cleanupGraphicsResources();
+    void processWaylandEvents();
 
 Q_SIGNALS:
     void surfaceCreated(QWaylandSurface *surface);
@@ -156,7 +153,6 @@ Q_SIGNALS:
     void outputSpacesChanged();
 
 protected:
-    QWaylandCompositor(QtWayland::Compositor *dptr);
     virtual void retainedSelectionReceived(QMimeData *mimeData);
     virtual QWaylandOutput *createOutput(QWaylandOutputSpace *outputSpace,
                                          QWindow *window,
@@ -168,10 +164,7 @@ protected:
     virtual QWaylandKeyboard *createKeyboardDevice(QWaylandInputDevice *inputDevice);
     virtual QWaylandTouch *createTouchDevice(QWaylandInputDevice *inputDevice);
 
-
-    friend class QtWayland::Compositor;
-    friend class QWaylandOutputSpacePrivate;
-    QtWayland::Compositor *m_compositor;
+    QWaylandCompositor(QWaylandCompositorPrivate *dptr);
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QWaylandCompositor::ExtensionFlags)

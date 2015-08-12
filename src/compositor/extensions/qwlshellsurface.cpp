@@ -37,7 +37,8 @@
 
 #include "qwlshellsurface_p.h"
 
-#include "qwlcompositor_p.h"
+#include <QtCompositor/QWaylandCompositor>
+
 #include "qwloutput_p.h"
 #include "qwlinputdevice_p.h"
 #include "qwlsubsurface_p.h"
@@ -57,7 +58,7 @@ namespace QtWayland {
 
 Shell::Shell(QWaylandCompositor *compositor)
     : QWaylandExtensionTemplate(compositor)
-    , wl_shell(compositor->waylandDisplay(), 1)
+    , wl_shell(compositor->display(), 1)
 {
 }
 
@@ -107,7 +108,7 @@ void ShellSurface::sendConfigure(uint32_t edges, int32_t width, int32_t height)
 
 void ShellSurface::ping()
 {
-    uint32_t serial = wl_display_next_serial(m_surface->compositor()->waylandDisplay());
+    uint32_t serial = m_surface->compositor()->nextSerial();
     ping(serial);
 }
 

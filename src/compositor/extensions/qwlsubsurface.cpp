@@ -36,7 +36,7 @@
 
 #include "qwlsubsurface_p.h"
 
-#include "qwlcompositor_p.h"
+#include <QtCompositor/QWaylandCompositor>
 #include "qwaylandsurface.h"
 #include "qwaylandview.h"
 
@@ -46,7 +46,7 @@ namespace QtWayland {
 
 SubSurfaceExtensionGlobal::SubSurfaceExtensionGlobal(QWaylandCompositor *compositor)
     : QWaylandExtensionTemplate(compositor)
-    , qt_sub_surface_extension(compositor->waylandDisplay(), 1)
+    , qt_sub_surface_extension(compositor->display(), 1)
     , m_compositor(compositor)
 {
 }

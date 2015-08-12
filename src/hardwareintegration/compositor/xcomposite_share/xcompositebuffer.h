@@ -37,9 +37,9 @@
 #ifndef XCOMPOSITEBUFFER_H
 #define XCOMPOSITEBUFFER_H
 
-#include <private/qwlcompositor_p.h>
 #include <qwayland-server-wayland.h>
 #include <QtCompositor/QWaylandSurface>
+#include <QtCompositor/QWaylandCompositor>
 
 #include <QtCore/QSize>
 

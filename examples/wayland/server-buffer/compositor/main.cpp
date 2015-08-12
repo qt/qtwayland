@@ -57,7 +57,8 @@
 
 #include "qwayland-server-share-buffer.h"
 #include <QtCompositor/qwaylandoutput.h>
-#include <QtCompositor/private/qwlcompositor_p.h>
+#include <QtCompositor/QWaylandCompositor>
+#include <QtCompositor/private/qwaylandcompositor_p.h>
 #include <QtCompositor/private/qwlserverbufferintegration_p.h>
 
 #include "serverbufferitem.h"
@@ -73,7 +74,7 @@ class QmlCompositor
 public:
     QmlCompositor()
         : QWaylandQuickCompositor()
-        , QtWaylandServer::qt_share_buffer(QWaylandCompositor::handle()->wl_display(), 1)
+        , QtWaylandServer::qt_share_buffer(QWaylandCompositor::display(), 1)
         , m_server_buffer_32_bit(0)
         , m_server_buffer_item_32_bit(0)
         , m_server_buffer_8_bit(0)
@@ -138,12 +139,12 @@ private slots:
 
     void initiateServerBuffer()
     {
-        if (!QWaylandCompositor::handle()->serverBufferIntegration())
+        if (!QWaylandCompositorPrivate::get(this)->serverBufferIntegration())
             return;
 
         m_view.openglContext()->makeCurrent(&m_view);
 
-        QtWayland::ServerBufferIntegration *sbi = QWaylandCompositor::handle()->serverBufferIntegration();
+        QtWayland::ServerBufferIntegration *sbi = QWaylandCompositorPrivate::get(this)->serverBufferIntegration();
         if (!sbi) {
             qWarning("Could not find a Server Buffer Integration");
             return;

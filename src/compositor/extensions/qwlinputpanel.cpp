@@ -37,8 +37,8 @@
 #include "qwlinputpanel_p.h"
 
 #include <QtCompositor/qwaylandinputpanel.h>
+#include <QtCompositor/QWaylandCompositor>
 
-#include "qwlcompositor_p.h"
 #include "qwlinputdevice_p.h"
 #include "qwlinputmethod_p.h"
 #include "qwlinputpanelsurface_p.h"
@@ -46,15 +46,15 @@
 
 QT_BEGIN_NAMESPACE
 
-QWaylandInputPanelPrivate::QWaylandInputPanelPrivate(QtWayland::Compositor *compositor)
-    : QWaylandExtensionTemplatePrivate(compositor->waylandCompositor())
+QWaylandInputPanelPrivate::QWaylandInputPanelPrivate(QWaylandCompositor *compositor)
+    : QWaylandExtensionTemplatePrivate(compositor)
     , QtWaylandServer::wl_input_panel()
     , m_compositor(compositor)
     , m_focus()
     , m_inputPanelVisible(false)
     , m_cursorRectangle()
 {
-    init(compositor->wl_display(), 1);
+    init(compositor->display(), 1);
 }
 
 QWaylandInputPanelPrivate::~QWaylandInputPanelPrivate()

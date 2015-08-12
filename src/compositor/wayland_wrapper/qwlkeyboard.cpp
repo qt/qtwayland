@@ -37,12 +37,12 @@
 
 #include "qwlkeyboard_p.h"
 #include "qwlshellsurface_p.h"
+
 #include <QFile>
 #include <QStandardPaths>
 
 #include <QtCompositor/QWaylandClient>
-
-#include "qwlcompositor_p.h"
+#include <QtCompositor/QWaylandCompositor>
 
 #include <fcntl.h>
 #include <unistd.h>
@@ -115,7 +115,7 @@ void QWaylandKeyboardPrivate::focused(QWaylandSurface *surface)
     if (surface && surface->isCursorSurface())
         surface = Q_NULLPTR;
     if (m_focusResource && m_focus != surface) {
-        uint32_t serial = wl_display_next_serial(compositor()->waylandDisplay());
+        uint32_t serial = compositor()->nextSerial();
         send_leave(m_focusResource->handle, serial, m_focus->resource());
         m_focusDestroyListener.reset();
     }
@@ -123,7 +123,7 @@ void QWaylandKeyboardPrivate::focused(QWaylandSurface *surface)
     Resource *resource = surface ? resourceMap().value(surface->waylandClient()) : 0;
 
     if (resource && (m_focus != surface || m_focusResource != resource)) {
-        uint32_t serial = wl_display_next_serial(compositor()->waylandDisplay());
+        uint32_t serial = compositor()->nextSerial();
         send_modifiers(resource->handle, serial, m_modsDepressed, m_modsLatched, m_modsLocked, m_group);
         send_enter(resource->handle, serial, surface->resource(), QByteArray::fromRawData((char *)m_keys.data(), m_keys.size() * sizeof(uint32_t)));
         m_focusDestroyListener.listenForDestruction(surface->resource());
@@ -227,7 +227,7 @@ void QWaylandKeyboardPrivate::keyEvent(uint code, uint32_t state)
 void QWaylandKeyboardPrivate::sendKeyEvent(uint code, uint32_t state)
 {
     uint32_t time = compositor()->currentTimeMsecs();
-    uint32_t serial = wl_display_next_serial(compositor()->waylandDisplay());
+    uint32_t serial = compositor()->nextSerial();
     uint key = code - 8;
     m_grab->key(serial, time, key, state);
 }
@@ -264,7 +264,7 @@ void QWaylandKeyboardPrivate::updateModifierState(uint code, uint32_t state)
     m_modsLocked = modsLocked;
     m_group = group;
 
-    m_grab->modifiers(wl_display_next_serial(compositor()->waylandDisplay()), m_modsDepressed, m_modsLatched, m_modsLocked, m_group);
+    m_grab->modifiers(compositor()->nextSerial(), m_modsDepressed, m_modsLatched, m_modsLocked, m_group);
 #else
     Q_UNUSED(code);
     Q_UNUSED(state);
@@ -290,7 +290,7 @@ void QWaylandKeyboardPrivate::updateKeymap()
 
     xkb_state_update_mask(m_state, 0, m_modsLatched, m_modsLocked, 0, 0, 0);
     if (m_focusResource)
-        sendKeyModifiers(m_focusResource, wl_display_next_serial(compositor()->waylandDisplay()));
+        sendKeyModifiers(m_focusResource, compositor()->nextSerial());
 #endif
 }
 

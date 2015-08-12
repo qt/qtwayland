@@ -35,8 +35,6 @@
 **
 ****************************************************************************/
 
-#include <QtCompositor/private/qwlcompositor_p.h>
-
 #include <QtQml/QQmlEngine>
 
 #include "qwaylandclient.h"

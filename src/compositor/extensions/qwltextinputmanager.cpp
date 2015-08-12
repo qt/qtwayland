@@ -36,16 +36,16 @@
 
 #include "qwltextinputmanager_p.h"
 
-#include "qwlcompositor_p.h"
+#include <QtCompositor/QWaylandCompositor>
 #include "qwltextinput_p.h"
 
 QT_BEGIN_NAMESPACE
 
 namespace QtWayland {
 
-TextInputManager::TextInputManager(Compositor *compositor)
-    : QWaylandExtensionTemplate(compositor->waylandCompositor())
-    , QtWaylandServer::wl_text_input_manager(compositor->wl_display(), 1)
+TextInputManager::TextInputManager(QWaylandCompositor *compositor)
+    : QWaylandExtensionTemplate(compositor)
+    , QtWaylandServer::wl_text_input_manager(compositor->display(), 1)
     , m_compositor(compositor)
 {
 }

@@ -42,6 +42,7 @@
 #include "qwaylandoutputspace.h"
 #include "qwaylandcompositor.h"
 #include "wayland_wrapper/qwloutput_p.h"
+#include <QtCompositor/private/qwaylandcompositor_p.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -85,7 +86,7 @@ public:
                                        bool primary)
     {
         Q_Q(QWaylandOutputSpace);
-        QWaylandOutput *output = compositor->createOutput(q, window, manufacturer, model);
+        QWaylandOutput *output = QWaylandCompositorPrivate::get(compositor)->callCreateOutput(q, window, manufacturer, model);
         addOutput(output, primary);
         return output;
     }

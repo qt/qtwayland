@@ -54,7 +54,7 @@ QWaylandWindowManagerExtensionPrivate::QWaylandWindowManagerExtensionPrivate(QWa
     , m_showIsFullScreen(false)
     , m_compositor(compositor)
 {
-    init(compositor->waylandDisplay(), 1);
+    init(compositor->display(), 1);
 }
 
 void QWaylandWindowManagerExtension::setShowIsFullScreen(bool value)

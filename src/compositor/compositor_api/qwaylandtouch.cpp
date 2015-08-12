@@ -63,7 +63,7 @@ void QWaylandDefaultTouchGrabber::down(uint32_t time, int touch_id, const QPoint
     if (!touch->focusResource() || !touch->mouseFocus())
         return;
 
-    uint32_t serial = wl_display_next_serial(touch->compositor()->waylandDisplay());
+    uint32_t serial = touch->compositor()->nextSerial();
 
     wl_touch_send_down(touch->focusResource(), serial, time, touch->mouseFocus()->surfaceResource(), touch_id,
                        wl_fixed_from_double(position.x()), wl_fixed_from_double(position.y()));

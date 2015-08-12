@@ -36,7 +36,6 @@
 
 #include "qwldatadevice_p.h"
 
-#include "qwlcompositor_p.h"
 #include "qwldatasource_p.h"
 #include "qwldataoffer_p.h"
 #include "qwlinputdevice_p.h"
@@ -49,6 +48,7 @@
 #include "qwaylanddrag.h"
 #include "qwaylandview.h"
 #include <QtCompositor/QWaylandClient>
+#include <QtCompositor/private/qwaylandcompositor_p.h>
 
 #include <QtCore/QPointF>
 #include <QDebug>
@@ -105,7 +105,7 @@ void DataDevice::setDragFocus(QWaylandView *focus, const QPointF &localPosition)
     if (!resource)
         return;
 
-    uint32_t serial = wl_display_next_serial(m_compositor->waylandDisplay());
+    uint32_t serial = m_compositor->nextSerial();
 
     DataOffer *offer = m_dragDataSource ? new DataOffer(m_dragDataSource, resource) : 0;
 
@@ -208,7 +208,7 @@ void DataDevice::data_device_set_selection(Resource *, struct ::wl_resource *sou
         m_selectionSource->cancel();
 
     m_selectionSource = dataSource;
-    m_compositor->handle()->dataDeviceManager()->setCurrentSelectionSource(m_selectionSource);
+    QWaylandCompositorPrivate::get(m_compositor)->dataDeviceManager()->setCurrentSelectionSource(m_selectionSource);
     if (m_selectionSource)
         m_selectionSource->setDevice(this);
 

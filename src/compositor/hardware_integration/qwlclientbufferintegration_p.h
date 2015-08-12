@@ -59,7 +59,7 @@ public:
 
     void setCompositor(QWaylandCompositor *compositor) { m_compositor = compositor; }
 
-    virtual void initializeHardware(QtWayland::Display *waylandDisplay) = 0;
+    virtual void initializeHardware(struct ::wl_display *display) = 0;
 
     // Used when the hardware integration wants to provide its own texture for a given buffer.
     // In most cases the compositor creates and manages the texture so this is not needed.

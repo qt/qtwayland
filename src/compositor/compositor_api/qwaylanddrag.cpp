@@ -38,7 +38,6 @@
 
 #include <private/qobject_p.h>
 
-#include "qwlcompositor_p.h"
 #include "qwlinputdevice_p.h"
 #include "qwldatadevice_p.h"
 #include "qwaylandview.h"

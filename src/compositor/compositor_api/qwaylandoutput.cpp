@@ -46,7 +46,6 @@
 #include <QtGui/QExposeEvent>
 #include <private/qobject_p.h>
 
-#include "wayland_wrapper/qwlcompositor_p.h"
 #include "wayland_wrapper/qwloutput_p.h"
 
 QT_BEGIN_NAMESPACE

@@ -40,7 +40,6 @@
 
 #include <private/qobject_p.h>
 
-#include "wayland_wrapper/qwlcompositor_p.h"
 #include "wayland_wrapper/qwlinputdevice_p.h"
 #include "wayland_wrapper/qwldatadevice_p.h"
 #include "wayland_wrapper/qwldatadevicemanager_p.h"
@@ -49,10 +48,13 @@
 #include "extensions/qwlextendedsurface_p.h"
 #include "extensions/qwlsubsurface_p.h"
 
-#include "qwaylandcompositor.h"
-#include "qwaylandclient.h"
-#include "qwaylandview_p.h"
-#include "qwaylandbufferref.h"
+#include <QtCompositor/QWaylandCompositor>
+#include <QtCompositor/QWaylandClient>
+#include <QtCompositor/QWaylandView>
+#include <QtCompositor/QWaylandBufferRef>
+
+#include <QtCompositor/private/qwaylandcompositor_p.h>
+#include <QtCompositor/private/qwaylandview_p.h>
 
 #include <QtGui/QGuiApplication>
 #include <QtGui/QScreen>
@@ -350,7 +352,7 @@ QWaylandSurface::QWaylandSurface(QWaylandSurfacePrivate *dptr)
 QWaylandSurface::~QWaylandSurface()
 {
     Q_D(QWaylandSurface);
-    d->m_compositor->handle()->unregisterSurface(this);
+    QWaylandCompositorPrivate::get(d->m_compositor)->unregisterSurface(this);
     d->notifyViewsAboutDestruction();
 }
 
@@ -447,7 +449,7 @@ void QWaylandSurface::updateSelection()
     if (inputDevice) {
         const QtWayland::DataDevice *dataDevice = QWaylandInputDevicePrivate::get(inputDevice)->dataDevice();
         if (dataDevice) {
-            d->compositor()->handle()->dataDeviceManager()->offerRetainedSelection(
+            QWaylandCompositorPrivate::get(d->compositor())->dataDeviceManager()->offerRetainedSelection(
                         dataDevice->resourceMap().value(d->resource()->client())->handle);
         }
     }
@@ -463,7 +465,7 @@ void QWaylandSurface::deref()
 {
     Q_D(QWaylandSurface);
     if (--d->refCount == 0)
-        compositor()->handle()->destroySurface(this);
+        QWaylandCompositorPrivate::get(compositor())->destroySurface(this);
 }
 
 QWaylandView *QWaylandSurface::throttlingView() const

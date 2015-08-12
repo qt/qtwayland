@@ -36,15 +36,15 @@
 
 #include "qwlextendedsurface_p.h"
 
-#include "qwlcompositor_p.h"
+#include <QtCompositor/QWaylandCompositor>
 
 QT_BEGIN_NAMESPACE
 
 namespace QtWayland {
 
-SurfaceExtensionGlobal::SurfaceExtensionGlobal(Compositor *compositor)
-    : QWaylandExtensionTemplate(compositor->waylandCompositor())
-    , QtWaylandServer::qt_surface_extension(compositor->wl_display(), 1)
+SurfaceExtensionGlobal::SurfaceExtensionGlobal(QWaylandCompositor *compositor)
+    : QWaylandExtensionTemplate(compositor)
+    , QtWaylandServer::qt_surface_extension(compositor->display(), 1)
 {
 }
 

@@ -39,7 +39,6 @@
 #include <QtCompositor/qwaylandcompositor.h>
 #include <QtCompositor/qwaylandinput.h>
 #include <QtCompositor/qwaylandbufferref.h>
-#include <QtCompositor/private/qwlcompositor_p.h>
 #include <QtCompositor/private/qwlclientbufferintegration_p.h>
 
 #include <QtGui/QKeyEvent>

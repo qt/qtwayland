@@ -46,7 +46,7 @@
 #include <QtCompositor/QWaylandOutput>
 #include <QtCompositor/QWaylandOutputSpace>
 
-#include <QtCompositor/private/qwlcompositor_p.h>
+#include <QtCompositor/QWaylandCompositor>
 
 #include <QtCompositor/qwaylandexport.h>
 #include "qwaylandmousetracker_p.h"

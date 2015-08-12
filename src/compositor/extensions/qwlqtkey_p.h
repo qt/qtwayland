@@ -37,16 +37,15 @@
 #ifndef WLQTKEY_H
 #define WLQTKEY_H
 
-#include  <private/qwlcompositor_p.h>
-
 #include "wayland-util.h"
 
+#include <QtCompositor/QWaylandExtensionTemplate>
+#include <QtCompositor/QWaylandCompositor>
 #include <QtCompositor/private/qwayland-server-qtkey-extension.h>
 
 QT_BEGIN_NAMESPACE
 
 class QWaylandSurface;
-class Compositor;
 class QKeyEvent;
 
 namespace QtWayland {
@@ -55,12 +54,12 @@ class QtKeyExtensionGlobal : public QWaylandExtensionTemplate<QtKeyExtensionGlob
 {
     Q_OBJECT
 public:
-    QtKeyExtensionGlobal(Compositor *compositor);
+    QtKeyExtensionGlobal(QWaylandCompositor *compositor);
 
     bool postQtKeyEvent(QKeyEvent *event, QWaylandSurface *surface);
 
 private:
-    Compositor *m_compositor;
+    QWaylandCompositor *m_compositor;
 };
 
 }

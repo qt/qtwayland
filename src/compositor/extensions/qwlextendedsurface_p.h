@@ -49,16 +49,15 @@
 
 QT_BEGIN_NAMESPACE
 
+class QWaylandCompositor;
 class QWaylandSurface;
 
 namespace QtWayland {
 
-class Compositor;
-
 class SurfaceExtensionGlobal : public QWaylandExtensionTemplate<SurfaceExtensionGlobal>, public QtWaylandServer::qt_surface_extension
 {
 public:
-    SurfaceExtensionGlobal(Compositor *compositor);
+    SurfaceExtensionGlobal(QWaylandCompositor *compositor);
 
 private:
     void surface_extension_get_extended_surface(Resource *resource,

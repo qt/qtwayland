@@ -42,22 +42,22 @@
 
 QT_BEGIN_NAMESPACE
 
-namespace QtWayland {
+class QWaylandCompositor;
 
-class Compositor;
+namespace QtWayland {
 
 class TextInputManager : public QWaylandExtensionTemplate<TextInputManager>, public QtWaylandServer::wl_text_input_manager, public QWaylandExtensionContainer
 {
     Q_OBJECT
 public:
-    TextInputManager(Compositor *compositor);
+    TextInputManager(QWaylandCompositor *compositor);
     ~TextInputManager();
 
 protected:
     void text_input_manager_create_text_input(Resource *resource, uint32_t id) Q_DECL_OVERRIDE;
 
 private:
-    Compositor *m_compositor;
+    QWaylandCompositor *m_compositor;
 };
 
 } // namespace QtWayland

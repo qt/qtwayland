@@ -36,10 +36,10 @@
 ****************************************************************************/
 
 #include "qwloutput_p.h"
-#include "qwlcompositor_p.h"
 
 #include <QtGui/QWindow>
 #include <QRect>
+#include <QtCompositor/QWaylandCompositor>
 #include <QtCompositor/QWaylandSurface>
 #include <QtCompositor/QWaylandOutput>
 
@@ -101,7 +101,7 @@ static QtWaylandServer::wl_output::transform toWlTransform(const QWaylandOutput:
 }
 
 Output::Output(QWaylandOutput *output, QWaylandOutputSpace *outputSpace, QWindow *window)
-    : QtWaylandServer::wl_output(outputSpace->compositor()->waylandDisplay(), 2)
+    : QtWaylandServer::wl_output(outputSpace->compositor()->display(), 2)
     , m_window(window)
     , m_output(output)
     , m_outputSpace(Q_NULLPTR)
@@ -349,7 +349,7 @@ void Output::sendFrameCallbacks()
                 QWaylandSurfacePrivate::get(surfacemapper.surface)->sendFrameCallback();
         }
     }
-    wl_display_flush_clients(compositor()->waylandDisplay());
+    wl_display_flush_clients(compositor()->display());
 }
 
 void Output::surfaceEnter(QWaylandSurface *surface)

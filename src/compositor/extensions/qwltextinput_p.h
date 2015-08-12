@@ -45,16 +45,16 @@
 QT_BEGIN_NAMESPACE
 
 class QWaylandSurface;
+class QWaylandCompositor;
 
 namespace QtWayland {
 
-class Compositor;
 class InputMethod;
 
 class TextInput : public QWaylandExtensionTemplate<TextInput>, public QtWaylandServer::wl_text_input
 {
 public:
-    explicit TextInput(QWaylandExtensionContainer *container, Compositor *compositor, struct ::wl_client *client, int id);
+    explicit TextInput(QWaylandExtensionContainer *container, QWaylandCompositor *compositor, struct ::wl_client *client, int id);
 
     QWaylandSurface *focus() const;
 
@@ -79,7 +79,7 @@ protected:
     void text_input_invoke_action(Resource *resource, uint32_t button, uint32_t index) Q_DECL_OVERRIDE;
 
 private:
-    Compositor *m_compositor;
+    QWaylandCompositor *m_compositor;
     QList<InputMethod*> m_activeInputMethods;
     QWaylandSurface *m_focus;
 

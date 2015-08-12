@@ -37,7 +37,6 @@
 
 #include "qwlpointer_p.h"
 
-#include "qwlcompositor_p.h"
 #include "qwlinputdevice_p.h"
 #include "qwlkeyboard_p.h"
 #include "qwaylandcompositor.h"
@@ -125,7 +124,7 @@ void QWaylandPointerPrivate::sendMousePressEvent(Qt::MouseButton button)
     m_grab->button(time, button, WL_POINTER_BUTTON_STATE_PRESSED);
 
     if (m_buttonCount == 1) {
-        m_grabSerial = wl_display_get_serial(compositor()->waylandDisplay());
+        m_grabSerial = compositor()->nextSerial();
         q->buttonPressedChanged();
     }
 }
@@ -138,7 +137,7 @@ void QWaylandPointerPrivate::sendMouseReleaseEvent(Qt::MouseButton button)
     m_grab->button(time, button, WL_POINTER_BUTTON_STATE_RELEASED);
 
     if (m_buttonCount == 1)
-        m_grabSerial = wl_display_get_serial(compositor()->waylandDisplay());
+        m_grabSerial = compositor()->nextSerial();
     if (m_buttonCount == 0)
         q->buttonPressedChanged();
 }

@@ -36,8 +36,6 @@
 
 #include "qwlregion_p.h"
 
-#include "qwlcompositor_p.h"
-
 QT_BEGIN_NAMESPACE
 
 namespace QtWayland {

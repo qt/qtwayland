@@ -86,40 +86,22 @@ public:
     static QWaylandSurfacePrivate *fromResource(struct ::wl_resource *resource)
     { return static_cast<QWaylandSurfacePrivate *>(Resource::fromResource(resource)->surface_object); }
 
-    bool mapped() const { return QtWayland::SurfaceBuffer::hasContent(m_buffer); }
+    bool mapped() const { return QtWayland::SurfaceBuffer::hasContent(buffer); }
 
     using QtWaylandServer::wl_surface::resource;
 
-    QSize size() const { return m_size; }
     void setSize(const QSize &size);
-
-    QRegion inputRegion() const { return m_inputRegion; }
-    QRegion opaqueRegion() const { return m_opaqueRegion; }
 
     void sendFrameCallback();
     void removeFrameCallback(QtWayland::FrameCallback *callback);
 
-    QPoint lastMousePos() const { return m_lastLocalMousePos; }
-
-    void setInputPanelSurface(QtWayland::InputPanelSurface *inputPanelSurface) { m_inputPanelSurface = inputPanelSurface; }
-    QtWayland::InputPanelSurface *inputPanelSurface() const { return m_inputPanelSurface; }
-
-    QWaylandCompositor *compositor() const { return m_compositor; }
-
-    bool isCursorSurface() const { return m_isCursorSurface; }
-    void setCursorSurface(bool isCursor) { m_isCursorSurface = isCursor; }
-
     void frameStarted();
 
-    inline bool isDestroyed() const { return m_destroyed; }
-
-    Qt::ScreenOrientation contentOrientation() const { return m_contentOrientation; }
-
-    QWaylandSurface::Origin origin() const { return m_buffer ? m_buffer->origin() : QWaylandSurface::OriginTopLeft; }
-
-    QWaylandBufferRef currentBufferRef() const { return m_bufferRef; }
+    QWaylandSurface::Origin origin() const { return buffer ? buffer->origin() : QWaylandSurface::OriginTopLeft; }
 
     void notifyViewsAboutDestruction();
+
+    void setInputPanelSurface(QtWayland::InputPanelSurface *ips) { inputPanelSurface = ips; }
 protected:
     void surface_destroy_resource(Resource *resource) Q_DECL_OVERRIDE;
 
@@ -141,13 +123,13 @@ protected:
     QtWayland::SurfaceBuffer *createSurfaceBuffer(struct ::wl_resource *buffer);
 
 protected: //member variables
-    QWaylandCompositor *m_compositor;
+    QWaylandCompositor *compositor;
     int refCount;
     QWaylandClient *client;
     QList<QWaylandView *> views;
-    QRegion m_damage;
-    QtWayland::SurfaceBuffer *m_buffer;
-    QWaylandBufferRef m_bufferRef;
+    QRegion damage;
+    QtWayland::SurfaceBuffer *buffer;
+    QWaylandBufferRef bufferRef;
 
     struct {
         QtWayland::SurfaceBuffer *buffer;
@@ -155,26 +137,26 @@ protected: //member variables
         QPoint offset;
         bool newlyAttached;
         QRegion inputRegion;
-    } m_pending;
+    } pending;
 
-    QPoint m_lastLocalMousePos;
-    QPoint m_lastGlobalMousePos;
+    QPoint lastLocalMousePos;
+    QPoint lastGlobalMousePos;
 
-    QList<QtWayland::FrameCallback *> m_pendingFrameCallbacks;
-    QList<QtWayland::FrameCallback *> m_frameCallbacks;
+    QList<QtWayland::FrameCallback *> pendingFrameCallbacks;
+    QList<QtWayland::FrameCallback *> frameCallbacks;
 
-    QtWayland::InputPanelSurface *m_inputPanelSurface;
+    QtWayland::InputPanelSurface *inputPanelSurface;
 
-    QRegion m_inputRegion;
-    QRegion m_opaqueRegion;
+    QRegion inputRegion;
+    QRegion opaqueRegion;
 
-    QVector<QtWayland::SurfaceBuffer *> m_bufferPool;
+    QVector<QtWayland::SurfaceBuffer *> bufferPool;
 
-    QSize m_size;
-    bool m_isCursorSurface;
-    bool m_destroyed;
-    Qt::ScreenOrientation m_contentOrientation;
-    QWindow::Visibility m_visibility;
+    QSize size;
+    bool isCursorSurface;
+    bool destroyed;
+    Qt::ScreenOrientation contentOrientation;
+    QWindow::Visibility visibility;
 
     Q_DECLARE_PUBLIC(QWaylandSurface)
     Q_DISABLE_COPY(QWaylandSurfacePrivate)

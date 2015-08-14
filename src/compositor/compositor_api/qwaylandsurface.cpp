@@ -115,19 +115,19 @@ static QRegion infiniteRegion() {
 
 QWaylandSurfacePrivate::QWaylandSurfacePrivate(QWaylandClient *client, quint32 id, int version, QWaylandCompositor *compositor)
     : QtWaylandServer::wl_surface(client->client(), id, version)
-    , m_compositor(compositor)
+    , compositor(compositor)
     , refCount(1)
     , client(client)
-    , m_buffer(0)
-    , m_inputPanelSurface(0)
-    , m_inputRegion(infiniteRegion())
-    , m_isCursorSurface(false)
-    , m_destroyed(false)
-    , m_contentOrientation(Qt::PrimaryOrientation)
+    , buffer(0)
+    , inputPanelSurface(0)
+    , inputRegion(infiniteRegion())
+    , isCursorSurface(false)
+    , destroyed(false)
+    , contentOrientation(Qt::PrimaryOrientation)
 {
-    m_pending.buffer = 0;
-    m_pending.newlyAttached = false;
-    m_pending.inputRegion = infiniteRegion();
+    pending.buffer = 0;
+    pending.newlyAttached = false;
+    pending.inputRegion = infiniteRegion();
 }
 
 QWaylandSurfacePrivate::~QWaylandSurfacePrivate()
@@ -137,47 +137,47 @@ QWaylandSurfacePrivate::~QWaylandSurfacePrivate()
     }
     views.clear();
 
-    m_bufferRef = QWaylandBufferRef();
+    bufferRef = QWaylandBufferRef();
 
-    for (int i = 0; i < m_bufferPool.size(); i++)
-        m_bufferPool[i]->setDestroyIfUnused(true);
+    for (int i = 0; i < bufferPool.size(); i++)
+        bufferPool[i]->setDestroyIfUnused(true);
 
-    foreach (QtWayland::FrameCallback *c, m_pendingFrameCallbacks)
+    foreach (QtWayland::FrameCallback *c, pendingFrameCallbacks)
         c->destroy();
-    foreach (QtWayland::FrameCallback *c, m_frameCallbacks)
+    foreach (QtWayland::FrameCallback *c, frameCallbacks)
         c->destroy();
 }
 
-void QWaylandSurfacePrivate::setSize(const QSize &size)
+void QWaylandSurfacePrivate::setSize(const QSize &s)
 {
     Q_Q(QWaylandSurface);
-    if (size != m_size) {
-        m_opaqueRegion = QRegion();
-        m_size = size;
+    if (size != s) {
+        opaqueRegion = QRegion();
+        size = s;
         q->sizeChanged();
     }
 }
 
 void QWaylandSurfacePrivate::sendFrameCallback()
 {
-    uint time = m_compositor->currentTimeMsecs();
-    foreach (QtWayland::FrameCallback *callback, m_frameCallbacks) {
+    uint time = compositor->currentTimeMsecs();
+    foreach (QtWayland::FrameCallback *callback, frameCallbacks) {
         if (callback->canSend) {
             callback->send(time);
-            m_frameCallbacks.removeOne(callback);
+            frameCallbacks.removeOne(callback);
         }
     }
 }
 
 void QWaylandSurfacePrivate::removeFrameCallback(QtWayland::FrameCallback *callback)
 {
-    m_pendingFrameCallbacks.removeOne(callback);
-    m_frameCallbacks.removeOne(callback);
+    pendingFrameCallbacks.removeOne(callback);
+    frameCallbacks.removeOne(callback);
 }
 
 void QWaylandSurfacePrivate::frameStarted()
 {
-    foreach (QtWayland::FrameCallback *c, m_frameCallbacks)
+    foreach (QtWayland::FrameCallback *c, frameCallbacks)
         c->canSend = true;
 }
 
@@ -194,7 +194,7 @@ void QWaylandSurfacePrivate::surface_destroy_resource(Resource *)
     Q_Q(QWaylandSurface);
     notifyViewsAboutDestruction();
 
-    m_destroyed = true;
+    destroyed = true;
     q->destroy();
     emit q->surfaceDestroyed();
 }
@@ -206,36 +206,36 @@ void QWaylandSurfacePrivate::surface_destroy(Resource *resource)
 
 void QWaylandSurfacePrivate::surface_attach(Resource *, struct wl_resource *buffer, int x, int y)
 {
-    if (m_pending.buffer)
-        m_pending.buffer->disown();
-    m_pending.buffer = createSurfaceBuffer(buffer);
-    m_pending.offset = QPoint(x, y);
-    m_pending.newlyAttached = true;
+    if (pending.buffer)
+        pending.buffer->disown();
+    pending.buffer = createSurfaceBuffer(buffer);
+    pending.offset = QPoint(x, y);
+    pending.newlyAttached = true;
 }
 
 void QWaylandSurfacePrivate::surface_damage(Resource *, int32_t x, int32_t y, int32_t width, int32_t height)
 {
-    m_pending.damage = m_pending.damage.united(QRect(x, y, width, height));
+    pending.damage = pending.damage.united(QRect(x, y, width, height));
 }
 
 void QWaylandSurfacePrivate::surface_frame(Resource *resource, uint32_t callback)
 {
     Q_Q(QWaylandSurface);
     struct wl_resource *frame_callback = wl_resource_create(resource->client(), &wl_callback_interface, wl_callback_interface.version, callback);
-    m_pendingFrameCallbacks << new QtWayland::FrameCallback(q, frame_callback);
+    pendingFrameCallbacks << new QtWayland::FrameCallback(q, frame_callback);
 }
 
 void QWaylandSurfacePrivate::surface_set_opaque_region(Resource *, struct wl_resource *region)
 {
-    m_opaqueRegion = region ? QtWayland::Region::fromResource(region)->region() : QRegion();
+    opaqueRegion = region ? QtWayland::Region::fromResource(region)->region() : QRegion();
 }
 
 void QWaylandSurfacePrivate::surface_set_input_region(Resource *, struct wl_resource *region)
 {
     if (region) {
-        m_pending.inputRegion = QtWayland::Region::fromResource(region)->region();
+        pending.inputRegion = QtWayland::Region::fromResource(region)->region();
     } else {
-        m_pending.inputRegion = infiniteRegion();
+        pending.inputRegion = infiniteRegion();
     }
 }
 
@@ -243,22 +243,22 @@ void QWaylandSurfacePrivate::surface_commit(Resource *)
 {
     Q_Q(QWaylandSurface);
 
-    if (m_pending.buffer || m_pending.newlyAttached) {
-        setBackBuffer(m_pending.buffer, m_pending.damage);
+    if (pending.buffer || pending.newlyAttached) {
+        setBackBuffer(pending.buffer, pending.damage);
     }
 
-    m_pending.buffer = 0;
-    m_pending.offset = QPoint();
-    m_pending.newlyAttached = false;
-    m_pending.damage = QRegion();
+    pending.buffer = 0;
+    pending.offset = QPoint();
+    pending.newlyAttached = false;
+    pending.damage = QRegion();
 
-    if (m_buffer)
-        m_buffer->setCommitted();
+    if (buffer)
+        buffer->setCommitted();
 
-    m_frameCallbacks << m_pendingFrameCallbacks;
-    m_pendingFrameCallbacks.clear();
+    frameCallbacks << pendingFrameCallbacks;
+    pendingFrameCallbacks.clear();
 
-    m_inputRegion = m_pending.inputRegion.intersected(QRect(QPoint(), m_size));
+    inputRegion = pending.inputRegion.intersected(QRect(QPoint(), size));
 
     emit q->redraw();
 }
@@ -269,60 +269,60 @@ void QWaylandSurfacePrivate::surface_set_buffer_transform(Resource *resource, in
     Q_Q(QWaylandSurface);
     QScreen *screen = QGuiApplication::primaryScreen();
     bool isPortrait = screen->primaryOrientation() == Qt::PortraitOrientation;
-    Qt::ScreenOrientation oldOrientation = m_contentOrientation;
+    Qt::ScreenOrientation oldOrientation = contentOrientation;
     switch (orientation) {
         case WL_OUTPUT_TRANSFORM_90:
-            m_contentOrientation = isPortrait ? Qt::InvertedLandscapeOrientation : Qt::PortraitOrientation;
+            contentOrientation = isPortrait ? Qt::InvertedLandscapeOrientation : Qt::PortraitOrientation;
             break;
         case WL_OUTPUT_TRANSFORM_180:
-            m_contentOrientation = isPortrait ? Qt::InvertedPortraitOrientation : Qt::InvertedLandscapeOrientation;
+            contentOrientation = isPortrait ? Qt::InvertedPortraitOrientation : Qt::InvertedLandscapeOrientation;
             break;
         case WL_OUTPUT_TRANSFORM_270:
-            m_contentOrientation = isPortrait ? Qt::LandscapeOrientation : Qt::InvertedPortraitOrientation;
+            contentOrientation = isPortrait ? Qt::LandscapeOrientation : Qt::InvertedPortraitOrientation;
             break;
         default:
-            m_contentOrientation = Qt::PrimaryOrientation;
+            contentOrientation = Qt::PrimaryOrientation;
     }
-    if (m_contentOrientation != oldOrientation)
+    if (contentOrientation != oldOrientation)
         emit q->contentOrientationChanged();
 }
 
-void QWaylandSurfacePrivate::setBackBuffer(QtWayland::SurfaceBuffer *buffer, const QRegion &damage)
+void QWaylandSurfacePrivate::setBackBuffer(QtWayland::SurfaceBuffer *b, const QRegion &d)
 {
     Q_Q(QWaylandSurface);
-    QtWayland::SurfaceBuffer *oldBuffer = m_buffer;
-    m_buffer = buffer;
-    m_bufferRef = QWaylandBufferRef(m_buffer);
+    QtWayland::SurfaceBuffer *oldBuffer = buffer;
+    buffer = b;
+    bufferRef = QWaylandBufferRef(buffer);
 
-    if (m_buffer) {
-        bool valid = m_buffer->waylandBufferHandle() != 0;
+    if (buffer) {
+        bool valid = buffer->waylandBufferHandle() != 0;
         if (valid)
-            setSize(m_buffer->size());
+            setSize(buffer->size());
 
-        m_damage = damage.intersected(QRect(QPoint(), m_size));
+        damage = d.intersected(QRect(QPoint(), size));
     } else  {
         setSize(QSize());
-        m_damage = QRect();
+        damage = QRect();
     }
 
     for (int i = 0; i < views.size(); i++) {
-        views.at(i)->attach(m_bufferRef, m_damage);
+        views.at(i)->attach(bufferRef, damage);
     }
 
-    emit q->damaged(m_damage);
-    if (QtWayland::SurfaceBuffer::hasContent(oldBuffer) != QtWayland::SurfaceBuffer::hasContent(m_buffer))
+    emit q->damaged(damage);
+    if (QtWayland::SurfaceBuffer::hasContent(oldBuffer) != QtWayland::SurfaceBuffer::hasContent(buffer))
         emit q->mappedChanged();
-    if (!m_pending.offset.isNull())
-        emit q->offsetForNextFrame(m_pending.offset);
+    if (!pending.offset.isNull())
+        emit q->offsetForNextFrame(pending.offset);
 }
 
 QtWayland::SurfaceBuffer *QWaylandSurfacePrivate::createSurfaceBuffer(struct ::wl_resource *buffer)
 {
     Q_Q(QWaylandSurface);
     QtWayland::SurfaceBuffer *newBuffer = 0;
-    for (int i = 0; i < m_bufferPool.size(); i++) {
-        if (!m_bufferPool[i]->isRegisteredWithBuffer()) {
-            newBuffer = m_bufferPool[i];
+    for (int i = 0; i < bufferPool.size(); i++) {
+        if (!bufferPool[i]->isRegisteredWithBuffer()) {
+            newBuffer = bufferPool[i];
             newBuffer->initialize(buffer);
             break;
         }
@@ -331,9 +331,9 @@ QtWayland::SurfaceBuffer *QWaylandSurfacePrivate::createSurfaceBuffer(struct ::w
     if (!newBuffer) {
         newBuffer = new QtWayland::SurfaceBuffer(q);
         newBuffer->initialize(buffer);
-        m_bufferPool.append(newBuffer);
-        if (m_bufferPool.size() > 3)
-            qWarning() << "Increased buffer pool size to" << m_bufferPool.size() << "for surface" << q;
+        bufferPool.append(newBuffer);
+        if (bufferPool.size() > 3)
+            qWarning() << "Increased buffer pool size to" << bufferPool.size() << "for surface" << q;
     }
 
     return newBuffer;
@@ -352,7 +352,7 @@ QWaylandSurface::QWaylandSurface(QWaylandSurfacePrivate *dptr)
 QWaylandSurface::~QWaylandSurface()
 {
     Q_D(QWaylandSurface);
-    QWaylandCompositorPrivate::get(d->m_compositor)->unregisterSurface(this);
+    QWaylandCompositorPrivate::get(d->compositor)->unregisterSurface(this);
     d->notifyViewsAboutDestruction();
 }
 
@@ -374,13 +374,13 @@ bool QWaylandSurface::isMapped() const
 QSize QWaylandSurface::size() const
 {
     Q_D(const QWaylandSurface);
-    return d->size();
+    return d->size;
 }
 
 Qt::ScreenOrientation QWaylandSurface::contentOrientation() const
 {
     Q_D(const QWaylandSurface);
-    return d->contentOrientation();
+    return d->contentOrientation;
 }
 
 QWaylandSurface::Origin QWaylandSurface::origin() const
@@ -392,7 +392,7 @@ QWaylandSurface::Origin QWaylandSurface::origin() const
 QWaylandCompositor *QWaylandSurface::compositor() const
 {
     Q_D(const QWaylandSurface);
-    return d->compositor();
+    return d->compositor;
 }
 
 void QWaylandSurface::sendFrameCallbacks()
@@ -405,13 +405,13 @@ bool QWaylandSurface::hasInputPanelSurface() const
 {
     Q_D(const QWaylandSurface);
 
-    return d->inputPanelSurface() != 0;
+    return d->inputPanelSurface != 0;
 }
 
 bool QWaylandSurface::inputRegionContains(const QPoint &p) const
 {
     Q_D(const QWaylandSurface);
-    return d->inputRegion().contains(p);
+    return d->inputRegion.contains(p);
 }
 
 void QWaylandSurface::destroy()
@@ -422,19 +422,19 @@ void QWaylandSurface::destroy()
 bool QWaylandSurface::isDestroyed() const
 {
     Q_D(const QWaylandSurface);
-    return d->isDestroyed();
+    return d->destroyed;
 }
 
 void QWaylandSurface::markAsCursorSurface(bool cursorSurface)
 {
     Q_D(QWaylandSurface);
-    d->setCursorSurface(cursorSurface);
+    d->isCursorSurface = cursorSurface;
 }
 
 bool QWaylandSurface::isCursorSurface() const
 {
     Q_D(const QWaylandSurface);
-    return d->isCursorSurface();
+    return d->isCursorSurface;
 }
 
 /*!
@@ -445,11 +445,11 @@ bool QWaylandSurface::isCursorSurface() const
 void QWaylandSurface::updateSelection()
 {
     Q_D(QWaylandSurface);
-    QWaylandInputDevice *inputDevice = d->compositor()->defaultInputDevice();
+    QWaylandInputDevice *inputDevice = d->compositor->defaultInputDevice();
     if (inputDevice) {
         const QtWayland::DataDevice *dataDevice = QWaylandInputDevicePrivate::get(inputDevice)->dataDevice();
         if (dataDevice) {
-            QWaylandCompositorPrivate::get(d->compositor())->dataDeviceManager()->offerRetainedSelection(
+            QWaylandCompositorPrivate::get(d->compositor)->dataDeviceManager()->offerRetainedSelection(
                         dataDevice->resourceMap().value(d->resource()->client())->handle);
         }
     }

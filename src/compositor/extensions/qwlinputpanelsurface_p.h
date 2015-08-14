@@ -44,9 +44,9 @@
 
 QT_BEGIN_NAMESPACE
 
-namespace QtWayland {
+class QWaylandOutput;
 
-class Output;
+namespace QtWayland {
 
 class InputPanelSurface : public QtWaylandServer::wl_input_panel_surface
 {
@@ -61,7 +61,7 @@ public:
 
     Type type() const;
 
-    Output *output() const;
+    QWaylandOutput *output() const;
     wl_input_panel_surface::position position() const;
 
 protected:
@@ -73,7 +73,7 @@ private:
 
     Type m_type;
 
-    Output *m_output;
+    QWaylandOutput *m_output;
     wl_input_panel_surface::position m_position;
 };
 

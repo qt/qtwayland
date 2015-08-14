@@ -40,9 +40,11 @@
 #include <QtCore/private/qobject_p.h>
 
 #include "qwaylandoutputspace.h"
-#include "qwaylandcompositor.h"
-#include "wayland_wrapper/qwloutput_p.h"
+
+#include <QtCompositor/QWaylandCompositor>
+#include <QtCompositor/QWaylandOutput>
 #include <QtCompositor/private/qwaylandcompositor_p.h>
+#include <QtCompositor/private/qwaylandoutput_p.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -95,17 +97,19 @@ public:
     {
         Q_Q(QWaylandOutputSpace);
         Q_ASSERT(output);
-        Q_ASSERT(!outputs.contains(output));
 
-        output->handle()->setOutputSpace(q, false);
+        if (outputs.contains(output))
+            return;
 
         if (primary)
             outputs.prepend(output);
         else
             outputs.append(output);
         adjustGeometry();
-        q->outputsChanged();
 
+        output->setOutputSpace(q);
+
+        q->outputsChanged();
     }
 
     static QWaylandOutputSpacePrivate *get(QWaylandOutputSpace *outputSpace) { return outputSpace->d_func(); }

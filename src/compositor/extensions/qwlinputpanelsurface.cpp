@@ -37,9 +37,8 @@
 
 #include "qwlinputpanelsurface_p.h"
 
-#include "qwloutput_p.h"
-
 #include <QtCompositor/private/qwaylandsurface_p.h>
+#include <QtCompositor/QWaylandOutput>
 
 QT_BEGIN_NAMESPACE
 
@@ -60,7 +59,7 @@ InputPanelSurface::Type InputPanelSurface::type() const
     return m_type;
 }
 
-Output *InputPanelSurface::output() const
+QWaylandOutput *InputPanelSurface::output() const
 {
     return m_output;
 }
@@ -78,8 +77,7 @@ void InputPanelSurface::input_panel_surface_set_overlay_panel(Resource *)
 void InputPanelSurface::input_panel_surface_set_toplevel(Resource *, wl_resource *output_resource, uint32_t position)
 {
     m_type = Toplevel;
-    OutputResource *output = static_cast<OutputResource *>(Output::Resource::fromResource(output_resource));
-    m_output = static_cast<Output *>(output->output_object);
+    m_output = QWaylandOutput::fromResource(output_resource);
     m_position = static_cast<wl_input_panel_surface::position>(position);
 }
 

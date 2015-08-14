@@ -68,7 +68,7 @@ QWaylandView::~QWaylandView()
 {
     Q_D(QWaylandView);
     if (d->output)
-        d->output->handle()->removeView(this);
+        QWaylandOutputPrivate::get(d->output)->removeView(this);
     if (d->surface) {
         QWaylandInputDevice *i = d->surface->compositor()->defaultInputDevice();
         if (i->mouseFocus() == this)
@@ -230,7 +230,7 @@ void QWaylandView::waylandSurfaceChanged(QWaylandSurface *newSurface, QWaylandSu
 {
     Q_D(QWaylandView);
     if (d->output)
-        d->output->handle()->updateSurfaceForView(this, newSurface, oldSurface);
+        QWaylandOutputPrivate::get(d->output)->updateSurfaceForView(this, newSurface, oldSurface);
 }
 
 void QWaylandView::waylandSurfaceDestroyed()
@@ -240,10 +240,10 @@ void QWaylandView::waylandSurfaceDestroyed()
 void QWaylandView::waylandOutputChanged(QWaylandOutput *newOutput, QWaylandOutput *oldOutput)
 {
     if (oldOutput)
-        oldOutput->handle()->removeView(this);
+        QWaylandOutputPrivate::get(oldOutput)->removeView(this);
 
     if (newOutput)
-        newOutput->handle()->addView(this);
+        QWaylandOutputPrivate::get(newOutput)->addView(this);
 }
 
 QT_END_NAMESPACE

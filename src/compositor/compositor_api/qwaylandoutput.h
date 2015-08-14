@@ -49,6 +49,7 @@ QT_BEGIN_NAMESPACE
 
 struct wl_resource;
 
+class QWaylandOutputPrivate;
 class QWaylandCompositor;
 class QWindow;
 class QWaylandSurface;
@@ -56,13 +57,10 @@ class QWaylandView;
 class QWaylandClient;
 class QWaylandOutputSpace;
 
-namespace QtWayland {
-    class Output;
-}
-
 class Q_COMPOSITOR_EXPORT QWaylandOutput : public QObject, public QWaylandExtensionContainer
 {
     Q_OBJECT
+    Q_DECLARE_PRIVATE(QWaylandOutput)
     Q_PROPERTY(QString manufacturer READ manufacturer CONSTANT)
     Q_PROPERTY(QString model READ model CONSTANT)
     Q_PROPERTY(QPoint position READ position WRITE setPosition NOTIFY positionChanged)
@@ -111,13 +109,14 @@ public:
     ~QWaylandOutput();
 
     static QWaylandOutput *fromResource(wl_resource *resource);
+    struct ::wl_resource *outputForClient(QWaylandClient *client) const;
+
+    QWaylandCompositor *compositor() const;
+    QWindow *window() const;
 
     void setOutputSpace(QWaylandOutputSpace *outputSpace);
     QWaylandOutputSpace *outputSpace() const;
 
-    virtual void update();
-
-    QWaylandCompositor *compositor() const;
 
     QString manufacturer() const;
 
@@ -149,8 +148,6 @@ public:
     int scaleFactor() const;
     void setScaleFactor(int scale);
 
-    QWindow *window() const;
-
     bool sizeFollowsWindow() const;
     void setSizeFollowsWindow(bool follow);
 
@@ -163,7 +160,7 @@ public:
     void surfaceEnter(QWaylandSurface *surface);
     void surfaceLeave(QWaylandSurface *surface);
 
-    QtWayland::Output *handle() const;
+    virtual void update();
 
     Q_INVOKABLE virtual QWaylandView *pickView(const QPointF &outputPosition) const;
     Q_INVOKABLE virtual QPointF mapToView(QWaylandView *view, const QPointF &surfacePosition) const;
@@ -182,9 +179,6 @@ Q_SIGNALS:
     void sizeFollowsWindowChanged();
     void physicalSizeFollowsSizeChanged();
     void outputSpaceChanged();
-
-protected:
-    QScopedPointer<QtWayland::Output> d_ptr;
 
 private Q_SLOTS:
     void windowDestroyed();

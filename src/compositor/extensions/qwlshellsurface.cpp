@@ -38,8 +38,8 @@
 #include "qwlshellsurface_p.h"
 
 #include <QtCompositor/QWaylandCompositor>
+#include <QtCompositor/QWaylandOutputSpace>
 
-#include "qwloutput_p.h"
 #include "qwlinputdevice_p.h"
 #include "qwlsubsurface_p.h"
 #include "qwlpointer_p.h"

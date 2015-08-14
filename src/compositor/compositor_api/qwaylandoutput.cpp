@@ -36,9 +36,12 @@
 ****************************************************************************/
 
 #include "qwaylandoutput.h"
+#include "qwaylandoutput_p.h"
 
 #include "qwaylandcompositor.h"
 #include "qwaylandview.h"
+
+#include <QtCompositor/private/qwaylandsurface_p.h>
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QtMath>
@@ -46,17 +49,167 @@
 #include <QtGui/QExposeEvent>
 #include <private/qobject_p.h>
 
-#include "wayland_wrapper/qwloutput_p.h"
-
 QT_BEGIN_NAMESPACE
+
+static QtWaylandServer::wl_output::subpixel toWlSubpixel(const QWaylandOutput::Subpixel &value)
+{
+    switch (value) {
+    case QWaylandOutput::SubpixelUnknown:
+        return QtWaylandServer::wl_output::subpixel_unknown;
+    case QWaylandOutput::SubpixelNone:
+        return QtWaylandServer::wl_output::subpixel_none;
+    case QWaylandOutput::SubpixelHorizontalRgb:
+        return QtWaylandServer::wl_output::subpixel_horizontal_rgb;
+    case QWaylandOutput::SubpixelHorizontalBgr:
+        return QtWaylandServer::wl_output::subpixel_horizontal_bgr;
+    case QWaylandOutput::SubpixelVerticalRgb:
+        return QtWaylandServer::wl_output::subpixel_vertical_rgb;
+    case QWaylandOutput::SubpixelVerticalBgr:
+        return QtWaylandServer::wl_output::subpixel_vertical_bgr;
+    default:
+        break;
+    }
+
+    return QtWaylandServer::wl_output::subpixel_unknown;
+}
+
+static QtWaylandServer::wl_output::transform toWlTransform(const QWaylandOutput::Transform &value)
+{
+    switch (value) {
+    case QWaylandOutput::Transform90:
+        return QtWaylandServer::wl_output::transform_90;
+    case QWaylandOutput::Transform180:
+        return QtWaylandServer::wl_output::transform_180;
+    case QWaylandOutput::Transform270:
+        return QtWaylandServer::wl_output::transform_270;
+    case QWaylandOutput::TransformFlipped:
+        return QtWaylandServer::wl_output::transform_flipped;
+    case QWaylandOutput::TransformFlipped90:
+        return QtWaylandServer::wl_output::transform_flipped_90;
+    case QWaylandOutput::TransformFlipped180:
+        return QtWaylandServer::wl_output::transform_flipped_180;
+    case QWaylandOutput::TransformFlipped270:
+        return QtWaylandServer::wl_output::transform_flipped_270;
+    default:
+        break;
+    }
+
+    return QtWaylandServer::wl_output::transform_normal;
+}
+
+QWaylandOutputPrivate::QWaylandOutputPrivate(QWaylandCompositor *compositor, QWindow *window, const QString &manufacturer, const QString &model)
+    : QtWaylandServer::wl_output(compositor->display(), 2)
+    , compositor(compositor)
+    , outputSpace(Q_NULLPTR)
+    , window(window)
+    , manufacturer(manufacturer)
+    , model(model)
+    , subpixel(QWaylandOutput::SubpixelUnknown)
+    , transform(QWaylandOutput::TransformNormal)
+    , scaleFactor(1)
+    , sizeFollowsWindow(true)
+{
+    mode.size = window ? window->size() : QSize();
+    mode.refreshRate = 60;
+
+    qRegisterMetaType<QWaylandOutput::Mode>("WaylandOutput::Mode");
+}
+
+QWaylandOutputPrivate::~QWaylandOutputPrivate()
+{
+    Q_Q(QWaylandOutput);
+    if (outputSpace) {
+        outputSpace = Q_NULLPTR;
+        outputSpace->removeOutput(q);
+    }
+}
+
+void QWaylandOutputPrivate::output_bind_resource(Resource *resource)
+{
+    send_geometry(resource->handle,
+                  position.x(), position.y(),
+                  physicalSize.width(), physicalSize.height(),
+                  toWlSubpixel(subpixel), manufacturer, model,
+                  toWlTransform(transform));
+
+    send_mode(resource->handle, mode_current | mode_preferred,
+              mode.size.width(), mode.size.height(),
+              mode.refreshRate);
+
+    if (resource->version() >= 2) {
+        send_scale(resource->handle, scaleFactor);
+        send_done(resource->handle);
+    }
+}
+
+void QWaylandOutputPrivate::sendGeometryInfo()
+{
+    Q_FOREACH (Resource *resource, resourceMap().values()) {
+        send_geometry(resource->handle,
+                      position.x(), position.x(),
+                      physicalSize.width(), physicalSize.height(),
+                      toWlSubpixel(subpixel), manufacturer, model,
+                      toWlTransform(transform));
+        if (resource->version() >= 2)
+            send_done(resource->handle);
+    }
+}
+
+
+void QWaylandOutputPrivate::addView(QWaylandView *view)
+{
+    addView(view, view->surface());
+}
+
+void QWaylandOutputPrivate::addView(QWaylandView *view, QWaylandSurface *surface)
+{
+    for (int i = 0; i < surfaceViews.size(); i++) {
+        if (surface == surfaceViews.at(i).surface) {
+            if (!surfaceViews.at(i).views.contains(view)) {
+                surfaceViews[i].views.append(view);
+            }
+            return;
+        }
+    }
+
+    surfaceViews.append(QWaylandSurfaceViewMapper(surface,view));
+}
+
+void QWaylandOutputPrivate::removeView(QWaylandView *view)
+{
+    removeView(view, view->surface());
+}
+
+void QWaylandOutputPrivate::removeView(QWaylandView *view, QWaylandSurface *surface)
+{
+    Q_Q(QWaylandOutput);
+    for (int i = 0; i < surfaceViews.size(); i++) {
+        if (surface == surfaceViews.at(i).surface) {
+            bool removed = surfaceViews[i].views.removeOne(view);
+            if (surfaceViews.at(i).views.isEmpty() && removed) {
+                if (surfaceViews.at(i).has_entered)
+                    q->surfaceLeave(surface);
+                surfaceViews.remove(i);
+            }
+            return;
+        }
+    }
+    qWarning("%s Could not find view %p for surface %p to remove. Possible invalid state", Q_FUNC_INFO, view, surface);
+}
+
+void QWaylandOutputPrivate::updateSurfaceForView(QWaylandView *view, QWaylandSurface *newSurface, QWaylandSurface *oldSurface)
+{
+    if (newSurface == oldSurface)
+        return;
+    removeView(view, oldSurface);
+    addView(view, newSurface);
+}
 
 QWaylandOutput::QWaylandOutput(QWaylandOutputSpace *outputSpace, QWindow *window,
                                const QString &manufacturer, const QString &model)
-    : QObject()
-    , d_ptr(new QtWayland::Output(this, outputSpace, window))
+    : QObject(*new QWaylandOutputPrivate(outputSpace->compositor(), window, manufacturer, model))
 {
-    d_ptr->setManufacturer(manufacturer);
-    d_ptr->setModel(model);
+    setOutputSpace(outputSpace);
     QObject::connect(window, &QWindow::widthChanged, this, &QWaylandOutput::setWidth);
     QObject::connect(window, &QWindow::heightChanged, this, &QWaylandOutput::setHeight);
     QObject::connect(window, &QObject::destroyed, this, &QWaylandOutput::windowDestroyed);
@@ -64,32 +217,46 @@ QWaylandOutput::QWaylandOutput(QWaylandOutputSpace *outputSpace, QWindow *window
 
 QWaylandOutput::~QWaylandOutput()
 {
-    d_ptr->outputSpace()->removeOutput(this);
 }
 
 QWaylandOutput *QWaylandOutput::fromResource(wl_resource *resource)
 {
-    QtWayland::OutputResource *outputResource = static_cast<QtWayland::OutputResource *>(
-        QtWayland::Output::Resource::fromResource(resource));
-    if (!outputResource)
-        return Q_NULLPTR;
+    return static_cast<QWaylandOutputPrivate *>(QWaylandOutputPrivate::Resource::fromResource(resource)->output_object)->q_func();
+}
 
-    QtWayland::Output *output = static_cast<QtWayland::Output *>(outputResource->output_object);
-    if (!output)
-        return Q_NULLPTR;
+struct ::wl_resource *QWaylandOutput::outputForClient(QWaylandClient *client) const
+{
+    Q_D(const QWaylandOutput);
+    QWaylandOutputPrivate::Resource *r = d->resourceMap().value(client->client());
+    if (r)
+        return r->handle;
 
-    return output->waylandOutput();
+    return Q_NULLPTR;
 }
 
 void QWaylandOutput::setOutputSpace(QWaylandOutputSpace *outputSpace)
 {
     Q_ASSERT(outputSpace);
-    d_ptr->setOutputSpace(outputSpace, true);
+    Q_D(QWaylandOutput);
+    if (d->outputSpace == outputSpace)
+        return;
+
+    if (d->outputSpace) {
+        d->outputSpace->removeOutput(this);
+    }
+
+    d->outputSpace = outputSpace;
+
+    if (outputSpace) {
+        outputSpace->addOutput(this);
+    }
+
+    emit outputSpaceChanged();
 }
 
 QWaylandOutputSpace *QWaylandOutput::outputSpace() const
 {
-    return d_ptr->outputSpace();
+    return d_func()->outputSpace;
 }
 
 void QWaylandOutput::update()
@@ -102,66 +269,96 @@ void QWaylandOutput::update()
 
 QWaylandCompositor *QWaylandOutput::compositor() const
 {
-    return d_ptr->outputSpace()->compositor();
+    return d_func()->compositor;
 }
 
 QString QWaylandOutput::manufacturer() const
 {
-    return d_ptr->manufacturer();
+    return d_func()->manufacturer;
 }
 
 QString QWaylandOutput::model() const
 {
-    return d_ptr->model();
+    return d_func()->model;
 }
 
 QPoint QWaylandOutput::position() const
 {
-    return d_ptr->position();
+    return d_func()->position;
 }
 
 void QWaylandOutput::setPosition(const QPoint &pt)
 {
-    if (d_ptr->position() == pt)
+    Q_D(QWaylandOutput);
+    if (d->position == pt)
         return;
 
-    d_ptr->setPosition(pt);
+    d->position = pt;
+
+    d->sendGeometryInfo();
+
     Q_EMIT positionChanged();
     Q_EMIT geometryChanged();
 }
 
 QWaylandOutput::Mode QWaylandOutput::mode() const
 {
-    return d_ptr->mode();
+    return d_func()->mode;
 }
 
 void QWaylandOutput::setMode(const Mode &mode)
 {
-    if (d_ptr->mode().size == mode.size && d_ptr->mode().refreshRate == mode.refreshRate)
+    Q_D(QWaylandOutput);
+    if (d->mode.size == mode.size && d->mode.refreshRate == mode.refreshRate)
         return;
 
-    d_ptr->setMode(mode);
+    d->mode = mode;
+
+    Q_FOREACH (QWaylandOutputPrivate::Resource *resource, d->resourceMap().values()) {
+        d->send_mode(resource->handle, d->mode_current,
+                  d->mode.size.width(), d->mode.size.height(),
+                  d->mode.refreshRate * 1000);
+        if (resource->version() >= 2)
+            d->send_done(resource->handle);
+    }
+
     Q_EMIT modeChanged();
     Q_EMIT geometryChanged();
 
-    if (window()) {
-        window()->resize(mode.size);
-        window()->setMinimumSize(mode.size);
-        window()->setMaximumSize(mode.size);
+    if (d->window) {
+        d->window->resize(mode.size);
+        d->window->setMinimumSize(mode.size);
+        d->window->setMaximumSize(mode.size);
     }
 }
 
 QRect QWaylandOutput::geometry() const
 {
-    return d_ptr->geometry();
+    Q_D(const QWaylandOutput);
+    return QRect(d->position, d->mode.size);
 }
 
 void QWaylandOutput::setGeometry(const QRect &geometry)
 {
-    if (d_ptr->geometry() == geometry)
+    Q_D(QWaylandOutput);
+    if (d->position == geometry.topLeft() && d->mode.size == geometry.size())
         return;
 
-    d_ptr->setGeometry(geometry);
+    d->position = geometry.topLeft();
+    d->mode.size = geometry.size();
+
+    Q_FOREACH (QWaylandOutputPrivate::Resource *resource, d->resourceMap().values()) {
+        d->send_geometry(resource->handle,
+                      d->position.x(), d->position.y(),
+                      d->physicalSize.width(), d->physicalSize.height(),
+                      toWlSubpixel(d->subpixel), d->manufacturer, d->model,
+                      toWlTransform(d->transform));
+        d->send_mode(resource->handle, d->mode_current,
+                  d->mode.size.width(), d->mode.size.height(),
+                  d->mode.refreshRate * 1000);
+        if (resource->version() >= 2)
+            d->send_done(resource->handle);
+    }
     Q_EMIT positionChanged();
     Q_EMIT modeChanged();
 
@@ -174,126 +371,175 @@ void QWaylandOutput::setGeometry(const QRect &geometry)
 
 QRect QWaylandOutput::availableGeometry() const
 {
-    if (!d_ptr->availableGeometry().isValid())
-        return QRect(d_ptr->position(), d_ptr->mode().size);
+    Q_D(const QWaylandOutput);
+    if (!d->availableGeometry.isValid())
+        return QRect(d->position, d->mode.size);
 
-    return d_ptr->availableGeometry();
+    return d->availableGeometry;
 }
 
 void QWaylandOutput::setAvailableGeometry(const QRect &availableGeometry)
 {
-    if (d_ptr->availableGeometry() == availableGeometry)
+    Q_D(QWaylandOutput);
+    if (d->availableGeometry == availableGeometry)
         return;
 
-    d_ptr->setAvailableGeometry(availableGeometry);
+    d->availableGeometry = availableGeometry;
+
     Q_EMIT availableGeometryChanged();
 }
 
 QSize QWaylandOutput::physicalSize() const
 {
-    return d_ptr->physicalSize();
+    return d_func()->physicalSize;
 }
 
 void QWaylandOutput::setPhysicalSize(const QSize &size)
 {
-    if (d_ptr->physicalSize() == size)
+    Q_D(QWaylandOutput);
+    if (d->physicalSize == size)
         return;
 
-    d_ptr->setPhysicalSize(size);
+    d->physicalSize = size;
+
+    d->sendGeometryInfo();
+
     Q_EMIT physicalSizeChanged();
 }
 
 QWaylandOutput::Subpixel QWaylandOutput::subpixel() const
 {
-    return d_ptr->subpixel();
+    return d_func()->subpixel;
 }
 
 void QWaylandOutput::setSubpixel(const Subpixel &subpixel)
 {
-    if (d_ptr->subpixel() == subpixel)
+    Q_D(QWaylandOutput);
+    if (d->subpixel == subpixel)
         return;
 
-    d_ptr->setSubpixel(subpixel);
+    d->subpixel = subpixel;
+
+    d->sendGeometryInfo();
+
     Q_EMIT subpixelChanged();
 }
 
 QWaylandOutput::Transform QWaylandOutput::transform() const
 {
-    return d_ptr->transform();
+    return d_func()->transform;
 }
 
 void QWaylandOutput::setTransform(const Transform &transform)
 {
-    if (d_ptr->transform() == transform)
+    Q_D(QWaylandOutput);
+    if (d->transform == transform)
         return;
 
-    d_ptr->setTransform(transform);
+    d->transform = transform;
+
+    d->sendGeometryInfo();
+
     Q_EMIT transformChanged();
 }
 
 int QWaylandOutput::scaleFactor() const
 {
-    return d_ptr->scaleFactor();
+    return d_func()->scaleFactor;
 }
 
 void QWaylandOutput::setScaleFactor(int scale)
 {
-    if (d_ptr->scaleFactor() == scale)
+    Q_D(QWaylandOutput);
+    if (d->scaleFactor == scale)
         return;
 
-    d_ptr->setScaleFactor(scale);
-    Q_EMIT scaleFactorChanged();
+    d->scaleFactor = scale;
 
+    Q_FOREACH (QWaylandOutputPrivate::Resource *resource, d->resourceMap().values()) {
+        if (resource->version() >= 2) {
+            d->send_scale(resource->handle, scale);
+            d->send_done(resource->handle);
+        }
+    }
+
+    Q_EMIT scaleFactorChanged();
 }
 
 bool QWaylandOutput::sizeFollowsWindow() const
 {
-    return d_ptr->sizeFollowsWindow();
+    return d_func()->sizeFollowsWindow;
 }
 
 void QWaylandOutput::setSizeFollowsWindow(bool follow)
 {
-    d_ptr->setSizeFollowsWindow(follow);
+    Q_D(QWaylandOutput);
+    if (follow != d->sizeFollowsWindow) {
+        if (follow) {
+            QObject::connect(d->window, &QWindow::widthChanged, this, &QWaylandOutput::setWidth);
+            QObject::connect(d->window, &QWindow::heightChanged, this, &QWaylandOutput::setHeight);
+        } else {
+            QObject::disconnect(d->window, &QWindow::widthChanged, this, &QWaylandOutput::setWidth);
+            QObject::disconnect(d->window, &QWindow::heightChanged, this, &QWaylandOutput::setHeight);
+        }
+        d->sizeFollowsWindow = follow;
+        Q_EMIT sizeFollowsWindowChanged();
+    }
 }
 
 QWindow *QWaylandOutput::window() const
 {
-    return d_ptr->window();
+    return d_func()->window;
 }
 
 void QWaylandOutput::frameStarted()
 {
-    d_ptr->frameStarted();
+    Q_D(QWaylandOutput);
+    for (int i = 0; i < d->surfaceViews.size(); i++) {
+        QWaylandSurfaceViewMapper &surfacemapper = d->surfaceViews[i];
+        if (surfacemapper.maybeThrottelingView())
+            QWaylandSurfacePrivate::get(surfacemapper.surface)->frameStarted();
+    }
 }
 
 void QWaylandOutput::sendFrameCallbacks()
 {
-    d_ptr->sendFrameCallbacks();
+    Q_D(QWaylandOutput);
+    for (int i = 0; i < d->surfaceViews.size(); i++) {
+        const QWaylandSurfaceViewMapper &surfacemapper = d->surfaceViews.at(i);
+        if (surfacemapper.surface && surfacemapper.surface->isMapped()) {
+            if (!surfacemapper.has_entered) {
+                surfaceEnter(surfacemapper.surface);
+            }
+            if (surfacemapper.maybeThrottelingView())
+                QWaylandSurfacePrivate::get(surfacemapper.surface)->sendFrameCallback();
+        }
+    }
+    wl_display_flush_clients(d->compositor->display());
 }
 
 void QWaylandOutput::surfaceEnter(QWaylandSurface *surface)
 {
-    d_ptr->surfaceEnter(surface);
+    if (!surface)
+        return;
+    QWaylandSurfacePrivate::get(surface)->send_enter(outputForClient(surface->client()));
 }
 
 void QWaylandOutput::surfaceLeave(QWaylandSurface *surface)
 {
-    d_ptr->surfaceLeave(surface);
-}
-
-QtWayland::Output *QWaylandOutput::handle() const
-{
-    return d_ptr.data();
+    if (!surface)
+        return;
+    QWaylandSurfacePrivate::get(surface)->send_leave(outputForClient(surface->client()));
 }
 
 QWaylandView *QWaylandOutput::pickView(const QPointF &outputPosition) const
 {
-    const QVector<QtWayland::SurfaceViewMapper> surfaceViewMappers = d_ptr->surfaceMappers();
-    for (int nSurface = 0; surfaceViewMappers.size(); nSurface++) {
-        const QWaylandSurface *surface = surfaceViewMappers.at(nSurface).surface;
+    Q_D(const QWaylandOutput);
+    for (int nSurface = 0; d->surfaceViews.size(); nSurface++) {
+        const QWaylandSurface *surface = d->surfaceViews.at(nSurface).surface;
         if (surface->isCursorSurface())
             continue;
-        const QVector<QWaylandView *> views = surfaceViewMappers.at(nSurface).views;
+        const QVector<QWaylandView *> views = d->surfaceViews.at(nSurface).views;
         for (int nView = 0; views.size(); nView++) {
             if (QRectF(views.at(nView)->requestedPosition(), surface->size()).contains(outputPosition))
                 return views.at(nView);
@@ -309,17 +555,29 @@ QPointF QWaylandOutput::mapToView(QWaylandView *view, const QPointF &outputPosit
 
 void QWaylandOutput::setWidth(int newWidth)
 {
-    d_ptr->setWidth(newWidth);
+    Q_D(QWaylandOutput);
+    if (d->mode.size.width() == newWidth)
+        return;
+
+    QSize s = d->mode.size;
+    s.setWidth(newWidth);
+    setGeometry(QRect(d->position, s));
 }
 
 void QWaylandOutput::setHeight(int newHeight)
 {
-    d_ptr->setHeight(newHeight);
+    Q_D(QWaylandOutput);
+    if (d->mode.size.height() == newHeight)
+        return;
+
+    QSize s = d->mode.size;
+    s.setHeight(newHeight);
+    setGeometry(QRect(d->position, s));
 }
 
 QPointF QWaylandOutput::mapToOutputSpace(const QPointF &point)
 {
-    return point + d_ptr->topLeft();
+    return point + d_func()->position;
 }
 
 void QWaylandOutput::windowDestroyed()

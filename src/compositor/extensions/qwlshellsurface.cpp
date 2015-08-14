@@ -40,7 +40,6 @@
 #include <QtCompositor/QWaylandCompositor>
 #include <QtCompositor/QWaylandOutputSpace>
 
-#include "qwlinputdevice_p.h"
 #include "qwlsubsurface_p.h"
 #include "qwlpointer_p.h"
 #include "qwlextendedsurface_p.h"
@@ -220,8 +219,8 @@ void ShellSurface::shell_surface_move(Resource *resource,
         return;
     }
 
-    QWaylandInputDevicePrivate *input_device = QWaylandInputDevicePrivate::fromSeatResource(input_device_super);
-    QWaylandPointer *pointer = input_device->pointerDevice();
+    QWaylandInputDevice *input_device = QWaylandInputDevice::fromSeatResource(input_device_super);
+    QWaylandPointer *pointer = input_device->pointer();
 
     m_moveGrabber = new ShellSurfaceMoveGrabber(this, pointer->currentSpacePosition() - m_view->requestedPosition());
 
@@ -243,8 +242,8 @@ void ShellSurface::shell_surface_resize(Resource *resource,
 
     m_resizeGrabber = new ShellSurfaceResizeGrabber(this);
 
-    QWaylandInputDevicePrivate *input_device = QWaylandInputDevicePrivate::fromSeatResource(input_device_super);
-    QWaylandPointer *pointer = input_device->pointerDevice();
+    QWaylandInputDevice *input_device = QWaylandInputDevice::fromSeatResource(input_device_super);
+    QWaylandPointer *pointer = input_device->pointer();
 
     m_resizeGrabber->point = pointer->currentSpacePosition();
     m_resizeGrabber->resize_edges = static_cast<wl_shell_surface_resize>(edges);
@@ -321,8 +320,8 @@ void ShellSurface::shell_surface_set_popup(Resource *resource, wl_resource *inpu
     Q_UNUSED(input_device);
     Q_UNUSED(flags);
 
-    QWaylandInputDevicePrivate *input = QWaylandInputDevicePrivate::fromSeatResource(input_device);
-    m_popupGrabber = m_shell->getPopupGrabber(input->q_func());
+    QWaylandInputDevice *input = QWaylandInputDevice::fromSeatResource(input_device);
+    m_popupGrabber = m_shell->getPopupGrabber(input);
 
     m_popupSerial = serial;
     setTransientParent(QWaylandSurface::fromResource(parent));
@@ -486,7 +485,7 @@ ShellSurfacePopupGrabber::ShellSurfacePopupGrabber(QWaylandInputDevice *inputDev
 
 uint32_t ShellSurfacePopupGrabber::grabSerial() const
 {
-    return QWaylandInputDevicePrivate::get(m_inputDevice)->pointerDevice()->grabSerial();
+    return m_inputDevice->pointer()->grabSerial();
 }
 
 struct ::wl_client *ShellSurfacePopupGrabber::client() const
@@ -504,11 +503,11 @@ void ShellSurfacePopupGrabber::addPopup(ShellSurface *surface)
     if (m_surfaces.isEmpty()) {
         m_client = surface->resource()->client();
 
-        if (QWaylandInputDevicePrivate::get(m_inputDevice)->pointerDevice()->isButtonPressed())
+        if (m_inputDevice->pointer()->isButtonPressed())
             m_initialUp = false;
 
         m_surfaces.append(surface);
-        QWaylandInputDevicePrivate::get(m_inputDevice)->pointerDevice()->startGrab(this);
+        m_inputDevice->pointer()->startGrab(this);
     } else {
         m_surfaces.append(surface);
     }
@@ -521,7 +520,7 @@ void ShellSurfacePopupGrabber::removePopup(ShellSurface *surface)
 
     m_surfaces.removeOne(surface);
     if (m_surfaces.isEmpty())
-        QWaylandInputDevicePrivate::get(m_inputDevice)->pointerDevice()->endGrab();
+        m_inputDevice->pointer()->endGrab();
 }
 
 void ShellSurfacePopupGrabber::button(uint32_t time, Qt::MouseButton button, uint32_t state)

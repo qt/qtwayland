@@ -9,7 +9,6 @@ HEADERS += \
     wayland_wrapper/qwldatadevicemanager_p.h \
     wayland_wrapper/qwldataoffer_p.h \
     wayland_wrapper/qwldatasource_p.h \
-    wayland_wrapper/qwlinputdevice_p.h \
     wayland_wrapper/qwlinputmethod_p.h \
     wayland_wrapper/qwlinputmethodcontext_p.h \
     wayland_wrapper/qwlkeyboard_p.h \
@@ -24,7 +23,6 @@ SOURCES += \
     wayland_wrapper/qwldatadevicemanager.cpp \
     wayland_wrapper/qwldataoffer.cpp \
     wayland_wrapper/qwldatasource.cpp \
-    wayland_wrapper/qwlinputdevice.cpp \
     wayland_wrapper/qwlinputmethod.cpp \
     wayland_wrapper/qwlinputmethodcontext.cpp \
     wayland_wrapper/qwlkeyboard.cpp \

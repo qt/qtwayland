@@ -51,7 +51,6 @@
 #include "qwaylandsurface_p.h"
 
 #include "wayland_wrapper/qwldatadevice_p.h"
-#include "wayland_wrapper/qwlinputdevice_p.h"
 #include "wayland_wrapper/qwldatadevicemanager_p.h"
 
 #include "extensions/qwlinputpanel_p.h"

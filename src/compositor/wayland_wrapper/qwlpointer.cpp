@@ -37,7 +37,6 @@
 
 #include "qwlpointer_p.h"
 
-#include "qwlinputdevice_p.h"
 #include "qwlkeyboard_p.h"
 #include "qwaylandcompositor.h"
 #include "qwaylandview.h"

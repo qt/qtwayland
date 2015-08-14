@@ -7,6 +7,7 @@ HEADERS += \
     compositor_api/qwaylandsurface.h \
     compositor_api/qwaylandsurface_p.h \
     compositor_api/qwaylandinput.h \
+    compositor_api/qwaylandinput_p.h \
     compositor_api/qwaylandkeyboard.h \
     compositor_api/qwaylandpointer.h \
     compositor_api/qwaylandtouch.h \

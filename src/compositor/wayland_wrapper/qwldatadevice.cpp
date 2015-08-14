@@ -38,7 +38,6 @@
 
 #include "qwldatasource_p.h"
 #include "qwldataoffer_p.h"
-#include "qwlinputdevice_p.h"
 #include "qwlkeyboard_p.h"
 #include "qwlpointer_p.h"
 #include "qwaylandsurface_p.h"
@@ -49,6 +48,7 @@
 #include "qwaylandview.h"
 #include <QtCompositor/QWaylandClient>
 #include <QtCompositor/private/qwaylandcompositor_p.h>
+#include <QtCompositor/private/qwaylandinput_p.h>
 
 #include <QtCore/QPointF>
 #include <QDebug>
@@ -146,7 +146,7 @@ void DataDevice::focus()
 
 void DataDevice::motion(uint32_t time)
 {
-    Q_EMIT QWaylandInputDevicePrivate::get(m_inputDevice)->dragHandle()->positionChanged();
+    Q_EMIT m_inputDevice->drag()->positionChanged();
     m_dragIconPosition = pointer->currentSpacePosition();
 
     if (m_dragFocusResource && m_dragFocus) {
@@ -171,8 +171,8 @@ void DataDevice::button(uint32_t time, Qt::MouseButton button, uint32_t state)
         if (m_dragIcon) {
             m_dragIcon = 0;
             m_dragIconPosition = QPointF();
-            Q_EMIT QWaylandInputDevicePrivate::get(m_inputDevice)->dragHandle()->positionChanged();
-            Q_EMIT QWaylandInputDevicePrivate::get(m_inputDevice)->dragHandle()->iconChanged();
+            Q_EMIT m_inputDevice->drag()->positionChanged();
+            Q_EMIT m_inputDevice->drag()->iconChanged();
         }
 
         setDragFocus(0, QPointF());
@@ -182,8 +182,8 @@ void DataDevice::button(uint32_t time, Qt::MouseButton button, uint32_t state)
 
 void DataDevice::data_device_start_drag(Resource *resource, struct ::wl_resource *source, struct ::wl_resource *origin, struct ::wl_resource *icon, uint32_t serial)
 {
-    if (QWaylandInputDevicePrivate::get(m_inputDevice)->pointerDevice()->grabSerial() == serial) {
-        if (!QWaylandInputDevicePrivate::get(m_inputDevice)->pointerDevice()->isButtonPressed() ||
+    if (m_inputDevice->pointer()->grabSerial() == serial) {
+        if (!m_inputDevice->pointer()->isButtonPressed() ||
              m_inputDevice->mouseFocus()->surfaceResource() != origin)
             return;
 
@@ -191,10 +191,10 @@ void DataDevice::data_device_start_drag(Resource *resource, struct ::wl_resource
         m_dragDataSource = source != 0 ? DataSource::fromResource(source) : 0;
         m_dragIcon = icon != 0 ? QWaylandSurface::fromResource(icon) : 0;
         m_dragIconPosition = QPointF();
-        Q_EMIT QWaylandInputDevicePrivate::get(m_inputDevice)->dragHandle()->positionChanged();
-        Q_EMIT QWaylandInputDevicePrivate::get(m_inputDevice)->dragHandle()->iconChanged();
+        Q_EMIT m_inputDevice->drag()->positionChanged();
+        Q_EMIT m_inputDevice->drag()->iconChanged();
 
-        QWaylandInputDevicePrivate::get(m_inputDevice)->pointerDevice()->startGrab(this);
+        m_inputDevice->pointer()->startGrab(this);
     }
 }
 

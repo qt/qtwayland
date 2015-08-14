@@ -36,12 +36,12 @@
 
 #include "qwltextinput_p.h"
 
-#include "qwlinputdevice_p.h"
 #include "qwlinputmethod_p.h"
 #include "qwlinputmethodcontext_p.h"
 #include "qwlinputpanel_p.h"
 #include <QtCompositor/QWaylandInputPanel>
 #include <QtCompositor/QWaylandCompositor>
+#include <QtCompositor/private/qwaylandinput_p.h>
 
 #include <algorithm>
 
@@ -102,7 +102,7 @@ void TextInput::text_input_activate(Resource *, wl_resource *seat, wl_resource *
 
     bool wasEmpty = m_activeInputMethods.isEmpty();
 
-    InputMethod *inputMethod = QWaylandInputDevicePrivate::fromSeatResource(seat)->inputMethod();
+    InputMethod *inputMethod = QWaylandInputDevicePrivate::get(QWaylandInputDevice::fromSeatResource(seat))->inputMethod();
 
     if (!m_activeInputMethods.contains(inputMethod)) {
         m_activeInputMethods.append(inputMethod);
@@ -115,7 +115,7 @@ void TextInput::text_input_activate(Resource *, wl_resource *seat, wl_resource *
 
 void TextInput::text_input_deactivate(Resource *, wl_resource *seat)
 {
-    InputMethod *inputMethod = QWaylandInputDevicePrivate::fromSeatResource(seat)->inputMethod();
+    InputMethod *inputMethod = QWaylandInputDevicePrivate::get(QWaylandInputDevice::fromSeatResource(seat))->inputMethod();
 
     deactivate(inputMethod);
 }

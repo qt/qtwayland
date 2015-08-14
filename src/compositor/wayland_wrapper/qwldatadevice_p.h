@@ -38,7 +38,6 @@
 #define WLDATADEVICE_H
 
 #include <QtCompositor/private/qwayland-server-wayland.h>
-#include <qwlinputdevice_p.h>
 #include <QtCompositor/QWaylandPointerGrabber>
 #include <qwlpointer_p.h>
 #include <QtCompositor/QWaylandOutputSpace>

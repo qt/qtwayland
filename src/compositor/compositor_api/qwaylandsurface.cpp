@@ -38,9 +38,6 @@
 #include "qwaylandsurface.h"
 #include "qwaylandsurface_p.h"
 
-#include <private/qobject_p.h>
-
-#include "wayland_wrapper/qwlinputdevice_p.h"
 #include "wayland_wrapper/qwldatadevice_p.h"
 #include "wayland_wrapper/qwldatadevicemanager_p.h"
 #include "wayland_wrapper/qwlregion_p.h"
@@ -55,6 +52,9 @@
 
 #include <QtCompositor/private/qwaylandcompositor_p.h>
 #include <QtCompositor/private/qwaylandview_p.h>
+#include <QtCompositor/private/qwaylandinput_p.h>
+
+#include <QtCore/private/qobject_p.h>
 
 #include <QtGui/QGuiApplication>
 #include <QtGui/QScreen>

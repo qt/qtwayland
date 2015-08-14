@@ -100,7 +100,6 @@ public:
     void sendFullTouchEvent(QTouchEvent *event);
 
     QWaylandPointer *pointer() const;
-
     //Normally set by the mouse device,
     //But can be set manually for use with touch or can reset unset the current mouse focus;
     QWaylandView *mouseFocus() const;
@@ -124,6 +123,7 @@ public:
 
     virtual bool isOwner(QInputEvent *inputEvent) const;
 
+    static QWaylandInputDevice *fromSeatResource(struct ::wl_resource *resource);
 Q_SIGNALS:
     void mouseFocusChanged(QWaylandView *newFocus, QWaylandView *oldFocus);
 };

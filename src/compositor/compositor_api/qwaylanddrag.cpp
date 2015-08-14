@@ -38,9 +38,9 @@
 
 #include <private/qobject_p.h>
 
-#include "qwlinputdevice_p.h"
 #include "qwldatadevice_p.h"
 #include "qwaylandview.h"
+#include <QtCompositor/private/qwaylandinput_p.h>
 
 QT_BEGIN_NAMESPACE
 

@@ -40,12 +40,12 @@
 #include <QtCompositor/qwaylandexport.h>
 #include <QtCompositor/qwaylandsurface.h>
 #include <QtCompositor/qwaylandextension.h>
+#include <QtCompositor/QWaylandPointerGrabber>
 
 #include <wayland-server.h>
 #include <QHash>
 #include <QPoint>
 #include <QSet>
-#include <private/qwlpointer_p.h>
 
 #include <QtCompositor/private/qwayland-server-wayland.h>
 

@@ -39,7 +39,6 @@
 #include "qwldatasource_p.h"
 #include "qwldataoffer_p.h"
 #include "qwlkeyboard_p.h"
-#include "qwlpointer_p.h"
 #include "qwaylandsurface_p.h"
 #include "qwltouch_p.h"
 #include "qwldatadevicemanager_p.h"
@@ -49,6 +48,7 @@
 #include <QtCompositor/QWaylandClient>
 #include <QtCompositor/private/qwaylandcompositor_p.h>
 #include <QtCompositor/private/qwaylandinput_p.h>
+#include <QtCompositor/private/qwaylandpointer_p.h>
 
 #include <QtCore/QPointF>
 #include <QDebug>

@@ -35,8 +35,8 @@
 **
 ****************************************************************************/
 
-#ifndef QTWAYLAND_QWLPOINTER_P_H
-#define QTWAYLAND_QWLPOINTER_P_H
+#ifndef QWAYLANDPOINTER_P_H
+#define QWAYLANDPOINTER_P_H
 
 #include <QtCompositor/qwaylandexport.h>
 #include <QtCompositor/QWaylandDestroyListener>
@@ -58,13 +58,6 @@ QT_BEGIN_NAMESPACE
 
 class QWaylandView;
 
-namespace QtWayland {
-
-class Compositor;
-class Surface;
-
-} // namespace QtWayland
-
 class Q_COMPOSITOR_EXPORT QWaylandPointerPrivate : public QObjectPrivate
                                                  , public QtWaylandServer::wl_pointer
 {
@@ -72,38 +65,8 @@ class Q_COMPOSITOR_EXPORT QWaylandPointerPrivate : public QObjectPrivate
 public:
     QWaylandPointerPrivate(QWaylandPointer *pointer, QWaylandInputDevice *seat);
 
-    QWaylandOutput *output() const { return m_output; }
-    void setOutput(QWaylandOutput *output)
-    {
-        if (m_output == output) return;
-        Q_Q(QWaylandPointer);
-        m_output = output;
-        q->outputChanged();
-    }
+    QWaylandCompositor *compositor() const { return seat->compositor(); }
 
-
-    void startGrab(QWaylandPointerGrabber *currentGrab);
-    void endGrab();
-    QWaylandPointerGrabber *currentGrab() const;
-    Qt::MouseButton grabButton() const;
-    uint32_t grabTime() const;
-    uint32_t grabSerial() const;
-
-    void sendMousePressEvent(Qt::MouseButton button);
-    void sendMouseReleaseEvent(Qt::MouseButton button);
-    void sendMouseMoveEvent(QWaylandView *view, const QPointF &localPos, const QPointF &outputSpacePos);
-    void sendMouseWheelEvent(Qt::Orientation orientation, int delta);
-
-    Resource *focusResource() const { return m_focusResource; }
-    QWaylandView *mouseFocus() const { return m_seat->mouseFocus(); }
-
-    bool buttonPressed() const;
-
-    QWaylandInputDevice *seat() const { return m_seat; }
-    QWaylandCompositor *compositor() const { return m_seat->compositor(); }
-
-    QPointF currentSpacePosition() const { return m_spacePosition; }
-    QPointF currentLocalPosition() const { return m_localPosition; }
 protected:
     void pointer_set_cursor(Resource *resource, uint32_t serial, wl_resource *surface, int32_t hotspot_x, int32_t hotspot_y) Q_DECL_OVERRIDE;
     void pointer_release(Resource *resource) Q_DECL_OVERRIDE;
@@ -112,26 +75,26 @@ protected:
 private:
     void focusDestroyed(void *data);
 
-    QWaylandInputDevice *m_seat;
-    QWaylandOutput *m_output;
-    QWaylandDefaultPointerGrabber m_defaultGrab;
+    QWaylandInputDevice *seat;
+    QWaylandOutput *output;
+    QWaylandDefaultPointerGrabber defaultGrab;
 
-    QPointF m_localPosition;
-    QPointF m_spacePosition;
+    QPointF localPosition;
+    QPointF spacePosition;
 
-    QWaylandPointerGrabber *m_grab;
-    Qt::MouseButton m_grabButton;
-    uint32_t m_grabTime;
-    uint32_t m_grabSerial;
+    QWaylandPointerGrabber *grab;
+    Qt::MouseButton grabButton;
+    uint32_t grabTime;
+    uint32_t grabSerial;
 
-    Resource *m_focusResource;
-    bool m_hasSentEnter;
+    struct ::wl_resource *focusResource;
+    bool hasSentEnter;
 
-    int m_buttonCount;
+    int buttonCount;
 
-    QWaylandDestroyListener m_focusDestroyListener;
+    QWaylandDestroyListener focusDestroyListener;
 };
 
 QT_END_NAMESPACE
 
-#endif // QTWAYLAND_QWLPOINTER_P_H
+#endif // QWAYLANDPOINTER_P_H

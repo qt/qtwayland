@@ -39,7 +39,7 @@
 
 #include <QtCompositor/private/qwayland-server-wayland.h>
 #include <QtCompositor/QWaylandPointerGrabber>
-#include <qwlpointer_p.h>
+#include <QtCompositor/QWaylandInputDevice>
 #include <QtCompositor/QWaylandOutputSpace>
 
 QT_BEGIN_NAMESPACE

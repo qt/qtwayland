@@ -185,13 +185,12 @@ void QWindowCompositor::ensureKeyboardFocusSurface(QWaylandSurface *oldSurface)
 {
     QWaylandSurface *kbdFocus = defaultInputDevice()->keyboardFocus();
     if (kbdFocus == oldSurface || !kbdFocus)
-        defaultInputDevice()->setKeyboardFocus(m_surfaces.isEmpty() ? 0 : m_surfaces.last());
+        defaultInputDevice()->setKeyboardFocus(m_visibleSurfaces.isEmpty() ? 0 : m_visibleSurfaces.last());
 }
 
 void QWindowCompositor::surfaceDestroyed()
 {
     QWaylandSurface *surface = static_cast<QWaylandSurface *>(sender());
-    m_surfaces.removeOne(surface);
     ensureKeyboardFocusSurface(surface);
     m_renderScheduler.start(0);
 }
@@ -206,30 +205,27 @@ void QWindowCompositor::surfaceMappedChanged()
 }
 void QWindowCompositor::surfaceMapped(QWaylandSurface *surface)
 {
+    Q_ASSERT(!m_visibleSurfaces.contains(surface));
     QtWayland::ShellSurface *shellSurface = QtWayland::ShellSurface::findIn(surface);
     QPoint pos;
-    if (!m_surfaces.contains(surface)) {
-        if (!shellSurface || (shellSurface->surfaceType() != QtWayland::ShellSurface::Popup)) {
-            uint px = 0;
-            uint py = 0;
-            if (!QCoreApplication::arguments().contains(QLatin1String("-stickytopleft"))) {
-                px = 1 + (qrand() % (m_window->width() - surface->size().width() - 2));
-                py = 1 + (qrand() % (m_window->height() - surface->size().height() - 2));
-            }
-            pos = QPoint(px, py);
-            QWaylandView *view = surface->views().first();
-            view->setRequestedPosition(pos);
+    if (!shellSurface || (shellSurface->surfaceType() != QtWayland::ShellSurface::Popup)) {
+        uint px = 0;
+        uint py = 0;
+        if (!QCoreApplication::arguments().contains(QLatin1String("-stickytopleft"))) {
+            px = 1 + (qrand() % (m_window->width() - surface->size().width() - 2));
+            py = 1 + (qrand() % (m_window->height() - surface->size().height() - 2));
         }
-    } else {
-        m_surfaces.removeOne(surface);
-    }
-
-    if (shellSurface && shellSurface->surfaceType() == QtWayland::ShellSurface::Popup) {
+        pos = QPoint(px, py);
         QWaylandView *view = surface->views().first();
+        view->setRequestedPosition(pos);
+    }
+    if (shellSurface && shellSurface->surfaceType() == QtWayland::ShellSurface::Popup) {
+        QWaylandView *view = shellSurface->view();
         view->setRequestedPosition(shellSurface->transientParent()->views().first()->pos() + shellSurface->transientOffset());
     }
 
-    m_surfaces.append(surface);
+    m_visibleSurfaces.append(surface);
+
     if (!surface->isCursorSurface())
         defaultInputDevice()->setKeyboardFocus(surface);
 
@@ -238,7 +234,7 @@ void QWindowCompositor::surfaceMapped(QWaylandSurface *surface)
 
 void QWindowCompositor::surfaceUnmapped(QWaylandSurface *surface)
 {
-    m_surfaces.removeOne(surface);
+    m_visibleSurfaces.removeOne(surface);
 
     ensureKeyboardFocusSurface(surface);
     m_renderScheduler.start(0);
@@ -330,8 +326,8 @@ QWaylandSurface *QWindowCompositor::createSurface(QWaylandClient *client, quint3
 
 QWaylandView *QWindowCompositor::viewAt(const QPointF &point, QPointF *local)
 {
-    for (int i = m_surfaces.size() - 1; i >= 0; --i) {
-        QWaylandSurface *surface = m_surfaces.at(i);
+    for (int i = m_visibleSurfaces.size() - 1; i >= 0; --i) {
+        QWaylandSurface *surface = m_visibleSurfaces.at(i);
         foreach (QWaylandView *view, surface->views()) {
             QRectF geo(view->pos(), surface->size());
             if (geo.contains(point)) {
@@ -361,7 +357,7 @@ void QWindowCompositor::render()
                                   m_window->size(),
                                   0, false, true);
 
-    foreach (QWaylandSurface *surface, m_surfaces) {
+    foreach (QWaylandSurface *surface, m_visibleSurfaces) {
         if (!surface->isMapped())
             continue;
         drawSubSurface(QPoint(), surface);
@@ -388,7 +384,7 @@ void QWindowCompositor::drawSubSurface(const QPoint &offset, QWaylandSurface *s)
         surface->hasSentOnScreen = onscreen;
     }
 
-    if (onscreen) {
+    if (surface->isMapped() && onscreen) {
         m_textureBlitter->drawTexture(texture, geo, m_window->size(), 0, false, invert_y);
 
         QtWayland::SubSurface *subSurface = QtWayland::SubSurface::findIn(surface);
@@ -436,8 +432,8 @@ bool QWindowCompositor::eventFilter(QObject *obj, QEvent *event)
         } else {
             if (target && input->keyboardFocus() != target->surface()) {
                 input->setKeyboardFocus(target->surface());
-                m_surfaces.removeOne(target->surface());
-                m_surfaces.append(target->surface());
+                m_visibleSurfaces.removeOne(target->surface());
+                m_visibleSurfaces.append(target->surface());
                 m_renderScheduler.start(0);
             }
             input->sendMousePressEvent(me->button());

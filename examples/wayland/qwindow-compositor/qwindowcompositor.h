@@ -105,7 +105,7 @@ private:
     CompositorWindow *m_window;
     QImage m_backgroundImage;
     QOpenGLTexture *m_backgroundTexture;
-    QList<QWaylandSurface *> m_surfaces;
+    QList<QWaylandSurface *> m_visibleSurfaces;
     TextureBlitter *m_textureBlitter;
     GLuint m_surface_fbo;
     QTimer m_renderScheduler;

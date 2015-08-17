@@ -74,7 +74,7 @@ QWaylandView::~QWaylandView()
         if (i->mouseFocus() == this)
             i->setMouseFocus(Q_NULLPTR);
 
-        d->surface->deref();
+        QWaylandSurfacePrivate::get(d->surface)->derefView(this);
     }
 
 }

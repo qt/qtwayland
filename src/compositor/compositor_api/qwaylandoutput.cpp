@@ -498,7 +498,7 @@ void QWaylandOutput::frameStarted()
     for (int i = 0; i < d->surfaceViews.size(); i++) {
         QWaylandSurfaceViewMapper &surfacemapper = d->surfaceViews[i];
         if (surfacemapper.maybeThrottelingView())
-            QWaylandSurfacePrivate::get(surfacemapper.surface)->frameStarted();
+            surfacemapper.surface->frameStarted();
     }
 }
 
@@ -512,7 +512,7 @@ void QWaylandOutput::sendFrameCallbacks()
                 surfaceEnter(surfacemapper.surface);
             }
             if (surfacemapper.maybeThrottelingView())
-                QWaylandSurfacePrivate::get(surfacemapper.surface)->sendFrameCallback();
+                surfacemapper.surface->sendFrameCallbacks();
         }
     }
     wl_display_flush_clients(d->compositor->display());

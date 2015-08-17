@@ -97,12 +97,10 @@ public:
     bool inputRegionContains(const QPoint &p) const;
 
     Q_INVOKABLE void destroy();
-    bool isDestroyed() const;
+    Q_INVOKABLE bool isDestroyed() const;
 
+    Q_INVOKABLE void frameStarted();
     Q_INVOKABLE void sendFrameCallbacks();
-
-    void ref();
-    void deref();
 
     QWaylandView *throttlingView() const;
     void setThrottlingView(QWaylandView *view);

@@ -80,24 +80,17 @@ public:
     QWaylandSurfacePrivate(QWaylandClient *client, quint32 id, int version, QWaylandCompositor *compositor);
     ~QWaylandSurfacePrivate();
 
+    void ref();
+    void deref();
+
     void refView(QWaylandView *view);
     void derefView(QWaylandView *view);
-
-    static QWaylandSurfacePrivate *fromResource(struct ::wl_resource *resource)
-    { return static_cast<QWaylandSurfacePrivate *>(Resource::fromResource(resource)->surface_object); }
-
-    bool mapped() const { return QtWayland::SurfaceBuffer::hasContent(buffer); }
 
     using QtWaylandServer::wl_surface::resource;
 
     void setSize(const QSize &size);
 
-    void sendFrameCallback();
     void removeFrameCallback(QtWayland::FrameCallback *callback);
-
-    void frameStarted();
-
-    QWaylandSurface::Origin origin() const { return buffer ? buffer->origin() : QWaylandSurface::OriginTopLeft; }
 
     void notifyViewsAboutDestruction();
 
@@ -155,6 +148,7 @@ protected: //member variables
     QSize size;
     bool isCursorSurface;
     bool destroyed;
+    bool mapped;
     Qt::ScreenOrientation contentOrientation;
     QWindow::Visibility visibility;
 

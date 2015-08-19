@@ -42,7 +42,6 @@
 #include <QtCompositor/QWaylandInputDevice>
 #include <QtCompositor/QWaylandPointer>
 
-#include "qwlsubsurface_p.h"
 #include "qwlextendedsurface_p.h"
 
 #include "qwaylandview.h"

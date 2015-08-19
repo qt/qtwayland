@@ -43,7 +43,6 @@
 #include "wayland_wrapper/qwlregion_p.h"
 
 #include "extensions/qwlextendedsurface_p.h"
-#include "extensions/qwlsubsurface_p.h"
 
 #include <QtCompositor/QWaylandCompositor>
 #include <QtCompositor/QWaylandClient>

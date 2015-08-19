@@ -56,7 +56,6 @@
 #include "extensions/qwlinputpanel_p.h"
 #include "extensions/qwlshellsurface_p.h"
 #include "extensions/qwlextendedsurface_p.h"
-#include "extensions/qwlsubsurface_p.h"
 #include "extensions/qwlqttouch_p.h"
 #include "extensions/qwlqtkey_p.h"
 #include "extensions/qwltextinputmanager_p.h"
@@ -272,8 +271,6 @@ void QWaylandCompositorPrivate::initializeExtensions()
     Q_Q(QWaylandCompositor);
     if (extensions & QWaylandCompositor::SurfaceExtension)
         new QtWayland::SurfaceExtensionGlobal(q);
-    if (extensions & QWaylandCompositor::SubSurfaceExtension)
-        new QtWayland::SubSurfaceExtensionGlobal(q);
     if (extensions & QWaylandCompositor::TouchExtension)
         new QtWayland::TouchExtensionGlobal(q);
     if (extensions & QWaylandCompositor::QtKeyExtension)

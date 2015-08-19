@@ -61,7 +61,6 @@
 
 #include <QtCompositor/private/qwlshellsurface_p.h>
 #include <QtCompositor/private/qwlextendedsurface_p.h>
-#include <QtCompositor/private/qwlsubsurface_p.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -398,13 +397,6 @@ void QWindowCompositor::drawSubSurface(const QPoint &offset, QWaylandSurface *s)
 
     if (surface->isMapped() && onscreen) {
         m_textureBlitter->drawTexture(texture, geo, m_window->size(), 0, false, invert_y);
-
-        QtWayland::SubSurface *subSurface = QtWayland::SubSurface::findIn(surface);
-        if (subSurface) {
-            foreach (QWaylandSurface *child, subSurface->subSurfaces()) {
-                drawSubSurface(pos, child);
-            }
-        }
     }
 }
 

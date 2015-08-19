@@ -70,10 +70,12 @@ class Surface : public QWaylandSurface
 public:
     Surface(QWaylandClient *client, quint32 id, int version, QWaylandCompositor *compositor)
         : QWaylandSurface(client, id, version, compositor)
+        , shellSurface(Q_NULLPTR)
         , extSurface(Q_NULLPTR)
         , hasSentOnScreen(false)
     { }
 
+    QtWayland::ShellSurface *shellSurface;
     QtWayland::ExtendedSurface *extSurface;
     bool hasSentOnScreen;
 };
@@ -264,12 +266,14 @@ void QWindowCompositor::onSurfaceCreated(QWaylandSurface *surface)
     connect(surface, &QWaylandSurface::redraw, this, &QWindowCompositor::surfaceCommittedSlot);
 }
 
-void QWindowCompositor::onShellSurfaceCreated(QWaylandSurface *surface, QtWayland::ShellSurface *shellSurface)
+void QWindowCompositor::onShellSurfaceCreated(QWaylandSurface *s, QtWayland::ShellSurface *shellSurface)
 {
+    Surface *surface = static_cast<Surface *>(s);
     SurfaceView *newView = new SurfaceView();
     newView->setSurface(surface);
     newView->setOutput(output(m_window));
     shellSurface->setView(newView);
+    surface->shellSurface = shellSurface;
     m_renderScheduler.start(0);
 }
 
@@ -373,7 +377,15 @@ void QWindowCompositor::render()
 void QWindowCompositor::drawSubSurface(const QPoint &offset, QWaylandSurface *s)
 {
     Surface *surface = static_cast<Surface *>(s);
-    SurfaceView *view = static_cast<SurfaceView *>(surface->views().first());
+    SurfaceView *view = Q_NULLPTR;
+    if (surface->shellSurface && surface->shellSurface->view())
+        view = static_cast<SurfaceView *>(surface->shellSurface->view());
+    else if (surface->views().size())
+        view = static_cast<SurfaceView *>(surface->views().first());
+
+    if (!view)
+        return;
+
     GLuint texture = view->updateTextureToCurrentBuffer();
     bool invert_y = view->currentBuffer().origin() == QWaylandSurface::OriginTopLeft;
     QPoint pos = view->pos().toPoint() + offset;

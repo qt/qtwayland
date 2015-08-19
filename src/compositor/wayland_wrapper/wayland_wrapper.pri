@@ -11,7 +11,6 @@ HEADERS += \
     wayland_wrapper/qwldatasource_p.h \
     wayland_wrapper/qwlinputmethod_p.h \
     wayland_wrapper/qwlinputmethodcontext_p.h \
-    wayland_wrapper/qwlkeyboard_p.h \
     wayland_wrapper/qwlregion_p.h \
     wayland_wrapper/qwlsurfacebuffer_p.h \
     wayland_wrapper/qwltouch_p.h \
@@ -24,7 +23,6 @@ SOURCES += \
     wayland_wrapper/qwldatasource.cpp \
     wayland_wrapper/qwlinputmethod.cpp \
     wayland_wrapper/qwlinputmethodcontext.cpp \
-    wayland_wrapper/qwlkeyboard.cpp \
     wayland_wrapper/qwlregion.cpp \
     wayland_wrapper/qwlsurfacebuffer.cpp \
     wayland_wrapper/qwltouch.cpp \

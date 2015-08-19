@@ -9,6 +9,7 @@ HEADERS += \
     compositor_api/qwaylandinput.h \
     compositor_api/qwaylandinput_p.h \
     compositor_api/qwaylandkeyboard.h \
+    compositor_api/qwaylandkeyboard_p.h \
     compositor_api/qwaylandpointer.h \
     compositor_api/qwaylandpointer_p.h \
     compositor_api/qwaylandtouch.h \

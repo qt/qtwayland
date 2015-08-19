@@ -37,9 +37,10 @@
 #include "qwlinputmethod_p.h"
 
 #include <QtCompositor/QWaylandCompositor>
+#include <QtCompositor/QWaylandKeyboard>
+#include <QtCompositor/QWaylandInputDevice>
 #include "qwlinputmethodcontext_p.h"
 #include "qwlinputpanel_p.h"
-#include "qwlkeyboard_p.h"
 #include "qwltextinput_p.h"
 
 QT_BEGIN_NAMESPACE

@@ -37,7 +37,6 @@
 #include "qwaylandinput.h"
 #include "qwaylandinput_p.h"
 
-#include "qwlkeyboard_p.h"
 #include "qwaylandcompositor.h"
 #include "qwaylandview.h"
 #include <QtCompositor/QWaylandDrag>

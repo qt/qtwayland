@@ -57,7 +57,7 @@ public:
     virtual void modifiers(uint32_t serial, uint32_t mods_depressed,
                            uint32_t mods_latched, uint32_t mods_locked, uint32_t group) = 0;
 
-    QWaylandKeyboard *m_keyboard;
+    QWaylandKeyboard *keyboard;
 };
 
 class Q_COMPOSITOR_EXPORT QWaylandKeymap

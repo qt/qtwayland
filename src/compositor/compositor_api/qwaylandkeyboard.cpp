@@ -36,11 +36,299 @@
 ****************************************************************************/
 
 #include "qwaylandkeyboard.h"
-#include "qwlkeyboard_p.h"
+#include "qwaylandkeyboard_p.h"
+#include <QtCompositor/QWaylandCompositor>
 #include <QtCompositor/QWaylandInputDevice>
 #include <QtCompositor/QWaylandClient>
 
+#include <QtCompositor/private/qwlshellsurface_p.h>
+
+#include <QtCore/QFile>
+#include <QtCore/QStandardPaths>
+
+#include <fcntl.h>
+#include <unistd.h>
+#ifndef QT_NO_WAYLAND_XKB
+#include <sys/mman.h>
+#include <sys/types.h>
+#endif
+
+
 QT_BEGIN_NAMESPACE
+
+QWaylandKeyboardPrivate::QWaylandKeyboardPrivate(QWaylandInputDevice *seat)
+    : QtWaylandServer::wl_keyboard()
+    , seat(seat)
+    , grab(this)
+    , focus()
+    , focusResource()
+    , keys()
+    , modsDepressed()
+    , modsLatched()
+    , modsLocked()
+    , group()
+    , pendingKeymap(false)
+#ifndef QT_NO_WAYLAND_XKB
+    , xkb_state(0)
+#endif
+{
+#ifndef QT_NO_WAYLAND_XKB
+    initXKB();
+#endif
+}
+
+QWaylandKeyboardPrivate::~QWaylandKeyboardPrivate()
+{
+#ifndef QT_NO_WAYLAND_XKB
+    if (xkb_context) {
+        if (keymap_area)
+            munmap(keymap_area, keymap_size);
+        close(keymap_fd);
+        xkb_context_unref(xkb_context);
+        xkb_state_unref(xkb_state);
+    }
+#endif
+}
+
+QWaylandKeyboardPrivate *QWaylandKeyboardPrivate::get(QWaylandKeyboard *keyboard)
+{
+    return keyboard->d_func();
+}
+
+void QWaylandKeyboardPrivate::focused(QWaylandSurface *surface)
+{
+    if (surface && surface->isCursorSurface())
+        surface = Q_NULLPTR;
+    if (focusResource && focus != surface) {
+        uint32_t serial = compositor()->nextSerial();
+        send_leave(focusResource->handle, serial, focus->resource());
+        focusDestroyListener.reset();
+    }
+
+    Resource *resource = surface ? resourceMap().value(surface->waylandClient()) : 0;
+
+    if (resource && (focus != surface || focusResource != resource)) {
+        uint32_t serial = compositor()->nextSerial();
+        send_modifiers(resource->handle, serial, modsDepressed, modsLatched, modsLocked, group);
+        send_enter(resource->handle, serial, surface->resource(), QByteArray::fromRawData((char *)keys.data(), keys.size() * sizeof(uint32_t)));
+        focusDestroyListener.listenForDestruction(surface->resource());
+    }
+
+    focusResource = resource;
+    focus = surface;
+    Q_EMIT q_func()->focusChanged(focus);
+}
+
+
+void QWaylandKeyboardPrivate::keyboard_bind_resource(wl_keyboard::Resource *resource)
+{
+#ifndef QT_NO_WAYLAND_XKB
+    if (xkb_context) {
+        send_keymap(resource->handle, WL_KEYBOARD_KEYMAP_FORMAT_XKB_V1,
+                    keymap_fd, keymap_size);
+        return;
+    }
+#endif
+    int null_fd = open("/dev/null", O_RDONLY);
+    send_keymap(resource->handle, 0 /* WL_KEYBOARD_KEYMAP_FORMAT_NO_KEYMAP */,
+                null_fd, 0);
+    close(null_fd);
+}
+
+void QWaylandKeyboardPrivate::keyboard_destroy_resource(wl_keyboard::Resource *resource)
+{
+    if (focusResource == resource)
+        focusResource = 0;
+}
+
+void QWaylandKeyboardPrivate::keyboard_release(wl_keyboard::Resource *resource)
+{
+    wl_resource_destroy(resource->handle);
+}
+
+void QWaylandKeyboardPrivate::key(uint32_t serial, uint32_t time, uint32_t key, uint32_t state)
+{
+    if (focusResource) {
+        send_key(focusResource->handle, serial, time, key, state);
+    }
+}
+
+void QWaylandKeyboardPrivate::keyEvent(uint code, uint32_t state)
+{
+    uint key = code - 8;
+    if (state == WL_KEYBOARD_KEY_STATE_PRESSED) {
+        keys << key;
+    } else {
+        for (int i = 0; i < keys.size(); ++i) {
+            if (keys.at(i) == key) {
+                keys.remove(i);
+            }
+        }
+    }
+}
+
+void QWaylandKeyboardPrivate::sendKeyEvent(uint code, uint32_t state)
+{
+    uint32_t time = compositor()->currentTimeMsecs();
+    uint32_t serial = compositor()->nextSerial();
+    uint key = code - 8;
+    grab->key(serial, time, key, state);
+}
+
+void QWaylandKeyboardPrivate::modifiers(uint32_t serial, uint32_t mods_depressed,
+                         uint32_t mods_latched, uint32_t mods_locked, uint32_t group)
+{
+    if (focusResource) {
+        send_modifiers(focusResource->handle, serial, mods_depressed, mods_latched, mods_locked, group);
+    }
+}
+
+void QWaylandKeyboardPrivate::updateModifierState(uint code, uint32_t state)
+{
+#ifndef QT_NO_WAYLAND_XKB
+    if (!xkb_context)
+        return;
+
+    xkb_state_update_key(xkb_state, code, state == WL_KEYBOARD_KEY_STATE_PRESSED ? XKB_KEY_DOWN : XKB_KEY_UP);
+
+    uint32_t modsDepressed = xkb_state_serialize_mods(xkb_state, (xkb_state_component)XKB_STATE_DEPRESSED);
+    uint32_t modsLatched = xkb_state_serialize_mods(xkb_state, (xkb_state_component)XKB_STATE_LATCHED);
+    uint32_t modsLocked = xkb_state_serialize_mods(xkb_state, (xkb_state_component)XKB_STATE_LOCKED);
+    uint32_t group = xkb_state_serialize_group(xkb_state, (xkb_state_component)XKB_STATE_EFFECTIVE);
+
+    if (modsDepressed == modsDepressed
+            && modsLatched == modsLatched
+            && modsLocked == modsLocked
+            && group == group)
+        return;
+
+    modsDepressed = modsDepressed;
+    modsLatched = modsLatched;
+    modsLocked = modsLocked;
+    group = group;
+
+    grab->modifiers(compositor()->nextSerial(), modsDepressed, modsLatched, modsLocked, group);
+#else
+    Q_UNUSED(code);
+    Q_UNUSED(state);
+#endif
+}
+
+void QWaylandKeyboardPrivate::updateKeymap()
+{
+    // There must be no keys pressed when changing the keymap,
+    // see http://lists.freedesktop.org/archives/wayland-devel/2013-October/011395.html
+    if (!pendingKeymap || !keys.isEmpty())
+        return;
+
+    pendingKeymap = false;
+#ifndef QT_NO_WAYLAND_XKB
+    if (!xkb_context)
+        return;
+
+    createXKBKeymap();
+    foreach (Resource *res, resourceMap()) {
+        send_keymap(res->handle, WL_KEYBOARD_KEYMAP_FORMAT_XKB_V1, keymap_fd, keymap_size);
+    }
+
+    xkb_state_update_mask(xkb_state, 0, modsLatched, modsLocked, 0, 0, 0);
+    if (focusResource)
+        send_modifiers(focusResource->handle,
+                       compositor()->nextSerial(),
+                       modsDepressed,
+                       modsLatched,
+                       modsLocked,
+                       group);
+#endif
+}
+
+#ifndef QT_NO_WAYLAND_XKB
+static int createAnonymousFile(size_t size)
+{
+    QString path = QStandardPaths::writableLocation(QStandardPaths::RuntimeLocation);
+    if (path.isEmpty())
+        return -1;
+
+    QByteArray name = QFile::encodeName(path + QStringLiteral("/qtwayland-XXXXXX"));
+
+    int fd = mkstemp(name.data());
+    if (fd < 0)
+        return -1;
+
+    long flags = fcntl(fd, F_GETFD);
+    if (flags == -1 || fcntl(fd, F_SETFD, flags | FD_CLOEXEC) == -1) {
+        close(fd);
+        fd = -1;
+    }
+    unlink(name.constData());
+
+    if (fd < 0)
+        return -1;
+
+    if (ftruncate(fd, size) < 0) {
+        close(fd);
+        return -1;
+    }
+
+    return fd;
+}
+
+void QWaylandKeyboardPrivate::initXKB()
+{
+    xkb_context = xkb_context_new(static_cast<xkb_context_flags>(0));
+    if (!xkb_context) {
+        qWarning("Failed to create a XKB context: keymap will not be supported");
+        return;
+    }
+
+    createXKBKeymap();
+}
+
+void QWaylandKeyboardPrivate::createXKBKeymap()
+{
+    if (!xkb_context)
+        return;
+
+    if (xkb_state)
+        xkb_state_unref(xkb_state);
+
+    struct xkb_rule_names rule_names = { strdup(qPrintable(keymap.rules())),
+                                         strdup(qPrintable(keymap.model())),
+                                         strdup(qPrintable(keymap.layout())),
+                                         strdup(qPrintable(keymap.variant())),
+                                         strdup(qPrintable(keymap.options())) };
+    struct xkb_keymap *keymap = xkb_keymap_new_from_names(xkb_context, &rule_names, static_cast<xkb_keymap_compile_flags>(0));
+
+    char *keymap_str = xkb_keymap_get_as_string(keymap, XKB_KEYMAP_FORMAT_TEXT_V1);
+    if (!keymap_str)
+        qFatal("Failed to compile global XKB keymap");
+
+    keymap_size = strlen(keymap_str) + 1;
+    keymap_fd = createAnonymousFile(keymap_size);
+    if (keymap_fd < 0)
+        qFatal("Failed to create anonymous file of size %lu", static_cast<unsigned long>(keymap_size));
+
+    keymap_area = static_cast<char *>(mmap(0, keymap_size, PROT_READ | PROT_WRITE, MAP_SHARED, keymap_fd, 0));
+    if (keymap_area == MAP_FAILED) {
+        close(keymap_fd);
+        qFatal("Failed to map shared memory segment");
+    }
+
+    strcpy(keymap_area, keymap_str);
+    free(keymap_str);
+
+    xkb_state = xkb_state_new(keymap);
+
+    xkb_keymap_unref(keymap);
+
+    free((char *)rule_names.rules);
+    free((char *)rule_names.model);
+    free((char *)rule_names.layout);
+    free((char *)rule_names.variant);
+    free((char *)rule_names.options);
+}
+#endif
+
 
 QWaylandKeyboardGrabber::~QWaylandKeyboardGrabber()
 {
@@ -50,37 +338,37 @@ QWaylandKeyboard::QWaylandKeyboard(QWaylandInputDevice *seat, QObject *parent)
     : QObject(* new QWaylandKeyboardPrivate(seat), parent)
 {
     Q_D(QWaylandKeyboard);
-    connect(&d->m_focusDestroyListener, &QWaylandDestroyListener::fired, this, &QWaylandKeyboard::focusDestroyed);
+    connect(&d->focusDestroyListener, &QWaylandDestroyListener::fired, this, &QWaylandKeyboard::focusDestroyed);
 }
 
 QWaylandInputDevice *QWaylandKeyboard::inputDevice() const
 {
     Q_D(const QWaylandKeyboard);
-    return d->m_seat;
+    return d->seat;
 }
 
 QWaylandCompositor *QWaylandKeyboard::compositor() const
 {
     Q_D(const QWaylandKeyboard);
-    return d->m_seat->compositor();
+    return d->seat->compositor();
 }
 
 void QWaylandKeyboard::focusDestroyed(void *data)
 {
     Q_UNUSED(data);
     Q_D(QWaylandKeyboard);
-    d->m_focusDestroyListener.reset();
+    d->focusDestroyListener.reset();
 
-    d->m_focus = 0;
-    d->m_focusResource = 0;
+    d->focus = 0;
+    d->focusResource = 0;
 }
 
 QWaylandClient *QWaylandKeyboard::focusClient() const
 {
     Q_D(const QWaylandKeyboard);
-    if (!d->focusResource())
+    if (!d->focusResource)
         return Q_NULLPTR;
-    return QWaylandClient::fromWlClient(compositor(), d->focusResource()->client());
+    return QWaylandClient::fromWlClient(compositor(), d->focusResource->client());
 }
 
 void QWaylandKeyboard::sendKeyModifiers(QWaylandClient *client, uint serial)
@@ -88,54 +376,70 @@ void QWaylandKeyboard::sendKeyModifiers(QWaylandClient *client, uint serial)
     Q_D(QWaylandKeyboard);
     QtWaylandServer::wl_keyboard::Resource *resource = d->resourceMap().value(client->client());
     if (resource)
-        d->sendKeyModifiers(resource, serial);
+        d->send_modifiers(resource->handle, serial, d->modsDepressed, d->modsLatched, d->modsLocked, d->group);
 }
+
 void QWaylandKeyboard::sendKeyPressEvent(uint code)
 {
     Q_D(QWaylandKeyboard);
-    d->sendKeyPressEvent(code);
+    d->sendKeyEvent(code, WL_KEYBOARD_KEY_STATE_PRESSED);
 }
 
 void QWaylandKeyboard::sendKeyReleaseEvent(uint code)
 {
     Q_D(QWaylandKeyboard);
-    d->sendKeyReleaseEvent(code);
+    d->sendKeyEvent(code, WL_KEYBOARD_KEY_STATE_RELEASED);
 }
 
 QWaylandSurface *QWaylandKeyboard::focus() const
 {
     Q_D(const QWaylandKeyboard);
-    return d->focus();
+    return d->focus;
 }
 
 bool QWaylandKeyboard::setFocus(QWaylandSurface *surface)
 {
     Q_D(QWaylandKeyboard);
-    return d->setFocus(surface);
+    QtWayland::ShellSurface *shellsurface = QtWayland::ShellSurface::findIn(surface);
+    if (shellsurface &&  shellsurface->isTransientInactive())
+            return false;
+    d->grab->focused(surface);
+    return true;
 }
 
 void QWaylandKeyboard::setKeymap(const QWaylandKeymap &keymap)
 {
     Q_D(QWaylandKeyboard);
-    d->setKeymap(keymap);
+    d->keymap = keymap;
+
+    // If there is no key currently pressed, update right away the keymap
+    // Otherwise, delay the update when keys are released
+    // see http://lists.freedesktop.org/archives/wayland-devel/2013-October/011395.html
+    if (d->keys.isEmpty()) {
+        d->updateKeymap();
+    } else {
+        d->pendingKeymap = true;
+    }
 }
 
 void QWaylandKeyboard::startGrab(QWaylandKeyboardGrabber *grab)
 {
     Q_D(QWaylandKeyboard);
-    d->startGrab(grab);
+    d->grab = grab;
+    d->grab->keyboard = this;
+    d->grab->focused(d->focus);
 }
 
 void QWaylandKeyboard::endGrab()
 {
     Q_D(QWaylandKeyboard);
-    d->endGrab();
+    d->grab = d;
 }
 
 QWaylandKeyboardGrabber *QWaylandKeyboard::currentGrab() const
 {
     Q_D(const QWaylandKeyboard);
-    return d->currentGrab();
+    return d->grab;
 }
 
 void QWaylandKeyboard::addClient(QWaylandClient *client, uint32_t id)

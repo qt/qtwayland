@@ -55,15 +55,6 @@
 
 QT_BEGIN_NAMESPACE
 
-namespace QtWayland {
-
-class Compositor;
-class InputDevice;
-class Surface;
-class Keyboard;
-
-}
-
 class Q_COMPOSITOR_EXPORT QWaylandKeyboardPrivate : public QObjectPrivate
                                                   , public QtWaylandServer::wl_keyboard
                                                   , public QWaylandKeyboardGrabber
@@ -71,35 +62,23 @@ class Q_COMPOSITOR_EXPORT QWaylandKeyboardPrivate : public QObjectPrivate
 public:
     Q_DECLARE_PUBLIC(QWaylandKeyboard)
 
+    static QWaylandKeyboardPrivate *get(QWaylandKeyboard *keyboard);
+
     QWaylandKeyboardPrivate(QWaylandInputDevice *seat);
     ~QWaylandKeyboardPrivate();
 
-    QWaylandCompositor *compositor() const { return m_seat->compositor(); }
-    bool setFocus(QWaylandSurface *surface);
-    void setKeymap(const QWaylandKeymap &keymap);
-
-    void sendKeyModifiers(Resource *resource, uint32_t serial);
-    void sendKeyPressEvent(uint code);
-    void sendKeyReleaseEvent(uint code);
-
-    QWaylandSurface *focus() const;
-    Resource *focusResource() const { return m_focusResource; }
+    QWaylandCompositor *compositor() const { return seat->compositor(); }
 
     void focused(QWaylandSurface* surface);
     void key(uint32_t serial, uint32_t time, uint32_t key, uint32_t state);
     void modifiers(uint32_t serial, uint32_t mods_depressed,
                    uint32_t mods_latched, uint32_t mods_locked, uint32_t group);
 
-    void startGrab(QWaylandKeyboardGrabber *grab);
-    void endGrab();
-    QWaylandKeyboardGrabber *currentGrab() const;
-
-    static QWaylandKeyboardPrivate *get(QWaylandKeyboard *keyboard);
-
 #ifndef QT_NO_WAYLAND_XKB
-    struct xkb_state *xkbState() const { return m_state; }
-    uint32_t xkbModsMask() const { return m_modsDepressed | m_modsLatched | m_modsLocked; }
+    struct xkb_state *xkbState() const { return xkb_state; }
+    uint32_t xkbModsMask() const { return modsDepressed | modsLatched | modsLocked; }
 #endif
+
     void keyEvent(uint code, uint32_t state);
     void sendKeyEvent(uint code, uint32_t state);
     void updateModifierState(uint code, uint32_t state);
@@ -111,33 +90,32 @@ protected:
     void keyboard_release(Resource *resource) Q_DECL_OVERRIDE;
 
 private:
-
 #ifndef QT_NO_WAYLAND_XKB
     void initXKB();
     void createXKBKeymap();
 #endif
 
-    QWaylandInputDevice *m_seat;
+    QWaylandInputDevice *seat;
 
-    QWaylandKeyboardGrabber* m_grab;
-    QWaylandSurface *m_focus;
-    Resource *m_focusResource;
-    QWaylandDestroyListener m_focusDestroyListener;
+    QWaylandKeyboardGrabber* grab;
+    QWaylandSurface *focus;
+    Resource *focusResource;
+    QWaylandDestroyListener focusDestroyListener;
 
-    QVector<uint32_t> m_keys;
-    uint32_t m_modsDepressed;
-    uint32_t m_modsLatched;
-    uint32_t m_modsLocked;
-    uint32_t m_group;
+    QVector<uint32_t> keys;
+    uint32_t modsDepressed;
+    uint32_t modsLatched;
+    uint32_t modsLocked;
+    uint32_t group;
 
-    QWaylandKeymap m_keymap;
-    bool m_pendingKeymap;
+    QWaylandKeymap keymap;
+    bool pendingKeymap;
 #ifndef QT_NO_WAYLAND_XKB
-    size_t m_keymap_size;
-    int m_keymap_fd;
-    char *m_keymap_area;
-    struct xkb_context *m_context;
-    struct xkb_state *m_state;
+    size_t keymap_size;
+    int keymap_fd;
+    char *keymap_area;
+    struct xkb_context *xkb_context;
+    struct xkb_state *xkb_state;
 #endif
 };
 

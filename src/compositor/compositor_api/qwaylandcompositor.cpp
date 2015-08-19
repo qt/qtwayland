@@ -44,11 +44,11 @@
 #include <QtCompositor/qwaylandview.h>
 #include <QtCompositor/qwaylandclient.h>
 #include <QtCompositor/qwaylandkeyboard.h>
-#include <QtCompositor/private/qwlkeyboard_p.h>
 #include <QtCompositor/qwaylandpointer.h>
 #include <QtCompositor/qwaylandtouch.h>
 
-#include "qwaylandsurface_p.h"
+#include <QtCompositor/private/qwaylandkeyboard_p.h>
+#include <QtCompositor/private/qwaylandsurface_p.h>
 
 #include "wayland_wrapper/qwldatadevice_p.h"
 #include "wayland_wrapper/qwldatadevicemanager_p.h"

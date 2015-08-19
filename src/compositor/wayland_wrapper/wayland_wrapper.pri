@@ -13,7 +13,6 @@ HEADERS += \
     wayland_wrapper/qwlinputmethodcontext_p.h \
     wayland_wrapper/qwlregion_p.h \
     wayland_wrapper/qwlsurfacebuffer_p.h \
-    wayland_wrapper/qwltouch_p.h \
     ../shared/qwaylandxkb.h \
 
 SOURCES += \
@@ -25,7 +24,6 @@ SOURCES += \
     wayland_wrapper/qwlinputmethodcontext.cpp \
     wayland_wrapper/qwlregion.cpp \
     wayland_wrapper/qwlsurfacebuffer.cpp \
-    wayland_wrapper/qwltouch.cpp \
     ../shared/qwaylandxkb.cpp \
 
 INCLUDEPATH += wayland_wrapper

@@ -35,15 +35,44 @@
 ****************************************************************************/
 
 #include "qwaylandtouch.h"
+#include "qwaylandtouch_p.h"
 
 #include <QtCompositor/QWaylandCompositor>
 #include <QtCompositor/QWaylandInputDevice>
 #include <QtCompositor/QWaylandView>
 #include <QtCompositor/QWaylandClient>
 
-#include "qwltouch_p.h"
+#include <QtCompositor/private/qwlqttouch_p.h>
 
 QT_BEGIN_NAMESPACE
+
+QWaylandTouchPrivate::QWaylandTouchPrivate(QWaylandTouch *touch, QWaylandInputDevice *seat)
+    : wl_touch()
+    , seat(seat)
+    , focusResource()
+    , defaultGrab()
+    , grab(&defaultGrab)
+{
+    grab->touch = touch;
+}
+
+void QWaylandTouchPrivate::resetFocusState()
+{
+    focusDestroyListener.reset();
+    focusResource = 0;
+}
+
+void QWaylandTouchPrivate::touch_destroy_resource(Resource *resource)
+{
+    if (focusResource == resource) {
+        resetFocusState();
+    }
+}
+
+void QWaylandTouchPrivate::touch_release(Resource *resource)
+{
+    wl_resource_destroy(resource->handle);
+}
 
 QWaylandTouchGrabber::QWaylandTouchGrabber()
 {
@@ -90,13 +119,13 @@ void QWaylandDefaultTouchGrabber::motion(uint32_t time, int touch_id, const QPoi
 QWaylandTouch::QWaylandTouch(QWaylandInputDevice *seat, QObject *parent)
     : QObject(*new QWaylandTouchPrivate(this, seat), parent)
 {
-    connect(&d_func()->m_focusDestroyListener, &QWaylandDestroyListener::fired, this, &QWaylandTouch::focusDestroyed);
+    connect(&d_func()->focusDestroyListener, &QWaylandDestroyListener::fired, this, &QWaylandTouch::focusDestroyed);
 }
 
 QWaylandInputDevice *QWaylandTouch::inputDevice() const
 {
     Q_D(const QWaylandTouch);
-    return d->m_seat;
+    return d->seat;
 }
 
 QWaylandCompositor *QWaylandTouch::compositor() const
@@ -109,37 +138,76 @@ QWaylandCompositor *QWaylandTouch::compositor() const
 void QWaylandTouch::startGrab(QWaylandTouchGrabber *grab)
 {
     Q_D(QWaylandTouch);
-    d->startGrab(grab);
+    d->grab = grab;
+    grab->touch = this;
 }
 
 void QWaylandTouch::endGrab()
 {
     Q_D(QWaylandTouch);
-    d->endGrab();
+    d->grab = &d->defaultGrab;
 }
 
 void QWaylandTouch::sendTouchPointEvent(int id, const QPointF &position, Qt::TouchPointState state)
 {
     Q_D(QWaylandTouch);
-    d->sendTouchPoint(id, position, state);
+    switch (state) {
+    case Qt::TouchPointPressed:
+        d->sendDown(id, position);
+        break;
+    case Qt::TouchPointMoved:
+        d->sendMotion(id, position);
+        break;
+    case Qt::TouchPointReleased:
+        d->sendUp(id);
+        break;
+    case Qt::TouchPointStationary:
+        // stationary points are not sent through wayland, the client must cache them
+        break;
+    default:
+        break;
+    }
 }
 
 void QWaylandTouch::sendFrameEvent()
 {
     Q_D(QWaylandTouch);
-    d->sendFrame();
+    if (d->focusResource)
+        d->send_frame(d->focusResource->handle);
 }
 
 void QWaylandTouch::sendCancelEvent()
 {
     Q_D(QWaylandTouch);
-    d->sendCancel();
+    if (d->focusResource)
+        d->send_cancel(d->focusResource->handle);
 }
 
 void QWaylandTouch::sendFullTouchEvent(QTouchEvent *event)
 {
     Q_D(QWaylandTouch);
-    d->sendFullTouchEvent(event);
+    if (event->type() == QEvent::TouchCancel) {
+        sendCancelEvent();
+        return;
+    }
+
+    QtWayland::TouchExtensionGlobal *ext = QtWayland::TouchExtensionGlobal::findIn(d->compositor());
+    if (ext && ext->postTouchEvent(event, d->seat->mouseFocus()))
+        return;
+
+    const QList<QTouchEvent::TouchPoint> points = event->touchPoints();
+    if (points.isEmpty())
+        return;
+
+    const int pointCount = points.count();
+    QPointF pos = d->seat->mouseFocus()->requestedPosition();
+    for (int i = 0; i < pointCount; ++i) {
+        const QTouchEvent::TouchPoint &tp(points.at(i));
+        // Convert the local pos in the compositor window to surface-relative.
+        QPointF p = tp.pos() - pos;
+        sendTouchPointEvent(tp.id(), p, tp.state());
+    }
+    sendFrameEvent();
 }
 
 void QWaylandTouch::addClient(QWaylandClient *client, uint32_t id)
@@ -151,15 +219,15 @@ void QWaylandTouch::addClient(QWaylandClient *client, uint32_t id)
 struct wl_resource *QWaylandTouch::focusResource() const
 {
     Q_D(const QWaylandTouch);
-    if (!d->focusResource())
+    if (!d->focusResource)
         return Q_NULLPTR;
-    return d->focusResource()->handle;
+    return d->focusResource->handle;
 }
 
 QWaylandView *QWaylandTouch::mouseFocus() const
 {
     Q_D(const QWaylandTouch);
-    return d->m_seat->mouseFocus();
+    return d->seat->mouseFocus();
 }
 
 void QWaylandTouch::focusDestroyed(void *data)

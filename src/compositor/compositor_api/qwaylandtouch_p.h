@@ -42,8 +42,8 @@
 #include <QtCompositor/QWaylandDestroyListener>
 #include <QtCompositor/QWaylandTouch>
 #include <QtCompositor/QWaylandInputDevice>
-#include <QtCompositor/QWaylandClient>
 #include <QtCompositor/QWaylandView>
+#include <QtCompositor/QWaylandCompositor>
 
 #include <QtCore/QPoint>
 #include <QtCore/private/qobject_p.h>
@@ -52,55 +52,41 @@
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandView;
-class QWaylandCompositor;
-
 class Q_COMPOSITOR_EXPORT QWaylandTouchPrivate : public QObjectPrivate, public QtWaylandServer::wl_touch
 {
     Q_DECLARE_PUBLIC(QWaylandTouch)
 public:
     explicit QWaylandTouchPrivate(QWaylandTouch *touch, QWaylandInputDevice *seat);
 
-    QWaylandCompositor *compositor() const { return m_seat->compositor(); }
+    QWaylandCompositor *compositor() const { return seat->compositor(); }
 
-    void startGrab(QWaylandTouchGrabber *grab);
-    void endGrab();
-
-    void sendCancel();
-    void sendFrame();
-
-    void sendTouchPoint(int id, const QPointF &point, Qt::TouchPointState state);
-    void sendDown(int touch_id, const QPointF &position);
-    void sendMotion(int touch_id, const QPointF &position);
-    void sendUp(int touch_id);
-
-    void sendFullTouchEvent(QTouchEvent *event);
-
-    Resource *focusResource() const { return m_focusResource; }
+    void sendDown(int touch_id, const QPointF &position) { grab->down(compositor()->currentTimeMsecs(), touch_id, position);}
+    void sendMotion(int touch_id, const QPointF &position) { grab->motion(compositor()->currentTimeMsecs(), touch_id, position); }
+    void sendUp(int touch_id) { grab->up(compositor()->currentTimeMsecs(), touch_id); }
 
     void setFocusResource()
     {
-        if (m_focusResource)
+        if (focusResource)
             return;
 
-        QWaylandView *mouseFocus = m_seat->mouseFocus();
+        QWaylandView *mouseFocus = seat->mouseFocus();
         if (!mouseFocus || !mouseFocus->surface())
             return;
 
-        m_focusResource = resourceMap().value(mouseFocus->surface()->waylandClient());
+        focusResource = resourceMap().value(mouseFocus->surface()->waylandClient());
     }
 private:
     void resetFocusState();
     void touch_destroy_resource(Resource *resource) Q_DECL_OVERRIDE;
     void touch_release(Resource *resource) Q_DECL_OVERRIDE;
 
-    QWaylandInputDevice *m_seat;
+    QWaylandInputDevice *seat;
 
-    Resource *m_focusResource;
-    QWaylandDestroyListener m_focusDestroyListener;
+    Resource *focusResource;
+    QWaylandDestroyListener focusDestroyListener;
 
-    QWaylandDefaultTouchGrabber m_defaultGrab;
-    QWaylandTouchGrabber *m_grab;
+    QWaylandDefaultTouchGrabber defaultGrab;
+    QWaylandTouchGrabber *grab;
 };
 
 QT_END_NAMESPACE

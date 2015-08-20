@@ -102,9 +102,9 @@ void TextInput::text_input_activate(Resource *, wl_resource *seat, wl_resource *
 
     bool wasEmpty = m_activeInputMethods.isEmpty();
 
-    InputMethod *inputMethod = QWaylandInputDevicePrivate::get(QWaylandInputDevice::fromSeatResource(seat))->inputMethod();
+    InputMethod *inputMethod = InputMethod::findIn(QWaylandInputDevice::fromSeatResource(seat));
 
-    if (!m_activeInputMethods.contains(inputMethod)) {
+    if (inputMethod && !m_activeInputMethods.contains(inputMethod)) {
         m_activeInputMethods.append(inputMethod);
         inputMethod->activate(this);
     }
@@ -115,9 +115,10 @@ void TextInput::text_input_activate(Resource *, wl_resource *seat, wl_resource *
 
 void TextInput::text_input_deactivate(Resource *, wl_resource *seat)
 {
-    InputMethod *inputMethod = QWaylandInputDevicePrivate::get(QWaylandInputDevice::fromSeatResource(seat))->inputMethod();
+    InputMethod *inputMethod = InputMethod::findIn(QWaylandInputDevice::fromSeatResource(seat));
 
-    deactivate(inputMethod);
+    if (inputMethod)
+        deactivate(inputMethod);
 }
 
 static bool isInputMethodBound(InputMethod *inputMethod)

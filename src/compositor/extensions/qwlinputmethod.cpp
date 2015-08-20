@@ -47,9 +47,9 @@ QT_BEGIN_NAMESPACE
 
 namespace QtWayland {
 
-InputMethod::InputMethod(QWaylandCompositor *compositor, QWaylandInputDevice *seat)
-    : QtWaylandServer::wl_input_method(compositor->display(), 1)
-    , m_compositor(compositor)
+InputMethod::InputMethod(QWaylandInputDevice *seat)
+    : QWaylandExtensionTemplate<InputMethod>(seat)
+    , QtWaylandServer::wl_input_method(seat->compositor()->display(), 1)
     , m_seat(seat)
     , m_resource(0)
     , m_textInput()
@@ -78,7 +78,7 @@ void InputMethod::activate(TextInput *textInput)
 
     send_activate(m_resource->handle, m_context->resource()->handle);
 
-    QWaylandInputPanelPrivate *panel = QWaylandInputPanelPrivate::findIn(m_compositor);
+    QWaylandInputPanelPrivate *panel = QWaylandInputPanelPrivate::findIn(compositor());
     if (panel) {
         panel->setFocus(textInput->focus());
         panel->setCursorRectangle(textInput->cursorRectangle());
@@ -97,7 +97,7 @@ void InputMethod::deactivate()
     m_textInput = 0;
     m_context = 0;
 
-    QWaylandInputPanelPrivate *panel = QWaylandInputPanelPrivate::findIn(m_compositor);
+    QWaylandInputPanelPrivate *panel = QWaylandInputPanelPrivate::findIn(compositor());
     if (panel) {
         panel->setFocus(0);
         panel->setCursorRectangle(QRect());

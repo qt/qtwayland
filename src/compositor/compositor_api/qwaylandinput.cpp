@@ -57,7 +57,6 @@ QWaylandInputDevicePrivate::QWaylandInputDevicePrivate(QWaylandInputDevice *inpu
     , outputSpace(compositor->primaryOutputSpace())
     , mouseFocus(Q_NULLPTR)
     , capabilities()
-    , input_method(compositor->extensionFlags() & QWaylandCompositor::TextInputExtension ? new QtWayland::InputMethod(compositor, inputdevice) : 0)
     , data_device()
     , drag_handle(new QWaylandDrag(inputdevice))
 {

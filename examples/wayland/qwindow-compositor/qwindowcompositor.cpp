@@ -122,8 +122,6 @@ QWindowCompositor::QWindowCompositor(CompositorWindow *window)
     , m_cursorHotspotY(0)
     , m_modifiers(Qt::NoModifier)
 {
-    setExtensionFlags(DefaultExtensions | SubSurfaceExtension);
-
     m_window->makeCurrent();
 
     m_textureBlitter = new TextureBlitter();
@@ -143,8 +141,6 @@ QWindowCompositor::~QWindowCompositor()
 
 void QWindowCompositor::create()
 {
-    setExtensionFlags(extensionFlags());
-
     QWaylandCompositor::create();
 
     primaryOutputSpace()->addOutputWindow(m_window, "", "");

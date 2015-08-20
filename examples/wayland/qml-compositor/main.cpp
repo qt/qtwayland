@@ -66,7 +66,6 @@ public:
         : m_fullscreenSurface(0)
         , m_output(0)
     {
-        m_compositor.setExtensionFlags(QWaylandCompositor::DefaultExtensions | QWaylandCompositor::SubSurfaceExtension);
         m_compositor.create();
 
         setSource(QUrl("main.qml"));

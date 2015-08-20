@@ -71,25 +71,11 @@ class Q_COMPOSITOR_EXPORT QWaylandCompositor : public QObject, public QWaylandEx
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandCompositor)
     Q_PROPERTY(QByteArray socketName READ socketName WRITE setSocketName)
-    Q_PROPERTY(QWaylandCompositor::ExtensionFlags extensionFlags READ extensionFlags WRITE setExtensionFlags)
     Q_PROPERTY(bool retainedSelection READ retainedSelectionEnabled WRITE setRetainedSelectionEnabled)
     Q_PROPERTY(QWaylandOutputSpace *primaryOutputSpace READ primaryOutputSpace WRITE setPrimaryOutputSpace NOTIFY primaryOutputSpaceChanged)
     Q_PROPERTY(QWaylandOutput *primaryOutput READ primaryOutput NOTIFY primaryOutputChanged)
 
 public:
-    enum ExtensionFlag {
-        WindowManagerExtension = 0x01,
-        SurfaceExtension = 0x02,
-        QtKeyExtension = 0x04,
-        TouchExtension = 0x08,
-        SubSurfaceExtension = 0x10,
-        TextInputExtension = 0x20,
-        HardwareIntegrationExtension = 0x40,
-
-        DefaultExtensions = WindowManagerExtension | SurfaceExtension | QtKeyExtension | TouchExtension | HardwareIntegrationExtension
-    };
-    Q_DECLARE_FLAGS(ExtensionFlags, ExtensionFlag)
-
     QWaylandCompositor(QObject *parent = 0);
     virtual ~QWaylandCompositor();
 
@@ -98,9 +84,6 @@ public:
 
     void setSocketName(const QByteArray &name);
     QByteArray socketName() const;
-
-    void setExtensionFlags(ExtensionFlags flags);
-    ExtensionFlags extensionFlags() const;
 
     ::wl_display *display() const;
     uint32_t nextSerial();
@@ -166,8 +149,6 @@ protected:
 
     QWaylandCompositor(QWaylandCompositorPrivate *dptr);
 };
-
-Q_DECLARE_OPERATORS_FOR_FLAGS(QWaylandCompositor::ExtensionFlags)
 
 QT_END_NAMESPACE
 

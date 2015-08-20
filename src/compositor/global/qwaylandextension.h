@@ -57,12 +57,12 @@ public:
 
     QWaylandExtension *extension(const QByteArray &name);
     QWaylandExtension *extension(const wl_interface *interface);
-    QVector<QWaylandExtension *> extensions() const;
+    QList<QWaylandExtension *> extensions() const;
     void addExtension(QWaylandExtension *extension);
     void removeExtension(QWaylandExtension *extension);
 
 protected:
-    QVector<QWaylandExtension *> extension_vector;
+    QList<QWaylandExtension *> extension_vector;
 };
 
 class Q_COMPOSITOR_EXPORT QWaylandExtension : public QObject

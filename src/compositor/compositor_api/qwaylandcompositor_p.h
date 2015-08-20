@@ -107,8 +107,6 @@ protected:
     void loadClientBufferIntegration();
     void loadServerBufferIntegration();
 
-    QWaylandCompositor::ExtensionFlags extensions;
-
     QByteArray socket_name;
     struct wl_display *display;
 

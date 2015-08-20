@@ -39,7 +39,6 @@
 #include "qwldatasource_p.h"
 #include "qwldataoffer_p.h"
 #include "qwaylandsurface_p.h"
-#include "qwltouch_p.h"
 #include "qwldatadevicemanager_p.h"
 
 #include "qwaylanddrag.h"

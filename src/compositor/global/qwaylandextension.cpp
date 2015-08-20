@@ -85,7 +85,7 @@ QWaylandExtension *QWaylandExtensionContainer::extension(const wl_interface *int
     return Q_NULLPTR;
 }
 
-QVector<QWaylandExtension *> QWaylandExtensionContainer::extensions() const
+QList<QWaylandExtension *> QWaylandExtensionContainer::extensions() const
 {
     return extension_vector;
 }

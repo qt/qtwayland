@@ -53,20 +53,13 @@
 #include "wayland_wrapper/qwldatadevice_p.h"
 #include "wayland_wrapper/qwldatadevicemanager_p.h"
 
-#include "extensions/qwlinputpanel_p.h"
-#include "extensions/qwlshellsurface_p.h"
-#include "extensions/qwlextendedsurface_p.h"
-#include "extensions/qwlqttouch_p.h"
-#include "extensions/qwlqtkey_p.h"
-#include "extensions/qwltextinputmanager_p.h"
-#include "extensions/qwaylandwindowmanagerextension.h"
-
 #include "hardware_integration/qwlhwintegration_p.h"
 #include "hardware_integration/qwlclientbufferintegration_p.h"
 #include "hardware_integration/qwlclientbufferintegrationfactory_p.h"
 #include "hardware_integration/qwlserverbufferintegration_p.h"
 #include "hardware_integration/qwlserverbufferintegrationfactory_p.h"
 
+#include "extensions/qwaylandwindowmanagerextension.h"
 
 #include "qwaylandxkb.h"
 #include "qwaylandshmformathelper.h"
@@ -135,8 +128,7 @@ public:
 } // namespace
 
 QWaylandCompositorPrivate::QWaylandCompositorPrivate(QWaylandCompositor *compositor)
-    : extensions(QWaylandCompositor::DefaultExtensions)
-    , display(wl_display_create())
+    : display(wl_display_create())
 #if defined (QT_COMPOSITOR_WAYLAND_GL)
     , hw_integration(0)
     , client_buffer_integration(0)
@@ -194,7 +186,6 @@ void QWaylandCompositorPrivate::init()
     //initialize distancefieldglyphcache here
 
     initializeHardwareIntegration();
-    initializeExtensions();
     initializeDefaultInputDevice();
 
     initialized = true;
@@ -253,9 +244,6 @@ void QWaylandCompositorPrivate::initializeHardwareIntegration()
 {
 #ifdef QT_COMPOSITOR_WAYLAND_GL
     Q_Q(QWaylandCompositor);
-    if (extensions & QWaylandCompositor::HardwareIntegrationExtension)
-        hw_integration.reset(new QtWayland::HardwareIntegration(q));
-
     loadClientBufferIntegration();
     loadServerBufferIntegration();
 
@@ -264,23 +252,6 @@ void QWaylandCompositorPrivate::initializeHardwareIntegration()
     if (server_buffer_integration)
         server_buffer_integration->initializeHardware(q);
 #endif
-}
-
-void QWaylandCompositorPrivate::initializeExtensions()
-{
-    Q_Q(QWaylandCompositor);
-    if (extensions & QWaylandCompositor::SurfaceExtension)
-        new QtWayland::SurfaceExtensionGlobal(q);
-    if (extensions & QWaylandCompositor::TouchExtension)
-        new QtWayland::TouchExtensionGlobal(q);
-    if (extensions & QWaylandCompositor::QtKeyExtension)
-        new QtWayland::QtKeyExtensionGlobal(q);
-    if (extensions & QWaylandCompositor::TextInputExtension) {
-        new QtWayland::TextInputManager(q);
-        new QWaylandInputPanel(q);
-    }
-    if (extensions & QWaylandCompositor::WindowManagerExtension)
-        new QWaylandWindowManagerExtension(q);
 }
 
 void QWaylandCompositorPrivate::initializeDefaultInputDevice()
@@ -370,22 +341,6 @@ QByteArray QWaylandCompositor::socketName() const
 {
     Q_D(const QWaylandCompositor);
     return d->socket_name;
-}
-
-void QWaylandCompositor::setExtensionFlags(QWaylandCompositor::ExtensionFlags flags)
-{
-    Q_D(QWaylandCompositor);
-    if (d->initialized) {
-        qWarning("%s: It is not supported to alter the extension flags after the compositor is initialized\n", Q_FUNC_INFO);
-        return;
-    }
-    d->extensions = flags;
-}
-
-QWaylandCompositor::ExtensionFlags QWaylandCompositor::extensionFlags() const
-{
-    Q_D(const QWaylandCompositor);
-    return d->extensions;
 }
 
 struct wl_display *QWaylandCompositor::display() const

@@ -1,16 +1,12 @@
 CONFIG += wayland-scanner
 WAYLANDSERVERSOURCES += \
     ../3rdparty/protocol/wayland.xml \
-    ../3rdparty/protocol/input-method.xml \
-    ../3rdparty/protocol/text.xml
 
 HEADERS += \
     wayland_wrapper/qwldatadevice_p.h \
     wayland_wrapper/qwldatadevicemanager_p.h \
     wayland_wrapper/qwldataoffer_p.h \
     wayland_wrapper/qwldatasource_p.h \
-    wayland_wrapper/qwlinputmethod_p.h \
-    wayland_wrapper/qwlinputmethodcontext_p.h \
     wayland_wrapper/qwlregion_p.h \
     wayland_wrapper/qwlsurfacebuffer_p.h \
     ../shared/qwaylandxkb.h \
@@ -20,8 +16,6 @@ SOURCES += \
     wayland_wrapper/qwldatadevicemanager.cpp \
     wayland_wrapper/qwldataoffer.cpp \
     wayland_wrapper/qwldatasource.cpp \
-    wayland_wrapper/qwlinputmethod.cpp \
-    wayland_wrapper/qwlinputmethodcontext.cpp \
     wayland_wrapper/qwlregion.cpp \
     wayland_wrapper/qwlsurfacebuffer.cpp \
     ../shared/qwaylandxkb.cpp \

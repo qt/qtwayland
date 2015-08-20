@@ -38,6 +38,8 @@
 #define QTWAYLAND_QWLINPUTMETHOD_H
 
 #include <QtCompositor/private/qwayland-server-input-method.h>
+#include <QtCompositor/QWaylandExtension>
+#include <QtCompositor/QWaylandInputDevice>
 
 #include <QObject>
 #include <QScopedPointer>
@@ -54,13 +56,14 @@ namespace QtWayland {
 class InputMethodContext;
 class TextInput;
 
-class InputMethod : public QObject, public QtWaylandServer::wl_input_method
+class InputMethod : public QWaylandExtensionTemplate<InputMethod> , public QtWaylandServer::wl_input_method
 {
     Q_OBJECT
-
 public:
-    explicit InputMethod(QWaylandCompositor *compositor, QWaylandInputDevice *seat);
+    explicit InputMethod(QWaylandInputDevice *seat);
     ~InputMethod();
+
+    QWaylandCompositor *compositor() const { return m_seat->compositor(); }
 
     void activate(TextInput *textInput);
     void deactivate();
@@ -78,7 +81,6 @@ private Q_SLOTS:
     void focusChanged(QWaylandSurface *surface);
 
 private:
-    QWaylandCompositor *m_compositor;
     QWaylandInputDevice *m_seat;
     Resource *m_resource;
     TextInput *m_textInput;

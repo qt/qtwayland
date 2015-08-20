@@ -88,7 +88,6 @@ public:
     static QWaylandInputDevicePrivate *get(QWaylandInputDevice *device) { return device->d_func(); }
 
     QtWayland::DataDevice *dataDevice() const { return data_device.data(); }
-    QtWayland::InputMethod *inputMethod() const { return input_method.data(); }
 
 protected:
     void seat_bind_resource(wl_seat::Resource *resource) Q_DECL_OVERRIDE;
@@ -111,7 +110,6 @@ private:
     QScopedPointer<QWaylandPointer> pointer;
     QScopedPointer<QWaylandKeyboard> keyboard;
     QScopedPointer<QWaylandTouch> touch;
-    QScopedPointer<QtWayland::InputMethod> input_method;
     QScopedPointer<QtWayland::DataDevice> data_device;
     QScopedPointer<QWaylandDrag> drag_handle;
 

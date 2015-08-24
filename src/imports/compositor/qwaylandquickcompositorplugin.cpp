@@ -45,8 +45,9 @@
 #include <QtCompositor/QWaylandClient>
 #include <QtCompositor/QWaylandOutput>
 #include <QtCompositor/QWaylandOutputSpace>
+#include <QtCompositor/QWaylandExtension>
 
-#include <QtCompositor/QWaylandCompositor>
+#include <QtCompositor/QWaylandShell>
 
 #include <QtCompositor/qwaylandexport.h>
 #include "qwaylandmousetracker_p.h"
@@ -57,6 +58,7 @@ class Q_COMPOSITOR_EXPORT QWaylandQuickCompositorImpl : public QWaylandQuickComp
 {
     Q_OBJECT
     Q_PROPERTY(QQmlListProperty<QObject> data READ data DESIGNABLE false)
+    Q_PROPERTY(QQmlListProperty<QWaylandExtension> extensions READ extensions)
     Q_CLASSINFO("DefaultProperty", "data")
 public:
     QWaylandQuickCompositorImpl(QObject *parent = 0)
@@ -70,17 +72,42 @@ public:
         return QQmlListProperty<QObject>(this, m_objects);
     }
 
-protected:
-    void classBegin() Q_DECL_OVERRIDE
+    QQmlListProperty<QWaylandExtension> extensions()
     {
-        QWaylandQuickCompositor::classBegin();
+        return QQmlListProperty<QWaylandExtension>(this, this,
+                                                   &QWaylandQuickCompositorImpl::append_extension,
+                                                   &QWaylandQuickCompositorImpl::countFunction,
+                                                   &QWaylandQuickCompositorImpl::atFunction,
+                                                   &QWaylandQuickCompositorImpl::clearFunction);
     }
 
+    static int countFunction(QQmlListProperty<QWaylandExtension> *list)
+    {
+        return static_cast<QWaylandQuickCompositorImpl *>(list->data)->extension_vector.size();
+    }
+
+    static QWaylandExtension *atFunction(QQmlListProperty<QWaylandExtension> *list, int index)
+    {
+        return static_cast<QWaylandQuickCompositorImpl *>(list->data)->extension_vector.at(index);
+    }
+
+    static void append_extension(QQmlListProperty<QWaylandExtension> *list, QWaylandExtension *extension)
+    {
+        QWaylandQuickCompositorImpl *compositor = static_cast<QWaylandQuickCompositorImpl *>(list->data);
+        extension->setExtensionContainer(compositor);
+    }
+
+    static void clearFunction(QQmlListProperty<QWaylandExtension> *list)
+    {
+        static_cast<QWaylandQuickCompositorImpl *>(list->data)->extension_vector.clear();
+    }
+protected:
     void componentComplete() Q_DECL_OVERRIDE
     {
         create();
         QWaylandQuickCompositor::componentComplete();
     }
+
 private:
     QList<QObject *> m_objects;
 };
@@ -148,12 +175,19 @@ public:
     static void defineModule(const char *uri)
     {
         qmlRegisterType<QWaylandQuickCompositorImpl>(uri, 1, 0, "WaylandCompositor");
-        qmlRegisterType<QWaylandQuickItem>(uri, 1, 0, "WaylandView");
+        qmlRegisterType<QWaylandQuickItem>(uri, 1, 0, "WaylandQuickItem");
         qmlRegisterType<QWaylandMouseTracker>(uri, 1, 0, "WaylandMouseTracker");
+
+        qmlRegisterUncreatableType<QWaylandExtension>(uri, 1, 0, "WaylandExtension", QObject::tr("Cannot create instance of WaylandExtension"));
         qmlRegisterUncreatableType<QWaylandQuickSurface>(uri, 1, 0, "WaylandSurface", QObject::tr("Cannot create instance of WaylandQuickSurface"));
         qmlRegisterUncreatableType<QWaylandClient>(uri, 1, 0, "WaylandClient", QObject::tr("Cannot create instance of WaylandClient"));
         qmlRegisterUncreatableType<QWaylandOutput>(uri, 1, 0, "WaylandOutput", QObject::tr("Cannot create instance of WaylandOutput"));
         qmlRegisterUncreatableType<QWaylandOutputSpace>(uri, 1, 0, "WaylandOutputSpace", QObject::tr("Cannot create instance of WaylandOutputSpace"));
+        qmlRegisterUncreatableType<QWaylandView>(uri, 1, 0, "WaylandView", QObject::tr("Cannot create instance of WaylandView, it can be retrieved by accessor on WaylandQuickItem"));
+
+        //This should probably be somewhere else
+        qmlRegisterType<QWaylandShell>(uri, 1, 0, "DefaultShell");
+        qmlRegisterUncreatableType<QWaylandShellSurface>(uri, 1, 0, "DefaultShellSurface", QObject::tr("Cannot create instance of DefaultShellSurface"));
     }
 };
 //![class decl]

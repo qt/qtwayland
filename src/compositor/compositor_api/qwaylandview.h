@@ -37,26 +37,34 @@
 #ifndef QWAYLANDSURFACEVIEW_H
 #define QWAYLANDSURFACEVIEW_H
 
-#include <QPointF>
-
 #include <QtCompositor/QWaylandBufferRef>
 #include <QtCompositor/qwaylandexport.h>
+
+#include <QtCore/QPointF>
+#include <QtCore/QObject>
 
 QT_BEGIN_NAMESPACE
 
 class QWaylandSurface;
-class QWaylandCompositor;
 class QWaylandViewPrivate;
 class QWaylandOutput;
 
-class Q_COMPOSITOR_EXPORT QWaylandView
+class Q_COMPOSITOR_EXPORT QWaylandView : public QObject
 {
+    Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandView)
+    Q_PROPERTY(QObject *renderObject READ renderObject CONSTANT)
+    Q_PROPERTY(QWaylandSurface *surface READ surface WRITE setSurface NOTIFY surfaceChanged)
+    Q_PROPERTY(QWaylandOutput *output READ output WRITE setOutput NOTIFY outputChanged)
+    Q_PROPERTY(QPointF requestedPosition READ requestedPosition WRITE setRequestedPosition NOTIFY requestedPositionChanged)
+    Q_PROPERTY(qreal requestedXPosition READ requestedXPosition WRITE setRequestedXPosition NOTIFY requestedXPositionChanged)
+    Q_PROPERTY(qreal requestedYPosition READ requestedYPosition WRITE setRequestedYPosition NOTIFY requestedYPositionChanged)
+    Q_PROPERTY(bool bufferLock READ isBufferLocked WRITE setBufferLock NOTIFY bufferLockChanged)
 public:
-    QWaylandView();
+    QWaylandView(QObject *renderObject = 0, QObject *parent = 0);
     virtual ~QWaylandView();
 
-    QWaylandCompositor *compositor() const;
+    QObject *renderObject() const;
 
     QWaylandSurface *surface() const;
     void setSurface(QWaylandSurface *surface);
@@ -64,29 +72,31 @@ public:
     QWaylandOutput *output() const;
     void setOutput(QWaylandOutput *output);
 
-    virtual void setRequestedPosition(const QPointF &pos);
-    virtual QPointF requestedPosition() const;
-    virtual QPointF pos() const;
+    QPointF requestedPosition() const;
+    void setRequestedPosition(const QPointF &pos);
+    qreal requestedXPosition() const;
+    void setRequestedXPosition(qreal xPos);
+    qreal requestedYPosition() const;
+    void setRequestedYPosition(qreal yPos);
 
     virtual void attach(const QWaylandBufferRef &ref, const QRegion &damage);
     virtual bool advance();
     virtual QWaylandBufferRef currentBuffer();
     virtual QRegion currentDamage();
 
-    bool lockedBuffer() const;
-    void setLockedBuffer(bool locked);
-
-    bool broadcastRequestedPositionChanged() const;
-    void setBroadcastRequestedPositionChanged(bool broadcast);
+    bool isBufferLocked() const;
+    void setBufferLock(bool locked);
 
     struct wl_resource *surfaceResource() const;
-protected:
-    virtual void waylandSurfaceChanged(QWaylandSurface *newSurface, QWaylandSurface *oldSurface);
-    virtual void waylandSurfaceDestroyed();
-    virtual void waylandOutputChanged(QWaylandOutput *newOutput, QWaylandOutput *oldOutput);
 
-private:
-    QScopedPointer<QWaylandViewPrivate> d_ptr;
+Q_SIGNALS:
+    void surfaceChanged();
+    void surfaceDestroyed();
+    void outputChanged();
+    void requestedPositionChanged();
+    void requestedXPositionChanged();
+    void requestedYPositionChanged();
+    void bufferLockChanged();
 };
 
 QT_END_NAMESPACE

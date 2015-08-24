@@ -44,13 +44,13 @@
 
 QT_BEGIN_NAMESPACE
 
-QWaylandWindowManagerExtension::QWaylandWindowManagerExtension(QWaylandCompositor *compositor, QObject *parent)
-    : QWaylandExtensionTemplate(*new QWaylandWindowManagerExtensionPrivate(compositor), parent)
+QWaylandWindowManagerExtension::QWaylandWindowManagerExtension(QWaylandCompositor *compositor)
+    : QWaylandExtensionTemplate(compositor, *new QWaylandWindowManagerExtensionPrivate(compositor))
 {
 }
 
 QWaylandWindowManagerExtensionPrivate::QWaylandWindowManagerExtensionPrivate(QWaylandCompositor *compositor)
-    : QWaylandExtensionTemplatePrivate(compositor)
+    : QWaylandExtensionTemplatePrivate()
     , m_showIsFullScreen(false)
     , m_compositor(compositor)
 {

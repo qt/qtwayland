@@ -38,31 +38,95 @@
 #include "qwaylandextension.h"
 #include "qwaylandextension_p.h"
 
+#include <QtCore/QCoreApplication>
+#include <QtCore/QDebug>
+
 #include <wayland-server.h>
 
 QT_BEGIN_NAMESPACE
 
-QWaylandExtension::QWaylandExtension(QWaylandExtensionContainer *container, QObject *parent)
-    : QObject(*new QWaylandExtensionPrivate(container), parent)
+QWaylandExtension::QWaylandExtension()
+    : QObject(*new QWaylandExtensionPrivate())
 {
-    container->addExtension(this);
 }
 
-QWaylandExtension::QWaylandExtension(QWaylandExtensionPrivate &dd, QObject *parent)
-    : QObject(dd,parent)
+QWaylandExtension::QWaylandExtension(QWaylandExtensionContainer *container)
+    : QObject(*new QWaylandExtensionPrivate())
 {
-    d_func()->extension_container->addExtension(this);
+    d_func()->extension_container = container;
+    QCoreApplication::postEvent(this, new QEvent(QEvent::Polish));
+}
+
+QWaylandExtension::QWaylandExtension(QWaylandExtensionPrivate &dd)
+    : QObject(dd)
+{
+}
+
+QWaylandExtension::QWaylandExtension(QWaylandExtensionContainer *container, QWaylandExtensionPrivate &dd)
+    : QObject(dd)
+{
+    d_func()->extension_container = container;
+    QCoreApplication::postEvent(this, new QEvent(QEvent::Polish));
 }
 
 QWaylandExtension::~QWaylandExtension()
 {
     Q_D(QWaylandExtension);
-    d->extension_container->removeExtension(this);
+    if (d->extension_container)
+        d->extension_container->removeExtension(this);
+}
+
+QWaylandExtensionContainer *QWaylandExtension::extensionContainer() const
+{
+    Q_D(const QWaylandExtension);
+    return d->extension_container;
+}
+
+void QWaylandExtension::setExtensionContainer(QWaylandExtensionContainer *container)
+{
+    Q_D(QWaylandExtension);
+    d->extension_container = container;
+}
+
+void QWaylandExtension::initialize()
+{
+    Q_D(QWaylandExtension);
+    if (d->initialized) {
+        qWarning() << "QWaylandExtension:" << extensionInterface()->name << "is already initialized";
+        return;
+    }
+
+    if (!d->extension_container) {
+        qWarning() << "QWaylandExtension:" << extensionInterface()->name << "requests to initialize with no extension container set";
+        return;
+    }
+
+    d->extension_container->addExtension(this);
+    d->initialized = true;
+}
+
+bool QWaylandExtension::isInitialized() const
+{
+    Q_D(const QWaylandExtension);
+    return d->initialized;
+}
+
+bool QWaylandExtension::event(QEvent *event)
+{
+    switch(event->type()) {
+    case QEvent::Polish:
+        initialize();
+        break;
+    default:
+        break;
+    }
+    return QObject::event(event);
 }
 
 QWaylandExtensionContainer::~QWaylandExtensionContainer()
 {
     foreach (QWaylandExtension *extension, extension_vector) {
+        QWaylandExtensionPrivate::get(extension)->extension_container = Q_NULLPTR;
         delete extension;
     }
 }
@@ -98,6 +162,7 @@ void QWaylandExtensionContainer::addExtension(QWaylandExtension *extension)
 
 void QWaylandExtensionContainer::removeExtension(QWaylandExtension *extension)
 {
+    Q_ASSERT(extension_vector.contains(extension));
     extension_vector.removeOne(extension);
 }
 

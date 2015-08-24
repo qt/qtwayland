@@ -45,7 +45,7 @@
 QT_BEGIN_NAMESPACE
 
 QWaylandInputPanel::QWaylandInputPanel(QWaylandCompositor *compositor)
-    : QWaylandExtensionTemplate(*new QWaylandInputPanelPrivate(compositor))
+    : QWaylandExtensionTemplate(compositor, *new QWaylandInputPanelPrivate(compositor))
 {
 }
 

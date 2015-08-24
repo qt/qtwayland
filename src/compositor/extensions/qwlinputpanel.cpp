@@ -46,7 +46,7 @@
 QT_BEGIN_NAMESPACE
 
 QWaylandInputPanelPrivate::QWaylandInputPanelPrivate(QWaylandCompositor *compositor)
-    : QWaylandExtensionTemplatePrivate(compositor)
+    : QWaylandExtensionTemplatePrivate()
     , QtWaylandServer::wl_input_panel()
     , m_compositor(compositor)
     , m_focus()

@@ -70,13 +70,23 @@ class Q_COMPOSITOR_EXPORT QWaylandExtension : public QObject
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandExtension)
 public:
-    QWaylandExtension(QWaylandExtensionContainer *container, QObject *parent = 0);
+    QWaylandExtension();
+    QWaylandExtension(QWaylandExtensionContainer *container);
     virtual ~QWaylandExtension();
+
+    QWaylandExtensionContainer *extensionContainer() const;
+    void setExtensionContainer(QWaylandExtensionContainer *container);
+
+    Q_INVOKABLE virtual void initialize();
+    bool isInitialized() const;
 
     virtual const struct wl_interface *extensionInterface() const = 0;
 
 protected:
-    QWaylandExtension(QWaylandExtensionPrivate &dd, QObject *parent = 0);
+    QWaylandExtension(QWaylandExtensionPrivate &dd);
+    QWaylandExtension(QWaylandExtensionContainer *container, QWaylandExtensionPrivate &dd);
+
+    bool event(QEvent *event) Q_DECL_OVERRIDE;
 };
 
 template <typename T>
@@ -84,8 +94,12 @@ class Q_COMPOSITOR_EXPORT QWaylandExtensionTemplate : public QWaylandExtension
 {
     Q_DECLARE_PRIVATE(QWaylandExtensionTemplate)
 public:
-    QWaylandExtensionTemplate(QWaylandExtensionContainer *container, QObject *_parent = 0)
-        : QWaylandExtension(container, _parent)
+    QWaylandExtensionTemplate()
+        : QWaylandExtension()
+    { }
+
+    QWaylandExtensionTemplate(QWaylandExtensionContainer *container)
+        : QWaylandExtension(container)
     { }
 
     const struct wl_interface *extensionInterface() const Q_DECL_OVERRIDE
@@ -100,8 +114,12 @@ public:
     }
 
 protected:
-    QWaylandExtensionTemplate(QWaylandExtensionTemplatePrivate &dd, QObject *_parent = 0)
-        : QWaylandExtension(dd, _parent)
+    QWaylandExtensionTemplate(QWaylandExtensionTemplatePrivate &dd)
+        : QWaylandExtension(dd)
+    { }
+
+    QWaylandExtensionTemplate(QWaylandExtensionContainer *container, QWaylandExtensionTemplatePrivate &dd)
+        : QWaylandExtension(container,dd)
     { }
 };
 

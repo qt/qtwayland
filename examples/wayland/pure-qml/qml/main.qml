@@ -44,6 +44,8 @@ import QtWayland.Compositor 1.0
 WaylandCompositor {
     id: compositor
 
+    property var primarySurfacesArea: null
+
     Component {
         id: screenComponent
         Screen { }
@@ -54,17 +56,30 @@ WaylandCompositor {
         Chrome { }
     }
 
+    extensions: [
+        DefaultShell {
+
+            onShellSurfaceCreated: {
+                var item = chromeComponent.createObject(primarySurfacesArea);
+                item.surface = surface;
+                item.followRequestedPosition = true;
+                shellSurface.view = item.view;
+            }
+
+            Component.onCompleted: {
+                initialize();
+            }
+        }
+    ]
+
     Component.onCompleted: {
         addScreen();
     }
 
     function addScreen() {
         var screen = screenComponent.createObject(0, { "compositor" : compositor } );
+        primarySurfacesArea = screen.surfacesArea;
         var output = compositor.primaryOutputSpace.addOutputWindow(screen, "", "");
         output.automaticFrameCallbacks = true;
-    }
-
-    onSurfaceCreated: {
-        var chrome = chromeComponent.createObject(primaryOutputSpace.primaryOutput.window.surfacesArea, { "surface" : surface } );
     }
 }

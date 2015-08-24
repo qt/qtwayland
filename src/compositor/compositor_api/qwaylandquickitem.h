@@ -55,26 +55,28 @@ class QWaylandSurfaceTextureProvider;
 class QMutex;
 class QWaylandInputDevice;
 
-class Q_COMPOSITOR_EXPORT QWaylandQuickItem : public QQuickItem, public QWaylandView
+class Q_COMPOSITOR_EXPORT QWaylandQuickItem : public QQuickItem
 {
     Q_OBJECT
-    Q_PROPERTY(QWaylandQuickSurface* surface READ surface WRITE setSurface NOTIFY surfaceChanged)
+    Q_PROPERTY(QWaylandView *view READ view CONSTANT)
+    Q_PROPERTY(QWaylandCompositor *compositor READ compositor)
+    Q_PROPERTY(QWaylandSurface *surface READ surface WRITE setSurface NOTIFY surfaceChanged)
     Q_PROPERTY(bool paintEnabled READ paintEnabled WRITE setPaintEnabled)
     Q_PROPERTY(bool touchEventsEnabled READ touchEventsEnabled WRITE setTouchEventsEnabled NOTIFY touchEventsEnabledChanged)
     Q_PROPERTY(QWaylandSurface::Origin origin READ origin NOTIFY originChanged)
     Q_PROPERTY(bool resizeSurfaceToItem READ resizeSurfaceToItem WRITE setResizeSurfaceToItem NOTIFY resizeSurfaceToItemChanged)
     Q_PROPERTY(bool followRequestedPosition READ followRequestedPosition WRITE setFollowRequestedPosition NOTIFY followRequestedPositionChanged)
-    Q_PROPERTY(qreal requestedXPosition READ requestedXPosition WRITE setRequestedXPosition NOTIFY requestedXPositionChanged)
-    Q_PROPERTY(qreal requestedYPosition READ requestedYPosition WRITE setRequestedYPosition NOTIFY requestedYPositionChanged)
     Q_PROPERTY(bool inputEventsEnabled READ inputEventsEnabled WRITE setInputEventsEnabled NOTIFY inputEventsEnabledChanged)
-    Q_PROPERTY(bool lockedBuffer READ lockedBuffer WRITE setLockedBuffer NOTIFY lockedBufferChanged)
 
 public:
     QWaylandQuickItem(QQuickItem *parent = 0);
     ~QWaylandQuickItem();
 
-    QWaylandQuickSurface *surface() const;
-    void setSurface(QWaylandQuickSurface *surface);
+    QWaylandCompositor *compositor() const;
+    QWaylandView *view() const;
+
+    QWaylandSurface *surface() const;
+    void setSurface(QWaylandSurface *surface);
 
     QWaylandSurface::Origin origin() const;
 
@@ -91,20 +93,10 @@ public:
     bool inputEventsEnabled() const { return m_inputEventsEnabled; }
     void setInputEventsEnabled(bool enabled);
 
-    void setRequestedPosition(const QPointF &pos) Q_DECL_OVERRIDE;
-    QPointF pos() const Q_DECL_OVERRIDE;
-
     bool followRequestedPosition() const;
     void setFollowRequestedPosition(bool follow);
-    qreal requestedXPosition() const;
-    void setRequestedXPosition(qreal xPos);
-    qreal requestedYPosition() const;
-    void setRequestedYPosition(qreal yPos);
 
     Q_INVOKABLE void syncGraphicsState();
-
-    bool lockedBuffer() const;
-    void setLockedBuffer(bool locked);
 
 protected:
     void mousePressEvent(QMouseEvent *event);
@@ -121,21 +113,18 @@ protected:
     void touchEvent(QTouchEvent *event);
     void mouseUngrabEvent() Q_DECL_OVERRIDE;
 
-    void waylandSurfaceChanged(QWaylandSurface *newSurface, QWaylandSurface *oldSurface) Q_DECL_OVERRIDE;
-    void waylandSurfaceDestroyed() Q_DECL_OVERRIDE;
-
 public Q_SLOTS:
     virtual void takeFocus(QWaylandInputDevice *device = 0);
     void setPaintEnabled(bool paintEnabled);
 
 private Q_SLOTS:
     void surfaceMappedChanged();
+    void handleSurfaceChanged();
     void parentChanged(QWaylandSurface *newParent, QWaylandSurface *oldParent);
     void updateSize();
     void updateBuffer(bool hasBuffer);
     void updateWindow();
     void beforeSync();
-    void outputHasChanged();
 
 Q_SIGNALS:
     void surfaceChanged();
@@ -144,10 +133,7 @@ Q_SIGNALS:
     void resizeSurfaceToItemChanged();
     void surfaceDestroyed();
     void followRequestedPositionChanged();
-    void requestedXPositionChanged();
-    void requestedYPositionChanged();
     void inputEventsEnabledChanged();
-    void lockedBufferChanged();
 
 protected:
     QSGNode *updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *);
@@ -155,10 +141,12 @@ protected:
 private:
     friend class QWaylandSurfaceNode;
     friend class QWaylandQuickSurface;
-    bool shouldSendInputEvents() const { return surface() && m_inputEventsEnabled; }
+    bool shouldSendInputEvents() const { return m_view->surface() && m_inputEventsEnabled; }
 
     static QMutex *mutex;
 
+    QScopedPointer<QWaylandView> m_view;
+    QWaylandSurface *m_oldSurface;
     mutable QWaylandSurfaceTextureProvider *m_provider;
     bool m_paintEnabled;
     bool m_touchEventsEnabled;

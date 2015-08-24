@@ -45,20 +45,24 @@ class Q_COMPOSITOR_EXPORT QWaylandExtensionPrivate : public QObjectPrivate
     Q_DECLARE_PUBLIC(QWaylandExtension)
 
 public:
-    QWaylandExtensionPrivate(QWaylandExtensionContainer *container)
+    QWaylandExtensionPrivate()
         : QObjectPrivate()
-        , extension_container(container)
+        , extension_container(Q_NULLPTR)
+        , initialized(false)
     {
     }
 
+    static QWaylandExtensionPrivate *get(QWaylandExtension *extension) { return extension->d_func(); }
+
     QWaylandExtensionContainer *extension_container;
+    bool initialized;
 };
 
 class Q_COMPOSITOR_EXPORT QWaylandExtensionTemplatePrivate : public QWaylandExtensionPrivate
 {
 public:
-    QWaylandExtensionTemplatePrivate(QWaylandExtensionContainer *container)
-        : QWaylandExtensionPrivate(container)
+    QWaylandExtensionTemplatePrivate()
+        : QWaylandExtensionPrivate()
     { }
 };
 

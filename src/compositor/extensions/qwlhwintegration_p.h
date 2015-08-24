@@ -39,6 +39,8 @@
 
 #include <QtCompositor/private/qwayland-server-hardware-integration.h>
 
+#include <QtCompositor/QWaylandExtension>
+
 #include <QtCore/QString>
 
 QT_BEGIN_NAMESPACE
@@ -47,7 +49,7 @@ class QWaylandCompositor;
 
 namespace QtWayland {
 
-class HardwareIntegration : public QtWaylandServer::qt_hardware_integration
+class HardwareIntegration : public QWaylandExtensionTemplate<HardwareIntegration>, public QtWaylandServer::qt_hardware_integration
 {
 public:
     HardwareIntegration(QWaylandCompositor *compositor);

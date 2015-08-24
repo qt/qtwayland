@@ -90,11 +90,8 @@ public:
     ~QWaylandOutputPrivate();
     static QWaylandOutputPrivate *get(QWaylandOutput *output) { return output->d_func(); }
 
-    void addView(QWaylandView *view);
     void addView(QWaylandView *view, QWaylandSurface *surface);
-    void removeView(QWaylandView *view);
     void removeView(QWaylandView *view, QWaylandSurface *surface);
-    void updateSurfaceForView(QWaylandView *view, QWaylandSurface *newSurface, QWaylandSurface *oldSurface);
     void sendGeometryInfo();
 
 protected:

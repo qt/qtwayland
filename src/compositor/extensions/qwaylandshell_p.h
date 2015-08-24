@@ -34,13 +34,15 @@
 **
 ****************************************************************************/
 
-#ifndef WLSHELLSURFACE_H
-#define WLSHELLSURFACE_H
+#ifndef QWAYLANDSHELL_P_H
+#define QWAYLANDSHELL_P_H
 
 #include <QtCompositor/qwaylandexport.h>
 #include <QtCompositor/qwaylandsurface.h>
-#include <QtCompositor/qwaylandextension.h>
+#include <QtCompositor/private/qwaylandextension_p.h>
 #include <QtCompositor/QWaylandPointerGrabber>
+#include <QtCompositor/QWaylandShellSurface>
+#include <QtCompositor/QWaylandInputDevice>
 
 #include <wayland-server.h>
 #include <QHash>
@@ -53,101 +55,63 @@ QT_BEGIN_NAMESPACE
 
 class QWaylandView;
 
-namespace QtWayland {
+class QWaylandShellSurfaceResizeGrabber;
+class QWaylandShellSurfaceMoveGrabber;
+class QWaylandShellSurfacePopupGrabber;
 
-class Compositor;
-class Surface;
-class ShellSurface;
-class ShellSurfaceResizeGrabber;
-class ShellSurfaceMoveGrabber;
-class ShellSurfacePopupGrabber;
-
-class Q_COMPOSITOR_EXPORT Shell : public QWaylandExtensionTemplate<Shell>, public QtWaylandServer::wl_shell
+class Q_COMPOSITOR_EXPORT QWaylandShellPrivate
+                                        : public QWaylandExtensionTemplatePrivate
+                                        , public QtWaylandServer::wl_shell
 {
-    Q_OBJECT
+    Q_DECLARE_PUBLIC(QWaylandShell)
 public:
-    Shell(QWaylandCompositor *compositor);
+    QWaylandShellPrivate();
+    static QWaylandShellPrivate *get(QWaylandShell *shell) { return shell->d_func(); }
 
-    ShellSurfacePopupGrabber* getPopupGrabber(QWaylandInputDevice *input);
-
-Q_SIGNALS:
-    void shellSurfaceCreated(QWaylandSurface *surface, ShellSurface *shellSurface);
-
-private:
+    QWaylandShellSurfacePopupGrabber* getPopupGrabber(QWaylandInputDevice *input);
+protected:
     void shell_get_shell_surface(Resource *resource, uint32_t id, struct ::wl_resource *surface) Q_DECL_OVERRIDE;
 
-    QHash<QWaylandInputDevice *, ShellSurfacePopupGrabber*> m_popupGrabber;
+    QHash<QWaylandInputDevice *, QWaylandShellSurfacePopupGrabber*> m_popupGrabber;
 };
 
-class Q_COMPOSITOR_EXPORT ShellSurface : public QWaylandExtensionTemplate<ShellSurface>, public QtWaylandServer::wl_shell_surface
+class Q_COMPOSITOR_EXPORT QWaylandShellSurfacePrivate
+                                        : public QWaylandExtensionTemplatePrivate
+                                        , public QtWaylandServer::wl_shell_surface
 {
-    Q_OBJECT
-    Q_PROPERTY(SurfaceType surfaceType READ surfaceType WRITE setSurfaceType NOTIFY surfaceTypeChanged)
-    Q_PROPERTY(QString title READ title NOTIFY titleChanged)
-    Q_PROPERTY(QString className READ className NOTIFY classNameChanged)
+    Q_DECLARE_PUBLIC(QWaylandShellSurface)
 public:
-    enum SurfaceType {
-        None,
-        Toplevel,
-        Transient,
-        Popup
-    };
+    QWaylandShellSurfacePrivate(QWaylandShell *shell, struct wl_client *client, uint32_t id, QWaylandSurface *surface);
+    ~QWaylandShellSurfacePrivate();
 
-    ShellSurface(Shell *shell, struct wl_client *client, uint32_t id, QWaylandSurface *surface);
-    ~ShellSurface();
-    void sendConfigure(uint32_t edges, int32_t width, int32_t height);
+    static QWaylandShellSurfacePrivate *get(QWaylandShellSurface *surface) { return surface->d_func(); }
 
-    void adjustPosInResize();
     void resetResizeGrabber();
     void resetMoveGrabber();
 
-    void setOffset(const QPointF &offset);
+    void setSurfaceType(QWaylandShellSurface::SurfaceType type);
+
+    void setOffset(const QPointF &offset) { m_transientOffset = offset; }
 
     void requestSize(const QSize &size);
 
-    Q_INVOKABLE void ping();
+    void ping();
     void ping(uint32_t serial);
 
-    QWaylandView *view() { return m_view; }
-    void setView(QWaylandView *view) { m_view = view; }
-
-    void setSurfaceType(SurfaceType type);
-    SurfaceType surfaceType() const;
-
-    bool isTransientInactive() const { return m_transientInactive; }
-
-    QWaylandSurface *transientParent() const { return m_transientParent; }
-    void setTransientParent(QWaylandSurface *parent) { m_transientParent = parent; }
-
-    void setTransientOffset(const QPointF &offset) { m_transientOffset = offset; }
-    QPointF transientOffset() const { return m_transientOffset; }
-
-    QString title() const { return m_title; }
-    QString className() const { return m_className; }
-Q_SIGNALS:
-    void surfaceTypeChanged();
-    void titleChanged();
-    void classNameChanged();
-    void pong();
-
-private Q_SLOTS:
-    void mappedChanged();
-    void adjustOffset(const QPoint &p);
-
 private:
-    Shell *m_shell;
+    QWaylandShell *m_shell;
     QWaylandSurface *m_surface;
     QWaylandView *m_view;
 
-    ShellSurfaceResizeGrabber *m_resizeGrabber;
-    ShellSurfaceMoveGrabber *m_moveGrabber;
-    ShellSurfacePopupGrabber *m_popupGrabber;
+    QWaylandShellSurfaceResizeGrabber *m_resizeGrabber;
+    QWaylandShellSurfaceMoveGrabber *m_moveGrabber;
+    QWaylandShellSurfacePopupGrabber *m_popupGrabber;
 
     uint32_t m_popupSerial;
 
     QSet<uint32_t> m_pings;
 
-    SurfaceType m_surfaceType;
+    QWaylandShellSurface::SurfaceType m_surfaceType;
     bool m_transientInactive;
 
     QWaylandSurface *m_transientParent;
@@ -191,22 +155,21 @@ private:
     void shell_surface_set_class(Resource *resource,
                                  const QString &class_) Q_DECL_OVERRIDE;
 
-    friend class ShellSurfaceMoveGrabber;
 };
 
-class ShellSurfaceGrabber : public QWaylandPointerGrabber
+class QWaylandShellSurfaceGrabber : public QWaylandPointerGrabber
 {
 public:
-    ShellSurfaceGrabber(ShellSurface *shellSurface);
-    ~ShellSurfaceGrabber();
+    QWaylandShellSurfaceGrabber(QWaylandShellSurface *shellSurface);
+    ~QWaylandShellSurfaceGrabber();
 
-    ShellSurface *shell_surface;
+    QWaylandShellSurface *shell_surface;
 };
 
-class ShellSurfaceResizeGrabber : public ShellSurfaceGrabber
+class QWaylandShellSurfaceResizeGrabber : public QWaylandShellSurfaceGrabber
 {
 public:
-    ShellSurfaceResizeGrabber(ShellSurface *shellSurface);
+    QWaylandShellSurfaceResizeGrabber(QWaylandShellSurface *shellSurface);
 
     QPointF point;
     enum wl_shell_surface_resize resize_edges;
@@ -218,10 +181,10 @@ public:
     void button(uint32_t time, Qt::MouseButton button, uint32_t state) Q_DECL_OVERRIDE;
 };
 
-class ShellSurfaceMoveGrabber : public ShellSurfaceGrabber
+class QWaylandShellSurfaceMoveGrabber : public QWaylandShellSurfaceGrabber
 {
 public:
-    ShellSurfaceMoveGrabber(ShellSurface *shellSurface, const QPointF &offset);
+    QWaylandShellSurfaceMoveGrabber(QWaylandShellSurface *shellSurface, const QPointF &offset);
 
     void focus() Q_DECL_OVERRIDE;
     void motion(uint32_t time) Q_DECL_OVERRIDE;
@@ -231,30 +194,28 @@ private:
     QPointF m_offset;
 };
 
-class ShellSurfacePopupGrabber : public QWaylandDefaultPointerGrabber
+class QWaylandShellSurfacePopupGrabber : public QWaylandDefaultPointerGrabber
 {
 public:
-    ShellSurfacePopupGrabber(QWaylandInputDevice *inputDevice);
+    QWaylandShellSurfacePopupGrabber(QWaylandInputDevice *inputDevice);
 
-    uint32_t grabSerial() const;
+    uint32_t grabSerial() const { return m_inputDevice->pointer()->grabSerial(); }
 
-    struct ::wl_client *client() const;
-    void setClient(struct ::wl_client *client);
+    struct ::wl_client *client() const { return m_client; }
+    void setClient(struct ::wl_client *client) { m_client = client; }
 
-    void addPopup(ShellSurface *surface);
-    void removePopup(ShellSurface *surface);
+    void addPopup(QWaylandShellSurface *surface);
+    void removePopup(QWaylandShellSurface *surface);
 
     void button(uint32_t time, Qt::MouseButton button, uint32_t state) Q_DECL_OVERRIDE;
 
 private:
     QWaylandInputDevice *m_inputDevice;
     struct ::wl_client *m_client;
-    QList<ShellSurface *> m_surfaces;
+    QList<QWaylandShellSurface *> m_surfaces;
     bool m_initialUp;
 };
 
-}
-
 QT_END_NAMESPACE
 
-#endif // WLSHELLSURFACE_H
+#endif // QWAYLANDSHELL_P_H

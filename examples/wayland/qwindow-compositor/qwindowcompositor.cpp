@@ -59,7 +59,7 @@
 #include <QtCompositor/qwaylandoutput.h>
 #include <QtCompositor/qwaylandoutputspace.h>
 
-#include <QtCompositor/private/qwlshellsurface_p.h>
+#include <QtCompositor/QWaylandShellSurface>
 #include <QtCompositor/private/qwlextendedsurface_p.h>
 
 QT_BEGIN_NAMESPACE
@@ -74,7 +74,7 @@ public:
         , hasSentOnScreen(false)
     { }
 
-    QtWayland::ShellSurface *shellSurface;
+    QWaylandShellSurface *shellSurface;
     QtWayland::ExtendedSurface *extSurface;
     bool hasSentOnScreen;
 };
@@ -83,7 +83,7 @@ class SurfaceView : public QWaylandView
 {
 public:
     SurfaceView()
-        : QWaylandView()
+        : QWaylandView(Q_NULLPTR)
         , m_texture(0)
     {}
 
@@ -130,8 +130,8 @@ QWindowCompositor::QWindowCompositor(CompositorWindow *window)
     QOpenGLFunctions *functions = m_window->context()->functions();
     functions->glGenFramebuffers(1, &m_surface_fbo);
 
-    QtWayland::Shell *shell = new QtWayland::Shell(this);
-    connect(shell, &QtWayland::Shell::shellSurfaceCreated, this, &QWindowCompositor::onShellSurfaceCreated);
+    QWaylandShell *shell = new QWaylandShell(this);
+    connect(shell, &QWaylandShell::shellSurfaceCreated, this, &QWindowCompositor::onShellSurfaceCreated);
 }
 
 QWindowCompositor::~QWindowCompositor()
@@ -203,9 +203,9 @@ void QWindowCompositor::surfaceMappedChanged()
 void QWindowCompositor::surfaceMapped(QWaylandSurface *surface)
 {
     Q_ASSERT(!m_visibleSurfaces.contains(surface));
-    QtWayland::ShellSurface *shellSurface = QtWayland::ShellSurface::findIn(surface);
+    QWaylandShellSurface *shellSurface = QWaylandShellSurface::findIn(surface);
     QPoint pos;
-    if (!shellSurface || (shellSurface->surfaceType() != QtWayland::ShellSurface::Popup)) {
+    if (!shellSurface || (shellSurface->surfaceType() != QWaylandShellSurface::Popup)) {
         uint px = 0;
         uint py = 0;
         if (!QCoreApplication::arguments().contains(QLatin1String("-stickytopleft"))) {
@@ -216,9 +216,9 @@ void QWindowCompositor::surfaceMapped(QWaylandSurface *surface)
         QWaylandView *view = surface->views().first();
         view->setRequestedPosition(pos);
     }
-    if (shellSurface && shellSurface->surfaceType() == QtWayland::ShellSurface::Popup) {
+    if (shellSurface && shellSurface->surfaceType() == QWaylandShellSurface::Popup) {
         QWaylandView *view = shellSurface->view();
-        view->setRequestedPosition(shellSurface->transientParent()->views().first()->pos() + shellSurface->transientOffset());
+        view->setRequestedPosition(shellSurface->transientParent()->views().first()->requestedPosition() + shellSurface->transientOffset());
     }
 
     m_visibleSurfaces.append(surface);
@@ -261,7 +261,7 @@ void QWindowCompositor::onSurfaceCreated(QWaylandSurface *surface)
     connect(surface, &QWaylandSurface::redraw, this, &QWindowCompositor::surfaceCommittedSlot);
 }
 
-void QWindowCompositor::onShellSurfaceCreated(QWaylandSurface *s, QtWayland::ShellSurface *shellSurface)
+void QWindowCompositor::onShellSurfaceCreated(QWaylandSurface *s, QWaylandShellSurface *shellSurface)
 {
     Surface *surface = static_cast<Surface *>(s);
     SurfaceView *newView = new SurfaceView();
@@ -301,7 +301,7 @@ void QWindowCompositor::updateCursor(bool hasBuffer)
 
 QPointF QWindowCompositor::toView(QWaylandView *view, const QPointF &pos) const
 {
-    return pos - view->pos();
+    return pos - view->requestedPosition();
 }
 
 void QWindowCompositor::adjustCursorSurface(QWaylandSurface *surface, int hotspotX, int hotspotY)
@@ -328,7 +328,7 @@ QWaylandView *QWindowCompositor::viewAt(const QPointF &point, QPointF *local)
     for (int i = m_visibleSurfaces.size() - 1; i >= 0; --i) {
         QWaylandSurface *surface = m_visibleSurfaces.at(i);
         foreach (QWaylandView *view, surface->views()) {
-            QRectF geo(view->pos(), surface->size());
+            QRectF geo(view->requestedPosition(), surface->size());
             if (geo.contains(point)) {
                 if (local)
                     *local = toView(view, point);
@@ -383,7 +383,7 @@ void QWindowCompositor::drawSubSurface(const QPoint &offset, QWaylandSurface *s)
 
     GLuint texture = view->updateTextureToCurrentBuffer();
     bool invert_y = view->currentBuffer().origin() == QWaylandSurface::OriginTopLeft;
-    QPoint pos = view->pos().toPoint() + offset;
+    QPoint pos = view->requestedPosition().toPoint() + offset;
     QRect geo(pos, surface->size());
     bool onscreen = (QRect(QPoint(0, 0), m_window->size()).contains(pos));
     if (surface->extSurface && onscreen != surface->hasSentOnScreen) {

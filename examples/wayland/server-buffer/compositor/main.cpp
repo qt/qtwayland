@@ -58,6 +58,7 @@
 #include "qwayland-server-share-buffer.h"
 #include <QtCompositor/qwaylandoutput.h>
 #include <QtCompositor/QWaylandCompositor>
+#include <QtCompositor/QWaylandQuickItem>
 #include <QtCompositor/private/qwaylandcompositor_p.h>
 #include <QtCompositor/private/qwlserverbufferintegration_p.h>
 
@@ -109,7 +110,7 @@ public:
 
     Q_INVOKABLE QWaylandQuickItem *item(QWaylandSurface *surf)
     {
-        return static_cast<QWaylandQuickItem *>(surf->views().first());
+        return static_cast<QWaylandQuickItem *>(surf->views().first()->renderObject());
     }
 
 signals:
@@ -217,7 +218,9 @@ protected:
     }
 
     void onSurfaceCreated(QWaylandSurface *surface) {
-        connect(surface, SIGNAL(mapped()), this, SLOT(surfaceMapped()));
+        QWaylandQuickItem *item = new QWaylandQuickItem();
+        item->setSurface(surface);
+        connect(surface, &QWaylandSurface::mappedChanged, this, &QmlCompositor::surfaceMapped);
     }
 
     void share_buffer_bind_resource(Resource *resource) Q_DECL_OVERRIDE

@@ -57,7 +57,7 @@ class Q_COMPOSITOR_EXPORT QWaylandWindowManagerExtension : public QWaylandExtens
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandWindowManagerExtension)
 public:
-    explicit QWaylandWindowManagerExtension(QWaylandCompositor *compositor, QObject *parent = 0);
+    explicit QWaylandWindowManagerExtension(QWaylandCompositor *compositor);
 
     void setShowIsFullScreen(bool value);
     void sendQuitMessage(wl_client *client);

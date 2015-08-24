@@ -53,13 +53,13 @@
 #include "wayland_wrapper/qwldatadevice_p.h"
 #include "wayland_wrapper/qwldatadevicemanager_p.h"
 
-#include "hardware_integration/qwlhwintegration_p.h"
 #include "hardware_integration/qwlclientbufferintegration_p.h"
 #include "hardware_integration/qwlclientbufferintegrationfactory_p.h"
 #include "hardware_integration/qwlserverbufferintegration_p.h"
 #include "hardware_integration/qwlserverbufferintegrationfactory_p.h"
 
 #include "extensions/qwaylandwindowmanagerextension.h"
+#include "extensions/qwlhwintegration_p.h"
 
 #include "qwaylandxkb.h"
 #include "qwaylandshmformathelper.h"
@@ -130,7 +130,6 @@ public:
 QWaylandCompositorPrivate::QWaylandCompositorPrivate(QWaylandCompositor *compositor)
     : display(wl_display_create())
 #if defined (QT_COMPOSITOR_WAYLAND_GL)
-    , hw_integration(0)
     , client_buffer_integration(0)
     , server_buffer_integration(0)
 #endif

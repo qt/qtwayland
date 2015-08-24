@@ -61,12 +61,6 @@ public:
 
     }
 
-    void emitSurfacePositionChanged(QWaylandSurface *surface, const QPointF &point)
-    {
-        Q_Q(QWaylandOutputSpace);
-        q->surfaceRequestedPositionChanged(surface, point);
-    }
-
     void adjustGeometry()
     {
         if (geometryConstraint != QWaylandOutputSpace::AutomaticBoundingRect)

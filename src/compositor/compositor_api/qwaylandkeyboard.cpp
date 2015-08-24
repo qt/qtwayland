@@ -41,7 +41,7 @@
 #include <QtCompositor/QWaylandInputDevice>
 #include <QtCompositor/QWaylandClient>
 
-#include <QtCompositor/private/qwlshellsurface_p.h>
+#include <QtCompositor/QWaylandShellSurface>
 
 #include <QtCore/QFile>
 #include <QtCore/QStandardPaths>
@@ -400,7 +400,7 @@ QWaylandSurface *QWaylandKeyboard::focus() const
 bool QWaylandKeyboard::setFocus(QWaylandSurface *surface)
 {
     Q_D(QWaylandKeyboard);
-    QtWayland::ShellSurface *shellsurface = QtWayland::ShellSurface::findIn(surface);
+    QWaylandShellSurface *shellsurface = QWaylandShellSurface::findIn(surface);
     if (shellsurface &&  shellsurface->isTransientInactive())
             return false;
     d->grab->focused(surface);

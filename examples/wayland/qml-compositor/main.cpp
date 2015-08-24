@@ -85,7 +85,7 @@ public:
 
     Q_INVOKABLE QWaylandQuickItem *item(QWaylandSurface *surf)
     {
-        return static_cast<QWaylandQuickItem *>(surf->views().first());
+        return static_cast<QWaylandQuickItem *>(surf->views().first()->renderObject());
     }
 
 signals:
@@ -108,12 +108,11 @@ public slots:
 private slots:
     void surfaceMapped() {
         QWaylandQuickSurface *surface = qobject_cast<QWaylandQuickSurface *>(sender());
-        emit windowAdded(QVariant::fromValue(surface));
-    }
-    void surfaceUnmapped() {
-        QWaylandQuickSurface *surface = qobject_cast<QWaylandQuickSurface *>(sender());
-        if (surface == m_fullscreenSurface)
+        if (surface->isMapped())
+            emit windowAdded(QVariant::fromValue(surface));
+        else if (surface == m_fullscreenSurface)
             m_fullscreenSurface = 0;
+
     }
 
     void surfaceDestroyed() {
@@ -132,8 +131,7 @@ private slots:
 
     void onSurfaceCreated(QWaylandSurface *surface) {
         connect(surface, SIGNAL(destroyed(QObject *)), this, SLOT(surfaceDestroyed(QObject *)));
-        connect(surface, SIGNAL(mapped()), this, SLOT(surfaceMapped()));
-        connect(surface,SIGNAL(unmapped()), this,SLOT(surfaceUnmapped()));
+        connect(surface, SIGNAL(mappedChanged()), this, SLOT(surfaceMapped()));
     }
 
 protected:
@@ -145,8 +143,7 @@ protected:
 
     void surfaceCreated(QWaylandSurface *surface) {
         connect(surface, SIGNAL(surfaceDestroyed()), this, SLOT(surfaceDestroyed()));
-        connect(surface, SIGNAL(mapped()), this, SLOT(surfaceMapped()));
-        connect(surface,SIGNAL(unmapped()), this,SLOT(surfaceUnmapped()));
+        connect(surface, SIGNAL(mappedChanged()), this, SLOT(surfaceMapped()));
     }
 
 private:

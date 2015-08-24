@@ -156,11 +156,6 @@ void QWaylandOutputPrivate::sendGeometryInfo()
 }
 
 
-void QWaylandOutputPrivate::addView(QWaylandView *view)
-{
-    addView(view, view->surface());
-}
-
 void QWaylandOutputPrivate::addView(QWaylandView *view, QWaylandSurface *surface)
 {
     for (int i = 0; i < surfaceViews.size(); i++) {
@@ -173,11 +168,6 @@ void QWaylandOutputPrivate::addView(QWaylandView *view, QWaylandSurface *surface
     }
 
     surfaceViews.append(QWaylandSurfaceViewMapper(surface,view));
-}
-
-void QWaylandOutputPrivate::removeView(QWaylandView *view)
-{
-    removeView(view, view->surface());
 }
 
 void QWaylandOutputPrivate::removeView(QWaylandView *view, QWaylandSurface *surface)
@@ -195,14 +185,6 @@ void QWaylandOutputPrivate::removeView(QWaylandView *view, QWaylandSurface *surf
         }
     }
     qWarning("%s Could not find view %p for surface %p to remove. Possible invalid state", Q_FUNC_INFO, view, surface);
-}
-
-void QWaylandOutputPrivate::updateSurfaceForView(QWaylandView *view, QWaylandSurface *newSurface, QWaylandSurface *oldSurface)
-{
-    if (newSurface == oldSurface)
-        return;
-    removeView(view, oldSurface);
-    addView(view, newSurface);
 }
 
 QWaylandOutput::QWaylandOutput(QWaylandOutputSpace *outputSpace, QWindow *window,

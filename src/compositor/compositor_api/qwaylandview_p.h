@@ -39,6 +39,7 @@
 
 #include <QtCore/QPoint>
 #include <QtCore/QMutex>
+#include <QtCore/private/qobject_p.h>
 
 #include <QtCompositor/QWaylandBufferRef>
 
@@ -47,27 +48,23 @@ QT_BEGIN_NAMESPACE
 class QWaylandSurface;
 class QWaylandOutput;
 
-class QWaylandViewPrivate
+class QWaylandViewPrivate : public QObjectPrivate
 {
     Q_DECLARE_PUBLIC(QWaylandView)
 public:
-    static QWaylandViewPrivate *get(QWaylandView *view);
+    static QWaylandViewPrivate *get(QWaylandView *view) { return view->d_func(); }
 
-    QWaylandViewPrivate(QWaylandView *view)
-        : q_ptr(view)
+    QWaylandViewPrivate()
+        : renderObject(Q_NULLPTR)
         , surface(Q_NULLPTR)
         , output(Q_NULLPTR)
-        , lockedBuffer(false)
+        , bufferLock(false)
+        , broadcastRequestedPositionChanged(false)
     { }
 
     void markSurfaceAsDestroyed(QWaylandSurface *surface);
 
-    bool shouldBroadcastRequestedPositionChanged() const
-    {
-        return broadcastRequestedPositionChanged && output;
-    }
-
-    QWaylandView *q_ptr;
+    QObject *renderObject;
     QWaylandSurface *surface;
     QWaylandOutput *output;
     QPointF requestedPos;
@@ -76,7 +73,7 @@ public:
     QRegion currentDamage;
     QWaylandBufferRef nextBuffer;
     QRegion nextDamage;
-    bool lockedBuffer;
+    bool bufferLock;
     bool broadcastRequestedPositionChanged;
 };
 

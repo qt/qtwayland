@@ -40,26 +40,38 @@
 #include <QtCompositor/QWaylandExtension>
 
 class QWaylandShellSurface;
+class QWaylandShellSurfacePrivate;
 class QWaylandSurface;
 class QWaylandView;
+class QWaylandShellPrivate;
 
 class Q_COMPOSITOR_EXPORT QWaylandShell : public QWaylandExtensionTemplate<QWaylandShell>
 {
     Q_OBJECT
+    Q_DECLARE_PRIVATE(QWaylandShell)
 public:
+    QWaylandShell();
     QWaylandShell(QWaylandCompositor *compositor);
+
+    void initialize() Q_DECL_OVERRIDE;
 
     static const struct wl_interface *interface();
     static QByteArray interfaceName();
+
 Q_SIGNALS:
     void shellSurfaceCreated(QWaylandSurface *surface, QWaylandShellSurface *shellSurface);
 };
 
-class QWaylandShellSurface : public QWaylandExtensionTemplate<QWaylandShellSurface>
+class Q_COMPOSITOR_EXPORT QWaylandShellSurface : public QWaylandExtensionTemplate<QWaylandShellSurface>
 {
     Q_OBJECT
+    Q_DECLARE_PRIVATE(QWaylandShellSurface)
     Q_PROPERTY(SurfaceType surfaceType READ surfaceType NOTIFY surfaceTypeChanged)
+    Q_PROPERTY(QString title READ title NOTIFY titleChanged)
+    Q_PROPERTY(QString className READ className NOTIFY classNameChanged)
     Q_PROPERTY(QWaylandView *view READ view WRITE setView NOTIFY viewChanged)
+    Q_PROPERTY(QWaylandSurface *transientParent READ transientParent NOTIFY transientParentChanged)
+    Q_PROPERTY(QWaylandSurface *surface READ surface CONSTANT)
 
 public:
     enum SurfaceType {
@@ -69,22 +81,35 @@ public:
         Popup
     };
 
-    QWaylandShellSurface(QWaylandSurface *surface);
+    QWaylandShellSurface(QWaylandShell *shell, struct wl_client *client, uint32_t id, QWaylandSurface *surface);
+
+    SurfaceType surfaceType() const;
 
     QWaylandView *view() const;
     void setView(QWaylandView *view);
 
-    SurfaceType surfaceType() const;
+    QString title() const;
+    QString className() const;
+
+    QWaylandSurface *surface() const;
+
+    QWaylandSurface *transientParent() const;
+    QPointF transientOffset() const;
+
+    bool isTransientInactive() const;
 
     static const struct wl_interface *interface();
     static QByteArray interfaceName();
 Q_SIGNALS:
     void surfaceTypeChanged();
     void viewChanged();
+    void titleChanged();
+    void classNameChanged();
+    void transientParentChanged();
     void pong();
 
 private Q_SLOTS:
-    void mapped();
+    void mappedChanged();
     void adjustOffset(const QPoint &p);
 };
 

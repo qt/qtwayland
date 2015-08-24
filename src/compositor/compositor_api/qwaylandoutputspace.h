@@ -90,8 +90,6 @@ public:
     Q_INVOKABLE QPointF mapToSpace(QWaylandView *view, const QPointF &local) const;
 
 Q_SIGNALS:
-    void surfaceRequestedPositionChanged(QWaylandSurface *surface, const QPointF &point);
-
     void geometryConstraintChanged();
     void geometryChanged();
 

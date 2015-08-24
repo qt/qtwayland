@@ -23,7 +23,7 @@ HEADERS += \
     compositor_api/qwaylanddestroylistener.h \
     compositor_api/qwaylanddestroylistener_p.h \
     compositor_api/qwaylandview.h \
-    compositor_api/qwaylandview_p.h
+    compositor_api/qwaylandview_p.h \
 
 SOURCES += \
     compositor_api/qwaylandcompositor.cpp \
@@ -39,7 +39,7 @@ SOURCES += \
     compositor_api/qwaylandbufferref.cpp \
     compositor_api/qwaylandoutputspace.cpp \
     compositor_api/qwaylanddestroylistener.cpp \
-    compositor_api/qwaylandview.cpp
+    compositor_api/qwaylandview.cpp \
 
 QT += core-private
 

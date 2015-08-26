@@ -62,7 +62,6 @@ WaylandCompositor {
             onShellSurfaceCreated: {
                 var item = chromeComponent.createObject(primarySurfacesArea);
                 item.surface = surface;
-                item.followRequestedPosition = true;
                 shellSurface.view = item.view;
             }
 

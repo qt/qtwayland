@@ -65,7 +65,6 @@ class Q_COMPOSITOR_EXPORT QWaylandQuickItem : public QQuickItem
     Q_PROPERTY(bool touchEventsEnabled READ touchEventsEnabled WRITE setTouchEventsEnabled NOTIFY touchEventsEnabledChanged)
     Q_PROPERTY(QWaylandSurface::Origin origin READ origin NOTIFY originChanged)
     Q_PROPERTY(bool resizeSurfaceToItem READ resizeSurfaceToItem WRITE setResizeSurfaceToItem NOTIFY resizeSurfaceToItemChanged)
-    Q_PROPERTY(bool followRequestedPosition READ followRequestedPosition WRITE setFollowRequestedPosition NOTIFY followRequestedPositionChanged)
     Q_PROPERTY(bool inputEventsEnabled READ inputEventsEnabled WRITE setInputEventsEnabled NOTIFY inputEventsEnabledChanged)
 
 public:
@@ -92,9 +91,6 @@ public:
 
     bool inputEventsEnabled() const { return m_inputEventsEnabled; }
     void setInputEventsEnabled(bool enabled);
-
-    bool followRequestedPosition() const;
-    void setFollowRequestedPosition(bool follow);
 
     Q_INVOKABLE void syncGraphicsState();
 
@@ -132,7 +128,6 @@ Q_SIGNALS:
     void originChanged();
     void resizeSurfaceToItemChanged();
     void surfaceDestroyed();
-    void followRequestedPositionChanged();
     void inputEventsEnabledChanged();
 
 protected:
@@ -151,7 +146,6 @@ private:
     bool m_paintEnabled;
     bool m_touchEventsEnabled;
     bool m_resizeSurfaceToItem;
-    bool m_followRequestedPos;
     bool m_inputEventsEnabled;
     bool m_newTexture;
 

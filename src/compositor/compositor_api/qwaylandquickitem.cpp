@@ -127,7 +127,6 @@ QWaylandQuickItem::QWaylandQuickItem(QQuickItem *parent)
     , m_paintEnabled(true)
     , m_touchEventsEnabled(false)
     , m_resizeSurfaceToItem(false)
-    , m_followRequestedPos(true)
     , m_inputEventsEnabled(true)
     , m_newTexture(false)
     , m_connectedWindow(Q_NULLPTR)
@@ -409,20 +408,6 @@ void QWaylandQuickItem::updateSize()
 {
     if (surface()) {
         setSize(surface()->size());
-    }
-}
-
-
-bool QWaylandQuickItem::followRequestedPosition() const
-{
-    return m_followRequestedPos;
-}
-
-void QWaylandQuickItem::setFollowRequestedPosition(bool follow)
-{
-    if (m_followRequestedPos != follow) {
-        m_followRequestedPos = follow;
-        emit followRequestedPositionChanged();
     }
 }
 

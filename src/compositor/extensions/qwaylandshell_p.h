@@ -81,7 +81,7 @@ class Q_COMPOSITOR_EXPORT QWaylandShellSurfacePrivate
 {
     Q_DECLARE_PUBLIC(QWaylandShellSurface)
 public:
-    QWaylandShellSurfacePrivate(QWaylandShell *shell, struct wl_client *client, uint32_t id, QWaylandSurface *surface);
+    QWaylandShellSurfacePrivate();
     ~QWaylandShellSurfacePrivate();
 
     static QWaylandShellSurfacePrivate *get(QWaylandShellSurface *surface) { return surface->d_func(); }

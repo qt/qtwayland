@@ -44,6 +44,7 @@ class QWaylandShellSurfacePrivate;
 class QWaylandSurface;
 class QWaylandView;
 class QWaylandShellPrivate;
+class QWaylandClient;
 
 class Q_COMPOSITOR_EXPORT QWaylandShell : public QWaylandExtensionTemplate<QWaylandShell>
 {
@@ -59,7 +60,7 @@ public:
     static QByteArray interfaceName();
 
 Q_SIGNALS:
-    void shellSurfaceCreated(QWaylandSurface *surface, QWaylandShellSurface *shellSurface);
+    void createShellSurface(QWaylandSurface *surface, QWaylandClient *client, uint id);
 };
 
 class Q_COMPOSITOR_EXPORT QWaylandShellSurface : public QWaylandExtensionTemplate<QWaylandShellSurface>
@@ -81,7 +82,10 @@ public:
         Popup
     };
 
-    QWaylandShellSurface(QWaylandShell *shell, struct wl_client *client, uint32_t id, QWaylandSurface *surface);
+    QWaylandShellSurface();
+    QWaylandShellSurface(QWaylandShell *shell, QWaylandSurface *surface, QWaylandView *view, QWaylandClient *client, uint id);
+
+    Q_INVOKABLE void initialize(QWaylandShell *shell, QWaylandSurface *surface, QWaylandView *view, QWaylandClient *client, uint id);
 
     SurfaceType surfaceType() const;
 
@@ -111,6 +115,8 @@ Q_SIGNALS:
 private Q_SLOTS:
     void mappedChanged();
     void adjustOffset(const QPoint &p);
+private:
+    void initialize();
 };
 
 #endif  /*QWAYLANDSHELL_H*/

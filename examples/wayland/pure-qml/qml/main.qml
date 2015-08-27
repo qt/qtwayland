@@ -58,11 +58,17 @@ WaylandCompositor {
 
     extensions: [
         DefaultShell {
+            id: defaultShell
 
-            onShellSurfaceCreated: {
-                var item = chromeComponent.createObject(primarySurfacesArea);
-                item.surface = surface;
-                shellSurface.view = item.view;
+            Component {
+                id: shellSurfaceComponent
+                DefaultShellSurface { }
+            }
+
+            onCreateShellSurface: {
+                var item = chromeComponent.createObject(primarySurfacesArea, { "surface": surface } );
+                var shellSurface = shellSurfaceComponent.createObject();
+                shellSurface.initialize(defaultShell, surface, item.view, client, id);
             }
 
             Component.onCompleted: {
@@ -71,14 +77,15 @@ WaylandCompositor {
         }
     ]
 
-    Component.onCompleted: {
-        addScreen();
-    }
-
     function addScreen() {
         var screen = screenComponent.createObject(0, { "compositor" : compositor } );
         primarySurfacesArea = screen.surfacesArea;
         var output = compositor.primaryOutputSpace.addOutputWindow(screen, "", "");
         output.automaticFrameCallbacks = true;
     }
+
+    Component.onCompleted: {
+        addScreen();
+    }
+
 }

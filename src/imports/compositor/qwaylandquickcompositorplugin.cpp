@@ -133,7 +133,7 @@ public:
 
         //This should probably be somewhere else
         qmlRegisterType<QWaylandShellQuickData>(uri, 1, 0, "DefaultShell");
-        qmlRegisterUncreatableType<QWaylandShellSurface>(uri, 1, 0, "DefaultShellSurface", QObject::tr("Cannot create instance of DefaultShellSurface"));
+        qmlRegisterType<QWaylandShellSurface>(uri, 1, 0, "DefaultShellSurface");
     }
 };
 //![class decl]

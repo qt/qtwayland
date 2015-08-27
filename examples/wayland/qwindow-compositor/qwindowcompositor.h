@@ -58,7 +58,7 @@ namespace QtWayland {
 }
 
 class QWaylandView;
-class QWaylandShellSurface;
+class QWaylandShell;
 class QOpenGLTexture;
 
 class QWindowCompositor : public QWaylandCompositor
@@ -77,7 +77,8 @@ private slots:
 
     void render();
     void onSurfaceCreated(QWaylandSurface *surface);
-    void onShellSurfaceCreated(QWaylandSurface *surface, QWaylandShellSurface *shellSurface);
+    void onCreateShellSurface(QWaylandSurface *s, QWaylandClient *client, uint id);
+
 protected:
     QWaylandSurface *createSurface(QWaylandClient *client, quint32 id, int version) Q_DECL_OVERRIDE;
     void surfaceCommitted(QWaylandSurface *surface);
@@ -120,6 +121,7 @@ private:
     int m_cursorHotspotY;
 
     Qt::KeyboardModifiers m_modifiers;
+    QWaylandShell *m_shell;
 };
 
 QT_END_NAMESPACE

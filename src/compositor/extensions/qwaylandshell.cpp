@@ -42,6 +42,7 @@
 #include <QtCompositor/QWaylandView>
 #include <QtCompositor/QWaylandOutput>
 #include <QtCompositor/QWaylandOutputSpace>
+#include <QtCompositor/QWaylandClient>
 
 #include <QtCore/QObject>
 #include <QtCore/QDebug>
@@ -66,15 +67,15 @@ void QWaylandShellPrivate::shell_get_shell_surface(Resource *resource, uint32_t 
 {
     Q_Q(QWaylandShell);
     QWaylandSurface *surface = QWaylandSurface::fromResource(surface_res);
-    QWaylandShellSurface *shell_surface = new QWaylandShellSurface(q, resource->client(), id, surface);
-    emit q_func()->shellSurfaceCreated(surface, shell_surface);
+    QWaylandCompositor *compositor = static_cast<QWaylandCompositor *>(q->extensionContainer());
+    emit q_func()->createShellSurface(surface, QWaylandClient::fromWlClient(compositor, resource->client()), id);
 }
 
-QWaylandShellSurfacePrivate::QWaylandShellSurfacePrivate(QWaylandShell *shell, wl_client *client, uint32_t id, QWaylandSurface *surface)
+QWaylandShellSurfacePrivate::QWaylandShellSurfacePrivate()
     : QWaylandExtensionTemplatePrivate()
-    , wl_shell_surface(client, id, 1)
-    , m_shell(shell)
-    , m_surface(surface)
+    , wl_shell_surface()
+    , m_shell(Q_NULLPTR)
+    , m_surface(Q_NULLPTR)
     , m_view(0)
     , m_resizeGrabber(0)
     , m_moveGrabber(0)
@@ -491,11 +492,32 @@ QByteArray QWaylandShell::interfaceName()
     return QWaylandShellPrivate::interfaceName();
 }
 
-QWaylandShellSurface::QWaylandShellSurface(QWaylandShell *shell, struct wl_client *client, uint32_t id, QWaylandSurface *surface)
-    : QWaylandExtensionTemplate<QWaylandShellSurface>(surface, *new QWaylandShellSurfacePrivate(shell, client, id, surface))
+QWaylandShellSurface::QWaylandShellSurface()
+    : QWaylandExtensionTemplate<QWaylandShellSurface>(*new QWaylandShellSurfacePrivate)
 {
+}
+
+QWaylandShellSurface::QWaylandShellSurface(QWaylandShell *shell, QWaylandSurface *surface, QWaylandView *view, QWaylandClient *client, uint id)
+    : QWaylandExtensionTemplate<QWaylandShellSurface>(*new QWaylandShellSurfacePrivate)
+{
+    initialize(shell, surface, view, client, id);
+}
+
+void QWaylandShellSurface::initialize(QWaylandShell *shell, QWaylandSurface *surface, QWaylandView *view, QWaylandClient *client, uint id)
+{
+    Q_D(QWaylandShellSurface);
+    d->m_shell = shell;
+    d->m_surface = surface;
+    d->m_view = view;
+    d->init(client->client(), id, 1);
     connect(surface, &QWaylandSurface::mappedChanged, this, &QWaylandShellSurface::mappedChanged);
     connect(surface, &QWaylandSurface::offsetForNextFrame, this, &QWaylandShellSurface::adjustOffset);
+    setExtensionContainer(surface);
+    QWaylandExtension::initialize();
+}
+void QWaylandShellSurface::initialize()
+{
+    QWaylandExtensionTemplate::initialize();
 }
 
 const struct wl_interface *QWaylandShellSurface::interface()

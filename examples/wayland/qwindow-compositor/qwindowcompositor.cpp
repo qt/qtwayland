@@ -121,6 +121,7 @@ QWindowCompositor::QWindowCompositor(CompositorWindow *window)
     , m_cursorHotspotX(0)
     , m_cursorHotspotY(0)
     , m_modifiers(Qt::NoModifier)
+    , m_shell(new QWaylandShell(this))
 {
     m_window->makeCurrent();
 
@@ -130,8 +131,11 @@ QWindowCompositor::QWindowCompositor(CompositorWindow *window)
     QOpenGLFunctions *functions = m_window->context()->functions();
     functions->glGenFramebuffers(1, &m_surface_fbo);
 
-    QWaylandShell *shell = new QWaylandShell(this);
-    connect(shell, &QWaylandShell::shellSurfaceCreated, this, &QWindowCompositor::onShellSurfaceCreated);
+    connect(m_shell, &QWaylandShell::createShellSurface, this, &QWindowCompositor::onCreateShellSurface);
+
+    QtWayland::SurfaceExtensionGlobal *extSurfGlob = new QtWayland::SurfaceExtensionGlobal(this);
+    connect(extSurfGlob, &QtWayland::SurfaceExtensionGlobal::extendedSurfaceReady, this, &QWindowCompositor::extendedSurfaceCreated);
+
 }
 
 QWindowCompositor::~QWindowCompositor()
@@ -149,9 +153,6 @@ void QWindowCompositor::create()
     connect(&m_renderScheduler, &QTimer::timeout, this, &QWindowCompositor::render);
     connect(this, &QWaylandCompositor::surfaceCreated, this, &QWindowCompositor::onSurfaceCreated);
     connect(this, &QWaylandCompositor::currentCurserSurfaceRequest, this, &QWindowCompositor::adjustCursorSurface);
-
-    QtWayland::SurfaceExtensionGlobal *extSurfGlob = QtWayland::SurfaceExtensionGlobal::findIn(this);
-    connect(extSurfGlob, &QtWayland::SurfaceExtensionGlobal::extendedSurfaceReady, this, &QWindowCompositor::extendedSurfaceCreated);
 
     m_window->installEventFilter(this);
 
@@ -261,13 +262,13 @@ void QWindowCompositor::onSurfaceCreated(QWaylandSurface *surface)
     connect(surface, &QWaylandSurface::redraw, this, &QWindowCompositor::surfaceCommittedSlot);
 }
 
-void QWindowCompositor::onShellSurfaceCreated(QWaylandSurface *s, QWaylandShellSurface *shellSurface)
+void QWindowCompositor::onCreateShellSurface(QWaylandSurface *s, QWaylandClient *client, uint id)
 {
     Surface *surface = static_cast<Surface *>(s);
     SurfaceView *newView = new SurfaceView();
     newView->setSurface(surface);
     newView->setOutput(output(m_window));
-    shellSurface->setView(newView);
+    QWaylandShellSurface *shellSurface = new QWaylandShellSurface(m_shell, surface, newView, client, id);
     surface->shellSurface = shellSurface;
     m_renderScheduler.start(0);
 }

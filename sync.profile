@@ -19,3 +19,7 @@
     "qtbase" => "",
     "qtdeclarative" => "",
 );
+
+%classnames = (
+    "qwaylandquickextension.h" => "QWaylandQuickExtension",
+);

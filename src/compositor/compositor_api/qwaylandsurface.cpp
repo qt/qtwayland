@@ -278,16 +278,8 @@ void QWaylandSurfacePrivate::setBackBuffer(QtWayland::SurfaceBuffer *b, const QR
 
     bufferRef = QWaylandBufferRef(buffer);
 
-    if (buffer) {
-        bool valid = buffer->waylandBufferHandle() != 0;
-        if (valid)
-            setSize(buffer->size());
-
-        damage = d.intersected(QRect(QPoint(), size));
-    } else  {
-        setSize(QSize());
-        damage = QRect();
-    }
+    setSize(bufferRef.size());
+    damage = d.intersected(QRect(QPoint(), size));
 
     for (int i = 0; i < views.size(); i++) {
         views.at(i)->attach(bufferRef, damage);

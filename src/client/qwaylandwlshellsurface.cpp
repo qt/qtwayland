@@ -159,8 +159,7 @@ void QWaylandWlShellSurface::updateTransientParent(QWindow *parent)
 
     // set_transient expects a position relative to the parent
     QPoint transientPos = m_window->geometry().topLeft(); // this is absolute
-    QWindow *parentWin = m_window->window()->transientParent();
-    transientPos -= parentWin->geometry().topLeft();
+    transientPos -= parent->geometry().topLeft();
     if (parent_wayland_window->decoration()) {
         transientPos.setX(transientPos.x() + parent_wayland_window->decoration()->margins().left());
         transientPos.setY(transientPos.y() + parent_wayland_window->decoration()->margins().top());

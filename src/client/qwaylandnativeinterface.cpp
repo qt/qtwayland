@@ -58,8 +58,6 @@ void *QWaylandNativeInterface::nativeResourceForIntegration(const QByteArray &re
 
     if (lowerCaseResource == "display" || lowerCaseResource == "wl_display" || lowerCaseResource == "nativedisplay")
         return m_integration->display()->wl_display();
-    if (lowerCaseResource == "wl_event_queue")
-        return m_integration->display()->wl_event_queue();
     if (lowerCaseResource == "compositor")
         return const_cast<wl_compositor *>(m_integration->display()->wl_compositor());
     if (lowerCaseResource == "server_buffer_integration")

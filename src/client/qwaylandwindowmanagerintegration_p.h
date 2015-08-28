@@ -38,7 +38,7 @@
 #include <QtCore/QScopedPointer>
 
 #include <wayland-client.h>
-#include <qpa/qplatformservices.h>
+#include <QtPlatformSupport/private/qgenericunixservices_p.h>
 
 #include <QtWaylandClient/private/qwayland-windowmanager.h>
 #include <QtWaylandClient/private/qwaylandclientexport_p.h>
@@ -52,7 +52,7 @@ class QWaylandDisplay;
 
 class QWaylandWindowManagerIntegrationPrivate;
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandWindowManagerIntegration : public QObject, public QPlatformServices, public QtWayland::qt_windowmanager
+class Q_WAYLAND_CLIENT_EXPORT QWaylandWindowManagerIntegration : public QObject, public QGenericUnixServices, public QtWayland::qt_windowmanager
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandWindowManagerIntegration)

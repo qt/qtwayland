@@ -109,7 +109,6 @@ public:
     void setCursor(struct wl_buffer *buffer, struct wl_cursor_image *image);
 
     struct wl_display *wl_display() const { return mDisplay; }
-    struct wl_event_queue *wl_event_queue() const { return mEventQueue; }
     struct ::wl_registry *wl_registry() { return object(); }
 
     const struct wl_compositor *wl_compositor() const { return mCompositor.object(); }
@@ -174,7 +173,6 @@ private:
     };
 
     struct wl_display *mDisplay;
-    struct wl_event_queue *mEventQueue;
     QtWayland::wl_compositor mCompositor;
     struct wl_shm *mShm;
     QThread *mEventThread;

@@ -60,6 +60,7 @@ public:
     EGLSurface eglSurface() const;
     GLuint contentFBO() const;
     GLuint contentTexture() const;
+    bool needToUpdateContentFBO() const { return decoration() && (m_resize || !m_contentFBO); }
 
     QSurfaceFormat format() const;
 

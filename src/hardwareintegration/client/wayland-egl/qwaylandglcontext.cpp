@@ -371,7 +371,7 @@ bool QWaylandGLContext::makeCurrent(QPlatformSurface *surface)
     QWaylandEglWindow *window = static_cast<QWaylandEglWindow *>(surface);
     EGLSurface eglSurface = window->eglSurface();
 
-    if (eglSurface != EGL_NO_SURFACE && eglGetCurrentContext() == m_context && eglGetCurrentSurface(EGL_DRAW) == eglSurface)
+    if (!window->needToUpdateContentFBO() && (eglSurface != EGL_NO_SURFACE && eglGetCurrentContext() == m_context && eglGetCurrentSurface(EGL_DRAW) == eglSurface))
         return true;
 
     window->setCanResize(false);

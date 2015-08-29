@@ -50,6 +50,7 @@
 
 #include <QtCore/QFileInfo>
 #include <QtCore/QPointer>
+#include <QtCore/QRegularExpression>
 #include <QtGui/QWindow>
 
 #include <QGuiApplication>
@@ -131,22 +132,32 @@ void QWaylandWindow::initWindow()
         mShellSurface->setTitle(window()->title());
 
         // The appId is the desktop entry identifier that should follow the
-        // reverse DNS convention (see http://standards.freedesktop.org/desktop-entry-spec/latest/ar01s02.html),
-        // use the application domain if available, otherwise the executable base name.
-        // According to xdg-shell the appId is only the name, without the .desktop suffix.
-        QFileInfo fi = QCoreApplication::instance()->applicationFilePath();
-        QStringList domainName =
-            QCoreApplication::instance()->organizationDomain().split(QLatin1Char('.'),
-                                                                     QString::SkipEmptyParts);
-
-        if (domainName.isEmpty()) {
-            mShellSurface->setAppId(fi.baseName());
+        // reverse DNS convention (see http://standards.freedesktop.org/desktop-entry-spec/latest/ar01s02.html).
+        // According to xdg-shell the appId is only the name, without
+        // the .desktop suffix.
+        //
+        // If the application specifies the desktop file name use that
+        // removing the ".desktop" suffix, otherwise fall back to the
+        // executable name and prepend the reversed organization domain
+        // when available.
+        if (!QGuiApplication::desktopFileName().isEmpty()) {
+            QString name = QGuiApplication::desktopFileName();
+            mShellSurface->setAppId(name.replace(QRegularExpression(QLatin1String("\\.desktop$")), QString()));
         } else {
-            QString appId;
-            for (int i = 0; i < domainName.count(); ++i)
-                appId.prepend(QLatin1Char('.')).prepend(domainName.at(i));
-            appId.append(fi.baseName());
-            mShellSurface->setAppId(appId);
+            QFileInfo fi = QCoreApplication::instance()->applicationFilePath();
+            QStringList domainName =
+                QCoreApplication::instance()->organizationDomain().split(QLatin1Char('.'),
+                                                                         QString::SkipEmptyParts);
+
+            if (domainName.isEmpty()) {
+                mShellSurface->setAppId(fi.baseName());
+            } else {
+                QString appId;
+                for (int i = 0; i < domainName.count(); ++i)
+                    appId.prepend(QLatin1Char('.')).prepend(domainName.at(i));
+                appId.append(fi.baseName());
+                mShellSurface->setAppId(appId);
+            }
         }
     }
 

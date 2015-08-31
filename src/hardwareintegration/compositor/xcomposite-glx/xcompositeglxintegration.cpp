@@ -36,7 +36,6 @@
 
 #include "xcompositeglxintegration.h"
 
-#include <QtCompositor/private/qwlcompositor_p.h>
 #include "wayland-xcomposite-server-protocol.h"
 
 #include <qpa/qplatformnativeinterface.h>
@@ -80,7 +79,7 @@ XCompositeGLXClientBufferIntegration::~XCompositeGLXClientBufferIntegration()
     delete mHandler;
 }
 
-void XCompositeGLXClientBufferIntegration::initializeHardware(QtWayland::Display *)
+void XCompositeGLXClientBufferIntegration::initializeHardware(struct ::wl_display *)
 {
     qDebug() << "Initializing GLX integration";
     QPlatformNativeInterface *nativeInterface = QGuiApplicationPrivate::platformIntegration()->nativeInterface();
@@ -93,7 +92,7 @@ void XCompositeGLXClientBufferIntegration::initializeHardware(QtWayland::Display
     }
     mScreen = XDefaultScreen(mDisplay);
 
-    mHandler = new XCompositeHandler(m_compositor->handle(), mDisplay);
+    mHandler = new XCompositeHandler(m_compositor, mDisplay);
 
     QOpenGLContext *glContext = new QOpenGLContext();
     glContext->create();
@@ -129,7 +128,7 @@ void XCompositeGLXClientBufferIntegration::bindTextureToBuffer(struct ::wl_resou
 
     uint inverted = 0;
     glXQueryDrawable(mDisplay, glxPixmap, GLX_Y_INVERTED_EXT,&inverted);
-    compositorBuffer->setInvertedY(!inverted);
+    compositorBuffer->setOrigin(inverted ? QWaylandSurface::OriginBottomLeft : QWaylandSurface::OriginTopLeft);
 
     XFree(configs);
 
@@ -139,9 +138,9 @@ void XCompositeGLXClientBufferIntegration::bindTextureToBuffer(struct ::wl_resou
 //    m_glxReleaseTexImageEXT(mDisplay,glxPixmap,GLX_FRONT_EXT);
 }
 
-bool XCompositeGLXClientBufferIntegration::isYInverted(struct ::wl_resource *buffer) const
+QWaylandSurface::Origin XCompositeGLXClientBufferIntegration::origin(struct ::wl_resource *buffer) const
 {
-    return XCompositeBuffer::fromResource(buffer)->isYInverted();
+    return XCompositeBuffer::fromResource(buffer)->origin();
 }
 
 QSize XCompositeGLXClientBufferIntegration::bufferSize(struct ::wl_resource *buffer) const

@@ -37,7 +37,6 @@
 #include "brcmeglintegration.h"
 #include "brcmbuffer.h"
 #include <QtCompositor/private/qwlsurface_p.h>
-#include <QtCompositor/private/qwlcompositor_p.h>
 #include <QtCompositor/qwaylandsurface.h>
 #include <qpa/qplatformnativeinterface.h>
 #include <QtGui/QGuiApplication>

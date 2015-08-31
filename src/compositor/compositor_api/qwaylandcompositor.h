@@ -74,6 +74,7 @@ class Q_COMPOSITOR_EXPORT QWaylandCompositor : public QObject, public QWaylandEx
     Q_PROPERTY(bool retainedSelection READ retainedSelectionEnabled WRITE setRetainedSelectionEnabled)
     Q_PROPERTY(QWaylandOutputSpace *primaryOutputSpace READ primaryOutputSpace WRITE setPrimaryOutputSpace NOTIFY primaryOutputSpaceChanged)
     Q_PROPERTY(QWaylandOutput *primaryOutput READ primaryOutput NOTIFY primaryOutputChanged)
+    Q_PROPERTY(bool useHardwareIntegrationExtension READ useHardwareIntegrationExtension WRITE setUseHardwareIntegrationExtension NOTIFY useHardwareIntegrationExtensionChanged)
 
 public:
     QWaylandCompositor(QObject *parent = 0);
@@ -121,6 +122,8 @@ public:
 
     QWaylandInputDevice *inputDeviceFor(QInputEvent *inputEvent);
 
+    bool useHardwareIntegrationExtension() const;
+    void setUseHardwareIntegrationExtension(bool use);
 public Q_SLOTS:
     void cleanupGraphicsResources();
     void processWaylandEvents();
@@ -135,6 +138,7 @@ Q_SIGNALS:
     void primaryOutputChanged();
     void outputSpacesChanged();
 
+    void useHardwareIntegrationExtensionChanged();
 protected:
     virtual void retainedSelectionReceived(QMimeData *mimeData);
     virtual QWaylandOutput *createOutput(QWaylandOutputSpace *outputSpace,

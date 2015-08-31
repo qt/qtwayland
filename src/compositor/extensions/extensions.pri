@@ -6,7 +6,6 @@ WAYLANDSERVERSOURCES += \
     ../extensions/windowmanager.xml \
     ../3rdparty/protocol/input-method.xml \
     ../3rdparty/protocol/text.xml \
-    ../extensions/hardware-integration.xml \
 
 HEADERS += \
     extensions/qwlextendedsurface_p.h \
@@ -22,7 +21,6 @@ HEADERS += \
     extensions/qwlinputpanelsurface_p.h \
     extensions/qwlinputmethod_p.h \
     extensions/qwlinputmethodcontext_p.h \
-    extensions/qwlhwintegration_p.h \
 
 SOURCES += \
     extensions/qwlextendedsurface.cpp \
@@ -36,6 +34,5 @@ SOURCES += \
     extensions/qwlinputpanelsurface.cpp \
     extensions/qwlinputmethod.cpp \
     extensions/qwlinputmethodcontext.cpp \
-    extensions/qwlhwintegration.cpp \
 
 INCLUDEPATH += extensions

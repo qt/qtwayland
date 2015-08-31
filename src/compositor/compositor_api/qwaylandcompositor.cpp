@@ -57,9 +57,9 @@
 #include "hardware_integration/qwlclientbufferintegrationfactory_p.h"
 #include "hardware_integration/qwlserverbufferintegration_p.h"
 #include "hardware_integration/qwlserverbufferintegrationfactory_p.h"
+#include "hardware_integration/qwlhwintegration_p.h"
 
 #include "extensions/qwaylandwindowmanagerextension.h"
-#include "extensions/qwlhwintegration_p.h"
 
 #include "qwaylandxkb.h"
 #include "qwaylandshmformathelper.h"
@@ -130,6 +130,7 @@ public:
 QWaylandCompositorPrivate::QWaylandCompositorPrivate(QWaylandCompositor *compositor)
     : display(wl_display_create())
 #if defined (QT_COMPOSITOR_WAYLAND_GL)
+    , use_hw_integration_extension(true)
     , client_buffer_integration(0)
     , server_buffer_integration(0)
 #endif
@@ -243,6 +244,9 @@ void QWaylandCompositorPrivate::initializeHardwareIntegration()
 {
 #ifdef QT_COMPOSITOR_WAYLAND_GL
     Q_Q(QWaylandCompositor);
+    if (use_hw_integration_extension)
+        hw_integration.reset(new QtWayland::HardwareIntegration(q));
+
     loadClientBufferIntegration();
     loadServerBufferIntegration();
 
@@ -566,6 +570,25 @@ QWaylandInputDevice *QWaylandCompositor::inputDeviceFor(QInputEvent *inputEvent)
         }
     }
     return dev;
+}
+
+bool QWaylandCompositor::useHardwareIntegrationExtension() const
+{
+    Q_D(const QWaylandCompositor);
+    return d->use_hw_integration_extension;
+}
+
+void QWaylandCompositor::setUseHardwareIntegrationExtension(bool use)
+{
+    Q_D(QWaylandCompositor);
+    if (use == d->use_hw_integration_extension)
+        return;
+
+    if (d->initialized)
+        qWarning("Setting QWaylandCompositor::useHardwareIntegrationExtension after initialization has no effect");
+
+    d->use_hw_integration_extension = use;
+    useHardwareIntegrationExtensionChanged();
 }
 
 QT_END_NAMESPACE

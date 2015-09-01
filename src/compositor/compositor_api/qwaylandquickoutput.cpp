@@ -40,9 +40,8 @@
 
 QT_BEGIN_NAMESPACE
 
-QWaylandQuickOutput::QWaylandQuickOutput(QWaylandOutputSpace *outputSpace, QQuickWindow *window,
-                                         const QString &manufacturer, const QString &model)
-    : QWaylandOutput(outputSpace, window, manufacturer, model)
+QWaylandQuickOutput::QWaylandQuickOutput(QWaylandOutputSpace *outputSpace, QQuickWindow *window)
+    : QWaylandOutput(outputSpace, window)
     , m_updateScheduled(false)
     , m_automaticFrameCallbacks(false)
 {

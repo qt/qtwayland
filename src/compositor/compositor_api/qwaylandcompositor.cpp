@@ -457,11 +457,9 @@ uint QWaylandCompositor::currentTimeMsecs() const
 }
 
 QWaylandOutput *QWaylandCompositor::createOutput(QWaylandOutputSpace *outputSpace,
-                                                 QWindow *window,
-                                                 const QString &manufacturer,
-                                                 const QString &model)
+                                                 QWindow *window)
 {
-    return new QWaylandOutput(outputSpace, window, manufacturer, model);
+    return new QWaylandOutput(outputSpace, window);
 }
 
 QWaylandSurface *QWaylandCompositor::createSurface(QWaylandClient *client, quint32 id, int version)

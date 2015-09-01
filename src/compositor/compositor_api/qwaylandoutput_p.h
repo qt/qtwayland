@@ -85,7 +85,7 @@ struct QWaylandSurfaceViewMapper
 class Q_COMPOSITOR_EXPORT QWaylandOutputPrivate : public QObjectPrivate, public QtWaylandServer::wl_output
 {
 public:
-    QWaylandOutputPrivate(QWaylandCompositor *compositor, QWindow *window, const QString &manufacturer, const QString &model);
+    QWaylandOutputPrivate(QWaylandCompositor *compositor, QWindow *window);
 
     ~QWaylandOutputPrivate();
     static QWaylandOutputPrivate *get(QWaylandOutput *output) { return output->d_func(); }

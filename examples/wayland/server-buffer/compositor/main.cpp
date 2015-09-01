@@ -86,7 +86,7 @@ public:
         m_view.setResizeMode(QQuickView::SizeRootObjectToView);
         m_view.setColor(Qt::black);
         m_view.create();
-        m_output = primaryOutputSpace()->addOutputWindow(&m_view, "", "");
+        m_output = primaryOutputSpace()->addOutputWindow(&m_view);
 
         connect(&m_view, &QQuickView::afterRendering, this, &QmlCompositor::sendCallbacks);
 

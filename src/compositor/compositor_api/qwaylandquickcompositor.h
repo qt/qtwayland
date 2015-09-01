@@ -60,9 +60,7 @@ public:
     void setInitializeLegazyQmlNames(bool init);
 
     QWaylandOutput *createOutput(QWaylandOutputSpace *outputSpace,
-                                 QWindow *window,
-                                 const QString &manufacturer,
-                                 const QString &model) Q_DECL_OVERRIDE;
+                                 QWindow *window) Q_DECL_OVERRIDE;
     QWaylandSurface *createSurface(QWaylandClient *client, quint32 id, int version) Q_DECL_OVERRIDE;
 
 protected:

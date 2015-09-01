@@ -84,20 +84,16 @@ QWaylandOutputSpace::GeometryConstraint QWaylandOutputSpace::geometryConstraint(
     return d->geometryConstraint;
 }
 
-QWaylandOutput *QWaylandOutputSpace::addOutputWindow(QWindow *outputWindow,
-                                                     const QString &manufacturer,
-                                                     const QString &model)
+QWaylandOutput *QWaylandOutputSpace::addOutputWindow(QWindow *outputWindow)
 {
     Q_D(QWaylandOutputSpace);
-    return d->createAndAddOutput(outputWindow, manufacturer, model, false);
+    return d->createAndAddOutput(outputWindow, false);
 }
 
-QWaylandOutput *QWaylandOutputSpace::addPrimaryOutputWindow(QWindow *outputWindow,
-                                                            const QString &manufacturer,
-                                                            const QString &model)
+QWaylandOutput *QWaylandOutputSpace::addPrimaryOutputWindow(QWindow *outputWindow)
 {
     Q_D(QWaylandOutputSpace);
-    return d->createAndAddOutput(outputWindow, manufacturer, model, true);
+    return d->createAndAddOutput(outputWindow, true);
 }
 
 void QWaylandOutputSpace::addOutput(QWaylandOutput *output)

@@ -142,9 +142,7 @@ Q_SIGNALS:
 protected:
     virtual void retainedSelectionReceived(QMimeData *mimeData);
     virtual QWaylandOutput *createOutput(QWaylandOutputSpace *outputSpace,
-                                         QWindow *window,
-                                         const QString &manufacturer,
-                                         const QString &model);
+                                         QWindow *window);
     virtual QWaylandSurface *createSurface(QWaylandClient *client, quint32 id, int version);
     virtual QWaylandInputDevice *createInputDevice();
     virtual QWaylandPointer *createPointerDevice(QWaylandInputDevice *inputDevice);

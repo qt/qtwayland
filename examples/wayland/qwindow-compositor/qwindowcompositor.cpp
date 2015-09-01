@@ -147,7 +147,7 @@ void QWindowCompositor::create()
 {
     QWaylandCompositor::create();
 
-    primaryOutputSpace()->addOutputWindow(m_window, "", "");
+    primaryOutputSpace()->addOutputWindow(m_window);
 
     m_renderScheduler.setSingleShot(true);
     connect(&m_renderScheduler, &QTimer::timeout, this, &QWindowCompositor::render);

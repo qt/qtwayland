@@ -77,12 +77,10 @@ public:
     }
 
     QWaylandOutput *createAndAddOutput(QWindow *window,
-                                       const QString &manufacturer,
-                                       const QString &model,
                                        bool primary)
     {
         Q_Q(QWaylandOutputSpace);
-        QWaylandOutput *output = QWaylandCompositorPrivate::get(compositor)->callCreateOutput(q, window, manufacturer, model);
+        QWaylandOutput *output = QWaylandCompositorPrivate::get(compositor)->callCreateOutput(q, window);
         addOutput(output, primary);
         return output;
     }

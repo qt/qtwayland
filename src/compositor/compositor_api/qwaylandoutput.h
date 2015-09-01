@@ -61,8 +61,8 @@ class Q_COMPOSITOR_EXPORT QWaylandOutput : public QObject, public QWaylandExtens
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandOutput)
-    Q_PROPERTY(QString manufacturer READ manufacturer CONSTANT)
-    Q_PROPERTY(QString model READ model CONSTANT)
+    Q_PROPERTY(QString manufacturer READ manufacturer WRITE setManufacturer NOTIFY manufacturerChanged)
+    Q_PROPERTY(QString model READ model WRITE setModel NOTIFY modelChanged)
     Q_PROPERTY(QPoint position READ position WRITE setPosition NOTIFY positionChanged)
     Q_PROPERTY(QWaylandOutput::Mode mode READ mode WRITE setMode NOTIFY modeChanged)
     Q_PROPERTY(QRect geometry READ geometry NOTIFY geometryChanged)
@@ -104,8 +104,7 @@ public:
         int refreshRate;
     };
 
-    QWaylandOutput(QWaylandOutputSpace *outputSpace, QWindow *window,
-                   const QString &manufacturer, const QString &model);
+    QWaylandOutput(QWaylandOutputSpace *outputSpace, QWindow *window);
     ~QWaylandOutput();
 
     static QWaylandOutput *fromResource(wl_resource *resource);
@@ -119,8 +118,10 @@ public:
 
 
     QString manufacturer() const;
+    void setManufacturer(const QString &manufacturer);
 
     QString model() const;
+    void setModel(const QString &model);
 
     QPoint position() const;
     void setPosition(const QPoint &pt);
@@ -179,6 +180,8 @@ Q_SIGNALS:
     void sizeFollowsWindowChanged();
     void physicalSizeFollowsSizeChanged();
     void outputSpaceChanged();
+    void manufacturerChanged();
+    void modelChanged();
 
 private Q_SLOTS:
     void windowDestroyed();

@@ -71,8 +71,8 @@ public:
     void setGeometryConstraint(GeometryConstraint geometryConstraint);
     GeometryConstraint geometryConstraint() const;
 
-    Q_INVOKABLE QWaylandOutput *addOutputWindow(QWindow *outputWindow, const QString &manufacturer, const QString &model);
-    Q_INVOKABLE QWaylandOutput *addPrimaryOutputWindow(QWindow *outputWindow, const QString &manufacturer, const QString &model);
+    Q_INVOKABLE QWaylandOutput *addOutputWindow(QWindow *outputWindow);
+    Q_INVOKABLE QWaylandOutput *addPrimaryOutputWindow(QWindow *outputWindow);
     Q_INVOKABLE void addOutput(QWaylandOutput *output);
     Q_INVOKABLE void addPrimaryOutput(QWaylandOutput *output);
     Q_INVOKABLE void removeOutput(QWaylandOutput *output);

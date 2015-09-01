@@ -51,8 +51,7 @@ class Q_COMPOSITOR_EXPORT QWaylandQuickOutput : public QWaylandOutput
     Q_OBJECT
     Q_PROPERTY(bool automaticFrameCallbacks READ automaticFrameCallbacks WRITE setAutomaticFrameCallbacks)
 public:
-    QWaylandQuickOutput(QWaylandOutputSpace *outputSpace, QQuickWindow *window,
-                        const QString &manufacturer, const QString &model);
+    QWaylandQuickOutput(QWaylandOutputSpace *outputSpace, QQuickWindow *window);
 
     QQuickWindow *quickWindow() const;
 

@@ -97,13 +97,11 @@ static QtWaylandServer::wl_output::transform toWlTransform(const QWaylandOutput:
     return QtWaylandServer::wl_output::transform_normal;
 }
 
-QWaylandOutputPrivate::QWaylandOutputPrivate(QWaylandCompositor *compositor, QWindow *window, const QString &manufacturer, const QString &model)
+QWaylandOutputPrivate::QWaylandOutputPrivate(QWaylandCompositor *compositor, QWindow *window)
     : QtWaylandServer::wl_output(compositor->display(), 2)
     , compositor(compositor)
     , outputSpace(Q_NULLPTR)
     , window(window)
-    , manufacturer(manufacturer)
-    , model(model)
     , subpixel(QWaylandOutput::SubpixelUnknown)
     , transform(QWaylandOutput::TransformNormal)
     , scaleFactor(1)
@@ -187,9 +185,8 @@ void QWaylandOutputPrivate::removeView(QWaylandView *view, QWaylandSurface *surf
     qWarning("%s Could not find view %p for surface %p to remove. Possible invalid state", Q_FUNC_INFO, view, surface);
 }
 
-QWaylandOutput::QWaylandOutput(QWaylandOutputSpace *outputSpace, QWindow *window,
-                               const QString &manufacturer, const QString &model)
-    : QObject(*new QWaylandOutputPrivate(outputSpace->compositor(), window, manufacturer, model))
+QWaylandOutput::QWaylandOutput(QWaylandOutputSpace *outputSpace, QWindow *window)
+    : QObject(*new QWaylandOutputPrivate(outputSpace->compositor(), window))
 {
     setOutputSpace(outputSpace);
     QObject::connect(window, &QWindow::widthChanged, this, &QWaylandOutput::setWidth);
@@ -259,9 +256,19 @@ QString QWaylandOutput::manufacturer() const
     return d_func()->manufacturer;
 }
 
+void QWaylandOutput::setManufacturer(const QString &manufacturer)
+{
+    d_func()->manufacturer = manufacturer;
+}
+
 QString QWaylandOutput::model() const
 {
     return d_func()->model;
+}
+
+void QWaylandOutput::setModel(const QString &model)
+{
+    d_func()->model = model;
 }
 
 QPoint QWaylandOutput::position() const

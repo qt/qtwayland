@@ -146,14 +146,13 @@ void Keyboard::setFocus(Surface* surface)
 void Keyboard::setKeymap(const QWaylandKeymap &keymap)
 {
     m_keymap = keymap;
+    m_pendingKeymap = true;
 
     // If there is no key currently pressed, update right away the keymap
     // Otherwise, delay the update when keys are released
     // see http://lists.freedesktop.org/archives/wayland-devel/2013-October/011395.html
     if (m_keys.isEmpty()) {
         updateKeymap();
-    } else {
-        m_pendingKeymap = true;
     }
 }
 

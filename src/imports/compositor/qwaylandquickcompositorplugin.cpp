@@ -47,6 +47,7 @@
 #include <QtCompositor/QWaylandOutputSpace>
 #include <QtCompositor/QWaylandExtension>
 #include <QtCompositor/QWaylandQuickExtension>
+#include <QtCompositor/QWaylandInputDevice>
 
 #include <QtCompositor/QWaylandShell>
 
@@ -130,6 +131,8 @@ public:
         qmlRegisterUncreatableType<QWaylandOutput>(uri, 1, 0, "WaylandOutput", QObject::tr("Cannot create instance of WaylandOutput"));
         qmlRegisterUncreatableType<QWaylandOutputSpace>(uri, 1, 0, "WaylandOutputSpace", QObject::tr("Cannot create instance of WaylandOutputSpace"));
         qmlRegisterUncreatableType<QWaylandView>(uri, 1, 0, "WaylandView", QObject::tr("Cannot create instance of WaylandView, it can be retrieved by accessor on WaylandQuickItem"));
+        qmlRegisterUncreatableType<QWaylandInputDevice>(uri, 1, 0, "WaylandInputDevice", QObject::tr("Cannot create instance of WaylandInputDevice"));
+        qmlRegisterUncreatableType<QWaylandCompositor>(uri, 1, 0, "WaylandCompositorBase", QObject::tr("Cannot create instance of WaylandCompositorBase, use WaylandCompositor instead"));
 
         //This should probably be somewhere else
         qmlRegisterType<QWaylandShellQuickData>(uri, 1, 0, "DefaultShell");

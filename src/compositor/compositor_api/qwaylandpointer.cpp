@@ -68,24 +68,19 @@ void QWaylandPointerPrivate::pointer_release(wl_pointer::Resource *resource)
     wl_resource_destroy(resource->handle);
 }
 
-static void requestCursorSurface(QWaylandCompositor *compositor, QWaylandSurface *surface, int32_t hotspot_x, int hotspot_y)
-{
-    compositor->currentCurserSurfaceRequest(surface, hotspot_x, hotspot_y);
-}
-
 void QWaylandPointerPrivate::pointer_set_cursor(wl_pointer::Resource *resource, uint32_t serial, wl_resource *surface, int32_t hotspot_x, int32_t hotspot_y)
 {
     Q_UNUSED(resource);
     Q_UNUSED(serial);
 
     if (!surface) {
-        requestCursorSurface(compositor(), Q_NULLPTR, 0, 0);
+        seat->cursorSurfaceRequest(Q_NULLPTR, 0, 0);
         return;
     }
 
     QWaylandSurface *s = QWaylandSurface::fromResource(surface);
     s->markAsCursorSurface(true);
-    requestCursorSurface(compositor(), s, hotspot_x, hotspot_y);
+    seat->cursorSurfaceRequest(s, hotspot_x, hotspot_y);
 }
 
 QWaylandPointerGrabber::~QWaylandPointerGrabber()

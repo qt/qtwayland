@@ -124,8 +124,10 @@ public:
     virtual bool isOwner(QInputEvent *inputEvent) const;
 
     static QWaylandInputDevice *fromSeatResource(struct ::wl_resource *resource);
+
 Q_SIGNALS:
     void mouseFocusChanged(QWaylandView *newFocus, QWaylandView *oldFocus);
+    void cursorSurfaceRequest(QWaylandSurface *surface, int hotspotX, int hotspotY);
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QWaylandInputDevice::CapabilityFlags)

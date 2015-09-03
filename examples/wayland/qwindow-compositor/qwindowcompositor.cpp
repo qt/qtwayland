@@ -152,7 +152,7 @@ void QWindowCompositor::create()
     m_renderScheduler.setSingleShot(true);
     connect(&m_renderScheduler, &QTimer::timeout, this, &QWindowCompositor::render);
     connect(this, &QWaylandCompositor::surfaceCreated, this, &QWindowCompositor::onSurfaceCreated);
-    connect(this, &QWaylandCompositor::currentCurserSurfaceRequest, this, &QWindowCompositor::adjustCursorSurface);
+    connect(defaultInputDevice(), &QWaylandInputDevice::cursorSurfaceRequest, this, &QWindowCompositor::adjustCursorSurface);
 
     m_window->installEventFilter(this);
 

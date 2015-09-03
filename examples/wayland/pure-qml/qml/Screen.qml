@@ -70,7 +70,7 @@ Window {
             x: mouseTracker.mouseX - hotspotX
             y: mouseTracker.mouseY - hotspotY
 
-            compositor: screen.compositor
+            inputDevice: output.compositor.defaultInputDevice
         }
     }
 }

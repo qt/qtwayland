@@ -75,6 +75,7 @@ class Q_COMPOSITOR_EXPORT QWaylandCompositor : public QObject, public QWaylandEx
     Q_PROPERTY(QWaylandOutputSpace *primaryOutputSpace READ primaryOutputSpace WRITE setPrimaryOutputSpace NOTIFY primaryOutputSpaceChanged)
     Q_PROPERTY(QWaylandOutput *primaryOutput READ primaryOutput NOTIFY primaryOutputChanged)
     Q_PROPERTY(bool useHardwareIntegrationExtension READ useHardwareIntegrationExtension WRITE setUseHardwareIntegrationExtension NOTIFY useHardwareIntegrationExtensionChanged)
+    Q_PROPERTY(QWaylandInputDevice *defaultInputDevice READ defaultInputDevice CONSTANT)
 
 public:
     QWaylandCompositor(QObject *parent = 0);
@@ -131,8 +132,6 @@ public Q_SLOTS:
 Q_SIGNALS:
     void surfaceCreated(QWaylandSurface *surface);
     void surfaceAboutToBeDestroyed(QWaylandSurface *surface);
-
-    void currentCurserSurfaceRequest(QWaylandSurface *surface, int hotspotX, int hotspotY);
 
     void primaryOutputSpaceChanged();
     void primaryOutputChanged();

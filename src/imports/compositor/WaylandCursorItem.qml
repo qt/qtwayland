@@ -36,19 +36,17 @@ import QtWayland.Compositor 1.0
 
 WaylandQuickItem {
     id: cursorItem
-    property QtObject compositor
+    property QtObject inputDevice
     property int hotspotX: 0
     property int hotspotY: 0
 
     visible: cursorItem.surface != null
     inputEventsEnabled: false
 
-    Component.onCompleted: {
-        if (!compositor) {
-            console.warn("WaylandCursorItem initiated without compositor. This leads to undefined behavior");
+    onInputDeviceChanged: {
+        if (!inputDevice)
             return;
-        }
-        compositor.currentCurserSurfaceRequest.connect(setCursorSurface);
+        inputDevice.cursorSurfaceRequest.connect(setCursorSurface);
     }
 
     function setCursorSurface(surface, hotspotX, hotspotY) {

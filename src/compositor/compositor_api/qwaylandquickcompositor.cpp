@@ -95,6 +95,7 @@ void QWaylandQuickCompositor::classBegin()
 
 void QWaylandQuickCompositor::componentComplete()
 {
+    create();
 }
 
 QT_END_NAMESPACE

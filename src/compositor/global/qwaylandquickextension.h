@@ -88,19 +88,13 @@ QT_BEGIN_NAMESPACE
         } \
         static void append_extension(QQmlListProperty<QWaylandExtension> *list, QWaylandExtension *extension) \
         { \
-            className##QuickExtension *compositor = static_cast<className##QuickExtension *>(list->data); \
-            extension->setExtensionContainer(compositor); \
+            className##QuickExtension *quickExtObj = static_cast<className##QuickExtension *>(list->data); \
+            extension->setExtensionContainer(quickExtObj); \
         } \
         static void clearFunction(QQmlListProperty<QWaylandExtension> *list) \
         { \
             static_cast<className##QuickExtension *>(list->data)->extension_vector.clear(); \
         } \
-    protected: \
-        void componentComplete() Q_DECL_OVERRIDE \
-        { \
-            create(); \
-            QWaylandQuickCompositor::componentComplete(); \
-        }\
     private: \
         QList<QObject *> m_objects; \
     };

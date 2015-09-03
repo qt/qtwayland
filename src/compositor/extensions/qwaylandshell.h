@@ -39,6 +39,8 @@
 
 #include <QtCompositor/QWaylandExtension>
 
+QT_BEGIN_NAMESPACE
+
 class QWaylandShellSurface;
 class QWaylandShellSurfacePrivate;
 class QWaylandSurface;
@@ -118,5 +120,7 @@ private Q_SLOTS:
 private:
     void initialize();
 };
+
+QT_END_NAMESPACE
 
 #endif  /*QWAYLANDSHELL_H*/

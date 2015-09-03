@@ -109,8 +109,7 @@ public:
     ~QWaylandOutput();
 
     static QWaylandOutput *fromResource(wl_resource *resource);
-    //### rename to resourceForClient
-    struct ::wl_resource *outputForClient(QWaylandClient *client) const;
+    struct ::wl_resource *resourceForClient(QWaylandClient *client) const;
 
     QWaylandCompositor *compositor() const;
 

@@ -232,7 +232,7 @@ QWaylandOutput *QWaylandOutput::fromResource(wl_resource *resource)
     return static_cast<QWaylandOutputPrivate *>(QWaylandOutputPrivate::Resource::fromResource(resource)->output_object)->q_func();
 }
 
-struct ::wl_resource *QWaylandOutput::outputForClient(QWaylandClient *client) const
+struct ::wl_resource *QWaylandOutput::resourceForClient(QWaylandClient *client) const
 {
     Q_D(const QWaylandOutput);
     QWaylandOutputPrivate::Resource *r = d->resourceMap().value(client->client());
@@ -555,14 +555,14 @@ void QWaylandOutput::surfaceEnter(QWaylandSurface *surface)
 {
     if (!surface)
         return;
-    QWaylandSurfacePrivate::get(surface)->send_enter(outputForClient(surface->client()));
+    QWaylandSurfacePrivate::get(surface)->send_enter(resourceForClient(surface->client()));
 }
 
 void QWaylandOutput::surfaceLeave(QWaylandSurface *surface)
 {
     if (!surface)
         return;
-    QWaylandSurfacePrivate::get(surface)->send_leave(outputForClient(surface->client()));
+    QWaylandSurfacePrivate::get(surface)->send_leave(resourceForClient(surface->client()));
 }
 
 QWaylandView *QWaylandOutput::pickView(const QPointF &outputPosition) const

@@ -200,16 +200,25 @@ void QWaylandView::attach(const QWaylandBufferRef &ref, const QRegion &damage)
 bool QWaylandView::advance()
 {
     Q_D(QWaylandView);
-    if (d->currentBuffer == d->nextBuffer)
+    if (d->currentBuffer == d->nextBuffer && !d->forceAdvanceSucceed)
         return false;
 
     if (d->bufferLock)
         return false;
 
     QMutexLocker locker(&d->bufferMutex);
+    d->forceAdvanceSucceed = false;
     d->currentBuffer = d->nextBuffer;
     d->currentDamage = d->nextDamage;
     return true;
+}
+
+void QWaylandView::discardCurrentBuffer()
+{
+    Q_D(QWaylandView);
+    QMutexLocker locker(&d->bufferMutex);
+    d->currentBuffer = QWaylandBufferRef();
+    d->forceAdvanceSucceed = true;
 }
 
 QWaylandBufferRef QWaylandView::currentBuffer()

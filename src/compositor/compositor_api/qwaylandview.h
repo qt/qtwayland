@@ -81,6 +81,7 @@ public:
 
     virtual void attach(const QWaylandBufferRef &ref, const QRegion &damage);
     virtual bool advance();
+    virtual void discardCurrentBuffer();
     virtual QWaylandBufferRef currentBuffer();
     virtual QRegion currentDamage();
 

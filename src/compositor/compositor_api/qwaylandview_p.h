@@ -60,6 +60,7 @@ public:
         , output(Q_NULLPTR)
         , bufferLock(false)
         , broadcastRequestedPositionChanged(false)
+        , forceAdvanceSucceed(false)
     { }
 
     void markSurfaceAsDestroyed(QWaylandSurface *surface);
@@ -75,6 +76,7 @@ public:
     QRegion nextDamage;
     bool bufferLock;
     bool broadcastRequestedPositionChanged;
+    bool forceAdvanceSucceed;
 };
 
 QT_END_NAMESPACE

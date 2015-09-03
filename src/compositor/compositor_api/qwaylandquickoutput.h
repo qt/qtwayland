@@ -49,7 +49,7 @@ class QQuickWindow;
 class Q_COMPOSITOR_EXPORT QWaylandQuickOutput : public QWaylandOutput
 {
     Q_OBJECT
-    Q_PROPERTY(bool automaticFrameCallbacks READ automaticFrameCallbacks WRITE setAutomaticFrameCallbacks)
+    Q_PROPERTY(bool automaticFrameCallback READ automaticFrameCallback WRITE setAutomaticFrameCallback NOTIFY automaticFrameCallbackChanged)
 public:
     QWaylandQuickOutput(QWaylandOutputSpace *outputSpace, QQuickWindow *window);
 
@@ -57,17 +57,20 @@ public:
 
     void update() Q_DECL_OVERRIDE;
 
-    bool automaticFrameCallbacks() const;
-    void setAutomaticFrameCallbacks(bool automatic);
+    bool automaticFrameCallback() const;
+    void setAutomaticFrameCallback(bool automatic);
 
 public Q_SLOTS:
     void updateStarted();
+
+Q_SIGNALS:
+    void automaticFrameCallbackChanged();
 
 private:
     void doFrameCallbacks();
 
     bool m_updateScheduled;
-    bool m_automaticFrameCallbacks;
+    bool m_automaticFrameCallback;
 };
 
 QT_END_NAMESPACE

@@ -81,7 +81,7 @@ WaylandCompositor {
         var screen = screenComponent.createObject(0, { "compositor" : compositor } );
         primarySurfacesArea = screen.surfacesArea;
         var output = compositor.primaryOutputSpace.addOutputWindow(screen);
-        output.automaticFrameCallbacks = true;
+        output.automaticFrameCallback = true;
     }
 
     Component.onCompleted: {

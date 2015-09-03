@@ -43,7 +43,7 @@ QT_BEGIN_NAMESPACE
 QWaylandQuickOutput::QWaylandQuickOutput(QWaylandOutputSpace *outputSpace, QQuickWindow *window)
     : QWaylandOutput(outputSpace, window)
     , m_updateScheduled(false)
-    , m_automaticFrameCallbacks(false)
+    , m_automaticFrameCallback(true)
 {
     connect(window, &QQuickWindow::beforeSynchronizing,
             this, &QWaylandQuickOutput::updateStarted,
@@ -66,14 +66,18 @@ void QWaylandQuickOutput::update()
     }
 }
 
-bool QWaylandQuickOutput::automaticFrameCallbacks() const
+bool QWaylandQuickOutput::automaticFrameCallback() const
 {
-    return m_automaticFrameCallbacks;
+    return m_automaticFrameCallback;
 }
 
-void QWaylandQuickOutput::setAutomaticFrameCallbacks(bool automatic)
+void QWaylandQuickOutput::setAutomaticFrameCallback(bool automatic)
 {
-    m_automaticFrameCallbacks = automatic;
+    if (m_automaticFrameCallback == automatic)
+        return;
+
+    m_automaticFrameCallback = automatic;
+    automaticFrameCallbackChanged();
 }
 
 void QWaylandQuickOutput::updateStarted()
@@ -85,7 +89,7 @@ void QWaylandQuickOutput::updateStarted()
 
 void QWaylandQuickOutput::doFrameCallbacks()
 {
-    if (m_automaticFrameCallbacks)
+    if (m_automaticFrameCallback)
         sendFrameCallbacks();
 }
 QT_END_NAMESPACE

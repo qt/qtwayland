@@ -72,8 +72,8 @@ public:
     void destroySurface(QWaylandSurface *surface);
     void unregisterSurface(QWaylandSurface *surface);
 
-    QWaylandOutput *primaryOutput() const { return primaryOutputSpace()->primaryOutput(); }
-    QWaylandOutputSpace *primaryOutputSpace() const { return outputSpaces.first(); }
+    QWaylandOutput *defaultOutput() const { return defaultOutputSpace()->defaultOutput(); }
+    QWaylandOutputSpace *defaultOutputSpace() const { return outputSpaces.first(); }
 
     inline QtWayland::ClientBufferIntegration *clientBufferIntegration() const;
     inline QtWayland::ServerBufferIntegration *serverBufferIntegration() const;

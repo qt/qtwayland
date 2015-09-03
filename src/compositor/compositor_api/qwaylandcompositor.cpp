@@ -426,19 +426,19 @@ QWaylandOutput *QWaylandCompositor::output(QWindow *window) const
     return Q_NULLPTR;
 }
 
-QWaylandOutput *QWaylandCompositor::primaryOutput() const
+QWaylandOutput *QWaylandCompositor::defaultOutput() const
 {
     Q_D(const QWaylandCompositor);
-    return d->primaryOutput();
+    return d->defaultOutput();
 }
 
-QWaylandOutputSpace *QWaylandCompositor::primaryOutputSpace() const
+QWaylandOutputSpace *QWaylandCompositor::defaultOutputSpace() const
 {
     Q_D(const QWaylandCompositor);
-    return d->primaryOutputSpace();
+    return d->defaultOutputSpace();
 }
 
-void QWaylandCompositor::setPrimaryOutputSpace(QWaylandOutputSpace *outputSpace)
+void QWaylandCompositor::setDefaultOutputSpace(QWaylandOutputSpace *outputSpace)
 {
     Q_D(QWaylandCompositor);
 
@@ -447,7 +447,7 @@ void QWaylandCompositor::setPrimaryOutputSpace(QWaylandOutputSpace *outputSpace)
         return;
     if (d->outputSpaces.removeOne(outputSpace)) {
         d->outputSpaces.prepend(outputSpace);
-        primaryOutputSpaceChanged();
+        defaultOutputSpaceChanged();
     }
 }
 

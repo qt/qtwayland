@@ -147,7 +147,7 @@ void QWindowCompositor::create()
 {
     QWaylandCompositor::create();
 
-    new QWaylandOutput(primaryOutputSpace(), m_window);
+    new QWaylandOutput(defaultOutputSpace(), m_window);
 
     m_renderScheduler.setSingleShot(true);
     connect(&m_renderScheduler, &QTimer::timeout, this, &QWindowCompositor::render);
@@ -343,7 +343,7 @@ QWaylandView *QWindowCompositor::viewAt(const QPointF &point, QPointF *local)
 void QWindowCompositor::render()
 {
     m_window->makeCurrent();
-    primaryOutput()->frameStarted();
+    defaultOutput()->frameStarted();
 
     cleanupGraphicsResources();
 
@@ -364,7 +364,7 @@ void QWindowCompositor::render()
     }
 
     m_textureBlitter->release();
-    primaryOutput()->sendFrameCallbacks();
+    defaultOutput()->sendFrameCallbacks();
 
     // N.B. Never call glFinish() here as the busylooping with vsync 'feature' of the nvidia binary driver is not desirable.
     m_window->swapBuffers();

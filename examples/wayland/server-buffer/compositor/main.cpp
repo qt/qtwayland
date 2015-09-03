@@ -86,7 +86,7 @@ public:
         m_view.setResizeMode(QQuickView::SizeRootObjectToView);
         m_view.setColor(Qt::black);
         m_view.create();
-        m_output = new QWaylandQuickOutput(primaryOutputSpace(), &m_view);
+        m_output = new QWaylandQuickOutput(defaultOutputSpace(), &m_view);
 
         connect(&m_view, &QQuickView::afterRendering, this, &QmlCompositor::sendCallbacks);
 
@@ -214,7 +214,7 @@ private slots:
 protected:
     void sizeAdjusted()
     {
-        primaryOutputSpace()->primaryOutput()->setGeometry(QRect(QPoint(0, 0), m_view.size()));
+        defaultOutput()->setGeometry(QRect(QPoint(0, 0), m_view.size()));
     }
 
     void onSurfaceCreated(QWaylandSurface *surface) {

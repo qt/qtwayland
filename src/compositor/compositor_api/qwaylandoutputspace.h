@@ -54,7 +54,7 @@ class Q_COMPOSITOR_EXPORT QWaylandOutputSpace : public QObject
 
     Q_PROPERTY(GeometryConstraint geometryConstraint READ geometryConstraint WRITE setGeometryConstraint NOTIFY geometryConstraintChanged)
     Q_PROPERTY(QRect geometry READ geometry WRITE setGeometry NOTIFY geometryChanged)
-    Q_PROPERTY(QWaylandOutput *primaryOutput READ primaryOutput WRITE setPrimaryOutput NOTIFY primaryOutputChanged)
+    Q_PROPERTY(QWaylandOutput *defaultOutput READ defaultOutput WRITE setDefaultOutput NOTIFY defaultOutputChanged)
     Q_PROPERTY(QList<QWaylandOutput *> outputs READ outputs NOTIFY outputsChanged)
 public:
     enum GeometryConstraint {
@@ -74,8 +74,8 @@ public:
 
     Q_INVOKABLE QWaylandOutput *output(QWindow *window) const;
 
-    QWaylandOutput *primaryOutput() const;
-    void setPrimaryOutput(QWaylandOutput *output);
+    QWaylandOutput *defaultOutput() const;
+    void setDefaultOutput(QWaylandOutput *output);
 
     Q_INVOKABLE QList<QWaylandOutput *>outputs() const;
     Q_INVOKABLE QList<QWaylandOutput *>outputs(const QPoint &point) const;
@@ -89,7 +89,7 @@ Q_SIGNALS:
     void geometryChanged();
 
     void outputsChanged();
-    void primaryOutputChanged();
+    void defaultOutputChanged();
 
 private:
     Q_DISABLE_COPY(QWaylandOutputSpace)

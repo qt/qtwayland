@@ -72,7 +72,7 @@ public:
         setResizeMode(QQuickView::SizeRootObjectToView);
         setColor(Qt::black);
         winId();
-        m_output = new QWaylandQuickOutput(m_compositor.primaryOutputSpace(), this);
+        m_output = new QWaylandQuickOutput(m_compositor.defaultOutputSpace(), this);
 
         connect(this, SIGNAL(afterRendering()), this, SLOT(sendCallbacks()));
         connect(&m_compositor, &QWaylandCompositor::surfaceCreated, this, &QmlCompositor::onSurfaceCreated);

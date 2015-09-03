@@ -54,7 +54,7 @@ QWaylandInputDevicePrivate::QWaylandInputDevicePrivate(QWaylandInputDevice *inpu
     : QObjectPrivate()
     , QtWaylandServer::wl_seat(compositor->display(), 3)
     , compositor(compositor)
-    , outputSpace(compositor->primaryOutputSpace())
+    , outputSpace(compositor->defaultOutputSpace())
     , mouseFocus(Q_NULLPTR)
     , capabilities()
     , data_device()

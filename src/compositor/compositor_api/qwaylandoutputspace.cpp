@@ -94,7 +94,7 @@ QWaylandOutput *QWaylandOutputSpace::output(QWindow *window) const
     return Q_NULLPTR;
 }
 
-void QWaylandOutputSpace::setPrimaryOutput(QWaylandOutput *output)
+void QWaylandOutputSpace::setDefaultOutput(QWaylandOutput *output)
 {
     Q_D(QWaylandOutputSpace);
     if (d->outputs.isEmpty() || d->outputs.first() == output)
@@ -102,11 +102,11 @@ void QWaylandOutputSpace::setPrimaryOutput(QWaylandOutput *output)
 
     if (d->outputs.removeOne(output)) {
         d->outputs.prepend(output);
-        primaryOutputChanged();
+        defaultOutputChanged();
     }
 }
 
-QWaylandOutput *QWaylandOutputSpace::primaryOutput() const
+QWaylandOutput *QWaylandOutputSpace::defaultOutput() const
 {
     Q_D(const QWaylandOutputSpace);
     if (d->outputs.isEmpty())

@@ -66,7 +66,7 @@ WaylandCompositor {
             }
 
             onCreateShellSurface: {
-                var item = chromeComponent.createObject(primaryOutput.surfaceArea, { "surface": surface } );
+                var item = chromeComponent.createObject(defaultOutput.surfaceArea, { "surface": surface } );
                 var shellSurface = shellSurfaceComponent.createObject();
                 shellSurface.initialize(defaultShell, surface, item.view, client, id);
             }
@@ -77,12 +77,7 @@ WaylandCompositor {
         }
     ]
 
-    function addScreen() {
-        var screen = screenComponent.createObject(0, { "outputSpace" : primaryOutputSpace } );
-    }
-
     Component.onCompleted: {
-        addScreen(WaylandOutput.PrimaryOutput);
+        screenComponent.createObject(0, { "outputSpace" : defaultOutputSpace } );
     }
-
 }

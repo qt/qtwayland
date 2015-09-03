@@ -85,7 +85,7 @@ struct QWaylandSurfaceViewMapper
 class Q_COMPOSITOR_EXPORT QWaylandOutputPrivate : public QObjectPrivate, public QtWaylandServer::wl_output
 {
 public:
-    QWaylandOutputPrivate(QWaylandCompositor *compositor, QWindow *window);
+    QWaylandOutputPrivate();
 
     ~QWaylandOutputPrivate();
     static QWaylandOutputPrivate *get(QWaylandOutput *output) { return output->d_func(); }
@@ -94,12 +94,12 @@ public:
     void removeView(QWaylandView *view, QWaylandSurface *surface);
     void sendGeometryInfo();
 
+    QWaylandCompositor *compositor() const { return outputSpace->compositor(); }
 protected:
     void output_bind_resource(Resource *resource) Q_DECL_OVERRIDE;
 
 
 private:
-    QWaylandCompositor *compositor;
     QWaylandOutputSpace *outputSpace;
     QWindow *window;
     QString manufacturer;
@@ -113,6 +113,7 @@ private:
     QWaylandOutput::Transform transform;
     int scaleFactor;
     bool sizeFollowsWindow;
+    bool initialized;
 
     Q_DECLARE_PUBLIC(QWaylandOutput)
     Q_DISABLE_COPY(QWaylandOutputPrivate)

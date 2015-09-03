@@ -43,7 +43,7 @@
 #include <QtCompositor/QWaylandQuickItem>
 #include <QtCompositor/QWaylandQuickSurface>
 #include <QtCompositor/QWaylandClient>
-#include <QtCompositor/QWaylandOutput>
+#include <QtCompositor/QWaylandQuickOutput>
 #include <QtCompositor/QWaylandOutputSpace>
 #include <QtCompositor/QWaylandExtension>
 #include <QtCompositor/QWaylandQuickExtension>
@@ -124,11 +124,11 @@ public:
         qmlRegisterType<QWaylandQuickCompositorQuickExtension>(uri, 1, 0, "WaylandCompositor");
         qmlRegisterType<QWaylandQuickItem>(uri, 1, 0, "WaylandQuickItem");
         qmlRegisterType<QWaylandMouseTracker>(uri, 1, 0, "WaylandMouseTracker");
+        qmlRegisterType<QWaylandQuickOutput>(uri, 1, 0, "WaylandOutput");
 
         qmlRegisterUncreatableType<QWaylandExtension>(uri, 1, 0, "WaylandExtension", QObject::tr("Cannot create instance of WaylandExtension"));
         qmlRegisterUncreatableType<QWaylandSurface>(uri, 1, 0, "WaylandSurface", QObject::tr("Cannot create instance of WaylandQuickSurface"));
         qmlRegisterUncreatableType<QWaylandClient>(uri, 1, 0, "WaylandClient", QObject::tr("Cannot create instance of WaylandClient"));
-        qmlRegisterUncreatableType<QWaylandOutput>(uri, 1, 0, "WaylandOutput", QObject::tr("Cannot create instance of WaylandOutput"));
         qmlRegisterUncreatableType<QWaylandOutputSpace>(uri, 1, 0, "WaylandOutputSpace", QObject::tr("Cannot create instance of WaylandOutputSpace"));
         qmlRegisterUncreatableType<QWaylandView>(uri, 1, 0, "WaylandView", QObject::tr("Cannot create instance of WaylandView, it can be retrieved by accessor on WaylandQuickItem"));
         qmlRegisterUncreatableType<QWaylandInputDevice>(uri, 1, 0, "WaylandInputDevice", QObject::tr("Cannot create instance of WaylandInputDevice"));

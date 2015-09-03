@@ -84,20 +84,6 @@ void QWaylandQuickCompositor::setInitializeLegazyQmlNames(bool init)
     m_initializeLegazyQmlNames = init;
 }
 
-QWaylandOutput *QWaylandQuickCompositor::createOutput(QWaylandOutputSpace *outputSpace,
-                                                      QWindow *window)
-{
-    QQmlEngine::setObjectOwnership(window, QQmlEngine::CppOwnership);
-
-    QQuickWindow *quickWindow = qobject_cast<QQuickWindow *>(window);
-    if (!quickWindow)
-        qFatal("%s: couldn't cast QWindow to QQuickWindow. All output windows must "
-               "be QQuickWindow derivates when using QWaylandQuickCompositor", Q_FUNC_INFO);
-    QWaylandQuickOutput *output = new QWaylandQuickOutput(outputSpace, quickWindow);
-    QQmlEngine::setObjectOwnership(output, QQmlEngine::CppOwnership);
-    return output;
-}
-
 QWaylandSurface *QWaylandQuickCompositor::createSurface(QWaylandClient *client, quint32 id, int version)
 {
     return new QWaylandQuickSurface(client, id, version, this);

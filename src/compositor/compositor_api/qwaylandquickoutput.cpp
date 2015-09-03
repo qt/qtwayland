@@ -40,28 +40,42 @@
 
 QT_BEGIN_NAMESPACE
 
-QWaylandQuickOutput::QWaylandQuickOutput(QWaylandOutputSpace *outputSpace, QQuickWindow *window)
+QWaylandQuickOutput::QWaylandQuickOutput()
+    : QWaylandOutput()
+    , m_updateScheduled(false)
+    , m_automaticFrameCallback(true)
+{
+}
+
+QWaylandQuickOutput::QWaylandQuickOutput(QWaylandOutputSpace *outputSpace, QWindow *window)
     : QWaylandOutput(outputSpace, window)
     , m_updateScheduled(false)
     , m_automaticFrameCallback(true)
 {
-    connect(window, &QQuickWindow::beforeSynchronizing,
+}
+
+void QWaylandQuickOutput::initialize()
+{
+    QWaylandOutput::initialize();
+
+    QQuickWindow *quickWindow = qobject_cast<QQuickWindow *>(window());
+    if (!quickWindow) {
+        qWarning("Initialization error: Could not locate QQuickWindow on initializing QWaylandQucikOutput %p.\n", this);
+        return;
+    }
+    connect(quickWindow, &QQuickWindow::beforeSynchronizing,
             this, &QWaylandQuickOutput::updateStarted,
             Qt::DirectConnection);
 
-    connect(window, &QQuickWindow::beforeRendering,
+    connect(quickWindow, &QQuickWindow::beforeRendering,
             this, &QWaylandQuickOutput::doFrameCallbacks);
-}
-
-QQuickWindow *QWaylandQuickOutput::quickWindow() const
-{
-    return static_cast<QQuickWindow *>(window());
 }
 
 void QWaylandQuickOutput::update()
 {
     if (!m_updateScheduled) {
-        quickWindow()->update();
+        //don't qobject_cast since we have verified the type in initialize
+        static_cast<QQuickWindow *>(window())->update();
         m_updateScheduled = true;
     }
 }
@@ -83,6 +97,10 @@ void QWaylandQuickOutput::setAutomaticFrameCallback(bool automatic)
 void QWaylandQuickOutput::updateStarted()
 {
     m_updateScheduled = false;
+
+    if (!compositor())
+        return;
+
     frameStarted();
     compositor()->cleanupGraphicsResources();
 }

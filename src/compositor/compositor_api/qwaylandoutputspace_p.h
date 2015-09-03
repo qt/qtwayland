@@ -76,31 +76,28 @@ public:
         geometry = completeRect;
     }
 
-    QWaylandOutput *createAndAddOutput(QWindow *window,
-                                       bool primary)
+    void addOutput(QWaylandOutput *output)
     {
         Q_Q(QWaylandOutputSpace);
-        QWaylandOutput *output = QWaylandCompositorPrivate::get(compositor)->callCreateOutput(q, window);
-        addOutput(output, primary);
-        return output;
+        Q_ASSERT(output);
+        Q_ASSERT(!outputs.contains(output));
+
+        outputs.append(output);
+
+        adjustGeometry();
+
+        q->outputsChanged();
     }
 
-    void addOutput(QWaylandOutput *output, bool primary)
+    void removeOutput(QWaylandOutput *output)
     {
         Q_Q(QWaylandOutputSpace);
         Q_ASSERT(output);
 
-        if (outputs.contains(output))
-            return;
+        bool removed = outputs.removeOne(output);
+        Q_ASSERT(removed);
 
-        if (primary)
-            outputs.prepend(output);
-        else
-            outputs.append(output);
         adjustGeometry();
-
-        output->setOutputSpace(q);
-
         q->outputsChanged();
     }
 

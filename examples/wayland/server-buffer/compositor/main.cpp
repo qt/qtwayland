@@ -56,7 +56,7 @@
 #include <QQuickView>
 
 #include "qwayland-server-share-buffer.h"
-#include <QtCompositor/qwaylandoutput.h>
+#include <QtCompositor/QWaylandQuickOutput>
 #include <QtCompositor/QWaylandCompositor>
 #include <QtCompositor/QWaylandQuickItem>
 #include <QtCompositor/private/qwaylandcompositor_p.h>
@@ -86,7 +86,7 @@ public:
         m_view.setResizeMode(QQuickView::SizeRootObjectToView);
         m_view.setColor(Qt::black);
         m_view.create();
-        m_output = primaryOutputSpace()->addOutputWindow(&m_view);
+        m_output = new QWaylandQuickOutput(primaryOutputSpace(), &m_view);
 
         connect(&m_view, &QQuickView::afterRendering, this, &QmlCompositor::sendCallbacks);
 

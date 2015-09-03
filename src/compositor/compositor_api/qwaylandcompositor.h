@@ -39,6 +39,7 @@
 
 #include <QtCompositor/qwaylandexport.h>
 #include <QtCompositor/qwaylandextension.h>
+#include <QtCompositor/QWaylandOutput>
 
 #include <QObject>
 #include <QImage>
@@ -60,7 +61,6 @@ class QWaylandInputDevice;
 class QWaylandDrag;
 class QWaylandGlobalInterface;
 class QWaylandView;
-class QWaylandOutput;
 class QWaylandOutputSpace;
 class QWaylandPointer;
 class QWaylandKeyboard;
@@ -97,7 +97,7 @@ public:
     QList<QWaylandSurface *> surfaces() const;
     QList<QWaylandSurface *> surfacesForClient(QWaylandClient* client) const;
 
-    QWaylandOutput *output(QWindow *window) const;
+    Q_INVOKABLE QWaylandOutput *output(QWindow *window) const;
 
     QWaylandOutput *primaryOutput() const;
     QWaylandOutputSpace *primaryOutputSpace() const;
@@ -125,6 +125,7 @@ public:
 
     bool useHardwareIntegrationExtension() const;
     void setUseHardwareIntegrationExtension(bool use);
+
 public Q_SLOTS:
     void cleanupGraphicsResources();
     void processWaylandEvents();
@@ -140,8 +141,6 @@ Q_SIGNALS:
     void useHardwareIntegrationExtensionChanged();
 protected:
     virtual void retainedSelectionReceived(QMimeData *mimeData);
-    virtual QWaylandOutput *createOutput(QWaylandOutputSpace *outputSpace,
-                                         QWindow *window);
     virtual QWaylandSurface *createSurface(QWaylandClient *client, quint32 id, int version);
     virtual QWaylandInputDevice *createInputDevice();
     virtual QWaylandPointer *createPointerDevice(QWaylandInputDevice *inputDevice);

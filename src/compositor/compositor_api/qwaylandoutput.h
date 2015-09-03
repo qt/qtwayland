@@ -61,6 +61,8 @@ class Q_COMPOSITOR_EXPORT QWaylandOutput : public QObject, public QWaylandExtens
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandOutput)
+    Q_PROPERTY(QWindow *window READ window WRITE setWindow NOTIFY windowChanged)
+    Q_PROPERTY(QWaylandOutputSpace *outputSpace READ outputSpace WRITE setOutputSpace NOTIFY outputSpaceChanged)
     Q_PROPERTY(QString manufacturer READ manufacturer WRITE setManufacturer NOTIFY manufacturerChanged)
     Q_PROPERTY(QString model READ model WRITE setModel NOTIFY modelChanged)
     Q_PROPERTY(QPoint position READ position WRITE setPosition NOTIFY positionChanged)
@@ -72,9 +74,7 @@ class Q_COMPOSITOR_EXPORT QWaylandOutput : public QObject, public QWaylandExtens
     Q_PROPERTY(QWaylandOutput::Transform transform READ transform WRITE setTransform NOTIFY transformChanged)
     Q_PROPERTY(int scaleFactor READ scaleFactor WRITE setScaleFactor NOTIFY scaleFactorChanged)
     Q_PROPERTY(QWaylandCompositor *compositor READ compositor CONSTANT)
-    Q_PROPERTY(QWindow *window READ window CONSTANT)
     Q_PROPERTY(bool sizeFollowsWindow READ sizeFollowsWindow WRITE setSizeFollowsWindow NOTIFY sizeFollowsWindowChanged)
-    Q_PROPERTY(QWaylandOutputSpace *outputSpace READ outputSpace WRITE setOutputSpace NOTIFY outputSpaceChanged)
     Q_ENUMS(Subpixel Transform)
 
 public:
@@ -104,18 +104,21 @@ public:
         int refreshRate;
     };
 
+    QWaylandOutput();
     QWaylandOutput(QWaylandOutputSpace *outputSpace, QWindow *window);
     ~QWaylandOutput();
 
     static QWaylandOutput *fromResource(wl_resource *resource);
+    //### rename to resourceForClient
     struct ::wl_resource *outputForClient(QWaylandClient *client) const;
 
     QWaylandCompositor *compositor() const;
+
     QWindow *window() const;
+    void setWindow(QWindow *window);
 
-    void setOutputSpace(QWaylandOutputSpace *outputSpace);
     QWaylandOutputSpace *outputSpace() const;
-
+    void setOutputSpace(QWaylandOutputSpace *outputSpace);
 
     QString manufacturer() const;
     void setManufacturer(const QString &manufacturer);
@@ -169,6 +172,8 @@ public:
     Q_INVOKABLE QPointF mapToOutputSpace(const QPointF &point);
 
 Q_SIGNALS:
+    void outputSpaceChanged();
+    void windowChanged();
     void positionChanged();
     void geometryChanged();
     void modeChanged();
@@ -179,13 +184,17 @@ Q_SIGNALS:
     void transformChanged();
     void sizeFollowsWindowChanged();
     void physicalSizeFollowsSizeChanged();
-    void outputSpaceChanged();
     void manufacturerChanged();
     void modelChanged();
-
-private Q_SLOTS:
     void windowDestroyed();
 
+private Q_SLOTS:
+    void handleWindowDestroyed();
+
+protected:
+    bool event(QEvent *event) Q_DECL_OVERRIDE;
+
+    virtual void initialize();
 };
 
 Q_DECLARE_METATYPE(QWaylandOutput::Mode)

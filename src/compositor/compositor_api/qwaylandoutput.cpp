@@ -38,10 +38,11 @@
 #include "qwaylandoutput.h"
 #include "qwaylandoutput_p.h"
 
-#include "qwaylandcompositor.h"
-#include "qwaylandview.h"
+#include <QtCompositor/QWaylandCompositor>
+#include <QtCompositor/QWaylandView>
 
 #include <QtCompositor/private/qwaylandsurface_p.h>
+#include <QtCompositor/private/qwaylandoutputspace_p.h>
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QtMath>
@@ -97,17 +98,17 @@ static QtWaylandServer::wl_output::transform toWlTransform(const QWaylandOutput:
     return QtWaylandServer::wl_output::transform_normal;
 }
 
-QWaylandOutputPrivate::QWaylandOutputPrivate(QWaylandCompositor *compositor, QWindow *window)
-    : QtWaylandServer::wl_output(compositor->display(), 2)
-    , compositor(compositor)
+QWaylandOutputPrivate::QWaylandOutputPrivate()
+    : QtWaylandServer::wl_output()
     , outputSpace(Q_NULLPTR)
-    , window(window)
+    , window(Q_NULLPTR)
     , subpixel(QWaylandOutput::SubpixelUnknown)
     , transform(QWaylandOutput::TransformNormal)
     , scaleFactor(1)
     , sizeFollowsWindow(true)
+    , initialized(false)
 {
-    mode.size = window ? window->size() : QSize();
+    mode.size = QSize();
     mode.refreshRate = 60;
 
     qRegisterMetaType<QWaylandOutput::Mode>("WaylandOutput::Mode");
@@ -117,8 +118,8 @@ QWaylandOutputPrivate::~QWaylandOutputPrivate()
 {
     Q_Q(QWaylandOutput);
     if (outputSpace) {
+        QWaylandOutputSpacePrivate::get(outputSpace)->removeOutput(q);
         outputSpace = Q_NULLPTR;
-        outputSpace->removeOutput(q);
     }
 }
 
@@ -185,17 +186,45 @@ void QWaylandOutputPrivate::removeView(QWaylandView *view, QWaylandSurface *surf
     qWarning("%s Could not find view %p for surface %p to remove. Possible invalid state", Q_FUNC_INFO, view, surface);
 }
 
-QWaylandOutput::QWaylandOutput(QWaylandOutputSpace *outputSpace, QWindow *window)
-    : QObject(*new QWaylandOutputPrivate(outputSpace->compositor(), window))
+QWaylandOutput::QWaylandOutput()
+    : QObject(*new QWaylandOutputPrivate())
 {
-    setOutputSpace(outputSpace);
-    QObject::connect(window, &QWindow::widthChanged, this, &QWaylandOutput::setWidth);
-    QObject::connect(window, &QWindow::heightChanged, this, &QWaylandOutput::setHeight);
-    QObject::connect(window, &QObject::destroyed, this, &QWaylandOutput::windowDestroyed);
+}
+
+QWaylandOutput::QWaylandOutput(QWaylandOutputSpace *outputSpace, QWindow *window)
+    : QObject(*new QWaylandOutputPrivate())
+{
+    Q_D(QWaylandOutput);
+    d->outputSpace = outputSpace;
+    d->window = window;
+    QWaylandCompositorPrivate::get(outputSpace->compositor())->addPolishObject(this);
 }
 
 QWaylandOutput::~QWaylandOutput()
 {
+}
+
+void QWaylandOutput::initialize()
+{
+    Q_D(QWaylandOutput);
+
+    Q_ASSERT(!d->initialized);
+    Q_ASSERT(d->outputSpace);
+    Q_ASSERT(d->window);
+    Q_ASSERT(d->outputSpace->compositor());
+    Q_ASSERT(d->outputSpace->compositor()->isCreated());
+
+    d->mode.size = d->window->size();
+
+    QWaylandOutputSpacePrivate::get(d->outputSpace)->addOutput(this);
+
+    QObject::connect(d->window, &QWindow::widthChanged, this, &QWaylandOutput::setWidth);
+    QObject::connect(d->window, &QWindow::heightChanged, this, &QWaylandOutput::setHeight);
+    QObject::connect(d->window, &QObject::destroyed, this, &QWaylandOutput::handleWindowDestroyed);
+
+    d->init(d->compositor()->display(), 2);
+
+    d->initialized = true;
 }
 
 QWaylandOutput *QWaylandOutput::fromResource(wl_resource *resource)
@@ -213,29 +242,31 @@ struct ::wl_resource *QWaylandOutput::outputForClient(QWaylandClient *client) co
     return Q_NULLPTR;
 }
 
-void QWaylandOutput::setOutputSpace(QWaylandOutputSpace *outputSpace)
-{
-    Q_ASSERT(outputSpace);
-    Q_D(QWaylandOutput);
-    if (d->outputSpace == outputSpace)
-        return;
-
-    if (d->outputSpace) {
-        d->outputSpace->removeOutput(this);
-    }
-
-    d->outputSpace = outputSpace;
-
-    if (outputSpace) {
-        outputSpace->addOutput(this);
-    }
-
-    emit outputSpaceChanged();
-}
-
 QWaylandOutputSpace *QWaylandOutput::outputSpace() const
 {
     return d_func()->outputSpace;
+}
+
+void QWaylandOutput::setOutputSpace(QWaylandOutputSpace *outputSpace)
+{
+    Q_D(QWaylandOutput);
+
+    if (d->outputSpace == outputSpace)
+        return;
+
+    if (d->initialized) {
+        qWarning("Setting QWaylandOutputSpace %p on QWaylandOutput %p is not supported after QWaylandOutput has been initialized\n", outputSpace, this);
+        return;
+    }
+    if (d->outputSpace && d->outputSpace->compositor() != outputSpace->compositor()) {
+        qWarning("Possible initialization error. Moving QWaylandOutput %p between compositor instances.\n", this);
+    }
+
+    if (!d->outputSpace) {
+        QWaylandCompositorPrivate::get(outputSpace->compositor())->addPolishObject(this);
+    }
+    d->outputSpace = outputSpace;
+    emit outputSpaceChanged();
 }
 
 void QWaylandOutput::update()
@@ -248,7 +279,7 @@ void QWaylandOutput::update()
 
 QWaylandCompositor *QWaylandOutput::compositor() const
 {
-    return d_func()->compositor;
+    return d_func()->compositor();
 }
 
 QString QWaylandOutput::manufacturer() const
@@ -481,6 +512,19 @@ QWindow *QWaylandOutput::window() const
     return d_func()->window;
 }
 
+void QWaylandOutput::setWindow(QWindow *window)
+{
+    Q_D(QWaylandOutput);
+    if (d->window == window)
+        return;
+    if (d->initialized) {
+        qWarning("Setting QWindow %p on QWaylandOutput %p is not supported after QWaylandOutput has been initialized\n", window, this);
+        return;
+    }
+    d->window = window;
+    emit windowChanged();
+}
+
 void QWaylandOutput::frameStarted()
 {
     Q_D(QWaylandOutput);
@@ -504,7 +548,7 @@ void QWaylandOutput::sendFrameCallbacks()
                 surfacemapper.surface->sendFrameCallbacks();
         }
     }
-    wl_display_flush_clients(d->compositor->display());
+    wl_display_flush_clients(d->compositor()->display());
 }
 
 void QWaylandOutput::surfaceEnter(QWaylandSurface *surface)
@@ -569,9 +613,18 @@ QPointF QWaylandOutput::mapToOutputSpace(const QPointF &point)
     return point + d_func()->position;
 }
 
-void QWaylandOutput::windowDestroyed()
+void QWaylandOutput::handleWindowDestroyed()
 {
-    delete this;
+    Q_D(QWaylandOutput);
+    d->window = Q_NULLPTR;
+    emit windowDestroyed();
+}
+
+bool QWaylandOutput::event(QEvent *event)
+{
+    if (event->type() == QEvent::Polish)
+        initialize();
+    return QObject::event(event);
 }
 
 QT_END_NAMESPACE

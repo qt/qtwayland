@@ -81,9 +81,6 @@ public:
     QtWayland::DataDeviceManager *dataDeviceManager() const { return data_device_manager; }
     void feedRetainedSelectionData(QMimeData *data);
 
-    QWaylandOutput *callCreateOutput(QWaylandOutputSpace *outputSpace,
-                                 QWindow *window)
-    { return q_func()->createOutput(outputSpace, window); }
     QWaylandPointer *callCreatePointerDevice(QWaylandInputDevice *inputDevice)
     { return q_func()->createPointerDevice(inputDevice); }
     QWaylandKeyboard *callCreateKeyboardDevice(QWaylandInputDevice *inputDevice)

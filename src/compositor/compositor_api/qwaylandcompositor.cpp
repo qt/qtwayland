@@ -147,6 +147,7 @@ void QWaylandCompositorPrivate::init()
 {
     Q_Q(QWaylandCompositor);
     outputSpaces.append(new QWaylandOutputSpace(q));
+
     QStringList arguments = QCoreApplication::instance()->arguments();
 
     int socketArg = arguments.indexOf(QLatin1String("--wayland-socket-name"));
@@ -183,7 +184,6 @@ void QWaylandCompositorPrivate::init()
     qRegisterMetaType<QWaylandClient*>("WaylandClient*");
     qRegisterMetaType<QWaylandSurface*>("WaylandSurface*");
     qRegisterMetaType<QWaylandView*>("WaylandSurfaceView*");
-    //initialize distancefieldglyphcache here
 
     initializeHardwareIntegration();
     initializeDefaultInputDevice();
@@ -470,12 +470,6 @@ uint QWaylandCompositor::currentTimeMsecs() const
 {
     Q_D(const QWaylandCompositor);
     return d->timer.elapsed();
-}
-
-QWaylandOutput *QWaylandCompositor::createOutput(QWaylandOutputSpace *outputSpace,
-                                                 QWindow *window)
-{
-    return new QWaylandOutput(outputSpace, window);
 }
 
 QWaylandSurface *QWaylandCompositor::createSurface(QWaylandClient *client, quint32 id, int version)

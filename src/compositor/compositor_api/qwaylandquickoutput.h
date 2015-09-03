@@ -51,9 +51,8 @@ class Q_COMPOSITOR_EXPORT QWaylandQuickOutput : public QWaylandOutput
     Q_OBJECT
     Q_PROPERTY(bool automaticFrameCallback READ automaticFrameCallback WRITE setAutomaticFrameCallback NOTIFY automaticFrameCallbackChanged)
 public:
-    QWaylandQuickOutput(QWaylandOutputSpace *outputSpace, QQuickWindow *window);
-
-    QQuickWindow *quickWindow() const;
+    QWaylandQuickOutput();
+    QWaylandQuickOutput(QWaylandOutputSpace *outputSpace, QWindow *window);
 
     void update() Q_DECL_OVERRIDE;
 
@@ -65,6 +64,9 @@ public Q_SLOTS:
 
 Q_SIGNALS:
     void automaticFrameCallbackChanged();
+
+protected:
+    void initialize() Q_DECL_OVERRIDE;
 
 private:
     void doFrameCallbacks();

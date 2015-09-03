@@ -39,7 +39,7 @@
 
 #include <QtCore/QObject>
 
-#include "qwaylandoutput.h"
+#include <QtCompositor/QWaylandOutput>
 
 QT_BEGIN_NAMESPACE
 
@@ -51,6 +51,7 @@ class Q_COMPOSITOR_EXPORT QWaylandOutputSpace : public QObject
     Q_DECLARE_PRIVATE(QWaylandOutputSpace)
 
     Q_ENUMS(GeometryConstraint)
+
     Q_PROPERTY(GeometryConstraint geometryConstraint READ geometryConstraint WRITE setGeometryConstraint NOTIFY geometryConstraintChanged)
     Q_PROPERTY(QRect geometry READ geometry WRITE setGeometry NOTIFY geometryChanged)
     Q_PROPERTY(QWaylandOutput *primaryOutput READ primaryOutput WRITE setPrimaryOutput NOTIFY primaryOutputChanged)
@@ -70,12 +71,6 @@ public:
 
     void setGeometryConstraint(GeometryConstraint geometryConstraint);
     GeometryConstraint geometryConstraint() const;
-
-    Q_INVOKABLE QWaylandOutput *addOutputWindow(QWindow *outputWindow);
-    Q_INVOKABLE QWaylandOutput *addPrimaryOutputWindow(QWindow *outputWindow);
-    Q_INVOKABLE void addOutput(QWaylandOutput *output);
-    Q_INVOKABLE void addPrimaryOutput(QWaylandOutput *output);
-    Q_INVOKABLE void removeOutput(QWaylandOutput *output);
 
     Q_INVOKABLE QWaylandOutput *output(QWindow *window) const;
 

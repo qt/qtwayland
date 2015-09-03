@@ -84,39 +84,14 @@ QWaylandOutputSpace::GeometryConstraint QWaylandOutputSpace::geometryConstraint(
     return d->geometryConstraint;
 }
 
-QWaylandOutput *QWaylandOutputSpace::addOutputWindow(QWindow *outputWindow)
+QWaylandOutput *QWaylandOutputSpace::output(QWindow *window) const
 {
-    Q_D(QWaylandOutputSpace);
-    return d->createAndAddOutput(outputWindow, false);
-}
-
-QWaylandOutput *QWaylandOutputSpace::addPrimaryOutputWindow(QWindow *outputWindow)
-{
-    Q_D(QWaylandOutputSpace);
-    return d->createAndAddOutput(outputWindow, true);
-}
-
-void QWaylandOutputSpace::addOutput(QWaylandOutput *output)
-{
-    Q_D(QWaylandOutputSpace);
-    d->addOutput(output, false);
-}
-
-void QWaylandOutputSpace::addPrimaryOutput(QWaylandOutput *output)
-{
-    Q_D(QWaylandOutputSpace);
-    d->addOutput(output, true);
-}
-
-void QWaylandOutputSpace::removeOutput(QWaylandOutput *output)
-{
-    Q_ASSERT(output);
-    Q_D(QWaylandOutputSpace);
-    if ( d->outputs.removeOne(output)) {
-        output->setOutputSpace(Q_NULLPTR);
-        d->adjustGeometry();
-        outputsChanged();
+    Q_D(const QWaylandOutputSpace);
+    foreach (QWaylandOutput *output, d->outputs) {
+        if (output->window() == window)
+            return output;
     }
+    return Q_NULLPTR;
 }
 
 void QWaylandOutputSpace::setPrimaryOutput(QWaylandOutput *output)
@@ -129,16 +104,6 @@ void QWaylandOutputSpace::setPrimaryOutput(QWaylandOutput *output)
         d->outputs.prepend(output);
         primaryOutputChanged();
     }
-}
-
-QWaylandOutput *QWaylandOutputSpace::output(QWindow *window) const
-{
-    Q_D(const QWaylandOutputSpace);
-    foreach (QWaylandOutput *output, d->outputs) {
-        if (output->window() == window)
-            return output;
-    }
-    return Q_NULLPTR;
 }
 
 QWaylandOutput *QWaylandOutputSpace::primaryOutput() const

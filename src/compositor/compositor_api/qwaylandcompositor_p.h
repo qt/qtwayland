@@ -93,6 +93,8 @@ public:
 
     inline void addClient(QWaylandClient *client);
     inline void removeClient(QWaylandClient *client);
+
+    void addPolishObject(QObject *object);
 protected:
     void compositor_create_surface(Resource *resource, uint32_t id) Q_DECL_OVERRIDE;
     void compositor_create_region(Resource *resource, uint32_t id) Q_DECL_OVERRIDE;
@@ -133,6 +135,7 @@ protected:
 
     bool retainSelection;
     bool initialized;
+    QList<QPointer<QObject> > polish_objects;
 
     Q_DECLARE_PUBLIC(QWaylandCompositor)
     Q_DISABLE_COPY(QWaylandCompositorPrivate)

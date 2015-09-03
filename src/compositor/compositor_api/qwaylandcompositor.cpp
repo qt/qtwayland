@@ -189,6 +189,13 @@ void QWaylandCompositorPrivate::init()
     initializeDefaultInputDevice();
 
     initialized = true;
+
+    Q_FOREACH (QPointer<QObject> object, polish_objects) {
+        if (object) {
+            QEvent polishEvent(QEvent::Polish);
+            QCoreApplication::sendEvent(object.data(), &polishEvent);
+        }
+    }
 }
 
 QWaylandCompositorPrivate::~QWaylandCompositorPrivate()
@@ -223,6 +230,15 @@ void QWaylandCompositorPrivate::feedRetainedSelectionData(QMimeData *data)
     Q_Q(QWaylandCompositor);
     if (retainSelection)
         q->retainedSelectionReceived(data);
+}
+
+void QWaylandCompositorPrivate::addPolishObject(QObject *object)
+{
+    if (initialized) {
+        QCoreApplication::postEvent(object, new QEvent(QEvent::Polish));
+    } else {
+        polish_objects.append(object);
+    }
 }
 
 void QWaylandCompositorPrivate::compositor_create_surface(Resource *resource, uint32_t id)

@@ -169,7 +169,10 @@ void QWaylandWindow::initWindow()
     if (QScreen *s = window()->screen())
         setOrientationMask(s->orientationUpdateMask());
     setWindowFlags(window()->flags());
-    setGeometry_helper(window()->geometry());
+    if (window()->geometry().isEmpty())
+        setGeometry_helper(QRect(QPoint(), QSize(500,500)));
+    else
+        setGeometry_helper(window()->geometry());
     setMask(window()->mask());
     setWindowStateInternal(window()->windowState());
     handleContentOrientationChange(window()->contentOrientation());
@@ -385,11 +388,10 @@ void QWaylandWindow::setCanResize(bool canResize)
         }
         if (!mConfigure.isEmpty()) {
             doResize();
-            QWindowSystemInterface::handleExposeEvent(window(), QRect(QPoint(), geometry().size()));
         } else if (mResizeDirty) {
-            QWindowSystemInterface::handleExposeEvent(window(), QRect(QPoint(), geometry().size()));
             mResizeDirty = false;
         }
+        QWindowSystemInterface::handleExposeEvent(window(), QRect(QPoint(), geometry().size()));
     }
 }
 

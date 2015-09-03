@@ -543,6 +543,7 @@ void QWaylandOutput::sendFrameCallbacks()
         if (surfacemapper.surface && surfacemapper.surface->isMapped()) {
             if (!surfacemapper.has_entered) {
                 surfaceEnter(surfacemapper.surface);
+                d->surfaceViews[i].has_entered = true;
             }
             if (surfacemapper.maybeThrottelingView())
                 surfacemapper.surface->sendFrameCallbacks();
@@ -560,7 +561,7 @@ void QWaylandOutput::surfaceEnter(QWaylandSurface *surface)
 
 void QWaylandOutput::surfaceLeave(QWaylandSurface *surface)
 {
-    if (!surface)
+    if (!surface || !surface->client())
         return;
     QWaylandSurfacePrivate::get(surface)->send_leave(resourceForClient(surface->client()));
 }

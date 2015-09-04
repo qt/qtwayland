@@ -67,8 +67,8 @@ QT_BEGIN_NAMESPACE
 class Surface : public QWaylandSurface
 {
 public:
-    Surface(QWaylandClient *client, quint32 id, int version, QWaylandCompositor *compositor)
-        : QWaylandSurface(client, id, version, compositor)
+    Surface()
+        : QWaylandSurface()
         , shellSurface(Q_NULLPTR)
         , extSurface(Q_NULLPTR)
         , hasSentOnScreen(false)
@@ -319,9 +319,9 @@ void QWindowCompositor::adjustCursorSurface(QWaylandSurface *surface, int hotspo
     m_cursorHotspotY = hotspotY;
 }
 
-QWaylandSurface *QWindowCompositor::createSurface(QWaylandClient *client, quint32 id, int version)
+QWaylandSurface *QWindowCompositor::createDefaultSurfaceType()
 {
-    return new Surface(client, id, version, this);
+    return new Surface();
 }
 
 QWaylandView *QWindowCompositor::viewAt(const QPointF &point, QPointF *local)

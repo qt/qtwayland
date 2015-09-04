@@ -56,6 +56,13 @@ WaylandCompositor {
         Chrome { }
     }
 
+    Component {
+        id: surfaceComponent
+        WaylandSurface {
+            property QtObject shellSurface: null
+        }
+    }
+
     extensions: [
         DefaultShell {
             id: defaultShell
@@ -69,6 +76,7 @@ WaylandCompositor {
                 var item = chromeComponent.createObject(defaultOutput.surfaceArea, { "surface": surface } );
                 var shellSurface = shellSurfaceComponent.createObject();
                 shellSurface.initialize(defaultShell, surface, item.view, client, id);
+                surface.shellSurface = shellSurface;
             }
 
             Component.onCompleted: {
@@ -76,6 +84,11 @@ WaylandCompositor {
             }
         }
     ]
+
+    onCreateSurface: {
+        var surface = surfaceComponent.createObject(0, { } );
+        surface.initialize(compositor, client, id, version);
+    }
 
     Component.onCompleted: {
         screenComponent.createObject(0, { "outputSpace" : defaultOutputSpace } );

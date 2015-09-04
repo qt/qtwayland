@@ -80,7 +80,7 @@ private slots:
     void onCreateShellSurface(QWaylandSurface *s, QWaylandClient *client, uint id);
 
 protected:
-    QWaylandSurface *createSurface(QWaylandClient *client, quint32 id, int version) Q_DECL_OVERRIDE;
+    QWaylandSurface *createDefaultSurfaceType() Q_DECL_OVERRIDE;
     void surfaceCommitted(QWaylandSurface *surface);
 
     QWaylandView* viewAt(const QPointF &point, QPointF *local = 0);

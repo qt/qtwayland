@@ -55,9 +55,8 @@ class QWaylandQuickSurfacePrivate : public QWaylandSurfacePrivate
 {
     Q_DECLARE_PUBLIC(QWaylandQuickSurface)
 public:
-    QWaylandQuickSurfacePrivate(QWaylandClient *client, quint32 id, int version, QWaylandQuickCompositor *c)
-        : QWaylandSurfacePrivate(client, id, version, c)
-        , compositor(c)
+    QWaylandQuickSurfacePrivate()
+        : QWaylandSurfacePrivate()
         , useTextureAlpha(true)
         , clientRenderingEnabled(true)
     {
@@ -67,14 +66,19 @@ public:
     {
     }
 
-    QWaylandQuickCompositor *compositor;
     bool useTextureAlpha;
     bool clientRenderingEnabled;
 };
 
-QWaylandQuickSurface::QWaylandQuickSurface(QWaylandClient *client, quint32 id, int version, QWaylandQuickCompositor *compositor)
-                    : QWaylandSurface(new QWaylandQuickSurfacePrivate(client, id, version, compositor))
+QWaylandQuickSurface::QWaylandQuickSurface()
+    : QWaylandSurface(* new QWaylandQuickSurfacePrivate())
 {
+
+}
+QWaylandQuickSurface::QWaylandQuickSurface(QWaylandCompositor *compositor, QWaylandClient *client, quint32 id, int version)
+                    : QWaylandSurface(* new QWaylandQuickSurfacePrivate())
+{
+    initialize(compositor, client, id, version);
 }
 
 QWaylandQuickSurface::~QWaylandQuickSurface()

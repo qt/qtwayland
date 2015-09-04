@@ -76,8 +76,12 @@ public:
         OriginBottomLeft
     };
 
-    QWaylandSurface(QWaylandClient *client, quint32 id, int version, QWaylandCompositor *compositor);
+    QWaylandSurface();
+    QWaylandSurface(QWaylandCompositor *compositor, QWaylandClient *client, uint id, int version);
     virtual ~QWaylandSurface();
+
+    Q_INVOKABLE void initialize(QWaylandCompositor *compositor, QWaylandClient *client, uint id, int version);
+    bool isInitialized() const;
 
     QWaylandClient *client() const;
     struct wl_client *waylandClient() const { return client()->client(); }
@@ -117,7 +121,7 @@ public Q_SLOTS:
     void updateSelection();
 
 protected:
-    QWaylandSurface(QWaylandSurfacePrivate *dptr);
+    QWaylandSurface(QWaylandSurfacePrivate &dptr);
 
 Q_SIGNALS:
     void mappedChanged();

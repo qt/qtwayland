@@ -77,7 +77,7 @@ class Q_COMPOSITOR_EXPORT QWaylandSurfacePrivate : public QObjectPrivate, public
 public:
     static QWaylandSurfacePrivate *get(QWaylandSurface *surface);
 
-    QWaylandSurfacePrivate(QWaylandClient *client, quint32 id, int version, QWaylandCompositor *compositor);
+    QWaylandSurfacePrivate();
     ~QWaylandSurfacePrivate();
 
     void ref();
@@ -95,6 +95,12 @@ public:
     void notifyViewsAboutDestruction();
 
     void setInputPanelSurface(QtWayland::InputPanelSurface *ips) { inputPanelSurface = ips; }
+
+#ifndef QT_NO_DEBUG
+    static void addUninitializedSurface(QWaylandSurfacePrivate *surface);
+    static void removeUninitializedSurface(QWaylandSurfacePrivate *surface);
+    static bool hasUninitializedSurface();
+#endif
 protected:
     void surface_destroy_resource(Resource *resource) Q_DECL_OVERRIDE;
 
@@ -149,9 +155,13 @@ protected: //member variables
     bool isCursorSurface;
     bool destroyed;
     bool mapped;
+    bool isInitialized;
     Qt::ScreenOrientation contentOrientation;
     QWindow::Visibility visibility;
 
+#ifndef QT_NO_DEBUG
+    static QList<QWaylandSurfacePrivate *> uninitializedSurfaces;
+#endif
     Q_DECLARE_PUBLIC(QWaylandSurface)
     Q_DISABLE_COPY(QWaylandSurfacePrivate)
 };

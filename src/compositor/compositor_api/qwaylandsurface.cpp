@@ -113,22 +113,28 @@ static QRegion infiniteRegion() {
                          QPoint(std::numeric_limits<int>::max(), std::numeric_limits<int>::max())));
 }
 
-QWaylandSurfacePrivate::QWaylandSurfacePrivate(QWaylandClient *client, quint32 id, int version, QWaylandCompositor *compositor)
-    : QtWaylandServer::wl_surface(client->client(), id, version)
-    , compositor(compositor)
+QList<QWaylandSurfacePrivate *> QWaylandSurfacePrivate::uninitializedSurfaces;
+
+QWaylandSurfacePrivate::QWaylandSurfacePrivate()
+    : QtWaylandServer::wl_surface()
+    , compositor(Q_NULLPTR)
     , refCount(1)
-    , client(client)
+    , client(Q_NULLPTR)
     , buffer(0)
     , inputPanelSurface(0)
     , inputRegion(infiniteRegion())
     , isCursorSurface(false)
     , destroyed(false)
     , mapped(false)
+    , isInitialized(false)
     , contentOrientation(Qt::PrimaryOrientation)
 {
     pending.buffer = 0;
     pending.newlyAttached = false;
     pending.inputRegion = infiniteRegion();
+#ifndef QT_NO_DEBUG
+    addUninitializedSurface(this);
+#endif
 }
 
 QWaylandSurfacePrivate::~QWaylandSurfacePrivate()
@@ -172,6 +178,27 @@ void QWaylandSurfacePrivate::notifyViewsAboutDestruction()
         QWaylandViewPrivate::get(view)->markSurfaceAsDestroyed(q);
     }
 }
+
+#ifndef QT_NO_DEBUG
+void QWaylandSurfacePrivate::addUninitializedSurface(QWaylandSurfacePrivate *surface)
+{
+    Q_ASSERT(!surface->isInitialized);
+    Q_ASSERT(!uninitializedSurfaces.contains(surface));
+    uninitializedSurfaces.append(surface);
+}
+
+void QWaylandSurfacePrivate::removeUninitializedSurface(QWaylandSurfacePrivate *surface)
+{
+    Q_ASSERT(surface->isInitialized);
+    bool removed = uninitializedSurfaces.removeOne(surface);
+    Q_ASSERT(removed);
+}
+
+bool QWaylandSurfacePrivate::hasUninitializedSurface()
+{
+    return uninitializedSurfaces.size();
+}
+#endif
 
 void QWaylandSurfacePrivate::surface_destroy_resource(Resource *)
 {
@@ -319,13 +346,19 @@ QtWayland::SurfaceBuffer *QWaylandSurfacePrivate::createSurfaceBuffer(struct ::w
     return newBuffer;
 }
 
-QWaylandSurface::QWaylandSurface(QWaylandClient *client, quint32 id, int version, QWaylandCompositor *compositor)
-    : QObject(*new QWaylandSurfacePrivate(client, id, version, compositor))
+QWaylandSurface::QWaylandSurface()
+    : QObject(*new QWaylandSurfacePrivate())
 {
 }
 
-QWaylandSurface::QWaylandSurface(QWaylandSurfacePrivate *dptr)
-    : QObject(*dptr)
+QWaylandSurface::QWaylandSurface(QWaylandCompositor *compositor, QWaylandClient *client, uint id, int version)
+    : QObject(*new QWaylandSurfacePrivate())
+{
+    initialize(compositor, client, id, version);
+}
+
+QWaylandSurface::QWaylandSurface(QWaylandSurfacePrivate &dptr)
+    : QObject(dptr)
 {
 }
 
@@ -338,6 +371,24 @@ QWaylandSurface::~QWaylandSurface()
         d->mapped = false;
         emit mappedChanged();
     }
+}
+
+void QWaylandSurface::initialize(QWaylandCompositor *compositor, QWaylandClient *client, uint id, int version)
+{
+    Q_D(QWaylandSurface);
+    d->compositor = compositor;
+    d->client = client;
+    d->init(client->client(), id, version);
+    d->isInitialized = true;
+#ifndef QT_NO_DEBUG
+    QWaylandSurfacePrivate::removeUninitializedSurface(d);
+#endif
+}
+
+bool QWaylandSurface::isInitialized() const
+{
+    Q_D(const QWaylandSurface);
+    return d->isInitialized;
 }
 
 QWaylandClient *QWaylandSurface::client() const

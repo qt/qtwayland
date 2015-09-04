@@ -241,11 +241,34 @@ void QWaylandCompositorPrivate::addPolishObject(QObject *object)
     }
 }
 
+/*!
+  \fn void QWaylandCompositor::createSurface(QWaylandClient *client, uint id, int version)
+
+  This signal is emitted when a client has created a wl_surface object on the
+  server side. The slot connecting to this signal has to create and initialize
+  a QWaylandSurface instance in the scope of the slot. Connections to this
+  signal has to be of Qt::DirectConnection connection type.
+
+*/
+
 void QWaylandCompositorPrivate::compositor_create_surface(Resource *resource, uint32_t id)
 {
     Q_Q(QWaylandCompositor);
     QWaylandClient *client = QWaylandClient::fromWlClient(q, resource->client());
-    QWaylandSurface *surface = q->createSurface(client, id, resource->version());
+    emit q->createSurface(client, id, resource->version());
+#ifndef QT_NO_DEBUG
+    Q_ASSERT_X(!QWaylandSurfacePrivate::hasUninitializedSurface(), "QWaylandCompositor", QStringLiteral("Found uninitialized QWaylandSurface after emitting QWaylandCompositor::createSurface for id %1. All surfaces has to be initialized immediately after creation. See QWaylandSurface::initialize.").arg(id).toLocal8Bit().constData());
+#endif
+    struct wl_resource *surfResource = wl_client_get_object(client->client(), id);
+
+    QWaylandSurface *surface;
+    if (surfResource) {
+        surface = QWaylandSurface::fromResource(surfResource);
+    } else {
+        surface = q->createDefaultSurfaceType();
+        surface->initialize(q, client, id, resource->version());
+    }
+    Q_ASSERT(surface);
     all_surfaces.append(surface);
     emit q->surfaceCreated(surface);
 }
@@ -472,11 +495,6 @@ uint QWaylandCompositor::currentTimeMsecs() const
     return d->timer.elapsed();
 }
 
-QWaylandSurface *QWaylandCompositor::createSurface(QWaylandClient *client, quint32 id, int version)
-{
-    return new QWaylandSurface(client, id, version, this);
-}
-
 void QWaylandCompositor::cleanupGraphicsResources()
 {
     Q_D(QWaylandCompositor);
@@ -493,6 +511,16 @@ void QWaylandCompositor::processWaylandEvents()
     wl_display_flush_clients(d->display);
 }
 
+
+/*!
+  \internal
+  Used to create a fallback QWaylandSurface when no surface was
+  created by emitting the QWaylandCompositor::createSurface signal.
+*/
+QWaylandSurface *QWaylandCompositor::createDefaultSurfaceType()
+{
+    return new QWaylandSurface();
+}
 
 QWaylandInputDevice *QWaylandCompositor::createInputDevice()
 {

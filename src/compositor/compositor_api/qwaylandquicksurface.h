@@ -53,7 +53,8 @@ class Q_COMPOSITOR_EXPORT QWaylandQuickSurface : public QWaylandSurface
     Q_PROPERTY(bool useTextureAlpha READ useTextureAlpha WRITE setUseTextureAlpha NOTIFY useTextureAlphaChanged)
     Q_PROPERTY(bool clientRenderingEnabled READ clientRenderingEnabled WRITE setClientRenderingEnabled NOTIFY clientRenderingEnabledChanged)
 public:
-    QWaylandQuickSurface(QWaylandClient *client, quint32 id, int version, QWaylandQuickCompositor *compositor);
+    QWaylandQuickSurface();
+    QWaylandQuickSurface(QWaylandCompositor *compositor, QWaylandClient *client, quint32 id, int version);
     ~QWaylandQuickSurface();
 
     bool useTextureAlpha() const;

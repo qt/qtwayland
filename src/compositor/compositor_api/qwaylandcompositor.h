@@ -132,6 +132,7 @@ public Q_SLOTS:
     void processWaylandEvents();
 
 Q_SIGNALS:
+    void createSurface(QWaylandClient *client, uint id, int version);
     void surfaceCreated(QWaylandSurface *surface);
     void surfaceAboutToBeDestroyed(QWaylandSurface *surface);
 
@@ -142,13 +143,15 @@ Q_SIGNALS:
     void useHardwareIntegrationExtensionChanged();
 protected:
     virtual void retainedSelectionReceived(QMimeData *mimeData);
-    virtual QWaylandSurface *createSurface(QWaylandClient *client, quint32 id, int version);
     virtual QWaylandInputDevice *createInputDevice();
     virtual QWaylandPointer *createPointerDevice(QWaylandInputDevice *inputDevice);
     virtual QWaylandKeyboard *createKeyboardDevice(QWaylandInputDevice *inputDevice);
     virtual QWaylandTouch *createTouchDevice(QWaylandInputDevice *inputDevice);
 
     QWaylandCompositor(QWaylandCompositorPrivate *dptr);
+
+private:
+    virtual QWaylandSurface *createDefaultSurfaceType();
 };
 
 QT_END_NAMESPACE

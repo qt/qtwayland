@@ -59,14 +59,14 @@ public:
     bool initializeLegazyQmlNames() const;
     void setInitializeLegazyQmlNames(bool init);
 
-    QWaylandSurface *createSurface(QWaylandClient *client, quint32 id, int version) Q_DECL_OVERRIDE;
-
 protected:
     void classBegin() Q_DECL_OVERRIDE;
     void componentComplete() Q_DECL_OVERRIDE;
 
 private:
     bool m_initializeLegazyQmlNames;
+
+    QWaylandSurface *createDefaultSurfaceType() Q_DECL_OVERRIDE;
 };
 
 QT_END_NAMESPACE

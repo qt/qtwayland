@@ -84,9 +84,9 @@ void QWaylandQuickCompositor::setInitializeLegazyQmlNames(bool init)
     m_initializeLegazyQmlNames = init;
 }
 
-QWaylandSurface *QWaylandQuickCompositor::createSurface(QWaylandClient *client, quint32 id, int version)
+QWaylandSurface *QWaylandQuickCompositor::createDefaultSurfaceType()
 {
-    return new QWaylandQuickSurface(client, id, version, this);
+    return new QWaylandQuickSurface();
 }
 
 void QWaylandQuickCompositor::classBegin()

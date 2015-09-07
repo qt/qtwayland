@@ -569,12 +569,12 @@ void QWaylandOutput::surfaceLeave(QWaylandSurface *surface)
 QWaylandView *QWaylandOutput::pickView(const QPointF &outputPosition) const
 {
     Q_D(const QWaylandOutput);
-    for (int nSurface = 0; d->surfaceViews.size(); nSurface++) {
+    for (int nSurface = 0; nSurface < d->surfaceViews.size(); nSurface++) {
         const QWaylandSurface *surface = d->surfaceViews.at(nSurface).surface;
         if (surface->isCursorSurface())
             continue;
         const QVector<QWaylandView *> views = d->surfaceViews.at(nSurface).views;
-        for (int nView = 0; views.size(); nView++) {
+        for (int nView = 0; nView < views.size(); nView++) {
             if (QRectF(views.at(nView)->requestedPosition(), surface->size()).contains(outputPosition))
                 return views.at(nView);
         }

@@ -96,6 +96,7 @@ protected:
     void compositor_create_surface(Resource *resource, uint32_t id) Q_DECL_OVERRIDE;
     void compositor_create_region(Resource *resource, uint32_t id) Q_DECL_OVERRIDE;
 
+    virtual QWaylandSurface *createDefaultSurface();
 protected:
     void initializeHardwareIntegration();
     void initializeExtensions();

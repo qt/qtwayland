@@ -67,8 +67,8 @@ QT_BEGIN_NAMESPACE
 class Surface : public QWaylandSurface
 {
 public:
-    Surface()
-        : QWaylandSurface()
+    Surface(QWaylandCompositor *compositor, QWaylandClient *client, uint id, int version)
+        : QWaylandSurface(compositor, client, id, version)
         , shellSurface(Q_NULLPTR)
         , extSurface(Q_NULLPTR)
         , hasSentOnScreen(false)
@@ -151,6 +151,7 @@ void QWindowCompositor::create()
 
     m_renderScheduler.setSingleShot(true);
     connect(&m_renderScheduler, &QTimer::timeout, this, &QWindowCompositor::render);
+    connect(this, &QWaylandCompositor::createSurface, this, &QWindowCompositor::onCreateSurface);
     connect(this, &QWaylandCompositor::surfaceCreated, this, &QWindowCompositor::onSurfaceCreated);
     connect(defaultInputDevice(), &QWaylandInputDevice::cursorSurfaceRequest, this, &QWindowCompositor::adjustCursorSurface);
 
@@ -255,6 +256,11 @@ void QWindowCompositor::surfaceCommitted(QWaylandSurface *surface)
     m_renderScheduler.start(0);
 }
 
+void QWindowCompositor::onCreateSurface(QWaylandClient *client, uint id, int version)
+{
+    new Surface(this, client, id, version);
+}
+
 void QWindowCompositor::onSurfaceCreated(QWaylandSurface *surface)
 {
     connect(surface, &QWaylandSurface::surfaceDestroyed, this, &QWindowCompositor::surfaceDestroyed);
@@ -317,11 +323,6 @@ void QWindowCompositor::adjustCursorSurface(QWaylandSurface *surface, int hotspo
     m_cursorView.setSurface(surface);
     m_cursorHotspotX = hotspotX;
     m_cursorHotspotY = hotspotY;
-}
-
-QWaylandSurface *QWindowCompositor::createDefaultSurfaceType()
-{
-    return new Surface();
 }
 
 QWaylandView *QWindowCompositor::viewAt(const QPointF &point, QPointF *local)

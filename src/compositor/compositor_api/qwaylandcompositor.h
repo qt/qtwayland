@@ -148,10 +148,7 @@ protected:
     virtual QWaylandKeyboard *createKeyboardDevice(QWaylandInputDevice *inputDevice);
     virtual QWaylandTouch *createTouchDevice(QWaylandInputDevice *inputDevice);
 
-    QWaylandCompositor(QWaylandCompositorPrivate *dptr);
-
-private:
-    virtual QWaylandSurface *createDefaultSurfaceType();
+    QWaylandCompositor(QWaylandCompositorPrivate &dptr, QObject *parent = 0);
 };
 
 QT_END_NAMESPACE

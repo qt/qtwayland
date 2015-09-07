@@ -43,11 +43,26 @@
 #include "qwaylandquickoutput.h"
 #include "qwaylandquickitem.h"
 #include "qwaylandoutput.h"
+#include <QtCompositor/private/qwaylandcompositor_p.h>
 
 QT_BEGIN_NAMESPACE
 
+class QWaylandQuickCompositorPrivate : public QWaylandCompositorPrivate
+{
+public:
+    QWaylandQuickCompositorPrivate(QWaylandCompositor *compositor)
+        : QWaylandCompositorPrivate(compositor)
+    {
+    }
+protected:
+    QWaylandSurface *createDefaultSurface() Q_DECL_OVERRIDE
+    {
+        return new QWaylandQuickSurface();
+    }
+};
+
 QWaylandQuickCompositor::QWaylandQuickCompositor(QObject *parent)
-    : QWaylandCompositor(parent)
+    : QWaylandCompositor(*new QWaylandQuickCompositorPrivate(this), parent)
 {
 }
 
@@ -56,11 +71,6 @@ void QWaylandQuickCompositor::create()
     QWaylandCompositor::create();
 }
 
-
-QWaylandSurface *QWaylandQuickCompositor::createDefaultSurfaceType()
-{
-    return new QWaylandQuickSurface();
-}
 
 void QWaylandQuickCompositor::classBegin()
 {

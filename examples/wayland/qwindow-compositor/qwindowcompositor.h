@@ -76,6 +76,7 @@ private slots:
     void surfacePosChanged();
 
     void render();
+    void onCreateSurface(QWaylandClient *client, uint id, int version);
     void onSurfaceCreated(QWaylandSurface *surface);
     void onCreateShellSurface(QWaylandSurface *s, QWaylandClient *client, uint id);
 

@@ -260,7 +260,7 @@ void QWaylandCompositorPrivate::compositor_create_surface(Resource *resource, ui
     if (surfResource) {
         surface = QWaylandSurface::fromResource(surfResource);
     } else {
-        surface = q->createDefaultSurfaceType();
+        surface = createDefaultSurface();
         surface->initialize(q, client, id, resource->version());
     }
     Q_ASSERT(surface);
@@ -271,6 +271,16 @@ void QWaylandCompositorPrivate::compositor_create_surface(Resource *resource, ui
 void QWaylandCompositorPrivate::compositor_create_region(Resource *resource, uint32_t id)
 {
     new QtWayland::Region(resource->client(), id);
+}
+
+/*!
+  \internal
+  Used to create a fallback QWaylandSurface when no surface was
+  created by emitting the QWaylandCompositor::createSurface signal.
+*/
+QWaylandSurface *QWaylandCompositorPrivate::createDefaultSurface()
+{
+    return new QWaylandSurface();
 }
 
 
@@ -345,6 +355,11 @@ void QWaylandCompositorPrivate::loadServerBufferIntegration()
 
 QWaylandCompositor::QWaylandCompositor(QObject *parent)
     : QObject(*new QWaylandCompositorPrivate(this), parent)
+{
+}
+
+QWaylandCompositor::QWaylandCompositor(QWaylandCompositorPrivate &dptr, QObject *parent)
+    : QObject(dptr, parent)
 {
 }
 
@@ -506,16 +521,6 @@ void QWaylandCompositor::processWaylandEvents()
     wl_display_flush_clients(d->display);
 }
 
-
-/*!
-  \internal
-  Used to create a fallback QWaylandSurface when no surface was
-  created by emitting the QWaylandCompositor::createSurface signal.
-*/
-QWaylandSurface *QWaylandCompositor::createDefaultSurfaceType()
-{
-    return new QWaylandSurface();
-}
 
 QWaylandInputDevice *QWaylandCompositor::createInputDevice()
 {

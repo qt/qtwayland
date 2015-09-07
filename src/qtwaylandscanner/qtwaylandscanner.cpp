@@ -661,7 +661,7 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath, const QByteArr
             //and use function overloading instead. Jan do you have a lot of code dependent on this behavior?
             printf("    %s::Resource *%s::bind(struct ::wl_client *client, uint32_t id, int version)\n", interfaceName, interfaceName);
             printf("    {\n");
-            printf("        Q_ASSERT_X(!wl_client_get_object(client, id), \"QWaylandObject bind\", QStringLiteral(\"binding to object %1 more than once\").arg(id).toLocal8Bit().constData());\n");
+            printf("        Q_ASSERT_X(!wl_client_get_object(client, id), \"QWaylandObject bind\", QStringLiteral(\"binding to object %%1 more than once\").arg(id).toLocal8Bit().constData());\n");
             printf("        Resource *resource = %s_allocate();\n", interfaceNameStripped);
             printf("        resource->%s_object = this;\n", interfaceNameStripped);
             printf("\n");

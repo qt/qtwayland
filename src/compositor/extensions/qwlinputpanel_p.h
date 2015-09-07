@@ -37,11 +37,11 @@
 #ifndef QTWAYLAND_QWLINPUTPANEL_P_H
 #define QTWAYLAND_QWLINPUTPANEL_P_H
 
-#include <QtCompositor/qwaylandexport.h>
-#include <QtCompositor/qwaylandinputpanel.h>
+#include <QtWaylandCompositor/qwaylandexport.h>
+#include <QtWaylandCompositor/qwaylandinputpanel.h>
 
-#include <QtCompositor/private/qwaylandextension_p.h>
-#include <QtCompositor/private/qwayland-server-input-method.h>
+#include <QtWaylandCompositor/private/qwaylandextension_p.h>
+#include <QtWaylandCompositor/private/qwayland-server-input-method.h>
 
 #include <QRect>
 #include <QScopedPointer>

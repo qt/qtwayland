@@ -1,8 +1,9 @@
-TARGET  = QtCompositor
+TARGET  = QtWaylandCompositor
 QT = core gui-private
 
 contains(QT_CONFIG, opengl):MODULE_DEFINES = QT_COMPOSITOR_WAYLAND_GL
 
+MODULE=waylandcompositor
 MODULE_PLUGIN_TYPES = wayland-graphics-integration-server
 load(qt_module)
 

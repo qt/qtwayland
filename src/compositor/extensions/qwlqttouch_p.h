@@ -37,9 +37,9 @@
 #ifndef WLTOUCH_H
 #define WLTOUCH_H
 
-#include <QtCompositor/private/qwayland-server-touch-extension.h>
-#include <QtCompositor/QWaylandCompositor>
-#include <QtCompositor/QWaylandExtensionTemplate>
+#include <QtWaylandCompositor/private/qwayland-server-touch-extension.h>
+#include <QtWaylandCompositor/QWaylandCompositor>
+#include <QtWaylandCompositor/QWaylandExtensionTemplate>
 #include "wayland-util.h"
 
 QT_BEGIN_NAMESPACE

@@ -37,19 +37,19 @@
 #ifndef QWAYLANDSHELL_P_H
 #define QWAYLANDSHELL_P_H
 
-#include <QtCompositor/qwaylandexport.h>
-#include <QtCompositor/qwaylandsurface.h>
-#include <QtCompositor/private/qwaylandextension_p.h>
-#include <QtCompositor/QWaylandPointerGrabber>
-#include <QtCompositor/QWaylandShellSurface>
-#include <QtCompositor/QWaylandInputDevice>
+#include <QtWaylandCompositor/qwaylandexport.h>
+#include <QtWaylandCompositor/qwaylandsurface.h>
+#include <QtWaylandCompositor/private/qwaylandextension_p.h>
+#include <QtWaylandCompositor/QWaylandPointerGrabber>
+#include <QtWaylandCompositor/QWaylandShellSurface>
+#include <QtWaylandCompositor/QWaylandInputDevice>
 
 #include <wayland-server.h>
 #include <QHash>
 #include <QPoint>
 #include <QSet>
 
-#include <QtCompositor/private/qwayland-server-wayland.h>
+#include <QtWaylandCompositor/private/qwayland-server-wayland.h>
 
 QT_BEGIN_NAMESPACE
 

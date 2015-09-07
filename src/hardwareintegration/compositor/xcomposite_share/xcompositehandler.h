@@ -37,7 +37,7 @@
 #ifndef XCOMPOSITEHANDLER_H
 #define XCOMPOSITEHANDLER_H
 
-#include <QtCompositor/QWaylandCompositor>
+#include <QtWaylandCompositor/QWaylandCompositor>
 
 #include "xlibinclude.h"
 

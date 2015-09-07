@@ -43,8 +43,8 @@
 #include <QtGui/qopengl.h>
 #endif
 
-#include <QtCompositor/QWaylandSurface>
-#include <QtCompositor/qwaylandexport.h>
+#include <QtWaylandCompositor/QWaylandSurface>
+#include <QtWaylandCompositor/qwaylandexport.h>
 
 struct wl_resource;
 

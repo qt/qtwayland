@@ -38,11 +38,11 @@
 #include "qwaylandshell.h"
 #include "qwaylandshell_p.h"
 
-#include <QtCompositor/QWaylandCompositor>
-#include <QtCompositor/QWaylandView>
-#include <QtCompositor/QWaylandOutput>
-#include <QtCompositor/QWaylandOutputSpace>
-#include <QtCompositor/QWaylandClient>
+#include <QtWaylandCompositor/QWaylandCompositor>
+#include <QtWaylandCompositor/QWaylandView>
+#include <QtWaylandCompositor/QWaylandOutput>
+#include <QtWaylandCompositor/QWaylandOutputSpace>
+#include <QtWaylandCompositor/QWaylandClient>
 
 #include <QtCore/QObject>
 #include <QtCore/QDebug>

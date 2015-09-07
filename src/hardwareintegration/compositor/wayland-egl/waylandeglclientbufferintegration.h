@@ -37,7 +37,7 @@
 #ifndef WAYLANDEGLINTEGRATION_H
 #define WAYLANDEGLINTEGRATION_H
 
-#include <QtCompositor/private/qwlclientbufferintegration_p.h>
+#include <QtWaylandCompositor/private/qwlclientbufferintegration_p.h>
 #include <QtCore/QScopedPointer>
 
 QT_BEGIN_NAMESPACE

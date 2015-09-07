@@ -37,7 +37,7 @@
 #ifndef QWAYLANDCLIENTBUFFERINTEGRATIONFACTORY_H
 #define QWAYLANDCLIENTBUFFERINTEGRATIONFACTORY_H
 
-#include <QtCompositor/qwaylandexport.h>
+#include <QtWaylandCompositor/qwaylandexport.h>
 #include <QtCore/QStringList>
 
 QT_BEGIN_NAMESPACE

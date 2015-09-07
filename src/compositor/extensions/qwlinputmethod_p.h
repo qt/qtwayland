@@ -37,14 +37,14 @@
 #ifndef QTWAYLAND_QWLINPUTMETHOD_H
 #define QTWAYLAND_QWLINPUTMETHOD_H
 
-#include <QtCompositor/private/qwayland-server-input-method.h>
-#include <QtCompositor/QWaylandExtension>
-#include <QtCompositor/QWaylandInputDevice>
+#include <QtWaylandCompositor/private/qwayland-server-input-method.h>
+#include <QtWaylandCompositor/QWaylandExtension>
+#include <QtWaylandCompositor/QWaylandInputDevice>
 
 #include <QObject>
 #include <QScopedPointer>
 
-#include <QtCompositor/QWaylandSurface>
+#include <QtWaylandCompositor/QWaylandSurface>
 
 QT_BEGIN_NAMESPACE
 

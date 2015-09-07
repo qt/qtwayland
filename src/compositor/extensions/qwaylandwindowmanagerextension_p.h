@@ -37,9 +37,9 @@
 #ifndef QWAYLANDWINDOWMANAGEREXTENSION_P_H
 #define QWAYLANDWINDOWMANAGEREXTENSION_P_H
 
-#include <QtCompositor/private/qwaylandextension_p.h>
+#include <QtWaylandCompositor/private/qwaylandextension_p.h>
 
-#include <QtCompositor/private/qwayland-server-windowmanager.h>
+#include <QtWaylandCompositor/private/qwayland-server-windowmanager.h>
 
 #include <QMap>
 

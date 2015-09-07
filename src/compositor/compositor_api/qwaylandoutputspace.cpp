@@ -37,8 +37,8 @@
 #include "qwaylandoutputspace.h"
 #include "qwaylandoutputspace_p.h"
 #include "qwaylandcompositor.h"
-#include <QtCompositor/QWaylandView>
-#include <QtCompositor/QWaylandOutput>
+#include <QtWaylandCompositor/QWaylandView>
+#include <QtWaylandCompositor/QWaylandOutput>
 
 QT_BEGIN_NAMESPACE
 

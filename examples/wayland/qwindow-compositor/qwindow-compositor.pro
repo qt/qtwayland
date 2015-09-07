@@ -1,4 +1,4 @@
-QT += gui gui-private core-private compositor compositor-private
+QT += gui gui-private core-private waylandcompositor waylandcompositor-private
 
 LIBS += -L ../../lib
 #include (../../src/qt-compositor/qt-compositor.pri)
@@ -17,7 +17,7 @@ SOURCES += main.cpp \
 INCLUDEPATH += $$PWD/../../include
 
 #  if you want to compile QtCompositor as part of the application
-#  instead of linking to it, remove the QT += compositor and uncomment
+#  instead of linking to it, remove the QT += waylandcompositor and uncomment
 #  the following line
 #include(../../src/compositor/compositor.pri)
 

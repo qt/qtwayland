@@ -37,8 +37,8 @@
 #ifndef QWAYLANDCLIENTBUFFERINTEGRATION_H
 #define QWAYLANDCLIENTBUFFERINTEGRATION_H
 
-#include <QtCompositor/qwaylandexport.h>
-#include <QtCompositor/qwaylandsurface.h>
+#include <QtWaylandCompositor/qwaylandexport.h>
+#include <QtWaylandCompositor/qwaylandsurface.h>
 #include <QtCore/QSize>
 #include <QtGui/qopengl.h>
 #include <QtGui/QOpenGLContext>

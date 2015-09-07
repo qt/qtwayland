@@ -36,8 +36,8 @@
 
 #include "qwaylandpointer.h"
 #include "qwaylandpointer_p.h"
-#include <QtCompositor/QWaylandClient>
-#include <QtCompositor/QWaylandCompositor>
+#include <QtWaylandCompositor/QWaylandClient>
+#include <QtWaylandCompositor/QWaylandCompositor>
 
 QT_BEGIN_NAMESPACE
 

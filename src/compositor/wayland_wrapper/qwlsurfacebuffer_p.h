@@ -42,7 +42,7 @@
 #include <QImage>
 #include <QAtomicInt>
 
-#include <QtCompositor/QWaylandSurface>
+#include <QtWaylandCompositor/QWaylandSurface>
 
 #include <wayland-server.h>
 

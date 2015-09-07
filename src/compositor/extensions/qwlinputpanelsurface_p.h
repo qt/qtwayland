@@ -38,7 +38,7 @@
 #ifndef QTWAYLAND_QWLINPUTPANELSURFACE_P_H
 #define QTWAYLAND_QWLINPUTPANELSURFACE_P_H
 
-#include <QtCompositor/private/qwayland-server-input-method.h>
+#include <QtWaylandCompositor/private/qwayland-server-input-method.h>
 
 #include <QWaylandSurface>
 

@@ -37,7 +37,7 @@
 #ifndef QWAYLANDQUICKEXTENSION_H
 #define QWAYLANDQUICKEXTENSION_H
 
-#include <QtCompositor/QWaylandExtension>
+#include <QtWaylandCompositor/QWaylandExtension>
 
 QT_BEGIN_NAMESPACE
 

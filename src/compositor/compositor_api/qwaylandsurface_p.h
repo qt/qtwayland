@@ -38,15 +38,15 @@
 #ifndef QWAYLANDSURFACE_P_H
 #define QWAYLANDSURFACE_P_H
 
-#include <QtCompositor/qwaylandexport.h>
+#include <QtWaylandCompositor/qwaylandexport.h>
 #include <private/qobject_p.h>
 
 #include <private/qwlsurfacebuffer_p.h>
-#include <QtCompositor/qwaylandsurface.h>
-#include <QtCompositor/qwaylandbufferref.h>
+#include <QtWaylandCompositor/qwaylandsurface.h>
+#include <QtWaylandCompositor/qwaylandbufferref.h>
 
-#include <QtCompositor/private/qwlinputpanelsurface_p.h>
-#include <QtCompositor/private/qwlregion_p.h>
+#include <QtWaylandCompositor/private/qwlinputpanelsurface_p.h>
+#include <QtWaylandCompositor/private/qwlregion_p.h>
 
 #include <QtCore/QVector>
 #include <QtCore/QRect>
@@ -59,7 +59,7 @@
 
 #include <wayland-util.h>
 
-#include <QtCompositor/private/qwayland-server-wayland.h>
+#include <QtWaylandCompositor/private/qwayland-server-wayland.h>
 
 QT_BEGIN_NAMESPACE
 

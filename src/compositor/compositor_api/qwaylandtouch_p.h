@@ -38,17 +38,17 @@
 #ifndef QTWAYLAND_QWLTOUCH_P_H
 #define QTWAYLAND_QWLTOUCH_P_H
 
-#include <QtCompositor/qwaylandexport.h>
-#include <QtCompositor/QWaylandDestroyListener>
-#include <QtCompositor/QWaylandTouch>
-#include <QtCompositor/QWaylandInputDevice>
-#include <QtCompositor/QWaylandView>
-#include <QtCompositor/QWaylandCompositor>
+#include <QtWaylandCompositor/qwaylandexport.h>
+#include <QtWaylandCompositor/QWaylandDestroyListener>
+#include <QtWaylandCompositor/QWaylandTouch>
+#include <QtWaylandCompositor/QWaylandInputDevice>
+#include <QtWaylandCompositor/QWaylandView>
+#include <QtWaylandCompositor/QWaylandCompositor>
 
 #include <QtCore/QPoint>
 #include <QtCore/private/qobject_p.h>
 
-#include <QtCompositor/private/qwayland-server-wayland.h>
+#include <QtWaylandCompositor/private/qwayland-server-wayland.h>
 
 QT_BEGIN_NAMESPACE
 

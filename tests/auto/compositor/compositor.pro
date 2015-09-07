@@ -2,7 +2,7 @@ CONFIG += testcase link_pkgconfig
 TARGET = tst_compositor
 
 QT += testlib
-QT += core-private gui-private compositor compositor-private
+QT += core-private gui-private waylandcompositor waylandcompositor-private
 
 !contains(QT_CONFIG, no-pkg-config) {
     PKGCONFIG += wayland-client wayland-server

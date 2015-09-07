@@ -39,7 +39,7 @@
 #define QWAYLANDDESTROYLISTENER_H
 
 #include <QtCore/QObject>
-#include <QtCompositor/qwaylandexport.h>
+#include <QtWaylandCompositor/qwaylandexport.h>
 
 QT_BEGIN_NAMESPACE
 

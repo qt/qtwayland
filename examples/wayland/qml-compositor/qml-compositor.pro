@@ -5,10 +5,10 @@ LIBS += -L ../../lib
 QT += quick qml
 QT += quick-private
 
-QT += compositor
+QT += waylandcompositor
 
 #  if you want to compile QtCompositor as part of the application
-#  instead of linking to it, remove the QT += compositor and uncomment
+#  instead of linking to it, remove the QT += waylandcompositor and uncomment
 #  the following line
 #include (../../src/compositor/compositor.pri)
 

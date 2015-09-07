@@ -39,19 +39,19 @@
 
 #include <QtQuick/QQuickItem>
 
-#include <QtCompositor/QWaylandQuickCompositor>
-#include <QtCompositor/QWaylandQuickItem>
-#include <QtCompositor/QWaylandQuickSurface>
-#include <QtCompositor/QWaylandClient>
-#include <QtCompositor/QWaylandQuickOutput>
-#include <QtCompositor/QWaylandOutputSpace>
-#include <QtCompositor/QWaylandExtension>
-#include <QtCompositor/QWaylandQuickExtension>
-#include <QtCompositor/QWaylandInputDevice>
+#include <QtWaylandCompositor/QWaylandQuickCompositor>
+#include <QtWaylandCompositor/QWaylandQuickItem>
+#include <QtWaylandCompositor/QWaylandQuickSurface>
+#include <QtWaylandCompositor/QWaylandClient>
+#include <QtWaylandCompositor/QWaylandQuickOutput>
+#include <QtWaylandCompositor/QWaylandOutputSpace>
+#include <QtWaylandCompositor/QWaylandExtension>
+#include <QtWaylandCompositor/QWaylandQuickExtension>
+#include <QtWaylandCompositor/QWaylandInputDevice>
 
-#include <QtCompositor/QWaylandShell>
+#include <QtWaylandCompositor/QWaylandShell>
 
-#include <QtCompositor/qwaylandexport.h>
+#include <QtWaylandCompositor/qwaylandexport.h>
 #include "qwaylandmousetracker_p.h"
 
 QT_BEGIN_NAMESPACE

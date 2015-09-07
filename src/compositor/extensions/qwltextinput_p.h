@@ -37,8 +37,8 @@
 #ifndef QTWAYLAND_QWLTEXTINPUT_P_H
 #define QTWAYLAND_QWLTEXTINPUT_P_H
 
-#include <QtCompositor/QWaylandExtension>
-#include <QtCompositor/private/qwayland-server-text.h>
+#include <QtWaylandCompositor/QWaylandExtension>
+#include <QtWaylandCompositor/private/qwayland-server-text.h>
 
 #include <QRect>
 

@@ -37,8 +37,8 @@
 #ifndef QWAYLANDINPUTPANEL_H
 #define QWAYLANDINPUTPANEL_H
 
-#include <QtCompositor/qwaylandexport.h>
-#include <QtCompositor/qwaylandextension.h>
+#include <QtWaylandCompositor/qwaylandexport.h>
+#include <QtWaylandCompositor/qwaylandextension.h>
 
 #include <QObject>
 #include <QRect>

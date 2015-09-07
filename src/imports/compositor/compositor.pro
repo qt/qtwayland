@@ -41,6 +41,6 @@ RESOURCES += $$GENERATED_RESOURCE_FILE
 CONFIG(debug, debug|release): QML_FILES += $$COMPOSITOR_QML_FILES
 
 DEFINES += QT_COMPOSITOR_QUICK
-QT += quick-private qml-private gui-private core-private compositor compositor-private
+QT += quick-private qml-private gui-private core-private waylandcompositor waylandcompositor-private
 
 load(qml_plugin)

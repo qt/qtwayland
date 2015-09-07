@@ -36,8 +36,8 @@
 
 #include "qwlinputpanel_p.h"
 
-#include <QtCompositor/qwaylandinputpanel.h>
-#include <QtCompositor/QWaylandCompositor>
+#include <QtWaylandCompositor/qwaylandinputpanel.h>
+#include <QtWaylandCompositor/QWaylandCompositor>
 
 #include "qwlinputmethod_p.h"
 #include "qwlinputpanelsurface_p.h"

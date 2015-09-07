@@ -37,7 +37,7 @@
 #ifndef QWAYLANDPOINTER_H
 #define QWAYLANDPOINTER_H
 
-#include <QtCompositor/QWaylandExtensionContainer>
+#include <QtWaylandCompositor/QWaylandExtensionContainer>
 
 QT_BEGIN_NAMESPACE
 

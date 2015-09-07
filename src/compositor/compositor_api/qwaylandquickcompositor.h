@@ -37,7 +37,7 @@
 #ifndef QWAYLANDQUICKCOMPOSITOR_H
 #define QWAYLANDQUICKCOMPOSITOR_H
 
-#include <QtCompositor/qwaylandcompositor.h>
+#include <QtWaylandCompositor/qwaylandcompositor.h>
 #include <QtQml/QQmlParserStatus>
 
 QT_BEGIN_NAMESPACE

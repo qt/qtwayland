@@ -37,8 +37,8 @@
 #ifndef WAYLANDWINDOWMANAGERINTEGRATION_H
 #define WAYLANDWINDOWMANAGERINTEGRATION_H
 
-#include <QtCompositor/qwaylandextension.h>
-#include <QtCompositor/QWaylandClient>
+#include <QtWaylandCompositor/qwaylandextension.h>
+#include <QtWaylandCompositor/QWaylandClient>
 
 #include <QtCore/QUrl>
 

@@ -43,7 +43,7 @@
 #include "qwaylandquickoutput.h"
 #include "qwaylandquickitem.h"
 #include "qwaylandoutput.h"
-#include <QtCompositor/private/qwaylandcompositor_p.h>
+#include <QtWaylandCompositor/private/qwaylandcompositor_p.h>
 
 QT_BEGIN_NAMESPACE
 

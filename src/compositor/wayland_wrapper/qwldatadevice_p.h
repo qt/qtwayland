@@ -37,10 +37,10 @@
 #ifndef WLDATADEVICE_H
 #define WLDATADEVICE_H
 
-#include <QtCompositor/private/qwayland-server-wayland.h>
-#include <QtCompositor/QWaylandPointerGrabber>
-#include <QtCompositor/QWaylandInputDevice>
-#include <QtCompositor/QWaylandOutputSpace>
+#include <QtWaylandCompositor/private/qwayland-server-wayland.h>
+#include <QtWaylandCompositor/QWaylandPointerGrabber>
+#include <QtWaylandCompositor/QWaylandInputDevice>
+#include <QtWaylandCompositor/QWaylandOutputSpace>
 
 QT_BEGIN_NAMESPACE
 

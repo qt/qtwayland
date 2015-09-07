@@ -38,19 +38,19 @@
 #ifndef QWAYLANDPOINTER_P_H
 #define QWAYLANDPOINTER_P_H
 
-#include <QtCompositor/qwaylandexport.h>
-#include <QtCompositor/QWaylandDestroyListener>
-#include <QtCompositor/QWaylandPointer>
+#include <QtWaylandCompositor/qwaylandexport.h>
+#include <QtWaylandCompositor/QWaylandDestroyListener>
+#include <QtWaylandCompositor/QWaylandPointer>
 
 #include <QtCore/QList>
 #include <QtCore/QPoint>
 #include <QtCore/QObject>
 #include <QtCore/private/qobject_p.h>
 
-#include <QtCompositor/private/qwayland-server-wayland.h>
-#include <QtCompositor/QWaylandView>
-#include <QtCompositor/QWaylandSurface>
-#include <QtCompositor/QWaylandInputDevice>
+#include <QtWaylandCompositor/private/qwayland-server-wayland.h>
+#include <QtWaylandCompositor/QWaylandView>
+#include <QtWaylandCompositor/QWaylandSurface>
+#include <QtWaylandCompositor/QWaylandInputDevice>
 
 #include <stdint.h>
 

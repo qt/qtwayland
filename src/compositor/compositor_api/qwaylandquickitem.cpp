@@ -36,10 +36,10 @@
 
 #include "qwaylandquickitem.h"
 #include "qwaylandquicksurface.h"
-#include <QtCompositor/qwaylandcompositor.h>
-#include <QtCompositor/qwaylandinput.h>
-#include <QtCompositor/qwaylandbufferref.h>
-#include <QtCompositor/private/qwlclientbufferintegration_p.h>
+#include <QtWaylandCompositor/qwaylandcompositor.h>
+#include <QtWaylandCompositor/qwaylandinput.h>
+#include <QtWaylandCompositor/qwaylandbufferref.h>
+#include <QtWaylandCompositor/private/qwlclientbufferintegration_p.h>
 
 #include <QtGui/QKeyEvent>
 #include <QtGui/QGuiApplication>

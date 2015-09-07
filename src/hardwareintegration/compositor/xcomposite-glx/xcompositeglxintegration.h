@@ -37,7 +37,7 @@
 #ifndef XCOMPOSITEGLXINTEGRATION_H
 #define XCOMPOSITEGLXINTEGRATION_H
 
-#include <QtCompositor/private/qwlclientbufferintegration_p.h>
+#include <QtWaylandCompositor/private/qwlclientbufferintegration_p.h>
 
 #include "xlibinclude.h"
 

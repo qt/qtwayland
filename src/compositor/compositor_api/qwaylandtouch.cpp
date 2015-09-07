@@ -37,12 +37,12 @@
 #include "qwaylandtouch.h"
 #include "qwaylandtouch_p.h"
 
-#include <QtCompositor/QWaylandCompositor>
-#include <QtCompositor/QWaylandInputDevice>
-#include <QtCompositor/QWaylandView>
-#include <QtCompositor/QWaylandClient>
+#include <QtWaylandCompositor/QWaylandCompositor>
+#include <QtWaylandCompositor/QWaylandInputDevice>
+#include <QtWaylandCompositor/QWaylandView>
+#include <QtWaylandCompositor/QWaylandClient>
 
-#include <QtCompositor/private/qwlqttouch_p.h>
+#include <QtWaylandCompositor/private/qwlqttouch_p.h>
 
 QT_BEGIN_NAMESPACE
 

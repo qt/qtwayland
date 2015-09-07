@@ -40,7 +40,7 @@
 #include "qwldatadevicemanager_p.h"
 
 #include <unistd.h>
-#include <QtCompositor/private/wayland-wayland-server-protocol.h>
+#include <QtWaylandCompositor/private/wayland-wayland-server-protocol.h>
 
 QT_BEGIN_NAMESPACE
 

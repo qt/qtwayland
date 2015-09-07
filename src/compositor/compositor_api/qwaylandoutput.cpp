@@ -38,11 +38,11 @@
 #include "qwaylandoutput.h"
 #include "qwaylandoutput_p.h"
 
-#include <QtCompositor/QWaylandCompositor>
-#include <QtCompositor/QWaylandView>
+#include <QtWaylandCompositor/QWaylandCompositor>
+#include <QtWaylandCompositor/QWaylandView>
 
-#include <QtCompositor/private/qwaylandsurface_p.h>
-#include <QtCompositor/private/qwaylandoutputspace_p.h>
+#include <QtWaylandCompositor/private/qwaylandsurface_p.h>
+#include <QtWaylandCompositor/private/qwaylandoutputspace_p.h>
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QtMath>

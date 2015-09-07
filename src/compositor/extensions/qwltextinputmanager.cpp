@@ -36,7 +36,7 @@
 
 #include "qwltextinputmanager_p.h"
 
-#include <QtCompositor/QWaylandCompositor>
+#include <QtWaylandCompositor/QWaylandCompositor>
 #include "qwltextinput_p.h"
 
 QT_BEGIN_NAMESPACE

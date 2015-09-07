@@ -37,8 +37,8 @@
 
 #include "qwlinputpanelsurface_p.h"
 
-#include <QtCompositor/private/qwaylandsurface_p.h>
-#include <QtCompositor/QWaylandOutput>
+#include <QtWaylandCompositor/private/qwaylandsurface_p.h>
+#include <QtWaylandCompositor/QWaylandOutput>
 
 QT_BEGIN_NAMESPACE
 

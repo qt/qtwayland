@@ -39,9 +39,9 @@
 
 #include <wayland-server.h>
 
-#include <QtCompositor/private/qwayland-server-surface-extension.h>
-#include <QtCompositor/qwaylandsurface.h>
-#include <QtCompositor/qwaylandextension.h>
+#include <QtWaylandCompositor/private/qwayland-server-surface-extension.h>
+#include <QtWaylandCompositor/qwaylandsurface.h>
+#include <QtWaylandCompositor/qwaylandextension.h>
 
 #include <QtCore/QVariant>
 #include <QtCore/QLinkedList>

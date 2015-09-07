@@ -37,7 +37,7 @@
 #ifndef LIBHYBRISEGLSERVERBUFFERINTEGRATION_H
 #define LIBHYBRISEGLSERVERBUFFERINTEGRATION_H
 
-#include <QtCompositor/private/qwlserverbufferintegration_p.h>
+#include <QtWaylandCompositor/private/qwlserverbufferintegration_p.h>
 
 #include "qwayland-server-libhybris-egl-server-buffer.h"
 
@@ -45,8 +45,8 @@
 #include <QtGui/qpa/qplatformnativeinterface.h>
 #include <QtGui/QGuiApplication>
 
-#include <QtCompositor/qwaylandcompositor.h>
-#include <QtCompositor/private/qwayland-server-server-buffer-extension.h>
+#include <QtWaylandCompositor/qwaylandcompositor.h>
+#include <QtWaylandCompositor/private/qwayland-server-server-buffer-extension.h>
 
 #include <QtCore/QDebug>
 #include <EGL/egl.h>

@@ -41,7 +41,7 @@
 #include <QtCore/QMutex>
 #include <QtCore/private/qobject_p.h>
 
-#include <QtCompositor/QWaylandBufferRef>
+#include <QtWaylandCompositor/QWaylandBufferRef>
 
 QT_BEGIN_NAMESPACE
 

@@ -38,7 +38,7 @@
 
 #include "wayland-xcomposite-server-protocol.h"
 
-#include <QtCompositor/QWaylandCompositor>
+#include <QtWaylandCompositor/QWaylandCompositor>
 #include <QtGui/QGuiApplication>
 #include <qpa/qplatformnativeinterface.h>
 #include <qpa/qplatformopenglcontext.h>

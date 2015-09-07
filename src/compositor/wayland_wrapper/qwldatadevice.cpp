@@ -43,10 +43,10 @@
 
 #include "qwaylanddrag.h"
 #include "qwaylandview.h"
-#include <QtCompositor/QWaylandClient>
-#include <QtCompositor/private/qwaylandcompositor_p.h>
-#include <QtCompositor/private/qwaylandinput_p.h>
-#include <QtCompositor/private/qwaylandpointer_p.h>
+#include <QtWaylandCompositor/QWaylandClient>
+#include <QtWaylandCompositor/private/qwaylandcompositor_p.h>
+#include <QtWaylandCompositor/private/qwaylandinput_p.h>
+#include <QtWaylandCompositor/private/qwaylandpointer_p.h>
 
 #include <QtCore/QPointF>
 #include <QDebug>

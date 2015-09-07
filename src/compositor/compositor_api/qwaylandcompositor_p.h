@@ -38,14 +38,14 @@
 #ifndef QWAYLANDCOMPOSITOR_P_H
 #define QWAYLANDCOMPOSITOR_P_H
 
-#include <QtCompositor/qwaylandexport.h>
-#include <QtCompositor/QWaylandCompositor>
-#include <QtCompositor/QWaylandOutputSpace>
+#include <QtWaylandCompositor/qwaylandexport.h>
+#include <QtWaylandCompositor/QWaylandCompositor>
+#include <QtWaylandCompositor/QWaylandOutputSpace>
 #include <QtCore/private/qobject_p.h>
 #include <QtCore/QSet>
 #include <QtCore/QElapsedTimer>
 
-#include <QtCompositor/private/qwayland-server-wayland.h>
+#include <QtWaylandCompositor/private/qwayland-server-wayland.h>
 
 QT_BEGIN_NAMESPACE
 

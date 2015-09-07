@@ -53,14 +53,14 @@
 #include <QScreen>
 #include <QPainter>
 
-#include <QtCompositor/qwaylandinput.h>
-#include <QtCompositor/qwaylandbufferref.h>
-#include <QtCompositor/qwaylandview.h>
-#include <QtCompositor/qwaylandoutput.h>
-#include <QtCompositor/qwaylandoutputspace.h>
+#include <QtWaylandCompositor/qwaylandinput.h>
+#include <QtWaylandCompositor/qwaylandbufferref.h>
+#include <QtWaylandCompositor/qwaylandview.h>
+#include <QtWaylandCompositor/qwaylandoutput.h>
+#include <QtWaylandCompositor/qwaylandoutputspace.h>
 
-#include <QtCompositor/QWaylandShellSurface>
-#include <QtCompositor/private/qwlextendedsurface_p.h>
+#include <QtWaylandCompositor/QWaylandShellSurface>
+#include <QtWaylandCompositor/private/qwlextendedsurface_p.h>
 
 QT_BEGIN_NAMESPACE
 

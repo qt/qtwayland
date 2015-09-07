@@ -36,7 +36,7 @@
 
 #include "qwlextendedsurface_p.h"
 
-#include <QtCompositor/QWaylandCompositor>
+#include <QtWaylandCompositor/QWaylandCompositor>
 
 QT_BEGIN_NAMESPACE
 

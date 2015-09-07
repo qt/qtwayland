@@ -39,9 +39,9 @@
 #include "qwlinputmethod_p.h"
 #include "qwlinputmethodcontext_p.h"
 #include "qwlinputpanel_p.h"
-#include <QtCompositor/QWaylandInputPanel>
-#include <QtCompositor/QWaylandCompositor>
-#include <QtCompositor/private/qwaylandinput_p.h>
+#include <QtWaylandCompositor/QWaylandInputPanel>
+#include <QtWaylandCompositor/QWaylandCompositor>
+#include <QtWaylandCompositor/private/qwaylandinput_p.h>
 
 #include <algorithm>
 

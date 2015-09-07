@@ -37,12 +37,12 @@
 #ifndef WL_REGION_H
 #define WL_REGION_H
 
-#include <QtCompositor/qwaylandexport.h>
+#include <QtWaylandCompositor/qwaylandexport.h>
 
 #include <QRegion>
 
 #include <wayland-util.h>
-#include <QtCompositor/private/qwayland-server-wayland.h>
+#include <QtWaylandCompositor/private/qwayland-server-wayland.h>
 
 QT_BEGIN_NAMESPACE
 

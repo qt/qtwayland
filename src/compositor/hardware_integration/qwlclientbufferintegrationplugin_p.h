@@ -37,7 +37,7 @@
 #ifndef QWAYLANDCLIENTBUFFERINTEGRATIONPLUGIN_H
 #define QWAYLANDCLIENTBUFFERINTEGRATIONPLUGIN_H
 
-#include <QtCompositor/qwaylandexport.h>
+#include <QtWaylandCompositor/qwaylandexport.h>
 
 #include <QtCore/qplugin.h>
 #include <QtCore/qfactoryinterface.h>
@@ -48,7 +48,7 @@ namespace QtWayland {
 
 class ClientBufferIntegration;
 
-#define QtWaylandClientBufferIntegrationFactoryInterface_iid "org.qt-project.Qt.Compositor.QtWaylandClientBufferIntegrationFactoryInterface.5.3"
+#define QtWaylandClientBufferIntegrationFactoryInterface_iid "org.qt-project.Qt.WaylandCompositor.QtWaylandClientBufferIntegrationFactoryInterface.5.3"
 
 class Q_COMPOSITOR_EXPORT ClientBufferIntegrationPlugin : public QObject
 {

@@ -1,4 +1,4 @@
-QT += core-private gui-private quick-private compositor-private
+QT += core-private gui-private quick-private waylandcompositor-private
 
 LIBS += -lwayland-server
 

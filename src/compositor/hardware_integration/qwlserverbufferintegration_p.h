@@ -41,7 +41,7 @@
 #include <QtCore/QSize>
 #include <QtGui/qopengl.h>
 
-#include <QtCompositor/qwaylandexport.h>
+#include <QtWaylandCompositor/qwaylandexport.h>
 
 struct wl_client;
 struct wl_resource;

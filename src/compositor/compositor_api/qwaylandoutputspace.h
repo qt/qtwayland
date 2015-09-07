@@ -39,7 +39,7 @@
 
 #include <QtCore/QObject>
 
-#include <QtCompositor/QWaylandOutput>
+#include <QtWaylandCompositor/QWaylandOutput>
 
 QT_BEGIN_NAMESPACE
 

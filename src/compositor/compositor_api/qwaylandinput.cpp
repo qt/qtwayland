@@ -39,12 +39,12 @@
 
 #include "qwaylandcompositor.h"
 #include "qwaylandview.h"
-#include <QtCompositor/QWaylandDrag>
-#include <QtCompositor/QWaylandTouch>
-#include <QtCompositor/private/qwlinputmethod_p.h>
-#include <QtCompositor/private/qwaylandinput_p.h>
-#include <QtCompositor/private/qwaylandcompositor_p.h>
-#include <QtCompositor/private/qwldatadevice_p.h>
+#include <QtWaylandCompositor/QWaylandDrag>
+#include <QtWaylandCompositor/QWaylandTouch>
+#include <QtWaylandCompositor/private/qwlinputmethod_p.h>
+#include <QtWaylandCompositor/private/qwaylandinput_p.h>
+#include <QtWaylandCompositor/private/qwaylandcompositor_p.h>
+#include <QtWaylandCompositor/private/qwldatadevice_p.h>
 
 #include "extensions/qwlqtkey_p.h"
 

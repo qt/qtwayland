@@ -39,9 +39,9 @@
 
 #include "wayland-util.h"
 
-#include <QtCompositor/QWaylandExtensionTemplate>
-#include <QtCompositor/QWaylandCompositor>
-#include <QtCompositor/private/qwayland-server-qtkey-extension.h>
+#include <QtWaylandCompositor/QWaylandExtensionTemplate>
+#include <QtWaylandCompositor/QWaylandCompositor>
+#include <QtWaylandCompositor/private/qwayland-server-qtkey-extension.h>
 
 QT_BEGIN_NAMESPACE
 

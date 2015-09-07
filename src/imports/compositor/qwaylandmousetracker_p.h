@@ -39,7 +39,7 @@
 
 #include <QtQuick/private/qquickmousearea_p.h>
 
-#include <QtCompositor/qwaylandexport.h>
+#include <QtWaylandCompositor/qwaylandexport.h>
 
 QT_BEGIN_NAMESPACE
 

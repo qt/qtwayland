@@ -41,10 +41,10 @@
 
 #include "qwaylandoutputspace.h"
 
-#include <QtCompositor/QWaylandCompositor>
-#include <QtCompositor/QWaylandOutput>
-#include <QtCompositor/private/qwaylandcompositor_p.h>
-#include <QtCompositor/private/qwaylandoutput_p.h>
+#include <QtWaylandCompositor/QWaylandCompositor>
+#include <QtWaylandCompositor/QWaylandOutput>
+#include <QtWaylandCompositor/private/qwaylandcompositor_p.h>
+#include <QtWaylandCompositor/private/qwaylandoutput_p.h>
 
 QT_BEGIN_NAMESPACE
 

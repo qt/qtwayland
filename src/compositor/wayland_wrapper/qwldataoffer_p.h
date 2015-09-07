@@ -38,7 +38,7 @@
 #define WLDATAOFFER_H
 
 #include <QPointer>
-#include <QtCompositor/private/qwayland-server-wayland.h>
+#include <QtWaylandCompositor/private/qwayland-server-wayland.h>
 
 QT_BEGIN_NAMESPACE
 

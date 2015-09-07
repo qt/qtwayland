@@ -31,8 +31,8 @@
 **
 ****************************************************************************/
 
-#include <QtCompositor/private/qwlclientbufferintegrationfactory_p.h>
-#include <QtCompositor/private/qwlclientbufferintegrationplugin_p.h>
+#include <QtWaylandCompositor/private/qwlclientbufferintegrationfactory_p.h>
+#include <QtWaylandCompositor/private/qwlclientbufferintegrationplugin_p.h>
 #include "waylandeglclientbufferintegration.h"
 
 QT_BEGIN_NAMESPACE

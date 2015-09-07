@@ -56,11 +56,11 @@
 #include <QQuickView>
 
 #include "qwayland-server-share-buffer.h"
-#include <QtCompositor/QWaylandQuickOutput>
-#include <QtCompositor/QWaylandCompositor>
-#include <QtCompositor/QWaylandQuickItem>
-#include <QtCompositor/private/qwaylandcompositor_p.h>
-#include <QtCompositor/private/qwlserverbufferintegration_p.h>
+#include <QtWaylandCompositor/QWaylandQuickOutput>
+#include <QtWaylandCompositor/QWaylandCompositor>
+#include <QtWaylandCompositor/QWaylandQuickItem>
+#include <QtWaylandCompositor/private/qwaylandcompositor_p.h>
+#include <QtWaylandCompositor/private/qwlserverbufferintegration_p.h>
 
 #include "serverbufferitem.h"
 

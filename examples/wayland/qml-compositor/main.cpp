@@ -42,9 +42,9 @@
 #include "qwaylandquickcompositor.h"
 #include "qwaylandquicksurface.h"
 
-#include <QtCompositor/qwaylandquickitem.h>
-#include <QtCompositor/QWaylandQuickOutput>
-#include <QtCompositor/qwaylandoutputspace.h>
+#include <QtWaylandCompositor/qwaylandquickitem.h>
+#include <QtWaylandCompositor/QWaylandQuickOutput>
+#include <QtWaylandCompositor/qwaylandoutputspace.h>
 
 #include <QGuiApplication>
 #include <QTimer>

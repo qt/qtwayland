@@ -38,13 +38,13 @@
 #ifndef QTWAYLAND_QWLKEYBOARD_P_H
 #define QTWAYLAND_QWLKEYBOARD_P_H
 
-#include <QtCompositor/qwaylandexport.h>
-#include <QtCompositor/qwaylandinput.h>
-#include <QtCompositor/qwaylandkeyboard.h>
-#include <QtCompositor/qwaylanddestroylistener.h>
+#include <QtWaylandCompositor/qwaylandexport.h>
+#include <QtWaylandCompositor/qwaylandinput.h>
+#include <QtWaylandCompositor/qwaylandkeyboard.h>
+#include <QtWaylandCompositor/qwaylanddestroylistener.h>
 
 #include <QtCore/private/qobject_p.h>
-#include <QtCompositor/private/qwayland-server-wayland.h>
+#include <QtWaylandCompositor/private/qwayland-server-wayland.h>
 
 #include <QtCore/QVector>
 

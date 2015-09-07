@@ -41,9 +41,9 @@
 #ifndef QWINDOWCOMPOSITOR_H
 #define QWINDOWCOMPOSITOR_H
 
-#include <QtCompositor/QWaylandCompositor>
-#include <QtCompositor/QWaylandSurface>
-#include <QtCompositor/QWaylandView>
+#include <QtWaylandCompositor/QWaylandCompositor>
+#include <QtWaylandCompositor/QWaylandSurface>
+#include <QtWaylandCompositor/QWaylandView>
 #include "textureblitter.h"
 #include "compositorwindow.h"
 

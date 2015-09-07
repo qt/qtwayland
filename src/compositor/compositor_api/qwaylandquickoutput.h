@@ -39,7 +39,7 @@
 #define QWAYLANDQUICKOUTPUT_H
 
 #include <QtQuick/QQuickWindow>
-#include <QtCompositor/qwaylandoutput.h>
+#include <QtWaylandCompositor/qwaylandoutput.h>
 
 QT_BEGIN_NAMESPACE
 

@@ -37,7 +37,7 @@
 #ifndef QWAYLANDSERVERBUFFERINTEGRATIONPLUGIN_H
 #define QWAYLANDSERVERBUFFERINTEGRATIONPLUGIN_H
 
-#include <QtCompositor/qwaylandexport.h>
+#include <QtWaylandCompositor/qwaylandexport.h>
 
 #include <QtCore/qplugin.h>
 #include <QtCore/qfactoryinterface.h>

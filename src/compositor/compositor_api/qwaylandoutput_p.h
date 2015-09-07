@@ -39,13 +39,13 @@
 #ifndef QWAYLANDOUTPUT_P_H
 #define QWAYLANDOUTPUT_P_H
 
-#include <QtCompositor/qwaylandexport.h>
-#include <QtCompositor/QWaylandOutput>
-#include <QtCompositor/QWaylandClient>
-#include <QtCompositor/QWaylandOutputSpace>
-#include <QtCompositor/QWaylandSurface>
+#include <QtWaylandCompositor/qwaylandexport.h>
+#include <QtWaylandCompositor/QWaylandOutput>
+#include <QtWaylandCompositor/QWaylandClient>
+#include <QtWaylandCompositor/QWaylandOutputSpace>
+#include <QtWaylandCompositor/QWaylandSurface>
 
-#include <QtCompositor/private/qwayland-server-wayland.h>
+#include <QtWaylandCompositor/private/qwayland-server-wayland.h>
 
 #include <QtCore/QRect>
 #include <QtCore/QVector>

@@ -37,9 +37,9 @@
 #ifndef QWLHWINTEGRATION_P_H
 #define QWLHWINTEGRATION_P_H
 
-#include <QtCompositor/private/qwayland-server-hardware-integration.h>
+#include <QtWaylandCompositor/private/qwayland-server-hardware-integration.h>
 
-#include <QtCompositor/QWaylandExtension>
+#include <QtWaylandCompositor/QWaylandExtension>
 
 #include <QtCore/QString>
 

@@ -37,7 +37,7 @@
 #ifndef QWAYLANDTOUCH_H
 #define QWAYLANDTOUCH_H
 
-#include <QtCompositor/QWaylandExtensionContainer>
+#include <QtWaylandCompositor/QWaylandExtensionContainer>
 
 #include <QtCore/QObject>
 #include <QtGui/QTouchEvent>

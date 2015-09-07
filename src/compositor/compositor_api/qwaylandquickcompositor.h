@@ -50,21 +50,15 @@ class Q_COMPOSITOR_EXPORT QWaylandQuickCompositor : public QWaylandCompositor, p
 {
     Q_INTERFACES(QQmlParserStatus)
     Q_OBJECT
-    Q_PROPERTY(bool initializeLegazyQmlNames READ initializeLegazyQmlNames WRITE setInitializeLegazyQmlNames)
 public:
     QWaylandQuickCompositor(QObject *parent = 0);
     void create() Q_DECL_OVERRIDE;
-
-    static void registerLegacyQmlNames();
-    bool initializeLegazyQmlNames() const;
-    void setInitializeLegazyQmlNames(bool init);
 
 protected:
     void classBegin() Q_DECL_OVERRIDE;
     void componentComplete() Q_DECL_OVERRIDE;
 
 private:
-    bool m_initializeLegazyQmlNames;
 
     QWaylandSurface *createDefaultSurfaceType() Q_DECL_OVERRIDE;
 };

@@ -180,11 +180,6 @@ void QWaylandCompositorPrivate::init()
     QAbstractEventDispatcher *dispatcher = QGuiApplicationPrivate::eventDispatcher;
     QObject::connect(dispatcher, SIGNAL(aboutToBlock()), q, SLOT(processWaylandEvents()));
 
-    qRegisterMetaType<QtWayland::SurfaceBuffer*>("SurfaceBuffer*");
-    qRegisterMetaType<QWaylandClient*>("WaylandClient*");
-    qRegisterMetaType<QWaylandSurface*>("WaylandSurface*");
-    qRegisterMetaType<QWaylandView*>("WaylandSurfaceView*");
-
     initializeHardwareIntegration();
     initializeDefaultInputDevice();
 

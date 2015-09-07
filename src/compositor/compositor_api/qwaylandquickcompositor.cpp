@@ -48,41 +48,14 @@ QT_BEGIN_NAMESPACE
 
 QWaylandQuickCompositor::QWaylandQuickCompositor(QObject *parent)
     : QWaylandCompositor(parent)
-    , m_initializeLegazyQmlNames(true)
 {
 }
 
 void QWaylandQuickCompositor::create()
 {
-    if (m_initializeLegazyQmlNames)
-        registerLegacyQmlNames();
-
     QWaylandCompositor::create();
 }
 
-void QWaylandQuickCompositor::registerLegacyQmlNames()
-{
-    static bool initialized = false;
-    if (!initialized) {
-        qmlRegisterUncreatableType<QWaylandQuickItem>("QtCompositor", 1, 0, "WaylandSurfaceItem", QObject::tr("Cannot create instance of WaylandSurfaceItem"));
-        qmlRegisterUncreatableType<QWaylandQuickSurface>("QtCompositor", 1, 0, "WaylandQuickSurface", QObject::tr("Cannot create instance of WaylandQuickSurface"));
-        qmlRegisterUncreatableType<QWaylandClient>("QtCompositor", 1, 0, "WaylandClient", QObject::tr("Cannot create instance of WaylandClient"));
-        qmlRegisterUncreatableType<QWaylandOutput>("QtCompositor", 1, 0, "WaylandOutput", QObject::tr("Cannot create instance of WaylandOutput"));
-        initialized = true;
-    }
-}
-
-bool QWaylandQuickCompositor::initializeLegazyQmlNames() const
-{
-    return m_initializeLegazyQmlNames;
-}
-
-void QWaylandQuickCompositor::setInitializeLegazyQmlNames(bool init)
-{
-    if (isCreated())
-        qWarning() << Q_FUNC_INFO << "modifying initializeLegazyQmlNames after the compositor is created is not supported";
-    m_initializeLegazyQmlNames = init;
-}
 
 QWaylandSurface *QWaylandQuickCompositor::createDefaultSurfaceType()
 {

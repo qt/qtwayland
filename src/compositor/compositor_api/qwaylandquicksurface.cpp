@@ -208,8 +208,6 @@ bool QWaylandQuickSurface::event(QEvent *e)
                        this, &QWaylandQuickSurface::updateTexture);
             disconnect(oldWindow, &QQuickWindow::sceneGraphInvalidated,
                        this, &QWaylandQuickSurface::invalidateTexture);
-            disconnect(oldWindow, &QQuickWindow::sceneGraphAboutToStop,
-                       this, &QWaylandQuickSurface::invalidateTexture);
         }
 
         return true;
@@ -224,9 +222,6 @@ bool QWaylandQuickSurface::event(QEvent *e)
                     this, &QWaylandQuickSurface::updateTexture,
                     Qt::DirectConnection);
             connect(window, &QQuickWindow::sceneGraphInvalidated,
-                    this, &QWaylandQuickSurface::invalidateTexture,
-                    Qt::DirectConnection);
-            connect(window, &QQuickWindow::sceneGraphAboutToStop,
                     this, &QWaylandQuickSurface::invalidateTexture,
                     Qt::DirectConnection);
         }

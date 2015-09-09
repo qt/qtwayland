@@ -129,10 +129,10 @@ QWaylandQuickItem::QWaylandQuickItem(QQuickItem *parent)
     , m_resizeSurfaceToItem(false)
     , m_inputEventsEnabled(true)
     , m_newTexture(false)
+    , m_focusOnClick(true)
     , m_connectedWindow(Q_NULLPTR)
     , m_origin(QWaylandSurface::OriginTopLeft)
 {
-    setAcceptHoverEvents(true);
     if (!mutex)
         mutex = new QMutex;
 
@@ -205,6 +205,10 @@ void QWaylandQuickItem::mousePressEvent(QMouseEvent *event)
     }
 
     QWaylandInputDevice *inputDevice = compositor()->inputDeviceFor(event);
+
+    if (m_focusOnClick)
+        takeFocus(inputDevice);
+
     inputDevice->sendMousePressEvent(event->button());
 }
 
@@ -414,6 +418,20 @@ void QWaylandQuickItem::updateSize()
 void QWaylandQuickItem::syncGraphicsState()
 {
 
+}
+
+bool QWaylandQuickItem::focusOnClick() const
+{
+    return m_focusOnClick;
+}
+
+void QWaylandQuickItem::setFocusOnClick(bool focus)
+{
+    if (m_focusOnClick == focus)
+        return;
+
+    m_focusOnClick = focus;
+    emit focusOnClickChanged();
 }
 
 /*!

@@ -272,6 +272,9 @@ bool QWaylandInputDevice::setKeyboardFocus(QWaylandSurface *surface)
     if (surface && surface->isDestroyed())
         return false;
 
+    if (surface == keyboardFocus())
+        return true;
+
     if (!d->keyboard.isNull() && d->keyboard->setFocus(surface)) {
         if (d->data_device)
             d->data_device->setFocus(d->keyboard->focusClient());

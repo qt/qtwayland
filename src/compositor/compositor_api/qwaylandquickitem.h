@@ -66,6 +66,7 @@ class Q_COMPOSITOR_EXPORT QWaylandQuickItem : public QQuickItem
     Q_PROPERTY(QWaylandSurface::Origin origin READ origin NOTIFY originChanged)
     Q_PROPERTY(bool resizeSurfaceToItem READ resizeSurfaceToItem WRITE setResizeSurfaceToItem NOTIFY resizeSurfaceToItemChanged)
     Q_PROPERTY(bool inputEventsEnabled READ inputEventsEnabled WRITE setInputEventsEnabled NOTIFY inputEventsEnabledChanged)
+    Q_PROPERTY(bool focusOnClick READ focusOnClick WRITE setFocusOnClick NOTIFY focusOnClickChanged)
 
 public:
     QWaylandQuickItem(QQuickItem *parent = 0);
@@ -93,6 +94,9 @@ public:
     void setInputEventsEnabled(bool enabled);
 
     Q_INVOKABLE void syncGraphicsState();
+
+    bool focusOnClick() const;
+    void setFocusOnClick(bool focus);
 
 protected:
     void mousePressEvent(QMouseEvent *event);
@@ -129,6 +133,7 @@ Q_SIGNALS:
     void resizeSurfaceToItemChanged();
     void surfaceDestroyed();
     void inputEventsEnabledChanged();
+    void focusOnClickChanged();
 
 protected:
     QSGNode *updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *);
@@ -148,6 +153,7 @@ private:
     bool m_resizeSurfaceToItem;
     bool m_inputEventsEnabled;
     bool m_newTexture;
+    bool m_focusOnClick;
 
     QQuickWindow *m_connectedWindow;
     QWaylandSurface::Origin m_origin;

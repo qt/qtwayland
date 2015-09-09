@@ -388,10 +388,11 @@ void QWaylandWindow::setCanResize(bool canResize)
         }
         if (!mConfigure.isEmpty()) {
             doResize();
+            QWindowSystemInterface::handleExposeEvent(window(), QRect(QPoint(), geometry().size()));
         } else if (mResizeDirty) {
             mResizeDirty = false;
+            QWindowSystemInterface::handleExposeEvent(window(), QRect(QPoint(), geometry().size()));
         }
-        QWindowSystemInterface::handleExposeEvent(window(), QRect(QPoint(), geometry().size()));
     }
 }
 

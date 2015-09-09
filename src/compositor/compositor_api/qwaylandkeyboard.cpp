@@ -53,7 +53,6 @@
 #include <sys/types.h>
 #endif
 
-
 QT_BEGIN_NAMESPACE
 
 QWaylandKeyboardPrivate::QWaylandKeyboardPrivate(QWaylandInputDevice *seat)
@@ -196,16 +195,16 @@ void QWaylandKeyboardPrivate::updateModifierState(uint code, uint32_t state)
     uint32_t modsLocked = xkb_state_serialize_mods(xkb_state, (xkb_state_component)XKB_STATE_LOCKED);
     uint32_t group = xkb_state_serialize_group(xkb_state, (xkb_state_component)XKB_STATE_EFFECTIVE);
 
-    if (modsDepressed == modsDepressed
-            && modsLatched == modsLatched
-            && modsLocked == modsLocked
-            && group == group)
+    if (this->modsDepressed == modsDepressed
+            && this->modsLatched == modsLatched
+            && this->modsLocked == modsLocked
+            && this->group == group)
         return;
 
-    modsDepressed = modsDepressed;
-    modsLatched = modsLatched;
-    modsLocked = modsLocked;
-    group = group;
+    this->modsDepressed = modsDepressed;
+    this->modsLatched = modsLatched;
+    this->modsLocked = modsLocked;
+    this->group = group;
 
     grab->modifiers(compositor()->nextSerial(), modsDepressed, modsLatched, modsLocked, group);
 #else

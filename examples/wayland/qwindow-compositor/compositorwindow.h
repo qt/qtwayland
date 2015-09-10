@@ -41,24 +41,47 @@
 #ifndef COMPOSITORWINDOW_H
 #define COMPOSITORWINDOW_H
 
-#include <QWindow>
-#include <QOpenGLContext>
-#include <QSurfaceFormat>
+#include <QOpenGLWindow>
+#include <QPointer>
+#include <QtGui/private/qopengltextureblitter_p.h>
+#include <QtWaylandCompositor/QWaylandView>
 
-class CompositorWindow : public QWindow
+QT_BEGIN_NAMESPACE
+
+class WindowCompositor;
+class WindowCompositorView;
+class QOpenGLTexture;
+
+class CompositorWindow : public QOpenGLWindow
 {
 public:
-    CompositorWindow(const QSurfaceFormat &format, const QRect &geometry);
-    QOpenGLContext* context() { return m_context; }
-    bool makeCurrent() { return m_context->makeCurrent(this); }
-    void swapBuffers() { m_context->swapBuffers(this); }
-
+    CompositorWindow() : m_backgroundTexture(0), m_compositor(0) {}
+    void setCompositor(WindowCompositor *comp) {
+        m_compositor = comp;
+    }
 protected:
-    void touchEvent(QTouchEvent *event);
+    void initializeGL() Q_DECL_OVERRIDE;
+    void paintGL() Q_DECL_OVERRIDE;
+//    void resizeGL(int w, int h) Q_DECL_OVERRIDE;
 
+    void mousePressEvent(QMouseEvent *e);
+    void mouseReleaseEvent(QMouseEvent *e);
+    void mouseMoveEvent(QMouseEvent *e);
+
+    void keyPressEvent(QKeyEvent *e);
+    void keyReleaseEvent(QKeyEvent *e);
 private:
-    QOpenGLContext *m_context;
-    QSurfaceFormat m_format;
+    WindowCompositorView *viewAt(const QPointF &point);
+    void drawBackground();
+    void sendMouseEvent(QMouseEvent *e, QWaylandView *target);
+
+    QOpenGLTextureBlitter m_textureBlitter;
+    QSize m_backgroundImageSize;
+    QOpenGLTexture *m_backgroundTexture;
+    WindowCompositor *m_compositor;
+    QPointer<QWaylandView> m_mouseView;
 };
+
+QT_END_NAMESPACE
 
 #endif // COMPOSITORWINDOW_H

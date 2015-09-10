@@ -1,25 +1,18 @@
 QT += gui gui-private core-private waylandcompositor waylandcompositor-private
 
 LIBS += -L ../../lib
-#include (../../src/qt-compositor/qt-compositor.pri)
 
 HEADERS += \
     compositorwindow.h \
-    qwindowcompositor.h \
-    textureblitter.h
+    windowcompositor.h
 
 SOURCES += main.cpp \
     compositorwindow.cpp \
-    qwindowcompositor.cpp \
-    textureblitter.cpp
+    windowcompositor.cpp
 
-# to make QtCompositor/... style includes working without installing
+# to make QtWaylandCompositor/... style includes working without installing
 INCLUDEPATH += $$PWD/../../include
 
-#  if you want to compile QtCompositor as part of the application
-#  instead of linking to it, remove the QT += waylandcompositor and uncomment
-#  the following line
-#include(../../src/compositor/compositor.pri)
 
 RESOURCES += qwindow-compositor.qrc
 

@@ -3,7 +3,7 @@
 ** Copyright (C) 2015 The Qt Company Ltd.
 ** Contact: http://www.qt.io/licensing/
 **
-** This file is part of the Qt Compositor.
+** This file is part of the examples of the Qt Wayland module
 **
 ** $QT_BEGIN_LICENSE:BSD$
 ** You may use this file under the terms of the BSD license as follows:
@@ -38,93 +38,62 @@
 **
 ****************************************************************************/
 
-#ifndef QWINDOWCOMPOSITOR_H
-#define QWINDOWCOMPOSITOR_H
+#ifndef WINDOWCOMPOSITOR_H
+#define WINDOWCOMPOSITOR_H
 
 #include <QtWaylandCompositor/QWaylandCompositor>
 #include <QtWaylandCompositor/QWaylandSurface>
 #include <QtWaylandCompositor/QWaylandView>
-#include "textureblitter.h"
-#include "compositorwindow.h"
-
-#include <QtGui/private/qopengltexturecache_p.h>
-#include <QObject>
 #include <QTimer>
 
 QT_BEGIN_NAMESPACE
 
-namespace QtWayland {
-    class ExtendedSurface;
-}
-
-class QWaylandView;
 class QWaylandShell;
-class QOpenGLTexture;
 
-class QWindowCompositor : public QWaylandCompositor
+class WindowCompositorView : public QWaylandView
 {
     Q_OBJECT
 public:
-    QWindowCompositor(CompositorWindow *window);
-    ~QWindowCompositor();
+    WindowCompositorView() : m_texture(0) {}
+    GLuint getTexture();
+private:
+    GLuint m_texture;
+};
 
+class WindowCompositor : public QWaylandCompositor
+{
+    Q_OBJECT
+public:
+    WindowCompositor(QWindow *window);
+    ~WindowCompositor();
     void create() Q_DECL_OVERRIDE;
+
+    void startRender();
+    void endRender();
+
+    QList<WindowCompositorView*> views() const { return m_views; }
+
+    void handleMouseEvent(QWaylandView *target, QMouseEvent *me);
+protected:
+    void adjustCursorSurface(QWaylandSurface *surface, int hotspotX, int hotspotY);
+
 private slots:
     void surfaceMappedChanged();
     void surfaceDestroyed();
     void surfaceCommittedSlot();
-    void surfacePosChanged();
+    void viewSurfaceDestroyed();
 
-    void render();
-    void onCreateSurface(QWaylandClient *client, uint id, int version);
+    void triggerRender();
+
     void onSurfaceCreated(QWaylandSurface *surface);
     void onCreateShellSurface(QWaylandSurface *s, QWaylandClient *client, uint id);
-
-protected:
-    QWaylandSurface *createDefaultSurfaceType() Q_DECL_OVERRIDE;
-    void surfaceCommitted(QWaylandSurface *surface);
-
-    QWaylandView* viewAt(const QPointF &point, QPointF *local = 0);
-
-    bool eventFilter(QObject *obj, QEvent *event);
-    QPointF toView(QWaylandView *view, const QPointF &pos) const;
-
-    void adjustCursorSurface(QWaylandSurface *surface, int hotspotX, int hotspotY);
-
-    void ensureKeyboardFocusSurface(QWaylandSurface *oldSurface);
-    QImage makeBackgroundImage(const QString &fileName);
-
-private slots:
-    void extendedSurfaceCreated(QtWayland::ExtendedSurface *extSurface, QWaylandSurface *surface);
-    void updateCursor(bool hasBuffer);
-
 private:
-    void surfaceMapped(QWaylandSurface *surface);
-    void surfaceUnmapped(QWaylandSurface *surface);
-    void drawSubSurface(const QPoint &offset, QWaylandSurface *surface);
-
-    CompositorWindow *m_window;
-    QImage m_backgroundImage;
-    QOpenGLTexture *m_backgroundTexture;
-    QList<QWaylandSurface *> m_visibleSurfaces;
-    TextureBlitter *m_textureBlitter;
-    GLuint m_surface_fbo;
-    QTimer m_renderScheduler;
-
-    //Dragging windows around
-    QWaylandView *m_draggingWindow;
-    bool m_dragKeyIsPressed;
-    QPointF m_drag_diff;
-
-    //Cursor
-    QWaylandView m_cursorView;
-    int m_cursorHotspotX;
-    int m_cursorHotspotY;
-
-    Qt::KeyboardModifiers m_modifiers;
+    QWindow *m_window;
+    QList<WindowCompositorView*> m_views;
     QWaylandShell *m_shell;
 };
 
+
 QT_END_NAMESPACE
 
-#endif // QWINDOWCOMPOSITOR_H
+#endif // WINDOWCOMPOSITOR_H

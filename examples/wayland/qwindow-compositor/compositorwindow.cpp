@@ -49,6 +49,21 @@
 #include "windowcompositor.h"
 #include <QtWaylandCompositor/qwaylandinput.h>
 
+CompositorWindow::CompositorWindow()
+    : m_backgroundTexture(0)
+    , m_compositor(0)
+    , m_moveState(false)
+    , m_resizeState(false)
+{
+}
+
+void CompositorWindow::setCompositor(WindowCompositor *comp) {
+    m_compositor = comp;
+    connect(m_compositor, &WindowCompositor::startMove, this, &CompositorWindow::startMove);
+    connect(m_compositor, &WindowCompositor::startResize, this, &CompositorWindow::startResize);
+    connect(m_compositor, &WindowCompositor::frameOffset, this, &CompositorWindow::setFrameOffset);
+}
+
 void CompositorWindow::initializeGL()
 {
     QImage backgroundImage = QImage(QLatin1String(":/background.jpg"));
@@ -88,8 +103,7 @@ void CompositorWindow::paintGL()
         if (surface && surface->isMapped()) {
             QSize s = surface->size();
             if (!s.isEmpty()) {
-                QRectF surfaceGeometry(view->requestedPosition(), s);
-                //qDebug() << surface << surface->views().first() << view << s;
+                QRectF surfaceGeometry(view->position(), s);
                 QOpenGLTextureBlitter::Origin surfaceOrigin =
                     view->currentBuffer().origin() == QWaylandSurface::OriginTopLeft
                     ? QOpenGLTextureBlitter::OriginTopLeft
@@ -105,15 +119,11 @@ void CompositorWindow::paintGL()
     m_compositor->endRender();
 }
 
-void resizeGL(int w, int h)
-{
-}
-
 WindowCompositorView *CompositorWindow::viewAt(const QPointF &point)
 {
     WindowCompositorView *ret = 0;
     Q_FOREACH (WindowCompositorView *view, m_compositor->views()) {
-        QPointF topLeft = view->requestedPosition();
+        QPointF topLeft = view->position();
         QWaylandSurface *surface = view->surface();
         QRectF geo(topLeft, surface->size());
         if (geo.contains(point))
@@ -122,10 +132,41 @@ WindowCompositorView *CompositorWindow::viewAt(const QPointF &point)
     return ret;
 }
 
+void CompositorWindow::startMove()
+{
+    m_moveState = true;
+}
+
+void CompositorWindow::startResize(int edge)
+{
+    m_initialSize = m_mouseView->surface()->size();
+    m_resizeState = true;
+    m_resizeEdge = edge;
+}
+
+void CompositorWindow::setFrameOffset(const QPoint &offset)
+{
+    if (m_mouseView)
+        m_mouseView->setPosition(m_mouseView->position() + offset);
+}
+
 void CompositorWindow::mousePressEvent(QMouseEvent *e)
 {
+    if (mouseGrab())
+        return;
     if (m_mouseView.isNull()) {
         m_mouseView = viewAt(e->localPos());
+        if (!m_mouseView)
+            return;
+
+        if (m_mouseView && (e->modifiers() == Qt::AltModifier ||
+                            e->modifiers() == Qt::MetaModifier)) {
+            //start move
+            m_moveState = true;
+        }
+        m_initialMousePos = e->localPos();
+        m_mouseOffset = e->localPos() - m_mouseView->position();
+
         QMouseEvent moveEvent(QEvent::MouseMove, e->localPos(), e->globalPos(), Qt::NoButton, Qt::NoButton, e->modifiers());
         sendMouseEvent(&moveEvent, m_mouseView);
     }
@@ -134,22 +175,39 @@ void CompositorWindow::mousePressEvent(QMouseEvent *e)
 
 void CompositorWindow::mouseReleaseEvent(QMouseEvent *e)
 {
-    sendMouseEvent(e, m_mouseView);
-    if (e->buttons() == Qt::NoButton)
+    if (!mouseGrab())
+        sendMouseEvent(e, m_mouseView);
+    if (e->buttons() == Qt::NoButton) {
         m_mouseView = 0;
+        m_moveState = false;
+        m_resizeState = false;
+    }
 }
 
 void CompositorWindow::mouseMoveEvent(QMouseEvent *e)
 {
-    sendMouseEvent(e, m_mouseView);
+    if (mouseGrab()) {
+        if (m_moveState) {
+            m_mouseView->setPosition(e->localPos() - m_mouseOffset);
+            update();
+        } else if (m_resizeState) {
+            QPoint delta = (e->localPos() - m_initialMousePos).toPoint();
+            m_compositor->handleResize(m_mouseView, m_initialSize, delta, m_resizeEdge);
+        }
+    } else {
+        WindowCompositorView *view = m_mouseView ? m_mouseView.data() : viewAt(e->localPos());
+        sendMouseEvent(e, view);
+        if (!view)
+            setCursor(Qt::ArrowCursor);
+    }
 }
 
-void CompositorWindow::sendMouseEvent(QMouseEvent *e, QWaylandView *target)
+void CompositorWindow::sendMouseEvent(QMouseEvent *e, WindowCompositorView *target)
 {
     if (!target)
         return;
 
-    QPointF mappedPos = e->localPos() - target->requestedPosition();
+    QPointF mappedPos = e->localPos() - target->position();
     QMouseEvent viewEvent(e->type(), mappedPos, e->localPos(), e->button(), e->buttons(), e->modifiers());
     m_compositor->handleMouseEvent(target, &viewEvent);
 }

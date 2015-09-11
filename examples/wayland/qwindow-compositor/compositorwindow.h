@@ -44,7 +44,6 @@
 #include <QOpenGLWindow>
 #include <QPointer>
 #include <QtGui/private/qopengltextureblitter_p.h>
-#include <QtWaylandCompositor/QWaylandView>
 
 QT_BEGIN_NAMESPACE
 
@@ -55,31 +54,45 @@ class QOpenGLTexture;
 class CompositorWindow : public QOpenGLWindow
 {
 public:
-    CompositorWindow() : m_backgroundTexture(0), m_compositor(0) {}
-    void setCompositor(WindowCompositor *comp) {
-        m_compositor = comp;
-    }
+    CompositorWindow();
+
+    void setCompositor(WindowCompositor *comp);
+
 protected:
     void initializeGL() Q_DECL_OVERRIDE;
     void paintGL() Q_DECL_OVERRIDE;
-//    void resizeGL(int w, int h) Q_DECL_OVERRIDE;
 
-    void mousePressEvent(QMouseEvent *e);
-    void mouseReleaseEvent(QMouseEvent *e);
-    void mouseMoveEvent(QMouseEvent *e);
+    void mousePressEvent(QMouseEvent *e) Q_DECL_OVERRIDE;
+    void mouseReleaseEvent(QMouseEvent *e) Q_DECL_OVERRIDE;
+    void mouseMoveEvent(QMouseEvent *e) Q_DECL_OVERRIDE;
 
-    void keyPressEvent(QKeyEvent *e);
-    void keyReleaseEvent(QKeyEvent *e);
+    void keyPressEvent(QKeyEvent *e) Q_DECL_OVERRIDE;
+    void keyReleaseEvent(QKeyEvent *e) Q_DECL_OVERRIDE;
+
+    QSize sizeHint() const Q_DECL_OVERRIDE;
+
+private slots:
+    void startMove();
+    void startResize(int edge);
+    void setFrameOffset(const QPoint &offset);
+
 private:
     WindowCompositorView *viewAt(const QPointF &point);
+    bool mouseGrab() const { return m_moveState || m_resizeState; }
     void drawBackground();
-    void sendMouseEvent(QMouseEvent *e, QWaylandView *target);
+    void sendMouseEvent(QMouseEvent *e, WindowCompositorView *target);
 
     QOpenGLTextureBlitter m_textureBlitter;
     QSize m_backgroundImageSize;
     QOpenGLTexture *m_backgroundTexture;
     WindowCompositor *m_compositor;
-    QPointer<QWaylandView> m_mouseView;
+    QPointer<WindowCompositorView> m_mouseView;
+    bool m_moveState;
+    bool m_resizeState;
+    QSize m_initialSize;
+    int m_resizeEdge;
+    QPointF m_mouseOffset;
+    QPointF m_initialMousePos;
 };
 
 QT_END_NAMESPACE

@@ -44,20 +44,27 @@
 #include <QtWaylandCompositor/QWaylandCompositor>
 #include <QtWaylandCompositor/QWaylandSurface>
 #include <QtWaylandCompositor/QWaylandView>
+#include <QtWaylandCompositor/QWaylandShellSurface>
 #include <QTimer>
 
 QT_BEGIN_NAMESPACE
 
 class QWaylandShell;
+class QWaylandShellSurface;
 
 class WindowCompositorView : public QWaylandView
 {
     Q_OBJECT
 public:
-    WindowCompositorView() : m_texture(0) {}
+    WindowCompositorView() : m_texture(0), m_shellSurface(0) {}
     GLuint getTexture();
+    QPointF position() const { return m_position; }
+    void setPosition(const QPointF &pos) { m_position = pos; }
 private:
+    friend class WindowCompositor;
     GLuint m_texture;
+    QPointF m_position;
+    QWaylandShellSurface *m_shellSurface;
 };
 
 class WindowCompositor : public QWaylandCompositor
@@ -74,23 +81,36 @@ public:
     QList<WindowCompositorView*> views() const { return m_views; }
 
     void handleMouseEvent(QWaylandView *target, QMouseEvent *me);
+    void handleResize(WindowCompositorView *target, const QSize &initialSize, const QPoint &delta, int edge);
+
 protected:
     void adjustCursorSurface(QWaylandSurface *surface, int hotspotX, int hotspotY);
+
+signals:
+    void startMove();
+    void startResize(int edge);
+    void frameOffset(const QPoint &offset);
 
 private slots:
     void surfaceMappedChanged();
     void surfaceDestroyed();
     void surfaceCommittedSlot();
     void viewSurfaceDestroyed();
+    void onStartResize(QWaylandInputDevice *inputDevice, QWaylandShellSurface::ResizeEdge edges);
 
     void triggerRender();
 
     void onSurfaceCreated(QWaylandSurface *surface);
     void onCreateShellSurface(QWaylandSurface *s, QWaylandClient *client, uint id);
+    void updateCursor();
 private:
     QWindow *m_window;
     QList<WindowCompositorView*> m_views;
     QWaylandShell *m_shell;
+
+    QWaylandView m_cursorView;
+    int m_cursorHotspotX;
+    int m_cursorHotspotY;
 };
 
 

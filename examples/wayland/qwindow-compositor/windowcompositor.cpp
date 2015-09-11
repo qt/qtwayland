@@ -86,18 +86,16 @@ void WindowCompositor::create()
 
 void WindowCompositor::onSurfaceCreated(QWaylandSurface *surface)
 {
-    qDebug() << "onSurfaceCreated" << surface;
-
     connect(surface, &QWaylandSurface::surfaceDestroyed, this, &WindowCompositor::surfaceDestroyed);
     connect(surface, &QWaylandSurface::mappedChanged, this, &WindowCompositor::surfaceMappedChanged);
     connect(surface, &QWaylandSurface::redraw, this, &WindowCompositor::triggerRender);
+    connect(surface, &QWaylandSurface::offsetForNextFrame, this, &WindowCompositor::frameOffset);
 }
 
 void WindowCompositor::surfaceMappedChanged()
 {
     QWaylandSurface *surface = qobject_cast<QWaylandSurface *>(sender());
-    qDebug() << "surfaceMappedChanged()" << surface << surface->isMapped();
-    if (surface->isMapped()) {\
+    if (surface->isMapped()) {
         if (!surface->isCursorSurface())
         defaultInputDevice()->setKeyboardFocus(surface);
     }
@@ -106,34 +104,23 @@ void WindowCompositor::surfaceMappedChanged()
 
 void WindowCompositor::surfaceDestroyed()
 {
-    // QWaylandSurface *surface = qobject_cast<QWaylandSurface *>(sender());
-     qDebug() << "surfaceDestroyed()";
-    // Q_FOREACH (QWaylandView *view, surface->views()) {
-    //     int n = m_views.removeAll(static_cast<WindowCompositorView*>(view));
-    //     qDebug() << n << view;
-    // }
     triggerRender();
 }
 
 void WindowCompositor::viewSurfaceDestroyed()
 {
     WindowCompositorView *view = qobject_cast<WindowCompositorView*>(sender());
-    int n = m_views.removeAll(view);
-    qDebug() << n << view;
+    m_views.removeAll(view);
     delete view;
 }
 
 void WindowCompositor::surfaceCommittedSlot()
 {
-    QWaylandSurface *surface = qobject_cast<QWaylandSurface *>(sender());
-
-//    qDebug() << "surfaceCommittedSlot()" << surface;
     triggerRender();
 }
 
 void WindowCompositor::onCreateShellSurface(QWaylandSurface *s, QWaylandClient *client, uint id)
 {
-    qDebug() << "onCreateShellSurface" << s << client << id;
     QWaylandSurface *surface = s;
 
     WindowCompositorView *view = new WindowCompositorView;
@@ -141,9 +128,16 @@ void WindowCompositor::onCreateShellSurface(QWaylandSurface *s, QWaylandClient *
     view->setOutput(output(m_window));
     m_views << view;
     connect(view, &QWaylandView::surfaceDestroyed, this, &WindowCompositor::viewSurfaceDestroyed);
-    connect(view, &QWaylandView::requestedPositionChanged, this, &WindowCompositor::triggerRender);
 
-    QWaylandShellSurface *shellSurface = new QWaylandShellSurface(m_shell, surface, view, client, id);
+    QWaylandShellSurface *shellSurface = new QWaylandShellSurface(m_shell, surface, client, id);
+    connect(shellSurface, &QWaylandShellSurface::startMove, this, &WindowCompositor::startMove);
+    connect(shellSurface, &QWaylandShellSurface::startResize, this, &WindowCompositor::onStartResize);
+    view->m_shellSurface = shellSurface;
+}
+
+void WindowCompositor::onStartResize(QWaylandInputDevice *, QWaylandShellSurface::ResizeEdge edges)
+{
+    emit startResize(int(edges));
 }
 
 void WindowCompositor::triggerRender()
@@ -154,7 +148,6 @@ void WindowCompositor::triggerRender()
 void WindowCompositor::startRender()
 {
     defaultOutput()->frameStarted();
-    cleanupGraphicsResources();
 }
 
 void WindowCompositor::endRender()
@@ -162,9 +155,26 @@ void WindowCompositor::endRender()
     defaultOutput()->sendFrameCallbacks();
 }
 
+void WindowCompositor::updateCursor()
+{
+    m_cursorView.advance();
+    QImage image = m_cursorView.currentBuffer().image();
+    if (!image.isNull())
+        m_window->setCursor(QCursor(QPixmap::fromImage(image), m_cursorHotspotX, m_cursorHotspotY));
+}
+
 void WindowCompositor::adjustCursorSurface(QWaylandSurface *surface, int hotspotX, int hotspotY)
 {
-    //qDebug() << "adjustCursorSurface" << surface << hotspotY << hotspotY;
+    if ((m_cursorView.surface() != surface)) {
+        if (m_cursorView.surface())
+            disconnect(m_cursorView.surface(), &QWaylandSurface::redraw, this, &WindowCompositor::updateCursor);
+        if (surface)
+            connect(surface, &QWaylandSurface::redraw, this, &WindowCompositor::updateCursor);
+    }
+
+    m_cursorView.setSurface(surface);
+    m_cursorHotspotX = hotspotX;
+    m_cursorHotspotY = hotspotY;
 }
 
 void WindowCompositor::handleMouseEvent(QWaylandView *target, QMouseEvent *me)
@@ -182,4 +192,14 @@ void WindowCompositor::handleMouseEvent(QWaylandView *target, QMouseEvent *me)
     default:
         break;
     }
+}
+
+void WindowCompositor::handleResize(WindowCompositorView *target, const QSize &initialSize, const QPoint &delta, int edge)
+{
+    QWaylandShellSurface *shellSurface = target->m_shellSurface;
+    if (!shellSurface)
+        return;
+    QWaylandShellSurface::ResizeEdge edges = QWaylandShellSurface::ResizeEdge(edge);
+    QSize newSize = shellSurface->sizeForResize(initialSize, delta, edges);
+    shellSurface->sendConfigure(newSize, edges);
 }

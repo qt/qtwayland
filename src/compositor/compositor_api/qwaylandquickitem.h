@@ -67,6 +67,7 @@ class Q_COMPOSITOR_EXPORT QWaylandQuickItem : public QQuickItem
     Q_PROPERTY(bool resizeSurfaceToItem READ resizeSurfaceToItem WRITE setResizeSurfaceToItem NOTIFY resizeSurfaceToItemChanged)
     Q_PROPERTY(bool inputEventsEnabled READ inputEventsEnabled WRITE setInputEventsEnabled NOTIFY inputEventsEnabledChanged)
     Q_PROPERTY(bool focusOnClick READ focusOnClick WRITE setFocusOnClick NOTIFY focusOnClickChanged)
+    Q_PROPERTY(QPointF mousePressPosition READ mousePressPosition)
 
 public:
     QWaylandQuickItem(QQuickItem *parent = 0);
@@ -97,6 +98,8 @@ public:
 
     bool focusOnClick() const;
     void setFocusOnClick(bool focus);
+
+    QPointF mousePressPosition() const;
 
 protected:
     void mousePressEvent(QMouseEvent *event);
@@ -134,6 +137,8 @@ Q_SIGNALS:
     void surfaceDestroyed();
     void inputEventsEnabledChanged();
     void focusOnClickChanged();
+    void mouseMove(const QPointF &windowPosition);
+    void mouseRelease();
 
 protected:
     QSGNode *updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *);
@@ -157,6 +162,7 @@ private:
 
     QQuickWindow *m_connectedWindow;
     QWaylandSurface::Origin m_origin;
+    QPointF m_mousePressPosition;
 };
 
 QT_END_NAMESPACE

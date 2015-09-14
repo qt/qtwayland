@@ -71,7 +71,6 @@ bool TouchExtensionGlobal::postTouchEvent(QTouchEvent *event, QWaylandView *view
     if (!pointCount)
         return false;
 
-    QPointF surfacePos = view->requestedPosition();
     wl_client *surfaceClient = view->surface()->client()->client();
     uint32_t time = m_compositor->currentTimeMsecs();
     const int rescount = m_resources.count();
@@ -100,9 +99,8 @@ bool TouchExtensionGlobal::postTouchEvent(QTouchEvent *event, QWaylandView *view
             uint32_t state = (tp.state() & 0xFFFF) | (sentPointCount << 16);
             uint32_t flags = (tp.flags() & 0xFFFF) | (int(event->device()->capabilities()) << 16);
 
-            QPointF p = tp.pos() - surfacePos; // surface-relative
-            int x = toFixed(p.x());
-            int y = toFixed(p.y());
+            int x = toFixed(tp.pos().x());
+            int y = toFixed(tp.pos().y());
             int nx = toFixed(tp.normalizedPos().x());
             int ny = toFixed(tp.normalizedPos().y());
             int w = toFixed(tp.rect().width());

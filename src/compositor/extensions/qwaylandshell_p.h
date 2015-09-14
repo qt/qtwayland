@@ -53,12 +53,6 @@
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandView;
-
-class QWaylandShellSurfaceResizeGrabber;
-class QWaylandShellSurfaceMoveGrabber;
-class QWaylandShellSurfacePopupGrabber;
-
 class Q_COMPOSITOR_EXPORT QWaylandShellPrivate
                                         : public QWaylandExtensionTemplatePrivate
                                         , public QtWaylandServer::wl_shell
@@ -68,11 +62,8 @@ public:
     QWaylandShellPrivate();
     static QWaylandShellPrivate *get(QWaylandShell *shell) { return shell->d_func(); }
 
-    QWaylandShellSurfacePopupGrabber* getPopupGrabber(QWaylandInputDevice *input);
 protected:
     void shell_get_shell_surface(Resource *resource, uint32_t id, struct ::wl_resource *surface) Q_DECL_OVERRIDE;
-
-    QHash<QWaylandInputDevice *, QWaylandShellSurfacePopupGrabber*> m_popupGrabber;
 };
 
 class Q_COMPOSITOR_EXPORT QWaylandShellSurfacePrivate
@@ -86,39 +77,26 @@ public:
 
     static QWaylandShellSurfacePrivate *get(QWaylandShellSurface *surface) { return surface->d_func(); }
 
-    void resetResizeGrabber();
-    void resetMoveGrabber();
-
-    void setSurfaceType(QWaylandShellSurface::SurfaceType type);
-
-    void setOffset(const QPointF &offset) { m_transientOffset = offset; }
-
-    void requestSize(const QSize &size);
-
     void ping();
     void ping(uint32_t serial);
 
+    void setFocusPolicy(QWaylandShellSurface::FocusPolicy focusPolicy)
+    {
+        if (focusPolicy == m_focusPolicy)
+            return;
+        Q_Q(QWaylandShellSurface);
+        m_focusPolicy = focusPolicy;
+        emit q->focusPolicyChanged();
+    }
 private:
     QWaylandShell *m_shell;
     QWaylandSurface *m_surface;
-    QWaylandView *m_view;
-
-    QWaylandShellSurfaceResizeGrabber *m_resizeGrabber;
-    QWaylandShellSurfaceMoveGrabber *m_moveGrabber;
-    QWaylandShellSurfacePopupGrabber *m_popupGrabber;
-
-    uint32_t m_popupSerial;
 
     QSet<uint32_t> m_pings;
 
-    QWaylandShellSurface::SurfaceType m_surfaceType;
-    bool m_transientInactive;
-
-    QWaylandSurface *m_transientParent;
-    QPointF m_transientOffset;
-
     QString m_title;
     QString m_className;
+    QWaylandShellSurface::FocusPolicy m_focusPolicy;
 
     void shell_surface_destroy_resource(Resource *resource) Q_DECL_OVERRIDE;
 
@@ -155,65 +133,6 @@ private:
     void shell_surface_set_class(Resource *resource,
                                  const QString &class_) Q_DECL_OVERRIDE;
 
-};
-
-class QWaylandShellSurfaceGrabber : public QWaylandPointerGrabber
-{
-public:
-    QWaylandShellSurfaceGrabber(QWaylandShellSurface *shellSurface);
-    ~QWaylandShellSurfaceGrabber();
-
-    QWaylandShellSurface *shell_surface;
-};
-
-class QWaylandShellSurfaceResizeGrabber : public QWaylandShellSurfaceGrabber
-{
-public:
-    QWaylandShellSurfaceResizeGrabber(QWaylandShellSurface *shellSurface);
-
-    QPointF point;
-    enum wl_shell_surface_resize resize_edges;
-    int32_t width;
-    int32_t height;
-
-    void focus() Q_DECL_OVERRIDE;
-    void motion(uint32_t time) Q_DECL_OVERRIDE;
-    void button(uint32_t time, Qt::MouseButton button, uint32_t state) Q_DECL_OVERRIDE;
-};
-
-class QWaylandShellSurfaceMoveGrabber : public QWaylandShellSurfaceGrabber
-{
-public:
-    QWaylandShellSurfaceMoveGrabber(QWaylandShellSurface *shellSurface, const QPointF &offset);
-
-    void focus() Q_DECL_OVERRIDE;
-    void motion(uint32_t time) Q_DECL_OVERRIDE;
-    void button(uint32_t time, Qt::MouseButton button, uint32_t state) Q_DECL_OVERRIDE;
-
-private:
-    QPointF m_offset;
-};
-
-class QWaylandShellSurfacePopupGrabber : public QWaylandDefaultPointerGrabber
-{
-public:
-    QWaylandShellSurfacePopupGrabber(QWaylandInputDevice *inputDevice);
-
-    uint32_t grabSerial() const { return m_inputDevice->pointer()->grabSerial(); }
-
-    struct ::wl_client *client() const { return m_client; }
-    void setClient(struct ::wl_client *client) { m_client = client; }
-
-    void addPopup(QWaylandShellSurface *surface);
-    void removePopup(QWaylandShellSurface *surface);
-
-    void button(uint32_t time, Qt::MouseButton button, uint32_t state) Q_DECL_OVERRIDE;
-
-private:
-    QWaylandInputDevice *m_inputDevice;
-    struct ::wl_client *m_client;
-    QList<QWaylandShellSurface *> m_surfaces;
-    bool m_initialUp;
 };
 
 QT_END_NAMESPACE

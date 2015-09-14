@@ -80,10 +80,6 @@ public:
     Q_INVOKABLE QList<QWaylandOutput *>outputs() const;
     Q_INVOKABLE QList<QWaylandOutput *>outputs(const QPoint &point) const;
 
-    Q_INVOKABLE QWaylandView *pickView(const QPointF &globalPosition) const;
-    Q_INVOKABLE QPointF mapToView(QWaylandView *view, const QPointF &spacePoint) const;
-    Q_INVOKABLE QPointF mapToSpace(QWaylandView *view, const QPointF &local) const;
-
 Q_SIGNALS:
     void geometryConstraintChanged();
     void geometryChanged();

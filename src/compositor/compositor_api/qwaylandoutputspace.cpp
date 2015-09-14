@@ -132,26 +132,4 @@ QList<QWaylandOutput *>QWaylandOutputSpace::outputs(const QPoint &point) const
     return retOutputs;
 }
 
-QWaylandView *QWaylandOutputSpace::pickView(const QPointF &globalPosition) const
-{
-    Q_D(const QWaylandOutputSpace);
-    foreach (QWaylandOutput *output, d->outputs) {
-        if (!QRectF(output->geometry()).contains(globalPosition))
-            continue;
-        output->pickView(globalPosition);
-    }
-
-    return 0;
-}
-
-QPointF QWaylandOutputSpace::mapToView(QWaylandView *view, const QPointF &globalPosition) const
-{
-    return globalPosition - (view->requestedPosition() + view->output()->geometry().topLeft());
-}
-
-QPointF QWaylandOutputSpace::mapToSpace(QWaylandView *view, const QPointF &local) const
-{
-    return local + view->requestedPosition() + view->output()->geometry().topLeft();
-}
-
 QT_END_NAMESPACE

@@ -43,8 +43,6 @@ import QtWayland.Compositor 1.0
 
 WaylandQuickItem {
     id: rootChrome
-    x: clampXPos()
-    y: clampYPos()
 
     onSurfaceDestroyed: {
         lockedBuffer = true;
@@ -69,15 +67,4 @@ WaylandQuickItem {
 
         }
     ]
-    function clampXPos() {
-        if (!parent)
-            return view.requestedXPosition;
-        return Math.max(Math.min(view.requestedXPosition, parent.width - 10), 0)
-    }
-    function clampYPos() {
-        if (!parent)
-            return view.requestedYPosition;
-        return Math.max(Math.min(view.requestedYPosition, parent.height - 30), 0)
-    }
-
 }

@@ -144,51 +144,6 @@ void QWaylandView::setOutput(QWaylandOutput *newOutput)
     emit outputChanged();
 }
 
-void QWaylandView::setRequestedPosition(const QPointF &pos)
-{
-    Q_D(QWaylandView);
-    bool xChanged = !qFuzzyCompare(pos.x(), d->requestedPos.x());
-    bool yChanged = !qFuzzyCompare(pos.y(), d->requestedPos.y());
-    if (xChanged || yChanged) {
-        d->requestedPos = pos;
-        emit requestedPositionChanged();
-    }
-    if (xChanged)
-        emit requestedXPositionChanged();
-    if (yChanged)
-        emit requestedYPositionChanged();
-}
-
-QPointF QWaylandView::requestedPosition() const
-{
-    Q_D(const QWaylandView);
-    return d->requestedPos;
-}
-
-qreal QWaylandView::requestedXPosition() const
-{
-    Q_D(const QWaylandView);
-    return d->requestedPos.x();
-}
-
-void QWaylandView::setRequestedXPosition(qreal xPos)
-{
-    Q_D(QWaylandView);
-    setRequestedPosition(QPointF(xPos, d->requestedPos.y()));
-}
-
-qreal QWaylandView::requestedYPosition() const
-{
-    Q_D(const QWaylandView);
-    return d->requestedPos.y();
-}
-
-void QWaylandView::setRequestedYPosition(qreal yPos)
-{
-    Q_D(QWaylandView);
-    setRequestedPosition(QPointF(d->requestedPos.x(), yPos));
-}
-
 void QWaylandView::attach(const QWaylandBufferRef &ref, const QRegion &damage)
 {
     Q_D(QWaylandView);

@@ -56,8 +56,9 @@
 
 QT_BEGIN_NAMESPACE
 
-Q_COMPOSITOR_DECLARE_QUICK_DATA_CLASS(QWaylandShell)
 Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CLASS(QWaylandQuickCompositor)
+Q_COMPOSITOR_DECLARE_QUICK_DATA_CLASS(QWaylandShell)
+Q_COMPOSITOR_DECLARE_QUICK_DATA_CLASS(QWaylandShellSurface)
 
 class QmlUrlResolver
 {
@@ -137,7 +138,7 @@ public:
 
         //This should probably be somewhere else
         qmlRegisterType<QWaylandShellQuickData>(uri, 1, 0, "DefaultShell");
-        qmlRegisterType<QWaylandShellSurface>(uri, 1, 0, "DefaultShellSurface");
+        qmlRegisterType<QWaylandShellSurfaceQuickData>(uri, 1, 0, "DefaultShellSurface");
     }
 };
 //![class decl]

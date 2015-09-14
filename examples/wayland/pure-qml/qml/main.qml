@@ -53,7 +53,8 @@ WaylandCompositor {
 
     Component {
         id: chromeComponent
-        Chrome { }
+        Chrome {
+        }
     }
 
     Component {
@@ -69,13 +70,38 @@ WaylandCompositor {
 
             Component {
                 id: shellSurfaceComponent
-                DefaultShellSurface { }
+                DefaultShellSurface {
+                    property Item chrome
+                    property var previousMousePosition
+                    property var originalInputEventsEnabled
+                    Connections {
+                        target: chrome ? chrome : null
+                        onMouseMove: {
+                            var deltaX = windowPosition.x - previousMousePosition.x
+                            var deltaY = windowPosition.y - previousMousePosition.y
+                            chrome.x = chrome.x + deltaX
+                            chrome.y = chrome.y + deltaY
+                            previousMousePosition = windowPosition;
+                        }
+                        onMouseRelease: {
+                            chrome.inputEventsEnabled = originalInputEventsEnabled;
+                        }
+                    }
+
+                    onStartMove: {
+                        previousMousePosition = chrome.mousePressPosition
+                        originalInputEventsEnabled = chrome.inputEventsEnabled
+                        chrome.inputEventsEnabled = false;
+                    }
+
+                }
             }
 
             onCreateShellSurface: {
                 var item = chromeComponent.createObject(defaultOutput.surfaceArea, { "surface": surface } );
-                var shellSurface = shellSurfaceComponent.createObject();
-                shellSurface.initialize(defaultShell, surface, item.view, client, id);
+                var shellSurface = shellSurfaceComponent.createObject( null, { "chrome": item });
+                shellSurface.chrome = item;
+                shellSurface.initialize(defaultShell, surface, client, id);
                 surface.shellSurface = shellSurface;
             }
 
@@ -88,6 +114,7 @@ WaylandCompositor {
     onCreateSurface: {
         var surface = surfaceComponent.createObject(0, { } );
         surface.initialize(compositor, client, id, version);
+
     }
 
     Component.onCompleted: {

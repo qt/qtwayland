@@ -56,9 +56,6 @@ class Q_COMPOSITOR_EXPORT QWaylandView : public QObject
     Q_PROPERTY(QObject *renderObject READ renderObject CONSTANT)
     Q_PROPERTY(QWaylandSurface *surface READ surface WRITE setSurface NOTIFY surfaceChanged)
     Q_PROPERTY(QWaylandOutput *output READ output WRITE setOutput NOTIFY outputChanged)
-    Q_PROPERTY(QPointF requestedPosition READ requestedPosition WRITE setRequestedPosition NOTIFY requestedPositionChanged)
-    Q_PROPERTY(qreal requestedXPosition READ requestedXPosition WRITE setRequestedXPosition NOTIFY requestedXPositionChanged)
-    Q_PROPERTY(qreal requestedYPosition READ requestedYPosition WRITE setRequestedYPosition NOTIFY requestedYPositionChanged)
     Q_PROPERTY(bool bufferLock READ isBufferLocked WRITE setBufferLock NOTIFY bufferLockChanged)
 public:
     QWaylandView(QObject *renderObject = 0, QObject *parent = 0);
@@ -71,13 +68,6 @@ public:
 
     QWaylandOutput *output() const;
     void setOutput(QWaylandOutput *output);
-
-    QPointF requestedPosition() const;
-    void setRequestedPosition(const QPointF &pos);
-    qreal requestedXPosition() const;
-    void setRequestedXPosition(qreal xPos);
-    qreal requestedYPosition() const;
-    void setRequestedYPosition(qreal yPos);
 
     virtual void attach(const QWaylandBufferRef &ref, const QRegion &damage);
     virtual bool advance();
@@ -94,9 +84,6 @@ Q_SIGNALS:
     void surfaceChanged();
     void surfaceDestroyed();
     void outputChanged();
-    void requestedPositionChanged();
-    void requestedXPositionChanged();
-    void requestedYPositionChanged();
     void bufferLockChanged();
 };
 

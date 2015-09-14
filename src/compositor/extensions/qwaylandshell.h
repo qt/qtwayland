@@ -41,12 +41,12 @@
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandShellSurface;
+class QWaylandShellPrivate;
 class QWaylandShellSurfacePrivate;
 class QWaylandSurface;
-class QWaylandView;
-class QWaylandShellPrivate;
 class QWaylandClient;
+class QWaylandInputDevice;
+class QWaylandOutput;
 
 class Q_COMPOSITOR_EXPORT QWaylandShell : public QWaylandExtensionTemplate<QWaylandShell>
 {
@@ -69,54 +69,66 @@ class Q_COMPOSITOR_EXPORT QWaylandShellSurface : public QWaylandExtensionTemplat
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandShellSurface)
-    Q_PROPERTY(SurfaceType surfaceType READ surfaceType NOTIFY surfaceTypeChanged)
     Q_PROPERTY(QString title READ title NOTIFY titleChanged)
     Q_PROPERTY(QString className READ className NOTIFY classNameChanged)
-    Q_PROPERTY(QWaylandView *view READ view WRITE setView NOTIFY viewChanged)
-    Q_PROPERTY(QWaylandSurface *transientParent READ transientParent NOTIFY transientParentChanged)
-    Q_PROPERTY(QWaylandSurface *surface READ surface CONSTANT)
+    Q_PROPERTY(FocusPolicy focusPolicy READ focusPolicy NOTIFY focusPolicyChanged)
 
 public:
-    enum SurfaceType {
-        None,
-        Toplevel,
-        Transient,
-        Popup
+    enum FullScreenMethod {
+        DefaultFullScreen,
+        ScaleFullScreen,
+        DriverFullScreen,
+        FillFullScreen
     };
+    Q_ENUM(FullScreenMethod);
+
+    enum ResizeEdge {
+        DefaultEdge     = 0x00,
+        TopEdge         = 0x01,
+        BottomEdge      = 0x02,
+        LeftEdge        = 0x04,
+        TopLeftEdge     = 0x05,
+        BottomLeftEdge  = 0x06,
+        RightEdge       = 0x08,
+        TopRightEdge    = 0x09,
+        BottomRightEdge = 0x10
+    };
+    Q_ENUM(ResizeEdge);
+
+    enum FocusPolicy{
+        DefaultFocus,
+        NoKeyboardFocus
+    };
+    Q_ENUM(FocusPolicy)
 
     QWaylandShellSurface();
-    QWaylandShellSurface(QWaylandShell *shell, QWaylandSurface *surface, QWaylandView *view, QWaylandClient *client, uint id);
+    QWaylandShellSurface(QWaylandShell *shell, QWaylandSurface *surface, QWaylandClient *client, uint id);
 
-    Q_INVOKABLE void initialize(QWaylandShell *shell, QWaylandSurface *surface, QWaylandView *view, QWaylandClient *client, uint id);
-
-    SurfaceType surfaceType() const;
-
-    QWaylandView *view() const;
-    void setView(QWaylandView *view);
+    Q_INVOKABLE void initialize(QWaylandShell *shell, QWaylandSurface *surface, QWaylandClient *client, uint id);
 
     QString title() const;
     QString className() const;
 
     QWaylandSurface *surface() const;
 
-    QWaylandSurface *transientParent() const;
-    QPointF transientOffset() const;
-
-    bool isTransientInactive() const;
+    FocusPolicy focusPolicy() const;
 
     static const struct wl_interface *interface();
     static QByteArray interfaceName();
 Q_SIGNALS:
-    void surfaceTypeChanged();
-    void viewChanged();
     void titleChanged();
     void classNameChanged();
-    void transientParentChanged();
+    void focusPolicyChanged();
     void pong();
+    void startMove(QWaylandInputDevice *inputDevice);
+    void startResize(QWaylandInputDevice *inputDevice, ResizeEdge edge);
 
-private Q_SLOTS:
-    void mappedChanged();
-    void adjustOffset(const QPoint &p);
+    void setDefaultToplevel();
+    void setTransient(QWaylandSurface *parentSurface, const QPoint &relativeToParent, FocusPolicy focusPolicy);
+    void setFullScreen(FullScreenMethod method, uint framerate, QWaylandOutput *output);
+    void setPopup(QWaylandInputDevice *inputDevice, QWaylandSurface *parent, const QPoint &relativeToParent);
+    void setMaximized(QWaylandOutput *output);
+
 private:
     void initialize();
 };

@@ -145,13 +145,16 @@ void DataDevice::focus()
 void DataDevice::motion(uint32_t time)
 {
     Q_EMIT m_inputDevice->drag()->positionChanged();
-    m_dragIconPosition = pointer->currentSpacePosition();
+    Q_UNUSED(time);
+// This abstraction is wrong.
+// We might intersept hover events or something, but forget about global coordinates mapping to local coordinates
+//    m_dragIconPosition = pointer->currentSpacePosition();
 
-    if (m_dragFocusResource && m_dragFocus) {
-        const QPointF &surfacePoint = outputSpace()->mapToView(m_dragFocus, pointer->currentSpacePosition());
-        send_motion(m_dragFocusResource->handle, time,
-                    wl_fixed_from_double(surfacePoint.x()), wl_fixed_from_double(surfacePoint.y()));
-    }
+//    if (m_dragFocusResource && m_dragFocus) {
+//        const QPointF &surfacePoint = outputSpace()->mapToView(m_dragFocus, pointer->currentSpacePosition());
+//        send_motion(m_dragFocusResource->handle, time,
+//                    wl_fixed_from_double(surfacePoint.x()), wl_fixed_from_double(surfacePoint.y()));
+//    }
 }
 
 void DataDevice::button(uint32_t time, Qt::MouseButton button, uint32_t state)

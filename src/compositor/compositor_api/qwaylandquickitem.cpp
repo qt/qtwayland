@@ -194,6 +194,8 @@ QSGTextureProvider *QWaylandQuickItem::textureProvider() const
 
 void QWaylandQuickItem::mousePressEvent(QMouseEvent *event)
 {
+    m_mousePressPosition = event->windowPos();
+
     if (!shouldSendInputEvents()) {
         event->ignore();
         return;
@@ -218,16 +220,19 @@ void QWaylandQuickItem::mouseMoveEvent(QMouseEvent *event)
         QWaylandInputDevice *inputDevice = compositor()->inputDeviceFor(event);
         inputDevice->sendMouseMoveEvent(m_view.data(), event->localPos(), event->windowPos());
     } else {
+        emit mouseMove(event->windowPos());
         event->ignore();
     }
 }
 
 void QWaylandQuickItem::mouseReleaseEvent(QMouseEvent *event)
 {
+    m_mousePressPosition = QPointF();
     if (shouldSendInputEvents()) {
         QWaylandInputDevice *inputDevice = compositor()->inputDeviceFor(event);
         inputDevice->sendMouseReleaseEvent(event->button());
     } else {
+        emit mouseRelease();
         event->ignore();
     }
 }
@@ -432,6 +437,11 @@ void QWaylandQuickItem::setFocusOnClick(bool focus)
 
     m_focusOnClick = focus;
     emit focusOnClickChanged();
+}
+
+QPointF QWaylandQuickItem::mousePressPosition() const
+{
+    return m_mousePressPosition;
 }
 
 /*!

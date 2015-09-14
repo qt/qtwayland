@@ -165,9 +165,6 @@ public:
 
     virtual void update();
 
-    Q_INVOKABLE virtual QWaylandView *pickView(const QPointF &outputPosition) const;
-    Q_INVOKABLE virtual QPointF mapToView(QWaylandView *view, const QPointF &surfacePosition) const;
-
     Q_INVOKABLE QPointF mapToOutputSpace(const QPointF &point);
 
 Q_SIGNALS:

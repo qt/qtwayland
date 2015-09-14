@@ -566,27 +566,6 @@ void QWaylandOutput::surfaceLeave(QWaylandSurface *surface)
     QWaylandSurfacePrivate::get(surface)->send_leave(resourceForClient(surface->client()));
 }
 
-QWaylandView *QWaylandOutput::pickView(const QPointF &outputPosition) const
-{
-    Q_D(const QWaylandOutput);
-    for (int nSurface = 0; nSurface < d->surfaceViews.size(); nSurface++) {
-        const QWaylandSurface *surface = d->surfaceViews.at(nSurface).surface;
-        if (surface->isCursorSurface())
-            continue;
-        const QVector<QWaylandView *> views = d->surfaceViews.at(nSurface).views;
-        for (int nView = 0; nView < views.size(); nView++) {
-            if (QRectF(views.at(nView)->requestedPosition(), surface->size()).contains(outputPosition))
-                return views.at(nView);
-        }
-    }
-    return Q_NULLPTR;
-}
-
-QPointF QWaylandOutput::mapToView(QWaylandView *view, const QPointF &outputPosition) const
-{
-    return outputPosition - view->requestedPosition();
-}
-
 void QWaylandOutput::setWidth(int newWidth)
 {
     Q_D(QWaylandOutput);

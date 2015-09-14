@@ -200,12 +200,10 @@ void QWaylandTouch::sendFullTouchEvent(QTouchEvent *event)
         return;
 
     const int pointCount = points.count();
-    QPointF pos = d->seat->mouseFocus()->requestedPosition();
     for (int i = 0; i < pointCount; ++i) {
         const QTouchEvent::TouchPoint &tp(points.at(i));
         // Convert the local pos in the compositor window to surface-relative.
-        QPointF p = tp.pos() - pos;
-        sendTouchPointEvent(tp.id(), p, tp.state());
+        sendTouchPointEvent(tp.id(), tp.pos(), tp.state());
     }
     sendFrameEvent();
 }

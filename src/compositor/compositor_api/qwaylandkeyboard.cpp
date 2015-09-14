@@ -400,7 +400,7 @@ bool QWaylandKeyboard::setFocus(QWaylandSurface *surface)
 {
     Q_D(QWaylandKeyboard);
     QWaylandShellSurface *shellsurface = QWaylandShellSurface::findIn(surface);
-    if (shellsurface &&  shellsurface->isTransientInactive())
+    if (shellsurface &&  shellsurface->focusPolicy() == QWaylandShellSurface::NoKeyboardFocus)
             return false;
     d->grab->focused(surface);
     return true;

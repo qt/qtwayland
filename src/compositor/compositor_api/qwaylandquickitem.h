@@ -67,7 +67,6 @@ class Q_COMPOSITOR_EXPORT QWaylandQuickItem : public QQuickItem
     Q_PROPERTY(bool resizeSurfaceToItem READ resizeSurfaceToItem WRITE setResizeSurfaceToItem NOTIFY resizeSurfaceToItemChanged)
     Q_PROPERTY(bool inputEventsEnabled READ inputEventsEnabled WRITE setInputEventsEnabled NOTIFY inputEventsEnabledChanged)
     Q_PROPERTY(bool focusOnClick READ focusOnClick WRITE setFocusOnClick NOTIFY focusOnClickChanged)
-    Q_PROPERTY(QPointF mousePressPosition READ mousePressPosition)
 
 public:
     QWaylandQuickItem(QQuickItem *parent = 0);
@@ -113,6 +112,7 @@ protected:
     void touchEvent(QTouchEvent *event);
     void mouseUngrabEvent() Q_DECL_OVERRIDE;
 
+    virtual void surfaceChangedEvent(QWaylandSurface *newSurface, QWaylandSurface *oldSurface);
 public Q_SLOTS:
     virtual void takeFocus(QWaylandInputDevice *device = 0);
     void setPaintEnabled(bool paintEnabled);
@@ -141,7 +141,6 @@ protected:
     QSGNode *updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *);
 
     QWaylandQuickItem(QWaylandQuickItemPrivate &dd, QQuickItem *parent = 0);
-    QPointF m_mousePressPosition;
 };
 
 QT_END_NAMESPACE

@@ -177,10 +177,10 @@ QSGTextureProvider *QWaylandQuickItem::textureProvider() const
     return d->provider;
 }
 
+
 void QWaylandQuickItem::mousePressEvent(QMouseEvent *event)
 {
     Q_D(QWaylandQuickItem);
-    m_mousePressPosition = event->windowPos();
     if (!d->shouldSendInputEvents()) {
         event->ignore();
         return;
@@ -214,7 +214,6 @@ void QWaylandQuickItem::mouseMoveEvent(QMouseEvent *event)
 void QWaylandQuickItem::mouseReleaseEvent(QMouseEvent *event)
 {
     Q_D(QWaylandQuickItem);
-    m_mousePressPosition = QPointF();
     if (d->shouldSendInputEvents()) {
         QWaylandInputDevice *inputDevice = compositor()->inputDeviceFor(event);
         inputDevice->sendMouseReleaseEvent(event->button());
@@ -345,6 +344,12 @@ void QWaylandQuickItem::mouseUngrabEvent()
     }
 }
 
+void QWaylandQuickItem::surfaceChangedEvent(QWaylandSurface *newSurface, QWaylandSurface *oldSurface)
+{
+    Q_UNUSED(newSurface);
+    Q_UNUSED(oldSurface);
+}
+
 void QWaylandQuickItem::handleSurfaceChanged()
 {
     Q_D(QWaylandQuickItem);
@@ -372,6 +377,7 @@ void QWaylandQuickItem::handleSurfaceChanged()
             d->view->setOutput(output);
         }
     }
+    surfaceChangedEvent(d->view->surface(), d->oldSurface);
     d->oldSurface = d->view->surface();
 }
 

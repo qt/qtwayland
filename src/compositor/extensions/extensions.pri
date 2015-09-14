@@ -35,4 +35,14 @@ SOURCES += \
     extensions/qwlinputmethod.cpp \
     extensions/qwlinputmethodcontext.cpp \
 
+qtHaveModule(quick) {
+    HEADERS += \
+        extensions/qwaylandquickshellsurfaceitem.h \
+        extensions/qwaylandquickshellsurfaceitem_p.h \
+
+    SOURCES += \
+        extensions/qwaylandquickshellsurfaceitem.cpp \
+
+}
+
 INCLUDEPATH += extensions

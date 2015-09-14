@@ -39,6 +39,8 @@
 
 #include <QtWaylandCompositor/QWaylandExtension>
 
+#include <QtCore/QSize>
+
 QT_BEGIN_NAMESPACE
 
 class QWaylandShellPrivate;
@@ -69,6 +71,7 @@ class Q_COMPOSITOR_EXPORT QWaylandShellSurface : public QWaylandExtensionTemplat
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandShellSurface)
+    Q_PROPERTY(QWaylandSurface *surface READ surface NOTIFY surfaceChanged)
     Q_PROPERTY(QString title READ title NOTIFY titleChanged)
     Q_PROPERTY(QString className READ className NOTIFY classNameChanged)
     Q_PROPERTY(FocusPolicy focusPolicy READ focusPolicy NOTIFY focusPolicyChanged)
@@ -83,15 +86,15 @@ public:
     Q_ENUM(FullScreenMethod);
 
     enum ResizeEdge {
-        DefaultEdge     = 0x00,
-        TopEdge         = 0x01,
-        BottomEdge      = 0x02,
-        LeftEdge        = 0x04,
-        TopLeftEdge     = 0x05,
-        BottomLeftEdge  = 0x06,
-        RightEdge       = 0x08,
-        TopRightEdge    = 0x09,
-        BottomRightEdge = 0x10
+        DefaultEdge     =  0,
+        TopEdge         =  1,
+        BottomEdge      =  2,
+        LeftEdge        =  4,
+        TopLeftEdge     =  5,
+        BottomLeftEdge  =  6,
+        RightEdge       =  8,
+        TopRightEdge    =  9,
+        BottomRightEdge = 10
     };
     Q_ENUM(ResizeEdge);
 
@@ -115,13 +118,18 @@ public:
 
     static const struct wl_interface *interface();
     static QByteArray interfaceName();
+
+    Q_INVOKABLE QSize sizeForResize(const QSizeF &size, const QPointF &delta, ResizeEdge edges);
+    Q_INVOKABLE void sendConfigure(const QSize &size, ResizeEdge edges);
+    Q_INVOKABLE void sendPopupDone();
 Q_SIGNALS:
+    void surfaceChanged();
     void titleChanged();
     void classNameChanged();
     void focusPolicyChanged();
     void pong();
     void startMove(QWaylandInputDevice *inputDevice);
-    void startResize(QWaylandInputDevice *inputDevice, ResizeEdge edge);
+    void startResize(QWaylandInputDevice *inputDevice, ResizeEdge edges);
 
     void setDefaultToplevel();
     void setTransient(QWaylandSurface *parentSurface, const QPoint &relativeToParent, FocusPolicy focusPolicy);

@@ -267,6 +267,7 @@ void QWaylandShellSurface::initialize(QWaylandShell *shell, QWaylandSurface *sur
     d->m_surface = surface;
     d->init(client->client(), id, 1);
     setExtensionContainer(surface);
+    emit surfaceChanged();
     QWaylandExtension::initialize();
 }
 void QWaylandShellSurface::initialize()
@@ -282,6 +283,35 @@ const struct wl_interface *QWaylandShellSurface::interface()
 QByteArray QWaylandShellSurface::interfaceName()
 {
     return QWaylandShellSurfacePrivate::interfaceName();
+}
+
+QSize QWaylandShellSurface::sizeForResize(const QSizeF &size, const QPointF &delta, QWaylandShellSurface::ResizeEdge edge)
+{
+    qreal width = size.width();
+    qreal height = size.height();
+    if (edge & LeftEdge)
+        width -= delta.x();
+    else if (edge & RightEdge)
+        width += delta.x();
+
+    if (edge & TopEdge)
+        height -= delta.y();
+    else if (edge & BottomEdge)
+        height += delta.y();
+
+    return QSizeF(width, height).toSize();
+}
+
+void QWaylandShellSurface::sendConfigure(const QSize &size, ResizeEdge edges)
+{
+    Q_D(QWaylandShellSurface);
+    d->send_configure(edges, size.width(), size.height());
+}
+
+void QWaylandShellSurface::sendPopupDone()
+{
+    Q_D(QWaylandShellSurface);
+    d->send_popup_done();
 }
 
 QWaylandSurface *QWaylandShellSurface::surface() const

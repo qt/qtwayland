@@ -69,6 +69,7 @@ class Q_COMPOSITOR_EXPORT QWaylandSurface : public QObject, public QWaylandExten
     Q_PROPERTY(Qt::ScreenOrientation contentOrientation READ contentOrientation NOTIFY contentOrientationChanged)
     Q_PROPERTY(QWaylandSurface::Origin origin READ origin NOTIFY originChanged)
     Q_PROPERTY(bool isMapped READ isMapped NOTIFY mappedChanged)
+    Q_PROPERTY(bool cursorSurface READ isCursorSurface WRITE markAsCursorSurface)
 
 public:
     enum Origin {

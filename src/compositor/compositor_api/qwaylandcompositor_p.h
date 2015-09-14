@@ -112,7 +112,6 @@ protected:
 
     QList<QWaylandOutputSpace *> outputSpaces;
     QList<QWaylandSurface *> all_surfaces;
-    QSet<QWaylandSurface *> destroyed_surfaces;
 
     QtWayland::DataDeviceManager *data_device_manager;
 

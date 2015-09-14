@@ -195,8 +195,6 @@ void QWaylandCompositorPrivate::init()
 
 QWaylandCompositorPrivate::~QWaylandCompositorPrivate()
 {
-    if (!destroyed_surfaces.isEmpty())
-        qWarning("QWaylandCompositor::cleanupGraphicsResources() must be called manually");
     qDeleteAll(clients);
 
     qDeleteAll(outputSpaces);
@@ -211,7 +209,7 @@ void QWaylandCompositorPrivate::destroySurface(QWaylandSurface *surface)
     Q_Q(QWaylandCompositor);
     q->surfaceAboutToBeDestroyed(surface);
 
-    destroyed_surfaces << surface;
+    delete surface;
 }
 
 void QWaylandCompositorPrivate::unregisterSurface(QWaylandSurface *surface)
@@ -505,12 +503,6 @@ uint QWaylandCompositor::currentTimeMsecs() const
     return d->timer.elapsed();
 }
 
-void QWaylandCompositor::cleanupGraphicsResources()
-{
-    Q_D(QWaylandCompositor);
-    qDeleteAll(d->destroyed_surfaces);
-    d->destroyed_surfaces.clear();
-}
 
 void QWaylandCompositor::processWaylandEvents()
 {

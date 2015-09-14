@@ -128,7 +128,6 @@ public:
     void setUseHardwareIntegrationExtension(bool use);
 
 public Q_SLOTS:
-    void cleanupGraphicsResources();
     void processWaylandEvents();
 
 Q_SIGNALS:

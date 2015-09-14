@@ -102,7 +102,6 @@ void QWaylandQuickOutput::updateStarted()
         return;
 
     frameStarted();
-    compositor()->cleanupGraphicsResources();
 }
 
 void QWaylandQuickOutput::doFrameCallbacks()

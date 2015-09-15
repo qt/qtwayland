@@ -381,12 +381,6 @@ void QWaylandOutput::setGeometry(const QRect &geometry)
     }
     Q_EMIT positionChanged();
     Q_EMIT modeChanged();
-
-    if (window()) {
-        window()->resize(geometry.size());
-        window()->setMinimumSize(geometry.size());
-        window()->setMaximumSize(geometry.size());
-    }
 }
 
 QRect QWaylandOutput::availableGeometry() const

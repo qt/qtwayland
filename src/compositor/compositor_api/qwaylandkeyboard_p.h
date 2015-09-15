@@ -57,7 +57,6 @@ QT_BEGIN_NAMESPACE
 
 class Q_COMPOSITOR_EXPORT QWaylandKeyboardPrivate : public QObjectPrivate
                                                   , public QtWaylandServer::wl_keyboard
-                                                  , public QWaylandKeyboardGrabber
 {
 public:
     Q_DECLARE_PUBLIC(QWaylandKeyboard)
@@ -70,7 +69,6 @@ public:
     QWaylandCompositor *compositor() const { return seat->compositor(); }
 
     void focused(QWaylandSurface* surface);
-    void key(uint32_t serial, uint32_t time, uint32_t key, uint32_t state);
     void modifiers(uint32_t serial, uint32_t mods_depressed,
                    uint32_t mods_latched, uint32_t mods_locked, uint32_t group);
 
@@ -97,7 +95,6 @@ private:
 
     QWaylandInputDevice *seat;
 
-    QWaylandKeyboardGrabber* grab;
     QWaylandSurface *focus;
     Resource *focusResource;
     QWaylandDestroyListener focusDestroyListener;

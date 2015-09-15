@@ -49,17 +49,6 @@ class QWaylandKeyboard;
 class QWaylandKeyboardPrivate;
 class QWaylandInputDevice;
 
-class Q_COMPOSITOR_EXPORT QWaylandKeyboardGrabber {
-public:
-    virtual ~QWaylandKeyboardGrabber();
-    virtual void focused(QWaylandSurface *surface) = 0;
-    virtual void key(uint32_t serial, uint32_t time, uint32_t key, uint32_t state) = 0;
-    virtual void modifiers(uint32_t serial, uint32_t mods_depressed,
-                           uint32_t mods_latched, uint32_t mods_locked, uint32_t group) = 0;
-
-    QWaylandKeyboard *keyboard;
-};
-
 class Q_COMPOSITOR_EXPORT QWaylandKeymap
 {
 public:
@@ -100,10 +89,6 @@ public:
 
     QWaylandSurface *focus() const;
     QWaylandClient *focusClient() const;
-
-    void startGrab(QWaylandKeyboardGrabber *grab);
-    void endGrab();
-    QWaylandKeyboardGrabber *currentGrab() const;
 
     virtual void addClient(QWaylandClient *client, uint32_t id);
 

@@ -58,7 +58,6 @@ QT_BEGIN_NAMESPACE
 QWaylandKeyboardPrivate::QWaylandKeyboardPrivate(QWaylandInputDevice *seat)
     : QtWaylandServer::wl_keyboard()
     , seat(seat)
-    , grab(this)
     , focus()
     , focusResource()
     , keys()
@@ -145,13 +144,6 @@ void QWaylandKeyboardPrivate::keyboard_release(wl_keyboard::Resource *resource)
     wl_resource_destroy(resource->handle);
 }
 
-void QWaylandKeyboardPrivate::key(uint32_t serial, uint32_t time, uint32_t key, uint32_t state)
-{
-    if (focusResource) {
-        send_key(focusResource->handle, serial, time, key, state);
-    }
-}
-
 void QWaylandKeyboardPrivate::keyEvent(uint code, uint32_t state)
 {
     uint key = code - 8;
@@ -171,7 +163,8 @@ void QWaylandKeyboardPrivate::sendKeyEvent(uint code, uint32_t state)
     uint32_t time = compositor()->currentTimeMsecs();
     uint32_t serial = compositor()->nextSerial();
     uint key = code - 8;
-    grab->key(serial, time, key, state);
+    if (focusResource)
+        send_key(focusResource->handle, serial, time, key, state);
 }
 
 void QWaylandKeyboardPrivate::modifiers(uint32_t serial, uint32_t mods_depressed,
@@ -206,7 +199,7 @@ void QWaylandKeyboardPrivate::updateModifierState(uint code, uint32_t state)
     this->modsLocked = modsLocked;
     this->group = group;
 
-    grab->modifiers(compositor()->nextSerial(), modsDepressed, modsLatched, modsLocked, group);
+    modifiers(compositor()->nextSerial(), modsDepressed, modsLatched, modsLocked, group);
 #else
     Q_UNUSED(code);
     Q_UNUSED(state);
@@ -328,11 +321,6 @@ void QWaylandKeyboardPrivate::createXKBKeymap()
 }
 #endif
 
-
-QWaylandKeyboardGrabber::~QWaylandKeyboardGrabber()
-{
-}
-
 QWaylandKeyboard::QWaylandKeyboard(QWaylandInputDevice *seat, QObject *parent)
     : QObject(* new QWaylandKeyboardPrivate(seat), parent)
 {
@@ -402,7 +390,7 @@ bool QWaylandKeyboard::setFocus(QWaylandSurface *surface)
     QWaylandShellSurface *shellsurface = QWaylandShellSurface::findIn(surface);
     if (shellsurface &&  shellsurface->focusPolicy() == QWaylandShellSurface::NoKeyboardFocus)
             return false;
-    d->grab->focused(surface);
+    d->focused(surface);
     return true;
 }
 
@@ -419,26 +407,6 @@ void QWaylandKeyboard::setKeymap(const QWaylandKeymap &keymap)
     } else {
         d->pendingKeymap = true;
     }
-}
-
-void QWaylandKeyboard::startGrab(QWaylandKeyboardGrabber *grab)
-{
-    Q_D(QWaylandKeyboard);
-    d->grab = grab;
-    d->grab->keyboard = this;
-    d->grab->focused(d->focus);
-}
-
-void QWaylandKeyboard::endGrab()
-{
-    Q_D(QWaylandKeyboard);
-    d->grab = d;
-}
-
-QWaylandKeyboardGrabber *QWaylandKeyboard::currentGrab() const
-{
-    Q_D(const QWaylandKeyboard);
-    return d->grab;
 }
 
 void QWaylandKeyboard::addClient(QWaylandClient *client, uint32_t id)

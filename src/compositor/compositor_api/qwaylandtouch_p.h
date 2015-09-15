@@ -60,9 +60,9 @@ public:
 
     QWaylandCompositor *compositor() const { return seat->compositor(); }
 
-    void sendDown(int touch_id, const QPointF &position) { grab->down(compositor()->currentTimeMsecs(), touch_id, position);}
-    void sendMotion(int touch_id, const QPointF &position) { grab->motion(compositor()->currentTimeMsecs(), touch_id, position); }
-    void sendUp(int touch_id) { grab->up(compositor()->currentTimeMsecs(), touch_id); }
+    void sendDown(uint32_t time, int touch_id, const QPointF &position);
+    void sendMotion(uint32_t time, int touch_id, const QPointF &position);
+    void sendUp(uint32_t time, int touch_id);
 
     void setFocusResource()
     {
@@ -84,9 +84,6 @@ private:
 
     Resource *focusResource;
     QWaylandDestroyListener focusDestroyListener;
-
-    QWaylandDefaultTouchGrabber defaultGrab;
-    QWaylandTouchGrabber *grab;
 };
 
 QT_END_NAMESPACE

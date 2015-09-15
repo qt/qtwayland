@@ -50,10 +50,7 @@ QWaylandTouchPrivate::QWaylandTouchPrivate(QWaylandTouch *touch, QWaylandInputDe
     : wl_touch()
     , seat(seat)
     , focusResource()
-    , defaultGrab()
-    , grab(&defaultGrab)
 {
-    grab->touch = touch;
 }
 
 void QWaylandTouchPrivate::resetFocusState()
@@ -74,45 +71,33 @@ void QWaylandTouchPrivate::touch_release(Resource *resource)
     wl_resource_destroy(resource->handle);
 }
 
-QWaylandTouchGrabber::QWaylandTouchGrabber()
+void QWaylandTouchPrivate::sendDown(uint32_t time, int touch_id, const QPointF &position)
 {
-}
-
-QWaylandTouchGrabber::~QWaylandTouchGrabber()
-{
-}
-
-QWaylandDefaultTouchGrabber::QWaylandDefaultTouchGrabber()
-    : QWaylandTouchGrabber()
-{
-}
-
-void QWaylandDefaultTouchGrabber::down(uint32_t time, int touch_id, const QPointF &position)
-{
-    if (!touch->focusResource() || !touch->mouseFocus())
+    Q_Q(QWaylandTouch);
+    if (focusResource || q->mouseFocus())
         return;
 
-    uint32_t serial = touch->compositor()->nextSerial();
+    uint32_t serial = q->compositor()->nextSerial();
 
-    wl_touch_send_down(touch->focusResource(), serial, time, touch->mouseFocus()->surfaceResource(), touch_id,
+    wl_touch_send_down(focusResource->handle, serial, time, q->mouseFocus()->surfaceResource(), touch_id,
                        wl_fixed_from_double(position.x()), wl_fixed_from_double(position.y()));
 }
 
-void QWaylandDefaultTouchGrabber::up(uint32_t time, int touch_id)
+void QWaylandTouchPrivate::sendUp(uint32_t time, int touch_id)
 {
-    if (!touch->focusResource())
+    if (focusResource)
         return;
 
-    uint32_t serial = touch->compositor()->nextSerial();
+    uint32_t serial = compositor()->nextSerial();
 
-    wl_touch_send_up(touch->focusResource(), serial, time, touch_id);
+    wl_touch_send_up(focusResource->handle, serial, time, touch_id);
 }
-void QWaylandDefaultTouchGrabber::motion(uint32_t time, int touch_id, const QPointF &position)
+void QWaylandTouchPrivate::sendMotion(uint32_t time, int touch_id, const QPointF &position)
 {
-    if (!touch->focusResource())
+    if (!focusResource)
         return;
 
-    wl_touch_send_motion(touch->focusResource(), time, touch_id,
+    wl_touch_send_motion(focusResource->handle, time, touch_id,
                          wl_fixed_from_double(position.x()), wl_fixed_from_double(position.y()));
 }
 
@@ -134,32 +119,19 @@ QWaylandCompositor *QWaylandTouch::compositor() const
     return d->compositor();
 }
 
-
-void QWaylandTouch::startGrab(QWaylandTouchGrabber *grab)
-{
-    Q_D(QWaylandTouch);
-    d->grab = grab;
-    grab->touch = this;
-}
-
-void QWaylandTouch::endGrab()
-{
-    Q_D(QWaylandTouch);
-    d->grab = &d->defaultGrab;
-}
-
 void QWaylandTouch::sendTouchPointEvent(int id, const QPointF &position, Qt::TouchPointState state)
 {
     Q_D(QWaylandTouch);
+    uint32_t time = compositor()->currentTimeMsecs();
     switch (state) {
     case Qt::TouchPointPressed:
-        d->sendDown(id, position);
+        d->sendDown(time, id, position);
         break;
     case Qt::TouchPointMoved:
-        d->sendMotion(id, position);
+        d->sendMotion(time, id, position);
         break;
     case Qt::TouchPointReleased:
-        d->sendUp(id);
+        d->sendUp(time, id);
         break;
     case Qt::TouchPointStationary:
         // stationary points are not sent through wayland, the client must cache them

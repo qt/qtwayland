@@ -50,28 +50,6 @@ class QWaylandInputDevice;
 class QWaylandView;
 class QWaylandClient;
 
-class Q_COMPOSITOR_EXPORT QWaylandTouchGrabber {
-public:
-    QWaylandTouchGrabber();
-    virtual ~QWaylandTouchGrabber();
-
-    virtual void down(uint32_t time, int touch_id, const QPointF &position) = 0;
-    virtual void up(uint32_t time, int touch_id) = 0;
-    virtual void motion(uint32_t time, int touch_id, const QPointF &position) = 0;
-
-    QWaylandTouch *touch;
-};
-
-class Q_COMPOSITOR_EXPORT QWaylandDefaultTouchGrabber : public QWaylandTouchGrabber
-{
-public:
-    QWaylandDefaultTouchGrabber();
-
-    void down(uint32_t time, int touch_id, const QPointF &position) Q_DECL_OVERRIDE;
-    void up(uint32_t time, int touch_id) Q_DECL_OVERRIDE;
-    void motion(uint32_t time, int touch_id, const QPointF &position) Q_DECL_OVERRIDE;
-};
-
 class Q_COMPOSITOR_EXPORT QWaylandTouch : public QObject, public QWaylandExtensionContainer
 {
     Q_OBJECT
@@ -81,9 +59,6 @@ public:
 
     QWaylandInputDevice *inputDevice() const;
     QWaylandCompositor *compositor() const;
-
-    void startGrab(QWaylandTouchGrabber *grab);
-    void endGrab();
 
     virtual void sendTouchPointEvent(int id, const QPointF &position, Qt::TouchPointState state);
     virtual void sendFrameEvent();

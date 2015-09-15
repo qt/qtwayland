@@ -47,8 +47,8 @@ QT_BEGIN_NAMESPACE
 namespace QtWaylandClient {
 
 QWaylandWlShellSurface::QWaylandWlShellSurface(struct ::wl_shell_surface *shell_surface, QWaylandWindow *window)
-    : QtWayland::wl_shell_surface(shell_surface)
-    , QWaylandShellSurface(window)
+    : QWaylandShellSurface(window)
+    , QtWayland::wl_shell_surface(shell_surface)
     , m_window(window)
     , m_maximized(false)
     , m_fullscreen(false)

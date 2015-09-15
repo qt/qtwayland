@@ -51,13 +51,13 @@ Q_DECLARE_METATYPE(QWaylandQuickSurface*)
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandSurfaceTextureProvider;
-class QMutex;
 class QWaylandInputDevice;
+class QWaylandQuickItemPrivate;
 
 class Q_COMPOSITOR_EXPORT QWaylandQuickItem : public QQuickItem
 {
     Q_OBJECT
+    Q_DECLARE_PRIVATE(QWaylandQuickItem)
     Q_PROPERTY(QWaylandView *view READ view CONSTANT)
     Q_PROPERTY(QWaylandCompositor *compositor READ compositor)
     Q_PROPERTY(QWaylandSurface *surface READ surface WRITE setSurface NOTIFY surfaceChanged)
@@ -85,16 +85,14 @@ public:
     QSGTextureProvider *textureProvider() const;
 
     bool paintEnabled() const;
-    bool touchEventsEnabled() const { return m_touchEventsEnabled; }
-    bool resizeSurfaceToItem() const { return m_resizeSurfaceToItem; }
+    bool touchEventsEnabled() const;
+    bool resizeSurfaceToItem() const;
 
     void setTouchEventsEnabled(bool enabled);
     void setResizeSurfaceToItem(bool enabled);
 
-    bool inputEventsEnabled() const { return m_inputEventsEnabled; }
+    bool inputEventsEnabled() const;
     void setInputEventsEnabled(bool enabled);
-
-    Q_INVOKABLE void syncGraphicsState();
 
     bool focusOnClick() const;
     void setFocusOnClick(bool focus);
@@ -143,25 +141,7 @@ Q_SIGNALS:
 protected:
     QSGNode *updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *);
 
-private:
-    friend class QWaylandSurfaceNode;
-    friend class QWaylandQuickSurface;
-    bool shouldSendInputEvents() const { return m_view->surface() && m_inputEventsEnabled; }
-
-    static QMutex *mutex;
-
-    QScopedPointer<QWaylandView> m_view;
-    QWaylandSurface *m_oldSurface;
-    mutable QWaylandSurfaceTextureProvider *m_provider;
-    bool m_paintEnabled;
-    bool m_touchEventsEnabled;
-    bool m_resizeSurfaceToItem;
-    bool m_inputEventsEnabled;
-    bool m_newTexture;
-    bool m_focusOnClick;
-
-    QQuickWindow *m_connectedWindow;
-    QWaylandSurface::Origin m_origin;
+    QWaylandQuickItem(QWaylandQuickItemPrivate &dd, QQuickItem *parent = 0);
     QPointF m_mousePressPosition;
 };
 

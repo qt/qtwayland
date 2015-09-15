@@ -35,6 +35,7 @@
 ****************************************************************************/
 
 #include "qwaylandquickitem.h"
+#include "qwaylandquickitem_p.h"
 #include "qwaylandquicksurface.h"
 #include <QtWaylandCompositor/qwaylandcompositor.h>
 #include <QtWaylandCompositor/qwaylandinput.h>
@@ -55,7 +56,7 @@
 #include <QThread>
 QT_BEGIN_NAMESPACE
 
-QMutex *QWaylandQuickItem::mutex = 0;
+QMutex *QWaylandQuickItemPrivate::mutex = 0;
 
 class QWaylandSurfaceTextureProvider : public QSGTextureProvider
 {
@@ -120,83 +121,67 @@ private:
 };
 
 QWaylandQuickItem::QWaylandQuickItem(QQuickItem *parent)
-    : QQuickItem(parent)
-    , m_view(new QWaylandView(this, this))
-    , m_oldSurface(Q_NULLPTR)
-    , m_provider(Q_NULLPTR)
-    , m_paintEnabled(true)
-    , m_touchEventsEnabled(false)
-    , m_resizeSurfaceToItem(false)
-    , m_inputEventsEnabled(true)
-    , m_newTexture(false)
-    , m_focusOnClick(true)
-    , m_connectedWindow(Q_NULLPTR)
-    , m_origin(QWaylandSurface::OriginTopLeft)
+    : QQuickItem(*new QWaylandQuickItemPrivate(), parent)
 {
-    if (!mutex)
-        mutex = new QMutex;
+    d_func()->init();
+}
 
-    setFlag(ItemHasContents);
-
-    update();
-
-    setSmooth(true);
-
-    setAcceptedMouseButtons(Qt::LeftButton | Qt::MiddleButton | Qt::RightButton |
-        Qt::ExtraButton1 | Qt::ExtraButton2 | Qt::ExtraButton3 | Qt::ExtraButton4 |
-        Qt::ExtraButton5 | Qt::ExtraButton6 | Qt::ExtraButton7 | Qt::ExtraButton8 |
-        Qt::ExtraButton9 | Qt::ExtraButton10 | Qt::ExtraButton11 |
-        Qt::ExtraButton12 | Qt::ExtraButton13);
-    setAcceptHoverEvents(true);
-
-    connect(this, &QQuickItem::windowChanged, this, &QWaylandQuickItem::updateWindow);
-    connect(m_view.data(), &QWaylandView::surfaceChanged, this, &QWaylandQuickItem::surfaceChanged);
-    connect(m_view.data(), &QWaylandView::surfaceChanged, this, &QWaylandQuickItem::handleSurfaceChanged);
+QWaylandQuickItem::QWaylandQuickItem(QWaylandQuickItemPrivate &dd, QQuickItem *parent)
+    : QQuickItem(dd, parent)
+{
+    d_func()->init();
 }
 
 QWaylandQuickItem::~QWaylandQuickItem()
 {
+    Q_D(QWaylandQuickItem);
     disconnect(this, &QQuickItem::windowChanged, this, &QWaylandQuickItem::updateWindow);
-    QMutexLocker locker(mutex);
-    if (m_provider)
-        m_provider->deleteLater();
+    QMutexLocker locker(d->mutex);
+    if (d->provider)
+        d->provider->deleteLater();
 }
 
 QWaylandCompositor *QWaylandQuickItem::compositor() const
 {
-    return m_view->surface() ? m_view->surface()->compositor() : Q_NULLPTR;
+    Q_D(const QWaylandQuickItem);
+    return d->view->surface() ? d->view->surface()->compositor() : Q_NULLPTR;
 }
 
 QWaylandView *QWaylandQuickItem::view() const
 {
-    return m_view.data();
+    Q_D(const QWaylandQuickItem);
+    return d->view.data();
 }
 
 QWaylandSurface *QWaylandQuickItem::surface() const
 {
-    return m_view->surface();
+    Q_D(const QWaylandQuickItem);
+    return d->view->surface();
 }
 
 void QWaylandQuickItem::setSurface(QWaylandSurface *surface)
 {
-    m_view->setSurface(surface);
+    Q_D(QWaylandQuickItem);
+    d->view->setSurface(surface);
 }
 
 QWaylandSurface::Origin QWaylandQuickItem::origin() const
 {
-    return m_origin;
+    Q_D(const QWaylandQuickItem);
+    return d->origin;
 }
 
 QSGTextureProvider *QWaylandQuickItem::textureProvider() const
 {
-    return m_provider;
+    Q_D(const QWaylandQuickItem);
+    return d->provider;
 }
 
 void QWaylandQuickItem::mousePressEvent(QMouseEvent *event)
 {
+    Q_D(QWaylandQuickItem);
     m_mousePressPosition = event->windowPos();
-
-    if (!shouldSendInputEvents()) {
+    if (!d->shouldSendInputEvents()) {
         event->ignore();
         return;
     }
@@ -208,7 +193,7 @@ void QWaylandQuickItem::mousePressEvent(QMouseEvent *event)
 
     QWaylandInputDevice *inputDevice = compositor()->inputDeviceFor(event);
 
-    if (m_focusOnClick)
+    if (d->focusOnClick)
         takeFocus(inputDevice);
 
     inputDevice->sendMousePressEvent(event->button());
@@ -216,9 +201,10 @@ void QWaylandQuickItem::mousePressEvent(QMouseEvent *event)
 
 void QWaylandQuickItem::mouseMoveEvent(QMouseEvent *event)
 {
-    if (shouldSendInputEvents()) {
+    Q_D(QWaylandQuickItem);
+    if (d->shouldSendInputEvents()) {
         QWaylandInputDevice *inputDevice = compositor()->inputDeviceFor(event);
-        inputDevice->sendMouseMoveEvent(m_view.data(), event->localPos(), event->windowPos());
+        inputDevice->sendMouseMoveEvent(d->view.data(), event->localPos(), event->windowPos());
     } else {
         emit mouseMove(event->windowPos());
         event->ignore();
@@ -227,8 +213,9 @@ void QWaylandQuickItem::mouseMoveEvent(QMouseEvent *event)
 
 void QWaylandQuickItem::mouseReleaseEvent(QMouseEvent *event)
 {
+    Q_D(QWaylandQuickItem);
     m_mousePressPosition = QPointF();
-    if (shouldSendInputEvents()) {
+    if (d->shouldSendInputEvents()) {
         QWaylandInputDevice *inputDevice = compositor()->inputDeviceFor(event);
         inputDevice->sendMouseReleaseEvent(event->button());
     } else {
@@ -239,15 +226,16 @@ void QWaylandQuickItem::mouseReleaseEvent(QMouseEvent *event)
 
 void QWaylandQuickItem::hoverEnterEvent(QHoverEvent *event)
 {
+    Q_D(QWaylandQuickItem);
     if (surface()) {
         if (!surface()->inputRegionContains(event->pos())) {
             event->ignore();
             return;
         }
     }
-    if (shouldSendInputEvents()) {
+    if (d->shouldSendInputEvents()) {
         QWaylandInputDevice *inputDevice = compositor()->inputDeviceFor(event);
-        inputDevice->sendMouseMoveEvent(m_view.data(), event->pos(), mapToScene(event->pos()));
+        inputDevice->sendMouseMoveEvent(d->view.data(), event->pos(), mapToScene(event->pos()));
     } else {
         event->ignore();
     }
@@ -255,15 +243,16 @@ void QWaylandQuickItem::hoverEnterEvent(QHoverEvent *event)
 
 void QWaylandQuickItem::hoverMoveEvent(QHoverEvent *event)
 {
+    Q_D(QWaylandQuickItem);
     if (surface()) {
         if (!surface()->inputRegionContains(event->pos())) {
             event->ignore();
             return;
         }
     }
-    if (shouldSendInputEvents()) {
+    if (d->shouldSendInputEvents()) {
         QWaylandInputDevice *inputDevice = compositor()->inputDeviceFor(event);
-        inputDevice->sendMouseMoveEvent(m_view.data(), event->pos(), mapToScene(event->pos()));
+        inputDevice->sendMouseMoveEvent(d->view.data(), event->pos(), mapToScene(event->pos()));
     } else {
         event->ignore();
     }
@@ -271,7 +260,8 @@ void QWaylandQuickItem::hoverMoveEvent(QHoverEvent *event)
 
 void QWaylandQuickItem::hoverLeaveEvent(QHoverEvent *event)
 {
-    if (shouldSendInputEvents()) {
+    Q_D(QWaylandQuickItem);
+    if (d->shouldSendInputEvents()) {
         QWaylandInputDevice *inputDevice = compositor()->inputDeviceFor(event);
         inputDevice->setMouseFocus(Q_NULLPTR);
     } else {
@@ -281,7 +271,8 @@ void QWaylandQuickItem::hoverLeaveEvent(QHoverEvent *event)
 
 void QWaylandQuickItem::wheelEvent(QWheelEvent *event)
 {
-    if (shouldSendInputEvents()) {
+    Q_D(QWaylandQuickItem);
+    if (d->shouldSendInputEvents()) {
         if (!surface()->inputRegionContains(event->pos())) {
             event->ignore();
             return;
@@ -296,7 +287,8 @@ void QWaylandQuickItem::wheelEvent(QWheelEvent *event)
 
 void QWaylandQuickItem::keyPressEvent(QKeyEvent *event)
 {
-    if (shouldSendInputEvents()) {
+    Q_D(QWaylandQuickItem);
+    if (d->shouldSendInputEvents()) {
         QWaylandInputDevice *inputDevice = compositor()->inputDeviceFor(event);
         inputDevice->sendFullKeyEvent(event);
     } else {
@@ -306,7 +298,8 @@ void QWaylandQuickItem::keyPressEvent(QKeyEvent *event)
 
 void QWaylandQuickItem::keyReleaseEvent(QKeyEvent *event)
 {
-    if (shouldSendInputEvents() && hasFocus()) {
+    Q_D(QWaylandQuickItem);
+    if (d->shouldSendInputEvents() && hasFocus()) {
         QWaylandInputDevice *inputDevice = compositor()->inputDeviceFor(event);
         inputDevice->sendFullKeyEvent(event);
     } else {
@@ -316,7 +309,8 @@ void QWaylandQuickItem::keyReleaseEvent(QKeyEvent *event)
 
 void QWaylandQuickItem::touchEvent(QTouchEvent *event)
 {
-    if (shouldSendInputEvents() && m_touchEventsEnabled) {
+    Q_D(QWaylandQuickItem);
+    if (d->shouldSendInputEvents() && d->touchEventsEnabled) {
         QWaylandInputDevice *inputDevice = compositor()->inputDeviceFor(event);
 
         if (event->type() == QEvent::TouchBegin) {
@@ -336,8 +330,8 @@ void QWaylandQuickItem::touchEvent(QTouchEvent *event)
         }
 
         event->accept();
-        if (inputDevice->mouseFocus() != m_view.data()) {
-            inputDevice->sendMouseMoveEvent(m_view.data(), pointPos, mapToScene(pointPos));
+        if (inputDevice->mouseFocus() != d->view.data()) {
+            inputDevice->sendMouseMoveEvent(d->view.data(), pointPos, mapToScene(pointPos));
         }
         inputDevice->sendFullTouchEvent(event);
     } else {
@@ -355,14 +349,15 @@ void QWaylandQuickItem::mouseUngrabEvent()
 
 void QWaylandQuickItem::handleSurfaceChanged()
 {
-    if (m_oldSurface) {
-        disconnect(m_oldSurface, &QWaylandSurface::mappedChanged, this, &QWaylandQuickItem::surfaceMappedChanged);
-        disconnect(m_oldSurface, &QWaylandSurface::parentChanged, this, &QWaylandQuickItem::parentChanged);
-        disconnect(m_oldSurface, &QWaylandSurface::sizeChanged, this, &QWaylandQuickItem::updateSize);
-        disconnect(m_oldSurface, &QWaylandSurface::configure, this, &QWaylandQuickItem::updateBuffer);
-        disconnect(m_oldSurface, &QWaylandSurface::redraw, this, &QQuickItem::update);
+    Q_D(QWaylandQuickItem);
+    if (d->oldSurface) {
+        disconnect(d->oldSurface, &QWaylandSurface::mappedChanged, this, &QWaylandQuickItem::surfaceMappedChanged);
+        disconnect(d->oldSurface, &QWaylandSurface::parentChanged, this, &QWaylandQuickItem::parentChanged);
+        disconnect(d->oldSurface, &QWaylandSurface::sizeChanged, this, &QWaylandQuickItem::updateSize);
+        disconnect(d->oldSurface, &QWaylandSurface::configure, this, &QWaylandQuickItem::updateBuffer);
+        disconnect(d->oldSurface, &QWaylandSurface::redraw, this, &QQuickItem::update);
     }
-    if (QWaylandSurface *newSurface = m_view->surface()) {
+    if (QWaylandSurface *newSurface = d->view->surface()) {
         connect(newSurface, &QWaylandSurface::mappedChanged, this, &QWaylandQuickItem::surfaceMappedChanged);
         connect(newSurface, &QWaylandSurface::parentChanged, this, &QWaylandQuickItem::parentChanged);
         connect(newSurface, &QWaylandSurface::sizeChanged, this, &QWaylandQuickItem::updateSize);
@@ -370,16 +365,16 @@ void QWaylandQuickItem::handleSurfaceChanged()
         connect(newSurface, &QWaylandSurface::redraw, this, &QQuickItem::update);
         setWidth(newSurface->size().width());
         setHeight(newSurface->size().height());
-        if (newSurface->origin() != m_origin) {
-            m_origin = newSurface->origin();
+        if (newSurface->origin() != d->origin) {
+            d->origin = newSurface->origin();
             emit originChanged();
         }
         if (window()) {
             QWaylandOutput *output = newSurface->compositor()->output(window());
-            m_view->setOutput(output);
+            d->view->setOutput(output);
         }
     }
-    m_oldSurface = m_view->surface();
+    d->oldSurface = d->view->surface();
 }
 
 void QWaylandQuickItem::takeFocus(QWaylandInputDevice *device)
@@ -420,22 +415,19 @@ void QWaylandQuickItem::updateSize()
     }
 }
 
-void QWaylandQuickItem::syncGraphicsState()
-{
-
-}
-
 bool QWaylandQuickItem::focusOnClick() const
 {
-    return m_focusOnClick;
+    Q_D(const QWaylandQuickItem);
+    return d->focusOnClick;
 }
 
 void QWaylandQuickItem::setFocusOnClick(bool focus)
 {
-    if (m_focusOnClick == focus)
+    Q_D(QWaylandQuickItem);
+    if (d->focusOnClick == focus)
         return;
 
-    m_focusOnClick = focus;
+    d->focusOnClick = focus;
     emit focusOnClickChanged();
 }
 
@@ -454,57 +446,75 @@ QPointF QWaylandQuickItem::mousePressPosition() const
 */
 bool QWaylandQuickItem::paintEnabled() const
 {
-    return m_paintEnabled;
+    Q_D(const QWaylandQuickItem);
+    return d->paintEnabled;
 }
 
 void QWaylandQuickItem::setPaintEnabled(bool enabled)
 {
-    m_paintEnabled = enabled;
+    Q_D(QWaylandQuickItem);
+    d->paintEnabled = enabled;
     update();
+}
+
+bool QWaylandQuickItem::touchEventsEnabled() const
+{
+    Q_D(const QWaylandQuickItem);
+    return d->touchEventsEnabled;
+}
+
+bool QWaylandQuickItem::resizeSurfaceToItem() const
+{
+    Q_D(const QWaylandQuickItem);
+    return d->resizeSurfaceToItem;
 }
 
 void QWaylandQuickItem::updateBuffer(bool hasBuffer)
 {
+    Q_D(QWaylandQuickItem);
     Q_UNUSED(hasBuffer);
-    if (m_origin != surface()->origin()) {
-        m_origin = surface()->origin();
+    if (d->origin != surface()->origin()) {
+        d->origin = surface()->origin();
         emit originChanged();
     }
 }
 
 void QWaylandQuickItem::updateWindow()
 {
-    if (m_connectedWindow) {
-        disconnect(m_connectedWindow, &QQuickWindow::beforeSynchronizing, this, &QWaylandQuickItem::beforeSync);
+    Q_D(QWaylandQuickItem);
+    if (d->connectedWindow) {
+        disconnect(d->connectedWindow, &QQuickWindow::beforeSynchronizing, this, &QWaylandQuickItem::beforeSync);
     }
 
-    m_connectedWindow = window();
+    d->connectedWindow = window();
 
-    if (m_connectedWindow) {
-        connect(m_connectedWindow, &QQuickWindow::beforeSynchronizing, this, &QWaylandQuickItem::beforeSync, Qt::DirectConnection);
+    if (d->connectedWindow) {
+        connect(d->connectedWindow, &QQuickWindow::beforeSynchronizing, this, &QWaylandQuickItem::beforeSync, Qt::DirectConnection);
     }
 
-    if (compositor() && m_connectedWindow) {
-        QWaylandOutput *output = compositor()->output(m_connectedWindow);
+    if (compositor() && d->connectedWindow) {
+        QWaylandOutput *output = compositor()->output(d->connectedWindow);
         Q_ASSERT(output);
-        m_view->setOutput(output);
+        d->view->setOutput(output);
     }
 }
 
 void QWaylandQuickItem::beforeSync()
 {
-    if (m_view->advance()) {
-        m_newTexture = true;
+    Q_D(QWaylandQuickItem);
+    if (d->view->advance()) {
+        d->newTexture = true;
         update();
     }
 }
 
 QSGNode *QWaylandQuickItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *)
 {
-    bool mapped = (surface() && surface()->isMapped() && m_view->currentBuffer().hasBuffer())
-        || (m_view->isBufferLocked() && m_provider);
+    Q_D(QWaylandQuickItem);
+    bool mapped = (surface() && surface()->isMapped() && d->view->currentBuffer().hasBuffer())
+        || (d->view->isBufferLocked() && d->provider);
 
-    if (!mapped || !m_paintEnabled) {
+    if (!mapped || !d->paintEnabled) {
         delete oldNode;
         return 0;
     }
@@ -514,18 +524,18 @@ QSGNode *QWaylandQuickItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeDat
     if (!node)
         node = new QSGSimpleTextureNode();
 
-    if (!m_provider)
-        m_provider = new QWaylandSurfaceTextureProvider();
+    if (!d->provider)
+        d->provider = new QWaylandSurfaceTextureProvider();
 
-    if (m_newTexture) {
-        m_newTexture = false;
-        m_provider->setBufferRef(this, m_view->currentBuffer());
-        node->setTexture(m_provider->texture());
+    if (d->newTexture) {
+        d->newTexture = false;
+        d->provider->setBufferRef(this, d->view->currentBuffer());
+        node->setTexture(d->provider->texture());
     }
 
-    m_provider->setSmooth(smooth());
+    d->provider->setSmooth(smooth());
 
-    if (m_provider->invertY()) {
+    if (d->provider->invertY()) {
             node->setRect(0, height(), width(), -height());
     } else {
             node->setRect(0, 0, width(), height());
@@ -536,24 +546,33 @@ QSGNode *QWaylandQuickItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeDat
 
 void QWaylandQuickItem::setTouchEventsEnabled(bool enabled)
 {
-    if (m_touchEventsEnabled != enabled) {
-        m_touchEventsEnabled = enabled;
+    Q_D(QWaylandQuickItem);
+    if (d->touchEventsEnabled != enabled) {
+        d->touchEventsEnabled = enabled;
         emit touchEventsEnabledChanged();
     }
 }
 
 void QWaylandQuickItem::setResizeSurfaceToItem(bool enabled)
 {
-    if (m_resizeSurfaceToItem != enabled) {
-        m_resizeSurfaceToItem = enabled;
+    Q_D(QWaylandQuickItem);
+    if (d->resizeSurfaceToItem != enabled) {
+        d->resizeSurfaceToItem = enabled;
         emit resizeSurfaceToItemChanged();
     }
 }
 
+bool QWaylandQuickItem::inputEventsEnabled() const
+{
+    Q_D(const QWaylandQuickItem);
+    return d->inputEventsEnabled;
+}
+
 void QWaylandQuickItem::setInputEventsEnabled(bool enabled)
 {
-    if (m_inputEventsEnabled != enabled) {
-        m_inputEventsEnabled = enabled;
+    Q_D(QWaylandQuickItem);
+    if (d->inputEventsEnabled != enabled) {
+        d->inputEventsEnabled = enabled;
         setAcceptHoverEvents(enabled);
         emit inputEventsEnabledChanged();
     }

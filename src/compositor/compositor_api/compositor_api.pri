@@ -54,7 +54,8 @@ qtHaveModule(quick) {
         compositor_api/qwaylandquickcompositor.h \
         compositor_api/qwaylandquicksurface.h \
         compositor_api/qwaylandquickoutput.h \
-        compositor_api/qwaylandquickitem.h
+        compositor_api/qwaylandquickitem.h \
+        compositor_api/qwaylandquickitem_p.h
 
-    QT += qml quick
+    QT += qml qml-private quick quick-private
 }

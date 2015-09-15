@@ -38,7 +38,6 @@
 #define WLDATADEVICE_H
 
 #include <QtWaylandCompositor/private/qwayland-server-wayland.h>
-#include <QtWaylandCompositor/QWaylandPointerGrabber>
 #include <QtWaylandCompositor/QWaylandInputDevice>
 #include <QtWaylandCompositor/QWaylandOutputSpace>
 
@@ -53,7 +52,7 @@ class DataSource;
 class InputDevice;
 class Surface;
 
-class DataDevice : public QtWaylandServer::wl_data_device, public QWaylandPointerGrabber
+class DataDevice : public QtWaylandServer::wl_data_device
 {
 public:
     DataDevice(QWaylandInputDevice *inputDevice);
@@ -67,9 +66,6 @@ public:
 
     void sourceDestroyed(DataSource *source);
 
-    void focus() Q_DECL_OVERRIDE;
-    void motion(uint32_t time) Q_DECL_OVERRIDE;
-    void button(uint32_t time, Qt::MouseButton button, uint32_t state) Q_DECL_OVERRIDE;
 protected:
     void data_device_start_drag(Resource *resource, struct ::wl_resource *source, struct ::wl_resource *origin, struct ::wl_resource *icon, uint32_t serial) Q_DECL_OVERRIDE;
     void data_device_set_selection(Resource *resource, struct ::wl_resource *source, uint32_t serial) Q_DECL_OVERRIDE;

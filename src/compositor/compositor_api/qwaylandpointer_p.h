@@ -77,15 +77,9 @@ private:
 
     QWaylandInputDevice *seat;
     QWaylandOutput *output;
-    QWaylandDefaultPointerGrabber defaultGrab;
 
     QPointF localPosition;
     QPointF spacePosition;
-
-    QWaylandPointerGrabber *grab;
-    Qt::MouseButton grabButton;
-    uint32_t grabTime;
-    uint32_t grabSerial;
 
     struct ::wl_resource *focusResource;
     bool hasSentEnter;

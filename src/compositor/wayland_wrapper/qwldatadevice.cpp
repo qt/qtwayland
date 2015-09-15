@@ -134,69 +134,72 @@ void DataDevice::sourceDestroyed(DataSource *source)
         m_selectionSource = 0;
 }
 
-void DataDevice::focus()
-{
-    QWaylandView *focus = pointer->mouseFocus();
-    if (focus != m_dragFocus) {
-        setDragFocus(focus, pointer->currentLocalPosition());
-    }
-}
+// void DataDevice::focus()
+// {
+//     QWaylandView *focus = pointer->mouseFocus();
+//     if (focus != m_dragFocus) {
+//         setDragFocus(focus, pointer->currentLocalPosition());
+//     }
+// }
 
-void DataDevice::motion(uint32_t time)
-{
-    Q_EMIT m_inputDevice->drag()->positionChanged();
-    Q_UNUSED(time);
-// This abstraction is wrong.
-// We might intersept hover events or something, but forget about global coordinates mapping to local coordinates
-//    m_dragIconPosition = pointer->currentSpacePosition();
+// void DataDevice::motion(uint32_t time)
+// {
+//     Q_EMIT m_inputDevice->drag()->positionChanged();
+//     Q_UNUSED(time);
+// // This abstraction is wrong.
+// // We might intersept hover events or something, but forget about global coordinates mapping to local coordinates
+// //    m_dragIconPosition = pointer->currentSpacePosition();
 
-//    if (m_dragFocusResource && m_dragFocus) {
-//        const QPointF &surfacePoint = outputSpace()->mapToView(m_dragFocus, pointer->currentSpacePosition());
-//        send_motion(m_dragFocusResource->handle, time,
-//                    wl_fixed_from_double(surfacePoint.x()), wl_fixed_from_double(surfacePoint.y()));
-//    }
-}
+// //    if (m_dragFocusResource && m_dragFocus) {
+// //        const QPointF &surfacePoint = outputSpace()->mapToView(m_dragFocus, pointer->currentSpacePosition());
+// //        send_motion(m_dragFocusResource->handle, time,
+// //                    wl_fixed_from_double(surfacePoint.x()), wl_fixed_from_double(surfacePoint.y()));
+// //    }
+// }
 
-void DataDevice::button(uint32_t time, Qt::MouseButton button, uint32_t state)
-{
-    Q_UNUSED(time);
+// void DataDevice::button(uint32_t time, Qt::MouseButton button, uint32_t state)
+// {
+//     Q_UNUSED(time);
 
-    if (m_dragFocusResource &&
-        pointer->grabButton() == button &&
-        state == QWaylandPointerPrivate::button_state_released)
-        send_drop(m_dragFocusResource->handle);
+//     if (m_dragFocusResource &&
+//         pointer->grabButton() == button &&
+//         state == QWaylandPointerPrivate::button_state_released)
+//         send_drop(m_dragFocusResource->handle);
 
-    if (!pointer->isButtonPressed() &&
-        state == QWaylandPointerPrivate::button_state_released) {
+//     if (!pointer->isButtonPressed() &&
+//         state == QWaylandPointerPrivate::button_state_released) {
 
-        if (m_dragIcon) {
-            m_dragIcon = 0;
-            m_dragIconPosition = QPointF();
-            Q_EMIT m_inputDevice->drag()->positionChanged();
-            Q_EMIT m_inputDevice->drag()->iconChanged();
-        }
+//         if (m_dragIcon) {
+//             m_dragIcon = 0;
+//             m_dragIconPosition = QPointF();
+//             Q_EMIT m_inputDevice->drag()->positionChanged();
+//             Q_EMIT m_inputDevice->drag()->iconChanged();
+//         }
 
-        setDragFocus(0, QPointF());
-        pointer->endGrab();
-    }
-}
+//         setDragFocus(0, QPointF());
+//         pointer->endGrab();
+//     }
+// }
 
 void DataDevice::data_device_start_drag(Resource *resource, struct ::wl_resource *source, struct ::wl_resource *origin, struct ::wl_resource *icon, uint32_t serial)
 {
-    if (m_inputDevice->pointer()->grabSerial() == serial) {
-        if (!m_inputDevice->pointer()->isButtonPressed() ||
-             m_inputDevice->mouseFocus()->surfaceResource() != origin)
-            return;
 
-        m_dragClient = resource->client();
-        m_dragDataSource = source != 0 ? DataSource::fromResource(source) : 0;
-        m_dragIcon = icon != 0 ? QWaylandSurface::fromResource(icon) : 0;
-        m_dragIconPosition = QPointF();
-        Q_EMIT m_inputDevice->drag()->positionChanged();
-        Q_EMIT m_inputDevice->drag()->iconChanged();
+    qDebug() << "data_device_start_drag";
+    
+    // if (m_inputDevice->pointer()->grabSerial() == serial) {
+    //     if (!m_inputDevice->pointer()->isButtonPressed() ||
+    //          m_inputDevice->mouseFocus()->surfaceResource() != origin)
+    //         return;
 
-        m_inputDevice->pointer()->startGrab(this);
-    }
+    //     m_dragClient = resource->client();
+    //     m_dragDataSource = source != 0 ? DataSource::fromResource(source) : 0;
+    //     m_dragIcon = icon != 0 ? QWaylandSurface::fromResource(icon) : 0;
+    //     m_dragIconPosition = QPointF();
+    //     Q_EMIT m_inputDevice->drag()->positionChanged();
+    //     Q_EMIT m_inputDevice->drag()->iconChanged();
+
+    //     m_inputDevice->pointer()->startGrab(this);
+    // }
 }
 
 void DataDevice::data_device_set_selection(Resource *, struct ::wl_resource *source, uint32_t serial)

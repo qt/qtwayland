@@ -40,7 +40,6 @@
 #include <QtWaylandCompositor/qwaylandexport.h>
 #include <QtWaylandCompositor/qwaylandsurface.h>
 #include <QtWaylandCompositor/private/qwaylandextension_p.h>
-#include <QtWaylandCompositor/QWaylandPointerGrabber>
 #include <QtWaylandCompositor/QWaylandShellSurface>
 #include <QtWaylandCompositor/QWaylandInputDevice>
 

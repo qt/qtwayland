@@ -48,35 +48,6 @@ class QWaylandView;
 class QWaylandOutput;
 class QWaylandClient;
 
-class Q_COMPOSITOR_EXPORT QWaylandPointerGrabber
-{
-public:
-    QWaylandPointerGrabber()
-        : pointer(Q_NULLPTR)
-    {}
-    virtual ~QWaylandPointerGrabber();
-
-    virtual void focus() = 0;
-    virtual void motion(uint32_t time) = 0;
-    virtual void button(uint32_t time, Qt::MouseButton button, uint32_t state) = 0;
-
-    QWaylandPointer *pointer;
-};
-
-class Q_COMPOSITOR_EXPORT QWaylandDefaultPointerGrabber : public QWaylandPointerGrabber
-{
-public:
-    QWaylandDefaultPointerGrabber()
-        : QWaylandPointerGrabber()
-    {}
-    QWaylandDefaultPointerGrabber(QWaylandPointer *_pointer)
-        : QWaylandPointerGrabber()
-    { this->pointer = _pointer; }
-
-    void focus() Q_DECL_OVERRIDE;
-    void motion(uint32_t time) Q_DECL_OVERRIDE;
-    void button(uint32_t time, Qt::MouseButton button, uint32_t state) Q_DECL_OVERRIDE;
-};
 class Q_COMPOSITOR_EXPORT QWaylandPointer : public QObject, public QWaylandExtensionContainer
 {
     Q_OBJECT
@@ -90,14 +61,6 @@ public:
 
     QWaylandOutput *output() const;
     void setOutput(QWaylandOutput *output);
-
-    void startGrab(QWaylandPointerGrabber *currentGrab);
-    void endGrab();
-    QWaylandPointerGrabber *currentGrab() const;
-    Qt::MouseButton grabButton() const;
-
-    uint32_t grabTime() const;
-    uint32_t grabSerial() const;
 
     virtual void sendMousePressEvent(Qt::MouseButton button);
     virtual void sendMouseReleaseEvent(Qt::MouseButton button);

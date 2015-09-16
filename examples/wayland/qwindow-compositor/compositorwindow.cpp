@@ -98,6 +98,8 @@ void CompositorWindow::paintGL()
     functions->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     Q_FOREACH (WindowCompositorView *view, m_compositor->views()) {
+        if (view->isCursor())
+            continue;
         GLuint textureId = view->getTexture();
         QWaylandSurface *surface = view->surface();
         if (surface && surface->isMapped()) {

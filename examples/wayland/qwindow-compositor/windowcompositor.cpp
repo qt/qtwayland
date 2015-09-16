@@ -63,6 +63,11 @@ GLuint WindowCompositorView::getTexture() {
     return m_texture;
 }
 
+bool WindowCompositorView::isCursor() const
+{
+    return surface()->isCursorSurface();
+}
+
 WindowCompositor::WindowCompositor(QWindow *window)
     : QWaylandCompositor()
     , m_window(window)
@@ -90,6 +95,11 @@ void WindowCompositor::onSurfaceCreated(QWaylandSurface *surface)
     connect(surface, &QWaylandSurface::mappedChanged, this, &WindowCompositor::surfaceMappedChanged);
     connect(surface, &QWaylandSurface::redraw, this, &WindowCompositor::triggerRender);
     connect(surface, &QWaylandSurface::offsetForNextFrame, this, &WindowCompositor::frameOffset);
+    WindowCompositorView *view = new WindowCompositorView;
+    view->setSurface(surface);
+    view->setOutput(output(m_window));
+    m_views << view;
+    connect(view, &QWaylandView::surfaceDestroyed, this, &WindowCompositor::viewSurfaceDestroyed);
 }
 
 void WindowCompositor::surfaceMappedChanged()
@@ -97,7 +107,7 @@ void WindowCompositor::surfaceMappedChanged()
     QWaylandSurface *surface = qobject_cast<QWaylandSurface *>(sender());
     if (surface->isMapped()) {
         if (!surface->isCursorSurface())
-        defaultInputDevice()->setKeyboardFocus(surface);
+            defaultInputDevice()->setKeyboardFocus(surface);
     }
     triggerRender();
 }
@@ -119,19 +129,24 @@ void WindowCompositor::surfaceCommittedSlot()
     triggerRender();
 }
 
+WindowCompositorView * WindowCompositor::findView(const QWaylandSurface *s) const
+{
+    Q_FOREACH (WindowCompositorView* view, m_views) {
+        if (view->surface() == s)
+            return view;
+    }
+    return Q_NULLPTR;
+}
+
 void WindowCompositor::onCreateShellSurface(QWaylandSurface *s, QWaylandClient *client, uint id)
 {
     QWaylandSurface *surface = s;
 
-    WindowCompositorView *view = new WindowCompositorView;
-    view->setSurface(surface);
-    view->setOutput(output(m_window));
-    m_views << view;
-    connect(view, &QWaylandView::surfaceDestroyed, this, &WindowCompositor::viewSurfaceDestroyed);
-
     QWaylandShellSurface *shellSurface = new QWaylandShellSurface(m_shell, surface, client, id);
     connect(shellSurface, &QWaylandShellSurface::startMove, this, &WindowCompositor::startMove);
     connect(shellSurface, &QWaylandShellSurface::startResize, this, &WindowCompositor::onStartResize);
+    WindowCompositorView *view = findView(s);
+    Q_ASSERT(view);
     view->m_shellSurface = shellSurface;
 }
 

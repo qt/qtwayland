@@ -60,6 +60,8 @@ public:
     GLuint getTexture();
     QPointF position() const { return m_position; }
     void setPosition(const QPointF &pos) { m_position = pos; }
+    bool isCursor() const;
+    bool hasShell() const { return m_shellSurface; }
 private:
     friend class WindowCompositor;
     GLuint m_texture;
@@ -104,6 +106,7 @@ private slots:
     void onCreateShellSurface(QWaylandSurface *s, QWaylandClient *client, uint id);
     void updateCursor();
 private:
+    WindowCompositorView *findView(const QWaylandSurface *s) const;
     QWindow *m_window;
     QList<WindowCompositorView*> m_views;
     QWaylandShell *m_shell;

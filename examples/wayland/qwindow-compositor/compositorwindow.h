@@ -69,8 +69,6 @@ protected:
     void keyPressEvent(QKeyEvent *e) Q_DECL_OVERRIDE;
     void keyReleaseEvent(QKeyEvent *e) Q_DECL_OVERRIDE;
 
-    QSize sizeHint() const Q_DECL_OVERRIDE;
-
 private slots:
     void startMove();
     void startResize(int edge);

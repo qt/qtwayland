@@ -97,8 +97,7 @@ public:
     bool focusOnClick() const;
     void setFocusOnClick(bool focus);
 
-    QPointF mousePressPosition() const;
-
+    bool inputRegionContains(QPointF localPosition);
 protected:
     void mousePressEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);

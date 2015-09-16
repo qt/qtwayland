@@ -186,7 +186,7 @@ void QWaylandQuickItem::mousePressEvent(QMouseEvent *event)
         return;
     }
 
-    if (!surface()->inputRegionContains(event->pos())) {
+    if (!inputRegionContains(event->pos())) {
         event->ignore();
         return;
     }
@@ -227,11 +227,9 @@ void QWaylandQuickItem::mouseReleaseEvent(QMouseEvent *event)
 void QWaylandQuickItem::hoverEnterEvent(QHoverEvent *event)
 {
     Q_D(QWaylandQuickItem);
-    if (surface()) {
-        if (!surface()->inputRegionContains(event->pos())) {
-            event->ignore();
-            return;
-        }
+    if (!inputRegionContains(event->pos())) {
+        event->ignore();
+        return;
     }
     if (d->shouldSendInputEvents()) {
         QWaylandInputDevice *inputDevice = compositor()->inputDeviceFor(event);
@@ -245,7 +243,7 @@ void QWaylandQuickItem::hoverMoveEvent(QHoverEvent *event)
 {
     Q_D(QWaylandQuickItem);
     if (surface()) {
-        if (!surface()->inputRegionContains(event->pos())) {
+        if (!inputRegionContains(event->pos())) {
             event->ignore();
             return;
         }
@@ -273,7 +271,7 @@ void QWaylandQuickItem::wheelEvent(QWheelEvent *event)
 {
     Q_D(QWaylandQuickItem);
     if (d->shouldSendInputEvents()) {
-        if (!surface()->inputRegionContains(event->pos())) {
+        if (!inputRegionContains(event->pos())) {
             event->ignore();
             return;
         }
@@ -324,7 +322,7 @@ void QWaylandQuickItem::touchEvent(QTouchEvent *event)
         if (!points.isEmpty())
             pointPos = points.at(0).pos().toPoint();
 
-        if (event->type() == QEvent::TouchBegin && !surface()->inputRegionContains(pointPos)) {
+        if (event->type() == QEvent::TouchBegin && !inputRegionContains(pointPos)) {
             event->ignore();
             return;
         }
@@ -431,9 +429,11 @@ void QWaylandQuickItem::setFocusOnClick(bool focus)
     emit focusOnClickChanged();
 }
 
-QPointF QWaylandQuickItem::mousePressPosition() const
+bool QWaylandQuickItem::inputRegionContains(QPointF localPosition)
 {
-    return m_mousePressPosition;
+    if (QWaylandSurface *s = surface())
+        return s->inputRegionContains(localPosition.toPoint());
+    return false;
 }
 
 /*!

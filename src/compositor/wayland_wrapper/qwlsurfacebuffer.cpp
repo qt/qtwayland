@@ -155,6 +155,9 @@ void SurfaceBuffer::destroyIfUnused()
 
 QSize SurfaceBuffer::size() const
 {
+    if (!m_buffer)
+        return QSize();
+
     if (wl_shm_buffer *shmBuffer = wl_shm_buffer_get(m_buffer)) {
         int width = wl_shm_buffer_get_width(shmBuffer);
         int height = wl_shm_buffer_get_height(shmBuffer);

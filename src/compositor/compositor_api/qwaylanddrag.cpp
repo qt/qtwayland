@@ -52,6 +52,16 @@ public:
     {
     }
 
+    QtWayland::DataDevice *dataDevice()
+    {
+        return QWaylandInputDevicePrivate::get(inputDevice)->dataDevice();
+    }
+
+    const QtWayland::DataDevice *dataDevice() const
+    {
+        return QWaylandInputDevicePrivate::get(inputDevice)->dataDevice();
+    }
+
     QWaylandInputDevice *inputDevice;
 };
 
@@ -65,32 +75,49 @@ QWaylandSurface *QWaylandDrag::icon() const
 {
     Q_D(const QWaylandDrag);
 
-    const QtWayland::DataDevice *dataDevice = QWaylandInputDevicePrivate::get(d->inputDevice)->dataDevice();
+    const QtWayland::DataDevice *dataDevice = d->dataDevice();
     if (!dataDevice)
         return 0;
 
     return dataDevice->dragIcon();
 }
 
-QPointF QWaylandDrag::position() const
-{
-    Q_D(const QWaylandDrag);
-
-    const QtWayland::DataDevice *dataDevice = QWaylandInputDevicePrivate::get(d->inputDevice)->dataDevice();
-    if (!dataDevice)
-        return QPointF();
-    return dataDevice->dragIconPosition();
-}
 
 bool QWaylandDrag::visible() const
 {
     Q_D(const QWaylandDrag);
 
-    const QtWayland::DataDevice *dataDevice = QWaylandInputDevicePrivate::get(d->inputDevice)->dataDevice();
+    const QtWayland::DataDevice *dataDevice = d->dataDevice();
     if (!dataDevice)
         return false;
 
     return dataDevice->dragIcon() != 0;
+}
+
+void QWaylandDrag::dragMove(QWaylandSurface *target, const QPointF &pos)
+{
+    Q_D(QWaylandDrag);
+    QtWayland::DataDevice *dataDevice = d->dataDevice();
+    if (!dataDevice)
+        return;
+    dataDevice->dragMove(target, pos);
+}
+void QWaylandDrag::drop()
+{
+    Q_D(QWaylandDrag);
+    QtWayland::DataDevice *dataDevice = d->dataDevice();
+    if (!dataDevice)
+        return;
+    dataDevice->drop();
+}
+
+void QWaylandDrag::cancelDrag()
+{
+    Q_D(QWaylandDrag);
+    QtWayland::DataDevice *dataDevice = d->dataDevice();
+    if (!dataDevice)
+        return;
+    dataDevice->cancelDrag();
 }
 
 QT_END_NAMESPACE

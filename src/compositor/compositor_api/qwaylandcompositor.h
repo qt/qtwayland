@@ -58,7 +58,6 @@ class QWaylandCompositorPrivate;
 class QWaylandClient;
 class QWaylandSurface;
 class QWaylandInputDevice;
-class QWaylandDrag;
 class QWaylandGlobalInterface;
 class QWaylandView;
 class QWaylandOutputSpace;
@@ -113,12 +112,6 @@ public:
     void overrideSelection(const QMimeData *data);
 
     QWaylandInputDevice *defaultInputDevice() const;
-
-    QWaylandDrag *drag() const;
-
-    bool isDragging() const;
-    void sendDragMoveEvent(const QPoint &global, const QPoint &local, QWaylandSurface *surface);
-    void sendDragEndEvent();
 
     QWaylandView *createSurfaceView(QWaylandSurface *surface);
 

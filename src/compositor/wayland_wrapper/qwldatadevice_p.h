@@ -43,8 +43,6 @@
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandView;
-
 namespace QtWayland {
 
 class Compositor;
@@ -59,12 +57,15 @@ public:
 
     void setFocus(QWaylandClient *client);
 
-    void setDragFocus(QWaylandView *focus, const QPointF &localPosition);
+    void setDragFocus(QWaylandSurface *focus, const QPointF &localPosition);
 
     QWaylandSurface *dragIcon() const;
-    QPointF dragIconPosition() const;
 
     void sourceDestroyed(DataSource *source);
+
+    void dragMove(QWaylandSurface *target, const QPointF &pos);
+    void drop();
+    void cancelDrag();
 
 protected:
     void data_device_start_drag(Resource *resource, struct ::wl_resource *source, struct ::wl_resource *origin, struct ::wl_resource *icon, uint32_t serial) Q_DECL_OVERRIDE;
@@ -80,11 +81,10 @@ private:
     struct ::wl_client *m_dragClient;
     DataSource *m_dragDataSource;
 
-    QWaylandView *m_dragFocus;
+    QWaylandSurface *m_dragFocus;
     Resource *m_dragFocusResource;
 
     QWaylandSurface *m_dragIcon;
-    QPointF m_dragIconPosition;
 };
 
 }

@@ -72,11 +72,14 @@ protected:
 private slots:
     void startMove();
     void startResize(int edge);
+    void startDrag(WindowCompositorView *dragIcon);
     void setFrameOffset(const QPoint &offset);
 
 private:
+    enum GrabState { NoGrab, MoveGrab, ResizeGrab, DragGrab };
+
     WindowCompositorView *viewAt(const QPointF &point);
-    bool mouseGrab() const { return m_moveState || m_resizeState; }
+    bool mouseGrab() const { return m_grabState != NoGrab ;}
     void drawBackground();
     void sendMouseEvent(QMouseEvent *e, WindowCompositorView *target);
 
@@ -85,12 +88,12 @@ private:
     QOpenGLTexture *m_backgroundTexture;
     WindowCompositor *m_compositor;
     QPointer<WindowCompositorView> m_mouseView;
-    bool m_moveState;
-    bool m_resizeState;
+    GrabState m_grabState;
     QSize m_initialSize;
     int m_resizeEdge;
     QPointF m_mouseOffset;
     QPointF m_initialMousePos;
+    WindowCompositorView *m_dragIconView;
 };
 
 QT_END_NAMESPACE

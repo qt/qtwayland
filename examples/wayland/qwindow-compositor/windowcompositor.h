@@ -81,9 +81,11 @@ public:
     void endRender();
 
     QList<WindowCompositorView*> views() const { return m_views; }
+    void raise(WindowCompositorView *view);
 
     void handleMouseEvent(QWaylandView *target, QMouseEvent *me);
     void handleResize(WindowCompositorView *target, const QSize &initialSize, const QPoint &delta, int edge);
+    void handleDrag(WindowCompositorView *target, QMouseEvent *me);
 
 protected:
     void adjustCursorSurface(QWaylandSurface *surface, int hotspotX, int hotspotY);
@@ -91,6 +93,7 @@ protected:
 signals:
     void startMove();
     void startResize(int edge);
+    void dragStarted(WindowCompositorView *dragIcon);
     void frameOffset(const QPoint &offset);
 
 private slots:
@@ -99,6 +102,8 @@ private slots:
     void surfaceCommittedSlot();
     void viewSurfaceDestroyed();
     void onStartResize(QWaylandInputDevice *inputDevice, QWaylandShellSurface::ResizeEdge edges);
+
+    void startDrag();
 
     void triggerRender();
 

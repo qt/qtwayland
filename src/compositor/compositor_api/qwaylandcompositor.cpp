@@ -562,30 +562,6 @@ QWaylandInputDevice *QWaylandCompositor::defaultInputDevice() const
     return d->inputDevices.first();
 }
 
-QWaylandDrag *QWaylandCompositor::drag() const
-{
-    return defaultInputDevice()->drag();
-}
-
-bool QWaylandCompositor::isDragging() const
-{
-    return false;
-}
-
-void QWaylandCompositor::sendDragMoveEvent(const QPoint &global, const QPoint &local,
-                                          QWaylandSurface *surface)
-{
-    Q_UNUSED(global);
-    Q_UNUSED(local);
-    Q_UNUSED(surface);
-//    Drag::instance()->dragMove(global, local, surface);
-}
-
-void QWaylandCompositor::sendDragEndEvent()
-{
-//    Drag::instance()->dragEnd();
-}
-
 QWaylandInputDevice *QWaylandCompositor::inputDeviceFor(QInputEvent *inputEvent)
 {
     Q_D(QWaylandCompositor);

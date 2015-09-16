@@ -47,6 +47,7 @@
 #include <QtWaylandCompositor/QWaylandOutputSpace>
 #include <QtWaylandCompositor/QWaylandShellSurface>
 #include <QtWaylandCompositor/qwaylandinput.h>
+#include <QtWaylandCompositor/qwaylanddrag.h>
 
 #include <QDebug>
 
@@ -87,6 +88,7 @@ void WindowCompositor::create()
 
     connect(this, &QWaylandCompositor::surfaceCreated, this, &WindowCompositor::onSurfaceCreated);
     connect(defaultInputDevice(), &QWaylandInputDevice::cursorSurfaceRequest, this, &WindowCompositor::adjustCursorSurface);
+    connect(defaultInputDevice()->drag(), &QWaylandDrag::dragStarted, this, &WindowCompositor::startDrag);
 }
 
 void WindowCompositor::onSurfaceCreated(QWaylandSurface *surface)
@@ -217,4 +219,33 @@ void WindowCompositor::handleResize(WindowCompositorView *target, const QSize &i
     QWaylandShellSurface::ResizeEdge edges = QWaylandShellSurface::ResizeEdge(edge);
     QSize newSize = shellSurface->sizeForResize(initialSize, delta, edges);
     shellSurface->sendConfigure(newSize, edges);
+}
+
+void WindowCompositor::startDrag()
+{
+    QWaylandDrag *currentDrag = defaultInputDevice()->drag();
+    Q_ASSERT(currentDrag);
+    WindowCompositorView *iconView = findView(currentDrag->icon());
+
+    emit dragStarted(iconView);
+}
+
+void WindowCompositor::handleDrag(WindowCompositorView *target, QMouseEvent *me)
+{
+    QPointF pos = me->localPos();
+    QWaylandSurface *surface = 0;
+    if (target) {
+        pos -= target->position();
+        surface = target->surface();
+    }
+    QWaylandDrag *currentDrag = defaultInputDevice()->drag();
+    currentDrag->dragMove(surface, pos);
+    if (me->buttons() == Qt::NoButton)
+        currentDrag->drop();
+}
+
+void WindowCompositor::raise(WindowCompositorView *view)
+{
+    m_views.removeOne(view);
+    m_views.append(view);
 }

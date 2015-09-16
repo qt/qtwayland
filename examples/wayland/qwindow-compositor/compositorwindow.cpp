@@ -52,8 +52,7 @@
 CompositorWindow::CompositorWindow()
     : m_backgroundTexture(0)
     , m_compositor(0)
-    , m_moveState(false)
-    , m_resizeState(false)
+    , m_grabState(NoGrab)
 {
 }
 
@@ -61,6 +60,7 @@ void CompositorWindow::setCompositor(WindowCompositor *comp) {
     m_compositor = comp;
     connect(m_compositor, &WindowCompositor::startMove, this, &CompositorWindow::startMove);
     connect(m_compositor, &WindowCompositor::startResize, this, &CompositorWindow::startResize);
+    connect(m_compositor, &WindowCompositor::dragStarted, this, &CompositorWindow::startDrag);
     connect(m_compositor, &WindowCompositor::frameOffset, this, &CompositorWindow::setFrameOffset);
 }
 
@@ -125,6 +125,8 @@ WindowCompositorView *CompositorWindow::viewAt(const QPointF &point)
 {
     WindowCompositorView *ret = 0;
     Q_FOREACH (WindowCompositorView *view, m_compositor->views()) {
+        if (view == m_dragIconView)
+            continue;
         QPointF topLeft = view->position();
         QWaylandSurface *surface = view->surface();
         QRectF geo(topLeft, surface->size());
@@ -136,14 +138,21 @@ WindowCompositorView *CompositorWindow::viewAt(const QPointF &point)
 
 void CompositorWindow::startMove()
 {
-    m_moveState = true;
+    m_grabState = MoveGrab;
 }
 
 void CompositorWindow::startResize(int edge)
 {
     m_initialSize = m_mouseView->surface()->size();
-    m_resizeState = true;
+    m_grabState = ResizeGrab;
     m_resizeEdge = edge;
+}
+
+void CompositorWindow::startDrag(WindowCompositorView *dragIcon)
+{
+    m_grabState = DragGrab;
+    m_dragIconView = dragIcon;
+    m_compositor->raise(dragIcon);
 }
 
 void CompositorWindow::setFrameOffset(const QPoint &offset)
@@ -161,11 +170,10 @@ void CompositorWindow::mousePressEvent(QMouseEvent *e)
         if (!m_mouseView)
             return;
 
-        if (m_mouseView && (e->modifiers() == Qt::AltModifier ||
-                            e->modifiers() == Qt::MetaModifier)) {
-            //start move
-            m_moveState = true;
-        }
+        if (e->modifiers() == Qt::AltModifier || e->modifiers() == Qt::MetaModifier)
+            m_grabState = MoveGrab; //start move
+        else
+            m_compositor->raise(m_mouseView);
         m_initialMousePos = e->localPos();
         m_mouseOffset = e->localPos() - m_mouseView->position();
 
@@ -180,27 +188,44 @@ void CompositorWindow::mouseReleaseEvent(QMouseEvent *e)
     if (!mouseGrab())
         sendMouseEvent(e, m_mouseView);
     if (e->buttons() == Qt::NoButton) {
+        if (m_grabState == DragGrab) {
+            WindowCompositorView *view = viewAt(e->localPos());
+            m_compositor->handleDrag(view, e);
+        }
         m_mouseView = 0;
-        m_moveState = false;
-        m_resizeState = false;
+        m_grabState = NoGrab;
     }
 }
 
 void CompositorWindow::mouseMoveEvent(QMouseEvent *e)
 {
-    if (mouseGrab()) {
-        if (m_moveState) {
-            m_mouseView->setPosition(e->localPos() - m_mouseOffset);
-            update();
-        } else if (m_resizeState) {
-            QPoint delta = (e->localPos() - m_initialMousePos).toPoint();
-            m_compositor->handleResize(m_mouseView, m_initialSize, delta, m_resizeEdge);
-        }
-    } else {
+    switch (m_grabState) {
+    case NoGrab: {
         WindowCompositorView *view = m_mouseView ? m_mouseView.data() : viewAt(e->localPos());
         sendMouseEvent(e, view);
         if (!view)
             setCursor(Qt::ArrowCursor);
+    }
+        break;
+    case MoveGrab: {
+        m_mouseView->setPosition(e->localPos() - m_mouseOffset);
+        update();
+    }
+        break;
+    case ResizeGrab: {
+        QPoint delta = (e->localPos() - m_initialMousePos).toPoint();
+        m_compositor->handleResize(m_mouseView, m_initialSize, delta, m_resizeEdge);
+    }
+        break;
+    case DragGrab: {
+        WindowCompositorView *view = viewAt(e->localPos());
+        m_compositor->handleDrag(view, e);
+        if (m_dragIconView) {
+            m_dragIconView->setPosition(e->localPos());
+            update();
+        }
+    }
+        break;
     }
 }
 

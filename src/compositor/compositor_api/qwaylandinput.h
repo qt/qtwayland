@@ -53,7 +53,6 @@ class QKeyEvent;
 class QTouchEvent;
 class QWaylandView;
 class QInputEvent;
-class QWaylandOutputSpace;
 class QWaylandInputDevicePrivate;
 class QWaylandDrag;
 class QWaylandKeyboard;
@@ -111,9 +110,6 @@ public:
     void setKeymap(const QWaylandKeymap &keymap);
 
     QWaylandTouch *touch() const;
-
-    QWaylandOutputSpace *outputSpace() const;
-    void setOutputSpace(QWaylandOutputSpace *outputSpace);
 
     QWaylandCompositor *compositor() const;
 

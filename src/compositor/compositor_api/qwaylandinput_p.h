@@ -103,7 +103,6 @@ protected:
 
 private:
     QWaylandCompositor *compositor;
-    QWaylandOutputSpace *outputSpace;
     QWaylandView *mouseFocus;
     QWaylandInputDevice::CapabilityFlags capabilities;
 

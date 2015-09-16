@@ -52,7 +52,7 @@ class Q_COMPOSITOR_EXPORT QWaylandQuickOutput : public QWaylandOutput
     Q_PROPERTY(bool automaticFrameCallback READ automaticFrameCallback WRITE setAutomaticFrameCallback NOTIFY automaticFrameCallbackChanged)
 public:
     QWaylandQuickOutput();
-    QWaylandQuickOutput(QWaylandOutputSpace *outputSpace, QWindow *window);
+    QWaylandQuickOutput(QWaylandCompositor *compositor, QWindow *window);
 
     void update() Q_DECL_OVERRIDE;
 

@@ -373,7 +373,7 @@ void QWaylandQuickItem::handleSurfaceChanged()
             emit originChanged();
         }
         if (window()) {
-            QWaylandOutput *output = newSurface->compositor()->output(window());
+            QWaylandOutput *output = newSurface->compositor()->outputFor(window());
             d->view->setOutput(output);
         }
     }
@@ -499,7 +499,7 @@ void QWaylandQuickItem::updateWindow()
     }
 
     if (compositor() && d->connectedWindow) {
-        QWaylandOutput *output = compositor()->output(d->connectedWindow);
+        QWaylandOutput *output = compositor()->outputFor(d->connectedWindow);
         Q_ASSERT(output);
         d->view->setOutput(output);
     }

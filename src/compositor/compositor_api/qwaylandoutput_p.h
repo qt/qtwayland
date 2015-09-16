@@ -42,7 +42,6 @@
 #include <QtWaylandCompositor/qwaylandexport.h>
 #include <QtWaylandCompositor/QWaylandOutput>
 #include <QtWaylandCompositor/QWaylandClient>
-#include <QtWaylandCompositor/QWaylandOutputSpace>
 #include <QtWaylandCompositor/QWaylandSurface>
 
 #include <QtWaylandCompositor/private/qwayland-server-wayland.h>
@@ -94,13 +93,12 @@ public:
     void removeView(QWaylandView *view, QWaylandSurface *surface);
     void sendGeometryInfo();
 
-    QWaylandCompositor *compositor() const { return outputSpace->compositor(); }
 protected:
     void output_bind_resource(Resource *resource) Q_DECL_OVERRIDE;
 
 
 private:
-    QWaylandOutputSpace *outputSpace;
+    QWaylandCompositor *compositor;
     QWindow *window;
     QString manufacturer;
     QString model;

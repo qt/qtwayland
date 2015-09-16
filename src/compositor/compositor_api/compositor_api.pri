@@ -18,8 +18,6 @@ HEADERS += \
     compositor_api/qwaylandoutput.h \
     compositor_api/qwaylanddrag.h \
     compositor_api/qwaylandbufferref.h \
-    compositor_api/qwaylandoutputspace.h \
-    compositor_api/qwaylandoutputspace_p.h \
     compositor_api/qwaylanddestroylistener.h \
     compositor_api/qwaylanddestroylistener_p.h \
     compositor_api/qwaylandview.h \
@@ -37,7 +35,6 @@ SOURCES += \
     compositor_api/qwaylandoutput.cpp \
     compositor_api/qwaylanddrag.cpp \
     compositor_api/qwaylandbufferref.cpp \
-    compositor_api/qwaylandoutputspace.cpp \
     compositor_api/qwaylanddestroylistener.cpp \
     compositor_api/qwaylandview.cpp \
 

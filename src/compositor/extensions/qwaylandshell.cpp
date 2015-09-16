@@ -41,7 +41,6 @@
 #include <QtWaylandCompositor/QWaylandCompositor>
 #include <QtWaylandCompositor/QWaylandView>
 #include <QtWaylandCompositor/QWaylandOutput>
-#include <QtWaylandCompositor/QWaylandOutputSpace>
 #include <QtWaylandCompositor/QWaylandClient>
 
 #include <QtCore/QObject>

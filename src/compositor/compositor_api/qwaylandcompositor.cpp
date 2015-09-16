@@ -146,8 +146,6 @@ QWaylandCompositorPrivate::QWaylandCompositorPrivate(QWaylandCompositor *composi
 void QWaylandCompositorPrivate::init()
 {
     Q_Q(QWaylandCompositor);
-    outputSpaces.append(new QWaylandOutputSpace(q));
-
     QStringList arguments = QCoreApplication::instance()->arguments();
 
     int socketArg = arguments.indexOf(QLatin1String("--wayland-socket-name"));
@@ -197,7 +195,7 @@ QWaylandCompositorPrivate::~QWaylandCompositorPrivate()
 {
     qDeleteAll(clients);
 
-    qDeleteAll(outputSpaces);
+    qDeleteAll(outputs);
 
     delete data_device_manager;
 
@@ -445,12 +443,11 @@ QList<QWaylandSurface *> QWaylandCompositor::surfaces() const
     return d->all_surfaces;
 }
 
-QWaylandOutput *QWaylandCompositor::output(QWindow *window) const
+QWaylandOutput *QWaylandCompositor::outputFor(QWindow *window) const
 {
     Q_D(const QWaylandCompositor);
-    foreach (QWaylandOutputSpace *outputSpace, d->outputSpaces) {
-        QWaylandOutput *output = outputSpace->output(window);
-        if (output)
+    foreach (QWaylandOutput *output, d->outputs) {
+        if (output->window() == window)
             return output;
     }
 
@@ -463,38 +460,10 @@ QWaylandOutput *QWaylandCompositor::defaultOutput() const
     return d->defaultOutput();
 }
 
-QWaylandOutputSpace *QWaylandCompositor::defaultOutputSpace() const
+QList<QWaylandOutput *> QWaylandCompositor::outputs() const
 {
     Q_D(const QWaylandCompositor);
-    return d->defaultOutputSpace();
-}
-
-void QWaylandCompositor::setDefaultOutputSpace(QWaylandOutputSpace *outputSpace)
-{
-    Q_D(QWaylandCompositor);
-
-    Q_ASSERT(!d->outputSpaces.isEmpty());
-    if (d->outputSpaces.first() == outputSpace)
-        return;
-    if (d->outputSpaces.removeOne(outputSpace)) {
-        d->outputSpaces.prepend(outputSpace);
-        defaultOutputSpaceChanged();
-    }
-}
-
-void QWaylandCompositor::addOutputSpace(QWaylandOutputSpace *outputSpace)
-{
-    Q_D(QWaylandCompositor);
-    Q_ASSERT(!d->outputSpaces.contains(outputSpace));
-    d->outputSpaces.append(outputSpace);
-    outputSpacesChanged();
-}
-
-void QWaylandCompositor::removeOutputSpace(QWaylandOutputSpace *outputSpace)
-{
-    Q_D(QWaylandCompositor);
-    if (d->outputSpaces.removeOne(outputSpace))
-        outputSpacesChanged();
+    return d->outputs;
 }
 
 uint QWaylandCompositor::currentTimeMsecs() const

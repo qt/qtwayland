@@ -42,7 +42,7 @@
 #include <QtWaylandCompositor/QWaylandView>
 
 #include <QtWaylandCompositor/private/qwaylandsurface_p.h>
-#include <QtWaylandCompositor/private/qwaylandoutputspace_p.h>
+#include <QtWaylandCompositor/private/qwaylandcompositor_p.h>
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QtMath>
@@ -100,7 +100,7 @@ static QtWaylandServer::wl_output::transform toWlTransform(const QWaylandOutput:
 
 QWaylandOutputPrivate::QWaylandOutputPrivate()
     : QtWaylandServer::wl_output()
-    , outputSpace(Q_NULLPTR)
+    , compositor(Q_NULLPTR)
     , window(Q_NULLPTR)
     , subpixel(QWaylandOutput::SubpixelUnknown)
     , transform(QWaylandOutput::TransformNormal)
@@ -116,11 +116,6 @@ QWaylandOutputPrivate::QWaylandOutputPrivate()
 
 QWaylandOutputPrivate::~QWaylandOutputPrivate()
 {
-    Q_Q(QWaylandOutput);
-    if (outputSpace) {
-        QWaylandOutputSpacePrivate::get(outputSpace)->removeOutput(q);
-        outputSpace = Q_NULLPTR;
-    }
 }
 
 void QWaylandOutputPrivate::output_bind_resource(Resource *resource)
@@ -191,17 +186,20 @@ QWaylandOutput::QWaylandOutput()
 {
 }
 
-QWaylandOutput::QWaylandOutput(QWaylandOutputSpace *outputSpace, QWindow *window)
+QWaylandOutput::QWaylandOutput(QWaylandCompositor *compositor, QWindow *window)
     : QObject(*new QWaylandOutputPrivate())
 {
     Q_D(QWaylandOutput);
-    d->outputSpace = outputSpace;
+    d->compositor = compositor;
     d->window = window;
-    QWaylandCompositorPrivate::get(outputSpace->compositor())->addPolishObject(this);
+    QWaylandCompositorPrivate::get(compositor)->addPolishObject(this);
 }
 
 QWaylandOutput::~QWaylandOutput()
 {
+    Q_D(QWaylandOutput);
+    if (d->compositor)
+        QWaylandCompositorPrivate::get(d->compositor)->removeOutput(this);
 }
 
 void QWaylandOutput::initialize()
@@ -209,20 +207,19 @@ void QWaylandOutput::initialize()
     Q_D(QWaylandOutput);
 
     Q_ASSERT(!d->initialized);
-    Q_ASSERT(d->outputSpace);
+    Q_ASSERT(d->compositor);
+    Q_ASSERT(d->compositor->isCreated());
     Q_ASSERT(d->window);
-    Q_ASSERT(d->outputSpace->compositor());
-    Q_ASSERT(d->outputSpace->compositor()->isCreated());
 
     d->mode.size = d->window->size();
 
-    QWaylandOutputSpacePrivate::get(d->outputSpace)->addOutput(this);
+    QWaylandCompositorPrivate::get(d->compositor)->addOutput(this);
 
     QObject::connect(d->window, &QWindow::widthChanged, this, &QWaylandOutput::setWidth);
     QObject::connect(d->window, &QWindow::heightChanged, this, &QWaylandOutput::setHeight);
     QObject::connect(d->window, &QObject::destroyed, this, &QWaylandOutput::handleWindowDestroyed);
 
-    d->init(d->compositor()->display(), 2);
+    d->init(d->compositor->display(), 2);
 
     d->initialized = true;
 }
@@ -242,45 +239,39 @@ struct ::wl_resource *QWaylandOutput::resourceForClient(QWaylandClient *client) 
     return Q_NULLPTR;
 }
 
-QWaylandOutputSpace *QWaylandOutput::outputSpace() const
-{
-    return d_func()->outputSpace;
-}
-
-void QWaylandOutput::setOutputSpace(QWaylandOutputSpace *outputSpace)
-{
-    Q_D(QWaylandOutput);
-
-    if (d->outputSpace == outputSpace)
-        return;
-
-    if (d->initialized) {
-        qWarning("Setting QWaylandOutputSpace %p on QWaylandOutput %p is not supported after QWaylandOutput has been initialized\n", outputSpace, this);
-        return;
-    }
-    if (d->outputSpace && d->outputSpace->compositor() != outputSpace->compositor()) {
-        qWarning("Possible initialization error. Moving QWaylandOutput %p between compositor instances.\n", this);
-    }
-
-    if (!d->outputSpace) {
-        QWaylandCompositorPrivate::get(outputSpace->compositor())->addPolishObject(this);
-    }
-    d->outputSpace = outputSpace;
-    emit outputSpaceChanged();
-}
-
 void QWaylandOutput::update()
 {
-    QRect rect(QPoint(0, 0), window()->size());
-    QRegion region(rect);
-    QExposeEvent *event = new QExposeEvent(region);
-    QCoreApplication::postEvent(window(), event);
+    Q_D(QWaylandOutput);
+    if (!d->window)
+        return;
+    d->window->requestUpdate();
 }
 
 QWaylandCompositor *QWaylandOutput::compositor() const
 {
-    return d_func()->compositor();
+    return d_func()->compositor;
 }
+
+void QWaylandOutput::setCompositor(QWaylandCompositor *compositor)
+{
+    Q_D(QWaylandOutput);
+
+    if (d->compositor == compositor)
+        return;
+
+    if (d->initialized) {
+        qWarning("Setting QWaylandCompositor %p on QWaylandOutput %p is not supported after QWaylandOutput has been initialized\n", compositor, this);
+        return;
+    }
+    if (d->compositor && d->compositor != compositor) {
+        qWarning("Possible initialization error. Moving QWaylandOutput %p between compositor instances.\n", this);
+    }
+
+    d->compositor = compositor;
+
+    QWaylandCompositorPrivate::get(compositor)->addPolishObject(this);
+}
+
 
 QString QWaylandOutput::manufacturer() const
 {
@@ -543,7 +534,7 @@ void QWaylandOutput::sendFrameCallbacks()
                 surfacemapper.surface->sendFrameCallbacks();
         }
     }
-    wl_display_flush_clients(d->compositor()->display());
+    wl_display_flush_clients(d->compositor->display());
 }
 
 void QWaylandOutput::surfaceEnter(QWaylandSurface *surface)
@@ -580,11 +571,6 @@ void QWaylandOutput::setHeight(int newHeight)
     QSize s = d->mode.size;
     s.setHeight(newHeight);
     setGeometry(QRect(d->position, s));
-}
-
-QPointF QWaylandOutput::mapToOutputSpace(const QPointF &point)
-{
-    return point + d_func()->position;
 }
 
 void QWaylandOutput::handleWindowDestroyed()

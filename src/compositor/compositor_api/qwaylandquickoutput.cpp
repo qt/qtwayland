@@ -47,8 +47,8 @@ QWaylandQuickOutput::QWaylandQuickOutput()
 {
 }
 
-QWaylandQuickOutput::QWaylandQuickOutput(QWaylandOutputSpace *outputSpace, QWindow *window)
-    : QWaylandOutput(outputSpace, window)
+QWaylandQuickOutput::QWaylandQuickOutput(QWaylandCompositor *compositor, QWindow *window)
+    : QWaylandOutput(compositor, window)
     , m_updateScheduled(false)
     , m_automaticFrameCallback(true)
 {

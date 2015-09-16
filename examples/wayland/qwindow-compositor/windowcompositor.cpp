@@ -44,7 +44,6 @@
 #include <QKeyEvent>
 #include <QTouchEvent>
 
-#include <QtWaylandCompositor/QWaylandOutputSpace>
 #include <QtWaylandCompositor/QWaylandShellSurface>
 #include <QtWaylandCompositor/qwaylandinput.h>
 #include <QtWaylandCompositor/qwaylanddrag.h>
@@ -84,7 +83,7 @@ WindowCompositor::~WindowCompositor()
 void WindowCompositor::create()
 {
     QWaylandCompositor::create();
-    new QWaylandOutput(defaultOutputSpace(), m_window);
+    new QWaylandOutput(this, m_window);
 
     connect(this, &QWaylandCompositor::surfaceCreated, this, &WindowCompositor::onSurfaceCreated);
     connect(defaultInputDevice(), &QWaylandInputDevice::cursorSurfaceRequest, this, &WindowCompositor::adjustCursorSurface);
@@ -99,7 +98,7 @@ void WindowCompositor::onSurfaceCreated(QWaylandSurface *surface)
     connect(surface, &QWaylandSurface::offsetForNextFrame, this, &WindowCompositor::frameOffset);
     WindowCompositorView *view = new WindowCompositorView;
     view->setSurface(surface);
-    view->setOutput(output(m_window));
+    view->setOutput(outputFor(m_window));
     m_views << view;
     connect(view, &QWaylandView::surfaceDestroyed, this, &WindowCompositor::viewSurfaceDestroyed);
 }

@@ -55,7 +55,6 @@ QWaylandInputDevicePrivate::QWaylandInputDevicePrivate(QWaylandInputDevice *inpu
     : QObjectPrivate()
     , QtWaylandServer::wl_seat(compositor->display(), 3)
     , compositor(compositor)
-    , outputSpace(compositor->defaultOutputSpace())
     , mouseFocus(Q_NULLPTR)
     , capabilities()
     , data_device()
@@ -311,18 +310,6 @@ void QWaylandInputDevice::setMouseFocus(QWaylandView *view)
     QWaylandView *oldFocus = d->mouseFocus;
     d->mouseFocus = view;
     emit mouseFocusChanged(d->mouseFocus, oldFocus);
-}
-
-QWaylandOutputSpace *QWaylandInputDevice::outputSpace() const
-{
-    Q_D(const QWaylandInputDevice);
-    return d->outputSpace;
-}
-
-void QWaylandInputDevice::setOutputSpace(QWaylandOutputSpace *outputSpace)
-{
-    Q_D(QWaylandInputDevice);
-    d->outputSpace = outputSpace;
 }
 
 QWaylandCompositor *QWaylandInputDevice::compositor() const

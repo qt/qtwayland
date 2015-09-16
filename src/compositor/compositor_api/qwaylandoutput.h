@@ -61,8 +61,8 @@ class Q_COMPOSITOR_EXPORT QWaylandOutput : public QObject, public QWaylandExtens
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandOutput)
+    Q_PROPERTY(QWaylandCompositor *compositor READ compositor WRITE setCompositor NOTIFY compositorChanged)
     Q_PROPERTY(QWindow *window READ window WRITE setWindow NOTIFY windowChanged)
-    Q_PROPERTY(QWaylandOutputSpace *outputSpace READ outputSpace WRITE setOutputSpace NOTIFY outputSpaceChanged)
     Q_PROPERTY(QString manufacturer READ manufacturer WRITE setManufacturer NOTIFY manufacturerChanged)
     Q_PROPERTY(QString model READ model WRITE setModel NOTIFY modelChanged)
     Q_PROPERTY(QPoint position READ position WRITE setPosition NOTIFY positionChanged)
@@ -73,7 +73,6 @@ class Q_COMPOSITOR_EXPORT QWaylandOutput : public QObject, public QWaylandExtens
     Q_PROPERTY(QWaylandOutput::Subpixel subpixel READ subpixel WRITE setSubpixel NOTIFY subpixelChanged)
     Q_PROPERTY(QWaylandOutput::Transform transform READ transform WRITE setTransform NOTIFY transformChanged)
     Q_PROPERTY(int scaleFactor READ scaleFactor WRITE setScaleFactor NOTIFY scaleFactorChanged)
-    Q_PROPERTY(QWaylandCompositor *compositor READ compositor CONSTANT)
     Q_PROPERTY(bool sizeFollowsWindow READ sizeFollowsWindow WRITE setSizeFollowsWindow NOTIFY sizeFollowsWindowChanged)
     Q_ENUMS(Subpixel Transform)
 
@@ -105,19 +104,17 @@ public:
     };
 
     QWaylandOutput();
-    QWaylandOutput(QWaylandOutputSpace *outputSpace, QWindow *window);
+    QWaylandOutput(QWaylandCompositor *compositor, QWindow *window);
     ~QWaylandOutput();
 
     static QWaylandOutput *fromResource(wl_resource *resource);
     struct ::wl_resource *resourceForClient(QWaylandClient *client) const;
 
     QWaylandCompositor *compositor() const;
+    void setCompositor(QWaylandCompositor *compositor);
 
     QWindow *window() const;
     void setWindow(QWindow *window);
-
-    QWaylandOutputSpace *outputSpace() const;
-    void setOutputSpace(QWaylandOutputSpace *outputSpace);
 
     QString manufacturer() const;
     void setManufacturer(const QString &manufacturer);
@@ -165,10 +162,8 @@ public:
 
     virtual void update();
 
-    Q_INVOKABLE QPointF mapToOutputSpace(const QPointF &point);
-
 Q_SIGNALS:
-    void outputSpaceChanged();
+    void compositorChanged();
     void windowChanged();
     void positionChanged();
     void geometryChanged();

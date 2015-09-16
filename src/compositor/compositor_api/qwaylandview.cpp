@@ -37,10 +37,11 @@
 #include "qwaylandview.h"
 #include "qwaylandview_p.h"
 #include "qwaylandsurface.h"
-#include "qwaylandsurface_p.h"
 #include <QtWaylandCompositor/QWaylandInputDevice>
 #include <QtWaylandCompositor/QWaylandCompositor>
-#include <QtWaylandCompositor/private/qwaylandoutputspace_p.h>
+
+#include <QtWaylandCompositor/private/qwaylandsurface_p.h>
+#include <QtWaylandCompositor/private/qwaylandoutput_p.h>
 
 #include <QtCore/QMutex>
 

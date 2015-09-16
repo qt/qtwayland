@@ -60,7 +60,6 @@ class QWaylandSurface;
 class QWaylandInputDevice;
 class QWaylandGlobalInterface;
 class QWaylandView;
-class QWaylandOutputSpace;
 class QWaylandPointer;
 class QWaylandKeyboard;
 class QWaylandTouch;
@@ -71,7 +70,6 @@ class Q_COMPOSITOR_EXPORT QWaylandCompositor : public QObject, public QWaylandEx
     Q_DECLARE_PRIVATE(QWaylandCompositor)
     Q_PROPERTY(QByteArray socketName READ socketName WRITE setSocketName)
     Q_PROPERTY(bool retainedSelection READ retainedSelectionEnabled WRITE setRetainedSelectionEnabled)
-    Q_PROPERTY(QWaylandOutputSpace *defaultOutputSpace READ defaultOutputSpace WRITE setDefaultOutputSpace NOTIFY defaultOutputSpaceChanged)
     Q_PROPERTY(QWaylandOutput *defaultOutput READ defaultOutput NOTIFY defaultOutputChanged)
     Q_PROPERTY(bool useHardwareIntegrationExtension READ useHardwareIntegrationExtension WRITE setUseHardwareIntegrationExtension NOTIFY useHardwareIntegrationExtensionChanged)
     Q_PROPERTY(QWaylandInputDevice *defaultInputDevice READ defaultInputDevice CONSTANT)
@@ -96,14 +94,10 @@ public:
     QList<QWaylandSurface *> surfaces() const;
     QList<QWaylandSurface *> surfacesForClient(QWaylandClient* client) const;
 
-    Q_INVOKABLE QWaylandOutput *output(QWindow *window) const;
+    Q_INVOKABLE QWaylandOutput *outputFor(QWindow *window) const;
 
     QWaylandOutput *defaultOutput() const;
-
-    QWaylandOutputSpace *defaultOutputSpace() const;
-    void setDefaultOutputSpace(QWaylandOutputSpace *outputSpace);
-    void addOutputSpace(QWaylandOutputSpace *outputSpace);
-    void removeOutputSpace(QWaylandOutputSpace *outputSpace);
+    QList<QWaylandOutput *> outputs() const;
 
     uint currentTimeMsecs() const;
 
@@ -128,9 +122,7 @@ Q_SIGNALS:
     void surfaceCreated(QWaylandSurface *surface);
     void surfaceAboutToBeDestroyed(QWaylandSurface *surface);
 
-    void defaultOutputSpaceChanged();
     void defaultOutputChanged();
-    void outputSpacesChanged();
 
     void useHardwareIntegrationExtensionChanged();
 protected:

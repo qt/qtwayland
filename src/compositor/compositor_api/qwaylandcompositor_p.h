@@ -40,7 +40,6 @@
 
 #include <QtWaylandCompositor/qwaylandexport.h>
 #include <QtWaylandCompositor/QWaylandCompositor>
-#include <QtWaylandCompositor/QWaylandOutputSpace>
 #include <QtCore/private/qobject_p.h>
 #include <QtCore/QSet>
 #include <QtCore/QElapsedTimer>
@@ -72,8 +71,7 @@ public:
     void destroySurface(QWaylandSurface *surface);
     void unregisterSurface(QWaylandSurface *surface);
 
-    QWaylandOutput *defaultOutput() const { return defaultOutputSpace()->defaultOutput(); }
-    QWaylandOutputSpace *defaultOutputSpace() const { return outputSpaces.first(); }
+    QWaylandOutput *defaultOutput() const { return outputs.size() ? outputs.first() : Q_NULLPTR; }
 
     inline QtWayland::ClientBufferIntegration *clientBufferIntegration() const;
     inline QtWayland::ServerBufferIntegration *serverBufferIntegration() const;
@@ -92,6 +90,9 @@ public:
     inline void removeClient(QWaylandClient *client);
 
     void addPolishObject(QObject *object);
+
+    inline void addOutput(QWaylandOutput *output);
+    inline void removeOutput(QWaylandOutput *output);
 protected:
     void compositor_create_surface(Resource *resource, uint32_t id) Q_DECL_OVERRIDE;
     void compositor_create_region(Resource *resource, uint32_t id) Q_DECL_OVERRIDE;
@@ -109,8 +110,8 @@ protected:
     struct wl_display *display;
 
     QList<QWaylandInputDevice *> inputDevices;
+    QList<QWaylandOutput *> outputs;
 
-    QList<QWaylandOutputSpace *> outputSpaces;
     QList<QWaylandSurface *> all_surfaces;
 
     QtWayland::DataDeviceManager *data_device_manager;
@@ -166,6 +167,20 @@ void QWaylandCompositorPrivate::removeClient(QWaylandClient *client)
 {
     Q_ASSERT(clients.contains(client));
     clients.removeOne(client);
+}
+
+void QWaylandCompositorPrivate::addOutput(QWaylandOutput *output)
+{
+    Q_ASSERT(output);
+    Q_ASSERT(!outputs.contains(output));
+    outputs.append(output);
+}
+
+void QWaylandCompositorPrivate::removeOutput(QWaylandOutput *output)
+{
+    Q_ASSERT(output);
+    Q_ASSERT(outputs.count(output) == 1);
+    outputs.removeOne(output);
 }
 
 QT_END_NAMESPACE

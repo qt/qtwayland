@@ -39,7 +39,6 @@
 
 #include <QtWaylandCompositor/private/qwayland-server-wayland.h>
 #include <QtWaylandCompositor/QWaylandInputDevice>
-#include <QtWaylandCompositor/QWaylandOutputSpace>
 
 QT_BEGIN_NAMESPACE
 
@@ -72,7 +71,6 @@ protected:
     void data_device_set_selection(Resource *resource, struct ::wl_resource *source, uint32_t serial) Q_DECL_OVERRIDE;
 
 private:
-    QWaylandOutputSpace *outputSpace() const { return m_inputDevice->outputSpace(); }
     QWaylandCompositor *m_compositor;
     QWaylandInputDevice *m_inputDevice;
 

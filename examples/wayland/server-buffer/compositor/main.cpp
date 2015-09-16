@@ -42,7 +42,6 @@
 #include "qwaylandquickcompositor.h"
 #include "qwaylandsurface.h"
 #include "qwaylandquickitem.h"
-#include "qwaylandoutputspace.h"
 
 #include <QGuiApplication>
 #include <QTimer>
@@ -86,7 +85,7 @@ public:
         m_view.setResizeMode(QQuickView::SizeRootObjectToView);
         m_view.setColor(Qt::black);
         m_view.create();
-        m_output = new QWaylandQuickOutput(defaultOutputSpace(), &m_view);
+        m_output = new QWaylandQuickOutput(this, &m_view);
 
         connect(&m_view, &QQuickView::afterRendering, this, &QmlCompositor::sendCallbacks);
 

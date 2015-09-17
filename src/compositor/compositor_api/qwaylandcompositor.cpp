@@ -301,6 +301,7 @@ void QWaylandCompositorPrivate::initializeDefaultInputDevice()
 {
     Q_Q(QWaylandCompositor);
     inputDevices.append(q->createInputDevice());
+    q->defaultInputDeviceChanged();
 }
 
 void QWaylandCompositorPrivate::loadClientBufferIntegration()
@@ -528,7 +529,9 @@ void QWaylandCompositor::overrideSelection(const QMimeData *data)
 QWaylandInputDevice *QWaylandCompositor::defaultInputDevice() const
 {
     Q_D(const QWaylandCompositor);
-    return d->inputDevices.first();
+    if (d->inputDevices.size())
+        return d->inputDevices.first();
+    return Q_NULLPTR;
 }
 
 QWaylandInputDevice *QWaylandCompositor::inputDeviceFor(QInputEvent *inputEvent)

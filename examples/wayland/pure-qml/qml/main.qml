@@ -42,13 +42,12 @@ import QtQuick 2.0
 import QtWayland.Compositor 1.0
 
 WaylandCompositor {
-    id: compositor
+    id: comp
 
     property var primarySurfacesArea: null
 
-    Component {
-        id: screenComponent
-        Screen { }
+    Screen {
+        compositor: comp
     }
 
     Component {
@@ -80,12 +79,8 @@ WaylandCompositor {
     ]
 
     onCreateSurface: {
-        var surface = surfaceComponent.createObject(compositor, { } );
-        surface.initialize(compositor, client, id, version);
+        var surface = surfaceComponent.createObject(comp, { } );
+        surface.initialize(comp, client, id, version);
 
-    }
-
-    Component.onCompleted: {
-        screenComponent.createObject(compositor, { "outputSpace" : defaultOutputSpace } );
     }
 }

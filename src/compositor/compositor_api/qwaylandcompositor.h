@@ -72,7 +72,7 @@ class Q_COMPOSITOR_EXPORT QWaylandCompositor : public QObject, public QWaylandEx
     Q_PROPERTY(bool retainedSelection READ retainedSelectionEnabled WRITE setRetainedSelectionEnabled)
     Q_PROPERTY(QWaylandOutput *defaultOutput READ defaultOutput NOTIFY defaultOutputChanged)
     Q_PROPERTY(bool useHardwareIntegrationExtension READ useHardwareIntegrationExtension WRITE setUseHardwareIntegrationExtension NOTIFY useHardwareIntegrationExtensionChanged)
-    Q_PROPERTY(QWaylandInputDevice *defaultInputDevice READ defaultInputDevice CONSTANT)
+    Q_PROPERTY(QWaylandInputDevice *defaultInputDevice READ defaultInputDevice NOTIFY defaultInputDeviceChanged)
 
 public:
     QWaylandCompositor(QObject *parent = 0);
@@ -123,6 +123,7 @@ Q_SIGNALS:
     void surfaceAboutToBeDestroyed(QWaylandSurface *surface);
 
     void defaultOutputChanged();
+    void defaultInputDeviceChanged();
 
     void useHardwareIntegrationExtensionChanged();
 protected:

@@ -183,7 +183,7 @@ void QWaylandTouch::sendFullTouchEvent(QTouchEvent *event)
 void QWaylandTouch::addClient(QWaylandClient *client, uint32_t id)
 {
     Q_D(QWaylandTouch);
-    d->add(client->client(), id);
+    d->add(client->client(), id, 3);
 }
 
 struct wl_resource *QWaylandTouch::focusResource() const

@@ -172,7 +172,8 @@ void QWaylandCompositorPrivate::removeClient(QWaylandClient *client)
 void QWaylandCompositorPrivate::addOutput(QWaylandOutput *output)
 {
     Q_ASSERT(output);
-    Q_ASSERT(!outputs.contains(output));
+    if (outputs.contains(output))
+        return;
     outputs.append(output);
 }
 

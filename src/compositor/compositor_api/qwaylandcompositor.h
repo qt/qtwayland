@@ -70,7 +70,7 @@ class Q_COMPOSITOR_EXPORT QWaylandCompositor : public QObject, public QWaylandEx
     Q_DECLARE_PRIVATE(QWaylandCompositor)
     Q_PROPERTY(QByteArray socketName READ socketName WRITE setSocketName)
     Q_PROPERTY(bool retainedSelection READ retainedSelectionEnabled WRITE setRetainedSelectionEnabled)
-    Q_PROPERTY(QWaylandOutput *defaultOutput READ defaultOutput NOTIFY defaultOutputChanged)
+    Q_PROPERTY(QWaylandOutput *defaultOutput READ defaultOutput WRITE setDefaultOutput NOTIFY defaultOutputChanged)
     Q_PROPERTY(bool useHardwareIntegrationExtension READ useHardwareIntegrationExtension WRITE setUseHardwareIntegrationExtension NOTIFY useHardwareIntegrationExtensionChanged)
     Q_PROPERTY(QWaylandInputDevice *defaultInputDevice READ defaultInputDevice NOTIFY defaultInputDeviceChanged)
 
@@ -97,6 +97,7 @@ public:
     Q_INVOKABLE QWaylandOutput *outputFor(QWindow *window) const;
 
     QWaylandOutput *defaultOutput() const;
+    void setDefaultOutput(QWaylandOutput *output);
     QList<QWaylandOutput *> outputs() const;
 
     uint currentTimeMsecs() const;

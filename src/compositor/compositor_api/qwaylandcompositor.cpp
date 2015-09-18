@@ -461,6 +461,16 @@ QWaylandOutput *QWaylandCompositor::defaultOutput() const
     return d->defaultOutput();
 }
 
+void QWaylandCompositor::setDefaultOutput(QWaylandOutput *output)
+{
+    Q_D(QWaylandCompositor);
+    if (d->outputs.size() && d->outputs.first() == output)
+        return;
+    d->outputs.removeOne(output);
+    d->outputs.prepend(output);
+    defaultOutputChanged();
+}
+
 QList<QWaylandOutput *> QWaylandCompositor::outputs() const
 {
     Q_D(const QWaylandCompositor);

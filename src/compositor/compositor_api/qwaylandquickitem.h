@@ -64,9 +64,9 @@ class Q_COMPOSITOR_EXPORT QWaylandQuickItem : public QQuickItem
     Q_PROPERTY(bool paintEnabled READ paintEnabled WRITE setPaintEnabled)
     Q_PROPERTY(bool touchEventsEnabled READ touchEventsEnabled WRITE setTouchEventsEnabled NOTIFY touchEventsEnabledChanged)
     Q_PROPERTY(QWaylandSurface::Origin origin READ origin NOTIFY originChanged)
-    Q_PROPERTY(bool resizeSurfaceToItem READ resizeSurfaceToItem WRITE setResizeSurfaceToItem NOTIFY resizeSurfaceToItemChanged)
     Q_PROPERTY(bool inputEventsEnabled READ inputEventsEnabled WRITE setInputEventsEnabled NOTIFY inputEventsEnabledChanged)
     Q_PROPERTY(bool focusOnClick READ focusOnClick WRITE setFocusOnClick NOTIFY focusOnClickChanged)
+    Q_PROPERTY(bool sizeFollowsSurface READ sizeFollowsSurface WRITE setSizeFollowsSurface NOTIFY sizeFollowsSurfaceChanged)
 
 public:
     QWaylandQuickItem(QQuickItem *parent = 0);
@@ -85,10 +85,8 @@ public:
 
     bool paintEnabled() const;
     bool touchEventsEnabled() const;
-    bool resizeSurfaceToItem() const;
 
     void setTouchEventsEnabled(bool enabled);
-    void setResizeSurfaceToItem(bool enabled);
 
     bool inputEventsEnabled() const;
     void setInputEventsEnabled(bool enabled);
@@ -97,6 +95,10 @@ public:
     void setFocusOnClick(bool focus);
 
     bool inputRegionContains(QPointF localPosition);
+
+    bool sizeFollowsSurface() const;
+    void setSizeFollowsSurface(bool sizeFollowsSurface);
+
 protected:
     void mousePressEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
@@ -130,12 +132,12 @@ Q_SIGNALS:
     void surfaceChanged();
     void touchEventsEnabledChanged();
     void originChanged();
-    void resizeSurfaceToItemChanged();
     void surfaceDestroyed();
     void inputEventsEnabledChanged();
     void focusOnClickChanged();
     void mouseMove(const QPointF &windowPosition);
     void mouseRelease();
+    void sizeFollowsSurfaceChanged();
 
 protected:
     QSGNode *updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *);

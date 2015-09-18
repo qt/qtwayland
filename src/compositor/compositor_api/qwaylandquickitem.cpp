@@ -366,8 +366,10 @@ void QWaylandQuickItem::handleSurfaceChanged()
         connect(newSurface, &QWaylandSurface::sizeChanged, this, &QWaylandQuickItem::updateSize);
         connect(newSurface, &QWaylandSurface::configure, this, &QWaylandQuickItem::updateBuffer);
         connect(newSurface, &QWaylandSurface::redraw, this, &QQuickItem::update);
-        setWidth(newSurface->size().width());
-        setHeight(newSurface->size().height());
+        if (d->sizeFollowsSurface) {
+            setWidth(newSurface->size().width());
+            setHeight(newSurface->size().height());
+        }
         if (newSurface->origin() != d->origin) {
             d->origin = newSurface->origin();
             emit originChanged();
@@ -414,7 +416,8 @@ void QWaylandQuickItem::parentChanged(QWaylandSurface *newParent, QWaylandSurfac
 
 void QWaylandQuickItem::updateSize()
 {
-    if (surface()) {
+    Q_D(QWaylandQuickItem);
+    if (d->sizeFollowsSurface && surface()) {
         setSize(surface()->size());
     }
 }
@@ -442,6 +445,21 @@ bool QWaylandQuickItem::inputRegionContains(QPointF localPosition)
     return false;
 }
 
+bool QWaylandQuickItem::sizeFollowsSurface() const
+{
+    Q_D(const QWaylandQuickItem);
+    return d->sizeFollowsSurface;
+}
+
+void QWaylandQuickItem::setSizeFollowsSurface(bool sizeFollowsSurface)
+{
+    Q_D(QWaylandQuickItem);
+    if (d->sizeFollowsSurface == sizeFollowsSurface)
+        return;
+    d->sizeFollowsSurface = sizeFollowsSurface;
+    emit sizeFollowsSurfaceChanged();
+}
+
 /*!
     \qmlproperty bool QtWayland::QWaylandSurfaceItem::paintEnabled
 
@@ -467,12 +485,6 @@ bool QWaylandQuickItem::touchEventsEnabled() const
 {
     Q_D(const QWaylandQuickItem);
     return d->touchEventsEnabled;
-}
-
-bool QWaylandQuickItem::resizeSurfaceToItem() const
-{
-    Q_D(const QWaylandQuickItem);
-    return d->resizeSurfaceToItem;
 }
 
 void QWaylandQuickItem::updateBuffer(bool hasBuffer)
@@ -556,15 +568,6 @@ void QWaylandQuickItem::setTouchEventsEnabled(bool enabled)
     if (d->touchEventsEnabled != enabled) {
         d->touchEventsEnabled = enabled;
         emit touchEventsEnabledChanged();
-    }
-}
-
-void QWaylandQuickItem::setResizeSurfaceToItem(bool enabled)
-{
-    Q_D(QWaylandQuickItem);
-    if (d->resizeSurfaceToItem != enabled) {
-        d->resizeSurfaceToItem = enabled;
-        emit resizeSurfaceToItemChanged();
     }
 }
 

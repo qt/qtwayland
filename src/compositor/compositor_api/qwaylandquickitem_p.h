@@ -57,10 +57,10 @@ public:
         , provider(Q_NULLPTR)
         , paintEnabled(true)
         , touchEventsEnabled(false)
-        , resizeSurfaceToItem(false)
         , inputEventsEnabled(true)
         , newTexture(false)
         , focusOnClick(true)
+        , sizeFollowsSurface(true)
         , connectedWindow(Q_NULLPTR)
         , origin(QWaylandSurface::OriginTopLeft)
     {
@@ -100,10 +100,10 @@ public:
     mutable QWaylandSurfaceTextureProvider *provider;
     bool paintEnabled;
     bool touchEventsEnabled;
-    bool resizeSurfaceToItem;
     bool inputEventsEnabled;
     bool newTexture;
     bool focusOnClick;
+    bool sizeFollowsSurface;
 
     QQuickWindow *connectedWindow;
     QWaylandSurface::Origin origin;

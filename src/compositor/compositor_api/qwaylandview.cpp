@@ -162,6 +162,13 @@ bool QWaylandView::advance()
     if (d->bufferLock)
         return false;
 
+    if (d->surface && d->surface->throttlingView() == this) {
+        Q_FOREACH (QWaylandView *view, d->surface->views()) {
+            if (view != this && view->discardFrontBuffers() && view->d_func()->currentBuffer == d->currentBuffer)
+                view->discardCurrentBuffer();
+        }
+    }
+
     QMutexLocker locker(&d->bufferMutex);
     d->forceAdvanceSucceed = false;
     d->currentBuffer = d->nextBuffer;
@@ -201,6 +208,21 @@ void QWaylandView::setBufferLock(bool locked)
 {
     Q_D(QWaylandView);
     d->bufferLock = locked;
+}
+
+bool QWaylandView::discardFrontBuffers() const
+{
+    Q_D(const QWaylandView);
+    return d->discardFrontBuffers;
+}
+
+void QWaylandView::setDiscardFrontBuffers(bool discard)
+{
+    Q_D(QWaylandView);
+    if (d->discardFrontBuffers == discard)
+        return;
+    d->discardFrontBuffers = discard;
+    emit discardFrontBuffersChanged();
 }
 
 struct wl_resource *QWaylandView::surfaceResource() const

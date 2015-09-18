@@ -57,6 +57,7 @@ class Q_COMPOSITOR_EXPORT QWaylandView : public QObject
     Q_PROPERTY(QWaylandSurface *surface READ surface WRITE setSurface NOTIFY surfaceChanged)
     Q_PROPERTY(QWaylandOutput *output READ output WRITE setOutput NOTIFY outputChanged)
     Q_PROPERTY(bool bufferLock READ isBufferLocked WRITE setBufferLock NOTIFY bufferLockChanged)
+    Q_PROPERTY(bool discardFrontBuffers READ discardFrontBuffers WRITE setDiscardFrontBuffers NOTIFY discardFrontBuffersChanged)
 public:
     QWaylandView(QObject *renderObject = 0, QObject *parent = 0);
     virtual ~QWaylandView();
@@ -78,6 +79,9 @@ public:
     bool isBufferLocked() const;
     void setBufferLock(bool locked);
 
+    bool discardFrontBuffers() const;
+    void setDiscardFrontBuffers(bool discard);
+
     struct wl_resource *surfaceResource() const;
 
 Q_SIGNALS:
@@ -85,6 +89,7 @@ Q_SIGNALS:
     void surfaceDestroyed();
     void outputChanged();
     void bufferLockChanged();
+    void discardFrontBuffersChanged();
 };
 
 QT_END_NAMESPACE

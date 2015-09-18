@@ -48,7 +48,7 @@ ShellSurfaceItem {
     }
 
     onSurfaceDestroyed: {
-        lockedBuffer = true;
+        view.bufferLock = true;
         destroyAnimation.start();
     }
 

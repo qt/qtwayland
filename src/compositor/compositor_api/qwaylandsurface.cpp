@@ -573,6 +573,8 @@ void QWaylandSurfacePrivate::refView(QWaylandView *view)
 
     views.append(view);
     ref();
+    QWaylandBufferRef ref(buffer);
+    view->attach(ref, QRect(QPoint(0,0), ref.size()));
 }
 
 void QWaylandSurfacePrivate::derefView(QWaylandView *view)

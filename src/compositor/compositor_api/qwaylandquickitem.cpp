@@ -163,6 +163,7 @@ void QWaylandQuickItem::setSurface(QWaylandSurface *surface)
 {
     Q_D(QWaylandQuickItem);
     d->view->setSurface(surface);
+    update();
 }
 
 QWaylandSurface::Origin QWaylandQuickItem::origin() const

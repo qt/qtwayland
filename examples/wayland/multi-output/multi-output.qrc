@@ -2,7 +2,8 @@
     <qresource prefix="/">
         <file>images/background.jpg</file>
         <file>qml/main.qml</file>
-        <file>qml/Screen.qml</file>
-        <file>qml/Chrome.qml</file>
+        <file>qml/GridScreen.qml</file>
+        <file>qml/ShellScreen.qml</file>
+        <file>qml/ShellChrome.qml</file>
     </qresource>
 </RCC>

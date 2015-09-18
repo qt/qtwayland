@@ -5,8 +5,9 @@ SOURCES += \
 
 OTHER_FILES = \
     qml/main.qml \
-    qml/Screen.qml \
-    qml/Chrome.qml \
+    qml/GridScreen.qml \
+    qml/ShellScreen.qml \
+    qml/ShellChrome.qml \
     images/background.jpg \
 
 RESOURCES += multi-output.qrc

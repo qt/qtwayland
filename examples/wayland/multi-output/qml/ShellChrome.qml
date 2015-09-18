@@ -41,26 +41,15 @@
 import QtQuick 2.0
 import QtWayland.Compositor 1.0
 
-Item {
+ShellSurfaceItem {
     id: rootChrome
-    //x: clampXPos()
-    //y: clampYPos()
-    x: chrome.requestedXPosition
-    y: chrome.requestedYPosition
 
-    width: childrenRect.width
-    height: childrenRect.height
+    shellSurface: ShellSurface {
+    }
 
-    property alias surface: chrome.surface
-
-    WaylandSurfaceChrome {
-        id: chrome
-        automaticUseShellView: true
-        automaticDestroyOnSurfaceDestroy: false
-
-        onSurfaceDestroyed: {
-            destroyAnimation.start();
-        }
+    onSurfaceDestroyed: {
+        view.bufferLock = true;
+        destroyAnimation.start();
     }
 
     SequentialAnimation {
@@ -81,15 +70,4 @@ Item {
 
         }
     ]
-    function clampXPos() {
-        if (!parent)
-            return chrome.requestedXPosition;
-        return Math.max(Math.min(chrome.requestedXPosition, parent.width - 10), 0)
-    }
-    function clampYPos() {
-        if (!parent)
-            return chrome.requestedYPosition;
-        return Math.max(Math.min(chrome.requestedYPosition, parent.height - 30), 0)
-    }
-
 }

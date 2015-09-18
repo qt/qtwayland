@@ -39,65 +39,38 @@
 ****************************************************************************/
 
 import QtQuick 2.0
+import QtQuick.Window 2.2
 import QtWayland.Compositor 1.0
 
-WaylandCompositor {
-    id: comp
+WaylandOutput {
+    id: output
+    property alias surfaceArea: background
 
-    defaultOutput: shellScreen
-    ShellScreen {
-        id: shellScreen
-        compositor: comp
-    }
+    window: Window {
+        width: 1024
+        height: 760
+        visible: true
 
-    GridScreen {
-        id: gridScreen
-        compositor: comp
-    }
+        WaylandMouseTracker {
+            id: mouseTracker
+            anchors.fill: parent
 
-    Component {
-        id: chromeComponent
-        ShellChrome {
-        }
-    }
+            enableWSCursor: true
+            Image {
+                id: background
+                anchors.fill: parent
+                fillMode: Image.Tile
+                source: "qrc:/images/background.jpg"
+                smooth: true
+            }
+            WaylandCursorItem {
+                id: cursor
+                inputEventsEnabled: false
+                x: mouseTracker.mouseX - hotspotX
+                y: mouseTracker.mouseY - hotspotY
 
-    Component {
-        id: surfaceComponent
-        WaylandSurface {
-            id: surface
-            onMappedChanged: {
-                if (isMapped && !cursorSurface) {
-                    gridScreen.gridSurfaces.append( { "gridSurface" : surface } );
-                } else {
-                    for (var i = 0; i < gridScreen.gridSurfaces.count; i++) {
-                        if (gridScreen.gridSurfaces.get(i).gridSurface === surface) {
-                            gridScreen.gridSurfaces.remove(i,1);
-                            break;
-                        }
-                    }
-                }
+                inputDevice : output.compositor.defaultInputDevice
             }
         }
-    }
-
-    extensions: [
-        Shell {
-            id: defaultShell
-
-            onCreateShellSurface: {
-                var item = chromeComponent.createObject(defaultOutput.surfaceArea, { "surface": surface } );
-                item.shellSurface.initialize(defaultShell, surface, client, id);
-                item.surface
-            }
-
-            Component.onCompleted: {
-                initialize();
-            }
-        }
-    ]
-
-    onCreateSurface: {
-        var surface = surfaceComponent.createObject(comp, { } );
-        surface.initialize(comp, client, id, version);
     }
 }

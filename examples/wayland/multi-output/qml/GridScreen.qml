@@ -42,40 +42,38 @@ import QtQuick 2.0
 import QtQuick.Window 2.2
 import QtWayland.Compositor 1.0
 
-Window {
-    id: screen
-    property alias surfacesArea: background
+WaylandOutput {
+    id: output
+    property alias gridSurfaces: listModel
 
-    property QtObject compositor
+    window: Window {
+        width: 1024
+        height: 760
+        visible: true
 
-    width: 1024
-    height: 760
-    visible: true
-
-    WaylandMouseTracker {
-        id: mouseTracker
-        anchors.fill: parent
-
-        enableWSCursor: true
         Image {
             id: background
             anchors.fill: parent
             fillMode: Image.Tile
             source: "qrc:/images/background.jpg"
             smooth: true
-        }
-        WaylandCursorItem {
-            id: cursor
-            inputEventsEnabled: false
-            x: mouseTracker.mouseX - hotspotX
-            y: mouseTracker.mouseY - hotspotY
-
-            compositor: screen.compositor
-        }
-        focus: true
-        Keys.onPressed: {
-            if (event.key == Qt.Key_N && event.modifiers & Qt.ControlModifier)
-                compositor.addScreen();
+            GridView {
+                id: gridView
+                anchors.fill: parent
+                model: ListModel {
+                    id: listModel
+                }
+                cellWidth: 200
+                cellHeight: 200
+                delegate: WaylandQuickItem {
+                    surface: gridSurface
+                    width: gridView.cellWidth
+                    height: gridView.cellHeight
+                    sizeFollowsSurface: false
+                    inputEventsEnabled: false
+                    view.discardFrontBuffers: true
+                }
+            }
         }
     }
 }

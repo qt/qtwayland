@@ -89,6 +89,7 @@ public:
         QObject::connect(q, &QQuickItem::windowChanged, q, &QWaylandQuickItem::updateWindow);
         QObject::connect(view.data(), &QWaylandView::surfaceChanged, q, &QWaylandQuickItem::surfaceChanged);
         QObject::connect(view.data(), &QWaylandView::surfaceChanged, q, &QWaylandQuickItem::handleSurfaceChanged);
+        QObject::connect(view.data(), &QWaylandView::surfaceDestroyed, q, &QWaylandQuickItem::surfaceDestroyed);
     }
 
     bool shouldSendInputEvents() const { return view->surface() && inputEventsEnabled; }

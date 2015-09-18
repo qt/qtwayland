@@ -72,7 +72,7 @@ public:
         if (!mutex)
             mutex = new QMutex;
 
-        view.reset(new QWaylandView(q, q));
+        view.reset(new QWaylandView(q));
         q->setFlag(QQuickItem::ItemHasContents);
 
         q->update();

@@ -85,6 +85,7 @@ public:
       SubpixelVerticalRgb,
       SubpixelVerticalBgr
     };
+    Q_ENUM(Subpixel)
 
     enum Transform {
         TransformNormal = 0,
@@ -96,6 +97,7 @@ public:
         TransformFlipped180,
         TransformFlipped270
     };
+    Q_ENUM(Transform)
 
     struct Mode
     {

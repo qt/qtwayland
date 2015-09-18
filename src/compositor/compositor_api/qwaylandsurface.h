@@ -76,6 +76,7 @@ public:
         OriginTopLeft,
         OriginBottomLeft
     };
+    Q_ENUM(Origin)
 
     QWaylandSurface();
     QWaylandSurface(QWaylandCompositor *compositor, QWaylandClient *client, uint id, int version);

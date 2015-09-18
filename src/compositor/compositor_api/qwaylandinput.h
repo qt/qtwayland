@@ -77,6 +77,7 @@ public:
         DefaultCapabilities = Pointer | Keyboard | Touch
     };
     Q_DECLARE_FLAGS(CapabilityFlags, CapabilityFlag)
+    Q_ENUM(CapabilityFlags)
 
     QWaylandInputDevice(QWaylandCompositor *compositor, CapabilityFlags caps = DefaultCapabilities);
     virtual ~QWaylandInputDevice();

@@ -70,7 +70,7 @@ public:
     bool operator==(const QWaylandBufferRef &ref);
     bool operator!=(const QWaylandBufferRef &ref);
 
-    wl_resource *wl_buffer() const;
+    struct wl_resource *wl_buffer() const;
 
     QSize size() const;
     QWaylandSurface::Origin origin() const;
@@ -79,8 +79,6 @@ public:
     QImage image() const;
 
     void bindToTexture() const;
-
-    void *nativeBuffer() const;
 
 private:
     class QWaylandBufferRefPrivate *const d;

@@ -250,6 +250,10 @@ void QWaylandSurfaceItem::touchEvent(QTouchEvent *event)
             inputDevice->setMouseFocus(this, pointPos, pointPos);
         }
         inputDevice->sendFullTouchEvent(event);
+
+        const bool isEnd = event->type() == QEvent::TouchEnd || event->type() == QEvent::TouchCancel;
+        if (isEnd && window()->mouseGrabberItem() == this)
+            ungrabMouse();
     } else {
         event->ignore();
     }

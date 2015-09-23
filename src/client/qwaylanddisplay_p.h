@@ -45,6 +45,7 @@
 #include <QtWaylandClient/private/qwayland-wayland.h>
 #include <QtWaylandClient/private/qwaylandclientexport_p.h>
 #include <QtWaylandClient/private/qwayland-xdg-shell.h>
+#include <QtWaylandClient/private/qwaylandshm_p.h>
 
 struct wl_cursor_image;
 
@@ -147,7 +148,7 @@ public:
      * to enable many listeners at once. */
     void addRegistryListener(RegistryListener listener, void *data);
 
-    struct wl_shm *shm() const { return mShm; }
+    QWaylandShm *shm() const { return mShm.data(); }
 
     static uint32_t currentTimeMillisec();
 
@@ -176,7 +177,7 @@ private:
     struct wl_display *mDisplay;
     struct wl_event_queue *mEventQueue;
     QtWayland::wl_compositor mCompositor;
-    struct wl_shm *mShm;
+    QScopedPointer<QWaylandShm> mShm;
     QThread *mEventThread;
     QWaylandEventThread *mEventThreadObject;
     QScopedPointer<QtWayland::wl_shell> mShell;

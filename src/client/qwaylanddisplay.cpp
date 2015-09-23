@@ -255,7 +255,7 @@ void QWaylandDisplay::registry_global(uint32_t id, const QString &interface, uin
         mCompositorVersion = qMin((int)version, 3);
         mCompositor.init(registry, id, mCompositorVersion);
     } else if (interface == QStringLiteral("wl_shm")) {
-        mShm = static_cast<struct wl_shm *>(wl_registry_bind(registry, id, &wl_shm_interface,1));
+        mShm.reset(new QWaylandShm(this, version, id));
     } else if (interface == QStringLiteral("xdg_shell")
                && qEnvironmentVariableIsSet("QT_WAYLAND_USE_XDG_SHELL")) {
         mShellXdg.reset(new QWaylandXdgShell(registry,id));

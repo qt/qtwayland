@@ -59,7 +59,7 @@ QWaylandCursor::QWaylandCursor(QWaylandScreen *screen)
     int cursorSize = cursorSizeFromEnv.toInt(&hasCursorSize);
     if (!hasCursorSize || cursorSize <= 0)
         cursorSize = 32;
-    mCursorTheme = wl_cursor_theme_load(cursorTheme, cursorSize, mDisplay->shm());
+    mCursorTheme = wl_cursor_theme_load(cursorTheme, cursorSize, mDisplay->shm()->object());
     if (!mCursorTheme)
         qDebug() << "Could not load theme" << cursorTheme;
     initCursorMap();

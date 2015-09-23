@@ -42,7 +42,6 @@
 
 #include <wayland-client.h>
 #include <wayland-client-protocol.h>
-#include "qwaylandshmformathelper.h"
 
 #include <unistd.h>
 #include <fcntl.h>
@@ -85,11 +84,12 @@ QWaylandShmBuffer::QWaylandShmBuffer(QWaylandDisplay *display,
         return;
     }
 
-    wl_shm_format wl_format = QWaylandShmFormatHelper::fromQImageFormat(format);
+    QWaylandShm* shm = display->shm();
+    wl_shm_format wl_format = shm->formatFrom(format);
     mImage = QImage(data, size.width(), size.height(), stride, format);
     mImage.setDevicePixelRatio(qreal(scale));
 
-    mShmPool = wl_shm_create_pool(display->shm(), fd, alloc);
+    mShmPool = wl_shm_create_pool(shm->object(), fd, alloc);
     mBuffer = wl_shm_pool_create_buffer(mShmPool,0, size.width(), size.height(),
                                        stride, wl_format);
     close(fd);

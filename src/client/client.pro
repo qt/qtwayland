@@ -83,6 +83,7 @@ SOURCES +=  qwaylandintegration.cpp \
             qwaylandwindowmanagerintegration.cpp \
             qwaylandinputcontext.cpp \
             qwaylanddatadevice.cpp \
+            qwaylandshm.cpp \
 
 HEADERS +=  qwaylandintegration_p.h \
             qwaylandnativeinterface_p.h \
@@ -116,6 +117,7 @@ HEADERS +=  qwaylandintegration_p.h \
             qwaylandwindowmanagerintegration_p.h \
             qwaylandinputcontext_p.h \
             qwaylanddatadevice_p.h \
+            qwaylandshm_p.h \
 
 include(hardwareintegration/hardwareintegration.pri)
 include(shellintegration/shellintegration.pri)

@@ -194,6 +194,8 @@ void QWaylandDisplay::blockingReadEvents()
 
 void QWaylandDisplay::exitWithError()
 {
+    mEventThread->quit();
+    mEventThread->wait();
     ::exit(1);
 }
 

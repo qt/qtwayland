@@ -177,6 +177,10 @@ void QWaylandSurfacePrivate::notifyViewsAboutDestruction()
     foreach (QWaylandView *view, views) {
         QWaylandViewPrivate::get(view)->markSurfaceAsDestroyed(q);
     }
+    if (mapped) {
+        mapped = false;
+        emit q->mappedChanged();
+    }
 }
 
 #ifndef QT_NO_DEBUG
@@ -206,8 +210,8 @@ void QWaylandSurfacePrivate::surface_destroy_resource(Resource *)
     notifyViewsAboutDestruction();
 
     destroyed = true;
-    q->destroy();
     emit q->surfaceDestroyed();
+    q->destroy();
 }
 
 void QWaylandSurfacePrivate::surface_destroy(Resource *resource)
@@ -367,10 +371,6 @@ QWaylandSurface::~QWaylandSurface()
     Q_D(QWaylandSurface);
     QWaylandCompositorPrivate::get(d->compositor)->unregisterSurface(this);
     d->notifyViewsAboutDestruction();
-    if (d->mapped) {
-        d->mapped = false;
-        emit mappedChanged();
-    }
 }
 
 void QWaylandSurface::initialize(QWaylandCompositor *compositor, QWaylandClient *client, uint id, int version)

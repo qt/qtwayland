@@ -34,13 +34,16 @@ qtHaveModule(quick) {
         compositor_api/qwaylandquickcompositor.cpp \
         compositor_api/qwaylandquicksurface.cpp \
         compositor_api/qwaylandquickoutput.cpp \
-        compositor_api/qwaylandsurfaceitem.cpp
+        compositor_api/qwaylandsurfaceitem.cpp \
+        compositor_api/qwaylandtexturebufferattacher.cpp
 
     HEADERS += \
         compositor_api/qwaylandquickcompositor.h \
         compositor_api/qwaylandquicksurface.h \
         compositor_api/qwaylandquickoutput.h \
-        compositor_api/qwaylandsurfaceitem.h
+        compositor_api/qwaylandsurfaceitem.h \
+        compositor_api/qwaylandtexturebufferattacher_p.h
+
 
     QT += qml quick
 }

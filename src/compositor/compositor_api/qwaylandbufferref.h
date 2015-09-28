@@ -62,6 +62,8 @@ public:
     bool isShm() const;
 
     QImage image() const;
+    void *waylandBuffer() const;
+
 #ifdef QT_COMPOSITOR_WAYLAND_GL
     /**
      * There must be a GL context bound when calling this function.

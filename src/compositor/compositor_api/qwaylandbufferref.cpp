@@ -102,6 +102,11 @@ QImage QWaylandBufferRef::image() const
     return QImage();
 }
 
+void *QWaylandBufferRef::waylandBuffer() const
+{
+    return d->buffer->waylandBufferHandle();
+}
+
 #ifdef QT_COMPOSITOR_WAYLAND_GL
 
 GLuint QWaylandBufferRef::createTexture()

@@ -436,6 +436,9 @@ void QWaylandSurface::setMapped(bool mapped)
 void QWaylandSurface::setBufferAttacher(QWaylandBufferAttacher *attacher)
 {
     Q_D(QWaylandSurface);
+    if (d->m_attacher) {
+        delete d->m_attacher;
+    }
     d->m_attacher = attacher;
 }
 

@@ -41,89 +41,16 @@
 #include "qwaylandquickcompositor.h"
 #include "qwaylandsurfaceitem.h"
 #include "qwaylandoutput.h"
-#include <QtCompositor/qwaylandbufferref.h>
 #include <QtCompositor/private/qwaylandsurface_p.h>
+#include <QtCompositor/private/qwaylandtexturebufferattacher_p.h>
 
 QT_BEGIN_NAMESPACE
-
-class BufferAttacher : public QWaylandBufferAttacher
-{
-public:
-    BufferAttacher()
-        : surface(0)
-        , texture(0)
-        , update(false)
-    {
-
-    }
-
-    ~BufferAttacher()
-    {
-        if (texture)
-            texture->deleteLater();
-        bufferRef = QWaylandBufferRef();
-        nextBuffer = QWaylandBufferRef();
-    }
-
-    void attach(const QWaylandBufferRef &ref) Q_DECL_OVERRIDE
-    {
-        nextBuffer = ref;
-        update = true;
-    }
-
-    void createTexture()
-    {
-        bufferRef = nextBuffer;
-        delete texture;
-        texture = 0;
-
-        QQuickWindow *window = static_cast<QQuickWindow *>(surface->mainOutput()->window());
-        if (nextBuffer) {
-            if (bufferRef.isShm()) {
-                texture = window->createTextureFromImage(bufferRef.image());
-            } else {
-                QQuickWindow::CreateTextureOptions opt = 0;
-                if (surface->useTextureAlpha()) {
-                    opt |= QQuickWindow::TextureHasAlphaChannel;
-                }
-                texture = window->createTextureFromId(bufferRef.createTexture(), surface->size(), opt);
-            }
-            texture->bind();
-        }
-
-        update = false;
-    }
-
-    void unmap() Q_DECL_OVERRIDE
-    {
-        nextBuffer = QWaylandBufferRef();
-        update = true;
-    }
-
-    void invalidateTexture()
-    {
-        if (bufferRef)
-            bufferRef.destroyTexture();
-        delete texture;
-        texture = 0;
-        update = true;
-        bufferRef = QWaylandBufferRef();
-    }
-
-    QWaylandQuickSurface *surface;
-    QWaylandBufferRef bufferRef;
-    QWaylandBufferRef nextBuffer;
-    QSGTexture *texture;
-    bool update;
-};
-
 
 class QWaylandQuickSurfacePrivate : public QWaylandSurfacePrivate
 {
 public:
     QWaylandQuickSurfacePrivate(wl_client *client, quint32 id, int version, QWaylandQuickCompositor *c, QWaylandQuickSurface *surf)
         : QWaylandSurfacePrivate(client, id, version, c, surf)
-        , buffer(new BufferAttacher)
         , compositor(c)
         , useTextureAlpha(true)
         , windowPropertyMap(new QQmlPropertyMap)
@@ -146,7 +73,6 @@ public:
             output->waylandOutput()->update();
     }
 
-    BufferAttacher *buffer;
     QWaylandQuickCompositor *compositor;
     bool useTextureAlpha;
     QQmlPropertyMap *windowPropertyMap;
@@ -157,8 +83,7 @@ QWaylandQuickSurface::QWaylandQuickSurface(wl_client *client, quint32 id, int ve
                     : QWaylandSurface(new QWaylandQuickSurfacePrivate(client, id, version, compositor, this))
 {
     Q_D(QWaylandQuickSurface);
-    d->buffer->surface = this;
-    setBufferAttacher(d->buffer);
+    QWaylandSurface::setBufferAttacher(new QWaylandTextureBufferAttacher(this));
 
     connect(this, &QWaylandSurface::windowPropertyChanged, d->windowPropertyMap, &QQmlPropertyMap::insert);
     connect(d->windowPropertyMap, &QQmlPropertyMap::valueChanged, this, &QWaylandSurface::setWindowProperty);
@@ -169,10 +94,14 @@ QWaylandQuickSurface::~QWaylandQuickSurface()
 
 }
 
+QWaylandTextureBufferAttacher *QWaylandQuickSurface::textureBufferAttacher() const
+{
+    return static_cast<QWaylandTextureBufferAttacher*>(bufferAttacher());
+}
+
 QSGTexture *QWaylandQuickSurface::texture() const
 {
-    Q_D(const QWaylandQuickSurface);
-    return d->buffer->texture;
+    return textureBufferAttacher()->texture();
 }
 
 bool QWaylandQuickSurface::useTextureAlpha() const
@@ -187,7 +116,7 @@ void QWaylandQuickSurface::setUseTextureAlpha(bool useTextureAlpha)
     if (d->useTextureAlpha != useTextureAlpha) {
         d->useTextureAlpha = useTextureAlpha;
         emit useTextureAlphaChanged();
-        emit configure(d->buffer->bufferRef);
+        emit configure(textureBufferAttacher()->currentBuffer());
     }
 }
 
@@ -239,18 +168,17 @@ bool QWaylandQuickSurface::event(QEvent *e)
 
 void QWaylandQuickSurface::updateTexture()
 {
-    Q_D(QWaylandQuickSurface);
-    const bool update = d->buffer->update;
-    if (d->buffer->update)
-        d->buffer->createTexture();
+    QWaylandTextureBufferAttacher *attacher = textureBufferAttacher();
+    const bool update = attacher->isDirty();
+    if (update)
+        attacher->updateTexture();
     foreach (QWaylandSurfaceView *view, views())
         static_cast<QWaylandSurfaceItem *>(view)->updateTexture(update);
 }
 
 void QWaylandQuickSurface::invalidateTexture()
 {
-    Q_D(QWaylandQuickSurface);
-    d->buffer->invalidateTexture();
+    textureBufferAttacher()->invalidateTexture();
     foreach (QWaylandSurfaceView *view, views())
         static_cast<QWaylandSurfaceItem *>(view)->updateTexture(true);
     emit redraw();

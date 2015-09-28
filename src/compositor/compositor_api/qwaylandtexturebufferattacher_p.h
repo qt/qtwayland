@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Jolla Ltd, author: <giulio.camuffo@jollamobile.com>
+** Copyright (C) 2015 LG Electronics Inc, author: <mikko.levonmaa@lge.com>
 ** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the plugins of the Qt Toolkit.
@@ -31,60 +31,43 @@
 **
 ****************************************************************************/
 
-#ifndef QQUICKWAYLANDSURFACE_H
-#define QQUICKWAYLANDSURFACE_H
+#ifndef QWAYLANDTEXTUREBUFFERATTACHER_H
+#define QWAYLANDTEXTUREBUFFERATTACHER_H
 
 #include <QtCompositor/qwaylandsurface.h>
 #include <QtCompositor/qwaylandbufferref.h>
 
-struct wl_client;
-
 QT_BEGIN_NAMESPACE
 
 class QSGTexture;
-
-class QWaylandSurfaceItem;
-class QWaylandQuickSurfacePrivate;
-class QWaylandQuickCompositor;
 class QWaylandQuickSurface;
-class QWaylandTextureBufferAttacher;
 
-class Q_COMPOSITOR_EXPORT QWaylandQuickSurface : public QWaylandSurface
+class QWaylandTextureBufferAttacher : public QWaylandBufferAttacher
 {
-    Q_OBJECT
-    Q_DECLARE_PRIVATE(QWaylandQuickSurface)
-    Q_PROPERTY(bool useTextureAlpha READ useTextureAlpha WRITE setUseTextureAlpha NOTIFY useTextureAlphaChanged)
-    Q_PROPERTY(bool clientRenderingEnabled READ clientRenderingEnabled WRITE setClientRenderingEnabled NOTIFY clientRenderingEnabledChanged)
-    Q_PROPERTY(QObject *windowProperties READ windowPropertyMap CONSTANT)
 public:
-    QWaylandQuickSurface(wl_client *client, quint32 id, int version, QWaylandQuickCompositor *compositor);
-    ~QWaylandQuickSurface();
+    QWaylandTextureBufferAttacher(QWaylandQuickSurface *surface);
+    virtual ~QWaylandTextureBufferAttacher();
 
-    QSGTexture *texture() const;
-
-    bool useTextureAlpha() const;
-    void setUseTextureAlpha(bool useTextureAlpha);
-
-    bool clientRenderingEnabled() const;
-    void setClientRenderingEnabled(bool enabled);
-
-    QObject *windowPropertyMap() const;
-
-    QWaylandTextureBufferAttacher *textureBufferAttacher() const;
-
-private:
-    bool event(QEvent *event) Q_DECL_OVERRIDE;
-
-Q_SIGNALS:
-    void useTextureAlphaChanged();
-    void clientRenderingEnabledChanged();
-
-private:
     void updateTexture();
     void invalidateTexture();
 
+    bool isDirty() const { return m_update; }
+    QSGTexture* texture() const { return m_texture; }
+    QWaylandBufferRef currentBuffer() const { return m_buffer; }
+
+protected:
+    virtual void attach(const QWaylandBufferRef &ref) Q_DECL_OVERRIDE;
+    virtual void unmap() Q_DECL_OVERRIDE;
+
+    QWaylandQuickSurface *m_surface;
+    QSGTexture *m_texture;
+
+    QWaylandBufferRef m_buffer;
+    QWaylandBufferRef m_nextBuffer;
+    bool m_update;
 };
 
 QT_END_NAMESPACE
-
 #endif
+
+

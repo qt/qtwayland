@@ -66,12 +66,17 @@ WaylandOutput {
                 cellWidth: 200
                 cellHeight: 200
                 delegate: WaylandQuickItem {
+                    id: item
                     surface: gridSurface
                     width: gridView.cellWidth
                     height: gridView.cellHeight
                     sizeFollowsSurface: false
                     inputEventsEnabled: false
                     view.discardFrontBuffers: true
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: item.surface.activated()
+                    }
                 }
             }
         }

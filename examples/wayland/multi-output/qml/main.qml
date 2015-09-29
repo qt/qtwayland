@@ -65,6 +65,7 @@ WaylandCompositor {
         id: surfaceComponent
         WaylandSurface {
             id: surface
+            signal activated()
             onMappedChanged: {
                 if (isMapped && !cursorSurface) {
                     gridScreen.gridSurfaces.append( { "gridSurface" : surface } );
@@ -87,7 +88,7 @@ WaylandCompositor {
             onCreateShellSurface: {
                 var item = chromeComponent.createObject(defaultOutput.surfaceArea, { "surface": surface } );
                 item.shellSurface.initialize(defaultShell, surface, client, id);
-                item.surface
+                surface.activated.connect(item.raise);
             }
 
             Component.onCompleted: {

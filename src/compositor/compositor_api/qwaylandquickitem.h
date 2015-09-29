@@ -118,6 +118,8 @@ protected:
 public Q_SLOTS:
     virtual void takeFocus(QWaylandInputDevice *device = 0);
     void setPaintEnabled(bool paintEnabled);
+    void raise();
+    void lower();
 
 private Q_SLOTS:
     void surfaceMappedChanged();

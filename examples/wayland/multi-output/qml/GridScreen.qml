@@ -63,6 +63,7 @@ WaylandOutput {
                 model: ListModel {
                     id: listModel
                 }
+                interactive: false
                 cellWidth: 200
                 cellHeight: 200
                 delegate: WaylandQuickItem {

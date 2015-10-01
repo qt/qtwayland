@@ -53,6 +53,7 @@ CompositorWindow::CompositorWindow()
     : m_backgroundTexture(0)
     , m_compositor(0)
     , m_grabState(NoGrab)
+    , m_dragIconView(0)
 {
 }
 

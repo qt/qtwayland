@@ -135,6 +135,8 @@ static const uint32_t KeyTbl[] = {
 
     XKB_KEY_XF86Eject,               Qt::Key_Eject,
 
+    XKB_KEY_XF86Phone,               Qt::Key_ToggleCallHangup,
+
     0,                          0
 };
 

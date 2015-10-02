@@ -151,12 +151,6 @@ void WaylandEglClientBufferIntegration::initializeHardware(QtWayland::Display *w
         return;
     }
 
-    d->gl_egl_image_target_texture_2d = reinterpret_cast<PFNGLEGLIMAGETARGETTEXTURE2DOESPROC>(eglGetProcAddress("glEGLImageTargetTexture2DOES"));
-    if (!d->gl_egl_image_target_texture_2d) {
-        qWarning("QtCompositor: Failed to initialize EGL display. Could not find glEGLImageTargetTexture2DOES.");
-        return;
-    }
-
     if (d->egl_bind_wayland_display && d->egl_unbind_wayland_display) {
         d->display_bound = d->egl_bind_wayland_display(d->egl_display, waylandDisplay->handle());
         if (!d->display_bound) {
@@ -175,8 +169,19 @@ void WaylandEglClientBufferIntegration::initializeHardware(QtWayland::Display *w
 void WaylandEglClientBufferIntegration::bindTextureToBuffer(struct ::wl_resource *buffer)
 {
     Q_D(WaylandEglClientBufferIntegration);
+
     if (!d->valid) {
         qWarning("QtCompositor: bindTextureToBuffer() failed");
+        return;
+    }
+
+    // Vivante drivers on the iMX6 don't resolve this function early enough for us, they seem to require the EGL/GLES setup to be further
+    // along than they are in initializeHardware(), so do the lookup here instead.
+    if (!d->gl_egl_image_target_texture_2d)
+        d->gl_egl_image_target_texture_2d = reinterpret_cast<PFNGLEGLIMAGETARGETTEXTURE2DOESPROC>(eglGetProcAddress("glEGLImageTargetTexture2DOES"));
+
+    if (!d->gl_egl_image_target_texture_2d) {
+        qWarning("QtCompositor: bindTextureToBuffer() failed. Could not find glEGLImageTargetTexture2DOES.");
         return;
     }
 

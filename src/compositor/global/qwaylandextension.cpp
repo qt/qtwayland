@@ -125,10 +125,8 @@ bool QWaylandExtension::event(QEvent *event)
 
 QWaylandExtensionContainer::~QWaylandExtensionContainer()
 {
-    foreach (QWaylandExtension *extension, extension_vector) {
+    foreach (QWaylandExtension *extension, extension_vector)
         QWaylandExtensionPrivate::get(extension)->extension_container = Q_NULLPTR;
-        delete extension;
-    }
 }
 
 QWaylandExtension *QWaylandExtensionContainer::extension(const QByteArray &name)

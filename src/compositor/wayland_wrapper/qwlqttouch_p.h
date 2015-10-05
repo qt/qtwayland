@@ -41,6 +41,17 @@
 #ifndef WLTOUCH_H
 #define WLTOUCH_H
 
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists purely as an
+// implementation detail.  This header file may change from version to
+// version without notice, or even be removed.
+//
+// We mean it.
+//
+
 #include <private/qwlcompositor_p.h>
 #include <QtCompositor/private/qwayland-server-touch-extension.h>
 #include "wayland-util.h"

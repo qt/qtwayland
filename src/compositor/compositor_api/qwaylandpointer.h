@@ -37,7 +37,7 @@
 #ifndef QWAYLANDPOINTER_H
 #define QWAYLANDPOINTER_H
 
-#include <QtWaylandCompositor/QWaylandExtensionContainer>
+#include <QtWaylandCompositor/QWaylandExtension>
 
 QT_BEGIN_NAMESPACE
 
@@ -48,7 +48,7 @@ class QWaylandView;
 class QWaylandOutput;
 class QWaylandClient;
 
-class Q_COMPOSITOR_EXPORT QWaylandPointer : public QObject, public QWaylandExtensionContainer
+class Q_COMPOSITOR_EXPORT QWaylandPointer : public QWaylandObject
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandPointer)

@@ -182,12 +182,12 @@ void QWaylandOutputPrivate::removeView(QWaylandView *view, QWaylandSurface *surf
 }
 
 QWaylandOutput::QWaylandOutput()
-    : QObject(*new QWaylandOutputPrivate())
+    : QWaylandObject(*new QWaylandOutputPrivate())
 {
 }
 
 QWaylandOutput::QWaylandOutput(QWaylandCompositor *compositor, QWindow *window)
-    : QObject(*new QWaylandOutputPrivate())
+    : QWaylandObject(*new QWaylandOutputPrivate())
 {
     Q_D(QWaylandOutput);
     d->compositor = compositor;

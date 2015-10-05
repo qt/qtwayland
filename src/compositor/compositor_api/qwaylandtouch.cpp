@@ -102,7 +102,7 @@ void QWaylandTouchPrivate::sendMotion(uint32_t time, int touch_id, const QPointF
 }
 
 QWaylandTouch::QWaylandTouch(QWaylandInputDevice *seat, QObject *parent)
-    : QObject(*new QWaylandTouchPrivate(this, seat), parent)
+    : QWaylandObject(*new QWaylandTouchPrivate(this, seat), parent)
 {
     connect(&d_func()->focusDestroyListener, &QWaylandDestroyListener::fired, this, &QWaylandTouch::focusDestroyed);
 }

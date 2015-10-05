@@ -351,12 +351,12 @@ void QWaylandCompositorPrivate::loadServerBufferIntegration()
 }
 
 QWaylandCompositor::QWaylandCompositor(QObject *parent)
-    : QObject(*new QWaylandCompositorPrivate(this), parent)
+    : QWaylandObject(*new QWaylandCompositorPrivate(this), parent)
 {
 }
 
 QWaylandCompositor::QWaylandCompositor(QWaylandCompositorPrivate &dptr, QObject *parent)
-    : QObject(dptr, parent)
+    : QWaylandObject(dptr, parent)
 {
 }
 

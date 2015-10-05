@@ -63,7 +63,7 @@ namespace QtWayland {
 class InputDevice;
 }
 
-class Q_COMPOSITOR_EXPORT QWaylandInputDevice : public QObject, public QWaylandExtensionContainer
+class Q_COMPOSITOR_EXPORT QWaylandInputDevice : public QWaylandObject
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandInputDevice)

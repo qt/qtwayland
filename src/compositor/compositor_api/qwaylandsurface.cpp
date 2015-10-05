@@ -353,18 +353,18 @@ QtWayland::SurfaceBuffer *QWaylandSurfacePrivate::createSurfaceBuffer(struct ::w
 }
 
 QWaylandSurface::QWaylandSurface()
-    : QObject(*new QWaylandSurfacePrivate())
+    : QWaylandObject(*new QWaylandSurfacePrivate())
 {
 }
 
 QWaylandSurface::QWaylandSurface(QWaylandCompositor *compositor, QWaylandClient *client, uint id, int version)
-    : QObject(*new QWaylandSurfacePrivate())
+    : QWaylandObject(*new QWaylandSurfacePrivate())
 {
     initialize(compositor, client, id, version);
 }
 
 QWaylandSurface::QWaylandSurface(QWaylandSurfacePrivate &dptr)
-    : QObject(dptr)
+    : QWaylandObject(dptr)
 {
 }
 

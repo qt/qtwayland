@@ -339,7 +339,7 @@ void QWaylandKeyboardPrivate::createXKBKeymap()
 #endif
 
 QWaylandKeyboard::QWaylandKeyboard(QWaylandInputDevice *seat, QObject *parent)
-    : QObject(* new QWaylandKeyboardPrivate(seat), parent)
+    : QWaylandObject(* new QWaylandKeyboardPrivate(seat), parent)
 {
     Q_D(QWaylandKeyboard);
     connect(&d->focusDestroyListener, &QWaylandDestroyListener::fired, this, &QWaylandKeyboard::focusDestroyed);

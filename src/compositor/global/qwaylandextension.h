@@ -50,10 +50,10 @@ class QWaylandExtension;
 class QWaylandExtensionPrivate;
 class QWaylandExtensionTemplatePrivate;
 
-class Q_COMPOSITOR_EXPORT QWaylandExtensionContainer
+class Q_COMPOSITOR_EXPORT QWaylandObject : public QObject
 {
 public:
-    virtual ~QWaylandExtensionContainer();
+    virtual ~QWaylandObject();
 
     QWaylandExtension *extension(const QByteArray &name);
     QWaylandExtension *extension(const wl_interface *interface);
@@ -62,20 +62,22 @@ public:
     void removeExtension(QWaylandExtension *extension);
 
 protected:
+    QWaylandObject(QObject *parent = 0);
+    QWaylandObject(QObjectPrivate &d, QObject *parent = 0);
     QList<QWaylandExtension *> extension_vector;
 };
 
-class Q_COMPOSITOR_EXPORT QWaylandExtension : public QObject
+class Q_COMPOSITOR_EXPORT QWaylandExtension : public QWaylandObject
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandExtension)
 public:
     QWaylandExtension();
-    QWaylandExtension(QWaylandExtensionContainer *container);
+    QWaylandExtension(QWaylandObject *container);
     virtual ~QWaylandExtension();
 
-    QWaylandExtensionContainer *extensionContainer() const;
-    void setExtensionContainer(QWaylandExtensionContainer *container);
+    QWaylandObject *extensionContainer() const;
+    void setExtensionContainer(QWaylandObject *container);
 
     Q_INVOKABLE virtual void initialize();
     bool isInitialized() const;
@@ -84,7 +86,7 @@ public:
 
 protected:
     QWaylandExtension(QWaylandExtensionPrivate &dd);
-    QWaylandExtension(QWaylandExtensionContainer *container, QWaylandExtensionPrivate &dd);
+    QWaylandExtension(QWaylandObject *container, QWaylandExtensionPrivate &dd);
 
     bool event(QEvent *event) Q_DECL_OVERRIDE;
 };
@@ -98,7 +100,7 @@ public:
         : QWaylandExtension()
     { }
 
-    QWaylandExtensionTemplate(QWaylandExtensionContainer *container)
+    QWaylandExtensionTemplate(QWaylandObject *container)
         : QWaylandExtension(container)
     { }
 
@@ -107,7 +109,7 @@ public:
         return T::interface();
     }
 
-    static T *findIn(QWaylandExtensionContainer *container)
+    static T *findIn(QWaylandObject *container)
     {
         if (!container) return Q_NULLPTR;
         return qobject_cast<T *>(container->extension(T::interfaceName()));
@@ -118,7 +120,7 @@ protected:
         : QWaylandExtension(dd)
     { }
 
-    QWaylandExtensionTemplate(QWaylandExtensionContainer *container, QWaylandExtensionTemplatePrivate &dd)
+    QWaylandExtensionTemplate(QWaylandObject *container, QWaylandExtensionTemplatePrivate &dd)
         : QWaylandExtension(container,dd)
     { }
 };

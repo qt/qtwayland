@@ -40,7 +40,7 @@
 
 #include <QtCore/QObject>
 
-#include <QtWaylandCompositor/QWaylandExtensionContainer>
+#include <QtWaylandCompositor/QWaylandExtension>
 #include <QtWaylandCompositor/QWaylandSurface>
 
 QT_BEGIN_NAMESPACE
@@ -69,7 +69,7 @@ private:
     QString m_model;
 };
 
-class Q_COMPOSITOR_EXPORT QWaylandKeyboard : public QObject, public QWaylandExtensionContainer
+class Q_COMPOSITOR_EXPORT QWaylandKeyboard : public QWaylandObject
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandKeyboard)

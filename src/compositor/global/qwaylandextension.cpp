@@ -46,24 +46,24 @@
 QT_BEGIN_NAMESPACE
 
 QWaylandExtension::QWaylandExtension()
-    : QObject(*new QWaylandExtensionPrivate())
+    : QWaylandObject(*new QWaylandExtensionPrivate())
 {
 }
 
-QWaylandExtension::QWaylandExtension(QWaylandExtensionContainer *container)
-    : QObject(*new QWaylandExtensionPrivate())
+QWaylandExtension::QWaylandExtension(QWaylandObject *container)
+    : QWaylandObject(*new QWaylandExtensionPrivate())
 {
     d_func()->extension_container = container;
     QCoreApplication::postEvent(this, new QEvent(QEvent::Polish));
 }
 
 QWaylandExtension::QWaylandExtension(QWaylandExtensionPrivate &dd)
-    : QObject(dd)
+    : QWaylandObject(dd)
 {
 }
 
-QWaylandExtension::QWaylandExtension(QWaylandExtensionContainer *container, QWaylandExtensionPrivate &dd)
-    : QObject(dd)
+QWaylandExtension::QWaylandExtension(QWaylandObject *container, QWaylandExtensionPrivate &dd)
+    : QWaylandObject(dd)
 {
     d_func()->extension_container = container;
     QCoreApplication::postEvent(this, new QEvent(QEvent::Polish));
@@ -76,13 +76,13 @@ QWaylandExtension::~QWaylandExtension()
         d->extension_container->removeExtension(this);
 }
 
-QWaylandExtensionContainer *QWaylandExtension::extensionContainer() const
+QWaylandObject *QWaylandExtension::extensionContainer() const
 {
     Q_D(const QWaylandExtension);
     return d->extension_container;
 }
 
-void QWaylandExtension::setExtensionContainer(QWaylandExtensionContainer *container)
+void QWaylandExtension::setExtensionContainer(QWaylandObject *container)
 {
     Q_D(QWaylandExtension);
     d->extension_container = container;
@@ -120,16 +120,27 @@ bool QWaylandExtension::event(QEvent *event)
     default:
         break;
     }
-    return QObject::event(event);
+    return QWaylandObject::event(event);
 }
 
-QWaylandExtensionContainer::~QWaylandExtensionContainer()
+QWaylandObject::QWaylandObject(QObject *parent)
+    :QObject(parent)
+{
+}
+
+QWaylandObject::QWaylandObject(QObjectPrivate &d, QObject *parent)
+    :QObject(d, parent)
+{
+}
+
+
+QWaylandObject::~QWaylandObject()
 {
     foreach (QWaylandExtension *extension, extension_vector)
         QWaylandExtensionPrivate::get(extension)->extension_container = Q_NULLPTR;
 }
 
-QWaylandExtension *QWaylandExtensionContainer::extension(const QByteArray &name)
+QWaylandExtension *QWaylandObject::extension(const QByteArray &name)
 {
     for (int i = 0; i < extension_vector.size(); i++) {
         if (extension_vector.at(i)->extensionInterface()->name == name)
@@ -138,7 +149,7 @@ QWaylandExtension *QWaylandExtensionContainer::extension(const QByteArray &name)
     return Q_NULLPTR;
 }
 
-QWaylandExtension *QWaylandExtensionContainer::extension(const wl_interface *interface)
+QWaylandExtension *QWaylandObject::extension(const wl_interface *interface)
 {
     for (int i = 0; i < extension_vector.size(); i++) {
         if (extension_vector.at(i)->extensionInterface() == interface)
@@ -147,18 +158,18 @@ QWaylandExtension *QWaylandExtensionContainer::extension(const wl_interface *int
     return Q_NULLPTR;
 }
 
-QList<QWaylandExtension *> QWaylandExtensionContainer::extensions() const
+QList<QWaylandExtension *> QWaylandObject::extensions() const
 {
     return extension_vector;
 }
 
-void QWaylandExtensionContainer::addExtension(QWaylandExtension *extension)
+void QWaylandObject::addExtension(QWaylandExtension *extension)
 {
     Q_ASSERT(!extension_vector.contains(extension));
     extension_vector.append(extension);
 }
 
-void QWaylandExtensionContainer::removeExtension(QWaylandExtension *extension)
+void QWaylandObject::removeExtension(QWaylandExtension *extension)
 {
     Q_ASSERT(extension_vector.contains(extension));
     extension_vector.removeOne(extension);

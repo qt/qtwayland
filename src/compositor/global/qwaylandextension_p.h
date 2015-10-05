@@ -54,7 +54,7 @@ public:
 
     static QWaylandExtensionPrivate *get(QWaylandExtension *extension) { return extension->d_func(); }
 
-    QWaylandExtensionContainer *extension_container;
+    QWaylandObject *extension_container;
     bool initialized;
 };
 

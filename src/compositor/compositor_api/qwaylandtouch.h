@@ -37,7 +37,7 @@
 #ifndef QWAYLANDTOUCH_H
 #define QWAYLANDTOUCH_H
 
-#include <QtWaylandCompositor/QWaylandExtensionContainer>
+#include <QtWaylandCompositor/QWaylandExtension>
 
 #include <QtCore/QObject>
 #include <QtGui/QTouchEvent>
@@ -50,7 +50,7 @@ class QWaylandInputDevice;
 class QWaylandView;
 class QWaylandClient;
 
-class Q_COMPOSITOR_EXPORT QWaylandTouch : public QObject, public QWaylandExtensionContainer
+class Q_COMPOSITOR_EXPORT QWaylandTouch : public QWaylandObject
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandTouch)

@@ -54,7 +54,7 @@ class InputMethod;
 class TextInput : public QWaylandExtensionTemplate<TextInput>, public QtWaylandServer::wl_text_input
 {
 public:
-    explicit TextInput(QWaylandExtensionContainer *container, QWaylandCompositor *compositor, struct ::wl_client *client, int id);
+    explicit TextInput(QWaylandObject *container, QWaylandCompositor *compositor, struct ::wl_client *client, int id);
 
     QWaylandSurface *focus() const;
 

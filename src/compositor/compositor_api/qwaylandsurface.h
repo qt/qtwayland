@@ -60,7 +60,7 @@ class QWaylandBufferRef;
 class QWaylandView;
 class QWaylandSurfaceOp;
 
-class Q_COMPOSITOR_EXPORT QWaylandSurface : public QObject, public QWaylandExtensionContainer
+class Q_COMPOSITOR_EXPORT QWaylandSurface : public QWaylandObject
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandSurface)

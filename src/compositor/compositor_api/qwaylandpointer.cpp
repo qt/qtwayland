@@ -79,7 +79,7 @@ void QWaylandPointerPrivate::pointer_set_cursor(wl_pointer::Resource *resource, 
 }
 
 QWaylandPointer::QWaylandPointer(QWaylandInputDevice *seat, QObject *parent)
-    : QObject(* new QWaylandPointerPrivate(this, seat), parent)
+    : QWaylandObject(* new QWaylandPointerPrivate(this, seat), parent)
 {
     connect(&d_func()->focusDestroyListener, &QWaylandDestroyListener::fired, this, &QWaylandPointer::focusDestroyed);
     connect(seat, &QWaylandInputDevice::mouseFocusChanged, this, &QWaylandPointer::pointerFocusChanged);

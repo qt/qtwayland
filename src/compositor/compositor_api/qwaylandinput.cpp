@@ -144,7 +144,7 @@ QWaylandKeymap::QWaylandKeymap(const QString &layout, const QString &variant, co
 
 
 QWaylandInputDevice::QWaylandInputDevice(QWaylandCompositor *compositor, CapabilityFlags caps)
-    : QObject(*new QWaylandInputDevicePrivate(this,compositor))
+    : QWaylandObject(*new QWaylandInputDevicePrivate(this,compositor))
 {
     d_func()->setCapabilities(caps);
 }

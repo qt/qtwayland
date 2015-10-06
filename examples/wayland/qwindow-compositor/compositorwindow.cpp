@@ -168,9 +168,10 @@ void CompositorWindow::mousePressEvent(QMouseEvent *e)
         return;
     if (m_mouseView.isNull()) {
         m_mouseView = viewAt(e->localPos());
-        if (!m_mouseView)
+        if (!m_mouseView) {
+            m_compositor->closePopups();
             return;
-
+        }
         if (e->modifiers() == Qt::AltModifier || e->modifiers() == Qt::MetaModifier)
             m_grabState = MoveGrab; //start move
         else

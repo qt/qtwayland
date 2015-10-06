@@ -87,6 +87,8 @@ public:
     void handleResize(WindowCompositorView *target, const QSize &initialSize, const QPoint &delta, int edge);
     void handleDrag(WindowCompositorView *target, QMouseEvent *me);
 
+    bool popupActive() const { return !m_popupViews.isEmpty(); }
+    void closePopups();
 protected:
     void adjustCursorSurface(QWaylandSurface *surface, int hotspotX, int hotspotY);
 
@@ -101,6 +103,7 @@ private slots:
     void surfaceDestroyed();
     void surfaceCommittedSlot();
     void viewSurfaceDestroyed();
+    void onStartMove();
     void onStartResize(QWaylandInputDevice *inputDevice, QWaylandShellSurface::ResizeEdge edges);
 
     void startDrag();
@@ -109,13 +112,16 @@ private slots:
 
     void onSurfaceCreated(QWaylandSurface *surface);
     void onCreateShellSurface(QWaylandSurface *s, QWaylandClient *client, uint id);
+    void onSetTransient(QWaylandSurface *parentSurface, const QPoint &relativeToParent, QWaylandShellSurface::FocusPolicy focusPolicy);
+    void onSetPopup(QWaylandInputDevice *inputDevice, QWaylandSurface *parent, const QPoint &relativeToParent);
+
     void updateCursor();
 private:
     WindowCompositorView *findView(const QWaylandSurface *s) const;
     QWindow *m_window;
     QList<WindowCompositorView*> m_views;
+    QList<WindowCompositorView*> m_popupViews;
     QWaylandShell *m_shell;
-
     QWaylandView m_cursorView;
     int m_cursorHotspotX;
     int m_cursorHotspotY;

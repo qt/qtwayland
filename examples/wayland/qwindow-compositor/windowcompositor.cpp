@@ -109,6 +109,13 @@ void WindowCompositor::surfaceMappedChanged()
     if (surface->isMapped()) {
         if (!surface->isCursorSurface())
             defaultInputDevice()->setKeyboardFocus(surface);
+    } else if (popupActive()) {
+        for (int i = 0; i < m_popupViews.count(); i++) {
+            if (m_popupViews.at(i)->surface() == surface) {
+                m_popupViews.removeAt(i);
+                break;
+            }
+        }
     }
     triggerRender();
 }
@@ -144,16 +151,44 @@ void WindowCompositor::onCreateShellSurface(QWaylandSurface *s, QWaylandClient *
     QWaylandSurface *surface = s;
 
     QWaylandShellSurface *shellSurface = new QWaylandShellSurface(m_shell, surface, client, id);
-    connect(shellSurface, &QWaylandShellSurface::startMove, this, &WindowCompositor::startMove);
+    connect(shellSurface, &QWaylandShellSurface::startMove, this, &WindowCompositor::onStartMove);
     connect(shellSurface, &QWaylandShellSurface::startResize, this, &WindowCompositor::onStartResize);
+    connect(shellSurface, &QWaylandShellSurface::setTransient, this, &WindowCompositor::onSetTransient);
+    connect(shellSurface, &QWaylandShellSurface::setPopup, this, &WindowCompositor::onSetPopup);
     WindowCompositorView *view = findView(s);
     Q_ASSERT(view);
     view->m_shellSurface = shellSurface;
 }
 
+void WindowCompositor::onStartMove()
+{
+    closePopups();
+    emit startMove();
+}
+
 void WindowCompositor::onStartResize(QWaylandInputDevice *, QWaylandShellSurface::ResizeEdge edges)
 {
+    closePopups();
     emit startResize(int(edges));
+}
+
+void WindowCompositor::onSetTransient(QWaylandSurface *parentSurface, const QPoint &relativeToParent, QWaylandShellSurface::FocusPolicy focusPolicy)
+{
+    qDebug() << "Transient window support not implemented" << parentSurface << relativeToParent << focusPolicy;
+}
+
+void WindowCompositor::onSetPopup(QWaylandInputDevice *inputDevice, QWaylandSurface *parent, const QPoint &relativeToParent)
+{
+    Q_UNUSED(inputDevice);
+    QWaylandShellSurface *surface = qobject_cast<QWaylandShellSurface*>(sender());
+    WindowCompositorView *view = findView(surface->surface());
+    m_popupViews << view;
+    if (view) {
+        raise(view);
+        WindowCompositorView *parentView = findView(parent);
+        if (parentView)
+            view->setPosition(parentView->position() + relativeToParent);
+    }
 }
 
 void WindowCompositor::triggerRender()
@@ -193,8 +228,19 @@ void WindowCompositor::adjustCursorSurface(QWaylandSurface *surface, int hotspot
     m_cursorHotspotY = hotspotY;
 }
 
+void WindowCompositor::closePopups()
+{
+    Q_FOREACH (WindowCompositorView *view, m_popupViews)
+        view->m_shellSurface->sendPopupDone();
+    m_popupViews.clear();
+}
+
 void WindowCompositor::handleMouseEvent(QWaylandView *target, QMouseEvent *me)
 {
+    if (target && popupActive() && me->type() == QEvent::MouseButtonPress
+        && target->surface()->client() != m_popupViews.first()->surface()->client()) {
+        closePopups();
+    }
     QWaylandInputDevice *input = defaultInputDevice();
     switch (me->type()) {
         case QEvent::MouseButtonPress:

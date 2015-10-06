@@ -94,7 +94,7 @@ public:
     QImage image() const;
     void bindToTexture() const;
 
-    static bool hasContent(SurfaceBuffer *buffer) { return buffer && buffer->isRegisteredWithBuffer(); }
+    static bool hasContent(SurfaceBuffer *buffer) { return buffer && buffer->waylandBufferHandle(); }
 private:
     void ref();
     void deref();

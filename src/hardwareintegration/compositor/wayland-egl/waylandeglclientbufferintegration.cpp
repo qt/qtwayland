@@ -195,8 +195,9 @@ QWaylandSurface::Origin WaylandEglClientBufferIntegration::origin(struct ::wl_re
     Q_D(const WaylandEglClientBufferIntegration);
 
     EGLint isYInverted;
-    EGLBoolean ret;
-    ret = d->egl_query_wayland_buffer(d->egl_display, buffer, EGL_WAYLAND_Y_INVERTED_WL, &isYInverted);
+    EGLBoolean ret = EGL_FALSE;
+    if (buffer)
+        ret = d->egl_query_wayland_buffer(d->egl_display, buffer, EGL_WAYLAND_Y_INVERTED_WL, &isYInverted);
 
     // Yes, this looks strange, but the specification says that EGL_FALSE return
     // value (not supported) should be treated the same as EGL_TRUE return value

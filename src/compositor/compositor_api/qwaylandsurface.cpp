@@ -113,7 +113,9 @@ static QRegion infiniteRegion() {
                          QPoint(std::numeric_limits<int>::max(), std::numeric_limits<int>::max())));
 }
 
+#ifndef QT_NO_DEBUG
 QList<QWaylandSurfacePrivate *> QWaylandSurfacePrivate::uninitializedSurfaces;
+#endif
 
 QWaylandSurfacePrivate::QWaylandSurfacePrivate()
     : QtWaylandServer::wl_surface()

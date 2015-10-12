@@ -116,6 +116,30 @@ KeyboardGrabber *Keyboard::currentGrab() const
     return m_grab;
 }
 
+void Keyboard::checkFocusResource(wl_keyboard::Resource *keyboardResource)
+{
+    if (!keyboardResource || !m_focus)
+        return;
+
+    // this is already the current  resource, do no send enter twice
+    if (m_focusResource == keyboardResource)
+        return;
+
+    // check if new wl_keyboard resource is from the client owning the focus surface
+    struct ::wl_client *focusedClient = m_focus->resource()->client();
+    if (focusedClient == keyboardResource->client()) {
+        sendEnter(m_focus, keyboardResource);
+        m_focusResource = keyboardResource;
+    }
+}
+
+void Keyboard::sendEnter(Surface *surface, wl_keyboard::Resource *keyboardResource)
+{
+    uint32_t serial = wl_display_next_serial(m_compositor->wl_display());
+    send_modifiers(keyboardResource->handle, serial, m_modsDepressed, m_modsLatched, m_modsLocked, m_group);
+    send_enter(keyboardResource->handle, serial, surface->resource()->handle, QByteArray::fromRawData((char *)m_keys.data(), m_keys.size() * sizeof(uint32_t)));
+}
+
 void Keyboard::focused(Surface *surface)
 {
     if (m_focus != surface) {
@@ -132,9 +156,7 @@ void Keyboard::focused(Surface *surface)
     Resource *resource = surface ? resourceMap().value(surface->resource()->client()) : 0;
 
     if (resource && (m_focus != surface || m_focusResource != resource)) {
-        uint32_t serial = wl_display_next_serial(m_compositor->wl_display());
-        send_modifiers(resource->handle, serial, m_modsDepressed, m_modsLatched, m_modsLocked, m_group);
-        send_enter(resource->handle, serial, surface->resource()->handle, QByteArray::fromRawData((char *)m_keys.data(), m_keys.size() * sizeof(uint32_t)));
+        sendEnter(surface, resource);
     }
 
     m_focusResource = resource;
@@ -200,13 +222,17 @@ void Keyboard::keyboard_bind_resource(wl_keyboard::Resource *resource)
     if (m_context) {
         send_keymap(resource->handle, WL_KEYBOARD_KEYMAP_FORMAT_XKB_V1,
                     m_keymap_fd, m_keymap_size);
-        return;
     }
+    else
 #endif
-    int null_fd = open("/dev/null", O_RDONLY);
-    send_keymap(resource->handle, 0 /* WL_KEYBOARD_KEYMAP_FORMAT_NO_KEYMAP */,
-                null_fd, 0);
-    close(null_fd);
+    {
+        int null_fd = open("/dev/null", O_RDONLY);
+        send_keymap(resource->handle, 0 /* WL_KEYBOARD_KEYMAP_FORMAT_NO_KEYMAP */,
+                    null_fd, 0);
+        close(null_fd);
+    }
+
+    checkFocusResource(resource);
 }
 
 void Keyboard::keyboard_destroy_resource(wl_keyboard::Resource *resource)

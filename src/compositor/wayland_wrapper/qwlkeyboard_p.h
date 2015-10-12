@@ -132,6 +132,9 @@ protected:
     void keyboard_release(Resource *resource) Q_DECL_OVERRIDE;
 
 private:
+    void checkFocusResource(wl_keyboard::Resource *resource);
+    void sendEnter(Surface *surface, wl_keyboard::Resource *resource);
+
     void sendKeyEvent(uint code, uint32_t state);
     void focusDestroyed(void *data);
 

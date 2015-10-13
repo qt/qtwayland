@@ -186,6 +186,40 @@ QWaylandOutput::QWaylandOutput()
 {
 }
 
+/*!
+   \qmltype WaylandOutput
+   \inqmlmodule QtWayland.Compositor
+   \brief Type providing access to a displayable area managed by the compositor.
+
+   The WaylandOutput manages a rectangular part of the compositor's geometry that
+   can be used for displaying client content. This could, for instance, be a screen
+   managed by the WaylandCompositor.
+
+   The type corresponds to the wl_output interface in the Wayland protocol.
+*/
+
+/*!
+   \class QWaylandOutput
+   \inmodule QtWaylandCompositor
+   \brief The QWaylandOutput class provides access to a displayable area managed by the compositor.
+
+   The QWaylandOutput manages a rectangular part of the compositor's geometry that
+   can be used for displaying client content. This could, for instance, be a screen
+   managed by the QWaylandCompositor.
+
+   The class corresponds to the wl_output interface in the Wayland protocol.
+*/
+
+/*!
+ * Constructs a QWaylandOutput in \a compositor and with the specified \a window. The
+ * \l{QWaylandCompositor::create()}{create()} function must have been called on the
+ * \a compositor before a QWaylandOutput is constructed for it.
+ *
+ * The QWaylandOutput object is initialized later, in reaction to an event.
+ * At this point it is added as an output for the \a compositor. If it is the
+ * first QWaylandOutput object created for this \a compositor, it becomes the
+ * \l{QWaylandCompositor::defaultOutput()}{default output}.
+ */
 QWaylandOutput::QWaylandOutput(QWaylandCompositor *compositor, QWindow *window)
     : QWaylandObject(*new QWaylandOutputPrivate())
 {
@@ -195,6 +229,9 @@ QWaylandOutput::QWaylandOutput(QWaylandCompositor *compositor, QWindow *window)
     QWaylandCompositorPrivate::get(compositor)->addPolishObject(this);
 }
 
+/*!
+ * Destroys the QWaylandOutput.
+ */
 QWaylandOutput::~QWaylandOutput()
 {
     Q_D(QWaylandOutput);
@@ -202,6 +239,9 @@ QWaylandOutput::~QWaylandOutput()
         QWaylandCompositorPrivate::get(d->compositor)->removeOutput(this);
 }
 
+/*!
+ * \internal
+ */
 void QWaylandOutput::initialize()
 {
     Q_D(QWaylandOutput);
@@ -224,11 +264,17 @@ void QWaylandOutput::initialize()
     d->initialized = true;
 }
 
+/*!
+ * Returns the QWaylandOutput corresponding to \a resource.
+ */
 QWaylandOutput *QWaylandOutput::fromResource(wl_resource *resource)
 {
     return static_cast<QWaylandOutputPrivate *>(QWaylandOutputPrivate::Resource::fromResource(resource)->output_object)->q_func();
 }
 
+/*!
+ * \internal
+ */
 struct ::wl_resource *QWaylandOutput::resourceForClient(QWaylandClient *client) const
 {
     Q_D(const QWaylandOutput);
@@ -239,6 +285,11 @@ struct ::wl_resource *QWaylandOutput::resourceForClient(QWaylandClient *client) 
     return Q_NULLPTR;
 }
 
+/*!
+ * Schedules a QEvent::UpdateRequest to be delivered to the QWaylandOutput's \l{window()}{window}.
+ *
+ * \sa QWindow::requestUpdate()
+ */
 void QWaylandOutput::update()
 {
     Q_D(QWaylandOutput);
@@ -247,11 +298,24 @@ void QWaylandOutput::update()
     d->window->requestUpdate();
 }
 
+/*!
+ * \qmlproperty object QtWaylandCompositor::WaylandOutput::compositor
+ *
+ * This property holds the compositor displaying content on this QWaylandOutput.
+ * This property can only be set once, before the WaylandOutput component is completed.
+ */
+
+/*!
+ * Returns the compositor for this QWaylandOutput.
+ */
 QWaylandCompositor *QWaylandOutput::compositor() const
 {
     return d_func()->compositor;
 }
 
+/*!
+ * \internal
+ */
 void QWaylandOutput::setCompositor(QWaylandCompositor *compositor)
 {
     Q_D(QWaylandOutput);
@@ -272,7 +336,17 @@ void QWaylandOutput::setCompositor(QWaylandCompositor *compositor)
     QWaylandCompositorPrivate::get(compositor)->addPolishObject(this);
 }
 
+/*!
+ * \qmlproperty string QtWaylandCompositor::WaylandOutput::manufacturer
+ *
+ * This property holds a textual description of the manufacturer of this WaylandOutput.
+ */
 
+/*!
+ * \property QWaylandOutput::manufacturer
+ *
+ * This property holds a textual description of the manufacturer of this QWaylandOutput.
+ */
 QString QWaylandOutput::manufacturer() const
 {
     return d_func()->manufacturer;
@@ -283,6 +357,17 @@ void QWaylandOutput::setManufacturer(const QString &manufacturer)
     d_func()->manufacturer = manufacturer;
 }
 
+/*!
+ * \qmlproperty string QtWaylandCompositor::WaylandOutput::model
+ *
+ * This property holds a textual description of the model of this WaylandOutput.
+ */
+
+/*!
+ * \property QWaylandOutput::model
+ *
+ * This property holds a textual description of the model of this QWaylandOutput.
+ */
 QString QWaylandOutput::model() const
 {
     return d_func()->model;
@@ -293,6 +378,17 @@ void QWaylandOutput::setModel(const QString &model)
     d_func()->model = model;
 }
 
+/*!
+ * \qmlproperty point QtWaylandCompositor::WaylandOutput::position
+ *
+ * This property holds the position of this WaylandOutput in the compositor's coordinate system.
+ */
+
+/*!
+ * \property QWaylandOutput::position
+ *
+ * This property holds the position of this QWaylandOutput in the compositor's coordinate system.
+ */
 QPoint QWaylandOutput::position() const
 {
     return d_func()->position;
@@ -312,6 +408,11 @@ void QWaylandOutput::setPosition(const QPoint &pt)
     Q_EMIT geometryChanged();
 }
 
+/*!
+ * \property QWaylandOutput::mode
+ *
+ * This property holds the output's size in pixels and refresh rate in Hz.
+ */
 QWaylandOutput::Mode QWaylandOutput::mode() const
 {
     return d_func()->mode;
@@ -343,6 +444,19 @@ void QWaylandOutput::setMode(const Mode &mode)
     }
 }
 
+/*!
+ * \qmlproperty rect QtWaylandCompositor::WaylandOutput::geometry
+ *
+ * This property holds the geometry of the WaylandOutput.
+ */
+
+/*!
+ * \property QWaylandOutput::geometry
+ *
+ * This property holds the geometry of the QWaylandOutput.
+ *
+ * \sa QWaylandOutput::mode
+ */
 QRect QWaylandOutput::geometry() const
 {
     Q_D(const QWaylandOutput);
@@ -374,6 +488,21 @@ void QWaylandOutput::setGeometry(const QRect &geometry)
     Q_EMIT modeChanged();
 }
 
+/*!
+ * \qmlproperty rect QtWaylandCompositor::WaylandOutput::availableGeometry
+ *
+ * This property holds the geometry of the WaylandOutput available for displaying content.
+ *
+ * \sa QWaylandOutput::geometry
+ */
+
+/*!
+ * \property QWaylandOutput::availableGeometry
+ *
+ * This property holds the geometry of the QWaylandOutput available for displaying content.
+ *
+ * \sa QWaylandOutput::mode, QWaylandOutput::geometry
+ */
 QRect QWaylandOutput::availableGeometry() const
 {
     Q_D(const QWaylandOutput);
@@ -394,6 +523,21 @@ void QWaylandOutput::setAvailableGeometry(const QRect &availableGeometry)
     Q_EMIT availableGeometryChanged();
 }
 
+/*!
+ * \qmlproperty size QtWaylandCompositor::WaylandOutput::physicalSize
+ *
+ * This property holds the physical size of the WaylandOutput in millimeters.
+ *
+ * \sa QWaylandOutput::geometry
+ */
+
+/*!
+ * \property QWaylandOutput::physicalSize
+ *
+ * This property holds the physical size of the QWaylandOutput in millimeters.
+ *
+ * \sa QWaylandOutput::geometry, QWaylandOutput::mode
+ */
 QSize QWaylandOutput::physicalSize() const
 {
     return d_func()->physicalSize;
@@ -412,6 +556,44 @@ void QWaylandOutput::setPhysicalSize(const QSize &size)
     Q_EMIT physicalSizeChanged();
 }
 
+/*!
+ * \enum QWaylandOutput::Subpixel
+ *
+ * This enum type is used to specify the subpixel arrangement of a QWaylandOutput.
+ *
+ * \value SubpixelUnknown The subpixel arrangement is not set.
+ * \value SubpixelNone There are no subpixels.
+ * \value SubpixelHorizontalRgb The subpixels are arranged horizontally in red, green, blue order.
+ * \value SubpixelHorizontalBgr The subpixels are arranged horizontally in blue, green, red order.
+ * \value SubpixelVerticalRgb The subpixels are arranged vertically in red, green, blue order.
+ * \value SubpixelVerticalBgr The subpixels are arranged vertically in blue, green, red order.
+ *
+ * \sa QWaylandOutput::subpixel
+ */
+
+/*!
+ * \qmlproperty enum QtWaylandCompositor::WaylandOutput::subpixel
+ *
+ * This property holds the subpixel arrangement of this WaylandOutput.
+ *
+ * \list
+ * \li WaylandOutput.SubpixelUnknown The subpixel arrangement is not set.
+ * \li WaylandOutput.SubpixelNone There are no subpixels.
+ * \li WaylandOutput.SubpixelHorizontalRgb The subpixels are arranged horizontally in red, green, blue order.
+ * \li WaylandOutput.SubpixelHorizontalBgr The subpixels are arranged horizontally in blue, green, red order.
+ * \li WaylandOutput.SubpixelVerticalRgb The subpixels are arranged vertically in red, green, blue order.
+ * \li WaylandOutput.SubpixelVerticalBgr The subpixels are arranged vertically in blue, green, red order.
+ * \endlist
+ *
+ * The default is WaylandOutput.SubpixelUnknown.
+ */
+
+/*!
+ * \property QWaylandOutput::subpixel
+ *
+ * This property holds the subpixel arrangement of this QWaylandOutput. The default is
+ * QWaylandOutput::SubpixelUnknown.
+ */
 QWaylandOutput::Subpixel QWaylandOutput::subpixel() const
 {
     return d_func()->subpixel;
@@ -430,6 +612,50 @@ void QWaylandOutput::setSubpixel(const Subpixel &subpixel)
     Q_EMIT subpixelChanged();
 }
 
+/*! \enum QWaylandOutput::Transform
+ *
+ * This enum type is used to specify the orientation of a QWaylandOutput.
+ *
+ * \value TransformNormal The QWaylandOutput orientation is normal.
+ * \value Transform90 The QWaylandOutput is rotated 90 degrees.
+ * \value Transform180 The QWaylandOutput is rotated 180 degrees.
+ * \value Transform270 The QWaylandOutput is rotated 270 degrees.
+ * \value TransformFlipped The QWaylandOutput is mirrored.
+ * \value TransformFlipped90 The QWaylandOutput is mirrored, and rotated 90 degrees.
+ * \value TransformFlipped180 The QWaylandOutput is mirrored, and rotated 180 degrees.
+ * \value TransformFlipped270 The QWaylandOutput is mirrored, and rotated 270 degrees.
+ *
+ * \sa QWaylandOutput::transform
+*/
+
+/*!
+ * \qmlproperty enum QtWaylandCompositor::WaylandOutput::transform
+ *
+ * This property holds the transformation that the QWaylandCompositor applies to a surface
+ * to compensate for the orientation of the QWaylandOutput.
+ *
+ * \list
+ * \li WaylandOutput.TransformNormal The QWaylandOutput orientation is normal.
+ * \li WaylandOutput.Transform90 The QWaylandOutput is rotated 90 degrees.
+ * \li WaylandOutput.Transform180 The QWaylandOutput is rotated 180 degrees.
+ * \li WaylandOutput.Transform270 The QWaylandOutput is rotated 270 degrees.
+ * \li WaylandOutput.TransformFlipped The QWaylandOutput is mirrored.
+ * \li WaylandOutput.TransformFlipped90 The QWaylandOutput is mirrored, then rotated 90 degrees.
+ * \li WaylandOutput.TransformFlipped180 The QWaylandOutput is mirrored, then rotated 180 degrees.
+ * \li WaylandOutput.TransformFlipped270 The QWaylandOutput is mirrored, then rotated 270 degrees.
+ * \endlist
+ *
+ * The default is WaylandOutput.TransformNormal.
+ */
+
+/*!
+ * \property QWaylandOutput::transform
+ *
+ * This property holds the transformation that the QWaylandCompositor applies to a surface
+ * to compensate for the orientation of the QWaylandOutput.
+ *
+ * The default is QWaylandOutput::TransformNormal.
+ */
 QWaylandOutput::Transform QWaylandOutput::transform() const
 {
     return d_func()->transform;
@@ -448,6 +674,29 @@ void QWaylandOutput::setTransform(const Transform &transform)
     Q_EMIT transformChanged();
 }
 
+/*!
+ * \qmlproperty int QtWaylandCompositor::WaylandOutput::scaleFactor
+ *
+ * This property holds the factor by which the WaylandCompositor scales surface buffers
+ * before they are displayed. This is used on high density output devices where unscaled content
+ * would be too small to be practical. The client can in turn set the scale factor of its
+ * buffer to match the output if it prefers to provide high resolution content that is
+ * suitable for the output device.
+ *
+ * The default is 1 (no scaling).
+ */
+
+/*!
+ * \property QWaylandOutput::scaleFactor
+ *
+ * This property holds the factor by which the QWaylandCompositor scales surface buffers
+ * before they are displayed. This is used on high density output devices where unscaled content
+ * would be too small to be practical. The client can in turn set the scale factor of its
+ * buffer to match the output if it prefers to provide high resolution content that is
+ * suitable for the output device.
+ *
+ * The default is 1 (no scaling).
+ */
 int QWaylandOutput::scaleFactor() const
 {
     return d_func()->scaleFactor;
@@ -471,6 +720,23 @@ void QWaylandOutput::setScaleFactor(int scale)
     Q_EMIT scaleFactorChanged();
 }
 
+/*!
+ * \qmlproperty bool QtWaylandCompositor::WaylandOutput::sizeFollowsWindow
+ *
+ * This property controls whether the size of the WaylandOutput matches the
+ * size of its window.
+ *
+ * The default is true.
+ */
+
+/*!
+ * \property QWaylandOutput::sizeFollowsWindow
+ *
+ * This property controls whether the size of the QWaylandOutput matches the
+ * size of its window.
+ *
+ * The default is true.
+ */
 bool QWaylandOutput::sizeFollowsWindow() const
 {
     return d_func()->sizeFollowsWindow;
@@ -492,6 +758,18 @@ void QWaylandOutput::setSizeFollowsWindow(bool follow)
     }
 }
 
+/*!
+ * \qmlproperty object QtWaylandCompositor::WaylandOutput::window
+ *
+ * This property holds the Window for this WaylandOutput. This property can only be set once,
+ * before the WaylandOutput component is completed.
+ */
+
+/*!
+ * \property QWaylandOutput::window
+ *
+ * This property holds the QWindow for this QWaylandOutput.
+ */
 QWindow *QWaylandOutput::window() const
 {
     return d_func()->window;
@@ -510,6 +788,9 @@ void QWaylandOutput::setWindow(QWindow *window)
     emit windowChanged();
 }
 
+/*!
+ * Tells the QWaylandOutput that a frame has started.
+ */
 void QWaylandOutput::frameStarted()
 {
     Q_D(QWaylandOutput);
@@ -520,6 +801,9 @@ void QWaylandOutput::frameStarted()
     }
 }
 
+/*!
+ * Sends pending frame callbacks.
+ */
 void QWaylandOutput::sendFrameCallbacks()
 {
     Q_D(QWaylandOutput);
@@ -537,6 +821,9 @@ void QWaylandOutput::sendFrameCallbacks()
     wl_display_flush_clients(d->compositor->display());
 }
 
+/*!
+ * \internal
+ */
 void QWaylandOutput::surfaceEnter(QWaylandSurface *surface)
 {
     if (!surface)
@@ -544,6 +831,9 @@ void QWaylandOutput::surfaceEnter(QWaylandSurface *surface)
     QWaylandSurfacePrivate::get(surface)->send_enter(resourceForClient(surface->client()));
 }
 
+/*!
+ * \internal
+ */
 void QWaylandOutput::surfaceLeave(QWaylandSurface *surface)
 {
     if (!surface || !surface->client())
@@ -551,6 +841,11 @@ void QWaylandOutput::surfaceLeave(QWaylandSurface *surface)
     QWaylandSurfacePrivate::get(surface)->send_leave(resourceForClient(surface->client()));
 }
 
+/*!
+ * This functions sets the width of this QWaylandOutput to \a newWidth.
+ *
+ * \sa setHeight, QWaylandOutput::geometry
+ */
 void QWaylandOutput::setWidth(int newWidth)
 {
     Q_D(QWaylandOutput);
@@ -562,6 +857,11 @@ void QWaylandOutput::setWidth(int newWidth)
     setGeometry(QRect(d->position, s));
 }
 
+/*!
+ * This functions sets the height of this QWaylandOutput to \a newHeight.
+ *
+ * \sa setWidth, QWaylandOutput::geometry
+ */
 void QWaylandOutput::setHeight(int newHeight)
 {
     Q_D(QWaylandOutput);
@@ -573,6 +873,9 @@ void QWaylandOutput::setHeight(int newHeight)
     setGeometry(QRect(d->position, s));
 }
 
+/*!
+ * \internal
+ */
 void QWaylandOutput::handleWindowDestroyed()
 {
     Q_D(QWaylandOutput);
@@ -580,6 +883,9 @@ void QWaylandOutput::handleWindowDestroyed()
     emit windowDestroyed();
 }
 
+/*!
+ * \internal
+ */
 bool QWaylandOutput::event(QEvent *event)
 {
     if (event->type() == QEvent::Polish)

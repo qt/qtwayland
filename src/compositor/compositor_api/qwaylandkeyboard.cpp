@@ -338,25 +338,46 @@ void QWaylandKeyboardPrivate::createXKBKeymap()
 }
 #endif
 
-QWaylandKeyboard::QWaylandKeyboard(QWaylandInputDevice *seat, QObject *parent)
-    : QWaylandObject(* new QWaylandKeyboardPrivate(seat), parent)
+/*!
+ * \class QWaylandKeyboard
+ * \inmodule QtWaylandCompositor
+ * \brief The QWaylandKeyboard class provides access to a keyboard device.
+ *
+ * This class provides access to the keyboard device in a QWaylandInputDevice. It corresponds to
+ * the Wayland interface wl_keyboard.
+ */
+
+/*!
+ * Constructs a QWaylandKeyboard for the given \a inputDevice and with the given \a parent.
+ */
+QWaylandKeyboard::QWaylandKeyboard(QWaylandInputDevice *inputDevice, QObject *parent)
+    : QWaylandObject(* new QWaylandKeyboardPrivate(inputDevice), parent)
 {
     Q_D(QWaylandKeyboard);
     connect(&d->focusDestroyListener, &QWaylandDestroyListener::fired, this, &QWaylandKeyboard::focusDestroyed);
 }
 
+/*!
+ * Returns the input device for this QWaylandKeyboard.
+ */
 QWaylandInputDevice *QWaylandKeyboard::inputDevice() const
 {
     Q_D(const QWaylandKeyboard);
     return d->seat;
 }
 
+/*!
+ * Returns the compositor for this QWaylandKeyboard.
+ */
 QWaylandCompositor *QWaylandKeyboard::compositor() const
 {
     Q_D(const QWaylandKeyboard);
     return d->seat->compositor();
 }
 
+/*!
+ * \internal
+ */
 void QWaylandKeyboard::focusDestroyed(void *data)
 {
     Q_UNUSED(data);
@@ -367,6 +388,9 @@ void QWaylandKeyboard::focusDestroyed(void *data)
     d->focusResource = 0;
 }
 
+/*!
+ * Returns the client that currently has keyboard focus.
+ */
 QWaylandClient *QWaylandKeyboard::focusClient() const
 {
     Q_D(const QWaylandKeyboard);
@@ -375,6 +399,9 @@ QWaylandClient *QWaylandKeyboard::focusClient() const
     return QWaylandClient::fromWlClient(compositor(), d->focusResource->client());
 }
 
+/*!
+ * Sends the current key modifiers to \a client with the given \a serial.
+ */
 void QWaylandKeyboard::sendKeyModifiers(QWaylandClient *client, uint serial)
 {
     Q_D(QWaylandKeyboard);
@@ -383,24 +410,36 @@ void QWaylandKeyboard::sendKeyModifiers(QWaylandClient *client, uint serial)
         d->send_modifiers(resource->handle, serial, d->modsDepressed, d->modsLatched, d->modsLocked, d->group);
 }
 
+/*!
+ * Sends a key press event with the key \a code to the current keyboard focus.
+ */
 void QWaylandKeyboard::sendKeyPressEvent(uint code)
 {
     Q_D(QWaylandKeyboard);
     d->sendKeyEvent(code, WL_KEYBOARD_KEY_STATE_PRESSED);
 }
 
+/*!
+ * Sends a key release event with the key \a code to the current keyboard focus.
+ */
 void QWaylandKeyboard::sendKeyReleaseEvent(uint code)
 {
     Q_D(QWaylandKeyboard);
     d->sendKeyEvent(code, WL_KEYBOARD_KEY_STATE_RELEASED);
 }
 
+/*!
+ * Returns the currently focused surface.
+ */
 QWaylandSurface *QWaylandKeyboard::focus() const
 {
     Q_D(const QWaylandKeyboard);
     return d->focus;
 }
 
+/*!
+ * Sets the current focus to \a surface.
+ */
 bool QWaylandKeyboard::setFocus(QWaylandSurface *surface)
 {
     Q_D(QWaylandKeyboard);
@@ -411,6 +450,9 @@ bool QWaylandKeyboard::setFocus(QWaylandSurface *surface)
     return true;
 }
 
+/*!
+ * Sets the keyboard's keymap to \a keymap.
+ */
 void QWaylandKeyboard::setKeymap(const QWaylandKeymap &keymap)
 {
     Q_D(QWaylandKeyboard);
@@ -425,6 +467,9 @@ void QWaylandKeyboard::setKeymap(const QWaylandKeymap &keymap)
     }
 }
 
+/*!
+ * \internal
+ */
 void QWaylandKeyboard::addClient(QWaylandClient *client, uint32_t id)
 {
     Q_D(QWaylandKeyboard);

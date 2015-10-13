@@ -42,16 +42,53 @@
 
 QT_BEGIN_NAMESPACE
 
+/*!
+ * \qmltype ShellSurfaceItem
+ * \inqmlmodule QtWayland.Compositor
+ * \brief An item representing a ShellSurface.
+ *
+ * This type can be used to render shell surfaces as part of a Qt Quick scene.
+ * It handles moving and resizing triggered by clicking on the window decorations.
+ */
+
+/*!
+ * \class QWaylandQuickShellSurfaceItem
+ * \inmodule QtWaylandCompositor
+ * \brief A Qt Quick item for QWaylandShellSurface.
+ *
+ * This class can be used to create Qt Quick items representing shell surfaces.
+ * It handles moving and resizing triggered by clicking on the window decorations.
+ *
+ * \sa QWaylandQuickItem
+ */
+
+/*!
+ * Constructs a QWaylandQuickShellSurfaceItem with the given \a parent.
+ */
 QWaylandQuickShellSurfaceItem::QWaylandQuickShellSurfaceItem(QQuickItem *parent)
     : QWaylandQuickItem(*new QWaylandQuickShellSurfaceItemPrivate(), parent)
 {
 }
 
+/*!
+ * \internal
+ */
 QWaylandQuickShellSurfaceItem::QWaylandQuickShellSurfaceItem(QWaylandQuickShellSurfaceItemPrivate &dd, QQuickItem *parent)
     : QWaylandQuickItem(dd, parent)
 {
 }
 
+/*!
+ * \qmlproperty object QtWaylandCompositor::ShellSurfaceItem::shellSurface
+ *
+ * This property holds the shell surface rendered by this ShellSurfaceItem.
+ */
+
+/*!
+ * \property QWaylandQuickShellSurfaceItem::shellSurface
+ *
+ * This property holds the shell surface rendered by this QWaylandQuickShellSurfaceItem.
+ */
 QWaylandShellSurface *QWaylandQuickShellSurfaceItem::shellSurface() const
 {
     Q_D(const QWaylandQuickShellSurfaceItem);
@@ -76,6 +113,12 @@ void QWaylandQuickShellSurfaceItem::setShellSurface(QWaylandShellSurface *shellS
     emit shellSurfaceChanged();
 }
 
+/*!
+ * \internal
+ * \property QWaylandQuickShellSurfaceItem::moveItem
+ *
+ * This property holds the move item for this QWaylandQuickShellSurfaceItem.
+ */
 QQuickItem *QWaylandQuickShellSurfaceItem::moveItem() const
 {
     Q_D(const QWaylandQuickShellSurfaceItem);
@@ -91,6 +134,9 @@ void QWaylandQuickShellSurfaceItem::setMoveItem(QQuickItem *moveItem)
     moveItemChanged();
 }
 
+/*!
+ * \internal
+ */
 void QWaylandQuickShellSurfaceItem::handleStartMove(QWaylandInputDevice *inputDevice)
 {
     Q_D(QWaylandQuickShellSurfaceItem);
@@ -99,6 +145,9 @@ void QWaylandQuickShellSurfaceItem::handleStartMove(QWaylandInputDevice *inputDe
     d->moveState.initialized = false;
 }
 
+/*!
+ * \internal
+ */
 void QWaylandQuickShellSurfaceItem::handleStartResize(QWaylandInputDevice *inputDevice, QWaylandShellSurface::ResizeEdge edges)
 {
     Q_D(QWaylandQuickShellSurfaceItem);
@@ -109,6 +158,9 @@ void QWaylandQuickShellSurfaceItem::handleStartResize(QWaylandInputDevice *input
     d->resizeState.initialized = false;
 }
 
+/*!
+ * \internal
+ */
 void QWaylandQuickShellSurfaceItem::adjustOffsetForNextFrame(const QPointF &offset)
 {
     Q_D(QWaylandQuickShellSurfaceItem);
@@ -116,6 +168,9 @@ void QWaylandQuickShellSurfaceItem::adjustOffsetForNextFrame(const QPointF &offs
     moveItem->setPosition(moveItem->position() + offset);
 }
 
+/*!
+ * \internal
+ */
 void QWaylandQuickShellSurfaceItem::mouseMoveEvent(QMouseEvent *event)
 {
     Q_D(QWaylandQuickShellSurfaceItem);
@@ -146,6 +201,9 @@ void QWaylandQuickShellSurfaceItem::mouseMoveEvent(QMouseEvent *event)
     }
 }
 
+/*!
+ * \internal
+ */
 void QWaylandQuickShellSurfaceItem::mouseReleaseEvent(QMouseEvent *event)
 {
     Q_D(QWaylandQuickShellSurfaceItem);
@@ -156,6 +214,9 @@ void QWaylandQuickShellSurfaceItem::mouseReleaseEvent(QMouseEvent *event)
     QWaylandQuickItem::mouseReleaseEvent(event);
 }
 
+/*!
+ * \internal
+ */
 void QWaylandQuickShellSurfaceItem::surfaceChangedEvent(QWaylandSurface *newSurface, QWaylandSurface *oldSurface)
 {
     if (oldSurface)
@@ -165,6 +226,9 @@ void QWaylandQuickShellSurfaceItem::surfaceChangedEvent(QWaylandSurface *newSurf
         connect(newSurface, &QWaylandSurface::offsetForNextFrame, this, &QWaylandQuickShellSurfaceItem::adjustOffsetForNextFrame);
 }
 
+/*!
+ * \internal
+ */
 void QWaylandQuickShellSurfaceItem::componentComplete()
 {
     Q_D(QWaylandQuickShellSurfaceItem);

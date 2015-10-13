@@ -101,24 +101,49 @@ void QWaylandTouchPrivate::sendMotion(uint32_t time, int touch_id, const QPointF
                          wl_fixed_from_double(position.x()), wl_fixed_from_double(position.y()));
 }
 
-QWaylandTouch::QWaylandTouch(QWaylandInputDevice *seat, QObject *parent)
-    : QWaylandObject(*new QWaylandTouchPrivate(this, seat), parent)
+/*!
+ * \class QWaylandTouch
+ * \inmodule QtWaylandCompositor
+ * \brief The QWaylandTouch class provides access to a touch device.
+ *
+ * This class provides access to the touch device in a QWaylandInputDevice. It corresponds to
+ * the Wayland interface wl_touch.
+ */
+
+/*!
+ * Constructs a QWaylandTouch for the \a inputDevice and with the given \a parent.
+ */
+QWaylandTouch::QWaylandTouch(QWaylandInputDevice *inputDevice, QObject *parent)
+    : QWaylandObject(*new QWaylandTouchPrivate(this, inputDevice), parent)
 {
     connect(&d_func()->focusDestroyListener, &QWaylandDestroyListener::fired, this, &QWaylandTouch::focusDestroyed);
 }
 
+/*!
+ * Returns the input device for this QWaylandTouch.
+ */
 QWaylandInputDevice *QWaylandTouch::inputDevice() const
 {
     Q_D(const QWaylandTouch);
     return d->seat;
 }
 
+/*!
+ * Returns the compositor for this QWaylandTouch.
+ */
 QWaylandCompositor *QWaylandTouch::compositor() const
 {
     Q_D(const QWaylandTouch);
     return d->compositor();
 }
 
+/*!
+ * Sends a touch point event for the touch device with the given \a id,
+ * \a position, and \a state.
+ *
+ *
+ * \sa mouseFocus()
+ */
 void QWaylandTouch::sendTouchPointEvent(int id, const QPointF &position, Qt::TouchPointState state)
 {
     Q_D(QWaylandTouch);
@@ -141,6 +166,10 @@ void QWaylandTouch::sendTouchPointEvent(int id, const QPointF &position, Qt::Tou
     }
 }
 
+/*!
+ * Sends a touch frame event for the touch device. This indicates the end of a
+ * contact point list.
+ */
 void QWaylandTouch::sendFrameEvent()
 {
     Q_D(QWaylandTouch);
@@ -148,6 +177,9 @@ void QWaylandTouch::sendFrameEvent()
         d->send_frame(d->focusResource->handle);
 }
 
+/*!
+ * Sends a touch cancel event for the touch device.
+ */
 void QWaylandTouch::sendCancelEvent()
 {
     Q_D(QWaylandTouch);
@@ -155,6 +187,12 @@ void QWaylandTouch::sendCancelEvent()
         d->send_cancel(d->focusResource->handle);
 }
 
+/*!
+ * Sends all the touch points in \a event for this touch device, followed
+ * by a touch frame event.
+ *
+ * \sa sendTouchPointEvent(), sendFrameEvent()
+ */
 void QWaylandTouch::sendFullTouchEvent(QTouchEvent *event)
 {
     Q_D(QWaylandTouch);
@@ -180,12 +218,18 @@ void QWaylandTouch::sendFullTouchEvent(QTouchEvent *event)
     sendFrameEvent();
 }
 
+/*!
+ * \internal
+ */
 void QWaylandTouch::addClient(QWaylandClient *client, uint32_t id)
 {
     Q_D(QWaylandTouch);
     d->add(client->client(), id, 3);
 }
 
+/*!
+ * Returns the Wayland resource for this QWaylandTouch.
+ */
 struct wl_resource *QWaylandTouch::focusResource() const
 {
     Q_D(const QWaylandTouch);
@@ -194,12 +238,18 @@ struct wl_resource *QWaylandTouch::focusResource() const
     return d->focusResource->handle;
 }
 
+/*!
+ * Returns the view currently holding mouse focus in the input device.
+ */
 QWaylandView *QWaylandTouch::mouseFocus() const
 {
     Q_D(const QWaylandTouch);
     return d->seat->mouseFocus();
 }
 
+/*!
+ * \internal
+ */
 void QWaylandTouch::focusDestroyed(void *data)
 {
     Q_UNUSED(data)
@@ -207,6 +257,9 @@ void QWaylandTouch::focusDestroyed(void *data)
     d->resetFocusState();
 }
 
+/*!
+ * \internal
+ */
 void QWaylandTouch::mouseFocusChanged(QWaylandView *newFocus, QWaylandView *oldFocus)
 {
     Q_UNUSED(newFocus);

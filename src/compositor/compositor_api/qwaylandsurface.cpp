@@ -352,22 +352,53 @@ QtWayland::SurfaceBuffer *QWaylandSurfacePrivate::createSurfaceBuffer(struct ::w
     return newBuffer;
 }
 
+/*!
+ * \qmltype WaylandSurface
+ * \inqmlmodule QtWayland.Compositor
+ * \brief A rectangular area which is displayed on an output device.
+ *
+ * This type encapsulates a rectangular area of pixels that is displayed on an output device. It
+ * corresponds to the interface wl_surface in the Wayland protocol.
+ */
+
+/*!
+ * \class QWaylandSurface
+ * \inmodule QtWaylandCompositor
+ * \brief A rectangular area which is displayed on an output device.
+ *
+ * This class encapsulates a rectangular area of pixels that is displayed on an output device. It
+ * corresponds to the interface wl_surface in the Wayland protocol.
+ */
+
+/*!
+ * Constructs a an uninitialized QWaylandSurface.
+ */
 QWaylandSurface::QWaylandSurface()
     : QWaylandObject(*new QWaylandSurfacePrivate())
 {
 }
 
+/*!
+ * Constructs and initializes a QWaylandSurface for the given \a compositor and \a client, and with the given \a id
+ * and \a version.
+ */
 QWaylandSurface::QWaylandSurface(QWaylandCompositor *compositor, QWaylandClient *client, uint id, int version)
     : QWaylandObject(*new QWaylandSurfacePrivate())
 {
     initialize(compositor, client, id, version);
 }
 
+/*!
+ * \internal
+ */
 QWaylandSurface::QWaylandSurface(QWaylandSurfacePrivate &dptr)
     : QWaylandObject(dptr)
 {
 }
 
+/*!
+ * Destroys the QWaylandSurface.
+ */
 QWaylandSurface::~QWaylandSurface()
 {
     Q_D(QWaylandSurface);
@@ -375,6 +406,17 @@ QWaylandSurface::~QWaylandSurface()
     d->notifyViewsAboutDestruction();
 }
 
+/*!
+ * \qmlmethod void QtWaylandCompositor::WaylandSurface::initialize(object compositor, object client, int id, int version)
+ *
+ * Initializes the QWaylandSurface with the given \a compositor and \a client, and with the given \a id
+ * and \a version.
+ */
+
+/*!
+ * Initializes the QWaylandSurface with the given \a compositor and \a client, and with the given \a id
+ * and \a version.
+ */
 void QWaylandSurface::initialize(QWaylandCompositor *compositor, QWaylandClient *client, uint id, int version)
 {
     Q_D(QWaylandSurface);
@@ -387,12 +429,26 @@ void QWaylandSurface::initialize(QWaylandCompositor *compositor, QWaylandClient 
 #endif
 }
 
+/*!
+ * Returns true if the QWaylandSurface has been initialized.
+ */
 bool QWaylandSurface::isInitialized() const
 {
     Q_D(const QWaylandSurface);
     return d->isInitialized;
 }
 
+/*!
+ * \qmlproperty object QtWaylandCompositor::WaylandSurface::client
+ *
+ * This property holds the client using this QWaylandSurface.
+ */
+
+/*!
+ * \property QWaylandSurface::client
+ *
+ * This property holds the client using this QWaylandSurface.
+ */
 QWaylandClient *QWaylandSurface::client() const
 {
     Q_D(const QWaylandSurface);
@@ -402,36 +458,107 @@ QWaylandClient *QWaylandSurface::client() const
     return d->client;
 }
 
+/*!
+ * \qmlproperty bool QtWaylandCompositor::WaylandSurface::isMapped
+ *
+ * This property holds whether the WaylandSurface has content.
+ */
+
+/*!
+ * \property QWaylandSurface::isMapped
+ *
+ * This property holds whether the QWaylandSurface has content.
+ */
 bool QWaylandSurface::isMapped() const
 {
     Q_D(const QWaylandSurface);
     return d->mapped;
 }
 
+/*!
+ * \qmlproperty size QtWaylandCompositor::WaylandSurface::size
+ *
+ * This property holds the WaylandSurface's size in pixels.
+ */
+
+/*!
+ * \property QWaylandSurface::size
+ *
+ * This property holds the QWaylandSurface's size in pixels.
+ */
 QSize QWaylandSurface::size() const
 {
     Q_D(const QWaylandSurface);
     return d->size;
 }
 
+/*!
+ * \qmlproperty enum QtWaylandCompositor::WaylandSurface::contentOrientation
+ *
+ * This property holds the orientation of the WaylandSurface's contents.
+ *
+ * \sa QtWaylandCompositor::WaylandOutput::transform
+ */
+
+/*!
+ * \property QWaylandSurface::contentOrientation
+ *
+ * This property holds the orientation of the QWaylandSurface's contents.
+ *
+ * \sa QWaylandOutput::transform
+ */
 Qt::ScreenOrientation QWaylandSurface::contentOrientation() const
 {
     Q_D(const QWaylandSurface);
     return d->contentOrientation;
 }
 
+/*!
+ * \enum QWaylandSurface::Origin
+ *
+ * This enum type is used to specify the origin of a QWaylandSurface's buffer.
+ *
+ * \value OriginTopLeft The origin is the top left corner of the buffer.
+ * \value OriginBottomLeft The origin is the bottom left corner of the buffer.
+ */
+
+/*!
+ * \qmlproperty enum QtWaylandCompositor::WaylandSurface::origin
+ *
+ * This property holds the origin of the WaylandSurface's buffer, or
+ * WaylandSurface.OriginTopLeft if the surface has no buffer.
+ *
+ * It can have the following values:
+ * \list
+ * \li WaylandSurface.OriginTopLeft The origin is the top left corner of the buffer.
+ * \li WaylandSurface.OriginBottomLeft The origin is the bottom left corner of the buffer.
+ * \endlist
+ */
+
+/*!
+ * \property QWaylandSurface::origin
+ *
+ * This property holds the origin of the QWaylandSurface's buffer, or
+ * QWaylandSurface::OriginTopLeft if the surface has no buffer.
+ */
 QWaylandSurface::Origin QWaylandSurface::origin() const
 {
     Q_D(const QWaylandSurface);
     return d->buffer ? d->buffer->origin() : QWaylandSurface::OriginTopLeft;
 }
 
+/*!
+ * Returns the compositor for this QWaylandSurface.
+ */
 QWaylandCompositor *QWaylandSurface::compositor() const
 {
     Q_D(const QWaylandSurface);
     return d->compositor;
 }
 
+/*!
+ * Prepares all frame callbacks for sending.
+ */
 void QWaylandSurface::frameStarted()
 {
     Q_D(QWaylandSurface);
@@ -439,6 +566,9 @@ void QWaylandSurface::frameStarted()
         c->canSend = true;
 }
 
+/*!
+ * Sends pending frame callbacks.
+ */
 void QWaylandSurface::sendFrameCallbacks()
 {
     Q_D(QWaylandSurface);
@@ -455,6 +585,9 @@ void QWaylandSurface::sendFrameCallbacks()
     }
 }
 
+/*!
+ * Returns true if the QWaylandSurface has an input panel surface. Otherwise returns false.
+ */
 bool QWaylandSurface::hasInputPanelSurface() const
 {
     Q_D(const QWaylandSurface);
@@ -462,24 +595,57 @@ bool QWaylandSurface::hasInputPanelSurface() const
     return d->inputPanelSurface != 0;
 }
 
+/*!
+ * Returns true if the QWaylandSurface's input region contains the point \a p.
+ * Otherwise returns false.
+ */
 bool QWaylandSurface::inputRegionContains(const QPoint &p) const
 {
     Q_D(const QWaylandSurface);
     return d->inputRegion.contains(p);
 }
 
+/*!
+ * \qmlmethod void QtWaylandCompositor::WaylandSurface::destroy()
+ *
+ * Destroys the QWaylandSurface.
+ */
+
+/*!
+ * Destroys the QWaylandSurface.
+ */
 void QWaylandSurface::destroy()
 {
     Q_D(QWaylandSurface);
     d->deref();
 }
 
+/*!
+ * \qmlmethod bool QtWaylandCompositor::WaylandSurface::isDestroyed()
+ *
+ * Returns true if the WaylandSurface has been destroyed. Otherwise returns false.
+ */
+
+/*!
+ * Returns true if the QWaylandSurface has been destroyed. Otherwise returns false.
+ */
 bool QWaylandSurface::isDestroyed() const
 {
     Q_D(const QWaylandSurface);
     return d->destroyed;
 }
 
+/*!
+ * \qmlproperty bool QtWaylandCompositor::WaylandSurface::cursorSurface
+ *
+ * This property holds whether the WaylandSurface is a cursor surface.
+ */
+
+/*!
+ * \property QWaylandSurface::cursorSurface
+ *
+ * This property holds whether the QWaylandSurface is a cursor surface.
+ */
 void QWaylandSurface::markAsCursorSurface(bool cursorSurface)
 {
     Q_D(QWaylandSurface);
@@ -493,10 +659,10 @@ bool QWaylandSurface::isCursorSurface() const
 }
 
 /*!
-    Updates the surface with the compositor's retained clipboard selection. While this
-    is done automatically when the surface receives keyboard focus, this function is
-    useful for updating clients which do not have keyboard focus.
-*/
+ * Updates the surface with the compositor's retained clipboard selection. While this
+ * is done automatically when the surface receives keyboard focus, this function is
+ * useful for updating clients which do not have keyboard focus.
+ */
 void QWaylandSurface::updateSelection()
 {
     Q_D(QWaylandSurface);
@@ -510,6 +676,11 @@ void QWaylandSurface::updateSelection()
     }
 }
 
+/*!
+ * Returns this QWaylandSurface's throttling view.
+ *
+ * \sa QWaylandView::advance()
+ */
 QWaylandView *QWaylandSurface::throttlingView() const
 {
     Q_D(const QWaylandSurface);
@@ -518,6 +689,15 @@ QWaylandView *QWaylandSurface::throttlingView() const
     return d->views.first();
 }
 
+/*!
+ * Sets this QWaylandSurface's throttling view to \a view, in case there are
+ * multiple views of this surface. The throttling view is the view that
+ * governs the client's refresh rate. It takes care of discarding buffer
+ * references when QWaylandView::advance() is called. See the documentation
+ * for QWaylandView::advance() for more details.
+ *
+ * \sa QWaylandView::advance()
+ */
 void QWaylandSurface::setThrottlingView(QWaylandView *view)
 {
     Q_D(QWaylandSurface);
@@ -535,17 +715,26 @@ void QWaylandSurface::setThrottlingView(QWaylandView *view)
     d->views.move(index, 0);
 }
 
+/*!
+ * Returns the views for this QWaylandSurface.
+ */
 QList<QWaylandView *> QWaylandSurface::views() const
 {
     Q_D(const QWaylandSurface);
     return d->views;
 }
 
+/*!
+ * Returns the QWaylandSurface corresponding to the Wayland resource \a res.
+ */
 QWaylandSurface *QWaylandSurface::fromResource(::wl_resource *res)
 {
     return static_cast<QWaylandSurfacePrivate *>(QWaylandSurfacePrivate::Resource::fromResource(res)->surface_object)->q_func();
 }
 
+/*!
+ * Returns the Wayland resource corresponding to this QWaylandSurface.
+ */
 struct wl_resource *QWaylandSurface::resource() const
 {
     Q_D(const QWaylandSurface);

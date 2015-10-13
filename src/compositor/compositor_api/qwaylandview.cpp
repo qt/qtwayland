@@ -56,12 +56,36 @@ void QWaylandViewPrivate::markSurfaceAsDestroyed(QWaylandSurface *surface)
     emit q->surfaceDestroyed();
 }
 
+/*!
+ * \qmltype WaylandView
+ * \inqmlmodule QtWayland.Compositor
+ * \brief Represents a view of a surface on an output.
+ *
+ * The WaylandView corresponds to the presentation of a surface on a specific output, managing
+ * the buffers that contain the contents to be rendered. You can have several views into the same surface.
+ */
+
+/*!
+ * \class QWaylandView
+ * \inmodule QtWaylandCompositor
+ * \brief Represents a view of a surface on an output.
+ *
+ * The WaylandView corresponds to the presentation of a surface on a specific output, managing
+ * the buffers that contain the contents to be rendered. You can have several views into the same surface.
+ */
+
+/*!
+ * Constructs a QWaylandView with the given \a renderObject and \a parent.
+ */
 QWaylandView::QWaylandView(QObject *renderObject, QObject *parent)
     : QObject(*new QWaylandViewPrivate(),parent)
 {
     d_func()->renderObject = renderObject;
 }
 
+/*!
+ * Destroys the QWaylandView.
+ */
 QWaylandView::~QWaylandView()
 {
     Q_D(QWaylandView);
@@ -77,12 +101,26 @@ QWaylandView::~QWaylandView()
 
 }
 
+/*!
+  \internal Didn't we decide to remove this property?
+*/
 QObject *QWaylandView::renderObject() const
 {
     Q_D(const QWaylandView);
     return d->renderObject;
 }
 
+/*!
+ * \qmlproperty object QtWaylandCompositor::WaylandView::surface
+ *
+ * This property holds the surface viewed by this WaylandView.
+ */
+
+/*!
+ * \property QWaylandView::surface
+ *
+ * This property holds the surface viewed by this QWaylandView.
+ */
 QWaylandSurface *QWaylandView::surface() const
 {
     Q_D(const QWaylandView);
@@ -122,6 +160,17 @@ void QWaylandView::setSurface(QWaylandSurface *newSurface)
 
 }
 
+/*!
+ * \qmlproperty object QtWaylandCompositor::WaylandView::surface
+ *
+ * This property holds the output on which this view displays its surface.
+ */
+
+/*!
+ * \property QWaylandView::output
+ *
+ * This property holds the output on which this view displays its surface.
+ */
 QWaylandOutput *QWaylandView::output() const
 {
     Q_D(const QWaylandView);
@@ -145,6 +194,10 @@ void QWaylandView::setOutput(QWaylandOutput *newOutput)
     emit outputChanged();
 }
 
+/*!
+ * Attaches a new buffer \a ref and \a damage region to this QWaylandView. These
+ * will become current the next time advance() is called.
+ */
 void QWaylandView::attach(const QWaylandBufferRef &ref, const QRegion &damage)
 {
     Q_D(QWaylandView);
@@ -153,6 +206,23 @@ void QWaylandView::attach(const QWaylandBufferRef &ref, const QRegion &damage)
     d->nextDamage = damage;
 }
 
+/*!
+ * Sets the next buffer and damage to current and returns true. If the buffer
+ * is locked or if no new buffer has been attached since the last call to
+ * advance(), the function returns false and does nothing.
+ *
+ * If this view is set as its surface's throttling view, discardCurrentBuffer()
+ * will be called on all views of the same surface for which the
+ * \l{QWaylandView::discardFrontBuffers}{discardFrontBuffers}
+ * property is set to true and the current buffer is the same as the
+ * throttling view's current buffer.
+ *
+ * This allows for a design where a primary
+ * view can make sure that views running on a lower frequency will release their
+ * front buffer references so that the buffer can be reused on the client side,
+ * avoiding the situation where the lower frequency views throttle the frame rate
+ * of the client application.
+ */
 bool QWaylandView::advance()
 {
     Q_D(QWaylandView);
@@ -176,6 +246,9 @@ bool QWaylandView::advance()
     return true;
 }
 
+/*!
+ * Force the view to discard its current buffer, to allow it to be reused on the client side.
+ */
 void QWaylandView::discardCurrentBuffer()
 {
     Q_D(QWaylandView);
@@ -184,6 +257,9 @@ void QWaylandView::discardCurrentBuffer()
     d->forceAdvanceSucceed = true;
 }
 
+/*!
+ * Returns a reference to this view's current buffer.
+ */
 QWaylandBufferRef QWaylandView::currentBuffer()
 {
     Q_D(QWaylandView);
@@ -191,6 +267,9 @@ QWaylandBufferRef QWaylandView::currentBuffer()
     return d->currentBuffer;
 }
 
+/*!
+ * Returns the current damage region of this view.
+ */
 QRegion QWaylandView::currentDamage()
 {
     Q_D(QWaylandView);
@@ -198,6 +277,25 @@ QRegion QWaylandView::currentDamage()
     return d->currentDamage;
 }
 
+/*!
+ * \qmlproperty bool QtWaylandCompositor::WaylandView::bufferLock
+ *
+ * This property holds whether the view's buffer is currently locked. When
+ * the buffer is locked, advance() will not advance to the next buffer,
+ * but will instead return false.
+ *
+ * The default is false.
+ */
+
+/*!
+ * \property QWaylandView::bufferLock
+ *
+ * This property holds whether the view's buffer is currently locked. When
+ * the buffer is locked, advance() will not advance to the next buffer,
+ * but will instead return false.
+ *
+ * The default is false.
+ */
 bool QWaylandView::isBufferLocked() const
 {
     Q_D(const QWaylandView);
@@ -210,6 +308,12 @@ void QWaylandView::setBufferLock(bool locked)
     d->bufferLock = locked;
 }
 
+/*!
+ * \property bool QWaylandView::discardFrontBuffers
+ *
+ * By default, the view locks the current buffer until advance() is called. Set this property
+ * to true to allow Qt to release the buffer when the throttling view is no longer using it.
+ */
 bool QWaylandView::discardFrontBuffers() const
 {
     Q_D(const QWaylandView);
@@ -225,6 +329,9 @@ void QWaylandView::setDiscardFrontBuffers(bool discard)
     emit discardFrontBuffersChanged();
 }
 
+/*!
+ * Returns the Wayland surface resource for this QWaylandView.
+ */
 struct wl_resource *QWaylandView::surfaceResource() const
 {
     Q_D(const QWaylandView);

@@ -52,12 +52,27 @@ public:
     }
 };
 
+/*!
+ * \class QWaylandBufferRef
+ * \inmodule QtWaylandCompositor
+ * \brief A class which holds a reference to a surface buffer
+ *
+ * This class can be used to reference a surface buffer. As long as a reference
+ * to the buffer exists, it is owned by the compositor and the client cannot modify it.
+ */
+
+/*!
+ * Constructs a null buffer ref.
+ */
 QWaylandBufferRef::QWaylandBufferRef()
                  : d(new QWaylandBufferRefPrivate)
 {
     d->buffer = 0;
 }
 
+/*!
+ * Constructs a reference to \a buffer.
+ */
 QWaylandBufferRef::QWaylandBufferRef(QtWayland::SurfaceBuffer *buffer)
                  : d(new QWaylandBufferRefPrivate)
 {
@@ -66,6 +81,9 @@ QWaylandBufferRef::QWaylandBufferRef(QtWayland::SurfaceBuffer *buffer)
         buffer->ref();
 }
 
+/*!
+ * Creates a new reference to the buffer referenced by \a ref.
+ */
 QWaylandBufferRef::QWaylandBufferRef(const QWaylandBufferRef &ref)
                  : d(new QWaylandBufferRefPrivate)
 {
@@ -74,6 +92,9 @@ QWaylandBufferRef::QWaylandBufferRef(const QWaylandBufferRef &ref)
         d->buffer->ref();
 }
 
+/*!
+ * Dereferences the buffer.
+ */
 QWaylandBufferRef::~QWaylandBufferRef()
 {
     if (d->buffer)
@@ -81,6 +102,10 @@ QWaylandBufferRef::~QWaylandBufferRef()
     delete d;
 }
 
+/*!
+ * Assigns \a ref to this buffer. The previously referenced buffer is
+ * dereferenced and the new one gets a new reference.
+ */
 QWaylandBufferRef &QWaylandBufferRef::operator=(const QWaylandBufferRef &ref)
 {
     if (d->buffer)
@@ -93,36 +118,66 @@ QWaylandBufferRef &QWaylandBufferRef::operator=(const QWaylandBufferRef &ref)
     return *this;
 }
 
+/*!
+ * Returns true if this QWaylandBufferRef references the same buffer as \a ref.
+ * Otherwise returns false.
+ */
 bool QWaylandBufferRef::operator==(const QWaylandBufferRef &ref)
 {
     return d->buffer == ref.d->buffer;
 }
 
+/*!
+ * Returns false if this QWaylandBufferRef references the same buffer as \a ref.
+ * Otherwise returns true.
+ */
 bool QWaylandBufferRef::operator!=(const QWaylandBufferRef &ref)
 {
     return d->buffer != ref.d->buffer;
 }
 
+/*!
+ * Returns true if this QWaylandBufferRef does not reference a buffer.
+ * Otherwise returns false.
+ *
+ * \sa hasBuffer()
+ */
 bool QWaylandBufferRef::isNull() const
 {
     return !d->buffer;
 }
 
+/*!
+ * Returns true if this QWaylandBufferRef references a buffer. Otherwise returns false.
+ *
+ * \sa isNull()
+ */
 bool QWaylandBufferRef::hasBuffer() const
 {
     return d->buffer;
 }
 
+/*!
+ * Returns true if this QWaylandBufferRef references a buffer that
+ * has been destroyed. Otherwise returns false.
+ */
 bool QWaylandBufferRef::isDestroyed() const
 {
     return d->buffer && d->buffer->isDestroyed();
 }
 
+/*!
+ * Returns the Wayland resource for the buffer.
+ */
 struct ::wl_resource *QWaylandBufferRef::wl_buffer() const
 {
     return d->buffer ? d->buffer->waylandBufferHandle() : Q_NULLPTR;
 }
 
+/*!
+ * Returns the size of the buffer.
+ * If the buffer referenced is null, an invalid QSize() is returned.
+ */
 QSize QWaylandBufferRef::size() const
 {
     if (d->nullOrDestroyed())
@@ -131,6 +186,11 @@ QSize QWaylandBufferRef::size() const
     return d->buffer->size();
 }
 
+/*!
+ * Returns the origin of the buffer.
+ * If the buffer referenced is null, QWaylandSurface::OriginBottomLeft
+ * is returned.
+ */
 QWaylandSurface::Origin QWaylandBufferRef::origin() const
 {
     if (d->buffer)
@@ -139,6 +199,9 @@ QWaylandSurface::Origin QWaylandBufferRef::origin() const
     return QWaylandSurface::OriginBottomLeft;
 }
 
+/*!
+ * Returns true if the buffer is a shared memory buffer. Otherwise returns false.
+ */
 bool QWaylandBufferRef::isShm() const
 {
     if (d->nullOrDestroyed())
@@ -147,6 +210,9 @@ bool QWaylandBufferRef::isShm() const
     return d->buffer->isShm();
 }
 
+/*!
+ * Returns an image with the contents of the buffer.
+ */
 QImage QWaylandBufferRef::image() const
 {
     if (d->nullOrDestroyed())
@@ -155,6 +221,11 @@ QImage QWaylandBufferRef::image() const
     return d->buffer->image();
 }
 
+/*!
+ * Binds the buffer to the current OpenGL texture. This may
+ * perform a copy of the buffer data, depending on the platform
+ * and the type of the buffer.
+ */
 void QWaylandBufferRef::bindToTexture() const
 {
     if (d->nullOrDestroyed())

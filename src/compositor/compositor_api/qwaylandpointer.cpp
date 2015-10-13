@@ -78,31 +78,55 @@ void QWaylandPointerPrivate::pointer_set_cursor(wl_pointer::Resource *resource, 
     seat->cursorSurfaceRequest(s, hotspot_x, hotspot_y);
 }
 
-QWaylandPointer::QWaylandPointer(QWaylandInputDevice *seat, QObject *parent)
-    : QWaylandObject(* new QWaylandPointerPrivate(this, seat), parent)
+/*!
+ * \class QWaylandPointer
+ * \inmodule QtWaylandCompositor
+ * \brief The QWaylandPointer class provides access to a pointer device.
+ *
+ * This class provides access to the pointer device in a QWaylandInputDevice. It corresponds to
+ * the Wayland interface wl_pointer.
+ */
+
+/*!
+ * Constructs a QWaylandPointer for the given \a inputDevice and with the given \a parent.
+ */
+QWaylandPointer::QWaylandPointer(QWaylandInputDevice *inputDevice, QObject *parent)
+    : QWaylandObject(* new QWaylandPointerPrivate(this, inputDevice), parent)
 {
     connect(&d_func()->focusDestroyListener, &QWaylandDestroyListener::fired, this, &QWaylandPointer::focusDestroyed);
-    connect(seat, &QWaylandInputDevice::mouseFocusChanged, this, &QWaylandPointer::pointerFocusChanged);
+    connect(inputDevice, &QWaylandInputDevice::mouseFocusChanged, this, &QWaylandPointer::pointerFocusChanged);
 }
 
+/*!
+ * Returns the input device for this QWaylandPointer.
+ */
 QWaylandInputDevice *QWaylandPointer::inputDevice() const
 {
     Q_D(const QWaylandPointer);
     return d->seat;
 }
 
+/*!
+ * Returns the compositor for this QWaylandPointer.
+ */
 QWaylandCompositor *QWaylandPointer::compositor() const
 {
     Q_D(const QWaylandPointer);
     return d->compositor();
 }
 
+/*!
+ * Returns the output for this QWaylandPointer.
+ */
 QWaylandOutput *QWaylandPointer::output() const
 {
     Q_D(const QWaylandPointer);
     return d->output;
 }
 
+/*!
+ * Sets the output for this QWaylandPointer to \a output.
+ */
 void QWaylandPointer::setOutput(QWaylandOutput *output)
 {
     Q_D(QWaylandPointer);
@@ -111,6 +135,9 @@ void QWaylandPointer::setOutput(QWaylandOutput *output)
     outputChanged();
 }
 
+/*!
+ * Sends a mouse press event for \a button to the view currently holding mouse focus.
+ */
 void QWaylandPointer::sendMousePressEvent(Qt::MouseButton button)
 {
     Q_D(QWaylandPointer);
@@ -124,6 +151,9 @@ void QWaylandPointer::sendMousePressEvent(Qt::MouseButton button)
     }
 }
 
+/*!
+ * Sends a mouse release event for \a button to the view currently holding mouse focus.
+ */
 void QWaylandPointer::sendMouseReleaseEvent(Qt::MouseButton button)
 {
     Q_D(QWaylandPointer);
@@ -137,6 +167,10 @@ void QWaylandPointer::sendMouseReleaseEvent(Qt::MouseButton button)
         emit buttonPressedChanged();
 }
 
+/*!
+ * Sets the current mouse focus to \a view and sends a mouse move event to it with the
+ * local position \a localPos and output space position \a outputSpacePos.
+ */
 void QWaylandPointer::sendMouseMoveEvent(QWaylandView *view, const QPointF &localPos, const QPointF &outputSpacePos)
 {
     Q_D(QWaylandPointer);
@@ -185,6 +219,9 @@ void QWaylandPointer::sendMouseMoveEvent(QWaylandView *view, const QPointF &loca
     }
 }
 
+/*!
+ * Sends a mouse wheel event with the given \a orientation and \a delta to the view that currently holds mouse focus.
+ */
 void QWaylandPointer::sendMouseWheelEvent(Qt::Orientation orientation, int delta)
 {
     Q_D(QWaylandPointer);
@@ -197,36 +234,54 @@ void QWaylandPointer::sendMouseWheelEvent(Qt::Orientation orientation, int delta
     d->send_axis(d->focusResource, time, axis, wl_fixed_from_int(-delta / 12));
 }
 
+/*!
+ * Returns the view that currently holds mouse focus.
+ */
 QWaylandView *QWaylandPointer::mouseFocus() const
 {
     Q_D(const QWaylandPointer);
     return d->seat->mouseFocus();
 }
 
+/*!
+ * Returns the current local position of the QWaylandPointer.
+ */
 QPointF QWaylandPointer::currentLocalPosition() const
 {
     Q_D(const QWaylandPointer);
     return d->localPosition;
 }
 
+/*!
+ * Returns the current output space position of the QWaylandPointer.
+ */
 QPointF QWaylandPointer::currentSpacePosition() const
 {
     Q_D(const QWaylandPointer);
     return d->spacePosition;
 }
 
+/*!
+ * Returns true if any button is currently pressed. Otherwise returns false.
+ */
 bool QWaylandPointer::isButtonPressed() const
 {
     Q_D(const QWaylandPointer);
     return d->buttonCount > 0;
 }
 
+/*!
+ * \internal
+ */
 void QWaylandPointer::addClient(QWaylandClient *client, uint32_t id)
 {
     Q_D(QWaylandPointer);
     d->add(client->client(), id, QtWaylandServer::wl_pointer::interfaceVersion());
 }
 
+/*!
+ * Returns the Wayland resource for this QWaylandPointer.
+ */
 struct wl_resource *QWaylandPointer::focusResource() const
 {
     Q_D(const QWaylandPointer);
@@ -236,6 +291,9 @@ struct wl_resource *QWaylandPointer::focusResource() const
     return d->focusResource;
 }
 
+/*!
+ * \internal
+ */
 void QWaylandPointer::sendButton(struct wl_resource *resource, uint32_t time, Qt::MouseButton button, uint32_t state)
 {
     Q_D(QWaylandPointer);
@@ -243,6 +301,9 @@ void QWaylandPointer::sendButton(struct wl_resource *resource, uint32_t time, Qt
     d->send_button(resource, serial, time, toWaylandButton(button), state);
 }
 
+/*!
+ * \internal
+ */
 uint32_t QWaylandPointer::toWaylandButton(Qt::MouseButton button)
 {
 #ifndef BTN_LEFT
@@ -272,6 +333,9 @@ uint32_t QWaylandPointer::toWaylandButton(Qt::MouseButton button)
     }
 }
 
+/*!
+ * \internal
+ */
 void QWaylandPointer::focusDestroyed(void *data)
 {
     Q_D(QWaylandPointer);
@@ -283,6 +347,9 @@ void QWaylandPointer::focusDestroyed(void *data)
     d->buttonCount = 0;
 }
 
+/*!
+ * \internal
+ */
 void QWaylandPointer::pointerFocusChanged(QWaylandView *newFocus, QWaylandView *oldFocus)
 {
     Q_UNUSED(newFocus);
@@ -299,4 +366,3 @@ void QWaylandPointer::pointerFocusChanged(QWaylandView *newFocus, QWaylandView *
 }
 
 QT_END_NAMESPACE
-

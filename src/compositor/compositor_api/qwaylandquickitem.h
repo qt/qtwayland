@@ -94,7 +94,7 @@ public:
     bool focusOnClick() const;
     void setFocusOnClick(bool focus);
 
-    bool inputRegionContains(QPointF localPosition);
+    bool inputRegionContains(const QPointF &localPosition);
 
     bool sizeFollowsSurface() const;
     void setSizeFollowsSurface(bool sizeFollowsSurface);

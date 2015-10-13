@@ -233,14 +233,37 @@ void QWaylandCompositorPrivate::addPolishObject(QObject *object)
 }
 
 /*!
+  \qmlsignal void QtWaylandCompositor::WaylandCompositor::createSurface(object client, int id, int version)
+
+  This signal is emitted when a client has created a surface.
+  The slot connecting to this signal may create and initialize
+  a WaylandSurface instance in the scope of the slot.
+  Otherwise a default surface is created.
+*/
+
+/*!
   \fn void QWaylandCompositor::createSurface(QWaylandClient *client, uint id, int version)
 
-  This signal is emitted when a client has created a wl_surface object on the
-  server side. The slot connecting to this signal has to create and initialize
-  a QWaylandSurface instance in the scope of the slot. Connections to this
-  signal has to be of Qt::DirectConnection connection type.
+  This signal is emitted when a client has created a surface.
+  The slot connecting to this signal may create and initialize
+  a QWaylandSurface instance in the scope of the slot.
+  Otherwise a default surface is created.
 
+  Connections to this signal must be of Qt::DirectConnection connection type.
 */
+
+/*
+  \qmlsignal void surfaceCreated(QWaylandSurface *surface)
+
+  This signal is emitted when a new WaylandSurface instance has been created.
+*/
+
+/*
+  \fn void surfaceCreated(QWaylandSurface *surface)
+
+  This signal is emitted when a new QWaylandSurface instance has been created.
+*/
+
 
 void QWaylandCompositorPrivate::compositor_create_surface(Resource *resource, uint32_t id)
 {
@@ -350,37 +373,105 @@ void QWaylandCompositorPrivate::loadServerBufferIntegration()
 #endif
 }
 
+/*!
+  \qmltype WaylandCompositor
+  \inqmlmodule QtWayland.Compositor
+  \brief Type managing the Wayland display server.
+
+  The WaylandCompositor manages the connections to the clients, as well as the different
+  \l{WaylandOutput}{outputs} and \l{WaylandInput}{input devices}.
+
+  Normally, a compositor application will have a single WaylandCompositor
+  instance, which can have several outputs as children. When a client
+  requests the compositor to create a surface, the request is handled by
+  the onCreateSurface handler.
+
+  Extensions that are supported by the compositor should be instantiated and added to the
+  extensions property.
+*/
+
+
+/*!
+   \class QWaylandCompositor
+   \inmodule QtWaylandCompositor
+   \brief Class managing the Wayland display server.
+
+   The QWaylandCompositor manages the connections to the clients, as well as the different \l{QWaylandOutput}{outputs}
+   and \l{QWaylandInput}{input devices}.
+
+   Normally, a compositor application will have a single WaylandCompositor
+   instance, which can have several outputs as children.
+*/
+
+/*!
+ * Constructs a QWaylandCompositor with the given \a parent.
+ */
 QWaylandCompositor::QWaylandCompositor(QObject *parent)
     : QWaylandObject(*new QWaylandCompositorPrivate(this), parent)
 {
 }
 
+/*!
+ * \internal
+ * Constructs a QWaylandCompositor with the private object \a dptr and \a parent.
+ */
 QWaylandCompositor::QWaylandCompositor(QWaylandCompositorPrivate &dptr, QObject *parent)
     : QWaylandObject(dptr, parent)
 {
 }
 
+/*!
+ * Destroys the QWaylandCompositor
+ */
 QWaylandCompositor::~QWaylandCompositor()
 {
 }
 
+/*!
+ * Initializes the QWaylandCompositor.
+ * If you override this function in your subclass, be sure to call the base class implementation.
+ */
 void QWaylandCompositor::create()
 {
     Q_D(QWaylandCompositor);
     d->init();
 }
 
+/*!
+ * Returns true if the QWaylandCompositor has been initialized. Otherwise returns false.
+ */
 bool QWaylandCompositor::isCreated() const
 {
     Q_D(const QWaylandCompositor);
     return d->initialized;
 }
 
+/*!
+ * \qmlproperty string QtWaylandCompositor::WaylandCompositor::socketName
+ *
+ * This property holds the socket name used by WaylandCompositor to communicate with
+ * clients. It must be set before the component is completed.
+ *
+ * If the socketName is empty (the default), the contents of the environment
+ * variable WAYLAND_DISPLAY is used instead. If this is not set, the
+ * default "wayland-0" is used.
+ */
+
+/*!
+ * \property QWaylandCompositor::socketName
+ *
+ * This property holds the socket name used by QWaylandCompositor to communicate with
+ * clients. This must be set before the QWaylandCompositor is \l{create()}{created}.
+ *
+ * If the socketName is empty (the default), the contents of the environment
+ * variable WAYLAND_DISPLAY is used instead. If this is not set, the
+ * default "wayland-0" is used.
+ */
 void QWaylandCompositor::setSocketName(const QByteArray &name)
 {
     Q_D(QWaylandCompositor);
     if (d->initialized) {
-        qWarning("%s: It is not supported to alter the compostors socket name after the compositor is initialized\n", Q_FUNC_INFO);
+        qWarning("%s: Changing socket name after initializing the compositor is not supported.\n", Q_FUNC_INFO);
         return;
     }
     d->socket_name = name;
@@ -392,29 +483,56 @@ QByteArray QWaylandCompositor::socketName() const
     return d->socket_name;
 }
 
+/*!
+ * \internal
+ */
 struct wl_display *QWaylandCompositor::display() const
 {
     Q_D(const QWaylandCompositor);
     return d->display;
 }
 
+/*!
+ * \internal
+ */
 uint32_t QWaylandCompositor::nextSerial()
 {
     Q_D(QWaylandCompositor);
     return wl_display_next_serial(d->display);
 }
 
+/*!
+ * \internal
+ */
 QList<QWaylandClient *>QWaylandCompositor::clients() const
 {
     Q_D(const QWaylandCompositor);
     return d->clients;
 }
 
+/*!
+ * \qmlmethod QtWaylandCompositor::WaylandCompositor::destroyClientForSurface(surface)
+ *
+ * Destroys the client for the WaylandSurface \a surface.
+ */
+
+/*!
+ * Destroys the client for the \a surface.
+ */
 void QWaylandCompositor::destroyClientForSurface(QWaylandSurface *surface)
 {
     destroyClient(surface->client());
 }
 
+/*!
+ * \qmlmethod QtWaylandCompositor::WaylandCompositor::destroyClient(client)
+ *
+ * Destroys the given WaylandClient \a client.
+ */
+
+/*!
+ * Destroys the \a client.
+ */
 void QWaylandCompositor::destroyClient(QWaylandClient *client)
 {
     if (!client)
@@ -427,6 +545,9 @@ void QWaylandCompositor::destroyClient(QWaylandClient *client)
     wl_client_destroy(client->client());
 }
 
+/*!
+ * \internal
+ */
 QList<QWaylandSurface *> QWaylandCompositor::surfacesForClient(QWaylandClient* client) const
 {
     Q_D(const QWaylandCompositor);
@@ -438,12 +559,18 @@ QList<QWaylandSurface *> QWaylandCompositor::surfacesForClient(QWaylandClient* c
     return surfs;
 }
 
+/*!
+ * \internal
+ */
 QList<QWaylandSurface *> QWaylandCompositor::surfaces() const
 {
     Q_D(const QWaylandCompositor);
     return d->all_surfaces;
 }
 
+/*!
+ * Returns the QWaylandOutput that is connected to the given \a window.
+ */
 QWaylandOutput *QWaylandCompositor::outputFor(QWindow *window) const
 {
     Q_D(const QWaylandCompositor);
@@ -455,6 +582,27 @@ QWaylandOutput *QWaylandCompositor::outputFor(QWindow *window) const
     return Q_NULLPTR;
 }
 
+/*!
+ * \qmlproperty object QtWaylandCompositor::WaylandCompositor::defaultOutput
+ *
+ * This property contains the first in the list of outputs added to the
+ * WaylandCompositor, or null if no outputs have been added.
+ *
+ * Setting a new default output prepends it to the output list, making
+ * it the new default, but the previous default is not removed from
+ * the list.
+ */
+/*!
+ * \property QWaylandCompositor::defaultOutput
+ *
+ * This property contains the first in the list of outputs added to the
+ * QWaylandCompositor, or null if no outputs have been added.
+ *
+ * Setting a new default output prepends it to the output list, making
+ * it the new default, but the previous default is not removed from
+ * the list. If the new default output was already in the list of outputs,
+ * it is moved to the beginning of the list.
+ */
 QWaylandOutput *QWaylandCompositor::defaultOutput() const
 {
     Q_D(const QWaylandCompositor);
@@ -471,19 +619,27 @@ void QWaylandCompositor::setDefaultOutput(QWaylandOutput *output)
     defaultOutputChanged();
 }
 
+/*!
+ * \internal
+ */
 QList<QWaylandOutput *> QWaylandCompositor::outputs() const
 {
     Q_D(const QWaylandCompositor);
     return d->outputs;
 }
 
+/*!
+ * \internal
+ */
 uint QWaylandCompositor::currentTimeMsecs() const
 {
     Q_D(const QWaylandCompositor);
     return d->timer.elapsed();
 }
 
-
+/*!
+ * \internal
+ */
 void QWaylandCompositor::processWaylandEvents()
 {
     Q_D(QWaylandCompositor);
@@ -493,27 +649,49 @@ void QWaylandCompositor::processWaylandEvents()
     wl_display_flush_clients(d->display);
 }
 
-
+/*!
+ * \internal
+ */
 QWaylandInputDevice *QWaylandCompositor::createInputDevice()
 {
     return new QWaylandInputDevice(this);
 }
 
+/*!
+ * \internal
+ */
 QWaylandPointer *QWaylandCompositor::createPointerDevice(QWaylandInputDevice *inputDevice)
 {
     return new QWaylandPointer(inputDevice);
 }
 
+/*!
+ * \internal
+ */
 QWaylandKeyboard *QWaylandCompositor::createKeyboardDevice(QWaylandInputDevice *inputDevice)
 {
     return new QWaylandKeyboard(inputDevice);
 }
 
+/*!
+ * \internal
+ */
 QWaylandTouch *QWaylandCompositor::createTouchDevice(QWaylandInputDevice *inputDevice)
 {
     return new QWaylandTouch(inputDevice);
 }
 
+/*!
+ * \qmlproperty bool QtWaylandCompositor::WaylandCompositor::retainedSelection
+ *
+ * This property holds whether retained selection is enabled.
+ */
+
+/*!
+ * \property QWaylandCompositor::retainedSelection
+ *
+ * This property holds whether retained selection is enabled.
+ */
 void QWaylandCompositor::setRetainedSelectionEnabled(bool enabled)
 {
     Q_D(QWaylandCompositor);
@@ -526,16 +704,35 @@ bool QWaylandCompositor::retainedSelectionEnabled() const
     return d->retainSelection;
 }
 
+/*!
+ * \internal
+ */
 void QWaylandCompositor::retainedSelectionReceived(QMimeData *)
 {
 }
 
+/*!
+ * \internal
+ */
 void QWaylandCompositor::overrideSelection(const QMimeData *data)
 {
     Q_D(QWaylandCompositor);
     d->data_device_manager->overrideSelection(*data);
 }
 
+/*!
+ * \qmlproperty object QtWaylandCompositor::WaylandCompositor::defaultInputDevice
+ *
+ * This property contains the default input device for this
+ * WaylandCompositor.
+ */
+
+/*!
+ * \property QWaylandCompositor::defaultInputDevice
+ *
+ * This property contains the default input device for this
+ * QWaylandCompositor.
+ */
 QWaylandInputDevice *QWaylandCompositor::defaultInputDevice() const
 {
     Q_D(const QWaylandCompositor);
@@ -544,6 +741,12 @@ QWaylandInputDevice *QWaylandCompositor::defaultInputDevice() const
     return Q_NULLPTR;
 }
 
+/*!
+ * \internal
+ *
+ * Currently, Qt only supports a single input device, so this exists for
+ * future proofing the APIs.
+ */
 QWaylandInputDevice *QWaylandCompositor::inputDeviceFor(QInputEvent *inputEvent)
 {
     Q_D(QWaylandCompositor);
@@ -558,6 +761,23 @@ QWaylandInputDevice *QWaylandCompositor::inputDeviceFor(QInputEvent *inputEvent)
     return dev;
 }
 
+/*!
+ * \qmlproperty bool QtWaylandCompositor::WaylandCompositor::useHardwareIntegrationExtension
+ *
+ * This property holds whether the hardware integration extension should be enabled for
+ * this WaylandCompositor.
+ *
+ * This property must be set before the compositor component is completed.
+ */
+
+/*!
+ * \property QWaylandCompositor::useHardwareIntegrationExtension
+ *
+ * This property holds whether the hardware integration extension should be enabled for
+ * this QWaylandCompositor.
+ *
+ * This property must be set before the compositor is \l{create()}{created}.
+ */
 bool QWaylandCompositor::useHardwareIntegrationExtension() const
 {
     Q_D(const QWaylandCompositor);

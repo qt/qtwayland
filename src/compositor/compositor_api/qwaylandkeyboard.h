@@ -75,7 +75,7 @@ class Q_COMPOSITOR_EXPORT QWaylandKeyboard : public QWaylandObject
     Q_DECLARE_PRIVATE(QWaylandKeyboard)
 
 public:
-    QWaylandKeyboard(QWaylandInputDevice *seat, QObject *parent = 0);
+    QWaylandKeyboard(QWaylandInputDevice *inputDevice, QObject *parent = 0);
 
     QWaylandInputDevice *inputDevice() const;
     QWaylandCompositor *compositor() const;

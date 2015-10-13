@@ -79,12 +79,12 @@ public:
     Q_DECLARE_FLAGS(CapabilityFlags, CapabilityFlag)
     Q_ENUM(CapabilityFlags)
 
-    QWaylandInputDevice(QWaylandCompositor *compositor, CapabilityFlags caps = DefaultCapabilities);
+    QWaylandInputDevice(QWaylandCompositor *compositor, CapabilityFlags capabilityFlags = DefaultCapabilities);
     virtual ~QWaylandInputDevice();
 
     void sendMousePressEvent(Qt::MouseButton button);
     void sendMouseReleaseEvent(Qt::MouseButton button);
-    void sendMouseMoveEvent(QWaylandView *surface , const QPointF &localPos, const QPointF &globalPos = QPointF());
+    void sendMouseMoveEvent(QWaylandView *surface , const QPointF &localPos, const QPointF &outputSpacePos = QPointF());
     void sendMouseWheelEvent(Qt::Orientation orientation, int delta);
 
     void sendKeyPressEvent(uint code);

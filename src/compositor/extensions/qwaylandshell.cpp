@@ -218,14 +218,61 @@ void QWaylandShellSurfacePrivate::shell_surface_set_class(Resource *resource,
     emit q->classNameChanged();
 }
 
+/*!
+ * \qmltype Shell
+ * \inqmlmodule QtWayland.Compositor
+ * \brief Extension for desktop-style user interfaces.
+ *
+ * The Shell extension provides a way to assiociate a \l{ShellSurface}
+ * with a regular Wayland surface. Using the shell surface interface, the client
+ * can request that the surface is resized, moved, and so on.
+ *
+ * Shell corresponds to the Wayland interface wl_shell.
+ *
+ * To provide the functionality of the shell extension in a compositor, create
+ * an instance of the Shell component and add it to the list of extensions
+ * supported by the compositor:
+ * \code
+ * import QtWayland.Compositor 1.0
+ *
+ * WaylandCompositor {
+ *     extensions: Shell {
+ *         // ...
+ *     }
+ * }
+ * \endcode
+ */
+
+/*!
+ * \class QWaylandShell
+ * \inmodule QtWaylandCompositor
+ * \brief Extension for desktop-style user interfaces.
+ *
+ * The QWaylandShell extension provides a way to assiociate a QWaylandShellSurface with
+ * a regular Wayland surface. Using the shell surface interface, the client
+ * can request that the surface is resized, moved, and so on.
+ *
+ * Shell corresponds to the Wayland interface wl_shell.
+ */
+
+/*!
+ * Constructs a QWaylandShell object.
+ */
 QWaylandShell::QWaylandShell()
     : QWaylandExtensionTemplate<QWaylandShell>(*new QWaylandShellPrivate())
 { }
 
+/*!
+ * Constructs a QWaylandShell object for the provided \a compositor.
+ */
 QWaylandShell::QWaylandShell(QWaylandCompositor *compositor)
     : QWaylandExtensionTemplate<QWaylandShell>(compositor, *new QWaylandShellPrivate())
 { }
 
+
+/*!
+ * Initializes the shell extension.
+ */
 void QWaylandShell::initialize()
 {
     Q_D(QWaylandShell);
@@ -238,27 +285,91 @@ void QWaylandShell::initialize()
     d->init(compositor->display(), 1);
 }
 
+/*!
+ * Returns the Wayland interface for the QWaylandShell.
+ */
 const struct wl_interface *QWaylandShell::interface()
 {
     return QWaylandShellPrivate::interface();
 }
 
+/*!
+ * \qmlsignal void QtWaylandCompositor::Shell::createShellSurface(object surface, object client, int id)
+ *
+ * This signal is emitted when the \a client has requested a shell surface to be associated
+ * with \a surface and be assigned the given \a id. The handler for this signal is
+ * expected to create the shell surface and initialize it within the scope of the
+ * signal emission.
+ */
+
+/*!
+ * \fn void QWaylandShell::createShellSurface(QWaylandSurface *surface, QWaylandClient *client, uint id)
+ *
+ * This signal is emitted when the \a client has requested a shell surface to be associated
+ * with \a surface and be assigned the given \a id. The handler for this signal is
+ * expected to create the shell surface and initialize it within the scope of the
+ * signal emission.
+ */
+
+/*!
+ * \internal
+ */
 QByteArray QWaylandShell::interfaceName()
 {
     return QWaylandShellPrivate::interfaceName();
 }
 
+/*!
+ * \qmltype ShellSurface
+ * \inqmlmodule QtWayland.Compositor
+ * \brief A shell surface providing desktop-style compositor-specific features to a surface.
+ *
+ * This type is part of the \l{Shell} extension and provides a way to extend
+ * the functionality of an existing WaylandSurface with features specific to desktop-style
+ * compositors, such as resizing and moving the surface.
+ *
+ * It corresponds to the Wayland interface wl_shell_surface.
+ */
+
+/*!
+ * \class QWaylandShellSurface
+ * \inmodule QtWaylandCompositor
+ * \brief A shell surface providing desktop-style compositor-specific features to a surface.
+ *
+ * This class is part of the QWaylandShell extension and provides a way to extend
+ * the functionality of an existing QWaylandSurface with features specific to desktop-style
+ * compositors, such as resizing and moving the surface.
+ *
+ * It corresponds to the Wayland interface wl_shell_surface.
+ */
+
+/*!
+ * Constructs a QWaylandShellSurface.
+ */
 QWaylandShellSurface::QWaylandShellSurface()
     : QWaylandExtensionTemplate<QWaylandShellSurface>(*new QWaylandShellSurfacePrivate)
 {
 }
 
+/*!
+ * Constructs a QWaylandShellSurface for \a surface and initializes it with the given \a shell, \a client,
+ * and \a id.
+ */
 QWaylandShellSurface::QWaylandShellSurface(QWaylandShell *shell, QWaylandSurface *surface, QWaylandClient *client, uint id)
     : QWaylandExtensionTemplate<QWaylandShellSurface>(*new QWaylandShellSurfacePrivate)
 {
     initialize(shell, surface, client, id);
 }
 
+/*!
+ * \qmlmethod void QtWaylandCompositor::ShellSurface::initialize(object shell, object surface, object client, int id)
+ *
+ * Initializes the ShellSurface, associating it with the given \a shell, \a surface, \a client, and \a id.
+ */
+
+/*!
+ * Initializes the QWaylandShellSurface, associating it with the given \a shell, \a surface, \a client, and \a id.
+ */
 void QWaylandShellSurface::initialize(QWaylandShell *shell, QWaylandSurface *surface, QWaylandClient *client, uint id)
 {
     Q_D(QWaylandShellSurface);
@@ -269,6 +380,10 @@ void QWaylandShellSurface::initialize(QWaylandShell *shell, QWaylandSurface *sur
     emit surfaceChanged();
     QWaylandExtension::initialize();
 }
+
+/*!
+ * \internal
+ */
 void QWaylandShellSurface::initialize()
 {
     QWaylandExtensionTemplate::initialize();
@@ -279,6 +394,9 @@ const struct wl_interface *QWaylandShellSurface::interface()
     return QWaylandShellSurfacePrivate::interface();
 }
 
+/*!
+ * \internal
+ */
 QByteArray QWaylandShellSurface::interfaceName()
 {
     return QWaylandShellSurfacePrivate::interfaceName();
@@ -301,36 +419,130 @@ QSize QWaylandShellSurface::sizeForResize(const QSizeF &size, const QPointF &del
     return QSizeF(width, height).toSize();
 }
 
+/*!
+ * \enum QWaylandShellSurface::ResizeEdge
+ *
+ * This enum type provides a way to specify a specific edge or corner of
+ * the surface.
+ *
+ * \value DefaultEdge The default edge.
+ * \value TopEdge The top edge.
+ * \value BottomEdge The bottom edge.
+ * \value LeftEdge The left edge.
+ * \value TopLeftEdge The top left corner.
+ * \value BottomLeftEdge The bottom left corner.
+ * \value RightEdge The right edge.
+ * \value TopRightEdge The top right corner.
+ * \value BottomRightEdge The bottom right corner.
+ */
+
+/*!
+ * \qmlmethod void QtWaylandCompositor::ShellSurface::sendConfigure(size size, enum edges)
+ *
+ * Sends a configure event to the client, suggesting that it resize its surface to
+ * the provided \a size. The \a edges provide a hint about how the surface
+ * was resized.
+ */
+
+/*!
+ * Sends a configure event to the client, suggesting that it resize its surface to
+ * the provided \a size. The \a edges provide a hint about how the surface
+ * was resized.
+ */
 void QWaylandShellSurface::sendConfigure(const QSize &size, ResizeEdge edges)
 {
     Q_D(QWaylandShellSurface);
     d->send_configure(edges, size.width(), size.height());
 }
 
+/*!
+ * \qmlmethod void QtWaylandCompositor::ShellSurface::sendPopupDone()
+ *
+ * Sends a popup_done event to the client to indicate that the user has clicked
+ * somewhere outside the client's surfaces.
+ */
+
+/*!
+ * Sends a popup_done event to the client to indicate that the user has clicked
+ * somewhere outside the client's surfaces.
+ */
 void QWaylandShellSurface::sendPopupDone()
 {
     Q_D(QWaylandShellSurface);
     d->send_popup_done();
 }
 
+/*!
+ * \qmlproperty object QtWaylandCompositor::ShellSurface::surface
+ *
+ * This property holds the surface associated with this ShellSurface.
+ */
+
+/*!
+ * \property QWaylandShellSurface::surface
+ *
+ * This property holds the surface associated with this QWaylandShellSurface.
+ */
 QWaylandSurface *QWaylandShellSurface::surface() const
 {
     Q_D(const QWaylandShellSurface);
     return d->m_surface;
 }
 
+/*!
+ * \enum QWaylandShellSurface::FocusPolicy
+ *
+ * This enum type is used to specify the focus policy of a shell surface.
+ *
+ * \value DefaultFocus The default focus policy should be used.
+ * \value NoKeyboardFocus The shell surface should not get keyboard focus.
+ */
+
+/*!
+ * \qmlproperty enum QtWaylandCompositor::ShellSurface::focusPolicy
+ *
+ * This property holds the focus policy of the ShellSurface.
+ */
+
+/*!
+ * \property QWaylandShellSurface::focusPolicy
+ *
+ * This property holds the focus policy of the QWaylandShellSurface.
+ */
 QWaylandShellSurface::FocusPolicy QWaylandShellSurface::focusPolicy() const
 {
     Q_D(const QWaylandShellSurface);
     return d->m_focusPolicy;
 }
 
+/*!
+ * \qmlproperty string QtWaylandCompositor::ShellSurface::title
+ *
+ * This property holds the title of the ShellSurface.
+ */
+
+/*!
+ * \property QWaylandShellSurface::title
+ *
+ * This property holds the title of the QWaylandShellSurface.
+ */
 QString QWaylandShellSurface::title() const
 {
     Q_D(const QWaylandShellSurface);
     return d->m_title;
 }
 
+/*!
+ * \qmlproperty string QtWaylandCompositor::ShellSurface::className
+ *
+ * This property holds the class name of the ShellSurface.
+ */
+
+/*!
+ * \property QWaylandShellSurface::className
+ *
+ * This property holds the class name of the QWaylandShellSurface.
+ */
 QString QWaylandShellSurface::className() const
 {
     Q_D(const QWaylandShellSurface);

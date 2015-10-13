@@ -120,18 +120,47 @@ private:
     QWaylandBufferRef m_ref;
 };
 
+/*!
+ * \qmltype WaylandQuickItem
+ * \inqmlmodule QtWayland.Compositor
+ * \brief A Qt Quick item representing a WaylandView.
+ *
+ * When writing a WaylandCompositor in Qt Quick, this type can be used to display a
+ * client's contents on an output device and will pass user input to the
+ * client.
+ */
+
+/*!
+ * \class QWaylandQuickItem
+ * \inmodule QtWaylandCompositor
+ * \brief A Qt Quick item representing a QWaylandView.
+ *
+ * When writing a QWaylandCompositor in Qt Quick, this class can be used to display a
+ * client's contents on an output device and will pass user input to the
+ * client.
+ */
+
+/*!
+ * Constructs a QWaylandQuickItem with the given \a parent.
+ */
 QWaylandQuickItem::QWaylandQuickItem(QQuickItem *parent)
     : QQuickItem(*new QWaylandQuickItemPrivate(), parent)
 {
     d_func()->init();
 }
 
+/*!
+ * \internal
+ */
 QWaylandQuickItem::QWaylandQuickItem(QWaylandQuickItemPrivate &dd, QQuickItem *parent)
     : QQuickItem(dd, parent)
 {
     d_func()->init();
 }
 
+/*!
+ * Destroy the QWaylandQuickItem.
+ */
 QWaylandQuickItem::~QWaylandQuickItem()
 {
     Q_D(QWaylandQuickItem);
@@ -141,17 +170,51 @@ QWaylandQuickItem::~QWaylandQuickItem()
         d->provider->deleteLater();
 }
 
+/*!
+ * \qmlproperty object QtWaylandCompositor::WaylandQuickItem::compositor
+ *
+ * This property holds the compositor for the surface rendered by this WaylandQuickItem.
+ */
+
+/*!
+ * \property QWaylandQuickItem::compositor
+ *
+ * This property holds the compositor for the surface rendered by this QWaylandQuickItem.
+ */
 QWaylandCompositor *QWaylandQuickItem::compositor() const
 {
     Q_D(const QWaylandQuickItem);
     return d->view->surface() ? d->view->surface()->compositor() : Q_NULLPTR;
 }
 
+/*!
+ * \qmlproperty object QWaylandQuickItem::view
+ *
+ * This property holds the view rendered by this WaylandQuickItem.
+ */
+
+/*!
+ * \property QWaylandQuickItem::view
+ *
+ * This property holds the view rendered by this QWaylandQuickItem.
+ */
 QWaylandView *QWaylandQuickItem::view() const
 {
     Q_D(const QWaylandQuickItem);
     return d->view.data();
 }
+
+/*!
+ * \qmlproperty object QWaylandQuickItem::surface
+ *
+ * This property holds the surface rendered by this WaylandQuickItem.
+ */
+
+/*!
+ * \property QWaylandQuickItem::surface
+ *
+ * This property holds the surface rendered by this QWaylandQuickItem.
+ */
 
 QWaylandSurface *QWaylandQuickItem::surface() const
 {
@@ -166,19 +229,35 @@ void QWaylandQuickItem::setSurface(QWaylandSurface *surface)
     update();
 }
 
+/*!
+ * \qmlproperty enum QtWaylandCompositor::WaylandQuickItem::origin
+ *
+ * This property holds the origin of the QWaylandQuickItem.
+ */
+
+/*!
+ * \property QWaylandQuickItem::origin
+ *
+ * This property holds the origin of the QWaylandQuickItem.
+ */
 QWaylandSurface::Origin QWaylandQuickItem::origin() const
 {
     Q_D(const QWaylandQuickItem);
     return d->origin;
 }
 
+/*!
+ * Returns the texture provider of this QWaylandQuickItem.
+ */
 QSGTextureProvider *QWaylandQuickItem::textureProvider() const
 {
     Q_D(const QWaylandQuickItem);
     return d->provider;
 }
 
-
+/*!
+ * \internal
+ */
 void QWaylandQuickItem::mousePressEvent(QMouseEvent *event)
 {
     Q_D(QWaylandQuickItem);
@@ -200,6 +279,9 @@ void QWaylandQuickItem::mousePressEvent(QMouseEvent *event)
     inputDevice->sendMousePressEvent(event->button());
 }
 
+/*!
+ * \internal
+ */
 void QWaylandQuickItem::mouseMoveEvent(QMouseEvent *event)
 {
     Q_D(QWaylandQuickItem);
@@ -212,6 +294,9 @@ void QWaylandQuickItem::mouseMoveEvent(QMouseEvent *event)
     }
 }
 
+/*!
+ * \internal
+ */
 void QWaylandQuickItem::mouseReleaseEvent(QMouseEvent *event)
 {
     Q_D(QWaylandQuickItem);
@@ -224,6 +309,9 @@ void QWaylandQuickItem::mouseReleaseEvent(QMouseEvent *event)
     }
 }
 
+/*!
+ * \internal
+ */
 void QWaylandQuickItem::hoverEnterEvent(QHoverEvent *event)
 {
     Q_D(QWaylandQuickItem);
@@ -239,6 +327,9 @@ void QWaylandQuickItem::hoverEnterEvent(QHoverEvent *event)
     }
 }
 
+/*!
+ * \internal
+ */
 void QWaylandQuickItem::hoverMoveEvent(QHoverEvent *event)
 {
     Q_D(QWaylandQuickItem);
@@ -256,6 +347,9 @@ void QWaylandQuickItem::hoverMoveEvent(QHoverEvent *event)
     }
 }
 
+/*!
+ * \internal
+ */
 void QWaylandQuickItem::hoverLeaveEvent(QHoverEvent *event)
 {
     Q_D(QWaylandQuickItem);
@@ -267,6 +361,9 @@ void QWaylandQuickItem::hoverLeaveEvent(QHoverEvent *event)
     }
 }
 
+/*!
+ * \internal
+ */
 void QWaylandQuickItem::wheelEvent(QWheelEvent *event)
 {
     Q_D(QWaylandQuickItem);
@@ -283,6 +380,9 @@ void QWaylandQuickItem::wheelEvent(QWheelEvent *event)
     }
 }
 
+/*!
+ * \internal
+ */
 void QWaylandQuickItem::keyPressEvent(QKeyEvent *event)
 {
     Q_D(QWaylandQuickItem);
@@ -294,6 +394,9 @@ void QWaylandQuickItem::keyPressEvent(QKeyEvent *event)
     }
 }
 
+/*!
+ * \internal
+ */
 void QWaylandQuickItem::keyReleaseEvent(QKeyEvent *event)
 {
     Q_D(QWaylandQuickItem);
@@ -305,6 +408,9 @@ void QWaylandQuickItem::keyReleaseEvent(QKeyEvent *event)
     }
 }
 
+/*!
+ * \internal
+ */
 void QWaylandQuickItem::touchEvent(QTouchEvent *event)
 {
     Q_D(QWaylandQuickItem);
@@ -337,6 +443,9 @@ void QWaylandQuickItem::touchEvent(QTouchEvent *event)
     }
 }
 
+/*!
+ * \internal
+ */
 void QWaylandQuickItem::mouseUngrabEvent()
 {
     if (surface()) {
@@ -345,12 +454,18 @@ void QWaylandQuickItem::mouseUngrabEvent()
     }
 }
 
+/*!
+ * \internal
+ */
 void QWaylandQuickItem::surfaceChangedEvent(QWaylandSurface *newSurface, QWaylandSurface *oldSurface)
 {
     Q_UNUSED(newSurface);
     Q_UNUSED(oldSurface);
 }
 
+/*!
+ * \internal
+ */
 void QWaylandQuickItem::handleSurfaceChanged()
 {
     Q_D(QWaylandQuickItem);
@@ -384,6 +499,10 @@ void QWaylandQuickItem::handleSurfaceChanged()
     d->oldSurface = d->view->surface();
 }
 
+/*!
+ * Calling this function causes the item to take the focus of the
+ * input \a device.
+ */
 void QWaylandQuickItem::takeFocus(QWaylandInputDevice *device)
 {
     setFocus(true);
@@ -398,11 +517,17 @@ void QWaylandQuickItem::takeFocus(QWaylandInputDevice *device)
     target->setKeyboardFocus(surface());
 }
 
+/*!
+ * \internal
+ */
 void QWaylandQuickItem::surfaceMappedChanged()
 {
     update();
 }
 
+/*!
+ * \internal
+ */
 void QWaylandQuickItem::parentChanged(QWaylandSurface *newParent, QWaylandSurface *oldParent)
 {
     Q_UNUSED(oldParent);
@@ -415,6 +540,9 @@ void QWaylandQuickItem::parentChanged(QWaylandSurface *newParent, QWaylandSurfac
     }
 }
 
+/*!
+ * \internal
+ */
 void QWaylandQuickItem::updateSize()
 {
     Q_D(QWaylandQuickItem);
@@ -423,6 +551,23 @@ void QWaylandQuickItem::updateSize()
     }
 }
 
+/*!
+ * \qmlproperty bool QtWaylandCompositor::WaylandQuickItem::focusOnClick
+ *
+ * This property specifies whether the WaylandQuickItem should take focus when
+ * it is clicked.
+ *
+ * The default is true.
+ */
+
+/*!
+ * \property QWaylandQuickItem::focusOnClick
+ *
+ * This property specifies whether the QWaylandQuickItem should take focus when
+ * it is clicked.
+ *
+ * The default is true.
+ */
 bool QWaylandQuickItem::focusOnClick() const
 {
     Q_D(const QWaylandQuickItem);
@@ -439,13 +584,34 @@ void QWaylandQuickItem::setFocusOnClick(bool focus)
     emit focusOnClickChanged();
 }
 
-bool QWaylandQuickItem::inputRegionContains(QPointF localPosition)
+/*!
+ * Returns true if the input region of this item's surface contains the
+ * position given by \a localPosition.
+ */
+bool QWaylandQuickItem::inputRegionContains(const QPointF &localPosition)
 {
     if (QWaylandSurface *s = surface())
         return s->inputRegionContains(localPosition.toPoint());
     return false;
 }
 
+/*!
+ * \qmlproperty bool QtWaylandCompositor::WaylandQuickItem::sizeFollowsSurface
+ *
+ * This property specifies whether the size of the item should always match
+ * the size of its surface.
+ *
+ * The default is true.
+ */
+
+/*!
+ * \property QWaylandQuickItem::sizeFollowsSurface
+ *
+ * This property specifies whether the size of the item should always match
+ * the size of its surface.
+ *
+ * The default is true.
+ */
 bool QWaylandQuickItem::sizeFollowsSurface() const
 {
     Q_D(const QWaylandQuickItem);

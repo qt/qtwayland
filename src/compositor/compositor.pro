@@ -11,6 +11,7 @@ CONFIG -= precompile_header
 CONFIG += link_pkgconfig
 
 DEFINES += QT_WAYLAND_WINDOWMANAGER_SUPPORT
+QMAKE_DOCS = $$PWD/doc/compositor.qdocconf
 
 !contains(QT_CONFIG, no-pkg-config) {
     PKGCONFIG_PRIVATE += wayland-server

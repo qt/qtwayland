@@ -55,7 +55,7 @@ class Q_COMPOSITOR_EXPORT QWaylandTouch : public QWaylandObject
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandTouch)
 public:
-    QWaylandTouch(QWaylandInputDevice *seat, QObject *parent = 0);
+    QWaylandTouch(QWaylandInputDevice *inputDevice, QObject *parent = 0);
 
     QWaylandInputDevice *inputDevice() const;
     QWaylandCompositor *compositor() const;

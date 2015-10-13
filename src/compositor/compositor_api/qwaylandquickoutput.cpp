@@ -80,6 +80,14 @@ void QWaylandQuickOutput::update()
     }
 }
 
+/*!
+ * \qmlproperty bool QtWaylandCompositor::WaylandOutput::automaticFrameCallback
+ *
+ * This property holds whether the WaylandOutput automatically sends frame
+ * callbacks when rendering.
+ *
+ * The default is true.
+ */
 bool QWaylandQuickOutput::automaticFrameCallback() const
 {
     return m_automaticFrameCallback;
@@ -94,6 +102,9 @@ void QWaylandQuickOutput::setAutomaticFrameCallback(bool automatic)
     automaticFrameCallbackChanged();
 }
 
+/*!
+ * \internal
+ */
 void QWaylandQuickOutput::updateStarted()
 {
     m_updateScheduled = false;

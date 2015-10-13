@@ -84,6 +84,27 @@ public:
     Listener listener;
 };
 
+/*!
+ * \qmltype WaylandClient
+ * \inqmlmodule QtWayland.Compositor
+ * \brief A client connecting to the WaylandCompositor.
+ *
+ * This type represents a client connecting to the compositor using the Wayland protocol.
+ * It corresponds to the Wayland interface wl_client.
+ */
+
+/*!
+ * \class QWaylandClient
+ * \inmodule QtWaylandCompositor
+ * \brief A client connecting to the QWaylandCompositor.
+ *
+ * This class corresponds to a client connecting to the compositor using the Wayland protocol.
+ * It corresponds to the Wayland interface wl_client.
+ */
+
+/*!
+ * Constructs a QWaylandClient for the \a compositor and the Wayland \a client.
+ */
 QWaylandClient::QWaylandClient(QWaylandCompositor *compositor, wl_client *client)
     : QObject(*new QWaylandClientPrivate(compositor, client))
 {
@@ -97,6 +118,9 @@ QWaylandClient::QWaylandClient(QWaylandCompositor *compositor, wl_client *client
     QWaylandCompositorPrivate::get(compositor)->addClient(this);
 }
 
+/*!
+ * Destroys the QWaylandClient.
+ */
 QWaylandClient::~QWaylandClient()
 {
     Q_D(QWaylandClient);
@@ -107,6 +131,11 @@ QWaylandClient::~QWaylandClient()
     QWaylandCompositorPrivate::get(d->compositor)->removeClient(this);
 }
 
+/*!
+ * Returns the QWaylandClient corresponding to the Wayland client \a wl_client and \a compositor.
+ * If a QWaylandClient has not already been created for \a client, it is
+ * created and returned.
+ */
 QWaylandClient *QWaylandClient::fromWlClient(QWaylandCompositor *compositor, wl_client *wlClient)
 {
     if (!wlClient)
@@ -132,6 +161,9 @@ QWaylandClient *QWaylandClient::fromWlClient(QWaylandCompositor *compositor, wl_
     return client;
 }
 
+/*!
+ * Returns the Wayland client of this QWaylandClient.
+ */
 wl_client *QWaylandClient::client() const
 {
     Q_D(const QWaylandClient);
@@ -139,6 +171,17 @@ wl_client *QWaylandClient::client() const
     return d->client;
 }
 
+/*!
+ * \qmlproperty int QtWaylandCompositor::WaylandClient::userId
+ *
+ * This property holds the user id of this WaylandClient.
+ */
+
+/*!
+ * \property QWaylandClient::userId
+ *
+ * This property holds the user id of this QWaylandClient.
+ */
 qint64 QWaylandClient::userId() const
 {
     Q_D(const QWaylandClient);
@@ -146,6 +189,17 @@ qint64 QWaylandClient::userId() const
     return d->uid;
 }
 
+/*!
+ * \qmlproperty int QtWaylandCompositor::WaylandClient::groupId
+ *
+ * This property holds the group id of this WaylandClient.
+ */
+
+/*!
+ * \property int QWaylandClient::groupId
+ *
+ * This property holds the group id of this QWaylandClient.
+ */
 qint64 QWaylandClient::groupId() const
 {
     Q_D(const QWaylandClient);
@@ -153,6 +207,17 @@ qint64 QWaylandClient::groupId() const
     return d->gid;
 }
 
+/*!
+ * \qmlproperty int QtWaylandCompositor::WaylandClient::processId
+ *
+ * This property holds the process id of this WaylandClient.
+ */
+
+/*!
+ * \property QWaylandClient::processId
+ *
+ * This property holds the process id of this QWaylandClient.
+ */
 qint64 QWaylandClient::processId() const
 {
     Q_D(const QWaylandClient);
@@ -160,13 +225,31 @@ qint64 QWaylandClient::processId() const
     return d->pid;
 }
 
-void QWaylandClient::kill(int sig)
+/*!
+ * \qmlmethod void QtWaylandCompositor::WaylandClient::kill(signal)
+ *
+ * Kills the client with the specified \a signal.
+ */
+
+/*!
+ * Kills the client with the specified \a signal.
+ */
+void QWaylandClient::kill(int signal)
 {
     Q_D(QWaylandClient);
 
-    ::kill(d->pid, sig);
+    ::kill(d->pid, signal);
 }
 
+/*!
+ * \qmlmethod void QtWaylandCompositor::WaylandClient::close()
+ *
+ * Closes the client
+ */
+
+/*!
+ * Closes the client.
+ */
 void QWaylandClient::close()
 {
     Q_D(QWaylandClient);

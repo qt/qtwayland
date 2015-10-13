@@ -65,7 +65,6 @@ public:
     QWaylandInputDevice *inputDevice;
 };
 
-
 QWaylandDrag::QWaylandDrag(QWaylandInputDevice *inputDevice)
     : QObject(* new QWaylandDragPrivate(inputDevice))
 {

@@ -70,7 +70,7 @@ public:
 
     qint64 processId() const;
 
-    Q_INVOKABLE void kill(int sig = SIGTERM);
+    Q_INVOKABLE void kill(int signal = SIGTERM);
 
 public Q_SLOTS:
     void close();

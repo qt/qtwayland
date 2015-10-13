@@ -66,6 +66,27 @@ QWaylandQuickCompositor::QWaylandQuickCompositor(QObject *parent)
 {
 }
 
+/*!
+ * \qmlproperty list QtWaylandCompositor::WaylandCompositor::extensions
+ *
+ * A list of extensions that the compositor advertises to its clients. For
+ * any Wayland extension the compositor should support, instantiate its component,
+ * and add it to the list of extensions.
+ *
+ * For instance, the following code would allow the clients to request shell surfaces
+ * in the compositor using the wl_shell interface.
+ *
+ * \code
+ * import QtWayland.Compositor 1.0
+ *
+ * WaylandCompositor {
+ *     extensions: [ Shell {
+ *         // ...
+ *     } ]
+ * }
+ * \endcode
+ */
+
 void QWaylandQuickCompositor::create()
 {
     QWaylandCompositor::create();

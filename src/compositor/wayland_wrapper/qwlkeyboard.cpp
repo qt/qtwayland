@@ -118,10 +118,15 @@ KeyboardGrabber *Keyboard::currentGrab() const
 
 void Keyboard::focused(Surface *surface)
 {
-    if (m_focusResource && m_focus != surface) {
-        uint32_t serial = wl_display_next_serial(m_compositor->wl_display());
-        send_leave(m_focusResource->handle, serial, m_focus->resource()->handle);
+    if (m_focus != surface) {
+        if (m_focusResource) {
+            uint32_t serial = wl_display_next_serial(m_compositor->wl_display());
+            send_leave(m_focusResource->handle, serial, m_focus->resource()->handle);
+        }
         m_focusDestroyListener.reset();
+        if (surface) {
+            m_focusDestroyListener.listenForDestruction(surface->resource()->handle);
+        }
     }
 
     Resource *resource = surface ? resourceMap().value(surface->resource()->client()) : 0;
@@ -130,7 +135,6 @@ void Keyboard::focused(Surface *surface)
         uint32_t serial = wl_display_next_serial(m_compositor->wl_display());
         send_modifiers(resource->handle, serial, m_modsDepressed, m_modsLatched, m_modsLocked, m_group);
         send_enter(resource->handle, serial, surface->resource()->handle, QByteArray::fromRawData((char *)m_keys.data(), m_keys.size() * sizeof(uint32_t)));
-        m_focusDestroyListener.listenForDestruction(surface->resource()->handle);
     }
 
     m_focusResource = resource;

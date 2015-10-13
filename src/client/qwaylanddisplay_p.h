@@ -34,6 +34,17 @@
 #ifndef QWAYLANDDISPLAY_H
 #define QWAYLANDDISPLAY_H
 
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists purely as an
+// implementation detail.  This header file may change from version to
+// version without notice, or even be removed.
+//
+// We mean it.
+//
+
 #include <QtCore/QObject>
 #include <QtCore/QRect>
 #include <QtCore/QPointer>
@@ -108,7 +119,6 @@ public:
     void setCursor(struct wl_buffer *buffer, struct wl_cursor_image *image);
 
     struct wl_display *wl_display() const { return mDisplay; }
-    struct wl_event_queue *wl_event_queue() const { return mEventQueue; }
     struct ::wl_registry *wl_registry() { return object(); }
 
     const struct wl_compositor *wl_compositor() const { return mCompositor.object(); }
@@ -173,7 +183,6 @@ private:
     };
 
     struct wl_display *mDisplay;
-    struct wl_event_queue *mEventQueue;
     QtWayland::wl_compositor mCompositor;
     struct wl_shm *mShm;
     QThread *mEventThread;

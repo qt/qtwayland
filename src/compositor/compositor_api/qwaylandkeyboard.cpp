@@ -67,6 +67,7 @@ QWaylandKeyboardPrivate::QWaylandKeyboardPrivate(QWaylandInputDevice *seat)
     , group()
     , pendingKeymap(false)
 #ifndef QT_NO_WAYLAND_XKB
+    , keymap_fd(-1)
     , xkb_state(0)
 #endif
 {
@@ -276,13 +277,44 @@ void QWaylandKeyboardPrivate::initXKB()
     createXKBKeymap();
 }
 
+
+void QWaylandKeyboardPrivate::createXKBState(xkb_keymap *keymap)
+{
+    char *keymap_str = xkb_keymap_get_as_string(keymap, XKB_KEYMAP_FORMAT_TEXT_V1);
+    if (!keymap_str) {
+        qWarning("Failed to compile global XKB keymap");
+        return;
+    }
+
+    keymap_size = strlen(keymap_str) + 1;
+    if (keymap_fd >= 0)
+        close(keymap_fd);
+    keymap_fd = createAnonymousFile(keymap_size);
+    if (keymap_fd < 0) {
+        qWarning("Failed to create anonymous file of size %lu", static_cast<unsigned long>(keymap_size));
+        return;
+    }
+
+    keymap_area = static_cast<char *>(mmap(0, keymap_size, PROT_READ | PROT_WRITE, MAP_SHARED, keymap_fd, 0));
+    if (keymap_area == MAP_FAILED) {
+        close(keymap_fd);
+        keymap_fd = -1;
+        qWarning("Failed to map shared memory segment");
+        return;
+    }
+
+    strcpy(keymap_area, keymap_str);
+    free(keymap_str);
+
+    if (xkb_state)
+        xkb_state_unref(xkb_state);
+    xkb_state = xkb_state_new(keymap);
+}
+
 void QWaylandKeyboardPrivate::createXKBKeymap()
 {
     if (!xkb_context)
         return;
-
-    if (xkb_state)
-        xkb_state_unref(xkb_state);
 
     struct xkb_rule_names rule_names = { strdup(qPrintable(keymap.rules())),
                                          strdup(qPrintable(keymap.model())),
@@ -291,27 +323,12 @@ void QWaylandKeyboardPrivate::createXKBKeymap()
                                          strdup(qPrintable(keymap.options())) };
     struct xkb_keymap *keymap = xkb_keymap_new_from_names(xkb_context, &rule_names, static_cast<xkb_keymap_compile_flags>(0));
 
-    char *keymap_str = xkb_keymap_get_as_string(keymap, XKB_KEYMAP_FORMAT_TEXT_V1);
-    if (!keymap_str)
-        qFatal("Failed to compile global XKB keymap");
-
-    keymap_size = strlen(keymap_str) + 1;
-    keymap_fd = createAnonymousFile(keymap_size);
-    if (keymap_fd < 0)
-        qFatal("Failed to create anonymous file of size %lu", static_cast<unsigned long>(keymap_size));
-
-    keymap_area = static_cast<char *>(mmap(0, keymap_size, PROT_READ | PROT_WRITE, MAP_SHARED, keymap_fd, 0));
-    if (keymap_area == MAP_FAILED) {
-        close(keymap_fd);
-        qFatal("Failed to map shared memory segment");
+    if (keymap) {
+        createXKBState(keymap);
+        xkb_keymap_unref(keymap);
+    } else {
+        qWarning("Failed to load the '%s' XKB keymap.", qPrintable(this->keymap.layout()));
     }
-
-    strcpy(keymap_area, keymap_str);
-    free(keymap_str);
-
-    xkb_state = xkb_state_new(keymap);
-
-    xkb_keymap_unref(keymap);
 
     free((char *)rule_names.rules);
     free((char *)rule_names.model);
@@ -398,14 +415,13 @@ void QWaylandKeyboard::setKeymap(const QWaylandKeymap &keymap)
 {
     Q_D(QWaylandKeyboard);
     d->keymap = keymap;
+    d->pendingKeymap = true;
 
     // If there is no key currently pressed, update right away the keymap
     // Otherwise, delay the update when keys are released
     // see http://lists.freedesktop.org/archives/wayland-devel/2013-October/011395.html
     if (d->keys.isEmpty()) {
         d->updateKeymap();
-    } else {
-        d->pendingKeymap = true;
     }
 }
 

@@ -38,6 +38,17 @@
 #ifndef QTWAYLAND_QWLKEYBOARD_P_H
 #define QTWAYLAND_QWLKEYBOARD_P_H
 
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists purely as an
+// implementation detail.  This header file may change from version to
+// version without notice, or even be removed.
+//
+// We mean it.
+//
+
 #include <QtWaylandCompositor/qwaylandexport.h>
 #include <QtWaylandCompositor/qwaylandinput.h>
 #include <QtWaylandCompositor/qwaylandkeyboard.h>
@@ -91,6 +102,7 @@ private:
 #ifndef QT_NO_WAYLAND_XKB
     void initXKB();
     void createXKBKeymap();
+    void createXKBState(xkb_keymap *keymap);
 #endif
 
     QWaylandInputDevice *seat;

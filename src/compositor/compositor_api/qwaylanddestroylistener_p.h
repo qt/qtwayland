@@ -37,6 +37,17 @@
 #ifndef QTWAYLAND_QWLLISTENER_H
 #define QTWAYLAND_QWLLISTENER_H
 
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists purely as an
+// implementation detail.  This header file may change from version to
+// version without notice, or even be removed.
+//
+// We mean it.
+//
+
 #include "qwaylanddestroylistener.h"
 
 #include <QtCore/private/qobject_p.h>

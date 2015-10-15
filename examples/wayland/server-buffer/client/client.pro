@@ -3,8 +3,13 @@ TARGET = client
 INCLUDEPATH += .
 
 QT += waylandclient-private
-CONFIG += link_pkgconfig
-PKGCONFIG += wayland-client
+
+contains(QT_CONFIG, no-pkg-config) {
+    LIBS += -lwayland-client
+} else {
+    CONFIG += link_pkgconfig
+    PKGCONFIG += wayland-client
+}
 
 CONFIG += wayland-scanner
 WAYLANDCLIENTSOURCES += ../share-buffer.xml

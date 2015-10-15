@@ -1,23 +1,23 @@
 QT += core-private gui-private quick-private waylandcompositor-private
 
-LIBS += -lwayland-server
+contains(QT_CONFIG, no-pkg-config) {
+    LIBS += -lwayland-server
+} else {
+    CONFIG += link_pkgconfig
+    PKGCONFIG += wayland-server
+}
 
 SOURCES += \
     main.cpp \
     serverbufferitem.cpp
+
 HEADERS += \
-    serverbufferitem.h \
+    serverbufferitem.h
 
 OTHER_FILES = \
-    qml/main.qml \
-    images/background.jpg \
+    images/background.jpg
 
 RESOURCES += compositor.qrc
 
-CONFIG +=wayland-scanner
+CONFIG += wayland-scanner
 WAYLANDSERVERSOURCES += ../share-buffer.xml
-
-CONFIG += link_pkgconfig
-PKGCONFIG += wayland-server
-
-DEFINES += QT_COMPOSITOR_QUICK

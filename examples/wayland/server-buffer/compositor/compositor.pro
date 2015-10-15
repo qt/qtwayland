@@ -17,7 +17,4 @@ RESOURCES += compositor.qrc
 CONFIG +=wayland-scanner
 WAYLANDSERVERSOURCES += ../share-buffer.xml
 
-CONFIG += link_pkgconfig
-PKGCONFIG += wayland-server
-
 DEFINES += QT_COMPOSITOR_QUICK

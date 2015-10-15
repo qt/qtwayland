@@ -48,6 +48,9 @@ QT_BEGIN_NAMESPACE
 
 TextureBlitter::TextureBlitter()
     : m_shaderProgram(new QOpenGLShaderProgram)
+    , m_shaderProgramExternal(new QOpenGLShaderProgram)
+    , m_currentProgram(0)
+    , m_currentTarget(GL_TEXTURE_2D)
 {
     static const char *textureVertexProgram =
             "uniform highp mat4 matrix;\n"
@@ -66,33 +69,58 @@ TextureBlitter::TextureBlitter()
             "   gl_FragColor = texture2D(texture, textureCoord);\n"
             "}\n";
 
-    //Enable transparent windows
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    static const char *textureFragmentProgramExternal =
+        "#extension GL_OES_EGL_image_external : require\n"
+        "uniform samplerExternalOES texture;\n"
+        "varying highp vec2 textureCoord;\n"
+        "void main() {\n"
+        "   gl_FragColor = texture2D(texture, textureCoord);\n"
+        "}\n";
 
     m_shaderProgram->addShaderFromSourceCode(QOpenGLShader::Vertex, textureVertexProgram);
     m_shaderProgram->addShaderFromSourceCode(QOpenGLShader::Fragment, textureFragmentProgram);
     m_shaderProgram->link();
+
+    m_shaderProgramExternal->addShaderFromSourceCode(QOpenGLShader::Vertex, textureVertexProgram);
+    m_shaderProgramExternal->addShaderFromSourceCode(QOpenGLShader::Fragment, textureFragmentProgramExternal);
+    m_shaderProgramExternal->link();
 }
 
 TextureBlitter::~TextureBlitter()
 {
     delete m_shaderProgram;
+    delete m_shaderProgramExternal;
 }
 
-void TextureBlitter::bind()
+void TextureBlitter::bind(quint32 target)
 {
+    m_currentTarget = target;
+    switch (target) {
+    case GL_TEXTURE_2D:
+        m_currentProgram = m_shaderProgram;
+        break;
+    case GL_TEXTURE_EXTERNAL_OES:
+        m_currentProgram = m_shaderProgramExternal;
+        break;
+    default:
+        qFatal("INVALID TARGET TYPE %d", target);
+        break;
+    }
 
-    m_shaderProgram->bind();
+    m_currentProgram->bind();
 
     m_vertexCoordEntry = m_shaderProgram->attributeLocation("vertexCoordEntry");
     m_textureCoordEntry = m_shaderProgram->attributeLocation("textureCoordEntry");
     m_matrixLocation = m_shaderProgram->uniformLocation("matrix");
+
+    //Enable transparent windows
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 void TextureBlitter::release()
 {
-    m_shaderProgram->release();
+    m_currentProgram->release();
 }
 
 void TextureBlitter::drawTexture(int textureId, const QRectF &targetRect, const QSize &targetSize, int depth, bool targethasInvertedY, bool sourceHasInvertedY)
@@ -148,16 +176,17 @@ void TextureBlitter::drawTexture(int textureId, const QRectF &targetRect, const 
 
     currentContext->functions()->glVertexAttribPointer(m_vertexCoordEntry, 3, GL_FLOAT, GL_FALSE, 0, vertexCoordinates);
     currentContext->functions()->glVertexAttribPointer(m_textureCoordEntry, 2, GL_FLOAT, GL_FALSE, 0, textureCoordinates);
-    m_shaderProgram->setUniformValue(m_matrixLocation, m_transformMatrix);
 
-    glBindTexture(GL_TEXTURE_2D, textureId);
+    m_currentProgram->setUniformValue(m_matrixLocation, m_transformMatrix);
 
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glBindTexture(m_currentTarget, textureId);
+
+    glTexParameterf(m_currentTarget, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameterf(m_currentTarget, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
     glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 
-    glBindTexture(GL_TEXTURE_2D, 0);
+    glBindTexture(m_currentTarget, 0);
 
     currentContext->functions()->glDisableVertexAttribArray(m_vertexCoordEntry);
     currentContext->functions()->glDisableVertexAttribArray(m_textureCoordEntry);

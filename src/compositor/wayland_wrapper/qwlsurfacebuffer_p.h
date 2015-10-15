@@ -106,6 +106,8 @@ public:
     bool isDestroyed() { return m_destroyed; }
 
     void createTexture();
+    uint textureTarget() const;
+    void updateTexture();
 #ifdef QT_COMPOSITOR_WAYLAND_GL
     inline GLuint texture() const;
 #else

@@ -104,12 +104,24 @@ QImage QWaylandBufferRef::image() const
 
 #ifdef QT_COMPOSITOR_WAYLAND_GL
 
+GLenum QWaylandBufferRef::textureTarget() const
+{
+    Q_ASSERT(d->buffer->textureCreated());
+    return d->buffer->textureTarget();
+}
+
 GLuint QWaylandBufferRef::createTexture()
 {
     if (!d->buffer->isShmBuffer() && !d->buffer->textureCreated()) {
         d->buffer->createTexture();
     }
     return d->buffer->texture();
+}
+
+void QWaylandBufferRef::updateTexture()
+{
+    if (!d->buffer->isShmBuffer() && d->buffer->textureCreated())
+        d->buffer->updateTexture();
 }
 
 void QWaylandBufferRef::destroyTexture()

@@ -92,8 +92,10 @@ public:
                 shmTex = new QOpenGLTexture(bufferRef.image(), QOpenGLTexture::DontGenerateMipMaps);
                 shmTex->setWrapMode(QOpenGLTexture::ClampToEdge);
                 texture = shmTex->textureId();
+                textureTarget = GL_TEXTURE_2D;
             } else {
                 texture = bufferRef.createTexture();
+                textureTarget = bufferRef.textureTarget();
             }
         }
     }
@@ -112,9 +114,16 @@ public:
         return bufferRef.image();
     }
 
+    void updateTexture()
+    {
+        if (bufferRef)
+            bufferRef.updateTexture();
+    }
+
     QOpenGLTexture *shmTex;
     QWaylandBufferRef bufferRef;
     GLuint texture;
+    GLenum textureTarget;
 };
 
 QWindowCompositor::QWindowCompositor(CompositorWindow *window)
@@ -326,7 +335,7 @@ void QWindowCompositor::render()
     if (!m_backgroundTexture)
         m_backgroundTexture = new QOpenGLTexture(m_backgroundImage, QOpenGLTexture::DontGenerateMipMaps);
 
-    m_textureBlitter->bind();
+    m_textureBlitter->bind(GL_TEXTURE_2D);
     // Draw the background image texture
     m_textureBlitter->drawTexture(m_backgroundTexture->textureId(),
                                   QRect(QPoint(0, 0), m_backgroundImage.size()),
@@ -336,7 +345,11 @@ void QWindowCompositor::render()
     foreach (QWaylandSurface *surface, m_surfaces) {
         if (!surface->visible())
             continue;
-        GLuint texture = static_cast<BufferAttacher *>(surface->bufferAttacher())->texture;
+        BufferAttacher *ba = static_cast<BufferAttacher *>(surface->bufferAttacher());
+        ba->updateTexture();
+        const GLuint texture = ba->texture;
+        const GLenum target = ba->textureTarget;
+        m_textureBlitter->bind(target);
         foreach (QWaylandSurfaceView *view, surface->views()) {
             QRect geo(view->pos().toPoint(),surface->size());
             m_textureBlitter->drawTexture(texture,geo,m_window->size(),0,false,surface->isYInverted());

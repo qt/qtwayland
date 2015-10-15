@@ -46,8 +46,8 @@ QT_BEGIN_NAMESPACE
 namespace QtWaylandClient {
 
 QWaylandXdgSurface::QWaylandXdgSurface(struct ::xdg_surface *xdg_surface, QWaylandWindow *window)
-    : QtWayland::xdg_surface(xdg_surface)
-    , QWaylandShellSurface(window)
+    : QWaylandShellSurface(window)
+    , QtWayland::xdg_surface(xdg_surface)
     , m_window(window)
     , m_maximized(false)
     , m_minimized(false)

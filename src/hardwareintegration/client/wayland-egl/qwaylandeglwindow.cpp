@@ -149,6 +149,13 @@ QSurfaceFormat QWaylandEglWindow::format() const
     return m_format;
 }
 
+void QWaylandEglWindow::setVisible(bool visible)
+{
+    QWaylandWindow::setVisible(visible);
+    if (!visible)
+        invalidateSurface();
+}
+
 void QWaylandEglWindow::invalidateSurface()
 {
     if (m_eglSurface) {

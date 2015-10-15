@@ -95,7 +95,6 @@ public:
 
         QtWaylandClient::QWaylandDisplay *wayland_display = wayland_integration->display();
         struct ::wl_registry *registry = wl_display_get_registry(wayland_display->wl_display());
-        wl_proxy_set_queue(reinterpret_cast<struct wl_proxy *>(registry), wayland_display->wl_event_queue());
         QtWayland::wl_registry::init(registry);
     }
 

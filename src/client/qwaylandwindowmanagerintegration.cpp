@@ -127,28 +127,33 @@ QByteArray QWaylandWindowManagerIntegration::desktopEnvironment() const
 
 void QWaylandWindowManagerIntegration::openUrl_helper(const QUrl &url)
 {
-    if (isInitialized()) {
-        QByteArray data = url.toString().toUtf8();
+    Q_ASSERT(isInitialized());
+    QByteArray data = url.toString().toUtf8();
 
-        static const int chunkSize = 128;
-        while (!data.isEmpty()) {
-            QByteArray chunk = data.left(chunkSize);
-            data = data.mid(chunkSize);
-            open_url(!data.isEmpty(), QString::fromUtf8(chunk));
-        }
+    static const int chunkSize = 128;
+    while (!data.isEmpty()) {
+        QByteArray chunk = data.left(chunkSize);
+        data = data.mid(chunkSize);
+        open_url(!data.isEmpty(), QString::fromUtf8(chunk));
     }
 }
 
 bool QWaylandWindowManagerIntegration::openUrl(const QUrl &url)
 {
-    openUrl_helper(url);
-    return true;
+    if (isInitialized()) {
+        openUrl_helper(url);
+        return true;
+    }
+    return QGenericUnixServices::openUrl(url);
 }
 
 bool QWaylandWindowManagerIntegration::openDocument(const QUrl &url)
 {
-    openUrl_helper(url);
-    return true;
+    if (isInitialized()) {
+        openUrl_helper(url);
+        return true;
+    }
+    return QGenericUnixServices::openDocument(url);
 }
 
 }

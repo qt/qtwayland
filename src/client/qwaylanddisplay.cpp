@@ -33,7 +33,6 @@
 
 #include "qwaylanddisplay_p.h"
 
-#include "qwaylandeventthread_p.h"
 #include "qwaylandintegration_p.h"
 #include "qwaylandwindow_p.h"
 #include "qwaylandscreen_p.h"
@@ -145,20 +144,14 @@ QWaylandDisplay::QWaylandDisplay(QWaylandIntegration *waylandIntegration)
 {
     qRegisterMetaType<uint32_t>("uint32_t");
 
-    mEventThreadObject = new QWaylandEventThread(0);
-    mEventThread = new QThread(this);
-    mEventThread->setObjectName(QStringLiteral("QtWayland"));
-    mEventThreadObject->moveToThread(mEventThread);
-    mEventThread->start();
-
-    mEventThreadObject->displayConnect();
-    mDisplay = mEventThreadObject->display(); //blocks until display is available
+    mDisplay = wl_display_connect(NULL);
+    if (mDisplay == NULL) {
+        qErrnoWarning(errno, "Failed to create display");
+        ::exit(1);
+    }
 
     struct ::wl_registry *registry = wl_display_get_registry(mDisplay);
     init(registry);
-
-    connect(mEventThreadObject, SIGNAL(newEventsRead()), this, SLOT(flushRequests()));
-    connect(mEventThreadObject, &QWaylandEventThread::fatalError, this, &QWaylandDisplay::exitWithError);
 
     mWindowManagerIntegration.reset(new QWaylandWindowManagerIntegration(this));
 
@@ -175,15 +168,28 @@ QWaylandDisplay::~QWaylandDisplay(void)
     }
     mScreens.clear();
     delete mDndSelectionHandler.take();
-    mEventThread->quit();
-    mEventThread->wait();
-    delete mEventThreadObject;
+    wl_display_disconnect(mDisplay);
+}
+
+void QWaylandDisplay::checkError() const
+{
+    int ecode = wl_display_get_error(mDisplay);
+    if ((ecode == EPIPE || ecode == ECONNRESET)) {
+        // special case this to provide a nicer error
+        qWarning("The Wayland connection broke. Did the Wayland compositor die?");
+    } else {
+        qErrnoWarning(ecode, "The Wayland connection experienced a fatal error");
+    }
 }
 
 void QWaylandDisplay::flushRequests()
 {
+    if (wl_display_prepare_read(mDisplay) == 0) {
+        wl_display_read_events(mDisplay);
+    }
+
     if (wl_display_dispatch_pending(mDisplay) < 0) {
-        mEventThreadObject->checkError();
+        checkError();
         exitWithError();
     }
 
@@ -194,15 +200,13 @@ void QWaylandDisplay::flushRequests()
 void QWaylandDisplay::blockingReadEvents()
 {
     if (wl_display_dispatch(mDisplay) < 0) {
-        mEventThreadObject->checkError();
+        checkError();
         exitWithError();
     }
 }
 
 void QWaylandDisplay::exitWithError()
 {
-    mEventThread->quit();
-    mEventThread->wait();
     ::exit(1);
 }
 

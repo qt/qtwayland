@@ -78,7 +78,6 @@ SOURCES +=  qwaylandintegration.cpp \
             qwaylandabstractdecoration.cpp \
             qwaylanddecorationfactory.cpp \
             qwaylanddecorationplugin.cpp \
-            qwaylandeventthread.cpp\
             qwaylandwindowmanagerintegration.cpp \
             qwaylandinputcontext.cpp \
             qwaylanddatadevice.cpp \
@@ -111,7 +110,6 @@ HEADERS +=  qwaylandintegration_p.h \
             qwaylandabstractdecoration_p.h \
             qwaylanddecorationfactory_p.h \
             qwaylanddecorationplugin_p.h \
-            qwaylandeventthread_p.h \
             qwaylandwindowmanagerintegration_p.h \
             qwaylandinputcontext_p.h \
             qwaylanddatadevice_p.h \

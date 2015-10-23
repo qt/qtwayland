@@ -177,6 +177,7 @@ public slots:
 private:
     void waitForScreens();
     void exitWithError();
+    void checkError() const;
 
     struct Listener {
         RegistryListener listener;
@@ -186,8 +187,6 @@ private:
     struct wl_display *mDisplay;
     QtWayland::wl_compositor mCompositor;
     struct wl_shm *mShm;
-    QThread *mEventThread;
-    QWaylandEventThread *mEventThreadObject;
     QScopedPointer<QtWayland::wl_shell> mShell;
     QScopedPointer<QWaylandXdgShell> mShellXdg;
     QList<QWaylandScreen *> mScreens;

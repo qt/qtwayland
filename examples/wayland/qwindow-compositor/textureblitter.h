@@ -51,7 +51,7 @@ class TextureBlitter
 public:
     TextureBlitter();
     ~TextureBlitter();
-    void bind();
+    void bind(quint32 target);
     void release();
     void drawTexture(int textureId, const QRectF &sourceGeometry,
                      const QSize &targetRect, int depth,
@@ -59,11 +59,15 @@ public:
 
 private:
     QOpenGLShaderProgram *m_shaderProgram;
+    QOpenGLShaderProgram *m_shaderProgramExternal;
+    QOpenGLShaderProgram *m_currentProgram;
     QMatrix4x4 m_transformMatrix;
 
     int m_matrixLocation;
     int m_vertexCoordEntry;
     int m_textureCoordEntry;
+
+    quint32 m_currentTarget;
 };
 
 QT_END_NAMESPACE

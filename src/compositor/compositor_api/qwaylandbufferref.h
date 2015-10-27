@@ -71,6 +71,8 @@ public:
      * referring to the same underlying buffer will be destroyed or reset.
      */
     GLuint createTexture();
+    GLenum textureTarget() const;
+    void updateTexture();
     void destroyTexture();
     void *nativeBuffer() const;
 #endif

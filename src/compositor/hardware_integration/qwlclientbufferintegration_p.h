@@ -51,8 +51,6 @@
 #include <QtWaylandCompositor/qwaylandexport.h>
 #include <QtWaylandCompositor/qwaylandsurface.h>
 #include <QtCore/QSize>
-#include <QtGui/qopengl.h>
-#include <QtGui/QOpenGLContext>
 #include <wayland-server.h>
 
 QT_BEGIN_NAMESPACE
@@ -72,13 +70,11 @@ public:
 
     virtual void initializeHardware(struct ::wl_display *display) = 0;
 
-    // Used when the hardware integration wants to provide its own texture for a given buffer.
-    // In most cases the compositor creates and manages the texture so this is not needed.
-    virtual GLuint textureForBuffer(struct ::wl_resource *buffer) { Q_UNUSED(buffer); return 0; }
-    virtual void destroyTextureForBuffer(struct ::wl_resource *buffer) { Q_UNUSED(buffer); }
+    virtual void initializeBuffer(struct ::wl_resource *buffer) { Q_UNUSED(buffer); }
+    virtual int textureTargetForBuffer(struct ::wl_resource *buffer) const { Q_UNUSED(buffer); return 0x0DE1; }
 
-    // Called with the texture bound.
     virtual void bindTextureToBuffer(struct ::wl_resource *buffer) = 0;
+    virtual void updateTextureForBuffer(struct ::wl_resource *buffer) { Q_UNUSED(buffer); }
 
     virtual QWaylandSurface::Origin origin(struct ::wl_resource *) const { return QWaylandSurface::OriginBottomLeft; }
 

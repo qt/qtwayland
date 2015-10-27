@@ -79,6 +79,8 @@ public:
     QImage image() const;
 
     void bindToTexture() const;
+    int textureTarget() const;
+    void updateTexture() const;
 
 private:
     class QWaylandBufferRefPrivate *const d;

@@ -103,7 +103,9 @@ public:
     bool isShm() const { return wl_shm_buffer_get(m_buffer); }
 
     QImage image() const;
+    int textureTarget() const;
     void bindToTexture() const;
+    void updateTexture() const;
 
     static bool hasContent(SurfaceBuffer *buffer) { return buffer && buffer->waylandBufferHandle(); }
 private:

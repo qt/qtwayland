@@ -1,7 +1,7 @@
 PLUGIN_TYPE = wayland-graphics-integration-server
 load(qt_plugin)
 
-QT = waylandcompositor waylandcompositor-private core-private gui-private
+QT = waylandcompositor waylandcompositor-private core-private gui-private platformsupport-private
 
 OTHER_FILES += wayland-egl.json
 

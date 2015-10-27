@@ -52,7 +52,11 @@ public:
 
     void initializeHardware(struct ::wl_display *display) Q_DECL_OVERRIDE;
 
+    void initializeBuffer(struct ::wl_resource *buffer) Q_DECL_OVERRIDE;
+    int textureTargetForBuffer(struct ::wl_resource *buffer) const Q_DECL_OVERRIDE;
     void bindTextureToBuffer(struct ::wl_resource *buffer) Q_DECL_OVERRIDE;
+    void updateTextureForBuffer(struct ::wl_resource *buffer) Q_DECL_OVERRIDE;
+
     QWaylandSurface::Origin origin(struct ::wl_resource *) const Q_DECL_OVERRIDE;
 
     void *lockNativeBuffer(struct ::wl_resource *buffer) const Q_DECL_OVERRIDE;
@@ -68,4 +72,3 @@ private:
 QT_END_NAMESPACE
 
 #endif // WAYLANDEGLINTEGRATION_H
-

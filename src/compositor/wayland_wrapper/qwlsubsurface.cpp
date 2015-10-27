@@ -58,6 +58,7 @@ SubSurface::SubSurface(Surface *surface, Surface *parent, wl_client *client, uin
     , m_parent(parent)
     , m_synchronized(true)
 {
+    m_surface->setSubSurface(this);
     parent->addSubSurface(this);
     QWaylandSurface *p = parent->waylandSurface();
 

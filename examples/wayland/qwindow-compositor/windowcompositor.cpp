@@ -198,12 +198,16 @@ void WindowCompositor::triggerRender()
 
 void WindowCompositor::startRender()
 {
-    defaultOutput()->frameStarted();
+    QWaylandOutput *out = defaultOutput();
+    if (out)
+        out->frameStarted();
 }
 
 void WindowCompositor::endRender()
 {
-    defaultOutput()->sendFrameCallbacks();
+    QWaylandOutput *out = defaultOutput();
+    if (out)
+        out->sendFrameCallbacks();
 }
 
 void WindowCompositor::updateCursor()

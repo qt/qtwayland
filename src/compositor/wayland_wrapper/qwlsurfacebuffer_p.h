@@ -97,7 +97,7 @@ public:
 
     void setDisplayed();
 
-    inline bool isComitted() const { return m_committed; }
+    inline bool isCommitted() const { return m_committed; }
     inline void setCommitted() { m_committed = true; }
     inline bool isDisplayed() const { return m_is_displayed; }
 

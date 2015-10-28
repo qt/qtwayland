@@ -82,8 +82,11 @@ void SurfaceBuffer::initialize(struct ::wl_resource *buffer)
     m_destroyed = false;
     m_destroy_listener.surfaceBuffer = this;
     m_destroy_listener.listener.notify = destroy_listener_callback;
-    if (buffer)
+    if (buffer) {
+        if (ClientBufferIntegration *integration = QWaylandCompositorPrivate::get(m_compositor)->clientBufferIntegration())
+            integration->initializeBuffer(buffer);
         wl_signal_add(&buffer->destroy_signal, &m_destroy_listener.listener);
+    }
 }
 
 void SurfaceBuffer::destructBufferState()
@@ -120,7 +123,7 @@ void SurfaceBuffer::destroy_listener_callback(wl_listener *listener, void *data)
 {
     Q_UNUSED(data);
     struct surface_buffer_destroy_listener *destroy_listener =
-            reinterpret_cast<struct surface_buffer_destroy_listener *>(listener);
+        reinterpret_cast<struct surface_buffer_destroy_listener *>(listener);
     SurfaceBuffer *d = destroy_listener->surfaceBuffer;
 
     // Mark the buffer as destroyed and clear m_buffer right away to avoid
@@ -216,6 +219,20 @@ void SurfaceBuffer::bindToTexture() const
             clientInt->bindTextureToBuffer(m_buffer);
         }
     }
+}
+
+int SurfaceBuffer::textureTarget() const
+{
+    if (QtWayland::ClientBufferIntegration *clientInt = QWaylandCompositorPrivate::get(m_compositor)->clientBufferIntegration())
+        return clientInt->textureTargetForBuffer(m_buffer);
+
+    return 0;
+}
+
+void SurfaceBuffer::updateTexture() const
+{
+    if (QtWayland::ClientBufferIntegration *clientInt = QWaylandCompositorPrivate::get(m_compositor)->clientBufferIntegration())
+        clientInt->updateTextureForBuffer(m_buffer);
 }
 
 }

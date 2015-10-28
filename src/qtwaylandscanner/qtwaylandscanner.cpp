@@ -196,8 +196,13 @@ QByteArray waylandToCType(const QByteArray &waylandType, const QByteArray &inter
         return "int32_t";
     else if (waylandType == "array")
         return "wl_array *";
-    else if (waylandType == "object" || waylandType == "new_id")
-        return isServerSide() ? "struct ::wl_resource *" : interface.isEmpty() ? "struct ::wl_object *" : "struct ::" + interface + " *";
+    else if (waylandType == "object" || waylandType == "new_id") {
+        if (isServerSide())
+            return "struct ::wl_resource *";
+        if (interface.isEmpty())
+            return "struct ::wl_object *";
+        return "struct ::" + interface + " *";
+    }
     return waylandType;
 }
 
@@ -850,7 +855,14 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath, const QByteArr
                 printf("\n");
                 foreach (const WaylandEvent &e, interface.requests) {
                     const WaylandArgument *new_id = newIdArgument(e.arguments);
-                    printf("        %s", new_id ? (new_id->interface.isEmpty() ? "void *" : "struct ::" + new_id->interface + " *").constData() : "void ");
+                    QByteArray new_id_str = "void ";
+                    if (new_id) {
+                        if (new_id->interface.isEmpty())
+                            new_id_str = "void *";
+                        else
+                            new_id_str = "struct ::" + new_id->interface + " *";
+                    }
+                    printf("        %s", new_id_str.constData());
                     printEvent(e);
                     printf(";\n");
                 }
@@ -966,7 +978,14 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath, const QByteArr
                 printf("\n");
                 const WaylandEvent &e = interface.requests.at(i);
                 const WaylandArgument *new_id = newIdArgument(e.arguments);
-                printf("    %s%s::", new_id ? (new_id->interface.isEmpty() ? "void *" : "struct ::" + new_id->interface + " *").constData() : "void ", interfaceName);
+                QByteArray new_id_str = "void ";
+                if (new_id) {
+                    if (new_id->interface.isEmpty())
+                        new_id_str = "void *";
+                    else
+                        new_id_str = "struct ::" + new_id->interface + " *";
+                }
+                printf("    %s%s::", new_id_str.constData(), interfaceName);
                 printEvent(e);
                 printf("\n");
                 printf("    {\n");

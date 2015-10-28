@@ -159,6 +159,7 @@ void DataDevice::data_device_start_drag(Resource *resource, struct ::wl_resource
     Q_EMIT m_inputDevice->drag()->dragStarted();
 
     Q_UNUSED(serial);
+    Q_UNUSED(origin);
     //### need to verify that we have an implicit grab with this serial
 }
 

@@ -94,24 +94,47 @@ QWaylandKeyboardPrivate *QWaylandKeyboardPrivate::get(QWaylandKeyboard *keyboard
     return keyboard->d_func();
 }
 
+void QWaylandKeyboardPrivate::checkFocusResource(Resource *keyboardResource)
+{
+    if (!keyboardResource || !focus)
+        return;
+
+    // this is already the current  resource, do no send enter twice
+    if (focusResource == keyboardResource)
+        return;
+
+    // check if new wl_keyboard resource is from the client owning the focus surface
+    if (focus->resource()->client == keyboardResource->client()) {
+        sendEnter(focus, keyboardResource);
+        focusResource = keyboardResource;
+    }
+}
+
+void QWaylandKeyboardPrivate::sendEnter(QWaylandSurface *surface, Resource *keyboardResource)
+{
+    uint32_t serial = compositor()->nextSerial();
+    send_modifiers(keyboardResource->handle, serial, modsDepressed, modsLatched, modsLocked, group);
+    send_enter(keyboardResource->handle, serial, surface->resource(), QByteArray::fromRawData((char *)keys.data(), keys.size() * sizeof(uint32_t)));
+}
+
 void QWaylandKeyboardPrivate::focused(QWaylandSurface *surface)
 {
     if (surface && surface->isCursorSurface())
         surface = Q_NULLPTR;
-    if (focusResource && focus != surface) {
-        uint32_t serial = compositor()->nextSerial();
-        send_leave(focusResource->handle, serial, focus->resource());
+    if (focus != surface) {
+        if (focusResource) {
+            uint32_t serial = compositor()->nextSerial();
+            send_leave(focusResource->handle, serial, focus->resource());
+        }
         focusDestroyListener.reset();
+        if (surface)
+            focusDestroyListener.listenForDestruction(surface->resource());
     }
 
     Resource *resource = surface ? resourceMap().value(surface->waylandClient()) : 0;
 
-    if (resource && (focus != surface || focusResource != resource)) {
-        uint32_t serial = compositor()->nextSerial();
-        send_modifiers(resource->handle, serial, modsDepressed, modsLatched, modsLocked, group);
-        send_enter(resource->handle, serial, surface->resource(), QByteArray::fromRawData((char *)keys.data(), keys.size() * sizeof(uint32_t)));
-        focusDestroyListener.listenForDestruction(surface->resource());
-    }
+    if (resource && (focus != surface || focusResource != resource))
+        sendEnter(surface, resource);
 
     focusResource = resource;
     focus = surface;
@@ -125,13 +148,15 @@ void QWaylandKeyboardPrivate::keyboard_bind_resource(wl_keyboard::Resource *reso
     if (xkb_context) {
         send_keymap(resource->handle, WL_KEYBOARD_KEYMAP_FORMAT_XKB_V1,
                     keymap_fd, keymap_size);
-        return;
-    }
+    } else
 #endif
-    int null_fd = open("/dev/null", O_RDONLY);
-    send_keymap(resource->handle, 0 /* WL_KEYBOARD_KEYMAP_FORMAT_NO_KEYMAP */,
-                null_fd, 0);
-    close(null_fd);
+    {
+        int null_fd = open("/dev/null", O_RDONLY);
+        send_keymap(resource->handle, 0 /* WL_KEYBOARD_KEYMAP_FORMAT_NO_KEYMAP */,
+                    null_fd, 0);
+        close(null_fd);
+    }
+    checkFocusResource(resource);
 }
 
 void QWaylandKeyboardPrivate::keyboard_destroy_resource(wl_keyboard::Resource *resource)

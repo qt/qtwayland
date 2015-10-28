@@ -93,6 +93,9 @@ public:
     void updateModifierState(uint code, uint32_t state);
     void updateKeymap();
 
+    void checkFocusResource(Resource *resource);
+    void sendEnter(QWaylandSurface *surface, Resource *resource);
+
 protected:
     void keyboard_bind_resource(Resource *resource);
     void keyboard_destroy_resource(Resource *resource);

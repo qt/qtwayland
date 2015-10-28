@@ -235,4 +235,20 @@ void QWaylandBufferRef::bindToTexture() const
 
 }
 
+int QWaylandBufferRef::textureTarget() const
+{
+    if (d->nullOrDestroyed())
+        return 0x0DE1; // GL_TEXTURE_2D
+
+    return d->buffer->textureTarget();
+}
+
+void QWaylandBufferRef::updateTexture() const
+{
+    if (d->nullOrDestroyed() || d->buffer->isShm())
+        return;
+
+    d->buffer->updateTexture();
+}
+
 QT_END_NAMESPACE

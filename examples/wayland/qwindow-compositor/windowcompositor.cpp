@@ -82,8 +82,8 @@ WindowCompositor::~WindowCompositor()
 
 void WindowCompositor::create()
 {
-    QWaylandCompositor::create();
     new QWaylandOutput(this, m_window);
+    QWaylandCompositor::create();
 
     connect(this, &QWaylandCompositor::surfaceCreated, this, &WindowCompositor::onSurfaceCreated);
     connect(defaultInputDevice(), &QWaylandInputDevice::cursorSurfaceRequest, this, &WindowCompositor::adjustCursorSurface);

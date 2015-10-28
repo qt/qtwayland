@@ -11,3 +11,6 @@ OTHER_FILES = \
     images/background.jpg \
 
 RESOURCES += multi-output.qrc
+
+target.path = $$[QT_INSTALL_EXAMPLES]/wayland/multi-output
+INSTALLS += target

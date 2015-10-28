@@ -98,7 +98,8 @@ int main (int argc, char **argv)
 
     s_custom = app.findChild<QObject*>("qt_example_custom_extension");
     if (!s_custom) {
-        qCritical() << "This example requires the Qt Custom Extension platform plugin";
+        qCritical() << "This example requires the Qt Custom Extension platform plugin,\n"
+            "add -platform custom-wayland to the command line";
         return -1;
     }
     TestWindow window;

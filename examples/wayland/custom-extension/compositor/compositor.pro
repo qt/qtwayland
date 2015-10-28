@@ -29,3 +29,6 @@ TARGET = custom-compositor
 
 HEADERS += \
     customextension.h
+
+target.path = $$[QT_INSTALL_EXAMPLES]/wayland/custom-extension/compositor
+INSTALLS += target

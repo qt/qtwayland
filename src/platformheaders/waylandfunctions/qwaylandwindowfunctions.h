@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2015 The Qt Company Ltd.
+** Copyright (C) 2015 LG Electronics Ltd, author: mikko.levonmaa@lge.com
 ** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the plugins of the Qt Toolkit.
@@ -31,61 +31,50 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDSUBSURFACE_H
-#define QWAYLANDSUBSURFACE_H
+#ifndef QWAYLANDWINDOWFUNCTIONS_H
+#define QWAYLANDWINDOWFUNCTIONS_H
 
-//
-//  W A R N I N G
-//  -------------
-//
-// This file is not part of the Qt API.  It exists purely as an
-// implementation detail.  This header file may change from version to
-// version without notice, or even be removed.
-//
-// We mean it.
-//
-
-#include <wayland-client.h>
-
-#include <QtCore/qglobal.h>
-
-#include <QtWaylandClient/private/qwaylandclientexport_p.h>
-#include <QtWaylandClient/private/qwayland-wayland.h>
+#include <QtCore/QByteArray>
+#include <QtGui/QGuiApplication>
 
 QT_BEGIN_NAMESPACE
 
-namespace QtWaylandClient {
+class QWindow;
 
-class QWaylandDisplay;
-class QWaylandWindow;
-
-class Q_WAYLAND_CLIENT_EXPORT QWaylandSubSurface : public QtWayland::wl_subsurface
-{
+class QWaylandWindowFunctions {
 public:
-    QWaylandSubSurface(QWaylandWindow *window, QWaylandWindow *parent, ::wl_subsurface *subsurface);
-    ~QWaylandSubSurface();
 
-    QWaylandWindow *window() const { return m_window; }
-    QWaylandWindow *parent() const { return m_parent; }
+    typedef void (*SetWindowSync)(QWindow *window);
+    typedef void (*SetWindowDeSync)(QWindow *window);
+    typedef bool (*IsWindowSync)(QWindow *window);
+    static const QByteArray setSyncIdentifier() { return QByteArrayLiteral("WaylandSubSurfaceSetSync"); }
+    static const QByteArray setDeSyncIdentifier() { return QByteArrayLiteral("WaylandSubSurfaceSetDeSync"); }
+    static const QByteArray isSyncIdentifier() { return QByteArrayLiteral("WaylandSubSurfaceIsSync"); }
 
-    void setSync();
-    void setDeSync();
-    bool isSync() const { return m_synchronized; }
+    static void setSync(QWindow *window)
+    {
+        static SetWindowSync func = reinterpret_cast<SetWindowSync>(QGuiApplication::platformFunction(setSyncIdentifier()));
+        Q_ASSERT(func);
+        func(window);
+    }
 
-private:
+    static void setDeSync(QWindow *window)
+    {
+        static SetWindowDeSync func = reinterpret_cast<SetWindowDeSync>(QGuiApplication::platformFunction(setDeSyncIdentifier()));
+        Q_ASSERT(func);
+        func(window);
+    }
 
-    // Intentionally hide public methods from ::wl_subsurface
-    // to keep track of the sync state
-    void set_sync();
-    void set_desync();
-    QWaylandWindow *m_window;
-    QWaylandWindow *m_parent;
-    bool m_synchronized;
+    static bool isSync(QWindow *window)
+    {
+        static IsWindowSync func = reinterpret_cast<IsWindowSync>(QGuiApplication::platformFunction(isSyncIdentifier()));
+        Q_ASSERT(func);
+        return func(window);
+    }
 
 };
 
 QT_END_NAMESPACE
 
-}
+#endif // QWAYLANDWINDOWFUNCTIONS_H
 
-#endif // QWAYLANDSUBSURFACE_H

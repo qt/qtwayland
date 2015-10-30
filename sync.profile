@@ -1,6 +1,7 @@
 %modules = ( # path to module name map
     "QtCompositor" => "$basedir/src/compositor",
     "QtWaylandClient" => "$basedir/src/client",
+    "QtPlatformHeaders" => "$basedir/src/platformheaders",
 );
 %moduleheaders = ( # restrict the module headers to those found in relative path
 );

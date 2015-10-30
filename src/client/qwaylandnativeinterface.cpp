@@ -34,6 +34,7 @@
 #include "qwaylandnativeinterface_p.h"
 #include "qwaylanddisplay_p.h"
 #include "qwaylandwindow_p.h"
+#include "qwaylandsubsurface_p.h"
 #include "qwaylandextendedsurface_p.h"
 #include "qwaylandintegration_p.h"
 #include "qwaylanddisplay_p.h"
@@ -42,6 +43,8 @@
 #include <QtGui/private/qguiapplication_p.h>
 #include <QtGui/QScreen>
 #include <QtWaylandClient/private/qwaylandclientbufferintegration_p.h>
+
+#include <QtPlatformHeaders/qwaylandwindowfunctions.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -139,6 +142,44 @@ void QWaylandNativeInterface::setWindowProperty(QPlatformWindow *window, const Q
 void QWaylandNativeInterface::emitWindowPropertyChanged(QPlatformWindow *window, const QString &name)
 {
     emit windowPropertyChanged(window,name);
+}
+
+QFunctionPointer QWaylandNativeInterface::platformFunction(const QByteArray &resource) const
+{
+    if (resource == QWaylandWindowFunctions::setSyncIdentifier()) {
+        return QFunctionPointer(setSync);
+    } else if (resource == QWaylandWindowFunctions::setDeSyncIdentifier()) {
+        return QFunctionPointer(setDeSync);
+    } else if (resource == QWaylandWindowFunctions::isSyncIdentifier()) {
+        return QFunctionPointer(isSync);
+    }
+    return 0;
+}
+
+
+void QWaylandNativeInterface::setSync(QWindow *window)
+{
+    QWaylandWindow *ww = static_cast<QWaylandWindow*>(window->handle());
+    if (ww->subSurfaceWindow()) {
+        ww->subSurfaceWindow()->setSync();
+    }
+}
+
+void QWaylandNativeInterface::setDeSync(QWindow *window)
+{
+    QWaylandWindow *ww = static_cast<QWaylandWindow*>(window->handle());
+    if (ww->subSurfaceWindow()) {
+        ww->subSurfaceWindow()->setDeSync();
+    }
+}
+
+bool QWaylandNativeInterface::isSync(QWindow *window)
+{
+    QWaylandWindow *ww = static_cast<QWaylandWindow*>(window->handle());
+    if (ww->subSurfaceWindow()) {
+        return ww->subSurfaceWindow()->isSync();
+    }
+    return false;
 }
 
 }

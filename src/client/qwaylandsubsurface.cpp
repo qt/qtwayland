@@ -45,14 +45,37 @@ QWaylandSubSurface::QWaylandSubSurface(QWaylandWindow *window, QWaylandWindow *p
     : QtWayland::wl_subsurface(sub_surface)
     , m_window(window)
     , m_parent(parent)
+    , m_synchronized(false)
 {
     m_parent->mChildren << this;
-    set_desync();
+    setDeSync();
 }
 
 QWaylandSubSurface::~QWaylandSubSurface()
 {
     m_parent->mChildren.removeOne(this);
+}
+
+void QWaylandSubSurface::setSync()
+{
+    QWaylandSubSurface::set_sync();
+}
+
+void QWaylandSubSurface::setDeSync()
+{
+    QWaylandSubSurface::set_desync();
+}
+
+void QWaylandSubSurface::set_sync()
+{
+    m_synchronized = true;
+    QtWayland::wl_subsurface::set_sync();
+}
+
+void QWaylandSubSurface::set_desync()
+{
+    m_synchronized = false;
+    QtWayland::wl_subsurface::set_desync();
 }
 
 }

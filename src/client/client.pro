@@ -16,7 +16,6 @@ load(qt_module)
 QMAKE_CXXFLAGS_WARN_ON -= -Wcast-qual
 
 CONFIG -= precompile_header
-CONFIG -= create_cmake
 CONFIG += link_pkgconfig qpa/genericunixfontdatabase wayland-scanner
 
 !equals(QT_WAYLAND_GL_CONFIG, nogl) {

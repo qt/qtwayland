@@ -69,6 +69,7 @@ void CompositorWindow::initializeGL()
 {
     QImage backgroundImage = QImage(QLatin1String(":/background.jpg"));
     m_backgroundTexture = new QOpenGLTexture(backgroundImage, QOpenGLTexture::DontGenerateMipMaps);
+    m_backgroundTexture->setMinificationFilter(QOpenGLTexture::Nearest);
     m_backgroundImageSize = backgroundImage.size();
     m_textureBlitter.create();
 }

@@ -72,6 +72,7 @@
 #include <QtGui/QScreen>
 
 #include <QtGui/qpa/qwindowsysteminterface_p.h>
+#include <QtGui/qpa/qplatformnativeinterface.h>
 #include <QtGui/private/qguiapplication_p.h>
 
 QT_BEGIN_NAMESPACE
@@ -128,16 +129,19 @@ public:
 } // namespace
 
 QWaylandCompositorPrivate::QWaylandCompositorPrivate(QWaylandCompositor *compositor)
-    : display(wl_display_create())
+    : display(0)
 #if defined (QT_COMPOSITOR_WAYLAND_GL)
     , use_hw_integration_extension(true)
     , client_buffer_integration(0)
     , server_buffer_integration(0)
 #endif
-    , eventHandler(new QtWayland::WindowSystemEventHandler(compositor))
     , retainSelection(false)
     , initialized(false)
 {
+    display = static_cast<wl_display*>(QGuiApplication::platformNativeInterface()->nativeResourceForIntegration("server_wl_display"));
+    if (!display)
+        display = wl_display_create();
+    eventHandler.reset(new QtWayland::WindowSystemEventHandler(compositor));
     timer.start();
 
     QWindowSystemInterfacePrivate::installWindowSystemEventHandler(eventHandler.data());

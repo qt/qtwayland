@@ -26,7 +26,7 @@
 ****************************************************************************/
 
 /*!
-  \page index.html
+  \page qtwaylandcompositor-index.html
   \title Qt Wayland Compositor
   \brief An API to develop display servers supporting the Wayland protocol
 

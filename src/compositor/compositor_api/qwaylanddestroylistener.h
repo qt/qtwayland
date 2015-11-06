@@ -1,7 +1,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2014 Jolla Ltd, author: <giulio.camuffo@jollamobile.com>
-** Copyright (C) 2015 Digia Plc and/or its subsidi ary(-ies).
+** Copyright (C) 2015 The Qt Company Ltd.
 ** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the QtWaylandCompositor module of the Qt Toolkit.

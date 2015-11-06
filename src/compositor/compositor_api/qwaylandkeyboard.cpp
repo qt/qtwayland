@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2015 Digia Plc and/or its subsidi ary(-ies).
+** Copyright (C) 2015 The Qt Company Ltd.
 ** Copyright (C) 2013 Klarälvdalens Datakonsult AB (KDAB).
 ** Contact: http://www.qt.io/licensing/
 **

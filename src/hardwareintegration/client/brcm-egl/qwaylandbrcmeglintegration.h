@@ -40,7 +40,6 @@
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
 
-#define EGL_EGLEXT_PROTOTYPES
 #include <EGL/eglext_brcm.h>
 
 #include <QtCore/qglobal.h>

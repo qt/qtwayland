@@ -1,11 +1,13 @@
 INCLUDEPATH += $$PWD
 
 contains(QT_CONFIG, no-pkg-config) {
-    LIBS += -lEGL -lwayland-client
+    LIBS += -lwayland-client
 } else {
     CONFIG += link_pkgconfig
-    PKGCONFIG += egl wayland-client
+    PKGCONFIG += wayland-client
 }
+
+CONFIG += egl
 
 SOURCES += \
         $$PWD/drmeglserverbufferintegration.cpp

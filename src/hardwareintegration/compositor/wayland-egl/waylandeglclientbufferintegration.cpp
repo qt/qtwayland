@@ -113,6 +113,7 @@ public:
     {
         destroy_listener.d = this;
         destroy_listener.listener.notify = destroy_listener_callback;
+        wl_list_init(&destroy_listener.listener.link);
     }
 
     static void destroy_listener_callback(wl_listener *listener, void *data) {
@@ -251,6 +252,7 @@ void WaylandEglClientBufferIntegration::initializeBuffer(struct ::wl_resource *b
     if (!buffer || d->buffers.contains(buffer))
         return;
 
+    wl_list_remove(&d->destroy_listener.listener.link);
     wl_signal_add(&buffer->destroy_signal, &d->destroy_listener.listener);
 }
 

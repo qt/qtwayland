@@ -48,6 +48,7 @@
 #include <wayland-client.h>
 
 #include <QtCore/qglobal.h>
+#include <QtCore/qmutex.h>
 
 #include <QtWaylandClient/private/qwaylandclientexport_p.h>
 #include <QtWaylandClient/private/qwayland-wayland.h>
@@ -71,6 +72,7 @@ public:
     void setSync();
     void setDeSync();
     bool isSync() const { return m_synchronized; }
+    QMutex *syncMutex() { return &m_syncLock; }
 
 private:
 
@@ -81,6 +83,7 @@ private:
     QWaylandWindow *m_window;
     QWaylandWindow *m_parent;
     bool m_synchronized;
+    QMutex m_syncLock;
 
 };
 

@@ -35,6 +35,7 @@
 
 #include <QtWaylandClient/private/qwaylanddisplay_p.h>
 #include <QtWaylandClient/private/qwaylandwindow_p.h>
+#include <QtWaylandClient/private/qwaylandsubsurface_p.h>
 #include <QtWaylandClient/private/qwaylandabstractdecoration_p.h>
 #include <QtWaylandClient/private/qwaylandintegration_p.h>
 #include "qwaylandeglwindow.h"
@@ -49,6 +50,8 @@
 #include <QtGui/QSurfaceFormat>
 #include <QtGui/QOpenGLShaderProgram>
 #include <QtGui/QOpenGLFunctions>
+
+#include <QtCore/qmutex.h>
 
 // Constants from EGL_KHR_create_context
 #ifndef EGL_CONTEXT_MINOR_VERSION_KHR
@@ -220,6 +223,7 @@ QWaylandGLContext::QWaylandGLContext(EGLDisplay eglDisplay, QWaylandDisplay *dis
     , m_display(display)
     , m_blitter(0)
     , mUseNativeDefaultFbo(false)
+    , mSupportNonBlockingSwap(true)
 {
     QSurfaceFormat fmt = format;
     if (static_cast<QWaylandIntegration *>(QGuiApplicationPrivate::platformIntegration())->display()->supportsWindowDecoration())
@@ -288,6 +292,17 @@ QWaylandGLContext::QWaylandGLContext(EGLDisplay eglDisplay, QWaylandDisplay *dis
     if (error != EGL_SUCCESS) {
         qWarning("QWaylandGLContext: failed to create EGLContext, error=%x", error);
         return;
+    }
+
+    EGLint a = EGL_MIN_SWAP_INTERVAL;
+    EGLint b = EGL_MAX_SWAP_INTERVAL;
+    if (!eglGetConfigAttrib(m_eglDisplay, m_config, a, &a) ||
+        !eglGetConfigAttrib(m_eglDisplay, m_config, b, &b) ||
+        a > 0) {
+       mSupportNonBlockingSwap = false;
+    }
+    if (!mSupportNonBlockingSwap) {
+        qWarning() << "Non-blocking swap buffers not supported. Subsurface rendering can be affected.";
     }
 
     updateGLFormat();
@@ -518,7 +533,20 @@ void QWaylandGLContext::swapBuffers(QPlatformSurface *surface)
         m_blitter->blit(window);
     }
 
-    eglSwapBuffers(m_eglDisplay, eglSurface);
+
+    QWaylandSubSurface *sub = window->subSurfaceWindow();
+    if (sub) {
+        QMutexLocker l(sub->syncMutex());
+
+        int si = (sub->isSync() && mSupportNonBlockingSwap) ? 0 : m_format.swapInterval();
+
+        eglSwapInterval(m_eglDisplay, si);
+        eglSwapBuffers(m_eglDisplay, eglSurface);
+    } else {
+        eglSwapInterval(m_eglDisplay, m_format.swapInterval());
+        eglSwapBuffers(m_eglDisplay, eglSurface);
+    }
+
 
     window->setCanResize(true);
 }

@@ -58,11 +58,13 @@ QWaylandSubSurface::~QWaylandSubSurface()
 
 void QWaylandSubSurface::setSync()
 {
+    QMutexLocker l(&m_syncLock);
     QWaylandSubSurface::set_sync();
 }
 
 void QWaylandSubSurface::setDeSync()
 {
+    QMutexLocker l(&m_syncLock);
     QWaylandSubSurface::set_desync();
 }
 

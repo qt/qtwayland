@@ -86,6 +86,7 @@ private:
     DecorationsBlitter *m_blitter;
     bool mUseNativeDefaultFbo;
     uint m_api;
+    bool mSupportNonBlockingSwap;
 
     friend class DecorationsBlitter;
 };

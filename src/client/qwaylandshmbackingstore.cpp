@@ -32,6 +32,7 @@
 ****************************************************************************/
 #include "qwaylandshmbackingstore_p.h"
 #include "qwaylandwindow_p.h"
+#include "qwaylandsubsurface_p.h"
 #include "qwaylanddisplay_p.h"
 #include "qwaylandscreen_p.h"
 #include "qwaylandabstractdecoration_p.h"
@@ -174,8 +175,13 @@ void QWaylandShmBackingStore::beginPaint(const QRegion &)
     ensureSize();
 
     QWaylandWindow *window = waylandWindow();
-    if (window->attached() && mBackBuffer == window->attached() && mFrameCallback)
+    QWaylandSubSurface *sub = window->subSurfaceWindow();
+
+    bool waiting = window->attached() && mBackBuffer == window->attached() && mFrameCallback;
+    bool syncSubSurface = sub && sub->isSync();
+    if (waiting && !syncSubSurface) {
         window->waitForFrameSync();
+    }
 
     window->setCanResize(false);
 }
@@ -219,34 +225,47 @@ void QWaylandShmBackingStore::flush(QWindow *window, const QRegion &region, cons
 
     mFrontBuffer = mBackBuffer;
 
+    QWaylandWindow *w = waylandWindow();
+    bool synchModeSubSurface = w->subSurfaceWindow() && w->subSurfaceWindow()->isSync();
+
     if (mFrameCallback) {
-        mFrontBufferIsDirty = true;
-        return;
+        if (synchModeSubSurface) {
+            wl_callback_destroy(mFrameCallback);
+            mFrameCallback = Q_NULLPTR;
+        } else {
+            mFrontBufferIsDirty = true;
+            return;
+        }
     }
 
-    mFrameCallback = waylandWindow()->frame();
-    wl_callback_add_listener(mFrameCallback,&frameCallbackListener,this);
-    QMargins margins = windowDecorationMargins();
+    // Dont acquire the frame callback as that will cause beginPaint
+    // to block in waiting for frame sync since the damage will trigger
+    // its own sync request
+    if (!synchModeSubSurface) {
+        mFrameCallback = w->frame();
+        wl_callback_add_listener(mFrameCallback, &frameCallbackListener, this);
+    }
 
+    QMargins margins = windowDecorationMargins();
     bool damageAll = false;
-    if (waylandWindow()->attached() != mFrontBuffer) {
-        delete waylandWindow()->attached();
+    if (w->attached() != mFrontBuffer) {
+        delete w->attached();
         damageAll = true;
     }
-    waylandWindow()->attachOffset(mFrontBuffer);
+    w->attachOffset(mFrontBuffer);
 
     if (damageAll) {
         //need to damage it all, otherwise the attach offset may screw up
-        waylandWindow()->damage(QRect(QPoint(0,0), window->size()));
+        w->damage(QRect(QPoint(0,0), window->size()));
     } else {
         QVector<QRect> rects = region.rects();
         for (int i = 0; i < rects.size(); i++) {
             QRect rect = rects.at(i);
             rect.translate(margins.left(),margins.top());
-            waylandWindow()->damage(rect);
+            w->damage(rect);
         }
     }
-    waylandWindow()->commit();
+    w->commit();
     mFrontBufferIsDirty = false;
 }
 

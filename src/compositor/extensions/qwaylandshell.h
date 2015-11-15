@@ -134,7 +134,7 @@ Q_SIGNALS:
     void setDefaultToplevel();
     void setTransient(QWaylandSurface *parentSurface, const QPoint &relativeToParent, FocusPolicy focusPolicy);
     void setFullScreen(FullScreenMethod method, uint framerate, QWaylandOutput *output);
-    void setPopup(QWaylandInputDevice *inputDevice, QWaylandSurface *parent, const QPoint &relativeToParent);
+    void setPopup(QWaylandInputDevice *inputDevice, QWaylandSurface *parentSurface, const QPoint &relativeToParent);
     void setMaximized(QWaylandOutput *output);
 
 private:

@@ -129,6 +129,9 @@ private:
     struct xkb_context *xkb_context;
     struct xkb_state *xkb_state;
 #endif
+
+    quint32 repeatRate;
+    quint32 repeatDelay;
 };
 
 QT_END_NAMESPACE

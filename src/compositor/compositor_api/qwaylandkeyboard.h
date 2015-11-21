@@ -73,12 +73,19 @@ class Q_COMPOSITOR_EXPORT QWaylandKeyboard : public QWaylandObject
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandKeyboard)
-
+    Q_PROPERTY(quint32 repeatRate READ repeatRate WRITE setRepeatRate NOTIFY repeatRateChanged)
+    Q_PROPERTY(quint32 repeatDelay READ repeatDelay WRITE setRepeatDelay NOTIFY repeatDelayChanged)
 public:
     QWaylandKeyboard(QWaylandInputDevice *inputDevice, QObject *parent = 0);
 
     QWaylandInputDevice *inputDevice() const;
     QWaylandCompositor *compositor() const;
+
+    quint32 repeatRate() const;
+    void setRepeatRate(quint32 rate);
+
+    quint32 repeatDelay() const;
+    void setRepeatDelay(quint32 delay);
 
     virtual bool setFocus(QWaylandSurface *surface);
     virtual void setKeymap(const QWaylandKeymap &keymap);
@@ -94,6 +101,8 @@ public:
 
 Q_SIGNALS:
     void focusChanged(QWaylandSurface *surface);
+    void repeatRateChanged(quint32 repeatRate);
+    void repeatDelayChanged(quint32 repeatDelay);
 
 private:
     void focusDestroyed(void *data);

@@ -60,7 +60,7 @@ void QWaylandQuickOutput::initialize()
 
     QQuickWindow *quickWindow = qobject_cast<QQuickWindow *>(window());
     if (!quickWindow) {
-        qWarning("Initialization error: Could not locate QQuickWindow on initializing QWaylandQucikOutput %p.\n", this);
+        qWarning("Initialization error: Could not locate QQuickWindow on initializing QWaylandQuickOutput %p.\n", this);
         return;
     }
     connect(quickWindow, &QQuickWindow::beforeSynchronizing,

@@ -273,10 +273,10 @@ bool QWaylandPointer::isButtonPressed() const
 /*!
  * \internal
  */
-void QWaylandPointer::addClient(QWaylandClient *client, uint32_t id)
+void QWaylandPointer::addClient(QWaylandClient *client, uint32_t id, uint32_t version)
 {
     Q_D(QWaylandPointer);
-    d->add(client->client(), id, QtWaylandServer::wl_pointer::interfaceVersion());
+    d->add(client->client(), id, qMin<uint32_t>(QtWaylandServer::wl_pointer::interfaceVersion(), version));
 }
 
 /*!

@@ -221,10 +221,10 @@ void QWaylandTouch::sendFullTouchEvent(QTouchEvent *event)
 /*!
  * \internal
  */
-void QWaylandTouch::addClient(QWaylandClient *client, uint32_t id)
+void QWaylandTouch::addClient(QWaylandClient *client, uint32_t id, uint32_t version)
 {
     Q_D(QWaylandTouch);
-    d->add(client->client(), id, 3);
+    d->add(client->client(), id, qMin<uint32_t>(QtWaylandServer::wl_touch::interfaceVersion(), version));
 }
 
 /*!

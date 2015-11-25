@@ -97,7 +97,7 @@ public:
     QWaylandSurface *focus() const;
     QWaylandClient *focusClient() const;
 
-    virtual void addClient(QWaylandClient *client, uint32_t id);
+    virtual void addClient(QWaylandClient *client, uint32_t id, uint32_t version);
 
 Q_SIGNALS:
     void focusChanged(QWaylandSurface *surface);

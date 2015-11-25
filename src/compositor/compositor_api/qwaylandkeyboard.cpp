@@ -557,10 +557,10 @@ void QWaylandKeyboard::setKeymap(const QWaylandKeymap &keymap)
 /*!
  * \internal
  */
-void QWaylandKeyboard::addClient(QWaylandClient *client, uint32_t id)
+void QWaylandKeyboard::addClient(QWaylandClient *client, uint32_t id, uint32_t version)
 {
     Q_D(QWaylandKeyboard);
-    d->add(client->client(), id, QtWaylandServer::wl_keyboard::interfaceVersion());
+    d->add(client->client(), id, qMin<uint32_t>(QtWaylandServer::wl_keyboard::interfaceVersion(), version));
 }
 
 QT_END_NAMESPACE

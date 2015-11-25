@@ -114,21 +114,21 @@ void QWaylandInputDevicePrivate::seat_bind_resource(wl_seat::Resource *resource)
 void QWaylandInputDevicePrivate::seat_get_pointer(wl_seat::Resource *resource, uint32_t id)
 {
     if (!pointer.isNull()) {
-        pointer->addClient(QWaylandClient::fromWlClient(compositor, resource->client()), id);
+        pointer->addClient(QWaylandClient::fromWlClient(compositor, resource->client()), id, resource->version());
     }
 }
 
 void QWaylandInputDevicePrivate::seat_get_keyboard(wl_seat::Resource *resource, uint32_t id)
 {
     if (!keyboard.isNull()) {
-        keyboard->addClient(QWaylandClient::fromWlClient(compositor, resource->client()), id);
+        keyboard->addClient(QWaylandClient::fromWlClient(compositor, resource->client()), id, resource->version());
     }
 }
 
 void QWaylandInputDevicePrivate::seat_get_touch(wl_seat::Resource *resource, uint32_t id)
 {
     if (!touch.isNull()) {
-        touch->addClient(QWaylandClient::fromWlClient(compositor, resource->client()), id);
+        touch->addClient(QWaylandClient::fromWlClient(compositor, resource->client()), id, resource->version());
     }
 }
 

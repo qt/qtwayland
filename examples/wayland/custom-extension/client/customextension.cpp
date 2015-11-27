@@ -44,6 +44,8 @@
 
 #include <QDebug>
 
+QT_BEGIN_NAMESPACE
+
 namespace QtWaylandClient {
 
 CustomExtension::CustomExtension(QWaylandIntegration *wayland_integration)
@@ -79,3 +81,5 @@ void CustomExtension::registry_global(uint32_t id, const QString &interface, uin
 }
 
 }
+
+QT_END_NAMESPACE

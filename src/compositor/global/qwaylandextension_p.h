@@ -51,6 +51,8 @@
 #include "qwaylandextension.h"
 #include <QtCore/private/qobject_p.h>
 
+QT_BEGIN_NAMESPACE
+
 class Q_COMPOSITOR_EXPORT QWaylandExtensionPrivate : public QObjectPrivate
 {
     Q_DECLARE_PUBLIC(QWaylandExtension)
@@ -76,5 +78,7 @@ public:
         : QWaylandExtensionPrivate()
     { }
 };
+
+QT_END_NAMESPACE
 
 #endif  /*QWAYLANDEXTENSION_P_H*/

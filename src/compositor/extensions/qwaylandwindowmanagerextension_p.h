@@ -54,6 +54,8 @@
 
 #include <QMap>
 
+QT_BEGIN_NAMESPACE
+
 class Q_COMPOSITOR_EXPORT QWaylandWindowManagerExtensionPrivate : public QWaylandExtensionTemplatePrivate, public QtWaylandServer::qt_windowmanager
 {
     Q_DECLARE_PUBLIC(QWaylandWindowManagerExtension)
@@ -69,4 +71,7 @@ private:
     QWaylandCompositor *m_compositor;
     QMap<Resource*, QString> m_urls;
 };
+
+QT_END_NAMESPACE
+
 #endif  /*QWAYLANDWINDOWMANAGEREXTENSION_P_H*/

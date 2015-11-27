@@ -38,6 +38,8 @@
 
 #include <QtQuick/private/qquickitem_p.h>
 
+QT_BEGIN_NAMESPACE
+
 class QWaylandMouseTrackerPrivate : public QQuickItemPrivate
 {
     Q_DECLARE_PUBLIC(QWaylandMouseTracker)
@@ -135,3 +137,4 @@ void QWaylandMouseTracker::hoverMoveEvent(QHoverEvent *event)
     d->handleMousePos(event->posF());
 }
 
+QT_END_NAMESPACE

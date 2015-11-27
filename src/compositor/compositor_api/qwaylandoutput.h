@@ -45,9 +45,9 @@
 #include <QRect>
 #include <QSize>
 
-QT_BEGIN_NAMESPACE
-
 struct wl_resource;
+
+QT_BEGIN_NAMESPACE
 
 class QWaylandOutputPrivate;
 class QWaylandCompositor;
@@ -190,8 +190,8 @@ protected:
     virtual void initialize();
 };
 
-Q_DECLARE_METATYPE(QWaylandOutput::Mode)
-
 QT_END_NAMESPACE
+
+Q_DECLARE_METATYPE(QWaylandOutput::Mode)
 
 #endif // QWAYLANDOUTPUT_H

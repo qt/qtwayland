@@ -13,3 +13,6 @@ include("${_Qt5CTestMacros}")
 test_module_includes(
   Compositor QWaylandBufferRef
 )
+
+# Can't test in `test_module_includes`, WaylandClient has no public headers
+expect_pass(test_waylandclient)

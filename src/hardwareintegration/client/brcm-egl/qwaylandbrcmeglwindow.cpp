@@ -42,7 +42,6 @@
 #include <QtGui/QWindow>
 #include <qpa/qwindowsysteminterface.h>
 
-#define EGL_EGLEXT_PROTOTYPES
 #include <EGL/eglext_brcm.h>
 
 #include <wayland-client.h>

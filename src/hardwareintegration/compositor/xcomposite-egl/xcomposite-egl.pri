@@ -2,10 +2,12 @@ include($$PWD/../xcomposite_share/xcomposite_share.pri)
 
 !contains(QT_CONFIG, no-pkg-config) {
     CONFIG += link_pkgconfig
-    PKGCONFIG += xcomposite egl x11 wayland-server
+    PKGCONFIG += xcomposite x11 wayland-server
 } else {
-    LIBS += -lXcomposite -lEGL -lX11
+    LIBS += -lXcomposite -lX11
 }
+
+CONFIG += egl
 
 INCLUDEPATH += $$PWD
 

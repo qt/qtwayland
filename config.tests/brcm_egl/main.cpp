@@ -43,7 +43,6 @@
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
 
-#define EGL_EGLEXT_PROTOTYPES
 #include <EGL/eglext_brcm.h>
 
 int main()
@@ -63,8 +62,8 @@ int main()
     EGLint pixel_format = EGL_PIXEL_FORMAT_ARGB_8888_BRCM;
 
     EGLint id[2];
-    eglCreateGlobalImageBRCM(32, 32, pixel_format, 0, 32 * 4, id);
-    eglDestroyGlobalImageBRCM(id);
+    PFNEGLCREATEGLOBALIMAGEBRCMPROC createImage = (PFNEGLCREATEGLOBALIMAGEBRCMPROC)eglGetProcAddress("eglCreateGlobalImageBRCM");
+    createImage(32, 32, pixel_format, 0, 32 * 4, id);
 
     eglTerminate(display);
 

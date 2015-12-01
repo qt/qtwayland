@@ -44,6 +44,10 @@
 #include <QtGui/QOpenGLContext>
 #include <QtGui/QOpenGLFunctions>
 
+#ifndef GL_TEXTURE_EXTERNAL_OES
+#define GL_TEXTURE_EXTERNAL_OES           0x8D65
+#endif
+
 QT_BEGIN_NAMESPACE
 
 TextureBlitter::TextureBlitter()

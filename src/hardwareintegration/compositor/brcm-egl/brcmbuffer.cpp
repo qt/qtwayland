@@ -42,7 +42,6 @@
 
 #include <EGL/eglext.h>
 
-#define EGL_EGLEXT_PROTOTYPES
 #include <EGL/eglext_brcm.h>
 
 QT_BEGIN_NAMESPACE
@@ -59,7 +58,9 @@ BrcmBuffer::BrcmBuffer(struct ::wl_client *client, uint32_t id, const QSize &siz
 
 BrcmBuffer::~BrcmBuffer()
 {
-    eglDestroyGlobalImageBRCM(handle());
+    static PFNEGLDESTROYGLOBALIMAGEBRCMPROC eglDestroyGlobalImage =
+        (PFNEGLDESTROYGLOBALIMAGEBRCMPROC) eglGetProcAddress("eglDestroyGlobalImageBRCM");
+    eglDestroyGlobalImage(handle());
 }
 
 void BrcmBuffer::buffer_destroy_resource(Resource *)

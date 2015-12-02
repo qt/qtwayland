@@ -75,7 +75,7 @@ protected:
     void startDrag() Q_DECL_OVERRIDE;
     void cancel() Q_DECL_OVERRIDE;
     void move(const QPoint &globalPos) Q_DECL_OVERRIDE;
-    void drop(const QPoint &globalpos) Q_DECL_OVERRIDE;
+    void drop(const QPoint &globalPos) Q_DECL_OVERRIDE;
     void endDrag() Q_DECL_OVERRIDE;
 
 

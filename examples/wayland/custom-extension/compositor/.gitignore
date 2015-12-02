@@ -1,0 +1,8 @@
+custom-compositor
+qwayland-custom.cpp
+qwayland-custom.h
+qwayland-server-custom.cpp
+qwayland-server-custom.h
+wayland-custom-client-protocol.h
+wayland-custom-protocol.c
+wayland-custom-server-protocol.h

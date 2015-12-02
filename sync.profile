@@ -1,5 +1,5 @@
 %modules = ( # path to module name map
-    "QtCompositor" => "$basedir/src/compositor",
+    "QtWaylandCompositor" => "$basedir/src/compositor",
     "QtWaylandClient" => "$basedir/src/client",
     "QtPlatformHeaders" => "$basedir/src/platformheaders",
 );
@@ -19,4 +19,8 @@
 %dependencies = (
     "qtbase" => "",
     "qtdeclarative" => "",
+);
+
+%classnames = (
+    "qwaylandquickextension.h" => "QWaylandQuickExtension",
 );

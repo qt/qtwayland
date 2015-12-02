@@ -1,15 +1,11 @@
 TEMPLATE=subdirs
 
-#Only build compositor examples if we are building
-#the QtCompositor API
-contains(CONFIG, wayland-compositor) {
-    SUBDIRS += qwindow-compositor
+SUBDIRS += qwindow-compositor
 
-    qtHaveModule(quick) {
-        SUBDIRS += qml-compositor
-    }
-
-    SUBDIRS += server-buffer
+qtHaveModule(quick) {
+    SUBDIRS += pure-qml
+    SUBDIRS += multi-output
+    SUBDIRS += custom-extension
 }
 
-SUBDIRS += subsurface
+SUBDIRS += server-buffer

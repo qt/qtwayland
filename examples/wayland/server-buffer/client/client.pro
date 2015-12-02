@@ -4,11 +4,11 @@ INCLUDEPATH += .
 
 QT += waylandclient-private
 
-!contains(QT_CONFIG, no-pkg-config) {
-    PKGCONFIG += wayland-client
-    CONFIG += link_pkgconfig
-} else {
+contains(QT_CONFIG, no-pkg-config) {
     LIBS += -lwayland-client
+} else {
+    CONFIG += link_pkgconfig
+    PKGCONFIG += wayland-client
 }
 
 CONFIG += wayland-scanner

@@ -3,7 +3,7 @@
 ** Copyright (C) 2015 The Qt Company Ltd.
 ** Contact: http://www.qt.io/licensing/
 **
-** This file is part of the Qt Compositor.
+** This file is part of the examples of the Qt Wayland module
 **
 ** $QT_BEGIN_LICENSE:BSD$
 ** You may use this file under the terms of the BSD license as follows:
@@ -38,36 +38,19 @@
 **
 ****************************************************************************/
 
-#include "compositorwindow.h"
-#include "qwindowcompositor.h"
-
 #include <QGuiApplication>
-#include <QStringList>
-#include <QScreen>
-#include <QSurfaceFormat>
+#include "compositorwindow.h"
+#include "windowcompositor.h"
 
 int main(int argc, char *argv[])
 {
-    // Enable the following to have touch events generated from mouse events.
-    // Very handy for testing touch event delivery without a real touch device.
-    // QGuiApplication::setAttribute(Qt::AA_SynthesizeTouchForUnhandledMouseEvents, true);
-
     QGuiApplication app(argc, argv);
-    QScreen *screen = QGuiApplication::primaryScreen();
-    QRect screenGeometry = screen->availableGeometry();
 
-    QSurfaceFormat format;
-    format.setDepthBufferSize(16);
-    format.setStencilBufferSize(8);
-
-    QRect geom = screenGeometry;
-    if (QCoreApplication::arguments().contains(QLatin1String("-nofullscreen")))
-        geom = QRect(screenGeometry.width() / 4, screenGeometry.height() / 4,
-                     screenGeometry.width() / 2, screenGeometry.height() / 2);
-
-    CompositorWindow window(format, geom);
-    QWindowCompositor compositor(&window);
-
+    CompositorWindow window;
+    WindowCompositor compositor(&window);
+    window.setCompositor(&compositor);
+    compositor.create();
+    window.resize(800,600);
     window.show();
 
     return app.exec();

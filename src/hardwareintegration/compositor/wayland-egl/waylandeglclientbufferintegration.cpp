@@ -3,36 +3,32 @@
 ** Copyright (C) 2015 The Qt Company Ltd.
 ** Contact: http://www.qt.io/licensing/
 **
-** This file is part of the Qt Compositor.
+** This file is part of the QtWaylandCompositor module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:BSD$
-** You may use this file under the terms of the BSD license as follows:
+** $QT_BEGIN_LICENSE:LGPL3$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see http://www.qt.io/terms-conditions. For further
+** information use the contact form at http://www.qt.io/contact-us.
 **
-** "Redistribution and use in source and binary forms, with or without
-** modification, are permitted provided that the following conditions are
-** met:
-**   * Redistributions of source code must retain the above copyright
-**     notice, this list of conditions and the following disclaimer.
-**   * Redistributions in binary form must reproduce the above copyright
-**     notice, this list of conditions and the following disclaimer in
-**     the documentation and/or other materials provided with the
-**     distribution.
-**   * Neither the name of The Qt Company Ltd nor the names of its
-**     contributors may be used to endorse or promote products derived
-**     from this software without specific prior written permission.
+** GNU Lesser General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 3 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPLv3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU Lesser General Public License version 3 requirements
+** will be met: https://www.gnu.org/licenses/lgpl.html.
 **
-**
-** THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-** "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-** LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-** A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-** OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-** SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-** LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-** DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-** THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-** (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 2.0 or later as published by the Free
+** Software Foundation and appearing in the file LICENSE.GPL included in
+** the packaging of this file. Please review the following information to
+** ensure the GNU General Public License version 2.0 requirements will be
+** met: http://www.gnu.org/licenses/gpl-2.0.html.
 **
 ** $QT_END_LICENSE$
 **
@@ -40,8 +36,7 @@
 
 #include "waylandeglclientbufferintegration.h"
 
-#include <QtCompositor/private/qwlcompositor_p.h>
-#include <QtCompositor/private/qwlsurface_p.h>
+#include <QtWaylandCompositor/QWaylandCompositor>
 #include <qpa/qplatformnativeinterface.h>
 #include <QtGui/QGuiApplication>
 #include <QtGui/QOpenGLContext>
@@ -122,6 +117,7 @@ public:
     {
         destroy_listener.d = this;
         destroy_listener.listener.notify = destroy_listener_callback;
+        wl_list_init(&destroy_listener.listener.link);
     }
 
     static void destroy_listener_callback(wl_listener *listener, void *data) {
@@ -170,7 +166,7 @@ WaylandEglClientBufferIntegration::WaylandEglClientBufferIntegration()
 {
 }
 
-void WaylandEglClientBufferIntegration::initializeHardware(QtWayland::Display *waylandDisplay)
+void WaylandEglClientBufferIntegration::initializeHardware(struct wl_display *display)
 {
     Q_D(WaylandEglClientBufferIntegration);
 
@@ -215,7 +211,7 @@ void WaylandEglClientBufferIntegration::initializeHardware(QtWayland::Display *w
     }
 
     if (d->egl_bind_wayland_display && d->egl_unbind_wayland_display) {
-        d->display_bound = d->egl_bind_wayland_display(d->egl_display, waylandDisplay->handle());
+        d->display_bound = d->egl_bind_wayland_display(d->egl_display, display);
         if (!d->display_bound) {
             if (!ignoreBindDisplay) {
                 qWarning("QtCompositor: Failed to initialize EGL display. Could not bind Wayland display.");
@@ -250,7 +246,7 @@ static void set_texture_params(GLenum target)
     glTexParameterf(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 }
 
-void WaylandEglClientBufferIntegration::initialize(struct ::wl_resource *buffer)
+void WaylandEglClientBufferIntegration::initializeBuffer(struct ::wl_resource *buffer)
 {
     Q_D(WaylandEglClientBufferIntegration);
 
@@ -260,89 +256,15 @@ void WaylandEglClientBufferIntegration::initialize(struct ::wl_resource *buffer)
     if (!buffer || d->buffers.contains(buffer))
         return;
 
+    wl_list_remove(&d->destroy_listener.listener.link);
     wl_signal_add(&buffer->destroy_signal, &d->destroy_listener.listener);
 }
 
-GLenum WaylandEglClientBufferIntegration::textureTargetForBuffer(struct ::wl_resource *buffer) const
+int WaylandEglClientBufferIntegration::textureTargetForBuffer(struct ::wl_resource *buffer) const
 {
     Q_D(const WaylandEglClientBufferIntegration);
 
     return d->buffers.value(buffer).gl_texture_target;
-}
-
-GLuint WaylandEglClientBufferIntegration::textureForBuffer(struct ::wl_resource *buffer)
-{
-    Q_D(WaylandEglClientBufferIntegration);
-
-    if (!buffer)
-        return 0;
-
-    BufferState state = d->buffers.value(buffer);
-
-    if (state.gl_texture != 0) {
-        glBindTexture(state.gl_texture_target, state.gl_texture);
-        return state.gl_texture;
-    }
-
-    EGLint format;
-    EGLNativeFileDescriptorKHR streamFd = EGL_NO_FILE_DESCRIPTOR_KHR;
-
-    EGLint width, height;
-    d->egl_query_wayland_buffer(d->egl_display, buffer, EGL_WIDTH, &width);
-    d->egl_query_wayland_buffer(d->egl_display, buffer, EGL_HEIGHT, &height);
-    state.size = QSize(width, height);
-
-#if defined(EGL_WAYLAND_Y_INVERTED_WL)
-    EGLint isYInverted;
-    EGLBoolean ret = d->egl_query_wayland_buffer(d->egl_display, buffer, EGL_WAYLAND_Y_INVERTED_WL, &isYInverted);
-    // Yes, this looks strange, but the specification says that EGL_FALSE return
-    // value (not supported) should be treated the same as EGL_TRUE return value
-    // and EGL_TRUE in value.
-    state.isYInverted = (ret == EGL_FALSE || isYInverted == EGL_TRUE);
-#endif
-
-    if (d->egl_query_wayland_buffer(d->egl_display, buffer, EGL_TEXTURE_FORMAT, &format)) {
-        state.gl_texture_target = GL_TEXTURE_2D;
-        state.gl_texture = make_texture(state.gl_texture_target);
-    } else if (d->egl_query_wayland_buffer(d->egl_display, buffer, EGL_WAYLAND_BUFFER_WL, &streamFd)) {
-        state.egl_stream = d->funcs->create_stream_from_file_descriptor(d->egl_display, streamFd);
-        close(streamFd);
-
-        if (state.egl_stream == EGL_NO_STREAM_KHR) {
-            qWarning("%s:%d: eglCreateStreamFromFileDescriptorKHR failed: 0x%x", Q_FUNC_INFO, __LINE__, eglGetError());
-            return 0;
-        }
-
-        state.isYInverted = false;
-        state.gl_texture_target = GL_TEXTURE_EXTERNAL_OES;
-        state.gl_texture = make_texture(state.gl_texture_target);
-        set_texture_params(state.gl_texture_target);
-
-        if (d->funcs->stream_consumer_gltexture(d->egl_display, state.egl_stream) != EGL_TRUE)
-            qWarning("%s:%d: eglStreamConsumerGLTextureExternalKHR failed: 0x%x", Q_FUNC_INFO, __LINE__, eglGetError());
-    }
-
-    d->buffers[buffer] = state;
-    return state.gl_texture;
-}
-
-void WaylandEglClientBufferIntegration::destroyTextureForBuffer(struct ::wl_resource *buffer, GLuint texture)
-{
-    Q_D(WaylandEglClientBufferIntegration);
-    Q_UNUSED(texture);
-
-    if (!buffer || !d->buffers.contains(buffer))
-        return;
-
-    BufferState &state = d->buffers[buffer];
-
-    if (state.egl_stream != EGL_NO_STREAM_KHR)
-        return;
-
-    if (state.gl_texture != 0) {
-        glDeleteTextures(1, &state.gl_texture);
-        state.gl_texture = 0;
-    }
 }
 
 void WaylandEglClientBufferIntegration::bindTextureToBuffer(struct ::wl_resource *buffer)
@@ -356,29 +278,66 @@ void WaylandEglClientBufferIntegration::bindTextureToBuffer(struct ::wl_resource
     if (!buffer)
         return;
 
-    const BufferState state = d->buffers.value(buffer);
+    BufferState state = d->buffers.value(buffer);
 
     if (state.egl_stream != EGL_NO_STREAM_KHR) {
         d->funcs->stream_consumer_acquire(d->egl_display, state.egl_stream);
     } else {
         Q_ASSERT(QOpenGLContext::currentContext());
 
-        // Resolving GL functions may need a context current, so do it only here.
-        if (!d->gl_egl_image_target_texture_2d)
-            d->gl_egl_image_target_texture_2d = reinterpret_cast<PFNGLEGLIMAGETARGETTEXTURE2DOESPROC>(eglGetProcAddress("glEGLImageTargetTexture2DOES"));
+        EGLint format;
+        EGLNativeFileDescriptorKHR streamFd = EGL_NO_FILE_DESCRIPTOR_KHR;
 
-        if (!d->gl_egl_image_target_texture_2d) {
-            qWarning("QtCompositor: bindTextureToBuffer() failed. Could not find glEGLImageTargetTexture2DOES.");
-            return;
+        EGLint width, height;
+        d->egl_query_wayland_buffer(d->egl_display, buffer, EGL_WIDTH, &width);
+        d->egl_query_wayland_buffer(d->egl_display, buffer, EGL_HEIGHT, &height);
+        state.size = QSize(width, height);
+
+#if defined(EGL_WAYLAND_Y_INVERTED_WL)
+        EGLint isYInverted;
+        EGLBoolean ret = d->egl_query_wayland_buffer(d->egl_display, buffer, EGL_WAYLAND_Y_INVERTED_WL, &isYInverted);
+        // Yes, this looks strange, but the specification says that EGL_FALSE return
+        // value (not supported) should be treated the same as EGL_TRUE return value
+        // and EGL_TRUE in value.
+        state.isYInverted = (ret == EGL_FALSE || isYInverted == EGL_TRUE);
+#endif
+
+        if (d->egl_query_wayland_buffer(d->egl_display, buffer, EGL_TEXTURE_FORMAT, &format)) {
+            // Resolving GL functions may need a context current, so do it only here.
+            if (!d->gl_egl_image_target_texture_2d)
+                d->gl_egl_image_target_texture_2d = reinterpret_cast<PFNGLEGLIMAGETARGETTEXTURE2DOESPROC>(eglGetProcAddress("glEGLImageTargetTexture2DOES"));
+
+            if (!d->gl_egl_image_target_texture_2d) {
+                qWarning("QtCompositor: bindTextureToBuffer() failed. Could not find glEGLImageTargetTexture2DOES.");
+                return;
+            }
+
+            EGLImageKHR image = d->egl_create_image(d->egl_display, EGL_NO_CONTEXT,
+                                                    EGL_WAYLAND_BUFFER_WL,
+                                                    buffer, NULL);
+
+            d->gl_egl_image_target_texture_2d(GL_TEXTURE_2D, image);
+            set_texture_params(GL_TEXTURE_2D);
+            d->egl_destroy_image(d->egl_display, image);
+        } else if (d->egl_query_wayland_buffer(d->egl_display, buffer, EGL_WAYLAND_BUFFER_WL, &streamFd)) {
+            state.egl_stream = d->funcs->create_stream_from_file_descriptor(d->egl_display, streamFd);
+            close(streamFd);
+
+            if (state.egl_stream == EGL_NO_STREAM_KHR) {
+                qWarning("%s:%d: eglCreateStreamFromFileDescriptorKHR failed: 0x%x", Q_FUNC_INFO, __LINE__, eglGetError());
+                return;
+            }
+
+            state.isYInverted = false;
+            state.gl_texture_target = GL_TEXTURE_EXTERNAL_OES;
+            state.gl_texture = make_texture(state.gl_texture_target);
+            set_texture_params(state.gl_texture_target);
+
+            if (d->funcs->stream_consumer_gltexture(d->egl_display, state.egl_stream) != EGL_TRUE)
+                qWarning("%s:%d: eglStreamConsumerGLTextureExternalKHR failed: 0x%x", Q_FUNC_INFO, __LINE__, eglGetError());
         }
 
-        EGLImageKHR image = d->egl_create_image(d->egl_display, EGL_NO_CONTEXT,
-                                                EGL_WAYLAND_BUFFER_WL,
-                                                buffer, NULL);
-
-        d->gl_egl_image_target_texture_2d(GL_TEXTURE_2D, image);
-        set_texture_params(GL_TEXTURE_2D);
-        d->egl_destroy_image(d->egl_display, image);
+        d->buffers[buffer] = state;
     }
 }
 
@@ -402,26 +361,27 @@ void WaylandEglClientBufferIntegration::updateTextureForBuffer(struct ::wl_resou
         d->funcs->stream_consumer_acquire(d->egl_display, state.egl_stream);
 }
 
-bool WaylandEglClientBufferIntegration::isYInverted(struct ::wl_resource *buffer) const
+QWaylandSurface::Origin WaylandEglClientBufferIntegration::origin(struct ::wl_resource *buffer) const
 {
     Q_D(const WaylandEglClientBufferIntegration);
 
     if (d->buffers.contains(buffer))
-        return d->buffers[buffer].isYInverted;
+        return d->buffers[buffer].isYInverted ? QWaylandSurface::OriginTopLeft : QWaylandSurface::OriginBottomLeft;
 
 #if defined(EGL_WAYLAND_Y_INVERTED_WL)
     EGLint isYInverted;
     EGLBoolean ret = EGL_FALSE;
-    ret = d->egl_query_wayland_buffer(d->egl_display, buffer, EGL_WAYLAND_Y_INVERTED_WL, &isYInverted);
+    if (buffer)
+        ret = d->egl_query_wayland_buffer(d->egl_display, buffer, EGL_WAYLAND_Y_INVERTED_WL, &isYInverted);
     // Yes, this looks strange, but the specification says that EGL_FALSE return
     // value (not supported) should be treated the same as EGL_TRUE return value
     // and EGL_TRUE in value.
     if (ret == EGL_FALSE || isYInverted == EGL_TRUE)
-        return true;
-    return false;
+        return QWaylandSurface::OriginTopLeft;
+    return QWaylandSurface::OriginBottomLeft;
 #endif
 
-    return QtWayland::ClientBufferIntegration::isYInverted(buffer);
+    return QtWayland::ClientBufferIntegration::origin(buffer);
 }
 
 

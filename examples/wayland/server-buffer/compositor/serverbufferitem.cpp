@@ -45,7 +45,7 @@
 #include <QtQuick/QSGSimpleTextureNode>
 #include <QtQuick/QQuickWindow>
 
-#include <QtCompositor/private/qwlserverbufferintegration_p.h>
+#include <QtWaylandCompositor/private/qwlserverbufferintegration_p.h>
 
 QT_BEGIN_NAMESPACE
 

@@ -41,24 +41,61 @@
 #ifndef COMPOSITORWINDOW_H
 #define COMPOSITORWINDOW_H
 
-#include <QWindow>
-#include <QOpenGLContext>
-#include <QSurfaceFormat>
+#include <QOpenGLWindow>
+#include <QPointer>
+#include <QtGui/private/qopengltextureblitter_p.h>
 
-class CompositorWindow : public QWindow
+QT_BEGIN_NAMESPACE
+
+class WindowCompositor;
+class WindowCompositorView;
+class QOpenGLTexture;
+
+class CompositorWindow : public QOpenGLWindow
 {
 public:
-    CompositorWindow(const QSurfaceFormat &format, const QRect &geometry);
-    QOpenGLContext* context() { return m_context; }
-    bool makeCurrent() { return m_context->makeCurrent(this); }
-    void swapBuffers() { m_context->swapBuffers(this); }
+    CompositorWindow();
+
+    void setCompositor(WindowCompositor *comp);
 
 protected:
-    void touchEvent(QTouchEvent *event);
+    void initializeGL() Q_DECL_OVERRIDE;
+    void paintGL() Q_DECL_OVERRIDE;
+
+    void mousePressEvent(QMouseEvent *e) Q_DECL_OVERRIDE;
+    void mouseReleaseEvent(QMouseEvent *e) Q_DECL_OVERRIDE;
+    void mouseMoveEvent(QMouseEvent *e) Q_DECL_OVERRIDE;
+
+    void keyPressEvent(QKeyEvent *e) Q_DECL_OVERRIDE;
+    void keyReleaseEvent(QKeyEvent *e) Q_DECL_OVERRIDE;
+
+private slots:
+    void startMove();
+    void startResize(int edge);
+    void startDrag(WindowCompositorView *dragIcon);
+    void setFrameOffset(const QPoint &offset);
 
 private:
-    QOpenGLContext *m_context;
-    QSurfaceFormat m_format;
+    enum GrabState { NoGrab, MoveGrab, ResizeGrab, DragGrab };
+
+    WindowCompositorView *viewAt(const QPointF &point);
+    bool mouseGrab() const { return m_grabState != NoGrab ;}
+    void drawBackground();
+    void sendMouseEvent(QMouseEvent *e, WindowCompositorView *target);
+
+    QOpenGLTextureBlitter m_textureBlitter;
+    QSize m_backgroundImageSize;
+    QOpenGLTexture *m_backgroundTexture;
+    WindowCompositor *m_compositor;
+    QPointer<WindowCompositorView> m_mouseView;
+    GrabState m_grabState;
+    QSize m_initialSize;
+    int m_resizeEdge;
+    QPointF m_mouseOffset;
+    QPointF m_initialMousePos;
+    WindowCompositorView *m_dragIconView;
 };
+
+QT_END_NAMESPACE
 
 #endif // COMPOSITORWINDOW_H

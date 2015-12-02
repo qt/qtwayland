@@ -4,9 +4,9 @@
 ** Copyright (C) 2014 Jolla Ltd, author: <giulio.camuffo@jollamobile.com>
 ** Contact: http://www.qt.io/licensing/
 **
-** This file is part of the plugins of the Qt Toolkit.
+** This file is part of the QtWaylandCompositor module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL21$
+** $QT_BEGIN_LICENSE:LGPL3$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
@@ -17,16 +17,19 @@
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 or version 3 as published by the Free
-** Software Foundation and appearing in the file LICENSE.LGPLv21 and
-** LICENSE.LGPLv3 included in the packaging of this file. Please review the
-** following information to ensure the GNU Lesser General Public License
-** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
-** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 3 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPLv3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU Lesser General Public License version 3 requirements
+** will be met: https://www.gnu.org/licenses/lgpl.html.
 **
-** As a special exception, The Qt Company gives you certain additional
-** rights. These rights are described in The Qt Company LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 2.0 or later as published by the Free
+** Software Foundation and appearing in the file LICENSE.GPL included in
+** the packaging of this file. Please review the following information to
+** ensure the GNU General Public License version 2.0 requirements will be
+** met: http://www.gnu.org/licenses/gpl-2.0.html.
 **
 ** $QT_END_LICENSE$
 **
@@ -46,35 +49,132 @@
 // We mean it.
 //
 
-#include <QtCompositor/qwaylandexport.h>
+#include <QtWaylandCompositor/qwaylandexport.h>
 #include <private/qobject_p.h>
 
-#include <QtCompositor/private/qwlsurface_p.h>
+#include <private/qwlsurfacebuffer_p.h>
+#include <QtWaylandCompositor/qwaylandsurface.h>
+#include <QtWaylandCompositor/qwaylandbufferref.h>
+
+#include <QtWaylandCompositor/private/qwlinputpanelsurface_p.h>
+#include <QtWaylandCompositor/private/qwlregion_p.h>
+
+#include <QtCore/QVector>
+#include <QtCore/QRect>
+#include <QtGui/QRegion>
+#include <QtGui/QImage>
+#include <QtGui/QWindow>
+
+#include <QtCore/QTextStream>
+#include <QtCore/QMetaType>
+
+#include <wayland-util.h>
+
+#include <QtWaylandCompositor/private/qwayland-server-wayland.h>
 
 QT_BEGIN_NAMESPACE
 
 class QWaylandCompositor;
 class QWaylandSurface;
-class QWaylandSurfaceView;
+class QWaylandView;
 class QWaylandSurfaceInterface;
 
-class Q_COMPOSITOR_EXPORT QWaylandSurfacePrivate : public QObjectPrivate, public QtWayland::Surface
+namespace QtWayland {
+class FrameCallback;
+}
+
+class Q_COMPOSITOR_EXPORT QWaylandSurfacePrivate : public QObjectPrivate, public QtWaylandServer::wl_surface
 {
-    Q_DECLARE_PUBLIC(QWaylandSurface)
 public:
-    QWaylandSurfacePrivate(wl_client *wlClient, quint32 id, int version, QWaylandCompositor *compositor, QWaylandSurface *surface);
-    void setType(QWaylandSurface::WindowType type);
-    void setTitle(const QString &title);
-    void setClassName(const QString &className);
+    static QWaylandSurfacePrivate *get(QWaylandSurface *surface);
 
-    bool closing;
+    QWaylandSurfacePrivate();
+    ~QWaylandSurfacePrivate();
+
+    void ref();
+    void deref();
+
+    void refView(QWaylandView *view);
+    void derefView(QWaylandView *view);
+
+    using QtWaylandServer::wl_surface::resource;
+
+    void setSize(const QSize &size);
+
+    void removeFrameCallback(QtWayland::FrameCallback *callback);
+
+    void notifyViewsAboutDestruction();
+
+    void setInputPanelSurface(QtWayland::InputPanelSurface *ips) { inputPanelSurface = ips; }
+
+#ifndef QT_NO_DEBUG
+    static void addUninitializedSurface(QWaylandSurfacePrivate *surface);
+    static void removeUninitializedSurface(QWaylandSurfacePrivate *surface);
+    static bool hasUninitializedSurface();
+#endif
+protected:
+    void surface_destroy_resource(Resource *resource) Q_DECL_OVERRIDE;
+
+    void surface_destroy(Resource *resource) Q_DECL_OVERRIDE;
+    void surface_attach(Resource *resource,
+                        struct wl_resource *buffer, int x, int y) Q_DECL_OVERRIDE;
+    void surface_damage(Resource *resource,
+                        int32_t x, int32_t y, int32_t width, int32_t height) Q_DECL_OVERRIDE;
+    void surface_frame(Resource *resource,
+                       uint32_t callback) Q_DECL_OVERRIDE;
+    void surface_set_opaque_region(Resource *resource,
+                                   struct wl_resource *region) Q_DECL_OVERRIDE;
+    void surface_set_input_region(Resource *resource,
+                                  struct wl_resource *region) Q_DECL_OVERRIDE;
+    void surface_commit(Resource *resource) Q_DECL_OVERRIDE;
+    void surface_set_buffer_transform(Resource *resource, int32_t transform) Q_DECL_OVERRIDE;
+
+    void setBackBuffer(QtWayland::SurfaceBuffer *buffer, const QRegion &damage);
+    QtWayland::SurfaceBuffer *createSurfaceBuffer(struct ::wl_resource *buffer);
+
+protected: //member variables
+    QWaylandCompositor *compositor;
     int refCount;
-
     QWaylandClient *client;
+    QList<QWaylandView *> views;
+    QRegion damage;
+    QtWayland::SurfaceBuffer *buffer;
+    QWaylandBufferRef bufferRef;
 
-    QWaylandSurface::WindowType windowType;
-    QList<QWaylandSurfaceView *> views;
-    QList<QWaylandSurfaceInterface *> interfaces;
+    struct {
+        QtWayland::SurfaceBuffer *buffer;
+        QRegion damage;
+        QPoint offset;
+        bool newlyAttached;
+        QRegion inputRegion;
+    } pending;
+
+    QPoint lastLocalMousePos;
+    QPoint lastGlobalMousePos;
+
+    QList<QtWayland::FrameCallback *> pendingFrameCallbacks;
+    QList<QtWayland::FrameCallback *> frameCallbacks;
+
+    QtWayland::InputPanelSurface *inputPanelSurface;
+
+    QRegion inputRegion;
+    QRegion opaqueRegion;
+
+    QVector<QtWayland::SurfaceBuffer *> bufferPool;
+
+    QSize size;
+    bool isCursorSurface;
+    bool destroyed;
+    bool mapped;
+    bool isInitialized;
+    Qt::ScreenOrientation contentOrientation;
+    QWindow::Visibility visibility;
+
+#ifndef QT_NO_DEBUG
+    static QList<QWaylandSurfacePrivate *> uninitializedSurfaces;
+#endif
+    Q_DECLARE_PUBLIC(QWaylandSurface)
+    Q_DISABLE_COPY(QWaylandSurfacePrivate)
 };
 
 QT_END_NAMESPACE

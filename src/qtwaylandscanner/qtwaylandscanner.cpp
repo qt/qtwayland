@@ -386,7 +386,6 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath, const QByteArr
 
         printf("\n");
         printf("QT_BEGIN_NAMESPACE\n");
-
         QByteArray serverExport;
         if (headerPath.size()) {
             serverExport = QByteArray("Q_WAYLAND_SERVER_") + preProcessorProtocolName + "_EXPORT";
@@ -451,6 +450,11 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath, const QByteArr
             printf("\n");
             printf("        bool isGlobal() const { return m_global != 0; }\n");
             printf("        bool isResource() const { return m_resource != 0; }\n");
+            printf("\n");
+            printf("        static const struct ::wl_interface *interface();\n");
+            printf("        static QByteArray interfaceName() { return interface()->name; }\n");
+            printf("        static int interfaceVersion() { return interface()->version; }\n");
+            printf("\n");
 
             printEnums(interface.enums);
 
@@ -612,6 +616,12 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath, const QByteArr
             printf("    }\n");
             printf("\n");
 
+            printf("    const struct wl_interface *%s::interface()\n", interfaceName);
+            printf("    {\n");
+            printf("        return &::%s_interface;\n", interfaceName);
+            printf("    }\n");
+            printf("\n");
+
             printf("    %s::Resource *%s::%s_allocate()\n", interfaceName, interfaceName, interfaceNameStripped);
             printf("    {\n");
             printf("        return new Resource;\n");
@@ -656,6 +666,7 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath, const QByteArr
             //and use function overloading instead. Jan do you have a lot of code dependent on this behavior?
             printf("    %s::Resource *%s::bind(struct ::wl_client *client, uint32_t id, int version)\n", interfaceName, interfaceName);
             printf("    {\n");
+            printf("        Q_ASSERT_X(!wl_client_get_object(client, id), \"QWaylandObject bind\", QStringLiteral(\"binding to object %%1 more than once\").arg(id).toLocal8Bit().constData());\n");
             printf("        Resource *resource = %s_allocate();\n", interfaceNameStripped);
             printf("        resource->%s_object = this;\n", interfaceNameStripped);
             printf("\n");

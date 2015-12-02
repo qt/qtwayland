@@ -41,7 +41,7 @@
 
 #include "qwaylandquickcompositor.h"
 #include "qwaylandsurface.h"
-#include "qwaylandsurfaceitem.h"
+#include "qwaylandquickitem.h"
 
 #include <QGuiApplication>
 #include <QTimer>
@@ -55,47 +55,61 @@
 #include <QQuickView>
 
 #include "qwayland-server-share-buffer.h"
-#include <QtCompositor/qwaylandoutput.h>
-#include <QtCompositor/private/qwlcompositor_p.h>
-#include <QtCompositor/private/qwlserverbufferintegration_p.h>
+#include <QtWaylandCompositor/QWaylandQuickOutput>
+#include <QtWaylandCompositor/QWaylandCompositor>
+#include <QtWaylandCompositor/QWaylandQuickItem>
+#include <QtWaylandCompositor/private/qwaylandcompositor_p.h>
+#include <QtWaylandCompositor/private/qwlserverbufferintegration_p.h>
 
 #include "serverbufferitem.h"
 
 #include <QtGui/private/qdistancefield_p.h>
 
 class QmlCompositor
-    : public QQuickView
-    , public QWaylandQuickCompositor
+    : public QWaylandQuickCompositor
     , public QtWaylandServer::qt_share_buffer
 {
     Q_OBJECT
 
 public:
     QmlCompositor()
-        : QWaylandQuickCompositor(0, DefaultExtensions | SubSurfaceExtension)
-        , QtWaylandServer::qt_share_buffer(QWaylandCompositor::handle()->wl_display(), 1)
+        : QWaylandQuickCompositor()
+        , QtWaylandServer::qt_share_buffer(QWaylandCompositor::display(), 1)
         , m_server_buffer_32_bit(0)
         , m_server_buffer_item_32_bit(0)
         , m_server_buffer_8_bit(0)
         , m_server_buffer_item_8_bit(0)
     {
-        setSource(QUrl("qrc:/qml/main.qml"));
-        setResizeMode(QQuickView::SizeRootObjectToView);
-        setColor(Qt::black);
         create();
-        grabWindow();
-        createOutput(this, "", "");
-        addDefaultShell();
+        m_view.setSource(QUrl("qrc:/qml/main.qml"));
+        m_view.setResizeMode(QQuickView::SizeRootObjectToView);
+        m_view.setColor(Qt::black);
+        m_view.create();
+        m_output = new QWaylandQuickOutput(this, &m_view);
 
-        connect(this, SIGNAL(afterRendering()), this, SLOT(sendCallbacks()));
+        connect(&m_view, &QQuickView::afterRendering, this, &QmlCompositor::sendCallbacks);
 
-        connect(this, SIGNAL(sceneGraphInitialized()), this, SLOT(initiateServerBuffer()),Qt::DirectConnection);
-        connect(this, SIGNAL(serverBuffersCreated()), this, SLOT(createServerBufferItems()));
+        connect(&m_view, &QQuickView::sceneGraphInitialized, this, &QmlCompositor::initiateServerBuffer,Qt::DirectConnection);
+        connect(this, &QmlCompositor::serverBuffersCreated, this, &QmlCompositor::createServerBufferItems);
+
+        connect(&m_view, &QWindow::widthChanged, this, &QmlCompositor::sizeAdjusted);
+        connect(&m_view, &QWindow::heightChanged, this, &QmlCompositor::sizeAdjusted);
+
+        connect(this, SIGNAL(windowAdded(QVariant)), m_view.rootObject(), SLOT(windowAdded(QVariant)));
+        connect(this, SIGNAL(windowResized(QVariant)), m_view.rootObject(), SLOT(windowResized(QVariant)));
+        connect(this, SIGNAL(serverBufferItemCreated(QVariant)), m_view.rootObject(), SLOT(serverBufferItemCreated(QVariant)));
+        connect(this, &QWaylandCompositor::surfaceCreated, this, &QmlCompositor::onSurfaceCreated);
+
+        m_view.setTitle(QLatin1String("QML Compositor"));
+        m_view.setGeometry(0, 0, 1024, 768);
+        m_view.rootContext()->setContextProperty("compositor", this);
+
+        m_view.show();
     }
 
-    Q_INVOKABLE QWaylandSurfaceItem *item(QWaylandSurface *surf)
+    Q_INVOKABLE QWaylandQuickItem *item(QWaylandSurface *surf)
     {
-        return static_cast<QWaylandSurfaceItem *>(surf->views().first());
+        return static_cast<QWaylandQuickItem *>(surf->views().first()->renderObject());
     }
 
 signals:
@@ -118,17 +132,17 @@ private slots:
     }
 
     void sendCallbacks() {
-        sendFrameCallbacks(surfaces());
+        m_output->sendFrameCallbacks();
     }
 
     void initiateServerBuffer()
     {
-        if (!QWaylandCompositor::handle()->serverBufferIntegration())
+        if (!QWaylandCompositorPrivate::get(this)->serverBufferIntegration())
             return;
 
-        openglContext()->makeCurrent(this);
+        m_view.openglContext()->makeCurrent(&m_view);
 
-        QtWayland::ServerBufferIntegration *sbi = QWaylandCompositor::handle()->serverBufferIntegration();
+        QtWayland::ServerBufferIntegration *sbi = QWaylandCompositorPrivate::get(this)->serverBufferIntegration();
         if (!sbi) {
             qWarning("Could not find a Server Buffer Integration");
             return;
@@ -197,14 +211,15 @@ private slots:
         }
     }
 protected:
-    void resizeEvent(QResizeEvent *event)
+    void sizeAdjusted()
     {
-        QQuickView::resizeEvent(event);
-        QWaylandCompositor::setOutputGeometry(QRect(0, 0, width(), height()));
+        defaultOutput()->setGeometry(QRect(QPoint(0, 0), m_view.size()));
     }
 
-    void surfaceCreated(QWaylandSurface *surface) {
-        connect(surface, SIGNAL(mapped()), this, SLOT(surfaceMapped()));
+    void onSurfaceCreated(QWaylandSurface *surface) {
+        QWaylandQuickItem *item = new QWaylandQuickItem();
+        item->setSurface(surface);
+        connect(surface, &QWaylandSurface::mappedChanged, this, &QmlCompositor::surfaceMapped);
     }
 
     void share_buffer_bind_resource(Resource *resource) Q_DECL_OVERRIDE
@@ -224,6 +239,8 @@ protected:
     }
 
 private:
+    QQuickView m_view;
+    QWaylandOutput *m_output;
     QtWayland::ServerBuffer *m_server_buffer_32_bit;
     ServerBufferItem *m_server_buffer_item_32_bit;
     QtWayland::ServerBuffer *m_server_buffer_8_bit;
@@ -242,18 +259,8 @@ int main(int argc, char *argv[])
     qmlRegisterType<ServerBufferItem>();
 
     QmlCompositor compositor;
-    compositor.setTitle(QLatin1String("QML Compositor"));
-    compositor.setGeometry(0, 0, 1024, 768);
-    compositor.show();
 
-    compositor.rootContext()->setContextProperty("compositor", &compositor);
-
-    QObject::connect(&compositor, SIGNAL(windowAdded(QVariant)), compositor.rootObject(), SLOT(windowAdded(QVariant)));
-    QObject::connect(&compositor, SIGNAL(windowResized(QVariant)), compositor.rootObject(), SLOT(windowResized(QVariant)));
-    QObject::connect(&compositor, SIGNAL(serverBufferItemCreated(QVariant)), compositor.rootObject(), SLOT(serverBufferItemCreated(QVariant)));
-
-    app.exec();
-    qDebug() << "ending" << glGetError();
+    return app.exec();
 }
 
 #include "main.moc"

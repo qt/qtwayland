@@ -27,9 +27,11 @@ lib/
 include/
 bin/
 /plugins/
-examples/wayland/qml-compositor/qml-compositor
-examples/wayland/qwidget-compositor/qwidget-compositor
+/qml/
 examples/wayland/qwindow-compositor/qwindow-compositor
+examples/wayland/custom-extension/testapp/testapp
+examples/wayland/multi-output/multi-output
+examples/wayland/pure-qml/pure-qml
 examples/wayland/server-buffer/client/client
 examples/wayland/server-buffer/client/qwayland-*.cpp
 examples/wayland/server-buffer/client/qwayland-*.h
@@ -43,10 +45,14 @@ examples/wayland/server-buffer/compositor/*-protocol.c
 examples/wayland/subsurface/subsurface
 src/client/qwayland*.cpp
 src/client/*-protocol.c
+src/client/QtWaylandClient.version
+src/client/QtWaylandClient.version.in
 src/compositor/*-server-protocol.h
 src/compositor/*-protocol.c
 src/compositor/qwayland-server-*.cpp
 src/compositor/qwayland-server-*.h
+src/compositor/QtWaylandCompositor.version
+src/compositor/QtWaylandCompositor.version.in
 src/plugins/platforms/*/*-client-protocol.h
 src/plugins/platforms/*/*-protocol.c
 src/plugins/platforms/*/qwayland-*.cpp
@@ -62,6 +68,7 @@ src/plugins/hardwareintegration/*/*/qwayland*.h
 src/plugins/hardwareintegration/*/*/*-server-protocol.h
 src/plugins/hardwareintegration/*/*/*-client-protocol.h
 src/plugins/hardwareintegration/*/*/*-protocol.c
+src/imports/compositor/compositor.qrc
 tests/auto/client/tst_client
 tests/auto/compositor/tst_compositor
 *~

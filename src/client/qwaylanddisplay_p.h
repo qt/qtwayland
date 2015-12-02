@@ -67,7 +67,6 @@ class QSocketNotifier;
 class QPlatformScreen;
 
 namespace QtWayland {
-    class qt_output_extension;
     class qt_shell;
     class qt_sub_surface_extension;
     class qt_surface_extension;

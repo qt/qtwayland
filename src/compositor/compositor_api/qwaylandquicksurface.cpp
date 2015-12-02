@@ -3,9 +3,9 @@
 ** Copyright (C) 2014 Jolla Ltd, author: <giulio.camuffo@jollamobile.com>
 ** Contact: http://www.qt.io/licensing/
 **
-** This file is part of the plugins of the Qt Toolkit.
+** This file is part of the QtWaylandCompositor module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL21$
+** $QT_BEGIN_LICENSE:LGPL3$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
@@ -16,16 +16,19 @@
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 or version 3 as published by the Free
-** Software Foundation and appearing in the file LICENSE.LGPLv21 and
-** LICENSE.LGPLv3 included in the packaging of this file. Please review the
-** following information to ensure the GNU Lesser General Public License
-** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
-** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 3 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPLv3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU Lesser General Public License version 3 requirements
+** will be met: https://www.gnu.org/licenses/lgpl.html.
 **
-** As a special exception, The Qt Company gives you certain additional
-** rights. These rights are described in The Qt Company LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 2.0 or later as published by the Free
+** Software Foundation and appearing in the file LICENSE.GPL included in
+** the packaging of this file. Please review the following information to
+** ensure the GNU General Public License version 2.0 requirements will be
+** met: http://www.gnu.org/licenses/gpl-2.0.html.
 **
 ** $QT_END_LICENSE$
 **
@@ -35,58 +38,47 @@
 #include <QOpenGLTexture>
 #include <QQuickWindow>
 #include <QDebug>
-#include <QQmlPropertyMap>
 
 #include "qwaylandquicksurface.h"
 #include "qwaylandquickcompositor.h"
-#include "qwaylandsurfaceitem.h"
-#include "qwaylandoutput.h"
-#include <QtCompositor/private/qwaylandsurface_p.h>
-#include <QtCompositor/private/qwaylandtexturebufferattacher_p.h>
+#include "qwaylandquickitem.h"
+#include <QtWaylandCompositor/qwaylandbufferref.h>
+#include <QtWaylandCompositor/QWaylandView>
+#include <QtWaylandCompositor/private/qwaylandsurface_p.h>
+
+#include <QtWaylandCompositor/private/qwayland-server-surface-extension.h>
+#include <QtWaylandCompositor/private/qwlextendedsurface_p.h>
 
 QT_BEGIN_NAMESPACE
 
 class QWaylandQuickSurfacePrivate : public QWaylandSurfacePrivate
 {
+    Q_DECLARE_PUBLIC(QWaylandQuickSurface)
 public:
-    QWaylandQuickSurfacePrivate(wl_client *client, quint32 id, int version, QWaylandQuickCompositor *c, QWaylandQuickSurface *surf)
-        : QWaylandSurfacePrivate(client, id, version, c, surf)
-        , compositor(c)
+    QWaylandQuickSurfacePrivate()
+        : QWaylandSurfacePrivate()
         , useTextureAlpha(true)
-        , windowPropertyMap(new QQmlPropertyMap)
         , clientRenderingEnabled(true)
     {
-
     }
 
     ~QWaylandQuickSurfacePrivate()
     {
-        windowPropertyMap->deleteLater();
-        // buffer is deleted automatically by ~Surface(), since it is the assigned attacher
     }
 
-    void surface_commit(Resource *resource) Q_DECL_OVERRIDE
-    {
-        QWaylandSurfacePrivate::surface_commit(resource);
-
-        Q_FOREACH (QtWayland::Output *output, outputs())
-            output->waylandOutput()->update();
-    }
-
-    QWaylandQuickCompositor *compositor;
     bool useTextureAlpha;
-    QQmlPropertyMap *windowPropertyMap;
     bool clientRenderingEnabled;
 };
 
-QWaylandQuickSurface::QWaylandQuickSurface(wl_client *client, quint32 id, int version, QWaylandQuickCompositor *compositor)
-                    : QWaylandSurface(new QWaylandQuickSurfacePrivate(client, id, version, compositor, this))
+QWaylandQuickSurface::QWaylandQuickSurface()
+    : QWaylandSurface(* new QWaylandQuickSurfacePrivate())
 {
-    Q_D(QWaylandQuickSurface);
-    QWaylandSurface::setBufferAttacher(new QWaylandTextureBufferAttacher(this));
 
-    connect(this, &QWaylandSurface::windowPropertyChanged, d->windowPropertyMap, &QQmlPropertyMap::insert);
-    connect(d->windowPropertyMap, &QQmlPropertyMap::valueChanged, this, &QWaylandSurface::setWindowProperty);
+}
+QWaylandQuickSurface::QWaylandQuickSurface(QWaylandCompositor *compositor, QWaylandClient *client, quint32 id, int version)
+                    : QWaylandSurface(* new QWaylandQuickSurfacePrivate())
+{
+    initialize(compositor, client, id, version);
 }
 
 QWaylandQuickSurface::~QWaylandQuickSurface()
@@ -94,16 +86,11 @@ QWaylandQuickSurface::~QWaylandQuickSurface()
 
 }
 
-QWaylandTextureBufferAttacher *QWaylandQuickSurface::textureBufferAttacher() const
-{
-    return static_cast<QWaylandTextureBufferAttacher*>(bufferAttacher());
-}
-
-QSGTexture *QWaylandQuickSurface::texture() const
-{
-    return textureBufferAttacher()->texture();
-}
-
+/*!
+ * \qmlproperty QtWaylandCompositor::WaylandSurface::useTextureAlpha
+ *
+ * This property specifies whether the surface should use texture alpha.
+ */
 bool QWaylandQuickSurface::useTextureAlpha() const
 {
     Q_D(const QWaylandQuickSurface);
@@ -116,69 +103,15 @@ void QWaylandQuickSurface::setUseTextureAlpha(bool useTextureAlpha)
     if (d->useTextureAlpha != useTextureAlpha) {
         d->useTextureAlpha = useTextureAlpha;
         emit useTextureAlphaChanged();
-        emit configure(textureBufferAttacher()->currentBuffer());
+        emit configure(d->bufferRef.hasBuffer());
     }
 }
 
-QObject *QWaylandQuickSurface::windowPropertyMap() const
-{
-    Q_D(const QWaylandQuickSurface);
-    return d->windowPropertyMap;
-}
-
-bool QWaylandQuickSurface::event(QEvent *e)
-{
-    if (e->type() == static_cast<QEvent::Type>(QWaylandSurfaceLeaveEvent::WaylandSurfaceLeave)) {
-        QWaylandSurfaceLeaveEvent *event = static_cast<QWaylandSurfaceLeaveEvent *>(e);
-
-        if (event->output()) {
-            QQuickWindow *oldWindow = static_cast<QQuickWindow *>(event->output()->window());
-            disconnect(oldWindow, &QQuickWindow::beforeSynchronizing,
-                       this, &QWaylandQuickSurface::updateTexture);
-            disconnect(oldWindow, &QQuickWindow::sceneGraphInvalidated,
-                       this, &QWaylandQuickSurface::invalidateTexture);
-        }
-
-        return true;
-    }
-
-    if (e->type() == static_cast<QEvent::Type>(QWaylandSurfaceEnterEvent::WaylandSurfaceEnter)) {
-        QWaylandSurfaceEnterEvent *event = static_cast<QWaylandSurfaceEnterEvent *>(e);
-
-        if (event->output()) {
-            QQuickWindow *window = static_cast<QQuickWindow *>(event->output()->window());
-            connect(window, &QQuickWindow::beforeSynchronizing,
-                    this, &QWaylandQuickSurface::updateTexture,
-                    Qt::DirectConnection);
-            connect(window, &QQuickWindow::sceneGraphInvalidated,
-                    this, &QWaylandQuickSurface::invalidateTexture,
-                    Qt::DirectConnection);
-        }
-
-        return true;
-    }
-
-    return QObject::event(e);
-}
-
-void QWaylandQuickSurface::updateTexture()
-{
-    QWaylandTextureBufferAttacher *attacher = textureBufferAttacher();
-    const bool update = attacher->isDirty();
-    if (update)
-        attacher->updateTexture();
-    foreach (QWaylandSurfaceView *view, views())
-        static_cast<QWaylandSurfaceItem *>(view)->updateTexture(update);
-}
-
-void QWaylandQuickSurface::invalidateTexture()
-{
-    textureBufferAttacher()->invalidateTexture();
-    foreach (QWaylandSurfaceView *view, views())
-        static_cast<QWaylandSurfaceItem *>(view)->updateTexture(true);
-    emit redraw();
-}
-
+/*!
+ * \qmlproperty QtWaylandCompositor::WaylandSurface::clientRenderingEnabled
+ *
+ * This property specifies whether client rendering is enabled for the surface.
+ */
 bool QWaylandQuickSurface::clientRenderingEnabled() const
 {
     Q_D(const QWaylandQuickSurface);
@@ -191,7 +124,8 @@ void QWaylandQuickSurface::setClientRenderingEnabled(bool enabled)
     if (d->clientRenderingEnabled != enabled) {
         d->clientRenderingEnabled = enabled;
 
-        sendOnScreenVisibilityChange(enabled);
+        if (QtWayland::ExtendedSurface *extSurface = QtWayland::ExtendedSurface::findIn(this))
+            extSurface->setVisibility(enabled ? QWindow::AutomaticVisibility : QWindow::Hidden);
 
         emit clientRenderingEnabledChanged();
     }

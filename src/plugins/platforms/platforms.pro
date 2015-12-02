@@ -13,7 +13,7 @@ contains(CONFIG, wayland-compositor) {
         SUBDIRS += qwayland-brcm-egl
 
     config_xcomposite {
-        config_egl: \
+        contains(QT_CONFIG, egl): \
             SUBDIRS += qwayland-xcomposite-egl
         !contains(QT_CONFIG, opengles2):config_glx: \
             SUBDIRS += qwayland-xcomposite-glx

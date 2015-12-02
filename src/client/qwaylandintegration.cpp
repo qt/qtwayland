@@ -54,6 +54,7 @@
 #include <qpa/qplatformcursor.h>
 #include <QtGui/QSurfaceFormat>
 #include <QtGui/QOpenGLContext>
+#include <QSocketNotifier>
 
 #include <qpa/qplatforminputcontextfactory_p.h>
 #include <qpa/qplatformaccessibility.h>
@@ -201,6 +202,10 @@ void QWaylandIntegration::initialize()
     QAbstractEventDispatcher *dispatcher = QGuiApplicationPrivate::eventDispatcher;
     QObject::connect(dispatcher, SIGNAL(aboutToBlock()), mDisplay, SLOT(flushRequests()));
     QObject::connect(dispatcher, SIGNAL(awake()), mDisplay, SLOT(flushRequests()));
+
+    int fd = wl_display_get_fd(mDisplay->wl_display());
+    QSocketNotifier *sn = new QSocketNotifier(fd, QSocketNotifier::Read, mDisplay);
+    QObject::connect(sn, SIGNAL(activated(int)), mDisplay, SLOT(flushRequests()));
 }
 
 QPlatformFontDatabase *QWaylandIntegration::fontDatabase() const

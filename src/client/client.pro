@@ -16,7 +16,6 @@ load(qt_module)
 QMAKE_CXXFLAGS_WARN_ON -= -Wcast-qual
 
 CONFIG -= precompile_header
-CONFIG -= create_cmake
 CONFIG += link_pkgconfig qpa/genericunixfontdatabase wayland-scanner
 
 !equals(QT_WAYLAND_GL_CONFIG, nogl) {
@@ -78,7 +77,6 @@ SOURCES +=  qwaylandintegration.cpp \
             qwaylandabstractdecoration.cpp \
             qwaylanddecorationfactory.cpp \
             qwaylanddecorationplugin.cpp \
-            qwaylandeventthread.cpp\
             qwaylandwindowmanagerintegration.cpp \
             qwaylandinputcontext.cpp \
             qwaylanddatadevice.cpp \
@@ -111,7 +109,6 @@ HEADERS +=  qwaylandintegration_p.h \
             qwaylandabstractdecoration_p.h \
             qwaylanddecorationfactory_p.h \
             qwaylanddecorationplugin_p.h \
-            qwaylandeventthread_p.h \
             qwaylandwindowmanagerintegration_p.h \
             qwaylandinputcontext_p.h \
             qwaylanddatadevice_p.h \

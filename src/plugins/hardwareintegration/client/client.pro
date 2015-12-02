@@ -7,7 +7,7 @@ config_brcm_egl: \
     SUBDIRS += brcm-egl
 
 config_xcomposite {
-    config_egl: \
+    contains(QT_CONFIG, egl): \
         SUBDIRS += xcomposite-egl
 
     !contains(QT_CONFIG, opengles2):config_glx: \

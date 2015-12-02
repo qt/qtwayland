@@ -68,6 +68,7 @@ static Qt::Key toQtKey(uint32_t sym)
         return Qt::Key_unknown;
     }
 #else
+    Q_UNUSED(sym)
     return Qt::Key_unknown;
 #endif
 }

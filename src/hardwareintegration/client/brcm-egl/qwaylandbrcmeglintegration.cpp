@@ -90,13 +90,13 @@ void QWaylandBrcmEglIntegration::initialize(QWaylandDisplay *waylandDisplay)
             qWarning("failed to resolve eglFlushBRCM, performance will suffer");
         }
 
-        eglCreateGlobalImageBRCM = ::eglCreateGlobalImageBRCM;
+        eglCreateGlobalImageBRCM = (PFNEGLCREATEGLOBALIMAGEBRCMPROC)eglGetProcAddress("eglCreateGlobalImageBRCM");
         if (!eglCreateGlobalImageBRCM) {
             qWarning("failed to resolve eglCreateGlobalImageBRCM");
             return;
         }
 
-        eglDestroyGlobalImageBRCM = ::eglDestroyGlobalImageBRCM;
+        eglDestroyGlobalImageBRCM = (PFNEGLDESTROYGLOBALIMAGEBRCMPROC)eglGetProcAddress("eglDestroyGlobalImageBRCM");
         if (!eglDestroyGlobalImageBRCM) {
             qWarning("failed to resolve eglDestroyGlobalImageBRCM");
             return;

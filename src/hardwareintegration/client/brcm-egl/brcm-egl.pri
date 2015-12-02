@@ -7,12 +7,7 @@ contains(QT_CONFIG, no-pkg-config) {
     LIBS += -lwayland-client
 }
 
-for(p, QMAKE_LIBDIR_EGL) {
-    exists($$p):LIBS += -L$$p
-}
-
-LIBS += $$QMAKE_LIBS_EGL
-INCLUDEPATH += $$QMAKE_INCDIR_EGL
+CONFIG += egl
 
 SOURCES += $$PWD/qwaylandbrcmeglintegration.cpp \
            $$PWD/qwaylandbrcmglcontext.cpp \

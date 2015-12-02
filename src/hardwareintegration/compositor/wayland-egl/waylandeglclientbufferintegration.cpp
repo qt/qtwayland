@@ -54,6 +54,10 @@
 #define GL_TEXTURE_EXTERNAL_OES           0x8D65
 #endif
 
+#ifndef EGL_WAYLAND_BUFFER_WL
+#define EGL_WAYLAND_BUFFER_WL           0x31D5
+#endif
+
 /* Needed for compatibility with Mesa older than 10.0. */
 typedef EGLBoolean (EGLAPIENTRYP PFNEGLQUERYWAYLANDBUFFERWL_compat) (EGLDisplay dpy, struct wl_resource *buffer, EGLint attribute, EGLint *value);
 

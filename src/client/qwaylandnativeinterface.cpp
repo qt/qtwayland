@@ -39,6 +39,7 @@
 #include "qwaylanddisplay_p.h"
 #include "qwaylandwindowmanagerintegration_p.h"
 #include "qwaylandscreen_p.h"
+#include "qwaylandwlshellsurface_p.h"
 #include <QtGui/private/qguiapplication_p.h>
 #include <QtGui/QScreen>
 #include <QtWaylandClient/private/qwaylandclientbufferintegration_p.h>
@@ -79,6 +80,15 @@ void *QWaylandNativeInterface::nativeResourceForWindow(const QByteArray &resourc
         return const_cast<wl_compositor *>(m_integration->display()->wl_compositor());
     if (lowerCaseResource == "surface") {
         return ((QWaylandWindow *) window->handle())->object();
+    }
+    if (lowerCaseResource == "wl_shell_surface") {
+        QWaylandWindow *w = (QWaylandWindow *) window->handle();
+        if (!w)
+            return NULL;
+        QWaylandWlShellSurface *s = qobject_cast<QWaylandWlShellSurface *>(w->shellSurface());
+        if (!s)
+            return NULL;
+        return s->object();
     }
     if (lowerCaseResource == "egldisplay" && m_integration->clientBufferIntegration())
         return m_integration->clientBufferIntegration()->nativeResource(QWaylandClientBufferIntegration::EglDisplay);

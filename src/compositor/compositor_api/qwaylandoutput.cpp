@@ -510,6 +510,8 @@ void QWaylandOutput::setGeometry(const QRect &geometry)
  * \qmlproperty rect QtWaylandCompositor::WaylandOutput::availableGeometry
  *
  * This property holds the geometry of the WaylandOutput available for displaying content.
+ * The available geometry is in output coordinates space, starts from 0,0 and it's as big
+ * as the output by default.
  *
  * \sa QWaylandOutput::geometry
  */
@@ -518,6 +520,8 @@ void QWaylandOutput::setGeometry(const QRect &geometry)
  * \property QWaylandOutput::availableGeometry
  *
  * This property holds the geometry of the QWaylandOutput available for displaying content.
+ * The available geometry is in output coordinates space, starts from 0,0 and it's as big
+ * as the output by default.
  *
  * \sa QWaylandOutput::mode, QWaylandOutput::geometry
  */
@@ -525,7 +529,7 @@ QRect QWaylandOutput::availableGeometry() const
 {
     Q_D(const QWaylandOutput);
     if (!d->availableGeometry.isValid())
-        return QRect(d->position, d->mode.size);
+        return QRect(QPoint(0, 0), d->mode.size);
 
     return d->availableGeometry;
 }
@@ -535,6 +539,9 @@ void QWaylandOutput::setAvailableGeometry(const QRect &availableGeometry)
     Q_D(QWaylandOutput);
     if (d->availableGeometry == availableGeometry)
         return;
+
+    if (availableGeometry.topLeft().x() < 0 || availableGeometry.topLeft().y() < 0)
+        qWarning("Available geometry should be a portion of the output");
 
     d->availableGeometry = availableGeometry;
 

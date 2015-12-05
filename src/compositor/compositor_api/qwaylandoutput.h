@@ -102,7 +102,7 @@ public:
     struct Mode
     {
         QSize size;
-        int refreshRate;
+        qreal refreshRate;
     };
 
     QWaylandOutput();

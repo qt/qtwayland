@@ -128,7 +128,7 @@ void QWaylandOutputPrivate::output_bind_resource(Resource *resource)
 
     send_mode(resource->handle, mode_current | mode_preferred,
               mode.size.width(), mode.size.height(),
-              mode.refreshRate);
+              mode.refreshRate * 1000);
 
     if (resource->version() >= 2) {
         send_scale(resource->handle, scaleFactor);

@@ -107,7 +107,8 @@ void CompositorWindow::paintGL()
         if (surface && surface->isMapped()) {
             QSize s = surface->size();
             if (!s.isEmpty()) {
-                QRectF surfaceGeometry(view->position(), s);
+                QPointF pos = view->position() + view->parentPosition();
+                QRectF surfaceGeometry(pos, s);
                 QOpenGLTextureBlitter::Origin surfaceOrigin =
                     view->currentBuffer().origin() == QWaylandSurface::OriginTopLeft
                     ? QOpenGLTextureBlitter::OriginTopLeft

@@ -69,4 +69,22 @@ Rectangle {
         anchors.horizontalCenter: parent.horizontalCenter
         text: syncStatus.sync ? "sync mode" : "de-sync mode"
     }
+
+    // If you can see these rectangles, something's not right
+    Rectangle {
+        //Child at (150, 70, 100, 100)
+        color: "yellow"
+        x: 150
+        y: 70
+        width:100
+        height:100
+    }
+    Rectangle {
+        //Shm at (30, 30, 50, 50)
+        color: "yellow"
+        x: 30
+        y: 30
+        width: 50
+        height: 50
+    }
 }

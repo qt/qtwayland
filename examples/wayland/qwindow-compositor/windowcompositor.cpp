@@ -88,6 +88,8 @@ void WindowCompositor::create()
     connect(this, &QWaylandCompositor::surfaceCreated, this, &WindowCompositor::onSurfaceCreated);
     connect(defaultInputDevice(), &QWaylandInputDevice::cursorSurfaceRequest, this, &WindowCompositor::adjustCursorSurface);
     connect(defaultInputDevice()->drag(), &QWaylandDrag::dragStarted, this, &WindowCompositor::startDrag);
+
+    connect(this, &QWaylandCompositor::subsurfaceChanged, this, &WindowCompositor::onSubsurfaceChanged);
 }
 
 void WindowCompositor::onSurfaceCreated(QWaylandSurface *surface)
@@ -96,6 +98,9 @@ void WindowCompositor::onSurfaceCreated(QWaylandSurface *surface)
     connect(surface, &QWaylandSurface::mappedChanged, this, &WindowCompositor::surfaceMappedChanged);
     connect(surface, &QWaylandSurface::redraw, this, &WindowCompositor::triggerRender);
     connect(surface, &QWaylandSurface::offsetForNextFrame, this, &WindowCompositor::frameOffset);
+
+    connect(surface, &QWaylandSurface::subsurfacePositionChanged, this, &WindowCompositor::onSubsurfacePositionChanged);
+
     WindowCompositorView *view = new WindowCompositorView;
     view->setSurface(surface);
     view->setOutput(outputFor(m_window));
@@ -167,9 +172,17 @@ void WindowCompositor::onStartResize(QWaylandInputDevice *, QWaylandShellSurface
     emit startResize(int(edges));
 }
 
-void WindowCompositor::onSetTransient(QWaylandSurface *parentSurface, const QPoint &relativeToParent, QWaylandShellSurface::FocusPolicy focusPolicy)
+void WindowCompositor::onSetTransient(QWaylandSurface *parent, const QPoint &relativeToParent, QWaylandShellSurface::FocusPolicy focusPolicy)
 {
-    qDebug() << "Transient window support not implemented" << parentSurface << relativeToParent << focusPolicy;
+    QWaylandShellSurface *surface = qobject_cast<QWaylandShellSurface*>(sender());
+    WindowCompositorView *view = findView(surface->surface());
+
+    if (view) {
+        raise(view);
+        WindowCompositorView *parentView = findView(parent);
+        if (parentView)
+            view->setPosition(parentView->position() + relativeToParent);
+    }
 }
 
 void WindowCompositor::onSetPopup(QWaylandInputDevice *inputDevice, QWaylandSurface *parent, const QPoint &relativeToParent)
@@ -184,6 +197,23 @@ void WindowCompositor::onSetPopup(QWaylandInputDevice *inputDevice, QWaylandSurf
         if (parentView)
             view->setPosition(parentView->position() + relativeToParent);
     }
+}
+
+void WindowCompositor::onSubsurfaceChanged(QWaylandSurface *child, QWaylandSurface *parent)
+{
+    WindowCompositorView *view = findView(child);
+    WindowCompositorView *parentView = findView(parent);
+    view->setParentView(parentView);
+}
+
+void WindowCompositor::onSubsurfacePositionChanged(const QPoint &position)
+{
+    QWaylandSurface *surface = qobject_cast<QWaylandSurface*>(sender());
+    if (!surface)
+        return;
+    WindowCompositorView *view = findView(surface);
+    view->setPosition(position);
+    triggerRender();
 }
 
 void WindowCompositor::triggerRender()
@@ -288,8 +318,35 @@ void WindowCompositor::handleDrag(WindowCompositorView *target, QMouseEvent *me)
         currentDrag->drop();
 }
 
+// We only have a flat list of views, plus pointers from child to parent,
+// so maintaining a stacking order gets a bit complex. A better data
+// structure is left as an exercise for the reader.
+
+static int findEndOfChildTree(const QList<WindowCompositorView*> &list, int index)
+{
+    int n = list.count();
+    WindowCompositorView *parent = list.at(index);
+    while (index + 1 < n) {
+        if (list.at(index+1)->parentView() != parent)
+            break;
+        index = findEndOfChildTree(list, index + 1);
+    }
+    return index;
+}
+
 void WindowCompositor::raise(WindowCompositorView *view)
 {
-    m_views.removeOne(view);
-    m_views.append(view);
+    int startPos = m_views.indexOf(view);
+    int endPos = findEndOfChildTree(m_views, startPos);
+
+    int n = m_views.count();
+    int tail =  n - endPos - 1;
+
+    //bubble sort: move the child tree to the end of the list
+    for (int i = 0; i < tail; i++) {
+        int source = endPos + 1 + i;
+        int dest = startPos + i;
+        for (int j = source; j > dest; j--)
+            m_views.swap(j, j-1);
+    }
 }

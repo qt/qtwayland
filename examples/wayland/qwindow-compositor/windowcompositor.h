@@ -56,17 +56,22 @@ class WindowCompositorView : public QWaylandView
 {
     Q_OBJECT
 public:
-    WindowCompositorView() : m_texture(0), m_shellSurface(0) {}
+    WindowCompositorView() : m_texture(0), m_shellSurface(0), m_parentView(0) {}
     GLuint getTexture();
     QPointF position() const { return m_position; }
     void setPosition(const QPointF &pos) { m_position = pos; }
     bool isCursor() const;
     bool hasShell() const { return m_shellSurface; }
+    void setParentView(WindowCompositorView *parent) { m_parentView = parent; }
+    WindowCompositorView *parentView() const { return m_parentView; }
+    QPointF parentPosition() const { return m_parentView ? (m_parentView->position() + m_parentView->parentPosition()) : QPointF(); }
+
 private:
     friend class WindowCompositor;
     GLuint m_texture;
     QPointF m_position;
     QWaylandShellSurface *m_shellSurface;
+    WindowCompositorView *m_parentView;
 };
 
 class WindowCompositor : public QWaylandCompositor
@@ -113,6 +118,9 @@ private slots:
     void onCreateShellSurface(QWaylandSurface *s, QWaylandClient *client, uint id);
     void onSetTransient(QWaylandSurface *parentSurface, const QPoint &relativeToParent, QWaylandShellSurface::FocusPolicy focusPolicy);
     void onSetPopup(QWaylandInputDevice *inputDevice, QWaylandSurface *parent, const QPoint &relativeToParent);
+
+    void onSubsurfaceChanged(QWaylandSurface *child, QWaylandSurface *parent);
+    void onSubsurfacePositionChanged(const QPoint &position);
 
     void updateCursor();
 private:

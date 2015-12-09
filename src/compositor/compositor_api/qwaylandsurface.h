@@ -129,12 +129,16 @@ Q_SIGNALS:
     void mappedChanged();
     void damaged(const QRegion &rect);
     void parentChanged(QWaylandSurface *newParent, QWaylandSurface *oldParent);
+    void childAdded(QWaylandSurface *child);
     void sizeChanged();
     void offsetForNextFrame(const QPoint &offset);
     void contentOrientationChanged();
     void pong();
     void surfaceDestroyed();
     void originChanged();
+    void subsurfacePositionChanged(const QPoint &position);
+    void subsurfacePlaceAbove(QWaylandSurface *sibling);
+    void subsurfacePlaceBelow(QWaylandSurface *sibling);
 
     void configure(bool hasBuffer);
     void redraw();

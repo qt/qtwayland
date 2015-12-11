@@ -61,6 +61,7 @@
 
 #include <QGuiApplication>
 #include <qpa/qwindowsysteminterface.h>
+#include <QtGui/private/qwindow_p.h>
 
 #include <QtCore/QDebug>
 
@@ -91,6 +92,7 @@ QWaylandWindow::QWaylandWindow(QWindow *window)
     , mState(Qt::WindowNoState)
     , mMask()
     , mBackingStore(Q_NULLPTR)
+    , mUpdateRequested(false)
 {
     static WId id = 1;
     mWindowId = id++;
@@ -431,10 +433,20 @@ void QWaylandWindow::requestResize()
 
 void QWaylandWindow::attach(QWaylandBuffer *buffer, int x, int y)
 {
-    if (buffer)
+    if (mFrameCallback) {
+        wl_callback_destroy(mFrameCallback);
+        mFrameCallback = 0;
+    }
+
+    if (buffer) {
+        mFrameCallback = frame();
+        wl_callback_add_listener(mFrameCallback, &QWaylandWindow::callbackListener, this);
+        mWaitingForFrameSync = true;
+
         attach(buffer->buffer(), x, y);
-    else
+    } else {
         QtWayland::wl_surface::attach(0, 0, 0);
+    }
 }
 
 void QWaylandWindow::attachOffset(QWaylandBuffer *buffer)
@@ -445,13 +457,6 @@ void QWaylandWindow::attachOffset(QWaylandBuffer *buffer)
 
 void QWaylandWindow::damage(const QRect &rect)
 {
-    //We have to do sync stuff before calling damage, or we might
-    //get a frame callback before we get the timestamp
-    if (!mWaitingForFrameSync) {
-        mFrameCallback = frame();
-        wl_callback_add_listener(mFrameCallback,&QWaylandWindow::callbackListener,this);
-        mWaitingForFrameSync = true;
-    }
     damage(rect.x(), rect.y(), rect.width(), rect.height());
 }
 
@@ -463,12 +468,14 @@ void QWaylandWindow::frameCallback(void *data, struct wl_callback *callback, uin
 {
     Q_UNUSED(time);
     QWaylandWindow *self = static_cast<QWaylandWindow*>(data);
-    if (callback != self->mFrameCallback) // might be a callback caused by the shm backingstore
-        return;
+
     self->mWaitingForFrameSync = false;
-    if (self->mFrameCallback) {
-        wl_callback_destroy(self->mFrameCallback);
-        self->mFrameCallback = 0;
+    wl_callback_destroy(callback);
+    self->mFrameCallback = 0;
+    if (self->mUpdateRequested) {
+        QWindowPrivate *w = QWindowPrivate::get(self->window());
+        w->deliverUpdateRequest();
+        self->mUpdateRequested = false;
     }
 }
 
@@ -869,6 +876,14 @@ QVariant QWaylandWindow::property(const QString &name)
 QVariant QWaylandWindow::property(const QString &name, const QVariant &defaultValue)
 {
     return m_properties.value(name, defaultValue);
+}
+
+void QWaylandWindow::requestUpdate()
+{
+    if (!mFrameCallback)
+        QPlatformWindow::requestUpdate();
+    else
+        mUpdateRequested = true;
 }
 
 }

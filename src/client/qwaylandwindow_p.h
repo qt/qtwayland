@@ -199,6 +199,8 @@ public:
     bool setKeyboardGrabEnabled(bool) Q_DECL_OVERRIDE { return false; }
     void propagateSizeHints() Q_DECL_OVERRIDE { }
 
+    void requestUpdate() Q_DECL_OVERRIDE;
+
 public slots:
     void requestResize();
 
@@ -244,6 +246,8 @@ private:
     void reset();
 
     void handleMouseEventWithDecoration(QWaylandInputDevice *inputDevice, const QWaylandPointerEvent &e);
+
+    bool mUpdateRequested;
 
     static const wl_callback_listener callbackListener;
     static void frameCallback(void *data, struct wl_callback *wl_callback, uint32_t time);

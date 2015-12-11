@@ -56,6 +56,7 @@ QWaylandXCompositeEGLWindow::QWaylandXCompositeEGLWindow(QWindow *window, QWayla
     , m_xWindow(0)
     , m_config(q_configFromGLFormat(glxIntegration->eglDisplay(), window->format(), true, EGL_WINDOW_BIT | EGL_PIXMAP_BIT))
     , m_surface(0)
+    , mBuffer(0)
 {
 }
 

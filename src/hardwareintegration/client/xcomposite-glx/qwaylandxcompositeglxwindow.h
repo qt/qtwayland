@@ -65,6 +65,7 @@ private:
 
     Window m_xWindow;
     GLXFBConfig m_config;
+    QWaylandBuffer *mBuffer;
 };
 
 }

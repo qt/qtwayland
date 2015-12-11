@@ -74,7 +74,6 @@ QWaylandWindow::QWaylandWindow(QWindow *window)
     , mMouseEventsInContentArea(false)
     , mMousePressedInContentArea(Qt::NoButton)
     , m_cursorShape(Qt::ArrowCursor)
-    , mBuffer(0)
     , mWaitingForFrameSync(false)
     , mFrameCallback(0)
     , mRequestResizeSent(false)
@@ -412,9 +411,8 @@ void QWaylandWindow::requestResize()
 
 void QWaylandWindow::attach(QWaylandBuffer *buffer, int x, int y)
 {
-    mBuffer = buffer;
-    if (mBuffer)
-        attach(mBuffer->buffer(), x, y);
+    if (buffer)
+        attach(buffer->buffer(), x, y);
     else
         QtWayland::wl_surface::attach(0, 0, 0);
 }
@@ -423,11 +421,6 @@ void QWaylandWindow::attachOffset(QWaylandBuffer *buffer)
 {
     attach(buffer, mOffset.x(), mOffset.y());
     mOffset = QPoint();
-}
-
-QWaylandBuffer *QWaylandWindow::attached() const
-{
-    return mBuffer;
 }
 
 void QWaylandWindow::damage(const QRect &rect)
@@ -439,9 +432,7 @@ void QWaylandWindow::damage(const QRect &rect)
         wl_callback_add_listener(mFrameCallback,&QWaylandWindow::callbackListener,this);
         mWaitingForFrameSync = true;
     }
-    if (mBuffer) {
-        damage(rect.x(), rect.y(), rect.width(), rect.height());
-    }
+    damage(rect.x(), rect.y(), rect.width(), rect.height());
 }
 
 const wl_callback_listener QWaylandWindow::callbackListener = {

@@ -73,6 +73,7 @@ SOURCES +=  qwaylandintegration.cpp \
             qwaylandwindowmanagerintegration.cpp \
             qwaylandinputcontext.cpp \
             qwaylanddatadevice.cpp \
+            qwaylandbuffer.cpp \
 
 HEADERS +=  qwaylandintegration_p.h \
             qwaylandnativeinterface_p.h \

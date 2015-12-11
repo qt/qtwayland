@@ -1,6 +1,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2015 The Qt Company Ltd.
+** Copyright (C) 2015 Giulio Camuffo.
 ** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the plugins of the Qt Toolkit.
@@ -31,46 +32,41 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDXCOMPOSITEEGLWINDOW_H
-#define QWAYLANDXCOMPOSITEEGLWINDOW_H
+#include "qwaylandbuffer_p.h"
 
-#include <QtWaylandClient/private/qwaylandwindow_p.h>
-#include <QtWaylandClient/private/qwaylandbuffer_p.h>
-
-#include "qwaylandxcompositeeglclientbufferintegration.h"
-#include "qwaylandxcompositeeglcontext.h"
+#include <QDebug>
 
 QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
 
-class QWaylandXCompositeEGLWindow : public QWaylandWindow
+QWaylandBuffer::QWaylandBuffer()
+              : mBuffer(0)
+              , mBusy(false)
 {
-public:
-    QWaylandXCompositeEGLWindow(QWindow *window, QWaylandXCompositeEGLClientBufferIntegration *glxIntegration);
-    WindowType windowType() const;
+}
 
-    void setGeometry(const QRect &rect);
+QWaylandBuffer::~QWaylandBuffer()
+{
+    if (mBuffer)
+        wl_buffer_destroy(mBuffer);
+}
 
-    EGLSurface eglSurface() const;
+void QWaylandBuffer::init(wl_buffer *buf)
+{
+    mBuffer = buf;
+    wl_buffer_add_listener(buf, &listener, this);
+}
 
-    QWaylandBuffer *buffer() { return m_buffer; }
+void QWaylandBuffer::release(void *data, wl_buffer *)
+{
+    static_cast<QWaylandBuffer *>(data)->mBusy = false;
+}
 
-private:
-    void createEglSurface();
-
-    QWaylandXCompositeEGLClientBufferIntegration *m_glxIntegration;
-    QWaylandXCompositeEGLContext *m_context;
-    QWaylandBuffer *m_buffer;
-
-    Window m_xWindow;
-    EGLConfig m_config;
-    EGLSurface m_surface;
-    QWaylandBuffer *mBuffer;
+const wl_buffer_listener QWaylandBuffer::listener = {
+    QWaylandBuffer::release
 };
 
 }
 
 QT_END_NAMESPACE
-
-#endif // QWAYLANDXCOMPOSITEEGLWINDOW_H

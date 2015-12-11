@@ -40,7 +40,7 @@ examples/wayland/server-buffer/compositor/qwayland-server-*.cpp
 examples/wayland/server-buffer/compositor/qwayland-server-*.h
 examples/wayland/server-buffer/compositor/*-server-protocol.h
 examples/wayland/server-buffer/compositor/*-protocol.c
-src/client/qwayland*.cpp
+src/client/qwayland-*.cpp
 src/client/*-protocol.c
 src/compositor/*-server-protocol.h
 src/compositor/*-protocol.c

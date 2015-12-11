@@ -38,7 +38,7 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.0
+import QtQuick 2.5
 import QtQuick.Window 2.2
 import QtWayland.Compositor 1.0
 
@@ -74,6 +74,10 @@ WaylandOutput {
 
                 inputDevice: output.compositor.defaultInputDevice
             }
+        }
+        Shortcut {
+            sequence: "Ctrl+Alt+Backspace"
+            onActivated: Qt.quit()
         }
     }
 }

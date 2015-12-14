@@ -67,7 +67,7 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQuickItem : public QQuickItem
     Q_PROPERTY(bool inputEventsEnabled READ inputEventsEnabled WRITE setInputEventsEnabled NOTIFY inputEventsEnabledChanged)
     Q_PROPERTY(bool focusOnClick READ focusOnClick WRITE setFocusOnClick NOTIFY focusOnClickChanged)
     Q_PROPERTY(bool sizeFollowsSurface READ sizeFollowsSurface WRITE setSizeFollowsSurface NOTIFY sizeFollowsSurfaceChanged)
-
+    Q_PROPERTY(QObject *subsurfaceHandler READ subsurfaceHandler WRITE setSubsurfaceHandler NOTIFY subsurfaceHandlerChanged)
 public:
     QWaylandQuickItem(QQuickItem *parent = 0);
     ~QWaylandQuickItem();
@@ -104,6 +104,9 @@ public:
     Q_INVOKABLE QVariant inputMethodQuery(Qt::InputMethodQuery query, QVariant argument) const;
 #endif
 
+    QObject *subsurfaceHandler() const;
+    void setSubsurfaceHandler(QObject*);
+
 protected:
     void mousePressEvent(QMouseEvent *event) Q_DECL_OVERRIDE;
     void mouseMoveEvent(QMouseEvent *event) Q_DECL_OVERRIDE;
@@ -138,6 +141,8 @@ private Q_SLOTS:
     void updateBuffer(bool hasBuffer);
     void updateWindow();
     void beforeSync();
+    void handleSubsurfaceAdded(QWaylandSurface *childSurface);
+    void handleSubsurfacePosition(const QPoint &pos);
 #ifndef QT_NO_IM
     void updateInputMethod(Qt::InputMethodQueries queries);
 #endif
@@ -152,7 +157,7 @@ Q_SIGNALS:
     void mouseMove(const QPointF &windowPosition);
     void mouseRelease();
     void sizeFollowsSurfaceChanged();
-
+    void subsurfaceHandlerChanged();
 protected:
     QSGNode *updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *) Q_DECL_OVERRIDE;
 

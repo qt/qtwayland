@@ -119,6 +119,7 @@ public:
 
     QQuickWindow *connectedWindow;
     QWaylandSurface::Origin origin;
+    QPointer<QObject> subsurfaceHandler;
 };
 
 QT_END_NAMESPACE

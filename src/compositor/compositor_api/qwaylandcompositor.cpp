@@ -138,7 +138,8 @@ QWaylandCompositorPrivate::QWaylandCompositorPrivate(QWaylandCompositor *composi
     , retainSelection(false)
     , initialized(false)
 {
-    display = static_cast<wl_display*>(QGuiApplication::platformNativeInterface()->nativeResourceForIntegration("server_wl_display"));
+    if (QGuiApplication::platformNativeInterface())
+        display = static_cast<wl_display*>(QGuiApplication::platformNativeInterface()->nativeResourceForIntegration("server_wl_display"));
     if (!display)
         display = wl_display_create();
     eventHandler.reset(new QtWayland::WindowSystemEventHandler(compositor));

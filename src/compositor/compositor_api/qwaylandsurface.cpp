@@ -452,7 +452,7 @@ bool QWaylandSurface::isInitialized() const
 QWaylandClient *QWaylandSurface::client() const
 {
     Q_D(const QWaylandSurface);
-    if (isDestroyed() || !compositor()->clients().contains(d->client))
+    if (isDestroyed() || !compositor() || !compositor()->clients().contains(d->client))
         return Q_NULLPTR;
 
     return d->client;

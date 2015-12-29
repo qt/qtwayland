@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Klarälvdalens Datakonsult AB (KDAB).
+** Copyright (C) 2016 Klarälvdalens Datakonsult AB, a KDAB Group company, info@kdab.com
 ** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the QtWaylandCompositor module of the Qt Toolkit.
@@ -34,8 +34,8 @@
 **
 ****************************************************************************/
 
-#ifndef QTWAYLAND_QWLINPUTPANEL_P_H
-#define QTWAYLAND_QWLINPUTPANEL_P_H
+#ifndef QWAYLANDINPUTMETHODCONTROL_P_H
+#define QWAYLANDINPUTMETHODCONTROL_P_H
 
 //
 //  W A R N I N G
@@ -49,51 +49,32 @@
 //
 
 #include <QtWaylandCompositor/qwaylandexport.h>
-#include <QtWaylandCompositor/qwaylandinputpanel.h>
+#include <QtWaylandCompositor/qwaylandinputmethodcontrol.h>
 
-#include <QtWaylandCompositor/private/qwaylandextension_p.h>
-#include <QtWaylandCompositor/private/qwayland-server-input-method.h>
-
-#include <QRect>
-#include <QScopedPointer>
+#include <QtCore/private/qobject_p.h>
 
 QT_BEGIN_NAMESPACE
 
-namespace QtWayland {
-class TextInput;
-}
+class QWaylandCompositor;
+class QWaylandInputDevice;
+class QWaylandSurface;
+class QWaylandTextInput;
 
-
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandInputPanelPrivate : public QWaylandExtensionTemplatePrivate, public QtWaylandServer::wl_input_panel
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandInputMethodControlPrivate : public QObjectPrivate
 {
-    Q_DECLARE_PUBLIC(QWaylandInputPanel)
+    Q_DECLARE_PUBLIC(QWaylandInputMethodControl)
+
 public:
-    QWaylandInputPanelPrivate(QWaylandCompositor *compositor);
-    ~QWaylandInputPanelPrivate();
+    explicit QWaylandInputMethodControlPrivate(QWaylandSurface *surface);
 
-    QWaylandInputPanel *waylandInputPanel() const;
+    QWaylandTextInput *textInput() const;
 
-    QWaylandSurface *focus() const;
-    void setFocus(QWaylandSurface *focus);
-
-    bool inputPanelVisible() const;
-    void setInputPanelVisible(bool inputPanelVisible);
-
-    QRect cursorRectangle() const;
-    void setCursorRectangle(const QRect &cursorRectangle);
-
-    static QWaylandInputPanelPrivate *findIn(QWaylandObject *container);
-protected:
-    void input_panel_get_input_panel_surface(Resource *resource, uint32_t id, struct ::wl_resource *surface) Q_DECL_OVERRIDE;
-
-private:
-    QWaylandCompositor *m_compositor;
-
-    QWaylandSurface *m_focus;
-    bool m_inputPanelVisible;
-    QRect m_cursorRectangle;
+    QWaylandCompositor *compositor;
+    QWaylandInputDevice *inputDevice;
+    QWaylandSurface *surface;
+    bool enabled;
 };
 
 QT_END_NAMESPACE
 
-#endif // QTWAYLAND_QWLINPUTPANEL_P_H
+#endif // QWAYLANDINPUTMETHODCONTROL_P_H

@@ -43,6 +43,7 @@
 #include "wayland_wrapper/qwlregion_p.h"
 
 #include "extensions/qwlextendedsurface_p.h"
+#include "qwaylandinputmethodcontrol_p.h"
 
 #include <QtWaylandCompositor/QWaylandCompositor>
 #include <QtWaylandCompositor/QWaylandClient>
@@ -124,13 +125,13 @@ QWaylandSurfacePrivate::QWaylandSurfacePrivate()
     , client(Q_NULLPTR)
     , buffer(0)
     , role(0)
-    , inputPanelSurface(0)
     , inputRegion(infiniteRegion())
     , isCursorSurface(false)
     , destroyed(false)
     , mapped(false)
     , isInitialized(false)
     , contentOrientation(Qt::PrimaryOrientation)
+    , inputMethodControl(Q_NULLPTR)
     , subsurface(0)
 {
     pending.buffer = 0;
@@ -426,6 +427,7 @@ void QWaylandSurface::initialize(QWaylandCompositor *compositor, QWaylandClient 
     d->client = client;
     d->init(client->client(), id, version);
     d->isInitialized = true;
+    d->inputMethodControl = new QWaylandInputMethodControl(this);
 #ifndef QT_NO_DEBUG
     QWaylandSurfacePrivate::removeUninitializedSurface(d);
 #endif
@@ -588,16 +590,6 @@ void QWaylandSurface::sendFrameCallbacks()
 }
 
 /*!
- * Returns true if the QWaylandSurface has an input panel surface. Otherwise returns false.
- */
-bool QWaylandSurface::hasInputPanelSurface() const
-{
-    Q_D(const QWaylandSurface);
-
-    return d->inputPanelSurface != 0;
-}
-
-/*!
  * Returns true if the QWaylandSurface's input region contains the point \a p.
  * Otherwise returns false.
  */
@@ -658,6 +650,12 @@ bool QWaylandSurface::isCursorSurface() const
 {
     Q_D(const QWaylandSurface);
     return d->isCursorSurface;
+}
+
+QWaylandInputMethodControl *QWaylandSurface::inputMethodControl() const
+{
+    Q_D(const QWaylandSurface);
+    return d->inputMethodControl;
 }
 
 /*!

@@ -51,6 +51,7 @@
 #include <QtWaylandCompositor/QWaylandResource>
 
 #include <QtWaylandCompositor/QWaylandWlShell>
+#include <QtWaylandCompositor/QWaylandTextInputManager>
 
 #include <QtWaylandCompositor/qwaylandexport.h>
 #include "qwaylandmousetracker_p.h"
@@ -60,6 +61,8 @@ QT_BEGIN_NAMESPACE
 Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CLASS(QWaylandQuickCompositor)
 Q_COMPOSITOR_DECLARE_QUICK_DATA_CLASS(QWaylandWlShell)
 Q_COMPOSITOR_DECLARE_QUICK_DATA_CLASS(QWaylandWlShellSurface)
+
+Q_COMPOSITOR_DECLARE_QUICK_DATA_CLASS(QWaylandTextInputManager)
 
 class QmlUrlResolver
 {
@@ -142,7 +145,7 @@ public:
         qmlRegisterType<QWaylandWlShellQuickData>(uri, 1, 0, "WlShell");
         qmlRegisterType<QWaylandWlShellSurfaceQuickData>(uri, 1, 0, "WlShellSurface");
         qmlRegisterType<QWaylandQuickWlShellSurfaceItem>(uri, 1, 0, "WlShellSurfaceItem");
-
+        qmlRegisterType<QWaylandTextInputManagerQuickData>(uri, 1, 0, "TextInputManager");
     }
 };
 //![class decl]

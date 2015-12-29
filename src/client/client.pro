@@ -39,7 +39,7 @@ WAYLANDCLIENTSOURCES += \
             ../extensions/touch-extension.xml \
             ../extensions/qtkey-extension.xml \
             ../extensions/windowmanager.xml \
-            ../3rdparty/protocol/text.xml \
+            ../3rdparty/protocol/text-input-unstable-v2.xml \
             ../3rdparty/protocol/xdg-shell.xml \
 
 SOURCES +=  qwaylandintegration.cpp \
@@ -66,6 +66,7 @@ SOURCES +=  qwaylandintegration.cpp \
             qwaylandqtkey.cpp \
             ../shared/qwaylandmimehelper.cpp \
             ../shared/qwaylandxkb.cpp \
+            ../shared/qwaylandinputmethodeventbuilder.cpp \
             qwaylandabstractdecoration.cpp \
             qwaylanddecorationfactory.cpp \
             qwaylanddecorationplugin.cpp \
@@ -100,6 +101,7 @@ HEADERS +=  qwaylandintegration_p.h \
             qwaylandqtkey_p.h \
             ../shared/qwaylandmimehelper.h \
             ../shared/qwaylandxkb.h \
+            ../shared/qwaylandinputmethodeventbuilder.h \
             qwaylandabstractdecoration_p.h \
             qwaylanddecorationfactory_p.h \
             qwaylanddecorationplugin_p.h \

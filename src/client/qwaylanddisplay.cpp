@@ -50,6 +50,7 @@
 #include "qwaylandxdgshell_p.h"
 #include "qwaylandxdgsurface_p.h"
 #include "qwaylandwlshellsurface_p.h"
+#include "qwaylandinputcontext_p.h"
 
 #include "qwaylandwindowmanagerintegration_p.h"
 #include "qwaylandshellintegration_p.h"
@@ -60,7 +61,7 @@
 #include "qwaylandtouch_p.h"
 #include "qwaylandqtkey_p.h"
 
-#include <QtWaylandClient/private/qwayland-text.h>
+#include <QtWaylandClient/private/qwayland-text-input-unstable-v2.h>
 #include <QtWaylandClient/private/qwayland-xdg-shell.h>
 
 #include <QtCore/QAbstractEventDispatcher>
@@ -281,8 +282,11 @@ void QWaylandDisplay::registry_global(uint32_t id, const QString &interface, uin
         mTouchExtension.reset(new QWaylandTouchExtension(this, id));
     } else if (interface == QStringLiteral("qt_key_extension")) {
         mQtKeyExtension.reset(new QWaylandQtKeyExtension(this, id));
-    } else if (interface == QStringLiteral("wl_text_input_manager")) {
-        mTextInputManager.reset(new QtWayland::wl_text_input_manager(registry, id, 1));
+    } else if (interface == QStringLiteral("zwp_text_input_manager_v2")) {
+        mTextInputManager.reset(new QtWayland::zwp_text_input_manager_v2(registry, id, 1));
+        foreach (QWaylandInputDevice *inputDevice, mInputDevices) {
+            inputDevice->setTextInput(new QWaylandTextInput(this, mTextInputManager->get_text_input(inputDevice->wl_seat())));
+        }
     } else if (interface == QStringLiteral("qt_hardware_integration")) {
         mHardwareIntegration.reset(new QWaylandHardwareIntegration(registry, id));
         // make a roundtrip here since we need to receive the events sent by

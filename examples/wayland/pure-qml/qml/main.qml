@@ -73,6 +73,11 @@ WaylandCompositor {
             Component.onCompleted: {
                 initialize();
             }
+        },
+        TextInputManager {
+            Component.onCompleted: {
+                initialize();
+            }
         }
     ]
 

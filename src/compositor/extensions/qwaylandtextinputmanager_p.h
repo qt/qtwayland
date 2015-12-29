@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Klarälvdalens Datakonsult AB (KDAB).
+** Copyright (C) 2013-2016 Klarälvdalens Datakonsult AB, a KDAB Group company, info@kdab.com
 ** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the QtWaylandCompositor module of the Qt Toolkit.
@@ -34,50 +34,36 @@
 **
 ****************************************************************************/
 
-#include "qwaylandinputpanel.h"
+#ifndef QWAYLANDTEXTINPUTMANAGER_P_H
+#define QWAYLANDTEXTINPUTMANAGER_P_H
 
-#include <QtWaylandCompositor/QWaylandCompositor>
+#include <QtWaylandCompositor/private/qwaylandextension_p.h>
 
-#include <private/qobject_p.h>
+#include <QtWaylandCompositor/private/qwayland-server-text-input-unstable-v2.h>
 
-#include "qwlinputpanel_p.h"
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists purely as an
+// implementation detail.  This header file may change from version to
+// version without notice, or even be removed.
+//
+// We mean it.
+//
 
 QT_BEGIN_NAMESPACE
 
-QWaylandInputPanel::QWaylandInputPanel(QWaylandCompositor *compositor)
-    : QWaylandExtensionTemplate(compositor, *new QWaylandInputPanelPrivate(compositor))
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandTextInputManagerPrivate : public QWaylandExtensionTemplatePrivate, public QtWaylandServer::zwp_text_input_manager_v2
 {
-}
+    Q_DECLARE_PUBLIC(QWaylandTextInputManager)
+public:
+    QWaylandTextInputManagerPrivate();
 
-QWaylandSurface *QWaylandInputPanel::focus() const
-{
-   Q_D(const QWaylandInputPanel);
-
-    return d->focus();
-}
-
-bool QWaylandInputPanel::visible() const
-{
-    Q_D(const QWaylandInputPanel);
-
-    return d->inputPanelVisible();
-}
-
-QRect QWaylandInputPanel::cursorRectangle() const
-{
-    Q_D(const QWaylandInputPanel);
-
-    return d->cursorRectangle();
-}
-
-const struct wl_interface *QWaylandInputPanel::interface()
-{
-    return QWaylandInputPanelPrivate::interface();
-}
-
-QByteArray QWaylandInputPanel::interfaceName()
-{
-    return QWaylandInputPanelPrivate::interfaceName();
-}
+protected:
+    void zwp_text_input_manager_v2_get_text_input(Resource *resource, uint32_t id, struct ::wl_resource *seat) Q_DECL_OVERRIDE;
+};
 
 QT_END_NAMESPACE
+
+#endif // QWAYLANDTEXTINPUTMANAGER_P_H

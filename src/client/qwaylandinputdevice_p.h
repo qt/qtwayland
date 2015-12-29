@@ -80,6 +80,7 @@ namespace QtWaylandClient {
 class QWaylandWindow;
 class QWaylandDisplay;
 class QWaylandDataDevice;
+class QWaylandTextInput;
 
 class Q_WAYLAND_CLIENT_EXPORT QWaylandInputDevice
                             : public QObject
@@ -107,6 +108,9 @@ public:
 
     void setDataDevice(QWaylandDataDevice *device);
     QWaylandDataDevice *dataDevice() const;
+
+    void setTextInput(QWaylandTextInput *textInput);
+    QWaylandTextInput *textInput() const;
 
     void removeMouseButtonFromState(Qt::MouseButton button);
 
@@ -137,6 +141,8 @@ private:
     Keyboard *mKeyboard;
     Pointer *mPointer;
     Touch *mTouch;
+
+    QWaylandTextInput *mTextInput;
 
     uint32_t mTime;
     uint32_t mSerial;

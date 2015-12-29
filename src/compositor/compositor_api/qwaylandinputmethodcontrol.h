@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Klarälvdalens Datakonsult AB (KDAB).
+** Copyright (C) 2016 Klarälvdalens Datakonsult AB, a KDAB Group company, info@kdab.com
 ** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the QtWaylandCompositor module of the Qt Toolkit.
@@ -34,31 +34,51 @@
 **
 ****************************************************************************/
 
-#include "qwltextinputmanager_p.h"
+#ifndef QWAYLANDINPUTMETHODCONTROL_H
+#define QWAYLANDINPUTMETHODCONTROL_H
 
-#include <QtWaylandCompositor/QWaylandCompositor>
-#include "qwltextinput_p.h"
+#include <QObject>
 
 QT_BEGIN_NAMESPACE
 
-namespace QtWayland {
+class QWaylandCompositor;
+class QWaylandInputMethodControlPrivate;
+class QWaylandSurface;
+class QInputMethodEvent;
 
-TextInputManager::TextInputManager(QWaylandCompositor *compositor)
-    : QWaylandExtensionTemplate(compositor)
-    , QtWaylandServer::wl_text_input_manager(compositor->display(), 1)
-    , m_compositor(compositor)
+class QWaylandInputMethodControl : public QObject
 {
-}
+    Q_OBJECT
+    Q_DECLARE_PRIVATE(QWaylandInputMethodControl)
+    Q_DISABLE_COPY(QWaylandInputMethodControl)
 
-TextInputManager::~TextInputManager()
-{
-}
+    Q_PROPERTY(bool enabled READ enabled WRITE setEnabled NOTIFY enabledChanged)
+public:
+    explicit QWaylandInputMethodControl(QWaylandSurface *surface);
 
-void TextInputManager::text_input_manager_create_text_input(Resource *resource, uint32_t id)
-{
-    new TextInput(this, m_compositor, resource->client(), id);
-}
+#ifndef QT_NO_IM
+    QVariant inputMethodQuery(Qt::InputMethodQuery query, QVariant argument) const;
+#endif
 
-} // namespace QtWayland
+    void inputMethodEvent(QInputMethodEvent *event);
+
+    bool enabled() const;
+    void setEnabled(bool enabled);
+
+    void setSurface(QWaylandSurface *surface);
+
+Q_SIGNALS:
+    void enabledChanged(bool enabled);
+#ifndef QT_NO_IM
+    void updateInputMethod(Qt::InputMethodQueries queries);
+#endif
+
+private:
+    void defaultInputDeviceChanged();
+    void surfaceEnabled(QWaylandSurface *surface);
+    void surfaceDisabled(QWaylandSurface *surface);
+};
 
 QT_END_NAMESPACE
+
+#endif // QWAYLANDINPUTMETHODCONTROL_H

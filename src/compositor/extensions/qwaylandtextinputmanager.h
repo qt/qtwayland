@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Klarälvdalens Datakonsult AB (KDAB).
+** Copyright (C) 2016 Klarälvdalens Datakonsult AB, a KDAB Group company, info@kdab.com
 ** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the QtWaylandCompositor module of the Qt Toolkit.
@@ -34,72 +34,31 @@
 **
 ****************************************************************************/
 
-#ifndef QTWAYLAND_QWLINPUTMETHOD_H
-#define QTWAYLAND_QWLINPUTMETHOD_H
+#ifndef QWAYLANDTEXTINPUTMANAGER_H
+#define QWAYLANDTEXTINPUTMANAGER_H
 
-//
-//  W A R N I N G
-//  -------------
-//
-// This file is not part of the Qt API.  It exists purely as an
-// implementation detail.  This header file may change from version to
-// version without notice, or even be removed.
-//
-// We mean it.
-//
-
-#include <QtWaylandCompositor/private/qwayland-server-input-method.h>
 #include <QtWaylandCompositor/QWaylandExtension>
-#include <QtWaylandCompositor/QWaylandInputDevice>
 
-#include <QObject>
-#include <QScopedPointer>
-
-#include <QtWaylandCompositor/QWaylandSurface>
+#include <QtCore/QSize>
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandInputDevice;
-class QWaylandCompositor;
+class QWaylandTextInputManagerPrivate;
 
-namespace QtWayland {
-
-class InputMethodContext;
-class TextInput;
-
-class InputMethod : public QWaylandExtensionTemplate<InputMethod> , public QtWaylandServer::wl_input_method
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandTextInputManager : public QWaylandExtensionTemplate<QWaylandTextInputManager>
 {
     Q_OBJECT
+    Q_DECLARE_PRIVATE(QWaylandTextInputManager)
 public:
-    explicit InputMethod(QWaylandInputDevice *seat);
-    ~InputMethod();
+    QWaylandTextInputManager();
+    QWaylandTextInputManager(QWaylandCompositor *compositor);
 
-    QWaylandCompositor *compositor() const { return m_seat->compositor(); }
+    void initialize() Q_DECL_OVERRIDE;
 
-    void activate(TextInput *textInput);
-    void deactivate();
-
-    bool isBound() const;
-
-    InputMethodContext *context() const;
-    TextInput *textInput() const;
-
-protected:
-    void input_method_bind_resource(Resource *resource);
-    void input_method_destroy_resource(Resource *resource);
-
-private Q_SLOTS:
-    void focusChanged(QWaylandSurface *surface);
-
-private:
-    QWaylandInputDevice *m_seat;
-    Resource *m_resource;
-    TextInput *m_textInput;
-    InputMethodContext *m_context;
+    static const struct wl_interface *interface();
+    static QByteArray interfaceName();
 };
-
-} // namespace QtWayland
 
 QT_END_NAMESPACE
 
-#endif // QTWAYLAND_QWLINPUTMETHOD_H
+#endif // QWAYLANDTEXTINPUTMANAGER_H

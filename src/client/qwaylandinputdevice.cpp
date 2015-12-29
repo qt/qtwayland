@@ -50,6 +50,7 @@
 #include "qwaylanddisplay_p.h"
 #include "qwaylandshmbackingstore_p.h"
 #include "../shared/qwaylandxkb.h"
+#include "qwaylandinputcontext_p.h"
 
 #include <QtGui/private/qpixmap_raster_p.h>
 #include <QtGui/private/qguiapplication_p.h>
@@ -185,6 +186,7 @@ QWaylandInputDevice::QWaylandInputDevice(QWaylandDisplay *display, int version, 
     , mKeyboard(0)
     , mPointer(0)
     , mTouch(0)
+    , mTextInput(0)
     , mTime(0)
     , mSerial(0)
     , mTouchDevice(0)
@@ -193,6 +195,9 @@ QWaylandInputDevice::QWaylandInputDevice(QWaylandDisplay *display, int version, 
         mDataDevice = mQDisplay->dndSelectionHandler()->getDataDevice(this);
     }
 
+    if (mQDisplay->textInputManager()) {
+        mTextInput = new QWaylandTextInput(mQDisplay, mQDisplay->textInputManager()->get_text_input(wl_seat()));
+    }
 }
 
 QWaylandInputDevice::~QWaylandInputDevice()
@@ -275,6 +280,16 @@ QWaylandDataDevice *QWaylandInputDevice::dataDevice() const
 {
     Q_ASSERT(mDataDevice);
     return mDataDevice;
+}
+
+void QWaylandInputDevice::setTextInput(QWaylandTextInput *textInput)
+{
+    mTextInput = textInput;
+}
+
+QWaylandTextInput *QWaylandInputDevice::textInput() const
+{
+    return mTextInput;
 }
 
 void QWaylandInputDevice::removeMouseButtonFromState(Qt::MouseButton button)
@@ -693,18 +708,8 @@ void QWaylandInputDevice::Keyboard::keyboard_key(uint32_t serial, uint32_t time,
 
     Qt::KeyboardModifiers modifiers = mParent->modifiers();
 
-    uint utf32 = xkb_keysym_to_utf32(sym);
-    if (utf32)
-        text = QString::fromUcs4(&utf32, 1);
-
+    text = QWaylandXkb::textFromKeysym(sym, modifiers);
     qtkey = QWaylandXkb::keysymToQtKey(sym, modifiers, text);
-
-
-    // Map control + letter to proper text
-    if (utf32 >= 'A' && utf32 <= '~' && (modifiers & Qt::ControlModifier)) {
-        utf32 &= ~0x60;
-        text = QString::fromUcs4(&utf32, 1);
-    }
 
     sendKey(window->window(), time, type, qtkey, modifiers, code, sym, mNativeModifiers, text);
 #else

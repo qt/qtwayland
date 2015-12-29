@@ -99,6 +99,11 @@ public:
     bool sizeFollowsSurface() const;
     void setSizeFollowsSurface(bool sizeFollowsSurface);
 
+#ifndef QT_NO_IM
+    QVariant inputMethodQuery(Qt::InputMethodQuery query) const Q_DECL_OVERRIDE;
+    Q_INVOKABLE QVariant inputMethodQuery(Qt::InputMethodQuery query, QVariant argument) const;
+#endif
+
 protected:
     void mousePressEvent(QMouseEvent *event) Q_DECL_OVERRIDE;
     void mouseMoveEvent(QMouseEvent *event) Q_DECL_OVERRIDE;
@@ -113,6 +118,10 @@ protected:
 
     void touchEvent(QTouchEvent *event) Q_DECL_OVERRIDE;
     void mouseUngrabEvent() Q_DECL_OVERRIDE;
+
+#ifndef QT_NO_IM
+    void inputMethodEvent(QInputMethodEvent *event) Q_DECL_OVERRIDE;
+#endif
 
     virtual void surfaceChangedEvent(QWaylandSurface *newSurface, QWaylandSurface *oldSurface);
 public Q_SLOTS:
@@ -129,6 +138,9 @@ private Q_SLOTS:
     void updateBuffer(bool hasBuffer);
     void updateWindow();
     void beforeSync();
+#ifndef QT_NO_IM
+    void updateInputMethod(Qt::InputMethodQueries queries);
+#endif
 
 Q_SIGNALS:
     void surfaceChanged();

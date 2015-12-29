@@ -56,7 +56,6 @@
 #include <QtWaylandCompositor/qwaylandsurface.h>
 #include <QtWaylandCompositor/qwaylandbufferref.h>
 
-#include <QtWaylandCompositor/private/qwlinputpanelsurface_p.h>
 #include <QtWaylandCompositor/private/qwlregion_p.h>
 
 #include <QtCore/QVector>
@@ -78,6 +77,7 @@ class QWaylandCompositor;
 class QWaylandSurface;
 class QWaylandView;
 class QWaylandSurfaceInterface;
+class QWaylandInputMethodControl;
 
 namespace QtWayland {
 class FrameCallback;
@@ -104,8 +104,6 @@ public:
     void removeFrameCallback(QtWayland::FrameCallback *callback);
 
     void notifyViewsAboutDestruction();
-
-    void setInputPanelSurface(QtWayland::InputPanelSurface *ips) { inputPanelSurface = ips; }
 
 #ifndef QT_NO_DEBUG
     static void addUninitializedSurface(QWaylandSurfacePrivate *surface);
@@ -161,8 +159,6 @@ public: //member variables
     QList<QtWayland::FrameCallback *> pendingFrameCallbacks;
     QList<QtWayland::FrameCallback *> frameCallbacks;
 
-    QtWayland::InputPanelSurface *inputPanelSurface;
-
     QRegion inputRegion;
     QRegion opaqueRegion;
 
@@ -175,6 +171,7 @@ public: //member variables
     bool isInitialized;
     Qt::ScreenOrientation contentOrientation;
     QWindow::Visibility visibility;
+    QWaylandInputMethodControl *inputMethodControl;
 
     class Subsurface : public QtWaylandServer::wl_subsurface
     {

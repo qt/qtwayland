@@ -76,7 +76,7 @@ namespace QtWayland {
     class qt_shell;
     class qt_sub_surface_extension;
     class qt_surface_extension;
-    class wl_text_input_manager;
+    class zwp_text_input_manager_v2;
     class xdg_shell;
 }
 
@@ -147,7 +147,7 @@ public:
 
     QtWayland::qt_surface_extension *windowExtension() const { return mWindowExtension.data(); }
     QWaylandTouchExtension *touchExtension() const { return mTouchExtension.data(); }
-    QtWayland::wl_text_input_manager *textInputManager() const { return mTextInputManager.data(); }
+    QtWayland::zwp_text_input_manager_v2 *textInputManager() const { return mTextInputManager.data(); }
     QWaylandHardwareIntegration *hardwareIntegration() const { return mHardwareIntegration.data(); }
 
     struct RegistryGlobal {
@@ -207,7 +207,7 @@ private:
     QScopedPointer<QWaylandTouchExtension> mTouchExtension;
     QScopedPointer<QWaylandQtKeyExtension> mQtKeyExtension;
     QScopedPointer<QWaylandWindowManagerIntegration> mWindowManagerIntegration;
-    QScopedPointer<QtWayland::wl_text_input_manager> mTextInputManager;
+    QScopedPointer<QtWayland::zwp_text_input_manager_v2> mTextInputManager;
     QScopedPointer<QWaylandHardwareIntegration> mHardwareIntegration;
     QSocketNotifier *mReadNotifier;
     int mFd;

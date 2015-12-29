@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Klarälvdalens Datakonsult AB (KDAB).
+** Copyright (C) 2013-2016 Klarälvdalens Datakonsult AB, a KDAB Group company, info@kdab.com
 ** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the QtWaylandCompositor module of the Qt Toolkit.
@@ -34,45 +34,53 @@
 **
 ****************************************************************************/
 
-#ifndef QTWAYLAND_QWLTEXTINPUTMANAGER_P_H
-#define QTWAYLAND_QWLTEXTINPUTMANAGER_P_H
+#ifndef QWAYLANDTEXTINPUT_H
+#define QWAYLANDTEXTINPUT_H
 
 #include <QtWaylandCompositor/QWaylandExtension>
-#include <QtWaylandCompositor/private/qwayland-server-text.h>
-
-//
-//  W A R N I N G
-//  -------------
-//
-// This file is not part of the Qt API.  It exists purely as an
-// implementation detail.  This header file may change from version to
-// version without notice, or even be removed.
-//
-// We mean it.
-//
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandCompositor;
+class QWaylandTextInputPrivate;
 
-namespace QtWayland {
+class QInputMethodEvent;
+class QKeyEvent;
+class QWaylandSurface;
 
-class TextInputManager : public QWaylandExtensionTemplate<TextInputManager>, public QtWaylandServer::wl_text_input_manager
+class QWaylandTextInput : public QWaylandExtensionTemplate<QWaylandTextInput>
 {
     Q_OBJECT
+    Q_DECLARE_PRIVATE(QWaylandTextInput)
 public:
-    TextInputManager(QWaylandCompositor *compositor);
-    ~TextInputManager();
+    explicit QWaylandTextInput(QWaylandObject *container, QWaylandCompositor *compositor);
+    ~QWaylandTextInput();
 
-protected:
-    void text_input_manager_create_text_input(Resource *resource, uint32_t id) Q_DECL_OVERRIDE;
+    void sendInputMethodEvent(QInputMethodEvent *event);
+    void sendKeyEvent(QKeyEvent *event);
+
+    QVariant inputMethodQuery(Qt::InputMethodQuery property, QVariant argument) const;
+
+    QWaylandSurface *focus() const;
+    void setFocus(QWaylandSurface *surface);
+
+    bool isSurfaceEnabled(QWaylandSurface *surface) const;
+
+    void add(::wl_client *client, uint32_t id, int version);
+    static const struct wl_interface *interface();
+    static QByteArray interfaceName();
+
+Q_SIGNALS:
+    void updateInputMethod(Qt::InputMethodQueries queries);
+    void surfaceEnabled(QWaylandSurface *surface);
+    void surfaceDisabled(QWaylandSurface *surface);
 
 private:
-    QWaylandCompositor *m_compositor;
+    void focusSurfaceDestroyed(void *);
+    void sendInputPanelState();
+    void sendTextDirection();
+    void sendLocale();
 };
-
-} // namespace QtWayland
 
 QT_END_NAMESPACE
 
-#endif // QTWAYLAND_QWLTEXTINPUTMANAGER_P_H
+#endif // QWAYLANDTEXTINPUT_H

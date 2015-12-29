@@ -85,6 +85,8 @@
 
 QT_BEGIN_NAMESPACE
 
+Q_LOGGING_CATEGORY(qLcCompositorInputMethods, "qt.compositor.input.methods")
+
 namespace QtWayland {
 
 class WindowSystemEventHandler : public QWindowSystemEventHandler

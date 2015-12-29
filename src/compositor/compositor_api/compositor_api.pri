@@ -14,7 +14,6 @@ HEADERS += \
     compositor_api/qwaylandpointer_p.h \
     compositor_api/qwaylandtouch.h \
     compositor_api/qwaylandtouch_p.h \
-    compositor_api/qwaylandinputpanel.h \
     compositor_api/qwaylandoutput.h \
     compositor_api/qwaylanddrag.h \
     compositor_api/qwaylandbufferref.h \
@@ -24,6 +23,8 @@ HEADERS += \
     compositor_api/qwaylandview_p.h \
     compositor_api/qwaylandresource.h \
     compositor_api/qwaylandsurfacegrabber.h \
+    compositor_api/qwaylandinputmethodcontrol.h \
+    compositor_api/qwaylandinputmethodcontrol_p.h
 
 SOURCES += \
     compositor_api/qwaylandcompositor.cpp \
@@ -33,7 +34,6 @@ SOURCES += \
     compositor_api/qwaylandkeyboard.cpp \
     compositor_api/qwaylandpointer.cpp \
     compositor_api/qwaylandtouch.cpp \
-    compositor_api/qwaylandinputpanel.cpp \
     compositor_api/qwaylandoutput.cpp \
     compositor_api/qwaylanddrag.cpp \
     compositor_api/qwaylandbufferref.cpp \
@@ -41,6 +41,7 @@ SOURCES += \
     compositor_api/qwaylandview.cpp \
     compositor_api/qwaylandresource.cpp \
     compositor_api/qwaylandsurfacegrabber.cpp \
+    compositor_api/qwaylandinputmethodcontrol.cpp
 
 QT += core-private
 

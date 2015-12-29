@@ -59,6 +59,7 @@ class QWaylandCompositor;
 class QWaylandBufferRef;
 class QWaylandView;
 class QWaylandSurfaceOp;
+class QWaylandInputMethodControl;
 
 class QWaylandSurfaceRole
 {
@@ -112,8 +113,6 @@ public:
 
     QWaylandCompositor *compositor() const;
 
-    bool hasInputPanelSurface() const;
-
     bool inputRegionContains(const QPoint &p) const;
 
     Q_INVOKABLE void destroy();
@@ -132,6 +131,8 @@ public:
 
     void markAsCursorSurface(bool cursorSurface);
     bool isCursorSurface() const;
+
+    QWaylandInputMethodControl *inputMethodControl() const;
 
 public Q_SLOTS:
     void updateSelection();

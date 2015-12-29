@@ -1,7 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
-** Copyright (C) 2016 Jolla Ltd
+** Copyright (C) 2016 Klarälvdalens Datakonsult AB, a KDAB Group company, info@kdab.com
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the plugins of the Qt Toolkit.
@@ -38,32 +37,51 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDXKB_H
-#define QWAYLANDXKB_H
+#ifndef QWAYLANDINPUTMETHODEVENTBUILDER_H
+#define QWAYLANDINPUTMETHODEVENTBUILDER_H
 
-#ifndef QT_NO_WAYLAND_XKB
-
-#include <Qt>
-#include <QEvent>
-#include <xkbcommon/xkbcommon.h>
+#include <QInputMethodEvent>
 
 QT_BEGIN_NAMESPACE
 
-class QKeyEvent;
-
-class QWaylandXkb
+class QWaylandInputMethodEventBuilder
 {
 public:
-    static int keysymToQtKey(xkb_keysym_t keysym, Qt::KeyboardModifiers &modifiers, const QString &text);
-    static Qt::KeyboardModifiers modifiers(struct xkb_state *state);
+    QWaylandInputMethodEventBuilder();
+    ~QWaylandInputMethodEventBuilder();
 
-    static QEvent::Type toQtEventType(uint32_t state);
-    static QString textFromKeysym(uint32_t keysym, Qt::KeyboardModifiers modifiers);
-    static QVector<xkb_keysym_t> toKeysym(QKeyEvent *event);
+    void reset();
+
+    void setCursorPosition(int32_t index, int32_t anchor);
+    void setDeleteSurroundingText(uint32_t beforeLength, uint32_t afterLength);
+
+    void addPreeditStyling(uint32_t index, uint32_t length, uint32_t style);
+    void setPreeditCursor(int32_t index);
+
+    QInputMethodEvent buildCommit(const QString &text);
+    QInputMethodEvent buildPreedit(const QString &text);
+
+    static int indexFromWayland(const QString &str, int utf8Index, int baseIndex = 0);
+private:
+    QPair<int, int> replacementForDeleteSurrounding();
+
+    int32_t m_anchor;
+    int32_t m_cursor;
+    uint32_t m_deleteBefore;
+    uint32_t m_deleteAfter;
+
+    int32_t m_preeditCursor;
+    QList<QInputMethodEvent::Attribute> m_preeditStyles;
 };
+
+struct QWaylandInputMethodContentType {
+    uint32_t hint;
+    uint32_t purpose;
+
+    static QWaylandInputMethodContentType convert(Qt::InputMethodHints hints);
+};
+
 
 QT_END_NAMESPACE
 
-#endif // QT_NO_WAYLAND_XKB
-
-#endif
+#endif // QWAYLANDINPUTMETHODEVENTBUILDER_H

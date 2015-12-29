@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2015 The Qt Company Ltd.
+** Copyright (C) 2016 Klarälvdalens Datakonsult AB, a KDAB Group company, info@kdab.com
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the examples of the Qt Toolkit.
@@ -39,49 +39,13 @@
 ****************************************************************************/
 
 import QtQuick 2.5
-import QtQuick.Window 2.2
-import QtWayland.Compositor 1.0
+import QtQuick.Enterprise.VirtualKeyboard 2.0
 
-WaylandOutput {
-    id: output
-    property alias surfaceArea: background
-    window: Window {
-        id: screen
-
-        property QtObject output
-
-        width: 1024
-        height: 760
-        visible: true
-
-        WaylandMouseTracker {
-            id: mouseTracker
-            anchors.fill: parent
-
-            enableWSCursor: true
-            Image {
-                id: background
-                anchors.fill: parent
-                fillMode: Image.Tile
-                source: "qrc:/images/background.jpg"
-                smooth: true
-            }
-            Loader {
-                anchors.fill: parent
-                source: "Keyboard.qml"
-            }
-            WaylandCursorItem {
-                id: cursor
-                inputEventsEnabled: false
-                x: mouseTracker.mouseX - hotspotX
-                y: mouseTracker.mouseY - hotspotY
-
-                inputDevice: output.compositor.defaultInputDevice
-            }
-        }
-        Shortcut {
-            sequence: "Ctrl+Alt+Backspace"
-            onActivated: Qt.quit()
-        }
-    }
+InputPanel {
+    id: inputPanel
+    visible: active
+    y: active ? parent.height - inputPanel.height : parent.height
+    anchors.left: parent.left
+    anchors.right: parent.right
 }
+

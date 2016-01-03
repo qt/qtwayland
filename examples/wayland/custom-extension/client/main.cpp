@@ -66,9 +66,7 @@ public:
 
     qDebug() << "************* The Qt Custom Extension Example Plugin is active ************";
 
-    QWaylandIntegration *integration = new QWaylandIntegration();
-
-    extension_global = new CustomExtension(integration);
+    extension_global = new CustomExtension();
 
     // We need a way for client apps to get hold of the extension. The proper API for this is
     // QPlatformNativeInterface, but that's a low-level API using void*. There will be a nice
@@ -77,7 +75,7 @@ public:
     extension_global->setParent(qApp);
     extension_global->setObjectName("qt_example_custom_extension");
 
-    return integration;
+    return extension_global->integration();
 }
 
 }

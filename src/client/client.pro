@@ -111,6 +111,7 @@ HEADERS +=  qwaylandintegration_p.h \
 include(hardwareintegration/hardwareintegration.pri)
 include(shellintegration/shellintegration.pri)
 include(inputdeviceintegration/inputdeviceintegration.pri)
+include(global/global.pri)
 
 CONFIG += generated_privates
 MODULE_PLUGIN_TYPES = \

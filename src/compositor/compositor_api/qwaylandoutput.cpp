@@ -358,7 +358,14 @@ QString QWaylandOutput::manufacturer() const
 
 void QWaylandOutput::setManufacturer(const QString &manufacturer)
 {
-    d_func()->manufacturer = manufacturer;
+    Q_D(QWaylandOutput);
+
+    if (d->manufacturer == manufacturer)
+        return;
+
+    d->manufacturer = manufacturer;
+    d->sendGeometryInfo();
+    Q_EMIT manufacturerChanged();
 }
 
 /*!
@@ -379,7 +386,14 @@ QString QWaylandOutput::model() const
 
 void QWaylandOutput::setModel(const QString &model)
 {
-    d_func()->model = model;
+    Q_D(QWaylandOutput);
+
+    if (d->model == model)
+        return;
+
+    d->model = model;
+    d->sendGeometryInfo();
+    Q_EMIT modelChanged();
 }
 
 /*!

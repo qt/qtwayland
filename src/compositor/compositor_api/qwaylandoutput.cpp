@@ -140,7 +140,7 @@ void QWaylandOutputPrivate::sendGeometryInfo()
 {
     Q_FOREACH (Resource *resource, resourceMap().values()) {
         send_geometry(resource->handle,
-                      position.x(), position.x(),
+                      position.x(), position.y(),
                       physicalSize.width(), physicalSize.height(),
                       toWlSubpixel(subpixel), manufacturer, model,
                       toWlTransform(transform));

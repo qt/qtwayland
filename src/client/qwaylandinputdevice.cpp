@@ -645,6 +645,13 @@ void QWaylandInputDevice::Keyboard::keyboard_key(uint32_t serial, uint32_t time,
 
     qtkey = QWaylandXkb::keysymToQtKey(sym, modifiers, text);
 
+
+    // Map control + letter to proper text
+    if (utf32 >= 'A' && utf32 <= '~' && (modifiers & Qt::ControlModifier)) {
+        utf32 &= ~0x60;
+        text = QString::fromUcs4(&utf32, 1);
+    }
+
     QWindowSystemInterface::handleExtendedKeyEvent(window->window(),
                                                     time, type, qtkey,
                                                     modifiers,

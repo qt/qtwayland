@@ -88,8 +88,8 @@ QWaylandWindow::QWaylandWindow(QWindow *window)
 {
     static WId id = 1;
     mWindowId = id++;
-
-    initWindow();
+    if (window->type() != Qt::Desktop)
+        initWindow();
 }
 
 QWaylandWindow::~QWaylandWindow()

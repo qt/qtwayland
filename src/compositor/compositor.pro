@@ -1,6 +1,8 @@
 TARGET  = QtWaylandCompositor
 QT = core gui-private
 
+qtHaveModule(quick): QT += quick
+
 contains(QT_CONFIG, opengl):MODULE_DEFINES = QT_COMPOSITOR_WAYLAND_GL
 
 MODULE=waylandcompositor

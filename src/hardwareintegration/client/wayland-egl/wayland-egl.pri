@@ -3,7 +3,7 @@ INCLUDEPATH += $$PWD
     CONFIG += link_pkgconfig
     PKGCONFIG += wayland-client wayland-egl
 } else {
-    LIBS += -lwayland-egl
+    LIBS += -lwayland-client -lwayland-egl
 }
 
 CONFIG += egl

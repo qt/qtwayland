@@ -253,6 +253,8 @@ void QWaylandInputDevice::handleWindowDestroyed(QWaylandWindow *window)
         mKeyboard->mFocus = 0;
         mKeyboard->stopRepeat();
     }
+    if (mTouch && window == mTouch->mFocus)
+        mTouch->mFocus = 0;
 }
 
 void QWaylandInputDevice::setDataDevice(QWaylandDataDevice *device)
@@ -739,6 +741,9 @@ void QWaylandInputDevice::Touch::touch_down(uint32_t serial,
                                      wl_fixed_t x,
                                      wl_fixed_t y)
 {
+    if (!surface)
+        return;
+
     mParent->mTime = time;
     mParent->mSerial = serial;
     mFocus = QWaylandWindow::fromWlSurface(surface);

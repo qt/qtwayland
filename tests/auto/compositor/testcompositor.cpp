@@ -27,21 +27,43 @@
 ****************************************************************************/
 
 #include "testcompositor.h"
+#include "testinputdevice.h"
+#include "testkeyboardgrabber.h"
 
-TestCompositor::TestCompositor(QWaylandCompositor::ExtensionFlag flags) : QWaylandCompositor(0, flags)
+TestCompositor::TestCompositor(bool createInputDev)
+    : QWaylandCompositor()
+    , shell(new QWaylandShell(this))
+    , m_createInputDevice(createInputDev)
 {
-    createOutput(0, "", "");
-    addDefaultShell();
 }
 
-void TestCompositor::surfaceCreated(QWaylandSurface *surface)
+void TestCompositor::create()
+{
+    new QWaylandOutput(this, Q_NULLPTR);
+    QWaylandCompositor::create();
+
+    connect(this, &QWaylandCompositor::surfaceCreated, this, &TestCompositor::onSurfaceCreated);
+    connect(this, &QWaylandCompositor::surfaceAboutToBeDestroyed, this, &TestCompositor::onSurfaceAboutToBeDestroyed);
+}
+
+void TestCompositor::onSurfaceCreated(QWaylandSurface *surface)
 {
     surfaces << surface;
 }
 
-void TestCompositor::surfaceAboutToBeDestroyed(QWaylandSurface *surface)
+void TestCompositor::onSurfaceAboutToBeDestroyed(QWaylandSurface *surface)
 {
     surfaces.removeOne(surface);
 }
 
+QWaylandInputDevice *TestCompositor::createInputDevice()
+{
+    if (m_createInputDevice)
+        return new TestInputDevice(this, QWaylandInputDevice::Pointer | QWaylandInputDevice::Keyboard);
+    else
+        return QWaylandCompositor::createInputDevice();
+}
 
+QWaylandKeyboard *TestCompositor::createKeyboardDevice(QWaylandInputDevice *inputDevice) {
+    return new TestKeyboardGrabber(inputDevice);
+}

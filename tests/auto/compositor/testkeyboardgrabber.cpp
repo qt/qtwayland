@@ -28,33 +28,31 @@
 
 #include "testkeyboardgrabber.h"
 
-namespace QtWayland {
-    KeyboardGrabber::~KeyboardGrabber() {}
+TestKeyboardGrabber::TestKeyboardGrabber(QWaylandInputDevice *inputDevice)
+    : QWaylandKeyboard(inputDevice)
+{
 }
 
-void TestKeyboardGrabber::focused(QtWayland::Surface *surface)
+bool TestKeyboardGrabber::setFocus(QWaylandSurface *surface)
 {
-    Q_UNUSED(surface);
     Q_EMIT focusedCalled();
+    return QWaylandKeyboard::setFocus(surface);
 }
 
-void TestKeyboardGrabber::key(uint32_t serial, uint32_t time, uint32_t key, uint32_t state)
+void TestKeyboardGrabber::sendKeyPressEvent(uint code)
 {
-    Q_UNUSED(serial);
-    Q_UNUSED(time);
-    Q_UNUSED(key);
-    Q_UNUSED(state);
-    Q_EMIT keyCalled();
+    Q_EMIT keyPressCalled();
+    QWaylandKeyboard::sendKeyPressEvent(code);
 }
 
-void TestKeyboardGrabber::modifiers(uint32_t serial, uint32_t mods_depressed,
-        uint32_t mods_latched, uint32_t mods_locked, uint32_t group)
+void TestKeyboardGrabber::sendKeyReleaseEvent(uint code)
 {
-    Q_UNUSED(serial);
-    Q_UNUSED(mods_depressed);
-    Q_UNUSED(mods_latched);
-    Q_UNUSED(mods_locked);
-    Q_UNUSED(group);
+    Q_EMIT keyReleaseCalled();
+    QWaylandKeyboard::sendKeyReleaseEvent(code);
+}
+
+void TestKeyboardGrabber::sendKeyModifiers(QWaylandClient *client, uint32_t serial)
+{
     Q_EMIT modifiersCalled();
+    QWaylandKeyboard::sendKeyModifiers(client, serial);
 }
-

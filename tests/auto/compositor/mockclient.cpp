@@ -45,7 +45,7 @@ const struct wl_registry_listener MockClient::registryListener = {
 };
 
 MockClient::MockClient()
-    : display(wl_display_connect(0))
+    : display(wl_display_connect("wayland-qt-test-0"))
     , compositor(0)
     , output(0)
     , registry(0)
@@ -93,6 +93,8 @@ void MockClient::outputGeometryEvent(void *data, wl_output *,
                                      int, const char *, const char *,
                                      int32_t )
 {
+    Q_UNUSED(width);
+    Q_UNUSED(height);
     resolve(data)->geometry.moveTopLeft(QPoint(x, y));
 }
 
@@ -125,6 +127,8 @@ void MockClient::flushDisplay()
 
 void MockClient::handleGlobal(void *data, wl_registry *registry, uint32_t id, const char *interface, uint32_t version)
 {
+    Q_UNUSED(registry);
+    Q_UNUSED(version);
     resolve(data)->handleGlobal(id, QByteArray(interface));
 }
 
@@ -186,7 +190,7 @@ ShmBuffer::ShmBuffer(const QSize &size, wl_shm *shm)
         return;
     }
 
-    image = QImage(static_cast<uchar *>(data), size.width(), size.height(), stride, QImage::Format_ARGB32);
+    image = QImage(static_cast<uchar *>(data), size.width(), size.height(), stride, QImage::Format_ARGB32_Premultiplied);
     shm_pool = wl_shm_create_pool(shm,fd,alloc);
     handle = wl_shm_pool_create_buffer(shm_pool,0, size.width(), size.height(),
                                    stride, WL_SHM_FORMAT_ARGB8888);

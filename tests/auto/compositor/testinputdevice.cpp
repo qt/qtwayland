@@ -27,7 +27,6 @@
 ****************************************************************************/
 
 #include "testinputdevice.h"
-
 #include <QMouseEvent>
 
 TestInputDevice::TestInputDevice(QWaylandCompositor *compositor, QWaylandInputDevice::CapabilityFlags caps)
@@ -40,7 +39,7 @@ TestInputDevice::~TestInputDevice()
 {
 }
 
-bool TestInputDevice::isOwner(QInputEvent *event)
+bool TestInputDevice::isOwner(QInputEvent *event) const
 {
     m_queryCount++;
     QMouseEvent *me = dynamic_cast<QMouseEvent *>(event);
@@ -54,4 +53,3 @@ QList<QMouseEvent *> TestInputDevice::createMouseEvents(int count)
     }
     return m_events;
 }
-

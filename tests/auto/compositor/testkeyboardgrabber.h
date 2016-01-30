@@ -26,26 +26,23 @@
 **
 ****************************************************************************/
 
-#include "QtCompositor/private/qwlkeyboard_p.h"
-#include "QtCompositor/private/qwlsurface_p.h"
+#include "qwaylandkeyboard.h"
 
-class TestKeyboardGrabber : public QObject, public QtWayland::KeyboardGrabber
+class TestKeyboardGrabber : public QWaylandKeyboard
 {
     Q_OBJECT
-
 public:
+    TestKeyboardGrabber(QWaylandInputDevice *inputDevice);
 
-    TestKeyboardGrabber() {}
-    ~TestKeyboardGrabber() {}
-
-    void focused(QtWayland::Surface *surface);
-    void key(uint32_t serial, uint32_t time, uint32_t key, uint32_t state);
-    void modifiers(uint32_t serial, uint32_t mods_depressed,
-            uint32_t mods_latched, uint32_t mods_locked, uint32_t group);
+    bool setFocus(QWaylandSurface *surface) Q_DECL_OVERRIDE;
+    void sendKeyModifiers(QWaylandClient *client, uint32_t serial) Q_DECL_OVERRIDE;
+    void sendKeyPressEvent(uint code) Q_DECL_OVERRIDE;
+    void sendKeyReleaseEvent(uint code) Q_DECL_OVERRIDE;
 
 signals:
     void focusedCalled();
-    void keyCalled();
+    void keyPressCalled();
+    void keyReleaseCalled();
     void modifiersCalled();
 };
 

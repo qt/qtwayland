@@ -367,6 +367,15 @@ QWaylandPointer *QWaylandInputDevice::pointer() const
 }
 
 /*!
+ * Returns the touch device for this QWaylandInputDevice.
+ */
+QWaylandTouch *QWaylandInputDevice::touch() const
+{
+    Q_D(const QWaylandInputDevice);
+    return d->touch.data();
+}
+
+/*!
  * Returns the view that currently has mouse focus.
  */
 QWaylandView *QWaylandInputDevice::mouseFocus() const

@@ -50,6 +50,7 @@ QWaylandPointerPrivate::QWaylandPointerPrivate(QWaylandPointer *pointer, QWaylan
     , hasSentEnter(false)
     , buttonCount()
 {
+    Q_UNUSED(pointer);
 }
 
 void QWaylandPointerPrivate::pointer_destroy_resource(wl_pointer::Resource *resource)

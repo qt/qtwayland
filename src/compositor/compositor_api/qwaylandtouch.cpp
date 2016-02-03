@@ -51,6 +51,7 @@ QWaylandTouchPrivate::QWaylandTouchPrivate(QWaylandTouch *touch, QWaylandInputDe
     , seat(seat)
     , focusResource()
 {
+    Q_UNUSED(touch);
 }
 
 void QWaylandTouchPrivate::resetFocusState()

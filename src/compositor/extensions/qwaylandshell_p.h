@@ -87,7 +87,6 @@ public:
 
     static QWaylandShellSurfacePrivate *get(QWaylandShellSurface *surface) { return surface->d_func(); }
 
-    void ping();
     void ping(uint32_t serial);
 
     void setFocusPolicy(QWaylandShellSurface::FocusPolicy focusPolicy)

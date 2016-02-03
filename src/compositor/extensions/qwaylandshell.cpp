@@ -88,12 +88,6 @@ QWaylandShellSurfacePrivate::~QWaylandShellSurfacePrivate()
 {
 }
 
-void QWaylandShellSurfacePrivate::ping()
-{
-    uint32_t serial = m_surface->compositor()->nextSerial();
-    ping(serial);
-}
-
 void QWaylandShellSurfacePrivate::ping(uint32_t serial)
 {
     m_pings.insert(serial);
@@ -564,6 +558,24 @@ QString QWaylandShellSurface::className() const
 QWaylandSurfaceRole *QWaylandShellSurface::role()
 {
     return &QWaylandShellSurfacePrivate::s_role;
+}
+
+/*!
+ * \qmlmethod void QtWaylandCompositor::ShellSurface::ping()
+ *
+ * Sends a ping event to the client. If the client replies to the event the \a pong
+ * signal will be emitted.
+ */
+
+/*!
+ * Sends a ping event to the client. If the client replies to the event the \a pong
+ * signal will be emitted.
+ */
+void QWaylandShellSurface::ping()
+{
+    Q_D(QWaylandShellSurface);
+    uint32_t serial = d->m_surface->compositor()->nextSerial();
+    d->ping(serial);
 }
 
 QT_END_NAMESPACE

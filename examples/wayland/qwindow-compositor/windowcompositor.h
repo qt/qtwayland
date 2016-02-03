@@ -101,7 +101,6 @@ signals:
 private slots:
     void surfaceMappedChanged();
     void surfaceDestroyed();
-    void surfaceCommittedSlot();
     void viewSurfaceDestroyed();
     void onStartMove();
     void onStartResize(QWaylandInputDevice *inputDevice, QWaylandShellSurface::ResizeEdge edges);

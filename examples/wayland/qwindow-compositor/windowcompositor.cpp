@@ -132,11 +132,6 @@ void WindowCompositor::viewSurfaceDestroyed()
     delete view;
 }
 
-void WindowCompositor::surfaceCommittedSlot()
-{
-    triggerRender();
-}
-
 WindowCompositorView * WindowCompositor::findView(const QWaylandSurface *s) const
 {
     Q_FOREACH (WindowCompositorView* view, m_views) {

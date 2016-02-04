@@ -276,6 +276,7 @@ void QWaylandQuickItem::mousePressEvent(QMouseEvent *event)
     if (d->focusOnClick)
         takeFocus(inputDevice);
 
+    inputDevice->sendMouseMoveEvent(d->view.data(), event->localPos(), event->windowPos());
     inputDevice->sendMousePressEvent(event->button());
 }
 

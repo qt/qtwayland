@@ -87,6 +87,7 @@ QWaylandMouseTracker::QWaylandMouseTracker(QQuickItem *parent)
     Q_D(QWaylandMouseTracker);
     setFiltersChildMouseEvents(true);
     setAcceptHoverEvents(true);
+    setAcceptedMouseButtons(Qt::AllButtons);
     setCursor(QCursor(d->cursorPixmap));
 }
 

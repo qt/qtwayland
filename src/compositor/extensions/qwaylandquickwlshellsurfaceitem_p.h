@@ -52,8 +52,11 @@ QT_BEGIN_NAMESPACE
 // We mean it.
 //
 
+class QWaylandQuickWlShellSurfaceItem;
+
 class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQuickWlShellSurfaceItemPrivate : public QWaylandQuickItemPrivate
 {
+    Q_DECLARE_PUBLIC(QWaylandQuickWlShellSurfaceItem)
 public:
     enum GrabberState {
         DefaultState,
@@ -66,7 +69,12 @@ public:
         , shellSurface(Q_NULLPTR)
         , moveItem(Q_NULLPTR)
         , grabberState(DefaultState)
+        , isPopup(false)
     {}
+
+    void setIsPopup(bool popup);
+    void setFilterEnabled(bool enabled);
+    static void closePopups();
 
     QWaylandWlShellSurface *shellSurface;
     QQuickItem *moveItem;
@@ -85,6 +93,11 @@ public:
         QPointF initialMousePos;
         bool initialized;
     } resizeState;
+
+    static QVector<QWaylandWlShellSurface*> popupShellSurfaces;
+    static bool eventFilterInstalled;
+    static bool waitForRelease;
+    bool isPopup;
 };
 
 QT_END_NAMESPACE

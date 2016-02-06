@@ -69,7 +69,11 @@ Q_SIGNALS:
 private Q_SLOTS:
     void handleStartMove(QWaylandInputDevice *inputDevice);
     void handleStartResize(QWaylandInputDevice *inputDevice, QWaylandWlShellSurface::ResizeEdge edges);
+    void handleSetPopup(QWaylandInputDevice *inputDevice, QWaylandSurface *parent, const QPoint &relativeToParent);
+    void handleShellSurfaceDestroyed();
     void adjustOffsetForNextFrame(const QPointF &offset);
+
+    void handleSurfaceUnmapped();
 protected:
     QWaylandQuickWlShellSurfaceItem(QWaylandQuickWlShellSurfaceItemPrivate &dd, QQuickItem *parent);
 
@@ -77,6 +81,8 @@ protected:
     void mouseReleaseEvent(QMouseEvent *event) Q_DECL_OVERRIDE;
 
     void surfaceChangedEvent(QWaylandSurface *newSurface, QWaylandSurface *oldSurface) Q_DECL_OVERRIDE;
+
+    bool eventFilter(QObject *, QEvent *) Q_DECL_OVERRIDE;
 };
 
 QT_END_NAMESPACE

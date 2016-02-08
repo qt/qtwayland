@@ -145,6 +145,7 @@ protected: //member variables
     QRegion damage;
     QtWayland::SurfaceBuffer *buffer;
     QWaylandBufferRef bufferRef;
+    QWaylandSurfaceRole *role;
 
     struct {
         QtWayland::SurfaceBuffer *buffer;

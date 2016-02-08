@@ -115,7 +115,7 @@ private slots:
     void triggerRender();
 
     void onSurfaceCreated(QWaylandSurface *surface);
-    void onCreateShellSurface(QWaylandSurface *s, QWaylandClient *client, uint id);
+    void onCreateShellSurface(QWaylandSurface *s, const QWaylandResource &resource);
     void onSetTransient(QWaylandSurface *parentSurface, const QPoint &relativeToParent, QWaylandShellSurface::FocusPolicy focusPolicy);
     void onSetPopup(QWaylandInputDevice *inputDevice, QWaylandSurface *parent, const QPoint &relativeToParent);
 

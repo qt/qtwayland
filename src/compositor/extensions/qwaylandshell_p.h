@@ -143,6 +143,7 @@ private:
     void shell_surface_set_class(Resource *resource,
                                  const QString &class_) Q_DECL_OVERRIDE;
 
+    static QWaylandSurfaceRole s_role;
 };
 
 QT_END_NAMESPACE

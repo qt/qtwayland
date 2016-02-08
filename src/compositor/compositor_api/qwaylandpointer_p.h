@@ -98,6 +98,8 @@ private:
     int buttonCount;
 
     QWaylandDestroyListener focusDestroyListener;
+
+    static QWaylandSurfaceRole s_role;
 };
 
 QT_END_NAMESPACE

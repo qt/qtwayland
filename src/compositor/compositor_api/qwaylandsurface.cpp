@@ -123,6 +123,7 @@ QWaylandSurfacePrivate::QWaylandSurfacePrivate()
     , refCount(1)
     , client(Q_NULLPTR)
     , buffer(0)
+    , role(0)
     , inputPanelSurface(0)
     , inputRegion(infiniteRegion())
     , isCursorSurface(false)
@@ -740,6 +741,31 @@ struct wl_resource *QWaylandSurface::resource() const
 {
     Q_D(const QWaylandSurface);
     return d->resource()->handle;
+}
+
+/*!
+ * Sets a role on the surface. A role defines how a surface will be mapped on screen, without a role
+ * a surface is supposed to be hidden. Only one role at all times can be set on a surface. Attempting
+ * to change the role of a surface will trigger a protocol error to the client, while setting the same
+ * role many times is allowed.
+ *
+ * \param errorResource The resource the error will be sent to if the role is being changed.
+ * \param errorCode The error code that will be sent to the client.
+ */
+bool QWaylandSurface::setRole(QWaylandSurfaceRole *role, wl_resource *errorResource, uint32_t errorCode)
+{
+    Q_D(QWaylandSurface);
+
+    if (d->role && d->role != role) {
+            wl_resource_post_error(errorResource, errorCode,
+                                   "Cannot assign role %s to wl_surface@%d, already has role %s\n",
+                                   role->name().constData(), wl_resource_get_id(resource()),
+                                   d->role->name().constData());
+            return false;
+    }
+
+    d->role = role;
+    return true;
 }
 
 QWaylandSurfacePrivate *QWaylandSurfacePrivate::get(QWaylandSurface *surface)

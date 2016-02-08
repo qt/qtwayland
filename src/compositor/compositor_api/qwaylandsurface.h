@@ -60,6 +60,17 @@ class QWaylandBufferRef;
 class QWaylandView;
 class QWaylandSurfaceOp;
 
+class QWaylandSurfaceRole
+{
+public:
+    QWaylandSurfaceRole(const QByteArray &n) : m_name(n) {}
+
+    const QByteArray name() { return m_name; }
+
+private:
+    QByteArray m_name;
+};
+
 class Q_COMPOSITOR_EXPORT QWaylandSurface : public QWaylandObject
 {
     Q_OBJECT
@@ -87,6 +98,8 @@ public:
 
     QWaylandClient *client() const;
     struct wl_client *waylandClient() const { return client()->client(); }
+
+    bool setRole(QWaylandSurfaceRole *role, wl_resource *errorResource, uint32_t errorCode);
 
     bool isMapped() const;
 

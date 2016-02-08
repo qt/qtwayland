@@ -146,11 +146,11 @@ WindowCompositorView * WindowCompositor::findView(const QWaylandSurface *s) cons
     return Q_NULLPTR;
 }
 
-void WindowCompositor::onCreateShellSurface(QWaylandSurface *s, QWaylandClient *client, uint id)
+void WindowCompositor::onCreateShellSurface(QWaylandSurface *s, const QWaylandResource &res)
 {
     QWaylandSurface *surface = s;
 
-    QWaylandShellSurface *shellSurface = new QWaylandShellSurface(m_shell, surface, client, id);
+    QWaylandShellSurface *shellSurface = new QWaylandShellSurface(m_shell, surface, res);
     connect(shellSurface, &QWaylandShellSurface::startMove, this, &WindowCompositor::onStartMove);
     connect(shellSurface, &QWaylandShellSurface::startResize, this, &WindowCompositor::onStartResize);
     connect(shellSurface, &QWaylandShellSurface::setTransient, this, &WindowCompositor::onSetTransient);

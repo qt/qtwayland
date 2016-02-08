@@ -48,6 +48,8 @@
 
 QT_BEGIN_NAMESPACE
 
+QWaylandSurfaceRole QWaylandShellSurfacePrivate::s_role("wl_shell_surface");
+
 QWaylandShellPrivate::QWaylandShellPrivate()
     : QWaylandExtensionTemplatePrivate()
     , wl_shell()
@@ -58,8 +60,19 @@ void QWaylandShellPrivate::shell_get_shell_surface(Resource *resource, uint32_t 
 {
     Q_Q(QWaylandShell);
     QWaylandSurface *surface = QWaylandSurface::fromResource(surface_res);
-    QWaylandCompositor *compositor = static_cast<QWaylandCompositor *>(q->extensionContainer());
-    emit q_func()->createShellSurface(surface, QWaylandClient::fromWlClient(compositor, resource->client()), id);
+
+    wl_resource *res = wl_resource_create(resource->client(), &wl_shell_surface_interface,
+                                          wl_resource_get_version(resource->handle), id);
+    // XXX FIXME
+    // The role concept was formalized in wayland 1.7, so that release adds one error
+    // code for each interface that implements a role, and we are supposed to pass here
+    // the newly constructed resource and the correct error code so that if setting the
+    // role fails, a proper error can be sent to the client.
+    // However we're still using wayland 1.4, which doesn't have interface specific role
+    // errors, so the best we can do is to use wl_display's object_id error.
+    wl_resource *displayRes = wl_client_get_object(resource->client(), 1);
+    if (surface->setRole(QWaylandShellSurface::role(), displayRes, WL_DISPLAY_ERROR_INVALID_OBJECT))
+        emit q->createShellSurface(surface, QWaylandResource(res));
 }
 
 QWaylandShellSurfacePrivate::QWaylandShellSurfacePrivate()
@@ -352,13 +365,12 @@ QWaylandShellSurface::QWaylandShellSurface()
 }
 
 /*!
- * Constructs a QWaylandShellSurface for \a surface and initializes it with the given \a shell, \a client,
- * and \a id.
+ * Constructs a QWaylandShellSurface for \a surface and initializes it with the given \a shell and \a resource.
  */
-QWaylandShellSurface::QWaylandShellSurface(QWaylandShell *shell, QWaylandSurface *surface, QWaylandClient *client, uint id)
+QWaylandShellSurface::QWaylandShellSurface(QWaylandShell *shell, QWaylandSurface *surface, const QWaylandResource &res)
     : QWaylandExtensionTemplate<QWaylandShellSurface>(*new QWaylandShellSurfacePrivate)
 {
-    initialize(shell, surface, client, id);
+    initialize(shell, surface, res);
 }
 
 /*!
@@ -368,14 +380,14 @@ QWaylandShellSurface::QWaylandShellSurface(QWaylandShell *shell, QWaylandSurface
  */
 
 /*!
- * Initializes the QWaylandShellSurface, associating it with the given \a shell, \a surface, \a client, and \a id.
+ * Initializes the QWaylandShellSurface, associating it with the given \a shell, \a surface and \a resource.
  */
-void QWaylandShellSurface::initialize(QWaylandShell *shell, QWaylandSurface *surface, QWaylandClient *client, uint id)
+void QWaylandShellSurface::initialize(QWaylandShell *shell, QWaylandSurface *surface, const QWaylandResource &resource)
 {
     Q_D(QWaylandShellSurface);
     d->m_shell = shell;
     d->m_surface = surface;
-    d->init(client->client(), id, 1);
+    d->init(resource.resource());
     setExtensionContainer(surface);
     emit surfaceChanged();
     QWaylandExtension::initialize();
@@ -547,6 +559,11 @@ QString QWaylandShellSurface::className() const
 {
     Q_D(const QWaylandShellSurface);
     return d->m_className;
+}
+
+QWaylandSurfaceRole *QWaylandShellSurface::role()
+{
+    return &QWaylandShellSurfacePrivate::s_role;
 }
 
 QT_END_NAMESPACE

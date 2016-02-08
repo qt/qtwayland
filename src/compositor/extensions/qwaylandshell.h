@@ -38,6 +38,7 @@
 #define QWAYLANDSHELL_H
 
 #include <QtWaylandCompositor/QWaylandExtension>
+#include <QtWaylandCompositor/QWaylandResource>
 
 #include <QtCore/QSize>
 
@@ -49,6 +50,7 @@ class QWaylandSurface;
 class QWaylandClient;
 class QWaylandInputDevice;
 class QWaylandOutput;
+class QWaylandSurfaceRole;
 
 class Q_COMPOSITOR_EXPORT QWaylandShell : public QWaylandExtensionTemplate<QWaylandShell>
 {
@@ -64,7 +66,7 @@ public:
     static QByteArray interfaceName();
 
 Q_SIGNALS:
-    void createShellSurface(QWaylandSurface *surface, QWaylandClient *client, uint id);
+    void createShellSurface(QWaylandSurface *surface, const QWaylandResource &resource);
 };
 
 class Q_COMPOSITOR_EXPORT QWaylandShellSurface : public QWaylandExtensionTemplate<QWaylandShellSurface>
@@ -105,9 +107,9 @@ public:
     Q_ENUM(FocusPolicy)
 
     QWaylandShellSurface();
-    QWaylandShellSurface(QWaylandShell *shell, QWaylandSurface *surface, QWaylandClient *client, uint id);
+    QWaylandShellSurface(QWaylandShell *shell, QWaylandSurface *surface, const QWaylandResource &resource);
 
-    Q_INVOKABLE void initialize(QWaylandShell *shell, QWaylandSurface *surface, QWaylandClient *client, uint id);
+    Q_INVOKABLE void initialize(QWaylandShell *shell, QWaylandSurface *surface, const QWaylandResource &resource);
 
     QString title() const;
     QString className() const;
@@ -118,6 +120,7 @@ public:
 
     static const struct wl_interface *interface();
     static QByteArray interfaceName();
+    static QWaylandSurfaceRole *role();
 
     Q_INVOKABLE QSize sizeForResize(const QSizeF &size, const QPointF &delta, ResizeEdge edges);
     Q_INVOKABLE void sendConfigure(const QSize &size, ResizeEdge edges);

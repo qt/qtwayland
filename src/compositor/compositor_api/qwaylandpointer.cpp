@@ -41,6 +41,8 @@
 
 QT_BEGIN_NAMESPACE
 
+QWaylandSurfaceRole QWaylandPointerPrivate::s_role("wl_pointer");
+
 QWaylandPointerPrivate::QWaylandPointerPrivate(QWaylandPointer *pointer, QWaylandInputDevice *seat)
     : QObjectPrivate()
     , wl_pointer()
@@ -75,8 +77,18 @@ void QWaylandPointerPrivate::pointer_set_cursor(wl_pointer::Resource *resource, 
     }
 
     QWaylandSurface *s = QWaylandSurface::fromResource(surface);
-    s->markAsCursorSurface(true);
-    seat->cursorSurfaceRequest(s, hotspot_x, hotspot_y);
+    // XXX FIXME
+    // The role concept was formalized in wayland 1.7, so that release adds one error
+    // code for each interface that implements a role, and we are supposed to pass here
+    // the newly constructed resource and the correct error code so that if setting the
+    // role fails, a proper error can be sent to the client.
+    // However we're still using wayland 1.4, which doesn't have interface specific role
+    // errors, so the best we can do is to use wl_display's object_id error.
+    wl_resource *displayRes = wl_client_get_object(resource->client(), 1);
+    if (s->setRole(&QWaylandPointerPrivate::s_role, displayRes, WL_DISPLAY_ERROR_INVALID_OBJECT)) {
+        s->markAsCursorSurface(true);
+        seat->cursorSurfaceRequest(s, hotspot_x, hotspot_y);
+    }
 }
 
 /*!

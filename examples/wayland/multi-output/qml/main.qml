@@ -87,7 +87,7 @@ WaylandCompositor {
 
             onCreateShellSurface: {
                 var item = chromeComponent.createObject(defaultOutput.surfaceArea, { "surface": surface } );
-                item.shellSurface.initialize(defaultShell, surface, client, id);
+                item.shellSurface.initialize(defaultShell, surface, resource);
                 surface.activated.connect(item.raise);
             }
 

@@ -288,20 +288,6 @@ void WaylandEglClientBufferIntegration::bindTextureToBuffer(struct ::wl_resource
         EGLint format;
         EGLNativeFileDescriptorKHR streamFd = EGL_NO_FILE_DESCRIPTOR_KHR;
 
-        EGLint width, height;
-        d->egl_query_wayland_buffer(d->egl_display, buffer, EGL_WIDTH, &width);
-        d->egl_query_wayland_buffer(d->egl_display, buffer, EGL_HEIGHT, &height);
-        state.size = QSize(width, height);
-
-#if defined(EGL_WAYLAND_Y_INVERTED_WL)
-        EGLint isYInverted;
-        EGLBoolean ret = d->egl_query_wayland_buffer(d->egl_display, buffer, EGL_WAYLAND_Y_INVERTED_WL, &isYInverted);
-        // Yes, this looks strange, but the specification says that EGL_FALSE return
-        // value (not supported) should be treated the same as EGL_TRUE return value
-        // and EGL_TRUE in value.
-        state.isYInverted = (ret == EGL_FALSE || isYInverted == EGL_TRUE);
-#endif
-
         if (d->egl_query_wayland_buffer(d->egl_display, buffer, EGL_TEXTURE_FORMAT, &format)) {
             // Resolving GL functions may need a context current, so do it only here.
             if (!d->gl_egl_image_target_texture_2d)
@@ -336,6 +322,20 @@ void WaylandEglClientBufferIntegration::bindTextureToBuffer(struct ::wl_resource
             if (d->funcs->stream_consumer_gltexture(d->egl_display, state.egl_stream) != EGL_TRUE)
                 qWarning("%s:%d: eglStreamConsumerGLTextureExternalKHR failed: 0x%x", Q_FUNC_INFO, __LINE__, eglGetError());
         }
+
+        EGLint width, height;
+        d->egl_query_wayland_buffer(d->egl_display, buffer, EGL_WIDTH, &width);
+        d->egl_query_wayland_buffer(d->egl_display, buffer, EGL_HEIGHT, &height);
+        state.size = QSize(width, height);
+
+#if defined(EGL_WAYLAND_Y_INVERTED_WL)
+        EGLint isYInverted;
+        EGLBoolean ret = d->egl_query_wayland_buffer(d->egl_display, buffer, EGL_WAYLAND_Y_INVERTED_WL, &isYInverted);
+        // Yes, this looks strange, but the specification says that EGL_FALSE return
+        // value (not supported) should be treated the same as EGL_TRUE return value
+        // and EGL_TRUE in value.
+        state.isYInverted = (ret == EGL_FALSE || isYInverted == EGL_TRUE);
+#endif
 
         d->buffers[buffer] = state;
     }

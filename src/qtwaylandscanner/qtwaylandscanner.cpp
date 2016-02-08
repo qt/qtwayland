@@ -422,6 +422,7 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath, const QByteArr
             printf("    public:\n");
             printf("        %s(struct ::wl_client *client, int id, int version);\n", interfaceName);
             printf("        %s(struct ::wl_display *display, int version);\n", interfaceName);
+            printf("        %s(struct ::wl_resource *resource);\n", interfaceName);
             printf("        %s();\n", interfaceName);
             printf("\n");
             printf("        virtual ~%s();\n", interfaceName);
@@ -443,6 +444,7 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath, const QByteArr
             printf("\n");
             printf("        void init(struct ::wl_client *client, int id, int version);\n");
             printf("        void init(struct ::wl_display *display, int version);\n");
+            printf("        void init(struct ::wl_resource *resource);\n");
             printf("\n");
             printf("        Resource *add(struct ::wl_client *client, int version);\n");
             printf("        Resource *add(struct ::wl_client *client, int id, int version);\n");
@@ -502,6 +504,7 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath, const QByteArr
             printf("        static void destroy_func(struct ::wl_resource *client_resource);\n");
             printf("\n");
             printf("        Resource *bind(struct ::wl_client *client, uint32_t id, int version);\n");
+            printf("        Resource *bind(struct ::wl_resource *handle);\n");
 
             if (hasRequests) {
                 printf("\n");
@@ -580,6 +583,15 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath, const QByteArr
             printf("    }\n");
             printf("\n");
 
+            printf("    %s::%s(struct ::wl_resource *resource)\n", interfaceName, interfaceName);
+            printf("        : m_resource_map()\n");
+            printf("        , m_resource(0)\n");
+            printf("        , m_global(0)\n");
+            printf("    {\n");
+            printf("        init(resource);\n");
+            printf("    }\n");
+            printf("\n");
+
             printf("    %s::%s()\n", interfaceName, interfaceName);
             printf("        : m_resource_map()\n");
             printf("        , m_resource(0)\n");
@@ -596,6 +608,12 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath, const QByteArr
             printf("    void %s::init(struct ::wl_client *client, int id, int version)\n", interfaceName);
             printf("    {\n");
             printf("        m_resource = bind(client, id, version);\n");
+            printf("    }\n");
+            printf("\n");
+
+            printf("    void %s::init(struct ::wl_resource *resource)\n", interfaceName);
+            printf("    {\n");
+            printf("        m_resource = bind(resource);\n");
             printf("    }\n");
             printf("\n");
 
@@ -673,10 +691,16 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath, const QByteArr
             printf("    %s::Resource *%s::bind(struct ::wl_client *client, uint32_t id, int version)\n", interfaceName, interfaceName);
             printf("    {\n");
             printf("        Q_ASSERT_X(!wl_client_get_object(client, id), \"QWaylandObject bind\", QStringLiteral(\"binding to object %%1 more than once\").arg(id).toLocal8Bit().constData());\n");
+            printf("        struct ::wl_resource *handle = wl_resource_create(client, &::%s_interface, version, id);\n", interfaceName);
+            printf("        return bind(handle);\n");
+            printf("    }\n");
+            printf("\n");
+
+            printf("    %s::Resource *%s::bind(struct ::wl_resource *handle)\n", interfaceName, interfaceName);
+            printf("    {\n");
             printf("        Resource *resource = %s_allocate();\n", interfaceNameStripped);
             printf("        resource->%s_object = this;\n", interfaceNameStripped);
             printf("\n");
-            printf("        struct ::wl_resource *handle = wl_resource_create(client, &::%s_interface, version, id);\n", interfaceName);
             printf("        wl_resource_set_implementation(handle, %s, resource, destroy_func);", interfaceMember.constData());
             printf("\n");
             printf("        resource->handle = handle;\n");

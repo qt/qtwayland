@@ -23,5 +23,3 @@ sub_plugins.subdir = plugins
 sub_plugins.depends = sub-qtwaylandscanner sub-client sub-compositor
 sub_plugins.target = sub-plugins
 SUBDIRS += sub_plugins
-
-SUBDIRS += platformheaders

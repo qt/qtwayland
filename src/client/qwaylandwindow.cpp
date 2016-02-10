@@ -122,7 +122,8 @@ void QWaylandWindow::initWindow()
         if (::wl_subsurface *ss = mDisplay->createSubSurface(this, p)) {
             mSubSurfaceWindow = new QWaylandSubSurface(this, p, ss);
         }
-    } else if (!(window()->flags() & Qt::BypassWindowManagerHint)) {
+    } else if (!(qEnvironmentVariableIsSet("QT_WAYLAND_USE_BYPASSWINDOWMANAGERHINT") &&
+               window()->flags() & Qt::BypassWindowManagerHint)) {
         mShellSurface = mDisplay->createShellSurface(this);
     }
 

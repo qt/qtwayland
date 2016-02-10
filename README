@@ -45,6 +45,29 @@ brcm
 xcomposite-egl
 xcomposite-glx
 
+Shell Integration:
+
+Some platforms, especially non-desktop ones, use a custom Wayland shell
+extension. These are tailored to the specific embedded form factor better than
+the generic wl_shell or xdg_shell extensions that target desktop systems.
+
+Instead of adding multiple protocol implementations into the QPA plugin,
+a plugin architecture is used for selecting the shell integration;
+when creating a shell surface, the protocol to use is taken from
+the QT_WAYLAND_SHELL_INTEGRATION environment variable. If one is not provided or
+not pointing to a valid plugin, wl_shell or xdg_shell will be used as fallbacks.
+
+Example Usage:
+
+Starting the hellowindow example application (one of the examples for qtbase)
+with ivi-shell integration:
+
+    QT_WAYLAND_SHELL_INTEGRATION=ivi-shell ./hellowindow -platform wayland
+
+Available Shell Integrations:
+
+    * ivi-shell
+
 
 We hang out at #qt-labs and #qt-lighthouse on freenode if you have any questions
 

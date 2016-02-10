@@ -6,7 +6,8 @@ MODULE=waylandclient
 MODULE_PLUGIN_TYPES = \
             wayland-graphics-integration-client \
             wayland-inputdevice-integration \
-            wayland-decoration-client
+            wayland-decoration-client \
+            wayland-shell-integration
 
 CONFIG += generated_privates
 

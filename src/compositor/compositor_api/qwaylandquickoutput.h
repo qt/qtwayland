@@ -46,7 +46,7 @@ QT_BEGIN_NAMESPACE
 class QWaylandQuickCompositor;
 class QQuickWindow;
 
-class Q_COMPOSITOR_EXPORT QWaylandQuickOutput : public QWaylandOutput
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQuickOutput : public QWaylandOutput
 {
     Q_OBJECT
     Q_PROPERTY(bool automaticFrameCallback READ automaticFrameCallback WRITE setAutomaticFrameCallback NOTIFY automaticFrameCallbackChanged)

@@ -85,7 +85,7 @@ class InputMethod;
 
 }
 
-class Q_COMPOSITOR_EXPORT QWaylandInputDevicePrivate : public QObjectPrivate, public QtWaylandServer::wl_seat
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandInputDevicePrivate : public QObjectPrivate, public QtWaylandServer::wl_seat
 {
 public:
     Q_DECLARE_PUBLIC(QWaylandInputDevice)

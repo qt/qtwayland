@@ -42,7 +42,7 @@
 QT_BEGIN_NAMESPACE
 
 #define Q_COMPOSITOR_DECLARE_QUICK_DATA_CLASS(className) \
-    class Q_COMPOSITOR_EXPORT className##QuickData : public className \
+    class Q_WAYLAND_COMPOSITOR_EXPORT className##QuickData : public className \
     { \
 /* qmake ignore Q_OBJECT */ \
         Q_OBJECT \
@@ -58,7 +58,7 @@ QT_BEGIN_NAMESPACE
     };
 
 #define Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CLASS(className) \
-    class Q_COMPOSITOR_EXPORT className##QuickExtension : public className \
+    class Q_WAYLAND_COMPOSITOR_EXPORT className##QuickExtension : public className \
     { \
 /* qmake ignore Q_OBJECT */ \
         Q_OBJECT \

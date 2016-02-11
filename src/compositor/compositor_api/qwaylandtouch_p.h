@@ -63,7 +63,7 @@
 
 QT_BEGIN_NAMESPACE
 
-class Q_COMPOSITOR_EXPORT QWaylandTouchPrivate : public QObjectPrivate, public QtWaylandServer::wl_touch
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandTouchPrivate : public QObjectPrivate, public QtWaylandServer::wl_touch
 {
     Q_DECLARE_PUBLIC(QWaylandTouch)
 public:

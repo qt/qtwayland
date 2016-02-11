@@ -60,7 +60,7 @@ class QWaylandCompositor;
 namespace QtWayland {
 class Display;
 
-class Q_COMPOSITOR_EXPORT ClientBufferIntegration
+class Q_WAYLAND_COMPOSITOR_EXPORT ClientBufferIntegration
 {
 public:
     ClientBufferIntegration();

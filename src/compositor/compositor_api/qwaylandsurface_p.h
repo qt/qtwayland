@@ -83,7 +83,7 @@ namespace QtWayland {
 class FrameCallback;
 }
 
-class Q_COMPOSITOR_EXPORT QWaylandSurfacePrivate : public QObjectPrivate, public QtWaylandServer::wl_surface
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandSurfacePrivate : public QObjectPrivate, public QtWaylandServer::wl_surface
 {
 public:
     static QWaylandSurfacePrivate *get(QWaylandSurface *surface);

@@ -49,7 +49,7 @@ class QWaylandCompositor;
 class QWaylandInputPanelPrivate;
 class QWaylandSurface;
 
-class Q_COMPOSITOR_EXPORT QWaylandInputPanel : public QWaylandExtensionTemplate<QWaylandInputPanel>
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandInputPanel : public QWaylandExtensionTemplate<QWaylandInputPanel>
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandInputPanel)

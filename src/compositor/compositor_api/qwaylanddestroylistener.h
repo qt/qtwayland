@@ -47,7 +47,7 @@ QT_BEGIN_NAMESPACE
 
 class QWaylandDestroyListenerPrivate;
 
-class Q_COMPOSITOR_EXPORT QWaylandDestroyListener : public QObject
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandDestroyListener : public QObject
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandDestroyListener)

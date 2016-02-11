@@ -92,7 +92,7 @@ struct QWaylandSurfaceViewMapper
     bool has_entered;
 };
 
-class Q_COMPOSITOR_EXPORT QWaylandOutputPrivate : public QObjectPrivate, public QtWaylandServer::wl_output
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandOutputPrivate : public QObjectPrivate, public QtWaylandServer::wl_output
 {
 public:
     QWaylandOutputPrivate();

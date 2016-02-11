@@ -64,7 +64,7 @@ class QWaylandPointer;
 class QWaylandKeyboard;
 class QWaylandTouch;
 
-class Q_COMPOSITOR_EXPORT QWaylandCompositor : public QWaylandObject
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandCompositor : public QWaylandObject
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandCompositor)

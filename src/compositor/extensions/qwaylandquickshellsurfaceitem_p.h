@@ -52,7 +52,7 @@ QT_BEGIN_NAMESPACE
 // We mean it.
 //
 
-class Q_COMPOSITOR_EXPORT QWaylandQuickShellSurfaceItemPrivate : public QWaylandQuickItemPrivate
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQuickShellSurfaceItemPrivate : public QWaylandQuickItemPrivate
 {
 public:
     enum GrabberState {

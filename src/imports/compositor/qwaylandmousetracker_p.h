@@ -45,7 +45,7 @@ QT_BEGIN_NAMESPACE
 
 class QWaylandMouseTrackerPrivate;
 
-class Q_COMPOSITOR_EXPORT QWaylandMouseTracker : public QQuickItem
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandMouseTracker : public QQuickItem
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandMouseTracker)

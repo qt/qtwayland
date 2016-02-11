@@ -44,7 +44,7 @@ struct wl_resource;
 
 QT_BEGIN_NAMESPACE
 
-class Q_COMPOSITOR_EXPORT QWaylandResource
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandResource
 {
     Q_GADGET
 public:

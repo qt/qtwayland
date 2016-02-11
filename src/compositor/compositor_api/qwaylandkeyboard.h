@@ -49,7 +49,7 @@ class QWaylandKeyboard;
 class QWaylandKeyboardPrivate;
 class QWaylandInputDevice;
 
-class Q_COMPOSITOR_EXPORT QWaylandKeymap
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandKeymap
 {
 public:
     QWaylandKeymap(const QString &layout = QString(), const QString &variant = QString(), const QString &options = QString(),
@@ -69,7 +69,7 @@ private:
     QString m_model;
 };
 
-class Q_COMPOSITOR_EXPORT QWaylandKeyboard : public QWaylandObject
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandKeyboard : public QWaylandObject
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandKeyboard)

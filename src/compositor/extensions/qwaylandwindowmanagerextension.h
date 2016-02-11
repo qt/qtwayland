@@ -52,7 +52,7 @@ class QWaylandCompositor;
 
 class QWaylandWindowManagerExtensionPrivate;
 
-class Q_COMPOSITOR_EXPORT QWaylandWindowManagerExtension : public QWaylandExtensionTemplate<QWaylandWindowManagerExtension>
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandWindowManagerExtension : public QWaylandExtensionTemplate<QWaylandWindowManagerExtension>
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandWindowManagerExtension)

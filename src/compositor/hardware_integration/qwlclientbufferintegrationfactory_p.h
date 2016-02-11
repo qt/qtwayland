@@ -57,7 +57,7 @@ namespace QtWayland {
 
 class ClientBufferIntegration;
 
-class Q_COMPOSITOR_EXPORT ClientBufferIntegrationFactory
+class Q_WAYLAND_COMPOSITOR_EXPORT ClientBufferIntegrationFactory
 {
 public:
     static QStringList keys(const QString &pluginPath = QString());

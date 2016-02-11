@@ -50,7 +50,7 @@ class QWaylandInputDevice;
 class QWaylandView;
 class QWaylandClient;
 
-class Q_COMPOSITOR_EXPORT QWaylandTouch : public QWaylandObject
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandTouch : public QWaylandObject
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandTouch)

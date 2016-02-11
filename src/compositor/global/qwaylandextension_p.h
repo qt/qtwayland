@@ -53,7 +53,7 @@
 
 QT_BEGIN_NAMESPACE
 
-class Q_COMPOSITOR_EXPORT QWaylandExtensionPrivate : public QObjectPrivate
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandExtensionPrivate : public QObjectPrivate
 {
     Q_DECLARE_PUBLIC(QWaylandExtension)
 
@@ -71,7 +71,7 @@ public:
     bool initialized;
 };
 
-class Q_COMPOSITOR_EXPORT QWaylandExtensionTemplatePrivate : public QWaylandExtensionPrivate
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandExtensionTemplatePrivate : public QWaylandExtensionPrivate
 {
 public:
     QWaylandExtensionTemplatePrivate()

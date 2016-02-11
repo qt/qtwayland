@@ -55,7 +55,7 @@ namespace QtWayland
     class SurfaceBuffer;
 }
 
-class Q_COMPOSITOR_EXPORT QWaylandBufferRef
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandBufferRef
 {
 public:
     QWaylandBufferRef();

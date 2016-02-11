@@ -53,7 +53,7 @@ namespace QtWayland {
     class DataDevice;
 }
 
-class Q_COMPOSITOR_EXPORT QWaylandDrag : public QObject
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandDrag : public QObject
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandDrag)

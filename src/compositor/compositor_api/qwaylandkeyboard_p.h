@@ -66,7 +66,7 @@
 
 QT_BEGIN_NAMESPACE
 
-class Q_COMPOSITOR_EXPORT QWaylandKeyboardPrivate : public QObjectPrivate
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandKeyboardPrivate : public QObjectPrivate
                                                   , public QtWaylandServer::wl_keyboard
 {
 public:

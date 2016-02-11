@@ -63,7 +63,7 @@
 
 QT_BEGIN_NAMESPACE
 
-class Q_COMPOSITOR_EXPORT QWaylandShellPrivate
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandShellPrivate
                                         : public QWaylandExtensionTemplatePrivate
                                         , public QtWaylandServer::wl_shell
 {
@@ -76,7 +76,7 @@ protected:
     void shell_get_shell_surface(Resource *resource, uint32_t id, struct ::wl_resource *surface) Q_DECL_OVERRIDE;
 };
 
-class Q_COMPOSITOR_EXPORT QWaylandShellSurfacePrivate
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandShellSurfacePrivate
                                         : public QWaylandExtensionTemplatePrivate
                                         , public QtWaylandServer::wl_shell_surface
 {

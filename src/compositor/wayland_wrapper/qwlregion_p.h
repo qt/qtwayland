@@ -59,7 +59,7 @@ QT_BEGIN_NAMESPACE
 
 namespace QtWayland {
 
-class Q_COMPOSITOR_EXPORT Region : public QtWaylandServer::wl_region
+class Q_WAYLAND_COMPOSITOR_EXPORT Region : public QtWaylandServer::wl_region
 {
 public:
     Region(struct wl_client *client, uint32_t id);

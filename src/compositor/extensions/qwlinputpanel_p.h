@@ -64,7 +64,7 @@ class TextInput;
 }
 
 
-class Q_COMPOSITOR_EXPORT QWaylandInputPanelPrivate : public QWaylandExtensionTemplatePrivate, public QtWaylandServer::wl_input_panel
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandInputPanelPrivate : public QWaylandExtensionTemplatePrivate, public QtWaylandServer::wl_input_panel
 {
     Q_DECLARE_PUBLIC(QWaylandInputPanel)
 public:

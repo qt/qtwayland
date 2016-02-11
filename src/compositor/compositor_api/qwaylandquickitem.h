@@ -54,7 +54,7 @@ QT_BEGIN_NAMESPACE
 class QWaylandInputDevice;
 class QWaylandQuickItemPrivate;
 
-class Q_COMPOSITOR_EXPORT QWaylandQuickItem : public QQuickItem
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQuickItem : public QQuickItem
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandQuickItem)

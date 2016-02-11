@@ -61,7 +61,7 @@ class ServerBufferIntegration;
 
 #define QtWaylandServerBufferIntegrationFactoryInterface_iid "org.qt-project.Qt.Compositor.QtWaylandServerBufferIntegrationFactoryInterface.5.3"
 
-class Q_COMPOSITOR_EXPORT ServerBufferIntegrationPlugin : public QObject
+class Q_WAYLAND_COMPOSITOR_EXPORT ServerBufferIntegrationPlugin : public QObject
 {
     Q_OBJECT
 public:

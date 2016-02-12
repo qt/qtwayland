@@ -3,9 +3,6 @@ QT = core gui-private
 
 contains(QT_CONFIG, opengl):MODULE_DEFINES = QT_COMPOSITOR_WAYLAND_GL
 
-MODULE_PLUGIN_TYPES = wayland-graphics-integration-server
-load(qt_module)
-
 CONFIG -= precompile_header
 CONFIG += link_pkgconfig
 
@@ -27,4 +24,6 @@ include ($$PWD/hardware_integration/hardware_integration.pri)
 include ($$PWD/compositor_api/compositor_api.pri)
 include ($$PWD/windowmanagerprotocol/windowmanagerprotocol.pri)
 
-
+MODULE_PLUGIN_TYPES = \
+    wayland-graphics-integration-server
+load(qt_module)

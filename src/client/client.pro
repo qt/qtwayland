@@ -16,19 +16,19 @@ CONFIG += link_pkgconfig qpa/genericunixfontdatabase wayland-scanner
 
 config_xkbcommon {
     !contains(QT_CONFIG, no-pkg-config) {
-        PKGCONFIG += xkbcommon
+        PKGCONFIG_PRIVATE += xkbcommon
     } else {
-        LIBS += -lxkbcommon
+        LIBS_PRIVATE += -lxkbcommon
     }
 } else {
     DEFINES += QT_NO_WAYLAND_XKB
 }
 
 !contains(QT_CONFIG, no-pkg-config) {
-    PKGCONFIG += wayland-client wayland-cursor
+    PKGCONFIG_PRIVATE += wayland-client wayland-cursor
     contains(QT_CONFIG, glib): PKGCONFIG_PRIVATE += glib-2.0
 } else {
-    LIBS += -lwayland-client -lwayland-cursor $$QT_LIBS_GLIB
+    LIBS_PRIVATE += -lwayland-client -lwayland-cursor $$QT_LIBS_GLIB
 }
 
 INCLUDEPATH += $$PWD/../shared

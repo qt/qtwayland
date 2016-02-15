@@ -76,8 +76,8 @@ public:
     }
 private:
     bool m_useResource;
-    const QDir &m_qmlDir;
-    const QString &m_qrcPath;
+    const QDir m_qmlDir;
+    const QString m_qrcPath;
 };
 
 

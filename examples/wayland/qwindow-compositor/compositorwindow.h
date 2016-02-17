@@ -71,7 +71,7 @@ protected:
 
 private slots:
     void startMove();
-    void startResize(int edge);
+    void startResize(int edge, bool anchored);
     void startDrag(WindowCompositorView *dragIcon);
     void setFrameOffset(const QPoint &offset);
 
@@ -82,6 +82,8 @@ private:
     bool mouseGrab() const { return m_grabState != NoGrab ;}
     void drawBackground();
     void sendMouseEvent(QMouseEvent *e, WindowCompositorView *target);
+    static QPointF getAnchoredPosition(const QPointF &anchorPosition, int resizeEdge, const QSize &windowSize);
+    static QPointF getAnchorPosition(const QPointF &position, int resizeEdge, const QSize &windowSize);
 
     QOpenGLTextureBlitter m_textureBlitter;
     QSize m_backgroundImageSize;
@@ -91,6 +93,8 @@ private:
     GrabState m_grabState;
     QSize m_initialSize;
     int m_resizeEdge;
+    bool m_resizeAnchored;
+    QPointF m_resizeAnchorPosition;
     QPointF m_mouseOffset;
     QPointF m_initialMousePos;
     WindowCompositorView *m_dragIconView;

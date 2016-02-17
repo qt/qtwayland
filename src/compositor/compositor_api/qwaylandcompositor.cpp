@@ -342,8 +342,9 @@ void QWaylandCompositorPrivate::initializeHardwareIntegration()
 void QWaylandCompositorPrivate::initializeDefaultInputDevice()
 {
     Q_Q(QWaylandCompositor);
-    inputDevices.append(q->createInputDevice());
-    q->defaultInputDeviceChanged();
+    QWaylandInputDevice *device = q->createInputDevice();
+    inputDevices.append(device);
+    q->defaultInputDeviceChanged(device, nullptr);
 }
 
 void QWaylandCompositorPrivate::loadClientBufferIntegration()

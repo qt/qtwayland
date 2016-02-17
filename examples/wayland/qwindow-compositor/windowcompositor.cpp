@@ -45,6 +45,7 @@
 #include <QTouchEvent>
 
 #include <QtWaylandCompositor/QWaylandShellSurface>
+#include <QtWaylandCompositor/QWaylandXdgShell>
 #include <QtWaylandCompositor/qwaylandinput.h>
 #include <QtWaylandCompositor/qwaylanddrag.h>
 
@@ -68,12 +69,51 @@ bool WindowCompositorView::isCursor() const
     return surface()->isCursorSurface();
 }
 
+void WindowCompositorView::onXdgSetMaximized()
+{
+    m_xdgSurface->requestMaximized(output()->geometry().size());
+
+    // An improvement here, would have been to wait for the commit after the ack_configure for the
+    // request above before moving the window. This would have prevented the window from being
+    // moved until the contents of the window had actually updated. This improvement is left as an
+    // exercise for the reader.
+    setPosition(QPoint(0, 0));
+}
+
+void WindowCompositorView::onXdgUnsetMaximized()
+{
+    m_xdgSurface->requestUnMaximized();
+}
+
+void WindowCompositorView::onXdgSetFullscreen(QWaylandOutput* clientPreferredOutput)
+{
+    QWaylandOutput *outputToFullscreen = clientPreferredOutput
+            ? clientPreferredOutput
+            : output();
+
+    m_xdgSurface->requestFullscreen(outputToFullscreen->geometry().size());
+
+    // An improvement here, would have been to wait for the commit after the ack_configure for the
+    // request above before moving the window. This would have prevented the window from being
+    // moved until the contents of the window had actually updated. This improvement is left as an
+    // exercise for the reader.
+    setPosition(outputToFullscreen->position());
+}
+
+void WindowCompositorView::onXdgUnsetFullscreen()
+{
+    onXdgUnsetMaximized();
+}
+
 WindowCompositor::WindowCompositor(QWindow *window)
     : QWaylandCompositor()
     , m_window(window)
     , m_shell(new QWaylandShell(this))
+    , m_xdgShell(new QWaylandXdgShell(this))
 {
     connect(m_shell, &QWaylandShell::createShellSurface, this, &WindowCompositor::onCreateShellSurface);
+    connect(m_xdgShell, &QWaylandXdgShell::createXdgSurface, this, &WindowCompositor::onCreateXdgSurface);
+    connect(m_xdgShell, &QWaylandXdgShell::createXdgPopup, this, &WindowCompositor::onCreateXdgPopup);
 }
 
 WindowCompositor::~WindowCompositor()
@@ -112,8 +152,11 @@ void WindowCompositor::surfaceMappedChanged()
 {
     QWaylandSurface *surface = qobject_cast<QWaylandSurface *>(sender());
     if (surface->isMapped()) {
-        if (!surface->isCursorSurface())
+        if (surface->role() == QWaylandShellSurface::role()
+                || surface->role() == QWaylandXdgSurface::role()
+                || surface->role() == QWaylandXdgPopup::role()) {
             defaultInputDevice()->setKeyboardFocus(surface);
+        }
     } else if (popupActive()) {
         for (int i = 0; i < m_popupViews.count(); i++) {
             if (m_popupViews.at(i)->surface() == surface) {
@@ -160,6 +203,39 @@ void WindowCompositor::onCreateShellSurface(QWaylandSurface *s, const QWaylandRe
     view->m_shellSurface = shellSurface;
 }
 
+void WindowCompositor::onCreateXdgSurface(QWaylandSurface *surface, const QWaylandResource &res)
+{
+    QWaylandXdgSurface *xdgSurface = new QWaylandXdgSurface(m_xdgShell, surface, res);
+    connect(xdgSurface, &QWaylandXdgSurface::startMove, this, &WindowCompositor::onStartMove);
+    connect(xdgSurface, &QWaylandXdgSurface::startResize, this, &WindowCompositor::onXdgStartResize);
+
+    WindowCompositorView *view = findView(surface);
+    Q_ASSERT(view);
+    view->m_xdgSurface = xdgSurface;
+    connect(xdgSurface, &QWaylandXdgSurface::setMaximized, view, &WindowCompositorView::onXdgSetMaximized);
+    connect(xdgSurface, &QWaylandXdgSurface::setFullscreen, view, &WindowCompositorView::onXdgSetFullscreen);
+    connect(xdgSurface, &QWaylandXdgSurface::unsetMaximized, view, &WindowCompositorView::onXdgUnsetMaximized);
+    connect(xdgSurface, &QWaylandXdgSurface::unsetFullscreen, view, &WindowCompositorView::onXdgUnsetFullscreen);
+}
+
+void WindowCompositor::onCreateXdgPopup(QWaylandSurface *surface, QWaylandSurface *parent,
+                                        QWaylandInputDevice *inputDevice, const QPoint &position,
+                                        const QWaylandResource &resource)
+{
+    Q_UNUSED(inputDevice);
+
+    QWaylandXdgPopup *xdgPopup = new QWaylandXdgPopup(m_xdgShell, surface, parent, resource);
+
+    WindowCompositorView *view = findView(surface);
+    Q_ASSERT(view);
+
+    WindowCompositorView *parentView = findView(parent);
+    Q_ASSERT(parentView);
+
+    view->setPosition(parentView->position() + position);
+    view->m_xdgPopup = xdgPopup;
+}
+
 void WindowCompositor::onStartMove()
 {
     closePopups();
@@ -169,7 +245,14 @@ void WindowCompositor::onStartMove()
 void WindowCompositor::onStartResize(QWaylandInputDevice *, QWaylandShellSurface::ResizeEdge edges)
 {
     closePopups();
-    emit startResize(int(edges));
+    emit startResize(int(edges), false);
+}
+
+void WindowCompositor::onXdgStartResize(QWaylandInputDevice *inputDevice,
+                                        QWaylandXdgSurface::ResizeEdge edges)
+{
+    Q_UNUSED(inputDevice);
+    emit startResize(int(edges), true);
 }
 
 void WindowCompositor::onSetTransient(QWaylandSurface *parent, const QPoint &relativeToParent, QWaylandShellSurface::FocusPolicy focusPolicy)
@@ -262,9 +345,14 @@ void WindowCompositor::adjustCursorSurface(QWaylandSurface *surface, int hotspot
 
 void WindowCompositor::closePopups()
 {
-    Q_FOREACH (WindowCompositorView *view, m_popupViews)
-        view->m_shellSurface->sendPopupDone();
-    m_popupViews.clear();
+    Q_FOREACH (WindowCompositorView *view, m_popupViews) {
+        if (view->m_shellSurface) {
+            view->m_shellSurface->sendPopupDone();
+            m_popupViews.clear();
+        }
+    }
+
+    m_xdgShell->closeAllPopups();
 }
 
 void WindowCompositor::handleMouseEvent(QWaylandView *target, QMouseEvent *me)
@@ -274,9 +362,18 @@ void WindowCompositor::handleMouseEvent(QWaylandView *target, QMouseEvent *me)
         closePopups();
     }
     QWaylandInputDevice *input = defaultInputDevice();
+    QWaylandSurface *surface = target ? target->surface() : nullptr;
     switch (me->type()) {
         case QEvent::MouseButtonPress:
             input->sendMousePressEvent(me->button());
+            if (surface != input->keyboardFocus()) {
+                if (surface == nullptr
+                        || surface->role() == QWaylandShellSurface::role()
+                        || surface->role() == QWaylandXdgSurface::role()
+                        || surface->role() == QWaylandXdgPopup::role()) {
+                    input->setKeyboardFocus(surface);
+                }
+            }
             break;
     case QEvent::MouseButtonRelease:
          input->sendMouseReleaseEvent(me->button());
@@ -291,11 +388,18 @@ void WindowCompositor::handleMouseEvent(QWaylandView *target, QMouseEvent *me)
 void WindowCompositor::handleResize(WindowCompositorView *target, const QSize &initialSize, const QPoint &delta, int edge)
 {
     QWaylandShellSurface *shellSurface = target->m_shellSurface;
-    if (!shellSurface)
-        return;
-    QWaylandShellSurface::ResizeEdge edges = QWaylandShellSurface::ResizeEdge(edge);
-    QSize newSize = shellSurface->sizeForResize(initialSize, delta, edges);
-    shellSurface->sendConfigure(newSize, edges);
+    if (shellSurface) {
+        QWaylandShellSurface::ResizeEdge edges = QWaylandShellSurface::ResizeEdge(edge);
+        QSize newSize = shellSurface->sizeForResize(initialSize, delta, edges);
+        shellSurface->sendConfigure(newSize, edges);
+    }
+
+    QWaylandXdgSurface *xdgSurface = target->m_xdgSurface;
+    if (xdgSurface) {
+        QWaylandXdgSurface::ResizeEdge edges = static_cast<QWaylandXdgSurface::ResizeEdge>(edge);
+        QSize newSize = xdgSurface->sizeForResize(initialSize, delta, edges);
+        xdgSurface->requestResizing(newSize);
+    }
 }
 
 void WindowCompositor::startDrag()

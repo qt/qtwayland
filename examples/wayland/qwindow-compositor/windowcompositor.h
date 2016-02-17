@@ -45,11 +45,13 @@
 #include <QtWaylandCompositor/QWaylandSurface>
 #include <QtWaylandCompositor/QWaylandView>
 #include <QtWaylandCompositor/QWaylandShellSurface>
+#include <QtWaylandCompositor/QWaylandXdgSurface>
 #include <QTimer>
 
 QT_BEGIN_NAMESPACE
 
 class QWaylandShell;
+class QWaylandXdgShell;
 class QWaylandShellSurface;
 
 class WindowCompositorView : public QWaylandView
@@ -65,13 +67,22 @@ public:
     void setParentView(WindowCompositorView *parent) { m_parentView = parent; }
     WindowCompositorView *parentView() const { return m_parentView; }
     QPointF parentPosition() const { return m_parentView ? (m_parentView->position() + m_parentView->parentPosition()) : QPointF(); }
+    QSize windowSize() { return m_xdgSurface ? m_xdgSurface->windowGeometry().size() : surface()->size(); }
 
 private:
     friend class WindowCompositor;
     GLuint m_texture;
     QPointF m_position;
     QWaylandShellSurface *m_shellSurface;
+    QWaylandXdgSurface *m_xdgSurface;
+    QWaylandXdgPopup *m_xdgPopup;
     WindowCompositorView *m_parentView;
+
+public slots:
+    void onXdgSetMaximized();
+    void onXdgUnsetMaximized();
+    void onXdgSetFullscreen(QWaylandOutput *output);
+    void onXdgUnsetFullscreen();
 };
 
 class WindowCompositor : public QWaylandCompositor
@@ -99,7 +110,7 @@ protected:
 
 signals:
     void startMove();
-    void startResize(int edge);
+    void startResize(int edge, bool anchored);
     void dragStarted(WindowCompositorView *dragIcon);
     void frameOffset(const QPoint &offset);
 
@@ -109,6 +120,7 @@ private slots:
     void viewSurfaceDestroyed();
     void onStartMove();
     void onStartResize(QWaylandInputDevice *inputDevice, QWaylandShellSurface::ResizeEdge edges);
+    void onXdgStartResize(QWaylandInputDevice *inputDevice, QWaylandXdgSurface::ResizeEdge edges);
 
     void startDrag();
 
@@ -116,6 +128,9 @@ private slots:
 
     void onSurfaceCreated(QWaylandSurface *surface);
     void onCreateShellSurface(QWaylandSurface *s, const QWaylandResource &resource);
+    void onCreateXdgSurface(QWaylandSurface *surface, const QWaylandResource &resource);
+    void onCreateXdgPopup(QWaylandSurface *surface, QWaylandSurface *parent, QWaylandInputDevice *inputDevice,
+                          const QPoint &position, const QWaylandResource &resource);
     void onSetTransient(QWaylandSurface *parentSurface, const QPoint &relativeToParent, QWaylandShellSurface::FocusPolicy focusPolicy);
     void onSetPopup(QWaylandInputDevice *inputDevice, QWaylandSurface *parent, const QPoint &relativeToParent);
 
@@ -129,6 +144,7 @@ private:
     QList<WindowCompositorView*> m_views;
     QList<WindowCompositorView*> m_popupViews;
     QWaylandShell *m_shell;
+    QWaylandXdgShell *m_xdgShell;
     QWaylandView m_cursorView;
     int m_cursorHotspotX;
     int m_cursorHotspotY;

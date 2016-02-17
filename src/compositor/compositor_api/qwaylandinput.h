@@ -124,6 +124,7 @@ public:
 
 Q_SIGNALS:
     void mouseFocusChanged(QWaylandView *newFocus, QWaylandView *oldFocus);
+    void keyboardFocusChanged(QWaylandSurface *newFocus, QWaylandSurface *oldFocus);
     void cursorSurfaceRequest(QWaylandSurface *surface, int hotspotX, int hotspotY);
 };
 

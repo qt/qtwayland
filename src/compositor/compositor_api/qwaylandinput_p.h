@@ -115,6 +115,7 @@ protected:
 private:
     QWaylandCompositor *compositor;
     QWaylandView *mouseFocus;
+    QWaylandSurface *keyboardFocus;
     QWaylandInputDevice::CapabilityFlags capabilities;
 
     QScopedPointer<QWaylandPointer> pointer;

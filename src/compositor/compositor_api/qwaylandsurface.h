@@ -100,6 +100,7 @@ public:
     struct wl_client *waylandClient() const { return client()->client(); }
 
     bool setRole(QWaylandSurfaceRole *role, wl_resource *errorResource, uint32_t errorCode);
+    QWaylandSurfaceRole *role() const;
 
     bool isMapped() const;
 

@@ -768,6 +768,12 @@ bool QWaylandSurface::setRole(QWaylandSurfaceRole *role, wl_resource *errorResou
     return true;
 }
 
+QWaylandSurfaceRole *QWaylandSurface::role() const
+{
+    Q_D(const QWaylandSurface);
+    return d->role;
+}
+
 QWaylandSurfacePrivate *QWaylandSurfacePrivate::get(QWaylandSurface *surface)
 {
     return surface ? surface->d_func() : Q_NULLPTR;

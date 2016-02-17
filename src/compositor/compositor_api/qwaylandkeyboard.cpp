@@ -41,8 +41,6 @@
 #include <QtWaylandCompositor/QWaylandInputDevice>
 #include <QtWaylandCompositor/QWaylandClient>
 
-#include <QtWaylandCompositor/QWaylandShellSurface>
-
 #include <QtCore/QFile>
 #include <QtCore/QStandardPaths>
 
@@ -532,14 +530,10 @@ QWaylandSurface *QWaylandKeyboard::focus() const
 /*!
  * Sets the current focus to \a surface.
  */
-bool QWaylandKeyboard::setFocus(QWaylandSurface *surface)
+void QWaylandKeyboard::setFocus(QWaylandSurface *surface)
 {
     Q_D(QWaylandKeyboard);
-    QWaylandShellSurface *shellsurface = QWaylandShellSurface::findIn(surface);
-    if (shellsurface &&  shellsurface->focusPolicy() == QWaylandShellSurface::NoKeyboardFocus)
-            return false;
     d->focused(surface);
-    return true;
 }
 
 /*!

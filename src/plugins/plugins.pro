@@ -2,4 +2,5 @@ TEMPLATE=subdirs
 SUBDIRS += \
     platforms \
     hardwareintegration \
-    decorations
+    decorations \
+    shellintegration

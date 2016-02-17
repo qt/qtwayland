@@ -68,6 +68,12 @@ src/plugins/hardwareintegration/*/*/qwayland*.h
 src/plugins/hardwareintegration/*/*/*-server-protocol.h
 src/plugins/hardwareintegration/*/*/*-client-protocol.h
 src/plugins/hardwareintegration/*/*/*-protocol.c
+src/plugins/shellintegration/ivi-shell/qwayland-ivi-application.h
+src/plugins/shellintegration/ivi-shell/qwayland-ivi-application.cpp
+src/plugins/shellintegration/ivi-shell/qwayland-ivi-controller.h
+src/plugins/shellintegration/ivi-shell/qwayland-ivi-controller.cpp
+src/plugins/shellintegration/*/*-client-protocol.h
+src/plugins/shellintegration/*/*-protocol.c
 src/imports/compositor/compositor.qrc
 tests/auto/client/tst_client
 tests/auto/compositor/tst_compositor

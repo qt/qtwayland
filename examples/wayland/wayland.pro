@@ -1,6 +1,7 @@
 TEMPLATE=subdirs
 
 SUBDIRS += qwindow-compositor
+SUBDIRS += minimal-cpp
 
 qtHaveModule(quick) {
     SUBDIRS += pure-qml

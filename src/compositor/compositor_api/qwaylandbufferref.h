@@ -75,11 +75,29 @@ public:
     QSize size() const;
     QWaylandSurface::Origin origin() const;
 
+    enum BufferType {
+        BufferType_Null,
+        BufferType_Shm,
+        BufferType_Egl
+    };
+
+    enum BufferFormatEgl {
+        BufferFormatEgl_Null,
+        BufferFormatEgl_RGB,
+        BufferFormatEgl_RGBA,
+        BufferFormatEgl_EXTERNAL_OES,
+        BufferFormatEgl_Y_U_V,
+        BufferFormatEgl_Y_UV,
+        BufferFormatEgl_Y_XUXV
+    };
+
+    BufferType bufferType() const;
+    BufferFormatEgl bufferFormatEgl() const;
+
     bool isShm() const;
     QImage image() const;
 
     void bindToTexture() const;
-    int textureTarget() const;
     void updateTexture() const;
 
 private:

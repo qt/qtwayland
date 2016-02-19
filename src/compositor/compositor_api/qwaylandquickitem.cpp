@@ -57,7 +57,178 @@
 #include <wayland-server.h>
 #include <QThread>
 
+#ifndef GL_TEXTURE_EXTERNAL_OES
+#define GL_TEXTURE_EXTERNAL_OES 0x8D65
+#endif
+
 QT_BEGIN_NAMESPACE
+
+static const struct {
+    const char * const vertexShaderSourceFile;
+    const char * const fragmentShaderSourceFile;
+    GLenum textureTarget;
+    int planeCount;
+    bool canProvideTexture;
+    QSGMaterial::Flags materialFlags;
+    QSGMaterialType materialType;
+} bufferTypes[] = {
+    // BufferFormatEgl_Null
+    { "", "", 0, 0, false, 0, {} },
+
+    // BufferFormatEgl_RGB
+    {
+        ":/qt-project.org/wayland/compositor/shaders/surface.vert",
+        ":/qt-project.org/wayland/compositor/shaders/surface_rgbx.frag",
+        GL_TEXTURE_2D, 1, true,
+        QSGMaterial::Blending,
+        {}
+    },
+
+    // BufferFormatEgl_RGBA
+    {
+        ":/qt-project.org/wayland/compositor/shaders/surface.vert",
+        ":/qt-project.org/wayland/compositor/shaders/surface_rgba.frag",
+        GL_TEXTURE_2D, 1, true,
+        QSGMaterial::Blending,
+        {}
+    },
+
+    // BufferFormatEgl_EXTERNAL_OES
+    {
+        ":/qt-project.org/wayland/compositor/shaders/surface.vert",
+        ":/qt-project.org/wayland/compositor/shaders/surface_oes_external.frag",
+        GL_TEXTURE_EXTERNAL_OES, 1, false,
+        QSGMaterial::Blending,
+        {}
+    },
+
+    // BufferFormatEgl_Y_U_V
+    {
+        ":/qt-project.org/wayland/compositor/shaders/surface.vert",
+        ":/qt-project.org/wayland/compositor/shaders/surface_y_u_v.frag",
+        GL_TEXTURE_2D, 3, false,
+        QSGMaterial::Blending,
+        {}
+    },
+
+    // BufferFormatEgl_Y_UV
+    {
+        ":/qt-project.org/wayland/compositor/shaders/surface.vert",
+        ":/qt-project.org/wayland/compositor/shaders/surface_y_uv.frag",
+        GL_TEXTURE_2D, 2, false,
+        QSGMaterial::Blending,
+        {}
+    },
+
+    // BufferFormatEgl_Y_XUXV
+    {
+        ":/qt-project.org/wayland/compositor/shaders/surface.vert",
+        ":/qt-project.org/wayland/compositor/shaders/surface_y_xuxv.frag",
+        GL_TEXTURE_2D, 2, false,
+        QSGMaterial::Blending,
+        {}
+    }
+};
+
+QWaylandBufferMaterialShader::QWaylandBufferMaterialShader(QWaylandBufferRef::BufferFormatEgl format)
+    : QSGMaterialShader()
+    , m_format(format)
+{
+    setShaderSourceFile(QOpenGLShader::Vertex, QString::fromLatin1(bufferTypes[format].vertexShaderSourceFile));
+    setShaderSourceFile(QOpenGLShader::Fragment, QString::fromLatin1(bufferTypes[format].fragmentShaderSourceFile));
+}
+
+void QWaylandBufferMaterialShader::updateState(const QSGMaterialShader::RenderState &state, QSGMaterial *newEffect, QSGMaterial *oldEffect)
+{
+    QSGMaterialShader::updateState(state, newEffect, oldEffect);
+
+    QWaylandBufferMaterial *material = static_cast<QWaylandBufferMaterial *>(newEffect);
+    material->bind();
+
+    if (state.isMatrixDirty())
+        program()->setUniformValue(m_id_matrix, state.combinedMatrix());
+
+    if (state.isOpacityDirty())
+        program()->setUniformValue(m_id_opacity, state.opacity());
+}
+
+const char * const *QWaylandBufferMaterialShader::attributeNames() const
+{
+    static char const *const attr[] = { "qt_VertexPosition", "qt_VertexTexCoord", 0 };
+    return attr;
+}
+
+void QWaylandBufferMaterialShader::initialize()
+{
+    QSGMaterialShader::initialize();
+
+    m_id_matrix = program()->uniformLocation("qt_Matrix");
+    m_id_opacity = program()->uniformLocation("qt_Opacity");
+
+    for (int i = 0; i < bufferTypes[m_format].planeCount; i++) {
+        m_id_tex << program()->uniformLocation("tex" + QByteArray::number(i));
+        program()->setUniformValue(m_id_tex[i], i);
+    }
+
+    Q_ASSERT(m_id_tex.size() == bufferTypes[m_format].planeCount);
+}
+
+QWaylandBufferMaterial::QWaylandBufferMaterial(QWaylandBufferRef::BufferFormatEgl format)
+    : QSGMaterial()
+    , m_format(format)
+{
+    QOpenGLFunctions *gl = QOpenGLContext::currentContext()->functions();
+
+    for (int i = 0; i < bufferTypes[m_format].planeCount; i++) {
+        GLuint texture;
+        gl->glGenTextures(1, &texture);
+        gl->glBindTexture(bufferTypes[m_format].textureTarget, texture);
+        gl->glTexParameteri(bufferTypes[m_format].textureTarget, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        gl->glTexParameteri(bufferTypes[m_format].textureTarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        gl->glTexParameteri(bufferTypes[m_format].textureTarget, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        gl->glTexParameteri(bufferTypes[m_format].textureTarget, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        m_textures << texture;
+    }
+
+    gl->glBindTexture(bufferTypes[m_format].textureTarget, 0);
+    setFlag(bufferTypes[m_format].materialFlags);
+}
+
+QWaylandBufferMaterial::~QWaylandBufferMaterial()
+{
+    QOpenGLFunctions *gl = QOpenGLContext::currentContext()->functions();
+
+    for (GLuint texture : m_textures)
+        gl->glDeleteTextures(1, &texture);
+}
+
+void QWaylandBufferMaterial::bind()
+{
+    QOpenGLFunctions *gl = QOpenGLContext::currentContext()->functions();
+    const GLenum target = bufferTypes[m_format].textureTarget;
+
+    switch (m_textures.size()) {
+    case 3:
+        gl->glActiveTexture(GL_TEXTURE2);
+        gl->glBindTexture(target, m_textures[2]);
+    case 2:
+        gl->glActiveTexture(GL_TEXTURE1);
+        gl->glBindTexture(target, m_textures[1]);
+    case 1:
+        gl->glActiveTexture(GL_TEXTURE0);
+        gl->glBindTexture(target, m_textures[0]);
+    }
+}
+
+QSGMaterialType *QWaylandBufferMaterial::type() const
+{
+    return const_cast<QSGMaterialType *>(&bufferTypes[m_format].materialType);
+}
+
+QSGMaterialShader *QWaylandBufferMaterial::createShader() const
+{
+    return new QWaylandBufferMaterialShader(m_format);
+}
 
 QMutex *QWaylandQuickItemPrivate::mutex = 0;
 
@@ -85,7 +256,6 @@ public:
         if (m_ref.hasBuffer()) {
             if (buffer.isShm()) {
                 m_sgTex = surfaceItem->window()->createTextureFromImage(buffer.image());
-                m_invertY = false;
                 if (m_sgTex) {
                     m_sgTex->bind();
                 }
@@ -101,7 +271,6 @@ public:
                 glBindTexture(GL_TEXTURE_2D, texture);
                 buffer.bindToTexture();
                 m_sgTex = surfaceItem->window()->createTextureFromId(texture , QSize(surfaceItem->width(), surfaceItem->height()), opt);
-                m_invertY = buffer.origin() == QWaylandSurface::OriginBottomLeft;
             }
         }
         emit textureChanged();
@@ -115,10 +284,8 @@ public:
     }
 
     void setSmooth(bool smooth) { m_smooth = smooth; }
-    bool invertY() const { return m_invertY; }
 private:
     bool m_smooth;
-    bool m_invertY;
     QSGTexture *m_sgTex;
     QWaylandBufferRef m_ref;
 };
@@ -247,6 +414,12 @@ QWaylandSurface::Origin QWaylandQuickItem::origin() const
 {
     Q_D(const QWaylandQuickItem);
     return d->origin;
+}
+
+bool QWaylandQuickItem::isTextureProvider() const
+{
+    Q_D(const QWaylandQuickItem);
+    return QQuickItem::isTextureProvider() || d->provider;
 }
 
 /*!
@@ -822,37 +995,73 @@ void QWaylandQuickItem::updateInputMethod(Qt::InputMethodQueries queries)
 QSGNode *QWaylandQuickItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *)
 {
     Q_D(QWaylandQuickItem);
-    bool mapped = (surface() && surface()->isMapped() && d->view->currentBuffer().hasBuffer())
-        || (d->view->isBufferLocked() && d->provider);
+    const bool mapped = surface() && surface()->isMapped() && d->view->currentBuffer().hasBuffer();
 
     if (!mapped || !d->paintEnabled) {
         delete oldNode;
         return 0;
     }
 
-    QSGSimpleTextureNode *node = static_cast<QSGSimpleTextureNode *>(oldNode);
+    QWaylandBufferRef ref = d->view->currentBuffer();
+    const bool invertY = ref.origin() == QWaylandSurface::OriginBottomLeft;
+    const QRectF rect = invertY ? QRectF(0, height(), width(), -height())
+                                : QRectF(0, 0, width(), height());
 
-    if (!node)
-        node = new QSGSimpleTextureNode();
+    if (ref.isShm() || bufferTypes[ref.bufferFormatEgl()].canProvideTexture) {
+        QSGSimpleTextureNode *node = static_cast<QSGSimpleTextureNode *>(oldNode);
 
-    if (!d->provider)
-        d->provider = new QWaylandSurfaceTextureProvider();
+        if (!node)
+            node = new QSGSimpleTextureNode();
 
-    if (d->newTexture) {
-        d->newTexture = false;
-        d->provider->setBufferRef(this, d->view->currentBuffer());
-        node->setTexture(d->provider->texture());
-    }
+        if (!d->provider)
+            d->provider = new QWaylandSurfaceTextureProvider();
 
-    d->provider->setSmooth(smooth());
+        if (d->newTexture) {
+            d->newTexture = false;
+            d->provider->setBufferRef(this, ref);
+            node->setTexture(d->provider->texture());
+        }
 
-    if (d->provider->invertY()) {
-            node->setRect(0, height(), width(), -height());
+        d->provider->setSmooth(smooth());
+        node->setRect(rect);
+
+        return node;
     } else {
-            node->setRect(0, 0, width(), height());
+        Q_ASSERT(!d->provider);
+
+        QSGGeometryNode *node = static_cast<QSGGeometryNode *>(oldNode);
+
+        if (!node)
+            node = new QSGGeometryNode;
+
+        QSGGeometry *geometry = node->geometry();
+        QWaylandBufferMaterial *material = static_cast<QWaylandBufferMaterial *>(node->material());
+
+        if (!geometry)
+            geometry = new QSGGeometry(QSGGeometry::defaultAttributes_TexturedPoint2D(), 4);
+
+        if (!material)
+            material = new QWaylandBufferMaterial(ref.bufferFormatEgl());
+
+        if (d->newTexture) {
+            d->newTexture = false;
+            material->bind();
+            ref.bindToTexture();
+        }
+
+        ref.updateTexture();
+        QSGGeometry::updateTexturedRectGeometry(geometry, rect, QRectF(0, 0, 1, 1));
+
+        node->setGeometry(geometry);
+        node->setFlag(QSGNode::OwnsGeometry, true);
+
+        node->setMaterial(material);
+        node->setFlag(QSGNode::OwnsMaterial, true);
+
+        return node;
     }
 
-    return node;
+    Q_UNREACHABLE();
 }
 
 void QWaylandQuickItem::setTouchEventsEnabled(bool enabled)
@@ -909,3 +1118,4 @@ void QWaylandQuickItem::handleSubsurfacePosition(const QPoint &pos)
 }
 
 QT_END_NAMESPACE
+

@@ -49,6 +49,8 @@
 //
 
 #include <QtQuick/private/qquickitem_p.h>
+#include <QtQuick/QSGMaterialShader>
+#include <QtQuick/QSGMaterial>
 
 #include "qwaylandquickitem.h"
 
@@ -58,6 +60,40 @@ QT_BEGIN_NAMESPACE
 
 class QWaylandSurfaceTextureProvider;
 class QMutex;
+
+class QWaylandBufferMaterialShader : public QSGMaterialShader
+{
+public:
+    QWaylandBufferMaterialShader(QWaylandBufferRef::BufferFormatEgl format);
+
+    void updateState(const RenderState &state, QSGMaterial *newEffect, QSGMaterial *oldEffect) Q_DECL_OVERRIDE;
+    char const *const *attributeNames() const Q_DECL_OVERRIDE;
+
+protected:
+    void initialize() Q_DECL_OVERRIDE;
+
+private:
+    const QWaylandBufferRef::BufferFormatEgl m_format;
+    int m_id_matrix;
+    int m_id_opacity;
+    QVarLengthArray<int, 3> m_id_tex;
+};
+
+class QWaylandBufferMaterial : public QSGMaterial
+{
+public:
+    QWaylandBufferMaterial(QWaylandBufferRef::BufferFormatEgl format);
+    ~QWaylandBufferMaterial();
+
+    void bind();
+
+    QSGMaterialType *type() const Q_DECL_OVERRIDE;
+    QSGMaterialShader *createShader() const Q_DECL_OVERRIDE;
+
+private:
+    const QWaylandBufferRef::BufferFormatEgl m_format;
+    QVarLengthArray<GLuint, 3> m_textures;
+};
 
 class QWaylandQuickItemPrivate : public QQuickItemPrivate
 {

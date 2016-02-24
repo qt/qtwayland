@@ -361,6 +361,10 @@ bool QWaylandSurface::sendInterfaceOp(QWaylandSurfaceOp &op)
 void QWaylandSurface::ping()
 {
     Q_D(QWaylandSurface);
+
+    if (d->isDestroyed())
+        return;
+
     uint32_t serial = wl_display_next_serial(compositor()->waylandDisplay());
     QWaylandSurfacePingOp op(serial);
     if (!sendInterfaceOp(op)) {

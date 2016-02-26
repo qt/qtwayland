@@ -36,9 +36,12 @@ qtHaveModule(quick) {
     HEADERS += \
         extensions/qwaylandquickwlshellsurfaceitem.h \
         extensions/qwaylandquickwlshellsurfaceitem_p.h \
+        extensions/qwaylandquickxdgsurfaceitem.h \
+        extensions/qwaylandquickxdgsurfaceitem_p.h \
 
     SOURCES += \
         extensions/qwaylandquickwlshellsurfaceitem.cpp \
+        extensions/qwaylandquickxdgsurfaceitem.cpp \
 
 }
 

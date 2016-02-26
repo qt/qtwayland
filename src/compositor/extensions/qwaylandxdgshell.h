@@ -38,6 +38,7 @@
 #define QWAYLANDXDGSHELL_H
 
 #include <QtWaylandCompositor/QWaylandExtension>
+#include <QtWaylandCompositor/QWaylandResource>
 
 #include <QtCore/QRect>
 
@@ -53,7 +54,6 @@ class QWaylandXdgPopupPrivate;
 
 class QWaylandSurface;
 class QWaylandSurfaceRole;
-class QWaylandResource;
 class QWaylandInputDevice;
 class QWaylandOutput;
 class QWaylandClient;

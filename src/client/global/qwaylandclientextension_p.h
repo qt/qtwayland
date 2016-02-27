@@ -65,6 +65,7 @@ public:
 
     QWaylandIntegration *waylandIntegration;
     int version;
+    bool active;
 
 protected:
     void registry_global(uint32_t id, const QString &interfaceName, uint32_t version) Q_DECL_OVERRIDE;

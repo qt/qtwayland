@@ -1,6 +1,7 @@
 TEMPLATE=subdirs
 
-SUBDIRS += client
+SUBDIRS += client \
+    qmltestapp
 SUBDIRS += compositor
 SUBDIRS += testapp
 

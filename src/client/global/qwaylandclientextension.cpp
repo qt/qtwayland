@@ -38,6 +38,8 @@
 #include "qwaylandclientextension_p.h"
 #include <QtWaylandClient/private/qwaylanddisplay_p.h>
 #include <QtWaylandClient/private/qwaylandintegration_p.h>
+#include <QtGui/QGuiApplication>
+#include <QtGui/qpa/qplatformnativeinterface.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -45,11 +47,22 @@ namespace QtWaylandClient {
 
 QWaylandClientExtensionPrivate::QWaylandClientExtensionPrivate()
     : QObjectPrivate()
-    , waylandIntegration(new QWaylandIntegration())
+    , waylandIntegration(NULL)
     , version(-1)
+    , active(false)
 {
-    QtWaylandClient::QWaylandDisplay *waylandDisplay = waylandIntegration->display();
-    struct ::wl_registry *registry = wl_display_get_registry(waylandDisplay->wl_display());
+    // Keep the possibility to use a custom waylandIntegration as a plugin,
+    // but also add the possibility to run it as a QML component.
+    struct ::wl_display *waylandDisplay = NULL;
+    if (QGuiApplication::platformNativeInterface()) {
+        waylandDisplay = static_cast<struct ::wl_display*>(QGuiApplication::platformNativeInterface()->nativeResourceForIntegration("wl_display"));
+    } else {
+        waylandIntegration = new QWaylandIntegration();
+        waylandDisplay = waylandIntegration->display()->wl_display();
+    }
+
+    Q_ASSERT(waylandDisplay);
+    struct ::wl_registry *registry = wl_display_get_registry(waylandDisplay);
     QtWayland::wl_registry::init(registry);
 }
 
@@ -59,6 +72,8 @@ void QWaylandClientExtensionPrivate::registry_global(uint32_t id, const QString 
     if (interfaceName == QLatin1String(q->extensionInterface()->name)) {
         struct ::wl_registry *registry = static_cast<struct ::wl_registry *>(QtWayland::wl_registry::object());
         q->bind(registry, id, ver);
+        active = true;
+        emit q->activeChanged();
     }
 }
 
@@ -88,6 +103,12 @@ void QWaylandClientExtension::setVersion(const int ver)
         d->version = ver;
         emit versionChanged();
     }
+}
+
+bool QWaylandClientExtension::active() const
+{
+    Q_D(const QWaylandClientExtension);
+    return d->active;
 }
 
 }

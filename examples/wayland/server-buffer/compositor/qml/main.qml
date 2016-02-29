@@ -39,7 +39,7 @@
 ****************************************************************************/
 
 import QtQuick 2.0
-import QtCompositor 1.0
+import QtWayland.Compositor 1.0
 
 Item {
     id: root

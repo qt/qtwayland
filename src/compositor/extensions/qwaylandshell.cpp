@@ -431,7 +431,7 @@ QSize QWaylandShellSurface::sizeForResize(const QSizeF &size, const QPointF &del
  * This enum type provides a way to specify a specific edge or corner of
  * the surface.
  *
- * \value DefaultEdge The default edge.
+ * \value None No edge.
  * \value TopEdge The top edge.
  * \value BottomEdge The bottom edge.
  * \value LeftEdge The left edge.

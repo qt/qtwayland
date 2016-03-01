@@ -88,7 +88,7 @@ public:
     Q_ENUM(FullScreenMethod);
 
     enum ResizeEdge {
-        DefaultEdge     =  0,
+        NoneEdge        =  0,
         TopEdge         =  1,
         BottomEdge      =  2,
         LeftEdge        =  4,

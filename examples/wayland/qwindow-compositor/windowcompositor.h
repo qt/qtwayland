@@ -59,7 +59,7 @@ class WindowCompositorView : public QWaylandView
     Q_OBJECT
 public:
     WindowCompositorView();
-    GLuint getTexture();
+    GLuint getTexture(GLenum *target = 0);
     QPointF position() const { return m_position; }
     void setPosition(const QPointF &pos) { m_position = pos; }
     bool isCursor() const;
@@ -72,6 +72,7 @@ public:
 
 private:
     friend class WindowCompositor;
+    GLenum m_textureTarget;
     GLuint m_texture;
     QPointF m_position;
     QWaylandWlShellSurface *m_wlShellSurface;

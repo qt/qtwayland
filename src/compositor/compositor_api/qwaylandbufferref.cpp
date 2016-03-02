@@ -241,6 +241,16 @@ QImage QWaylandBufferRef::image() const
     return d->buffer->image();
 }
 
+#ifdef QT_COMPOSITOR_WAYLAND_GL
+GLuint QWaylandBufferRef::textureForPlane(int plane) const
+{
+    if (d->nullOrDestroyed())
+        return 0;
+
+    return d->buffer->textureForPlane(plane);
+}
+#endif
+
 /*!
  * Binds the buffer to the current OpenGL texture. This may
  * perform a copy of the buffer data, depending on the platform

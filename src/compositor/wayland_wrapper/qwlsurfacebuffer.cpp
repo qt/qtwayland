@@ -232,6 +232,14 @@ void SurfaceBuffer::bindToTexture() const
     }
 }
 
+uint SurfaceBuffer::textureForPlane(int plane) const
+{
+    if (QtWayland::ClientBufferIntegration *clientInt = QWaylandCompositorPrivate::get(m_compositor)->clientBufferIntegration())
+        return clientInt->textureForBuffer(m_buffer, plane);
+
+    return 0;
+}
+
 void SurfaceBuffer::updateTexture() const
 {
     if (QtWayland::ClientBufferIntegration *clientInt = QWaylandCompositorPrivate::get(m_compositor)->clientBufferIntegration())

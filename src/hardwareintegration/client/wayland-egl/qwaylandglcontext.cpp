@@ -308,6 +308,8 @@ void QWaylandGLContext::updateGLFormat()
     wl_egl_window *eglWindow = wl_egl_window_create(wlSurface, 1, 1);
     EGLSurface eglSurface = eglCreateWindowSurface(m_eglDisplay, m_config, eglWindow, 0);
 
+    static bool vivanteEglWorkaround = strstr(eglQueryString(m_eglDisplay, EGL_VENDOR), "Vivante Corporation") != 0;
+
     if (eglMakeCurrent(m_eglDisplay, eglSurface, eglSurface, m_context)) {
         if (m_format.renderableType() == QSurfaceFormat::OpenGL
             || m_format.renderableType() == QSurfaceFormat::OpenGLES) {
@@ -347,7 +349,8 @@ void QWaylandGLContext::updateGLFormat()
         eglMakeCurrent(prevDisplay, prevSurfaceDraw, prevSurfaceRead, prevContext);
     }
     eglDestroySurface(m_eglDisplay, eglSurface);
-    wl_egl_window_destroy(eglWindow);
+    if (!vivanteEglWorkaround)
+        wl_egl_window_destroy(eglWindow);
     wl_surface_destroy(wlSurface);
 }
 

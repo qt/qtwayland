@@ -63,7 +63,7 @@ public:
     bool makeCurrent(QPlatformSurface *surface);
     void doneCurrent();
 
-    void (*getProcAddress(const QByteArray &procName)) ();
+    void (*getProcAddress(const char *procName)) ();
 
     QSurfaceFormat format() const { return m_format; }
 

@@ -96,9 +96,9 @@ void QWaylandXCompositeGLXContext::swapBuffers(QPlatformSurface *surface)
     w->waitForFrameSync();
 }
 
-void (*QWaylandXCompositeGLXContext::getProcAddress(const QByteArray &procName)) ()
+void (*QWaylandXCompositeGLXContext::getProcAddress(const char *procName)) ()
 {
-    return glXGetProcAddress(reinterpret_cast<const GLubyte *>(procName.constData()));
+    return glXGetProcAddress(reinterpret_cast<const GLubyte *>(procName));
 }
 
 QSurfaceFormat QWaylandXCompositeGLXContext::format() const

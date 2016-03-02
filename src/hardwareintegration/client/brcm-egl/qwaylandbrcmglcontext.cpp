@@ -92,9 +92,9 @@ void QWaylandBrcmGLContext::swapBuffers(QPlatformSurface *surface)
     static_cast<QWaylandBrcmEglWindow *>(surface)->swapBuffers();
 }
 
-void (*QWaylandBrcmGLContext::getProcAddress(const QByteArray &procName)) ()
+void (*QWaylandBrcmGLContext::getProcAddress(const char *procName)) ()
 {
-    return eglGetProcAddress(procName.constData());
+    return eglGetProcAddress(procName);
 }
 
 EGLConfig QWaylandBrcmGLContext::eglConfig() const

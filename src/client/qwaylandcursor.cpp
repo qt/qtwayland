@@ -85,7 +85,8 @@ struct wl_cursor_image *QWaylandCursor::cursorImage(Qt::CursorShape newShape)
     if (newShape < Qt::BitmapCursor) {
         waylandCursor = requestCursor((WaylandCursor)newShape);
     } else if (newShape == Qt::BitmapCursor) {
-        //TODO: Bitmap cursor logic
+        // cannot create a wl_cursor_image for a CursorShape
+        return Q_NULLPTR;
     } else {
         //TODO: Custom cursor logic (for resize arrows)
     }
@@ -105,11 +106,27 @@ struct wl_cursor_image *QWaylandCursor::cursorImage(Qt::CursorShape newShape)
     return image;
 }
 
+QSharedPointer<QWaylandBuffer> QWaylandCursor::cursorBitmapImage(const QCursor *cursor)
+{
+    if (cursor->shape() != Qt::BitmapCursor)
+        return QSharedPointer<QWaylandShmBuffer>();
+
+    const QImage &img = cursor->pixmap().toImage();
+    QSharedPointer<QWaylandShmBuffer> buffer(new QWaylandShmBuffer(mDisplay, img.size(), img.format()));
+    memcpy(buffer->image()->bits(), img.bits(), img.byteCount());
+    return buffer;
+}
+
 void QWaylandCursor::changeCursor(QCursor *cursor, QWindow *window)
 {
     Q_UNUSED(window)
 
     const Qt::CursorShape newShape = cursor ? cursor->shape() : Qt::ArrowCursor;
+
+    if (newShape == Qt::BitmapCursor) {
+        mDisplay->setCursor(cursorBitmapImage(cursor), cursor->hotSpot());
+        return;
+    }
 
     struct wl_cursor_image *image = cursorImage(newShape);
     if (!image) {
@@ -127,6 +144,16 @@ void QWaylandDisplay::setCursor(struct wl_buffer *buffer, struct wl_cursor_image
     for (int i = 0; i < mInputDevices.count(); i++) {
         QWaylandInputDevice *inputDevice = mInputDevices.at(i);
         inputDevice->setCursor(buffer, image);
+    }
+}
+
+void QWaylandDisplay::setCursor(const QSharedPointer<QWaylandBuffer> &buffer, const QPoint &hotSpot)
+{
+    /* Qt doesn't tell us which input device we should set the cursor
+     * for, so set it for all devices. */
+    for (int i = 0; i < mInputDevices.count(); i++) {
+        QWaylandInputDevice *inputDevice = mInputDevices.at(i);
+        inputDevice->setCursor(buffer, hotSpot);
     }
 }
 

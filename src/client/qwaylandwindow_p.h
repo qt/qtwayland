@@ -168,7 +168,7 @@ public:
     inline bool isMaximized() const { return mState == Qt::WindowMaximized; }
     inline bool isFullscreen() const { return mState == Qt::WindowFullScreen; }
 
-    void setMouseCursor(QWaylandInputDevice *device, Qt::CursorShape shape);
+    void setMouseCursor(QWaylandInputDevice *device, const QCursor &cursor);
     void restoreMouseCursor(QWaylandInputDevice *device);
 
     QWaylandWindow *transientParent() const;
@@ -206,7 +206,7 @@ protected:
     QWaylandAbstractDecoration *mWindowDecoration;
     bool mMouseEventsInContentArea;
     Qt::MouseButtons mMousePressedInContentArea;
-    Qt::CursorShape m_cursorShape;
+    QCursor m_cursor;
 
     WId mWindowId;
     bool mWaitingForFrameSync;

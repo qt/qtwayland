@@ -116,11 +116,11 @@ public:
     }
 
 protected:
-    QWaylandExtensionTemplate(QWaylandExtensionTemplatePrivate &dd)
+    QWaylandExtensionTemplate(QWaylandExtensionPrivate &dd)
         : QWaylandExtension(dd)
     { }
 
-    QWaylandExtensionTemplate(QWaylandObject *container, QWaylandExtensionTemplatePrivate &dd)
+    QWaylandExtensionTemplate(QWaylandObject *container, QWaylandExtensionPrivate &dd)
         : QWaylandExtension(container,dd)
     { }
 };

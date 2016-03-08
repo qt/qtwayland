@@ -65,17 +65,25 @@ namespace QtWaylandClient {
 
 class Q_WAYLAND_CLIENT_EXPORT QWaylandBuffer {
 public:
-    QWaylandBuffer()
-        : mBuffer(0)
-    {
-    }
-    virtual ~QWaylandBuffer() { }
+    QWaylandBuffer();
+    virtual ~QWaylandBuffer();
+    void init(wl_buffer *buf);
+
     wl_buffer *buffer() {return mBuffer;}
     virtual QSize size() const = 0;
     virtual int scale() const { return 1; }
 
+    void setBusy() { mBusy = true; }
+    bool busy() const { return mBusy; }
+
 protected:
     struct wl_buffer *mBuffer;
+
+private:
+    bool mBusy;
+
+    static void release(void *data, wl_buffer *);
+    static const wl_buffer_listener listener;
 };
 
 }

@@ -214,7 +214,6 @@ protected:
     Qt::MouseButtons mMousePressedInContentArea;
     Qt::CursorShape m_cursorShape;
 
-    QWaylandBuffer *mBuffer;
     WId mWindowId;
     bool mWaitingForFrameSync;
     struct wl_callback *mFrameCallback;

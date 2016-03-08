@@ -57,6 +57,7 @@
 #include <QtGui/QImage>
 #include <qpa/qplatformwindow.h>
 #include <QMutex>
+#include <QLinkedList>
 
 QT_BEGIN_NAMESPACE
 
@@ -113,22 +114,17 @@ public:
 
 private:
     void updateDecorations();
+    QWaylandShmBuffer *getBuffer(const QSize &size);
 
     QWaylandDisplay *mDisplay;
+    QLinkedList<QWaylandShmBuffer *> mBuffers;
     QWaylandShmBuffer *mFrontBuffer;
     QWaylandShmBuffer *mBackBuffer;
-    bool mFrontBufferIsDirty;
     bool mPainting;
     QMutex mMutex;
 
     QSize mRequestedSize;
     Qt::WindowFlags mCurrentWindowFlags;
-
-    static const struct wl_callback_listener frameCallbackListener;
-    static void done(void *data,
-             struct wl_callback *callback,
-             uint32_t time);
-    struct wl_callback *mFrameCallback;
 };
 
 }

@@ -1,17 +1,8 @@
 TARGET = QtWaylandClient
+MODULE = waylandclient
+
 QT += core-private gui-private
 QT_FOR_PRIVATE += platformsupport-private
-
-MODULE=waylandclient
-MODULE_PLUGIN_TYPES = \
-            wayland-graphics-integration-client \
-            wayland-inputdevice-integration \
-            wayland-decoration-client \
-            wayland-shell-integration
-
-CONFIG += generated_privates
-
-load(qt_module)
 
 # We have a bunch of C code with casts, so we can't have this option
 QMAKE_CXXFLAGS_WARN_ON -= -Wcast-qual
@@ -25,19 +16,19 @@ CONFIG += link_pkgconfig qpa/genericunixfontdatabase wayland-scanner
 
 config_xkbcommon {
     !contains(QT_CONFIG, no-pkg-config) {
-        PKGCONFIG += xkbcommon
+        PKGCONFIG_PRIVATE += xkbcommon
     } else {
-        LIBS += -lxkbcommon
+        LIBS_PRIVATE += -lxkbcommon
     }
 } else {
     DEFINES += QT_NO_WAYLAND_XKB
 }
 
 !contains(QT_CONFIG, no-pkg-config) {
-    PKGCONFIG += wayland-client wayland-cursor
+    PKGCONFIG_PRIVATE += wayland-client wayland-cursor
     contains(QT_CONFIG, glib): PKGCONFIG_PRIVATE += glib-2.0
 } else {
-    LIBS += -lwayland-client -lwayland-cursor $$QT_LIBS_GLIB
+    LIBS_PRIVATE += -lwayland-client -lwayland-cursor $$QT_LIBS_GLIB
 }
 
 INCLUDEPATH += $$PWD/../shared
@@ -82,6 +73,7 @@ SOURCES +=  qwaylandintegration.cpp \
             qwaylandinputcontext.cpp \
             qwaylanddatadevice.cpp \
             qwaylandshm.cpp \
+            qwaylandbuffer.cpp \
 
 HEADERS +=  qwaylandintegration_p.h \
             qwaylandnativeinterface_p.h \
@@ -119,3 +111,11 @@ HEADERS +=  qwaylandintegration_p.h \
 include(hardwareintegration/hardwareintegration.pri)
 include(shellintegration/shellintegration.pri)
 include(inputdeviceintegration/inputdeviceintegration.pri)
+
+CONFIG += generated_privates
+MODULE_PLUGIN_TYPES = \
+            wayland-graphics-integration-client \
+            wayland-inputdevice-integration \
+            wayland-decoration-client \
+            wayland-shell-integration
+load(qt_module)

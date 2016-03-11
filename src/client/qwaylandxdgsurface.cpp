@@ -173,15 +173,13 @@ void QWaylandXdgSurface::sendProperty(const QString &name, const QVariant &value
 
 void QWaylandXdgSurface::xdg_surface_configure(int32_t width, int32_t height, struct wl_array *states,uint32_t serial)
 {
-    uint32_t *state = 0;
+    uint32_t *state = reinterpret_cast<uint32_t*>(states->data);
+    size_t numStates = states->size / sizeof(uint32_t);
     bool aboutToMaximize = false;
     bool aboutToFullScreen = false;
 
-    state = (uint32_t*) states->data;
-
-    for (uint32_t i = 0; i < states->size / sizeof(state) ; i++)
-    {
-        switch (*(state+i)) {
+    for (size_t i = 0; i < numStates; i++) {
+        switch (state[i]) {
         case XDG_SURFACE_STATE_MAXIMIZED:
             aboutToMaximize = ((width > 0) && (height > 0));
             break;

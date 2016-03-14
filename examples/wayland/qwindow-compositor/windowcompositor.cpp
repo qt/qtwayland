@@ -255,6 +255,9 @@ void WindowCompositor::adjustCursorSurface(QWaylandSurface *surface, int hotspot
     m_cursorView.setSurface(surface);
     m_cursorHotspotX = hotspotX;
     m_cursorHotspotY = hotspotY;
+
+    if (surface->isMapped())
+        updateCursor();
 }
 
 void WindowCompositor::closePopups()

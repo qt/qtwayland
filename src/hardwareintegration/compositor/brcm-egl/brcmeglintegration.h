@@ -52,10 +52,9 @@ class BrcmEglIntegration : public QtWayland::ClientBufferIntegration, public QtW
 public:
     BrcmEglIntegration();
 
-    void initializeHardware(QtWayland::Display *waylandDisplay) Q_DECL_OVERRIDE;
+    void initializeHardware(struct ::wl_display *display) Q_DECL_OVERRIDE;
 
     void bindTextureToBuffer(struct ::wl_resource *buffer) Q_DECL_OVERRIDE;
-    bool isYInverted(struct ::wl_resource *) const Q_DECL_OVERRIDE;
 
     QSize bufferSize(struct ::wl_resource *buffer) const Q_DECL_OVERRIDE;
 

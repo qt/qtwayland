@@ -174,15 +174,11 @@ void QWaylandKeyboardPrivate::keyboard_release(wl_keyboard::Resource *resource)
 
 void QWaylandKeyboardPrivate::keyEvent(uint code, uint32_t state)
 {
-    uint key = code - 8;
+    uint key = toWaylandXkbV1Key(code);
     if (state == WL_KEYBOARD_KEY_STATE_PRESSED) {
         keys << key;
     } else {
-        for (int i = 0; i < keys.size(); ++i) {
-            if (keys.at(i) == key) {
-                keys.remove(i);
-            }
-        }
+        keys.removeAll(key);
     }
 }
 
@@ -190,7 +186,7 @@ void QWaylandKeyboardPrivate::sendKeyEvent(uint code, uint32_t state)
 {
     uint32_t time = compositor()->currentTimeMsecs();
     uint32_t serial = compositor()->nextSerial();
-    uint key = code - 8;
+    uint key = toWaylandXkbV1Key(code);
     if (focusResource)
         send_key(focusResource->handle, serial, time, key, state);
 }
@@ -336,6 +332,13 @@ void QWaylandKeyboardPrivate::createXKBState(xkb_keymap *keymap)
     if (xkb_state)
         xkb_state_unref(xkb_state);
     xkb_state = xkb_state_new(keymap);
+}
+
+uint QWaylandKeyboardPrivate::toWaylandXkbV1Key(const uint nativeScanCode)
+{
+    const uint offset = 8;
+    Q_ASSERT(nativeScanCode >= offset);
+    return nativeScanCode - offset;
 }
 
 void QWaylandKeyboardPrivate::createXKBKeymap()

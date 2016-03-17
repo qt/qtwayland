@@ -20,7 +20,7 @@ doubt, run git clean -f -d -x.
 
 To build the QtWayland module you need the external dependencies:
 xkbcommon 0.2.0 - http://xkbcommon.org/
-wayland 1.2.0 - http://wayland.freedesktop.org/
+wayland 1.6.0 - http://wayland.freedesktop.org/
 
 QtCompositor supports loading client buffer integrations that don't use the
 wayland-egl interfaces. These client buffer integrations are picked up by

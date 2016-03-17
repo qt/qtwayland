@@ -48,6 +48,8 @@
 #include <QtCore/qglobal.h>
 #include <QtWaylandClient/private/qwaylandclientexport_p.h>
 
+#include <stdint.h>
+
 QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {

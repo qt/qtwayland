@@ -256,7 +256,7 @@ void WindowCompositor::adjustCursorSurface(QWaylandSurface *surface, int hotspot
     m_cursorHotspotX = hotspotX;
     m_cursorHotspotY = hotspotY;
 
-    if (surface->isMapped())
+    if (surface && surface->isMapped())
         updateCursor();
 }
 

@@ -61,8 +61,9 @@ void QWaylandWlShellPrivate::shell_get_shell_surface(Resource *resource, uint32_
     Q_Q(QWaylandWlShell);
     QWaylandSurface *surface = QWaylandSurface::fromResource(surface_res);
 
-    wl_resource *res = wl_resource_create(resource->client(), &wl_shell_surface_interface,
-                                          wl_resource_get_version(resource->handle), id);
+    QWaylandResource shellSurfaceResource(wl_resource_create(resource->client(), &wl_shell_surface_interface,
+                                                             wl_resource_get_version(resource->handle), id));
+
     // XXX FIXME
     // The role concept was formalized in wayland 1.7, so that release adds one error
     // code for each interface that implements a role, and we are supposed to pass here
@@ -71,8 +72,19 @@ void QWaylandWlShellPrivate::shell_get_shell_surface(Resource *resource, uint32_
     // However we're still using wayland 1.4, which doesn't have interface specific role
     // errors, so the best we can do is to use wl_display's object_id error.
     wl_resource *displayRes = wl_client_get_object(resource->client(), 1);
-    if (surface->setRole(QWaylandWlShellSurface::role(), displayRes, WL_DISPLAY_ERROR_INVALID_OBJECT))
-        emit q->createShellSurface(surface, QWaylandResource(res));
+    if (!surface->setRole(QWaylandWlShellSurface::role(), displayRes, WL_DISPLAY_ERROR_INVALID_OBJECT))
+        return;
+
+    emit q->createShellSurface(surface, shellSurfaceResource);
+
+    QWaylandWlShellSurface *shellSurface = QWaylandWlShellSurface::fromResource(shellSurfaceResource.resource());
+    if (!shellSurface) {
+        // A QWaylandShellSurface was not created in response to the createShellSurface signal
+        // we create one as fallback here instead.
+        shellSurface = new QWaylandWlShellSurface(q, surface, shellSurfaceResource);
+    }
+
+    emit q->shellSurfaceCreated(shellSurface);
 }
 
 QWaylandWlShellSurfacePrivate::QWaylandWlShellSurfacePrivate()

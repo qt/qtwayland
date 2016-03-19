@@ -111,8 +111,8 @@ WindowCompositor::WindowCompositor(QWindow *window)
     , m_wlShell(new QWaylandWlShell(this))
     , m_xdgShell(new QWaylandXdgShell(this))
 {
-    connect(m_wlShell, &QWaylandWlShell::createShellSurface, this, &WindowCompositor::onCreateWlShellSurface);
-    connect(m_xdgShell, &QWaylandXdgShell::createXdgSurface, this, &WindowCompositor::onCreateXdgSurface);
+    connect(m_wlShell, &QWaylandWlShell::shellSurfaceCreated, this, &WindowCompositor::onWlShellSurfaceCreated);
+    connect(m_xdgShell, &QWaylandXdgShell::xdgSurfaceCreated, this, &WindowCompositor::onXdgSurfaceCreated);
     connect(m_xdgShell, &QWaylandXdgShell::createXdgPopup, this, &WindowCompositor::onCreateXdgPopup);
 }
 
@@ -189,29 +189,27 @@ WindowCompositorView * WindowCompositor::findView(const QWaylandSurface *s) cons
     return Q_NULLPTR;
 }
 
-void WindowCompositor::onCreateWlShellSurface(QWaylandSurface *s, const QWaylandResource &res)
+void WindowCompositor::onWlShellSurfaceCreated(QWaylandWlShellSurface *wlShellSurface)
 {
-    QWaylandSurface *surface = s;
-
-    QWaylandWlShellSurface *wlShellSurface = new QWaylandWlShellSurface(m_wlShell, surface, res);
     connect(wlShellSurface, &QWaylandWlShellSurface::startMove, this, &WindowCompositor::onStartMove);
     connect(wlShellSurface, &QWaylandWlShellSurface::startResize, this, &WindowCompositor::onWlStartResize);
     connect(wlShellSurface, &QWaylandWlShellSurface::setTransient, this, &WindowCompositor::onSetTransient);
     connect(wlShellSurface, &QWaylandWlShellSurface::setPopup, this, &WindowCompositor::onSetPopup);
-    WindowCompositorView *view = findView(s);
+
+    WindowCompositorView *view = findView(wlShellSurface->surface());
     Q_ASSERT(view);
     view->m_wlShellSurface = wlShellSurface;
 }
 
-void WindowCompositor::onCreateXdgSurface(QWaylandSurface *surface, const QWaylandResource &res)
+void WindowCompositor::onXdgSurfaceCreated(QWaylandXdgSurface *xdgSurface)
 {
-    QWaylandXdgSurface *xdgSurface = new QWaylandXdgSurface(m_xdgShell, surface, res);
     connect(xdgSurface, &QWaylandXdgSurface::startMove, this, &WindowCompositor::onStartMove);
     connect(xdgSurface, &QWaylandXdgSurface::startResize, this, &WindowCompositor::onXdgStartResize);
 
-    WindowCompositorView *view = findView(surface);
+    WindowCompositorView *view = findView(xdgSurface->surface());
     Q_ASSERT(view);
     view->m_xdgSurface = xdgSurface;
+
     connect(xdgSurface, &QWaylandXdgSurface::setMaximized, view, &WindowCompositorView::onXdgSetMaximized);
     connect(xdgSurface, &QWaylandXdgSurface::setFullscreen, view, &WindowCompositorView::onXdgSetFullscreen);
     connect(xdgSurface, &QWaylandXdgSurface::unsetMaximized, view, &WindowCompositorView::onXdgUnsetMaximized);

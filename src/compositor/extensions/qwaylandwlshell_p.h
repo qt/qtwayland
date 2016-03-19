@@ -70,10 +70,15 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandWlShellPrivate
     Q_DECLARE_PUBLIC(QWaylandWlShell)
 public:
     QWaylandWlShellPrivate();
+
+    void unregisterShellSurface(QWaylandWlShellSurface *shellSurface);
+
     static QWaylandWlShellPrivate *get(QWaylandWlShell *shell) { return shell->d_func(); }
 
 protected:
     void shell_get_shell_surface(Resource *resource, uint32_t id, struct ::wl_resource *surface) Q_DECL_OVERRIDE;
+
+    QList<QWaylandWlShellSurface *> m_shellSurfaces;
 };
 
 class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandWlShellSurfacePrivate

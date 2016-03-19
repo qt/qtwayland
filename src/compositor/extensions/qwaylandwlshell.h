@@ -63,6 +63,8 @@ public:
     QWaylandWlShell(QWaylandCompositor *compositor);
 
     void initialize() Q_DECL_OVERRIDE;
+    QList<QWaylandWlShellSurface *> shellSurfaces() const;
+    QList<QWaylandWlShellSurface *> shellSurfacesForClient(QWaylandClient* client) const;
 
     static const struct wl_interface *interface();
     static QByteArray interfaceName();
@@ -112,6 +114,7 @@ public:
 
     QWaylandWlShellSurface();
     QWaylandWlShellSurface(QWaylandWlShell *shell, QWaylandSurface *surface, const QWaylandResource &resource);
+    virtual ~QWaylandWlShellSurface();
 
     Q_INVOKABLE void initialize(QWaylandWlShell *shell, QWaylandSurface *surface, const QWaylandResource &resource);
 

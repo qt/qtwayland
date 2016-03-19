@@ -86,7 +86,14 @@ void QWaylandWlShellPrivate::shell_get_shell_surface(Resource *resource, uint32_
         shellSurface = new QWaylandWlShellSurface(q, surface, shellSurfaceResource);
     }
 
+    m_shellSurfaces.append(shellSurface);
     emit q->shellSurfaceCreated(shellSurface);
+}
+
+void QWaylandWlShellPrivate::unregisterShellSurface(QWaylandWlShellSurface *shellSurface)
+{
+    if (!m_shellSurfaces.removeOne(shellSurface))
+        qWarning("Unexpected state. Can't find registered shell surface.");
 }
 
 QWaylandWlShellSurfacePrivate::QWaylandWlShellSurfacePrivate()
@@ -308,6 +315,23 @@ void QWaylandWlShell::initialize()
     d->init(compositor->display(), 1);
 }
 
+QList<QWaylandWlShellSurface *> QWaylandWlShell::shellSurfaces() const
+{
+    Q_D(const QWaylandWlShell);
+    return d->m_shellSurfaces;
+}
+
+QList<QWaylandWlShellSurface *> QWaylandWlShell::shellSurfacesForClient(QWaylandClient *client) const
+{
+    Q_D(const QWaylandWlShell);
+    QList<QWaylandWlShellSurface *> surfsForClient;
+    Q_FOREACH (QWaylandWlShellSurface *shellSurface, d->m_shellSurfaces) {
+        if (shellSurface->surface()->client() == client)
+            surfsForClient.append(shellSurface);
+    }
+    return surfsForClient;
+}
+
 /*!
  * Returns the Wayland interface for the QWaylandWlShell.
  */
@@ -383,6 +407,12 @@ QWaylandWlShellSurface::QWaylandWlShellSurface(QWaylandWlShell *shell, QWaylandS
     : QWaylandShellSurfaceTemplate<QWaylandWlShellSurface>(*new QWaylandWlShellSurfacePrivate)
 {
     initialize(shell, surface, res);
+}
+
+QWaylandWlShellSurface::~QWaylandWlShellSurface()
+{
+    Q_D(QWaylandWlShellSurface);
+    QWaylandWlShellPrivate::get(d->m_shell)->unregisterShellSurface(this);
 }
 
 /*!

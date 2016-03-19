@@ -107,7 +107,7 @@ public:
     void handleResize(View *target, const QSize &initialSize, const QPoint &delta, int edge);
     void handleDrag(View *target, QMouseEvent *me);
 
-    bool popupActive() const { return !m_popupViews.isEmpty(); }
+    QWaylandClient *popupClient() const;
     void closePopups();
 protected:
     void adjustCursorSurface(QWaylandSurface *surface, int hotspotX, int hotspotY);
@@ -146,7 +146,6 @@ private:
     View *findView(const QWaylandSurface *s) const;
     QWindow *m_window;
     QList<View*> m_views;
-    QList<View*> m_popupViews;
     QWaylandWlShell *m_wlShell;
     QWaylandXdgShellV5 *m_xdgShell;
     QWaylandView m_cursorView;

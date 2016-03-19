@@ -193,13 +193,6 @@ void Compositor::surfaceHasContentChanged()
                 || surface->role() == QWaylandXdgPopupV5::role()) {
             defaultSeat()->setKeyboardFocus(surface);
         }
-    } else if (popupActive()) {
-        for (int i = 0; i < m_popupViews.count(); i++) {
-            if (m_popupViews.at(i)->surface() == surface) {
-                m_popupViews.removeAt(i);
-                break;
-            }
-        }
     }
     triggerRender();
 }
@@ -308,7 +301,6 @@ void Compositor::onSetPopup(QWaylandSeat *seat, QWaylandSurface *parent, const Q
     Q_UNUSED(seat);
     QWaylandWlShellSurface *surface = qobject_cast<QWaylandWlShellSurface*>(sender());
     View *view = findView(surface->surface());
-    m_popupViews << view;
     if (view) {
         raise(view);
         View *parentView = findView(parent);
@@ -380,21 +372,18 @@ void Compositor::adjustCursorSurface(QWaylandSurface *surface, int hotspotX, int
 
 void Compositor::closePopups()
 {
-    Q_FOREACH (View *view, m_popupViews) {
-        if (view->m_wlShellSurface)
-            view->m_wlShellSurface->sendPopupDone();
-    }
-    m_popupViews.clear();
-
+    m_wlShell->closeAllPopups();
     m_xdgShell->closeAllPopups();
 }
 
 void Compositor::handleMouseEvent(QWaylandView *target, QMouseEvent *me)
 {
-    if (target && popupActive() && me->type() == QEvent::MouseButtonPress
-        && target->surface()->client() != m_popupViews.first()->surface()->client()) {
+    auto popClient = popupClient();
+    if (target && me->type() == QEvent::MouseButtonPress
+            && popClient && popClient != target->surface()->client()) {
         closePopups();
     }
+
     QWaylandSeat *input = defaultSeat();
     QWaylandSurface *surface = target ? target->surface() : nullptr;
     switch (me->type()) {
@@ -460,6 +449,12 @@ void Compositor::handleDrag(View *target, QMouseEvent *me)
         m_views.removeOne(findView(currentDrag->icon()));
         currentDrag->drop();
     }
+}
+
+QWaylandClient *Compositor::popupClient() const
+{
+    auto client = m_wlShell->popupClient();
+    return client ? client : m_xdgShell->popupClient();
 }
 
 // We only have a flat list of views, plus pointers from child to parent,

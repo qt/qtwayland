@@ -531,6 +531,16 @@ void QWaylandXdgShellV5::initialize()
             this, &QWaylandXdgShellV5::handleSeatChanged);
 }
 
+QWaylandClient *QWaylandXdgShellV5::popupClient() const
+{
+    Q_D(const QWaylandXdgShellV5);
+    Q_FOREACH (QWaylandXdgPopupV5 *popup, d->m_xdgPopups) {
+        if (popup->surface()->hasContent())
+            return popup->surface()->client();
+    }
+    return nullptr;
+}
+
 /*!
  * Returns the Wayland interface for the QWaylandXdgShellV5.
  */

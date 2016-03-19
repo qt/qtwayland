@@ -68,6 +68,7 @@ public:
     QWaylandXdgShellV5(QWaylandCompositor *compositor);
 
     void initialize() Q_DECL_OVERRIDE;
+    QWaylandClient *popupClient() const;
 
     static const struct wl_interface *interface();
     static QByteArray interfaceName();

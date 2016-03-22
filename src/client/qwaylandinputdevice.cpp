@@ -48,6 +48,7 @@
 #include "qwaylandscreen_p.h"
 #include "qwaylandcursor_p.h"
 #include "qwaylanddisplay_p.h"
+#include "qwaylandshmbackingstore_p.h"
 #include "../shared/qwaylandxkb.h"
 
 #include <QtGui/private/qpixmap_raster_p.h>
@@ -335,9 +336,26 @@ void QWaylandInputDevice::setCursor(Qt::CursorShape newShape, QWaylandScreen *sc
     setCursor(buffer, image);
 }
 
+void QWaylandInputDevice::setCursor(const QCursor &cursor, QWaylandScreen *screen)
+{
+    if (cursor.shape() == Qt::BitmapCursor) {
+        setCursor(screen->waylandCursor()->cursorBitmapImage(&cursor), cursor.hotSpot());
+        return;
+    }
+    setCursor(cursor.shape(), screen);
+}
+
 void QWaylandInputDevice::setCursor(struct wl_buffer *buffer, struct wl_cursor_image *image)
 {
+    setCursor(buffer,
+              image ? QPoint(image->hotspot_x, image->hotspot_y) : QPoint(),
+              image ? QSize(image->width, image->height) : QSize());
+}
+
+void QWaylandInputDevice::setCursor(struct wl_buffer *buffer, const QPoint &hotSpot, const QSize &size)
+{
     if (mCaps & WL_SEAT_CAPABILITY_POINTER) {
+        mPixmapCursor.clear();
         mPointer->mCursorSerial = mPointer->mEnterSerial;
         /* Hide cursor */
         if (!buffer)
@@ -347,11 +365,17 @@ void QWaylandInputDevice::setCursor(struct wl_buffer *buffer, struct wl_cursor_i
         }
 
         mPointer->set_cursor(mPointer->mEnterSerial, pointerSurface,
-                             image->hotspot_x, image->hotspot_y);
+                             hotSpot.x(), hotSpot.y());
         wl_surface_attach(pointerSurface, buffer, 0, 0);
-        wl_surface_damage(pointerSurface, 0, 0, image->width, image->height);
+        wl_surface_damage(pointerSurface, 0, 0, size.width(), size.height());
         wl_surface_commit(pointerSurface);
     }
+}
+
+void QWaylandInputDevice::setCursor(const QSharedPointer<QWaylandBuffer> &buffer, const QPoint &hotSpot)
+{
+    setCursor(buffer->buffer(), hotSpot, buffer->size());
+    mPixmapCursor = buffer;
 }
 
 class EnterEvent : public QWaylandPointerEvent

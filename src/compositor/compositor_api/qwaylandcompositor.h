@@ -86,7 +86,7 @@ public:
     };
     Q_DECLARE_FLAGS(ExtensionFlags, ExtensionFlag)
 
-    QWaylandCompositor(const char *socketName = 0, ExtensionFlags extensions = DefaultExtensions);
+    QWaylandCompositor(const char *socketName = Q_NULLPTR, ExtensionFlags extensions = DefaultExtensions);
     virtual ~QWaylandCompositor();
 
     void addGlobalInterface(QWaylandGlobalInterface *interface);

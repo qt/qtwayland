@@ -46,7 +46,7 @@ class QWaylandOutput;
 class Q_COMPOSITOR_EXPORT QWaylandQuickCompositor : public QWaylandCompositor
 {
 public:
-    QWaylandQuickCompositor(const char *socketName = 0, QWaylandCompositor::ExtensionFlags extensions = DefaultExtensions);
+    QWaylandQuickCompositor(const char *socketName = Q_NULLPTR, QWaylandCompositor::ExtensionFlags extensions = DefaultExtensions);
 
     QWaylandSurfaceView *createView(QWaylandSurface *surf) Q_DECL_OVERRIDE;
     QWaylandOutput *createOutput(QWindow *window,

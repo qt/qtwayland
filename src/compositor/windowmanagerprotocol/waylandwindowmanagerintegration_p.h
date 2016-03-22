@@ -70,7 +70,7 @@ class Q_COMPOSITOR_EXPORT WindowManagerServerIntegration : public QObject, publi
 {
     Q_OBJECT
 public:
-    explicit WindowManagerServerIntegration(QWaylandCompositor *compositor, QObject *parent = 0);
+    explicit WindowManagerServerIntegration(QWaylandCompositor *compositor, QObject *parent = Q_NULLPTR);
     ~WindowManagerServerIntegration();
 
     void initialize(QtWayland::Display *waylandDisplay);

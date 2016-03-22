@@ -69,7 +69,7 @@ class Q_COMPOSITOR_EXPORT QWaylandSurfaceItem : public QQuickItem, public QWayla
     Q_PROPERTY(bool resizeSurfaceToItem READ resizeSurfaceToItem WRITE setResizeSurfaceToItem NOTIFY resizeSurfaceToItemChanged)
 
 public:
-    QWaylandSurfaceItem(QWaylandQuickSurface *surface, QQuickItem *parent = 0);
+    QWaylandSurfaceItem(QWaylandQuickSurface *surface, QQuickItem *parent = Q_NULLPTR);
     ~QWaylandSurfaceItem();
 
     Q_INVOKABLE bool isYInverted() const;
@@ -103,7 +103,7 @@ protected:
     void mouseUngrabEvent() Q_DECL_OVERRIDE;
 
 public Q_SLOTS:
-    virtual void takeFocus(QWaylandInputDevice *device = 0);
+    virtual void takeFocus(QWaylandInputDevice *device = Q_NULLPTR);
     void setPaintEnabled(bool paintEnabled);
 
 private Q_SLOTS:

@@ -54,6 +54,11 @@ Module {
             name: "surfaceAboutToBeDestroyed"
             Parameter { name: "surface"; type: "QWaylandSurface"; isPointer: true }
         }
+        Signal {
+            name: "subsurfaceChanged"
+            Parameter { name: "child"; type: "QWaylandSurface"; isPointer: true }
+            Parameter { name: "parent"; type: "QWaylandSurface"; isPointer: true }
+        }
         Method { name: "processWaylandEvents" }
         Method {
             name: "destroyClientForSurface"
@@ -226,13 +231,18 @@ Module {
         Property { name: "clientRenderingEnabled"; type: "bool" }
     }
     Component {
+        name: "QWaylandResource"
+        exports: ["QtWayland.Compositor/WaylandResource 1.0"]
+        isCreatable: false
+        exportMetaObjectRevisions: [0]
+    }
+    Component {
         name: "QWaylandShell"
         prototype: "QWaylandExtension"
         Signal {
             name: "createShellSurface"
             Parameter { name: "surface"; type: "QWaylandSurface"; isPointer: true }
-            Parameter { name: "client"; type: "QWaylandClient"; isPointer: true }
-            Parameter { name: "id"; type: "uint" }
+            Parameter { name: "resource"; type: "QWaylandResource" }
         }
     }
     Component {
@@ -261,7 +271,7 @@ Module {
         Enum {
             name: "ResizeEdge"
             values: {
-                "DefaultEdge": 0,
+                "NoneEdge": 0,
                 "TopEdge": 1,
                 "BottomEdge": 2,
                 "LeftEdge": 4,
@@ -316,12 +326,12 @@ Module {
             name: "setMaximized"
             Parameter { name: "output"; type: "QWaylandOutput"; isPointer: true }
         }
+        Method { name: "ping" }
         Method {
             name: "initialize"
             Parameter { name: "shell"; type: "QWaylandShell"; isPointer: true }
             Parameter { name: "surface"; type: "QWaylandSurface"; isPointer: true }
-            Parameter { name: "client"; type: "QWaylandClient"; isPointer: true }
-            Parameter { name: "id"; type: "uint" }
+            Parameter { name: "resource"; type: "QWaylandResource" }
         }
         Method {
             name: "sizeForResize"
@@ -375,11 +385,27 @@ Module {
             Parameter { name: "oldParent"; type: "QWaylandSurface"; isPointer: true }
         }
         Signal {
+            name: "childAdded"
+            Parameter { name: "child"; type: "QWaylandSurface"; isPointer: true }
+        }
+        Signal {
             name: "offsetForNextFrame"
             Parameter { name: "offset"; type: "QPoint" }
         }
         Signal { name: "pong" }
         Signal { name: "surfaceDestroyed" }
+        Signal {
+            name: "subsurfacePositionChanged"
+            Parameter { name: "position"; type: "QPoint" }
+        }
+        Signal {
+            name: "subsurfacePlaceAbove"
+            Parameter { name: "sibling"; type: "QWaylandSurface"; isPointer: true }
+        }
+        Signal {
+            name: "subsurfacePlaceBelow"
+            Parameter { name: "sibling"; type: "QWaylandSurface"; isPointer: true }
+        }
         Signal {
             name: "configure"
             Parameter { name: "hasBuffer"; type: "bool" }

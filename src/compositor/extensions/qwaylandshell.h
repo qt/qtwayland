@@ -122,6 +122,8 @@ public:
     static QByteArray interfaceName();
     static QWaylandSurfaceRole *role();
 
+    static QWaylandShellSurface *fromResource(wl_resource *res);
+
     Q_INVOKABLE QSize sizeForResize(const QSizeF &size, const QPointF &delta, ResizeEdge edges);
     Q_INVOKABLE void sendConfigure(const QSize &size, ResizeEdge edges);
     Q_INVOKABLE void sendPopupDone();

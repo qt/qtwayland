@@ -578,4 +578,15 @@ void QWaylandShellSurface::ping()
     d->ping(serial);
 }
 
+/*!
+ * Returns the QWaylandShellSurface object associated with the given \a resource, or null if no such object exists.
+ */
+QWaylandShellSurface *QWaylandShellSurface::fromResource(wl_resource *resource)
+{
+    QWaylandShellSurfacePrivate::Resource *res = QWaylandShellSurfacePrivate::Resource::fromResource(resource);
+    if (res)
+        return static_cast<QWaylandShellSurfacePrivate *>(res->shell_surface_object)->q_func();
+    return 0;
+}
+
 QT_END_NAMESPACE

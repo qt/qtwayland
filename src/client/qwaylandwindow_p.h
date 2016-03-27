@@ -120,7 +120,6 @@ public:
     using QtWayland::wl_surface::attach;
     void attach(QWaylandBuffer *buffer, int x, int y);
     void attachOffset(QWaylandBuffer *buffer);
-    QWaylandBuffer *attached() const;
     QPoint attachOffset() const;
 
     using QtWayland::wl_surface::damage;

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Jolla Ltd, author: <giulio.camuffo@jollamobile.com>
+** Copyright (C) 2016 Klarälvdalens Datakonsult AB (KDAB).
 ** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the QtWaylandCompositor module of the Qt Toolkit.
@@ -34,33 +34,39 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDQUICKCOMPOSITOR_H
-#define QWAYLANDQUICKCOMPOSITOR_H
+#ifndef QWAYLANDSURFACEGRABBER_H
+#define QWAYLANDSURFACEGRABBER_H
 
-#include <QtWaylandCompositor/qwaylandcompositor.h>
-#include <QtQml/QQmlParserStatus>
+#include <QtWaylandCompositor/qwaylandexport.h>
+#include <QtCore/QObject>
 
 QT_BEGIN_NAMESPACE
 
-class QQuickWindow;
-class QWaylandQuickCompositorPrivate;
-class QWaylandView;
+class QWaylandSurface;
+class QWaylandSurfaceGrabberPrivate;
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQuickCompositor : public QWaylandCompositor, public QQmlParserStatus
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandSurfaceGrabber : public QObject
 {
-    Q_INTERFACES(QQmlParserStatus)
     Q_OBJECT
+    Q_DECLARE_PRIVATE(QWaylandSurfaceGrabber)
 public:
-    QWaylandQuickCompositor(QObject *parent = 0);
-    void create() Q_DECL_OVERRIDE;
+    enum Error {
+        InvalidSurface,
+        NoBufferAttached,
+        UnknownBufferType,
+        RendererNotReady,
+    };
+    Q_ENUM(Error)
+    explicit QWaylandSurfaceGrabber(QWaylandSurface *surface, QObject *parent = Q_NULLPTR);
 
-    void grabSurface(QWaylandSurfaceGrabber *grabber, const QWaylandBufferRef &buffer) Q_DECL_OVERRIDE;
+    QWaylandSurface *surface() const;
+    void grab();
 
-protected:
-    void classBegin() Q_DECL_OVERRIDE;
-    void componentComplete() Q_DECL_OVERRIDE;
+Q_SIGNALS:
+    void success(const QImage &image);
+    void failed(Error error);
 };
 
 QT_END_NAMESPACE
 
-#endif
+#endif // QWAYLANDSURFACEGRABBER_H

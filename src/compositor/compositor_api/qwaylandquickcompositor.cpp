@@ -36,6 +36,11 @@
 ****************************************************************************/
 
 #include <QtQml/QQmlEngine>
+#include <QQuickWindow>
+#include <QtGui/private/qopengltextureblitter_p.h>
+#include <QOpenGLFramebufferObject>
+#include <QMatrix4x4>
+#include <QRunnable>
 
 #include "qwaylandclient.h"
 #include "qwaylandquickcompositor.h"
@@ -44,6 +49,7 @@
 #include "qwaylandquickitem.h"
 #include "qwaylandoutput.h"
 #include <QtWaylandCompositor/private/qwaylandcompositor_p.h>
+#include "qwaylandsurfacegrabber.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -100,6 +106,66 @@ void QWaylandQuickCompositor::classBegin()
 void QWaylandQuickCompositor::componentComplete()
 {
     create();
+}
+
+/*!
+ * Grab the surface content from the given \a buffer.
+ * Reimplemented from QWaylandCompositor::grabSurface.
+ */
+void QWaylandQuickCompositor::grabSurface(QWaylandSurfaceGrabber *grabber, const QWaylandBufferRef &buffer)
+{
+    if (buffer.isShm()) {
+        QWaylandCompositor::grabSurface(grabber, buffer);
+        return;
+    }
+
+    QWaylandQuickOutput *output = static_cast<QWaylandQuickOutput *>(defaultOutput());
+    if (!output) {
+        emit grabber->failed(QWaylandSurfaceGrabber::RendererNotReady);
+        return;
+    }
+
+    // We cannot grab the surface now, we need to have a current opengl context, so we
+    // need to be in the render thread
+    class GrabState : public QRunnable
+    {
+    public:
+        QWaylandSurfaceGrabber *grabber;
+        QWaylandBufferRef buffer;
+
+        void run() Q_DECL_OVERRIDE
+        {
+            QOpenGLFramebufferObject fbo(buffer.size());
+            fbo.bind();
+            QOpenGLTextureBlitter blitter;
+            blitter.create();
+            blitter.bind();
+
+            glViewport(0, 0, buffer.size().width(), buffer.size().height());
+
+            QOpenGLTextureBlitter::Origin surfaceOrigin =
+                buffer.origin() == QWaylandSurface::OriginTopLeft
+                ? QOpenGLTextureBlitter::OriginTopLeft
+                : QOpenGLTextureBlitter::OriginBottomLeft;
+
+            GLuint texture;
+            glGenTextures(1, &texture);
+            glBindTexture(GL_TEXTURE_2D, texture);
+            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            buffer.bindToTexture();
+            blitter.blit(texture, QMatrix4x4(), surfaceOrigin);
+
+            blitter.release();
+            glDeleteTextures(1, &texture);
+
+            emit grabber->success(fbo.toImage());
+        }
+    };
+
+    GrabState *state = new GrabState;
+    state->grabber = grabber;
+    state->buffer = buffer;
+    static_cast<QQuickWindow *>(output->window())->scheduleRenderJob(state, QQuickWindow::NoStage);
 }
 
 QT_END_NAMESPACE

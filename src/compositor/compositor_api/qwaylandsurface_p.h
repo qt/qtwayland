@@ -137,7 +137,7 @@ protected:
     void setBackBuffer(QtWayland::SurfaceBuffer *buffer, const QRegion &damage);
     QtWayland::SurfaceBuffer *createSurfaceBuffer(struct ::wl_resource *buffer);
 
-protected: //member variables
+public: //member variables
     QWaylandCompositor *compositor;
     int refCount;
     QWaylandClient *client;

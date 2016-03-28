@@ -46,6 +46,7 @@
 #include <QtWaylandCompositor/qwaylandkeyboard.h>
 #include <QtWaylandCompositor/qwaylandpointer.h>
 #include <QtWaylandCompositor/qwaylandtouch.h>
+#include <QtWaylandCompositor/qwaylandsurfacegrabber.h>
 
 #include <QtWaylandCompositor/private/qwaylandkeyboard_p.h>
 #include <QtWaylandCompositor/private/qwaylandsurface_p.h>
@@ -74,6 +75,13 @@
 #include <QtGui/qpa/qwindowsysteminterface_p.h>
 #include <QtGui/qpa/qplatformnativeinterface.h>
 #include <QtGui/private/qguiapplication_p.h>
+
+#ifdef QT_COMPOSITOR_WAYLAND_GL
+#   include <QtGui/private/qopengltextureblitter_p.h>
+#   include <QOpenGLContext>
+#   include <QOpenGLFramebufferObject>
+#   include <QMatrix4x4>
+#endif
 
 QT_BEGIN_NAMESPACE
 
@@ -817,6 +825,52 @@ void QWaylandCompositor::setUseHardwareIntegrationExtension(bool use)
 
     d->use_hw_integration_extension = use;
     useHardwareIntegrationExtensionChanged();
+}
+
+/*!
+ * Grab the surface content from the given \a buffer.
+ * The default implementation requires a OpenGL context to be bound to the current thread
+ * to work. If this is not possible reimplement this function in your compositor subclass
+ * to implement custom logic.
+ * The default implementation only grabs SHM and OpenGL buffers, reimplement this in your
+ * compositor subclass to handle more buffer types.
+ * You should not call this manually, but rather use \a QWaylandSurfaceGrabber.
+ */
+void QWaylandCompositor::grabSurface(QWaylandSurfaceGrabber *grabber, const QWaylandBufferRef &buffer)
+{
+    if (buffer.isShm()) {
+        emit grabber->success(buffer.image());
+    } else {
+#ifdef QT_COMPOSITOR_WAYLAND_GL
+        if (QOpenGLContext::currentContext()) {
+            QOpenGLFramebufferObject fbo(buffer.size());
+            fbo.bind();
+            QOpenGLTextureBlitter blitter;
+            blitter.create();
+            blitter.bind();
+
+            glViewport(0, 0, buffer.size().width(), buffer.size().height());
+
+            QOpenGLTextureBlitter::Origin surfaceOrigin =
+                buffer.origin() == QWaylandSurface::OriginTopLeft
+                ? QOpenGLTextureBlitter::OriginTopLeft
+                : QOpenGLTextureBlitter::OriginBottomLeft;
+
+            GLuint texture;
+            glGenTextures(1, &texture);
+            glBindTexture(GL_TEXTURE_2D, texture);
+            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            buffer.bindToTexture();
+            blitter.blit(texture, QMatrix4x4(), surfaceOrigin);
+
+            blitter.release();
+            glDeleteTextures(1, &texture);
+
+            emit grabber->success(fbo.toImage());
+        } else
+#endif
+        emit grabber->failed(QWaylandSurfaceGrabber::UnknownBufferType);
+    }
 }
 
 QT_END_NAMESPACE

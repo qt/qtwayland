@@ -23,6 +23,7 @@ HEADERS += \
     compositor_api/qwaylandview.h \
     compositor_api/qwaylandview_p.h \
     compositor_api/qwaylandresource.h \
+    compositor_api/qwaylandsurfacegrabber.h \
 
 SOURCES += \
     compositor_api/qwaylandcompositor.cpp \
@@ -39,6 +40,7 @@ SOURCES += \
     compositor_api/qwaylanddestroylistener.cpp \
     compositor_api/qwaylandview.cpp \
     compositor_api/qwaylandresource.cpp \
+    compositor_api/qwaylandsurfacegrabber.cpp \
 
 QT += core-private
 

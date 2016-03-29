@@ -99,7 +99,10 @@ public:
     struct ::wl_seat *wl_seat() { return QtWayland::wl_seat::object(); }
 
     void setCursor(Qt::CursorShape cursor, QWaylandScreen *screen);
+    void setCursor(const QCursor &cursor, QWaylandScreen *screen);
     void setCursor(struct wl_buffer *buffer, struct ::wl_cursor_image *image);
+    void setCursor(struct wl_buffer *buffer, const QPoint &hotSpot, const QSize &size);
+    void setCursor(const QSharedPointer<QWaylandBuffer> &buffer, const QPoint &hotSpot);
     void handleWindowDestroyed(QWaylandWindow *window);
 
     void setDataDevice(QWaylandDataDevice *device);
@@ -142,6 +145,8 @@ private:
     void handleTouchPoint(int id, double x, double y, Qt::TouchPointState state);
 
     QTouchDevice *mTouchDevice;
+
+    QSharedPointer<QWaylandBuffer> mPixmapCursor;
 
     friend class QWaylandTouchExtension;
     friend class QWaylandQtKeyExtension;

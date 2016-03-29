@@ -63,6 +63,7 @@ QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
 
+class QWaylandBuffer;
 class QWaylandDisplay;
 class QWaylandScreen;
 
@@ -78,6 +79,7 @@ public:
     void setPos(const QPoint &pos);
 
     struct wl_cursor_image *cursorImage(Qt::CursorShape shape);
+    QSharedPointer<QWaylandBuffer> cursorBitmapImage(const QCursor *cursor);
 
 private:
     enum WaylandCursor {

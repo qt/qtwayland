@@ -722,9 +722,13 @@ QString QWaylandXdgSurface::appId() const
 }
 
 /*!
- * \property QWaylandXdgSurface::appId
+ * \property QWaylandXdgSurface::windowGeometry
  *
- * This property holds the window geometry of the QWaylandXdgSurface.
+ * This property holds the window geometry of the QWaylandXdgSurface. The window
+ * geometry describes the window's visible bounds from the user's perspective.
+ * The geometry includes title bars and borders if drawn by the client, but
+ * excludes drop shadows. It is meant to be used for aligning and tiling
+ * windows.
  */
 QRect QWaylandXdgSurface::windowGeometry() const
 {

@@ -63,7 +63,7 @@ WaylandCompositor {
     }
 
     extensions: [
-        Shell {
+        WlShell {
             id: defaultShell
 
 

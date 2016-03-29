@@ -12,8 +12,8 @@ HEADERS += \
     extensions/qwlextendedsurface_p.h \
     extensions/qwlqttouch_p.h \
     extensions/qwlqtkey_p.h \
-    extensions/qwaylandshell.h \
-    extensions/qwaylandshell_p.h \
+    extensions/qwaylandwlshell.h \
+    extensions/qwaylandwlshell_p.h \
     extensions/qwaylandwindowmanagerextension.h \
     extensions/qwaylandwindowmanagerextension_p.h \
     extensions/qwltextinput_p.h \
@@ -29,7 +29,7 @@ SOURCES += \
     extensions/qwlextendedsurface.cpp \
     extensions/qwlqttouch.cpp \
     extensions/qwlqtkey.cpp \
-    extensions/qwaylandshell.cpp \
+    extensions/qwaylandwlshell.cpp \
     extensions/qwaylandwindowmanagerextension.cpp \
     extensions/qwltextinput.cpp \
     extensions/qwltextinputmanager.cpp \
@@ -41,11 +41,11 @@ SOURCES += \
 
 qtHaveModule(quick) {
     HEADERS += \
-        extensions/qwaylandquickshellsurfaceitem.h \
-        extensions/qwaylandquickshellsurfaceitem_p.h \
+        extensions/qwaylandquickwlshellsurfaceitem.h \
+        extensions/qwaylandquickwlshellsurfaceitem_p.h \
 
     SOURCES += \
-        extensions/qwaylandquickshellsurfaceitem.cpp \
+        extensions/qwaylandquickwlshellsurfaceitem.cpp \
 
 }
 

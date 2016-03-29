@@ -47,10 +47,10 @@
 #include <QtWaylandCompositor/QWaylandExtension>
 #include <QtWaylandCompositor/QWaylandQuickExtension>
 #include <QtWaylandCompositor/QWaylandInputDevice>
-#include <QtWaylandCompositor/QWaylandQuickShellSurfaceItem>
+#include <QtWaylandCompositor/QWaylandQuickWlShellSurfaceItem>
 #include <QtWaylandCompositor/QWaylandResource>
 
-#include <QtWaylandCompositor/QWaylandShell>
+#include <QtWaylandCompositor/QWaylandWlShell>
 
 #include <QtWaylandCompositor/qwaylandexport.h>
 #include "qwaylandmousetracker_p.h"
@@ -58,8 +58,8 @@
 QT_BEGIN_NAMESPACE
 
 Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CLASS(QWaylandQuickCompositor)
-Q_COMPOSITOR_DECLARE_QUICK_DATA_CLASS(QWaylandShell)
-Q_COMPOSITOR_DECLARE_QUICK_DATA_CLASS(QWaylandShellSurface)
+Q_COMPOSITOR_DECLARE_QUICK_DATA_CLASS(QWaylandWlShell)
+Q_COMPOSITOR_DECLARE_QUICK_DATA_CLASS(QWaylandWlShellSurface)
 
 class QmlUrlResolver
 {
@@ -135,13 +135,13 @@ public:
         qmlRegisterUncreatableType<QWaylandInputDevice>(uri, 1, 0, "WaylandInputDevice", QObject::tr("Cannot create instance of WaylandInputDevice"));
         qmlRegisterUncreatableType<QWaylandCompositor>(uri, 1, 0, "WaylandCompositorBase", QObject::tr("Cannot create instance of WaylandCompositorBase, use WaylandCompositor instead"));
         qmlRegisterUncreatableType<QWaylandSurface>(uri, 1, 0, "WaylandSurfaceBase", QObject::tr("Cannot create instance of WaylandSurfaceBase, use WaylandSurface instead"));
-        qmlRegisterUncreatableType<QWaylandShellSurface>(uri, 1, 0, "ShellSurfaceBase", QObject::tr("Cannot create instance of ShellSurfaceBase, use ShellSurface instead"));
+        qmlRegisterUncreatableType<QWaylandWlShellSurface>(uri, 1, 0, "WlShellSurfaceBase", QObject::tr("Cannot create instance of WlShellSurfaceBase, use WlShellSurface instead"));
         qmlRegisterUncreatableType<QWaylandResource>(uri, 1, 0, "WaylandResource", QObject::tr("Cannot create instance of WaylandResource"));
 
         //This should probably be somewhere else
-        qmlRegisterType<QWaylandShellQuickData>(uri, 1, 0, "Shell");
-        qmlRegisterType<QWaylandShellSurfaceQuickData>(uri, 1, 0, "ShellSurface");
-        qmlRegisterType<QWaylandQuickShellSurfaceItem>(uri, 1, 0, "ShellSurfaceItem");
+        qmlRegisterType<QWaylandWlShellQuickData>(uri, 1, 0, "WlShell");
+        qmlRegisterType<QWaylandWlShellSurfaceQuickData>(uri, 1, 0, "WlShellSurface");
+        qmlRegisterType<QWaylandQuickWlShellSurfaceItem>(uri, 1, 0, "WlShellSurfaceItem");
 
     }
 };

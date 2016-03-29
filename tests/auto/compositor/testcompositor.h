@@ -28,7 +28,7 @@
 
 #include "qwaylandcompositor.h"
 #include "qwaylandsurface.h"
-#include "qwaylandshell.h"
+#include "qwaylandwlshell.h"
 
 class TestCompositor : public QWaylandCompositor
 {
@@ -47,7 +47,7 @@ protected:
 
 public:
     QList<QWaylandSurface *> surfaces;
-    QWaylandShell* shell;
+    QWaylandWlShell* shell;
     bool m_createInputDevice;
 };
 

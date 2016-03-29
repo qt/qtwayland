@@ -34,31 +34,31 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDQUICKSHELLSURFACEITEM_H
-#define QWAYLANDQUICKSHELLSURFACEITEM_H
+#ifndef QWAYLANDQUICKWLSHELLSURFACEITEM_H
+#define QWAYLANDQUICKWLSHELLSURFACEITEM_H
 
 #include <QtWaylandCompositor/QWaylandExtension>
 #include <QtWaylandCompositor/QWaylandQuickItem>
-#include <QtWaylandCompositor/QWaylandShellSurface>
+#include <QtWaylandCompositor/QWaylandWlShellSurface>
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandQuickShellSurfaceItemPrivate;
+class QWaylandQuickWlShellSurfaceItemPrivate;
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQuickShellSurfaceItem : public QWaylandQuickItem
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQuickWlShellSurfaceItem : public QWaylandQuickItem
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QWaylandQuickShellSurfaceItem)
-    Q_PROPERTY(QWaylandShellSurface *shellSurface READ shellSurface WRITE setShellSurface NOTIFY shellSurfaceChanged)
+    Q_DECLARE_PRIVATE(QWaylandQuickWlShellSurfaceItem)
+    Q_PROPERTY(QWaylandWlShellSurface *shellSurface READ shellSurface WRITE setShellSurface NOTIFY shellSurfaceChanged)
     Q_PROPERTY(QQuickItem *moveItem READ moveItem WRITE setMoveItem NOTIFY moveItemChanged)
 
 public:
-    QWaylandQuickShellSurfaceItem(QQuickItem *parent = 0);
+    QWaylandQuickWlShellSurfaceItem(QQuickItem *parent = 0);
 
-    static QWaylandQuickShellSurfaceItemPrivate *get(QWaylandQuickShellSurfaceItem *item) { return item->d_func(); }
+    static QWaylandQuickWlShellSurfaceItemPrivate *get(QWaylandQuickWlShellSurfaceItem *item) { return item->d_func(); }
 
-    QWaylandShellSurface *shellSurface() const;
-    void setShellSurface(QWaylandShellSurface *shellSurface);
+    QWaylandWlShellSurface *shellSurface() const;
+    void setShellSurface(QWaylandWlShellSurface *shellSurface);
 
     QQuickItem *moveItem() const;
     void setMoveItem(QQuickItem *moveItem);
@@ -68,10 +68,10 @@ Q_SIGNALS:
 
 private Q_SLOTS:
     void handleStartMove(QWaylandInputDevice *inputDevice);
-    void handleStartResize(QWaylandInputDevice *inputDevice, QWaylandShellSurface::ResizeEdge edges);
+    void handleStartResize(QWaylandInputDevice *inputDevice, QWaylandWlShellSurface::ResizeEdge edges);
     void adjustOffsetForNextFrame(const QPointF &offset);
 protected:
-    QWaylandQuickShellSurfaceItem(QWaylandQuickShellSurfaceItemPrivate &dd, QQuickItem *parent);
+    QWaylandQuickWlShellSurfaceItem(QWaylandQuickWlShellSurfaceItemPrivate &dd, QQuickItem *parent);
 
     void mouseMoveEvent(QMouseEvent *event) Q_DECL_OVERRIDE;
     void mouseReleaseEvent(QMouseEvent *event) Q_DECL_OVERRIDE;
@@ -83,4 +83,4 @@ protected:
 
 QT_END_NAMESPACE
 
-#endif  /*QWAYLANDQUICKSHELLSURFACEITEM_H*/
+#endif  /*QWAYLANDQUICKWLSHELLSURFACEITEM_H*/

@@ -214,15 +214,6 @@ Module {
         Method { name: "updateStarted" }
     }
     Component {
-        name: "QWaylandQuickShellSurfaceItem"
-        defaultProperty: "data"
-        prototype: "QWaylandQuickItem"
-        exports: ["QtWayland.Compositor/ShellSurfaceItem 1.0"]
-        exportMetaObjectRevisions: [0]
-        Property { name: "shellSurface"; type: "QWaylandShellSurface"; isPointer: true }
-        Property { name: "moveItem"; type: "QQuickItem"; isPointer: true }
-    }
-    Component {
         name: "QWaylandQuickSurface"
         prototype: "QWaylandSurface"
         exports: ["QtWayland.Compositor/WaylandSurface 1.0"]
@@ -231,129 +222,19 @@ Module {
         Property { name: "clientRenderingEnabled"; type: "bool" }
     }
     Component {
+        name: "QWaylandQuickWlShellSurfaceItem"
+        defaultProperty: "data"
+        prototype: "QWaylandQuickItem"
+        exports: ["QtWayland.Compositor/WlShellSurfaceItem 1.0"]
+        exportMetaObjectRevisions: [0]
+        Property { name: "shellSurface"; type: "QWaylandWlShellSurface"; isPointer: true }
+        Property { name: "moveItem"; type: "QQuickItem"; isPointer: true }
+    }
+    Component {
         name: "QWaylandResource"
         exports: ["QtWayland.Compositor/WaylandResource 1.0"]
         isCreatable: false
         exportMetaObjectRevisions: [0]
-    }
-    Component {
-        name: "QWaylandShell"
-        prototype: "QWaylandExtension"
-        Signal {
-            name: "createShellSurface"
-            Parameter { name: "surface"; type: "QWaylandSurface"; isPointer: true }
-            Parameter { name: "resource"; type: "QWaylandResource" }
-        }
-    }
-    Component {
-        name: "QWaylandShellQuickData"
-        defaultProperty: "data"
-        prototype: "QWaylandShell"
-        exports: ["QtWayland.Compositor/Shell 1.0"]
-        exportMetaObjectRevisions: [0]
-        Property { name: "data"; type: "QObject"; isList: true; isReadonly: true }
-    }
-    Component {
-        name: "QWaylandShellSurface"
-        prototype: "QWaylandExtension"
-        exports: ["QtWayland.Compositor/ShellSurfaceBase 1.0"]
-        isCreatable: false
-        exportMetaObjectRevisions: [0]
-        Enum {
-            name: "FullScreenMethod"
-            values: {
-                "DefaultFullScreen": 0,
-                "ScaleFullScreen": 1,
-                "DriverFullScreen": 2,
-                "FillFullScreen": 3
-            }
-        }
-        Enum {
-            name: "ResizeEdge"
-            values: {
-                "NoneEdge": 0,
-                "TopEdge": 1,
-                "BottomEdge": 2,
-                "LeftEdge": 4,
-                "TopLeftEdge": 5,
-                "BottomLeftEdge": 6,
-                "RightEdge": 8,
-                "TopRightEdge": 9,
-                "BottomRightEdge": 10
-            }
-        }
-        Enum {
-            name: "FocusPolicy"
-            values: {
-                "DefaultFocus": 0,
-                "NoKeyboardFocus": 1
-            }
-        }
-        Property { name: "surface"; type: "QWaylandSurface"; isReadonly: true; isPointer: true }
-        Property { name: "title"; type: "string"; isReadonly: true }
-        Property { name: "className"; type: "string"; isReadonly: true }
-        Property { name: "focusPolicy"; type: "FocusPolicy"; isReadonly: true }
-        Signal { name: "pong" }
-        Signal {
-            name: "startMove"
-            Parameter { name: "inputDevice"; type: "QWaylandInputDevice"; isPointer: true }
-        }
-        Signal {
-            name: "startResize"
-            Parameter { name: "inputDevice"; type: "QWaylandInputDevice"; isPointer: true }
-            Parameter { name: "edges"; type: "ResizeEdge" }
-        }
-        Signal { name: "setDefaultToplevel" }
-        Signal {
-            name: "setTransient"
-            Parameter { name: "parentSurface"; type: "QWaylandSurface"; isPointer: true }
-            Parameter { name: "relativeToParent"; type: "QPoint" }
-            Parameter { name: "focusPolicy"; type: "FocusPolicy" }
-        }
-        Signal {
-            name: "setFullScreen"
-            Parameter { name: "method"; type: "FullScreenMethod" }
-            Parameter { name: "framerate"; type: "uint" }
-            Parameter { name: "output"; type: "QWaylandOutput"; isPointer: true }
-        }
-        Signal {
-            name: "setPopup"
-            Parameter { name: "inputDevice"; type: "QWaylandInputDevice"; isPointer: true }
-            Parameter { name: "parentSurface"; type: "QWaylandSurface"; isPointer: true }
-            Parameter { name: "relativeToParent"; type: "QPoint" }
-        }
-        Signal {
-            name: "setMaximized"
-            Parameter { name: "output"; type: "QWaylandOutput"; isPointer: true }
-        }
-        Method { name: "ping" }
-        Method {
-            name: "initialize"
-            Parameter { name: "shell"; type: "QWaylandShell"; isPointer: true }
-            Parameter { name: "surface"; type: "QWaylandSurface"; isPointer: true }
-            Parameter { name: "resource"; type: "QWaylandResource" }
-        }
-        Method {
-            name: "sizeForResize"
-            type: "QSize"
-            Parameter { name: "size"; type: "QSizeF" }
-            Parameter { name: "delta"; type: "QPointF" }
-            Parameter { name: "edges"; type: "ResizeEdge" }
-        }
-        Method {
-            name: "sendConfigure"
-            Parameter { name: "size"; type: "QSize" }
-            Parameter { name: "edges"; type: "ResizeEdge" }
-        }
-        Method { name: "sendPopupDone" }
-    }
-    Component {
-        name: "QWaylandShellSurfaceQuickData"
-        defaultProperty: "data"
-        prototype: "QWaylandShellSurface"
-        exports: ["QtWayland.Compositor/ShellSurface 1.0"]
-        exportMetaObjectRevisions: [0]
-        Property { name: "data"; type: "QObject"; isList: true; isReadonly: true }
     }
     Component {
         name: "QWaylandSurface"
@@ -436,6 +317,125 @@ Module {
         Property { name: "bufferLock"; type: "bool" }
         Property { name: "discardFrontBuffers"; type: "bool" }
         Signal { name: "surfaceDestroyed" }
+    }
+    Component {
+        name: "QWaylandWlShell"
+        prototype: "QWaylandExtension"
+        Signal {
+            name: "createShellSurface"
+            Parameter { name: "surface"; type: "QWaylandSurface"; isPointer: true }
+            Parameter { name: "resource"; type: "QWaylandResource" }
+        }
+    }
+    Component {
+        name: "QWaylandWlShellQuickData"
+        defaultProperty: "data"
+        prototype: "QWaylandWlShell"
+        exports: ["QtWayland.Compositor/WlShell 1.0"]
+        exportMetaObjectRevisions: [0]
+        Property { name: "data"; type: "QObject"; isList: true; isReadonly: true }
+    }
+    Component {
+        name: "QWaylandWlShellSurface"
+        prototype: "QWaylandExtension"
+        exports: ["QtWayland.Compositor/WlShellSurfaceBase 1.0"]
+        isCreatable: false
+        exportMetaObjectRevisions: [0]
+        Enum {
+            name: "FullScreenMethod"
+            values: {
+                "DefaultFullScreen": 0,
+                "ScaleFullScreen": 1,
+                "DriverFullScreen": 2,
+                "FillFullScreen": 3
+            }
+        }
+        Enum {
+            name: "ResizeEdge"
+            values: {
+                "NoneEdge": 0,
+                "TopEdge": 1,
+                "BottomEdge": 2,
+                "LeftEdge": 4,
+                "TopLeftEdge": 5,
+                "BottomLeftEdge": 6,
+                "RightEdge": 8,
+                "TopRightEdge": 9,
+                "BottomRightEdge": 10
+            }
+        }
+        Enum {
+            name: "FocusPolicy"
+            values: {
+                "DefaultFocus": 0,
+                "NoKeyboardFocus": 1
+            }
+        }
+        Property { name: "surface"; type: "QWaylandSurface"; isReadonly: true; isPointer: true }
+        Property { name: "title"; type: "string"; isReadonly: true }
+        Property { name: "className"; type: "string"; isReadonly: true }
+        Property { name: "focusPolicy"; type: "FocusPolicy"; isReadonly: true }
+        Signal { name: "pong" }
+        Signal {
+            name: "startMove"
+            Parameter { name: "inputDevice"; type: "QWaylandInputDevice"; isPointer: true }
+        }
+        Signal {
+            name: "startResize"
+            Parameter { name: "inputDevice"; type: "QWaylandInputDevice"; isPointer: true }
+            Parameter { name: "edges"; type: "ResizeEdge" }
+        }
+        Signal { name: "setDefaultToplevel" }
+        Signal {
+            name: "setTransient"
+            Parameter { name: "parentSurface"; type: "QWaylandSurface"; isPointer: true }
+            Parameter { name: "relativeToParent"; type: "QPoint" }
+            Parameter { name: "focusPolicy"; type: "FocusPolicy" }
+        }
+        Signal {
+            name: "setFullScreen"
+            Parameter { name: "method"; type: "FullScreenMethod" }
+            Parameter { name: "framerate"; type: "uint" }
+            Parameter { name: "output"; type: "QWaylandOutput"; isPointer: true }
+        }
+        Signal {
+            name: "setPopup"
+            Parameter { name: "inputDevice"; type: "QWaylandInputDevice"; isPointer: true }
+            Parameter { name: "parentSurface"; type: "QWaylandSurface"; isPointer: true }
+            Parameter { name: "relativeToParent"; type: "QPoint" }
+        }
+        Signal {
+            name: "setMaximized"
+            Parameter { name: "output"; type: "QWaylandOutput"; isPointer: true }
+        }
+        Method { name: "ping" }
+        Method {
+            name: "initialize"
+            Parameter { name: "shell"; type: "QWaylandWlShell"; isPointer: true }
+            Parameter { name: "surface"; type: "QWaylandSurface"; isPointer: true }
+            Parameter { name: "resource"; type: "QWaylandResource" }
+        }
+        Method {
+            name: "sizeForResize"
+            type: "QSize"
+            Parameter { name: "size"; type: "QSizeF" }
+            Parameter { name: "delta"; type: "QPointF" }
+            Parameter { name: "edges"; type: "ResizeEdge" }
+        }
+        Method {
+            name: "sendConfigure"
+            Parameter { name: "size"; type: "QSize" }
+            Parameter { name: "edges"; type: "ResizeEdge" }
+        }
+        Method { name: "sendPopupDone" }
+    }
+    Component {
+        name: "QWaylandWlShellSurfaceQuickData"
+        defaultProperty: "data"
+        prototype: "QWaylandWlShellSurface"
+        exports: ["QtWayland.Compositor/WlShellSurface 1.0"]
+        exportMetaObjectRevisions: [0]
+        Property { name: "data"; type: "QObject"; isList: true; isReadonly: true }
     }
     Component {
         prototype: "QQuickItem"

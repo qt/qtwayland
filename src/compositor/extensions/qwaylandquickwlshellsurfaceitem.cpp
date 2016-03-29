@@ -34,8 +34,8 @@
 **
 ****************************************************************************/
 
-#include "qwaylandquickshellsurfaceitem.h"
-#include "qwaylandquickshellsurfaceitem_p.h"
+#include "qwaylandquickwlshellsurfaceitem.h"
+#include "qwaylandquickwlshellsurfaceitem_p.h"
 
 #include <QtWaylandCompositor/QWaylandCompositor>
 #include <QtWaylandCompositor/QWaylandInputDevice>
@@ -43,91 +43,91 @@
 QT_BEGIN_NAMESPACE
 
 /*!
- * \qmltype ShellSurfaceItem
+ * \qmltype WlShellSurfaceItem
  * \inqmlmodule QtWayland.Compositor
- * \brief An item representing a ShellSurface.
+ * \brief An item representing a WlShellSurface.
  *
- * This type can be used to render shell surfaces as part of a Qt Quick scene.
+ * This type can be used to render wl_shell_surfaces as part of a Qt Quick scene.
  * It handles moving and resizing triggered by clicking on the window decorations.
  */
 
 /*!
- * \class QWaylandQuickShellSurfaceItem
+ * \class QWaylandQuickWlShellSurfaceItem
  * \inmodule QtWaylandCompositor
- * \brief A Qt Quick item for QWaylandShellSurface.
+ * \brief A Qt Quick item for QWaylandWlShellSurface.
  *
- * This class can be used to create Qt Quick items representing shell surfaces.
+ * This class can be used to create Qt Quick items representing wl_shell_surfaces.
  * It handles moving and resizing triggered by clicking on the window decorations.
  *
  * \sa QWaylandQuickItem
  */
 
 /*!
- * Constructs a QWaylandQuickShellSurfaceItem with the given \a parent.
+ * Constructs a QWaylandQuickWlShellSurfaceItem with the given \a parent.
  */
-QWaylandQuickShellSurfaceItem::QWaylandQuickShellSurfaceItem(QQuickItem *parent)
-    : QWaylandQuickItem(*new QWaylandQuickShellSurfaceItemPrivate(), parent)
+QWaylandQuickWlShellSurfaceItem::QWaylandQuickWlShellSurfaceItem(QQuickItem *parent)
+    : QWaylandQuickItem(*new QWaylandQuickWlShellSurfaceItemPrivate(), parent)
 {
 }
 
 /*!
  * \internal
  */
-QWaylandQuickShellSurfaceItem::QWaylandQuickShellSurfaceItem(QWaylandQuickShellSurfaceItemPrivate &dd, QQuickItem *parent)
+QWaylandQuickWlShellSurfaceItem::QWaylandQuickWlShellSurfaceItem(QWaylandQuickWlShellSurfaceItemPrivate &dd, QQuickItem *parent)
     : QWaylandQuickItem(dd, parent)
 {
 }
 
 /*!
- * \qmlproperty object QtWaylandCompositor::ShellSurfaceItem::shellSurface
+ * \qmlproperty object QtWaylandCompositor::WlShellSurfaceItem::shellSurface
  *
- * This property holds the shell surface rendered by this ShellSurfaceItem.
+ * This property holds the wl_shell_surface rendered by this WlShellSurfaceItem.
  */
 
 /*!
- * \property QWaylandQuickShellSurfaceItem::shellSurface
+ * \property QWaylandQuickWlShellSurfaceItem::shellSurface
  *
- * This property holds the shell surface rendered by this QWaylandQuickShellSurfaceItem.
+ * This property holds the wl_shell_surface rendered by this QWaylandQuickWlShellSurfaceItem.
  */
-QWaylandShellSurface *QWaylandQuickShellSurfaceItem::shellSurface() const
+QWaylandWlShellSurface *QWaylandQuickWlShellSurfaceItem::shellSurface() const
 {
-    Q_D(const QWaylandQuickShellSurfaceItem);
+    Q_D(const QWaylandQuickWlShellSurfaceItem);
     return d->shellSurface;
 }
 
-void QWaylandQuickShellSurfaceItem::setShellSurface(QWaylandShellSurface *shellSurface)
+void QWaylandQuickWlShellSurfaceItem::setShellSurface(QWaylandWlShellSurface *shellSurface)
 {
-    Q_D(QWaylandQuickShellSurfaceItem);
+    Q_D(QWaylandQuickWlShellSurfaceItem);
     if (shellSurface == d->shellSurface)
         return;
 
     if (d->shellSurface) {
-        disconnect(d->shellSurface, &QWaylandShellSurface::startMove, this, &QWaylandQuickShellSurfaceItem::handleStartMove);
-        disconnect(d->shellSurface, &QWaylandShellSurface::startResize, this, &QWaylandQuickShellSurfaceItem::handleStartResize);
+        disconnect(d->shellSurface, &QWaylandWlShellSurface::startMove, this, &QWaylandQuickWlShellSurfaceItem::handleStartMove);
+        disconnect(d->shellSurface, &QWaylandWlShellSurface::startResize, this, &QWaylandQuickWlShellSurfaceItem::handleStartResize);
     }
     d->shellSurface = shellSurface;
     if (d->shellSurface) {
-        connect(d->shellSurface, &QWaylandShellSurface::startMove, this, &QWaylandQuickShellSurfaceItem::handleStartMove);
-        connect(d->shellSurface, &QWaylandShellSurface::startResize, this, &QWaylandQuickShellSurfaceItem::handleStartResize);
+        connect(d->shellSurface, &QWaylandWlShellSurface::startMove, this, &QWaylandQuickWlShellSurfaceItem::handleStartMove);
+        connect(d->shellSurface, &QWaylandWlShellSurface::startResize, this, &QWaylandQuickWlShellSurfaceItem::handleStartResize);
     }
     emit shellSurfaceChanged();
 }
 
 /*!
  * \internal
- * \property QWaylandQuickShellSurfaceItem::moveItem
+ * \property QWaylandQuickWlShellSurfaceItem::moveItem
  *
- * This property holds the move item for this QWaylandQuickShellSurfaceItem.
+ * This property holds the move item for this QWaylandQuickWlShellSurfaceItem.
  */
-QQuickItem *QWaylandQuickShellSurfaceItem::moveItem() const
+QQuickItem *QWaylandQuickWlShellSurfaceItem::moveItem() const
 {
-    Q_D(const QWaylandQuickShellSurfaceItem);
+    Q_D(const QWaylandQuickWlShellSurfaceItem);
     return d->moveItem;
 }
 
-void QWaylandQuickShellSurfaceItem::setMoveItem(QQuickItem *moveItem)
+void QWaylandQuickWlShellSurfaceItem::setMoveItem(QQuickItem *moveItem)
 {
-    Q_D(QWaylandQuickShellSurfaceItem);
+    Q_D(QWaylandQuickWlShellSurfaceItem);
     if (d->moveItem == moveItem)
         return;
     d->moveItem = moveItem;
@@ -137,10 +137,10 @@ void QWaylandQuickShellSurfaceItem::setMoveItem(QQuickItem *moveItem)
 /*!
  * \internal
  */
-void QWaylandQuickShellSurfaceItem::handleStartMove(QWaylandInputDevice *inputDevice)
+void QWaylandQuickWlShellSurfaceItem::handleStartMove(QWaylandInputDevice *inputDevice)
 {
-    Q_D(QWaylandQuickShellSurfaceItem);
-    d->grabberState = QWaylandQuickShellSurfaceItemPrivate::MoveState;
+    Q_D(QWaylandQuickWlShellSurfaceItem);
+    d->grabberState = QWaylandQuickWlShellSurfaceItemPrivate::MoveState;
     d->moveState.inputDevice = inputDevice;
     d->moveState.initialized = false;
 }
@@ -148,10 +148,10 @@ void QWaylandQuickShellSurfaceItem::handleStartMove(QWaylandInputDevice *inputDe
 /*!
  * \internal
  */
-void QWaylandQuickShellSurfaceItem::handleStartResize(QWaylandInputDevice *inputDevice, QWaylandShellSurface::ResizeEdge edges)
+void QWaylandQuickWlShellSurfaceItem::handleStartResize(QWaylandInputDevice *inputDevice, QWaylandWlShellSurface::ResizeEdge edges)
 {
-    Q_D(QWaylandQuickShellSurfaceItem);
-    d->grabberState = QWaylandQuickShellSurfaceItemPrivate::ResizeState;
+    Q_D(QWaylandQuickWlShellSurfaceItem);
+    d->grabberState = QWaylandQuickWlShellSurfaceItemPrivate::ResizeState;
     d->resizeState.inputDevice = inputDevice;
     d->resizeState.resizeEdges = edges;
     d->resizeState.initialSize = surface()->size();
@@ -161,9 +161,9 @@ void QWaylandQuickShellSurfaceItem::handleStartResize(QWaylandInputDevice *input
 /*!
  * \internal
  */
-void QWaylandQuickShellSurfaceItem::adjustOffsetForNextFrame(const QPointF &offset)
+void QWaylandQuickWlShellSurfaceItem::adjustOffsetForNextFrame(const QPointF &offset)
 {
-    Q_D(QWaylandQuickShellSurfaceItem);
+    Q_D(QWaylandQuickWlShellSurfaceItem);
     QQuickItem *moveItem = d->moveItem ? d->moveItem : this;
     moveItem->setPosition(moveItem->position() + offset);
 }
@@ -171,10 +171,10 @@ void QWaylandQuickShellSurfaceItem::adjustOffsetForNextFrame(const QPointF &offs
 /*!
  * \internal
  */
-void QWaylandQuickShellSurfaceItem::mouseMoveEvent(QMouseEvent *event)
+void QWaylandQuickWlShellSurfaceItem::mouseMoveEvent(QMouseEvent *event)
 {
-    Q_D(QWaylandQuickShellSurfaceItem);
-    if (d->grabberState == QWaylandQuickShellSurfaceItemPrivate::ResizeState) {
+    Q_D(QWaylandQuickWlShellSurfaceItem);
+    if (d->grabberState == QWaylandQuickWlShellSurfaceItemPrivate::ResizeState) {
         Q_ASSERT(d->resizeState.inputDevice == compositor()->inputDeviceFor(event));
         if (!d->resizeState.initialized) {
             d->resizeState.initialMousePos = event->windowPos();
@@ -184,7 +184,7 @@ void QWaylandQuickShellSurfaceItem::mouseMoveEvent(QMouseEvent *event)
         QPointF delta = event->windowPos() - d->resizeState.initialMousePos;
         QSize newSize = shellSurface()->sizeForResize(d->resizeState.initialSize, delta, d->resizeState.resizeEdges);
         shellSurface()->sendConfigure(newSize, d->resizeState.resizeEdges);
-    } else if (d->grabberState == QWaylandQuickShellSurfaceItemPrivate::MoveState) {
+    } else if (d->grabberState == QWaylandQuickWlShellSurfaceItemPrivate::MoveState) {
         Q_ASSERT(d->moveState.inputDevice == compositor()->inputDeviceFor(event));
         QQuickItem *moveItem = d->moveItem ? d->moveItem : this;
         if (!d->moveState.initialized) {
@@ -204,11 +204,11 @@ void QWaylandQuickShellSurfaceItem::mouseMoveEvent(QMouseEvent *event)
 /*!
  * \internal
  */
-void QWaylandQuickShellSurfaceItem::mouseReleaseEvent(QMouseEvent *event)
+void QWaylandQuickWlShellSurfaceItem::mouseReleaseEvent(QMouseEvent *event)
 {
-    Q_D(QWaylandQuickShellSurfaceItem);
-    if (d->grabberState != QWaylandQuickShellSurfaceItemPrivate::DefaultState) {
-        d->grabberState = QWaylandQuickShellSurfaceItemPrivate::DefaultState;
+    Q_D(QWaylandQuickWlShellSurfaceItem);
+    if (d->grabberState != QWaylandQuickWlShellSurfaceItemPrivate::DefaultState) {
+        d->grabberState = QWaylandQuickWlShellSurfaceItemPrivate::DefaultState;
         return;
     }
     QWaylandQuickItem::mouseReleaseEvent(event);
@@ -217,23 +217,23 @@ void QWaylandQuickShellSurfaceItem::mouseReleaseEvent(QMouseEvent *event)
 /*!
  * \internal
  */
-void QWaylandQuickShellSurfaceItem::surfaceChangedEvent(QWaylandSurface *newSurface, QWaylandSurface *oldSurface)
+void QWaylandQuickWlShellSurfaceItem::surfaceChangedEvent(QWaylandSurface *newSurface, QWaylandSurface *oldSurface)
 {
     if (oldSurface)
-        disconnect(oldSurface, &QWaylandSurface::offsetForNextFrame, this, &QWaylandQuickShellSurfaceItem::adjustOffsetForNextFrame);
+        disconnect(oldSurface, &QWaylandSurface::offsetForNextFrame, this, &QWaylandQuickWlShellSurfaceItem::adjustOffsetForNextFrame);
 
     if (newSurface)
-        connect(newSurface, &QWaylandSurface::offsetForNextFrame, this, &QWaylandQuickShellSurfaceItem::adjustOffsetForNextFrame);
+        connect(newSurface, &QWaylandSurface::offsetForNextFrame, this, &QWaylandQuickWlShellSurfaceItem::adjustOffsetForNextFrame);
 }
 
 /*!
  * \internal
  */
-void QWaylandQuickShellSurfaceItem::componentComplete()
+void QWaylandQuickWlShellSurfaceItem::componentComplete()
 {
-    Q_D(QWaylandQuickShellSurfaceItem);
+    Q_D(QWaylandQuickWlShellSurfaceItem);
     if (!d->shellSurface)
-        setShellSurface(new QWaylandShellSurface());
+        setShellSurface(new QWaylandWlShellSurface());
 
     QWaylandQuickItem::componentComplete();
 }

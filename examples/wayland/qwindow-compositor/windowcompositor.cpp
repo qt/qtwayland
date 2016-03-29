@@ -44,8 +44,8 @@
 #include <QKeyEvent>
 #include <QTouchEvent>
 
-#include <QtWaylandCompositor/QWaylandShellSurface>
 #include <QtWaylandCompositor/QWaylandXdgShell>
+#include <QtWaylandCompositor/QWaylandWlShellSurface>
 #include <QtWaylandCompositor/qwaylandinput.h>
 #include <QtWaylandCompositor/qwaylanddrag.h>
 
@@ -108,10 +108,10 @@ void WindowCompositorView::onXdgUnsetFullscreen()
 WindowCompositor::WindowCompositor(QWindow *window)
     : QWaylandCompositor()
     , m_window(window)
-    , m_shell(new QWaylandShell(this))
+    , m_wlShell(new QWaylandWlShell(this))
     , m_xdgShell(new QWaylandXdgShell(this))
 {
-    connect(m_shell, &QWaylandShell::createShellSurface, this, &WindowCompositor::onCreateShellSurface);
+    connect(m_wlShell, &QWaylandWlShell::createShellSurface, this, &WindowCompositor::onCreateWlShellSurface);
     connect(m_xdgShell, &QWaylandXdgShell::createXdgSurface, this, &WindowCompositor::onCreateXdgSurface);
     connect(m_xdgShell, &QWaylandXdgShell::createXdgPopup, this, &WindowCompositor::onCreateXdgPopup);
 }
@@ -152,7 +152,7 @@ void WindowCompositor::surfaceMappedChanged()
 {
     QWaylandSurface *surface = qobject_cast<QWaylandSurface *>(sender());
     if (surface->isMapped()) {
-        if (surface->role() == QWaylandShellSurface::role()
+        if (surface->role() == QWaylandWlShellSurface::role()
                 || surface->role() == QWaylandXdgSurface::role()
                 || surface->role() == QWaylandXdgPopup::role()) {
             defaultInputDevice()->setKeyboardFocus(surface);
@@ -189,18 +189,18 @@ WindowCompositorView * WindowCompositor::findView(const QWaylandSurface *s) cons
     return Q_NULLPTR;
 }
 
-void WindowCompositor::onCreateShellSurface(QWaylandSurface *s, const QWaylandResource &res)
+void WindowCompositor::onCreateWlShellSurface(QWaylandSurface *s, const QWaylandResource &res)
 {
     QWaylandSurface *surface = s;
 
-    QWaylandShellSurface *shellSurface = new QWaylandShellSurface(m_shell, surface, res);
-    connect(shellSurface, &QWaylandShellSurface::startMove, this, &WindowCompositor::onStartMove);
-    connect(shellSurface, &QWaylandShellSurface::startResize, this, &WindowCompositor::onStartResize);
-    connect(shellSurface, &QWaylandShellSurface::setTransient, this, &WindowCompositor::onSetTransient);
-    connect(shellSurface, &QWaylandShellSurface::setPopup, this, &WindowCompositor::onSetPopup);
+    QWaylandWlShellSurface *wlShellSurface = new QWaylandWlShellSurface(m_wlShell, surface, res);
+    connect(wlShellSurface, &QWaylandWlShellSurface::startMove, this, &WindowCompositor::onStartMove);
+    connect(wlShellSurface, &QWaylandWlShellSurface::startResize, this, &WindowCompositor::onWlStartResize);
+    connect(wlShellSurface, &QWaylandWlShellSurface::setTransient, this, &WindowCompositor::onSetTransient);
+    connect(wlShellSurface, &QWaylandWlShellSurface::setPopup, this, &WindowCompositor::onSetPopup);
     WindowCompositorView *view = findView(s);
     Q_ASSERT(view);
-    view->m_shellSurface = shellSurface;
+    view->m_wlShellSurface = wlShellSurface;
 }
 
 void WindowCompositor::onCreateXdgSurface(QWaylandSurface *surface, const QWaylandResource &res)
@@ -242,7 +242,7 @@ void WindowCompositor::onStartMove()
     emit startMove();
 }
 
-void WindowCompositor::onStartResize(QWaylandInputDevice *, QWaylandShellSurface::ResizeEdge edges)
+void WindowCompositor::onWlStartResize(QWaylandInputDevice *, QWaylandWlShellSurface::ResizeEdge edges)
 {
     closePopups();
     emit startResize(int(edges), false);
@@ -255,10 +255,10 @@ void WindowCompositor::onXdgStartResize(QWaylandInputDevice *inputDevice,
     emit startResize(int(edges), true);
 }
 
-void WindowCompositor::onSetTransient(QWaylandSurface *parent, const QPoint &relativeToParent, QWaylandShellSurface::FocusPolicy focusPolicy)
+void WindowCompositor::onSetTransient(QWaylandSurface *parent, const QPoint &relativeToParent, QWaylandWlShellSurface::FocusPolicy focusPolicy)
 {
-    QWaylandShellSurface *surface = qobject_cast<QWaylandShellSurface*>(sender());
-    WindowCompositorView *view = findView(surface->surface());
+    QWaylandWlShellSurface *wlShellSurface = qobject_cast<QWaylandWlShellSurface*>(sender());
+    WindowCompositorView *view = findView(wlShellSurface->surface());
 
     if (view) {
         raise(view);
@@ -271,7 +271,7 @@ void WindowCompositor::onSetTransient(QWaylandSurface *parent, const QPoint &rel
 void WindowCompositor::onSetPopup(QWaylandInputDevice *inputDevice, QWaylandSurface *parent, const QPoint &relativeToParent)
 {
     Q_UNUSED(inputDevice);
-    QWaylandShellSurface *surface = qobject_cast<QWaylandShellSurface*>(sender());
+    QWaylandWlShellSurface *surface = qobject_cast<QWaylandWlShellSurface*>(sender());
     WindowCompositorView *view = findView(surface->surface());
     m_popupViews << view;
     if (view) {
@@ -346,8 +346,8 @@ void WindowCompositor::adjustCursorSurface(QWaylandSurface *surface, int hotspot
 void WindowCompositor::closePopups()
 {
     Q_FOREACH (WindowCompositorView *view, m_popupViews) {
-        if (view->m_shellSurface)
-            view->m_shellSurface->sendPopupDone();
+        if (view->m_wlShellSurface)
+            view->m_wlShellSurface->sendPopupDone();
     }
     m_popupViews.clear();
 
@@ -367,7 +367,7 @@ void WindowCompositor::handleMouseEvent(QWaylandView *target, QMouseEvent *me)
             input->sendMousePressEvent(me->button());
             if (surface != input->keyboardFocus()) {
                 if (surface == nullptr
-                        || surface->role() == QWaylandShellSurface::role()
+                        || surface->role() == QWaylandWlShellSurface::role()
                         || surface->role() == QWaylandXdgSurface::role()
                         || surface->role() == QWaylandXdgPopup::role()) {
                     input->setKeyboardFocus(surface);
@@ -386,11 +386,11 @@ void WindowCompositor::handleMouseEvent(QWaylandView *target, QMouseEvent *me)
 
 void WindowCompositor::handleResize(WindowCompositorView *target, const QSize &initialSize, const QPoint &delta, int edge)
 {
-    QWaylandShellSurface *shellSurface = target->m_shellSurface;
-    if (shellSurface) {
-        QWaylandShellSurface::ResizeEdge edges = QWaylandShellSurface::ResizeEdge(edge);
-        QSize newSize = shellSurface->sizeForResize(initialSize, delta, edges);
-        shellSurface->sendConfigure(newSize, edges);
+    QWaylandWlShellSurface *wlShellSurface = target->m_wlShellSurface;
+    if (wlShellSurface) {
+        QWaylandWlShellSurface::ResizeEdge edges = QWaylandWlShellSurface::ResizeEdge(edge);
+        QSize newSize = wlShellSurface->sizeForResize(initialSize, delta, edges);
+        wlShellSurface->sendConfigure(newSize, edges);
     }
 
     QWaylandXdgSurface *xdgSurface = target->m_xdgSurface;

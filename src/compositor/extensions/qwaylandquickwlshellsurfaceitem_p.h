@@ -34,8 +34,8 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDQUICKSHELLSURFACEITEM_P_H
-#define QWAYLANDQUICKSHELLSURFACEITEM_P_H
+#ifndef QWAYLANDQUICKWLSHELLSURFACEITEM_P_H
+#define QWAYLANDQUICKWLSHELLSURFACEITEM_P_H
 
 #include <QtWaylandCompositor/private/qwaylandquickitem_p.h>
 
@@ -52,7 +52,7 @@ QT_BEGIN_NAMESPACE
 // We mean it.
 //
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQuickShellSurfaceItemPrivate : public QWaylandQuickItemPrivate
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQuickWlShellSurfaceItemPrivate : public QWaylandQuickItemPrivate
 {
 public:
     enum GrabberState {
@@ -61,14 +61,14 @@ public:
         MoveState
     };
 
-    QWaylandQuickShellSurfaceItemPrivate()
+    QWaylandQuickWlShellSurfaceItemPrivate()
         : QWaylandQuickItemPrivate()
         , shellSurface(Q_NULLPTR)
         , moveItem(Q_NULLPTR)
         , grabberState(DefaultState)
     {}
 
-    QWaylandShellSurface *shellSurface;
+    QWaylandWlShellSurface *shellSurface;
     QQuickItem *moveItem;
 
     GrabberState grabberState;
@@ -80,7 +80,7 @@ public:
 
     struct {
         QWaylandInputDevice *inputDevice;
-        QWaylandShellSurface::ResizeEdge resizeEdges;
+        QWaylandWlShellSurface::ResizeEdge resizeEdges;
         QSizeF initialSize;
         QPointF initialMousePos;
         bool initialized;
@@ -89,4 +89,4 @@ public:
 
 QT_END_NAMESPACE
 
-#endif  /*QWAYLANDQUICKSHELLSURFACEITEM_P_H*/
+#endif  /*QWAYLANDQUICKWLSHELLSURFACEITEM_P_H*/

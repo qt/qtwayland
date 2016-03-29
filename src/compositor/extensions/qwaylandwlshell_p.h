@@ -34,13 +34,13 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDSHELL_P_H
-#define QWAYLANDSHELL_P_H
+#ifndef QWAYLANDWLSHELL_P_H
+#define QWAYLANDWLSHELL_P_H
 
 #include <QtWaylandCompositor/qwaylandexport.h>
 #include <QtWaylandCompositor/qwaylandsurface.h>
 #include <QtWaylandCompositor/private/qwaylandextension_p.h>
-#include <QtWaylandCompositor/QWaylandShellSurface>
+#include <QtWaylandCompositor/QWaylandWlShellSurface>
 #include <QtWaylandCompositor/QWaylandInputDevice>
 
 #include <wayland-server.h>
@@ -63,49 +63,49 @@
 
 QT_BEGIN_NAMESPACE
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandShellPrivate
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandWlShellPrivate
                                         : public QWaylandExtensionTemplatePrivate
                                         , public QtWaylandServer::wl_shell
 {
-    Q_DECLARE_PUBLIC(QWaylandShell)
+    Q_DECLARE_PUBLIC(QWaylandWlShell)
 public:
-    QWaylandShellPrivate();
-    static QWaylandShellPrivate *get(QWaylandShell *shell) { return shell->d_func(); }
+    QWaylandWlShellPrivate();
+    static QWaylandWlShellPrivate *get(QWaylandWlShell *shell) { return shell->d_func(); }
 
 protected:
     void shell_get_shell_surface(Resource *resource, uint32_t id, struct ::wl_resource *surface) Q_DECL_OVERRIDE;
 };
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandShellSurfacePrivate
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandWlShellSurfacePrivate
                                         : public QWaylandExtensionTemplatePrivate
                                         , public QtWaylandServer::wl_shell_surface
 {
-    Q_DECLARE_PUBLIC(QWaylandShellSurface)
+    Q_DECLARE_PUBLIC(QWaylandWlShellSurface)
 public:
-    QWaylandShellSurfacePrivate();
-    ~QWaylandShellSurfacePrivate();
+    QWaylandWlShellSurfacePrivate();
+    ~QWaylandWlShellSurfacePrivate();
 
-    static QWaylandShellSurfacePrivate *get(QWaylandShellSurface *surface) { return surface->d_func(); }
+    static QWaylandWlShellSurfacePrivate *get(QWaylandWlShellSurface *surface) { return surface->d_func(); }
 
     void ping(uint32_t serial);
 
-    void setFocusPolicy(QWaylandShellSurface::FocusPolicy focusPolicy)
+    void setFocusPolicy(QWaylandWlShellSurface::FocusPolicy focusPolicy)
     {
         if (focusPolicy == m_focusPolicy)
             return;
-        Q_Q(QWaylandShellSurface);
+        Q_Q(QWaylandWlShellSurface);
         m_focusPolicy = focusPolicy;
         emit q->focusPolicyChanged();
     }
 private:
-    QWaylandShell *m_shell;
+    QWaylandWlShell *m_shell;
     QWaylandSurface *m_surface;
 
     QSet<uint32_t> m_pings;
 
     QString m_title;
     QString m_className;
-    QWaylandShellSurface::FocusPolicy m_focusPolicy;
+    QWaylandWlShellSurface::FocusPolicy m_focusPolicy;
 
     void shell_surface_destroy_resource(Resource *resource) Q_DECL_OVERRIDE;
 
@@ -147,4 +147,4 @@ private:
 
 QT_END_NAMESPACE
 
-#endif // QWAYLANDSHELL_P_H
+#endif // QWAYLANDWLSHELL_P_H

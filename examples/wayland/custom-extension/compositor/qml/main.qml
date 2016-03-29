@@ -64,7 +64,7 @@ WaylandCompositor {
 
     Component {
         id: chromeComponent
-        ShellSurfaceItem {
+        WlShellSurfaceItem {
             id: chrome
             onSurfaceDestroyed: {
                 if (chrome === lastItem)
@@ -75,7 +75,7 @@ WaylandCompositor {
     }
 
     extensions: [
-        Shell {
+        WlShell {
             id: defaultShell
 
             onCreateShellSurface: {

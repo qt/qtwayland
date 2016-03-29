@@ -32,7 +32,7 @@
 
 TestCompositor::TestCompositor(bool createInputDev)
     : QWaylandCompositor()
-    , shell(new QWaylandShell(this))
+    , shell(new QWaylandWlShell(this))
     , m_createInputDevice(createInputDev)
 {
     setSocketName("wayland-qt-test-0");

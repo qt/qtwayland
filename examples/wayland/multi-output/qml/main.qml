@@ -82,7 +82,7 @@ WaylandCompositor {
     }
 
     extensions: [
-        Shell {
+        WlShell {
             id: defaultShell
 
             onCreateShellSurface: {

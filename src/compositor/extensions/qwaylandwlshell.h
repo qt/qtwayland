@@ -34,8 +34,8 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDSHELL_H
-#define QWAYLANDSHELL_H
+#ifndef QWAYLANDWLSHELL_H
+#define QWAYLANDWLSHELL_H
 
 #include <QtWaylandCompositor/QWaylandExtension>
 #include <QtWaylandCompositor/QWaylandResource>
@@ -44,21 +44,21 @@
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandShellPrivate;
-class QWaylandShellSurfacePrivate;
+class QWaylandWlShellPrivate;
+class QWaylandWlShellSurfacePrivate;
 class QWaylandSurface;
 class QWaylandClient;
 class QWaylandInputDevice;
 class QWaylandOutput;
 class QWaylandSurfaceRole;
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandShell : public QWaylandExtensionTemplate<QWaylandShell>
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandWlShell : public QWaylandExtensionTemplate<QWaylandWlShell>
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QWaylandShell)
+    Q_DECLARE_PRIVATE(QWaylandWlShell)
 public:
-    QWaylandShell();
-    QWaylandShell(QWaylandCompositor *compositor);
+    QWaylandWlShell();
+    QWaylandWlShell(QWaylandCompositor *compositor);
 
     void initialize() Q_DECL_OVERRIDE;
 
@@ -69,10 +69,10 @@ Q_SIGNALS:
     void createShellSurface(QWaylandSurface *surface, const QWaylandResource &resource);
 };
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandShellSurface : public QWaylandExtensionTemplate<QWaylandShellSurface>
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandWlShellSurface : public QWaylandExtensionTemplate<QWaylandWlShellSurface>
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QWaylandShellSurface)
+    Q_DECLARE_PRIVATE(QWaylandWlShellSurface)
     Q_PROPERTY(QWaylandSurface *surface READ surface NOTIFY surfaceChanged)
     Q_PROPERTY(QString title READ title NOTIFY titleChanged)
     Q_PROPERTY(QString className READ className NOTIFY classNameChanged)
@@ -106,10 +106,10 @@ public:
     };
     Q_ENUM(FocusPolicy)
 
-    QWaylandShellSurface();
-    QWaylandShellSurface(QWaylandShell *shell, QWaylandSurface *surface, const QWaylandResource &resource);
+    QWaylandWlShellSurface();
+    QWaylandWlShellSurface(QWaylandWlShell *shell, QWaylandSurface *surface, const QWaylandResource &resource);
 
-    Q_INVOKABLE void initialize(QWaylandShell *shell, QWaylandSurface *surface, const QWaylandResource &resource);
+    Q_INVOKABLE void initialize(QWaylandWlShell *shell, QWaylandSurface *surface, const QWaylandResource &resource);
 
     QString title() const;
     QString className() const;
@@ -122,7 +122,7 @@ public:
     static QByteArray interfaceName();
     static QWaylandSurfaceRole *role();
 
-    static QWaylandShellSurface *fromResource(wl_resource *res);
+    static QWaylandWlShellSurface *fromResource(wl_resource *res);
 
     Q_INVOKABLE QSize sizeForResize(const QSizeF &size, const QPointF &delta, ResizeEdge edges);
     Q_INVOKABLE void sendConfigure(const QSize &size, ResizeEdge edges);
@@ -152,4 +152,4 @@ private:
 
 QT_END_NAMESPACE
 
-#endif  /*QWAYLANDSHELL_H*/
+#endif  /*QWAYLANDWLSHELL_H*/

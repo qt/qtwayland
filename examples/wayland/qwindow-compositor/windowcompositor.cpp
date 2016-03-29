@@ -346,11 +346,10 @@ void WindowCompositor::adjustCursorSurface(QWaylandSurface *surface, int hotspot
 void WindowCompositor::closePopups()
 {
     Q_FOREACH (WindowCompositorView *view, m_popupViews) {
-        if (view->m_shellSurface) {
+        if (view->m_shellSurface)
             view->m_shellSurface->sendPopupDone();
-            m_popupViews.clear();
-        }
     }
+    m_popupViews.clear();
 
     m_xdgShell->closeAllPopups();
 }

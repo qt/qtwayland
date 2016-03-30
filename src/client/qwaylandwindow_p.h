@@ -234,6 +234,8 @@ private:
     bool setWindowStateInternal(Qt::WindowState flags);
     void setGeometry_helper(const QRect &rect);
     void initWindow();
+    bool shouldCreateShellSurface() const;
+    bool shouldCreateSubSurface() const;
     void reset();
 
     void handleMouseEventWithDecoration(QWaylandInputDevice *inputDevice, const QWaylandPointerEvent &e);

@@ -116,13 +116,13 @@ QWaylandWindow::~QWaylandWindow()
 void QWaylandWindow::initWindow()
 {
     init(mDisplay->createSurface(static_cast<QtWayland::wl_surface *>(this)));
-    if (QPlatformWindow::parent()) {
+
+    if (shouldCreateSubSurface()) {
         QWaylandWindow *p = static_cast<QWaylandWindow *>(QPlatformWindow::parent());
         if (::wl_subsurface *ss = mDisplay->createSubSurface(this, p)) {
             mSubSurfaceWindow = new QWaylandSubSurface(this, p, ss);
         }
-    } else if (!(qEnvironmentVariableIsSet("QT_WAYLAND_USE_BYPASSWINDOWMANAGERHINT") &&
-               window()->flags() & Qt::BypassWindowManagerHint)) {
+    } else if (shouldCreateShellSurface()) {
         mShellSurface = mDisplay->createShellSurface(this);
     }
 
@@ -174,6 +174,25 @@ void QWaylandWindow::initWindow()
     setMask(window()->mask());
     setWindowStateInternal(window()->windowState());
     handleContentOrientationChange(window()->contentOrientation());
+}
+
+bool QWaylandWindow::shouldCreateShellSurface() const
+{
+    if (shouldCreateSubSurface())
+        return false;
+
+    if (window()->inherits("QShapedPixmapWindow"))
+        return false;
+
+    if (qEnvironmentVariableIsSet("QT_WAYLAND_USE_BYPASSWINDOWMANAGERHINT"))
+        return window()->flags() & Qt::BypassWindowManagerHint;
+
+    return true;
+}
+
+bool QWaylandWindow::shouldCreateSubSurface() const
+{
+    return QPlatformWindow::parent() != Q_NULLPTR;
 }
 
 void QWaylandWindow::reset()

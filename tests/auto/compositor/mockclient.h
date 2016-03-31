@@ -27,6 +27,7 @@
 ****************************************************************************/
 
 #include <wayland-client.h>
+#include <wayland-xdg-shell-client-protocol.h>
 
 #include <QObject>
 #include <QImage>
@@ -56,6 +57,7 @@ public:
 
     wl_surface *createSurface();
     wl_shell_surface *createShellSurface(wl_surface *surface);
+    xdg_surface *createXdgSurface(wl_surface *surface);
 
     wl_display *display;
     wl_compositor *compositor;
@@ -63,6 +65,7 @@ public:
     wl_shm *shm;
     wl_registry *registry;
     wl_shell *wlshell;
+    xdg_shell *xdgShell;
 
     QList<MockSeat *> m_seats;
 

@@ -35,18 +35,18 @@
 #include "qwaylandbufferref.h"
 #include "qwaylandinput.h"
 
+#include <QtWaylandCompositor/QWaylandXdgShell>
+#include <QtWaylandCompositor/QWaylandSurface>
+#include <QtWaylandCompositor/QWaylandResource>
+
 #include <QtTest/QtTest>
 
 class tst_WaylandCompositor : public QObject
 {
     Q_OBJECT
 
-public:
-    tst_WaylandCompositor() {
-        setenv("XDG_RUNTIME_DIR", ".", 1);
-    }
-
 private slots:
+    void init();
     void inputDeviceCapabilities();
     void keyboardGrab();
     void inputDeviceCreation();
@@ -56,7 +56,15 @@ private slots:
     void geometry();
     void mapSurface();
     void frameCallback();
+    void advertisesXdgShellSupport();
+    void createsXdgSurfaces();
+    void reportsXdgSurfaceWindowGeometry();
+    void setsXdgAppId();
 };
+
+void tst_WaylandCompositor::init() {
+    qputenv("XDG_RUNTIME_DIR", ".");
+}
 
 void tst_WaylandCompositor::singleClient()
 {
@@ -363,6 +371,91 @@ void tst_WaylandCompositor::inputDeviceKeyboardFocus()
     QTRY_VERIFY(compositor.surfaces.size() == 0);
 
     QTRY_VERIFY(!compositor.defaultInputDevice()->keyboardFocus());
+}
+
+class XdgTestCompositor: public TestCompositor {
+    Q_OBJECT
+public:
+    XdgTestCompositor() : xdgShell(this) {}
+    QWaylandXdgShell xdgShell;
+};
+
+void tst_WaylandCompositor::advertisesXdgShellSupport()
+{
+    XdgTestCompositor compositor;
+    compositor.create();
+
+    MockClient client;
+    QTRY_VERIFY(&client.xdgShell);
+}
+
+void tst_WaylandCompositor::createsXdgSurfaces()
+{
+    XdgTestCompositor compositor;
+    compositor.create();
+
+    MockClient client;
+    QTRY_VERIFY(&client.xdgShell);
+
+    QSignalSpy xdgSurfaceCreatedSpy(&compositor.xdgShell, &QWaylandXdgShell::xdgSurfaceCreated);
+    QWaylandXdgSurface *xdgSurface = nullptr;
+    QObject::connect(&compositor.xdgShell, &QWaylandXdgShell::xdgSurfaceCreated, [&](QWaylandXdgSurface *s) {
+        xdgSurface = s;
+    });
+
+    wl_surface *surface = client.createSurface();
+    client.createXdgSurface(surface);
+    QTRY_COMPARE(xdgSurfaceCreatedSpy.count(), 1);
+    QTRY_VERIFY(xdgSurface);
+    QTRY_VERIFY(xdgSurface->surface());
+}
+
+void tst_WaylandCompositor::reportsXdgSurfaceWindowGeometry()
+{
+    XdgTestCompositor compositor;
+    compositor.create();
+
+    QWaylandXdgSurface *xdgSurface = nullptr;
+    QObject::connect(&compositor.xdgShell, &QWaylandXdgShell::xdgSurfaceCreated, [&](QWaylandXdgSurface *s) {
+        xdgSurface = s;
+    });
+
+    MockClient client;
+    wl_surface *surface = client.createSurface();
+    xdg_surface *clientXdgSurface = client.createXdgSurface(surface);
+    QSize size(256, 256);
+    ShmBuffer buffer(size, client.shm);
+    wl_surface_attach(surface, buffer.handle, 0, 0);
+    wl_surface_damage(surface, 0, 0, size.width(), size.height());
+    wl_surface_commit(surface);
+
+    QTRY_VERIFY(xdgSurface);
+    QTRY_COMPARE(xdgSurface->windowGeometry(), QRect(QPoint(0, 0), QSize(256, 256)));
+
+    xdg_surface_set_window_geometry(clientXdgSurface, 10, 20, 100, 50);
+    wl_surface_commit(surface);
+
+    QTRY_COMPARE(xdgSurface->windowGeometry(), QRect(QPoint(10, 20), QSize(100, 50)));
+}
+
+void tst_WaylandCompositor::setsXdgAppId()
+{
+    XdgTestCompositor compositor;
+    compositor.create();
+
+    QWaylandXdgSurface *xdgSurface = nullptr;
+    QObject::connect(&compositor.xdgShell, &QWaylandXdgShell::xdgSurfaceCreated, [&](QWaylandXdgSurface *s) {
+        xdgSurface = s;
+    });
+
+    MockClient client;
+    wl_surface *surface = client.createSurface();
+    xdg_surface *clientXdgSurface = client.createXdgSurface(surface);
+
+    xdg_surface_set_app_id(clientXdgSurface, "org.foo.bar");
+
+    QTRY_VERIFY(xdgSurface);
+    QTRY_COMPARE(xdgSurface->appId(), QString("org.foo.bar"));
 }
 
 #include <tst_compositor.moc>

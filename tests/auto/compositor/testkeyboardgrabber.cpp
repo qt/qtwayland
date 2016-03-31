@@ -33,10 +33,10 @@ TestKeyboardGrabber::TestKeyboardGrabber(QWaylandInputDevice *inputDevice)
 {
 }
 
-bool TestKeyboardGrabber::setFocus(QWaylandSurface *surface)
+void TestKeyboardGrabber::setFocus(QWaylandSurface *surface)
 {
     Q_EMIT focusedCalled();
-    return QWaylandKeyboard::setFocus(surface);
+    QWaylandKeyboard::setFocus(surface);
 }
 
 void TestKeyboardGrabber::sendKeyPressEvent(uint code)

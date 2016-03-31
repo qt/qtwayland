@@ -44,7 +44,6 @@ class tst_WaylandCompositor : public QObject
 public:
     tst_WaylandCompositor() {
         setenv("XDG_RUNTIME_DIR", ".", 1);
-        setenv("WAYLAND_DISPLAY", "wayland-qt-test-0", 1);
     }
 
 private slots:

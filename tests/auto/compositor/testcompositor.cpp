@@ -35,6 +35,7 @@ TestCompositor::TestCompositor(bool createInputDev)
     , shell(new QWaylandShell(this))
     , m_createInputDevice(createInputDev)
 {
+    setSocketName("wayland-qt-test-0");
 }
 
 void TestCompositor::create()

@@ -5,26 +5,16 @@ The QtWayland module consists of two parts:
 Wayland platform plugin:
     Enables Qt applications to be run as Wayland clients.
 
-QtCompositor API:
+QtWaylandCompositor API:
     Enables the creation of Wayland compositors using Qt and QtQuick.
-
-By default only the Wayland platform plugin is built.  If you want to build the
-experimental QtCompositor API then you need to set the qmake CONFIG variable to
-include "wayland-compositor" when building the QtWayland module:
-
-qmake CONFIG+=wayland-compositor
-make
-
-Note: make sure the source tree is clean before running those commands. If in
-doubt, run git clean -f -d -x.
 
 To build the QtWayland module you need the external dependencies:
 xkbcommon 0.2.0 - http://xkbcommon.org/
 wayland 1.6.0 - http://wayland.freedesktop.org/
 
-QtCompositor supports loading client buffer integrations that don't use the
-wayland-egl interfaces. These client buffer integrations are picked up by
-QtCompositor as plugins. To specify what plugin to load use the environment
+QtWaylandCompositor supports loading client buffer integrations that don't use
+the wayland-egl interfaces. These client buffer integrations are picked up by
+QtWaylandCompositor as plugins. To specify what plugin to load use the environment
 variable QT_WAYLAND_CLIENT_BUFFER_INTEGRATION in the environment where the
 compositor is started. The compositor will broadcast to the clients which
 hardware integration to load when using the generic platformplugin "wayland". If

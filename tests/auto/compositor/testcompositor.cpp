@@ -47,6 +47,11 @@ void TestCompositor::create()
     connect(this, &QWaylandCompositor::surfaceAboutToBeDestroyed, this, &TestCompositor::onSurfaceAboutToBeDestroyed);
 }
 
+void TestCompositor::flushClients()
+{
+    wl_display_flush_clients(display());
+}
+
 void TestCompositor::onSurfaceCreated(QWaylandSurface *surface)
 {
     surfaces << surface;

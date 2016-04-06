@@ -134,10 +134,26 @@ QWaylandTextInputPrivate::QWaylandTextInputPrivate(QWaylandCompositor *composito
 
 void QWaylandTextInputPrivate::sendInputMethodEvent(QInputMethodEvent *event)
 {
+    Q_Q(QWaylandTextInput);
+
     if (!focusResource || !focusResource->handle)
         return;
 
+    QWaylandTextInputClientState afterCommit;
+
+    afterCommit.surroundingText = currentState->surroundingText;
+    afterCommit.cursorPosition = qMin(currentState->cursorPosition, currentState->anchorPosition);
+
+    // Remove selection
+    afterCommit.surroundingText.remove(afterCommit.cursorPosition, qAbs(currentState->cursorPosition - currentState->anchorPosition));
+
     if (event->replacementLength() > 0 || event->replacementStart() != 0) {
+        // Remove replacement
+        afterCommit.cursorPosition = qBound(0, afterCommit.cursorPosition + event->replacementStart(), afterCommit.surroundingText.length());
+        afterCommit.surroundingText.remove(afterCommit.cursorPosition,
+                                           qMin(event->replacementLength(),
+                                                afterCommit.surroundingText.length() - afterCommit.cursorPosition));
+
         if (event->replacementStart() <= 0 && (event->replacementLength() >= -event->replacementStart())) {
             const int selectionStart = qMin(currentState->cursorPosition, currentState->anchorPosition);
             const int selectionEnd = qMax(currentState->cursorPosition, currentState->anchorPosition);
@@ -149,20 +165,21 @@ void QWaylandTextInputPrivate::sendInputMethodEvent(QInputMethodEvent *event)
             qWarning() << "Not yet supported case of replacement. Start:" << event->replacementStart() << "length:" << event->replacementLength();
         }
     }
+
+    // Insert commit string
+    afterCommit.surroundingText.insert(afterCommit.cursorPosition, event->commitString());
+    afterCommit.cursorPosition += event->commitString().length();
+    afterCommit.anchorPosition = afterCommit.cursorPosition;
+
     foreach (const QInputMethodEvent::Attribute &attribute, event->attributes()) {
         if (attribute.type == QInputMethodEvent::Selection) {
-            const int cursorAfterCommit = qMin(currentState->cursorPosition, currentState->anchorPosition) + event->replacementStart() + event->commitString().length();
-            QString textAfterCommit = currentState->surroundingText;
-            textAfterCommit.remove(qMin(currentState->cursorPosition, currentState->anchorPosition),
-                                   qAbs(currentState->cursorPosition - currentState->anchorPosition));
-            textAfterCommit.replace(qMin(currentState->cursorPosition, currentState->anchorPosition) + event->replacementStart(),
-                                    event->replacementLength(), event->commitString());
-
-            int cursor = textAfterCommit.midRef(qMin(attribute.start, cursorAfterCommit), qAbs(attribute.start - cursorAfterCommit)).toUtf8().size();
-            int anchor = textAfterCommit.midRef(qMin(attribute.length, cursorAfterCommit), qAbs(attribute.length - cursorAfterCommit)).toUtf8().size();
+            afterCommit.cursorPosition = attribute.start;
+            afterCommit.anchorPosition = attribute.length;
+            int cursor = afterCommit.surroundingText.midRef(qMin(attribute.start, afterCommit.cursorPosition), qAbs(attribute.start - afterCommit.cursorPosition)).toUtf8().size();
+            int anchor = afterCommit.surroundingText.midRef(qMin(attribute.length, afterCommit.cursorPosition), qAbs(attribute.length - afterCommit.cursorPosition)).toUtf8().size();
             send_cursor_position(focusResource->handle,
-                                 attribute.start < cursorAfterCommit ? -cursor : cursor,
-                                 attribute.start < cursorAfterCommit ? -anchor : anchor);
+                                 attribute.start < afterCommit.cursorPosition ? -cursor : cursor,
+                                 attribute.length < afterCommit.cursorPosition ? -anchor : anchor);
         }
     }
     send_commit_string(focusResource->handle, event->commitString());
@@ -178,6 +195,17 @@ void QWaylandTextInputPrivate::sendInputMethodEvent(QInputMethodEvent *event)
         }
     }
     send_preedit_string(focusResource->handle, event->preeditString(), event->preeditString());
+
+    Qt::InputMethodQueries queries = currentState->updatedQueries(afterCommit);
+    currentState->surroundingText = afterCommit.surroundingText;
+    currentState->cursorPosition = afterCommit.cursorPosition;
+    currentState->anchorPosition = afterCommit.anchorPosition;
+
+    if (queries) {
+        qCDebug(qLcCompositorInputMethods) << "QInputMethod::update() after QInputMethodEvent" << queries;
+
+        emit q->updateInputMethod(queries);
+    }
 }
 
 void QWaylandTextInputPrivate::sendKeyEvent(QKeyEvent *event)

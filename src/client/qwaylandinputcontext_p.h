@@ -80,6 +80,8 @@ public:
     void commit();
     void updateState(Qt::InputMethodQueries queries, uint32_t flags);
 
+    void setCursorInsidePreedit(int cursor);
+
     bool isInputPanelVisible() const;
     QRectF keyboardRect() const;
 
@@ -137,6 +139,8 @@ public:
     void reset() Q_DECL_OVERRIDE;
     void commit() Q_DECL_OVERRIDE;
     void update(Qt::InputMethodQueries) Q_DECL_OVERRIDE;
+
+    void invokeAction(QInputMethod::Action, int cursorPosition) Q_DECL_OVERRIDE;
 
     void showInputPanel() Q_DECL_OVERRIDE;
     void hideInputPanel() Q_DECL_OVERRIDE;

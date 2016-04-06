@@ -185,6 +185,11 @@ void QWaylandTextInput::updateState(Qt::InputMethodQueries queries, uint32_t fla
     }
 }
 
+void QWaylandTextInput::setCursorInsidePreedit(int)
+{
+    // Not supported yet
+}
+
 bool QWaylandTextInput::isInputPanelVisible() const
 {
     return m_inputPanelVisible;
@@ -443,6 +448,15 @@ void QWaylandInputContext::update(Qt::InputMethodQueries queries)
     }
 
     textInput()->updateState(queries, QtWayland::zwp_text_input_v2::update_state_change);
+}
+
+void QWaylandInputContext::invokeAction(QInputMethod::Action action, int cursorPostion)
+{
+    if (!textInput())
+        return;
+
+    if (action == QInputMethod::Click)
+        textInput()->setCursorInsidePreedit(cursorPostion);
 }
 
 void QWaylandInputContext::showInputPanel()

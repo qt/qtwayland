@@ -50,6 +50,7 @@
 #include <QtWaylandCompositor/QWaylandQuickWlShellSurfaceItem>
 #include <QtWaylandCompositor/QWaylandResource>
 
+#include <QtWaylandCompositor/QWaylandWindowManagerExtension>
 #include <QtWaylandCompositor/QWaylandWlShell>
 #include <QtWaylandCompositor/QWaylandTextInputManager>
 
@@ -59,6 +60,7 @@
 QT_BEGIN_NAMESPACE
 
 Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CLASS(QWaylandQuickCompositor)
+Q_COMPOSITOR_DECLARE_QUICK_DATA_CLASS(QWaylandWindowManagerExtension)
 Q_COMPOSITOR_DECLARE_QUICK_DATA_CLASS(QWaylandWlShell)
 Q_COMPOSITOR_DECLARE_QUICK_DATA_CLASS(QWaylandWlShellSurface)
 
@@ -131,6 +133,7 @@ public:
         qmlRegisterType<QWaylandMouseTracker>(uri, 1, 0, "WaylandMouseTracker");
         qmlRegisterType<QWaylandQuickOutput>(uri, 1, 0, "WaylandOutput");
         qmlRegisterType<QWaylandQuickSurface>(uri, 1, 0, "WaylandSurface");
+        qmlRegisterType<QWaylandWindowManagerExtensionQuickData>(uri, 1, 0, "WindowManager");
 
         qmlRegisterUncreatableType<QWaylandExtension>(uri, 1, 0, "WaylandExtension", QObject::tr("Cannot create instance of WaylandExtension"));
         qmlRegisterUncreatableType<QWaylandClient>(uri, 1, 0, "WaylandClient", QObject::tr("Cannot create instance of WaylandClient"));

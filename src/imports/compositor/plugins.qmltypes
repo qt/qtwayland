@@ -328,6 +328,24 @@ Module {
         Signal { name: "surfaceDestroyed" }
     }
     Component {
+        name: "QWaylandWindowManagerExtension"
+        prototype: "QWaylandExtension"
+        Property { name: "showIsFullScreen"; type: "bool" }
+        Signal {
+            name: "openUrl"
+            Parameter { name: "client"; type: "QWaylandClient"; isPointer: true }
+            Parameter { name: "url"; type: "QUrl" }
+        }
+    }
+    Component {
+        name: "QWaylandWindowManagerExtensionQuickData"
+        defaultProperty: "data"
+        prototype: "QWaylandWindowManagerExtension"
+        exports: ["QtWayland.Compositor/WindowManager 1.0"]
+        exportMetaObjectRevisions: [0]
+        Property { name: "data"; type: "QObject"; isList: true; isReadonly: true }
+    }
+    Component {
         name: "QWaylandWlShell"
         prototype: "QWaylandExtension"
         Signal {

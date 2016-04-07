@@ -56,20 +56,22 @@
 
 QT_BEGIN_NAMESPACE
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandWindowManagerExtensionPrivate : public QWaylandExtensionTemplatePrivate, public QtWaylandServer::qt_windowmanager
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandWindowManagerExtensionPrivate
+        : public QWaylandExtensionTemplatePrivate
+        , public QtWaylandServer::qt_windowmanager
 {
     Q_DECLARE_PUBLIC(QWaylandWindowManagerExtension)
 public:
-        QWaylandWindowManagerExtensionPrivate(QWaylandCompositor *compositor);
+    QWaylandWindowManagerExtensionPrivate();
 
 protected:
     void windowmanager_bind_resource(Resource *resource) Q_DECL_OVERRIDE;
     void windowmanager_destroy_resource(Resource *resource) Q_DECL_OVERRIDE;
     void windowmanager_open_url(Resource *resource, uint32_t remaining, const QString &url) Q_DECL_OVERRIDE;
+
 private:
-    bool m_showIsFullScreen;
-    QWaylandCompositor *m_compositor;
-    QMap<Resource*, QString> m_urls;
+    bool showIsFullScreen;
+    QMap<Resource*, QString> urls;
 };
 
 QT_END_NAMESPACE

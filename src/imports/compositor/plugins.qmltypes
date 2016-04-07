@@ -59,6 +59,11 @@ Module {
             Parameter { name: "child"; type: "QWaylandSurface"; isPointer: true }
             Parameter { name: "parent"; type: "QWaylandSurface"; isPointer: true }
         }
+        Signal {
+            name: "defaultInputDeviceChanged"
+            Parameter { name: "newDevice"; type: "QWaylandInputDevice"; isPointer: true }
+            Parameter { name: "oldDevice"; type: "QWaylandInputDevice"; isPointer: true }
+        }
         Method { name: "processWaylandEvents" }
         Method {
             name: "destroyClientForSurface"
@@ -101,6 +106,11 @@ Module {
             name: "mouseFocusChanged"
             Parameter { name: "newFocus"; type: "QWaylandView"; isPointer: true }
             Parameter { name: "oldFocus"; type: "QWaylandView"; isPointer: true }
+        }
+        Signal {
+            name: "keyboardFocusChanged"
+            Parameter { name: "newFocus"; type: "QWaylandSurface"; isPointer: true }
+            Parameter { name: "oldFocus"; type: "QWaylandSurface"; isPointer: true }
         }
         Signal {
             name: "cursorSurfaceRequest"

@@ -79,6 +79,12 @@ WaylandOutput {
                 inputDevice: output.compositor.defaultInputDevice
             }
         }
+
+        Shortcut {
+            sequence: "Meta+F"
+            onActivated: qtWindowManager.showIsFullScreen = !qtWindowManager.showIsFullScreen
+        }
+
         Shortcut {
             sequence: "Ctrl+Alt+Backspace"
             onActivated: Qt.quit()

@@ -63,6 +63,14 @@ WaylandCompositor {
     }
 
     extensions: [
+        WindowManager {
+            id: qtWindowManager
+            onShowIsFullScreenChanged: console.debug("Show is fullscreen hint for Qt applications:", showIsFullScreen)
+
+            Component.onCompleted: {
+                initialize();
+            }
+        },
         WlShell {
             id: defaultShell
 

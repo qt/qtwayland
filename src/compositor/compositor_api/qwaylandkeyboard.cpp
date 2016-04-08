@@ -41,8 +41,6 @@
 #include <QtWaylandCompositor/QWaylandInputDevice>
 #include <QtWaylandCompositor/QWaylandClient>
 
-#include <QtWaylandCompositor/QWaylandShellSurface>
-
 #include <QtCore/QFile>
 #include <QtCore/QStandardPaths>
 
@@ -146,6 +144,10 @@ void QWaylandKeyboardPrivate::focused(QWaylandSurface *surface)
 
 void QWaylandKeyboardPrivate::keyboard_bind_resource(wl_keyboard::Resource *resource)
 {
+    // Send repeat information
+    if (resource->version() >= WL_KEYBOARD_REPEAT_INFO_SINCE_VERSION)
+        send_repeat_info(resource->handle, repeatRate, repeatDelay);
+
 #ifndef QT_NO_WAYLAND_XKB
     if (xkb_context) {
         send_keymap(resource->handle, WL_KEYBOARD_KEYMAP_FORMAT_XKB_V1,
@@ -174,15 +176,11 @@ void QWaylandKeyboardPrivate::keyboard_release(wl_keyboard::Resource *resource)
 
 void QWaylandKeyboardPrivate::keyEvent(uint code, uint32_t state)
 {
-    uint key = code - 8;
+    uint key = toWaylandXkbV1Key(code);
     if (state == WL_KEYBOARD_KEY_STATE_PRESSED) {
         keys << key;
     } else {
-        for (int i = 0; i < keys.size(); ++i) {
-            if (keys.at(i) == key) {
-                keys.remove(i);
-            }
-        }
+        keys.removeAll(key);
     }
 }
 
@@ -190,7 +188,7 @@ void QWaylandKeyboardPrivate::sendKeyEvent(uint code, uint32_t state)
 {
     uint32_t time = compositor()->currentTimeMsecs();
     uint32_t serial = compositor()->nextSerial();
-    uint key = code - 8;
+    uint key = toWaylandXkbV1Key(code);
     if (focusResource)
         send_key(focusResource->handle, serial, time, key, state);
 }
@@ -338,6 +336,13 @@ void QWaylandKeyboardPrivate::createXKBState(xkb_keymap *keymap)
     xkb_state = xkb_state_new(keymap);
 }
 
+uint QWaylandKeyboardPrivate::toWaylandXkbV1Key(const uint nativeScanCode)
+{
+    const uint offset = 8;
+    Q_ASSERT(nativeScanCode >= offset);
+    return nativeScanCode - offset;
+}
+
 void QWaylandKeyboardPrivate::createXKBKeymap()
 {
     if (!xkb_context)
@@ -364,6 +369,14 @@ void QWaylandKeyboardPrivate::createXKBKeymap()
     free((char *)rule_names.options);
 }
 #endif
+
+void QWaylandKeyboardPrivate::sendRepeatInfo()
+{
+    Q_FOREACH (Resource *resource, resourceMap()) {
+        if (resource->version() >= WL_KEYBOARD_REPEAT_INFO_SINCE_VERSION)
+            send_repeat_info(resource->handle, repeatRate, repeatDelay);
+    }
+}
 
 /*!
  * \class QWaylandKeyboard
@@ -474,12 +487,7 @@ void QWaylandKeyboard::setRepeatRate(quint32 rate)
     if (d->repeatRate == rate)
         return;
 
-    // TODO: As of today 2015-11-25, we don't support Wayland 1.6
-    // because of CI limitations. Once the protocol is updated
-    // we can send keyboard repeat information to the client as
-    // per wl_seat version 4
-
-    qWarning("Setting QWaylandKeyboard::repeatRate has no effect until QtWaylandCompositor support wl_seat 4");
+    d->sendRepeatInfo();
 
     d->repeatRate = rate;
     Q_EMIT repeatRateChanged(rate);
@@ -504,12 +512,7 @@ void QWaylandKeyboard::setRepeatDelay(quint32 delay)
     if (d->repeatDelay == delay)
         return;
 
-    // TODO: As of today 2015-11-25, we don't support Wayland 1.6
-    // because of CI limitations. Once the protocol is updated
-    // we can send keyboard repeat information to the client as
-    // per wl_seat version 4
-
-    qWarning("Setting QWaylandKeyboard::repeatDelay has no effect until QtWaylandCompositor support wl_seat 4");
+    d->sendRepeatInfo();
 
     d->repeatDelay = delay;
     Q_EMIT repeatDelayChanged(delay);
@@ -527,14 +530,10 @@ QWaylandSurface *QWaylandKeyboard::focus() const
 /*!
  * Sets the current focus to \a surface.
  */
-bool QWaylandKeyboard::setFocus(QWaylandSurface *surface)
+void QWaylandKeyboard::setFocus(QWaylandSurface *surface)
 {
     Q_D(QWaylandKeyboard);
-    QWaylandShellSurface *shellsurface = QWaylandShellSurface::findIn(surface);
-    if (shellsurface &&  shellsurface->focusPolicy() == QWaylandShellSurface::NoKeyboardFocus)
-            return false;
     d->focused(surface);
-    return true;
 }
 
 /*!

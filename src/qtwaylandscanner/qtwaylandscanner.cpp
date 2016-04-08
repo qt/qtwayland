@@ -439,7 +439,7 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath, const QByteArr
             printf("            struct ::wl_client *client() const { return handle->client; }\n");
             printf("            int version() const { return wl_resource_get_version(handle); }\n");
             printf("\n");
-            printf("            static Resource *fromResource(struct ::wl_resource *resource) { return static_cast<Resource *>(resource->data); }\n");
+            printf("            static Resource *fromResource(struct ::wl_resource *resource);\n");
             printf("        };\n");
             printf("\n");
             printf("        void init(struct ::wl_client *client, int id, int version);\n");
@@ -708,6 +708,13 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath, const QByteArr
             printf("        return resource;\n");
             printf("    }\n");
 
+            printf("    %s::Resource *%s::Resource::fromResource(struct ::wl_resource *resource)\n", interfaceName, interfaceName);
+            printf("    {\n");
+            printf("        if (wl_resource_instance_of(resource, &::%s_interface, %s))\n",  interfaceName, interfaceMember.constData());
+            printf("            return static_cast<Resource *>(resource->data);\n");
+            printf("        return 0;\n");
+            printf("    }\n");
+
             if (hasRequests) {
                 printf("\n");
                 printf("    const struct ::%s_interface %s::m_%s_interface = {", interfaceName, interfaceName, interfaceName);
@@ -878,6 +885,8 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath, const QByteArr
             printf("        const struct ::%s *object() const { return m_%s; }\n", interfaceName, interfaceName);
             printf("\n");
             printf("        bool isInitialized() const;\n");
+            printf("\n");
+            printf("        static const struct ::wl_interface *interface();\n");
 
             printEnums(interface.enums);
 
@@ -1002,6 +1011,12 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath, const QByteArr
             printf("    bool %s::isInitialized() const\n", interfaceName);
             printf("    {\n");
             printf("        return m_%s != 0;\n", interfaceName);
+            printf("    }\n");
+            printf("\n");
+
+            printf("    const struct wl_interface *%s::interface()\n", interfaceName);
+            printf("    {\n");
+            printf("        return &::%s_interface;\n", interfaceName);
             printf("    }\n");
 
             for (int i = 0; i < interface.requests.size(); ++i) {

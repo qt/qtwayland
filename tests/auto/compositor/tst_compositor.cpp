@@ -29,17 +29,13 @@
 #include "mockclient.h"
 #include "testcompositor.h"
 #include "testkeyboardgrabber.h"
-
-#include "QtCompositor/private/qwlkeyboard_p.h"
-#include "QtCompositor/private/qwlinputdevice_p.h"
-#include "QtCompositor/private/qwlcompositor_p.h"
 #include "testinputdevice.h"
 
+#include "qwaylandview.h"
 #include "qwaylandbufferref.h"
+#include "qwaylandinput.h"
 
 #include <QtTest/QtTest>
-
-#include <QtCompositor/private/qwlinputdevice_p.h>
 
 class tst_WaylandCompositor : public QObject
 {
@@ -65,6 +61,7 @@ private slots:
 void tst_WaylandCompositor::singleClient()
 {
     TestCompositor compositor;
+    compositor.create();
 
     MockClient client;
 
@@ -95,6 +92,7 @@ void tst_WaylandCompositor::singleClient()
 void tst_WaylandCompositor::multipleClients()
 {
     TestCompositor compositor;
+    compositor.create();
 
     MockClient a;
     MockClient b;
@@ -133,7 +131,8 @@ void tst_WaylandCompositor::multipleClients()
 
 void tst_WaylandCompositor::keyboardGrab()
 {
-    TestCompositor compositor((QWaylandCompositor::ExtensionFlag)0);
+    TestCompositor compositor;
+    compositor.create();
     MockClient mc;
 
     mc.createSurface();
@@ -144,46 +143,47 @@ void tst_WaylandCompositor::keyboardGrab()
     // Set the focused surface so that key event will flow through
     QWaylandSurface *waylandSurface = compositor.surfaces.at(0);
     QWaylandInputDevice* inputDevice = compositor.defaultInputDevice();
-    inputDevice->handle()->keyboardDevice()->setFocus(waylandSurface->handle());
 
-    TestKeyboardGrabber grab;
-    QSignalSpy grabFocusSpy(&grab, SIGNAL(focusedCalled()));
-    QSignalSpy grabKeySpy(&grab, SIGNAL(keyCalled()));
-    QSignalSpy grabModifierSpy(&grab, SIGNAL(modifiersCalled()));
+    TestKeyboardGrabber* grab = static_cast<TestKeyboardGrabber *>(inputDevice->keyboard());
+    QTRY_COMPARE(grab, inputDevice->keyboard());
+    QSignalSpy grabFocusSpy(grab, SIGNAL(focusedCalled()));
+    QSignalSpy grabKeyPressSpy(grab, SIGNAL(keyPressCalled()));
+    QSignalSpy grabKeyReleaseSpy(grab, SIGNAL(keyReleaseCalled()));
+    //QSignalSpy grabModifierSpy(grab, SIGNAL(modifiersCalled()));
 
-    QtWayland::Keyboard *keyboard = inputDevice->handle()->keyboardDevice();
-    keyboard->startGrab(&grab);
-
+    inputDevice->setKeyboardFocus(waylandSurface);
     QTRY_COMPARE(grabFocusSpy.count(), 1);
-    QCOMPARE(grab.m_keyboard, inputDevice->handle()->keyboardDevice());
 
     QKeyEvent ke(QEvent::KeyPress, Qt::Key_A, Qt::NoModifier, 30, 0, 0);
     QKeyEvent ke1(QEvent::KeyRelease, Qt::Key_A, Qt::NoModifier, 30, 0, 0);
     inputDevice->sendFullKeyEvent(&ke);
     inputDevice->sendFullKeyEvent(&ke1);
-    QTRY_COMPARE(grabKeySpy.count(), 2);
+    QTRY_COMPARE(grabKeyPressSpy.count(), 1);
+    QTRY_COMPARE(grabKeyReleaseSpy.count(), 1);
 
     QKeyEvent ke2(QEvent::KeyPress, Qt::Key_Shift, Qt::NoModifier, 50, 0, 0);
     QKeyEvent ke3(QEvent::KeyRelease, Qt::Key_Shift, Qt::NoModifier, 50, 0, 0);
     inputDevice->sendFullKeyEvent(&ke2);
     inputDevice->sendFullKeyEvent(&ke3);
-    QTRY_COMPARE(grabModifierSpy.count(), 2);
+    //QTRY_COMPARE(grabModifierSpy.count(), 2);
     // Modifiers are also keys
-    QTRY_COMPARE(grabKeySpy.count(), 4);
+    QTRY_COMPARE(grabKeyPressSpy.count(), 2);
+    QTRY_COMPARE(grabKeyReleaseSpy.count(), 2);
 
     // Stop grabbing
-    keyboard->endGrab();
+    inputDevice->setKeyboardFocus(Q_NULLPTR);
     inputDevice->sendFullKeyEvent(&ke);
     inputDevice->sendFullKeyEvent(&ke1);
-    QTRY_COMPARE(grabKeySpy.count(), 4);
+    QTRY_COMPARE(grabKeyPressSpy.count(), 2);
 }
 
 void tst_WaylandCompositor::geometry()
 {
     TestCompositor compositor;
+    compositor.create();
 
     QRect geometry(0, 0, 4096, 3072);
-    compositor.setOutputGeometry(geometry);
+    compositor.defaultOutput()->setGeometry(geometry);
 
     MockClient client;
 
@@ -193,6 +193,7 @@ void tst_WaylandCompositor::geometry()
 void tst_WaylandCompositor::mapSurface()
 {
     TestCompositor compositor;
+    compositor.create();
 
     MockClient client;
 
@@ -201,10 +202,10 @@ void tst_WaylandCompositor::mapSurface()
 
     QWaylandSurface *waylandSurface = compositor.surfaces.at(0);
 
-    QSignalSpy mappedSpy(waylandSurface, SIGNAL(mapped()));
+    QSignalSpy mappedSpy(waylandSurface, SIGNAL(mappedChanged()));
 
     QCOMPARE(waylandSurface->size(), QSize());
-    QCOMPARE(waylandSurface->type(), QWaylandSurface::Invalid);
+    QCOMPARE(waylandSurface->isMapped(), false);
 
     QSize size(256, 256);
     ShmBuffer buffer(size, client.shm);
@@ -216,7 +217,7 @@ void tst_WaylandCompositor::mapSurface()
     wl_surface_commit(surface);
 
     QTRY_COMPARE(waylandSurface->size(), size);
-    QTRY_COMPARE(waylandSurface->type(), QWaylandSurface::Shm);
+    QTRY_COMPARE(waylandSurface->isMapped(), true);
     QTRY_COMPARE(mappedSpy.count(), 1);
 
     wl_surface_destroy(surface);
@@ -239,20 +240,18 @@ static void registerFrameCallback(wl_surface *surface, int *counter)
 
 void tst_WaylandCompositor::frameCallback()
 {
-    class BufferAttacher : public QWaylandBufferAttacher
+    class BufferView : public QWaylandView
     {
     public:
-        void attach(const QWaylandBufferRef &ref) Q_DECL_OVERRIDE
+        void attach(const QWaylandBufferRef &ref, const QRegion &damage) Q_DECL_OVERRIDE
         {
+            Q_UNUSED(damage);
             bufferRef = ref;
-        }
-        void unmap() Q_DECL_OVERRIDE
-        {
         }
 
         QImage image() const
         {
-            if (!bufferRef || !bufferRef.isShm())
+            if (bufferRef.isNull() || !bufferRef.isShm())
                 return QImage();
             return bufferRef.image();
         }
@@ -261,6 +260,7 @@ void tst_WaylandCompositor::frameCallback()
     };
 
     TestCompositor compositor;
+    compositor.create();
 
     MockClient client;
 
@@ -270,8 +270,10 @@ void tst_WaylandCompositor::frameCallback()
 
     QTRY_COMPARE(compositor.surfaces.size(), 1);
     QWaylandSurface *waylandSurface = compositor.surfaces.at(0);
-    BufferAttacher attacher;
-    waylandSurface->setBufferAttacher(&attacher);
+    BufferView* view = new BufferView;
+    view->setSurface(waylandSurface);
+    view->setOutput(compositor.defaultOutput());
+
     QSignalSpy damagedSpy(waylandSurface, SIGNAL(damaged(const QRegion &)));
 
     for (int i = 0; i < 10; ++i) {
@@ -284,12 +286,12 @@ void tst_WaylandCompositor::frameCallback()
         wl_surface_damage(surface, 0, 0, size.width(), size.height());
         wl_surface_commit(surface);
 
-        QTRY_COMPARE(waylandSurface->type(), QWaylandSurface::Shm);
+        QTRY_COMPARE(waylandSurface->isMapped(), true);
         QTRY_COMPARE(damagedSpy.count(), i + 1);
 
-        QCOMPARE(static_cast<BufferAttacher *>(waylandSurface->bufferAttacher())->image(), buffer.image);
-        compositor.frameStarted();
-        compositor.sendFrameCallbacks(QList<QWaylandSurface *>() << waylandSurface);
+        QCOMPARE(static_cast<BufferView*>(waylandSurface->views().first())->image(), buffer.image);
+        compositor.defaultOutput()->frameStarted();
+        compositor.defaultOutput()->sendFrameCallbacks();
 
         QTRY_COMPARE(frameCounter, i + 1);
     }
@@ -300,64 +302,51 @@ void tst_WaylandCompositor::frameCallback()
 void tst_WaylandCompositor::inputDeviceCapabilities()
 {
     TestCompositor compositor;
-    QtWayland::InputDevice dev(NULL, compositor.handle(), QWaylandInputDevice::Pointer);
+    compositor.create();
 
-    QTRY_VERIFY(dev.pointerDevice());
-    QTRY_VERIFY(!dev.keyboardDevice());
-    QTRY_VERIFY(!dev.touchDevice());
+    MockClient client;
+    Q_UNUSED(client);
 
-    dev.setCapabilities(QWaylandInputDevice::Keyboard | QWaylandInputDevice::Touch);
-    QTRY_VERIFY(!dev.pointerDevice());
-    QTRY_VERIFY(dev.keyboardDevice());
-    QTRY_VERIFY(dev.touchDevice());
+    QWaylandInputDevice dev(&compositor, QWaylandInputDevice::Pointer);
 
-    // Test that existing devices do not change when another is removed
-    QtWayland::Keyboard *k = dev.keyboardDevice();
-    dev.setCapabilities(QWaylandInputDevice::Keyboard);
-    QTRY_COMPARE(k, dev.keyboardDevice());
+    QTRY_VERIFY(dev.pointer());
+    QTRY_VERIFY(!dev.keyboard());
+    QTRY_VERIFY(!dev.touch());
+
+    QWaylandInputDevice dev2(&compositor, QWaylandInputDevice::Keyboard | QWaylandInputDevice::Touch);
+    QTRY_VERIFY(!dev2.pointer());
+    QTRY_VERIFY(dev2.keyboard());
+    QTRY_VERIFY(dev2.touch());
 }
 
 void tst_WaylandCompositor::inputDeviceCreation()
 {
-    TestCompositor compositor;
-    TestInputDevice dev1(&compositor, QWaylandInputDevice::Pointer | QWaylandInputDevice::Keyboard);
-    TestInputDevice dev2(&compositor, QWaylandInputDevice::Pointer | QWaylandInputDevice::Keyboard);
+    TestCompositor compositor(true);
+    compositor.create();
 
-    compositor.handle()->registerInputDevice(&dev1);
-    compositor.handle()->registerInputDevice(&dev2);
+    MockClient client;
+    Q_UNUSED(client);
+
+    TestInputDevice* dev = static_cast<TestInputDevice*>(compositor.defaultInputDevice());
 
     // The compositor will create the default input device
-    QTRY_COMPARE(compositor.handle()->inputDevices().count(), 3);
-    // Test the order
-    QTRY_COMPARE(compositor.handle()->inputDevices().at(0), &dev2);
-    QTRY_COMPARE(compositor.handle()->inputDevices().at(1), &dev1);
-    QTRY_COMPARE(compositor.handle()->inputDevices().at(2), compositor.defaultInputDevice());
+    QTRY_COMPARE(compositor.defaultInputDevice(), dev);
 
     QList<QMouseEvent *> allEvents;
-    allEvents += dev1.createMouseEvents(2);
-    allEvents += dev2.createMouseEvents(5);
+    allEvents += dev->createMouseEvents(5);
     foreach (QMouseEvent *me, allEvents) {
         compositor.inputDeviceFor(me);
     }
 
-    // The first input device will only get called exatly the number of times it has created
+    // The default input device will get called exatly the number of times it has created
     // the events
-    QTRY_COMPARE(dev1.queryCount(), 2);
-    // The second will get called the total number of times as it sits as the first item in
-    // the registered input devices list
-    QTRY_COMPARE(dev2.queryCount(), 7);
+    QTRY_COMPARE(dev->queryCount(), 5);
 }
 
 void tst_WaylandCompositor::inputDeviceKeyboardFocus()
 {
-    TestCompositor compositor;
-
-
-    TestInputDevice dev1(&compositor, QWaylandInputDevice::Keyboard);
-    TestInputDevice dev2(&compositor, QWaylandInputDevice::Keyboard);
-
-    compositor.handle()->registerInputDevice(&dev1);
-    compositor.handle()->registerInputDevice(&dev2);
+    TestCompositor compositor(true);
+    compositor.create();
 
     // Create client after all the input devices have been set up as the mock client
     // does not dynamically listen to new seats
@@ -366,24 +355,14 @@ void tst_WaylandCompositor::inputDeviceKeyboardFocus()
     QTRY_COMPARE(compositor.surfaces.size(), 1);
 
     QWaylandSurface *waylandSurface = compositor.surfaces.at(0);
-    QList<QWaylandInputDevice *> devices = compositor.handle()->inputDevices();
-    foreach (QWaylandInputDevice *dev, devices) {
-        dev->setKeyboardFocus(waylandSurface);
-    }
+    QWaylandInputDevice* dev = compositor.defaultInputDevice();
+    dev->setKeyboardFocus(waylandSurface);
     QTRY_COMPARE(compositor.defaultInputDevice()->keyboardFocus(), waylandSurface);
-    QTRY_COMPARE(dev1.keyboardFocus(), waylandSurface);
-    QTRY_COMPARE(dev2.keyboardFocus(), waylandSurface);
 
     wl_surface_destroy(surface);
     QTRY_VERIFY(compositor.surfaces.size() == 0);
-    // This will normally be called for example in the quick compositor
-    // but here call it manually to get rid of the surface and have it reset
-    // the focus
-    compositor.handle()->cleanupGraphicsResources();
 
-   QTRY_VERIFY(!compositor.defaultInputDevice()->keyboardFocus());
-   QTRY_VERIFY(!dev1.keyboardFocus());
-   QTRY_VERIFY(!dev2.keyboardFocus());
+    QTRY_VERIFY(!compositor.defaultInputDevice()->keyboardFocus());
 }
 
 #include <tst_compositor.moc>

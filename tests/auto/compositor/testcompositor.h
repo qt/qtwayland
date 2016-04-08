@@ -28,15 +28,26 @@
 
 #include "qwaylandcompositor.h"
 #include "qwaylandsurface.h"
+#include "qwaylandwlshell.h"
 
 class TestCompositor : public QWaylandCompositor
 {
+    Q_OBJECT
 public:
-    TestCompositor(QWaylandCompositor::ExtensionFlag flags = QWaylandCompositor::DefaultExtensions);
+    TestCompositor(bool createInputDev = false);
+    void create();
 
-    void surfaceCreated(QWaylandSurface *surface);
-    void surfaceAboutToBeDestroyed(QWaylandSurface *surface);
+public slots:
+    void onSurfaceCreated(QWaylandSurface *surface);
+    void onSurfaceAboutToBeDestroyed(QWaylandSurface *surface);
 
+protected:
+    QWaylandInputDevice *createInputDevice() Q_DECL_OVERRIDE;
+    QWaylandKeyboard *createKeyboardDevice(QWaylandInputDevice *inputDevice) Q_DECL_OVERRIDE;
+
+public:
     QList<QWaylandSurface *> surfaces;
+    QWaylandWlShell* shell;
+    bool m_createInputDevice;
 };
 

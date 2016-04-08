@@ -1,6 +1,3 @@
-PLUGIN_TYPE = wayland-decoration-client
-load(qt_plugin)
-
 QT += waylandclient-private
 
 OTHER_FILES += \
@@ -15,3 +12,5 @@ contains(QT_CONFIG, no-pkg-config) {
     PKGCONFIG += wayland-client
 }
 
+PLUGIN_TYPE = wayland-decoration-client
+load(qt_plugin)

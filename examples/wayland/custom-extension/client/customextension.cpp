@@ -48,14 +48,9 @@ QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
 
-CustomExtension::CustomExtension(QWaylandIntegration *wayland_integration)
-    : m_display(0)
+CustomExtension::CustomExtension()
+    : QWaylandClientExtensionTemplate(/* Supported protocol version */ 1 )
 {
-    // TODO: add a simpler API for this
-
-    QtWaylandClient::QWaylandDisplay *wayland_display = wayland_integration->display();
-    struct ::wl_registry *registry = wl_display_get_registry(wayland_display->wl_display());
-    QtWayland::wl_registry::init(registry);
 }
 
 void CustomExtension::sendRequest(const QString &text, int value)
@@ -71,13 +66,6 @@ void CustomExtension::example_extension_qtevent(struct wl_surface *surface,
 {
     qDebug() << "Client-side plugin received an event:" << surface << time << text << value;
     emit eventReceived(text, value);
-}
-
-void CustomExtension::registry_global(uint32_t id, const QString &interface, uint32_t version)
-{
-    if (interface == QStringLiteral("qt_example_extension")) {
-        QtWayland::qt_example_extension::init(QtWayland::wl_registry::object(), id, version);
-    }
 }
 
 }

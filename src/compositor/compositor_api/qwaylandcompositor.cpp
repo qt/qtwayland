@@ -153,10 +153,11 @@ void QWaylandCompositorPrivate::init()
     Q_Q(QWaylandCompositor);
     QStringList arguments = QCoreApplication::instance()->arguments();
 
-    int socketArg = arguments.indexOf(QLatin1String("--wayland-socket-name"));
-    if (socketArg != -1 && socketArg + 1 < arguments.size())
-        socket_name = arguments.at(socketArg + 1).toLocal8Bit();
-
+    if (socket_name.isEmpty()) {
+        const int socketArg = arguments.indexOf(QLatin1String("--wayland-socket-name"));
+        if (socketArg != -1 && socketArg + 1 < arguments.size())
+            socket_name = arguments.at(socketArg + 1).toLocal8Bit();
+    }
     wl_compositor::init(display, 3);
     wl_subcompositor::init(display, 1);
 
@@ -167,11 +168,14 @@ void QWaylandCompositorPrivate::init()
     foreach (wl_shm_format format, formats)
         wl_display_add_shm_format(display, format);
 
-    const char *socketName = 0;
-    if (socket_name.size())
-        socketName = socket_name.constData();
-    if (wl_display_add_socket(display, socketName)) {
-        qFatal("Fatal: Failed to open server socket\n");
+    if (!socket_name.isEmpty()) {
+        if (wl_display_add_socket(display, socket_name.constData()))
+            qFatal("Fatal: Failed to open server socket\n");
+    } else {
+        const char *autoSocketName = wl_display_add_socket_auto(display);
+        if (!autoSocketName)
+            qFatal("Fatal: Failed to open server socket\n");
+        socket_name = autoSocketName;
     }
 
     loop = wl_display_get_event_loop(display);
@@ -338,8 +342,9 @@ void QWaylandCompositorPrivate::initializeHardwareIntegration()
 void QWaylandCompositorPrivate::initializeDefaultInputDevice()
 {
     Q_Q(QWaylandCompositor);
-    inputDevices.append(q->createInputDevice());
-    q->defaultInputDeviceChanged();
+    QWaylandInputDevice *device = q->createInputDevice();
+    inputDevices.append(device);
+    q->defaultInputDeviceChanged(device, nullptr);
 }
 
 void QWaylandCompositorPrivate::loadClientBufferIntegration()
@@ -467,9 +472,10 @@ bool QWaylandCompositor::isCreated() const
  * This property holds the socket name used by WaylandCompositor to communicate with
  * clients. It must be set before the component is completed.
  *
- * If the socketName is empty (the default), the contents of the environment
- * variable WAYLAND_DISPLAY is used instead. If this is not set, the
- * default "wayland-0" is used.
+ * If the socketName is empty (the default), the contents of the start argument
+ * --wayland-socket-name is used instead. If this is not set, then the compositor
+ * will try to find a socket name automatically, which in the default case will
+ * be "wayland-0".
  */
 
 /*!
@@ -478,9 +484,10 @@ bool QWaylandCompositor::isCreated() const
  * This property holds the socket name used by QWaylandCompositor to communicate with
  * clients. This must be set before the QWaylandCompositor is \l{create()}{created}.
  *
- * If the socketName is empty (the default), the contents of the environment
- * variable WAYLAND_DISPLAY is used instead. If this is not set, the
- * default "wayland-0" is used.
+ * If the socketName is empty (the default), the contents of the start argument
+ * --wayland-socket-name is used instead. If this is not set, then the compositor
+ * will try to find a socket name automatically, which in the default case will
+ * be "wayland-0".
  */
 void QWaylandCompositor::setSocketName(const QByteArray &name)
 {

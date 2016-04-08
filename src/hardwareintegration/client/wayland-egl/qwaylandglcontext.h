@@ -73,7 +73,7 @@ public:
     bool isSharing() const;
     bool isValid() const;
 
-    void (*getProcAddress(const QByteArray &procName)) ();
+    void (*getProcAddress(const char *procName)) ();
 
     QSurfaceFormat format() const { return m_format; }
 

@@ -35,8 +35,8 @@
 **
 ****************************************************************************/
 
-#include "qwaylandshell.h"
-#include "qwaylandshell_p.h"
+#include "qwaylandwlshell.h"
+#include "qwaylandwlshell_p.h"
 
 #include <QtWaylandCompositor/QWaylandCompositor>
 #include <QtWaylandCompositor/QWaylandView>
@@ -48,17 +48,17 @@
 
 QT_BEGIN_NAMESPACE
 
-QWaylandSurfaceRole QWaylandShellSurfacePrivate::s_role("wl_shell_surface");
+QWaylandSurfaceRole QWaylandWlShellSurfacePrivate::s_role("wl_shell_surface");
 
-QWaylandShellPrivate::QWaylandShellPrivate()
+QWaylandWlShellPrivate::QWaylandWlShellPrivate()
     : QWaylandExtensionTemplatePrivate()
     , wl_shell()
 {
 }
 
-void QWaylandShellPrivate::shell_get_shell_surface(Resource *resource, uint32_t id, struct ::wl_resource *surface_res)
+void QWaylandWlShellPrivate::shell_get_shell_surface(Resource *resource, uint32_t id, struct ::wl_resource *surface_res)
 {
-    Q_Q(QWaylandShell);
+    Q_Q(QWaylandWlShell);
     QWaylandSurface *surface = QWaylandSurface::fromResource(surface_res);
 
     wl_resource *res = wl_resource_create(resource->client(), &wl_shell_surface_interface,
@@ -71,70 +71,70 @@ void QWaylandShellPrivate::shell_get_shell_surface(Resource *resource, uint32_t 
     // However we're still using wayland 1.4, which doesn't have interface specific role
     // errors, so the best we can do is to use wl_display's object_id error.
     wl_resource *displayRes = wl_client_get_object(resource->client(), 1);
-    if (surface->setRole(QWaylandShellSurface::role(), displayRes, WL_DISPLAY_ERROR_INVALID_OBJECT))
+    if (surface->setRole(QWaylandWlShellSurface::role(), displayRes, WL_DISPLAY_ERROR_INVALID_OBJECT))
         emit q->createShellSurface(surface, QWaylandResource(res));
 }
 
-QWaylandShellSurfacePrivate::QWaylandShellSurfacePrivate()
+QWaylandWlShellSurfacePrivate::QWaylandWlShellSurfacePrivate()
     : QWaylandExtensionTemplatePrivate()
     , wl_shell_surface()
     , m_shell(Q_NULLPTR)
     , m_surface(Q_NULLPTR)
-    , m_focusPolicy(QWaylandShellSurface::DefaultFocus)
+    , m_focusPolicy(QWaylandWlShellSurface::DefaultFocus)
 {
 }
 
-QWaylandShellSurfacePrivate::~QWaylandShellSurfacePrivate()
+QWaylandWlShellSurfacePrivate::~QWaylandWlShellSurfacePrivate()
 {
 }
 
-void QWaylandShellSurfacePrivate::ping(uint32_t serial)
+void QWaylandWlShellSurfacePrivate::ping(uint32_t serial)
 {
     m_pings.insert(serial);
     send_ping(serial);
 }
 
-void QWaylandShellSurfacePrivate::shell_surface_destroy_resource(Resource *)
+void QWaylandWlShellSurfacePrivate::shell_surface_destroy_resource(Resource *)
 {
-    Q_Q(QWaylandShellSurface);
+    Q_Q(QWaylandWlShellSurface);
 
     delete q;
 }
 
-void QWaylandShellSurfacePrivate::shell_surface_move(Resource *resource,
+void QWaylandWlShellSurfacePrivate::shell_surface_move(Resource *resource,
                 struct wl_resource *input_device_super,
                 uint32_t serial)
 {
     Q_UNUSED(resource);
     Q_UNUSED(serial);
 
-    Q_Q(QWaylandShellSurface);
+    Q_Q(QWaylandWlShellSurface);
     QWaylandInputDevice *input_device = QWaylandInputDevice::fromSeatResource(input_device_super);
     emit q->startMove(input_device);
 }
 
-void QWaylandShellSurfacePrivate::shell_surface_resize(Resource *resource,
+void QWaylandWlShellSurfacePrivate::shell_surface_resize(Resource *resource,
                   struct wl_resource *input_device_super,
                   uint32_t serial,
                   uint32_t edges)
 {
     Q_UNUSED(resource);
     Q_UNUSED(serial);
-    Q_Q(QWaylandShellSurface);
+    Q_Q(QWaylandWlShellSurface);
 
     QWaylandInputDevice *input_device = QWaylandInputDevice::fromSeatResource(input_device_super);
-    emit q->startResize(input_device, QWaylandShellSurface::ResizeEdge(edges));
+    emit q->startResize(input_device, QWaylandWlShellSurface::ResizeEdge(edges));
 }
 
-void QWaylandShellSurfacePrivate::shell_surface_set_toplevel(Resource *resource)
+void QWaylandWlShellSurfacePrivate::shell_surface_set_toplevel(Resource *resource)
 {
     Q_UNUSED(resource);
-    Q_Q(QWaylandShellSurface);
-    setFocusPolicy(QWaylandShellSurface::DefaultFocus);
+    Q_Q(QWaylandWlShellSurface);
+    setFocusPolicy(QWaylandWlShellSurface::DefaultFocus);
     emit q->setDefaultToplevel();
 }
 
-void QWaylandShellSurfacePrivate::shell_surface_set_transient(Resource *resource,
+void QWaylandWlShellSurfacePrivate::shell_surface_set_transient(Resource *resource,
                       struct wl_resource *parent_surface_resource,
                       int x,
                       int y,
@@ -142,16 +142,16 @@ void QWaylandShellSurfacePrivate::shell_surface_set_transient(Resource *resource
 {
 
     Q_UNUSED(resource);
-    Q_Q(QWaylandShellSurface);
+    Q_Q(QWaylandWlShellSurface);
     QWaylandSurface *parent_surface = QWaylandSurface::fromResource(parent_surface_resource);
-    QWaylandShellSurface::FocusPolicy focusPolicy =
-        flags & WL_SHELL_SURFACE_TRANSIENT_INACTIVE ? QWaylandShellSurface::NoKeyboardFocus
-                                                    : QWaylandShellSurface::DefaultFocus;
+    QWaylandWlShellSurface::FocusPolicy focusPolicy =
+        flags & WL_SHELL_SURFACE_TRANSIENT_INACTIVE ? QWaylandWlShellSurface::NoKeyboardFocus
+                                                    : QWaylandWlShellSurface::DefaultFocus;
     setFocusPolicy(focusPolicy);
     emit q->setTransient(parent_surface, QPoint(x,y), focusPolicy);
 }
 
-void QWaylandShellSurfacePrivate::shell_surface_set_fullscreen(Resource *resource,
+void QWaylandWlShellSurfacePrivate::shell_surface_set_fullscreen(Resource *resource,
                        uint32_t method,
                        uint32_t framerate,
                        struct wl_resource *output_resource)
@@ -159,91 +159,91 @@ void QWaylandShellSurfacePrivate::shell_surface_set_fullscreen(Resource *resourc
     Q_UNUSED(resource);
     Q_UNUSED(method);
     Q_UNUSED(framerate);
-    Q_Q(QWaylandShellSurface);
-    setFocusPolicy(QWaylandShellSurface::DefaultFocus);
+    Q_Q(QWaylandWlShellSurface);
+    setFocusPolicy(QWaylandWlShellSurface::DefaultFocus);
     QWaylandOutput *output = output_resource
             ? QWaylandOutput::fromResource(output_resource)
             : Q_NULLPTR;
-    emit q->setFullScreen(QWaylandShellSurface::FullScreenMethod(method), framerate, output);
+    emit q->setFullScreen(QWaylandWlShellSurface::FullScreenMethod(method), framerate, output);
 }
 
-void QWaylandShellSurfacePrivate::shell_surface_set_popup(Resource *resource, wl_resource *input_device, uint32_t serial, wl_resource *parent, int32_t x, int32_t y, uint32_t flags)
+void QWaylandWlShellSurfacePrivate::shell_surface_set_popup(Resource *resource, wl_resource *input_device, uint32_t serial, wl_resource *parent, int32_t x, int32_t y, uint32_t flags)
 {
     Q_UNUSED(resource);
     Q_UNUSED(serial);
     Q_UNUSED(flags);
-    Q_Q(QWaylandShellSurface);
-    setFocusPolicy(QWaylandShellSurface::DefaultFocus);
+    Q_Q(QWaylandWlShellSurface);
+    setFocusPolicy(QWaylandWlShellSurface::DefaultFocus);
     QWaylandInputDevice *input = QWaylandInputDevice::fromSeatResource(input_device);
     QWaylandSurface *parentSurface = QWaylandSurface::fromResource(parent);
     emit q->setPopup(input, parentSurface, QPoint(x,y));
 
 }
 
-void QWaylandShellSurfacePrivate::shell_surface_set_maximized(Resource *resource,
+void QWaylandWlShellSurfacePrivate::shell_surface_set_maximized(Resource *resource,
                        struct wl_resource *output_resource)
 {
     Q_UNUSED(resource);
-    Q_Q(QWaylandShellSurface);
-    setFocusPolicy(QWaylandShellSurface::DefaultFocus);
+    Q_Q(QWaylandWlShellSurface);
+    setFocusPolicy(QWaylandWlShellSurface::DefaultFocus);
     QWaylandOutput *output = output_resource
             ? QWaylandOutput::fromResource(output_resource)
             : Q_NULLPTR;
     emit q->setMaximized(output);
 }
 
-void QWaylandShellSurfacePrivate::shell_surface_pong(Resource *resource,
+void QWaylandWlShellSurfacePrivate::shell_surface_pong(Resource *resource,
                         uint32_t serial)
 {
     Q_UNUSED(resource);
-    Q_Q(QWaylandShellSurface);
+    Q_Q(QWaylandWlShellSurface);
     if (m_pings.remove(serial))
         emit q->pong();
     else
         qWarning("Received an unexpected pong!");
 }
 
-void QWaylandShellSurfacePrivate::shell_surface_set_title(Resource *resource,
+void QWaylandWlShellSurfacePrivate::shell_surface_set_title(Resource *resource,
                              const QString &title)
 {
     Q_UNUSED(resource);
     if (title == m_title)
         return;
-    Q_Q(QWaylandShellSurface);
+    Q_Q(QWaylandWlShellSurface);
     m_title = title;
     emit q->titleChanged();
 }
 
-void QWaylandShellSurfacePrivate::shell_surface_set_class(Resource *resource,
+void QWaylandWlShellSurfacePrivate::shell_surface_set_class(Resource *resource,
                              const QString &className)
 {
     Q_UNUSED(resource);
     if (className == m_className)
         return;
-    Q_Q(QWaylandShellSurface);
+    Q_Q(QWaylandWlShellSurface);
     m_className = className;
     emit q->classNameChanged();
 }
 
 /*!
- * \qmltype Shell
+ * \qmltype WlShell
  * \inqmlmodule QtWayland.Compositor
  * \brief Extension for desktop-style user interfaces.
  *
- * The Shell extension provides a way to assiociate a \l{ShellSurface}
+ * The WlShell extension provides a way to assiociate a \l{ShellSurface}
  * with a regular Wayland surface. Using the shell surface interface, the client
  * can request that the surface is resized, moved, and so on.
  *
- * Shell corresponds to the Wayland interface wl_shell.
+ * WlShell corresponds to the Wayland interface wl_shell.
  *
  * To provide the functionality of the shell extension in a compositor, create
- * an instance of the Shell component and add it to the list of extensions
+ * an instance of the WlShell component and add it to the list of extensions
  * supported by the compositor:
  * \code
  * import QtWayland.Compositor 1.0
  *
  * WaylandCompositor {
- *     extensions: Shell {
+ *     extensions: WlShell {
  *         // ...
  *     }
  * }
@@ -251,66 +251,66 @@ void QWaylandShellSurfacePrivate::shell_surface_set_class(Resource *resource,
  */
 
 /*!
- * \class QWaylandShell
+ * \class QWaylandWlShell
  * \inmodule QtWaylandCompositor
  * \brief Extension for desktop-style user interfaces.
  *
- * The QWaylandShell extension provides a way to assiociate a QWaylandShellSurface with
+ * The QWaylandWlShell extension provides a way to assiociate a QWaylandWlShellSurface with
  * a regular Wayland surface. Using the shell surface interface, the client
  * can request that the surface is resized, moved, and so on.
  *
- * Shell corresponds to the Wayland interface wl_shell.
+ * WlShell corresponds to the Wayland interface wl_shell.
  */
 
 /*!
- * Constructs a QWaylandShell object.
+ * Constructs a QWaylandWlShell object.
  */
-QWaylandShell::QWaylandShell()
-    : QWaylandExtensionTemplate<QWaylandShell>(*new QWaylandShellPrivate())
+QWaylandWlShell::QWaylandWlShell()
+    : QWaylandExtensionTemplate<QWaylandWlShell>(*new QWaylandWlShellPrivate())
 { }
 
 /*!
- * Constructs a QWaylandShell object for the provided \a compositor.
+ * Constructs a QWaylandWlShell object for the provided \a compositor.
  */
-QWaylandShell::QWaylandShell(QWaylandCompositor *compositor)
-    : QWaylandExtensionTemplate<QWaylandShell>(compositor, *new QWaylandShellPrivate())
+QWaylandWlShell::QWaylandWlShell(QWaylandCompositor *compositor)
+    : QWaylandExtensionTemplate<QWaylandWlShell>(compositor, *new QWaylandWlShellPrivate())
 { }
 
 
 /*!
- * Initializes the shell extension.
+ * Initializes the WlShell extension.
  */
-void QWaylandShell::initialize()
+void QWaylandWlShell::initialize()
 {
-    Q_D(QWaylandShell);
+    Q_D(QWaylandWlShell);
     QWaylandExtensionTemplate::initialize();
     QWaylandCompositor *compositor = static_cast<QWaylandCompositor *>(extensionContainer());
     if (!compositor) {
-        qWarning() << "Failed to find QWaylandCompositor when initializing QWaylandShell";
+        qWarning() << "Failed to find QWaylandCompositor when initializing QWaylandWlShell";
         return;
     }
     d->init(compositor->display(), 1);
 }
 
 /*!
- * Returns the Wayland interface for the QWaylandShell.
+ * Returns the Wayland interface for the QWaylandWlShell.
  */
-const struct wl_interface *QWaylandShell::interface()
+const struct wl_interface *QWaylandWlShell::interface()
 {
-    return QWaylandShellPrivate::interface();
+    return QWaylandWlShellPrivate::interface();
 }
 
 /*!
- * \qmlsignal void QtWaylandCompositor::Shell::createShellSurface(object surface, object client, int id)
+ * \qmlsignal void QtWaylandCompositor::WlShell::createShellSurface(object surface, object client, int id)
  *
- * This signal is emitted when the \a client has requested a shell surface to be associated
+ * This signal is emitted when the \a client has requested a wl_shell_surface to be associated
  * with \a surface and be assigned the given \a id. The handler for this signal is
  * expected to create the shell surface and initialize it within the scope of the
  * signal emission.
  */
 
 /*!
- * \fn void QWaylandShell::createShellSurface(QWaylandSurface *surface, QWaylandClient *client, uint id)
+ * \fn void QWaylandWlShell::createShellSurface(QWaylandSurface *surface, QWaylandClient *client, uint id)
  *
  * This signal is emitted when the \a client has requested a shell surface to be associated
  * with \a surface and be assigned the given \a id. The handler for this signal is
@@ -321,17 +321,17 @@ const struct wl_interface *QWaylandShell::interface()
 /*!
  * \internal
  */
-QByteArray QWaylandShell::interfaceName()
+QByteArray QWaylandWlShell::interfaceName()
 {
-    return QWaylandShellPrivate::interfaceName();
+    return QWaylandWlShellPrivate::interfaceName();
 }
 
 /*!
- * \qmltype ShellSurface
+ * \qmltype WlShellSurface
  * \inqmlmodule QtWayland.Compositor
- * \brief A shell surface providing desktop-style compositor-specific features to a surface.
+ * \brief A wl_shell_surface providing desktop-style compositor-specific features to a surface.
  *
- * This type is part of the \l{Shell} extension and provides a way to extend
+ * This type is part of the \l{WlShell} extension and provides a way to extend
  * the functionality of an existing WaylandSurface with features specific to desktop-style
  * compositors, such as resizing and moving the surface.
  *
@@ -339,11 +339,11 @@ QByteArray QWaylandShell::interfaceName()
  */
 
 /*!
- * \class QWaylandShellSurface
+ * \class QWaylandWlShellSurface
  * \inmodule QtWaylandCompositor
  * \brief A shell surface providing desktop-style compositor-specific features to a surface.
  *
- * This class is part of the QWaylandShell extension and provides a way to extend
+ * This class is part of the QWaylandWlShell extension and provides a way to extend
  * the functionality of an existing QWaylandSurface with features specific to desktop-style
  * compositors, such as resizing and moving the surface.
  *
@@ -351,34 +351,34 @@ QByteArray QWaylandShell::interfaceName()
  */
 
 /*!
- * Constructs a QWaylandShellSurface.
+ * Constructs a QWaylandWlShellSurface.
  */
-QWaylandShellSurface::QWaylandShellSurface()
-    : QWaylandExtensionTemplate<QWaylandShellSurface>(*new QWaylandShellSurfacePrivate)
+QWaylandWlShellSurface::QWaylandWlShellSurface()
+    : QWaylandExtensionTemplate<QWaylandWlShellSurface>(*new QWaylandWlShellSurfacePrivate)
 {
 }
 
 /*!
- * Constructs a QWaylandShellSurface for \a surface and initializes it with the given \a shell and \a resource.
+ * Constructs a QWaylandWlShellSurface for \a surface and initializes it with the given \a shell and \a resource.
  */
-QWaylandShellSurface::QWaylandShellSurface(QWaylandShell *shell, QWaylandSurface *surface, const QWaylandResource &res)
-    : QWaylandExtensionTemplate<QWaylandShellSurface>(*new QWaylandShellSurfacePrivate)
+QWaylandWlShellSurface::QWaylandWlShellSurface(QWaylandWlShell *shell, QWaylandSurface *surface, const QWaylandResource &res)
+    : QWaylandExtensionTemplate<QWaylandWlShellSurface>(*new QWaylandWlShellSurfacePrivate)
 {
     initialize(shell, surface, res);
 }
 
 /*!
- * \qmlmethod void QtWaylandCompositor::ShellSurface::initialize(object shell, object surface, object client, int id)
+ * \qmlmethod void QtWaylandCompositor::WlShellSurface::initialize(object shell, object surface, object client, int id)
  *
- * Initializes the ShellSurface, associating it with the given \a shell, \a surface, \a client, and \a id.
+ * Initializes the WlShellSurface, associating it with the given \a shell, \a surface, \a client, and \a id.
  */
 
 /*!
- * Initializes the QWaylandShellSurface, associating it with the given \a shell, \a surface and \a resource.
+ * Initializes the QWaylandWlShellSurface, associating it with the given \a shell, \a surface and \a resource.
  */
-void QWaylandShellSurface::initialize(QWaylandShell *shell, QWaylandSurface *surface, const QWaylandResource &resource)
+void QWaylandWlShellSurface::initialize(QWaylandWlShell *shell, QWaylandSurface *surface, const QWaylandResource &resource)
 {
-    Q_D(QWaylandShellSurface);
+    Q_D(QWaylandWlShellSurface);
     d->m_shell = shell;
     d->m_surface = surface;
     d->init(resource.resource());
@@ -390,25 +390,25 @@ void QWaylandShellSurface::initialize(QWaylandShell *shell, QWaylandSurface *sur
 /*!
  * \internal
  */
-void QWaylandShellSurface::initialize()
+void QWaylandWlShellSurface::initialize()
 {
     QWaylandExtensionTemplate::initialize();
 }
 
-const struct wl_interface *QWaylandShellSurface::interface()
+const struct wl_interface *QWaylandWlShellSurface::interface()
 {
-    return QWaylandShellSurfacePrivate::interface();
+    return QWaylandWlShellSurfacePrivate::interface();
 }
 
 /*!
  * \internal
  */
-QByteArray QWaylandShellSurface::interfaceName()
+QByteArray QWaylandWlShellSurface::interfaceName()
 {
-    return QWaylandShellSurfacePrivate::interfaceName();
+    return QWaylandWlShellSurfacePrivate::interfaceName();
 }
 
-QSize QWaylandShellSurface::sizeForResize(const QSizeF &size, const QPointF &delta, QWaylandShellSurface::ResizeEdge edge)
+QSize QWaylandWlShellSurface::sizeForResize(const QSizeF &size, const QPointF &delta, QWaylandWlShellSurface::ResizeEdge edge)
 {
     qreal width = size.width();
     qreal height = size.height();
@@ -426,12 +426,12 @@ QSize QWaylandShellSurface::sizeForResize(const QSizeF &size, const QPointF &del
 }
 
 /*!
- * \enum QWaylandShellSurface::ResizeEdge
+ * \enum QWaylandWlShellSurface::ResizeEdge
  *
  * This enum type provides a way to specify a specific edge or corner of
  * the surface.
  *
- * \value DefaultEdge The default edge.
+ * \value None No edge.
  * \value TopEdge The top edge.
  * \value BottomEdge The bottom edge.
  * \value LeftEdge The left edge.
@@ -443,7 +443,7 @@ QSize QWaylandShellSurface::sizeForResize(const QSizeF &size, const QPointF &del
  */
 
 /*!
- * \qmlmethod void QtWaylandCompositor::ShellSurface::sendConfigure(size size, enum edges)
+ * \qmlmethod void QtWaylandCompositor::WlShellSurface::sendConfigure(size size, enum edges)
  *
  * Sends a configure event to the client, suggesting that it resize its surface to
  * the provided \a size. The \a edges provide a hint about how the surface
@@ -455,14 +455,14 @@ QSize QWaylandShellSurface::sizeForResize(const QSizeF &size, const QPointF &del
  * the provided \a size. The \a edges provide a hint about how the surface
  * was resized.
  */
-void QWaylandShellSurface::sendConfigure(const QSize &size, ResizeEdge edges)
+void QWaylandWlShellSurface::sendConfigure(const QSize &size, ResizeEdge edges)
 {
-    Q_D(QWaylandShellSurface);
+    Q_D(QWaylandWlShellSurface);
     d->send_configure(edges, size.width(), size.height());
 }
 
 /*!
- * \qmlmethod void QtWaylandCompositor::ShellSurface::sendPopupDone()
+ * \qmlmethod void QtWaylandCompositor::WlShellSurface::sendPopupDone()
  *
  * Sends a popup_done event to the client to indicate that the user has clicked
  * somewhere outside the client's surfaces.
@@ -472,31 +472,31 @@ void QWaylandShellSurface::sendConfigure(const QSize &size, ResizeEdge edges)
  * Sends a popup_done event to the client to indicate that the user has clicked
  * somewhere outside the client's surfaces.
  */
-void QWaylandShellSurface::sendPopupDone()
+void QWaylandWlShellSurface::sendPopupDone()
 {
-    Q_D(QWaylandShellSurface);
+    Q_D(QWaylandWlShellSurface);
     d->send_popup_done();
 }
 
 /*!
- * \qmlproperty object QtWaylandCompositor::ShellSurface::surface
+ * \qmlproperty object QtWaylandCompositor::WlShellSurface::surface
  *
- * This property holds the surface associated with this ShellSurface.
+ * This property holds the wl_surface associated with this WlShellSurface.
  */
 
 /*!
- * \property QWaylandShellSurface::surface
+ * \property QWaylandWlShellSurface::surface
  *
- * This property holds the surface associated with this QWaylandShellSurface.
+ * This property holds the surface associated with this QWaylandWlShellSurface.
  */
-QWaylandSurface *QWaylandShellSurface::surface() const
+QWaylandSurface *QWaylandWlShellSurface::surface() const
 {
-    Q_D(const QWaylandShellSurface);
+    Q_D(const QWaylandWlShellSurface);
     return d->m_surface;
 }
 
 /*!
- * \enum QWaylandShellSurface::FocusPolicy
+ * \enum QWaylandWlShellSurface::FocusPolicy
  *
  * This enum type is used to specify the focus policy of a shell surface.
  *
@@ -505,63 +505,63 @@ QWaylandSurface *QWaylandShellSurface::surface() const
  */
 
 /*!
- * \qmlproperty enum QtWaylandCompositor::ShellSurface::focusPolicy
+ * \qmlproperty enum QtWaylandCompositor::WlShellSurface::focusPolicy
  *
- * This property holds the focus policy of the ShellSurface.
+ * This property holds the focus policy of the WlShellSurface.
  */
 
 /*!
- * \property QWaylandShellSurface::focusPolicy
+ * \property QWaylandWlShellSurface::focusPolicy
  *
- * This property holds the focus policy of the QWaylandShellSurface.
+ * This property holds the focus policy of the QWaylandWlShellSurface.
  */
-QWaylandShellSurface::FocusPolicy QWaylandShellSurface::focusPolicy() const
+QWaylandWlShellSurface::FocusPolicy QWaylandWlShellSurface::focusPolicy() const
 {
-    Q_D(const QWaylandShellSurface);
+    Q_D(const QWaylandWlShellSurface);
     return d->m_focusPolicy;
 }
 
 /*!
- * \qmlproperty string QtWaylandCompositor::ShellSurface::title
+ * \qmlproperty string QtWaylandCompositor::WlShellSurface::title
  *
- * This property holds the title of the ShellSurface.
+ * This property holds the title of the WlShellSurface.
  */
 
 /*!
- * \property QWaylandShellSurface::title
+ * \property QWaylandWlShellSurface::title
  *
- * This property holds the title of the QWaylandShellSurface.
+ * This property holds the title of the QWaylandWlShellSurface.
  */
-QString QWaylandShellSurface::title() const
+QString QWaylandWlShellSurface::title() const
 {
-    Q_D(const QWaylandShellSurface);
+    Q_D(const QWaylandWlShellSurface);
     return d->m_title;
 }
 
 /*!
- * \qmlproperty string QtWaylandCompositor::ShellSurface::className
+ * \qmlproperty string QtWaylandCompositor::WlShellSurface::className
  *
- * This property holds the class name of the ShellSurface.
+ * This property holds the class name of the WlShellSurface.
  */
 
 /*!
- * \property QWaylandShellSurface::className
+ * \property QWaylandWlShellSurface::className
  *
- * This property holds the class name of the QWaylandShellSurface.
+ * This property holds the class name of the QWaylandWlShellSurface.
  */
-QString QWaylandShellSurface::className() const
+QString QWaylandWlShellSurface::className() const
 {
-    Q_D(const QWaylandShellSurface);
+    Q_D(const QWaylandWlShellSurface);
     return d->m_className;
 }
 
-QWaylandSurfaceRole *QWaylandShellSurface::role()
+QWaylandSurfaceRole *QWaylandWlShellSurface::role()
 {
-    return &QWaylandShellSurfacePrivate::s_role;
+    return &QWaylandWlShellSurfacePrivate::s_role;
 }
 
 /*!
- * \qmlmethod void QtWaylandCompositor::ShellSurface::ping()
+ * \qmlmethod void QtWaylandCompositor::WlShellSurface::ping()
  *
  * Sends a ping event to the client. If the client replies to the event the \a pong
  * signal will be emitted.
@@ -571,11 +571,22 @@ QWaylandSurfaceRole *QWaylandShellSurface::role()
  * Sends a ping event to the client. If the client replies to the event the \a pong
  * signal will be emitted.
  */
-void QWaylandShellSurface::ping()
+void QWaylandWlShellSurface::ping()
 {
-    Q_D(QWaylandShellSurface);
+    Q_D(QWaylandWlShellSurface);
     uint32_t serial = d->m_surface->compositor()->nextSerial();
     d->ping(serial);
+}
+
+/*!
+ * Returns the QWaylandWlShellSurface object associated with the given \a resource, or null if no such object exists.
+ */
+QWaylandWlShellSurface *QWaylandWlShellSurface::fromResource(wl_resource *resource)
+{
+    QWaylandWlShellSurfacePrivate::Resource *res = QWaylandWlShellSurfacePrivate::Resource::fromResource(resource);
+    if (res)
+        return static_cast<QWaylandWlShellSurfacePrivate *>(res->shell_surface_object)->q_func();
+    return 0;
 }
 
 QT_END_NAMESPACE

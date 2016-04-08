@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2015 The Qt Company Ltd.
+** Copyright (C) 2016 Erik Larsson.
 ** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the QtWaylandCompositor module of the Qt Toolkit.
@@ -34,40 +34,62 @@
 **
 ****************************************************************************/
 
-#ifndef BRCMEGLINTEGRATION_H
-#define BRCMEGLINTEGRATION_H
-
-#include <QtWaylandCompositor/private/qwlclientbufferintegration_p.h>
-#include "qwayland-server-brcm.h"
-
-#include <QtCore/QScopedPointer>
+#include "qwaylandclientextension.h"
+#include "qwaylandclientextension_p.h"
+#include <QtWaylandClient/private/qwaylanddisplay_p.h>
+#include <QtWaylandClient/private/qwaylandintegration_p.h>
 
 QT_BEGIN_NAMESPACE
 
-class BrcmEglIntegrationPrivate;
+namespace QtWaylandClient {
 
-class BrcmEglIntegration : public QtWayland::ClientBufferIntegration, public QtWaylandServer::qt_brcm
+QWaylandClientExtensionPrivate::QWaylandClientExtensionPrivate()
+    : QObjectPrivate()
+    , waylandIntegration(new QWaylandIntegration())
+    , version(-1)
 {
-    Q_DECLARE_PRIVATE(BrcmEglIntegration)
-public:
-    BrcmEglIntegration();
+    QtWaylandClient::QWaylandDisplay *waylandDisplay = waylandIntegration->display();
+    struct ::wl_registry *registry = wl_display_get_registry(waylandDisplay->wl_display());
+    QtWayland::wl_registry::init(registry);
+}
 
-    void initializeHardware(struct ::wl_display *display) Q_DECL_OVERRIDE;
+void QWaylandClientExtensionPrivate::registry_global(uint32_t id, const QString &interfaceName, uint32_t ver)
+{
+    Q_Q(QWaylandClientExtension);
+    if (interfaceName == QLatin1String(q->extensionInterface()->name)) {
+        struct ::wl_registry *registry = static_cast<struct ::wl_registry *>(QtWayland::wl_registry::object());
+        q->bind(registry, id, ver);
+    }
+}
 
-    void bindTextureToBuffer(struct ::wl_resource *buffer) Q_DECL_OVERRIDE;
+QWaylandClientExtension::QWaylandClientExtension(const int ver)
+    : QObject(*new QWaylandClientExtensionPrivate())
+{
+    Q_D(QWaylandClientExtension);
+    d->version = ver;
+}
 
-    QSize bufferSize(struct ::wl_resource *buffer) const Q_DECL_OVERRIDE;
+QWaylandIntegration *QWaylandClientExtension::integration() const
+{
+    Q_D(const QWaylandClientExtension);
+    return d->waylandIntegration;
+}
 
-protected:
-    void brcm_bind_resource(Resource *resource) Q_DECL_OVERRIDE;
-    void brcm_create_buffer(Resource *resource, uint32_t id, int32_t width, int32_t height, wl_array *data) Q_DECL_OVERRIDE;
+int QWaylandClientExtension::version() const
+{
+    Q_D(const QWaylandClientExtension);
+    return d->version;
+}
 
-private:
-    Q_DISABLE_COPY(BrcmEglIntegration)
-    QScopedPointer<BrcmEglIntegrationPrivate> d_ptr;
-};
+void QWaylandClientExtension::setVersion(const int ver)
+{
+    Q_D(QWaylandClientExtension);
+    if (d->version != ver) {
+        d->version = ver;
+        emit versionChanged();
+    }
+}
+
+}
 
 QT_END_NAMESPACE
-
-#endif // BRCMEGLINTEGRATION_H
-

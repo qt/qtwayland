@@ -48,10 +48,13 @@
 #include "qwaylandscreen_p.h"
 #include "qwaylandcursor_p.h"
 #include "qwaylanddisplay_p.h"
+#include "qwaylandshmbackingstore_p.h"
 #include "../shared/qwaylandxkb.h"
 
 #include <QtGui/private/qpixmap_raster_p.h>
+#include <QtGui/private/qguiapplication_p.h>
 #include <qpa/qplatformwindow.h>
+#include <qpa/qplatforminputcontext.h>
 #include <QDebug>
 
 #include <unistd.h>
@@ -173,10 +176,10 @@ QWaylandInputDevice::Touch::~Touch()
 
 QWaylandInputDevice::QWaylandInputDevice(QWaylandDisplay *display, int version, uint32_t id)
     : QObject()
-    , QtWayland::wl_seat(display->wl_registry(), id, qMin(version, 3))
+    , QtWayland::wl_seat(display->wl_registry(), id, qMin(version, 4))
     , mQDisplay(display)
     , mDisplay(display->wl_display())
-    , mVersion(qMin(version, 3))
+    , mVersion(qMin(version, 4))
     , mCaps(0)
     , mDataDevice(0)
     , mKeyboard(0)
@@ -259,6 +262,8 @@ void QWaylandInputDevice::handleWindowDestroyed(QWaylandWindow *window)
         mKeyboard->mFocus = 0;
         mKeyboard->stopRepeat();
     }
+    if (mTouch && window == mTouch->mFocus)
+        mTouch->mFocus = 0;
 }
 
 void QWaylandInputDevice::setDataDevice(QWaylandDataDevice *device)
@@ -333,9 +338,26 @@ void QWaylandInputDevice::setCursor(Qt::CursorShape newShape, QWaylandScreen *sc
     setCursor(buffer, image);
 }
 
+void QWaylandInputDevice::setCursor(const QCursor &cursor, QWaylandScreen *screen)
+{
+    if (cursor.shape() == Qt::BitmapCursor) {
+        setCursor(screen->waylandCursor()->cursorBitmapImage(&cursor), cursor.hotSpot());
+        return;
+    }
+    setCursor(cursor.shape(), screen);
+}
+
 void QWaylandInputDevice::setCursor(struct wl_buffer *buffer, struct wl_cursor_image *image)
 {
+    setCursor(buffer,
+              image ? QPoint(image->hotspot_x, image->hotspot_y) : QPoint(),
+              image ? QSize(image->width, image->height) : QSize());
+}
+
+void QWaylandInputDevice::setCursor(struct wl_buffer *buffer, const QPoint &hotSpot, const QSize &size)
+{
     if (mCaps & WL_SEAT_CAPABILITY_POINTER) {
+        mPixmapCursor.clear();
         mPointer->mCursorSerial = mPointer->mEnterSerial;
         /* Hide cursor */
         if (!buffer)
@@ -345,11 +367,17 @@ void QWaylandInputDevice::setCursor(struct wl_buffer *buffer, struct wl_cursor_i
         }
 
         mPointer->set_cursor(mPointer->mEnterSerial, pointerSurface,
-                             image->hotspot_x, image->hotspot_y);
+                             hotSpot.x(), hotSpot.y());
         wl_surface_attach(pointerSurface, buffer, 0, 0);
-        wl_surface_damage(pointerSurface, 0, 0, image->width, image->height);
+        wl_surface_damage(pointerSurface, 0, 0, size.width(), size.height());
         wl_surface_commit(pointerSurface);
     }
+}
+
+void QWaylandInputDevice::setCursor(const QSharedPointer<QWaylandBuffer> &buffer, const QPoint &hotSpot)
+{
+    setCursor(buffer->buffer(), hotSpot, buffer->size());
+    mPixmapCursor = buffer;
 }
 
 class EnterEvent : public QWaylandPointerEvent
@@ -617,6 +645,26 @@ void QWaylandInputDevice::Keyboard::focusCallback(void *data, struct wl_callback
     QWindowSystemInterface::handleWindowActivated(self->mFocus ? self->mFocus->window() : 0);
 }
 
+static void sendKey(QWindow *tlw, ulong timestamp, QEvent::Type type, int key, Qt::KeyboardModifiers modifiers,
+                    quint32 nativeScanCode, quint32 nativeVirtualKey, quint32 nativeModifiers,
+                    const QString& text = QString(), bool autorep = false, ushort count = 1)
+{
+    QPlatformInputContext *inputContext = QGuiApplicationPrivate::platformIntegration()->inputContext();
+    bool filtered = false;
+
+    if (inputContext) {
+        QKeyEvent event(type, key, modifiers, nativeScanCode, nativeVirtualKey, nativeModifiers,
+                        text, autorep, count);
+        event.setTimestamp(timestamp);
+        filtered = inputContext->filterEvent(&event);
+    }
+
+    if (!filtered) {
+        QWindowSystemInterface::handleExtendedKeyEvent(tlw, timestamp, type, key, modifiers,
+                nativeScanCode, nativeVirtualKey, nativeModifiers, text, autorep, count);
+    }
+}
+
 void QWaylandInputDevice::Keyboard::keyboard_key(uint32_t serial, uint32_t time, uint32_t key, uint32_t state)
 {
     QWaylandWindow *window = mFocus;
@@ -651,17 +699,17 @@ void QWaylandInputDevice::Keyboard::keyboard_key(uint32_t serial, uint32_t time,
 
     qtkey = QWaylandXkb::keysymToQtKey(sym, modifiers, text);
 
-    QWindowSystemInterface::handleExtendedKeyEvent(window->window(),
-                                                    time, type, qtkey,
-                                                    modifiers,
-                                                    code, sym, mNativeModifiers, text);
+
+    // Map control + letter to proper text
+    if (utf32 >= 'A' && utf32 <= '~' && (modifiers & Qt::ControlModifier)) {
+        utf32 &= ~0x60;
+        text = QString::fromUcs4(&utf32, 1);
+    }
+
+    sendKey(window->window(), time, type, qtkey, modifiers, code, sym, mNativeModifiers, text);
 #else
     // Generic fallback for single hard keys: Assume 'key' is a Qt key code.
-    QWindowSystemInterface::handleExtendedKeyEvent(window->window(),
-                                                    time, type,
-                                                    qtkey,
-                                                    Qt::NoModifier,
-                                                    code, 0, 0);
+    sendKey(window->window(), time, type, qtkey, Qt::NoModifier, code, 0, 0);
 #endif
 
     if (state == WL_KEYBOARD_KEY_STATE_PRESSED
@@ -686,27 +734,21 @@ void QWaylandInputDevice::Keyboard::keyboard_key(uint32_t serial, uint32_t time,
 void QWaylandInputDevice::Keyboard::repeatKey()
 {
     mRepeatTimer.setInterval(25);
-    QWindowSystemInterface::handleExtendedKeyEvent(mFocus->window(),
-                                                   mRepeatTime, QEvent::KeyRelease, mRepeatKey,
-                                                   modifiers(),
-                                                   mRepeatCode,
+    sendKey(mFocus->window(), mRepeatTime, QEvent::KeyRelease, mRepeatKey, modifiers(), mRepeatCode,
 #ifndef QT_NO_WAYLAND_XKB
-                                                   mRepeatSym, mNativeModifiers,
+            mRepeatSym, mNativeModifiers,
 #else
-                                                   0, 0,
+            0, 0,
 #endif
-                                                   mRepeatText, true);
+            mRepeatText, true);
 
-    QWindowSystemInterface::handleExtendedKeyEvent(mFocus->window(),
-                                                   mRepeatTime, QEvent::KeyPress, mRepeatKey,
-                                                   modifiers(),
-                                                   mRepeatCode,
+    sendKey(mFocus->window(), mRepeatTime, QEvent::KeyPress, mRepeatKey, modifiers(), mRepeatCode,
 #ifndef QT_NO_WAYLAND_XKB
-                                                   mRepeatSym, mNativeModifiers,
+            mRepeatSym, mNativeModifiers,
 #else
-                                                   0, 0,
+            0, 0,
 #endif
-                                                   mRepeatText, true);
+            mRepeatText, true);
 }
 
 void QWaylandInputDevice::Keyboard::keyboard_modifiers(uint32_t serial,
@@ -738,6 +780,9 @@ void QWaylandInputDevice::Touch::touch_down(uint32_t serial,
                                      wl_fixed_t x,
                                      wl_fixed_t y)
 {
+    if (!surface)
+        return;
+
     mParent->mTime = time;
     mParent->mSerial = serial;
     mFocus = QWaylandWindow::fromWlSurface(surface);

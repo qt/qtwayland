@@ -6,13 +6,14 @@ WAYLANDSERVERSOURCES += \
     ../extensions/windowmanager.xml \
     ../3rdparty/protocol/input-method.xml \
     ../3rdparty/protocol/text.xml \
+    ../3rdparty/protocol/xdg-shell.xml \
 
 HEADERS += \
     extensions/qwlextendedsurface_p.h \
     extensions/qwlqttouch_p.h \
     extensions/qwlqtkey_p.h \
-    extensions/qwaylandshell.h \
-    extensions/qwaylandshell_p.h \
+    extensions/qwaylandwlshell.h \
+    extensions/qwaylandwlshell_p.h \
     extensions/qwaylandwindowmanagerextension.h \
     extensions/qwaylandwindowmanagerextension_p.h \
     extensions/qwltextinput_p.h \
@@ -21,12 +22,14 @@ HEADERS += \
     extensions/qwlinputpanelsurface_p.h \
     extensions/qwlinputmethod_p.h \
     extensions/qwlinputmethodcontext_p.h \
+    extensions/qwaylandxdgshell.h \
+    extensions/qwaylandxdgshell_p.h \
 
 SOURCES += \
     extensions/qwlextendedsurface.cpp \
     extensions/qwlqttouch.cpp \
     extensions/qwlqtkey.cpp \
-    extensions/qwaylandshell.cpp \
+    extensions/qwaylandwlshell.cpp \
     extensions/qwaylandwindowmanagerextension.cpp \
     extensions/qwltextinput.cpp \
     extensions/qwltextinputmanager.cpp \
@@ -34,14 +37,15 @@ SOURCES += \
     extensions/qwlinputpanelsurface.cpp \
     extensions/qwlinputmethod.cpp \
     extensions/qwlinputmethodcontext.cpp \
+    extensions/qwaylandxdgshell.cpp \
 
 qtHaveModule(quick) {
     HEADERS += \
-        extensions/qwaylandquickshellsurfaceitem.h \
-        extensions/qwaylandquickshellsurfaceitem_p.h \
+        extensions/qwaylandquickwlshellsurfaceitem.h \
+        extensions/qwaylandquickwlshellsurfaceitem_p.h \
 
     SOURCES += \
-        extensions/qwaylandquickshellsurfaceitem.cpp \
+        extensions/qwaylandquickwlshellsurfaceitem.cpp \
 
 }
 

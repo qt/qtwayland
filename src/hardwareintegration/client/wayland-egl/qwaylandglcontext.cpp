@@ -575,9 +575,9 @@ bool QWaylandGLContext::isValid() const
     return m_context != EGL_NO_CONTEXT;
 }
 
-void (*QWaylandGLContext::getProcAddress(const QByteArray &procName)) ()
+void (*QWaylandGLContext::getProcAddress(const char *procName)) ()
 {
-    return eglGetProcAddress(procName.constData());
+    return eglGetProcAddress(procName);
 }
 
 EGLConfig QWaylandGLContext::eglConfig() const

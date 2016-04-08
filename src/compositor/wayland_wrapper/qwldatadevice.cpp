@@ -142,12 +142,15 @@ void DataDevice::dragMove(QWaylandSurface *target, const QPointF &pos)
 
 void DataDevice::drop()
 {
-    if (m_dragFocusResource)
+    if (m_dragFocusResource) {
         send_drop(m_dragFocusResource->handle);
+        setDragFocus(nullptr, QPoint());
+    }
 }
 
 void DataDevice::cancelDrag()
 {
+    setDragFocus(nullptr, QPoint());
 }
     
 void DataDevice::data_device_start_drag(Resource *resource, struct ::wl_resource *source, struct ::wl_resource *origin, struct ::wl_resource *icon, uint32_t serial)

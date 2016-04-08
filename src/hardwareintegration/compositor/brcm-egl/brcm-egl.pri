@@ -1,4 +1,4 @@
-QT = compositor compositor-private core-private gui-private
+QT = waylandcompositor waylandcompositor-private core-private gui-private
 
 INCLUDEPATH += $$PWD
 

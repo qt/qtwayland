@@ -54,6 +54,11 @@ Module {
             name: "surfaceAboutToBeDestroyed"
             Parameter { name: "surface"; type: "QWaylandSurface"; isPointer: true }
         }
+        Signal {
+            name: "subsurfaceChanged"
+            Parameter { name: "child"; type: "QWaylandSurface"; isPointer: true }
+            Parameter { name: "parent"; type: "QWaylandSurface"; isPointer: true }
+        }
         Method { name: "processWaylandEvents" }
         Method {
             name: "destroyClientForSurface"
@@ -209,15 +214,6 @@ Module {
         Method { name: "updateStarted" }
     }
     Component {
-        name: "QWaylandQuickShellSurfaceItem"
-        defaultProperty: "data"
-        prototype: "QWaylandQuickItem"
-        exports: ["QtWayland.Compositor/ShellSurfaceItem 1.0"]
-        exportMetaObjectRevisions: [0]
-        Property { name: "shellSurface"; type: "QWaylandShellSurface"; isPointer: true }
-        Property { name: "moveItem"; type: "QQuickItem"; isPointer: true }
-    }
-    Component {
         name: "QWaylandQuickSurface"
         prototype: "QWaylandSurface"
         exports: ["QtWayland.Compositor/WaylandSurface 1.0"]
@@ -226,27 +222,123 @@ Module {
         Property { name: "clientRenderingEnabled"; type: "bool" }
     }
     Component {
-        name: "QWaylandShell"
+        name: "QWaylandQuickWlShellSurfaceItem"
+        defaultProperty: "data"
+        prototype: "QWaylandQuickItem"
+        exports: ["QtWayland.Compositor/WlShellSurfaceItem 1.0"]
+        exportMetaObjectRevisions: [0]
+        Property { name: "shellSurface"; type: "QWaylandWlShellSurface"; isPointer: true }
+        Property { name: "moveItem"; type: "QQuickItem"; isPointer: true }
+    }
+    Component {
+        name: "QWaylandResource"
+        exports: ["QtWayland.Compositor/WaylandResource 1.0"]
+        isCreatable: false
+        exportMetaObjectRevisions: [0]
+    }
+    Component {
+        name: "QWaylandSurface"
+        prototype: "QObject"
+        exports: ["QtWayland.Compositor/WaylandSurfaceBase 1.0"]
+        isCreatable: false
+        exportMetaObjectRevisions: [0]
+        Enum {
+            name: "Origin"
+            values: {
+                "OriginTopLeft": 0,
+                "OriginBottomLeft": 1
+            }
+        }
+        Property { name: "client"; type: "QWaylandClient"; isReadonly: true; isPointer: true }
+        Property { name: "size"; type: "QSize"; isReadonly: true }
+        Property { name: "contentOrientation"; type: "Qt::ScreenOrientation"; isReadonly: true }
+        Property { name: "origin"; type: "QWaylandSurface::Origin"; isReadonly: true }
+        Property { name: "isMapped"; type: "bool"; isReadonly: true }
+        Property { name: "cursorSurface"; type: "bool" }
+        Signal { name: "mappedChanged" }
+        Signal {
+            name: "damaged"
+            Parameter { name: "rect"; type: "QRegion" }
+        }
+        Signal {
+            name: "parentChanged"
+            Parameter { name: "newParent"; type: "QWaylandSurface"; isPointer: true }
+            Parameter { name: "oldParent"; type: "QWaylandSurface"; isPointer: true }
+        }
+        Signal {
+            name: "childAdded"
+            Parameter { name: "child"; type: "QWaylandSurface"; isPointer: true }
+        }
+        Signal {
+            name: "offsetForNextFrame"
+            Parameter { name: "offset"; type: "QPoint" }
+        }
+        Signal { name: "pong" }
+        Signal { name: "surfaceDestroyed" }
+        Signal {
+            name: "subsurfacePositionChanged"
+            Parameter { name: "position"; type: "QPoint" }
+        }
+        Signal {
+            name: "subsurfacePlaceAbove"
+            Parameter { name: "sibling"; type: "QWaylandSurface"; isPointer: true }
+        }
+        Signal {
+            name: "subsurfacePlaceBelow"
+            Parameter { name: "sibling"; type: "QWaylandSurface"; isPointer: true }
+        }
+        Signal {
+            name: "configure"
+            Parameter { name: "hasBuffer"; type: "bool" }
+        }
+        Signal { name: "redraw" }
+        Method { name: "updateSelection" }
+        Method {
+            name: "initialize"
+            Parameter { name: "compositor"; type: "QWaylandCompositor"; isPointer: true }
+            Parameter { name: "client"; type: "QWaylandClient"; isPointer: true }
+            Parameter { name: "id"; type: "uint" }
+            Parameter { name: "version"; type: "int" }
+        }
+        Method { name: "destroy" }
+        Method { name: "isDestroyed"; type: "bool" }
+        Method { name: "frameStarted" }
+        Method { name: "sendFrameCallbacks" }
+    }
+    Component {
+        name: "QWaylandView"
+        prototype: "QObject"
+        exports: ["QtWayland.Compositor/WaylandView 1.0"]
+        isCreatable: false
+        exportMetaObjectRevisions: [0]
+        Property { name: "renderObject"; type: "QObject"; isReadonly: true; isPointer: true }
+        Property { name: "surface"; type: "QWaylandSurface"; isPointer: true }
+        Property { name: "output"; type: "QWaylandOutput"; isPointer: true }
+        Property { name: "bufferLock"; type: "bool" }
+        Property { name: "discardFrontBuffers"; type: "bool" }
+        Signal { name: "surfaceDestroyed" }
+    }
+    Component {
+        name: "QWaylandWlShell"
         prototype: "QWaylandExtension"
         Signal {
             name: "createShellSurface"
             Parameter { name: "surface"; type: "QWaylandSurface"; isPointer: true }
-            Parameter { name: "client"; type: "QWaylandClient"; isPointer: true }
-            Parameter { name: "id"; type: "uint" }
+            Parameter { name: "resource"; type: "QWaylandResource" }
         }
     }
     Component {
-        name: "QWaylandShellQuickData"
+        name: "QWaylandWlShellQuickData"
         defaultProperty: "data"
-        prototype: "QWaylandShell"
-        exports: ["QtWayland.Compositor/Shell 1.0"]
+        prototype: "QWaylandWlShell"
+        exports: ["QtWayland.Compositor/WlShell 1.0"]
         exportMetaObjectRevisions: [0]
         Property { name: "data"; type: "QObject"; isList: true; isReadonly: true }
     }
     Component {
-        name: "QWaylandShellSurface"
+        name: "QWaylandWlShellSurface"
         prototype: "QWaylandExtension"
-        exports: ["QtWayland.Compositor/ShellSurfaceBase 1.0"]
+        exports: ["QtWayland.Compositor/WlShellSurfaceBase 1.0"]
         isCreatable: false
         exportMetaObjectRevisions: [0]
         Enum {
@@ -261,7 +353,7 @@ Module {
         Enum {
             name: "ResizeEdge"
             values: {
-                "DefaultEdge": 0,
+                "NoneEdge": 0,
                 "TopEdge": 1,
                 "BottomEdge": 2,
                 "LeftEdge": 4,
@@ -316,12 +408,12 @@ Module {
             name: "setMaximized"
             Parameter { name: "output"; type: "QWaylandOutput"; isPointer: true }
         }
+        Method { name: "ping" }
         Method {
             name: "initialize"
-            Parameter { name: "shell"; type: "QWaylandShell"; isPointer: true }
+            Parameter { name: "shell"; type: "QWaylandWlShell"; isPointer: true }
             Parameter { name: "surface"; type: "QWaylandSurface"; isPointer: true }
-            Parameter { name: "client"; type: "QWaylandClient"; isPointer: true }
-            Parameter { name: "id"; type: "uint" }
+            Parameter { name: "resource"; type: "QWaylandResource" }
         }
         Method {
             name: "sizeForResize"
@@ -338,78 +430,12 @@ Module {
         Method { name: "sendPopupDone" }
     }
     Component {
-        name: "QWaylandShellSurfaceQuickData"
+        name: "QWaylandWlShellSurfaceQuickData"
         defaultProperty: "data"
-        prototype: "QWaylandShellSurface"
-        exports: ["QtWayland.Compositor/ShellSurface 1.0"]
+        prototype: "QWaylandWlShellSurface"
+        exports: ["QtWayland.Compositor/WlShellSurface 1.0"]
         exportMetaObjectRevisions: [0]
         Property { name: "data"; type: "QObject"; isList: true; isReadonly: true }
-    }
-    Component {
-        name: "QWaylandSurface"
-        prototype: "QObject"
-        exports: ["QtWayland.Compositor/WaylandSurfaceBase 1.0"]
-        isCreatable: false
-        exportMetaObjectRevisions: [0]
-        Enum {
-            name: "Origin"
-            values: {
-                "OriginTopLeft": 0,
-                "OriginBottomLeft": 1
-            }
-        }
-        Property { name: "client"; type: "QWaylandClient"; isReadonly: true; isPointer: true }
-        Property { name: "size"; type: "QSize"; isReadonly: true }
-        Property { name: "contentOrientation"; type: "Qt::ScreenOrientation"; isReadonly: true }
-        Property { name: "origin"; type: "QWaylandSurface::Origin"; isReadonly: true }
-        Property { name: "isMapped"; type: "bool"; isReadonly: true }
-        Property { name: "cursorSurface"; type: "bool" }
-        Signal { name: "mappedChanged" }
-        Signal {
-            name: "damaged"
-            Parameter { name: "rect"; type: "QRegion" }
-        }
-        Signal {
-            name: "parentChanged"
-            Parameter { name: "newParent"; type: "QWaylandSurface"; isPointer: true }
-            Parameter { name: "oldParent"; type: "QWaylandSurface"; isPointer: true }
-        }
-        Signal {
-            name: "offsetForNextFrame"
-            Parameter { name: "offset"; type: "QPoint" }
-        }
-        Signal { name: "pong" }
-        Signal { name: "surfaceDestroyed" }
-        Signal {
-            name: "configure"
-            Parameter { name: "hasBuffer"; type: "bool" }
-        }
-        Signal { name: "redraw" }
-        Method { name: "updateSelection" }
-        Method {
-            name: "initialize"
-            Parameter { name: "compositor"; type: "QWaylandCompositor"; isPointer: true }
-            Parameter { name: "client"; type: "QWaylandClient"; isPointer: true }
-            Parameter { name: "id"; type: "uint" }
-            Parameter { name: "version"; type: "int" }
-        }
-        Method { name: "destroy" }
-        Method { name: "isDestroyed"; type: "bool" }
-        Method { name: "frameStarted" }
-        Method { name: "sendFrameCallbacks" }
-    }
-    Component {
-        name: "QWaylandView"
-        prototype: "QObject"
-        exports: ["QtWayland.Compositor/WaylandView 1.0"]
-        isCreatable: false
-        exportMetaObjectRevisions: [0]
-        Property { name: "renderObject"; type: "QObject"; isReadonly: true; isPointer: true }
-        Property { name: "surface"; type: "QWaylandSurface"; isPointer: true }
-        Property { name: "output"; type: "QWaylandOutput"; isPointer: true }
-        Property { name: "bufferLock"; type: "bool" }
-        Property { name: "discardFrontBuffers"; type: "bool" }
-        Signal { name: "surfaceDestroyed" }
     }
     Component {
         prototype: "QQuickItem"

@@ -43,20 +43,18 @@
 
 #include <qpa/qwindowsysteminterface.h>
 #include <QtWaylandClient/private/qwayland-wayland.h>
+#include <QtWaylandClient/qwaylandclientextension.h>
 #include "qwayland-custom.h"
 
 QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
 
-class QWaylandDisplay;
-class QWaylandIntegration;
-
-class CustomExtension : public QObject, QtWayland::qt_example_extension, public QtWayland::wl_registry
+class CustomExtension : public QWaylandClientExtensionTemplate<CustomExtension>, public QtWayland::qt_example_extension
 {
     Q_OBJECT
 public:
-    CustomExtension(QWaylandIntegration *wayland_integration);
+    CustomExtension();
 
 public slots:
     void sendRequest(const QString &text, int value);
@@ -65,14 +63,10 @@ signals:
     void eventReceived(const QString &text, uint value);
 
 private:
-    QWaylandDisplay *m_display;
-
     void example_extension_qtevent(struct wl_surface *surface,
                                    uint32_t time,
                                    const QString &text,
                                    uint32_t value) Q_DECL_OVERRIDE;
-
-    void registry_global(uint32_t id, const QString &interface, uint32_t version) Q_DECL_OVERRIDE;
 
 };
 

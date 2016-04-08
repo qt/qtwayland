@@ -1,13 +1,11 @@
-TARGET  = QtWaylandCompositor
+TARGET = QtWaylandCompositor
+MODULE = waylandcompositor
+
 QT = core gui-private
 
 qtHaveModule(quick): QT += quick
 
 contains(QT_CONFIG, opengl):MODULE_DEFINES = QT_COMPOSITOR_WAYLAND_GL
-
-MODULE=waylandcompositor
-MODULE_PLUGIN_TYPES = wayland-graphics-integration-server
-load(qt_module)
 
 CONFIG -= precompile_header
 CONFIG += link_pkgconfig
@@ -31,4 +29,6 @@ include ($$PWD/hardware_integration/hardware_integration.pri)
 include ($$PWD/compositor_api/compositor_api.pri)
 include ($$PWD/extensions/extensions.pri)
 
-
+MODULE_PLUGIN_TYPES = \
+    wayland-graphics-integration-server
+load(qt_module)

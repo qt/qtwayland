@@ -80,8 +80,8 @@ public:
 
     QWaylandSurface::Origin origin() const;
 
-    bool isTextureProvider() const { return true; }
-    QSGTextureProvider *textureProvider() const;
+    bool isTextureProvider() const Q_DECL_OVERRIDE { return true; }
+    QSGTextureProvider *textureProvider() const Q_DECL_OVERRIDE;
 
     bool paintEnabled() const;
     bool touchEventsEnabled() const;

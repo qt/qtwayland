@@ -252,6 +252,10 @@ QWaylandSurface::Origin QWaylandQuickItem::origin() const
 QSGTextureProvider *QWaylandQuickItem::textureProvider() const
 {
     Q_D(const QWaylandQuickItem);
+
+    if (QQuickItem::isTextureProvider())
+        return QQuickItem::textureProvider();
+
     return d->provider;
 }
 

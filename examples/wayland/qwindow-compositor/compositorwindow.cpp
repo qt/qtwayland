@@ -86,6 +86,24 @@ void CompositorWindow::drawBackground()
     }
 }
 
+QPointF CompositorWindow::getAnchorPosition(const QPointF &position, int resizeEdge, const QSize &windowSize)
+{
+    float y = position.y();
+    if (resizeEdge & QWaylandXdgSurface::ResizeEdge::TopEdge)
+        y += windowSize.height();
+
+    float x = position.x();
+    if (resizeEdge & QWaylandXdgSurface::ResizeEdge::LeftEdge)
+        x += windowSize.width();
+
+    return QPointF(x, y);
+}
+
+QPointF CompositorWindow::getAnchoredPosition(const QPointF &anchorPosition, int resizeEdge, const QSize &windowSize)
+{
+    return anchorPosition - getAnchorPosition(QPointF(), resizeEdge, windowSize);
+}
+
 void CompositorWindow::paintGL()
 {
     m_compositor->startRender();
@@ -107,6 +125,8 @@ void CompositorWindow::paintGL()
         if (surface && surface->isMapped()) {
             QSize s = surface->size();
             if (!s.isEmpty()) {
+                if (m_mouseView == view && m_grabState == ResizeGrab && m_resizeAnchored)
+                    view->setPosition(getAnchoredPosition(m_resizeAnchorPosition, m_resizeEdge, s));
                 QPointF pos = view->position() + view->parentPosition();
                 QRectF surfaceGeometry(pos, s);
                 QOpenGLTextureBlitter::Origin surfaceOrigin =
@@ -144,11 +164,13 @@ void CompositorWindow::startMove()
     m_grabState = MoveGrab;
 }
 
-void CompositorWindow::startResize(int edge)
+void CompositorWindow::startResize(int edge, bool anchored)
 {
-    m_initialSize = m_mouseView->surface()->size();
+    m_initialSize = m_mouseView->windowSize();
     m_grabState = ResizeGrab;
     m_resizeEdge = edge;
+    m_resizeAnchored = anchored;
+    m_resizeAnchorPosition = getAnchorPosition(m_mouseView->position(), edge, m_mouseView->surface()->size());
 }
 
 void CompositorWindow::startDrag(WindowCompositorView *dragIcon)

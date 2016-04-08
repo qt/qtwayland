@@ -125,7 +125,7 @@ Q_SIGNALS:
     void subsurfaceChanged(QWaylandSurface *child, QWaylandSurface *parent);
 
     void defaultOutputChanged();
-    void defaultInputDeviceChanged();
+    void defaultInputDeviceChanged(QWaylandInputDevice *newDevice, QWaylandInputDevice *oldDevice);
 
     void useHardwareIntegrationExtensionChanged();
 protected:

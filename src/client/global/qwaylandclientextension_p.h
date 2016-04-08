@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2015 The Qt Company Ltd.
+** Copyright (C) 2016 Erik Larsson.
 ** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the QtWaylandCompositor module of the Qt Toolkit.
@@ -34,12 +34,8 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDQUICKSHELLSURFACEITEM_P_H
-#define QWAYLANDQUICKSHELLSURFACEITEM_P_H
-
-#include <QtWaylandCompositor/private/qwaylandquickitem_p.h>
-
-QT_BEGIN_NAMESPACE
+#ifndef QWAYLANDCLIENTEXTENSION_P_H
+#define QWAYLANDCLIENTEXTENSION_P_H
 
 //
 //  W A R N I N G
@@ -52,41 +48,38 @@ QT_BEGIN_NAMESPACE
 // We mean it.
 //
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQuickShellSurfaceItemPrivate : public QWaylandQuickItemPrivate
+#include "qwaylandclientextension.h"
+#include <QtCore/private/qobject_p.h>
+#include <QtWaylandClient/private/qwaylandintegration_p.h>
+#include <QtWaylandClient/private/qwayland-wayland.h>
+
+QT_BEGIN_NAMESPACE
+
+namespace QtWaylandClient {
+
+class Q_WAYLAND_CLIENT_EXPORT QWaylandClientExtensionPrivate : public QObjectPrivate, public QtWayland::wl_registry
+{
+    Q_DECLARE_PUBLIC(QWaylandClientExtension)
+public:
+    QWaylandClientExtensionPrivate();
+
+    QWaylandIntegration *waylandIntegration;
+    int version;
+
+protected:
+    void registry_global(uint32_t id, const QString &interfaceName, uint32_t version) Q_DECL_OVERRIDE;
+};
+
+class Q_WAYLAND_CLIENT_EXPORT QWaylandClientExtensionTemplatePrivate : public QWaylandClientExtensionPrivate
 {
 public:
-    enum GrabberState {
-        DefaultState,
-        ResizeState,
-        MoveState
-    };
-
-    QWaylandQuickShellSurfaceItemPrivate()
-        : QWaylandQuickItemPrivate()
-        , shellSurface(Q_NULLPTR)
-        , moveItem(Q_NULLPTR)
-        , grabberState(DefaultState)
-    {}
-
-    QWaylandShellSurface *shellSurface;
-    QQuickItem *moveItem;
-
-    GrabberState grabberState;
-    struct {
-        QWaylandInputDevice *inputDevice;
-        QPointF initialOffset;
-        bool initialized;
-    } moveState;
-
-    struct {
-        QWaylandInputDevice *inputDevice;
-        QWaylandShellSurface::ResizeEdge resizeEdges;
-        QSizeF initialSize;
-        QPointF initialMousePos;
-        bool initialized;
-    } resizeState;
+    QWaylandClientExtensionTemplatePrivate()
+        : QWaylandClientExtensionPrivate()
+    { }
 };
+
+}
 
 QT_END_NAMESPACE
 
-#endif  /*QWAYLANDQUICKSHELLSURFACEITEM_P_H*/
+#endif  /*QWAYLANDCLIENTEXTENSION_P_H*/

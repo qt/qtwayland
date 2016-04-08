@@ -64,7 +64,7 @@ public:
     bool makeCurrent(QPlatformSurface *surface);
     void doneCurrent();
 
-    void (*getProcAddress(const QByteArray &procName)) ();
+    void (*getProcAddress(const char *procName)) ();
 
 private:
     GLXContext m_context;

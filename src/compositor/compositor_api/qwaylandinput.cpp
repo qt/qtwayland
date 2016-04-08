@@ -42,6 +42,7 @@
 #include <QtWaylandCompositor/QWaylandDrag>
 #include <QtWaylandCompositor/QWaylandTouch>
 #include <QtWaylandCompositor/QWaylandPointer>
+#include <QtWaylandCompositor/QWaylandWlShellSurface>
 #include <QtWaylandCompositor/private/qwlinputmethod_p.h>
 #include <QtWaylandCompositor/private/qwaylandinput_p.h>
 #include <QtWaylandCompositor/private/qwaylandcompositor_p.h>
@@ -53,9 +54,10 @@ QT_BEGIN_NAMESPACE
 
 QWaylandInputDevicePrivate::QWaylandInputDevicePrivate(QWaylandInputDevice *inputdevice, QWaylandCompositor *compositor)
     : QObjectPrivate()
-    , QtWaylandServer::wl_seat(compositor->display(), 3)
+    , QtWaylandServer::wl_seat(compositor->display(), 4)
     , compositor(compositor)
     , mouseFocus(Q_NULLPTR)
+    , keyboardFocus(nullptr)
     , capabilities()
     , data_device()
     , drag_handle(new QWaylandDrag(inputdevice))
@@ -89,6 +91,9 @@ void QWaylandInputDevicePrivate::setCapabilities(QWaylandInputDevice::Capability
         for (int i = 0; i < resources.size(); i++) {
             wl_seat::send_capabilities(resources.at(i)->handle, (uint32_t)capabilities);
         }
+
+        if ((changed & caps & QWaylandInputDevice::Keyboard) && keyboardFocus != nullptr)
+            keyboard->setFocus(keyboardFocus);
     }
 }
 
@@ -337,15 +342,21 @@ bool QWaylandInputDevice::setKeyboardFocus(QWaylandSurface *surface)
     if (surface && surface->isDestroyed())
         return false;
 
-    if (surface == keyboardFocus())
+    QWaylandSurface *oldSurface = keyboardFocus();
+    if (surface == oldSurface)
         return true;
 
-    if (!d->keyboard.isNull() && d->keyboard->setFocus(surface)) {
-        if (d->data_device)
-            d->data_device->setFocus(d->keyboard->focusClient());
-        return true;
-    }
-    return false;
+    QWaylandWlShellSurface *wlShellsurface = QWaylandWlShellSurface::findIn(surface);
+    if (wlShellsurface && wlShellsurface->focusPolicy() == QWaylandWlShellSurface::NoKeyboardFocus)
+        return false;
+
+    d->keyboardFocus = surface;
+    if (!d->keyboard.isNull())
+        d->keyboard->setFocus(surface);
+    if (d->data_device)
+        d->data_device->setFocus(surface->client());
+    emit keyboardFocusChanged(surface, oldSurface);
+    return true;
 }
 
 /*!

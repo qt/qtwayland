@@ -46,6 +46,7 @@
 #include <QtCore/qdebug.h>
 #include <QtGui/QPainter>
 #include <QMutexLocker>
+#include <QLoggingCategory>
 
 #include <wayland-client.h>
 #include <wayland-client-protocol.h>
@@ -59,9 +60,14 @@ QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
 
+Q_DECLARE_LOGGING_CATEGORY(logCategory)
+
+Q_LOGGING_CATEGORY(logCategory, "qt.qpa.wayland.backingstore")
+
 QWaylandShmBuffer::QWaylandShmBuffer(QWaylandDisplay *display,
                      const QSize &size, QImage::Format format, int scale)
-    : mShmPool(0)
+    : QWaylandBuffer()
+    , mShmPool(0)
     , mMarginsImage(0)
 {
     int stride = size.width() * 4;
@@ -97,8 +103,8 @@ QWaylandShmBuffer::QWaylandShmBuffer(QWaylandDisplay *display,
     mImage.setDevicePixelRatio(qreal(scale));
 
     mShmPool = wl_shm_create_pool(shm->object(), fd, alloc);
-    mBuffer = wl_shm_pool_create_buffer(mShmPool,0, size.width(), size.height(),
-                                       stride, wl_format);
+    init(wl_shm_pool_create_buffer(mShmPool,0, size.width(), size.height(),
+                                       stride, wl_format));
     close(fd);
 }
 
@@ -107,8 +113,6 @@ QWaylandShmBuffer::~QWaylandShmBuffer(void)
     delete mMarginsImage;
     if (mImage.constBits())
         munmap((void *) mImage.constBits(), mImage.byteCount());
-    if (mBuffer)
-        wl_buffer_destroy(mBuffer);
     if (mShmPool)
         wl_shm_pool_destroy(mShmPool);
 }
@@ -146,9 +150,7 @@ QWaylandShmBackingStore::QWaylandShmBackingStore(QWindow *window)
     , mDisplay(QWaylandScreen::waylandScreenFromWindow(window)->display())
     , mFrontBuffer(0)
     , mBackBuffer(0)
-    , mFrontBufferIsDirty(false)
     , mPainting(false)
-    , mFrameCallback(0)
 {
 
 }
@@ -158,16 +160,10 @@ QWaylandShmBackingStore::~QWaylandShmBackingStore()
     if (QWaylandWindow *w = waylandWindow())
         w->setBackingStore(Q_NULLPTR);
 
-    if (mFrameCallback)
-        wl_callback_destroy(mFrameCallback);
-
 //    if (mFrontBuffer == waylandWindow()->attached())
 //        waylandWindow()->attach(0);
 
-    if (mFrontBuffer != mBackBuffer)
-        delete mFrontBuffer;
-
-    delete mBackBuffer;
+    qDeleteAll(mBuffers);
 }
 
 QPaintDevice *QWaylandShmBackingStore::paintDevice()
@@ -180,16 +176,7 @@ void QWaylandShmBackingStore::beginPaint(const QRegion &)
     mPainting = true;
     ensureSize();
 
-    QWaylandWindow *window = waylandWindow();
-    QWaylandSubSurface *sub = window->subSurfaceWindow();
-
-    bool waiting = window->attached() && mBackBuffer == window->attached() && mFrameCallback;
-    bool syncSubSurface = sub && sub->isSync();
-    if (waiting && !syncSubSurface) {
-        window->waitForFrameSync();
-    }
-
-    window->setCanResize(false);
+    waylandWindow()->setCanResize(false);
 }
 
 void QWaylandShmBackingStore::endPaint()
@@ -200,11 +187,6 @@ void QWaylandShmBackingStore::endPaint()
 
 void QWaylandShmBackingStore::hidden()
 {
-    QMutexLocker lock(&mMutex);
-    if (mFrameCallback) {
-        wl_callback_destroy(mFrameCallback);
-        mFrameCallback = Q_NULLPTR;
-    }
 }
 
 void QWaylandShmBackingStore::ensureSize()
@@ -231,53 +213,45 @@ void QWaylandShmBackingStore::flush(QWindow *window, const QRegion &region, cons
 
     mFrontBuffer = mBackBuffer;
 
-    QWaylandWindow *w = waylandWindow();
-    bool synchModeSubSurface = w->subSurfaceWindow() && w->subSurfaceWindow()->isSync();
-
-    if (mFrameCallback) {
-        if (synchModeSubSurface) {
-            wl_callback_destroy(mFrameCallback);
-            mFrameCallback = Q_NULLPTR;
-        } else {
-            mFrontBufferIsDirty = true;
-            return;
-        }
-    }
-
-    // Dont acquire the frame callback as that will cause beginPaint
-    // to block in waiting for frame sync since the damage will trigger
-    // its own sync request
-    if (!synchModeSubSurface) {
-        mFrameCallback = w->frame();
-        wl_callback_add_listener(mFrameCallback, &frameCallbackListener, this);
-    }
-
     QMargins margins = windowDecorationMargins();
-    bool damageAll = false;
-    if (w->attached() != mFrontBuffer) {
-        delete w->attached();
-        damageAll = true;
-    }
-    w->attachOffset(mFrontBuffer);
 
-    if (damageAll) {
-        //need to damage it all, otherwise the attach offset may screw up
-        w->damage(QRect(QPoint(0,0), window->size()));
-    } else {
-        QVector<QRect> rects = region.rects();
-        for (int i = 0; i < rects.size(); i++) {
-            QRect rect = rects.at(i);
-            rect.translate(margins.left(),margins.top());
-            w->damage(rect);
-        }
-    }
-    w->commit();
-    mFrontBufferIsDirty = false;
+    waylandWindow()->attachOffset(mFrontBuffer);
+    mFrontBuffer->setBusy();
+
+    QVector<QRect> rects = region.rects();
+    foreach (const QRect &rect, rects)
+        waylandWindow()->damage(rect.translated(margins.left(), margins.top()));
+    waylandWindow()->commit();
 }
 
 void QWaylandShmBackingStore::resize(const QSize &size, const QRegion &)
 {
     mRequestedSize = size;
+}
+
+QWaylandShmBuffer *QWaylandShmBackingStore::getBuffer(const QSize &size)
+{
+    foreach (QWaylandShmBuffer *b, mBuffers) {
+        if (!b->busy()) {
+            if (b->size() == size) {
+                return b;
+            } else {
+                mBuffers.removeOne(b);
+                if (mBackBuffer == b)
+                    mBackBuffer = 0;
+                delete b;
+            }
+        }
+    }
+
+    static const int MAX_BUFFERS = 5;
+    if (mBuffers.count() < MAX_BUFFERS) {
+        QImage::Format format = QPlatformScreen::platformScreenForWindow(window())->format();
+        QWaylandShmBuffer *b = new QWaylandShmBuffer(mDisplay, size, format, waylandWindow()->scale());
+        mBuffers.prepend(b);
+        return b;
+    }
+    return 0;
 }
 
 void QWaylandShmBackingStore::resize(const QSize &size)
@@ -286,16 +260,34 @@ void QWaylandShmBackingStore::resize(const QSize &size)
     int scale = waylandWindow()->scale();
     QSize sizeWithMargins = (size + QSize(margins.left()+margins.right(),margins.top()+margins.bottom())) * scale;
 
-    QImage::Format format = QPlatformScreen::platformScreenForWindow(window())->format();
+    // We look for a free buffer to draw into. If the buffer is not the last buffer we used,
+    // that is mBackBuffer, and the size is the same we memcpy the old content into the new
+    // buffer so that QPainter is happy to find the stuff it had drawn before. If the new
+    // buffer has a different size it needs to be redrawn completely anyway, and if the buffer
+    // is the same the stuff is there already.
+    // You can exercise the different codepaths with weston, switching between the gl and the
+    // pixman renderer. With the gl renderer release events are sent early so we can effectively
+    // run single buffered, while with the pixman renderer we have to use two.
+    QWaylandShmBuffer *buffer = getBuffer(sizeWithMargins);
+    while (!buffer) {
+        qCDebug(logCategory, "QWaylandShmBackingStore: stalling waiting for a buffer to be released from the compositor...");
 
-    if (mBackBuffer != NULL && mBackBuffer->size() == sizeWithMargins)
-        return;
-
-    if (mBackBuffer != mFrontBuffer) {
-        delete mBackBuffer; //we delete the attached buffer when we flush
+        mDisplay->blockingReadEvents();
+        buffer = getBuffer(sizeWithMargins);
     }
 
-    mBackBuffer = new QWaylandShmBuffer(mDisplay, sizeWithMargins, format, scale);
+    int oldSize = mBackBuffer ? mBackBuffer->image()->byteCount() : 0;
+    // mBackBuffer may have been deleted here but if so it means its size was different so we wouldn't copy it anyway
+    if (mBackBuffer != buffer && oldSize == buffer->image()->byteCount()) {
+        memcpy(buffer->image()->bits(), mBackBuffer->image()->constBits(), buffer->image()->byteCount());
+    }
+    mBackBuffer = buffer;
+    // ensure the new buffer is at the beginning of the list so next time getBuffer() will pick
+    // it if possible
+    if (mBuffers.first() != buffer) {
+        mBuffers.removeOne(buffer);
+        mBuffers.prepend(buffer);
+    }
 
     if (windowDecoration() && window()->isVisible())
         windowDecoration()->update();
@@ -368,36 +360,6 @@ QImage QWaylandShmBackingStore::toImage() const
     return *contentSurface();
 }
 #endif // QT_NO_OPENGL
-
-void QWaylandShmBackingStore::done(void *data, wl_callback *callback, uint32_t time)
-{
-    Q_UNUSED(time);
-    QWaylandShmBackingStore *self =
-            static_cast<QWaylandShmBackingStore *>(data);
-    if (callback != self->mFrameCallback) // others, like QWaylandWindow, may trigger callbacks too
-        return;
-    QMutexLocker lock(&self->mMutex);
-    QWaylandWindow *window = self->waylandWindow();
-    wl_callback_destroy(self->mFrameCallback);
-    self->mFrameCallback = 0;
-
-
-    if (self->mFrontBufferIsDirty && !self->mPainting) {
-        self->mFrontBufferIsDirty = false;
-        self->mFrameCallback = wl_surface_frame(window->object());
-        wl_callback_add_listener(self->mFrameCallback,&self->frameCallbackListener,self);
-        if (self->mFrontBuffer != window->attached()) {
-            delete window->attached();
-        }
-        window->attachOffset(self->mFrontBuffer);
-        window->damage(QRect(QPoint(0,0),window->geometry().size()));
-        window->commit();
-    }
-}
-
-const struct wl_callback_listener QWaylandShmBackingStore::frameCallbackListener = {
-    QWaylandShmBackingStore::done
-};
 
 }
 

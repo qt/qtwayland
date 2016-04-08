@@ -29,8 +29,10 @@
 #include <QWaylandInputDevice>
 #include <QList>
 
+QT_BEGIN_NAMESPACE
 class QInputEvent;
 class QMouseEvent;
+QT_END_NAMESPACE
 
 class TestInputDevice : public QWaylandInputDevice
 {
@@ -40,13 +42,13 @@ public:
     TestInputDevice(QWaylandCompositor *compositor, QWaylandInputDevice::CapabilityFlags caps);
     ~TestInputDevice();
 
-    bool isOwner(QInputEvent *event);
+    bool isOwner(QInputEvent *inputEvent) const Q_DECL_OVERRIDE;
 
     QList<QMouseEvent *> createMouseEvents(int count);
 
     int queryCount() { return m_queryCount; }
 
 private:
-    int m_queryCount;
+    mutable int m_queryCount;
     QList<QMouseEvent *> m_events;
 };

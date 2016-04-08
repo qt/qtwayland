@@ -34,53 +34,59 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDQUICKSHELLSURFACEITEM_H
-#define QWAYLANDQUICKSHELLSURFACEITEM_H
+#ifndef QWAYLANDQUICKWLSHELLSURFACEITEM_P_H
+#define QWAYLANDQUICKWLSHELLSURFACEITEM_P_H
 
-#include <QtWaylandCompositor/QWaylandExtension>
-#include <QtWaylandCompositor/QWaylandQuickItem>
-#include <QtWaylandCompositor/QWaylandShellSurface>
+#include <QtWaylandCompositor/private/qwaylandquickitem_p.h>
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandQuickShellSurfaceItemPrivate;
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists purely as an
+// implementation detail.  This header file may change from version to
+// version without notice, or even be removed.
+//
+// We mean it.
+//
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQuickShellSurfaceItem : public QWaylandQuickItem
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQuickWlShellSurfaceItemPrivate : public QWaylandQuickItemPrivate
 {
-    Q_OBJECT
-    Q_DECLARE_PRIVATE(QWaylandQuickShellSurfaceItem)
-    Q_PROPERTY(QWaylandShellSurface *shellSurface READ shellSurface WRITE setShellSurface NOTIFY shellSurfaceChanged)
-    Q_PROPERTY(QQuickItem *moveItem READ moveItem WRITE setMoveItem NOTIFY moveItemChanged)
-
 public:
-    QWaylandQuickShellSurfaceItem(QQuickItem *parent = 0);
+    enum GrabberState {
+        DefaultState,
+        ResizeState,
+        MoveState
+    };
 
-    static QWaylandQuickShellSurfaceItemPrivate *get(QWaylandQuickShellSurfaceItem *item) { return item->d_func(); }
+    QWaylandQuickWlShellSurfaceItemPrivate()
+        : QWaylandQuickItemPrivate()
+        , shellSurface(Q_NULLPTR)
+        , moveItem(Q_NULLPTR)
+        , grabberState(DefaultState)
+    {}
 
-    QWaylandShellSurface *shellSurface() const;
-    void setShellSurface(QWaylandShellSurface *shellSurface);
+    QWaylandWlShellSurface *shellSurface;
+    QQuickItem *moveItem;
 
-    QQuickItem *moveItem() const;
-    void setMoveItem(QQuickItem *moveItem);
-Q_SIGNALS:
-    void shellSurfaceChanged();
-    void moveItemChanged();
+    GrabberState grabberState;
+    struct {
+        QWaylandInputDevice *inputDevice;
+        QPointF initialOffset;
+        bool initialized;
+    } moveState;
 
-private Q_SLOTS:
-    void handleStartMove(QWaylandInputDevice *inputDevice);
-    void handleStartResize(QWaylandInputDevice *inputDevice, QWaylandShellSurface::ResizeEdge edges);
-    void adjustOffsetForNextFrame(const QPointF &offset);
-protected:
-    QWaylandQuickShellSurfaceItem(QWaylandQuickShellSurfaceItemPrivate &dd, QQuickItem *parent);
-
-    void mouseMoveEvent(QMouseEvent *event) Q_DECL_OVERRIDE;
-    void mouseReleaseEvent(QMouseEvent *event) Q_DECL_OVERRIDE;
-
-    void surfaceChangedEvent(QWaylandSurface *newSurface, QWaylandSurface *oldSurface) Q_DECL_OVERRIDE;
-
-    void componentComplete() Q_DECL_OVERRIDE;
+    struct {
+        QWaylandInputDevice *inputDevice;
+        QWaylandWlShellSurface::ResizeEdge resizeEdges;
+        QSizeF initialSize;
+        QPointF initialMousePos;
+        bool initialized;
+    } resizeState;
 };
 
 QT_END_NAMESPACE
 
-#endif  /*QWAYLANDQUICKSHELLSURFACEITEM_H*/
+#endif  /*QWAYLANDQUICKWLSHELLSURFACEITEM_P_H*/

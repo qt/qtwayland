@@ -34,40 +34,53 @@
 **
 ****************************************************************************/
 
-#ifndef BRCMEGLINTEGRATION_H
-#define BRCMEGLINTEGRATION_H
+#ifndef QWAYLANDQUICKWLSHELLSURFACEITEM_H
+#define QWAYLANDQUICKWLSHELLSURFACEITEM_H
 
-#include <QtWaylandCompositor/private/qwlclientbufferintegration_p.h>
-#include "qwayland-server-brcm.h"
-
-#include <QtCore/QScopedPointer>
+#include <QtWaylandCompositor/QWaylandExtension>
+#include <QtWaylandCompositor/QWaylandQuickItem>
+#include <QtWaylandCompositor/QWaylandWlShellSurface>
 
 QT_BEGIN_NAMESPACE
 
-class BrcmEglIntegrationPrivate;
+class QWaylandQuickWlShellSurfaceItemPrivate;
 
-class BrcmEglIntegration : public QtWayland::ClientBufferIntegration, public QtWaylandServer::qt_brcm
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQuickWlShellSurfaceItem : public QWaylandQuickItem
 {
-    Q_DECLARE_PRIVATE(BrcmEglIntegration)
+    Q_OBJECT
+    Q_DECLARE_PRIVATE(QWaylandQuickWlShellSurfaceItem)
+    Q_PROPERTY(QWaylandWlShellSurface *shellSurface READ shellSurface WRITE setShellSurface NOTIFY shellSurfaceChanged)
+    Q_PROPERTY(QQuickItem *moveItem READ moveItem WRITE setMoveItem NOTIFY moveItemChanged)
+
 public:
-    BrcmEglIntegration();
+    QWaylandQuickWlShellSurfaceItem(QQuickItem *parent = 0);
 
-    void initializeHardware(struct ::wl_display *display) Q_DECL_OVERRIDE;
+    static QWaylandQuickWlShellSurfaceItemPrivate *get(QWaylandQuickWlShellSurfaceItem *item) { return item->d_func(); }
 
-    void bindTextureToBuffer(struct ::wl_resource *buffer) Q_DECL_OVERRIDE;
+    QWaylandWlShellSurface *shellSurface() const;
+    void setShellSurface(QWaylandWlShellSurface *shellSurface);
 
-    QSize bufferSize(struct ::wl_resource *buffer) const Q_DECL_OVERRIDE;
+    QQuickItem *moveItem() const;
+    void setMoveItem(QQuickItem *moveItem);
+Q_SIGNALS:
+    void shellSurfaceChanged();
+    void moveItemChanged();
 
+private Q_SLOTS:
+    void handleStartMove(QWaylandInputDevice *inputDevice);
+    void handleStartResize(QWaylandInputDevice *inputDevice, QWaylandWlShellSurface::ResizeEdge edges);
+    void adjustOffsetForNextFrame(const QPointF &offset);
 protected:
-    void brcm_bind_resource(Resource *resource) Q_DECL_OVERRIDE;
-    void brcm_create_buffer(Resource *resource, uint32_t id, int32_t width, int32_t height, wl_array *data) Q_DECL_OVERRIDE;
+    QWaylandQuickWlShellSurfaceItem(QWaylandQuickWlShellSurfaceItemPrivate &dd, QQuickItem *parent);
 
-private:
-    Q_DISABLE_COPY(BrcmEglIntegration)
-    QScopedPointer<BrcmEglIntegrationPrivate> d_ptr;
+    void mouseMoveEvent(QMouseEvent *event) Q_DECL_OVERRIDE;
+    void mouseReleaseEvent(QMouseEvent *event) Q_DECL_OVERRIDE;
+
+    void surfaceChangedEvent(QWaylandSurface *newSurface, QWaylandSurface *oldSurface) Q_DECL_OVERRIDE;
+
+    void componentComplete() Q_DECL_OVERRIDE;
 };
 
 QT_END_NAMESPACE
 
-#endif // BRCMEGLINTEGRATION_H
-
+#endif  /*QWAYLANDQUICKWLSHELLSURFACEITEM_H*/

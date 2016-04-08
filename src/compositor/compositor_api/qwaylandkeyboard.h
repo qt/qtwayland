@@ -87,7 +87,7 @@ public:
     quint32 repeatDelay() const;
     void setRepeatDelay(quint32 delay);
 
-    virtual bool setFocus(QWaylandSurface *surface);
+    virtual void setFocus(QWaylandSurface *surface);
     virtual void setKeymap(const QWaylandKeymap &keymap);
 
     virtual void sendKeyModifiers(QWaylandClient *client, uint32_t serial);

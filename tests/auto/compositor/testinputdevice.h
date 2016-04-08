@@ -29,8 +29,10 @@
 #include <QWaylandInputDevice>
 #include <QList>
 
+QT_BEGIN_NAMESPACE
 class QInputEvent;
 class QMouseEvent;
+QT_END_NAMESPACE
 
 class TestInputDevice : public QWaylandInputDevice
 {

@@ -60,7 +60,7 @@
 #include "hardware_integration/qwlserverbufferintegrationfactory_p.h"
 #include "hardware_integration/qwlhwintegration_p.h"
 
-#include "extensions/qwaylandwindowmanagerextension.h"
+#include "extensions/qwaylandqtwindowmanager.h"
 
 #include "qwaylandxkb_p.h"
 #include "qwaylandshmformathelper_p.h"
@@ -572,9 +572,9 @@ void QWaylandCompositor::destroyClient(QWaylandClient *client)
     if (!client)
         return;
 
-    QWaylandWindowManagerExtension *wmExtension = QWaylandWindowManagerExtension::findIn(this);
+    QWaylandQtWindowManager *wmExtension = QWaylandQtWindowManager::findIn(this);
     if (wmExtension)
-        wmExtension->sendQuitMessage(client->client());
+        wmExtension->sendQuitMessage(client);
 
     wl_client_destroy(client->client());
 }

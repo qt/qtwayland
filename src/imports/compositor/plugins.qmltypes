@@ -173,6 +173,24 @@ Module {
         Signal { name: "physicalSizeFollowsSizeChanged" }
         Signal { name: "windowDestroyed" }
     }
+    Component {
+        name: "QWaylandQtWindowManager"
+        prototype: "QWaylandCompositorExtension"
+        Property { name: "showIsFullScreen"; type: "bool" }
+        Signal {
+            name: "openUrl"
+            Parameter { name: "client"; type: "QWaylandClient"; isPointer: true }
+            Parameter { name: "url"; type: "QUrl" }
+        }
+    }
+    Component {
+        name: "QWaylandQtWindowManagerQuickExtension"
+        defaultProperty: "data"
+        prototype: "QWaylandQtWindowManager"
+        exports: ["QtWayland.Compositor/QtWindowManager 1.0"]
+        exportMetaObjectRevisions: [0]
+        Property { name: "data"; type: "QObject"; isList: true; isReadonly: true }
+    }
     Component { name: "QWaylandQuickCompositor"; prototype: "QWaylandCompositor" }
     Component {
         name: "QWaylandQuickCompositorQuickExtensionContainer"
@@ -356,24 +374,6 @@ Module {
         Property { name: "bufferLock"; type: "bool" }
         Property { name: "discardFrontBuffers"; type: "bool" }
         Signal { name: "surfaceDestroyed" }
-    }
-    Component {
-        name: "QWaylandWindowManagerExtension"
-        prototype: "QWaylandCompositorExtension"
-        Property { name: "showIsFullScreen"; type: "bool" }
-        Signal {
-            name: "openUrl"
-            Parameter { name: "client"; type: "QWaylandClient"; isPointer: true }
-            Parameter { name: "url"; type: "QUrl" }
-        }
-    }
-    Component {
-        name: "QWaylandWindowManagerExtensionQuickExtension"
-        defaultProperty: "data"
-        prototype: "QWaylandWindowManagerExtension"
-        exports: ["QtWayland.Compositor/WindowManager 1.0"]
-        exportMetaObjectRevisions: [0]
-        Property { name: "data"; type: "QObject"; isList: true; isReadonly: true }
     }
     Component {
         name: "QWaylandWlShell"

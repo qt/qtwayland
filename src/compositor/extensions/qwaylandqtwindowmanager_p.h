@@ -1,6 +1,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2015 The Qt Company Ltd.
+** Copyright (C) 2016 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
 ** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the QtWaylandCompositor module of the Qt Toolkit.
@@ -34,8 +35,14 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDWINDOWMANAGEREXTENSION_P_H
-#define QWAYLANDWINDOWMANAGEREXTENSION_P_H
+#ifndef QWAYLANDQTWINDOWMANAGER_P_H
+#define QWAYLANDQTWINDOWMANAGER_P_H
+
+#include <QtCore/QMap>
+
+#include <QtWaylandCompositor/QWaylandQtWindowManager>
+#include <QtWaylandCompositor/private/qwaylandcompositorextension_p.h>
+#include <QtWaylandCompositor/private/qwayland-server-qt-windowmanager.h>
 
 //
 //  W A R N I N G
@@ -48,21 +55,15 @@
 // We mean it.
 //
 
-#include <QtWaylandCompositor/private/qwaylandcompositorextension_p.h>
-
-#include <QtWaylandCompositor/private/qwayland-server-windowmanager.h>
-
-#include <QMap>
-
 QT_BEGIN_NAMESPACE
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandWindowManagerExtensionPrivate
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQtWindowManagerPrivate
         : public QWaylandCompositorExtensionPrivate
         , public QtWaylandServer::qt_windowmanager
 {
-    Q_DECLARE_PUBLIC(QWaylandWindowManagerExtension)
+    Q_DECLARE_PUBLIC(QWaylandQtWindowManager)
 public:
-    QWaylandWindowManagerExtensionPrivate();
+    QWaylandQtWindowManagerPrivate();
 
 protected:
     void windowmanager_bind_resource(Resource *resource) Q_DECL_OVERRIDE;
@@ -76,4 +77,4 @@ private:
 
 QT_END_NAMESPACE
 
-#endif  /*QWAYLANDWINDOWMANAGEREXTENSION_P_H*/
+#endif // QWAYLANDQTWINDOWMANAGER_P_H

@@ -38,7 +38,7 @@ WAYLANDCLIENTSOURCES += \
             ../extensions/surface-extension.xml \
             ../extensions/touch-extension.xml \
             ../extensions/qtkey-extension.xml \
-            ../extensions/windowmanager.xml \
+            ../extensions/qt-windowmanager.xml \
             ../3rdparty/protocol/text-input-unstable-v2.xml \
             ../3rdparty/protocol/xdg-shell.xml \
 

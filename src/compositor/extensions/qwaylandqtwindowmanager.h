@@ -1,6 +1,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2015 The Qt Company Ltd.
+** Copyright (C) 2016 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
 ** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the QtWaylandCompositor module of the Qt Toolkit.
@@ -34,8 +35,8 @@
 **
 ****************************************************************************/
 
-#ifndef WAYLANDWINDOWMANAGERINTEGRATION_H
-#define WAYLANDWINDOWMANAGERINTEGRATION_H
+#ifndef QWAYLANDQTWINDOWMANAGER_H
+#define QWAYLANDQTWINDOWMANAGER_H
 
 #include <QtWaylandCompositor/QWaylandCompositorExtension>
 #include <QtWaylandCompositor/QWaylandClient>
@@ -44,23 +45,21 @@
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandCompositor;
+class QWaylandQtWindowManagerPrivate;
 
-class QWaylandWindowManagerExtensionPrivate;
-
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandWindowManagerExtension : public QWaylandCompositorExtensionTemplate<QWaylandWindowManagerExtension>
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQtWindowManager : public QWaylandCompositorExtensionTemplate<QWaylandQtWindowManager>
 {
     Q_OBJECT
+    Q_DECLARE_PRIVATE(QWaylandQtWindowManager)
     Q_PROPERTY(bool showIsFullScreen READ showIsFullScreen WRITE setShowIsFullScreen NOTIFY showIsFullScreenChanged)
-    Q_DECLARE_PRIVATE(QWaylandWindowManagerExtension)
 public:
-    QWaylandWindowManagerExtension();
-    explicit QWaylandWindowManagerExtension(QWaylandCompositor *compositor);
+    QWaylandQtWindowManager();
+    explicit QWaylandQtWindowManager(QWaylandCompositor *compositor);
 
     bool showIsFullScreen() const;
     void setShowIsFullScreen(bool value);
 
-    void sendQuitMessage(wl_client *client);
+    void sendQuitMessage(QWaylandClient *client);
 
     void initialize() Q_DECL_OVERRIDE;
 
@@ -74,4 +73,4 @@ Q_SIGNALS:
 
 QT_END_NAMESPACE
 
-#endif // WAYLANDWINDOWMANAGERINTEGRATION_H
+#endif // QWAYLANDQTWINDOWMANAGER_H

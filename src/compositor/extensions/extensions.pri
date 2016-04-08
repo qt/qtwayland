@@ -3,7 +3,7 @@ WAYLANDSERVERSOURCES += \
     ../extensions/surface-extension.xml \
     ../extensions/touch-extension.xml \
     ../extensions/qtkey-extension.xml \
-    ../extensions/windowmanager.xml \
+    ../extensions/qt-windowmanager.xml \
     ../3rdparty/protocol/text-input-unstable-v2.xml \
     ../3rdparty/protocol/xdg-shell.xml \
 
@@ -17,8 +17,8 @@ HEADERS += \
     extensions/qwaylandtextinput_p.h \
     extensions/qwaylandtextinputmanager.h \
     extensions/qwaylandtextinputmanager_p.h \
-    extensions/qwaylandwindowmanagerextension.h \
-    extensions/qwaylandwindowmanagerextension_p.h \
+    extensions/qwaylandqtwindowmanager.h \
+    extensions/qwaylandqtwindowmanager_p.h \
     extensions/qwaylandxdgshell.h \
     extensions/qwaylandxdgshell_p.h \
     extensions/qwaylandshellsurface.h \
@@ -30,7 +30,7 @@ SOURCES += \
     extensions/qwaylandwlshell.cpp \
     extensions/qwaylandtextinput.cpp \
     extensions/qwaylandtextinputmanager.cpp \
-    extensions/qwaylandwindowmanagerextension.cpp \
+    extensions/qwaylandqtwindowmanager.cpp \
     extensions/qwaylandxdgshell.cpp \
 
 qtHaveModule(quick) {

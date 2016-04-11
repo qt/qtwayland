@@ -110,6 +110,7 @@ void QWaylandQuickWlShellSurfaceItem::setShellSurface(QWaylandWlShellSurface *sh
         connect(d->shellSurface, &QWaylandWlShellSurface::startMove, this, &QWaylandQuickWlShellSurfaceItem::handleStartMove);
         connect(d->shellSurface, &QWaylandWlShellSurface::startResize, this, &QWaylandQuickWlShellSurfaceItem::handleStartResize);
     }
+    setSurface(shellSurface ? shellSurface->surface() : nullptr);
     emit shellSurfaceChanged();
 }
 
@@ -224,18 +225,6 @@ void QWaylandQuickWlShellSurfaceItem::surfaceChangedEvent(QWaylandSurface *newSu
 
     if (newSurface)
         connect(newSurface, &QWaylandSurface::offsetForNextFrame, this, &QWaylandQuickWlShellSurfaceItem::adjustOffsetForNextFrame);
-}
-
-/*!
- * \internal
- */
-void QWaylandQuickWlShellSurfaceItem::componentComplete()
-{
-    Q_D(QWaylandQuickWlShellSurfaceItem);
-    if (!d->shellSurface)
-        setShellSurface(new QWaylandWlShellSurface());
-
-    QWaylandQuickItem::componentComplete();
 }
 
 QT_END_NAMESPACE

@@ -10,6 +10,7 @@ contains(QT_CONFIG, opengl):qtHaveModule(quick) {
     SUBDIRS += spanning-screens
     SUBDIRS += pure-qml
     SUBDIRS += multi-output
+    SUBDIRS += multi-screen
     SUBDIRS += custom-extension
     SUBDIRS += server-buffer
     SUBDIRS += ivi-compositor

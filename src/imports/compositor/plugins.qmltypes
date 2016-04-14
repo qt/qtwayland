@@ -283,7 +283,6 @@ Module {
             name: "offsetForNextFrame"
             Parameter { name: "offset"; type: "QPoint" }
         }
-        Signal { name: "pong" }
         Signal { name: "surfaceDestroyed" }
         Signal {
             name: "subsurfacePositionChanged"

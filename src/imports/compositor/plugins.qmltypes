@@ -336,6 +336,10 @@ Module {
             Parameter { name: "surface"; type: "QWaylandSurface"; isPointer: true }
             Parameter { name: "resource"; type: "QWaylandResource" }
         }
+        Signal {
+            name: "shellSurfaceCreated"
+            Parameter { name: "shellSurface"; type: "QWaylandWlShellSurface"; isPointer: true }
+        }
     }
     Component {
         name: "QWaylandWlShellQuickData"

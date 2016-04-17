@@ -101,6 +101,8 @@ private Q_SLOTS:
     void dragSourceTargetChanged(const QString &mimeType);
 
 private:
+    QPoint calculateDragPosition(int x, int y, QWindow *wnd) const;
+
     QWaylandDisplay *m_display;
     QWaylandInputDevice *m_inputDevice;
     uint32_t m_enterSerial;

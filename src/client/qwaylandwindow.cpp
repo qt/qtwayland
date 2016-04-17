@@ -905,6 +905,11 @@ void QWaylandWindow::requestUpdate()
         mUpdateRequested = true;
 }
 
+void QWaylandWindow::addAttachOffset(const QPoint point)
+{
+    mOffset += point;
+}
+
 }
 
 QT_END_NAMESPACE

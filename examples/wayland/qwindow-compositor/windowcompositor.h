@@ -68,6 +68,7 @@ public:
     WindowCompositorView *parentView() const { return m_parentView; }
     QPointF parentPosition() const { return m_parentView ? (m_parentView->position() + m_parentView->parentPosition()) : QPointF(); }
     QSize windowSize() { return m_xdgSurface ? m_xdgSurface->windowGeometry().size() : surface()->size(); }
+    QPoint offset() const { return m_offset; }
 
 private:
     friend class WindowCompositor;
@@ -77,12 +78,14 @@ private:
     QWaylandXdgSurface *m_xdgSurface;
     QWaylandXdgPopup *m_xdgPopup;
     WindowCompositorView *m_parentView;
+    QPoint m_offset;
 
 public slots:
     void onXdgSetMaximized();
     void onXdgUnsetMaximized();
     void onXdgSetFullscreen(QWaylandOutput *output);
     void onXdgUnsetFullscreen();
+    void onOffsetForNextFrame(const QPoint &offset);
 };
 
 class WindowCompositor : public QWaylandCompositor

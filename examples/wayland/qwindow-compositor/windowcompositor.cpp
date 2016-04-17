@@ -108,6 +108,12 @@ void WindowCompositorView::onXdgSetFullscreen(QWaylandOutput* clientPreferredOut
     setPosition(outputToFullscreen->position());
 }
 
+void WindowCompositorView::onOffsetForNextFrame(const QPoint &offset)
+{
+    m_offset = offset;
+    setPosition(position() + offset);
+}
+
 void WindowCompositorView::onXdgUnsetFullscreen()
 {
     onXdgUnsetMaximized();
@@ -145,7 +151,6 @@ void WindowCompositor::onSurfaceCreated(QWaylandSurface *surface)
     connect(surface, &QWaylandSurface::surfaceDestroyed, this, &WindowCompositor::surfaceDestroyed);
     connect(surface, &QWaylandSurface::mappedChanged, this, &WindowCompositor::surfaceMappedChanged);
     connect(surface, &QWaylandSurface::redraw, this, &WindowCompositor::triggerRender);
-    connect(surface, &QWaylandSurface::offsetForNextFrame, this, &WindowCompositor::frameOffset);
 
     connect(surface, &QWaylandSurface::subsurfacePositionChanged, this, &WindowCompositor::onSubsurfacePositionChanged);
 
@@ -154,6 +159,7 @@ void WindowCompositor::onSurfaceCreated(QWaylandSurface *surface)
     view->setOutput(outputFor(m_window));
     m_views << view;
     connect(view, &QWaylandView::surfaceDestroyed, this, &WindowCompositor::viewSurfaceDestroyed);
+    connect(surface, &QWaylandSurface::offsetForNextFrame, view, &WindowCompositorView::onOffsetForNextFrame);
 }
 
 void WindowCompositor::surfaceMappedChanged()
@@ -412,6 +418,7 @@ void WindowCompositor::startDrag()
     QWaylandDrag *currentDrag = defaultInputDevice()->drag();
     Q_ASSERT(currentDrag);
     WindowCompositorView *iconView = findView(currentDrag->icon());
+    iconView->setPosition(m_window->mapFromGlobal(QCursor::pos()));
 
     emit dragStarted(iconView);
 }

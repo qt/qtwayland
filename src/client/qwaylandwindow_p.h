@@ -197,6 +197,7 @@ public:
 
     bool setKeyboardGrabEnabled(bool) Q_DECL_OVERRIDE { return false; }
     void propagateSizeHints() Q_DECL_OVERRIDE { }
+    void addAttachOffset(const QPoint point);
 
     void requestUpdate() Q_DECL_OVERRIDE;
 

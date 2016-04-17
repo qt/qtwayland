@@ -62,7 +62,6 @@ void CompositorWindow::setCompositor(WindowCompositor *comp) {
     connect(m_compositor, &WindowCompositor::startMove, this, &CompositorWindow::startMove);
     connect(m_compositor, &WindowCompositor::startResize, this, &CompositorWindow::startResize);
     connect(m_compositor, &WindowCompositor::dragStarted, this, &CompositorWindow::startDrag);
-    connect(m_compositor, &WindowCompositor::frameOffset, this, &CompositorWindow::setFrameOffset);
 }
 
 void CompositorWindow::initializeGL()
@@ -180,12 +179,6 @@ void CompositorWindow::startDrag(WindowCompositorView *dragIcon)
     m_compositor->raise(dragIcon);
 }
 
-void CompositorWindow::setFrameOffset(const QPoint &offset)
-{
-    if (m_mouseView)
-        m_mouseView->setPosition(m_mouseView->position() + offset);
-}
-
 void CompositorWindow::mousePressEvent(QMouseEvent *e)
 {
     if (mouseGrab())
@@ -247,7 +240,7 @@ void CompositorWindow::mouseMoveEvent(QMouseEvent *e)
         WindowCompositorView *view = viewAt(e->localPos());
         m_compositor->handleDrag(view, e);
         if (m_dragIconView) {
-            m_dragIconView->setPosition(e->localPos());
+            m_dragIconView->setPosition(e->localPos() + m_dragIconView->offset());
             update();
         }
     }

@@ -859,7 +859,10 @@ void QWaylandOutput::surfaceEnter(QWaylandSurface *surface)
 {
     if (!surface)
         return;
-    QWaylandSurfacePrivate::get(surface)->send_enter(resourceForClient(surface->client()));
+
+    auto clientResource = resourceForClient(surface->client());
+    if (clientResource)
+        QWaylandSurfacePrivate::get(surface)->send_enter(clientResource);
 }
 
 /*!

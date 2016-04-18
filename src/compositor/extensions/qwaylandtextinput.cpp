@@ -157,8 +157,8 @@ void QWaylandTextInputPrivate::sendInputMethodEvent(QInputMethodEvent *event)
         if (event->replacementStart() <= 0 && (event->replacementLength() >= -event->replacementStart())) {
             const int selectionStart = qMin(currentState->cursorPosition, currentState->anchorPosition);
             const int selectionEnd = qMax(currentState->cursorPosition, currentState->anchorPosition);
-            const int before = currentState->surroundingText.midRef(selectionStart + event->replacementStart(), -event->replacementStart()).toUtf8().size();
-            const int after = currentState->surroundingText.midRef(selectionEnd, event->replacementLength() + event->replacementStart()).toUtf8().size();
+            const int before = QWaylandInputMethodEventBuilder::indexToWayland(currentState->surroundingText, -event->replacementStart(), selectionStart + event->replacementStart());
+            const int after = QWaylandInputMethodEventBuilder::indexToWayland(currentState->surroundingText, event->replacementLength() + event->replacementStart(), selectionEnd);
             send_delete_surrounding_text(focusResource->handle, before, after);
         } else {
             // TODO: Implement this case
@@ -175,8 +175,8 @@ void QWaylandTextInputPrivate::sendInputMethodEvent(QInputMethodEvent *event)
         if (attribute.type == QInputMethodEvent::Selection) {
             afterCommit.cursorPosition = attribute.start;
             afterCommit.anchorPosition = attribute.length;
-            int cursor = afterCommit.surroundingText.midRef(qMin(attribute.start, afterCommit.cursorPosition), qAbs(attribute.start - afterCommit.cursorPosition)).toUtf8().size();
-            int anchor = afterCommit.surroundingText.midRef(qMin(attribute.length, afterCommit.cursorPosition), qAbs(attribute.length - afterCommit.cursorPosition)).toUtf8().size();
+            int cursor = QWaylandInputMethodEventBuilder::indexToWayland(afterCommit.surroundingText, qAbs(attribute.start - afterCommit.cursorPosition), qMin(attribute.start, afterCommit.cursorPosition));
+            int anchor = QWaylandInputMethodEventBuilder::indexToWayland(afterCommit.surroundingText, qAbs(attribute.length - afterCommit.cursorPosition), qMin(attribute.length, afterCommit.cursorPosition));
             send_cursor_position(focusResource->handle,
                                  attribute.start < afterCommit.cursorPosition ? -cursor : cursor,
                                  attribute.length < afterCommit.cursorPosition ? -anchor : anchor);
@@ -185,11 +185,11 @@ void QWaylandTextInputPrivate::sendInputMethodEvent(QInputMethodEvent *event)
     send_commit_string(focusResource->handle, event->commitString());
     foreach (const QInputMethodEvent::Attribute &attribute, event->attributes()) {
         if (attribute.type == QInputMethodEvent::Cursor) {
-            int index = event->preeditString().leftRef(attribute.start).toUtf8().size();
+            int index = QWaylandInputMethodEventBuilder::indexToWayland(event->preeditString(), attribute.start);
             send_preedit_cursor(focusResource->handle, index);
         } else if (attribute.type == QInputMethodEvent::TextFormat) {
-            int start = currentState->surroundingText.leftRef(attribute.start).toUtf8().size();
-            int end = currentState->surroundingText.leftRef(attribute.start + attribute.length).toUtf8().size();
+            int start = QWaylandInputMethodEventBuilder::indexToWayland(currentState->surroundingText, attribute.start);
+            int end = QWaylandInputMethodEventBuilder::indexToWayland(currentState->surroundingText, attribute.start + attribute.length);
             // TODO add support for different stylesQWaylandTextInput
             send_preedit_styling(focusResource->handle, start, end - start, preedit_style_default);
         }

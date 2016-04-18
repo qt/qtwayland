@@ -61,7 +61,8 @@ public:
     QInputMethodEvent buildCommit(const QString &text);
     QInputMethodEvent buildPreedit(const QString &text);
 
-    static int indexFromWayland(const QString &str, int utf8Index, int baseIndex = 0);
+    static int indexFromWayland(const QString &text, int length, int base = 0);
+    static int indexToWayland(const QString &text, int length, int base = 0);
 private:
     QPair<int, int> replacementForDeleteSurrounding();
 

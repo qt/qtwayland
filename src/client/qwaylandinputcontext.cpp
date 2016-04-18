@@ -157,7 +157,7 @@ void QWaylandTextInput::updateState(Qt::InputMethodQueries queries, uint32_t fla
             anchor -= offset;
         }
 
-        set_surrounding_text(text, text.leftRef(cursor).toUtf8().size(), text.leftRef(anchor).toUtf8().size());
+        set_surrounding_text(text, QWaylandInputMethodEventBuilder::indexToWayland(text, cursor), QWaylandInputMethodEventBuilder::indexToWayland(text, anchor));
     }
 
     if (queries & Qt::ImHints) {

@@ -188,10 +188,10 @@ void QWaylandTextInputPrivate::sendInputMethodEvent(QInputMethodEvent *event)
             int index = QWaylandInputMethodEventBuilder::indexToWayland(event->preeditString(), attribute.start);
             send_preedit_cursor(focusResource->handle, index);
         } else if (attribute.type == QInputMethodEvent::TextFormat) {
-            int start = QWaylandInputMethodEventBuilder::indexToWayland(currentState->surroundingText, attribute.start);
-            int end = QWaylandInputMethodEventBuilder::indexToWayland(currentState->surroundingText, attribute.start + attribute.length);
+            int start = QWaylandInputMethodEventBuilder::indexToWayland(event->preeditString(), attribute.start);
+            int length = QWaylandInputMethodEventBuilder::indexToWayland(event->preeditString(), attribute.length, attribute.start);
             // TODO add support for different stylesQWaylandTextInput
-            send_preedit_styling(focusResource->handle, start, end - start, preedit_style_default);
+            send_preedit_styling(focusResource->handle, start, length, preedit_style_default);
         }
     }
     send_preedit_string(focusResource->handle, event->preeditString(), event->preeditString());

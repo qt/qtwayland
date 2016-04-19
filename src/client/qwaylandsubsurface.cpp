@@ -53,6 +53,7 @@ QWaylandSubSurface::QWaylandSubSurface(QWaylandWindow *window, QWaylandWindow *p
 QWaylandSubSurface::~QWaylandSubSurface()
 {
     m_parent->mChildren.removeOne(this);
+    destroy();
 }
 
 }

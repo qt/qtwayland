@@ -51,6 +51,14 @@
 
 #include <QDebug>
 
+WindowCompositorView::WindowCompositorView()
+    : m_texture(0)
+    , m_wlShellSurface(nullptr)
+    , m_xdgSurface(nullptr)
+    , m_xdgPopup(nullptr)
+    , m_parentView(nullptr)
+{}
+
 GLuint WindowCompositorView::getTexture() {
     if (advance()) {
         if (m_texture)

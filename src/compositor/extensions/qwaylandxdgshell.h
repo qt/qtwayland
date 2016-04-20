@@ -41,6 +41,8 @@
 
 #include <QtCore/QRect>
 
+struct wl_resource;
+
 QT_BEGIN_NAMESPACE
 
 class QWaylandXdgShellPrivate;

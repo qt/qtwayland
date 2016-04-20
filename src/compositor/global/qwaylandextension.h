@@ -38,10 +38,11 @@
 #define QWAYLANDEXTENSION_H
 
 #include <QtWaylandCompositor/qwaylandexport.h>
-#include <wayland-server.h>
 
 #include <QtCore/QObject>
 #include <QtCore/QVector>
+
+struct wl_interface;
 
 QT_BEGIN_NAMESPACE
 

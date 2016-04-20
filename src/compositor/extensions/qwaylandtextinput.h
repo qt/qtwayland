@@ -39,6 +39,8 @@
 
 #include <QtWaylandCompositor/QWaylandExtension>
 
+struct wl_client;
+
 QT_BEGIN_NAMESPACE
 
 class QWaylandTextInputPrivate;

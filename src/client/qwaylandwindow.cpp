@@ -185,7 +185,7 @@ bool QWaylandWindow::shouldCreateShellSurface() const
         return false;
 
     if (qEnvironmentVariableIsSet("QT_WAYLAND_USE_BYPASSWINDOWMANAGERHINT"))
-        return window()->flags() & Qt::BypassWindowManagerHint;
+        return !(window()->flags() & Qt::BypassWindowManagerHint);
 
     return true;
 }

@@ -36,9 +36,12 @@
 #include "qwaylandseat.h"
 
 #include <QtWaylandCompositor/QWaylandXdgShellV5>
+#include <QtWaylandCompositor/QWaylandIviApplication>
+#include <QtWaylandCompositor/QWaylandIviSurface>
 #include <QtWaylandCompositor/QWaylandSurface>
 #include <QtWaylandCompositor/QWaylandResource>
 #include <qwayland-xdg-shell.h>
+#include <qwayland-ivi-application.h>
 
 #include <QtTest/QtTest>
 
@@ -57,11 +60,18 @@ private slots:
     void geometry();
     void mapSurface();
     void frameCallback();
+
     void advertisesXdgShellSupport();
     void createsXdgSurfaces();
     void reportsXdgSurfaceWindowGeometry();
     void setsXdgAppId();
     void sendsXdgConfigure();
+
+    void advertisesIviApplicationSupport();
+    void createsIviSurfaces();
+    void emitsErrorOnSameIviId();
+    void sendsIviConfigure();
+    void destroysIviSurfaces();
 };
 
 void tst_WaylandCompositor::init() {
@@ -570,6 +580,150 @@ void tst_WaylandCompositor::sendsXdgConfigure()
     QTRY_VERIFY(xdgSurface->activated());
     QTRY_VERIFY(!xdgSurface->maximized());
     QTRY_VERIFY(!xdgSurface->resizing());
+}
+
+class IviTestCompositor: public TestCompositor {
+    Q_OBJECT
+public:
+    IviTestCompositor() : iviApplication(this) {}
+    QWaylandIviApplication iviApplication;
+};
+
+void tst_WaylandCompositor::advertisesIviApplicationSupport()
+{
+    IviTestCompositor compositor;
+    compositor.create();
+
+    MockClient client;
+    QTRY_VERIFY(&client.iviApplication);
+}
+
+void tst_WaylandCompositor::createsIviSurfaces()
+{
+    IviTestCompositor compositor;
+    compositor.create();
+
+    MockClient client;
+    QTRY_VERIFY(&client.iviApplication);
+
+    QSignalSpy iviSurfaceCreatedSpy(&compositor.iviApplication, &QWaylandIviApplication::iviSurfaceRequested);
+    QWaylandIviSurface *iviSurface = nullptr;
+    QObject::connect(&compositor.iviApplication, &QWaylandIviApplication::iviSurfaceCreated, [&](QWaylandIviSurface *s) {
+        iviSurface = s;
+    });
+
+    wl_surface *surface = client.createSurface();
+    client.createIviSurface(surface, 123);
+    QTRY_COMPARE(iviSurfaceCreatedSpy.count(), 1);
+    QTRY_VERIFY(iviSurface);
+    QTRY_VERIFY(iviSurface->surface());
+    QTRY_COMPARE(iviSurface->iviId(), 123u);
+}
+
+void tst_WaylandCompositor::emitsErrorOnSameIviId()
+{
+    IviTestCompositor compositor;
+    compositor.create();
+
+    {
+        MockClient firstClient;
+        QTRY_VERIFY(&firstClient.iviApplication);
+
+        QWaylandIviSurface *firstIviSurface = nullptr;
+        QObject::connect(&compositor.iviApplication, &QWaylandIviApplication::iviSurfaceCreated, [&](QWaylandIviSurface *s) {
+            firstIviSurface = s;
+        });
+
+        firstClient.createIviSurface(firstClient.createSurface(), 123);
+        QTRY_VERIFY(firstIviSurface);
+        QTRY_COMPARE(firstIviSurface->iviId(), 123u);
+
+        {
+            MockClient secondClient;
+            QTRY_VERIFY(&secondClient.iviApplication);
+            QTRY_COMPARE(compositor.clients().count(), 2);
+
+            secondClient.createIviSurface(secondClient.createSurface(), 123);
+            compositor.flushClients();
+
+            QTRY_COMPARE(secondClient.error, EPROTO);
+            QTRY_COMPARE(secondClient.protocolError.interface, &ivi_application_interface);
+            QTRY_COMPARE(static_cast<ivi_application_error>(secondClient.protocolError.code), IVI_APPLICATION_ERROR_IVI_ID);
+            QTRY_COMPARE(compositor.clients().count(), 1);
+        }
+    }
+
+    // The other clients have passed out of scope and have been destroyed,
+    // it should now be ok to create new application with the same id
+    MockClient thirdClient;
+    QTRY_VERIFY(&thirdClient.iviApplication);
+
+    QWaylandIviSurface *thirdIviSurface = nullptr;
+    QObject::connect(&compositor.iviApplication, &QWaylandIviApplication::iviSurfaceCreated, [&](QWaylandIviSurface *s) {
+        thirdIviSurface = s;
+    });
+    thirdClient.createIviSurface(thirdClient.createSurface(), 123);
+    compositor.flushClients();
+
+    QTRY_VERIFY(thirdIviSurface);
+    QTRY_COMPARE(thirdIviSurface->iviId(), 123u);
+    QTRY_COMPARE(thirdClient.error, 0);
+}
+
+void tst_WaylandCompositor::sendsIviConfigure()
+{
+    class MockIviSurface : public QtWayland::ivi_surface
+    {
+    public:
+        MockIviSurface(::ivi_surface *iviSurface) : QtWayland::ivi_surface(iviSurface) {}
+        void ivi_surface_configure(int32_t width, int32_t height) Q_DECL_OVERRIDE
+        {
+            configureSize = QSize(width, height);
+        }
+        QSize configureSize;
+    };
+
+    IviTestCompositor compositor;
+    compositor.create();
+
+    MockClient client;
+    QTRY_VERIFY(&client.iviApplication);
+
+    QWaylandIviSurface *iviSurface = nullptr;
+    QObject::connect(&compositor.iviApplication, &QWaylandIviApplication::iviSurfaceCreated, [&](QWaylandIviSurface *s) {
+        iviSurface = s;
+    });
+
+    wl_surface *surface = client.createSurface();
+    ivi_surface *clientIviSurface = client.createIviSurface(surface, 123);
+    MockIviSurface mockIviSurface(clientIviSurface);
+
+    QTRY_VERIFY(iviSurface);
+    iviSurface->sendConfigure(QSize(800, 600));
+    compositor.flushClients();
+
+    QTRY_COMPARE(mockIviSurface.configureSize, QSize(800, 600));
+}
+
+void tst_WaylandCompositor::destroysIviSurfaces()
+{
+    IviTestCompositor compositor;
+    compositor.create();
+
+    MockClient client;
+    QTRY_VERIFY(&client.iviApplication);
+
+    QWaylandIviSurface *iviSurface = nullptr;
+    QObject::connect(&compositor.iviApplication, &QWaylandIviApplication::iviSurfaceCreated, [&](QWaylandIviSurface *s) {
+        iviSurface = s;
+    });
+
+    QtWayland::ivi_surface mockIviSurface(client.createIviSurface(client.createSurface(), 123));
+    QTRY_VERIFY(iviSurface);
+
+    QSignalSpy destroySpy(iviSurface, SIGNAL(destroyed()));
+    mockIviSurface.destroy();
+    QTRY_VERIFY(destroySpy.count() == 1);
 }
 
 #include <tst_compositor.moc>

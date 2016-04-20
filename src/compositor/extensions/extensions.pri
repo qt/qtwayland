@@ -8,6 +8,7 @@ WAYLANDSERVERSOURCES += \
     ../extensions/qt-windowmanager.xml \
     ../3rdparty/protocol/text-input-unstable-v2.xml \
     ../3rdparty/protocol/xdg-shell.xml \
+    ../3rdparty/protocol/ivi-application.xml \
 
 HEADERS += \
     extensions/qwlextendedsurface_p.h \
@@ -26,6 +27,10 @@ HEADERS += \
     extensions/qwaylandxdgshellv5.h \
     extensions/qwaylandxdgshellv5_p.h \
     extensions/qwaylandshellsurface.h \
+    extensions/qwaylandiviapplication.h \
+    extensions/qwaylandiviapplication_p.h \
+    extensions/qwaylandivisurface.h \
+    extensions/qwaylandivisurface_p.h \
 
 SOURCES += \
     extensions/qwlextendedsurface.cpp \
@@ -37,6 +42,8 @@ SOURCES += \
     extensions/qwaylandtextinputmanager.cpp \
     extensions/qwaylandqtwindowmanager.cpp \
     extensions/qwaylandxdgshellv5.cpp \
+    extensions/qwaylandiviapplication.cpp \
+    extensions/qwaylandivisurface.cpp \
 
 qtHaveModule(quick):contains(QT_CONFIG, opengl) {
     HEADERS += \

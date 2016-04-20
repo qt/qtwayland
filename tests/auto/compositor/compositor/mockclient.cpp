@@ -51,6 +51,9 @@ MockClient::MockClient()
     , registry(0)
     , wlshell(0)
     , xdgShell(nullptr)
+    , iviApplication(nullptr)
+    , error(0 /* means no error according to spec */)
+    , protocolError({0, 0, nullptr})
 {
     if (!display)
         qFatal("MockClient(): wl_display_connect() failed");
@@ -117,12 +120,28 @@ void MockClient::outputScale(void *, wl_output *, int)
 
 void MockClient::readEvents()
 {
+    if (error)
+        return;
     wl_display_dispatch(display);
 }
 
 void MockClient::flushDisplay()
 {
-    wl_display_dispatch_pending(display);
+    if (error)
+        return;
+
+    if (wl_display_prepare_read(display) == 0) {
+        wl_display_read_events(display);
+    }
+
+    if (wl_display_dispatch_pending(display) < 0) {
+        error = wl_display_get_error(display);
+        if (error == EPROTO) {
+            protocolError.code = wl_display_get_protocol_error(display, &protocolError.interface, &protocolError.id);
+            return;
+        }
+    }
+
     wl_display_flush(display);
 }
 
@@ -146,6 +165,8 @@ void MockClient::handleGlobal(uint32_t id, const QByteArray &interface)
         wlshell = static_cast<wl_shell *>(wl_registry_bind(registry, id, &wl_shell_interface, 1));
     } else if (interface == "xdg_shell") {
         xdgShell = static_cast<xdg_shell *>(wl_registry_bind(registry, id, &xdg_shell_interface, 1));
+    } else if (interface == "ivi_application") {
+        iviApplication = static_cast<ivi_application *>(wl_registry_bind(registry, id, &ivi_application_interface, 1));
     } else if (interface == "wl_seat") {
         wl_seat *s = static_cast<wl_seat *>(wl_registry_bind(registry, id, &wl_seat_interface, 1));
         m_seats << new MockSeat(s);
@@ -168,6 +189,12 @@ xdg_surface *MockClient::createXdgSurface(wl_surface *surface)
 {
     flushDisplay();
     return xdg_shell_get_xdg_surface(xdgShell, surface);
+}
+
+ivi_surface *MockClient::createIviSurface(wl_surface *surface, uint iviId)
+{
+    flushDisplay();
+    return ivi_application_surface_create(iviApplication, iviId, surface);
 }
 
 ShmBuffer::ShmBuffer(const QSize &size, wl_shm *shm)

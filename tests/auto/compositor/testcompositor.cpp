@@ -30,6 +30,8 @@
 #include "testinputdevice.h"
 #include "testkeyboardgrabber.h"
 
+#include <wayland-server.h>
+
 TestCompositor::TestCompositor(bool createInputDev)
     : QWaylandCompositor()
     , shell(new QWaylandWlShell(this))

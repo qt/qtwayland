@@ -7,6 +7,7 @@ SOURCES += \
     serverbufferitem.cpp
 HEADERS += \
     serverbufferitem.h \
+    serverbuffertextureprovider.h
 
 OTHER_FILES = \
     qml/main.qml \
@@ -18,3 +19,6 @@ CONFIG +=wayland-scanner
 WAYLANDSERVERSOURCES += ../share-buffer.xml
 
 DEFINES += QT_COMPOSITOR_QUICK
+
+target.path = $$[QT_INSTALL_EXAMPLES]/wayland/server-buffer/compositor
+INSTALLS += target

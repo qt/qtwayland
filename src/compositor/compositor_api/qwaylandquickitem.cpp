@@ -733,7 +733,10 @@ QVariant QWaylandQuickItem::inputMethodQuery(Qt::InputMethodQuery query, QVarian
     if (query == Qt::ImEnabled)
         return QVariant((flags() & ItemAcceptsInputMethod) != 0);
 
-    return d->oldSurface->inputMethodControl()->inputMethodQuery(query, argument);
+    if (d->oldSurface)
+        return d->oldSurface->inputMethodControl()->inputMethodQuery(query, argument);
+
+    return QVariant();
 }
 #endif
 

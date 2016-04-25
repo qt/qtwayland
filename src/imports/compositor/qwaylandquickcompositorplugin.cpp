@@ -61,14 +61,11 @@
 
 QT_BEGIN_NAMESPACE
 
-Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CLASS(QWaylandQuickCompositor)
-Q_COMPOSITOR_DECLARE_QUICK_DATA_CLASS(QWaylandWindowManagerExtension)
-Q_COMPOSITOR_DECLARE_QUICK_DATA_CLASS(QWaylandWlShell)
-Q_COMPOSITOR_DECLARE_QUICK_DATA_CLASS(QWaylandWlShellSurface)
-Q_COMPOSITOR_DECLARE_QUICK_DATA_CLASS(QWaylandXdgShell)
-Q_COMPOSITOR_DECLARE_QUICK_DATA_CLASS(QWaylandXdgSurface)
-
-Q_COMPOSITOR_DECLARE_QUICK_DATA_CLASS(QWaylandTextInputManager)
+Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CONTAINER_CLASS(QWaylandQuickCompositor)
+Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CLASS(QWaylandWindowManagerExtension)
+Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CLASS(QWaylandWlShell)
+Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CLASS(QWaylandXdgShell)
+Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CLASS(QWaylandTextInputManager)
 
 class QmlUrlResolver
 {
@@ -132,12 +129,11 @@ public:
 
     static void defineModule(const char *uri)
     {
-        qmlRegisterType<QWaylandQuickCompositorQuickExtension>(uri, 1, 0, "WaylandCompositor");
+        qmlRegisterType<QWaylandQuickCompositorQuickExtensionContainer>(uri, 1, 0, "WaylandCompositor");
         qmlRegisterType<QWaylandQuickItem>(uri, 1, 0, "WaylandQuickItem");
         qmlRegisterType<QWaylandMouseTracker>(uri, 1, 0, "WaylandMouseTracker");
         qmlRegisterType<QWaylandQuickOutput>(uri, 1, 0, "WaylandOutput");
         qmlRegisterType<QWaylandQuickSurface>(uri, 1, 0, "WaylandSurface");
-        qmlRegisterType<QWaylandWindowManagerExtensionQuickData>(uri, 1, 0, "WindowManager");
 
         qmlRegisterUncreatableType<QWaylandExtension>(uri, 1, 0, "WaylandExtension", QObject::tr("Cannot create instance of WaylandExtension"));
         qmlRegisterUncreatableType<QWaylandClient>(uri, 1, 0, "WaylandClient", QObject::tr("Cannot create instance of WaylandClient"));
@@ -150,14 +146,14 @@ public:
         qmlRegisterUncreatableType<QWaylandResource>(uri, 1, 0, "WaylandResource", QObject::tr("Cannot create instance of WaylandResource"));
 
         //This should probably be somewhere else
-        qmlRegisterType<QWaylandWlShellQuickData>(uri, 1, 0, "WlShell");
-        qmlRegisterType<QWaylandWlShellSurfaceQuickData>(uri, 1, 0, "WlShellSurface");
+        qmlRegisterType<QWaylandWindowManagerExtensionQuickExtension>(uri, 1, 0, "WindowManager");
+        qmlRegisterType<QWaylandWlShellQuickExtension>(uri, 1, 0, "WlShell");
+        qmlRegisterType<QWaylandWlShellSurface>(uri, 1, 0, "WlShellSurface");
         qmlRegisterType<QWaylandQuickWlShellSurfaceItem>(uri, 1, 0, "WlShellSurfaceItem");
-        qmlRegisterType<QWaylandTextInputManagerQuickData>(uri, 1, 0, "TextInputManager");
-
-        qmlRegisterType<QWaylandXdgShellQuickData>(uri, 1, 0, "XdgShell");
-        qmlRegisterType<QWaylandXdgSurfaceQuickData>(uri, 1, 0, "XdgSurface");
+        qmlRegisterType<QWaylandXdgShellQuickExtension>(uri, 1, 0, "XdgShell");
+        qmlRegisterType<QWaylandXdgSurface>(uri, 1, 0, "XdgSurface");
         qmlRegisterType<QWaylandQuickXdgSurfaceItem>(uri, 1, 0, "XdgSurfaceItem");
+        qmlRegisterType<QWaylandTextInputManagerQuickExtension>(uri, 1, 0, "TextInputManager");
     }
 };
 //![class decl]

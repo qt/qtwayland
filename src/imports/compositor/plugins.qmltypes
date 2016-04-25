@@ -174,7 +174,7 @@ Module {
     }
     Component { name: "QWaylandQuickCompositor"; prototype: "QWaylandCompositor" }
     Component {
-        name: "QWaylandQuickCompositorQuickExtension"
+        name: "QWaylandQuickCompositorQuickExtensionContainer"
         defaultProperty: "data"
         prototype: "QWaylandQuickCompositor"
         exports: ["QtWayland.Compositor/WaylandCompositor 1.0"]
@@ -338,7 +338,7 @@ Module {
         }
     }
     Component {
-        name: "QWaylandWindowManagerExtensionQuickData"
+        name: "QWaylandWindowManagerExtensionQuickExtension"
         defaultProperty: "data"
         prototype: "QWaylandWindowManagerExtension"
         exports: ["QtWayland.Compositor/WindowManager 1.0"]
@@ -359,7 +359,7 @@ Module {
         }
     }
     Component {
-        name: "QWaylandWlShellQuickData"
+        name: "QWaylandWlShellQuickExtension"
         defaultProperty: "data"
         prototype: "QWaylandWlShell"
         exports: ["QtWayland.Compositor/WlShell 1.0"]
@@ -459,14 +459,6 @@ Module {
             Parameter { name: "edges"; type: "ResizeEdge" }
         }
         Method { name: "sendPopupDone" }
-    }
-    Component {
-        name: "QWaylandWlShellSurfaceQuickData"
-        defaultProperty: "data"
-        prototype: "QWaylandWlShellSurface"
-        exports: ["QtWayland.Compositor/WlShellSurface 1.0"]
-        exportMetaObjectRevisions: [0]
-        Property { name: "data"; type: "QObject"; isList: true; isReadonly: true }
     }
     Component {
         prototype: "QQuickItem"

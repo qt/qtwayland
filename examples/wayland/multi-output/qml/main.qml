@@ -89,10 +89,6 @@ WaylandCompositor {
                 var item = chromeComponent.createObject(defaultOutput.surfaceArea, { "shellSurface": shellSurface } );
                 item.surface.activated.connect(item.raise);
             }
-
-            Component.onCompleted: {
-                initialize();
-            }
         }
     ]
 

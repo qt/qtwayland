@@ -80,7 +80,7 @@ public:
     QWaylandObject *extensionContainer() const;
     void setExtensionContainer(QWaylandObject *container);
 
-    Q_INVOKABLE virtual void initialize();
+    virtual void initialize();
     bool isInitialized() const;
 
     virtual const struct wl_interface *extensionInterface() const = 0;

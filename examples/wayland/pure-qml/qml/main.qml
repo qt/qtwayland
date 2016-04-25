@@ -72,20 +72,12 @@ WaylandCompositor {
         WindowManager {
             id: qtWindowManager
             onShowIsFullScreenChanged: console.debug("Show is fullscreen hint for Qt applications:", showIsFullScreen)
-
-            Component.onCompleted: {
-                initialize();
-            }
         },
         WlShell {
             id: defaultShell
 
             onShellSurfaceCreated: {
                 chromeComponent.createObject(defaultOutput.surfaceArea, { "shellSurface": shellSurface } );
-            }
-
-            Component.onCompleted: {
-                initialize();
             }
         },
         XdgShell {
@@ -94,15 +86,8 @@ WaylandCompositor {
             onXdgSurfaceCreated: {
                 xdgChromeComponent.createObject(defaultOutput.surfaceArea, { "xdgSurface": xdgSurface } );
             }
-
-            Component.onCompleted: {
-                initialize();
-            }
         },
         TextInputManager {
-            Component.onCompleted: {
-                initialize();
-            }
         }
     ]
 

@@ -45,11 +45,12 @@
 
 #include <QtQml/qqml.h>
 #include <QtQml/QQmlEngine>
+
 #include "customextension.h"
 
 static void registerTypes()
 {
-    qmlRegisterType<QtWayland::CustomExtension>("com.theqtcompany.customextension", 1, 0, "CustomExtension");
+    qmlRegisterType<QtWayland::CustomExtensionQuickExtension>("com.theqtcompany.customextension", 1, 0, "CustomExtension");
 }
 
 int main(int argc, char *argv[])

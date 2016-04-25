@@ -82,19 +82,11 @@ WaylandCompositor {
                 var item = chromeComponent.createObject(defaultOutput.surfaceArea, { "shellSurface": shellSurface } );
                 lastItem = item;
             }
-
-            Component.onCompleted: {
-                initialize();
-            }
         },
         CustomExtension {
             id: custom
             onRequestReceived: {
                 console.log("Compositor received a request: \"" + text + "\", " + value)
-            }
-
-            Component.onCompleted: {
-                initialize(comp);
             }
         }
 

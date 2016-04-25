@@ -38,11 +38,13 @@
 #define QWAYLANDQUICKEXTENSION_H
 
 #include <QtWaylandCompositor/QWaylandExtension>
+#include <QtQml/QQmlParserStatus>
+#include <QtQml/QQmlListProperty>
 
 QT_BEGIN_NAMESPACE
 
 #define Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CLASS(className) \
-    class Q_WAYLAND_COMPOSITOR_EXPORT className##QuickExtension : public className \
+    class Q_WAYLAND_COMPOSITOR_EXPORT className##QuickExtension : public className, public QQmlParserStatus \
     { \
 /* qmake ignore Q_OBJECT */ \
         Q_OBJECT \
@@ -53,6 +55,8 @@ QT_BEGIN_NAMESPACE
         { \
             return QQmlListProperty<QObject>(this, m_objects); \
         } \
+        void classBegin() Q_DECL_OVERRIDE {} \
+        void componentComplete() Q_DECL_OVERRIDE { initialize(); } \
     private: \
         QList<QObject *> m_objects; \
     };

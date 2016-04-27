@@ -52,6 +52,8 @@
 
 #include "qwaylandquickitem.h"
 
+#include <QtWaylandCompositor/QWaylandOutput>
+
 QT_BEGIN_NAMESPACE
 
 class QWaylandSurfaceTextureProvider;
@@ -104,6 +106,7 @@ public:
     }
 
     bool shouldSendInputEvents() const { return view->surface() && inputEventsEnabled; }
+    int scaleFactor() const { return view->output() ? view->output()->scaleFactor() : 1; }
 
     static QMutex *mutex;
 

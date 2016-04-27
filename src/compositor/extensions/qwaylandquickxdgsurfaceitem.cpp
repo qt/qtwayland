@@ -177,7 +177,7 @@ void QWaylandQuickXdgSurfaceItem::handleSetMaximized()
     d->maximizeState.initialPosition = position();
 
     QWaylandOutput *output = compositor()->outputs().first();
-    xdgSurface()->requestMaximized(output->geometry().size());
+    xdgSurface()->requestMaximized(output->geometry().size() / output->scaleFactor());
 }
 
 void QWaylandQuickXdgSurfaceItem::handleUnsetMaximized()
@@ -231,7 +231,7 @@ void QWaylandQuickXdgSurfaceItem::mouseMoveEvent(QMouseEvent *event)
             d->resizeState.initialized = true;
             return;
         }
-        QPointF delta = event->windowPos() - d->resizeState.initialMousePos;
+        QPointF delta = (event->windowPos() - d->resizeState.initialMousePos) / d->scaleFactor();
         QSize newSize = xdgSurface()->sizeForResize(d->resizeState.initialWindowSize, delta, d->resizeState.resizeEdges);
         xdgSurface()->requestResizing(newSize);
     } else if (d->grabberState == QWaylandQuickXdgSurfaceItemPrivate::MoveState) {
@@ -258,7 +258,7 @@ void QWaylandQuickXdgSurfaceItem::mouseReleaseEvent(QMouseEvent *event)
 {
     Q_D(QWaylandQuickXdgSurfaceItem);
     if (d->grabberState == QWaylandQuickXdgSurfaceItemPrivate::ResizeState) {
-        QPointF delta = event->windowPos() - d->resizeState.initialMousePos;
+        QPointF delta = (event->windowPos() - d->resizeState.initialMousePos) / d->scaleFactor();
         QSize newSize = xdgSurface()->sizeForResize(d->resizeState.initialWindowSize, delta, d->resizeState.resizeEdges);
         xdgSurface()->requestUnMaximized(newSize);
         d->grabberState = QWaylandQuickXdgSurfaceItemPrivate::DefaultState;

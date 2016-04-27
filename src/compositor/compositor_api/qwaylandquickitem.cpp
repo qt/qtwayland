@@ -283,7 +283,7 @@ void QWaylandQuickItem::mousePressEvent(QMouseEvent *event)
     if (d->focusOnClick)
         takeFocus(inputDevice);
 
-    inputDevice->sendMouseMoveEvent(d->view.data(), event->localPos(), event->windowPos());
+    inputDevice->sendMouseMoveEvent(d->view.data(), event->localPos() / d->scaleFactor(), event->windowPos());
     inputDevice->sendMousePressEvent(event->button());
 }
 
@@ -295,7 +295,7 @@ void QWaylandQuickItem::mouseMoveEvent(QMouseEvent *event)
     Q_D(QWaylandQuickItem);
     if (d->shouldSendInputEvents()) {
         QWaylandInputDevice *inputDevice = compositor()->inputDeviceFor(event);
-        inputDevice->sendMouseMoveEvent(d->view.data(), event->localPos(), event->windowPos());
+        inputDevice->sendMouseMoveEvent(d->view.data(), event->localPos() / d->scaleFactor(), event->windowPos());
     } else {
         emit mouseMove(event->windowPos());
         event->ignore();
@@ -349,7 +349,7 @@ void QWaylandQuickItem::hoverMoveEvent(QHoverEvent *event)
     }
     if (d->shouldSendInputEvents()) {
         QWaylandInputDevice *inputDevice = compositor()->inputDeviceFor(event);
-        inputDevice->sendMouseMoveEvent(d->view.data(), event->pos(), mapToScene(event->pos()));
+        inputDevice->sendMouseMoveEvent(d->view.data(), event->pos() / d->scaleFactor(), mapToScene(event->pos()));
     } else {
         event->ignore();
     }
@@ -683,8 +683,9 @@ void QWaylandQuickItem::setFocusOnClick(bool focus)
  */
 bool QWaylandQuickItem::inputRegionContains(const QPointF &localPosition)
 {
+    Q_D(QWaylandQuickItem);
     if (QWaylandSurface *s = surface())
-        return s->inputRegionContains(localPosition.toPoint());
+        return s->inputRegionContains(localPosition.toPoint() / d->scaleFactor());
     return false;
 }
 

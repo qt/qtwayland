@@ -552,6 +552,7 @@ void QWaylandQuickItem::handleSurfaceChanged()
         disconnect(d->oldSurface, &QWaylandSurface::mappedChanged, this, &QWaylandQuickItem::surfaceMappedChanged);
         disconnect(d->oldSurface, &QWaylandSurface::parentChanged, this, &QWaylandQuickItem::parentChanged);
         disconnect(d->oldSurface, &QWaylandSurface::sizeChanged, this, &QWaylandQuickItem::updateSize);
+        disconnect(d->oldSurface, &QWaylandSurface::bufferScaleChanged, this, &QWaylandQuickItem::updateSize);
         disconnect(d->oldSurface, &QWaylandSurface::configure, this, &QWaylandQuickItem::updateBuffer);
         disconnect(d->oldSurface, &QWaylandSurface::redraw, this, &QQuickItem::update);
         disconnect(d->oldSurface, &QWaylandSurface::childAdded, this, &QWaylandQuickItem::handleSubsurfaceAdded);
@@ -563,16 +564,16 @@ void QWaylandQuickItem::handleSurfaceChanged()
         connect(newSurface, &QWaylandSurface::mappedChanged, this, &QWaylandQuickItem::surfaceMappedChanged);
         connect(newSurface, &QWaylandSurface::parentChanged, this, &QWaylandQuickItem::parentChanged);
         connect(newSurface, &QWaylandSurface::sizeChanged, this, &QWaylandQuickItem::updateSize);
+        connect(newSurface, &QWaylandSurface::bufferScaleChanged, this, &QWaylandQuickItem::updateSize);
         connect(newSurface, &QWaylandSurface::configure, this, &QWaylandQuickItem::updateBuffer);
         connect(newSurface, &QWaylandSurface::redraw, this, &QQuickItem::update);
         connect(newSurface, &QWaylandSurface::childAdded, this, &QWaylandQuickItem::handleSubsurfaceAdded);
 #ifndef QT_NO_IM
         connect(newSurface->inputMethodControl(), &QWaylandInputMethodControl::updateInputMethod, this, &QWaylandQuickItem::updateInputMethod);
 #endif
-        if (d->sizeFollowsSurface) {
-            setWidth(newSurface->size().width());
-            setHeight(newSurface->size().height());
-        }
+
+        updateSize();
+
         if (newSurface->origin() != d->origin) {
             d->origin = newSurface->origin();
             emit originChanged();
@@ -640,7 +641,7 @@ void QWaylandQuickItem::updateSize()
 {
     Q_D(QWaylandQuickItem);
     if (d->sizeFollowsSurface && surface()) {
-        setSize(surface()->size());
+        setSize(surface()->size() * (d->scaleFactor() / surface()->bufferScale()));
     }
 }
 

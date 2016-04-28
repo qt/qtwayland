@@ -78,6 +78,7 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandSurface : public QWaylandObject
     Q_DECLARE_PRIVATE(QWaylandSurface)
     Q_PROPERTY(QWaylandClient *client READ client CONSTANT)
     Q_PROPERTY(QSize size READ size NOTIFY sizeChanged)
+    Q_PROPERTY(int bufferScale READ bufferScale NOTIFY bufferScaleChanged)
     Q_PROPERTY(Qt::ScreenOrientation contentOrientation READ contentOrientation NOTIFY contentOrientationChanged)
     Q_PROPERTY(QWaylandSurface::Origin origin READ origin NOTIFY originChanged)
     Q_PROPERTY(bool isMapped READ isMapped NOTIFY mappedChanged)
@@ -106,6 +107,7 @@ public:
     bool isMapped() const;
 
     QSize size() const;
+    int bufferScale() const;
 
     Qt::ScreenOrientation contentOrientation() const;
 
@@ -146,6 +148,7 @@ Q_SIGNALS:
     void parentChanged(QWaylandSurface *newParent, QWaylandSurface *oldParent);
     void childAdded(QWaylandSurface *child);
     void sizeChanged();
+    void bufferScaleChanged();
     void offsetForNextFrame(const QPoint &offset);
     void contentOrientationChanged();
     void surfaceDestroyed();

@@ -85,7 +85,6 @@ Module {
         exports: ["QtWayland.Compositor/WaylandExtension 1.0"]
         isCreatable: false
         exportMetaObjectRevisions: [0]
-        Method { name: "initialize" }
     }
     Component {
         name: "QWaylandInputDevice"
@@ -197,6 +196,7 @@ Module {
         Property { name: "inputEventsEnabled"; type: "bool" }
         Property { name: "focusOnClick"; type: "bool" }
         Property { name: "sizeFollowsSurface"; type: "bool" }
+        Property { name: "subsurfaceHandler"; type: "QObject"; isPointer: true }
         Signal { name: "surfaceDestroyed" }
         Signal {
             name: "mouseMove"
@@ -214,6 +214,12 @@ Module {
         }
         Method { name: "raise" }
         Method { name: "lower" }
+        Method {
+            name: "inputMethodQuery"
+            type: "QVariant"
+            Parameter { name: "query"; type: "Qt::InputMethodQuery" }
+            Parameter { name: "argument"; type: "QVariant" }
+        }
     }
     Component {
         name: "QWaylandQuickOutput"
@@ -238,6 +244,15 @@ Module {
         exports: ["QtWayland.Compositor/WlShellSurfaceItem 1.0"]
         exportMetaObjectRevisions: [0]
         Property { name: "shellSurface"; type: "QWaylandWlShellSurface"; isPointer: true }
+        Property { name: "moveItem"; type: "QQuickItem"; isPointer: true }
+    }
+    Component {
+        name: "QWaylandQuickXdgSurfaceItem"
+        defaultProperty: "data"
+        prototype: "QWaylandQuickItem"
+        exports: ["QtWayland.Compositor/XdgSurfaceItem 1.0"]
+        exportMetaObjectRevisions: [0]
+        Property { name: "xdgSurface"; type: "QWaylandXdgSurface"; isPointer: true }
         Property { name: "moveItem"; type: "QQuickItem"; isPointer: true }
     }
     Component {
@@ -314,6 +329,15 @@ Module {
         Method { name: "frameStarted" }
         Method { name: "sendFrameCallbacks" }
     }
+    Component { name: "QWaylandTextInputManager"; prototype: "QWaylandExtension" }
+    Component {
+        name: "QWaylandTextInputManagerQuickExtension"
+        defaultProperty: "data"
+        prototype: "QWaylandTextInputManager"
+        exports: ["QtWayland.Compositor/TextInputManager 1.0"]
+        exportMetaObjectRevisions: [0]
+        Property { name: "data"; type: "QObject"; isList: true; isReadonly: true }
+    }
     Component {
         name: "QWaylandView"
         prototype: "QObject"
@@ -369,9 +393,12 @@ Module {
     Component {
         name: "QWaylandWlShellSurface"
         prototype: "QWaylandExtension"
-        exports: ["QtWayland.Compositor/WlShellSurfaceBase 1.0"]
+        exports: [
+            "QtWayland.Compositor/WlShellSurface 1.0",
+            "QtWayland.Compositor/WlShellSurfaceBase 1.0"
+        ]
         isCreatable: false
-        exportMetaObjectRevisions: [0]
+        exportMetaObjectRevisions: [0, 0]
         Enum {
             name: "FullScreenMethod"
             values: {
@@ -461,6 +488,165 @@ Module {
         Method { name: "sendPopupDone" }
     }
     Component {
+        name: "QWaylandXdgShell"
+        prototype: "QWaylandExtension"
+        Signal {
+            name: "createXdgSurface"
+            Parameter { name: "surface"; type: "QWaylandSurface"; isPointer: true }
+            Parameter { name: "resource"; type: "QWaylandResource" }
+        }
+        Signal {
+            name: "xdgSurfaceCreated"
+            Parameter { name: "xdgSurface"; type: "QWaylandXdgSurface"; isPointer: true }
+        }
+        Signal {
+            name: "xdgPopupCreated"
+            Parameter { name: "xdgPopup"; type: "QWaylandXdgPopup"; isPointer: true }
+        }
+        Signal {
+            name: "createXdgPopup"
+            Parameter { name: "surface"; type: "QWaylandSurface"; isPointer: true }
+            Parameter { name: "parent"; type: "QWaylandSurface"; isPointer: true }
+            Parameter { name: "seat"; type: "QWaylandInputDevice"; isPointer: true }
+            Parameter { name: "position"; type: "QPoint" }
+            Parameter { name: "resource"; type: "QWaylandResource" }
+        }
+        Signal {
+            name: "pong"
+            Parameter { name: "serial"; type: "uint" }
+        }
+        Method {
+            name: "ping"
+            type: "uint"
+            Parameter { name: "client"; type: "QWaylandClient"; isPointer: true }
+        }
+        Method { name: "closeAllPopups" }
+    }
+    Component {
+        name: "QWaylandXdgShellQuickExtension"
+        defaultProperty: "data"
+        prototype: "QWaylandXdgShell"
+        exports: ["QtWayland.Compositor/XdgShell 1.0"]
+        exportMetaObjectRevisions: [0]
+        Property { name: "data"; type: "QObject"; isList: true; isReadonly: true }
+    }
+    Component {
+        name: "QWaylandXdgSurface"
+        prototype: "QWaylandExtension"
+        exports: [
+            "QtWayland.Compositor/XdgSurface 1.0",
+            "QtWayland.Compositor/XdgSurfaceBase 1.0"
+        ]
+        isCreatable: false
+        exportMetaObjectRevisions: [0, 0]
+        Enum {
+            name: "State"
+            values: {
+                "MaximizedState": 1,
+                "FullscreenState": 2,
+                "ResizingState": 3,
+                "ActivatedState": 4
+            }
+        }
+        Enum {
+            name: "ResizeEdge"
+            values: {
+                "NoneEdge": 0,
+                "TopEdge": 1,
+                "BottomEdge": 2,
+                "LeftEdge": 4,
+                "TopLeftEdge": 5,
+                "BottomLeftEdge": 6,
+                "RightEdge": 8,
+                "TopRightEdge": 9,
+                "BottomRightEdge": 10
+            }
+        }
+        Property { name: "surface"; type: "QWaylandSurface"; isReadonly: true; isPointer: true }
+        Property { name: "parentSurface"; type: "QWaylandXdgSurface"; isReadonly: true; isPointer: true }
+        Property { name: "title"; type: "string"; isReadonly: true }
+        Property { name: "appId"; type: "string"; isReadonly: true }
+        Property { name: "windowGeometry"; type: "QRect"; isReadonly: true }
+        Property { name: "states"; type: "QList<int>"; isReadonly: true }
+        Property { name: "maximized"; type: "bool"; isReadonly: true }
+        Property { name: "fullscreen"; type: "bool"; isReadonly: true }
+        Property { name: "resizing"; type: "bool"; isReadonly: true }
+        Property { name: "activated"; type: "bool"; isReadonly: true }
+        Signal {
+            name: "showWindowMenu"
+            Parameter { name: "inputDevice"; type: "QWaylandInputDevice"; isPointer: true }
+            Parameter { name: "localSurfacePosition"; type: "QPoint" }
+        }
+        Signal {
+            name: "startMove"
+            Parameter { name: "inputDevice"; type: "QWaylandInputDevice"; isPointer: true }
+        }
+        Signal {
+            name: "startResize"
+            Parameter { name: "inputDevice"; type: "QWaylandInputDevice"; isPointer: true }
+            Parameter { name: "edges"; type: "ResizeEdge" }
+        }
+        Signal { name: "setMaximized" }
+        Signal { name: "unsetMaximized" }
+        Signal {
+            name: "setFullscreen"
+            Parameter { name: "output"; type: "QWaylandOutput"; isPointer: true }
+        }
+        Signal { name: "unsetFullscreen" }
+        Signal { name: "setMinimized" }
+        Signal {
+            name: "ackConfigure"
+            Parameter { name: "serial"; type: "uint" }
+        }
+        Method {
+            name: "initialize"
+            Parameter { name: "xdgShell"; type: "QWaylandXdgShell"; isPointer: true }
+            Parameter { name: "surface"; type: "QWaylandSurface"; isPointer: true }
+            Parameter { name: "resource"; type: "QWaylandResource" }
+        }
+        Method {
+            name: "sizeForResize"
+            type: "QSize"
+            Parameter { name: "size"; type: "QSizeF" }
+            Parameter { name: "delta"; type: "QPointF" }
+            Parameter { name: "edge"; type: "ResizeEdge" }
+        }
+        Method {
+            name: "sendConfigure"
+            type: "uint"
+            Parameter { name: "size"; type: "QSize" }
+            Parameter { name: "states"; type: "QVector<uint>" }
+        }
+        Method {
+            name: "sendConfigure"
+            type: "uint"
+            Parameter { name: "size"; type: "QSize" }
+            Parameter { name: "states"; type: "QVector<State>" }
+        }
+        Method { name: "sendClose" }
+        Method {
+            name: "requestMaximized"
+            type: "uint"
+            Parameter { name: "size"; type: "QSize" }
+        }
+        Method {
+            name: "requestUnMaximized"
+            type: "uint"
+            Parameter { name: "size"; type: "QSize" }
+        }
+        Method { name: "requestUnMaximized"; type: "uint" }
+        Method {
+            name: "requestFullscreen"
+            type: "uint"
+            Parameter { name: "size"; type: "QSize" }
+        }
+        Method {
+            name: "requestResizing"
+            type: "uint"
+            Parameter { name: "maxSize"; type: "QSize" }
+        }
+    }
+    Component {
         prototype: "QQuickItem"
         name: "QtWayland.Compositor/WaylandCursorItem 1.0"
         exports: ["QtWayland.Compositor/WaylandCursorItem 1.0"]
@@ -486,6 +672,7 @@ Module {
         Property { name: "inputEventsEnabled"; type: "bool" }
         Property { name: "focusOnClick"; type: "bool" }
         Property { name: "sizeFollowsSurface"; type: "bool" }
+        Property { name: "subsurfaceHandler"; type: "QObject"; isPointer: true }
         Signal { name: "surfaceDestroyed" }
         Signal {
             name: "mouseMove"
@@ -503,6 +690,12 @@ Module {
         }
         Method { name: "raise" }
         Method { name: "lower" }
+        Method {
+            name: "inputMethodQuery"
+            type: "QVariant"
+            Parameter { name: "query"; type: "Qt::InputMethodQuery" }
+            Parameter { name: "argument"; type: "QVariant" }
+        }
     }
     Component {
         prototype: "QQuickWindowQmlImpl"

@@ -92,7 +92,8 @@ void SurfaceBuffer::initialize(struct ::wl_resource *buffer)
 void SurfaceBuffer::destructBufferState()
 {
     if (m_buffer) {
-        sendRelease();
+        if (m_committed)
+            sendRelease();
         wl_list_remove(&m_destroy_listener.listener.link);
     }
     m_buffer = 0;

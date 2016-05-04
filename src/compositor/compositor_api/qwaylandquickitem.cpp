@@ -745,8 +745,6 @@ void QWaylandQuickItem::handleSurfaceChanged()
         connect(newSurface->inputMethodControl(), &QWaylandInputMethodControl::updateInputMethod, this, &QWaylandQuickItem::updateInputMethod);
 #endif
 
-        updateSize();
-
         if (newSurface->origin() != d->origin) {
             d->origin = newSurface->origin();
             emit originChanged();
@@ -755,6 +753,8 @@ void QWaylandQuickItem::handleSurfaceChanged()
             QWaylandOutput *output = newSurface->compositor()->outputFor(window());
             d->view->setOutput(output);
         }
+
+        updateSize();
     }
     surfaceChangedEvent(d->view->surface(), d->oldSurface);
     d->oldSurface = d->view->surface();

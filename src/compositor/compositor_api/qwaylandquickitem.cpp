@@ -1114,7 +1114,8 @@ void QWaylandQuickItem::raise()
  */
 void QWaylandQuickItem::handleSubsurfacePosition(const QPoint &pos)
 {
-    QQuickItem::setPosition(pos);
+    Q_D(QWaylandQuickItem);
+    QQuickItem::setPosition(pos * d->scaleFactor());
 }
 
 QT_END_NAMESPACE

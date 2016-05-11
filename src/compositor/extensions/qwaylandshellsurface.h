@@ -34,66 +34,59 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDQUICKXDGSURFACEITEM_P_H
-#define QWAYLANDQUICKXDGSURFACEITEM_P_H
+#ifndef QWAYLANDSHELLSURFACE_H
+#define QWAYLANDSHELLSURFACE_H
 
-#include <QtWaylandCompositor/private/qwaylandquickitem_p.h>
+#include <QtWaylandCompositor/QWaylandCompositorExtension>
 
 QT_BEGIN_NAMESPACE
 
-//
-//  W A R N I N G
-//  -------------
-//
-// This file is not part of the Qt API.  It exists purely as an
-// implementation detail.  This header file may change from version to
-// version without notice, or even be removed.
-//
-// We mean it.
-//
+class QWaylandQuickShellIntegration;
+class QWaylandQuickShellSurfaceItem;
+class QWaylandShellSurfacePrivate;
+class QWaylandShellSurfaceTemplatePrivate;
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQuickXdgSurfaceItemPrivate : public QWaylandQuickItemPrivate
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandShellSurface : public QWaylandCompositorExtension
+{
+    Q_OBJECT
+public:
+    virtual QWaylandQuickShellIntegration *createIntegration(QWaylandQuickShellSurfaceItem *item) = 0;
+    QWaylandShellSurface(QWaylandObject *waylandObject) : QWaylandCompositorExtension(waylandObject) {}
+
+protected:
+    QWaylandShellSurface(QWaylandCompositorExtensionPrivate &dd) : QWaylandCompositorExtension(dd){}
+    QWaylandShellSurface(QWaylandObject *container, QWaylandCompositorExtensionPrivate &dd) : QWaylandCompositorExtension(container, dd) {}
+};
+
+template <typename T>
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandShellSurfaceTemplate : public QWaylandShellSurface
 {
 public:
-    enum GrabberState {
-        DefaultState,
-        ResizeState,
-        MoveState
-    };
+    QWaylandShellSurfaceTemplate(QWaylandObject *container)
+        : QWaylandShellSurface(container)
+    { }
 
-    QWaylandQuickXdgSurfaceItemPrivate()
-        : QWaylandQuickItemPrivate()
-        , xdgSurface(Q_NULLPTR)
-        , moveItem(Q_NULLPTR)
-        , grabberState(DefaultState)
-    {}
+    const struct wl_interface *extensionInterface() const Q_DECL_OVERRIDE
+    {
+        return T::interface();
+    }
 
-    QWaylandXdgSurface *xdgSurface;
-    QQuickItem *moveItem;
+    static T *findIn(QWaylandObject *container)
+    {
+        if (!container) return nullptr;
+        return qobject_cast<T *>(container->extension(T::interfaceName()));
+    }
 
-    GrabberState grabberState;
-    struct {
-        QWaylandInputDevice *inputDevice;
-        QPointF initialOffset;
-        bool initialized;
-    } moveState;
+protected:
+    QWaylandShellSurfaceTemplate(QWaylandCompositorExtensionPrivate &dd)
+        : QWaylandShellSurface(dd)
+    { }
 
-    struct {
-        QWaylandInputDevice *inputDevice;
-        QWaylandXdgSurface::ResizeEdge resizeEdges;
-        QSizeF initialWindowSize;
-        QPointF initialMousePos;
-        QPointF initialPosition;
-        QSize initialSurfaceSize;
-        bool initialized;
-    } resizeState;
-
-    struct {
-        QSize initialWindowSize;
-        QPointF initialPosition;
-    } maximizeState;
+    QWaylandShellSurfaceTemplate(QWaylandObject *container, QWaylandCompositorExtensionPrivate &dd)
+        : QWaylandShellSurface(container,dd)
+    { }
 };
 
 QT_END_NAMESPACE
 
-#endif  /*QWAYLANDQUICKXDGSURFACEITEM_P_H*/
+#endif // QWAYLANDSHELLSURFACE_H

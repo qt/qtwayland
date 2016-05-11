@@ -36,6 +36,7 @@
 
 #include "qwaylandxdgshell.h"
 #include "qwaylandxdgshell_p.h"
+#include "qwaylandxdgshellintegration_p.h"
 
 #include <QtWaylandCompositor/QWaylandCompositor>
 #include <QtWaylandCompositor/QWaylandSurface>
@@ -592,7 +593,7 @@ void QWaylandXdgShell::handleFocusChanged(QWaylandSurface *newSurface, QWaylandS
  * Constructs a QWaylandXdgSurface.
  */
 QWaylandXdgSurface::QWaylandXdgSurface()
-    : QWaylandCompositorExtensionTemplate<QWaylandXdgSurface>(*new QWaylandXdgSurfacePrivate)
+    : QWaylandShellSurfaceTemplate<QWaylandXdgSurface>(*new QWaylandXdgSurfacePrivate)
 {
 }
 
@@ -601,7 +602,7 @@ QWaylandXdgSurface::QWaylandXdgSurface()
  * given \a xdgShell, \a surface and \a resource.
  */
 QWaylandXdgSurface::QWaylandXdgSurface(QWaylandXdgShell *xdgShell, QWaylandSurface *surface, const QWaylandResource &res)
-    : QWaylandCompositorExtensionTemplate<QWaylandXdgSurface>(*new QWaylandXdgSurfacePrivate)
+    : QWaylandShellSurfaceTemplate<QWaylandXdgSurface>(*new QWaylandXdgSurfacePrivate)
 {
     initialize(xdgShell, surface, res);
 }
@@ -636,7 +637,7 @@ void QWaylandXdgSurface::initialize(QWaylandXdgShell *xdgShell, QWaylandSurface 
  */
 void QWaylandXdgSurface::initialize()
 {
-    QWaylandCompositorExtensionTemplate::initialize();
+    QWaylandCompositorExtension::initialize();
 }
 
 QList<int> QWaylandXdgSurface::statesAsInts() const
@@ -915,6 +916,11 @@ uint QWaylandXdgSurface::requestResizing(const QSize &maxSize)
     conf.states.removeOne(QWaylandXdgSurface::State::FullscreenState);
 
     return sendConfigure(maxSize, conf.states);
+}
+
+QWaylandQuickShellIntegration *QWaylandXdgSurface::createIntegration(QWaylandQuickShellSurfaceItem *item)
+{
+    return new QtWayland::XdgShellIntegration(item);
 }
 
 /*!

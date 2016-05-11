@@ -38,6 +38,8 @@
 #include "qwaylandwlshell.h"
 #include "qwaylandwlshell_p.h"
 
+#include "qwaylandwlshellintegration_p.h"
+
 #include <QtWaylandCompositor/QWaylandCompositor>
 #include <QtWaylandCompositor/QWaylandView>
 #include <QtWaylandCompositor/QWaylandOutput>
@@ -370,7 +372,7 @@ QByteArray QWaylandWlShell::interfaceName()
  * Constructs a QWaylandWlShellSurface.
  */
 QWaylandWlShellSurface::QWaylandWlShellSurface()
-    : QWaylandCompositorExtensionTemplate<QWaylandWlShellSurface>(*new QWaylandWlShellSurfacePrivate)
+    : QWaylandShellSurfaceTemplate<QWaylandWlShellSurface>(*new QWaylandWlShellSurfacePrivate)
 {
 }
 
@@ -378,7 +380,7 @@ QWaylandWlShellSurface::QWaylandWlShellSurface()
  * Constructs a QWaylandWlShellSurface for \a surface and initializes it with the given \a shell and \a resource.
  */
 QWaylandWlShellSurface::QWaylandWlShellSurface(QWaylandWlShell *shell, QWaylandSurface *surface, const QWaylandResource &res)
-    : QWaylandCompositorExtensionTemplate<QWaylandWlShellSurface>(*new QWaylandWlShellSurfacePrivate)
+    : QWaylandShellSurfaceTemplate<QWaylandWlShellSurface>(*new QWaylandWlShellSurfacePrivate)
 {
     initialize(shell, surface, res);
 }
@@ -408,7 +410,7 @@ void QWaylandWlShellSurface::initialize(QWaylandWlShell *shell, QWaylandSurface 
  */
 void QWaylandWlShellSurface::initialize()
 {
-    QWaylandCompositorExtensionTemplate::initialize();
+    QWaylandCompositorExtension::initialize();
 }
 
 const struct wl_interface *QWaylandWlShellSurface::interface()
@@ -492,6 +494,11 @@ void QWaylandWlShellSurface::sendPopupDone()
 {
     Q_D(QWaylandWlShellSurface);
     d->send_popup_done();
+}
+
+QWaylandQuickShellIntegration *QWaylandWlShellSurface::createIntegration(QWaylandQuickShellSurfaceItem *item)
+{
+    return new QtWayland::WlShellIntegration(item);
 }
 
 /*!

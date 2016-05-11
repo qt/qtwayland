@@ -39,6 +39,7 @@
 
 #include <QtWaylandCompositor/QWaylandCompositorExtension>
 #include <QtWaylandCompositor/QWaylandResource>
+#include <QtWaylandCompositor/QWaylandShellSurface>
 
 #include <QtCore/QSize>
 
@@ -71,7 +72,7 @@ Q_SIGNALS:
     void shellSurfaceCreated(QWaylandWlShellSurface *shellSurface);
 };
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandWlShellSurface : public QWaylandCompositorExtensionTemplate<QWaylandWlShellSurface>
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandWlShellSurface : public QWaylandShellSurfaceTemplate<QWaylandWlShellSurface>
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandWlShellSurface)
@@ -129,6 +130,8 @@ public:
     Q_INVOKABLE QSize sizeForResize(const QSizeF &size, const QPointF &delta, ResizeEdge edges);
     Q_INVOKABLE void sendConfigure(const QSize &size, ResizeEdge edges);
     Q_INVOKABLE void sendPopupDone();
+
+    QWaylandQuickShellIntegration *createIntegration(QWaylandQuickShellSurfaceItem *item) Q_DECL_OVERRIDE;
 
 public Q_SLOTS:
     void ping();

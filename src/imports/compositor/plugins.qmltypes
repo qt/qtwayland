@@ -230,6 +230,14 @@ Module {
         Method { name: "updateStarted" }
     }
     Component {
+        name: "QWaylandQuickShellSurfaceItem"
+        defaultProperty: "data"
+        prototype: "QWaylandQuickItem"
+        exports: ["QtWayland.Compositor/ShellSurfaceItem 1.0"]
+        exportMetaObjectRevisions: [0]
+        Property { name: "shellSurface"; type: "QWaylandShellSurface"; isPointer: true }
+    }
+    Component {
         name: "QWaylandQuickSurface"
         prototype: "QWaylandSurface"
         exports: ["QtWayland.Compositor/WaylandSurface 1.0"]
@@ -238,26 +246,15 @@ Module {
         Property { name: "clientRenderingEnabled"; type: "bool" }
     }
     Component {
-        name: "QWaylandQuickWlShellSurfaceItem"
-        defaultProperty: "data"
-        prototype: "QWaylandQuickItem"
-        exports: ["QtWayland.Compositor/WlShellSurfaceItem 1.0"]
-        exportMetaObjectRevisions: [0]
-        Property { name: "shellSurface"; type: "QWaylandWlShellSurface"; isPointer: true }
-        Property { name: "moveItem"; type: "QQuickItem"; isPointer: true }
-    }
-    Component {
-        name: "QWaylandQuickXdgSurfaceItem"
-        defaultProperty: "data"
-        prototype: "QWaylandQuickItem"
-        exports: ["QtWayland.Compositor/XdgSurfaceItem 1.0"]
-        exportMetaObjectRevisions: [0]
-        Property { name: "xdgSurface"; type: "QWaylandXdgSurface"; isPointer: true }
-        Property { name: "moveItem"; type: "QQuickItem"; isPointer: true }
-    }
-    Component {
         name: "QWaylandResource"
         exports: ["QtWayland.Compositor/WaylandResource 1.0"]
+        isCreatable: false
+        exportMetaObjectRevisions: [0]
+    }
+    Component {
+        name: "QWaylandShellSurface"
+        prototype: "QWaylandCompositorExtension"
+        exports: ["QtWayland.Compositor/ShellSurface 1.0"]
         isCreatable: false
         exportMetaObjectRevisions: [0]
     }
@@ -392,7 +389,7 @@ Module {
     }
     Component {
         name: "QWaylandWlShellSurface"
-        prototype: "QWaylandCompositorExtension"
+        prototype: "QWaylandShellSurface"
         exports: [
             "QtWayland.Compositor/WlShellSurface 1.0",
             "QtWayland.Compositor/WlShellSurfaceBase 1.0"
@@ -532,7 +529,7 @@ Module {
     }
     Component {
         name: "QWaylandXdgSurface"
-        prototype: "QWaylandCompositorExtension"
+        prototype: "QWaylandShellSurface"
         exports: [
             "QtWayland.Compositor/XdgSurface 1.0",
             "QtWayland.Compositor/XdgSurfaceBase 1.0"

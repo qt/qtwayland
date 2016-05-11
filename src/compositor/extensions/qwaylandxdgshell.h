@@ -39,6 +39,7 @@
 
 #include <QtWaylandCompositor/QWaylandCompositorExtension>
 #include <QtWaylandCompositor/QWaylandResource>
+#include <QtWaylandCompositor/QWaylandShellSurface>
 
 #include <QtCore/QRect>
 
@@ -88,7 +89,7 @@ private Q_SLOTS:
 
 };
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgSurface : public QWaylandCompositorExtensionTemplate<QWaylandXdgSurface>
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgSurface : public QWaylandShellSurfaceTemplate<QWaylandXdgSurface>
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandXdgSurface)
@@ -157,6 +158,8 @@ public:
     Q_INVOKABLE uint requestUnMaximized(const QSize &size = QSize(0, 0));
     Q_INVOKABLE uint requestFullscreen(const QSize &size);
     Q_INVOKABLE uint requestResizing(const QSize &maxSize);
+
+    QWaylandQuickShellIntegration *createIntegration(QWaylandQuickShellSurfaceItem *item) Q_DECL_OVERRIDE;
 
 Q_SIGNALS:
     void surfaceChanged();

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2015 The Qt Company Ltd.
+** Copyright (C) 2016 The Qt Company Ltd.
 ** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the QtWaylandCompositor module of the Qt Toolkit.
@@ -34,8 +34,8 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDQUICKWLSHELLSURFACEITEM_P_H
-#define QWAYLANDQUICKWLSHELLSURFACEITEM_P_H
+#ifndef QWAYLANDQUICKSHELLSURFACEITEM_P_H
+#define QWAYLANDQUICKSHELLSURFACEITEM_P_H
 
 #include <QtWaylandCompositor/private/qwaylandquickitem_p.h>
 
@@ -52,54 +52,30 @@ QT_BEGIN_NAMESPACE
 // We mean it.
 //
 
-class QWaylandQuickWlShellSurfaceItem;
+class QWaylandQuickShellIntegration;
+class QWaylandShellSurface;
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQuickWlShellSurfaceItemPrivate : public QWaylandQuickItemPrivate
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQuickShellSurfaceItemPrivate : public QWaylandQuickItemPrivate
 {
-    Q_DECLARE_PUBLIC(QWaylandQuickWlShellSurfaceItem)
 public:
-    enum GrabberState {
-        DefaultState,
-        ResizeState,
-        MoveState
-    };
-
-    QWaylandQuickWlShellSurfaceItemPrivate()
+    QWaylandQuickShellSurfaceItemPrivate()
         : QWaylandQuickItemPrivate()
-        , shellSurface(Q_NULLPTR)
-        , moveItem(Q_NULLPTR)
-        , grabberState(DefaultState)
-        , isPopup(false)
+        , m_shellIntegration(nullptr)
+        , m_shellSurface(nullptr)
+        , m_moveItem(nullptr)
     {}
-
-    void setIsPopup(bool popup);
-    void setFilterEnabled(bool enabled);
-    static void closePopups();
-
-    QWaylandWlShellSurface *shellSurface;
-    QQuickItem *moveItem;
-
-    GrabberState grabberState;
-    struct {
-        QWaylandInputDevice *inputDevice;
-        QPointF initialOffset;
-        bool initialized;
-    } moveState;
-
-    struct {
-        QWaylandInputDevice *inputDevice;
-        QWaylandWlShellSurface::ResizeEdge resizeEdges;
-        QSizeF initialSize;
-        QPointF initialMousePos;
-        bool initialized;
-    } resizeState;
-
-    static QVector<QWaylandWlShellSurface*> popupShellSurfaces;
-    static bool eventFilterInstalled;
-    static bool waitForRelease;
-    bool isPopup;
+    QWaylandQuickShellIntegration *m_shellIntegration;
+    QWaylandShellSurface *m_shellSurface;
+    QQuickItem *m_moveItem;
 };
 
-QT_END_NAMESPACE
+class QWaylandQuickShellIntegration : public QObject
+{
+    Q_OBJECT
+public:
+    QWaylandQuickShellIntegration(QObject *parent = nullptr) : QObject(parent) {}
+    virtual bool mouseMoveEvent(QMouseEvent *) { return false; }
+    virtual bool mouseReleaseEvent(QMouseEvent *) { return false; }
+};
 
-#endif  /*QWAYLANDQUICKWLSHELLSURFACEITEM_P_H*/
+#endif // QWAYLANDQUICKSHELLSURFACEITEM_P_H

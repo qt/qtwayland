@@ -1083,8 +1083,7 @@ void QWaylandQuickItem::setInputEventsEnabled(bool enabled)
 {
     Q_D(QWaylandQuickItem);
     if (d->inputEventsEnabled != enabled) {
-        d->inputEventsEnabled = enabled;
-        setAcceptHoverEvents(enabled);
+        d->setInputEventsEnabled(enabled);
         emit inputEventsEnabledChanged();
     }
 }

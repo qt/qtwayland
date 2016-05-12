@@ -105,7 +105,7 @@ void QWaylandClientExtension::setVersion(const int ver)
     }
 }
 
-bool QWaylandClientExtension::active() const
+bool QWaylandClientExtension::isActive() const
 {
     Q_D(const QWaylandClientExtension);
     return d->active;

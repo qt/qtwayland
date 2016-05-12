@@ -59,6 +59,7 @@ void QWaylandViewPrivate::markSurfaceAsDestroyed(QWaylandSurface *surface)
 /*!
  * \qmltype WaylandView
  * \inqmlmodule QtWayland.Compositor
+ * \preliminary
  * \brief Represents a view of a surface on an output.
  *
  * The WaylandView corresponds to the presentation of a surface on a specific output, managing
@@ -68,6 +69,7 @@ void QWaylandViewPrivate::markSurfaceAsDestroyed(QWaylandSurface *surface)
 /*!
  * \class QWaylandView
  * \inmodule QtWaylandCompositor
+ * \preliminary
  * \brief Represents a view of a surface on an output.
  *
  * The WaylandView corresponds to the presentation of a surface on a specific output, managing

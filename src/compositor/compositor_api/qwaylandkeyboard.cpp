@@ -381,6 +381,7 @@ void QWaylandKeyboardPrivate::sendRepeatInfo()
 /*!
  * \class QWaylandKeyboard
  * \inmodule QtWaylandCompositor
+ * \preliminary
  * \brief The QWaylandKeyboard class provides access to a keyboard device.
  *
  * This class provides access to the keyboard device in a QWaylandInputDevice. It corresponds to

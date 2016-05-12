@@ -45,6 +45,7 @@ QT_BEGIN_NAMESPACE
 /*!
  * \qmltype XdgSurfaceItem
  * \inqmlmodule QtWayland.Compositor
+ * \preliminary
  * \brief An item representing a XdgSurface.
  *
  * This type can be used to render xdg surfaces as part of a Qt Quick scene.
@@ -54,6 +55,7 @@ QT_BEGIN_NAMESPACE
 /*!
  * \class QWaylandQuickXdgSurfaceItem
  * \inmodule QtWaylandCompositor
+ * \preliminary
  * \brief A Qt Quick item for QWaylandXdgSurface.
  *
  * This class can be used to create Qt Quick items representing xdg surfaces.

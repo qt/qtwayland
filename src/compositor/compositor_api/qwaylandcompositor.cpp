@@ -406,6 +406,7 @@ void QWaylandCompositorPrivate::loadServerBufferIntegration()
 /*!
   \qmltype WaylandCompositor
   \inqmlmodule QtWayland.Compositor
+  \preliminary
   \brief Type managing the Wayland display server.
 
   The WaylandCompositor manages the connections to the clients, as well as the different
@@ -424,6 +425,7 @@ void QWaylandCompositorPrivate::loadServerBufferIntegration()
 /*!
    \class QWaylandCompositor
    \inmodule QtWaylandCompositor
+   \preliminary
    \brief Class managing the Wayland display server.
 
    The QWaylandCompositor manages the connections to the clients, as well as the different \l{QWaylandOutput}{outputs}

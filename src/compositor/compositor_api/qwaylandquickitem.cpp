@@ -293,6 +293,7 @@ private:
 /*!
  * \qmltype WaylandQuickItem
  * \inqmlmodule QtWayland.Compositor
+ * \preliminary
  * \brief A Qt Quick item representing a WaylandView.
  *
  * When writing a WaylandCompositor in Qt Quick, this type can be used to display a
@@ -303,6 +304,7 @@ private:
 /*!
  * \class QWaylandQuickItem
  * \inmodule QtWaylandCompositor
+ * \preliminary
  * \brief A Qt Quick item representing a QWaylandView.
  *
  * When writing a QWaylandCompositor in Qt Quick, this class can be used to display a

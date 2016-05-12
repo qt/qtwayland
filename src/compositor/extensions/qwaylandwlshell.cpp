@@ -240,6 +240,7 @@ void QWaylandWlShellSurfacePrivate::shell_surface_set_class(Resource *resource,
 /*!
  * \qmltype WlShell
  * \inqmlmodule QtWayland.Compositor
+ * \preliminary
  * \brief Extension for desktop-style user interfaces.
  *
  * The WlShell extension provides a way to assiociate a \l{ShellSurface}
@@ -265,6 +266,7 @@ void QWaylandWlShellSurfacePrivate::shell_surface_set_class(Resource *resource,
 /*!
  * \class QWaylandWlShell
  * \inmodule QtWaylandCompositor
+ * \preliminary
  * \brief Extension for desktop-style user interfaces.
  *
  * The QWaylandWlShell extension provides a way to assiociate a QWaylandWlShellSurface with
@@ -341,6 +343,7 @@ QByteArray QWaylandWlShell::interfaceName()
 /*!
  * \qmltype WlShellSurface
  * \inqmlmodule QtWayland.Compositor
+ * \preliminary
  * \brief A wl_shell_surface providing desktop-style compositor-specific features to a surface.
  *
  * This type is part of the \l{WlShell} extension and provides a way to extend
@@ -353,6 +356,7 @@ QByteArray QWaylandWlShell::interfaceName()
 /*!
  * \class QWaylandWlShellSurface
  * \inmodule QtWaylandCompositor
+ * \preliminary
  * \brief A shell surface providing desktop-style compositor-specific features to a surface.
  *
  * This class is part of the QWaylandWlShell extension and provides a way to extend

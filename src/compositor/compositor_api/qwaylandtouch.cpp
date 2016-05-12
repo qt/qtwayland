@@ -105,6 +105,7 @@ void QWaylandTouchPrivate::sendMotion(uint32_t time, int touch_id, const QPointF
 /*!
  * \class QWaylandTouch
  * \inmodule QtWaylandCompositor
+ * \preliminary
  * \brief The QWaylandTouch class provides access to a touch device.
  *
  * This class provides access to the touch device in a QWaylandInputDevice. It corresponds to

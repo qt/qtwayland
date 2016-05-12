@@ -577,6 +577,7 @@ void QWaylandXdgShell::handleFocusChanged(QWaylandSurface *newSurface, QWaylandS
 /*!
  * \class QWaylandXdgSurface
  * \inmodule QtWaylandCompositor
+ * \preliminary
  * \brief An xdg surface providing desktop-style compositor-specific features to a surface.
  *
  * This class is part of the QWaylandXdgShell extension and provides a way to
@@ -915,6 +916,7 @@ uint QWaylandXdgSurface::requestResizing(const QSize &maxSize)
 /*!
  * \class QWaylandXdgPopup
  * \inmodule QtWaylandCompositor
+ * \preliminary
  * \brief An xdg popup providing menus for an xdg surface
  *
  * This class is part of the QWaylandXdgShell extension and provides a way to

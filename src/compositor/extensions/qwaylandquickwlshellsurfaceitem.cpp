@@ -45,6 +45,8 @@ QT_BEGIN_NAMESPACE
 /*!
  * \qmltype WlShellSurfaceItem
  * \inqmlmodule QtWayland.Compositor
+ * \preliminary
+ * \preliminary
  * \brief An item representing a WlShellSurface.
  *
  * This type can be used to render wl_shell_surfaces as part of a Qt Quick scene.
@@ -54,6 +56,8 @@ QT_BEGIN_NAMESPACE
 /*!
  * \class QWaylandQuickWlShellSurfaceItem
  * \inmodule QtWaylandCompositor
+ * \preliminary
+ * \preliminary
  * \brief A Qt Quick item for QWaylandWlShellSurface.
  *
  * This class can be used to create Qt Quick items representing wl_shell_surfaces.

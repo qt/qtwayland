@@ -32,9 +32,7 @@ namespace Impl {
 
 void Compositor::bindOutput(wl_client *client, void *compositorData, uint32_t version, uint32_t id)
 {
-    Q_UNUSED(version);
-
-    wl_resource *resource = wl_client_add_object(client, &wl_output_interface, 0, id, compositorData);
+    wl_resource *resource = wl_resource_create(client, &wl_output_interface, static_cast<int>(version), id);
 
     Compositor *compositor = static_cast<Compositor *>(compositorData);
     registerResource(&compositor->m_outputResources, resource);

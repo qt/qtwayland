@@ -194,7 +194,7 @@ Compositor::Compositor()
         exit(EXIT_FAILURE);
     }
 
-    wl_display_add_global(m_display, &wl_compositor_interface, this, bindCompositor);
+    wl_global_create(m_display, &wl_compositor_interface, 1, this, bindCompositor);
 
     m_data_device_manager.reset(new DataDeviceManager(this, m_display));
 
@@ -204,8 +204,8 @@ Compositor::Compositor()
     m_pointer = m_seat->pointer();
     m_keyboard = m_seat->keyboard();
 
-    wl_display_add_global(m_display, &wl_output_interface, this, bindOutput);
-    wl_display_add_global(m_display, &wl_shell_interface, this, bindShell);
+    wl_global_create(m_display, &wl_output_interface, 1, this, bindOutput);
+    wl_global_create(m_display, &wl_shell_interface, 1, this, bindShell);
 
     m_loop = wl_display_get_event_loop(m_display);
     m_fd = wl_event_loop_get_fd(m_loop);
@@ -242,8 +242,8 @@ void Compositor::bindCompositor(wl_client *client, void *compositorData, uint32_
         compositor_create_region
     };
 
-    Q_UNUSED(version);
-    wl_client_add_object(client, &wl_compositor_interface, &compositorInterface, id, compositorData);
+    wl_resource *resource = wl_resource_create(client, &wl_compositor_interface, static_cast<int>(version), id);
+    wl_resource_set_implementation(resource, &compositorInterface, compositorData, nullptr);
 }
 
 static void unregisterResourceCallback(wl_listener *listener, void *data)

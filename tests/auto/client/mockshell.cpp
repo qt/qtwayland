@@ -159,8 +159,9 @@ static void get_shell_surface(wl_client *client, wl_resource *compositorResource
         shell_surface_set_class
     };
 
-    Q_UNUSED(compositorResource);
-    wl_client_add_object(client, &wl_shell_surface_interface, &shellSurfaceInterface, id, surfaceResource->data);
+    int version = wl_resource_get_version(compositorResource);
+    wl_resource *shellSurface = wl_resource_create(client, &wl_shell_surface_interface, version, id);
+    wl_resource_set_implementation(shellSurface, &shellSurfaceInterface, surfaceResource->data, nullptr);
     Surface *surf = Surface::fromResource(surfaceResource);
     surf->map();
 }
@@ -171,8 +172,8 @@ void Compositor::bindShell(wl_client *client, void *compositorData, uint32_t ver
         get_shell_surface
     };
 
-    Q_UNUSED(version);
-    wl_client_add_object(client, &wl_shell_interface, &shellInterface, id, compositorData);
+    wl_resource *resource = wl_resource_create(client, &wl_shell_interface, static_cast<int>(version), id);
+    wl_resource_set_implementation(resource, &shellInterface, compositorData, nullptr);
 }
 
 }

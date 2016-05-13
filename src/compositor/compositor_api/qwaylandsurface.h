@@ -59,6 +59,7 @@ class QWaylandCompositor;
 class QWaylandBufferRef;
 class QWaylandView;
 class QWaylandSurfaceOp;
+class QWaylandInputMethodControl;
 
 class QWaylandSurfaceRole
 {
@@ -77,6 +78,7 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandSurface : public QWaylandObject
     Q_DECLARE_PRIVATE(QWaylandSurface)
     Q_PROPERTY(QWaylandClient *client READ client CONSTANT)
     Q_PROPERTY(QSize size READ size NOTIFY sizeChanged)
+    Q_PROPERTY(int bufferScale READ bufferScale NOTIFY bufferScaleChanged)
     Q_PROPERTY(Qt::ScreenOrientation contentOrientation READ contentOrientation NOTIFY contentOrientationChanged)
     Q_PROPERTY(QWaylandSurface::Origin origin READ origin NOTIFY originChanged)
     Q_PROPERTY(bool isMapped READ isMapped NOTIFY mappedChanged)
@@ -105,14 +107,13 @@ public:
     bool isMapped() const;
 
     QSize size() const;
+    int bufferScale() const;
 
     Qt::ScreenOrientation contentOrientation() const;
 
     Origin origin() const;
 
     QWaylandCompositor *compositor() const;
-
-    bool hasInputPanelSurface() const;
 
     bool inputRegionContains(const QPoint &p) const;
 
@@ -133,6 +134,8 @@ public:
     void markAsCursorSurface(bool cursorSurface);
     bool isCursorSurface() const;
 
+    QWaylandInputMethodControl *inputMethodControl() const;
+
 public Q_SLOTS:
     void updateSelection();
 
@@ -145,9 +148,9 @@ Q_SIGNALS:
     void parentChanged(QWaylandSurface *newParent, QWaylandSurface *oldParent);
     void childAdded(QWaylandSurface *child);
     void sizeChanged();
+    void bufferScaleChanged();
     void offsetForNextFrame(const QPoint &offset);
     void contentOrientationChanged();
-    void pong();
     void surfaceDestroyed();
     void originChanged();
     void subsurfacePositionChanged(const QPoint &position);

@@ -1,4 +1,5 @@
 CONFIG += testcase link_pkgconfig
+CONFIG += wayland-scanner
 TARGET = tst_compositor
 
 QT += testlib
@@ -19,6 +20,9 @@ config_xkbcommon {
 } else {
     DEFINES += QT_NO_WAYLAND_XKB
 }
+
+WAYLANDCLIENTSOURCES += \
+            ../../../src/3rdparty/protocol/xdg-shell.xml \
 
 SOURCES += tst_compositor.cpp \
            testcompositor.cpp \

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Klarälvdalens Datakonsult AB (KDAB).
+** Copyright (C) 2013-2016 Klarälvdalens Datakonsult AB, a KDAB Group company, info@kdab.com
 ** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the QtWaylandCompositor module of the Qt Toolkit.
@@ -34,45 +34,55 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDINPUTPANEL_H
-#define QWAYLANDINPUTPANEL_H
+#ifndef QWAYLANDTEXTINPUT_H
+#define QWAYLANDTEXTINPUT_H
 
-#include <QtWaylandCompositor/qwaylandexport.h>
-#include <QtWaylandCompositor/qwaylandextension.h>
+#include <QtWaylandCompositor/QWaylandExtension>
 
-#include <QObject>
-#include <QRect>
+struct wl_client;
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandCompositor;
-class QWaylandInputPanelPrivate;
+class QWaylandTextInputPrivate;
+
+class QInputMethodEvent;
+class QKeyEvent;
 class QWaylandSurface;
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandInputPanel : public QWaylandExtensionTemplate<QWaylandInputPanel>
+class QWaylandTextInput : public QWaylandExtensionTemplate<QWaylandTextInput>
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QWaylandInputPanel)
-
-    Q_PROPERTY(QWaylandSurface* focus READ focus NOTIFY focusChanged)
-    Q_PROPERTY(bool visible READ visible NOTIFY visibleChanged)
-    Q_PROPERTY(QRect cursorRectangle READ cursorRectangle NOTIFY cursorRectangleChanged)
-
+    Q_DECLARE_PRIVATE(QWaylandTextInput)
 public:
-    explicit QWaylandInputPanel(QWaylandCompositor *compositor);
+    explicit QWaylandTextInput(QWaylandObject *container, QWaylandCompositor *compositor);
+    ~QWaylandTextInput();
+
+    void sendInputMethodEvent(QInputMethodEvent *event);
+    void sendKeyEvent(QKeyEvent *event);
+
+    QVariant inputMethodQuery(Qt::InputMethodQuery property, QVariant argument) const;
 
     QWaylandSurface *focus() const;
-    bool visible() const;
-    QRect cursorRectangle() const;
+    void setFocus(QWaylandSurface *surface);
 
+    bool isSurfaceEnabled(QWaylandSurface *surface) const;
+
+    void add(::wl_client *client, uint32_t id, int version);
     static const struct wl_interface *interface();
     static QByteArray interfaceName();
+
 Q_SIGNALS:
-    void focusChanged();
-    void visibleChanged();
-    void cursorRectangleChanged();
+    void updateInputMethod(Qt::InputMethodQueries queries);
+    void surfaceEnabled(QWaylandSurface *surface);
+    void surfaceDisabled(QWaylandSurface *surface);
+
+private:
+    void focusSurfaceDestroyed(void *);
+    void sendInputPanelState();
+    void sendTextDirection();
+    void sendLocale();
 };
 
 QT_END_NAMESPACE
 
-#endif // QWAYLANDINPUTPANEL_H
+#endif // QWAYLANDTEXTINPUT_H

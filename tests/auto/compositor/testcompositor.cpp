@@ -30,6 +30,8 @@
 #include "testinputdevice.h"
 #include "testkeyboardgrabber.h"
 
+#include <wayland-server.h>
+
 TestCompositor::TestCompositor(bool createInputDev)
     : QWaylandCompositor()
     , shell(new QWaylandWlShell(this))
@@ -45,6 +47,11 @@ void TestCompositor::create()
 
     connect(this, &QWaylandCompositor::surfaceCreated, this, &TestCompositor::onSurfaceCreated);
     connect(this, &QWaylandCompositor::surfaceAboutToBeDestroyed, this, &TestCompositor::onSurfaceAboutToBeDestroyed);
+}
+
+void TestCompositor::flushClients()
+{
+    wl_display_flush_clients(display());
 }
 
 void TestCompositor::onSurfaceCreated(QWaylandSurface *surface)

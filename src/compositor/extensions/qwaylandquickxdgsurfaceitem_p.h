@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Klarälvdalens Datakonsult AB (KDAB).
+** Copyright (C) 2016 The Qt Company Ltd.
 ** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the QtWaylandCompositor module of the Qt Toolkit.
@@ -34,8 +34,12 @@
 **
 ****************************************************************************/
 
-#ifndef QTWAYLAND_QWLINPUTMETHOD_H
-#define QTWAYLAND_QWLINPUTMETHOD_H
+#ifndef QWAYLANDQUICKXDGSURFACEITEM_P_H
+#define QWAYLANDQUICKXDGSURFACEITEM_P_H
+
+#include <QtWaylandCompositor/private/qwaylandquickitem_p.h>
+
+QT_BEGIN_NAMESPACE
 
 //
 //  W A R N I N G
@@ -48,58 +52,48 @@
 // We mean it.
 //
 
-#include <QtWaylandCompositor/private/qwayland-server-input-method.h>
-#include <QtWaylandCompositor/QWaylandExtension>
-#include <QtWaylandCompositor/QWaylandInputDevice>
-
-#include <QObject>
-#include <QScopedPointer>
-
-#include <QtWaylandCompositor/QWaylandSurface>
-
-QT_BEGIN_NAMESPACE
-
-class QWaylandInputDevice;
-class QWaylandCompositor;
-
-namespace QtWayland {
-
-class InputMethodContext;
-class TextInput;
-
-class InputMethod : public QWaylandExtensionTemplate<InputMethod> , public QtWaylandServer::wl_input_method
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQuickXdgSurfaceItemPrivate : public QWaylandQuickItemPrivate
 {
-    Q_OBJECT
 public:
-    explicit InputMethod(QWaylandInputDevice *seat);
-    ~InputMethod();
+    enum GrabberState {
+        DefaultState,
+        ResizeState,
+        MoveState
+    };
 
-    QWaylandCompositor *compositor() const { return m_seat->compositor(); }
+    QWaylandQuickXdgSurfaceItemPrivate()
+        : QWaylandQuickItemPrivate()
+        , xdgSurface(Q_NULLPTR)
+        , moveItem(Q_NULLPTR)
+        , grabberState(DefaultState)
+    {}
 
-    void activate(TextInput *textInput);
-    void deactivate();
+    QWaylandXdgSurface *xdgSurface;
+    QQuickItem *moveItem;
 
-    bool isBound() const;
+    GrabberState grabberState;
+    struct {
+        QWaylandInputDevice *inputDevice;
+        QPointF initialOffset;
+        bool initialized;
+    } moveState;
 
-    InputMethodContext *context() const;
-    TextInput *textInput() const;
+    struct {
+        QWaylandInputDevice *inputDevice;
+        QWaylandXdgSurface::ResizeEdge resizeEdges;
+        QSizeF initialWindowSize;
+        QPointF initialMousePos;
+        QPointF initialPosition;
+        QSize initialSurfaceSize;
+        bool initialized;
+    } resizeState;
 
-protected:
-    void input_method_bind_resource(Resource *resource);
-    void input_method_destroy_resource(Resource *resource);
-
-private Q_SLOTS:
-    void focusChanged(QWaylandSurface *surface);
-
-private:
-    QWaylandInputDevice *m_seat;
-    Resource *m_resource;
-    TextInput *m_textInput;
-    InputMethodContext *m_context;
+    struct {
+        QSize initialWindowSize;
+        QPointF initialPosition;
+    } maximizeState;
 };
-
-} // namespace QtWayland
 
 QT_END_NAMESPACE
 
-#endif // QTWAYLAND_QWLINPUTMETHOD_H
+#endif  /*QWAYLANDQUICKXDGSURFACEITEM_P_H*/

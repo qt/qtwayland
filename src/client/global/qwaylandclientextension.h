@@ -54,11 +54,13 @@ class Q_WAYLAND_CLIENT_EXPORT QWaylandClientExtension : public QObject
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandClientExtension)
     Q_PROPERTY(int protocolVersion READ version NOTIFY versionChanged)
+    Q_PROPERTY(bool active READ active NOTIFY activeChanged)
 public:
     QWaylandClientExtension(const int version);
 
     QWaylandIntegration *integration() const;
     int version() const;
+    bool active() const;
 
     virtual const struct wl_interface *extensionInterface() const = 0;
     virtual void bind(struct ::wl_registry *registry, int id, int version) = 0;
@@ -66,6 +68,7 @@ protected:
     void setVersion(const int version);
 Q_SIGNALS:
     void versionChanged();
+    void activeChanged();
 };
 
 template <typename T>

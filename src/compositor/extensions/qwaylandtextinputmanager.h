@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Klarälvdalens Datakonsult AB (KDAB).
+** Copyright (C) 2016 Klarälvdalens Datakonsult AB, a KDAB Group company, info@kdab.com
 ** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the QtWaylandCompositor module of the Qt Toolkit.
@@ -34,50 +34,31 @@
 **
 ****************************************************************************/
 
-#include "qwaylandinputpanel.h"
+#ifndef QWAYLANDTEXTINPUTMANAGER_H
+#define QWAYLANDTEXTINPUTMANAGER_H
 
-#include <QtWaylandCompositor/QWaylandCompositor>
+#include <QtWaylandCompositor/QWaylandExtension>
 
-#include <private/qobject_p.h>
-
-#include "qwlinputpanel_p.h"
+#include <QtCore/QSize>
 
 QT_BEGIN_NAMESPACE
 
-QWaylandInputPanel::QWaylandInputPanel(QWaylandCompositor *compositor)
-    : QWaylandExtensionTemplate(compositor, *new QWaylandInputPanelPrivate(compositor))
+class QWaylandTextInputManagerPrivate;
+
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandTextInputManager : public QWaylandExtensionTemplate<QWaylandTextInputManager>
 {
-}
+    Q_OBJECT
+    Q_DECLARE_PRIVATE(QWaylandTextInputManager)
+public:
+    QWaylandTextInputManager();
+    QWaylandTextInputManager(QWaylandCompositor *compositor);
 
-QWaylandSurface *QWaylandInputPanel::focus() const
-{
-   Q_D(const QWaylandInputPanel);
+    void initialize() Q_DECL_OVERRIDE;
 
-    return d->focus();
-}
-
-bool QWaylandInputPanel::visible() const
-{
-    Q_D(const QWaylandInputPanel);
-
-    return d->inputPanelVisible();
-}
-
-QRect QWaylandInputPanel::cursorRectangle() const
-{
-    Q_D(const QWaylandInputPanel);
-
-    return d->cursorRectangle();
-}
-
-const struct wl_interface *QWaylandInputPanel::interface()
-{
-    return QWaylandInputPanelPrivate::interface();
-}
-
-QByteArray QWaylandInputPanel::interfaceName()
-{
-    return QWaylandInputPanelPrivate::interfaceName();
-}
+    static const struct wl_interface *interface();
+    static QByteArray interfaceName();
+};
 
 QT_END_NAMESPACE
+
+#endif // QWAYLANDTEXTINPUTMANAGER_H

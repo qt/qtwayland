@@ -74,6 +74,7 @@ void QWaylandDrag::startDrag()
     QBasicDrag::startDrag();
     QWaylandWindow *icon = static_cast<QWaylandWindow *>(shapedPixmapWindow()->handle());
     m_display->currentInputDevice()->dataDevice()->startDrag(drag()->mimeData(), icon);
+    icon->addAttachOffset(-drag()->hotSpot());
 }
 
 void QWaylandDrag::cancel()

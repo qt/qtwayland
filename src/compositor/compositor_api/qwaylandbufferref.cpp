@@ -199,6 +199,25 @@ QWaylandSurface::Origin QWaylandBufferRef::origin() const
     return QWaylandSurface::OriginBottomLeft;
 }
 
+QWaylandBufferRef::BufferType QWaylandBufferRef::bufferType() const
+{
+    if (d->nullOrDestroyed())
+        return BufferType_Null;
+
+    if (isShm())
+        return BufferType_Shm;
+
+    return BufferType_Egl;
+}
+
+QWaylandBufferRef::BufferFormatEgl QWaylandBufferRef::bufferFormatEgl() const
+{
+    if (d->nullOrDestroyed())
+        return BufferFormatEgl_Null;
+
+    return d->buffer->bufferFormatEgl();
+}
+
 /*!
  * Returns true if the buffer is a shared memory buffer. Otherwise returns false.
  */
@@ -233,14 +252,6 @@ void QWaylandBufferRef::bindToTexture() const
 
     return d->buffer->bindToTexture();
 
-}
-
-int QWaylandBufferRef::textureTarget() const
-{
-    if (d->nullOrDestroyed())
-        return 0x0DE1; // GL_TEXTURE_2D
-
-    return d->buffer->textureTarget();
 }
 
 void QWaylandBufferRef::updateTexture() const

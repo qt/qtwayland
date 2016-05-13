@@ -44,6 +44,7 @@
 #include <QObject>
 #include <QImage>
 #include <QRect>
+#include <QLoggingCategory>
 
 struct wl_display;
 
@@ -63,6 +64,10 @@ class QWaylandView;
 class QWaylandPointer;
 class QWaylandKeyboard;
 class QWaylandTouch;
+class QWaylandSurfaceGrabber;
+class QWaylandBufferRef;
+
+Q_DECLARE_LOGGING_CATEGORY(qLcCompositorInputMethods)
 
 class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandCompositor : public QWaylandObject
 {
@@ -114,6 +119,8 @@ public:
 
     bool useHardwareIntegrationExtension() const;
     void setUseHardwareIntegrationExtension(bool use);
+
+    virtual void grabSurface(QWaylandSurfaceGrabber *grabber, const QWaylandBufferRef &buffer);
 
 public Q_SLOTS:
     void processWaylandEvents();

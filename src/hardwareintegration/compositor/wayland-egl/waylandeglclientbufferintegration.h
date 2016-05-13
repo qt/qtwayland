@@ -53,7 +53,7 @@ public:
     void initializeHardware(struct ::wl_display *display) Q_DECL_OVERRIDE;
 
     void initializeBuffer(struct ::wl_resource *buffer) Q_DECL_OVERRIDE;
-    int textureTargetForBuffer(struct ::wl_resource *buffer) const Q_DECL_OVERRIDE;
+    QWaylandBufferRef::BufferFormatEgl bufferFormat(struct ::wl_resource *buffer) Q_DECL_OVERRIDE;
     void bindTextureToBuffer(struct ::wl_resource *buffer) Q_DECL_OVERRIDE;
     void updateTextureForBuffer(struct ::wl_resource *buffer) Q_DECL_OVERRIDE;
 

@@ -51,6 +51,7 @@ class QWaylandClient;
 class QWaylandInputDevice;
 class QWaylandOutput;
 class QWaylandSurfaceRole;
+class QWaylandWlShellSurface;
 
 class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandWlShell : public QWaylandExtensionTemplate<QWaylandWlShell>
 {
@@ -67,6 +68,7 @@ public:
 
 Q_SIGNALS:
     void createShellSurface(QWaylandSurface *surface, const QWaylandResource &resource);
+    void shellSurfaceCreated(QWaylandWlShellSurface *shellSurface);
 };
 
 class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandWlShellSurface : public QWaylandExtensionTemplate<QWaylandWlShellSurface>

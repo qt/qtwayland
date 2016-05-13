@@ -38,8 +38,11 @@
 #define QWAYLANDXDGSHELL_H
 
 #include <QtWaylandCompositor/QWaylandExtension>
+#include <QtWaylandCompositor/QWaylandResource>
 
 #include <QtCore/QRect>
+
+struct wl_resource;
 
 QT_BEGIN_NAMESPACE
 
@@ -51,7 +54,6 @@ class QWaylandXdgPopupPrivate;
 
 class QWaylandSurface;
 class QWaylandSurfaceRole;
-class QWaylandResource;
 class QWaylandInputDevice;
 class QWaylandOutput;
 class QWaylandClient;

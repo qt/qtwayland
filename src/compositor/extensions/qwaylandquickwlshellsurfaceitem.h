@@ -77,8 +77,6 @@ protected:
     void mouseReleaseEvent(QMouseEvent *event) Q_DECL_OVERRIDE;
 
     void surfaceChangedEvent(QWaylandSurface *newSurface, QWaylandSurface *oldSurface) Q_DECL_OVERRIDE;
-
-    void componentComplete() Q_DECL_OVERRIDE;
 };
 
 QT_END_NAMESPACE

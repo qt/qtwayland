@@ -54,6 +54,7 @@
 #include <QAtomicInt>
 
 #include <QtWaylandCompositor/QWaylandSurface>
+#include <QtWaylandCompositor/QWaylandBufferRef>
 
 #include <wayland-server.h>
 
@@ -103,7 +104,7 @@ public:
     bool isShm() const { return wl_shm_buffer_get(m_buffer); }
 
     QImage image() const;
-    int textureTarget() const;
+    QWaylandBufferRef::BufferFormatEgl bufferFormatEgl() const;
     void bindToTexture() const;
     void updateTexture() const;
 
@@ -116,6 +117,7 @@ private:
     QWaylandSurface *m_surface;
     QWaylandCompositor *m_compositor;
     struct ::wl_resource *m_buffer;
+    int m_bufferScale;
     struct surface_buffer_destroy_listener m_destroy_listener;
     bool m_committed;
     bool m_is_registered_for_buffer;

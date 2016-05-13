@@ -66,6 +66,10 @@ WaylandOutput {
                 source: "qrc:/images/background.jpg"
                 smooth: true
             }
+            Loader {
+                anchors.fill: parent
+                source: "Keyboard.qml"
+            }
             WaylandCursorItem {
                 id: cursor
                 inputEventsEnabled: false
@@ -75,6 +79,12 @@ WaylandOutput {
                 inputDevice: output.compositor.defaultInputDevice
             }
         }
+
+        Shortcut {
+            sequence: "Meta+F"
+            onActivated: qtWindowManager.showIsFullScreen = !qtWindowManager.showIsFullScreen
+        }
+
         Shortcut {
             sequence: "Ctrl+Alt+Backspace"
             onActivated: Qt.quit()

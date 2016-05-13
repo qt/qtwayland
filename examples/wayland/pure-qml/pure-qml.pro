@@ -7,6 +7,8 @@ OTHER_FILES = \
     qml/main.qml \
     qml/Screen.qml \
     qml/Chrome.qml \
+    qml/Keyboard.qml \
+    qml/XdgChrome.qml \
     images/background.jpg \
 
 RESOURCES += pure-qml.qrc

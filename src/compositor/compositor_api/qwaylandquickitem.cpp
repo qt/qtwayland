@@ -37,6 +37,8 @@
 #include "qwaylandquickitem.h"
 #include "qwaylandquickitem_p.h"
 #include "qwaylandquicksurface.h"
+#include "qwaylandinputmethodcontrol.h"
+#include "qwaylandtextinput.h"
 #include <QtWaylandCompositor/qwaylandcompositor.h>
 #include <QtWaylandCompositor/qwaylandinput.h>
 #include <QtWaylandCompositor/qwaylandbufferref.h>
@@ -54,7 +56,179 @@
 
 #include <wayland-server.h>
 #include <QThread>
+
+#ifndef GL_TEXTURE_EXTERNAL_OES
+#define GL_TEXTURE_EXTERNAL_OES 0x8D65
+#endif
+
 QT_BEGIN_NAMESPACE
+
+static const struct {
+    const char * const vertexShaderSourceFile;
+    const char * const fragmentShaderSourceFile;
+    GLenum textureTarget;
+    int planeCount;
+    bool canProvideTexture;
+    QSGMaterial::Flags materialFlags;
+    QSGMaterialType materialType;
+} bufferTypes[] = {
+    // BufferFormatEgl_Null
+    { "", "", 0, 0, false, 0, {} },
+
+    // BufferFormatEgl_RGB
+    {
+        ":/qt-project.org/wayland/compositor/shaders/surface.vert",
+        ":/qt-project.org/wayland/compositor/shaders/surface_rgbx.frag",
+        GL_TEXTURE_2D, 1, true,
+        QSGMaterial::Blending,
+        {}
+    },
+
+    // BufferFormatEgl_RGBA
+    {
+        ":/qt-project.org/wayland/compositor/shaders/surface.vert",
+        ":/qt-project.org/wayland/compositor/shaders/surface_rgba.frag",
+        GL_TEXTURE_2D, 1, true,
+        QSGMaterial::Blending,
+        {}
+    },
+
+    // BufferFormatEgl_EXTERNAL_OES
+    {
+        ":/qt-project.org/wayland/compositor/shaders/surface.vert",
+        ":/qt-project.org/wayland/compositor/shaders/surface_oes_external.frag",
+        GL_TEXTURE_EXTERNAL_OES, 1, false,
+        QSGMaterial::Blending,
+        {}
+    },
+
+    // BufferFormatEgl_Y_U_V
+    {
+        ":/qt-project.org/wayland/compositor/shaders/surface.vert",
+        ":/qt-project.org/wayland/compositor/shaders/surface_y_u_v.frag",
+        GL_TEXTURE_2D, 3, false,
+        QSGMaterial::Blending,
+        {}
+    },
+
+    // BufferFormatEgl_Y_UV
+    {
+        ":/qt-project.org/wayland/compositor/shaders/surface.vert",
+        ":/qt-project.org/wayland/compositor/shaders/surface_y_uv.frag",
+        GL_TEXTURE_2D, 2, false,
+        QSGMaterial::Blending,
+        {}
+    },
+
+    // BufferFormatEgl_Y_XUXV
+    {
+        ":/qt-project.org/wayland/compositor/shaders/surface.vert",
+        ":/qt-project.org/wayland/compositor/shaders/surface_y_xuxv.frag",
+        GL_TEXTURE_2D, 2, false,
+        QSGMaterial::Blending,
+        {}
+    }
+};
+
+QWaylandBufferMaterialShader::QWaylandBufferMaterialShader(QWaylandBufferRef::BufferFormatEgl format)
+    : QSGMaterialShader()
+    , m_format(format)
+{
+    setShaderSourceFile(QOpenGLShader::Vertex, QString::fromLatin1(bufferTypes[format].vertexShaderSourceFile));
+    setShaderSourceFile(QOpenGLShader::Fragment, QString::fromLatin1(bufferTypes[format].fragmentShaderSourceFile));
+}
+
+void QWaylandBufferMaterialShader::updateState(const QSGMaterialShader::RenderState &state, QSGMaterial *newEffect, QSGMaterial *oldEffect)
+{
+    QSGMaterialShader::updateState(state, newEffect, oldEffect);
+
+    QWaylandBufferMaterial *material = static_cast<QWaylandBufferMaterial *>(newEffect);
+    material->bind();
+
+    if (state.isMatrixDirty())
+        program()->setUniformValue(m_id_matrix, state.combinedMatrix());
+
+    if (state.isOpacityDirty())
+        program()->setUniformValue(m_id_opacity, state.opacity());
+}
+
+const char * const *QWaylandBufferMaterialShader::attributeNames() const
+{
+    static char const *const attr[] = { "qt_VertexPosition", "qt_VertexTexCoord", 0 };
+    return attr;
+}
+
+void QWaylandBufferMaterialShader::initialize()
+{
+    QSGMaterialShader::initialize();
+
+    m_id_matrix = program()->uniformLocation("qt_Matrix");
+    m_id_opacity = program()->uniformLocation("qt_Opacity");
+
+    for (int i = 0; i < bufferTypes[m_format].planeCount; i++) {
+        m_id_tex << program()->uniformLocation("tex" + QByteArray::number(i));
+        program()->setUniformValue(m_id_tex[i], i);
+    }
+
+    Q_ASSERT(m_id_tex.size() == bufferTypes[m_format].planeCount);
+}
+
+QWaylandBufferMaterial::QWaylandBufferMaterial(QWaylandBufferRef::BufferFormatEgl format)
+    : QSGMaterial()
+    , m_format(format)
+{
+    QOpenGLFunctions *gl = QOpenGLContext::currentContext()->functions();
+
+    for (int i = 0; i < bufferTypes[m_format].planeCount; i++) {
+        GLuint texture;
+        gl->glGenTextures(1, &texture);
+        gl->glBindTexture(bufferTypes[m_format].textureTarget, texture);
+        gl->glTexParameteri(bufferTypes[m_format].textureTarget, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        gl->glTexParameteri(bufferTypes[m_format].textureTarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        gl->glTexParameteri(bufferTypes[m_format].textureTarget, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        gl->glTexParameteri(bufferTypes[m_format].textureTarget, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        m_textures << texture;
+    }
+
+    gl->glBindTexture(bufferTypes[m_format].textureTarget, 0);
+    setFlag(bufferTypes[m_format].materialFlags);
+}
+
+QWaylandBufferMaterial::~QWaylandBufferMaterial()
+{
+    QOpenGLFunctions *gl = QOpenGLContext::currentContext()->functions();
+
+    for (GLuint texture : m_textures)
+        gl->glDeleteTextures(1, &texture);
+}
+
+void QWaylandBufferMaterial::bind()
+{
+    QOpenGLFunctions *gl = QOpenGLContext::currentContext()->functions();
+    const GLenum target = bufferTypes[m_format].textureTarget;
+
+    switch (m_textures.size()) {
+    case 3:
+        gl->glActiveTexture(GL_TEXTURE2);
+        gl->glBindTexture(target, m_textures[2]);
+    case 2:
+        gl->glActiveTexture(GL_TEXTURE1);
+        gl->glBindTexture(target, m_textures[1]);
+    case 1:
+        gl->glActiveTexture(GL_TEXTURE0);
+        gl->glBindTexture(target, m_textures[0]);
+    }
+}
+
+QSGMaterialType *QWaylandBufferMaterial::type() const
+{
+    return const_cast<QSGMaterialType *>(&bufferTypes[m_format].materialType);
+}
+
+QSGMaterialShader *QWaylandBufferMaterial::createShader() const
+{
+    return new QWaylandBufferMaterialShader(m_format);
+}
 
 QMutex *QWaylandQuickItemPrivate::mutex = 0;
 
@@ -82,7 +256,6 @@ public:
         if (m_ref.hasBuffer()) {
             if (buffer.isShm()) {
                 m_sgTex = surfaceItem->window()->createTextureFromImage(buffer.image());
-                m_invertY = false;
                 if (m_sgTex) {
                     m_sgTex->bind();
                 }
@@ -98,7 +271,6 @@ public:
                 glBindTexture(GL_TEXTURE_2D, texture);
                 buffer.bindToTexture();
                 m_sgTex = surfaceItem->window()->createTextureFromId(texture , QSize(surfaceItem->width(), surfaceItem->height()), opt);
-                m_invertY = buffer.origin() == QWaylandSurface::OriginBottomLeft;
             }
         }
         emit textureChanged();
@@ -112,10 +284,8 @@ public:
     }
 
     void setSmooth(bool smooth) { m_smooth = smooth; }
-    bool invertY() const { return m_invertY; }
 private:
     bool m_smooth;
-    bool m_invertY;
     QSGTexture *m_sgTex;
     QWaylandBufferRef m_ref;
 };
@@ -246,6 +416,12 @@ QWaylandSurface::Origin QWaylandQuickItem::origin() const
     return d->origin;
 }
 
+bool QWaylandQuickItem::isTextureProvider() const
+{
+    Q_D(const QWaylandQuickItem);
+    return QQuickItem::isTextureProvider() || d->provider;
+}
+
 /*!
  * Returns the texture provider of this QWaylandQuickItem.
  */
@@ -280,7 +456,7 @@ void QWaylandQuickItem::mousePressEvent(QMouseEvent *event)
     if (d->focusOnClick)
         takeFocus(inputDevice);
 
-    inputDevice->sendMouseMoveEvent(d->view.data(), event->localPos(), event->windowPos());
+    inputDevice->sendMouseMoveEvent(d->view.data(), event->localPos() / d->scaleFactor(), event->windowPos());
     inputDevice->sendMousePressEvent(event->button());
 }
 
@@ -292,7 +468,7 @@ void QWaylandQuickItem::mouseMoveEvent(QMouseEvent *event)
     Q_D(QWaylandQuickItem);
     if (d->shouldSendInputEvents()) {
         QWaylandInputDevice *inputDevice = compositor()->inputDeviceFor(event);
-        inputDevice->sendMouseMoveEvent(d->view.data(), event->localPos(), event->windowPos());
+        inputDevice->sendMouseMoveEvent(d->view.data(), event->localPos() / d->scaleFactor(), event->windowPos());
     } else {
         emit mouseMove(event->windowPos());
         event->ignore();
@@ -346,7 +522,7 @@ void QWaylandQuickItem::hoverMoveEvent(QHoverEvent *event)
     }
     if (d->shouldSendInputEvents()) {
         QWaylandInputDevice *inputDevice = compositor()->inputDeviceFor(event);
-        inputDevice->sendMouseMoveEvent(d->view.data(), event->pos(), mapToScene(event->pos()));
+        inputDevice->sendMouseMoveEvent(d->view.data(), event->pos() / d->scaleFactor(), mapToScene(event->pos()));
     } else {
         event->ignore();
     }
@@ -459,6 +635,21 @@ void QWaylandQuickItem::mouseUngrabEvent()
     }
 }
 
+#ifndef QT_NO_IM
+/*!
+ * \internal
+ */
+void QWaylandQuickItem::inputMethodEvent(QInputMethodEvent *event)
+{
+    Q_D(QWaylandQuickItem);
+    if (d->shouldSendInputEvents()) {
+        d->oldSurface->inputMethodControl()->inputMethodEvent(event);
+    } else {
+        event->ignore();
+    }
+}
+#endif
+
 /*!
  * \internal
  */
@@ -466,6 +657,62 @@ void QWaylandQuickItem::surfaceChangedEvent(QWaylandSurface *newSurface, QWaylan
 {
     Q_UNUSED(newSurface);
     Q_UNUSED(oldSurface);
+}
+
+void QWaylandQuickItem::handleSubsurfaceAdded(QWaylandSurface *childSurface)
+{
+    Q_D(QWaylandQuickItem);
+    if (d->subsurfaceHandler.isNull()) {
+        QWaylandQuickItem *childItem = new QWaylandQuickItem;
+        childItem->setSurface(childSurface);
+        childItem->setVisible(true);
+        childItem->setParentItem(this);
+        connect(childSurface, &QWaylandSurface::subsurfacePositionChanged, childItem, &QWaylandQuickItem::handleSubsurfacePosition);
+    } else {
+        bool success = QMetaObject::invokeMethod(d->subsurfaceHandler, "handleSubsurfaceAdded", Q_ARG(QWaylandSurface *, childSurface));
+        if (!success)
+            qWarning("QWaylandQuickItem: subsurfaceHandler does not implement handleSubsurfaceAdded()");
+    }
+}
+
+
+
+/*!
+  \qmlproperty bool QtWaylandCompositor::WaylandQuickItem::subsurfaceHandler
+
+  This property provides a way to override the default subsurface behavior.
+
+  By default, Qt will create a new SurfaceItem as a child of this item, and maintain the correct position.
+
+  To override the default, assign a handler object to this property. The handler should implement
+  a handleSubsurfaceAdded(WaylandSurface) function.
+
+  \code
+  ShellSurfaceItem {
+      subsurfaceHandler: QtObject {
+      function handleSubsurfaceAdded(child) {
+        //create custom surface item, and connect the subsurfacePositionChanged signal
+      }
+  }
+  \endcode
+
+  The default value of this property is \c null.
+ */
+
+
+QObject *QWaylandQuickItem::subsurfaceHandler() const
+{
+    Q_D(const QWaylandQuickItem);
+    return d->subsurfaceHandler.data();
+}
+
+void QWaylandQuickItem::setSubsurfaceHandler(QObject *handler)
+{
+    Q_D(QWaylandQuickItem);
+    if (d->subsurfaceHandler.data() != handler) {
+        d->subsurfaceHandler = handler;
+        emit subsurfaceHandlerChanged();
+    }
 }
 
 /*!
@@ -478,19 +725,26 @@ void QWaylandQuickItem::handleSurfaceChanged()
         disconnect(d->oldSurface, &QWaylandSurface::mappedChanged, this, &QWaylandQuickItem::surfaceMappedChanged);
         disconnect(d->oldSurface, &QWaylandSurface::parentChanged, this, &QWaylandQuickItem::parentChanged);
         disconnect(d->oldSurface, &QWaylandSurface::sizeChanged, this, &QWaylandQuickItem::updateSize);
+        disconnect(d->oldSurface, &QWaylandSurface::bufferScaleChanged, this, &QWaylandQuickItem::updateSize);
         disconnect(d->oldSurface, &QWaylandSurface::configure, this, &QWaylandQuickItem::updateBuffer);
         disconnect(d->oldSurface, &QWaylandSurface::redraw, this, &QQuickItem::update);
+        disconnect(d->oldSurface, &QWaylandSurface::childAdded, this, &QWaylandQuickItem::handleSubsurfaceAdded);
+#ifndef QT_NO_IM
+        disconnect(d->oldSurface->inputMethodControl(), &QWaylandInputMethodControl::updateInputMethod, this, &QWaylandQuickItem::updateInputMethod);
+#endif
     }
     if (QWaylandSurface *newSurface = d->view->surface()) {
         connect(newSurface, &QWaylandSurface::mappedChanged, this, &QWaylandQuickItem::surfaceMappedChanged);
         connect(newSurface, &QWaylandSurface::parentChanged, this, &QWaylandQuickItem::parentChanged);
         connect(newSurface, &QWaylandSurface::sizeChanged, this, &QWaylandQuickItem::updateSize);
+        connect(newSurface, &QWaylandSurface::bufferScaleChanged, this, &QWaylandQuickItem::updateSize);
         connect(newSurface, &QWaylandSurface::configure, this, &QWaylandQuickItem::updateBuffer);
         connect(newSurface, &QWaylandSurface::redraw, this, &QQuickItem::update);
-        if (d->sizeFollowsSurface) {
-            setWidth(newSurface->size().width());
-            setHeight(newSurface->size().height());
-        }
+        connect(newSurface, &QWaylandSurface::childAdded, this, &QWaylandQuickItem::handleSubsurfaceAdded);
+#ifndef QT_NO_IM
+        connect(newSurface->inputMethodControl(), &QWaylandInputMethodControl::updateInputMethod, this, &QWaylandQuickItem::updateInputMethod);
+#endif
+
         if (newSurface->origin() != d->origin) {
             d->origin = newSurface->origin();
             emit originChanged();
@@ -499,9 +753,14 @@ void QWaylandQuickItem::handleSurfaceChanged()
             QWaylandOutput *output = newSurface->compositor()->outputFor(window());
             d->view->setOutput(output);
         }
+
+        updateSize();
     }
     surfaceChangedEvent(d->view->surface(), d->oldSurface);
     d->oldSurface = d->view->surface();
+#ifndef QT_NO_IM
+    updateInputMethod(Qt::ImQueryInput);
+#endif
 }
 
 /*!
@@ -510,7 +769,7 @@ void QWaylandQuickItem::handleSurfaceChanged()
  */
 void QWaylandQuickItem::takeFocus(QWaylandInputDevice *device)
 {
-    setFocus(true);
+    forceActiveFocus();
 
     if (!surface())
         return;
@@ -520,6 +779,9 @@ void QWaylandQuickItem::takeFocus(QWaylandInputDevice *device)
         target = compositor()->defaultInputDevice();
     }
     target->setKeyboardFocus(surface());
+    QWaylandTextInput *textInput = QWaylandTextInput::findIn(target);
+    if (textInput)
+        textInput->setFocus(surface());
 }
 
 /*!
@@ -552,7 +814,7 @@ void QWaylandQuickItem::updateSize()
 {
     Q_D(QWaylandQuickItem);
     if (d->sizeFollowsSurface && surface()) {
-        setSize(surface()->size());
+        setSize(surface()->size() * (d->scaleFactor() / surface()->bufferScale()));
     }
 }
 
@@ -595,8 +857,9 @@ void QWaylandQuickItem::setFocusOnClick(bool focus)
  */
 bool QWaylandQuickItem::inputRegionContains(const QPointF &localPosition)
 {
+    Q_D(QWaylandQuickItem);
     if (QWaylandSurface *s = surface())
-        return s->inputRegionContains(localPosition.toPoint());
+        return s->inputRegionContains(localPosition.toPoint() / d->scaleFactor());
     return false;
 }
 
@@ -631,6 +894,26 @@ void QWaylandQuickItem::setSizeFollowsSurface(bool sizeFollowsSurface)
     d->sizeFollowsSurface = sizeFollowsSurface;
     emit sizeFollowsSurfaceChanged();
 }
+
+#ifndef QT_NO_IM
+QVariant QWaylandQuickItem::inputMethodQuery(Qt::InputMethodQuery query) const
+{
+    return inputMethodQuery(query, QVariant());
+}
+
+QVariant QWaylandQuickItem::inputMethodQuery(Qt::InputMethodQuery query, QVariant argument) const
+{
+    Q_D(const QWaylandQuickItem);
+
+    if (query == Qt::ImEnabled)
+        return QVariant((flags() & ItemAcceptsInputMethod) != 0);
+
+    if (d->oldSurface)
+        return d->oldSurface->inputMethodControl()->inputMethodQuery(query, argument);
+
+    return QVariant();
+}
+#endif
 
 /*!
     \qmlproperty bool QtWayland::QWaylandSurfaceItem::paintEnabled
@@ -698,40 +981,87 @@ void QWaylandQuickItem::beforeSync()
     }
 }
 
+#ifndef QT_NO_IM
+void QWaylandQuickItem::updateInputMethod(Qt::InputMethodQueries queries)
+{
+    Q_D(QWaylandQuickItem);
+
+    setFlag(QQuickItem::ItemAcceptsInputMethod,
+            d->oldSurface ? d->oldSurface->inputMethodControl()->enabled() : false);
+    QQuickItem::updateInputMethod(queries | Qt::ImEnabled);
+}
+#endif
+
 QSGNode *QWaylandQuickItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *)
 {
     Q_D(QWaylandQuickItem);
-    bool mapped = (surface() && surface()->isMapped() && d->view->currentBuffer().hasBuffer())
-        || (d->view->isBufferLocked() && d->provider);
+    const bool mapped = surface() && surface()->isMapped() && d->view->currentBuffer().hasBuffer();
 
     if (!mapped || !d->paintEnabled) {
         delete oldNode;
         return 0;
     }
 
-    QSGSimpleTextureNode *node = static_cast<QSGSimpleTextureNode *>(oldNode);
+    QWaylandBufferRef ref = d->view->currentBuffer();
+    const bool invertY = ref.origin() == QWaylandSurface::OriginBottomLeft;
+    const QRectF rect = invertY ? QRectF(0, height(), width(), -height())
+                                : QRectF(0, 0, width(), height());
 
-    if (!node)
-        node = new QSGSimpleTextureNode();
+    if (ref.isShm() || bufferTypes[ref.bufferFormatEgl()].canProvideTexture) {
+        QSGSimpleTextureNode *node = static_cast<QSGSimpleTextureNode *>(oldNode);
 
-    if (!d->provider)
-        d->provider = new QWaylandSurfaceTextureProvider();
+        if (!node)
+            node = new QSGSimpleTextureNode();
 
-    if (d->newTexture) {
-        d->newTexture = false;
-        d->provider->setBufferRef(this, d->view->currentBuffer());
-        node->setTexture(d->provider->texture());
-    }
+        if (!d->provider)
+            d->provider = new QWaylandSurfaceTextureProvider();
 
-    d->provider->setSmooth(smooth());
+        if (d->newTexture) {
+            d->newTexture = false;
+            d->provider->setBufferRef(this, ref);
+            node->setTexture(d->provider->texture());
+        }
 
-    if (d->provider->invertY()) {
-            node->setRect(0, height(), width(), -height());
+        d->provider->setSmooth(smooth());
+        node->setRect(rect);
+
+        return node;
     } else {
-            node->setRect(0, 0, width(), height());
+        Q_ASSERT(!d->provider);
+
+        QSGGeometryNode *node = static_cast<QSGGeometryNode *>(oldNode);
+
+        if (!node)
+            node = new QSGGeometryNode;
+
+        QSGGeometry *geometry = node->geometry();
+        QWaylandBufferMaterial *material = static_cast<QWaylandBufferMaterial *>(node->material());
+
+        if (!geometry)
+            geometry = new QSGGeometry(QSGGeometry::defaultAttributes_TexturedPoint2D(), 4);
+
+        if (!material)
+            material = new QWaylandBufferMaterial(ref.bufferFormatEgl());
+
+        if (d->newTexture) {
+            d->newTexture = false;
+            material->bind();
+            ref.bindToTexture();
+        }
+
+        ref.updateTexture();
+        QSGGeometry::updateTexturedRectGeometry(geometry, rect, QRectF(0, 0, 1, 1));
+
+        node->setGeometry(geometry);
+        node->setFlag(QSGNode::OwnsGeometry, true);
+
+        node->setMaterial(material);
+        node->setFlag(QSGNode::OwnsMaterial, true);
+
+        return node;
     }
 
-    return node;
+    Q_UNREACHABLE();
 }
 
 void QWaylandQuickItem::setTouchEventsEnabled(bool enabled)
@@ -777,4 +1107,16 @@ void QWaylandQuickItem::raise()
         stackAfter(top);
 }
 
+/*!
+ * \internal
+ *
+ * Sets the position of this item relative to the parent item.
+ */
+void QWaylandQuickItem::handleSubsurfacePosition(const QPoint &pos)
+{
+    Q_D(QWaylandQuickItem);
+    QQuickItem::setPosition(pos * d->scaleFactor());
+}
+
 QT_END_NAMESPACE
+

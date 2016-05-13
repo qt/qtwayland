@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Klarälvdalens Datakonsult AB (KDAB).
+** Copyright (C) 2016 Klarälvdalens Datakonsult AB, a KDAB Group company, info@kdab.com
 ** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the QtWaylandCompositor module of the Qt Toolkit.
@@ -34,31 +34,47 @@
 **
 ****************************************************************************/
 
-#include "qwltextinputmanager_p.h"
+#ifndef QWAYLANDINPUTMETHODCONTROL_P_H
+#define QWAYLANDINPUTMETHODCONTROL_P_H
 
-#include <QtWaylandCompositor/QWaylandCompositor>
-#include "qwltextinput_p.h"
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists purely as an
+// implementation detail.  This header file may change from version to
+// version without notice, or even be removed.
+//
+// We mean it.
+//
+
+#include <QtWaylandCompositor/qwaylandexport.h>
+#include <QtWaylandCompositor/qwaylandinputmethodcontrol.h>
+
+#include <QtCore/private/qobject_p.h>
 
 QT_BEGIN_NAMESPACE
 
-namespace QtWayland {
+class QWaylandCompositor;
+class QWaylandInputDevice;
+class QWaylandSurface;
+class QWaylandTextInput;
 
-TextInputManager::TextInputManager(QWaylandCompositor *compositor)
-    : QWaylandExtensionTemplate(compositor)
-    , QtWaylandServer::wl_text_input_manager(compositor->display(), 1)
-    , m_compositor(compositor)
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandInputMethodControlPrivate : public QObjectPrivate
 {
-}
+    Q_DECLARE_PUBLIC(QWaylandInputMethodControl)
 
-TextInputManager::~TextInputManager()
-{
-}
+public:
+    explicit QWaylandInputMethodControlPrivate(QWaylandSurface *surface);
 
-void TextInputManager::text_input_manager_create_text_input(Resource *resource, uint32_t id)
-{
-    new TextInput(this, m_compositor, resource->client(), id);
-}
+    QWaylandTextInput *textInput() const;
 
-} // namespace QtWayland
+    QWaylandCompositor *compositor;
+    QWaylandInputDevice *inputDevice;
+    QWaylandSurface *surface;
+    bool enabled;
+};
 
 QT_END_NAMESPACE
+
+#endif // QWAYLANDINPUTMETHODCONTROL_P_H

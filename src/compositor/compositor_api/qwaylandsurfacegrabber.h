@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Klarälvdalens Datakonsult AB (KDAB).
+** Copyright (C) 2016 Klarälvdalens Datakonsult AB (KDAB).
 ** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the QtWaylandCompositor module of the Qt Toolkit.
@@ -34,45 +34,39 @@
 **
 ****************************************************************************/
 
-#ifndef QTWAYLAND_QWLTEXTINPUTMANAGER_P_H
-#define QTWAYLAND_QWLTEXTINPUTMANAGER_P_H
+#ifndef QWAYLANDSURFACEGRABBER_H
+#define QWAYLANDSURFACEGRABBER_H
 
-#include <QtWaylandCompositor/QWaylandExtension>
-#include <QtWaylandCompositor/private/qwayland-server-text.h>
-
-//
-//  W A R N I N G
-//  -------------
-//
-// This file is not part of the Qt API.  It exists purely as an
-// implementation detail.  This header file may change from version to
-// version without notice, or even be removed.
-//
-// We mean it.
-//
+#include <QtWaylandCompositor/qwaylandexport.h>
+#include <QtCore/QObject>
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandCompositor;
+class QWaylandSurface;
+class QWaylandSurfaceGrabberPrivate;
 
-namespace QtWayland {
-
-class TextInputManager : public QWaylandExtensionTemplate<TextInputManager>, public QtWaylandServer::wl_text_input_manager
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandSurfaceGrabber : public QObject
 {
     Q_OBJECT
+    Q_DECLARE_PRIVATE(QWaylandSurfaceGrabber)
 public:
-    TextInputManager(QWaylandCompositor *compositor);
-    ~TextInputManager();
+    enum Error {
+        InvalidSurface,
+        NoBufferAttached,
+        UnknownBufferType,
+        RendererNotReady,
+    };
+    Q_ENUM(Error)
+    explicit QWaylandSurfaceGrabber(QWaylandSurface *surface, QObject *parent = Q_NULLPTR);
 
-protected:
-    void text_input_manager_create_text_input(Resource *resource, uint32_t id) Q_DECL_OVERRIDE;
+    QWaylandSurface *surface() const;
+    void grab();
 
-private:
-    QWaylandCompositor *m_compositor;
+Q_SIGNALS:
+    void success(const QImage &image);
+    void failed(Error error);
 };
-
-} // namespace QtWayland
 
 QT_END_NAMESPACE
 
-#endif // QTWAYLAND_QWLTEXTINPUTMANAGER_P_H
+#endif // QWAYLANDSURFACEGRABBER_H

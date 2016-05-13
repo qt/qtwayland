@@ -58,7 +58,7 @@ class WindowCompositorView : public QWaylandView
 {
     Q_OBJECT
 public:
-    WindowCompositorView() : m_texture(0), m_wlShellSurface(0), m_parentView(0) {}
+    WindowCompositorView();
     GLuint getTexture();
     QPointF position() const { return m_position; }
     void setPosition(const QPointF &pos) { m_position = pos; }
@@ -68,6 +68,7 @@ public:
     WindowCompositorView *parentView() const { return m_parentView; }
     QPointF parentPosition() const { return m_parentView ? (m_parentView->position() + m_parentView->parentPosition()) : QPointF(); }
     QSize windowSize() { return m_xdgSurface ? m_xdgSurface->windowGeometry().size() : surface()->size(); }
+    QPoint offset() const { return m_offset; }
 
 private:
     friend class WindowCompositor;
@@ -77,12 +78,14 @@ private:
     QWaylandXdgSurface *m_xdgSurface;
     QWaylandXdgPopup *m_xdgPopup;
     WindowCompositorView *m_parentView;
+    QPoint m_offset;
 
 public slots:
     void onXdgSetMaximized();
     void onXdgUnsetMaximized();
     void onXdgSetFullscreen(QWaylandOutput *output);
     void onXdgUnsetFullscreen();
+    void onOffsetForNextFrame(const QPoint &offset);
 };
 
 class WindowCompositor : public QWaylandCompositor
@@ -127,8 +130,8 @@ private slots:
     void triggerRender();
 
     void onSurfaceCreated(QWaylandSurface *surface);
-    void onCreateWlShellSurface(QWaylandSurface *s, const QWaylandResource &resource);
-    void onCreateXdgSurface(QWaylandSurface *surface, const QWaylandResource &resource);
+    void onWlShellSurfaceCreated(QWaylandWlShellSurface *wlShellSurface);
+    void onXdgSurfaceCreated(QWaylandXdgSurface *xdgSurface);
     void onCreateXdgPopup(QWaylandSurface *surface, QWaylandSurface *parent, QWaylandInputDevice *inputDevice,
                           const QPoint &position, const QWaylandResource &resource);
     void onSetTransient(QWaylandSurface *parentSurface, const QPoint &relativeToParent, QWaylandWlShellSurface::FocusPolicy focusPolicy);

@@ -78,24 +78,15 @@ WaylandCompositor {
         WlShell {
             id: defaultShell
 
-            onCreateShellSurface: {
-                var item = chromeComponent.createObject(defaultOutput.surfaceArea, { "surface": surface } );
-                item.shellSurface.initialize(defaultShell, surface, resource);
+            onShellSurfaceCreated: {
+                var item = chromeComponent.createObject(defaultOutput.surfaceArea, { "shellSurface": shellSurface } );
                 lastItem = item;
-            }
-
-            Component.onCompleted: {
-                initialize();
             }
         },
         CustomExtension {
             id: custom
             onRequestReceived: {
                 console.log("Compositor received a request: \"" + text + "\", " + value)
-            }
-
-            Component.onCompleted: {
-                initialize(comp);
             }
         }
 

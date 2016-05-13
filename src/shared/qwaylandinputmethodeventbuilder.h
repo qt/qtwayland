@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 LG Electronics Inc, author: <mikko.levonmaa@lge.com>
-** Contact: https://www.qt.io/licensing/
+** Copyright (C) 2016 Klarälvdalens Datakonsult AB, a KDAB Group company, info@kdab.com
+** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the plugins of the Qt Toolkit.
 **
@@ -37,71 +37,52 @@
 **
 ****************************************************************************/
 
-#include "qwaylandtexturebufferattacher_p.h"
+#ifndef QWAYLANDINPUTMETHODEVENTBUILDER_H
+#define QWAYLANDINPUTMETHODEVENTBUILDER_H
 
-#include <QQuickWindow>
-#include <QSGTexture>
+#include <QInputMethodEvent>
 
-#include <QtCompositor/qwaylandquicksurface.h>
-#include <QtCompositor/qwaylandoutput.h>
+QT_BEGIN_NAMESPACE
 
-QWaylandTextureBufferAttacher::QWaylandTextureBufferAttacher(QWaylandQuickSurface *surface)
-    : m_surface(surface)
-    , m_texture(0)
-    , m_update(false)
+class QWaylandInputMethodEventBuilder
 {
-}
+public:
+    QWaylandInputMethodEventBuilder();
+    ~QWaylandInputMethodEventBuilder();
 
-QWaylandTextureBufferAttacher::~QWaylandTextureBufferAttacher()
-{
-    if (m_texture)
-        m_texture->deleteLater();
-    m_buffer = QWaylandBufferRef();
-    m_nextBuffer = QWaylandBufferRef();
-}
+    void reset();
 
-void QWaylandTextureBufferAttacher::attach(const QWaylandBufferRef &ref)
-{
-    m_nextBuffer = ref;
-    m_update = true;
-}
+    void setCursorPosition(int32_t index, int32_t anchor);
+    void setDeleteSurroundingText(uint32_t beforeLength, uint32_t afterLength);
 
-void QWaylandTextureBufferAttacher::updateTexture()
-{
-    m_buffer = m_nextBuffer;
-    delete m_texture;
-    m_texture = 0;
+    void addPreeditStyling(uint32_t index, uint32_t length, uint32_t style);
+    void setPreeditCursor(int32_t index);
 
-    QQuickWindow *window = static_cast<QQuickWindow *>(m_surface->mainOutput()->window());
-    if (m_nextBuffer) {
-        if (m_buffer.isShm()) {
-            m_texture = window->createTextureFromImage(m_buffer.image());
-        } else {
-            QQuickWindow::CreateTextureOptions opt = 0;
-            if (m_surface->useTextureAlpha()) {
-                opt |= QQuickWindow::TextureHasAlphaChannel;
-            }
-            m_texture = window->createTextureFromId(m_buffer.createTexture(), m_surface->size(), opt);
-        }
-        m_texture->bind();
-    }
+    QInputMethodEvent buildCommit(const QString &text);
+    QInputMethodEvent buildPreedit(const QString &text);
 
-    m_update = false;
-}
+    static int indexFromWayland(const QString &text, int length, int base = 0);
+    static int indexToWayland(const QString &text, int length, int base = 0);
+private:
+    QPair<int, int> replacementForDeleteSurrounding();
 
-void QWaylandTextureBufferAttacher::unmap()
-{
-    m_nextBuffer = QWaylandBufferRef();
-    m_update = true;
-}
+    int32_t m_anchor;
+    int32_t m_cursor;
+    uint32_t m_deleteBefore;
+    uint32_t m_deleteAfter;
 
-void QWaylandTextureBufferAttacher::invalidateTexture()
-{
-    if (m_buffer)
-        m_buffer.destroyTexture();
-    delete m_texture;
-    m_texture = 0;
-    m_update = true;
-    m_buffer = QWaylandBufferRef();
-}
+    int32_t m_preeditCursor;
+    QList<QInputMethodEvent::Attribute> m_preeditStyles;
+};
 
+struct QWaylandInputMethodContentType {
+    uint32_t hint;
+    uint32_t purpose;
+
+    static QWaylandInputMethodContentType convert(Qt::InputMethodHints hints);
+};
+
+
+QT_END_NAMESPACE
+
+#endif // QWAYLANDINPUTMETHODEVENTBUILDER_H

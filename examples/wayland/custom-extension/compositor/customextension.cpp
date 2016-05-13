@@ -50,8 +50,10 @@ CustomExtension::CustomExtension()
 {
 }
 
-void CustomExtension::initialize(QWaylandCompositor *compositor)
+void CustomExtension::initialize()
 {
+    QWaylandExtensionTemplate::initialize();
+    QWaylandCompositor *compositor = static_cast<QWaylandCompositor *>(extensionContainer());
     init(compositor->display(), 1);
 }
 

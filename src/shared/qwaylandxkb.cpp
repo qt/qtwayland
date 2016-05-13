@@ -40,6 +40,7 @@
 
 #include "qwaylandxkb.h"
 
+#include <QKeyEvent>
 #include <QString>
 
 #ifndef QT_NO_WAYLAND_XKB
@@ -282,6 +283,16 @@ static int lookupKeysym(xkb_keysym_t key)
     return code;
 }
 
+static xkb_keysym_t toKeysymFromTable(uint32_t key)
+{
+    for (int i = 0; KeyTbl[i]; i += 2) {
+        if (key == KeyTbl[i + 1])
+            return KeyTbl[i];
+    }
+
+    return 0;
+}
+
 int QWaylandXkb::keysymToQtKey(xkb_keysym_t keysym, Qt::KeyboardModifiers &modifiers, const QString &text)
 {
     int code = 0;
@@ -324,6 +335,50 @@ Qt::KeyboardModifiers QWaylandXkb::modifiers(struct xkb_state *state)
         modifiers |= Qt::MetaModifier;
 
     return modifiers;
+}
+
+QEvent::Type QWaylandXkb::toQtEventType(uint32_t state)
+{
+    return state != 0 ? QEvent::KeyPress : QEvent::KeyRelease;
+}
+
+QString QWaylandXkb::textFromKeysym(uint32_t keysym, Qt::KeyboardModifiers modifiers)
+{
+    uint utf32 = xkb_keysym_to_utf32(keysym);
+
+    // Map control + letter to proper text
+    if (utf32 >= 'A' && utf32 <= '~' && (modifiers & Qt::ControlModifier)) {
+        utf32 &= ~0x60;
+        return QString::fromUcs4(&utf32, 1);
+    }
+
+    if (utf32)
+        return QString::fromUcs4(&utf32, 1);
+
+    return QString();
+}
+
+QVector<xkb_keysym_t> QWaylandXkb::toKeysym(QKeyEvent *event)
+{
+    QVector<xkb_keysym_t> keysyms;
+    if (event->key() >= Qt::Key_F1 && event->key() <= Qt::Key_F35) {
+        keysyms.append(XKB_KEY_F1 + (event->key() - Qt::Key_F1));
+    } else if (event->modifiers() & Qt::KeypadModifier) {
+        if (event->key() >= Qt::Key_0 && event->key() <= Qt::Key_9)
+            keysyms.append(XKB_KEY_KP_0 + (event->key() - Qt::Key_0));
+        else
+            keysyms.append(toKeysymFromTable(event->key()));
+    } else if (!event->text().isEmpty()) {
+        // From libxkbcommon keysym-utf.c:
+        // "We allow to represent any UCS character in the range U-00000000 to
+        // U-00FFFFFF by a keysym value in the range 0x01000000 to 0x01ffffff."
+        foreach (uint utf32, event->text().toUcs4()) {
+            keysyms.append(utf32 | 0x01000000);
+        }
+    } else {
+        keysyms.append(toKeysymFromTable(event->key()));
+    }
+    return keysyms;
 }
 
 QT_END_NAMESPACE

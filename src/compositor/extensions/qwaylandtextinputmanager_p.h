@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Klarälvdalens Datakonsult AB (KDAB).
+** Copyright (C) 2013-2016 Klarälvdalens Datakonsult AB, a KDAB Group company, info@kdab.com
 ** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the QtWaylandCompositor module of the Qt Toolkit.
@@ -34,8 +34,12 @@
 **
 ****************************************************************************/
 
-#ifndef QTWAYLAND_QWLINPUTPANEL_P_H
-#define QTWAYLAND_QWLINPUTPANEL_P_H
+#ifndef QWAYLANDTEXTINPUTMANAGER_P_H
+#define QWAYLANDTEXTINPUTMANAGER_P_H
+
+#include <QtWaylandCompositor/private/qwaylandextension_p.h>
+
+#include <QtWaylandCompositor/private/qwayland-server-text-input-unstable-v2.h>
 
 //
 //  W A R N I N G
@@ -48,52 +52,18 @@
 // We mean it.
 //
 
-#include <QtWaylandCompositor/qwaylandexport.h>
-#include <QtWaylandCompositor/qwaylandinputpanel.h>
-
-#include <QtWaylandCompositor/private/qwaylandextension_p.h>
-#include <QtWaylandCompositor/private/qwayland-server-input-method.h>
-
-#include <QRect>
-#include <QScopedPointer>
-
 QT_BEGIN_NAMESPACE
 
-namespace QtWayland {
-class TextInput;
-}
-
-
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandInputPanelPrivate : public QWaylandExtensionTemplatePrivate, public QtWaylandServer::wl_input_panel
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandTextInputManagerPrivate : public QWaylandExtensionTemplatePrivate, public QtWaylandServer::zwp_text_input_manager_v2
 {
-    Q_DECLARE_PUBLIC(QWaylandInputPanel)
+    Q_DECLARE_PUBLIC(QWaylandTextInputManager)
 public:
-    QWaylandInputPanelPrivate(QWaylandCompositor *compositor);
-    ~QWaylandInputPanelPrivate();
+    QWaylandTextInputManagerPrivate();
 
-    QWaylandInputPanel *waylandInputPanel() const;
-
-    QWaylandSurface *focus() const;
-    void setFocus(QWaylandSurface *focus);
-
-    bool inputPanelVisible() const;
-    void setInputPanelVisible(bool inputPanelVisible);
-
-    QRect cursorRectangle() const;
-    void setCursorRectangle(const QRect &cursorRectangle);
-
-    static QWaylandInputPanelPrivate *findIn(QWaylandObject *container);
 protected:
-    void input_panel_get_input_panel_surface(Resource *resource, uint32_t id, struct ::wl_resource *surface) Q_DECL_OVERRIDE;
-
-private:
-    QWaylandCompositor *m_compositor;
-
-    QWaylandSurface *m_focus;
-    bool m_inputPanelVisible;
-    QRect m_cursorRectangle;
+    void zwp_text_input_manager_v2_get_text_input(Resource *resource, uint32_t id, struct ::wl_resource *seat) Q_DECL_OVERRIDE;
 };
 
 QT_END_NAMESPACE
 
-#endif // QTWAYLAND_QWLINPUTPANEL_P_H
+#endif // QWAYLANDTEXTINPUTMANAGER_P_H

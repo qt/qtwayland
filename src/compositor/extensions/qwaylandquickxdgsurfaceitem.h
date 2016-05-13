@@ -1,7 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
-** Copyright (C) 2013 Klarälvdalens Datakonsult AB (KDAB).
+** Copyright (C) 2016 The Qt Company Ltd.
 ** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the QtWaylandCompositor module of the Qt Toolkit.
@@ -35,52 +34,54 @@
 **
 ****************************************************************************/
 
-#include "qwlinputpanelsurface_p.h"
+#ifndef QWAYLANDQUICKXDGSURFACEITEM_H
+#define QWAYLANDQUICKXDGSURFACEITEM_H
 
-#include <QtWaylandCompositor/private/qwaylandsurface_p.h>
-#include <QtWaylandCompositor/QWaylandOutput>
+#include <QtWaylandCompositor/QWaylandQuickItem>
+#include <QtWaylandCompositor/QWaylandXdgSurface>
 
 QT_BEGIN_NAMESPACE
 
-namespace QtWayland {
+class QWaylandQuickXdgSurfaceItemPrivate;
 
-InputPanelSurface::InputPanelSurface(wl_client *client, int id, QWaylandSurface *surface)
-    : QtWaylandServer::wl_input_panel_surface(client, id, 1)
-    , m_surface(surface)
-    , m_type(Invalid)
-    , m_output(0)
-    , m_position()
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQuickXdgSurfaceItem : public QWaylandQuickItem
 {
-    QWaylandSurfacePrivate::get(surface)->setInputPanelSurface(this);
-}
+    Q_OBJECT
+    Q_DECLARE_PRIVATE(QWaylandQuickXdgSurfaceItem)
+    Q_PROPERTY(QWaylandXdgSurface *xdgSurface READ xdgSurface WRITE setXdgSurface NOTIFY xdgSurfaceChanged)
+    Q_PROPERTY(QQuickItem *moveItem READ moveItem WRITE setMoveItem NOTIFY moveItemChanged)
 
-InputPanelSurface::Type InputPanelSurface::type() const
-{
-    return m_type;
-}
+public:
+    QWaylandQuickXdgSurfaceItem(QQuickItem *parent = nullptr);
 
-QWaylandOutput *InputPanelSurface::output() const
-{
-    return m_output;
-}
+    QWaylandXdgSurface *xdgSurface() const;
+    void setXdgSurface(QWaylandXdgSurface *xdgSurface);
 
-QtWaylandServer::wl_input_panel_surface::position InputPanelSurface::position() const
-{
-    return m_position;
-}
+    QQuickItem *moveItem() const;
+    void setMoveItem(QQuickItem *moveItem);
 
-void InputPanelSurface::input_panel_surface_set_overlay_panel(Resource *)
-{
-    m_type = OverlayPanel;
-}
+Q_SIGNALS:
+    void xdgSurfaceChanged();
+    void moveItemChanged();
 
-void InputPanelSurface::input_panel_surface_set_toplevel(Resource *, wl_resource *output_resource, uint32_t position)
-{
-    m_type = Toplevel;
-    m_output = QWaylandOutput::fromResource(output_resource);
-    m_position = static_cast<wl_input_panel_surface::position>(position);
-}
+private Q_SLOTS:
+    void handleStartMove(QWaylandInputDevice *inputDevice);
+    void handleStartResize(QWaylandInputDevice *inputDevice, QWaylandXdgSurface::ResizeEdge edges);
+    void handleSetMaximized();
+    void handleUnsetMaximized();
+    void handleMaximizedChanged();
+    void handleActivatedChanged();
+    void handleSurfaceSizeChanged();
+
+protected:
+    QWaylandQuickXdgSurfaceItem(QWaylandQuickXdgSurfaceItemPrivate &dd, QQuickItem *parent);
+
+    void mouseMoveEvent(QMouseEvent *event) Q_DECL_OVERRIDE;
+    void mouseReleaseEvent(QMouseEvent *event) Q_DECL_OVERRIDE;
+
+    void surfaceChangedEvent(QWaylandSurface *newSurface, QWaylandSurface *oldSurface) Q_DECL_OVERRIDE;
+};
 
 QT_END_NAMESPACE
 
-} // namespace QtWayland
+#endif  /*QWAYLANDQUICKXDGSURFACEITEM_H*/

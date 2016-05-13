@@ -36,6 +36,7 @@ class TestCompositor : public QWaylandCompositor
 public:
     TestCompositor(bool createInputDev = false);
     void create();
+    void flushClients();
 
 public slots:
     void onSurfaceCreated(QWaylandSurface *surface);

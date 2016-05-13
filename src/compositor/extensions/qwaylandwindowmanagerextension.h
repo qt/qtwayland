@@ -37,16 +37,12 @@
 #ifndef WAYLANDWINDOWMANAGERINTEGRATION_H
 #define WAYLANDWINDOWMANAGERINTEGRATION_H
 
-#include <QtWaylandCompositor/qwaylandextension.h>
+#include <QtWaylandCompositor/QWaylandExtension>
 #include <QtWaylandCompositor/QWaylandClient>
 
 #include <QtCore/QUrl>
 
 QT_BEGIN_NAMESPACE
-
-namespace QtWayland {
-    class Display;
-}
 
 class QWaylandCompositor;
 
@@ -55,16 +51,24 @@ class QWaylandWindowManagerExtensionPrivate;
 class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandWindowManagerExtension : public QWaylandExtensionTemplate<QWaylandWindowManagerExtension>
 {
     Q_OBJECT
+    Q_PROPERTY(bool showIsFullScreen READ showIsFullScreen WRITE setShowIsFullScreen NOTIFY showIsFullScreenChanged)
     Q_DECLARE_PRIVATE(QWaylandWindowManagerExtension)
 public:
+    QWaylandWindowManagerExtension();
     explicit QWaylandWindowManagerExtension(QWaylandCompositor *compositor);
 
+    bool showIsFullScreen() const;
     void setShowIsFullScreen(bool value);
+
     void sendQuitMessage(wl_client *client);
+
+    void initialize() Q_DECL_OVERRIDE;
 
     static const struct wl_interface *interface();
     static QByteArray interfaceName();
+
 Q_SIGNALS:
+    void showIsFullScreenChanged();
     void openUrl(QWaylandClient *client, const QUrl &url);
 };
 

@@ -67,7 +67,7 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQuickItem : public QQuickItem
     Q_PROPERTY(bool inputEventsEnabled READ inputEventsEnabled WRITE setInputEventsEnabled NOTIFY inputEventsEnabledChanged)
     Q_PROPERTY(bool focusOnClick READ focusOnClick WRITE setFocusOnClick NOTIFY focusOnClickChanged)
     Q_PROPERTY(bool sizeFollowsSurface READ sizeFollowsSurface WRITE setSizeFollowsSurface NOTIFY sizeFollowsSurfaceChanged)
-
+    Q_PROPERTY(QObject *subsurfaceHandler READ subsurfaceHandler WRITE setSubsurfaceHandler NOTIFY subsurfaceHandlerChanged)
 public:
     QWaylandQuickItem(QQuickItem *parent = 0);
     ~QWaylandQuickItem();
@@ -80,7 +80,7 @@ public:
 
     QWaylandSurface::Origin origin() const;
 
-    bool isTextureProvider() const Q_DECL_OVERRIDE { return true; }
+    bool isTextureProvider() const Q_DECL_OVERRIDE;
     QSGTextureProvider *textureProvider() const Q_DECL_OVERRIDE;
 
     bool paintEnabled() const;
@@ -99,6 +99,14 @@ public:
     bool sizeFollowsSurface() const;
     void setSizeFollowsSurface(bool sizeFollowsSurface);
 
+#ifndef QT_NO_IM
+    QVariant inputMethodQuery(Qt::InputMethodQuery query) const Q_DECL_OVERRIDE;
+    Q_INVOKABLE QVariant inputMethodQuery(Qt::InputMethodQuery query, QVariant argument) const;
+#endif
+
+    QObject *subsurfaceHandler() const;
+    void setSubsurfaceHandler(QObject*);
+
 protected:
     void mousePressEvent(QMouseEvent *event) Q_DECL_OVERRIDE;
     void mouseMoveEvent(QMouseEvent *event) Q_DECL_OVERRIDE;
@@ -113,6 +121,10 @@ protected:
 
     void touchEvent(QTouchEvent *event) Q_DECL_OVERRIDE;
     void mouseUngrabEvent() Q_DECL_OVERRIDE;
+
+#ifndef QT_NO_IM
+    void inputMethodEvent(QInputMethodEvent *event) Q_DECL_OVERRIDE;
+#endif
 
     virtual void surfaceChangedEvent(QWaylandSurface *newSurface, QWaylandSurface *oldSurface);
 public Q_SLOTS:
@@ -129,6 +141,11 @@ private Q_SLOTS:
     void updateBuffer(bool hasBuffer);
     void updateWindow();
     void beforeSync();
+    void handleSubsurfaceAdded(QWaylandSurface *childSurface);
+    void handleSubsurfacePosition(const QPoint &pos);
+#ifndef QT_NO_IM
+    void updateInputMethod(Qt::InputMethodQueries queries);
+#endif
 
 Q_SIGNALS:
     void surfaceChanged();
@@ -140,7 +157,7 @@ Q_SIGNALS:
     void mouseMove(const QPointF &windowPosition);
     void mouseRelease();
     void sizeFollowsSurfaceChanged();
-
+    void subsurfaceHandlerChanged();
 protected:
     QSGNode *updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *) Q_DECL_OVERRIDE;
 

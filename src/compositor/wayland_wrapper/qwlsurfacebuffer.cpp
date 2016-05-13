@@ -92,7 +92,8 @@ void SurfaceBuffer::initialize(struct ::wl_resource *buffer)
 void SurfaceBuffer::destructBufferState()
 {
     if (m_buffer) {
-        sendRelease();
+        if (m_committed)
+            sendRelease();
         wl_list_remove(&m_destroy_listener.listener.link);
     }
     m_buffer = 0;
@@ -198,6 +199,16 @@ QImage SurfaceBuffer::image() const
     return QImage();
 }
 
+QWaylandBufferRef::BufferFormatEgl SurfaceBuffer::bufferFormatEgl() const
+{
+    Q_ASSERT(isShm() == false);
+
+    if (QtWayland::ClientBufferIntegration *clientInt = QWaylandCompositorPrivate::get(m_compositor)->clientBufferIntegration())
+        return clientInt->bufferFormat(m_buffer);
+
+    return QWaylandBufferRef::BufferFormatEgl_Null;
+}
+
 void SurfaceBuffer::bindToTexture() const
 {
     Q_ASSERT(m_compositor);
@@ -219,14 +230,6 @@ void SurfaceBuffer::bindToTexture() const
             clientInt->bindTextureToBuffer(m_buffer);
         }
     }
-}
-
-int SurfaceBuffer::textureTarget() const
-{
-    if (QtWayland::ClientBufferIntegration *clientInt = QWaylandCompositorPrivate::get(m_compositor)->clientBufferIntegration())
-        return clientInt->textureTargetForBuffer(m_buffer);
-
-    return 0;
 }
 
 void SurfaceBuffer::updateTexture() const

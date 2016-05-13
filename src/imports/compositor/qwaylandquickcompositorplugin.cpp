@@ -48,18 +48,24 @@
 #include <QtWaylandCompositor/QWaylandQuickExtension>
 #include <QtWaylandCompositor/QWaylandInputDevice>
 #include <QtWaylandCompositor/QWaylandQuickWlShellSurfaceItem>
+#include <QtWaylandCompositor/QWaylandQuickXdgSurfaceItem>
 #include <QtWaylandCompositor/QWaylandResource>
 
+#include <QtWaylandCompositor/QWaylandWindowManagerExtension>
 #include <QtWaylandCompositor/QWaylandWlShell>
+#include <QtWaylandCompositor/QWaylandTextInputManager>
+#include <QtWaylandCompositor/QWaylandXdgShell>
 
 #include <QtWaylandCompositor/qwaylandexport.h>
 #include "qwaylandmousetracker_p.h"
 
 QT_BEGIN_NAMESPACE
 
-Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CLASS(QWaylandQuickCompositor)
-Q_COMPOSITOR_DECLARE_QUICK_DATA_CLASS(QWaylandWlShell)
-Q_COMPOSITOR_DECLARE_QUICK_DATA_CLASS(QWaylandWlShellSurface)
+Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CONTAINER_CLASS(QWaylandQuickCompositor)
+Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CLASS(QWaylandWindowManagerExtension)
+Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CLASS(QWaylandWlShell)
+Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CLASS(QWaylandXdgShell)
+Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CLASS(QWaylandTextInputManager)
 
 class QmlUrlResolver
 {
@@ -123,7 +129,7 @@ public:
 
     static void defineModule(const char *uri)
     {
-        qmlRegisterType<QWaylandQuickCompositorQuickExtension>(uri, 1, 0, "WaylandCompositor");
+        qmlRegisterType<QWaylandQuickCompositorQuickExtensionContainer>(uri, 1, 0, "WaylandCompositor");
         qmlRegisterType<QWaylandQuickItem>(uri, 1, 0, "WaylandQuickItem");
         qmlRegisterType<QWaylandMouseTracker>(uri, 1, 0, "WaylandMouseTracker");
         qmlRegisterType<QWaylandQuickOutput>(uri, 1, 0, "WaylandOutput");
@@ -136,13 +142,18 @@ public:
         qmlRegisterUncreatableType<QWaylandCompositor>(uri, 1, 0, "WaylandCompositorBase", QObject::tr("Cannot create instance of WaylandCompositorBase, use WaylandCompositor instead"));
         qmlRegisterUncreatableType<QWaylandSurface>(uri, 1, 0, "WaylandSurfaceBase", QObject::tr("Cannot create instance of WaylandSurfaceBase, use WaylandSurface instead"));
         qmlRegisterUncreatableType<QWaylandWlShellSurface>(uri, 1, 0, "WlShellSurfaceBase", QObject::tr("Cannot create instance of WlShellSurfaceBase, use WlShellSurface instead"));
+        qmlRegisterUncreatableType<QWaylandXdgSurface>(uri, 1, 0, "XdgSurfaceBase", QObject::tr("Cannot create instance of XdgSurfaceBase, use XdgSurface instead"));
         qmlRegisterUncreatableType<QWaylandResource>(uri, 1, 0, "WaylandResource", QObject::tr("Cannot create instance of WaylandResource"));
 
         //This should probably be somewhere else
-        qmlRegisterType<QWaylandWlShellQuickData>(uri, 1, 0, "WlShell");
-        qmlRegisterType<QWaylandWlShellSurfaceQuickData>(uri, 1, 0, "WlShellSurface");
+        qmlRegisterType<QWaylandWindowManagerExtensionQuickExtension>(uri, 1, 0, "WindowManager");
+        qmlRegisterType<QWaylandWlShellQuickExtension>(uri, 1, 0, "WlShell");
+        qmlRegisterType<QWaylandWlShellSurface>(uri, 1, 0, "WlShellSurface");
         qmlRegisterType<QWaylandQuickWlShellSurfaceItem>(uri, 1, 0, "WlShellSurfaceItem");
-
+        qmlRegisterType<QWaylandXdgShellQuickExtension>(uri, 1, 0, "XdgShell");
+        qmlRegisterType<QWaylandXdgSurface>(uri, 1, 0, "XdgSurface");
+        qmlRegisterType<QWaylandQuickXdgSurfaceItem>(uri, 1, 0, "XdgSurfaceItem");
+        qmlRegisterType<QWaylandTextInputManagerQuickExtension>(uri, 1, 0, "TextInputManager");
     }
 };
 //![class decl]

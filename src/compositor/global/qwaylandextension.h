@@ -38,10 +38,11 @@
 #define QWAYLANDEXTENSION_H
 
 #include <QtWaylandCompositor/qwaylandexport.h>
-#include <wayland-server.h>
 
 #include <QtCore/QObject>
 #include <QtCore/QVector>
+
+struct wl_interface;
 
 QT_BEGIN_NAMESPACE
 
@@ -79,7 +80,7 @@ public:
     QWaylandObject *extensionContainer() const;
     void setExtensionContainer(QWaylandObject *container);
 
-    Q_INVOKABLE virtual void initialize();
+    virtual void initialize();
     bool isInitialized() const;
 
     virtual const struct wl_interface *extensionInterface() const = 0;

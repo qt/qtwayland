@@ -50,6 +50,7 @@ MockClient::MockClient()
     , output(0)
     , registry(0)
     , wlshell(0)
+    , xdgShell(nullptr)
 {
     if (!display)
         qFatal("MockClient(): wl_display_connect() failed");
@@ -143,6 +144,8 @@ void MockClient::handleGlobal(uint32_t id, const QByteArray &interface)
         shm = static_cast<wl_shm *>(wl_registry_bind(registry, id, &wl_shm_interface, 1));
     } else if (interface == "wl_shell") {
         wlshell = static_cast<wl_shell *>(wl_registry_bind(registry, id, &wl_shell_interface, 1));
+    } else if (interface == "xdg_shell") {
+        xdgShell = static_cast<xdg_shell *>(wl_registry_bind(registry, id, &xdg_shell_interface, 1));
     } else if (interface == "wl_seat") {
         wl_seat *s = static_cast<wl_seat *>(wl_registry_bind(registry, id, &wl_seat_interface, 1));
         m_seats << new MockSeat(s);
@@ -159,6 +162,12 @@ wl_shell_surface *MockClient::createShellSurface(wl_surface *surface)
 {
     flushDisplay();
     return wl_shell_get_shell_surface(wlshell, surface);
+}
+
+xdg_surface *MockClient::createXdgSurface(wl_surface *surface)
+{
+    flushDisplay();
+    return xdg_shell_get_xdg_surface(xdgShell, surface);
 }
 
 ShmBuffer::ShmBuffer(const QSize &size, wl_shm *shm)

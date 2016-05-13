@@ -38,11 +38,13 @@
 #define QWAYLANDQUICKEXTENSION_H
 
 #include <QtWaylandCompositor/QWaylandExtension>
+#include <QtQml/QQmlParserStatus>
+#include <QtQml/QQmlListProperty>
 
 QT_BEGIN_NAMESPACE
 
-#define Q_COMPOSITOR_DECLARE_QUICK_DATA_CLASS(className) \
-    class Q_WAYLAND_COMPOSITOR_EXPORT className##QuickData : public className \
+#define Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CLASS(className) \
+    class Q_WAYLAND_COMPOSITOR_EXPORT className##QuickExtension : public className, public QQmlParserStatus \
     { \
 /* qmake ignore Q_OBJECT */ \
         Q_OBJECT \
@@ -53,12 +55,14 @@ QT_BEGIN_NAMESPACE
         { \
             return QQmlListProperty<QObject>(this, m_objects); \
         } \
+        void classBegin() Q_DECL_OVERRIDE {} \
+        void componentComplete() Q_DECL_OVERRIDE { initialize(); } \
     private: \
         QList<QObject *> m_objects; \
     };
 
-#define Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CLASS(className) \
-    class Q_WAYLAND_COMPOSITOR_EXPORT className##QuickExtension : public className \
+#define Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CONTAINER_CLASS(className) \
+    class Q_WAYLAND_COMPOSITOR_EXPORT className##QuickExtensionContainer : public className \
     { \
 /* qmake ignore Q_OBJECT */ \
         Q_OBJECT \
@@ -73,27 +77,27 @@ QT_BEGIN_NAMESPACE
         QQmlListProperty<QWaylandExtension> extensions() \
         { \
             return QQmlListProperty<QWaylandExtension>(this, this, \
-                                                       &className##QuickExtension::append_extension, \
-                                                       &className##QuickExtension::countFunction, \
-                                                       &className##QuickExtension::atFunction, \
-                                                       &className##QuickExtension::clearFunction); \
+                                                       &className##QuickExtensionContainer::append_extension, \
+                                                       &className##QuickExtensionContainer::countFunction, \
+                                                       &className##QuickExtensionContainer::atFunction, \
+                                                       &className##QuickExtensionContainer::clearFunction); \
         } \
         static int countFunction(QQmlListProperty<QWaylandExtension> *list) \
         { \
-            return static_cast<className##QuickExtension *>(list->data)->extension_vector.size(); \
+            return static_cast<className##QuickExtensionContainer *>(list->data)->extension_vector.size(); \
         } \
         static QWaylandExtension *atFunction(QQmlListProperty<QWaylandExtension> *list, int index) \
         { \
-            return static_cast<className##QuickExtension *>(list->data)->extension_vector.at(index); \
+            return static_cast<className##QuickExtensionContainer *>(list->data)->extension_vector.at(index); \
         } \
         static void append_extension(QQmlListProperty<QWaylandExtension> *list, QWaylandExtension *extension) \
         { \
-            className##QuickExtension *quickExtObj = static_cast<className##QuickExtension *>(list->data); \
+            className##QuickExtensionContainer *quickExtObj = static_cast<className##QuickExtensionContainer *>(list->data); \
             extension->setExtensionContainer(quickExtObj); \
         } \
         static void clearFunction(QQmlListProperty<QWaylandExtension> *list) \
         { \
-            static_cast<className##QuickExtension *>(list->data)->extension_vector.clear(); \
+            static_cast<className##QuickExtensionContainer *>(list->data)->extension_vector.clear(); \
         } \
     private: \
         QList<QObject *> m_objects; \

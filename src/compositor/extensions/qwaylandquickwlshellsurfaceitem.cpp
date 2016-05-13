@@ -110,6 +110,7 @@ void QWaylandQuickWlShellSurfaceItem::setShellSurface(QWaylandWlShellSurface *sh
         connect(d->shellSurface, &QWaylandWlShellSurface::startMove, this, &QWaylandQuickWlShellSurfaceItem::handleStartMove);
         connect(d->shellSurface, &QWaylandWlShellSurface::startResize, this, &QWaylandQuickWlShellSurfaceItem::handleStartResize);
     }
+    setSurface(shellSurface ? shellSurface->surface() : nullptr);
     emit shellSurfaceChanged();
 }
 
@@ -154,7 +155,7 @@ void QWaylandQuickWlShellSurfaceItem::handleStartResize(QWaylandInputDevice *inp
     d->grabberState = QWaylandQuickWlShellSurfaceItemPrivate::ResizeState;
     d->resizeState.inputDevice = inputDevice;
     d->resizeState.resizeEdges = edges;
-    d->resizeState.initialSize = surface()->size();
+    d->resizeState.initialSize = surface()->size() / d->scaleFactor();
     d->resizeState.initialized = false;
 }
 
@@ -165,7 +166,7 @@ void QWaylandQuickWlShellSurfaceItem::adjustOffsetForNextFrame(const QPointF &of
 {
     Q_D(QWaylandQuickWlShellSurfaceItem);
     QQuickItem *moveItem = d->moveItem ? d->moveItem : this;
-    moveItem->setPosition(moveItem->position() + offset);
+    moveItem->setPosition(moveItem->position() + offset * d->scaleFactor());
 }
 
 /*!
@@ -181,7 +182,7 @@ void QWaylandQuickWlShellSurfaceItem::mouseMoveEvent(QMouseEvent *event)
             d->resizeState.initialized = true;
             return;
         }
-        QPointF delta = event->windowPos() - d->resizeState.initialMousePos;
+        QPointF delta = (event->windowPos() - d->resizeState.initialMousePos) / d->scaleFactor();
         QSize newSize = shellSurface()->sizeForResize(d->resizeState.initialSize, delta, d->resizeState.resizeEdges);
         shellSurface()->sendConfigure(newSize, d->resizeState.resizeEdges);
     } else if (d->grabberState == QWaylandQuickWlShellSurfaceItemPrivate::MoveState) {
@@ -224,18 +225,6 @@ void QWaylandQuickWlShellSurfaceItem::surfaceChangedEvent(QWaylandSurface *newSu
 
     if (newSurface)
         connect(newSurface, &QWaylandSurface::offsetForNextFrame, this, &QWaylandQuickWlShellSurfaceItem::adjustOffsetForNextFrame);
-}
-
-/*!
- * \internal
- */
-void QWaylandQuickWlShellSurfaceItem::componentComplete()
-{
-    Q_D(QWaylandQuickWlShellSurfaceItem);
-    if (!d->shellSurface)
-        setShellSurface(new QWaylandWlShellSurface());
-
-    QWaylandQuickItem::componentComplete();
 }
 
 QT_END_NAMESPACE

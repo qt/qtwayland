@@ -43,6 +43,7 @@
 #include "wayland_wrapper/qwlregion_p.h"
 
 #include "extensions/qwlextendedsurface_p.h"
+#include "qwaylandinputmethodcontrol_p.h"
 
 #include <QtWaylandCompositor/QWaylandCompositor>
 #include <QtWaylandCompositor/QWaylandClient>
@@ -124,18 +125,20 @@ QWaylandSurfacePrivate::QWaylandSurfacePrivate()
     , client(Q_NULLPTR)
     , buffer(0)
     , role(0)
-    , inputPanelSurface(0)
     , inputRegion(infiniteRegion())
+    , bufferScale(1)
     , isCursorSurface(false)
     , destroyed(false)
     , mapped(false)
     , isInitialized(false)
     , contentOrientation(Qt::PrimaryOrientation)
+    , inputMethodControl(Q_NULLPTR)
     , subsurface(0)
 {
     pending.buffer = 0;
     pending.newlyAttached = false;
     pending.inputRegion = infiniteRegion();
+    pending.bufferScale = 1;
 #ifndef QT_NO_DEBUG
     addUninitializedSurface(this);
 #endif
@@ -167,6 +170,15 @@ void QWaylandSurfacePrivate::setSize(const QSize &s)
         size = s;
         q->sizeChanged();
     }
+}
+
+void QWaylandSurfacePrivate::setBufferScale(int scale)
+{
+    Q_Q(QWaylandSurface);
+    if (scale == bufferScale)
+        return;
+    bufferScale = scale;
+    emit q->bufferScaleChanged();
 }
 
 void QWaylandSurfacePrivate::removeFrameCallback(QtWayland::FrameCallback *callback)
@@ -271,6 +283,8 @@ void QWaylandSurfacePrivate::surface_commit(Resource *)
     pending.newlyAttached = false;
     pending.damage = QRegion();
 
+    setBufferScale(pending.bufferScale);
+
     if (buffer)
         buffer->setCommitted();
 
@@ -304,6 +318,12 @@ void QWaylandSurfacePrivate::surface_set_buffer_transform(Resource *resource, in
     }
     if (contentOrientation != oldOrientation)
         emit q->contentOrientationChanged();
+}
+
+void QWaylandSurfacePrivate::surface_set_buffer_scale(QtWaylandServer::wl_surface::Resource *resource, int32_t scale)
+{
+    Q_UNUSED(resource);
+    pending.bufferScale = scale;
 }
 
 void QWaylandSurfacePrivate::setBackBuffer(QtWayland::SurfaceBuffer *b, const QRegion &d)
@@ -426,6 +446,7 @@ void QWaylandSurface::initialize(QWaylandCompositor *compositor, QWaylandClient 
     d->client = client;
     d->init(client->client(), id, version);
     d->isInitialized = true;
+    d->inputMethodControl = new QWaylandInputMethodControl(this);
 #ifndef QT_NO_DEBUG
     QWaylandSurfacePrivate::removeUninitializedSurface(d);
 #endif
@@ -492,6 +513,27 @@ QSize QWaylandSurface::size() const
 {
     Q_D(const QWaylandSurface);
     return d->size;
+}
+
+/*!
+ * \qmlproperty size QtWaylandCompositor::WaylandSurface::bufferScale
+ *
+ * This property holds the WaylandSurface's buffer scale. The buffer scale lets
+ * a client supply higher resolution buffer data for use on high resolution
+ * outputs.
+ */
+
+/*!
+ * \property QWaylandSurface::bufferScale
+ *
+ * This property holds the QWaylandSurface's buffer scale. The buffer scale
+ * lets a client supply higher resolution buffer data for use on high
+ * resolution outputs.
+ */
+int QWaylandSurface::bufferScale() const
+{
+    Q_D(const QWaylandSurface);
+    return d->bufferScale;
 }
 
 /*!
@@ -588,16 +630,6 @@ void QWaylandSurface::sendFrameCallbacks()
 }
 
 /*!
- * Returns true if the QWaylandSurface has an input panel surface. Otherwise returns false.
- */
-bool QWaylandSurface::hasInputPanelSurface() const
-{
-    Q_D(const QWaylandSurface);
-
-    return d->inputPanelSurface != 0;
-}
-
-/*!
  * Returns true if the QWaylandSurface's input region contains the point \a p.
  * Otherwise returns false.
  */
@@ -658,6 +690,12 @@ bool QWaylandSurface::isCursorSurface() const
 {
     Q_D(const QWaylandSurface);
     return d->isCursorSurface;
+}
+
+QWaylandInputMethodControl *QWaylandSurface::inputMethodControl() const
+{
+    Q_D(const QWaylandSurface);
+    return d->inputMethodControl;
 }
 
 /*!

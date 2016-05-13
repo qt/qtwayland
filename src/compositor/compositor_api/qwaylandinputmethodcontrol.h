@@ -1,7 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
-** Copyright (C) 2013 Klarälvdalens Datakonsult AB (KDAB).
+** Copyright (C) 2016 Klarälvdalens Datakonsult AB, a KDAB Group company, info@kdab.com
 ** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the QtWaylandCompositor module of the Qt Toolkit.
@@ -35,61 +34,51 @@
 **
 ****************************************************************************/
 
-#ifndef QTWAYLAND_QWLINPUTPANELSURFACE_P_H
-#define QTWAYLAND_QWLINPUTPANELSURFACE_P_H
+#ifndef QWAYLANDINPUTMETHODCONTROL_H
+#define QWAYLANDINPUTMETHODCONTROL_H
 
-//
-//  W A R N I N G
-//  -------------
-//
-// This file is not part of the Qt API.  It exists purely as an
-// implementation detail.  This header file may change from version to
-// version without notice, or even be removed.
-//
-// We mean it.
-//
-
-#include <QtWaylandCompositor/private/qwayland-server-input-method.h>
-
-#include <QWaylandSurface>
+#include <QObject>
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandOutput;
+class QWaylandCompositor;
+class QWaylandInputMethodControlPrivate;
+class QWaylandSurface;
+class QInputMethodEvent;
 
-namespace QtWayland {
-
-class InputPanelSurface : public QtWaylandServer::wl_input_panel_surface
+class QWaylandInputMethodControl : public QObject
 {
+    Q_OBJECT
+    Q_DECLARE_PRIVATE(QWaylandInputMethodControl)
+    Q_DISABLE_COPY(QWaylandInputMethodControl)
+
+    Q_PROPERTY(bool enabled READ enabled WRITE setEnabled NOTIFY enabledChanged)
 public:
-    enum Type {
-        Invalid,
-        Toplevel,
-        OverlayPanel
-    };
+    explicit QWaylandInputMethodControl(QWaylandSurface *surface);
 
-    InputPanelSurface(struct ::wl_client *client, int id, QWaylandSurface *surface);
+#ifndef QT_NO_IM
+    QVariant inputMethodQuery(Qt::InputMethodQuery query, QVariant argument) const;
+#endif
 
-    Type type() const;
+    void inputMethodEvent(QInputMethodEvent *event);
 
-    QWaylandOutput *output() const;
-    wl_input_panel_surface::position position() const;
+    bool enabled() const;
+    void setEnabled(bool enabled);
 
-protected:
-    void input_panel_surface_set_overlay_panel(Resource *resource) Q_DECL_OVERRIDE;
-    void input_panel_surface_set_toplevel(Resource *resource, wl_resource *output_resource, uint32_t position) Q_DECL_OVERRIDE;
+    void setSurface(QWaylandSurface *surface);
+
+Q_SIGNALS:
+    void enabledChanged(bool enabled);
+#ifndef QT_NO_IM
+    void updateInputMethod(Qt::InputMethodQueries queries);
+#endif
 
 private:
-    QWaylandSurface *m_surface;
-
-    Type m_type;
-
-    QWaylandOutput *m_output;
-    wl_input_panel_surface::position m_position;
+    void defaultInputDeviceChanged();
+    void surfaceEnabled(QWaylandSurface *surface);
+    void surfaceDisabled(QWaylandSurface *surface);
 };
-
-} // namespace QtWayland
 
 QT_END_NAMESPACE
 
-#endif // QTWAYLAND_QWLINPUTPANELSURFACE_P_H
+#endif // QWAYLANDINPUTMETHODCONTROL_H

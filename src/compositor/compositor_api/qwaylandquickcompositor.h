@@ -54,6 +54,8 @@ public:
     QWaylandQuickCompositor(QObject *parent = 0);
     void create() Q_DECL_OVERRIDE;
 
+    void grabSurface(QWaylandSurfaceGrabber *grabber, const QWaylandBufferRef &buffer) Q_DECL_OVERRIDE;
+
 protected:
     void classBegin() Q_DECL_OVERRIDE;
     void componentComplete() Q_DECL_OVERRIDE;

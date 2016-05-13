@@ -44,6 +44,7 @@
 #include "wayland-util.h"
 
 #include <QtWaylandCompositor/QWaylandExtensionTemplate>
+#include <QtWaylandCompositor/QWaylandQuickExtension>
 #include <QtWaylandCompositor/QWaylandCompositor>
 #include "qwayland-server-custom.h"
 
@@ -54,7 +55,7 @@ class CustomExtension  : public QWaylandExtensionTemplate<CustomExtension>, publ
     Q_OBJECT
 public:
     CustomExtension();
-    Q_INVOKABLE void initialize(QWaylandCompositor *compositor);
+    void initialize() Q_DECL_OVERRIDE;
     Q_INVOKABLE void sendEvent(QWaylandSurface *surface, uint time, const QString &text, uint value);
 
 signals:
@@ -62,6 +63,8 @@ signals:
 protected:
     virtual void example_extension_qtrequest(Resource *resource, const QString &text, int32_t value) Q_DECL_OVERRIDE;
 };
+
+Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CLASS(CustomExtension)
 
 }
 

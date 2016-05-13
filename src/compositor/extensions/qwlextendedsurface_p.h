@@ -105,11 +105,6 @@ public:
     void sendOnScreenVisibilityChange(bool onScreen);
     void setVisibility(QWindow::Visibility visibility);
 
-    void setSubSurface(ExtendedSurface *subSurface,int x, int y);
-    void removeSubSurface(ExtendedSurface *subSurfaces);
-    ExtendedSurface *parent() const;
-    void setParent(ExtendedSurface *parent);
-    QLinkedList<QWaylandSurface *> subSurfaces() const;
     void setParentSurface(QWaylandSurface *s);
 
     Qt::ScreenOrientations contentOrientationMask() const;

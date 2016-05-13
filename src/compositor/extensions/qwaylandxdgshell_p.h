@@ -42,6 +42,8 @@
 
 #include <QtWaylandCompositor/QWaylandXdgShell>
 
+#include <QtCore/QSet>
+
 //
 //  W A R N I N G
 //  -------------

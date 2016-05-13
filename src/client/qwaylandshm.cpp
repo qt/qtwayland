@@ -39,7 +39,7 @@
 #include <QtWaylandClient/private/qwaylandshm_p.h>
 #include <QtWaylandClient/private/qwaylanddisplay_p.h>
 
-#include "qwaylandshmformathelper.h"
+#include "qwaylandshmformathelper_p.h"
 
 QT_BEGIN_NAMESPACE
 

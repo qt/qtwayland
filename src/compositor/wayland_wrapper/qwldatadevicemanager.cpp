@@ -43,7 +43,7 @@
 #include "qwldatadevice_p.h"
 #include "qwldatasource_p.h"
 #include "qwldataoffer_p.h"
-#include "qwaylandmimehelper.h"
+#include "qwaylandmimehelper_p.h"
 
 #include <QtCore/QDebug>
 #include <QtCore/QSocketNotifier>

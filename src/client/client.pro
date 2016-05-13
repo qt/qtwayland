@@ -99,9 +99,6 @@ HEADERS +=  qwaylandintegration_p.h \
             qwaylandsubsurface_p.h \
             qwaylandtouch_p.h \
             qwaylandqtkey_p.h \
-            ../shared/qwaylandmimehelper.h \
-            ../shared/qwaylandxkb.h \
-            ../shared/qwaylandinputmethodeventbuilder.h \
             qwaylandabstractdecoration_p.h \
             qwaylanddecorationfactory_p.h \
             qwaylanddecorationplugin_p.h \
@@ -109,6 +106,10 @@ HEADERS +=  qwaylandintegration_p.h \
             qwaylandinputcontext_p.h \
             qwaylanddatadevice_p.h \
             qwaylandshm_p.h \
+            ../shared/qwaylandinputmethodeventbuilder_p.h \
+            ../shared/qwaylandmimehelper_p.h \
+            ../shared/qwaylandxkb_p.h \
+            ../shared/qwaylandshmformathelper_p.h
 
 include(hardwareintegration/hardwareintegration.pri)
 include(shellintegration/shellintegration.pri)

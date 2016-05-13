@@ -42,8 +42,8 @@
 
 #include "qwaylandsurface.h"
 #include "qwaylandview.h"
-#include "qwaylandxkb.h"
-#include "qwaylandinputmethodeventbuilder.h"
+#include "qwaylandxkb_p.h"
+#include "qwaylandinputmethodeventbuilder_p.h"
 
 #include <QGuiApplication>
 #include <QInputMethodEvent>

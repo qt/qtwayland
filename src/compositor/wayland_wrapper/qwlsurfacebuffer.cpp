@@ -44,7 +44,7 @@
 #include <QtCore/QDebug>
 
 #include <wayland-server-protocol.h>
-#include "qwaylandshmformathelper.h"
+#include "qwaylandshmformathelper_p.h"
 
 #include <QtWaylandCompositor/private/qwaylandcompositor_p.h>
 

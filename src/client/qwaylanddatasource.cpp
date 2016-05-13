@@ -41,7 +41,7 @@
 #include "qwaylanddataoffer_p.h"
 #include "qwaylanddatadevicemanager_p.h"
 #include "qwaylandinputdevice_p.h"
-#include "qwaylandmimehelper.h"
+#include "qwaylandmimehelper_p.h"
 
 #include <QtCore/QFile>
 

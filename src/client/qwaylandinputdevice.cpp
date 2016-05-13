@@ -49,7 +49,7 @@
 #include "qwaylandcursor_p.h"
 #include "qwaylanddisplay_p.h"
 #include "qwaylandshmbackingstore_p.h"
-#include "../shared/qwaylandxkb.h"
+#include "../shared/qwaylandxkb_p.h"
 #include "qwaylandinputcontext_p.h"
 
 #include <QtGui/private/qpixmap_raster_p.h>

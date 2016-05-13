@@ -53,7 +53,7 @@ QWaylandSurfaceRole QWaylandXdgSurfacePrivate::s_role("xdg_surface");
 QWaylandSurfaceRole QWaylandXdgPopupPrivate::s_role("xdg_popup");
 
 QWaylandXdgShellPrivate::QWaylandXdgShellPrivate()
-    : QWaylandExtensionTemplatePrivate()
+    : QWaylandCompositorExtensionTemplatePrivate()
     , xdg_shell()
 {
 }
@@ -216,7 +216,7 @@ void QWaylandXdgShellPrivate::xdg_shell_pong(Resource *resource, uint32_t serial
 }
 
 QWaylandXdgSurfacePrivate::QWaylandXdgSurfacePrivate()
-    : QWaylandExtensionTemplatePrivate()
+    : QWaylandCompositorExtensionTemplatePrivate()
     , xdg_surface()
     , m_surface(nullptr)
     , m_parentSurface(nullptr)
@@ -439,7 +439,7 @@ void QWaylandXdgSurfacePrivate::xdg_surface_set_window_geometry(Resource *resour
 }
 
 QWaylandXdgPopupPrivate::QWaylandXdgPopupPrivate()
-    : QWaylandExtensionTemplatePrivate()
+    : QWaylandCompositorExtensionTemplatePrivate()
     , xdg_popup()
     , m_surface(nullptr)
     , m_parentSurface(nullptr)
@@ -465,14 +465,14 @@ void QWaylandXdgPopupPrivate::xdg_popup_destroy(Resource *resource)
  * Constructs a QWaylandXdgShell object.
  */
 QWaylandXdgShell::QWaylandXdgShell()
-    : QWaylandExtensionTemplate<QWaylandXdgShell>(*new QWaylandXdgShellPrivate())
+    : QWaylandCompositorExtensionTemplate<QWaylandXdgShell>(*new QWaylandXdgShellPrivate())
 { }
 
 /*!
  * Constructs a QWaylandXdgShell object for the provided \a compositor.
  */
 QWaylandXdgShell::QWaylandXdgShell(QWaylandCompositor *compositor)
-    : QWaylandExtensionTemplate<QWaylandXdgShell>(compositor, *new QWaylandXdgShellPrivate())
+    : QWaylandCompositorExtensionTemplate<QWaylandXdgShell>(compositor, *new QWaylandXdgShellPrivate())
 { }
 
 /*!
@@ -481,7 +481,7 @@ QWaylandXdgShell::QWaylandXdgShell(QWaylandCompositor *compositor)
 void QWaylandXdgShell::initialize()
 {
     Q_D(QWaylandXdgShell);
-    QWaylandExtensionTemplate::initialize();
+    QWaylandCompositorExtensionTemplate::initialize();
     QWaylandCompositor *compositor = static_cast<QWaylandCompositor *>(extensionContainer());
     if (!compositor) {
         qWarning() << "Failed to find QWaylandCompositor when initializing QWaylandXdgShell";
@@ -592,7 +592,7 @@ void QWaylandXdgShell::handleFocusChanged(QWaylandSurface *newSurface, QWaylandS
  * Constructs a QWaylandXdgSurface.
  */
 QWaylandXdgSurface::QWaylandXdgSurface()
-    : QWaylandExtensionTemplate<QWaylandXdgSurface>(*new QWaylandXdgSurfacePrivate)
+    : QWaylandCompositorExtensionTemplate<QWaylandXdgSurface>(*new QWaylandXdgSurfacePrivate)
 {
 }
 
@@ -601,7 +601,7 @@ QWaylandXdgSurface::QWaylandXdgSurface()
  * given \a xdgShell, \a surface and \a resource.
  */
 QWaylandXdgSurface::QWaylandXdgSurface(QWaylandXdgShell *xdgShell, QWaylandSurface *surface, const QWaylandResource &res)
-    : QWaylandExtensionTemplate<QWaylandXdgSurface>(*new QWaylandXdgSurfacePrivate)
+    : QWaylandCompositorExtensionTemplate<QWaylandXdgSurface>(*new QWaylandXdgSurfacePrivate)
 {
     initialize(xdgShell, surface, res);
 }
@@ -628,7 +628,7 @@ void QWaylandXdgSurface::initialize(QWaylandXdgShell *xdgShell, QWaylandSurface 
     connect(surface, &QWaylandSurface::sizeChanged, this, &QWaylandXdgSurface::handleSurfaceSizeChanged);
     emit surfaceChanged();
     emit windowGeometryChanged();
-    QWaylandExtension::initialize();
+    QWaylandCompositorExtension::initialize();
 }
 
 /*!
@@ -636,7 +636,7 @@ void QWaylandXdgSurface::initialize(QWaylandXdgShell *xdgShell, QWaylandSurface 
  */
 void QWaylandXdgSurface::initialize()
 {
-    QWaylandExtensionTemplate::initialize();
+    QWaylandCompositorExtensionTemplate::initialize();
 }
 
 QList<int> QWaylandXdgSurface::statesAsInts() const
@@ -934,7 +934,7 @@ uint QWaylandXdgSurface::requestResizing(const QSize &maxSize)
  * Constructs a QWaylandXdgPopup.
  */
 QWaylandXdgPopup::QWaylandXdgPopup()
-    : QWaylandExtensionTemplate<QWaylandXdgPopup>(*new QWaylandXdgPopupPrivate)
+    : QWaylandCompositorExtensionTemplate<QWaylandXdgPopup>(*new QWaylandXdgPopupPrivate)
 {
 }
 
@@ -944,7 +944,7 @@ QWaylandXdgPopup::QWaylandXdgPopup()
  */
 QWaylandXdgPopup::QWaylandXdgPopup(QWaylandXdgShell *xdgShell, QWaylandSurface *surface,
                                    QWaylandSurface *parentSurface, const QWaylandResource &resource)
-    : QWaylandExtensionTemplate<QWaylandXdgPopup>(*new QWaylandXdgPopupPrivate)
+    : QWaylandCompositorExtensionTemplate<QWaylandXdgPopup>(*new QWaylandXdgPopupPrivate)
 {
     initialize(xdgShell, surface, parentSurface, resource);
 }
@@ -971,7 +971,7 @@ void QWaylandXdgPopup::initialize(QWaylandXdgShell *shell, QWaylandSurface *surf
     setExtensionContainer(surface);
     emit surfaceChanged();
     emit parentSurfaceChanged();
-    QWaylandExtension::initialize();
+    QWaylandCompositorExtension::initialize();
 }
 
 /*!
@@ -1014,7 +1014,7 @@ QWaylandSurface *QWaylandXdgPopup::parentSurface() const
  */
 void QWaylandXdgPopup::initialize()
 {
-    QWaylandExtensionTemplate::initialize();
+    QWaylandCompositorExtensionTemplate::initialize();
 }
 
 /*!

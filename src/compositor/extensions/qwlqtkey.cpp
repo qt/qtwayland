@@ -44,7 +44,7 @@ QT_BEGIN_NAMESPACE
 namespace QtWayland {
 
 QtKeyExtensionGlobal::QtKeyExtensionGlobal(QWaylandCompositor *compositor)
-    : QWaylandExtensionTemplate(compositor)
+    : QWaylandCompositorExtensionTemplate(compositor)
     , QtWaylandServer::qt_key_extension(compositor->display(), 2)
     , m_compositor(compositor)
 {

@@ -37,7 +37,7 @@
 #ifndef QWAYLANDWLSHELL_H
 #define QWAYLANDWLSHELL_H
 
-#include <QtWaylandCompositor/QWaylandExtension>
+#include <QtWaylandCompositor/QWaylandCompositorExtension>
 #include <QtWaylandCompositor/QWaylandResource>
 
 #include <QtCore/QSize>
@@ -53,7 +53,7 @@ class QWaylandOutput;
 class QWaylandSurfaceRole;
 class QWaylandWlShellSurface;
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandWlShell : public QWaylandExtensionTemplate<QWaylandWlShell>
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandWlShell : public QWaylandCompositorExtensionTemplate<QWaylandWlShell>
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandWlShell)
@@ -71,7 +71,7 @@ Q_SIGNALS:
     void shellSurfaceCreated(QWaylandWlShellSurface *shellSurface);
 };
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandWlShellSurface : public QWaylandExtensionTemplate<QWaylandWlShellSurface>
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandWlShellSurface : public QWaylandCompositorExtensionTemplate<QWaylandWlShellSurface>
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandWlShellSurface)

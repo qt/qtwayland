@@ -48,34 +48,34 @@
 // We mean it.
 //
 
-#include "qwaylandextension.h"
+#include "qwaylandcompositorextension.h"
 #include <QtCore/private/qobject_p.h>
 
 QT_BEGIN_NAMESPACE
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandExtensionPrivate : public QObjectPrivate
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandCompositorExtensionPrivate : public QObjectPrivate
 {
-    Q_DECLARE_PUBLIC(QWaylandExtension)
+    Q_DECLARE_PUBLIC(QWaylandCompositorExtension)
 
 public:
-    QWaylandExtensionPrivate()
+    QWaylandCompositorExtensionPrivate()
         : QObjectPrivate()
         , extension_container(Q_NULLPTR)
         , initialized(false)
     {
     }
 
-    static QWaylandExtensionPrivate *get(QWaylandExtension *extension) { return extension->d_func(); }
+    static QWaylandCompositorExtensionPrivate *get(QWaylandCompositorExtension *extension) { return extension->d_func(); }
 
     QWaylandObject *extension_container;
     bool initialized;
 };
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandExtensionTemplatePrivate : public QWaylandExtensionPrivate
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandCompositorExtensionTemplatePrivate : public QWaylandCompositorExtensionPrivate
 {
 public:
-    QWaylandExtensionTemplatePrivate()
-        : QWaylandExtensionPrivate()
+    QWaylandCompositorExtensionTemplatePrivate()
+        : QWaylandCompositorExtensionPrivate()
     { }
 };
 

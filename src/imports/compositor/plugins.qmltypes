@@ -80,7 +80,7 @@ Module {
         }
     }
     Component {
-        name: "QWaylandExtension"
+        name: "QWaylandCompositorExtension"
         prototype: "QObject"
         exports: ["QtWayland.Compositor/WaylandExtension 1.0"]
         isCreatable: false
@@ -178,7 +178,7 @@ Module {
         prototype: "QWaylandQuickCompositor"
         exports: ["QtWayland.Compositor/WaylandCompositor 1.0"]
         exportMetaObjectRevisions: [0]
-        Property { name: "extensions"; type: "QWaylandExtension"; isList: true; isReadonly: true }
+        Property { name: "extensions"; type: "QWaylandCompositorExtension"; isList: true; isReadonly: true }
         Property { name: "data"; type: "QObject"; isList: true; isReadonly: true }
     }
     Component {
@@ -329,7 +329,7 @@ Module {
         Method { name: "frameStarted" }
         Method { name: "sendFrameCallbacks" }
     }
-    Component { name: "QWaylandTextInputManager"; prototype: "QWaylandExtension" }
+    Component { name: "QWaylandTextInputManager"; prototype: "QWaylandCompositorExtension" }
     Component {
         name: "QWaylandTextInputManagerQuickExtension"
         defaultProperty: "data"
@@ -353,7 +353,7 @@ Module {
     }
     Component {
         name: "QWaylandWindowManagerExtension"
-        prototype: "QWaylandExtension"
+        prototype: "QWaylandCompositorExtension"
         Property { name: "showIsFullScreen"; type: "bool" }
         Signal {
             name: "openUrl"
@@ -371,7 +371,7 @@ Module {
     }
     Component {
         name: "QWaylandWlShell"
-        prototype: "QWaylandExtension"
+        prototype: "QWaylandCompositorExtension"
         Signal {
             name: "createShellSurface"
             Parameter { name: "surface"; type: "QWaylandSurface"; isPointer: true }
@@ -392,7 +392,7 @@ Module {
     }
     Component {
         name: "QWaylandWlShellSurface"
-        prototype: "QWaylandExtension"
+        prototype: "QWaylandCompositorExtension"
         exports: [
             "QtWayland.Compositor/WlShellSurface 1.0",
             "QtWayland.Compositor/WlShellSurfaceBase 1.0"
@@ -489,7 +489,7 @@ Module {
     }
     Component {
         name: "QWaylandXdgShell"
-        prototype: "QWaylandExtension"
+        prototype: "QWaylandCompositorExtension"
         Signal {
             name: "createXdgSurface"
             Parameter { name: "surface"; type: "QWaylandSurface"; isPointer: true }
@@ -532,7 +532,7 @@ Module {
     }
     Component {
         name: "QWaylandXdgSurface"
-        prototype: "QWaylandExtension"
+        prototype: "QWaylandCompositorExtension"
         exports: [
             "QtWayland.Compositor/XdgSurface 1.0",
             "QtWayland.Compositor/XdgSurfaceBase 1.0"

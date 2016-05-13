@@ -45,17 +45,17 @@
 QT_BEGIN_NAMESPACE
 
 QWaylandWindowManagerExtension::QWaylandWindowManagerExtension()
-    : QWaylandExtensionTemplate<QWaylandWindowManagerExtension>(*new QWaylandWindowManagerExtensionPrivate)
+    : QWaylandCompositorExtensionTemplate<QWaylandWindowManagerExtension>(*new QWaylandWindowManagerExtensionPrivate)
 {
 }
 
 QWaylandWindowManagerExtension::QWaylandWindowManagerExtension(QWaylandCompositor *compositor)
-    : QWaylandExtensionTemplate<QWaylandWindowManagerExtension>(compositor, *new QWaylandWindowManagerExtensionPrivate)
+    : QWaylandCompositorExtensionTemplate<QWaylandWindowManagerExtension>(compositor, *new QWaylandWindowManagerExtensionPrivate)
 {
 }
 
 QWaylandWindowManagerExtensionPrivate::QWaylandWindowManagerExtensionPrivate()
-    : QWaylandExtensionTemplatePrivate()
+    : QWaylandCompositorExtensionTemplatePrivate()
     , QtWaylandServer::qt_windowmanager()
     , showIsFullScreen(false)
 {
@@ -94,7 +94,7 @@ void QWaylandWindowManagerExtension::initialize()
 {
     Q_D(QWaylandWindowManagerExtension);
 
-    QWaylandExtensionTemplate::initialize();
+    QWaylandCompositorExtensionTemplate::initialize();
     QWaylandCompositor *compositor = static_cast<QWaylandCompositor *>(extensionContainer());
     if (!compositor) {
         qWarning() << "Failed to find QWaylandCompositor when initializing QWaylandWindowManagerExtension";

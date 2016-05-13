@@ -37,7 +37,7 @@
 #ifndef QWAYLANDQUICKWLSHELLSURFACEITEM_H
 #define QWAYLANDQUICKWLSHELLSURFACEITEM_H
 
-#include <QtWaylandCompositor/QWaylandExtension>
+#include <QtWaylandCompositor/QWaylandCompositorExtension>
 #include <QtWaylandCompositor/QWaylandQuickItem>
 #include <QtWaylandCompositor/QWaylandWlShellSurface>
 

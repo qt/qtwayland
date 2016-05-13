@@ -37,7 +37,7 @@
 #ifndef WAYLANDWINDOWMANAGERINTEGRATION_H
 #define WAYLANDWINDOWMANAGERINTEGRATION_H
 
-#include <QtWaylandCompositor/QWaylandExtension>
+#include <QtWaylandCompositor/QWaylandCompositorExtension>
 #include <QtWaylandCompositor/QWaylandClient>
 
 #include <QtCore/QUrl>
@@ -48,7 +48,7 @@ class QWaylandCompositor;
 
 class QWaylandWindowManagerExtensionPrivate;
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandWindowManagerExtension : public QWaylandExtensionTemplate<QWaylandWindowManagerExtension>
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandWindowManagerExtension : public QWaylandCompositorExtensionTemplate<QWaylandWindowManagerExtension>
 {
     Q_OBJECT
     Q_PROPERTY(bool showIsFullScreen READ showIsFullScreen WRITE setShowIsFullScreen NOTIFY showIsFullScreenChanged)

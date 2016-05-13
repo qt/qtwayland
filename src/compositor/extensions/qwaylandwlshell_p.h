@@ -39,7 +39,7 @@
 
 #include <QtWaylandCompositor/qwaylandexport.h>
 #include <QtWaylandCompositor/qwaylandsurface.h>
-#include <QtWaylandCompositor/private/qwaylandextension_p.h>
+#include <QtWaylandCompositor/private/qwaylandcompositorextension_p.h>
 #include <QtWaylandCompositor/QWaylandWlShellSurface>
 #include <QtWaylandCompositor/QWaylandInputDevice>
 
@@ -64,7 +64,7 @@
 QT_BEGIN_NAMESPACE
 
 class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandWlShellPrivate
-                                        : public QWaylandExtensionTemplatePrivate
+                                        : public QWaylandCompositorExtensionTemplatePrivate
                                         , public QtWaylandServer::wl_shell
 {
     Q_DECLARE_PUBLIC(QWaylandWlShell)
@@ -77,7 +77,7 @@ protected:
 };
 
 class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandWlShellSurfacePrivate
-                                        : public QWaylandExtensionTemplatePrivate
+                                        : public QWaylandCompositorExtensionTemplatePrivate
                                         , public QtWaylandServer::wl_shell_surface
 {
     Q_DECLARE_PUBLIC(QWaylandWlShellSurface)

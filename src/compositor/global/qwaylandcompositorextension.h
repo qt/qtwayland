@@ -47,35 +47,35 @@ struct wl_interface;
 QT_BEGIN_NAMESPACE
 
 class QWaylandCompositor;
-class QWaylandExtension;
-class QWaylandExtensionPrivate;
-class QWaylandExtensionTemplatePrivate;
+class QWaylandCompositorExtension;
+class QWaylandCompositorExtensionPrivate;
+class QWaylandCompositorExtensionTemplatePrivate;
 
 class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandObject : public QObject
 {
 public:
     virtual ~QWaylandObject();
 
-    QWaylandExtension *extension(const QByteArray &name);
-    QWaylandExtension *extension(const wl_interface *interface);
-    QList<QWaylandExtension *> extensions() const;
-    void addExtension(QWaylandExtension *extension);
-    void removeExtension(QWaylandExtension *extension);
+    QWaylandCompositorExtension *extension(const QByteArray &name);
+    QWaylandCompositorExtension *extension(const wl_interface *interface);
+    QList<QWaylandCompositorExtension *> extensions() const;
+    void addExtension(QWaylandCompositorExtension *extension);
+    void removeExtension(QWaylandCompositorExtension *extension);
 
 protected:
     QWaylandObject(QObject *parent = 0);
     QWaylandObject(QObjectPrivate &d, QObject *parent = 0);
-    QList<QWaylandExtension *> extension_vector;
+    QList<QWaylandCompositorExtension *> extension_vector;
 };
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandExtension : public QWaylandObject
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandCompositorExtension : public QWaylandObject
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QWaylandExtension)
+    Q_DECLARE_PRIVATE(QWaylandCompositorExtension)
 public:
-    QWaylandExtension();
-    QWaylandExtension(QWaylandObject *container);
-    virtual ~QWaylandExtension();
+    QWaylandCompositorExtension();
+    QWaylandCompositorExtension(QWaylandObject *container);
+    virtual ~QWaylandCompositorExtension();
 
     QWaylandObject *extensionContainer() const;
     void setExtensionContainer(QWaylandObject *container);
@@ -86,23 +86,23 @@ public:
     virtual const struct wl_interface *extensionInterface() const = 0;
 
 protected:
-    QWaylandExtension(QWaylandExtensionPrivate &dd);
-    QWaylandExtension(QWaylandObject *container, QWaylandExtensionPrivate &dd);
+    QWaylandCompositorExtension(QWaylandCompositorExtensionPrivate &dd);
+    QWaylandCompositorExtension(QWaylandObject *container, QWaylandCompositorExtensionPrivate &dd);
 
     bool event(QEvent *event) Q_DECL_OVERRIDE;
 };
 
 template <typename T>
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandExtensionTemplate : public QWaylandExtension
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandCompositorExtensionTemplate : public QWaylandCompositorExtension
 {
-    Q_DECLARE_PRIVATE(QWaylandExtensionTemplate)
+    Q_DECLARE_PRIVATE(QWaylandCompositorExtensionTemplate)
 public:
-    QWaylandExtensionTemplate()
-        : QWaylandExtension()
+    QWaylandCompositorExtensionTemplate()
+        : QWaylandCompositorExtension()
     { }
 
-    QWaylandExtensionTemplate(QWaylandObject *container)
-        : QWaylandExtension(container)
+    QWaylandCompositorExtensionTemplate(QWaylandObject *container)
+        : QWaylandCompositorExtension(container)
     { }
 
     const struct wl_interface *extensionInterface() const Q_DECL_OVERRIDE
@@ -117,12 +117,12 @@ public:
     }
 
 protected:
-    QWaylandExtensionTemplate(QWaylandExtensionPrivate &dd)
-        : QWaylandExtension(dd)
+    QWaylandCompositorExtensionTemplate(QWaylandCompositorExtensionPrivate &dd)
+        : QWaylandCompositorExtension(dd)
     { }
 
-    QWaylandExtensionTemplate(QWaylandObject *container, QWaylandExtensionPrivate &dd)
-        : QWaylandExtension(container,dd)
+    QWaylandCompositorExtensionTemplate(QWaylandObject *container, QWaylandCompositorExtensionPrivate &dd)
+        : QWaylandCompositorExtension(container,dd)
     { }
 };
 

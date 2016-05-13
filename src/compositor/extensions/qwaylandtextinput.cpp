@@ -118,7 +118,7 @@ Qt::InputMethodQueries QWaylandTextInputClientState::mergeChanged(const QWayland
 }
 
 QWaylandTextInputPrivate::QWaylandTextInputPrivate(QWaylandCompositor *compositor)
-    : QWaylandExtensionTemplatePrivate()
+    : QWaylandCompositorExtensionTemplatePrivate()
     , QtWaylandServer::zwp_text_input_v2()
     , compositor(compositor)
     , focus(nullptr)
@@ -507,7 +507,7 @@ void QWaylandTextInputPrivate::zwp_text_input_v2_set_surrounding_text(Resource *
 }
 
 QWaylandTextInput::QWaylandTextInput(QWaylandObject *container, QWaylandCompositor *compositor)
-    : QWaylandExtensionTemplate(container, *new QWaylandTextInputPrivate(compositor))
+    : QWaylandCompositorExtensionTemplate(container, *new QWaylandTextInputPrivate(compositor))
 {
     connect(&d_func()->focusDestroyListener, &QWaylandDestroyListener::fired,
             this, &QWaylandTextInput::focusSurfaceDestroyed);

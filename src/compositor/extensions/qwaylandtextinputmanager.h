@@ -37,7 +37,7 @@
 #ifndef QWAYLANDTEXTINPUTMANAGER_H
 #define QWAYLANDTEXTINPUTMANAGER_H
 
-#include <QtWaylandCompositor/QWaylandExtension>
+#include <QtWaylandCompositor/QWaylandCompositorExtension>
 
 #include <QtCore/QSize>
 
@@ -45,7 +45,7 @@ QT_BEGIN_NAMESPACE
 
 class QWaylandTextInputManagerPrivate;
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandTextInputManager : public QWaylandExtensionTemplate<QWaylandTextInputManager>
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandTextInputManager : public QWaylandCompositorExtensionTemplate<QWaylandTextInputManager>
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandTextInputManager)

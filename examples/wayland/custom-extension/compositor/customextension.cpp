@@ -52,7 +52,7 @@ CustomExtension::CustomExtension()
 
 void CustomExtension::initialize()
 {
-    QWaylandExtensionTemplate::initialize();
+    QWaylandCompositorExtensionTemplate::initialize();
     QWaylandCompositor *compositor = static_cast<QWaylandCompositor *>(extensionContainer());
     init(compositor->display(), 1);
 }

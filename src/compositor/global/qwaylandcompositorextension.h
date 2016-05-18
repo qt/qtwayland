@@ -49,7 +49,6 @@ QT_BEGIN_NAMESPACE
 class QWaylandCompositor;
 class QWaylandCompositorExtension;
 class QWaylandCompositorExtensionPrivate;
-class QWaylandCompositorExtensionTemplatePrivate;
 
 class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandObject : public QObject
 {
@@ -95,7 +94,6 @@ protected:
 template <typename T>
 class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandCompositorExtensionTemplate : public QWaylandCompositorExtension
 {
-    Q_DECLARE_PRIVATE(QWaylandCompositorExtensionTemplate)
 public:
     QWaylandCompositorExtensionTemplate()
         : QWaylandCompositorExtension()

@@ -64,7 +64,7 @@
 QT_BEGIN_NAMESPACE
 
 class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandWlShellPrivate
-                                        : public QWaylandCompositorExtensionTemplatePrivate
+                                        : public QWaylandCompositorExtensionPrivate
                                         , public QtWaylandServer::wl_shell
 {
     Q_DECLARE_PUBLIC(QWaylandWlShell)
@@ -77,7 +77,7 @@ protected:
 };
 
 class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandWlShellSurfacePrivate
-                                        : public QWaylandCompositorExtensionTemplatePrivate
+                                        : public QWaylandCompositorExtensionPrivate
                                         , public QtWaylandServer::wl_shell_surface
 {
     Q_DECLARE_PUBLIC(QWaylandWlShellSurface)

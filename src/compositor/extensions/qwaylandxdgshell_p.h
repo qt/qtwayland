@@ -58,7 +58,7 @@
 QT_BEGIN_NAMESPACE
 
 class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgShellPrivate
-        : public QWaylandCompositorExtensionTemplatePrivate
+        : public QWaylandCompositorExtensionPrivate
         , public QtWaylandServer::xdg_shell
 {
     Q_DECLARE_PUBLIC(QWaylandXdgShell)
@@ -91,7 +91,7 @@ private:
 };
 
 class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgSurfacePrivate
-        : public QWaylandCompositorExtensionTemplatePrivate
+        : public QWaylandCompositorExtensionPrivate
         , public QtWaylandServer::xdg_surface
 {
     Q_DECLARE_PUBLIC(QWaylandXdgSurface)
@@ -148,7 +148,7 @@ private:
 };
 
 class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgPopupPrivate
-        : public QWaylandCompositorExtensionTemplatePrivate
+        : public QWaylandCompositorExtensionPrivate
         , public QtWaylandServer::xdg_popup
 {
     Q_DECLARE_PUBLIC(QWaylandXdgPopup)

@@ -53,7 +53,7 @@ QWaylandSurfaceRole QWaylandXdgSurfacePrivate::s_role("xdg_surface");
 QWaylandSurfaceRole QWaylandXdgPopupPrivate::s_role("xdg_popup");
 
 QWaylandXdgShellPrivate::QWaylandXdgShellPrivate()
-    : QWaylandCompositorExtensionTemplatePrivate()
+    : QWaylandCompositorExtensionPrivate()
     , xdg_shell()
 {
 }
@@ -216,7 +216,7 @@ void QWaylandXdgShellPrivate::xdg_shell_pong(Resource *resource, uint32_t serial
 }
 
 QWaylandXdgSurfacePrivate::QWaylandXdgSurfacePrivate()
-    : QWaylandCompositorExtensionTemplatePrivate()
+    : QWaylandCompositorExtensionPrivate()
     , xdg_surface()
     , m_surface(nullptr)
     , m_parentSurface(nullptr)
@@ -439,7 +439,7 @@ void QWaylandXdgSurfacePrivate::xdg_surface_set_window_geometry(Resource *resour
 }
 
 QWaylandXdgPopupPrivate::QWaylandXdgPopupPrivate()
-    : QWaylandCompositorExtensionTemplatePrivate()
+    : QWaylandCompositorExtensionPrivate()
     , xdg_popup()
     , m_surface(nullptr)
     , m_parentSurface(nullptr)

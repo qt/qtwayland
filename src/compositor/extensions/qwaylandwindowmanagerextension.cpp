@@ -55,7 +55,7 @@ QWaylandWindowManagerExtension::QWaylandWindowManagerExtension(QWaylandComposito
 }
 
 QWaylandWindowManagerExtensionPrivate::QWaylandWindowManagerExtensionPrivate()
-    : QWaylandCompositorExtensionTemplatePrivate()
+    : QWaylandCompositorExtensionPrivate()
     , QtWaylandServer::qt_windowmanager()
     , showIsFullScreen(false)
 {

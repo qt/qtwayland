@@ -118,7 +118,7 @@ Qt::InputMethodQueries QWaylandTextInputClientState::mergeChanged(const QWayland
 }
 
 QWaylandTextInputPrivate::QWaylandTextInputPrivate(QWaylandCompositor *compositor)
-    : QWaylandCompositorExtensionTemplatePrivate()
+    : QWaylandCompositorExtensionPrivate()
     , QtWaylandServer::zwp_text_input_v2()
     , compositor(compositor)
     , focus(nullptr)

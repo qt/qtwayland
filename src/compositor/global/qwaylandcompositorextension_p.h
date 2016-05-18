@@ -71,14 +71,6 @@ public:
     bool initialized;
 };
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandCompositorExtensionTemplatePrivate : public QWaylandCompositorExtensionPrivate
-{
-public:
-    QWaylandCompositorExtensionTemplatePrivate()
-        : QWaylandCompositorExtensionPrivate()
-    { }
-};
-
 QT_END_NAMESPACE
 
 #endif  /*QWAYLANDEXTENSION_P_H*/

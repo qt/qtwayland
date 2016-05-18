@@ -51,7 +51,7 @@ QT_BEGIN_NAMESPACE
 QWaylandSurfaceRole QWaylandWlShellSurfacePrivate::s_role("wl_shell_surface");
 
 QWaylandWlShellPrivate::QWaylandWlShellPrivate()
-    : QWaylandCompositorExtensionTemplatePrivate()
+    : QWaylandCompositorExtensionPrivate()
     , wl_shell()
 {
 }
@@ -88,7 +88,7 @@ void QWaylandWlShellPrivate::shell_get_shell_surface(Resource *resource, uint32_
 }
 
 QWaylandWlShellSurfacePrivate::QWaylandWlShellSurfacePrivate()
-    : QWaylandCompositorExtensionTemplatePrivate()
+    : QWaylandCompositorExtensionPrivate()
     , wl_shell_surface()
     , m_shell(Q_NULLPTR)
     , m_surface(Q_NULLPTR)

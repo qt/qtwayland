@@ -54,7 +54,7 @@
 #include <QVariantMap>
 #include <qpa/qplatformnativeinterface.h>
 
-#include <QtWaylandClient/private/qwaylandclientexport_p.h>
+#include <QtWaylandClient/qwaylandclientexport.h>
 
 QT_BEGIN_NAMESPACE
 

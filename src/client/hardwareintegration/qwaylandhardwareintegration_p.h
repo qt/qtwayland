@@ -52,7 +52,7 @@
 //
 
 #include <QtWaylandClient/private/qwayland-hardware-integration.h>
-#include <QtWaylandClient/private/qwaylandclientexport_p.h>
+#include <QtWaylandClient/qwaylandclientexport.h>
 
 QT_BEGIN_NAMESPACE
 

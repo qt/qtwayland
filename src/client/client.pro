@@ -106,6 +106,7 @@ HEADERS +=  qwaylandintegration_p.h \
             qwaylandinputcontext_p.h \
             qwaylanddatadevice_p.h \
             qwaylandshm_p.h \
+            qwaylandclientexport.h \
             ../shared/qwaylandinputmethodeventbuilder_p.h \
             ../shared/qwaylandmimehelper_p.h \
             ../shared/qwaylandxkb_p.h \

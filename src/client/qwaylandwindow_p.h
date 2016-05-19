@@ -59,7 +59,7 @@
 #include <qpa/qplatformwindow.h>
 
 #include <QtWaylandClient/private/qwayland-wayland.h>
-#include <QtWaylandClient/private/qwaylandclientexport_p.h>
+#include <QtWaylandClient/qwaylandclientexport.h>
 
 struct wl_egl_window;
 

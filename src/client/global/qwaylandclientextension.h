@@ -39,7 +39,7 @@
 
 #include <QObject>
 #include <qpa/qwindowsysteminterface.h>
-#include <QtWaylandClient/private/qwaylandclientexport_p.h>
+#include <QtWaylandClient/qwaylandclientexport.h>
 #include <QtWaylandClient/private/qwayland-wayland.h>
 QT_BEGIN_NAMESPACE
 

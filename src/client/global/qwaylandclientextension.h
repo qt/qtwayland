@@ -44,8 +44,9 @@
 QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
-
 class QWaylandIntegration;
+}
+
 class QWaylandClientExtensionPrivate;
 class QWaylandClientExtensionTemplatePrivate;
 
@@ -58,7 +59,7 @@ class Q_WAYLAND_CLIENT_EXPORT QWaylandClientExtension : public QObject
 public:
     QWaylandClientExtension(const int version);
 
-    QWaylandIntegration *integration() const;
+    QtWaylandClient::QWaylandIntegration *integration() const;
     int version() const;
     bool isActive() const;
 
@@ -100,8 +101,6 @@ public:
         instance->init(registry, id, minVersion);
     }
 };
-
-}
 
 QT_END_NAMESPACE
 

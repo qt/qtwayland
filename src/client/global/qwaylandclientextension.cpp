@@ -43,8 +43,6 @@
 
 QT_BEGIN_NAMESPACE
 
-namespace QtWaylandClient {
-
 QWaylandClientExtensionPrivate::QWaylandClientExtensionPrivate()
     : QObjectPrivate()
     , waylandIntegration(NULL)
@@ -57,7 +55,7 @@ QWaylandClientExtensionPrivate::QWaylandClientExtensionPrivate()
     if (QGuiApplication::platformNativeInterface()) {
         waylandDisplay = static_cast<struct ::wl_display*>(QGuiApplication::platformNativeInterface()->nativeResourceForIntegration("wl_display"));
     } else {
-        waylandIntegration = new QWaylandIntegration();
+        waylandIntegration = new QtWaylandClient::QWaylandIntegration();
         waylandDisplay = waylandIntegration->display()->wl_display();
     }
 
@@ -84,7 +82,7 @@ QWaylandClientExtension::QWaylandClientExtension(const int ver)
     d->version = ver;
 }
 
-QWaylandIntegration *QWaylandClientExtension::integration() const
+QtWaylandClient::QWaylandIntegration *QWaylandClientExtension::integration() const
 {
     Q_D(const QWaylandClientExtension);
     return d->waylandIntegration;
@@ -109,8 +107,6 @@ bool QWaylandClientExtension::isActive() const
 {
     Q_D(const QWaylandClientExtension);
     return d->active;
-}
-
 }
 
 QT_END_NAMESPACE

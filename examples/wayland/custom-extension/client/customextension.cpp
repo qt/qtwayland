@@ -46,8 +46,6 @@
 
 QT_BEGIN_NAMESPACE
 
-namespace QtWaylandClient {
-
 CustomExtension::CustomExtension()
     : QWaylandClientExtensionTemplate(/* Supported protocol version */ 1 )
 {
@@ -68,6 +66,5 @@ void CustomExtension::example_extension_qtevent(struct wl_surface *surface,
     emit eventReceived(text, value);
 }
 
-}
 
 QT_END_NAMESPACE

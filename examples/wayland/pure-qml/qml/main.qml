@@ -73,8 +73,14 @@ WaylandCompositor {
             }
         },
         XdgShell {
+            property variant viewsBySurface: ({})
             onXdgSurfaceCreated: {
-                chromeComponent.createObject(defaultOutput.surfaceArea, { "shellSurface": xdgSurface } );
+                var item = chromeComponent.createObject(defaultOutput.surfaceArea, { "shellSurface": xdgSurface } );
+                viewsBySurface[xdgSurface.surface] = item;
+            }
+            onXdgPopupCreated: {
+                var parentView = viewsBySurface[xdgPopup.parentSurface];
+                chromeComponent.createObject(parentView, { "shellSurface": xdgPopup } );
             }
         },
         TextInputManager {

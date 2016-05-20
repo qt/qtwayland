@@ -39,6 +39,8 @@
 
 #include <QtWaylandCompositor/private/qwaylandquickitem_p.h>
 
+#include <functional>
+
 QT_BEGIN_NAMESPACE
 
 //
@@ -82,7 +84,7 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQuickShellEventFilter : public QObject
 {
     Q_OBJECT
 public:
-    typedef void (*CallbackFunction)(void);
+    typedef std::function<void()> CallbackFunction;
     static void startFilter(QWaylandClient *client, CallbackFunction closePopupCallback);
     static void cancelFilter();
 

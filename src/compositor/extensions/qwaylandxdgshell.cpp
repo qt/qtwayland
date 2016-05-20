@@ -940,7 +940,7 @@ QWaylandQuickShellIntegration *QWaylandXdgSurface::createIntegration(QWaylandQui
  * Constructs a QWaylandXdgPopup.
  */
 QWaylandXdgPopup::QWaylandXdgPopup()
-    : QWaylandCompositorExtensionTemplate<QWaylandXdgPopup>(*new QWaylandXdgPopupPrivate)
+    : QWaylandShellSurfaceTemplate<QWaylandXdgPopup>(*new QWaylandXdgPopupPrivate)
 {
 }
 
@@ -950,7 +950,7 @@ QWaylandXdgPopup::QWaylandXdgPopup()
  */
 QWaylandXdgPopup::QWaylandXdgPopup(QWaylandXdgShell *xdgShell, QWaylandSurface *surface,
                                    QWaylandSurface *parentSurface, const QPoint &position, const QWaylandResource &resource)
-    : QWaylandCompositorExtensionTemplate<QWaylandXdgPopup>(*new QWaylandXdgPopupPrivate)
+    : QWaylandShellSurfaceTemplate<QWaylandXdgPopup>(*new QWaylandXdgPopupPrivate)
 {
     initialize(xdgShell, surface, parentSurface, position, resource);
 }
@@ -1043,7 +1043,7 @@ QPoint QWaylandXdgPopup::position() const
  */
 void QWaylandXdgPopup::initialize()
 {
-    QWaylandCompositorExtensionTemplate::initialize();
+    QWaylandCompositorExtension::initialize();
 }
 
 /*!
@@ -1079,6 +1079,11 @@ void QWaylandXdgPopup::sendPopupDone()
 {
     Q_D(QWaylandXdgPopup);
     d->send_popup_done();
+}
+
+QWaylandQuickShellIntegration *QWaylandXdgPopup::createIntegration(QWaylandQuickShellSurfaceItem *item)
+{
+    return new QtWayland::XdgPopupIntegration(item);
 }
 
 QT_END_NAMESPACE

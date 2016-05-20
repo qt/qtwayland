@@ -192,7 +192,7 @@ private Q_SLOTS:
     void handleSurfaceSizeChanged();
 };
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgPopup : public QWaylandCompositorExtensionTemplate<QWaylandXdgPopup>
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgPopup : public QWaylandShellSurfaceTemplate<QWaylandXdgPopup>
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandXdgPopup)
@@ -218,6 +218,8 @@ public:
     static QWaylandXdgPopup *fromResource(::wl_resource *resource);
 
     Q_INVOKABLE void sendPopupDone();
+
+    QWaylandQuickShellIntegration *createIntegration(QWaylandQuickShellSurfaceItem *item) Q_DECL_OVERRIDE;
 
 Q_SIGNALS:
     void surfaceChanged();

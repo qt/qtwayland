@@ -104,6 +104,20 @@ private:
     } maximizeState;
 };
 
+class XdgPopupIntegration : public QWaylandQuickShellIntegration
+{
+    Q_OBJECT
+public:
+    XdgPopupIntegration(QWaylandQuickShellSurfaceItem *item);
+
+private Q_SLOTS:
+    void handlePopupDestroyed();
+
+private:
+    QWaylandXdgPopup *m_xdgPopup;
+    QWaylandXdgShell *m_xdgShell;
+};
+
 }
 
 QT_END_NAMESPACE

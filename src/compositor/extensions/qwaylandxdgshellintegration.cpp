@@ -39,7 +39,9 @@
 #include <QtWaylandCompositor/QWaylandQuickShellSurfaceItem>
 #include <QtWaylandCompositor/QWaylandCompositor>
 #include <QtWaylandCompositor/QWaylandInputDevice>
+#include <QtWaylandCompositor/private/qwaylandxdgshell_p.h>
 #include <QMouseEvent>
+#include <QGuiApplication>
 
 QT_BEGIN_NAMESPACE
 
@@ -166,6 +168,28 @@ void XdgShellIntegration::handleSurfaceSizeChanged()
             x += resizeState.initialSurfaceSize.width() - m_item->surface()->size().width();
         m_item->setPosition(QPointF(x, y));
     }
+}
+
+XdgPopupIntegration::XdgPopupIntegration(QWaylandQuickShellSurfaceItem *item)
+    : QWaylandQuickShellIntegration (item)
+    , m_xdgPopup(qobject_cast<QWaylandXdgPopup *>(item->shellSurface()))
+    , m_xdgShell(QWaylandXdgPopupPrivate::get(m_xdgPopup)->m_xdgShell)
+{
+    item->setSurface(m_xdgPopup->surface());
+    item->setPosition(QPointF(m_xdgPopup->position() * item->view()->output()->scaleFactor()));
+
+    QWaylandClient *client = m_xdgPopup->surface()->client();
+    QWaylandQuickShellEventFilter::startFilter(client, [&]() { m_xdgShell->closeAllPopups(); });
+
+    connect(m_xdgPopup, &QWaylandXdgPopup::destroyed, this, &XdgPopupIntegration::handlePopupDestroyed);
+}
+
+void XdgPopupIntegration::handlePopupDestroyed()
+{
+    QWaylandXdgShellPrivate *shellPrivate = QWaylandXdgShellPrivate::get(m_xdgShell);
+    auto popups = shellPrivate->m_xdgPopups;
+    if (popups.isEmpty())
+        QWaylandQuickShellEventFilter::cancelFilter();
 }
 
 }

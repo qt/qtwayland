@@ -154,10 +154,10 @@ public:
     Q_INVOKABLE uint sendConfigure(const QSize &size, const QVector<State> &states);
     Q_INVOKABLE void sendClose();
 
-    Q_INVOKABLE uint requestMaximized(const QSize &size);
-    Q_INVOKABLE uint requestUnMaximized(const QSize &size = QSize(0, 0));
-    Q_INVOKABLE uint requestFullscreen(const QSize &size);
-    Q_INVOKABLE uint requestResizing(const QSize &maxSize);
+    Q_INVOKABLE uint sendMaximized(const QSize &size);
+    Q_INVOKABLE uint sendUnMaximized(const QSize &size = QSize(0, 0));
+    Q_INVOKABLE uint sendFullscreen(const QSize &size);
+    Q_INVOKABLE uint sendResizing(const QSize &maxSize);
 
     QWaylandQuickShellIntegration *createIntegration(QWaylandQuickShellSurfaceItem *item) Q_DECL_OVERRIDE;
 

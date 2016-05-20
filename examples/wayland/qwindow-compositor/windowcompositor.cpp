@@ -101,7 +101,7 @@ bool WindowCompositorView::isCursor() const
 
 void WindowCompositorView::onXdgSetMaximized()
 {
-    m_xdgSurface->requestMaximized(output()->geometry().size());
+    m_xdgSurface->sendMaximized(output()->geometry().size());
 
     // An improvement here, would have been to wait for the commit after the ack_configure for the
     // request above before moving the window. This would have prevented the window from being
@@ -112,7 +112,7 @@ void WindowCompositorView::onXdgSetMaximized()
 
 void WindowCompositorView::onXdgUnsetMaximized()
 {
-    m_xdgSurface->requestUnMaximized();
+    m_xdgSurface->sendUnMaximized();
 }
 
 void WindowCompositorView::onXdgSetFullscreen(QWaylandOutput* clientPreferredOutput)
@@ -121,7 +121,7 @@ void WindowCompositorView::onXdgSetFullscreen(QWaylandOutput* clientPreferredOut
             ? clientPreferredOutput
             : output();
 
-    m_xdgSurface->requestFullscreen(outputToFullscreen->geometry().size());
+    m_xdgSurface->sendFullscreen(outputToFullscreen->geometry().size());
 
     // An improvement here, would have been to wait for the commit after the ack_configure for the
     // request above before moving the window. This would have prevented the window from being
@@ -431,7 +431,7 @@ void WindowCompositor::handleResize(WindowCompositorView *target, const QSize &i
     if (xdgSurface) {
         QWaylandXdgSurface::ResizeEdge edges = static_cast<QWaylandXdgSurface::ResizeEdge>(edge);
         QSize newSize = xdgSurface->sizeForResize(initialSize, delta, edges);
-        xdgSurface->requestResizing(newSize);
+        xdgSurface->sendResizing(newSize);
     }
 }
 

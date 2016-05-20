@@ -867,7 +867,7 @@ void QWaylandXdgSurface::sendClose()
     d->send_close();
 }
 
-uint QWaylandXdgSurface::requestMaximized(const QSize &size)
+uint QWaylandXdgSurface::sendMaximized(const QSize &size)
 {
     Q_D(QWaylandXdgSurface);
     QWaylandXdgSurfacePrivate::ConfigureEvent conf = d->lastSentConfigure();
@@ -880,7 +880,7 @@ uint QWaylandXdgSurface::requestMaximized(const QSize &size)
     return sendConfigure(size, conf.states);
 }
 
-uint QWaylandXdgSurface::requestUnMaximized(const QSize &size)
+uint QWaylandXdgSurface::sendUnMaximized(const QSize &size)
 {
     Q_D(QWaylandXdgSurface);
     QWaylandXdgSurfacePrivate::ConfigureEvent conf = d->lastSentConfigure();
@@ -892,7 +892,7 @@ uint QWaylandXdgSurface::requestUnMaximized(const QSize &size)
     return sendConfigure(size, conf.states);
 }
 
-uint QWaylandXdgSurface::requestFullscreen(const QSize &size)
+uint QWaylandXdgSurface::sendFullscreen(const QSize &size)
 {
     Q_D(QWaylandXdgSurface);
     QWaylandXdgSurfacePrivate::ConfigureEvent conf = d->lastSentConfigure();
@@ -905,7 +905,7 @@ uint QWaylandXdgSurface::requestFullscreen(const QSize &size)
     return sendConfigure(size, conf.states);
 }
 
-uint QWaylandXdgSurface::requestResizing(const QSize &maxSize)
+uint QWaylandXdgSurface::sendResizing(const QSize &maxSize)
 {
     Q_D(QWaylandXdgSurface);
     QWaylandXdgSurfacePrivate::ConfigureEvent conf = d->lastSentConfigure();

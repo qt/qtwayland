@@ -46,6 +46,7 @@ class QWaylandMouseTrackerPrivate : public QQuickItemPrivate
 public:
     QWaylandMouseTrackerPrivate()
         : enableWSCursor(false)
+        , hovered(false)
     {
         QImage cursorImage(64,64,QImage::Format_ARGB32);
         cursorImage.fill(Qt::transparent);
@@ -65,9 +66,19 @@ public:
         }
     }
 
+    void setHovered(bool hovered)
+    {
+        Q_Q(QWaylandMouseTracker);
+        if (this->hovered == hovered)
+            return;
+        this->hovered = hovered;
+        emit q->hoveredChanged();
+    }
+
     QPointF mousePos;
     bool enableWSCursor;
     QPixmap cursorPixmap;
+    bool hovered;
 };
 
 QWaylandMouseTracker::QWaylandMouseTracker(QQuickItem *parent)
@@ -76,6 +87,7 @@ QWaylandMouseTracker::QWaylandMouseTracker(QQuickItem *parent)
     Q_D(QWaylandMouseTracker);
     setFiltersChildMouseEvents(true);
     setAcceptHoverEvents(true);
+    setAcceptedMouseButtons(Qt::AllButtons);
     setCursor(QCursor(d->cursorPixmap));
 }
 
@@ -110,6 +122,12 @@ bool QWaylandMouseTracker::enableWSCursor() const
     return d->enableWSCursor;
 }
 
+bool QWaylandMouseTracker::hovered() const
+{
+    Q_D(const QWaylandMouseTracker);
+    return d->hovered;
+}
+
 bool QWaylandMouseTracker::childMouseEventFilter(QQuickItem *item, QEvent *event)
 {
     Q_D(QWaylandMouseTracker);
@@ -135,6 +153,20 @@ void QWaylandMouseTracker::hoverMoveEvent(QHoverEvent *event)
     Q_D(QWaylandMouseTracker);
     QQuickItem::hoverMoveEvent(event);
     d->handleMousePos(event->posF());
+}
+
+void QWaylandMouseTracker::hoverEnterEvent(QHoverEvent *event)
+{
+    Q_D(QWaylandMouseTracker);
+    Q_UNUSED(event);
+    d->setHovered(true);
+}
+
+void QWaylandMouseTracker::hoverLeaveEvent(QHoverEvent *event)
+{
+    Q_D(QWaylandMouseTracker);
+    Q_UNUSED(event);
+    d->setHovered(false);
 }
 
 QT_END_NAMESPACE

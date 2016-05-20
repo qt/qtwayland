@@ -54,7 +54,7 @@
 #include <qpa/qplatformclipboard.h>
 #include <QtCore/QVariant>
 
-#include <QtWaylandClient/private/qwaylandclientexport_p.h>
+#include <QtWaylandClient/qwaylandclientexport.h>
 
 QT_BEGIN_NAMESPACE
 

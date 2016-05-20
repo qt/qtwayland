@@ -34,51 +34,43 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDQUICKWLSHELLSURFACEITEM_H
-#define QWAYLANDQUICKWLSHELLSURFACEITEM_H
+#ifndef QWAYLANDEXTENSION_P_H
+#define QWAYLANDEXTENSION_P_H
 
-#include <QtWaylandCompositor/QWaylandExtension>
-#include <QtWaylandCompositor/QWaylandQuickItem>
-#include <QtWaylandCompositor/QWaylandWlShellSurface>
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists purely as an
+// implementation detail.  This header file may change from version to
+// version without notice, or even be removed.
+//
+// We mean it.
+//
+
+#include "qwaylandcompositorextension.h"
+#include <QtCore/private/qobject_p.h>
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandQuickWlShellSurfaceItemPrivate;
-
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQuickWlShellSurfaceItem : public QWaylandQuickItem
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandCompositorExtensionPrivate : public QObjectPrivate
 {
-    Q_OBJECT
-    Q_DECLARE_PRIVATE(QWaylandQuickWlShellSurfaceItem)
-    Q_PROPERTY(QWaylandWlShellSurface *shellSurface READ shellSurface WRITE setShellSurface NOTIFY shellSurfaceChanged)
-    Q_PROPERTY(QQuickItem *moveItem READ moveItem WRITE setMoveItem NOTIFY moveItemChanged)
+    Q_DECLARE_PUBLIC(QWaylandCompositorExtension)
 
 public:
-    QWaylandQuickWlShellSurfaceItem(QQuickItem *parent = 0);
+    QWaylandCompositorExtensionPrivate()
+        : QObjectPrivate()
+        , extension_container(Q_NULLPTR)
+        , initialized(false)
+    {
+    }
 
-    static QWaylandQuickWlShellSurfaceItemPrivate *get(QWaylandQuickWlShellSurfaceItem *item) { return item->d_func(); }
+    static QWaylandCompositorExtensionPrivate *get(QWaylandCompositorExtension *extension) { return extension->d_func(); }
 
-    QWaylandWlShellSurface *shellSurface() const;
-    void setShellSurface(QWaylandWlShellSurface *shellSurface);
-
-    QQuickItem *moveItem() const;
-    void setMoveItem(QQuickItem *moveItem);
-Q_SIGNALS:
-    void shellSurfaceChanged();
-    void moveItemChanged();
-
-private Q_SLOTS:
-    void handleStartMove(QWaylandInputDevice *inputDevice);
-    void handleStartResize(QWaylandInputDevice *inputDevice, QWaylandWlShellSurface::ResizeEdge edges);
-    void adjustOffsetForNextFrame(const QPointF &offset);
-protected:
-    QWaylandQuickWlShellSurfaceItem(QWaylandQuickWlShellSurfaceItemPrivate &dd, QQuickItem *parent);
-
-    void mouseMoveEvent(QMouseEvent *event) Q_DECL_OVERRIDE;
-    void mouseReleaseEvent(QMouseEvent *event) Q_DECL_OVERRIDE;
-
-    void surfaceChangedEvent(QWaylandSurface *newSurface, QWaylandSurface *oldSurface) Q_DECL_OVERRIDE;
+    QWaylandObject *extension_container;
+    bool initialized;
 };
 
 QT_END_NAMESPACE
 
-#endif  /*QWAYLANDQUICKWLSHELLSURFACEITEM_H*/
+#endif  /*QWAYLANDEXTENSION_P_H*/

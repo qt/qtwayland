@@ -106,6 +106,7 @@ public:
     QImage image() const;
     QWaylandBufferRef::BufferFormatEgl bufferFormatEgl() const;
     void bindToTexture() const;
+    uint textureForPlane(int plane) const;
     void updateTexture() const;
 
     static bool hasContent(SurfaceBuffer *buffer) { return buffer && buffer->waylandBufferHandle(); }

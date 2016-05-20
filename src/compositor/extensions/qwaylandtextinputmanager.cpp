@@ -45,7 +45,7 @@
 QT_BEGIN_NAMESPACE
 
 QWaylandTextInputManagerPrivate::QWaylandTextInputManagerPrivate()
-    : QWaylandExtensionTemplatePrivate()
+    : QWaylandCompositorExtensionPrivate()
     , QtWaylandServer::zwp_text_input_manager_v2()
 {
 }
@@ -63,12 +63,12 @@ void QWaylandTextInputManagerPrivate::zwp_text_input_manager_v2_get_text_input(R
 }
 
 QWaylandTextInputManager::QWaylandTextInputManager()
-    : QWaylandExtensionTemplate<QWaylandTextInputManager>(*new QWaylandTextInputManagerPrivate)
+    : QWaylandCompositorExtensionTemplate<QWaylandTextInputManager>(*new QWaylandTextInputManagerPrivate)
 {
 }
 
 QWaylandTextInputManager::QWaylandTextInputManager(QWaylandCompositor *compositor)
-    : QWaylandExtensionTemplate<QWaylandTextInputManager>(compositor, *new QWaylandTextInputManagerPrivate)
+    : QWaylandCompositorExtensionTemplate<QWaylandTextInputManager>(compositor, *new QWaylandTextInputManagerPrivate)
 {
 }
 
@@ -76,7 +76,7 @@ void QWaylandTextInputManager::initialize()
 {
     Q_D(QWaylandTextInputManager);
 
-    QWaylandExtensionTemplate::initialize();
+    QWaylandCompositorExtensionTemplate::initialize();
     QWaylandCompositor *compositor = static_cast<QWaylandCompositor *>(extensionContainer());
     if (!compositor) {
         qWarning() << "Failed to find QWaylandCompositor when initializing QWaylandTextInputManager";

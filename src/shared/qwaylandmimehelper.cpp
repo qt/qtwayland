@@ -37,7 +37,7 @@
 **
 ****************************************************************************/
 
-#include "qwaylandmimehelper.h"
+#include "qwaylandmimehelper_p.h"
 #include <QImage>
 #include <QColor>
 #include <QUrl>

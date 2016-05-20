@@ -37,8 +37,9 @@
 #ifndef QWAYLANDXDGSHELL_H
 #define QWAYLANDXDGSHELL_H
 
-#include <QtWaylandCompositor/QWaylandExtension>
+#include <QtWaylandCompositor/QWaylandCompositorExtension>
 #include <QtWaylandCompositor/QWaylandResource>
+#include <QtWaylandCompositor/QWaylandShellSurface>
 
 #include <QtCore/QRect>
 
@@ -58,7 +59,7 @@ class QWaylandInputDevice;
 class QWaylandOutput;
 class QWaylandClient;
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgShell : public QWaylandExtensionTemplate<QWaylandXdgShell>
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgShell : public QWaylandCompositorExtensionTemplate<QWaylandXdgShell>
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandXdgShell)
@@ -88,7 +89,7 @@ private Q_SLOTS:
 
 };
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgSurface : public QWaylandExtensionTemplate<QWaylandXdgSurface>
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgSurface : public QWaylandShellSurfaceTemplate<QWaylandXdgSurface>
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandXdgSurface)
@@ -158,6 +159,8 @@ public:
     Q_INVOKABLE uint requestFullscreen(const QSize &size);
     Q_INVOKABLE uint requestResizing(const QSize &maxSize);
 
+    QWaylandQuickShellIntegration *createIntegration(QWaylandQuickShellSurfaceItem *item) Q_DECL_OVERRIDE;
+
 Q_SIGNALS:
     void surfaceChanged();
     void titleChanged();
@@ -189,7 +192,7 @@ private Q_SLOTS:
     void handleSurfaceSizeChanged();
 };
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgPopup : public QWaylandExtensionTemplate<QWaylandXdgPopup>
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgPopup : public QWaylandCompositorExtensionTemplate<QWaylandXdgPopup>
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandXdgPopup)

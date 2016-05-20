@@ -51,7 +51,7 @@
 // We mean it.
 //
 
-#include <QtWaylandClient/private/qwaylandclientexport_p.h>
+#include <QtWaylandClient/qwaylandclientexport.h>
 
 #include <QtCore/qplugin.h>
 #include <QtCore/qfactoryinterface.h>

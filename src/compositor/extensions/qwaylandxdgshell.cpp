@@ -36,6 +36,7 @@
 
 #include "qwaylandxdgshell.h"
 #include "qwaylandxdgshell_p.h"
+#include "qwaylandxdgshellintegration_p.h"
 
 #include <QtWaylandCompositor/QWaylandCompositor>
 #include <QtWaylandCompositor/QWaylandSurface>
@@ -53,7 +54,7 @@ QWaylandSurfaceRole QWaylandXdgSurfacePrivate::s_role("xdg_surface");
 QWaylandSurfaceRole QWaylandXdgPopupPrivate::s_role("xdg_popup");
 
 QWaylandXdgShellPrivate::QWaylandXdgShellPrivate()
-    : QWaylandExtensionTemplatePrivate()
+    : QWaylandCompositorExtensionPrivate()
     , xdg_shell()
 {
 }
@@ -216,7 +217,7 @@ void QWaylandXdgShellPrivate::xdg_shell_pong(Resource *resource, uint32_t serial
 }
 
 QWaylandXdgSurfacePrivate::QWaylandXdgSurfacePrivate()
-    : QWaylandExtensionTemplatePrivate()
+    : QWaylandCompositorExtensionPrivate()
     , xdg_surface()
     , m_surface(nullptr)
     , m_parentSurface(nullptr)
@@ -439,7 +440,7 @@ void QWaylandXdgSurfacePrivate::xdg_surface_set_window_geometry(Resource *resour
 }
 
 QWaylandXdgPopupPrivate::QWaylandXdgPopupPrivate()
-    : QWaylandExtensionTemplatePrivate()
+    : QWaylandCompositorExtensionPrivate()
     , xdg_popup()
     , m_surface(nullptr)
     , m_parentSurface(nullptr)
@@ -465,14 +466,14 @@ void QWaylandXdgPopupPrivate::xdg_popup_destroy(Resource *resource)
  * Constructs a QWaylandXdgShell object.
  */
 QWaylandXdgShell::QWaylandXdgShell()
-    : QWaylandExtensionTemplate<QWaylandXdgShell>(*new QWaylandXdgShellPrivate())
+    : QWaylandCompositorExtensionTemplate<QWaylandXdgShell>(*new QWaylandXdgShellPrivate())
 { }
 
 /*!
  * Constructs a QWaylandXdgShell object for the provided \a compositor.
  */
 QWaylandXdgShell::QWaylandXdgShell(QWaylandCompositor *compositor)
-    : QWaylandExtensionTemplate<QWaylandXdgShell>(compositor, *new QWaylandXdgShellPrivate())
+    : QWaylandCompositorExtensionTemplate<QWaylandXdgShell>(compositor, *new QWaylandXdgShellPrivate())
 { }
 
 /*!
@@ -481,7 +482,7 @@ QWaylandXdgShell::QWaylandXdgShell(QWaylandCompositor *compositor)
 void QWaylandXdgShell::initialize()
 {
     Q_D(QWaylandXdgShell);
-    QWaylandExtensionTemplate::initialize();
+    QWaylandCompositorExtensionTemplate::initialize();
     QWaylandCompositor *compositor = static_cast<QWaylandCompositor *>(extensionContainer());
     if (!compositor) {
         qWarning() << "Failed to find QWaylandCompositor when initializing QWaylandXdgShell";
@@ -592,7 +593,7 @@ void QWaylandXdgShell::handleFocusChanged(QWaylandSurface *newSurface, QWaylandS
  * Constructs a QWaylandXdgSurface.
  */
 QWaylandXdgSurface::QWaylandXdgSurface()
-    : QWaylandExtensionTemplate<QWaylandXdgSurface>(*new QWaylandXdgSurfacePrivate)
+    : QWaylandShellSurfaceTemplate<QWaylandXdgSurface>(*new QWaylandXdgSurfacePrivate)
 {
 }
 
@@ -601,7 +602,7 @@ QWaylandXdgSurface::QWaylandXdgSurface()
  * given \a xdgShell, \a surface and \a resource.
  */
 QWaylandXdgSurface::QWaylandXdgSurface(QWaylandXdgShell *xdgShell, QWaylandSurface *surface, const QWaylandResource &res)
-    : QWaylandExtensionTemplate<QWaylandXdgSurface>(*new QWaylandXdgSurfacePrivate)
+    : QWaylandShellSurfaceTemplate<QWaylandXdgSurface>(*new QWaylandXdgSurfacePrivate)
 {
     initialize(xdgShell, surface, res);
 }
@@ -628,7 +629,7 @@ void QWaylandXdgSurface::initialize(QWaylandXdgShell *xdgShell, QWaylandSurface 
     connect(surface, &QWaylandSurface::sizeChanged, this, &QWaylandXdgSurface::handleSurfaceSizeChanged);
     emit surfaceChanged();
     emit windowGeometryChanged();
-    QWaylandExtension::initialize();
+    QWaylandCompositorExtension::initialize();
 }
 
 /*!
@@ -636,7 +637,7 @@ void QWaylandXdgSurface::initialize(QWaylandXdgShell *xdgShell, QWaylandSurface 
  */
 void QWaylandXdgSurface::initialize()
 {
-    QWaylandExtensionTemplate::initialize();
+    QWaylandCompositorExtension::initialize();
 }
 
 QList<int> QWaylandXdgSurface::statesAsInts() const
@@ -722,9 +723,13 @@ QString QWaylandXdgSurface::appId() const
 }
 
 /*!
- * \property QWaylandXdgSurface::appId
+ * \property QWaylandXdgSurface::windowGeometry
  *
- * This property holds the window geometry of the QWaylandXdgSurface.
+ * This property holds the window geometry of the QWaylandXdgSurface. The window
+ * geometry describes the window's visible bounds from the user's perspective.
+ * The geometry includes title bars and borders if drawn by the client, but
+ * excludes drop shadows. It is meant to be used for aligning and tiling
+ * windows.
  */
 QRect QWaylandXdgSurface::windowGeometry() const
 {
@@ -913,6 +918,11 @@ uint QWaylandXdgSurface::requestResizing(const QSize &maxSize)
     return sendConfigure(maxSize, conf.states);
 }
 
+QWaylandQuickShellIntegration *QWaylandXdgSurface::createIntegration(QWaylandQuickShellSurfaceItem *item)
+{
+    return new QtWayland::XdgShellIntegration(item);
+}
+
 /*!
  * \class QWaylandXdgPopup
  * \inmodule QtWaylandCompositor
@@ -930,7 +940,7 @@ uint QWaylandXdgSurface::requestResizing(const QSize &maxSize)
  * Constructs a QWaylandXdgPopup.
  */
 QWaylandXdgPopup::QWaylandXdgPopup()
-    : QWaylandExtensionTemplate<QWaylandXdgPopup>(*new QWaylandXdgPopupPrivate)
+    : QWaylandCompositorExtensionTemplate<QWaylandXdgPopup>(*new QWaylandXdgPopupPrivate)
 {
 }
 
@@ -940,7 +950,7 @@ QWaylandXdgPopup::QWaylandXdgPopup()
  */
 QWaylandXdgPopup::QWaylandXdgPopup(QWaylandXdgShell *xdgShell, QWaylandSurface *surface,
                                    QWaylandSurface *parentSurface, const QWaylandResource &resource)
-    : QWaylandExtensionTemplate<QWaylandXdgPopup>(*new QWaylandXdgPopupPrivate)
+    : QWaylandCompositorExtensionTemplate<QWaylandXdgPopup>(*new QWaylandXdgPopupPrivate)
 {
     initialize(xdgShell, surface, parentSurface, resource);
 }
@@ -967,7 +977,7 @@ void QWaylandXdgPopup::initialize(QWaylandXdgShell *shell, QWaylandSurface *surf
     setExtensionContainer(surface);
     emit surfaceChanged();
     emit parentSurfaceChanged();
-    QWaylandExtension::initialize();
+    QWaylandCompositorExtension::initialize();
 }
 
 /*!
@@ -1010,7 +1020,7 @@ QWaylandSurface *QWaylandXdgPopup::parentSurface() const
  */
 void QWaylandXdgPopup::initialize()
 {
-    QWaylandExtensionTemplate::initialize();
+    QWaylandCompositorExtensionTemplate::initialize();
 }
 
 /*!

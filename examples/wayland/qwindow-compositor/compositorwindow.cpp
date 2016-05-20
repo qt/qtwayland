@@ -116,10 +116,18 @@ void CompositorWindow::paintGL()
     functions->glEnable(GL_BLEND);
     functions->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+    GLenum currentTarget = GL_TEXTURE_2D;
     Q_FOREACH (WindowCompositorView *view, m_compositor->views()) {
         if (view->isCursor())
             continue;
-        GLuint textureId = view->getTexture();
+        GLenum target;
+        GLuint textureId = view->getTexture(&target);
+        if (!textureId || !target)
+            continue;
+        if (target != currentTarget) {
+            currentTarget = target;
+            m_textureBlitter.bind(currentTarget);
+        }
         QWaylandSurface *surface = view->surface();
         if (surface && surface->isMapped()) {
             QSize s = surface->size();

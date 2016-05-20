@@ -37,7 +37,7 @@
 #ifndef QWAYLANDQUICKEXTENSION_H
 #define QWAYLANDQUICKEXTENSION_H
 
-#include <QtWaylandCompositor/QWaylandExtension>
+#include <QtWaylandCompositor/QWaylandCompositorExtension>
 #include <QtQml/QQmlParserStatus>
 #include <QtQml/QQmlListProperty>
 
@@ -66,7 +66,7 @@ QT_BEGIN_NAMESPACE
     { \
 /* qmake ignore Q_OBJECT */ \
         Q_OBJECT \
-        Q_PROPERTY(QQmlListProperty<QWaylandExtension> extensions READ extensions) \
+        Q_PROPERTY(QQmlListProperty<QWaylandCompositorExtension> extensions READ extensions) \
         Q_PROPERTY(QQmlListProperty<QObject> data READ data DESIGNABLE false) \
         Q_CLASSINFO("DefaultProperty", "data") \
     public: \
@@ -74,28 +74,28 @@ QT_BEGIN_NAMESPACE
         { \
             return QQmlListProperty<QObject>(this, m_objects); \
         } \
-        QQmlListProperty<QWaylandExtension> extensions() \
+        QQmlListProperty<QWaylandCompositorExtension> extensions() \
         { \
-            return QQmlListProperty<QWaylandExtension>(this, this, \
+            return QQmlListProperty<QWaylandCompositorExtension>(this, this, \
                                                        &className##QuickExtensionContainer::append_extension, \
                                                        &className##QuickExtensionContainer::countFunction, \
                                                        &className##QuickExtensionContainer::atFunction, \
                                                        &className##QuickExtensionContainer::clearFunction); \
         } \
-        static int countFunction(QQmlListProperty<QWaylandExtension> *list) \
+        static int countFunction(QQmlListProperty<QWaylandCompositorExtension> *list) \
         { \
             return static_cast<className##QuickExtensionContainer *>(list->data)->extension_vector.size(); \
         } \
-        static QWaylandExtension *atFunction(QQmlListProperty<QWaylandExtension> *list, int index) \
+        static QWaylandCompositorExtension *atFunction(QQmlListProperty<QWaylandCompositorExtension> *list, int index) \
         { \
             return static_cast<className##QuickExtensionContainer *>(list->data)->extension_vector.at(index); \
         } \
-        static void append_extension(QQmlListProperty<QWaylandExtension> *list, QWaylandExtension *extension) \
+        static void append_extension(QQmlListProperty<QWaylandCompositorExtension> *list, QWaylandCompositorExtension *extension) \
         { \
             className##QuickExtensionContainer *quickExtObj = static_cast<className##QuickExtensionContainer *>(list->data); \
             extension->setExtensionContainer(quickExtObj); \
         } \
-        static void clearFunction(QQmlListProperty<QWaylandExtension> *list) \
+        static void clearFunction(QQmlListProperty<QWaylandCompositorExtension> *list) \
         { \
             static_cast<className##QuickExtensionContainer *>(list->data)->extension_vector.clear(); \
         } \

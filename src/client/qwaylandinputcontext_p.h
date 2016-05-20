@@ -60,7 +60,7 @@
 #include <QVector>
 
 #include <QtWaylandClient/private/qwayland-text-input-unstable-v2.h>
-#include <qwaylandinputmethodeventbuilder.h>
+#include <qwaylandinputmethodeventbuilder_p.h>
 
 QT_BEGIN_NAMESPACE
 

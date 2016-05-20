@@ -43,7 +43,7 @@ QT_BEGIN_NAMESPACE
 namespace QtWayland {
 
 HardwareIntegration::HardwareIntegration(QWaylandCompositor *compositor)
-    : QWaylandExtensionTemplate<HardwareIntegration>(compositor)
+    : QWaylandCompositorExtensionTemplate<HardwareIntegration>(compositor)
     , qt_hardware_integration(compositor->display(), 1)
 {
 }

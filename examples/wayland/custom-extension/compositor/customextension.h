@@ -43,14 +43,14 @@
 
 #include "wayland-util.h"
 
-#include <QtWaylandCompositor/QWaylandExtensionTemplate>
+#include <QtWaylandCompositor/QWaylandCompositorExtensionTemplate>
 #include <QtWaylandCompositor/QWaylandQuickExtension>
 #include <QtWaylandCompositor/QWaylandCompositor>
 #include "qwayland-server-custom.h"
 
 namespace QtWayland {
 
-class CustomExtension  : public QWaylandExtensionTemplate<CustomExtension>, public QtWaylandServer::qt_example_extension
+class CustomExtension  : public QWaylandCompositorExtensionTemplate<CustomExtension>, public QtWaylandServer::qt_example_extension
 {
     Q_OBJECT
 public:

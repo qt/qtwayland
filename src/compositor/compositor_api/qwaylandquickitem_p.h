@@ -85,12 +85,17 @@ public:
     QWaylandBufferMaterial(QWaylandBufferRef::BufferFormatEgl format);
     ~QWaylandBufferMaterial();
 
+    void setTextureForPlane(int plane, uint texture);
+
     void bind();
 
     QSGMaterialType *type() const Q_DECL_OVERRIDE;
     QSGMaterialShader *createShader() const Q_DECL_OVERRIDE;
 
 private:
+    void setTextureParameters(GLenum target);
+    void ensureTextures(int count);
+
     const QWaylandBufferRef::BufferFormatEgl m_format;
     QVarLengthArray<GLuint, 3> m_textures;
 };

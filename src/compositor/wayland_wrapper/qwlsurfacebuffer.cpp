@@ -44,7 +44,7 @@
 #include <QtCore/QDebug>
 
 #include <wayland-server-protocol.h>
-#include "qwaylandshmformathelper.h"
+#include "qwaylandshmformathelper_p.h"
 
 #include <QtWaylandCompositor/private/qwaylandcompositor_p.h>
 
@@ -230,6 +230,14 @@ void SurfaceBuffer::bindToTexture() const
             clientInt->bindTextureToBuffer(m_buffer);
         }
     }
+}
+
+uint SurfaceBuffer::textureForPlane(int plane) const
+{
+    if (QtWayland::ClientBufferIntegration *clientInt = QWaylandCompositorPrivate::get(m_compositor)->clientBufferIntegration())
+        return clientInt->textureForBuffer(m_buffer, plane);
+
+    return 0;
 }
 
 void SurfaceBuffer::updateTexture() const

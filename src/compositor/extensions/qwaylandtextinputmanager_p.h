@@ -37,7 +37,7 @@
 #ifndef QWAYLANDTEXTINPUTMANAGER_P_H
 #define QWAYLANDTEXTINPUTMANAGER_P_H
 
-#include <QtWaylandCompositor/private/qwaylandextension_p.h>
+#include <QtWaylandCompositor/private/qwaylandcompositorextension_p.h>
 
 #include <QtWaylandCompositor/private/qwayland-server-text-input-unstable-v2.h>
 
@@ -54,7 +54,7 @@
 
 QT_BEGIN_NAMESPACE
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandTextInputManagerPrivate : public QWaylandExtensionTemplatePrivate, public QtWaylandServer::zwp_text_input_manager_v2
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandTextInputManagerPrivate : public QWaylandCompositorExtensionPrivate, public QtWaylandServer::zwp_text_input_manager_v2
 {
     Q_DECLARE_PUBLIC(QWaylandTextInputManager)
 public:

@@ -179,17 +179,6 @@ QWaylandBufferMaterial::QWaylandBufferMaterial(QWaylandBufferRef::BufferFormatEg
 {
     QOpenGLFunctions *gl = QOpenGLContext::currentContext()->functions();
 
-    for (int i = 0; i < bufferTypes[m_format].planeCount; i++) {
-        GLuint texture;
-        gl->glGenTextures(1, &texture);
-        gl->glBindTexture(bufferTypes[m_format].textureTarget, texture);
-        gl->glTexParameteri(bufferTypes[m_format].textureTarget, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        gl->glTexParameteri(bufferTypes[m_format].textureTarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        gl->glTexParameteri(bufferTypes[m_format].textureTarget, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        gl->glTexParameteri(bufferTypes[m_format].textureTarget, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        m_textures << texture;
-    }
-
     gl->glBindTexture(bufferTypes[m_format].textureTarget, 0);
     setFlag(bufferTypes[m_format].materialFlags);
 }
@@ -202,10 +191,35 @@ QWaylandBufferMaterial::~QWaylandBufferMaterial()
         gl->glDeleteTextures(1, &texture);
 }
 
+void QWaylandBufferMaterial::setTextureForPlane(int plane, uint texture)
+{
+    if (plane < 0 || plane >= bufferTypes[m_format].planeCount) {
+        qWarning("plane index is out of range");
+        return;
+    }
+
+    QOpenGLFunctions *gl = QOpenGLContext::currentContext()->functions();
+    const GLenum target = bufferTypes[m_format].textureTarget;
+
+    gl->glBindTexture(target, texture);
+    setTextureParameters(target);
+
+    ensureTextures(plane - 1);
+
+    if (m_textures.size() <= plane) {
+        m_textures << texture;
+    } else {
+        std::swap(m_textures[plane], texture);
+        gl->glDeleteTextures(1, &texture);
+    }
+}
+
 void QWaylandBufferMaterial::bind()
 {
     QOpenGLFunctions *gl = QOpenGLContext::currentContext()->functions();
     const GLenum target = bufferTypes[m_format].textureTarget;
+
+    ensureTextures(bufferTypes[m_format].planeCount);
 
     switch (m_textures.size()) {
     case 3:
@@ -228,6 +242,31 @@ QSGMaterialType *QWaylandBufferMaterial::type() const
 QSGMaterialShader *QWaylandBufferMaterial::createShader() const
 {
     return new QWaylandBufferMaterialShader(m_format);
+}
+
+
+void QWaylandBufferMaterial::setTextureParameters(GLenum target)
+{
+    QOpenGLFunctions *gl = QOpenGLContext::currentContext()->functions();
+    gl->glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    gl->glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    gl->glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    gl->glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+}
+
+//TODO move this into a separate centralized texture management class
+void QWaylandBufferMaterial::ensureTextures(int count)
+{
+    QOpenGLFunctions *gl = QOpenGLContext::currentContext()->functions();
+    const GLenum target = bufferTypes[m_format].textureTarget;
+    GLuint texture;
+
+    for (int plane = m_textures.size(); plane < count; plane++) {
+        gl->glGenTextures(1, &texture);
+        gl->glBindTexture(target, texture);
+        setTextureParameters(target);
+        m_textures << texture;
+    }
 }
 
 QMutex *QWaylandQuickItemPrivate::mutex = 0;
@@ -1047,6 +1086,9 @@ QSGNode *QWaylandQuickItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeDat
 
         if (d->newTexture) {
             d->newTexture = false;
+            for (int plane = 0; plane < bufferTypes[ref.bufferFormatEgl()].planeCount; plane++)
+                if (uint texture = ref.textureForPlane(plane))
+                    material->setTextureForPlane(plane, texture);
             material->bind();
             ref.bindToTexture();
         }

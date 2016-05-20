@@ -5,6 +5,5 @@
         <file>qml/Screen.qml</file>
         <file>qml/Chrome.qml</file>
         <file>qml/Keyboard.qml</file>
-        <file>qml/XdgChrome.qml</file>
     </qresource>
 </RCC>

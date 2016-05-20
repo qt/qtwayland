@@ -47,8 +47,6 @@
 
 QT_BEGIN_NAMESPACE
 
-namespace QtWaylandClient {
-
 static CustomExtension * extension_global;
 
 class CustomIntegrationPlugin : public QPlatformIntegrationPlugin
@@ -76,8 +74,6 @@ public:
     extension_global->setObjectName("qt_example_custom_extension");
 
     return extension_global->integration();
-}
-
 }
 
 QT_END_NAMESPACE

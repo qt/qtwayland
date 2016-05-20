@@ -117,6 +117,7 @@ struct BufferState
     EGLint egl_format;
     QVarLengthArray<EGLImageKHR, 3> egl_images;
     EGLStreamKHR egl_stream;
+    GLuint eglstream_texture;
 
     bool isYInverted;
     QSize size;
@@ -167,6 +168,7 @@ struct buffer_destroy_listener : wl_listener
 BufferState::BufferState()
     : egl_format(EGL_TEXTURE_RGBA)
     , egl_stream(EGL_NO_STREAM_KHR)
+    , eglstream_texture(0)
     , isYInverted(true)
 {}
 
@@ -269,7 +271,21 @@ void WaylandEglClientBufferIntegrationPrivate::attach_egl_fd_texture(struct ::wl
         return;
     }
 
+    if (!QOpenGLContext::currentContext())
+        qWarning("EglClientBufferIntegration: creating texture with no current context");
+
+    //TODO This texture might end up in a different context than the quick item which wants to use it, this needs to be fixed somehow.
+    glGenTextures(1, &state.eglstream_texture);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_EXTERNAL_OES, state.eglstream_texture);
+    glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
     register_buffer(buffer, state);
+
+    bindBuffer(buffer);
 }
 
 void WaylandEglClientBufferIntegrationPrivate::register_buffer(struct ::wl_resource *buffer, BufferState state)
@@ -301,8 +317,12 @@ void WaylandEglClientBufferIntegrationPrivate::bindBuffer(struct ::wl_resource *
     const BufferState state = buffers.value(buffer);
 
     if (state.egl_stream != EGL_NO_STREAM_KHR) {
-        if (funcs->stream_consumer_gltexture(egl_display, state.egl_stream) != EGL_TRUE)
-            qWarning("%s:%d: eglStreamConsumerGLTextureExternalKHR failed: 0x%x", Q_FUNC_INFO, __LINE__, eglGetError());
+        EGLint stream_state;
+        funcs->query_stream(egl_display, state.egl_stream, EGL_STREAM_STATE_KHR, &stream_state);
+
+        if (stream_state == EGL_STREAM_STATE_CREATED_KHR)
+            if (funcs->stream_consumer_gltexture(egl_display, state.egl_stream) != EGL_TRUE)
+                qWarning("%s:%d: eglStreamConsumerGLTextureExternalKHR failed: 0x%x", Q_FUNC_INFO, __LINE__, eglGetError());
     } else {
         GLint previousTexture = GL_TEXTURE0;
         glGetIntegerv(GL_ACTIVE_TEXTURE, &previousTexture);
@@ -339,6 +359,11 @@ void WaylandEglClientBufferIntegrationPrivate::handle_buffer_destroy(wl_listener
     Q_ASSERT(buffer);
 
     BufferState state = self->buffers.take(buffer);
+
+    /* TODO This texture shouldn't get deleted here as the compositor might want to show an transition. But at the same time we need to make sure
+            that the texture is deleted properly although if the compositor didn't use it (e.g. by creating a quick item)*/
+    if (state.eglstream_texture)
+        glDeleteTextures(1, &state.eglstream_texture);
 
     for (int i = 0; i < state.egl_images.size(); i++)
         self->egl_destroy_image(self->egl_display, state.egl_images[i]);
@@ -453,6 +478,17 @@ QWaylandBufferRef::BufferFormatEgl WaylandEglClientBufferIntegration::bufferForm
     return formatFromEglFormat(d->buffers.value(buffer).egl_format);
 }
 
+uint WaylandEglClientBufferIntegration::textureForBuffer(wl_resource *buffer, int plane)
+{
+    Q_UNUSED(plane)
+    Q_D(WaylandEglClientBufferIntegration);
+    if (!buffer)
+        return 0;
+
+    const BufferState state = d->buffers.value(buffer);
+    return state.eglstream_texture;
+}
+
 void WaylandEglClientBufferIntegration::bindTextureToBuffer(struct ::wl_resource *buffer)
 {
     Q_D(WaylandEglClientBufferIntegration);
@@ -475,8 +511,15 @@ void WaylandEglClientBufferIntegration::updateTextureForBuffer(struct ::wl_resou
 
     const BufferState state = d->buffers.value(buffer);
 
-    if (state.egl_stream != EGL_NO_STREAM_KHR)
-        d->funcs->stream_consumer_acquire(d->egl_display, state.egl_stream);
+    if (state.egl_stream != EGL_NO_STREAM_KHR) {
+        EGLint stream_state;
+        d->funcs->query_stream(d->egl_display, state.egl_stream, EGL_STREAM_STATE_KHR, &stream_state);
+
+        if (stream_state == EGL_STREAM_STATE_NEW_FRAME_AVAILABLE_KHR) {
+            if (d->funcs->stream_consumer_acquire(d->egl_display, state.egl_stream) != EGL_TRUE)
+                qWarning("%s:%d: eglStreamConsumerAcquireKHR failed: 0x%x", Q_FUNC_INFO, __LINE__, eglGetError());
+        }
+    }
 }
 
 QWaylandSurface::Origin WaylandEglClientBufferIntegration::origin(struct ::wl_resource *buffer) const

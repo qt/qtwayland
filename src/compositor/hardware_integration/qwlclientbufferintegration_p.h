@@ -73,6 +73,7 @@ public:
 
     virtual void initializeBuffer(struct ::wl_resource *buffer) { Q_UNUSED(buffer); }
     virtual QWaylandBufferRef::BufferFormatEgl bufferFormat(struct ::wl_resource *buffer) { Q_UNUSED(buffer); return QWaylandBufferRef::BufferFormatEgl_RGBA; }
+    virtual uint textureForBuffer(struct ::wl_resource *buffer, int plane) { Q_UNUSED(buffer); Q_UNUSED(plane); return 0; }
 
     virtual void bindTextureToBuffer(struct ::wl_resource *buffer) = 0;
     virtual void updateTextureForBuffer(struct ::wl_resource *buffer) { Q_UNUSED(buffer); }

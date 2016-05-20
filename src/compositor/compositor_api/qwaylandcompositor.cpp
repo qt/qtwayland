@@ -62,8 +62,8 @@
 
 #include "extensions/qwaylandwindowmanagerextension.h"
 
-#include "qwaylandxkb.h"
-#include "qwaylandshmformathelper.h"
+#include "qwaylandxkb_p.h"
+#include "qwaylandshmformathelper_p.h"
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QStringList>

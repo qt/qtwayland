@@ -77,6 +77,7 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandWlShellSurface : public QWaylandShellS
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandWlShellSurface)
     Q_PROPERTY(QWaylandSurface *surface READ surface NOTIFY surfaceChanged)
+    Q_PROPERTY(QWaylandWlShell *shell READ shell NOTIFY shellChanged)
     Q_PROPERTY(QString title READ title NOTIFY titleChanged)
     Q_PROPERTY(QString className READ className NOTIFY classNameChanged)
     Q_PROPERTY(FocusPolicy focusPolicy READ focusPolicy NOTIFY focusPolicyChanged)
@@ -118,6 +119,7 @@ public:
     QString className() const;
 
     QWaylandSurface *surface() const;
+    QWaylandWlShell *shell() const;
 
     FocusPolicy focusPolicy() const;
 
@@ -138,6 +140,7 @@ public Q_SLOTS:
 
 Q_SIGNALS:
     void surfaceChanged();
+    void shellChanged();
     void titleChanged();
     void classNameChanged();
     void focusPolicyChanged();

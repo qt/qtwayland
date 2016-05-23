@@ -402,6 +402,7 @@ void QWaylandWlShellSurface::initialize(QWaylandWlShell *shell, QWaylandSurface 
     d->init(resource.resource());
     setExtensionContainer(surface);
     emit surfaceChanged();
+    emit shellChanged();
     QWaylandCompositorExtension::initialize();
 }
 
@@ -516,6 +517,12 @@ QWaylandSurface *QWaylandWlShellSurface::surface() const
 {
     Q_D(const QWaylandWlShellSurface);
     return d->m_surface;
+}
+
+QWaylandWlShell *QWaylandWlShellSurface::shell() const
+{
+    Q_D(const QWaylandWlShellSurface);
+    return d->m_shell;
 }
 
 /*!

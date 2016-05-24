@@ -57,7 +57,7 @@
 #include <wayland-client.h>
 
 #include <QtWaylandClient/private/qwayland-wayland.h>
-#include <QtWaylandClient/private/qwaylandclientexport_p.h>
+#include <QtWaylandClient/qwaylandclientexport.h>
 
 QT_BEGIN_NAMESPACE
 

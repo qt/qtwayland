@@ -34,10 +34,12 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDQUICKXDGSURFACEITEM_P_H
-#define QWAYLANDQUICKXDGSURFACEITEM_P_H
+#ifndef QWAYLANDWLSHELLINTEGRATION_H
+#define QWAYLANDWLSHELLINTEGRATION_H
 
-#include <QtWaylandCompositor/private/qwaylandquickitem_p.h>
+#include <QtWaylandCompositor/private/qwaylandquickshellsurfaceitem_p.h>
+
+#include <QtWaylandCompositor/QWaylandWlShellSurface>
 
 QT_BEGIN_NAMESPACE
 
@@ -52,48 +54,61 @@ QT_BEGIN_NAMESPACE
 // We mean it.
 //
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQuickXdgSurfaceItemPrivate : public QWaylandQuickItemPrivate
+namespace QtWayland {
+
+class WlShellIntegration : public QWaylandQuickShellIntegration
 {
+    Q_OBJECT
 public:
-    enum GrabberState {
-        DefaultState,
-        ResizeState,
-        MoveState
+    WlShellIntegration(QWaylandQuickShellSurfaceItem *item);
+    bool mouseMoveEvent(QMouseEvent *event) Q_DECL_OVERRIDE;
+    bool mouseReleaseEvent(QMouseEvent *event) Q_DECL_OVERRIDE;
+
+private Q_SLOTS:
+    void handleStartMove(QWaylandInputDevice *inputDevice);
+    void handleStartResize(QWaylandInputDevice *inputDevice, QWaylandWlShellSurface::ResizeEdge edges);
+    void handleSetPopup(QWaylandInputDevice *inputDevice, QWaylandSurface *parent, const QPoint &relativeToParent);
+    void handleShellSurfaceDestroyed();
+    void handleSurfaceUnmapped();
+    void adjustOffsetForNextFrame(const QPointF &offset);
+
+private:
+    enum class GrabberState {
+        Default,
+        Resize,
+        Move
     };
 
-    QWaylandQuickXdgSurfaceItemPrivate()
-        : QWaylandQuickItemPrivate()
-        , xdgSurface(Q_NULLPTR)
-        , moveItem(Q_NULLPTR)
-        , grabberState(DefaultState)
-    {}
+    bool eventFilter(QObject *, QEvent *) Q_DECL_OVERRIDE;
 
-    QWaylandXdgSurface *xdgSurface;
-    QQuickItem *moveItem;
+    void setIsPopup(bool popup);
+    void setFilterEnabled(bool enabled);
+    static void closePopups();
 
+    QWaylandQuickShellSurfaceItem *m_item;
+    QWaylandWlShellSurface *m_shellSurface;
     GrabberState grabberState;
     struct {
         QWaylandInputDevice *inputDevice;
         QPointF initialOffset;
         bool initialized;
     } moveState;
-
     struct {
         QWaylandInputDevice *inputDevice;
-        QWaylandXdgSurface::ResizeEdge resizeEdges;
-        QSizeF initialWindowSize;
+        QWaylandWlShellSurface::ResizeEdge resizeEdges;
+        QSizeF initialSize;
         QPointF initialMousePos;
-        QPointF initialPosition;
-        QSize initialSurfaceSize;
         bool initialized;
     } resizeState;
 
-    struct {
-        QSize initialWindowSize;
-        QPointF initialPosition;
-    } maximizeState;
+    static QVector<QWaylandWlShellSurface*> popupShellSurfaces;
+    static bool eventFilterInstalled;
+    static bool waitForRelease;
+    bool isPopup;
 };
+
+}
 
 QT_END_NAMESPACE
 
-#endif  /*QWAYLANDQUICKXDGSURFACEITEM_P_H*/
+#endif // QWAYLANDWLSHELLINTEGRATION_H

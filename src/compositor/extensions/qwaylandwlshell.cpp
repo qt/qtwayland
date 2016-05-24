@@ -38,6 +38,8 @@
 #include "qwaylandwlshell.h"
 #include "qwaylandwlshell_p.h"
 
+#include "qwaylandwlshellintegration_p.h"
+
 #include <QtWaylandCompositor/QWaylandCompositor>
 #include <QtWaylandCompositor/QWaylandView>
 #include <QtWaylandCompositor/QWaylandOutput>
@@ -51,7 +53,7 @@ QT_BEGIN_NAMESPACE
 QWaylandSurfaceRole QWaylandWlShellSurfacePrivate::s_role("wl_shell_surface");
 
 QWaylandWlShellPrivate::QWaylandWlShellPrivate()
-    : QWaylandExtensionTemplatePrivate()
+    : QWaylandCompositorExtensionPrivate()
     , wl_shell()
 {
 }
@@ -88,7 +90,7 @@ void QWaylandWlShellPrivate::shell_get_shell_surface(Resource *resource, uint32_
 }
 
 QWaylandWlShellSurfacePrivate::QWaylandWlShellSurfacePrivate()
-    : QWaylandExtensionTemplatePrivate()
+    : QWaylandCompositorExtensionPrivate()
     , wl_shell_surface()
     , m_shell(Q_NULLPTR)
     , m_surface(Q_NULLPTR)
@@ -240,6 +242,7 @@ void QWaylandWlShellSurfacePrivate::shell_surface_set_class(Resource *resource,
 /*!
  * \qmltype WlShell
  * \inqmlmodule QtWayland.Compositor
+ * \preliminary
  * \brief Extension for desktop-style user interfaces.
  *
  * The WlShell extension provides a way to assiociate a \l{ShellSurface}
@@ -265,6 +268,7 @@ void QWaylandWlShellSurfacePrivate::shell_surface_set_class(Resource *resource,
 /*!
  * \class QWaylandWlShell
  * \inmodule QtWaylandCompositor
+ * \preliminary
  * \brief Extension for desktop-style user interfaces.
  *
  * The QWaylandWlShell extension provides a way to assiociate a QWaylandWlShellSurface with
@@ -278,14 +282,14 @@ void QWaylandWlShellSurfacePrivate::shell_surface_set_class(Resource *resource,
  * Constructs a QWaylandWlShell object.
  */
 QWaylandWlShell::QWaylandWlShell()
-    : QWaylandExtensionTemplate<QWaylandWlShell>(*new QWaylandWlShellPrivate())
+    : QWaylandCompositorExtensionTemplate<QWaylandWlShell>(*new QWaylandWlShellPrivate())
 { }
 
 /*!
  * Constructs a QWaylandWlShell object for the provided \a compositor.
  */
 QWaylandWlShell::QWaylandWlShell(QWaylandCompositor *compositor)
-    : QWaylandExtensionTemplate<QWaylandWlShell>(compositor, *new QWaylandWlShellPrivate())
+    : QWaylandCompositorExtensionTemplate<QWaylandWlShell>(compositor, *new QWaylandWlShellPrivate())
 { }
 
 
@@ -295,7 +299,7 @@ QWaylandWlShell::QWaylandWlShell(QWaylandCompositor *compositor)
 void QWaylandWlShell::initialize()
 {
     Q_D(QWaylandWlShell);
-    QWaylandExtensionTemplate::initialize();
+    QWaylandCompositorExtensionTemplate::initialize();
     QWaylandCompositor *compositor = static_cast<QWaylandCompositor *>(extensionContainer());
     if (!compositor) {
         qWarning() << "Failed to find QWaylandCompositor when initializing QWaylandWlShell";
@@ -341,6 +345,7 @@ QByteArray QWaylandWlShell::interfaceName()
 /*!
  * \qmltype WlShellSurface
  * \inqmlmodule QtWayland.Compositor
+ * \preliminary
  * \brief A wl_shell_surface providing desktop-style compositor-specific features to a surface.
  *
  * This type is part of the \l{WlShell} extension and provides a way to extend
@@ -353,6 +358,7 @@ QByteArray QWaylandWlShell::interfaceName()
 /*!
  * \class QWaylandWlShellSurface
  * \inmodule QtWaylandCompositor
+ * \preliminary
  * \brief A shell surface providing desktop-style compositor-specific features to a surface.
  *
  * This class is part of the QWaylandWlShell extension and provides a way to extend
@@ -366,7 +372,7 @@ QByteArray QWaylandWlShell::interfaceName()
  * Constructs a QWaylandWlShellSurface.
  */
 QWaylandWlShellSurface::QWaylandWlShellSurface()
-    : QWaylandExtensionTemplate<QWaylandWlShellSurface>(*new QWaylandWlShellSurfacePrivate)
+    : QWaylandShellSurfaceTemplate<QWaylandWlShellSurface>(*new QWaylandWlShellSurfacePrivate)
 {
 }
 
@@ -374,7 +380,7 @@ QWaylandWlShellSurface::QWaylandWlShellSurface()
  * Constructs a QWaylandWlShellSurface for \a surface and initializes it with the given \a shell and \a resource.
  */
 QWaylandWlShellSurface::QWaylandWlShellSurface(QWaylandWlShell *shell, QWaylandSurface *surface, const QWaylandResource &res)
-    : QWaylandExtensionTemplate<QWaylandWlShellSurface>(*new QWaylandWlShellSurfacePrivate)
+    : QWaylandShellSurfaceTemplate<QWaylandWlShellSurface>(*new QWaylandWlShellSurfacePrivate)
 {
     initialize(shell, surface, res);
 }
@@ -396,7 +402,7 @@ void QWaylandWlShellSurface::initialize(QWaylandWlShell *shell, QWaylandSurface 
     d->init(resource.resource());
     setExtensionContainer(surface);
     emit surfaceChanged();
-    QWaylandExtension::initialize();
+    QWaylandCompositorExtension::initialize();
 }
 
 /*!
@@ -404,7 +410,7 @@ void QWaylandWlShellSurface::initialize(QWaylandWlShell *shell, QWaylandSurface 
  */
 void QWaylandWlShellSurface::initialize()
 {
-    QWaylandExtensionTemplate::initialize();
+    QWaylandCompositorExtension::initialize();
 }
 
 const struct wl_interface *QWaylandWlShellSurface::interface()
@@ -488,6 +494,11 @@ void QWaylandWlShellSurface::sendPopupDone()
 {
     Q_D(QWaylandWlShellSurface);
     d->send_popup_done();
+}
+
+QWaylandQuickShellIntegration *QWaylandWlShellSurface::createIntegration(QWaylandQuickShellSurfaceItem *item)
+{
+    return new QtWayland::WlShellIntegration(item);
 }
 
 /*!

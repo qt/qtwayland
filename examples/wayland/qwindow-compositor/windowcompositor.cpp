@@ -50,25 +50,42 @@
 #include <QtWaylandCompositor/qwaylanddrag.h>
 
 #include <QDebug>
+#include <QOpenGLContext>
+
+#ifndef GL_TEXTURE_EXTERNAL_OES
+#define GL_TEXTURE_EXTERNAL_OES 0x8D65
+#endif
 
 WindowCompositorView::WindowCompositorView()
-    : m_texture(0)
+    : m_textureTarget(GL_TEXTURE_2D)
+    , m_texture(0)
     , m_wlShellSurface(nullptr)
     , m_xdgSurface(nullptr)
     , m_xdgPopup(nullptr)
     , m_parentView(nullptr)
 {}
 
-GLuint WindowCompositorView::getTexture() {
-    if (advance()) {
-        if (m_texture)
-            glDeleteTextures(1, &m_texture);
+GLuint WindowCompositorView::getTexture(GLenum *target)
+{
+    QWaylandBufferRef buf = currentBuffer();
+    m_texture = buf.textureForPlane(0);
 
-        glGenTextures(1, &m_texture);
-        glBindTexture(GL_TEXTURE_2D, m_texture);
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        currentBuffer().bindToTexture();
+    if (buf.bufferFormatEgl() == QWaylandBufferRef::BufferFormatEgl_EXTERNAL_OES)
+        m_textureTarget = GL_TEXTURE_EXTERNAL_OES;
+
+    if (advance()) {
+        if (!m_texture)
+            glGenTextures(1, &m_texture);
+
+        glBindTexture(m_textureTarget, m_texture);
+        buf.bindToTexture();
     }
+
+    buf.updateTexture();
+
+    if (target)
+        *target = m_textureTarget;
+
     return m_texture;
 }
 
@@ -236,7 +253,7 @@ void WindowCompositor::onCreateXdgPopup(QWaylandSurface *surface, QWaylandSurfac
 {
     Q_UNUSED(inputDevice);
 
-    QWaylandXdgPopup *xdgPopup = new QWaylandXdgPopup(m_xdgShell, surface, parent, resource);
+    QWaylandXdgPopup *xdgPopup = new QWaylandXdgPopup(m_xdgShell, surface, parent, position, resource);
 
     WindowCompositorView *view = findView(surface);
     Q_ASSERT(view);

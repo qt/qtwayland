@@ -38,7 +38,7 @@
 **
 ****************************************************************************/
 
-#include "qwaylandxkb.h"
+#include "qwaylandxkb_p.h"
 
 #include <QKeyEvent>
 #include <QString>

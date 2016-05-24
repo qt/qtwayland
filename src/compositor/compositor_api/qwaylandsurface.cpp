@@ -377,6 +377,7 @@ QtWayland::SurfaceBuffer *QWaylandSurfacePrivate::createSurfaceBuffer(struct ::w
 /*!
  * \qmltype WaylandSurface
  * \inqmlmodule QtWayland.Compositor
+ * \preliminary
  * \brief A rectangular area which is displayed on an output device.
  *
  * This type encapsulates a rectangular area of pixels that is displayed on an output device. It
@@ -386,6 +387,7 @@ QtWayland::SurfaceBuffer *QWaylandSurfacePrivate::createSurfaceBuffer(struct ::w
 /*!
  * \class QWaylandSurface
  * \inmodule QtWaylandCompositor
+ * \preliminary
  * \brief A rectangular area which is displayed on an output device.
  *
  * This class encapsulates a rectangular area of pixels that is displayed on an output device. It

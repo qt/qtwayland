@@ -53,7 +53,7 @@
 
 #include <qpa/qwindowsysteminterface.h>
 
-#include <QtWaylandClient/private/qwaylandclientexport_p.h>
+#include <QtWaylandClient/qwaylandclientexport.h>
 #include <QtWaylandClient/private/qwayland-qtkey-extension.h>
 
 QT_BEGIN_NAMESPACE

@@ -52,7 +52,7 @@
 
 #include <QtWaylandCompositor/private/qwayland-server-surface-extension.h>
 #include <QtWaylandCompositor/qwaylandsurface.h>
-#include <QtWaylandCompositor/qwaylandextension.h>
+#include <QtWaylandCompositor/qwaylandcompositorextension.h>
 
 #include <QtCore/QVariant>
 #include <QtCore/QLinkedList>
@@ -67,7 +67,7 @@ namespace QtWayland {
 
 class ExtendedSurface;
 
-class Q_WAYLAND_COMPOSITOR_EXPORT SurfaceExtensionGlobal : public QWaylandExtensionTemplate<SurfaceExtensionGlobal>, public QtWaylandServer::qt_surface_extension
+class Q_WAYLAND_COMPOSITOR_EXPORT SurfaceExtensionGlobal : public QWaylandCompositorExtensionTemplate<SurfaceExtensionGlobal>, public QtWaylandServer::qt_surface_extension
 {
     Q_OBJECT
 public:
@@ -83,7 +83,7 @@ private:
 
 };
 
-class Q_WAYLAND_COMPOSITOR_EXPORT ExtendedSurface : public QWaylandExtensionTemplate<ExtendedSurface>, public QtWaylandServer::qt_extended_surface
+class Q_WAYLAND_COMPOSITOR_EXPORT ExtendedSurface : public QWaylandCompositorExtensionTemplate<ExtendedSurface>, public QtWaylandServer::qt_extended_surface
 {
     Q_OBJECT
     Q_PROPERTY(Qt::ScreenOrientations contentOrientationMask READ contentOrientationMask NOTIFY contentOrientationMaskChanged)

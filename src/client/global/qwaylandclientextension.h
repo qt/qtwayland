@@ -39,13 +39,14 @@
 
 #include <QObject>
 #include <qpa/qwindowsysteminterface.h>
-#include <QtWaylandClient/private/qwaylandclientexport_p.h>
+#include <QtWaylandClient/qwaylandclientexport.h>
 #include <QtWaylandClient/private/qwayland-wayland.h>
 QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
-
 class QWaylandIntegration;
+}
+
 class QWaylandClientExtensionPrivate;
 class QWaylandClientExtensionTemplatePrivate;
 
@@ -54,13 +55,13 @@ class Q_WAYLAND_CLIENT_EXPORT QWaylandClientExtension : public QObject
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandClientExtension)
     Q_PROPERTY(int protocolVersion READ version NOTIFY versionChanged)
-    Q_PROPERTY(bool active READ active NOTIFY activeChanged)
+    Q_PROPERTY(bool active READ isActive NOTIFY activeChanged)
 public:
     QWaylandClientExtension(const int version);
 
-    QWaylandIntegration *integration() const;
+    QtWaylandClient::QWaylandIntegration *integration() const;
     int version() const;
-    bool active() const;
+    bool isActive() const;
 
     virtual const struct wl_interface *extensionInterface() const = 0;
     virtual void bind(struct ::wl_registry *registry, int id, int version) = 0;
@@ -100,8 +101,6 @@ public:
         instance->init(registry, id, minVersion);
     }
 };
-
-}
 
 QT_END_NAMESPACE
 

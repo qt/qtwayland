@@ -51,6 +51,7 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandMouseTracker : public QQuickItem
     Q_DECLARE_PRIVATE(QWaylandMouseTracker)
     Q_PROPERTY(qreal mouseX READ mouseX NOTIFY mouseXChanged)
     Q_PROPERTY(qreal mouseY READ mouseY NOTIFY mouseYChanged)
+    Q_PROPERTY(bool containsMouse READ hovered NOTIFY hoveredChanged)
 
     Q_PROPERTY(bool enableWSCursor READ enableWSCursor WRITE setEnableWSCursor NOTIFY enableWSCursorChanged)
 public:
@@ -61,15 +62,20 @@ public:
 
     void setEnableWSCursor(bool enable);
     bool enableWSCursor() const;
+    bool hovered() const;
+
 signals:
     void mouseXChanged();
     void mouseYChanged();
     void enableWSCursorChanged();
+    void hoveredChanged();
 
 protected:
     bool childMouseEventFilter(QQuickItem *item, QEvent *event) Q_DECL_OVERRIDE;
     void mouseMoveEvent(QMouseEvent *event) Q_DECL_OVERRIDE;
     void hoverMoveEvent(QHoverEvent *event) Q_DECL_OVERRIDE;
+    void hoverEnterEvent(QHoverEvent *event) Q_DECL_OVERRIDE;
+    void hoverLeaveEvent(QHoverEvent *event) Q_DECL_OVERRIDE;
 };
 
 QT_END_NAMESPACE

@@ -55,15 +55,13 @@
 
 QT_BEGIN_NAMESPACE
 
-namespace QtWaylandClient {
-
 class Q_WAYLAND_CLIENT_EXPORT QWaylandClientExtensionPrivate : public QObjectPrivate, public QtWayland::wl_registry
 {
     Q_DECLARE_PUBLIC(QWaylandClientExtension)
 public:
     QWaylandClientExtensionPrivate();
 
-    QWaylandIntegration *waylandIntegration;
+    QtWaylandClient::QWaylandIntegration *waylandIntegration;
     int version;
     bool active;
 
@@ -78,8 +76,6 @@ public:
         : QWaylandClientExtensionPrivate()
     { }
 };
-
-}
 
 QT_END_NAMESPACE
 

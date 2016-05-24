@@ -39,7 +39,7 @@
 #define QWAYLANDSURFACE_H
 
 #include <QtWaylandCompositor/qwaylandexport.h>
-#include <QtWaylandCompositor/qwaylandextension.h>
+#include <QtWaylandCompositor/qwaylandcompositorextension.h>
 #include <QtWaylandCompositor/qwaylandclient.h>
 
 #include <QtCore/QScopedPointer>

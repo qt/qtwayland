@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2015 The Qt Company Ltd.
+** Copyright (C) 2016 The Qt Company Ltd.
 ** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the QtWaylandCompositor module of the Qt Toolkit.
@@ -34,51 +34,59 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDEXTENSION_P_H
-#define QWAYLANDEXTENSION_P_H
+#ifndef QWAYLANDSHELLSURFACE_H
+#define QWAYLANDSHELLSURFACE_H
 
-//
-//  W A R N I N G
-//  -------------
-//
-// This file is not part of the Qt API.  It exists purely as an
-// implementation detail.  This header file may change from version to
-// version without notice, or even be removed.
-//
-// We mean it.
-//
-
-#include "qwaylandextension.h"
-#include <QtCore/private/qobject_p.h>
+#include <QtWaylandCompositor/QWaylandCompositorExtension>
 
 QT_BEGIN_NAMESPACE
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandExtensionPrivate : public QObjectPrivate
+class QWaylandQuickShellIntegration;
+class QWaylandQuickShellSurfaceItem;
+class QWaylandShellSurfacePrivate;
+class QWaylandShellSurfaceTemplatePrivate;
+
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandShellSurface : public QWaylandCompositorExtension
 {
-    Q_DECLARE_PUBLIC(QWaylandExtension)
-
+    Q_OBJECT
 public:
-    QWaylandExtensionPrivate()
-        : QObjectPrivate()
-        , extension_container(Q_NULLPTR)
-        , initialized(false)
-    {
-    }
+    virtual QWaylandQuickShellIntegration *createIntegration(QWaylandQuickShellSurfaceItem *item) = 0;
+    QWaylandShellSurface(QWaylandObject *waylandObject) : QWaylandCompositorExtension(waylandObject) {}
 
-    static QWaylandExtensionPrivate *get(QWaylandExtension *extension) { return extension->d_func(); }
-
-    QWaylandObject *extension_container;
-    bool initialized;
+protected:
+    QWaylandShellSurface(QWaylandCompositorExtensionPrivate &dd) : QWaylandCompositorExtension(dd){}
+    QWaylandShellSurface(QWaylandObject *container, QWaylandCompositorExtensionPrivate &dd) : QWaylandCompositorExtension(container, dd) {}
 };
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandExtensionTemplatePrivate : public QWaylandExtensionPrivate
+template <typename T>
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandShellSurfaceTemplate : public QWaylandShellSurface
 {
 public:
-    QWaylandExtensionTemplatePrivate()
-        : QWaylandExtensionPrivate()
+    QWaylandShellSurfaceTemplate(QWaylandObject *container)
+        : QWaylandShellSurface(container)
+    { }
+
+    const struct wl_interface *extensionInterface() const Q_DECL_OVERRIDE
+    {
+        return T::interface();
+    }
+
+    static T *findIn(QWaylandObject *container)
+    {
+        if (!container) return nullptr;
+        return qobject_cast<T *>(container->extension(T::interfaceName()));
+    }
+
+protected:
+    QWaylandShellSurfaceTemplate(QWaylandCompositorExtensionPrivate &dd)
+        : QWaylandShellSurface(dd)
+    { }
+
+    QWaylandShellSurfaceTemplate(QWaylandObject *container, QWaylandCompositorExtensionPrivate &dd)
+        : QWaylandShellSurface(container,dd)
     { }
 };
 
 QT_END_NAMESPACE
 
-#endif  /*QWAYLANDEXTENSION_P_H*/
+#endif // QWAYLANDSHELLSURFACE_H

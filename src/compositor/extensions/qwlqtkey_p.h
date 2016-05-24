@@ -50,7 +50,7 @@
 
 #include "wayland-util.h"
 
-#include <QtWaylandCompositor/QWaylandExtensionTemplate>
+#include <QtWaylandCompositor/QWaylandCompositorExtensionTemplate>
 #include <QtWaylandCompositor/QWaylandCompositor>
 #include <QtWaylandCompositor/private/qwayland-server-qtkey-extension.h>
 
@@ -61,7 +61,7 @@ class QKeyEvent;
 
 namespace QtWayland {
 
-class QtKeyExtensionGlobal : public QWaylandExtensionTemplate<QtKeyExtensionGlobal>, public QtWaylandServer::qt_key_extension
+class QtKeyExtensionGlobal : public QWaylandCompositorExtensionTemplate<QtKeyExtensionGlobal>, public QtWaylandServer::qt_key_extension
 {
     Q_OBJECT
 public:

@@ -42,7 +42,7 @@
 #include <QtCore/QString>
 
 #include <QtWaylandCompositor/qwaylandexport.h>
-#include <QtWaylandCompositor/qwaylandextension.h>
+#include <QtWaylandCompositor/qwaylandcompositorextension.h>
 #include <QtWaylandCompositor/qwaylandkeyboard.h>
 
 QT_BEGIN_NAMESPACE

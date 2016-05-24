@@ -53,7 +53,7 @@
 
 #include <qpa/qplatformcursor.h>
 #include <QtCore/QMap>
-#include <QtWaylandClient/private/qwaylandclientexport_p.h>
+#include <QtWaylandClient/qwaylandclientexport.h>
 
 struct wl_cursor;
 struct wl_cursor_image;

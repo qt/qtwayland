@@ -21,6 +21,7 @@ HEADERS += \
     extensions/qwaylandwindowmanagerextension_p.h \
     extensions/qwaylandxdgshell.h \
     extensions/qwaylandxdgshell_p.h \
+    extensions/qwaylandshellsurface.h \
 
 SOURCES += \
     extensions/qwlextendedsurface.cpp \
@@ -34,14 +35,15 @@ SOURCES += \
 
 qtHaveModule(quick) {
     HEADERS += \
-        extensions/qwaylandquickwlshellsurfaceitem.h \
-        extensions/qwaylandquickwlshellsurfaceitem_p.h \
-        extensions/qwaylandquickxdgsurfaceitem.h \
-        extensions/qwaylandquickxdgsurfaceitem_p.h \
+        extensions/qwaylandquickshellsurfaceitem.h \
+        extensions/qwaylandquickshellsurfaceitem_p.h \
+        extensions/qwaylandwlshellintegration_p.h \
+        extensions/qwaylandxdgshellintegration_p.h \
 
     SOURCES += \
-        extensions/qwaylandquickwlshellsurfaceitem.cpp \
-        extensions/qwaylandquickxdgsurfaceitem.cpp \
+        extensions/qwaylandquickshellsurfaceitem.cpp \
+        extensions/qwaylandwlshellintegration.cpp \
+        extensions/qwaylandxdgshellintegration.cpp \
 
 }
 

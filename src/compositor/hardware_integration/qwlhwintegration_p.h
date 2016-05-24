@@ -50,7 +50,7 @@
 
 #include <QtWaylandCompositor/private/qwayland-server-hardware-integration.h>
 
-#include <QtWaylandCompositor/QWaylandExtension>
+#include <QtWaylandCompositor/QWaylandCompositorExtension>
 
 #include <QtCore/QString>
 
@@ -60,7 +60,7 @@ class QWaylandCompositor;
 
 namespace QtWayland {
 
-class HardwareIntegration : public QWaylandExtensionTemplate<HardwareIntegration>, public QtWaylandServer::qt_hardware_integration
+class HardwareIntegration : public QWaylandCompositorExtensionTemplate<HardwareIntegration>, public QtWaylandServer::qt_hardware_integration
 {
 public:
     HardwareIntegration(QWaylandCompositor *compositor);

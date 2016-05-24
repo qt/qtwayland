@@ -9,7 +9,7 @@ HEADERS += \
     wayland_wrapper/qwldatasource_p.h \
     wayland_wrapper/qwlregion_p.h \
     wayland_wrapper/qwlsurfacebuffer_p.h \
-    ../shared/qwaylandxkb.h \
+    ../shared/qwaylandxkb_p.h \
 
 SOURCES += \
     wayland_wrapper/qwldatadevice.cpp \

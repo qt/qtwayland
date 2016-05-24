@@ -55,6 +55,7 @@ public:
 /*!
  * \class QWaylandBufferRef
  * \inmodule QtWaylandCompositor
+ * \preliminary
  * \brief A class which holds a reference to a surface buffer
  *
  * This class can be used to reference a surface buffer. As long as a reference
@@ -239,6 +240,16 @@ QImage QWaylandBufferRef::image() const
 
     return d->buffer->image();
 }
+
+#ifdef QT_COMPOSITOR_WAYLAND_GL
+GLuint QWaylandBufferRef::textureForPlane(int plane) const
+{
+    if (d->nullOrDestroyed())
+        return 0;
+
+    return d->buffer->textureForPlane(plane);
+}
+#endif
 
 /*!
  * Binds the buffer to the current OpenGL texture. This may

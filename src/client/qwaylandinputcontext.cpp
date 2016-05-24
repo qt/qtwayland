@@ -48,9 +48,9 @@
 
 #include "qwaylanddisplay_p.h"
 #include "qwaylandinputdevice_p.h"
-#include "qwaylandinputmethodeventbuilder.h"
+#include "qwaylandinputmethodeventbuilder_p.h"
 #include "qwaylandwindow_p.h"
-#include "qwaylandxkb.h"
+#include "qwaylandxkb_p.h"
 
 QT_BEGIN_NAMESPACE
 

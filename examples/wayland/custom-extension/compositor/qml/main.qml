@@ -64,7 +64,7 @@ WaylandCompositor {
 
     Component {
         id: chromeComponent
-        WlShellSurfaceItem {
+        ShellSurfaceItem {
             id: chrome
             onSurfaceDestroyed: {
                 if (chrome === lastItem)

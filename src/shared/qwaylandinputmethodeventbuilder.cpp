@@ -37,7 +37,7 @@
 **
 ****************************************************************************/
 
-#include "qwaylandinputmethodeventbuilder.h"
+#include "qwaylandinputmethodeventbuilder_p.h"
 
 #include <QInputMethod>
 #include <QTextCharFormat>

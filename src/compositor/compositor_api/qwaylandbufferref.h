@@ -96,6 +96,9 @@ public:
 
     bool isShm() const;
     QImage image() const;
+#ifdef QT_COMPOSITOR_WAYLAND_GL
+    GLuint textureForPlane(int plane) const;
+#endif
 
     void bindToTexture() const;
     void updateTexture() const;

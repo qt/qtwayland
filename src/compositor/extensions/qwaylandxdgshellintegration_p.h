@@ -34,35 +34,34 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDQUICKXDGSURFACEITEM_H
-#define QWAYLANDQUICKXDGSURFACEITEM_H
+#ifndef QWAYLANDXDGSHELLINTEGRATION_H
+#define QWAYLANDXDGSHELLINTEGRATION_H
 
-#include <QtWaylandCompositor/QWaylandQuickItem>
+#include <QtWaylandCompositor/private/qwaylandquickshellsurfaceitem_p.h>
 #include <QtWaylandCompositor/QWaylandXdgSurface>
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandQuickXdgSurfaceItemPrivate;
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists purely as an
+// implementation detail.  This header file may change from version to
+// version without notice, or even be removed.
+//
+// We mean it.
+//
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQuickXdgSurfaceItem : public QWaylandQuickItem
+namespace QtWayland {
+
+class XdgShellIntegration : public QWaylandQuickShellIntegration
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QWaylandQuickXdgSurfaceItem)
-    Q_PROPERTY(QWaylandXdgSurface *xdgSurface READ xdgSurface WRITE setXdgSurface NOTIFY xdgSurfaceChanged)
-    Q_PROPERTY(QQuickItem *moveItem READ moveItem WRITE setMoveItem NOTIFY moveItemChanged)
-
 public:
-    QWaylandQuickXdgSurfaceItem(QQuickItem *parent = nullptr);
-
-    QWaylandXdgSurface *xdgSurface() const;
-    void setXdgSurface(QWaylandXdgSurface *xdgSurface);
-
-    QQuickItem *moveItem() const;
-    void setMoveItem(QQuickItem *moveItem);
-
-Q_SIGNALS:
-    void xdgSurfaceChanged();
-    void moveItemChanged();
+    XdgShellIntegration(QWaylandQuickShellSurfaceItem *item);
+    bool mouseMoveEvent(QMouseEvent *event) Q_DECL_OVERRIDE;
+    bool mouseReleaseEvent(QMouseEvent *event) Q_DECL_OVERRIDE;
 
 private Q_SLOTS:
     void handleStartMove(QWaylandInputDevice *inputDevice);
@@ -73,15 +72,40 @@ private Q_SLOTS:
     void handleActivatedChanged();
     void handleSurfaceSizeChanged();
 
-protected:
-    QWaylandQuickXdgSurfaceItem(QWaylandQuickXdgSurfaceItemPrivate &dd, QQuickItem *parent);
+private:
+    enum class GrabberState {
+        Default,
+        Resize,
+        Move
+    };
+    QWaylandQuickShellSurfaceItem *m_item;
+    QWaylandXdgSurface *m_xdgSurface;
 
-    void mouseMoveEvent(QMouseEvent *event) Q_DECL_OVERRIDE;
-    void mouseReleaseEvent(QMouseEvent *event) Q_DECL_OVERRIDE;
+    GrabberState grabberState;
+    struct {
+        QWaylandInputDevice *inputDevice;
+        QPointF initialOffset;
+        bool initialized;
+    } moveState;
 
-    void surfaceChangedEvent(QWaylandSurface *newSurface, QWaylandSurface *oldSurface) Q_DECL_OVERRIDE;
+    struct {
+        QWaylandInputDevice *inputDevice;
+        QWaylandXdgSurface::ResizeEdge resizeEdges;
+        QSizeF initialWindowSize;
+        QPointF initialMousePos;
+        QPointF initialPosition;
+        QSize initialSurfaceSize;
+        bool initialized;
+    } resizeState;
+
+    struct {
+        QSize initialWindowSize;
+        QPointF initialPosition;
+    } maximizeState;
 };
+
+}
 
 QT_END_NAMESPACE
 
-#endif  /*QWAYLANDQUICKXDGSURFACEITEM_H*/
+#endif // QWAYLANDXDGSHELLINTEGRATION_H

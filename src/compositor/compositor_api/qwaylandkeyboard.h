@@ -40,7 +40,7 @@
 
 #include <QtCore/QObject>
 
-#include <QtWaylandCompositor/QWaylandExtension>
+#include <QtWaylandCompositor/QWaylandCompositorExtension>
 #include <QtWaylandCompositor/QWaylandSurface>
 
 QT_BEGIN_NAMESPACE

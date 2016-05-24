@@ -41,15 +41,25 @@
 import QtQuick 2.0
 import QtWayland.Compositor 1.0
 
-WlShellSurfaceItem {
+ShellSurfaceItem {
     id: rootChrome
-
-    shellSurface: WlShellSurface {
-    }
 
     onSurfaceDestroyed: {
         view.bufferLock = true;
         destroyAnimation.start();
+    }
+
+    Connections {
+        target: shellSurface
+
+        // some signals are not available on wl_shell, so let's ignore them
+        ignoreUnknownSignals: true
+
+        onActivatedChanged: { // xdg_shell only
+            if (shellSurface.activated) {
+                receivedFocusAnimation.start();
+            }
+        }
     }
 
     SequentialAnimation {
@@ -62,12 +72,23 @@ WlShellSurfaceItem {
         ScriptAction { script: { rootChrome.destroy(); } }
     }
 
+    SequentialAnimation {
+        id: receivedFocusAnimation
+        ParallelAnimation {
+            NumberAnimation { target: scaleTransform; property: "yScale"; to: 1.02; duration: 100; easing.type: Easing.OutQuad }
+            NumberAnimation { target: scaleTransform; property: "xScale"; to: 1.02; duration: 100; easing.type: Easing.OutQuad }
+        }
+        ParallelAnimation {
+            NumberAnimation { target: scaleTransform; property: "yScale"; to: 1; duration: 100; easing.type: Easing.InOutQuad }
+            NumberAnimation { target: scaleTransform; property: "xScale"; to: 1; duration: 100; easing.type: Easing.InOutQuad }
+        }
+    }
+
     transform: [
         Scale {
             id:scaleTransform
             origin.x: rootChrome.width / 2
             origin.y: rootChrome.height / 2
-
         }
     ]
 }

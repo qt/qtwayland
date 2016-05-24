@@ -20,8 +20,14 @@ QMAKE_DOCS = $$PWD/doc/qtwaylandcompositor.qdocconf
 }
 
 INCLUDEPATH += ../shared
-HEADERS += ../shared/qwaylandmimehelper.h ../shared/qwaylandinputmethodeventbuilder.h
-SOURCES += ../shared/qwaylandmimehelper.cpp ../shared/qwaylandinputmethodeventbuilder.cpp
+
+HEADERS += ../shared/qwaylandmimehelper_p.h \
+           ../shared/qwaylandinputmethodeventbuilder_p.h \
+           ../shared/qwaylandshmformathelper_p.h
+
+SOURCES += ../shared/qwaylandmimehelper.cpp \
+           ../shared/qwaylandinputmethodeventbuilder.cpp
+
 RESOURCES += compositor.qrc
 
 include ($$PWD/global/global.pri)

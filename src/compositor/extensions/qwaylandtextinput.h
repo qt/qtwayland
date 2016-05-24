@@ -37,7 +37,7 @@
 #ifndef QWAYLANDTEXTINPUT_H
 #define QWAYLANDTEXTINPUT_H
 
-#include <QtWaylandCompositor/QWaylandExtension>
+#include <QtWaylandCompositor/QWaylandCompositorExtension>
 
 struct wl_client;
 
@@ -49,7 +49,7 @@ class QInputMethodEvent;
 class QKeyEvent;
 class QWaylandSurface;
 
-class QWaylandTextInput : public QWaylandExtensionTemplate<QWaylandTextInput>
+class QWaylandTextInput : public QWaylandCompositorExtensionTemplate<QWaylandTextInput>
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandTextInput)

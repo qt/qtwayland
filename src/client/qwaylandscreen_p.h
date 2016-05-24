@@ -52,7 +52,7 @@
 //
 
 #include <qpa/qplatformscreen.h>
-#include <QtWaylandClient/private/qwaylandclientexport_p.h>
+#include <QtWaylandClient/qwaylandclientexport.h>
 
 #include <QtWaylandClient/private/qwayland-wayland.h>
 

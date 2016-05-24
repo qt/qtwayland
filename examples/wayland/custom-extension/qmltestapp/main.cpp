@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
 
-    qmlRegisterType<QtWaylandClient::CustomExtension>("com.theqtcompany.customextension", 1, 0, "CustomExtension");
+    qmlRegisterType<CustomExtension>("com.theqtcompany.customextension", 1, 0, "CustomExtension");
 
     QQmlApplicationEngine engine;
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));

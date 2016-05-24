@@ -151,6 +151,7 @@ QWaylandKeymap::QWaylandKeymap(const QString &layout, const QString &variant, co
 /*!
  * \class QWaylandInputDevice
  * \inmodule QtWaylandCompositor
+ * \preliminary
  * \brief The QWaylandInputDevice class provides access to keyboard, mouse and touch input.
  *
  * The QWaylandInputDevice provides access to different types of user input and maintains

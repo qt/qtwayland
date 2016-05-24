@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2015 The Qt Company Ltd.
+** Copyright (C) 2016 The Qt Company Ltd.
 ** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the QtWaylandCompositor module of the Qt Toolkit.
@@ -34,44 +34,43 @@
 **
 ****************************************************************************/
 
-#ifndef WAYLANDWINDOWMANAGERINTEGRATION_H
-#define WAYLANDWINDOWMANAGERINTEGRATION_H
+#ifndef QWAYLANDQUICKSHELLSURFACEITEM_H
+#define QWAYLANDQUICKSHELLSURFACEITEM_H
 
 #include <QtWaylandCompositor/QWaylandCompositorExtension>
-#include <QtWaylandCompositor/QWaylandClient>
-
-#include <QtCore/QUrl>
+#include <QtWaylandCompositor/QWaylandQuickItem>
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandCompositor;
+class QWaylandQuickShellSurfaceItemPrivate;
+class QWaylandShellSurface;
 
-class QWaylandWindowManagerExtensionPrivate;
-
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandWindowManagerExtension : public QWaylandCompositorExtensionTemplate<QWaylandWindowManagerExtension>
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQuickShellSurfaceItem : public QWaylandQuickItem
 {
     Q_OBJECT
-    Q_PROPERTY(bool showIsFullScreen READ showIsFullScreen WRITE setShowIsFullScreen NOTIFY showIsFullScreenChanged)
-    Q_DECLARE_PRIVATE(QWaylandWindowManagerExtension)
+    Q_DECLARE_PRIVATE(QWaylandQuickShellSurfaceItem)
+    Q_PROPERTY(QWaylandShellSurface *shellSurface READ shellSurface WRITE setShellSurface NOTIFY shellSurfaceChanged)
+    Q_PROPERTY(QQuickItem *moveItem READ moveItem WRITE setMoveItem NOTIFY moveItemChanged)
+
+    QWaylandQuickShellSurfaceItem(QWaylandQuickShellSurfaceItemPrivate &dd, QQuickItem *parent);
 public:
-    QWaylandWindowManagerExtension();
-    explicit QWaylandWindowManagerExtension(QWaylandCompositor *compositor);
+    QWaylandQuickShellSurfaceItem(QQuickItem *parent = nullptr);
 
-    bool showIsFullScreen() const;
-    void setShowIsFullScreen(bool value);
+    QWaylandShellSurface *shellSurface() const;
+    void setShellSurface(QWaylandShellSurface *shellSurface);
 
-    void sendQuitMessage(wl_client *client);
-
-    void initialize() Q_DECL_OVERRIDE;
-
-    static const struct wl_interface *interface();
-    static QByteArray interfaceName();
+    QQuickItem *moveItem() const;
+    void setMoveItem(QQuickItem *moveItem);
 
 Q_SIGNALS:
-    void showIsFullScreenChanged();
-    void openUrl(QWaylandClient *client, const QUrl &url);
+    void shellSurfaceChanged();
+    void moveItemChanged();
+
+protected:
+    void mouseMoveEvent(QMouseEvent *event) Q_DECL_OVERRIDE;
+    void mouseReleaseEvent(QMouseEvent *event) Q_DECL_OVERRIDE;
 };
 
 QT_END_NAMESPACE
 
-#endif // WAYLANDWINDOWMANAGERINTEGRATION_H
+#endif // QWAYLANDQUICKSHELLSURFACEITEM_H

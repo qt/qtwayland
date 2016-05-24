@@ -48,8 +48,6 @@
 
 QT_BEGIN_NAMESPACE
 
-namespace QtWaylandClient {
-
 class CustomExtension : public QWaylandClientExtensionTemplate<CustomExtension>, public QtWayland::qt_example_extension
 {
     Q_OBJECT
@@ -69,8 +67,6 @@ private:
                                    uint32_t value) Q_DECL_OVERRIDE;
 
 };
-
-}
 
 QT_END_NAMESPACE
 

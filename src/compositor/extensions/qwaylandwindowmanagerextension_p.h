@@ -48,7 +48,7 @@
 // We mean it.
 //
 
-#include <QtWaylandCompositor/private/qwaylandextension_p.h>
+#include <QtWaylandCompositor/private/qwaylandcompositorextension_p.h>
 
 #include <QtWaylandCompositor/private/qwayland-server-windowmanager.h>
 
@@ -57,7 +57,7 @@
 QT_BEGIN_NAMESPACE
 
 class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandWindowManagerExtensionPrivate
-        : public QWaylandExtensionTemplatePrivate
+        : public QWaylandCompositorExtensionPrivate
         , public QtWaylandServer::qt_windowmanager
 {
     Q_DECLARE_PUBLIC(QWaylandWindowManagerExtension)

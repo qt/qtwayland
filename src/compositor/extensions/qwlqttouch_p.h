@@ -50,7 +50,7 @@
 
 #include <QtWaylandCompositor/private/qwayland-server-touch-extension.h>
 #include <QtWaylandCompositor/QWaylandCompositor>
-#include <QtWaylandCompositor/QWaylandExtensionTemplate>
+#include <QtWaylandCompositor/QWaylandCompositorExtensionTemplate>
 #include "wayland-util.h"
 
 QT_BEGIN_NAMESPACE
@@ -61,7 +61,7 @@ class QWaylandView;
 
 namespace QtWayland {
 
-class TouchExtensionGlobal : public QWaylandExtensionTemplate<TouchExtensionGlobal>, public QtWaylandServer::qt_touch_extension
+class TouchExtensionGlobal : public QWaylandCompositorExtensionTemplate<TouchExtensionGlobal>, public QtWaylandServer::qt_touch_extension
 {
     Q_OBJECT
     Q_PROPERTY(BehaviorFlags behaviorFlags READ behaviorFlags WRITE setBehviorFlags NOTIFY behaviorFlagsChanged)

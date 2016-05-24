@@ -20,3 +20,6 @@ SOURCES += \
 
 HEADERS += \
     serverbufferrenderer.h
+
+target.path = $$[QT_INSTALL_EXAMPLES]/wayland/server-buffer/client
+INSTALLS += target

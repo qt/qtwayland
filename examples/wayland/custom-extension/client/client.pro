@@ -21,3 +21,6 @@ HEADERS += customextension.h
 
 PLUGIN_TYPE = platforms
 load(qt_plugin)
+
+# Installation into a "proper" Qt location is most unexpected for from an example.
+CONFIG += install_ok

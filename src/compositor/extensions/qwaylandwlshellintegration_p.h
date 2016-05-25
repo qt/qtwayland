@@ -79,10 +79,7 @@ private:
         Move
     };
 
-    bool eventFilter(QObject *, QEvent *) Q_DECL_OVERRIDE;
-
     void setIsPopup(bool popup);
-    void setFilterEnabled(bool enabled);
     static void closePopups();
 
     QWaylandQuickShellSurfaceItem *m_item;
@@ -102,8 +99,6 @@ private:
     } resizeState;
 
     static QVector<QWaylandWlShellSurface*> popupShellSurfaces;
-    static bool eventFilterInstalled;
-    static bool waitForRelease;
     bool isPopup;
 };
 

@@ -40,7 +40,6 @@
 #include <QtWaylandCompositor/QWaylandWlShellSurface>
 #include <QtWaylandCompositor/QWaylandQuickShellSurfaceItem>
 #include <QtWaylandCompositor/QWaylandInputDevice>
-#include <QGuiApplication>
 
 QT_BEGIN_NAMESPACE
 
@@ -158,8 +157,6 @@ bool WlShellIntegration::mouseReleaseEvent(QMouseEvent *event)
 }
 
 QVector<QWaylandWlShellSurface*> WlShellIntegration::popupShellSurfaces;
-bool WlShellIntegration::eventFilterInstalled = false;
-bool WlShellIntegration::waitForRelease = false;
 
 void WlShellIntegration::closePopups()
 {
@@ -171,52 +168,11 @@ void WlShellIntegration::closePopups()
     }
 }
 
-bool WlShellIntegration::eventFilter(QObject *receiver, QEvent *e)
-{
-    if (e->type() == QEvent::MouseButtonPress || e->type() == QEvent::MouseButtonRelease) {
-        QQuickItem *item = qobject_cast<QQuickItem*>(receiver);
-        if (!item)
-            return false;
-
-        QMouseEvent *event = static_cast<QMouseEvent*>(e);
-        QWaylandQuickShellSurfaceItem *shellSurfaceItem = qobject_cast<QWaylandQuickShellSurfaceItem*>(item);
-        bool press = event->type() == QEvent::MouseButtonPress;
-        bool finalRelease = (event->type() == QEvent::MouseButtonRelease) && (event->buttons() == Qt::NoButton);
-        bool popupClient = shellSurfaceItem && shellSurfaceItem->surface()->client() == m_shellSurface->surface()->client();
-
-        if (waitForRelease) {
-            // We are eating events until all mouse buttons are released
-            if (finalRelease) {
-                waitForRelease = false;
-                setFilterEnabled(false);
-            }
-            return true;
-        }
-
-        if (press && !popupClient) {
-            // The user clicked outside the active popup's client. The popups should
-            // be closed, but the event filter will stay to catch the release-
-            // event before removing itself.
-            waitForRelease = true;
-            closePopups();
-            return true;
-        } else if (press) {
-            // There is a surface belonging to this client at this coordinate, so we can
-            // remove the event filter and let the normal event handler handle
-            // this event.
-            setFilterEnabled(false);
-        }
-    }
-
-    return false;
-}
-
 void WlShellIntegration::setIsPopup(bool popup)
 {
     isPopup = popup;
     if (popup) {
-        if (!eventFilterInstalled)
-           setFilterEnabled(true);
+           QWaylandQuickShellEventFilter::startFilter(m_shellSurface->surface()->client(), &closePopups);
 
         if (!popupShellSurfaces.contains(m_shellSurface)) {
             popupShellSurfaces.append(m_shellSurface);
@@ -229,23 +185,9 @@ void WlShellIntegration::setIsPopup(bool popup)
             QObject::disconnect(m_shellSurface->surface(), &QWaylandSurface::mappedChanged,
                                 this, &WlShellIntegration::handleSurfaceUnmapped);
         }
-        if (!waitForRelease && eventFilterInstalled && popupShellSurfaces.isEmpty())
-            setFilterEnabled(false);
+        if (popupShellSurfaces.isEmpty())
+            QWaylandQuickShellEventFilter::cancelFilter();
     }
-}
-
-void WlShellIntegration::setFilterEnabled(bool enabled)
-{
-    static QPointer<QObject> filter;
-
-    if (enabled && filter.isNull()) {
-        qGuiApp->installEventFilter(this);
-        filter = this;
-    } else if (!enabled && !filter.isNull()){
-        qGuiApp->removeEventFilter(filter);
-        filter = nullptr;
-    }
-    eventFilterInstalled = enabled;
 }
 
 }

@@ -78,6 +78,26 @@ public:
     virtual bool mouseReleaseEvent(QMouseEvent *) { return false; }
 };
 
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQuickShellEventFilter : public QObject
+{
+    Q_OBJECT
+public:
+    typedef void (*CallbackFunction)(void);
+    static void startFilter(QWaylandClient *client, CallbackFunction closePopupCallback);
+    static void cancelFilter();
+
+private:
+    void stopFilter();
+
+    QWaylandQuickShellEventFilter(QObject *parent = nullptr);
+    bool eventFilter(QObject *, QEvent *) Q_DECL_OVERRIDE;
+    bool eventFilterInstalled;
+    bool waitForRelease;
+    QPointer<QWaylandClient> client;
+    CallbackFunction closePopups;
+    static QWaylandQuickShellEventFilter *self;
+};
+
 QT_END_NAMESPACE
 
 #endif // QWAYLANDQUICKSHELLSURFACEITEM_P_H

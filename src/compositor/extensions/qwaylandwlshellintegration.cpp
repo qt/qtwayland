@@ -42,6 +42,8 @@
 #include <QtWaylandCompositor/QWaylandInputDevice>
 #include <QGuiApplication>
 
+QT_BEGIN_NAMESPACE
+
 namespace QtWayland {
 
 WlShellIntegration::WlShellIntegration(QWaylandQuickShellSurfaceItem *item)
@@ -247,3 +249,5 @@ void WlShellIntegration::setFilterEnabled(bool enabled)
 }
 
 }
+
+QT_END_NAMESPACE

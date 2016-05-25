@@ -42,6 +42,8 @@
 #include <QtCore/QObject>
 #include <QtGui/QTouchEvent>
 
+struct wl_resource;
+
 QT_BEGIN_NAMESPACE
 
 class QWaylandTouch;
@@ -68,7 +70,7 @@ public:
 
     virtual void addClient(QWaylandClient *client, uint32_t id, uint32_t version);
 
-    struct wl_resource *focusResource() const;
+    wl_resource *focusResource() const;
 
     QWaylandView *mouseFocus() const;
 private:

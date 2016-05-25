@@ -39,6 +39,8 @@
 
 #include <QtWaylandCompositor/QWaylandCompositorExtension>
 
+struct wl_resource;
+
 QT_BEGIN_NAMESPACE
 
 class QWaylandPointer;
@@ -75,7 +77,7 @@ public:
 
     virtual void addClient(QWaylandClient *client, uint32_t id, uint32_t version);
 
-    struct wl_resource *focusResource() const;
+    wl_resource *focusResource() const;
 
     static uint32_t toWaylandButton(Qt::MouseButton button);
     void sendButton(struct wl_resource *resource, uint32_t time, Qt::MouseButton button, uint32_t state);

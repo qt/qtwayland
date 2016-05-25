@@ -1,6 +1,3 @@
-PLUGIN_TYPE = platforms
-load(qt_plugin)
-
 CONFIG += wayland-scanner
 CONFIG += link_pkgconfig
 
@@ -22,3 +19,5 @@ SOURCES += main.cpp \
 
 HEADERS += customextension.h
 
+PLUGIN_TYPE = platforms
+load(qt_plugin)

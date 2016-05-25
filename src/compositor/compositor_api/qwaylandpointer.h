@@ -56,7 +56,7 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandPointer : public QWaylandObject
     Q_DECLARE_PRIVATE(QWaylandPointer)
     Q_PROPERTY(bool isButtonPressed READ isButtonPressed NOTIFY buttonPressedChanged)
 public:
-    QWaylandPointer(QWaylandInputDevice *inputDevice, QObject *parent = 0);
+    QWaylandPointer(QWaylandInputDevice *inputDevice, QObject *parent = nullptr);
 
     QWaylandInputDevice *inputDevice() const;
     QWaylandCompositor *compositor() const;

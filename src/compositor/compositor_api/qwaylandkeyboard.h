@@ -76,7 +76,7 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandKeyboard : public QWaylandObject
     Q_PROPERTY(quint32 repeatRate READ repeatRate WRITE setRepeatRate NOTIFY repeatRateChanged)
     Q_PROPERTY(quint32 repeatDelay READ repeatDelay WRITE setRepeatDelay NOTIFY repeatDelayChanged)
 public:
-    QWaylandKeyboard(QWaylandInputDevice *inputDevice, QObject *parent = 0);
+    QWaylandKeyboard(QWaylandInputDevice *inputDevice, QObject *parent = nullptr);
 
     QWaylandInputDevice *inputDevice() const;
     QWaylandCompositor *compositor() const;

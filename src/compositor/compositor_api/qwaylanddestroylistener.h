@@ -52,7 +52,7 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandDestroyListener : public QObject
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandDestroyListener)
 public:
-    QWaylandDestroyListener(QObject *parent = 0);
+    QWaylandDestroyListener(QObject *parent = nullptr);
     void listenForDestruction(struct wl_resource *resource);
     void reset();
 

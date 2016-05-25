@@ -198,19 +198,16 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgPopup : public QWaylandCompositorEx
     Q_DECLARE_PRIVATE(QWaylandXdgPopup)
     Q_PROPERTY(QWaylandSurface *surface READ surface NOTIFY surfaceChanged)
     Q_PROPERTY(QWaylandSurface *parentSurface READ parentSurface NOTIFY parentSurfaceChanged)
-    Q_PROPERTY(QPoint position READ position)
 
 public:
     QWaylandXdgPopup();
-    QWaylandXdgPopup(QWaylandXdgShell *xdgShell, QWaylandSurface *surface, QWaylandSurface *parentSurface,
-                     const QPoint &position, const QWaylandResource &resource);
+    QWaylandXdgPopup(QWaylandXdgShell *xdgShell, QWaylandSurface *surface, QWaylandSurface *parentSurface, const QWaylandResource &resource);
 
     Q_INVOKABLE void initialize(QWaylandXdgShell *shell, QWaylandSurface *surface,
-                                QWaylandSurface *parentSurface, const QPoint &position, const QWaylandResource &resource);
+                                QWaylandSurface *parentSurface, const QWaylandResource &resource);
 
     QWaylandSurface *surface() const;
     QWaylandSurface *parentSurface() const;
-    QPoint position() const;
 
     static const struct wl_interface *interface();
     static QByteArray interfaceName();

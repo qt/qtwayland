@@ -161,7 +161,6 @@ private:
     QWaylandSurface *m_surface;
     QWaylandSurface *m_parentSurface;
     QWaylandXdgShell *m_xdgShell;
-    QPoint m_position;
 
     void xdg_popup_destroy_resource(Resource *resource) Q_DECL_OVERRIDE;
     void xdg_popup_destroy(xdg_popup::Resource *resource) Q_DECL_OVERRIDE;

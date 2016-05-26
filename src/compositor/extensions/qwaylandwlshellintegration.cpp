@@ -95,11 +95,38 @@ void WlShellIntegration::handleSetPopup(QWaylandInputDevice *inputDevice, QWayla
         m_item->setParentItem(parentItem);
     }
 
-    setIsPopup(true);
+    isPopup = true;
+    QWaylandQuickShellEventFilter::startFilter(m_shellSurface->surface()->client(), &closePopups);
+
+    if (!popupShellSurfaces.contains(m_shellSurface)) {
+        popupShellSurfaces.append(m_shellSurface);
+        QObject::connect(m_shellSurface->surface(), &QWaylandSurface::mappedChanged,
+                         this, &WlShellIntegration::handleSurfaceUnmapped);
+    }
 }
 
-void WlShellIntegration::handleShellSurfaceDestroyed() {
-    setIsPopup(false);
+void WlShellIntegration::handlePopupClosed()
+{
+    handlePopupRemoved();
+    if (m_shellSurface)
+        QObject::disconnect(m_shellSurface->surface(), &QWaylandSurface::mappedChanged,
+                            this, &WlShellIntegration::handleSurfaceUnmapped);
+}
+
+void WlShellIntegration::handlePopupRemoved()
+{
+    if (m_shellSurface)
+        popupShellSurfaces.removeOne(m_shellSurface);
+    if (popupShellSurfaces.isEmpty())
+        QWaylandQuickShellEventFilter::cancelFilter();
+    isPopup = false;
+}
+
+
+void WlShellIntegration::handleShellSurfaceDestroyed()
+{
+    if (isPopup)
+        handlePopupRemoved();
     m_shellSurface = nullptr;
 }
 
@@ -107,7 +134,7 @@ void WlShellIntegration::handleSurfaceUnmapped()
 {
     if (!m_shellSurface || !m_shellSurface->surface()->size().isEmpty())
         return;
-    setIsPopup(false);
+    handlePopupClosed();
 }
 
 void WlShellIntegration::adjustOffsetForNextFrame(const QPointF &offset)
@@ -165,28 +192,6 @@ void WlShellIntegration::closePopups()
             shellSurface->sendPopupDone();
         }
         popupShellSurfaces.clear();
-    }
-}
-
-void WlShellIntegration::setIsPopup(bool popup)
-{
-    isPopup = popup;
-    if (popup) {
-           QWaylandQuickShellEventFilter::startFilter(m_shellSurface->surface()->client(), &closePopups);
-
-        if (!popupShellSurfaces.contains(m_shellSurface)) {
-            popupShellSurfaces.append(m_shellSurface);
-            QObject::connect(m_shellSurface->surface(), &QWaylandSurface::mappedChanged,
-                             this, &WlShellIntegration::handleSurfaceUnmapped);
-        }
-    } else {
-        if (m_shellSurface) {
-            popupShellSurfaces.removeOne(m_shellSurface);
-            QObject::disconnect(m_shellSurface->surface(), &QWaylandSurface::mappedChanged,
-                                this, &WlShellIntegration::handleSurfaceUnmapped);
-        }
-        if (popupShellSurfaces.isEmpty())
-            QWaylandQuickShellEventFilter::cancelFilter();
     }
 }
 

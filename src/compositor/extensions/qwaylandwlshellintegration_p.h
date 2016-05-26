@@ -79,7 +79,9 @@ private:
         Move
     };
 
-    void setIsPopup(bool popup);
+    void handlePopupClosed();
+    void handlePopupRemoved();
+
     static void closePopups();
 
     QWaylandQuickShellSurfaceItem *m_item;

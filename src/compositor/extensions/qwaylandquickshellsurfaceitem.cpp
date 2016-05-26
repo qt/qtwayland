@@ -218,11 +218,6 @@ bool QWaylandQuickShellEventFilter::eventFilter(QObject *receiver, QEvent *e)
             waitForRelease = true;
             closePopups();
             return true;
-        } else if (press) {
-            // There is a surface belonging to this client at this coordinate, so we can
-            // remove the event filter and let the normal event handler handle
-            // this event.
-            stopFilter();
         }
     }
 

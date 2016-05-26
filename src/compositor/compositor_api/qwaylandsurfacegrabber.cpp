@@ -113,3 +113,5 @@ void QWaylandSurfaceGrabber::grab()
 
     d->surface->compositor()->grabSurface(this, buf);
 }
+
+QT_END_NAMESPACE

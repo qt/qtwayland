@@ -78,4 +78,6 @@ public:
     virtual bool mouseReleaseEvent(QMouseEvent *) { return false; }
 };
 
+QT_END_NAMESPACE
+
 #endif // QWAYLANDQUICKSHELLSURFACEITEM_P_H

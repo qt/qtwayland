@@ -39,6 +39,8 @@
 
 #include <QtWaylandCompositor/QWaylandCompositorExtension>
 
+struct wl_resource;
+
 QT_BEGIN_NAMESPACE
 
 class QWaylandPointer;
@@ -54,7 +56,7 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandPointer : public QWaylandObject
     Q_DECLARE_PRIVATE(QWaylandPointer)
     Q_PROPERTY(bool isButtonPressed READ isButtonPressed NOTIFY buttonPressedChanged)
 public:
-    QWaylandPointer(QWaylandInputDevice *inputDevice, QObject *parent = 0);
+    QWaylandPointer(QWaylandInputDevice *inputDevice, QObject *parent = nullptr);
 
     QWaylandInputDevice *inputDevice() const;
     QWaylandCompositor *compositor() const;
@@ -75,7 +77,7 @@ public:
 
     virtual void addClient(QWaylandClient *client, uint32_t id, uint32_t version);
 
-    struct wl_resource *focusResource() const;
+    wl_resource *focusResource() const;
 
     static uint32_t toWaylandButton(Qt::MouseButton button);
     void sendButton(struct wl_resource *resource, uint32_t time, Qt::MouseButton button, uint32_t state);

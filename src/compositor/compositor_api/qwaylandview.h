@@ -59,7 +59,7 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandView : public QObject
     Q_PROPERTY(bool bufferLock READ isBufferLocked WRITE setBufferLock NOTIFY bufferLockChanged)
     Q_PROPERTY(bool discardFrontBuffers READ discardFrontBuffers WRITE setDiscardFrontBuffers NOTIFY discardFrontBuffersChanged)
 public:
-    QWaylandView(QObject *renderObject = 0, QObject *parent = 0);
+    QWaylandView(QObject *renderObject = nullptr, QObject *parent = nullptr);
     virtual ~QWaylandView();
 
     QObject *renderObject() const;

@@ -42,6 +42,8 @@
 #include <QtCore/QObject>
 #include <QtGui/QTouchEvent>
 
+struct wl_resource;
+
 QT_BEGIN_NAMESPACE
 
 class QWaylandTouch;
@@ -55,7 +57,7 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandTouch : public QWaylandObject
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandTouch)
 public:
-    QWaylandTouch(QWaylandInputDevice *inputDevice, QObject *parent = 0);
+    QWaylandTouch(QWaylandInputDevice *inputDevice, QObject *parent = nullptr);
 
     QWaylandInputDevice *inputDevice() const;
     QWaylandCompositor *compositor() const;
@@ -68,7 +70,7 @@ public:
 
     virtual void addClient(QWaylandClient *client, uint32_t id, uint32_t version);
 
-    struct wl_resource *focusResource() const;
+    wl_resource *focusResource() const;
 
     QWaylandView *mouseFocus() const;
 private:

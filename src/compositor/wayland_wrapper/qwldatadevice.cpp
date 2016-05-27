@@ -145,6 +145,8 @@ void DataDevice::drop()
     if (m_dragFocusResource) {
         send_drop(m_dragFocusResource->handle);
         setDragFocus(nullptr, QPoint());
+    } else {
+        m_dragDataSource->cancel();
     }
 }
 

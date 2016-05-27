@@ -80,7 +80,7 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandCompositor : public QWaylandObject
     Q_PROPERTY(QWaylandInputDevice *defaultInputDevice READ defaultInputDevice NOTIFY defaultInputDeviceChanged)
 
 public:
-    QWaylandCompositor(QObject *parent = 0);
+    QWaylandCompositor(QObject *parent = nullptr);
     virtual ~QWaylandCompositor();
 
     virtual void create();
@@ -142,7 +142,7 @@ protected:
     virtual QWaylandKeyboard *createKeyboardDevice(QWaylandInputDevice *inputDevice);
     virtual QWaylandTouch *createTouchDevice(QWaylandInputDevice *inputDevice);
 
-    QWaylandCompositor(QWaylandCompositorPrivate &dptr, QObject *parent = 0);
+    QWaylandCompositor(QWaylandCompositorPrivate &dptr, QObject *parent = nullptr);
 };
 
 QT_END_NAMESPACE

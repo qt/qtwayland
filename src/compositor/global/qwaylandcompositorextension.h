@@ -62,8 +62,8 @@ public:
     void removeExtension(QWaylandCompositorExtension *extension);
 
 protected:
-    QWaylandObject(QObject *parent = 0);
-    QWaylandObject(QObjectPrivate &d, QObject *parent = 0);
+    QWaylandObject(QObject *parent = nullptr);
+    QWaylandObject(QObjectPrivate &d, QObject *parent = nullptr);
     QList<QWaylandCompositorExtension *> extension_vector;
 };
 

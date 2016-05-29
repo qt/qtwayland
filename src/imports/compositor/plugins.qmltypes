@@ -126,7 +126,9 @@ Module {
         exportMetaObjectRevisions: [0]
         Property { name: "mouseX"; type: "double"; isReadonly: true }
         Property { name: "mouseY"; type: "double"; isReadonly: true }
+        Property { name: "containsMouse"; type: "bool"; isReadonly: true }
         Property { name: "enableWSCursor"; type: "bool" }
+        Signal { name: "hoveredChanged" }
     }
     Component {
         name: "QWaylandOutput"
@@ -178,7 +180,12 @@ Module {
         prototype: "QWaylandQuickCompositor"
         exports: ["QtWayland.Compositor/WaylandCompositor 1.0"]
         exportMetaObjectRevisions: [0]
-        Property { name: "extensions"; type: "QWaylandCompositorExtension"; isList: true; isReadonly: true }
+        Property {
+            name: "extensions"
+            type: "QWaylandCompositorExtension"
+            isList: true
+            isReadonly: true
+        }
         Property { name: "data"; type: "QObject"; isList: true; isReadonly: true }
     }
     Component {
@@ -236,6 +243,7 @@ Module {
         exports: ["QtWayland.Compositor/ShellSurfaceItem 1.0"]
         exportMetaObjectRevisions: [0]
         Property { name: "shellSurface"; type: "QWaylandShellSurface"; isPointer: true }
+        Property { name: "moveItem"; type: "QQuickItem"; isPointer: true }
     }
     Component {
         name: "QWaylandQuickSurface"
@@ -273,6 +281,7 @@ Module {
         }
         Property { name: "client"; type: "QWaylandClient"; isReadonly: true; isPointer: true }
         Property { name: "size"; type: "QSize"; isReadonly: true }
+        Property { name: "bufferScale"; type: "int"; isReadonly: true }
         Property { name: "contentOrientation"; type: "Qt::ScreenOrientation"; isReadonly: true }
         Property { name: "origin"; type: "QWaylandSurface::Origin"; isReadonly: true }
         Property { name: "isMapped"; type: "bool"; isReadonly: true }

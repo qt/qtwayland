@@ -38,6 +38,7 @@
 #include "qwaylandquickshellsurfaceitem_p.h"
 
 #include <QtWaylandCompositor/QWaylandShellSurface>
+#include <QGuiApplication>
 
 QT_BEGIN_NAMESPACE
 
@@ -146,6 +147,81 @@ void QWaylandQuickShellSurfaceItem::mouseReleaseEvent(QMouseEvent *event)
     Q_D(QWaylandQuickShellSurfaceItem);
     if (!d->m_shellIntegration->mouseReleaseEvent(event))
         QWaylandQuickItem::mouseReleaseEvent(event);
+}
+
+/*!
+\class QWaylandQuickShellEventFilter
+\brief QWaylandQuickShellEventFilter implements a Wayland popup grab
+\internal
+*/
+
+void QWaylandQuickShellEventFilter::startFilter(QWaylandClient *client, CallbackFunction closePopups)
+{
+    if (!self)
+        self = new QWaylandQuickShellEventFilter(qGuiApp);
+    if (!self->eventFilterInstalled) {
+        qGuiApp->installEventFilter(self);
+        self->eventFilterInstalled = true;
+        self->client = client;
+        self->closePopups = closePopups;
+    }
+}
+
+void QWaylandQuickShellEventFilter::cancelFilter()
+{
+    if (!self)
+        return;
+    if (self->eventFilterInstalled && !self->waitForRelease)
+        self->stopFilter();
+}
+
+void QWaylandQuickShellEventFilter::stopFilter()
+{
+    if (eventFilterInstalled) {
+        qGuiApp->removeEventFilter(this);
+        eventFilterInstalled = false;
+    }
+}
+QWaylandQuickShellEventFilter *QWaylandQuickShellEventFilter::self = nullptr;
+
+QWaylandQuickShellEventFilter::QWaylandQuickShellEventFilter(QObject *parent)
+    : QObject(parent), eventFilterInstalled(false), waitForRelease(false), closePopups(nullptr)
+{
+}
+
+bool QWaylandQuickShellEventFilter::eventFilter(QObject *receiver, QEvent *e)
+{
+    if (e->type() == QEvent::MouseButtonPress || e->type() == QEvent::MouseButtonRelease) {
+        QQuickItem *item = qobject_cast<QQuickItem*>(receiver);
+        if (!item)
+            return false;
+
+        QMouseEvent *event = static_cast<QMouseEvent*>(e);
+        QWaylandQuickShellSurfaceItem *shellSurfaceItem = qobject_cast<QWaylandQuickShellSurfaceItem*>(item);
+        bool press = event->type() == QEvent::MouseButtonPress;
+        bool finalRelease = (event->type() == QEvent::MouseButtonRelease) && (event->buttons() == Qt::NoButton);
+        bool popupClient = shellSurfaceItem && shellSurfaceItem->surface()->client() == client;
+
+        if (waitForRelease) {
+            // We are eating events until all mouse buttons are released
+            if (finalRelease) {
+                waitForRelease = false;
+                stopFilter();
+            }
+            return true;
+        }
+
+        if (press && !popupClient) {
+            // The user clicked outside the active popup's client. The popups should
+            // be closed, but the event filter will stay to catch the release-
+            // event before removing itself.
+            waitForRelease = true;
+            closePopups();
+            return true;
+        }
+    }
+
+    return false;
 }
 
 QT_END_NAMESPACE

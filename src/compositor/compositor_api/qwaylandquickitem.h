@@ -69,7 +69,7 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQuickItem : public QQuickItem
     Q_PROPERTY(bool sizeFollowsSurface READ sizeFollowsSurface WRITE setSizeFollowsSurface NOTIFY sizeFollowsSurfaceChanged)
     Q_PROPERTY(QObject *subsurfaceHandler READ subsurfaceHandler WRITE setSubsurfaceHandler NOTIFY subsurfaceHandlerChanged)
 public:
-    QWaylandQuickItem(QQuickItem *parent = 0);
+    QWaylandQuickItem(QQuickItem *parent = nullptr);
     ~QWaylandQuickItem();
 
     QWaylandCompositor *compositor() const;
@@ -128,7 +128,7 @@ protected:
 
     virtual void surfaceChangedEvent(QWaylandSurface *newSurface, QWaylandSurface *oldSurface);
 public Q_SLOTS:
-    virtual void takeFocus(QWaylandInputDevice *device = 0);
+    virtual void takeFocus(QWaylandInputDevice *device = nullptr);
     void setPaintEnabled(bool paintEnabled);
     void raise();
     void lower();
@@ -161,7 +161,7 @@ Q_SIGNALS:
 protected:
     QSGNode *updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *) Q_DECL_OVERRIDE;
 
-    QWaylandQuickItem(QWaylandQuickItemPrivate &dd, QQuickItem *parent = 0);
+    QWaylandQuickItem(QWaylandQuickItemPrivate &dd, QQuickItem *parent = nullptr);
 };
 
 QT_END_NAMESPACE

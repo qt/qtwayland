@@ -68,16 +68,21 @@ WindowCompositorView::WindowCompositorView()
 GLuint WindowCompositorView::getTexture(GLenum *target)
 {
     QWaylandBufferRef buf = currentBuffer();
-    m_texture = buf.textureForPlane(0);
+    GLuint streamingTexture = buf.textureForPlane(0);
+    if (streamingTexture)
+        m_texture = streamingTexture;
 
-    if (buf.bufferFormatEgl() == QWaylandBufferRef::BufferFormatEgl_EXTERNAL_OES)
+    if (!buf.isShm() && buf.bufferFormatEgl() == QWaylandBufferRef::BufferFormatEgl_EXTERNAL_OES)
         m_textureTarget = GL_TEXTURE_EXTERNAL_OES;
 
     if (advance()) {
+        buf = currentBuffer();
         if (!m_texture)
             glGenTextures(1, &m_texture);
 
         glBindTexture(m_textureTarget, m_texture);
+        if (buf.isShm())
+            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         buf.bindToTexture();
     }
 
@@ -253,7 +258,7 @@ void WindowCompositor::onCreateXdgPopup(QWaylandSurface *surface, QWaylandSurfac
 {
     Q_UNUSED(inputDevice);
 
-    QWaylandXdgPopup *xdgPopup = new QWaylandXdgPopup(m_xdgShell, surface, parent, position, resource);
+    QWaylandXdgPopup *xdgPopup = new QWaylandXdgPopup(m_xdgShell, surface, parent, resource);
 
     WindowCompositorView *view = findView(surface);
     Q_ASSERT(view);

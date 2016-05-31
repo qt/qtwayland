@@ -41,6 +41,8 @@
 #include <QtWaylandCompositor/QWaylandInputDevice>
 #include <QMouseEvent>
 
+QT_BEGIN_NAMESPACE
+
 namespace QtWayland {
 
 XdgShellIntegration::XdgShellIntegration(QWaylandQuickShellSurfaceItem *item)
@@ -167,3 +169,5 @@ void XdgShellIntegration::handleSurfaceSizeChanged()
 }
 
 }
+
+QT_END_NAMESPACE

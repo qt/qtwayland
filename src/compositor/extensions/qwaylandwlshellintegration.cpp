@@ -40,7 +40,8 @@
 #include <QtWaylandCompositor/QWaylandWlShellSurface>
 #include <QtWaylandCompositor/QWaylandQuickShellSurfaceItem>
 #include <QtWaylandCompositor/QWaylandInputDevice>
-#include <QGuiApplication>
+
+QT_BEGIN_NAMESPACE
 
 namespace QtWayland {
 
@@ -94,11 +95,38 @@ void WlShellIntegration::handleSetPopup(QWaylandInputDevice *inputDevice, QWayla
         m_item->setParentItem(parentItem);
     }
 
-    setIsPopup(true);
+    isPopup = true;
+    QWaylandQuickShellEventFilter::startFilter(m_shellSurface->surface()->client(), &closePopups);
+
+    if (!popupShellSurfaces.contains(m_shellSurface)) {
+        popupShellSurfaces.append(m_shellSurface);
+        QObject::connect(m_shellSurface->surface(), &QWaylandSurface::mappedChanged,
+                         this, &WlShellIntegration::handleSurfaceUnmapped);
+    }
 }
 
-void WlShellIntegration::handleShellSurfaceDestroyed() {
-    setIsPopup(false);
+void WlShellIntegration::handlePopupClosed()
+{
+    handlePopupRemoved();
+    if (m_shellSurface)
+        QObject::disconnect(m_shellSurface->surface(), &QWaylandSurface::mappedChanged,
+                            this, &WlShellIntegration::handleSurfaceUnmapped);
+}
+
+void WlShellIntegration::handlePopupRemoved()
+{
+    if (m_shellSurface)
+        popupShellSurfaces.removeOne(m_shellSurface);
+    if (popupShellSurfaces.isEmpty())
+        QWaylandQuickShellEventFilter::cancelFilter();
+    isPopup = false;
+}
+
+
+void WlShellIntegration::handleShellSurfaceDestroyed()
+{
+    if (isPopup)
+        handlePopupRemoved();
     m_shellSurface = nullptr;
 }
 
@@ -106,7 +134,7 @@ void WlShellIntegration::handleSurfaceUnmapped()
 {
     if (!m_shellSurface || !m_shellSurface->surface()->size().isEmpty())
         return;
-    setIsPopup(false);
+    handlePopupClosed();
 }
 
 void WlShellIntegration::adjustOffsetForNextFrame(const QPointF &offset)
@@ -156,8 +184,6 @@ bool WlShellIntegration::mouseReleaseEvent(QMouseEvent *event)
 }
 
 QVector<QWaylandWlShellSurface*> WlShellIntegration::popupShellSurfaces;
-bool WlShellIntegration::eventFilterInstalled = false;
-bool WlShellIntegration::waitForRelease = false;
 
 void WlShellIntegration::closePopups()
 {
@@ -169,81 +195,6 @@ void WlShellIntegration::closePopups()
     }
 }
 
-bool WlShellIntegration::eventFilter(QObject *receiver, QEvent *e)
-{
-    if (e->type() == QEvent::MouseButtonPress || e->type() == QEvent::MouseButtonRelease) {
-        QQuickItem *item = qobject_cast<QQuickItem*>(receiver);
-        if (!item)
-            return false;
-
-        QMouseEvent *event = static_cast<QMouseEvent*>(e);
-        QWaylandQuickShellSurfaceItem *shellSurfaceItem = qobject_cast<QWaylandQuickShellSurfaceItem*>(item);
-        bool press = event->type() == QEvent::MouseButtonPress;
-        bool finalRelease = (event->type() == QEvent::MouseButtonRelease) && (event->buttons() == Qt::NoButton);
-        bool popupClient = shellSurfaceItem && shellSurfaceItem->surface()->client() == m_shellSurface->surface()->client();
-
-        if (waitForRelease) {
-            // We are eating events until all mouse buttons are released
-            if (finalRelease) {
-                waitForRelease = false;
-                setFilterEnabled(false);
-            }
-            return true;
-        }
-
-        if (press && !popupClient) {
-            // The user clicked outside the active popup's client. The popups should
-            // be closed, but the event filter will stay to catch the release-
-            // event before removing itself.
-            waitForRelease = true;
-            closePopups();
-            return true;
-        } else if (press) {
-            // There is a surface belonging to this client at this coordinate, so we can
-            // remove the event filter and let the normal event handler handle
-            // this event.
-            setFilterEnabled(false);
-        }
-    }
-
-    return false;
 }
 
-void WlShellIntegration::setIsPopup(bool popup)
-{
-    isPopup = popup;
-    if (popup) {
-        if (!eventFilterInstalled)
-           setFilterEnabled(true);
-
-        if (!popupShellSurfaces.contains(m_shellSurface)) {
-            popupShellSurfaces.append(m_shellSurface);
-            QObject::connect(m_shellSurface->surface(), &QWaylandSurface::mappedChanged,
-                             this, &WlShellIntegration::handleSurfaceUnmapped);
-        }
-    } else {
-        if (m_shellSurface) {
-            popupShellSurfaces.removeOne(m_shellSurface);
-            QObject::disconnect(m_shellSurface->surface(), &QWaylandSurface::mappedChanged,
-                                this, &WlShellIntegration::handleSurfaceUnmapped);
-        }
-        if (!waitForRelease && eventFilterInstalled && popupShellSurfaces.isEmpty())
-            setFilterEnabled(false);
-    }
-}
-
-void WlShellIntegration::setFilterEnabled(bool enabled)
-{
-    static QPointer<QObject> filter;
-
-    if (enabled && filter.isNull()) {
-        qGuiApp->installEventFilter(this);
-        filter = this;
-    } else if (!enabled && !filter.isNull()){
-        qGuiApp->removeEventFilter(filter);
-        filter = nullptr;
-    }
-    eventFilterInstalled = enabled;
-}
-
-}
+QT_END_NAMESPACE

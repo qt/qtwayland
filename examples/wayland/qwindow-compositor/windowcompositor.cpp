@@ -291,6 +291,7 @@ void WindowCompositor::onXdgStartResize(QWaylandInputDevice *inputDevice,
 
 void WindowCompositor::onSetTransient(QWaylandSurface *parent, const QPoint &relativeToParent, QWaylandWlShellSurface::FocusPolicy focusPolicy)
 {
+    Q_UNUSED(focusPolicy);
     QWaylandWlShellSurface *wlShellSurface = qobject_cast<QWaylandWlShellSurface*>(sender());
     WindowCompositorView *view = findView(wlShellSurface->surface());
 

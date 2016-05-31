@@ -82,6 +82,8 @@ protected:
     void data_device_set_selection(Resource *resource, struct ::wl_resource *source, uint32_t serial) Q_DECL_OVERRIDE;
 
 private:
+    void setDragIcon(QWaylandSurface *icon);
+
     QWaylandCompositor *m_compositor;
     QWaylandInputDevice *m_inputDevice;
 

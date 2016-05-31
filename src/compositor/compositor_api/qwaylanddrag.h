@@ -46,12 +46,7 @@ QT_BEGIN_NAMESPACE
 
 class QWaylandDragPrivate;
 class QWaylandSurface;
-class QWaylandView;
 class QWaylandInputDevice;
-
-namespace QtWayland {
-    class DataDevice;
-}
 
 class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandDrag : public QObject
 {
@@ -65,7 +60,6 @@ public:
     explicit QWaylandDrag(QWaylandInputDevice *inputDevice);
 
     QWaylandSurface *icon() const;
-    // QPointF position() const;
     bool visible() const;
 
 public Q_SLOTS:
@@ -76,9 +70,6 @@ public Q_SLOTS:
 Q_SIGNALS:
     void iconChanged();
     void dragStarted(); // QWaylandSurface *icon????
-
-private:
-    //friend class QtWayland::DataDevice;
 };
 
 QT_END_NAMESPACE

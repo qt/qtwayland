@@ -106,6 +106,7 @@ private:
     bool m_maximized;
     bool m_minimized;
     bool m_fullscreen;
+    bool m_active;
     QSize m_normalSize;
     QMargins m_margins;
     QWaylandExtendedSurface *m_extendedWindow;

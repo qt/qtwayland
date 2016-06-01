@@ -185,7 +185,6 @@ public:
     xkb_keymap *mXkbMap;
     xkb_state *mXkbState;
 #endif
-    struct wl_callback *mFocusCallback;
     uint32_t mNativeModifiers;
 
     int mRepeatKey;
@@ -196,9 +195,6 @@ public:
     xkb_keysym_t mRepeatSym;
 #endif
     QTimer mRepeatTimer;
-
-    static const wl_callback_listener callback;
-    static void focusCallback(void *data, struct wl_callback *callback, uint32_t time);
 
     Qt::KeyboardModifiers modifiers() const;
 

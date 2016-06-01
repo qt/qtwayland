@@ -52,6 +52,7 @@ QWaylandXdgSurface::QWaylandXdgSurface(struct ::xdg_surface *xdg_surface, QWayla
     , m_maximized(false)
     , m_minimized(false)
     , m_fullscreen(false)
+    , m_active(false)
     , m_extendedWindow(Q_NULLPTR)
 {
     if (window->display()->windowExtension())
@@ -60,6 +61,9 @@ QWaylandXdgSurface::QWaylandXdgSurface(struct ::xdg_surface *xdg_surface, QWayla
 
 QWaylandXdgSurface::~QWaylandXdgSurface()
 {
+    if (m_active)
+        window()->display()->handleWindowDeactivated(m_window);
+
     xdg_surface_destroy(object());
     delete m_extendedWindow;
 }
@@ -176,6 +180,7 @@ void QWaylandXdgSurface::xdg_surface_configure(int32_t width, int32_t height, st
     size_t numStates = states->size / sizeof(uint32_t);
     bool aboutToMaximize = false;
     bool aboutToFullScreen = false;
+    bool aboutToActivate = false;
 
     for (size_t i = 0; i < numStates; i++) {
         switch (state[i]) {
@@ -189,11 +194,19 @@ void QWaylandXdgSurface::xdg_surface_configure(int32_t width, int32_t height, st
             m_normalSize = QSize(width, height);
             break;
         case XDG_SURFACE_STATE_ACTIVATED:
-            // TODO: here about the missing window activation
+            aboutToActivate = true;
             break;
         default:
             break;
         }
+    }
+
+    if (!m_active && aboutToActivate) {
+        m_active = true;
+        window()->display()->handleWindowActivated(m_window);
+    } else if (m_active && !aboutToActivate) {
+        m_active = false;
+        window()->display()->handleWindowDeactivated(m_window);
     }
 
     if (!m_fullscreen && aboutToFullScreen) {

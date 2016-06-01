@@ -69,7 +69,6 @@ QWaylandInputDevice::Keyboard::Keyboard(QWaylandInputDevice *p)
     , mXkbMap(0)
     , mXkbState(0)
 #endif
-    , mFocusCallback(0)
     , mNativeModifiers(0)
 {
     connect(&mRepeatTimer, SIGNAL(timeout()), this, SLOT(repeatKey()));
@@ -122,8 +121,6 @@ QWaylandInputDevice::Keyboard::~Keyboard()
 #endif
     if (mFocus)
         QWindowSystemInterface::handleWindowActivated(0);
-    if (mFocusCallback)
-        wl_callback_destroy(mFocusCallback);
     if (mParent->mVersion >= 3)
         wl_keyboard_release(object());
     else
@@ -591,10 +588,7 @@ void QWaylandInputDevice::Keyboard::keyboard_enter(uint32_t time, struct wl_surf
     QWaylandWindow *window = QWaylandWindow::fromWlSurface(surface);
     mFocus = window;
 
-    if (!mFocusCallback) {
-        mFocusCallback = wl_display_sync(mParent->mDisplay);
-        wl_callback_add_listener(mFocusCallback, &QWaylandInputDevice::Keyboard::callback, this);
-    }
+    mParent->mQDisplay->handleKeyboardFocusChanged(mParent);
 }
 
 void QWaylandInputDevice::Keyboard::keyboard_leave(uint32_t time, struct wl_surface *surface)
@@ -609,31 +603,9 @@ void QWaylandInputDevice::Keyboard::keyboard_leave(uint32_t time, struct wl_surf
 
     mFocus = NULL;
 
-    // Use a callback to set the focus because we may get a leave/enter pair, and
-    // the latter one would be lost in the QWindowSystemInterface queue, if
-    // we issue the handleWindowActivated() calls immediately.
-    if (!mFocusCallback) {
-        mFocusCallback = wl_display_sync(mParent->mDisplay);
-        wl_callback_add_listener(mFocusCallback, &QWaylandInputDevice::Keyboard::callback, this);
-    }
+    mParent->mQDisplay->handleKeyboardFocusChanged(mParent);
+
     mRepeatTimer.stop();
-}
-
-const wl_callback_listener QWaylandInputDevice::Keyboard::callback = {
-    QWaylandInputDevice::Keyboard::focusCallback
-};
-
-void QWaylandInputDevice::Keyboard::focusCallback(void *data, struct wl_callback *callback, uint32_t time)
-{
-    Q_UNUSED(time);
-    Q_UNUSED(callback);
-    QWaylandInputDevice::Keyboard *self = static_cast<QWaylandInputDevice::Keyboard *>(data);
-    if (self->mFocusCallback) {
-        wl_callback_destroy(self->mFocusCallback);
-        self->mFocusCallback = 0;
-    }
-
-    QWindowSystemInterface::handleWindowActivated(self->mFocus ? self->mFocus->window() : 0);
 }
 
 void QWaylandInputDevice::Keyboard::keyboard_key(uint32_t serial, uint32_t time, uint32_t key, uint32_t state)

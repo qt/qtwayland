@@ -48,6 +48,7 @@
 #include <QtCore/QObject>
 #include <QtCore/QRect>
 #include <QtCore/QPointer>
+#include <QtCore/QVector>
 
 #include <QtCore/QWaitCondition>
 
@@ -168,6 +169,11 @@ public:
     QWaylandWindow *lastInputWindow() const;
     void setLastInputDevice(QWaylandInputDevice *device, uint32_t serial, QWaylandWindow *window);
 
+    bool shellManagesActiveState() const;
+    void handleWindowActivated(QWaylandWindow *window);
+    void handleWindowDeactivated(QWaylandWindow *window);
+    void handleKeyboardFocusChanged(QWaylandInputDevice *inputDevice);
+
 public slots:
     void blockingReadEvents();
     void flushRequests();
@@ -176,6 +182,9 @@ private:
     void waitForScreens();
     void exitWithError();
     void checkError() const;
+
+    void handleWaylandSync();
+    void requestWaylandSync();
 
     struct Listener {
         RegistryListener listener;
@@ -207,6 +216,10 @@ private:
     uint32_t mLastInputSerial;
     QWaylandInputDevice *mLastInputDevice;
     QPointer<QWaylandWindow> mLastInputWindow;
+    QWaylandWindow *mLastKeyboardFocus;
+    QVector<QWaylandWindow *> mActiveWindows;
+    struct wl_callback *mSyncCallback;
+    static const wl_callback_listener syncCallbackListener;
 
     void registry_global(uint32_t id, const QString &interface, uint32_t version) Q_DECL_OVERRIDE;
     void registry_global_remove(uint32_t id) Q_DECL_OVERRIDE;

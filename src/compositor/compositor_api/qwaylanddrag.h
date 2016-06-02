@@ -60,6 +60,7 @@ public:
     explicit QWaylandDrag(QWaylandInputDevice *inputDevice);
 
     QWaylandSurface *icon() const;
+    QWaylandSurface *origin() const;
     bool visible() const;
 
 public Q_SLOTS:

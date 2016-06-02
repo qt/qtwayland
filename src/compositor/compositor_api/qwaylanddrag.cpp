@@ -81,6 +81,13 @@ QWaylandSurface *QWaylandDrag::icon() const
     return dataDevice->dragIcon();
 }
 
+QWaylandSurface *QWaylandDrag::origin() const
+{
+    Q_D(const QWaylandDrag);
+    const QtWayland::DataDevice *dataDevice = d->dataDevice();
+    return dataDevice ? dataDevice->dragOrigin() : nullptr;
+}
+
 
 bool QWaylandDrag::visible() const
 {

@@ -70,6 +70,7 @@ public:
     void setDragFocus(QWaylandSurface *focus, const QPointF &localPosition);
 
     QWaylandSurface *dragIcon() const;
+    QWaylandSurface *dragOrigin() const;
 
     void sourceDestroyed(DataSource *source);
 
@@ -94,6 +95,7 @@ private:
     Resource *m_dragFocusResource;
 
     QWaylandSurface *m_dragIcon;
+    QWaylandSurface *m_dragOrigin;
 };
 
 }

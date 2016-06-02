@@ -95,6 +95,7 @@ public:
     void setFocusOnClick(bool focus);
 
     bool inputRegionContains(const QPointF &localPosition);
+    Q_INVOKABLE QPointF mapToSurface(const QPointF &point) const;
 
     bool sizeFollowsSurface() const;
     void setSizeFollowsSurface(bool sizeFollowsSurface);

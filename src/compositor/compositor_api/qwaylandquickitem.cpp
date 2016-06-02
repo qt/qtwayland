@@ -497,7 +497,7 @@ void QWaylandQuickItem::mousePressEvent(QMouseEvent *event)
     if (d->focusOnClick)
         takeFocus(inputDevice);
 
-    inputDevice->sendMouseMoveEvent(d->view.data(), event->localPos() / d->scaleFactor(), event->windowPos());
+    inputDevice->sendMouseMoveEvent(d->view.data(), mapToSurface(event->localPos()), event->windowPos());
     inputDevice->sendMousePressEvent(event->button());
 }
 
@@ -509,7 +509,7 @@ void QWaylandQuickItem::mouseMoveEvent(QMouseEvent *event)
     Q_D(QWaylandQuickItem);
     if (d->shouldSendInputEvents()) {
         QWaylandInputDevice *inputDevice = compositor()->inputDeviceFor(event);
-        inputDevice->sendMouseMoveEvent(d->view.data(), event->localPos() / d->scaleFactor(), event->windowPos());
+        inputDevice->sendMouseMoveEvent(d->view.data(), mapToSurface(event->localPos()), event->windowPos());
     } else {
         emit mouseMove(event->windowPos());
         event->ignore();
@@ -563,7 +563,7 @@ void QWaylandQuickItem::hoverMoveEvent(QHoverEvent *event)
     }
     if (d->shouldSendInputEvents()) {
         QWaylandInputDevice *inputDevice = compositor()->inputDeviceFor(event);
-        inputDevice->sendMouseMoveEvent(d->view.data(), event->pos() / d->scaleFactor(), mapToScene(event->pos()));
+        inputDevice->sendMouseMoveEvent(d->view.data(), mapToSurface(event->pos()), mapToScene(event->pos()));
     } else {
         event->ignore();
     }
@@ -898,10 +898,20 @@ void QWaylandQuickItem::setFocusOnClick(bool focus)
  */
 bool QWaylandQuickItem::inputRegionContains(const QPointF &localPosition)
 {
-    Q_D(QWaylandQuickItem);
     if (QWaylandSurface *s = surface())
-        return s->inputRegionContains(localPosition.toPoint() / d->scaleFactor());
+        return s->inputRegionContains(mapToSurface(localPosition).toPoint());
     return false;
+}
+
+/*!
+ * Maps the given \a point in this item's coordinate system to the equivalent
+ * point within the Wayland surface's coordinate system, and returns the mapped
+ * coordinate.
+ */
+QPointF QWaylandQuickItem::mapToSurface(const QPointF &point) const
+{
+    Q_D(const QWaylandQuickItem);
+    return point / d->scaleFactor();
 }
 
 /*!

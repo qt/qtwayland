@@ -59,6 +59,8 @@ public:
     bool automaticFrameCallback() const;
     void setAutomaticFrameCallback(bool automatic);
 
+    QQuickItem *pickClickableItem(const QPointF &position);
+
 public Q_SLOTS:
     void updateStarted();
 

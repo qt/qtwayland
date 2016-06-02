@@ -37,6 +37,7 @@
 
 #include "qwaylandquickoutput.h"
 #include "qwaylandquickcompositor.h"
+#include "qwaylandquickitem_p.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -100,6 +101,44 @@ void QWaylandQuickOutput::setAutomaticFrameCallback(bool automatic)
 
     m_automaticFrameCallback = automatic;
     automaticFrameCallbackChanged();
+}
+
+static QQuickItem* clickableItemAtPosition(QQuickItem *rootItem, const QPointF &position)
+{
+    if (!rootItem->isEnabled() || !rootItem->isVisible())
+        return nullptr;
+
+    QList<QQuickItem *> paintOrderItems = QQuickItemPrivate::get(rootItem)->paintOrderChildItems();
+    auto negativeZStart = paintOrderItems.crend();
+    for (auto it = paintOrderItems.crbegin(); it != paintOrderItems.crend(); ++it) {
+        if ((*it)->z() < 0) {
+            negativeZStart = it;
+            break;
+        }
+        QQuickItem *item = clickableItemAtPosition(*it, rootItem->mapToItem(*it, position));
+        if (item)
+            return item;
+    }
+
+    if (rootItem->contains(position) && rootItem->acceptedMouseButtons() != Qt::NoButton)
+        return rootItem;
+
+    for (auto it = negativeZStart; it != paintOrderItems.crend(); ++it) {
+        QQuickItem *item = clickableItemAtPosition(*it, rootItem->mapToItem(*it, position));
+        if (item)
+            return item;
+    }
+
+    return nullptr;
+}
+
+QQuickItem *QWaylandQuickOutput::pickClickableItem(const QPointF &position)
+{
+    QQuickWindow *quickWindow = qobject_cast<QQuickWindow *>(window());
+    if (!quickWindow)
+        return nullptr;
+
+    return clickableItemAtPosition(quickWindow->contentItem(), position);
 }
 
 /*!

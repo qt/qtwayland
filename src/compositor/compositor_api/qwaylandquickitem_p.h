@@ -112,6 +112,7 @@ public:
         , paintEnabled(true)
         , touchEventsEnabled(false)
         , inputEventsEnabled(true)
+        , isDragging(false)
         , newTexture(false)
         , focusOnClick(true)
         , sizeFollowsSurface(true)
@@ -164,6 +165,7 @@ public:
     bool paintEnabled;
     bool touchEventsEnabled;
     bool inputEventsEnabled;
+    bool isDragging;
     bool newTexture;
     bool focusOnClick;
     bool sizeFollowsSurface;

@@ -39,9 +39,11 @@
 #include "qwaylandquicksurface.h"
 #include "qwaylandinputmethodcontrol.h"
 #include "qwaylandtextinput.h"
+#include "qwaylandquickoutput.h"
 #include <QtWaylandCompositor/qwaylandcompositor.h>
 #include <QtWaylandCompositor/qwaylandinput.h>
 #include <QtWaylandCompositor/qwaylandbufferref.h>
+#include <QtWaylandCompositor/QWaylandDrag>
 #include <QtWaylandCompositor/private/qwlclientbufferintegration_p.h>
 
 #include <QtGui/QKeyEvent>
@@ -510,6 +512,17 @@ void QWaylandQuickItem::mouseMoveEvent(QMouseEvent *event)
     if (d->shouldSendInputEvents()) {
         QWaylandInputDevice *inputDevice = compositor()->inputDeviceFor(event);
         inputDevice->sendMouseMoveEvent(d->view.data(), mapToSurface(event->localPos()), event->windowPos());
+    } else if (d->isDragging) {
+        QWaylandInputDevice *inputDevice = compositor()->inputDeviceFor(event);
+        QWaylandQuickOutput *currentOutput = qobject_cast<QWaylandQuickOutput *>(view()->output());
+        //TODO: also check if dragging onto other outputs
+        QWaylandQuickItem *targetItem = qobject_cast<QWaylandQuickItem *>(currentOutput->pickClickableItem(mapToScene(event->localPos())));
+        QWaylandSurface *targetSurface = targetItem ? targetItem->surface() : nullptr;
+        if (targetSurface) {
+            QPointF position = mapToItem(targetItem, event->localPos());
+            QPointF surfacePosition = targetItem->mapToSurface(position);
+            inputDevice->drag()->dragMove(targetSurface, surfacePosition);
+        }
     } else {
         emit mouseMove(event->windowPos());
         event->ignore();
@@ -525,6 +538,11 @@ void QWaylandQuickItem::mouseReleaseEvent(QMouseEvent *event)
     if (d->shouldSendInputEvents()) {
         QWaylandInputDevice *inputDevice = compositor()->inputDeviceFor(event);
         inputDevice->sendMouseReleaseEvent(event->button());
+    } else if (d->isDragging) {
+        d->isDragging = false;
+        setInputEventsEnabled(true);
+        QWaylandInputDevice *inputDevice = compositor()->inputDeviceFor(event);
+        inputDevice->drag()->drop();
     } else {
         emit mouseRelease();
         event->ignore();
@@ -770,6 +788,7 @@ void QWaylandQuickItem::handleSurfaceChanged()
         disconnect(d->oldSurface, &QWaylandSurface::configure, this, &QWaylandQuickItem::updateBuffer);
         disconnect(d->oldSurface, &QWaylandSurface::redraw, this, &QQuickItem::update);
         disconnect(d->oldSurface, &QWaylandSurface::childAdded, this, &QWaylandQuickItem::handleSubsurfaceAdded);
+        disconnect(d->oldSurface, &QWaylandSurface::dragStarted, this, &QWaylandQuickItem::handleDragStarted);
 #ifndef QT_NO_IM
         disconnect(d->oldSurface->inputMethodControl(), &QWaylandInputMethodControl::updateInputMethod, this, &QWaylandQuickItem::updateInputMethod);
 #endif
@@ -782,6 +801,7 @@ void QWaylandQuickItem::handleSurfaceChanged()
         connect(newSurface, &QWaylandSurface::configure, this, &QWaylandQuickItem::updateBuffer);
         connect(newSurface, &QWaylandSurface::redraw, this, &QQuickItem::update);
         connect(newSurface, &QWaylandSurface::childAdded, this, &QWaylandQuickItem::handleSubsurfaceAdded);
+        connect(newSurface, &QWaylandSurface::dragStarted, this, &QWaylandQuickItem::handleDragStarted);
 #ifndef QT_NO_IM
         connect(newSurface->inputMethodControl(), &QWaylandInputMethodControl::updateInputMethod, this, &QWaylandQuickItem::updateInputMethod);
 #endif
@@ -1171,6 +1191,14 @@ void QWaylandQuickItem::handleSubsurfacePosition(const QPoint &pos)
 {
     Q_D(QWaylandQuickItem);
     QQuickItem::setPosition(pos * d->scaleFactor());
+}
+
+void QWaylandQuickItem::handleDragStarted(QWaylandDrag *drag)
+{
+    Q_D(QWaylandQuickItem);
+    Q_ASSERT(drag->origin() == surface());
+    d->isDragging = true;
+    setInputEventsEnabled(false);
 }
 
 QT_END_NAMESPACE

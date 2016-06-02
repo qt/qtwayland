@@ -896,4 +896,16 @@ void QWaylandSurfacePrivate::Subsurface::subsurface_set_desync(wl_subsurface::Re
     qDebug() << Q_FUNC_INFO;
 }
 
+/*!
+ * \qmlsignal void QtWaylandCompositor::WaylandSurface::dragStarted(object drag)
+ *
+ * This signal is emitted when a drag has started from this surface.
+ */
+
+/*!
+ * \fn void QWaylandSurface::dragStarted(QWaylandDrag *drag)
+ *
+ * This signal is emitted when a drag has started from this surface.
+ */
+
 QT_END_NAMESPACE

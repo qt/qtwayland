@@ -168,8 +168,10 @@ void DataDevice::data_device_start_drag(Resource *resource, struct ::wl_resource
     m_dragDataSource = source ? DataSource::fromResource(source) : 0;
     m_dragOrigin = QWaylandSurface::fromResource(origin);
     m_dragIcon = icon ? QWaylandSurface::fromResource(icon) : 0;
-    Q_EMIT m_inputDevice->drag()->iconChanged();
-    Q_EMIT m_inputDevice->drag()->dragStarted();
+    QWaylandDrag *drag = m_inputDevice->drag();
+    Q_EMIT drag->iconChanged();
+    Q_EMIT drag->dragStarted();
+    Q_EMIT m_dragOrigin->dragStarted(drag);
 
     Q_UNUSED(serial);
     //### need to verify that we have an implicit grab with this serial

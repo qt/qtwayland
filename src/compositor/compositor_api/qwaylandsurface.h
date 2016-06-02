@@ -60,6 +60,7 @@ class QWaylandBufferRef;
 class QWaylandView;
 class QWaylandSurfaceOp;
 class QWaylandInputMethodControl;
+class QWaylandDrag;
 
 class QWaylandSurfaceRole
 {
@@ -156,6 +157,7 @@ Q_SIGNALS:
     void subsurfacePositionChanged(const QPoint &position);
     void subsurfacePlaceAbove(QWaylandSurface *sibling);
     void subsurfacePlaceBelow(QWaylandSurface *sibling);
+    void dragStarted(QWaylandDrag *drag);
 
     void configure(bool hasBuffer);
     void redraw();

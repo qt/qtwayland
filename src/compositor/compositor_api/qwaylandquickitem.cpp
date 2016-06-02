@@ -1137,6 +1137,8 @@ void QWaylandQuickItem::setInputEventsEnabled(bool enabled)
 {
     Q_D(QWaylandQuickItem);
     if (d->inputEventsEnabled != enabled) {
+        if (enabled)
+            setEnabled(true);
         d->setInputEventsEnabled(enabled);
         emit inputEventsEnabledChanged();
     }

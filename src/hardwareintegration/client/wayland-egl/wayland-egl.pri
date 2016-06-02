@@ -7,6 +7,7 @@ INCLUDEPATH += $$PWD
 }
 
 CONFIG += egl
+QT += platformsupport-private
 
 SOURCES += $$PWD/qwaylandeglclientbufferintegration.cpp \
            $$PWD/qwaylandglcontext.cpp \

@@ -45,6 +45,7 @@ WaylandQuickItem {
 
     visible: cursorItem.surface != null
     inputEventsEnabled: false
+    enabled: false
 
     onInputDeviceChanged: {
         if (!inputDevice)

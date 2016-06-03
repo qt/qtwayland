@@ -50,6 +50,7 @@ QT_BEGIN_NAMESPACE
         Q_OBJECT \
         Q_PROPERTY(QQmlListProperty<QObject> data READ data DESIGNABLE false) \
         Q_CLASSINFO("DefaultProperty", "data") \
+        Q_INTERFACES(QQmlParserStatus) \
     public: \
         QQmlListProperty<QObject> data() \
         { \

@@ -404,12 +404,8 @@ Module {
     Component {
         name: "QWaylandWlShellSurface"
         prototype: "QWaylandShellSurface"
-        exports: [
-            "QtWayland.Compositor/WlShellSurface 1.0",
-            "QtWayland.Compositor/WlShellSurfaceBase 1.0"
-        ]
-        isCreatable: false
-        exportMetaObjectRevisions: [0, 0]
+        exports: ["QtWayland.Compositor/WlShellSurface 1.0"]
+        exportMetaObjectRevisions: [0]
         Enum {
             name: "FullScreenMethod"
             values: {
@@ -545,12 +541,8 @@ Module {
     Component {
         name: "QWaylandXdgSurface"
         prototype: "QWaylandShellSurface"
-        exports: [
-            "QtWayland.Compositor/XdgSurface 1.0",
-            "QtWayland.Compositor/XdgSurfaceBase 1.0"
-        ]
-        isCreatable: false
-        exportMetaObjectRevisions: [0, 0]
+        exports: ["QtWayland.Compositor/XdgSurface 1.0"]
+        exportMetaObjectRevisions: [0]
         Enum {
             name: "State"
             values: {

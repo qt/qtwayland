@@ -240,6 +240,11 @@ Module {
         Method { name: "raise" }
         Method { name: "lower" }
         Method {
+            name: "mapToSurface"
+            type: "QPointF"
+            Parameter { name: "point"; type: "QPointF" }
+        }
+        Method {
             name: "inputMethodQuery"
             type: "QVariant"
             Parameter { name: "query"; type: "Qt::InputMethodQuery" }
@@ -436,6 +441,7 @@ Module {
             }
         }
         Property { name: "surface"; type: "QWaylandSurface"; isReadonly: true; isPointer: true }
+        Property { name: "shell"; type: "QWaylandWlShell"; isReadonly: true; isPointer: true }
         Property { name: "title"; type: "string"; isReadonly: true }
         Property { name: "className"; type: "string"; isReadonly: true }
         Property { name: "focusPolicy"; type: "FocusPolicy"; isReadonly: true }
@@ -631,23 +637,23 @@ Module {
         }
         Method { name: "sendClose" }
         Method {
-            name: "requestMaximized"
+            name: "sendMaximized"
             type: "uint"
             Parameter { name: "size"; type: "QSize" }
         }
         Method {
-            name: "requestUnMaximized"
+            name: "sendUnMaximized"
             type: "uint"
             Parameter { name: "size"; type: "QSize" }
         }
-        Method { name: "requestUnMaximized"; type: "uint" }
+        Method { name: "sendUnMaximized"; type: "uint" }
         Method {
-            name: "requestFullscreen"
+            name: "sendFullscreen"
             type: "uint"
             Parameter { name: "size"; type: "QSize" }
         }
         Method {
-            name: "requestResizing"
+            name: "sendResizing"
             type: "uint"
             Parameter { name: "maxSize"; type: "QSize" }
         }
@@ -696,6 +702,11 @@ Module {
         }
         Method { name: "raise" }
         Method { name: "lower" }
+        Method {
+            name: "mapToSurface"
+            type: "QPointF"
+            Parameter { name: "point"; type: "QPointF" }
+        }
         Method {
             name: "inputMethodQuery"
             type: "QVariant"

@@ -133,6 +133,9 @@ Module {
     Component {
         name: "QWaylandOutput"
         prototype: "QObject"
+        exports: ["QtWayland.Compositor/WaylandOutputBase 1.0"]
+        isCreatable: false
+        exportMetaObjectRevisions: [0]
         Enum {
             name: "Subpixel"
             values: {

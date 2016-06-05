@@ -99,6 +99,12 @@ public:
     QWaylandXdgSurfacePrivate();
     static QWaylandXdgSurfacePrivate *get(QWaylandXdgSurface *xdgSurface) { return xdgSurface->d_func(); }
 
+    enum WindowType {
+        UnknownWindowType,
+        TopLevelWindowType,
+        TransientWindowType
+    };
+
     struct ConfigureEvent {
         QVector<uint> states;
         QSize size;
@@ -114,6 +120,8 @@ private:
     QWaylandXdgShell *m_xdgShell;
     QWaylandSurface *m_surface;
     QWaylandXdgSurface *m_parentSurface;
+
+    WindowType m_windowType;
 
     QString m_title;
     QString m_appId;

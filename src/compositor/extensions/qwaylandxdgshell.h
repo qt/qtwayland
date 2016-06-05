@@ -177,6 +177,8 @@ Q_SIGNALS:
     void showWindowMenu(QWaylandInputDevice *inputDevice, const QPoint &localSurfacePosition);
     void startMove(QWaylandInputDevice *inputDevice);
     void startResize(QWaylandInputDevice *inputDevice, ResizeEdge edges);
+    void setTopLevel();
+    void setTransient();
     void setMaximized();
     void unsetMaximized();
     void setFullscreen(QWaylandOutput *output);

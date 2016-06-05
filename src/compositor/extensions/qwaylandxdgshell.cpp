@@ -221,6 +221,7 @@ QWaylandXdgSurfacePrivate::QWaylandXdgSurfacePrivate()
     , xdg_surface()
     , m_surface(nullptr)
     , m_parentSurface(nullptr)
+    , m_windowType(UnknownWindowType)
     , m_unsetWindowGeometry(true)
     , m_lastAckedConfigure({{}, QSize(0, 0), 0})
 {
@@ -346,12 +347,22 @@ void QWaylandXdgSurfacePrivate::xdg_surface_set_parent(Resource *resource, wl_re
                     QWaylandXdgSurfacePrivate::Resource::fromResource(parent)->xdg_surface_object)->q_func();
     }
 
-    if (m_parentSurface == parentSurface)
-        return;
-
     Q_Q(QWaylandXdgSurface);
-    m_parentSurface = parentSurface;
-    emit q->parentSurfaceChanged();
+
+    if (m_parentSurface != parentSurface) {
+        m_parentSurface = parentSurface;
+        emit q->parentSurfaceChanged();
+    }
+
+    if (m_parentSurface && m_windowType != TransientWindowType) {
+        // There's a parent now, which means the surface is transient
+        m_windowType = TransientWindowType;
+        emit q->setTransient();
+    } else if (!m_parentSurface && m_windowType != TopLevelWindowType) {
+        // When the surface has no parent it is toplevel
+        m_windowType = TopLevelWindowType;
+        emit q->setTopLevel();
+    }
 }
 
 void QWaylandXdgSurfacePrivate::xdg_surface_set_app_id(Resource *resource, const QString &app_id)
@@ -611,6 +622,20 @@ void QWaylandXdgShell::handleFocusChanged(QWaylandSurface *newSurface, QWaylandS
  */
 
 /*!
+ * \qmlsignal QtWaylandCompositor::XdgSurface::setTopLevel()
+ *
+ * This signal is emitted when the parent surface is unset, effectively
+ * making the window top level.
+ */
+
+/*!
+ * \qmlsignal QtWaylandCompositor::XdgSurface::setTransient()
+ *
+ * This signal is emitted when the parent surface is set, effectively
+ * making the window transient.
+ */
+
+/*!
  * Constructs a QWaylandXdgSurface.
  */
 QWaylandXdgSurface::QWaylandXdgSurface()
@@ -704,12 +729,22 @@ QWaylandSurface *QWaylandXdgSurface::surface() const
  * \qmlproperty object QtWaylandCompositor::XdgSurface::parentSurface
  *
  * This property holds the XdgSurface parent of this XdgSurface.
+ * When a parent surface is set, the parentSurfaceChanged() signal
+ * is guaranteed to be emitted before setTopLevel() and setTransient().
+ *
+ * \sa QtWaylandCompositor::XdgSurface::setTopLevel()
+ * \sa QtWaylandCompositor::XdgSurface::setTransient()
  */
 
 /*!
  * \property QWaylandXdgSurface::surface
  *
  * This property holds the XdgSurface parent of this XdgSurface.
+ * When a parent surface is set, the parentSurfaceChanged() signal
+ * is guaranteed to be emitted before setTopLevel() and setTransient().
+ *
+ * \sa QWaylandXdgSurface::setTopLevel()
+ * \sa QWaylandXdgSurface::setTransient()
  */
 QWaylandXdgSurface *QWaylandXdgSurface::parentSurface() const
 {

@@ -185,16 +185,20 @@ void QWaylandCompositorPrivate::removeClient(QWaylandClient *client)
 void QWaylandCompositorPrivate::addOutput(QWaylandOutput *output)
 {
     Q_ASSERT(output);
+    Q_Q(QWaylandCompositor);
     if (outputs.contains(output))
         return;
     outputs.append(output);
+    emit q->outputAdded(output);
 }
 
 void QWaylandCompositorPrivate::removeOutput(QWaylandOutput *output)
 {
     Q_ASSERT(output);
     Q_ASSERT(outputs.count(output) == 1);
-    outputs.removeOne(output);
+    Q_Q(QWaylandCompositor);
+    if (outputs.removeOne(output))
+        emit q->outputRemoved(output);
 }
 
 QT_END_NAMESPACE

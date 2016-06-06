@@ -135,6 +135,10 @@ Q_SIGNALS:
     void defaultInputDeviceChanged(QWaylandInputDevice *newDevice, QWaylandInputDevice *oldDevice);
 
     void useHardwareIntegrationExtensionChanged();
+
+    void outputAdded(QWaylandOutput *output);
+    void outputRemoved(QWaylandOutput *output);
+
 protected:
     virtual void retainedSelectionReceived(QMimeData *mimeData);
     virtual QWaylandInputDevice *createInputDevice();

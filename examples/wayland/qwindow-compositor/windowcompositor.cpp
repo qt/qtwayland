@@ -258,7 +258,7 @@ void WindowCompositor::onCreateXdgPopup(QWaylandSurface *surface, QWaylandSurfac
 {
     Q_UNUSED(inputDevice);
 
-    QWaylandXdgPopup *xdgPopup = new QWaylandXdgPopup(m_xdgShell, surface, parent, resource);
+    QWaylandXdgPopup *xdgPopup = new QWaylandXdgPopup(m_xdgShell, surface, parent, position, resource);
 
     WindowCompositorView *view = findView(surface);
     Q_ASSERT(view);

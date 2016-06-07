@@ -88,6 +88,7 @@ public:
     }
 private:
     void resetFocusState();
+    void touch_bind_resource(Resource *resource) Q_DECL_OVERRIDE;
     void touch_destroy_resource(Resource *resource) Q_DECL_OVERRIDE;
     void touch_release(Resource *resource) Q_DECL_OVERRIDE;
 

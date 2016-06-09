@@ -359,11 +359,11 @@ bool QWaylandBradientDecoration::handleMouse(QWaylandInputDevice *inputDevice, c
             window()->setWindowState(Qt::WindowMinimized);
     } else if (local.y() <= margins().top()) {
         processMouseTop(inputDevice,local,b,mods);
-    } else if (local.y() > window()->height() - margins().bottom() + margins().top()) {
+    } else if (local.y() > window()->height() + margins().top()) {
         processMouseBottom(inputDevice,local,b,mods);
     } else if (local.x() <= margins().left()) {
         processMouseLeft(inputDevice,local,b,mods);
-    } else if (local.x() > window()->width() - margins().right() + margins().left()) {
+    } else if (local.x() > window()->width() + margins().left()) {
         processMouseRight(inputDevice,local,b,mods);
     } else {
         waylandWindow()->restoreMouseCursor(inputDevice);
@@ -405,7 +405,7 @@ void QWaylandBradientDecoration::processMouseTop(QWaylandInputDevice *inputDevic
             //top left bit
             waylandWindow()->setMouseCursor(inputDevice, Qt::SizeFDiagCursor);
             startResize(inputDevice,WL_SHELL_SURFACE_RESIZE_TOP_LEFT,b);
-        } else if (local.x() > window()->width() - margins().right()) {
+        } else if (local.x() > window()->width() + margins().left()) {
             //top right bit
             waylandWindow()->setMouseCursor(inputDevice, Qt::SizeBDiagCursor);
             startResize(inputDevice,WL_SHELL_SURFACE_RESIZE_TOP_RIGHT,b);
@@ -428,7 +428,7 @@ void QWaylandBradientDecoration::processMouseBottom(QWaylandInputDevice *inputDe
         //bottom left bit
         waylandWindow()->setMouseCursor(inputDevice, Qt::SizeBDiagCursor);
         startResize(inputDevice, WL_SHELL_SURFACE_RESIZE_BOTTOM_LEFT,b);
-    } else if (local.x() > window()->width() - margins().right()) {
+    } else if (local.x() > window()->width() + margins().left()) {
         //bottom right bit
         waylandWindow()->setMouseCursor(inputDevice, Qt::SizeFDiagCursor);
         startResize(inputDevice, WL_SHELL_SURFACE_RESIZE_BOTTOM_RIGHT,b);

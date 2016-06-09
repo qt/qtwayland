@@ -190,6 +190,7 @@ private:
 
 private Q_SLOTS:
     void handleSurfaceSizeChanged();
+    void handleBufferScaleChanged();
 };
 
 class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgPopup : public QWaylandShellSurfaceTemplate<QWaylandXdgPopup>

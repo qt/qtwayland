@@ -107,6 +107,8 @@ public:
 
     void handleFocusLost();
     void handleFocusReceived();
+    QRect calculateFallbackWindowGeometry() const;
+    void updateFallbackWindowGeometry();
 
 private:
     QWaylandXdgShell *m_xdgShell;

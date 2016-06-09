@@ -246,6 +246,27 @@ void QWaylandXdgSurfacePrivate::handleFocusReceived()
     q->sendConfigure(current.size, current.states);
 }
 
+QRect QWaylandXdgSurfacePrivate::calculateFallbackWindowGeometry() const
+{
+    // TODO: The unset window geometry should include subsurfaces as well, so this solution
+    // won't work too well on those kinds of clients.
+    return QRect(QPoint(0, 0), m_surface->size() / m_surface->bufferScale());
+}
+
+void QWaylandXdgSurfacePrivate::updateFallbackWindowGeometry()
+{
+    Q_Q(QWaylandXdgSurface);
+    if (!m_unsetWindowGeometry)
+        return;
+
+    const QRect unsetGeometry = calculateFallbackWindowGeometry();
+    if (unsetGeometry == m_windowGeometry)
+        return;
+
+    m_windowGeometry = unsetGeometry;
+    emit q->windowGeometryChanged();
+}
+
 void QWaylandXdgSurfacePrivate::xdg_surface_destroy_resource(Resource *resource)
 {
     Q_UNUSED(resource);
@@ -625,8 +646,9 @@ void QWaylandXdgSurface::initialize(QWaylandXdgShell *xdgShell, QWaylandSurface 
     d->m_surface = surface;
     d->init(resource.resource());
     setExtensionContainer(surface);
-    d->m_windowGeometry = QRect(QPoint(0,0), surface->size());
+    d->m_windowGeometry = d->calculateFallbackWindowGeometry();
     connect(surface, &QWaylandSurface::sizeChanged, this, &QWaylandXdgSurface::handleSurfaceSizeChanged);
+    connect(surface, &QWaylandSurface::bufferScaleChanged, this, &QWaylandXdgSurface::handleBufferScaleChanged);
     emit surfaceChanged();
     emit windowGeometryChanged();
     QWaylandCompositorExtension::initialize();
@@ -652,12 +674,13 @@ QList<int> QWaylandXdgSurface::statesAsInts() const
 void QWaylandXdgSurface::handleSurfaceSizeChanged()
 {
     Q_D(QWaylandXdgSurface);
-    if (d->m_unsetWindowGeometry && d->m_windowGeometry.size() != surface()->size()) {
-        // TODO: The unset window geometry should include subsurfaces as well, so this solution
-        // won't work too well on those kinds of clients.
-        d->m_windowGeometry.setSize(surface()->size());
-        emit windowGeometryChanged();
-    }
+    d->updateFallbackWindowGeometry();
+}
+
+void QWaylandXdgSurface::handleBufferScaleChanged()
+{
+    Q_D(QWaylandXdgSurface);
+    d->updateFallbackWindowGeometry();
 }
 
 /*!

@@ -72,8 +72,7 @@ bool XdgShellIntegration::mouseMoveEvent(QMouseEvent *event)
             resizeState.initialized = true;
             return true;
         }
-        float scaleFactor = m_item->view()->output()->scaleFactor();
-        QPointF delta = (event->windowPos() - resizeState.initialMousePos) / scaleFactor;
+        QPointF delta = m_item->mapToSurface(event->windowPos() - resizeState.initialMousePos);
         QSize newSize = m_xdgSurface->sizeForResize(resizeState.initialWindowSize, delta, resizeState.resizeEdges);
         m_xdgSurface->sendResizing(newSize);
     } else if (grabberState == GrabberState::Move) {

@@ -50,11 +50,14 @@ QWaylandInputMethodControl::QWaylandInputMethodControl(QWaylandSurface *surface)
 {
     connect(d_func()->compositor, &QWaylandCompositor::defaultInputDeviceChanged,
             this, &QWaylandInputMethodControl::defaultInputDeviceChanged);
-    connect(d_func()->textInput(), &QWaylandTextInput::surfaceEnabled, this, &QWaylandInputMethodControl::surfaceEnabled);
-    connect(d_func()->textInput(), &QWaylandTextInput::surfaceDisabled, this, &QWaylandInputMethodControl::surfaceDisabled);
+    QWaylandTextInput *textInput = d_func()->textInput();
+    if (textInput) {
+        connect(textInput, &QWaylandTextInput::surfaceEnabled, this, &QWaylandInputMethodControl::surfaceEnabled);
+        connect(textInput, &QWaylandTextInput::surfaceDisabled, this, &QWaylandInputMethodControl::surfaceDisabled);
 #ifndef QT_NO_IM
-    connect(d_func()->textInput(), &QWaylandTextInput::updateInputMethod, this, &QWaylandInputMethodControl::updateInputMethod);
+        connect(textInput, &QWaylandTextInput::updateInputMethod, this, &QWaylandInputMethodControl::updateInputMethod);
 #endif
+    }
 }
 
 QVariant QWaylandInputMethodControl::inputMethodQuery(Qt::InputMethodQuery query, QVariant argument) const

@@ -1,4 +1,6 @@
 CONFIG += wayland-scanner
+CONFIG += generated_privates
+
 WAYLANDSERVERSOURCES += \
     ../extensions/surface-extension.xml \
     ../extensions/touch-extension.xml \

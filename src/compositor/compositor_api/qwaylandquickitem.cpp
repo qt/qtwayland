@@ -49,6 +49,7 @@
 #include <QtGui/QKeyEvent>
 #include <QtGui/QGuiApplication>
 #include <QtGui/QScreen>
+#include <QtGui/QOpenGLFunctions>
 
 #include <QtQuick/QSGSimpleTextureNode>
 #include <QtQuick/QQuickWindow>

@@ -155,6 +155,7 @@ void DataDevice::drop()
         m_dragDataSource->cancel();
     }
     m_dragOrigin = nullptr;
+    setDragIcon(nullptr);
 }
 
 void DataDevice::cancelDrag()
@@ -167,9 +168,8 @@ void DataDevice::data_device_start_drag(Resource *resource, struct ::wl_resource
     m_dragClient = resource->client();
     m_dragDataSource = source ? DataSource::fromResource(source) : 0;
     m_dragOrigin = QWaylandSurface::fromResource(origin);
-    m_dragIcon = icon ? QWaylandSurface::fromResource(icon) : 0;
     QWaylandDrag *drag = m_inputDevice->drag();
-    Q_EMIT drag->iconChanged();
+    setDragIcon(icon ? QWaylandSurface::fromResource(icon) : nullptr);
     Q_EMIT drag->dragStarted();
     Q_EMIT m_dragOrigin->dragStarted(drag);
 
@@ -200,6 +200,14 @@ void DataDevice::data_device_set_selection(Resource *, struct ::wl_resource *sou
     } else if (resource) {
         send_selection(resource->handle, 0);
     }
+}
+
+void DataDevice::setDragIcon(QWaylandSurface *icon)
+{
+    if (icon == m_dragIcon)
+        return;
+    m_dragIcon = icon;
+    Q_EMIT m_inputDevice->drag()->iconChanged();
 }
 
 }

@@ -1051,8 +1051,10 @@ QSGNode *QWaylandQuickItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeDat
     if (ref.isShm() || bufferTypes[ref.bufferFormatEgl()].canProvideTexture) {
         QSGSimpleTextureNode *node = static_cast<QSGSimpleTextureNode *>(oldNode);
 
-        if (!node)
+        if (!node) {
             node = new QSGSimpleTextureNode();
+            d->newTexture = true;
+        }
 
         if (!d->provider)
             d->provider = new QWaylandSurfaceTextureProvider();
@@ -1072,8 +1074,10 @@ QSGNode *QWaylandQuickItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeDat
 
         QSGGeometryNode *node = static_cast<QSGGeometryNode *>(oldNode);
 
-        if (!node)
+        if (!node) {
             node = new QSGGeometryNode;
+            d->newTexture = true;
+        }
 
         QSGGeometry *geometry = node->geometry();
         QWaylandBufferMaterial *material = static_cast<QWaylandBufferMaterial *>(node->material());

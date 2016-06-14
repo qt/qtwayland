@@ -51,22 +51,20 @@
 #include "qwaylandclientextension.h"
 #include <QtCore/private/qobject_p.h>
 #include <QtWaylandClient/private/qwaylandintegration_p.h>
-#include <QtWaylandClient/private/qwayland-wayland.h>
 
 QT_BEGIN_NAMESPACE
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandClientExtensionPrivate : public QObjectPrivate, public QtWayland::wl_registry
+class Q_WAYLAND_CLIENT_EXPORT QWaylandClientExtensionPrivate : public QObjectPrivate
 {
     Q_DECLARE_PUBLIC(QWaylandClientExtension)
 public:
     QWaylandClientExtensionPrivate();
+    static void handleRegistryGlobal(void *data, ::wl_registry *registry, uint32_t id,
+                                     const QString &interface, uint32_t version);
 
     QtWaylandClient::QWaylandIntegration *waylandIntegration;
     int version;
     bool active;
-
-protected:
-    void registry_global(uint32_t id, const QString &interfaceName, uint32_t version) Q_DECL_OVERRIDE;
 };
 
 class Q_WAYLAND_CLIENT_EXPORT QWaylandClientExtensionTemplatePrivate : public QWaylandClientExtensionPrivate

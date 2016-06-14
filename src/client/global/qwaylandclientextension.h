@@ -69,6 +69,9 @@ protected:
 Q_SIGNALS:
     void versionChanged();
     void activeChanged();
+
+private Q_SLOTS:
+    void addRegistryListener();
 };
 
 template <typename T>

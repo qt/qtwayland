@@ -39,7 +39,7 @@
 #include <QtWaylandClient/private/qwaylanddisplay_p.h>
 #include <QtWaylandClient/private/qwaylandintegration_p.h>
 #include <QtGui/QGuiApplication>
-#include <QtGui/qpa/qplatformnativeinterface.h>
+#include <QtGui/private/qguiapplication_p.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -51,28 +51,26 @@ QWaylandClientExtensionPrivate::QWaylandClientExtensionPrivate()
 {
     // Keep the possibility to use a custom waylandIntegration as a plugin,
     // but also add the possibility to run it as a QML component.
-    struct ::wl_display *waylandDisplay = NULL;
-    if (QGuiApplication::platformNativeInterface()) {
-        waylandDisplay = static_cast<struct ::wl_display*>(QGuiApplication::platformNativeInterface()->nativeResourceForIntegration("wl_display"));
-    } else {
+    waylandIntegration = static_cast<QtWaylandClient::QWaylandIntegration *>(QGuiApplicationPrivate::platformIntegration());
+    if (!waylandIntegration)
         waylandIntegration = new QtWaylandClient::QWaylandIntegration();
-        waylandDisplay = waylandIntegration->display()->wl_display();
-    }
-
-    Q_ASSERT(waylandDisplay);
-    struct ::wl_registry *registry = wl_display_get_registry(waylandDisplay);
-    QtWayland::wl_registry::init(registry);
 }
 
-void QWaylandClientExtensionPrivate::registry_global(uint32_t id, const QString &interfaceName, uint32_t ver)
+void QWaylandClientExtensionPrivate::handleRegistryGlobal(void *data, ::wl_registry *registry, uint32_t id,
+                                                          const QString &interface, uint32_t version)
 {
-    Q_Q(QWaylandClientExtension);
-    if (interfaceName == QLatin1String(q->extensionInterface()->name)) {
-        struct ::wl_registry *registry = static_cast<struct ::wl_registry *>(QtWayland::wl_registry::object());
-        q->bind(registry, id, ver);
-        active = true;
-        emit q->activeChanged();
+    QWaylandClientExtension *extension = static_cast<QWaylandClientExtension *>(data);
+    if (interface == QLatin1String(extension->extensionInterface()->name)) {
+        extension->bind(registry, id, version);
+        extension->d_func()->active = true;
+        emit extension->activeChanged();
     }
+}
+
+void QWaylandClientExtension::addRegistryListener()
+{
+    Q_D(QWaylandClientExtension);
+    d->waylandIntegration->display()->addRegistryListener(&QWaylandClientExtensionPrivate::handleRegistryGlobal, this);
 }
 
 QWaylandClientExtension::QWaylandClientExtension(const int ver)
@@ -80,6 +78,10 @@ QWaylandClientExtension::QWaylandClientExtension(const int ver)
 {
     Q_D(QWaylandClientExtension);
     d->version = ver;
+
+    // The registry listener uses virtual functions and we don't want it to be called from
+    // the constructor.
+    QMetaObject::invokeMethod(this, "addRegistryListener", Qt::QueuedConnection);
 }
 
 QtWaylandClient::QWaylandIntegration *QWaylandClientExtension::integration() const

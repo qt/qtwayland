@@ -55,6 +55,7 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandClient : public QObject
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandClient)
 
+    Q_PROPERTY(QWaylandCompositor *compositor READ compositor CONSTANT)
     Q_PROPERTY(qint64 userId READ userId CONSTANT)
     Q_PROPERTY(qint64 groupId READ groupId CONSTANT)
     Q_PROPERTY(qint64 processId READ processId CONSTANT)
@@ -62,6 +63,8 @@ public:
     ~QWaylandClient();
 
     static QWaylandClient *fromWlClient(QWaylandCompositor *compositor, wl_client *wlClient);
+
+    QWaylandCompositor *compositor() const;
 
     wl_client *client() const;
 

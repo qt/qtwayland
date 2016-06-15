@@ -164,6 +164,24 @@ QWaylandClient *QWaylandClient::fromWlClient(QWaylandCompositor *compositor, wl_
 }
 
 /*!
+ * \qmlproperty object QtWaylandCompositor::WaylandClient::compositor
+ *
+ * This property holds the compositor of this WaylandClient.
+ */
+
+/*!
+ * \property QWaylandClient::compositor
+ *
+ * This property holds the compositor of this QWaylandClient.
+ */
+QWaylandCompositor *QWaylandClient::compositor() const
+{
+    Q_D(const QWaylandClient);
+
+    return d->compositor;
+}
+
+/*!
  * Returns the Wayland client of this QWaylandClient.
  */
 wl_client *QWaylandClient::client() const

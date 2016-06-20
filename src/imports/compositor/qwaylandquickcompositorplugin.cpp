@@ -87,23 +87,6 @@ private:
 };
 
 
-/*!
-    \qmlmodule QtWayland.Compositor 1.0
-    \title Qt Wayland Compositor QML Types
-    \ingroup qmlmodules
-    \brief Provides QML types for creating Wayland compositors
-
-    This QML module contains types for creating Wayland compositors.
-
-    To use the types in this module, import the module with the following line:
-
-    \code
-    import QtWayland.Compositor 1.0
-    \endcode
-*/
-
-
-
 //![class decl]
 class QWaylandCompositorPlugin : public QQmlExtensionPlugin
 {

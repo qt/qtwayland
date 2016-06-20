@@ -1,4 +1,4 @@
-include($QT_INSTALL_DOCS/global//qt-module-defaults.qdocconf)
+include($QT_INSTALL_DOCS/global/qt-module-defaults.qdocconf)
 
 project                                                     = QtWaylandCompositor
 description                                                 = Qt Wayland Compositor Reference Documentation
@@ -31,12 +31,15 @@ qhp.QtWaylandCompositor.subprojects.examples.sortPages      = true
 
 depends += qtqml qtquick qtdoc qtquickcontrols qmake qtgui
 
-exampledirs += ../../../examples/wayland/
-headerdirs += ../
-sourcedirs += ../
+exampledirs += ../../../examples/wayland
+headerdirs += ..
+sourcedirs += ..
 imagedirs  += images
 
-examplesinstallpath = waylandcompositor
+examplesinstallpath = wayland
+
+Cpp.ignoretokens         += Q_WAYLAND_COMPOSITOR_EXPORT
+Cpp.ignoredirectives     += Q_DECLARE_LOGGING_CATEGORY
 
 navigation.landingpage    = "Qt Wayland Compositor"
 navigation.qmltypespage   = "Qt Wayland Compositor QML Types"

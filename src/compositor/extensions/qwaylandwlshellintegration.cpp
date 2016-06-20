@@ -81,7 +81,18 @@ void WlShellIntegration::handleSetPopup(QWaylandInputDevice *inputDevice, QWayla
 {
     Q_UNUSED(inputDevice);
 
-    QWaylandQuickShellSurfaceItem* parentItem = qobject_cast<QWaylandQuickShellSurfaceItem*>(parent->views().first()->renderObject());
+    // Find the parent item on the same output
+    QWaylandQuickShellSurfaceItem *parentItem = nullptr;
+    Q_FOREACH (QWaylandView *view, parent->views()) {
+        if (view->output() == m_item->view()->output()) {
+            QWaylandQuickShellSurfaceItem *item = qobject_cast<QWaylandQuickShellSurfaceItem*>(view->renderObject());
+            if (item) {
+                parentItem = item;
+                break;
+            }
+        }
+    }
+
     if (parentItem) {
         // Clear all the transforms for this ShellSurfaceItem. They are not
         // applicable when the item becomes a child to a surface that has its

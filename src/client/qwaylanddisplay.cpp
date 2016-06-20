@@ -118,19 +118,8 @@ QWaylandWindowManagerIntegration *QWaylandDisplay::windowManagerIntegration() co
     return mWindowManagerIntegration.data();
 }
 
-QWaylandInputDevice *QWaylandDisplay::lastKeyboardFocusInputDevice() const
-{
-    return mLastKeyboardFocusInputDevice;
-}
-
-void QWaylandDisplay::setLastKeyboardFocusInputDevice(QWaylandInputDevice *device)
-{
-    mLastKeyboardFocusInputDevice = device;
-}
-
 QWaylandDisplay::QWaylandDisplay(QWaylandIntegration *waylandIntegration)
     : mWaylandIntegration(waylandIntegration)
-    , mLastKeyboardFocusInputDevice(0)
     , mDndSelectionHandler(0)
     , mWindowExtension(0)
     , mSubCompositor(0)

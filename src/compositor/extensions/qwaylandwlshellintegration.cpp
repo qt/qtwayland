@@ -51,14 +51,19 @@ WlShellIntegration::WlShellIntegration(QWaylandQuickShellSurfaceItem *item)
     , m_shellSurface(qobject_cast<QWaylandWlShellSurface *>(item->shellSurface()))
     , grabberState(GrabberState::Default)
     , isPopup(false)
+    , currentState(State::Windowed)
+    , nextState(State::Windowed)
 {
     m_item->setSurface(m_shellSurface->surface());
     connect(m_shellSurface, &QWaylandWlShellSurface::startMove, this, &WlShellIntegration::handleStartMove);
     connect(m_shellSurface, &QWaylandWlShellSurface::startResize, this, &WlShellIntegration::handleStartResize);
+    connect(m_shellSurface->surface(), &QWaylandSurface::redraw, this, &WlShellIntegration::handleRedraw);
     connect(m_shellSurface->surface(), &QWaylandSurface::offsetForNextFrame, this, &WlShellIntegration::adjustOffsetForNextFrame);
     connect(m_shellSurface->surface(), &QWaylandSurface::hasContentChanged, this, &WlShellIntegration::handleSurfaceHasContentChanged);
     connect(m_shellSurface, &QWaylandWlShellSurface::setDefaultToplevel, this, &WlShellIntegration::handleSetDefaultTopLevel);
     connect(m_shellSurface, &QWaylandWlShellSurface::setTransient, this, &WlShellIntegration::handleSetTransient);
+    connect(m_shellSurface, &QWaylandWlShellSurface::setMaximized, this, &WlShellIntegration::handleSetMaximized);
+    connect(m_shellSurface, &QWaylandWlShellSurface::setFullScreen, this, &WlShellIntegration::handleSetFullScreen);
     connect(m_shellSurface, &QWaylandWlShellSurface::setPopup, this, &WlShellIntegration::handleSetPopup);
     connect(m_shellSurface, &QWaylandWlShellSurface::destroyed, this, &WlShellIntegration::handleShellSurfaceDestroyed);
 }
@@ -85,6 +90,11 @@ void WlShellIntegration::handleSetDefaultTopLevel()
     // Take focus if the policy allows
     if (m_shellSurface->shell()->focusPolicy() == QWaylandShell::AutomaticFocus)
         m_item->takeFocus();
+
+    // In order to restore the window state, the client calls setDefaultToplevel()
+    // so we need to unset the flags here but we save the previous state and move
+    // to the initial position when redrawing
+    nextState = State::Windowed;
 }
 
 void WlShellIntegration::handleSetTransient(QWaylandSurface *parentSurface, const QPoint &relativeToParent, bool inactive)
@@ -95,6 +105,45 @@ void WlShellIntegration::handleSetTransient(QWaylandSurface *parentSurface, cons
     // Take focus if the policy allows and it's not inactive
     if (m_shellSurface->shell()->focusPolicy() == QWaylandShell::AutomaticFocus && !inactive)
         m_item->takeFocus();
+}
+
+void WlShellIntegration::handleSetMaximized(QWaylandOutput *output)
+{
+    if (currentState == State::Maximized)
+        return;
+
+    QWaylandOutput *designatedOutput = output ? output : m_item->view()->output();
+    if (!designatedOutput)
+        return;
+
+    if (currentState == State::Windowed)
+        normalPosition = m_item->moveItem()->position();
+
+    nextState = State::Maximized;
+    finalPosition = designatedOutput->position() + designatedOutput->availableGeometry().topLeft();
+
+    m_shellSurface->sendConfigure(designatedOutput->availableGeometry().size(), QWaylandWlShellSurface::NoneEdge);
+}
+
+void WlShellIntegration::handleSetFullScreen(QWaylandWlShellSurface::FullScreenMethod method, uint framerate, QWaylandOutput *output)
+{
+    Q_UNUSED(method);
+    Q_UNUSED(framerate);
+
+    if (currentState == State::FullScreen)
+        return;
+
+    QWaylandOutput *designatedOutput = output ? output : m_item->view()->output();
+    if (!designatedOutput)
+        return;
+
+    if (currentState == State::Windowed)
+        normalPosition = m_item->moveItem()->position();
+
+    nextState = State::FullScreen;
+    finalPosition = designatedOutput->position();
+
+    m_shellSurface->sendConfigure(designatedOutput->geometry().size(), QWaylandWlShellSurface::NoneEdge);
 }
 
 void WlShellIntegration::handleSetPopup(QWaylandSeat *seat, QWaylandSurface *parent, const QPoint &relativeToParent)
@@ -150,7 +199,6 @@ void WlShellIntegration::handlePopupRemoved()
     isPopup = false;
 }
 
-
 void WlShellIntegration::handleShellSurfaceDestroyed()
 {
     if (isPopup)
@@ -164,6 +212,15 @@ void WlShellIntegration::handleSurfaceHasContentChanged()
             && m_shellSurface->windowType() == Qt::WindowType::Popup) {
         handlePopupClosed();
     }
+}
+
+void WlShellIntegration::handleRedraw()
+{
+    if (currentState == nextState)
+        return;
+
+    m_item->moveItem()->setPosition(nextState == State::Windowed ? normalPosition : finalPosition);
+    currentState = nextState;
 }
 
 void WlShellIntegration::adjustOffsetForNextFrame(const QPointF &offset)

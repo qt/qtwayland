@@ -326,12 +326,9 @@ const struct wl_interface *QWaylandWlShell::interface()
  */
 
 /*!
- * \fn void QWaylandWlShell::createShellSurface(QWaylandSurface *surface, QWaylandClient *client, uint id)
+ * \fn void QWaylandWlShell::createShellSurface(QWaylandSurface *surface, const QWaylandResource &resource)
  *
- * This signal is emitted when the \a client has requested a shell surface to be associated
- * with \a surface and be assigned the given \a id. The handler for this signal is
- * expected to create the shell surface and initialize it within the scope of the
- * signal emission.
+ * Constructs a QWaylandSurface, assigns it to \a surface and initializes it with the given \a resource.
  */
 
 /*!
@@ -377,7 +374,7 @@ QWaylandWlShellSurface::QWaylandWlShellSurface()
 }
 
 /*!
- * Constructs a QWaylandWlShellSurface for \a surface and initializes it with the given \a shell and \a resource.
+ * Constructs a QWaylandWlShellSurface for \a surface and initializes it with the given \a shell and resource \a res.
  */
 QWaylandWlShellSurface::QWaylandWlShellSurface(QWaylandWlShell *shell, QWaylandSurface *surface, const QWaylandResource &res)
     : QWaylandShellSurfaceTemplate<QWaylandWlShellSurface>(*new QWaylandWlShellSurfacePrivate)
@@ -586,12 +583,12 @@ QWaylandSurfaceRole *QWaylandWlShellSurface::role()
 /*!
  * \qmlmethod void QtWaylandCompositor::WlShellSurface::ping()
  *
- * Sends a ping event to the client. If the client replies to the event the \a pong
+ * Sends a ping event to the client. If the client replies to the event the pong
  * signal will be emitted.
  */
 
 /*!
- * Sends a ping event to the client. If the client replies to the event the \a pong
+ * Sends a ping event to the client. If the client replies to the event the pong
  * signal will be emitted.
  */
 void QWaylandWlShellSurface::ping()

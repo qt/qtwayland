@@ -836,7 +836,7 @@ void QWaylandCompositor::setUseHardwareIntegrationExtension(bool use)
  * to implement custom logic.
  * The default implementation only grabs SHM and OpenGL buffers, reimplement this in your
  * compositor subclass to handle more buffer types.
- * You should not call this manually, but rather use \a QWaylandSurfaceGrabber.
+ * You should not call this manually, but rather use QWaylandSurfaceGrabber (\a grabber).
  */
 void QWaylandCompositor::grabSurface(QWaylandSurfaceGrabber *grabber, const QWaylandBufferRef &buffer)
 {

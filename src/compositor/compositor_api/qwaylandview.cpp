@@ -104,20 +104,19 @@ QWaylandView::~QWaylandView()
 }
 
 /*!
-  \internal Didn't we decide to remove this property?
+* \internal
+*  Didn't we decide to remove this property?
 */
 QObject *QWaylandView::renderObject() const
 {
     Q_D(const QWaylandView);
     return d->renderObject;
 }
-
 /*!
- * \qmlproperty object QtWaylandCompositor::WaylandView::surface
- *
- * This property holds the surface viewed by this WaylandView.
- */
-
+* \qmlproperty object QtWaylandCompositor::WaylandView::surface
+*
+* This property holds the surface viewed by this WaylandView.
+*/
 /*!
  * \property QWaylandView::surface
  *
@@ -312,9 +311,14 @@ void QWaylandView::setBufferLock(bool locked)
     d->bufferLock = locked;
     emit bufferLockChanged();
 }
-
 /*!
- * \property bool QWaylandView::discardFrontBuffers
+ * \qmlproperty bool QtWaylandCompositor::WaylandView::discardFrontBuffers
+ *
+ * By default, the view locks the current buffer until advance() is called. Set this property
+ * to true to allow Qt to release the buffer when the throttling view is no longer using it.
+ */
+/*!
+ * \property QWaylandView::discardFrontBuffers
  *
  * By default, the view locks the current buffer until advance() is called. Set this property
  * to true to allow Qt to release the buffer when the throttling view is no longer using it.

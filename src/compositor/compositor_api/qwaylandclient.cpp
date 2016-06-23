@@ -181,6 +181,7 @@ wl_client *QWaylandClient::client() const
 
 /*!
  * \property QWaylandClient::userId
+ * \readonly
  *
  * This property holds the user id of this QWaylandClient.
  */
@@ -193,6 +194,7 @@ qint64 QWaylandClient::userId() const
 
 /*!
  * \qmlproperty int QtWaylandCompositor::WaylandClient::groupId
+ * \readonly
  *
  * This property holds the group id of this WaylandClient.
  */
@@ -211,6 +213,7 @@ qint64 QWaylandClient::groupId() const
 
 /*!
  * \qmlproperty int QtWaylandCompositor::WaylandClient::processId
+ * \readonly
  *
  * This property holds the process id of this WaylandClient.
  */

@@ -51,17 +51,17 @@ class QWaylandEglWindow : public QWaylandWindow
 public:
     QWaylandEglWindow(QWindow *window);
     ~QWaylandEglWindow();
-    WindowType windowType() const;
+    WindowType windowType() const Q_DECL_OVERRIDE;
 
     void updateSurface(bool create);
-    virtual void setGeometry(const QRect &rect);
+    virtual void setGeometry(const QRect &rect) Q_DECL_OVERRIDE;
     QRect contentsRect() const;
 
     EGLSurface eglSurface() const;
     GLuint contentFBO() const;
     GLuint contentTexture() const;
 
-    QSurfaceFormat format() const;
+    QSurfaceFormat format() const Q_DECL_OVERRIDE;
 
     void bindContentFBO();
 

@@ -60,13 +60,13 @@ public:
     QWaylandBrcmEglIntegration();
     ~QWaylandBrcmEglIntegration();
 
-    void initialize(QWaylandDisplay *waylandDisplay);
+    void initialize(QWaylandDisplay *waylandDisplay) Q_DECL_OVERRIDE;
 
-    bool supportsThreadedOpenGL() const { return true; }
-    bool supportsWindowDecoration() const { return false; }
+    bool supportsThreadedOpenGL() const Q_DECL_OVERRIDE { return true; }
+    bool supportsWindowDecoration() const Q_DECL_OVERRIDE { return false; }
 
     QWaylandWindow *createEglWindow(QWindow *window);
-    QPlatformOpenGLContext *createPlatformOpenGLContext(const QSurfaceFormat &glFormat, QPlatformOpenGLContext *share) const;
+    QPlatformOpenGLContext *createPlatformOpenGLContext(const QSurfaceFormat &glFormat, QPlatformOpenGLContext *share) const Q_DECL_OVERRIDE;
 
     EGLDisplay eglDisplay() const;
 

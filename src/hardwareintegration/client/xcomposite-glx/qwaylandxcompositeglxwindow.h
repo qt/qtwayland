@@ -50,9 +50,9 @@ class QWaylandXCompositeGLXWindow : public QWaylandWindow
 {
 public:
     QWaylandXCompositeGLXWindow(QWindow *window, QWaylandXCompositeGLXIntegration *glxIntegration);
-    WindowType windowType() const;
+    WindowType windowType() const Q_DECL_OVERRIDE;
 
-    void setGeometry(const QRect &rect);
+    void setGeometry(const QRect &rect) Q_DECL_OVERRIDE;
 
     Window xWindow() const;
 

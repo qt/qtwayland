@@ -54,10 +54,10 @@ class QWaylandBrcmEglWindow : public QWaylandWindow
 public:
     QWaylandBrcmEglWindow(QWindow *window);
     ~QWaylandBrcmEglWindow();
-    WindowType windowType() const;
-    void setGeometry(const QRect &rect);
+    WindowType windowType() const Q_DECL_OVERRIDE;
+    void setGeometry(const QRect &rect) Q_DECL_OVERRIDE;
 
-    QSurfaceFormat format() const;
+    QSurfaceFormat format() const Q_DECL_OVERRIDE;
 
     bool makeCurrent(EGLContext context);
     void swapBuffers();

@@ -77,7 +77,7 @@ protected:
     void text_input_commit_string(uint32_t serial, const QString &text) Q_DECL_OVERRIDE;
     void text_input_enter(wl_surface *surface) Q_DECL_OVERRIDE;
     void text_input_leave() Q_DECL_OVERRIDE;
-    void text_input_keysym(uint32_t serial, uint32_t time, uint32_t sym, uint32_t state, uint32_t modifiers);
+    void text_input_keysym(uint32_t serial, uint32_t time, uint32_t sym, uint32_t state, uint32_t modifiers) Q_DECL_OVERRIDE;
 
 private:
     QString m_commit;

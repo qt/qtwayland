@@ -43,7 +43,7 @@ class LibHybrisEglServerBufferPlugin : public QWaylandServerBufferIntegrationPlu
     Q_OBJECT
     Q_PLUGIN_METADATA(IID QWaylandServerBufferIntegrationFactoryInterface_iid FILE "libhybris-egl-server.json")
 public:
-    QWaylandServerBufferIntegration *create(const QString&, const QStringList&);
+    QWaylandServerBufferIntegration *create(const QString&, const QStringList&) Q_DECL_OVERRIDE;
 };
 
 QWaylandServerBufferIntegration *LibHybrisEglServerBufferPlugin::create(const QString& system, const QStringList& paramList)

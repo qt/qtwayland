@@ -66,37 +66,37 @@ public:
     QWaylandIntegration();
     ~QWaylandIntegration();
 
-    bool hasCapability(QPlatformIntegration::Capability cap) const;
-    QPlatformWindow *createPlatformWindow(QWindow *window) const;
+    bool hasCapability(QPlatformIntegration::Capability cap) const Q_DECL_OVERRIDE;
+    QPlatformWindow *createPlatformWindow(QWindow *window) const Q_DECL_OVERRIDE;
 #ifndef QT_NO_OPENGL
-    QPlatformOpenGLContext *createPlatformOpenGLContext(QOpenGLContext *context) const;
+    QPlatformOpenGLContext *createPlatformOpenGLContext(QOpenGLContext *context) const Q_DECL_OVERRIDE;
 #endif
-    QPlatformBackingStore *createPlatformBackingStore(QWindow *window) const;
+    QPlatformBackingStore *createPlatformBackingStore(QWindow *window) const Q_DECL_OVERRIDE;
 
-    QAbstractEventDispatcher *createEventDispatcher() const;
-    void initialize();
+    QAbstractEventDispatcher *createEventDispatcher() const Q_DECL_OVERRIDE;
+    void initialize() Q_DECL_OVERRIDE;
 
-    QPlatformFontDatabase *fontDatabase() const;
+    QPlatformFontDatabase *fontDatabase() const Q_DECL_OVERRIDE;
 
-    QPlatformNativeInterface *nativeInterface() const;
+    QPlatformNativeInterface *nativeInterface() const Q_DECL_OVERRIDE;
 
-    QPlatformClipboard *clipboard() const;
+    QPlatformClipboard *clipboard() const Q_DECL_OVERRIDE;
 
-    QPlatformDrag *drag() const;
+    QPlatformDrag *drag() const Q_DECL_OVERRIDE;
 
-    QPlatformInputContext *inputContext() const;
+    QPlatformInputContext *inputContext() const Q_DECL_OVERRIDE;
 
-    QVariant styleHint(StyleHint hint) const;
+    QVariant styleHint(StyleHint hint) const Q_DECL_OVERRIDE;
 
-    QPlatformAccessibility *accessibility() const;
+    QPlatformAccessibility *accessibility() const Q_DECL_OVERRIDE;
 
-    QPlatformServices *services() const;
+    QPlatformServices *services() const Q_DECL_OVERRIDE;
 
     QWaylandDisplay *display() const;
 
-    QStringList themeNames() const;
+    QStringList themeNames() const Q_DECL_OVERRIDE;
 
-    QPlatformTheme *createPlatformTheme(const QString &name) const;
+    QPlatformTheme *createPlatformTheme(const QString &name) const Q_DECL_OVERRIDE;
 
     QWaylandInputDevice *createInputDevice(QWaylandDisplay *display, int version, uint32_t id);
 

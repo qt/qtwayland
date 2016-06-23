@@ -51,14 +51,14 @@ class QWaylandXCompositeGLXContext : public QPlatformOpenGLContext
 public:
     QWaylandXCompositeGLXContext(const QSurfaceFormat &format, QPlatformOpenGLContext *share, Display *display, int screen);
 
-    QSurfaceFormat format() const;
+    QSurfaceFormat format() const Q_DECL_OVERRIDE;
 
-    void swapBuffers(QPlatformSurface *surface);
+    void swapBuffers(QPlatformSurface *surface) Q_DECL_OVERRIDE;
 
-    bool makeCurrent(QPlatformSurface *surface);
-    void doneCurrent();
+    bool makeCurrent(QPlatformSurface *surface) Q_DECL_OVERRIDE;
+    void doneCurrent() Q_DECL_OVERRIDE;
 
-    void (*getProcAddress(const QByteArray &procName)) ();
+    void (*getProcAddress(const QByteArray &procName)) () Q_DECL_OVERRIDE;
 
 private:
     GLXContext m_context;

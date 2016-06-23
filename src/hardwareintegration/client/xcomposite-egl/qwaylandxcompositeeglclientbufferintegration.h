@@ -82,8 +82,8 @@ public:
     int screen() const;
     Window rootWindow() const;
 
-    bool supportsThreadedOpenGL() const { return true; }
-    bool supportsWindowDecoration() const { return false; }
+    bool supportsThreadedOpenGL() const Q_DECL_OVERRIDE { return true; }
+    bool supportsWindowDecoration() const Q_DECL_OVERRIDE { return false; }
 
 private:
     QWaylandDisplay *mWaylandDisplay;

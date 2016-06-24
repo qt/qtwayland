@@ -96,12 +96,12 @@ public:
 
     bool isSharedMemory() const;
     QImage image() const;
+
 #ifdef QT_WAYLAND_COMPOSITOR_GL
     GLuint textureForPlane(int plane) const;
-#endif
-
     void bindToTexture() const;
     void updateTexture() const;
+#endif
 
 private:
     class QWaylandBufferRefPrivate *const d;

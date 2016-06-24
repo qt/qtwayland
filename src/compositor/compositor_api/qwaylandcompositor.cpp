@@ -58,7 +58,10 @@
 #include "hardware_integration/qwlclientbufferintegrationfactory_p.h"
 #include "hardware_integration/qwlserverbufferintegration_p.h"
 #include "hardware_integration/qwlserverbufferintegrationfactory_p.h"
+
+#ifdef QT_WAYLAND_COMPOSITOR_GL
 #include "hardware_integration/qwlhwintegration_p.h"
+#endif
 
 #include "extensions/qwaylandqtwindowmanager.h"
 
@@ -814,12 +817,17 @@ QWaylandInputDevice *QWaylandCompositor::inputDeviceFor(QInputEvent *inputEvent)
  */
 bool QWaylandCompositor::useHardwareIntegrationExtension() const
 {
+#ifdef QT_WAYLAND_COMPOSITOR_GL
     Q_D(const QWaylandCompositor);
     return d->use_hw_integration_extension;
+#else
+    return false;
+#endif
 }
 
 void QWaylandCompositor::setUseHardwareIntegrationExtension(bool use)
 {
+#ifdef QT_WAYLAND_COMPOSITOR_GL
     Q_D(QWaylandCompositor);
     if (use == d->use_hw_integration_extension)
         return;
@@ -829,6 +837,10 @@ void QWaylandCompositor::setUseHardwareIntegrationExtension(bool use)
 
     d->use_hw_integration_extension = use;
     useHardwareIntegrationExtensionChanged();
+#else
+    if (use)
+        qWarning() << "Hardware integration not supported without OpenGL support";
+#endif
 }
 
 /*!

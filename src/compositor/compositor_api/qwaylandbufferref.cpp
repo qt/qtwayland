@@ -249,7 +249,6 @@ GLuint QWaylandBufferRef::textureForPlane(int plane) const
 
     return d->buffer->textureForPlane(plane);
 }
-#endif
 
 /*!
  * Binds the buffer to the current OpenGL texture. This may
@@ -272,5 +271,6 @@ void QWaylandBufferRef::updateTexture() const
 
     d->buffer->updateTexture();
 }
+#endif
 
 QT_END_NAMESPACE

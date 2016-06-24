@@ -1,6 +1,4 @@
-isEmpty(QT_WAYLAND_GL_CONFIG):QT_WAYLAND_GL_CONFIG = $$(QT_WAYLAND_GL_CONFIG)
-
-!isEqual(QT_WAYLAND_GL_CONFIG,nogl) {
+contains(QT_CONFIG, opengl) {
     CONFIG += wayland-scanner
     WAYLANDSERVERSOURCES += \
         ../extensions/server-buffer-extension.xml \

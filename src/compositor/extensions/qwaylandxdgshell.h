@@ -159,7 +159,9 @@ public:
     Q_INVOKABLE uint sendFullscreen(const QSize &size);
     Q_INVOKABLE uint sendResizing(const QSize &maxSize);
 
+#ifdef QT_WAYLAND_COMPOSITOR_QUICK
     QWaylandQuickShellIntegration *createIntegration(QWaylandQuickShellSurfaceItem *item) Q_DECL_OVERRIDE;
+#endif
 
 Q_SIGNALS:
     void surfaceChanged();
@@ -222,7 +224,9 @@ public:
 
     Q_INVOKABLE void sendPopupDone();
 
+#ifdef QT_WAYLAND_COMPOSITOR_QUICK
     QWaylandQuickShellIntegration *createIntegration(QWaylandQuickShellSurfaceItem *item) Q_DECL_OVERRIDE;
+#endif
 
 Q_SIGNALS:
     void surfaceChanged();

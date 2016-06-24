@@ -50,7 +50,9 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandShellSurface : public QWaylandComposit
 {
     Q_OBJECT
 public:
+#ifdef QT_WAYLAND_COMPOSITOR_QUICK
     virtual QWaylandQuickShellIntegration *createIntegration(QWaylandQuickShellSurfaceItem *item) = 0;
+#endif
     QWaylandShellSurface(QWaylandObject *waylandObject) : QWaylandCompositorExtension(waylandObject) {}
 
 protected:

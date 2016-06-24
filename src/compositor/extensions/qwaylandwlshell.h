@@ -136,7 +136,9 @@ public:
     Q_INVOKABLE void sendConfigure(const QSize &size, ResizeEdge edges);
     Q_INVOKABLE void sendPopupDone();
 
+#ifdef QT_WAYLAND_COMPOSITOR_QUICK
     QWaylandQuickShellIntegration *createIntegration(QWaylandQuickShellSurfaceItem *item) Q_DECL_OVERRIDE;
+#endif
 
 public Q_SLOTS:
     void ping();

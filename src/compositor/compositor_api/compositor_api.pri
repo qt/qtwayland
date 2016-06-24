@@ -45,7 +45,9 @@ SOURCES += \
 
 QT += core-private
 
-qtHaveModule(quick) {
+qtHaveModule(quick):contains(QT_CONFIG, opengl) {
+    DEFINES += QT_WAYLAND_COMPOSITOR_QUICK
+
     SOURCES += \
         compositor_api/qwaylandquickcompositor.cpp \
         compositor_api/qwaylandquicksurface.cpp \

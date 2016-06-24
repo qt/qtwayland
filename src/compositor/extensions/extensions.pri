@@ -35,7 +35,7 @@ SOURCES += \
     extensions/qwaylandqtwindowmanager.cpp \
     extensions/qwaylandxdgshell.cpp \
 
-qtHaveModule(quick) {
+qtHaveModule(quick):contains(QT_CONFIG, opengl) {
     HEADERS += \
         extensions/qwaylandquickshellsurfaceitem.h \
         extensions/qwaylandquickshellsurfaceitem_p.h \

@@ -10,7 +10,7 @@ QMAKE_CXXFLAGS_WARN_ON -= -Wcast-qual
 CONFIG -= precompile_header
 CONFIG += link_pkgconfig qpa/genericunixfontdatabase wayland-scanner
 
-!equals(QT_WAYLAND_GL_CONFIG, nogl) {
+contains(QT_CONFIG, opengl) {
     DEFINES += QT_WAYLAND_GL_SUPPORT
 }
 

@@ -117,6 +117,7 @@ void *QWaylandNativeInterface::nativeResourceForScreen(const QByteArray &resourc
 
 void *QWaylandNativeInterface::nativeResourceForContext(const QByteArray &resource, QOpenGLContext *context)
 {
+#ifdef QT_WAYLAND_GL_SUPPORT
     QByteArray lowerCaseResource = resource.toLower();
 
     if (lowerCaseResource == "eglconfig" && m_integration->clientBufferIntegration())
@@ -127,6 +128,7 @@ void *QWaylandNativeInterface::nativeResourceForContext(const QByteArray &resour
 
     if (lowerCaseResource == "egldisplay" && m_integration->clientBufferIntegration())
         return m_integration->clientBufferIntegration()->nativeResourceForContext(QWaylandClientBufferIntegration::EglDisplay, context->handle());
+#endif
 
     return 0;
 }

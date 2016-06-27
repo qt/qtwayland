@@ -707,8 +707,7 @@ void QWaylandInputDevice::Keyboard::keyboard_key(uint32_t serial, uint32_t time,
 
     Qt::KeyboardModifiers modifiers = mParent->modifiers();
 
-    text = QWaylandXkb::textFromKeysym(sym, modifiers);
-    qtkey = QWaylandXkb::keysymToQtKey(sym, modifiers, text);
+    std::tie(qtkey, text) = QWaylandXkb::keysymToQtKey(sym, modifiers);
 
     sendKey(window->window(), time, type, qtkey, modifiers, code, sym, mNativeModifiers, text);
 #else

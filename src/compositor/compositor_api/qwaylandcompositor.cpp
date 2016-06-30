@@ -76,7 +76,7 @@
 #include <QtGui/qpa/qplatformnativeinterface.h>
 #include <QtGui/private/qguiapplication_p.h>
 
-#ifdef QT_COMPOSITOR_WAYLAND_GL
+#ifdef QT_WAYLAND_COMPOSITOR_GL
 #   include <QtGui/private/qopengltextureblitter_p.h>
 #   include <QOpenGLContext>
 #   include <QOpenGLFramebufferObject>
@@ -140,7 +140,7 @@ public:
 
 QWaylandCompositorPrivate::QWaylandCompositorPrivate(QWaylandCompositor *compositor)
     : display(0)
-#if defined (QT_COMPOSITOR_WAYLAND_GL)
+#if defined (QT_WAYLAND_COMPOSITOR_GL)
     , use_hw_integration_extension(true)
     , client_buffer_integration(0)
     , server_buffer_integration(0)
@@ -334,7 +334,7 @@ QWaylandSurface *QWaylandCompositorPrivate::createDefaultSurface()
 
 void QWaylandCompositorPrivate::initializeHardwareIntegration()
 {
-#ifdef QT_COMPOSITOR_WAYLAND_GL
+#ifdef QT_WAYLAND_COMPOSITOR_GL
     Q_Q(QWaylandCompositor);
     if (use_hw_integration_extension)
         hw_integration.reset(new QtWayland::HardwareIntegration(q));
@@ -359,7 +359,7 @@ void QWaylandCompositorPrivate::initializeDefaultInputDevice()
 
 void QWaylandCompositorPrivate::loadClientBufferIntegration()
 {
-#ifdef QT_COMPOSITOR_WAYLAND_GL
+#ifdef QT_WAYLAND_COMPOSITOR_GL
     Q_Q(QWaylandCompositor);
     QStringList keys = QtWayland::ClientBufferIntegrationFactory::keys();
     QString targetKey;
@@ -388,7 +388,7 @@ void QWaylandCompositorPrivate::loadClientBufferIntegration()
 
 void QWaylandCompositorPrivate::loadServerBufferIntegration()
 {
-#ifdef QT_COMPOSITOR_WAYLAND_GL
+#ifdef QT_WAYLAND_COMPOSITOR_GL
     QStringList keys = QtWayland::ServerBufferIntegrationFactory::keys();
     QString targetKey;
     QByteArray serverBufferIntegration = qgetenv("QT_WAYLAND_SERVER_BUFFER_INTEGRATION");
@@ -845,7 +845,7 @@ void QWaylandCompositor::grabSurface(QWaylandSurfaceGrabber *grabber, const QWay
     if (buffer.isShm()) {
         emit grabber->success(buffer.image());
     } else {
-#ifdef QT_COMPOSITOR_WAYLAND_GL
+#ifdef QT_WAYLAND_COMPOSITOR_GL
         if (QOpenGLContext::currentContext()) {
             QOpenGLFramebufferObject fbo(buffer.size());
             fbo.bind();

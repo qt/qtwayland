@@ -24,7 +24,7 @@ isEmpty(QT_WAYLAND_GL_CONFIG):QT_WAYLAND_GL_CONFIG = $$(QT_WAYLAND_GL_CONFIG)
         hardware_integration/qwlserverbufferintegrationplugin.cpp \
         hardware_integration/qwlhwintegration.cpp \
 
-    DEFINES += QT_COMPOSITOR_WAYLAND_GL
+    DEFINES += QT_WAYLAND_COMPOSITOR_GL
 } else {
     system(echo "Qt-Compositor configured as raster only compositor")
 }

@@ -241,7 +241,7 @@ QImage QWaylandBufferRef::image() const
     return d->buffer->image();
 }
 
-#ifdef QT_COMPOSITOR_WAYLAND_GL
+#ifdef QT_WAYLAND_COMPOSITOR_GL
 GLuint QWaylandBufferRef::textureForPlane(int plane) const
 {
     if (d->nullOrDestroyed())

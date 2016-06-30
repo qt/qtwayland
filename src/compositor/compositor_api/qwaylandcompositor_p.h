@@ -135,7 +135,7 @@ protected:
 
     QList<QWaylandClient *> clients;
 
-#ifdef QT_COMPOSITOR_WAYLAND_GL
+#ifdef QT_WAYLAND_COMPOSITOR_GL
     bool use_hw_integration_extension;
     QScopedPointer<QtWayland::HardwareIntegration> hw_integration;
     QScopedPointer<QtWayland::ClientBufferIntegration> client_buffer_integration;
@@ -154,7 +154,7 @@ protected:
 
 QtWayland::ClientBufferIntegration * QWaylandCompositorPrivate::clientBufferIntegration() const
 {
-#ifdef QT_COMPOSITOR_WAYLAND_GL
+#ifdef QT_WAYLAND_COMPOSITOR_GL
     return client_buffer_integration.data();
 #else
     return 0;
@@ -163,7 +163,7 @@ QtWayland::ClientBufferIntegration * QWaylandCompositorPrivate::clientBufferInte
 
 QtWayland::ServerBufferIntegration * QWaylandCompositorPrivate::serverBufferIntegration() const
 {
-#ifdef QT_COMPOSITOR_WAYLAND_GL
+#ifdef QT_WAYLAND_COMPOSITOR_GL
     return server_buffer_integration.data();
 #else
     return 0;

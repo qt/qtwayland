@@ -39,7 +39,7 @@
 
 #include <QImage>
 
-#ifdef QT_COMPOSITOR_WAYLAND_GL
+#ifdef QT_WAYLAND_COMPOSITOR_GL
 #include <QtGui/qopengl.h>
 #endif
 
@@ -96,7 +96,7 @@ public:
 
     bool isShm() const;
     QImage image() const;
-#ifdef QT_COMPOSITOR_WAYLAND_GL
+#ifdef QT_WAYLAND_COMPOSITOR_GL
     GLuint textureForPlane(int plane) const;
 #endif
 

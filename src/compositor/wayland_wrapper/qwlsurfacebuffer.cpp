@@ -36,7 +36,7 @@
 
 #include "qwlsurfacebuffer_p.h"
 
-#ifdef QT_COMPOSITOR_WAYLAND_GL
+#ifdef QT_WAYLAND_COMPOSITOR_GL
 #include "hardware_integration/qwlclientbufferintegration_p.h"
 #include <qpa/qplatformopenglcontext.h>
 #endif

@@ -156,31 +156,29 @@ void QWaylandDataDevice::data_device_enter(uint32_t serial, wl_surface *surface,
     m_dragWindow = QWaylandWindow::fromWlSurface(surface)->window();
     m_dragPoint = calculateDragPosition(x, y, m_dragWindow);
 
-    QDrag *drag = static_cast<QWaylandDrag *>(QGuiApplicationPrivate::platformIntegration()->drag())->currentDrag();
-
     QMimeData *dragData = Q_NULLPTR;
     Qt::DropActions supportedActions;
+
+    m_dragOffer.reset(static_cast<QWaylandDataOffer *>(wl_data_offer_get_user_data(id)));
+    QDrag *drag = static_cast<QWaylandDrag *>(QGuiApplicationPrivate::platformIntegration()->drag())->currentDrag();
     if (drag) {
         dragData = drag->mimeData();
         supportedActions = drag->supportedActions();
-    } else {
-        m_dragOffer.reset(static_cast<QWaylandDataOffer *>(wl_data_offer_get_user_data(id)));
-        if (m_dragOffer) {
-            dragData = m_dragOffer->mimeData();
-            supportedActions = Qt::CopyAction | Qt::MoveAction | Qt::LinkAction;
-        }
+    } else if (m_dragOffer) {
+        dragData = m_dragOffer->mimeData();
+        supportedActions = Qt::CopyAction | Qt::MoveAction | Qt::LinkAction;
     }
 
     const QPlatformDragQtResponse &response = QWindowSystemInterface::handleDrag(m_dragWindow, dragData, m_dragPoint, supportedActions);
 
     if (drag) {
         static_cast<QWaylandDrag *>(QGuiApplicationPrivate::platformIntegration()->drag())->setResponse(response);
+    }
+
+    if (response.isAccepted()) {
+        wl_data_offer_accept(m_dragOffer->object(), m_enterSerial, m_dragOffer->firstFormat().toUtf8().constData());
     } else {
-        if (response.isAccepted()) {
-            wl_data_offer_accept(m_dragOffer->object(), m_enterSerial, m_dragOffer->firstFormat().toUtf8().constData());
-        } else {
-            wl_data_offer_accept(m_dragOffer->object(), m_enterSerial, 0);
-        }
+        wl_data_offer_accept(m_dragOffer->object(), m_enterSerial, 0);
     }
 }
 
@@ -219,12 +217,12 @@ void QWaylandDataDevice::data_device_motion(uint32_t time, wl_fixed_t x, wl_fixe
 
     if (drag) {
         static_cast<QWaylandDrag *>(QGuiApplicationPrivate::platformIntegration()->drag())->setResponse(response);
+    }
+
+    if (response.isAccepted()) {
+        wl_data_offer_accept(m_dragOffer->object(), m_enterSerial, m_dragOffer->firstFormat().toUtf8().constData());
     } else {
-        if (response.isAccepted()) {
-            wl_data_offer_accept(m_dragOffer->object(), m_enterSerial, m_dragOffer->firstFormat().toUtf8().constData());
-        } else {
-            wl_data_offer_accept(m_dragOffer->object(), m_enterSerial, 0);
-        }
+        wl_data_offer_accept(m_dragOffer->object(), m_enterSerial, 0);
     }
 }
 

@@ -93,11 +93,10 @@ bool XdgShellIntegration::mouseMoveEvent(QMouseEvent *event)
 
 bool XdgShellIntegration::mouseReleaseEvent(QMouseEvent *event)
 {
+    Q_UNUSED(event);
+
     if (grabberState == GrabberState::Resize) {
-        float scaleFactor = m_item->view()->output()->scaleFactor();
-        QPointF delta = (event->windowPos() - resizeState.initialMousePos) / scaleFactor;
-        QSize newSize = m_xdgSurface->sizeForResize(resizeState.initialWindowSize, delta, resizeState.resizeEdges);
-        m_xdgSurface->sendUnMaximized(newSize);
+        m_xdgSurface->sendUnMaximized();
         grabberState = GrabberState::Default;
         return true;
     } else if (grabberState == GrabberState::Move) {

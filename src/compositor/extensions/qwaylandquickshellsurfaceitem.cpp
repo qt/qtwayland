@@ -192,13 +192,19 @@ QWaylandQuickShellEventFilter::QWaylandQuickShellEventFilter(QObject *parent)
 bool QWaylandQuickShellEventFilter::eventFilter(QObject *receiver, QEvent *e)
 {
     if (e->type() == QEvent::MouseButtonPress || e->type() == QEvent::MouseButtonRelease) {
+        bool press = e->type() == QEvent::MouseButtonPress;
+        if (press && !waitForRelease) {
+            // The user clicked something: we need to close popups unless this press is caught later
+            if (!mousePressTimeout.isActive())
+                mousePressTimeout.start(0, this);
+        }
+
         QQuickItem *item = qobject_cast<QQuickItem*>(receiver);
         if (!item)
             return false;
 
         QMouseEvent *event = static_cast<QMouseEvent*>(e);
         QWaylandQuickShellSurfaceItem *shellSurfaceItem = qobject_cast<QWaylandQuickShellSurfaceItem*>(item);
-        bool press = event->type() == QEvent::MouseButtonPress;
         bool finalRelease = (event->type() == QEvent::MouseButtonRelease) && (event->buttons() == Qt::NoButton);
         bool popupClient = shellSurfaceItem && shellSurfaceItem->surface()->client() == client;
 
@@ -211,6 +217,21 @@ bool QWaylandQuickShellEventFilter::eventFilter(QObject *receiver, QEvent *e)
             return true;
         }
 
+        if (finalRelease && mousePressTimeout.isActive()) {
+            // the user somehow managed to press and release the mouse button in 0 milliseconds
+            qWarning("Badly written autotest detected");
+            mousePressTimeout.stop();
+            stopFilter();
+        }
+
+        if (press && !shellSurfaceItem && !QQmlProperty(item, QStringLiteral("qtwayland_blocking_overlay")).isValid()) {
+            // the user clicked on something that's not blocking mouse events
+            e->ignore(); //propagate the event to items below
+            return true; // don't give the event to the item
+        }
+
+        mousePressTimeout.stop(); // we've got this
+
         if (press && !popupClient) {
             // The user clicked outside the active popup's client. The popups should
             // be closed, but the event filter will stay to catch the release-
@@ -222,6 +243,17 @@ bool QWaylandQuickShellEventFilter::eventFilter(QObject *receiver, QEvent *e)
     }
 
     return false;
+}
+
+void QWaylandQuickShellEventFilter::timerEvent(QTimerEvent *event)
+{
+    if (event->timerId() == mousePressTimeout.timerId()) {
+        mousePressTimeout.stop();
+        closePopups();
+        stopFilter();
+        // Don't wait for release: Since the press wasn't accepted,
+        // the release won't be delivered.
+    }
 }
 
 QT_END_NAMESPACE

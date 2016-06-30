@@ -110,16 +110,16 @@ public:
     ~QWaylandWindow();
 
     virtual WindowType windowType() const = 0;
-    WId winId() const;
-    void setVisible(bool visible);
-    void setParent(const QPlatformWindow *parent);
+    WId winId() const Q_DECL_OVERRIDE;
+    void setVisible(bool visible) Q_DECL_OVERRIDE;
+    void setParent(const QPlatformWindow *parent) Q_DECL_OVERRIDE;
 
-    void setWindowTitle(const QString &title);
+    void setWindowTitle(const QString &title) Q_DECL_OVERRIDE;
 
     inline QIcon windowIcon() const;
-    void setWindowIcon(const QIcon &icon);
+    void setWindowIcon(const QIcon &icon) Q_DECL_OVERRIDE;
 
-    void setGeometry(const QRect &rect);
+    void setGeometry(const QRect &rect) Q_DECL_OVERRIDE;
 
     void configure(uint32_t edges, int32_t width, int32_t height);
 
@@ -133,7 +133,7 @@ public:
 
     void waitForFrameSync();
 
-    QMargins frameMargins() const;
+    QMargins frameMargins() const Q_DECL_OVERRIDE;
 
     static QWaylandWindow *fromWlSurface(::wl_surface *surface);
 
@@ -142,11 +142,11 @@ public:
     QWaylandSubSurface *subSurfaceWindow() const;
     QWaylandScreen *screen() const { return mScreen; }
 
-    void handleContentOrientationChange(Qt::ScreenOrientation orientation);
+    void handleContentOrientationChange(Qt::ScreenOrientation orientation) Q_DECL_OVERRIDE;
     void setOrientationMask(Qt::ScreenOrientations mask);
 
-    void setWindowState(Qt::WindowState state);
-    void setWindowFlags(Qt::WindowFlags flags);
+    void setWindowState(Qt::WindowState state) Q_DECL_OVERRIDE;
+    void setWindowFlags(Qt::WindowFlags flags) Q_DECL_OVERRIDE;
 
     void raise() Q_DECL_OVERRIDE;
     void lower() Q_DECL_OVERRIDE;
@@ -182,7 +182,7 @@ public:
     void doResize();
     void setCanResize(bool canResize);
 
-    bool setMouseGrabEnabled(bool grab);
+    bool setMouseGrabEnabled(bool grab) Q_DECL_OVERRIDE;
     static QWaylandWindow *mouseGrab() { return mMouseGrab; }
 
     void sendProperty(const QString &name, const QVariant &value);

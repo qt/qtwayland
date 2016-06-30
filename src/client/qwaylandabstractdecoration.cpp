@@ -110,7 +110,10 @@ const QImage &QWaylandAbstractDecoration::contentImage()
     if (d->m_isDirty) {
         //Update the decoration backingstore
 
-        d->m_decorationContentImage = QImage(window()->frameGeometry().size(), QImage::Format_ARGB32_Premultiplied);
+        const int scale = waylandWindow()->scale();
+        const QSize imageSize = window()->frameGeometry().size() * scale;
+        d->m_decorationContentImage = QImage(imageSize, QImage::Format_ARGB32_Premultiplied);
+        d->m_decorationContentImage.setDevicePixelRatio(scale);
         d->m_decorationContentImage.fill(Qt::transparent);
         this->paint(&d->m_decorationContentImage);
 

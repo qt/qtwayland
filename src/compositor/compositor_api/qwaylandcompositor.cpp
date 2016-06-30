@@ -410,7 +410,7 @@ void QWaylandCompositorPrivate::loadServerBufferIntegration()
   \brief Type managing the Wayland display server.
 
   The WaylandCompositor manages the connections to the clients, as well as the different
-  \l{WaylandOutput}{outputs} and \l{WaylandInput}{input devices}.
+  \l{WaylandOutput}{outputs} and \l{QWaylandInputDevice}{input devices}.
 
   Normally, a compositor application will have a single WaylandCompositor
   instance, which can have several outputs as children. When a client
@@ -429,7 +429,7 @@ void QWaylandCompositorPrivate::loadServerBufferIntegration()
    \brief Class managing the Wayland display server.
 
    The QWaylandCompositor manages the connections to the clients, as well as the different \l{QWaylandOutput}{outputs}
-   and \l{QWaylandInput}{input devices}.
+   and \l{QWaylandInputDevice}{input devices}.
 
    Normally, a compositor application will have a single WaylandCompositor
    instance, which can have several outputs as children.

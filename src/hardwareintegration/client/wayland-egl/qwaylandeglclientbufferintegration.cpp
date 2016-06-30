@@ -45,6 +45,15 @@
 #include <wayland-client.h>
 
 #include <QtCore/QDebug>
+#include <private/qeglconvenience_p.h>
+
+#ifndef EGL_EXT_platform_base
+typedef EGLDisplay (*PFNEGLGETPLATFORMDISPLAYEXTPROC) (EGLenum platform, void *native_display, const EGLint *attrib_list);
+#endif
+
+#ifndef EGL_PLATFORM_WAYLAND_KHR
+#define EGL_PLATFORM_WAYLAND_KHR 0x31D8
+#endif
 
 QT_BEGIN_NAMESPACE
 
@@ -70,20 +79,37 @@ QWaylandEglClientBufferIntegration::~QWaylandEglClientBufferIntegration()
 
 void QWaylandEglClientBufferIntegration::initialize(QWaylandDisplay *display)
 {
-    QByteArray eglPlatform = qgetenv("EGL_PLATFORM");
-    if (eglPlatform.isEmpty()) {
-        setenv("EGL_PLATFORM","wayland",true);
+    if (q_hasEglExtension(EGL_NO_DISPLAY, "EGL_EXT_platform_base")) {
+        if (q_hasEglExtension(EGL_NO_DISPLAY, "EGL_KHR_platform_wayland") ||
+            q_hasEglExtension(EGL_NO_DISPLAY, "EGL_EXT_platform_wayland") ||
+            q_hasEglExtension(EGL_NO_DISPLAY, "EGL_MESA_platform_wayland")) {
+
+            static PFNEGLGETPLATFORMDISPLAYEXTPROC eglGetPlatformDisplay = nullptr;
+            if (!eglGetPlatformDisplay)
+                eglGetPlatformDisplay = (PFNEGLGETPLATFORMDISPLAYEXTPROC)eglGetProcAddress("eglGetPlatformDisplayEXT");
+
+            m_eglDisplay = eglGetPlatformDisplay(EGL_PLATFORM_WAYLAND_KHR, display->wl_display(), nullptr);
+        } else {
+            qWarning("The EGL implementation does not support the Wayland platform");
+            return;
+        }
+    } else {
+        QByteArray eglPlatform = qgetenv("EGL_PLATFORM");
+        if (eglPlatform.isEmpty()) {
+            setenv("EGL_PLATFORM","wayland",true);
+        }
+
+        m_eglDisplay = eglGetDisplay((EGLNativeDisplayType) display->wl_display());
     }
 
     m_display = display;
 
-    EGLint major,minor;
-    m_eglDisplay = eglGetDisplay((EGLNativeDisplayType) display->wl_display());
     if (m_eglDisplay == EGL_NO_DISPLAY) {
         qWarning("EGL not available");
         return;
     }
 
+    EGLint major,minor;
     if (!eglInitialize(m_eglDisplay, &major, &minor)) {
         qWarning("failed to initialize EGL display");
         m_eglDisplay = EGL_NO_DISPLAY;

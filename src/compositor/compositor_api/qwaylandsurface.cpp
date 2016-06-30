@@ -543,7 +543,7 @@ int QWaylandSurface::bufferScale() const
  *
  * This property holds the orientation of the WaylandSurface's contents.
  *
- * \sa QtWaylandCompositor::WaylandOutput::transform
+ * \sa QWaylandOutput::transform
  */
 
 /*!

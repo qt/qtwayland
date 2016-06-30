@@ -38,6 +38,7 @@
 #define QWAYLANDQUICKSHELLSURFACEITEM_P_H
 
 #include <QtWaylandCompositor/private/qwaylandquickitem_p.h>
+#include <QtCore/QBasicTimer>
 
 #include <functional>
 
@@ -88,6 +89,9 @@ public:
     static void startFilter(QWaylandClient *client, CallbackFunction closePopupCallback);
     static void cancelFilter();
 
+protected:
+    void timerEvent(QTimerEvent *event) Q_DECL_OVERRIDE;
+
 private:
     void stopFilter();
 
@@ -97,6 +101,7 @@ private:
     bool waitForRelease;
     QPointer<QWaylandClient> client;
     CallbackFunction closePopups;
+    QBasicTimer mousePressTimeout;
     static QWaylandQuickShellEventFilter *self;
 };
 

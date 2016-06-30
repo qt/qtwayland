@@ -360,10 +360,8 @@ void WaylandEglClientBufferIntegrationPrivate::handle_buffer_destroy(wl_listener
 
     BufferState state = self->buffers.take(buffer);
 
-    /* TODO This texture shouldn't get deleted here as the compositor might want to show an transition. But at the same time we need to make sure
-            that the texture is deleted properly although if the compositor didn't use it (e.g. by creating a quick item)*/
-    if (state.eglstream_texture)
-        glDeleteTextures(1, &state.eglstream_texture);
+    // We would need to delete the texture of the egl_stream here, but we can't as this breaks the
+    // texture of the new stream when the window is resized. It seems wayland takes care to delete the texture for us.
 
     for (int i = 0; i < state.egl_images.size(); i++)
         self->egl_destroy_image(self->egl_display, state.egl_images[i]);

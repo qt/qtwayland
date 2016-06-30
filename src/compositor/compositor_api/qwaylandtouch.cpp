@@ -60,6 +60,11 @@ void QWaylandTouchPrivate::resetFocusState()
     focusResource = 0;
 }
 
+void QWaylandTouchPrivate::touch_bind_resource(Resource *resource)
+{
+    focusResource = resource;
+}
+
 void QWaylandTouchPrivate::touch_destroy_resource(Resource *resource)
 {
     if (focusResource == resource) {
@@ -75,7 +80,7 @@ void QWaylandTouchPrivate::touch_release(Resource *resource)
 void QWaylandTouchPrivate::sendDown(uint32_t time, int touch_id, const QPointF &position)
 {
     Q_Q(QWaylandTouch);
-    if (focusResource || q->mouseFocus())
+    if (!focusResource || !q->mouseFocus())
         return;
 
     uint32_t serial = q->compositor()->nextSerial();
@@ -86,7 +91,7 @@ void QWaylandTouchPrivate::sendDown(uint32_t time, int touch_id, const QPointF &
 
 void QWaylandTouchPrivate::sendUp(uint32_t time, int touch_id)
 {
-    if (focusResource)
+    if (!focusResource)
         return;
 
     uint32_t serial = compositor()->nextSerial();

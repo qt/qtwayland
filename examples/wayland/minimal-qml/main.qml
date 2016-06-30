@@ -51,14 +51,10 @@ WaylandCompositor {
             width: 1024
             height: 768
             visible: true
-            WaylandMouseTracker {
+            Rectangle {
+                id: surfaceArea
+                color: "#1337af"
                 anchors.fill: parent
-                enableWSCursor: true
-                Rectangle {
-                    id: surfaceArea
-                    color: "#1337af"
-                    anchors.fill: parent
-                }
             }
         }
     }

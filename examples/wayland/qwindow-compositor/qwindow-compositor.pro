@@ -3,12 +3,12 @@ QT += gui gui-private core-private waylandcompositor waylandcompositor-private
 LIBS += -L ../../lib
 
 HEADERS += \
-    compositorwindow.h \
-    windowcompositor.h
+    window.h \
+    compositor.h
 
 SOURCES += main.cpp \
-    compositorwindow.cpp \
-    windowcompositor.cpp
+    window.cpp \
+    compositor.cpp
 
 # to make QtWaylandCompositor/... style includes working without installing
 INCLUDEPATH += $$PWD/../../include

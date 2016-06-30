@@ -54,31 +54,31 @@ class QWaylandWlShell;
 class QWaylandWlShellSurface;
 class QWaylandXdgShell;
 
-class WindowCompositorView : public QWaylandView
+class View : public QWaylandView
 {
     Q_OBJECT
 public:
-    WindowCompositorView();
+    View();
     GLuint getTexture(GLenum *target = 0);
     QPointF position() const { return m_position; }
     void setPosition(const QPointF &pos) { m_position = pos; }
     bool isCursor() const;
     bool hasShell() const { return m_wlShellSurface; }
-    void setParentView(WindowCompositorView *parent) { m_parentView = parent; }
-    WindowCompositorView *parentView() const { return m_parentView; }
+    void setParentView(View *parent) { m_parentView = parent; }
+    View *parentView() const { return m_parentView; }
     QPointF parentPosition() const { return m_parentView ? (m_parentView->position() + m_parentView->parentPosition()) : QPointF(); }
     QSize windowSize() { return m_xdgSurface ? m_xdgSurface->windowGeometry().size() : surface()->size(); }
     QPoint offset() const { return m_offset; }
 
 private:
-    friend class WindowCompositor;
+    friend class Compositor;
     GLenum m_textureTarget;
     GLuint m_texture;
     QPointF m_position;
     QWaylandWlShellSurface *m_wlShellSurface;
     QWaylandXdgSurface *m_xdgSurface;
     QWaylandXdgPopup *m_xdgPopup;
-    WindowCompositorView *m_parentView;
+    View *m_parentView;
     QPoint m_offset;
 
 public slots:
@@ -89,23 +89,23 @@ public slots:
     void onOffsetForNextFrame(const QPoint &offset);
 };
 
-class WindowCompositor : public QWaylandCompositor
+class Compositor : public QWaylandCompositor
 {
     Q_OBJECT
 public:
-    WindowCompositor(QWindow *window);
-    ~WindowCompositor();
+    Compositor(QWindow *window);
+    ~Compositor();
     void create() Q_DECL_OVERRIDE;
 
     void startRender();
     void endRender();
 
-    QList<WindowCompositorView*> views() const { return m_views; }
-    void raise(WindowCompositorView *view);
+    QList<View*> views() const { return m_views; }
+    void raise(View *view);
 
     void handleMouseEvent(QWaylandView *target, QMouseEvent *me);
-    void handleResize(WindowCompositorView *target, const QSize &initialSize, const QPoint &delta, int edge);
-    void handleDrag(WindowCompositorView *target, QMouseEvent *me);
+    void handleResize(View *target, const QSize &initialSize, const QPoint &delta, int edge);
+    void handleDrag(View *target, QMouseEvent *me);
 
     bool popupActive() const { return !m_popupViews.isEmpty(); }
     void closePopups();
@@ -115,7 +115,7 @@ protected:
 signals:
     void startMove();
     void startResize(int edge, bool anchored);
-    void dragStarted(WindowCompositorView *dragIcon);
+    void dragStarted(View *dragIcon);
     void frameOffset(const QPoint &offset);
 
 private slots:
@@ -143,10 +143,10 @@ private slots:
 
     void updateCursor();
 private:
-    WindowCompositorView *findView(const QWaylandSurface *s) const;
+    View *findView(const QWaylandSurface *s) const;
     QWindow *m_window;
-    QList<WindowCompositorView*> m_views;
-    QList<WindowCompositorView*> m_popupViews;
+    QList<View*> m_views;
+    QList<View*> m_popupViews;
     QWaylandWlShell *m_wlShell;
     QWaylandXdgShell *m_xdgShell;
     QWaylandView m_cursorView;

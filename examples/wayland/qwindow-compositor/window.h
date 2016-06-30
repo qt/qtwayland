@@ -47,16 +47,16 @@
 
 QT_BEGIN_NAMESPACE
 
-class WindowCompositor;
-class WindowCompositorView;
+class Compositor;
+class View;
 class QOpenGLTexture;
 
-class CompositorWindow : public QOpenGLWindow
+class Window : public QOpenGLWindow
 {
 public:
-    CompositorWindow();
+    Window();
 
-    void setCompositor(WindowCompositor *comp);
+    void setCompositor(Compositor *comp);
 
 protected:
     void initializeGL() Q_DECL_OVERRIDE;
@@ -72,23 +72,23 @@ protected:
 private slots:
     void startMove();
     void startResize(int edge, bool anchored);
-    void startDrag(WindowCompositorView *dragIcon);
+    void startDrag(View *dragIcon);
 
 private:
     enum GrabState { NoGrab, MoveGrab, ResizeGrab, DragGrab };
 
-    WindowCompositorView *viewAt(const QPointF &point);
+    View *viewAt(const QPointF &point);
     bool mouseGrab() const { return m_grabState != NoGrab ;}
     void drawBackground();
-    void sendMouseEvent(QMouseEvent *e, WindowCompositorView *target);
+    void sendMouseEvent(QMouseEvent *e, View *target);
     static QPointF getAnchoredPosition(const QPointF &anchorPosition, int resizeEdge, const QSize &windowSize);
     static QPointF getAnchorPosition(const QPointF &position, int resizeEdge, const QSize &windowSize);
 
     QOpenGLTextureBlitter m_textureBlitter;
     QSize m_backgroundImageSize;
     QOpenGLTexture *m_backgroundTexture;
-    WindowCompositor *m_compositor;
-    QPointer<WindowCompositorView> m_mouseView;
+    Compositor *m_compositor;
+    QPointer<View> m_mouseView;
     GrabState m_grabState;
     QSize m_initialSize;
     int m_resizeEdge;
@@ -96,7 +96,7 @@ private:
     QPointF m_resizeAnchorPosition;
     QPointF m_mouseOffset;
     QPointF m_initialMousePos;
-    WindowCompositorView *m_dragIconView;
+    View *m_dragIconView;
 };
 
 QT_END_NAMESPACE

@@ -81,16 +81,14 @@ WaylandCompositor {
         }
     }
 
-    extensions: [
-        WlShell {
-            id: defaultShell
+    WlShell {
+        id: defaultShell
 
-            onShellSurfaceCreated: {
-                var item = chromeComponent.createObject(defaultOutput.surfaceArea, { "shellSurface": shellSurface } );
-                item.surface.activated.connect(item.raise);
-            }
+        onShellSurfaceCreated: {
+            var item = chromeComponent.createObject(defaultOutput.surfaceArea, { "shellSurface": shellSurface } );
+            item.surface.activated.connect(item.raise);
         }
-    ]
+    }
 
     onCreateSurface: {
         var surface = surfaceComponent.createObject(comp, { } );

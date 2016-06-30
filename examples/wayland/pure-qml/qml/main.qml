@@ -62,34 +62,34 @@ WaylandCompositor {
         }
     }
 
-    extensions: [
-        QtWindowManager {
-            id: qtWindowManager
-            onShowIsFullScreenChanged: console.debug("Show is fullscreen hint for Qt applications:", showIsFullScreen)
-        },
-        WlShell {
-            onShellSurfaceCreated: {
-                chromeComponent.createObject(defaultOutput.surfaceArea, { "shellSurface": shellSurface } );
-            }
-        },
-        XdgShell {
-            property variant viewsBySurface: ({})
-            onXdgSurfaceCreated: {
-                var item = chromeComponent.createObject(defaultOutput.surfaceArea, { "shellSurface": xdgSurface } );
-                viewsBySurface[xdgSurface.surface] = item;
-            }
-            onXdgPopupCreated: {
-                var parentView = viewsBySurface[xdgPopup.parentSurface];
-                chromeComponent.createObject(parentView, { "shellSurface": xdgPopup } );
-            }
-        },
-        TextInputManager {
+    QtWindowManager {
+        id: qtWindowManager
+        onShowIsFullScreenChanged: console.debug("Show is fullscreen hint for Qt applications:", showIsFullScreen)
+    }
+
+    WlShell {
+        onShellSurfaceCreated: {
+            chromeComponent.createObject(defaultOutput.surfaceArea, { "shellSurface": shellSurface } );
         }
-    ]
+    }
+
+    XdgShell {
+        property variant viewsBySurface: ({})
+        onXdgSurfaceCreated: {
+            var item = chromeComponent.createObject(defaultOutput.surfaceArea, { "shellSurface": xdgSurface } );
+            viewsBySurface[xdgSurface.surface] = item;
+        }
+        onXdgPopupCreated: {
+            var parentView = viewsBySurface[xdgPopup.parentSurface];
+            chromeComponent.createObject(parentView, { "shellSurface": xdgPopup } );
+        }
+    }
+
+    TextInputManager {
+    }
 
     onCreateSurface: {
         var surface = surfaceComponent.createObject(comp, { } );
         surface.initialize(comp, client, id, version);
-
     }
 }

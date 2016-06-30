@@ -74,22 +74,18 @@ WaylandCompositor {
         }
     }
 
-    extensions: [
-        WlShell {
-            id: defaultShell
-
-            onShellSurfaceCreated: {
-                var item = chromeComponent.createObject(defaultOutput.surfaceArea, { "shellSurface": shellSurface } );
-                lastItem = item;
-            }
-        },
-        CustomExtension {
-            id: custom
-            onRequestReceived: {
-                console.log("Compositor received a request: \"" + text + "\", " + value)
-            }
+    WlShell {
+        id: defaultShell
+        onShellSurfaceCreated: {
+            var item = chromeComponent.createObject(defaultOutput.surfaceArea, { "shellSurface": shellSurface } );
+            lastItem = item;
         }
+    }
 
-    ]
-
+    CustomExtension {
+        id: custom
+        onRequestReceived: {
+            console.log("Compositor received a request: \"" + text + "\", " + value)
+        }
+    }
 }

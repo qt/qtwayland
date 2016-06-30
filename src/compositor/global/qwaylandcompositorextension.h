@@ -52,6 +52,7 @@ class QWaylandCompositorExtensionPrivate;
 
 class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandObject : public QObject
 {
+    Q_OBJECT
 public:
     virtual ~QWaylandObject();
 

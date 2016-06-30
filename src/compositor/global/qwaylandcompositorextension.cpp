@@ -96,6 +96,12 @@ void QWaylandCompositorExtension::initialize()
         return;
     }
 
+    if (!d->extension_container && parent()) {
+        QWaylandObject *parentObj = qobject_cast<QWaylandObject*>(parent());
+        if (parentObj)
+            setExtensionContainer(parentObj);
+    }
+
     if (!d->extension_container) {
         qWarning() << "QWaylandCompositorExtension:" << extensionInterface()->name << "requests to initialize with no extension container set";
         return;

@@ -656,7 +656,6 @@ void QWaylandInputDevice::Keyboard::focusCallback(void *data, struct wl_callback
         self->mFocusCallback = 0;
     }
 
-    self->mParent->mQDisplay->setLastKeyboardFocusInputDevice(self->mFocus ? self->mParent : 0);
     QWindowSystemInterface::handleWindowActivated(self->mFocus ? self->mFocus->window() : 0);
 }
 

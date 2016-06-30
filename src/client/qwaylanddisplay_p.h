@@ -140,9 +140,6 @@ public:
     QWaylandInputDevice *defaultInputDevice() const;
     QWaylandInputDevice *currentInputDevice() const { return defaultInputDevice(); }
 
-    QWaylandInputDevice *lastKeyboardFocusInputDevice() const;
-    void setLastKeyboardFocusInputDevice(QWaylandInputDevice *device);
-
     QWaylandDataDeviceManager *dndSelectionHandler() const { return mDndSelectionHandler.data(); }
 
     QtWayland::qt_surface_extension *windowExtension() const { return mWindowExtension.data(); }
@@ -200,7 +197,6 @@ private:
     QList<QWaylandInputDevice *> mInputDevices;
     QList<Listener> mRegistryListeners;
     QWaylandIntegration *mWaylandIntegration;
-    QWaylandInputDevice *mLastKeyboardFocusInputDevice;
     QScopedPointer<QWaylandDataDeviceManager> mDndSelectionHandler;
     QScopedPointer<QtWayland::qt_surface_extension> mWindowExtension;
     QScopedPointer<QtWayland::wl_subcompositor> mSubCompositor;

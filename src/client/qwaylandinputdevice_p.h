@@ -234,7 +234,7 @@ public:
 
     void pointer_enter(uint32_t serial, struct wl_surface *surface,
                        wl_fixed_t sx, wl_fixed_t sy) Q_DECL_OVERRIDE;
-    void pointer_leave(uint32_t time, struct wl_surface *surface);
+    void pointer_leave(uint32_t time, struct wl_surface *surface) Q_DECL_OVERRIDE;
     void pointer_motion(uint32_t time,
                         wl_fixed_t sx, wl_fixed_t sy) Q_DECL_OVERRIDE;
     void pointer_button(uint32_t serial, uint32_t time,

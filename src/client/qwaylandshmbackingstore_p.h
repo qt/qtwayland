@@ -72,7 +72,7 @@ public:
     QWaylandShmBuffer(QWaylandDisplay *display,
            const QSize &size, QImage::Format format, int scale = 1);
     ~QWaylandShmBuffer();
-    QSize size() const { return mImage.size(); }
+    QSize size() const Q_DECL_OVERRIDE { return mImage.size(); }
     int scale() const Q_DECL_OVERRIDE { return int(mImage.devicePixelRatio()); }
     QImage *image() { return &mImage; }
 
@@ -91,11 +91,11 @@ public:
     ~QWaylandShmBackingStore();
 
     QPaintDevice *paintDevice();
-    void flush(QWindow *window, const QRegion &region, const QPoint &offset);
-    void resize(const QSize &size, const QRegion &staticContents);
+    void flush(QWindow *window, const QRegion &region, const QPoint &offset) Q_DECL_OVERRIDE;
+    void resize(const QSize &size, const QRegion &staticContents) Q_DECL_OVERRIDE;
     void resize(const QSize &size);
-    void beginPaint(const QRegion &);
-    void endPaint();
+    void beginPaint(const QRegion &) Q_DECL_OVERRIDE;
+    void endPaint() Q_DECL_OVERRIDE;
     void hidden();
 
     QWaylandAbstractDecoration *windowDecoration() const;

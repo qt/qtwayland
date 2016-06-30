@@ -77,10 +77,10 @@ public:
     explicit QWaylandWindowManagerIntegration(QWaylandDisplay *waylandDisplay);
     virtual ~QWaylandWindowManagerIntegration();
 
-    QByteArray desktopEnvironment() const;
+    QByteArray desktopEnvironment() const Q_DECL_OVERRIDE;
 
-    bool openUrl(const QUrl &url);
-    bool openDocument(const QUrl &url);
+    bool openUrl(const QUrl &url) Q_DECL_OVERRIDE;
+    bool openDocument(const QUrl &url) Q_DECL_OVERRIDE;
 
     bool showIsFullScreen() const;
 

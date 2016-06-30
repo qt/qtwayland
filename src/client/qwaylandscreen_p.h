@@ -72,25 +72,25 @@ public:
     void init();
     QWaylandDisplay *display() const;
 
-    QRect geometry() const;
-    int depth() const;
-    QImage::Format format() const;
+    QRect geometry() const Q_DECL_OVERRIDE;
+    int depth() const Q_DECL_OVERRIDE;
+    QImage::Format format() const Q_DECL_OVERRIDE;
 
     QSizeF physicalSize() const Q_DECL_OVERRIDE;
 
     QDpi logicalDpi() const Q_DECL_OVERRIDE;
     QList<QPlatformScreen *> virtualSiblings() const Q_DECL_OVERRIDE;
 
-    void setOrientationUpdateMask(Qt::ScreenOrientations mask);
+    void setOrientationUpdateMask(Qt::ScreenOrientations mask) Q_DECL_OVERRIDE;
 
-    Qt::ScreenOrientation orientation() const;
+    Qt::ScreenOrientation orientation() const Q_DECL_OVERRIDE;
     int scale() const;
     qreal devicePixelRatio() const Q_DECL_OVERRIDE;
-    qreal refreshRate() const;
+    qreal refreshRate() const Q_DECL_OVERRIDE;
 
-    QString name() const { return mOutputName; }
+    QString name() const Q_DECL_OVERRIDE { return mOutputName; }
 
-    QPlatformCursor *cursor() const;
+    QPlatformCursor *cursor() const Q_DECL_OVERRIDE;
     QWaylandCursor *waylandCursor() const { return mWaylandCursor; };
 
     uint32_t outputId() const { return m_outputId; }

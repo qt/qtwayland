@@ -144,7 +144,7 @@ void QWaylandView::setSurface(QWaylandSurface *newSurface)
 
     d->surface = newSurface;
 
-    if (!d->bufferLock) {
+    if (!d->bufferLocked) {
         d->currentBuffer = QWaylandBufferRef();
         d->currentDamage = QRegion();
     }
@@ -231,7 +231,7 @@ bool QWaylandView::advance()
     if (d->currentBuffer == d->nextBuffer && !d->forceAdvanceSucceed)
         return false;
 
-    if (d->bufferLock)
+    if (d->bufferLocked)
         return false;
 
     if (d->surface && d->surface->throttlingView() == this) {
@@ -280,7 +280,7 @@ QRegion QWaylandView::currentDamage()
 }
 
 /*!
- * \qmlproperty bool QtWaylandCompositor::WaylandView::bufferLock
+ * \qmlproperty bool QtWaylandCompositor::WaylandView::bufferLocked
  *
  * This property holds whether the view's buffer is currently locked. When
  * the buffer is locked, advance() will not advance to the next buffer,
@@ -290,7 +290,7 @@ QRegion QWaylandView::currentDamage()
  */
 
 /*!
- * \property QWaylandView::bufferLock
+ * \property QWaylandView::bufferLocked
  *
  * This property holds whether the view's buffer is currently locked. When
  * the buffer is locked, advance() will not advance to the next buffer,
@@ -301,13 +301,13 @@ QRegion QWaylandView::currentDamage()
 bool QWaylandView::isBufferLocked() const
 {
     Q_D(const QWaylandView);
-    return d->bufferLock;
+    return d->bufferLocked;
 }
 
-void QWaylandView::setBufferLock(bool locked)
+void QWaylandView::setBufferLocked(bool locked)
 {
     Q_D(QWaylandView);
-    d->bufferLock = locked;
+    d->bufferLocked = locked;
 }
 
 /*!

@@ -379,7 +379,7 @@ Module {
         Property { name: "renderObject"; type: "QObject"; isReadonly: true; isPointer: true }
         Property { name: "surface"; type: "QWaylandSurface"; isPointer: true }
         Property { name: "output"; type: "QWaylandOutput"; isPointer: true }
-        Property { name: "bufferLock"; type: "bool" }
+        Property { name: "bufferLocked"; type: "bool" }
         Property { name: "discardFrontBuffers"; type: "bool" }
         Signal { name: "surfaceDestroyed" }
     }

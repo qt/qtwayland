@@ -45,7 +45,7 @@ ShellSurfaceItem {
     id: rootChrome
 
     onSurfaceDestroyed: {
-        view.bufferLock = true;
+        view.bufferLocked = true;
         destroyAnimation.start();
     }
 

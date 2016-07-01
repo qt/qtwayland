@@ -23,7 +23,7 @@ INCLUDEPATH += ../shared
 
 HEADERS += ../shared/qwaylandmimehelper_p.h \
            ../shared/qwaylandinputmethodeventbuilder_p.h \
-           ../shared/qwaylandshmformathelper_p.h
+           ../shared/qwaylandsharedmemoryformathelper_p.h
 
 SOURCES += ../shared/qwaylandmimehelper.cpp \
            ../shared/qwaylandinputmethodeventbuilder.cpp

@@ -44,7 +44,7 @@
 #include <QtCore/QDebug>
 
 #include <wayland-server-protocol.h>
-#include "qwaylandshmformathelper_p.h"
+#include "qwaylandsharedmemoryformathelper_p.h"
 
 #include <QtWaylandCompositor/private/qwaylandcompositor_p.h>
 
@@ -176,7 +176,7 @@ QSize SurfaceBuffer::size() const
 
 QWaylandSurface::Origin SurfaceBuffer::origin() const
 {
-    if (isShm()) {
+    if (isSharedMemory()) {
         return QWaylandSurface::OriginTopLeft;
     }
 
@@ -201,7 +201,7 @@ QImage SurfaceBuffer::image() const
 
 QWaylandBufferRef::BufferFormatEgl SurfaceBuffer::bufferFormatEgl() const
 {
-    Q_ASSERT(isShm() == false);
+    Q_ASSERT(isSharedMemory() == false);
 
     if (QtWayland::ClientBufferIntegration *clientInt = QWaylandCompositorPrivate::get(m_compositor)->clientBufferIntegration())
         return clientInt->bufferFormat(m_buffer);
@@ -212,7 +212,7 @@ QWaylandBufferRef::BufferFormatEgl SurfaceBuffer::bufferFormatEgl() const
 void SurfaceBuffer::bindToTexture() const
 {
     Q_ASSERT(m_compositor);
-    if (isShm()) {
+    if (isSharedMemory()) {
         QImage image = this->image();
         if (image.hasAlphaChannel()) {
             if (image.format() != QImage::Format_RGBA8888) {

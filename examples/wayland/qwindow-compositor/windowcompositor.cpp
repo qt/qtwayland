@@ -72,7 +72,7 @@ GLuint WindowCompositorView::getTexture(GLenum *target)
     if (streamingTexture)
         m_texture = streamingTexture;
 
-    if (!buf.isShm() && buf.bufferFormatEgl() == QWaylandBufferRef::BufferFormatEgl_EXTERNAL_OES)
+    if (!buf.isSharedMemory() && buf.bufferFormatEgl() == QWaylandBufferRef::BufferFormatEgl_EXTERNAL_OES)
         m_textureTarget = GL_TEXTURE_EXTERNAL_OES;
 
     if (advance()) {
@@ -81,7 +81,7 @@ GLuint WindowCompositorView::getTexture(GLenum *target)
             glGenTextures(1, &m_texture);
 
         glBindTexture(m_textureTarget, m_texture);
-        if (buf.isShm())
+        if (buf.isSharedMemory())
             glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         buf.bindToTexture();
     }

@@ -261,7 +261,7 @@ void tst_WaylandCompositor::frameCallback()
 
         QImage image() const
         {
-            if (bufferRef.isNull() || !bufferRef.isShm())
+            if (bufferRef.isNull() || !bufferRef.isSharedMemory())
                 return QImage();
             return bufferRef.image();
         }

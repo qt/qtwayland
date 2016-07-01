@@ -77,7 +77,7 @@ public:
 
     enum BufferType {
         BufferType_Null,
-        BufferType_Shm,
+        BufferType_SharedMemory,
         BufferType_Egl
     };
 
@@ -94,7 +94,7 @@ public:
     BufferType bufferType() const;
     BufferFormatEgl bufferFormatEgl() const;
 
-    bool isShm() const;
+    bool isSharedMemory() const;
     QImage image() const;
 #ifdef QT_WAYLAND_COMPOSITOR_GL
     GLuint textureForPlane(int plane) const;

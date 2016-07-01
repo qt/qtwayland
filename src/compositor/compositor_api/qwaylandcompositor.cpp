@@ -63,7 +63,7 @@
 #include "extensions/qwaylandqtwindowmanager.h"
 
 #include "qwaylandxkb_p.h"
-#include "qwaylandshmformathelper_p.h"
+#include "qwaylandsharedmemoryformathelper_p.h"
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QStringList>
@@ -174,7 +174,7 @@ void QWaylandCompositorPrivate::init()
     data_device_manager =  new QtWayland::DataDeviceManager(q);
 
     wl_display_init_shm(display);
-    QVector<wl_shm_format> formats = QWaylandShmFormatHelper::supportedWaylandFormats();
+    QVector<wl_shm_format> formats = QWaylandSharedMemoryFormatHelper::supportedWaylandFormats();
     foreach (wl_shm_format format, formats)
         wl_display_add_shm_format(display, format);
 
@@ -836,13 +836,13 @@ void QWaylandCompositor::setUseHardwareIntegrationExtension(bool use)
  * The default implementation requires a OpenGL context to be bound to the current thread
  * to work. If this is not possible reimplement this function in your compositor subclass
  * to implement custom logic.
- * The default implementation only grabs SHM and OpenGL buffers, reimplement this in your
+ * The default implementation only grabs shared memory and OpenGL buffers, reimplement this in your
  * compositor subclass to handle more buffer types.
  * You should not call this manually, but rather use \a QWaylandSurfaceGrabber.
  */
 void QWaylandCompositor::grabSurface(QWaylandSurfaceGrabber *grabber, const QWaylandBufferRef &buffer)
 {
-    if (buffer.isShm()) {
+    if (buffer.isSharedMemory()) {
         emit grabber->success(buffer.image());
     } else {
 #ifdef QT_WAYLAND_COMPOSITOR_GL

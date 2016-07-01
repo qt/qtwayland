@@ -37,8 +37,8 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDSHMFORMATHELPER_H
-#define QWAYLANDSHMFORMATHELPER_H
+#ifndef QWAYLANDSHAREDMEMORYFORMATHELPER_H
+#define QWAYLANDSHAREDMEMORYFORMATHELPER_H
 
 #include <QtGui/QImage>
 
@@ -47,7 +47,7 @@
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandShmFormatHelper
+class QWaylandSharedMemoryFormatHelper
 {
 public:
     static inline wl_shm_format fromQImageFormat(QImage::Format format);
@@ -100,7 +100,7 @@ private:
     }
 };
 
-wl_shm_format QWaylandShmFormatHelper::fromQImageFormat(QImage::Format format)
+wl_shm_format QWaylandSharedMemoryFormatHelper::fromQImageFormat(QImage::Format format)
 {
     Array array = getData();
     if (array.size <= size_t(format))
@@ -108,7 +108,7 @@ wl_shm_format QWaylandShmFormatHelper::fromQImageFormat(QImage::Format format)
     return array.data[format];
 }
 
-QImage::Format QWaylandShmFormatHelper::fromWaylandShmFormat(wl_shm_format format)
+QImage::Format QWaylandSharedMemoryFormatHelper::fromWaylandShmFormat(wl_shm_format format)
 {
     Array array = getData();
     for (size_t i = 0; i < array.size; i++) {
@@ -118,7 +118,7 @@ QImage::Format QWaylandShmFormatHelper::fromWaylandShmFormat(wl_shm_format forma
     return QImage::Format_Invalid;
 }
 
-QVector<wl_shm_format> QWaylandShmFormatHelper::supportedWaylandFormats()
+QVector<wl_shm_format> QWaylandSharedMemoryFormatHelper::supportedWaylandFormats()
 {
     QVector<wl_shm_format> retFormats;
     Array array = getData();
@@ -133,4 +133,4 @@ QVector<wl_shm_format> QWaylandShmFormatHelper::supportedWaylandFormats()
 
 QT_END_NAMESPACE
 
-#endif //QWAYLANDSHMFORMATHELPER_H
+#endif //QWAYLANDSHAREDMEMORYFORMATHELPER_H

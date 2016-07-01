@@ -114,7 +114,7 @@ void QWaylandQuickCompositor::componentComplete()
  */
 void QWaylandQuickCompositor::grabSurface(QWaylandSurfaceGrabber *grabber, const QWaylandBufferRef &buffer)
 {
-    if (buffer.isShm()) {
+    if (buffer.isSharedMemory()) {
         QWaylandCompositor::grabSurface(grabber, buffer);
         return;
     }

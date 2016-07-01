@@ -39,7 +39,7 @@
 #include <QtWaylandClient/private/qwaylandshm_p.h>
 #include <QtWaylandClient/private/qwaylanddisplay_p.h>
 
-#include "qwaylandshmformathelper_p.h"
+#include "qwaylandsharedmemoryformathelper_p.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -73,12 +73,12 @@ bool QWaylandShm::formatSupported(QImage::Format format) const
 
 wl_shm_format QWaylandShm::formatFrom(QImage::Format format)
 {
-    return QWaylandShmFormatHelper::fromQImageFormat(format);
+    return QWaylandSharedMemoryFormatHelper::fromQImageFormat(format);
 }
 
 QImage::Format QWaylandShm::formatFrom(wl_shm_format format)
 {
-    return QWaylandShmFormatHelper::fromWaylandShmFormat(format);
+    return QWaylandSharedMemoryFormatHelper::fromWaylandShmFormat(format);
 }
 
 }

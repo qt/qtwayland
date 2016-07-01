@@ -101,7 +101,7 @@ public:
 
     QSize size() const;
     QWaylandSurface::Origin origin() const;
-    bool isShm() const { return wl_shm_buffer_get(m_buffer); }
+    bool isSharedMemory() const { return wl_shm_buffer_get(m_buffer); }
 
     QImage image() const;
     QWaylandBufferRef::BufferFormatEgl bufferFormatEgl() const;

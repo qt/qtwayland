@@ -296,7 +296,7 @@ public:
         delete m_sgTex;
         m_sgTex = 0;
         if (m_ref.hasBuffer()) {
-            if (buffer.isShm()) {
+            if (buffer.isSharedMemory()) {
                 m_sgTex = surfaceItem->window()->createTextureFromImage(buffer.image());
                 if (m_sgTex) {
                     m_sgTex->bind();
@@ -1080,7 +1080,7 @@ QSGNode *QWaylandQuickItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeDat
     const QRectF rect = invertY ? QRectF(0, height(), width(), -height())
                                 : QRectF(0, 0, width(), height());
 
-    if (ref.isShm() || bufferTypes[ref.bufferFormatEgl()].canProvideTexture) {
+    if (ref.isSharedMemory() || bufferTypes[ref.bufferFormatEgl()].canProvideTexture) {
         QSGSimpleTextureNode *node = static_cast<QSGSimpleTextureNode *>(oldNode);
 
         if (!node) {

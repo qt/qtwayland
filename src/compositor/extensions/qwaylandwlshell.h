@@ -125,6 +125,7 @@ public:
     QWaylandWlShell *shell() const;
 
     FocusPolicy focusPolicy() const;
+    Qt::WindowType windowType() const override;
 
     static const struct wl_interface *interface();
     static QByteArray interfaceName();

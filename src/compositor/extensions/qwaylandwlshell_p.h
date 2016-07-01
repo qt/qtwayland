@@ -102,6 +102,9 @@ public:
         m_focusPolicy = focusPolicy;
         emit q->focusPolicyChanged();
     }
+
+    void setWindowType(Qt::WindowType windowType);
+
 private:
     QWaylandWlShell *m_shell;
     QWaylandSurface *m_surface;
@@ -111,6 +114,7 @@ private:
     QString m_title;
     QString m_className;
     QWaylandWlShellSurface::FocusPolicy m_focusPolicy;
+    Qt::WindowType m_windowType;
 
     void shell_surface_destroy_resource(Resource *resource) Q_DECL_OVERRIDE;
 

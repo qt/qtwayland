@@ -210,6 +210,8 @@ public:
     QWaylandXdgPopup(QWaylandXdgShell *xdgShell, QWaylandSurface *surface, QWaylandSurface *parentSurface,
                      const QPoint &position, const QWaylandResource &resource);
 
+    Qt::WindowType windowType() const override { return Qt::WindowType::Popup; }
+
     Q_INVOKABLE void initialize(QWaylandXdgShell *shell, QWaylandSurface *surface,
                                 QWaylandSurface *parentSurface, const QPoint &position, const QWaylandResource &resource);
 

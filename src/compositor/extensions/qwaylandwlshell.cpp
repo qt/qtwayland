@@ -104,6 +104,7 @@ QWaylandWlShellSurfacePrivate::QWaylandWlShellSurfacePrivate()
     , m_shell(Q_NULLPTR)
     , m_surface(Q_NULLPTR)
     , m_focusPolicy(QWaylandWlShellSurface::DefaultFocus)
+    , m_windowType(Qt::WindowType::Window)
 {
 }
 
@@ -115,6 +116,16 @@ void QWaylandWlShellSurfacePrivate::ping(uint32_t serial)
 {
     m_pings.insert(serial);
     send_ping(serial);
+}
+
+void QWaylandWlShellSurfacePrivate::setWindowType(Qt::WindowType windowType)
+{
+    if (m_windowType == windowType)
+        return;
+    m_windowType = windowType;
+
+    Q_Q(QWaylandWlShellSurface);
+    emit q->windowTypeChanged();
 }
 
 void QWaylandWlShellSurfacePrivate::shell_surface_destroy_resource(Resource *)
@@ -154,6 +165,7 @@ void QWaylandWlShellSurfacePrivate::shell_surface_set_toplevel(Resource *resourc
     Q_UNUSED(resource);
     Q_Q(QWaylandWlShellSurface);
     setFocusPolicy(QWaylandWlShellSurface::DefaultFocus);
+    setWindowType(Qt::WindowType::Window);
     emit q->setDefaultToplevel();
 }
 
@@ -171,6 +183,7 @@ void QWaylandWlShellSurfacePrivate::shell_surface_set_transient(Resource *resour
         flags & WL_SHELL_SURFACE_TRANSIENT_INACTIVE ? QWaylandWlShellSurface::NoKeyboardFocus
                                                     : QWaylandWlShellSurface::DefaultFocus;
     setFocusPolicy(focusPolicy);
+    setWindowType(Qt::WindowType::SubWindow);
     emit q->setTransient(parent_surface, QPoint(x,y), focusPolicy);
 }
 
@@ -187,6 +200,7 @@ void QWaylandWlShellSurfacePrivate::shell_surface_set_fullscreen(Resource *resou
     QWaylandOutput *output = output_resource
             ? QWaylandOutput::fromResource(output_resource)
             : Q_NULLPTR;
+    setWindowType(Qt::WindowType::Window);
     emit q->setFullScreen(QWaylandWlShellSurface::FullScreenMethod(method), framerate, output);
 }
 
@@ -199,6 +213,7 @@ void QWaylandWlShellSurfacePrivate::shell_surface_set_popup(Resource *resource, 
     setFocusPolicy(QWaylandWlShellSurface::DefaultFocus);
     QWaylandSeat *input = QWaylandSeat::fromSeatResource(input_device);
     QWaylandSurface *parentSurface = QWaylandSurface::fromResource(parent);
+    setWindowType(Qt::WindowType::Popup);
     emit q->setPopup(input, parentSurface, QPoint(x,y));
 
 }
@@ -212,6 +227,7 @@ void QWaylandWlShellSurfacePrivate::shell_surface_set_maximized(Resource *resour
     QWaylandOutput *output = output_resource
             ? QWaylandOutput::fromResource(output_resource)
             : Q_NULLPTR;
+    setWindowType(Qt::WindowType::Window);
     emit q->setMaximized(output);
 }
 
@@ -591,6 +607,23 @@ QWaylandWlShellSurface::FocusPolicy QWaylandWlShellSurface::focusPolicy() const
 {
     Q_D(const QWaylandWlShellSurface);
     return d->m_focusPolicy;
+}
+
+/*!
+ * \qmlproperty enum QtWaylandCompositor::WlShellSurface::windowType
+ *
+ * This property holds the window type of the WlShellSurface.
+ */
+
+/*!
+ * \property QWaylandWlShellSurface::windowType
+ *
+ * This property holds the window type of the QWaylandWlShellSurface.
+ */
+Qt::WindowType QWaylandWlShellSurface::windowType() const
+{
+    Q_D(const QWaylandWlShellSurface);
+    return d->m_windowType;
 }
 
 /*!

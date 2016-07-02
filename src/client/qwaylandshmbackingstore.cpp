@@ -211,13 +211,7 @@ void QWaylandShmBackingStore::flush(QWindow *window, const QRegion &region, cons
 
     QMargins margins = windowDecorationMargins();
 
-    waylandWindow()->attachOffset(mFrontBuffer);
-    mFrontBuffer->setBusy();
-
-    QVector<QRect> rects = region.rects();
-    foreach (const QRect &rect, rects)
-        waylandWindow()->damage(rect.translated(margins.left(), margins.top()));
-    waylandWindow()->commit();
+    waylandWindow()->commit(mFrontBuffer, region.translated(margins.left(), margins.top()));
 }
 
 void QWaylandShmBackingStore::resize(const QSize &size, const QRegion &)

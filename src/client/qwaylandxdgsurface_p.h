@@ -99,14 +99,15 @@ public:
     bool isFullscreen() const { return m_fullscreen; }
     bool isMaximized() const { return m_maximized; }
 
+    void setType(Qt::WindowType type, QWaylandWindow *transientParent) override;
+
 private:
     void setMaximized() Q_DECL_OVERRIDE;
     void setFullscreen() Q_DECL_OVERRIDE;
     void setNormal() Q_DECL_OVERRIDE;
     void setMinimized() Q_DECL_OVERRIDE;
 
-    void setTopLevel() Q_DECL_OVERRIDE;
-    void updateTransientParent(QWindow *parent) Q_DECL_OVERRIDE;
+    void updateTransientParent(QWaylandWindow *parent);
 
 private:
     QWaylandWindow *m_window;

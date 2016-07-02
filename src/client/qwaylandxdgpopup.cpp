@@ -56,6 +56,12 @@ QWaylandXdgPopup::~QWaylandXdgPopup()
     delete m_extendedWindow;
 }
 
+void QWaylandXdgPopup::setType(Qt::WindowType type, QWaylandWindow *transientParent)
+{
+    Q_UNUSED(type);
+    Q_UNUSED(transientParent);
+}
+
 }
 
 QT_END_NAMESPACE

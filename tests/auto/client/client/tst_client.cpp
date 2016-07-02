@@ -248,8 +248,8 @@ void tst_WaylandClient::backingStore()
 
     window.hide();
 
-    // hiding the window should detach the buffer
-    QTRY_VERIFY(surface->image.isNull());
+    // hiding the window should destroy the surface
+    QTRY_VERIFY(!compositor->surface());
 }
 
 class DndWindow : public QWindow

@@ -71,6 +71,13 @@ QWaylandIviSurface::~QWaylandIviSurface()
     delete m_extendedWindow;
 }
 
+void QWaylandIviSurface::setType(Qt::WindowType type, QWaylandWindow *transientParent)
+{
+
+    Q_UNUSED(type)
+    Q_UNUSED(transientParent)
+}
+
 void QWaylandIviSurface::createExtendedSurface(QWaylandWindow *window)
 {
     if (window->display()->windowExtension())

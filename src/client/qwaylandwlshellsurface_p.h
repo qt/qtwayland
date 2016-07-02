@@ -92,14 +92,16 @@ public:
     void setWindowFlags(Qt::WindowFlags flags) Q_DECL_OVERRIDE;
     void sendProperty(const QString &name, const QVariant &value) Q_DECL_OVERRIDE;
 
+    void setType(Qt::WindowType type, QWaylandWindow *transientParent) override;
+
 private:
     void setMaximized() Q_DECL_OVERRIDE;
     void setFullscreen() Q_DECL_OVERRIDE;
     void setNormal() Q_DECL_OVERRIDE;
     void setMinimized() Q_DECL_OVERRIDE;
 
-    void setTopLevel() Q_DECL_OVERRIDE;
-    void updateTransientParent(QWindow *parent) Q_DECL_OVERRIDE;
+    void setTopLevel();
+    void updateTransientParent(QWindow *parent);
     void setPopup(QWaylandWindow *parent, QWaylandInputDevice *device, int serial);
 
     QWaylandWindow *m_window;

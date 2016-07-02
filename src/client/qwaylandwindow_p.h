@@ -132,6 +132,8 @@ public:
     using QtWayland::wl_surface::damage;
     void damage(const QRect &rect);
 
+    void commit(QWaylandBuffer *buffer, const QRegion &damage);
+
     void waitForFrameSync();
 
     QMargins frameMargins() const Q_DECL_OVERRIDE;

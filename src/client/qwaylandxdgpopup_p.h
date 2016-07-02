@@ -68,6 +68,8 @@ public:
     QWaylandXdgPopup(struct ::xdg_popup *popup, QWaylandWindow *window);
     virtual ~QWaylandXdgPopup();
 
+    void setType(Qt::WindowType type, QWaylandWindow *transientParent) override;
+
 private:
     QWaylandExtendedSurface *m_extendedWindow;
 };

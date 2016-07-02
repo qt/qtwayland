@@ -215,6 +215,16 @@ void QWaylandWlShellSurface::setPopup(QWaylandWindow *parent, QWaylandInputDevic
               transientPos.x(), transientPos.y(), 0);
 }
 
+void QWaylandWlShellSurface::setType(Qt::WindowType type, QWaylandWindow *transientParent)
+{
+    if (type == Qt::Popup && transientParent)
+        setPopup(transientParent, m_window->display()->lastInputDevice(), m_window->display()->lastInputSerial());
+    else if (transientParent)
+        updateTransientParent(transientParent->window());
+    else
+        setTopLevel();
+}
+
 void QWaylandWlShellSurface::shell_surface_ping(uint32_t serial)
 {
     pong(serial);

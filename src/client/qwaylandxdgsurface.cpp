@@ -128,17 +128,11 @@ void QWaylandXdgSurface::setMinimized()
     set_minimized();
 }
 
-void QWaylandXdgSurface::setTopLevel()
+void QWaylandXdgSurface::updateTransientParent(QWaylandWindow *parent)
 {
-    // There's no xdg_shell_surface API for this, ignoring
-}
-
-void QWaylandXdgSurface::updateTransientParent(QWindow *parent)
-{
-    QWaylandWindow *parent_wayland_window = static_cast<QWaylandWindow *>(parent->handle());
-    if (!parent_wayland_window)
+    if (!parent)
         return;
-    auto parentXdgSurface = qobject_cast<QWaylandXdgSurface *>(parent_wayland_window->shellSurface());
+    auto parentXdgSurface = qobject_cast<QWaylandXdgSurface *>(parent->shellSurface());
     Q_ASSERT(parentXdgSurface);
     set_parent(parentXdgSurface->object());
 }
@@ -181,6 +175,13 @@ void QWaylandXdgSurface::sendProperty(const QString &name, const QVariant &value
 {
     if (m_extendedWindow)
         m_extendedWindow->updateGenericProperty(name, value);
+}
+
+void QWaylandXdgSurface::setType(Qt::WindowType type, QWaylandWindow *transientParent)
+{
+    Q_UNUSED(type)
+    if (transientParent)
+        updateTransientParent(transientParent);
 }
 
 void QWaylandXdgSurface::xdg_surface_configure(int32_t width, int32_t height, struct wl_array *states,uint32_t serial)

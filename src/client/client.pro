@@ -30,6 +30,7 @@ WAYLANDCLIENTSOURCES += \
             ../extensions/qt-windowmanager.xml \
             ../3rdparty/protocol/text-input-unstable-v2.xml \
             ../3rdparty/protocol/xdg-shell.xml \
+            ../3rdparty/protocol/xdg-shell-unstable-v6.xml \
 
 SOURCES +=  qwaylandintegration.cpp \
             qwaylandnativeinterface.cpp \
@@ -52,6 +53,7 @@ SOURCES +=  qwaylandintegration.cpp \
             qwaylandxdgsurface.cpp \
             qwaylandxdgpopup.cpp \
             qwaylandxdgshellintegration.cpp \
+            qwaylandxdgshellv6integration.cpp \
             qwaylandextendedsurface.cpp \
             qwaylandsubsurface.cpp \
             qwaylandtouch.cpp \
@@ -67,6 +69,7 @@ SOURCES +=  qwaylandintegration.cpp \
             qwaylanddatadevice.cpp \
             qwaylandshm.cpp \
             qwaylandbuffer.cpp \
+            qwaylandxdgshellv6.cpp \
 
 HEADERS +=  qwaylandintegration_p.h \
             qwaylandnativeinterface_p.h \
@@ -90,6 +93,7 @@ HEADERS +=  qwaylandintegration_p.h \
             qwaylandxdgsurface_p.h \
             qwaylandxdgpopup_p.h \
             qwaylandxdgshellintegration_p.h \
+            qwaylandxdgshellv6integration_p.h \
             qwaylandextendedsurface_p.h \
             qwaylandsubsurface_p.h \
             qwaylandtouch_p.h \
@@ -107,6 +111,7 @@ HEADERS +=  qwaylandintegration_p.h \
             ../shared/qwaylandmimehelper_p.h \
             ../shared/qwaylandxkb_p.h \
             ../shared/qwaylandsharedmemoryformathelper_p.h
+            qwaylandxdgshellv6_p.h \
 
 include(hardwareintegration/hardwareintegration.pri)
 include(shellintegration/shellintegration.pri)

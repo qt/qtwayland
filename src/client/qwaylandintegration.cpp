@@ -77,6 +77,7 @@
 #include "qwaylandshellintegrationfactory_p.h"
 #include "qwaylandxdgshellintegration_p.h"
 #include "qwaylandwlshellintegration_p.h"
+#include "qwaylandxdgshellv6integration_p.h"
 
 #include "qwaylandinputdeviceintegration_p.h"
 #include "qwaylandinputdeviceintegrationfactory_p.h"
@@ -382,8 +383,10 @@ void QWaylandIntegration::initializeShellIntegration()
         }
     } else {
         QStringList preferredShells;
+        preferredShells << QLatin1String("zxdg_shell_v6");
         if (qEnvironmentVariableIsSet("QT_WAYLAND_USE_XDG_SHELL"))
             preferredShells << QLatin1String("xdg_shell");
+
         preferredShells << QLatin1String("wl_shell");
 
         Q_FOREACH (QString preferredShell, preferredShells) {
@@ -432,6 +435,8 @@ QWaylandShellIntegration *QWaylandIntegration::createShellIntegration(const QStr
         return new QWaylandWlShellIntegration(mDisplay.data());
     } else if (interfaceName == QLatin1Literal("xdg_shell")) {
         return new QWaylandXdgShellIntegration(mDisplay.data());
+    } else if (interfaceName == QLatin1Literal("zxdg_shell_v6")) {
+        return new QWaylandXdgShellV6Integration(mDisplay.data());
     } else {
         return Q_NULLPTR;
     }

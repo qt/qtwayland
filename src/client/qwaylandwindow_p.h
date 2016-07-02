@@ -249,6 +249,7 @@ private:
     bool shouldCreateShellSurface() const;
     bool shouldCreateSubSurface() const;
     void reset();
+    void sendExposeEvent(const QRect &rect);
 
     void handleMouseEventWithDecoration(QWaylandInputDevice *inputDevice, const QWaylandPointerEvent &e);
 

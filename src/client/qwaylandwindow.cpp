@@ -304,8 +304,15 @@ void QWaylandWindow::setGeometry(const QRect &rect)
 
         mSentInitialResize = true;
     }
+    sendExposeEvent(QRect(QPoint(), geometry().size()));
+}
 
-    QWindowSystemInterface::handleExposeEvent(window(), QRect(QPoint(), geometry().size()));
+
+
+void QWaylandWindow::sendExposeEvent(const QRect &rect)
+{
+    if (mShellSurface && !mShellSurface->handleExpose(rect))
+        QWindowSystemInterface::handleExposeEvent(window(), rect);
 }
 
 void QWaylandWindow::setVisible(bool visible)
@@ -319,7 +326,7 @@ void QWaylandWindow::setVisible(bool visible)
         // there was no frame before it will be stuck at the waitForFrameSync() in
         // QWaylandShmBackingStore::beginPaint().
     } else {
-        QWindowSystemInterface::handleExposeEvent(window(), QRegion());
+        sendExposeEvent(QRect());
         // when flushing the event queue, it could contain a close event, in which
         // case 'this' will be deleted. When that happens, we must abort right away.
         QPointer<QWaylandWindow> deleteGuard(this);
@@ -414,10 +421,10 @@ void QWaylandWindow::setCanResize(bool canResize)
         }
         if (!mConfigure.isEmpty()) {
             doResize();
-            QWindowSystemInterface::handleExposeEvent(window(), QRect(QPoint(), geometry().size()));
+            sendExposeEvent(QRect(QPoint(), geometry().size()));
         } else if (mResizeDirty) {
             mResizeDirty = false;
-            QWindowSystemInterface::handleExposeEvent(window(), QRect(QPoint(), geometry().size()));
+            sendExposeEvent(QRect(QPoint(), geometry().size()));
         }
     }
 }
@@ -432,7 +439,7 @@ void QWaylandWindow::requestResize()
 
     mRequestResizeSent = false;
     lock.unlock();
-    QWindowSystemInterface::handleExposeEvent(window(), QRect(QPoint(), geometry().size()));
+    sendExposeEvent(QRect(QPoint(), geometry().size()));
     QWindowSystemInterface::flushWindowSystemEvents();
 }
 
@@ -658,7 +665,7 @@ bool QWaylandWindow::createDecoration()
             QMargins m = frameMargins();
             subsurf->set_position(pos.x() + m.left(), pos.y() + m.top());
         }
-        QWindowSystemInterface::handleExposeEvent(window(), QRect(QPoint(), geometry().size()));
+        sendExposeEvent(QRect(QPoint(), geometry().size()));
     }
 
     return mWindowDecoration;

@@ -96,7 +96,7 @@ bool XdgShellIntegration::mouseReleaseEvent(QMouseEvent *event)
     Q_UNUSED(event);
 
     if (grabberState == GrabberState::Resize) {
-        m_xdgSurface->sendUnMaximized();
+        m_xdgSurface->sendUnmaximized();
         grabberState = GrabberState::Default;
         return true;
     } else if (grabberState == GrabberState::Move) {
@@ -135,7 +135,7 @@ void XdgShellIntegration::handleSetMaximized()
 
 void XdgShellIntegration::handleUnsetMaximized()
 {
-    m_xdgSurface->sendUnMaximized(maximizeState.initialWindowSize);
+    m_xdgSurface->sendUnmaximized(maximizeState.initialWindowSize);
 }
 
 void XdgShellIntegration::handleMaximizedChanged()

@@ -112,7 +112,7 @@ void WindowCompositorView::onXdgSetMaximized()
 
 void WindowCompositorView::onXdgUnsetMaximized()
 {
-    m_xdgSurface->sendUnMaximized();
+    m_xdgSurface->sendUnmaximized();
 }
 
 void WindowCompositorView::onXdgSetFullscreen(QWaylandOutput* clientPreferredOutput)

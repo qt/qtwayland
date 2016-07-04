@@ -523,7 +523,7 @@ void tst_WaylandCompositor::sendsXdgConfigure()
     QTRY_VERIFY(xdgSurface->activated());
     QTRY_VERIFY(xdgSurface->maximized());
 
-    xdgSurface->sendUnMaximized();
+    xdgSurface->sendUnmaximized();
     compositor.flushClients();
     QTRY_VERIFY(!mockXdgSurface.configureStates.contains(QWaylandXdgSurface::State::MaximizedState));
     QTRY_VERIFY(mockXdgSurface.configureStates.contains(QWaylandXdgSurface::State::ActivatedState));
@@ -545,7 +545,7 @@ void tst_WaylandCompositor::sendsXdgConfigure()
     QTRY_COMPARE(mockXdgSurface.configureSize, QSize(1024, 768));
     uint fullscreenSerial = mockXdgSurface.configureSerial;
 
-    xdgSurface->sendUnMaximized();
+    xdgSurface->sendUnmaximized();
     compositor.flushClients();
     QTRY_VERIFY(mockXdgSurface.configureStates.contains(QWaylandXdgSurface::State::ActivatedState));
     QTRY_VERIFY(!mockXdgSurface.configureStates.contains(QWaylandXdgSurface::State::FullscreenState));

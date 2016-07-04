@@ -659,11 +659,11 @@ Module {
             Parameter { name: "size"; type: "QSize" }
         }
         Method {
-            name: "sendUnMaximized"
+            name: "sendUnmaximized"
             type: "uint"
             Parameter { name: "size"; type: "QSize" }
         }
-        Method { name: "sendUnMaximized"; type: "uint" }
+        Method { name: "sendUnmaximized"; type: "uint" }
         Method {
             name: "sendFullscreen"
             type: "uint"

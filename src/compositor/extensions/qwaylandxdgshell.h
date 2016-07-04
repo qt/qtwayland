@@ -155,7 +155,7 @@ public:
     Q_INVOKABLE void sendClose();
 
     Q_INVOKABLE uint sendMaximized(const QSize &size);
-    Q_INVOKABLE uint sendUnMaximized(const QSize &size = QSize(0, 0));
+    Q_INVOKABLE uint sendUnmaximized(const QSize &size = QSize(0, 0));
     Q_INVOKABLE uint sendFullscreen(const QSize &size);
     Q_INVOKABLE uint sendResizing(const QSize &maxSize);
 

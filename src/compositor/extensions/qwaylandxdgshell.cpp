@@ -938,7 +938,7 @@ uint QWaylandXdgSurface::sendMaximized(const QSize &size)
     return sendConfigure(size, conf.states);
 }
 
-uint QWaylandXdgSurface::sendUnMaximized(const QSize &size)
+uint QWaylandXdgSurface::sendUnmaximized(const QSize &size)
 {
     Q_D(QWaylandXdgSurface);
     QWaylandXdgSurfacePrivate::ConfigureEvent conf = d->lastSentConfigure();

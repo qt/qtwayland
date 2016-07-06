@@ -55,7 +55,7 @@ WaylandOutput {
             id: mouseTracker
             anchors.fill: parent
 
-            enableWSCursor: true
+            windowSystemCursorEnabled: true
             Image {
                 id: background
                 anchors.fill: parent

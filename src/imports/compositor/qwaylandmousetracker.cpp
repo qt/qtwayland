@@ -45,7 +45,7 @@ class QWaylandMouseTrackerPrivate : public QQuickItemPrivate
     Q_DECLARE_PUBLIC(QWaylandMouseTracker)
 public:
     QWaylandMouseTrackerPrivate()
-        : enableWSCursor(false)
+        : windowSystemCursorEnabled(false)
         , hovered(false)
     {
         QImage cursorImage(64,64,QImage::Format_ARGB32);
@@ -76,7 +76,7 @@ public:
     }
 
     QPointF mousePos;
-    bool enableWSCursor;
+    bool windowSystemCursorEnabled;
     QPixmap cursorPixmap;
     bool hovered;
 };
@@ -102,24 +102,24 @@ qreal QWaylandMouseTracker::mouseY() const
     return d->mousePos.y();
 }
 
-void QWaylandMouseTracker::setEnableWSCursor(bool enable)
+void QWaylandMouseTracker::setWindowSystemCursorEnabled(bool enable)
 {
     Q_D(QWaylandMouseTracker);
-    if (d->enableWSCursor != enable) {
-        d->enableWSCursor = enable;
+    if (d->windowSystemCursorEnabled != enable) {
+        d->windowSystemCursorEnabled = enable;
         if (enable) {
             unsetCursor();
         } else {
             setCursor(QCursor(d->cursorPixmap));
         }
-        emit enableWSCursorChanged();
+        emit windowSystemCursorEnabledChanged();
     }
 }
 
-bool QWaylandMouseTracker::enableWSCursor() const
+bool QWaylandMouseTracker::windowSystemCursorEnabled() const
 {
     Q_D(const QWaylandMouseTracker);
-    return d->enableWSCursor;
+    return d->windowSystemCursorEnabled;
 }
 
 bool QWaylandMouseTracker::hovered() const

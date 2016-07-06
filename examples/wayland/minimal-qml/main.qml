@@ -53,7 +53,7 @@ WaylandCompositor {
             visible: true
             WaylandMouseTracker {
                 anchors.fill: parent
-                enableWSCursor: true
+                windowSystemCursorEnabled: true
                 Rectangle {
                     id: surfaceArea
                     color: "#1337af"

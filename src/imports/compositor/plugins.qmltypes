@@ -127,7 +127,7 @@ Module {
         Property { name: "mouseX"; type: "double"; isReadonly: true }
         Property { name: "mouseY"; type: "double"; isReadonly: true }
         Property { name: "containsMouse"; type: "bool"; isReadonly: true }
-        Property { name: "enableWSCursor"; type: "bool" }
+        Property { name: "windowSystemCursorEnabled"; type: "bool" }
         Signal { name: "hoveredChanged" }
     }
     Component {

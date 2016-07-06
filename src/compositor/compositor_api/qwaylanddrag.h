@@ -61,6 +61,7 @@ public:
 
     QWaylandSurface *icon() const;
     QWaylandSurface *origin() const;
+    QWaylandInputDevice *inputDevice() const;
     bool visible() const;
 
 public Q_SLOTS:

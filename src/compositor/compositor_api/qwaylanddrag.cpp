@@ -88,6 +88,12 @@ QWaylandSurface *QWaylandDrag::origin() const
     return dataDevice ? dataDevice->dragOrigin() : nullptr;
 }
 
+QWaylandInputDevice *QWaylandDrag::inputDevice() const
+{
+    Q_D(const QWaylandDrag);
+    return d->inputDevice;
+}
+
 
 bool QWaylandDrag::visible() const
 {

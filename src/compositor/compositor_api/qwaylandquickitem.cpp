@@ -512,17 +512,18 @@ void QWaylandQuickItem::mouseMoveEvent(QMouseEvent *event)
     Q_D(QWaylandQuickItem);
     if (d->shouldSendInputEvents()) {
         QWaylandInputDevice *inputDevice = compositor()->inputDeviceFor(event);
-        inputDevice->sendMouseMoveEvent(d->view.data(), mapToSurface(event->localPos()), event->windowPos());
-    } else if (d->isDragging) {
-        QWaylandInputDevice *inputDevice = compositor()->inputDeviceFor(event);
-        QWaylandQuickOutput *currentOutput = qobject_cast<QWaylandQuickOutput *>(view()->output());
-        //TODO: also check if dragging onto other outputs
-        QWaylandQuickItem *targetItem = qobject_cast<QWaylandQuickItem *>(currentOutput->pickClickableItem(mapToScene(event->localPos())));
-        QWaylandSurface *targetSurface = targetItem ? targetItem->surface() : nullptr;
-        if (targetSurface) {
-            QPointF position = mapToItem(targetItem, event->localPos());
-            QPointF surfacePosition = targetItem->mapToSurface(position);
-            inputDevice->drag()->dragMove(targetSurface, surfacePosition);
+        if (d->isDragging) {
+            QWaylandQuickOutput *currentOutput = qobject_cast<QWaylandQuickOutput *>(view()->output());
+            //TODO: also check if dragging onto other outputs
+            QWaylandQuickItem *targetItem = qobject_cast<QWaylandQuickItem *>(currentOutput->pickClickableItem(mapToScene(event->localPos())));
+            QWaylandSurface *targetSurface = targetItem ? targetItem->surface() : nullptr;
+            if (targetSurface) {
+                QPointF position = mapToItem(targetItem, event->localPos());
+                QPointF surfacePosition = targetItem->mapToSurface(position);
+                inputDevice->drag()->dragMove(targetSurface, surfacePosition);
+            }
+        } else {
+            inputDevice->sendMouseMoveEvent(d->view.data(), mapToSurface(event->localPos()), event->windowPos());
         }
     } else {
         emit mouseMove(event->windowPos());
@@ -538,12 +539,12 @@ void QWaylandQuickItem::mouseReleaseEvent(QMouseEvent *event)
     Q_D(QWaylandQuickItem);
     if (d->shouldSendInputEvents()) {
         QWaylandInputDevice *inputDevice = compositor()->inputDeviceFor(event);
-        inputDevice->sendMouseReleaseEvent(event->button());
-    } else if (d->isDragging) {
-        d->isDragging = false;
-        setInputEventsEnabled(true);
-        QWaylandInputDevice *inputDevice = compositor()->inputDeviceFor(event);
-        inputDevice->drag()->drop();
+        if (d->isDragging) {
+            d->isDragging = false;
+            inputDevice->drag()->drop();
+        } else {
+            inputDevice->sendMouseReleaseEvent(event->button());
+        }
     } else {
         emit mouseRelease();
         event->ignore();
@@ -1202,8 +1203,8 @@ void QWaylandQuickItem::handleDragStarted(QWaylandDrag *drag)
 {
     Q_D(QWaylandQuickItem);
     Q_ASSERT(drag->origin() == surface());
+    drag->inputDevice()->setMouseFocus(nullptr);
     d->isDragging = true;
-    setInputEventsEnabled(false);
 }
 
 QT_END_NAMESPACE

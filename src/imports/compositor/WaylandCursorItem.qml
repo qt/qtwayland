@@ -59,4 +59,19 @@ WaylandQuickItem {
         cursorItem.hotspotX = hotspotX;
         cursorItem.hotspotY = hotspotY;
     }
+
+    WaylandQuickItem {
+        id: dragIcon
+        property point offset
+
+        x: cursorItem.hotspotX + offset.x
+        y: cursorItem.hotspotY + offset.y
+        z: -1
+        surface: cursorItem.inputDevice.drag.icon
+
+        Connections {
+            target: dragIcon.surface
+            onOffsetForNextFrame: dragIcon.offset = offset;
+        }
+    }
 }

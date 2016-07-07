@@ -46,6 +46,7 @@ WaylandQuickItem {
     visible: cursorItem.surface != null
     inputEventsEnabled: false
     enabled: false
+    transform: Translate { x: -hotspotX; y: -hotspotY }
 
     onInputDeviceChanged: {
         if (!inputDevice)

@@ -73,8 +73,8 @@ WaylandOutput {
             WaylandCursorItem {
                 id: cursor
                 inputEventsEnabled: false
-                x: mouseTracker.mouseX - hotspotX
-                y: mouseTracker.mouseY - hotspotY
+                x: mouseTracker.mouseX
+                y: mouseTracker.mouseY
 
                 inputDevice: output.compositor.defaultInputDevice
             }

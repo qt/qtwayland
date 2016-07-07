@@ -87,6 +87,23 @@ Module {
         exportMetaObjectRevisions: [0]
     }
     Component {
+        name: "QWaylandDrag"
+        prototype: "QObject"
+        exports: ["QtWayland.Compositor/WaylandDrag 1.0"]
+        isCreatable: false
+        exportMetaObjectRevisions: [0]
+        Property { name: "icon"; type: "QWaylandSurface"; isReadonly: true; isPointer: true }
+        Property { name: "visible"; type: "bool"; isReadonly: true }
+        Signal { name: "dragStarted" }
+        Method {
+            name: "dragMove"
+            Parameter { name: "target"; type: "QWaylandSurface"; isPointer: true }
+            Parameter { name: "pos"; type: "QPointF" }
+        }
+        Method { name: "drop" }
+        Method { name: "cancelDrag" }
+    }
+    Component {
         name: "QWaylandInputDevice"
         prototype: "QObject"
         exports: ["QtWayland.Compositor/WaylandInputDevice 1.0"]
@@ -101,6 +118,7 @@ Module {
                 "DefaultCapabilities": 7
             }
         }
+        Property { name: "drag"; type: "QWaylandDrag"; isReadonly: true; isPointer: true }
         Signal {
             name: "mouseFocusChanged"
             Parameter { name: "newFocus"; type: "QWaylandView"; isPointer: true }
@@ -342,6 +360,10 @@ Module {
         Signal {
             name: "subsurfacePlaceBelow"
             Parameter { name: "sibling"; type: "QWaylandSurface"; isPointer: true }
+        }
+        Signal {
+            name: "dragStarted"
+            Parameter { name: "drag"; type: "QWaylandDrag"; isPointer: true }
         }
         Signal {
             name: "configure"

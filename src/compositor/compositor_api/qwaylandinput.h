@@ -67,6 +67,8 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandInputDevice : public QWaylandObject
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandInputDevice)
+
+    Q_PROPERTY(QWaylandDrag *drag READ drag CONSTANT)
 public:
     enum CapabilityFlag {
         // The order should match the enum WL_SEAT_CAPABILITY_*

@@ -301,29 +301,37 @@ void QWaylandShmBackingStore::updateDecorations()
     QPainter decorationPainter(entireSurface());
     decorationPainter.setCompositionMode(QPainter::CompositionMode_Source);
     QImage sourceImage = windowDecoration()->contentImage();
-    QRect target;
+
+    qreal dp = sourceImage.devicePixelRatio();
+    int dpWidth = int(sourceImage.width() / dp);
+    int dpHeight = int(sourceImage.height() / dp);
+    QMatrix sourceMatrix;
+    sourceMatrix.scale(dp, dp);
+    QRect target; // needs to be in device independent pixels
+
     //Top
     target.setX(0);
     target.setY(0);
-    target.setWidth(sourceImage.width());
+    target.setWidth(dpWidth);
     target.setHeight(windowDecorationMargins().top());
-    decorationPainter.drawImage(target, sourceImage, target);
+    decorationPainter.drawImage(target, sourceImage, sourceMatrix.mapRect(target));
 
     //Left
     target.setWidth(windowDecorationMargins().left());
-    target.setHeight(sourceImage.height());
-    decorationPainter.drawImage(target, sourceImage, target);
+    target.setHeight(dpHeight);
+    decorationPainter.drawImage(target, sourceImage, sourceMatrix.mapRect(target));
 
     //Right
-    target.setX(sourceImage.width() - windowDecorationMargins().right());
-    decorationPainter.drawImage(target, sourceImage, target);
+    target.setX(dpWidth - windowDecorationMargins().right());
+    target.setWidth(windowDecorationMargins().right());
+    decorationPainter.drawImage(target, sourceImage, sourceMatrix.mapRect(target));
 
     //Bottom
     target.setX(0);
-    target.setY(sourceImage.height() - windowDecorationMargins().bottom());
-    target.setWidth(sourceImage.width());
+    target.setY(dpHeight - windowDecorationMargins().bottom());
+    target.setWidth(dpWidth);
     target.setHeight(windowDecorationMargins().bottom());
-    decorationPainter.drawImage(target, sourceImage, target);
+    decorationPainter.drawImage(target, sourceImage, sourceMatrix.mapRect(target));
 }
 
 QWaylandAbstractDecoration *QWaylandShmBackingStore::windowDecoration() const

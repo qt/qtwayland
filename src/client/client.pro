@@ -110,7 +110,7 @@ HEADERS +=  qwaylandintegration_p.h \
             ../shared/qwaylandinputmethodeventbuilder_p.h \
             ../shared/qwaylandmimehelper_p.h \
             ../shared/qwaylandxkb_p.h \
-            ../shared/qwaylandshmformathelper_p.h
+            ../shared/qwaylandsharedmemoryformathelper_p.h
 
 include(hardwareintegration/hardwareintegration.pri)
 include(shellintegration/shellintegration.pri)

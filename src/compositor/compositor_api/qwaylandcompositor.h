@@ -126,7 +126,7 @@ public Q_SLOTS:
     void processWaylandEvents();
 
 Q_SIGNALS:
-    void createSurface(QWaylandClient *client, uint id, int version);
+    void surfaceRequested(QWaylandClient *client, uint id, int version);
     void surfaceCreated(QWaylandSurface *surface);
     void surfaceAboutToBeDestroyed(QWaylandSurface *surface);
     void subsurfaceChanged(QWaylandSurface *child, QWaylandSurface *parent);

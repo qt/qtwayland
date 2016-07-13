@@ -133,8 +133,8 @@ private slots:
     void onSurfaceCreated(QWaylandSurface *surface);
     void onWlShellSurfaceCreated(QWaylandWlShellSurface *wlShellSurface);
     void onXdgSurfaceCreated(QWaylandXdgSurface *xdgSurface);
-    void onCreateXdgPopup(QWaylandSurface *surface, QWaylandSurface *parent, QWaylandInputDevice *inputDevice,
-                          const QPoint &position, const QWaylandResource &resource);
+    void onXdgPopupRequested(QWaylandSurface *surface, QWaylandSurface *parent, QWaylandInputDevice *inputDevice,
+                             const QPoint &position, const QWaylandResource &resource);
     void onSetTransient(QWaylandSurface *parentSurface, const QPoint &relativeToParent, QWaylandWlShellSurface::FocusPolicy focusPolicy);
     void onSetPopup(QWaylandInputDevice *inputDevice, QWaylandSurface *parent, const QPoint &relativeToParent);
 

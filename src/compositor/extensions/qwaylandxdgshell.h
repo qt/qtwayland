@@ -77,10 +77,10 @@ public Q_SLOTS:
     void closeAllPopups();
 
 Q_SIGNALS:
-    void createXdgSurface(QWaylandSurface *surface, const QWaylandResource &resource);
+    void xdgSurfaceRequested(QWaylandSurface *surface, const QWaylandResource &resource);
     void xdgSurfaceCreated(QWaylandXdgSurface *xdgSurface);
     void xdgPopupCreated(QWaylandXdgPopup *xdgPopup);
-    void createXdgPopup(QWaylandSurface *surface, QWaylandSurface *parent, QWaylandInputDevice *seat, const QPoint &position, const QWaylandResource &resource);
+    void xdgPopupRequested(QWaylandSurface *surface, QWaylandSurface *parent, QWaylandInputDevice *seat, const QPoint &position, const QWaylandResource &resource);
     void pong(uint serial);
 
 private Q_SLOTS:

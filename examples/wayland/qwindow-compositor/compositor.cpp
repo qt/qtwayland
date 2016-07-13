@@ -147,9 +147,9 @@ Compositor::Compositor(QWindow *window)
     , m_wlShell(new QWaylandWlShell(this))
     , m_xdgShell(new QWaylandXdgShell(this))
 {
-    connect(m_wlShell, &QWaylandWlShell::shellSurfaceCreated, this, &Compositor::onWlShellSurfaceCreated);
+    connect(m_wlShell, &QWaylandWlShell::wlShellSurfaceCreated, this, &Compositor::onWlShellSurfaceCreated);
     connect(m_xdgShell, &QWaylandXdgShell::xdgSurfaceCreated, this, &Compositor::onXdgSurfaceCreated);
-    connect(m_xdgShell, &QWaylandXdgShell::createXdgPopup, this, &Compositor::onCreateXdgPopup);
+    connect(m_xdgShell, &QWaylandXdgShell::xdgPopupRequested, this, &Compositor::onXdgPopupRequested);
 }
 
 Compositor::~Compositor()
@@ -252,9 +252,9 @@ void Compositor::onXdgSurfaceCreated(QWaylandXdgSurface *xdgSurface)
     connect(xdgSurface, &QWaylandXdgSurface::unsetFullscreen, view, &View::onXdgUnsetFullscreen);
 }
 
-void Compositor::onCreateXdgPopup(QWaylandSurface *surface, QWaylandSurface *parent,
-                                        QWaylandInputDevice *inputDevice, const QPoint &position,
-                                        const QWaylandResource &resource)
+void Compositor::onXdgPopupRequested(QWaylandSurface *surface, QWaylandSurface *parent,
+                                     QWaylandInputDevice *inputDevice, const QPoint &position,
+                                     const QWaylandResource &resource)
 {
     Q_UNUSED(inputDevice);
 

@@ -68,7 +68,7 @@ WaylandCompositor {
     }
 
     WlShell {
-        onShellSurfaceCreated: {
+        onWlShellSurfaceCreated: {
             chromeComponent.createObject(defaultOutput.surfaceArea, { "shellSurface": shellSurface } );
         }
     }
@@ -88,7 +88,7 @@ WaylandCompositor {
     TextInputManager {
     }
 
-    onCreateSurface: {
+    onSurfaceRequested: {
         var surface = surfaceComponent.createObject(comp, { } );
         surface.initialize(comp, client, id, version);
     }

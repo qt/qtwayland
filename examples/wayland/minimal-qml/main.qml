@@ -73,7 +73,7 @@ WaylandCompositor {
     // chromeComponent on the output.
     extensions: [
         WlShell {
-            onShellSurfaceCreated:
+            onWlShellSurfaceCreated:
                 chromeComponent.createObject(surfaceArea, { "shellSurface": shellSurface } );
         },
         XdgShell {

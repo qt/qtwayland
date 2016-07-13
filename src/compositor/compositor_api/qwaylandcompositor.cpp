@@ -290,7 +290,7 @@ void QWaylandCompositorPrivate::compositor_create_surface(wl_compositor::Resourc
 {
     Q_Q(QWaylandCompositor);
     QWaylandClient *client = QWaylandClient::fromWlClient(q, resource->client());
-    emit q->createSurface(client, id, resource->version());
+    emit q->surfaceRequested(client, id, resource->version());
 #ifndef QT_NO_DEBUG
     Q_ASSERT_X(!QWaylandSurfacePrivate::hasUninitializedSurface(), "QWaylandCompositor", QStringLiteral("Found uninitialized QWaylandSurface after emitting QWaylandCompositor::createSurface for id %1. All surfaces has to be initialized immediately after creation. See QWaylandSurface::initialize.").arg(id).toLocal8Bit().constData());
 #endif
@@ -416,7 +416,7 @@ void QWaylandCompositorPrivate::loadServerBufferIntegration()
   Normally, a compositor application will have a single WaylandCompositor
   instance, which can have several outputs as children. When a client
   requests the compositor to create a surface, the request is handled by
-  the onCreateSurface handler.
+  the onSurfaceRequested handler.
 
   Extensions that are supported by the compositor should be instantiated and added to the
   extensions property.

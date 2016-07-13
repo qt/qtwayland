@@ -150,11 +150,11 @@ void QWaylandXdgShellPrivate::xdg_shell_get_xdg_surface(Resource *resource, uint
     QWaylandResource xdgSurfaceResource(wl_resource_create(resource->client(), &xdg_surface_interface,
                                                            wl_resource_get_version(resource->handle), id));
 
-    emit q->createXdgSurface(surface, xdgSurfaceResource);
+    emit q->xdgSurfaceRequested(surface, xdgSurfaceResource);
 
     QWaylandXdgSurface *xdgSurface = QWaylandXdgSurface::fromResource(xdgSurfaceResource.resource());
     if (!xdgSurface) {
-        // A QWaylandXdgSurface was not created in response to the createXdgSurface signal, so we
+        // A QWaylandXdgSurface was not created in response to the xdgSurfaceRequested signal, so we
         // create one as fallback here instead.
         xdgSurface = new QWaylandXdgSurface(q, surface, xdgSurfaceResource);
     }
@@ -196,11 +196,11 @@ void QWaylandXdgShellPrivate::xdg_shell_get_xdg_popup(Resource *resource, uint32
                                                           wl_resource_get_version(resource->handle), id));
     QWaylandInputDevice *inputDevice = QWaylandInputDevice::fromSeatResource(seat);
     QPoint position(x, y);
-    emit q->createXdgPopup(surface, parentSurface, inputDevice, position, xdgPopupResource);
+    emit q->xdgPopupRequested(surface, parentSurface, inputDevice, position, xdgPopupResource);
 
     QWaylandXdgPopup *xdgPopup = QWaylandXdgPopup::fromResource(xdgPopupResource.resource());
     if (!xdgPopup) {
-        // A QWaylandXdgPopup was not created in response to the createXdgPopup signal, so we
+        // A QWaylandXdgPopup was not created in response to the xdgPopupRequested signal, so we
         // create one as fallback here instead.
         xdgPopup = new QWaylandXdgPopup(q, surface, parentSurface, position, xdgPopupResource);
     }

@@ -70,8 +70,8 @@ public:
     static QByteArray interfaceName();
 
 Q_SIGNALS:
-    void createShellSurface(QWaylandSurface *surface, const QWaylandResource &resource);
-    void shellSurfaceCreated(QWaylandWlShellSurface *shellSurface);
+    void wlShellSurfaceRequested(QWaylandSurface *surface, const QWaylandResource &resource);
+    void wlShellSurfaceCreated(QWaylandWlShellSurface *shellSurface);
 };
 
 class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandWlShellSurface : public QWaylandShellSurfaceTemplate<QWaylandWlShellSurface>

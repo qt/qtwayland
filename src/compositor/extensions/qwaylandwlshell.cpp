@@ -79,17 +79,17 @@ void QWaylandWlShellPrivate::shell_get_shell_surface(Resource *resource, uint32_
     if (!surface->setRole(QWaylandWlShellSurface::role(), displayRes, WL_DISPLAY_ERROR_INVALID_OBJECT))
         return;
 
-    emit q->createShellSurface(surface, shellSurfaceResource);
+    emit q->wlShellSurfaceRequested(surface, shellSurfaceResource);
 
     QWaylandWlShellSurface *shellSurface = QWaylandWlShellSurface::fromResource(shellSurfaceResource.resource());
     if (!shellSurface) {
-        // A QWaylandShellSurface was not created in response to the createShellSurface signal
-        // we create one as fallback here instead.
+        // A QWaylandWlShellSurface was not created in response to the wlShellSurfaceRequested
+        // signal, so we create one as fallback here instead.
         shellSurface = new QWaylandWlShellSurface(q, surface, shellSurfaceResource);
     }
 
     m_shellSurfaces.append(shellSurface);
-    emit q->shellSurfaceCreated(shellSurface);
+    emit q->wlShellSurfaceCreated(shellSurface);
 }
 
 void QWaylandWlShellPrivate::unregisterShellSurface(QWaylandWlShellSurface *shellSurface)

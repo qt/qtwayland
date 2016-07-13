@@ -84,13 +84,13 @@ WaylandCompositor {
     WlShell {
         id: defaultShell
 
-        onShellSurfaceCreated: {
+        onWlShellSurfaceCreated: {
             var item = chromeComponent.createObject(defaultOutput.surfaceArea, { "shellSurface": shellSurface } );
             item.surface.activated.connect(item.raise);
         }
     }
 
-    onCreateSurface: {
+    onSurfaceRequested: {
         var surface = surfaceComponent.createObject(comp, { } );
         surface.initialize(comp, client, id, version);
     }

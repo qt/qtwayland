@@ -37,7 +37,7 @@
 
 #include <QtQml/QQmlEngine>
 #include <QQuickWindow>
-#include <QtGui/private/qopengltextureblitter_p.h>
+#include <QOpenGLTextureBlitter>
 #include <QOpenGLFramebufferObject>
 #include <QMatrix4x4>
 #include <QRunnable>

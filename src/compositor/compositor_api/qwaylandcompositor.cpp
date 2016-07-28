@@ -80,7 +80,7 @@
 #include <QtGui/private/qguiapplication_p.h>
 
 #ifdef QT_WAYLAND_COMPOSITOR_GL
-#   include <QtGui/private/qopengltextureblitter_p.h>
+#   include <QOpenGLTextureBlitter>
 #   include <QOpenGLContext>
 #   include <QOpenGLFramebufferObject>
 #   include <QMatrix4x4>

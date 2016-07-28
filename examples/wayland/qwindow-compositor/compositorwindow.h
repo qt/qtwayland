@@ -43,7 +43,7 @@
 
 #include <QOpenGLWindow>
 #include <QPointer>
-#include <QtGui/private/qopengltextureblitter_p.h>
+#include <QOpenGLTextureBlitter>
 
 QT_BEGIN_NAMESPACE
 

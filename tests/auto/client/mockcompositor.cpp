@@ -185,9 +185,16 @@ void MockCompositor::processCommand(const Command &command)
 
 void MockCompositor::dispatchCommands()
 {
-    foreach (const Command &command, m_commandQueue)
+    lock();
+    int count = m_commandQueue.length();
+    unlock();
+
+    for (int i = 0; i < count; ++i) {
+        lock();
+        const Command command = m_commandQueue.takeFirst();
+        unlock();
         command.callback(command.target, command.parameters);
-    m_commandQueue.clear();
+    }
 }
 
 void *MockCompositor::run(void *data)
@@ -205,8 +212,11 @@ void *MockCompositor::run(void *data)
     }
 
     while (controller->m_alive) {
-        QMutexLocker locker(&controller->m_mutex);
-        controller->m_waitCondition.wait(&controller->m_mutex);
+        {
+            QMutexLocker locker(&controller->m_mutex);
+            if (controller->m_commandQueue.isEmpty())
+                controller->m_waitCondition.wait(&controller->m_mutex);
+        }
         controller->dispatchCommands();
         compositor.dispatchEvents(20);
     }

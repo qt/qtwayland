@@ -55,8 +55,6 @@
 #include <qpa/qplatformdrag.h>
 #include <qpa/qwindowsysteminterface.h>
 
-#include <QDebug>
-
 QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
@@ -127,8 +125,6 @@ void QWaylandDataDevice::data_device_data_offer(struct ::wl_data_offer *id)
 void QWaylandDataDevice::data_device_drop()
 {
     QDrag *drag = static_cast<QWaylandDrag *>(QGuiApplicationPrivate::platformIntegration()->drag())->currentDrag();
-
-    qDebug() << Q_FUNC_INFO << drag << m_dragOffer.data();
 
     QMimeData *dragData = 0;
     Qt::DropActions supportedActions;

@@ -92,11 +92,64 @@ void Compositor::sendKeyRelease(void *data, const QList<QVariant> &parameters)
     compositor->m_keyboard->sendKey(parameters.last().toUInt() - 8, 0);
 }
 
+void Compositor::sendTouchDown(void *data, const QList<QVariant> &parameters)
+{
+    Compositor *compositor = static_cast<Compositor *>(data);
+    Surface *surface = resolveSurface(parameters.first());
+
+    Q_ASSERT(compositor);
+    Q_ASSERT(surface);
+
+    QPoint position = parameters.at(1).toPoint();
+    int id = parameters.at(2).toInt();
+
+    compositor->m_touch->sendDown(surface, position, id);
+}
+
+void Compositor::sendTouchUp(void *data, const QList<QVariant> &parameters)
+{
+    Compositor *compositor = static_cast<Compositor *>(data);
+    Surface *surface = resolveSurface(parameters.first());
+
+    Q_ASSERT(compositor);
+    Q_ASSERT(surface);
+
+    int id = parameters.at(1).toInt();
+
+    compositor->m_touch->sendUp(surface, id);
+}
+
+void Compositor::sendTouchMotion(void *data, const QList<QVariant> &parameters)
+{
+    Compositor *compositor = static_cast<Compositor *>(data);
+    Surface *surface = resolveSurface(parameters.first());
+
+    Q_ASSERT(compositor);
+    Q_ASSERT(surface);
+
+    QPoint position = parameters.at(1).toPoint();
+    int id = parameters.at(2).toInt();
+
+    compositor->m_touch->sendMotion(surface, position, id);
+}
+
+void Compositor::sendTouchFrame(void *data, const QList<QVariant> &parameters)
+{
+    Compositor *compositor = static_cast<Compositor *>(data);
+    Surface *surface = resolveSurface(parameters.first());
+
+    Q_ASSERT(compositor);
+    Q_ASSERT(surface);
+
+    compositor->m_touch->sendFrame(surface);
+}
+
 Seat::Seat(Compositor *compositor, struct ::wl_display *display)
     : wl_seat(display, 2)
     , m_compositor(compositor)
     , m_keyboard(new Keyboard(compositor))
     , m_pointer(new Pointer(compositor))
+    , m_touch(new Touch(compositor))
 {
 }
 
@@ -106,7 +159,7 @@ Seat::~Seat()
 
 void Seat::seat_bind_resource(Resource *resource)
 {
-    send_capabilities(resource->handle, capability_keyboard | capability_pointer);
+    send_capabilities(resource->handle, capability_keyboard | capability_pointer | capability_touch);
 }
 
 void Seat::seat_get_keyboard(Resource *resource, uint32_t id)
@@ -117,6 +170,11 @@ void Seat::seat_get_keyboard(Resource *resource, uint32_t id)
 void Seat::seat_get_pointer(Resource *resource, uint32_t id)
 {
     m_pointer->add(resource->client(), id, resource->version());
+}
+
+void Seat::seat_get_touch(Resource *resource, uint32_t id)
+{
+    m_touch->add(resource->client(), id, resource->version());
 }
 
 Keyboard::Keyboard(Compositor *compositor)
@@ -217,6 +275,41 @@ void Pointer::pointer_destroy_resource(wl_pointer::Resource *resource)
 {
     if (m_focusResource == resource)
         m_focusResource = 0;
+}
+
+Touch::Touch(Compositor *compositor)
+    : wl_touch()
+    , m_compositor(compositor)
+{
+}
+
+void Touch::sendDown(Surface *surface, const QPoint &position, int id)
+{
+    uint32_t serial = m_compositor->nextSerial();
+    uint32_t time = m_compositor->time();
+    Q_ASSERT(surface);
+    Resource *resource = resourceMap().value(surface->resource()->client());
+    Q_ASSERT(resource);
+    wl_touch_send_down(resource->handle, serial, time, surface->resource()->handle, id, position.x(), position.y());
+}
+
+void Touch::sendUp(Surface *surface, int id)
+{
+    Resource *resource = resourceMap().value(surface->resource()->client());
+    wl_touch_send_up(resource->handle, m_compositor->nextSerial(), m_compositor->time(), id);
+}
+
+void Touch::sendMotion(Surface *surface, const QPoint &position, int id)
+{
+    Resource *resource = resourceMap().value(surface->resource()->client());
+    uint32_t time = m_compositor->time();
+    wl_touch_send_motion(resource->handle, time, id, position.x(), position.y());
+}
+
+void Touch::sendFrame(Surface *surface)
+{
+    Resource *resource = resourceMap().value(surface->resource()->client());
+    wl_touch_send_frame(resource->handle);
 }
 
 DataDevice::DataDevice(Compositor *compositor)

@@ -122,6 +122,34 @@ void MockCompositor::sendKeyRelease(const QSharedPointer<MockSurface> &surface, 
     processCommand(command);
 }
 
+void MockCompositor::sendTouchDown(const QSharedPointer<MockSurface> &surface, const QPoint &position, int id)
+{
+    Command command = makeCommand(Impl::Compositor::sendTouchDown, m_compositor);
+    command.parameters << QVariant::fromValue(surface) << position << id;
+    processCommand(command);
+}
+
+void MockCompositor::sendTouchMotion(const QSharedPointer<MockSurface> &surface, const QPoint &position, int id)
+{
+    Command command = makeCommand(Impl::Compositor::sendTouchMotion, m_compositor);
+    command.parameters << QVariant::fromValue(surface) << position << id;
+    processCommand(command);
+}
+
+void MockCompositor::sendTouchUp(const QSharedPointer<MockSurface> &surface, int id)
+{
+    Command command = makeCommand(Impl::Compositor::sendTouchUp, m_compositor);
+    command.parameters << QVariant::fromValue(surface) << id;
+    processCommand(command);
+}
+
+void MockCompositor::sendTouchFrame(const QSharedPointer<MockSurface> &surface)
+{
+    Command command = makeCommand(Impl::Compositor::sendTouchFrame, m_compositor);
+    command.parameters << QVariant::fromValue(surface);
+    processCommand(command);
+}
+
 QSharedPointer<MockSurface> MockCompositor::surface()
 {
     QSharedPointer<MockSurface> result;
@@ -208,6 +236,7 @@ Compositor::Compositor()
     m_seat.reset(new Seat(this, m_display));
     m_pointer = m_seat->pointer();
     m_keyboard = m_seat->keyboard();
+    m_touch = m_seat->touch();
 
     wl_display_add_global(m_display, &wl_output_interface, this, bindOutput);
     wl_display_add_global(m_display, &wl_shell_interface, this, bindShell);

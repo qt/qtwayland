@@ -56,17 +56,20 @@ public:
 
     Keyboard *keyboard() const { return m_keyboard.data(); }
     Pointer *pointer() const { return m_pointer.data(); }
+    Touch *touch() const { return m_touch.data(); }
 
 protected:
     void seat_bind_resource(Resource *resource) Q_DECL_OVERRIDE;
     void seat_get_keyboard(Resource *resource, uint32_t id) Q_DECL_OVERRIDE;
     void seat_get_pointer(Resource *resource, uint32_t id) Q_DECL_OVERRIDE;
+    void seat_get_touch(Resource *resource, uint32_t id) Q_DECL_OVERRIDE;
 
 private:
     Compositor *m_compositor;
 
     QScopedPointer<Keyboard> m_keyboard;
     QScopedPointer<Pointer> m_pointer;
+    QScopedPointer<Touch> m_touch;
 };
 
 class Keyboard : public QtWaylandServer::wl_keyboard
@@ -110,6 +113,18 @@ private:
 
     Resource *m_focusResource;
     Surface *m_focus;
+};
+
+class Touch : public QtWaylandServer::wl_touch
+{
+public:
+    Touch(Compositor *compositor);
+    void sendDown(Surface *surface, const QPoint &position, int id);
+    void sendUp(Surface *surface, int id);
+    void sendMotion(Surface *surface, const QPoint &position, int id);
+    void sendFrame(Surface *surface);
+private:
+    Compositor *m_compositor;
 };
 
 class DataDevice : public QtWaylandServer::wl_data_device

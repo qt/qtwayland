@@ -51,6 +51,7 @@ public:
         , keyReleaseEventCount(0)
         , mousePressEventCount(0)
         , mouseReleaseEventCount(0)
+        , touchEventCount(0)
         , keyCode(0)
     {
         setSurfaceType(QSurface::RasterSurface);
@@ -91,12 +92,18 @@ public:
         ++mouseReleaseEventCount;
     }
 
+    void touchEvent(QTouchEvent *event) Q_DECL_OVERRIDE
+    {
+        ++touchEventCount;
+    }
+
     int focusInEventCount;
     int focusOutEventCount;
     int keyPressEventCount;
     int keyReleaseEventCount;
     int mousePressEventCount;
     int mouseReleaseEventCount;
+    int touchEventCount;
 
     uint keyCode;
     QPoint mousePressPos;
@@ -197,6 +204,15 @@ void tst_WaylandClient::events()
     QCOMPARE(window.mouseReleaseEventCount, 0);
     compositor->sendMouseRelease(surface);
     QTRY_COMPARE(window.mouseReleaseEventCount, 1);
+
+    const int touchId = 0;
+    compositor->sendTouchDown(surface, QPoint(10, 10), touchId);
+    compositor->sendTouchFrame(surface);
+    QTRY_COMPARE(window.touchEventCount, 1);
+
+    compositor->sendTouchUp(surface, touchId);
+    compositor->sendTouchFrame(surface);
+    QTRY_COMPARE(window.touchEventCount, 2);
 }
 
 void tst_WaylandClient::backingStore()

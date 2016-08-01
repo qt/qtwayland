@@ -144,6 +144,70 @@ void Compositor::sendTouchFrame(void *data, const QList<QVariant> &parameters)
     compositor->m_touch->sendFrame(surface);
 }
 
+void Compositor::sendDataDeviceDataOffer(void *data, const QList<QVariant> &parameters)
+{
+    Compositor *compositor = static_cast<Compositor *>(data);
+    Surface *surface = resolveSurface(parameters.first());
+
+    Q_ASSERT(compositor);
+    Q_ASSERT(surface);
+
+    compositor->m_data_device_manager->dataDevice()->sendDataOffer(surface->resource()->client());
+}
+
+void Compositor::sendDataDeviceEnter(void *data, const QList<QVariant> &parameters)
+{
+    Compositor *compositor = static_cast<Compositor *>(data);
+    Surface *surface = resolveSurface(parameters.first());
+    QPoint position = parameters.at(1).toPoint();
+
+    Q_ASSERT(compositor);
+    Q_ASSERT(surface);
+
+    compositor->m_data_device_manager->dataDevice()->sendEnter(surface, position);
+}
+
+void Compositor::sendDataDeviceMotion(void *data, const QList<QVariant> &parameters)
+{
+    Compositor *compositor = static_cast<Compositor *>(data);
+    Q_ASSERT(compositor);
+    QPoint position = parameters.first().toPoint();
+    compositor->m_data_device_manager->dataDevice()->sendMotion(position);
+}
+
+void Compositor::sendDataDeviceDrop(void *data, const QList<QVariant> &parameters)
+{
+    Compositor *compositor = static_cast<Compositor *>(data);
+    Surface *surface = resolveSurface(parameters.first());
+
+    Q_ASSERT(compositor);
+    Q_ASSERT(surface);
+
+    compositor->m_data_device_manager->dataDevice()->sendDrop(surface);
+}
+
+void Compositor::sendDataDeviceLeave(void *data, const QList<QVariant> &parameters)
+{
+    Compositor *compositor = static_cast<Compositor *>(data);
+    Surface *surface = resolveSurface(parameters.first());
+
+    Q_ASSERT(compositor);
+    Q_ASSERT(surface);
+
+    compositor->m_data_device_manager->dataDevice()->sendLeave(surface);
+}
+
+void Compositor::waitForStartDrag(void *data, const QList<QVariant> &parameters)
+{
+    Compositor *compositor = static_cast<Compositor *>(data);
+    Q_ASSERT(compositor);
+    while (!compositor->m_startDragSeen) {
+        wl_display_flush_clients(compositor->m_display);
+        wl_event_loop_dispatch(compositor->m_loop, 100);
+    }
+    compositor->m_startDragSeen = false;
+}
+
 Seat::Seat(Compositor *compositor, struct ::wl_display *display)
     : wl_seat(display, 2)
     , m_compositor(compositor)
@@ -312,16 +376,63 @@ void Touch::sendFrame(Surface *surface)
     wl_touch_send_frame(resource->handle);
 }
 
+DataOffer::DataOffer()
+    : wl_data_offer()
+{
+
+}
+
 DataDevice::DataDevice(Compositor *compositor)
     : wl_data_device()
     , m_compositor(compositor)
+    , m_dataOffer(nullptr)
+    , m_focus(nullptr)
 {
 
+}
+
+void DataDevice::sendDataOffer(wl_client *client)
+{
+    m_dataOffer = new QtWaylandServer::wl_data_offer(client, 0, 1);
+    Resource *resource = resourceMap().value(client);
+    send_data_offer(resource->handle, m_dataOffer->resource()->handle);
+}
+
+void DataDevice::sendEnter(Surface *surface, const QPoint& position)
+{
+    uint serial = m_compositor->nextSerial();
+    m_focus = surface;
+    Resource *resource = resourceMap().value(surface->resource()->client());
+    send_enter(resource->handle, serial, surface->resource()->handle, position.x(), position.y(), m_dataOffer->resource()->handle);
+}
+
+void DataDevice::sendMotion(const QPoint &position)
+{
+    uint32_t time = m_compositor->time();
+    Resource *resource = resourceMap().value(m_focus->resource()->client());
+    send_motion(resource->handle, time, position.x(), position.y());
+}
+
+void DataDevice::sendDrop(Surface *surface)
+{
+    Resource *resource = resourceMap().value(surface->resource()->client());
+    send_drop(resource->handle);
+}
+
+void DataDevice::sendLeave(Surface *surface)
+{
+    Resource *resource = resourceMap().value(surface->resource()->client());
+    send_leave(resource->handle);
 }
 
 DataDevice::~DataDevice()
 {
 
+}
+
+void DataDevice::data_device_start_drag(QtWaylandServer::wl_data_device::Resource *resource, wl_resource *source, wl_resource *origin, wl_resource *icon, uint32_t serial)
+{
+    m_compositor->m_startDragSeen = true;
 }
 
 DataDeviceManager::DataDeviceManager(Compositor *compositor, wl_display *display)
@@ -336,11 +447,21 @@ DataDeviceManager::~DataDeviceManager()
 
 }
 
+DataDevice *DataDeviceManager::dataDevice() const
+{
+    return m_data_device.data();
+}
+
 void DataDeviceManager::data_device_manager_get_data_device(Resource *resource, uint32_t id, struct ::wl_resource *seat)
 {
     if (!m_data_device)
         m_data_device.reset(new DataDevice(m_compositor));
     m_data_device->add(resource->client(), id, 1);
+}
+
+void DataDeviceManager::data_device_manager_create_data_source(QtWaylandServer::wl_data_device_manager::Resource *resource, uint32_t id)
+{
+    new QtWaylandServer::wl_data_source(resource->client(), id, 1);
 }
 
 }

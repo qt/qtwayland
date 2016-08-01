@@ -127,14 +127,30 @@ private:
     Compositor *m_compositor;
 };
 
+class DataOffer : public QtWaylandServer::wl_data_offer
+{
+public:
+    DataOffer();
+};
+
 class DataDevice : public QtWaylandServer::wl_data_device
 {
 public:
     DataDevice(Compositor *compositor);
+    void sendDataOffer(wl_client *client);
+    void sendEnter(Surface *surface, const QPoint &position);
+    void sendMotion(const QPoint &position);
+    void sendDrop(Surface *surface);
+    void sendLeave(Surface *surface);
     ~DataDevice();
+
+protected:
+    void data_device_start_drag(Resource *resource, struct ::wl_resource *source, struct ::wl_resource *origin, struct ::wl_resource *icon, uint32_t serial) override;
 
 private:
     Compositor *m_compositor;
+    QtWaylandServer::wl_data_offer *m_dataOffer;
+    Surface* m_focus;
 };
 
 class DataDeviceManager : public QtWaylandServer::wl_data_device_manager
@@ -142,9 +158,11 @@ class DataDeviceManager : public QtWaylandServer::wl_data_device_manager
 public:
     DataDeviceManager(Compositor *compositor, struct ::wl_display *display);
     ~DataDeviceManager();
+    DataDevice *dataDevice() const;
 
 protected:
     void data_device_manager_get_data_device(Resource *resource, uint32_t id, struct ::wl_resource *seat) Q_DECL_OVERRIDE;
+    void data_device_manager_create_data_source(Resource *resource, uint32_t id) override;
 
 private:
     Compositor *m_compositor;

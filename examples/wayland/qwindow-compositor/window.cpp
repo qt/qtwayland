@@ -38,7 +38,7 @@
 **
 ****************************************************************************/
 
-#include "compositorwindow.h"
+#include "window.h"
 
 #include <QMouseEvent>
 #include <QOpenGLWindow>
@@ -46,10 +46,10 @@
 #include <QOpenGLFunctions>
 #include <QMatrix4x4>
 
-#include "windowcompositor.h"
+#include "compositor.h"
 #include <QtWaylandCompositor/qwaylandinput.h>
 
-CompositorWindow::CompositorWindow()
+Window::Window()
     : m_backgroundTexture(0)
     , m_compositor(0)
     , m_grabState(NoGrab)
@@ -57,14 +57,14 @@ CompositorWindow::CompositorWindow()
 {
 }
 
-void CompositorWindow::setCompositor(WindowCompositor *comp) {
+void Window::setCompositor(Compositor *comp) {
     m_compositor = comp;
-    connect(m_compositor, &WindowCompositor::startMove, this, &CompositorWindow::startMove);
-    connect(m_compositor, &WindowCompositor::startResize, this, &CompositorWindow::startResize);
-    connect(m_compositor, &WindowCompositor::dragStarted, this, &CompositorWindow::startDrag);
+    connect(m_compositor, &Compositor::startMove, this, &Window::startMove);
+    connect(m_compositor, &Compositor::startResize, this, &Window::startResize);
+    connect(m_compositor, &Compositor::dragStarted, this, &Window::startDrag);
 }
 
-void CompositorWindow::initializeGL()
+void Window::initializeGL()
 {
     QImage backgroundImage = QImage(QLatin1String(":/background.jpg"));
     m_backgroundTexture = new QOpenGLTexture(backgroundImage, QOpenGLTexture::DontGenerateMipMaps);
@@ -73,7 +73,7 @@ void CompositorWindow::initializeGL()
     m_textureBlitter.create();
 }
 
-void CompositorWindow::drawBackground()
+void Window::drawBackground()
 {
     for (int y = 0; y < height(); y += m_backgroundImageSize.height()) {
         for (int x = 0; x < width(); x += m_backgroundImageSize.width()) {
@@ -85,7 +85,7 @@ void CompositorWindow::drawBackground()
     }
 }
 
-QPointF CompositorWindow::getAnchorPosition(const QPointF &position, int resizeEdge, const QSize &windowSize)
+QPointF Window::getAnchorPosition(const QPointF &position, int resizeEdge, const QSize &windowSize)
 {
     float y = position.y();
     if (resizeEdge & QWaylandXdgSurface::ResizeEdge::TopEdge)
@@ -98,12 +98,12 @@ QPointF CompositorWindow::getAnchorPosition(const QPointF &position, int resizeE
     return QPointF(x, y);
 }
 
-QPointF CompositorWindow::getAnchoredPosition(const QPointF &anchorPosition, int resizeEdge, const QSize &windowSize)
+QPointF Window::getAnchoredPosition(const QPointF &anchorPosition, int resizeEdge, const QSize &windowSize)
 {
     return anchorPosition - getAnchorPosition(QPointF(), resizeEdge, windowSize);
 }
 
-void CompositorWindow::paintGL()
+void Window::paintGL()
 {
     m_compositor->startRender();
     QOpenGLFunctions *functions = context()->functions();
@@ -117,7 +117,7 @@ void CompositorWindow::paintGL()
     functions->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     GLenum currentTarget = GL_TEXTURE_2D;
-    Q_FOREACH (WindowCompositorView *view, m_compositor->views()) {
+    Q_FOREACH (View *view, m_compositor->views()) {
         if (view->isCursor())
             continue;
         GLenum target;
@@ -151,10 +151,10 @@ void CompositorWindow::paintGL()
     m_compositor->endRender();
 }
 
-WindowCompositorView *CompositorWindow::viewAt(const QPointF &point)
+View *Window::viewAt(const QPointF &point)
 {
-    WindowCompositorView *ret = 0;
-    Q_FOREACH (WindowCompositorView *view, m_compositor->views()) {
+    View *ret = 0;
+    Q_FOREACH (View *view, m_compositor->views()) {
         if (view == m_dragIconView)
             continue;
         QPointF topLeft = view->position();
@@ -166,12 +166,12 @@ WindowCompositorView *CompositorWindow::viewAt(const QPointF &point)
     return ret;
 }
 
-void CompositorWindow::startMove()
+void Window::startMove()
 {
     m_grabState = MoveGrab;
 }
 
-void CompositorWindow::startResize(int edge, bool anchored)
+void Window::startResize(int edge, bool anchored)
 {
     m_initialSize = m_mouseView->windowSize();
     m_grabState = ResizeGrab;
@@ -180,14 +180,14 @@ void CompositorWindow::startResize(int edge, bool anchored)
     m_resizeAnchorPosition = getAnchorPosition(m_mouseView->position(), edge, m_mouseView->surface()->size());
 }
 
-void CompositorWindow::startDrag(WindowCompositorView *dragIcon)
+void Window::startDrag(View *dragIcon)
 {
     m_grabState = DragGrab;
     m_dragIconView = dragIcon;
     m_compositor->raise(dragIcon);
 }
 
-void CompositorWindow::mousePressEvent(QMouseEvent *e)
+void Window::mousePressEvent(QMouseEvent *e)
 {
     if (mouseGrab())
         return;
@@ -210,13 +210,13 @@ void CompositorWindow::mousePressEvent(QMouseEvent *e)
     sendMouseEvent(e, m_mouseView);
 }
 
-void CompositorWindow::mouseReleaseEvent(QMouseEvent *e)
+void Window::mouseReleaseEvent(QMouseEvent *e)
 {
     if (!mouseGrab())
         sendMouseEvent(e, m_mouseView);
     if (e->buttons() == Qt::NoButton) {
         if (m_grabState == DragGrab) {
-            WindowCompositorView *view = viewAt(e->localPos());
+            View *view = viewAt(e->localPos());
             m_compositor->handleDrag(view, e);
         }
         m_mouseView = 0;
@@ -224,11 +224,11 @@ void CompositorWindow::mouseReleaseEvent(QMouseEvent *e)
     }
 }
 
-void CompositorWindow::mouseMoveEvent(QMouseEvent *e)
+void Window::mouseMoveEvent(QMouseEvent *e)
 {
     switch (m_grabState) {
     case NoGrab: {
-        WindowCompositorView *view = m_mouseView ? m_mouseView.data() : viewAt(e->localPos());
+        View *view = m_mouseView ? m_mouseView.data() : viewAt(e->localPos());
         sendMouseEvent(e, view);
         if (!view)
             setCursor(Qt::ArrowCursor);
@@ -245,7 +245,7 @@ void CompositorWindow::mouseMoveEvent(QMouseEvent *e)
     }
         break;
     case DragGrab: {
-        WindowCompositorView *view = viewAt(e->localPos());
+        View *view = viewAt(e->localPos());
         m_compositor->handleDrag(view, e);
         if (m_dragIconView) {
             m_dragIconView->setPosition(e->localPos() + m_dragIconView->offset());
@@ -256,7 +256,7 @@ void CompositorWindow::mouseMoveEvent(QMouseEvent *e)
     }
 }
 
-void CompositorWindow::sendMouseEvent(QMouseEvent *e, WindowCompositorView *target)
+void Window::sendMouseEvent(QMouseEvent *e, View *target)
 {
     if (!target)
         return;
@@ -266,12 +266,12 @@ void CompositorWindow::sendMouseEvent(QMouseEvent *e, WindowCompositorView *targ
     m_compositor->handleMouseEvent(target, &viewEvent);
 }
 
-void CompositorWindow::keyPressEvent(QKeyEvent *e)
+void Window::keyPressEvent(QKeyEvent *e)
 {
     m_compositor->defaultInputDevice()->sendKeyPressEvent(e->nativeScanCode());
 }
 
-void CompositorWindow::keyReleaseEvent(QKeyEvent *e)
+void Window::keyReleaseEvent(QKeyEvent *e)
 {
     m_compositor->defaultInputDevice()->sendKeyReleaseEvent(e->nativeScanCode());
 }

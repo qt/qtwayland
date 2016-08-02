@@ -160,7 +160,7 @@ Q_SIGNALS:
     void setMaximized(QWaylandOutput *output);
 
 private:
-    void initialize();
+    void initialize() override;
 };
 
 QT_END_NAMESPACE

@@ -39,7 +39,9 @@
 
 #include <QObject>
 #include <QtWaylandClient/qwaylandclientexport.h>
-#include <QtWaylandClient/private/qwayland-wayland.h>
+
+struct wl_registry;
+
 QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {

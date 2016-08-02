@@ -137,6 +137,8 @@ QWaylandDisplay::QWaylandDisplay(QWaylandIntegration *waylandIntegration)
     , mLastInputSerial(0)
     , mLastInputDevice(0)
     , mLastInputWindow(0)
+    , mLastKeyboardFocus(Q_NULLPTR)
+    , mSyncCallback(Q_NULLPTR)
 {
     qRegisterMetaType<uint32_t>("uint32_t");
 
@@ -391,6 +393,73 @@ void QWaylandDisplay::setLastInputDevice(QWaylandInputDevice *device, uint32_t s
     mLastInputDevice = device;
     mLastInputSerial = serial;
     mLastInputWindow = win;
+}
+
+bool QWaylandDisplay::shellManagesActiveState() const
+{
+    //TODO: This should be part of a shell interface used by the shell protocol implementations
+    return mShellXdg;
+}
+
+void QWaylandDisplay::handleWindowActivated(QWaylandWindow *window)
+{
+    if (mActiveWindows.contains(window))
+        return;
+
+    mActiveWindows.append(window);
+    requestWaylandSync();
+}
+
+void QWaylandDisplay::handleWindowDeactivated(QWaylandWindow *window)
+{
+    Q_ASSERT(!mActiveWindows.empty());
+
+    if (mActiveWindows.last() == window)
+        requestWaylandSync();
+
+    mActiveWindows.removeOne(window);
+}
+
+void QWaylandDisplay::handleKeyboardFocusChanged(QWaylandInputDevice *inputDevice)
+{
+    QWaylandWindow *keyboardFocus = inputDevice->keyboardFocus();
+
+    if (!shellManagesActiveState() && mLastKeyboardFocus != keyboardFocus) {
+        if (keyboardFocus)
+            handleWindowActivated(keyboardFocus);
+        if (mLastKeyboardFocus)
+            handleWindowDeactivated(mLastKeyboardFocus);
+    }
+    mLastKeyboardFocus = inputDevice->keyboardFocus();
+}
+
+void QWaylandDisplay::handleWaylandSync()
+{
+    // This callback is used to set the window activation because we may get an activate/deactivate
+    // pair, and the latter one would be lost in the QWindowSystemInterface queue, if we issue the
+    // handleWindowActivated() calls immediately.
+    QWindow *activeWindow = mActiveWindows.empty() ? Q_NULLPTR : mActiveWindows.last()->window();
+    if (activeWindow != QGuiApplication::focusWindow())
+        QWindowSystemInterface::handleWindowActivated(activeWindow);
+}
+
+const wl_callback_listener QWaylandDisplay::syncCallbackListener = {
+    [](void *data, struct wl_callback *callback, uint32_t time){
+        Q_UNUSED(time);
+        wl_callback_destroy(callback);
+        QWaylandDisplay *display = static_cast<QWaylandDisplay *>(data);
+        display->mSyncCallback = Q_NULLPTR;
+        display->handleWaylandSync();
+    }
+};
+
+void QWaylandDisplay::requestWaylandSync()
+{
+    if (mSyncCallback)
+        return;
+
+    mSyncCallback = wl_display_sync(mDisplay);
+    wl_callback_add_listener(mSyncCallback, &syncCallbackListener, this);
 }
 
 }

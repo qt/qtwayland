@@ -189,7 +189,7 @@ Q_SIGNALS:
     void ackConfigure(uint serial);
 
 private:
-    void initialize();
+    void initialize() override;
     QList<int> statesAsInts() const;
 
 private Q_SLOTS:
@@ -233,7 +233,7 @@ Q_SIGNALS:
     void parentSurfaceChanged();
 
 private:
-    void initialize();
+    void initialize() override;
 };
 
 QT_END_NAMESPACE

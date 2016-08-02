@@ -293,8 +293,13 @@ static xkb_keysym_t toKeysymFromTable(uint32_t key)
     return 0;
 }
 
-int QWaylandXkb::keysymToQtKey(xkb_keysym_t keysym, Qt::KeyboardModifiers &modifiers, const QString &text)
+std::pair<int, QString> QWaylandXkb::keysymToQtKey(xkb_keysym_t keysym, Qt::KeyboardModifiers &modifiers)
 {
+    QString text;
+    uint utf32 = xkb_keysym_to_utf32(keysym);
+    if (utf32)
+        text = QString::fromUcs4(&utf32, 1);
+
     int code = 0;
 
     if (keysym >= XKB_KEY_F1 && keysym <= XKB_KEY_F35) {
@@ -316,7 +321,13 @@ int QWaylandXkb::keysymToQtKey(xkb_keysym_t keysym, Qt::KeyboardModifiers &modif
         code = lookupKeysym(keysym);
     }
 
-    return code;
+    // Map control + letter to proper text
+    if (utf32 >= 'A' && utf32 <= '~' && (modifiers & Qt::ControlModifier)) {
+        utf32 &= ~0x60;
+        text = QString::fromUcs4(&utf32, 1);
+    }
+
+    return { code, text };
 }
 
 Qt::KeyboardModifiers QWaylandXkb::modifiers(struct xkb_state *state)
@@ -340,22 +351,6 @@ Qt::KeyboardModifiers QWaylandXkb::modifiers(struct xkb_state *state)
 QEvent::Type QWaylandXkb::toQtEventType(uint32_t state)
 {
     return state != 0 ? QEvent::KeyPress : QEvent::KeyRelease;
-}
-
-QString QWaylandXkb::textFromKeysym(uint32_t keysym, Qt::KeyboardModifiers modifiers)
-{
-    uint utf32 = xkb_keysym_to_utf32(keysym);
-
-    // Map control + letter to proper text
-    if (utf32 >= 'A' && utf32 <= '~' && (modifiers & Qt::ControlModifier)) {
-        utf32 &= ~0x60;
-        return QString::fromUcs4(&utf32, 1);
-    }
-
-    if (utf32)
-        return QString::fromUcs4(&utf32, 1);
-
-    return QString();
 }
 
 QVector<xkb_keysym_t> QWaylandXkb::toKeysym(QKeyEvent *event)

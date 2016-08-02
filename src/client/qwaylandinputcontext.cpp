@@ -335,8 +335,9 @@ void QWaylandTextInput::zwp_text_input_v2_keysym(uint32_t time, uint32_t sym, ui
     Qt::KeyboardModifiers qtModifiers = modifiersToQtModifiers(modifiers);
 
     QEvent::Type type = QWaylandXkb::toQtEventType(state);
-    const QString &text = QWaylandXkb::textFromKeysym(sym, qtModifiers);
-    int qtkey = QWaylandXkb::keysymToQtKey(sym, qtModifiers, text);
+    QString text;
+    int qtkey;
+    std::tie(qtkey, text) = QWaylandXkb::keysymToQtKey(sym, qtModifiers);
 
     QWindowSystemInterface::handleKeyEvent(QGuiApplication::focusWindow(),
                                            time, type, qtkey, qtModifiers, text);

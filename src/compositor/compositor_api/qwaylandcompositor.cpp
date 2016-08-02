@@ -110,10 +110,8 @@ public:
             Qt::KeyboardModifiers modifiers = QWaylandXkb::modifiers(keyb->xkbState());
 
             const xkb_keysym_t sym = xkb_state_key_get_one_sym(keyb->xkbState(), code);
-            uint utf32 = xkb_keysym_to_utf32(sym);
-            if (utf32)
-                text = QString::fromUcs4(&utf32, 1);
-            int qtkey = QWaylandXkb::keysymToQtKey(sym, modifiers, text);
+            int qtkey;
+            std::tie(qtkey, text) = QWaylandXkb::keysymToQtKey(sym, modifiers);
 
             ke->key = qtkey;
             ke->modifiers = modifiers;

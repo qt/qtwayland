@@ -307,7 +307,10 @@ bool QWaylandView::isBufferLocked() const
 void QWaylandView::setBufferLocked(bool locked)
 {
     Q_D(QWaylandView);
+    if (d->bufferLocked == locked)
+        return;
     d->bufferLocked = locked;
+    emit bufferLockedChanged();
 }
 
 /*!

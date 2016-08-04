@@ -8,6 +8,7 @@ include($$PWD/../xcomposite_share/xcomposite_share.pri)
     LIBS += -lXcomposite -lX11
 }
 
+QT += platformsupport-private
 CONFIG += egl
 
 SOURCES += \

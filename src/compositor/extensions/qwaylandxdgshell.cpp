@@ -648,7 +648,7 @@ QWaylandXdgSurface::QWaylandXdgSurface()
 
 /*!
  * Constructs a QWaylandXdgSurface for \a surface and initializes it with the
- * given \a xdgShell, \a surface and \a resource.
+ * given \a xdgShell, \a surface, and resource \a res.
  */
 QWaylandXdgSurface::QWaylandXdgSurface(QWaylandXdgShell *xdgShell, QWaylandSurface *surface, const QWaylandResource &res)
     : QWaylandShellSurfaceTemplate<QWaylandXdgSurface>(*new QWaylandXdgSurfacePrivate)
@@ -740,7 +740,7 @@ QWaylandSurface *QWaylandXdgSurface::surface() const
  */
 
 /*!
- * \property QWaylandXdgSurface::surface
+ * \property QWaylandXdgSurface::parentSurface
  *
  * This property holds the XdgSurface parent of this XdgSurface.
  * When a parent surface is set, the parentSurfaceChanged() signal

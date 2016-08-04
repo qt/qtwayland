@@ -94,7 +94,7 @@ QWaylandSurface *QWaylandSurfaceGrabber::surface() const
 
 /*!
  * Grab the content of the surface set on this object.
- * It may not be possible to do that immediately so the \a success and \a failed signals
+ * It may not be possible to do that immediately so the success and failed signals
  * should be used to be notified of when the grab is completed.
  */
 void QWaylandSurfaceGrabber::grab()

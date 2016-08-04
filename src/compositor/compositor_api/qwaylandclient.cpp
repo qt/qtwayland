@@ -134,8 +134,8 @@ QWaylandClient::~QWaylandClient()
 }
 
 /*!
- * Returns the QWaylandClient corresponding to the Wayland client \a wl_client and \a compositor.
- * If a QWaylandClient has not already been created for \a client, it is
+ * Returns the QWaylandClient corresponding to the Wayland client \a wlClient and \a compositor.
+ * If a QWaylandClient has not already been created for a client, it is
  * created and returned.
  */
 QWaylandClient *QWaylandClient::fromWlClient(QWaylandCompositor *compositor, wl_client *wlClient)

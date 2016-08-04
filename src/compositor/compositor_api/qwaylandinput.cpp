@@ -467,7 +467,7 @@ QWaylandInputDevice *QWaylandInputDevice::fromSeatResource(struct ::wl_resource 
 }
 
 /*!
- * \fn void mouseFocusChanged(QWaylandView *newFocus, QWaylandView *oldFocus)
+ * \fn void QWaylandInputDevice::mouseFocusChanged(QWaylandView *newFocus, QWaylandView *oldFocus)
  *
  * This signal is emitted when the mouse focus has changed from \a oldFocus to \a newFocus.
  */

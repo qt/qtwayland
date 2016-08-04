@@ -6,6 +6,7 @@ INCLUDEPATH += $$PWD
     LIBS += -lwayland-client -lwayland-egl
 }
 
+DEFINES += QT_EGL_WAYLAND
 CONFIG += egl
 QT += platformsupport-private
 

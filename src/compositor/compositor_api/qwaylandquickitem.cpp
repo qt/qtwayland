@@ -777,6 +777,63 @@ void QWaylandQuickItem::setSubsurfaceHandler(QObject *handler)
 }
 
 /*!
+ * \property QWaylandQuickItem::output
+ *
+ * This property holds the output on which this item is displayed.
+ */
+QWaylandOutput *QWaylandQuickItem::output() const
+{
+    Q_D(const QWaylandQuickItem);
+    return d->view->output();
+}
+
+void QWaylandQuickItem::setOutput(QWaylandOutput *output)
+{
+    Q_D(QWaylandQuickItem);
+    d->view->setOutput(output);
+}
+
+/*!
+ * \property QWaylandQuickItem::bufferLocked
+ *
+ * This property holds whether the item's buffer is currently locked. As long as
+ * the buffer is locked, it will not be released and returned to the client.
+ *
+ * The default is false.
+ */
+bool QWaylandQuickItem::isBufferLocked() const
+{
+    Q_D(const QWaylandQuickItem);
+    return d->view->isBufferLocked();
+}
+
+void QWaylandQuickItem::setBufferLocked(bool locked)
+{
+    Q_D(QWaylandQuickItem);
+    d->view->setBufferLocked(locked);
+}
+
+/*!
+ * \property bool QWaylandQuickItem::allowDiscardFrontBuffer
+ *
+ * By default, the item locks the current buffer until a new buffer is available
+ * and updatePaintNode() is called. Set this property to true to allow Qt to release the buffer
+ * immediately when the throttling view is no longer using it. This is useful for items that have
+ * slow update intervals.
+ */
+bool QWaylandQuickItem::allowDiscardFrontBuffer() const
+{
+    Q_D(const QWaylandQuickItem);
+    return d->view->allowDiscardFrontBuffer();
+}
+
+void QWaylandQuickItem::setAllowDiscardFrontBuffer(bool discard)
+{
+    Q_D(QWaylandQuickItem);
+    d->view->setAllowDiscardFrontBuffer(discard);
+}
+
+/*!
  * \internal
  */
 void QWaylandQuickItem::handleSurfaceChanged()

@@ -58,7 +58,6 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQuickItem : public QQuickItem
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandQuickItem)
-    Q_PROPERTY(QWaylandView *view READ view CONSTANT)
     Q_PROPERTY(QWaylandCompositor *compositor READ compositor)
     Q_PROPERTY(QWaylandSurface *surface READ surface WRITE setSurface NOTIFY surfaceChanged)
     Q_PROPERTY(bool paintEnabled READ paintEnabled WRITE setPaintEnabled)
@@ -68,6 +67,9 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQuickItem : public QQuickItem
     Q_PROPERTY(bool focusOnClick READ focusOnClick WRITE setFocusOnClick NOTIFY focusOnClickChanged)
     Q_PROPERTY(bool sizeFollowsSurface READ sizeFollowsSurface WRITE setSizeFollowsSurface NOTIFY sizeFollowsSurfaceChanged)
     Q_PROPERTY(QObject *subsurfaceHandler READ subsurfaceHandler WRITE setSubsurfaceHandler NOTIFY subsurfaceHandlerChanged)
+    Q_PROPERTY(QWaylandOutput *output READ output WRITE setOutput NOTIFY outputChanged)
+    Q_PROPERTY(bool bufferLocked READ isBufferLocked WRITE setBufferLocked NOTIFY bufferLockedChanged)
+    Q_PROPERTY(bool allowDiscardFrontBuffer READ allowDiscardFrontBuffer WRITE setAllowDiscardFrontBuffer NOTIFY allowDiscardFrontBufferChanged)
 public:
     QWaylandQuickItem(QQuickItem *parent = nullptr);
     ~QWaylandQuickItem();
@@ -107,6 +109,15 @@ public:
 
     QObject *subsurfaceHandler() const;
     void setSubsurfaceHandler(QObject*);
+
+    QWaylandOutput *output() const;
+    void setOutput(QWaylandOutput *output);
+
+    bool isBufferLocked() const;
+    void setBufferLocked(bool locked);
+
+    bool allowDiscardFrontBuffer() const;
+    void setAllowDiscardFrontBuffer(bool discard);
 
 protected:
     void mousePressEvent(QMouseEvent *event) Q_DECL_OVERRIDE;
@@ -160,6 +171,9 @@ Q_SIGNALS:
     void mouseRelease();
     void sizeFollowsSurfaceChanged();
     void subsurfaceHandlerChanged();
+    void outputChanged();
+    void bufferLockedChanged();
+    void allowDiscardFrontBufferChanged();
 protected:
     QSGNode *updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *) Q_DECL_OVERRIDE;
 

@@ -62,6 +62,7 @@ namespace QtWaylandClient {
 class QWaylandWindow;
 class QWaylandInputDevice;
 class QWaylandXdgSurface;
+class QWaylandXdgPopup;
 
 class Q_WAYLAND_CLIENT_EXPORT QWaylandXdgShell : public QtWayland::xdg_shell
 {
@@ -71,6 +72,7 @@ public:
     virtual ~QWaylandXdgShell();
 
     QWaylandXdgSurface *createXdgSurface(QWaylandWindow *window);
+    QWaylandXdgPopup *createXdgPopup(QWaylandWindow *window);
 
 private:
     void xdg_shell_ping(uint32_t serial) Q_DECL_OVERRIDE;

@@ -3,7 +3,7 @@
 ** Copyright (C) 2016 The Qt Company Ltd.
 ** Contact: http://www.qt.io/licensing/
 **
-** This file is part of the plugins of the Qt Toolkit.
+** This file is part of the config.tests of the Qt Toolkit.
 **
 ** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
@@ -31,37 +31,49 @@
 **
 ****************************************************************************/
 
-#include "qwaylandxdgshellintegration_p.h"
+#ifndef QWAYLANDXDGPOPUP_P_H
+#define QWAYLANDXDGPOPUP_P_H
 
-#include <QtWaylandClient/private/qwaylandwindow_p.h>
-#include <QtWaylandClient/private/qwaylanddisplay_p.h>
-#include <QtWaylandClient/private/qwaylandxdgsurface_p.h>
-#include <QtWaylandClient/private/qwaylandxdgpopup_p.h>
-#include <QtWaylandClient/private/qwaylandxdgshell_p.h>
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists purely as an
+// implementation detail.  This header file may change from version to
+// version without notice, or even be removed.
+//
+// We mean it.
+//
+
+#include <wayland-client.h>
+
+#include <QtWaylandClient/private/qwayland-xdg-shell.h>
+#include <QtWaylandClient/private/qwaylandclientexport_p.h>
+#include "qwaylandshellsurface_p.h"
 
 QT_BEGIN_NAMESPACE
 
+class QWindow;
+
 namespace QtWaylandClient {
 
-QWaylandXdgShellIntegration::QWaylandXdgShellIntegration(QWaylandDisplay *display)
-    : m_xdgShell(Q_NULLPTR)
-{
-    Q_FOREACH (QWaylandDisplay::RegistryGlobal global, display->globals()) {
-        if (global.interface == QLatin1String("xdg_shell")) {
-            m_xdgShell = new QWaylandXdgShell(display->wl_registry(), global.id);
-            break;
-        }
-    }
-}
+class QWaylandWindow;
+class QWaylandExtendedSurface;
 
-QWaylandShellSurface *QWaylandXdgShellIntegration::createShellSurface(QWaylandWindow *window)
+class Q_WAYLAND_CLIENT_EXPORT QWaylandXdgPopup : public QWaylandShellSurface
+        , public QtWayland::xdg_popup
 {
-    if (window->window()->type() == Qt::WindowType::Popup)
-        return m_xdgShell->createXdgPopup(window);
-    else
-        return m_xdgShell->createXdgSurface(window);
-}
+    Q_OBJECT
+public:
+    QWaylandXdgPopup(struct ::xdg_popup *popup, QWaylandWindow *window);
+    virtual ~QWaylandXdgPopup();
 
-}
+private:
+    QWaylandExtendedSurface *m_extendedWindow;
+};
 
 QT_END_NAMESPACE
+
+}
+
+#endif // QWAYLANDXDGPOPUP_P_H

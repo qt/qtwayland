@@ -1,9 +1,9 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Eurogiciel, author: <philippe.coval@eurogiciel.fr>
+** Copyright (C) 2016 The Qt Company Ltd.
 ** Contact: http://www.qt.io/licensing/
 **
-** This file is part of the config.tests of the Qt Toolkit.
+** This file is part of the plugins of the Qt Toolkit.
 **
 ** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
@@ -31,58 +31,29 @@
 **
 ****************************************************************************/
 
-#include "qwaylandxdgshell_p.h"
-
-#include "qwaylanddisplay_p.h"
-#include "qwaylandwindow_p.h"
-#include "qwaylandinputdevice_p.h"
-#include "qwaylandscreen_p.h"
 #include "qwaylandxdgpopup_p.h"
-#include "qwaylandxdgsurface_p.h"
 
-#include <QtCore/QDebug>
+#include "qwaylandwindow_p.h"
+#include "qwaylanddisplay_p.h"
+#include "qwaylandextendedsurface_p.h"
 
 QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
 
-QWaylandXdgShell::QWaylandXdgShell(struct ::xdg_shell *shell)
-    : QtWayland::xdg_shell(shell)
+QWaylandXdgPopup::QWaylandXdgPopup(struct ::xdg_popup *popup, QWaylandWindow *window)
+    : QWaylandShellSurface(window)
+    , QtWayland::xdg_popup(popup)
+    , m_extendedWindow(nullptr)
 {
+    if (window->display()->windowExtension())
+        m_extendedWindow = new QWaylandExtendedSurface(window);
 }
 
-QWaylandXdgShell::QWaylandXdgShell(struct ::wl_registry *registry, uint32_t id)
-    : QtWayland::xdg_shell(registry, id, 1)
+QWaylandXdgPopup::~QWaylandXdgPopup()
 {
-    use_unstable_version(QtWayland::xdg_shell::version_current);
-}
-
-QWaylandXdgShell::~QWaylandXdgShell()
-{
-    xdg_shell_destroy(object());
-}
-
-QWaylandXdgSurface *QWaylandXdgShell::createXdgSurface(QWaylandWindow *window)
-{
-    return new QWaylandXdgSurface(this, window);
-}
-
-QWaylandXdgPopup *QWaylandXdgShell::createXdgPopup(QWaylandWindow *window)
-{
-    QWaylandWindow *parentWindow = window->transientParent();
-    ::wl_surface *parentSurface = parentWindow->object();
-    QWaylandInputDevice *inputDevice = window->display()->lastInputDevice();
-    ::wl_seat *seat = inputDevice->wl_seat();
-    uint serial = inputDevice->serial();
-    QPoint position = window->geometry().topLeft();
-    int x = position.x() + parentWindow->frameMargins().left();
-    int y = position.y() + parentWindow->frameMargins().top();
-    return new QWaylandXdgPopup(get_xdg_popup(window->object(), parentSurface, seat, serial, x, y), window);
-}
-
-void QWaylandXdgShell::xdg_shell_ping(uint32_t serial)
-{
-    pong(serial);
+    xdg_popup_destroy(object());
+    delete m_extendedWindow;
 }
 
 }

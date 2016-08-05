@@ -385,12 +385,6 @@ void QWaylandDisplay::setLastInputDevice(QWaylandInputDevice *device, uint32_t s
     mLastInputWindow = win;
 }
 
-bool QWaylandDisplay::shellManagesActiveState() const
-{
-    //TODO: This should be part of a shell interface used by the shell protocol implementations
-    return mShellXdg;
-}
-
 void QWaylandDisplay::handleWindowActivated(QWaylandWindow *window)
 {
     if (mActiveWindows.contains(window))
@@ -414,7 +408,7 @@ void QWaylandDisplay::handleKeyboardFocusChanged(QWaylandInputDevice *inputDevic
 {
     QWaylandWindow *keyboardFocus = inputDevice->keyboardFocus();
 
-    if (!shellManagesActiveState() && mLastKeyboardFocus != keyboardFocus) {
+    if (!keyboardFocus->shellSurface()->shellManagesActiveState() && mLastKeyboardFocus != keyboardFocus) {
         if (keyboardFocus)
             handleWindowActivated(keyboardFocus);
         if (mLastKeyboardFocus)

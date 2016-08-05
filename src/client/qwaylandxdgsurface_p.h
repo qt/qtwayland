@@ -89,6 +89,8 @@ public:
     void setWindowFlags(Qt::WindowFlags flags) Q_DECL_OVERRIDE;
     void sendProperty(const QString &name, const QVariant &value) Q_DECL_OVERRIDE;
 
+    bool shellManagesActiveState() const Q_DECL_OVERRIDE { return true; }
+
     bool isFullscreen() const { return m_fullscreen; }
     bool isMaximized() const { return m_maximized; }
 

@@ -85,6 +85,7 @@ public:
     virtual void setContentOrientationMask(Qt::ScreenOrientations orientation) { Q_UNUSED(orientation) }
 
     virtual void sendProperty(const QString &name, const QVariant &value);
+    virtual bool shellManagesActiveState() const { return false; }
 
     inline QWaylandWindow *window() { return m_window; }
 

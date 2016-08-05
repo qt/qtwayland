@@ -1,9 +1,9 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Eurogiciel, author: <philippe.coval@eurogiciel.fr>
+** Copyright (C) 2016 The Qt Company Ltd.
 ** Contact: http://www.qt.io/licensing/
 **
-** This file is part of the config.tests of the Qt Toolkit.
+** This file is part of the plugins of the Qt Toolkit.
 **
 ** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
@@ -31,46 +31,43 @@
 **
 ****************************************************************************/
 
-#include "qwaylandxdgshell_p.h"
+#ifndef QWAYLANDXDGSHELLINTEGRATION_P_H
+#define QWAYLANDXDGSHELLINTEGRATION_P_H
 
-#include "qwaylanddisplay_p.h"
-#include "qwaylandwindow_p.h"
-#include "qwaylandinputdevice_p.h"
-#include "qwaylandscreen_p.h"
-#include "qwaylandxdgsurface_p.h"
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists purely as an
+// implementation detail.  This header file may change from version to
+// version without notice, or even be removed.
+//
+// We mean it.
+//
 
-#include <QtCore/QDebug>
+#include <wayland-client.h>
+
+#include <QtWaylandClient/private/qwaylandshellintegration_p.h>
 
 QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
 
-QWaylandXdgShell::QWaylandXdgShell(struct ::xdg_shell *shell)
-    : QtWayland::xdg_shell(shell)
-{
-}
+class QWaylandXdgShell;
 
-QWaylandXdgShell::QWaylandXdgShell(struct ::wl_registry *registry, uint32_t id)
-    : QtWayland::xdg_shell(registry, id, 1)
+class Q_WAYLAND_CLIENT_EXPORT QWaylandXdgShellIntegration : public QWaylandShellIntegration
 {
-    use_unstable_version(QtWayland::xdg_shell::version_current);
-}
+public:
+    QWaylandXdgShellIntegration(QWaylandDisplay *display);
+    bool initialize(QWaylandDisplay *) Q_DECL_OVERRIDE { return m_xdgShell != Q_NULLPTR; }
+    QWaylandShellSurface *createShellSurface(QWaylandWindow *window) Q_DECL_OVERRIDE;
 
-QWaylandXdgShell::~QWaylandXdgShell()
-{
-    xdg_shell_destroy(object());
-}
-
-QWaylandXdgSurface *QWaylandXdgShell::createXdgSurface(QWaylandWindow *window)
-{
-    return new QWaylandXdgSurface(this, window);
-}
-
-void QWaylandXdgShell::xdg_shell_ping(uint32_t serial)
-{
-    pong(serial);
-}
+private:
+    QWaylandXdgShell *m_xdgShell;
+};
 
 }
 
 QT_END_NAMESPACE
+
+#endif // QWAYLANDXDGSHELLINTEGRATION_P_H

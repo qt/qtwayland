@@ -39,16 +39,18 @@
 #include "qwaylandabstractdecoration_p.h"
 #include "qwaylandscreen_p.h"
 #include "qwaylandextendedsurface_p.h"
+#include "qwaylandxdgshell_p.h"
 
 
 QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
 
-QWaylandXdgSurface::QWaylandXdgSurface(struct ::xdg_surface *xdg_surface, QWaylandWindow *window)
+QWaylandXdgSurface::QWaylandXdgSurface(QWaylandXdgShell *shell, QWaylandWindow *window)
     : QWaylandShellSurface(window)
-    , QtWayland::xdg_surface(xdg_surface)
+    , QtWayland::xdg_surface(shell->get_xdg_surface(window->object()))
     , m_window(window)
+    , m_shell(shell)
     , m_maximized(false)
     , m_minimized(false)
     , m_fullscreen(false)
@@ -130,8 +132,7 @@ void QWaylandXdgSurface::updateTransientParent(QWindow *parent)
     QWaylandWindow *parent_wayland_window = static_cast<QWaylandWindow *>(parent->handle());
     if (!parent_wayland_window)
         return;
-    QtWayland::xdg_shell *shell = parent_wayland_window->display()->shellXdg();
-    set_parent(shell->get_xdg_surface(parent_wayland_window->object()));
+    set_parent(m_shell->get_xdg_surface(parent_wayland_window->object()));
 }
 
 void QWaylandXdgSurface::setTitle(const QString & title)

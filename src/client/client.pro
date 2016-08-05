@@ -59,8 +59,10 @@ SOURCES +=  qwaylandintegration.cpp \
             qwaylanddatasource.cpp \
             qwaylandshellsurface.cpp \
             qwaylandwlshellsurface.cpp \
+            qwaylandwlshellintegration.cpp \
             qwaylandxdgshell.cpp \
             qwaylandxdgsurface.cpp \
+            qwaylandxdgshellintegration.cpp \
             qwaylandextendedsurface.cpp \
             qwaylandsubsurface.cpp \
             qwaylandtouch.cpp \
@@ -92,8 +94,10 @@ HEADERS +=  qwaylandintegration_p.h \
             qwaylanddatasource_p.h \
             qwaylandshellsurface_p.h \
             qwaylandwlshellsurface_p.h \
+            qwaylandwlshellintegration_p.h \
             qwaylandxdgshell_p.h \
             qwaylandxdgsurface_p.h \
+            qwaylandxdgshellintegration_p.h \
             qwaylandextendedsurface_p.h \
             qwaylandsubsurface_p.h \
             qwaylandtouch_p.h \

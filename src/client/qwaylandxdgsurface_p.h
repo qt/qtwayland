@@ -63,13 +63,14 @@ namespace QtWaylandClient {
 class QWaylandWindow;
 class QWaylandInputDevice;
 class QWaylandExtendedSurface;
+class QWaylandXdgShell;
 
 class Q_WAYLAND_CLIENT_EXPORT QWaylandXdgSurface : public QWaylandShellSurface
         , public QtWayland::xdg_surface
 {
     Q_OBJECT
 public:
-    QWaylandXdgSurface(struct ::xdg_surface *shell_surface, QWaylandWindow *window);
+    QWaylandXdgSurface(QWaylandXdgShell *shell, QWaylandWindow *window);
     virtual ~QWaylandXdgSurface();
 
     using QtWayland::xdg_surface::resize;
@@ -105,6 +106,7 @@ private:
 
 private:
     QWaylandWindow *m_window;
+    QWaylandXdgShell* m_shell;
     bool m_maximized;
     bool m_minimized;
     bool m_fullscreen;

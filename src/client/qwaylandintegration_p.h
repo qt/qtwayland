@@ -115,6 +115,7 @@ private:
     void initializeServerBufferIntegration();
     void initializeShellIntegration();
     void initializeInputDeviceIntegration();
+    QWaylandShellIntegration *createShellIntegration(const QString& interfaceName);
 
     QPlatformFontDatabase *mFontDb;
     QPlatformClipboard *mClipboard;

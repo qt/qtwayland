@@ -128,9 +128,6 @@ public:
     QtWayland::wl_compositor *compositor() { return &mCompositor; }
     int compositorVersion() const { return mCompositorVersion; }
 
-    QtWayland::wl_shell *shell() { return mShell.data(); }
-    QtWayland::xdg_shell *shellXdg();
-
     QList<QWaylandInputDevice *> inputDevices() const { return mInputDevices; }
     QWaylandInputDevice *defaultInputDevice() const;
     QWaylandInputDevice *currentInputDevice() const { return defaultInputDevice(); }
@@ -151,6 +148,7 @@ public:
             : id(id_), interface(interface_), version(version_), registry(registry_) { }
     };
     QList<RegistryGlobal> globals() const { return mGlobals; }
+    bool hasRegistryGlobal(const QString &interfaceName);
 
     /* wl_registry_add_listener does not add but rather sets a listener, so this function is used
      * to enable many listeners at once. */
@@ -193,8 +191,6 @@ private:
     struct wl_display *mDisplay;
     QtWayland::wl_compositor mCompositor;
     struct wl_shm *mShm;
-    QScopedPointer<QtWayland::wl_shell> mShell;
-    QScopedPointer<QWaylandXdgShell> mShellXdg;
     QList<QWaylandScreen *> mScreens;
     QList<QWaylandInputDevice *> mInputDevices;
     QList<Listener> mRegistryListeners;

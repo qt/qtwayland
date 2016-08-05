@@ -1,9 +1,9 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Eurogiciel, author: <philippe.coval@eurogiciel.fr>
+** Copyright (C) 2016 The Qt Company Ltd.
 ** Contact: http://www.qt.io/licensing/
 **
-** This file is part of the config.tests of the Qt Toolkit.
+** This file is part of the plugins of the Qt Toolkit.
 **
 ** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
@@ -31,44 +31,30 @@
 **
 ****************************************************************************/
 
-#include "qwaylandxdgshell_p.h"
+#include "qwaylandwlshellintegration_p.h"
 
-#include "qwaylanddisplay_p.h"
-#include "qwaylandwindow_p.h"
-#include "qwaylandinputdevice_p.h"
-#include "qwaylandscreen_p.h"
-#include "qwaylandxdgsurface_p.h"
-
-#include <QtCore/QDebug>
+#include <QtWaylandClient/private/qwaylandwindow_p.h>
+#include <QtWaylandClient/private/qwaylanddisplay_p.h>
+#include <QtWaylandClient/private/qwaylandwlshellsurface_p.h>
 
 QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
 
-QWaylandXdgShell::QWaylandXdgShell(struct ::xdg_shell *shell)
-    : QtWayland::xdg_shell(shell)
+QWaylandWlShellIntegration::QWaylandWlShellIntegration(QWaylandDisplay *display)
+    : m_wlShell(Q_NULLPTR)
 {
+    Q_FOREACH (QWaylandDisplay::RegistryGlobal global, display->globals()) {
+        if (global.interface == QLatin1String("wl_shell")) {
+            m_wlShell = new QtWayland::wl_shell(display->wl_registry(), global.id, 1);
+            break;
+        }
+    }
 }
 
-QWaylandXdgShell::QWaylandXdgShell(struct ::wl_registry *registry, uint32_t id)
-    : QtWayland::xdg_shell(registry, id, 1)
+QWaylandShellSurface *QWaylandWlShellIntegration::createShellSurface(QWaylandWindow *window)
 {
-    use_unstable_version(QtWayland::xdg_shell::version_current);
-}
-
-QWaylandXdgShell::~QWaylandXdgShell()
-{
-    xdg_shell_destroy(object());
-}
-
-QWaylandXdgSurface *QWaylandXdgShell::createXdgSurface(QWaylandWindow *window)
-{
-    return new QWaylandXdgSurface(this, window);
-}
-
-void QWaylandXdgShell::xdg_shell_ping(uint32_t serial)
-{
-    pong(serial);
+    return new QWaylandWlShellSurface(m_wlShell->get_shell_surface(window->object()), window);
 }
 
 }

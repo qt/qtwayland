@@ -80,12 +80,12 @@ void QWaylandTouchPrivate::touch_release(Resource *resource)
 void QWaylandTouchPrivate::sendDown(uint32_t time, int touch_id, const QPointF &position)
 {
     Q_Q(QWaylandTouch);
-    if (!focusResource || !q->mouseFocus())
+    if (!focusResource || !seat->mouseFocus())
         return;
 
     uint32_t serial = q->compositor()->nextSerial();
 
-    wl_touch_send_down(focusResource->handle, serial, time, q->mouseFocus()->surfaceResource(), touch_id,
+    wl_touch_send_down(focusResource->handle, serial, time, seat->mouseFocus()->surfaceResource(), touch_id,
                        wl_fixed_from_double(position.x()), wl_fixed_from_double(position.y()));
 }
 
@@ -147,9 +147,6 @@ QWaylandCompositor *QWaylandTouch::compositor() const
 /*!
  * Sends a touch point event for the touch device with the given \a id,
  * \a position, and \a state.
- *
- *
- * \sa mouseFocus()
  */
 void QWaylandTouch::sendTouchPointEvent(int id, const QPointF &position, Qt::TouchPointState state)
 {
@@ -243,15 +240,6 @@ struct wl_resource *QWaylandTouch::focusResource() const
     if (!d->focusResource)
         return Q_NULLPTR;
     return d->focusResource->handle;
-}
-
-/*!
- * Returns the view currently holding mouse focus in the input device.
- */
-QWaylandView *QWaylandTouch::mouseFocus() const
-{
-    Q_D(const QWaylandTouch);
-    return d->seat->mouseFocus();
 }
 
 /*!

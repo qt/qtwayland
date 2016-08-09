@@ -72,7 +72,6 @@ public:
 
     wl_resource *focusResource() const;
 
-    QWaylandView *mouseFocus() const;
 private:
     void focusDestroyed(void *data);
     void mouseFocusChanged(QWaylandView *newFocus, QWaylandView *oldFocus);

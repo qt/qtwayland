@@ -35,8 +35,8 @@ Module {
         Property { name: "defaultOutput"; type: "QWaylandOutput"; isPointer: true }
         Property { name: "useHardwareIntegrationExtension"; type: "bool" }
         Property {
-            name: "defaultInputDevice"
-            type: "QWaylandInputDevice"
+            name: "defaultSeat"
+            type: "QWaylandSeat"
             isReadonly: true
             isPointer: true
         }
@@ -60,9 +60,9 @@ Module {
             Parameter { name: "parent"; type: "QWaylandSurface"; isPointer: true }
         }
         Signal {
-            name: "defaultInputDeviceChanged"
-            Parameter { name: "newDevice"; type: "QWaylandInputDevice"; isPointer: true }
-            Parameter { name: "oldDevice"; type: "QWaylandInputDevice"; isPointer: true }
+            name: "defaultSeatChanged"
+            Parameter { name: "newDevice"; type: "QWaylandSeat"; isPointer: true }
+            Parameter { name: "oldDevice"; type: "QWaylandSeat"; isPointer: true }
         }
         Method { name: "processWaylandEvents" }
         Method {
@@ -104,9 +104,9 @@ Module {
         Method { name: "cancelDrag" }
     }
     Component {
-        name: "QWaylandInputDevice"
+        name: "QWaylandSeat"
         prototype: "QObject"
-        exports: ["QtWayland.Compositor/WaylandInputDevice 1.0"]
+        exports: ["QtWayland.Compositor/WaylandSeat 1.0"]
         isCreatable: false
         exportMetaObjectRevisions: [0]
         Enum {
@@ -251,7 +251,7 @@ Module {
         Signal { name: "mouseRelease" }
         Method {
             name: "takeFocus"
-            Parameter { name: "device"; type: "QWaylandInputDevice"; isPointer: true }
+            Parameter { name: "device"; type: "QWaylandSeat"; isPointer: true }
         }
         Method { name: "takeFocus" }
         Method {
@@ -469,11 +469,11 @@ Module {
         Signal { name: "pong" }
         Signal {
             name: "startMove"
-            Parameter { name: "inputDevice"; type: "QWaylandInputDevice"; isPointer: true }
+            Parameter { name: "seat"; type: "QWaylandSeat"; isPointer: true }
         }
         Signal {
             name: "startResize"
-            Parameter { name: "inputDevice"; type: "QWaylandInputDevice"; isPointer: true }
+            Parameter { name: "seat"; type: "QWaylandSeat"; isPointer: true }
             Parameter { name: "edges"; type: "ResizeEdge" }
         }
         Signal { name: "setDefaultToplevel" }
@@ -491,7 +491,7 @@ Module {
         }
         Signal {
             name: "setPopup"
-            Parameter { name: "inputDevice"; type: "QWaylandInputDevice"; isPointer: true }
+            Parameter { name: "seat"; type: "QWaylandSeat"; isPointer: true }
             Parameter { name: "parentSurface"; type: "QWaylandSurface"; isPointer: true }
             Parameter { name: "relativeToParent"; type: "QPoint" }
         }
@@ -540,7 +540,7 @@ Module {
             name: "xdgPopupRequested"
             Parameter { name: "surface"; type: "QWaylandSurface"; isPointer: true }
             Parameter { name: "parent"; type: "QWaylandSurface"; isPointer: true }
-            Parameter { name: "seat"; type: "QWaylandInputDevice"; isPointer: true }
+            Parameter { name: "seat"; type: "QWaylandSeat"; isPointer: true }
             Parameter { name: "position"; type: "QPoint" }
             Parameter { name: "resource"; type: "QWaylandResource" }
         }
@@ -603,16 +603,16 @@ Module {
         Property { name: "activated"; type: "bool"; isReadonly: true }
         Signal {
             name: "showWindowMenu"
-            Parameter { name: "inputDevice"; type: "QWaylandInputDevice"; isPointer: true }
+            Parameter { name: "seat"; type: "QWaylandSeat"; isPointer: true }
             Parameter { name: "localSurfacePosition"; type: "QPoint" }
         }
         Signal {
             name: "startMove"
-            Parameter { name: "inputDevice"; type: "QWaylandInputDevice"; isPointer: true }
+            Parameter { name: "seat"; type: "QWaylandSeat"; isPointer: true }
         }
         Signal {
             name: "startResize"
-            Parameter { name: "inputDevice"; type: "QWaylandInputDevice"; isPointer: true }
+            Parameter { name: "seat"; type: "QWaylandSeat"; isPointer: true }
             Parameter { name: "edges"; type: "ResizeEdge" }
         }
         Signal { name: "setMaximized" }
@@ -682,7 +682,7 @@ Module {
         exportMetaObjectRevisions: [0]
         isComposite: true
         defaultProperty: "data"
-        Property { name: "inputDevice"; type: "QObject"; isPointer: true }
+        Property { name: "seat"; type: "QObject"; isPointer: true }
         Property { name: "hotspotX"; type: "int" }
         Property { name: "hotspotY"; type: "int" }
         Method {
@@ -710,7 +710,7 @@ Module {
         Signal { name: "mouseRelease" }
         Method {
             name: "takeFocus"
-            Parameter { name: "device"; type: "QWaylandInputDevice"; isPointer: true }
+            Parameter { name: "device"; type: "QWaylandSeat"; isPointer: true }
         }
         Method { name: "takeFocus" }
         Method {

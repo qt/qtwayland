@@ -64,8 +64,8 @@ public:
     bool mouseReleaseEvent(QMouseEvent *event) Q_DECL_OVERRIDE;
 
 private Q_SLOTS:
-    void handleStartMove(QWaylandInputDevice *inputDevice);
-    void handleStartResize(QWaylandInputDevice *inputDevice, QWaylandXdgSurface::ResizeEdge edges);
+    void handleStartMove(QWaylandSeat *seat);
+    void handleStartResize(QWaylandSeat *seat, QWaylandXdgSurface::ResizeEdge edges);
     void handleSetMaximized();
     void handleUnsetMaximized();
     void handleMaximizedChanged();
@@ -83,13 +83,13 @@ private:
 
     GrabberState grabberState;
     struct {
-        QWaylandInputDevice *inputDevice;
+        QWaylandSeat *seat;
         QPointF initialOffset;
         bool initialized;
     } moveState;
 
     struct {
-        QWaylandInputDevice *inputDevice;
+        QWaylandSeat *seat;
         QWaylandXdgSurface::ResizeEdge resizeEdges;
         QSizeF initialWindowSize;
         QPointF initialMousePos;

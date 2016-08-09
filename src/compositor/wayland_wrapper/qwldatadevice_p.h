@@ -49,7 +49,7 @@
 //
 
 #include <QtWaylandCompositor/private/qwayland-server-wayland.h>
-#include <QtWaylandCompositor/QWaylandInputDevice>
+#include <QtWaylandCompositor/QWaylandSeat>
 
 QT_BEGIN_NAMESPACE
 
@@ -57,13 +57,13 @@ namespace QtWayland {
 
 class Compositor;
 class DataSource;
-class InputDevice;
+class Seat;
 class Surface;
 
 class DataDevice : public QtWaylandServer::wl_data_device
 {
 public:
-    DataDevice(QWaylandInputDevice *inputDevice);
+    DataDevice(QWaylandSeat *seat);
 
     void setFocus(QWaylandClient *client);
 
@@ -86,7 +86,7 @@ private:
     void setDragIcon(QWaylandSurface *icon);
 
     QWaylandCompositor *m_compositor;
-    QWaylandInputDevice *m_inputDevice;
+    QWaylandSeat *m_seat;
 
     DataSource *m_selectionSource;
 

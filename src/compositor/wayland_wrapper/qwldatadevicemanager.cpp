@@ -39,7 +39,7 @@
 #include <QtWaylandCompositor/QWaylandCompositor>
 
 #include <QtWaylandCompositor/private/qwaylandcompositor_p.h>
-#include <QtWaylandCompositor/private/qwaylandinput_p.h>
+#include <QtWaylandCompositor/private/qwaylandseat_p.h>
 #include "qwldatadevice_p.h"
 #include "qwldatasource_p.h"
 #include "qwldataoffer_p.h"
@@ -199,11 +199,11 @@ void DataDeviceManager::overrideSelection(const QMimeData &mimeData)
 
     m_compositorOwnsSelection = true;
 
-    QWaylandInputDevice *dev = m_compositor->defaultInputDevice();
+    QWaylandSeat *dev = m_compositor->defaultSeat();
     QWaylandSurface *focusSurface = dev->keyboardFocus();
     if (focusSurface)
         offerFromCompositorToClient(
-                    QWaylandInputDevicePrivate::get(dev)->dataDevice()->resourceMap().value(focusSurface->waylandClient())->handle);
+                    QWaylandSeatPrivate::get(dev)->dataDevice()->resourceMap().value(focusSurface->waylandClient())->handle);
 }
 
 bool DataDeviceManager::offerFromCompositorToClient(wl_resource *clientDataDeviceResource)
@@ -243,8 +243,8 @@ void DataDeviceManager::data_device_manager_create_data_source(Resource *resourc
 
 void DataDeviceManager::data_device_manager_get_data_device(Resource *resource, uint32_t id, struct ::wl_resource *seat)
 {
-    QWaylandInputDevice *input_device = QWaylandInputDevice::fromSeatResource(seat);
-    QWaylandInputDevicePrivate::get(input_device)->clientRequestedDataDevice(this, resource->client(), id);
+    QWaylandSeat *input_device = QWaylandSeat::fromSeatResource(seat);
+    QWaylandSeatPrivate::get(input_device)->clientRequestedDataDevice(this, resource->client(), id);
 }
 
 void DataDeviceManager::comp_accept(wl_client *, wl_resource *, uint32_t, const char *)

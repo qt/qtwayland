@@ -34,8 +34,8 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDINPUT_P_H
-#define QWAYLANDINPUT_P_H
+#ifndef QWAYLANDSEAT_P_H
+#define QWAYLANDSEAT_P_H
 
 //
 //  W A R N I N G
@@ -51,7 +51,7 @@
 #include <stdint.h>
 
 #include <QtWaylandCompositor/qwaylandexport.h>
-#include <QtWaylandCompositor/qwaylandinput.h>
+#include <QtWaylandCompositor/qwaylandseat.h>
 
 #include <QtCore/QList>
 #include <QtCore/QPoint>
@@ -68,7 +68,7 @@ QT_BEGIN_NAMESPACE
 
 class QKeyEvent;
 class QTouchEvent;
-class QWaylandInputDevice;
+class QWaylandSeat;
 class QWaylandDrag;
 class QWaylandView;
 
@@ -85,18 +85,18 @@ class InputMethod;
 
 }
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandInputDevicePrivate : public QObjectPrivate, public QtWaylandServer::wl_seat
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandSeatPrivate : public QObjectPrivate, public QtWaylandServer::wl_seat
 {
 public:
-    Q_DECLARE_PUBLIC(QWaylandInputDevice)
+    Q_DECLARE_PUBLIC(QWaylandSeat)
 
-    QWaylandInputDevicePrivate(QWaylandInputDevice *device, QWaylandCompositor *compositor);
-    ~QWaylandInputDevicePrivate();
+    QWaylandSeatPrivate(QWaylandSeat *seat, QWaylandCompositor *compositor);
+    ~QWaylandSeatPrivate();
 
     void clientRequestedDataDevice(QtWayland::DataDeviceManager *dndSelection, struct wl_client *client, uint32_t id);
-    void setCapabilities(QWaylandInputDevice::CapabilityFlags caps);
+    void setCapabilities(QWaylandSeat::CapabilityFlags caps);
 
-    static QWaylandInputDevicePrivate *get(QWaylandInputDevice *device) { return device->d_func(); }
+    static QWaylandSeatPrivate *get(QWaylandSeat *device) { return device->d_func(); }
 
     QtWayland::DataDevice *dataDevice() const { return data_device.data(); }
 
@@ -116,7 +116,7 @@ private:
     QWaylandCompositor *compositor;
     QWaylandView *mouseFocus;
     QWaylandSurface *keyboardFocus;
-    QWaylandInputDevice::CapabilityFlags capabilities;
+    QWaylandSeat::CapabilityFlags capabilities;
 
     QScopedPointer<QWaylandPointer> pointer;
     QScopedPointer<QWaylandKeyboard> keyboard;
@@ -128,4 +128,4 @@ private:
 
 QT_END_NAMESPACE
 
-#endif // QWAYLANDINPUT_P_H
+#endif // QWAYLANDSEAT_P_H

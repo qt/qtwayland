@@ -55,7 +55,7 @@ class QWaylandXdgPopupPrivate;
 
 class QWaylandSurface;
 class QWaylandSurfaceRole;
-class QWaylandInputDevice;
+class QWaylandSeat;
 class QWaylandOutput;
 class QWaylandClient;
 
@@ -80,11 +80,11 @@ Q_SIGNALS:
     void xdgSurfaceRequested(QWaylandSurface *surface, const QWaylandResource &resource);
     void xdgSurfaceCreated(QWaylandXdgSurface *xdgSurface);
     void xdgPopupCreated(QWaylandXdgPopup *xdgPopup);
-    void xdgPopupRequested(QWaylandSurface *surface, QWaylandSurface *parent, QWaylandInputDevice *seat, const QPoint &position, const QWaylandResource &resource);
+    void xdgPopupRequested(QWaylandSurface *surface, QWaylandSurface *parent, QWaylandSeat *seat, const QPoint &position, const QWaylandResource &resource);
     void pong(uint serial);
 
 private Q_SLOTS:
-    void handleDefaultInputDeviceChanged(QWaylandInputDevice *newDevice, QWaylandInputDevice *oldDevice);
+    void handleSeatChanged(QWaylandSeat *newSeat, QWaylandSeat *oldSeat);
     void handleFocusChanged(QWaylandSurface *newSurface, QWaylandSurface *oldSurface);
 
 };
@@ -176,9 +176,9 @@ Q_SIGNALS:
     void resizingChanged();
     void activatedChanged();
 
-    void showWindowMenu(QWaylandInputDevice *inputDevice, const QPoint &localSurfacePosition);
-    void startMove(QWaylandInputDevice *inputDevice);
-    void startResize(QWaylandInputDevice *inputDevice, ResizeEdge edges);
+    void showWindowMenu(QWaylandSeat *seat, const QPoint &localSurfacePosition);
+    void startMove(QWaylandSeat *seat);
+    void startResize(QWaylandSeat *seat, ResizeEdge edges);
     void setTopLevel();
     void setTransient();
     void setMaximized();

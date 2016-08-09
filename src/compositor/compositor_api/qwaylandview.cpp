@@ -37,7 +37,7 @@
 #include "qwaylandview.h"
 #include "qwaylandview_p.h"
 #include "qwaylandsurface.h"
-#include <QtWaylandCompositor/QWaylandInputDevice>
+#include <QtWaylandCompositor/QWaylandSeat>
 #include <QtWaylandCompositor/QWaylandCompositor>
 
 #include <QtWaylandCompositor/private/qwaylandsurface_p.h>
@@ -94,7 +94,7 @@ QWaylandView::~QWaylandView()
     if (d->surface) {
         if (d->output)
             QWaylandOutputPrivate::get(d->output)->removeView(this, d->surface);
-        QWaylandInputDevice *i = d->surface->compositor()->defaultInputDevice();
+        QWaylandSeat *i = d->surface->compositor()->defaultSeat();
         if (i->mouseFocus() == this)
             i->setMouseFocus(Q_NULLPTR);
 

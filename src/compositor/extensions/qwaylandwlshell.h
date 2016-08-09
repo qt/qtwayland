@@ -49,7 +49,7 @@ class QWaylandWlShellPrivate;
 class QWaylandWlShellSurfacePrivate;
 class QWaylandSurface;
 class QWaylandClient;
-class QWaylandInputDevice;
+class QWaylandSeat;
 class QWaylandOutput;
 class QWaylandSurfaceRole;
 class QWaylandWlShellSurface;
@@ -150,13 +150,13 @@ Q_SIGNALS:
     void classNameChanged();
     void focusPolicyChanged();
     void pong();
-    void startMove(QWaylandInputDevice *inputDevice);
-    void startResize(QWaylandInputDevice *inputDevice, ResizeEdge edges);
+    void startMove(QWaylandSeat *seat);
+    void startResize(QWaylandSeat *seat, ResizeEdge edges);
 
     void setDefaultToplevel();
     void setTransient(QWaylandSurface *parentSurface, const QPoint &relativeToParent, FocusPolicy focusPolicy);
     void setFullScreen(FullScreenMethod method, uint framerate, QWaylandOutput *output);
-    void setPopup(QWaylandInputDevice *inputDevice, QWaylandSurface *parentSurface, const QPoint &relativeToParent);
+    void setPopup(QWaylandSeat *seat, QWaylandSurface *parentSurface, const QPoint &relativeToParent);
     void setMaximized(QWaylandOutput *output);
 
 private:

@@ -41,7 +41,7 @@
 #include "qwaylandtextinput.h"
 #include "qwaylandquickoutput.h"
 #include <QtWaylandCompositor/qwaylandcompositor.h>
-#include <QtWaylandCompositor/qwaylandinput.h>
+#include <QtWaylandCompositor/qwaylandseat.h>
 #include <QtWaylandCompositor/qwaylandbufferref.h>
 #include <QtWaylandCompositor/QWaylandDrag>
 #include <QtWaylandCompositor/private/qwlclientbufferintegration_p.h>
@@ -495,13 +495,13 @@ void QWaylandQuickItem::mousePressEvent(QMouseEvent *event)
         return;
     }
 
-    QWaylandInputDevice *inputDevice = compositor()->inputDeviceFor(event);
+    QWaylandSeat *seat = compositor()->seatFor(event);
 
     if (d->focusOnClick)
-        takeFocus(inputDevice);
+        takeFocus(seat);
 
-    inputDevice->sendMouseMoveEvent(d->view.data(), mapToSurface(event->localPos()), event->windowPos());
-    inputDevice->sendMousePressEvent(event->button());
+    seat->sendMouseMoveEvent(d->view.data(), mapToSurface(event->localPos()), event->windowPos());
+    seat->sendMousePressEvent(event->button());
 }
 
 /*!
@@ -511,7 +511,7 @@ void QWaylandQuickItem::mouseMoveEvent(QMouseEvent *event)
 {
     Q_D(QWaylandQuickItem);
     if (d->shouldSendInputEvents()) {
-        QWaylandInputDevice *inputDevice = compositor()->inputDeviceFor(event);
+        QWaylandSeat *seat = compositor()->seatFor(event);
         if (d->isDragging) {
             QWaylandQuickOutput *currentOutput = qobject_cast<QWaylandQuickOutput *>(view()->output());
             //TODO: also check if dragging onto other outputs
@@ -520,10 +520,10 @@ void QWaylandQuickItem::mouseMoveEvent(QMouseEvent *event)
             if (targetSurface) {
                 QPointF position = mapToItem(targetItem, event->localPos());
                 QPointF surfacePosition = targetItem->mapToSurface(position);
-                inputDevice->drag()->dragMove(targetSurface, surfacePosition);
+                seat->drag()->dragMove(targetSurface, surfacePosition);
             }
         } else {
-            inputDevice->sendMouseMoveEvent(d->view.data(), mapToSurface(event->localPos()), event->windowPos());
+            seat->sendMouseMoveEvent(d->view.data(), mapToSurface(event->localPos()), event->windowPos());
         }
     } else {
         emit mouseMove(event->windowPos());
@@ -538,12 +538,12 @@ void QWaylandQuickItem::mouseReleaseEvent(QMouseEvent *event)
 {
     Q_D(QWaylandQuickItem);
     if (d->shouldSendInputEvents()) {
-        QWaylandInputDevice *inputDevice = compositor()->inputDeviceFor(event);
+        QWaylandSeat *seat = compositor()->seatFor(event);
         if (d->isDragging) {
             d->isDragging = false;
-            inputDevice->drag()->drop();
+            seat->drag()->drop();
         } else {
-            inputDevice->sendMouseReleaseEvent(event->button());
+            seat->sendMouseReleaseEvent(event->button());
         }
     } else {
         emit mouseRelease();
@@ -562,8 +562,8 @@ void QWaylandQuickItem::hoverEnterEvent(QHoverEvent *event)
         return;
     }
     if (d->shouldSendInputEvents()) {
-        QWaylandInputDevice *inputDevice = compositor()->inputDeviceFor(event);
-        inputDevice->sendMouseMoveEvent(d->view.data(), event->pos(), mapToScene(event->pos()));
+        QWaylandSeat *seat = compositor()->seatFor(event);
+        seat->sendMouseMoveEvent(d->view.data(), event->pos(), mapToScene(event->pos()));
     } else {
         event->ignore();
     }
@@ -582,8 +582,8 @@ void QWaylandQuickItem::hoverMoveEvent(QHoverEvent *event)
         }
     }
     if (d->shouldSendInputEvents()) {
-        QWaylandInputDevice *inputDevice = compositor()->inputDeviceFor(event);
-        inputDevice->sendMouseMoveEvent(d->view.data(), mapToSurface(event->pos()), mapToScene(event->pos()));
+        QWaylandSeat *seat = compositor()->seatFor(event);
+        seat->sendMouseMoveEvent(d->view.data(), mapToSurface(event->pos()), mapToScene(event->pos()));
     } else {
         event->ignore();
     }
@@ -596,8 +596,8 @@ void QWaylandQuickItem::hoverLeaveEvent(QHoverEvent *event)
 {
     Q_D(QWaylandQuickItem);
     if (d->shouldSendInputEvents()) {
-        QWaylandInputDevice *inputDevice = compositor()->inputDeviceFor(event);
-        inputDevice->setMouseFocus(Q_NULLPTR);
+        QWaylandSeat *seat = compositor()->seatFor(event);
+        seat->setMouseFocus(Q_NULLPTR);
     } else {
         event->ignore();
     }
@@ -615,8 +615,8 @@ void QWaylandQuickItem::wheelEvent(QWheelEvent *event)
             return;
         }
 
-        QWaylandInputDevice *inputDevice = compositor()->inputDeviceFor(event);
-        inputDevice->sendMouseWheelEvent(event->orientation(), event->delta());
+        QWaylandSeat *seat = compositor()->seatFor(event);
+        seat->sendMouseWheelEvent(event->orientation(), event->delta());
     } else {
         event->ignore();
     }
@@ -629,8 +629,8 @@ void QWaylandQuickItem::keyPressEvent(QKeyEvent *event)
 {
     Q_D(QWaylandQuickItem);
     if (d->shouldSendInputEvents()) {
-        QWaylandInputDevice *inputDevice = compositor()->inputDeviceFor(event);
-        inputDevice->sendFullKeyEvent(event);
+        QWaylandSeat *seat = compositor()->seatFor(event);
+        seat->sendFullKeyEvent(event);
     } else {
         event->ignore();
     }
@@ -643,8 +643,8 @@ void QWaylandQuickItem::keyReleaseEvent(QKeyEvent *event)
 {
     Q_D(QWaylandQuickItem);
     if (d->shouldSendInputEvents() && hasFocus()) {
-        QWaylandInputDevice *inputDevice = compositor()->inputDeviceFor(event);
-        inputDevice->sendFullKeyEvent(event);
+        QWaylandSeat *seat = compositor()->seatFor(event);
+        seat->sendFullKeyEvent(event);
     } else {
         event->ignore();
     }
@@ -657,7 +657,7 @@ void QWaylandQuickItem::touchEvent(QTouchEvent *event)
 {
     Q_D(QWaylandQuickItem);
     if (d->shouldSendInputEvents() && d->touchEventsEnabled) {
-        QWaylandInputDevice *inputDevice = compositor()->inputDeviceFor(event);
+        QWaylandSeat *seat = compositor()->seatFor(event);
 
         if (event->type() == QEvent::TouchBegin) {
             QQuickItem *grabber = window()->mouseGrabberItem();
@@ -676,10 +676,10 @@ void QWaylandQuickItem::touchEvent(QTouchEvent *event)
         }
 
         event->accept();
-        if (inputDevice->mouseFocus() != d->view.data()) {
-            inputDevice->sendMouseMoveEvent(d->view.data(), pointPos, mapToScene(pointPos));
+        if (seat->mouseFocus() != d->view.data()) {
+            seat->sendMouseMoveEvent(d->view.data(), pointPos, mapToScene(pointPos));
         }
-        inputDevice->sendFullTouchEvent(event);
+        seat->sendFullTouchEvent(event);
     } else {
         event->ignore();
     }
@@ -830,16 +830,16 @@ void QWaylandQuickItem::handleSurfaceChanged()
  * Calling this function causes the item to take the focus of the
  * input \a device.
  */
-void QWaylandQuickItem::takeFocus(QWaylandInputDevice *device)
+void QWaylandQuickItem::takeFocus(QWaylandSeat *device)
 {
     forceActiveFocus();
 
     if (!surface())
         return;
 
-    QWaylandInputDevice *target = device;
+    QWaylandSeat *target = device;
     if (!target) {
-        target = compositor()->defaultInputDevice();
+        target = compositor()->defaultSeat();
     }
     target->setKeyboardFocus(surface());
     QWaylandTextInput *textInput = QWaylandTextInput::findIn(target);
@@ -1203,7 +1203,7 @@ void QWaylandQuickItem::handleDragStarted(QWaylandDrag *drag)
 {
     Q_D(QWaylandQuickItem);
     Q_ASSERT(drag->origin() == surface());
-    drag->inputDevice()->setMouseFocus(nullptr);
+    drag->seat()->setMouseFocus(nullptr);
     d->isDragging = true;
 }
 

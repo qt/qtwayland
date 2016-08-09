@@ -29,10 +29,10 @@ SOURCES += tst_compositor.cpp \
            testkeyboardgrabber.cpp \
            mockclient.cpp \
            mockseat.cpp \
-           testinputdevice.cpp
+           testseat.cpp
 
 HEADERS += testcompositor.h \
            testkeyboardgrabber.h \
            mockclient.h \
            mockseat.h \
-           testinputdevice.h
+           testseat.h

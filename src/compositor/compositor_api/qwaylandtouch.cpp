@@ -38,7 +38,7 @@
 #include "qwaylandtouch_p.h"
 
 #include <QtWaylandCompositor/QWaylandCompositor>
-#include <QtWaylandCompositor/QWaylandInputDevice>
+#include <QtWaylandCompositor/QWaylandSeat>
 #include <QtWaylandCompositor/QWaylandView>
 #include <QtWaylandCompositor/QWaylandClient>
 
@@ -46,7 +46,7 @@
 
 QT_BEGIN_NAMESPACE
 
-QWaylandTouchPrivate::QWaylandTouchPrivate(QWaylandTouch *touch, QWaylandInputDevice *seat)
+QWaylandTouchPrivate::QWaylandTouchPrivate(QWaylandTouch *touch, QWaylandSeat *seat)
     : wl_touch()
     , seat(seat)
     , focusResource()
@@ -113,15 +113,15 @@ void QWaylandTouchPrivate::sendMotion(uint32_t time, int touch_id, const QPointF
  * \preliminary
  * \brief The QWaylandTouch class provides access to a touch device.
  *
- * This class provides access to the touch device in a QWaylandInputDevice. It corresponds to
+ * This class provides access to the touch device in a QWaylandSeat. It corresponds to
  * the Wayland interface wl_touch.
  */
 
 /*!
- * Constructs a QWaylandTouch for the \a inputDevice and with the given \a parent.
+ * Constructs a QWaylandTouch for the \a seat and with the given \a parent.
  */
-QWaylandTouch::QWaylandTouch(QWaylandInputDevice *inputDevice, QObject *parent)
-    : QWaylandObject(*new QWaylandTouchPrivate(this, inputDevice), parent)
+QWaylandTouch::QWaylandTouch(QWaylandSeat *seat, QObject *parent)
+    : QWaylandObject(*new QWaylandTouchPrivate(this, seat), parent)
 {
     connect(&d_func()->focusDestroyListener, &QWaylandDestroyListener::fired, this, &QWaylandTouch::focusDestroyed);
 }
@@ -129,7 +129,7 @@ QWaylandTouch::QWaylandTouch(QWaylandInputDevice *inputDevice, QObject *parent)
 /*!
  * Returns the input device for this QWaylandTouch.
  */
-QWaylandInputDevice *QWaylandTouch::inputDevice() const
+QWaylandSeat *QWaylandTouch::seat() const
 {
     Q_D(const QWaylandTouch);
     return d->seat;

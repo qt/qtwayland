@@ -65,9 +65,9 @@ public:
     bool mouseReleaseEvent(QMouseEvent *event) Q_DECL_OVERRIDE;
 
 private Q_SLOTS:
-    void handleStartMove(QWaylandInputDevice *inputDevice);
-    void handleStartResize(QWaylandInputDevice *inputDevice, QWaylandWlShellSurface::ResizeEdge edges);
-    void handleSetPopup(QWaylandInputDevice *inputDevice, QWaylandSurface *parent, const QPoint &relativeToParent);
+    void handleStartMove(QWaylandSeat *seat);
+    void handleStartResize(QWaylandSeat *seat, QWaylandWlShellSurface::ResizeEdge edges);
+    void handleSetPopup(QWaylandSeat *seat, QWaylandSurface *parent, const QPoint &relativeToParent);
     void handleShellSurfaceDestroyed();
     void handleSurfaceUnmapped();
     void adjustOffsetForNextFrame(const QPointF &offset);
@@ -88,12 +88,12 @@ private:
     QWaylandWlShellSurface *m_shellSurface;
     GrabberState grabberState;
     struct {
-        QWaylandInputDevice *inputDevice;
+        QWaylandSeat *seat;
         QPointF initialOffset;
         bool initialized;
     } moveState;
     struct {
-        QWaylandInputDevice *inputDevice;
+        QWaylandSeat *seat;
         QWaylandWlShellSurface::ResizeEdge resizeEdges;
         QSizeF initialSize;
         QPointF initialMousePos;

@@ -39,7 +39,7 @@ import QtWayland.Compositor 1.0
 
 WaylandQuickItem {
     id: cursorItem
-    property QtObject inputDevice
+    property QtObject seat
     property int hotspotX: 0
     property int hotspotY: 0
 
@@ -48,10 +48,10 @@ WaylandQuickItem {
     enabled: false
     transform: Translate { x: -hotspotX; y: -hotspotY }
 
-    onInputDeviceChanged: {
-        if (!inputDevice)
+    onSeatChanged: {
+        if (!seat)
             return;
-        inputDevice.cursorSurfaceRequest.connect(setCursorSurface);
+        seat.cursorSurfaceRequest.connect(setCursorSurface);
     }
 
     function setCursorSurface(surface, hotspotX, hotspotY) {
@@ -67,7 +67,7 @@ WaylandQuickItem {
         x: cursorItem.hotspotX + offset.x
         y: cursorItem.hotspotY + offset.y
         z: -1
-        surface: cursorItem.inputDevice.drag.icon
+        surface: cursorItem.seat.drag.icon
 
         Connections {
             target: dragIcon.surface

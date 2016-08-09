@@ -26,7 +26,7 @@
 **
 ****************************************************************************/
 
-#include <QWaylandInputDevice>
+#include <QWaylandSeat>
 #include <QList>
 
 QT_BEGIN_NAMESPACE
@@ -34,13 +34,13 @@ class QInputEvent;
 class QMouseEvent;
 QT_END_NAMESPACE
 
-class TestInputDevice : public QWaylandInputDevice
+class TestSeat : public QWaylandSeat
 {
 
 public:
 
-    TestInputDevice(QWaylandCompositor *compositor, QWaylandInputDevice::CapabilityFlags caps);
-    ~TestInputDevice();
+    TestSeat(QWaylandCompositor *compositor, QWaylandSeat::CapabilityFlags caps);
+    ~TestSeat();
 
     bool isOwner(QInputEvent *inputEvent) const Q_DECL_OVERRIDE;
 

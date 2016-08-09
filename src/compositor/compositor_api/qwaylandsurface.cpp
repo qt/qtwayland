@@ -52,7 +52,7 @@
 
 #include <QtWaylandCompositor/private/qwaylandcompositor_p.h>
 #include <QtWaylandCompositor/private/qwaylandview_p.h>
-#include <QtWaylandCompositor/private/qwaylandinput_p.h>
+#include <QtWaylandCompositor/private/qwaylandseat_p.h>
 
 #include <QtCore/private/qobject_p.h>
 
@@ -708,9 +708,9 @@ QWaylandInputMethodControl *QWaylandSurface::inputMethodControl() const
 void QWaylandSurface::updateSelection()
 {
     Q_D(QWaylandSurface);
-    QWaylandInputDevice *inputDevice = d->compositor->defaultInputDevice();
-    if (inputDevice) {
-        const QtWayland::DataDevice *dataDevice = QWaylandInputDevicePrivate::get(inputDevice)->dataDevice();
+    QWaylandSeat *seat = d->compositor->defaultSeat();
+    if (seat) {
+        const QtWayland::DataDevice *dataDevice = QWaylandSeatPrivate::get(seat)->dataDevice();
         if (dataDevice) {
             QWaylandCompositorPrivate::get(d->compositor)->dataDeviceManager()->offerRetainedSelection(
                         dataDevice->resourceMap().value(d->resource()->client())->handle);

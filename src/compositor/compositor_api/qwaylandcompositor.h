@@ -58,7 +58,7 @@ class QOpenGLContext;
 class QWaylandCompositorPrivate;
 class QWaylandClient;
 class QWaylandSurface;
-class QWaylandInputDevice;
+class QWaylandSeat;
 class QWaylandGlobalInterface;
 class QWaylandView;
 class QWaylandPointer;
@@ -77,7 +77,7 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandCompositor : public QWaylandObject
     Q_PROPERTY(bool retainedSelection READ retainedSelectionEnabled WRITE setRetainedSelectionEnabled)
     Q_PROPERTY(QWaylandOutput *defaultOutput READ defaultOutput WRITE setDefaultOutput NOTIFY defaultOutputChanged)
     Q_PROPERTY(bool useHardwareIntegrationExtension READ useHardwareIntegrationExtension WRITE setUseHardwareIntegrationExtension NOTIFY useHardwareIntegrationExtensionChanged)
-    Q_PROPERTY(QWaylandInputDevice *defaultInputDevice READ defaultInputDevice NOTIFY defaultInputDeviceChanged)
+    Q_PROPERTY(QWaylandSeat *defaultSeat READ defaultSeat NOTIFY defaultSeatChanged)
 
 public:
     QWaylandCompositor(QObject *parent = nullptr);
@@ -111,11 +111,11 @@ public:
     bool retainedSelectionEnabled() const;
     void overrideSelection(const QMimeData *data);
 
-    QWaylandInputDevice *defaultInputDevice() const;
+    QWaylandSeat *defaultSeat() const;
 
     QWaylandView *createSurfaceView(QWaylandSurface *surface);
 
-    QWaylandInputDevice *inputDeviceFor(QInputEvent *inputEvent);
+    QWaylandSeat *seatFor(QInputEvent *inputEvent);
 
     bool useHardwareIntegrationExtension() const;
     void setUseHardwareIntegrationExtension(bool use);
@@ -132,7 +132,7 @@ Q_SIGNALS:
     void subsurfaceChanged(QWaylandSurface *child, QWaylandSurface *parent);
 
     void defaultOutputChanged();
-    void defaultInputDeviceChanged(QWaylandInputDevice *newDevice, QWaylandInputDevice *oldDevice);
+    void defaultSeatChanged(QWaylandSeat *newDevice, QWaylandSeat *oldDevice);
 
     void useHardwareIntegrationExtensionChanged();
 
@@ -141,10 +141,10 @@ Q_SIGNALS:
 
 protected:
     virtual void retainedSelectionReceived(QMimeData *mimeData);
-    virtual QWaylandInputDevice *createInputDevice();
-    virtual QWaylandPointer *createPointerDevice(QWaylandInputDevice *inputDevice);
-    virtual QWaylandKeyboard *createKeyboardDevice(QWaylandInputDevice *inputDevice);
-    virtual QWaylandTouch *createTouchDevice(QWaylandInputDevice *inputDevice);
+    virtual QWaylandSeat *createSeat();
+    virtual QWaylandPointer *createPointerDevice(QWaylandSeat *seat);
+    virtual QWaylandKeyboard *createKeyboardDevice(QWaylandSeat *seat);
+    virtual QWaylandTouch *createTouchDevice(QWaylandSeat *seat);
 
     QWaylandCompositor(QWaylandCompositorPrivate &dptr, QObject *parent = nullptr);
 };

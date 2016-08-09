@@ -26,27 +26,27 @@
 **
 ****************************************************************************/
 
-#include "testinputdevice.h"
+#include "testseat.h"
 #include <QMouseEvent>
 
-TestInputDevice::TestInputDevice(QWaylandCompositor *compositor, QWaylandInputDevice::CapabilityFlags caps)
-    : QWaylandInputDevice(compositor, caps)
+TestSeat::TestSeat(QWaylandCompositor *compositor, QWaylandSeat::CapabilityFlags caps)
+    : QWaylandSeat(compositor, caps)
 {
     m_queryCount = 0;
 }
 
-TestInputDevice::~TestInputDevice()
+TestSeat::~TestSeat()
 {
 }
 
-bool TestInputDevice::isOwner(QInputEvent *event) const
+bool TestSeat::isOwner(QInputEvent *event) const
 {
     m_queryCount++;
     QMouseEvent *me = dynamic_cast<QMouseEvent *>(event);
     return m_events.contains(me);
 }
 
-QList<QMouseEvent *> TestInputDevice::createMouseEvents(int count)
+QList<QMouseEvent *> TestSeat::createMouseEvents(int count)
 {
     for (int i = 0; i < count; i++) {
         m_events.append(new QMouseEvent(QEvent::MouseMove, QPointF(10 + i, 10 + i), Qt::NoButton, Qt::NoButton, Qt::NoModifier));

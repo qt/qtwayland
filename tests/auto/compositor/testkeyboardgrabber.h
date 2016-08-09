@@ -32,7 +32,7 @@ class TestKeyboardGrabber : public QWaylandKeyboard
 {
     Q_OBJECT
 public:
-    TestKeyboardGrabber(QWaylandInputDevice *inputDevice);
+    TestKeyboardGrabber(QWaylandSeat *seat);
 
     void setFocus(QWaylandSurface *surface) Q_DECL_OVERRIDE;
     void sendKeyModifiers(QWaylandClient *client, uint32_t serial) Q_DECL_OVERRIDE;

@@ -43,7 +43,7 @@ QT_BEGIN_NAMESPACE
 
 QWaylandSurfaceRole QWaylandPointerPrivate::s_role("wl_pointer");
 
-QWaylandPointerPrivate::QWaylandPointerPrivate(QWaylandPointer *pointer, QWaylandInputDevice *seat)
+QWaylandPointerPrivate::QWaylandPointerPrivate(QWaylandPointer *pointer, QWaylandSeat *seat)
     : QObjectPrivate()
     , wl_pointer()
     , seat(seat)
@@ -97,24 +97,24 @@ void QWaylandPointerPrivate::pointer_set_cursor(wl_pointer::Resource *resource, 
  * \preliminary
  * \brief The QWaylandPointer class provides access to a pointer device.
  *
- * This class provides access to the pointer device in a QWaylandInputDevice. It corresponds to
+ * This class provides access to the pointer device in a QWaylandSeat. It corresponds to
  * the Wayland interface wl_pointer.
  */
 
 /*!
- * Constructs a QWaylandPointer for the given \a inputDevice and with the given \a parent.
+ * Constructs a QWaylandPointer for the given \a seat and with the given \a parent.
  */
-QWaylandPointer::QWaylandPointer(QWaylandInputDevice *inputDevice, QObject *parent)
-    : QWaylandObject(* new QWaylandPointerPrivate(this, inputDevice), parent)
+QWaylandPointer::QWaylandPointer(QWaylandSeat *seat, QObject *parent)
+    : QWaylandObject(* new QWaylandPointerPrivate(this, seat), parent)
 {
     connect(&d_func()->focusDestroyListener, &QWaylandDestroyListener::fired, this, &QWaylandPointer::focusDestroyed);
-    connect(inputDevice, &QWaylandInputDevice::mouseFocusChanged, this, &QWaylandPointer::pointerFocusChanged);
+    connect(seat, &QWaylandSeat::mouseFocusChanged, this, &QWaylandPointer::pointerFocusChanged);
 }
 
 /*!
  * Returns the input device for this QWaylandPointer.
  */
-QWaylandInputDevice *QWaylandPointer::inputDevice() const
+QWaylandSeat *QWaylandPointer::seat() const
 {
     Q_D(const QWaylandPointer);
     return d->seat;

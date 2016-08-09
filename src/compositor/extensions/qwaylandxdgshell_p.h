@@ -85,7 +85,7 @@ protected:
                                    struct ::wl_resource *surface) Q_DECL_OVERRIDE;
     void xdg_shell_use_unstable_version(Resource *resource, int32_t version) Q_DECL_OVERRIDE;
     void xdg_shell_get_xdg_popup(Resource *resource, uint32_t id, struct ::wl_resource *surface,
-                                 struct ::wl_resource *parent, struct ::wl_resource *seat,
+                                 struct ::wl_resource *parent, struct ::wl_resource *seatResource,
                                  uint32_t serial, int32_t x, int32_t y) Q_DECL_OVERRIDE;
     void xdg_shell_pong(Resource *resource, uint32_t serial) Q_DECL_OVERRIDE;
 };
@@ -147,7 +147,7 @@ private:
     void xdg_surface_set_minimized(Resource *resource) Q_DECL_OVERRIDE;
     void xdg_surface_set_parent(Resource *resource, struct ::wl_resource *parent) Q_DECL_OVERRIDE;
     void xdg_surface_set_app_id(Resource *resource, const QString &app_id) Q_DECL_OVERRIDE;
-    void xdg_surface_show_window_menu(Resource *resource, struct ::wl_resource *seat,
+    void xdg_surface_show_window_menu(Resource *resource, struct ::wl_resource *seatResource,
                                       uint32_t serial, int32_t x, int32_t y) Q_DECL_OVERRIDE;
     void xdg_surface_ack_configure(Resource *resource, uint32_t serial) Q_DECL_OVERRIDE;
     void xdg_surface_set_title(Resource *resource, const QString &title) Q_DECL_OVERRIDE;

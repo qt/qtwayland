@@ -76,7 +76,7 @@ WaylandOutput {
                 x: mouseTracker.mouseX
                 y: mouseTracker.mouseY
 
-                inputDevice: output.compositor.defaultInputDevice
+                seat: output.compositor.defaultSeat
             }
         }
 

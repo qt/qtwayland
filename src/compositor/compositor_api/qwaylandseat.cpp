@@ -34,8 +34,8 @@
 **
 ****************************************************************************/
 
-#include "qwaylandinput.h"
-#include "qwaylandinput_p.h"
+#include "qwaylandseat.h"
+#include "qwaylandseat_p.h"
 
 #include "qwaylandcompositor.h"
 #include "qwaylandinputmethodcontrol.h"
@@ -44,7 +44,7 @@
 #include <QtWaylandCompositor/QWaylandTouch>
 #include <QtWaylandCompositor/QWaylandPointer>
 #include <QtWaylandCompositor/QWaylandWlShellSurface>
-#include <QtWaylandCompositor/private/qwaylandinput_p.h>
+#include <QtWaylandCompositor/private/qwaylandseat_p.h>
 #include <QtWaylandCompositor/private/qwaylandcompositor_p.h>
 #include <QtWaylandCompositor/private/qwldatadevice_p.h>
 
@@ -53,7 +53,7 @@
 
 QT_BEGIN_NAMESPACE
 
-QWaylandInputDevicePrivate::QWaylandInputDevicePrivate(QWaylandInputDevice *inputdevice, QWaylandCompositor *compositor)
+QWaylandSeatPrivate::QWaylandSeatPrivate(QWaylandSeat *seat, QWaylandCompositor *compositor)
     : QObjectPrivate()
     , QtWaylandServer::wl_seat(compositor->display(), 4)
     , compositor(compositor)
@@ -61,29 +61,29 @@ QWaylandInputDevicePrivate::QWaylandInputDevicePrivate(QWaylandInputDevice *inpu
     , keyboardFocus(nullptr)
     , capabilities()
     , data_device()
-    , drag_handle(new QWaylandDrag(inputdevice))
+    , drag_handle(new QWaylandDrag(seat))
 {
 }
 
-QWaylandInputDevicePrivate::~QWaylandInputDevicePrivate()
+QWaylandSeatPrivate::~QWaylandSeatPrivate()
 {
 }
 
-void QWaylandInputDevicePrivate::setCapabilities(QWaylandInputDevice::CapabilityFlags caps)
+void QWaylandSeatPrivate::setCapabilities(QWaylandSeat::CapabilityFlags caps)
 {
-    Q_Q(QWaylandInputDevice);
+    Q_Q(QWaylandSeat);
     if (capabilities != caps) {
-        QWaylandInputDevice::CapabilityFlags changed = caps ^ capabilities;
+        QWaylandSeat::CapabilityFlags changed = caps ^ capabilities;
 
-        if (changed & QWaylandInputDevice::Pointer) {
+        if (changed & QWaylandSeat::Pointer) {
             pointer.reset(pointer.isNull() ? QWaylandCompositorPrivate::get(compositor)->callCreatePointerDevice(q) : 0);
         }
 
-        if (changed & QWaylandInputDevice::Keyboard) {
+        if (changed & QWaylandSeat::Keyboard) {
             keyboard.reset(keyboard.isNull() ? QWaylandCompositorPrivate::get(compositor)->callCreateKeyboardDevice(q) : 0);
         }
 
-        if (changed & QWaylandInputDevice::Touch) {
+        if (changed & QWaylandSeat::Touch) {
             touch.reset(touch.isNull() ? QWaylandCompositorPrivate::get(compositor)->callCreateTouchDevice(q) : 0);
         }
 
@@ -93,45 +93,45 @@ void QWaylandInputDevicePrivate::setCapabilities(QWaylandInputDevice::Capability
             wl_seat::send_capabilities(resources.at(i)->handle, (uint32_t)capabilities);
         }
 
-        if ((changed & caps & QWaylandInputDevice::Keyboard) && keyboardFocus != nullptr)
+        if ((changed & caps & QWaylandSeat::Keyboard) && keyboardFocus != nullptr)
             keyboard->setFocus(keyboardFocus);
     }
 }
 
-void QWaylandInputDevicePrivate::clientRequestedDataDevice(QtWayland::DataDeviceManager *, struct wl_client *client, uint32_t id)
+void QWaylandSeatPrivate::clientRequestedDataDevice(QtWayland::DataDeviceManager *, struct wl_client *client, uint32_t id)
 {
-    Q_Q(QWaylandInputDevice);
+    Q_Q(QWaylandSeat);
     if (!data_device)
         data_device.reset(new QtWayland::DataDevice(q));
     data_device->add(client, id, 1);
 }
 
-void QWaylandInputDevicePrivate::seat_destroy_resource(wl_seat::Resource *)
+void QWaylandSeatPrivate::seat_destroy_resource(wl_seat::Resource *)
 {
 //    cleanupDataDeviceForClient(resource->client(), true);
 }
 
-void QWaylandInputDevicePrivate::seat_bind_resource(wl_seat::Resource *resource)
+void QWaylandSeatPrivate::seat_bind_resource(wl_seat::Resource *resource)
 {
     // The order of capabilities matches the order defined in the wayland protocol
     wl_seat::send_capabilities(resource->handle, (uint32_t)capabilities);
 }
 
-void QWaylandInputDevicePrivate::seat_get_pointer(wl_seat::Resource *resource, uint32_t id)
+void QWaylandSeatPrivate::seat_get_pointer(wl_seat::Resource *resource, uint32_t id)
 {
     if (!pointer.isNull()) {
         pointer->addClient(QWaylandClient::fromWlClient(compositor, resource->client()), id, resource->version());
     }
 }
 
-void QWaylandInputDevicePrivate::seat_get_keyboard(wl_seat::Resource *resource, uint32_t id)
+void QWaylandSeatPrivate::seat_get_keyboard(wl_seat::Resource *resource, uint32_t id)
 {
     if (!keyboard.isNull()) {
         keyboard->addClient(QWaylandClient::fromWlClient(compositor, resource->client()), id, resource->version());
     }
 }
 
-void QWaylandInputDevicePrivate::seat_get_touch(wl_seat::Resource *resource, uint32_t id)
+void QWaylandSeatPrivate::seat_get_touch(wl_seat::Resource *resource, uint32_t id)
 {
     if (!touch.isNull()) {
         touch->addClient(QWaylandClient::fromWlClient(compositor, resource->client()), id, resource->version());
@@ -149,56 +149,56 @@ QWaylandKeymap::QWaylandKeymap(const QString &layout, const QString &variant, co
 
 
 /*!
- * \class QWaylandInputDevice
+ * \class QWaylandSeat
  * \inmodule QtWaylandCompositor
  * \preliminary
- * \brief The QWaylandInputDevice class provides access to keyboard, mouse and touch input.
+ * \brief The QWaylandSeat class provides access to keyboard, mouse and touch input.
  *
- * The QWaylandInputDevice provides access to different types of user input and maintains
+ * The QWaylandSeat provides access to different types of user input and maintains
  * a keyboard focus and a mouse pointer. It corresponds to the wl_seat interface in the Wayland protocol.
  */
 
 /*!
- * \enum QWaylandInputDevice::CapabilityFlag
+ * \enum QWaylandSeat::CapabilityFlag
  *
- * This enum type describes the capabilities of a QWaylandInputDevice.
+ * This enum type describes the capabilities of a QWaylandSeat.
  *
- * \value Pointer The QWaylandInputDevice supports pointer input.
- * \value Keyboard The QWaylandInputDevice supports keyboard input.
- * \value Touch The QWaylandInputDevice supports touch input.
+ * \value Pointer The QWaylandSeat supports pointer input.
+ * \value Keyboard The QWaylandSeat supports keyboard input.
+ * \value Touch The QWaylandSeat supports touch input.
  */
 
 /*!
- * Constructs a QWaylandInputDevice for the given \a compositor and with the given \a capabilityFlags.
+ * Constructs a QWaylandSeat for the given \a compositor and with the given \a capabilityFlags.
  */
-QWaylandInputDevice::QWaylandInputDevice(QWaylandCompositor *compositor, CapabilityFlags capabilityFlags)
-    : QWaylandObject(*new QWaylandInputDevicePrivate(this,compositor))
+QWaylandSeat::QWaylandSeat(QWaylandCompositor *compositor, CapabilityFlags capabilityFlags)
+    : QWaylandObject(*new QWaylandSeatPrivate(this,compositor))
 {
     d_func()->setCapabilities(capabilityFlags);
 }
 
 /*!
- * Destroys the QWaylandInputDevice
+ * Destroys the QWaylandSeat
  */
-QWaylandInputDevice::~QWaylandInputDevice()
+QWaylandSeat::~QWaylandSeat()
 {
 }
 
 /*!
- * Sends a mouse press event for \a button to the QWaylandInputDevice's pointer device.
+ * Sends a mouse press event for \a button to the QWaylandSeat's pointer device.
  */
-void QWaylandInputDevice::sendMousePressEvent(Qt::MouseButton button)
+void QWaylandSeat::sendMousePressEvent(Qt::MouseButton button)
 {
-    Q_D(QWaylandInputDevice);
+    Q_D(QWaylandSeat);
     d->pointer->sendMousePressEvent(button);
 }
 
 /*!
- * Sends a mouse release event for \a button to the QWaylandInputDevice's pointer device.
+ * Sends a mouse release event for \a button to the QWaylandSeat's pointer device.
  */
-void QWaylandInputDevice::sendMouseReleaseEvent(Qt::MouseButton button)
+void QWaylandSeat::sendMouseReleaseEvent(Qt::MouseButton button)
 {
-    Q_D(QWaylandInputDevice);
+    Q_D(QWaylandSeat);
     d->pointer->sendMouseReleaseEvent(button);
 }
 
@@ -206,36 +206,36 @@ void QWaylandInputDevice::sendMouseReleaseEvent(Qt::MouseButton button)
  * Sets the mouse focus to \a view and sends a mouse move event to the pointer device with the
  * local position \a localPos and output space position \a outputSpacePos.
  **/
-void QWaylandInputDevice::sendMouseMoveEvent(QWaylandView *view, const QPointF &localPos, const QPointF &outputSpacePos)
+void QWaylandSeat::sendMouseMoveEvent(QWaylandView *view, const QPointF &localPos, const QPointF &outputSpacePos)
 {
-    Q_D(QWaylandInputDevice);
+    Q_D(QWaylandSeat);
     d->pointer->sendMouseMoveEvent(view, localPos, outputSpacePos);
 }
 
 /*!
- * Sends a mouse wheel event to the QWaylandInputDevice's pointer device with the given \a orientation and \a delta.
+ * Sends a mouse wheel event to the QWaylandSeat's pointer device with the given \a orientation and \a delta.
  */
-void QWaylandInputDevice::sendMouseWheelEvent(Qt::Orientation orientation, int delta)
+void QWaylandSeat::sendMouseWheelEvent(Qt::Orientation orientation, int delta)
 {
-    Q_D(QWaylandInputDevice);
+    Q_D(QWaylandSeat);
     d->pointer->sendMouseWheelEvent(orientation, delta);
 }
 
 /*!
  * Sends a key press event with the key \a code to the keyboard device.
  */
-void QWaylandInputDevice::sendKeyPressEvent(uint code)
+void QWaylandSeat::sendKeyPressEvent(uint code)
 {
-    Q_D(QWaylandInputDevice);
+    Q_D(QWaylandSeat);
     d->keyboard->sendKeyPressEvent(code);
 }
 
 /*!
  * Sends a key release event with the key \a code to the keyboard device.
  */
-void QWaylandInputDevice::sendKeyReleaseEvent(uint code)
+void QWaylandSeat::sendKeyReleaseEvent(uint code)
 {
-    Q_D(QWaylandInputDevice);
+    Q_D(QWaylandSeat);
     d->keyboard->sendKeyReleaseEvent(code);
 }
 
@@ -243,9 +243,9 @@ void QWaylandInputDevice::sendKeyReleaseEvent(uint code)
  * Sends a touch point event with the given \a id and \a state to the touch device. The position
  * of the touch point is given by \a point.
  */
-void QWaylandInputDevice::sendTouchPointEvent(int id, const QPointF &point, Qt::TouchPointState state)
+void QWaylandSeat::sendTouchPointEvent(int id, const QPointF &point, Qt::TouchPointState state)
 {
-    Q_D(QWaylandInputDevice);
+    Q_D(QWaylandSeat);
     if (d->touch.isNull()) {
         return;
     }
@@ -255,9 +255,9 @@ void QWaylandInputDevice::sendTouchPointEvent(int id, const QPointF &point, Qt::
 /*!
  * Sends a frame event to the touch device.
  */
-void QWaylandInputDevice::sendTouchFrameEvent()
+void QWaylandSeat::sendTouchFrameEvent()
 {
-    Q_D(QWaylandInputDevice);
+    Q_D(QWaylandSeat);
     if (!d->touch.isNull()) {
         d->touch->sendFrameEvent();
     }
@@ -266,9 +266,9 @@ void QWaylandInputDevice::sendTouchFrameEvent()
 /*!
  * Sends a cancel event to the touch device.
  */
-void QWaylandInputDevice::sendTouchCancelEvent()
+void QWaylandSeat::sendTouchCancelEvent()
 {
-    Q_D(QWaylandInputDevice);
+    Q_D(QWaylandSeat);
     if (!d->touch.isNull()) {
         d->touch->sendCancelEvent();
     }
@@ -277,9 +277,9 @@ void QWaylandInputDevice::sendTouchCancelEvent()
 /*!
  * Sends the \a event to the touch device.
  */
-void QWaylandInputDevice::sendFullTouchEvent(QTouchEvent *event)
+void QWaylandSeat::sendFullTouchEvent(QTouchEvent *event)
 {
-    Q_D(QWaylandInputDevice);
+    Q_D(QWaylandSeat);
     if (!mouseFocus()) {
         qWarning("Cannot send touch event, no pointer focus, fix the compositor");
         return;
@@ -294,9 +294,9 @@ void QWaylandInputDevice::sendFullTouchEvent(QTouchEvent *event)
 /*!
  * Sends the \a event to the keyboard device.
  */
-void QWaylandInputDevice::sendFullKeyEvent(QKeyEvent *event)
+void QWaylandSeat::sendFullKeyEvent(QKeyEvent *event)
 {
-    Q_D(QWaylandInputDevice);
+    Q_D(QWaylandSeat);
 
     if (!keyboardFocus()) {
         qWarning("Cannot send key event, no keyboard focus, fix the compositor");
@@ -327,18 +327,18 @@ void QWaylandInputDevice::sendFullKeyEvent(QKeyEvent *event)
 /*!
  * Returns the keyboard for this input device.
  */
-QWaylandKeyboard *QWaylandInputDevice::keyboard() const
+QWaylandKeyboard *QWaylandSeat::keyboard() const
 {
-    Q_D(const QWaylandInputDevice);
+    Q_D(const QWaylandSeat);
     return d->keyboard.data();
 }
 
 /*!
  * Returns the current focused surface for keyboard input.
  */
-QWaylandSurface *QWaylandInputDevice::keyboardFocus() const
+QWaylandSurface *QWaylandSeat::keyboardFocus() const
 {
-    Q_D(const QWaylandInputDevice);
+    Q_D(const QWaylandSeat);
     if (d->keyboard.isNull() || !d->keyboard->focus())
         return Q_NULLPTR;
 
@@ -348,9 +348,9 @@ QWaylandSurface *QWaylandInputDevice::keyboardFocus() const
 /*!
  * Sets the current keyboard focus to \a surface.
  */
-bool QWaylandInputDevice::setKeyboardFocus(QWaylandSurface *surface)
+bool QWaylandSeat::setKeyboardFocus(QWaylandSurface *surface)
 {
-    Q_D(QWaylandInputDevice);
+    Q_D(QWaylandSeat);
     if (surface && surface->isDestroyed())
         return false;
 
@@ -372,47 +372,47 @@ bool QWaylandInputDevice::setKeyboardFocus(QWaylandSurface *surface)
 }
 
 /*!
- * Sets the key map of this QWaylandInputDevice to \a keymap.
+ * Sets the key map of this QWaylandSeat to \a keymap.
  */
-void QWaylandInputDevice::setKeymap(const QWaylandKeymap &keymap)
+void QWaylandSeat::setKeymap(const QWaylandKeymap &keymap)
 {
     if (keyboard())
         keyboard()->setKeymap(keymap);
 }
 
 /*!
- * Returns the pointer device for this QWaylandInputDevice.
+ * Returns the pointer device for this QWaylandSeat.
  */
-QWaylandPointer *QWaylandInputDevice::pointer() const
+QWaylandPointer *QWaylandSeat::pointer() const
 {
-    Q_D(const QWaylandInputDevice);
+    Q_D(const QWaylandSeat);
     return d->pointer.data();
 }
 
 /*!
- * Returns the touch device for this QWaylandInputDevice.
+ * Returns the touch device for this QWaylandSeat.
  */
-QWaylandTouch *QWaylandInputDevice::touch() const
+QWaylandTouch *QWaylandSeat::touch() const
 {
-    Q_D(const QWaylandInputDevice);
+    Q_D(const QWaylandSeat);
     return d->touch.data();
 }
 
 /*!
  * Returns the view that currently has mouse focus.
  */
-QWaylandView *QWaylandInputDevice::mouseFocus() const
+QWaylandView *QWaylandSeat::mouseFocus() const
 {
-    Q_D(const QWaylandInputDevice);
+    Q_D(const QWaylandSeat);
     return d->mouseFocus;
 }
 
 /*!
  * Sets the current mouse focus to \a view.
  */
-void QWaylandInputDevice::setMouseFocus(QWaylandView *view)
+void QWaylandSeat::setMouseFocus(QWaylandView *view)
 {
-    Q_D(QWaylandInputDevice);
+    Q_D(QWaylandSeat);
     if (view == d->mouseFocus)
         return;
 
@@ -422,52 +422,52 @@ void QWaylandInputDevice::setMouseFocus(QWaylandView *view)
 }
 
 /*!
- * Returns the compositor for this QWaylandInputDevice.
+ * Returns the compositor for this QWaylandSeat.
  */
-QWaylandCompositor *QWaylandInputDevice::compositor() const
+QWaylandCompositor *QWaylandSeat::compositor() const
 {
-    Q_D(const QWaylandInputDevice);
+    Q_D(const QWaylandSeat);
     return d->compositor;
 }
 
 /*!
- * Returns the drag object for this QWaylandInputDevice.
+ * Returns the drag object for this QWaylandSeat.
  */
-QWaylandDrag *QWaylandInputDevice::drag() const
+QWaylandDrag *QWaylandSeat::drag() const
 {
-    Q_D(const QWaylandInputDevice);
+    Q_D(const QWaylandSeat);
     return d->drag_handle.data();
 }
 
 /*!
- * Returns the capability flags for this QWaylandInputDevice.
+ * Returns the capability flags for this QWaylandSeat.
  */
-QWaylandInputDevice::CapabilityFlags QWaylandInputDevice::capabilities() const
+QWaylandSeat::CapabilityFlags QWaylandSeat::capabilities() const
 {
-    Q_D(const QWaylandInputDevice);
+    Q_D(const QWaylandSeat);
     return d->capabilities;
 }
 
 /*!
  * \internal
  */
-bool QWaylandInputDevice::isOwner(QInputEvent *inputEvent) const
+bool QWaylandSeat::isOwner(QInputEvent *inputEvent) const
 {
     Q_UNUSED(inputEvent);
     return true;
 }
 
 /*!
- * Returns the QWaylandInputDevice corresponding to the \a resource. The \a resource is expected
+ * Returns the QWaylandSeat corresponding to the \a resource. The \a resource is expected
  * to have the type wl_seat.
  */
-QWaylandInputDevice *QWaylandInputDevice::fromSeatResource(struct ::wl_resource *resource)
+QWaylandSeat *QWaylandSeat::fromSeatResource(struct ::wl_resource *resource)
 {
-    return static_cast<QWaylandInputDevicePrivate *>(QWaylandInputDevicePrivate::Resource::fromResource(resource)->seat_object)->q_func();
+    return static_cast<QWaylandSeatPrivate *>(QWaylandSeatPrivate::Resource::fromResource(resource)->seat_object)->q_func();
 }
 
 /*!
- * \fn void QWaylandInputDevice::mouseFocusChanged(QWaylandView *newFocus, QWaylandView *oldFocus)
+ * \fn void QWaylandSeat::mouseFocusChanged(QWaylandView *newFocus, QWaylandView *oldFocus)
  *
  * This signal is emitted when the mouse focus has changed from \a oldFocus to \a newFocus.
  */

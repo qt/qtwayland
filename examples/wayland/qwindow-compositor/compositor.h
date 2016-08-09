@@ -123,8 +123,8 @@ private slots:
     void surfaceDestroyed();
     void viewSurfaceDestroyed();
     void onStartMove();
-    void onWlStartResize(QWaylandInputDevice *inputDevice, QWaylandWlShellSurface::ResizeEdge edges);
-    void onXdgStartResize(QWaylandInputDevice *inputDevice, QWaylandXdgSurface::ResizeEdge edges);
+    void onWlStartResize(QWaylandSeat *seat, QWaylandWlShellSurface::ResizeEdge edges);
+    void onXdgStartResize(QWaylandSeat *seat, QWaylandXdgSurface::ResizeEdge edges);
 
     void startDrag();
 
@@ -133,10 +133,10 @@ private slots:
     void onSurfaceCreated(QWaylandSurface *surface);
     void onWlShellSurfaceCreated(QWaylandWlShellSurface *wlShellSurface);
     void onXdgSurfaceCreated(QWaylandXdgSurface *xdgSurface);
-    void onXdgPopupRequested(QWaylandSurface *surface, QWaylandSurface *parent, QWaylandInputDevice *inputDevice,
+    void onXdgPopupRequested(QWaylandSurface *surface, QWaylandSurface *parent, QWaylandSeat *seat,
                              const QPoint &position, const QWaylandResource &resource);
     void onSetTransient(QWaylandSurface *parentSurface, const QPoint &relativeToParent, QWaylandWlShellSurface::FocusPolicy focusPolicy);
-    void onSetPopup(QWaylandInputDevice *inputDevice, QWaylandSurface *parent, const QPoint &relativeToParent);
+    void onSetPopup(QWaylandSeat *seat, QWaylandSurface *parent, const QPoint &relativeToParent);
 
     void onSubsurfaceChanged(QWaylandSurface *child, QWaylandSurface *parent);
     void onSubsurfacePositionChanged(const QPoint &position);

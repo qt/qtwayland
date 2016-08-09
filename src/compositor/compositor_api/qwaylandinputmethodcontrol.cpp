@@ -38,7 +38,7 @@
 #include "qwaylandinputmethodcontrol_p.h"
 
 #include "qwaylandcompositor.h"
-#include "qwaylandinput.h"
+#include "qwaylandseat.h"
 #include "qwaylandsurface.h"
 #include "qwaylandview.h"
 #include "qwaylandtextinput.h"
@@ -48,8 +48,8 @@
 QWaylandInputMethodControl::QWaylandInputMethodControl(QWaylandSurface *surface)
     : QObject(*new QWaylandInputMethodControlPrivate(surface), surface)
 {
-    connect(d_func()->compositor, &QWaylandCompositor::defaultInputDeviceChanged,
-            this, &QWaylandInputMethodControl::defaultInputDeviceChanged);
+    connect(d_func()->compositor, &QWaylandCompositor::defaultSeatChanged,
+            this, &QWaylandInputMethodControl::defaultSeatChanged);
     QWaylandTextInput *textInput = d_func()->textInput();
     if (textInput) {
         connect(textInput, &QWaylandTextInput::surfaceEnabled, this, &QWaylandInputMethodControl::surfaceEnabled);
@@ -135,13 +135,13 @@ void QWaylandInputMethodControl::setSurface(QWaylandSurface *surface)
     setEnabled(textInput && textInput->isSurfaceEnabled(d->surface));
 }
 
-void QWaylandInputMethodControl::defaultInputDeviceChanged()
+void QWaylandInputMethodControl::defaultSeatChanged()
 {
     Q_D(QWaylandInputMethodControl);
 
     disconnect(d->textInput(), 0, this, 0);
 
-    d->inputDevice = d->compositor->defaultInputDevice();
+    d->seat = d->compositor->defaultSeat();
     QWaylandTextInput *textInput = d->textInput();
 
     connect(textInput, &QWaylandTextInput::surfaceEnabled, this, &QWaylandInputMethodControl::surfaceEnabled);
@@ -153,7 +153,7 @@ void QWaylandInputMethodControl::defaultInputDeviceChanged()
 QWaylandInputMethodControlPrivate::QWaylandInputMethodControlPrivate(QWaylandSurface *surface)
     : QObjectPrivate()
     , compositor(surface->compositor())
-    , inputDevice(compositor->defaultInputDevice())
+    , seat(compositor->defaultSeat())
     , surface(surface)
     , enabled(false)
 {
@@ -161,5 +161,5 @@ QWaylandInputMethodControlPrivate::QWaylandInputMethodControlPrivate(QWaylandSur
 
 QWaylandTextInput *QWaylandInputMethodControlPrivate::textInput() const
 {
-    return QWaylandTextInput::findIn(inputDevice);
+    return QWaylandTextInput::findIn(seat);
 }

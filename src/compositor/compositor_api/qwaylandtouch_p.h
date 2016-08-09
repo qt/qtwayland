@@ -52,7 +52,7 @@
 #include <QtWaylandCompositor/qwaylandexport.h>
 #include <QtWaylandCompositor/QWaylandDestroyListener>
 #include <QtWaylandCompositor/QWaylandTouch>
-#include <QtWaylandCompositor/QWaylandInputDevice>
+#include <QtWaylandCompositor/QWaylandSeat>
 #include <QtWaylandCompositor/QWaylandView>
 #include <QtWaylandCompositor/QWaylandCompositor>
 
@@ -67,7 +67,7 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandTouchPrivate : public QObjectPrivate, 
 {
     Q_DECLARE_PUBLIC(QWaylandTouch)
 public:
-    explicit QWaylandTouchPrivate(QWaylandTouch *touch, QWaylandInputDevice *seat);
+    explicit QWaylandTouchPrivate(QWaylandTouch *touch, QWaylandSeat *seat);
 
     QWaylandCompositor *compositor() const { return seat->compositor(); }
 
@@ -92,7 +92,7 @@ private:
     void touch_destroy_resource(Resource *resource) Q_DECL_OVERRIDE;
     void touch_release(Resource *resource) Q_DECL_OVERRIDE;
 
-    QWaylandInputDevice *seat;
+    QWaylandSeat *seat;
 
     Resource *focusResource;
     QWaylandDestroyListener focusDestroyListener;

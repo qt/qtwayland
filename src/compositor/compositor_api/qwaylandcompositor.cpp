@@ -39,7 +39,7 @@
 #include "qwaylandcompositor_p.h"
 
 #include <QtWaylandCompositor/qwaylandclient.h>
-#include <QtWaylandCompositor/qwaylandinput.h>
+#include <QtWaylandCompositor/qwaylandseat.h>
 #include <QtWaylandCompositor/qwaylandoutput.h>
 #include <QtWaylandCompositor/qwaylandview.h>
 #include <QtWaylandCompositor/qwaylandclient.h>
@@ -100,7 +100,7 @@ public:
     {
         if (e->type == QWindowSystemInterfacePrivate::Key) {
             QWindowSystemInterfacePrivate::KeyEvent *ke = static_cast<QWindowSystemInterfacePrivate::KeyEvent *>(e);
-            QWaylandKeyboardPrivate *keyb = QWaylandKeyboardPrivate::get(compositor->defaultInputDevice()->keyboard());
+            QWaylandKeyboardPrivate *keyb = QWaylandKeyboardPrivate::get(compositor->defaultSeat()->keyboard());
 
             uint32_t code = ke->nativeScanCode;
             bool isDown = ke->keyType == QEvent::KeyPress;
@@ -200,7 +200,7 @@ void QWaylandCompositorPrivate::init()
     QObject::connect(dispatcher, SIGNAL(aboutToBlock()), q, SLOT(processWaylandEvents()));
 
     initializeHardwareIntegration();
-    initializeDefaultInputDevice();
+    initializeDefaultSeat();
 
     initialized = true;
 
@@ -350,12 +350,12 @@ void QWaylandCompositorPrivate::initializeHardwareIntegration()
 #endif
 }
 
-void QWaylandCompositorPrivate::initializeDefaultInputDevice()
+void QWaylandCompositorPrivate::initializeDefaultSeat()
 {
     Q_Q(QWaylandCompositor);
-    QWaylandInputDevice *device = q->createInputDevice();
-    inputDevices.append(device);
-    q->defaultInputDeviceChanged(device, nullptr);
+    QWaylandSeat *device = q->createSeat();
+    seats.append(device);
+    q->defaultSeatChanged(device, nullptr);
 }
 
 void QWaylandCompositorPrivate::loadClientBufferIntegration()
@@ -411,7 +411,7 @@ void QWaylandCompositorPrivate::loadServerBufferIntegration()
   \brief Type managing the Wayland display server.
 
   The WaylandCompositor manages the connections to the clients, as well as the different
-  \l{WaylandOutput}{outputs} and \l{QWaylandInputDevice}{input devices}.
+  \l{WaylandOutput}{outputs} and \l{QWaylandSeat}{seats}.
 
   Normally, a compositor application will have a single WaylandCompositor
   instance, which can have several outputs as children. When a client
@@ -430,7 +430,7 @@ void QWaylandCompositorPrivate::loadServerBufferIntegration()
    \brief Class managing the Wayland display server.
 
    The QWaylandCompositor manages the connections to the clients, as well as the different \l{QWaylandOutput}{outputs}
-   and \l{QWaylandInputDevice}{input devices}.
+   and \l{QWaylandSeat}{seats}.
 
    Normally, a compositor application will have a single WaylandCompositor
    instance, which can have several outputs as children.
@@ -687,33 +687,33 @@ void QWaylandCompositor::processWaylandEvents()
 /*!
  * \internal
  */
-QWaylandInputDevice *QWaylandCompositor::createInputDevice()
+QWaylandSeat *QWaylandCompositor::createSeat()
 {
-    return new QWaylandInputDevice(this);
+    return new QWaylandSeat(this);
 }
 
 /*!
  * \internal
  */
-QWaylandPointer *QWaylandCompositor::createPointerDevice(QWaylandInputDevice *inputDevice)
+QWaylandPointer *QWaylandCompositor::createPointerDevice(QWaylandSeat *seat)
 {
-    return new QWaylandPointer(inputDevice);
+    return new QWaylandPointer(seat);
 }
 
 /*!
  * \internal
  */
-QWaylandKeyboard *QWaylandCompositor::createKeyboardDevice(QWaylandInputDevice *inputDevice)
+QWaylandKeyboard *QWaylandCompositor::createKeyboardDevice(QWaylandSeat *seat)
 {
-    return new QWaylandKeyboard(inputDevice);
+    return new QWaylandKeyboard(seat);
 }
 
 /*!
  * \internal
  */
-QWaylandTouch *QWaylandCompositor::createTouchDevice(QWaylandInputDevice *inputDevice)
+QWaylandTouch *QWaylandCompositor::createTouchDevice(QWaylandSeat *seat)
 {
-    return new QWaylandTouch(inputDevice);
+    return new QWaylandTouch(seat);
 }
 
 /*!
@@ -756,38 +756,38 @@ void QWaylandCompositor::overrideSelection(const QMimeData *data)
 }
 
 /*!
- * \qmlproperty object QtWaylandCompositor::WaylandCompositor::defaultInputDevice
+ * \qmlproperty object QtWaylandCompositor::WaylandCompositor::defaultSeat
  *
- * This property contains the default input device for this
+ * This property contains the default seat for this
  * WaylandCompositor.
  */
 
 /*!
- * \property QWaylandCompositor::defaultInputDevice
+ * \property QWaylandCompositor::defaultSeat
  *
- * This property contains the default input device for this
+ * This property contains the default seat for this
  * QWaylandCompositor.
  */
-QWaylandInputDevice *QWaylandCompositor::defaultInputDevice() const
+QWaylandSeat *QWaylandCompositor::defaultSeat() const
 {
     Q_D(const QWaylandCompositor);
-    if (d->inputDevices.size())
-        return d->inputDevices.first();
+    if (d->seats.size())
+        return d->seats.first();
     return Q_NULLPTR;
 }
 
 /*!
  * \internal
  *
- * Currently, Qt only supports a single input device, so this exists for
+ * Currently, Qt only supports a single seat, so this exists for
  * future proofing the APIs.
  */
-QWaylandInputDevice *QWaylandCompositor::inputDeviceFor(QInputEvent *inputEvent)
+QWaylandSeat *QWaylandCompositor::seatFor(QInputEvent *inputEvent)
 {
     Q_D(QWaylandCompositor);
-    QWaylandInputDevice *dev = NULL;
-    for (int i = 0; i < d->inputDevices.size(); i++) {
-        QWaylandInputDevice *candidate = d->inputDevices.at(i);
+    QWaylandSeat *dev = NULL;
+    for (int i = 0; i < d->seats.size(); i++) {
+        QWaylandSeat *candidate = d->seats.at(i);
         if (candidate->isOwner(inputEvent)) {
             dev = candidate;
             break;

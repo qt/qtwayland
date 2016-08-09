@@ -46,7 +46,7 @@ QT_BEGIN_NAMESPACE
 
 class QWaylandDragPrivate;
 class QWaylandSurface;
-class QWaylandInputDevice;
+class QWaylandSeat;
 
 class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandDrag : public QObject
 {
@@ -57,11 +57,11 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandDrag : public QObject
     Q_PROPERTY(bool visible READ visible NOTIFY iconChanged)
 
 public:
-    explicit QWaylandDrag(QWaylandInputDevice *inputDevice);
+    explicit QWaylandDrag(QWaylandSeat *seat);
 
     QWaylandSurface *icon() const;
     QWaylandSurface *origin() const;
-    QWaylandInputDevice *inputDevice() const;
+    QWaylandSeat *seat() const;
     bool visible() const;
 
 public Q_SLOTS:

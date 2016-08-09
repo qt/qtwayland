@@ -43,12 +43,12 @@ public slots:
     void onSurfaceAboutToBeDestroyed(QWaylandSurface *surface);
 
 protected:
-    QWaylandInputDevice *createInputDevice() Q_DECL_OVERRIDE;
-    QWaylandKeyboard *createKeyboardDevice(QWaylandInputDevice *inputDevice) Q_DECL_OVERRIDE;
+    QWaylandSeat *createSeat() Q_DECL_OVERRIDE;
+    QWaylandKeyboard *createKeyboardDevice(QWaylandSeat *seat) Q_DECL_OVERRIDE;
 
 public:
     QList<QWaylandSurface *> surfaces;
     QWaylandWlShell* shell;
-    bool m_createInputDevice;
+    bool m_createSeat;
 };
 

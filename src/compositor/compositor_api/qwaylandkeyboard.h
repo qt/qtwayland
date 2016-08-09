@@ -47,7 +47,7 @@ QT_BEGIN_NAMESPACE
 
 class QWaylandKeyboard;
 class QWaylandKeyboardPrivate;
-class QWaylandInputDevice;
+class QWaylandSeat;
 
 class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandKeymap
 {
@@ -76,9 +76,9 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandKeyboard : public QWaylandObject
     Q_PROPERTY(quint32 repeatRate READ repeatRate WRITE setRepeatRate NOTIFY repeatRateChanged)
     Q_PROPERTY(quint32 repeatDelay READ repeatDelay WRITE setRepeatDelay NOTIFY repeatDelayChanged)
 public:
-    QWaylandKeyboard(QWaylandInputDevice *inputDevice, QObject *parent = nullptr);
+    QWaylandKeyboard(QWaylandSeat *seat, QObject *parent = nullptr);
 
-    QWaylandInputDevice *inputDevice() const;
+    QWaylandSeat *seat() const;
     QWaylandCompositor *compositor() const;
 
     quint32 repeatRate() const;

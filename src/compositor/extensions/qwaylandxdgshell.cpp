@@ -45,7 +45,7 @@
 #include <QtWaylandCompositor/QWaylandSurface>
 #include <QtWaylandCompositor/QWaylandSurfaceRole>
 #include <QtWaylandCompositor/QWaylandResource>
-#include <QtWaylandCompositor/QWaylandInputDevice>
+#include <QtWaylandCompositor/QWaylandSeat>
 
 #include <QtCore/QObject>
 
@@ -174,7 +174,7 @@ void QWaylandXdgShellPrivate::xdg_shell_use_unstable_version(Resource *resource,
 
 void QWaylandXdgShellPrivate::xdg_shell_get_xdg_popup(Resource *resource, uint32_t id,
                                                       wl_resource *surface_res, wl_resource *parent,
-                                                      wl_resource *seat, uint32_t serial,
+                                                      wl_resource *seatResource, uint32_t serial,
                                                       int32_t x, int32_t y)
 {
     Q_UNUSED(serial);
@@ -194,9 +194,9 @@ void QWaylandXdgShellPrivate::xdg_shell_get_xdg_popup(Resource *resource, uint32
 
     QWaylandResource xdgPopupResource (wl_resource_create(resource->client(), &xdg_popup_interface,
                                                           wl_resource_get_version(resource->handle), id));
-    QWaylandInputDevice *inputDevice = QWaylandInputDevice::fromSeatResource(seat);
+    QWaylandSeat *seat = QWaylandSeat::fromSeatResource(seatResource);
     QPoint position(x, y);
-    emit q->xdgPopupRequested(surface, parentSurface, inputDevice, position, xdgPopupResource);
+    emit q->xdgPopupRequested(surface, parentSurface, seat, position, xdgPopupResource);
 
     QWaylandXdgPopup *xdgPopup = QWaylandXdgPopup::fromResource(xdgPopupResource.resource());
     if (!xdgPopup) {
@@ -290,7 +290,7 @@ void QWaylandXdgSurfacePrivate::xdg_surface_move(Resource *resource, wl_resource
     Q_UNUSED(serial);
 
     Q_Q(QWaylandXdgSurface);
-    QWaylandInputDevice *input_device = QWaylandInputDevice::fromSeatResource(seat);
+    QWaylandSeat *input_device = QWaylandSeat::fromSeatResource(seat);
     emit q->startMove(input_device);
 }
 
@@ -301,7 +301,7 @@ void QWaylandXdgSurfacePrivate::xdg_surface_resize(Resource *resource, wl_resour
     Q_UNUSED(serial);
 
     Q_Q(QWaylandXdgSurface);
-    QWaylandInputDevice *input_device = QWaylandInputDevice::fromSeatResource(seat);
+    QWaylandSeat *input_device = QWaylandSeat::fromSeatResource(seat);
     emit q->startResize(input_device, QWaylandXdgSurface::ResizeEdge(edges));
 }
 
@@ -378,15 +378,15 @@ void QWaylandXdgSurfacePrivate::xdg_surface_set_app_id(Resource *resource, const
     emit q->appIdChanged();
 }
 
-void QWaylandXdgSurfacePrivate::xdg_surface_show_window_menu(Resource *resource, wl_resource *seat,
+void QWaylandXdgSurfacePrivate::xdg_surface_show_window_menu(Resource *resource, wl_resource *seatResource,
                                                              uint32_t serial, int32_t x, int32_t y)
 {
     Q_UNUSED(resource);
     Q_UNUSED(serial);
     QPoint position(x, y);
-    auto inputDevice = QWaylandInputDevice::fromSeatResource(seat);
+    auto seat = QWaylandSeat::fromSeatResource(seatResource);
     Q_Q(QWaylandXdgSurface);
-    emit q->showWindowMenu(inputDevice, position);
+    emit q->showWindowMenu(seat, position);
 }
 
 void QWaylandXdgSurfacePrivate::xdg_surface_ack_configure(Resource *resource, uint32_t serial)
@@ -525,10 +525,10 @@ void QWaylandXdgShell::initialize()
     }
     d->init(compositor->display(), 1);
 
-    handleDefaultInputDeviceChanged(compositor->defaultInputDevice(), nullptr);
+    handleSeatChanged(compositor->defaultSeat(), nullptr);
 
-    connect(compositor, &QWaylandCompositor::defaultInputDeviceChanged,
-            this, &QWaylandXdgShell::handleDefaultInputDeviceChanged);
+    connect(compositor, &QWaylandCompositor::defaultSeatChanged,
+            this, &QWaylandXdgShell::handleSeatChanged);
 }
 
 /*!
@@ -583,15 +583,15 @@ void QWaylandXdgShell::closeAllPopups()
     }
 }
 
-void QWaylandXdgShell::handleDefaultInputDeviceChanged(QWaylandInputDevice *newDevice, QWaylandInputDevice *oldDevice)
+void QWaylandXdgShell::handleSeatChanged(QWaylandSeat *newSeat, QWaylandSeat *oldSeat)
 {
-    if (oldDevice != nullptr) {
-        disconnect(oldDevice, &QWaylandInputDevice::keyboardFocusChanged,
+    if (oldSeat != nullptr) {
+        disconnect(oldSeat, &QWaylandSeat::keyboardFocusChanged,
                    this, &QWaylandXdgShell::handleFocusChanged);
     }
 
-    if (newDevice != nullptr) {
-        connect(newDevice, &QWaylandInputDevice::keyboardFocusChanged,
+    if (newSeat != nullptr) {
+        connect(newSeat, &QWaylandSeat::keyboardFocusChanged,
                 this, &QWaylandXdgShell::handleFocusChanged);
     }
 }

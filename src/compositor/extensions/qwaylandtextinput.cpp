@@ -38,7 +38,7 @@
 #include "qwaylandtextinput_p.h"
 
 #include <QtWaylandCompositor/QWaylandCompositor>
-#include <QtWaylandCompositor/private/qwaylandinput_p.h>
+#include <QtWaylandCompositor/private/qwaylandseat_p.h>
 
 #include "qwaylandsurface.h"
 #include "qwaylandview.h"

@@ -56,7 +56,7 @@
 QT_BEGIN_NAMESPACE
 
 class QWaylandCompositor;
-class QWaylandInputDevice;
+class QWaylandSeat;
 class QWaylandSurface;
 class QWaylandTextInput;
 
@@ -70,7 +70,7 @@ public:
     QWaylandTextInput *textInput() const;
 
     QWaylandCompositor *compositor;
-    QWaylandInputDevice *inputDevice;
+    QWaylandSeat *seat;
     QWaylandSurface *surface;
     bool enabled;
 };

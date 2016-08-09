@@ -132,7 +132,7 @@ void QWaylandWlShellSurfacePrivate::shell_surface_move(Resource *resource,
     Q_UNUSED(serial);
 
     Q_Q(QWaylandWlShellSurface);
-    QWaylandInputDevice *input_device = QWaylandInputDevice::fromSeatResource(input_device_super);
+    QWaylandSeat *input_device = QWaylandSeat::fromSeatResource(input_device_super);
     emit q->startMove(input_device);
 }
 
@@ -145,7 +145,7 @@ void QWaylandWlShellSurfacePrivate::shell_surface_resize(Resource *resource,
     Q_UNUSED(serial);
     Q_Q(QWaylandWlShellSurface);
 
-    QWaylandInputDevice *input_device = QWaylandInputDevice::fromSeatResource(input_device_super);
+    QWaylandSeat *input_device = QWaylandSeat::fromSeatResource(input_device_super);
     emit q->startResize(input_device, QWaylandWlShellSurface::ResizeEdge(edges));
 }
 
@@ -197,7 +197,7 @@ void QWaylandWlShellSurfacePrivate::shell_surface_set_popup(Resource *resource, 
     Q_UNUSED(flags);
     Q_Q(QWaylandWlShellSurface);
     setFocusPolicy(QWaylandWlShellSurface::DefaultFocus);
-    QWaylandInputDevice *input = QWaylandInputDevice::fromSeatResource(input_device);
+    QWaylandSeat *input = QWaylandSeat::fromSeatResource(input_device);
     QWaylandSurface *parentSurface = QWaylandSurface::fromResource(parent);
     emit q->setPopup(input, parentSurface, QPoint(x,y));
 

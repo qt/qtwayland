@@ -45,7 +45,7 @@
 #include "qwaylandview.h"
 #include <QtWaylandCompositor/QWaylandClient>
 #include <QtWaylandCompositor/private/qwaylandcompositor_p.h>
-#include <QtWaylandCompositor/private/qwaylandinput_p.h>
+#include <QtWaylandCompositor/private/qwaylandseat_p.h>
 #include <QtWaylandCompositor/private/qwaylandpointer_p.h>
 
 #include <QtCore/QPointF>
@@ -55,10 +55,10 @@ QT_BEGIN_NAMESPACE
 
 namespace QtWayland {
 
-DataDevice::DataDevice(QWaylandInputDevice *inputDevice)
+DataDevice::DataDevice(QWaylandSeat *seat)
     : wl_data_device()
-    , m_compositor(inputDevice->compositor())
-    , m_inputDevice(inputDevice)
+    , m_compositor(seat->compositor())
+    , m_seat(seat)
     , m_selectionSource(0)
     , m_dragClient(0)
     , m_dragDataSource(0)
@@ -168,7 +168,7 @@ void DataDevice::data_device_start_drag(Resource *resource, struct ::wl_resource
     m_dragClient = resource->client();
     m_dragDataSource = source ? DataSource::fromResource(source) : 0;
     m_dragOrigin = QWaylandSurface::fromResource(origin);
-    QWaylandDrag *drag = m_inputDevice->drag();
+    QWaylandDrag *drag = m_seat->drag();
     setDragIcon(icon ? QWaylandSurface::fromResource(icon) : nullptr);
     Q_EMIT drag->dragStarted();
     Q_EMIT m_dragOrigin->dragStarted(drag);
@@ -191,7 +191,7 @@ void DataDevice::data_device_set_selection(Resource *, struct ::wl_resource *sou
     if (m_selectionSource)
         m_selectionSource->setDevice(this);
 
-    QWaylandClient *focusClient = m_inputDevice->keyboard()->focusClient();
+    QWaylandClient *focusClient = m_seat->keyboard()->focusClient();
     Resource *resource = focusClient ? resourceMap().value(focusClient->client()) : 0;
 
     if (resource && m_selectionSource) {
@@ -207,7 +207,7 @@ void DataDevice::setDragIcon(QWaylandSurface *icon)
     if (icon == m_dragIcon)
         return;
     m_dragIcon = icon;
-    Q_EMIT m_inputDevice->drag()->iconChanged();
+    Q_EMIT m_seat->drag()->iconChanged();
 }
 
 }

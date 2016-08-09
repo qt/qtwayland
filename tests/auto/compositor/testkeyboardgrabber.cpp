@@ -28,8 +28,8 @@
 
 #include "testkeyboardgrabber.h"
 
-TestKeyboardGrabber::TestKeyboardGrabber(QWaylandInputDevice *inputDevice)
-    : QWaylandKeyboard(inputDevice)
+TestKeyboardGrabber::TestKeyboardGrabber(QWaylandSeat *seat)
+    : QWaylandKeyboard(seat)
 {
 }
 

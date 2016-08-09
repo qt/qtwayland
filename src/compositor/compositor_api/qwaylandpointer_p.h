@@ -61,7 +61,7 @@
 #include <QtWaylandCompositor/private/qwayland-server-wayland.h>
 #include <QtWaylandCompositor/QWaylandView>
 #include <QtWaylandCompositor/QWaylandSurface>
-#include <QtWaylandCompositor/QWaylandInputDevice>
+#include <QtWaylandCompositor/QWaylandSeat>
 
 #include <stdint.h>
 
@@ -74,7 +74,7 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandPointerPrivate : public QObjectPrivate
 {
     Q_DECLARE_PUBLIC(QWaylandPointer)
 public:
-    QWaylandPointerPrivate(QWaylandPointer *pointer, QWaylandInputDevice *seat);
+    QWaylandPointerPrivate(QWaylandPointer *pointer, QWaylandSeat *seat);
 
     QWaylandCompositor *compositor() const { return seat->compositor(); }
 
@@ -86,7 +86,7 @@ protected:
 private:
     void focusDestroyed(void *data);
 
-    QWaylandInputDevice *seat;
+    QWaylandSeat *seat;
     QWaylandOutput *output;
 
     QPointF localPosition;

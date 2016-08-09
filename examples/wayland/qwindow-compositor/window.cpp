@@ -47,7 +47,7 @@
 #include <QMatrix4x4>
 
 #include "compositor.h"
-#include <QtWaylandCompositor/qwaylandinput.h>
+#include <QtWaylandCompositor/qwaylandseat.h>
 
 Window::Window()
     : m_backgroundTexture(0)
@@ -268,10 +268,10 @@ void Window::sendMouseEvent(QMouseEvent *e, View *target)
 
 void Window::keyPressEvent(QKeyEvent *e)
 {
-    m_compositor->defaultInputDevice()->sendKeyPressEvent(e->nativeScanCode());
+    m_compositor->defaultSeat()->sendKeyPressEvent(e->nativeScanCode());
 }
 
 void Window::keyReleaseEvent(QKeyEvent *e)
 {
-    m_compositor->defaultInputDevice()->sendKeyReleaseEvent(e->nativeScanCode());
+    m_compositor->defaultSeat()->sendKeyReleaseEvent(e->nativeScanCode());
 }

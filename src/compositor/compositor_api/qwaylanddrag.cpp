@@ -40,33 +40,33 @@
 
 #include "qwldatadevice_p.h"
 #include "qwaylandview.h"
-#include <QtWaylandCompositor/private/qwaylandinput_p.h>
+#include <QtWaylandCompositor/private/qwaylandseat_p.h>
 
 QT_BEGIN_NAMESPACE
 
 class QWaylandDragPrivate : public QObjectPrivate
 {
 public:
-    QWaylandDragPrivate(QWaylandInputDevice *id)
-        : inputDevice(id)
+    QWaylandDragPrivate(QWaylandSeat *seat)
+        : seat(seat)
     {
     }
 
     QtWayland::DataDevice *dataDevice()
     {
-        return QWaylandInputDevicePrivate::get(inputDevice)->dataDevice();
+        return QWaylandSeatPrivate::get(seat)->dataDevice();
     }
 
     const QtWayland::DataDevice *dataDevice() const
     {
-        return QWaylandInputDevicePrivate::get(inputDevice)->dataDevice();
+        return QWaylandSeatPrivate::get(seat)->dataDevice();
     }
 
-    QWaylandInputDevice *inputDevice;
+    QWaylandSeat *seat;
 };
 
-QWaylandDrag::QWaylandDrag(QWaylandInputDevice *inputDevice)
-    : QObject(* new QWaylandDragPrivate(inputDevice))
+QWaylandDrag::QWaylandDrag(QWaylandSeat *seat)
+    : QObject(* new QWaylandDragPrivate(seat))
 {
 }
 
@@ -88,10 +88,10 @@ QWaylandSurface *QWaylandDrag::origin() const
     return dataDevice ? dataDevice->dragOrigin() : nullptr;
 }
 
-QWaylandInputDevice *QWaylandDrag::inputDevice() const
+QWaylandSeat *QWaylandDrag::seat() const
 {
     Q_D(const QWaylandDrag);
-    return d->inputDevice;
+    return d->seat;
 }
 
 

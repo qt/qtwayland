@@ -39,7 +39,7 @@
 #include <QtWaylandCompositor/QWaylandCompositor>
 #include <QtWaylandCompositor/QWaylandWlShellSurface>
 #include <QtWaylandCompositor/QWaylandQuickShellSurfaceItem>
-#include <QtWaylandCompositor/QWaylandInputDevice>
+#include <QtWaylandCompositor/QWaylandSeat>
 
 QT_BEGIN_NAMESPACE
 
@@ -60,26 +60,26 @@ WlShellIntegration::WlShellIntegration(QWaylandQuickShellSurfaceItem *item)
     connect(m_shellSurface, &QWaylandWlShellSurface::destroyed, this, &WlShellIntegration::handleShellSurfaceDestroyed);
 }
 
-void WlShellIntegration::handleStartMove(QWaylandInputDevice *inputDevice)
+void WlShellIntegration::handleStartMove(QWaylandSeat *seat)
 {
     grabberState = GrabberState::Move;
-    moveState.inputDevice = inputDevice;
+    moveState.seat = seat;
     moveState.initialized = false;
 }
 
-void WlShellIntegration::handleStartResize(QWaylandInputDevice *inputDevice, QWaylandWlShellSurface::ResizeEdge edges)
+void WlShellIntegration::handleStartResize(QWaylandSeat *seat, QWaylandWlShellSurface::ResizeEdge edges)
 {
     grabberState = GrabberState::Resize;
-    resizeState.inputDevice = inputDevice;
+    resizeState.seat = seat;
     resizeState.resizeEdges = edges;
     float scaleFactor = m_item->view()->output()->scaleFactor();
     resizeState.initialSize = m_shellSurface->surface()->size() / scaleFactor;
     resizeState.initialized = false;
 }
 
-void WlShellIntegration::handleSetPopup(QWaylandInputDevice *inputDevice, QWaylandSurface *parent, const QPoint &relativeToParent)
+void WlShellIntegration::handleSetPopup(QWaylandSeat *seat, QWaylandSurface *parent, const QPoint &relativeToParent)
 {
-    Q_UNUSED(inputDevice);
+    Q_UNUSED(seat);
 
     // Find the parent item on the same output
     QWaylandQuickShellSurfaceItem *parentItem = nullptr;
@@ -158,7 +158,7 @@ void WlShellIntegration::adjustOffsetForNextFrame(const QPointF &offset)
 bool WlShellIntegration::mouseMoveEvent(QMouseEvent *event)
 {
     if (grabberState == GrabberState::Resize) {
-        Q_ASSERT(resizeState.inputDevice == m_item->compositor()->inputDeviceFor(event));
+        Q_ASSERT(resizeState.seat == m_item->compositor()->seatFor(event));
         if (!resizeState.initialized) {
             resizeState.initialMousePos = event->windowPos();
             resizeState.initialized = true;
@@ -169,7 +169,7 @@ bool WlShellIntegration::mouseMoveEvent(QMouseEvent *event)
         QSize newSize = m_shellSurface->sizeForResize(resizeState.initialSize, delta, resizeState.resizeEdges);
         m_shellSurface->sendConfigure(newSize, resizeState.resizeEdges);
     } else if (grabberState == GrabberState::Move) {
-        Q_ASSERT(moveState.inputDevice == m_item->compositor()->inputDeviceFor(event));
+        Q_ASSERT(moveState.seat == m_item->compositor()->seatFor(event));
         QQuickItem *moveItem = m_item->moveItem();
         if (!moveState.initialized) {
             moveState.initialOffset = moveItem->mapFromItem(nullptr, event->windowPos());

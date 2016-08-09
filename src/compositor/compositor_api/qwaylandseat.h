@@ -34,8 +34,8 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDINPUT_H
-#define QWAYLANDINPUT_H
+#ifndef QWAYLANDSEAT_H
+#define QWAYLANDSEAT_H
 
 #include <QtCore/qnamespace.h>
 #include <QtCore/QPoint>
@@ -53,20 +53,16 @@ class QKeyEvent;
 class QTouchEvent;
 class QWaylandView;
 class QInputEvent;
-class QWaylandInputDevicePrivate;
+class QWaylandSeatPrivate;
 class QWaylandDrag;
 class QWaylandKeyboard;
 class QWaylandPointer;
 class QWaylandTouch;
 
-namespace QtWayland {
-class InputDevice;
-}
-
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandInputDevice : public QWaylandObject
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandSeat : public QWaylandObject
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QWaylandInputDevice)
+    Q_DECLARE_PRIVATE(QWaylandSeat)
 
     Q_PROPERTY(QWaylandDrag *drag READ drag CONSTANT)
 public:
@@ -81,8 +77,8 @@ public:
     Q_DECLARE_FLAGS(CapabilityFlags, CapabilityFlag)
     Q_ENUM(CapabilityFlags)
 
-    QWaylandInputDevice(QWaylandCompositor *compositor, CapabilityFlags capabilityFlags = DefaultCapabilities);
-    virtual ~QWaylandInputDevice();
+    QWaylandSeat(QWaylandCompositor *compositor, CapabilityFlags capabilityFlags = DefaultCapabilities);
+    virtual ~QWaylandSeat();
 
     void sendMousePressEvent(Qt::MouseButton button);
     void sendMouseReleaseEvent(Qt::MouseButton button);
@@ -118,11 +114,11 @@ public:
 
     QWaylandDrag *drag() const;
 
-    QWaylandInputDevice::CapabilityFlags capabilities() const;
+    QWaylandSeat::CapabilityFlags capabilities() const;
 
     virtual bool isOwner(QInputEvent *inputEvent) const;
 
-    static QWaylandInputDevice *fromSeatResource(struct ::wl_resource *resource);
+    static QWaylandSeat *fromSeatResource(struct ::wl_resource *resource);
 
 Q_SIGNALS:
     void mouseFocusChanged(QWaylandView *newFocus, QWaylandView *oldFocus);
@@ -130,8 +126,8 @@ Q_SIGNALS:
     void cursorSurfaceRequest(QWaylandSurface *surface, int hotspotX, int hotspotY);
 };
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(QWaylandInputDevice::CapabilityFlags)
+Q_DECLARE_OPERATORS_FOR_FLAGS(QWaylandSeat::CapabilityFlags)
 
 QT_END_NAMESPACE
 
-#endif // QWAYLANDINPUT_H
+#endif // QWAYLANDSEAT_H

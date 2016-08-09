@@ -38,7 +38,7 @@
 
 #include <QtWaylandCompositor/QWaylandQuickShellSurfaceItem>
 #include <QtWaylandCompositor/QWaylandCompositor>
-#include <QtWaylandCompositor/QWaylandInputDevice>
+#include <QtWaylandCompositor/QWaylandSeat>
 #include <QtWaylandCompositor/private/qwaylandxdgshell_p.h>
 #include <QMouseEvent>
 #include <QGuiApplication>
@@ -66,7 +66,7 @@ XdgShellIntegration::XdgShellIntegration(QWaylandQuickShellSurfaceItem *item)
 bool XdgShellIntegration::mouseMoveEvent(QMouseEvent *event)
 {
     if (grabberState == GrabberState::Resize) {
-        Q_ASSERT(resizeState.inputDevice == m_item->compositor()->inputDeviceFor(event));
+        Q_ASSERT(resizeState.seat == m_item->compositor()->seatFor(event));
         if (!resizeState.initialized) {
             resizeState.initialMousePos = event->windowPos();
             resizeState.initialized = true;
@@ -76,7 +76,7 @@ bool XdgShellIntegration::mouseMoveEvent(QMouseEvent *event)
         QSize newSize = m_xdgSurface->sizeForResize(resizeState.initialWindowSize, delta, resizeState.resizeEdges);
         m_xdgSurface->sendResizing(newSize);
     } else if (grabberState == GrabberState::Move) {
-        Q_ASSERT(moveState.inputDevice == m_item->compositor()->inputDeviceFor(event));
+        Q_ASSERT(moveState.seat == m_item->compositor()->seatFor(event));
         QQuickItem *moveItem = m_item->moveItem();
         if (!moveState.initialized) {
             moveState.initialOffset = moveItem->mapFromItem(nullptr, event->windowPos());
@@ -106,17 +106,17 @@ bool XdgShellIntegration::mouseReleaseEvent(QMouseEvent *event)
     return false;
 }
 
-void XdgShellIntegration::handleStartMove(QWaylandInputDevice *inputDevice)
+void XdgShellIntegration::handleStartMove(QWaylandSeat *seat)
 {
     grabberState = GrabberState::Move;
-    moveState.inputDevice = inputDevice;
+    moveState.seat = seat;
     moveState.initialized = false;
 }
 
-void XdgShellIntegration::handleStartResize(QWaylandInputDevice *inputDevice, QWaylandXdgSurface::ResizeEdge edges)
+void XdgShellIntegration::handleStartResize(QWaylandSeat *seat, QWaylandXdgSurface::ResizeEdge edges)
 {
     grabberState = GrabberState::Resize;
-    resizeState.inputDevice = inputDevice;
+    resizeState.seat = seat;
     resizeState.resizeEdges = edges;
     resizeState.initialWindowSize = m_xdgSurface->windowGeometry().size();
     resizeState.initialPosition = m_item->moveItem()->position();

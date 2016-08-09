@@ -48,7 +48,7 @@ QT_BEGIN_NAMESPACE
 
 class QWaylandTouch;
 class QWaylandTouchPrivate;
-class QWaylandInputDevice;
+class QWaylandSeat;
 class QWaylandView;
 class QWaylandClient;
 
@@ -57,9 +57,9 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandTouch : public QWaylandObject
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandTouch)
 public:
-    QWaylandTouch(QWaylandInputDevice *inputDevice, QObject *parent = nullptr);
+    QWaylandTouch(QWaylandSeat *seat, QObject *parent = nullptr);
 
-    QWaylandInputDevice *inputDevice() const;
+    QWaylandSeat *seat() const;
     QWaylandCompositor *compositor() const;
 
     virtual void sendTouchPointEvent(int id, const QPointF &position, Qt::TouchPointState state);

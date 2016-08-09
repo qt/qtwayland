@@ -51,7 +51,7 @@ Q_DECLARE_METATYPE(QWaylandQuickSurface*)
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandInputDevice;
+class QWaylandSeat;
 class QWaylandQuickItemPrivate;
 
 class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQuickItem : public QQuickItem
@@ -129,7 +129,7 @@ protected:
 
     virtual void surfaceChangedEvent(QWaylandSurface *newSurface, QWaylandSurface *oldSurface);
 public Q_SLOTS:
-    virtual void takeFocus(QWaylandInputDevice *device = nullptr);
+    virtual void takeFocus(QWaylandSeat *device = nullptr);
     void setPaintEnabled(bool paintEnabled);
     void raise();
     void lower();

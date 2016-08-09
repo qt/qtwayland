@@ -27,7 +27,7 @@
 ****************************************************************************/
 
 #include "testcompositor.h"
-#include "testinputdevice.h"
+#include "testseat.h"
 #include "testkeyboardgrabber.h"
 
 #include <wayland-server.h>
@@ -35,7 +35,7 @@
 TestCompositor::TestCompositor(bool createInputDev)
     : QWaylandCompositor()
     , shell(new QWaylandWlShell(this))
-    , m_createInputDevice(createInputDev)
+    , m_createSeat(createInputDev)
 {
     setSocketName("wayland-qt-test-0");
 }
@@ -64,14 +64,14 @@ void TestCompositor::onSurfaceAboutToBeDestroyed(QWaylandSurface *surface)
     surfaces.removeOne(surface);
 }
 
-QWaylandInputDevice *TestCompositor::createInputDevice()
+QWaylandSeat *TestCompositor::createSeat()
 {
-    if (m_createInputDevice)
-        return new TestInputDevice(this, QWaylandInputDevice::Pointer | QWaylandInputDevice::Keyboard);
+    if (m_createSeat)
+        return new TestSeat(this, QWaylandSeat::Pointer | QWaylandSeat::Keyboard);
     else
-        return QWaylandCompositor::createInputDevice();
+        return QWaylandCompositor::createSeat();
 }
 
-QWaylandKeyboard *TestCompositor::createKeyboardDevice(QWaylandInputDevice *inputDevice) {
-    return new TestKeyboardGrabber(inputDevice);
+QWaylandKeyboard *TestCompositor::createKeyboardDevice(QWaylandSeat *seat) {
+    return new TestKeyboardGrabber(seat);
 }

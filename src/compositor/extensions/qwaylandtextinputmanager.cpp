@@ -38,7 +38,7 @@
 #include "qwaylandtextinputmanager_p.h"
 
 #include <QtWaylandCompositor/QWaylandCompositor>
-#include <QtWaylandCompositor/QWaylandInputDevice>
+#include <QtWaylandCompositor/QWaylandSeat>
 
 #include "qwaylandtextinput.h"
 
@@ -50,14 +50,14 @@ QWaylandTextInputManagerPrivate::QWaylandTextInputManagerPrivate()
 {
 }
 
-void QWaylandTextInputManagerPrivate::zwp_text_input_manager_v2_get_text_input(Resource *resource, uint32_t id, struct ::wl_resource *seat)
+void QWaylandTextInputManagerPrivate::zwp_text_input_manager_v2_get_text_input(Resource *resource, uint32_t id, struct ::wl_resource *seatResource)
 {
     Q_Q(QWaylandTextInputManager);
     QWaylandCompositor *compositor = static_cast<QWaylandCompositor *>(q->extensionContainer());
-    QWaylandInputDevice *inputDevice = QWaylandInputDevice::fromSeatResource(seat);
-    QWaylandTextInput *textInput = QWaylandTextInput::findIn(inputDevice);
+    QWaylandSeat *seat = QWaylandSeat::fromSeatResource(seatResource);
+    QWaylandTextInput *textInput = QWaylandTextInput::findIn(seat);
     if (!textInput) {
-        textInput = new QWaylandTextInput(inputDevice, compositor);
+        textInput = new QWaylandTextInput(seat, compositor);
     }
     textInput->add(resource->client(), id, wl_resource_get_version(resource->handle));
 }

@@ -38,7 +38,7 @@
 #include "qwaylandkeyboard.h"
 #include "qwaylandkeyboard_p.h"
 #include <QtWaylandCompositor/QWaylandCompositor>
-#include <QtWaylandCompositor/QWaylandInputDevice>
+#include <QtWaylandCompositor/QWaylandSeat>
 #include <QtWaylandCompositor/QWaylandClient>
 
 #include <QtCore/QFile>
@@ -53,7 +53,7 @@
 
 QT_BEGIN_NAMESPACE
 
-QWaylandKeyboardPrivate::QWaylandKeyboardPrivate(QWaylandInputDevice *seat)
+QWaylandKeyboardPrivate::QWaylandKeyboardPrivate(QWaylandSeat *seat)
     : QtWaylandServer::wl_keyboard()
     , seat(seat)
     , focus()
@@ -384,24 +384,24 @@ void QWaylandKeyboardPrivate::sendRepeatInfo()
  * \preliminary
  * \brief The QWaylandKeyboard class provides access to a keyboard device.
  *
- * This class provides access to the keyboard device in a QWaylandInputDevice. It corresponds to
+ * This class provides access to the keyboard device in a QWaylandSeat. It corresponds to
  * the Wayland interface wl_keyboard.
  */
 
 /*!
- * Constructs a QWaylandKeyboard for the given \a inputDevice and with the given \a parent.
+ * Constructs a QWaylandKeyboard for the given \a seat and with the given \a parent.
  */
-QWaylandKeyboard::QWaylandKeyboard(QWaylandInputDevice *inputDevice, QObject *parent)
-    : QWaylandObject(* new QWaylandKeyboardPrivate(inputDevice), parent)
+QWaylandKeyboard::QWaylandKeyboard(QWaylandSeat *seat, QObject *parent)
+    : QWaylandObject(* new QWaylandKeyboardPrivate(seat), parent)
 {
     Q_D(QWaylandKeyboard);
     connect(&d->focusDestroyListener, &QWaylandDestroyListener::fired, this, &QWaylandKeyboard::focusDestroyed);
 }
 
 /*!
- * Returns the input device for this QWaylandKeyboard.
+ * Returns the seat for this QWaylandKeyboard.
  */
-QWaylandInputDevice *QWaylandKeyboard::inputDevice() const
+QWaylandSeat *QWaylandKeyboard::seat() const
 {
     Q_D(const QWaylandKeyboard);
     return d->seat;

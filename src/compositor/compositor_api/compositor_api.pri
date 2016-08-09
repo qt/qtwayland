@@ -6,8 +6,8 @@ HEADERS += \
     compositor_api/qwaylandclient.h \
     compositor_api/qwaylandsurface.h \
     compositor_api/qwaylandsurface_p.h \
-    compositor_api/qwaylandinput.h \
-    compositor_api/qwaylandinput_p.h \
+    compositor_api/qwaylandseat.h \
+    compositor_api/qwaylandseat_p.h \
     compositor_api/qwaylandkeyboard.h \
     compositor_api/qwaylandkeyboard_p.h \
     compositor_api/qwaylandpointer.h \
@@ -30,7 +30,7 @@ SOURCES += \
     compositor_api/qwaylandcompositor.cpp \
     compositor_api/qwaylandclient.cpp \
     compositor_api/qwaylandsurface.cpp \
-    compositor_api/qwaylandinput.cpp \
+    compositor_api/qwaylandseat.cpp \
     compositor_api/qwaylandkeyboard.cpp \
     compositor_api/qwaylandpointer.cpp \
     compositor_api/qwaylandtouch.cpp \

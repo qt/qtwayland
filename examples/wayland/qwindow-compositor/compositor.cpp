@@ -46,7 +46,7 @@
 
 #include <QtWaylandCompositor/QWaylandXdgShell>
 #include <QtWaylandCompositor/QWaylandWlShellSurface>
-#include <QtWaylandCompositor/qwaylandinput.h>
+#include <QtWaylandCompositor/qwaylandseat.h>
 #include <QtWaylandCompositor/qwaylanddrag.h>
 
 #include <QDebug>
@@ -162,8 +162,8 @@ void Compositor::create()
     QWaylandCompositor::create();
 
     connect(this, &QWaylandCompositor::surfaceCreated, this, &Compositor::onSurfaceCreated);
-    connect(defaultInputDevice(), &QWaylandInputDevice::cursorSurfaceRequest, this, &Compositor::adjustCursorSurface);
-    connect(defaultInputDevice()->drag(), &QWaylandDrag::dragStarted, this, &Compositor::startDrag);
+    connect(defaultSeat(), &QWaylandSeat::cursorSurfaceRequest, this, &Compositor::adjustCursorSurface);
+    connect(defaultSeat()->drag(), &QWaylandDrag::dragStarted, this, &Compositor::startDrag);
 
     connect(this, &QWaylandCompositor::subsurfaceChanged, this, &Compositor::onSubsurfaceChanged);
 }
@@ -191,7 +191,7 @@ void Compositor::surfaceMappedChanged()
         if (surface->role() == QWaylandWlShellSurface::role()
                 || surface->role() == QWaylandXdgSurface::role()
                 || surface->role() == QWaylandXdgPopup::role()) {
-            defaultInputDevice()->setKeyboardFocus(surface);
+            defaultSeat()->setKeyboardFocus(surface);
         }
     } else if (popupActive()) {
         for (int i = 0; i < m_popupViews.count(); i++) {
@@ -253,10 +253,10 @@ void Compositor::onXdgSurfaceCreated(QWaylandXdgSurface *xdgSurface)
 }
 
 void Compositor::onXdgPopupRequested(QWaylandSurface *surface, QWaylandSurface *parent,
-                                     QWaylandInputDevice *inputDevice, const QPoint &position,
+                                     QWaylandSeat *seat, const QPoint &position,
                                      const QWaylandResource &resource)
 {
-    Q_UNUSED(inputDevice);
+    Q_UNUSED(seat);
 
     QWaylandXdgPopup *xdgPopup = new QWaylandXdgPopup(m_xdgShell, surface, parent, position, resource);
 
@@ -276,16 +276,16 @@ void Compositor::onStartMove()
     emit startMove();
 }
 
-void Compositor::onWlStartResize(QWaylandInputDevice *, QWaylandWlShellSurface::ResizeEdge edges)
+void Compositor::onWlStartResize(QWaylandSeat *, QWaylandWlShellSurface::ResizeEdge edges)
 {
     closePopups();
     emit startResize(int(edges), false);
 }
 
-void Compositor::onXdgStartResize(QWaylandInputDevice *inputDevice,
-                                        QWaylandXdgSurface::ResizeEdge edges)
+void Compositor::onXdgStartResize(QWaylandSeat *seat,
+                                  QWaylandXdgSurface::ResizeEdge edges)
 {
-    Q_UNUSED(inputDevice);
+    Q_UNUSED(seat);
     emit startResize(int(edges), true);
 }
 
@@ -303,9 +303,9 @@ void Compositor::onSetTransient(QWaylandSurface *parent, const QPoint &relativeT
     }
 }
 
-void Compositor::onSetPopup(QWaylandInputDevice *inputDevice, QWaylandSurface *parent, const QPoint &relativeToParent)
+void Compositor::onSetPopup(QWaylandSeat *seat, QWaylandSurface *parent, const QPoint &relativeToParent)
 {
-    Q_UNUSED(inputDevice);
+    Q_UNUSED(seat);
     QWaylandWlShellSurface *surface = qobject_cast<QWaylandWlShellSurface*>(sender());
     View *view = findView(surface->surface());
     m_popupViews << view;
@@ -395,7 +395,7 @@ void Compositor::handleMouseEvent(QWaylandView *target, QMouseEvent *me)
         && target->surface()->client() != m_popupViews.first()->surface()->client()) {
         closePopups();
     }
-    QWaylandInputDevice *input = defaultInputDevice();
+    QWaylandSeat *input = defaultSeat();
     QWaylandSurface *surface = target ? target->surface() : nullptr;
     switch (me->type()) {
         case QEvent::MouseButtonPress:
@@ -438,7 +438,7 @@ void Compositor::handleResize(View *target, const QSize &initialSize, const QPoi
 
 void Compositor::startDrag()
 {
-    QWaylandDrag *currentDrag = defaultInputDevice()->drag();
+    QWaylandDrag *currentDrag = defaultSeat()->drag();
     Q_ASSERT(currentDrag);
     View *iconView = findView(currentDrag->icon());
     iconView->setPosition(m_window->mapFromGlobal(QCursor::pos()));
@@ -454,7 +454,7 @@ void Compositor::handleDrag(View *target, QMouseEvent *me)
         pos -= target->position();
         surface = target->surface();
     }
-    QWaylandDrag *currentDrag = defaultInputDevice()->drag();
+    QWaylandDrag *currentDrag = defaultSeat()->drag();
     currentDrag->dragMove(surface, pos);
     if (me->buttons() == Qt::NoButton)
         currentDrag->drop();

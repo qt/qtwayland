@@ -74,7 +74,7 @@ Q_SIGNALS:
 #endif
 
 private:
-    void defaultInputDeviceChanged();
+    void defaultSeatChanged();
     void surfaceEnabled(QWaylandSurface *surface);
     void surfaceDisabled(QWaylandSurface *surface);
 };

@@ -45,7 +45,7 @@ QT_BEGIN_NAMESPACE
 
 class QWaylandPointer;
 class QWaylandPointerPrivate;
-class QWaylandInputDevice;
+class QWaylandSeat;
 class QWaylandView;
 class QWaylandOutput;
 class QWaylandClient;
@@ -56,9 +56,9 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandPointer : public QWaylandObject
     Q_DECLARE_PRIVATE(QWaylandPointer)
     Q_PROPERTY(bool isButtonPressed READ isButtonPressed NOTIFY buttonPressedChanged)
 public:
-    QWaylandPointer(QWaylandInputDevice *inputDevice, QObject *parent = nullptr);
+    QWaylandPointer(QWaylandSeat *seat, QObject *parent = nullptr);
 
-    QWaylandInputDevice *inputDevice() const;
+    QWaylandSeat *seat() const;
     QWaylandCompositor *compositor() const;
 
     QWaylandOutput *output() const;

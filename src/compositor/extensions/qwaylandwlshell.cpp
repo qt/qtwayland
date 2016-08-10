@@ -343,7 +343,7 @@ const struct wl_interface *QWaylandWlShell::interface()
 }
 
 /*!
- * \qmlsignal void QtWaylandCompositor::WlShell::createShellSurface(object surface, object client, int id)
+ * \qmlsignal void QtWaylandCompositor::WlShell::wlShellSurfaceRequested(object surface, object client, int id)
  *
  * This signal is emitted when the \a client has requested a wl_shell_surface to be associated
  * with \a surface and be assigned the given \a id. The handler for this signal is
@@ -352,7 +352,7 @@ const struct wl_interface *QWaylandWlShell::interface()
  */
 
 /*!
- * \fn void QWaylandWlShell::createShellSurface(QWaylandSurface *surface, const QWaylandResource &resource)
+ * \fn void QWaylandWlShell::wlShellSurfaceRequested(QWaylandSurface *surface, const QWaylandResource &resource)
  *
  * Constructs a QWaylandSurface, assigns it to \a surface and initializes it with the given \a resource.
  */

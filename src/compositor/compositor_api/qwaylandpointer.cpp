@@ -95,7 +95,7 @@ void QWaylandPointerPrivate::pointer_set_cursor(wl_pointer::Resource *resource, 
  * \class QWaylandPointer
  * \inmodule QtWaylandCompositor
  * \preliminary
- * \brief The QWaylandPointer class provides access to a pointer device.
+ * \brief The QWaylandPointer class represents a pointer device.
  *
  * This class provides access to the pointer device in a QWaylandInputDevice. It corresponds to
  * the Wayland interface wl_pointer.

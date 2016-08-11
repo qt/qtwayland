@@ -333,10 +333,10 @@ private:
  * \qmltype WaylandQuickItem
  * \inqmlmodule QtWayland.Compositor
  * \preliminary
- * \brief A Qt Quick item representing a WaylandView.
+ * \brief Provides a Qt Quick item that represents a WaylandView.
  *
- * When writing a WaylandCompositor in Qt Quick, this type can be used to display a
- * client's contents on an output device and will pass user input to the
+ * Qt Quick-based Wayland compositors can use this type to display a client's
+ * contents on an output device. It passes user input to the
  * client.
  */
 
@@ -344,7 +344,7 @@ private:
  * \class QWaylandQuickItem
  * \inmodule QtWaylandCompositor
  * \preliminary
- * \brief A Qt Quick item representing a QWaylandView.
+ * \brief The QWaylandQuickItem class provides a Qt Quick item representing a QWaylandView.
  *
  * When writing a QWaylandCompositor in Qt Quick, this class can be used to display a
  * client's contents on an output device and will pass user input to the
@@ -399,7 +399,7 @@ QWaylandCompositor *QWaylandQuickItem::compositor() const
 }
 
 /*!
- * \qmlproperty object QWaylandQuickItem::view
+ * \qmlproperty object QtWaylandCompositor::WaylandQuickItem::view
  *
  * This property holds the view rendered by this WaylandQuickItem.
  */
@@ -416,7 +416,7 @@ QWaylandView *QWaylandQuickItem::view() const
 }
 
 /*!
- * \qmlproperty object QWaylandQuickItem::surface
+ * \qmlproperty object QtWaylandCompositor::WaylandQuickItem::surface
  *
  * This property holds the surface rendered by this WaylandQuickItem.
  */
@@ -865,7 +865,7 @@ void QWaylandQuickItem::updateSize()
  * This property specifies whether the WaylandQuickItem should take focus when
  * it is clicked.
  *
- * The default is true.
+ * The default is \c true.
  */
 
 /*!
@@ -874,7 +874,7 @@ void QWaylandQuickItem::updateSize()
  * This property specifies whether the QWaylandQuickItem should take focus when
  * it is clicked.
  *
- * The default is true.
+ * The default is \c true.
  */
 bool QWaylandQuickItem::focusOnClick() const
 {
@@ -893,7 +893,7 @@ void QWaylandQuickItem::setFocusOnClick(bool focus)
 }
 
 /*!
- * Returns true if the input region of this item's surface contains the
+ * Returns \c true if the input region of this item's surface contains the
  * position given by \a localPosition.
  */
 bool QWaylandQuickItem::inputRegionContains(const QPointF &localPosition)
@@ -910,7 +910,7 @@ bool QWaylandQuickItem::inputRegionContains(const QPointF &localPosition)
  * This property specifies whether the size of the item should always match
  * the size of its surface.
  *
- * The default is true.
+ * The default is \c true.
  */
 
 /*!
@@ -919,7 +919,7 @@ bool QWaylandQuickItem::inputRegionContains(const QPointF &localPosition)
  * This property specifies whether the size of the item should always match
  * the size of its surface.
  *
- * The default is true.
+ * The default is \c true.
  */
 bool QWaylandQuickItem::sizeFollowsSurface() const
 {
@@ -957,12 +957,19 @@ QVariant QWaylandQuickItem::inputMethodQuery(Qt::InputMethodQuery query, QVarian
 #endif
 
 /*!
-    \qmlproperty bool QtWayland::QWaylandSurfaceItem::paintEnabled
+    \qmlproperty bool QtWaylandCompositor::WaylandQuickItem::paintEnabled
 
-    If this property is true, the \l item is hidden, though the texture
-    will still be updated. As opposed to hiding the \l item by
-    setting \l{Item::visible}{visible} to false, setting this property to true
-    will not prevent mouse or keyboard input from reaching \l item.
+    If this property is \c true, the item is hidden, though the texture
+    is still updated. As opposed to hiding the item by
+    setting \l{Item::visible}{visible} to \c false, setting this property to \c true
+    will not prevent mouse or keyboard input from reaching item.
+*/
+
+/*!
+    If this property is \c true, the item is hidden, though the texture
+    is still updated. As opposed to hiding the item by
+    setting \l{Item::visible}{visible} to \c false, setting this property to \c true
+    will not prevent mouse or keyboard input from reaching item.
 */
 bool QWaylandQuickItem::paintEnabled() const
 {

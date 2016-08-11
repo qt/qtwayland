@@ -190,32 +190,32 @@ QWaylandOutput::QWaylandOutput()
    \qmltype WaylandOutput
    \inqmlmodule QtWayland.Compositor
    \preliminary
-   \brief Type providing access to a displayable area managed by the compositor.
+   \brief Provides access to a displayable area managed by the compositor.
 
-   The WaylandOutput manages a rectangular part of the compositor's geometry that
-   can be used for displaying client content. This could, for instance, be a screen
-   managed by the WaylandCompositor.
+   The WaylandOutput manages a rectangular area within bounds of the compositor's
+   geometry, to use it for displaying client content. This could, for instance, be
+   a screen managed by the WaylandCompositor.
 
-   The type corresponds to the wl_output interface in the Wayland protocol.
+   The type corresponds to the \c wl_output interface in the Wayland protocol.
 */
 
 /*!
    \class QWaylandOutput
    \inmodule QtWaylandCompositor
    \preliminary
-   \brief The QWaylandOutput class provides access to a displayable area managed by the compositor.
+   \brief The QWaylandOutput class represents a displayable area managed by the compositor.
 
-   The QWaylandOutput manages a rectangular part of the compositor's geometry that
-   can be used for displaying client content. This could, for instance, be a screen
-   managed by the QWaylandCompositor.
+   The QWaylandOutput manages a rectangular area within bounds of the compositor's
+   geometry, to use it for displaying client content. This could, for instance, be
+   a screen managed by the WaylandCompositor.
 
-   The class corresponds to the wl_output interface in the Wayland protocol.
+   The class corresponds to the \c wl_output interface in the Wayland protocol.
 */
 
 /*!
  * Constructs a QWaylandOutput in \a compositor and with the specified \a window. The
- * \l{QWaylandCompositor::create()}{create()} function must have been called on the
- * \a compositor before a QWaylandOutput is constructed for it.
+ * \l{QWaylandCompositor::create()}{create()} function must be called on the
+ * \a compositor before constructing a QWaylandOutput for it.
  *
  * The QWaylandOutput object is initialized later, in reaction to an event.
  * At this point it is added as an output for the \a compositor. If it is the
@@ -307,8 +307,10 @@ void QWaylandOutput::update()
 /*!
  * \qmlproperty object QtWaylandCompositor::WaylandOutput::compositor
  *
- * This property holds the compositor displaying content on this QWaylandOutput.
- * This property can only be set once, before the WaylandOutput component is completed.
+ * This property holds the compositor displaying content on this WaylandOutput.
+ *
+ * \note This property can be set only once, before the WaylandOutput component
+ * is completed.
  */
 
 /*!
@@ -643,14 +645,14 @@ void QWaylandOutput::setSubpixel(const Subpixel &subpixel)
  *
  * This enum type is used to specify the orientation of a QWaylandOutput.
  *
- * \value TransformNormal The QWaylandOutput orientation is normal.
- * \value Transform90 The QWaylandOutput is rotated 90 degrees.
- * \value Transform180 The QWaylandOutput is rotated 180 degrees.
- * \value Transform270 The QWaylandOutput is rotated 270 degrees.
- * \value TransformFlipped The QWaylandOutput is mirrored.
- * \value TransformFlipped90 The QWaylandOutput is mirrored, and rotated 90 degrees.
- * \value TransformFlipped180 The QWaylandOutput is mirrored, and rotated 180 degrees.
- * \value TransformFlipped270 The QWaylandOutput is mirrored, and rotated 270 degrees.
+ * \value TransformNormal The orientation is normal.
+ * \value Transform90 The orientation is rotated 90 degrees.
+ * \value Transform180 The orientation is rotated 180 degrees.
+ * \value Transform270 The orientation is rotated 270 degrees.
+ * \value TransformFlipped The orientation is mirrored.
+ * \value TransformFlipped90 The orientation is mirrored, and rotated 90 degrees.
+ * \value TransformFlipped180 The orientation is mirrored, and rotated 180 degrees.
+ * \value TransformFlipped270 The orientation is mirrored, and rotated 270 degrees.
  *
  * \sa QWaylandOutput::transform
 */
@@ -662,14 +664,14 @@ void QWaylandOutput::setSubpixel(const Subpixel &subpixel)
  * to compensate for the orientation of the QWaylandOutput.
  *
  * \list
- * \li WaylandOutput.TransformNormal The QWaylandOutput orientation is normal.
- * \li WaylandOutput.Transform90 The QWaylandOutput is rotated 90 degrees.
- * \li WaylandOutput.Transform180 The QWaylandOutput is rotated 180 degrees.
- * \li WaylandOutput.Transform270 The QWaylandOutput is rotated 270 degrees.
- * \li WaylandOutput.TransformFlipped The QWaylandOutput is mirrored.
- * \li WaylandOutput.TransformFlipped90 The QWaylandOutput is mirrored, then rotated 90 degrees.
- * \li WaylandOutput.TransformFlipped180 The QWaylandOutput is mirrored, then rotated 180 degrees.
- * \li WaylandOutput.TransformFlipped270 The QWaylandOutput is mirrored, then rotated 270 degrees.
+ * \li WaylandOutput.TransformNormal The orientation is normal.
+ * \li WaylandOutput.Transform90 The orientation is rotated 90 degrees.
+ * \li WaylandOutput.Transform180 The orientation is rotated 180 degrees.
+ * \li WaylandOutput.Transform270 The orientation is rotated 270 degrees.
+ * \li WaylandOutput.TransformFlipped The orientation is mirrored.
+ * \li WaylandOutput.TransformFlipped90 The orientation is mirrored, then rotated 90 degrees.
+ * \li WaylandOutput.TransformFlipped180 The orientation is mirrored, then rotated 180 degrees.
+ * \li WaylandOutput.TransformFlipped270 The orientation is mirrored, then rotated 270 degrees.
  * \endlist
  *
  * The default is WaylandOutput.TransformNormal.
@@ -705,7 +707,7 @@ void QWaylandOutput::setTransform(const Transform &transform)
  * \qmlproperty int QtWaylandCompositor::WaylandOutput::scaleFactor
  *
  * This property holds the factor by which the WaylandCompositor scales surface buffers
- * before they are displayed. This is used on high density output devices where unscaled content
+ * before they are displayed. It is used on high density output devices where unscaled content
  * would be too small to be practical. The client can in turn set the scale factor of its
  * buffer to match the output if it prefers to provide high resolution content that is
  * suitable for the output device.
@@ -753,7 +755,7 @@ void QWaylandOutput::setScaleFactor(int scale)
  * This property controls whether the size of the WaylandOutput matches the
  * size of its window.
  *
- * The default is true if this WaylandOutput has a window.
+ * The default is \c true if this WaylandOutput has a window.
  */
 
 /*!
@@ -762,7 +764,7 @@ void QWaylandOutput::setScaleFactor(int scale)
  * This property controls whether the size of the QWaylandOutput matches the
  * size of its window.
  *
- * The default is true if this QWaylandOutput has a window.
+ * The default is \c true if this QWaylandOutput has a window.
  */
 bool QWaylandOutput::sizeFollowsWindow() const
 {
@@ -794,8 +796,10 @@ void QWaylandOutput::setSizeFollowsWindow(bool follow)
 /*!
  * \qmlproperty object QtWaylandCompositor::WaylandOutput::window
  *
- * This property holds the Window for this WaylandOutput. This property can only be set once,
- * before the WaylandOutput component is completed.
+ * This property holds the Window for this WaylandOutput.
+ *
+ * \note This property can be set only once, before the WaylandOutput
+ * component is completed.
  */
 
 /*!
@@ -822,7 +826,7 @@ void QWaylandOutput::setWindow(QWindow *window)
 }
 
 /*!
- * Tells the QWaylandOutput that a frame has started.
+ * Informs QWaylandOutput that a frame has started.
  */
 void QWaylandOutput::frameStarted()
 {
@@ -878,7 +882,7 @@ void QWaylandOutput::surfaceLeave(QWaylandSurface *surface)
 }
 
 /*!
- * This functions sets the width of this QWaylandOutput to \a newWidth.
+ * Sets the width of this QWaylandOutput to \a newWidth.
  *
  * \sa setHeight, QWaylandOutput::geometry
  */
@@ -894,7 +898,7 @@ void QWaylandOutput::setWidth(int newWidth)
 }
 
 /*!
- * This functions sets the height of this QWaylandOutput to \a newHeight.
+ * Sets the height of this QWaylandOutput to \a newHeight.
  *
  * \sa setWidth, QWaylandOutput::geometry
  */

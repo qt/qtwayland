@@ -43,6 +43,8 @@
 #include "qwaylandwindow_p.h"
 #include "qwaylandinputdevice_p.h"
 #include "qwaylandscreen_p.h"
+#include "qwaylandxdgpopup_p.h"
+#include "qwaylandxdgsurface_p.h"
 
 #include <QtCore/QDebug>
 
@@ -66,6 +68,23 @@ QWaylandXdgShell::~QWaylandXdgShell()
     xdg_shell_destroy(object());
 }
 
+QWaylandXdgSurface *QWaylandXdgShell::createXdgSurface(QWaylandWindow *window)
+{
+    return new QWaylandXdgSurface(this, window);
+}
+
+QWaylandXdgPopup *QWaylandXdgShell::createXdgPopup(QWaylandWindow *window)
+{
+    QWaylandWindow *parentWindow = window->transientParent();
+    ::wl_surface *parentSurface = parentWindow->object();
+    QWaylandInputDevice *inputDevice = window->display()->lastInputDevice();
+    ::wl_seat *seat = inputDevice->wl_seat();
+    uint serial = inputDevice->serial();
+    QPoint position = window->geometry().topLeft();
+    int x = position.x() + parentWindow->frameMargins().left();
+    int y = position.y() + parentWindow->frameMargins().top();
+    return new QWaylandXdgPopup(get_xdg_popup(window->object(), parentSurface, seat, serial, x, y), window);
+}
 
 void QWaylandXdgShell::xdg_shell_ping(uint32_t serial)
 {

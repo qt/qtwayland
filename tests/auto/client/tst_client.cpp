@@ -31,6 +31,10 @@
 #include <QBackingStore>
 #include <QPainter>
 #include <QScreen>
+#include <QWindow>
+#include <QMimeData>
+#include <QPixmap>
+#include <QDrag>
 
 #include <QtTest/QtTest>
 
@@ -46,6 +50,7 @@ public:
         , keyReleaseEventCount(0)
         , mousePressEventCount(0)
         , mouseReleaseEventCount(0)
+        , touchEventCount(0)
         , keyCode(0)
     {
         setSurfaceType(QSurface::RasterSurface);
@@ -86,12 +91,18 @@ public:
         ++mouseReleaseEventCount;
     }
 
+    void touchEvent(QTouchEvent *event) Q_DECL_OVERRIDE
+    {
+        ++touchEventCount;
+    }
+
     int focusInEventCount;
     int focusOutEventCount;
     int keyPressEventCount;
     int keyReleaseEventCount;
     int mousePressEventCount;
     int mouseReleaseEventCount;
+    int touchEventCount;
 
     uint keyCode;
     QPoint mousePressPos;
@@ -129,6 +140,8 @@ private slots:
     void createDestroyWindow();
     void events();
     void backingStore();
+    void touchDrag();
+    void mouseDrag();
 
 private:
     MockCompositor *compositor;
@@ -192,6 +205,15 @@ void tst_WaylandClient::events()
     QCOMPARE(window.mouseReleaseEventCount, 0);
     compositor->sendMouseRelease(surface);
     QTRY_COMPARE(window.mouseReleaseEventCount, 1);
+
+    const int touchId = 0;
+    compositor->sendTouchDown(surface, QPoint(10, 10), touchId);
+    compositor->sendTouchFrame(surface);
+    QTRY_COMPARE(window.touchEventCount, 1);
+
+    compositor->sendTouchUp(surface, touchId);
+    compositor->sendTouchFrame(surface);
+    QTRY_COMPARE(window.touchEventCount, 2);
 }
 
 void tst_WaylandClient::backingStore()
@@ -228,6 +250,86 @@ void tst_WaylandClient::backingStore()
 
     // hiding the window should detach the buffer
     QTRY_VERIFY(surface->image.isNull());
+}
+
+class DndWindow : public QWindow
+{
+    Q_OBJECT
+
+public:
+    DndWindow(QWindow *parent = 0)
+        : QWindow(parent)
+        , dragStarted(false)
+    {
+        QImage cursorImage(64,64,QImage::Format_ARGB32);
+        cursorImage.fill(Qt::blue);
+        m_dragIcon = QPixmap::fromImage(cursorImage);
+    }
+    ~DndWindow(){}
+    bool dragStarted;
+
+protected:
+    void mousePressEvent(QMouseEvent *event) Q_DECL_OVERRIDE
+    {
+        if (dragStarted)
+            return;
+        dragStarted = true;
+
+        QByteArray dataBytes;
+        QMimeData *mimeData = new QMimeData;
+        mimeData->setData("application/x-dnditemdata", dataBytes);
+        QDrag *drag = new QDrag(this);
+        drag->setMimeData(mimeData);
+        drag->setPixmap(m_dragIcon);
+        drag->exec(Qt::CopyAction | Qt::MoveAction, Qt::CopyAction);
+    }
+private:
+    QPixmap m_dragIcon;
+};
+
+void tst_WaylandClient::touchDrag()
+{
+    DndWindow window;
+    window.show();
+
+    QSharedPointer<MockSurface> surface;
+    QTRY_VERIFY(surface = compositor->surface());
+
+    compositor->setKeyboardFocus(surface);
+    QTRY_COMPARE(QGuiApplication::focusWindow(), &window);
+
+    const int id = 0;
+    compositor->sendTouchDown(surface, QPoint(10, 10), id);
+    compositor->sendTouchMotion(surface, QPoint(20, 20), id);
+    compositor->sendTouchFrame(surface);
+    compositor->waitForStartDrag();
+    compositor->sendDataDeviceDataOffer(surface);
+    compositor->sendDataDeviceEnter(surface, QPoint(20, 20));
+    compositor->sendDataDeviceMotion( QPoint(21, 21));
+    compositor->sendDataDeviceDrop(surface);
+    compositor->sendDataDeviceLeave(surface);
+    QTRY_VERIFY(window.dragStarted);
+}
+
+void tst_WaylandClient::mouseDrag()
+{
+    DndWindow window;
+    window.show();
+
+    QSharedPointer<MockSurface> surface;
+    QTRY_VERIFY(surface = compositor->surface());
+
+    compositor->setKeyboardFocus(surface);
+    QTRY_COMPARE(QGuiApplication::focusWindow(), &window);
+
+    compositor->sendMousePress(surface, QPoint(10, 10));
+    compositor->sendDataDeviceDataOffer(surface);
+    compositor->sendDataDeviceEnter(surface, QPoint(20, 20));
+    compositor->sendDataDeviceMotion( QPoint(21, 21));
+    compositor->waitForStartDrag();
+    compositor->sendDataDeviceDrop(surface);
+    compositor->sendDataDeviceLeave(surface);
+    QTRY_VERIFY(window.dragStarted);
 }
 
 int main(int argc, char **argv)

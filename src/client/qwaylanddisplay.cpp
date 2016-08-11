@@ -84,16 +84,8 @@ struct wl_surface *QWaylandDisplay::createSurface(void *handle)
 
 QWaylandShellSurface *QWaylandDisplay::createShellSurface(QWaylandWindow *window)
 {
-    if (mWaylandIntegration->shellIntegration())
-        return mWaylandIntegration->shellIntegration()->createShellSurface(window);
-
-    if (shellXdg()) {
-        return new QWaylandXdgSurface(shellXdg()->get_xdg_surface(window->object()), window);
-    } else if (shell()) {
-        return new QWaylandWlShellSurface(shell()->get_shell_surface(window->object()), window);
-    }
-
-    return Q_NULLPTR;
+    Q_ASSERT(mWaylandIntegration->shellIntegration());
+    return mWaylandIntegration->shellIntegration()->createShellSurface(window);
 }
 
 struct ::wl_region *QWaylandDisplay::createRegion(const QRegion &qregion)
@@ -255,11 +247,6 @@ void QWaylandDisplay::registry_global(uint32_t id, const QString &interface, uin
         mCompositor.init(registry, id, mCompositorVersion);
     } else if (interface == QStringLiteral("wl_shm")) {
         mShm.reset(new QWaylandShm(this, version, id));
-    } else if (interface == QStringLiteral("xdg_shell")
-               && qEnvironmentVariableIsSet("QT_WAYLAND_USE_XDG_SHELL")) {
-        mShellXdg.reset(new QWaylandXdgShell(registry,id));
-    } else if (interface == QStringLiteral("wl_shell")){
-        mShell.reset(new QtWayland::wl_shell(registry, id, 1));
     } else if (interface == QStringLiteral("wl_seat")) {
         QWaylandInputDevice *inputDevice = mWaylandIntegration->createInputDevice(this, version, id);
         mInputDevices.append(inputDevice);
@@ -309,6 +296,15 @@ void QWaylandDisplay::registry_global_remove(uint32_t id)
             break;
         }
     }
+}
+
+bool QWaylandDisplay::hasRegistryGlobal(const QString &interfaceName)
+{
+    Q_FOREACH (const RegistryGlobal &global, mGlobals)
+        if (global.interface == interfaceName)
+            return true;
+
+    return false;
 }
 
 void QWaylandDisplay::addRegistryListener(RegistryListener listener, void *data)
@@ -366,11 +362,6 @@ void QWaylandDisplay::forceRoundTrip()
         wl_callback_destroy(callback);
 }
 
-QtWayland::xdg_shell *QWaylandDisplay::shellXdg()
-{
-    return mShellXdg.data();
-}
-
 bool QWaylandDisplay::supportsWindowDecoration() const
 {
     static bool disabled = qgetenv("QT_WAYLAND_DISABLE_WINDOWDECORATION").toInt();
@@ -393,12 +384,6 @@ void QWaylandDisplay::setLastInputDevice(QWaylandInputDevice *device, uint32_t s
     mLastInputDevice = device;
     mLastInputSerial = serial;
     mLastInputWindow = win;
-}
-
-bool QWaylandDisplay::shellManagesActiveState() const
-{
-    //TODO: This should be part of a shell interface used by the shell protocol implementations
-    return mShellXdg;
 }
 
 void QWaylandDisplay::handleWindowActivated(QWaylandWindow *window)
@@ -424,7 +409,7 @@ void QWaylandDisplay::handleKeyboardFocusChanged(QWaylandInputDevice *inputDevic
 {
     QWaylandWindow *keyboardFocus = inputDevice->keyboardFocus();
 
-    if (!shellManagesActiveState() && mLastKeyboardFocus != keyboardFocus) {
+    if (!keyboardFocus->shellSurface()->shellManagesActiveState() && mLastKeyboardFocus != keyboardFocus) {
         if (keyboardFocus)
             handleWindowActivated(keyboardFocus);
         if (mLastKeyboardFocus)

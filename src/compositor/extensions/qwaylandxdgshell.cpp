@@ -462,6 +462,36 @@ void QWaylandXdgPopupPrivate::xdg_popup_destroy(Resource *resource)
     wl_resource_destroy(resource->handle);
 }
 
+
+/*!
+ * \qmltype XdgShell
+ * \inqmlmodule QtWayland.Compositor
+ * \preliminary
+ * \brief Provides an extension for desktop-style user interfaces.
+ *
+ * The XdgShell extension provides desktop functionality such as minimize,
+ * maximize, and resize using the \c xdg-shell protocol. It creates an XdgSurface
+ * for each Wayland surface.
+ *
+ * The following snippet demonstrates how to use the extension:
+ * \quotefromfile minimal-qml/main.qml
+ * \skipto import
+ * \printuntil /^\}$/
+ *
+ */
+
+/*!
+ * \class QWaylandXdgShell
+ * \inmodule QtWaylandCompositor
+ * \preliminary
+ * \brief Provides an extension for desktop-style user interfaces.
+ *
+ * The QWaylandXdgShell extension provides desktop functionality such as minimize,
+ * maximize, and resize using the \c xdg-shell protocol. It creates an QWaylandXdgSurface
+ * for each Wayland surface.
+ *
+ */
+
 /*!
  * Constructs a QWaylandXdgShell object.
  */
@@ -510,10 +540,10 @@ QByteArray QWaylandXdgShell::interfaceName()
 }
 
 /*!
- * \qmlmethod void QtWaylandCompositor::XdgSurface::ping()
+ * \qmlmethod void QtWaylandCompositor::XdgShell::ping(object client)
  *
- * Sends a ping event to the client. If the client replies to the event the
- * \a pong signal will be emitted.
+ * Sends a ping event to the \a client. If the client replies to the event the
+ * \l pong signal will be emitted.
  */
 
 /*!
@@ -574,19 +604,30 @@ void QWaylandXdgShell::handleFocusChanged(QWaylandSurface *newSurface, QWaylandS
     if (oldXdgSurface)
         QWaylandXdgSurfacePrivate::get(oldXdgSurface)->handleFocusLost();
 }
+/*!
+ * \qmltype XdgSurface
+ * \inqmlmodule QtWayland.Compositor
+ * \preliminary
+ * \brief Provides an XDG surface that offers desktop functionality.
+ *
+ * XdgSurface is part of the XdgShell extension and provides desktop
+ * functionality such as minimize, maximize, and resize using the
+ * \c xdg-shell protocol.
+ *
+ */
 
 /*!
  * \class QWaylandXdgSurface
  * \inmodule QtWaylandCompositor
  * \preliminary
- * \brief The QWaylandXdgSurface class provides desktop-style compositor-specific features to an xdg surface.
+ * \brief The QWaylandXdgSurface class provides desktop functionality.
  *
- * This class is part of the QWaylandXdgShell extension and provides a way to
- * extend the functionality of an existing QWaylandSurface with features
- * specific to desktop-style compositors, such as resizing and moving the
+ * The QWaylandXdgSurface class is part of the QWaylandXdgShell extension and
+ * provides a way to extend the functionality of an existing QWaylandSurface with
+ * features specific to desktop-style compositors, such as resizing and moving the
  * surface.
  *
- * It corresponds to the Wayland interface xdg_surface.
+ * It corresponds to the Wayland interface \c xdg_surface.
  */
 
 /*!
@@ -610,12 +651,12 @@ QWaylandXdgSurface::QWaylandXdgSurface(QWaylandXdgShell *xdgShell, QWaylandSurfa
 /*!
  * \qmlmethod void QtWaylandCompositor::XdgSurface::initialize(object surface, object client, int id)
  *
- * Initializes the XdgSurface, associating it with the given \a surface,
+ * Initializes the XdgSurface and associates it with the given \a surface,
  * \a client, and \a id.
  */
 
 /*!
- * Initializes the QWaylandXdgSurface, associating it with the given \a xdgShell, \a surface
+ * Initializes the QWaylandXdgSurface and associates it with the given \a xdgShell, \a surface,
  * and \a resource.
  */
 void QWaylandXdgSurface::initialize(QWaylandXdgShell *xdgShell, QWaylandSurface *surface, const QWaylandResource &resource)
@@ -680,13 +721,13 @@ QWaylandSurface *QWaylandXdgSurface::surface() const
 /*!
  * \qmlproperty object QtWaylandCompositor::XdgSurface::parentSurface
  *
- * This property holds the XdgSurface parent of this XdgSurface.
+ * This property holds the parent of this XdgSurface.
  */
 
 /*!
  * \property QWaylandXdgSurface::parentSurface
  *
- * This property holds the XdgSurface parent of this XdgSurface.
+ * This property holds the parent of this XdgSurface.
  */
 QWaylandXdgSurface *QWaylandXdgSurface::parentSurface() const
 {
@@ -924,16 +965,28 @@ QWaylandQuickShellIntegration *QWaylandXdgSurface::createIntegration(QWaylandQui
 }
 
 /*!
+ * \qmltype XdgPopup
+ * \inqmlmodule QtWayland.Compositor
+ * \preliminary
+ * \brief Provides menus for an xdg surface
+ *
+ * XdgPopup is part of the XdgShell extension and provides desktop-style
+ * menus for an XdgSurface.
+ *
+ * It corresponds to the Wayland interface \c xdg_popup.
+ */
+
+/*!
  * \class QWaylandXdgPopup
  * \inmodule QtWaylandCompositor
  * \preliminary
  * \brief The QWaylandXdgPopup class provides menus for an xdg surface
  *
- * This class is part of the QWaylandXdgShell extension and provides a way to
- * extend the functionality of an existing QWaylandSurface with features
- * specific to desktop-style menus for an xdg surface.
+ * The QWaylandXdbPopup class is part of the QWaylandXdgShell extension and
+ * provides a way to extend the functionality of an existing QWaylandSurface
+ * with features specific to desktop-style menus for an xdg surface.
  *
- * It corresponds to the Wayland interface xdg_popup.
+ * It corresponds to the Wayland interface \c xdg_popup.
  */
 
 /*!
@@ -958,13 +1011,13 @@ QWaylandXdgPopup::QWaylandXdgPopup(QWaylandXdgShell *xdgShell, QWaylandSurface *
 /*!
  * \qmlmethod void QtWaylandCompositor::XdgPopup::initialize(object surface, object parentSurface, object resource)
  *
- * Initializes the xdg popup, associating it with the given \a shell, \a surface,
- * \a parentSurface and \a resource.
+ * Initializes the xdg popup and associates it with the given \a shell, \a surface,
+ * \a parentSurface, and \a resource.
  */
 
 /*!
- * Initializes the QWaylandXdgPopup, associating it with the given \a shell \a surface,
- * \a parentSurface and \a resource.
+ * Initializes the QWaylandXdgPopup and associates it with the given \a shell \a surface,
+ * \a parentSurface, and \a resource.
  */
 void QWaylandXdgPopup::initialize(QWaylandXdgShell *shell, QWaylandSurface *surface,
                                   QWaylandSurface *parentSurface, const QWaylandResource &resource)

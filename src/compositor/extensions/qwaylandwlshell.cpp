@@ -550,6 +550,17 @@ QWaylandSurface *QWaylandWlShellSurface::surface() const
     return d->m_surface;
 }
 
+/*!
+ * \qmlproperty object QtWaylandCompositor::WlShellSurface::shell
+ *
+ * This property holds the shell associated with this WlShellSurface.
+ */
+
+/*!
+ * \property QWaylandWlShellSurface::shell
+ *
+ * This property holds the shell associated with this QWaylandWlShellSurface.
+ */
 QWaylandWlShell *QWaylandWlShellSurface::shell() const
 {
     Q_D(const QWaylandWlShellSurface);

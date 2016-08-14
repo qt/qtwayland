@@ -13,6 +13,8 @@ HEADERS += \
     extensions/qwlextendedsurface_p.h \
     extensions/qwlqttouch_p.h \
     extensions/qwlqtkey_p.h \
+    extensions/qwaylandshell.h \
+    extensions/qwaylandshell_p.h \
     extensions/qwaylandwlshell.h \
     extensions/qwaylandwlshell_p.h \
     extensions/qwaylandtextinput.h \
@@ -29,6 +31,7 @@ SOURCES += \
     extensions/qwlextendedsurface.cpp \
     extensions/qwlqttouch.cpp \
     extensions/qwlqtkey.cpp \
+    extensions/qwaylandshell.cpp \
     extensions/qwaylandwlshell.cpp \
     extensions/qwaylandtextinput.cpp \
     extensions/qwaylandtextinputmanager.cpp \

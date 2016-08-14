@@ -501,14 +501,14 @@ void QWaylandXdgPopupV5Private::xdg_popup_destroy(Resource *resource)
  * Constructs a QWaylandXdgShellV5 object.
  */
 QWaylandXdgShellV5::QWaylandXdgShellV5()
-    : QWaylandCompositorExtensionTemplate<QWaylandXdgShellV5>(*new QWaylandXdgShellV5Private())
+    : QWaylandShellTemplate<QWaylandXdgShellV5>(*new QWaylandXdgShellV5Private())
 { }
 
 /*!
  * Constructs a QWaylandXdgShellV5 object for the provided \a compositor.
  */
 QWaylandXdgShellV5::QWaylandXdgShellV5(QWaylandCompositor *compositor)
-    : QWaylandCompositorExtensionTemplate<QWaylandXdgShellV5>(compositor, *new QWaylandXdgShellV5Private())
+    : QWaylandShellTemplate<QWaylandXdgShellV5>(compositor, *new QWaylandXdgShellV5Private())
 { }
 
 /*!
@@ -517,7 +517,7 @@ QWaylandXdgShellV5::QWaylandXdgShellV5(QWaylandCompositor *compositor)
 void QWaylandXdgShellV5::initialize()
 {
     Q_D(QWaylandXdgShellV5);
-    QWaylandCompositorExtensionTemplate::initialize();
+    QWaylandShellTemplate::initialize();
     QWaylandCompositor *compositor = static_cast<QWaylandCompositor *>(extensionContainer());
     if (!compositor) {
         qWarning() << "Failed to find QWaylandCompositor when initializing QWaylandXdgShellV5";

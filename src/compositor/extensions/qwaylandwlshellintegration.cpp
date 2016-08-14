@@ -57,6 +57,8 @@ WlShellIntegration::WlShellIntegration(QWaylandQuickShellSurfaceItem *item)
     connect(m_shellSurface, &QWaylandWlShellSurface::startResize, this, &WlShellIntegration::handleStartResize);
     connect(m_shellSurface->surface(), &QWaylandSurface::offsetForNextFrame, this, &WlShellIntegration::adjustOffsetForNextFrame);
     connect(m_shellSurface->surface(), &QWaylandSurface::hasContentChanged, this, &WlShellIntegration::handleSurfaceHasContentChanged);
+    connect(m_shellSurface, &QWaylandWlShellSurface::setDefaultToplevel, this, &WlShellIntegration::handleSetDefaultTopLevel);
+    connect(m_shellSurface, &QWaylandWlShellSurface::setTransient, this, &WlShellIntegration::handleSetTransient);
     connect(m_shellSurface, &QWaylandWlShellSurface::setPopup, this, &WlShellIntegration::handleSetPopup);
     connect(m_shellSurface, &QWaylandWlShellSurface::destroyed, this, &WlShellIntegration::handleShellSurfaceDestroyed);
 }
@@ -76,6 +78,23 @@ void WlShellIntegration::handleStartResize(QWaylandSeat *seat, QWaylandWlShellSu
     float scaleFactor = m_item->view()->output()->scaleFactor();
     resizeState.initialSize = m_shellSurface->surface()->size() / scaleFactor;
     resizeState.initialized = false;
+}
+
+void WlShellIntegration::handleSetDefaultTopLevel()
+{
+    // Take focus if the policy allows
+    if (m_shellSurface->shell()->focusPolicy() == QWaylandShell::AutomaticFocus)
+        m_item->takeFocus();
+}
+
+void WlShellIntegration::handleSetTransient(QWaylandSurface *parentSurface, const QPoint &relativeToParent, bool inactive)
+{
+    Q_UNUSED(parentSurface)
+    Q_UNUSED(relativeToParent)
+
+    // Take focus if the policy allows and it's not inactive
+    if (m_shellSurface->shell()->focusPolicy() == QWaylandShell::AutomaticFocus && !inactive)
+        m_item->takeFocus();
 }
 
 void WlShellIntegration::handleSetPopup(QWaylandSeat *seat, QWaylandSurface *parent, const QPoint &relativeToParent)

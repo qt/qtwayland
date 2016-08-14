@@ -282,9 +282,10 @@ void Compositor::onXdgStartResize(QWaylandSeat *seat,
     emit startResize(int(edges), true);
 }
 
-void Compositor::onSetTransient(QWaylandSurface *parent, const QPoint &relativeToParent, QWaylandWlShellSurface::FocusPolicy focusPolicy)
+void Compositor::onSetTransient(QWaylandSurface *parent, const QPoint &relativeToParent, bool inactive)
 {
-    Q_UNUSED(focusPolicy);
+    Q_UNUSED(inactive);
+
     QWaylandWlShellSurface *wlShellSurface = qobject_cast<QWaylandWlShellSurface*>(sender());
     View *view = findView(wlShellSurface->surface());
 

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2016 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
 ** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the QtWaylandCompositor module of the Qt Toolkit.
@@ -34,14 +34,11 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDWLSHELLINTEGRATION_H
-#define QWAYLANDWLSHELLINTEGRATION_H
+#ifndef QWAYLANDSHELL_P_H
+#define QWAYLANDSHELL_P_H
 
-#include <QtWaylandCompositor/private/qwaylandquickshellsurfaceitem_p.h>
-
-#include <QtWaylandCompositor/QWaylandWlShellSurface>
-
-QT_BEGIN_NAMESPACE
+#include <QtWaylandCompositor/private/qwaylandcompositorextension_p.h>
+#include <QtWaylandCompositor/QWaylandShell>
 
 //
 //  W A R N I N G
@@ -54,57 +51,17 @@ QT_BEGIN_NAMESPACE
 // We mean it.
 //
 
-namespace QtWayland {
+QT_BEGIN_NAMESPACE
 
-class WlShellIntegration : public QWaylandQuickShellIntegration
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandShellPrivate : public QWaylandCompositorExtensionPrivate
 {
-    Q_OBJECT
+    Q_DECLARE_PUBLIC(QWaylandShell)
 public:
-    WlShellIntegration(QWaylandQuickShellSurfaceItem *item);
-    bool mouseMoveEvent(QMouseEvent *event) Q_DECL_OVERRIDE;
-    bool mouseReleaseEvent(QMouseEvent *event) Q_DECL_OVERRIDE;
+    QWaylandShellPrivate();
 
-private Q_SLOTS:
-    void handleStartMove(QWaylandSeat *seat);
-    void handleStartResize(QWaylandSeat *seat, QWaylandWlShellSurface::ResizeEdge edges);
-    void handleSetDefaultTopLevel();
-    void handleSetTransient(QWaylandSurface *parentSurface, const QPoint &relativeToParent, bool inactive);
-    void handleSetPopup(QWaylandSeat *seat, QWaylandSurface *parent, const QPoint &relativeToParent);
-    void handleShellSurfaceDestroyed();
-    void handleSurfaceHasContentChanged();
-    void adjustOffsetForNextFrame(const QPointF &offset);
-
-private:
-    enum class GrabberState {
-        Default,
-        Resize,
-        Move
-    };
-
-    void handlePopupClosed();
-    void handlePopupRemoved();
-
-    QWaylandQuickShellSurfaceItem *m_item;
-    QWaylandWlShellSurface *m_shellSurface;
-    GrabberState grabberState;
-    struct {
-        QWaylandSeat *seat;
-        QPointF initialOffset;
-        bool initialized;
-    } moveState;
-    struct {
-        QWaylandSeat *seat;
-        QWaylandWlShellSurface::ResizeEdge resizeEdges;
-        QSizeF initialSize;
-        QPointF initialMousePos;
-        bool initialized;
-    } resizeState;
-
-    bool isPopup;
+    QWaylandShell::FocusPolicy focusPolicy;
 };
-
-}
 
 QT_END_NAMESPACE
 
-#endif // QWAYLANDWLSHELLINTEGRATION_H
+#endif // QWAYLANDSHELL_P_H

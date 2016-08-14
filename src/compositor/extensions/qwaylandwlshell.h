@@ -39,6 +39,7 @@
 
 #include <QtWaylandCompositor/QWaylandCompositorExtension>
 #include <QtWaylandCompositor/QWaylandResource>
+#include <QtWaylandCompositor/QWaylandShell>
 #include <QtWaylandCompositor/QWaylandShellSurface>
 
 #include <QtCore/QSize>
@@ -54,7 +55,7 @@ class QWaylandOutput;
 class QWaylandSurfaceRole;
 class QWaylandWlShellSurface;
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandWlShell : public QWaylandCompositorExtensionTemplate<QWaylandWlShell>
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandWlShell : public QWaylandShellTemplate<QWaylandWlShell>
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandWlShell)
@@ -87,7 +88,6 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandWlShellSurface : public QWaylandShellS
     Q_PROPERTY(QWaylandWlShell *shell READ shell NOTIFY shellChanged)
     Q_PROPERTY(QString title READ title NOTIFY titleChanged)
     Q_PROPERTY(QString className READ className NOTIFY classNameChanged)
-    Q_PROPERTY(FocusPolicy focusPolicy READ focusPolicy NOTIFY focusPolicyChanged)
 
 public:
     enum FullScreenMethod {
@@ -111,12 +111,6 @@ public:
     };
     Q_ENUM(ResizeEdge);
 
-    enum FocusPolicy{
-        DefaultFocus,
-        NoKeyboardFocus
-    };
-    Q_ENUM(FocusPolicy)
-
     QWaylandWlShellSurface();
     QWaylandWlShellSurface(QWaylandWlShell *shell, QWaylandSurface *surface, const QWaylandResource &resource);
     virtual ~QWaylandWlShellSurface();
@@ -129,7 +123,6 @@ public:
     QWaylandSurface *surface() const;
     QWaylandWlShell *shell() const;
 
-    FocusPolicy focusPolicy() const;
     Qt::WindowType windowType() const override;
 
     static const struct wl_interface *interface();
@@ -154,13 +147,12 @@ Q_SIGNALS:
     void shellChanged();
     void titleChanged();
     void classNameChanged();
-    void focusPolicyChanged();
     void pong();
     void startMove(QWaylandSeat *seat);
     void startResize(QWaylandSeat *seat, ResizeEdge edges);
 
     void setDefaultToplevel();
-    void setTransient(QWaylandSurface *parentSurface, const QPoint &relativeToParent, FocusPolicy focusPolicy);
+    void setTransient(QWaylandSurface *parentSurface, const QPoint &relativeToParent, bool inactive);
     void setFullScreen(FullScreenMethod method, uint framerate, QWaylandOutput *output);
     void setPopup(QWaylandSeat *seat, QWaylandSurface *parentSurface, const QPoint &relativeToParent);
     void setMaximized(QWaylandOutput *output);

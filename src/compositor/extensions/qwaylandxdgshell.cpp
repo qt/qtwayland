@@ -677,6 +677,7 @@ void QWaylandXdgSurface::initialize(QWaylandXdgShell *xdgShell, QWaylandSurface 
     d->m_windowGeometry = d->calculateFallbackWindowGeometry();
     connect(surface, &QWaylandSurface::sizeChanged, this, &QWaylandXdgSurface::handleSurfaceSizeChanged);
     connect(surface, &QWaylandSurface::bufferScaleChanged, this, &QWaylandXdgSurface::handleBufferScaleChanged);
+    emit shellChanged();
     emit surfaceChanged();
     emit windowGeometryChanged();
     QWaylandCompositorExtension::initialize();
@@ -709,6 +710,23 @@ void QWaylandXdgSurface::handleBufferScaleChanged()
 {
     Q_D(QWaylandXdgSurface);
     d->updateFallbackWindowGeometry();
+}
+
+/*!
+ * \qmlproperty object QtWaylandCompositor::XdgSurface::shell
+ *
+ * This property holds the shell associated with this XdgSurface.
+ */
+
+/*!
+ * \property QWaylandXdgSurface::shell
+ *
+ * This property holds the shell associated with this QWaylandXdgSurface.
+ */
+QWaylandXdgShell *QWaylandXdgSurface::shell() const
+{
+    Q_D(const QWaylandXdgSurface);
+    return d->m_xdgShell;
 }
 
 /*!
@@ -1039,9 +1057,27 @@ void QWaylandXdgPopup::initialize(QWaylandXdgShell *shell, QWaylandSurface *surf
     d->m_position = position;
     d->init(resource.resource());
     setExtensionContainer(surface);
+    emit shellChanged();
     emit surfaceChanged();
     emit parentSurfaceChanged();
     QWaylandCompositorExtension::initialize();
+}
+
+/*!
+ * \qmlproperty object QtWaylandCompositor::XdgPopup::shell
+ *
+ * This property holds the shell associated with this XdgPopup.
+ */
+
+/*!
+ * \property QWaylandXdgPopup::shell
+ *
+ * This property holds the shell associated with this QWaylandXdgPopup.
+ */
+QWaylandXdgShell *QWaylandXdgPopup::shell() const
+{
+    Q_D(const QWaylandXdgPopup);
+    return d->m_xdgShell;
 }
 
 /*!

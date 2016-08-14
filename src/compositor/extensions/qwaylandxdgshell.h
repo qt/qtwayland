@@ -93,6 +93,7 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgSurface : public QWaylandShellSurfa
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandXdgSurface)
+    Q_PROPERTY(QWaylandXdgShell *shell READ shell NOTIFY shellChanged)
     Q_PROPERTY(QWaylandSurface *surface READ surface NOTIFY surfaceChanged)
     Q_PROPERTY(QWaylandXdgSurface *parentSurface READ parentSurface NOTIFY parentSurfaceChanged)
     Q_PROPERTY(QString title READ title NOTIFY titleChanged)
@@ -141,6 +142,8 @@ public:
     bool resizing() const;
     bool activated() const;
 
+    QWaylandXdgShell *shell() const;
+
     QWaylandSurface *surface() const;
     QWaylandXdgSurface *parentSurface() const;
 
@@ -164,6 +167,7 @@ public:
 #endif
 
 Q_SIGNALS:
+    void shellChanged();
     void surfaceChanged();
     void titleChanged();
     void windowGeometryChanged();
@@ -201,6 +205,7 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgPopup : public QWaylandShellSurface
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandXdgPopup)
+    Q_PROPERTY(QWaylandXdgShell *shell READ shell NOTIFY shellChanged)
     Q_PROPERTY(QWaylandSurface *surface READ surface NOTIFY surfaceChanged)
     Q_PROPERTY(QWaylandSurface *parentSurface READ parentSurface NOTIFY parentSurfaceChanged)
     Q_PROPERTY(QPoint position READ position)
@@ -214,6 +219,8 @@ public:
 
     Q_INVOKABLE void initialize(QWaylandXdgShell *shell, QWaylandSurface *surface,
                                 QWaylandSurface *parentSurface, const QPoint &position, const QWaylandResource &resource);
+
+    QWaylandXdgShell *shell() const;
 
     QWaylandSurface *surface() const;
     QWaylandSurface *parentSurface() const;
@@ -231,6 +238,7 @@ public:
 #endif
 
 Q_SIGNALS:
+    void shellChanged();
     void surfaceChanged();
     void parentSurfaceChanged();
 

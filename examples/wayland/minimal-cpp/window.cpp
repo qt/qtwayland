@@ -85,7 +85,7 @@ void Window::paintGL()
             continue;
         GLuint textureId = view->getTexture();
         QWaylandSurface *surface = view->surface();
-        if (surface && surface->isMapped()) {
+        if (surface && surface->hasContent()) {
             QSize s = surface->size();
             QPointF pos(sillyrandom(width() - s.width()), sillyrandom(height() - s.height()));
             QRectF surfaceGeometry(pos, s);

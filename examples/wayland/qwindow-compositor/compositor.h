@@ -119,7 +119,7 @@ signals:
     void frameOffset(const QPoint &offset);
 
 private slots:
-    void surfaceMappedChanged();
+    void surfaceHasContentChanged();
     void surfaceDestroyed();
     void viewSurfaceDestroyed();
     void onStartMove();

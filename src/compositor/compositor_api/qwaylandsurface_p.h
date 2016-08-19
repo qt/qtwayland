@@ -171,7 +171,7 @@ public: //member variables
     int bufferScale;
     bool isCursorSurface;
     bool destroyed;
-    bool mapped;
+    bool hasContent;
     bool isInitialized;
     Qt::ScreenOrientation contentOrientation;
     QWindow::Visibility visibility;

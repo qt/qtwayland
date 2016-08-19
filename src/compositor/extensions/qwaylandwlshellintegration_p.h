@@ -69,7 +69,7 @@ private Q_SLOTS:
     void handleStartResize(QWaylandSeat *seat, QWaylandWlShellSurface::ResizeEdge edges);
     void handleSetPopup(QWaylandSeat *seat, QWaylandSurface *parent, const QPoint &relativeToParent);
     void handleShellSurfaceDestroyed();
-    void handleSurfaceUnmapped();
+    void handleSurfaceHasContentChanged();
     void adjustOffsetForNextFrame(const QPointF &offset);
 
 private:

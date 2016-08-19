@@ -783,7 +783,7 @@ void QWaylandQuickItem::handleSurfaceChanged()
 {
     Q_D(QWaylandQuickItem);
     if (d->oldSurface) {
-        disconnect(d->oldSurface, &QWaylandSurface::mappedChanged, this, &QWaylandQuickItem::surfaceMappedChanged);
+        disconnect(d->oldSurface, &QWaylandSurface::hasContentChanged, this, &QWaylandQuickItem::surfaceMappedChanged);
         disconnect(d->oldSurface, &QWaylandSurface::parentChanged, this, &QWaylandQuickItem::parentChanged);
         disconnect(d->oldSurface, &QWaylandSurface::sizeChanged, this, &QWaylandQuickItem::updateSize);
         disconnect(d->oldSurface, &QWaylandSurface::bufferScaleChanged, this, &QWaylandQuickItem::updateSize);
@@ -796,7 +796,7 @@ void QWaylandQuickItem::handleSurfaceChanged()
 #endif
     }
     if (QWaylandSurface *newSurface = d->view->surface()) {
-        connect(newSurface, &QWaylandSurface::mappedChanged, this, &QWaylandQuickItem::surfaceMappedChanged);
+        connect(newSurface, &QWaylandSurface::hasContentChanged, this, &QWaylandQuickItem::surfaceMappedChanged);
         connect(newSurface, &QWaylandSurface::parentChanged, this, &QWaylandQuickItem::parentChanged);
         connect(newSurface, &QWaylandSurface::sizeChanged, this, &QWaylandQuickItem::updateSize);
         connect(newSurface, &QWaylandSurface::bufferScaleChanged, this, &QWaylandQuickItem::updateSize);
@@ -1068,9 +1068,9 @@ void QWaylandQuickItem::updateInputMethod(Qt::InputMethodQueries queries)
 QSGNode *QWaylandQuickItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *)
 {
     Q_D(QWaylandQuickItem);
-    const bool mapped = surface() && surface()->isMapped() && d->view->currentBuffer().hasBuffer();
+    const bool hasContent = surface() && surface()->hasContent() && d->view->currentBuffer().hasBuffer();
 
-    if (!mapped || !d->paintEnabled) {
+    if (!hasContent || !d->paintEnabled) {
         delete oldNode;
         return 0;
     }

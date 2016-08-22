@@ -71,14 +71,12 @@ WaylandCompositor {
     // shells (window management protocols). When the
     // client creates a new window, we instantiate a
     // chromeComponent on the output.
-    extensions: [
-        WlShell {
-            onWlShellSurfaceCreated:
-                chromeComponent.createObject(surfaceArea, { "shellSurface": shellSurface } );
-        },
-        XdgShell {
-            onXdgSurfaceCreated:
-                chromeComponent.createObject(surfaceArea, { "shellSurface": xdgSurface } );
-        }
-    ]
+    WlShell {
+        onWlShellSurfaceCreated:
+            chromeComponent.createObject(surfaceArea, { "shellSurface": shellSurface } );
+    }
+    XdgShell {
+        onXdgSurfaceCreated:
+            chromeComponent.createObject(surfaceArea, { "shellSurface": xdgSurface } );
+    }
 }

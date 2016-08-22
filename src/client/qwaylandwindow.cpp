@@ -823,6 +823,7 @@ bool QWaylandWindow::setWindowStateInternal(Qt::WindowState state)
     mState = state;
 
     if (mShellSurface) {
+        createDecoration();
         switch (state) {
             case Qt::WindowFullScreen:
                 mShellSurface->setFullscreen();

@@ -831,7 +831,7 @@ void QWaylandCompositor::setUseHardwareIntegrationExtension(bool use)
  * Grab the surface content from the given \a buffer.
  * The default implementation requires a OpenGL context to be bound to the current thread
  * to work. If this is not possible, reimplement this function in your compositor subclass
- * to implement a custom logic.
+ * to implement custom logic.
  * The default implementation only grabs SHM and OpenGL buffers, reimplement this in your
  * compositor subclass to handle more buffer types.
  * \note You should not call this manually, but rather use QWaylandSurfaceGrabber (\a grabber).

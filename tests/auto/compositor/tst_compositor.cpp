@@ -212,10 +212,10 @@ void tst_WaylandCompositor::mapSurface()
 
     QWaylandSurface *waylandSurface = compositor.surfaces.at(0);
 
-    QSignalSpy mappedSpy(waylandSurface, SIGNAL(mappedChanged()));
+    QSignalSpy hasContentSpy(waylandSurface, SIGNAL(hasContentChanged()));
 
     QCOMPARE(waylandSurface->size(), QSize());
-    QCOMPARE(waylandSurface->isMapped(), false);
+    QCOMPARE(waylandSurface->hasContent(), false);
 
     QSize size(256, 256);
     ShmBuffer buffer(size, client.shm);
@@ -227,8 +227,8 @@ void tst_WaylandCompositor::mapSurface()
     wl_surface_commit(surface);
 
     QTRY_COMPARE(waylandSurface->size(), size);
-    QTRY_COMPARE(waylandSurface->isMapped(), true);
-    QTRY_COMPARE(mappedSpy.count(), 1);
+    QTRY_COMPARE(waylandSurface->hasContent(), true);
+    QTRY_COMPARE(hasContentSpy.count(), 1);
 
     wl_surface_destroy(surface);
 }
@@ -296,7 +296,7 @@ void tst_WaylandCompositor::frameCallback()
         wl_surface_damage(surface, 0, 0, size.width(), size.height());
         wl_surface_commit(surface);
 
-        QTRY_COMPARE(waylandSurface->isMapped(), true);
+        QTRY_COMPARE(waylandSurface->hasContent(), true);
         QTRY_COMPARE(damagedSpy.count(), i + 1);
 
         QCOMPARE(static_cast<BufferView*>(waylandSurface->views().first())->image(), buffer.image);

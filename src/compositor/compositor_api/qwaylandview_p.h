@@ -72,7 +72,7 @@ public:
         , bufferLocked(false)
         , broadcastRequestedPositionChanged(false)
         , forceAdvanceSucceed(false)
-        , discardFrontBuffers(false)
+        , allowDiscardFrontBuffer(false)
     { }
 
     void markSurfaceAsDestroyed(QWaylandSurface *surface);
@@ -89,7 +89,7 @@ public:
     bool bufferLocked;
     bool broadcastRequestedPositionChanged;
     bool forceAdvanceSucceed;
-    bool discardFrontBuffers;
+    bool allowDiscardFrontBuffer;
 };
 
 QT_END_NAMESPACE

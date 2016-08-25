@@ -129,7 +129,7 @@ QWaylandSurfacePrivate::QWaylandSurfacePrivate()
     , bufferScale(1)
     , isCursorSurface(false)
     , destroyed(false)
-    , mapped(false)
+    , hasContent(false)
     , isInitialized(false)
     , contentOrientation(Qt::PrimaryOrientation)
     , inputMethodControl(Q_NULLPTR)
@@ -193,9 +193,9 @@ void QWaylandSurfacePrivate::notifyViewsAboutDestruction()
     foreach (QWaylandView *view, views) {
         QWaylandViewPrivate::get(view)->markSurfaceAsDestroyed(q);
     }
-    if (mapped) {
-        mapped = false;
-        emit q->mappedChanged();
+    if (hasContent) {
+        hasContent = false;
+        emit q->hasContentChanged();
     }
 }
 
@@ -342,10 +342,10 @@ void QWaylandSurfacePrivate::setBackBuffer(QtWayland::SurfaceBuffer *b, const QR
 
     emit q->damaged(damage);
 
-    bool oldMapped = mapped;
-    mapped = QtWayland::SurfaceBuffer::hasContent(buffer);
-    if (oldMapped != mapped)
-        emit q->mappedChanged();
+    bool oldHasContent = hasContent;
+    hasContent = QtWayland::SurfaceBuffer::hasContent(buffer);
+    if (oldHasContent != hasContent)
+        emit q->hasContentChanged();
 
     if (!pending.offset.isNull())
         emit q->offsetForNextFrame(pending.offset);
@@ -484,20 +484,20 @@ QWaylandClient *QWaylandSurface::client() const
 }
 
 /*!
- * \qmlproperty bool QtWaylandCompositor::WaylandSurface::isMapped
+ * \qmlproperty bool QtWaylandCompositor::WaylandSurface::hasContent
  *
  * This property holds whether the WaylandSurface has content.
  */
 
 /*!
- * \property QWaylandSurface::isMapped
+ * \property QWaylandSurface::hasContent
  *
  * This property holds whether the QWaylandSurface has content.
  */
-bool QWaylandSurface::isMapped() const
+bool QWaylandSurface::hasContent() const
 {
     Q_D(const QWaylandSurface);
-    return d->mapped;
+    return d->hasContent;
 }
 
 /*!

@@ -842,7 +842,7 @@ void QWaylandOutput::sendFrameCallbacks()
     Q_D(QWaylandOutput);
     for (int i = 0; i < d->surfaceViews.size(); i++) {
         const QWaylandSurfaceViewMapper &surfacemapper = d->surfaceViews.at(i);
-        if (surfacemapper.surface && surfacemapper.surface->isMapped()) {
+        if (surfacemapper.surface && surfacemapper.surface->hasContent()) {
             if (!surfacemapper.has_entered) {
                 surfaceEnter(surfacemapper.surface);
                 d->surfaceViews[i].has_entered = true;

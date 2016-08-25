@@ -215,7 +215,7 @@ void QWaylandView::attach(const QWaylandBufferRef &ref, const QRegion &damage)
  *
  * If this view is set as its surface's throttling view, discardCurrentBuffer()
  * will be called on all views of the same surface for which the
- * \l{QWaylandView::discardFrontBuffers}{discardFrontBuffers}
+ * \l{QWaylandView::allowDiscardFrontBuffer}{allowDiscardFrontBuffer}
  * property is set to true and the current buffer is the same as the
  * throttling view's current buffer.
  *
@@ -236,7 +236,7 @@ bool QWaylandView::advance()
 
     if (d->surface && d->surface->throttlingView() == this) {
         Q_FOREACH (QWaylandView *view, d->surface->views()) {
-            if (view != this && view->discardFrontBuffers() && view->d_func()->currentBuffer == d->currentBuffer)
+            if (view != this && view->allowDiscardFrontBuffer() && view->d_func()->currentBuffer == d->currentBuffer)
                 view->discardCurrentBuffer();
         }
     }
@@ -314,24 +314,24 @@ void QWaylandView::setBufferLocked(bool locked)
 }
 
 /*!
- * \property bool QWaylandView::discardFrontBuffers
+ * \property bool QWaylandView::allowDiscardFrontBuffer
  *
  * By default, the view locks the current buffer until advance() is called. Set this property
  * to true to allow Qt to release the buffer when the throttling view is no longer using it.
  */
-bool QWaylandView::discardFrontBuffers() const
+bool QWaylandView::allowDiscardFrontBuffer() const
 {
     Q_D(const QWaylandView);
-    return d->discardFrontBuffers;
+    return d->allowDiscardFrontBuffer;
 }
 
-void QWaylandView::setDiscardFrontBuffers(bool discard)
+void QWaylandView::setAllowDiscardFrontBuffer(bool discard)
 {
     Q_D(QWaylandView);
-    if (d->discardFrontBuffers == discard)
+    if (d->allowDiscardFrontBuffer == discard)
         return;
-    d->discardFrontBuffers = discard;
-    emit discardFrontBuffersChanged();
+    d->allowDiscardFrontBuffer = discard;
+    emit allowDiscardFrontBufferChanged();
 }
 
 /*!

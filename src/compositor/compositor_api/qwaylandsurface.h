@@ -82,7 +82,7 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandSurface : public QWaylandObject
     Q_PROPERTY(int bufferScale READ bufferScale NOTIFY bufferScaleChanged)
     Q_PROPERTY(Qt::ScreenOrientation contentOrientation READ contentOrientation NOTIFY contentOrientationChanged)
     Q_PROPERTY(QWaylandSurface::Origin origin READ origin NOTIFY originChanged)
-    Q_PROPERTY(bool isMapped READ isMapped NOTIFY mappedChanged)
+    Q_PROPERTY(bool hasContent READ hasContent NOTIFY hasContentChanged)
     Q_PROPERTY(bool cursorSurface READ isCursorSurface WRITE markAsCursorSurface)
 
 public:
@@ -105,7 +105,7 @@ public:
     bool setRole(QWaylandSurfaceRole *role, wl_resource *errorResource, uint32_t errorCode);
     QWaylandSurfaceRole *role() const;
 
-    bool isMapped() const;
+    bool hasContent() const;
 
     QSize size() const;
     int bufferScale() const;
@@ -144,7 +144,7 @@ protected:
     QWaylandSurface(QWaylandSurfacePrivate &dptr);
 
 Q_SIGNALS:
-    void mappedChanged();
+    void hasContentChanged();
     void damaged(const QRegion &rect);
     void parentChanged(QWaylandSurface *newParent, QWaylandSurface *oldParent);
     void childAdded(QWaylandSurface *child);

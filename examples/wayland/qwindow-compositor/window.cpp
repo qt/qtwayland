@@ -129,7 +129,7 @@ void Window::paintGL()
             m_textureBlitter.bind(currentTarget);
         }
         QWaylandSurface *surface = view->surface();
-        if (surface && surface->isMapped()) {
+        if (surface && surface->hasContent()) {
             QSize s = surface->size();
             if (!s.isEmpty()) {
                 if (m_mouseView == view && m_grabState == ResizeGrab && m_resizeAnchored)

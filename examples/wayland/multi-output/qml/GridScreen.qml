@@ -73,7 +73,7 @@ WaylandOutput {
                     height: gridView.cellHeight
                     sizeFollowsSurface: false
                     inputEventsEnabled: false
-                    view.discardFrontBuffers: true
+                    allowDiscardFrontBuffer: true
                     MouseArea {
                         anchors.fill: parent
                         onClicked: item.surface.activated()

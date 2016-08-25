@@ -14,6 +14,7 @@ Module {
         exports: ["QtWayland.Compositor/WaylandClient 1.0"]
         isCreatable: false
         exportMetaObjectRevisions: [0]
+        Property { name: "compositor"; type: "QWaylandCompositor"; isReadonly: true; isPointer: true }
         Property { name: "userId"; type: "qlonglong"; isReadonly: true }
         Property { name: "groupId"; type: "qlonglong"; isReadonly: true }
         Property { name: "processId"; type: "qlonglong"; isReadonly: true }
@@ -26,7 +27,7 @@ Module {
     }
     Component {
         name: "QWaylandCompositor"
-        prototype: "QObject"
+        prototype: "QWaylandObject"
         exports: ["QtWayland.Compositor/WaylandCompositorBase 1.0"]
         isCreatable: false
         exportMetaObjectRevisions: [0]
@@ -64,6 +65,14 @@ Module {
             Parameter { name: "newDevice"; type: "QWaylandSeat"; isPointer: true }
             Parameter { name: "oldDevice"; type: "QWaylandSeat"; isPointer: true }
         }
+        Signal {
+            name: "outputAdded"
+            Parameter { name: "output"; type: "QWaylandOutput"; isPointer: true }
+        }
+        Signal {
+            name: "outputRemoved"
+            Parameter { name: "output"; type: "QWaylandOutput"; isPointer: true }
+        }
         Method { name: "processWaylandEvents" }
         Method {
             name: "destroyClientForSurface"
@@ -81,7 +90,7 @@ Module {
     }
     Component {
         name: "QWaylandCompositorExtension"
-        prototype: "QObject"
+        prototype: "QWaylandObject"
         exports: ["QtWayland.Compositor/WaylandExtension 1.0"]
         isCreatable: false
         exportMetaObjectRevisions: [0]
@@ -105,7 +114,7 @@ Module {
     }
     Component {
         name: "QWaylandSeat"
-        prototype: "QObject"
+        prototype: "QWaylandObject"
         exports: ["QtWayland.Compositor/WaylandSeat 1.0"]
         isCreatable: false
         exportMetaObjectRevisions: [0]
@@ -148,9 +157,10 @@ Module {
         Property { name: "windowSystemCursorEnabled"; type: "bool" }
         Signal { name: "hoveredChanged" }
     }
+    Component { name: "QWaylandObject"; prototype: "QObject" }
     Component {
         name: "QWaylandOutput"
-        prototype: "QObject"
+        prototype: "QWaylandObject"
         exports: ["QtWayland.Compositor/WaylandOutputBase 1.0"]
         isCreatable: false
         exportMetaObjectRevisions: [0]
@@ -233,7 +243,6 @@ Module {
         prototype: "QQuickItem"
         exports: ["QtWayland.Compositor/WaylandQuickItem 1.0"]
         exportMetaObjectRevisions: [0]
-        Property { name: "view"; type: "QWaylandView"; isReadonly: true; isPointer: true }
         Property { name: "compositor"; type: "QWaylandCompositor"; isReadonly: true; isPointer: true }
         Property { name: "surface"; type: "QWaylandSurface"; isPointer: true }
         Property { name: "paintEnabled"; type: "bool" }
@@ -243,6 +252,8 @@ Module {
         Property { name: "focusOnClick"; type: "bool" }
         Property { name: "sizeFollowsSurface"; type: "bool" }
         Property { name: "subsurfaceHandler"; type: "QObject"; isPointer: true }
+        Property { name: "bufferLocked"; type: "bool" }
+        Property { name: "allowDiscardFrontBuffer"; type: "bool" }
         Signal { name: "surfaceDestroyed" }
         Signal {
             name: "mouseMove"
@@ -312,7 +323,7 @@ Module {
     }
     Component {
         name: "QWaylandSurface"
-        prototype: "QObject"
+        prototype: "QWaylandObject"
         exports: ["QtWayland.Compositor/WaylandSurfaceBase 1.0"]
         isCreatable: false
         exportMetaObjectRevisions: [0]
@@ -391,19 +402,6 @@ Module {
         exports: ["QtWayland.Compositor/TextInputManager 1.0"]
         exportMetaObjectRevisions: [0]
         Property { name: "data"; type: "QObject"; isList: true; isReadonly: true }
-    }
-    Component {
-        name: "QWaylandView"
-        prototype: "QObject"
-        exports: ["QtWayland.Compositor/WaylandView 1.0"]
-        isCreatable: false
-        exportMetaObjectRevisions: [0]
-        Property { name: "renderObject"; type: "QObject"; isReadonly: true; isPointer: true }
-        Property { name: "surface"; type: "QWaylandSurface"; isPointer: true }
-        Property { name: "output"; type: "QWaylandOutput"; isPointer: true }
-        Property { name: "bufferLocked"; type: "bool" }
-        Property { name: "discardFrontBuffers"; type: "bool" }
-        Signal { name: "surfaceDestroyed" }
     }
     Component {
         name: "QWaylandWlShell"
@@ -615,6 +613,8 @@ Module {
             Parameter { name: "seat"; type: "QWaylandSeat"; isPointer: true }
             Parameter { name: "edges"; type: "ResizeEdge" }
         }
+        Signal { name: "setTopLevel" }
+        Signal { name: "setTransient" }
         Signal { name: "setMaximized" }
         Signal { name: "unsetMaximized" }
         Signal {
@@ -692,7 +692,6 @@ Module {
             Parameter { name: "hotspotX"; type: "QVariant" }
             Parameter { name: "hotspotY"; type: "QVariant" }
         }
-        Property { name: "view"; type: "QWaylandView"; isReadonly: true; isPointer: true }
         Property { name: "compositor"; type: "QWaylandCompositor"; isReadonly: true; isPointer: true }
         Property { name: "surface"; type: "QWaylandSurface"; isPointer: true }
         Property { name: "paintEnabled"; type: "bool" }
@@ -702,6 +701,8 @@ Module {
         Property { name: "focusOnClick"; type: "bool" }
         Property { name: "sizeFollowsSurface"; type: "bool" }
         Property { name: "subsurfaceHandler"; type: "QObject"; isPointer: true }
+        Property { name: "bufferLocked"; type: "bool" }
+        Property { name: "allowDiscardFrontBuffer"; type: "bool" }
         Signal { name: "surfaceDestroyed" }
         Signal {
             name: "mouseMove"

@@ -219,7 +219,7 @@ protected:
     void onSurfaceCreated(QWaylandSurface *surface) {
         QWaylandQuickItem *item = new QWaylandQuickItem();
         item->setSurface(surface);
-        connect(surface, &QWaylandSurface::mappedChanged, this, &QmlCompositor::surfaceMapped);
+        connect(surface, &QWaylandSurface::hasContentChanged, this, &QmlCompositor::surfaceMapped);
     }
 
     void share_buffer_bind_resource(Resource *resource) Q_DECL_OVERRIDE

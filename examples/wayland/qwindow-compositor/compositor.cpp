@@ -171,7 +171,7 @@ void Compositor::create()
 void Compositor::onSurfaceCreated(QWaylandSurface *surface)
 {
     connect(surface, &QWaylandSurface::surfaceDestroyed, this, &Compositor::surfaceDestroyed);
-    connect(surface, &QWaylandSurface::mappedChanged, this, &Compositor::surfaceMappedChanged);
+    connect(surface, &QWaylandSurface::hasContentChanged, this, &Compositor::surfaceHasContentChanged);
     connect(surface, &QWaylandSurface::redraw, this, &Compositor::triggerRender);
 
     connect(surface, &QWaylandSurface::subsurfacePositionChanged, this, &Compositor::onSubsurfacePositionChanged);
@@ -184,10 +184,10 @@ void Compositor::onSurfaceCreated(QWaylandSurface *surface)
     connect(surface, &QWaylandSurface::offsetForNextFrame, view, &View::onOffsetForNextFrame);
 }
 
-void Compositor::surfaceMappedChanged()
+void Compositor::surfaceHasContentChanged()
 {
     QWaylandSurface *surface = qobject_cast<QWaylandSurface *>(sender());
-    if (surface->isMapped()) {
+    if (surface->hasContent()) {
         if (surface->role() == QWaylandWlShellSurface::role()
                 || surface->role() == QWaylandXdgSurface::role()
                 || surface->role() == QWaylandXdgPopup::role()) {
@@ -374,7 +374,7 @@ void Compositor::adjustCursorSurface(QWaylandSurface *surface, int hotspotX, int
     m_cursorHotspotX = hotspotX;
     m_cursorHotspotY = hotspotY;
 
-    if (surface && surface->isMapped())
+    if (surface && surface->hasContent())
         updateCursor();
 }
 

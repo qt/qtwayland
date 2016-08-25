@@ -111,8 +111,8 @@ void WlShellIntegration::handleSetPopup(QWaylandSeat *seat, QWaylandSurface *par
 
     if (!popupShellSurfaces.contains(m_shellSurface)) {
         popupShellSurfaces.append(m_shellSurface);
-        QObject::connect(m_shellSurface->surface(), &QWaylandSurface::mappedChanged,
-                         this, &WlShellIntegration::handleSurfaceUnmapped);
+        QObject::connect(m_shellSurface->surface(), &QWaylandSurface::hasContentChanged,
+                         this, &WlShellIntegration::handleSurfaceHasContentChanged);
     }
 }
 
@@ -120,8 +120,8 @@ void WlShellIntegration::handlePopupClosed()
 {
     handlePopupRemoved();
     if (m_shellSurface)
-        QObject::disconnect(m_shellSurface->surface(), &QWaylandSurface::mappedChanged,
-                            this, &WlShellIntegration::handleSurfaceUnmapped);
+        QObject::disconnect(m_shellSurface->surface(), &QWaylandSurface::hasContentChanged,
+                            this, &WlShellIntegration::handleSurfaceHasContentChanged);
 }
 
 void WlShellIntegration::handlePopupRemoved()
@@ -141,7 +141,7 @@ void WlShellIntegration::handleShellSurfaceDestroyed()
     m_shellSurface = nullptr;
 }
 
-void WlShellIntegration::handleSurfaceUnmapped()
+void WlShellIntegration::handleSurfaceHasContentChanged()
 {
     if (!m_shellSurface || !m_shellSurface->surface()->size().isEmpty())
         return;

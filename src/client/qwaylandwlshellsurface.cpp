@@ -157,6 +157,13 @@ void QWaylandWlShellSurface::setTopLevel()
     set_toplevel();
 }
 
+static inline bool testShowWithoutActivating(const QWindow *window)
+{
+    // QWidget-attribute Qt::WA_ShowWithoutActivating.
+    const QVariant showWithoutActivating = window->property("_q_showWithoutActivating");
+    return showWithoutActivating.isValid() && showWithoutActivating.toBool();
+}
+
 void QWaylandWlShellSurface::updateTransientParent(QWindow *parent)
 {
     QWaylandWindow *parent_wayland_window = static_cast<QWaylandWindow *>(parent->handle());
@@ -174,7 +181,8 @@ void QWaylandWlShellSurface::updateTransientParent(QWindow *parent)
     uint32_t flags = 0;
     Qt::WindowFlags wf = m_window->window()->flags();
     if (wf.testFlag(Qt::ToolTip)
-            || wf.testFlag(Qt::WindowTransparentForInput))
+            || wf.testFlag(Qt::WindowTransparentForInput)
+            || testShowWithoutActivating(m_window->window()))
         flags |= WL_SHELL_SURFACE_TRANSIENT_INACTIVE;
 
     set_transient(parent_wayland_window->object(),

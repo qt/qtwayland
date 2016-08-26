@@ -136,6 +136,8 @@ public:
     QWaylandSubSurface *subSurfaceWindow() const;
     QWaylandScreen *screen() const { return mScreen; }
 
+    bool shellManagesActiveState() const;
+
     void handleContentOrientationChange(Qt::ScreenOrientation orientation) Q_DECL_OVERRIDE;
     void setOrientationMask(Qt::ScreenOrientations mask);
 

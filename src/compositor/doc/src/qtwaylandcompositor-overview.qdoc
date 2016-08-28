@@ -30,25 +30,31 @@
   \title Qt Wayland Compositor
   \brief An API to develop display servers supporting the Wayland protocol
 
-  Qt Wayland Compositor is a module consisting of QML and C++ APIs for developing
-  custom display servers based on the \l{http://wayland.freedesktop.org}{Wayland protocol}.
-  The server displays content from client applications that support the Wayland protocol.
+  Qt Wayland Compositor is a module that provides QML and C++ APIs for
+  developing custom display servers based on the
+  \l{http://wayland.freedesktop.org}{Wayland protocol}. The server displays
+  content from client applications that support the Wayland protocol.
 
   \section1 Environment Variables and Command-line Arguments
 
-  The Qt Wayland Compositor API recognizes some environment variables and command-line arguments
-  that can be used to customize its behavior.
+  The Qt Wayland Compositor API recognizes some environment variables and
+  command-line arguments that can be used to customize its behavior.
 
-  The environment variables:
   \list
-  \li QT_WAYLAND_HARDWARE_INTEGRATION Selects which hardware integration plugin to use.
-  \li QT_WAYLAND_CLIENT_BUFFER_INTEGRATION Selects which client buffer integration plugin to use.
-  \li QT_WAYLAND_SERVER_BUFFER_INTEGRATION Selects which server integration plugin to use.
-  \endlist
-
-  The command-line arguments:
-  \list
-  \li --wayland-socket-name Overrides the default socket name used for communicating with clients.
+  \li Environment variables:
+      \list
+      \li \b QT_WAYLAND_HARDWARE_INTEGRATION Selects the hardware integration
+          plugin to use.
+      \li \b QT_WAYLAND_CLIENT_BUFFER_INTEGRATION Selects the client buffer
+          integration plugin to use.
+      \li \b QT_WAYLAND_SERVER_BUFFER_INTEGRATION Selects the server
+          integration plugin to use.
+      \endlist
+  \li Command-line arguments:
+      \list
+      \li \c{--wayland-socket-name} Overrides the default socket name used for
+          communicating with clients.
+      \endlist
   \endlist
 
   \section1 Examples

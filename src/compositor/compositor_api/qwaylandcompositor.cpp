@@ -408,7 +408,7 @@ void QWaylandCompositorPrivate::loadServerBufferIntegration()
   \qmltype WaylandCompositor
   \inqmlmodule QtWayland.Compositor
   \preliminary
-  \brief Type managing the Wayland display server.
+  \brief Manages the Wayland display server.
 
   The WaylandCompositor manages the connections to the clients, as well as the different
   \l{WaylandOutput}{outputs} and \l{QWaylandSeat}{seats}.
@@ -427,7 +427,7 @@ void QWaylandCompositorPrivate::loadServerBufferIntegration()
    \class QWaylandCompositor
    \inmodule QtWaylandCompositor
    \preliminary
-   \brief Class managing the Wayland display server.
+   \brief The QWaylandCompositor class manages the Wayland display server.
 
    The QWaylandCompositor manages the connections to the clients, as well as the different \l{QWaylandOutput}{outputs}
    and \l{QWaylandSeat}{seats}.
@@ -486,9 +486,8 @@ bool QWaylandCompositor::isCreated() const
  * clients. It must be set before the component is completed.
  *
  * If the socketName is empty (the default), the contents of the start argument
- * --wayland-socket-name is used instead. If this is not set, then the compositor
- * will try to find a socket name automatically, which in the default case will
- * be "wayland-0".
+ * \c --wayland-socket-name are used instead. If the argument is not set, the
+ * compositor tries to find a socket name, which is \c{wayland-0} by default.
  */
 
 /*!
@@ -498,9 +497,8 @@ bool QWaylandCompositor::isCreated() const
  * clients. This must be set before the QWaylandCompositor is \l{create()}{created}.
  *
  * If the socketName is empty (the default), the contents of the start argument
- * --wayland-socket-name is used instead. If this is not set, then the compositor
- * will try to find a socket name automatically, which in the default case will
- * be "wayland-0".
+ * \c --wayland-socket-name are used instead. If the argument is not set, the
+ * compositor tries to find a socket name, which is \c{wayland-0} by default.
  */
 void QWaylandCompositor::setSocketName(const QByteArray &name)
 {
@@ -844,11 +842,11 @@ void QWaylandCompositor::setUseHardwareIntegrationExtension(bool use)
 /*!
  * Grab the surface content from the given \a buffer.
  * The default implementation requires a OpenGL context to be bound to the current thread
- * to work. If this is not possible reimplement this function in your compositor subclass
+ * to work. If this is not possible, reimplement this function in your compositor subclass
  * to implement custom logic.
  * The default implementation only grabs shared memory and OpenGL buffers, reimplement this in your
  * compositor subclass to handle more buffer types.
- * You should not call this manually, but rather use QWaylandSurfaceGrabber (\a grabber).
+ * \note You should not call this manually, but rather use QWaylandSurfaceGrabber (\a grabber).
  */
 void QWaylandCompositor::grabSurface(QWaylandSurfaceGrabber *grabber, const QWaylandBufferRef &buffer)
 {

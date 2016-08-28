@@ -268,13 +268,13 @@ void QWaylandWlShellSurfacePrivate::shell_surface_set_class(Resource *resource,
  * \qmltype WlShell
  * \inqmlmodule QtWayland.Compositor
  * \preliminary
- * \brief Extension for desktop-style user interfaces.
+ * \brief Provides an extension for desktop-style user interfaces.
  *
  * The WlShell extension provides a way to assiociate a ShellSurface
  * with a regular Wayland surface. Using the shell surface interface, the client
  * can request that the surface is resized, moved, and so on.
  *
- * WlShell corresponds to the Wayland interface wl_shell.
+ * WlShell corresponds to the Wayland interface \c wl_shell.
  *
  * To provide the functionality of the shell extension in a compositor, create
  * an instance of the WlShell component and add it to the list of extensions
@@ -294,13 +294,13 @@ void QWaylandWlShellSurfacePrivate::shell_surface_set_class(Resource *resource,
  * \class QWaylandWlShell
  * \inmodule QtWaylandCompositor
  * \preliminary
- * \brief Extension for desktop-style user interfaces.
+ * \brief The QWaylandWlShell class is an extension for desktop-style user interfaces.
  *
  * The QWaylandWlShell extension provides a way to assiociate a QWaylandWlShellSurface with
  * a regular Wayland surface. Using the shell surface interface, the client
  * can request that the surface is resized, moved, and so on.
  *
- * WlShell corresponds to the Wayland interface wl_shell.
+ * WlShell corresponds to the Wayland interface \c wl_shell.
  */
 
 /*!
@@ -361,8 +361,8 @@ const struct wl_interface *QWaylandWlShell::interface()
 /*!
  * \qmlsignal void QtWaylandCompositor::WlShell::wlShellSurfaceRequested(object surface, object client, int id)
  *
- * This signal is emitted when the \a client has requested a wl_shell_surface to be associated
- * with \a surface and be assigned the given \a id. The handler for this signal is
+ * This signal is emitted when the \a client has requested a \c wl_shell_surface to be associated
+ * with \a surface, which is identified by \a id. The handler for this signal is
  * expected to create the shell surface and initialize it within the scope of the
  * signal emission.
  */
@@ -385,26 +385,26 @@ QByteArray QWaylandWlShell::interfaceName()
  * \qmltype WlShellSurface
  * \inqmlmodule QtWayland.Compositor
  * \preliminary
- * \brief A wl_shell_surface providing desktop-style compositor-specific features to a surface.
+ * \brief Provides a \c wl_shell_surface that offers desktop-style compositor-specific features to a surface.
  *
  * This type is part of the \l{WlShell} extension and provides a way to extend
  * the functionality of an existing WaylandSurface with features specific to desktop-style
  * compositors, such as resizing and moving the surface.
  *
- * It corresponds to the Wayland interface wl_shell_surface.
+ * It corresponds to the Wayland interface \c wl_shell_surface.
  */
 
 /*!
  * \class QWaylandWlShellSurface
  * \inmodule QtWaylandCompositor
  * \preliminary
- * \brief A shell surface providing desktop-style compositor-specific features to a surface.
+ * \brief The QWaylandWlShellSurface class provides desktop-style compositor-specific features to a surface.
  *
  * This class is part of the QWaylandWlShell extension and provides a way to extend
  * the functionality of an existing QWaylandSurface with features specific to desktop-style
  * compositors, such as resizing and moving the surface.
  *
- * It corresponds to the Wayland interface wl_shell_surface.
+ * It corresponds to the Wayland interface \c wl_shell_surface.
  */
 
 /*!
@@ -433,11 +433,11 @@ QWaylandWlShellSurface::~QWaylandWlShellSurface()
 /*!
  * \qmlmethod void QtWaylandCompositor::WlShellSurface::initialize(object shell, object surface, object client, int id)
  *
- * Initializes the WlShellSurface, associating it with the given \a shell, \a surface, \a client, and \a id.
+ * Initializes the WlShellSurface with \a id and associates it with the given \a shell, \a surface, and \a client.
  */
 
 /*!
- * Initializes the QWaylandWlShellSurface, associating it with the given \a shell, \a surface and \a resource.
+ * Initializes the QWaylandWlShellSurface and associates it with the given \a shell, \a surface, and \a resource.
  */
 void QWaylandWlShellSurface::initialize(QWaylandWlShell *shell, QWaylandSurface *surface, const QWaylandResource &resource)
 {
@@ -492,10 +492,10 @@ QSize QWaylandWlShellSurface::sizeForResize(const QSizeF &size, const QPointF &d
 /*!
  * \enum QWaylandWlShellSurface::ResizeEdge
  *
- * This enum type provides a way to specify a specific edge or corner of
+ * This enum type provides a way to specify an edge or corner of
  * the surface.
  *
- * \value None No edge.
+ * \value NoneEdge No edge.
  * \value TopEdge The top edge.
  * \value BottomEdge The bottom edge.
  * \value LeftEdge The left edge.
@@ -552,7 +552,7 @@ QWaylandQuickShellIntegration *QWaylandWlShellSurface::createIntegration(QWaylan
 /*!
  * \qmlproperty object QtWaylandCompositor::WlShellSurface::surface
  *
- * This property holds the wl_surface associated with this WlShellSurface.
+ * This property holds the \c wl_surface associated with this WlShellSurface.
  */
 
 /*!

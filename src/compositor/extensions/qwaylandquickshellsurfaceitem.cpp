@@ -46,19 +46,21 @@ QT_BEGIN_NAMESPACE
  * \qmltype ShellSurfaceItem
  * \inqmlmodule QtWayland.Compositor
  * \preliminary
- * \brief An item representing a WlShellSurface.
+ * \brief A Qt Quick item type representing a WlShellSurface.
  *
- * This type is used to render wl_shell or xdg_shell surfaces as part of a Qt Quick
+ * This type is used to render \c wl_shell or \c xdg_shell surfaces as part of a Qt Quick
  * scene. It handles moving and resizing triggered by clicking on the window decorations.
+ *
+ * \sa WaylandQuickItem
  */
 
 /*!
  * \class QWaylandQuickShellSurfaceItem
  * \inmodule QtWaylandCompositor
  * \preliminary
- * \brief A Qt Quick item for QWaylandShellSurface.
+ * \brief The QWaylandQuickShellSurfaceItem class provides a Qt Quick item that represents a QWaylandShellSurface.
  *
- * This class is used to render wl_shell or xdg_shell surfaces as part of a Qt Quick
+ * This class is used to render \c wl_shell or \c xdg_shell surfaces as part of a Qt Quick
  * scene. It handles moving and resizing triggered by clicking on the window decorations.
  *
  * \sa QWaylandQuickItem

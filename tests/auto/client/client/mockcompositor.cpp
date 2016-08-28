@@ -117,6 +117,75 @@ void MockCompositor::sendKeyRelease(const QSharedPointer<MockSurface> &surface, 
     processCommand(command);
 }
 
+void MockCompositor::sendTouchDown(const QSharedPointer<MockSurface> &surface, const QPoint &position, int id)
+{
+    Command command = makeCommand(Impl::Compositor::sendTouchDown, m_compositor);
+    command.parameters << QVariant::fromValue(surface) << position << id;
+    processCommand(command);
+}
+
+void MockCompositor::sendTouchMotion(const QSharedPointer<MockSurface> &surface, const QPoint &position, int id)
+{
+    Command command = makeCommand(Impl::Compositor::sendTouchMotion, m_compositor);
+    command.parameters << QVariant::fromValue(surface) << position << id;
+    processCommand(command);
+}
+
+void MockCompositor::sendTouchUp(const QSharedPointer<MockSurface> &surface, int id)
+{
+    Command command = makeCommand(Impl::Compositor::sendTouchUp, m_compositor);
+    command.parameters << QVariant::fromValue(surface) << id;
+    processCommand(command);
+}
+
+void MockCompositor::sendTouchFrame(const QSharedPointer<MockSurface> &surface)
+{
+    Command command = makeCommand(Impl::Compositor::sendTouchFrame, m_compositor);
+    command.parameters << QVariant::fromValue(surface);
+    processCommand(command);
+}
+
+void MockCompositor::sendDataDeviceDataOffer(const QSharedPointer<MockSurface> &surface)
+{
+    Command command = makeCommand(Impl::Compositor::sendDataDeviceDataOffer, m_compositor);
+    command.parameters << QVariant::fromValue(surface);
+    processCommand(command);
+}
+
+void MockCompositor::sendDataDeviceEnter(const QSharedPointer<MockSurface> &surface, const QPoint& position)
+{
+    Command command = makeCommand(Impl::Compositor::sendDataDeviceEnter, m_compositor);
+    command.parameters << QVariant::fromValue(surface) << QVariant::fromValue(position);
+    processCommand(command);
+}
+
+void MockCompositor::sendDataDeviceMotion(const QPoint &position)
+{
+    Command command = makeCommand(Impl::Compositor::sendDataDeviceMotion, m_compositor);
+    command.parameters << QVariant::fromValue(position);
+    processCommand(command);
+}
+
+void MockCompositor::sendDataDeviceDrop(const QSharedPointer<MockSurface> &surface)
+{
+    Command command = makeCommand(Impl::Compositor::sendDataDeviceDrop, m_compositor);
+    command.parameters << QVariant::fromValue(surface);
+    processCommand(command);
+}
+
+void MockCompositor::sendDataDeviceLeave(const QSharedPointer<MockSurface> &surface)
+{
+    Command command = makeCommand(Impl::Compositor::sendDataDeviceLeave, m_compositor);
+    command.parameters << QVariant::fromValue(surface);
+    processCommand(command);
+}
+
+void MockCompositor::waitForStartDrag()
+{
+    Command command = makeCommand(Impl::Compositor::waitForStartDrag, m_compositor);
+    processCommand(command);
+}
+
 QSharedPointer<MockSurface> MockCompositor::surface()
 {
     QSharedPointer<MockSurface> result;
@@ -152,9 +221,16 @@ void MockCompositor::processCommand(const Command &command)
 
 void MockCompositor::dispatchCommands()
 {
-    foreach (const Command &command, m_commandQueue)
+    lock();
+    int count = m_commandQueue.length();
+    unlock();
+
+    for (int i = 0; i < count; ++i) {
+        lock();
+        const Command command = m_commandQueue.takeFirst();
+        unlock();
         command.callback(command.target, command.parameters);
-    m_commandQueue.clear();
+    }
 }
 
 void *MockCompositor::run(void *data)
@@ -172,8 +248,11 @@ void *MockCompositor::run(void *data)
     }
 
     while (controller->m_alive) {
-        QMutexLocker locker(&controller->m_mutex);
-        controller->m_waitCondition.wait(&controller->m_mutex);
+        {
+            QMutexLocker locker(&controller->m_mutex);
+            if (controller->m_commandQueue.isEmpty())
+                controller->m_waitCondition.wait(&controller->m_mutex);
+        }
         controller->dispatchCommands();
         compositor.dispatchEvents(20);
     }
@@ -185,6 +264,7 @@ namespace Impl {
 
 Compositor::Compositor()
     : m_display(wl_display_create())
+    , m_startDragSeen(false)
     , m_time(0)
 {
     wl_list_init(&m_outputResources);
@@ -203,6 +283,7 @@ Compositor::Compositor()
     m_seat.reset(new Seat(this, m_display));
     m_pointer = m_seat->pointer();
     m_keyboard = m_seat->keyboard();
+    m_touch = m_seat->touch();
 
     wl_global_create(m_display, &wl_output_interface, 1, this, bindOutput);
     wl_global_create(m_display, &wl_shell_interface, 1, this, bindShell);

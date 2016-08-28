@@ -378,20 +378,20 @@ QtWayland::SurfaceBuffer *QWaylandSurfacePrivate::createSurfaceBuffer(struct ::w
  * \qmltype WaylandSurface
  * \inqmlmodule QtWayland.Compositor
  * \preliminary
- * \brief A rectangular area which is displayed on an output device.
+ * \brief Represents a rectangular area on an output device.
  *
  * This type encapsulates a rectangular area of pixels that is displayed on an output device. It
- * corresponds to the interface wl_surface in the Wayland protocol.
+ * corresponds to the interface \c wl_surface in the Wayland protocol.
  */
 
 /*!
  * \class QWaylandSurface
  * \inmodule QtWaylandCompositor
  * \preliminary
- * \brief A rectangular area which is displayed on an output device.
+ * \brief The QWaylandSurface class represents a rectangular area on an output device.
  *
  * This class encapsulates a rectangular area of pixels that is displayed on an output device. It
- * corresponds to the interface wl_surface in the Wayland protocol.
+ * corresponds to the interface \c wl_surface in the Wayland protocol.
  */
 
 /*!
@@ -433,7 +433,7 @@ QWaylandSurface::~QWaylandSurface()
 /*!
  * \qmlmethod void QtWaylandCompositor::WaylandSurface::initialize(object compositor, object client, int id, int version)
  *
- * Initializes the QWaylandSurface with the given \a compositor and \a client, and with the given \a id
+ * Initializes the WaylandSurface with the given \a compositor and \a client, and with the given \a id
  * and \a version.
  */
 
@@ -466,7 +466,7 @@ bool QWaylandSurface::isInitialized() const
 /*!
  * \qmlproperty object QtWaylandCompositor::WaylandSurface::client
  *
- * This property holds the client using this QWaylandSurface.
+ * This property holds the client using this WaylandSurface.
  */
 
 /*!
@@ -543,7 +543,7 @@ int QWaylandSurface::bufferScale() const
  *
  * This property holds the orientation of the WaylandSurface's contents.
  *
- * \sa QWaylandOutput::transform
+ * \sa {WaylandOutput::transform}{WaylandOutput.transform}
  */
 
 /*!
@@ -632,8 +632,8 @@ void QWaylandSurface::sendFrameCallbacks()
 }
 
 /*!
- * Returns true if the QWaylandSurface's input region contains the point \a p.
- * Otherwise returns false.
+ * Returns \c true if the QWaylandSurface's input region contains the point \a p.
+ * Otherwise returns \c false.
  */
 bool QWaylandSurface::inputRegionContains(const QPoint &p) const
 {
@@ -644,7 +644,7 @@ bool QWaylandSurface::inputRegionContains(const QPoint &p) const
 /*!
  * \qmlmethod void QtWaylandCompositor::WaylandSurface::destroy()
  *
- * Destroys the QWaylandSurface.
+ * Destroys the WaylandSurface.
  */
 
 /*!
@@ -659,7 +659,7 @@ void QWaylandSurface::destroy()
 /*!
  * \qmlmethod bool QtWaylandCompositor::WaylandSurface::isDestroyed()
  *
- * Returns true if the WaylandSurface has been destroyed. Otherwise returns false.
+ * Returns \c true if the WaylandSurface has been destroyed. Otherwise returns \c false.
  */
 
 /*!
@@ -701,9 +701,9 @@ QWaylandInputMethodControl *QWaylandSurface::inputMethodControl() const
 }
 
 /*!
- * Updates the surface with the compositor's retained clipboard selection. While this
- * is done automatically when the surface receives keyboard focus, this function is
- * useful for updating clients which do not have keyboard focus.
+ * Updates the surface with the compositor's retained clipboard selection. Although
+ * this is done automatically when the surface receives keyboard focus, this
+ * function is useful for updating clients which do not have keyboard focus.
  */
 void QWaylandSurface::updateSelection()
 {
@@ -784,13 +784,11 @@ struct wl_resource *QWaylandSurface::resource() const
 }
 
 /*!
- * Sets a role on the surface. A role defines how a surface will be mapped on screen, without a role
- * a surface is supposed to be hidden. Only one role at all times can be set on a surface. Attempting
- * to change the role of a surface will trigger a protocol error to the client, while setting the same
- * role many times is allowed.
+ * Sets a \a role on the surface. A role defines how a surface will be mapped on screen, without a role
+ * a surface is supposed to be hidden. Only one role at all times can be set on a surface. Although
+ * setting the same role many times is allowed, attempting to change the role of a surface will trigger
+ * a protocol error to the \a errorResource and send an \a errorCode to the client.
  *
- * \param errorResource The resource the error will be sent to if the role is being changed.
- * \param errorCode The error code that will be sent to the client.
  */
 bool QWaylandSurface::setRole(QWaylandSurfaceRole *role, wl_resource *errorResource, uint32_t errorCode)
 {

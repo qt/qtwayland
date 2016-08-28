@@ -47,6 +47,7 @@ typedef void (**Implementation)(void);
 
 class Keyboard;
 class Pointer;
+class Touch;
 class Seat;
 class DataDeviceManager;
 class Surface;
@@ -75,6 +76,19 @@ public:
     static void sendMouseRelease(void *data, const QList<QVariant> &parameters);
     static void sendKeyPress(void *data, const QList<QVariant> &parameters);
     static void sendKeyRelease(void *data, const QList<QVariant> &parameters);
+    static void sendTouchDown(void *data, const QList<QVariant> &parameters);
+    static void sendTouchUp(void *data, const QList<QVariant> &parameters);
+    static void sendTouchMotion(void *data, const QList<QVariant> &parameters);
+    static void sendTouchFrame(void *data, const QList<QVariant> &parameters);
+    static void sendDataDeviceDataOffer(void *data, const QList<QVariant> &parameters);
+    static void sendDataDeviceEnter(void *data, const QList<QVariant> &parameters);
+    static void sendDataDeviceMotion(void *data, const QList<QVariant> &parameters);
+    static void sendDataDeviceDrop(void *data, const QList<QVariant> &parameters);
+    static void sendDataDeviceLeave(void *data, const QList<QVariant> &parameters);
+    static void waitForStartDrag(void *data, const QList<QVariant> &parameters);
+
+public:
+    bool m_startDragSeen;
 
 private:
     static void bindCompositor(wl_client *client, void *data, uint32_t version, uint32_t id);
@@ -99,6 +113,7 @@ private:
     QScopedPointer<Seat> m_seat;
     Pointer *m_pointer;
     Keyboard *m_keyboard;
+    Touch *m_touch;
     QScopedPointer<DataDeviceManager> m_data_device_manager;
     QVector<Surface *> m_surfaces;
 };
@@ -141,6 +156,16 @@ public:
     void sendMouseRelease(const QSharedPointer<MockSurface> &surface);
     void sendKeyPress(const QSharedPointer<MockSurface> &surface, uint code);
     void sendKeyRelease(const QSharedPointer<MockSurface> &surface, uint code);
+    void sendTouchDown(const QSharedPointer<MockSurface> &surface, const QPoint &position, int id);
+    void sendTouchMotion(const QSharedPointer<MockSurface> &surface, const QPoint &position, int id);
+    void sendTouchUp(const QSharedPointer<MockSurface> &surface, int id);
+    void sendTouchFrame(const QSharedPointer<MockSurface> &surface);
+    void sendDataDeviceDataOffer(const QSharedPointer<MockSurface> &surface);
+    void sendDataDeviceEnter(const QSharedPointer<MockSurface> &surface, const QPoint &position);
+    void sendDataDeviceMotion(const QPoint &position);
+    void sendDataDeviceDrop(const QSharedPointer<MockSurface> &surface);
+    void sendDataDeviceLeave(const QSharedPointer<MockSurface> &surface);
+    void waitForStartDrag();
 
     QSharedPointer<MockSurface> surface();
 

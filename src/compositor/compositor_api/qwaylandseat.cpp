@@ -152,7 +152,7 @@ QWaylandKeymap::QWaylandKeymap(const QString &layout, const QString &variant, co
  * \class QWaylandSeat
  * \inmodule QtWaylandCompositor
  * \preliminary
- * \brief The QWaylandSeat class provides access to keyboard, mouse and touch input.
+ * \brief The QWaylandSeat class provides access to keyboard, mouse, and touch input.
  *
  * The QWaylandSeat provides access to different types of user input and maintains
  * a keyboard focus and a mouse pointer. It corresponds to the wl_seat interface in the Wayland protocol.

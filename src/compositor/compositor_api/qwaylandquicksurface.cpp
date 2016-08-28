@@ -87,7 +87,7 @@ QWaylandQuickSurface::~QWaylandQuickSurface()
 }
 
 /*!
- * \qmlproperty QtWaylandCompositor::WaylandSurface::useTextureAlpha
+ * \qmlproperty bool QtWaylandCompositor::WaylandSurface::useTextureAlpha
  *
  * This property specifies whether the surface should use texture alpha.
  */
@@ -108,7 +108,7 @@ void QWaylandQuickSurface::setUseTextureAlpha(bool useTextureAlpha)
 }
 
 /*!
- * \qmlproperty QtWaylandCompositor::WaylandSurface::clientRenderingEnabled
+ * \qmlproperty bool QtWaylandCompositor::WaylandSurface::clientRenderingEnabled
  *
  * This property specifies whether client rendering is enabled for the surface.
  */

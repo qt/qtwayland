@@ -527,6 +527,11 @@ QWaylandSubSurface *QWaylandWindow::subSurfaceWindow() const
     return mSubSurfaceWindow;
 }
 
+bool QWaylandWindow::shellManagesActiveState() const
+{
+    return mShellSurface && mShellSurface->shellManagesActiveState();
+}
+
 void QWaylandWindow::handleContentOrientationChange(Qt::ScreenOrientation orientation)
 {
     if (mDisplay->compositorVersion() < 2)

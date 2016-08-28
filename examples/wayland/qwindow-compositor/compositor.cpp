@@ -456,8 +456,10 @@ void Compositor::handleDrag(View *target, QMouseEvent *me)
     }
     QWaylandDrag *currentDrag = defaultSeat()->drag();
     currentDrag->dragMove(surface, pos);
-    if (me->buttons() == Qt::NoButton)
+    if (me->buttons() == Qt::NoButton) {
+        m_views.removeOne(findView(currentDrag->icon()));
         currentDrag->drop();
+    }
 }
 
 // We only have a flat list of views, plus pointers from child to parent,

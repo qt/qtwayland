@@ -56,7 +56,7 @@ public:
  * \class QWaylandBufferRef
  * \inmodule QtWaylandCompositor
  * \preliminary
- * \brief A class which holds a reference to a surface buffer
+ * \brief The QWaylandBufferRef class holds the reference to a surface buffer
  *
  * This class can be used to reference a surface buffer. As long as a reference
  * to the buffer exists, it is owned by the compositor and the client cannot modify it.

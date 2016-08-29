@@ -45,14 +45,14 @@
 #include <QtWaylandCompositor/QWaylandSurface>
 #include <QtWaylandCompositor/QWaylandView>
 #include <QtWaylandCompositor/QWaylandWlShellSurface>
-#include <QtWaylandCompositor/QWaylandXdgSurface>
+#include <QtWaylandCompositor/QWaylandXdgSurfaceV5>
 #include <QTimer>
 
 QT_BEGIN_NAMESPACE
 
 class QWaylandWlShell;
 class QWaylandWlShellSurface;
-class QWaylandXdgShell;
+class QWaylandXdgShellV5;
 
 class View : public QWaylandView
 {
@@ -76,8 +76,8 @@ private:
     GLuint m_texture;
     QPointF m_position;
     QWaylandWlShellSurface *m_wlShellSurface;
-    QWaylandXdgSurface *m_xdgSurface;
-    QWaylandXdgPopup *m_xdgPopup;
+    QWaylandXdgSurfaceV5 *m_xdgSurface;
+    QWaylandXdgPopupV5 *m_xdgPopup;
     View *m_parentView;
     QPoint m_offset;
 
@@ -124,7 +124,7 @@ private slots:
     void viewSurfaceDestroyed();
     void onStartMove();
     void onWlStartResize(QWaylandSeat *seat, QWaylandWlShellSurface::ResizeEdge edges);
-    void onXdgStartResize(QWaylandSeat *seat, QWaylandXdgSurface::ResizeEdge edges);
+    void onXdgStartResize(QWaylandSeat *seat, QWaylandXdgSurfaceV5::ResizeEdge edges);
 
     void startDrag();
 
@@ -132,7 +132,7 @@ private slots:
 
     void onSurfaceCreated(QWaylandSurface *surface);
     void onWlShellSurfaceCreated(QWaylandWlShellSurface *wlShellSurface);
-    void onXdgSurfaceCreated(QWaylandXdgSurface *xdgSurface);
+    void onXdgSurfaceCreated(QWaylandXdgSurfaceV5 *xdgSurface);
     void onXdgPopupRequested(QWaylandSurface *surface, QWaylandSurface *parent, QWaylandSeat *seat,
                              const QPoint &position, const QWaylandResource &resource);
     void onSetTransient(QWaylandSurface *parentSurface, const QPoint &relativeToParent, QWaylandWlShellSurface::FocusPolicy focusPolicy);
@@ -148,7 +148,7 @@ private:
     QList<View*> m_views;
     QList<View*> m_popupViews;
     QWaylandWlShell *m_wlShell;
-    QWaylandXdgShell *m_xdgShell;
+    QWaylandXdgShellV5 *m_xdgShell;
     QWaylandView m_cursorView;
     int m_cursorHotspotX;
     int m_cursorHotspotY;

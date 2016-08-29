@@ -21,8 +21,8 @@ HEADERS += \
     extensions/qwaylandtextinputmanager_p.h \
     extensions/qwaylandqtwindowmanager.h \
     extensions/qwaylandqtwindowmanager_p.h \
-    extensions/qwaylandxdgshell.h \
-    extensions/qwaylandxdgshell_p.h \
+    extensions/qwaylandxdgshellv5.h \
+    extensions/qwaylandxdgshellv5_p.h \
     extensions/qwaylandshellsurface.h \
 
 SOURCES += \
@@ -33,19 +33,19 @@ SOURCES += \
     extensions/qwaylandtextinput.cpp \
     extensions/qwaylandtextinputmanager.cpp \
     extensions/qwaylandqtwindowmanager.cpp \
-    extensions/qwaylandxdgshell.cpp \
+    extensions/qwaylandxdgshellv5.cpp \
 
 qtHaveModule(quick):contains(QT_CONFIG, opengl) {
     HEADERS += \
         extensions/qwaylandquickshellsurfaceitem.h \
         extensions/qwaylandquickshellsurfaceitem_p.h \
         extensions/qwaylandwlshellintegration_p.h \
-        extensions/qwaylandxdgshellintegration_p.h \
+        extensions/qwaylandxdgshellv5integration_p.h \
 
     SOURCES += \
         extensions/qwaylandquickshellsurfaceitem.cpp \
         extensions/qwaylandwlshellintegration.cpp \
-        extensions/qwaylandxdgshellintegration.cpp \
+        extensions/qwaylandxdgshellv5integration.cpp \
 
 }
 

@@ -34,11 +34,11 @@
 **
 ****************************************************************************/
 
-#include "qwaylandxdgshell.h"
-#include "qwaylandxdgshell_p.h"
+#include "qwaylandxdgshellv5.h"
+#include "qwaylandxdgshellv5_p.h"
 
 #ifdef QT_WAYLAND_COMPOSITOR_QUICK
-#include "qwaylandxdgshellintegration_p.h"
+#include "qwaylandxdgshellv5integration_p.h"
 #endif
 
 #include <QtWaylandCompositor/QWaylandCompositor>
@@ -53,76 +53,76 @@
 
 QT_BEGIN_NAMESPACE
 
-QWaylandSurfaceRole QWaylandXdgSurfacePrivate::s_role("xdg_surface");
-QWaylandSurfaceRole QWaylandXdgPopupPrivate::s_role("xdg_popup");
+QWaylandSurfaceRole QWaylandXdgSurfaceV5Private::s_role("xdg_surface");
+QWaylandSurfaceRole QWaylandXdgPopupV5Private::s_role("xdg_popup");
 
-QWaylandXdgShellPrivate::QWaylandXdgShellPrivate()
+QWaylandXdgShellV5Private::QWaylandXdgShellV5Private()
     : QWaylandCompositorExtensionPrivate()
     , xdg_shell()
 {
 }
 
-void QWaylandXdgShellPrivate::ping(Resource *resource, uint32_t serial)
+void QWaylandXdgShellV5Private::ping(Resource *resource, uint32_t serial)
 {
     m_pings.insert(serial);
     send_ping(resource->handle, serial);
 }
 
-void QWaylandXdgShellPrivate::registerSurface(QWaylandXdgSurface *xdgSurface)
+void QWaylandXdgShellV5Private::registerSurface(QWaylandXdgSurfaceV5 *xdgSurface)
 {
     m_xdgSurfaces.insert(xdgSurface->surface()->client()->client(), xdgSurface);
 }
 
-void QWaylandXdgShellPrivate::unregisterXdgSurface(QWaylandXdgSurface *xdgSurface)
+void QWaylandXdgShellV5Private::unregisterXdgSurface(QWaylandXdgSurfaceV5 *xdgSurface)
 {
-    auto xdgSurfacePrivate = QWaylandXdgSurfacePrivate::get(xdgSurface);
+    auto xdgSurfacePrivate = QWaylandXdgSurfaceV5Private::get(xdgSurface);
     if (!m_xdgSurfaces.remove(xdgSurfacePrivate->resource()->client(), xdgSurface))
         qWarning("%s Unexpected state. Can't find registered xdg surface\n", Q_FUNC_INFO);
 }
 
-void QWaylandXdgShellPrivate::registerXdgPopup(QWaylandXdgPopup *xdgPopup)
+void QWaylandXdgShellV5Private::registerXdgPopup(QWaylandXdgPopupV5 *xdgPopup)
 {
     m_xdgPopups.insert(xdgPopup->surface()->client()->client(), xdgPopup);
 }
 
-void QWaylandXdgShellPrivate::unregisterXdgPopup(QWaylandXdgPopup *xdgPopup)
+void QWaylandXdgShellV5Private::unregisterXdgPopup(QWaylandXdgPopupV5 *xdgPopup)
 {
-    auto xdgPopupPrivate = QWaylandXdgPopupPrivate::get(xdgPopup);
+    auto xdgPopupPrivate = QWaylandXdgPopupV5Private::get(xdgPopup);
     if (!m_xdgPopups.remove(xdgPopupPrivate->resource()->client(), xdgPopup))
         qWarning("%s Unexpected state. Can't find registered xdg popup\n", Q_FUNC_INFO);
 }
 
-bool QWaylandXdgShellPrivate::isValidPopupParent(QWaylandSurface *parentSurface) const
+bool QWaylandXdgShellV5Private::isValidPopupParent(QWaylandSurface *parentSurface) const
 {
-    QWaylandXdgPopup *topmostPopup = topmostPopupForClient(parentSurface->client()->client());
+    QWaylandXdgPopupV5 *topmostPopup = topmostPopupForClient(parentSurface->client()->client());
     if (topmostPopup && topmostPopup->surface() != parentSurface) {
         return false;
     }
 
     QWaylandSurfaceRole *parentRole = parentSurface->role();
-    if (parentRole != QWaylandXdgSurface::role() && parentRole != QWaylandXdgPopup::role()) {
+    if (parentRole != QWaylandXdgSurfaceV5::role() && parentRole != QWaylandXdgPopupV5::role()) {
         return false;
     }
 
     return true;
 }
 
-QWaylandXdgPopup *QWaylandXdgShellPrivate::topmostPopupForClient(wl_client *client) const
+QWaylandXdgPopupV5 *QWaylandXdgShellV5Private::topmostPopupForClient(wl_client *client) const
 {
-    QList<QWaylandXdgPopup *> clientPopups = m_xdgPopups.values(client);
+    QList<QWaylandXdgPopupV5 *> clientPopups = m_xdgPopups.values(client);
     return clientPopups.empty() ? nullptr : clientPopups.last();
 }
 
-QWaylandXdgSurface *QWaylandXdgShellPrivate::xdgSurfaceFromSurface(QWaylandSurface *surface)
+QWaylandXdgSurfaceV5 *QWaylandXdgShellV5Private::xdgSurfaceFromSurface(QWaylandSurface *surface)
 {
-    Q_FOREACH (QWaylandXdgSurface *xdgSurface, m_xdgSurfaces) {
+    Q_FOREACH (QWaylandXdgSurfaceV5 *xdgSurface, m_xdgSurfaces) {
         if (surface == xdgSurface->surface())
             return xdgSurface;
     }
     return nullptr;
 }
 
-void QWaylandXdgShellPrivate::xdg_shell_destroy(Resource *resource)
+void QWaylandXdgShellV5Private::xdg_shell_destroy(Resource *resource)
 {
     if (!m_xdgSurfaces.values(resource->client()).empty())
         wl_resource_post_error(resource->handle, XDG_SHELL_ERROR_DEFUNCT_SURFACES,
@@ -131,10 +131,10 @@ void QWaylandXdgShellPrivate::xdg_shell_destroy(Resource *resource)
     wl_resource_destroy(resource->handle);
 }
 
-void QWaylandXdgShellPrivate::xdg_shell_get_xdg_surface(Resource *resource, uint32_t id,
+void QWaylandXdgShellV5Private::xdg_shell_get_xdg_surface(Resource *resource, uint32_t id,
                                                         wl_resource *surface_res)
 {
-    Q_Q(QWaylandXdgShell);
+    Q_Q(QWaylandXdgShellV5);
     QWaylandSurface *surface = QWaylandSurface::fromResource(surface_res);
 
     if (xdgSurfaceFromSurface(surface)) {
@@ -144,7 +144,7 @@ void QWaylandXdgShellPrivate::xdg_shell_get_xdg_surface(Resource *resource, uint
         return;
     }
 
-    if (!surface->setRole(QWaylandXdgSurface::role(), resource->handle, XDG_SHELL_ERROR_ROLE))
+    if (!surface->setRole(QWaylandXdgSurfaceV5::role(), resource->handle, XDG_SHELL_ERROR_ROLE))
         return;
 
     QWaylandResource xdgSurfaceResource(wl_resource_create(resource->client(), &xdg_surface_interface,
@@ -152,18 +152,18 @@ void QWaylandXdgShellPrivate::xdg_shell_get_xdg_surface(Resource *resource, uint
 
     emit q->xdgSurfaceRequested(surface, xdgSurfaceResource);
 
-    QWaylandXdgSurface *xdgSurface = QWaylandXdgSurface::fromResource(xdgSurfaceResource.resource());
+    QWaylandXdgSurfaceV5 *xdgSurface = QWaylandXdgSurfaceV5::fromResource(xdgSurfaceResource.resource());
     if (!xdgSurface) {
-        // A QWaylandXdgSurface was not created in response to the xdgSurfaceRequested signal, so we
+        // A QWaylandXdgSurfaceV5 was not created in response to the xdgSurfaceRequested signal, so we
         // create one as fallback here instead.
-        xdgSurface = new QWaylandXdgSurface(q, surface, xdgSurfaceResource);
+        xdgSurface = new QWaylandXdgSurfaceV5(q, surface, xdgSurfaceResource);
     }
 
     registerSurface(xdgSurface);
     emit q->xdgSurfaceCreated(xdgSurface);
 }
 
-void QWaylandXdgShellPrivate::xdg_shell_use_unstable_version(Resource *resource, int32_t version)
+void QWaylandXdgShellV5Private::xdg_shell_use_unstable_version(Resource *resource, int32_t version)
 {
     if (xdg_shell::version_current != version) {
         wl_resource_post_error(resource->handle, WL_DISPLAY_ERROR_INVALID_OBJECT,
@@ -172,13 +172,13 @@ void QWaylandXdgShellPrivate::xdg_shell_use_unstable_version(Resource *resource,
     }
 }
 
-void QWaylandXdgShellPrivate::xdg_shell_get_xdg_popup(Resource *resource, uint32_t id,
+void QWaylandXdgShellV5Private::xdg_shell_get_xdg_popup(Resource *resource, uint32_t id,
                                                       wl_resource *surface_res, wl_resource *parent,
                                                       wl_resource *seatResource, uint32_t serial,
                                                       int32_t x, int32_t y)
 {
     Q_UNUSED(serial);
-    Q_Q(QWaylandXdgShell);
+    Q_Q(QWaylandXdgShellV5);
     QWaylandSurface *surface = QWaylandSurface::fromResource(surface_res);
     QWaylandSurface *parentSurface = QWaylandSurface::fromResource(parent);
 
@@ -188,7 +188,7 @@ void QWaylandXdgShellPrivate::xdg_shell_get_xdg_popup(Resource *resource, uint32
         return;
     }
 
-    if (!surface->setRole(QWaylandXdgPopup::role(), resource->handle, XDG_SHELL_ERROR_ROLE)) {
+    if (!surface->setRole(QWaylandXdgPopupV5::role(), resource->handle, XDG_SHELL_ERROR_ROLE)) {
         return;
     }
 
@@ -198,28 +198,28 @@ void QWaylandXdgShellPrivate::xdg_shell_get_xdg_popup(Resource *resource, uint32
     QPoint position(x, y);
     emit q->xdgPopupRequested(surface, parentSurface, seat, position, xdgPopupResource);
 
-    QWaylandXdgPopup *xdgPopup = QWaylandXdgPopup::fromResource(xdgPopupResource.resource());
+    QWaylandXdgPopupV5 *xdgPopup = QWaylandXdgPopupV5::fromResource(xdgPopupResource.resource());
     if (!xdgPopup) {
-        // A QWaylandXdgPopup was not created in response to the xdgPopupRequested signal, so we
+        // A QWaylandXdgPopupV5 was not created in response to the xdgPopupRequested signal, so we
         // create one as fallback here instead.
-        xdgPopup = new QWaylandXdgPopup(q, surface, parentSurface, position, xdgPopupResource);
+        xdgPopup = new QWaylandXdgPopupV5(q, surface, parentSurface, position, xdgPopupResource);
     }
 
     registerXdgPopup(xdgPopup);
     emit q->xdgPopupCreated(xdgPopup);
 }
 
-void QWaylandXdgShellPrivate::xdg_shell_pong(Resource *resource, uint32_t serial)
+void QWaylandXdgShellV5Private::xdg_shell_pong(Resource *resource, uint32_t serial)
 {
     Q_UNUSED(resource);
-    Q_Q(QWaylandXdgShell);
+    Q_Q(QWaylandXdgShellV5);
     if (m_pings.remove(serial))
         emit q->pong(serial);
     else
         qWarning("Received an unexpected pong!");
 }
 
-QWaylandXdgSurfacePrivate::QWaylandXdgSurfacePrivate()
+QWaylandXdgSurfaceV5Private::QWaylandXdgSurfaceV5Private()
     : QWaylandCompositorExtensionPrivate()
     , xdg_surface()
     , m_surface(nullptr)
@@ -230,36 +230,36 @@ QWaylandXdgSurfacePrivate::QWaylandXdgSurfacePrivate()
 {
 }
 
-void QWaylandXdgSurfacePrivate::handleFocusLost()
+void QWaylandXdgSurfaceV5Private::handleFocusLost()
 {
-    Q_Q(QWaylandXdgSurface);
-    QWaylandXdgSurfacePrivate::ConfigureEvent current = lastSentConfigure();
-    current.states.removeOne(QWaylandXdgSurface::State::ActivatedState);
+    Q_Q(QWaylandXdgSurfaceV5);
+    QWaylandXdgSurfaceV5Private::ConfigureEvent current = lastSentConfigure();
+    current.states.removeOne(QWaylandXdgSurfaceV5::State::ActivatedState);
     q->sendConfigure(current.size, current.states);
 }
 
-void QWaylandXdgSurfacePrivate::handleFocusReceived()
+void QWaylandXdgSurfaceV5Private::handleFocusReceived()
 {
-    Q_Q(QWaylandXdgSurface);
+    Q_Q(QWaylandXdgSurfaceV5);
 
-    QWaylandXdgSurfacePrivate::ConfigureEvent current = lastSentConfigure();
-    if (!current.states.contains(QWaylandXdgSurface::State::ActivatedState)) {
-        current.states.push_back(QWaylandXdgSurface::State::ActivatedState);
+    QWaylandXdgSurfaceV5Private::ConfigureEvent current = lastSentConfigure();
+    if (!current.states.contains(QWaylandXdgSurfaceV5::State::ActivatedState)) {
+        current.states.push_back(QWaylandXdgSurfaceV5::State::ActivatedState);
     }
 
     q->sendConfigure(current.size, current.states);
 }
 
-QRect QWaylandXdgSurfacePrivate::calculateFallbackWindowGeometry() const
+QRect QWaylandXdgSurfaceV5Private::calculateFallbackWindowGeometry() const
 {
     // TODO: The unset window geometry should include subsurfaces as well, so this solution
     // won't work too well on those kinds of clients.
     return QRect(QPoint(0, 0), m_surface->size() / m_surface->bufferScale());
 }
 
-void QWaylandXdgSurfacePrivate::updateFallbackWindowGeometry()
+void QWaylandXdgSurfaceV5Private::updateFallbackWindowGeometry()
 {
-    Q_Q(QWaylandXdgSurface);
+    Q_Q(QWaylandXdgSurfaceV5);
     if (!m_unsetWindowGeometry)
         return;
 
@@ -271,86 +271,86 @@ void QWaylandXdgSurfacePrivate::updateFallbackWindowGeometry()
     emit q->windowGeometryChanged();
 }
 
-void QWaylandXdgSurfacePrivate::xdg_surface_destroy_resource(Resource *resource)
+void QWaylandXdgSurfaceV5Private::xdg_surface_destroy_resource(Resource *resource)
 {
     Q_UNUSED(resource);
-    Q_Q(QWaylandXdgSurface);
-    QWaylandXdgShellPrivate::get(m_xdgShell)->unregisterXdgSurface(q);
+    Q_Q(QWaylandXdgSurfaceV5);
+    QWaylandXdgShellV5Private::get(m_xdgShell)->unregisterXdgSurface(q);
     delete q;
 }
 
-void QWaylandXdgSurfacePrivate::xdg_surface_destroy(Resource *resource)
+void QWaylandXdgSurfaceV5Private::xdg_surface_destroy(Resource *resource)
 {
     wl_resource_destroy(resource->handle);
 }
 
-void QWaylandXdgSurfacePrivate::xdg_surface_move(Resource *resource, wl_resource *seat, uint32_t serial)
+void QWaylandXdgSurfaceV5Private::xdg_surface_move(Resource *resource, wl_resource *seat, uint32_t serial)
 {
     Q_UNUSED(resource);
     Q_UNUSED(serial);
 
-    Q_Q(QWaylandXdgSurface);
+    Q_Q(QWaylandXdgSurfaceV5);
     QWaylandSeat *input_device = QWaylandSeat::fromSeatResource(seat);
     emit q->startMove(input_device);
 }
 
-void QWaylandXdgSurfacePrivate::xdg_surface_resize(Resource *resource, wl_resource *seat,
+void QWaylandXdgSurfaceV5Private::xdg_surface_resize(Resource *resource, wl_resource *seat,
                                                    uint32_t serial, uint32_t edges)
 {
     Q_UNUSED(resource);
     Q_UNUSED(serial);
 
-    Q_Q(QWaylandXdgSurface);
+    Q_Q(QWaylandXdgSurfaceV5);
     QWaylandSeat *input_device = QWaylandSeat::fromSeatResource(seat);
-    emit q->startResize(input_device, QWaylandXdgSurface::ResizeEdge(edges));
+    emit q->startResize(input_device, QWaylandXdgSurfaceV5::ResizeEdge(edges));
 }
 
-void QWaylandXdgSurfacePrivate::xdg_surface_set_maximized(Resource *resource)
+void QWaylandXdgSurfaceV5Private::xdg_surface_set_maximized(Resource *resource)
 {
     Q_UNUSED(resource);
-    Q_Q(QWaylandXdgSurface);
+    Q_Q(QWaylandXdgSurfaceV5);
     emit q->setMaximized();
 }
 
-void QWaylandXdgSurfacePrivate::xdg_surface_unset_maximized(Resource *resource)
+void QWaylandXdgSurfaceV5Private::xdg_surface_unset_maximized(Resource *resource)
 {
     Q_UNUSED(resource);
-    Q_Q(QWaylandXdgSurface);
+    Q_Q(QWaylandXdgSurfaceV5);
     emit q->unsetMaximized();
 }
 
-void QWaylandXdgSurfacePrivate::xdg_surface_set_fullscreen(Resource *resource, wl_resource *output_res)
+void QWaylandXdgSurfaceV5Private::xdg_surface_set_fullscreen(Resource *resource, wl_resource *output_res)
 {
     Q_UNUSED(resource);
-    Q_Q(QWaylandXdgSurface);
+    Q_Q(QWaylandXdgSurfaceV5);
     QWaylandOutput *output = output_res ? QWaylandOutput::fromResource(output_res) : nullptr;
     emit q->setFullscreen(output);
 }
 
-void QWaylandXdgSurfacePrivate::xdg_surface_unset_fullscreen(Resource *resource)
+void QWaylandXdgSurfaceV5Private::xdg_surface_unset_fullscreen(Resource *resource)
 {
     Q_UNUSED(resource);
-    Q_Q(QWaylandXdgSurface);
+    Q_Q(QWaylandXdgSurfaceV5);
     emit q->unsetFullscreen();
 }
 
-void QWaylandXdgSurfacePrivate::xdg_surface_set_minimized(Resource *resource)
+void QWaylandXdgSurfaceV5Private::xdg_surface_set_minimized(Resource *resource)
 {
     Q_UNUSED(resource);
-    Q_Q(QWaylandXdgSurface);
+    Q_Q(QWaylandXdgSurfaceV5);
     emit q->setMinimized();
 }
 
-void QWaylandXdgSurfacePrivate::xdg_surface_set_parent(Resource *resource, wl_resource *parent)
+void QWaylandXdgSurfaceV5Private::xdg_surface_set_parent(Resource *resource, wl_resource *parent)
 {
     Q_UNUSED(resource);
-    QWaylandXdgSurface *parentSurface = nullptr;
+    QWaylandXdgSurfaceV5 *parentSurface = nullptr;
     if (parent) {
-        parentSurface = static_cast<QWaylandXdgSurfacePrivate *>(
-                    QWaylandXdgSurfacePrivate::Resource::fromResource(parent)->xdg_surface_object)->q_func();
+        parentSurface = static_cast<QWaylandXdgSurfaceV5Private *>(
+                    QWaylandXdgSurfaceV5Private::Resource::fromResource(parent)->xdg_surface_object)->q_func();
     }
 
-    Q_Q(QWaylandXdgSurface);
+    Q_Q(QWaylandXdgSurfaceV5);
 
     if (m_parentSurface != parentSurface) {
         m_parentSurface = parentSurface;
@@ -368,31 +368,31 @@ void QWaylandXdgSurfacePrivate::xdg_surface_set_parent(Resource *resource, wl_re
     }
 }
 
-void QWaylandXdgSurfacePrivate::xdg_surface_set_app_id(Resource *resource, const QString &app_id)
+void QWaylandXdgSurfaceV5Private::xdg_surface_set_app_id(Resource *resource, const QString &app_id)
 {
     Q_UNUSED(resource);
     if (app_id == m_appId)
         return;
-    Q_Q(QWaylandXdgSurface);
+    Q_Q(QWaylandXdgSurfaceV5);
     m_appId = app_id;
     emit q->appIdChanged();
 }
 
-void QWaylandXdgSurfacePrivate::xdg_surface_show_window_menu(Resource *resource, wl_resource *seatResource,
+void QWaylandXdgSurfaceV5Private::xdg_surface_show_window_menu(Resource *resource, wl_resource *seatResource,
                                                              uint32_t serial, int32_t x, int32_t y)
 {
     Q_UNUSED(resource);
     Q_UNUSED(serial);
     QPoint position(x, y);
     auto seat = QWaylandSeat::fromSeatResource(seatResource);
-    Q_Q(QWaylandXdgSurface);
+    Q_Q(QWaylandXdgSurfaceV5);
     emit q->showWindowMenu(seat, position);
 }
 
-void QWaylandXdgSurfacePrivate::xdg_surface_ack_configure(Resource *resource, uint32_t serial)
+void QWaylandXdgSurfaceV5Private::xdg_surface_ack_configure(Resource *resource, uint32_t serial)
 {
     Q_UNUSED(resource);
-    Q_Q(QWaylandXdgSurface);
+    Q_Q(QWaylandXdgSurfaceV5);
 
     ConfigureEvent config;
     Q_FOREVER {
@@ -418,16 +418,16 @@ void QWaylandXdgSurfacePrivate::xdg_surface_ack_configure(Resource *resource, ui
     if (!changedStates.empty()) {
         Q_FOREACH (uint state, changedStates) {
             switch (state) {
-            case QWaylandXdgSurface::State::MaximizedState:
+            case QWaylandXdgSurfaceV5::State::MaximizedState:
                 emit q->maximizedChanged();
                 break;
-            case QWaylandXdgSurface::State::FullscreenState:
+            case QWaylandXdgSurfaceV5::State::FullscreenState:
                 emit q->fullscreenChanged();
                 break;
-            case QWaylandXdgSurface::State::ResizingState:
+            case QWaylandXdgSurfaceV5::State::ResizingState:
                 emit q->resizingChanged();
                 break;
-            case QWaylandXdgSurface::State::ActivatedState:
+            case QWaylandXdgSurfaceV5::State::ActivatedState:
                 emit q->activatedChanged();
                 break;
             }
@@ -438,17 +438,17 @@ void QWaylandXdgSurfacePrivate::xdg_surface_ack_configure(Resource *resource, ui
     emit q->ackConfigure(serial);
 }
 
-void QWaylandXdgSurfacePrivate::xdg_surface_set_title(Resource *resource, const QString &title)
+void QWaylandXdgSurfaceV5Private::xdg_surface_set_title(Resource *resource, const QString &title)
 {
     Q_UNUSED(resource);
     if (title == m_title)
         return;
-    Q_Q(QWaylandXdgSurface);
+    Q_Q(QWaylandXdgSurfaceV5);
     m_title = title;
     emit q->titleChanged();
 }
 
-void QWaylandXdgSurfacePrivate::xdg_surface_set_window_geometry(Resource *resource,
+void QWaylandXdgSurfaceV5Private::xdg_surface_set_window_geometry(Resource *resource,
                                                                 int32_t x, int32_t y,
                                                                 int32_t width, int32_t height)
 {
@@ -463,7 +463,7 @@ void QWaylandXdgSurfacePrivate::xdg_surface_set_window_geometry(Resource *resour
 
     QRect geometry(x, y, width, height);
 
-    Q_Q(QWaylandXdgSurface);
+    Q_Q(QWaylandXdgSurfaceV5);
     if ((q->maximized() || q->fullscreen()) && m_lastAckedConfigure.size != geometry.size())
         qWarning() << "Client window geometry did not obey last acked configure";
 
@@ -474,7 +474,7 @@ void QWaylandXdgSurfacePrivate::xdg_surface_set_window_geometry(Resource *resour
     emit q->windowGeometryChanged();
 }
 
-QWaylandXdgPopupPrivate::QWaylandXdgPopupPrivate()
+QWaylandXdgPopupV5Private::QWaylandXdgPopupV5Private()
     : QWaylandCompositorExtensionPrivate()
     , xdg_popup()
     , m_surface(nullptr)
@@ -483,44 +483,44 @@ QWaylandXdgPopupPrivate::QWaylandXdgPopupPrivate()
 {
 }
 
-void QWaylandXdgPopupPrivate::xdg_popup_destroy_resource(Resource *resource)
+void QWaylandXdgPopupV5Private::xdg_popup_destroy_resource(Resource *resource)
 {
     Q_UNUSED(resource);
-    Q_Q(QWaylandXdgPopup);
-    QWaylandXdgShellPrivate::get(m_xdgShell)->unregisterXdgPopup(q);
+    Q_Q(QWaylandXdgPopupV5);
+    QWaylandXdgShellV5Private::get(m_xdgShell)->unregisterXdgPopup(q);
     delete q;
 }
 
-void QWaylandXdgPopupPrivate::xdg_popup_destroy(Resource *resource)
+void QWaylandXdgPopupV5Private::xdg_popup_destroy(Resource *resource)
 {
     //TODO: post error if not topmost popup
     wl_resource_destroy(resource->handle);
 }
 
 /*!
- * Constructs a QWaylandXdgShell object.
+ * Constructs a QWaylandXdgShellV5 object.
  */
-QWaylandXdgShell::QWaylandXdgShell()
-    : QWaylandCompositorExtensionTemplate<QWaylandXdgShell>(*new QWaylandXdgShellPrivate())
+QWaylandXdgShellV5::QWaylandXdgShellV5()
+    : QWaylandCompositorExtensionTemplate<QWaylandXdgShellV5>(*new QWaylandXdgShellV5Private())
 { }
 
 /*!
- * Constructs a QWaylandXdgShell object for the provided \a compositor.
+ * Constructs a QWaylandXdgShellV5 object for the provided \a compositor.
  */
-QWaylandXdgShell::QWaylandXdgShell(QWaylandCompositor *compositor)
-    : QWaylandCompositorExtensionTemplate<QWaylandXdgShell>(compositor, *new QWaylandXdgShellPrivate())
+QWaylandXdgShellV5::QWaylandXdgShellV5(QWaylandCompositor *compositor)
+    : QWaylandCompositorExtensionTemplate<QWaylandXdgShellV5>(compositor, *new QWaylandXdgShellV5Private())
 { }
 
 /*!
  * Initializes the shell extension.
  */
-void QWaylandXdgShell::initialize()
+void QWaylandXdgShellV5::initialize()
 {
-    Q_D(QWaylandXdgShell);
+    Q_D(QWaylandXdgShellV5);
     QWaylandCompositorExtensionTemplate::initialize();
     QWaylandCompositor *compositor = static_cast<QWaylandCompositor *>(extensionContainer());
     if (!compositor) {
-        qWarning() << "Failed to find QWaylandCompositor when initializing QWaylandXdgShell";
+        qWarning() << "Failed to find QWaylandCompositor when initializing QWaylandXdgShellV5";
         return;
     }
     d->init(compositor->display(), 1);
@@ -528,20 +528,20 @@ void QWaylandXdgShell::initialize()
     handleSeatChanged(compositor->defaultSeat(), nullptr);
 
     connect(compositor, &QWaylandCompositor::defaultSeatChanged,
-            this, &QWaylandXdgShell::handleSeatChanged);
+            this, &QWaylandXdgShellV5::handleSeatChanged);
 }
 
 /*!
- * Returns the Wayland interface for the QWaylandXdgShell.
+ * Returns the Wayland interface for the QWaylandXdgShellV5.
  */
-const struct wl_interface *QWaylandXdgShell::interface()
+const struct wl_interface *QWaylandXdgShellV5::interface()
 {
-    return QWaylandXdgShellPrivate::interface();
+    return QWaylandXdgShellV5Private::interface();
 }
 
-QByteArray QWaylandXdgShell::interfaceName()
+QByteArray QWaylandXdgShellV5::interfaceName()
 {
-    return QWaylandXdgShellPrivate::interfaceName();
+    return QWaylandXdgShellV5Private::interfaceName();
 }
 
 /*!
@@ -555,68 +555,68 @@ QByteArray QWaylandXdgShell::interfaceName()
  * Sends a ping event to the client. If the client replies to the event the
  * \a pong signal will be emitted.
  */
-uint QWaylandXdgShell::ping(QWaylandClient *client)
+uint QWaylandXdgShellV5::ping(QWaylandClient *client)
 {
-    Q_D(QWaylandXdgShell);
+    Q_D(QWaylandXdgShellV5);
 
     QWaylandCompositor *compositor = static_cast<QWaylandCompositor *>(extensionContainer());
     Q_ASSERT(compositor);
 
     uint32_t serial = compositor->nextSerial();
 
-    QWaylandXdgShellPrivate::Resource *clientResource = d->resourceMap().value(client->client(), nullptr);
+    QWaylandXdgShellV5Private::Resource *clientResource = d->resourceMap().value(client->client(), nullptr);
     Q_ASSERT(clientResource);
 
     d->ping(clientResource, serial);
     return serial;
 }
 
-void QWaylandXdgShell::closeAllPopups()
+void QWaylandXdgShellV5::closeAllPopups()
 {
-    Q_D(QWaylandXdgShell);
+    Q_D(QWaylandXdgShellV5);
     Q_FOREACH (struct wl_client *client, d->m_xdgPopups.keys()) {
-        QList<QWaylandXdgPopup *> popups = d->m_xdgPopups.values(client);
+        QList<QWaylandXdgPopupV5 *> popups = d->m_xdgPopups.values(client);
         std::reverse(popups.begin(), popups.end());
-        Q_FOREACH (QWaylandXdgPopup *currentTopmostPopup, popups) {
+        Q_FOREACH (QWaylandXdgPopupV5 *currentTopmostPopup, popups) {
             currentTopmostPopup->sendPopupDone();
         }
     }
 }
 
-void QWaylandXdgShell::handleSeatChanged(QWaylandSeat *newSeat, QWaylandSeat *oldSeat)
+void QWaylandXdgShellV5::handleSeatChanged(QWaylandSeat *newSeat, QWaylandSeat *oldSeat)
 {
     if (oldSeat != nullptr) {
         disconnect(oldSeat, &QWaylandSeat::keyboardFocusChanged,
-                   this, &QWaylandXdgShell::handleFocusChanged);
+                   this, &QWaylandXdgShellV5::handleFocusChanged);
     }
 
     if (newSeat != nullptr) {
         connect(newSeat, &QWaylandSeat::keyboardFocusChanged,
-                this, &QWaylandXdgShell::handleFocusChanged);
+                this, &QWaylandXdgShellV5::handleFocusChanged);
     }
 }
 
-void QWaylandXdgShell::handleFocusChanged(QWaylandSurface *newSurface, QWaylandSurface *oldSurface)
+void QWaylandXdgShellV5::handleFocusChanged(QWaylandSurface *newSurface, QWaylandSurface *oldSurface)
 {
-    Q_D(QWaylandXdgShell);
+    Q_D(QWaylandXdgShellV5);
 
-    QWaylandXdgSurface *newXdgSurface = d->xdgSurfaceFromSurface(newSurface);
-    QWaylandXdgSurface *oldXdgSurface = d->xdgSurfaceFromSurface(oldSurface);
+    QWaylandXdgSurfaceV5 *newXdgSurface = d->xdgSurfaceFromSurface(newSurface);
+    QWaylandXdgSurfaceV5 *oldXdgSurface = d->xdgSurfaceFromSurface(oldSurface);
 
     if (newXdgSurface)
-        QWaylandXdgSurfacePrivate::get(newXdgSurface)->handleFocusReceived();
+        QWaylandXdgSurfaceV5Private::get(newXdgSurface)->handleFocusReceived();
 
     if (oldXdgSurface)
-        QWaylandXdgSurfacePrivate::get(oldXdgSurface)->handleFocusLost();
+        QWaylandXdgSurfaceV5Private::get(oldXdgSurface)->handleFocusLost();
 }
 
 /*!
- * \class QWaylandXdgSurface
+ * \class QWaylandXdgSurfaceV5
  * \inmodule QtWaylandCompositor
  * \preliminary
- * \brief The QWaylandXdgSurface class provides desktop-style compositor-specific features to an xdg surface.
+ * \brief The QWaylandXdgSurfaceV5 class provides desktop-style compositor-specific features to an xdg surface.
  *
- * This class is part of the QWaylandXdgShell extension and provides a way to
+ * This class is part of the QWaylandXdgShellV5 extension and provides a way to
  * extend the functionality of an existing QWaylandSurface with features
  * specific to desktop-style compositors, such as resizing and moving the
  * surface.
@@ -639,19 +639,19 @@ void QWaylandXdgShell::handleFocusChanged(QWaylandSurface *newSurface, QWaylandS
  */
 
 /*!
- * Constructs a QWaylandXdgSurface.
+ * Constructs a QWaylandXdgSurfaceV5.
  */
-QWaylandXdgSurface::QWaylandXdgSurface()
-    : QWaylandShellSurfaceTemplate<QWaylandXdgSurface>(*new QWaylandXdgSurfacePrivate)
+QWaylandXdgSurfaceV5::QWaylandXdgSurfaceV5()
+    : QWaylandShellSurfaceTemplate<QWaylandXdgSurfaceV5>(*new QWaylandXdgSurfaceV5Private)
 {
 }
 
 /*!
- * Constructs a QWaylandXdgSurface for \a surface and initializes it with the
+ * Constructs a QWaylandXdgSurfaceV5 for \a surface and initializes it with the
  * given \a xdgShell, \a surface, and resource \a res.
  */
-QWaylandXdgSurface::QWaylandXdgSurface(QWaylandXdgShell *xdgShell, QWaylandSurface *surface, const QWaylandResource &res)
-    : QWaylandShellSurfaceTemplate<QWaylandXdgSurface>(*new QWaylandXdgSurfacePrivate)
+QWaylandXdgSurfaceV5::QWaylandXdgSurfaceV5(QWaylandXdgShellV5 *xdgShell, QWaylandSurface *surface, const QWaylandResource &res)
+    : QWaylandShellSurfaceTemplate<QWaylandXdgSurfaceV5>(*new QWaylandXdgSurfaceV5Private)
 {
     initialize(xdgShell, surface, res);
 }
@@ -664,19 +664,19 @@ QWaylandXdgSurface::QWaylandXdgSurface(QWaylandXdgShell *xdgShell, QWaylandSurfa
  */
 
 /*!
- * Initializes the QWaylandXdgSurface, associating it with the given \a xdgShell, \a surface
+ * Initializes the QWaylandXdgSurfaceV5, associating it with the given \a xdgShell, \a surface
  * and \a resource.
  */
-void QWaylandXdgSurface::initialize(QWaylandXdgShell *xdgShell, QWaylandSurface *surface, const QWaylandResource &resource)
+void QWaylandXdgSurfaceV5::initialize(QWaylandXdgShellV5 *xdgShell, QWaylandSurface *surface, const QWaylandResource &resource)
 {
-    Q_D(QWaylandXdgSurface);
+    Q_D(QWaylandXdgSurfaceV5);
     d->m_xdgShell = xdgShell;
     d->m_surface = surface;
     d->init(resource.resource());
     setExtensionContainer(surface);
     d->m_windowGeometry = d->calculateFallbackWindowGeometry();
-    connect(surface, &QWaylandSurface::sizeChanged, this, &QWaylandXdgSurface::handleSurfaceSizeChanged);
-    connect(surface, &QWaylandSurface::bufferScaleChanged, this, &QWaylandXdgSurface::handleBufferScaleChanged);
+    connect(surface, &QWaylandSurface::sizeChanged, this, &QWaylandXdgSurfaceV5::handleSurfaceSizeChanged);
+    connect(surface, &QWaylandSurface::bufferScaleChanged, this, &QWaylandXdgSurfaceV5::handleBufferScaleChanged);
     emit shellChanged();
     emit surfaceChanged();
     emit windowGeometryChanged();
@@ -686,12 +686,12 @@ void QWaylandXdgSurface::initialize(QWaylandXdgShell *xdgShell, QWaylandSurface 
 /*!
  * \internal
  */
-void QWaylandXdgSurface::initialize()
+void QWaylandXdgSurfaceV5::initialize()
 {
     QWaylandCompositorExtension::initialize();
 }
 
-QList<int> QWaylandXdgSurface::statesAsInts() const
+QList<int> QWaylandXdgSurfaceV5::statesAsInts() const
 {
    QList<int> list;
    Q_FOREACH (uint state, states()) {
@@ -700,15 +700,15 @@ QList<int> QWaylandXdgSurface::statesAsInts() const
    return list;
 }
 
-void QWaylandXdgSurface::handleSurfaceSizeChanged()
+void QWaylandXdgSurfaceV5::handleSurfaceSizeChanged()
 {
-    Q_D(QWaylandXdgSurface);
+    Q_D(QWaylandXdgSurfaceV5);
     d->updateFallbackWindowGeometry();
 }
 
-void QWaylandXdgSurface::handleBufferScaleChanged()
+void QWaylandXdgSurfaceV5::handleBufferScaleChanged()
 {
-    Q_D(QWaylandXdgSurface);
+    Q_D(QWaylandXdgSurfaceV5);
     d->updateFallbackWindowGeometry();
 }
 
@@ -719,13 +719,13 @@ void QWaylandXdgSurface::handleBufferScaleChanged()
  */
 
 /*!
- * \property QWaylandXdgSurface::shell
+ * \property QWaylandXdgSurfaceV5::shell
  *
- * This property holds the shell associated with this QWaylandXdgSurface.
+ * This property holds the shell associated with this QWaylandXdgSurfaceV5.
  */
-QWaylandXdgShell *QWaylandXdgSurface::shell() const
+QWaylandXdgShellV5 *QWaylandXdgSurfaceV5::shell() const
 {
-    Q_D(const QWaylandXdgSurface);
+    Q_D(const QWaylandXdgSurfaceV5);
     return d->m_xdgShell;
 }
 
@@ -736,13 +736,13 @@ QWaylandXdgShell *QWaylandXdgSurface::shell() const
  */
 
 /*!
- * \property QWaylandXdgSurface::surface
+ * \property QWaylandXdgSurfaceV5::surface
  *
- * This property holds the surface associated with this QWaylandXdgSurface.
+ * This property holds the surface associated with this QWaylandXdgSurfaceV5.
  */
-QWaylandSurface *QWaylandXdgSurface::surface() const
+QWaylandSurface *QWaylandXdgSurfaceV5::surface() const
 {
-    Q_D(const QWaylandXdgSurface);
+    Q_D(const QWaylandXdgSurfaceV5);
     return d->m_surface;
 }
 
@@ -758,18 +758,18 @@ QWaylandSurface *QWaylandXdgSurface::surface() const
  */
 
 /*!
- * \property QWaylandXdgSurface::parentSurface
+ * \property QWaylandXdgSurfaceV5::parentSurface
  *
  * This property holds the XdgSurface parent of this XdgSurface.
  * When a parent surface is set, the parentSurfaceChanged() signal
  * is guaranteed to be emitted before setTopLevel() and setTransient().
  *
- * \sa QWaylandXdgSurface::setTopLevel()
- * \sa QWaylandXdgSurface::setTransient()
+ * \sa QWaylandXdgSurfaceV5::setTopLevel()
+ * \sa QWaylandXdgSurfaceV5::setTransient()
  */
-QWaylandXdgSurface *QWaylandXdgSurface::parentSurface() const
+QWaylandXdgSurfaceV5 *QWaylandXdgSurfaceV5::parentSurface() const
 {
-    Q_D(const QWaylandXdgSurface);
+    Q_D(const QWaylandXdgSurfaceV5);
     return d->m_parentSurface;
 }
 
@@ -780,111 +780,111 @@ QWaylandXdgSurface *QWaylandXdgSurface::parentSurface() const
  */
 
 /*!
- * \property QWaylandXdgSurface::title
+ * \property QWaylandXdgSurfaceV5::title
  *
- * This property holds the title of the QWaylandXdgSurface.
+ * This property holds the title of the QWaylandXdgSurfaceV5.
  */
-QString QWaylandXdgSurface::title() const
+QString QWaylandXdgSurfaceV5::title() const
 {
-    Q_D(const QWaylandXdgSurface);
+    Q_D(const QWaylandXdgSurfaceV5);
     return d->m_title;
 }
 
 /*!
- * \property QWaylandXdgSurface::appId
+ * \property QWaylandXdgSurfaceV5::appId
  *
- * This property holds the app id of the QWaylandXdgSurface.
+ * This property holds the app id of the QWaylandXdgSurfaceV5.
  */
-QString QWaylandXdgSurface::appId() const
+QString QWaylandXdgSurfaceV5::appId() const
 {
-    Q_D(const QWaylandXdgSurface);
+    Q_D(const QWaylandXdgSurfaceV5);
     return d->m_appId;
 }
 
 /*!
- * \property QWaylandXdgSurface::windowGeometry
+ * \property QWaylandXdgSurfaceV5::windowGeometry
  *
- * This property holds the window geometry of the QWaylandXdgSurface. The window
+ * This property holds the window geometry of the QWaylandXdgSurfaceV5. The window
  * geometry describes the window's visible bounds from the user's perspective.
  * The geometry includes title bars and borders if drawn by the client, but
  * excludes drop shadows. It is meant to be used for aligning and tiling
  * windows.
  */
-QRect QWaylandXdgSurface::windowGeometry() const
+QRect QWaylandXdgSurfaceV5::windowGeometry() const
 {
-    Q_D(const QWaylandXdgSurface);
+    Q_D(const QWaylandXdgSurfaceV5);
     return d->m_windowGeometry;
 }
 
 /*!
- * \property QWaylandXdgSurface::states
+ * \property QWaylandXdgSurfaceV5::states
  *
- * This property holds the last states the client acknowledged for this QWaylandXdgSurface.
+ * This property holds the last states the client acknowledged for this QWaylandXdgSurfaceV5.
  */
-QVector<uint> QWaylandXdgSurface::states() const
+QVector<uint> QWaylandXdgSurfaceV5::states() const
 {
-    Q_D(const QWaylandXdgSurface);
+    Q_D(const QWaylandXdgSurfaceV5);
     return d->m_lastAckedConfigure.states;
 }
 
-bool QWaylandXdgSurface::maximized() const
+bool QWaylandXdgSurfaceV5::maximized() const
 {
-    Q_D(const QWaylandXdgSurface);
-    return d->m_lastAckedConfigure.states.contains(QWaylandXdgSurface::State::MaximizedState);
+    Q_D(const QWaylandXdgSurfaceV5);
+    return d->m_lastAckedConfigure.states.contains(QWaylandXdgSurfaceV5::State::MaximizedState);
 }
 
-bool QWaylandXdgSurface::fullscreen() const
+bool QWaylandXdgSurfaceV5::fullscreen() const
 {
-    Q_D(const QWaylandXdgSurface);
-    return d->m_lastAckedConfigure.states.contains(QWaylandXdgSurface::State::FullscreenState);
+    Q_D(const QWaylandXdgSurfaceV5);
+    return d->m_lastAckedConfigure.states.contains(QWaylandXdgSurfaceV5::State::FullscreenState);
 }
 
-bool QWaylandXdgSurface::resizing() const
+bool QWaylandXdgSurfaceV5::resizing() const
 {
-    Q_D(const QWaylandXdgSurface);
-    return d->m_lastAckedConfigure.states.contains(QWaylandXdgSurface::State::ResizingState);
+    Q_D(const QWaylandXdgSurfaceV5);
+    return d->m_lastAckedConfigure.states.contains(QWaylandXdgSurfaceV5::State::ResizingState);
 }
 
-bool QWaylandXdgSurface::activated() const
+bool QWaylandXdgSurfaceV5::activated() const
 {
-    Q_D(const QWaylandXdgSurface);
-    return d->m_lastAckedConfigure.states.contains(QWaylandXdgSurface::State::ActivatedState);
-}
-
-/*!
- * Returns the Wayland interface for the QWaylandXdgSurface.
- */
-const wl_interface *QWaylandXdgSurface::interface()
-{
-    return QWaylandXdgSurfacePrivate::interface();
-}
-
-QByteArray QWaylandXdgSurface::interfaceName()
-{
-    return QWaylandXdgSurfacePrivate::interfaceName();
+    Q_D(const QWaylandXdgSurfaceV5);
+    return d->m_lastAckedConfigure.states.contains(QWaylandXdgSurfaceV5::State::ActivatedState);
 }
 
 /*!
- * Returns the surface role for the QWaylandXdgSurface.
+ * Returns the Wayland interface for the QWaylandXdgSurfaceV5.
  */
-QWaylandSurfaceRole *QWaylandXdgSurface::role()
+const wl_interface *QWaylandXdgSurfaceV5::interface()
 {
-    return &QWaylandXdgSurfacePrivate::s_role;
+    return QWaylandXdgSurfaceV5Private::interface();
+}
+
+QByteArray QWaylandXdgSurfaceV5::interfaceName()
+{
+    return QWaylandXdgSurfaceV5Private::interfaceName();
 }
 
 /*!
- * Returns the QWaylandXdgSurface corresponding to the \a resource.
+ * Returns the surface role for the QWaylandXdgSurfaceV5.
  */
-QWaylandXdgSurface *QWaylandXdgSurface::fromResource(wl_resource *resource)
+QWaylandSurfaceRole *QWaylandXdgSurfaceV5::role()
 {
-    auto xsResource = QWaylandXdgSurfacePrivate::Resource::fromResource(resource);
+    return &QWaylandXdgSurfaceV5Private::s_role;
+}
+
+/*!
+ * Returns the QWaylandXdgSurfaceV5 corresponding to the \a resource.
+ */
+QWaylandXdgSurfaceV5 *QWaylandXdgSurfaceV5::fromResource(wl_resource *resource)
+{
+    auto xsResource = QWaylandXdgSurfaceV5Private::Resource::fromResource(resource);
     if (!xsResource)
         return nullptr;
-    return static_cast<QWaylandXdgSurfacePrivate *>(xsResource->xdg_surface_object)->q_func();
+    return static_cast<QWaylandXdgSurfaceV5Private *>(xsResource->xdg_surface_object)->q_func();
 }
 
-QSize QWaylandXdgSurface::sizeForResize(const QSizeF &size, const QPointF &delta,
-                                        QWaylandXdgSurface::ResizeEdge edge)
+QSize QWaylandXdgSurfaceV5::sizeForResize(const QSizeF &size, const QPointF &delta,
+                                        QWaylandXdgSurfaceV5::ResizeEdge edge)
 {
     qreal width = size.width();
     qreal height = size.height();
@@ -908,24 +908,24 @@ QSize QWaylandXdgSurface::sizeForResize(const QSizeF &size, const QPointF &delta
  */
 
 /*!
- * Sends a configure event to the client. Known states are enumerated in QWaylandXdgSurface::State
+ * Sends a configure event to the client. Known states are enumerated in QWaylandXdgSurfaceV5::State
  */
-uint QWaylandXdgSurface::sendConfigure(const QSize &size, const QVector<uint> &states)
+uint QWaylandXdgSurfaceV5::sendConfigure(const QSize &size, const QVector<uint> &states)
 {
-    Q_D(QWaylandXdgSurface);
+    Q_D(QWaylandXdgSurfaceV5);
     auto statesBytes = QByteArray::fromRawData((char *)states.data(), states.size() * sizeof(State));
     QWaylandCompositor *compositor = static_cast<QWaylandCompositor *>(extensionContainer());
     Q_ASSERT(compositor);
     uint32_t serial = compositor->nextSerial();
-    d->m_pendingConfigures.append(QWaylandXdgSurfacePrivate::ConfigureEvent{states, size, serial});
+    d->m_pendingConfigures.append(QWaylandXdgSurfaceV5Private::ConfigureEvent{states, size, serial});
     d->send_configure(size.width(), size.height(), statesBytes, serial);
     return serial;
 }
 
-uint QWaylandXdgSurface::sendConfigure(const QSize &size, const QVector<QWaylandXdgSurface::State> &states)
+uint QWaylandXdgSurfaceV5::sendConfigure(const QSize &size, const QVector<QWaylandXdgSurfaceV5::State> &states)
 {
     QVector<uint> asUints;
-    Q_FOREACH (QWaylandXdgSurface::State state, states) {
+    Q_FOREACH (QWaylandXdgSurfaceV5::State state, states) {
         asUints << state;
     }
     return sendConfigure(size, asUints);
@@ -940,77 +940,77 @@ uint QWaylandXdgSurface::sendConfigure(const QSize &size, const QVector<QWayland
 /*!
  * Sends a close event to the client.
  */
-void QWaylandXdgSurface::sendClose()
+void QWaylandXdgSurfaceV5::sendClose()
 {
-    Q_D(QWaylandXdgSurface);
+    Q_D(QWaylandXdgSurfaceV5);
     d->send_close();
 }
 
-uint QWaylandXdgSurface::sendMaximized(const QSize &size)
+uint QWaylandXdgSurfaceV5::sendMaximized(const QSize &size)
 {
-    Q_D(QWaylandXdgSurface);
-    QWaylandXdgSurfacePrivate::ConfigureEvent conf = d->lastSentConfigure();
+    Q_D(QWaylandXdgSurfaceV5);
+    QWaylandXdgSurfaceV5Private::ConfigureEvent conf = d->lastSentConfigure();
 
-    if (!conf.states.contains(QWaylandXdgSurface::State::MaximizedState))
-        conf.states.append(QWaylandXdgSurface::State::MaximizedState);
-    conf.states.removeOne(QWaylandXdgSurface::State::FullscreenState);
-    conf.states.removeOne(QWaylandXdgSurface::State::ResizingState);
+    if (!conf.states.contains(QWaylandXdgSurfaceV5::State::MaximizedState))
+        conf.states.append(QWaylandXdgSurfaceV5::State::MaximizedState);
+    conf.states.removeOne(QWaylandXdgSurfaceV5::State::FullscreenState);
+    conf.states.removeOne(QWaylandXdgSurfaceV5::State::ResizingState);
 
     return sendConfigure(size, conf.states);
 }
 
-uint QWaylandXdgSurface::sendUnmaximized(const QSize &size)
+uint QWaylandXdgSurfaceV5::sendUnmaximized(const QSize &size)
 {
-    Q_D(QWaylandXdgSurface);
-    QWaylandXdgSurfacePrivate::ConfigureEvent conf = d->lastSentConfigure();
+    Q_D(QWaylandXdgSurfaceV5);
+    QWaylandXdgSurfaceV5Private::ConfigureEvent conf = d->lastSentConfigure();
 
-    conf.states.removeOne(QWaylandXdgSurface::State::MaximizedState);
-    conf.states.removeOne(QWaylandXdgSurface::State::FullscreenState);
-    conf.states.removeOne(QWaylandXdgSurface::State::ResizingState);
+    conf.states.removeOne(QWaylandXdgSurfaceV5::State::MaximizedState);
+    conf.states.removeOne(QWaylandXdgSurfaceV5::State::FullscreenState);
+    conf.states.removeOne(QWaylandXdgSurfaceV5::State::ResizingState);
 
     return sendConfigure(size, conf.states);
 }
 
-uint QWaylandXdgSurface::sendFullscreen(const QSize &size)
+uint QWaylandXdgSurfaceV5::sendFullscreen(const QSize &size)
 {
-    Q_D(QWaylandXdgSurface);
-    QWaylandXdgSurfacePrivate::ConfigureEvent conf = d->lastSentConfigure();
+    Q_D(QWaylandXdgSurfaceV5);
+    QWaylandXdgSurfaceV5Private::ConfigureEvent conf = d->lastSentConfigure();
 
-    if (!conf.states.contains(QWaylandXdgSurface::State::FullscreenState))
-        conf.states.append(QWaylandXdgSurface::State::FullscreenState);
-    conf.states.removeOne(QWaylandXdgSurface::State::MaximizedState);
-    conf.states.removeOne(QWaylandXdgSurface::State::ResizingState);
+    if (!conf.states.contains(QWaylandXdgSurfaceV5::State::FullscreenState))
+        conf.states.append(QWaylandXdgSurfaceV5::State::FullscreenState);
+    conf.states.removeOne(QWaylandXdgSurfaceV5::State::MaximizedState);
+    conf.states.removeOne(QWaylandXdgSurfaceV5::State::ResizingState);
 
     return sendConfigure(size, conf.states);
 }
 
-uint QWaylandXdgSurface::sendResizing(const QSize &maxSize)
+uint QWaylandXdgSurfaceV5::sendResizing(const QSize &maxSize)
 {
-    Q_D(QWaylandXdgSurface);
-    QWaylandXdgSurfacePrivate::ConfigureEvent conf = d->lastSentConfigure();
+    Q_D(QWaylandXdgSurfaceV5);
+    QWaylandXdgSurfaceV5Private::ConfigureEvent conf = d->lastSentConfigure();
 
-    if (!conf.states.contains(QWaylandXdgSurface::State::ResizingState))
-        conf.states.append(QWaylandXdgSurface::State::ResizingState);
-    conf.states.removeOne(QWaylandXdgSurface::State::MaximizedState);
-    conf.states.removeOne(QWaylandXdgSurface::State::FullscreenState);
+    if (!conf.states.contains(QWaylandXdgSurfaceV5::State::ResizingState))
+        conf.states.append(QWaylandXdgSurfaceV5::State::ResizingState);
+    conf.states.removeOne(QWaylandXdgSurfaceV5::State::MaximizedState);
+    conf.states.removeOne(QWaylandXdgSurfaceV5::State::FullscreenState);
 
     return sendConfigure(maxSize, conf.states);
 }
 
 #ifdef QT_WAYLAND_COMPOSITOR_QUICK
-QWaylandQuickShellIntegration *QWaylandXdgSurface::createIntegration(QWaylandQuickShellSurfaceItem *item)
+QWaylandQuickShellIntegration *QWaylandXdgSurfaceV5::createIntegration(QWaylandQuickShellSurfaceItem *item)
 {
-    return new QtWayland::XdgShellIntegration(item);
+    return new QtWayland::XdgShellV5Integration(item);
 }
 #endif
 
 /*!
- * \class QWaylandXdgPopup
+ * \class QWaylandXdgPopupV5
  * \inmodule QtWaylandCompositor
  * \preliminary
- * \brief The QWaylandXdgPopup class provides menus for an xdg surface
+ * \brief The QWaylandXdgPopupV5 class provides menus for an xdg surface
  *
- * This class is part of the QWaylandXdgShell extension and provides a way to
+ * This class is part of the QWaylandXdgShellV5 extension and provides a way to
  * extend the functionality of an existing QWaylandSurface with features
  * specific to desktop-style menus for an xdg surface.
  *
@@ -1018,20 +1018,20 @@ QWaylandQuickShellIntegration *QWaylandXdgSurface::createIntegration(QWaylandQui
  */
 
 /*!
- * Constructs a QWaylandXdgPopup.
+ * Constructs a QWaylandXdgPopupV5.
  */
-QWaylandXdgPopup::QWaylandXdgPopup()
-    : QWaylandShellSurfaceTemplate<QWaylandXdgPopup>(*new QWaylandXdgPopupPrivate)
+QWaylandXdgPopupV5::QWaylandXdgPopupV5()
+    : QWaylandShellSurfaceTemplate<QWaylandXdgPopupV5>(*new QWaylandXdgPopupV5Private)
 {
 }
 
 /*!
- * Constructs a QWaylandXdgPopup for \a surface and initializes it with the
+ * Constructs a QWaylandXdgPopupV5 for \a surface and initializes it with the
  * given \a parentSurface and \a resource.
  */
-QWaylandXdgPopup::QWaylandXdgPopup(QWaylandXdgShell *xdgShell, QWaylandSurface *surface,
+QWaylandXdgPopupV5::QWaylandXdgPopupV5(QWaylandXdgShellV5 *xdgShell, QWaylandSurface *surface,
                                    QWaylandSurface *parentSurface, const QPoint &position, const QWaylandResource &resource)
-    : QWaylandShellSurfaceTemplate<QWaylandXdgPopup>(*new QWaylandXdgPopupPrivate)
+    : QWaylandShellSurfaceTemplate<QWaylandXdgPopupV5>(*new QWaylandXdgPopupV5Private)
 {
     initialize(xdgShell, surface, parentSurface, position, resource);
 }
@@ -1044,13 +1044,13 @@ QWaylandXdgPopup::QWaylandXdgPopup(QWaylandXdgShell *xdgShell, QWaylandSurface *
  */
 
 /*!
- * Initializes the QWaylandXdgPopup, associating it with the given \a shell \a surface,
+ * Initializes the QWaylandXdgPopupV5, associating it with the given \a shell \a surface,
  * \a parentSurface and \a resource.
  */
-void QWaylandXdgPopup::initialize(QWaylandXdgShell *shell, QWaylandSurface *surface, QWaylandSurface *parentSurface,
+void QWaylandXdgPopupV5::initialize(QWaylandXdgShellV5 *shell, QWaylandSurface *surface, QWaylandSurface *parentSurface,
                                   const QPoint& position, const QWaylandResource &resource)
 {
-    Q_D(QWaylandXdgPopup);
+    Q_D(QWaylandXdgPopupV5);
     d->m_surface = surface;
     d->m_parentSurface = parentSurface;
     d->m_xdgShell = shell;
@@ -1070,13 +1070,13 @@ void QWaylandXdgPopup::initialize(QWaylandXdgShell *shell, QWaylandSurface *surf
  */
 
 /*!
- * \property QWaylandXdgPopup::shell
+ * \property QWaylandXdgPopupV5::shell
  *
- * This property holds the shell associated with this QWaylandXdgPopup.
+ * This property holds the shell associated with this QWaylandXdgPopupV5.
  */
-QWaylandXdgShell *QWaylandXdgPopup::shell() const
+QWaylandXdgShellV5 *QWaylandXdgPopupV5::shell() const
 {
-    Q_D(const QWaylandXdgPopup);
+    Q_D(const QWaylandXdgPopupV5);
     return d->m_xdgShell;
 }
 
@@ -1087,13 +1087,13 @@ QWaylandXdgShell *QWaylandXdgPopup::shell() const
  */
 
 /*!
- * \property QWaylandXdgPopup::surface
+ * \property QWaylandXdgPopupV5::surface
  *
- * This property holds the surface associated with this QWaylandXdgPopup.
+ * This property holds the surface associated with this QWaylandXdgPopupV5.
  */
-QWaylandSurface *QWaylandXdgPopup::surface() const
+QWaylandSurface *QWaylandXdgPopupV5::surface() const
 {
-    Q_D(const QWaylandXdgPopup);
+    Q_D(const QWaylandXdgPopupV5);
     return d->m_surface;
 }
 
@@ -1104,14 +1104,14 @@ QWaylandSurface *QWaylandXdgPopup::surface() const
  */
 
 /*!
- * \property QWaylandXdgPopup::parentSurface
+ * \property QWaylandXdgPopupV5::parentSurface
  *
  * This property holds the surface associated with the parent of this
- * QWaylandXdgPopup.
+ * QWaylandXdgPopupV5.
  */
-QWaylandSurface *QWaylandXdgPopup::parentSurface() const
+QWaylandSurface *QWaylandXdgPopupV5::parentSurface() const
 {
-    Q_D(const QWaylandXdgPopup);
+    Q_D(const QWaylandXdgPopupV5);
     return d->m_parentSurface;
 }
 
@@ -1125,65 +1125,65 @@ QWaylandSurface *QWaylandXdgPopup::parentSurface() const
  */
 
 /*!
- * \property QWaylandXdgPopup::position
+ * \property QWaylandXdgPopupV5::position
  *
  * This property holds the location of the upper left corner of the surface
  * relative to the upper left corner of the parent surface, in surface local
  * coordinates.
  */
-QPoint QWaylandXdgPopup::position() const
+QPoint QWaylandXdgPopupV5::position() const
 {
-    Q_D(const QWaylandXdgPopup);
+    Q_D(const QWaylandXdgPopupV5);
     return d->m_position;
 }
 
 /*!
  * \internal
  */
-void QWaylandXdgPopup::initialize()
+void QWaylandXdgPopupV5::initialize()
 {
     QWaylandCompositorExtension::initialize();
 }
 
 /*!
- * Returns the Wayland interface for the QWaylandXdgPopup.
+ * Returns the Wayland interface for the QWaylandXdgPopupV5.
  */
-const wl_interface *QWaylandXdgPopup::interface()
+const wl_interface *QWaylandXdgPopupV5::interface()
 {
-    return QWaylandXdgPopupPrivate::interface();
+    return QWaylandXdgPopupV5Private::interface();
 }
 
-QByteArray QWaylandXdgPopup::interfaceName()
+QByteArray QWaylandXdgPopupV5::interfaceName()
 {
-    return QWaylandXdgPopupPrivate::interfaceName();
+    return QWaylandXdgPopupV5Private::interfaceName();
 }
 
 /*!
- * Returns the surface role for the QWaylandXdgPopup.
+ * Returns the surface role for the QWaylandXdgPopupV5.
  */
-QWaylandSurfaceRole *QWaylandXdgPopup::role()
+QWaylandSurfaceRole *QWaylandXdgPopupV5::role()
 {
-    return &QWaylandXdgPopupPrivate::s_role;
+    return &QWaylandXdgPopupV5Private::s_role;
 }
 
-QWaylandXdgPopup *QWaylandXdgPopup::fromResource(wl_resource *resource)
+QWaylandXdgPopupV5 *QWaylandXdgPopupV5::fromResource(wl_resource *resource)
 {
-    auto popupResource = QWaylandXdgPopupPrivate::Resource::fromResource(resource);
+    auto popupResource = QWaylandXdgPopupV5Private::Resource::fromResource(resource);
     if (!popupResource)
         return nullptr;
-    return static_cast<QWaylandXdgPopupPrivate *>(popupResource->xdg_popup_object)->q_func();
+    return static_cast<QWaylandXdgPopupV5Private *>(popupResource->xdg_popup_object)->q_func();
 }
 
-void QWaylandXdgPopup::sendPopupDone()
+void QWaylandXdgPopupV5::sendPopupDone()
 {
-    Q_D(QWaylandXdgPopup);
+    Q_D(QWaylandXdgPopupV5);
     d->send_popup_done();
 }
 
 #ifdef QT_WAYLAND_COMPOSITOR_QUICK
-QWaylandQuickShellIntegration *QWaylandXdgPopup::createIntegration(QWaylandQuickShellSurfaceItem *item)
+QWaylandQuickShellIntegration *QWaylandXdgPopupV5::createIntegration(QWaylandQuickShellSurfaceItem *item)
 {
-    return new QtWayland::XdgPopupIntegration(item);
+    return new QtWayland::XdgPopupV5Integration(item);
 }
 #endif
 

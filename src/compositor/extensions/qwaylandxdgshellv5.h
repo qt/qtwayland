@@ -34,8 +34,8 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDXDGSHELL_H
-#define QWAYLANDXDGSHELL_H
+#ifndef QWAYLANDXDGSHELLV5_H
+#define QWAYLANDXDGSHELLV5_H
 
 #include <QtWaylandCompositor/QWaylandCompositorExtension>
 #include <QtWaylandCompositor/QWaylandResource>
@@ -47,11 +47,11 @@ struct wl_resource;
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandXdgShellPrivate;
-class QWaylandXdgSurface;
-class QWaylandXdgSurfacePrivate;
-class QWaylandXdgPopup;
-class QWaylandXdgPopupPrivate;
+class QWaylandXdgShellV5Private;
+class QWaylandXdgSurfaceV5;
+class QWaylandXdgSurfaceV5Private;
+class QWaylandXdgPopupV5;
+class QWaylandXdgPopupV5Private;
 
 class QWaylandSurface;
 class QWaylandSurfaceRole;
@@ -59,13 +59,13 @@ class QWaylandSeat;
 class QWaylandOutput;
 class QWaylandClient;
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgShell : public QWaylandCompositorExtensionTemplate<QWaylandXdgShell>
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgShellV5 : public QWaylandCompositorExtensionTemplate<QWaylandXdgShellV5>
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QWaylandXdgShell)
+    Q_DECLARE_PRIVATE(QWaylandXdgShellV5)
 public:
-    QWaylandXdgShell();
-    QWaylandXdgShell(QWaylandCompositor *compositor);
+    QWaylandXdgShellV5();
+    QWaylandXdgShellV5(QWaylandCompositor *compositor);
 
     void initialize() Q_DECL_OVERRIDE;
 
@@ -78,8 +78,8 @@ public Q_SLOTS:
 
 Q_SIGNALS:
     void xdgSurfaceRequested(QWaylandSurface *surface, const QWaylandResource &resource);
-    void xdgSurfaceCreated(QWaylandXdgSurface *xdgSurface);
-    void xdgPopupCreated(QWaylandXdgPopup *xdgPopup);
+    void xdgSurfaceCreated(QWaylandXdgSurfaceV5 *xdgSurface);
+    void xdgPopupCreated(QWaylandXdgPopupV5 *xdgPopup);
     void xdgPopupRequested(QWaylandSurface *surface, QWaylandSurface *parent, QWaylandSeat *seat, const QPoint &position, const QWaylandResource &resource);
     void pong(uint serial);
 
@@ -89,13 +89,13 @@ private Q_SLOTS:
 
 };
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgSurface : public QWaylandShellSurfaceTemplate<QWaylandXdgSurface>
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgSurfaceV5 : public QWaylandShellSurfaceTemplate<QWaylandXdgSurfaceV5>
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QWaylandXdgSurface)
-    Q_PROPERTY(QWaylandXdgShell *shell READ shell NOTIFY shellChanged)
+    Q_DECLARE_PRIVATE(QWaylandXdgSurfaceV5)
+    Q_PROPERTY(QWaylandXdgShellV5 *shell READ shell NOTIFY shellChanged)
     Q_PROPERTY(QWaylandSurface *surface READ surface NOTIFY surfaceChanged)
-    Q_PROPERTY(QWaylandXdgSurface *parentSurface READ parentSurface NOTIFY parentSurfaceChanged)
+    Q_PROPERTY(QWaylandXdgSurfaceV5 *parentSurface READ parentSurface NOTIFY parentSurfaceChanged)
     Q_PROPERTY(QString title READ title NOTIFY titleChanged)
     Q_PROPERTY(QString appId READ appId NOTIFY appIdChanged)
     Q_PROPERTY(QRect windowGeometry READ windowGeometry NOTIFY windowGeometryChanged)
@@ -128,10 +128,10 @@ public:
     };
     Q_ENUM(ResizeEdge)
 
-    QWaylandXdgSurface();
-    QWaylandXdgSurface(QWaylandXdgShell* xdgShell, QWaylandSurface *surface, const QWaylandResource &resource);
+    QWaylandXdgSurfaceV5();
+    QWaylandXdgSurfaceV5(QWaylandXdgShellV5* xdgShell, QWaylandSurface *surface, const QWaylandResource &resource);
 
-    Q_INVOKABLE void initialize(QWaylandXdgShell* xdgShell, QWaylandSurface *surface, const QWaylandResource &resource);
+    Q_INVOKABLE void initialize(QWaylandXdgShellV5* xdgShell, QWaylandSurface *surface, const QWaylandResource &resource);
 
     QString title() const;
     QString appId() const;
@@ -142,15 +142,15 @@ public:
     bool resizing() const;
     bool activated() const;
 
-    QWaylandXdgShell *shell() const;
+    QWaylandXdgShellV5 *shell() const;
 
     QWaylandSurface *surface() const;
-    QWaylandXdgSurface *parentSurface() const;
+    QWaylandXdgSurfaceV5 *parentSurface() const;
 
     static const struct wl_interface *interface();
     static QByteArray interfaceName();
     static QWaylandSurfaceRole *role();
-    static QWaylandXdgSurface *fromResource(::wl_resource *resource);
+    static QWaylandXdgSurfaceV5 *fromResource(::wl_resource *resource);
 
     Q_INVOKABLE QSize sizeForResize(const QSizeF &size, const QPointF &delta, ResizeEdge edge);
     Q_INVOKABLE uint sendConfigure(const QSize &size, const QVector<uint> &states);
@@ -201,26 +201,26 @@ private Q_SLOTS:
     void handleBufferScaleChanged();
 };
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgPopup : public QWaylandShellSurfaceTemplate<QWaylandXdgPopup>
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgPopupV5 : public QWaylandShellSurfaceTemplate<QWaylandXdgPopupV5>
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QWaylandXdgPopup)
-    Q_PROPERTY(QWaylandXdgShell *shell READ shell NOTIFY shellChanged)
+    Q_DECLARE_PRIVATE(QWaylandXdgPopupV5)
+    Q_PROPERTY(QWaylandXdgShellV5 *shell READ shell NOTIFY shellChanged)
     Q_PROPERTY(QWaylandSurface *surface READ surface NOTIFY surfaceChanged)
     Q_PROPERTY(QWaylandSurface *parentSurface READ parentSurface NOTIFY parentSurfaceChanged)
     Q_PROPERTY(QPoint position READ position)
 
 public:
-    QWaylandXdgPopup();
-    QWaylandXdgPopup(QWaylandXdgShell *xdgShell, QWaylandSurface *surface, QWaylandSurface *parentSurface,
+    QWaylandXdgPopupV5();
+    QWaylandXdgPopupV5(QWaylandXdgShellV5 *xdgShell, QWaylandSurface *surface, QWaylandSurface *parentSurface,
                      const QPoint &position, const QWaylandResource &resource);
 
     Qt::WindowType windowType() const override { return Qt::WindowType::Popup; }
 
-    Q_INVOKABLE void initialize(QWaylandXdgShell *shell, QWaylandSurface *surface,
+    Q_INVOKABLE void initialize(QWaylandXdgShellV5 *shell, QWaylandSurface *surface,
                                 QWaylandSurface *parentSurface, const QPoint &position, const QWaylandResource &resource);
 
-    QWaylandXdgShell *shell() const;
+    QWaylandXdgShellV5 *shell() const;
 
     QWaylandSurface *surface() const;
     QWaylandSurface *parentSurface() const;
@@ -229,7 +229,7 @@ public:
     static const struct wl_interface *interface();
     static QByteArray interfaceName();
     static QWaylandSurfaceRole *role();
-    static QWaylandXdgPopup *fromResource(::wl_resource *resource);
+    static QWaylandXdgPopupV5 *fromResource(::wl_resource *resource);
 
     Q_INVOKABLE void sendPopupDone();
 

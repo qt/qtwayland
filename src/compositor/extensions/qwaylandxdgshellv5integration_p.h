@@ -34,11 +34,11 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDXDGSHELLINTEGRATION_H
-#define QWAYLANDXDGSHELLINTEGRATION_H
+#ifndef QWAYLANDXDGSHELLV5INTEGRATION_H
+#define QWAYLANDXDGSHELLV5INTEGRATION_H
 
 #include <QtWaylandCompositor/private/qwaylandquickshellsurfaceitem_p.h>
-#include <QtWaylandCompositor/QWaylandXdgSurface>
+#include <QtWaylandCompositor/QWaylandXdgSurfaceV5>
 
 QT_BEGIN_NAMESPACE
 
@@ -55,17 +55,17 @@ QT_BEGIN_NAMESPACE
 
 namespace QtWayland {
 
-class XdgShellIntegration : public QWaylandQuickShellIntegration
+class XdgShellV5Integration : public QWaylandQuickShellIntegration
 {
     Q_OBJECT
 public:
-    XdgShellIntegration(QWaylandQuickShellSurfaceItem *item);
+    XdgShellV5Integration(QWaylandQuickShellSurfaceItem *item);
     bool mouseMoveEvent(QMouseEvent *event) Q_DECL_OVERRIDE;
     bool mouseReleaseEvent(QMouseEvent *event) Q_DECL_OVERRIDE;
 
 private Q_SLOTS:
     void handleStartMove(QWaylandSeat *seat);
-    void handleStartResize(QWaylandSeat *seat, QWaylandXdgSurface::ResizeEdge edges);
+    void handleStartResize(QWaylandSeat *seat, QWaylandXdgSurfaceV5::ResizeEdge edges);
     void handleSetMaximized();
     void handleUnsetMaximized();
     void handleMaximizedChanged();
@@ -79,7 +79,7 @@ private:
         Move
     };
     QWaylandQuickShellSurfaceItem *m_item;
-    QWaylandXdgSurface *m_xdgSurface;
+    QWaylandXdgSurfaceV5 *m_xdgSurface;
 
     GrabberState grabberState;
     struct {
@@ -90,7 +90,7 @@ private:
 
     struct {
         QWaylandSeat *seat;
-        QWaylandXdgSurface::ResizeEdge resizeEdges;
+        QWaylandXdgSurfaceV5::ResizeEdge resizeEdges;
         QSizeF initialWindowSize;
         QPointF initialMousePos;
         QPointF initialPosition;
@@ -104,18 +104,18 @@ private:
     } maximizeState;
 };
 
-class XdgPopupIntegration : public QWaylandQuickShellIntegration
+class XdgPopupV5Integration : public QWaylandQuickShellIntegration
 {
     Q_OBJECT
 public:
-    XdgPopupIntegration(QWaylandQuickShellSurfaceItem *item);
+    XdgPopupV5Integration(QWaylandQuickShellSurfaceItem *item);
 
 private Q_SLOTS:
     void handlePopupDestroyed();
 
 private:
-    QWaylandXdgPopup *m_xdgPopup;
-    QWaylandXdgShell *m_xdgShell;
+    QWaylandXdgPopupV5 *m_xdgPopup;
+    QWaylandXdgShellV5 *m_xdgShell;
 };
 
 }

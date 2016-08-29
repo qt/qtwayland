@@ -519,7 +519,7 @@ Module {
         Method { name: "sendPopupDone" }
     }
     Component {
-        name: "QWaylandXdgShell"
+        name: "QWaylandXdgShellV5"
         prototype: "QWaylandCompositorExtension"
         Signal {
             name: "xdgSurfaceRequested"
@@ -528,11 +528,11 @@ Module {
         }
         Signal {
             name: "xdgSurfaceCreated"
-            Parameter { name: "xdgSurface"; type: "QWaylandXdgSurface"; isPointer: true }
+            Parameter { name: "xdgSurface"; type: "QWaylandXdgSurfaceV5"; isPointer: true }
         }
         Signal {
             name: "xdgPopupCreated"
-            Parameter { name: "xdgPopup"; type: "QWaylandXdgPopup"; isPointer: true }
+            Parameter { name: "xdgPopup"; type: "QWaylandXdgPopupV5"; isPointer: true }
         }
         Signal {
             name: "xdgPopupRequested"
@@ -554,15 +554,15 @@ Module {
         Method { name: "closeAllPopups" }
     }
     Component {
-        name: "QWaylandXdgShellQuickExtension"
+        name: "QWaylandXdgShellV5QuickExtension"
         defaultProperty: "data"
-        prototype: "QWaylandXdgShell"
+        prototype: "QWaylandXdgShellV5"
         exports: ["QtWayland.Compositor/XdgShell 1.0"]
         exportMetaObjectRevisions: [0]
         Property { name: "data"; type: "QObject"; isList: true; isReadonly: true }
     }
     Component {
-        name: "QWaylandXdgSurface"
+        name: "QWaylandXdgSurfaceV5"
         prototype: "QWaylandShellSurface"
         exports: ["QtWayland.Compositor/XdgSurface 1.0"]
         exportMetaObjectRevisions: [0]
@@ -590,7 +590,7 @@ Module {
             }
         }
         Property { name: "surface"; type: "QWaylandSurface"; isReadonly: true; isPointer: true }
-        Property { name: "parentSurface"; type: "QWaylandXdgSurface"; isReadonly: true; isPointer: true }
+        Property { name: "parentSurface"; type: "QWaylandXdgSurfaceV5"; isReadonly: true; isPointer: true }
         Property { name: "title"; type: "string"; isReadonly: true }
         Property { name: "appId"; type: "string"; isReadonly: true }
         Property { name: "windowGeometry"; type: "QRect"; isReadonly: true }
@@ -629,7 +629,7 @@ Module {
         }
         Method {
             name: "initialize"
-            Parameter { name: "xdgShell"; type: "QWaylandXdgShell"; isPointer: true }
+            Parameter { name: "xdgShell"; type: "QWaylandXdgShellV5"; isPointer: true }
             Parameter { name: "surface"; type: "QWaylandSurface"; isPointer: true }
             Parameter { name: "resource"; type: "QWaylandResource" }
         }

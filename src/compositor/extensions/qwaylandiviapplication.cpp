@@ -91,12 +91,28 @@ QByteArray QWaylandIviApplication::interfaceName()
 }
 
 /*!
+ * \qmlsignal void QtWaylandCompositor::IviApplication::iviSurfaceRequested(object surface, int iviId, object resource)
+ *
+ * This signal is emitted when the client has requested an \c ivi_surface to be associated
+ * with \a surface, which is identified by \a id. The handler for this signal is
+ * expected to create the ivi surface and initialize it within the scope of the
+ * signal emission. If no ivi surface is created, a default one will be created instead.
+ */
+
+/*!
  * \fn void QWaylandWlShell::iviSurfaceRequested(QWaylandSurface *surface, uint iviId, const QWaylandResource &resource)
  *
  * This signal is emitted when the client has requested an \c ivi_surface to be associated
  * with \a surface, which is identified by \a id. The handler for this signal is
  * expected to create the ivi surface and initialize it within the scope of the
  * signal emission. If no ivi surface is created, a default one will be created instead.
+ */
+
+/*!
+ * \qmlsignal void QtWaylandCompositor::IviApplication::iviSurfaceCreated(object *iviSurface)
+ *
+ * This signal is emitted when an IviSurface has been created. The supplied \a iviSurface is
+ * most commonly used to instantiate a ShellSurfaceItem.
  */
 
 /*!

@@ -37,6 +37,7 @@
 #include "qwaylandivisurface.h"
 #include "qwaylandivisurface_p.h"
 #include "qwaylandiviapplication_p.h"
+#include "qwaylandivisurfaceintegration_p.h"
 
 #include <QtWaylandCompositor/QWaylandResource>
 
@@ -68,6 +69,13 @@ QWaylandIviSurface::QWaylandIviSurface(QWaylandIviApplication *application, QWay
 }
 
 /*!
+ * \qmlmethod void QtWaylandCompositor::IviSurface::initialize(object iviApplication, object surface, int iviId, object resource)
+ *
+ * Initializes the IviSurface, associating it with the given \a iviApplication, \a surface,
+ * \a client, \a iviId, and \a resource.
+ */
+
+/*!
  * Initializes the QWaylandIviSurface, associating it with the given \a iviApplication, \a surface,
  * \a iviId, and \a resource.
  */
@@ -89,6 +97,12 @@ void QWaylandIviSurface::initialize(QWaylandIviApplication *iviApplication, QWay
 }
 
 /*!
+ * \qmlproperty object QtWaylandCompositor::IviSurface::surface
+ *
+ * This property holds the surface associated with this IviSurface.
+ */
+
+/*!
  * \property QWaylandIviSurface::surface
  *
  * This property holds the surface associated with this QWaylandIviSurface.
@@ -98,6 +112,13 @@ QWaylandSurface *QWaylandIviSurface::surface() const
     Q_D(const QWaylandIviSurface);
     return d->m_surface;
 }
+
+/*!
+ * \qmlproperty int QtWaylandCompositor::IviSurface::iviId
+ * \readonly
+ *
+ * This property holds the ivi id id of this IviSurface.
+ */
 
 /*!
  * \property QWaylandClient::iviId
@@ -143,6 +164,12 @@ QWaylandIviSurface *QWaylandIviSurface::fromResource(wl_resource *resource)
 }
 
 /*!
+ * \qmlmethod int QtWaylandCompositor::IviSurface::sendConfigure(size size)
+ *
+ * Sends a configure event to the client, telling it to resize the surface to the given \a size.
+ */
+
+/*!
  * Sends a configure event to the client, telling it to resize the surface to the given \a size.
  */
 void QWaylandIviSurface::sendConfigure(const QSize &size)
@@ -154,7 +181,7 @@ void QWaylandIviSurface::sendConfigure(const QSize &size)
 #ifdef QT_WAYLAND_COMPOSITOR_QUICK
 QWaylandQuickShellIntegration *QWaylandIviSurface::createIntegration(QWaylandQuickShellSurfaceItem *item)
 {
-    return nullptr; // TODO
+    return new QtWayland::IviSurfaceIntegration(item);
 }
 #endif
 

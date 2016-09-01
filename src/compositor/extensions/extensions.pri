@@ -49,11 +49,13 @@ qtHaveModule(quick):contains(QT_CONFIG, opengl) {
     HEADERS += \
         extensions/qwaylandquickshellsurfaceitem.h \
         extensions/qwaylandquickshellsurfaceitem_p.h \
+        extensions/qwaylandivisurfaceintegration_p.h \
         extensions/qwaylandwlshellintegration_p.h \
         extensions/qwaylandxdgshellv5integration_p.h \
 
     SOURCES += \
         extensions/qwaylandquickshellsurfaceitem.cpp \
+        extensions/qwaylandivisurfaceintegration.cpp \
         extensions/qwaylandwlshellintegration.cpp \
         extensions/qwaylandxdgshellv5integration.cpp \
 

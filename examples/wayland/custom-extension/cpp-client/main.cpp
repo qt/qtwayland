@@ -42,20 +42,19 @@
 #include <QRasterWindow>
 #include <QPainter>
 #include <QMouseEvent>
+#include "../client-common/customextension.h"
 
 #include <QDebug>
-
-static QObject *s_custom;
 
 class TestWindow : public QRasterWindow
 {
     Q_OBJECT
 
 public:
-    TestWindow()
+    TestWindow(CustomExtension *customExtension)
+        : m_extension(customExtension)
     {
-        if (s_custom)
-            connect(s_custom, SIGNAL(eventReceived(const QString &, uint)),
+            connect(customExtension, SIGNAL(eventReceived(const QString &, uint)),
                     this, SLOT(handleEvent(const QString &, uint)));
     }
 
@@ -75,7 +74,6 @@ protected:
 
     void mousePressEvent(QMouseEvent *ev) Q_DECL_OVERRIDE
     {
-        Q_ASSERT(s_custom);
         bool insideRect = QRect(50,50,100,100).contains(ev->pos());
 
         QString text = insideRect ? "Click inside" : "Click outside";
@@ -83,26 +81,20 @@ protected:
 
         qDebug() << "Client application sending request:" << text << value;
 
-        QMetaObject::invokeMethod(s_custom, "sendRequest", Qt::DirectConnection,
-                                  Q_ARG(QString, text),
-                                  Q_ARG(int, value));
+        m_extension->sendRequest(text, value);
     }
 
 private:
-
+    CustomExtension *m_extension;
 };
 
 int main (int argc, char **argv)
 {
     QGuiApplication app(argc, argv);
 
-    s_custom = app.findChild<QObject*>("qt_example_custom_extension");
-    if (!s_custom) {
-        qCritical() << "This example requires the Qt Custom Extension platform plugin,\n"
-            "add -platform custom-wayland to the command line";
-        return -1;
-    }
-    TestWindow window;
+    CustomExtension customExtension;
+
+    TestWindow window(&customExtension);
     window.show();
 
     return app.exec();

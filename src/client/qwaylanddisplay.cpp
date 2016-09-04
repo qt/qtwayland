@@ -84,7 +84,8 @@ struct wl_surface *QWaylandDisplay::createSurface(void *handle)
 
 QWaylandShellSurface *QWaylandDisplay::createShellSurface(QWaylandWindow *window)
 {
-    Q_ASSERT(mWaylandIntegration->shellIntegration());
+    if (!mWaylandIntegration->shellIntegration())
+        return 0;
     return mWaylandIntegration->shellIntegration()->createShellSurface(window);
 }
 

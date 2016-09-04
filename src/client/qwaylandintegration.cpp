@@ -399,9 +399,7 @@ void QWaylandIntegration::initializeShellIntegration()
         }
     }
 
-    Q_ASSERT(mShellIntegration);
-
-    if (!mShellIntegration->initialize(mDisplay)) {
+    if (!mShellIntegration || !mShellIntegration->initialize(mDisplay)) {
         delete mShellIntegration;
         mShellIntegration = Q_NULLPTR;
         qWarning("Failed to load shell integration %s", qPrintable(targetKey));

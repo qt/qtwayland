@@ -253,7 +253,7 @@ void tst_WaylandCompositor::frameCallback()
     class BufferView : public QWaylandView
     {
     public:
-        void attach(const QWaylandBufferRef &ref, const QRegion &damage) Q_DECL_OVERRIDE
+        void bufferCommitted(const QWaylandBufferRef &ref, const QRegion &damage) Q_DECL_OVERRIDE
         {
             Q_UNUSED(damage);
             bufferRef = ref;

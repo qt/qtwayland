@@ -337,7 +337,7 @@ void QWaylandSurfacePrivate::setBackBuffer(QtWayland::SurfaceBuffer *b, const QR
     damage = d.intersected(QRect(QPoint(), size));
 
     for (int i = 0; i < views.size(); i++) {
-        views.at(i)->attach(bufferRef, damage);
+        views.at(i)->bufferCommitted(bufferRef, damage);
     }
 
     emit q->damaged(damage);
@@ -836,7 +836,7 @@ void QWaylandSurfacePrivate::refView(QWaylandView *view)
     views.append(view);
     ref();
     QWaylandBufferRef ref(buffer);
-    view->attach(ref, QRect(QPoint(0,0), ref.size()));
+    view->bufferCommitted(ref, QRect(QPoint(0,0), ref.size()));
 }
 
 void QWaylandSurfacePrivate::derefView(QWaylandView *view)

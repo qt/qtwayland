@@ -42,9 +42,13 @@
 #include <QRasterWindow>
 #include <QPainter>
 #include <QMouseEvent>
+#include <QPlatformSurfaceEvent>
+
 #include "../client-common/customextension.h"
 
 #include <QDebug>
+#include <QtGui/qpa/qplatformnativeinterface.h>
+#include <QTimer>
 
 class TestWindow : public QRasterWindow
 {
@@ -53,39 +57,78 @@ class TestWindow : public QRasterWindow
 public:
     TestWindow(CustomExtension *customExtension)
         : m_extension(customExtension)
+        , rect1(50, 50, 100, 100)
+        , rect2(50, 200, 100, 100)
+        , rect3(50, 350, 100, 100)
     {
-            connect(customExtension, SIGNAL(eventReceived(const QString &, uint)),
-                    this, SLOT(handleEvent(const QString &, uint)));
+        m_extension->registerWindow(this);
+        connect(m_extension, &CustomExtension::fontSize, this, &TestWindow::handleSetFontSize);
     }
 
 public slots:
-    void handleEvent(const QString &text, uint value)
+    void doSpin()
     {
-        qDebug() << "Client application received event" << text << value;
+        if (!m_extension->isActive()) {
+            qWarning() << "Extension is not active";
+            return;
+        }
+        qDebug() << "sending spin...";
+        m_extension->sendSpin(this, 500);
+    }
+    void doBounce()
+    {
+        if (!m_extension->isActive()) {
+            qWarning() << "Extension is not active";
+            return;
+        }
+        qDebug() << "sending bounce...";
+        m_extension->sendBounce(this, 500);
+    }
+
+    void newWindow()
+    {
+        auto w = new TestWindow(m_extension);
+        w->show();
+    }
+
+    void handleSetFontSize(QWindow *w, uint pixelSize)
+    {
+        if (w == this) {
+            m_font.setPixelSize(pixelSize);
+            update();
+        }
     }
 
 protected:
-    void paintEvent(QPaintEvent *)
+    void paintEvent(QPaintEvent *) Q_DECL_OVERRIDE
     {
         QPainter p(this);
+        p.setFont(m_font);
         p.fillRect(QRect(0,0,width(),height()),Qt::gray);
-        p.fillRect(50,50,100,100, QColor("#C0FFEE"));
+        p.fillRect(rect1, QColor("#C0FFEE"));
+        p.drawText(rect1, Qt::TextWordWrap, "Press here to send spin request.");
+        p.fillRect(rect2, QColor("#decaff"));
+        p.drawText(rect2, Qt::TextWordWrap, "Press here to send bounce request.");
+        p.fillRect(rect3, QColor("#7EA"));
+        p.drawText(rect3, Qt::TextWordWrap, "Create new window.");
     }
 
     void mousePressEvent(QMouseEvent *ev) Q_DECL_OVERRIDE
     {
-        bool insideRect = QRect(50,50,100,100).contains(ev->pos());
-
-        QString text = insideRect ? "Click inside" : "Click outside";
-        int value = ev->pos().x();
-
-        qDebug() << "Client application sending request:" << text << value;
-
-        m_extension->sendRequest(text, value);
+        if (rect1.contains(ev->pos()))
+            doSpin();
+        else if (rect2.contains(ev->pos()))
+            doBounce();
+        else if (rect3.contains(ev->pos()))
+            newWindow();
     }
 
 private:
     CustomExtension *m_extension;
+    QRect rect1;
+    QRect rect2;
+    QRect rect3;
+    QFont m_font;
 };
 
 int main (int argc, char **argv)

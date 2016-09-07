@@ -48,24 +48,38 @@
 
 QT_BEGIN_NAMESPACE
 
-class CustomExtension : public QWaylandClientExtensionTemplate<CustomExtension>, public QtWayland::qt_example_extension
+class CustomExtension : public QWaylandClientExtensionTemplate<CustomExtension>
+        , public QtWayland::qt_example_extension
 {
     Q_OBJECT
 public:
     CustomExtension();
+    Q_INVOKABLE void registerWindow(QWindow *window);
 
 public slots:
-    void sendRequest(const QString &text, int value);
+    void sendBounce(QWindow *window, uint ms);
+    void sendSpin(QWindow *window, uint ms);
 
 signals:
     void eventReceived(const QString &text, uint value);
+    void fontSize(QWindow *window, uint pixelSize);
+    void showDecorations(bool);
+
+private slots:
+    void handleExtensionActive();
 
 private:
-    void example_extension_qtevent(struct wl_surface *surface,
-                                   uint32_t time,
-                                   const QString &text,
-                                   uint32_t value) Q_DECL_OVERRIDE;
+    void example_extension_close(wl_surface *surface) Q_DECL_OVERRIDE;
+    void example_extension_set_font_size(wl_surface *surface, uint32_t pixel_size) Q_DECL_OVERRIDE;
+    void example_extension_set_window_decoration(uint32_t state) Q_DECL_OVERRIDE;
 
+    bool eventFilter(QObject *object, QEvent *event) Q_DECL_OVERRIDE;
+
+    QWindow *windowForSurface(struct ::wl_surface *);
+    void sendWindowRegistration(QWindow *);
+
+    QList<QWindow *> m_windows;
+    bool m_activated;
 };
 
 QT_END_NAMESPACE

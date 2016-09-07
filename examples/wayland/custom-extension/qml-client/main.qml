@@ -43,18 +43,23 @@ import QtQuick.Window 2.0
 import com.theqtcompany.customextension 1.0
 
 Window {
+    id: topLevelWindow
     visible: true
     Rectangle {
         anchors.fill: parent
-        color: "#297A4A"
+        color: "#f1eece"
+    }
+    property alias textItem: bounceText
+    Text {
+        id: bounceText
+        text: "press here to bounce"
     }
 
     MouseArea {
         anchors.fill: parent
         onClicked: {
-            console.log("Clicked outside", mouseX)
             if (customExtension.active)
-                customExtension.sendRequest("Clicked outside", mouseX)
+                customExtension.sendBounce(topLevelWindow, 1000)
         }
     }
 
@@ -62,22 +67,31 @@ Window {
         anchors.centerIn: parent
         width: 100; height: 100
         onClicked: {
-            var obj = mapToItem(parent, mouse.x, mouse.y)
-            console.log("Clicked inside", obj.x)
             if (customExtension.active)
-                customExtension.sendRequest("Clicked inside", obj.x)
+                customExtension.sendSpin(topLevelWindow, 500)
         }
 
         Rectangle {
             anchors.fill: parent
-            color: "#34FD85"
+            color: "#fab1ed"
+            Text {
+                text: "spin"
+            }
         }
     }
 
     CustomExtension {
         id: customExtension
-        onActiveChanged: console.log("Custom extension is active:", active)
-        onEventReceived: console.log("Event received", text, value)
+        onActiveChanged: {
+            console.log("Custom extension is active:", active)
+            registerWindow(topLevelWindow)
+        }
+        onFontSize: {
+            // signal arguments: window and pixelSize
+            // we are free to interpret the protocol as we want, so
+            // let's change the font size of just one of the text items
+            window.textItem.font.pixelSize = pixelSize
+        }
     }
 }
 

@@ -48,24 +48,30 @@
 #include <QtWaylandCompositor/QWaylandCompositor>
 #include "qwayland-server-custom.h"
 
-namespace QtWayland {
-
-class CustomExtension  : public QWaylandCompositorExtensionTemplate<CustomExtension>, public QtWaylandServer::qt_example_extension
+class CustomExtension  : public QWaylandCompositorExtensionTemplate<CustomExtension>
+        , public QtWaylandServer::qt_example_extension
 {
     Q_OBJECT
 public:
-    CustomExtension();
+    CustomExtension(QWaylandCompositor *compositor = 0);
     void initialize() Q_DECL_OVERRIDE;
-    Q_INVOKABLE void sendEvent(QWaylandSurface *surface, uint time, const QString &text, uint value);
 
 signals:
-    void requestReceived(const QString &text, uint value);
+    void surfaceAdded(QWaylandSurface *surface);
+    void bounce(QWaylandSurface *surface, uint ms);
+    void spin(QWaylandSurface *surface, uint ms);
+
+public slots:
+    void setFontSize(QWaylandSurface *surface, uint pixelSize);
+    void showDecorations(QWaylandClient *client, bool);
+    void close(QWaylandSurface *surface);
+
 protected:
-    virtual void example_extension_qtrequest(Resource *resource, const QString &text, int32_t value) Q_DECL_OVERRIDE;
+    void example_extension_bounce(Resource *resource, wl_resource *surface, uint32_t duration) Q_DECL_OVERRIDE;
+    void example_extension_spin(Resource *resource, wl_resource *surface, uint32_t duration) Q_DECL_OVERRIDE;
+    void example_extension_register_surface(Resource *resource, wl_resource *surface) Q_DECL_OVERRIDE;
 };
 
 Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CLASS(CustomExtension)
-
-}
 
 #endif // CUSTOMEXTENSION_H

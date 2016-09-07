@@ -44,9 +44,8 @@
 
 #include <QDebug>
 
-namespace QtWayland {
-
-CustomExtension::CustomExtension()
+CustomExtension::CustomExtension(QWaylandCompositor *compositor)
+    :QWaylandCompositorExtensionTemplate(compositor)
 {
 }
 
@@ -57,22 +56,60 @@ void CustomExtension::initialize()
     init(compositor->display(), 1);
 }
 
-void CustomExtension::sendEvent(QWaylandSurface *surface, uint time, const QString &text, uint value)
+void CustomExtension::setFontSize(QWaylandSurface *surface, uint pixelSize)
 {
     if (surface) {
         Resource *target = resourceMap().value(surface->waylandClient());
         if (target) {
-            qDebug() << "Server-side extension sending an event:" << text << value;
-            send_qtevent(target->handle,  surface->resource(), time, text, value);
+            qDebug() << "Server-side extension sending setFontSize:" << pixelSize;
+            send_set_font_size(target->handle,  surface->resource(), pixelSize);
         }
     }
 }
 
-void CustomExtension::example_extension_qtrequest(QtWaylandServer::qt_example_extension::Resource *resource, const QString &text, int32_t value)
+void CustomExtension::showDecorations(QWaylandClient *client, bool shown)
 {
-    Q_UNUSED(resource);
-    qDebug() << "Server-side extension received a request:" << text << value;
-    emit requestReceived(text, value);
+    if (client) {
+        Resource *target = resourceMap().value(client->client());
+        if (target) {
+            qDebug() << "Server-side extension sending showDecorations:" << shown;
+            send_set_window_decoration(target->handle, shown);
+        }
+    }
+
 }
 
+void CustomExtension::close(QWaylandSurface *surface)
+{
+    if (surface) {
+        Resource *target = resourceMap().value(surface->waylandClient());
+        if (target) {
+            qDebug() << "Server-side extension sending close for" << surface;
+            send_close(target->handle,  surface->resource());
+        }
+    }
+}
+
+void CustomExtension::example_extension_bounce(QtWaylandServer::qt_example_extension::Resource *resource, wl_resource *wl_surface, uint32_t duration)
+{
+    Q_UNUSED(resource);
+    auto surface = QWaylandSurface::fromResource(wl_surface);
+    qDebug() << "server received bounce" << surface << duration;
+    emit bounce(surface, duration);
+}
+
+void CustomExtension::example_extension_spin(QtWaylandServer::qt_example_extension::Resource *resource, wl_resource *wl_surface, uint32_t duration)
+{
+    Q_UNUSED(resource);
+    auto surface = QWaylandSurface::fromResource(wl_surface);
+    qDebug() << "server received spin" << surface << duration;
+    emit spin(surface, duration);
+}
+
+void CustomExtension::example_extension_register_surface(QtWaylandServer::qt_example_extension::Resource *resource, wl_resource *wl_surface)
+{
+    Q_UNUSED(resource);
+    auto surface = QWaylandSurface::fromResource(wl_surface);
+    qDebug() << "server received new surface" << surface;
+    emit surfaceAdded(surface);
 }

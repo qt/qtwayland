@@ -1,4 +1,4 @@
-QT += waylandclient-private
+QT += waylandclient-private gui-private
 
 CONFIG += c++11
 CONFIG += wayland-scanner

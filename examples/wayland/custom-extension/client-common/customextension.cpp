@@ -41,30 +41,105 @@
 #include "customextension.h"
 #include <QtWaylandClient/private/qwaylanddisplay_p.h>
 #include <QtWaylandClient/private/qwaylandintegration_p.h>
-
+#include <QtGui/QGuiApplication>
+#include <QtGui/QWindow>
+#include <QtGui/QPlatformSurfaceEvent>
+#include <QtGui/qpa/qplatformnativeinterface.h>
 #include <QDebug>
 
 QT_BEGIN_NAMESPACE
 
 CustomExtension::CustomExtension()
     : QWaylandClientExtensionTemplate(/* Supported protocol version */ 1 )
+    , m_activated(false)
 {
+    connect(this, &CustomExtension::activeChanged, this, &CustomExtension::handleExtensionActive);
 }
 
-void CustomExtension::sendRequest(const QString &text, int value)
+
+static inline struct ::wl_surface *getWlSurface(QWindow *window)
 {
-    qDebug() << "Client-side plugin sending request:" << text << value;
-    qtrequest(text, value);
+    void *surf = QGuiApplication::platformNativeInterface()->nativeResourceForWindow("surface", window);
+    return static_cast<struct ::wl_surface *>(surf);
 }
 
-void CustomExtension::example_extension_qtevent(struct wl_surface *surface,
-                                                uint32_t time,
-                                                const QString &text,
-                                                uint32_t value)
+QWindow *CustomExtension::windowForSurface(struct ::wl_surface *surface)
 {
-    qDebug() << "Client-side plugin received an event:" << surface << time << text << value;
-    emit eventReceived(text, value);
+    for (QWindow *w : qAsConst(m_windows)) {
+        if (getWlSurface(w) == surface)
+            return w;
+    }
+    return nullptr;
 }
 
+bool CustomExtension::eventFilter(QObject *object, QEvent *event)
+{
+    if (event->type() == QEvent::PlatformSurface
+            && static_cast<QPlatformSurfaceEvent*>(event)->surfaceEventType() == QPlatformSurfaceEvent::SurfaceCreated) {
+        QWindow *window = qobject_cast<QWindow*>(object);
+        Q_ASSERT(window);
+        window->removeEventFilter(this);
+        QtWayland::qt_example_extension::register_surface(getWlSurface(window));
+    }
+    return false;
+}
+
+void CustomExtension::sendWindowRegistration(QWindow *window)
+{
+    if (window->handle())
+        QtWayland::qt_example_extension::register_surface(getWlSurface(window));
+    else
+        window->installEventFilter(this); // register when created
+}
+
+void CustomExtension::registerWindow(QWindow *window)
+{
+    m_windows << window;
+    if (isActive())
+        sendWindowRegistration(window);
+}
+
+void CustomExtension::sendBounce(QWindow *window, uint ms)
+{
+    QtWayland::qt_example_extension::bounce(getWlSurface(window), ms);
+}
+
+void CustomExtension::sendSpin(QWindow *window, uint ms)
+{
+    QtWayland::qt_example_extension::spin(getWlSurface(window), ms);
+}
+
+void CustomExtension::handleExtensionActive()
+{
+    if (isActive() && !m_activated) {
+        for (QWindow *w : qAsConst(m_windows))
+             sendWindowRegistration(w);
+    }
+}
+
+void CustomExtension::example_extension_close(wl_surface *surface)
+{
+    QWindow *w = windowForSurface(surface);
+    if (w)
+        w->close();
+}
+
+void CustomExtension::example_extension_set_font_size(wl_surface *surface, uint32_t pixel_size)
+{
+    emit fontSize(windowForSurface(surface), pixel_size);
+}
+
+void CustomExtension::example_extension_set_window_decoration(uint32_t state)
+{
+    bool shown = state;
+    for (QWindow *w : qAsConst(m_windows)) {
+        Qt::WindowFlags f = w->flags();
+        if (shown)
+            f &= ~Qt::FramelessWindowHint;
+        else
+            f |= Qt::FramelessWindowHint;
+        w->setFlags(f);
+    }
+}
 
 QT_END_NAMESPACE

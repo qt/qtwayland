@@ -50,13 +50,65 @@ WaylandOutput {
 
         property QtObject output
 
-        width: 1024
-        height: 768
+        width: 1600
+        height: 900
         visible: true
+
+        Rectangle {
+            id: sidebar
+            width: 150
+            anchors.left: parent.left
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
+            color: "lightgray"
+            Column {
+                anchors.top: parent.top
+                anchors.left: parent.left
+                anchors.right: parent.right
+                spacing: 5
+
+                Repeater {
+                    model: comp.itemList
+                    Rectangle {
+                        height: 36
+                        width: sidebar.width - 5
+                        color: "white"
+                        radius: 5
+                        Text {
+                            text: "window: " + modelData.shellSurface.title + "[" + modelData.shellSurface.className
+                                  + (modelData.isCustom ? "]\nfont size: " + modelData.fontSize :"]\n No extension")
+                            color: modelData.isCustom ? "black" : "darkgray"
+                        }
+                        MouseArea {
+                            enabled: modelData.isCustom
+                            anchors.fill: parent
+                            onWheel: {
+                                if (wheel.angleDelta.y > 0)
+                                    modelData.fontSize++
+                                else if (wheel.angleDelta.y < 0 && modelData.fontSize > 3)
+                                    modelData.fontSize--
+                            }
+                            onDoubleClicked: {
+                                output.compositor.customExtension.close(modelData.surface)
+                            }
+                        }
+                    }
+                }
+                Text {
+                    visible: comp.itemList.length > 0
+                    width: sidebar.width - 5
+                    text: "Mouse wheel to change font size. Double click to close"
+                    wrapMode: Text.Wrap
+                }
+            }
+        }
 
         WaylandMouseTracker {
             id: mouseTracker
-            anchors.fill: parent
+            anchors.left: sidebar.right
+            anchors.right: parent.right
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
 
             windowSystemCursorEnabled: true
             Image {
@@ -74,16 +126,25 @@ WaylandOutput {
 
                 seat: output.compositor.defaultSeat
             }
+
             Rectangle {
-                anchors.bottom: parent.bottom
+                anchors.top: parent.top
                 anchors.right: parent.right
-                width: 75
-                height: 75
-                color: "#BADA55"
+                width: 100
+                height: 100
+                property bool on : true
+                color: on ? "#DEC0DE" : "#FACADE"
+                Text {
+                    anchors.fill: parent
+                    text: "Toggle window decorations"
+                    wrapMode: Text.WordWrap
+                }
+
                 MouseArea {
                     anchors.fill: parent
                     onClicked: {
-                        comp.sendEvent();
+                        parent.on = !parent.on
+                        comp.setDecorations(parent.on);
                     }
                 }
             }

@@ -50,7 +50,7 @@
 
 static void registerTypes()
 {
-    qmlRegisterType<QtWayland::CustomExtensionQuickExtension>("com.theqtcompany.customextension", 1, 0, "CustomExtension");
+    qmlRegisterType<CustomExtensionQuickExtension>("com.theqtcompany.customextension", 1, 0, "CustomExtension");
 }
 
 int main(int argc, char *argv[])

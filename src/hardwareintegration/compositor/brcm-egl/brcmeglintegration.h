@@ -42,6 +42,8 @@
 
 #include <QtCore/QScopedPointer>
 
+#include <private/qwlclientbuffer_p.h>
+
 QT_BEGIN_NAMESPACE
 
 class BrcmEglIntegrationPrivate;
@@ -53,10 +55,7 @@ public:
     BrcmEglIntegration();
 
     void initializeHardware(struct ::wl_display *display) Q_DECL_OVERRIDE;
-
-    void bindTextureToBuffer(struct ::wl_resource *buffer) Q_DECL_OVERRIDE;
-
-    QSize bufferSize(struct ::wl_resource *buffer) const Q_DECL_OVERRIDE;
+    QtWayland::ClientBuffer *createBufferFor(wl_resource *buffer) Q_DECL_OVERRIDE;
 
 protected:
     void brcm_bind_resource(Resource *resource) Q_DECL_OVERRIDE;
@@ -66,6 +65,21 @@ private:
     Q_DISABLE_COPY(BrcmEglIntegration)
     QScopedPointer<BrcmEglIntegrationPrivate> d_ptr;
 };
+
+class BrcmEglClientBuffer : public QtWayland::ClientBuffer
+{
+public:
+    BrcmEglClientBuffer(BrcmEglIntegration *integration, wl_resource *buffer);
+
+    QWaylandBufferRef::BufferFormatEgl bufferFormatEgl() const Q_DECL_OVERRIDE;
+    QSize size() const Q_DECL_OVERRIDE;
+    QWaylandSurface::Origin origin() const Q_DECL_OVERRIDE;
+    QOpenGLTexture *toOpenGlTexture(int plane) Q_DECL_OVERRIDE;
+private:
+    BrcmEglIntegration *m_integration;
+    QOpenGLTexture *m_texture;
+};
+
 
 QT_END_NAMESPACE
 

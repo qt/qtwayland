@@ -48,17 +48,18 @@
 QT_BEGIN_NAMESPACE
 
 class Window;
+class QOpenGLTexture;
 
 class View : public QWaylandView
 {
     Q_OBJECT
 public:
     View() : m_texture(0) {}
-    GLuint getTexture();
+    QOpenGLTexture *getTexture();
     bool isCursor() const;
 private:
     friend class Compositor;
-    GLuint m_texture;
+    QOpenGLTexture *m_texture;
 };
 
 class Compositor : public QWaylandCompositor

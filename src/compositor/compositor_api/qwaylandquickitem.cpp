@@ -50,6 +50,7 @@
 #include <QtGui/QGuiApplication>
 #include <QtGui/QScreen>
 #include <QtGui/QOpenGLFunctions>
+#include <QtGui/QOpenGLTexture>
 
 #include <QtQuick/QSGSimpleTextureNode>
 #include <QtQuick/QQuickWindow>
@@ -188,52 +189,40 @@ QWaylandBufferMaterial::QWaylandBufferMaterial(QWaylandBufferRef::BufferFormatEg
 
 QWaylandBufferMaterial::~QWaylandBufferMaterial()
 {
-    QOpenGLFunctions *gl = QOpenGLContext::currentContext()->functions();
-
-    for (GLuint texture : m_textures)
-        gl->glDeleteTextures(1, &texture);
 }
 
-void QWaylandBufferMaterial::setTextureForPlane(int plane, uint texture)
+void QWaylandBufferMaterial::setTextureForPlane(int plane, QOpenGLTexture *texture)
 {
     if (plane < 0 || plane >= bufferTypes[m_format].planeCount) {
         qWarning("plane index is out of range");
         return;
     }
 
-    QOpenGLFunctions *gl = QOpenGLContext::currentContext()->functions();
-    const GLenum target = bufferTypes[m_format].textureTarget;
-
-    gl->glBindTexture(target, texture);
-    setTextureParameters(target);
+    texture->bind();
+    setTextureParameters(texture->target());
 
     ensureTextures(plane - 1);
 
-    if (m_textures.size() <= plane) {
+    if (m_textures.size() <= plane)
         m_textures << texture;
-    } else {
-        std::swap(m_textures[plane], texture);
-        gl->glDeleteTextures(1, &texture);
-    }
+    else
+        m_textures[plane] = texture;
 }
 
 void QWaylandBufferMaterial::bind()
 {
-    QOpenGLFunctions *gl = QOpenGLContext::currentContext()->functions();
-    const GLenum target = bufferTypes[m_format].textureTarget;
-
     ensureTextures(bufferTypes[m_format].planeCount);
 
     switch (m_textures.size()) {
     case 3:
-        gl->glActiveTexture(GL_TEXTURE2);
-        gl->glBindTexture(target, m_textures[2]);
+        if (m_textures[2])
+            m_textures[2]->bind(GL_TEXTURE2);
     case 2:
-        gl->glActiveTexture(GL_TEXTURE1);
-        gl->glBindTexture(target, m_textures[1]);
+        if (m_textures[1])
+            m_textures[1]->bind(GL_TEXTURE1);
     case 1:
-        gl->glActiveTexture(GL_TEXTURE0);
-        gl->glBindTexture(target, m_textures[0]);
+        if (m_textures[0])
+            m_textures[0]->bind(GL_TEXTURE0);
     }
 }
 
@@ -260,15 +249,8 @@ void QWaylandBufferMaterial::setTextureParameters(GLenum target)
 //TODO move this into a separate centralized texture management class
 void QWaylandBufferMaterial::ensureTextures(int count)
 {
-    QOpenGLFunctions *gl = QOpenGLContext::currentContext()->functions();
-    const GLenum target = bufferTypes[m_format].textureTarget;
-    GLuint texture;
-
     for (int plane = m_textures.size(); plane < count; plane++) {
-        gl->glGenTextures(1, &texture);
-        gl->glBindTexture(target, texture);
-        setTextureParameters(target);
-        m_textures << texture;
+        m_textures << nullptr;
     }
 }
 
@@ -308,11 +290,8 @@ public:
                     opt |= QQuickWindow::TextureHasAlphaChannel;
                 }
 
-                GLuint texture;
-                glGenTextures(1, &texture);
-                glBindTexture(GL_TEXTURE_2D, texture);
-                buffer.bindToTexture();
-                m_sgTex = surfaceItem->window()->createTextureFromId(texture , QSize(surfaceItem->width(), surfaceItem->height()), opt);
+                auto texture = buffer.toOpenGLTexture();
+                m_sgTex = surfaceItem->window()->createTextureFromId(texture->textureId() , QSize(surfaceItem->width(), surfaceItem->height()), opt);
             }
         }
         emit textureChanged();
@@ -1151,6 +1130,7 @@ QSGNode *QWaylandQuickItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeDat
                                 : QRectF(0, 0, width(), height());
 
     if (ref.isSharedMemory() || bufferTypes[ref.bufferFormatEgl()].canProvideTexture) {
+        // This case could covered by the more general path below, but this is more efficient (especially when using ShaderEffect items).
         QSGSimpleTextureNode *node = static_cast<QSGSimpleTextureNode *>(oldNode);
 
         if (!node) {
@@ -1193,13 +1173,11 @@ QSGNode *QWaylandQuickItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeDat
         if (d->newTexture) {
             d->newTexture = false;
             for (int plane = 0; plane < bufferTypes[ref.bufferFormatEgl()].planeCount; plane++)
-                if (uint texture = ref.textureForPlane(plane))
+                if (auto texture = ref.toOpenGLTexture(plane))
                     material->setTextureForPlane(plane, texture);
             material->bind();
-            ref.bindToTexture();
         }
 
-        ref.updateTexture();
         QSGGeometry::updateTexturedRectGeometry(geometry, rect, QRectF(0, 0, 1, 1));
 
         node->setGeometry(geometry);

@@ -38,6 +38,7 @@
 #include <QtQml/QQmlEngine>
 #include <QQuickWindow>
 #include <QOpenGLTextureBlitter>
+#include <QOpenGLTexture>
 #include <QOpenGLFramebufferObject>
 #include <QMatrix4x4>
 #include <QRunnable>
@@ -140,7 +141,6 @@ void QWaylandQuickCompositor::grabSurface(QWaylandSurfaceGrabber *grabber, const
             fbo.bind();
             QOpenGLTextureBlitter blitter;
             blitter.create();
-            blitter.bind();
 
             glViewport(0, 0, buffer.size().width(), buffer.size().height());
 
@@ -149,15 +149,10 @@ void QWaylandQuickCompositor::grabSurface(QWaylandSurfaceGrabber *grabber, const
                 ? QOpenGLTextureBlitter::OriginTopLeft
                 : QOpenGLTextureBlitter::OriginBottomLeft;
 
-            GLuint texture;
-            glGenTextures(1, &texture);
-            glBindTexture(GL_TEXTURE_2D, texture);
-            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-            buffer.bindToTexture();
-            blitter.blit(texture, QMatrix4x4(), surfaceOrigin);
-
+            auto texture = buffer.toOpenGLTexture();
+            blitter.bind(texture->target());
+            blitter.blit(texture->textureId(), QMatrix4x4(), surfaceOrigin);
             blitter.release();
-            glDeleteTextures(1, &texture);
 
             emit grabber->success(fbo.toImage());
         }

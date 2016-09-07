@@ -44,17 +44,9 @@
 #include <QtWaylandCompositor/qwaylandoutput.h>
 #include <QOpenGLFunctions>
 
-GLuint View::getTexture() {
-    if (advance()) {
-        QOpenGLFunctions *functions = QOpenGLContext::currentContext()->functions();
-        if (m_texture)
-            functions->glDeleteTextures(1, &m_texture);
-
-        functions->glGenTextures(1, &m_texture);
-        functions->glBindTexture(GL_TEXTURE_2D, m_texture);
-        functions->glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        currentBuffer().bindToTexture();
-    }
+QOpenGLTexture *View::getTexture() {
+    if (advance())
+        m_texture = currentBuffer().toOpenGLTexture();
     return m_texture;
 }
 

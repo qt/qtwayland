@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2015 The Qt Company Ltd.
+** Copyright (C) 2016 The Qt Company Ltd.
 ** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the QtWaylandCompositor module of the Qt Toolkit.
@@ -34,55 +34,44 @@
 **
 ****************************************************************************/
 
-#ifndef WAYLANDEGLINTEGRATION_H
-#define WAYLANDEGLINTEGRATION_H
+#ifndef QWLBUFFERMANAGER_H
+#define QWLBUFFERMANAGER_H
 
-#include <QtWaylandCompositor/private/qwlclientbufferintegration_p.h>
-#include <QtCore/QScopedPointer>
-#include <QtWaylandCompositor/private/qwlclientbuffer_p.h>
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists purely as an
+// implementation detail.  This header file may change from version to
+// version without notice, or even be removed.
+//
+// We mean it.
+//
 
+#include <QtCore/QObject>
+#include "qwlclientbuffer_p.h"
 QT_BEGIN_NAMESPACE
 
-class WaylandEglClientBufferIntegrationPrivate;
+class QWaylandCompositor;
 
-class WaylandEglClientBufferIntegration : public QtWayland::ClientBufferIntegration
-{
-    Q_DECLARE_PRIVATE(WaylandEglClientBufferIntegration)
-public:
-    WaylandEglClientBufferIntegration();
+namespace QtWayland {
 
-    void initializeHardware(struct ::wl_display *display) Q_DECL_OVERRIDE;
+class ClientBuffer;
 
-    QtWayland::ClientBuffer *createBufferFor(wl_resource *buffer);
-
-private:
-    Q_DISABLE_COPY(WaylandEglClientBufferIntegration)
-    QScopedPointer<WaylandEglClientBufferIntegrationPrivate> d_ptr;
-};
-
-struct BufferState;
-
-class WaylandEglClientBuffer : public QtWayland::ClientBuffer
+class Q_WAYLAND_COMPOSITOR_EXPORT BufferManager : public QObject
 {
 public:
-    QWaylandBufferRef::BufferFormatEgl bufferFormatEgl() const Q_DECL_OVERRIDE;
-    QSize size() const Q_DECL_OVERRIDE;
-    QWaylandSurface::Origin origin() const Q_DECL_OVERRIDE;
-    void *lockNativeBuffer() Q_DECL_OVERRIDE;
-    void unlockNativeBuffer(void *native_buffer) const Q_DECL_OVERRIDE;
-    QOpenGLTexture *toOpenGlTexture(int plane) Q_DECL_OVERRIDE;
-    void setCommitted(QRegion &damage) Q_DECL_OVERRIDE;
-
+    BufferManager(QWaylandCompositor *compositor);
+    ClientBuffer *getBuffer(struct ::wl_resource *buffer_resource);
 private:
-    friend class WaylandEglClientBufferIntegration;
-    friend class WaylandEglClientBufferIntegrationPrivate;
+    friend struct buffer_manager_destroy_listener;
+    static void destroy_listener_callback(wl_listener *listener, void *data);
 
-    WaylandEglClientBuffer(WaylandEglClientBufferIntegration* integration, wl_resource *bufferResource);
-
-    BufferState *d;
-    WaylandEglClientBufferIntegration *m_integration;
+    QHash<struct ::wl_resource *, ClientBuffer*> m_buffers;
+    QWaylandCompositor *m_compositor;
 };
 
+}
 QT_END_NAMESPACE
 
-#endif // WAYLANDEGLINTEGRATION_H
+#endif // QWLBUFFERMANAGER_H

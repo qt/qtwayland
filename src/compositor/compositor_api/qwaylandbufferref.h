@@ -50,22 +50,24 @@ struct wl_resource;
 
 QT_BEGIN_NAMESPACE
 
+class QOpenGLTexture;
+
 namespace QtWayland
 {
-    class SurfaceBuffer;
+    class ClientBuffer;
 }
 
 class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandBufferRef
 {
 public:
     QWaylandBufferRef();
-    explicit QWaylandBufferRef(QtWayland::SurfaceBuffer *buffer);
     QWaylandBufferRef(const QWaylandBufferRef &ref);
     ~QWaylandBufferRef();
 
     QWaylandBufferRef &operator=(const QWaylandBufferRef &ref);
     bool isNull() const;
     bool hasBuffer() const;
+    bool hasContent() const;
     bool isDestroyed() const;
     bool operator==(const QWaylandBufferRef &ref);
     bool operator!=(const QWaylandBufferRef &ref);
@@ -98,14 +100,15 @@ public:
     QImage image() const;
 
 #ifdef QT_WAYLAND_COMPOSITOR_GL
-    GLuint textureForPlane(int plane) const;
-    void bindToTexture() const;
-    void updateTexture() const;
+    QOpenGLTexture *toOpenGLTexture(int plane = 0) const;
 #endif
 
 private:
+    explicit QWaylandBufferRef(QtWayland::ClientBuffer *buffer);
+    QtWayland::ClientBuffer *buffer() const;
     class QWaylandBufferRefPrivate *const d;
     friend class QWaylandBufferRefPrivate;
+    friend class QWaylandSurfacePrivate;
 };
 
 QT_END_NAMESPACE

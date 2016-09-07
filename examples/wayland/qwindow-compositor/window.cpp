@@ -120,12 +120,11 @@ void Window::paintGL()
     Q_FOREACH (View *view, m_compositor->views()) {
         if (view->isCursor())
             continue;
-        GLenum target;
-        GLuint textureId = view->getTexture(&target);
-        if (!textureId || !target)
+        auto texture = view->getTexture();
+        if (!texture)
             continue;
-        if (target != currentTarget) {
-            currentTarget = target;
+        if (texture->target() != currentTarget) {
+            currentTarget = texture->target();
             m_textureBlitter.bind(currentTarget);
         }
         QWaylandSurface *surface = view->surface();
@@ -141,7 +140,7 @@ void Window::paintGL()
                     ? QOpenGLTextureBlitter::OriginTopLeft
                     : QOpenGLTextureBlitter::OriginBottomLeft;
                 QMatrix4x4 targetTransform = QOpenGLTextureBlitter::targetTransform(surfaceGeometry, QRect(QPoint(), size()));
-                m_textureBlitter.blit(textureId, targetTransform, surfaceOrigin);
+                m_textureBlitter.blit(texture->textureId(), targetTransform, surfaceOrigin);
             }
         }
     }

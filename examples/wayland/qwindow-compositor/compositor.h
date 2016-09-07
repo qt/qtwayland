@@ -53,13 +53,14 @@ QT_BEGIN_NAMESPACE
 class QWaylandWlShell;
 class QWaylandWlShellSurface;
 class QWaylandXdgShellV5;
+class QOpenGLTexture;
 
 class View : public QWaylandView
 {
     Q_OBJECT
 public:
     View();
-    GLuint getTexture(GLenum *target = 0);
+    QOpenGLTexture *getTexture();
     QPointF position() const { return m_position; }
     void setPosition(const QPointF &pos) { m_position = pos; }
     bool isCursor() const;
@@ -73,7 +74,7 @@ public:
 private:
     friend class Compositor;
     GLenum m_textureTarget;
-    GLuint m_texture;
+    QOpenGLTexture *m_texture;
     QPointF m_position;
     QWaylandWlShellSurface *m_wlShellSurface;
     QWaylandXdgSurfaceV5 *m_xdgSurface;

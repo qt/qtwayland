@@ -53,6 +53,7 @@
 
 #include "wayland_wrapper/qwldatadevice_p.h"
 #include "wayland_wrapper/qwldatadevicemanager_p.h"
+#include "wayland_wrapper/qwlbuffermanager_p.h"
 
 #include "hardware_integration/qwlclientbufferintegration_p.h"
 #include "hardware_integration/qwlclientbufferintegrationfactory_p.h"
@@ -81,6 +82,7 @@
 
 #ifdef QT_WAYLAND_COMPOSITOR_GL
 #   include <QOpenGLTextureBlitter>
+#   include <QOpenGLTexture>
 #   include <QOpenGLContext>
 #   include <QOpenGLFramebufferObject>
 #   include <QMatrix4x4>
@@ -174,6 +176,7 @@ void QWaylandCompositorPrivate::init()
     wl_subcompositor::init(display, 1);
 
     data_device_manager =  new QtWayland::DataDeviceManager(q);
+    buffer_manager = new QtWayland::BufferManager(q);
 
     wl_display_init_shm(display);
     QVector<wl_shm_format> formats = QWaylandSharedMemoryFormatHelper::supportedWaylandFormats();
@@ -895,7 +898,7 @@ void QWaylandCompositor::grabSurface(QWaylandSurfaceGrabber *grabber, const QWay
             fbo.bind();
             QOpenGLTextureBlitter blitter;
             blitter.create();
-            blitter.bind();
+
 
             glViewport(0, 0, buffer.size().width(), buffer.size().height());
 
@@ -904,15 +907,10 @@ void QWaylandCompositor::grabSurface(QWaylandSurfaceGrabber *grabber, const QWay
                 ? QOpenGLTextureBlitter::OriginTopLeft
                 : QOpenGLTextureBlitter::OriginBottomLeft;
 
-            GLuint texture;
-            glGenTextures(1, &texture);
-            glBindTexture(GL_TEXTURE_2D, texture);
-            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-            buffer.bindToTexture();
-            blitter.blit(texture, QMatrix4x4(), surfaceOrigin);
-
+            auto texture = buffer.toOpenGLTexture();
+            blitter.bind(texture->target());
+            blitter.blit(texture->textureId(), QMatrix4x4(), surfaceOrigin);
             blitter.release();
-            glDeleteTextures(1, &texture);
 
             emit grabber->success(fbo.toImage());
         } else

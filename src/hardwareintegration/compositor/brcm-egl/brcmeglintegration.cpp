@@ -40,6 +40,7 @@
 #include <qpa/qplatformnativeinterface.h>
 #include <QtGui/QGuiApplication>
 #include <QtGui/QOpenGLContext>
+#include <QOpenGLTexture>
 #include <qpa/qplatformscreen.h>
 #include <QtGui/QWindow>
 
@@ -60,6 +61,9 @@ public:
         : egl_display(EGL_NO_DISPLAY)
         , valid(false)
     { }
+
+    static BrcmEglIntegrationPrivate *get(BrcmEglIntegration *integration);
+
     EGLDisplay egl_display;
     bool valid;
     PFNEGLQUERYGLOBALIMAGEBRCMPROC eglQueryGlobalImageBRCM;
@@ -117,24 +121,45 @@ void BrcmEglIntegration::initializeHardware(struct ::wl_display *display)
     }
 }
 
-void BrcmEglIntegration::bindTextureToBuffer(struct ::wl_resource *buffer)
+QtWayland::ClientBuffer *BrcmEglIntegration::createBufferFor(wl_resource *buffer)
 {
-    Q_D(BrcmEglIntegration);
+    if (wl_shm_buffer_get(buffer))
+        return nullptr;
+    return new BrcmEglClientBuffer(this, buffer);
+}
+
+BrcmEglIntegrationPrivate *BrcmEglIntegrationPrivate::get(BrcmEglIntegration *integration)
+{
+    return integration->d_ptr.data();
+}
+
+QOpenGLTexture *BrcmEglClientBuffer::toOpenGlTexture(int plane)
+{
+    Q_UNUSED(plane);
+
+    auto d = BrcmEglIntegrationPrivate::get(m_integration);
     if (!d->valid) {
         qWarning("bindTextureToBuffer failed!");
-        return;
+        return nullptr;
     }
 
-    BrcmBuffer *brcmBuffer = BrcmBuffer::fromResource(buffer);
+    BrcmBuffer *brcmBuffer = BrcmBuffer::fromResource(m_buffer);
 
     if (!d->eglQueryGlobalImageBRCM(brcmBuffer->handle(), brcmBuffer->handle() + 2)) {
         qWarning("eglQueryGlobalImageBRCM failed!");
-        return;
+        return nullptr;
     }
 
     EGLImageKHR image = d->eglCreateImageKHR(d->egl_display, EGL_NO_CONTEXT, EGL_NATIVE_PIXMAP_KHR, (EGLClientBuffer)brcmBuffer->handle(), NULL);
     if (image == EGL_NO_IMAGE_KHR)
         qWarning("eglCreateImageKHR() failed: %x\n", eglGetError());
+
+    if (!m_texture) {
+        m_texture = new QOpenGLTexture(QOpenGLTexture::Target2D);
+        m_texture->create();
+    }
+
+    m_texture->bind();
 
     d->glEGLImageTargetTexture2DOES(GL_TEXTURE_2D, image);
 
@@ -144,6 +169,8 @@ void BrcmEglIntegration::bindTextureToBuffer(struct ::wl_resource *buffer)
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
     d->eglDestroyImageKHR(d->egl_display, image);
+
+    return m_texture;
 }
 
 void BrcmEglIntegration::brcm_bind_resource(Resource *)
@@ -155,11 +182,29 @@ void BrcmEglIntegration::brcm_create_buffer(Resource *resource, uint32_t id, int
     new BrcmBuffer(resource->client(), id, QSize(width, height), static_cast<EGLint *>(data->data), data->size / sizeof(EGLint));
 }
 
-QSize BrcmEglIntegration::bufferSize(struct ::wl_resource *buffer) const
+BrcmEglClientBuffer::BrcmEglClientBuffer(BrcmEglIntegration *integration, wl_resource *buffer)
+    : ClientBuffer(buffer)
+    , m_integration(integration)
+    , m_texture(nullptr)
 {
-    BrcmBuffer *brcmBuffer = BrcmBuffer::fromResource(buffer);
+}
 
+QWaylandBufferRef::BufferFormatEgl BrcmEglClientBuffer::bufferFormatEgl() const
+{
+    return QWaylandBufferRef::BufferFormatEgl_RGBA;
+}
+
+QSize BrcmEglClientBuffer::size() const
+{
+    BrcmBuffer *brcmBuffer = BrcmBuffer::fromResource(m_buffer);
     return brcmBuffer->size();
 }
+
+QWaylandSurface::Origin BrcmEglClientBuffer::origin() const
+{
+    BrcmBuffer *brcmBuffer = BrcmBuffer::fromResource(m_buffer);
+    return brcmBuffer->isYInverted() ? QWaylandSurface::OriginTopLeft : QWaylandSurface::OriginBottomLeft;
+}
+
 
 QT_END_NAMESPACE

@@ -65,31 +65,12 @@ View::View()
     , m_parentView(nullptr)
 {}
 
-GLuint View::getTexture(GLenum *target)
+QOpenGLTexture *View::getTexture()
 {
-    QWaylandBufferRef buf = currentBuffer();
-    GLuint streamingTexture = buf.textureForPlane(0);
-    if (streamingTexture)
-        m_texture = streamingTexture;
-
-    if (!buf.isSharedMemory() && buf.bufferFormatEgl() == QWaylandBufferRef::BufferFormatEgl_EXTERNAL_OES)
-        m_textureTarget = GL_TEXTURE_EXTERNAL_OES;
-
     if (advance()) {
-        buf = currentBuffer();
-        if (!m_texture)
-            glGenTextures(1, &m_texture);
-
-        glBindTexture(m_textureTarget, m_texture);
-        if (buf.isSharedMemory())
-            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        buf.bindToTexture();
+        QWaylandBufferRef buf = currentBuffer();
+        m_texture = buf.toOpenGLTexture();
     }
-
-    buf.updateTexture();
-
-    if (target)
-        *target = m_textureTarget;
 
     return m_texture;
 }

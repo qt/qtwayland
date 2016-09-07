@@ -40,6 +40,7 @@
 
 #include "wayland_wrapper/qwldatadevice_p.h"
 #include "wayland_wrapper/qwldatadevicemanager_p.h"
+#include "wayland_wrapper/qwlbuffermanager_p.h"
 #include "wayland_wrapper/qwlregion_p.h"
 
 #include "extensions/qwlextendedsurface_p.h"
@@ -123,7 +124,6 @@ QWaylandSurfacePrivate::QWaylandSurfacePrivate()
     , compositor(Q_NULLPTR)
     , refCount(1)
     , client(Q_NULLPTR)
-    , buffer(0)
     , role(0)
     , inputRegion(infiniteRegion())
     , bufferScale(1)
@@ -135,7 +135,7 @@ QWaylandSurfacePrivate::QWaylandSurfacePrivate()
     , inputMethodControl(Q_NULLPTR)
     , subsurface(0)
 {
-    pending.buffer = 0;
+    pending.buffer = QWaylandBufferRef();
     pending.newlyAttached = false;
     pending.inputRegion = infiniteRegion();
     pending.bufferScale = 1;
@@ -152,9 +152,6 @@ QWaylandSurfacePrivate::~QWaylandSurfacePrivate()
     views.clear();
 
     bufferRef = QWaylandBufferRef();
-
-    for (int i = 0; i < bufferPool.size(); i++)
-        bufferPool[i]->setDestroyIfUnused(true);
 
     foreach (QtWayland::FrameCallback *c, pendingFrameCallbacks)
         c->destroy();
@@ -237,9 +234,7 @@ void QWaylandSurfacePrivate::surface_destroy(Resource *resource)
 
 void QWaylandSurfacePrivate::surface_attach(Resource *, struct wl_resource *buffer, int x, int y)
 {
-    if (pending.buffer)
-        pending.buffer->disown();
-    pending.buffer = createSurfaceBuffer(buffer);
+    pending.buffer = QWaylandBufferRef(getBuffer(buffer));
     pending.offset = QPoint(x, y);
     pending.newlyAttached = true;
 }
@@ -274,19 +269,37 @@ void QWaylandSurfacePrivate::surface_commit(Resource *)
 {
     Q_Q(QWaylandSurface);
 
-    if (pending.buffer || pending.newlyAttached) {
-        setBackBuffer(pending.buffer, pending.damage);
+    if (pending.buffer.hasBuffer())
+        bufferRef = pending.buffer;
+
+    auto buffer = bufferRef.buffer();
+    if (buffer)
+        buffer->setCommitted(pending.damage);
+
+    setSize(bufferRef.size());
+    damage = pending.damage.intersected(QRect(QPoint(), size));
+
+    for (int i = 0; i < views.size(); i++) {
+        views.at(i)->bufferCommitted(bufferRef, damage);
     }
 
-    pending.buffer = 0;
-    pending.offset = QPoint();
-    pending.newlyAttached = false;
-    pending.damage = QRegion();
+    emit q->damaged(damage);
+
+    bool oldHasContent = hasContent;
+    hasContent = bufferRef.hasContent();
+    if (oldHasContent != hasContent)
+        emit q->hasContentChanged();
+
+    if (!pending.offset.isNull())
+        emit q->offsetForNextFrame(pending.offset);
 
     setBufferScale(pending.bufferScale);
 
-    if (buffer)
-        buffer->setCommitted();
+
+    pending.buffer = QWaylandBufferRef();
+    pending.offset = QPoint();
+    pending.newlyAttached = false;
+    pending.damage = QRegion();
 
     frameCallbacks << pendingFrameCallbacks;
     pendingFrameCallbacks.clear();
@@ -326,52 +339,10 @@ void QWaylandSurfacePrivate::surface_set_buffer_scale(QtWaylandServer::wl_surfac
     pending.bufferScale = scale;
 }
 
-void QWaylandSurfacePrivate::setBackBuffer(QtWayland::SurfaceBuffer *b, const QRegion &d)
+QtWayland::ClientBuffer *QWaylandSurfacePrivate::getBuffer(struct ::wl_resource *buffer)
 {
-    Q_Q(QWaylandSurface);
-    buffer = b;
-
-    bufferRef = QWaylandBufferRef(buffer);
-
-    setSize(bufferRef.size());
-    damage = d.intersected(QRect(QPoint(), size));
-
-    for (int i = 0; i < views.size(); i++) {
-        views.at(i)->bufferCommitted(bufferRef, damage);
-    }
-
-    emit q->damaged(damage);
-
-    bool oldHasContent = hasContent;
-    hasContent = QtWayland::SurfaceBuffer::hasContent(buffer);
-    if (oldHasContent != hasContent)
-        emit q->hasContentChanged();
-
-    if (!pending.offset.isNull())
-        emit q->offsetForNextFrame(pending.offset);
-}
-
-QtWayland::SurfaceBuffer *QWaylandSurfacePrivate::createSurfaceBuffer(struct ::wl_resource *buffer)
-{
-    Q_Q(QWaylandSurface);
-    QtWayland::SurfaceBuffer *newBuffer = 0;
-    for (int i = 0; i < bufferPool.size(); i++) {
-        if (!bufferPool[i]->isRegisteredWithBuffer()) {
-            newBuffer = bufferPool[i];
-            newBuffer->initialize(buffer);
-            break;
-        }
-    }
-
-    if (!newBuffer) {
-        newBuffer = new QtWayland::SurfaceBuffer(q);
-        newBuffer->initialize(buffer);
-        bufferPool.append(newBuffer);
-        if (bufferPool.size() > 3)
-            qWarning() << "Increased buffer pool size to" << bufferPool.size() << "for surface" << q;
-    }
-
-    return newBuffer;
+    QtWayland::BufferManager *bufMan = QWaylandCompositorPrivate::get(compositor)->bufferManager();
+    return bufMan->getBuffer(buffer);
 }
 
 /*!
@@ -590,7 +561,7 @@ Qt::ScreenOrientation QWaylandSurface::contentOrientation() const
 QWaylandSurface::Origin QWaylandSurface::origin() const
 {
     Q_D(const QWaylandSurface);
-    return d->buffer ? d->buffer->origin() : QWaylandSurface::OriginTopLeft;
+    return d->bufferRef.origin();
 }
 
 /*!
@@ -835,8 +806,7 @@ void QWaylandSurfacePrivate::refView(QWaylandView *view)
 
     views.append(view);
     ref();
-    QWaylandBufferRef ref(buffer);
-    view->bufferCommitted(ref, QRect(QPoint(0,0), ref.size()));
+    view->bufferCommitted(bufferRef, QRect(QPoint(0,0), bufferRef.size()));
 }
 
 void QWaylandSurfacePrivate::derefView(QWaylandView *view)

@@ -151,6 +151,7 @@ void QWaylandView::setSurface(QWaylandSurface *newSurface)
     }
 
     d->nextBuffer = QWaylandBufferRef();
+    d->nextBufferCommitted = false;
     d->nextDamage = QRegion();
 
     if (d->surface) {
@@ -211,6 +212,7 @@ void QWaylandView::bufferCommitted(const QWaylandBufferRef &buffer, const QRegio
     QMutexLocker locker(&d->bufferMutex);
     d->nextBuffer = buffer;
     d->nextDamage = damage;
+    d->nextBufferCommitted = true;
 }
 
 /*!
@@ -232,7 +234,8 @@ void QWaylandView::bufferCommitted(const QWaylandBufferRef &buffer, const QRegio
 bool QWaylandView::advance()
 {
     Q_D(QWaylandView);
-    if (d->currentBuffer == d->nextBuffer && !d->forceAdvanceSucceed)
+
+    if (!d->nextBufferCommitted && !d->forceAdvanceSucceed)
         return false;
 
     if (d->bufferLocked)
@@ -247,6 +250,7 @@ bool QWaylandView::advance()
 
     QMutexLocker locker(&d->bufferMutex);
     d->forceAdvanceSucceed = false;
+    d->nextBufferCommitted = false;
     d->currentBuffer = d->nextBuffer;
     d->currentDamage = d->nextDamage;
     return true;

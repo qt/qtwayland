@@ -34,8 +34,8 @@
 **
 ****************************************************************************/
 
-#ifndef SURFACEBUFFER_H
-#define SURFACEBUFFER_H
+#ifndef QWLCLIENTBUFFER_P_H
+#define QWLCLIENTBUFFER_P_H
 
 //
 //  W A R N I N G
@@ -63,83 +63,85 @@ QT_BEGIN_NAMESPACE
 class QWaylandClientBufferIntegration;
 class QWaylandBufferRef;
 class QWaylandCompositor;
+class QOpenGLTexture;
 
 namespace QtWayland {
 
 struct surface_buffer_destroy_listener
 {
     struct wl_listener listener;
-    class SurfaceBuffer *surfaceBuffer;
+    class ClientBuffer *surfaceBuffer;
 };
 
-class SurfaceBuffer
+class Q_WAYLAND_COMPOSITOR_EXPORT ClientBuffer
 {
 public:
-    SurfaceBuffer(QWaylandSurface *surface);
+    ClientBuffer(struct ::wl_resource *bufferResource);
 
-    ~SurfaceBuffer();
+    virtual ~ClientBuffer();
 
-    void initialize(struct ::wl_resource *bufferResource);
-    void destructBufferState();
+    virtual QWaylandBufferRef::BufferFormatEgl bufferFormatEgl() const;
+    virtual QSize size() const = 0;
+    virtual QWaylandSurface::Origin origin() const = 0;
 
-    inline bool isRegisteredWithBuffer() const { return m_is_registered_for_buffer; }
+    virtual void *lockNativeBuffer() { return nullptr; }
+    virtual void unlockNativeBuffer(void *native_buffer) const { Q_UNUSED(native_buffer); }
 
-    void sendRelease();
-    void disown();
-
-    void setDisplayed();
+    virtual QImage image() const { return QImage(); }
 
     inline bool isCommitted() const { return m_committed; }
-    inline void setCommitted() { m_committed = true; }
-    inline bool isDisplayed() const { return m_is_displayed; }
-
+    virtual void setCommitted(QRegion &damage);
     bool isDestroyed() { return m_destroyed; }
 
     inline struct ::wl_resource *waylandBufferHandle() const { return m_buffer; }
 
-    void setDestroyIfUnused(bool destroy);
-
-    QSize size() const;
-    QWaylandSurface::Origin origin() const;
     bool isSharedMemory() const { return wl_shm_buffer_get(m_buffer); }
 
-    QImage image() const;
-    QWaylandBufferRef::BufferFormatEgl bufferFormatEgl() const;
 #ifdef QT_WAYLAND_COMPOSITOR_GL
-    void bindToTexture() const;
-    uint textureForPlane(int plane) const;
-    void updateTexture() const;
+    virtual QOpenGLTexture *toOpenGlTexture(int plane = 0) = 0;
 #endif
 
-    static bool hasContent(SurfaceBuffer *buffer) { return buffer && buffer->waylandBufferHandle(); }
-private:
+    static bool hasContent(ClientBuffer *buffer) { return buffer && buffer->waylandBufferHandle(); }
+
+protected:
     void ref();
     void deref();
-    void destroyIfUnused();
+    void sendRelease();
+    void setDestroyed();
 
-    QWaylandSurface *m_surface;
-    QWaylandCompositor *m_compositor;
     struct ::wl_resource *m_buffer;
-    int m_bufferScale;
-    struct surface_buffer_destroy_listener m_destroy_listener;
+    QRegion m_damage;
+    bool m_textureDirty;
+
+private:
     bool m_committed;
-    bool m_is_registered_for_buffer;
-    bool m_surface_has_buffer;
     bool m_destroyed;
 
-    bool m_is_displayed;
-
     QAtomicInt m_refCount;
-    bool m_used;
-    bool m_destroyIfUnused;
-
-    static void destroy_listener_callback(wl_listener *listener, void *data);
 
     friend class ::QWaylandBufferRef;
+    friend class BufferManager;
+};
+
+class Q_WAYLAND_COMPOSITOR_EXPORT SharedMemoryBuffer : public ClientBuffer
+{
+public:
+    SharedMemoryBuffer(struct ::wl_resource *bufferResource);
+
+    QSize size() const Q_DECL_OVERRIDE;
+    QWaylandSurface::Origin origin() const  Q_DECL_OVERRIDE;
+    QImage image() const;
+
+#ifdef QT_WAYLAND_COMPOSITOR_GL
+    QOpenGLTexture *toOpenGlTexture(int plane = 0) Q_DECL_OVERRIDE;
+
+private:
+    QOpenGLTexture *m_shmTexture;
+#endif
 };
 
 }
 
 QT_END_NAMESPACE
 
-#endif // SURFACEBUFFER_H
+#endif // QWLCLIENTBUFFER_P_H

@@ -43,6 +43,7 @@
 #include <QtWaylandCompositor/QWaylandDrag>
 #include <QtWaylandCompositor/QWaylandTouch>
 #include <QtWaylandCompositor/QWaylandPointer>
+#include <QtWaylandCompositor/QWaylandKeymap>
 #include <QtWaylandCompositor/private/qwaylandseat_p.h>
 #include <QtWaylandCompositor/private/qwaylandcompositor_p.h>
 #include <QtWaylandCompositor/private/qwldatadevice_p.h>
@@ -52,15 +53,17 @@
 
 QT_BEGIN_NAMESPACE
 
-QWaylandSeatPrivate::QWaylandSeatPrivate(QWaylandSeat *seat, QWaylandCompositor *compositor)
+QWaylandSeatPrivate::QWaylandSeatPrivate(QWaylandSeat *seat)
     : QObjectPrivate()
-    , QtWaylandServer::wl_seat(compositor->display(), 4)
-    , compositor(compositor)
+    , QtWaylandServer::wl_seat()
+    , isInitialized(false)
+    , compositor(nullptr)
     , mouseFocus(Q_NULLPTR)
     , keyboardFocus(nullptr)
     , capabilities()
     , data_device()
     , drag_handle(new QWaylandDrag(seat))
+    , keymap(new QWaylandKeymap())
 {
 }
 
@@ -137,16 +140,6 @@ void QWaylandSeatPrivate::seat_get_touch(wl_seat::Resource *resource, uint32_t i
     }
 }
 
-QWaylandKeymap::QWaylandKeymap(const QString &layout, const QString &variant, const QString &options, const QString &model, const QString &rules)
-              : m_layout(layout)
-              , m_variant(variant)
-              , m_options(options)
-              , m_rules(rules)
-              , m_model(model)
-{
-}
-
-
 /*!
  * \class QWaylandSeat
  * \inmodule QtWaylandCompositor
@@ -171,9 +164,13 @@ QWaylandKeymap::QWaylandKeymap(const QString &layout, const QString &variant, co
  * Constructs a QWaylandSeat for the given \a compositor and with the given \a capabilityFlags.
  */
 QWaylandSeat::QWaylandSeat(QWaylandCompositor *compositor, CapabilityFlags capabilityFlags)
-    : QWaylandObject(*new QWaylandSeatPrivate(this,compositor))
+    : QWaylandObject(*new QWaylandSeatPrivate(this))
 {
-    d_func()->setCapabilities(capabilityFlags);
+    Q_D(QWaylandSeat);
+    d->compositor = compositor;
+    d->capabilities = capabilityFlags;
+    if (compositor->isCreated())
+        initialize();
 }
 
 /*!
@@ -181,6 +178,27 @@ QWaylandSeat::QWaylandSeat(QWaylandCompositor *compositor, CapabilityFlags capab
  */
 QWaylandSeat::~QWaylandSeat()
 {
+}
+
+void QWaylandSeat::initialize()
+{
+    Q_D(QWaylandSeat);
+    d->init(d->compositor->display(), 4);
+
+    if (d->capabilities & QWaylandSeat::Pointer)
+        d->pointer.reset(QWaylandCompositorPrivate::get(d->compositor)->callCreatePointerDevice(this));
+    if (d->capabilities & QWaylandSeat::Touch)
+        d->touch.reset(QWaylandCompositorPrivate::get(d->compositor)->callCreateTouchDevice(this));
+    if (d->capabilities & QWaylandSeat::Keyboard)
+        d->keyboard.reset(QWaylandCompositorPrivate::get(d->compositor)->callCreateKeyboardDevice(this));
+
+    d->isInitialized = true;
+}
+
+bool QWaylandSeat::isInitialized() const
+{
+    Q_D(const QWaylandSeat);
+    return d->isInitialized;
 }
 
 /*!
@@ -368,13 +386,10 @@ bool QWaylandSeat::setKeyboardFocus(QWaylandSurface *surface)
     return true;
 }
 
-/*!
- * Sets the key map of this QWaylandSeat to \a keymap.
- */
-void QWaylandSeat::setKeymap(const QWaylandKeymap &keymap)
+QWaylandKeymap *QWaylandSeat::keymap()
 {
-    if (keyboard())
-        keyboard()->setKeymap(keymap);
+    Q_D(const QWaylandSeat);
+    return d->keymap.data();
 }
 
 /*!

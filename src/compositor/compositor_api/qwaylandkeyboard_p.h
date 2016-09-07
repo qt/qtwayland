@@ -91,7 +91,7 @@ public:
     void keyEvent(uint code, uint32_t state);
     void sendKeyEvent(uint code, uint32_t state);
     void updateModifierState(uint code, uint32_t state);
-    void updateKeymap();
+    void maybeUpdateKeymap();
 
     void checkFocusResource(Resource *resource);
     void sendEnter(QWaylandSurface *surface, Resource *resource);
@@ -123,7 +123,6 @@ private:
     uint32_t modsLocked;
     uint32_t group;
 
-    QWaylandKeymap keymap;
     bool pendingKeymap;
 #ifndef QT_NO_WAYLAND_XKB
     size_t keymap_size;

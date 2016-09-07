@@ -48,6 +48,7 @@
 #include <QtWaylandCompositor/QWaylandQuickExtension>
 #include <QtWaylandCompositor/QWaylandSeat>
 #include <QtWaylandCompositor/QWaylandDrag>
+#include <QtWaylandCompositor/QWaylandKeymap>
 #include <QtWaylandCompositor/QWaylandQuickShellSurfaceItem>
 #include <QtWaylandCompositor/QWaylandResource>
 
@@ -117,6 +118,7 @@ public:
         qmlRegisterType<QWaylandMouseTracker>(uri, 1, 0, "WaylandMouseTracker");
         qmlRegisterType<QWaylandQuickOutput>(uri, 1, 0, "WaylandOutput");
         qmlRegisterType<QWaylandQuickSurface>(uri, 1, 0, "WaylandSurface");
+        qmlRegisterType<QWaylandKeymap>(uri, 1, 0, "WaylandKeymap");
 
         qmlRegisterUncreatableType<QWaylandCompositorExtension>(uri, 1, 0, "WaylandExtension", QObject::tr("Cannot create instance of WaylandExtension"));
         qmlRegisterUncreatableType<QWaylandClient>(uri, 1, 0, "WaylandClient", QObject::tr("Cannot create instance of WaylandClient"));

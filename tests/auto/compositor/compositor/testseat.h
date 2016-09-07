@@ -36,7 +36,7 @@ QT_END_NAMESPACE
 
 class TestSeat : public QWaylandSeat
 {
-
+    Q_OBJECT
 public:
 
     TestSeat(QWaylandCompositor *compositor, QWaylandSeat::CapabilityFlags caps);

@@ -125,7 +125,7 @@ public:
             QWindowSystemEventHandler::sendEvent(e);
 
             if (!ke->repeat) {
-                keyb->updateKeymap();
+                keyb->maybeUpdateKeymap();
                 keyb->updateModifierState(code, isDown ? WL_KEYBOARD_KEY_STATE_PRESSED : WL_KEYBOARD_KEY_STATE_RELEASED);
             }
         } else {
@@ -147,6 +147,7 @@ QWaylandCompositorPrivate::QWaylandCompositorPrivate(QWaylandCompositor *composi
     , server_buffer_integration(0)
 #endif
     , retainSelection(false)
+    , preInitialized(false)
     , initialized(false)
 {
     if (QGuiApplication::platformNativeInterface())
@@ -200,7 +201,7 @@ void QWaylandCompositorPrivate::init()
     QObject::connect(dispatcher, SIGNAL(aboutToBlock()), q, SLOT(processWaylandEvents()));
 
     initializeHardwareIntegration();
-    initializeDefaultSeat();
+    initializeSeats();
 
     initialized = true;
 
@@ -223,6 +224,19 @@ QWaylandCompositorPrivate::~QWaylandCompositorPrivate()
     delete data_device_manager;
 
     wl_display_destroy(display);
+}
+
+void QWaylandCompositorPrivate::preInit()
+{
+    Q_Q(QWaylandCompositor);
+
+    if (preInitialized)
+        return;
+
+    if (seats.empty())
+        seats.append(q->createSeat());
+
+    preInitialized = true;
 }
 
 void QWaylandCompositorPrivate::destroySurface(QWaylandSurface *surface)
@@ -352,12 +366,10 @@ void QWaylandCompositorPrivate::initializeHardwareIntegration()
 #endif
 }
 
-void QWaylandCompositorPrivate::initializeDefaultSeat()
+void QWaylandCompositorPrivate::initializeSeats()
 {
-    Q_Q(QWaylandCompositor);
-    QWaylandSeat *device = q->createSeat();
-    seats.append(device);
-    q->defaultSeatChanged(device, nullptr);
+    for (QWaylandSeat *seat : qAsConst(seats))
+        seat->initialize();
 }
 
 void QWaylandCompositorPrivate::loadClientBufferIntegration()
@@ -469,6 +481,7 @@ QWaylandCompositor::~QWaylandCompositor()
 void QWaylandCompositor::create()
 {
     Q_D(QWaylandCompositor);
+    d->preInit();
     d->init();
 }
 

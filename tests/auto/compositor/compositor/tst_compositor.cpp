@@ -347,20 +347,21 @@ void tst_WaylandCompositor::seatCreation()
     MockClient client;
     Q_UNUSED(client);
 
-    TestSeat* dev = static_cast<TestSeat*>(compositor.defaultSeat());
+    TestSeat* seat = qobject_cast<TestSeat *>(compositor.defaultSeat());
+    QTRY_VERIFY(seat);
 
     // The compositor will create the default input device
-    QTRY_COMPARE(compositor.defaultSeat(), dev);
+    QTRY_VERIFY(seat->isInitialized());
 
     QList<QMouseEvent *> allEvents;
-    allEvents += dev->createMouseEvents(5);
+    allEvents += seat->createMouseEvents(5);
     foreach (QMouseEvent *me, allEvents) {
         compositor.seatFor(me);
     }
 
     // The default input device will get called exatly the number of times it has created
     // the events
-    QTRY_COMPARE(dev->queryCount(), 5);
+    QTRY_COMPARE(seat->queryCount(), 5);
 }
 
 void tst_WaylandCompositor::seatKeyboardFocus()

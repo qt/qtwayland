@@ -65,6 +65,7 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandSeat : public QWaylandObject
     Q_DECLARE_PRIVATE(QWaylandSeat)
 
     Q_PROPERTY(QWaylandDrag *drag READ drag CONSTANT)
+    Q_PROPERTY(QWaylandKeymap *keymap READ keymap CONSTANT)
 public:
     enum CapabilityFlag {
         // The order should match the enum WL_SEAT_CAPABILITY_*
@@ -79,6 +80,8 @@ public:
 
     QWaylandSeat(QWaylandCompositor *compositor, CapabilityFlags capabilityFlags = DefaultCapabilities);
     virtual ~QWaylandSeat();
+    virtual void initialize();
+    bool isInitialized() const;
 
     void sendMousePressEvent(Qt::MouseButton button);
     void sendMouseReleaseEvent(Qt::MouseButton button);
@@ -106,7 +109,7 @@ public:
     QWaylandKeyboard *keyboard() const;
     QWaylandSurface *keyboardFocus() const;
     bool setKeyboardFocus(QWaylandSurface *surface);
-    void setKeymap(const QWaylandKeymap &keymap);
+    QWaylandKeymap *keymap();
 
     QWaylandTouch *touch() const;
 

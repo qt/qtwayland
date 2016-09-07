@@ -77,6 +77,7 @@ public:
     QWaylandCompositorPrivate(QWaylandCompositor *compositor);
     ~QWaylandCompositorPrivate();
 
+    void preInit();
     void init();
 
     void destroySurface(QWaylandSurface *surface);
@@ -114,7 +115,7 @@ protected:
 protected:
     void initializeHardwareIntegration();
     void initializeExtensions();
-    void initializeDefaultSeat();
+    void initializeSeats();
 
     void loadClientBufferIntegration();
     void loadServerBufferIntegration();
@@ -145,6 +146,7 @@ protected:
     QScopedPointer<QWindowSystemEventHandler> eventHandler;
 
     bool retainSelection;
+    bool preInitialized;
     bool initialized;
     QList<QPointer<QObject> > polish_objects;
 

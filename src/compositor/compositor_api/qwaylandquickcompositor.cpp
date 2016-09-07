@@ -101,6 +101,7 @@ void QWaylandQuickCompositor::create()
 
 void QWaylandQuickCompositor::classBegin()
 {
+    QWaylandCompositorPrivate::get(this)->preInit();
 }
 
 void QWaylandQuickCompositor::componentComplete()

@@ -1,7 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2015 The Qt Company Ltd.
-** Copyright (C) 2013 Klarälvdalens Datakonsult AB (KDAB).
+** Copyright (C) 2016 The Qt Company Ltd.
 ** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the QtWaylandCompositor module of the Qt Toolkit.
@@ -35,62 +34,48 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDKEYBOARD_H
-#define QWAYLANDKEYBOARD_H
+#ifndef QWAYLANDKEYMAP_H
+#define QWAYLANDKEYMAP_H
 
 #include <QtCore/QObject>
-
-#include <QtWaylandCompositor/QWaylandCompositorExtension>
-#include <QtWaylandCompositor/QWaylandSurface>
+#include <QtWaylandCompositor/qwaylandexport.h>
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandKeyboard;
-class QWaylandKeyboardPrivate;
-class QWaylandSeat;
-class QWaylandKeymap;
+class QWaylandKeymapPrivate;
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandKeyboard : public QWaylandObject
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandKeymap : public QObject
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QWaylandKeyboard)
-    Q_PROPERTY(quint32 repeatRate READ repeatRate WRITE setRepeatRate NOTIFY repeatRateChanged)
-    Q_PROPERTY(quint32 repeatDelay READ repeatDelay WRITE setRepeatDelay NOTIFY repeatDelayChanged)
+    Q_DECLARE_PRIVATE(QWaylandKeymap)
+    Q_PROPERTY(QString layout READ layout WRITE setLayout NOTIFY layoutChanged)
+    Q_PROPERTY(QString variant READ variant WRITE setVariant NOTIFY variantChanged)
+    Q_PROPERTY(QString options READ options WRITE setOptions NOTIFY optionsChanged)
+    Q_PROPERTY(QString rules READ rules WRITE setRules NOTIFY rulesChanged)
+    Q_PROPERTY(QString model READ model WRITE setModel NOTIFY modelChanged)
 public:
-    QWaylandKeyboard(QWaylandSeat *seat, QObject *parent = nullptr);
+    QWaylandKeymap(const QString &layout = QString(), const QString &variant = QString(), const QString &options = QString(),
+                   const QString &model = QString(), const QString &rules = QString(), QObject *parent = nullptr);
 
-    QWaylandSeat *seat() const;
-    QWaylandCompositor *compositor() const;
-
-    quint32 repeatRate() const;
-    void setRepeatRate(quint32 rate);
-
-    quint32 repeatDelay() const;
-    void setRepeatDelay(quint32 delay);
-
-    virtual void setFocus(QWaylandSurface *surface);
-
-    virtual void sendKeyModifiers(QWaylandClient *client, uint32_t serial);
-    virtual void sendKeyPressEvent(uint code);
-    virtual void sendKeyReleaseEvent(uint code);
-
-    QWaylandSurface *focus() const;
-    QWaylandClient *focusClient() const;
-
-    virtual void addClient(QWaylandClient *client, uint32_t id, uint32_t version);
+    QString layout() const;
+    void setLayout(const QString &layout);
+    QString variant() const;
+    void setVariant(const QString &variant);
+    QString options() const;
+    void setOptions(const QString &options);
+    QString rules() const;
+    void setRules(const QString &rules);
+    QString model() const;
+    void setModel(const QString &model);
 
 Q_SIGNALS:
-    void focusChanged(QWaylandSurface *surface);
-    void repeatRateChanged(quint32 repeatRate);
-    void repeatDelayChanged(quint32 repeatDelay);
-
-private:
-    void focusDestroyed(void *data);
-
-private Q_SLOTS:
-    void updateKeymap();
+    void layoutChanged();
+    void variantChanged();
+    void optionsChanged();
+    void rulesChanged();
+    void modelChanged();
 };
 
 QT_END_NAMESPACE
 
-#endif //QWAYLANDKEYBOARD_H
+#endif //QWAYLANDKEYMAP_H

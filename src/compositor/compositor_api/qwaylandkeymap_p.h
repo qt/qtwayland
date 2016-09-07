@@ -1,7 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2015 The Qt Company Ltd.
-** Copyright (C) 2013 Klarälvdalens Datakonsult AB (KDAB).
+** Copyright (C) 2016 The Qt Company Ltd.
 ** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the QtWaylandCompositor module of the Qt Toolkit.
@@ -35,62 +34,39 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDKEYBOARD_H
-#define QWAYLANDKEYBOARD_H
+#ifndef QWAYLANDKEYMAP_P_H
+#define QWAYLANDKEYMAP_P_H
 
-#include <QtCore/QObject>
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists purely as an
+// implementation detail.  This header file may change from version to
+// version without notice, or even be removed.
+//
+// We mean it.
+//
 
-#include <QtWaylandCompositor/QWaylandCompositorExtension>
-#include <QtWaylandCompositor/QWaylandSurface>
+#include <QtWaylandCompositor/qwaylandkeymap.h>
+#include <QtCore/private/qobject_p.h>
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandKeyboard;
-class QWaylandKeyboardPrivate;
-class QWaylandSeat;
-class QWaylandKeymap;
-
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandKeyboard : public QWaylandObject
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandKeymapPrivate : public QObjectPrivate
 {
-    Q_OBJECT
-    Q_DECLARE_PRIVATE(QWaylandKeyboard)
-    Q_PROPERTY(quint32 repeatRate READ repeatRate WRITE setRepeatRate NOTIFY repeatRateChanged)
-    Q_PROPERTY(quint32 repeatDelay READ repeatDelay WRITE setRepeatDelay NOTIFY repeatDelayChanged)
+    Q_DECLARE_PUBLIC(QWaylandKeymap)
 public:
-    QWaylandKeyboard(QWaylandSeat *seat, QObject *parent = nullptr);
+    QWaylandKeymapPrivate(const QString &layout, const QString &variant, const QString &options,
+                          const QString &model, const QString &rules);
 
-    QWaylandSeat *seat() const;
-    QWaylandCompositor *compositor() const;
-
-    quint32 repeatRate() const;
-    void setRepeatRate(quint32 rate);
-
-    quint32 repeatDelay() const;
-    void setRepeatDelay(quint32 delay);
-
-    virtual void setFocus(QWaylandSurface *surface);
-
-    virtual void sendKeyModifiers(QWaylandClient *client, uint32_t serial);
-    virtual void sendKeyPressEvent(uint code);
-    virtual void sendKeyReleaseEvent(uint code);
-
-    QWaylandSurface *focus() const;
-    QWaylandClient *focusClient() const;
-
-    virtual void addClient(QWaylandClient *client, uint32_t id, uint32_t version);
-
-Q_SIGNALS:
-    void focusChanged(QWaylandSurface *surface);
-    void repeatRateChanged(quint32 repeatRate);
-    void repeatDelayChanged(quint32 repeatDelay);
-
-private:
-    void focusDestroyed(void *data);
-
-private Q_SLOTS:
-    void updateKeymap();
+    QString m_layout;
+    QString m_variant;
+    QString m_options;
+    QString m_rules;
+    QString m_model;
 };
 
 QT_END_NAMESPACE
 
-#endif //QWAYLANDKEYBOARD_H
+#endif // QWAYLANDKEYMAP_P_H

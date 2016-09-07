@@ -37,6 +37,7 @@
 
 #include "qwaylandkeyboard.h"
 #include "qwaylandkeyboard_p.h"
+#include <QtWaylandCompositor/QWaylandKeymap>
 #include <QtWaylandCompositor/QWaylandCompositor>
 #include <QtWaylandCompositor/QWaylandSeat>
 #include <QtWaylandCompositor/QWaylandClient>
@@ -71,9 +72,6 @@ QWaylandKeyboardPrivate::QWaylandKeyboardPrivate(QWaylandSeat *seat)
     , repeatRate(40)
     , repeatDelay(400)
 {
-#ifndef QT_NO_WAYLAND_XKB
-    initXKB();
-#endif
 }
 
 QWaylandKeyboardPrivate::~QWaylandKeyboardPrivate()
@@ -232,7 +230,10 @@ void QWaylandKeyboardPrivate::updateModifierState(uint code, uint32_t state)
 #endif
 }
 
-void QWaylandKeyboardPrivate::updateKeymap()
+// If there is no key currently pressed, update the keymap right away.
+// Otherwise, delay the update when keys are released
+// see http://lists.freedesktop.org/archives/wayland-devel/2013-October/011395.html
+void QWaylandKeyboardPrivate::maybeUpdateKeymap()
 {
     // There must be no keys pressed when changing the keymap,
     // see http://lists.freedesktop.org/archives/wayland-devel/2013-October/011395.html
@@ -348,18 +349,19 @@ void QWaylandKeyboardPrivate::createXKBKeymap()
     if (!xkb_context)
         return;
 
-    struct xkb_rule_names rule_names = { strdup(qPrintable(keymap.rules())),
-                                         strdup(qPrintable(keymap.model())),
-                                         strdup(qPrintable(keymap.layout())),
-                                         strdup(qPrintable(keymap.variant())),
-                                         strdup(qPrintable(keymap.options())) };
-    struct xkb_keymap *keymap = xkb_keymap_new_from_names(xkb_context, &rule_names, static_cast<xkb_keymap_compile_flags>(0));
+    auto keymap = seat->keymap();
+    struct xkb_rule_names rule_names = { strdup(qPrintable(keymap->rules())),
+                                         strdup(qPrintable(keymap->model())),
+                                         strdup(qPrintable(keymap->layout())),
+                                         strdup(qPrintable(keymap->variant())),
+                                         strdup(qPrintable(keymap->options())) };
+    struct xkb_keymap *xkbKeymap = xkb_keymap_new_from_names(xkb_context, &rule_names, static_cast<xkb_keymap_compile_flags>(0));
 
-    if (keymap) {
-        createXKBState(keymap);
-        xkb_keymap_unref(keymap);
+    if (xkbKeymap) {
+        createXKBState(xkbKeymap);
+        xkb_keymap_unref(xkbKeymap);
     } else {
-        qWarning("Failed to load the '%s' XKB keymap.", qPrintable(this->keymap.layout()));
+        qWarning("Failed to load the '%s' XKB keymap.", qPrintable(keymap->layout()));
     }
 
     free((char *)rule_names.rules);
@@ -396,6 +398,15 @@ QWaylandKeyboard::QWaylandKeyboard(QWaylandSeat *seat, QObject *parent)
 {
     Q_D(QWaylandKeyboard);
     connect(&d->focusDestroyListener, &QWaylandDestroyListener::fired, this, &QWaylandKeyboard::focusDestroyed);
+    auto keymap = seat->keymap();
+    connect(keymap, &QWaylandKeymap::layoutChanged, this, &QWaylandKeyboard::updateKeymap);
+    connect(keymap, &QWaylandKeymap::variantChanged, this, &QWaylandKeyboard::updateKeymap);
+    connect(keymap, &QWaylandKeymap::optionsChanged, this, &QWaylandKeyboard::updateKeymap);
+    connect(keymap, &QWaylandKeymap::rulesChanged, this, &QWaylandKeyboard::updateKeymap);
+    connect(keymap, &QWaylandKeymap::modelChanged, this, &QWaylandKeyboard::updateKeymap);
+#ifndef QT_NO_WAYLAND_XKB
+    d->initXKB();
+#endif
 }
 
 /*!
@@ -427,6 +438,13 @@ void QWaylandKeyboard::focusDestroyed(void *data)
 
     d->focus = 0;
     d->focusResource = 0;
+}
+
+void QWaylandKeyboard::updateKeymap()
+{
+    Q_D(QWaylandKeyboard);
+    d->pendingKeymap = true;
+    d->maybeUpdateKeymap();
 }
 
 /*!
@@ -535,23 +553,6 @@ void QWaylandKeyboard::setFocus(QWaylandSurface *surface)
 {
     Q_D(QWaylandKeyboard);
     d->focused(surface);
-}
-
-/*!
- * Sets the keyboard's keymap to \a keymap.
- */
-void QWaylandKeyboard::setKeymap(const QWaylandKeymap &keymap)
-{
-    Q_D(QWaylandKeyboard);
-    d->keymap = keymap;
-    d->pendingKeymap = true;
-
-    // If there is no key currently pressed, update right away the keymap
-    // Otherwise, delay the update when keys are released
-    // see http://lists.freedesktop.org/archives/wayland-devel/2013-October/011395.html
-    if (d->keys.isEmpty()) {
-        d->updateKeymap();
-    }
 }
 
 /*!

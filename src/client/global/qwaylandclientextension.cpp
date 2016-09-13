@@ -60,7 +60,7 @@ void QWaylandClientExtensionPrivate::handleRegistryGlobal(void *data, ::wl_regis
                                                           const QString &interface, uint32_t version)
 {
     QWaylandClientExtension *extension = static_cast<QWaylandClientExtension *>(data);
-    if (interface == QLatin1String(extension->extensionInterface()->name)) {
+    if (interface == QLatin1String(extension->extensionInterface()->name) && !extension->d_func()->active) {
         extension->bind(registry, id, version);
         extension->d_func()->active = true;
         emit extension->activeChanged();

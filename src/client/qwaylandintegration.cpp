@@ -119,8 +119,6 @@ QWaylandIntegration::QWaylandIntegration()
     , mNativeInterface(new QWaylandNativeInterface(this))
 #ifndef QT_NO_ACCESSIBILITY
     , mAccessibility(new QPlatformAccessibility())
-#else
-    , mAccessibility(0)
 #endif
     , mClientBufferIntegrationInitialized(false)
     , mServerBufferIntegrationInitialized(false)
@@ -245,10 +243,12 @@ QVariant QWaylandIntegration::styleHint(StyleHint hint) const
     return QPlatformIntegration::styleHint(hint);
 }
 
+#ifndef QT_NO_ACCESSIBILITY
 QPlatformAccessibility *QWaylandIntegration::accessibility() const
 {
     return mAccessibility;
 }
+#endif
 
 QPlatformServices *QWaylandIntegration::services() const
 {

@@ -645,6 +645,12 @@ void QWaylandQuickItem::touchEvent(QTouchEvent *event)
                 grabMouse();
         }
 
+        if (event->type() == QEvent::TouchEnd) {
+            QQuickItem *grabber = window()->mouseGrabberItem();
+            if (grabber == this)
+                ungrabMouse();
+        }
+
         QPoint pointPos;
         const QList<QTouchEvent::TouchPoint> &points = event->touchPoints();
         if (!points.isEmpty())

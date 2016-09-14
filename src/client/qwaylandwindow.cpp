@@ -196,6 +196,7 @@ void QWaylandWindow::initWindow()
     setMask(window()->mask());
     setWindowStateInternal(window()->windowState());
     handleContentOrientationChange(window()->contentOrientation());
+    mFlags = window()->flags();
 }
 
 bool QWaylandWindow::shouldCreateShellSurface() const
@@ -579,6 +580,9 @@ void QWaylandWindow::setWindowFlags(Qt::WindowFlags flags)
 {
     if (mShellSurface)
         mShellSurface->setWindowFlags(flags);
+
+    mFlags = flags;
+    createDecoration();
 }
 
 bool QWaylandWindow::createDecoration()
@@ -613,9 +617,9 @@ bool QWaylandWindow::createDecoration()
         default:
             break;
     }
-    if (window()->flags() & Qt::FramelessWindowHint || isFullscreen())
+    if (mFlags & Qt::FramelessWindowHint || isFullscreen())
         decoration = false;
-    if (window()->flags() & Qt::BypassWindowManagerHint)
+    if (mFlags & Qt::BypassWindowManagerHint)
         decoration = false;
     if (mSubSurfaceWindow)
         decoration = false;
@@ -663,6 +667,7 @@ bool QWaylandWindow::createDecoration()
             QMargins m = frameMargins();
             subsurf->set_position(pos.x() + m.left(), pos.y() + m.top());
         }
+        QWindowSystemInterface::handleExposeEvent(window(), QRect(QPoint(), geometry().size()));
     }
 
     return mWindowDecoration;

@@ -76,7 +76,7 @@ void *QWaylandNativeInterface::nativeResourceForIntegration(const QByteArray &re
     if (lowerCaseResource == "egldisplay" && m_integration->clientBufferIntegration())
         return m_integration->clientBufferIntegration()->nativeResource(QWaylandClientBufferIntegration::EglDisplay);
 
-    return 0;
+    return nullptr;
 }
 
 void *QWaylandNativeInterface::nativeResourceForWindow(const QByteArray &resourceString, QWindow *window)
@@ -88,21 +88,22 @@ void *QWaylandNativeInterface::nativeResourceForWindow(const QByteArray &resourc
     if (lowerCaseResource == "compositor")
         return const_cast<wl_compositor *>(m_integration->display()->wl_compositor());
     if (lowerCaseResource == "surface") {
-        return ((QWaylandWindow *) window->handle())->object();
+        QWaylandWindow *w = static_cast<QWaylandWindow*>(window->handle());
+        return w ? w->object() : nullptr;
     }
     if (lowerCaseResource == "wl_shell_surface") {
-        QWaylandWindow *w = (QWaylandWindow *) window->handle();
+        QWaylandWindow *w = static_cast<QWaylandWindow*>(window->handle());
         if (!w)
-            return NULL;
+            return nullptr;
         QWaylandWlShellSurface *s = qobject_cast<QWaylandWlShellSurface *>(w->shellSurface());
         if (!s)
-            return NULL;
+            return nullptr;
         return s->object();
     }
     if (lowerCaseResource == "egldisplay" && m_integration->clientBufferIntegration())
         return m_integration->clientBufferIntegration()->nativeResource(QWaylandClientBufferIntegration::EglDisplay);
 
-    return NULL;
+    return nullptr;
 }
 
 void *QWaylandNativeInterface::nativeResourceForScreen(const QByteArray &resourceString, QScreen *screen)
@@ -112,7 +113,7 @@ void *QWaylandNativeInterface::nativeResourceForScreen(const QByteArray &resourc
     if (lowerCaseResource == "output")
         return ((QWaylandScreen *) screen->handle())->output();
 
-    return NULL;
+    return nullptr;
 }
 
 void *QWaylandNativeInterface::nativeResourceForContext(const QByteArray &resource, QOpenGLContext *context)
@@ -130,7 +131,7 @@ void *QWaylandNativeInterface::nativeResourceForContext(const QByteArray &resour
         return m_integration->clientBufferIntegration()->nativeResourceForContext(QWaylandClientBufferIntegration::EglDisplay, context->handle());
 #endif
 
-    return 0;
+    return nullptr;
 }
 
 QVariantMap QWaylandNativeInterface::windowProperties(QPlatformWindow *window) const
@@ -171,7 +172,7 @@ QFunctionPointer QWaylandNativeInterface::platformFunction(const QByteArray &res
     } else if (resource == QWaylandWindowFunctions::isSyncIdentifier()) {
         return QFunctionPointer(isSync);
     }
-    return 0;
+    return nullptr;
 }
 
 

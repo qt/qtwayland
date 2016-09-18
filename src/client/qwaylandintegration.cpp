@@ -39,7 +39,9 @@
 #include "qwaylandinputcontext_p.h"
 #include "qwaylandshmbackingstore_p.h"
 #include "qwaylandnativeinterface_p.h"
+#ifndef QT_NO_CLIPBOARD
 #include "qwaylandclipboard_p.h"
+#endif
 #include "qwaylanddnd_p.h"
 #include "qwaylandwindowmanagerintegration_p.h"
 #include "qwaylandscreen_p.h"
@@ -57,7 +59,9 @@
 #include <QSocketNotifier>
 
 #include <qpa/qplatforminputcontextfactory_p.h>
+#ifndef QT_NO_ACCESSIBILITY
 #include <qpa/qplatformaccessibility.h>
+#endif
 #include <qpa/qplatforminputcontext.h>
 
 #include "qwaylandhardwareintegration_p.h"
@@ -119,8 +123,6 @@ QWaylandIntegration::QWaylandIntegration()
     , mNativeInterface(new QWaylandNativeInterface(this))
 #ifndef QT_NO_ACCESSIBILITY
     , mAccessibility(new QPlatformAccessibility())
-#else
-    , mAccessibility(0)
 #endif
     , mClientBufferIntegrationInitialized(false)
     , mServerBufferIntegrationInitialized(false)
@@ -128,9 +130,12 @@ QWaylandIntegration::QWaylandIntegration()
 {
     initializeInputDeviceIntegration();
     mDisplay = new QWaylandDisplay(this);
+#ifndef QT_NO_CLIPBOARD
     mClipboard = new QWaylandClipboard(mDisplay);
+#endif
+#ifndef QT_NO_DRAGANDDROP
     mDrag = new QWaylandDrag(mDisplay);
-
+#endif
     QString icStr = QPlatformInputContextFactory::requested();
     icStr.isNull() ? mInputContext.reset(new QWaylandInputContext(mDisplay))
                    : mInputContext.reset(QPlatformInputContextFactory::create(icStr));
@@ -138,8 +143,12 @@ QWaylandIntegration::QWaylandIntegration()
 
 QWaylandIntegration::~QWaylandIntegration()
 {
+#ifndef QT_NO_DRAGANDDROP
     delete mDrag;
+#endif
+#ifndef QT_NO_CLIPBOARD
     delete mClipboard;
+#endif
 #ifndef QT_NO_ACCESSIBILITY
     delete mAccessibility;
 #endif
@@ -215,15 +224,19 @@ QPlatformFontDatabase *QWaylandIntegration::fontDatabase() const
     return mFontDb;
 }
 
+#ifndef QT_NO_CLIPBOARD
 QPlatformClipboard *QWaylandIntegration::clipboard() const
 {
     return mClipboard;
 }
+#endif
 
+#ifndef QT_NO_DRAGANDDROP
 QPlatformDrag *QWaylandIntegration::drag() const
 {
     return mDrag;
 }
+#endif
 
 QPlatformInputContext *QWaylandIntegration::inputContext() const
 {
@@ -245,10 +258,12 @@ QVariant QWaylandIntegration::styleHint(StyleHint hint) const
     return QPlatformIntegration::styleHint(hint);
 }
 
+#ifndef QT_NO_ACCESSIBILITY
 QPlatformAccessibility *QWaylandIntegration::accessibility() const
 {
     return mAccessibility;
 }
+#endif
 
 QPlatformServices *QWaylandIntegration::services() const
 {

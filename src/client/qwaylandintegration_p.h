@@ -80,15 +80,21 @@ public:
 
     QPlatformNativeInterface *nativeInterface() const Q_DECL_OVERRIDE;
 
+#ifndef QT_NO_CLIPBOARD
     QPlatformClipboard *clipboard() const Q_DECL_OVERRIDE;
+#endif
 
+#ifndef QT_NO_DRAGANDDROP
     QPlatformDrag *drag() const Q_DECL_OVERRIDE;
+#endif
 
     QPlatformInputContext *inputContext() const Q_DECL_OVERRIDE;
 
     QVariant styleHint(StyleHint hint) const Q_DECL_OVERRIDE;
 
+#ifndef QT_NO_ACCESSIBILITY
     QPlatformAccessibility *accessibility() const Q_DECL_OVERRIDE;
+#endif
 
     QPlatformServices *services() const Q_DECL_OVERRIDE;
 
@@ -118,12 +124,18 @@ private:
     QWaylandShellIntegration *createShellIntegration(const QString& interfaceName);
 
     QPlatformFontDatabase *mFontDb;
+#ifndef QT_NO_CLIPBOARD
     QPlatformClipboard *mClipboard;
+#endif
+#ifndef QT_NO_DRAGANDDROP
     QPlatformDrag *mDrag;
+#endif
     QWaylandDisplay *mDisplay;
     QPlatformNativeInterface *mNativeInterface;
     QScopedPointer<QPlatformInputContext> mInputContext;
+#ifndef QT_NO_ACCESSIBILITY
     QPlatformAccessibility *mAccessibility;
+#endif
     bool mClientBufferIntegrationInitialized;
     bool mServerBufferIntegrationInitialized;
     bool mShellIntegrationInitialized;

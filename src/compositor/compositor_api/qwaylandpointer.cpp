@@ -151,34 +151,45 @@ void QWaylandPointer::setOutput(QWaylandOutput *output)
 
 /*!
  * Sends a mouse press event for \a button to the view currently holding mouse focus.
+ *
+ * Returns the serial number of the press event.
  */
-void QWaylandPointer::sendMousePressEvent(Qt::MouseButton button)
+uint QWaylandPointer::sendMousePressEvent(Qt::MouseButton button)
 {
     Q_D(QWaylandPointer);
     uint32_t time = d->compositor()->currentTimeMsecs();
     d->buttonCount++;
+    uint serial = 0;
+
     if (d->focusResource)
-         sendButton(d->focusResource, time, button, WL_POINTER_BUTTON_STATE_PRESSED);
+         serial = sendButton(d->focusResource, time, button, WL_POINTER_BUTTON_STATE_PRESSED);
 
     if (d->buttonCount == 1) {
         emit buttonPressedChanged();
     }
+
+    return serial;
 }
 
 /*!
  * Sends a mouse release event for \a button to the view currently holding mouse focus.
+ *
+ * Returns the serial number of the release event.
  */
-void QWaylandPointer::sendMouseReleaseEvent(Qt::MouseButton button)
+uint QWaylandPointer::sendMouseReleaseEvent(Qt::MouseButton button)
 {
     Q_D(QWaylandPointer);
     uint32_t time = d->compositor()->currentTimeMsecs();
     d->buttonCount--;
+    uint serial = 0;
 
     if (d->focusResource)
-         sendButton(d->focusResource, time, button, WL_POINTER_BUTTON_STATE_RELEASED);
+         serial = sendButton(d->focusResource, time, button, WL_POINTER_BUTTON_STATE_RELEASED);
 
     if (d->buttonCount == 0)
         emit buttonPressedChanged();
+
+    return serial;
 }
 
 /*!
@@ -308,11 +319,12 @@ struct wl_resource *QWaylandPointer::focusResource() const
 /*!
  * \internal
  */
-void QWaylandPointer::sendButton(struct wl_resource *resource, uint32_t time, Qt::MouseButton button, uint32_t state)
+uint QWaylandPointer::sendButton(struct wl_resource *resource, uint32_t time, Qt::MouseButton button, uint32_t state)
 {
     Q_D(QWaylandPointer);
     uint32_t serial = d->compositor()->nextSerial();
     d->send_button(resource, serial, time, toWaylandButton(button), state);
+    return serial;
 }
 
 /*!

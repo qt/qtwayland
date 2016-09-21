@@ -64,8 +64,8 @@ public:
     QWaylandOutput *output() const;
     void setOutput(QWaylandOutput *output);
 
-    virtual void sendMousePressEvent(Qt::MouseButton button);
-    virtual void sendMouseReleaseEvent(Qt::MouseButton button);
+    virtual uint sendMousePressEvent(Qt::MouseButton button);
+    virtual uint sendMouseReleaseEvent(Qt::MouseButton button);
     virtual void sendMouseMoveEvent(QWaylandView *view, const QPointF &localPos, const QPointF &outputSpacePos);
     virtual void sendMouseWheelEvent(Qt::Orientation orientation, int delta);
 
@@ -80,7 +80,7 @@ public:
     wl_resource *focusResource() const;
 
     static uint32_t toWaylandButton(Qt::MouseButton button);
-    void sendButton(struct wl_resource *resource, uint32_t time, Qt::MouseButton button, uint32_t state);
+    uint sendButton(struct wl_resource *resource, uint32_t time, Qt::MouseButton button, uint32_t state);
 Q_SIGNALS:
     void outputChanged();
     void buttonPressedChanged();

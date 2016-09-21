@@ -71,9 +71,9 @@ public:
 
     QWaylandCompositor *compositor() const { return seat->compositor(); }
 
-    void sendDown(uint32_t time, int touch_id, const QPointF &position);
+    uint sendDown(uint32_t time, int touch_id, const QPointF &position);
     void sendMotion(uint32_t time, int touch_id, const QPointF &position);
-    void sendUp(uint32_t time, int touch_id);
+    uint sendUp(uint32_t time, int touch_id);
 
     void setFocusResource()
     {

@@ -62,7 +62,7 @@ public:
     QWaylandSeat *seat() const;
     QWaylandCompositor *compositor() const;
 
-    virtual void sendTouchPointEvent(int id, const QPointF &position, Qt::TouchPointState state);
+    virtual uint sendTouchPointEvent(int id, const QPointF &position, Qt::TouchPointState state);
     virtual void sendFrameEvent();
     virtual void sendCancelEvent();
 

@@ -242,14 +242,16 @@ void QWaylandSeat::sendKeyReleaseEvent(uint code)
 /*!
  * Sends a touch point event with the given \a id and \a state to the touch device. The position
  * of the touch point is given by \a point.
+ *
+ * Returns the serial for the touch up or touch down event.
  */
-void QWaylandSeat::sendTouchPointEvent(int id, const QPointF &point, Qt::TouchPointState state)
+uint QWaylandSeat::sendTouchPointEvent(int id, const QPointF &point, Qt::TouchPointState state)
 {
     Q_D(QWaylandSeat);
     if (d->touch.isNull()) {
-        return;
+        return 0;
     }
-    d->touch->sendTouchPointEvent(id, point,state);
+    return d->touch->sendTouchPointEvent(id, point,state);
 }
 
 /*!

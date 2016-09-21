@@ -77,26 +77,28 @@ void QWaylandTouchPrivate::touch_release(Resource *resource)
     wl_resource_destroy(resource->handle);
 }
 
-void QWaylandTouchPrivate::sendDown(uint32_t time, int touch_id, const QPointF &position)
+uint QWaylandTouchPrivate::sendDown(uint32_t time, int touch_id, const QPointF &position)
 {
     Q_Q(QWaylandTouch);
     if (!focusResource || !seat->mouseFocus())
-        return;
+        return 0;
 
     uint32_t serial = q->compositor()->nextSerial();
 
     wl_touch_send_down(focusResource->handle, serial, time, seat->mouseFocus()->surfaceResource(), touch_id,
                        wl_fixed_from_double(position.x()), wl_fixed_from_double(position.y()));
+    return serial;
 }
 
-void QWaylandTouchPrivate::sendUp(uint32_t time, int touch_id)
+uint QWaylandTouchPrivate::sendUp(uint32_t time, int touch_id)
 {
     if (!focusResource)
-        return;
+        return 0;
 
     uint32_t serial = compositor()->nextSerial();
 
     wl_touch_send_up(focusResource->handle, serial, time, touch_id);
+    return serial;
 }
 void QWaylandTouchPrivate::sendMotion(uint32_t time, int touch_id, const QPointF &position)
 {
@@ -147,27 +149,30 @@ QWaylandCompositor *QWaylandTouch::compositor() const
 /*!
  * Sends a touch point event for the touch device with the given \a id,
  * \a position, and \a state.
+ *
+ * Returns the serial of the down or up event if sent, otherwise 0.
  */
-void QWaylandTouch::sendTouchPointEvent(int id, const QPointF &position, Qt::TouchPointState state)
+uint QWaylandTouch::sendTouchPointEvent(int id, const QPointF &position, Qt::TouchPointState state)
 {
     Q_D(QWaylandTouch);
     uint32_t time = compositor()->currentTimeMsecs();
+    uint serial = 0;
     switch (state) {
     case Qt::TouchPointPressed:
-        d->sendDown(time, id, position);
+        serial = d->sendDown(time, id, position);
         break;
     case Qt::TouchPointMoved:
         d->sendMotion(time, id, position);
         break;
     case Qt::TouchPointReleased:
-        d->sendUp(time, id);
+        serial = d->sendUp(time, id);
         break;
     case Qt::TouchPointStationary:
         // stationary points are not sent through wayland, the client must cache them
         break;
-    default:
-        break;
     }
+
+    return serial;
 }
 
 /*!

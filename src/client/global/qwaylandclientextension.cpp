@@ -39,7 +39,9 @@
 #include <QtWaylandClient/private/qwaylanddisplay_p.h>
 #include <QtWaylandClient/private/qwaylandintegration_p.h>
 #include <QtGui/QGuiApplication>
+#include <QtGui/qpa/qplatformnativeinterface.h>
 #include <QtGui/private/qguiapplication_p.h>
+#include <QtCore/QDebug>
 
 QT_BEGIN_NAMESPACE
 
@@ -54,13 +56,16 @@ QWaylandClientExtensionPrivate::QWaylandClientExtensionPrivate()
     waylandIntegration = static_cast<QtWaylandClient::QWaylandIntegration *>(QGuiApplicationPrivate::platformIntegration());
     if (!waylandIntegration)
         waylandIntegration = new QtWaylandClient::QWaylandIntegration();
+
+    if (!waylandIntegration->nativeInterface()->nativeResourceForIntegration("wl_display"))
+        qWarning() << "This application requires a Wayland platform plugin";
 }
 
 void QWaylandClientExtensionPrivate::handleRegistryGlobal(void *data, ::wl_registry *registry, uint32_t id,
                                                           const QString &interface, uint32_t version)
 {
     QWaylandClientExtension *extension = static_cast<QWaylandClientExtension *>(data);
-    if (interface == QLatin1String(extension->extensionInterface()->name)) {
+    if (interface == QLatin1String(extension->extensionInterface()->name) && !extension->d_func()->active) {
         extension->bind(registry, id, version);
         extension->d_func()->active = true;
         emit extension->activeChanged();

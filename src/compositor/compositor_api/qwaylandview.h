@@ -70,7 +70,7 @@ public:
     QWaylandOutput *output() const;
     void setOutput(QWaylandOutput *output);
 
-    virtual void attach(const QWaylandBufferRef &ref, const QRegion &damage);
+    virtual void bufferCommitted(const QWaylandBufferRef &buffer, const QRegion &damage);
     virtual bool advance();
     virtual void discardCurrentBuffer();
     virtual QWaylandBufferRef currentBuffer();

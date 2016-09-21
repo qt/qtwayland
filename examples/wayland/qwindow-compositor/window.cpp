@@ -88,11 +88,11 @@ void Window::drawBackground()
 QPointF Window::getAnchorPosition(const QPointF &position, int resizeEdge, const QSize &windowSize)
 {
     float y = position.y();
-    if (resizeEdge & QWaylandXdgSurface::ResizeEdge::TopEdge)
+    if (resizeEdge & QWaylandXdgSurfaceV5::ResizeEdge::TopEdge)
         y += windowSize.height();
 
     float x = position.x();
-    if (resizeEdge & QWaylandXdgSurface::ResizeEdge::LeftEdge)
+    if (resizeEdge & QWaylandXdgSurfaceV5::ResizeEdge::LeftEdge)
         x += windowSize.width();
 
     return QPointF(x, y);

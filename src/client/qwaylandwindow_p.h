@@ -237,6 +237,7 @@ protected:
     QIcon mWindowIcon;
 
     Qt::WindowState mState;
+    Qt::WindowFlags mFlags;
     QRegion mMask;
 
     QWaylandShmBackingStore *mBackingStore;

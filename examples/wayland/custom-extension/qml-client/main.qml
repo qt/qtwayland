@@ -38,22 +38,46 @@
 **
 ****************************************************************************/
 
-#include <QGuiApplication>
-#include <QtQml/QQmlApplicationEngine>
+import QtQuick 2.0
+import QtQuick.Window 2.0
+import com.theqtcompany.customextension 1.0
 
-#include <QtQml/qqml.h>
-#include <QtQml/QQmlEngine>
-#include "../client/customextension.h"
+Window {
+    visible: true
+    Rectangle {
+        anchors.fill: parent
+        color: "#297A4A"
+    }
 
-int main(int argc, char *argv[])
-{
-    QGuiApplication app(argc, argv);
+    MouseArea {
+        anchors.fill: parent
+        onClicked: {
+            console.log("Clicked outside", mouseX)
+            if (customExtension.active)
+                customExtension.sendRequest("Clicked outside", mouseX)
+        }
+    }
 
-    qmlRegisterType<CustomExtension>("com.theqtcompany.customextension", 1, 0, "CustomExtension");
+    MouseArea {
+        anchors.centerIn: parent
+        width: 100; height: 100
+        onClicked: {
+            var obj = mapToItem(parent, mouse.x, mouse.y)
+            console.log("Clicked inside", obj.x)
+            if (customExtension.active)
+                customExtension.sendRequest("Clicked inside", obj.x)
+        }
 
-    QQmlApplicationEngine engine;
-    engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
+        Rectangle {
+            anchors.fill: parent
+            color: "#34FD85"
+        }
+    }
 
-    return app.exec();
+    CustomExtension {
+        id: customExtension
+        onActiveChanged: console.log("Custom extension is active:", active)
+        onEventReceived: console.log("Event received", text, value)
+    }
 }
 

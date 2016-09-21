@@ -34,12 +34,12 @@
 **
 ****************************************************************************/
 
-#include "qwaylandxdgshellintegration_p.h"
+#include "qwaylandxdgshellv5integration_p.h"
 
 #include <QtWaylandCompositor/QWaylandQuickShellSurfaceItem>
 #include <QtWaylandCompositor/QWaylandCompositor>
 #include <QtWaylandCompositor/QWaylandSeat>
-#include <QtWaylandCompositor/private/qwaylandxdgshell_p.h>
+#include <QtWaylandCompositor/private/qwaylandxdgshellv5_p.h>
 #include <QMouseEvent>
 #include <QGuiApplication>
 
@@ -47,23 +47,23 @@ QT_BEGIN_NAMESPACE
 
 namespace QtWayland {
 
-XdgShellIntegration::XdgShellIntegration(QWaylandQuickShellSurfaceItem *item)
+XdgShellV5Integration::XdgShellV5Integration(QWaylandQuickShellSurfaceItem *item)
     : QWaylandQuickShellIntegration(item)
     , m_item(item)
-    , m_xdgSurface(qobject_cast<QWaylandXdgSurface *>(item->shellSurface()))
+    , m_xdgSurface(qobject_cast<QWaylandXdgSurfaceV5 *>(item->shellSurface()))
     , grabberState(GrabberState::Default)
 {
     m_item->setSurface(m_xdgSurface->surface());
-    connect(m_xdgSurface, &QWaylandXdgSurface::startMove, this, &XdgShellIntegration::handleStartMove);
-    connect(m_xdgSurface, &QWaylandXdgSurface::startResize, this, &XdgShellIntegration::handleStartResize);
-    connect(m_xdgSurface, &QWaylandXdgSurface::setMaximized, this, &XdgShellIntegration::handleSetMaximized);
-    connect(m_xdgSurface, &QWaylandXdgSurface::unsetMaximized, this, &XdgShellIntegration::handleUnsetMaximized);
-    connect(m_xdgSurface, &QWaylandXdgSurface::maximizedChanged, this, &XdgShellIntegration::handleMaximizedChanged);
-    connect(m_xdgSurface, &QWaylandXdgSurface::activatedChanged, this, &XdgShellIntegration::handleActivatedChanged);
-    connect(m_xdgSurface->surface(), &QWaylandSurface::sizeChanged, this, &XdgShellIntegration::handleSurfaceSizeChanged);
+    connect(m_xdgSurface, &QWaylandXdgSurfaceV5::startMove, this, &XdgShellV5Integration::handleStartMove);
+    connect(m_xdgSurface, &QWaylandXdgSurfaceV5::startResize, this, &XdgShellV5Integration::handleStartResize);
+    connect(m_xdgSurface, &QWaylandXdgSurfaceV5::setMaximized, this, &XdgShellV5Integration::handleSetMaximized);
+    connect(m_xdgSurface, &QWaylandXdgSurfaceV5::unsetMaximized, this, &XdgShellV5Integration::handleUnsetMaximized);
+    connect(m_xdgSurface, &QWaylandXdgSurfaceV5::maximizedChanged, this, &XdgShellV5Integration::handleMaximizedChanged);
+    connect(m_xdgSurface, &QWaylandXdgSurfaceV5::activatedChanged, this, &XdgShellV5Integration::handleActivatedChanged);
+    connect(m_xdgSurface->surface(), &QWaylandSurface::sizeChanged, this, &XdgShellV5Integration::handleSurfaceSizeChanged);
 }
 
-bool XdgShellIntegration::mouseMoveEvent(QMouseEvent *event)
+bool XdgShellV5Integration::mouseMoveEvent(QMouseEvent *event)
 {
     if (grabberState == GrabberState::Resize) {
         Q_ASSERT(resizeState.seat == m_item->compositor()->seatFor(event));
@@ -91,7 +91,7 @@ bool XdgShellIntegration::mouseMoveEvent(QMouseEvent *event)
     return false;
 }
 
-bool XdgShellIntegration::mouseReleaseEvent(QMouseEvent *event)
+bool XdgShellV5Integration::mouseReleaseEvent(QMouseEvent *event)
 {
     Q_UNUSED(event);
 
@@ -106,14 +106,14 @@ bool XdgShellIntegration::mouseReleaseEvent(QMouseEvent *event)
     return false;
 }
 
-void XdgShellIntegration::handleStartMove(QWaylandSeat *seat)
+void XdgShellV5Integration::handleStartMove(QWaylandSeat *seat)
 {
     grabberState = GrabberState::Move;
     moveState.seat = seat;
     moveState.initialized = false;
 }
 
-void XdgShellIntegration::handleStartResize(QWaylandSeat *seat, QWaylandXdgSurface::ResizeEdge edges)
+void XdgShellV5Integration::handleStartResize(QWaylandSeat *seat, QWaylandXdgSurfaceV5::ResizeEdge edges)
 {
     grabberState = GrabberState::Resize;
     resizeState.seat = seat;
@@ -124,7 +124,7 @@ void XdgShellIntegration::handleStartResize(QWaylandSeat *seat, QWaylandXdgSurfa
     resizeState.initialized = false;
 }
 
-void XdgShellIntegration::handleSetMaximized()
+void XdgShellV5Integration::handleSetMaximized()
 {
     maximizeState.initialWindowSize = m_xdgSurface->windowGeometry().size();
     maximizeState.initialPosition = m_item->moveItem()->position();
@@ -133,12 +133,12 @@ void XdgShellIntegration::handleSetMaximized()
     m_xdgSurface->sendMaximized(output->availableGeometry().size() / output->scaleFactor());
 }
 
-void XdgShellIntegration::handleUnsetMaximized()
+void XdgShellV5Integration::handleUnsetMaximized()
 {
     m_xdgSurface->sendUnmaximized(maximizeState.initialWindowSize);
 }
 
-void XdgShellIntegration::handleMaximizedChanged()
+void XdgShellV5Integration::handleMaximizedChanged()
 {
     if (m_xdgSurface->maximized()) {
         QWaylandOutput *output = m_item->view()->output();
@@ -148,30 +148,30 @@ void XdgShellIntegration::handleMaximizedChanged()
     }
 }
 
-void XdgShellIntegration::handleActivatedChanged()
+void XdgShellV5Integration::handleActivatedChanged()
 {
     if (m_xdgSurface->activated())
         m_item->raise();
 }
 
-void XdgShellIntegration::handleSurfaceSizeChanged()
+void XdgShellV5Integration::handleSurfaceSizeChanged()
 {
     if (grabberState == GrabberState::Resize) {
         qreal x = resizeState.initialPosition.x();
         qreal y = resizeState.initialPosition.y();
-        if (resizeState.resizeEdges & QWaylandXdgSurface::ResizeEdge::TopEdge)
+        if (resizeState.resizeEdges & QWaylandXdgSurfaceV5::ResizeEdge::TopEdge)
             y += resizeState.initialSurfaceSize.height() - m_item->surface()->size().height();
 
-        if (resizeState.resizeEdges & QWaylandXdgSurface::ResizeEdge::LeftEdge)
+        if (resizeState.resizeEdges & QWaylandXdgSurfaceV5::ResizeEdge::LeftEdge)
             x += resizeState.initialSurfaceSize.width() - m_item->surface()->size().width();
         m_item->moveItem()->setPosition(QPointF(x, y));
     }
 }
 
-XdgPopupIntegration::XdgPopupIntegration(QWaylandQuickShellSurfaceItem *item)
+XdgPopupV5Integration::XdgPopupV5Integration(QWaylandQuickShellSurfaceItem *item)
     : QWaylandQuickShellIntegration (item)
-    , m_xdgPopup(qobject_cast<QWaylandXdgPopup *>(item->shellSurface()))
-    , m_xdgShell(QWaylandXdgPopupPrivate::get(m_xdgPopup)->m_xdgShell)
+    , m_xdgPopup(qobject_cast<QWaylandXdgPopupV5 *>(item->shellSurface()))
+    , m_xdgShell(QWaylandXdgPopupV5Private::get(m_xdgPopup)->m_xdgShell)
 {
     item->setSurface(m_xdgPopup->surface());
     item->moveItem()->setPosition(QPointF(m_xdgPopup->position() * item->view()->output()->scaleFactor()));
@@ -179,12 +179,12 @@ XdgPopupIntegration::XdgPopupIntegration(QWaylandQuickShellSurfaceItem *item)
     QWaylandClient *client = m_xdgPopup->surface()->client();
     QWaylandQuickShellEventFilter::startFilter(client, [&]() { m_xdgShell->closeAllPopups(); });
 
-    connect(m_xdgPopup, &QWaylandXdgPopup::destroyed, this, &XdgPopupIntegration::handlePopupDestroyed);
+    connect(m_xdgPopup, &QWaylandXdgPopupV5::destroyed, this, &XdgPopupV5Integration::handlePopupDestroyed);
 }
 
-void XdgPopupIntegration::handlePopupDestroyed()
+void XdgPopupV5Integration::handlePopupDestroyed()
 {
-    QWaylandXdgShellPrivate *shellPrivate = QWaylandXdgShellPrivate::get(m_xdgShell);
+    QWaylandXdgShellV5Private *shellPrivate = QWaylandXdgShellV5Private::get(m_xdgShell);
     auto popups = shellPrivate->m_xdgPopups;
     if (popups.isEmpty())
         QWaylandQuickShellEventFilter::cancelFilter();

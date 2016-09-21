@@ -65,9 +65,14 @@ public:
     void initialize() Q_DECL_OVERRIDE;
     QList<QWaylandWlShellSurface *> shellSurfaces() const;
     QList<QWaylandWlShellSurface *> shellSurfacesForClient(QWaylandClient* client) const;
+    QList<QWaylandWlShellSurface *> mappedPopups() const;
+    QWaylandClient *popupClient() const;
 
     static const struct wl_interface *interface();
     static QByteArray interfaceName();
+
+public Q_SLOTS:
+    void closeAllPopups();
 
 Q_SIGNALS:
     void wlShellSurfaceRequested(QWaylandSurface *surface, const QWaylandResource &resource);

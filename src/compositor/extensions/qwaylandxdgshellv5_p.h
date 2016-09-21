@@ -34,13 +34,13 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDXDGSHELL_P_H
-#define QWAYLANDXDGSHELL_P_H
+#ifndef QWAYLANDXDGSHELLV5_P_H
+#define QWAYLANDXDGSHELLV5_P_H
 
 #include <QtWaylandCompositor/private/qwaylandcompositorextension_p.h>
 #include <QtWaylandCompositor/private/qwayland-server-xdg-shell.h>
 
-#include <QtWaylandCompositor/QWaylandXdgShell>
+#include <QtWaylandCompositor/QWaylandXdgShellV5>
 
 #include <QtCore/QSet>
 
@@ -57,27 +57,27 @@
 
 QT_BEGIN_NAMESPACE
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgShellPrivate
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgShellV5Private
         : public QWaylandCompositorExtensionPrivate
         , public QtWaylandServer::xdg_shell
 {
-    Q_DECLARE_PUBLIC(QWaylandXdgShell)
+    Q_DECLARE_PUBLIC(QWaylandXdgShellV5)
 public:
-    QWaylandXdgShellPrivate();
+    QWaylandXdgShellV5Private();
     void ping(Resource *resource, uint32_t serial);
-    void registerSurface(QWaylandXdgSurface *xdgSurface);
-    void unregisterXdgSurface(QWaylandXdgSurface *xdgSurface);
-    void registerXdgPopup(QWaylandXdgPopup *xdgPopup);
-    void unregisterXdgPopup(QWaylandXdgPopup *xdgPopup);
-    static QWaylandXdgShellPrivate *get(QWaylandXdgShell *xdgShell) { return xdgShell->d_func(); }
+    void registerSurface(QWaylandXdgSurfaceV5 *xdgSurface);
+    void unregisterXdgSurface(QWaylandXdgSurfaceV5 *xdgSurface);
+    void registerXdgPopup(QWaylandXdgPopupV5 *xdgPopup);
+    void unregisterXdgPopup(QWaylandXdgPopupV5 *xdgPopup);
+    static QWaylandXdgShellV5Private *get(QWaylandXdgShellV5 *xdgShell) { return xdgShell->d_func(); }
     bool isValidPopupParent(QWaylandSurface *parentSurface) const;
-    QWaylandXdgPopup *topmostPopupForClient(struct wl_client* client) const;
+    QWaylandXdgPopupV5 *topmostPopupForClient(struct wl_client* client) const;
 
     QSet<uint32_t> m_pings;
-    QMultiMap<struct wl_client *, QWaylandXdgSurface *> m_xdgSurfaces;
-    QMultiMap<struct wl_client *, QWaylandXdgPopup *> m_xdgPopups;
+    QMultiMap<struct wl_client *, QWaylandXdgSurfaceV5 *> m_xdgSurfaces;
+    QMultiMap<struct wl_client *, QWaylandXdgPopupV5 *> m_xdgPopups;
 
-    QWaylandXdgSurface *xdgSurfaceFromSurface(QWaylandSurface *surface);
+    QWaylandXdgSurfaceV5 *xdgSurfaceFromSurface(QWaylandSurface *surface);
 
 protected:
     void xdg_shell_destroy(Resource *resource) Q_DECL_OVERRIDE;
@@ -90,14 +90,14 @@ protected:
     void xdg_shell_pong(Resource *resource, uint32_t serial) Q_DECL_OVERRIDE;
 };
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgSurfacePrivate
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgSurfaceV5Private
         : public QWaylandCompositorExtensionPrivate
         , public QtWaylandServer::xdg_surface
 {
-    Q_DECLARE_PUBLIC(QWaylandXdgSurface)
+    Q_DECLARE_PUBLIC(QWaylandXdgSurfaceV5)
 public:
-    QWaylandXdgSurfacePrivate();
-    static QWaylandXdgSurfacePrivate *get(QWaylandXdgSurface *xdgSurface) { return xdgSurface->d_func(); }
+    QWaylandXdgSurfaceV5Private();
+    static QWaylandXdgSurfaceV5Private *get(QWaylandXdgSurfaceV5 *xdgSurface) { return xdgSurface->d_func(); }
 
     enum WindowType {
         UnknownWindowType,
@@ -117,9 +117,9 @@ public:
     void updateFallbackWindowGeometry();
 
 private:
-    QWaylandXdgShell *m_xdgShell;
+    QWaylandXdgShellV5 *m_xdgShell;
     QWaylandSurface *m_surface;
-    QWaylandXdgSurface *m_parentSurface;
+    QWaylandXdgSurfaceV5 *m_parentSurface;
 
     WindowType m_windowType;
 
@@ -157,19 +157,19 @@ private:
     static QWaylandSurfaceRole s_role;
 };
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgPopupPrivate
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgPopupV5Private
         : public QWaylandCompositorExtensionPrivate
         , public QtWaylandServer::xdg_popup
 {
-    Q_DECLARE_PUBLIC(QWaylandXdgPopup)
+    Q_DECLARE_PUBLIC(QWaylandXdgPopupV5)
 
 public:
-    QWaylandXdgPopupPrivate();
-    static QWaylandXdgPopupPrivate *get(QWaylandXdgPopup *xdgPopup) { return xdgPopup->d_func(); }
+    QWaylandXdgPopupV5Private();
+    static QWaylandXdgPopupV5Private *get(QWaylandXdgPopupV5 *xdgPopup) { return xdgPopup->d_func(); }
 
     QWaylandSurface *m_surface;
     QWaylandSurface *m_parentSurface;
-    QWaylandXdgShell *m_xdgShell;
+    QWaylandXdgShellV5 *m_xdgShell;
     QPoint m_position;
 
     void xdg_popup_destroy_resource(Resource *resource) Q_DECL_OVERRIDE;

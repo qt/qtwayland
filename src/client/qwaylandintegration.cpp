@@ -125,8 +125,6 @@ QWaylandIntegration::QWaylandIntegration()
     , mNativeInterface(new QWaylandNativeInterface(this))
 #ifndef QT_NO_ACCESSIBILITY
     , mAccessibility(new QPlatformAccessibility())
-#else
-    , mAccessibility(0)
 #endif
     , mClientBufferIntegrationInitialized(false)
     , mServerBufferIntegrationInitialized(false)
@@ -262,10 +260,12 @@ QVariant QWaylandIntegration::styleHint(StyleHint hint) const
     return QPlatformIntegration::styleHint(hint);
 }
 
+#ifndef QT_NO_ACCESSIBILITY
 QPlatformAccessibility *QWaylandIntegration::accessibility() const
 {
     return mAccessibility;
 }
+#endif
 
 QPlatformServices *QWaylandIntegration::services() const
 {
@@ -399,9 +399,7 @@ void QWaylandIntegration::initializeShellIntegration()
         }
     }
 
-    Q_ASSERT(mShellIntegration);
-
-    if (!mShellIntegration->initialize(mDisplay)) {
+    if (!mShellIntegration || !mShellIntegration->initialize(mDisplay)) {
         delete mShellIntegration;
         mShellIntegration = Q_NULLPTR;
         qWarning("Failed to load shell integration %s", qPrintable(targetKey));

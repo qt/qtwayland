@@ -82,8 +82,6 @@ private:
     void handlePopupClosed();
     void handlePopupRemoved();
 
-    static void closePopups();
-
     QWaylandQuickShellSurfaceItem *m_item;
     QWaylandWlShellSurface *m_shellSurface;
     GrabberState grabberState;
@@ -100,7 +98,6 @@ private:
         bool initialized;
     } resizeState;
 
-    static QVector<QWaylandWlShellSurface*> popupShellSurfaces;
     bool isPopup;
 };
 

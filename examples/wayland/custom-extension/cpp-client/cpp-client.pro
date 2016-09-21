@@ -1,6 +1,4 @@
-TEMPLATE = app
-
-QT += qml quick waylandclient-private
+QT += waylandclient-private
 
 CONFIG += c++11
 CONFIG += wayland-scanner
@@ -15,14 +13,10 @@ WAYLANDCLIENTSOURCES += ../protocol/custom.xml
 }
 
 SOURCES += main.cpp \
-    ../client/customextension.cpp
+    ../client-common/customextension.cpp
 
 HEADERS += \
-    ../client/customextension.h
+    ../client-common/customextension.h
 
-RESOURCES += qml.qrc
-
-target.path = $$[QT_INSTALL_EXAMPLES]/wayland/custom-extension/qmltestapp
+target.path = $$[QT_INSTALL_EXAMPLES]/wayland/custom-extension/cpp-client
 INSTALLS += target
-
-

@@ -73,8 +73,9 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandCompositor : public QWaylandObject
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandCompositor)
-    Q_PROPERTY(QByteArray socketName READ socketName WRITE setSocketName)
-    Q_PROPERTY(bool retainedSelection READ retainedSelectionEnabled WRITE setRetainedSelectionEnabled)
+    Q_PROPERTY(QByteArray socketName READ socketName WRITE setSocketName NOTIFY socketNameChanged)
+    Q_PROPERTY(bool created READ isCreated NOTIFY createdChanged)
+    Q_PROPERTY(bool retainedSelection READ retainedSelectionEnabled WRITE setRetainedSelectionEnabled NOTIFY retainedSelectionChanged)
     Q_PROPERTY(QWaylandOutput *defaultOutput READ defaultOutput WRITE setDefaultOutput NOTIFY defaultOutputChanged)
     Q_PROPERTY(bool useHardwareIntegrationExtension READ useHardwareIntegrationExtension WRITE setUseHardwareIntegrationExtension NOTIFY useHardwareIntegrationExtensionChanged)
     Q_PROPERTY(QWaylandSeat *defaultSeat READ defaultSeat NOTIFY defaultSeatChanged)
@@ -126,6 +127,10 @@ public Q_SLOTS:
     void processWaylandEvents();
 
 Q_SIGNALS:
+    void createdChanged();
+    void socketNameChanged(const QByteArray &socketName);
+    void retainedSelectionChanged(bool retainedSelection);
+
     void surfaceRequested(QWaylandClient *client, uint id, int version);
     void surfaceCreated(QWaylandSurface *surface);
     void surfaceAboutToBeDestroyed(QWaylandSurface *surface);

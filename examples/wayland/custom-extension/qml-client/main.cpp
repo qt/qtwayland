@@ -38,77 +38,22 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.0
-import QtQuick.Window 2.0
-import com.theqtcompany.customextension 1.0
+#include <QGuiApplication>
+#include <QtQml/QQmlApplicationEngine>
 
-Window {
-    visible: true
-    Rectangle {
-        anchors.fill: parent
-        color: "#297A4A"
-    }
+#include <QtQml/qqml.h>
+#include <QtQml/QQmlEngine>
+#include "../client-common/customextension.h"
 
-    MouseArea {
-        anchors.fill: parent
-        onClicked: {
-            console.log("Clicked outside", mouseX)
-            if (extensionLoader.item && extensionLoader.item.active)
-                extensionLoader.item.sendRequest("Clicked outside", mouseX)
-        }
-    }
+int main(int argc, char *argv[])
+{
+    QGuiApplication app(argc, argv);
 
-    MouseArea {
-        anchors.centerIn: parent
-        width: 100; height: 100
-        onClicked: {
-            var obj = mapToItem(parent, mouse.x, mouse.y)
-            console.log("Clicked inside", obj.x)
-            if (extensionLoader.item && extensionLoader.item.active)
-                extensionLoader.item.sendRequest("Clicked inside", obj.x)
-        }
+    qmlRegisterType<CustomExtension>("com.theqtcompany.customextension", 1, 0, "CustomExtension");
 
-        Rectangle {
-            anchors.fill: parent
-            color: "#34FD85"
-        }
-    }
+    QQmlApplicationEngine engine;
+    engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
 
-    MouseArea {
-        anchors.right: parent.right
-        anchors.bottom: parent.bottom
-        width: 150; height: 25
-
-        Rectangle {
-            anchors.fill: parent
-            color: "#010101"
-            Text {
-                anchors.centerIn: parent
-                color: "white"
-                text: extensionLoader.item ? "Unload client extension" : "Load client extension"
-            }
-        }
-        onClicked: {
-            extensionLoader.active = !extensionLoader.active
-        }
-    }
-
-    Component {
-        id: extensionComponent
-        CustomExtension {
-            id: customExtension
-            onActiveChanged: console.log("Custom extension is active?", active)
-        }
-    }
-
-    Loader {
-        id: extensionLoader
-        sourceComponent: extensionComponent
-    }
-
-    Connections {
-        target: extensionLoader.item
-        onEventReceived: console.log("Event received", text, value)
-    }
+    return app.exec();
 }
 

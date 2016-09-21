@@ -1,10 +1,7 @@
 TEMPLATE=subdirs
 
-SUBDIRS += client \
-    qmltestapp
+SUBDIRS += qml-client
 SUBDIRS += compositor
-SUBDIRS += testapp
-
-qmltestapp.depends = client
+SUBDIRS += cpp-client
 
 OTHER_FILES += protocol/custom.xml

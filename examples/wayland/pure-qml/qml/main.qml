@@ -73,7 +73,7 @@ WaylandCompositor {
         }
     }
 
-    XdgShell {
+    XdgShellV5 {
         property variant viewsBySurface: ({})
         onXdgSurfaceCreated: {
             var item = chromeComponent.createObject(defaultOutput.surfaceArea, { "shellSurface": xdgSurface } );

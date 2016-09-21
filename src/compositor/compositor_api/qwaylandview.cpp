@@ -198,14 +198,18 @@ void QWaylandView::setOutput(QWaylandOutput *newOutput)
 }
 
 /*!
- * Attaches a new buffer \a ref and a \a damage region to this QWaylandView. These
- * will become current on a subsequent call to the advance() method.
+ * This function is called when a new \a buffer is committed to this view's surface.
+ * \a damage contains the region that is different from the current buffer, i.e. the
+ * region that needs to be updated.
+ * The new \a buffer will become current on the next call to advance().
+ *
+ * Subclasses that reimplement this function \e must call the base implementation.
  */
-void QWaylandView::attach(const QWaylandBufferRef &ref, const QRegion &damage)
+void QWaylandView::bufferCommitted(const QWaylandBufferRef &buffer, const QRegion &damage)
 {
     Q_D(QWaylandView);
     QMutexLocker locker(&d->bufferMutex);
-    d->nextBuffer = ref;
+    d->nextBuffer = buffer;
     d->nextDamage = damage;
 }
 

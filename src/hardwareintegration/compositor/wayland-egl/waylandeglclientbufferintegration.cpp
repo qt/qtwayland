@@ -496,27 +496,27 @@ QWaylandSurface::Origin WaylandEglClientBuffer::origin() const
     return d->isYInverted ? QWaylandSurface::OriginTopLeft : QWaylandSurface::OriginBottomLeft;
 }
 
-void *WaylandEglClientBuffer::lockNativeBuffer()
+quintptr WaylandEglClientBuffer::lockNativeBuffer()
 {
     auto *p = WaylandEglClientBufferIntegrationPrivate::get(m_integration);
 
     if (d->egl_stream != EGL_NO_STREAM_KHR)
-        return nullptr;
+        return 0;
 
     EGLImageKHR image = p->egl_create_image(p->egl_display, EGL_NO_CONTEXT,
                                           EGL_WAYLAND_BUFFER_WL,
                                           m_buffer, NULL);
-    return image;
+    return reinterpret_cast<quintptr>(image);
 }
 
-void WaylandEglClientBuffer::unlockNativeBuffer(void *native_buffer) const
+void WaylandEglClientBuffer::unlockNativeBuffer(quintptr native_buffer) const
 {
     if (!native_buffer)
         return;
 
     auto *p = WaylandEglClientBufferIntegrationPrivate::get(m_integration);
 
-    EGLImageKHR image = static_cast<EGLImageKHR>(native_buffer);
+    EGLImageKHR image = reinterpret_cast<EGLImageKHR>(native_buffer);
     p->egl_destroy_image(p->egl_display, image);
 }
 

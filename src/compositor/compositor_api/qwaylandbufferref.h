@@ -103,6 +103,9 @@ public:
     QOpenGLTexture *toOpenGLTexture(int plane = 0) const;
 #endif
 
+    quintptr lockNativeBuffer();
+    void unlockNativeBuffer(quintptr handle);
+
 private:
     explicit QWaylandBufferRef(QtWayland::ClientBuffer *buffer);
     QtWayland::ClientBuffer *buffer() const;

@@ -277,6 +277,26 @@ QOpenGLTexture *QWaylandBufferRef::toOpenGLTexture(int plane) const
     return d->buffer->toOpenGlTexture(plane);
 }
 
+/*!
+ * Returns the native handle for this buffer, and marks it as locked so it will not be
+ * released until unlockNativeBuffer() is called.
+ *
+ * Returns 0 if there is no native handle for this buffer, or if the lock was unsuccessful.
+ */
+quintptr QWaylandBufferRef::lockNativeBuffer()
+{
+    return d->buffer->lockNativeBuffer();
+}
+
+/*!
+ * Marks the native buffer as no longer in use. \a handle must correspond to the value returned by
+ * a previous call to lockNativeBuffer().
+ */
+void QWaylandBufferRef::unlockNativeBuffer(quintptr handle)
+{
+    d->buffer->unlockNativeBuffer(handle);
+}
+
 #endif
 
 QT_END_NAMESPACE

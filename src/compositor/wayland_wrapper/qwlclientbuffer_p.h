@@ -84,8 +84,8 @@ public:
     virtual QSize size() const = 0;
     virtual QWaylandSurface::Origin origin() const = 0;
 
-    virtual void *lockNativeBuffer() { return nullptr; }
-    virtual void unlockNativeBuffer(void *native_buffer) const { Q_UNUSED(native_buffer); }
+    virtual quintptr lockNativeBuffer() { return 0; }
+    virtual void unlockNativeBuffer(quintptr native_buffer) const { Q_UNUSED(native_buffer); }
 
     virtual QImage image() const { return QImage(); }
 

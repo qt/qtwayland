@@ -68,8 +68,8 @@ public:
     QWaylandBufferRef::BufferFormatEgl bufferFormatEgl() const Q_DECL_OVERRIDE;
     QSize size() const Q_DECL_OVERRIDE;
     QWaylandSurface::Origin origin() const Q_DECL_OVERRIDE;
-    void *lockNativeBuffer() Q_DECL_OVERRIDE;
-    void unlockNativeBuffer(void *native_buffer) const Q_DECL_OVERRIDE;
+    quintptr lockNativeBuffer() Q_DECL_OVERRIDE;
+    void unlockNativeBuffer(quintptr native_buffer) const Q_DECL_OVERRIDE;
     QOpenGLTexture *toOpenGlTexture(int plane) Q_DECL_OVERRIDE;
     void setCommitted(QRegion &damage) Q_DECL_OVERRIDE;
 

@@ -39,7 +39,7 @@
 ****************************************************************************/
 
 import QtQuick 2.6
-import QtQuick.Window 2.2
+import QtQuick.Window 2.3
 import QtWayland.Compositor 1.0
 
 WaylandCompositor {
@@ -55,6 +55,11 @@ WaylandCompositor {
             visible: true
             color: "#1337af"
             Text { text: "Top screen" }
+
+            // Enable the following to make the output target an actual screen,
+            // for example when running on eglfs in a multi-display embedded system.
+
+            // targetScreen: Qt.application.screens[0]
         }
     }
 
@@ -68,6 +73,11 @@ WaylandCompositor {
             visible: true
             color: "#1abacc"
             Text { text: "Bottom screen" }
+
+            // Enable the following to make the output target an actual screen,
+            // for example when running on eglfs in a multi-display embedded system.
+
+            // targetScreen: Qt.application.screens[1]
         }
     }
 

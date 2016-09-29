@@ -8,6 +8,7 @@ INCLUDEPATH += $$PWD
 }
 
 CONFIG += egl
+QT += egl_support-private
 
 SOURCES += \
     $$PWD/waylandeglclientbufferintegration.cpp

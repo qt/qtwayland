@@ -43,7 +43,7 @@
 #include <QtWaylandClient/private/qwaylandscreen_p.h>
 #include "qwaylandbrcmglcontext.h"
 
-#include <QtPlatformSupport/private/qeglconvenience_p.h>
+#include <QtEglSupport/private/qeglconvenience_p.h>
 
 #include <QtGui/QWindow>
 #include <qpa/qwindowsysteminterface.h>

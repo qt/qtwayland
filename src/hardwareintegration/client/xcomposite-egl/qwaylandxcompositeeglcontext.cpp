@@ -44,7 +44,7 @@
 #include <QtCore/QDebug>
 #include <QtGui/QRegion>
 
-#include <QtPlatformSupport/private/qeglconvenience_p.h>
+#include <QtEglSupport/private/qeglconvenience_p.h>
 
 QT_BEGIN_NAMESPACE
 

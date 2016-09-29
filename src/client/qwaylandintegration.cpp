@@ -50,9 +50,9 @@
 #include "qwaylandwindowmanagerintegration_p.h"
 #include "qwaylandscreen_p.h"
 
-#include "QtPlatformSupport/private/qgenericunixfontdatabase_p.h"
-#include <QtPlatformSupport/private/qgenericunixeventdispatcher_p.h>
-#include <QtPlatformSupport/private/qgenericunixthemes_p.h>
+#include <QtFontDatabaseSupport/private/qgenericunixfontdatabase_p.h>
+#include <QtEventDispatcherSupport/private/qgenericunixeventdispatcher_p.h>
+#include <QtThemeSupport/private/qgenericunixthemes_p.h>
 
 #include <QtGui/private/qguiapplication_p.h>
 

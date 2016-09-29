@@ -638,18 +638,6 @@ void QWaylandQuickItem::touchEvent(QTouchEvent *event)
     if (d->shouldSendInputEvents() && d->touchEventsEnabled) {
         QWaylandSeat *seat = compositor()->seatFor(event);
 
-        if (event->type() == QEvent::TouchBegin) {
-            QQuickItem *grabber = window()->mouseGrabberItem();
-            if (grabber != this)
-                grabMouse();
-        }
-
-        if (event->type() == QEvent::TouchEnd) {
-            QQuickItem *grabber = window()->mouseGrabberItem();
-            if (grabber == this)
-                ungrabMouse();
-        }
-
         QPoint pointPos;
         const QList<QTouchEvent::TouchPoint> &points = event->touchPoints();
         if (!points.isEmpty())
@@ -664,20 +652,9 @@ void QWaylandQuickItem::touchEvent(QTouchEvent *event)
         if (seat->mouseFocus() != d->view.data()) {
             seat->sendMouseMoveEvent(d->view.data(), pointPos, mapToScene(pointPos));
         }
-        seat->sendFullTouchEvent(event);
+        seat->sendFullTouchEvent(surface(), event);
     } else {
         event->ignore();
-    }
-}
-
-/*!
- * \internal
- */
-void QWaylandQuickItem::mouseUngrabEvent()
-{
-    if (surface()) {
-        QTouchEvent e(QEvent::TouchCancel);
-        touchEvent(&e);
     }
 }
 

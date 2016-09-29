@@ -71,31 +71,14 @@ public:
 
     QWaylandCompositor *compositor() const { return seat->compositor(); }
 
-    uint sendDown(uint32_t time, int touch_id, const QPointF &position);
-    void sendMotion(uint32_t time, int touch_id, const QPointF &position);
-    uint sendUp(uint32_t time, int touch_id);
+    uint sendDown(QWaylandSurface *surface, uint32_t time, int touch_id, const QPointF &position);
+    void sendMotion(QWaylandClient *client, uint32_t time, int touch_id, const QPointF &position);
+    uint sendUp(QWaylandClient *client, uint32_t time, int touch_id);
 
-    void setFocusResource()
-    {
-        if (focusResource)
-            return;
-
-        QWaylandView *mouseFocus = seat->mouseFocus();
-        if (!mouseFocus || !mouseFocus->surface())
-            return;
-
-        focusResource = resourceMap().value(mouseFocus->surface()->waylandClient());
-    }
 private:
-    void resetFocusState();
-    void touch_bind_resource(Resource *resource) Q_DECL_OVERRIDE;
-    void touch_destroy_resource(Resource *resource) Q_DECL_OVERRIDE;
     void touch_release(Resource *resource) Q_DECL_OVERRIDE;
 
     QWaylandSeat *seat;
-
-    Resource *focusResource;
-    QWaylandDestroyListener focusDestroyListener;
 };
 
 QT_END_NAMESPACE

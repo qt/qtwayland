@@ -94,11 +94,11 @@ public:
     void sendFullKeyEvent(QKeyEvent *event);
     void sendFullKeyEvent(QWaylandSurface *surface, QKeyEvent *event);
 
-    uint sendTouchPointEvent(int id, const QPointF &point, Qt::TouchPointState state);
-    void sendTouchFrameEvent();
-    void sendTouchCancelEvent();
+    uint sendTouchPointEvent(QWaylandSurface *surface, int id, const QPointF &point, Qt::TouchPointState state);
+    void sendTouchFrameEvent(QWaylandClient *client);
+    void sendTouchCancelEvent(QWaylandClient *client);
 
-    void sendFullTouchEvent(QTouchEvent *event);
+    void sendFullTouchEvent(QWaylandSurface *surface, QTouchEvent *event);
 
     QWaylandPointer *pointer() const;
     //Normally set by the mouse device,

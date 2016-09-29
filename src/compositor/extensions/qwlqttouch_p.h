@@ -77,7 +77,7 @@ public:
     TouchExtensionGlobal(QWaylandCompositor *compositor);
     ~TouchExtensionGlobal();
 
-    bool postTouchEvent(QTouchEvent *event, QWaylandView *view);
+    bool postTouchEvent(QTouchEvent *event, QWaylandSurface *surface);
 
     void setBehviorFlags(BehaviorFlags flags);
     BehaviorFlags behaviorFlags() const { return m_flags; }

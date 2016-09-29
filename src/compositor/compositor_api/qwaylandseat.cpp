@@ -262,52 +262,47 @@ void QWaylandSeat::sendKeyReleaseEvent(uint code)
  *
  * Returns the serial for the touch up or touch down event.
  */
-uint QWaylandSeat::sendTouchPointEvent(int id, const QPointF &point, Qt::TouchPointState state)
+uint QWaylandSeat::sendTouchPointEvent(QWaylandSurface *surface, int id, const QPointF &point, Qt::TouchPointState state)
 {
     Q_D(QWaylandSeat);
-    if (d->touch.isNull()) {
+
+    if (d->touch.isNull())
         return 0;
-    }
-    return d->touch->sendTouchPointEvent(id, point,state);
+
+    return d->touch->sendTouchPointEvent(surface, id, point,state);
 }
 
 /*!
  * Sends a frame event to the touch device.
  */
-void QWaylandSeat::sendTouchFrameEvent()
+void QWaylandSeat::sendTouchFrameEvent(QWaylandClient *client)
 {
     Q_D(QWaylandSeat);
-    if (!d->touch.isNull()) {
-        d->touch->sendFrameEvent();
-    }
+    if (!d->touch.isNull())
+        d->touch->sendFrameEvent(client);
 }
 
 /*!
  * Sends a cancel event to the touch device.
  */
-void QWaylandSeat::sendTouchCancelEvent()
+void QWaylandSeat::sendTouchCancelEvent(QWaylandClient *client)
 {
     Q_D(QWaylandSeat);
-    if (!d->touch.isNull()) {
-        d->touch->sendCancelEvent();
-    }
+    if (!d->touch.isNull())
+        d->touch->sendCancelEvent(client);
 }
 
 /*!
  * Sends the \a event to the touch device.
  */
-void QWaylandSeat::sendFullTouchEvent(QTouchEvent *event)
+void QWaylandSeat::sendFullTouchEvent(QWaylandSurface *surface, QTouchEvent *event)
 {
     Q_D(QWaylandSeat);
-    if (!mouseFocus()) {
-        qWarning("Cannot send touch event, no pointer focus, fix the compositor");
-        return;
-    }
 
     if (!d->touch)
         return;
 
-    d->touch->sendFullTouchEvent(event);
+    d->touch->sendFullTouchEvent(surface, event);
 }
 
 /*!

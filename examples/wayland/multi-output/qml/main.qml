@@ -66,8 +66,8 @@ WaylandCompositor {
         WaylandSurface {
             id: surface
             signal activated()
-            onMappedChanged: {
-                if (isMapped && !cursorSurface) {
+            onHasContentChanged: {
+                if (hasContent && !cursorSurface) {
                     gridScreen.gridSurfaces.append( { "gridSurface" : surface } );
                 } else {
                     for (var i = 0; i < gridScreen.gridSurfaces.count; i++) {

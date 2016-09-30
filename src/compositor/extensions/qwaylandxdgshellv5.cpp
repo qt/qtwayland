@@ -924,7 +924,9 @@ uint QWaylandXdgSurfaceV5::sendConfigure(const QSize &size, const QVector<uint> 
 {
     Q_D(QWaylandXdgSurfaceV5);
     auto statesBytes = QByteArray::fromRawData((char *)states.data(), states.size() * sizeof(State));
-    QWaylandCompositor *compositor = static_cast<QWaylandCompositor *>(extensionContainer());
+    QWaylandSurface *surface = qobject_cast<QWaylandSurface *>(extensionContainer());
+    Q_ASSERT(surface);
+    QWaylandCompositor *compositor = surface->compositor();
     Q_ASSERT(compositor);
     uint32_t serial = compositor->nextSerial();
     d->m_pendingConfigures.append(QWaylandXdgSurfaceV5Private::ConfigureEvent{states, size, serial});

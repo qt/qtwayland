@@ -316,7 +316,7 @@ void QWaylandWlShell::initialize()
 {
     Q_D(QWaylandWlShell);
     QWaylandShellTemplate::initialize();
-    QWaylandCompositor *compositor = static_cast<QWaylandCompositor *>(extensionContainer());
+    QWaylandCompositor *compositor = qobject_cast<QWaylandCompositor *>(extensionContainer());
     if (!compositor) {
         qWarning() << "Failed to find QWaylandCompositor when initializing QWaylandWlShell";
         return;

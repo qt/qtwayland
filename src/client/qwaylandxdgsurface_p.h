@@ -56,9 +56,9 @@
 
 #include <wayland-client.h>
 
-#include <QtWaylandClient/private/qwayland-xdg-shell.h>
 #include <QtWaylandClient/qwaylandclientexport.h>
-#include "qwaylandshellsurface_p.h"
+#include <QtWaylandClient/private/qwayland-xdg-shell.h>
+#include <QtWaylandClient/private/qwaylandshellsurface_p.h>
 
 QT_BEGIN_NAMESPACE
 

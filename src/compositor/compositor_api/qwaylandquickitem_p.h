@@ -52,8 +52,7 @@
 #include <QtQuick/QSGMaterialShader>
 #include <QtQuick/QSGMaterial>
 
-#include "qwaylandquickitem.h"
-
+#include <QtWaylandCompositor/QWaylandQuickItem>
 #include <QtWaylandCompositor/QWaylandOutput>
 
 QT_BEGIN_NAMESPACE

@@ -48,8 +48,8 @@
 // We mean it.
 //
 
-#include "qwaylandclientextension.h"
 #include <QtCore/private/qobject_p.h>
+#include <QtWaylandClient/QWaylandClientExtension>
 #include <QtWaylandClient/private/qwaylandintegration_p.h>
 
 QT_BEGIN_NAMESPACE

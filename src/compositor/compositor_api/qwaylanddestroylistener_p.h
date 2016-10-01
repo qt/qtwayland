@@ -48,7 +48,7 @@
 // We mean it.
 //
 
-#include "qwaylanddestroylistener.h"
+#include <QtWaylandCompositor/QWaylandDestroyListener>
 
 #include <QtCore/private/qobject_p.h>
 

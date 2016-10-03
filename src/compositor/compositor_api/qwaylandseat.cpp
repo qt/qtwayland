@@ -143,7 +143,7 @@ void QWaylandSeatPrivate::seat_get_touch(wl_seat::Resource *resource, uint32_t i
 /*!
  * \class QWaylandSeat
  * \inmodule QtWaylandCompositor
- * \preliminary
+ * \since 5.8
  * \brief The QWaylandSeat class provides access to keyboard, mouse, and touch input.
  *
  * The QWaylandSeat provides access to different types of user input and maintains

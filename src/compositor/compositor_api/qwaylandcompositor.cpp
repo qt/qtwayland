@@ -424,7 +424,7 @@ void QWaylandCompositorPrivate::loadServerBufferIntegration()
 /*!
   \qmltype WaylandCompositor
   \inqmlmodule QtWayland.Compositor
-  \preliminary
+  \since 5.8
   \brief Manages the Wayland display server.
 
   The WaylandCompositor manages the connections to the clients, as well as the different
@@ -443,7 +443,7 @@ void QWaylandCompositorPrivate::loadServerBufferIntegration()
 /*!
    \class QWaylandCompositor
    \inmodule QtWaylandCompositor
-   \preliminary
+   \since 5.8
    \brief The QWaylandCompositor class manages the Wayland display server.
 
    The QWaylandCompositor manages the connections to the clients, as well as the different \l{QWaylandOutput}{outputs}

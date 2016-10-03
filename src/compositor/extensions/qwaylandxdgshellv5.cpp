@@ -623,7 +623,7 @@ void QWaylandXdgShellV5::handleFocusChanged(QWaylandSurface *newSurface, QWaylan
 /*!
  * \class QWaylandXdgSurfaceV5
  * \inmodule QtWaylandCompositor
- * \preliminary
+ * \since 5.8
  * \brief The QWaylandXdgSurfaceV5 class provides desktop-style compositor-specific features to an xdg surface.
  *
  * This class is part of the QWaylandXdgShellV5 extension and provides a way to
@@ -1019,7 +1019,7 @@ QWaylandQuickShellIntegration *QWaylandXdgSurfaceV5::createIntegration(QWaylandQ
 /*!
  * \class QWaylandXdgPopupV5
  * \inmodule QtWaylandCompositor
- * \preliminary
+ * \since 5.8
  * \brief The QWaylandXdgPopupV5 class provides menus for an xdg surface
  *
  * This class is part of the QWaylandXdgShellV5 extension and provides a way to

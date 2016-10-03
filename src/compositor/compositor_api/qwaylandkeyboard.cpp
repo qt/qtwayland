@@ -383,7 +383,7 @@ void QWaylandKeyboardPrivate::sendRepeatInfo()
 /*!
  * \class QWaylandKeyboard
  * \inmodule QtWaylandCompositor
- * \preliminary
+ * \since 5.8
  * \brief The QWaylandKeyboard class represents a keyboard device.
  *
  * This class provides access to the keyboard device in a QWaylandSeat. It corresponds to

@@ -94,7 +94,7 @@ void QWaylandPointerPrivate::pointer_set_cursor(wl_pointer::Resource *resource, 
 /*!
  * \class QWaylandPointer
  * \inmodule QtWaylandCompositor
- * \preliminary
+ * \since 5.8
  * \brief The QWaylandPointer class represents a pointer device.
  *
  * This class provides access to the pointer device in a QWaylandSeat. It corresponds to

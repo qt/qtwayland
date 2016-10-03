@@ -47,7 +47,7 @@ QWaylandSurfaceRole QWaylandIviSurfacePrivate::s_role("ivi_surface");
 /*!
  * \class QWaylandIviSurface
  * \inmodule QtWaylandCompositor
- * \preliminary
+ * \since 5.8
  * \brief The QWaylandIviSurface class provides a simple way to identify and resize a surface.
  *
  * This class is part of the QWaylandIviApplication extension and provides a way to

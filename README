@@ -8,11 +8,6 @@ Wayland platform plugin:
 QtWaylandCompositor API:
     Enables the creation of Wayland compositors using Qt and QtQuick.
 
-Please note that QtWaylandCompositor and the QtWaylandClientExtension are
-currently in tech preview. This means that all APIs in the QtWayland module are
-preliminary and subject to change. The Wayland platform plugin remains officially
-supported.
-
 To build the QtWayland module you need the external dependencies:
 xkbcommon 0.2.0 - http://xkbcommon.org/
 wayland 1.6.0 - http://wayland.freedesktop.org/

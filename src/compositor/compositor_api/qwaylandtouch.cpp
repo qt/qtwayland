@@ -99,7 +99,7 @@ void QWaylandTouchPrivate::sendMotion(QWaylandClient *client, uint32_t time, int
 /*!
  * \class QWaylandTouch
  * \inmodule QtWaylandCompositor
- * \preliminary
+ * \since 5.8
  * \brief The QWaylandTouch class provides access to a touch device.
  *
  * This class provides access to the touch device in a QWaylandSeat. It corresponds to

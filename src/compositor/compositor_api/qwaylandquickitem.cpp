@@ -314,7 +314,7 @@ private:
 /*!
  * \qmltype WaylandQuickItem
  * \inqmlmodule QtWayland.Compositor
- * \preliminary
+ * \since 5.8
  * \brief Provides a Qt Quick item that represents a WaylandView.
  *
  * Qt Quick-based Wayland compositors can use this type to display a client's
@@ -325,7 +325,7 @@ private:
 /*!
  * \class QWaylandQuickItem
  * \inmodule QtWaylandCompositor
- * \preliminary
+ * \since 5.8
  * \brief The QWaylandQuickItem class provides a Qt Quick item representing a QWaylandView.
  *
  * When writing a QWaylandCompositor in Qt Quick, this class can be used to display a

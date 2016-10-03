@@ -189,7 +189,7 @@ QWaylandOutput::QWaylandOutput()
 /*!
    \qmltype WaylandOutput
    \inqmlmodule QtWayland.Compositor
-   \preliminary
+   \since 5.8
    \brief Provides access to a displayable area managed by the compositor.
 
    The WaylandOutput manages a rectangular area within bounds of the compositor's
@@ -202,7 +202,7 @@ QWaylandOutput::QWaylandOutput()
 /*!
    \class QWaylandOutput
    \inmodule QtWaylandCompositor
-   \preliminary
+   \since 5.8
    \brief The QWaylandOutput class represents a displayable area managed by the compositor.
 
    The QWaylandOutput manages a rectangular area within bounds of the compositor's

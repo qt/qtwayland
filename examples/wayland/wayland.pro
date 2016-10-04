@@ -12,4 +12,5 @@ contains(QT_CONFIG, opengl):qtHaveModule(quick) {
     SUBDIRS += multi-output
     SUBDIRS += custom-extension
     SUBDIRS += server-buffer
+    SUBDIRS += ivi-compositor
 }

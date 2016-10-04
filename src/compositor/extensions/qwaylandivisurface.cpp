@@ -68,7 +68,7 @@ QWaylandIviSurface::QWaylandIviSurface()
 
 /*!
  * Constructs a QWaylandIviSurface for \a surface and initializes it with the
- * given \a application, \a surface, \a iviId, and resource \a res.
+ * given \a application, \a surface, \a iviId, and \a resource.
  */
 QWaylandIviSurface::QWaylandIviSurface(QWaylandIviApplication *application, QWaylandSurface *surface, uint iviId, const QWaylandResource &resource)
     : QWaylandShellSurfaceTemplate<QWaylandIviSurface>(*new QWaylandIviSurfacePrivate())
@@ -129,7 +129,7 @@ QWaylandSurface *QWaylandIviSurface::surface() const
  */
 
 /*!
- * \property QWaylandClient::iviId
+ * \property QWaylandIviSurface::iviId
  *
  * This property holds the ivi id of this QWaylandIviSurface.
  */

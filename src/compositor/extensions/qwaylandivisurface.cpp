@@ -59,6 +59,14 @@ QWaylandSurfaceRole QWaylandIviSurfacePrivate::s_role("ivi_surface");
  */
 
 /*!
+ * Constructs a QWaylandIviSurface.
+ */
+QWaylandIviSurface::QWaylandIviSurface()
+    : QWaylandShellSurfaceTemplate<QWaylandIviSurface>(*new QWaylandIviSurfacePrivate())
+{
+}
+
+/*!
  * Constructs a QWaylandIviSurface for \a surface and initializes it with the
  * given \a application, \a surface, \a iviId, and resource \a res.
  */

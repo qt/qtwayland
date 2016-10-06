@@ -109,6 +109,9 @@ void WlShellIntegration::handleSetTransient(QWaylandSurface *parentSurface, cons
 
 void WlShellIntegration::handleSetMaximized(QWaylandOutput *output)
 {
+    if (!m_item->view()->isPrimary())
+        return;
+
     if (currentState == State::Maximized)
         return;
 
@@ -129,6 +132,9 @@ void WlShellIntegration::handleSetFullScreen(QWaylandWlShellSurface::FullScreenM
 {
     Q_UNUSED(method);
     Q_UNUSED(framerate);
+
+    if (!m_item->view()->isPrimary())
+        return;
 
     if (currentState == State::FullScreen)
         return;
@@ -225,6 +231,9 @@ void WlShellIntegration::handleRedraw()
 
 void WlShellIntegration::adjustOffsetForNextFrame(const QPointF &offset)
 {
+    if (!m_item->view()->isPrimary())
+        return;
+
     float scaleFactor = m_item->view()->output()->scaleFactor();
     QQuickItem *moveItem = m_item->moveItem();
     moveItem->setPosition(moveItem->position() + offset * scaleFactor);

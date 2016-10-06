@@ -232,7 +232,7 @@ bool QWaylandView::advance()
     if (d->bufferLocked)
         return false;
 
-    if (d->surface && d->surface->throttlingView() == this) {
+    if (d->surface && d->surface->primaryView() == this) {
         Q_FOREACH (QWaylandView *view, d->surface->views()) {
             if (view != this && view->allowDiscardFrontBuffer() && view->d_func()->currentBuffer == d->currentBuffer)
                 view->discardCurrentBuffer();
@@ -343,6 +343,28 @@ void QWaylandView::setAllowDiscardFrontBuffer(bool discard)
         return;
     d->allowDiscardFrontBuffer = discard;
     emit allowDiscardFrontBufferChanged();
+}
+
+/*!
+ * Makes this QWaylandView the primary view for the surface.
+ *
+ * \sa QWaylandSurface::primaryView
+ */
+void QWaylandView::setPrimary()
+{
+    Q_D(QWaylandView);
+    d->surface->setPrimaryView(this);
+}
+
+/*!
+ * Returns true if this QWaylandView is the primary view for the QWaylandSurface
+ *
+ * \sa QWaylandSurface::primaryView
+ */
+bool QWaylandView::isPrimary() const
+{
+    Q_D(const QWaylandView);
+    return d->surface->primaryView() == this;
 }
 
 /*!

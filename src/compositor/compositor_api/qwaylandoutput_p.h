@@ -78,10 +78,10 @@ struct QWaylandSurfaceViewMapper
         , has_entered(false)
     {}
 
-    QWaylandView *maybeThrottelingView() const
+    QWaylandView *maybePrimaryView() const
     {
         for (int i = 0; i < views.size(); i++) {
-            if (surface && surface->throttlingView() == views.at(i))
+            if (surface && surface->primaryView() == views.at(i))
                 return views.at(i);
         }
         return Q_NULLPTR;

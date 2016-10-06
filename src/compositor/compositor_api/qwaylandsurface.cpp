@@ -690,11 +690,11 @@ void QWaylandSurface::updateSelection()
 }
 
 /*!
- * Returns this QWaylandSurface's throttling view.
+ * Returns this QWaylandSurface's primary view.
  *
- * \sa QWaylandView::advance()
+ * \sa QWaylandView::advance(), QWaylandSurface::setPrimaryView()
  */
-QWaylandView *QWaylandSurface::throttlingView() const
+QWaylandView *QWaylandSurface::primaryView() const
 {
     Q_D(const QWaylandSurface);
     if (d->views.isEmpty())
@@ -703,15 +703,20 @@ QWaylandView *QWaylandSurface::throttlingView() const
 }
 
 /*!
- * Sets this QWaylandSurface's throttling view to \a view, in case there are
- * multiple views of this surface. The throttling view is the view that
+ * Sets this QWaylandSurface's primary view to \a view, in case there are
+ * multiple views of this surface. The primary view is the view that
  * governs the client's refresh rate. It takes care of discarding buffer
  * references when QWaylandView::advance() is called. See the documentation
  * for QWaylandView::advance() for more details.
  *
+ * In shell surface integrations, such as QWaylandWlShellIntegration and
+ * QWaylandXdgShellV5Integration, maximize and fullscreen requests from the
+ * client will only have an effect if the integration has the primary view
+ * of the surface.
+ *
  * \sa QWaylandView::advance()
  */
-void QWaylandSurface::setThrottlingView(QWaylandView *view)
+void QWaylandSurface::setPrimaryView(QWaylandView *view)
 {
     Q_D(QWaylandSurface);
 

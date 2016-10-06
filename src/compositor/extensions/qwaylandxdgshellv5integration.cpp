@@ -140,6 +140,9 @@ void XdgShellV5Integration::handleSetTransient()
 
 void XdgShellV5Integration::handleSetMaximized()
 {
+    if (!m_item->view()->isPrimary())
+        return;
+
     maximizeState.initialWindowSize = m_xdgSurface->windowGeometry().size();
     maximizeState.initialPosition = m_item->moveItem()->position();
 
@@ -149,6 +152,9 @@ void XdgShellV5Integration::handleSetMaximized()
 
 void XdgShellV5Integration::handleUnsetMaximized()
 {
+    if (!m_item->view()->isPrimary())
+        return;
+
     m_xdgSurface->sendUnmaximized(maximizeState.initialWindowSize);
 }
 

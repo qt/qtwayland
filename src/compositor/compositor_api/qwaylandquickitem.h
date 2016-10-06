@@ -119,6 +119,8 @@ public:
     bool allowDiscardFrontBuffer() const;
     void setAllowDiscardFrontBuffer(bool discard);
 
+    Q_INVOKABLE void setPrimary();
+
 protected:
     void mousePressEvent(QMouseEvent *event) Q_DECL_OVERRIDE;
     void mouseMoveEvent(QMouseEvent *event) Q_DECL_OVERRIDE;

@@ -124,8 +124,8 @@ public:
     Q_INVOKABLE void frameStarted();
     Q_INVOKABLE void sendFrameCallbacks();
 
-    QWaylandView *throttlingView() const;
-    void setThrottlingView(QWaylandView *view);
+    QWaylandView *primaryView() const;
+    void setPrimaryView(QWaylandView *view);
 
     QList<QWaylandView *> views() const;
 

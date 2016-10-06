@@ -216,20 +216,11 @@ void QWaylandView::bufferCommitted(const QWaylandBufferRef &buffer, const QRegio
 }
 
 /*!
- * Sets the next buffer and damage region to current and returns \c true. If the buffer
- * is locked or if no new buffer has been attached since the last call to
- * advance(), the function returns \c false and does nothing.
+ * Updates the current buffer and damage region to the latest version committed by the client.
+ * Returns true if new content was committed since the previous call to advance().
+ * Otherwise returns false.
  *
- * If this view is set as the surface's throttling view, discardCurrentBuffer()
- * is called on all views of the same surface for which the
- * \l{QWaylandView::allowDiscardFrontBuffer}{allowDiscardFrontBuffer}
- * property is set to true and the current buffer is the same as the
- * throttling view's current buffer.
- *
- * To enable clients to reuse existing buffers, enable the primary view to ensure
- * that views running on a lower frequency will release their front buffer
- * references. This design approach should avoid the situation where the lower
- * frequency views throttle the frame rate of the client application.
+ * \sa currentBuffer(), currentDamage()
  */
 bool QWaylandView::advance()
 {
@@ -324,14 +315,20 @@ void QWaylandView::setBufferLocked(bool locked)
  * \qmlproperty bool QtWaylandCompositor::WaylandView::allowDiscardFrontBuffer
  *
  * By default, the view locks the current buffer until advance() is called. Set this property
- * to true to allow Qt to release the buffer when the throttling view is no longer using it.
+ * to true to allow Qt to release the buffer when the primary view is no longer using it.
+ *
+ * This can be used to avoid the situation where a secondary view that updates on a lower
+ * frequency will throttle the frame rate of the client application.
  */
 
 /*!
  * \property QWaylandView::allowDiscardFrontBuffer
  *
  * By default, the view locks the current buffer until advance() is called. Set this property
- * to \c true to allow Qt to release the buffer when the throttling view is no longer using it.
+ * to \c true to allow Qt to release the buffer when the primary view is no longer using it.
+ *
+ * This can be used to avoid the situation where a secondary view that updates on a lower
+ * frequency will throttle the frame rate of the client application.
  */
 bool QWaylandView::allowDiscardFrontBuffer() const
 {

@@ -39,38 +39,37 @@
 **
 ****************************************************************************/
 
+import QtQml 2.2
 import QtQuick 2.0
+import QtQuick.Window 2.3 as Window
 import QtWayland.Compositor 1.0
+import QtQml.Models 2.1
 
 WaylandCompositor {
     id: comp
-    defaultOutput: middleScreen
 
-    Screen {
-        id: leftScreen
-        position.x: -leftScreen.surfaceArea.width
-        position.y: 0
-        surfaceArea.color: "#f00"
-        text: "Left"
-        compositor: comp
+    ListModel {
+        id: emulatedScreens
+        ListElement { name: "left";   virtualX: 0;    virtualY: 0; width: 800; height: 600 }
+        ListElement { name: "middle"; virtualX: 800;  virtualY: 0; width: 800; height: 600 }
+        ListElement { name: "right";  virtualX: 1600; virtualY: 0; width: 800; height: 600 }
     }
 
-    Screen {
-        id: middleScreen
-        position.x: leftScreen.position.x + leftScreen.surfaceArea.width
-        position.y: 0
-        text: "Middle"
-        surfaceArea.color: "#0f0"
-        compositor: comp
-    }
+    property bool emulated: Qt.application.screens.length < 2
 
-    Screen {
-        id: rightScreen
-        position.x: middleScreen.position.x + middleScreen.surfaceArea.width
-        position.y: 0
-        surfaceArea.color: "#00f"
-        text: "Right"
-        compositor: comp
+    Instantiator {
+        id: screens
+        model: emulated ? emulatedScreens : Qt.application.screens
+
+        delegate: Screen {
+            surfaceArea.color: "lightsteelblue"
+            text: name
+            compositor: comp
+            targetScreen: modelData
+            Component.onCompleted: if (!comp.defaultOutput) comp.defaultOutput = this
+            position: Qt.point(virtualX, virtualY)
+            windowed: emulated
+        }
     }
 
     Component {
@@ -85,10 +84,6 @@ WaylandCompositor {
 
     Item {
         id: rootItem
-        x: leftScreen.position.x
-        y: leftScreen.position.y
-        width: leftScreen.surfaceArea.width + middleScreen.surfaceArea.width + rightScreen.surfaceArea.width
-        height: Math.max(leftScreen.surfaceArea.height, middleScreen.surfaceArea.height, rightScreen.surfaceArea.height)
     }
 
     WlShell {
@@ -117,11 +112,12 @@ WaylandCompositor {
 
     function handleShellSurfaceCreated(shellSurface) {
         var moveItem = moveItemComponent.createObject(rootItem, {
+            "x": screens.objectAt(0).position.x,
+            "y": screens.objectAt(0).position.y,
             "width": Qt.binding(function() { return shellSurface.surface.width; }),
             "height": Qt.binding(function() { return shellSurface.surface.height; })
         });
-        createShellSurfaceItem(shellSurface, moveItem, middleScreen);
-        createShellSurfaceItem(shellSurface, moveItem, leftScreen);
-        createShellSurfaceItem(shellSurface, moveItem, rightScreen);
+        for (var i = 0; i < screens.count; ++i)
+            createShellSurfaceItem(shellSurface, moveItem, screens.objectAt(i));
     }
 }

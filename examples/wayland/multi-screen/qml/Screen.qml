@@ -40,18 +40,25 @@
 
 import QtQuick 2.0
 import QtWayland.Compositor 1.0
-import QtQuick.Window 2.2
+import QtQuick.Window 2.3
 
 WaylandOutput {
     id: screen
     property variant viewsBySurface: ({})
     property alias surfaceArea: background
     property alias text: t.text
+    property alias targetScreen: win.targetScreen
     sizeFollowsWindow: true
 
+    property bool windowed: false
+
     window: Window {
-        width: 1024
-        height: 760
+        id: win
+        x: targetScreen.virtualX
+        y: targetScreen.virtualY
+        width: 800
+        height: 800
+        visibility: windowed ? Window.Windowed : Window.FullScreen
         visible: true
 
         WaylandMouseTracker {

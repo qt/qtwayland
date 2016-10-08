@@ -23,6 +23,7 @@ config_xkbcommon {
 
 WAYLANDCLIENTSOURCES += \
             ../../../../src/3rdparty/protocol/xdg-shell.xml \
+            ../../../../src/3rdparty/protocol/ivi-application.xml \
 
 SOURCES += \
     tst_compositor.cpp \

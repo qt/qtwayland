@@ -39,6 +39,7 @@
 
 #include <QtWaylandCompositor/QWaylandCompositorExtension>
 #include <QtWaylandCompositor/QWaylandResource>
+#include <QtWaylandCompositor/QWaylandShell>
 #include <QtWaylandCompositor/QWaylandShellSurface>
 
 #include <QtCore/QRect>
@@ -59,7 +60,7 @@ class QWaylandSeat;
 class QWaylandOutput;
 class QWaylandClient;
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgShellV5 : public QWaylandCompositorExtensionTemplate<QWaylandXdgShellV5>
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgShellV5 : public QWaylandShellTemplate<QWaylandXdgShellV5>
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandXdgShellV5)

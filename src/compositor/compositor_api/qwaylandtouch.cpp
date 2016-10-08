@@ -49,27 +49,8 @@ QT_BEGIN_NAMESPACE
 QWaylandTouchPrivate::QWaylandTouchPrivate(QWaylandTouch *touch, QWaylandSeat *seat)
     : wl_touch()
     , seat(seat)
-    , focusResource()
 {
     Q_UNUSED(touch);
-}
-
-void QWaylandTouchPrivate::resetFocusState()
-{
-    focusDestroyListener.reset();
-    focusResource = 0;
-}
-
-void QWaylandTouchPrivate::touch_bind_resource(Resource *resource)
-{
-    focusResource = resource;
-}
-
-void QWaylandTouchPrivate::touch_destroy_resource(Resource *resource)
-{
-    if (focusResource == resource) {
-        resetFocusState();
-    }
 }
 
 void QWaylandTouchPrivate::touch_release(Resource *resource)
@@ -77,29 +58,37 @@ void QWaylandTouchPrivate::touch_release(Resource *resource)
     wl_resource_destroy(resource->handle);
 }
 
-void QWaylandTouchPrivate::sendDown(uint32_t time, int touch_id, const QPointF &position)
+uint QWaylandTouchPrivate::sendDown(QWaylandSurface *surface, uint32_t time, int touch_id, const QPointF &position)
 {
     Q_Q(QWaylandTouch);
-    if (!focusResource || !seat->mouseFocus())
-        return;
+    auto focusResource = resourceMap().value(surface->client()->client());
+    if (!focusResource)
+        return 0;
 
     uint32_t serial = q->compositor()->nextSerial();
 
-    wl_touch_send_down(focusResource->handle, serial, time, seat->mouseFocus()->surfaceResource(), touch_id,
+    wl_touch_send_down(focusResource->handle, serial, time, surface->resource(), touch_id,
                        wl_fixed_from_double(position.x()), wl_fixed_from_double(position.y()));
+    return serial;
 }
 
-void QWaylandTouchPrivate::sendUp(uint32_t time, int touch_id)
+uint QWaylandTouchPrivate::sendUp(QWaylandClient *client, uint32_t time, int touch_id)
 {
+    auto focusResource = resourceMap().value(client->client());
+
     if (!focusResource)
-        return;
+        return 0;
 
     uint32_t serial = compositor()->nextSerial();
 
     wl_touch_send_up(focusResource->handle, serial, time, touch_id);
+    return serial;
 }
-void QWaylandTouchPrivate::sendMotion(uint32_t time, int touch_id, const QPointF &position)
+
+void QWaylandTouchPrivate::sendMotion(QWaylandClient *client, uint32_t time, int touch_id, const QPointF &position)
 {
+    auto focusResource = resourceMap().value(client->client());
+
     if (!focusResource)
         return;
 
@@ -110,7 +99,7 @@ void QWaylandTouchPrivate::sendMotion(uint32_t time, int touch_id, const QPointF
 /*!
  * \class QWaylandTouch
  * \inmodule QtWaylandCompositor
- * \preliminary
+ * \since 5.8
  * \brief The QWaylandTouch class provides access to a touch device.
  *
  * This class provides access to the touch device in a QWaylandSeat. It corresponds to
@@ -123,7 +112,6 @@ void QWaylandTouchPrivate::sendMotion(uint32_t time, int touch_id, const QPointF
 QWaylandTouch::QWaylandTouch(QWaylandSeat *seat, QObject *parent)
     : QWaylandObject(*new QWaylandTouchPrivate(this, seat), parent)
 {
-    connect(&d_func()->focusDestroyListener, &QWaylandDestroyListener::fired, this, &QWaylandTouch::focusDestroyed);
 }
 
 /*!
@@ -147,48 +135,53 @@ QWaylandCompositor *QWaylandTouch::compositor() const
 /*!
  * Sends a touch point event for the touch device with the given \a id,
  * \a position, and \a state.
+ *
+ * Returns the serial of the down or up event if sent, otherwise 0.
  */
-void QWaylandTouch::sendTouchPointEvent(int id, const QPointF &position, Qt::TouchPointState state)
+uint QWaylandTouch::sendTouchPointEvent(QWaylandSurface *surface, int id, const QPointF &position, Qt::TouchPointState state)
 {
     Q_D(QWaylandTouch);
     uint32_t time = compositor()->currentTimeMsecs();
+    uint serial = 0;
     switch (state) {
     case Qt::TouchPointPressed:
-        d->sendDown(time, id, position);
+        serial = d->sendDown(surface, time, id, position);
         break;
     case Qt::TouchPointMoved:
-        d->sendMotion(time, id, position);
+        d->sendMotion(surface->client(), time, id, position);
         break;
     case Qt::TouchPointReleased:
-        d->sendUp(time, id);
+        serial = d->sendUp(surface->client(), time, id);
         break;
     case Qt::TouchPointStationary:
         // stationary points are not sent through wayland, the client must cache them
         break;
-    default:
-        break;
     }
+
+    return serial;
 }
 
 /*!
  * Sends a touch frame event for the touch device. This indicates the end of a
  * contact point list.
  */
-void QWaylandTouch::sendFrameEvent()
+void QWaylandTouch::sendFrameEvent(QWaylandClient *client)
 {
     Q_D(QWaylandTouch);
-    if (d->focusResource)
-        d->send_frame(d->focusResource->handle);
+    auto focusResource = d->resourceMap().value(client->client());
+    if (focusResource)
+        d->send_frame(focusResource->handle);
 }
 
 /*!
  * Sends a touch cancel event for the touch device.
  */
-void QWaylandTouch::sendCancelEvent()
+void QWaylandTouch::sendCancelEvent(QWaylandClient *client)
 {
     Q_D(QWaylandTouch);
-    if (d->focusResource)
-        d->send_cancel(d->focusResource->handle);
+    auto focusResource = d->resourceMap().value(client->client());
+    if (focusResource)
+        d->send_cancel(focusResource->handle);
 }
 
 /*!
@@ -197,16 +190,16 @@ void QWaylandTouch::sendCancelEvent()
  *
  * \sa sendTouchPointEvent(), sendFrameEvent()
  */
-void QWaylandTouch::sendFullTouchEvent(QTouchEvent *event)
+void QWaylandTouch::sendFullTouchEvent(QWaylandSurface *surface, QTouchEvent *event)
 {
     Q_D(QWaylandTouch);
     if (event->type() == QEvent::TouchCancel) {
-        sendCancelEvent();
+        sendCancelEvent(surface->client());
         return;
     }
 
     QtWayland::TouchExtensionGlobal *ext = QtWayland::TouchExtensionGlobal::findIn(d->compositor());
-    if (ext && ext->postTouchEvent(event, d->seat->mouseFocus()))
+    if (ext && ext->postTouchEvent(event, surface))
         return;
 
     const QList<QTouchEvent::TouchPoint> points = event->touchPoints();
@@ -217,9 +210,9 @@ void QWaylandTouch::sendFullTouchEvent(QTouchEvent *event)
     for (int i = 0; i < pointCount; ++i) {
         const QTouchEvent::TouchPoint &tp(points.at(i));
         // Convert the local pos in the compositor window to surface-relative.
-        sendTouchPointEvent(tp.id(), tp.pos(), tp.state());
+        sendTouchPointEvent(surface, tp.id(), tp.pos(), tp.state());
     }
-    sendFrameEvent();
+    sendFrameEvent(surface->client());
 }
 
 /*!
@@ -229,38 +222,6 @@ void QWaylandTouch::addClient(QWaylandClient *client, uint32_t id, uint32_t vers
 {
     Q_D(QWaylandTouch);
     d->add(client->client(), id, qMin<uint32_t>(QtWaylandServer::wl_touch::interfaceVersion(), version));
-}
-
-/*!
- * Returns the Wayland resource for this QWaylandTouch.
- */
-struct wl_resource *QWaylandTouch::focusResource() const
-{
-    Q_D(const QWaylandTouch);
-    if (!d->focusResource)
-        return Q_NULLPTR;
-    return d->focusResource->handle;
-}
-
-/*!
- * \internal
- */
-void QWaylandTouch::focusDestroyed(void *data)
-{
-    Q_UNUSED(data)
-    Q_D(QWaylandTouch);
-    d->resetFocusState();
-}
-
-/*!
- * \internal
- */
-void QWaylandTouch::mouseFocusChanged(QWaylandView *newFocus, QWaylandView *oldFocus)
-{
-    Q_UNUSED(newFocus);
-    Q_UNUSED(oldFocus);
-    Q_D(QWaylandTouch);
-    d->resetFocusState();
 }
 
 QT_END_NAMESPACE

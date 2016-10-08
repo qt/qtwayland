@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2014-2015 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
+** Copyright (C) 2014-2016 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
 ** Copyright (C) 2013 Klarälvdalens Datakonsult AB (KDAB).
 ** Contact: http://www.qt.io/licensing/
 **
@@ -48,6 +48,7 @@
 #include <QtCore/QtMath>
 #include <QtGui/QWindow>
 #include <QtGui/QExposeEvent>
+#include <QtGui/QScreen>
 #include <private/qobject_p.h>
 
 QT_BEGIN_NAMESPACE
@@ -102,16 +103,14 @@ QWaylandOutputPrivate::QWaylandOutputPrivate()
     : QtWaylandServer::wl_output()
     , compositor(Q_NULLPTR)
     , window(Q_NULLPTR)
+    , currentMode(-1)
+    , preferredMode(-1)
     , subpixel(QWaylandOutput::SubpixelUnknown)
     , transform(QWaylandOutput::TransformNormal)
     , scaleFactor(1)
-    , sizeFollowsWindow(true)
+    , sizeFollowsWindow(false)
     , initialized(false)
 {
-    mode.size = QSize();
-    mode.refreshRate = 60;
-
-    qRegisterMetaType<QWaylandOutput::Mode>("WaylandOutput::Mode");
 }
 
 QWaylandOutputPrivate::~QWaylandOutputPrivate()
@@ -120,15 +119,10 @@ QWaylandOutputPrivate::~QWaylandOutputPrivate()
 
 void QWaylandOutputPrivate::output_bind_resource(Resource *resource)
 {
-    send_geometry(resource->handle,
-                  position.x(), position.y(),
-                  physicalSize.width(), physicalSize.height(),
-                  toWlSubpixel(subpixel), manufacturer, model,
-                  toWlTransform(transform));
+    sendGeometry(resource);
 
-    send_mode(resource->handle, mode_current | mode_preferred,
-              mode.size.width(), mode.size.height(),
-              mode.refreshRate * 1000);
+    for (const QWaylandOutputMode &mode : modes)
+        sendMode(resource, mode);
 
     if (resource->version() >= 2) {
         send_scale(resource->handle, scaleFactor);
@@ -136,19 +130,46 @@ void QWaylandOutputPrivate::output_bind_resource(Resource *resource)
     }
 }
 
+void QWaylandOutputPrivate::sendGeometry(const Resource *resource)
+{
+    send_geometry(resource->handle,
+                  position.x(), position.y(),
+                  physicalSize.width(), physicalSize.height(),
+                  toWlSubpixel(subpixel), manufacturer, model,
+                  toWlTransform(transform));
+}
+
 void QWaylandOutputPrivate::sendGeometryInfo()
 {
-    Q_FOREACH (Resource *resource, resourceMap().values()) {
-        send_geometry(resource->handle,
-                      position.x(), position.y(),
-                      physicalSize.width(), physicalSize.height(),
-                      toWlSubpixel(subpixel), manufacturer, model,
-                      toWlTransform(transform));
+    for (const Resource *resource : resourceMap().values()) {
+        sendGeometry(resource);
         if (resource->version() >= 2)
             send_done(resource->handle);
     }
 }
 
+void QWaylandOutputPrivate::sendMode(const Resource *resource, const QWaylandOutputMode &mode)
+{
+    quint32 flags = 0;
+    if (currentMode == modes.indexOf(mode))
+        flags |= QtWaylandServer::wl_output::mode_current;
+    if (preferredMode == modes.indexOf(mode))
+        flags |= QtWaylandServer::wl_output::mode_preferred;
+
+    send_mode(resource->handle, flags,
+              mode.size().width(), mode.size().height(),
+              mode.refreshRate());
+}
+
+void QWaylandOutputPrivate::sendModesInfo()
+{
+    for (const Resource *resource : resourceMap().values()) {
+        for (const QWaylandOutputMode &mode : modes)
+            sendMode(resource, mode);
+        if (resource->version() >= 2)
+            send_done(resource->handle);
+    }
+}
 
 void QWaylandOutputPrivate::addView(QWaylandView *view, QWaylandSurface *surface)
 {
@@ -189,7 +210,7 @@ QWaylandOutput::QWaylandOutput()
 /*!
    \qmltype WaylandOutput
    \inqmlmodule QtWayland.Compositor
-   \preliminary
+   \since 5.8
    \brief Provides access to a displayable area managed by the compositor.
 
    The WaylandOutput manages a rectangular area within bounds of the compositor's
@@ -202,7 +223,7 @@ QWaylandOutput::QWaylandOutput()
 /*!
    \class QWaylandOutput
    \inmodule QtWaylandCompositor
-   \preliminary
+   \since 5.8
    \brief The QWaylandOutput class represents a displayable area managed by the compositor.
 
    The QWaylandOutput manages a rectangular area within bounds of the compositor's
@@ -252,16 +273,23 @@ void QWaylandOutput::initialize()
     Q_ASSERT(d->compositor);
     Q_ASSERT(d->compositor->isCreated());
 
-    if (d->window)
-        d->mode.size = d->window->size();
-    else
-        d->sizeFollowsWindow = false;
+    // Replace modes with one that follows the window size and refresh rate,
+    // but only if window size is valid
+    if (d->window && d->sizeFollowsWindow) {
+        QWaylandOutputMode mode(d->window->size(),
+                                qFloor(d->window->screen()->refreshRate() * 1000));
+        if (mode.isValid()) {
+            d->modes.clear();
+            addMode(mode, true);
+            setCurrentMode(mode);
+        }
+    }
 
     QWaylandCompositorPrivate::get(d->compositor)->addOutput(this);
 
     if (d->window) {
-        QObject::connect(d->window, &QWindow::widthChanged, this, &QWaylandOutput::setWidth);
-        QObject::connect(d->window, &QWindow::heightChanged, this, &QWaylandOutput::setHeight);
+        QObject::connect(d->window, &QWindow::widthChanged, this, &QWaylandOutput::handleSetWidth);
+        QObject::connect(d->window, &QWindow::heightChanged, this, &QWaylandOutput::handleSetHeight);
         QObject::connect(d->window, &QObject::destroyed, this, &QWaylandOutput::handleWindowDestroyed);
     }
 
@@ -431,39 +459,75 @@ void QWaylandOutput::setPosition(const QPoint &pt)
 }
 
 /*!
- * \property QWaylandOutput::mode
- *
- * This property holds the output's size in pixels and refresh rate in Hz.
+ * Returns the list of modes.
  */
-QWaylandOutput::Mode QWaylandOutput::mode() const
+QList<QWaylandOutputMode> QWaylandOutput::modes() const
 {
-    return d_func()->mode;
+    Q_D(const QWaylandOutput);
+    return d->modes.toList();
 }
 
-void QWaylandOutput::setMode(const Mode &mode)
+/*!
+ * Adds the mode \a mode to the output and mark it as preferred
+ * if \a preferred is \c true.
+ * Please note there can only be one preferred mode.
+ */
+void QWaylandOutput::addMode(const QWaylandOutputMode &mode, bool preferred)
 {
     Q_D(QWaylandOutput);
-    if (d->mode.size == mode.size && d->mode.refreshRate == mode.refreshRate)
+
+    if (!mode.isValid()) {
+        qWarning("Cannot add an invalid mode");
         return;
-
-    d->mode = mode;
-
-    Q_FOREACH (QWaylandOutputPrivate::Resource *resource, d->resourceMap().values()) {
-        d->send_mode(resource->handle, d->mode_current,
-                  d->mode.size.width(), d->mode.size.height(),
-                  d->mode.refreshRate * 1000);
-        if (resource->version() >= 2)
-            d->send_done(resource->handle);
     }
 
-    Q_EMIT modeChanged();
+    d->modes.append(mode);
+
+    if (preferred)
+        d->preferredMode = d->modes.indexOf(mode);
+
+    emit modeAdded();
+}
+
+/*!
+ * Returns the output's size in pixels and refresh rate in mHz.
+ * If the current mode is not set it will return an invalid mode.
+ *
+ * \sa QWaylandOutput::modes
+ * \sa QWaylandOutputMode
+ */
+QWaylandOutputMode QWaylandOutput::currentMode() const
+{
+    Q_D(const QWaylandOutput);
+
+    if (d->currentMode >= 0 && d->currentMode <= d->modes.size() - 1)
+        return d->modes.at(d->currentMode);
+    return QWaylandOutputMode();
+}
+
+/*!
+ * Sets the current mode.
+ * The mode \a mode must have been previously added.
+ *
+ * \sa QWaylandOutput::modes
+ * \sa QWaylandOutputMode
+ */
+void QWaylandOutput::setCurrentMode(const QWaylandOutputMode &mode)
+{
+    Q_D(QWaylandOutput);
+
+    int index = d->modes.indexOf(mode);
+    if (index < 0) {
+        qWarning("Cannot set an unknown QWaylandOutput mode as current");
+        return;
+    }
+
+    d->currentMode = index;
+
+    Q_EMIT currentModeChanged();
     Q_EMIT geometryChanged();
 
-    if (d->window) {
-        d->window->resize(mode.size);
-        d->window->setMinimumSize(mode.size);
-        d->window->setMaximumSize(mode.size);
-    }
+    d->sendModesInfo();
 }
 
 /*!
@@ -477,37 +541,12 @@ void QWaylandOutput::setMode(const Mode &mode)
  *
  * This property holds the geometry of the QWaylandOutput.
  *
- * \sa QWaylandOutput::mode
+ * \sa QWaylandOutput::currentMode
  */
 QRect QWaylandOutput::geometry() const
 {
     Q_D(const QWaylandOutput);
-    return QRect(d->position, d->mode.size);
-}
-
-void QWaylandOutput::setGeometry(const QRect &geometry)
-{
-    Q_D(QWaylandOutput);
-    if (d->position == geometry.topLeft() && d->mode.size == geometry.size())
-        return;
-
-    d->position = geometry.topLeft();
-    d->mode.size = geometry.size();
-
-    Q_FOREACH (QWaylandOutputPrivate::Resource *resource, d->resourceMap().values()) {
-        d->send_geometry(resource->handle,
-                      d->position.x(), d->position.y(),
-                      d->physicalSize.width(), d->physicalSize.height(),
-                      toWlSubpixel(d->subpixel), d->manufacturer, d->model,
-                      toWlTransform(d->transform));
-        d->send_mode(resource->handle, d->mode_current,
-                  d->mode.size.width(), d->mode.size.height(),
-                  d->mode.refreshRate * 1000);
-        if (resource->version() >= 2)
-            d->send_done(resource->handle);
-    }
-    Q_EMIT positionChanged();
-    Q_EMIT modeChanged();
+    return QRect(d->position, currentMode().size());
 }
 
 /*!
@@ -527,13 +566,14 @@ void QWaylandOutput::setGeometry(const QRect &geometry)
  * The available geometry is in output coordinates space, starts from 0,0 and it's as big
  * as the output by default.
  *
- * \sa QWaylandOutput::mode, QWaylandOutput::geometry
+ * \sa QWaylandOutput::currentMode, QWaylandOutput::geometry
  */
 QRect QWaylandOutput::availableGeometry() const
 {
     Q_D(const QWaylandOutput);
+
     if (!d->availableGeometry.isValid())
-        return QRect(QPoint(0, 0), d->mode.size);
+        return QRect(QPoint(0, 0), currentMode().size());
 
     return d->availableGeometry;
 }
@@ -565,7 +605,7 @@ void QWaylandOutput::setAvailableGeometry(const QRect &availableGeometry)
  *
  * This property holds the physical size of the QWaylandOutput in millimeters.
  *
- * \sa QWaylandOutput::geometry, QWaylandOutput::mode
+ * \sa QWaylandOutput::geometry, QWaylandOutput::currentMode
  */
 QSize QWaylandOutput::physicalSize() const
 {
@@ -755,7 +795,10 @@ void QWaylandOutput::setScaleFactor(int scale)
  * This property controls whether the size of the WaylandOutput matches the
  * size of its window.
  *
- * The default is \c true if this WaylandOutput has a window.
+ * If this property is true, all modes previously added are replaced by a
+ * mode that matches window size and screen refresh rate.
+ *
+ * The default is false.
  */
 
 /*!
@@ -764,7 +807,10 @@ void QWaylandOutput::setScaleFactor(int scale)
  * This property controls whether the size of the QWaylandOutput matches the
  * size of its window.
  *
- * The default is \c true if this QWaylandOutput has a window.
+ * If this property is true, all modes previously added are replaced by a
+ * mode that matches window size and screen refresh rate.
+ *
+ * The default is false.
  */
 bool QWaylandOutput::sizeFollowsWindow() const
 {
@@ -781,13 +827,6 @@ void QWaylandOutput::setSizeFollowsWindow(bool follow)
     }
 
     if (follow != d->sizeFollowsWindow) {
-        if (follow) {
-            QObject::connect(d->window, &QWindow::widthChanged, this, &QWaylandOutput::setWidth);
-            QObject::connect(d->window, &QWindow::heightChanged, this, &QWaylandOutput::setHeight);
-        } else {
-            QObject::disconnect(d->window, &QWindow::widthChanged, this, &QWaylandOutput::setWidth);
-            QObject::disconnect(d->window, &QWindow::heightChanged, this, &QWaylandOutput::setHeight);
-        }
         d->sizeFollowsWindow = follow;
         Q_EMIT sizeFollowsWindowChanged();
     }
@@ -833,7 +872,7 @@ void QWaylandOutput::frameStarted()
     Q_D(QWaylandOutput);
     for (int i = 0; i < d->surfaceViews.size(); i++) {
         QWaylandSurfaceViewMapper &surfacemapper = d->surfaceViews[i];
-        if (surfacemapper.maybeThrottelingView())
+        if (surfacemapper.maybePrimaryView())
             surfacemapper.surface->frameStarted();
     }
 }
@@ -851,7 +890,7 @@ void QWaylandOutput::sendFrameCallbacks()
                 surfaceEnter(surfacemapper.surface);
                 d->surfaceViews[i].has_entered = true;
             }
-            if (surfacemapper.maybeThrottelingView())
+            if (surfacemapper.maybePrimaryView())
                 surfacemapper.surface->sendFrameCallbacks();
         }
     }
@@ -882,35 +921,63 @@ void QWaylandOutput::surfaceLeave(QWaylandSurface *surface)
 }
 
 /*!
- * Sets the width of this QWaylandOutput to \a newWidth.
- *
- * \sa setHeight, QWaylandOutput::geometry
+ * \internal
  */
-void QWaylandOutput::setWidth(int newWidth)
+void QWaylandOutput::handleSetWidth(int newWidth)
 {
     Q_D(QWaylandOutput);
-    if (d->mode.size.width() == newWidth)
+
+    if (!d->window || !d->sizeFollowsWindow)
         return;
 
-    QSize s = d->mode.size;
-    s.setWidth(newWidth);
-    setGeometry(QRect(d->position, s));
+    if (d->currentMode <= d->modes.size() - 1) {
+        if (d->currentMode >= 0) {
+            QWaylandOutputMode mode = d->modes.at(d->currentMode);
+            mode.setWidth(newWidth);
+            d->modes.replace(d->currentMode, mode);
+            d->sendModesInfo();
+        } else {
+            // We didn't add a mode during the initialization because the window
+            // size was invalid, let's add it now
+            QWaylandOutputMode mode(d->window->size(),
+                                    qFloor(d->window->screen()->refreshRate() * 1000));
+            if (mode.isValid()) {
+                d->modes.clear();
+                addMode(mode, true);
+                setCurrentMode(mode);
+            }
+        }
+    }
 }
 
 /*!
- * Sets the height of this QWaylandOutput to \a newHeight.
- *
- * \sa setWidth, QWaylandOutput::geometry
+ * \internal
  */
-void QWaylandOutput::setHeight(int newHeight)
+void QWaylandOutput::handleSetHeight(int newHeight)
 {
     Q_D(QWaylandOutput);
-    if (d->mode.size.height() == newHeight)
+
+    if (!d->window || !d->sizeFollowsWindow)
         return;
 
-    QSize s = d->mode.size;
-    s.setHeight(newHeight);
-    setGeometry(QRect(d->position, s));
+    if (d->currentMode <= d->modes.size() - 1) {
+        if (d->currentMode >= 0) {
+            QWaylandOutputMode mode = d->modes.at(d->currentMode);
+            mode.setHeight(newHeight);
+            d->modes.replace(d->currentMode, mode);
+            d->sendModesInfo();
+        } else {
+            // We didn't add a mode during the initialization because the window
+            // size was invalid, let's add it now
+            QWaylandOutputMode mode(d->window->size(),
+                                    qFloor(d->window->screen()->refreshRate() * 1000));
+            if (mode.isValid()) {
+                d->modes.clear();
+                addMode(mode, true);
+                setCurrentMode(mode);
+            }
+        }
+    }
 }
 
 /*!

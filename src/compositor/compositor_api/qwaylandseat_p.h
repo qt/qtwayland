@@ -90,7 +90,7 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandSeatPrivate : public QObjectPrivate, p
 public:
     Q_DECLARE_PUBLIC(QWaylandSeat)
 
-    QWaylandSeatPrivate(QWaylandSeat *seat, QWaylandCompositor *compositor);
+    QWaylandSeatPrivate(QWaylandSeat *seat);
     ~QWaylandSeatPrivate();
 
     void clientRequestedDataDevice(QtWayland::DataDeviceManager *dndSelection, struct wl_client *client, uint32_t id);
@@ -113,6 +113,7 @@ protected:
     void seat_destroy_resource(wl_seat::Resource *resource) Q_DECL_OVERRIDE;
 
 private:
+    bool isInitialized;
     QWaylandCompositor *compositor;
     QWaylandView *mouseFocus;
     QWaylandSurface *keyboardFocus;
@@ -123,6 +124,7 @@ private:
     QScopedPointer<QWaylandTouch> touch;
     QScopedPointer<QtWayland::DataDevice> data_device;
     QScopedPointer<QWaylandDrag> drag_handle;
+    QScopedPointer<QWaylandKeymap> keymap;
 
 };
 

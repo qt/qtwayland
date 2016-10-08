@@ -46,7 +46,7 @@ QT_BEGIN_NAMESPACE
 /*!
     \class QWaylandSurfaceGrabber
     \inmodule QtWaylandCompositor
-    \preliminary
+    \since 5.8
     \brief The QWaylandSurfaceGrabber class allows to read the content of a QWaylandSurface
 
     Sometimes it is needed to get the contents of a surface, for example to provide a screenshot

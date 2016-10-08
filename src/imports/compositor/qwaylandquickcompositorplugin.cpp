@@ -48,6 +48,7 @@
 #include <QtWaylandCompositor/QWaylandQuickExtension>
 #include <QtWaylandCompositor/QWaylandSeat>
 #include <QtWaylandCompositor/QWaylandDrag>
+#include <QtWaylandCompositor/QWaylandKeymap>
 #include <QtWaylandCompositor/QWaylandQuickShellSurfaceItem>
 #include <QtWaylandCompositor/QWaylandResource>
 
@@ -55,6 +56,8 @@
 #include <QtWaylandCompositor/QWaylandWlShell>
 #include <QtWaylandCompositor/QWaylandTextInputManager>
 #include <QtWaylandCompositor/QWaylandXdgShellV5>
+#include <QtWaylandCompositor/QWaylandIviApplication>
+#include <QtWaylandCompositor/QWaylandIviSurface>
 
 #include <QtWaylandCompositor/qwaylandexport.h>
 #include "qwaylandmousetracker_p.h"
@@ -63,6 +66,7 @@ QT_BEGIN_NAMESPACE
 
 Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CONTAINER_CLASS(QWaylandQuickCompositor)
 Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CLASS(QWaylandQtWindowManager)
+Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CLASS(QWaylandIviApplication)
 Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CLASS(QWaylandWlShell)
 Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CLASS(QWaylandXdgShellV5)
 Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CLASS(QWaylandTextInputManager)
@@ -117,6 +121,7 @@ public:
         qmlRegisterType<QWaylandMouseTracker>(uri, 1, 0, "WaylandMouseTracker");
         qmlRegisterType<QWaylandQuickOutput>(uri, 1, 0, "WaylandOutput");
         qmlRegisterType<QWaylandQuickSurface>(uri, 1, 0, "WaylandSurface");
+        qmlRegisterType<QWaylandKeymap>(uri, 1, 0, "WaylandKeymap");
 
         qmlRegisterUncreatableType<QWaylandCompositorExtension>(uri, 1, 0, "WaylandExtension", QObject::tr("Cannot create instance of WaylandExtension"));
         qmlRegisterUncreatableType<QWaylandClient>(uri, 1, 0, "WaylandClient", QObject::tr("Cannot create instance of WaylandClient"));
@@ -125,11 +130,14 @@ public:
         qmlRegisterUncreatableType<QWaylandDrag>(uri, 1, 0, "WaylandDrag", QObject::tr("Cannot create instance of WaylandDrag"));
         qmlRegisterUncreatableType<QWaylandCompositor>(uri, 1, 0, "WaylandCompositorBase", QObject::tr("Cannot create instance of WaylandCompositorBase, use WaylandCompositor instead"));
         qmlRegisterUncreatableType<QWaylandSurface>(uri, 1, 0, "WaylandSurfaceBase", QObject::tr("Cannot create instance of WaylandSurfaceBase, use WaylandSurface instead"));
+        qmlRegisterUncreatableType<QWaylandShell>(uri, 1, 0, "Shell", QObject::tr("Cannot create instance of Shell"));
         qmlRegisterUncreatableType<QWaylandShellSurface>(uri, 1, 0, "ShellSurface", QObject::tr("Cannot create instance of ShellSurface"));
         qmlRegisterUncreatableType<QWaylandResource>(uri, 1, 0, "WaylandResource", QObject::tr("Cannot create instance of WaylandResource"));
 
         //This should probably be somewhere else
         qmlRegisterType<QWaylandQtWindowManagerQuickExtension>(uri, 1, 0, "QtWindowManager");
+        qmlRegisterType<QWaylandIviApplicationQuickExtension>(uri, 1, 0, "IviApplication");
+        qmlRegisterType<QWaylandIviSurface>(uri, 1, 0, "IviSurface");
         qmlRegisterType<QWaylandWlShellQuickExtension>(uri, 1, 0, "WlShell");
         qmlRegisterType<QWaylandWlShellSurface>(uri, 1, 0, "WlShellSurface");
         qmlRegisterType<QWaylandQuickShellSurfaceItem>(uri, 1, 0, "ShellSurfaceItem");

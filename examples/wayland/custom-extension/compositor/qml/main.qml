@@ -46,15 +46,14 @@ import com.theqtcompany.customextension 1.0
 WaylandCompositor {
     id: comp
 
-    property var lastItem: null
+    property alias customExtension: custom
+    property var itemList: []
 
-    property int counter : 0
-
-    function sendEvent() {
-        if (lastItem != null) {
-            console.log("Compositor sending event: " + counter);
-            custom.sendEvent(lastItem.shellSurface.surface, 0, "test", counter);
-            counter++;
+    function itemForSurface(surface) {
+        var n = itemList.length
+        for (var i = 0; i < n; i++) {
+            if (itemList[i].surface === surface)
+                return itemList[i]
         }
     }
 
@@ -66,10 +65,66 @@ WaylandCompositor {
         id: chromeComponent
         ShellSurfaceItem {
             id: chrome
+
+            property bool isCustom
+            property int fontSize: 12
+
             onSurfaceDestroyed: {
-                if (chrome === lastItem)
-                    lastItem = null;
+                var index = itemList.indexOf(chrome);
+                if (index > -1) {
+                    var listCopy = itemList
+                    listCopy.splice(index, 1);
+                    itemList = listCopy
+                }
                 chrome.destroy()
+            }
+            transform: [
+                Rotation {
+                    id: xRot
+                    origin.x: chrome.width/2; origin.y: chrome.height/2;
+                    angle: 0
+                    axis { x: 1; y: 0; z: 0 }
+                },
+                Rotation {
+                    id: yRot
+                    origin.x: chrome.width/2; origin.y: chrome.height/2;
+                    angle: 0
+                    axis { x: 0; y: 1; z: 0 }
+                }
+            ]
+            NumberAnimation {
+                id: spinAnimation
+                running: false
+                loops: 2
+                target: yRot;
+                property: "angle";
+                from: 0; to: 360;
+                duration: 400;
+            }
+
+            function doSpin(ms) {
+                console.log("spin " + ms)
+                // using the 'ms' argument is left as an exercise for the reader...
+                spinAnimation.start()
+            }
+
+            NumberAnimation {
+                id: bounceAnimation
+                running: false
+                target: chrome
+                property: "y"
+                from: 0
+                to: output.window.height - chrome.height
+                easing.type: Easing.OutBounce
+                duration: 1000
+            }
+            function doBounce(ms) {
+                console.log("bounce " + ms)
+                // using the 'ms' argument is left as an exercise for the reader...
+                bounceAnimation.start()
+            }
+            onFontSizeChanged: {
+                custom.setFontSize(surface, fontSize)
             }
         }
     }
@@ -78,14 +133,39 @@ WaylandCompositor {
         id: defaultShell
         onWlShellSurfaceCreated: {
             var item = chromeComponent.createObject(defaultOutput.surfaceArea, { "shellSurface": shellSurface } );
-            lastItem = item;
+            var w = defaultOutput.surfaceArea.width/2
+            var h = defaultOutput.surfaceArea.height/2
+            item.x = Math.random()*w
+            item.y = Math.random()*h
+            var listCopy = itemList // List properties cannot be modified through Javascript operations
+            listCopy.push(item)
+            itemList = listCopy
         }
     }
 
     CustomExtension {
         id: custom
-        onRequestReceived: {
-            console.log("Compositor received a request: \"" + text + "\", " + value)
+
+        onSurfaceAdded: {
+            var item = itemForSurface(surface)
+            item.isCustom = true
+        }
+        onBounce: {
+            var item = itemForSurface(surface)
+            item.doBounce(ms)
+        }
+        onSpin: {
+            var item = itemForSurface(surface)
+            item.doSpin(ms)
+        }
+    }
+
+    function setDecorations(shown) {
+        var n = itemList.length
+        for (var i = 0; i < n; i++) {
+            // TODO: we only need to do it once for each client
+            if (itemList[i].isCustom)
+                custom.showDecorations(itemList[i].surface.client, shown)
         }
     }
 }

@@ -119,6 +119,8 @@ public:
     bool allowDiscardFrontBuffer() const;
     void setAllowDiscardFrontBuffer(bool discard);
 
+    Q_INVOKABLE void setPrimary();
+
 protected:
     void mousePressEvent(QMouseEvent *event) Q_DECL_OVERRIDE;
     void mouseMoveEvent(QMouseEvent *event) Q_DECL_OVERRIDE;
@@ -132,7 +134,6 @@ protected:
     void keyReleaseEvent(QKeyEvent *event) Q_DECL_OVERRIDE;
 
     void touchEvent(QTouchEvent *event) Q_DECL_OVERRIDE;
-    void mouseUngrabEvent() Q_DECL_OVERRIDE;
 
 #ifndef QT_NO_IM
     void inputMethodEvent(QInputMethodEvent *event) Q_DECL_OVERRIDE;

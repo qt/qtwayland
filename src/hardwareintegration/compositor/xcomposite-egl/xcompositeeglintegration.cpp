@@ -40,6 +40,7 @@
 
 #include <QtWaylandCompositor/QWaylandCompositor>
 #include <QtGui/QGuiApplication>
+#include <QtGui/QOpenGLTexture>
 #include <qpa/qplatformnativeinterface.h>
 #include <qpa/qplatformopenglcontext.h>
 
@@ -83,23 +84,38 @@ void XCompositeEglClientBufferIntegration::initializeHardware(struct ::wl_displa
     } else {
         qFatal("Platform integration doesn't have native interface");
     }
-    mScreen = XDefaultScreen(mDisplay);
     new XCompositeHandler(m_compositor, mDisplay);
 }
 
-void XCompositeEglClientBufferIntegration::bindTextureToBuffer(struct ::wl_resource *buffer)
+QtWayland::ClientBuffer *XCompositeEglClientBufferIntegration::createBufferFor(wl_resource *buffer)
 {
-    XCompositeBuffer *compositorBuffer = XCompositeBuffer::fromResource(buffer);
-    Pixmap pixmap = XCompositeNameWindowPixmap(mDisplay, compositorBuffer->window());
+    if (wl_shm_buffer_get(buffer))
+        return nullptr;
+    return new XCompositeEglClientBuffer(this, buffer);
+}
+
+
+XCompositeEglClientBuffer::XCompositeEglClientBuffer(XCompositeEglClientBufferIntegration *integration, wl_resource *bufferResource)
+    : QtWayland::ClientBuffer(bufferResource)
+    , m_texture(nullptr)
+    , m_integration(integration)
+{
+}
+
+QOpenGLTexture *XCompositeEglClientBuffer::toOpenGlTexture(int plane)
+{
+    Q_UNUSED(plane);
+    XCompositeBuffer *compositorBuffer = XCompositeBuffer::fromResource(m_buffer);
+    Pixmap pixmap = XCompositeNameWindowPixmap(m_integration->xDisplay(), compositorBuffer->window());
 
     QVector<EGLint> eglConfigSpec = eglbuildSpec();
 
     EGLint matching = 0;
     EGLConfig config;
-    bool matched = eglChooseConfig(mEglDisplay,eglConfigSpec.constData(),&config,1,&matching);
+    bool matched = eglChooseConfig(m_integration->eglDisplay(),eglConfigSpec.constData(),&config,1,&matching);
     if (!matched || !matching) {
         qWarning("Could not retrieve a suitable EGL config");
-        return;
+        return nullptr;
     }
 
     QVector<EGLint> attribList;
@@ -110,29 +126,37 @@ void XCompositeEglClientBufferIntegration::bindTextureToBuffer(struct ::wl_resou
     attribList.append(EGL_TEXTURE_2D);
     attribList.append(EGL_NONE);
 
-    EGLSurface surface = eglCreatePixmapSurface(mEglDisplay,config,pixmap,attribList.constData());
+    EGLSurface surface = eglCreatePixmapSurface(m_integration->eglDisplay(),config,pixmap,attribList.constData());
     if (surface == EGL_NO_SURFACE) {
         qDebug() << "Failed to create eglsurface" << pixmap << compositorBuffer->window();
     }
 
     compositorBuffer->setOrigin(QWaylandSurface::OriginTopLeft);
 
-    if (!eglBindTexImage(mEglDisplay,surface,EGL_BACK_BUFFER)) {
-        qDebug() << "Failed to bind";
+    if (!m_texture) {
+        m_texture = new QOpenGLTexture(QOpenGLTexture::Target2D);
+        m_texture->create();
+    }
+    m_texture->bind();
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    if (!eglBindTexImage(m_integration->eglDisplay(),surface,EGL_BACK_BUFFER)) {
+        qWarning() << "Failed to bind";
     }
 
     //    eglDestroySurface(mEglDisplay,surface);
+    return m_texture;
 }
 
-QWaylandSurface::Origin XCompositeEglClientBufferIntegration::origin(struct ::wl_resource *buffer) const
+
+QWaylandSurface::Origin XCompositeEglClientBuffer::origin() const
 {
-    XCompositeBuffer *compositorBuffer = XCompositeBuffer::fromResource(buffer);
+    XCompositeBuffer *compositorBuffer = XCompositeBuffer::fromResource(m_buffer);
     return compositorBuffer->origin();
 }
 
-QSize XCompositeEglClientBufferIntegration::bufferSize(struct ::wl_resource *buffer) const
+QSize XCompositeEglClientBuffer::size() const
 {
-    XCompositeBuffer *compositorBuffer = XCompositeBuffer::fromResource(buffer);
+    XCompositeBuffer *compositorBuffer = XCompositeBuffer::fromResource(m_buffer);
 
     return compositorBuffer->size();
 }

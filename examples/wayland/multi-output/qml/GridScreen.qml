@@ -46,6 +46,7 @@ WaylandOutput {
     id: output
     property alias gridSurfaces: listModel
 
+    sizeFollowsWindow: true
     window: Window {
         width: 1024
         height: 760

@@ -44,6 +44,7 @@
 #include <QPainter>
 #include <QMatrix4x4>
 #include <QOpenGLFunctions>
+#include <QOpenGLTexture>
 
 Window::Window()
     : m_compositor(0)
@@ -83,7 +84,10 @@ void Window::paintGL()
     Q_FOREACH (View *view, m_compositor->views()) {
         if (view->isCursor())
             continue;
-        GLuint textureId = view->getTexture();
+        auto texture = view->getTexture();
+        if (!texture)
+            continue;
+        GLuint textureId = texture->textureId();
         QWaylandSurface *surface = view->surface();
         if (surface && surface->hasContent()) {
             QSize s = surface->size();

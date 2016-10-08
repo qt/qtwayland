@@ -52,7 +52,7 @@
 #include <QtWaylandCompositor/qwaylandexport.h>
 #include <private/qobject_p.h>
 
-#include <private/qwlsurfacebuffer_p.h>
+#include <private/qwlclientbuffer_p.h>
 #include <QtWaylandCompositor/qwaylandsurface.h>
 #include <QtWaylandCompositor/qwaylandbufferref.h>
 
@@ -134,8 +134,7 @@ protected:
     void surface_set_buffer_transform(Resource *resource, int32_t transform) Q_DECL_OVERRIDE;
     void surface_set_buffer_scale(Resource *resource, int32_t bufferScale) Q_DECL_OVERRIDE;
 
-    void setBackBuffer(QtWayland::SurfaceBuffer *buffer, const QRegion &damage);
-    QtWayland::SurfaceBuffer *createSurfaceBuffer(struct ::wl_resource *buffer);
+    QtWayland::ClientBuffer *getBuffer(struct ::wl_resource *buffer);
 
 public: //member variables
     QWaylandCompositor *compositor;
@@ -143,12 +142,11 @@ public: //member variables
     QWaylandClient *client;
     QList<QWaylandView *> views;
     QRegion damage;
-    QtWayland::SurfaceBuffer *buffer;
     QWaylandBufferRef bufferRef;
     QWaylandSurfaceRole *role;
 
     struct {
-        QtWayland::SurfaceBuffer *buffer;
+        QWaylandBufferRef buffer;
         QRegion damage;
         QPoint offset;
         bool newlyAttached;
@@ -164,8 +162,6 @@ public: //member variables
 
     QRegion inputRegion;
     QRegion opaqueRegion;
-
-    QVector<QtWayland::SurfaceBuffer *> bufferPool;
 
     QSize size;
     int bufferScale;

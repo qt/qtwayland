@@ -501,14 +501,14 @@ void QWaylandXdgPopupV5Private::xdg_popup_destroy(Resource *resource)
  * Constructs a QWaylandXdgShellV5 object.
  */
 QWaylandXdgShellV5::QWaylandXdgShellV5()
-    : QWaylandCompositorExtensionTemplate<QWaylandXdgShellV5>(*new QWaylandXdgShellV5Private())
+    : QWaylandShellTemplate<QWaylandXdgShellV5>(*new QWaylandXdgShellV5Private())
 { }
 
 /*!
  * Constructs a QWaylandXdgShellV5 object for the provided \a compositor.
  */
 QWaylandXdgShellV5::QWaylandXdgShellV5(QWaylandCompositor *compositor)
-    : QWaylandCompositorExtensionTemplate<QWaylandXdgShellV5>(compositor, *new QWaylandXdgShellV5Private())
+    : QWaylandShellTemplate<QWaylandXdgShellV5>(compositor, *new QWaylandXdgShellV5Private())
 { }
 
 /*!
@@ -517,7 +517,7 @@ QWaylandXdgShellV5::QWaylandXdgShellV5(QWaylandCompositor *compositor)
 void QWaylandXdgShellV5::initialize()
 {
     Q_D(QWaylandXdgShellV5);
-    QWaylandCompositorExtensionTemplate::initialize();
+    QWaylandShellTemplate::initialize();
     QWaylandCompositor *compositor = static_cast<QWaylandCompositor *>(extensionContainer());
     if (!compositor) {
         qWarning() << "Failed to find QWaylandCompositor when initializing QWaylandXdgShellV5";
@@ -623,7 +623,7 @@ void QWaylandXdgShellV5::handleFocusChanged(QWaylandSurface *newSurface, QWaylan
 /*!
  * \class QWaylandXdgSurfaceV5
  * \inmodule QtWaylandCompositor
- * \preliminary
+ * \since 5.8
  * \brief The QWaylandXdgSurfaceV5 class provides desktop-style compositor-specific features to an xdg surface.
  *
  * This class is part of the QWaylandXdgShellV5 extension and provides a way to
@@ -924,7 +924,9 @@ uint QWaylandXdgSurfaceV5::sendConfigure(const QSize &size, const QVector<uint> 
 {
     Q_D(QWaylandXdgSurfaceV5);
     auto statesBytes = QByteArray::fromRawData((char *)states.data(), states.size() * sizeof(State));
-    QWaylandCompositor *compositor = static_cast<QWaylandCompositor *>(extensionContainer());
+    QWaylandSurface *surface = qobject_cast<QWaylandSurface *>(extensionContainer());
+    Q_ASSERT(surface);
+    QWaylandCompositor *compositor = surface->compositor();
     Q_ASSERT(compositor);
     uint32_t serial = compositor->nextSerial();
     d->m_pendingConfigures.append(QWaylandXdgSurfaceV5Private::ConfigureEvent{states, size, serial});
@@ -1017,7 +1019,7 @@ QWaylandQuickShellIntegration *QWaylandXdgSurfaceV5::createIntegration(QWaylandQ
 /*!
  * \class QWaylandXdgPopupV5
  * \inmodule QtWaylandCompositor
- * \preliminary
+ * \since 5.8
  * \brief The QWaylandXdgPopupV5 class provides menus for an xdg surface
  *
  * This class is part of the QWaylandXdgShellV5 extension and provides a way to

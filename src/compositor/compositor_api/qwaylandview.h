@@ -82,6 +82,9 @@ public:
     bool allowDiscardFrontBuffer() const;
     void setAllowDiscardFrontBuffer(bool discard);
 
+    void setPrimary();
+    bool isPrimary() const;
+
     struct wl_resource *surfaceResource() const;
 
 Q_SIGNALS:

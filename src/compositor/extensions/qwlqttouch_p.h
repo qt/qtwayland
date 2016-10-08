@@ -51,7 +51,8 @@
 #include <QtWaylandCompositor/private/qwayland-server-touch-extension.h>
 #include <QtWaylandCompositor/QWaylandCompositor>
 #include <QtWaylandCompositor/QWaylandCompositorExtensionTemplate>
-#include "wayland-util.h"
+
+#include <wayland-util.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -76,7 +77,7 @@ public:
     TouchExtensionGlobal(QWaylandCompositor *compositor);
     ~TouchExtensionGlobal();
 
-    bool postTouchEvent(QTouchEvent *event, QWaylandView *view);
+    bool postTouchEvent(QTouchEvent *event, QWaylandSurface *surface);
 
     void setBehviorFlags(BehaviorFlags flags);
     BehaviorFlags behaviorFlags() const { return m_flags; }

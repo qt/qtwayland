@@ -39,6 +39,7 @@
 
 #include <QtWaylandCompositor/private/qwlclientbufferintegration_p.h>
 #include <QtCore/QScopedPointer>
+#include <QtWaylandCompositor/private/qwlclientbuffer_p.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -52,22 +53,34 @@ public:
 
     void initializeHardware(struct ::wl_display *display) Q_DECL_OVERRIDE;
 
-    void initializeBuffer(struct ::wl_resource *buffer) Q_DECL_OVERRIDE;
-    QWaylandBufferRef::BufferFormatEgl bufferFormat(struct ::wl_resource *buffer) Q_DECL_OVERRIDE;
-    uint textureForBuffer(struct ::wl_resource *buffer, int plane) Q_DECL_OVERRIDE;
-    void bindTextureToBuffer(struct ::wl_resource *buffer) Q_DECL_OVERRIDE;
-    void updateTextureForBuffer(struct ::wl_resource *buffer) Q_DECL_OVERRIDE;
-
-    QWaylandSurface::Origin origin(struct ::wl_resource *) const Q_DECL_OVERRIDE;
-
-    void *lockNativeBuffer(struct ::wl_resource *buffer) const Q_DECL_OVERRIDE;
-    void unlockNativeBuffer(void *native_buffer) const Q_DECL_OVERRIDE;
-
-    QSize bufferSize(struct ::wl_resource *buffer) const Q_DECL_OVERRIDE;
+    QtWayland::ClientBuffer *createBufferFor(wl_resource *buffer);
 
 private:
     Q_DISABLE_COPY(WaylandEglClientBufferIntegration)
     QScopedPointer<WaylandEglClientBufferIntegrationPrivate> d_ptr;
+};
+
+struct BufferState;
+
+class WaylandEglClientBuffer : public QtWayland::ClientBuffer
+{
+public:
+    QWaylandBufferRef::BufferFormatEgl bufferFormatEgl() const Q_DECL_OVERRIDE;
+    QSize size() const Q_DECL_OVERRIDE;
+    QWaylandSurface::Origin origin() const Q_DECL_OVERRIDE;
+    quintptr lockNativeBuffer() Q_DECL_OVERRIDE;
+    void unlockNativeBuffer(quintptr native_buffer) const Q_DECL_OVERRIDE;
+    QOpenGLTexture *toOpenGlTexture(int plane) Q_DECL_OVERRIDE;
+    void setCommitted(QRegion &damage) Q_DECL_OVERRIDE;
+
+private:
+    friend class WaylandEglClientBufferIntegration;
+    friend class WaylandEglClientBufferIntegrationPrivate;
+
+    WaylandEglClientBuffer(WaylandEglClientBufferIntegration* integration, wl_resource *bufferResource);
+
+    BufferState *d;
+    WaylandEglClientBufferIntegration *m_integration;
 };
 
 QT_END_NAMESPACE

@@ -69,6 +69,7 @@ public:
         : renderObject(Q_NULLPTR)
         , surface(Q_NULLPTR)
         , output(Q_NULLPTR)
+        , nextBufferCommitted(false)
         , bufferLocked(false)
         , broadcastRequestedPositionChanged(false)
         , forceAdvanceSucceed(false)
@@ -86,6 +87,7 @@ public:
     QRegion currentDamage;
     QWaylandBufferRef nextBuffer;
     QRegion nextDamage;
+    bool nextBufferCommitted;
     bool bufferLocked;
     bool broadcastRequestedPositionChanged;
     bool forceAdvanceSucceed;

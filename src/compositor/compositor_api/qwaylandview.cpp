@@ -59,7 +59,7 @@ void QWaylandViewPrivate::markSurfaceAsDestroyed(QWaylandSurface *surface)
 /*!
  * \qmltype WaylandView
  * \inqmlmodule QtWayland.Compositor
- * \preliminary
+ * \since 5.8
  * \brief Represents a view of a surface on an output.
  *
  * The WaylandView corresponds to the presentation of a surface on a specific
@@ -70,7 +70,7 @@ void QWaylandViewPrivate::markSurfaceAsDestroyed(QWaylandSurface *surface)
 /*!
  * \class QWaylandView
  * \inmodule QtWaylandCompositor
- * \preliminary
+ * \since 5.8
  * \brief The QWaylandView class represents a view of a surface on an output.
  *
  * The QWaylandView corresponds to the presentation of a surface on a specific
@@ -151,6 +151,7 @@ void QWaylandView::setSurface(QWaylandSurface *newSurface)
     }
 
     d->nextBuffer = QWaylandBufferRef();
+    d->nextBufferCommitted = false;
     d->nextDamage = QRegion();
 
     if (d->surface) {
@@ -211,34 +212,27 @@ void QWaylandView::bufferCommitted(const QWaylandBufferRef &buffer, const QRegio
     QMutexLocker locker(&d->bufferMutex);
     d->nextBuffer = buffer;
     d->nextDamage = damage;
+    d->nextBufferCommitted = true;
 }
 
 /*!
- * Sets the next buffer and damage region to current and returns \c true. If the buffer
- * is locked or if no new buffer has been attached since the last call to
- * advance(), the function returns \c false and does nothing.
+ * Updates the current buffer and damage region to the latest version committed by the client.
+ * Returns true if new content was committed since the previous call to advance().
+ * Otherwise returns false.
  *
- * If this view is set as the surface's throttling view, discardCurrentBuffer()
- * is called on all views of the same surface for which the
- * \l{QWaylandView::allowDiscardFrontBuffer}{allowDiscardFrontBuffer}
- * property is set to true and the current buffer is the same as the
- * throttling view's current buffer.
- *
- * To enable clients to reuse existing buffers, enable the primary view to ensure
- * that views running on a lower frequency will release their front buffer
- * references. This design approach should avoid the situation where the lower
- * frequency views throttle the frame rate of the client application.
+ * \sa currentBuffer(), currentDamage()
  */
 bool QWaylandView::advance()
 {
     Q_D(QWaylandView);
-    if (d->currentBuffer == d->nextBuffer && !d->forceAdvanceSucceed)
+
+    if (!d->nextBufferCommitted && !d->forceAdvanceSucceed)
         return false;
 
     if (d->bufferLocked)
         return false;
 
-    if (d->surface && d->surface->throttlingView() == this) {
+    if (d->surface && d->surface->primaryView() == this) {
         Q_FOREACH (QWaylandView *view, d->surface->views()) {
             if (view != this && view->allowDiscardFrontBuffer() && view->d_func()->currentBuffer == d->currentBuffer)
                 view->discardCurrentBuffer();
@@ -247,6 +241,7 @@ bool QWaylandView::advance()
 
     QMutexLocker locker(&d->bufferMutex);
     d->forceAdvanceSucceed = false;
+    d->nextBufferCommitted = false;
     d->currentBuffer = d->nextBuffer;
     d->currentDamage = d->nextDamage;
     return true;
@@ -320,14 +315,20 @@ void QWaylandView::setBufferLocked(bool locked)
  * \qmlproperty bool QtWaylandCompositor::WaylandView::allowDiscardFrontBuffer
  *
  * By default, the view locks the current buffer until advance() is called. Set this property
- * to true to allow Qt to release the buffer when the throttling view is no longer using it.
+ * to true to allow Qt to release the buffer when the primary view is no longer using it.
+ *
+ * This can be used to avoid the situation where a secondary view that updates on a lower
+ * frequency will throttle the frame rate of the client application.
  */
 
 /*!
  * \property QWaylandView::allowDiscardFrontBuffer
  *
  * By default, the view locks the current buffer until advance() is called. Set this property
- * to \c true to allow Qt to release the buffer when the throttling view is no longer using it.
+ * to \c true to allow Qt to release the buffer when the primary view is no longer using it.
+ *
+ * This can be used to avoid the situation where a secondary view that updates on a lower
+ * frequency will throttle the frame rate of the client application.
  */
 bool QWaylandView::allowDiscardFrontBuffer() const
 {
@@ -342,6 +343,28 @@ void QWaylandView::setAllowDiscardFrontBuffer(bool discard)
         return;
     d->allowDiscardFrontBuffer = discard;
     emit allowDiscardFrontBufferChanged();
+}
+
+/*!
+ * Makes this QWaylandView the primary view for the surface.
+ *
+ * \sa QWaylandSurface::primaryView
+ */
+void QWaylandView::setPrimary()
+{
+    Q_D(QWaylandView);
+    d->surface->setPrimaryView(this);
+}
+
+/*!
+ * Returns true if this QWaylandView is the primary view for the QWaylandSurface
+ *
+ * \sa QWaylandSurface::primaryView
+ */
+bool QWaylandView::isPrimary() const
+{
+    Q_D(const QWaylandView);
+    return d->surface->primaryView() == this;
 }
 
 /*!

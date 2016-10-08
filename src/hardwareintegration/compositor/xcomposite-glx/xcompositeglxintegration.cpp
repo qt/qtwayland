@@ -41,6 +41,7 @@
 #include <qpa/qplatformnativeinterface.h>
 #include <qpa/qplatformintegration.h>
 #include <QtGui/QOpenGLContext>
+#include <QtGui/QOpenGLTexture>
 
 #include "xcompositebuffer.h"
 #include "xcompositehandler.h"
@@ -109,14 +110,31 @@ void XCompositeGLXClientBufferIntegration::initializeHardware(struct ::wl_displa
     delete glContext;
 }
 
-void XCompositeGLXClientBufferIntegration::bindTextureToBuffer(struct ::wl_resource *buffer)
+QtWayland::ClientBuffer *XCompositeGLXClientBufferIntegration::createBufferFor(wl_resource *buffer)
 {
-    XCompositeBuffer *compositorBuffer = XCompositeBuffer::fromResource(buffer);
-    Pixmap pixmap = XCompositeNameWindowPixmap(mDisplay, compositorBuffer->window());
+    if (wl_shm_buffer_get(buffer))
+        return nullptr;
+    return new XCompositeGLXClientBuffer(this, buffer);
+}
+
+XCompositeGLXClientBuffer::XCompositeGLXClientBuffer(XCompositeGLXClientBufferIntegration *integration, wl_resource *bufferResource)
+    : QtWayland::ClientBuffer(bufferResource)
+    , m_texture(nullptr)
+    , m_integration(integration)
+    , m_glxPixmap(0)
+{
+}
+
+
+QOpenGLTexture *XCompositeGLXClientBuffer::toOpenGlTexture(int plane)
+{
+    Q_UNUSED(plane);
+    XCompositeBuffer *compositorBuffer = XCompositeBuffer::fromResource(m_buffer);
+    Pixmap pixmap = XCompositeNameWindowPixmap(m_integration->xDisplay(), compositorBuffer->window());
 
     QVector<int> glxConfigSpec = qglx_buildSpec();
     int numberOfConfigs;
-    GLXFBConfig *configs = glXChooseFBConfig(mDisplay,mScreen,glxConfigSpec.constData(),&numberOfConfigs);
+    GLXFBConfig *configs = glXChooseFBConfig(m_integration->xDisplay(),m_integration->xScreen(),glxConfigSpec.constData(),&numberOfConfigs);
 
     QVector<int> attribList;
     attribList.append(GLX_TEXTURE_FORMAT_EXT);
@@ -124,28 +142,40 @@ void XCompositeGLXClientBufferIntegration::bindTextureToBuffer(struct ::wl_resou
     attribList.append(GLX_TEXTURE_TARGET_EXT);
     attribList.append(GLX_TEXTURE_2D_EXT);
     attribList.append(0);
-    GLXPixmap glxPixmap = glXCreatePixmap(mDisplay,*configs,pixmap,attribList.constData());
+
+    if (!m_glxPixmap)
+        m_glxPixmap = glXCreatePixmap(m_integration->xDisplay(), *configs, pixmap, attribList.constData());
 
     uint inverted = 0;
-    glXQueryDrawable(mDisplay, glxPixmap, GLX_Y_INVERTED_EXT,&inverted);
+    glXQueryDrawable(m_integration->xDisplay(), m_glxPixmap, GLX_Y_INVERTED_EXT,&inverted);
     compositorBuffer->setOrigin(inverted ? QWaylandSurface::OriginBottomLeft : QWaylandSurface::OriginTopLeft);
 
     XFree(configs);
+    auto tex = m_texture;
+    if (!m_texture) {
+        tex = new QOpenGLTexture(QOpenGLTexture::Target2D);
+        tex->create();
+        m_texture = tex;
+    }
+    tex->bind();
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    m_integration->m_glxBindTexImageEXT(m_integration->xDisplay(),m_glxPixmap,GLX_FRONT_EXT, 0);
 
-    m_glxBindTexImageEXT(mDisplay,glxPixmap,GLX_FRONT_EXT, 0);
-    //Do we need to change the api so that we do bind and release in the painevent?
-    //The specification states that when deleting the texture the color buffer is deleted
-//    m_glxReleaseTexImageEXT(mDisplay,glxPixmap,GLX_FRONT_EXT);
+    // TODO: release in the destructor?
+    // m_glxReleaseTexImageEXT(mDisplay,glxPixmap,GLX_FRONT_EXT);
+    return tex;
 }
 
-QWaylandSurface::Origin XCompositeGLXClientBufferIntegration::origin(struct ::wl_resource *buffer) const
+
+QWaylandSurface::Origin XCompositeGLXClientBuffer::origin() const
 {
-    return XCompositeBuffer::fromResource(buffer)->origin();
+    XCompositeBuffer *compositorBuffer = XCompositeBuffer::fromResource(m_buffer);
+    return compositorBuffer->origin();
 }
 
-QSize XCompositeGLXClientBufferIntegration::bufferSize(struct ::wl_resource *buffer) const
+QSize XCompositeGLXClientBuffer::size() const
 {
-    XCompositeBuffer *compositorBuffer = XCompositeBuffer::fromResource(buffer);
+    XCompositeBuffer *compositorBuffer = XCompositeBuffer::fromResource(m_buffer);
 
     return compositorBuffer->size();
 }

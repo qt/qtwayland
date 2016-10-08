@@ -64,6 +64,7 @@ namespace QtWayland {
     class ClientBufferIntegration;
     class ServerBufferIntegration;
     class DataDeviceManager;
+    class BufferManager;
 }
 
 class QWindowSystemEventHandler;
@@ -77,6 +78,7 @@ public:
     QWaylandCompositorPrivate(QWaylandCompositor *compositor);
     ~QWaylandCompositorPrivate();
 
+    void preInit();
     void init();
 
     void destroySurface(QWaylandSurface *surface);
@@ -88,6 +90,7 @@ public:
     inline QtWayland::ServerBufferIntegration *serverBufferIntegration() const;
 
     QtWayland::DataDeviceManager *dataDeviceManager() const { return data_device_manager; }
+    QtWayland::BufferManager *bufferManager() const { return buffer_manager; }
     void feedRetainedSelectionData(QMimeData *data);
 
     QWaylandPointer *callCreatePointerDevice(QWaylandSeat *seat)
@@ -114,7 +117,7 @@ protected:
 protected:
     void initializeHardwareIntegration();
     void initializeExtensions();
-    void initializeDefaultSeat();
+    void initializeSeats();
 
     void loadClientBufferIntegration();
     void loadServerBufferIntegration();
@@ -128,6 +131,7 @@ protected:
     QList<QWaylandSurface *> all_surfaces;
 
     QtWayland::DataDeviceManager *data_device_manager;
+    QtWayland::BufferManager *buffer_manager;
 
     QElapsedTimer timer;
 
@@ -145,6 +149,7 @@ protected:
     QScopedPointer<QWindowSystemEventHandler> eventHandler;
 
     bool retainSelection;
+    bool preInitialized;
     bool initialized;
     QList<QPointer<QObject> > polish_objects;
 

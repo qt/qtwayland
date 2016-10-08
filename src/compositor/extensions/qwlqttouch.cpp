@@ -64,14 +64,14 @@ static inline int toFixed(qreal f)
     return int(f * 10000);
 }
 
-bool TouchExtensionGlobal::postTouchEvent(QTouchEvent *event, QWaylandView *view)
+bool TouchExtensionGlobal::postTouchEvent(QTouchEvent *event, QWaylandSurface *surface)
 {
     const QList<QTouchEvent::TouchPoint> points = event->touchPoints();
     const int pointCount = points.count();
     if (!pointCount)
         return false;
 
-    wl_client *surfaceClient = view->surface()->client()->client();
+    wl_client *surfaceClient = surface->client()->client();
     uint32_t time = m_compositor->currentTimeMsecs();
     const int rescount = m_resources.count();
 

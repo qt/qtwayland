@@ -62,6 +62,20 @@
   Take a look at the \l{Qt Wayland Compositor Examples} for a demonstration on
   how the APIs can be used to write custom display servers.
 
+  \section1 Licenses and Attributions
+
+  Qt Wayland Compositor and the Qt Wayland integration plugin
+  are available under commercial licenses from \l{The Qt Company}.
+  In addition, they are available under the
+  \l{GNU Lesser General Public License, version 3}, or
+  the \l{GNU General Public License, version 2}.
+  See \l{Qt Licensing} for further details.
+
+  Qt Wayland Compositor and the Qt Wayland integration plugin
+  use protocol definitions under following permissive licenses:
+
+  \generatelist{groupsbymodule attributions-qtwaylandcompositor}
+
   \section1 API Reference
 
   The Qt Wayland Compositor API can be used from C++ or QML.

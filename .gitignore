@@ -6,6 +6,7 @@ Makefile*
 *.o
 *.moc
 *_wrapper.sh
+.qmake.stash
 qwayland-server-*.cpp
 qwayland-server-*.h
 *-protocol.c
@@ -35,6 +36,7 @@ bin/
 examples/wayland/qwindow-compositor/qwindow-compositor
 examples/wayland/custom-extension/testapp/testapp
 examples/wayland/minimal-cpp/minimal-cpp
+examples/wayland/minimal-qml/minimal-qml
 examples/wayland/multi-output/multi-output
 examples/wayland/pure-qml/pure-qml
 examples/wayland/server-buffer/client/client
@@ -42,6 +44,7 @@ examples/wayland/server-buffer/client/qwayland-*.cpp
 examples/wayland/server-buffer/client/qwayland-*.h
 examples/wayland/server-buffer/compositor/compositor
 examples/wayland/subsurface/subsurface
+examples/wayland/spanning-screens/spanning-screens
 src/client/qwayland-*.cpp
 src/client/QtWaylandClient.version
 src/client/QtWaylandClient.version.in
@@ -58,8 +61,8 @@ src/plugins/shellintegration/ivi-shell/qwayland-ivi-application.cpp
 src/plugins/shellintegration/ivi-shell/qwayland-ivi-controller.h
 src/plugins/shellintegration/ivi-shell/qwayland-ivi-controller.cpp
 src/imports/compositor/compositor.qrc
-tests/auto/client/tst_client
-tests/auto/compositor/tst_compositor
-tests/auto/compositor/qwayland-*.cpp
-tests/auto/compositor/qwayland-*.h
+tests/auto/client/client/tst_client
+tests/auto/compositor/compositor/tst_compositor
+tests/auto/compositor/compositor/qwayland-*.cpp
+tests/auto/compositor/compositor/qwayland-*.h
 *~

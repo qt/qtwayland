@@ -65,31 +65,12 @@ View::View()
     , m_parentView(nullptr)
 {}
 
-GLuint View::getTexture(GLenum *target)
+QOpenGLTexture *View::getTexture()
 {
-    QWaylandBufferRef buf = currentBuffer();
-    GLuint streamingTexture = buf.textureForPlane(0);
-    if (streamingTexture)
-        m_texture = streamingTexture;
-
-    if (!buf.isSharedMemory() && buf.bufferFormatEgl() == QWaylandBufferRef::BufferFormatEgl_EXTERNAL_OES)
-        m_textureTarget = GL_TEXTURE_EXTERNAL_OES;
-
     if (advance()) {
-        buf = currentBuffer();
-        if (!m_texture)
-            glGenTextures(1, &m_texture);
-
-        glBindTexture(m_textureTarget, m_texture);
-        if (buf.isSharedMemory())
-            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        buf.bindToTexture();
+        QWaylandBufferRef buf = currentBuffer();
+        m_texture = buf.toOpenGLTexture();
     }
-
-    buf.updateTexture();
-
-    if (target)
-        *target = m_textureTarget;
 
     return m_texture;
 }
@@ -158,8 +139,11 @@ Compositor::~Compositor()
 
 void Compositor::create()
 {
-    new QWaylandOutput(this, m_window);
+    QWaylandOutput *output = new QWaylandOutput(this, m_window);
+    QWaylandOutputMode mode(QSize(800, 600), 60000);
+    output->addMode(mode, true);
     QWaylandCompositor::create();
+    output->setCurrentMode(mode);
 
     connect(this, &QWaylandCompositor::surfaceCreated, this, &Compositor::onSurfaceCreated);
     connect(defaultSeat(), &QWaylandSeat::cursorSurfaceRequest, this, &Compositor::adjustCursorSurface);
@@ -282,9 +266,10 @@ void Compositor::onXdgStartResize(QWaylandSeat *seat,
     emit startResize(int(edges), true);
 }
 
-void Compositor::onSetTransient(QWaylandSurface *parent, const QPoint &relativeToParent, QWaylandWlShellSurface::FocusPolicy focusPolicy)
+void Compositor::onSetTransient(QWaylandSurface *parent, const QPoint &relativeToParent, bool inactive)
 {
-    Q_UNUSED(focusPolicy);
+    Q_UNUSED(inactive);
+
     QWaylandWlShellSurface *wlShellSurface = qobject_cast<QWaylandWlShellSurface*>(sender());
     View *view = findView(wlShellSurface->surface());
 

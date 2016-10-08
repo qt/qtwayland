@@ -86,14 +86,12 @@ public:
         m_view.setColor(Qt::black);
         m_view.create();
         m_output = new QWaylandQuickOutput(this, &m_view);
+        m_output->setSizeFollowsWindow(true);
 
         connect(&m_view, &QQuickView::afterRendering, this, &QmlCompositor::sendCallbacks);
 
         connect(&m_view, &QQuickView::sceneGraphInitialized, this, &QmlCompositor::initiateServerBuffer,Qt::DirectConnection);
         connect(this, &QmlCompositor::serverBuffersCreated, this, &QmlCompositor::createServerBufferItems);
-
-        connect(&m_view, &QWindow::widthChanged, this, &QmlCompositor::sizeAdjusted);
-        connect(&m_view, &QWindow::heightChanged, this, &QmlCompositor::sizeAdjusted);
 
         connect(this, SIGNAL(windowAdded(QVariant)), m_view.rootObject(), SLOT(windowAdded(QVariant)));
         connect(this, SIGNAL(windowResized(QVariant)), m_view.rootObject(), SLOT(windowResized(QVariant)));
@@ -211,11 +209,6 @@ private slots:
         }
     }
 protected:
-    void sizeAdjusted()
-    {
-        defaultOutput()->setGeometry(QRect(QPoint(0, 0), m_view.size()));
-    }
-
     void onSurfaceCreated(QWaylandSurface *surface) {
         QWaylandQuickItem *item = new QWaylandQuickItem();
         item->setSurface(surface);

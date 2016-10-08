@@ -53,6 +53,7 @@
 
 #include "wayland_wrapper/qwldatadevice_p.h"
 #include "wayland_wrapper/qwldatadevicemanager_p.h"
+#include "wayland_wrapper/qwlbuffermanager_p.h"
 
 #include "hardware_integration/qwlclientbufferintegration_p.h"
 #include "hardware_integration/qwlclientbufferintegrationfactory_p.h"
@@ -81,6 +82,7 @@
 
 #ifdef QT_WAYLAND_COMPOSITOR_GL
 #   include <QOpenGLTextureBlitter>
+#   include <QOpenGLTexture>
 #   include <QOpenGLContext>
 #   include <QOpenGLFramebufferObject>
 #   include <QMatrix4x4>
@@ -125,7 +127,7 @@ public:
             QWindowSystemEventHandler::sendEvent(e);
 
             if (!ke->repeat) {
-                keyb->updateKeymap();
+                keyb->maybeUpdateKeymap();
                 keyb->updateModifierState(code, isDown ? WL_KEYBOARD_KEY_STATE_PRESSED : WL_KEYBOARD_KEY_STATE_RELEASED);
             }
         } else {
@@ -147,6 +149,7 @@ QWaylandCompositorPrivate::QWaylandCompositorPrivate(QWaylandCompositor *composi
     , server_buffer_integration(0)
 #endif
     , retainSelection(false)
+    , preInitialized(false)
     , initialized(false)
 {
     if (QGuiApplication::platformNativeInterface())
@@ -173,6 +176,7 @@ void QWaylandCompositorPrivate::init()
     wl_subcompositor::init(display, 1);
 
     data_device_manager =  new QtWayland::DataDeviceManager(q);
+    buffer_manager = new QtWayland::BufferManager(q);
 
     wl_display_init_shm(display);
     QVector<wl_shm_format> formats = QWaylandSharedMemoryFormatHelper::supportedWaylandFormats();
@@ -200,7 +204,7 @@ void QWaylandCompositorPrivate::init()
     QObject::connect(dispatcher, SIGNAL(aboutToBlock()), q, SLOT(processWaylandEvents()));
 
     initializeHardwareIntegration();
-    initializeDefaultSeat();
+    initializeSeats();
 
     initialized = true;
 
@@ -223,6 +227,19 @@ QWaylandCompositorPrivate::~QWaylandCompositorPrivate()
     delete data_device_manager;
 
     wl_display_destroy(display);
+}
+
+void QWaylandCompositorPrivate::preInit()
+{
+    Q_Q(QWaylandCompositor);
+
+    if (preInitialized)
+        return;
+
+    if (seats.empty())
+        seats.append(q->createSeat());
+
+    preInitialized = true;
 }
 
 void QWaylandCompositorPrivate::destroySurface(QWaylandSurface *surface)
@@ -352,12 +369,10 @@ void QWaylandCompositorPrivate::initializeHardwareIntegration()
 #endif
 }
 
-void QWaylandCompositorPrivate::initializeDefaultSeat()
+void QWaylandCompositorPrivate::initializeSeats()
 {
-    Q_Q(QWaylandCompositor);
-    QWaylandSeat *device = q->createSeat();
-    seats.append(device);
-    q->defaultSeatChanged(device, nullptr);
+    for (QWaylandSeat *seat : qAsConst(seats))
+        seat->initialize();
 }
 
 void QWaylandCompositorPrivate::loadClientBufferIntegration()
@@ -409,7 +424,7 @@ void QWaylandCompositorPrivate::loadServerBufferIntegration()
 /*!
   \qmltype WaylandCompositor
   \inqmlmodule QtWayland.Compositor
-  \preliminary
+  \since 5.8
   \brief Manages the Wayland display server.
 
   The WaylandCompositor manages the connections to the clients, as well as the different
@@ -428,7 +443,7 @@ void QWaylandCompositorPrivate::loadServerBufferIntegration()
 /*!
    \class QWaylandCompositor
    \inmodule QtWaylandCompositor
-   \preliminary
+   \since 5.8
    \brief The QWaylandCompositor class manages the Wayland display server.
 
    The QWaylandCompositor manages the connections to the clients, as well as the different \l{QWaylandOutput}{outputs}
@@ -469,6 +484,7 @@ QWaylandCompositor::~QWaylandCompositor()
 void QWaylandCompositor::create()
 {
     Q_D(QWaylandCompositor);
+    d->preInit();
     d->init();
 }
 
@@ -882,7 +898,7 @@ void QWaylandCompositor::grabSurface(QWaylandSurfaceGrabber *grabber, const QWay
             fbo.bind();
             QOpenGLTextureBlitter blitter;
             blitter.create();
-            blitter.bind();
+
 
             glViewport(0, 0, buffer.size().width(), buffer.size().height());
 
@@ -891,15 +907,10 @@ void QWaylandCompositor::grabSurface(QWaylandSurfaceGrabber *grabber, const QWay
                 ? QOpenGLTextureBlitter::OriginTopLeft
                 : QOpenGLTextureBlitter::OriginBottomLeft;
 
-            GLuint texture;
-            glGenTextures(1, &texture);
-            glBindTexture(GL_TEXTURE_2D, texture);
-            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-            buffer.bindToTexture();
-            blitter.blit(texture, QMatrix4x4(), surfaceOrigin);
-
+            auto texture = buffer.toOpenGLTexture();
+            blitter.bind(texture->target());
+            blitter.blit(texture->textureId(), QMatrix4x4(), surfaceOrigin);
             blitter.release();
-            glDeleteTextures(1, &texture);
 
             emit grabber->success(fbo.toImage());
         } else

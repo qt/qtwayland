@@ -56,6 +56,8 @@ XdgShellV5Integration::XdgShellV5Integration(QWaylandQuickShellSurfaceItem *item
     m_item->setSurface(m_xdgSurface->surface());
     connect(m_xdgSurface, &QWaylandXdgSurfaceV5::startMove, this, &XdgShellV5Integration::handleStartMove);
     connect(m_xdgSurface, &QWaylandXdgSurfaceV5::startResize, this, &XdgShellV5Integration::handleStartResize);
+    connect(m_xdgSurface, &QWaylandXdgSurfaceV5::setTopLevel, this, &XdgShellV5Integration::handleSetTopLevel);
+    connect(m_xdgSurface, &QWaylandXdgSurfaceV5::setTransient, this, &XdgShellV5Integration::handleSetTransient);
     connect(m_xdgSurface, &QWaylandXdgSurfaceV5::setMaximized, this, &XdgShellV5Integration::handleSetMaximized);
     connect(m_xdgSurface, &QWaylandXdgSurfaceV5::unsetMaximized, this, &XdgShellV5Integration::handleUnsetMaximized);
     connect(m_xdgSurface, &QWaylandXdgSurfaceV5::maximizedChanged, this, &XdgShellV5Integration::handleMaximizedChanged);
@@ -124,8 +126,23 @@ void XdgShellV5Integration::handleStartResize(QWaylandSeat *seat, QWaylandXdgSur
     resizeState.initialized = false;
 }
 
+void XdgShellV5Integration::handleSetTopLevel()
+{
+    if (m_xdgSurface->shell()->focusPolicy() == QWaylandShell::AutomaticFocus)
+        m_item->takeFocus();
+}
+
+void XdgShellV5Integration::handleSetTransient()
+{
+    if (m_xdgSurface->shell()->focusPolicy() == QWaylandShell::AutomaticFocus)
+        m_item->takeFocus();
+}
+
 void XdgShellV5Integration::handleSetMaximized()
 {
+    if (!m_item->view()->isPrimary())
+        return;
+
     maximizeState.initialWindowSize = m_xdgSurface->windowGeometry().size();
     maximizeState.initialPosition = m_item->moveItem()->position();
 
@@ -135,6 +152,9 @@ void XdgShellV5Integration::handleSetMaximized()
 
 void XdgShellV5Integration::handleUnsetMaximized()
 {
+    if (!m_item->view()->isPrimary())
+        return;
+
     m_xdgSurface->sendUnmaximized(maximizeState.initialWindowSize);
 }
 

@@ -48,26 +48,7 @@ QT_BEGIN_NAMESPACE
 class QWaylandKeyboard;
 class QWaylandKeyboardPrivate;
 class QWaylandSeat;
-
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandKeymap
-{
-public:
-    QWaylandKeymap(const QString &layout = QString(), const QString &variant = QString(), const QString &options = QString(),
-                   const QString &model = QString(), const QString &rules = QString());
-
-    inline QString layout() const { return m_layout; }
-    inline QString variant() const { return m_variant; }
-    inline QString options() const { return m_options; }
-    inline QString rules() const { return m_rules; }
-    inline QString model() const { return m_model; }
-
-private:
-    QString m_layout;
-    QString m_variant;
-    QString m_options;
-    QString m_rules;
-    QString m_model;
-};
+class QWaylandKeymap;
 
 class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandKeyboard : public QWaylandObject
 {
@@ -88,7 +69,6 @@ public:
     void setRepeatDelay(quint32 delay);
 
     virtual void setFocus(QWaylandSurface *surface);
-    virtual void setKeymap(const QWaylandKeymap &keymap);
 
     virtual void sendKeyModifiers(QWaylandClient *client, uint32_t serial);
     virtual void sendKeyPressEvent(uint code);
@@ -106,6 +86,9 @@ Q_SIGNALS:
 
 private:
     void focusDestroyed(void *data);
+
+private Q_SLOTS:
+    void updateKeymap();
 };
 
 QT_END_NAMESPACE

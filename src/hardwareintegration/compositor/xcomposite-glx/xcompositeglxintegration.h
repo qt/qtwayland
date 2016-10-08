@@ -38,7 +38,7 @@
 #define XCOMPOSITEGLXINTEGRATION_H
 
 #include <QtWaylandCompositor/private/qwlclientbufferintegration_p.h>
-
+#include <QtWaylandCompositor/private/qwlclientbuffer_p.h>
 #include "xlibinclude.h"
 
 #define GLX_GLXEXT_PROTOTYPES
@@ -56,19 +56,36 @@ public:
     ~XCompositeGLXClientBufferIntegration();
 
     void initializeHardware(struct ::wl_display *display) Q_DECL_OVERRIDE;
+    QtWayland::ClientBuffer *createBufferFor(wl_resource *buffer) Q_DECL_OVERRIDE;
 
-    void bindTextureToBuffer(struct ::wl_resource *buffer) Q_DECL_OVERRIDE;
-    QWaylandSurface::Origin origin(struct ::wl_resource *) const Q_DECL_OVERRIDE;
+    inline Display *xDisplay() const { return mDisplay; }
+    inline int xScreen() const { return mScreen; }
 
-    QSize bufferSize(struct ::wl_resource *buffer) const Q_DECL_OVERRIDE;
-
-private:
     PFNGLXBINDTEXIMAGEEXTPROC m_glxBindTexImageEXT;
     PFNGLXRELEASETEXIMAGEEXTPROC m_glxReleaseTexImageEXT;
 
+private:
     Display *mDisplay;
     int mScreen;
     XCompositeHandler *mHandler;
+};
+
+class XCompositeGLXClientBuffer : public QtWayland::ClientBuffer
+{
+public:
+    XCompositeGLXClientBuffer(XCompositeGLXClientBufferIntegration *integration, wl_resource *bufferResource);
+
+    QSize size() const;
+    QWaylandSurface::Origin origin() const;
+    QOpenGLTexture *toOpenGlTexture(int plane) Q_DECL_OVERRIDE;
+    QWaylandBufferRef::BufferFormatEgl bufferFormatEgl() const Q_DECL_OVERRIDE {
+        return QWaylandBufferRef::BufferFormatEgl_RGBA;
+    }
+
+private:
+    QOpenGLTexture *m_texture;
+    XCompositeGLXClientBufferIntegration *m_integration;
+    GLXPixmap m_glxPixmap;
 };
 
 QT_END_NAMESPACE

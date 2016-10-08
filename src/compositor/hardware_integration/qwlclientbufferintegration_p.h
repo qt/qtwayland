@@ -57,6 +57,7 @@
 QT_BEGIN_NAMESPACE
 
 class QWaylandCompositor;
+class QOpenGLTexture;
 
 namespace QtWayland {
 class Display;
@@ -68,22 +69,11 @@ public:
     virtual ~ClientBufferIntegration() { }
 
     void setCompositor(QWaylandCompositor *compositor) { m_compositor = compositor; }
+    QWaylandCompositor *compositor() const { return m_compositor; }
 
     virtual void initializeHardware(struct ::wl_display *display) = 0;
 
-    virtual void initializeBuffer(struct ::wl_resource *buffer) { Q_UNUSED(buffer); }
-    virtual QWaylandBufferRef::BufferFormatEgl bufferFormat(struct ::wl_resource *buffer) { Q_UNUSED(buffer); return QWaylandBufferRef::BufferFormatEgl_RGBA; }
-    virtual uint textureForBuffer(struct ::wl_resource *buffer, int plane) { Q_UNUSED(buffer); Q_UNUSED(plane); return 0; }
-
-    virtual void bindTextureToBuffer(struct ::wl_resource *buffer) = 0;
-    virtual void updateTextureForBuffer(struct ::wl_resource *buffer) { Q_UNUSED(buffer); }
-
-    virtual QWaylandSurface::Origin origin(struct ::wl_resource *) const { return QWaylandSurface::OriginBottomLeft; }
-
-    virtual void *lockNativeBuffer(struct ::wl_resource *) const { return 0; }
-    virtual void unlockNativeBuffer(void *) const { return; }
-
-    virtual QSize bufferSize(struct ::wl_resource *) const { return QSize(); }
+    virtual ClientBuffer *createBufferFor(struct ::wl_resource *buffer) = 0;
 
 protected:
     QWaylandCompositor *m_compositor;

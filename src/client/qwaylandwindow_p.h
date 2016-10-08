@@ -53,6 +53,7 @@
 
 #include <QtCore/QWaitCondition>
 #include <QtCore/QMutex>
+#include <QtCore/QAtomicPointer>
 #include <QtGui/QIcon>
 #include <QtCore/QVariant>
 
@@ -220,7 +221,7 @@ protected:
 
     WId mWindowId;
     bool mWaitingForFrameSync;
-    struct wl_callback *mFrameCallback;
+    QAtomicPointer<struct wl_callback> mFrameCallback;
     QWaitCondition mFrameSyncWait;
 
     QMutex mResizeLock;

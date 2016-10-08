@@ -87,7 +87,7 @@ public:
 /*!
  * \qmltype WaylandClient
  * \inqmlmodule QtWayland.Compositor
- * \preliminary
+ * \since 5.8
  * \brief Represents a client connecting to the WaylandCompositor.
  *
  * This type represents a client connecting to the compositor using the Wayland protocol.
@@ -97,7 +97,7 @@ public:
 /*!
  * \class QWaylandClient
  * \inmodule QtWaylandCompositor
- * \preliminary
+ * \since 5.8
  * \brief The QWaylandClient class represents a client connecting to the QWaylandCompositor.
  *
  * This class corresponds to a client connecting to the compositor using the Wayland protocol.

@@ -40,7 +40,7 @@
 #include <QtWaylandCompositor/private/qwlclientbufferintegration_p.h>
 
 #include <QtWaylandCompositor/QWaylandCompositor>
-
+#include <QtWaylandCompositor/private/qwlclientbuffer_p.h>
 #include "xlibinclude.h"
 
 #include <EGL/egl.h>
@@ -53,16 +53,30 @@ public:
     XCompositeEglClientBufferIntegration();
 
     void initializeHardware(struct ::wl_display *display) Q_DECL_OVERRIDE;
-
-    void bindTextureToBuffer(struct ::wl_resource *buffer) Q_DECL_OVERRIDE;
-    QWaylandSurface::Origin origin(struct ::wl_resource *) const Q_DECL_OVERRIDE;
-
-    QSize bufferSize(struct ::wl_resource *buffer) const Q_DECL_OVERRIDE;
+    QtWayland::ClientBuffer *createBufferFor(wl_resource *buffer) Q_DECL_OVERRIDE;
+    inline Display *xDisplay() const { return mDisplay; }
+    inline EGLDisplay eglDisplay() const { return mEglDisplay; }
 
 private:
     Display *mDisplay;
     EGLDisplay mEglDisplay;
-    int mScreen;
+};
+
+class XCompositeEglClientBuffer : public QtWayland::ClientBuffer
+{
+public:
+    XCompositeEglClientBuffer(XCompositeEglClientBufferIntegration *integration, wl_resource *bufferResource);
+
+    QSize size() const;
+    QWaylandSurface::Origin origin() const;
+    QOpenGLTexture *toOpenGlTexture(int plane) Q_DECL_OVERRIDE;
+    QWaylandBufferRef::BufferFormatEgl bufferFormatEgl() const Q_DECL_OVERRIDE {
+        return QWaylandBufferRef::BufferFormatEgl_RGBA;
+    }
+
+private:
+    QOpenGLTexture *m_texture;
+    XCompositeEglClientBufferIntegration *m_integration;
 };
 
 QT_END_NAMESPACE

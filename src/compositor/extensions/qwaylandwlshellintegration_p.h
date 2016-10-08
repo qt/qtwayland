@@ -67,9 +67,14 @@ public:
 private Q_SLOTS:
     void handleStartMove(QWaylandSeat *seat);
     void handleStartResize(QWaylandSeat *seat, QWaylandWlShellSurface::ResizeEdge edges);
+    void handleSetDefaultTopLevel();
+    void handleSetTransient(QWaylandSurface *parentSurface, const QPoint &relativeToParent, bool inactive);
+    void handleSetMaximized(QWaylandOutput *output);
+    void handleSetFullScreen(QWaylandWlShellSurface::FullScreenMethod method, uint framerate, QWaylandOutput *output);
     void handleSetPopup(QWaylandSeat *seat, QWaylandSurface *parent, const QPoint &relativeToParent);
     void handleShellSurfaceDestroyed();
     void handleSurfaceHasContentChanged();
+    void handleRedraw();
     void adjustOffsetForNextFrame(const QPointF &offset);
 
 private:
@@ -99,6 +104,17 @@ private:
     } resizeState;
 
     bool isPopup;
+
+    enum class State {
+        Windowed,
+        Maximized,
+        FullScreen
+    };
+
+    State currentState;
+    State nextState;
+    QPointF normalPosition;
+    QPointF finalPosition;
 };
 
 }

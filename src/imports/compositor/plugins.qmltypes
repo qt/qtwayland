@@ -32,14 +32,18 @@ Module {
         isCreatable: false
         exportMetaObjectRevisions: [0]
         Property { name: "socketName"; type: "QByteArray" }
+        Property { name: "created"; type: "bool"; isReadonly: true }
         Property { name: "retainedSelection"; type: "bool" }
         Property { name: "defaultOutput"; type: "QWaylandOutput"; isPointer: true }
         Property { name: "useHardwareIntegrationExtension"; type: "bool" }
-        Property {
-            name: "defaultSeat"
-            type: "QWaylandSeat"
-            isReadonly: true
-            isPointer: true
+        Property { name: "defaultSeat"; type: "QWaylandSeat"; isReadonly: true; isPointer: true }
+        Signal {
+            name: "socketNameChanged"
+            Parameter { name: "socketName"; type: "QByteArray" }
+        }
+        Signal {
+            name: "retainedSelectionChanged"
+            Parameter { name: "retainedSelection"; type: "bool" }
         }
         Signal {
             name: "surfaceRequested"
@@ -113,37 +117,56 @@ Module {
         Method { name: "cancelDrag" }
     }
     Component {
-        name: "QWaylandSeat"
-        prototype: "QWaylandObject"
-        exports: ["QtWayland.Compositor/WaylandSeat 1.0"]
-        isCreatable: false
-        exportMetaObjectRevisions: [0]
-        Enum {
-            name: "CapabilityFlags"
-            values: {
-                "Pointer": 1,
-                "Keyboard": 2,
-                "Touch": 4,
-                "DefaultCapabilities": 7
-            }
-        }
-        Property { name: "drag"; type: "QWaylandDrag"; isReadonly: true; isPointer: true }
+        name: "QWaylandIviApplication"
+        prototype: "QWaylandCompositorExtension"
         Signal {
-            name: "mouseFocusChanged"
-            Parameter { name: "newFocus"; type: "QWaylandView"; isPointer: true }
-            Parameter { name: "oldFocus"; type: "QWaylandView"; isPointer: true }
-        }
-        Signal {
-            name: "keyboardFocusChanged"
-            Parameter { name: "newFocus"; type: "QWaylandSurface"; isPointer: true }
-            Parameter { name: "oldFocus"; type: "QWaylandSurface"; isPointer: true }
-        }
-        Signal {
-            name: "cursorSurfaceRequest"
+            name: "iviSurfaceRequested"
             Parameter { name: "surface"; type: "QWaylandSurface"; isPointer: true }
-            Parameter { name: "hotspotX"; type: "int" }
-            Parameter { name: "hotspotY"; type: "int" }
+            Parameter { name: "iviId"; type: "uint" }
+            Parameter { name: "resource"; type: "QWaylandResource" }
         }
+        Signal {
+            name: "iviSurfaceCreated"
+            Parameter { name: "iviSurface"; type: "QWaylandIviSurface"; isPointer: true }
+        }
+    }
+    Component {
+        name: "QWaylandIviApplicationQuickExtension"
+        defaultProperty: "data"
+        prototype: "QWaylandIviApplication"
+        exports: ["QtWayland.Compositor/IviApplication 1.0"]
+        exportMetaObjectRevisions: [0]
+        Property { name: "data"; type: "QObject"; isList: true; isReadonly: true }
+    }
+    Component {
+        name: "QWaylandIviSurface"
+        prototype: "QWaylandShellSurface"
+        exports: ["QtWayland.Compositor/IviSurface 1.0"]
+        exportMetaObjectRevisions: [0]
+        Property { name: "surface"; type: "QWaylandSurface"; isReadonly: true; isPointer: true }
+        Property { name: "iviId"; type: "uint"; isReadonly: true }
+        Method {
+            name: "initialize"
+            Parameter { name: "iviApplication"; type: "QWaylandIviApplication"; isPointer: true }
+            Parameter { name: "surface"; type: "QWaylandSurface"; isPointer: true }
+            Parameter { name: "iviId"; type: "uint" }
+            Parameter { name: "resource"; type: "QWaylandResource" }
+        }
+        Method {
+            name: "sendConfigure"
+            Parameter { name: "size"; type: "QSize" }
+        }
+    }
+    Component {
+        name: "QWaylandKeymap"
+        prototype: "QObject"
+        exports: ["QtWayland.Compositor/WaylandKeymap 1.0"]
+        exportMetaObjectRevisions: [0]
+        Property { name: "layout"; type: "string" }
+        Property { name: "variant"; type: "string" }
+        Property { name: "options"; type: "string" }
+        Property { name: "rules"; type: "string" }
+        Property { name: "model"; type: "string" }
     }
     Component {
         name: "QWaylandMouseTracker"
@@ -193,7 +216,6 @@ Module {
         Property { name: "manufacturer"; type: "string" }
         Property { name: "model"; type: "string" }
         Property { name: "position"; type: "QPoint" }
-        Property { name: "mode"; type: "QWaylandOutput::Mode" }
         Property { name: "geometry"; type: "QRect"; isReadonly: true }
         Property { name: "availableGeometry"; type: "QRect" }
         Property { name: "physicalSize"; type: "QSize" }
@@ -201,6 +223,8 @@ Module {
         Property { name: "transform"; type: "QWaylandOutput::Transform" }
         Property { name: "scaleFactor"; type: "int" }
         Property { name: "sizeFollowsWindow"; type: "bool" }
+        Signal { name: "modeAdded" }
+        Signal { name: "currentModeChanged" }
         Signal { name: "physicalSizeFollowsSizeChanged" }
         Signal { name: "windowDestroyed" }
     }
@@ -252,6 +276,7 @@ Module {
         Property { name: "focusOnClick"; type: "bool" }
         Property { name: "sizeFollowsSurface"; type: "bool" }
         Property { name: "subsurfaceHandler"; type: "QObject"; isPointer: true }
+        Property { name: "output"; type: "QWaylandOutput"; isPointer: true }
         Property { name: "bufferLocked"; type: "bool" }
         Property { name: "allowDiscardFrontBuffer"; type: "bool" }
         Signal { name: "surfaceDestroyed" }
@@ -315,11 +340,61 @@ Module {
         exportMetaObjectRevisions: [0]
     }
     Component {
+        name: "QWaylandSeat"
+        prototype: "QWaylandObject"
+        exports: ["QtWayland.Compositor/WaylandSeat 1.0"]
+        isCreatable: false
+        exportMetaObjectRevisions: [0]
+        Enum {
+            name: "CapabilityFlags"
+            values: {
+                "Pointer": 1,
+                "Keyboard": 2,
+                "Touch": 4,
+                "DefaultCapabilities": 7
+            }
+        }
+        Property { name: "drag"; type: "QWaylandDrag"; isReadonly: true; isPointer: true }
+        Property { name: "keymap"; type: "QWaylandKeymap"; isReadonly: true; isPointer: true }
+        Signal {
+            name: "mouseFocusChanged"
+            Parameter { name: "newFocus"; type: "QWaylandView"; isPointer: true }
+            Parameter { name: "oldFocus"; type: "QWaylandView"; isPointer: true }
+        }
+        Signal {
+            name: "keyboardFocusChanged"
+            Parameter { name: "newFocus"; type: "QWaylandSurface"; isPointer: true }
+            Parameter { name: "oldFocus"; type: "QWaylandSurface"; isPointer: true }
+        }
+        Signal {
+            name: "cursorSurfaceRequest"
+            Parameter { name: "surface"; type: "QWaylandSurface"; isPointer: true }
+            Parameter { name: "hotspotX"; type: "int" }
+            Parameter { name: "hotspotY"; type: "int" }
+        }
+    }
+    Component {
+        name: "QWaylandShell"
+        prototype: "QWaylandCompositorExtension"
+        exports: ["QtWayland.Compositor/Shell 1.0"]
+        isCreatable: false
+        exportMetaObjectRevisions: [0]
+        Enum {
+            name: "FocusPolicy"
+            values: {
+                "AutomaticFocus": 0,
+                "ManualFocus": 1
+            }
+        }
+        Property { name: "focusPolicy"; type: "FocusPolicy" }
+    }
+    Component {
         name: "QWaylandShellSurface"
         prototype: "QWaylandCompositorExtension"
         exports: ["QtWayland.Compositor/ShellSurface 1.0"]
         isCreatable: false
         exportMetaObjectRevisions: [0]
+        Property { name: "windowType"; type: "Qt::WindowType"; isReadonly: true }
     }
     Component {
         name: "QWaylandSurface"
@@ -339,9 +414,8 @@ Module {
         Property { name: "bufferScale"; type: "int"; isReadonly: true }
         Property { name: "contentOrientation"; type: "Qt::ScreenOrientation"; isReadonly: true }
         Property { name: "origin"; type: "QWaylandSurface::Origin"; isReadonly: true }
-        Property { name: "isMapped"; type: "bool"; isReadonly: true }
+        Property { name: "hasContent"; type: "bool"; isReadonly: true }
         Property { name: "cursorSurface"; type: "bool" }
-        Signal { name: "mappedChanged" }
         Signal {
             name: "damaged"
             Parameter { name: "rect"; type: "QRegion" }
@@ -405,7 +479,7 @@ Module {
     }
     Component {
         name: "QWaylandWlShell"
-        prototype: "QWaylandCompositorExtension"
+        prototype: "QWaylandShell"
         Signal {
             name: "wlShellSurfaceRequested"
             Parameter { name: "surface"; type: "QWaylandSurface"; isPointer: true }
@@ -415,6 +489,7 @@ Module {
             name: "wlShellSurfaceCreated"
             Parameter { name: "shellSurface"; type: "QWaylandWlShellSurface"; isPointer: true }
         }
+        Method { name: "closeAllPopups" }
     }
     Component {
         name: "QWaylandWlShellQuickExtension"
@@ -452,18 +527,10 @@ Module {
                 "BottomRightEdge": 10
             }
         }
-        Enum {
-            name: "FocusPolicy"
-            values: {
-                "DefaultFocus": 0,
-                "NoKeyboardFocus": 1
-            }
-        }
         Property { name: "surface"; type: "QWaylandSurface"; isReadonly: true; isPointer: true }
         Property { name: "shell"; type: "QWaylandWlShell"; isReadonly: true; isPointer: true }
         Property { name: "title"; type: "string"; isReadonly: true }
         Property { name: "className"; type: "string"; isReadonly: true }
-        Property { name: "focusPolicy"; type: "FocusPolicy"; isReadonly: true }
         Signal { name: "pong" }
         Signal {
             name: "startMove"
@@ -479,7 +546,7 @@ Module {
             name: "setTransient"
             Parameter { name: "parentSurface"; type: "QWaylandSurface"; isPointer: true }
             Parameter { name: "relativeToParent"; type: "QPoint" }
-            Parameter { name: "focusPolicy"; type: "FocusPolicy" }
+            Parameter { name: "inactive"; type: "bool" }
         }
         Signal {
             name: "setFullScreen"
@@ -520,7 +587,7 @@ Module {
     }
     Component {
         name: "QWaylandXdgShellV5"
-        prototype: "QWaylandCompositorExtension"
+        prototype: "QWaylandShell"
         Signal {
             name: "xdgSurfaceRequested"
             Parameter { name: "surface"; type: "QWaylandSurface"; isPointer: true }
@@ -557,14 +624,14 @@ Module {
         name: "QWaylandXdgShellV5QuickExtension"
         defaultProperty: "data"
         prototype: "QWaylandXdgShellV5"
-        exports: ["QtWayland.Compositor/XdgShell 1.0"]
+        exports: ["QtWayland.Compositor/XdgShellV5 1.0"]
         exportMetaObjectRevisions: [0]
         Property { name: "data"; type: "QObject"; isList: true; isReadonly: true }
     }
     Component {
         name: "QWaylandXdgSurfaceV5"
         prototype: "QWaylandShellSurface"
-        exports: ["QtWayland.Compositor/XdgSurface 1.0"]
+        exports: ["QtWayland.Compositor/XdgSurfaceV5 1.0"]
         exportMetaObjectRevisions: [0]
         Enum {
             name: "State"
@@ -589,8 +656,14 @@ Module {
                 "BottomRightEdge": 10
             }
         }
+        Property { name: "shell"; type: "QWaylandXdgShellV5"; isReadonly: true; isPointer: true }
         Property { name: "surface"; type: "QWaylandSurface"; isReadonly: true; isPointer: true }
-        Property { name: "parentSurface"; type: "QWaylandXdgSurfaceV5"; isReadonly: true; isPointer: true }
+        Property {
+            name: "parentSurface"
+            type: "QWaylandXdgSurfaceV5"
+            isReadonly: true
+            isPointer: true
+        }
         Property { name: "title"; type: "string"; isReadonly: true }
         Property { name: "appId"; type: "string"; isReadonly: true }
         Property { name: "windowGeometry"; type: "QRect"; isReadonly: true }
@@ -701,6 +774,7 @@ Module {
         Property { name: "focusOnClick"; type: "bool" }
         Property { name: "sizeFollowsSurface"; type: "bool" }
         Property { name: "subsurfaceHandler"; type: "QObject"; isPointer: true }
+        Property { name: "output"; type: "QWaylandOutput"; isPointer: true }
         Property { name: "bufferLocked"; type: "bool" }
         Property { name: "allowDiscardFrontBuffer"; type: "bool" }
         Signal { name: "surfaceDestroyed" }

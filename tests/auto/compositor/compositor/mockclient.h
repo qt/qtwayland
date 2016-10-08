@@ -28,11 +28,13 @@
 
 #include <wayland-client.h>
 #include <wayland-xdg-shell-client-protocol.h>
+#include <wayland-ivi-application-client-protocol.h>
 
 #include <QObject>
 #include <QImage>
 #include <QRect>
 #include <QList>
+#include <QWaylandOutputMode>
 
 class MockSeat;
 
@@ -58,6 +60,7 @@ public:
     wl_surface *createSurface();
     wl_shell_surface *createShellSurface(wl_surface *surface);
     xdg_surface *createXdgSurface(wl_surface *surface);
+    ivi_surface *createIviSurface(wl_surface *surface, uint iviId);
 
     wl_display *display;
     wl_compositor *compositor;
@@ -66,12 +69,24 @@ public:
     wl_registry *registry;
     wl_shell *wlshell;
     xdg_shell *xdgShell;
+    ivi_application *iviApplication;
 
     QList<MockSeat *> m_seats;
 
     QRect geometry;
+    QSize resolution;
+    int refreshRate;
+    QWaylandOutputMode currentMode;
+    QWaylandOutputMode preferredMode;
+    QList<QWaylandOutputMode> modes;
 
     int fd;
+    int error;
+    struct {
+        uint id;
+        uint code;
+        const wl_interface *interface;
+    } protocolError;
 
 private slots:
     void readEvents();
@@ -97,7 +112,7 @@ private:
                                 uint32_t flags,
                                 int width,
                                 int height,
-                                int refresh);
+                                int refreshRate);
     static void outputDone(void *data, wl_output *output);
     static void outputScale(void *data, wl_output *output, int factor);
 

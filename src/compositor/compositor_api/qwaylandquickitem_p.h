@@ -52,14 +52,14 @@
 #include <QtQuick/QSGMaterialShader>
 #include <QtQuick/QSGMaterial>
 
-#include "qwaylandquickitem.h"
-
+#include <QtWaylandCompositor/QWaylandQuickItem>
 #include <QtWaylandCompositor/QWaylandOutput>
 
 QT_BEGIN_NAMESPACE
 
 class QWaylandSurfaceTextureProvider;
 class QMutex;
+class QOpenGLTexture;
 
 class QWaylandBufferMaterialShader : public QSGMaterialShader
 {
@@ -85,7 +85,7 @@ public:
     QWaylandBufferMaterial(QWaylandBufferRef::BufferFormatEgl format);
     ~QWaylandBufferMaterial();
 
-    void setTextureForPlane(int plane, uint texture);
+    void setTextureForPlane(int plane, QOpenGLTexture *texture);
 
     void bind();
 
@@ -97,7 +97,7 @@ private:
     void ensureTextures(int count);
 
     const QWaylandBufferRef::BufferFormatEgl m_format;
-    QVarLengthArray<GLuint, 3> m_textures;
+    QVarLengthArray<QOpenGLTexture*, 3> m_textures;
 };
 
 class QWaylandQuickItemPrivate : public QQuickItemPrivate

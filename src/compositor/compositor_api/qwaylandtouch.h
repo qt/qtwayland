@@ -51,6 +51,7 @@ class QWaylandTouchPrivate;
 class QWaylandSeat;
 class QWaylandView;
 class QWaylandClient;
+class QWaylandSurface;
 
 class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandTouch : public QWaylandObject
 {
@@ -62,19 +63,15 @@ public:
     QWaylandSeat *seat() const;
     QWaylandCompositor *compositor() const;
 
-    virtual void sendTouchPointEvent(int id, const QPointF &position, Qt::TouchPointState state);
-    virtual void sendFrameEvent();
-    virtual void sendCancelEvent();
-
-    virtual void sendFullTouchEvent(QTouchEvent *event);
+    virtual uint sendTouchPointEvent(QWaylandSurface *surface, int id, const QPointF &position, Qt::TouchPointState state);
+    virtual void sendFrameEvent(QWaylandClient *client);
+    virtual void sendCancelEvent(QWaylandClient *client);
+    virtual void sendFullTouchEvent(QWaylandSurface *surface, QTouchEvent *event);
 
     virtual void addClient(QWaylandClient *client, uint32_t id, uint32_t version);
 
-    wl_resource *focusResource() const;
-
 private:
     void focusDestroyed(void *data);
-    void mouseFocusChanged(QWaylandView *newFocus, QWaylandView *oldFocus);
 };
 
 QT_END_NAMESPACE

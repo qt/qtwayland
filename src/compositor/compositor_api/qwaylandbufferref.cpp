@@ -38,14 +38,14 @@
 #include <QAtomicInt>
 
 #include "qwaylandbufferref.h"
-#include "wayland_wrapper/qwlsurfacebuffer_p.h"
+#include "wayland_wrapper/qwlclientbuffer_p.h"
 
 QT_BEGIN_NAMESPACE
 
 class QWaylandBufferRefPrivate
 {
 public:
-    QtWayland::SurfaceBuffer *buffer;
+    QtWayland::ClientBuffer *buffer;
 
     bool nullOrDestroyed() {
         return !buffer || buffer->isDestroyed();
@@ -55,7 +55,7 @@ public:
 /*!
  * \class QWaylandBufferRef
  * \inmodule QtWaylandCompositor
- * \preliminary
+ * \since 5.8
  * \brief The QWaylandBufferRef class holds the reference to a surface buffer
  *
  * This class can be used to reference a surface buffer. As long as a reference
@@ -74,7 +74,7 @@ QWaylandBufferRef::QWaylandBufferRef()
 /*!
  * Constructs a reference to \a buffer.
  */
-QWaylandBufferRef::QWaylandBufferRef(QtWayland::SurfaceBuffer *buffer)
+QWaylandBufferRef::QWaylandBufferRef(QtWayland::ClientBuffer *buffer)
                  : d(new QWaylandBufferRefPrivate)
 {
     d->buffer = buffer;
@@ -104,17 +104,18 @@ QWaylandBufferRef::~QWaylandBufferRef()
 }
 
 /*!
- * Assigns \a ref to this buffer. The previously referenced buffer is
- * dereferenced and the new one gets a new reference.
+ * Assigns \a ref to this buffer and adds a reference to it. The previously referenced buffer is
+ * dereferenced.
  */
 QWaylandBufferRef &QWaylandBufferRef::operator=(const QWaylandBufferRef &ref)
 {
+    if (ref.d->buffer)
+        ref.d->buffer->ref();
+
     if (d->buffer)
         d->buffer->deref();
 
     d->buffer = ref.d->buffer;
-    if (d->buffer)
-        d->buffer->ref();
 
     return *this;
 }
@@ -141,7 +142,7 @@ bool QWaylandBufferRef::operator!=(const QWaylandBufferRef &ref)
  * Returns true if this QWaylandBufferRef does not reference a buffer.
  * Otherwise returns false.
  *
- * \sa hasBuffer()
+ * \sa hasBuffer(), hasContent()
  */
 bool QWaylandBufferRef::isNull() const
 {
@@ -151,11 +152,20 @@ bool QWaylandBufferRef::isNull() const
 /*!
  * Returns true if this QWaylandBufferRef references a buffer. Otherwise returns false.
  *
- * \sa isNull()
+ * \sa isNull(), hasContent()
  */
 bool QWaylandBufferRef::hasBuffer() const
 {
     return d->buffer;
+}
+/*!
+ * Returns true if this QWaylandBufferRef references a buffer that has content. Otherwise returns false.
+ *
+ * \sa isNull(), hasBuffer()
+ */
+bool QWaylandBufferRef::hasContent() const
+{
+    return QtWayland::ClientBuffer::hasContent(d->buffer);
 }
 
 /*!
@@ -173,6 +183,14 @@ bool QWaylandBufferRef::isDestroyed() const
 struct ::wl_resource *QWaylandBufferRef::wl_buffer() const
 {
     return d->buffer ? d->buffer->waylandBufferHandle() : Q_NULLPTR;
+}
+
+/*!
+ * \internal
+ */
+QtWayland::ClientBuffer *QWaylandBufferRef::buffer() const
+{
+    return d->buffer;
 }
 
 /*!
@@ -242,35 +260,43 @@ QImage QWaylandBufferRef::image() const
 }
 
 #ifdef QT_WAYLAND_COMPOSITOR_GL
-GLuint QWaylandBufferRef::textureForPlane(int plane) const
+/*!
+ * Returns an OpenGL texture for the buffer. \a plane is the index for multi-plane formats, such as YUV.
+ *
+ * The returned texture is owned by the buffer. The texture is only valid for as
+ * long as the buffer reference exists. The caller of this function must not delete the texture, and must
+ * keep a reference to the buffer for as long as the texture is being used.
+ *
+ * Returns \c nullptr if there is no valid buffer, or if no texture can be created.
+ */
+QOpenGLTexture *QWaylandBufferRef::toOpenGLTexture(int plane) const
 {
     if (d->nullOrDestroyed())
-        return 0;
+        return nullptr;
 
-    return d->buffer->textureForPlane(plane);
+    return d->buffer->toOpenGlTexture(plane);
 }
 
 /*!
- * Binds the buffer to the current OpenGL texture. This may
- * perform a copy of the buffer data, depending on the platform
- * and the type of the buffer.
+ * Returns the native handle for this buffer, and marks it as locked so it will not be
+ * released until unlockNativeBuffer() is called.
+ *
+ * Returns 0 if there is no native handle for this buffer, or if the lock was unsuccessful.
  */
-void QWaylandBufferRef::bindToTexture() const
+quintptr QWaylandBufferRef::lockNativeBuffer()
 {
-    if (d->nullOrDestroyed())
-        return;
-
-    return d->buffer->bindToTexture();
-
+    return d->buffer->lockNativeBuffer();
 }
 
-void QWaylandBufferRef::updateTexture() const
+/*!
+ * Marks the native buffer as no longer in use. \a handle must correspond to the value returned by
+ * a previous call to lockNativeBuffer().
+ */
+void QWaylandBufferRef::unlockNativeBuffer(quintptr handle)
 {
-    if (d->nullOrDestroyed() || d->buffer->isSharedMemory())
-        return;
-
-    d->buffer->updateTexture();
+    d->buffer->unlockNativeBuffer(handle);
 }
+
 #endif
 
 QT_END_NAMESPACE

@@ -102,6 +102,8 @@ QWaylandWindow::QWaylandWindow(QWindow *window)
 
 QWaylandWindow::~QWaylandWindow()
 {
+    mDisplay->handleWindowDestroyed(this);
+
     delete mWindowDecoration;
 
     if (isInitialized())

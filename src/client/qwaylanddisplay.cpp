@@ -422,6 +422,12 @@ void QWaylandDisplay::handleKeyboardFocusChanged(QWaylandInputDevice *inputDevic
     mLastKeyboardFocus = keyboardFocus;
 }
 
+void QWaylandDisplay::handleWindowDestroyed(QWaylandWindow *window)
+{
+    if (mActiveWindows.contains(window))
+        handleWindowDeactivated(window);
+}
+
 void QWaylandDisplay::handleWaylandSync()
 {
     // This callback is used to set the window activation because we may get an activate/deactivate

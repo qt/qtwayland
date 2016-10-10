@@ -170,6 +170,7 @@ public:
     void handleWindowActivated(QWaylandWindow *window);
     void handleWindowDeactivated(QWaylandWindow *window);
     void handleKeyboardFocusChanged(QWaylandInputDevice *inputDevice);
+    void handleWindowDestroyed(QWaylandWindow *window);
 
 public slots:
     void blockingReadEvents();
@@ -211,7 +212,7 @@ private:
     uint32_t mLastInputSerial;
     QWaylandInputDevice *mLastInputDevice;
     QPointer<QWaylandWindow> mLastInputWindow;
-    QWaylandWindow *mLastKeyboardFocus;
+    QPointer<QWaylandWindow> mLastKeyboardFocus;
     QVector<QWaylandWindow *> mActiveWindows;
     struct wl_callback *mSyncCallback;
     static const wl_callback_listener syncCallbackListener;

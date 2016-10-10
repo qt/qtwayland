@@ -75,6 +75,7 @@ public:
 
     Surface *focus() const { return m_focus; }
     void setFocus(Surface *surface);
+    void handleSurfaceDestroyed(Surface *surface);
 
     void sendKey(uint32_t key, uint32_t state);
 
@@ -97,6 +98,7 @@ public:
     Surface *focus() const { return m_focus; }
 
     void setFocus(Surface *surface, const QPoint &pos);
+    void handleSurfaceDestroyed(Surface *surface);
     void sendMotion(const QPoint &pos);
     void sendButton(uint32_t button, uint32_t state);
 

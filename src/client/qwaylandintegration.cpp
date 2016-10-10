@@ -119,7 +119,6 @@ public:
 
 QWaylandIntegration::QWaylandIntegration()
     : mClientBufferIntegration(0)
-    , mShellIntegration(Q_NULLPTR)
     , mInputDeviceIntegration(Q_NULLPTR)
     , mFontDb(new QGenericUnixFontDatabase())
     , mNativeInterface(new QWaylandNativeInterface(this))
@@ -131,16 +130,16 @@ QWaylandIntegration::QWaylandIntegration()
     , mShellIntegrationInitialized(false)
 {
     initializeInputDeviceIntegration();
-    mDisplay = new QWaylandDisplay(this);
-    mClipboard = new QWaylandClipboard(mDisplay);
-    mDrag = new QWaylandDrag(mDisplay);
+    mDisplay.reset(new QWaylandDisplay(this));
+    mClipboard.reset(new QWaylandClipboard(mDisplay.data()));
+    mDrag.reset(new QWaylandDrag(mDisplay.data()));
 
     QString icStr = QPlatformInputContextFactory::requested();
     if (!icStr.isNull()) {
         mInputContext.reset(QPlatformInputContextFactory::create(icStr));
     } else {
         //try to use the input context using the wl_text_input interface
-        QPlatformInputContext *ctx = new QWaylandInputContext(mDisplay);
+        QPlatformInputContext *ctx = new QWaylandInputContext(mDisplay.data());
         mInputContext.reset(ctx);
 
         //use the traditional way for on screen keyboards for now
@@ -153,18 +152,11 @@ QWaylandIntegration::QWaylandIntegration()
 
 QWaylandIntegration::~QWaylandIntegration()
 {
-    delete mDrag;
-    delete mClipboard;
-#ifndef QT_NO_ACCESSIBILITY
-    delete mAccessibility;
-#endif
-    delete mNativeInterface;
-    delete mDisplay;
 }
 
 QPlatformNativeInterface * QWaylandIntegration::nativeInterface() const
 {
-    return mNativeInterface;
+    return mNativeInterface.data();
 }
 
 bool QWaylandIntegration::hasCapability(QPlatformIntegration::Capability cap) const
@@ -217,27 +209,27 @@ QAbstractEventDispatcher *QWaylandIntegration::createEventDispatcher() const
 void QWaylandIntegration::initialize()
 {
     QAbstractEventDispatcher *dispatcher = QGuiApplicationPrivate::eventDispatcher;
-    QObject::connect(dispatcher, SIGNAL(aboutToBlock()), mDisplay, SLOT(flushRequests()));
-    QObject::connect(dispatcher, SIGNAL(awake()), mDisplay, SLOT(flushRequests()));
+    QObject::connect(dispatcher, SIGNAL(aboutToBlock()), mDisplay.data(), SLOT(flushRequests()));
+    QObject::connect(dispatcher, SIGNAL(awake()), mDisplay.data(), SLOT(flushRequests()));
 
     int fd = wl_display_get_fd(mDisplay->wl_display());
-    QSocketNotifier *sn = new QSocketNotifier(fd, QSocketNotifier::Read, mDisplay);
-    QObject::connect(sn, SIGNAL(activated(int)), mDisplay, SLOT(flushRequests()));
+    QSocketNotifier *sn = new QSocketNotifier(fd, QSocketNotifier::Read, mDisplay.data());
+    QObject::connect(sn, SIGNAL(activated(int)), mDisplay.data(), SLOT(flushRequests()));
 }
 
 QPlatformFontDatabase *QWaylandIntegration::fontDatabase() const
 {
-    return mFontDb;
+    return mFontDb.data();
 }
 
 QPlatformClipboard *QWaylandIntegration::clipboard() const
 {
-    return mClipboard;
+    return mClipboard.data();
 }
 
 QPlatformDrag *QWaylandIntegration::drag() const
 {
-    return mDrag;
+    return mDrag.data();
 }
 
 QPlatformInputContext *QWaylandIntegration::inputContext() const
@@ -263,7 +255,7 @@ QVariant QWaylandIntegration::styleHint(StyleHint hint) const
 #ifndef QT_NO_ACCESSIBILITY
 QPlatformAccessibility *QWaylandIntegration::accessibility() const
 {
-    return mAccessibility;
+    return mAccessibility.data();
 }
 #endif
 
@@ -274,7 +266,7 @@ QPlatformServices *QWaylandIntegration::services() const
 
 QWaylandDisplay *QWaylandIntegration::display() const
 {
-    return mDisplay;
+    return mDisplay.data();
 }
 
 QStringList QWaylandIntegration::themeNames() const
@@ -292,7 +284,7 @@ QWaylandClientBufferIntegration *QWaylandIntegration::clientBufferIntegration() 
     if (!mClientBufferIntegrationInitialized)
         const_cast<QWaylandIntegration *>(this)->initializeClientBufferIntegration();
 
-    return mClientBufferIntegration && mClientBufferIntegration->isValid() ? mClientBufferIntegration : 0;
+    return mClientBufferIntegration && mClientBufferIntegration->isValid() ? mClientBufferIntegration.data() : nullptr;
 }
 
 QWaylandServerBufferIntegration *QWaylandIntegration::serverBufferIntegration() const
@@ -300,7 +292,7 @@ QWaylandServerBufferIntegration *QWaylandIntegration::serverBufferIntegration() 
     if (!mServerBufferIntegrationInitialized)
         const_cast<QWaylandIntegration *>(this)->initializeServerBufferIntegration();
 
-    return mServerBufferIntegration;
+    return mServerBufferIntegration.data();
 }
 
 QWaylandShellIntegration *QWaylandIntegration::shellIntegration() const
@@ -308,7 +300,7 @@ QWaylandShellIntegration *QWaylandIntegration::shellIntegration() const
     if (!mShellIntegrationInitialized)
         const_cast<QWaylandIntegration *>(this)->initializeShellIntegration();
 
-    return mShellIntegration;
+    return mShellIntegration.data();
 }
 
 void QWaylandIntegration::initializeClientBufferIntegration()
@@ -334,10 +326,10 @@ void QWaylandIntegration::initializeClientBufferIntegration()
 
     QStringList keys = QWaylandClientBufferIntegrationFactory::keys();
     if (keys.contains(targetKey)) {
-        mClientBufferIntegration = QWaylandClientBufferIntegrationFactory::create(targetKey, QStringList());
+        mClientBufferIntegration.reset(QWaylandClientBufferIntegrationFactory::create(targetKey, QStringList()));
     }
     if (mClientBufferIntegration)
-        mClientBufferIntegration->initialize(mDisplay);
+        mClientBufferIntegration->initialize(mDisplay.data());
     else
         qWarning("Failed to load client buffer integration: %s\n", qPrintable(targetKey));
 }
@@ -364,10 +356,10 @@ void QWaylandIntegration::initializeServerBufferIntegration()
 
     QStringList keys = QWaylandServerBufferIntegrationFactory::keys();
     if (keys.contains(targetKey)) {
-        mServerBufferIntegration = QWaylandServerBufferIntegrationFactory::create(targetKey, QStringList());
+        mServerBufferIntegration.reset(QWaylandServerBufferIntegrationFactory::create(targetKey, QStringList()));
     }
     if (mServerBufferIntegration)
-        mServerBufferIntegration->initialize(mDisplay);
+        mServerBufferIntegration->initialize(mDisplay.data());
     else
         qWarning("Failed to load server buffer integration %s\n", qPrintable(targetKey));
 }
@@ -383,7 +375,7 @@ void QWaylandIntegration::initializeShellIntegration()
         QStringList keys = QWaylandShellIntegrationFactory::keys();
         if (keys.contains(targetKey)) {
             qDebug("Using the '%s' shell integration", qPrintable(targetKey));
-            mShellIntegration = QWaylandShellIntegrationFactory::create(targetKey, QStringList());
+            mShellIntegration.reset(QWaylandShellIntegrationFactory::create(targetKey, QStringList()));
         }
     } else {
         QStringList preferredShells;
@@ -393,15 +385,14 @@ void QWaylandIntegration::initializeShellIntegration()
 
         Q_FOREACH (QString preferredShell, preferredShells) {
             if (mDisplay->hasRegistryGlobal(preferredShell)) {
-                mShellIntegration = createShellIntegration(preferredShell);
+                mShellIntegration.reset(createShellIntegration(preferredShell));
                 break;
             }
         }
     }
 
-    if (!mShellIntegration || !mShellIntegration->initialize(mDisplay)) {
-        delete mShellIntegration;
-        mShellIntegration = Q_NULLPTR;
+    if (!mShellIntegration || !mShellIntegration->initialize(mDisplay.data())) {
+        mShellIntegration.reset();
         qWarning("Failed to load shell integration %s", qPrintable(targetKey));
     }
 }
@@ -425,7 +416,7 @@ void QWaylandIntegration::initializeInputDeviceIntegration()
 
     QStringList keys = QWaylandInputDeviceIntegrationFactory::keys();
     if (keys.contains(targetKey)) {
-        mInputDeviceIntegration = QWaylandInputDeviceIntegrationFactory::create(targetKey, QStringList());
+        mInputDeviceIntegration.reset(QWaylandInputDeviceIntegrationFactory::create(targetKey, QStringList()));
         qDebug("Using the '%s' input device integration", qPrintable(targetKey));
     } else {
         qWarning("Wayland inputdevice integration '%s' not found, using default", qPrintable(targetKey));
@@ -435,9 +426,9 @@ void QWaylandIntegration::initializeInputDeviceIntegration()
 QWaylandShellIntegration *QWaylandIntegration::createShellIntegration(const QString &interfaceName)
 {
     if (interfaceName == QLatin1Literal("wl_shell")) {
-        return new QWaylandWlShellIntegration(mDisplay);
+        return new QWaylandWlShellIntegration(mDisplay.data());
     } else if (interfaceName == QLatin1Literal("xdg_shell")) {
-        return new QWaylandXdgShellIntegration(mDisplay);
+        return new QWaylandXdgShellIntegration(mDisplay.data());
     } else {
         return Q_NULLPTR;
     }

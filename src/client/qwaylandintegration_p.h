@@ -54,6 +54,8 @@
 #include <qpa/qplatformintegration.h>
 
 #include <QtWaylandClient/qwaylandclientexport.h>
+#include <QtCore/QScopedPointer>
+
 QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
@@ -113,10 +115,10 @@ public:
     virtual QWaylandShellIntegration *shellIntegration() const;
 
 protected:
-    QWaylandClientBufferIntegration *mClientBufferIntegration;
-    QWaylandServerBufferIntegration *mServerBufferIntegration;
-    QWaylandShellIntegration *mShellIntegration;
-    QWaylandInputDeviceIntegration *mInputDeviceIntegration;
+    QScopedPointer<QWaylandClientBufferIntegration> mClientBufferIntegration;
+    QScopedPointer<QWaylandServerBufferIntegration> mServerBufferIntegration;
+    QScopedPointer<QWaylandShellIntegration> mShellIntegration;
+    QScopedPointer<QWaylandInputDeviceIntegration> mInputDeviceIntegration;
 
 private:
     void initializeClientBufferIntegration();
@@ -125,14 +127,14 @@ private:
     void initializeInputDeviceIntegration();
     QWaylandShellIntegration *createShellIntegration(const QString& interfaceName);
 
-    QPlatformFontDatabase *mFontDb;
-    QPlatformClipboard *mClipboard;
-    QPlatformDrag *mDrag;
-    QWaylandDisplay *mDisplay;
-    QPlatformNativeInterface *mNativeInterface;
+    QScopedPointer<QPlatformFontDatabase> mFontDb;
+    QScopedPointer<QPlatformClipboard> mClipboard;
+    QScopedPointer<QPlatformDrag> mDrag;
+    QScopedPointer<QWaylandDisplay> mDisplay;
+    QScopedPointer<QPlatformNativeInterface> mNativeInterface;
     QScopedPointer<QPlatformInputContext> mInputContext;
 #ifndef QT_NO_ACCESSIBILITY
-    QPlatformAccessibility *mAccessibility;
+    QScopedPointer<QPlatformAccessibility> mAccessibility;
 #endif
     bool mClientBufferIntegrationInitialized;
     bool mServerBufferIntegrationInitialized;

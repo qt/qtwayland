@@ -300,6 +300,7 @@ void tst_WaylandClient::touchDrag()
 
     const int id = 0;
     compositor->sendTouchDown(surface, QPoint(10, 10), id);
+    compositor->sendTouchFrame(surface);
     compositor->sendTouchMotion(surface, QPoint(20, 20), id);
     compositor->sendTouchFrame(surface);
     compositor->waitForStartDrag();

@@ -137,7 +137,7 @@ void QWaylandWindow::initWindow()
 
     if (mShellSurface) {
         // Set initial surface title
-        mShellSurface->setTitle(window()->title());
+        setWindowTitle(window()->title());
 
         // The appId is the desktop entry identifier that should follow the
         // reverse DNS convention (see http://standards.freedesktop.org/desktop-entry-spec/latest/ar01s02.html).
@@ -258,7 +258,8 @@ void QWaylandWindow::setParent(const QPlatformWindow *parent)
 void QWaylandWindow::setWindowTitle(const QString &title)
 {
     if (mShellSurface) {
-        mShellSurface->setTitle(title);
+        const QString separator = QString::fromUtf8(" \xe2\x80\x94 "); // unicode character U+2014, EM DASH
+        mShellSurface->setTitle(formatWindowTitle(title, separator));
     }
 
     if (mWindowDecoration && window()->isVisible())

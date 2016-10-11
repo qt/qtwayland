@@ -53,6 +53,7 @@
 //
 
 #include <QObject>
+#include <QPointer>
 #include <QPoint>
 
 #include <QtWaylandClient/private/qwayland-wayland.h>
@@ -106,7 +107,7 @@ private:
     QWaylandDisplay *m_display;
     QWaylandInputDevice *m_inputDevice;
     uint32_t m_enterSerial;
-    QWindow *m_dragWindow;
+    QPointer<QWindow> m_dragWindow;
     QPoint m_dragPoint;
     QScopedPointer<QWaylandDataOffer> m_dragOffer;
     QScopedPointer<QWaylandDataOffer> m_selectionOffer;

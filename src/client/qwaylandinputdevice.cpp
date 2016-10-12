@@ -260,6 +260,8 @@ void QWaylandInputDevice::handleEndDrag()
 {
     if (mTouch)
         mTouch->releasePoints();
+    if (mPointer)
+        mPointer->releaseButtons();
 }
 
 void QWaylandInputDevice::setDataDevice(QWaylandDataDevice *device)
@@ -514,6 +516,14 @@ void QWaylandInputDevice::Pointer::pointer_button(uint32_t serial, uint32_t time
         MotionEvent e(time, mSurfacePos, mGlobalPos, mButtons, mParent->modifiers());
         window->handleMouse(mParent, e);
     }
+}
+
+void QWaylandInputDevice::Pointer::releaseButtons()
+{
+    mButtons = Qt::NoButton;
+    MotionEvent e(mParent->mTime, mSurfacePos, mGlobalPos, mButtons, mParent->modifiers());
+    if (mFocus)
+        mFocus->handleMouse(mParent, e);
 }
 
 class WheelEvent : public QWaylandPointerEvent

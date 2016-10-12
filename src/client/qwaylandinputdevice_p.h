@@ -228,6 +228,8 @@ public:
                       uint32_t axis,
                       wl_fixed_t value) Q_DECL_OVERRIDE;
 
+    void releaseButtons();
+
     QWaylandInputDevice *mParent;
     QWaylandWindow *mFocus;
     uint32_t mEnterSerial;

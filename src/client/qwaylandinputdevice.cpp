@@ -272,14 +272,8 @@ QWaylandInputDevice::Touch *QWaylandInputDevice::createTouch(QWaylandInputDevice
 
 void QWaylandInputDevice::handleWindowDestroyed(QWaylandWindow *window)
 {
-    if (mPointer && window == mPointer->mFocus)
-        mPointer->mFocus = 0;
-    if (mKeyboard && window == mKeyboard->mFocus) {
-        mKeyboard->mFocus = 0;
+    if (mKeyboard && window == mKeyboard->mFocus)
         mKeyboard->stopRepeat();
-    }
-    if (mTouch && window == mTouch->mFocus)
-        mTouch->mFocus = 0;
 }
 
 void QWaylandInputDevice::handleEndDrag()

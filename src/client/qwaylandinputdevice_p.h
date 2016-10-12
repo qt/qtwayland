@@ -71,6 +71,7 @@
 #endif
 
 #include <QtCore/QDebug>
+#include <QPointer>
 
 #if QT_CONFIG(cursor)
 struct wl_cursor_image;
@@ -202,7 +203,7 @@ public:
                             uint32_t group) override;
 
     QWaylandInputDevice *mParent;
-    QWaylandWindow *mFocus;
+    QPointer<QWaylandWindow> mFocus;
 #if QT_CONFIG(xkbcommon_evdev)
     xkb_context *mXkbContext;
     xkb_keymap *mXkbMap;
@@ -253,7 +254,7 @@ public:
     void releaseButtons();
 
     QWaylandInputDevice *mParent;
-    QWaylandWindow *mFocus;
+    QPointer<QWaylandWindow> mFocus;
     uint32_t mEnterSerial;
 #if QT_CONFIG(cursor)
     uint32_t mCursorSerial;
@@ -293,7 +294,7 @@ public:
     void releasePoints();
 
     QWaylandInputDevice *mParent;
-    QWaylandWindow *mFocus;
+    QPointer<QWaylandWindow> mFocus;
     QList<QWindowSystemInterface::TouchPoint> mTouchPoints;
     QList<QWindowSystemInterface::TouchPoint> mPrevTouchPoints;
 };

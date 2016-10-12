@@ -98,6 +98,7 @@ public:
     void setCursor(struct wl_buffer *buffer, const QPoint &hotSpot, const QSize &size);
     void setCursor(const QSharedPointer<QWaylandBuffer> &buffer, const QPoint &hotSpot);
     void handleWindowDestroyed(QWaylandWindow *window);
+    void handleEndDrag();
 
     void setDataDevice(QWaylandDataDevice *device);
     QWaylandDataDevice *dataDevice() const;
@@ -259,6 +260,7 @@ public:
     void touch_cancel() Q_DECL_OVERRIDE;
 
     bool allTouchPointsReleased();
+    void releasePoints();
 
     QWaylandInputDevice *mParent;
     QWaylandWindow *mFocus;

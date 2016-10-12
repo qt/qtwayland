@@ -256,6 +256,12 @@ void QWaylandInputDevice::handleWindowDestroyed(QWaylandWindow *window)
         mTouch->mFocus = 0;
 }
 
+void QWaylandInputDevice::handleEndDrag()
+{
+    if (mTouch)
+        mTouch->releasePoints();
+}
+
 void QWaylandInputDevice::setDataDevice(QWaylandDataDevice *device)
 {
     mDataDevice = device;
@@ -825,6 +831,16 @@ bool QWaylandInputDevice::Touch::allTouchPointsReleased()
             return false;
 
     return true;
+}
+
+void QWaylandInputDevice::Touch::releasePoints()
+{
+    Q_FOREACH (const QWindowSystemInterface::TouchPoint &previousPoint, mPrevTouchPoints) {
+        QWindowSystemInterface::TouchPoint tp = previousPoint;
+        tp.state = Qt::TouchPointReleased;
+        mTouchPoints.append(tp);
+    }
+    touch_frame();
 }
 
 void QWaylandInputDevice::Touch::touch_frame()

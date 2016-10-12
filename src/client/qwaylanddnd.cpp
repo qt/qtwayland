@@ -91,7 +91,7 @@ void QWaylandDrag::drop(const QPoint &globalPos)
 
 void QWaylandDrag::endDrag()
 {
-    // Do nothing
+    m_display->currentInputDevice()->handleEndDrag();
 }
 
 void QWaylandDrag::updateTarget(const QString &mimeType)

@@ -47,6 +47,7 @@
 
 #include <qpa/qplatformclipboard.h>
 #include <QtCore/QVariant>
+#include <QtCore/QMimeData>
 
 #include <QtWaylandClient/private/qwaylandclientexport_p.h>
 
@@ -70,6 +71,7 @@ public:
 
 private:
     QWaylandDisplay *mDisplay;
+    QMimeData m_emptyData;
 };
 
 }

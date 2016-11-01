@@ -110,7 +110,7 @@ public:
         , oldSurface(Q_NULLPTR)
         , provider(Q_NULLPTR)
         , paintEnabled(true)
-        , touchEventsEnabled(false)
+        , touchEventsEnabled(true)
         , inputEventsEnabled(true)
         , isDragging(false)
         , newTexture(false)

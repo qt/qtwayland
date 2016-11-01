@@ -653,6 +653,9 @@ void QWaylandQuickItem::touchEvent(QTouchEvent *event)
             seat->sendMouseMoveEvent(d->view.data(), pointPos, mapToScene(pointPos));
         }
         seat->sendFullTouchEvent(surface(), event);
+
+        if (event->type() == QEvent::TouchBegin && d->focusOnClick)
+            takeFocus(seat);
     } else {
         event->ignore();
     }
@@ -921,7 +924,7 @@ void QWaylandQuickItem::updateSize()
  * \qmlproperty bool QtWaylandCompositor::WaylandQuickItem::focusOnClick
  *
  * This property specifies whether the WaylandQuickItem should take focus when
- * it is clicked.
+ * it is clicked or touched.
  *
  * The default is \c true.
  */
@@ -930,7 +933,7 @@ void QWaylandQuickItem::updateSize()
  * \property QWaylandQuickItem::focusOnClick
  *
  * This property specifies whether the QWaylandQuickItem should take focus when
- * it is clicked.
+ * it is clicked or touched.
  *
  * The default is \c true.
  */

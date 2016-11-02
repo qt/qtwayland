@@ -55,6 +55,8 @@
 #include <qpa/qplatformdrag.h>
 #include <qpa/qwindowsysteminterface.h>
 
+#ifndef QT_NO_DRAGANDDROP
+
 QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
@@ -254,3 +256,5 @@ void QWaylandDataDevice::dragSourceTargetChanged(const QString &mimeType)
 }
 
 QT_END_NAMESPACE
+
+#endif // QT_NO_DRAGANDDROP

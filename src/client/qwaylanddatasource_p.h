@@ -50,6 +50,8 @@
 #include <QtWaylandClient/private/qwayland-wayland.h>
 #include <QtWaylandClient/private/qwaylandclientexport_p.h>
 
+#ifndef QT_NO_DRAGANDDROP
+
 QT_BEGIN_NAMESPACE
 
 class QMimeData;
@@ -85,5 +87,7 @@ private:
 }
 
 QT_END_NAMESPACE
+
+#endif // QT_NO_DRAGANDDROP
 
 #endif // QWAYLANDDATASOURCE_H

@@ -43,6 +43,8 @@
 
 #include <unistd.h>
 
+#ifndef QT_NO_DRAGANDDROP
+
 QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
@@ -90,3 +92,5 @@ void QWaylandDataSource::data_source_target(const QString &mime_type)
 }
 
 QT_END_NAMESPACE
+
+#endif // QT_NO_DRAGANDDROP

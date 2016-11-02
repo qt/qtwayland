@@ -782,10 +782,12 @@ void QWaylandWindow::requestActivateWindow()
 
 void QWaylandWindow::unfocus()
 {
+#ifndef QT_NO_DRAGANDDROP
     QWaylandInputDevice *inputDevice = mDisplay->currentInputDevice();
     if (inputDevice && inputDevice->dataDevice()) {
         inputDevice->dataDevice()->invalidateSelectionOffer();
     }
+#endif
 }
 
 bool QWaylandWindow::isExposed() const

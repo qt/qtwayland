@@ -50,6 +50,7 @@
 #include <QtWaylandClient/private/qwaylandclientexport_p.h>
 #include <QtWaylandClient/private/qwayland-wayland.h>
 
+#ifndef QT_NO_DRAGANDDROP
 QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
@@ -99,5 +100,5 @@ private:
 }
 
 QT_END_NAMESPACE
-
+#endif // QT_NO_DRAGANDDROP
 #endif

@@ -58,7 +58,7 @@ QT_BEGIN_NAMESPACE
 namespace QtWaylandClient {
 
 class QWaylandDisplay;
-
+#ifndef QT_NO_DRAGANDDROP
 class Q_WAYLAND_CLIENT_EXPORT QWaylandDrag : public QBasicDrag
 {
 public:
@@ -82,7 +82,7 @@ protected:
 private:
     QWaylandDisplay *m_display;
 };
-
+#endif
 }
 
 QT_END_NAMESPACE

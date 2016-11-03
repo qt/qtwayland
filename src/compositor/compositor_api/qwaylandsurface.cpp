@@ -269,7 +269,7 @@ void QWaylandSurfacePrivate::surface_commit(Resource *)
 {
     Q_Q(QWaylandSurface);
 
-    if (pending.buffer.hasBuffer())
+    if (pending.buffer.hasBuffer() || pending.newlyAttached)
         bufferRef = pending.buffer;
 
     auto buffer = bufferRef.buffer();

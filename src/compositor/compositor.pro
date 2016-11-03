@@ -5,19 +5,14 @@ QT = core gui-private
 
 qtHaveModule(quick): QT += quick
 
-contains(QT_CONFIG, opengl):MODULE_DEFINES = QT_WAYLAND_COMPOSITOR_GL
+qtConfig(opengl):MODULE_DEFINES = QT_WAYLAND_COMPOSITOR_GL
 
 CONFIG -= precompile_header
 CONFIG += link_pkgconfig
 
-DEFINES += QT_WAYLAND_WINDOWMANAGER_SUPPORT
 QMAKE_DOCS = $$PWD/doc/qtwaylandcompositor.qdocconf
 
-!contains(QT_CONFIG, no-pkg-config) {
-    PKGCONFIG_PRIVATE += wayland-server
-} else {
-    LIBS += -lwayland-server
-}
+QMAKE_USE += wayland-server
 
 INCLUDEPATH += ../shared
 

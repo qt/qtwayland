@@ -1,13 +1,7 @@
 INCLUDEPATH += $$PWD
 
-!contains(QT_CONFIG, no-pkg-config) {
-    CONFIG += link_pkgconfig
-    PKGCONFIG += wayland-server wayland-egl
-} else {
-    LIBS += -lwayland-egl -lwayland-server
-}
+QMAKE_USE_PRIVATE += wayland-server wayland-egl
 
-CONFIG += egl
 QT += egl_support-private
 
 SOURCES += \

@@ -24,12 +24,8 @@ SOURCES += \
 
 INCLUDEPATH += wayland_wrapper
 
-config_xkbcommon {
-    !contains(QT_CONFIG, no-pkg-config) {
-        PKGCONFIG_PRIVATE += xkbcommon
-    } else {
-        LIBS_PRIVATE += -lxkbcommon
-    }
+qtConfig(xkbcommon-evdev) {
+    QMAKE_USE += xkbcommon_evdev
 } else {
     DEFINES += QT_NO_WAYLAND_XKB
 }

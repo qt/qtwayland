@@ -52,7 +52,7 @@ SOURCES += \
 
 QT += core-private
 
-qtHaveModule(quick):contains(QT_CONFIG, opengl) {
+qtHaveModule(quick):qtConfig(opengl) {
     DEFINES += QT_WAYLAND_COMPOSITOR_QUICK
 
     SOURCES += \

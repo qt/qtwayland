@@ -1,13 +1,6 @@
 INCLUDEPATH += $$PWD
 
-contains(QT_CONFIG, no-pkg-config) {
-    LIBS += -lwayland-server
-} else {
-    CONFIG += link_pkgconfig
-    PKGCONFIG += wayland-server
-}
-
-CONFIG += egl
+QMAKE_USE_PRIVATE += egl wayland-server
 
 SOURCES += \
     $$PWD/libhybriseglserverbufferintegration.cpp

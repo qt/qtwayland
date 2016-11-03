@@ -1,21 +1,15 @@
 TEMPLATE=subdirs
+QT_FOR_CONFIG += waylandclient-private
 
-config_wayland_egl: \
+qtConfig(wayland-egl): \
     SUBDIRS += wayland-egl
-
-config_brcm_egl: \
+qtConfig(wayland-brcm): \
     SUBDIRS += brcm-egl
-
-config_xcomposite {
-    contains(QT_CONFIG, egl): \
-        SUBDIRS += xcomposite-egl
-
-    !contains(QT_CONFIG, opengles2):config_glx: \
-        SUBDIRS += xcomposite-glx
-}
-
-config_drm_egl_server: \
+qtConfig(xcomposite-egl): \
+    SUBDIRS += xcomposite-egl
+qtConfig(xcomposite-glx): \
+    SUBDIRS += xcomposite-glx
+qtConfig(drm-egl-server): \
     SUBDIRS += drm-egl-server
-
-config_libhybris_egl_server: \
+qtConfig(libhybris-egl-server): \
     SUBDIRS += libhybris-egl-server

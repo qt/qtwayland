@@ -15,26 +15,17 @@ use_gold_linker: CONFIG += no_linker_version_script
 CONFIG -= precompile_header
 CONFIG += link_pkgconfig wayland-scanner
 
-contains(QT_CONFIG, opengl) {
+qtConfig(opengl) {
     DEFINES += QT_WAYLAND_GL_SUPPORT
 }
 
-config_xkbcommon {
-    !contains(QT_CONFIG, no-pkg-config) {
-        PKGCONFIG_PRIVATE += xkbcommon
-    } else {
-        LIBS_PRIVATE += -lxkbcommon
-    }
+qtConfig(xkbcommon-evdev) {
+    QMAKE_USE_PRIVATE += xkbcommon_evdev
 } else {
     DEFINES += QT_NO_WAYLAND_XKB
 }
 
-!contains(QT_CONFIG, no-pkg-config) {
-    PKGCONFIG_PRIVATE += wayland-client wayland-cursor
-    contains(QT_CONFIG, glib): PKGCONFIG_PRIVATE += glib-2.0
-} else {
-    LIBS_PRIVATE += -lwayland-client -lwayland-cursor $$QT_LIBS_GLIB
-}
+QMAKE_USE += wayland-client wayland-cursor
 
 INCLUDEPATH += $$PWD/../shared
 

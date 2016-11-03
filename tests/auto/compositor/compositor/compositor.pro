@@ -5,18 +5,10 @@ TARGET = tst_compositor
 QT += testlib
 QT += core-private gui-private waylandcompositor waylandcompositor-private
 
-!contains(QT_CONFIG, no-pkg-config) {
-    PKGCONFIG += wayland-client wayland-server
-} else {
-    LIBS += -lwayland-client -lwayland-server
-}
+QMAKE_USE += wayland-client wayland-server
 
-config_xkbcommon {
-    !contains(QT_CONFIG, no-pkg-config) {
-        PKGCONFIG_PRIVATE += xkbcommon
-    } else {
-        LIBS_PRIVATE += -lxkbcommon
-    }
+qtConfig(xkbcommon-evdev) {
+    QMAKE_USE += xkbcommon_evdev
 } else {
     DEFINES += QT_NO_WAYLAND_XKB
 }

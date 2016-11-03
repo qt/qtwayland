@@ -4,12 +4,7 @@ INCLUDEPATH += $$PWD
 
 DEFINES += QT_NO_OPENGL_ES_3
 
-!contains(QT_CONFIG, no-pkg-config) {
-    CONFIG += link_pkgconfig
-    PKGCONFIG += wayland-server
-} else {
-    LIBS += -lwayland-server
-}
+QMAKE_USE_PRIVATE += wayland-server
 
 for(p, QMAKE_LIBDIR_EGL) {
     exists($$p):LIBS += -L$$p

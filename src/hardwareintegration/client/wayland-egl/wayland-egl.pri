@@ -1,13 +1,8 @@
 INCLUDEPATH += $$PWD
-!contains(QT_CONFIG, no-pkg-config) {
-    CONFIG += link_pkgconfig
-    PKGCONFIG += wayland-client wayland-egl
-} else {
-    LIBS += -lwayland-client -lwayland-egl
-}
+
+QMAKE_USE += egl wayland-client wayland-egl
 
 DEFINES += QT_EGL_WAYLAND
-CONFIG += egl
 QT += egl_support-private
 
 SOURCES += $$PWD/qwaylandeglclientbufferintegration.cpp \

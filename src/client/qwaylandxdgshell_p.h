@@ -52,6 +52,7 @@
 //
 
 #include <QtCore/QSize>
+#include <QtCore/QVector>
 
 #include <wayland-client.h>
 
@@ -82,6 +83,9 @@ public:
 
 private:
     void xdg_shell_ping(uint32_t serial) Q_DECL_OVERRIDE;
+
+    QVector<QWaylandWindow *> m_popups;
+    uint m_popupSerial;
 };
 
 QT_END_NAMESPACE

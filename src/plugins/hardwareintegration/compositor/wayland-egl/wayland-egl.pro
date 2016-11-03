@@ -1,4 +1,4 @@
-QT = waylandcompositor waylandcompositor-private core-private gui-private platformsupport-private
+QT = waylandcompositor waylandcompositor-private core-private gui-private
 
 OTHER_FILES += wayland-egl.json
 

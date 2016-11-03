@@ -183,7 +183,8 @@ void QWaylandDataDevice::data_device_enter(uint32_t serial, wl_surface *surface,
 
 void QWaylandDataDevice::data_device_leave()
 {
-    QWindowSystemInterface::handleDrag(m_dragWindow, 0, QPoint(), Qt::IgnoreAction);
+    if (m_dragWindow)
+        QWindowSystemInterface::handleDrag(m_dragWindow, 0, QPoint(), Qt::IgnoreAction);
 
     QDrag *drag = static_cast<QWaylandDrag *>(QGuiApplicationPrivate::platformIntegration()->drag())->currentDrag();
     if (!drag) {

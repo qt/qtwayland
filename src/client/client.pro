@@ -2,13 +2,18 @@ TARGET = QtWaylandClient
 MODULE = waylandclient
 
 QT += core-private gui-private
-QT_FOR_PRIVATE += platformsupport-private
+QT_FOR_PRIVATE += service_support-private
+QT_PRIVATE += fontdatabase_support-private eventdispatcher_support-private theme_support-private
 
 # We have a bunch of C code with casts, so we can't have this option
 QMAKE_CXXFLAGS_WARN_ON -= -Wcast-qual
 
+# Prevent gold linker from crashing.
+# This started happening when QtPlatformSupport was modularized.
+use_gold_linker: CONFIG += no_linker_version_script
+
 CONFIG -= precompile_header
-CONFIG += link_pkgconfig qpa/genericunixfontdatabase wayland-scanner
+CONFIG += link_pkgconfig wayland-scanner
 
 contains(QT_CONFIG, opengl) {
     DEFINES += QT_WAYLAND_GL_SUPPORT

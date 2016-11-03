@@ -362,10 +362,8 @@ void Compositor::addSurface(Surface *surface)
 void Compositor::removeSurface(Surface *surface)
 {
     m_surfaces.removeOne(surface);
-    if (m_keyboard->focus() == surface)
-        m_keyboard->setFocus(0);
-    if (m_pointer->focus() == surface)
-        m_pointer->setFocus(0, QPoint());
+    m_keyboard->handleSurfaceDestroyed(surface);
+    m_pointer->handleSurfaceDestroyed(surface);
 }
 
 }

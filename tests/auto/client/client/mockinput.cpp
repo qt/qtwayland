@@ -267,6 +267,14 @@ void Keyboard::setFocus(Surface *surface)
     m_focus = surface;
 }
 
+void Keyboard::handleSurfaceDestroyed(Surface *surface)
+{
+    if (surface == m_focus) {
+        m_focusResource = nullptr;
+        m_focus = nullptr;
+    }
+}
+
 void Keyboard::sendKey(uint32_t key, uint32_t state)
 {
     if (m_focusResource) {
@@ -312,6 +320,14 @@ void Pointer::setFocus(Surface *surface, const QPoint &pos)
 
     m_focusResource = resource;
     m_focus = surface;
+}
+
+void Pointer::handleSurfaceDestroyed(Surface *surface)
+{
+    if (m_focus == surface) {
+        m_focus = nullptr;
+        m_focusResource = nullptr;
+    }
 }
 
 void Pointer::sendMotion(const QPoint &pos)

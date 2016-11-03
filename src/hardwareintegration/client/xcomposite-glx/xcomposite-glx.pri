@@ -8,7 +8,7 @@ include ($$PWD/../xcomposite_share/xcomposite_share.pri)
     LIBS += -lXcomposite -lGL -lX11
 }
 
-QT += platformsupport-private
+QT += glx_support-private
 
 SOURCES += \
     $$PWD/qwaylandxcompositeglxcontext.cpp \

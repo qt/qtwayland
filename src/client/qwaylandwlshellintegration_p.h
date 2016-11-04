@@ -58,7 +58,7 @@ class Q_WAYLAND_CLIENT_EXPORT QWaylandWlShellIntegration : public QWaylandShellI
 {
 public:
     QWaylandWlShellIntegration(QWaylandDisplay* display);
-    bool initialize(QWaylandDisplay *) Q_DECL_OVERRIDE { return m_wlShell != Q_NULLPTR; }
+    bool initialize(QWaylandDisplay *) Q_DECL_OVERRIDE;
     QWaylandShellSurface *createShellSurface(QWaylandWindow *window) Q_DECL_OVERRIDE;
 
 private:

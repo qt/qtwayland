@@ -66,6 +66,7 @@ QWaylandIviShellIntegration::~QWaylandIviShellIntegration()
 
 bool QWaylandIviShellIntegration::initialize(QWaylandDisplay *display)
 {
+    QWaylandShellIntegration::initialize(display);
     display->addRegistryListener(registryIvi, this);
 
     return true;

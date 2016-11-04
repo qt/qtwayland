@@ -54,12 +54,25 @@ QWaylandXdgShellIntegration::QWaylandXdgShellIntegration(QWaylandDisplay *displa
     }
 }
 
+bool QWaylandXdgShellIntegration::initialize(QWaylandDisplay *display)
+{
+    QWaylandShellIntegration::initialize(display);
+    return m_xdgShell != nullptr;
+}
+
 QWaylandShellSurface *QWaylandXdgShellIntegration::createShellSurface(QWaylandWindow *window)
 {
     if (window->window()->type() == Qt::WindowType::Popup)
         return m_xdgShell->createXdgPopup(window);
     else
         return m_xdgShell->createXdgSurface(window);
+}
+
+void QWaylandXdgShellIntegration::handleKeyboardFocusChanged(QWaylandWindow *newFocus, QWaylandWindow *oldFocus) {
+    if (newFocus && qobject_cast<QWaylandXdgPopup *>(newFocus->shellSurface()))
+        m_display->handleWindowActivated(newFocus);
+    if (oldFocus && qobject_cast<QWaylandXdgPopup *>(oldFocus->shellSurface()))
+        m_display->handleWindowDeactivated(oldFocus);
 }
 
 }

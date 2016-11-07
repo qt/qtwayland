@@ -132,7 +132,9 @@ void QWaylandXdgSurface::updateTransientParent(QWindow *parent)
     QWaylandWindow *parent_wayland_window = static_cast<QWaylandWindow *>(parent->handle());
     if (!parent_wayland_window)
         return;
-    set_parent(m_shell->get_xdg_surface(parent_wayland_window->object()));
+    auto parentXdgSurface = qobject_cast<QWaylandXdgSurface *>(parent_wayland_window->shellSurface());
+    Q_ASSERT(parentXdgSurface);
+    set_parent(parentXdgSurface->object());
 }
 
 void QWaylandXdgSurface::setTitle(const QString & title)

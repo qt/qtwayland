@@ -61,6 +61,7 @@ public:
 private:
     void createExtendedSurface(QWaylandWindow *window);
     virtual void ivi_surface_configure(int32_t width, int32_t height) Q_DECL_OVERRIDE;
+    void ivi_controller_surface_visibility(int32_t visibility) Q_DECL_OVERRIDE;
 
     QWaylandWindow *m_window;
     QWaylandExtendedSurface *m_extendedWindow;

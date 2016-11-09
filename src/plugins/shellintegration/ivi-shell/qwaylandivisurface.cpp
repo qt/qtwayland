@@ -89,6 +89,11 @@ void QWaylandIviSurface::ivi_surface_configure(int32_t width, int32_t height)
     this->m_window->configure(0, width, height);
 }
 
+void QWaylandIviSurface::ivi_controller_surface_visibility(int32_t visibility)
+{
+    this->m_window->window()->setVisible(visibility != 0);
+}
+
 }
 
 QT_END_NAMESPACE

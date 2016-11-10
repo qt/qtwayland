@@ -115,6 +115,7 @@ void *QWaylandNativeInterface::nativeResourceForScreen(const QByteArray &resourc
     return NULL;
 }
 
+#ifndef QT_NO_OPENGL
 void *QWaylandNativeInterface::nativeResourceForContext(const QByteArray &resource, QOpenGLContext *context)
 {
     QByteArray lowerCaseResource = resource.toLower();
@@ -130,6 +131,7 @@ void *QWaylandNativeInterface::nativeResourceForContext(const QByteArray &resour
 
     return 0;
 }
+#endif // QT_NO_OPENGL
 
 QVariantMap QWaylandNativeInterface::windowProperties(QPlatformWindow *window) const
 {

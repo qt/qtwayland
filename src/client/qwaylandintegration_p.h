@@ -85,11 +85,10 @@ public:
     QPlatformFontDatabase *fontDatabase() const Q_DECL_OVERRIDE;
 
     QPlatformNativeInterface *nativeInterface() const Q_DECL_OVERRIDE;
-
+#ifndef QT_NO_DRAGANDDROP
     QPlatformClipboard *clipboard() const Q_DECL_OVERRIDE;
-
     QPlatformDrag *drag() const Q_DECL_OVERRIDE;
-
+#endif
     QPlatformInputContext *inputContext() const Q_DECL_OVERRIDE;
 
     QVariant styleHint(StyleHint hint) const Q_DECL_OVERRIDE;
@@ -126,8 +125,10 @@ private:
     QWaylandShellIntegration *createShellIntegration(const QString& interfaceName);
 
     QPlatformFontDatabase *mFontDb;
+#ifndef QT_NO_DRAGANDDROP
     QPlatformClipboard *mClipboard;
     QPlatformDrag *mDrag;
+#endif
     QWaylandDisplay *mDisplay;
     QPlatformNativeInterface *mNativeInterface;
     QScopedPointer<QPlatformInputContext> mInputContext;

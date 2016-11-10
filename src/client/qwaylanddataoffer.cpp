@@ -47,6 +47,8 @@
 
 #include <QtCore/QDebug>
 
+#ifndef QT_NO_DRAGANDDROP
+
 QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
@@ -181,3 +183,5 @@ int QWaylandMimeData::readData(int fd, QByteArray &data) const
 }
 
 QT_END_NAMESPACE
+
+#endif // QT_NO_DRAGANDDROP

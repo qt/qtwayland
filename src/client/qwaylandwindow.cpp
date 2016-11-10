@@ -102,6 +102,8 @@ QWaylandWindow::QWaylandWindow(QWindow *window)
 
 QWaylandWindow::~QWaylandWindow()
 {
+    mDisplay->handleWindowDestroyed(this);
+
     delete mWindowDecoration;
 
     if (isInitialized())
@@ -283,6 +285,7 @@ void QWaylandWindow::setGeometry_helper(const QRect &rect)
     if (mSubSurfaceWindow) {
         QMargins m = QPlatformWindow::parent()->frameMargins();
         mSubSurfaceWindow->set_position(rect.x() + m.left(), rect.y() + m.top());
+        mSubSurfaceWindow->parent()->window()->requestUpdate();
     } else if (shellSurface() && window()->transientParent() && window()->type() != Qt::Popup)
         shellSurface()->updateTransientParent(window()->transientParent());
 }
@@ -664,6 +667,8 @@ bool QWaylandWindow::createDecoration()
             QMargins m = frameMargins();
             subsurf->set_position(pos.x() + m.left(), pos.y() + m.top());
         }
+        if (!mChildren.isEmpty())
+            window()->requestUpdate();
     }
 
     return mWindowDecoration;
@@ -805,10 +810,12 @@ void QWaylandWindow::requestActivateWindow()
 
 void QWaylandWindow::unfocus()
 {
+#ifndef QT_NO_DRAGANDDROP
     QWaylandInputDevice *inputDevice = mDisplay->currentInputDevice();
     if (inputDevice && inputDevice->dataDevice()) {
         inputDevice->dataDevice()->invalidateSelectionOffer();
     }
+#endif
 }
 
 bool QWaylandWindow::isExposed() const

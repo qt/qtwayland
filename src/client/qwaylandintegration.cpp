@@ -131,9 +131,10 @@ QWaylandIntegration::QWaylandIntegration()
 {
     initializeInputDeviceIntegration();
     mDisplay.reset(new QWaylandDisplay(this));
+#ifndef QT_NO_DRAGANDDROP
     mClipboard.reset(new QWaylandClipboard(mDisplay.data()));
     mDrag.reset(new QWaylandDrag(mDisplay.data()));
-
+#endif
     QString icStr = QPlatformInputContextFactory::requested();
     if (!icStr.isNull()) {
         mInputContext.reset(QPlatformInputContextFactory::create(icStr));
@@ -222,6 +223,7 @@ QPlatformFontDatabase *QWaylandIntegration::fontDatabase() const
     return mFontDb.data();
 }
 
+#ifndef QT_NO_DRAGANDDROP
 QPlatformClipboard *QWaylandIntegration::clipboard() const
 {
     return mClipboard.data();
@@ -231,6 +233,7 @@ QPlatformDrag *QWaylandIntegration::drag() const
 {
     return mDrag.data();
 }
+#endif // QT_NO_DRAGANDDROP
 
 QPlatformInputContext *QWaylandIntegration::inputContext() const
 {

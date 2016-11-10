@@ -116,6 +116,7 @@ void *QWaylandNativeInterface::nativeResourceForScreen(const QByteArray &resourc
     return nullptr;
 }
 
+#ifndef QT_NO_OPENGL
 void *QWaylandNativeInterface::nativeResourceForContext(const QByteArray &resource, QOpenGLContext *context)
 {
 #ifdef QT_WAYLAND_GL_SUPPORT
@@ -133,6 +134,7 @@ void *QWaylandNativeInterface::nativeResourceForContext(const QByteArray &resour
 
     return nullptr;
 }
+#endif // QT_NO_OPENGL
 
 QVariantMap QWaylandNativeInterface::windowProperties(QPlatformWindow *window) const
 {

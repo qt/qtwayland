@@ -44,6 +44,8 @@
 #include "qwaylanddatasource_p.h"
 #include "qwaylanddatadevice_p.h"
 
+#ifndef QT_NO_DRAGANDDROP
+
 QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
@@ -60,11 +62,11 @@ QWaylandClipboard::~QWaylandClipboard()
 QMimeData *QWaylandClipboard::mimeData(QClipboard::Mode mode)
 {
     if (mode != QClipboard::Clipboard)
-        return 0;
+        return &m_emptyData;
 
     QWaylandInputDevice *inputDevice = mDisplay->currentInputDevice();
     if (!inputDevice || !inputDevice->dataDevice())
-        return 0;
+        return &m_emptyData;
 
     QWaylandDataSource *source = inputDevice->dataDevice()->selectionSource();
     if (source) {
@@ -74,7 +76,7 @@ QMimeData *QWaylandClipboard::mimeData(QClipboard::Mode mode)
     if (inputDevice->dataDevice()->selectionOffer())
         return inputDevice->dataDevice()->selectionOffer()->mimeData();
 
-    return 0;
+    return &m_emptyData;
 }
 
 void QWaylandClipboard::setMimeData(QMimeData *data, QClipboard::Mode mode)
@@ -115,3 +117,5 @@ bool QWaylandClipboard::ownsMode(QClipboard::Mode mode) const
 }
 
 QT_END_NAMESPACE
+
+#endif // QT_NO_DRAGANDDROP

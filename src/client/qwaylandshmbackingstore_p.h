@@ -96,7 +96,6 @@ public:
     void resize(const QSize &size);
     void beginPaint(const QRegion &) Q_DECL_OVERRIDE;
     void endPaint() Q_DECL_OVERRIDE;
-    void hidden();
 
     QWaylandAbstractDecoration *windowDecoration() const;
 

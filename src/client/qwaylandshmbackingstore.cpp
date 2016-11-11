@@ -185,10 +185,6 @@ void QWaylandShmBackingStore::endPaint()
     waylandWindow()->setCanResize(true);
 }
 
-void QWaylandShmBackingStore::hidden()
-{
-}
-
 void QWaylandShmBackingStore::ensureSize()
 {
     waylandWindow()->setBackingStore(this);

@@ -341,9 +341,6 @@ void QWaylandWindow::setVisible(bool visible)
         if (!deleteGuard.isNull()) {
             attach(static_cast<QWaylandBuffer *>(0), 0, 0);
             commit();
-            if (mBackingStore) {
-                mBackingStore->hidden();
-            }
         }
     }
 }

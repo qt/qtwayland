@@ -1074,11 +1074,16 @@ void QWaylandQuickItem::updateBuffer(bool hasBuffer)
 void QWaylandQuickItem::updateWindow()
 {
     Q_D(QWaylandQuickItem);
+
+    QQuickWindow *newWindow = window();
+    if (newWindow == d->connectedWindow)
+        return;
+
     if (d->connectedWindow) {
         disconnect(d->connectedWindow, &QQuickWindow::beforeSynchronizing, this, &QWaylandQuickItem::beforeSync);
     }
 
-    d->connectedWindow = window();
+    d->connectedWindow = newWindow;
 
     if (d->connectedWindow) {
         connect(d->connectedWindow, &QQuickWindow::beforeSynchronizing, this, &QWaylandQuickItem::beforeSync, Qt::DirectConnection);

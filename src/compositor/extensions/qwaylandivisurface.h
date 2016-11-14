@@ -81,7 +81,7 @@ Q_SIGNALS:
     void iviIdChanged();
 
 private:
-    void initialize();
+    void initialize() Q_DECL_OVERRIDE;
 };
 
 QT_END_NAMESPACE

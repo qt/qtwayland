@@ -8,6 +8,7 @@ contains(QT_CONFIG, no-pkg-config) {
 }
 
 CONFIG += egl
+QT += egl_support-private
 
 SOURCES += $$PWD/qwaylandbrcmeglintegration.cpp \
            $$PWD/qwaylandbrcmglcontext.cpp \

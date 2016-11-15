@@ -66,6 +66,7 @@ private:
     void setWidth(int width);
     void setHeight(int height);
 };
+Q_DECLARE_TYPEINFO(QWaylandOutputMode, Q_MOVABLE_TYPE);
 
 QT_END_NAMESPACE
 

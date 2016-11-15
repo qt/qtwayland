@@ -38,7 +38,7 @@
 #define QWAYLANDKEYMAP_H
 
 #include <QtCore/QObject>
-#include <QtWaylandCompositor/qwaylandexport.h>
+#include <QtWaylandCompositor/qtwaylandcompositorglobal.h>
 
 QT_BEGIN_NAMESPACE
 

@@ -24,8 +24,5 @@ SOURCES += \
 
 INCLUDEPATH += wayland_wrapper
 
-qtConfig(xkbcommon-evdev) {
+qtConfig(xkbcommon-evdev): \
     QMAKE_USE += xkbcommon_evdev
-} else {
-    DEFINES += QT_NO_WAYLAND_XKB
-}

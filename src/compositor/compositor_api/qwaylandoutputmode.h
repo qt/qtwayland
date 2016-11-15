@@ -37,7 +37,7 @@
 #ifndef QWAYLANDOUTPUTMODE_H
 #define QWAYLANDOUTPUTMODE_H
 
-#include <QtWaylandCompositor/qwaylandexport.h>
+#include <QtWaylandCompositor/qtwaylandcompositorglobal.h>
 #include <QtCore/QSize>
 
 QT_BEGIN_NAMESPACE

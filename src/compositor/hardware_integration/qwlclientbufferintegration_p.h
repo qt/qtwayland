@@ -48,7 +48,7 @@
 // We mean it.
 //
 
-#include <QtWaylandCompositor/qwaylandexport.h>
+#include <QtWaylandCompositor/qtwaylandcompositorglobal.h>
 #include <QtWaylandCompositor/qwaylandsurface.h>
 #include <QtWaylandCompositor/qwaylandbufferref.h>
 #include <QtCore/QSize>

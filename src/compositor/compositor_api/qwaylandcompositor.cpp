@@ -35,6 +35,7 @@
 **
 ****************************************************************************/
 
+#include "qtwaylandcompositorglobal_p.h"
 #include "qwaylandcompositor.h"
 #include "qwaylandcompositor_p.h"
 
@@ -60,7 +61,7 @@
 #include "hardware_integration/qwlserverbufferintegration_p.h"
 #include "hardware_integration/qwlserverbufferintegrationfactory_p.h"
 
-#ifdef QT_WAYLAND_COMPOSITOR_GL
+#if QT_CONFIG(opengl)
 #include "hardware_integration/qwlhwintegration_p.h"
 #endif
 
@@ -80,7 +81,7 @@
 #include <QtGui/qpa/qplatformnativeinterface.h>
 #include <QtGui/private/qguiapplication_p.h>
 
-#ifdef QT_WAYLAND_COMPOSITOR_GL
+#if QT_CONFIG(opengl)
 #   include <QOpenGLTextureBlitter>
 #   include <QOpenGLTexture>
 #   include <QOpenGLContext>
@@ -107,7 +108,7 @@ public:
             uint32_t code = ke->nativeScanCode;
             bool isDown = ke->keyType == QEvent::KeyPress;
 
-#ifndef QT_NO_WAYLAND_XKB
+#if QT_CONFIG(xkbcommon_evdev)
             QString text;
             Qt::KeyboardModifiers modifiers = QWaylandXkb::modifiers(keyb->xkbState());
 
@@ -143,7 +144,7 @@ public:
 
 QWaylandCompositorPrivate::QWaylandCompositorPrivate(QWaylandCompositor *compositor)
     : display(0)
-#if defined (QT_WAYLAND_COMPOSITOR_GL)
+#if QT_CONFIG(opengl)
     , use_hw_integration_extension(true)
     , client_buffer_integration(0)
     , server_buffer_integration(0)
@@ -354,7 +355,7 @@ QWaylandSurface *QWaylandCompositorPrivate::createDefaultSurface()
 
 void QWaylandCompositorPrivate::initializeHardwareIntegration()
 {
-#ifdef QT_WAYLAND_COMPOSITOR_GL
+#if QT_CONFIG(opengl)
     Q_Q(QWaylandCompositor);
     if (use_hw_integration_extension)
         hw_integration.reset(new QtWayland::HardwareIntegration(q));
@@ -377,7 +378,7 @@ void QWaylandCompositorPrivate::initializeSeats()
 
 void QWaylandCompositorPrivate::loadClientBufferIntegration()
 {
-#ifdef QT_WAYLAND_COMPOSITOR_GL
+#if QT_CONFIG(opengl)
     Q_Q(QWaylandCompositor);
     QStringList keys = QtWayland::ClientBufferIntegrationFactory::keys();
     QString targetKey;
@@ -406,7 +407,7 @@ void QWaylandCompositorPrivate::loadClientBufferIntegration()
 
 void QWaylandCompositorPrivate::loadServerBufferIntegration()
 {
-#ifdef QT_WAYLAND_COMPOSITOR_GL
+#if QT_CONFIG(opengl)
     QStringList keys = QtWayland::ServerBufferIntegrationFactory::keys();
     QString targetKey;
     QByteArray serverBufferIntegration = qgetenv("QT_WAYLAND_SERVER_BUFFER_INTEGRATION");
@@ -852,7 +853,7 @@ QWaylandSeat *QWaylandCompositor::seatFor(QInputEvent *inputEvent)
  */
 bool QWaylandCompositor::useHardwareIntegrationExtension() const
 {
-#ifdef QT_WAYLAND_COMPOSITOR_GL
+#if QT_CONFIG(opengl)
     Q_D(const QWaylandCompositor);
     return d->use_hw_integration_extension;
 #else
@@ -862,7 +863,7 @@ bool QWaylandCompositor::useHardwareIntegrationExtension() const
 
 void QWaylandCompositor::setUseHardwareIntegrationExtension(bool use)
 {
-#ifdef QT_WAYLAND_COMPOSITOR_GL
+#if QT_CONFIG(opengl)
     Q_D(QWaylandCompositor);
     if (use == d->use_hw_integration_extension)
         return;
@@ -892,7 +893,7 @@ void QWaylandCompositor::grabSurface(QWaylandSurfaceGrabber *grabber, const QWay
     if (buffer.isSharedMemory()) {
         emit grabber->success(buffer.image());
     } else {
-#ifdef QT_WAYLAND_COMPOSITOR_GL
+#if QT_CONFIG(opengl)
         if (QOpenGLContext::currentContext()) {
             QOpenGLFramebufferObject fbo(buffer.size());
             fbo.bind();

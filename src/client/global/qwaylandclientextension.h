@@ -38,7 +38,7 @@
 #define QWAYLANDCLIENTEXTENSION_H
 
 #include <QObject>
-#include <QtWaylandClient/qwaylandclientexport.h>
+#include <QtWaylandClient/qtwaylandclientglobal.h>
 
 struct wl_registry;
 

@@ -37,7 +37,7 @@
 #ifndef QWAYLANDWLSHELL_P_H
 #define QWAYLANDWLSHELL_P_H
 
-#include <QtWaylandCompositor/qwaylandexport.h>
+#include <QtWaylandCompositor/qtwaylandcompositorglobal.h>
 #include <QtWaylandCompositor/qwaylandsurface.h>
 #include <QtWaylandCompositor/private/qwaylandcompositorextension_p.h>
 #include <QtWaylandCompositor/QWaylandWlShellSurface>

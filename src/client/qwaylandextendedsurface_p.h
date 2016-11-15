@@ -54,7 +54,7 @@
 #include <QtCore/QString>
 #include <QtCore/QVariant>
 
-#include <QtWaylandClient/qwaylandclientexport.h>
+#include <QtWaylandClient/qtwaylandclientglobal.h>
 
 #include <wayland-client.h>
 #include <QtWaylandClient/private/qwayland-surface-extension.h>

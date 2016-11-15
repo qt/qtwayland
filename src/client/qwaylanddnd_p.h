@@ -57,7 +57,7 @@
 #include <QtGui/QDrag>
 #include <QtCore/QMimeData>
 
-#include <QtWaylandClient/qwaylandclientexport.h>
+#include <QtWaylandClient/qtwaylandclientglobal.h>
 
 QT_BEGIN_NAMESPACE
 

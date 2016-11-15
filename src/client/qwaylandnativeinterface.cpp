@@ -119,7 +119,7 @@ void *QWaylandNativeInterface::nativeResourceForScreen(const QByteArray &resourc
 #ifndef QT_NO_OPENGL
 void *QWaylandNativeInterface::nativeResourceForContext(const QByteArray &resource, QOpenGLContext *context)
 {
-#ifdef QT_WAYLAND_GL_SUPPORT
+#if QT_CONFIG(opengl)
     QByteArray lowerCaseResource = resource.toLower();
 
     if (lowerCaseResource == "eglconfig" && m_integration->clientBufferIntegration())

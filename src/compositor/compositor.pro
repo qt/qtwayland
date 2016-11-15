@@ -5,8 +5,6 @@ QT = core gui-private
 
 qtHaveModule(quick): QT += quick
 
-qtConfig(opengl):MODULE_DEFINES = QT_WAYLAND_COMPOSITOR_GL
-
 CONFIG -= precompile_header
 CONFIG += link_pkgconfig
 

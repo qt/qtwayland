@@ -55,7 +55,7 @@
 
 #include <wayland-client.h>
 
-#include <QtWaylandClient/qwaylandclientexport.h>
+#include <QtWaylandClient/qtwaylandclientglobal.h>
 #include <QtWaylandClient/private/qwayland-wayland.h>
 #include <QtWaylandClient/private/qwaylandshellsurface_p.h>
 

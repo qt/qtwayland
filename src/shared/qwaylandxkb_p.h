@@ -41,8 +41,6 @@
 #ifndef QWAYLANDXKB_H
 #define QWAYLANDXKB_H
 
-#ifndef QT_NO_WAYLAND_XKB
-
 #include <Qt>
 #include <QEvent>
 #include <xkbcommon/xkbcommon.h>
@@ -64,7 +62,5 @@ public:
 };
 
 QT_END_NAMESPACE
-
-#endif // QT_NO_WAYLAND_XKB
 
 #endif

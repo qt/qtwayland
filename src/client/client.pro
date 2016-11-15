@@ -15,15 +15,8 @@ use_gold_linker: CONFIG += no_linker_version_script
 CONFIG -= precompile_header
 CONFIG += link_pkgconfig wayland-scanner
 
-qtConfig(opengl) {
-    DEFINES += QT_WAYLAND_GL_SUPPORT
-}
-
-qtConfig(xkbcommon-evdev) {
+qtConfig(xkbcommon-evdev): \
     QMAKE_USE_PRIVATE += xkbcommon_evdev
-} else {
-    DEFINES += QT_NO_WAYLAND_XKB
-}
 
 QMAKE_USE += wayland-client wayland-cursor
 
@@ -108,7 +101,8 @@ HEADERS +=  qwaylandintegration_p.h \
             qwaylandinputcontext_p.h \
             qwaylanddatadevice_p.h \
             qwaylandshm_p.h \
-            qwaylandclientexport.h \
+            qtwaylandclientglobal.h \
+            qtwaylandclientglobal_p.h \
             ../shared/qwaylandinputmethodeventbuilder_p.h \
             ../shared/qwaylandmimehelper_p.h \
             ../shared/qwaylandxkb_p.h \

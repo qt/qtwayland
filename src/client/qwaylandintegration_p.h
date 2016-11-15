@@ -51,9 +51,8 @@
 // We mean it.
 //
 
+#include <QtWaylandClient/qtwaylandclientglobal.h>
 #include <qpa/qplatformintegration.h>
-
-#include <QtWaylandClient/qwaylandclientexport.h>
 #include <QtCore/QScopedPointer>
 
 QT_BEGIN_NAMESPACE

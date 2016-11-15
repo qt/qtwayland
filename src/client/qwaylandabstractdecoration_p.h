@@ -59,7 +59,7 @@
 #include <QtGui/QColor>
 #include <QtGui/QStaticText>
 #include <QtGui/QImage>
-#include <QtWaylandClient/qwaylandclientexport.h>
+#include <QtWaylandClient/qtwaylandclientglobal.h>
 
 #include <wayland-client.h>
 

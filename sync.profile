@@ -7,6 +7,12 @@
 %classnames = (
 );
 %deprecatedheaders = (
+    "QtWaylandClient" =>  {
+        "qwaylandclientexport.h" => "QtWaylandClient/qtwaylandclientglobal.h"
+    },
+    "QtWaylandCompositor" =>  {
+        "qwaylandexport.h" => "QtWaylandCompositor/qtwaylandcompositorglobal.h"
+    }
 );
 %classnames = (
     "qwaylandquickextension.h" => "QWaylandQuickExtension",

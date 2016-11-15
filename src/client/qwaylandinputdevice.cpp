@@ -73,7 +73,7 @@ namespace QtWaylandClient {
 QWaylandInputDevice::Keyboard::Keyboard(QWaylandInputDevice *p)
     : mParent(p)
     , mFocus(0)
-#ifndef QT_NO_WAYLAND_XKB
+#if QT_CONFIG(xkbcommon_evdev)
     , mXkbContext(0)
     , mXkbMap(0)
     , mXkbState(0)
@@ -83,7 +83,7 @@ QWaylandInputDevice::Keyboard::Keyboard(QWaylandInputDevice *p)
     connect(&mRepeatTimer, SIGNAL(timeout()), this, SLOT(repeatKey()));
 }
 
-#ifndef QT_NO_WAYLAND_XKB
+#if QT_CONFIG(xkbcommon_evdev)
 bool QWaylandInputDevice::Keyboard::createDefaultKeyMap()
 {
     if (mXkbContext && mXkbMap && mXkbState) {
@@ -125,7 +125,7 @@ void QWaylandInputDevice::Keyboard::releaseKeyMap()
 
 QWaylandInputDevice::Keyboard::~Keyboard()
 {
-#ifndef QT_NO_WAYLAND_XKB
+#if QT_CONFIG(xkbcommon_evdev)
     releaseKeyMap();
 #endif
     if (mFocus)
@@ -334,7 +334,7 @@ Qt::KeyboardModifiers QWaylandInputDevice::Keyboard::modifiers() const
 {
     Qt::KeyboardModifiers ret = Qt::NoModifier;
 
-#ifndef QT_NO_WAYLAND_XKB
+#if QT_CONFIG(xkbcommon_evdev)
     if (!mXkbState)
         return ret;
 
@@ -602,7 +602,7 @@ void QWaylandInputDevice::Pointer::pointer_axis(uint32_t time, uint32_t axis, in
 
 void QWaylandInputDevice::Keyboard::keyboard_keymap(uint32_t format, int32_t fd, uint32_t size)
 {
-#ifndef QT_NO_WAYLAND_XKB
+#if QT_CONFIG(xkbcommon_evdev)
     if (format != WL_KEYBOARD_KEYMAP_FORMAT_XKB_V1) {
         close(fd);
         return;
@@ -702,7 +702,7 @@ void QWaylandInputDevice::Keyboard::keyboard_key(uint32_t serial, uint32_t time,
     if (isDown)
         mParent->mQDisplay->setLastInputDevice(mParent, serial, window);
 
-#ifndef QT_NO_WAYLAND_XKB
+#if QT_CONFIG(xkbcommon_evdev)
     if (!createDefaultKeyMap()) {
         return;
     }
@@ -720,7 +720,7 @@ void QWaylandInputDevice::Keyboard::keyboard_key(uint32_t serial, uint32_t time,
 #endif
 
     if (state == WL_KEYBOARD_KEY_STATE_PRESSED
-#ifndef QT_NO_WAYLAND_XKB
+#if QT_CONFIG(xkbcommon_evdev)
         && xkb_keymap_key_repeats(mXkbMap, code)
 #endif
         ) {
@@ -728,7 +728,7 @@ void QWaylandInputDevice::Keyboard::keyboard_key(uint32_t serial, uint32_t time,
         mRepeatCode = code;
         mRepeatTime = time;
         mRepeatText = text;
-#ifndef QT_NO_WAYLAND_XKB
+#if QT_CONFIG(xkbcommon_evdev)
         mRepeatSym = sym;
 #endif
         mRepeatTimer.setInterval(400);
@@ -742,7 +742,7 @@ void QWaylandInputDevice::Keyboard::repeatKey()
 {
     mRepeatTimer.setInterval(25);
     sendKey(mFocus->window(), mRepeatTime, QEvent::KeyRelease, mRepeatKey, modifiers(), mRepeatCode,
-#ifndef QT_NO_WAYLAND_XKB
+#if QT_CONFIG(xkbcommon_evdev)
             mRepeatSym, mNativeModifiers,
 #else
             0, 0,
@@ -750,7 +750,7 @@ void QWaylandInputDevice::Keyboard::repeatKey()
             mRepeatText, true);
 
     sendKey(mFocus->window(), mRepeatTime, QEvent::KeyPress, mRepeatKey, modifiers(), mRepeatCode,
-#ifndef QT_NO_WAYLAND_XKB
+#if QT_CONFIG(xkbcommon_evdev)
             mRepeatSym, mNativeModifiers,
 #else
             0, 0,
@@ -765,7 +765,7 @@ void QWaylandInputDevice::Keyboard::keyboard_modifiers(uint32_t serial,
                                              uint32_t group)
 {
     Q_UNUSED(serial);
-#ifndef QT_NO_WAYLAND_XKB
+#if QT_CONFIG(xkbcommon_evdev)
     if (mXkbState)
         xkb_state_update_mask(mXkbState,
                               mods_depressed, mods_latched, mods_locked,

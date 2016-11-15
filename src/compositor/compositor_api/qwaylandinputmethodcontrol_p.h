@@ -48,7 +48,7 @@
 // We mean it.
 //
 
-#include <QtWaylandCompositor/qwaylandexport.h>
+#include <QtWaylandCompositor/qtwaylandcompositorglobal.h>
 #include <QtWaylandCompositor/qwaylandinputmethodcontrol.h>
 
 #include <QtCore/private/qobject_p.h>

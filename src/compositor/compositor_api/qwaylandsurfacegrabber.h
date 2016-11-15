@@ -37,7 +37,7 @@
 #ifndef QWAYLANDSURFACEGRABBER_H
 #define QWAYLANDSURFACEGRABBER_H
 
-#include <QtWaylandCompositor/qwaylandexport.h>
+#include <QtWaylandCompositor/qtwaylandcompositorglobal.h>
 #include <QtCore/QObject>
 
 QT_BEGIN_NAMESPACE

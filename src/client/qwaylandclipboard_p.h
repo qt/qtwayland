@@ -55,7 +55,7 @@
 #include <QtCore/QVariant>
 #include <QtCore/QMimeData>
 
-#include <QtWaylandClient/qwaylandclientexport.h>
+#include <QtWaylandClient/qtwaylandclientglobal.h>
 
 #ifndef QT_NO_DRAGANDDROP
 QT_BEGIN_NAMESPACE

@@ -55,7 +55,7 @@
 #include <QtGui/qopengl.h>
 
 #include <QtWaylandClient/private/qwayland-server-buffer-extension.h>
-#include <QtWaylandClient/qwaylandclientexport.h>
+#include <QtWaylandClient/qtwaylandclientglobal.h>
 
 QT_BEGIN_NAMESPACE
 

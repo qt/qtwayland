@@ -51,7 +51,7 @@
 // We mean it.
 //
 
-#include <QtWaylandClient/qwaylandclientexport.h>
+#include <QtWaylandClient/qtwaylandclientglobal.h>
 #include <QtWaylandClient/private/qwayland-wayland.h>
 
 #ifndef QT_NO_DRAGANDDROP

@@ -37,7 +37,7 @@
 #ifndef QWAYLANDSURFACEITEM_H
 #define QWAYLANDSURFACEITEM_H
 
-#include <QtWaylandCompositor/qwaylandexport.h>
+#include <QtWaylandCompositor/qtwaylandcompositorglobal.h>
 
 #include <QtQuick/QQuickItem>
 #include <QtQuick/qsgtexture.h>

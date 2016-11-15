@@ -41,7 +41,7 @@
 #include <QtCore/QPoint>
 #include <QtCore/QString>
 
-#include <QtWaylandCompositor/qwaylandexport.h>
+#include <QtWaylandCompositor/qtwaylandcompositorglobal.h>
 #include <QtWaylandCompositor/qwaylandcompositorextension.h>
 #include <QtWaylandCompositor/qwaylandkeyboard.h>
 

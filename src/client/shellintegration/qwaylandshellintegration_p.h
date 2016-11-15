@@ -51,8 +51,7 @@
 // We mean it.
 //
 
-#include <QtCore/qglobal.h>
-#include <QtWaylandClient/qwaylandclientexport.h>
+#include <QtWaylandClient/qtwaylandclientglobal.h>
 #include <QtWaylandClient/private/qwaylanddisplay_p.h>
 
 QT_BEGIN_NAMESPACE

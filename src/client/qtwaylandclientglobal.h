@@ -37,8 +37,8 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDSUBSURFACE_H
-#define QWAYLANDSUBSURFACE_H
+#ifndef QWAYLANDCLIENTGLOBAL_H
+#define QWAYLANDCLIENTGLOBAL_H
 
 //
 //  W A R N I N G
@@ -51,50 +51,20 @@
 // We mean it.
 //
 
-#include <wayland-client.h>
-
-#include <QtCore/qglobal.h>
-#include <QtCore/qmutex.h>
-
-#include <QtWaylandClient/qtwaylandclientglobal.h>
-#include <QtWaylandClient/private/qwayland-wayland.h>
+#include <QtGui/qtguiglobal.h>
+#include <QtWaylandClient/qtwaylandclient-config.h>
 
 QT_BEGIN_NAMESPACE
 
-namespace QtWaylandClient {
-
-class QWaylandDisplay;
-class QWaylandWindow;
-
-class Q_WAYLAND_CLIENT_EXPORT QWaylandSubSurface : public QtWayland::wl_subsurface
-{
-public:
-    QWaylandSubSurface(QWaylandWindow *window, QWaylandWindow *parent, ::wl_subsurface *subsurface);
-    ~QWaylandSubSurface();
-
-    QWaylandWindow *window() const { return m_window; }
-    QWaylandWindow *parent() const { return m_parent; }
-
-    void setSync();
-    void setDeSync();
-    bool isSync() const { return m_synchronized; }
-    QMutex *syncMutex() { return &m_syncLock; }
-
-private:
-
-    // Intentionally hide public methods from ::wl_subsurface
-    // to keep track of the sync state
-    void set_sync();
-    void set_desync();
-    QWaylandWindow *m_window;
-    QWaylandWindow *m_parent;
-    bool m_synchronized;
-    QMutex m_syncLock;
-
-};
+#if !defined(Q_WAYLAND_CLIENT_EXPORT)
+#  if defined(QT_SHARED)
+#    define Q_WAYLAND_CLIENT_EXPORT Q_DECL_EXPORT
+#  else
+#    define Q_WAYLAND_CLIENT_EXPORT
+#  endif
+#endif
 
 QT_END_NAMESPACE
 
-}
+#endif //QWAYLANDCLIENTGLOBAL_H
 
-#endif // QWAYLANDSUBSURFACE_H

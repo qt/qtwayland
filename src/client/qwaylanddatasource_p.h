@@ -54,7 +54,7 @@
 #include <QObject>
 
 #include <QtWaylandClient/private/qwayland-wayland.h>
-#include <QtWaylandClient/qwaylandclientexport.h>
+#include <QtWaylandClient/qtwaylandclientglobal.h>
 
 #ifndef QT_NO_DRAGANDDROP
 

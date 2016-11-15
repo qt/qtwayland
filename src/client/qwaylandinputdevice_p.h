@@ -51,6 +51,7 @@
 // We mean it.
 //
 
+#include <QtWaylandClient/private/qtwaylandclientglobal_p.h>
 #include <QtWaylandClient/private/qwaylandwindow_p.h>
 
 #include <QSocketNotifier>
@@ -64,7 +65,7 @@
 
 #include <QtWaylandClient/private/qwayland-wayland.h>
 
-#ifndef QT_NO_WAYLAND_XKB
+#if QT_CONFIG(xkbcommon_evdev)
 #include <xkbcommon/xkbcommon.h>
 #include <xkbcommon/xkbcommon-keysyms.h>
 #endif
@@ -194,7 +195,7 @@ public:
 
     QWaylandInputDevice *mParent;
     QWaylandWindow *mFocus;
-#ifndef QT_NO_WAYLAND_XKB
+#if QT_CONFIG(xkbcommon_evdev)
     xkb_context *mXkbContext;
     xkb_keymap *mXkbMap;
     xkb_state *mXkbState;
@@ -205,7 +206,7 @@ public:
     uint32_t mRepeatCode;
     uint32_t mRepeatTime;
     QString mRepeatText;
-#ifndef QT_NO_WAYLAND_XKB
+#if QT_CONFIG(xkbcommon_evdev)
     xkb_keysym_t mRepeatSym;
 #endif
     QTimer mRepeatTimer;
@@ -216,7 +217,7 @@ private slots:
     void repeatKey();
 
 private:
-#ifndef QT_NO_WAYLAND_XKB
+#if QT_CONFIG(xkbcommon_evdev)
     bool createDefaultKeyMap();
     void releaseKeyMap();
 #endif

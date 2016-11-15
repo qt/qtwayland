@@ -35,6 +35,7 @@
 **
 ****************************************************************************/
 
+#include "qtwaylandcompositorglobal_p.h"
 #include "qwaylandkeyboard.h"
 #include "qwaylandkeyboard_p.h"
 #include <QtWaylandCompositor/QWaylandKeymap>
@@ -47,7 +48,7 @@
 
 #include <fcntl.h>
 #include <unistd.h>
-#ifndef QT_NO_WAYLAND_XKB
+#if QT_CONFIG(xkbcommon_evdev)
 #include <sys/mman.h>
 #include <sys/types.h>
 #endif
@@ -65,7 +66,7 @@ QWaylandKeyboardPrivate::QWaylandKeyboardPrivate(QWaylandSeat *seat)
     , modsLocked()
     , group()
     , pendingKeymap(false)
-#ifndef QT_NO_WAYLAND_XKB
+#if QT_CONFIG(xkbcommon_evdev)
     , keymap_fd(-1)
     , xkb_state(0)
 #endif
@@ -76,7 +77,7 @@ QWaylandKeyboardPrivate::QWaylandKeyboardPrivate(QWaylandSeat *seat)
 
 QWaylandKeyboardPrivate::~QWaylandKeyboardPrivate()
 {
-#ifndef QT_NO_WAYLAND_XKB
+#if QT_CONFIG(xkbcommon_evdev)
     if (xkb_context) {
         if (keymap_area)
             munmap(keymap_area, keymap_size);
@@ -146,7 +147,7 @@ void QWaylandKeyboardPrivate::keyboard_bind_resource(wl_keyboard::Resource *reso
     if (resource->version() >= WL_KEYBOARD_REPEAT_INFO_SINCE_VERSION)
         send_repeat_info(resource->handle, repeatRate, repeatDelay);
 
-#ifndef QT_NO_WAYLAND_XKB
+#if QT_CONFIG(xkbcommon_evdev)
     if (xkb_context) {
         send_keymap(resource->handle, WL_KEYBOARD_KEYMAP_FORMAT_XKB_V1,
                     keymap_fd, keymap_size);
@@ -201,7 +202,7 @@ void QWaylandKeyboardPrivate::modifiers(uint32_t serial, uint32_t mods_depressed
 
 void QWaylandKeyboardPrivate::updateModifierState(uint code, uint32_t state)
 {
-#ifndef QT_NO_WAYLAND_XKB
+#if QT_CONFIG(xkbcommon_evdev)
     if (!xkb_context)
         return;
 
@@ -241,7 +242,7 @@ void QWaylandKeyboardPrivate::maybeUpdateKeymap()
         return;
 
     pendingKeymap = false;
-#ifndef QT_NO_WAYLAND_XKB
+#if QT_CONFIG(xkbcommon_evdev)
     if (!xkb_context)
         return;
 
@@ -261,7 +262,7 @@ void QWaylandKeyboardPrivate::maybeUpdateKeymap()
 #endif
 }
 
-#ifndef QT_NO_WAYLAND_XKB
+#if QT_CONFIG(xkbcommon_evdev)
 static int createAnonymousFile(size_t size)
 {
     QString path = QStandardPaths::writableLocation(QStandardPaths::RuntimeLocation);
@@ -404,7 +405,7 @@ QWaylandKeyboard::QWaylandKeyboard(QWaylandSeat *seat, QObject *parent)
     connect(keymap, &QWaylandKeymap::optionsChanged, this, &QWaylandKeyboard::updateKeymap);
     connect(keymap, &QWaylandKeymap::rulesChanged, this, &QWaylandKeyboard::updateKeymap);
     connect(keymap, &QWaylandKeymap::modelChanged, this, &QWaylandKeyboard::updateKeymap);
-#ifndef QT_NO_WAYLAND_XKB
+#if QT_CONFIG(xkbcommon_evdev)
     d->initXKB();
 #endif
 }

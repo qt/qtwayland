@@ -38,7 +38,7 @@
 #ifndef QWAYLANDSURFACE_H
 #define QWAYLANDSURFACE_H
 
-#include <QtWaylandCompositor/qwaylandexport.h>
+#include <QtWaylandCompositor/qtwaylandcompositorglobal.h>
 #include <QtWaylandCompositor/qwaylandcompositorextension.h>
 #include <QtWaylandCompositor/qwaylandclient.h>
 

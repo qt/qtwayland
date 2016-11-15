@@ -2,8 +2,6 @@ QT = waylandcompositor waylandcompositor-private core-private gui-private
 
 INCLUDEPATH += $$PWD
 
-DEFINES += QT_NO_OPENGL_ES_3
-
 QMAKE_USE_PRIVATE += wayland-server
 
 for(p, QMAKE_LIBDIR_EGL) {

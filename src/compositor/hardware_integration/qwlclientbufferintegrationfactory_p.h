@@ -48,7 +48,7 @@
 // We mean it.
 //
 
-#include <QtWaylandCompositor/qwaylandexport.h>
+#include <QtWaylandCompositor/qtwaylandcompositorglobal.h>
 #include <QtCore/QStringList>
 
 QT_BEGIN_NAMESPACE

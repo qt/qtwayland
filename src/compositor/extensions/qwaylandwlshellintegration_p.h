@@ -88,7 +88,7 @@ private:
     void handlePopupRemoved();
 
     QWaylandQuickShellSurfaceItem *m_item;
-    QWaylandWlShellSurface *m_shellSurface;
+    QPointer<QWaylandWlShellSurface> m_shellSurface;
     GrabberState grabberState;
     struct {
         QWaylandSeat *seat;

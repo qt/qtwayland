@@ -98,7 +98,7 @@ public:
 
 private:
     QWaylandWlShell *m_shell;
-    QWaylandSurface *m_surface;
+    QPointer<QWaylandSurface> m_surface;
 
     QSet<uint32_t> m_pings;
 

@@ -66,7 +66,7 @@ SOURCES +=  qwaylandintegration.cpp \
             qwaylandwlshellintegration.cpp \
             qwaylandxdgshell.cpp \
             qwaylandxdgsurface.cpp \
-            qwaylandxdgpopup_p.cpp \
+            qwaylandxdgpopup.cpp \
             qwaylandxdgshellintegration.cpp \
             qwaylandextendedsurface.cpp \
             qwaylandsubsurface.cpp \

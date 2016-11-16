@@ -44,7 +44,7 @@
 #include "qwaylanddatasource_p.h"
 #include "qwaylanddatadevice_p.h"
 
-#ifndef QT_NO_DRAGANDDROP
+#if QT_CONFIG(draganddrop)
 
 QT_BEGIN_NAMESPACE
 
@@ -118,4 +118,4 @@ bool QWaylandClipboard::ownsMode(QClipboard::Mode mode) const
 
 QT_END_NAMESPACE
 
-#endif // QT_NO_DRAGANDDROP
+#endif  // draganddrop

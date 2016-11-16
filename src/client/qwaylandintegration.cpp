@@ -96,7 +96,7 @@ public:
             const QByteArray desktopEnvironment = QGuiApplicationPrivate::platformIntegration()->services()->desktopEnvironment();
 
             if (desktopEnvironment == QByteArrayLiteral("KDE")) {
-#ifndef QT_NO_SETTINGS
+#if QT_CONFIG(settings)
                 result.push_back(QStringLiteral("kde"));
 #endif
             } else if (!desktopEnvironment.isEmpty() &&
@@ -122,7 +122,7 @@ QWaylandIntegration::QWaylandIntegration()
     , mInputDeviceIntegration(Q_NULLPTR)
     , mFontDb(new QGenericUnixFontDatabase())
     , mNativeInterface(new QWaylandNativeInterface(this))
-#ifndef QT_NO_ACCESSIBILITY
+#if QT_CONFIG(accessibility)
     , mAccessibility(new QPlatformAccessibility())
 #endif
     , mClientBufferIntegrationInitialized(false)
@@ -131,7 +131,7 @@ QWaylandIntegration::QWaylandIntegration()
 {
     initializeInputDeviceIntegration();
     mDisplay.reset(new QWaylandDisplay(this));
-#ifndef QT_NO_DRAGANDDROP
+#if QT_CONFIG(draganddrop)
     mClipboard.reset(new QWaylandClipboard(mDisplay.data()));
     mDrag.reset(new QWaylandDrag(mDisplay.data()));
 #endif
@@ -188,14 +188,14 @@ QPlatformWindow *QWaylandIntegration::createPlatformWindow(QWindow *window) cons
     return new QWaylandShmWindow(window);
 }
 
-#ifndef QT_NO_OPENGL
+#if QT_CONFIG(opengl)
 QPlatformOpenGLContext *QWaylandIntegration::createPlatformOpenGLContext(QOpenGLContext *context) const
 {
     if (mDisplay->clientBufferIntegration())
         return mDisplay->clientBufferIntegration()->createPlatformOpenGLContext(context->format(), context->shareHandle());
     return 0;
 }
-#endif // QT_NO_OPENGL
+#endif  // opengl
 
 QPlatformBackingStore *QWaylandIntegration::createPlatformBackingStore(QWindow *window) const
 {
@@ -223,7 +223,7 @@ QPlatformFontDatabase *QWaylandIntegration::fontDatabase() const
     return mFontDb.data();
 }
 
-#ifndef QT_NO_DRAGANDDROP
+#if QT_CONFIG(draganddrop)
 QPlatformClipboard *QWaylandIntegration::clipboard() const
 {
     return mClipboard.data();
@@ -233,7 +233,7 @@ QPlatformDrag *QWaylandIntegration::drag() const
 {
     return mDrag.data();
 }
-#endif // QT_NO_DRAGANDDROP
+#endif  // draganddrop
 
 QPlatformInputContext *QWaylandIntegration::inputContext() const
 {
@@ -255,7 +255,7 @@ QVariant QWaylandIntegration::styleHint(StyleHint hint) const
     return QPlatformIntegration::styleHint(hint);
 }
 
-#ifndef QT_NO_ACCESSIBILITY
+#if QT_CONFIG(accessibility)
 QPlatformAccessibility *QWaylandIntegration::accessibility() const
 {
     return mAccessibility.data();

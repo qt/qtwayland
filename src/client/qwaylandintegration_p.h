@@ -75,7 +75,7 @@ public:
 
     bool hasCapability(QPlatformIntegration::Capability cap) const Q_DECL_OVERRIDE;
     QPlatformWindow *createPlatformWindow(QWindow *window) const Q_DECL_OVERRIDE;
-#ifndef QT_NO_OPENGL
+#if QT_CONFIG(opengl)
     QPlatformOpenGLContext *createPlatformOpenGLContext(QOpenGLContext *context) const Q_DECL_OVERRIDE;
 #endif
     QPlatformBackingStore *createPlatformBackingStore(QWindow *window) const Q_DECL_OVERRIDE;
@@ -86,7 +86,7 @@ public:
     QPlatformFontDatabase *fontDatabase() const Q_DECL_OVERRIDE;
 
     QPlatformNativeInterface *nativeInterface() const Q_DECL_OVERRIDE;
-#ifndef QT_NO_DRAGANDDROP
+#if QT_CONFIG(draganddrop)
     QPlatformClipboard *clipboard() const Q_DECL_OVERRIDE;
     QPlatformDrag *drag() const Q_DECL_OVERRIDE;
 #endif
@@ -94,7 +94,7 @@ public:
 
     QVariant styleHint(StyleHint hint) const Q_DECL_OVERRIDE;
 
-#ifndef QT_NO_ACCESSIBILITY
+#if QT_CONFIG(accessibility)
     QPlatformAccessibility *accessibility() const Q_DECL_OVERRIDE;
 #endif
 
@@ -126,14 +126,14 @@ private:
     QWaylandShellIntegration *createShellIntegration(const QString& interfaceName);
 
     QScopedPointer<QPlatformFontDatabase> mFontDb;
-#ifndef QT_NO_DRAGANDDROP
+#if QT_CONFIG(draganddrop)
     QScopedPointer<QPlatformClipboard> mClipboard;
     QScopedPointer<QPlatformDrag> mDrag;
 #endif
     QScopedPointer<QWaylandDisplay> mDisplay;
     QScopedPointer<QPlatformNativeInterface> mNativeInterface;
     QScopedPointer<QPlatformInputContext> mInputContext;
-#ifndef QT_NO_ACCESSIBILITY
+#if QT_CONFIG(accessibility)
     QScopedPointer<QPlatformAccessibility> mAccessibility;
 #endif
     bool mClientBufferIntegrationInitialized;

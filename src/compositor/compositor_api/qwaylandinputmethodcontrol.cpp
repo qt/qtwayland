@@ -54,7 +54,7 @@ QWaylandInputMethodControl::QWaylandInputMethodControl(QWaylandSurface *surface)
     if (textInput) {
         connect(textInput, &QWaylandTextInput::surfaceEnabled, this, &QWaylandInputMethodControl::surfaceEnabled);
         connect(textInput, &QWaylandTextInput::surfaceDisabled, this, &QWaylandInputMethodControl::surfaceDisabled);
-#ifndef QT_NO_IM
+#if QT_CONFIG(im)
         connect(textInput, &QWaylandTextInput::updateInputMethod, this, &QWaylandInputMethodControl::updateInputMethod);
 #endif
     }
@@ -101,7 +101,7 @@ void QWaylandInputMethodControl::setEnabled(bool enabled)
 
     d->enabled = enabled;
     emit enabledChanged(enabled);
-#ifndef QT_NO_IM
+#if QT_CONFIG(im)
     emit updateInputMethod(Qt::ImQueryInput);
 #endif
 }

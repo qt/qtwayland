@@ -137,7 +137,7 @@ public:
     QList<QWaylandInputDevice *> inputDevices() const { return mInputDevices; }
     QWaylandInputDevice *defaultInputDevice() const;
     QWaylandInputDevice *currentInputDevice() const { return defaultInputDevice(); }
-#ifndef QT_NO_DRAGANDDROP
+#if QT_CONFIG(draganddrop)
     QWaylandDataDeviceManager *dndSelectionHandler() const { return mDndSelectionHandler.data(); }
 #endif
     QtWayland::qt_surface_extension *windowExtension() const { return mWindowExtension.data(); }
@@ -202,7 +202,7 @@ private:
     QList<QWaylandInputDevice *> mInputDevices;
     QList<Listener> mRegistryListeners;
     QWaylandIntegration *mWaylandIntegration;
-#ifndef QT_NO_DRAGANDDROP
+#if QT_CONFIG(draganddrop)
     QScopedPointer<QWaylandDataDeviceManager> mDndSelectionHandler;
 #endif
     QScopedPointer<QtWayland::qt_surface_extension> mWindowExtension;

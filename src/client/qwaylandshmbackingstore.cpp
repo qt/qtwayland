@@ -348,7 +348,7 @@ QWaylandWindow *QWaylandShmBackingStore::waylandWindow() const
     return static_cast<QWaylandWindow *>(window()->handle());
 }
 
-#ifndef QT_NO_OPENGL
+#if QT_CONFIG(opengl)
 QImage QWaylandShmBackingStore::toImage() const
 {
     // Invoked from QPlatformBackingStore::composeAndFlush() that is called
@@ -357,7 +357,7 @@ QImage QWaylandShmBackingStore::toImage() const
 
     return *contentSurface();
 }
-#endif // QT_NO_OPENGL
+#endif  // opengl
 
 }
 

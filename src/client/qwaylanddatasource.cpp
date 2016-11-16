@@ -49,7 +49,7 @@
 
 #include <unistd.h>
 
-#ifndef QT_NO_DRAGANDDROP
+#if QT_CONFIG(draganddrop)
 
 QT_BEGIN_NAMESPACE
 
@@ -99,4 +99,4 @@ void QWaylandDataSource::data_source_target(const QString &mime_type)
 
 QT_END_NAMESPACE
 
-#endif // QT_NO_DRAGANDDROP
+#endif  // draganddrop

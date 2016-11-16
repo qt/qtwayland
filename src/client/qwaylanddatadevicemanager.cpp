@@ -46,7 +46,7 @@
 
 #include <QtCore/QDebug>
 
-#ifndef QT_NO_DRAGANDDROP
+#if QT_CONFIG(draganddrop)
 
 QT_BEGIN_NAMESPACE
 
@@ -83,4 +83,4 @@ QWaylandDisplay *QWaylandDataDeviceManager::display() const
 
 QT_END_NAMESPACE
 
-#endif // QT_NO_DRAGANDDROP
+#endif  // draganddrop

@@ -120,7 +120,7 @@ QWaylandWindowManagerIntegration *QWaylandDisplay::windowManagerIntegration() co
 
 QWaylandDisplay::QWaylandDisplay(QWaylandIntegration *waylandIntegration)
     : mWaylandIntegration(waylandIntegration)
-#ifndef QT_NO_DRAGANDDROP
+#if QT_CONFIG(draganddrop)
     , mDndSelectionHandler(0)
 #endif
     , mWindowExtension(0)
@@ -160,7 +160,7 @@ QWaylandDisplay::~QWaylandDisplay(void)
         mWaylandIntegration->destroyScreen(screen);
     }
     mScreens.clear();
-#ifndef QT_NO_DRAGANDDROP
+#if QT_CONFIG(draganddrop)
     delete mDndSelectionHandler.take();
 #endif
     wl_display_disconnect(mDisplay);
@@ -255,7 +255,7 @@ void QWaylandDisplay::registry_global(uint32_t id, const QString &interface, uin
     } else if (interface == QStringLiteral("wl_seat")) {
         QWaylandInputDevice *inputDevice = mWaylandIntegration->createInputDevice(this, version, id);
         mInputDevices.append(inputDevice);
-#ifndef QT_NO_DRAGANDDROP
+#if QT_CONFIG(draganddrop)
     } else if (interface == QStringLiteral("wl_data_device_manager")) {
         mDndSelectionHandler.reset(new QWaylandDataDeviceManager(this, id));
 #endif

@@ -795,7 +795,7 @@ void QWaylandWindow::requestActivateWindow()
 
 void QWaylandWindow::unfocus()
 {
-#ifndef QT_NO_DRAGANDDROP
+#if QT_CONFIG(draganddrop)
     QWaylandInputDevice *inputDevice = mDisplay->currentInputDevice();
     if (inputDevice && inputDevice->dataDevice()) {
         inputDevice->dataDevice()->invalidateSelectionOffer();

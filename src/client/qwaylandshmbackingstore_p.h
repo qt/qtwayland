@@ -107,7 +107,7 @@ public:
     QWaylandWindow *waylandWindow() const;
     void iterateBuffer();
 
-#ifndef QT_NO_OPENGL
+#if QT_CONFIG(opengl)
     QImage toImage() const Q_DECL_OVERRIDE;
 #endif
 

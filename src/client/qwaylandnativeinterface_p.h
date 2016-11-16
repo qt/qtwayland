@@ -72,7 +72,7 @@ public:
                                   QWindow *window) Q_DECL_OVERRIDE;
     void *nativeResourceForScreen(const QByteArray &resourceString,
                                   QScreen *screen) Q_DECL_OVERRIDE;
-#ifndef QT_NO_OPENGL
+#if QT_CONFIG(opengl)
     void *nativeResourceForContext(const QByteArray &resource, QOpenGLContext *context) Q_DECL_OVERRIDE;
 #endif
     QVariantMap windowProperties(QPlatformWindow *window) const Q_DECL_OVERRIDE;

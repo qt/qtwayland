@@ -190,7 +190,7 @@ QWaylandInputDevice::QWaylandInputDevice(QWaylandDisplay *display, int version, 
     , mSerial(0)
     , mTouchDevice(0)
 {
-#ifndef QT_NO_DRAGANDDROP
+#if QT_CONFIG(draganddrop)
     if (mQDisplay->dndSelectionHandler()) {
         mDataDevice = mQDisplay->dndSelectionHandler()->getDataDevice(this);
     }

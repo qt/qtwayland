@@ -48,7 +48,7 @@ QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
 
-#ifndef QT_NO_LIBRARY
+#if QT_CONFIG(library)
 Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
     (QWaylandServerBufferIntegrationFactoryInterface_iid, QLatin1String("/wayland-graphics-integration-client"), Qt::CaseInsensitive))
 Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, directLoader,
@@ -57,7 +57,7 @@ Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, directLoader,
 
 QStringList QWaylandServerBufferIntegrationFactory::keys(const QString &pluginPath)
 {
-#ifndef QT_NO_LIBRARY
+#if QT_CONFIG(library)
     QStringList list;
     if (!pluginPath.isEmpty()) {
         QCoreApplication::addLibraryPath(pluginPath);
@@ -80,7 +80,7 @@ QStringList QWaylandServerBufferIntegrationFactory::keys(const QString &pluginPa
 
 QWaylandServerBufferIntegration *QWaylandServerBufferIntegrationFactory::create(const QString &name, const QStringList &args, const QString &pluginPath)
 {
-#ifndef QT_NO_LIBRARY
+#if QT_CONFIG(library)
     // Try loading the plugin from platformPluginPath first:
     if (!pluginPath.isEmpty()) {
         QCoreApplication::addLibraryPath(pluginPath);

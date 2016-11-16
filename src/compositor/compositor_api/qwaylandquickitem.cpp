@@ -667,7 +667,7 @@ void QWaylandQuickItem::touchEvent(QTouchEvent *event)
     }
 }
 
-#ifndef QT_NO_IM
+#if QT_CONFIG(im)
 /*!
  * \internal
  */
@@ -836,7 +836,7 @@ void QWaylandQuickItem::handleSurfaceChanged()
         disconnect(d->oldSurface, &QWaylandSurface::redraw, this, &QQuickItem::update);
         disconnect(d->oldSurface, &QWaylandSurface::childAdded, this, &QWaylandQuickItem::handleSubsurfaceAdded);
         disconnect(d->oldSurface, &QWaylandSurface::dragStarted, this, &QWaylandQuickItem::handleDragStarted);
-#ifndef QT_NO_IM
+#if QT_CONFIG(im)
         disconnect(d->oldSurface->inputMethodControl(), &QWaylandInputMethodControl::updateInputMethod, this, &QWaylandQuickItem::updateInputMethod);
 #endif
     }
@@ -849,7 +849,7 @@ void QWaylandQuickItem::handleSurfaceChanged()
         connect(newSurface, &QWaylandSurface::redraw, this, &QQuickItem::update);
         connect(newSurface, &QWaylandSurface::childAdded, this, &QWaylandQuickItem::handleSubsurfaceAdded);
         connect(newSurface, &QWaylandSurface::dragStarted, this, &QWaylandQuickItem::handleDragStarted);
-#ifndef QT_NO_IM
+#if QT_CONFIG(im)
         connect(newSurface->inputMethodControl(), &QWaylandInputMethodControl::updateInputMethod, this, &QWaylandQuickItem::updateInputMethod);
 #endif
 
@@ -866,7 +866,7 @@ void QWaylandQuickItem::handleSurfaceChanged()
     }
     surfaceChangedEvent(d->view->surface(), d->oldSurface);
     d->oldSurface = d->view->surface();
-#ifndef QT_NO_IM
+#if QT_CONFIG(im)
     updateInputMethod(Qt::ImQueryInput);
 #endif
 }
@@ -1013,7 +1013,7 @@ void QWaylandQuickItem::setSizeFollowsSurface(bool sizeFollowsSurface)
     emit sizeFollowsSurfaceChanged();
 }
 
-#ifndef QT_NO_IM
+#if QT_CONFIG(im)
 QVariant QWaylandQuickItem::inputMethodQuery(Qt::InputMethodQuery query) const
 {
     return inputMethodQuery(query, QVariant());
@@ -1111,7 +1111,7 @@ void QWaylandQuickItem::beforeSync()
     }
 }
 
-#ifndef QT_NO_IM
+#if QT_CONFIG(im)
 void QWaylandQuickItem::updateInputMethod(Qt::InputMethodQueries queries)
 {
     Q_D(QWaylandQuickItem);

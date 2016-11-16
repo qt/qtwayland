@@ -70,8 +70,12 @@ public:
 
     void setType(Qt::WindowType type, QWaylandWindow *transientParent) override;
 
+protected:
+    void xdg_popup_popup_done() override;
+
 private:
     QWaylandExtendedSurface *m_extendedWindow;
+    QWaylandWindow *m_window;
 };
 
 QT_END_NAMESPACE

@@ -99,7 +99,6 @@ public:
 
     struct ::wl_seat *wl_seat() { return QtWayland::wl_seat::object(); }
 
-    void setCursor(Qt::CursorShape cursor, QWaylandScreen *screen);
     void setCursor(const QCursor &cursor, QWaylandScreen *screen);
     void setCursor(struct wl_buffer *buffer, struct ::wl_cursor_image *image);
     void setCursor(struct wl_buffer *buffer, const QPoint &hotSpot, const QSize &size);
@@ -129,6 +128,8 @@ public:
     virtual Touch *createTouch(QWaylandInputDevice *device);
 
 private:
+    void setCursor(Qt::CursorShape cursor, QWaylandScreen *screen);
+
     QWaylandDisplay *mQDisplay;
     struct wl_display *mDisplay;
 
@@ -249,6 +250,8 @@ public:
     QPointF mSurfacePos;
     QPointF mGlobalPos;
     Qt::MouseButtons mButtons;
+    wl_buffer *mCursorBuffer;
+    Qt::CursorShape mCursorShape;
 };
 
 class Q_WAYLAND_CLIENT_EXPORT QWaylandInputDevice::Touch : public QtWayland::wl_touch

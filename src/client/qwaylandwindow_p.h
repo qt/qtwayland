@@ -217,7 +217,6 @@ protected:
     QWaylandAbstractDecoration *mWindowDecoration;
     bool mMouseEventsInContentArea;
     Qt::MouseButtons mMousePressedInContentArea;
-    QCursor m_cursor;
 
     WId mWindowId;
     bool mWaitingForFrameSync;

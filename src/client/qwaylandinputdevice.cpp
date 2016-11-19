@@ -147,6 +147,8 @@ QWaylandInputDevice::Pointer::Pointer(QWaylandInputDevice *p)
     , mEnterSerial(0)
     , mCursorSerial(0)
     , mButtons(0)
+    , mCursorBuffer(nullptr)
+    , mCursorShape(Qt::BitmapCursor)
 {
 }
 
@@ -362,6 +364,10 @@ void QWaylandInputDevice::setCursor(Qt::CursorShape newShape, QWaylandScreen *sc
 
 void QWaylandInputDevice::setCursor(const QCursor &cursor, QWaylandScreen *screen)
 {
+    if (cursor.shape() != Qt::BitmapCursor && cursor.shape() == mPointer->mCursorShape)
+        return;
+
+    mPointer->mCursorShape = cursor.shape();
     if (cursor.shape() == Qt::BitmapCursor) {
         setCursor(screen->waylandCursor()->cursorBitmapImage(&cursor), cursor.hotSpot());
         return;
@@ -379,8 +385,16 @@ void QWaylandInputDevice::setCursor(struct wl_buffer *buffer, struct wl_cursor_i
 void QWaylandInputDevice::setCursor(struct wl_buffer *buffer, const QPoint &hotSpot, const QSize &size)
 {
     if (mCaps & WL_SEAT_CAPABILITY_POINTER) {
+        bool force = mPointer->mEnterSerial > mPointer->mCursorSerial;
+
+        if (!force && mPointer->mCursorBuffer == buffer)
+            return;
+
         mPixmapCursor.clear();
         mPointer->mCursorSerial = mPointer->mEnterSerial;
+
+        mPointer->mCursorBuffer = buffer;
+
         /* Hide cursor */
         if (!buffer)
         {

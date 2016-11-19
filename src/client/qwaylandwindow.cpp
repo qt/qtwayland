@@ -81,7 +81,6 @@ QWaylandWindow::QWaylandWindow(QWindow *window)
     , mWindowDecoration(0)
     , mMouseEventsInContentArea(false)
     , mMousePressedInContentArea(Qt::NoButton)
-    , m_cursor(Qt::ArrowCursor)
     , mWaitingForFrameSync(false)
     , mFrameCallback(nullptr)
     , mRequestResizeSent(false)
@@ -780,10 +779,7 @@ void QWaylandWindow::handleMouseEventWithDecoration(QWaylandInputDevice *inputDe
 
 void QWaylandWindow::setMouseCursor(QWaylandInputDevice *device, const QCursor &cursor)
 {
-    if (device->serial() >= device->cursorSerial()) {
-        device->setCursor(cursor, mScreen);
-        m_cursor = cursor;
-    }
+    device->setCursor(cursor, mScreen);
 }
 
 void QWaylandWindow::restoreMouseCursor(QWaylandInputDevice *device)

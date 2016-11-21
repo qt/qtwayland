@@ -257,10 +257,9 @@ void Window::mouseMoveEvent(QMouseEvent *e)
 
 void Window::sendMouseEvent(QMouseEvent *e, View *target)
 {
-    if (!target)
-        return;
-
-    QPointF mappedPos = e->localPos() - target->position();
+    QPointF mappedPos = e->localPos();
+    if (target)
+        mappedPos -= target->position();
     QMouseEvent viewEvent(e->type(), mappedPos, e->localPos(), e->button(), e->buttons(), e->modifiers());
     m_compositor->handleMouseEvent(target, &viewEvent);
 }

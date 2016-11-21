@@ -173,6 +173,7 @@ public:
     bool newTexture;
     bool focusOnClick;
     bool sizeFollowsSurface;
+    QPoint hoverPos;
 
     QQuickWindow *connectedWindow;
     QWaylandSurface::Origin origin;

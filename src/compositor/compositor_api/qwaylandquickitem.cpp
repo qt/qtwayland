@@ -481,6 +481,7 @@ void QWaylandQuickItem::mousePressEvent(QMouseEvent *event)
 
     seat->sendMouseMoveEvent(d->view.data(), mapToSurface(event->localPos()), event->windowPos());
     seat->sendMousePressEvent(event->button());
+    d->hoverPos = event->pos();
 }
 
 /*!
@@ -503,6 +504,7 @@ void QWaylandQuickItem::mouseMoveEvent(QMouseEvent *event)
             }
         } else {
             seat->sendMouseMoveEvent(d->view.data(), mapToSurface(event->localPos()), event->windowPos());
+            d->hoverPos = event->pos();
         }
     } else {
         emit mouseMove(event->windowPos());
@@ -543,6 +545,7 @@ void QWaylandQuickItem::hoverEnterEvent(QHoverEvent *event)
     if (d->shouldSendInputEvents()) {
         QWaylandSeat *seat = compositor()->seatFor(event);
         seat->sendMouseMoveEvent(d->view.data(), event->pos(), mapToScene(event->pos()));
+        d->hoverPos = event->pos();
     } else {
         event->ignore();
     }
@@ -562,7 +565,10 @@ void QWaylandQuickItem::hoverMoveEvent(QHoverEvent *event)
     }
     if (d->shouldSendInputEvents()) {
         QWaylandSeat *seat = compositor()->seatFor(event);
-        seat->sendMouseMoveEvent(d->view.data(), mapToSurface(event->pos()), mapToScene(event->pos()));
+        if (event->pos() != d->hoverPos) {
+            seat->sendMouseMoveEvent(d->view.data(), mapToSurface(event->pos()), mapToScene(event->pos()));
+            d->hoverPos = event->pos();
+        }
     } else {
         event->ignore();
     }

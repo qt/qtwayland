@@ -58,11 +58,13 @@ class QWaylandXdgShellV6;
 class Q_WAYLAND_CLIENT_EXPORT QWaylandXdgShellV6Integration : public QWaylandShellIntegration
 {
 public:
-    QWaylandXdgShellV6Integration(QWaylandDisplay *display);
+    static QWaylandXdgShellV6Integration *create(QWaylandDisplay* display);
     bool initialize(QWaylandDisplay *display) override;
     QWaylandShellSurface *createShellSurface(QWaylandWindow *window) override;
 
 private:
+    QWaylandXdgShellV6Integration(QWaylandDisplay *display);
+
     QWaylandXdgShellV6 *m_xdgShell;
 };
 

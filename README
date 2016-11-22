@@ -67,12 +67,11 @@ Shell Integration:
 Some platforms, especially non-desktop ones, use a custom Wayland shell
 extension. These are tailored to the specific embedded form factor better than
 the generic wl_shell or xdg_shell extensions that target desktop systems.
+Custom shell protocols are added through shell integration plugins.
 
-Instead of adding multiple protocol implementations into the QPA plugin,
-a plugin architecture is used for selecting the shell integration;
-when creating a shell surface, the protocol to use is taken from
-the QT_WAYLAND_SHELL_INTEGRATION environment variable. If one is not provided or
-not pointing to a valid plugin, wl_shell or xdg_shell will be used as fallbacks.
+Which shell integration to use is determined by the QT_WAYLAND_SHELL_INTEGRATION
+environment variable. If no shell is specified, the default is to first try
+xdg-shell-v6 and then wl-shell.
 
 Example Usage:
 
@@ -84,6 +83,9 @@ with ivi-shell integration:
 Available Shell Integrations:
 
     * ivi-shell
+    * wl-shell
+    * xdg-shell-v5
+    * xdg-shell-v6
 
 
 We hang out at #qt-labs and #qt-lighthouse on freenode if you have any questions

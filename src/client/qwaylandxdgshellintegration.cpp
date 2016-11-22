@@ -43,6 +43,13 @@ QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
 
+QWaylandXdgShellIntegration *QWaylandXdgShellIntegration::create(QWaylandDisplay *display)
+{
+    if (display->hasRegistryGlobal(QLatin1String("xdg_shell")))
+        return new QWaylandXdgShellIntegration(display);
+    return nullptr;
+}
+
 QWaylandXdgShellIntegration::QWaylandXdgShellIntegration(QWaylandDisplay *display)
     : m_xdgShell(Q_NULLPTR)
 {

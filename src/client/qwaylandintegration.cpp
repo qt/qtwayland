@@ -375,25 +375,25 @@ void QWaylandIntegration::initializeShellIntegration()
     QByteArray integrationName = qgetenv("QT_WAYLAND_SHELL_INTEGRATION");
     QString targetKey = QString::fromLocal8Bit(integrationName);
 
+    QStringList preferredShells;
     if (!targetKey.isEmpty()) {
-        QStringList keys = QWaylandShellIntegrationFactory::keys();
-        if (keys.contains(targetKey)) {
-            qDebug("Using the '%s' shell integration", qPrintable(targetKey));
-            mShellIntegration.reset(QWaylandShellIntegrationFactory::create(targetKey, QStringList()));
-        }
+        preferredShells << targetKey;
     } else {
-        QStringList preferredShells;
-        preferredShells << QLatin1String("zxdg_shell_v6");
-        if (qEnvironmentVariableIsSet("QT_WAYLAND_USE_XDG_SHELL"))
-            preferredShells << QLatin1String("xdg_shell");
+        preferredShells << QLatin1String("xdg-shell-v6");
+        QString useXdgShell = QString::fromLocal8Bit(qgetenv("QT_WAYLAND_USE_XDG_SHELL"));
+        if (!useXdgShell.isEmpty() && useXdgShell != QLatin1String("0")) {
+            qWarning() << "QT_WAYLAND_USE_XDG_SHELL is deprecated, "
+                          "please specify the shell using QT_WAYLAND_SHELL_INTEGRATION instead";
+            preferredShells << QLatin1String("xdg-shell-v5");
+        }
+        preferredShells << QLatin1String("wl-shell");
+    }
 
-        preferredShells << QLatin1String("wl_shell");
-
-        Q_FOREACH (QString preferredShell, preferredShells) {
-            if (mDisplay->hasRegistryGlobal(preferredShell)) {
-                mShellIntegration.reset(createShellIntegration(preferredShell));
-                break;
-            }
+    Q_FOREACH (QString preferredShell, preferredShells) {
+        mShellIntegration.reset(createShellIntegration(preferredShell));
+        if (mShellIntegration) {
+            qDebug("Using the '%s' shell integration", qPrintable(preferredShell));
+            break;
         }
     }
 
@@ -429,16 +429,18 @@ void QWaylandIntegration::initializeInputDeviceIntegration()
     }
 }
 
-QWaylandShellIntegration *QWaylandIntegration::createShellIntegration(const QString &interfaceName)
+QWaylandShellIntegration *QWaylandIntegration::createShellIntegration(const QString &integrationName)
 {
-    if (interfaceName == QLatin1Literal("wl_shell")) {
-        return new QWaylandWlShellIntegration(mDisplay.data());
-    } else if (interfaceName == QLatin1Literal("xdg_shell")) {
-        return new QWaylandXdgShellIntegration(mDisplay.data());
-    } else if (interfaceName == QLatin1Literal("zxdg_shell_v6")) {
-        return new QWaylandXdgShellV6Integration(mDisplay.data());
+    if (integrationName == QLatin1Literal("wl-shell")) {
+        return QWaylandWlShellIntegration::create(mDisplay.data());
+    } else if (integrationName == QLatin1Literal("xdg-shell-v5")) {
+        return QWaylandXdgShellIntegration::create(mDisplay.data());
+    } else if (integrationName == QLatin1Literal("xdg-shell-v6")) {
+        return QWaylandXdgShellV6Integration::create(mDisplay.data());
+    } else if (QWaylandShellIntegrationFactory::keys().contains(integrationName)) {
+        return QWaylandShellIntegrationFactory::create(integrationName, QStringList());
     } else {
-        return Q_NULLPTR;
+        return nullptr;
     }
 }
 

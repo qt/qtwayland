@@ -55,6 +55,13 @@ QWaylandXdgShellV6Integration::QWaylandXdgShellV6Integration(QWaylandDisplay *di
     }
 }
 
+QWaylandXdgShellV6Integration *QWaylandXdgShellV6Integration::create(QWaylandDisplay *display)
+{
+    if (display->hasRegistryGlobal(QLatin1String("zxdg_shell_v6")))
+        return new QWaylandXdgShellV6Integration(display);
+    return nullptr;
+}
+
 bool QWaylandXdgShellV6Integration::initialize(QWaylandDisplay *display)
 {
     QWaylandShellIntegration::initialize(display);

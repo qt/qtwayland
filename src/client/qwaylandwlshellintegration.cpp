@@ -41,6 +41,13 @@ QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
 
+QWaylandWlShellIntegration *QWaylandWlShellIntegration::create(QWaylandDisplay *display)
+{
+    if (display->hasRegistryGlobal(QLatin1String("wl_shell")))
+        return new QWaylandWlShellIntegration(display);
+    return nullptr;
+}
+
 QWaylandWlShellIntegration::QWaylandWlShellIntegration(QWaylandDisplay *display)
     : m_wlShell(Q_NULLPTR)
 {

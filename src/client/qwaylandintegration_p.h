@@ -112,6 +112,11 @@ public:
     virtual QWaylandServerBufferIntegration *serverBufferIntegration() const;
     virtual QWaylandShellIntegration *shellIntegration() const;
 
+private:
+    // NOTE: mDisplay *must* be destructed after mDrag and mClientBufferIntegration.
+    // Do not move this definition into the private section at the bottom.
+    QScopedPointer<QWaylandDisplay> mDisplay;
+
 protected:
     QScopedPointer<QWaylandClientBufferIntegration> mClientBufferIntegration;
     QScopedPointer<QWaylandServerBufferIntegration> mServerBufferIntegration;
@@ -130,7 +135,6 @@ private:
     QScopedPointer<QPlatformClipboard> mClipboard;
     QScopedPointer<QPlatformDrag> mDrag;
 #endif
-    QScopedPointer<QWaylandDisplay> mDisplay;
     QScopedPointer<QPlatformNativeInterface> mNativeInterface;
     QScopedPointer<QPlatformInputContext> mInputContext;
 #if QT_CONFIG(accessibility)

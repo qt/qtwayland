@@ -51,9 +51,8 @@
 // We mean it.
 //
 
+#include <QtWaylandClient/qtwaylandclientglobal.h>
 #include <qpa/qplatformintegration.h>
-
-#include <QtWaylandClient/qwaylandclientexport.h>
 #include <QtCore/QScopedPointer>
 
 QT_BEGIN_NAMESPACE
@@ -76,7 +75,7 @@ public:
 
     bool hasCapability(QPlatformIntegration::Capability cap) const Q_DECL_OVERRIDE;
     QPlatformWindow *createPlatformWindow(QWindow *window) const Q_DECL_OVERRIDE;
-#ifndef QT_NO_OPENGL
+#if QT_CONFIG(opengl)
     QPlatformOpenGLContext *createPlatformOpenGLContext(QOpenGLContext *context) const Q_DECL_OVERRIDE;
 #endif
     QPlatformBackingStore *createPlatformBackingStore(QWindow *window) const Q_DECL_OVERRIDE;
@@ -87,16 +86,15 @@ public:
     QPlatformFontDatabase *fontDatabase() const Q_DECL_OVERRIDE;
 
     QPlatformNativeInterface *nativeInterface() const Q_DECL_OVERRIDE;
-
+#if QT_CONFIG(draganddrop)
     QPlatformClipboard *clipboard() const Q_DECL_OVERRIDE;
-
     QPlatformDrag *drag() const Q_DECL_OVERRIDE;
-
+#endif
     QPlatformInputContext *inputContext() const Q_DECL_OVERRIDE;
 
     QVariant styleHint(StyleHint hint) const Q_DECL_OVERRIDE;
 
-#ifndef QT_NO_ACCESSIBILITY
+#if QT_CONFIG(accessibility)
     QPlatformAccessibility *accessibility() const Q_DECL_OVERRIDE;
 #endif
 
@@ -114,6 +112,11 @@ public:
     virtual QWaylandServerBufferIntegration *serverBufferIntegration() const;
     virtual QWaylandShellIntegration *shellIntegration() const;
 
+private:
+    // NOTE: mDisplay *must* be destructed after mDrag and mClientBufferIntegration.
+    // Do not move this definition into the private section at the bottom.
+    QScopedPointer<QWaylandDisplay> mDisplay;
+
 protected:
     QScopedPointer<QWaylandClientBufferIntegration> mClientBufferIntegration;
     QScopedPointer<QWaylandServerBufferIntegration> mServerBufferIntegration;
@@ -128,12 +131,13 @@ private:
     QWaylandShellIntegration *createShellIntegration(const QString& interfaceName);
 
     QScopedPointer<QPlatformFontDatabase> mFontDb;
+#if QT_CONFIG(draganddrop)
     QScopedPointer<QPlatformClipboard> mClipboard;
     QScopedPointer<QPlatformDrag> mDrag;
-    QScopedPointer<QWaylandDisplay> mDisplay;
+#endif
     QScopedPointer<QPlatformNativeInterface> mNativeInterface;
     QScopedPointer<QPlatformInputContext> mInputContext;
-#ifndef QT_NO_ACCESSIBILITY
+#if QT_CONFIG(accessibility)
     QScopedPointer<QPlatformAccessibility> mAccessibility;
 #endif
     bool mClientBufferIntegrationInitialized;

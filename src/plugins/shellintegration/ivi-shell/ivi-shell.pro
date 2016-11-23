@@ -1,25 +1,13 @@
 PLUGIN_TYPE = wayland-shell-integration
 load(qt_plugin)
 
-QT += waylandclient-private
+QT += gui-private waylandclient-private
 CONFIG += wayland-scanner
 
-!contains(QT_CONFIG, no-pkg-config) {
-    PKGCONFIG += wayland-client wayland-cursor
-    CONFIG += link_pkgconfig
-} else {
-    LIBS += -lwayland-client -lwayland-cursor
-}
+QMAKE_USE += wayland-client
 
-config_xkbcommon {
-    !contains(QT_CONFIG, no-pkg-config) {
-        PKGCONFIG += xkbcommon
-    } else {
-        LIBS += -lxkbcommon
-    }
-} else {
-    DEFINES += QT_NO_WAYLAND_XKB
-}
+qtConfig(xkbcommon-evdev): \
+    QMAKE_USE += xkbcommon_evdev
 
 WAYLANDCLIENTSOURCES += \
     ../../../3rdparty/protocol/ivi-application.xml \

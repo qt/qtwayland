@@ -37,7 +37,7 @@
 #ifndef QWAYLANDEXTENSION_H
 #define QWAYLANDEXTENSION_H
 
-#include <QtWaylandCompositor/qwaylandexport.h>
+#include <QtWaylandCompositor/qtwaylandcompositorglobal.h>
 
 #include <QtCore/QObject>
 #include <QtCore/QVector>

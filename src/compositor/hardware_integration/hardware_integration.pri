@@ -1,4 +1,4 @@
-contains(QT_CONFIG, opengl) {
+qtConfig(opengl) {
     CONFIG += wayland-scanner
     WAYLANDSERVERSOURCES += \
         ../extensions/server-buffer-extension.xml \
@@ -21,8 +21,6 @@ contains(QT_CONFIG, opengl) {
         hardware_integration/qwlserverbufferintegrationfactory.cpp \
         hardware_integration/qwlserverbufferintegrationplugin.cpp \
         hardware_integration/qwlhwintegration.cpp \
-
-    DEFINES += QT_WAYLAND_COMPOSITOR_GL
 } else {
     system(echo "Qt-Compositor configured as raster only compositor")
 }

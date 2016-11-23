@@ -54,7 +54,7 @@
 #include <qpa/qwindowsysteminterface.h>
 
 #include <QtWaylandClient/private/qwayland-touch-extension.h>
-#include <QtWaylandClient/qwaylandclientexport.h>
+#include <QtWaylandClient/qtwaylandclientglobal.h>
 
 QT_BEGIN_NAMESPACE
 

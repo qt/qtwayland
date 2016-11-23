@@ -37,7 +37,7 @@
 #ifndef QWAYLANDDRAG_H
 #define QWAYLANDDRAG_H
 
-#include <QtWaylandCompositor/qwaylandexport.h>
+#include <QtWaylandCompositor/qtwaylandcompositorglobal.h>
 
 #include <QtCore/QObject>
 #include <QtCore/QPointF>

@@ -54,11 +54,13 @@ namespace QtWaylandClient {
 
 QWaylandXdgShell::QWaylandXdgShell(struct ::xdg_shell *shell)
     : QtWayland::xdg_shell(shell)
+    , m_popupSerial(0)
 {
 }
 
 QWaylandXdgShell::QWaylandXdgShell(struct ::wl_registry *registry, uint32_t id)
     : QtWayland::xdg_shell(registry, id, 1)
+    , m_popupSerial(0)
 {
     use_unstable_version(QtWayland::xdg_shell::version_current);
 }
@@ -75,15 +77,26 @@ QWaylandXdgSurface *QWaylandXdgShell::createXdgSurface(QWaylandWindow *window)
 
 QWaylandXdgPopup *QWaylandXdgShell::createXdgPopup(QWaylandWindow *window)
 {
-    QWaylandWindow *parentWindow = window->transientParent();
+    QWaylandWindow *parentWindow = m_popups.empty() ? window->transientParent() : m_popups.last();
     ::wl_surface *parentSurface = parentWindow->object();
+
     QWaylandInputDevice *inputDevice = window->display()->lastInputDevice();
+    if (m_popupSerial == 0)
+        m_popupSerial = inputDevice->serial();
     ::wl_seat *seat = inputDevice->wl_seat();
-    uint serial = inputDevice->serial();
-    QPoint position = window->geometry().topLeft();
+
+    QPoint position = window->geometry().topLeft() - parentWindow->geometry().topLeft();
     int x = position.x() + parentWindow->frameMargins().left();
     int y = position.y() + parentWindow->frameMargins().top();
-    return new QWaylandXdgPopup(get_xdg_popup(window->object(), parentSurface, seat, serial, x, y), window);
+
+    auto popup = new QWaylandXdgPopup(get_xdg_popup(window->object(), parentSurface, seat, m_popupSerial, x, y), window);
+    m_popups.append(window);
+    QObject::connect(popup, &QWaylandXdgPopup::destroyed, [this, window](){
+        m_popups.removeOne(window);
+        if (m_popups.empty())
+            m_popupSerial = 0;
+    });
+    return popup;
 }
 
 void QWaylandXdgShell::xdg_shell_ping(uint32_t serial)

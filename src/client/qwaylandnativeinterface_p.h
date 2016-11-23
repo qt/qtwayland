@@ -54,7 +54,7 @@
 #include <QVariantMap>
 #include <qpa/qplatformnativeinterface.h>
 
-#include <QtWaylandClient/qwaylandclientexport.h>
+#include <QtWaylandClient/qtwaylandclientglobal.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -72,8 +72,9 @@ public:
                                   QWindow *window) Q_DECL_OVERRIDE;
     void *nativeResourceForScreen(const QByteArray &resourceString,
                                   QScreen *screen) Q_DECL_OVERRIDE;
+#if QT_CONFIG(opengl)
     void *nativeResourceForContext(const QByteArray &resource, QOpenGLContext *context) Q_DECL_OVERRIDE;
-
+#endif
     QVariantMap windowProperties(QPlatformWindow *window) const Q_DECL_OVERRIDE;
     QVariant windowProperty(QPlatformWindow *window, const QString &name) const Q_DECL_OVERRIDE;
     QVariant windowProperty(QPlatformWindow *window, const QString &name, const QVariant &defaultValue) const Q_DECL_OVERRIDE;

@@ -335,7 +335,7 @@ QList<QWaylandWlShellSurface *> QWaylandWlShell::shellSurfacesForClient(QWayland
     Q_D(const QWaylandWlShell);
     QList<QWaylandWlShellSurface *> surfsForClient;
     Q_FOREACH (QWaylandWlShellSurface *shellSurface, d->m_shellSurfaces) {
-        if (shellSurface->surface()->client() == client)
+        if (shellSurface->surface() && shellSurface->surface()->client() == client)
             surfsForClient.append(shellSurface);
     }
     return surfsForClient;
@@ -347,7 +347,7 @@ QList<QWaylandWlShellSurface *> QWaylandWlShell::mappedPopups() const
     QList<QWaylandWlShellSurface *> popupSurfaces;
     Q_FOREACH (QWaylandWlShellSurface *shellSurface, d->m_shellSurfaces) {
         if (shellSurface->windowType() == Qt::WindowType::Popup
-                && shellSurface->surface()->hasContent()) {
+                && shellSurface->surface() && shellSurface->surface()->hasContent()) {
             popupSurfaces.append(shellSurface);
         }
     }
@@ -359,7 +359,7 @@ QWaylandClient *QWaylandWlShell::popupClient() const
     Q_D(const QWaylandWlShell);
     Q_FOREACH (QWaylandWlShellSurface *shellSurface, d->m_shellSurfaces) {
         if (shellSurface->windowType() == Qt::WindowType::Popup
-                && shellSurface->surface()->hasContent()) {
+                && shellSurface->surface() && shellSurface->surface()->hasContent()) {
             return shellSurface->surface()->client();
         }
     }

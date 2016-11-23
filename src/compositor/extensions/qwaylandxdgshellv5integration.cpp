@@ -194,10 +194,14 @@ XdgPopupV5Integration::XdgPopupV5Integration(QWaylandQuickShellSurfaceItem *item
     , m_xdgShell(QWaylandXdgPopupV5Private::get(m_xdgPopup)->m_xdgShell)
 {
     item->setSurface(m_xdgPopup->surface());
-    item->moveItem()->setPosition(QPointF(m_xdgPopup->position() * item->view()->output()->scaleFactor()));
+    if (item->view()->output())
+        item->moveItem()->setPosition(QPointF(m_xdgPopup->position() * item->view()->output()->scaleFactor()));
+    else
+        qWarning() << "XdgPopupV5Integration popup item without output" << item;
 
     QWaylandClient *client = m_xdgPopup->surface()->client();
-    QWaylandQuickShellEventFilter::startFilter(client, [&]() { m_xdgShell->closeAllPopups(); });
+    auto shell = m_xdgShell;
+    QWaylandQuickShellEventFilter::startFilter(client, [shell]() { shell->closeAllPopups(); });
 
     connect(m_xdgPopup, &QWaylandXdgPopupV5::destroyed, this, &XdgPopupV5Integration::handlePopupDestroyed);
 }

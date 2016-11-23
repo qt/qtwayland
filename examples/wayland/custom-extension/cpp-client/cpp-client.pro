@@ -1,16 +1,7 @@
 QT += waylandclient-private gui-private
-
-CONFIG += c++11
 CONFIG += wayland-scanner
-CONFIG += link_pkgconfig
 
 WAYLANDCLIENTSOURCES += ../protocol/custom.xml
-
-!contains(QT_CONFIG, no-pkg-config) {
-    PKGCONFIG += wayland-client
-} else {
-    LIBS += -lwayland-client
-}
 
 SOURCES += main.cpp \
     ../client-common/customextension.cpp

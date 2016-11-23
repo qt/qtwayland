@@ -133,7 +133,7 @@ QWaylandCompositor *QWaylandTouch::compositor() const
 }
 
 /*!
- * Sends a touch point event for the touch device with the given \a id,
+ * Sends a touch point event to the touch device of \a surface with the given \a id,
  * \a position, and \a state.
  *
  * Returns the serial of the down or up event if sent, otherwise 0.
@@ -162,7 +162,7 @@ uint QWaylandTouch::sendTouchPointEvent(QWaylandSurface *surface, int id, const 
 }
 
 /*!
- * Sends a touch frame event for the touch device. This indicates the end of a
+ * Sends a touch frame event to the touch device of a \a client. This indicates the end of a
  * contact point list.
  */
 void QWaylandTouch::sendFrameEvent(QWaylandClient *client)
@@ -174,7 +174,7 @@ void QWaylandTouch::sendFrameEvent(QWaylandClient *client)
 }
 
 /*!
- * Sends a touch cancel event for the touch device.
+ * Sends a touch cancel event to the touch device of a \a client.
  */
 void QWaylandTouch::sendCancelEvent(QWaylandClient *client)
 {
@@ -185,8 +185,8 @@ void QWaylandTouch::sendCancelEvent(QWaylandClient *client)
 }
 
 /*!
- * Sends all the touch points in \a event for this touch device, followed
- * by a touch frame event.
+ * Sends all touch points in \a event to the specified \a surface,
+ * followed by a touch frame event.
  *
  * \sa sendTouchPointEvent(), sendFrameEvent()
  */

@@ -37,8 +37,8 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDCLIENTEXPORT_H
-#define QWAYLANDCLIENTEXPORT_H
+#ifndef QWAYLANDCOMPOSITORGLOBAL_H
+#define QWAYLANDCOMPOSITORGLOBAL_H
 
 //
 //  W A R N I N G
@@ -51,19 +51,22 @@
 // We mean it.
 //
 
-#include <QtCore/qglobal.h>
+#include <QtGui/qtguiglobal.h>
+#include <QtWaylandCompositor/qtwaylandcompositor-config.h>
 
 QT_BEGIN_NAMESPACE
 
-#if !defined(Q_WAYLAND_CLIENT_EXPORT)
-#  if defined(QT_SHARED)
-#    define Q_WAYLAND_CLIENT_EXPORT Q_DECL_EXPORT
+#if !defined(Q_WAYLAND_COMPOSITOR_EXPORT)
+#  if defined(QT_SHARED) && defined(QT_BUILD_COMPOSITOR_LIB)
+#    define Q_WAYLAND_COMPOSITOR_EXPORT Q_DECL_EXPORT
+#  elif defined(QT_SHARED)
+#    define Q_WAYLAND_COMPOSITOR_EXPORT Q_DECL_IMPORT
 #  else
-#    define Q_WAYLAND_CLIENT_EXPORT
+#    define Q_WAYLAND_COMPOSITOR_EXPORT
 #  endif
 #endif
 
 QT_END_NAMESPACE
 
-#endif //QWAYLANDCLIENTEXPORT_H
+#endif // QWAYLANDCOMPOSITORGLOBAL_H
 

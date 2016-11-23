@@ -53,9 +53,11 @@
 
 #include <qpa/qplatformclipboard.h>
 #include <QtCore/QVariant>
+#include <QtCore/QMimeData>
 
-#include <QtWaylandClient/qwaylandclientexport.h>
+#include <QtWaylandClient/qtwaylandclientglobal.h>
 
+#if QT_CONFIG(draganddrop)
 QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
@@ -76,10 +78,13 @@ public:
 
 private:
     QWaylandDisplay *mDisplay;
+    QMimeData m_emptyData;
 };
 
 }
 
 QT_END_NAMESPACE
+
+#endif  // draganddrop
 
 #endif // QWAYLANDCLIPBOARD_H

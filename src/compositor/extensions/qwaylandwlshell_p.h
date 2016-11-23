@@ -37,7 +37,7 @@
 #ifndef QWAYLANDWLSHELL_P_H
 #define QWAYLANDWLSHELL_P_H
 
-#include <QtWaylandCompositor/qwaylandexport.h>
+#include <QtWaylandCompositor/qtwaylandcompositorglobal.h>
 #include <QtWaylandCompositor/qwaylandsurface.h>
 #include <QtWaylandCompositor/private/qwaylandcompositorextension_p.h>
 #include <QtWaylandCompositor/QWaylandWlShellSurface>
@@ -98,7 +98,7 @@ public:
 
 private:
     QWaylandWlShell *m_shell;
-    QWaylandSurface *m_surface;
+    QPointer<QWaylandSurface> m_surface;
 
     QSet<uint32_t> m_pings;
 

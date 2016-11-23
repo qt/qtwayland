@@ -50,7 +50,7 @@
 // We mean it.
 //
 
-#include <QtWaylandCompositor/qwaylandexport.h>
+#include <QtWaylandCompositor/qtwaylandcompositorglobal.h>
 #include <QtWaylandCompositor/QWaylandOutput>
 #include <QtWaylandCompositor/QWaylandClient>
 #include <QtWaylandCompositor/QWaylandSurface>

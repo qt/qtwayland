@@ -1,19 +1,17 @@
 TEMPLATE=subdirs
 CONFIG+=ordered
+QT_FOR_CONFIG += waylandclient-private
 
 SUBDIRS += qwayland-generic
 
-config_wayland_egl {
+qtConfig(wayland-egl): \
     SUBDIRS += qwayland-egl
-}
 
 #The following integrations are only useful with QtWaylandCompositor
-config_brcm_egl: \
+qtConfig(wayland-brcm): \
     SUBDIRS += qwayland-brcm-egl
 
-config_xcomposite {
-    contains(QT_CONFIG, egl): \
-        SUBDIRS += qwayland-xcomposite-egl
-    !contains(QT_CONFIG, opengles2):config_glx: \
-        SUBDIRS += qwayland-xcomposite-glx
-}
+qtConfig(xcomposite-egl): \
+    SUBDIRS += qwayland-xcomposite-egl
+qtConfig(xcomposite-glx): \
+    SUBDIRS += qwayland-xcomposite-glx

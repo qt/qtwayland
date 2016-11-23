@@ -50,7 +50,7 @@
 #include <QDebug>
 
 QT_BEGIN_NAMESPACE
-
+#if QT_CONFIG(draganddrop)
 namespace QtWaylandClient {
 
 QWaylandDrag::QWaylandDrag(QWaylandDisplay *display)
@@ -98,7 +98,7 @@ void QWaylandDrag::drop(const QPoint &globalPos)
 
 void QWaylandDrag::endDrag()
 {
-    // Do nothing
+    m_display->currentInputDevice()->handleEndDrag();
 }
 
 void QWaylandDrag::updateTarget(const QString &mimeType)
@@ -131,5 +131,5 @@ void QWaylandDrag::finishDrag(const QPlatformDropQtResponse &response)
 }
 
 }
-
+#endif  // draganddrop
 QT_END_NAMESPACE

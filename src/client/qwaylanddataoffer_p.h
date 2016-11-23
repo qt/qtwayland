@@ -53,9 +53,10 @@
 
 #include <QtGui/private/qdnd_p.h>
 
-#include <QtWaylandClient/qwaylandclientexport.h>
+#include <QtWaylandClient/qtwaylandclientglobal.h>
 #include <QtWaylandClient/private/qwayland-wayland.h>
 
+#if QT_CONFIG(draganddrop)
 QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
@@ -105,5 +106,5 @@ private:
 }
 
 QT_END_NAMESPACE
-
+#endif  // draganddrop
 #endif

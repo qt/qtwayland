@@ -1,12 +1,5 @@
 QT += core-private gui-private quick-private waylandcompositor-private
 
-contains(QT_CONFIG, no-pkg-config) {
-    LIBS += -lwayland-server
-} else {
-    CONFIG += link_pkgconfig
-    PKGCONFIG += wayland-server
-}
-
 SOURCES += \
     main.cpp \
     serverbufferitem.cpp

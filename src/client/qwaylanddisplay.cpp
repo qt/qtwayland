@@ -120,7 +120,9 @@ QWaylandWindowManagerIntegration *QWaylandDisplay::windowManagerIntegration() co
 
 QWaylandDisplay::QWaylandDisplay(QWaylandIntegration *waylandIntegration)
     : mWaylandIntegration(waylandIntegration)
+#if QT_CONFIG(draganddrop)
     , mDndSelectionHandler(0)
+#endif
     , mWindowExtension(0)
     , mSubCompositor(0)
     , mTouchExtension(0)
@@ -158,7 +160,9 @@ QWaylandDisplay::~QWaylandDisplay(void)
         mWaylandIntegration->destroyScreen(screen);
     }
     mScreens.clear();
+#if QT_CONFIG(draganddrop)
     delete mDndSelectionHandler.take();
+#endif
     wl_display_disconnect(mDisplay);
 }
 
@@ -251,8 +255,10 @@ void QWaylandDisplay::registry_global(uint32_t id, const QString &interface, uin
     } else if (interface == QStringLiteral("wl_seat")) {
         QWaylandInputDevice *inputDevice = mWaylandIntegration->createInputDevice(this, version, id);
         mInputDevices.append(inputDevice);
+#if QT_CONFIG(draganddrop)
     } else if (interface == QStringLiteral("wl_data_device_manager")) {
         mDndSelectionHandler.reset(new QWaylandDataDeviceManager(this, id));
+#endif
     } else if (interface == QStringLiteral("qt_surface_extension")) {
         mWindowExtension.reset(new QtWayland::qt_surface_extension(registry, id, 1));
     } else if (interface == QStringLiteral("wl_subcompositor")) {
@@ -413,11 +419,7 @@ void QWaylandDisplay::handleKeyboardFocusChanged(QWaylandInputDevice *inputDevic
     if (mLastKeyboardFocus == keyboardFocus)
         return;
 
-    if (keyboardFocus && !keyboardFocus->shellManagesActiveState())
-        handleWindowActivated(keyboardFocus);
-
-    if (mLastKeyboardFocus && !mLastKeyboardFocus->shellManagesActiveState())
-        handleWindowDeactivated(mLastKeyboardFocus);
+    mWaylandIntegration->mShellIntegration->handleKeyboardFocusChanged(keyboardFocus, mLastKeyboardFocus);
 
     mLastKeyboardFocus = keyboardFocus;
 }

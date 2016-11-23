@@ -61,7 +61,7 @@
 #include <wayland-client.h>
 
 #include <QtWaylandClient/private/qwayland-wayland.h>
-#include <QtWaylandClient/qwaylandclientexport.h>
+#include <QtWaylandClient/qtwaylandclientglobal.h>
 #include <QtWaylandClient/private/qwayland-xdg-shell.h>
 #include <QtWaylandClient/private/qwaylandshm_p.h>
 
@@ -137,9 +137,9 @@ public:
     QList<QWaylandInputDevice *> inputDevices() const { return mInputDevices; }
     QWaylandInputDevice *defaultInputDevice() const;
     QWaylandInputDevice *currentInputDevice() const { return defaultInputDevice(); }
-
+#if QT_CONFIG(draganddrop)
     QWaylandDataDeviceManager *dndSelectionHandler() const { return mDndSelectionHandler.data(); }
-
+#endif
     QtWayland::qt_surface_extension *windowExtension() const { return mWindowExtension.data(); }
     QWaylandTouchExtension *touchExtension() const { return mTouchExtension.data(); }
     QtWayland::zwp_text_input_manager_v2 *textInputManager() const { return mTextInputManager.data(); }
@@ -202,7 +202,9 @@ private:
     QList<QWaylandInputDevice *> mInputDevices;
     QList<Listener> mRegistryListeners;
     QWaylandIntegration *mWaylandIntegration;
+#if QT_CONFIG(draganddrop)
     QScopedPointer<QWaylandDataDeviceManager> mDndSelectionHandler;
+#endif
     QScopedPointer<QtWayland::qt_surface_extension> mWindowExtension;
     QScopedPointer<QtWayland::wl_subcompositor> mSubCompositor;
     QScopedPointer<QWaylandTouchExtension> mTouchExtension;

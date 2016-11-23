@@ -56,7 +56,7 @@
 #include <QtCore/qglobal.h>
 #include <QtCore/qmutex.h>
 
-#include <QtWaylandClient/qwaylandclientexport.h>
+#include <QtWaylandClient/qtwaylandclientglobal.h>
 #include <QtWaylandClient/private/qwayland-wayland.h>
 
 QT_BEGIN_NAMESPACE

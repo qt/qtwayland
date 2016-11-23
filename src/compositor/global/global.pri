@@ -1,7 +1,7 @@
 INCLUDEPATH += global/
 
 HEADERS += \
-    global/qwaylandexport.h \
+    global/qtwaylandcompositorglobal.h \
     global/qwaylandcompositorextension.h \
     global/qwaylandcompositorextension_p.h \
     global/qwaylandquickextension.h \

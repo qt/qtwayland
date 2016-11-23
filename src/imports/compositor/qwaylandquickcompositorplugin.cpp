@@ -59,7 +59,7 @@
 #include <QtWaylandCompositor/QWaylandIviApplication>
 #include <QtWaylandCompositor/QWaylandIviSurface>
 
-#include <QtWaylandCompositor/qwaylandexport.h>
+#include <QtWaylandCompositor/qtwaylandcompositorglobal.h>
 #include "qwaylandmousetracker_p.h"
 
 QT_BEGIN_NAMESPACE

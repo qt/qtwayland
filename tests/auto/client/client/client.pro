@@ -4,11 +4,7 @@ TARGET = tst_client
 QT += testlib
 QT += core-private gui-private
 
-!contains(QT_CONFIG, no-pkg-config) {
-    PKGCONFIG += wayland-client wayland-server
-} else {
-    LIBS += -lwayland-client -lwayland-server
-}
+QMAKE_USE += wayland-client wayland-server
 
 CONFIG += wayland-scanner
 WAYLANDSERVERSOURCES += \

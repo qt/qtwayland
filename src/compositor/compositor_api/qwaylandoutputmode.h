@@ -37,7 +37,7 @@
 #ifndef QWAYLANDOUTPUTMODE_H
 #define QWAYLANDOUTPUTMODE_H
 
-#include <QtWaylandCompositor/qwaylandexport.h>
+#include <QtWaylandCompositor/qtwaylandcompositorglobal.h>
 #include <QtCore/QSize>
 
 QT_BEGIN_NAMESPACE
@@ -66,6 +66,7 @@ private:
     void setWidth(int width);
     void setHeight(int height);
 };
+Q_DECLARE_TYPEINFO(QWaylandOutputMode, Q_MOVABLE_TYPE);
 
 QT_END_NAMESPACE
 

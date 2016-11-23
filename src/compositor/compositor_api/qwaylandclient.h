@@ -37,7 +37,7 @@
 #ifndef QWAYLANDCLIENT_H
 #define QWAYLANDCLIENT_H
 
-#include <QtWaylandCompositor/qwaylandexport.h>
+#include <QtWaylandCompositor/qtwaylandcompositorglobal.h>
 
 #include <QObject>
 

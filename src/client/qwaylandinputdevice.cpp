@@ -73,7 +73,7 @@ namespace QtWaylandClient {
 QWaylandInputDevice::Keyboard::Keyboard(QWaylandInputDevice *p)
     : mParent(p)
     , mFocus(0)
-#ifndef QT_NO_WAYLAND_XKB
+#if QT_CONFIG(xkbcommon_evdev)
     , mXkbContext(0)
     , mXkbMap(0)
     , mXkbState(0)
@@ -83,7 +83,7 @@ QWaylandInputDevice::Keyboard::Keyboard(QWaylandInputDevice *p)
     connect(&mRepeatTimer, SIGNAL(timeout()), this, SLOT(repeatKey()));
 }
 
-#ifndef QT_NO_WAYLAND_XKB
+#if QT_CONFIG(xkbcommon_evdev)
 bool QWaylandInputDevice::Keyboard::createDefaultKeyMap()
 {
     if (mXkbContext && mXkbMap && mXkbState) {
@@ -125,7 +125,7 @@ void QWaylandInputDevice::Keyboard::releaseKeyMap()
 
 QWaylandInputDevice::Keyboard::~Keyboard()
 {
-#ifndef QT_NO_WAYLAND_XKB
+#if QT_CONFIG(xkbcommon_evdev)
     releaseKeyMap();
 #endif
     if (mFocus)
@@ -147,6 +147,8 @@ QWaylandInputDevice::Pointer::Pointer(QWaylandInputDevice *p)
     , mEnterSerial(0)
     , mCursorSerial(0)
     , mButtons(0)
+    , mCursorBuffer(nullptr)
+    , mCursorShape(Qt::BitmapCursor)
 {
 }
 
@@ -188,9 +190,11 @@ QWaylandInputDevice::QWaylandInputDevice(QWaylandDisplay *display, int version, 
     , mSerial(0)
     , mTouchDevice(0)
 {
+#if QT_CONFIG(draganddrop)
     if (mQDisplay->dndSelectionHandler()) {
         mDataDevice = mQDisplay->dndSelectionHandler()->getDataDevice(this);
     }
+#endif
 
     if (mQDisplay->textInputManager()) {
         mTextInput = new QWaylandTextInput(mQDisplay, mQDisplay->textInputManager()->get_text_input(wl_seat()));
@@ -268,6 +272,14 @@ void QWaylandInputDevice::handleWindowDestroyed(QWaylandWindow *window)
         mTouch->mFocus = 0;
 }
 
+void QWaylandInputDevice::handleEndDrag()
+{
+    if (mTouch)
+        mTouch->releasePoints();
+    if (mPointer)
+        mPointer->releaseButtons();
+}
+
 void QWaylandInputDevice::setDataDevice(QWaylandDataDevice *device)
 {
     mDataDevice = device;
@@ -322,7 +334,7 @@ Qt::KeyboardModifiers QWaylandInputDevice::Keyboard::modifiers() const
 {
     Qt::KeyboardModifiers ret = Qt::NoModifier;
 
-#ifndef QT_NO_WAYLAND_XKB
+#if QT_CONFIG(xkbcommon_evdev)
     if (!mXkbState)
         return ret;
 
@@ -352,6 +364,10 @@ void QWaylandInputDevice::setCursor(Qt::CursorShape newShape, QWaylandScreen *sc
 
 void QWaylandInputDevice::setCursor(const QCursor &cursor, QWaylandScreen *screen)
 {
+    if (cursor.shape() != Qt::BitmapCursor && cursor.shape() == mPointer->mCursorShape)
+        return;
+
+    mPointer->mCursorShape = cursor.shape();
     if (cursor.shape() == Qt::BitmapCursor) {
         setCursor(screen->waylandCursor()->cursorBitmapImage(&cursor), cursor.hotSpot());
         return;
@@ -369,8 +385,16 @@ void QWaylandInputDevice::setCursor(struct wl_buffer *buffer, struct wl_cursor_i
 void QWaylandInputDevice::setCursor(struct wl_buffer *buffer, const QPoint &hotSpot, const QSize &size)
 {
     if (mCaps & WL_SEAT_CAPABILITY_POINTER) {
+        bool force = mPointer->mEnterSerial > mPointer->mCursorSerial;
+
+        if (!force && mPointer->mCursorBuffer == buffer)
+            return;
+
         mPixmapCursor.clear();
         mPointer->mCursorSerial = mPointer->mEnterSerial;
+
+        mPointer->mCursorBuffer = buffer;
+
         /* Hide cursor */
         if (!buffer)
         {
@@ -532,6 +556,14 @@ void QWaylandInputDevice::Pointer::pointer_button(uint32_t serial, uint32_t time
     }
 }
 
+void QWaylandInputDevice::Pointer::releaseButtons()
+{
+    mButtons = Qt::NoButton;
+    MotionEvent e(mParent->mTime, mSurfacePos, mGlobalPos, mButtons, mParent->modifiers());
+    if (mFocus)
+        mFocus->handleMouse(mParent, e);
+}
+
 class WheelEvent : public QWaylandPointerEvent
 {
 public:
@@ -570,7 +602,7 @@ void QWaylandInputDevice::Pointer::pointer_axis(uint32_t time, uint32_t axis, in
 
 void QWaylandInputDevice::Keyboard::keyboard_keymap(uint32_t format, int32_t fd, uint32_t size)
 {
-#ifndef QT_NO_WAYLAND_XKB
+#if QT_CONFIG(xkbcommon_evdev)
     if (format != WL_KEYBOARD_KEYMAP_FORMAT_XKB_V1) {
         close(fd);
         return;
@@ -670,7 +702,7 @@ void QWaylandInputDevice::Keyboard::keyboard_key(uint32_t serial, uint32_t time,
     if (isDown)
         mParent->mQDisplay->setLastInputDevice(mParent, serial, window);
 
-#ifndef QT_NO_WAYLAND_XKB
+#if QT_CONFIG(xkbcommon_evdev)
     if (!createDefaultKeyMap()) {
         return;
     }
@@ -688,7 +720,7 @@ void QWaylandInputDevice::Keyboard::keyboard_key(uint32_t serial, uint32_t time,
 #endif
 
     if (state == WL_KEYBOARD_KEY_STATE_PRESSED
-#ifndef QT_NO_WAYLAND_XKB
+#if QT_CONFIG(xkbcommon_evdev)
         && xkb_keymap_key_repeats(mXkbMap, code)
 #endif
         ) {
@@ -696,7 +728,7 @@ void QWaylandInputDevice::Keyboard::keyboard_key(uint32_t serial, uint32_t time,
         mRepeatCode = code;
         mRepeatTime = time;
         mRepeatText = text;
-#ifndef QT_NO_WAYLAND_XKB
+#if QT_CONFIG(xkbcommon_evdev)
         mRepeatSym = sym;
 #endif
         mRepeatTimer.setInterval(400);
@@ -710,7 +742,7 @@ void QWaylandInputDevice::Keyboard::repeatKey()
 {
     mRepeatTimer.setInterval(25);
     sendKey(mFocus->window(), mRepeatTime, QEvent::KeyRelease, mRepeatKey, modifiers(), mRepeatCode,
-#ifndef QT_NO_WAYLAND_XKB
+#if QT_CONFIG(xkbcommon_evdev)
             mRepeatSym, mNativeModifiers,
 #else
             0, 0,
@@ -718,7 +750,7 @@ void QWaylandInputDevice::Keyboard::repeatKey()
             mRepeatText, true);
 
     sendKey(mFocus->window(), mRepeatTime, QEvent::KeyPress, mRepeatKey, modifiers(), mRepeatCode,
-#ifndef QT_NO_WAYLAND_XKB
+#if QT_CONFIG(xkbcommon_evdev)
             mRepeatSym, mNativeModifiers,
 #else
             0, 0,
@@ -733,7 +765,7 @@ void QWaylandInputDevice::Keyboard::keyboard_modifiers(uint32_t serial,
                                              uint32_t group)
 {
     Q_UNUSED(serial);
-#ifndef QT_NO_WAYLAND_XKB
+#if QT_CONFIG(xkbcommon_evdev)
     if (mXkbState)
         xkb_state_update_mask(mXkbState,
                               mods_depressed, mods_latched, mods_locked,
@@ -843,6 +875,16 @@ bool QWaylandInputDevice::Touch::allTouchPointsReleased()
             return false;
 
     return true;
+}
+
+void QWaylandInputDevice::Touch::releasePoints()
+{
+    Q_FOREACH (const QWindowSystemInterface::TouchPoint &previousPoint, mPrevTouchPoints) {
+        QWindowSystemInterface::TouchPoint tp = previousPoint;
+        tp.state = Qt::TouchPointReleased;
+        mTouchPoints.append(tp);
+    }
+    touch_frame();
 }
 
 void QWaylandInputDevice::Touch::touch_frame()

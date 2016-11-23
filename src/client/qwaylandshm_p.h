@@ -54,7 +54,7 @@
 #include <QVector>
 #include <QImage>
 
-#include <QtWaylandClient/qwaylandclientexport.h>
+#include <QtWaylandClient/qtwaylandclientglobal.h>
 #include <QtWaylandClient/private/qwayland-wayland.h>
 
 QT_BEGIN_NAMESPACE

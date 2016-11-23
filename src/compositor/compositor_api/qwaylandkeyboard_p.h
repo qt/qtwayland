@@ -49,7 +49,7 @@
 // We mean it.
 //
 
-#include <QtWaylandCompositor/qwaylandexport.h>
+#include <QtWaylandCompositor/private/qtwaylandcompositorglobal_p.h>
 #include <QtWaylandCompositor/qwaylandseat.h>
 #include <QtWaylandCompositor/qwaylandkeyboard.h>
 #include <QtWaylandCompositor/qwaylanddestroylistener.h>
@@ -59,7 +59,7 @@
 
 #include <QtCore/QVector>
 
-#ifndef QT_NO_WAYLAND_XKB
+#if QT_CONFIG(xkbcommon_evdev)
 #include <xkbcommon/xkbcommon.h>
 #endif
 
@@ -83,7 +83,7 @@ public:
     void modifiers(uint32_t serial, uint32_t mods_depressed,
                    uint32_t mods_latched, uint32_t mods_locked, uint32_t group);
 
-#ifndef QT_NO_WAYLAND_XKB
+#if QT_CONFIG(xkbcommon_evdev)
     struct xkb_state *xkbState() const { return xkb_state; }
     uint32_t xkbModsMask() const { return modsDepressed | modsLatched | modsLocked; }
 #endif
@@ -102,7 +102,7 @@ protected:
     void keyboard_release(Resource *resource) Q_DECL_OVERRIDE;
 
 private:
-#ifndef QT_NO_WAYLAND_XKB
+#if QT_CONFIG(xkbcommon_evdev)
     void initXKB();
     void createXKBKeymap();
     void createXKBState(xkb_keymap *keymap);
@@ -124,7 +124,7 @@ private:
     uint32_t group;
 
     bool pendingKeymap;
-#ifndef QT_NO_WAYLAND_XKB
+#if QT_CONFIG(xkbcommon_evdev)
     size_t keymap_size;
     int keymap_fd;
     char *keymap_area;

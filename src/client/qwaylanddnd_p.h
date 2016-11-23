@@ -57,14 +57,14 @@
 #include <QtGui/QDrag>
 #include <QtCore/QMimeData>
 
-#include <QtWaylandClient/qwaylandclientexport.h>
+#include <QtWaylandClient/qtwaylandclientglobal.h>
 
 QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
 
 class QWaylandDisplay;
-
+#if QT_CONFIG(draganddrop)
 class Q_WAYLAND_CLIENT_EXPORT QWaylandDrag : public QBasicDrag
 {
 public:
@@ -88,7 +88,7 @@ protected:
 private:
     QWaylandDisplay *m_display;
 };
-
+#endif
 }
 
 QT_END_NAMESPACE

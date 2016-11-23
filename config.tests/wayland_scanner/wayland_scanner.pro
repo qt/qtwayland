@@ -2,13 +2,6 @@ TARGET = wayland_scanner
 
 isEmpty(QMAKE_WAYLAND_SCANNER):error("QMAKE_WAYLAND_SCANNER not defined for this mkspec")
 
-!contains(QT_CONFIG, no-pkg-config) {
-    CONFIG += link_pkgconfig
-    PKGCONFIG += wayland-client
-} else {
-    LIBS += -lwayland-client
-}
-
 # Input
 SOURCES += main.cpp
 

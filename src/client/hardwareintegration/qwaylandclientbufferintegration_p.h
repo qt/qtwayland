@@ -52,7 +52,7 @@
 //
 
 #include <QtCore/qglobal.h>
-#include <QtWaylandClient/qwaylandclientexport.h>
+#include <QtWaylandClient/qtwaylandclientglobal.h>
 
 QT_BEGIN_NAMESPACE
 

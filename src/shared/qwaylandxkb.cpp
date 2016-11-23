@@ -43,8 +43,6 @@
 #include <QKeyEvent>
 #include <QString>
 
-#ifndef QT_NO_WAYLAND_XKB
-
 #include <xkbcommon/xkbcommon-keysyms.h>
 
 QT_BEGIN_NAMESPACE
@@ -377,5 +375,3 @@ QVector<xkb_keysym_t> QWaylandXkb::toKeysym(QKeyEvent *event)
 }
 
 QT_END_NAMESPACE
-
-#endif // QT_NO_WAYLAND_XKB

@@ -52,11 +52,14 @@
 // We mean it.
 //
 
+#include <qtwaylandclientglobal.h>
 #include <QObject>
 #include <QPointer>
 #include <QPoint>
 
 #include <QtWaylandClient/private/qwayland-wayland.h>
+
+#if QT_CONFIG(draganddrop)
 
 QT_BEGIN_NAMESPACE
 
@@ -119,5 +122,7 @@ private:
 }
 
 QT_END_NAMESPACE
+
+#endif  // draganddrop
 
 #endif // QWAYLANDDATADEVICE_H

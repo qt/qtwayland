@@ -18,13 +18,6 @@ WAYLANDSERVERSOURCES += \
 
 RESOURCES += compositor.qrc
 
-contains(QT_CONFIG, no-pkg-config) {
-    LIBS += -lwayland-server
-} else {
-    CONFIG += link_pkgconfig
-    PKGCONFIG += wayland-server
-}
-
 TARGET = custom-compositor
 
 HEADERS += \

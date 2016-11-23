@@ -36,7 +36,7 @@
 
 #include "qwlclientbuffer_p.h"
 
-#ifdef QT_WAYLAND_COMPOSITOR_GL
+#if QT_CONFIG(opengl)
 #include "hardware_integration/qwlclientbufferintegration_p.h"
 #include <qpa/qplatformopenglcontext.h>
 #include <QOpenGLTexture>
@@ -150,7 +150,7 @@ QImage SharedMemoryBuffer::image() const
     return QImage();
 }
 
-#ifdef QT_WAYLAND_COMPOSITOR_GL
+#if QT_CONFIG(opengl)
 QOpenGLTexture *SharedMemoryBuffer::toOpenGlTexture(int plane)
 {
     Q_UNUSED(plane);

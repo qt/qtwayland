@@ -1,15 +1,9 @@
 INCLUDEPATH += $$PWD
 include($$PWD/../xcomposite_share/xcomposite_share.pri)
 
-!contains(QT_CONFIG, no-pkg-config) {
-    CONFIG += link_pkgconfig
-    PKGCONFIG += wayland-client xcomposite x11
-} else {
-    LIBS += -lXcomposite -lX11
-}
+QMAKE_USE += egl wayland-client
 
 QT += egl_support-private
-CONFIG += egl
 
 SOURCES += \
     $$PWD/qwaylandxcompositeeglcontext.cpp \

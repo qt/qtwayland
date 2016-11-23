@@ -50,17 +50,13 @@
 
 #include <stdint.h>
 
-#include <QtWaylandCompositor/qwaylandexport.h>
+#include <QtWaylandCompositor/private/qtwaylandcompositorglobal_p.h>
 #include <QtWaylandCompositor/qwaylandseat.h>
 
 #include <QtCore/QList>
 #include <QtCore/QPoint>
 #include <QtCore/QScopedPointer>
 #include <QtCore/private/qobject_p.h>
-
-#ifndef QT_NO_WAYLAND_XKB
-#include <xkbcommon/xkbcommon.h>
-#endif
 
 #include <QtWaylandCompositor/private/qwayland-server-wayland.h>
 

@@ -47,7 +47,7 @@
 
 #include <wayland-client.h>
 
-#include <QtWaylandClient/qwaylandclientexport.h>
+#include <QtWaylandClient/qtwaylandclientglobal.h>
 #include <QtWaylandClient/private/qwayland-xdg-shell.h>
 #include <QtWaylandClient/private/qwaylandshellsurface_p.h>
 
@@ -68,8 +68,14 @@ public:
     QWaylandXdgPopup(struct ::xdg_popup *popup, QWaylandWindow *window);
     virtual ~QWaylandXdgPopup();
 
+    void setType(Qt::WindowType type, QWaylandWindow *transientParent) override;
+
+protected:
+    void xdg_popup_popup_done() override;
+
 private:
     QWaylandExtendedSurface *m_extendedWindow;
+    QWaylandWindow *m_window;
 };
 
 QT_END_NAMESPACE

@@ -49,7 +49,7 @@
 // We mean it.
 //
 
-#include <QtWaylandCompositor/qwaylandexport.h>
+#include <QtWaylandCompositor/qtwaylandcompositorglobal.h>
 #include <QtWaylandCompositor/QWaylandCompositor>
 #include <QtCore/private/qobject_p.h>
 #include <QtCore/QSet>
@@ -139,7 +139,7 @@ protected:
 
     QList<QWaylandClient *> clients;
 
-#ifdef QT_WAYLAND_COMPOSITOR_GL
+#if QT_CONFIG(opengl)
     bool use_hw_integration_extension;
     QScopedPointer<QtWayland::HardwareIntegration> hw_integration;
     QScopedPointer<QtWayland::ClientBufferIntegration> client_buffer_integration;
@@ -159,7 +159,7 @@ protected:
 
 QtWayland::ClientBufferIntegration * QWaylandCompositorPrivate::clientBufferIntegration() const
 {
-#ifdef QT_WAYLAND_COMPOSITOR_GL
+#if QT_CONFIG(opengl)
     return client_buffer_integration.data();
 #else
     return 0;
@@ -168,7 +168,7 @@ QtWayland::ClientBufferIntegration * QWaylandCompositorPrivate::clientBufferInte
 
 QtWayland::ServerBufferIntegration * QWaylandCompositorPrivate::serverBufferIntegration() const
 {
-#ifdef QT_WAYLAND_COMPOSITOR_GL
+#if QT_CONFIG(opengl)
     return server_buffer_integration.data();
 #else
     return 0;

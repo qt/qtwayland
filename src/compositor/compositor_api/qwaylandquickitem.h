@@ -37,7 +37,7 @@
 #ifndef QWAYLANDSURFACEITEM_H
 #define QWAYLANDSURFACEITEM_H
 
-#include <QtWaylandCompositor/qwaylandexport.h>
+#include <QtWaylandCompositor/qtwaylandcompositorglobal.h>
 
 #include <QtQuick/QQuickItem>
 #include <QtQuick/qsgtexture.h>
@@ -102,7 +102,7 @@ public:
     bool sizeFollowsSurface() const;
     void setSizeFollowsSurface(bool sizeFollowsSurface);
 
-#ifndef QT_NO_IM
+#if QT_CONFIG(im)
     QVariant inputMethodQuery(Qt::InputMethodQuery query) const Q_DECL_OVERRIDE;
     Q_INVOKABLE QVariant inputMethodQuery(Qt::InputMethodQuery query, QVariant argument) const;
 #endif
@@ -135,7 +135,7 @@ protected:
 
     void touchEvent(QTouchEvent *event) Q_DECL_OVERRIDE;
 
-#ifndef QT_NO_IM
+#if QT_CONFIG(im)
     void inputMethodEvent(QInputMethodEvent *event) Q_DECL_OVERRIDE;
 #endif
 
@@ -157,7 +157,7 @@ private Q_SLOTS:
     void handleSubsurfaceAdded(QWaylandSurface *childSurface);
     void handleSubsurfacePosition(const QPoint &pos);
     void handleDragStarted(QWaylandDrag *drag);
-#ifndef QT_NO_IM
+#if QT_CONFIG(im)
     void updateInputMethod(Qt::InputMethodQueries queries);
 #endif
 

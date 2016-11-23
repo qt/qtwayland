@@ -56,7 +56,7 @@
 
 #include <wayland-client.h>
 
-#include <QtWaylandClient/qwaylandclientexport.h>
+#include <QtWaylandClient/qtwaylandclientglobal.h>
 #include <QtWaylandClient/private/qwayland-xdg-shell.h>
 #include <QtWaylandClient/private/qwaylandshellsurface_p.h>
 
@@ -96,10 +96,10 @@ public:
     void setWindowFlags(Qt::WindowFlags flags) Q_DECL_OVERRIDE;
     void sendProperty(const QString &name, const QVariant &value) Q_DECL_OVERRIDE;
 
-    bool shellManagesActiveState() const Q_DECL_OVERRIDE { return true; }
-
     bool isFullscreen() const { return m_fullscreen; }
     bool isMaximized() const { return m_maximized; }
+
+    void setType(Qt::WindowType type, QWaylandWindow *transientParent) override;
 
 private:
     void setMaximized() Q_DECL_OVERRIDE;
@@ -107,8 +107,7 @@ private:
     void setNormal() Q_DECL_OVERRIDE;
     void setMinimized() Q_DECL_OVERRIDE;
 
-    void setTopLevel() Q_DECL_OVERRIDE;
-    void updateTransientParent(QWindow *parent) Q_DECL_OVERRIDE;
+    void updateTransientParent(QWaylandWindow *parent);
 
 private:
     QWaylandWindow *m_window;

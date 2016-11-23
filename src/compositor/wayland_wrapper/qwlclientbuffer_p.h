@@ -97,7 +97,7 @@ public:
 
     bool isSharedMemory() const { return wl_shm_buffer_get(m_buffer); }
 
-#ifdef QT_WAYLAND_COMPOSITOR_GL
+#if QT_CONFIG(opengl)
     virtual QOpenGLTexture *toOpenGlTexture(int plane = 0) = 0;
 #endif
 
@@ -132,7 +132,7 @@ public:
     QWaylandSurface::Origin origin() const  Q_DECL_OVERRIDE;
     QImage image() const;
 
-#ifdef QT_WAYLAND_COMPOSITOR_GL
+#if QT_CONFIG(opengl)
     QOpenGLTexture *toOpenGlTexture(int plane = 0) Q_DECL_OVERRIDE;
 
 private:

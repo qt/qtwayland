@@ -259,7 +259,7 @@ QImage QWaylandBufferRef::image() const
     return d->buffer->image();
 }
 
-#ifdef QT_WAYLAND_COMPOSITOR_GL
+#if QT_CONFIG(opengl)
 /*!
  * Returns an OpenGL texture for the buffer. \a plane is the index for multi-plane formats, such as YUV.
  *

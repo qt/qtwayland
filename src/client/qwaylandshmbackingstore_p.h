@@ -96,7 +96,6 @@ public:
     void resize(const QSize &size);
     void beginPaint(const QRegion &) Q_DECL_OVERRIDE;
     void endPaint() Q_DECL_OVERRIDE;
-    void hidden();
 
     QWaylandAbstractDecoration *windowDecoration() const;
 
@@ -108,7 +107,7 @@ public:
     QWaylandWindow *waylandWindow() const;
     void iterateBuffer();
 
-#ifndef QT_NO_OPENGL
+#if QT_CONFIG(opengl)
     QImage toImage() const Q_DECL_OVERRIDE;
 #endif
 

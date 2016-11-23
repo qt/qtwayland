@@ -56,6 +56,8 @@
 #include <qpa/qplatformdrag.h>
 #include <qpa/qwindowsysteminterface.h>
 
+#if QT_CONFIG(draganddrop)
+
 QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
@@ -268,3 +270,5 @@ QPoint QWaylandDataDevice::calculateDragPosition(int x, int y, QWindow *wnd) con
 }
 
 QT_END_NAMESPACE
+
+#endif  // draganddrop

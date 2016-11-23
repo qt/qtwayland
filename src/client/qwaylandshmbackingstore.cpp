@@ -185,10 +185,6 @@ void QWaylandShmBackingStore::endPaint()
     waylandWindow()->setCanResize(true);
 }
 
-void QWaylandShmBackingStore::hidden()
-{
-}
-
 void QWaylandShmBackingStore::ensureSize()
 {
     waylandWindow()->setBackingStore(this);
@@ -215,13 +211,7 @@ void QWaylandShmBackingStore::flush(QWindow *window, const QRegion &region, cons
 
     QMargins margins = windowDecorationMargins();
 
-    waylandWindow()->attachOffset(mFrontBuffer);
-    mFrontBuffer->setBusy();
-
-    QVector<QRect> rects = region.rects();
-    foreach (const QRect &rect, rects)
-        waylandWindow()->damage(rect.translated(margins.left(), margins.top()));
-    waylandWindow()->commit();
+    waylandWindow()->commit(mFrontBuffer, region.translated(margins.left(), margins.top()));
 }
 
 void QWaylandShmBackingStore::resize(const QSize &size, const QRegion &)
@@ -358,7 +348,7 @@ QWaylandWindow *QWaylandShmBackingStore::waylandWindow() const
     return static_cast<QWaylandWindow *>(window()->handle());
 }
 
-#ifndef QT_NO_OPENGL
+#if QT_CONFIG(opengl)
 QImage QWaylandShmBackingStore::toImage() const
 {
     // Invoked from QPlatformBackingStore::composeAndFlush() that is called
@@ -367,7 +357,7 @@ QImage QWaylandShmBackingStore::toImage() const
 
     return *contentSurface();
 }
-#endif // QT_NO_OPENGL
+#endif  // opengl
 
 }
 

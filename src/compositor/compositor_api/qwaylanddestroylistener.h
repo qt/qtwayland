@@ -39,7 +39,7 @@
 #define QWAYLANDDESTROYLISTENER_H
 
 #include <QtCore/QObject>
-#include <QtWaylandCompositor/qwaylandexport.h>
+#include <QtWaylandCompositor/qtwaylandcompositorglobal.h>
 
 struct wl_resource;
 

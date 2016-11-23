@@ -257,8 +257,8 @@ void QWaylandSeat::sendKeyReleaseEvent(uint code)
 }
 
 /*!
- * Sends a touch point event with the given \a id and \a state to the touch device. The position
- * of the touch point is given by \a point.
+ * Sends a touch point event to the \a surface on a touch device with the given
+ * \a id, \a point and \a state.
  *
  * Returns the serial for the touch up or touch down event.
  */
@@ -273,7 +273,7 @@ uint QWaylandSeat::sendTouchPointEvent(QWaylandSurface *surface, int id, const Q
 }
 
 /*!
- * Sends a frame event to the touch device.
+ * Sends a frame event to the touch device of a \a client.
  */
 void QWaylandSeat::sendTouchFrameEvent(QWaylandClient *client)
 {
@@ -283,7 +283,7 @@ void QWaylandSeat::sendTouchFrameEvent(QWaylandClient *client)
 }
 
 /*!
- * Sends a cancel event to the touch device.
+ * Sends a cancel event to the touch device of a \a client.
  */
 void QWaylandSeat::sendTouchCancelEvent(QWaylandClient *client)
 {
@@ -293,7 +293,7 @@ void QWaylandSeat::sendTouchCancelEvent(QWaylandClient *client)
 }
 
 /*!
- * Sends the \a event to the touch device.
+ * Sends the \a event to the specified \a surface on the touch device.
  */
 void QWaylandSeat::sendFullTouchEvent(QWaylandSurface *surface, QTouchEvent *event)
 {

@@ -52,6 +52,12 @@ QWaylandWlShellIntegration::QWaylandWlShellIntegration(QWaylandDisplay *display)
     }
 }
 
+bool QWaylandWlShellIntegration::initialize(QWaylandDisplay *display)
+{
+    QWaylandShellIntegration::initialize(display);
+    return m_wlShell != nullptr;
+};
+
 QWaylandShellSurface *QWaylandWlShellIntegration::createShellSurface(QWaylandWindow *window)
 {
     return new QWaylandWlShellSurface(m_wlShell->get_shell_surface(window->object()), window);

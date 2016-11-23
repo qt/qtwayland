@@ -159,6 +159,12 @@ void QWaylandEglWindow::setVisible(bool visible)
 {
     QWaylandWindow::setVisible(visible);
     if (!visible)
+        QMetaObject::invokeMethod(this, "doInvalidateSurface", Qt::QueuedConnection);
+}
+
+void QWaylandEglWindow::doInvalidateSurface()
+{
+    if (!window()->isVisible())
         invalidateSurface();
 }
 
@@ -167,6 +173,10 @@ void QWaylandEglWindow::invalidateSurface()
     if (m_eglSurface) {
         eglDestroySurface(m_clientBufferIntegration->eglDisplay(), m_eglSurface);
         m_eglSurface = 0;
+    }
+    if (m_waylandEglWindow) {
+        wl_egl_window_destroy(m_waylandEglWindow);
+        m_waylandEglWindow = nullptr;
     }
 }
 

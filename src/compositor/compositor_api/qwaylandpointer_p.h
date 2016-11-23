@@ -49,7 +49,7 @@
 // We mean it.
 //
 
-#include <QtWaylandCompositor/qwaylandexport.h>
+#include <QtWaylandCompositor/qtwaylandcompositorglobal.h>
 #include <QtWaylandCompositor/QWaylandDestroyListener>
 #include <QtWaylandCompositor/QWaylandPointer>
 

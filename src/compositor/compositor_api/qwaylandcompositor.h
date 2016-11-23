@@ -37,7 +37,7 @@
 #ifndef QWAYLANDCOMPOSITOR_H
 #define QWAYLANDCOMPOSITOR_H
 
-#include <QtWaylandCompositor/qwaylandexport.h>
+#include <QtWaylandCompositor/qtwaylandcompositorglobal.h>
 #include <QtWaylandCompositor/qwaylandcompositorextension.h>
 #include <QtWaylandCompositor/QWaylandOutput>
 

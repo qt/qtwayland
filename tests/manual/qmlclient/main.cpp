@@ -1,9 +1,9 @@
 /****************************************************************************
 **
-** Copyright (C) 2015 The Qt Company Ltd.
-** Contact: http://www.qt.io/licensing/
+** Copyright (C) 2016 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
+** Contact: http://www.qt-project.org/legal
 **
-** This file is part of the Qt Compositor.
+** This file is part of the examples of the Qt Toolkit.
 **
 ** $QT_BEGIN_LICENSE:BSD$
 ** You may use this file under the terms of the BSD license as follows:
@@ -38,30 +38,14 @@
 **
 ****************************************************************************/
 
-#include <xkbcommon/xkbcommon.h>
-#include <xkbcommon/xkbcommon-keysyms.h>
-#include <string.h>
+#include <QtGui/QGuiApplication>
+#include <QtQml/QQmlApplicationEngine>
 
-int main()
+int main(int argc, char* argv[])
 {
-    xkb_rule_names names;
-    names.rules = strdup("evdev");
-    names.model = strdup("pc105");
-    names.layout = strdup("us");
-    names.variant = strdup("");
-    names.options = strdup("");
+    setenv("QT_QPA_PLATFORM", "wayland", 1);
 
-    xkb_context *context = xkb_context_new(xkb_context_flags(0));
-    if (context) {
-        xkb_keymap * keymap = xkb_map_new_from_names(context, &names, xkb_map_compile_flags(0));
-        if (keymap) {
-            xkb_state *state = xkb_state_new(keymap);
-            if (state)
-                xkb_state_unref(state);
-            xkb_map_unref(keymap);
-        }
-        xkb_context_unref(context);
-    }
-
-    return 0;
+    QGuiApplication app(argc, argv);
+    QQmlApplicationEngine engine(QUrl("qrc:/main.qml"));
+    return app.exec();
 }

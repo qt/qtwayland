@@ -37,6 +37,7 @@
 #ifndef QWAYLANDINPUTMETHODCONTROL_H
 #define QWAYLANDINPUTMETHODCONTROL_H
 
+#include <QtGui/qtguiglobal.h>
 #include <QObject>
 
 QT_BEGIN_NAMESPACE
@@ -56,7 +57,7 @@ class QWaylandInputMethodControl : public QObject
 public:
     explicit QWaylandInputMethodControl(QWaylandSurface *surface);
 
-#ifndef QT_NO_IM
+#if QT_CONFIG(im)
     QVariant inputMethodQuery(Qt::InputMethodQuery query, QVariant argument) const;
 #endif
 
@@ -69,7 +70,7 @@ public:
 
 Q_SIGNALS:
     void enabledChanged(bool enabled);
-#ifndef QT_NO_IM
+#if QT_CONFIG(im)
     void updateInputMethod(Qt::InputMethodQueries queries);
 #endif
 

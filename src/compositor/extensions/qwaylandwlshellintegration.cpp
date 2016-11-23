@@ -55,17 +55,17 @@ WlShellIntegration::WlShellIntegration(QWaylandQuickShellSurfaceItem *item)
     , nextState(State::Windowed)
 {
     m_item->setSurface(m_shellSurface->surface());
-    connect(m_shellSurface, &QWaylandWlShellSurface::startMove, this, &WlShellIntegration::handleStartMove);
-    connect(m_shellSurface, &QWaylandWlShellSurface::startResize, this, &WlShellIntegration::handleStartResize);
+    connect(m_shellSurface.data(), &QWaylandWlShellSurface::startMove, this, &WlShellIntegration::handleStartMove);
+    connect(m_shellSurface.data(), &QWaylandWlShellSurface::startResize, this, &WlShellIntegration::handleStartResize);
     connect(m_shellSurface->surface(), &QWaylandSurface::redraw, this, &WlShellIntegration::handleRedraw);
     connect(m_shellSurface->surface(), &QWaylandSurface::offsetForNextFrame, this, &WlShellIntegration::adjustOffsetForNextFrame);
     connect(m_shellSurface->surface(), &QWaylandSurface::hasContentChanged, this, &WlShellIntegration::handleSurfaceHasContentChanged);
-    connect(m_shellSurface, &QWaylandWlShellSurface::setDefaultToplevel, this, &WlShellIntegration::handleSetDefaultTopLevel);
-    connect(m_shellSurface, &QWaylandWlShellSurface::setTransient, this, &WlShellIntegration::handleSetTransient);
-    connect(m_shellSurface, &QWaylandWlShellSurface::setMaximized, this, &WlShellIntegration::handleSetMaximized);
-    connect(m_shellSurface, &QWaylandWlShellSurface::setFullScreen, this, &WlShellIntegration::handleSetFullScreen);
-    connect(m_shellSurface, &QWaylandWlShellSurface::setPopup, this, &WlShellIntegration::handleSetPopup);
-    connect(m_shellSurface, &QWaylandWlShellSurface::destroyed, this, &WlShellIntegration::handleShellSurfaceDestroyed);
+    connect(m_shellSurface.data(), &QWaylandWlShellSurface::setDefaultToplevel, this, &WlShellIntegration::handleSetDefaultTopLevel);
+    connect(m_shellSurface.data(), &QWaylandWlShellSurface::setTransient, this, &WlShellIntegration::handleSetTransient);
+    connect(m_shellSurface.data(), &QWaylandWlShellSurface::setMaximized, this, &WlShellIntegration::handleSetMaximized);
+    connect(m_shellSurface.data(), &QWaylandWlShellSurface::setFullScreen, this, &WlShellIntegration::handleSetFullScreen);
+    connect(m_shellSurface.data(), &QWaylandWlShellSurface::setPopup, this, &WlShellIntegration::handleSetPopup);
+    connect(m_shellSurface.data(), &QWaylandWlShellSurface::destroyed, this, &WlShellIntegration::handleShellSurfaceDestroyed);
 }
 
 void WlShellIntegration::handleStartMove(QWaylandSeat *seat)
@@ -182,8 +182,9 @@ void WlShellIntegration::handleSetPopup(QWaylandSeat *seat, QWaylandSurface *par
     }
 
     isPopup = true;
-    QWaylandQuickShellEventFilter::startFilter(m_shellSurface->surface()->client(), [&]() {
-        m_shellSurface->shell()->closeAllPopups();
+    auto shell = m_shellSurface->shell();
+    QWaylandQuickShellEventFilter::startFilter(m_shellSurface->surface()->client(), [shell]() {
+        shell->closeAllPopups();
     });
 
     QObject::connect(m_shellSurface->surface(), &QWaylandSurface::hasContentChanged,

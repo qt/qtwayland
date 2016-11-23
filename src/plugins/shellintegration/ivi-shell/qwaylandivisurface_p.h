@@ -56,6 +56,8 @@ public:
                        struct ::ivi_controller_surface *iviControllerSurface);
     virtual ~QWaylandIviSurface();
 
+    void setType(Qt::WindowType type, QWaylandWindow *transientParent) override;
+
 private:
     void createExtendedSurface(QWaylandWindow *window);
     virtual void ivi_surface_configure(int32_t width, int32_t height) Q_DECL_OVERRIDE;

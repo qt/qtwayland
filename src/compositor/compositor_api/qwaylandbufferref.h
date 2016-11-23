@@ -37,14 +37,15 @@
 #ifndef QWAYLANDBUFFERREF_H
 #define QWAYLANDBUFFERREF_H
 
+#include <QtWaylandCompositor/qtwaylandcompositorglobal.h>
 #include <QImage>
 
-#ifdef QT_WAYLAND_COMPOSITOR_GL
+#if QT_CONFIG(opengl)
 #include <QtGui/qopengl.h>
 #endif
 
 #include <QtWaylandCompositor/QWaylandSurface>
-#include <QtWaylandCompositor/qwaylandexport.h>
+#include <QtWaylandCompositor/qtwaylandcompositorglobal.h>
 
 struct wl_resource;
 
@@ -99,7 +100,7 @@ public:
     bool isSharedMemory() const;
     QImage image() const;
 
-#ifdef QT_WAYLAND_COMPOSITOR_GL
+#if QT_CONFIG(opengl)
     QOpenGLTexture *toOpenGLTexture(int plane = 0) const;
 #endif
 

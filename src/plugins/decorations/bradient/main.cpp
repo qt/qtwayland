@@ -56,7 +56,7 @@ namespace QtWaylandClient {
 
 #define BUTTON_SPACING 5
 
-#ifndef QT_NO_IMAGEFORMAT_XPM
+#if QT_CONFIG(imageformat_xpm)
 #  define BUTTON_WIDTH 10
 
 static const char * const qt_close_xpm[] = {
@@ -265,7 +265,7 @@ void QWaylandBradientDecoration::paint(QPaintDevice *device)
         p.restore();
     }
 
-#ifndef QT_NO_IMAGEFORMAT_XPM
+#if QT_CONFIG(imageformat_xpm)
     p.save();
 
     // Close button

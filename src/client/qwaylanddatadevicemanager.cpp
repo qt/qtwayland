@@ -46,6 +46,8 @@
 
 #include <QtCore/QDebug>
 
+#if QT_CONFIG(draganddrop)
+
 QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
@@ -80,3 +82,5 @@ QWaylandDisplay *QWaylandDataDeviceManager::display() const
 }
 
 QT_END_NAMESPACE
+
+#endif  // draganddrop

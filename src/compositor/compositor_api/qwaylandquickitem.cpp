@@ -481,6 +481,7 @@ void QWaylandQuickItem::mousePressEvent(QMouseEvent *event)
 
     seat->sendMouseMoveEvent(d->view.data(), mapToSurface(event->localPos()), event->windowPos());
     seat->sendMousePressEvent(event->button());
+    d->hoverPos = event->pos();
 }
 
 /*!
@@ -503,6 +504,7 @@ void QWaylandQuickItem::mouseMoveEvent(QMouseEvent *event)
             }
         } else {
             seat->sendMouseMoveEvent(d->view.data(), mapToSurface(event->localPos()), event->windowPos());
+            d->hoverPos = event->pos();
         }
     } else {
         emit mouseMove(event->windowPos());
@@ -543,6 +545,7 @@ void QWaylandQuickItem::hoverEnterEvent(QHoverEvent *event)
     if (d->shouldSendInputEvents()) {
         QWaylandSeat *seat = compositor()->seatFor(event);
         seat->sendMouseMoveEvent(d->view.data(), event->pos(), mapToScene(event->pos()));
+        d->hoverPos = event->pos();
     } else {
         event->ignore();
     }
@@ -562,7 +565,10 @@ void QWaylandQuickItem::hoverMoveEvent(QHoverEvent *event)
     }
     if (d->shouldSendInputEvents()) {
         QWaylandSeat *seat = compositor()->seatFor(event);
-        seat->sendMouseMoveEvent(d->view.data(), mapToSurface(event->pos()), mapToScene(event->pos()));
+        if (event->pos() != d->hoverPos) {
+            seat->sendMouseMoveEvent(d->view.data(), mapToSurface(event->pos()), mapToScene(event->pos()));
+            d->hoverPos = event->pos();
+        }
     } else {
         event->ignore();
     }
@@ -661,7 +667,7 @@ void QWaylandQuickItem::touchEvent(QTouchEvent *event)
     }
 }
 
-#ifndef QT_NO_IM
+#if QT_CONFIG(im)
 /*!
  * \internal
  */
@@ -830,7 +836,7 @@ void QWaylandQuickItem::handleSurfaceChanged()
         disconnect(d->oldSurface, &QWaylandSurface::redraw, this, &QQuickItem::update);
         disconnect(d->oldSurface, &QWaylandSurface::childAdded, this, &QWaylandQuickItem::handleSubsurfaceAdded);
         disconnect(d->oldSurface, &QWaylandSurface::dragStarted, this, &QWaylandQuickItem::handleDragStarted);
-#ifndef QT_NO_IM
+#if QT_CONFIG(im)
         disconnect(d->oldSurface->inputMethodControl(), &QWaylandInputMethodControl::updateInputMethod, this, &QWaylandQuickItem::updateInputMethod);
 #endif
     }
@@ -843,7 +849,7 @@ void QWaylandQuickItem::handleSurfaceChanged()
         connect(newSurface, &QWaylandSurface::redraw, this, &QQuickItem::update);
         connect(newSurface, &QWaylandSurface::childAdded, this, &QWaylandQuickItem::handleSubsurfaceAdded);
         connect(newSurface, &QWaylandSurface::dragStarted, this, &QWaylandQuickItem::handleDragStarted);
-#ifndef QT_NO_IM
+#if QT_CONFIG(im)
         connect(newSurface->inputMethodControl(), &QWaylandInputMethodControl::updateInputMethod, this, &QWaylandQuickItem::updateInputMethod);
 #endif
 
@@ -860,7 +866,7 @@ void QWaylandQuickItem::handleSurfaceChanged()
     }
     surfaceChangedEvent(d->view->surface(), d->oldSurface);
     d->oldSurface = d->view->surface();
-#ifndef QT_NO_IM
+#if QT_CONFIG(im)
     updateInputMethod(Qt::ImQueryInput);
 #endif
 }
@@ -1007,7 +1013,7 @@ void QWaylandQuickItem::setSizeFollowsSurface(bool sizeFollowsSurface)
     emit sizeFollowsSurfaceChanged();
 }
 
-#ifndef QT_NO_IM
+#if QT_CONFIG(im)
 QVariant QWaylandQuickItem::inputMethodQuery(Qt::InputMethodQuery query) const
 {
     return inputMethodQuery(query, QVariant());
@@ -1074,11 +1080,16 @@ void QWaylandQuickItem::updateBuffer(bool hasBuffer)
 void QWaylandQuickItem::updateWindow()
 {
     Q_D(QWaylandQuickItem);
+
+    QQuickWindow *newWindow = window();
+    if (newWindow == d->connectedWindow)
+        return;
+
     if (d->connectedWindow) {
         disconnect(d->connectedWindow, &QQuickWindow::beforeSynchronizing, this, &QWaylandQuickItem::beforeSync);
     }
 
-    d->connectedWindow = window();
+    d->connectedWindow = newWindow;
 
     if (d->connectedWindow) {
         connect(d->connectedWindow, &QQuickWindow::beforeSynchronizing, this, &QWaylandQuickItem::beforeSync, Qt::DirectConnection);
@@ -1100,7 +1111,7 @@ void QWaylandQuickItem::beforeSync()
     }
 }
 
-#ifndef QT_NO_IM
+#if QT_CONFIG(im)
 void QWaylandQuickItem::updateInputMethod(Qt::InputMethodQueries queries)
 {
     Q_D(QWaylandQuickItem);

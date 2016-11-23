@@ -52,7 +52,7 @@
 //
 
 #include <QtCore/qglobal.h>
-#include <QtWaylandClient/qwaylandclientexport.h>
+#include <QtWaylandClient/qtwaylandclientglobal.h>
 
 #include <stdint.h>
 

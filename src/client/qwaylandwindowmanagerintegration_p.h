@@ -58,7 +58,7 @@
 #include <QtServiceSupport/private/qgenericunixservices_p.h>
 
 #include <QtWaylandClient/private/qwayland-qt-windowmanager.h>
-#include <QtWaylandClient/qwaylandclientexport.h>
+#include <QtWaylandClient/qtwaylandclientglobal.h>
 
 QT_BEGIN_NAMESPACE
 

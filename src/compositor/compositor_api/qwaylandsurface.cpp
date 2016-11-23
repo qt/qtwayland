@@ -269,7 +269,7 @@ void QWaylandSurfacePrivate::surface_commit(Resource *)
 {
     Q_Q(QWaylandSurface);
 
-    if (pending.buffer.hasBuffer())
+    if (pending.buffer.hasBuffer() || pending.newlyAttached)
         bufferRef = pending.buffer;
 
     auto buffer = bufferRef.buffer();
@@ -872,13 +872,13 @@ void QWaylandSurfacePrivate::Subsurface::subsurface_set_desync(wl_subsurface::Re
 /*!
  * \qmlsignal void QtWaylandCompositor::WaylandSurface::dragStarted(object drag)
  *
- * This signal is emitted when a drag has started from this surface.
+ * This signal is emitted when a \a drag has started from this surface.
  */
 
 /*!
  * \fn void QWaylandSurface::dragStarted(QWaylandDrag *drag)
  *
- * This signal is emitted when a drag has started from this surface.
+ * This signal is emitted when a \a drag has started from this surface.
  */
 
 QT_END_NAMESPACE

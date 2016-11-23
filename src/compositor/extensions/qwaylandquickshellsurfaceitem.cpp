@@ -208,7 +208,7 @@ bool QWaylandQuickShellEventFilter::eventFilter(QObject *receiver, QEvent *e)
         QMouseEvent *event = static_cast<QMouseEvent*>(e);
         QWaylandQuickShellSurfaceItem *shellSurfaceItem = qobject_cast<QWaylandQuickShellSurfaceItem*>(item);
         bool finalRelease = (event->type() == QEvent::MouseButtonRelease) && (event->buttons() == Qt::NoButton);
-        bool popupClient = shellSurfaceItem && shellSurfaceItem->surface()->client() == client;
+        bool popupClient = shellSurfaceItem && shellSurfaceItem->surface() && shellSurfaceItem->surface()->client() == client;
 
         if (waitForRelease) {
             // We are eating events until all mouse buttons are released

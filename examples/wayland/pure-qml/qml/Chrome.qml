@@ -44,6 +44,8 @@ import QtWayland.Compositor 1.0
 ShellSurfaceItem {
     id: rootChrome
 
+    property bool isChild: parent.shellSurface !== undefined
+
     onSurfaceDestroyed: {
         bufferLocked = true;
         destroyAnimation.start();
@@ -67,6 +69,7 @@ ShellSurfaceItem {
         ParallelAnimation {
             NumberAnimation { target: scaleTransform; property: "yScale"; to: 2/height; duration: 150 }
             NumberAnimation { target: scaleTransform; property: "xScale"; to: 0.4; duration: 150 }
+            NumberAnimation { target: rootChrome; property: "opacity"; to: rootChrome.isChild ? 0 : 1; duration: 150 }
         }
         NumberAnimation { target: scaleTransform; property: "xScale"; to: 0; duration: 150 }
         ScriptAction { script: { rootChrome.destroy(); } }

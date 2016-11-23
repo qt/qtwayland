@@ -38,7 +38,7 @@
 #define QWAYLANDSURFACEVIEW_H
 
 #include <QtWaylandCompositor/QWaylandBufferRef>
-#include <QtWaylandCompositor/qwaylandexport.h>
+#include <QtWaylandCompositor/qtwaylandcompositorglobal.h>
 
 #include <QtCore/QPointF>
 #include <QtCore/QObject>

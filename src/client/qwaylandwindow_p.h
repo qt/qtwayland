@@ -60,7 +60,7 @@
 #include <qpa/qplatformwindow.h>
 
 #include <QtWaylandClient/private/qwayland-wayland.h>
-#include <QtWaylandClient/qwaylandclientexport.h>
+#include <QtWaylandClient/qtwaylandclientglobal.h>
 
 struct wl_egl_window;
 
@@ -132,6 +132,8 @@ public:
     using QtWayland::wl_surface::damage;
     void damage(const QRect &rect);
 
+    void commit(QWaylandBuffer *buffer, const QRegion &damage);
+
     void waitForFrameSync();
 
     QMargins frameMargins() const Q_DECL_OVERRIDE;
@@ -142,8 +144,6 @@ public:
     QWaylandShellSurface *shellSurface() const;
     QWaylandSubSurface *subSurfaceWindow() const;
     QWaylandScreen *screen() const { return mScreen; }
-
-    bool shellManagesActiveState() const;
 
     void handleContentOrientationChange(Qt::ScreenOrientation orientation) Q_DECL_OVERRIDE;
     void setOrientationMask(Qt::ScreenOrientations mask);
@@ -217,7 +217,6 @@ protected:
     QWaylandAbstractDecoration *mWindowDecoration;
     bool mMouseEventsInContentArea;
     Qt::MouseButtons mMousePressedInContentArea;
-    QCursor m_cursor;
 
     WId mWindowId;
     bool mWaitingForFrameSync;

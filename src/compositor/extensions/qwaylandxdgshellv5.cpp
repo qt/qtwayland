@@ -912,13 +912,15 @@ QSize QWaylandXdgSurfaceV5::sizeForResize(const QSizeF &size, const QPointF &del
 }
 
 /*!
- * \qmlmethod int QtWaylandCompositor::XdgSurface::sendConfigure(size size, List<uint>)
+ * \qmlmethod int QtWaylandCompositor::XdgSurface::sendConfigure(size size, list<uint> states)
  *
- * Sends a configure event to the client. Known states are enumerated in XdgSurface::State
+ * Sends a configure event to the client. \a size contains the pixel size of the surface.
+ * Known \a states are enumerated in XdgSurface::State.
  */
 
 /*!
- * Sends a configure event to the client. Known states are enumerated in QWaylandXdgSurfaceV5::State
+ * Sends a configure event to the client. Parameter \a size contains the pixel size
+ * of the surface. Known \a states are enumerated in QWaylandXdgSurfaceV5::State.
  */
 uint QWaylandXdgSurfaceV5::sendConfigure(const QSize &size, const QVector<uint> &states)
 {
@@ -1038,8 +1040,8 @@ QWaylandXdgPopupV5::QWaylandXdgPopupV5()
 }
 
 /*!
- * Constructs a QWaylandXdgPopupV5 for \a surface and initializes it with the
- * given \a parentSurface and \a resource.
+ * Constructs a QWaylandXdgPopupV5, associating it with \a xdgShell at the specified \a position
+ * for \a surface and initializes it with the given \a parentSurface and \a resource.
  */
 QWaylandXdgPopupV5::QWaylandXdgPopupV5(QWaylandXdgShellV5 *xdgShell, QWaylandSurface *surface,
                                    QWaylandSurface *parentSurface, const QPoint &position, const QWaylandResource &resource)

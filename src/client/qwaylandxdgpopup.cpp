@@ -45,6 +45,7 @@ QWaylandXdgPopup::QWaylandXdgPopup(struct ::xdg_popup *popup, QWaylandWindow *wi
     : QWaylandShellSurface(window)
     , QtWayland::xdg_popup(popup)
     , m_extendedWindow(nullptr)
+    , m_window(window)
 {
     if (window->display()->windowExtension())
         m_extendedWindow = new QWaylandExtendedSurface(window);
@@ -54,6 +55,17 @@ QWaylandXdgPopup::~QWaylandXdgPopup()
 {
     xdg_popup_destroy(object());
     delete m_extendedWindow;
+}
+
+void QWaylandXdgPopup::setType(Qt::WindowType type, QWaylandWindow *transientParent)
+{
+    Q_UNUSED(type);
+    Q_UNUSED(transientParent);
+}
+
+void QWaylandXdgPopup::xdg_popup_popup_done()
+{
+    m_window->window()->close();
 }
 
 }

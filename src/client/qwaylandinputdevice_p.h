@@ -51,6 +51,7 @@
 // We mean it.
 //
 
+#include <QtWaylandClient/private/qtwaylandclientglobal_p.h>
 #include <QtWaylandClient/private/qwaylandwindow_p.h>
 
 #include <QSocketNotifier>
@@ -64,7 +65,7 @@
 
 #include <QtWaylandClient/private/qwayland-wayland.h>
 
-#ifndef QT_NO_WAYLAND_XKB
+#if QT_CONFIG(xkbcommon_evdev)
 #include <xkbcommon/xkbcommon.h>
 #include <xkbcommon/xkbcommon-keysyms.h>
 #endif
@@ -99,12 +100,12 @@ public:
 
     struct ::wl_seat *wl_seat() { return QtWayland::wl_seat::object(); }
 
-    void setCursor(Qt::CursorShape cursor, QWaylandScreen *screen);
     void setCursor(const QCursor &cursor, QWaylandScreen *screen);
     void setCursor(struct wl_buffer *buffer, struct ::wl_cursor_image *image);
     void setCursor(struct wl_buffer *buffer, const QPoint &hotSpot, const QSize &size);
     void setCursor(const QSharedPointer<QWaylandBuffer> &buffer, const QPoint &hotSpot);
     void handleWindowDestroyed(QWaylandWindow *window);
+    void handleEndDrag();
 
     void setDataDevice(QWaylandDataDevice *device);
     QWaylandDataDevice *dataDevice() const;
@@ -128,6 +129,8 @@ public:
     virtual Touch *createTouch(QWaylandInputDevice *device);
 
 private:
+    void setCursor(Qt::CursorShape cursor, QWaylandScreen *screen);
+
     QWaylandDisplay *mQDisplay;
     struct wl_display *mDisplay;
 
@@ -192,7 +195,7 @@ public:
 
     QWaylandInputDevice *mParent;
     QWaylandWindow *mFocus;
-#ifndef QT_NO_WAYLAND_XKB
+#if QT_CONFIG(xkbcommon_evdev)
     xkb_context *mXkbContext;
     xkb_keymap *mXkbMap;
     xkb_state *mXkbState;
@@ -203,7 +206,7 @@ public:
     uint32_t mRepeatCode;
     uint32_t mRepeatTime;
     QString mRepeatText;
-#ifndef QT_NO_WAYLAND_XKB
+#if QT_CONFIG(xkbcommon_evdev)
     xkb_keysym_t mRepeatSym;
 #endif
     QTimer mRepeatTimer;
@@ -214,7 +217,7 @@ private slots:
     void repeatKey();
 
 private:
-#ifndef QT_NO_WAYLAND_XKB
+#if QT_CONFIG(xkbcommon_evdev)
     bool createDefaultKeyMap();
     void releaseKeyMap();
 #endif
@@ -239,6 +242,8 @@ public:
                       uint32_t axis,
                       wl_fixed_t value) Q_DECL_OVERRIDE;
 
+    void releaseButtons();
+
     QWaylandInputDevice *mParent;
     QWaylandWindow *mFocus;
     uint32_t mEnterSerial;
@@ -246,6 +251,8 @@ public:
     QPointF mSurfacePos;
     QPointF mGlobalPos;
     Qt::MouseButtons mButtons;
+    wl_buffer *mCursorBuffer;
+    Qt::CursorShape mCursorShape;
 };
 
 class Q_WAYLAND_CLIENT_EXPORT QWaylandInputDevice::Touch : public QtWayland::wl_touch
@@ -271,6 +278,7 @@ public:
     void touch_cancel() Q_DECL_OVERRIDE;
 
     bool allTouchPointsReleased();
+    void releasePoints();
 
     QWaylandInputDevice *mParent;
     QWaylandWindow *mFocus;

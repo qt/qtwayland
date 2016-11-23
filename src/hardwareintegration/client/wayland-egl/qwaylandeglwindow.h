@@ -54,6 +54,7 @@ class QWaylandGLContext;
 
 class QWaylandEglWindow : public QWaylandWindow
 {
+    Q_OBJECT
 public:
     QWaylandEglWindow(QWindow *window);
     ~QWaylandEglWindow();
@@ -74,6 +75,9 @@ public:
 
     void invalidateSurface() Q_DECL_OVERRIDE;
     void setVisible(bool visible) Q_DECL_OVERRIDE;
+
+private Q_SLOTS:
+    void doInvalidateSurface();
 
 private:
     QWaylandEglClientBufferIntegration *m_clientBufferIntegration;

@@ -532,7 +532,8 @@ void QWaylandInputContext::setFocusObject(QObject *)
     if (mCurrentWindow && mCurrentWindow->handle()) {
         if (mCurrentWindow.data() != window || !inputMethodAccepted()) {
             struct ::wl_surface *surface = static_cast<QWaylandWindow *>(mCurrentWindow->handle())->object();
-            textInput()->disable(surface);
+            if (surface)
+                textInput()->disable(surface);
             mCurrentWindow.clear();
         }
     }

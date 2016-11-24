@@ -43,10 +43,8 @@ import QtQuick.Window 2.2
 import QtWayland.Compositor 1.0
 
 WaylandCompositor {
-    id: wlcompositor
     // The output defines the screen.
     WaylandOutput {
-        compositor: wlcompositor
         sizeFollowsWindow: true
         window: Window {
             width: 1024

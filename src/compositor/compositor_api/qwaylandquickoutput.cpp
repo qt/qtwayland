@@ -72,6 +72,22 @@ void QWaylandQuickOutput::initialize()
             this, &QWaylandQuickOutput::doFrameCallbacks);
 }
 
+void QWaylandQuickOutput::classBegin()
+{
+}
+
+void QWaylandQuickOutput::componentComplete()
+{
+    if (!compositor()) {
+        for (QObject *p = parent(); p != nullptr; p = p->parent()) {
+            if (auto c = qobject_cast<QWaylandCompositor *>(p)) {
+                setCompositor(c);
+                break;
+            }
+        }
+    }
+}
+
 void QWaylandQuickOutput::update()
 {
     if (!m_updateScheduled) {

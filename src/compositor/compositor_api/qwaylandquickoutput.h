@@ -46,8 +46,9 @@ QT_BEGIN_NAMESPACE
 class QWaylandQuickCompositor;
 class QQuickWindow;
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQuickOutput : public QWaylandOutput
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQuickOutput : public QWaylandOutput, public QQmlParserStatus
 {
+    Q_INTERFACES(QQmlParserStatus)
     Q_OBJECT
     Q_PROPERTY(bool automaticFrameCallback READ automaticFrameCallback WRITE setAutomaticFrameCallback NOTIFY automaticFrameCallbackChanged)
 public:
@@ -69,6 +70,8 @@ Q_SIGNALS:
 
 protected:
     void initialize() Q_DECL_OVERRIDE;
+    void classBegin() override;
+    void componentComplete() override;
 
 private:
     void doFrameCallbacks();

@@ -43,9 +43,7 @@ import QtWayland.Compositor 1.0
 import QtQuick.Window 2.2
 
 WaylandCompositor {
-    id: wlcompositor
     WaylandOutput {
-        compositor: wlcompositor
         sizeFollowsWindow: true
         window: Window {
             width: 1024

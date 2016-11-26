@@ -40,6 +40,7 @@
 #include <QObject>
 #include <QtWaylandClient/qtwaylandclientglobal.h>
 
+struct wl_interface;
 struct wl_registry;
 
 QT_BEGIN_NAMESPACE

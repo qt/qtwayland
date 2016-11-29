@@ -45,6 +45,8 @@
 
 #include <QRegion>
 
+#include <dlfcn.h>
+
 QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
@@ -94,9 +96,12 @@ void QWaylandXCompositeGLXContext::swapBuffers(QPlatformSurface *surface)
     w->waitForFrameSync();
 }
 
-void (*QWaylandXCompositeGLXContext::getProcAddress(const char *procName)) ()
+QFunctionPointer QWaylandXCompositeGLXContext::getProcAddress(const char *procName)
 {
-    return glXGetProcAddress(reinterpret_cast<const GLubyte *>(procName));
+    QFunctionPointer proc = glXGetProcAddress(reinterpret_cast<const GLubyte *>(procName));
+    if (!proc)
+        proc = (QFunctionPointer) dlsym(RTLD_DEFAULT, procName);
+    return proc;
 }
 
 QSurfaceFormat QWaylandXCompositeGLXContext::format() const

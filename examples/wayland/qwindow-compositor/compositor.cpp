@@ -56,13 +56,15 @@
 #define GL_TEXTURE_EXTERNAL_OES 0x8D65
 #endif
 
-View::View()
-    : m_textureTarget(GL_TEXTURE_2D)
+View::View(Compositor *compositor)
+    : m_compositor(compositor)
+    , m_textureTarget(GL_TEXTURE_2D)
     , m_texture(0)
     , m_wlShellSurface(nullptr)
     , m_xdgSurface(nullptr)
     , m_xdgPopup(nullptr)
     , m_parentView(nullptr)
+    , m_animationFactor(1.0)
 {}
 
 QOpenGLTexture *View::getTexture()
@@ -70,15 +72,32 @@ QOpenGLTexture *View::getTexture()
     if (advance()) {
         QWaylandBufferRef buf = currentBuffer();
         m_texture = buf.toOpenGLTexture();
+        if (surface()) {
+            m_size = surface()->size();
+            m_origin = buf.origin() == QWaylandSurface::OriginTopLeft
+                    ? QOpenGLTextureBlitter::OriginTopLeft
+                    : QOpenGLTextureBlitter::OriginBottomLeft;
+        }
     }
 
     return m_texture;
 }
 
+QOpenGLTextureBlitter::Origin View::textureOrigin() const
+{
+    return m_origin;
+}
+
+QSize View::size() const
+{
+    return surface() ? surface()->size() : m_size;
+}
+
 bool View::isCursor() const
 {
-    return surface()->isCursorSurface();
+    return surface() && surface()->isCursorSurface();
 }
+
 
 void View::onXdgSetMaximized()
 {
@@ -115,6 +134,44 @@ void View::onOffsetForNextFrame(const QPoint &offset)
 {
     m_offset = offset;
     setPosition(position() + offset);
+}
+
+
+void View::timerEvent(QTimerEvent *event)
+{
+    if (event->timerId() != m_animationTimer.timerId())
+        return;
+
+    m_compositor->triggerRender();
+
+    if (m_animationCountUp) {
+        m_animationFactor += .08;
+        if (m_animationFactor > 1.0) {
+            m_animationFactor = 1.0;
+            m_animationTimer.stop();
+            emit animationDone();
+        }
+    } else {
+        m_animationFactor -= .08;
+        if (m_animationFactor < 0.01) {
+            m_animationFactor = 0.01;
+            m_animationTimer.stop();
+            emit animationDone();
+        }
+    }
+}
+
+void View::startAnimation(bool countUp)
+{
+    m_animationCountUp = countUp;
+    m_animationFactor = countUp ? .1 : 1.0;
+    m_animationTimer.start(20, this);
+}
+
+void View::cancelAnimation()
+{
+    m_animationFactor = 1.0;
+    m_animationTimer.stop();
 }
 
 void View::onXdgUnsetFullscreen()
@@ -159,8 +216,7 @@ void Compositor::onSurfaceCreated(QWaylandSurface *surface)
     connect(surface, &QWaylandSurface::redraw, this, &Compositor::triggerRender);
 
     connect(surface, &QWaylandSurface::subsurfacePositionChanged, this, &Compositor::onSubsurfacePositionChanged);
-
-    View *view = new View;
+    View *view = new View(this);
     view->setSurface(surface);
     view->setOutput(outputFor(m_window));
     m_views << view;
@@ -189,9 +245,19 @@ void Compositor::surfaceDestroyed()
 void Compositor::viewSurfaceDestroyed()
 {
     View *view = qobject_cast<View*>(sender());
+    view->setBufferLocked(true);
+    view->startAnimation(false);
+    connect(view, &View::animationDone, this, &Compositor::viewAnimationDone);
+}
+
+
+void Compositor::viewAnimationDone()
+{
+    View *view = qobject_cast<View*>(sender());
     m_views.removeAll(view);
     delete view;
 }
+
 
 View * Compositor::findView(const QWaylandSurface *s) const
 {
@@ -212,6 +278,7 @@ void Compositor::onWlShellSurfaceCreated(QWaylandWlShellSurface *wlShellSurface)
     View *view = findView(wlShellSurface->surface());
     Q_ASSERT(view);
     view->m_wlShellSurface = wlShellSurface;
+    view->startAnimation(true);
 }
 
 void Compositor::onXdgSurfaceCreated(QWaylandXdgSurfaceV5 *xdgSurface)
@@ -227,6 +294,7 @@ void Compositor::onXdgSurfaceCreated(QWaylandXdgSurfaceV5 *xdgSurface)
     connect(xdgSurface, &QWaylandXdgSurfaceV5::setFullscreen, view, &View::onXdgSetFullscreen);
     connect(xdgSurface, &QWaylandXdgSurfaceV5::unsetMaximized, view, &View::onXdgUnsetMaximized);
     connect(xdgSurface, &QWaylandXdgSurfaceV5::unsetFullscreen, view, &View::onXdgUnsetFullscreen);
+    view->startAnimation(true);
 }
 
 void Compositor::onXdgPopupRequested(QWaylandSurface *surface, QWaylandSurface *parent,
@@ -291,6 +359,7 @@ void Compositor::onSetPopup(QWaylandSeat *seat, QWaylandSurface *parent, const Q
         View *parentView = findView(parent);
         if (parentView)
             view->setPosition(parentView->position() + relativeToParent);
+        view->cancelAnimation();
     }
 }
 

@@ -63,7 +63,7 @@ public:
     bool makeCurrent(QPlatformSurface *surface) Q_DECL_OVERRIDE;
     void doneCurrent() Q_DECL_OVERRIDE;
 
-    void (*getProcAddress(const char *procName)) () Q_DECL_OVERRIDE;
+    QFunctionPointer getProcAddress(const char *procName) Q_DECL_OVERRIDE;
 
     QSurfaceFormat format() const Q_DECL_OVERRIDE { return m_format; }
 

@@ -1125,9 +1125,12 @@ void QWaylandQuickItem::updateInputMethod(Qt::InputMethodQueries queries)
 QSGNode *QWaylandQuickItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *)
 {
     Q_D(QWaylandQuickItem);
-    const bool hasContent = surface() && surface()->hasContent() && d->view->currentBuffer().hasContent();
+    const bool bufferHasContent = d->view->currentBuffer().hasContent();
 
-    if (!hasContent || !d->paintEnabled) {
+    if (d->view->isBufferLocked() && !bufferHasContent && d->paintEnabled)
+        return oldNode;
+
+    if (!bufferHasContent || !d->paintEnabled) {
         delete oldNode;
         return 0;
     }

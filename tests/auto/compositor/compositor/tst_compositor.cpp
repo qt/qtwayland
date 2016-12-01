@@ -37,6 +37,7 @@
 
 #include <QtGui/QScreen>
 #include <QtWaylandCompositor/QWaylandXdgShellV5>
+#include <QtWaylandCompositor/private/qwaylandxdgshellv6_p.h>
 #include <QtWaylandCompositor/QWaylandIviApplication>
 #include <QtWaylandCompositor/QWaylandIviSurface>
 #include <QtWaylandCompositor/QWaylandSurface>
@@ -75,6 +76,9 @@ private slots:
     void emitsErrorOnSameIviId();
     void sendsIviConfigure();
     void destroysIviSurfaces();
+
+    void convertsXdgEdgesToQtEdges();
+    void xdgShellV6Positioner();
 };
 
 void tst_WaylandCompositor::init() {
@@ -777,6 +781,50 @@ void tst_WaylandCompositor::destroysIviSurfaces()
     QSignalSpy destroySpy(iviSurface, SIGNAL(destroyed()));
     mockIviSurface.destroy();
     QTRY_VERIFY(destroySpy.count() == 1);
+}
+
+void tst_WaylandCompositor::convertsXdgEdgesToQtEdges()
+{
+    const uint wlLeft = ZXDG_POSITIONER_V6_ANCHOR_LEFT;
+    QCOMPARE(QWaylandXdgShellV6Private::convertToEdges(wlLeft), Qt::LeftEdge);
+
+    const uint wlRight = ZXDG_POSITIONER_V6_ANCHOR_RIGHT;
+    QCOMPARE(QWaylandXdgShellV6Private::convertToEdges(wlRight), Qt::RightEdge);
+
+    const uint wlTop = ZXDG_POSITIONER_V6_ANCHOR_TOP;
+    QCOMPARE(QWaylandXdgShellV6Private::convertToEdges(wlTop), Qt::TopEdge);
+
+    const uint wlBottom = ZXDG_POSITIONER_V6_ANCHOR_BOTTOM;
+    QCOMPARE(QWaylandXdgShellV6Private::convertToEdges(wlBottom), Qt::BottomEdge);
+
+    QCOMPARE(QWaylandXdgShellV6Private::convertToEdges(wlBottom | wlLeft), Qt::Edges(Qt::BottomEdge | Qt::LeftEdge));
+    QCOMPARE(QWaylandXdgShellV6Private::convertToEdges(wlTop | wlRight), Qt::Edges(Qt::TopEdge | Qt::RightEdge));
+}
+
+void tst_WaylandCompositor::xdgShellV6Positioner()
+{
+    QWaylandXdgPositionerV6Data p;
+    QVERIFY(!p.isComplete());
+
+    p.size = QSize(100, 50);
+    p.anchorRect = QRect(QPoint(1, 2), QSize(800, 600));
+    QVERIFY(p.isComplete());
+
+    p.anchorEdges = Qt::TopEdge | Qt::LeftEdge;
+    p.gravityEdges = Qt::BottomEdge | Qt::RightEdge;
+    QCOMPARE(p.unconstrainedPosition(), QPoint(1, 2));
+
+    p.anchorEdges = Qt::RightEdge;
+    QCOMPARE(p.unconstrainedPosition(), QPoint(1 + 800, 2 + 600 / 2));
+
+    p.gravityEdges = Qt::BottomEdge;
+    QCOMPARE(p.unconstrainedPosition(), QPoint(1 + 800 - 100 / 2, 2 + 600 / 2));
+
+    p.gravityEdges = Qt::TopEdge;
+    QCOMPARE(p.unconstrainedPosition(), QPoint(1 + 800 - 100 / 2, 2 + 600 / 2 - 50));
+
+    p.offset = QPoint(4, 8);
+    QCOMPARE(p.unconstrainedPosition(), QPoint(1 + 800 - 100 / 2 + 4, 2 + 600 / 2 - 50 + 8));
 }
 
 #include <tst_compositor.moc>

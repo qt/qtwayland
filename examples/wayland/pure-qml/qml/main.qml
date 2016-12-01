@@ -49,7 +49,7 @@
 ****************************************************************************/
 
 import QtQuick 2.0
-import QtWayland.Compositor 1.0
+import QtWayland.Compositor 1.1
 
 WaylandCompositor {
     id: comp
@@ -83,8 +83,9 @@ WaylandCompositor {
         }
     }
 
+    property variant viewsBySurface: ({})
+
     XdgShellV5 {
-        property variant viewsBySurface: ({})
         onXdgSurfaceCreated: {
             var item = chromeComponent.createObject(defaultOutput.surfaceArea, { "shellSurface": xdgSurface } );
             viewsBySurface[xdgSurface.surface] = item;
@@ -93,6 +94,19 @@ WaylandCompositor {
             var parentView = viewsBySurface[xdgPopup.parentSurface];
             var item = chromeComponent.createObject(parentView, { "shellSurface": xdgPopup } );
             viewsBySurface[xdgPopup.surface] = item;
+        }
+    }
+
+    XdgShellV6 {
+        onToplevelCreated: {
+            var item = chromeComponent.createObject(defaultOutput.surfaceArea, { "shellSurface": xdgSurface } );
+            viewsBySurface[xdgSurface.surface] = item;
+        }
+        onPopupCreated: {
+            var parentView = viewsBySurface[popup.parentXdgSurface.surface];
+            var item = chromeComponent.createObject(defaultOutput.surfaceArea, { "shellSurface": xdgSurface } );
+            viewsBySurface[xdgSurface.surface] = item;
+            //TODO: set popup position
         }
     }
 

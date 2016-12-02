@@ -222,6 +222,7 @@ void QWaylandXdgShellV5Private::xdg_shell_pong(Resource *resource, uint32_t seri
 QWaylandXdgSurfaceV5Private::QWaylandXdgSurfaceV5Private()
     : QWaylandCompositorExtensionPrivate()
     , xdg_surface()
+    , m_xdgShell(nullptr)
     , m_surface(nullptr)
     , m_parentSurface(nullptr)
     , m_windowType(UnknownWindowType)

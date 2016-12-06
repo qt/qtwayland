@@ -254,7 +254,7 @@ void QWaylandBrcmEglWindow::swapBuffers()
     m_buffers[m_current]->bind();
     attach(m_buffers[m_current], 0, 0);
     damage(QRect(QPoint(), geometry().size()));
-    commit();
+    wl_surface::commit();
 
     m_current = (m_current + 1) % m_count;
     m_buffers[m_current]->waitForRelease();

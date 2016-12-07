@@ -86,6 +86,7 @@ private:
 
     void handlePopupClosed();
     void handlePopupRemoved();
+    qreal devicePixelRatio() const;
 
     QWaylandQuickShellSurfaceItem *m_item;
     QPointer<QWaylandWlShellSurface> m_shellSurface;

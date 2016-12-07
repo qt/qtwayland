@@ -276,7 +276,7 @@ void QWaylandOutput::initialize()
     // Replace modes with one that follows the window size and refresh rate,
     // but only if window size is valid
     if (d->window && d->sizeFollowsWindow) {
-        QWaylandOutputMode mode(d->window->size(),
+        QWaylandOutputMode mode(d->window->size() * d->window->devicePixelRatio(),
                                 qFloor(d->window->screen()->refreshRate() * 1000));
         if (mode.isValid()) {
             d->modes.clear();
@@ -933,13 +933,13 @@ void QWaylandOutput::handleSetWidth(int newWidth)
     if (d->currentMode <= d->modes.size() - 1) {
         if (d->currentMode >= 0) {
             QWaylandOutputMode mode = d->modes.at(d->currentMode);
-            mode.setWidth(newWidth);
+            mode.setWidth(newWidth * d->window->devicePixelRatio());
             d->modes.replace(d->currentMode, mode);
             d->sendModesInfo();
         } else {
             // We didn't add a mode during the initialization because the window
             // size was invalid, let's add it now
-            QWaylandOutputMode mode(d->window->size(),
+            QWaylandOutputMode mode(d->window->size() * d->window->devicePixelRatio(),
                                     qFloor(d->window->screen()->refreshRate() * 1000));
             if (mode.isValid()) {
                 d->modes.clear();
@@ -963,13 +963,13 @@ void QWaylandOutput::handleSetHeight(int newHeight)
     if (d->currentMode <= d->modes.size() - 1) {
         if (d->currentMode >= 0) {
             QWaylandOutputMode mode = d->modes.at(d->currentMode);
-            mode.setHeight(newHeight);
+            mode.setHeight(newHeight * d->window->devicePixelRatio());
             d->modes.replace(d->currentMode, mode);
             d->sendModesInfo();
         } else {
             // We didn't add a mode during the initialization because the window
             // size was invalid, let's add it now
-            QWaylandOutputMode mode(d->window->size(),
+            QWaylandOutputMode mode(d->window->size() * d->window->devicePixelRatio(),
                                     qFloor(d->window->screen()->refreshRate() * 1000));
             if (mode.isValid()) {
                 d->modes.clear();

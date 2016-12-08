@@ -53,6 +53,7 @@ SOURCES +=  qwaylandintegration.cpp \
             qwaylandxdgsurface.cpp \
             qwaylandxdgpopup.cpp \
             qwaylandxdgshellintegration.cpp \
+            qwaylandxdgshellv6.cpp \
             qwaylandxdgshellv6integration.cpp \
             qwaylandextendedsurface.cpp \
             qwaylandsubsurface.cpp \
@@ -69,7 +70,6 @@ SOURCES +=  qwaylandintegration.cpp \
             qwaylanddatadevice.cpp \
             qwaylandshm.cpp \
             qwaylandbuffer.cpp \
-            qwaylandxdgshellv6.cpp \
 
 HEADERS +=  qwaylandintegration_p.h \
             qwaylandnativeinterface_p.h \
@@ -93,6 +93,7 @@ HEADERS +=  qwaylandintegration_p.h \
             qwaylandxdgsurface_p.h \
             qwaylandxdgpopup_p.h \
             qwaylandxdgshellintegration_p.h \
+            qwaylandxdgshellv6_p.h \
             qwaylandxdgshellv6integration_p.h \
             qwaylandextendedsurface_p.h \
             qwaylandsubsurface_p.h \
@@ -110,8 +111,7 @@ HEADERS +=  qwaylandintegration_p.h \
             ../shared/qwaylandinputmethodeventbuilder_p.h \
             ../shared/qwaylandmimehelper_p.h \
             ../shared/qwaylandxkb_p.h \
-            ../shared/qwaylandsharedmemoryformathelper_p.h
-            qwaylandxdgshellv6_p.h \
+            ../shared/qwaylandsharedmemoryformathelper_p.h \
 
 include(hardwareintegration/hardwareintegration.pri)
 include(shellintegration/shellintegration.pri)

@@ -80,6 +80,7 @@ void QWaylandXdgSurfaceV6::Toplevel::zxdg_toplevel_v6_configure(int32_t width, i
 
 void QWaylandXdgSurfaceV6::Toplevel::zxdg_toplevel_v6_close()
 {
+    m_xdgSurface->m_window->window()->close();
 }
 
 QWaylandXdgSurfaceV6::Popup::Popup(QWaylandXdgSurfaceV6 *xdgSurface, QWaylandXdgSurfaceV6 *parent,

@@ -217,6 +217,11 @@ void QWaylandIntegration::initialize()
     int fd = wl_display_get_fd(mDisplay->wl_display());
     QSocketNotifier *sn = new QSocketNotifier(fd, QSocketNotifier::Read, mDisplay.data());
     QObject::connect(sn, SIGNAL(activated(int)), mDisplay.data(), SLOT(flushRequests()));
+
+    if (mDisplay->screens().isEmpty()) {
+        qWarning() << "Running on a compositor with no screens is not supported";
+        ::exit(EXIT_FAILURE);
+    }
 }
 
 QPlatformFontDatabase *QWaylandIntegration::fontDatabase() const

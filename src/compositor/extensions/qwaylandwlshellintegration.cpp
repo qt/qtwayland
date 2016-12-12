@@ -201,7 +201,7 @@ void WlShellIntegration::handlePopupClosed()
 
 void WlShellIntegration::handlePopupRemoved()
 {
-    if (m_shellSurface->shell()->mappedPopups().isEmpty())
+    if (!m_shellSurface || m_shellSurface->shell()->mappedPopups().isEmpty())
         QWaylandQuickShellEventFilter::cancelFilter();
     isPopup = false;
 }

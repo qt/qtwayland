@@ -4,6 +4,7 @@
         "Name": "Wayland Protocol",
         "QDocModule": "qtwaylandcompositor",
         "QtUsage": "Used in the Qt Wayland Compositor, and the Qt Wayland platform plugin.",
+        "Files": "wayland.xml",
 
         "Description": "Wayland is a protocol for a compositor to talk to its clients.",
         "Homepage": "https://wayland.freedesktop.org",
@@ -22,6 +23,7 @@
         "Name": "Wayland IVI Extension Protocol",
         "QDocModule": "qtwaylandcompositor",
         "QtUsage": "Used in the Qt Wayland Compositor, and the Qt Wayland platform plugin.",
+        "Files": "ivi-controller.xml ivi-application.xml",
 
         "Description": "\"Wayland IVI Extension\" is forked from IVI Layer Management to define a common set of APIs by wayland style protocol and provide reference implementation which can be loaded on Weston.",
         "Homepage": "http://projects.genivi.org/wayland-ivi-extension",
@@ -39,6 +41,7 @@ Copyright (c) 2013 BMW Car IT GmbH"
         "Name": "Wayland XDG Shell Protocol",
         "QDocModule": "qtwaylandcompositor",
         "QtUsage": "Used in the Qt Wayland Compositor, and the Qt Wayland platform plugin.",
+        "Files": "xdg-shell.xml",
 
         "Description": "The XDG-Shell protocol is an extended way to manage surfaces under Wayland compositors.",
         "Homepage": "https://wayland.freedesktop.org",
@@ -58,6 +61,7 @@ Copyright © 2010-2013 Intel Corporation"
         "Name": "Wayland Text Input Protocol",
         "QDocModule": "qtwaylandcompositor",
         "QtUsage": "Used in the Qt Wayland Compositor, and the Qt Wayland platform plugin.",
+        "Files": "text-input-unstable-v2.xml",
 
         "Description": "Adds support for text input and input methods to applications.",
         "Homepage": "https://wayland.freedesktop.org",

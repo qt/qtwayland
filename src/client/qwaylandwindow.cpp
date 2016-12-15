@@ -176,6 +176,9 @@ void QWaylandWindow::initWindow()
                 mShellSurface->setAppId(appId);
             }
         }
+        // the user may have already set some window properties, so make sure to send them out
+        for (auto it = m_properties.cbegin(); it != m_properties.cend(); ++it)
+            mShellSurface->sendProperty(it.key(), it.value());
     }
 
     // Enable high-dpi rendering. Scale() returns the screen scale factor and will

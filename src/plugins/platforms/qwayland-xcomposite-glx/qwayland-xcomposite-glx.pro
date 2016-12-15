@@ -11,4 +11,5 @@ HEADERS += \
     qwaylandxcompositeglxplatformintegration.h
 
 PLUGIN_TYPE = platforms
+PLUGIN_CLASS_NAME = QWaylandXCompositeGlxPlatformIntegrationPlugin
 load(qt_plugin)

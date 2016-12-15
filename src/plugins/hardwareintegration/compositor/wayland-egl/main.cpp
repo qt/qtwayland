@@ -43,7 +43,7 @@
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandIntegrationPlugin : public QtWayland::ClientBufferIntegrationPlugin
+class QWaylandEglClientBufferIntegrationPlugin : public QtWayland::ClientBufferIntegrationPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID QtWaylandClientBufferIntegrationFactoryInterface_iid FILE "wayland-egl.json")
@@ -51,7 +51,7 @@ public:
     QtWayland::ClientBufferIntegration *create(const QString&, const QStringList&) Q_DECL_OVERRIDE;
 };
 
-QtWayland::ClientBufferIntegration *QWaylandIntegrationPlugin::create(const QString& system, const QStringList& paramList)
+QtWayland::ClientBufferIntegration *QWaylandEglClientBufferIntegrationPlugin::create(const QString& system, const QStringList& paramList)
 {
     Q_UNUSED(paramList);
     Q_UNUSED(system);

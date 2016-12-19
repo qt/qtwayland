@@ -451,7 +451,7 @@ void tst_WaylandCompositor::advertisesXdgShellSupport()
     compositor.create();
 
     MockClient client;
-    QTRY_VERIFY(&client.xdgShell);
+    QTRY_VERIFY(client.xdgShell);
 }
 
 void tst_WaylandCompositor::createsXdgSurfaces()
@@ -460,7 +460,7 @@ void tst_WaylandCompositor::createsXdgSurfaces()
     compositor.create();
 
     MockClient client;
-    QTRY_VERIFY(&client.xdgShell);
+    QTRY_VERIFY(client.xdgShell);
 
     QSignalSpy xdgSurfaceCreatedSpy(&compositor.xdgShell, &QWaylandXdgShellV5::xdgSurfaceCreated);
     QWaylandXdgSurfaceV5 *xdgSurface = nullptr;
@@ -648,7 +648,7 @@ void tst_WaylandCompositor::advertisesIviApplicationSupport()
     compositor.create();
 
     MockClient client;
-    QTRY_VERIFY(&client.iviApplication);
+    QTRY_VERIFY(client.iviApplication);
 }
 
 void tst_WaylandCompositor::createsIviSurfaces()
@@ -657,7 +657,7 @@ void tst_WaylandCompositor::createsIviSurfaces()
     compositor.create();
 
     MockClient client;
-    QTRY_VERIFY(&client.iviApplication);
+    QTRY_VERIFY(client.iviApplication);
 
     QSignalSpy iviSurfaceCreatedSpy(&compositor.iviApplication, &QWaylandIviApplication::iviSurfaceRequested);
     QWaylandIviSurface *iviSurface = nullptr;
@@ -740,7 +740,7 @@ void tst_WaylandCompositor::sendsIviConfigure()
     compositor.create();
 
     MockClient client;
-    QTRY_VERIFY(&client.iviApplication);
+    QTRY_VERIFY(client.iviApplication);
 
     QWaylandIviSurface *iviSurface = nullptr;
     QObject::connect(&compositor.iviApplication, &QWaylandIviApplication::iviSurfaceCreated, [&](QWaylandIviSurface *s) {
@@ -764,7 +764,7 @@ void tst_WaylandCompositor::destroysIviSurfaces()
     compositor.create();
 
     MockClient client;
-    QTRY_VERIFY(&client.iviApplication);
+    QTRY_VERIFY(client.iviApplication);
 
     QWaylandIviSurface *iviSurface = nullptr;
     QObject::connect(&compositor.iviApplication, &QWaylandIviApplication::iviSurfaceCreated, [&](QWaylandIviSurface *s) {

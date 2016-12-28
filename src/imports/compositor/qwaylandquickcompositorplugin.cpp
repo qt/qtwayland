@@ -143,6 +143,7 @@ public:
         qmlRegisterType<QWaylandQuickShellSurfaceItem>(uri, 1, 0, "ShellSurfaceItem");
         qmlRegisterType<QWaylandXdgShellV5QuickExtension>(uri, 1, 0, "XdgShellV5");
         qmlRegisterType<QWaylandXdgSurfaceV5>(uri, 1, 0, "XdgSurfaceV5");
+        qmlRegisterType<QWaylandXdgPopupV5>(uri, 1, 0, "XdgPopupV5");
         qmlRegisterType<QWaylandTextInputManagerQuickExtension>(uri, 1, 0, "TextInputManager");
     }
 };

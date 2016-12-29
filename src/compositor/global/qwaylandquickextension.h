@@ -107,6 +107,42 @@ QT_BEGIN_NAMESPACE
         QList<QObject *> m_objects; \
     };
 
+#define Q_COMPOSITOR_DECLARE_QUICK_PARENT_CLASS(className) \
+    class Q_WAYLAND_COMPOSITOR_EXPORT className##QuickParent : public className \
+    { \
+/* qmake ignore Q_OBJECT */ \
+        Q_OBJECT \
+        Q_PROPERTY(QQmlListProperty<QObject> data READ data DESIGNABLE false) \
+        Q_CLASSINFO("DefaultProperty", "data") \
+    public: \
+        QQmlListProperty<QObject> data() \
+        { \
+            return QQmlListProperty<QObject>(this, this, \
+                                             &className##QuickParent::appendFunction, \
+                                             &className##QuickParent::countFunction, \
+                                             &className##QuickParent::atFunction, \
+                                             &className##QuickParent::clearFunction); \
+        } \
+        static void appendFunction(QQmlListProperty<QObject> *list, QObject *object) \
+        { \
+            static_cast<className##QuickParent *>(list->data)->m_children.append(object); \
+        } \
+        static int countFunction(QQmlListProperty<QObject> *list) \
+        { \
+            return static_cast<className##QuickParent *>(list->data)->m_children.size(); \
+        } \
+        static QObject *atFunction(QQmlListProperty<QObject> *list, int index) \
+        { \
+            return static_cast<className##QuickParent *>(list->data)->m_children.at(index); \
+        } \
+        static void clearFunction(QQmlListProperty<QObject> *list) \
+        { \
+            static_cast<className##QuickParent *>(list->data)->m_children.clear(); \
+        } \
+    private: \
+        QVector<QObject *> m_children; \
+    };
+
 QT_END_NAMESPACE
 
 #endif  /*QWAYLANDQUICKEXTENSION_H*/

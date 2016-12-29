@@ -72,11 +72,19 @@
 QT_BEGIN_NAMESPACE
 
 Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CONTAINER_CLASS(QWaylandQuickCompositor)
+Q_COMPOSITOR_DECLARE_QUICK_PARENT_CLASS(QWaylandQuickOutput)
+Q_COMPOSITOR_DECLARE_QUICK_PARENT_CLASS(QWaylandQuickSurface)
+Q_COMPOSITOR_DECLARE_QUICK_PARENT_CLASS(QWaylandKeymap)
 Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CLASS(QWaylandQtWindowManager)
 Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CLASS(QWaylandIviApplication)
+Q_COMPOSITOR_DECLARE_QUICK_PARENT_CLASS(QWaylandIviSurface)
 Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CLASS(QWaylandWlShell)
+Q_COMPOSITOR_DECLARE_QUICK_PARENT_CLASS(QWaylandWlShellSurface)
 Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CLASS(QWaylandXdgShellV5)
+Q_COMPOSITOR_DECLARE_QUICK_PARENT_CLASS(QWaylandXdgSurfaceV5)
+Q_COMPOSITOR_DECLARE_QUICK_PARENT_CLASS(QWaylandXdgPopupV5)
 Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CLASS(QWaylandXdgShellV6)
+Q_COMPOSITOR_DECLARE_QUICK_PARENT_CLASS(QWaylandXdgSurfaceV6)
 Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CLASS(QWaylandTextInputManager)
 
 class QmlUrlResolver
@@ -128,9 +136,9 @@ public:
         qmlRegisterType<QWaylandQuickItem>(uri, 1, 0, "WaylandQuickItem");
         qmlRegisterType<QWaylandQuickHardwareLayer>(uri, 1, 2, "WaylandHardwareLayer");
         qmlRegisterType<QWaylandMouseTracker>(uri, 1, 0, "WaylandMouseTracker");
-        qmlRegisterType<QWaylandQuickOutput>(uri, 1, 0, "WaylandOutput");
-        qmlRegisterType<QWaylandQuickSurface>(uri, 1, 0, "WaylandSurface");
-        qmlRegisterType<QWaylandKeymap>(uri, 1, 0, "WaylandKeymap");
+        qmlRegisterType<QWaylandQuickOutputQuickParent>(uri, 1, 0, "WaylandOutput");
+        qmlRegisterType<QWaylandQuickSurfaceQuickParent>(uri, 1, 0, "WaylandSurface");
+        qmlRegisterType<QWaylandKeymapQuickParent>(uri, 1, 0, "WaylandKeymap");
 
         qmlRegisterUncreatableType<QWaylandCompositorExtension>(uri, 1, 0, "WaylandExtension", QObject::tr("Cannot create instance of WaylandExtension"));
         qmlRegisterUncreatableType<QWaylandClient>(uri, 1, 0, "WaylandClient", QObject::tr("Cannot create instance of WaylandClient"));
@@ -148,18 +156,18 @@ public:
         //This should probably be somewhere else
         qmlRegisterType<QWaylandQtWindowManagerQuickExtension>(uri, 1, 0, "QtWindowManager");
         qmlRegisterType<QWaylandIviApplicationQuickExtension>(uri, 1, 0, "IviApplication");
-        qmlRegisterType<QWaylandIviSurface>(uri, 1, 0, "IviSurface");
+        qmlRegisterType<QWaylandIviSurfaceQuickParent>(uri, 1, 0, "IviSurface");
         qmlRegisterType<QWaylandWlShellQuickExtension>(uri, 1, 0, "WlShell");
-        qmlRegisterType<QWaylandWlShellSurface>(uri, 1, 0, "WlShellSurface");
+        qmlRegisterType<QWaylandWlShellSurfaceQuickParent>(uri, 1, 0, "WlShellSurface");
         qmlRegisterType<QWaylandQuickShellSurfaceItem>(uri, 1, 0, "ShellSurfaceItem");
         qmlRegisterUncreatableType<QWaylandXdgShellV5>(uri, 1, 0, "XdgShellV5Base", QObject::tr("Cannot create instance of XdgShellV5Base"));
         qmlRegisterType<QWaylandXdgShellV5QuickExtension>(uri, 1, 0, "XdgShellV5");
-        qmlRegisterType<QWaylandXdgSurfaceV5>(uri, 1, 0, "XdgSurfaceV5");
-        qmlRegisterType<QWaylandXdgPopupV5>(uri, 1, 0, "XdgPopupV5");
+        qmlRegisterType<QWaylandXdgSurfaceV5QuickParent>(uri, 1, 0, "XdgSurfaceV5");
+        qmlRegisterType<QWaylandXdgPopupV5QuickParent>(uri, 1, 0, "XdgPopupV5");
         qmlRegisterType<QWaylandTextInputManagerQuickExtension>(uri, 1, 0, "TextInputManager");
 
         qmlRegisterType<QWaylandXdgShellV6QuickExtension>(uri, 1, 1, "XdgShellV6");
-        qmlRegisterType<QWaylandXdgSurfaceV6>(uri, 1, 1, "XdgSurfaceV6");
+        qmlRegisterType<QWaylandXdgSurfaceV6QuickParent>(uri, 1, 1, "XdgSurfaceV6");
         qmlRegisterUncreatableType<QWaylandXdgToplevelV6>(uri, 1, 1, "XdgToplevelV6", QObject::tr("Cannot create instance of XdgShellToplevelV6"));
         qmlRegisterUncreatableType<QWaylandXdgPopupV6>(uri, 1, 1, "XdgPopupV6", QObject::tr("Cannot create instance of XdgShellPopupV6"));
     }

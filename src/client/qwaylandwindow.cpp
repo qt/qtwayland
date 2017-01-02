@@ -350,8 +350,11 @@ void QWaylandWindow::setMask(const QRegion &mask)
 
     mMask = mask;
 
+    if (!isInitialized())
+        return;
+
     if (mMask.isEmpty()) {
-        set_input_region(0);
+        set_input_region(nullptr);
     } else {
         struct ::wl_region *region = mDisplay->createRegion(mMask);
         set_input_region(region);

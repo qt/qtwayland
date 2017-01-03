@@ -222,7 +222,8 @@ void QWaylandWindow::reset()
     mShellSurface = 0;
     delete mSubSurfaceWindow;
     mSubSurfaceWindow = 0;
-    destroy();
+    if (isInitialized())
+        destroy();
 
     if (mFrameCallback)
         wl_callback_destroy(mFrameCallback);

@@ -72,6 +72,9 @@ public:
     void init();
     QWaylandDisplay *display() const;
 
+    QString manufacturer() const override;
+    QString model() const override;
+
     QRect geometry() const override;
     int depth() const override;
     QImage::Format format() const override;
@@ -113,6 +116,8 @@ private:
 
     int m_outputId;
     QWaylandDisplay *mWaylandDisplay;
+    QString mManufacturer;
+    QString mModel;
     QRect mGeometry;
     int mScale;
     int mDepth;

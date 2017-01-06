@@ -210,7 +210,7 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgPopupV5 : public QWaylandShellSurfa
     Q_PROPERTY(QWaylandXdgShellV5 *shell READ shell NOTIFY shellChanged)
     Q_PROPERTY(QWaylandSurface *surface READ surface NOTIFY surfaceChanged)
     Q_PROPERTY(QWaylandSurface *parentSurface READ parentSurface NOTIFY parentSurfaceChanged)
-    Q_PROPERTY(QPoint position READ position)
+    Q_PROPERTY(QPoint position READ position NOTIFY positionChanged)
 
 public:
     QWaylandXdgPopupV5();
@@ -243,6 +243,7 @@ Q_SIGNALS:
     void shellChanged();
     void surfaceChanged();
     void parentSurfaceChanged();
+    void positionChanged();
 
 private:
     void initialize() override;

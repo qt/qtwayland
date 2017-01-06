@@ -225,7 +225,7 @@ QWaylandXdgSurfaceV5Private::QWaylandXdgSurfaceV5Private()
     , m_xdgShell(nullptr)
     , m_surface(nullptr)
     , m_parentSurface(nullptr)
-    , m_windowType(UnknownWindowType)
+    , m_windowType(Qt::WindowType::Window)
     , m_unsetWindowGeometry(true)
     , m_lastAckedConfigure({{}, QSize(0, 0), 0})
 {
@@ -270,6 +270,17 @@ void QWaylandXdgSurfaceV5Private::updateFallbackWindowGeometry()
 
     m_windowGeometry = unsetGeometry;
     emit q->windowGeometryChanged();
+}
+
+void QWaylandXdgSurfaceV5Private::setWindowType(Qt::WindowType windowType)
+{
+    if (m_windowType == windowType)
+        return;
+
+    m_windowType = windowType;
+
+    Q_Q(QWaylandXdgSurfaceV5);
+    emit q->windowTypeChanged();
 }
 
 void QWaylandXdgSurfaceV5Private::xdg_surface_destroy_resource(Resource *resource)
@@ -358,13 +369,13 @@ void QWaylandXdgSurfaceV5Private::xdg_surface_set_parent(Resource *resource, wl_
         emit q->parentSurfaceChanged();
     }
 
-    if (m_parentSurface && m_windowType != TransientWindowType) {
+    if (m_parentSurface && m_windowType != Qt::WindowType::SubWindow) {
         // There's a parent now, which means the surface is transient
-        m_windowType = TransientWindowType;
+        setWindowType(Qt::WindowType::SubWindow);
         emit q->setTransient();
-    } else if (!m_parentSurface && m_windowType != TopLevelWindowType) {
+    } else if (!m_parentSurface && m_windowType != Qt::WindowType::Window) {
         // When the surface has no parent it is toplevel
-        m_windowType = TopLevelWindowType;
+        setWindowType(Qt::WindowType::Window);
         emit q->setTopLevel();
     }
 }
@@ -755,6 +766,23 @@ QWaylandSurface *QWaylandXdgSurfaceV5::surface() const
 {
     Q_D(const QWaylandXdgSurfaceV5);
     return d->m_surface;
+}
+
+/*!
+ * \qmlproperty enum QtWaylandCompositor::XdgSurfaceV5::windowType
+ *
+ * This property holds the window type of the XdgSurfaceV5.
+ */
+
+/*!
+ * \property QWaylandXdgSurfaceV5::windowType
+ *
+ * This property holds the window type of the QWaylandXdgSurfaceV5.
+ */
+Qt::WindowType QWaylandXdgSurfaceV5::windowType() const
+{
+    Q_D(const QWaylandXdgSurfaceV5);
+    return d->m_windowType;
 }
 
 /*!

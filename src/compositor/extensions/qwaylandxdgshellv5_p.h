@@ -99,12 +99,6 @@ public:
     QWaylandXdgSurfaceV5Private();
     static QWaylandXdgSurfaceV5Private *get(QWaylandXdgSurfaceV5 *xdgSurface) { return xdgSurface->d_func(); }
 
-    enum WindowType {
-        UnknownWindowType,
-        TopLevelWindowType,
-        TransientWindowType
-    };
-
     struct ConfigureEvent {
         QVector<uint> states;
         QSize size;
@@ -116,12 +110,14 @@ public:
     QRect calculateFallbackWindowGeometry() const;
     void updateFallbackWindowGeometry();
 
+    void setWindowType(Qt::WindowType windowType);
+
 private:
     QWaylandXdgShellV5 *m_xdgShell;
     QWaylandSurface *m_surface;
     QWaylandXdgSurfaceV5 *m_parentSurface;
 
-    WindowType m_windowType;
+    Qt::WindowType m_windowType;
 
     QString m_title;
     QString m_appId;

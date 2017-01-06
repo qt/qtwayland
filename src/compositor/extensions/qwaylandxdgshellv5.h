@@ -135,6 +135,8 @@ public:
 
     Q_INVOKABLE void initialize(QWaylandXdgShellV5* xdgShell, QWaylandSurface *surface, const QWaylandResource &resource);
 
+    Qt::WindowType windowType() const override;
+
     QString title() const;
     QString appId() const;
     QRect windowGeometry() const;

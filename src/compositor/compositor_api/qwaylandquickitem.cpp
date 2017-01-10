@@ -660,11 +660,25 @@ void QWaylandQuickItem::touchEvent(QTouchEvent *event)
         }
         seat->sendFullTouchEvent(surface(), event);
 
+        if (event->type() == QEvent::TouchBegin) {
+            d->touchingSeats.append(seat);
+        } else if (event->type() == QEvent::TouchEnd || event->type() == QEvent::TouchCancel) {
+            d->touchingSeats.removeOne(seat);
+        }
+
         if (event->type() == QEvent::TouchBegin && d->focusOnClick)
             takeFocus(seat);
     } else {
         event->ignore();
     }
+}
+
+void QWaylandQuickItem::touchUngrabEvent()
+{
+    Q_D(QWaylandQuickItem);
+    for (auto seat : d->touchingSeats)
+        seat->sendTouchCancelEvent(surface()->client());
+    d->touchingSeats.clear();
 }
 
 #if QT_CONFIG(im)

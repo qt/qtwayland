@@ -133,7 +133,8 @@ protected:
     void keyPressEvent(QKeyEvent *event) Q_DECL_OVERRIDE;
     void keyReleaseEvent(QKeyEvent *event) Q_DECL_OVERRIDE;
 
-    void touchEvent(QTouchEvent *event) Q_DECL_OVERRIDE;
+    void touchEvent(QTouchEvent *event) override;
+    void touchUngrabEvent() override;
 
 #if QT_CONFIG(im)
     void inputMethodEvent(QInputMethodEvent *event) Q_DECL_OVERRIDE;

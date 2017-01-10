@@ -178,6 +178,7 @@ public:
     QQuickWindow *connectedWindow;
     QWaylandSurface::Origin origin;
     QPointer<QObject> subsurfaceHandler;
+    QVector<QWaylandSeat *> touchingSeats;
 };
 
 QT_END_NAMESPACE

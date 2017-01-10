@@ -277,7 +277,7 @@ void QWaylandWlShellSurfacePrivate::shell_surface_set_class(Resource *resource,
  * import QtWayland.Compositor 1.0
  *
  * WaylandCompositor {
- *     extensions: WlShell {
+ *     WlShell {
  *         // ...
  *     }
  * }

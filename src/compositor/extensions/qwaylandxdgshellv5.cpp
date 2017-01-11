@@ -510,6 +510,44 @@ void QWaylandXdgPopupV5Private::xdg_popup_destroy(Resource *resource)
 }
 
 /*!
+ * \qmltype XdgShellV5
+ * \inqmlmodule QtWayland.Compositor
+ * \since 5.8
+ * \brief Provides an extension for desktop-style user interfaces.
+ *
+ * The XdgShellV5 extension provides a way to associate an XdgSurfaceV5
+ * with a regular Wayland surface. Using the xdg_surface interface, the client
+ * can request that the surface is resized, moved, and so on.
+ *
+ * XdgShellV5 corresponds to the Wayland interface \c xdg_shell.
+ *
+ * To provide the functionality of the shell extension in a compositor, create
+ * an instance of the XdgShellV5 component and add it as a child of the
+ * compositor: \code
+ * import QtWayland.Compositor 1.0
+ *
+ * WaylandCompositor {
+ *     XdgShellV5 {
+ *         // ...
+ *     }
+ * }
+ * \endcode
+ */
+
+/*!
+ * \class QWaylandXdgShellV5
+ * \inmodule QtWaylandCompositor
+ * \since 5.8
+ * \brief The QWaylandXdgShellV5 class is an extension for desktop-style user interfaces.
+ *
+ * The QWaylandXdgShellV5 extension provides a way to associate a QWaylandXdgSurfaceV5 with
+ * a regular Wayland surface. Using the xdg_surface interface, the client
+ * can request that the surface is resized, moved, and so on.
+ *
+ * QWaylandXdgShellV5 corresponds to the Wayland interface \c xdg_shell.
+ */
+
+/*!
  * Constructs a QWaylandXdgShellV5 object.
  */
 QWaylandXdgShellV5::QWaylandXdgShellV5()
@@ -631,6 +669,19 @@ void QWaylandXdgShellV5::handleFocusChanged(QWaylandSurface *newSurface, QWaylan
     if (oldXdgSurface)
         QWaylandXdgSurfaceV5Private::get(oldXdgSurface)->handleFocusLost();
 }
+
+/*!
+ * \qmltype XdgSurfaceV5
+ * \inqmlmodule QtWayland.Compositor
+ * \since 5.8
+ * \brief Provides a \c xdg_surface that offers desktop-style compositor-specific features to a surface.
+ *
+ * This type is part of the \l{XdgShellV5} extension and provides a way to extend
+ * the functionality of an existing WaylandSurface with features specific to desktop-style
+ * compositors, such as resizing and moving the surface.
+ *
+ * It corresponds to the Wayland interface \c xdg_surface for the unstable xdg-shell protocol v5.
+ */
 
 /*!
  * \class QWaylandXdgSurfaceV5
@@ -1046,6 +1097,19 @@ QWaylandQuickShellIntegration *QWaylandXdgSurfaceV5::createIntegration(QWaylandQ
     return new QtWayland::XdgShellV5Integration(item);
 }
 #endif
+
+/*!
+ * \qmltype XdgPopupV5
+ * \inqmlmodule QtWayland.Compositor
+ * \since 5.8
+ * \brief Provides a \c xdg_popup interface that implements popup features for the xdg-shell protocol.
+ *
+ * This type is part of the \l{XdgShellV5} extension and provides a way to extend
+ * the functionality of an existing WaylandSurface for handling popup surfaces created by clients
+ * using xdg-shell.
+ *
+ * It corresponds to the Wayland interface \c xdg_popup for the unstable xdg-shell protocol v5.
+ */
 
 /*!
  * \class QWaylandXdgPopupV5

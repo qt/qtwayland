@@ -118,7 +118,7 @@ class Compositor : public QWaylandCompositor
 public:
     Compositor(QWindow *window);
     ~Compositor();
-    void create() Q_DECL_OVERRIDE;
+    void create() override;
 
     void startRender();
     void endRender();

@@ -297,7 +297,7 @@ public:
         emit textureChanged();
     }
 
-    QSGTexture *texture() const Q_DECL_OVERRIDE
+    QSGTexture *texture() const override
     {
         if (m_sgTex)
             m_sgTex->setFiltering(m_smooth ? QSGTexture::Linear : QSGTexture::Nearest);

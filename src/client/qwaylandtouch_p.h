@@ -88,8 +88,8 @@ private:
                                int32_t velocity_x,
                                int32_t velocity_y,
                                uint32_t flags,
-                               struct wl_array *rawdata) Q_DECL_OVERRIDE;
-    void touch_extension_configure(uint32_t flags) Q_DECL_OVERRIDE;
+                               struct wl_array *rawdata) override;
+    void touch_extension_configure(uint32_t flags) override;
 
     void sendTouchEvent();
 

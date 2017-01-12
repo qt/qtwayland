@@ -86,8 +86,8 @@ Q_SIGNALS:
     void behaviorFlagsChanged();
 
 protected:
-    void touch_extension_bind_resource(Resource *resource) Q_DECL_OVERRIDE;
-    void touch_extension_destroy_resource(Resource *resource) Q_DECL_OVERRIDE;
+    void touch_extension_bind_resource(Resource *resource) override;
+    void touch_extension_destroy_resource(Resource *resource) override;
 
 private:
     QWaylandCompositor *m_compositor;

@@ -49,7 +49,7 @@ class DrmEglServerBufferPlugin : public QWaylandServerBufferIntegrationPlugin
     Q_OBJECT
     Q_PLUGIN_METADATA(IID QWaylandServerBufferIntegrationFactoryInterface_iid FILE "drm-egl-server.json")
 public:
-    QWaylandServerBufferIntegration *create(const QString&, const QStringList&) Q_DECL_OVERRIDE;
+    QWaylandServerBufferIntegration *create(const QString&, const QStringList&) override;
 };
 
 QWaylandServerBufferIntegration *DrmEglServerBufferPlugin::create(const QString& system, const QStringList& paramList)

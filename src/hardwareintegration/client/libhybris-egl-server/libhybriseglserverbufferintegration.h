@@ -75,10 +75,10 @@ class LibHybrisServerBuffer : public QWaylandServerBuffer, public QtWayland::qt_
 public:
     LibHybrisServerBuffer(LibHybrisEglServerBufferIntegration *integration, int32_t numFds, wl_array *ints, int32_t name, int32_t width, int32_t height, int32_t stride, int32_t format);
     ~LibHybrisServerBuffer();
-    void bindTextureToBuffer() Q_DECL_OVERRIDE;
+    void bindTextureToBuffer() override;
 
 protected:
-    void libhybris_buffer_add_fd(int32_t fd) Q_DECL_OVERRIDE;
+    void libhybris_buffer_add_fd(int32_t fd) override;
 
 private:
     LibHybrisEglServerBufferIntegration *m_integration;
@@ -96,9 +96,9 @@ class LibHybrisEglServerBufferIntegration
     , public QtWayland::qt_libhybris_egl_server_buffer
 {
 public:
-    void initialize(QWaylandDisplay *display) Q_DECL_OVERRIDE;
+    void initialize(QWaylandDisplay *display) override;
 
-    virtual QWaylandServerBuffer *serverBuffer(struct qt_server_buffer *buffer) Q_DECL_OVERRIDE;
+    virtual QWaylandServerBuffer *serverBuffer(struct qt_server_buffer *buffer) override;
 
     inline EGLImageKHR eglCreateImageKHR(EGLContext ctx, EGLenum target, EGLClientBuffer buffer, const EGLint *attrib_list);
     inline EGLBoolean eglDestroyImageKHR (EGLImageKHR image);
@@ -106,9 +106,9 @@ public:
     inline EGLBoolean eglHybrisCreateRemoteBuffer(EGLint width, EGLint height, EGLint usage, EGLint format, EGLint stride, int num_ints, int *ints, int num_fds, int *fds, EGLClientBuffer *buffer);
 
 protected:
-    void registry_global(uint32_t name, const QString &interface, uint32_t version) Q_DECL_OVERRIDE;
+    void registry_global(uint32_t name, const QString &interface, uint32_t version) override;
     void libhybris_egl_server_buffer_server_buffer_created(struct ::qt_libhybris_buffer *id, struct ::qt_server_buffer *qid,
-                                                           int32_t numFds, wl_array *ints, int32_t name, int32_t width, int32_t height, int32_t stride, int32_t format) Q_DECL_OVERRIDE;
+                                                           int32_t numFds, wl_array *ints, int32_t name, int32_t width, int32_t height, int32_t stride, int32_t format) override;
 private:
     PFNEGLCREATEIMAGEKHRPROC m_egl_create_image;
     PFNEGLDESTROYIMAGEKHRPROC m_egl_destroy_image;

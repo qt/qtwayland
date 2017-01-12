@@ -49,16 +49,16 @@ public:
 
 protected:
 
-    void surface_destroy_resource(Resource *resource) Q_DECL_OVERRIDE;
+    void surface_destroy_resource(Resource *resource) override;
 
-    void surface_destroy(Resource *resource) Q_DECL_OVERRIDE;
+    void surface_destroy(Resource *resource) override;
     void surface_attach(Resource *resource,
-                        struct wl_resource *buffer, int x, int y) Q_DECL_OVERRIDE;
+                        struct wl_resource *buffer, int x, int y) override;
     void surface_damage(Resource *resource,
-                        int32_t x, int32_t y, int32_t width, int32_t height) Q_DECL_OVERRIDE;
+                        int32_t x, int32_t y, int32_t width, int32_t height) override;
     void surface_frame(Resource *resource,
-                       uint32_t callback) Q_DECL_OVERRIDE;
-    void surface_commit(Resource *resource) Q_DECL_OVERRIDE;
+                       uint32_t callback) override;
+    void surface_commit(Resource *resource) override;
 private:
     wl_resource *m_buffer;
 

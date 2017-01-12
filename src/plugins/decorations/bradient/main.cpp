@@ -135,10 +135,10 @@ class Q_WAYLAND_CLIENT_EXPORT QWaylandBradientDecoration : public QWaylandAbstra
 public:
     QWaylandBradientDecoration();
 protected:
-    QMargins margins() const Q_DECL_OVERRIDE;
-    void paint(QPaintDevice *device) Q_DECL_OVERRIDE;
-    bool handleMouse(QWaylandInputDevice *inputDevice, const QPointF &local, const QPointF &global,Qt::MouseButtons b,Qt::KeyboardModifiers mods) Q_DECL_OVERRIDE;
-    bool handleTouch(QWaylandInputDevice *inputDevice, const QPointF &local, const QPointF &global, Qt::TouchPointState state, Qt::KeyboardModifiers mods) Q_DECL_OVERRIDE;
+    QMargins margins() const override;
+    void paint(QPaintDevice *device) override;
+    bool handleMouse(QWaylandInputDevice *inputDevice, const QPointF &local, const QPointF &global,Qt::MouseButtons b,Qt::KeyboardModifiers mods) override;
+    bool handleTouch(QWaylandInputDevice *inputDevice, const QPointF &local, const QPointF &global, Qt::TouchPointState state, Qt::KeyboardModifiers mods) override;
 private:
     void processMouseTop(QWaylandInputDevice *inputDevice, const QPointF &local, Qt::MouseButtons b,Qt::KeyboardModifiers mods);
     void processMouseBottom(QWaylandInputDevice *inputDevice, const QPointF &local, Qt::MouseButtons b,Qt::KeyboardModifiers mods);
@@ -486,7 +486,7 @@ class QWaylandBradientDecorationPlugin : public QWaylandDecorationPlugin
     Q_OBJECT
     Q_PLUGIN_METADATA(IID QWaylandDecorationFactoryInterface_iid FILE "bradient.json")
 public:
-    QWaylandAbstractDecoration *create(const QString&, const QStringList&) Q_DECL_OVERRIDE;
+    QWaylandAbstractDecoration *create(const QString&, const QStringList&) override;
 };
 
 QWaylandAbstractDecoration *QWaylandBradientDecorationPlugin::create(const QString& system, const QStringList& paramList)

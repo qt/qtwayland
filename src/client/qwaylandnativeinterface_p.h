@@ -67,22 +67,22 @@ class Q_WAYLAND_CLIENT_EXPORT QWaylandNativeInterface : public QPlatformNativeIn
 {
 public:
     QWaylandNativeInterface(QWaylandIntegration *integration);
-    void *nativeResourceForIntegration(const QByteArray &resource) Q_DECL_OVERRIDE;
+    void *nativeResourceForIntegration(const QByteArray &resource) override;
     void *nativeResourceForWindow(const QByteArray &resourceString,
-                                  QWindow *window) Q_DECL_OVERRIDE;
+                                  QWindow *window) override;
     void *nativeResourceForScreen(const QByteArray &resourceString,
-                                  QScreen *screen) Q_DECL_OVERRIDE;
+                                  QScreen *screen) override;
 #if QT_CONFIG(opengl)
-    void *nativeResourceForContext(const QByteArray &resource, QOpenGLContext *context) Q_DECL_OVERRIDE;
+    void *nativeResourceForContext(const QByteArray &resource, QOpenGLContext *context) override;
 #endif
-    QVariantMap windowProperties(QPlatformWindow *window) const Q_DECL_OVERRIDE;
-    QVariant windowProperty(QPlatformWindow *window, const QString &name) const Q_DECL_OVERRIDE;
-    QVariant windowProperty(QPlatformWindow *window, const QString &name, const QVariant &defaultValue) const Q_DECL_OVERRIDE;
-    void setWindowProperty(QPlatformWindow *window, const QString &name, const QVariant &value) Q_DECL_OVERRIDE;
+    QVariantMap windowProperties(QPlatformWindow *window) const override;
+    QVariant windowProperty(QPlatformWindow *window, const QString &name) const override;
+    QVariant windowProperty(QPlatformWindow *window, const QString &name, const QVariant &defaultValue) const override;
+    void setWindowProperty(QPlatformWindow *window, const QString &name, const QVariant &value) override;
 
     void emitWindowPropertyChanged(QPlatformWindow *window, const QString &name);
 
-    QFunctionPointer platformFunction(const QByteArray &resource) const Q_DECL_OVERRIDE;
+    QFunctionPointer platformFunction(const QByteArray &resource) const override;
 
 private:
     QWaylandIntegration *m_integration;

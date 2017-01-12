@@ -66,9 +66,9 @@ public:
     QWaylandQtWindowManagerPrivate();
 
 protected:
-    void windowmanager_bind_resource(Resource *resource) Q_DECL_OVERRIDE;
-    void windowmanager_destroy_resource(Resource *resource) Q_DECL_OVERRIDE;
-    void windowmanager_open_url(Resource *resource, uint32_t remaining, const QString &url) Q_DECL_OVERRIDE;
+    void windowmanager_bind_resource(Resource *resource) override;
+    void windowmanager_destroy_resource(Resource *resource) override;
+    void windowmanager_open_url(Resource *resource, uint32_t remaining, const QString &url) override;
 
 private:
     bool showIsFullScreen;

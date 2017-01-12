@@ -54,7 +54,7 @@ public:
     QWaylandQuickOutput();
     QWaylandQuickOutput(QWaylandCompositor *compositor, QWindow *window);
 
-    void update() Q_DECL_OVERRIDE;
+    void update() override;
 
     bool automaticFrameCallback() const;
     void setAutomaticFrameCallback(bool automatic);
@@ -68,7 +68,7 @@ Q_SIGNALS:
     void automaticFrameCallbackChanged();
 
 protected:
-    void initialize() Q_DECL_OVERRIDE;
+    void initialize() override;
 
 private:
     void doFrameCallbacks();

@@ -78,9 +78,9 @@ public:
     static DataSource *fromResource(struct ::wl_resource *resource);
 
 protected:
-    void data_source_offer(Resource *resource, const QString &mime_type) Q_DECL_OVERRIDE;
-    void data_source_destroy(Resource *resource) Q_DECL_OVERRIDE;
-    void data_source_destroy_resource(Resource *resource) Q_DECL_OVERRIDE;
+    void data_source_offer(Resource *resource, const QString &mime_type) override;
+    void data_source_destroy(Resource *resource) override;
+    void data_source_destroy_resource(Resource *resource) override;
 
 private:
     uint32_t m_time;

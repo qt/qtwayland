@@ -61,7 +61,7 @@ public:
     QWaylandTextInputManagerPrivate();
 
 protected:
-    void zwp_text_input_manager_v2_get_text_input(Resource *resource, uint32_t id, struct ::wl_resource *seatResource) Q_DECL_OVERRIDE;
+    void zwp_text_input_manager_v2_get_text_input(Resource *resource, uint32_t id, struct ::wl_resource *seatResource) override;
 };
 
 QT_END_NAMESPACE

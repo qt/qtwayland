@@ -48,7 +48,7 @@ class QWaylandEglClientBufferIntegrationPlugin : public QtWayland::ClientBufferI
     Q_OBJECT
     Q_PLUGIN_METADATA(IID QtWaylandClientBufferIntegrationFactoryInterface_iid FILE "wayland-egl.json")
 public:
-    QtWayland::ClientBufferIntegration *create(const QString&, const QStringList&) Q_DECL_OVERRIDE;
+    QtWayland::ClientBufferIntegration *create(const QString&, const QStringList&) override;
 };
 
 QtWayland::ClientBufferIntegration *QWaylandEglClientBufferIntegrationPlugin::create(const QString& system, const QStringList& paramList)

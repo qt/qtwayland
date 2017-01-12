@@ -78,27 +78,27 @@ public:
     virtual ~QWaylandWlShellSurface();
 
     using QtWayland::wl_shell_surface::resize;
-    void resize(QWaylandInputDevice *inputDevice, enum wl_shell_surface_resize edges) Q_DECL_OVERRIDE;
+    void resize(QWaylandInputDevice *inputDevice, enum wl_shell_surface_resize edges) override;
 
     using QtWayland::wl_shell_surface::move;
-    void move(QWaylandInputDevice *inputDevice) Q_DECL_OVERRIDE;
+    void move(QWaylandInputDevice *inputDevice) override;
 
-    void setTitle(const QString & title) Q_DECL_OVERRIDE;
-    void setAppId(const QString &appId) Q_DECL_OVERRIDE;
+    void setTitle(const QString & title) override;
+    void setAppId(const QString &appId) override;
 
-    void raise() Q_DECL_OVERRIDE;
-    void lower() Q_DECL_OVERRIDE;
-    void setContentOrientationMask(Qt::ScreenOrientations orientation) Q_DECL_OVERRIDE;
-    void setWindowFlags(Qt::WindowFlags flags) Q_DECL_OVERRIDE;
-    void sendProperty(const QString &name, const QVariant &value) Q_DECL_OVERRIDE;
+    void raise() override;
+    void lower() override;
+    void setContentOrientationMask(Qt::ScreenOrientations orientation) override;
+    void setWindowFlags(Qt::WindowFlags flags) override;
+    void sendProperty(const QString &name, const QVariant &value) override;
 
     void setType(Qt::WindowType type, QWaylandWindow *transientParent) override;
 
 private:
-    void setMaximized() Q_DECL_OVERRIDE;
-    void setFullscreen() Q_DECL_OVERRIDE;
-    void setNormal() Q_DECL_OVERRIDE;
-    void setMinimized() Q_DECL_OVERRIDE;
+    void setMaximized() override;
+    void setFullscreen() override;
+    void setNormal() override;
+    void setMinimized() override;
 
     void setTopLevel();
     void updateTransientParent(QWindow *parent);
@@ -110,11 +110,11 @@ private:
     QSize m_size;
     QWaylandExtendedSurface *m_extendedWindow;
 
-    void shell_surface_ping(uint32_t serial) Q_DECL_OVERRIDE;
+    void shell_surface_ping(uint32_t serial) override;
     void shell_surface_configure(uint32_t edges,
                                  int32_t width,
-                                 int32_t height) Q_DECL_OVERRIDE;
-    void shell_surface_popup_done() Q_DECL_OVERRIDE;
+                                 int32_t height) override;
+    void shell_surface_popup_done() override;
 
     friend class QWaylandWindow;
 };

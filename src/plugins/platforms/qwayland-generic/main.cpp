@@ -49,7 +49,7 @@ class QWaylandIntegrationPlugin : public QPlatformIntegrationPlugin
     Q_OBJECT
     Q_PLUGIN_METADATA(IID QPlatformIntegrationFactoryInterface_iid FILE "qwayland-generic.json")
 public:
-    QPlatformIntegration *create(const QString&, const QStringList&) Q_DECL_OVERRIDE;
+    QPlatformIntegration *create(const QString&, const QStringList&) override;
 };
 
 QPlatformIntegration *QWaylandIntegrationPlugin::create(const QString& system, const QStringList& paramList)

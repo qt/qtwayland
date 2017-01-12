@@ -68,7 +68,7 @@ class Compositor : public QWaylandCompositor
 public:
     Compositor(Window *window);
     ~Compositor();
-    void create() Q_DECL_OVERRIDE;
+    void create() override;
 
     QList<View*> views() const { return m_views; }
 

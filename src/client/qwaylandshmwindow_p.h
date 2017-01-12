@@ -64,8 +64,8 @@ public:
     QWaylandShmWindow(QWindow *window);
     ~QWaylandShmWindow();
 
-    WindowType windowType() const Q_DECL_OVERRIDE;
-    QSurfaceFormat format() const Q_DECL_OVERRIDE { return QSurfaceFormat(); }
+    WindowType windowType() const override;
+    QSurfaceFormat format() const override { return QSurfaceFormat(); }
 };
 
 }

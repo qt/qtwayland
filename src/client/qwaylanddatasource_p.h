@@ -81,9 +81,9 @@ Q_SIGNALS:
     void cancelled();
 
 protected:
-    void data_source_cancelled() Q_DECL_OVERRIDE;
-    void data_source_send(const QString &mime_type, int32_t fd) Q_DECL_OVERRIDE;
-    void data_source_target(const QString &mime_type) Q_DECL_OVERRIDE;
+    void data_source_cancelled() override;
+    void data_source_send(const QString &mime_type, int32_t fd) override;
+    void data_source_target(const QString &mime_type) override;
 
 private:
     QWaylandDisplay *m_display;

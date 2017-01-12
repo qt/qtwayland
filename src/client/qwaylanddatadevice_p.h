@@ -92,12 +92,12 @@ public:
     void cancelDrag();
 
 protected:
-    void data_device_data_offer(struct ::wl_data_offer *id) Q_DECL_OVERRIDE;
-    void data_device_drop() Q_DECL_OVERRIDE;
-    void data_device_enter(uint32_t serial, struct ::wl_surface *surface, wl_fixed_t x, wl_fixed_t y, struct ::wl_data_offer *id) Q_DECL_OVERRIDE;
-    void data_device_leave() Q_DECL_OVERRIDE;
-    void data_device_motion(uint32_t time, wl_fixed_t x, wl_fixed_t y) Q_DECL_OVERRIDE;
-    void data_device_selection(struct ::wl_data_offer *id) Q_DECL_OVERRIDE;
+    void data_device_data_offer(struct ::wl_data_offer *id) override;
+    void data_device_drop() override;
+    void data_device_enter(uint32_t serial, struct ::wl_surface *surface, wl_fixed_t x, wl_fixed_t y, struct ::wl_data_offer *id) override;
+    void data_device_leave() override;
+    void data_device_motion(uint32_t time, wl_fixed_t x, wl_fixed_t y) override;
+    void data_device_selection(struct ::wl_data_offer *id) override;
 
 private Q_SLOTS:
     void selectionSourceCancelled();

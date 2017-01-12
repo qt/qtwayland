@@ -66,11 +66,11 @@ class QWaylandBufferMaterialShader : public QSGMaterialShader
 public:
     QWaylandBufferMaterialShader(QWaylandBufferRef::BufferFormatEgl format);
 
-    void updateState(const RenderState &state, QSGMaterial *newEffect, QSGMaterial *oldEffect) Q_DECL_OVERRIDE;
-    char const *const *attributeNames() const Q_DECL_OVERRIDE;
+    void updateState(const RenderState &state, QSGMaterial *newEffect, QSGMaterial *oldEffect) override;
+    char const *const *attributeNames() const override;
 
 protected:
-    void initialize() Q_DECL_OVERRIDE;
+    void initialize() override;
 
 private:
     const QWaylandBufferRef::BufferFormatEgl m_format;
@@ -89,8 +89,8 @@ public:
 
     void bind();
 
-    QSGMaterialType *type() const Q_DECL_OVERRIDE;
-    QSGMaterialShader *createShader() const Q_DECL_OVERRIDE;
+    QSGMaterialType *type() const override;
+    QSGMaterialShader *createShader() const override;
 
 private:
     void setTextureParameters(GLenum target);

@@ -68,8 +68,8 @@ public:
     static QWaylandIviSurfacePrivate *get(QWaylandIviSurface *iviSurface) { return iviSurface->d_func(); }
 
 protected:
-    void ivi_surface_destroy_resource(Resource *resource) Q_DECL_OVERRIDE;
-    void ivi_surface_destroy(Resource *resource) Q_DECL_OVERRIDE;
+    void ivi_surface_destroy_resource(Resource *resource) override;
+    void ivi_surface_destroy(Resource *resource) override;
 
 private:
     QWaylandIviApplication *m_iviApplication;

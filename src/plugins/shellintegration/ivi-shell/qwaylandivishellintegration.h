@@ -54,7 +54,7 @@ public:
     QWaylandIviShellIntegration();
     ~QWaylandIviShellIntegration();
     bool initialize(QWaylandDisplay *display);
-    virtual QWaylandShellSurface *createShellSurface(QWaylandWindow *window) Q_DECL_OVERRIDE;
+    virtual QWaylandShellSurface *createShellSurface(QWaylandWindow *window) override;
 
 private:
     static void registryIvi(void *data, struct wl_registry *registry,

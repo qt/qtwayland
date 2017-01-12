@@ -89,7 +89,7 @@ protected:
     QWaylandCompositorExtension(QWaylandCompositorExtensionPrivate &dd);
     QWaylandCompositorExtension(QWaylandObject *container, QWaylandCompositorExtensionPrivate &dd);
 
-    bool event(QEvent *event) Q_DECL_OVERRIDE;
+    bool event(QEvent *event) override;
 };
 
 template <typename T>
@@ -104,7 +104,7 @@ public:
         : QWaylandCompositorExtension(container)
     { }
 
-    const struct wl_interface *extensionInterface() const Q_DECL_OVERRIDE
+    const struct wl_interface *extensionInterface() const override
     {
         return T::interface();
     }

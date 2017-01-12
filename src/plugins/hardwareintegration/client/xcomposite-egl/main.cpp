@@ -49,7 +49,7 @@ class QWaylandXCompositeEglClientBufferIntegrationPlugin : public QWaylandClient
     Q_OBJECT
     Q_PLUGIN_METADATA(IID QWaylandClientBufferIntegrationFactoryInterface_iid FILE "xcomposite-egl.json")
 public:
-    QWaylandClientBufferIntegration *create(const QString&, const QStringList&) Q_DECL_OVERRIDE;
+    QWaylandClientBufferIntegration *create(const QString&, const QStringList&) override;
 };
 
 QWaylandClientBufferIntegration *QWaylandXCompositeEglClientBufferIntegrationPlugin::create(const QString& system, const QStringList& paramList)

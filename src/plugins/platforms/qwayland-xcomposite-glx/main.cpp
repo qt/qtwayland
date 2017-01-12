@@ -51,7 +51,7 @@ class QWaylandXCompositeGlxPlatformIntegrationPlugin : public QPlatformIntegrati
     Q_OBJECT
     Q_PLUGIN_METADATA(IID QPlatformIntegrationFactoryInterface_iid FILE "qwayland-xcomposite-glx.json")
 public:
-    QPlatformIntegration *create(const QString&, const QStringList&) Q_DECL_OVERRIDE;
+    QPlatformIntegration *create(const QString&, const QStringList&) override;
 };
 
 QPlatformIntegration *QWaylandXCompositeGlxPlatformIntegrationPlugin::create(const QString& system, const QStringList& paramList)

@@ -75,10 +75,10 @@ public:
     QWaylandXCompositeEGLClientBufferIntegration();
     ~QWaylandXCompositeEGLClientBufferIntegration();
 
-    void initialize(QWaylandDisplay *dispaly) Q_DECL_OVERRIDE;
+    void initialize(QWaylandDisplay *dispaly) override;
 
-    QWaylandWindow *createEglWindow(QWindow *window) Q_DECL_OVERRIDE;
-    QPlatformOpenGLContext *createPlatformOpenGLContext(const QSurfaceFormat &glFormat, QPlatformOpenGLContext *share) const Q_DECL_OVERRIDE;
+    QWaylandWindow *createEglWindow(QWindow *window) override;
+    QPlatformOpenGLContext *createPlatformOpenGLContext(const QSurfaceFormat &glFormat, QPlatformOpenGLContext *share) const override;
 
     QWaylandDisplay *waylandDisplay() const;
     struct qt_xcomposite *waylandXComposite() const;
@@ -88,8 +88,8 @@ public:
     int screen() const;
     Window rootWindow() const;
 
-    bool supportsThreadedOpenGL() const Q_DECL_OVERRIDE { return true; }
-    bool supportsWindowDecoration() const Q_DECL_OVERRIDE { return false; }
+    bool supportsThreadedOpenGL() const override { return true; }
+    bool supportsWindowDecoration() const override { return false; }
 
 private:
     QWaylandDisplay *mWaylandDisplay;

@@ -56,9 +56,9 @@ private:
 
     QString mDisplayString;
 
-    void xcomposite_bind_resource(Resource *resource) Q_DECL_OVERRIDE;
+    void xcomposite_bind_resource(Resource *resource) override;
     void xcomposite_create_buffer(Resource *resource, uint32_t id, uint32_t x_window,
-                                  int32_t width, int32_t height) Q_DECL_OVERRIDE;
+                                  int32_t width, int32_t height) override;
 
 };
 

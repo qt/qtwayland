@@ -50,8 +50,8 @@ public:
     explicit ShmWindow(QWindow *parent);
 
 protected:
-    void paintEvent(QPaintEvent *event) Q_DECL_OVERRIDE;
-    void timerEvent(QTimerEvent *) Q_DECL_OVERRIDE;
+    void paintEvent(QPaintEvent *event) override;
+    void timerEvent(QTimerEvent *) override;
 
 private:
     int m_rotation;

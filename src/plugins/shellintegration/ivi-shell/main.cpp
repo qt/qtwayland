@@ -44,7 +44,7 @@ class QWaylandIviShellIntegrationPlugin : public QWaylandShellIntegrationPlugin
     Q_PLUGIN_METADATA(IID QWaylandShellIntegrationFactoryInterface_iid FILE "ivi-shell.json")
 
 public:
-    virtual QWaylandShellIntegration *create(const QString &key, const QStringList &paramList) Q_DECL_OVERRIDE;
+    virtual QWaylandShellIntegration *create(const QString &key, const QStringList &paramList) override;
 };
 
 QWaylandShellIntegration *QWaylandIviShellIntegrationPlugin::create(const QString &key, const QStringList &paramList)

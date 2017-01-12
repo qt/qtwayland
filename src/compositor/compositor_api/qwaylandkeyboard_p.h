@@ -97,9 +97,9 @@ public:
     void sendEnter(QWaylandSurface *surface, Resource *resource);
 
 protected:
-    void keyboard_bind_resource(Resource *resource) Q_DECL_OVERRIDE;
-    void keyboard_destroy_resource(Resource *resource) Q_DECL_OVERRIDE;
-    void keyboard_release(Resource *resource) Q_DECL_OVERRIDE;
+    void keyboard_bind_resource(Resource *resource) override;
+    void keyboard_destroy_resource(Resource *resource) override;
+    void keyboard_release(Resource *resource) override;
 
 private:
 #if QT_CONFIG(xkbcommon_evdev)

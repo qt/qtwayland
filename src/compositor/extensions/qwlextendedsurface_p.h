@@ -136,17 +136,17 @@ private:
 
     void extended_surface_update_generic_property(Resource *resource,
                                                   const QString &name,
-                                                  struct wl_array *value) Q_DECL_OVERRIDE;
+                                                  struct wl_array *value) override;
 
     void extended_surface_set_content_orientation_mask(Resource *resource,
-                                                       int32_t orientation) Q_DECL_OVERRIDE;
+                                                       int32_t orientation) override;
 
     void extended_surface_set_window_flags(Resource *resource,
-                                           int32_t flags) Q_DECL_OVERRIDE;
+                                           int32_t flags) override;
 
-    void extended_surface_destroy_resource(Resource *) Q_DECL_OVERRIDE;
-    void extended_surface_raise(Resource *) Q_DECL_OVERRIDE;
-    void extended_surface_lower(Resource *) Q_DECL_OVERRIDE;
+    void extended_surface_destroy_resource(Resource *) override;
+    void extended_surface_raise(Resource *) override;
+    void extended_surface_lower(Resource *) override;
 };
 
 }

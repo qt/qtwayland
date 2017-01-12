@@ -49,7 +49,7 @@ class QWaylandXCompositeGlxClientBufferIntegrationPlugin : public QWaylandClient
     Q_OBJECT
     Q_PLUGIN_METADATA(IID QWaylandClientBufferIntegrationFactoryInterface_iid FILE "xcomposite-glx.json")
 public:
-    QWaylandClientBufferIntegration *create(const QString&, const QStringList&) Q_DECL_OVERRIDE;
+    QWaylandClientBufferIntegration *create(const QString&, const QStringList&) override;
 };
 
 QWaylandClientBufferIntegration *QWaylandXCompositeGlxClientBufferIntegrationPlugin::create(const QString& system, const QStringList& paramList)

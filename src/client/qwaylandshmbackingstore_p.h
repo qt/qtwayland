@@ -72,8 +72,8 @@ public:
     QWaylandShmBuffer(QWaylandDisplay *display,
            const QSize &size, QImage::Format format, int scale = 1);
     ~QWaylandShmBuffer();
-    QSize size() const Q_DECL_OVERRIDE { return mImage.size(); }
-    int scale() const Q_DECL_OVERRIDE { return int(mImage.devicePixelRatio()); }
+    QSize size() const override { return mImage.size(); }
+    int scale() const override { return int(mImage.devicePixelRatio()); }
     QImage *image() { return &mImage; }
 
     QImage *imageInsideMargins(const QMargins &margins);
@@ -91,11 +91,11 @@ public:
     ~QWaylandShmBackingStore();
 
     QPaintDevice *paintDevice();
-    void flush(QWindow *window, const QRegion &region, const QPoint &offset) Q_DECL_OVERRIDE;
-    void resize(const QSize &size, const QRegion &staticContents) Q_DECL_OVERRIDE;
+    void flush(QWindow *window, const QRegion &region, const QPoint &offset) override;
+    void resize(const QSize &size, const QRegion &staticContents) override;
     void resize(const QSize &size);
-    void beginPaint(const QRegion &) Q_DECL_OVERRIDE;
-    void endPaint() Q_DECL_OVERRIDE;
+    void beginPaint(const QRegion &) override;
+    void endPaint() override;
 
     QWaylandAbstractDecoration *windowDecoration() const;
 
@@ -108,7 +108,7 @@ public:
     void iterateBuffer();
 
 #if QT_CONFIG(opengl)
-    QImage toImage() const Q_DECL_OVERRIDE;
+    QImage toImage() const override;
 #endif
 
 private:

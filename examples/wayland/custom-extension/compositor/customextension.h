@@ -54,7 +54,7 @@ class CustomExtension  : public QWaylandCompositorExtensionTemplate<CustomExtens
     Q_OBJECT
 public:
     CustomExtension(QWaylandCompositor *compositor = 0);
-    void initialize() Q_DECL_OVERRIDE;
+    void initialize() override;
 
 signals:
     void surfaceAdded(QWaylandSurface *surface);
@@ -67,9 +67,9 @@ public slots:
     void close(QWaylandSurface *surface);
 
 protected:
-    void example_extension_bounce(Resource *resource, wl_resource *surface, uint32_t duration) Q_DECL_OVERRIDE;
-    void example_extension_spin(Resource *resource, wl_resource *surface, uint32_t duration) Q_DECL_OVERRIDE;
-    void example_extension_register_surface(Resource *resource, wl_resource *surface) Q_DECL_OVERRIDE;
+    void example_extension_bounce(Resource *resource, wl_resource *surface, uint32_t duration) override;
+    void example_extension_spin(Resource *resource, wl_resource *surface, uint32_t duration) override;
+    void example_extension_register_surface(Resource *resource, wl_resource *surface) override;
 };
 
 Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CLASS(CustomExtension)

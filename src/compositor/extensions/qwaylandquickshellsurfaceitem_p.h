@@ -90,13 +90,13 @@ public:
     static void cancelFilter();
 
 protected:
-    void timerEvent(QTimerEvent *event) Q_DECL_OVERRIDE;
+    void timerEvent(QTimerEvent *event) override;
 
 private:
     void stopFilter();
 
     QWaylandQuickShellEventFilter(QObject *parent = nullptr);
-    bool eventFilter(QObject *, QEvent *) Q_DECL_OVERRIDE;
+    bool eventFilter(QObject *, QEvent *) override;
     bool eventFilterInstalled;
     bool waitForRelease;
     QPointer<QWaylandClient> client;

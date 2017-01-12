@@ -60,8 +60,8 @@ class XdgShellV5Integration : public QWaylandQuickShellIntegration
     Q_OBJECT
 public:
     XdgShellV5Integration(QWaylandQuickShellSurfaceItem *item);
-    bool mouseMoveEvent(QMouseEvent *event) Q_DECL_OVERRIDE;
-    bool mouseReleaseEvent(QMouseEvent *event) Q_DECL_OVERRIDE;
+    bool mouseMoveEvent(QMouseEvent *event) override;
+    bool mouseReleaseEvent(QMouseEvent *event) override;
 
 private Q_SLOTS:
     void handleStartMove(QWaylandSeat *seat);

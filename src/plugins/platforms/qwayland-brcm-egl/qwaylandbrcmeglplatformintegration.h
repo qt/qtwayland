@@ -57,7 +57,7 @@ public:
         m_gl_integration->initialize(display());
     }
 
-    QWaylandClientBufferIntegration *clientBufferIntegration() const Q_DECL_OVERRIDE
+    QWaylandClientBufferIntegration *clientBufferIntegration() const override
     {
         return m_gl_integration;
     }

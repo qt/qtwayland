@@ -59,7 +59,7 @@ public:
         m_client_buffer_integration->initialize(display());
     }
 
-    QWaylandClientBufferIntegration *clientBufferIntegration() const Q_DECL_OVERRIDE
+    QWaylandClientBufferIntegration *clientBufferIntegration() const override
     { return m_client_buffer_integration; }
 
 private:

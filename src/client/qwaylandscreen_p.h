@@ -72,26 +72,26 @@ public:
     void init();
     QWaylandDisplay *display() const;
 
-    QRect geometry() const Q_DECL_OVERRIDE;
-    int depth() const Q_DECL_OVERRIDE;
-    QImage::Format format() const Q_DECL_OVERRIDE;
+    QRect geometry() const override;
+    int depth() const override;
+    QImage::Format format() const override;
 
-    QSizeF physicalSize() const Q_DECL_OVERRIDE;
+    QSizeF physicalSize() const override;
 
-    QDpi logicalDpi() const Q_DECL_OVERRIDE;
-    QList<QPlatformScreen *> virtualSiblings() const Q_DECL_OVERRIDE;
+    QDpi logicalDpi() const override;
+    QList<QPlatformScreen *> virtualSiblings() const override;
 
-    void setOrientationUpdateMask(Qt::ScreenOrientations mask) Q_DECL_OVERRIDE;
+    void setOrientationUpdateMask(Qt::ScreenOrientations mask) override;
 
-    Qt::ScreenOrientation orientation() const Q_DECL_OVERRIDE;
+    Qt::ScreenOrientation orientation() const override;
     int scale() const;
-    qreal devicePixelRatio() const Q_DECL_OVERRIDE;
-    qreal refreshRate() const Q_DECL_OVERRIDE;
+    qreal devicePixelRatio() const override;
+    qreal refreshRate() const override;
 
-    QString name() const Q_DECL_OVERRIDE { return mOutputName; }
+    QString name() const override { return mOutputName; }
 
 #if QT_CONFIG(cursor)
-    QPlatformCursor *cursor() const Q_DECL_OVERRIDE;
+    QPlatformCursor *cursor() const override;
     QWaylandCursor *waylandCursor() const { return mWaylandCursor; };
 #endif
 
@@ -101,15 +101,15 @@ public:
     static QWaylandScreen *waylandScreenFromWindow(QWindow *window);
 
 private:
-    void output_mode(uint32_t flags, int width, int height, int refresh) Q_DECL_OVERRIDE;
+    void output_mode(uint32_t flags, int width, int height, int refresh) override;
     void output_geometry(int32_t x, int32_t y,
                          int32_t width, int32_t height,
                          int subpixel,
                          const QString &make,
                          const QString &model,
-                         int32_t transform) Q_DECL_OVERRIDE;
-    void output_scale(int32_t factor) Q_DECL_OVERRIDE;
-    void output_done() Q_DECL_OVERRIDE;
+                         int32_t transform) override;
+    void output_scale(int32_t factor) override;
+    void output_done() override;
 
     int m_outputId;
     QWaylandDisplay *mWaylandDisplay;

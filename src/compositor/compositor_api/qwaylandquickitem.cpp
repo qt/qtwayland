@@ -73,6 +73,7 @@
 
 QT_BEGIN_NAMESPACE
 
+#if QT_CONFIG(opengl)
 static const struct {
     const char * const vertexShaderSourceFile;
     const char * const fragmentShaderSourceFile;
@@ -259,6 +260,7 @@ void QWaylandBufferMaterial::ensureTextures(int count)
         m_textures << nullptr;
     }
 }
+#endif // QT_CONFIG(opengl)
 
 QMutex *QWaylandQuickItemPrivate::mutex = nullptr;
 
@@ -284,10 +286,12 @@ public:
         if (m_ref.hasBuffer()) {
             if (buffer.isSharedMemory()) {
                 m_sgTex = surfaceItem->window()->createTextureFromImage(buffer.image());
-                if (m_sgTex) {
+#if QT_CONFIG(opengl)
+                if (m_sgTex)
                     m_sgTex->bind();
-                }
+#endif
             } else {
+#if QT_CONFIG(opengl)
                 QQuickWindow::CreateTextureOptions opt;
                 QWaylandQuickSurface *surface = qobject_cast<QWaylandQuickSurface *>(surfaceItem->surface());
                 if (surface && surface->useTextureAlpha()) {
@@ -297,6 +301,9 @@ public:
                 auto texture = buffer.toOpenGLTexture();
                 auto size = surface->bufferSize();
                 m_sgTex = surfaceItem->window()->createTextureFromId(texture->textureId(), size, opt);
+#else
+                qCWarning(qLcWaylandCompositor) << "Without OpenGL support only shared memory textures are supported";
+#endif
             }
         }
         emit textureChanged();
@@ -1328,7 +1335,11 @@ QSGNode *QWaylandQuickItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeDat
     const QRectF rect = invertY ? QRectF(0, height(), width(), -height())
                                 : QRectF(0, 0, width(), height());
 
-    if (ref.isSharedMemory() || bufferTypes[ref.bufferFormatEgl()].canProvideTexture) {
+    if (ref.isSharedMemory()
+#if QT_CONFIG(opengl)
+            || bufferTypes[ref.bufferFormatEgl()].canProvideTexture
+#endif
+    ) {
         // This case could covered by the more general path below, but this is more efficient (especially when using ShaderEffect items).
         QSGSimpleTextureNode *node = static_cast<QSGSimpleTextureNode *>(oldNode);
 
@@ -1354,45 +1365,48 @@ QSGNode *QWaylandQuickItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeDat
         node->setSourceRect(QRectF(source.topLeft() * scale, source.size() * scale));
 
         return node;
-    } else {
-        Q_ASSERT(!d->provider);
-
-        QSGGeometryNode *node = static_cast<QSGGeometryNode *>(oldNode);
-
-        if (!node) {
-            node = new QSGGeometryNode;
-            d->newTexture = true;
-        }
-
-        QSGGeometry *geometry = node->geometry();
-        QWaylandBufferMaterial *material = static_cast<QWaylandBufferMaterial *>(node->material());
-
-        if (!geometry)
-            geometry = new QSGGeometry(QSGGeometry::defaultAttributes_TexturedPoint2D(), 4);
-
-        if (!material)
-            material = new QWaylandBufferMaterial(ref.bufferFormatEgl());
-
-        if (d->newTexture) {
-            d->newTexture = false;
-            for (int plane = 0; plane < bufferTypes[ref.bufferFormatEgl()].planeCount; plane++)
-                if (auto texture = ref.toOpenGLTexture(plane))
-                    material->setTextureForPlane(plane, texture);
-            material->bind();
-        }
-
-        QSGGeometry::updateTexturedRectGeometry(geometry, rect, QRectF(0, 0, 1, 1));
-
-        node->setGeometry(geometry);
-        node->setFlag(QSGNode::OwnsGeometry, true);
-
-        node->setMaterial(material);
-        node->setFlag(QSGNode::OwnsMaterial, true);
-
-        return node;
     }
 
-    Q_UNREACHABLE();
+#if QT_CONFIG(opengl)
+    Q_ASSERT(!d->provider);
+
+    QSGGeometryNode *node = static_cast<QSGGeometryNode *>(oldNode);
+
+    if (!node) {
+        node = new QSGGeometryNode;
+        d->newTexture = true;
+    }
+
+    QSGGeometry *geometry = node->geometry();
+    QWaylandBufferMaterial *material = static_cast<QWaylandBufferMaterial *>(node->material());
+
+    if (!geometry)
+        geometry = new QSGGeometry(QSGGeometry::defaultAttributes_TexturedPoint2D(), 4);
+
+    if (!material)
+        material = new QWaylandBufferMaterial(ref.bufferFormatEgl());
+
+    if (d->newTexture) {
+        d->newTexture = false;
+        for (int plane = 0; plane < bufferTypes[ref.bufferFormatEgl()].planeCount; plane++)
+            if (auto texture = ref.toOpenGLTexture(plane))
+                material->setTextureForPlane(plane, texture);
+        material->bind();
+    }
+
+    QSGGeometry::updateTexturedRectGeometry(geometry, rect, QRectF(0, 0, 1, 1));
+
+    node->setGeometry(geometry);
+    node->setFlag(QSGNode::OwnsGeometry, true);
+
+    node->setMaterial(material);
+    node->setFlag(QSGNode::OwnsMaterial, true);
+
+    return node;
+#else
+    qCWarning(qLcWaylandCompositor) << "Without OpenGL support only shared memory textures are supported";
+    return nullptr;
+#endif // QT_CONFIG(opengl)
 }
 
 void QWaylandQuickItem::setTouchEventsEnabled(bool enabled)

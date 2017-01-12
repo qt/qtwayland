@@ -128,6 +128,7 @@ void QWaylandQuickCompositor::grabSurface(QWaylandSurfaceGrabber *grabber, const
         return;
     }
 
+#if QT_CONFIG(opengl)
     QWaylandQuickOutput *output = static_cast<QWaylandQuickOutput *>(defaultOutput());
     if (!output) {
         emit grabber->failed(QWaylandSurfaceGrabber::RendererNotReady);
@@ -169,6 +170,9 @@ void QWaylandQuickCompositor::grabSurface(QWaylandSurfaceGrabber *grabber, const
     state->grabber = grabber;
     state->buffer = buffer;
     static_cast<QQuickWindow *>(output->window())->scheduleRenderJob(state, QQuickWindow::NoStage);
+#else
+    emit grabber->failed(QWaylandSurfaceGrabber::UnknownBufferType);
+#endif
 }
 
 QT_END_NAMESPACE

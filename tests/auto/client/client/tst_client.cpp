@@ -36,7 +36,9 @@
 #include <QPixmap>
 #include <QDrag>
 #include <QWindow>
+#if QT_CONFIG(opengl)
 #include <QOpenGLWindow>
+#endif
 
 #include <QtTest/QtTest>
 #include <QtWaylandClient/private/qwaylandintegration_p.h>
@@ -107,6 +109,7 @@ public:
     QPoint mousePressPos;
 };
 
+#if QT_CONFIG(opengl)
 class TestGlWindow : public QOpenGLWindow
 {
     Q_OBJECT
@@ -136,6 +139,7 @@ void TestGlWindow::paintGL()
     glClear(GL_COLOR_BUFFER_BIT);
     ++paintGLCalled;
 }
+#endif // QT_CONFIG(opengl)
 
 class tst_WaylandClient : public QObject
 {
@@ -176,7 +180,9 @@ private slots:
     void dontCrashOnMultipleCommits();
     void hiddenTransientParent();
     void hiddenPopupParent();
+#if QT_CONFIG(opengl)
     void glWindow();
+#endif // QT_CONFIG(opengl)
     void longWindowTitle();
 
 private:
@@ -458,6 +464,7 @@ void tst_WaylandClient::hiddenPopupParent()
     QTRY_VERIFY(compositor->surface());
 }
 
+#if QT_CONFIG(opengl)
 void tst_WaylandClient::glWindow()
 {
     QSKIP("Skipping GL tests, as not supported by all CI systems: See https://bugreports.qt.io/browse/QTBUG-65802");
@@ -483,6 +490,7 @@ void tst_WaylandClient::glWindow()
     testWindow->setVisible(false);
     QTRY_VERIFY(!compositor->surface());
 }
+#endif // QT_CONFIG(opengl)
 
 void tst_WaylandClient::longWindowTitle()
 {

@@ -2,7 +2,11 @@ TEMPLATE = subdirs
 
 qtHaveModule(quick): {
     SUBDIRS += \
-        compositor \
-        texture-sharing \
-        texture-sharing-extension
+        compositor
+
+    qtHaveModule(opengl): {
+        SUBDIRS += \
+            texture-sharing \
+            texture-sharing-extension
+    }
 }

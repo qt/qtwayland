@@ -64,6 +64,7 @@ class QWaylandSurfaceTextureProvider;
 class QMutex;
 class QOpenGLTexture;
 
+#if QT_CONFIG(opengl)
 class QWaylandBufferMaterialShader : public QSGMaterialShader
 {
 public:
@@ -102,6 +103,7 @@ private:
     const QWaylandBufferRef::BufferFormatEgl m_format;
     QVarLengthArray<QOpenGLTexture*, 3> m_textures;
 };
+#endif // QT_CONFIG(opengl)
 
 class QWaylandQuickItemPrivate : public QQuickItemPrivate
 {

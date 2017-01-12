@@ -28,7 +28,9 @@
 
 #include "mockcompositor.h"
 #include <QtGui/QRasterWindow>
+#if QT_CONFIG(opengl)
 #include <QtGui/QOpenGLWindow>
+#endif
 
 using namespace MockCompositor;
 
@@ -39,7 +41,9 @@ private slots:
     void cleanup() { QTRY_VERIFY2(isClean(), qPrintable(dirtyMessage())); }
     void createDestroySurface();
     void waitForFrameCallbackRaster();
+#if QT_CONFIG(opengl)
     void waitForFrameCallbackGl();
+#endif
     void negotiateShmFormat();
 };
 
@@ -89,6 +93,7 @@ void tst_surface::waitForFrameCallbackRaster()
     }
 }
 
+#if QT_CONFIG(opengl)
 void tst_surface::waitForFrameCallbackGl()
 {
     QSKIP("TODO: This currently fails, needs a fix");
@@ -129,6 +134,7 @@ void tst_surface::waitForFrameCallbackGl()
         bufferSpy.removeFirst();
     }
 }
+#endif // QT_CONFIG(opengl)
 
 void tst_surface::negotiateShmFormat()
 {

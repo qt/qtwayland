@@ -171,7 +171,9 @@ public: //member variables
     bool isInitialized;
     Qt::ScreenOrientation contentOrientation;
     QWindow::Visibility visibility;
+#if QT_CONFIG(im)
     QWaylandInputMethodControl *inputMethodControl;
+#endif
 
     class Subsurface : public QtWaylandServer::wl_subsurface
     {

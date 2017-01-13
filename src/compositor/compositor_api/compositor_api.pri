@@ -27,8 +27,6 @@ HEADERS += \
     compositor_api/qwaylandview_p.h \
     compositor_api/qwaylandresource.h \
     compositor_api/qwaylandsurfacegrabber.h \
-    compositor_api/qwaylandinputmethodcontrol.h \
-    compositor_api/qwaylandinputmethodcontrol_p.h \
     compositor_api/qwaylandoutputmode_p.h
 
 SOURCES += \
@@ -47,8 +45,15 @@ SOURCES += \
     compositor_api/qwaylanddestroylistener.cpp \
     compositor_api/qwaylandview.cpp \
     compositor_api/qwaylandresource.cpp \
-    compositor_api/qwaylandsurfacegrabber.cpp \
-    compositor_api/qwaylandinputmethodcontrol.cpp
+    compositor_api/qwaylandsurfacegrabber.cpp
+
+qtConfig(im) {
+    HEADERS += \
+        compositor_api/qwaylandinputmethodcontrol.h \
+        compositor_api/qwaylandinputmethodcontrol_p.h
+    SOURCES += \
+        compositor_api/qwaylandinputmethodcontrol.cpp
+}
 
 QT += core-private
 

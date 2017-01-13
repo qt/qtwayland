@@ -588,6 +588,7 @@ void QWaylandQuickItem::hoverLeaveEvent(QHoverEvent *event)
     }
 }
 
+#if QT_CONFIG(wheelevent)
 /*!
  * \internal
  */
@@ -606,6 +607,7 @@ void QWaylandQuickItem::wheelEvent(QWheelEvent *event)
         event->ignore();
     }
 }
+#endif
 
 /*!
  * \internal

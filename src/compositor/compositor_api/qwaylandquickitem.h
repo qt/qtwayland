@@ -128,7 +128,9 @@ protected:
     void hoverEnterEvent(QHoverEvent *event) Q_DECL_OVERRIDE;
     void hoverMoveEvent(QHoverEvent *event) Q_DECL_OVERRIDE;
     void hoverLeaveEvent(QHoverEvent *event) Q_DECL_OVERRIDE;
+#if QT_CONFIG(wheelevent)
     void wheelEvent(QWheelEvent *event) Q_DECL_OVERRIDE;
+#endif
 
     void keyPressEvent(QKeyEvent *event) Q_DECL_OVERRIDE;
     void keyReleaseEvent(QKeyEvent *event) Q_DECL_OVERRIDE;

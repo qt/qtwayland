@@ -39,7 +39,6 @@ SOURCES +=  qwaylandintegration.cpp \
             qwaylandwindow.cpp \
             qwaylandscreen.cpp \
             qwaylandshmwindow.cpp \
-            qwaylanddnd.cpp \
             qwaylanddataoffer.cpp \
             qwaylanddatadevicemanager.cpp \
             qwaylanddatasource.cpp \
@@ -62,7 +61,6 @@ SOURCES +=  qwaylandintegration.cpp \
             qwaylanddecorationplugin.cpp \
             qwaylandwindowmanagerintegration.cpp \
             qwaylandinputcontext.cpp \
-            qwaylanddatadevice.cpp \
             qwaylandshm.cpp \
             qwaylandbuffer.cpp \
 
@@ -75,7 +73,6 @@ HEADERS +=  qwaylandintegration_p.h \
             qwaylandinputdevice_p.h \
             qwaylandbuffer_p.h \
             qwaylandshmwindow_p.h \
-            qwaylanddnd_p.h \
             qwaylanddataoffer_p.h \
             qwaylanddatadevicemanager_p.h \
             qwaylanddatasource_p.h \
@@ -95,7 +92,6 @@ HEADERS +=  qwaylandintegration_p.h \
             qwaylanddecorationplugin_p.h \
             qwaylandwindowmanagerintegration_p.h \
             qwaylandinputcontext_p.h \
-            qwaylanddatadevice_p.h \
             qwaylandshm_p.h \
             qtwaylandclientglobal.h \
             qtwaylandclientglobal_p.h \
@@ -121,6 +117,14 @@ qtConfig(cursor) {
         qwaylandcursor_p.h
     SOURCES += \
         qwaylandcursor.cpp
+}
+qtConfig(draganddrop) {
+    HEADERS += \
+        qwaylanddnd_p.h \
+        qwaylanddatadevice_p.h
+    SOURCES += \
+        qwaylanddnd.cpp \
+        qwaylanddatadevice.cpp
 }
 
 CONFIG += generated_privates

@@ -19,7 +19,6 @@ HEADERS += \
     compositor_api/qwaylandoutput.h \
     compositor_api/qwaylandoutputmode.h \
     compositor_api/qwaylandoutputmode_p.h \
-    compositor_api/qwaylanddrag.h \
     compositor_api/qwaylandbufferref.h \
     compositor_api/qwaylanddestroylistener.h \
     compositor_api/qwaylanddestroylistener_p.h \
@@ -40,7 +39,6 @@ SOURCES += \
     compositor_api/qwaylandtouch.cpp \
     compositor_api/qwaylandoutput.cpp \
     compositor_api/qwaylandoutputmode.cpp \
-    compositor_api/qwaylanddrag.cpp \
     compositor_api/qwaylandbufferref.cpp \
     compositor_api/qwaylanddestroylistener.cpp \
     compositor_api/qwaylandview.cpp \
@@ -56,6 +54,13 @@ qtConfig(im) {
 }
 
 QT += core-private
+
+qtConfig(draganddrop) {
+    HEADERS += \
+        compositor_api/qwaylanddrag.h
+    SOURCES += \
+        compositor_api/qwaylanddrag.cpp
+}
 
 qtHaveModule(quick):qtConfig(opengl) {
     DEFINES += QT_WAYLAND_COMPOSITOR_QUICK

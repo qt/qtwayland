@@ -40,7 +40,6 @@ SOURCES +=  qwaylandintegration.cpp \
             qwaylandwindow.cpp \
             qwaylandscreen.cpp \
             qwaylandshmwindow.cpp \
-            qwaylandclipboard.cpp \
             qwaylanddnd.cpp \
             qwaylanddataoffer.cpp \
             qwaylanddatadevicemanager.cpp \
@@ -78,7 +77,6 @@ HEADERS +=  qwaylandintegration_p.h \
             qwaylandinputdevice_p.h \
             qwaylandbuffer_p.h \
             qwaylandshmwindow_p.h \
-            qwaylandclipboard_p.h \
             qwaylanddnd_p.h \
             qwaylanddataoffer_p.h \
             qwaylanddatadevicemanager_p.h \
@@ -107,6 +105,11 @@ HEADERS +=  qwaylandintegration_p.h \
             ../shared/qwaylandmimehelper_p.h \
             ../shared/qwaylandxkb_p.h \
             ../shared/qwaylandsharedmemoryformathelper_p.h
+
+qtConfig(clipboard) {
+    HEADERS += qwaylandclipboard_p.h
+    SOURCES += qwaylandclipboard.cpp
+}
 
 include(hardwareintegration/hardwareintegration.pri)
 include(shellintegration/shellintegration.pri)

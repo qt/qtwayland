@@ -86,8 +86,10 @@ public:
     QPlatformFontDatabase *fontDatabase() const Q_DECL_OVERRIDE;
 
     QPlatformNativeInterface *nativeInterface() const Q_DECL_OVERRIDE;
-#if QT_CONFIG(draganddrop)
+#if QT_CONFIG(clipboard)
     QPlatformClipboard *clipboard() const Q_DECL_OVERRIDE;
+#endif
+#if QT_CONFIG(draganddrop)
     QPlatformDrag *drag() const Q_DECL_OVERRIDE;
 #endif
     QPlatformInputContext *inputContext() const Q_DECL_OVERRIDE;
@@ -131,8 +133,10 @@ private:
     QWaylandShellIntegration *createShellIntegration(const QString& interfaceName);
 
     QScopedPointer<QPlatformFontDatabase> mFontDb;
-#if QT_CONFIG(draganddrop)
+#if QT_CONFIG(clipboard)
     QScopedPointer<QPlatformClipboard> mClipboard;
+#endif
+#if QT_CONFIG(draganddrop)
     QScopedPointer<QPlatformDrag> mDrag;
 #endif
     QScopedPointer<QPlatformNativeInterface> mNativeInterface;

@@ -18,7 +18,7 @@ CONFIG += link_pkgconfig wayland-scanner
 qtConfig(xkbcommon-evdev): \
     QMAKE_USE_PRIVATE += xkbcommon_evdev
 
-QMAKE_USE += wayland-client wayland-cursor
+QMAKE_USE += wayland-client
 
 INCLUDEPATH += $$PWD/../shared
 
@@ -35,7 +35,6 @@ SOURCES +=  qwaylandintegration.cpp \
             qwaylandnativeinterface.cpp \
             qwaylandshmbackingstore.cpp \
             qwaylandinputdevice.cpp \
-            qwaylandcursor.cpp \
             qwaylanddisplay.cpp \
             qwaylandwindow.cpp \
             qwaylandscreen.cpp \
@@ -69,7 +68,6 @@ SOURCES +=  qwaylandintegration.cpp \
 
 HEADERS +=  qwaylandintegration_p.h \
             qwaylandnativeinterface_p.h \
-            qwaylandcursor_p.h \
             qwaylanddisplay_p.h \
             qwaylandwindow_p.h \
             qwaylandscreen_p.h \
@@ -115,6 +113,15 @@ include(hardwareintegration/hardwareintegration.pri)
 include(shellintegration/shellintegration.pri)
 include(inputdeviceintegration/inputdeviceintegration.pri)
 include(global/global.pri)
+
+qtConfig(cursor) {
+    QMAKE_USE += wayland-cursor
+
+    HEADERS += \
+        qwaylandcursor_p.h
+    SOURCES += \
+        qwaylandcursor.cpp
+}
 
 CONFIG += generated_privates
 MODULE_PLUGIN_TYPES = \

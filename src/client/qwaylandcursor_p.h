@@ -55,6 +55,8 @@
 #include <QtCore/QMap>
 #include <QtWaylandClient/qtwaylandclientglobal.h>
 
+#if QT_CONFIG(cursor)
+
 struct wl_cursor;
 struct wl_cursor_image;
 struct wl_cursor_theme;
@@ -128,4 +130,5 @@ private:
 
 QT_END_NAMESPACE
 
+#endif // cursor
 #endif // QWAYLANDCURSOR_H

@@ -90,8 +90,10 @@ public:
 
     QString name() const Q_DECL_OVERRIDE { return mOutputName; }
 
+#if QT_CONFIG(cursor)
     QPlatformCursor *cursor() const Q_DECL_OVERRIDE;
     QWaylandCursor *waylandCursor() const { return mWaylandCursor; };
+#endif
 
     uint32_t outputId() const { return m_outputId; }
     ::wl_output *output() { return object(); }
@@ -121,7 +123,9 @@ private:
     QString mOutputName;
     Qt::ScreenOrientation m_orientation;
 
+#if QT_CONFIG(cursor)
     QWaylandCursor *mWaylandCursor;
+#endif
 };
 
 }

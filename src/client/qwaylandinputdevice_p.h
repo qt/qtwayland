@@ -72,7 +72,9 @@
 
 #include <QtCore/QDebug>
 
+#if QT_CONFIG(cursor)
 struct wl_cursor_image;
+#endif
 
 QT_BEGIN_NAMESPACE
 
@@ -100,10 +102,12 @@ public:
 
     struct ::wl_seat *wl_seat() { return QtWayland::wl_seat::object(); }
 
+#if QT_CONFIG(cursor)
     void setCursor(const QCursor &cursor, QWaylandScreen *screen);
     void setCursor(struct wl_buffer *buffer, struct ::wl_cursor_image *image);
     void setCursor(struct wl_buffer *buffer, const QPoint &hotSpot, const QSize &size);
     void setCursor(const QSharedPointer<QWaylandBuffer> &buffer, const QPoint &hotSpot);
+#endif
     void handleWindowDestroyed(QWaylandWindow *window);
     void handleEndDrag();
 
@@ -247,12 +251,16 @@ public:
     QWaylandInputDevice *mParent;
     QWaylandWindow *mFocus;
     uint32_t mEnterSerial;
+#if QT_CONFIG(cursor)
     uint32_t mCursorSerial;
+#endif
     QPointF mSurfacePos;
     QPointF mGlobalPos;
     Qt::MouseButtons mButtons;
+#if QT_CONFIG(cursor)
     wl_buffer *mCursorBuffer;
     Qt::CursorShape mCursorShape;
+#endif
 };
 
 class Q_WAYLAND_CLIENT_EXPORT QWaylandInputDevice::Touch : public QtWayland::wl_touch

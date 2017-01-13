@@ -709,8 +709,10 @@ void QWaylandWindow::handleMouse(QWaylandInputDevice *inputDevice, const QWaylan
         }
     }
 
+#if QT_CONFIG(cursor)
     if (e.type == QWaylandPointerEvent::Enter)
         restoreMouseCursor(inputDevice);
+#endif
 }
 
 void QWaylandWindow::handleMouseLeave(QWaylandInputDevice *inputDevice)
@@ -722,7 +724,9 @@ void QWaylandWindow::handleMouseLeave(QWaylandInputDevice *inputDevice)
     } else {
         QWindowSystemInterface::handleLeaveEvent(window());
     }
+#if QT_CONFIG(cursor)
     restoreMouseCursor(inputDevice);
+#endif
 }
 
 bool QWaylandWindow::touchDragDecoration(QWaylandInputDevice *inputDevice, const QPointF &local, const QPointF &global, Qt::TouchPointState state, Qt::KeyboardModifiers mods)
@@ -754,7 +758,9 @@ void QWaylandWindow::handleMouseEventWithDecoration(QWaylandInputDevice *inputDe
         globalTranslated.setX(globalTranslated.x() - marg.left());
         globalTranslated.setY(globalTranslated.y() - marg.top());
         if (!mMouseEventsInContentArea) {
+#if QT_CONFIG(cursor)
             restoreMouseCursor(inputDevice);
+#endif
             QWindowSystemInterface::handleEnterEvent(window());
         }
 
@@ -780,6 +786,7 @@ void QWaylandWindow::handleMouseEventWithDecoration(QWaylandInputDevice *inputDe
     }
 }
 
+#if QT_CONFIG(cursor)
 void QWaylandWindow::setMouseCursor(QWaylandInputDevice *device, const QCursor &cursor)
 {
     device->setCursor(cursor, mScreen);
@@ -789,6 +796,7 @@ void QWaylandWindow::restoreMouseCursor(QWaylandInputDevice *device)
 {
     setMouseCursor(device, window()->cursor());
 }
+#endif
 
 void QWaylandWindow::requestActivateWindow()
 {

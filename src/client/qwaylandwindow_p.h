@@ -176,8 +176,10 @@ public:
     inline bool isMaximized() const { return mState == Qt::WindowMaximized; }
     inline bool isFullscreen() const { return mState == Qt::WindowFullScreen; }
 
+#if QT_CONFIG(cursor)
     void setMouseCursor(QWaylandInputDevice *device, const QCursor &cursor);
     void restoreMouseCursor(QWaylandInputDevice *device);
+#endif
 
     QWaylandWindow *transientParent() const;
 

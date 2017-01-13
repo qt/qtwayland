@@ -64,18 +64,24 @@ QWaylandScreen::QWaylandScreen(QWaylandDisplay *waylandDisplay, int version, uin
     , mFormat(QImage::Format_ARGB32_Premultiplied)
     , mOutputName(QStringLiteral("Screen%1").arg(id))
     , m_orientation(Qt::PrimaryOrientation)
+#if QT_CONFIG(cursor)
     , mWaylandCursor(0)
+#endif
 {
 }
 
 QWaylandScreen::~QWaylandScreen()
 {
+#if QT_CONFIG(cursor)
     delete mWaylandCursor;
+#endif
 }
 
 void QWaylandScreen::init()
 {
+#if QT_CONFIG(cursor)
     mWaylandCursor = new QWaylandCursor(this);
+#endif
 }
 
 QWaylandDisplay * QWaylandScreen::display() const
@@ -156,10 +162,12 @@ qreal QWaylandScreen::refreshRate() const
     return mRefreshRate / 1000.f;
 }
 
+#if QT_CONFIG(cursor)
 QPlatformCursor *QWaylandScreen::cursor() const
 {
     return  mWaylandCursor;
 }
+#endif
 
 QWaylandScreen * QWaylandScreen::waylandScreenFromWindow(QWindow *window)
 {

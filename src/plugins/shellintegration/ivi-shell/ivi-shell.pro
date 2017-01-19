@@ -1,7 +1,3 @@
-PLUGIN_TYPE = wayland-shell-integration
-PLUGIN_CLASS_NAME = QWaylandIviShellIntegrationPlugin
-load(qt_plugin)
-
 QT += gui-private waylandclient-private
 CONFIG += wayland-scanner
 
@@ -25,3 +21,7 @@ SOURCES += \
 
 OTHER_FILES += \
     ivi-shell.json
+
+PLUGIN_TYPE = wayland-shell-integration
+PLUGIN_CLASS_NAME = QWaylandIviShellIntegrationPlugin
+load(qt_plugin)

@@ -110,7 +110,7 @@ public:
     void sendModesInfo();
 
 protected:
-    void output_bind_resource(Resource *resource) Q_DECL_OVERRIDE;
+    void output_bind_resource(Resource *resource) override;
 
 private:
     QWaylandCompositor *compositor;

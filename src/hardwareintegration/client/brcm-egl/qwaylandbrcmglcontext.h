@@ -58,14 +58,14 @@ public:
     QWaylandBrcmGLContext(EGLDisplay eglDisplay, const QSurfaceFormat &format, QPlatformOpenGLContext *share);
     ~QWaylandBrcmGLContext();
 
-    void swapBuffers(QPlatformSurface *surface) Q_DECL_OVERRIDE;
+    void swapBuffers(QPlatformSurface *surface) override;
 
-    bool makeCurrent(QPlatformSurface *surface) Q_DECL_OVERRIDE;
-    void doneCurrent() Q_DECL_OVERRIDE;
+    bool makeCurrent(QPlatformSurface *surface) override;
+    void doneCurrent() override;
 
-    void (*getProcAddress(const char *procName)) () Q_DECL_OVERRIDE;
+    void (*getProcAddress(const char *procName)) () override;
 
-    QSurfaceFormat format() const Q_DECL_OVERRIDE { return m_format; }
+    QSurfaceFormat format() const override { return m_format; }
 
     EGLConfig eglConfig() const;
     EGLContext eglContext() const { return m_context; }

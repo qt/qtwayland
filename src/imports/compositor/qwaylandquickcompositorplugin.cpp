@@ -141,6 +141,7 @@ public:
         qmlRegisterType<QWaylandWlShellQuickExtension>(uri, 1, 0, "WlShell");
         qmlRegisterType<QWaylandWlShellSurface>(uri, 1, 0, "WlShellSurface");
         qmlRegisterType<QWaylandQuickShellSurfaceItem>(uri, 1, 0, "ShellSurfaceItem");
+        qmlRegisterUncreatableType<QWaylandXdgShellV5>(uri, 1, 0, "XdgShellV5Base", QObject::tr("Cannot create instance of XdgShellV5Base"));
         qmlRegisterType<QWaylandXdgShellV5QuickExtension>(uri, 1, 0, "XdgShellV5");
         qmlRegisterType<QWaylandXdgSurfaceV5>(uri, 1, 0, "XdgSurfaceV5");
         qmlRegisterType<QWaylandTextInputManagerQuickExtension>(uri, 1, 0, "TextInputManager");

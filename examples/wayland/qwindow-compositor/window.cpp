@@ -129,18 +129,17 @@ void Window::paintGL()
             m_textureBlitter.bind(currentTarget);
         }
         QWaylandSurface *surface = view->surface();
-        if (surface && surface->hasContent()) {
-            QSize s = surface->size();
+        if ((surface && surface->hasContent()) || view->isBufferLocked()) {
+            QSize s = view->size();
             if (!s.isEmpty()) {
                 if (m_mouseView == view && m_grabState == ResizeGrab && m_resizeAnchored)
                     view->setPosition(getAnchoredPosition(m_resizeAnchorPosition, m_resizeEdge, s));
                 QPointF pos = view->position() + view->parentPosition();
                 QRectF surfaceGeometry(pos, s);
-                QOpenGLTextureBlitter::Origin surfaceOrigin =
-                    view->currentBuffer().origin() == QWaylandSurface::OriginTopLeft
-                    ? QOpenGLTextureBlitter::OriginTopLeft
-                    : QOpenGLTextureBlitter::OriginBottomLeft;
-                QMatrix4x4 targetTransform = QOpenGLTextureBlitter::targetTransform(surfaceGeometry, QRect(QPoint(), size()));
+                auto surfaceOrigin = view->textureOrigin();
+                auto sf = view->animationFactor();
+                QRectF targetRect(surfaceGeometry.topLeft() * sf, surfaceGeometry.size() * sf);
+                QMatrix4x4 targetTransform = QOpenGLTextureBlitter::targetTransform(targetRect, QRect(QPoint(), size()));
                 m_textureBlitter.blit(texture->textureId(), targetTransform, surfaceOrigin);
             }
         }
@@ -157,10 +156,8 @@ View *Window::viewAt(const QPointF &point)
     Q_FOREACH (View *view, m_compositor->views()) {
         if (view == m_dragIconView)
             continue;
-        QPointF topLeft = view->position();
-        QWaylandSurface *surface = view->surface();
-        QRectF geo(topLeft, surface->size());
-        if (geo.contains(point))
+        QRectF geom(view->position(), view->size());
+        if (geom.contains(point))
             ret = view;
     }
     return ret;

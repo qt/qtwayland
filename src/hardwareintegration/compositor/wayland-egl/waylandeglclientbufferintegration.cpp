@@ -298,8 +298,10 @@ void WaylandEglClientBufferIntegrationPrivate::init_egl_fd_texture(WaylandEglCli
     }
     state.eglMode = BufferState::ModeEGLStream;
 
-    if (!QOpenGLContext::currentContext())
+    if (!QOpenGLContext::currentContext()) {
         qWarning("EglClientBufferIntegration: creating texture with no current context");
+        return;
+    }
 
     //TODO This texture might end up in a different context than the quick item which wants to use it, this needs to be fixed somehow.
 

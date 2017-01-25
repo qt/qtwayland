@@ -45,7 +45,9 @@
 #include "qwaylandinputcontext_p.h"
 #include "qwaylandshmbackingstore_p.h"
 #include "qwaylandnativeinterface_p.h"
+#if QT_CONFIG(clipboard)
 #include "qwaylandclipboard_p.h"
+#endif
 #include "qwaylanddnd_p.h"
 #include "qwaylandwindowmanagerintegration_p.h"
 #include "qwaylandscreen_p.h"
@@ -132,8 +134,10 @@ QWaylandIntegration::QWaylandIntegration()
 {
     initializeInputDeviceIntegration();
     mDisplay.reset(new QWaylandDisplay(this));
-#if QT_CONFIG(draganddrop)
+#if QT_CONFIG(clipboard)
     mClipboard.reset(new QWaylandClipboard(mDisplay.data()));
+#endif
+#if QT_CONFIG(draganddrop)
     mDrag.reset(new QWaylandDrag(mDisplay.data()));
 #endif
     QString icStr = QPlatformInputContextFactory::requested();
@@ -229,12 +233,14 @@ QPlatformFontDatabase *QWaylandIntegration::fontDatabase() const
     return mFontDb.data();
 }
 
-#if QT_CONFIG(draganddrop)
+#if QT_CONFIG(clipboard)
 QPlatformClipboard *QWaylandIntegration::clipboard() const
 {
     return mClipboard.data();
 }
+#endif
 
+#if QT_CONFIG(draganddrop)
 QPlatformDrag *QWaylandIntegration::drag() const
 {
     return mDrag.data();

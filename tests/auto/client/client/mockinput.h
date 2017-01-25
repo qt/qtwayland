@@ -54,10 +54,10 @@ public:
     Touch *touch() const { return m_touch.data(); }
 
 protected:
-    void seat_bind_resource(Resource *resource) Q_DECL_OVERRIDE;
-    void seat_get_keyboard(Resource *resource, uint32_t id) Q_DECL_OVERRIDE;
-    void seat_get_pointer(Resource *resource, uint32_t id) Q_DECL_OVERRIDE;
-    void seat_get_touch(Resource *resource, uint32_t id) Q_DECL_OVERRIDE;
+    void seat_bind_resource(Resource *resource) override;
+    void seat_get_keyboard(Resource *resource, uint32_t id) override;
+    void seat_get_pointer(Resource *resource, uint32_t id) override;
+    void seat_get_touch(Resource *resource, uint32_t id) override;
 
 private:
     Compositor *m_compositor;
@@ -80,7 +80,7 @@ public:
     void sendKey(uint32_t key, uint32_t state);
 
 protected:
-    void keyboard_destroy_resource(wl_keyboard::Resource *resource) Q_DECL_OVERRIDE;
+    void keyboard_destroy_resource(wl_keyboard::Resource *resource) override;
 
 private:
     Compositor *m_compositor;
@@ -103,7 +103,7 @@ public:
     void sendButton(uint32_t button, uint32_t state);
 
 protected:
-    void pointer_destroy_resource(wl_pointer::Resource *resource) Q_DECL_OVERRIDE;
+    void pointer_destroy_resource(wl_pointer::Resource *resource) override;
 
 private:
     Compositor *m_compositor;
@@ -158,7 +158,7 @@ public:
     DataDevice *dataDevice() const;
 
 protected:
-    void data_device_manager_get_data_device(Resource *resource, uint32_t id, struct ::wl_resource *seat) Q_DECL_OVERRIDE;
+    void data_device_manager_get_data_device(Resource *resource, uint32_t id, struct ::wl_resource *seat) override;
     void data_device_manager_create_data_source(Resource *resource, uint32_t id) override;
 
 private:

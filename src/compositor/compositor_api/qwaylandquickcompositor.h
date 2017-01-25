@@ -52,13 +52,13 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQuickCompositor : public QWaylandCompo
     Q_OBJECT
 public:
     QWaylandQuickCompositor(QObject *parent = nullptr);
-    void create() Q_DECL_OVERRIDE;
+    void create() override;
 
-    void grabSurface(QWaylandSurfaceGrabber *grabber, const QWaylandBufferRef &buffer) Q_DECL_OVERRIDE;
+    void grabSurface(QWaylandSurfaceGrabber *grabber, const QWaylandBufferRef &buffer) override;
 
 protected:
-    void classBegin() Q_DECL_OVERRIDE;
-    void componentComplete() Q_DECL_OVERRIDE;
+    void classBegin() override;
+    void componentComplete() override;
 };
 
 QT_END_NAMESPACE

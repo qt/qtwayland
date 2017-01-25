@@ -183,7 +183,7 @@ private Q_SLOTS:
     void handleWindowDestroyed();
 
 protected:
-    bool event(QEvent *event) Q_DECL_OVERRIDE;
+    bool event(QEvent *event) override;
 
     virtual void initialize();
 };

@@ -89,20 +89,20 @@ public:
     Qt::LayoutDirection inputDirection() const;
 
 protected:
-    void zwp_text_input_v2_enter(uint32_t serial, struct ::wl_surface *surface) Q_DECL_OVERRIDE;
-    void zwp_text_input_v2_leave(uint32_t serial, struct ::wl_surface *surface) Q_DECL_OVERRIDE;
-    void zwp_text_input_v2_modifiers_map(wl_array *map) Q_DECL_OVERRIDE;
-    void zwp_text_input_v2_input_panel_state(uint32_t state, int32_t x, int32_t y, int32_t width, int32_t height) Q_DECL_OVERRIDE;
-    void zwp_text_input_v2_preedit_string(const QString &text, const QString &commit) Q_DECL_OVERRIDE;
-    void zwp_text_input_v2_preedit_styling(uint32_t index, uint32_t length, uint32_t style) Q_DECL_OVERRIDE;
-    void zwp_text_input_v2_preedit_cursor(int32_t index) Q_DECL_OVERRIDE;
-    void zwp_text_input_v2_commit_string(const QString &text) Q_DECL_OVERRIDE;
-    void zwp_text_input_v2_cursor_position(int32_t index, int32_t anchor) Q_DECL_OVERRIDE;
-    void zwp_text_input_v2_delete_surrounding_text(uint32_t before_length, uint32_t after_length) Q_DECL_OVERRIDE;
-    void zwp_text_input_v2_keysym(uint32_t time, uint32_t sym, uint32_t state, uint32_t modifiers) Q_DECL_OVERRIDE;
-    void zwp_text_input_v2_language(const QString &language) Q_DECL_OVERRIDE;
-    void zwp_text_input_v2_text_direction(uint32_t direction) Q_DECL_OVERRIDE;
-    void zwp_text_input_v2_input_method_changed(uint32_t serial, uint32_t flags) Q_DECL_OVERRIDE;
+    void zwp_text_input_v2_enter(uint32_t serial, struct ::wl_surface *surface) override;
+    void zwp_text_input_v2_leave(uint32_t serial, struct ::wl_surface *surface) override;
+    void zwp_text_input_v2_modifiers_map(wl_array *map) override;
+    void zwp_text_input_v2_input_panel_state(uint32_t state, int32_t x, int32_t y, int32_t width, int32_t height) override;
+    void zwp_text_input_v2_preedit_string(const QString &text, const QString &commit) override;
+    void zwp_text_input_v2_preedit_styling(uint32_t index, uint32_t length, uint32_t style) override;
+    void zwp_text_input_v2_preedit_cursor(int32_t index) override;
+    void zwp_text_input_v2_commit_string(const QString &text) override;
+    void zwp_text_input_v2_cursor_position(int32_t index, int32_t anchor) override;
+    void zwp_text_input_v2_delete_surrounding_text(uint32_t before_length, uint32_t after_length) override;
+    void zwp_text_input_v2_keysym(uint32_t time, uint32_t sym, uint32_t state, uint32_t modifiers) override;
+    void zwp_text_input_v2_language(const QString &language) override;
+    void zwp_text_input_v2_text_direction(uint32_t direction) override;
+    void zwp_text_input_v2_input_method_changed(uint32_t serial, uint32_t flags) override;
 
 private:
     Qt::KeyboardModifiers modifiersToQtModifiers(uint32_t modifiers);
@@ -134,23 +134,23 @@ public:
     explicit QWaylandInputContext(QWaylandDisplay *display);
     ~QWaylandInputContext();
 
-    bool isValid() const Q_DECL_OVERRIDE;
+    bool isValid() const override;
 
-    void reset() Q_DECL_OVERRIDE;
-    void commit() Q_DECL_OVERRIDE;
-    void update(Qt::InputMethodQueries) Q_DECL_OVERRIDE;
+    void reset() override;
+    void commit() override;
+    void update(Qt::InputMethodQueries) override;
 
-    void invokeAction(QInputMethod::Action, int cursorPosition) Q_DECL_OVERRIDE;
+    void invokeAction(QInputMethod::Action, int cursorPosition) override;
 
-    void showInputPanel() Q_DECL_OVERRIDE;
-    void hideInputPanel() Q_DECL_OVERRIDE;
-    bool isInputPanelVisible() const Q_DECL_OVERRIDE;
-    QRectF keyboardRect() const Q_DECL_OVERRIDE;
+    void showInputPanel() override;
+    void hideInputPanel() override;
+    bool isInputPanelVisible() const override;
+    QRectF keyboardRect() const override;
 
-    QLocale locale() const Q_DECL_OVERRIDE;
-    Qt::LayoutDirection inputDirection() const Q_DECL_OVERRIDE;
+    QLocale locale() const override;
+    Qt::LayoutDirection inputDirection() const override;
 
-    void setFocusObject(QObject *object) Q_DECL_OVERRIDE;
+    void setFocusObject(QObject *object) override;
 
 private:
     QWaylandTextInput *textInput() const;

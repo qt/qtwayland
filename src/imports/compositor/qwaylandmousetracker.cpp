@@ -88,7 +88,9 @@ QWaylandMouseTracker::QWaylandMouseTracker(QQuickItem *parent)
     setFiltersChildMouseEvents(true);
     setAcceptHoverEvents(true);
     setAcceptedMouseButtons(Qt::AllButtons);
+#if QT_CONFIG(cursor)
     setCursor(QCursor(d->cursorPixmap));
+#endif
 }
 
 qreal QWaylandMouseTracker::mouseX() const
@@ -102,6 +104,7 @@ qreal QWaylandMouseTracker::mouseY() const
     return d->mousePos.y();
 }
 
+#if QT_CONFIG(cursor)
 void QWaylandMouseTracker::setWindowSystemCursorEnabled(bool enable)
 {
     Q_D(QWaylandMouseTracker);
@@ -121,6 +124,7 @@ bool QWaylandMouseTracker::windowSystemCursorEnabled() const
     Q_D(const QWaylandMouseTracker);
     return d->windowSystemCursorEnabled;
 }
+#endif
 
 bool QWaylandMouseTracker::hovered() const
 {

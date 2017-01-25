@@ -8,4 +8,5 @@ SOURCES += \
 include($PWD/../../../../../hardwareintegration/compositor/drm-egl-server/drm-egl-server.pri)
 
 PLUGIN_TYPE = wayland-graphics-integration-server
+PLUGIN_CLASS_NAME = DrmEglServerBufferIntegrationPlugin
 load(qt_plugin)

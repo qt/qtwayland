@@ -79,8 +79,8 @@ public:
     void cancelDrag();
 
 protected:
-    void data_device_start_drag(Resource *resource, struct ::wl_resource *source, struct ::wl_resource *origin, struct ::wl_resource *icon, uint32_t serial) Q_DECL_OVERRIDE;
-    void data_device_set_selection(Resource *resource, struct ::wl_resource *source, uint32_t serial) Q_DECL_OVERRIDE;
+    void data_device_start_drag(Resource *resource, struct ::wl_resource *source, struct ::wl_resource *origin, struct ::wl_resource *icon, uint32_t serial) override;
+    void data_device_set_selection(Resource *resource, struct ::wl_resource *source, uint32_t serial) override;
 
 private:
     void setDragIcon(QWaylandSurface *icon);

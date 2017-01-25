@@ -315,7 +315,7 @@ void tst_WaylandCompositor::frameCallback()
     class BufferView : public QWaylandView
     {
     public:
-        void bufferCommitted(const QWaylandBufferRef &ref, const QRegion &damage) Q_DECL_OVERRIDE
+        void bufferCommitted(const QWaylandBufferRef &ref, const QRegion &damage) override
         {
             Q_UNUSED(damage);
             bufferRef = ref;
@@ -529,7 +529,7 @@ void tst_WaylandCompositor::sendsXdgConfigure()
     {
     public:
         MockXdgSurface(::xdg_surface *xdgSurface) : QtWayland::xdg_surface(xdgSurface) {}
-        void xdg_surface_configure(int32_t width, int32_t height, wl_array *rawStates, uint32_t serial) Q_DECL_OVERRIDE
+        void xdg_surface_configure(int32_t width, int32_t height, wl_array *rawStates, uint32_t serial) override
         {
             configureSize = QSize(width, height);
             configureSerial = serial;
@@ -729,7 +729,7 @@ void tst_WaylandCompositor::sendsIviConfigure()
     {
     public:
         MockIviSurface(::ivi_surface *iviSurface) : QtWayland::ivi_surface(iviSurface) {}
-        void ivi_surface_configure(int32_t width, int32_t height) Q_DECL_OVERRIDE
+        void ivi_surface_configure(int32_t width, int32_t height) override
         {
             configureSize = QSize(width, height);
         }

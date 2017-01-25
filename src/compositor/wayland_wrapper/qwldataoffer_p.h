@@ -65,10 +65,10 @@ public:
     ~DataOffer();
 
 protected:
-    void data_offer_accept(Resource *resource, uint32_t serial, const QString &mime_type) Q_DECL_OVERRIDE;
-    void data_offer_receive(Resource *resource, const QString &mime_type, int32_t fd) Q_DECL_OVERRIDE;
-    void data_offer_destroy(Resource *resource) Q_DECL_OVERRIDE;
-    void data_offer_destroy_resource(Resource *resource) Q_DECL_OVERRIDE;
+    void data_offer_accept(Resource *resource, uint32_t serial, const QString &mime_type) override;
+    void data_offer_receive(Resource *resource, const QString &mime_type, int32_t fd) override;
+    void data_offer_destroy(Resource *resource) override;
+    void data_offer_destroy_resource(Resource *resource) override;
 
 private:
     QPointer<DataSource> m_dataSource;

@@ -11,4 +11,5 @@ SOURCES += \
     main.cpp
 
 PLUGIN_TYPE = wayland-graphics-integration-client
+PLUGIN_CLASS_NAME = QWaylandXCompositeEglClientBufferIntegrationPlugin
 load(qt_plugin)

@@ -58,16 +58,16 @@ public:
     QWaylandEglClientBufferIntegration();
     ~QWaylandEglClientBufferIntegration();
 
-    void initialize(QWaylandDisplay *display) Q_DECL_OVERRIDE;
-    bool isValid() const Q_DECL_OVERRIDE;
-    bool supportsThreadedOpenGL() const Q_DECL_OVERRIDE;
-    bool supportsWindowDecoration() const Q_DECL_OVERRIDE;
+    void initialize(QWaylandDisplay *display) override;
+    bool isValid() const override;
+    bool supportsThreadedOpenGL() const override;
+    bool supportsWindowDecoration() const override;
 
-    QWaylandWindow *createEglWindow(QWindow *window) Q_DECL_OVERRIDE;
-    QPlatformOpenGLContext *createPlatformOpenGLContext(const QSurfaceFormat &glFormat, QPlatformOpenGLContext *share) const Q_DECL_OVERRIDE;
+    QWaylandWindow *createEglWindow(QWindow *window) override;
+    QPlatformOpenGLContext *createPlatformOpenGLContext(const QSurfaceFormat &glFormat, QPlatformOpenGLContext *share) const override;
 
-    void *nativeResource(NativeResource resource) Q_DECL_OVERRIDE;
-    void *nativeResourceForContext(NativeResource resource, QPlatformOpenGLContext *context) Q_DECL_OVERRIDE;
+    void *nativeResource(NativeResource resource) override;
+    void *nativeResourceForContext(NativeResource resource, QPlatformOpenGLContext *context) override;
 
     EGLDisplay eglDisplay() const;
 

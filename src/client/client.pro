@@ -18,7 +18,7 @@ CONFIG += link_pkgconfig wayland-scanner
 qtConfig(xkbcommon-evdev): \
     QMAKE_USE_PRIVATE += xkbcommon_evdev
 
-QMAKE_USE += wayland-client wayland-cursor
+QMAKE_USE += wayland-client
 
 INCLUDEPATH += $$PWD/../shared
 
@@ -36,13 +36,10 @@ SOURCES +=  qwaylandintegration.cpp \
             qwaylandnativeinterface.cpp \
             qwaylandshmbackingstore.cpp \
             qwaylandinputdevice.cpp \
-            qwaylandcursor.cpp \
             qwaylanddisplay.cpp \
             qwaylandwindow.cpp \
             qwaylandscreen.cpp \
             qwaylandshmwindow.cpp \
-            qwaylandclipboard.cpp \
-            qwaylanddnd.cpp \
             qwaylanddataoffer.cpp \
             qwaylanddatadevicemanager.cpp \
             qwaylanddatasource.cpp \
@@ -67,13 +64,11 @@ SOURCES +=  qwaylandintegration.cpp \
             qwaylanddecorationplugin.cpp \
             qwaylandwindowmanagerintegration.cpp \
             qwaylandinputcontext.cpp \
-            qwaylanddatadevice.cpp \
             qwaylandshm.cpp \
             qwaylandbuffer.cpp \
 
 HEADERS +=  qwaylandintegration_p.h \
             qwaylandnativeinterface_p.h \
-            qwaylandcursor_p.h \
             qwaylanddisplay_p.h \
             qwaylandwindow_p.h \
             qwaylandscreen_p.h \
@@ -81,8 +76,6 @@ HEADERS +=  qwaylandintegration_p.h \
             qwaylandinputdevice_p.h \
             qwaylandbuffer_p.h \
             qwaylandshmwindow_p.h \
-            qwaylandclipboard_p.h \
-            qwaylanddnd_p.h \
             qwaylanddataoffer_p.h \
             qwaylanddatadevicemanager_p.h \
             qwaylanddatasource_p.h \
@@ -104,7 +97,6 @@ HEADERS +=  qwaylandintegration_p.h \
             qwaylanddecorationplugin_p.h \
             qwaylandwindowmanagerintegration_p.h \
             qwaylandinputcontext_p.h \
-            qwaylanddatadevice_p.h \
             qwaylandshm_p.h \
             qtwaylandclientglobal.h \
             qtwaylandclientglobal_p.h \
@@ -113,10 +105,32 @@ HEADERS +=  qwaylandintegration_p.h \
             ../shared/qwaylandxkb_p.h \
             ../shared/qwaylandsharedmemoryformathelper_p.h \
 
+qtConfig(clipboard) {
+    HEADERS += qwaylandclipboard_p.h
+    SOURCES += qwaylandclipboard.cpp
+}
+
 include(hardwareintegration/hardwareintegration.pri)
 include(shellintegration/shellintegration.pri)
 include(inputdeviceintegration/inputdeviceintegration.pri)
 include(global/global.pri)
+
+qtConfig(cursor) {
+    QMAKE_USE += wayland-cursor
+
+    HEADERS += \
+        qwaylandcursor_p.h
+    SOURCES += \
+        qwaylandcursor.cpp
+}
+qtConfig(draganddrop) {
+    HEADERS += \
+        qwaylanddnd_p.h \
+        qwaylanddatadevice_p.h
+    SOURCES += \
+        qwaylanddnd.cpp \
+        qwaylanddatadevice.cpp
+}
 
 CONFIG += generated_privates
 MODULE_PLUGIN_TYPES = \

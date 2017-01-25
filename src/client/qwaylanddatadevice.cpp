@@ -52,7 +52,9 @@
 #include <QtGui/QGuiApplication>
 #include <QtGui/private/qguiapplication_p.h>
 
+#if QT_CONFIG(clipboard)
 #include <qpa/qplatformclipboard.h>
+#endif
 #include <qpa/qplatformdrag.h>
 #include <qpa/qwindowsysteminterface.h>
 
@@ -235,13 +237,17 @@ void QWaylandDataDevice::data_device_selection(wl_data_offer *id)
     else
         m_selectionOffer.reset();
 
+#if QT_CONFIG(clipboard)
     QGuiApplicationPrivate::platformIntegration()->clipboard()->emitChanged(QClipboard::Clipboard);
+#endif
 }
 
 void QWaylandDataDevice::selectionSourceCancelled()
 {
     m_selectionSource.reset();
+#if QT_CONFIG(clipboard)
     QGuiApplicationPrivate::platformIntegration()->clipboard()->emitChanged(QClipboard::Clipboard);
+#endif
 }
 
 void QWaylandDataDevice::dragSourceCancelled()

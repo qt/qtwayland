@@ -8,4 +8,5 @@ SOURCES += \
 include(../../../../hardwareintegration/compositor/wayland-egl/wayland-egl.pri)
 
 PLUGIN_TYPE = wayland-graphics-integration-server
+PLUGIN_CLASS_NAME = QWaylandEglClientBufferIntegrationPlugin
 load(qt_plugin)

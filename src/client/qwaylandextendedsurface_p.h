@@ -79,9 +79,9 @@ public:
     Qt::WindowFlags setWindowFlags(Qt::WindowFlags flags);
 
 private:
-    void extended_surface_onscreen_visibility(int32_t visibility) Q_DECL_OVERRIDE;
-    void extended_surface_set_generic_property(const QString &name, wl_array *value) Q_DECL_OVERRIDE;
-    void extended_surface_close() Q_DECL_OVERRIDE;
+    void extended_surface_onscreen_visibility(int32_t visibility) override;
+    void extended_surface_set_generic_property(const QString &name, wl_array *value) override;
+    void extended_surface_close() override;
 
     QWaylandWindow *m_window;
     QVariantMap m_properties;

@@ -111,16 +111,16 @@ public:
     ~QWaylandWindow();
 
     virtual WindowType windowType() const = 0;
-    WId winId() const Q_DECL_OVERRIDE;
-    void setVisible(bool visible) Q_DECL_OVERRIDE;
-    void setParent(const QPlatformWindow *parent) Q_DECL_OVERRIDE;
+    WId winId() const override;
+    void setVisible(bool visible) override;
+    void setParent(const QPlatformWindow *parent) override;
 
-    void setWindowTitle(const QString &title) Q_DECL_OVERRIDE;
+    void setWindowTitle(const QString &title) override;
 
     inline QIcon windowIcon() const;
-    void setWindowIcon(const QIcon &icon) Q_DECL_OVERRIDE;
+    void setWindowIcon(const QIcon &icon) override;
 
-    void setGeometry(const QRect &rect) Q_DECL_OVERRIDE;
+    void setGeometry(const QRect &rect) override;
 
     void configure(uint32_t edges, int32_t width, int32_t height);
 
@@ -136,7 +136,7 @@ public:
 
     void waitForFrameSync();
 
-    QMargins frameMargins() const Q_DECL_OVERRIDE;
+    QMargins frameMargins() const override;
 
     static QWaylandWindow *fromWlSurface(::wl_surface *surface);
 
@@ -145,22 +145,22 @@ public:
     QWaylandSubSurface *subSurfaceWindow() const;
     QWaylandScreen *screen() const { return mScreen; }
 
-    void handleContentOrientationChange(Qt::ScreenOrientation orientation) Q_DECL_OVERRIDE;
+    void handleContentOrientationChange(Qt::ScreenOrientation orientation) override;
     void setOrientationMask(Qt::ScreenOrientations mask);
 
-    void setWindowState(Qt::WindowState state) Q_DECL_OVERRIDE;
-    void setWindowFlags(Qt::WindowFlags flags) Q_DECL_OVERRIDE;
+    void setWindowState(Qt::WindowState state) override;
+    void setWindowFlags(Qt::WindowFlags flags) override;
 
-    void raise() Q_DECL_OVERRIDE;
-    void lower() Q_DECL_OVERRIDE;
+    void raise() override;
+    void lower() override;
 
-    void setMask(const QRegion &region) Q_DECL_OVERRIDE;
+    void setMask(const QRegion &region) override;
 
     int scale() const;
-    qreal devicePixelRatio() const Q_DECL_OVERRIDE;
+    qreal devicePixelRatio() const override;
 
-    void requestActivateWindow() Q_DECL_OVERRIDE;
-    bool isExposed() const Q_DECL_OVERRIDE;
+    void requestActivateWindow() override;
+    bool isExposed() const override;
     void unfocus();
 
     QWaylandAbstractDecoration *decoration() const;
@@ -176,8 +176,10 @@ public:
     inline bool isMaximized() const { return mState == Qt::WindowMaximized; }
     inline bool isFullscreen() const { return mState == Qt::WindowFullScreen; }
 
+#if QT_CONFIG(cursor)
     void setMouseCursor(QWaylandInputDevice *device, const QCursor &cursor);
     void restoreMouseCursor(QWaylandInputDevice *device);
+#endif
 
     QWaylandWindow *transientParent() const;
 
@@ -185,7 +187,7 @@ public:
     void doResize();
     void setCanResize(bool canResize);
 
-    bool setMouseGrabEnabled(bool grab) Q_DECL_OVERRIDE;
+    bool setMouseGrabEnabled(bool grab) override;
     static QWaylandWindow *mouseGrab() { return mMouseGrab; }
 
     void sendProperty(const QString &name, const QVariant &value);
@@ -198,11 +200,11 @@ public:
     void setBackingStore(QWaylandShmBackingStore *backingStore) { mBackingStore = backingStore; }
     QWaylandShmBackingStore *backingStore() const { return mBackingStore; }
 
-    bool setKeyboardGrabEnabled(bool) Q_DECL_OVERRIDE { return false; }
-    void propagateSizeHints() Q_DECL_OVERRIDE { }
+    bool setKeyboardGrabEnabled(bool) override { return false; }
+    void propagateSizeHints() override { }
     void addAttachOffset(const QPoint point);
 
-    void requestUpdate() Q_DECL_OVERRIDE;
+    void requestUpdate() override;
 
 public slots:
     void requestResize();

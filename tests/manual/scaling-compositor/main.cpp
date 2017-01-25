@@ -1,9 +1,9 @@
 /****************************************************************************
 **
 ** Copyright (C) 2016 The Qt Company Ltd.
-** Contact: http://www.qt.io/licensing/
+** Contact: http://www.qt-project.org/legal
 **
-** This file is part of the examples of the Qt Wayland module
+** This file is part of the examples of the Qt Toolkit.
 **
 ** $QT_BEGIN_LICENSE:BSD$
 ** You may use this file under the terms of the BSD license as follows:
@@ -38,31 +38,12 @@
 **
 ****************************************************************************/
 
-#ifndef WINDOW_H
-#define WINDOW_H
+#include <QtGui/QGuiApplication>
+#include <QtQml/QQmlApplicationEngine>
 
-#include <QOpenGLWindow>
-#include <QOpenGLTextureBlitter>
-
-QT_BEGIN_NAMESPACE
-
-class Compositor;
-
-class Window : public QOpenGLWindow
+int main(int argc, char* argv[])
 {
-public:
-    Window();
-    void setCompositor(Compositor *comp);
-
-protected:
-    void initializeGL() override;
-    void paintGL() override;
-
-private:
-    QOpenGLTextureBlitter m_textureBlitter;
-    Compositor *m_compositor;
-};
-
-QT_END_NAMESPACE
-
-#endif //WINDOW_H
+    QGuiApplication app(argc, argv);
+    QQmlApplicationEngine engine(QUrl("qrc:/main.qml"));
+    return app.exec();
+}

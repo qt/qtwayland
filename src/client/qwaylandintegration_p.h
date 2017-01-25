@@ -73,38 +73,40 @@ public:
     QWaylandIntegration();
     ~QWaylandIntegration();
 
-    bool hasCapability(QPlatformIntegration::Capability cap) const Q_DECL_OVERRIDE;
-    QPlatformWindow *createPlatformWindow(QWindow *window) const Q_DECL_OVERRIDE;
+    bool hasCapability(QPlatformIntegration::Capability cap) const override;
+    QPlatformWindow *createPlatformWindow(QWindow *window) const override;
 #if QT_CONFIG(opengl)
-    QPlatformOpenGLContext *createPlatformOpenGLContext(QOpenGLContext *context) const Q_DECL_OVERRIDE;
+    QPlatformOpenGLContext *createPlatformOpenGLContext(QOpenGLContext *context) const override;
 #endif
-    QPlatformBackingStore *createPlatformBackingStore(QWindow *window) const Q_DECL_OVERRIDE;
+    QPlatformBackingStore *createPlatformBackingStore(QWindow *window) const override;
 
-    QAbstractEventDispatcher *createEventDispatcher() const Q_DECL_OVERRIDE;
-    void initialize() Q_DECL_OVERRIDE;
+    QAbstractEventDispatcher *createEventDispatcher() const override;
+    void initialize() override;
 
-    QPlatformFontDatabase *fontDatabase() const Q_DECL_OVERRIDE;
+    QPlatformFontDatabase *fontDatabase() const override;
 
-    QPlatformNativeInterface *nativeInterface() const Q_DECL_OVERRIDE;
+    QPlatformNativeInterface *nativeInterface() const override;
+#if QT_CONFIG(clipboard)
+    QPlatformClipboard *clipboard() const override;
+#endif
 #if QT_CONFIG(draganddrop)
-    QPlatformClipboard *clipboard() const Q_DECL_OVERRIDE;
-    QPlatformDrag *drag() const Q_DECL_OVERRIDE;
+    QPlatformDrag *drag() const override;
 #endif
-    QPlatformInputContext *inputContext() const Q_DECL_OVERRIDE;
+    QPlatformInputContext *inputContext() const override;
 
-    QVariant styleHint(StyleHint hint) const Q_DECL_OVERRIDE;
+    QVariant styleHint(StyleHint hint) const override;
 
 #if QT_CONFIG(accessibility)
-    QPlatformAccessibility *accessibility() const Q_DECL_OVERRIDE;
+    QPlatformAccessibility *accessibility() const override;
 #endif
 
-    QPlatformServices *services() const Q_DECL_OVERRIDE;
+    QPlatformServices *services() const override;
 
     QWaylandDisplay *display() const;
 
-    QStringList themeNames() const Q_DECL_OVERRIDE;
+    QStringList themeNames() const override;
 
-    QPlatformTheme *createPlatformTheme(const QString &name) const Q_DECL_OVERRIDE;
+    QPlatformTheme *createPlatformTheme(const QString &name) const override;
 
     QWaylandInputDevice *createInputDevice(QWaylandDisplay *display, int version, uint32_t id);
 
@@ -131,8 +133,10 @@ private:
     QWaylandShellIntegration *createShellIntegration(const QString& interfaceName);
 
     QScopedPointer<QPlatformFontDatabase> mFontDb;
-#if QT_CONFIG(draganddrop)
+#if QT_CONFIG(clipboard)
     QScopedPointer<QPlatformClipboard> mClipboard;
+#endif
+#if QT_CONFIG(draganddrop)
     QScopedPointer<QPlatformDrag> mDrag;
 #endif
     QScopedPointer<QPlatformNativeInterface> mNativeInterface;

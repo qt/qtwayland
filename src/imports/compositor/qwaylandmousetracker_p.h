@@ -71,11 +71,11 @@ signals:
     void hoveredChanged();
 
 protected:
-    bool childMouseEventFilter(QQuickItem *item, QEvent *event) Q_DECL_OVERRIDE;
-    void mouseMoveEvent(QMouseEvent *event) Q_DECL_OVERRIDE;
-    void hoverMoveEvent(QHoverEvent *event) Q_DECL_OVERRIDE;
-    void hoverEnterEvent(QHoverEvent *event) Q_DECL_OVERRIDE;
-    void hoverLeaveEvent(QHoverEvent *event) Q_DECL_OVERRIDE;
+    bool childMouseEventFilter(QQuickItem *item, QEvent *event) override;
+    void mouseMoveEvent(QMouseEvent *event) override;
+    void hoverMoveEvent(QHoverEvent *event) override;
+    void hoverEnterEvent(QHoverEvent *event) override;
+    void hoverLeaveEvent(QHoverEvent *event) override;
 };
 
 QT_END_NAMESPACE

@@ -128,12 +128,12 @@ class Q_WAYLAND_COMPOSITOR_EXPORT SharedMemoryBuffer : public ClientBuffer
 public:
     SharedMemoryBuffer(struct ::wl_resource *bufferResource);
 
-    QSize size() const Q_DECL_OVERRIDE;
-    QWaylandSurface::Origin origin() const  Q_DECL_OVERRIDE;
+    QSize size() const override;
+    QWaylandSurface::Origin origin() const  override;
     QImage image() const;
 
 #if QT_CONFIG(opengl)
-    QOpenGLTexture *toOpenGlTexture(int plane = 0) Q_DECL_OVERRIDE;
+    QOpenGLTexture *toOpenGlTexture(int plane = 0) override;
 
 private:
     QOpenGLTexture *m_shmTexture;

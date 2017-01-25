@@ -57,9 +57,7 @@ class QWaylandInputMethodControl : public QObject
 public:
     explicit QWaylandInputMethodControl(QWaylandSurface *surface);
 
-#if QT_CONFIG(im)
     QVariant inputMethodQuery(Qt::InputMethodQuery query, QVariant argument) const;
-#endif
 
     void inputMethodEvent(QInputMethodEvent *event);
 
@@ -70,9 +68,7 @@ public:
 
 Q_SIGNALS:
     void enabledChanged(bool enabled);
-#if QT_CONFIG(im)
     void updateInputMethod(Qt::InputMethodQueries queries);
-#endif
 
 private:
     void defaultSeatChanged();

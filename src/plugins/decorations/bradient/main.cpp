@@ -135,10 +135,10 @@ class Q_WAYLAND_CLIENT_EXPORT QWaylandBradientDecoration : public QWaylandAbstra
 public:
     QWaylandBradientDecoration();
 protected:
-    QMargins margins() const Q_DECL_OVERRIDE;
-    void paint(QPaintDevice *device) Q_DECL_OVERRIDE;
-    bool handleMouse(QWaylandInputDevice *inputDevice, const QPointF &local, const QPointF &global,Qt::MouseButtons b,Qt::KeyboardModifiers mods) Q_DECL_OVERRIDE;
-    bool handleTouch(QWaylandInputDevice *inputDevice, const QPointF &local, const QPointF &global, Qt::TouchPointState state, Qt::KeyboardModifiers mods) Q_DECL_OVERRIDE;
+    QMargins margins() const override;
+    void paint(QPaintDevice *device) override;
+    bool handleMouse(QWaylandInputDevice *inputDevice, const QPointF &local, const QPointF &global,Qt::MouseButtons b,Qt::KeyboardModifiers mods) override;
+    bool handleTouch(QWaylandInputDevice *inputDevice, const QPointF &local, const QPointF &global, Qt::TouchPointState state, Qt::KeyboardModifiers mods) override;
 private:
     void processMouseTop(QWaylandInputDevice *inputDevice, const QPointF &local, Qt::MouseButtons b,Qt::KeyboardModifiers mods);
     void processMouseBottom(QWaylandInputDevice *inputDevice, const QPointF &local, Qt::MouseButtons b,Qt::KeyboardModifiers mods);
@@ -372,7 +372,9 @@ bool QWaylandBradientDecoration::handleMouse(QWaylandInputDevice *inputDevice, c
     } else if (local.x() > window()->width() + margins().left()) {
         processMouseRight(inputDevice,local,b,mods);
     } else {
+#if QT_CONFIG(cursor)
         waylandWindow()->restoreMouseCursor(inputDevice);
+#endif
         setMouseButtons(b);
         return false;
     }
@@ -409,19 +411,27 @@ void QWaylandBradientDecoration::processMouseTop(QWaylandInputDevice *inputDevic
     if (local.y() <= margins().bottom()) {
         if (local.x() <= margins().left()) {
             //top left bit
+#if QT_CONFIG(cursor)
             waylandWindow()->setMouseCursor(inputDevice, Qt::SizeFDiagCursor);
+#endif
             startResize(inputDevice,WL_SHELL_SURFACE_RESIZE_TOP_LEFT,b);
         } else if (local.x() > window()->width() + margins().left()) {
             //top right bit
+#if QT_CONFIG(cursor)
             waylandWindow()->setMouseCursor(inputDevice, Qt::SizeBDiagCursor);
+#endif
             startResize(inputDevice,WL_SHELL_SURFACE_RESIZE_TOP_RIGHT,b);
         } else {
             //top reszie bit
+#if QT_CONFIG(cursor)
             waylandWindow()->setMouseCursor(inputDevice, Qt::SplitVCursor);
+#endif
             startResize(inputDevice,WL_SHELL_SURFACE_RESIZE_TOP,b);
         }
     } else {
+#if QT_CONFIG(cursor)
         waylandWindow()->restoreMouseCursor(inputDevice);
+#endif
         startMove(inputDevice,b);
     }
 
@@ -432,15 +442,21 @@ void QWaylandBradientDecoration::processMouseBottom(QWaylandInputDevice *inputDe
     Q_UNUSED(mods);
     if (local.x() <= margins().left()) {
         //bottom left bit
+#if QT_CONFIG(cursor)
         waylandWindow()->setMouseCursor(inputDevice, Qt::SizeBDiagCursor);
+#endif
         startResize(inputDevice, WL_SHELL_SURFACE_RESIZE_BOTTOM_LEFT,b);
     } else if (local.x() > window()->width() + margins().left()) {
         //bottom right bit
+#if QT_CONFIG(cursor)
         waylandWindow()->setMouseCursor(inputDevice, Qt::SizeFDiagCursor);
+#endif
         startResize(inputDevice, WL_SHELL_SURFACE_RESIZE_BOTTOM_RIGHT,b);
     } else {
         //bottom bit
+#if QT_CONFIG(cursor)
         waylandWindow()->setMouseCursor(inputDevice, Qt::SplitVCursor);
+#endif
         startResize(inputDevice,WL_SHELL_SURFACE_RESIZE_BOTTOM,b);
     }
 }
@@ -449,7 +465,9 @@ void QWaylandBradientDecoration::processMouseLeft(QWaylandInputDevice *inputDevi
 {
     Q_UNUSED(local);
     Q_UNUSED(mods);
+#if QT_CONFIG(cursor)
     waylandWindow()->setMouseCursor(inputDevice, Qt::SplitHCursor);
+#endif
     startResize(inputDevice,WL_SHELL_SURFACE_RESIZE_LEFT,b);
 }
 
@@ -457,7 +475,9 @@ void QWaylandBradientDecoration::processMouseRight(QWaylandInputDevice *inputDev
 {
     Q_UNUSED(local);
     Q_UNUSED(mods);
+#if QT_CONFIG(cursor)
     waylandWindow()->setMouseCursor(inputDevice, Qt::SplitHCursor);
+#endif
     startResize(inputDevice, WL_SHELL_SURFACE_RESIZE_RIGHT,b);
 }
 
@@ -466,7 +486,7 @@ class QWaylandBradientDecorationPlugin : public QWaylandDecorationPlugin
     Q_OBJECT
     Q_PLUGIN_METADATA(IID QWaylandDecorationFactoryInterface_iid FILE "bradient.json")
 public:
-    QWaylandAbstractDecoration *create(const QString&, const QStringList&) Q_DECL_OVERRIDE;
+    QWaylandAbstractDecoration *create(const QString&, const QStringList&) override;
 };
 
 QWaylandAbstractDecoration *QWaylandBradientDecorationPlugin::create(const QString& system, const QStringList& paramList)

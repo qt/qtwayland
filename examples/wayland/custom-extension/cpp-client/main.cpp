@@ -100,7 +100,7 @@ public slots:
     }
 
 protected:
-    void paintEvent(QPaintEvent *) Q_DECL_OVERRIDE
+    void paintEvent(QPaintEvent *) override
     {
         QPainter p(this);
         p.setFont(m_font);
@@ -113,7 +113,7 @@ protected:
         p.drawText(rect3, Qt::TextWordWrap, "Create new window.");
     }
 
-    void mousePressEvent(QMouseEvent *ev) Q_DECL_OVERRIDE
+    void mousePressEvent(QMouseEvent *ev) override
     {
         if (rect1.contains(ev->pos()))
             doSpin();

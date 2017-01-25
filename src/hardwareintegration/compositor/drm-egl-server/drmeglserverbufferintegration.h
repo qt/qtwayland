@@ -75,8 +75,8 @@ class DrmEglServerBuffer : public QtWayland::ServerBuffer, public QtWaylandServe
 public:
     DrmEglServerBuffer(DrmEglServerBufferIntegration *integration, const QSize &size, QtWayland::ServerBuffer::Format format);
 
-    struct ::wl_resource *resourceForClient(struct ::wl_client *) Q_DECL_OVERRIDE;
-    void bindTextureToBuffer() Q_DECL_OVERRIDE;
+    struct ::wl_resource *resourceForClient(struct ::wl_client *) override;
+    void bindTextureToBuffer() override;
 
 private:
     DrmEglServerBufferIntegration *m_integration;
@@ -98,8 +98,8 @@ public:
 
     void initializeHardware(QWaylandCompositor *);
 
-    bool supportsFormat(QtWayland::ServerBuffer::Format format) const Q_DECL_OVERRIDE;
-    QtWayland::ServerBuffer *createServerBuffer(const QSize &size, QtWayland::ServerBuffer::Format format) Q_DECL_OVERRIDE;
+    bool supportsFormat(QtWayland::ServerBuffer::Format format) const override;
+    QtWayland::ServerBuffer *createServerBuffer(const QSize &size, QtWayland::ServerBuffer::Format format) override;
 
     EGLDisplay display() const { return m_egl_display; }
 

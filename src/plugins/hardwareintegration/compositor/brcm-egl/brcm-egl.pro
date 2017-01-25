@@ -8,4 +8,5 @@ SOURCES += \
 include(../../../../hardwareintegration/compositor/brcm-egl/brcm-egl.pri)
 
 PLUGIN_TYPE = wayland-graphics-integration-server
+PLUGIN_CLASS_NAME = QWaylandBrcmClientBufferIntegrationPlugin
 load(qt_plugin)

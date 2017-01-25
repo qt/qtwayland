@@ -77,10 +77,10 @@ public:
     explicit QWaylandWindowManagerIntegration(QWaylandDisplay *waylandDisplay);
     virtual ~QWaylandWindowManagerIntegration();
 
-    QByteArray desktopEnvironment() const Q_DECL_OVERRIDE;
+    QByteArray desktopEnvironment() const override;
 
-    bool openUrl(const QUrl &url) Q_DECL_OVERRIDE;
-    bool openDocument(const QUrl &url) Q_DECL_OVERRIDE;
+    bool openUrl(const QUrl &url) override;
+    bool openDocument(const QUrl &url) override;
 
     bool showIsFullScreen() const;
 
@@ -90,8 +90,8 @@ private:
 
     QScopedPointer<QWaylandWindowManagerIntegrationPrivate> d_ptr;
 
-    void windowmanager_hints(int32_t showIsFullScreen) Q_DECL_OVERRIDE;
-    void windowmanager_quit() Q_DECL_OVERRIDE;
+    void windowmanager_hints(int32_t showIsFullScreen) override;
+    void windowmanager_quit() override;
 
     void openUrl_helper(const QUrl &url);
 };

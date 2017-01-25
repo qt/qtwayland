@@ -76,7 +76,7 @@ public:
     uint sendUp(QWaylandClient *client, uint32_t time, int touch_id);
 
 private:
-    void touch_release(Resource *resource) Q_DECL_OVERRIDE;
+    void touch_release(Resource *resource) override;
 
     QWaylandSeat *seat;
 };

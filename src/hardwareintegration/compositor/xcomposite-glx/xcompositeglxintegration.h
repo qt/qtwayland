@@ -55,8 +55,8 @@ public:
     XCompositeGLXClientBufferIntegration();
     ~XCompositeGLXClientBufferIntegration();
 
-    void initializeHardware(struct ::wl_display *display) Q_DECL_OVERRIDE;
-    QtWayland::ClientBuffer *createBufferFor(wl_resource *buffer) Q_DECL_OVERRIDE;
+    void initializeHardware(struct ::wl_display *display) override;
+    QtWayland::ClientBuffer *createBufferFor(wl_resource *buffer) override;
 
     inline Display *xDisplay() const { return mDisplay; }
     inline int xScreen() const { return mScreen; }
@@ -77,8 +77,8 @@ public:
 
     QSize size() const;
     QWaylandSurface::Origin origin() const;
-    QOpenGLTexture *toOpenGlTexture(int plane) Q_DECL_OVERRIDE;
-    QWaylandBufferRef::BufferFormatEgl bufferFormatEgl() const Q_DECL_OVERRIDE {
+    QOpenGLTexture *toOpenGlTexture(int plane) override;
+    QWaylandBufferRef::BufferFormatEgl bufferFormatEgl() const override {
         return QWaylandBufferRef::BufferFormatEgl_RGBA;
     }
 

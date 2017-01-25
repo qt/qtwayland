@@ -44,7 +44,9 @@
 #include "qwaylandscreen_p.h"
 #include "qwaylandcursor_p.h"
 #include "qwaylandinputdevice_p.h"
+#if QT_CONFIG(clipboard)
 #include "qwaylandclipboard_p.h"
+#endif
 #include "qwaylanddatadevicemanager_p.h"
 #include "qwaylandhardwareintegration_p.h"
 #include "qwaylandxdgshell_p.h"

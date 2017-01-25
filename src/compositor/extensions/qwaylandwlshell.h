@@ -63,7 +63,7 @@ public:
     QWaylandWlShell();
     QWaylandWlShell(QWaylandCompositor *compositor);
 
-    void initialize() Q_DECL_OVERRIDE;
+    void initialize() override;
     QList<QWaylandWlShellSurface *> shellSurfaces() const;
     QList<QWaylandWlShellSurface *> shellSurfacesForClient(QWaylandClient* client) const;
     QList<QWaylandWlShellSurface *> mappedPopups() const;
@@ -136,7 +136,7 @@ public:
     Q_INVOKABLE void sendPopupDone();
 
 #ifdef QT_WAYLAND_COMPOSITOR_QUICK
-    QWaylandQuickShellIntegration *createIntegration(QWaylandQuickShellSurfaceItem *item) Q_DECL_OVERRIDE;
+    QWaylandQuickShellIntegration *createIntegration(QWaylandQuickShellSurfaceItem *item) override;
 #endif
 
 public Q_SLOTS:

@@ -79,9 +79,9 @@ public:
     QWaylandCompositor *compositor() const { return seat->compositor(); }
 
 protected:
-    void pointer_set_cursor(Resource *resource, uint32_t serial, wl_resource *surface, int32_t hotspot_x, int32_t hotspot_y) Q_DECL_OVERRIDE;
-    void pointer_release(Resource *resource) Q_DECL_OVERRIDE;
-    void pointer_destroy_resource(Resource *resource) Q_DECL_OVERRIDE;
+    void pointer_set_cursor(Resource *resource, uint32_t serial, wl_resource *surface, int32_t hotspot_x, int32_t hotspot_y) override;
+    void pointer_release(Resource *resource) override;
+    void pointer_destroy_resource(Resource *resource) override;
 
 private:
     void focusDestroyed(void *data);

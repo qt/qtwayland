@@ -114,7 +114,9 @@ QWaylandBufferRef::BufferFormatEgl ClientBuffer::bufferFormatEgl() const
 
 SharedMemoryBuffer::SharedMemoryBuffer(wl_resource *bufferResource)
     : ClientBuffer(bufferResource)
+#if QT_CONFIG(opengl)
     , m_shmTexture(nullptr)
+#endif
 {
 
 }

@@ -69,11 +69,11 @@ private slots:
     void handleExtensionActive();
 
 private:
-    void example_extension_close(wl_surface *surface) Q_DECL_OVERRIDE;
-    void example_extension_set_font_size(wl_surface *surface, uint32_t pixel_size) Q_DECL_OVERRIDE;
-    void example_extension_set_window_decoration(uint32_t state) Q_DECL_OVERRIDE;
+    void example_extension_close(wl_surface *surface) override;
+    void example_extension_set_font_size(wl_surface *surface, uint32_t pixel_size) override;
+    void example_extension_set_window_decoration(uint32_t state) override;
 
-    bool eventFilter(QObject *object, QEvent *event) Q_DECL_OVERRIDE;
+    bool eventFilter(QObject *object, QEvent *event) override;
 
     QWindow *windowForSurface(struct ::wl_surface *);
     void sendWindowRegistration(QWindow *);

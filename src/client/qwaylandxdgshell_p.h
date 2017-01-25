@@ -82,7 +82,7 @@ public:
     QWaylandXdgPopup *createXdgPopup(QWaylandWindow *window);
 
 private:
-    void xdg_shell_ping(uint32_t serial) Q_DECL_OVERRIDE;
+    void xdg_shell_ping(uint32_t serial) override;
 
     QVector<QWaylandWindow *> m_popups;
     uint m_popupSerial;

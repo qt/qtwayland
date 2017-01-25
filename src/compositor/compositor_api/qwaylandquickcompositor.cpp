@@ -62,7 +62,7 @@ public:
     {
     }
 protected:
-    QWaylandSurface *createDefaultSurface() Q_DECL_OVERRIDE
+    QWaylandSurface *createDefaultSurface() override
     {
         return new QWaylandQuickSurface();
     }
@@ -135,7 +135,7 @@ void QWaylandQuickCompositor::grabSurface(QWaylandSurfaceGrabber *grabber, const
         QWaylandSurfaceGrabber *grabber;
         QWaylandBufferRef buffer;
 
-        void run() Q_DECL_OVERRIDE
+        void run() override
         {
             QOpenGLFramebufferObject fbo(buffer.size());
             fbo.bind();

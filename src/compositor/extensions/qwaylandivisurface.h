@@ -73,7 +73,7 @@ public:
     Q_INVOKABLE void sendConfigure(const QSize &size);
 
 #ifdef QT_WAYLAND_COMPOSITOR_QUICK
-    QWaylandQuickShellIntegration *createIntegration(QWaylandQuickShellSurfaceItem *item) Q_DECL_OVERRIDE;
+    QWaylandQuickShellIntegration *createIntegration(QWaylandQuickShellSurfaceItem *item) override;
 #endif
 
 Q_SIGNALS:
@@ -81,7 +81,7 @@ Q_SIGNALS:
     void iviIdChanged();
 
 private:
-    void initialize() Q_DECL_OVERRIDE;
+    void initialize() override;
 };
 
 QT_END_NAMESPACE

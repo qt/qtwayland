@@ -37,7 +37,9 @@
 #include "qwaylandivisurface.h"
 #include "qwaylandivisurface_p.h"
 #include "qwaylandiviapplication_p.h"
+#ifdef QT_WAYLAND_COMPOSITOR_QUICK
 #include "qwaylandivisurfaceintegration_p.h"
+#endif
 
 #include <QtWaylandCompositor/QWaylandResource>
 

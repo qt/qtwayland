@@ -82,19 +82,19 @@ public:
     using QtWayland::xdg_surface::resize;
     void resize(QWaylandInputDevice *inputDevice, enum resize_edge edges);
 
-    void resize(QWaylandInputDevice *inputDevice, enum wl_shell_surface_resize edges) Q_DECL_OVERRIDE;
+    void resize(QWaylandInputDevice *inputDevice, enum wl_shell_surface_resize edges) override;
 
     using QtWayland::xdg_surface::move;
-    void move(QWaylandInputDevice *inputDevice) Q_DECL_OVERRIDE;
+    void move(QWaylandInputDevice *inputDevice) override;
 
-    void setTitle(const QString &title) Q_DECL_OVERRIDE;
-    void setAppId(const QString &appId) Q_DECL_OVERRIDE;
+    void setTitle(const QString &title) override;
+    void setAppId(const QString &appId) override;
 
-    void raise() Q_DECL_OVERRIDE;
-    void lower() Q_DECL_OVERRIDE;
-    void setContentOrientationMask(Qt::ScreenOrientations orientation) Q_DECL_OVERRIDE;
-    void setWindowFlags(Qt::WindowFlags flags) Q_DECL_OVERRIDE;
-    void sendProperty(const QString &name, const QVariant &value) Q_DECL_OVERRIDE;
+    void raise() override;
+    void lower() override;
+    void setContentOrientationMask(Qt::ScreenOrientations orientation) override;
+    void setWindowFlags(Qt::WindowFlags flags) override;
+    void sendProperty(const QString &name, const QVariant &value) override;
 
     bool isFullscreen() const { return m_fullscreen; }
     bool isMaximized() const { return m_maximized; }
@@ -102,10 +102,10 @@ public:
     void setType(Qt::WindowType type, QWaylandWindow *transientParent) override;
 
 private:
-    void setMaximized() Q_DECL_OVERRIDE;
-    void setFullscreen() Q_DECL_OVERRIDE;
-    void setNormal() Q_DECL_OVERRIDE;
-    void setMinimized() Q_DECL_OVERRIDE;
+    void setMaximized() override;
+    void setFullscreen() override;
+    void setNormal() override;
+    void setMinimized() override;
 
     void updateTransientParent(QWaylandWindow *parent);
 
@@ -123,8 +123,8 @@ private:
     void xdg_surface_configure(int32_t width,
                                int32_t height,
                                struct wl_array *states,
-                               uint32_t serial) Q_DECL_OVERRIDE;
-    void xdg_surface_close() Q_DECL_OVERRIDE;
+                               uint32_t serial) override;
+    void xdg_surface_close() override;
 
     friend class QWaylandWindow;
 };

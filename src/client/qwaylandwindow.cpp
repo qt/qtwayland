@@ -225,7 +225,8 @@ void QWaylandWindow::reset()
     mShellSurface = 0;
     delete mSubSurfaceWindow;
     mSubSurfaceWindow = 0;
-    destroy();
+    if (isInitialized())
+        destroy();
 
     if (mFrameCallback)
         wl_callback_destroy(mFrameCallback);
@@ -353,8 +354,11 @@ void QWaylandWindow::setMask(const QRegion &mask)
 
     mMask = mask;
 
+    if (!isInitialized())
+        return;
+
     if (mMask.isEmpty()) {
-        set_input_region(0);
+        set_input_region(nullptr);
     } else {
         struct ::wl_region *region = mDisplay->createRegion(mMask);
         set_input_region(region);

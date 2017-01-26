@@ -1103,6 +1103,7 @@ void QWaylandXdgPopupV5::initialize(QWaylandXdgShellV5 *shell, QWaylandSurface *
     emit shellChanged();
     emit surfaceChanged();
     emit parentSurfaceChanged();
+    emit positionChanged();
     QWaylandCompositorExtension::initialize();
 }
 

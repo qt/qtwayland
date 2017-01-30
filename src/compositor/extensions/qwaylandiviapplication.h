@@ -40,12 +40,12 @@
 #include <QtWaylandCompositor/QWaylandCompositorExtension>
 #include <QtCore/QSize>
 
+QT_BEGIN_NAMESPACE
+
 class QWaylandIviSurface;
 class QWaylandSurface;
 class QWaylandResource;
 class QWaylandIviApplicationPrivate;
-
-QT_BEGIN_NAMESPACE
 
 class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandIviApplication : public QWaylandCompositorExtensionTemplate<QWaylandIviApplication>
 {

@@ -39,14 +39,15 @@
 
 #include <QtWaylandCompositor/QWaylandShellSurface>
 
+class wl_resource;
+
+QT_BEGIN_NAMESPACE
+
 class QWaylandIviSurfacePrivate;
 class QWaylandSurface;
 class QWaylandIviApplication;
 class QWaylandSurfaceRole;
 class QWaylandResource;
-class wl_resource;
-
-QT_BEGIN_NAMESPACE
 
 class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandIviSurface : public QWaylandShellSurfaceTemplate<QWaylandIviSurface>
 {

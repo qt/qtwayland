@@ -248,6 +248,7 @@ private:
     bool setWindowStateInternal(Qt::WindowState flags);
     void setGeometry_helper(const QRect &rect);
     void initWindow();
+    void initializeWlSurface();
     bool shouldCreateShellSurface() const;
     bool shouldCreateSubSurface() const;
     void reset();

@@ -95,6 +95,7 @@ QWaylandWindow::QWaylandWindow(QWindow *window)
 {
     static WId id = 1;
     mWindowId = id++;
+    initializeWlSurface();
 }
 
 QWaylandWindow::~QWaylandWindow()
@@ -127,7 +128,7 @@ void QWaylandWindow::initWindow()
         return;
 
     if (!isInitialized())
-        init(mDisplay->createSurface(static_cast<QtWayland::wl_surface *>(this)));
+        initializeWlSurface();
 
     if (shouldCreateSubSurface()) {
         Q_ASSERT(!mSubSurfaceWindow);
@@ -198,6 +199,11 @@ void QWaylandWindow::initWindow()
     setWindowStateInternal(window()->windowState());
     handleContentOrientationChange(window()->contentOrientation());
     mFlags = window()->flags();
+}
+
+void QWaylandWindow::initializeWlSurface()
+{
+    init(mDisplay->createSurface(static_cast<QtWayland::wl_surface *>(this)));
 }
 
 bool QWaylandWindow::shouldCreateShellSurface() const

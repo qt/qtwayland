@@ -72,7 +72,9 @@
 
 #include <QtCore/QDebug>
 
+#if QT_CONFIG(cursor)
 struct wl_cursor_image;
+#endif
 
 QT_BEGIN_NAMESPACE
 
@@ -100,10 +102,12 @@ public:
 
     struct ::wl_seat *wl_seat() { return QtWayland::wl_seat::object(); }
 
+#if QT_CONFIG(cursor)
     void setCursor(const QCursor &cursor, QWaylandScreen *screen);
     void setCursor(struct wl_buffer *buffer, struct ::wl_cursor_image *image);
     void setCursor(struct wl_buffer *buffer, const QPoint &hotSpot, const QSize &size);
     void setCursor(const QSharedPointer<QWaylandBuffer> &buffer, const QPoint &hotSpot);
+#endif
     void handleWindowDestroyed(QWaylandWindow *window);
     void handleEndDrag();
 
@@ -150,7 +154,7 @@ private:
     uint32_t mTime;
     uint32_t mSerial;
 
-    void seat_capabilities(uint32_t caps) Q_DECL_OVERRIDE;
+    void seat_capabilities(uint32_t caps) override;
     void handleTouchPoint(int id, double x, double y, Qt::TouchPointState state);
 
     QTouchDevice *mTouchDevice;
@@ -179,19 +183,19 @@ public:
 
     void keyboard_keymap(uint32_t format,
                          int32_t fd,
-                         uint32_t size) Q_DECL_OVERRIDE;
+                         uint32_t size) override;
     void keyboard_enter(uint32_t time,
                         struct wl_surface *surface,
-                        struct wl_array *keys) Q_DECL_OVERRIDE;
+                        struct wl_array *keys) override;
     void keyboard_leave(uint32_t time,
-                        struct wl_surface *surface) Q_DECL_OVERRIDE;
+                        struct wl_surface *surface) override;
     void keyboard_key(uint32_t serial, uint32_t time,
-                      uint32_t key, uint32_t state) Q_DECL_OVERRIDE;
+                      uint32_t key, uint32_t state) override;
     void keyboard_modifiers(uint32_t serial,
                             uint32_t mods_depressed,
                             uint32_t mods_latched,
                             uint32_t mods_locked,
-                            uint32_t group) Q_DECL_OVERRIDE;
+                            uint32_t group) override;
 
     QWaylandInputDevice *mParent;
     QWaylandWindow *mFocus;
@@ -232,27 +236,31 @@ public:
     virtual ~Pointer();
 
     void pointer_enter(uint32_t serial, struct wl_surface *surface,
-                       wl_fixed_t sx, wl_fixed_t sy) Q_DECL_OVERRIDE;
-    void pointer_leave(uint32_t time, struct wl_surface *surface) Q_DECL_OVERRIDE;
+                       wl_fixed_t sx, wl_fixed_t sy) override;
+    void pointer_leave(uint32_t time, struct wl_surface *surface) override;
     void pointer_motion(uint32_t time,
-                        wl_fixed_t sx, wl_fixed_t sy) Q_DECL_OVERRIDE;
+                        wl_fixed_t sx, wl_fixed_t sy) override;
     void pointer_button(uint32_t serial, uint32_t time,
-                        uint32_t button, uint32_t state) Q_DECL_OVERRIDE;
+                        uint32_t button, uint32_t state) override;
     void pointer_axis(uint32_t time,
                       uint32_t axis,
-                      wl_fixed_t value) Q_DECL_OVERRIDE;
+                      wl_fixed_t value) override;
 
     void releaseButtons();
 
     QWaylandInputDevice *mParent;
     QWaylandWindow *mFocus;
     uint32_t mEnterSerial;
+#if QT_CONFIG(cursor)
     uint32_t mCursorSerial;
+#endif
     QPointF mSurfacePos;
     QPointF mGlobalPos;
     Qt::MouseButtons mButtons;
+#if QT_CONFIG(cursor)
     wl_buffer *mCursorBuffer;
     Qt::CursorShape mCursorShape;
+#endif
 };
 
 class Q_WAYLAND_CLIENT_EXPORT QWaylandInputDevice::Touch : public QtWayland::wl_touch
@@ -266,16 +274,16 @@ public:
                     struct wl_surface *surface,
                     int32_t id,
                     wl_fixed_t x,
-                    wl_fixed_t y) Q_DECL_OVERRIDE;
+                    wl_fixed_t y) override;
     void touch_up(uint32_t serial,
                   uint32_t time,
-                  int32_t id) Q_DECL_OVERRIDE;
+                  int32_t id) override;
     void touch_motion(uint32_t time,
                       int32_t id,
                       wl_fixed_t x,
-                      wl_fixed_t y) Q_DECL_OVERRIDE;
-    void touch_frame() Q_DECL_OVERRIDE;
-    void touch_cancel() Q_DECL_OVERRIDE;
+                      wl_fixed_t y) override;
+    void touch_frame() override;
+    void touch_cancel() override;
 
     bool allTouchPointsReleased();
     void releasePoints();

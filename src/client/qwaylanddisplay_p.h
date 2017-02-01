@@ -225,8 +225,8 @@ private:
     struct wl_callback *mSyncCallback;
     static const wl_callback_listener syncCallbackListener;
 
-    void registry_global(uint32_t id, const QString &interface, uint32_t version) Q_DECL_OVERRIDE;
-    void registry_global_remove(uint32_t id) Q_DECL_OVERRIDE;
+    void registry_global(uint32_t id, const QString &interface, uint32_t version) override;
+    void registry_global_remove(uint32_t id) override;
 
     static void shellHandleConfigure(void *data, struct wl_shell *shell,
                                      uint32_t time, uint32_t edges,

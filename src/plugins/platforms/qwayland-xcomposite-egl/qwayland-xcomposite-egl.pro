@@ -8,4 +8,5 @@ SOURCES += \
     main.cpp
 
 PLUGIN_TYPE = platforms
+PLUGIN_CLASS_NAME = QWaylandXCompositeEglPlatformIntegrationPlugin
 load(qt_plugin)

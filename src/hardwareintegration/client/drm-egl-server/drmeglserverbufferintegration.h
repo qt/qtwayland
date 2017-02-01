@@ -71,7 +71,7 @@ class DrmServerBuffer : public QWaylandServerBuffer
 public:
     DrmServerBuffer(DrmEglServerBufferIntegration *integration, int32_t name, int32_t width, int32_t height, int32_t stride, int32_t format);
     ~DrmServerBuffer();
-    void bindTextureToBuffer() Q_DECL_OVERRIDE;
+    void bindTextureToBuffer() override;
 private:
     DrmEglServerBufferIntegration *m_integration;
     EGLImageKHR m_image;
@@ -83,16 +83,16 @@ class DrmEglServerBufferIntegration
     , public QtWayland::qt_drm_egl_server_buffer
 {
 public:
-    void initialize(QWaylandDisplay *display) Q_DECL_OVERRIDE;
+    void initialize(QWaylandDisplay *display) override;
 
-    virtual QWaylandServerBuffer *serverBuffer(struct qt_server_buffer *buffer) Q_DECL_OVERRIDE;
+    virtual QWaylandServerBuffer *serverBuffer(struct qt_server_buffer *buffer) override;
 
     inline EGLImageKHR eglCreateImageKHR(EGLContext ctx, EGLenum target, EGLClientBuffer buffer, const EGLint *attrib_list);
     inline EGLBoolean eglDestroyImageKHR (EGLImageKHR image);
     inline void glEGLImageTargetTexture2DOES (GLenum target, GLeglImageOES image);
 protected:
-    void registry_global(uint32_t name, const QString &interface, uint32_t version) Q_DECL_OVERRIDE;
-    void drm_egl_server_buffer_server_buffer_created(struct ::qt_server_buffer *id, int32_t name, int32_t width, int32_t height, int32_t stride, int32_t format) Q_DECL_OVERRIDE;
+    void registry_global(uint32_t name, const QString &interface, uint32_t version) override;
+    void drm_egl_server_buffer_server_buffer_created(struct ::qt_server_buffer *id, int32_t name, int32_t width, int32_t height, int32_t stride, int32_t format) override;
 private:
     PFNEGLCREATEIMAGEKHRPROC m_egl_create_image;
     PFNEGLDESTROYIMAGEKHRPROC m_egl_destroy_image;

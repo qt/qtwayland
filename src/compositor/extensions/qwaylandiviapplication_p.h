@@ -71,7 +71,7 @@ public:
     QHash<uint, QWaylandIviSurface*> m_iviSurfaces;
 
 protected:
-    void ivi_application_surface_create(Resource *resource, uint32_t ivi_id, wl_resource *surface, uint32_t id) Q_DECL_OVERRIDE;
+    void ivi_application_surface_create(Resource *resource, uint32_t ivi_id, wl_resource *surface, uint32_t id) override;
 };
 
 QT_END_NAMESPACE

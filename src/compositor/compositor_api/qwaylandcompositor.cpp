@@ -99,7 +99,7 @@ class WindowSystemEventHandler : public QWindowSystemEventHandler
 {
 public:
     WindowSystemEventHandler(QWaylandCompositor *c) : compositor(c) {}
-    bool sendEvent(QWindowSystemInterfacePrivate::WindowSystemEvent *e) Q_DECL_OVERRIDE
+    bool sendEvent(QWindowSystemInterfacePrivate::WindowSystemEvent *e) override
     {
         if (e->type == QWindowSystemInterfacePrivate::Key) {
             QWindowSystemInterfacePrivate::KeyEvent *ke = static_cast<QWindowSystemInterfacePrivate::KeyEvent *>(e);

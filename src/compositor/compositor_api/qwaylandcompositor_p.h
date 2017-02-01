@@ -108,10 +108,10 @@ public:
     inline void addOutput(QWaylandOutput *output);
     inline void removeOutput(QWaylandOutput *output);
 protected:
-    void compositor_create_surface(wl_compositor::Resource *resource, uint32_t id) Q_DECL_OVERRIDE;
-    void compositor_create_region(wl_compositor::Resource *resource, uint32_t id) Q_DECL_OVERRIDE;
+    void compositor_create_surface(wl_compositor::Resource *resource, uint32_t id) override;
+    void compositor_create_region(wl_compositor::Resource *resource, uint32_t id) override;
 
-    void subcompositor_get_subsurface(wl_subcompositor::Resource *resource, uint32_t id, struct ::wl_resource *surface, struct ::wl_resource *parent) Q_DECL_OVERRIDE;
+    void subcompositor_get_subsurface(wl_subcompositor::Resource *resource, uint32_t id, struct ::wl_resource *surface, struct ::wl_resource *parent) override;
 
     virtual QWaylandSurface *createDefaultSurface();
 protected:

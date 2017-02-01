@@ -71,18 +71,18 @@ public:
     QWaylandDrag(QWaylandDisplay *display);
     ~QWaylandDrag();
 
-    QMimeData *platformDropData() Q_DECL_OVERRIDE;
+    QMimeData *platformDropData() override;
 
     void updateTarget(const QString &mimeType);
     void setResponse(const QPlatformDragQtResponse &response);
     void finishDrag(const QPlatformDropQtResponse &response);
 
 protected:
-    void startDrag() Q_DECL_OVERRIDE;
-    void cancel() Q_DECL_OVERRIDE;
-    void move(const QPoint &globalPos) Q_DECL_OVERRIDE;
-    void drop(const QPoint &globalPos) Q_DECL_OVERRIDE;
-    void endDrag() Q_DECL_OVERRIDE;
+    void startDrag() override;
+    void cancel() override;
+    void move(const QPoint &globalPos) override;
+    void drop(const QPoint &globalPos) override;
+    void endDrag() override;
 
 
 private:

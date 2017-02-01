@@ -317,6 +317,7 @@ void QWaylandSeat::sendFullKeyEvent(QKeyEvent *event)
         return;
     }
 
+#if QT_CONFIG(im)
     if (keyboardFocus()->inputMethodControl()->enabled()
         && event->nativeScanCode() == 0) {
         QWaylandTextInput *textInput = QWaylandTextInput::findIn(this);
@@ -325,6 +326,7 @@ void QWaylandSeat::sendFullKeyEvent(QKeyEvent *event)
             return;
         }
     }
+#endif
 
     QtWayland::QtKeyExtensionGlobal *ext = QtWayland::QtKeyExtensionGlobal::findIn(d->compositor);
     if (ext && ext->postQtKeyEvent(event, keyboardFocus()))

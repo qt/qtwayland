@@ -42,7 +42,7 @@ public:
     TestSeat(QWaylandCompositor *compositor, QWaylandSeat::CapabilityFlags caps);
     ~TestSeat();
 
-    bool isOwner(QInputEvent *inputEvent) const Q_DECL_OVERRIDE;
+    bool isOwner(QInputEvent *inputEvent) const override;
 
     QList<QMouseEvent *> createMouseEvents(int count);
 

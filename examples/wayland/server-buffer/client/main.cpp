@@ -144,7 +144,7 @@ public slots:
     }
 
 protected:
-    void registry_global(uint32_t name, const QString &interface, uint32_t version) Q_DECL_OVERRIDE
+    void registry_global(uint32_t name, const QString &interface, uint32_t version) override
     {
         Q_UNUSED(version);
         if (interface == QStringLiteral("qt_share_buffer")) {
@@ -152,7 +152,7 @@ protected:
         }
     }
 
-    void share_buffer_cross_buffer(struct ::qt_server_buffer *buffer) Q_DECL_OVERRIDE
+    void share_buffer_cross_buffer(struct ::qt_server_buffer *buffer) override
     {
         QtWaylandClient::QWaylandServerBuffer *serverBuffer = m_server_buffer_integration->serverBuffer(buffer);
         if (m_server_buffer_list.isEmpty()) {

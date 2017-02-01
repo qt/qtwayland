@@ -69,8 +69,8 @@ public:
     QString serverBufferIntegration();
 
 protected:
-    void hardware_integration_client_backend(const QString &name) Q_DECL_OVERRIDE;
-    void hardware_integration_server_backend(const QString &name) Q_DECL_OVERRIDE;
+    void hardware_integration_client_backend(const QString &name) override;
+    void hardware_integration_server_backend(const QString &name) override;
 
 private:
     QString m_client_buffer;

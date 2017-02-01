@@ -53,7 +53,7 @@ public:
     QWaylandTextInputManager();
     QWaylandTextInputManager(QWaylandCompositor *compositor);
 
-    void initialize() Q_DECL_OVERRIDE;
+    void initialize() override;
 
     static const struct wl_interface *interface();
     static QByteArray interfaceName();

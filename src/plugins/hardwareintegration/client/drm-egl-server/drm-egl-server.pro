@@ -11,4 +11,5 @@ OTHER_FILES += \
 SOURCES += main.cpp
 
 PLUGIN_TYPE = wayland-graphics-integration-client
+PLUGIN_CLASS_NAME = DrmEglServerBufferPlugin
 load(qt_plugin)

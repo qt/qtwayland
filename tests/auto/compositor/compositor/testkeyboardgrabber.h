@@ -34,10 +34,10 @@ class TestKeyboardGrabber : public QWaylandKeyboard
 public:
     TestKeyboardGrabber(QWaylandSeat *seat);
 
-    void setFocus(QWaylandSurface *surface) Q_DECL_OVERRIDE;
-    void sendKeyModifiers(QWaylandClient *client, uint32_t serial) Q_DECL_OVERRIDE;
-    void sendKeyPressEvent(uint code) Q_DECL_OVERRIDE;
-    void sendKeyReleaseEvent(uint code) Q_DECL_OVERRIDE;
+    void setFocus(QWaylandSurface *surface) override;
+    void sendKeyModifiers(QWaylandClient *client, uint32_t serial) override;
+    void sendKeyPressEvent(uint code) override;
+    void sendKeyReleaseEvent(uint code) override;
 
 signals:
     void focusedCalled();

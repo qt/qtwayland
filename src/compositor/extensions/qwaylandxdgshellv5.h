@@ -68,7 +68,7 @@ public:
     QWaylandXdgShellV5();
     QWaylandXdgShellV5(QWaylandCompositor *compositor);
 
-    void initialize() Q_DECL_OVERRIDE;
+    void initialize() override;
     QWaylandClient *popupClient() const;
 
     static const struct wl_interface *interface();
@@ -135,6 +135,8 @@ public:
 
     Q_INVOKABLE void initialize(QWaylandXdgShellV5* xdgShell, QWaylandSurface *surface, const QWaylandResource &resource);
 
+    Qt::WindowType windowType() const override;
+
     QString title() const;
     QString appId() const;
     QRect windowGeometry() const;
@@ -165,7 +167,7 @@ public:
     Q_INVOKABLE uint sendResizing(const QSize &maxSize);
 
 #ifdef QT_WAYLAND_COMPOSITOR_QUICK
-    QWaylandQuickShellIntegration *createIntegration(QWaylandQuickShellSurfaceItem *item) Q_DECL_OVERRIDE;
+    QWaylandQuickShellIntegration *createIntegration(QWaylandQuickShellSurfaceItem *item) override;
 #endif
 
 Q_SIGNALS:
@@ -236,7 +238,7 @@ public:
     Q_INVOKABLE void sendPopupDone();
 
 #ifdef QT_WAYLAND_COMPOSITOR_QUICK
-    QWaylandQuickShellIntegration *createIntegration(QWaylandQuickShellSurfaceItem *item) Q_DECL_OVERRIDE;
+    QWaylandQuickShellIntegration *createIntegration(QWaylandQuickShellSurfaceItem *item) override;
 #endif
 
 Q_SIGNALS:

@@ -297,7 +297,7 @@ public:
         emit textureChanged();
     }
 
-    QSGTexture *texture() const Q_DECL_OVERRIDE
+    QSGTexture *texture() const override
     {
         if (m_sgTex)
             m_sgTex->setFiltering(m_smooth ? QSGTexture::Linear : QSGTexture::Nearest);
@@ -588,6 +588,7 @@ void QWaylandQuickItem::hoverLeaveEvent(QHoverEvent *event)
     }
 }
 
+#if QT_CONFIG(wheelevent)
 /*!
  * \internal
  */
@@ -606,6 +607,7 @@ void QWaylandQuickItem::wheelEvent(QWheelEvent *event)
         event->ignore();
     }
 }
+#endif
 
 /*!
  * \internal
@@ -660,11 +662,25 @@ void QWaylandQuickItem::touchEvent(QTouchEvent *event)
         }
         seat->sendFullTouchEvent(surface(), event);
 
+        if (event->type() == QEvent::TouchBegin) {
+            d->touchingSeats.append(seat);
+        } else if (event->type() == QEvent::TouchEnd || event->type() == QEvent::TouchCancel) {
+            d->touchingSeats.removeOne(seat);
+        }
+
         if (event->type() == QEvent::TouchBegin && d->focusOnClick)
             takeFocus(seat);
     } else {
         event->ignore();
     }
+}
+
+void QWaylandQuickItem::touchUngrabEvent()
+{
+    Q_D(QWaylandQuickItem);
+    for (auto seat : d->touchingSeats)
+        seat->sendTouchCancelEvent(surface()->client());
+    d->touchingSeats.clear();
 }
 
 #if QT_CONFIG(im)
@@ -1266,5 +1282,10 @@ void QWaylandQuickItem::handleDragStarted(QWaylandDrag *drag)
     d->isDragging = true;
 }
 
-QT_END_NAMESPACE
+qreal QWaylandQuickItemPrivate::scaleFactor() const
+{
+    return (view->output() ? view->output()->scaleFactor() : 1)
+            / (window ? window->devicePixelRatio() : 1);
+}
 
+QT_END_NAMESPACE

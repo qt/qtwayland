@@ -132,7 +132,9 @@ QWaylandSurfacePrivate::QWaylandSurfacePrivate()
     , hasContent(false)
     , isInitialized(false)
     , contentOrientation(Qt::PrimaryOrientation)
+#if QT_CONFIG(im)
     , inputMethodControl(Q_NULLPTR)
+#endif
     , subsurface(0)
 {
     pending.buffer = QWaylandBufferRef();
@@ -419,7 +421,9 @@ void QWaylandSurface::initialize(QWaylandCompositor *compositor, QWaylandClient 
     d->client = client;
     d->init(client->client(), id, version);
     d->isInitialized = true;
+#if QT_CONFIG(im)
     d->inputMethodControl = new QWaylandInputMethodControl(this);
+#endif
 #ifndef QT_NO_DEBUG
     QWaylandSurfacePrivate::removeUninitializedSurface(d);
 #endif
@@ -665,11 +669,13 @@ bool QWaylandSurface::isCursorSurface() const
     return d->isCursorSurface;
 }
 
+#if QT_CONFIG(im)
 QWaylandInputMethodControl *QWaylandSurface::inputMethodControl() const
 {
     Q_D(const QWaylandSurface);
     return d->inputMethodControl;
 }
+#endif
 
 /*!
  * Updates the surface with the compositor's retained clipboard selection. Although

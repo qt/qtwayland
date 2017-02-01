@@ -76,7 +76,7 @@ public:
     static QWaylandWlShellPrivate *get(QWaylandWlShell *shell) { return shell->d_func(); }
 
 protected:
-    void shell_get_shell_surface(Resource *resource, uint32_t id, struct ::wl_resource *surface) Q_DECL_OVERRIDE;
+    void shell_get_shell_surface(Resource *resource, uint32_t id, struct ::wl_resource *surface) override;
 
     QList<QWaylandWlShellSurface *> m_shellSurfaces;
 };
@@ -106,40 +106,40 @@ private:
     QString m_className;
     Qt::WindowType m_windowType;
 
-    void shell_surface_destroy_resource(Resource *resource) Q_DECL_OVERRIDE;
+    void shell_surface_destroy_resource(Resource *resource) override;
 
     void shell_surface_move(Resource *resource,
                             struct wl_resource *input_device_super,
-                            uint32_t time) Q_DECL_OVERRIDE;
+                            uint32_t time) override;
     void shell_surface_resize(Resource *resource,
                               struct wl_resource *input_device,
                               uint32_t time,
-                              uint32_t edges) Q_DECL_OVERRIDE;
-    void shell_surface_set_toplevel(Resource *resource) Q_DECL_OVERRIDE;
+                              uint32_t edges) override;
+    void shell_surface_set_toplevel(Resource *resource) override;
     void shell_surface_set_transient(Resource *resource,
                                      struct wl_resource *parent_surface_resource,
                                      int x,
                                      int y,
-                                     uint32_t flags) Q_DECL_OVERRIDE;
+                                     uint32_t flags) override;
     void shell_surface_set_fullscreen(Resource *resource,
                                       uint32_t method,
                                       uint32_t framerate,
-                                      struct wl_resource *output_resource) Q_DECL_OVERRIDE;
+                                      struct wl_resource *output_resource) override;
     void shell_surface_set_popup(Resource *resource,
                                  struct wl_resource *input_device,
                                  uint32_t time,
                                  struct wl_resource *parent,
                                  int32_t x,
                                  int32_t y,
-                                 uint32_t flags) Q_DECL_OVERRIDE;
+                                 uint32_t flags) override;
     void shell_surface_set_maximized(Resource *resource,
-                                     struct wl_resource *output_resource) Q_DECL_OVERRIDE;
+                                     struct wl_resource *output_resource) override;
     void shell_surface_pong(Resource *resource,
-                            uint32_t serial) Q_DECL_OVERRIDE;
+                            uint32_t serial) override;
     void shell_surface_set_title(Resource *resource,
-                                 const QString &title) Q_DECL_OVERRIDE;
+                                 const QString &title) override;
     void shell_surface_set_class(Resource *resource,
-                                 const QString &class_) Q_DECL_OVERRIDE;
+                                 const QString &class_) override;
 
     static QWaylandSurfaceRole s_role;
 };

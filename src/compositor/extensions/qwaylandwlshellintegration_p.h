@@ -61,8 +61,8 @@ class WlShellIntegration : public QWaylandQuickShellIntegration
     Q_OBJECT
 public:
     WlShellIntegration(QWaylandQuickShellSurfaceItem *item);
-    bool mouseMoveEvent(QMouseEvent *event) Q_DECL_OVERRIDE;
-    bool mouseReleaseEvent(QMouseEvent *event) Q_DECL_OVERRIDE;
+    bool mouseMoveEvent(QMouseEvent *event) override;
+    bool mouseReleaseEvent(QMouseEvent *event) override;
 
 private Q_SLOTS:
     void handleStartMove(QWaylandSeat *seat);
@@ -86,6 +86,7 @@ private:
 
     void handlePopupClosed();
     void handlePopupRemoved();
+    qreal devicePixelRatio() const;
 
     QWaylandQuickShellSurfaceItem *m_item;
     QPointer<QWaylandWlShellSurface> m_shellSurface;

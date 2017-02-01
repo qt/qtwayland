@@ -1,9 +1,9 @@
 /****************************************************************************
 **
 ** Copyright (C) 2016 The Qt Company Ltd.
-** Contact: http://www.qt.io/licensing/
+** Contact: http://www.qt-project.org/legal
 **
-** This file is part of the examples of the Qt Wayland module
+** This file is part of the examples of the Qt Toolkit.
 **
 ** $QT_BEGIN_LICENSE:BSD$
 ** You may use this file under the terms of the BSD license as follows:
@@ -38,31 +38,47 @@
 **
 ****************************************************************************/
 
-#ifndef WINDOW_H
-#define WINDOW_H
+import QtQuick 2.2
+import QtQuick.Window 2.2
+import QtQuick.Controls 2.0
+import QtWayland.Compositor 1.0
 
-#include <QOpenGLWindow>
-#include <QOpenGLTextureBlitter>
+WaylandCompositor {
+    id: comp
+    WaylandOutput {
+        id: output
+        compositor: comp
+        sizeFollowsWindow: true
+        scaleFactor: 2
+        window: Window {
+            id: win
+            width: 500
+            height: 500
+            visible: true
+            title: "Scaling compositor x" + output.scaleFactor
+            Button {
+                id: incrementButton
+                text: "+"
+                onClicked: ++output.scaleFactor
+            }
+            Button {
+                text: "-"
+                onClicked: output.scaleFactor = Math.max(1, output.scaleFactor - 1)
+                anchors.left: incrementButton.right
+            }
+            Repeater {
+                model: shellSurfaces
+                ShellSurfaceItem {
+                    shellSurface: modelData
+                    onSurfaceDestroyed: shellSurfaces.remove(index);
+                }
+            }
+        }
+    }
 
-QT_BEGIN_NAMESPACE
+    ListModel { id: shellSurfaces }
 
-class Compositor;
-
-class Window : public QOpenGLWindow
-{
-public:
-    Window();
-    void setCompositor(Compositor *comp);
-
-protected:
-    void initializeGL() override;
-    void paintGL() override;
-
-private:
-    QOpenGLTextureBlitter m_textureBlitter;
-    Compositor *m_compositor;
-};
-
-QT_END_NAMESPACE
-
-#endif //WINDOW_H
+    WlShell {
+        onWlShellSurfaceCreated: shellSurfaces.append({shellSurface: shellSurface});
+    }
+}

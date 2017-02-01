@@ -62,7 +62,9 @@
 #include <fcntl.h>
 #include <sys/mman.h>
 
+#if QT_CONFIG(cursor)
 #include <wayland-cursor.h>
+#endif
 
 #include <QtGui/QGuiApplication>
 
@@ -145,10 +147,14 @@ QWaylandInputDevice::Pointer::Pointer(QWaylandInputDevice *p)
     : mParent(p)
     , mFocus(0)
     , mEnterSerial(0)
+#if QT_CONFIG(cursor)
     , mCursorSerial(0)
+#endif
     , mButtons(0)
+#if QT_CONFIG(cursor)
     , mCursorBuffer(nullptr)
     , mCursorShape(Qt::BitmapCursor)
+#endif
 {
 }
 
@@ -344,6 +350,7 @@ Qt::KeyboardModifiers QWaylandInputDevice::Keyboard::modifiers() const
     return ret;
 }
 
+#if QT_CONFIG(cursor)
 uint32_t QWaylandInputDevice::cursorSerial() const
 {
     if (mPointer)
@@ -415,6 +422,7 @@ void QWaylandInputDevice::setCursor(const QSharedPointer<QWaylandBuffer> &buffer
     setCursor(buffer->buffer(), hotSpot, buffer->size());
     mPixmapCursor = buffer;
 }
+#endif
 
 class EnterEvent : public QWaylandPointerEvent
 {
@@ -431,7 +439,9 @@ void QWaylandInputDevice::Pointer::pointer_enter(uint32_t serial, struct wl_surf
         return;
 
     QWaylandWindow *window = QWaylandWindow::fromWlSurface(surface);
+#if QT_CONFIG(cursor)
     window->window()->setCursor(window->window()->cursor());
+#endif
 
     mFocus = window;
     mSurfacePos = QPointF(wl_fixed_to_double(sx), wl_fixed_to_double(sy));

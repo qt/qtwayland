@@ -97,16 +97,16 @@ public:
     QtWayland::DataDevice *dataDevice() const { return data_device.data(); }
 
 protected:
-    void seat_bind_resource(wl_seat::Resource *resource) Q_DECL_OVERRIDE;
+    void seat_bind_resource(wl_seat::Resource *resource) override;
 
     void seat_get_pointer(wl_seat::Resource *resource,
-                          uint32_t id) Q_DECL_OVERRIDE;
+                          uint32_t id) override;
     void seat_get_keyboard(wl_seat::Resource *resource,
-                           uint32_t id) Q_DECL_OVERRIDE;
+                           uint32_t id) override;
     void seat_get_touch(wl_seat::Resource *resource,
-                        uint32_t id) Q_DECL_OVERRIDE;
+                        uint32_t id) override;
 
-    void seat_destroy_resource(wl_seat::Resource *resource) Q_DECL_OVERRIDE;
+    void seat_destroy_resource(wl_seat::Resource *resource) override;
 
 private:
     bool isInitialized;

@@ -81,7 +81,7 @@ public:
         : QWaylandShell(container)
     { }
 
-    const struct wl_interface *extensionInterface() const Q_DECL_OVERRIDE
+    const struct wl_interface *extensionInterface() const override
     {
         return T::interface();
     }

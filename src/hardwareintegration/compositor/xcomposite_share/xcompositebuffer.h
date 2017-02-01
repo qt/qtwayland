@@ -68,8 +68,8 @@ public:
     static XCompositeBuffer *fromResource(struct ::wl_resource *resource) { return static_cast<XCompositeBuffer*>(Resource::fromResource(resource)->buffer_object); }
 
 protected:
-    void buffer_destroy_resource(Resource *) Q_DECL_OVERRIDE;
-    void buffer_destroy(Resource *) Q_DECL_OVERRIDE;
+    void buffer_destroy_resource(Resource *) override;
+    void buffer_destroy(Resource *) override;
 
 private:
     Window mWindow;

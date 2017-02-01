@@ -215,7 +215,7 @@ protected:
         connect(surface, &QWaylandSurface::hasContentChanged, this, &QmlCompositor::surfaceMapped);
     }
 
-    void share_buffer_bind_resource(Resource *resource) Q_DECL_OVERRIDE
+    void share_buffer_bind_resource(Resource *resource) override
     {
         if (m_server_buffer_32_bit) {
             struct ::wl_client *client = resource->handle->client;

@@ -63,19 +63,19 @@ public:
     QWaylandGLContext(EGLDisplay eglDisplay, QWaylandDisplay *display, const QSurfaceFormat &format, QPlatformOpenGLContext *share);
     ~QWaylandGLContext();
 
-    void swapBuffers(QPlatformSurface *surface) Q_DECL_OVERRIDE;
+    void swapBuffers(QPlatformSurface *surface) override;
 
-    bool makeCurrent(QPlatformSurface *surface) Q_DECL_OVERRIDE;
-    void doneCurrent() Q_DECL_OVERRIDE;
+    bool makeCurrent(QPlatformSurface *surface) override;
+    void doneCurrent() override;
 
-    GLuint defaultFramebufferObject(QPlatformSurface *surface) const Q_DECL_OVERRIDE;
+    GLuint defaultFramebufferObject(QPlatformSurface *surface) const override;
 
-    bool isSharing() const Q_DECL_OVERRIDE;
-    bool isValid() const Q_DECL_OVERRIDE;
+    bool isSharing() const override;
+    bool isValid() const override;
 
-    QFunctionPointer getProcAddress(const char *procName) Q_DECL_OVERRIDE;
+    QFunctionPointer getProcAddress(const char *procName) override;
 
-    QSurfaceFormat format() const Q_DECL_OVERRIDE { return m_format; }
+    QSurfaceFormat format() const override { return m_format; }
 
     EGLConfig eglConfig() const;
     EGLContext eglContext() const { return m_context; }

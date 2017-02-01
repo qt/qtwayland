@@ -80,14 +80,14 @@ public:
     QWaylandXdgSurfaceV5 *xdgSurfaceFromSurface(QWaylandSurface *surface);
 
 protected:
-    void xdg_shell_destroy(Resource *resource) Q_DECL_OVERRIDE;
+    void xdg_shell_destroy(Resource *resource) override;
     void xdg_shell_get_xdg_surface(Resource *resource, uint32_t id,
-                                   struct ::wl_resource *surface) Q_DECL_OVERRIDE;
-    void xdg_shell_use_unstable_version(Resource *resource, int32_t version) Q_DECL_OVERRIDE;
+                                   struct ::wl_resource *surface) override;
+    void xdg_shell_use_unstable_version(Resource *resource, int32_t version) override;
     void xdg_shell_get_xdg_popup(Resource *resource, uint32_t id, struct ::wl_resource *surface,
                                  struct ::wl_resource *parent, struct ::wl_resource *seatResource,
-                                 uint32_t serial, int32_t x, int32_t y) Q_DECL_OVERRIDE;
-    void xdg_shell_pong(Resource *resource, uint32_t serial) Q_DECL_OVERRIDE;
+                                 uint32_t serial, int32_t x, int32_t y) override;
+    void xdg_shell_pong(Resource *resource, uint32_t serial) override;
 };
 
 class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgSurfaceV5Private
@@ -98,12 +98,6 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgSurfaceV5Private
 public:
     QWaylandXdgSurfaceV5Private();
     static QWaylandXdgSurfaceV5Private *get(QWaylandXdgSurfaceV5 *xdgSurface) { return xdgSurface->d_func(); }
-
-    enum WindowType {
-        UnknownWindowType,
-        TopLevelWindowType,
-        TransientWindowType
-    };
 
     struct ConfigureEvent {
         QVector<uint> states;
@@ -116,12 +110,14 @@ public:
     QRect calculateFallbackWindowGeometry() const;
     void updateFallbackWindowGeometry();
 
+    void setWindowType(Qt::WindowType windowType);
+
 private:
     QWaylandXdgShellV5 *m_xdgShell;
     QWaylandSurface *m_surface;
     QWaylandXdgSurfaceV5 *m_parentSurface;
 
-    WindowType m_windowType;
+    Qt::WindowType m_windowType;
 
     QString m_title;
     QString m_appId;
@@ -132,27 +128,27 @@ private:
     ConfigureEvent m_lastAckedConfigure;
     ConfigureEvent lastSentConfigure() const { return m_pendingConfigures.empty() ? m_lastAckedConfigure : m_pendingConfigures.first(); }
 
-    void xdg_surface_destroy_resource(Resource *resource) Q_DECL_OVERRIDE;
+    void xdg_surface_destroy_resource(Resource *resource) override;
 
-    void xdg_surface_destroy(Resource *resource) Q_DECL_OVERRIDE;
+    void xdg_surface_destroy(Resource *resource) override;
     void xdg_surface_move(Resource *resource, struct ::wl_resource *seat,
-                          uint32_t serial) Q_DECL_OVERRIDE;
+                          uint32_t serial) override;
     void xdg_surface_resize(Resource *resource, struct ::wl_resource *seat, uint32_t serial,
-                            uint32_t edges) Q_DECL_OVERRIDE;
-    void xdg_surface_set_maximized(Resource *resource) Q_DECL_OVERRIDE;
-    void xdg_surface_unset_maximized(Resource *resource) Q_DECL_OVERRIDE;
+                            uint32_t edges) override;
+    void xdg_surface_set_maximized(Resource *resource) override;
+    void xdg_surface_unset_maximized(Resource *resource) override;
     void xdg_surface_set_fullscreen(Resource *resource,
-                                    struct ::wl_resource *output) Q_DECL_OVERRIDE;
-    void xdg_surface_unset_fullscreen(Resource *resource) Q_DECL_OVERRIDE;
-    void xdg_surface_set_minimized(Resource *resource) Q_DECL_OVERRIDE;
-    void xdg_surface_set_parent(Resource *resource, struct ::wl_resource *parent) Q_DECL_OVERRIDE;
-    void xdg_surface_set_app_id(Resource *resource, const QString &app_id) Q_DECL_OVERRIDE;
+                                    struct ::wl_resource *output) override;
+    void xdg_surface_unset_fullscreen(Resource *resource) override;
+    void xdg_surface_set_minimized(Resource *resource) override;
+    void xdg_surface_set_parent(Resource *resource, struct ::wl_resource *parent) override;
+    void xdg_surface_set_app_id(Resource *resource, const QString &app_id) override;
     void xdg_surface_show_window_menu(Resource *resource, struct ::wl_resource *seatResource,
-                                      uint32_t serial, int32_t x, int32_t y) Q_DECL_OVERRIDE;
-    void xdg_surface_ack_configure(Resource *resource, uint32_t serial) Q_DECL_OVERRIDE;
-    void xdg_surface_set_title(Resource *resource, const QString &title) Q_DECL_OVERRIDE;
+                                      uint32_t serial, int32_t x, int32_t y) override;
+    void xdg_surface_ack_configure(Resource *resource, uint32_t serial) override;
+    void xdg_surface_set_title(Resource *resource, const QString &title) override;
     void xdg_surface_set_window_geometry(Resource *resource, int32_t x, int32_t y,
-                                         int32_t width, int32_t height) Q_DECL_OVERRIDE;
+                                         int32_t width, int32_t height) override;
 
     static QWaylandSurfaceRole s_role;
 };
@@ -172,8 +168,8 @@ public:
     QWaylandXdgShellV5 *m_xdgShell;
     QPoint m_position;
 
-    void xdg_popup_destroy_resource(Resource *resource) Q_DECL_OVERRIDE;
-    void xdg_popup_destroy(xdg_popup::Resource *resource) Q_DECL_OVERRIDE;
+    void xdg_popup_destroy_resource(Resource *resource) override;
+    void xdg_popup_destroy(xdg_popup::Resource *resource) override;
 
     static QWaylandSurfaceRole s_role;
 };

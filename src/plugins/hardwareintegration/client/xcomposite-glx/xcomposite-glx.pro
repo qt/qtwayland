@@ -8,4 +8,5 @@ SOURCES += \
     main.cpp
 
 PLUGIN_TYPE = wayland-graphics-integration-client
+PLUGIN_CLASS_NAME = QWaylandXCompositeGlxClientBufferIntegrationPlugin
 load(qt_plugin)

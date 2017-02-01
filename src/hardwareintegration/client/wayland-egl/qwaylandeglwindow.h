@@ -58,10 +58,10 @@ class QWaylandEglWindow : public QWaylandWindow
 public:
     QWaylandEglWindow(QWindow *window);
     ~QWaylandEglWindow();
-    WindowType windowType() const Q_DECL_OVERRIDE;
+    WindowType windowType() const override;
 
     void updateSurface(bool create);
-    virtual void setGeometry(const QRect &rect) Q_DECL_OVERRIDE;
+    virtual void setGeometry(const QRect &rect) override;
     QRect contentsRect() const;
 
     EGLSurface eglSurface() const;
@@ -69,12 +69,12 @@ public:
     GLuint contentTexture() const;
     bool needToUpdateContentFBO() const { return decoration() && (m_resize || !m_contentFBO); }
 
-    QSurfaceFormat format() const Q_DECL_OVERRIDE;
+    QSurfaceFormat format() const override;
 
     void bindContentFBO();
 
-    void invalidateSurface() Q_DECL_OVERRIDE;
-    void setVisible(bool visible) Q_DECL_OVERRIDE;
+    void invalidateSurface() override;
+    void setVisible(bool visible) override;
 
 private Q_SLOTS:
     void doInvalidateSurface();

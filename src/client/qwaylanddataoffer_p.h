@@ -75,7 +75,7 @@ public:
     QMimeData *mimeData();
 
 protected:
-    void data_offer_offer(const QString &mime_type) Q_DECL_OVERRIDE;
+    void data_offer_offer(const QString &mime_type) override;
 
 private:
     QScopedPointer<QWaylandMimeData> m_mimeData;
@@ -90,9 +90,9 @@ public:
     void appendFormat(const QString &mimeType);
 
 protected:
-    bool hasFormat_sys(const QString &mimeType) const Q_DECL_OVERRIDE;
-    QStringList formats_sys() const Q_DECL_OVERRIDE;
-    QVariant retrieveData_sys(const QString &mimeType, QVariant::Type type) const Q_DECL_OVERRIDE;
+    bool hasFormat_sys(const QString &mimeType) const override;
+    QStringList formats_sys() const override;
+    QVariant retrieveData_sys(const QString &mimeType, QVariant::Type type) const override;
 
 private:
     int readData(int fd, QByteArray &data) const;

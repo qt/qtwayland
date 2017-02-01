@@ -135,7 +135,9 @@ public:
     void markAsCursorSurface(bool cursorSurface);
     bool isCursorSurface() const;
 
+#if QT_CONFIG(im)
     QWaylandInputMethodControl *inputMethodControl() const;
+#endif
 
 public Q_SLOTS:
     void updateSelection();

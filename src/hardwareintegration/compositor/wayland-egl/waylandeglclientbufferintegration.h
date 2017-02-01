@@ -51,7 +51,7 @@ class WaylandEglClientBufferIntegration : public QtWayland::ClientBufferIntegrat
 public:
     WaylandEglClientBufferIntegration();
 
-    void initializeHardware(struct ::wl_display *display) Q_DECL_OVERRIDE;
+    void initializeHardware(struct ::wl_display *display) override;
 
     QtWayland::ClientBuffer *createBufferFor(wl_resource *buffer);
 
@@ -65,13 +65,13 @@ struct BufferState;
 class WaylandEglClientBuffer : public QtWayland::ClientBuffer
 {
 public:
-    QWaylandBufferRef::BufferFormatEgl bufferFormatEgl() const Q_DECL_OVERRIDE;
-    QSize size() const Q_DECL_OVERRIDE;
-    QWaylandSurface::Origin origin() const Q_DECL_OVERRIDE;
-    quintptr lockNativeBuffer() Q_DECL_OVERRIDE;
-    void unlockNativeBuffer(quintptr native_buffer) const Q_DECL_OVERRIDE;
-    QOpenGLTexture *toOpenGlTexture(int plane) Q_DECL_OVERRIDE;
-    void setCommitted(QRegion &damage) Q_DECL_OVERRIDE;
+    QWaylandBufferRef::BufferFormatEgl bufferFormatEgl() const override;
+    QSize size() const override;
+    QWaylandSurface::Origin origin() const override;
+    quintptr lockNativeBuffer() override;
+    void unlockNativeBuffer(quintptr native_buffer) const override;
+    QOpenGLTexture *toOpenGlTexture(int plane) override;
+    void setCommitted(QRegion &damage) override;
 
 private:
     friend class WaylandEglClientBufferIntegration;

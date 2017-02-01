@@ -80,7 +80,7 @@ private:
                              uint32_t nativeModifiers,
                              const QString &text,
                              uint32_t autorep,
-                             uint32_t count) Q_DECL_OVERRIDE;
+                             uint32_t count) override;
 
 };
 

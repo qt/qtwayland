@@ -62,8 +62,8 @@ public:
     static BrcmBuffer *fromResource(struct ::wl_resource *resource) { return static_cast<BrcmBuffer*>(Resource::fromResource(resource)->buffer_object); }
 
 protected:
-    void buffer_destroy_resource(Resource *resource) Q_DECL_OVERRIDE;
-    void buffer_destroy(Resource *resource) Q_DECL_OVERRIDE;
+    void buffer_destroy_resource(Resource *resource) override;
+    void buffer_destroy(Resource *resource) override;
 
 private:
     QVector<EGLint> m_handle;

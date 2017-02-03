@@ -48,7 +48,7 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.0
+import QtQuick 2.8
 import QtWayland.Compositor 1.0
 import QtQuick.Window 2.3
 
@@ -94,6 +94,10 @@ WaylandOutput {
                 seat: comp.defaultSeat
                 visible: mouseTracker.containsMouse
             }
+        }
+        Shortcut {
+            sequence: "Ctrl+Alt+Backspace"
+            onActivated: Qt.quit()
         }
     }
 }

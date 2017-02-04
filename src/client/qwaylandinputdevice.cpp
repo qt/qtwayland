@@ -377,7 +377,7 @@ void QWaylandInputDevice::setCursor(Qt::CursorShape newShape, QWaylandScreen *sc
 
 void QWaylandInputDevice::setCursor(const QCursor &cursor, QWaylandScreen *screen)
 {
-    if (cursor.shape() != Qt::BitmapCursor && cursor.shape() == mPointer->mCursorShape)
+    if (mPointer->mCursorSerial >= mPointer->mEnterSerial && (cursor.shape() != Qt::BitmapCursor && cursor.shape() == mPointer->mCursorShape))
         return;
 
     mPointer->mCursorShape = cursor.shape();

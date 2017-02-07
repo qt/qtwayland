@@ -1,5 +1,5 @@
 CONFIG += wayland-scanner
-WAYLANDSERVERSOURCES += \
+WAYLANDSERVERSOURCES_SYSTEM += \
     ../3rdparty/protocol/wayland.xml \
 
 HEADERS += \

@@ -23,7 +23,6 @@ QMAKE_USE += wayland-client
 INCLUDEPATH += $$PWD/../shared
 
 WAYLANDCLIENTSOURCES += \
-            ../3rdparty/protocol/wayland.xml \
             ../extensions/surface-extension.xml \
             ../extensions/touch-extension.xml \
             ../extensions/qtkey-extension.xml \
@@ -31,6 +30,9 @@ WAYLANDCLIENTSOURCES += \
             ../3rdparty/protocol/text-input-unstable-v2.xml \
             ../3rdparty/protocol/xdg-shell.xml \
             ../3rdparty/protocol/xdg-shell-unstable-v6.xml \
+
+WAYLANDCLIENTSOURCES_SYSTEM += \
+            ../3rdparty/protocol/wayland.xml \
 
 SOURCES +=  qwaylandintegration.cpp \
             qwaylandnativeinterface.cpp \

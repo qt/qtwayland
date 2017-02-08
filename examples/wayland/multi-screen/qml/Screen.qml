@@ -47,15 +47,15 @@ WaylandOutput {
     property variant viewsBySurface: ({})
     property alias surfaceArea: background
     property alias text: t.text
-    property alias targetScreen: win.targetScreen
+    property alias screen: win.screen
     sizeFollowsWindow: true
 
     property bool windowed: false
 
     window: Window {
         id: win
-        x: targetScreen.virtualX
-        y: targetScreen.virtualY
+        x: screen.virtualX
+        y: screen.virtualY
         width: 800
         height: 800
         visibility: windowed ? Window.Windowed : Window.FullScreen

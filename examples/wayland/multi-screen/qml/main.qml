@@ -65,7 +65,7 @@ WaylandCompositor {
             surfaceArea.color: "lightsteelblue"
             text: name
             compositor: comp
-            targetScreen: modelData
+            screen: modelData
             Component.onCompleted: if (!comp.defaultOutput) comp.defaultOutput = this
             position: Qt.point(virtualX, virtualY)
             windowed: emulated

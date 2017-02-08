@@ -59,7 +59,7 @@ WaylandCompositor {
             // Enable the following to make the output target an actual screen,
             // for example when running on eglfs in a multi-display embedded system.
 
-            // targetScreen: Qt.application.screens[0]
+            // screen: Qt.application.screens[0]
         }
     }
 
@@ -77,7 +77,7 @@ WaylandCompositor {
             // Enable the following to make the output target an actual screen,
             // for example when running on eglfs in a multi-display embedded system.
 
-            // targetScreen: Qt.application.screens[1]
+            // screen: Qt.application.screens[1]
         }
     }
 

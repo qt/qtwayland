@@ -82,7 +82,7 @@
             "output": [ "privateFeature" ]
         },
         "wayland-brcm": {
-            "label": "Rasberry Pi",
+            "label": "Raspberry Pi",
             "condition": "features.wayland-client && features.eglfs_brcm",
             "output": [ "privateFeature" ]
         },

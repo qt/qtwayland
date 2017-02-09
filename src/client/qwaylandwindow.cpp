@@ -195,7 +195,7 @@ void QWaylandWindow::initWindow()
     else
         setGeometry_helper(window()->geometry());
     setMask(window()->mask());
-    setWindowStateInternal(window()->windowState());
+    setWindowStateInternal(window()->windowStates());
     handleContentOrientationChange(window()->contentOrientation());
     mFlags = window()->flags();
 }
@@ -571,7 +571,7 @@ void QWaylandWindow::setOrientationMask(Qt::ScreenOrientations mask)
         mShellSurface->setContentOrientationMask(mask);
 }
 
-void QWaylandWindow::setWindowState(Qt::WindowState state)
+void QWaylandWindow::setWindowState(Qt::WindowStates state)
 {
     if (setWindowStateInternal(state))
         QWindowSystemInterface::flushWindowSystemEvents(); // Required for oldState to work on WindowStateChanged
@@ -589,16 +589,16 @@ void QWaylandWindow::setWindowFlags(Qt::WindowFlags flags)
 bool QWaylandWindow::createDecoration()
 {
     // so far only xdg-shell support this "unminimize" trick, may be moved elsewhere
-    if (mState == Qt::WindowMinimized) {
+    if (mState & Qt::WindowMinimized) {
         QWaylandXdgSurface *xdgSurface = qobject_cast<QWaylandXdgSurface *>(mShellSurface);
         if ( xdgSurface ) {
-            if (xdgSurface->isFullscreen()) {
-                setWindowStateInternal(Qt::WindowFullScreen);
-            } else if (xdgSurface->isMaximized()) {
-                setWindowStateInternal(Qt::WindowMaximized);
-            } else {
-                setWindowStateInternal(Qt::WindowNoState);
-            }
+            Qt::WindowStates states;
+            if (xdgSurface->isFullscreen())
+                states |= Qt::WindowFullScreen;
+            if (xdgSurface->isMaximized())
+                states |= Qt::WindowMaximized;
+
+            setWindowStateInternal(states);
         }
     }
 
@@ -849,7 +849,7 @@ bool QWaylandWindow::setMouseGrabEnabled(bool grab)
     return true;
 }
 
-bool QWaylandWindow::setWindowStateInternal(Qt::WindowState state)
+bool QWaylandWindow::setWindowStateInternal(Qt::WindowStates state)
 {
     if (mState == state) {
         return false;
@@ -862,19 +862,14 @@ bool QWaylandWindow::setWindowStateInternal(Qt::WindowState state)
 
     if (mShellSurface) {
         createDecoration();
-        switch (state) {
-            case Qt::WindowFullScreen:
-                mShellSurface->setFullscreen();
-                break;
-            case Qt::WindowMaximized:
-                mShellSurface->setMaximized();
-                break;
-            case Qt::WindowMinimized:
-                mShellSurface->setMinimized();
-                break;
-            default:
-                mShellSurface->setNormal();
-        }
+        if (state & Qt::WindowMaximized)
+            mShellSurface->setMaximized();
+        if (state & Qt::WindowFullScreen)
+            mShellSurface->setFullscreen();
+        if (state & Qt::WindowMinimized)
+            mShellSurface->setMinimized();
+        if (!state)
+            mShellSurface->setNormal();
     }
 
     QWindowSystemInterface::handleWindowStateChanged(window(), mState);

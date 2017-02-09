@@ -121,7 +121,7 @@ void QWaylandXCompositeEGLWindow::createEglSurface()
     XCompositeRedirectWindow(m_glxIntegration->xDisplay(), m_xWindow, CompositeRedirectManual);
     XMapWindow(m_glxIntegration->xDisplay(), m_xWindow);
 
-    m_surface = eglCreateWindowSurface(m_glxIntegration->eglDisplay(), m_config, m_xWindow,0);
+    m_surface = eglCreateWindowSurface(m_glxIntegration->eglDisplay(), m_config, reinterpret_cast<EGLNativeWindowType>(m_xWindow), nullptr);
     if (m_surface == EGL_NO_SURFACE) {
         qFatal("Could not make eglsurface");
     }

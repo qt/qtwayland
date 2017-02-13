@@ -1,9 +1,7 @@
 INCLUDEPATH += $$PWD
 
-QMAKE_USE += egl wayland-client
+QMAKE_USE += egl wayland-client libdl
 QT += egl_support-private
-
-LIBS_PRIVATE += $$QMAKE_LIBS_DYNLOAD
 
 SOURCES += $$PWD/qwaylandbrcmeglintegration.cpp \
            $$PWD/qwaylandbrcmglcontext.cpp \

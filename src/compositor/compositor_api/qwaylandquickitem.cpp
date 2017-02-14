@@ -678,8 +678,11 @@ void QWaylandQuickItem::touchEvent(QTouchEvent *event)
 void QWaylandQuickItem::touchUngrabEvent()
 {
     Q_D(QWaylandQuickItem);
-    for (auto seat : d->touchingSeats)
-        seat->sendTouchCancelEvent(surface()->client());
+
+    if (d->shouldSendInputEvents())
+        for (auto seat : d->touchingSeats)
+            seat->sendTouchCancelEvent(surface()->client());
+
     d->touchingSeats.clear();
 }
 

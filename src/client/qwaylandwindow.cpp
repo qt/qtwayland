@@ -207,6 +207,10 @@ void QWaylandWindow::initWindow()
     else
         setGeometry_helper(window()->geometry());
     setMask(window()->mask());
+    // setWindowStateInternal is a no-op if the argument is equal to mState,
+    // but since we're creating the shellsurface only now we reset mState to
+    // make sure the state gets sent out to the compositor
+    mState = Qt::WindowNoState;
     setWindowStateInternal(window()->windowState());
     handleContentOrientationChange(window()->contentOrientation());
     mFlags = window()->flags();

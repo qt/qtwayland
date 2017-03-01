@@ -48,6 +48,8 @@
 #include <qpa/qplatformopenglcontext.h>
 #include <QtGui/QSurfaceFormat>
 
+#include <dlfcn.h>
+
 QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
@@ -92,9 +94,12 @@ void QWaylandBrcmGLContext::swapBuffers(QPlatformSurface *surface)
     static_cast<QWaylandBrcmEglWindow *>(surface)->swapBuffers();
 }
 
-void (*QWaylandBrcmGLContext::getProcAddress(const char *procName)) ()
+QFunctionPointer QWaylandBrcmGLContext::getProcAddress(const char *procName)
 {
-    return eglGetProcAddress(procName);
+    QFunctionPointer proc = (QFunctionPointer) eglGetProcAddress(procName);
+    if (!proc)
+        proc = (QFunctionPointer) dlsym(RTLD_DEFAULT, procName);
+    return proc;
 }
 
 EGLConfig QWaylandBrcmGLContext::eglConfig() const

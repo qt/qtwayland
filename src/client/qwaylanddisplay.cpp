@@ -421,7 +421,14 @@ void QWaylandDisplay::handleKeyboardFocusChanged(QWaylandInputDevice *inputDevic
     if (mLastKeyboardFocus == keyboardFocus)
         return;
 
-    mWaylandIntegration->mShellIntegration->handleKeyboardFocusChanged(keyboardFocus, mLastKeyboardFocus);
+    if (mWaylandIntegration->mShellIntegration) {
+        mWaylandIntegration->mShellIntegration->handleKeyboardFocusChanged(keyboardFocus, mLastKeyboardFocus);
+    } else {
+        if (keyboardFocus)
+            handleWindowActivated(keyboardFocus);
+        if (mLastKeyboardFocus)
+            handleWindowDeactivated(mLastKeyboardFocus);
+    }
 
     mLastKeyboardFocus = keyboardFocus;
 }

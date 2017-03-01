@@ -95,6 +95,7 @@ QWaylandWindow::QWaylandWindow(QWindow *window)
 {
     static WId id = 1;
     mWindowId = id++;
+    initializeWlSurface();
 }
 
 QWaylandWindow::~QWaylandWindow()
@@ -127,7 +128,7 @@ void QWaylandWindow::initWindow()
         return;
 
     if (!isInitialized())
-        init(mDisplay->createSurface(static_cast<QtWayland::wl_surface *>(this)));
+        initializeWlSurface();
 
     if (shouldCreateSubSurface()) {
         Q_ASSERT(!mSubSurfaceWindow);
@@ -200,6 +201,11 @@ void QWaylandWindow::initWindow()
     mFlags = window()->flags();
 }
 
+void QWaylandWindow::initializeWlSurface()
+{
+    init(mDisplay->createSurface(static_cast<QtWayland::wl_surface *>(this)));
+}
+
 bool QWaylandWindow::shouldCreateShellSurface() const
 {
     if (shouldCreateSubSurface())
@@ -225,7 +231,8 @@ void QWaylandWindow::reset()
     mShellSurface = 0;
     delete mSubSurfaceWindow;
     mSubSurfaceWindow = 0;
-    destroy();
+    if (isInitialized())
+        destroy();
 
     if (mFrameCallback)
         wl_callback_destroy(mFrameCallback);
@@ -360,8 +367,11 @@ void QWaylandWindow::setMask(const QRegion &mask)
 
     mMask = mask;
 
+    if (!isInitialized())
+        return;
+
     if (mMask.isEmpty()) {
-        set_input_region(0);
+        set_input_region(nullptr);
     } else {
         struct ::wl_region *region = mDisplay->createRegion(mMask);
         set_input_region(region);

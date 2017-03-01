@@ -59,6 +59,8 @@
 
 #include <QtCore/qmutex.h>
 
+#include <dlfcn.h>
+
 // Constants from EGL_KHR_create_context
 #ifndef EGL_CONTEXT_MINOR_VERSION_KHR
 #define EGL_CONTEXT_MINOR_VERSION_KHR 0x30FB
@@ -575,9 +577,12 @@ bool QWaylandGLContext::isValid() const
     return m_context != EGL_NO_CONTEXT;
 }
 
-void (*QWaylandGLContext::getProcAddress(const char *procName)) ()
+QFunctionPointer QWaylandGLContext::getProcAddress(const char *procName)
 {
-    return eglGetProcAddress(procName);
+    QFunctionPointer proc = (QFunctionPointer) eglGetProcAddress(procName);
+    if (!proc)
+        proc = (QFunctionPointer) dlsym(RTLD_DEFAULT, procName);
+    return proc;
 }
 
 EGLConfig QWaylandGLContext::eglConfig() const

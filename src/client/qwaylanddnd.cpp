@@ -62,13 +62,6 @@ QWaylandDrag::~QWaylandDrag()
 {
 }
 
-QMimeData * QWaylandDrag::platformDropData()
-{
-    if (drag())
-        return drag()->mimeData();
-    return 0;
-}
-
 void QWaylandDrag::startDrag()
 {
     QBasicDrag::startDrag();

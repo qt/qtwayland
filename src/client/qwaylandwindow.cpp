@@ -160,7 +160,9 @@ void QWaylandWindow::initWindow()
         // when available.
         if (!QGuiApplication::desktopFileName().isEmpty()) {
             QString name = QGuiApplication::desktopFileName();
-            mShellSurface->setAppId(name.replace(QRegularExpression(QLatin1String("\\.desktop$")), QString()));
+            if (name.endsWith(QLatin1String(".desktop")))
+                name.chop(8);
+            mShellSurface->setAppId(name);
         } else {
             QFileInfo fi = QCoreApplication::instance()->applicationFilePath();
             QStringList domainName =

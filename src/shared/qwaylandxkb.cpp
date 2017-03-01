@@ -43,10 +43,13 @@
 #include <QKeyEvent>
 #include <QString>
 
+#if QT_CONFIG(xkbcommon_evdev)
 #include <xkbcommon/xkbcommon-keysyms.h>
+#endif
 
 QT_BEGIN_NAMESPACE
 
+#if QT_CONFIG(xkbcommon_evdev)
 static const uint32_t KeyTbl[] = {
     XKB_KEY_Escape,                  Qt::Key_Escape,
     XKB_KEY_Tab,                     Qt::Key_Tab,
@@ -290,9 +293,11 @@ static xkb_keysym_t toKeysymFromTable(uint32_t key)
 
     return 0;
 }
+#endif
 
 std::pair<int, QString> QWaylandXkb::keysymToQtKey(xkb_keysym_t keysym, Qt::KeyboardModifiers &modifiers)
 {
+#if QT_CONFIG(xkbcommon_evdev)
     QString text;
     uint utf32 = xkb_keysym_to_utf32(keysym);
     if (utf32)
@@ -326,10 +331,15 @@ std::pair<int, QString> QWaylandXkb::keysymToQtKey(xkb_keysym_t keysym, Qt::Keyb
     }
 
     return { code, text };
+#else
+    Q_UNUSED(modifiers)
+    return { keysym, "" };
+#endif
 }
 
 Qt::KeyboardModifiers QWaylandXkb::modifiers(struct xkb_state *state)
 {
+#if QT_CONFIG(xkbcommon_evdev)
     Qt::KeyboardModifiers modifiers = Qt::NoModifier;
 
     xkb_state_component cstate = static_cast<xkb_state_component>(XKB_STATE_DEPRESSED | XKB_STATE_LATCHED | XKB_STATE_LOCKED);
@@ -344,6 +354,10 @@ Qt::KeyboardModifiers QWaylandXkb::modifiers(struct xkb_state *state)
         modifiers |= Qt::MetaModifier;
 
     return modifiers;
+#else
+    Q_UNUSED(state)
+    return Qt::NoModifier;
+#endif
 }
 
 QEvent::Type QWaylandXkb::toQtEventType(uint32_t state)
@@ -353,6 +367,7 @@ QEvent::Type QWaylandXkb::toQtEventType(uint32_t state)
 
 QVector<xkb_keysym_t> QWaylandXkb::toKeysym(QKeyEvent *event)
 {
+#if QT_CONFIG(xkbcommon_evdev)
     QVector<xkb_keysym_t> keysyms;
     if (event->key() >= Qt::Key_F1 && event->key() <= Qt::Key_F35) {
         keysyms.append(XKB_KEY_F1 + (event->key() - Qt::Key_F1));
@@ -372,6 +387,9 @@ QVector<xkb_keysym_t> QWaylandXkb::toKeysym(QKeyEvent *event)
         keysyms.append(toKeysymFromTable(event->key()));
     }
     return keysyms;
+#else
+    return QVector<xkb_keysym_t>() << event->nativeScanCode();
+#endif
 }
 
 QT_END_NAMESPACE

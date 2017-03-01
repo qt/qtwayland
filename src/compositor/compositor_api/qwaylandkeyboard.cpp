@@ -175,7 +175,11 @@ void QWaylandKeyboardPrivate::keyboard_release(wl_keyboard::Resource *resource)
 
 void QWaylandKeyboardPrivate::keyEvent(uint code, uint32_t state)
 {
+#if QT_CONFIG(xkbcommon_evdev)
     uint key = toWaylandXkbV1Key(code);
+#else
+    uint key = code;
+#endif
     if (state == WL_KEYBOARD_KEY_STATE_PRESSED) {
         keys << key;
     } else {
@@ -187,7 +191,11 @@ void QWaylandKeyboardPrivate::sendKeyEvent(uint code, uint32_t state)
 {
     uint32_t time = compositor()->currentTimeMsecs();
     uint32_t serial = compositor()->nextSerial();
+#if QT_CONFIG(xkbcommon_evdev)
     uint key = toWaylandXkbV1Key(code);
+#else
+    uint key = code;
+#endif
     if (focusResource)
         send_key(focusResource->handle, serial, time, key, state);
 }

@@ -468,6 +468,33 @@ void QWaylandDisplay::requestWaylandSync()
     wl_callback_add_listener(mSyncCallback, &syncCallbackListener, this);
 }
 
+QWaylandInputDevice *QWaylandDisplay::defaultInputDevice() const
+{
+    return mInputDevices.isEmpty() ? 0 : mInputDevices.first();
+}
+
+#if QT_CONFIG(cursor)
+void QWaylandDisplay::setCursor(struct wl_buffer *buffer, struct wl_cursor_image *image)
+{
+    /* Qt doesn't tell us which input device we should set the cursor
+     * for, so set it for all devices. */
+    for (int i = 0; i < mInputDevices.count(); i++) {
+        QWaylandInputDevice *inputDevice = mInputDevices.at(i);
+        inputDevice->setCursor(buffer, image);
+    }
+}
+
+void QWaylandDisplay::setCursor(const QSharedPointer<QWaylandBuffer> &buffer, const QPoint &hotSpot)
+{
+    /* Qt doesn't tell us which input device we should set the cursor
+     * for, so set it for all devices. */
+    for (int i = 0; i < mInputDevices.count(); i++) {
+        QWaylandInputDevice *inputDevice = mInputDevices.at(i);
+        inputDevice->setCursor(buffer, hotSpot);
+    }
+}
+#endif // QT_CONFIG(cursor)
+
 }
 
 QT_END_NAMESPACE

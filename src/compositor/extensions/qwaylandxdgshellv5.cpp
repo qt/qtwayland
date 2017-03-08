@@ -1070,7 +1070,7 @@ QWaylandXdgPopupV5::QWaylandXdgPopupV5()
 
 /*!
  * Constructs a QWaylandXdgPopupV5, associating it with \a xdgShell at the specified \a position
- * for \a surface and initializes it with the given \a parentSurface and \a resource.
+ * for \a surface, and initializes it with the given \a parentSurface and \a resource.
  */
 QWaylandXdgPopupV5::QWaylandXdgPopupV5(QWaylandXdgShellV5 *xdgShell, QWaylandSurface *surface,
                                    QWaylandSurface *parentSurface, const QPoint &position, const QWaylandResource &resource)
@@ -1087,8 +1087,8 @@ QWaylandXdgPopupV5::QWaylandXdgPopupV5(QWaylandXdgShellV5 *xdgShell, QWaylandSur
  */
 
 /*!
- * Initializes the QWaylandXdgPopupV5, associating it with the given \a shell \a surface,
- * \a parentSurface and \a resource.
+ * Initializes the QWaylandXdgPopupV5, associating it with the given \a shell, \a surface,
+ * \a parentSurface, \a position, and \a resource.
  */
 void QWaylandXdgPopupV5::initialize(QWaylandXdgShellV5 *shell, QWaylandSurface *surface, QWaylandSurface *parentSurface,
                                   const QPoint& position, const QWaylandResource &resource)

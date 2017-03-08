@@ -158,6 +158,7 @@ void QWaylandSeatPrivate::seat_get_touch(wl_seat::Resource *resource, uint32_t i
  * \value Pointer The QWaylandSeat supports pointer input.
  * \value Keyboard The QWaylandSeat supports keyboard input.
  * \value Touch The QWaylandSeat supports touch input.
+ * \value DefaultCapabilities The QWaylandSeat has the default capabilities.
  */
 
 /*!

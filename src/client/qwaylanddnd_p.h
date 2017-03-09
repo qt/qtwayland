@@ -71,7 +71,7 @@ public:
     QWaylandDrag(QWaylandDisplay *display);
     ~QWaylandDrag();
 
-    QMimeData *platformDropData() override;
+    QMimeData *platformDropData();
 
     void updateTarget(const QString &mimeType);
     void setResponse(const QPlatformDragQtResponse &response);

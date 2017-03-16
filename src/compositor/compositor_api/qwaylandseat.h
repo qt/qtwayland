@@ -64,7 +64,9 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandSeat : public QWaylandObject
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandSeat)
 
+#if QT_CONFIG(draganddrop)
     Q_PROPERTY(QWaylandDrag *drag READ drag CONSTANT)
+#endif
     Q_PROPERTY(QWaylandKeymap *keymap READ keymap CONSTANT)
 public:
     enum CapabilityFlag {
@@ -115,7 +117,9 @@ public:
 
     QWaylandCompositor *compositor() const;
 
+#if QT_CONFIG(draganddrop)
     QWaylandDrag *drag() const;
+#endif
 
     QWaylandSeat::CapabilityFlags capabilities() const;
 

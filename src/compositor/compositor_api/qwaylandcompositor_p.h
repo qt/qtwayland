@@ -49,7 +49,7 @@
 // We mean it.
 //
 
-#include <QtWaylandCompositor/qtwaylandcompositorglobal.h>
+#include <QtWaylandCompositor/private/qtwaylandcompositorglobal_p.h>
 #include <QtWaylandCompositor/QWaylandCompositor>
 #include <QtCore/private/qobject_p.h>
 #include <QtCore/QSet>
@@ -89,7 +89,9 @@ public:
     inline QtWayland::ClientBufferIntegration *clientBufferIntegration() const;
     inline QtWayland::ServerBufferIntegration *serverBufferIntegration() const;
 
+#if QT_CONFIG(wayland_datadevice)
     QtWayland::DataDeviceManager *dataDeviceManager() const { return data_device_manager; }
+#endif
     QtWayland::BufferManager *bufferManager() const { return buffer_manager; }
     void feedRetainedSelectionData(QMimeData *data);
 
@@ -130,7 +132,9 @@ protected:
 
     QList<QWaylandSurface *> all_surfaces;
 
+#if QT_CONFIG(wayland_datadevice)
     QtWayland::DataDeviceManager *data_device_manager;
+#endif
     QtWayland::BufferManager *buffer_manager;
 
     QElapsedTimer timer;

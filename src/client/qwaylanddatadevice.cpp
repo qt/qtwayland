@@ -58,8 +58,6 @@
 #include <qpa/qplatformdrag.h>
 #include <qpa/qwindowsysteminterface.h>
 
-#if QT_CONFIG(draganddrop)
-
 QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
@@ -103,6 +101,7 @@ void QWaylandDataDevice::setSelectionSource(QWaylandDataSource *source)
     m_selectionSource.reset(source);
 }
 
+#if QT_CONFIG(draganddrop)
 QWaylandDataOffer *QWaylandDataDevice::dragOffer() const
 {
     return m_dragOffer.data();
@@ -124,12 +123,14 @@ void QWaylandDataDevice::cancelDrag()
 {
     m_dragSource.reset();
 }
+#endif
 
 void QWaylandDataDevice::data_device_data_offer(struct ::wl_data_offer *id)
 {
     new QWaylandDataOffer(m_display, id);
 }
 
+#if QT_CONFIG(draganddrop)
 void QWaylandDataDevice::data_device_drop()
 {
     QDrag *drag = static_cast<QWaylandDrag *>(QGuiApplicationPrivate::platformIntegration()->drag())->currentDrag();
@@ -229,6 +230,7 @@ void QWaylandDataDevice::data_device_motion(uint32_t time, wl_fixed_t x, wl_fixe
         wl_data_offer_accept(m_dragOffer->object(), m_enterSerial, 0);
     }
 }
+#endif // QT_CONFIG(draganddrop)
 
 void QWaylandDataDevice::data_device_selection(wl_data_offer *id)
 {
@@ -250,6 +252,7 @@ void QWaylandDataDevice::selectionSourceCancelled()
 #endif
 }
 
+#if QT_CONFIG(draganddrop)
 void QWaylandDataDevice::dragSourceCancelled()
 {
     m_dragSource.reset();
@@ -272,9 +275,8 @@ QPoint QWaylandDataDevice::calculateDragPosition(int x, int y, QWindow *wnd) con
     }
     return pnt;
 }
+#endif // QT_CONFIG(draganddrop)
 
 }
 
 QT_END_NAMESPACE
-
-#endif  // draganddrop

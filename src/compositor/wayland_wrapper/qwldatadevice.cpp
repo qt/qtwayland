@@ -41,7 +41,9 @@
 #include "qwaylandsurface_p.h"
 #include "qwldatadevicemanager_p.h"
 
+#if QT_CONFIG(draganddrop)
 #include "qwaylanddrag.h"
+#endif
 #include "qwaylandview.h"
 #include <QtWaylandCompositor/QWaylandClient>
 #include <QtWaylandCompositor/private/qwaylandcompositor_p.h>
@@ -60,12 +62,14 @@ DataDevice::DataDevice(QWaylandSeat *seat)
     , m_compositor(seat->compositor())
     , m_seat(seat)
     , m_selectionSource(0)
+#if QT_CONFIG(draganddrop)
     , m_dragClient(0)
     , m_dragDataSource(0)
     , m_dragFocus(0)
     , m_dragFocusResource(0)
     , m_dragIcon(0)
     , m_dragOrigin(nullptr)
+#endif
 {
 }
 
@@ -85,6 +89,13 @@ void DataDevice::setFocus(QWaylandClient *focusClient)
     }
 }
 
+void DataDevice::sourceDestroyed(DataSource *source)
+{
+    if (m_selectionSource == source)
+        m_selectionSource = 0;
+}
+
+#if QT_CONFIG(draganddrop)
 void DataDevice::setDragFocus(QWaylandSurface *focus, const QPointF &localPosition)
 {
     if (m_dragFocusResource) {
@@ -129,12 +140,6 @@ QWaylandSurface *DataDevice::dragOrigin() const
     return m_dragOrigin;
 }
 
-void DataDevice::sourceDestroyed(DataSource *source)
-{
-    if (m_selectionSource == source)
-        m_selectionSource = 0;
-}
-
 void DataDevice::dragMove(QWaylandSurface *target, const QPointF &pos)
 {
     if (target != m_dragFocus)
@@ -177,6 +182,15 @@ void DataDevice::data_device_start_drag(Resource *resource, struct ::wl_resource
     //### need to verify that we have an implicit grab with this serial
 }
 
+void DataDevice::setDragIcon(QWaylandSurface *icon)
+{
+    if (icon == m_dragIcon)
+        return;
+    m_dragIcon = icon;
+    Q_EMIT m_seat->drag()->iconChanged();
+}
+#endif // QT_CONFIG(draganddrop)
+
 void DataDevice::data_device_set_selection(Resource *, struct ::wl_resource *source, uint32_t serial)
 {
     Q_UNUSED(serial);
@@ -202,13 +216,6 @@ void DataDevice::data_device_set_selection(Resource *, struct ::wl_resource *sou
     }
 }
 
-void DataDevice::setDragIcon(QWaylandSurface *icon)
-{
-    if (icon == m_dragIcon)
-        return;
-    m_dragIcon = icon;
-    Q_EMIT m_seat->drag()->iconChanged();
-}
 
 }
 

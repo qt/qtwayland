@@ -49,7 +49,10 @@
 //
 
 #include <QtWaylandCompositor/private/qwayland-server-wayland.h>
+#include <QtWaylandCompositor/private/qtwaylandcompositorglobal_p.h>
 #include <QtWaylandCompositor/QWaylandSeat>
+
+QT_REQUIRE_CONFIG(wayland_datadevice);
 
 QT_BEGIN_NAMESPACE
 
@@ -66,30 +69,36 @@ public:
     DataDevice(QWaylandSeat *seat);
 
     void setFocus(QWaylandClient *client);
+    void sourceDestroyed(DataSource *source);
 
+#if QT_CONFIG(draganddrop)
     void setDragFocus(QWaylandSurface *focus, const QPointF &localPosition);
 
     QWaylandSurface *dragIcon() const;
     QWaylandSurface *dragOrigin() const;
 
-    void sourceDestroyed(DataSource *source);
-
     void dragMove(QWaylandSurface *target, const QPointF &pos);
     void drop();
     void cancelDrag();
+#endif
 
 protected:
+#if QT_CONFIG(draganddrop)
     void data_device_start_drag(Resource *resource, struct ::wl_resource *source, struct ::wl_resource *origin, struct ::wl_resource *icon, uint32_t serial) override;
+#endif
     void data_device_set_selection(Resource *resource, struct ::wl_resource *source, uint32_t serial) override;
 
 private:
+#if QT_CONFIG(draganddrop)
     void setDragIcon(QWaylandSurface *icon);
+#endif
 
     QWaylandCompositor *m_compositor;
     QWaylandSeat *m_seat;
 
     DataSource *m_selectionSource;
 
+#if QT_CONFIG(draganddrop)
     struct ::wl_client *m_dragClient;
     DataSource *m_dragDataSource;
 
@@ -98,6 +107,7 @@ private:
 
     QWaylandSurface *m_dragIcon;
     QWaylandSurface *m_dragOrigin;
+#endif
 };
 
 }

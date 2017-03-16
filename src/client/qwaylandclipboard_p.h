@@ -57,7 +57,8 @@
 
 #include <QtWaylandClient/qtwaylandclientglobal.h>
 
-#if QT_CONFIG(draganddrop)
+QT_REQUIRE_CONFIG(clipboard);
+
 QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
@@ -84,7 +85,5 @@ private:
 }
 
 QT_END_NAMESPACE
-
-#endif  // draganddrop
 
 #endif // QWAYLANDCLIPBOARD_H

@@ -56,6 +56,9 @@
 #include <QtWaylandCompositor/QWaylandCompositor>
 
 #include <QtWaylandCompositor/private/qwayland-server-wayland.h>
+#include <QtWaylandCompositor/private/qtwaylandcompositorglobal_p.h>
+
+QT_REQUIRE_CONFIG(wayland_datadevice);
 
 QT_BEGIN_NAMESPACE
 

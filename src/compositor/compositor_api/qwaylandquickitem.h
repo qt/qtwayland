@@ -159,7 +159,9 @@ private Q_SLOTS:
     void beforeSync();
     void handleSubsurfaceAdded(QWaylandSurface *childSurface);
     void handleSubsurfacePosition(const QPoint &pos);
+#if QT_CONFIG(draganddrop)
     void handleDragStarted(QWaylandDrag *drag);
+#endif
 #if QT_CONFIG(im)
     void updateInputMethod(Qt::InputMethodQueries queries);
 #endif

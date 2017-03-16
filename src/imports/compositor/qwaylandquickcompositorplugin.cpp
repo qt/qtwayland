@@ -47,7 +47,9 @@
 #include <QtWaylandCompositor/QWaylandCompositorExtension>
 #include <QtWaylandCompositor/QWaylandQuickExtension>
 #include <QtWaylandCompositor/QWaylandSeat>
+#if QT_CONFIG(draganddrop)
 #include <QtWaylandCompositor/QWaylandDrag>
+#endif
 #include <QtWaylandCompositor/QWaylandKeymap>
 #include <QtWaylandCompositor/QWaylandQuickShellSurfaceItem>
 #include <QtWaylandCompositor/QWaylandResource>
@@ -127,7 +129,9 @@ public:
         qmlRegisterUncreatableType<QWaylandClient>(uri, 1, 0, "WaylandClient", QObject::tr("Cannot create instance of WaylandClient"));
         qmlRegisterUncreatableType<QWaylandOutput>(uri, 1, 0, "WaylandOutputBase", QObject::tr("Cannot create instance of WaylandOutputBase, use WaylandOutput instead"));
         qmlRegisterUncreatableType<QWaylandSeat>(uri, 1, 0, "WaylandSeat", QObject::tr("Cannot create instance of WaylandSeat"));
+#if QT_CONFIG(draganddrop)
         qmlRegisterUncreatableType<QWaylandDrag>(uri, 1, 0, "WaylandDrag", QObject::tr("Cannot create instance of WaylandDrag"));
+#endif
         qmlRegisterUncreatableType<QWaylandCompositor>(uri, 1, 0, "WaylandCompositorBase", QObject::tr("Cannot create instance of WaylandCompositorBase, use WaylandCompositor instead"));
         qmlRegisterUncreatableType<QWaylandSurface>(uri, 1, 0, "WaylandSurfaceBase", QObject::tr("Cannot create instance of WaylandSurfaceBase, use WaylandSurface instead"));
         qmlRegisterUncreatableType<QWaylandShell>(uri, 1, 0, "Shell", QObject::tr("Cannot create instance of Shell"));

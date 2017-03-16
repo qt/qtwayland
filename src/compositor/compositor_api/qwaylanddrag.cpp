@@ -38,9 +38,13 @@
 
 #include <private/qobject_p.h>
 
-#include "qwldatadevice_p.h"
 #include "qwaylandview.h"
 #include <QtWaylandCompositor/private/qwaylandseat_p.h>
+#include <QtWaylandCompositor/private/qtwaylandcompositorglobal_p.h>
+
+#if QT_CONFIG(wayland_datadevice)
+#include "qwldatadevice_p.h"
+#endif
 
 QT_BEGIN_NAMESPACE
 

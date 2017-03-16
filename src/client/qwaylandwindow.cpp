@@ -40,7 +40,6 @@
 #include "qwaylandwindow_p.h"
 
 #include "qwaylandbuffer_p.h"
-#include "qwaylanddatadevice_p.h"
 #include "qwaylanddisplay_p.h"
 #include "qwaylandinputdevice_p.h"
 #include "qwaylandscreen_p.h"
@@ -53,6 +52,11 @@
 #include "qwaylandnativeinterface_p.h"
 #include "qwaylanddecorationfactory_p.h"
 #include "qwaylandshmbackingstore_p.h"
+
+#if QT_CONFIG(wayland_datadevice)
+#include "qwaylanddatadevice_p.h"
+#endif
+
 
 #include <QtCore/QFileInfo>
 #include <QtCore/QPointer>
@@ -825,7 +829,7 @@ void QWaylandWindow::requestActivateWindow()
 
 void QWaylandWindow::unfocus()
 {
-#if QT_CONFIG(draganddrop)
+#if QT_CONFIG(clipboard)
     QWaylandInputDevice *inputDevice = mDisplay->currentInputDevice();
     if (inputDevice && inputDevice->dataDevice()) {
         inputDevice->dataDevice()->invalidateSelectionOffer();

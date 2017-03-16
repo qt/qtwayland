@@ -76,6 +76,10 @@
             "condition": "!config.win32 && libs.wayland-client && libs.wayland-cursor && tests.wayland-scanner",
             "output": [ "privateFeature" ]
         },
+        "wayland-datadevice": {
+            "condition": "features.draganddrop || features.clipboard",
+            "output": [ "privateFeature" ]
+        },
         "wayland-egl": {
             "label": "EGL",
             "condition": "features.wayland-client && features.opengl && features.egl && libs.wayland-egl",

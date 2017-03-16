@@ -50,8 +50,6 @@
 #include <unistd.h>
 #include <signal.h>
 
-#if QT_CONFIG(draganddrop)
-
 QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
@@ -108,5 +106,3 @@ void QWaylandDataSource::data_source_target(const QString &mime_type)
 }
 
 QT_END_NAMESPACE
-
-#endif  // draganddrop

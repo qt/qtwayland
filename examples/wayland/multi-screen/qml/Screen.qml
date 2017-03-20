@@ -54,8 +54,8 @@ WaylandOutput {
 
     window: Window {
         id: win
-        x: screen.virtualX
-        y: screen.virtualY
+        x: Screen.virtualX
+        y: Screen.virtualY
         width: 800
         height: 800
         visibility: windowed ? Window.Windowed : Window.FullScreen

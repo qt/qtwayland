@@ -148,7 +148,7 @@ public:
     void handleContentOrientationChange(Qt::ScreenOrientation orientation) override;
     void setOrientationMask(Qt::ScreenOrientations mask);
 
-    void setWindowState(Qt::WindowState state) override;
+    void setWindowState(Qt::WindowState state); // ### Change to WindowStates once qtbase change is in
     void setWindowFlags(Qt::WindowFlags flags) override;
 
     void raise() override;

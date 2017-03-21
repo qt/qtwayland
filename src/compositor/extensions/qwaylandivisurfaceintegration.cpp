@@ -54,6 +54,11 @@ IviSurfaceIntegration::IviSurfaceIntegration(QWaylandQuickShellSurfaceItem *item
     connect(m_shellSurface, &QWaylandIviSurface::destroyed, this, &IviSurfaceIntegration::handleIviSurfaceDestroyed);
 }
 
+IviSurfaceIntegration::~IviSurfaceIntegration()
+{
+    m_item->setSurface(nullptr);
+}
+
 void IviSurfaceIntegration::handleIviSurfaceDestroyed()
 {
     m_shellSurface = nullptr;

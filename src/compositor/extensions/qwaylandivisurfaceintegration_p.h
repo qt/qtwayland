@@ -61,6 +61,7 @@ class IviSurfaceIntegration : public QWaylandQuickShellIntegration
     Q_OBJECT
 public:
     IviSurfaceIntegration(QWaylandQuickShellSurfaceItem *item);
+    ~IviSurfaceIntegration();
 
 private Q_SLOTS:
     void handleIviSurfaceDestroyed();

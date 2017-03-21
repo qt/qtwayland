@@ -68,6 +68,11 @@ WlShellIntegration::WlShellIntegration(QWaylandQuickShellSurfaceItem *item)
     connect(m_shellSurface.data(), &QWaylandWlShellSurface::destroyed, this, &WlShellIntegration::handleShellSurfaceDestroyed);
 }
 
+WlShellIntegration::~WlShellIntegration()
+{
+    m_item->setSurface(nullptr);
+}
+
 void WlShellIntegration::handleStartMove(QWaylandSeat *seat)
 {
     grabberState = GrabberState::Move;

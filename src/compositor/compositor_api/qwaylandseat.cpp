@@ -374,6 +374,8 @@ QWaylandSurface *QWaylandSeat::keyboardFocus() const
 
 /*!
  * Sets the current keyboard focus to \a surface.
+ * Returns a boolean indicating if the operation
+ * was successful.
  */
 bool QWaylandSeat::setKeyboardFocus(QWaylandSurface *surface)
 {

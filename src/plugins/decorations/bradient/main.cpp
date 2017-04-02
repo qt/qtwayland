@@ -211,7 +211,6 @@ void QWaylandBradientDecoration::paint(QPaintDevice *device)
     p.setRenderHint(QPainter::Antialiasing);
 
     // Title bar
-    QPoint gradCenter(top.center()+ QPoint(30, 60));
     QLinearGradient grad(top.topLeft(), top.bottomLeft());
     QColor base(m_backgroundColor);
     grad.setColorAt(0, base.lighter(100));

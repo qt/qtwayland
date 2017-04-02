@@ -53,7 +53,7 @@ class Q_WAYLAND_CLIENT_EXPORT QWaylandIviShellIntegration : public QWaylandShell
 public:
     QWaylandIviShellIntegration();
     ~QWaylandIviShellIntegration();
-    bool initialize(QWaylandDisplay *display);
+    bool initialize(QWaylandDisplay *display) override;
     virtual QWaylandShellSurface *createShellSurface(QWaylandWindow *window) override;
 
 private:

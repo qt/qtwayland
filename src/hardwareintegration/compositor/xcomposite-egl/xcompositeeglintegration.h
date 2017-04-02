@@ -67,8 +67,8 @@ class XCompositeEglClientBuffer : public QtWayland::ClientBuffer
 public:
     XCompositeEglClientBuffer(XCompositeEglClientBufferIntegration *integration, wl_resource *bufferResource);
 
-    QSize size() const;
-    QWaylandSurface::Origin origin() const;
+    QSize size() const override;
+    QWaylandSurface::Origin origin() const override;
     QOpenGLTexture *toOpenGlTexture(int plane) override;
     QWaylandBufferRef::BufferFormatEgl bufferFormatEgl() const override {
         return QWaylandBufferRef::BufferFormatEgl_RGBA;

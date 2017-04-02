@@ -66,13 +66,11 @@ private:
     void createEglSurface();
 
     QWaylandXCompositeEGLClientBufferIntegration *m_glxIntegration;
-    QWaylandXCompositeEGLContext *m_context;
     QWaylandBuffer *m_buffer;
 
     Window m_xWindow;
     EGLConfig m_config;
     EGLSurface m_surface;
-    QWaylandBuffer *mBuffer;
 };
 
 }

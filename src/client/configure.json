@@ -92,12 +92,12 @@
         },
         "xcomposite-egl": {
             "label": "XComposite EGL",
-            "condition": "features.wayland-client && features.opengl && features.egl && libs.xcomposite",
+            "condition": "features.wayland-client && features.opengl && features.egl && features.xlib && libs.xcomposite",
             "output": [ "privateFeature" ]
         },
         "xcomposite-glx": {
             "label": "XComposite GLX",
-            "condition": "features.wayland-client && features.opengl && !features.opengles2 && libs.xcomposite && libs.glx",
+            "condition": "features.wayland-client && features.opengl && !features.opengles2 && features.xlib && libs.xcomposite && libs.glx",
             "output": [ "privateFeature" ]
         },
         "drm-egl-server": {

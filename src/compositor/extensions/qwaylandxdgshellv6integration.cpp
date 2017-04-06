@@ -44,6 +44,12 @@ QT_BEGIN_NAMESPACE
 
 namespace QtWayland {
 
+static void handlePopupCreated(QWaylandQuickShellSurfaceItem *parentItem, QWaylandXdgPopupV6 *popup)
+{
+    if (parentItem->shellSurface() == popup->parentXdgSurface())
+        QWaylandQuickShellSurfaceItemPrivate::get(parentItem)->maybeCreateAutoPopup(popup->xdgSurface());
+}
+
 XdgToplevelV6Integration::XdgToplevelV6Integration(QWaylandQuickShellSurfaceItem *item)
     : QWaylandQuickShellIntegration(item)
     , m_item(item)
@@ -54,12 +60,16 @@ XdgToplevelV6Integration::XdgToplevelV6Integration(QWaylandQuickShellSurfaceItem
     Q_ASSERT(m_toplevel);
 
     m_item->setSurface(m_xdgSurface->surface());
+
     connect(m_toplevel, &QWaylandXdgToplevelV6::startMove, this, &XdgToplevelV6Integration::handleStartMove);
     connect(m_toplevel, &QWaylandXdgToplevelV6::startResize, this, &XdgToplevelV6Integration::handleStartResize);
     connect(m_toplevel, &QWaylandXdgToplevelV6::setMaximized, this, &XdgToplevelV6Integration::handleSetMaximized);
     connect(m_toplevel, &QWaylandXdgToplevelV6::unsetMaximized, this, &XdgToplevelV6Integration::handleUnsetMaximized);
     connect(m_toplevel, &QWaylandXdgToplevelV6::maximizedChanged, this, &XdgToplevelV6Integration::handleMaximizedChanged);
     connect(m_toplevel, &QWaylandXdgToplevelV6::activatedChanged, this, &XdgToplevelV6Integration::handleActivatedChanged);
+    connect(m_xdgSurface->shell(), &QWaylandXdgShellV6::popupCreated, this, [item](QWaylandXdgPopupV6 *popup, QWaylandXdgSurfaceV6 *){
+        handlePopupCreated(item, popup);
+    });
     connect(m_xdgSurface->surface(), &QWaylandSurface::sizeChanged, this, &XdgToplevelV6Integration::handleSurfaceSizeChanged);
 }
 
@@ -181,6 +191,9 @@ XdgPopupV6Integration::XdgPopupV6Integration(QWaylandQuickShellSurfaceItem *item
     handleGeometryChanged();
 
     connect(m_popup, &QWaylandXdgPopupV6::configuredGeometryChanged, this, &XdgPopupV6Integration::handleGeometryChanged);
+    connect(m_xdgSurface->shell(), &QWaylandXdgShellV6::popupCreated, this, [item](QWaylandXdgPopupV6 *popup, QWaylandXdgSurfaceV6 *){
+        handlePopupCreated(item, popup);
+    });
 }
 
 void XdgPopupV6Integration::handleGeometryChanged()

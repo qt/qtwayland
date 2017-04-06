@@ -45,6 +45,21 @@
 
 QT_BEGIN_NAMESPACE
 
+QWaylandQuickShellSurfaceItem *QWaylandQuickShellSurfaceItemPrivate::maybeCreateAutoPopup(QWaylandShellSurface* shellSurface)
+{
+    if (!m_autoCreatePopupItems)
+        return nullptr;
+
+    Q_Q(QWaylandQuickShellSurfaceItem);
+    auto *popupItem = new QWaylandQuickShellSurfaceItem(q);
+    popupItem->setShellSurface(shellSurface);
+    popupItem->setAutoCreatePopupItems(true);
+    QObject::connect(popupItem, &QWaylandQuickShellSurfaceItem::surfaceDestroyed, [popupItem](){
+        popupItem->deleteLater();
+    });
+    return popupItem;
+}
+
 /*!
  * \qmltype ShellSurfaceItem
  * \inherits WaylandQuickItem
@@ -161,6 +176,36 @@ void QWaylandQuickShellSurfaceItem::setMoveItem(QQuickItem *moveItem)
         return;
     d->m_moveItem = moveItem;
     moveItemChanged();
+}
+
+/*!
+ * \qmlproperty bool QtWaylandCompositor::ShellSurfaceItem::autoCreatePopupItems
+ *
+ * This property holds whether ShellSurfaceItems for popups parented to the shell
+ * surface managed by this item should automatically be created.
+ */
+
+/*!
+ * \property QWaylandQuickShellSurfaceItem::autoCreatePopupItems
+ *
+ * This property holds whether QWaylandQuickShellSurfaceItems for popups
+ * parented to the shell surface managed by this item should automatically be created.
+ */
+bool QWaylandQuickShellSurfaceItem::autoCreatePopupItems()
+{
+    Q_D(const QWaylandQuickShellSurfaceItem);
+    return d->m_autoCreatePopupItems;
+}
+
+void QWaylandQuickShellSurfaceItem::setAutoCreatePopupItems(bool enabled)
+{
+    Q_D(QWaylandQuickShellSurfaceItem);
+
+    if (enabled == d->m_autoCreatePopupItems)
+        return;
+
+    d->m_autoCreatePopupItems = enabled;
+    emit autoCreatePopupItemsChanged();
 }
 
 void QWaylandQuickShellSurfaceItem::mouseMoveEvent(QMouseEvent *event)

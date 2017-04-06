@@ -40,6 +40,7 @@
 #ifndef QWAYLANDQUICKSHELLSURFACEITEM_P_H
 #define QWAYLANDQUICKSHELLSURFACEITEM_P_H
 
+#include <QtWaylandCompositor/QWaylandQuickShellSurfaceItem>
 #include <QtWaylandCompositor/private/qwaylandquickitem_p.h>
 #include <QtCore/QBasicTimer>
 
@@ -60,15 +61,20 @@ QT_BEGIN_NAMESPACE
 
 class QWaylandQuickShellIntegration;
 class QWaylandShellSurface;
+class QWaylandQuickShellSurfaceItem;
 
 class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQuickShellSurfaceItemPrivate : public QWaylandQuickItemPrivate
 {
+    Q_DECLARE_PUBLIC(QWaylandQuickShellSurfaceItem)
 public:
-    QWaylandQuickShellSurfaceItemPrivate()
-    {}
+    QWaylandQuickShellSurfaceItemPrivate() {}
+    QWaylandQuickShellSurfaceItem *maybeCreateAutoPopup(QWaylandShellSurface* shellSurface);
+    static QWaylandQuickShellSurfaceItemPrivate *get(QWaylandQuickShellSurfaceItem *item) { return item->d_func(); }
+
     QWaylandQuickShellIntegration *m_shellIntegration = nullptr;
     QWaylandShellSurface *m_shellSurface = nullptr;
     QQuickItem *m_moveItem = nullptr;
+    bool m_autoCreatePopupItems = false;
 };
 
 class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQuickShellIntegration : public QObject

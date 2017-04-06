@@ -67,6 +67,7 @@ WaylandCompositor {
                 // resize/move, and forwarding of mouse and keyboard
                 // events to the client process.
                 ShellSurfaceItem {
+                    autoCreatePopupItems: true
                     shellSurface: modelData
                     onSurfaceDestroyed: shellSurfaces.remove(index)
                 }

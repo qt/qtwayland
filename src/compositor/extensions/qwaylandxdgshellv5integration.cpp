@@ -50,6 +50,12 @@ QT_BEGIN_NAMESPACE
 
 namespace QtWayland {
 
+static void handlePopupCreated(QWaylandQuickShellSurfaceItem *parentItem, QWaylandXdgPopupV5 *popup)
+{
+    if (parentItem->surface() == popup->parentSurface())
+        QWaylandQuickShellSurfaceItemPrivate::get(parentItem)->maybeCreateAutoPopup(popup);
+}
+
 XdgShellV5Integration::XdgShellV5Integration(QWaylandQuickShellSurfaceItem *item)
     : QWaylandQuickShellIntegration(item)
     , m_item(item)
@@ -66,6 +72,9 @@ XdgShellV5Integration::XdgShellV5Integration(QWaylandQuickShellSurfaceItem *item
     connect(m_xdgSurface, &QWaylandXdgSurfaceV5::maximizedChanged, this, &XdgShellV5Integration::handleMaximizedChanged);
     connect(m_xdgSurface, &QWaylandXdgSurfaceV5::activatedChanged, this, &XdgShellV5Integration::handleActivatedChanged);
     connect(m_xdgSurface->surface(), &QWaylandSurface::sizeChanged, this, &XdgShellV5Integration::handleSurfaceSizeChanged);
+    connect(m_xdgSurface->shell(), &QWaylandXdgShellV5::xdgPopupCreated, this, [item](QWaylandXdgPopupV5 *popup){
+        handlePopupCreated(item, popup);
+    });
 }
 
 XdgShellV5Integration::~XdgShellV5Integration()
@@ -213,6 +222,9 @@ XdgPopupV5Integration::XdgPopupV5Integration(QWaylandQuickShellSurfaceItem *item
     QWaylandQuickShellEventFilter::startFilter(client, [shell]() { shell->closeAllPopups(); });
 
     connect(m_xdgPopup, &QWaylandXdgPopupV5::destroyed, this, &XdgPopupV5Integration::handlePopupDestroyed);
+    connect(m_xdgPopup->shell(), &QWaylandXdgShellV5::xdgPopupCreated, this, [item](QWaylandXdgPopupV5 *popup) {
+        handlePopupCreated(item, popup);
+    });
 }
 
 XdgPopupV5Integration::~XdgPopupV5Integration()

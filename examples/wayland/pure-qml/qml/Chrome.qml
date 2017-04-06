@@ -53,6 +53,7 @@ import QtWayland.Compositor 1.0
 
 ShellSurfaceItem {
     id: rootChrome
+    autoCreatePopupItems: true
 
     property bool isChild: parent.shellSurface !== undefined
 

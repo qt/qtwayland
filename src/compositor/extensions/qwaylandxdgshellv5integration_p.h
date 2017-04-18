@@ -60,6 +60,7 @@ class XdgShellV5Integration : public QWaylandQuickShellIntegration
     Q_OBJECT
 public:
     XdgShellV5Integration(QWaylandQuickShellSurfaceItem *item);
+    ~XdgShellV5Integration();
     bool mouseMoveEvent(QMouseEvent *event) override;
     bool mouseReleaseEvent(QMouseEvent *event) override;
 
@@ -111,11 +112,13 @@ class XdgPopupV5Integration : public QWaylandQuickShellIntegration
     Q_OBJECT
 public:
     XdgPopupV5Integration(QWaylandQuickShellSurfaceItem *item);
+    ~XdgPopupV5Integration();
 
 private Q_SLOTS:
     void handlePopupDestroyed();
 
 private:
+    QWaylandQuickShellSurfaceItem *m_item;
     QWaylandXdgPopupV5 *m_xdgPopup;
     QWaylandXdgShellV5 *m_xdgShell;
 };

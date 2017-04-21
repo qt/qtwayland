@@ -199,6 +199,7 @@ void QWaylandXdgSurfaceV6::setPopup(QWaylandWindow *parent, QWaylandInputDevice 
     positioner->set_anchor_rect(transientPos.x(), transientPos.y(), 1, 1);
     positioner->set_anchor(QtWayland::zxdg_positioner_v6::anchor_top | QtWayland::zxdg_positioner_v6::anchor_left);
     positioner->set_gravity(QtWayland::zxdg_positioner_v6::gravity_bottom | QtWayland::zxdg_positioner_v6::gravity_right);
+    positioner->set_size(m_window->geometry().width(), m_window->geometry().height());
     m_popup = new Popup(this, parentXdgSurface, positioner);
     positioner->destroy();
     delete positioner;

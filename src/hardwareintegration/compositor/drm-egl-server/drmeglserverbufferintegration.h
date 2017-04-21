@@ -96,7 +96,7 @@ public:
     DrmEglServerBufferIntegration();
     ~DrmEglServerBufferIntegration();
 
-    void initializeHardware(QWaylandCompositor *);
+    void initializeHardware(QWaylandCompositor *) override;
 
     bool supportsFormat(QtWayland::ServerBuffer::Format format) const override;
     QtWayland::ServerBuffer *createServerBuffer(const QSize &size, QtWayland::ServerBuffer::Format format) override;

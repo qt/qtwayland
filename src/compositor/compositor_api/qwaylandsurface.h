@@ -140,7 +140,9 @@ public:
 #endif
 
 public Q_SLOTS:
+#if QT_CONFIG(clipboard)
     void updateSelection();
+#endif
 
 protected:
     QWaylandSurface(QWaylandSurfacePrivate &dptr);

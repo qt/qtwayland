@@ -52,14 +52,14 @@
 // We mean it.
 //
 
-#include <qtwaylandclientglobal.h>
+#include <qtwaylandclientglobal_p.h>
 #include <QObject>
 #include <QPointer>
 #include <QPoint>
 
 #include <QtWaylandClient/private/qwayland-wayland.h>
 
-#if QT_CONFIG(draganddrop)
+QT_REQUIRE_CONFIG(wayland_datadevice);
 
 QT_BEGIN_NAMESPACE
 
@@ -87,25 +87,35 @@ public:
     QWaylandDataSource *selectionSource() const;
     void setSelectionSource(QWaylandDataSource *source);
 
+#if QT_CONFIG(draganddrop)
     QWaylandDataOffer *dragOffer() const;
     void startDrag(QMimeData *mimeData, QWaylandWindow *icon);
     void cancelDrag();
+#endif
 
 protected:
     void data_device_data_offer(struct ::wl_data_offer *id) override;
+
+#if QT_CONFIG(draganddrop)
     void data_device_drop() override;
     void data_device_enter(uint32_t serial, struct ::wl_surface *surface, wl_fixed_t x, wl_fixed_t y, struct ::wl_data_offer *id) override;
     void data_device_leave() override;
     void data_device_motion(uint32_t time, wl_fixed_t x, wl_fixed_t y) override;
+#endif
     void data_device_selection(struct ::wl_data_offer *id) override;
 
 private Q_SLOTS:
     void selectionSourceCancelled();
+
+#if QT_CONFIG(draganddrop)
     void dragSourceCancelled();
     void dragSourceTargetChanged(const QString &mimeType);
+#endif
 
 private:
+#if QT_CONFIG(draganddrop)
     QPoint calculateDragPosition(int x, int y, QWindow *wnd) const;
+#endif
 
     QWaylandDisplay *m_display;
     QWaylandInputDevice *m_inputDevice;
@@ -122,7 +132,5 @@ private:
 }
 
 QT_END_NAMESPACE
-
-#endif  // draganddrop
 
 #endif // QWAYLANDDATADEVICE_H

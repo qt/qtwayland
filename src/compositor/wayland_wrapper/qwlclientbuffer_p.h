@@ -130,7 +130,7 @@ public:
 
     QSize size() const override;
     QWaylandSurface::Origin origin() const  override;
-    QImage image() const;
+    QImage image() const override;
 
 #if QT_CONFIG(opengl)
     QOpenGLTexture *toOpenGlTexture(int plane = 0) override;

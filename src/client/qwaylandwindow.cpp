@@ -40,7 +40,6 @@
 #include "qwaylandwindow_p.h"
 
 #include "qwaylandbuffer_p.h"
-#include "qwaylanddatadevice_p.h"
 #include "qwaylanddisplay_p.h"
 #include "qwaylandinputdevice_p.h"
 #include "qwaylandscreen_p.h"
@@ -53,6 +52,11 @@
 #include "qwaylandnativeinterface_p.h"
 #include "qwaylanddecorationfactory_p.h"
 #include "qwaylandshmbackingstore_p.h"
+
+#if QT_CONFIG(wayland_datadevice)
+#include "qwaylanddatadevice_p.h"
+#endif
+
 
 #include <QtCore/QFileInfo>
 #include <QtCore/QPointer>
@@ -95,6 +99,7 @@ QWaylandWindow::QWaylandWindow(QWindow *window)
 {
     static WId id = 1;
     mWindowId = id++;
+    initializeWlSurface();
 }
 
 QWaylandWindow::~QWaylandWindow()
@@ -127,7 +132,7 @@ void QWaylandWindow::initWindow()
         return;
 
     if (!isInitialized())
-        init(mDisplay->createSurface(static_cast<QtWayland::wl_surface *>(this)));
+        initializeWlSurface();
 
     if (shouldCreateSubSurface()) {
         Q_ASSERT(!mSubSurfaceWindow);
@@ -159,7 +164,9 @@ void QWaylandWindow::initWindow()
         // when available.
         if (!QGuiApplication::desktopFileName().isEmpty()) {
             QString name = QGuiApplication::desktopFileName();
-            mShellSurface->setAppId(name.replace(QRegularExpression(QLatin1String("\\.desktop$")), QString()));
+            if (name.endsWith(QLatin1String(".desktop")))
+                name.chop(8);
+            mShellSurface->setAppId(name);
         } else {
             QFileInfo fi = QCoreApplication::instance()->applicationFilePath();
             QStringList domainName =
@@ -200,6 +207,11 @@ void QWaylandWindow::initWindow()
     mFlags = window()->flags();
 }
 
+void QWaylandWindow::initializeWlSurface()
+{
+    init(mDisplay->createSurface(static_cast<QtWayland::wl_surface *>(this)));
+}
+
 bool QWaylandWindow::shouldCreateShellSurface() const
 {
     if (shouldCreateSubSurface())
@@ -225,7 +237,8 @@ void QWaylandWindow::reset()
     mShellSurface = 0;
     delete mSubSurfaceWindow;
     mSubSurfaceWindow = 0;
-    destroy();
+    if (isInitialized())
+        destroy();
 
     if (mFrameCallback)
         wl_callback_destroy(mFrameCallback);
@@ -360,8 +373,11 @@ void QWaylandWindow::setMask(const QRegion &mask)
 
     mMask = mask;
 
+    if (!isInitialized())
+        return;
+
     if (mMask.isEmpty()) {
-        set_input_region(0);
+        set_input_region(nullptr);
     } else {
         struct ::wl_region *region = mDisplay->createRegion(mMask);
         set_input_region(region);
@@ -813,7 +829,7 @@ void QWaylandWindow::requestActivateWindow()
 
 void QWaylandWindow::unfocus()
 {
-#if QT_CONFIG(draganddrop)
+#if QT_CONFIG(clipboard)
     QWaylandInputDevice *inputDevice = mDisplay->currentInputDevice();
     if (inputDevice && inputDevice->dataDevice()) {
         inputDevice->dataDevice()->invalidateSelectionOffer();

@@ -38,10 +38,13 @@
 #include "qwaylandsurface.h"
 #include "qwaylandsurface_p.h"
 
-#include "wayland_wrapper/qwldatadevice_p.h"
-#include "wayland_wrapper/qwldatadevicemanager_p.h"
 #include "wayland_wrapper/qwlbuffermanager_p.h"
 #include "wayland_wrapper/qwlregion_p.h"
+#include <QtWaylandCompositor/private/qtwaylandcompositorglobal_p.h>
+#if QT_CONFIG(wayland_datadevice)
+#include "wayland_wrapper/qwldatadevice_p.h"
+#include "wayland_wrapper/qwldatadevicemanager_p.h"
+#endif
 
 #include "extensions/qwlextendedsurface_p.h"
 #include "qwaylandinputmethodcontrol_p.h"
@@ -682,6 +685,7 @@ QWaylandInputMethodControl *QWaylandSurface::inputMethodControl() const
  * this is done automatically when the surface receives keyboard focus, this
  * function is useful for updating clients which do not have keyboard focus.
  */
+#if QT_CONFIG(clipboard)
 void QWaylandSurface::updateSelection()
 {
     Q_D(QWaylandSurface);
@@ -694,6 +698,7 @@ void QWaylandSurface::updateSelection()
         }
     }
 }
+#endif
 
 /*!
  * Returns this QWaylandSurface's primary view.

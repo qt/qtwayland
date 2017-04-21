@@ -59,6 +59,10 @@
 #define EGL_WAYLAND_BUFFER_WL       0x31D5
 #endif
 
+#ifndef EGL_WAYLAND_EGLSTREAM_WL
+#define EGL_WAYLAND_EGLSTREAM_WL    0x334B
+#endif
+
 #ifndef EGL_WAYLAND_PLANE_WL
 #define EGL_WAYLAND_PLANE_WL        0x31D6
 #endif
@@ -168,7 +172,7 @@ public:
 
     void initBuffer(WaylandEglClientBuffer *buffer);
     void init_egl_texture(WaylandEglClientBuffer *buffer, EGLint format);
-    void init_egl_fd_texture(WaylandEglClientBuffer *buffer, EGLNativeFileDescriptorKHR streamFd);
+    void init_egl_fd_texture(WaylandEglClientBuffer *buffer, wl_resource *bufferHandle);
     void register_buffer(struct ::wl_resource *buffer, BufferState state);
 
     EGLDisplay egl_display;
@@ -281,16 +285,26 @@ void WaylandEglClientBufferIntegrationPrivate::init_egl_texture(WaylandEglClient
     }
 }
 
-void WaylandEglClientBufferIntegrationPrivate::init_egl_fd_texture(WaylandEglClientBuffer *buffer, EGLNativeFileDescriptorKHR streamFd)
+void WaylandEglClientBufferIntegrationPrivate::init_egl_fd_texture(WaylandEglClientBuffer *buffer, struct ::wl_resource *bufferHandle)
 {
 //EglStreams case
     BufferState &state = *buffer->d;
 
     state.egl_format = EGL_TEXTURE_EXTERNAL_WL;
     state.isYInverted = false;
-    state.egl_stream = funcs->create_stream_from_file_descriptor(egl_display, streamFd);
 
-    close(streamFd);
+    EGLNativeFileDescriptorKHR streamFd = EGL_NO_FILE_DESCRIPTOR_KHR;
+
+    if (egl_query_wayland_buffer(egl_display, bufferHandle, EGL_WAYLAND_BUFFER_WL, &streamFd)) {
+        state.egl_stream = funcs->create_stream_from_file_descriptor(egl_display, streamFd);
+        close(streamFd);
+    } else {
+        EGLAttrib stream_attribs[] = {
+            EGL_WAYLAND_EGLSTREAM_WL, (EGLAttrib)bufferHandle,
+            EGL_NONE
+        };
+        state.egl_stream = funcs->create_stream_attrib_nv(egl_display, stream_attribs);
+    }
 
     if (state.egl_stream == EGL_NO_STREAM_KHR) {
         qWarning("%s:%d: eglCreateStreamFromFileDescriptorKHR failed: 0x%x", Q_FUNC_INFO, __LINE__, eglGetError());
@@ -486,10 +500,8 @@ void WaylandEglClientBuffer::setCommitted(QRegion &damage)
 {
     ClientBuffer::setCommitted(damage);
     if (d->eglMode == BufferState::ModeNone) {
-        EGLNativeFileDescriptorKHR streamFd = EGL_NO_FILE_DESCRIPTOR_KHR;
         auto *p = WaylandEglClientBufferIntegrationPrivate::get(m_integration);
-        if (p->egl_query_wayland_buffer(p->egl_display, waylandBufferHandle(), EGL_WAYLAND_BUFFER_WL, &streamFd))
-                p->init_egl_fd_texture(this, streamFd);
+        p->init_egl_fd_texture(this, waylandBufferHandle());
     }
 }
 

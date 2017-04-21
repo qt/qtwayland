@@ -39,7 +39,7 @@
 
 #include <QtWaylandCompositor/QWaylandShellSurface>
 
-class wl_resource;
+struct wl_resource;
 
 QT_BEGIN_NAMESPACE
 

@@ -53,7 +53,7 @@ public:
 
     void initializeHardware(struct ::wl_display *display) override;
 
-    QtWayland::ClientBuffer *createBufferFor(wl_resource *buffer);
+    QtWayland::ClientBuffer *createBufferFor(wl_resource *buffer) override;
 
 private:
     Q_DISABLE_COPY(WaylandEglClientBufferIntegration)

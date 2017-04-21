@@ -41,9 +41,16 @@
 #ifndef QWAYLANDXKB_H
 #define QWAYLANDXKB_H
 
+#include <QtGui/private/qtguiglobal_p.h>
 #include <Qt>
 #include <QEvent>
+
+#if QT_CONFIG(xkbcommon_evdev)
 #include <xkbcommon/xkbcommon.h>
+#else
+typedef quint32 xkb_keysym_t;
+struct xkb_state;
+#endif
 
 #include <utility>
 

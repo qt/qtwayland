@@ -23,7 +23,6 @@ QMAKE_USE += wayland-client
 INCLUDEPATH += $$PWD/../shared
 
 WAYLANDCLIENTSOURCES += \
-            ../3rdparty/protocol/wayland.xml \
             ../extensions/surface-extension.xml \
             ../extensions/touch-extension.xml \
             ../extensions/qtkey-extension.xml \
@@ -31,6 +30,9 @@ WAYLANDCLIENTSOURCES += \
             ../3rdparty/protocol/text-input-unstable-v2.xml \
             ../3rdparty/protocol/xdg-shell.xml \
             ../3rdparty/protocol/xdg-shell-unstable-v6.xml \
+
+WAYLANDCLIENTSOURCES_SYSTEM += \
+            ../3rdparty/protocol/wayland.xml \
 
 SOURCES +=  qwaylandintegration.cpp \
             qwaylandnativeinterface.cpp \
@@ -40,9 +42,6 @@ SOURCES +=  qwaylandintegration.cpp \
             qwaylandwindow.cpp \
             qwaylandscreen.cpp \
             qwaylandshmwindow.cpp \
-            qwaylanddataoffer.cpp \
-            qwaylanddatadevicemanager.cpp \
-            qwaylanddatasource.cpp \
             qwaylandshellsurface.cpp \
             qwaylandwlshellsurface.cpp \
             qwaylandwlshellintegration.cpp \
@@ -76,9 +75,6 @@ HEADERS +=  qwaylandintegration_p.h \
             qwaylandinputdevice_p.h \
             qwaylandbuffer_p.h \
             qwaylandshmwindow_p.h \
-            qwaylanddataoffer_p.h \
-            qwaylanddatadevicemanager_p.h \
-            qwaylanddatasource_p.h \
             qwaylandshellsurface_p.h \
             qwaylandwlshellsurface_p.h \
             qwaylandwlshellintegration_p.h \
@@ -123,13 +119,25 @@ qtConfig(cursor) {
     SOURCES += \
         qwaylandcursor.cpp
 }
+
+qtConfig(wayland-datadevice) {
+    HEADERS += \
+        qwaylanddatadevice_p.h \
+        qwaylanddatadevicemanager_p.h \
+        qwaylanddataoffer_p.h \
+        qwaylanddatasource_p.h
+    SOURCES += \
+        qwaylanddatadevice.cpp \
+        qwaylanddatadevicemanager.cpp \
+        qwaylanddataoffer.cpp \
+        qwaylanddatasource.cpp
+}
+
 qtConfig(draganddrop) {
     HEADERS += \
-        qwaylanddnd_p.h \
-        qwaylanddatadevice_p.h
+        qwaylanddnd_p.h
     SOURCES += \
-        qwaylanddnd.cpp \
-        qwaylanddatadevice.cpp
+        qwaylanddnd.cpp
 }
 
 CONFIG += generated_privates

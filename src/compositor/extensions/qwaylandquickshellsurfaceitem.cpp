@@ -118,7 +118,14 @@ void QWaylandQuickShellSurfaceItem::setShellSurface(QWaylandShellSurface *shellS
 
     d->m_shellSurface = shellSurface;
 
-    d->m_shellIntegration = shellSurface->createIntegration(this);
+    if (d->m_shellIntegration) {
+        delete d->m_shellIntegration;
+        d->m_shellIntegration = nullptr;
+    }
+
+    if (shellSurface)
+        d->m_shellIntegration = shellSurface->createIntegration(this);
+
     emit shellSurfaceChanged();
 }
 

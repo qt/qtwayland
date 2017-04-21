@@ -89,12 +89,14 @@ public:
     QWaylandSeatPrivate(QWaylandSeat *seat);
     ~QWaylandSeatPrivate();
 
-    void clientRequestedDataDevice(QtWayland::DataDeviceManager *dndSelection, struct wl_client *client, uint32_t id);
     void setCapabilities(QWaylandSeat::CapabilityFlags caps);
 
     static QWaylandSeatPrivate *get(QWaylandSeat *device) { return device->d_func(); }
 
+#if QT_CONFIG(wayland_datadevice)
+    void clientRequestedDataDevice(QtWayland::DataDeviceManager *dndSelection, struct wl_client *client, uint32_t id);
     QtWayland::DataDevice *dataDevice() const { return data_device.data(); }
+#endif
 
 protected:
     void seat_bind_resource(wl_seat::Resource *resource) override;
@@ -118,8 +120,12 @@ private:
     QScopedPointer<QWaylandPointer> pointer;
     QScopedPointer<QWaylandKeyboard> keyboard;
     QScopedPointer<QWaylandTouch> touch;
+#if QT_CONFIG(wayland_datadevice)
     QScopedPointer<QtWayland::DataDevice> data_device;
+# if QT_CONFIG(draganddrop)
     QScopedPointer<QWaylandDrag> drag_handle;
+# endif
+#endif
     QScopedPointer<QWaylandKeymap> keymap;
 
 };

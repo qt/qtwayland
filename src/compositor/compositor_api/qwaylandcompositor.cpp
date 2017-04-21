@@ -52,8 +52,10 @@
 #include <QtWaylandCompositor/private/qwaylandkeyboard_p.h>
 #include <QtWaylandCompositor/private/qwaylandsurface_p.h>
 
+#if QT_CONFIG(wayland_datadevice)
 #include "wayland_wrapper/qwldatadevice_p.h"
 #include "wayland_wrapper/qwldatadevicemanager_p.h"
+#endif
 #include "wayland_wrapper/qwlbuffermanager_p.h"
 
 #include "hardware_integration/qwlclientbufferintegration_p.h"
@@ -176,7 +178,9 @@ void QWaylandCompositorPrivate::init()
     wl_compositor::init(display, 3);
     wl_subcompositor::init(display, 1);
 
+#if QT_CONFIG(wayland_datadevice)
     data_device_manager =  new QtWayland::DataDeviceManager(q);
+#endif
     buffer_manager = new QtWayland::BufferManager(q);
 
     wl_display_init_shm(display);
@@ -225,7 +229,9 @@ QWaylandCompositorPrivate::~QWaylandCompositorPrivate()
 
     qDeleteAll(outputs);
 
+#if QT_CONFIG(wayland_datadevice)
     delete data_device_manager;
+#endif
 
     wl_display_destroy(display);
 }
@@ -790,7 +796,9 @@ void QWaylandCompositor::retainedSelectionReceived(QMimeData *)
 void QWaylandCompositor::overrideSelection(const QMimeData *data)
 {
     Q_D(QWaylandCompositor);
+#if QT_CONFIG(wayland_datadevice)
     d->data_device_manager->overrideSelection(*data);
+#endif
 }
 
 /*!

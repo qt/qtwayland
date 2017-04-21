@@ -1,6 +1,6 @@
 INCLUDEPATH += $$PWD
 
-QMAKE_USE += egl wayland-client
+QMAKE_USE += egl wayland-client libdl
 QT += egl_support-private
 
 SOURCES += $$PWD/qwaylandbrcmeglintegration.cpp \

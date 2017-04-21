@@ -44,7 +44,7 @@ QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
 
-class QWaylandXCompositeEglClientBufferIntegrationPlugin : public QWaylandClientBufferIntegrationPlugin
+class QWaylandXCompositeEglClientBufferPlugin : public QWaylandClientBufferIntegrationPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID QWaylandClientBufferIntegrationFactoryInterface_iid FILE "xcomposite-egl.json")
@@ -52,7 +52,7 @@ public:
     QWaylandClientBufferIntegration *create(const QString&, const QStringList&) override;
 };
 
-QWaylandClientBufferIntegration *QWaylandXCompositeEglClientBufferIntegrationPlugin::create(const QString& system, const QStringList& paramList)
+QWaylandClientBufferIntegration *QWaylandXCompositeEglClientBufferPlugin::create(const QString& system, const QStringList& paramList)
 {
     Q_UNUSED(paramList);
     Q_UNUSED(system);

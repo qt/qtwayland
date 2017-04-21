@@ -47,7 +47,9 @@
 #if QT_CONFIG(clipboard)
 #include "qwaylandclipboard_p.h"
 #endif
+#if QT_CONFIG(wayland_datadevice)
 #include "qwaylanddatadevicemanager_p.h"
+#endif
 #include "qwaylandhardwareintegration_p.h"
 #include "qwaylandxdgshell_p.h"
 #include "qwaylandxdgsurface_p.h"
@@ -122,7 +124,7 @@ QWaylandWindowManagerIntegration *QWaylandDisplay::windowManagerIntegration() co
 
 QWaylandDisplay::QWaylandDisplay(QWaylandIntegration *waylandIntegration)
     : mWaylandIntegration(waylandIntegration)
-#if QT_CONFIG(draganddrop)
+#if QT_CONFIG(wayland_datadevice)
     , mDndSelectionHandler(0)
 #endif
     , mWindowExtension(0)
@@ -162,7 +164,7 @@ QWaylandDisplay::~QWaylandDisplay(void)
         mWaylandIntegration->destroyScreen(screen);
     }
     mScreens.clear();
-#if QT_CONFIG(draganddrop)
+#if QT_CONFIG(wayland_datadevice)
     delete mDndSelectionHandler.take();
 #endif
     wl_display_disconnect(mDisplay);
@@ -257,7 +259,7 @@ void QWaylandDisplay::registry_global(uint32_t id, const QString &interface, uin
     } else if (interface == QStringLiteral("wl_seat")) {
         QWaylandInputDevice *inputDevice = mWaylandIntegration->createInputDevice(this, version, id);
         mInputDevices.append(inputDevice);
-#if QT_CONFIG(draganddrop)
+#if QT_CONFIG(wayland_datadevice)
     } else if (interface == QStringLiteral("wl_data_device_manager")) {
         mDndSelectionHandler.reset(new QWaylandDataDeviceManager(this, id));
 #endif
@@ -421,7 +423,14 @@ void QWaylandDisplay::handleKeyboardFocusChanged(QWaylandInputDevice *inputDevic
     if (mLastKeyboardFocus == keyboardFocus)
         return;
 
-    mWaylandIntegration->mShellIntegration->handleKeyboardFocusChanged(keyboardFocus, mLastKeyboardFocus);
+    if (mWaylandIntegration->mShellIntegration) {
+        mWaylandIntegration->mShellIntegration->handleKeyboardFocusChanged(keyboardFocus, mLastKeyboardFocus);
+    } else {
+        if (keyboardFocus)
+            handleWindowActivated(keyboardFocus);
+        if (mLastKeyboardFocus)
+            handleWindowDeactivated(mLastKeyboardFocus);
+    }
 
     mLastKeyboardFocus = keyboardFocus;
 }
@@ -460,6 +469,33 @@ void QWaylandDisplay::requestWaylandSync()
     mSyncCallback = wl_display_sync(mDisplay);
     wl_callback_add_listener(mSyncCallback, &syncCallbackListener, this);
 }
+
+QWaylandInputDevice *QWaylandDisplay::defaultInputDevice() const
+{
+    return mInputDevices.isEmpty() ? 0 : mInputDevices.first();
+}
+
+#if QT_CONFIG(cursor)
+void QWaylandDisplay::setCursor(struct wl_buffer *buffer, struct wl_cursor_image *image)
+{
+    /* Qt doesn't tell us which input device we should set the cursor
+     * for, so set it for all devices. */
+    for (int i = 0; i < mInputDevices.count(); i++) {
+        QWaylandInputDevice *inputDevice = mInputDevices.at(i);
+        inputDevice->setCursor(buffer, image);
+    }
+}
+
+void QWaylandDisplay::setCursor(const QSharedPointer<QWaylandBuffer> &buffer, const QPoint &hotSpot)
+{
+    /* Qt doesn't tell us which input device we should set the cursor
+     * for, so set it for all devices. */
+    for (int i = 0; i < mInputDevices.count(); i++) {
+        QWaylandInputDevice *inputDevice = mInputDevices.at(i);
+        inputDevice->setCursor(buffer, hotSpot);
+    }
+}
+#endif // QT_CONFIG(cursor)
 
 }
 

@@ -61,13 +61,17 @@
             "condition": "!config.win32 && libs.wayland-server && tests.wayland-scanner",
             "output": [ "privateFeature" ]
         },
+        "wayland-datadevice": {
+            "condition": "features.draganddrop || features.clipboard",
+            "output": [ "privateFeature" ]
+        },
         "wayland-egl": {
             "label": "EGL",
             "condition": "features.wayland-server && features.opengl && features.egl && libs.wayland-egl",
             "output": [ "privateFeature" ]
         },
         "wayland-brcm": {
-            "label": "Rasberry Pi",
+            "label": "Raspberry Pi",
             "condition": "features.wayland-server && features.eglfs_brcm",
             "output": [ "privateFeature" ]
         },

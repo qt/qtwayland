@@ -111,8 +111,10 @@ public:
     void handleWindowDestroyed(QWaylandWindow *window);
     void handleEndDrag();
 
+#if QT_CONFIG(wayland_datadevice)
     void setDataDevice(QWaylandDataDevice *device);
     QWaylandDataDevice *dataDevice() const;
+#endif
 
     void setTextInput(QWaylandTextInput *textInput);
     QWaylandTextInput *textInput() const;
@@ -143,7 +145,9 @@ private:
 
     struct wl_surface *pointerSurface;
 
+#if QT_CONFIG(wayland_datadevice)
     QWaylandDataDevice *mDataDevice;
+#endif
 
     Keyboard *mKeyboard;
     Pointer *mPointer;

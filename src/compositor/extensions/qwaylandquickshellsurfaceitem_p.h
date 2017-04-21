@@ -72,7 +72,7 @@ public:
     QQuickItem *m_moveItem;
 };
 
-class QWaylandQuickShellIntegration : public QObject
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQuickShellIntegration : public QObject
 {
     Q_OBJECT
 public:

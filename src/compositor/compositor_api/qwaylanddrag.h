@@ -42,6 +42,8 @@
 #include <QtCore/QObject>
 #include <QtCore/QPointF>
 
+QT_REQUIRE_CONFIG(draganddrop);
+
 QT_BEGIN_NAMESPACE
 
 class QWaylandDragPrivate;

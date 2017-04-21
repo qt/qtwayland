@@ -65,6 +65,11 @@ XdgShellV5Integration::XdgShellV5Integration(QWaylandQuickShellSurfaceItem *item
     connect(m_xdgSurface->surface(), &QWaylandSurface::sizeChanged, this, &XdgShellV5Integration::handleSurfaceSizeChanged);
 }
 
+XdgShellV5Integration::~XdgShellV5Integration()
+{
+    m_item->setSurface(nullptr);
+}
+
 bool XdgShellV5Integration::mouseMoveEvent(QMouseEvent *event)
 {
     if (grabberState == GrabberState::Resize) {
@@ -190,6 +195,7 @@ void XdgShellV5Integration::handleSurfaceSizeChanged()
 
 XdgPopupV5Integration::XdgPopupV5Integration(QWaylandQuickShellSurfaceItem *item)
     : QWaylandQuickShellIntegration (item)
+    , m_item(item)
     , m_xdgPopup(qobject_cast<QWaylandXdgPopupV5 *>(item->shellSurface()))
     , m_xdgShell(QWaylandXdgPopupV5Private::get(m_xdgPopup)->m_xdgShell)
 {
@@ -204,6 +210,11 @@ XdgPopupV5Integration::XdgPopupV5Integration(QWaylandQuickShellSurfaceItem *item
     QWaylandQuickShellEventFilter::startFilter(client, [shell]() { shell->closeAllPopups(); });
 
     connect(m_xdgPopup, &QWaylandXdgPopupV5::destroyed, this, &XdgPopupV5Integration::handlePopupDestroyed);
+}
+
+XdgPopupV5Integration::~XdgPopupV5Integration()
+{
+    m_item->setSurface(nullptr);
 }
 
 void XdgPopupV5Integration::handlePopupDestroyed()

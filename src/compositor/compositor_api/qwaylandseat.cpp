@@ -40,13 +40,17 @@
 #include "qwaylandcompositor.h"
 #include "qwaylandinputmethodcontrol.h"
 #include "qwaylandview.h"
+#if QT_CONFIG(draganddrop)
 #include <QtWaylandCompositor/QWaylandDrag>
+#endif
 #include <QtWaylandCompositor/QWaylandTouch>
 #include <QtWaylandCompositor/QWaylandPointer>
 #include <QtWaylandCompositor/QWaylandKeymap>
 #include <QtWaylandCompositor/private/qwaylandseat_p.h>
 #include <QtWaylandCompositor/private/qwaylandcompositor_p.h>
+#if QT_CONFIG(wayland_datadevice)
 #include <QtWaylandCompositor/private/qwldatadevice_p.h>
+#endif
 
 #include "extensions/qwlqtkey_p.h"
 #include "extensions/qwaylandtextinput.h"
@@ -61,8 +65,12 @@ QWaylandSeatPrivate::QWaylandSeatPrivate(QWaylandSeat *seat)
     , mouseFocus(Q_NULLPTR)
     , keyboardFocus(nullptr)
     , capabilities()
+#if QT_CONFIG(wayland_datadevice)
     , data_device()
+#endif
+#if QT_CONFIG(draganddrop)
     , drag_handle(new QWaylandDrag(seat))
+#endif
     , keymap(new QWaylandKeymap())
 {
 }
@@ -100,6 +108,7 @@ void QWaylandSeatPrivate::setCapabilities(QWaylandSeat::CapabilityFlags caps)
     }
 }
 
+#if QT_CONFIG(wayland_datadevice)
 void QWaylandSeatPrivate::clientRequestedDataDevice(QtWayland::DataDeviceManager *, struct wl_client *client, uint32_t id)
 {
     Q_Q(QWaylandSeat);
@@ -107,6 +116,7 @@ void QWaylandSeatPrivate::clientRequestedDataDevice(QtWayland::DataDeviceManager
         data_device.reset(new QtWayland::DataDevice(q));
     data_device->add(client, id, 1);
 }
+#endif
 
 void QWaylandSeatPrivate::seat_destroy_resource(wl_seat::Resource *)
 {
@@ -158,6 +168,7 @@ void QWaylandSeatPrivate::seat_get_touch(wl_seat::Resource *resource, uint32_t i
  * \value Pointer The QWaylandSeat supports pointer input.
  * \value Keyboard The QWaylandSeat supports keyboard input.
  * \value Touch The QWaylandSeat supports touch input.
+ * \value DefaultCapabilities The QWaylandSeat has the default capabilities.
  */
 
 /*!
@@ -363,6 +374,8 @@ QWaylandSurface *QWaylandSeat::keyboardFocus() const
 
 /*!
  * Sets the current keyboard focus to \a surface.
+ * Returns a boolean indicating if the operation
+ * was successful.
  */
 bool QWaylandSeat::setKeyboardFocus(QWaylandSurface *surface)
 {
@@ -377,8 +390,10 @@ bool QWaylandSeat::setKeyboardFocus(QWaylandSurface *surface)
     d->keyboardFocus = surface;
     if (!d->keyboard.isNull())
         d->keyboard->setFocus(surface);
+#if QT_CONFIG(wayland_datadevice)
     if (d->data_device)
         d->data_device->setFocus(surface->client());
+#endif
     emit keyboardFocusChanged(surface, oldSurface);
     return true;
 }
@@ -442,11 +457,13 @@ QWaylandCompositor *QWaylandSeat::compositor() const
 /*!
  * Returns the drag object for this QWaylandSeat.
  */
+#if QT_CONFIG(draganddrop)
 QWaylandDrag *QWaylandSeat::drag() const
 {
     Q_D(const QWaylandSeat);
     return d->drag_handle.data();
 }
+#endif
 
 /*!
  * Returns the capability flags for this QWaylandSeat.

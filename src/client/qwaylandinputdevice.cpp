@@ -42,8 +42,10 @@
 #include "qwaylandintegration_p.h"
 #include "qwaylandwindow_p.h"
 #include "qwaylandbuffer_p.h"
+#if QT_CONFIG(wayland_datadevice)
 #include "qwaylanddatadevice_p.h"
 #include "qwaylanddatadevicemanager_p.h"
+#endif
 #include "qwaylandtouch_p.h"
 #include "qwaylandscreen_p.h"
 #include "qwaylandcursor_p.h"
@@ -187,7 +189,9 @@ QWaylandInputDevice::QWaylandInputDevice(QWaylandDisplay *display, int version, 
     , mDisplay(display->wl_display())
     , mVersion(qMin(version, 4))
     , mCaps(0)
+#if QT_CONFIG(wayland_datadevice)
     , mDataDevice(0)
+#endif
     , mKeyboard(0)
     , mPointer(0)
     , mTouch(0)
@@ -196,7 +200,7 @@ QWaylandInputDevice::QWaylandInputDevice(QWaylandDisplay *display, int version, 
     , mSerial(0)
     , mTouchDevice(0)
 {
-#if QT_CONFIG(draganddrop)
+#if QT_CONFIG(wayland_datadevice)
     if (mQDisplay->dndSelectionHandler()) {
         mDataDevice = mQDisplay->dndSelectionHandler()->getDataDevice(this);
     }
@@ -286,6 +290,7 @@ void QWaylandInputDevice::handleEndDrag()
         mPointer->releaseButtons();
 }
 
+#if QT_CONFIG(wayland_datadevice)
 void QWaylandInputDevice::setDataDevice(QWaylandDataDevice *device)
 {
     mDataDevice = device;
@@ -296,6 +301,7 @@ QWaylandDataDevice *QWaylandInputDevice::dataDevice() const
     Q_ASSERT(mDataDevice);
     return mDataDevice;
 }
+#endif
 
 void QWaylandInputDevice::setTextInput(QWaylandTextInput *textInput)
 {

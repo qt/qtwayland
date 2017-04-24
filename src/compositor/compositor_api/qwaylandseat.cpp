@@ -392,7 +392,7 @@ bool QWaylandSeat::setKeyboardFocus(QWaylandSurface *surface)
         d->keyboard->setFocus(surface);
 #if QT_CONFIG(wayland_datadevice)
     if (d->data_device)
-        d->data_device->setFocus(surface->client());
+        d->data_device->setFocus(surface ? surface->client() : nullptr);
 #endif
     emit keyboardFocusChanged(surface, oldSurface);
     return true;

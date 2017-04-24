@@ -607,13 +607,13 @@ QByteArray QWaylandXdgShellV5::interfaceName()
 /*!
  * \qmlmethod void QtWaylandCompositor::XdgSurface::ping()
  *
- * Sends a ping event to the client. If the client replies to the event the
- * \a pong signal will be emitted.
+ * Sends a ping event to the \a client. If the client replies to the event, the
+ * pong signal will be emitted.
  */
 
 /*!
- * Sends a ping event to the client. If the client replies to the event the
- * \a pong signal will be emitted.
+ * Sends a ping event to the \a client. If the client replies to the event, the
+ * pong signal will be emitted.
  */
 uint QWaylandXdgShellV5::ping(QWaylandClient *client)
 {

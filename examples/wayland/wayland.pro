@@ -3,7 +3,7 @@ requires(qtConfig(opengl))
 TEMPLATE=subdirs
 
 SUBDIRS += \
-    qwindow-compositor
+    qwindow-compositor \
     minimal-cpp
 
 qtHaveModule(quick) {

@@ -261,7 +261,7 @@ void QWaylandWlShellSurfacePrivate::shell_surface_set_class(Resource *resource,
  * \since 5.8
  * \brief Provides an extension for desktop-style user interfaces.
  *
- * The WlShell extension provides a way to assiociate a ShellSurface
+ * The WlShell extension provides a way to associate a ShellSurface
  * with a regular Wayland surface. Using the shell surface interface, the client
  * can request that the surface is resized, moved, and so on.
  *
@@ -287,7 +287,7 @@ void QWaylandWlShellSurfacePrivate::shell_surface_set_class(Resource *resource,
  * \since 5.8
  * \brief The QWaylandWlShell class is an extension for desktop-style user interfaces.
  *
- * The QWaylandWlShell extension provides a way to assiociate a QWaylandWlShellSurface with
+ * The QWaylandWlShell extension provides a way to associate a QWaylandWlShellSurface with
  * a regular Wayland surface. Using the shell surface interface, the client
  * can request that the surface is resized, moved, and so on.
  *

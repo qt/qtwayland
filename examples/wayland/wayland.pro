@@ -15,7 +15,6 @@ qtHaveModule(quick) {
     SUBDIRS += ivi-compositor
     qtHaveModule(waylandclient) {
         SUBDIRS += \
-            custom-extension \
-            server-buffer
+            custom-extension
     }
 }

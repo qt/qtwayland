@@ -1,3 +1,5 @@
 TEMPLATE=subdirs
 
-SUBDIRS += client
+SUBDIRS += \
+    client \
+    xdgshellv6

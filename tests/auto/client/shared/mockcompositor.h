@@ -94,6 +94,7 @@ private:
     static void bindCompositor(wl_client *client, void *data, uint32_t version, uint32_t id);
     static void bindOutput(wl_client *client, void *data, uint32_t version, uint32_t id);
     static void bindShell(wl_client *client, void *data, uint32_t version, uint32_t id);
+    static void bindXdgShellV6(wl_client *client, void *compositorData, uint32_t version, uint32_t id);
 
     void initShm();
 

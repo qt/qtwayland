@@ -30,6 +30,8 @@
 #include "mockinput.h"
 #include "mocksurface.h"
 
+#include <wayland-xdg-shell-unstable-v6-server-protocol.h>
+
 #include <stdio.h>
 MockCompositor::MockCompositor()
     : m_alive(true)
@@ -285,6 +287,7 @@ Compositor::Compositor()
 
     wl_global_create(m_display, &wl_output_interface, 1, this, bindOutput);
     wl_global_create(m_display, &wl_shell_interface, 1, this, bindShell);
+    wl_global_create(m_display, &zxdg_shell_v6_interface, 1, this, bindXdgShellV6);
 
     m_loop = wl_display_get_event_loop(m_display);
     m_fd = wl_event_loop_get_fd(m_loop);

@@ -92,6 +92,7 @@ QWaylandWindow::QWaylandWindow(QWindow *window)
     , mResizeDirty(false)
     , mResizeAfterSwap(qEnvironmentVariableIsSet("QT_WAYLAND_RESIZE_AFTER_SWAP"))
     , mSentInitialResize(false)
+    , mScale(1)
     , mState(Qt::WindowNoState)
     , mMask()
     , mBackingStore(Q_NULLPTR)
@@ -189,9 +190,12 @@ void QWaylandWindow::initWindow()
         }
     }
 
+    mScale = screen()->scale();
+
     // Enable high-dpi rendering. Scale() returns the screen scale factor and will
     // typically be integer 1 (normal-dpi) or 2 (high-dpi). Call set_buffer_scale()
     // to inform the compositor that high-resolution buffers will be provided.
+    //FIXME this needs to be changed when the screen changes along with a resized backing store
     if (mDisplay->compositorVersion() >= 3)
         set_buffer_scale(scale());
 
@@ -847,12 +851,12 @@ bool QWaylandWindow::isExposed() const
 
 int QWaylandWindow::scale() const
 {
-    return screen()->scale();
+    return mScale;
 }
 
 qreal QWaylandWindow::devicePixelRatio() const
 {
-    return screen()->devicePixelRatio();
+    return mScale;
 }
 
 bool QWaylandWindow::setMouseGrabEnabled(bool grab)

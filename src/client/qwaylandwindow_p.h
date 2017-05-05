@@ -235,6 +235,7 @@ protected:
 
     bool mSentInitialResize;
     QPoint mOffset;
+    int mScale;
 
     QIcon mWindowIcon;
 

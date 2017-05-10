@@ -583,8 +583,8 @@ void QWaylandInputDevice::Pointer::releaseButtons()
 class WheelEvent : public QWaylandPointerEvent
 {
 public:
-    WheelEvent(ulong t, const QPointF &l, const QPointF &g, const QPoint &pd, const QPoint &ad)
-        : QWaylandPointerEvent(QWaylandPointerEvent::Wheel, t, l, g, pd, ad)
+    WheelEvent(ulong t, const QPointF &l, const QPointF &g, const QPoint &pd, const QPoint &ad, Qt::KeyboardModifiers m)
+        : QWaylandPointerEvent(QWaylandPointerEvent::Wheel, t, l, g, pd, ad, m)
     {
     }
 };
@@ -612,7 +612,7 @@ void QWaylandInputDevice::Pointer::pointer_axis(uint32_t time, uint32_t axis, in
         angleDelta.setY(valueDelta);
     }
 
-    WheelEvent e(time, mSurfacePos, mGlobalPos, pixelDelta, angleDelta);
+    WheelEvent e(time, mSurfacePos, mGlobalPos, pixelDelta, angleDelta, mParent->modifiers());
     window->handleMouse(mParent, e);
 }
 

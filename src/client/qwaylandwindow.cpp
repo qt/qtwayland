@@ -728,7 +728,7 @@ void QWaylandWindow::handleMouse(QWaylandInputDevice *inputDevice, const QWaylan
                 QWindowSystemInterface::handleMouseEvent(window(), e.timestamp, e.local, e.global, e.buttons, e.modifiers);
                 break;
             case QWaylandPointerEvent::Wheel:
-                QWindowSystemInterface::handleWheelEvent(window(), e.timestamp, e.local, e.global, e.pixelDelta, e.angleDelta);
+                QWindowSystemInterface::handleWheelEvent(window(), e.timestamp, e.local, e.global, e.pixelDelta, e.angleDelta, e.modifiers);
                 break;
         }
     }
@@ -796,7 +796,7 @@ void QWaylandWindow::handleMouseEventWithDecoration(QWaylandInputDevice *inputDe
                 QWindowSystemInterface::handleMouseEvent(window(), e.timestamp, localTranslated, globalTranslated, e.buttons, e.modifiers);
                 break;
             case QWaylandPointerEvent::Wheel:
-                QWindowSystemInterface::handleWheelEvent(window(), e.timestamp, localTranslated, globalTranslated, e.pixelDelta, e.angleDelta);
+                QWindowSystemInterface::handleWheelEvent(window(), e.timestamp, localTranslated, globalTranslated, e.pixelDelta, e.angleDelta, e.modifiers);
                 break;
         }
 

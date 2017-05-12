@@ -123,11 +123,15 @@ QSizeF QWaylandScreen::physicalSize() const
 
 QDpi QWaylandScreen::logicalDpi() const
 {
-    static int force_dpi = !qgetenv("QT_WAYLAND_FORCE_DPI").isEmpty() ? qgetenv("QT_WAYLAND_FORCE_DPI").toInt() : -1;
-    if (force_dpi > 0)
-        return QDpi(force_dpi, force_dpi);
+    static bool physicalDpi = qEnvironmentVariable("QT_WAYLAND_FORCE_DPI") == QStringLiteral("physical");
+    if (physicalDpi)
+        return QPlatformScreen::logicalDpi();
 
-    return QPlatformScreen::logicalDpi();
+    static int forceDpi = qgetenv("QT_WAYLAND_FORCE_DPI").toInt();
+    if (forceDpi)
+        return QDpi(forceDpi, forceDpi);
+
+    return QDpi(96, 96);
 }
 
 QList<QPlatformScreen *> QWaylandScreen::virtualSiblings() const

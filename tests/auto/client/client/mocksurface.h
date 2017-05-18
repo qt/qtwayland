@@ -26,6 +26,9 @@
 **
 ****************************************************************************/
 
+#ifndef MOCKSURFACE_H
+#define MOCKSURFACE_H
+
 #include <qglobal.h>
 
 #include "qwayland-server-wayland.h"
@@ -69,3 +72,5 @@ private:
 };
 
 }
+
+#endif // MOCKSURFACE_H

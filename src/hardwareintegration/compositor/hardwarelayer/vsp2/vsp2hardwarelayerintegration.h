@@ -1,9 +1,9 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
-** This file is part of the QtWaylandCompositor module of the Qt Toolkit.
+** This file is part of the plugins of the Qt Toolkit.
 **
 ** $QT_BEGIN_LICENSE:LGPL$
 ** Commercial License Usage
@@ -37,69 +37,81 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDSURFACEVIEW_P_H
-#define QWAYLANDSURFACEVIEW_P_H
+#ifndef VSP2HARDWARELAYERINTEGRATION_H
+#define VSP2HARDWARELAYERINTEGRATION_H
 
-#include "qwaylandview.h"
+#include <QtWaylandCompositor/private/qwlhardwarelayerintegration_p.h>
+#include <private/qobject_p.h>
 
-#include <QtCore/QPoint>
-#include <QtCore/QMutex>
-#include <QtCore/private/qobject_p.h>
+#include <QPoint>
+#include <QSize>
 
-#include <QtWaylandCompositor/QWaylandBufferRef>
-
-//
-//  W A R N I N G
-//  -------------
-//
-// This file is not part of the Qt API.  It exists purely as an
-// implementation detail.  This header file may change from version to
-// version without notice, or even be removed.
-//
-// We mean it.
-//
+struct wl_kms_buffer;
 
 QT_BEGIN_NAMESPACE
 
+class QScreen;
 class QWaylandSurface;
-class QWaylandOutput;
+class QWaylandQuickHardwareLayer;
 
-class QWaylandViewPrivate : public QObjectPrivate
+class Vsp2Layer;
+
+class Vsp2HardwareLayerIntegration : public QtWayland::HardwareLayerIntegration
 {
-    Q_DECLARE_PUBLIC(QWaylandView)
+    Q_OBJECT
 public:
-    static QWaylandViewPrivate *get(QWaylandView *view) { return view->d_func(); }
+    explicit Vsp2HardwareLayerIntegration();
 
-    QWaylandViewPrivate()
-        : renderObject(nullptr)
-        , surface(nullptr)
-        , output(nullptr)
-        , nextBufferCommitted(false)
-        , bufferLocked(false)
-        , broadcastRequestedPositionChanged(false)
-        , forceAdvanceSucceed(false)
-        , allowDiscardFrontBuffer(false)
-    { }
+    void add(QWaylandQuickHardwareLayer *layer) override;
+    void remove(QWaylandQuickHardwareLayer *layer) override;
 
-    void markSurfaceAsDestroyed(QWaylandSurface *surface);
+    void sendFrameCallbacks();
+    QVector<QSharedPointer<Vsp2Layer>> m_layers;
+private:
+    void enableVspLayers();
+    void disableVspLayers();
+    void sortLayersByDepth();
+    void recreateVspLayers();
+    friend class Vsp2Layer;
+};
 
-    QObject *renderObject;
-    QWaylandSurface *surface;
-    QWaylandOutput *output;
-    QPointF requestedPos;
-    QMutex bufferMutex;
-    QWaylandBufferRef currentBuffer;
-    QRegion currentDamage;
-    QWaylandBufferRef nextBuffer;
-    QRegion nextDamage;
-    bool nextBufferCommitted;
-    bool bufferLocked;
-    bool broadcastRequestedPositionChanged;
-    bool forceAdvanceSucceed;
-    bool allowDiscardFrontBuffer;
-    bool independentFrameCallback = false; //If frame callbacks are independent of the main quick scene graph
+struct Vsp2Buffer
+{
+    explicit Vsp2Buffer() = default;
+    explicit Vsp2Buffer(wl_kms_buffer *kmsBuffer);
+
+    int dmabufFd = -1;
+    uint bytesPerLine = 0;
+    uint drmPixelFormat = 0;
+    QSize size;
+};
+
+class Vsp2Layer : public QObject
+{
+    Q_OBJECT
+public:
+    explicit Vsp2Layer(QWaylandQuickHardwareLayer *m_hwLayer, Vsp2HardwareLayerIntegration *integration);
+    void enableVspLayer();
+    void disableVspLayer();
+    bool isEnabled() { return m_layerIndex != -1; }
+    QWaylandQuickHardwareLayer *hwLayer() const { return m_hwLayer; }
+
+public slots:
+    void handleBufferCommitted();
+    void handleSurfaceChanged();
+    void updatePosition();
+    void updateOpacity();
+
+private:
+    wl_kms_buffer *nextKmsBuffer();
+    int m_layerIndex = -1;
+    QScreen *m_screen = nullptr;
+    QPoint m_position;
+    QWaylandQuickHardwareLayer *m_hwLayer = nullptr;
+    QWaylandSurface *m_surface = nullptr;
+    Vsp2Buffer m_buffer;
 };
 
 QT_END_NAMESPACE
 
-#endif  /*QWAYLANDSURFACEVIEW_P_H*/
+#endif // VSP2HARDWARELAYERINTEGRATION_H

@@ -46,6 +46,7 @@
 
 #include <QtWaylandCompositor/private/qwaylandsurface_p.h>
 #include <QtWaylandCompositor/private/qwaylandcompositor_p.h>
+#include <QtWaylandCompositor/private/qwaylandview_p.h>
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QtMath>
@@ -895,8 +896,10 @@ void QWaylandOutput::sendFrameCallbacks()
                 surfaceEnter(surfacemapper.surface);
                 d->surfaceViews[i].has_entered = true;
             }
-            if (surfacemapper.maybePrimaryView())
-                surfacemapper.surface->sendFrameCallbacks();
+            if (auto primaryView = surfacemapper.maybePrimaryView()) {
+                if (!QWaylandViewPrivate::get(primaryView)->independentFrameCallback)
+                    surfacemapper.surface->sendFrameCallbacks();
+            }
         }
     }
     wl_display_flush_clients(d->compositor->display());

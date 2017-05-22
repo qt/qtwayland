@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the QtWaylandCompositor module of the Qt Toolkit.
@@ -37,16 +37,8 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDSURFACEVIEW_P_H
-#define QWAYLANDSURFACEVIEW_P_H
-
-#include "qwaylandview.h"
-
-#include <QtCore/QPoint>
-#include <QtCore/QMutex>
-#include <QtCore/private/qobject_p.h>
-
-#include <QtWaylandCompositor/QWaylandBufferRef>
+#ifndef QWAYLANDHARDWARELAYERINTEGRATION_H
+#define QWAYLANDHARDWARELAYERINTEGRATION_H
 
 //
 //  W A R N I N G
@@ -59,47 +51,33 @@
 // We mean it.
 //
 
+#include <QtWaylandCompositor/qtwaylandcompositorglobal.h>
+
+#include <QObject>
+#include <QQmlParserStatus>
+
 QT_BEGIN_NAMESPACE
 
-class QWaylandSurface;
-class QWaylandOutput;
+class QPoint;
 
-class QWaylandViewPrivate : public QObjectPrivate
+class QWaylandQuickHardwareLayer;
+
+namespace QtWayland {
+
+class Q_WAYLAND_COMPOSITOR_EXPORT HardwareLayerIntegration : public QObject
 {
-    Q_DECLARE_PUBLIC(QWaylandView)
+    Q_OBJECT
 public:
-    static QWaylandViewPrivate *get(QWaylandView *view) { return view->d_func(); }
-
-    QWaylandViewPrivate()
-        : renderObject(nullptr)
-        , surface(nullptr)
-        , output(nullptr)
-        , nextBufferCommitted(false)
-        , bufferLocked(false)
-        , broadcastRequestedPositionChanged(false)
-        , forceAdvanceSucceed(false)
-        , allowDiscardFrontBuffer(false)
-    { }
-
-    void markSurfaceAsDestroyed(QWaylandSurface *surface);
-
-    QObject *renderObject;
-    QWaylandSurface *surface;
-    QWaylandOutput *output;
-    QPointF requestedPos;
-    QMutex bufferMutex;
-    QWaylandBufferRef currentBuffer;
-    QRegion currentDamage;
-    QWaylandBufferRef nextBuffer;
-    QRegion nextDamage;
-    bool nextBufferCommitted;
-    bool bufferLocked;
-    bool broadcastRequestedPositionChanged;
-    bool forceAdvanceSucceed;
-    bool allowDiscardFrontBuffer;
-    bool independentFrameCallback = false; //If frame callbacks are independent of the main quick scene graph
+    HardwareLayerIntegration(QObject *parent = nullptr)
+        : QObject(parent)
+    {}
+    ~HardwareLayerIntegration() override {}
+    virtual void add(QWaylandQuickHardwareLayer *) {}
+    virtual void remove(QWaylandQuickHardwareLayer *) {}
 };
+
+} // namespace QtWayland
 
 QT_END_NAMESPACE
 
-#endif  /*QWAYLANDSURFACEVIEW_P_H*/
+#endif // QWAYLANDHARDWARELAYERINTEGRATION_H

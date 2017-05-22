@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the QtWaylandCompositor module of the Qt Toolkit.
@@ -37,69 +37,12 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDSURFACEVIEW_P_H
-#define QWAYLANDSURFACEVIEW_P_H
-
-#include "qwaylandview.h"
-
-#include <QtCore/QPoint>
-#include <QtCore/QMutex>
-#include <QtCore/private/qobject_p.h>
-
-#include <QtWaylandCompositor/QWaylandBufferRef>
-
-//
-//  W A R N I N G
-//  -------------
-//
-// This file is not part of the Qt API.  It exists purely as an
-// implementation detail.  This header file may change from version to
-// version without notice, or even be removed.
-//
-// We mean it.
-//
+#include "qwlhardwarelayerintegration_p.h"
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandSurface;
-class QWaylandOutput;
+namespace QtWayland {
 
-class QWaylandViewPrivate : public QObjectPrivate
-{
-    Q_DECLARE_PUBLIC(QWaylandView)
-public:
-    static QWaylandViewPrivate *get(QWaylandView *view) { return view->d_func(); }
-
-    QWaylandViewPrivate()
-        : renderObject(nullptr)
-        , surface(nullptr)
-        , output(nullptr)
-        , nextBufferCommitted(false)
-        , bufferLocked(false)
-        , broadcastRequestedPositionChanged(false)
-        , forceAdvanceSucceed(false)
-        , allowDiscardFrontBuffer(false)
-    { }
-
-    void markSurfaceAsDestroyed(QWaylandSurface *surface);
-
-    QObject *renderObject;
-    QWaylandSurface *surface;
-    QWaylandOutput *output;
-    QPointF requestedPos;
-    QMutex bufferMutex;
-    QWaylandBufferRef currentBuffer;
-    QRegion currentDamage;
-    QWaylandBufferRef nextBuffer;
-    QRegion nextDamage;
-    bool nextBufferCommitted;
-    bool bufferLocked;
-    bool broadcastRequestedPositionChanged;
-    bool forceAdvanceSucceed;
-    bool allowDiscardFrontBuffer;
-    bool independentFrameCallback = false; //If frame callbacks are independent of the main quick scene graph
-};
+}
 
 QT_END_NAMESPACE
-
-#endif  /*QWAYLANDSURFACEVIEW_P_H*/

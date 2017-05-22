@@ -1,9 +1,9 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
-** This file is part of the QtWaylandCompositor module of the Qt Toolkit.
+** This file is part of the plugins of the Qt Toolkit.
 **
 ** $QT_BEGIN_LICENSE:LGPL$
 ** Commercial License Usage
@@ -37,16 +37,8 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDSURFACEVIEW_P_H
-#define QWAYLANDSURFACEVIEW_P_H
-
-#include "qwaylandview.h"
-
-#include <QtCore/QPoint>
-#include <QtCore/QMutex>
-#include <QtCore/private/qobject_p.h>
-
-#include <QtWaylandCompositor/QWaylandBufferRef>
+#ifndef QWAYLANDQUICKHARDWARELAYER_P_H
+#define QWAYLANDQUICKHARDWARELAYER_P_H
 
 //
 //  W A R N I N G
@@ -59,47 +51,36 @@
 // We mean it.
 //
 
+#include <QtWaylandCompositor/QWaylandQuickItem>
+
 QT_BEGIN_NAMESPACE
 
-class QWaylandSurface;
-class QWaylandOutput;
+class QWaylandQuickHardwareLayerPrivate;
 
-class QWaylandViewPrivate : public QObjectPrivate
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQuickHardwareLayer : public QObject, public QQmlParserStatus
 {
-    Q_DECLARE_PUBLIC(QWaylandView)
+    Q_OBJECT
+    Q_INTERFACES(QQmlParserStatus)
+    Q_DECLARE_PRIVATE(QWaylandQuickHardwareLayer)
+    Q_PROPERTY(int stackingLevel READ stackingLevel WRITE setStackingLevel NOTIFY stackingLevelChanged)
 public:
-    static QWaylandViewPrivate *get(QWaylandView *view) { return view->d_func(); }
+    explicit QWaylandQuickHardwareLayer(QObject *parent = nullptr);
+    ~QWaylandQuickHardwareLayer() override;
 
-    QWaylandViewPrivate()
-        : renderObject(nullptr)
-        , surface(nullptr)
-        , output(nullptr)
-        , nextBufferCommitted(false)
-        , bufferLocked(false)
-        , broadcastRequestedPositionChanged(false)
-        , forceAdvanceSucceed(false)
-        , allowDiscardFrontBuffer(false)
-    { }
+    int stackingLevel() const;
+    void setStackingLevel(int level);
 
-    void markSurfaceAsDestroyed(QWaylandSurface *surface);
+    QWaylandQuickItem *waylandItem() const;
 
-    QObject *renderObject;
-    QWaylandSurface *surface;
-    QWaylandOutput *output;
-    QPointF requestedPos;
-    QMutex bufferMutex;
-    QWaylandBufferRef currentBuffer;
-    QRegion currentDamage;
-    QWaylandBufferRef nextBuffer;
-    QRegion nextDamage;
-    bool nextBufferCommitted;
-    bool bufferLocked;
-    bool broadcastRequestedPositionChanged;
-    bool forceAdvanceSucceed;
-    bool allowDiscardFrontBuffer;
-    bool independentFrameCallback = false; //If frame callbacks are independent of the main quick scene graph
+    void classBegin() override;
+    void componentComplete() override;
+
+    void disableSceneGraphPainting();
+
+Q_SIGNALS:
+    void stackingLevelChanged();
 };
 
 QT_END_NAMESPACE
 
-#endif  /*QWAYLANDSURFACEVIEW_P_H*/
+#endif // QWAYLANDQUICKHARDWARELAYER_P_H

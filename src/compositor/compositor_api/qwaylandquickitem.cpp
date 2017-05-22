@@ -1190,9 +1190,10 @@ void QWaylandQuickItem::updateInputMethod(Qt::InputMethodQueries queries)
  * \sa QWaylandQuickkItem::bufferLocked
  */
 
-QSGNode *QWaylandQuickItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *)
+QSGNode *QWaylandQuickItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *data)
 {
     Q_D(QWaylandQuickItem);
+    d->lastMatrix = data->transformNode->combinedMatrix();
     const bool bufferHasContent = d->view->currentBuffer().hasContent();
 
     if (d->view->isBufferLocked() && !bufferHasContent && d->paintEnabled)
@@ -1200,7 +1201,7 @@ QSGNode *QWaylandQuickItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeDat
 
     if (!bufferHasContent || !d->paintEnabled) {
         delete oldNode;
-        return 0;
+        return nullptr;
     }
 
     QWaylandBufferRef ref = d->view->currentBuffer();

@@ -149,6 +149,8 @@ public:
         q->updateWindow();
     }
 
+    static const QWaylandQuickItemPrivate* get(const QWaylandQuickItem *item) { return item->d_func(); }
+
     void setInputEventsEnabled(bool enable)
     {
         Q_Q(QWaylandQuickItem);
@@ -177,6 +179,7 @@ public:
     bool focusOnClick;
     bool sizeFollowsSurface;
     QPoint hoverPos;
+    QMatrix4x4 lastMatrix;
 
     QQuickWindow *connectedWindow;
     QWaylandSurface::Origin origin;

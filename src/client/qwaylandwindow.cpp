@@ -110,7 +110,7 @@ QWaylandWindow::~QWaylandWindow()
     delete mWindowDecoration;
 
     if (isInitialized())
-        reset();
+        reset(false);
 
     QList<QWaylandInputDevice *> inputDevices = mDisplay->inputDevices();
     for (int i = 0; i < inputDevices.size(); ++i)
@@ -132,8 +132,11 @@ void QWaylandWindow::initWindow()
     if (window()->type() == Qt::Desktop)
         return;
 
-    if (!isInitialized())
+    if (!isInitialized()) {
         initializeWlSurface();
+        QPlatformSurfaceEvent e(QPlatformSurfaceEvent::SurfaceCreated);
+        QGuiApplication::sendEvent(window(), &e);
+    }
 
     if (shouldCreateSubSurface()) {
         Q_ASSERT(!mSubSurfaceWindow);
@@ -240,8 +243,12 @@ bool QWaylandWindow::shouldCreateSubSurface() const
     return QPlatformWindow::parent() != Q_NULLPTR;
 }
 
-void QWaylandWindow::reset()
+void QWaylandWindow::reset(bool sendDestroyEvent)
 {
+    if (isInitialized() && sendDestroyEvent) {
+        QPlatformSurfaceEvent e(QPlatformSurfaceEvent::SurfaceAboutToBeDestroyed);
+        QGuiApplication::sendEvent(window(), &e);
+    }
     delete mShellSurface;
     mShellSurface = 0;
     delete mSubSurfaceWindow;

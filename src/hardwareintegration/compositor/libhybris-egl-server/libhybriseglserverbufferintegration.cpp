@@ -172,7 +172,7 @@ void LibHybrisEglServerBufferIntegration::initializeHardware(QWaylandCompositor 
         return;
     }
 
-    QtWaylandServer::qt_libhybris_egl_server_buffer::init(compositor->waylandDisplay(), 1);
+    QtWaylandServer::qt_libhybris_egl_server_buffer::init(compositor->display(), 1);
 }
 
 bool LibHybrisEglServerBufferIntegration::supportsFormat(QtWayland::ServerBuffer::Format format) const

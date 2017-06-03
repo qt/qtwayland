@@ -392,6 +392,8 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath, const QByteArr
 
         printf("\n");
         printf("QT_BEGIN_NAMESPACE\n");
+        printf("QT_WARNING_PUSH\n");
+        printf("QT_WARNING_DISABLE_GCC(\"-Wmissing-field-initializers\")\n");
         QByteArray serverExport;
         if (headerPath.size()) {
             serverExport = QByteArray("Q_WAYLAND_SERVER_") + preProcessorProtocolName + "_EXPORT";
@@ -533,6 +535,7 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath, const QByteArr
 
         printf("}\n");
         printf("\n");
+        printf("QT_WARNING_POP\n");
         printf("QT_END_NAMESPACE\n");
         printf("\n");
         printf("#endif\n");
@@ -545,6 +548,8 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath, const QByteArr
             printf("#include <%s/qwayland-server-%s.h>\n", headerPath.constData(), QByteArray(protocolName).replace('_', '-').constData());
         printf("\n");
         printf("QT_BEGIN_NAMESPACE\n");
+        printf("QT_WARNING_PUSH\n");
+        printf("QT_WARNING_DISABLE_GCC(\"-Wmissing-field-initializers\")\n");
         printf("\n");
         printf("namespace QtWaylandServer {\n");
 
@@ -827,6 +832,7 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath, const QByteArr
         }
         printf("}\n");
         printf("\n");
+        printf("QT_WARNING_POP\n");
         printf("QT_END_NAMESPACE\n");
     }
 
@@ -843,6 +849,8 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath, const QByteArr
         printf("#include <QString>\n");
         printf("\n");
         printf("QT_BEGIN_NAMESPACE\n");
+        printf("QT_WARNING_PUSH\n");
+        printf("QT_WARNING_DISABLE_GCC(\"-Wmissing-field-initializers\")\n");
 
         QByteArray clientExport;
 
@@ -940,6 +948,7 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath, const QByteArr
         }
         printf("}\n");
         printf("\n");
+        printf("QT_WARNING_POP\n");
         printf("QT_END_NAMESPACE\n");
         printf("\n");
         printf("#endif\n");
@@ -952,6 +961,8 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath, const QByteArr
             printf("#include <%s/qwayland-%s.h>\n", headerPath.constData(), QByteArray(protocolName).replace('_', '-').constData());
         printf("\n");
         printf("QT_BEGIN_NAMESPACE\n");
+        printf("QT_WARNING_PUSH\n");
+        printf("QT_WARNING_DISABLE_GCC(\"-Wmissing-field-initializers\")\n");
         printf("\n");
         printf("namespace QtWayland {\n");
         for (int j = 0; j < interfaces.size(); ++j) {
@@ -1134,6 +1145,7 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath, const QByteArr
         }
         printf("}\n");
         printf("\n");
+        printf("QT_WARNING_POP\n");
         printf("QT_END_NAMESPACE\n");
     }
 }

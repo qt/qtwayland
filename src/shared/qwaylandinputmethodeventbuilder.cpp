@@ -108,6 +108,7 @@ void QWaylandInputMethodEventBuilder::addPreeditStyling(uint32_t index, uint32_t
         format.setFontUnderline(true);
         format.setUnderlineStyle(QTextCharFormat::SingleUnderline);
         m_preeditStyles.append(QInputMethodEvent::Attribute(QInputMethodEvent::TextFormat, index, length, format));
+        break;
     case 5:
         format.setFontUnderline(true);
         format.setUnderlineStyle(QTextCharFormat::WaveUnderline);

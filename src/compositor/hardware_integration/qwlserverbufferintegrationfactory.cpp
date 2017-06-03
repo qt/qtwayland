@@ -84,10 +84,10 @@ ServerBufferIntegration *ServerBufferIntegrationFactory::create(const QString &n
     // Try loading the plugin from platformPluginPath first:
     if (!pluginPath.isEmpty()) {
         QCoreApplication::addLibraryPath(pluginPath);
-        if (ServerBufferIntegration *ret = qLoadPlugin1<ServerBufferIntegration, ServerBufferIntegrationPlugin>(directLoader(), name, args))
+        if (ServerBufferIntegration *ret = qLoadPlugin<ServerBufferIntegration, ServerBufferIntegrationPlugin>(directLoader(), name, args))
             return ret;
     }
-    if (ServerBufferIntegration *ret = qLoadPlugin1<ServerBufferIntegration, ServerBufferIntegrationPlugin>(loader(), name, args))
+    if (ServerBufferIntegration *ret = qLoadPlugin<ServerBufferIntegration, ServerBufferIntegrationPlugin>(loader(), name, args))
         return ret;
 #endif
     return 0;

@@ -84,10 +84,10 @@ QWaylandAbstractDecoration *QWaylandDecorationFactory::create(const QString &nam
     // Try loading the plugin from platformPluginPath first:
     if (!pluginPath.isEmpty()) {
         QCoreApplication::addLibraryPath(pluginPath);
-        if (QWaylandAbstractDecoration *ret = qLoadPlugin1<QWaylandAbstractDecoration, QWaylandDecorationPlugin>(directLoader(), name, args))
+        if (QWaylandAbstractDecoration *ret = qLoadPlugin<QWaylandAbstractDecoration, QWaylandDecorationPlugin>(directLoader(), name, args))
             return ret;
     }
-    if (QWaylandAbstractDecoration *ret = qLoadPlugin1<QWaylandAbstractDecoration, QWaylandDecorationPlugin>(loader(), name, args))
+    if (QWaylandAbstractDecoration *ret = qLoadPlugin<QWaylandAbstractDecoration, QWaylandDecorationPlugin>(loader(), name, args))
         return ret;
 #endif
 

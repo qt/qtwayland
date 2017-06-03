@@ -84,10 +84,10 @@ QWaylandServerBufferIntegration *QWaylandServerBufferIntegrationFactory::create(
     // Try loading the plugin from platformPluginPath first:
     if (!pluginPath.isEmpty()) {
         QCoreApplication::addLibraryPath(pluginPath);
-        if (QWaylandServerBufferIntegration *ret = qLoadPlugin1<QWaylandServerBufferIntegration, QWaylandServerBufferIntegrationPlugin>(directLoader(), name, args))
+        if (QWaylandServerBufferIntegration *ret = qLoadPlugin<QWaylandServerBufferIntegration, QWaylandServerBufferIntegrationPlugin>(directLoader(), name, args))
             return ret;
     }
-    if (QWaylandServerBufferIntegration *ret = qLoadPlugin1<QWaylandServerBufferIntegration, QWaylandServerBufferIntegrationPlugin>(loader(), name, args))
+    if (QWaylandServerBufferIntegration *ret = qLoadPlugin<QWaylandServerBufferIntegration, QWaylandServerBufferIntegrationPlugin>(loader(), name, args))
         return ret;
 #endif
     return 0;

@@ -314,11 +314,12 @@ public:
         , buttons(b)
         , modifiers(m)
     {}
-    inline QWaylandPointerEvent(Type t, ulong ts, const QPointF &l, const QPointF &g, const QPoint &pd, const QPoint &ad)
+    inline QWaylandPointerEvent(Type t, ulong ts, const QPointF &l, const QPointF &g, const QPoint &pd, const QPoint &ad, Qt::KeyboardModifiers m)
         : type(t)
         , timestamp(ts)
         , local(l)
         , global(g)
+        , modifiers(m)
         , pixelDelta(pd)
         , angleDelta(ad)
     {}

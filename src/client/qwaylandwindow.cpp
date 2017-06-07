@@ -92,6 +92,7 @@ QWaylandWindow::QWaylandWindow(QWindow *window)
     , mResizeDirty(false)
     , mResizeAfterSwap(qEnvironmentVariableIsSet("QT_WAYLAND_RESIZE_AFTER_SWAP"))
     , mSentInitialResize(false)
+    , mScale(1)
     , mState(Qt::WindowNoState)
     , mMask()
     , mBackingStore(Q_NULLPTR)
@@ -145,52 +146,56 @@ void QWaylandWindow::initWindow()
         Q_ASSERT(!mShellSurface);
 
         mShellSurface = mDisplay->createShellSurface(this);
-        if (!mShellSurface)
-            qFatal("Could not create a shell surface object.");
+        if (mShellSurface) {
+            mShellSurface->setType(window()->type(), transientParent());
 
-        mShellSurface->setType(window()->type(), transientParent());
+            // Set initial surface title
+            setWindowTitle(window()->title());
 
-        // Set initial surface title
-        setWindowTitle(window()->title());
-
-        // The appId is the desktop entry identifier that should follow the
-        // reverse DNS convention (see http://standards.freedesktop.org/desktop-entry-spec/latest/ar01s02.html).
-        // According to xdg-shell the appId is only the name, without
-        // the .desktop suffix.
-        //
-        // If the application specifies the desktop file name use that
-        // removing the ".desktop" suffix, otherwise fall back to the
-        // executable name and prepend the reversed organization domain
-        // when available.
-        if (!QGuiApplication::desktopFileName().isEmpty()) {
-            QString name = QGuiApplication::desktopFileName();
-            if (name.endsWith(QLatin1String(".desktop")))
-                name.chop(8);
-            mShellSurface->setAppId(name);
-        } else {
-            QFileInfo fi = QCoreApplication::instance()->applicationFilePath();
-            QStringList domainName =
-                QCoreApplication::instance()->organizationDomain().split(QLatin1Char('.'),
-                                                                         QString::SkipEmptyParts);
-
-            if (domainName.isEmpty()) {
-                mShellSurface->setAppId(fi.baseName());
+            // The appId is the desktop entry identifier that should follow the
+            // reverse DNS convention (see http://standards.freedesktop.org/desktop-entry-spec/latest/ar01s02.html).
+            // According to xdg-shell the appId is only the name, without
+            // the .desktop suffix.
+            //
+            // If the application specifies the desktop file name use that
+            // removing the ".desktop" suffix, otherwise fall back to the
+            // executable name and prepend the reversed organization domain
+            // when available.
+            if (!QGuiApplication::desktopFileName().isEmpty()) {
+                QString name = QGuiApplication::desktopFileName();
+                if (name.endsWith(QLatin1String(".desktop")))
+                    name.chop(8);
+                mShellSurface->setAppId(name);
             } else {
-                QString appId;
-                for (int i = 0; i < domainName.count(); ++i)
-                    appId.prepend(QLatin1Char('.')).prepend(domainName.at(i));
-                appId.append(fi.baseName());
-                mShellSurface->setAppId(appId);
+                QFileInfo fi = QCoreApplication::instance()->applicationFilePath();
+                QStringList domainName =
+                        QCoreApplication::instance()->organizationDomain().split(QLatin1Char('.'),
+                                                                                 QString::SkipEmptyParts);
+
+                if (domainName.isEmpty()) {
+                    mShellSurface->setAppId(fi.baseName());
+                } else {
+                    QString appId;
+                    for (int i = 0; i < domainName.count(); ++i)
+                        appId.prepend(QLatin1Char('.')).prepend(domainName.at(i));
+                    appId.append(fi.baseName());
+                    mShellSurface->setAppId(appId);
+                }
             }
+            // the user may have already set some window properties, so make sure to send them out
+            for (auto it = m_properties.cbegin(); it != m_properties.cend(); ++it)
+                mShellSurface->sendProperty(it.key(), it.value());
+        } else {
+            qWarning("Could not create a shell surface object.");
         }
-        // the user may have already set some window properties, so make sure to send them out
-        for (auto it = m_properties.cbegin(); it != m_properties.cend(); ++it)
-            mShellSurface->sendProperty(it.key(), it.value());
     }
+
+    mScale = screen()->scale();
 
     // Enable high-dpi rendering. Scale() returns the screen scale factor and will
     // typically be integer 1 (normal-dpi) or 2 (high-dpi). Call set_buffer_scale()
     // to inform the compositor that high-resolution buffers will be provided.
+    //FIXME this needs to be changed when the screen changes along with a resized backing store
     if (mDisplay->compositorVersion() >= 3)
         set_buffer_scale(scale());
 
@@ -202,6 +207,10 @@ void QWaylandWindow::initWindow()
     else
         setGeometry_helper(window()->geometry());
     setMask(window()->mask());
+    // setWindowStateInternal is a no-op if the argument is equal to mState,
+    // but since we're creating the shellsurface only now we reset mState to
+    // make sure the state gets sent out to the compositor
+    mState = Qt::WindowNoState;
     setWindowStateInternal(window()->windowStates());
     handleContentOrientationChange(window()->contentOrientation());
     mFlags = window()->flags();
@@ -327,7 +336,7 @@ void QWaylandWindow::setGeometry(const QRect &rect)
 
 void QWaylandWindow::sendExposeEvent(const QRect &rect)
 {
-    if (mShellSurface && !mShellSurface->handleExpose(rect))
+    if (!(mShellSurface && mShellSurface->handleExpose(rect)))
         QWindowSystemInterface::handleExposeEvent(window(), rect);
 }
 
@@ -727,7 +736,7 @@ void QWaylandWindow::handleMouse(QWaylandInputDevice *inputDevice, const QWaylan
                 QWindowSystemInterface::handleMouseEvent(window(), e.timestamp, e.local, e.global, e.buttons, e.modifiers);
                 break;
             case QWaylandPointerEvent::Wheel:
-                QWindowSystemInterface::handleWheelEvent(window(), e.timestamp, e.local, e.global, e.pixelDelta, e.angleDelta);
+                QWindowSystemInterface::handleWheelEvent(window(), e.timestamp, e.local, e.global, e.pixelDelta, e.angleDelta, e.modifiers);
                 break;
         }
     }
@@ -795,7 +804,7 @@ void QWaylandWindow::handleMouseEventWithDecoration(QWaylandInputDevice *inputDe
                 QWindowSystemInterface::handleMouseEvent(window(), e.timestamp, localTranslated, globalTranslated, e.buttons, e.modifiers);
                 break;
             case QWaylandPointerEvent::Wheel:
-                QWindowSystemInterface::handleWheelEvent(window(), e.timestamp, localTranslated, globalTranslated, e.pixelDelta, e.angleDelta);
+                QWindowSystemInterface::handleWheelEvent(window(), e.timestamp, localTranslated, globalTranslated, e.pixelDelta, e.angleDelta, e.modifiers);
                 break;
         }
 
@@ -846,12 +855,12 @@ bool QWaylandWindow::isExposed() const
 
 int QWaylandWindow::scale() const
 {
-    return screen()->scale();
+    return mScale;
 }
 
 qreal QWaylandWindow::devicePixelRatio() const
 {
-    return screen()->devicePixelRatio();
+    return mScale;
 }
 
 bool QWaylandWindow::setMouseGrabEnabled(bool grab)

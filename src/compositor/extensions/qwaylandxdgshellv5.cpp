@@ -1,34 +1,37 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
-** Contact: http://www.qt.io/licensing/
+** Copyright (C) 2017 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the QtWaylandCompositor module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL3$
+** $QT_BEGIN_LICENSE:LGPL$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
 ** a written agreement between you and The Qt Company. For licensing terms
-** and conditions see http://www.qt.io/terms-conditions. For further
-** information use the contact form at http://www.qt.io/contact-us.
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
 ** General Public License version 3 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPLv3 included in the
+** Foundation and appearing in the file LICENSE.LGPL3 included in the
 ** packaging of this file. Please review the following information to
 ** ensure the GNU Lesser General Public License version 3 requirements
-** will be met: https://www.gnu.org/licenses/lgpl.html.
+** will be met: https://www.gnu.org/licenses/lgpl-3.0.html.
 **
 ** GNU General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 2.0 or later as published by the Free
-** Software Foundation and appearing in the file LICENSE.GPL included in
-** the packaging of this file. Please review the following information to
-** ensure the GNU General Public License version 2.0 requirements will be
-** met: http://www.gnu.org/licenses/gpl-2.0.html.
+** General Public License version 2.0 or (at your option) the GNU General
+** Public license version 3 or any later version approved by the KDE Free
+** Qt Foundation. The licenses are as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL2 and LICENSE.GPL3
+** included in the packaging of this file. Please review the following
+** information to ensure the GNU General Public License requirements will
+** be met: https://www.gnu.org/licenses/gpl-2.0.html and
+** https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ** $QT_END_LICENSE$
 **
@@ -510,6 +513,44 @@ void QWaylandXdgPopupV5Private::xdg_popup_destroy(Resource *resource)
 }
 
 /*!
+ * \qmltype XdgShellV5
+ * \inqmlmodule QtWayland.Compositor
+ * \since 5.8
+ * \brief Provides an extension for desktop-style user interfaces.
+ *
+ * The XdgShellV5 extension provides a way to associate an XdgSurfaceV5
+ * with a regular Wayland surface. Using the xdg_surface interface, the client
+ * can request that the surface is resized, moved, and so on.
+ *
+ * XdgShellV5 corresponds to the Wayland interface \c xdg_shell.
+ *
+ * To provide the functionality of the shell extension in a compositor, create
+ * an instance of the XdgShellV5 component and add it as a child of the
+ * compositor: \code
+ * import QtWayland.Compositor 1.0
+ *
+ * WaylandCompositor {
+ *     XdgShellV5 {
+ *         // ...
+ *     }
+ * }
+ * \endcode
+ */
+
+/*!
+ * \class QWaylandXdgShellV5
+ * \inmodule QtWaylandCompositor
+ * \since 5.8
+ * \brief The QWaylandXdgShellV5 class is an extension for desktop-style user interfaces.
+ *
+ * The QWaylandXdgShellV5 extension provides a way to associate a QWaylandXdgSurfaceV5 with
+ * a regular Wayland surface. Using the xdg_surface interface, the client
+ * can request that the surface is resized, moved, and so on.
+ *
+ * QWaylandXdgShellV5 corresponds to the Wayland interface \c xdg_shell.
+ */
+
+/*!
  * Constructs a QWaylandXdgShellV5 object.
  */
 QWaylandXdgShellV5::QWaylandXdgShellV5()
@@ -569,13 +610,13 @@ QByteArray QWaylandXdgShellV5::interfaceName()
 /*!
  * \qmlmethod void QtWaylandCompositor::XdgSurface::ping()
  *
- * Sends a ping event to the client. If the client replies to the event the
- * \a pong signal will be emitted.
+ * Sends a ping event to the \a client. If the client replies to the event, the
+ * pong signal will be emitted.
  */
 
 /*!
- * Sends a ping event to the client. If the client replies to the event the
- * \a pong signal will be emitted.
+ * Sends a ping event to the \a client. If the client replies to the event, the
+ * pong signal will be emitted.
  */
 uint QWaylandXdgShellV5::ping(QWaylandClient *client)
 {
@@ -631,6 +672,19 @@ void QWaylandXdgShellV5::handleFocusChanged(QWaylandSurface *newSurface, QWaylan
     if (oldXdgSurface)
         QWaylandXdgSurfaceV5Private::get(oldXdgSurface)->handleFocusLost();
 }
+
+/*!
+ * \qmltype XdgSurfaceV5
+ * \inqmlmodule QtWayland.Compositor
+ * \since 5.8
+ * \brief Provides a \c xdg_surface that offers desktop-style compositor-specific features to a surface.
+ *
+ * This type is part of the \l{XdgShellV5} extension and provides a way to extend
+ * the functionality of an existing WaylandSurface with features specific to desktop-style
+ * compositors, such as resizing and moving the surface.
+ *
+ * It corresponds to the Wayland interface \c xdg_surface for the unstable xdg-shell protocol v5.
+ */
 
 /*!
  * \class QWaylandXdgSurfaceV5
@@ -1046,6 +1100,19 @@ QWaylandQuickShellIntegration *QWaylandXdgSurfaceV5::createIntegration(QWaylandQ
     return new QtWayland::XdgShellV5Integration(item);
 }
 #endif
+
+/*!
+ * \qmltype XdgPopupV5
+ * \inqmlmodule QtWayland.Compositor
+ * \since 5.8
+ * \brief Provides a \c xdg_popup interface that implements popup features for the xdg-shell protocol.
+ *
+ * This type is part of the \l{XdgShellV5} extension and provides a way to extend
+ * the functionality of an existing WaylandSurface for handling popup surfaces created by clients
+ * using xdg-shell.
+ *
+ * It corresponds to the Wayland interface \c xdg_popup for the unstable xdg-shell protocol v5.
+ */
 
 /*!
  * \class QWaylandXdgPopupV5

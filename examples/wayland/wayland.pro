@@ -3,7 +3,7 @@ requires(qtConfig(opengl))
 TEMPLATE=subdirs
 
 SUBDIRS += \
-    qwindow-compositor
+    qwindow-compositor \
     minimal-cpp
 
 qtHaveModule(quick) {
@@ -15,7 +15,6 @@ qtHaveModule(quick) {
     SUBDIRS += ivi-compositor
     qtHaveModule(waylandclient) {
         SUBDIRS += \
-            custom-extension \
-            server-buffer
+            custom-extension
     }
 }

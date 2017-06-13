@@ -532,10 +532,10 @@ QSize QWaylandWlShellSurface::sizeForResize(const QSizeF &size, const QPointF &d
  */
 
 /*!
- * \qmlmethod void QtWaylandCompositor::WlShellSurface::sendConfigure(size size, enum edges)
+ * \qmlmethod void WlShellSurface::sendConfigure(size s, enum edges)
  *
  * Sends a configure event to the client, suggesting that it resize its surface to
- * the provided \a size. The \a edges provide a hint about how the surface
+ * the provided size \a s. The \a edges provide a hint about how the surface
  * was resized.
  */
 

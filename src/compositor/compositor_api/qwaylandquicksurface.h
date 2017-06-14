@@ -63,12 +63,12 @@ public:
     bool useTextureAlpha() const;
     void setUseTextureAlpha(bool useTextureAlpha);
 
-    bool clientRenderingEnabled() const;
-    void setClientRenderingEnabled(bool enabled);
+    Q_DECL_DEPRECATED bool clientRenderingEnabled() const;
+    Q_DECL_DEPRECATED void setClientRenderingEnabled(bool enabled);
 
 Q_SIGNALS:
     void useTextureAlphaChanged();
-    void clientRenderingEnabledChanged();
+    void clientRenderingEnabledChanged(); //deprecated
 };
 
 QT_END_NAMESPACE

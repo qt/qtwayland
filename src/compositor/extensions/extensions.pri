@@ -2,7 +2,6 @@ CONFIG += wayland-scanner
 CONFIG += generated_privates
 
 WAYLANDSERVERSOURCES += \
-    ../extensions/surface-extension.xml \
     ../extensions/touch-extension.xml \
     ../extensions/qtkey-extension.xml \
     ../extensions/qt-windowmanager.xml \
@@ -12,7 +11,6 @@ WAYLANDSERVERSOURCES += \
     ../3rdparty/protocol/ivi-application.xml \
 
 HEADERS += \
-    extensions/qwlextendedsurface_p.h \
     extensions/qwlqttouch_p.h \
     extensions/qwlqtkey_p.h \
     extensions/qwaylandshell.h \
@@ -36,7 +34,6 @@ HEADERS += \
     extensions/qwaylandivisurface_p.h \
 
 SOURCES += \
-    extensions/qwlextendedsurface.cpp \
     extensions/qwlqttouch.cpp \
     extensions/qwlqtkey.cpp \
     extensions/qwaylandshell.cpp \

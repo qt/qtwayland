@@ -49,7 +49,6 @@
 #include "wayland_wrapper/qwldatadevicemanager_p.h"
 #endif
 
-#include "extensions/qwlextendedsurface_p.h"
 #include "qwaylandinputmethodcontrol_p.h"
 
 #include <QtWaylandCompositor/QWaylandCompositor>

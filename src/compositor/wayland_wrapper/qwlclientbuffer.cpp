@@ -170,11 +170,14 @@ QOpenGLTexture *SharedMemoryBuffer::toOpenGlTexture(int plane)
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
             // TODO: partial texture upload
             QImage image = this->image();
+            m_shmTexture->setSize(image.width(), image.height());
             if (image.hasAlphaChannel()) {
+                m_shmTexture->setFormat(QOpenGLTexture::RGBAFormat);
                 if (image.format() != QImage::Format_RGBA8888)
                     image = image.convertToFormat(QImage::Format_RGBA8888);
                 glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image.width(), image.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, image.constBits());
             } else {
+                m_shmTexture->setFormat(QOpenGLTexture::RGBFormat);
                 if (image.format() != QImage::Format_RGBX8888)
                     image = image.convertToFormat(QImage::Format_RGBX8888);
                 glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image.width(), image.height(), 0, GL_RGB, GL_UNSIGNED_BYTE, image.constBits());

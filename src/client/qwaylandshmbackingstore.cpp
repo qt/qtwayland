@@ -171,12 +171,20 @@ QPaintDevice *QWaylandShmBackingStore::paintDevice()
     return contentSurface();
 }
 
-void QWaylandShmBackingStore::beginPaint(const QRegion &)
+void QWaylandShmBackingStore::beginPaint(const QRegion &region)
 {
     mPainting = true;
     ensureSize();
 
     waylandWindow()->setCanResize(false);
+
+    if (mBackBuffer->image()->hasAlphaChannel()) {
+        QPainter p(paintDevice());
+        p.setCompositionMode(QPainter::CompositionMode_Source);
+        const QColor blank = Qt::transparent;
+        for (const QRect &rect : region)
+            p.fillRect(rect, blank);
+    }
 }
 
 void QWaylandShmBackingStore::endPaint()

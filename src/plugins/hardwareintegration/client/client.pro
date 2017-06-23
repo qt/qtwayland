@@ -13,3 +13,6 @@ qtConfig(drm-egl-server): \
     SUBDIRS += drm-egl-server
 qtConfig(libhybris-egl-server): \
     SUBDIRS += libhybris-egl-server
+
+### TODO: make shm-emulation configurable
+SUBDIRS += shm-emulation-server

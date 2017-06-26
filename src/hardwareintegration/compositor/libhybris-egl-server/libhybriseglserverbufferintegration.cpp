@@ -40,13 +40,15 @@
 #include "libhybriseglserverbufferintegration.h"
 
 #include <QtGui/QOpenGLContext>
+#include <QtGui/QOpenGLTexture>
 #include <hybris/eglplatformcommon/hybris_nativebufferext.h>
 #include <wayland-server.h>
 
 QT_BEGIN_NAMESPACE
-LibHybrisEglServerBuffer::LibHybrisEglServerBuffer(LibHybrisEglServerBufferIntegration *integration, const QSize &size, QtWayland::ServerBuffer::Format format)
-    : QtWayland::ServerBuffer(size,format)
+LibHybrisEglServerBuffer::LibHybrisEglServerBuffer(LibHybrisEglServerBufferIntegration *integration, const QImage &qimage, QtWayland::ServerBuffer::Format format)
+    : QtWayland::ServerBuffer(qimage.size(),format)
     , m_integration(integration)
+    , m_texture(nullptr)
 {
     m_format = format;
 
@@ -63,7 +65,7 @@ LibHybrisEglServerBuffer::LibHybrisEglServerBuffer(LibHybrisEglServerBufferInteg
             break;
     }
 
-    if (!m_integration->eglHybrisCreateNativeBuffer(size.width(), size.height(), HYBRIS_USAGE_HW_TEXTURE, egl_format, &m_stride, &m_buffer)) {
+    if (!m_integration->eglHybrisCreateNativeBuffer(m_size.width(), m_size.height(), HYBRIS_USAGE_HW_TEXTURE, egl_format, &m_stride, &m_buffer)) {
         qWarning("LibHybrisEglServerBuffer: Failed to create egl buffer");
         return;
     }
@@ -76,48 +78,53 @@ LibHybrisEglServerBuffer::LibHybrisEglServerBuffer(LibHybrisEglServerBufferInteg
     m_integration->eglHybrisSerializeNativeBuffer(m_buffer, m_ints.data(), m_fds.data());
 
     m_image = m_integration->eglCreateImageKHR(EGL_NO_CONTEXT, EGL_NATIVE_BUFFER_ANDROID, m_buffer, 0);
-}
 
-struct ::wl_resource *LibHybrisEglServerBuffer::resourceForClient(struct ::wl_client *client)
-{
-    QMultiMap<struct ::wl_client *, Resource *>::iterator it = resourceMap().find(client);
-    if (it == resourceMap().end()) {
-        QMultiMap<struct ::wl_client *, QtWaylandServer::qt_libhybris_egl_server_buffer::Resource *>::iterator egl_it = m_integration->resourceMap().find(client);
-        if (egl_it == m_integration->resourceMap().end()) {
-            qWarning("LibHybrisEglServerBuffer::resourceForClient: Trying to get resource for ServerBuffer. But client is not bound to the libhybris_egl interface");
-            return 0;
-        }
-        struct ::wl_resource *egl_resource = (*egl_it)->handle;
-        Resource *resource = add(client, 1, 1);
-        wl_resource *bufRes = wl_client_new_object(client, &qt_libhybris_buffer_interface, 0, 0);
-
-        m_integration->send_server_buffer_created(egl_resource, resource->handle, bufRes, m_fds.size(), QByteArray((char *)m_ints.data(), m_ints.size() * sizeof(int32_t)),
-                                    m_name, m_size.width(), m_size.height(), m_stride, m_format);
-
-        m_qtbuffers.insert(resource, bufRes);
-
-        for (int i = 0; i < m_fds.size(); ++i) {
-            send_add_fd(resource->handle, m_fds.at(i));
-        }
-
-        return bufRes;
-    }
-    return m_qtbuffers.value(*it);
-}
-
-void LibHybrisEglServerBuffer::bindTextureToBuffer()
-{
     if (!QOpenGLContext::currentContext()) {
         qWarning("LibHybrisEglServerBuffer: No current context when creating buffer. Texture loading will fail");
         return;
     }
 
+    m_texture = new QOpenGLTexture(QOpenGLTexture::Target2D);
+    m_texture->create();
+
+    m_texture->bind();
+
     m_integration->glEGLImageTargetTexture2DOES(GL_TEXTURE_2D, m_image);
 
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, qimage.width(), qimage.height(), GL_RGBA, GL_UNSIGNED_BYTE, qimage.constBits());
+
+    m_texture->release();
+    m_texture->setSize(m_size.width(), m_size.height());
+}
+
+struct ::wl_resource *LibHybrisEglServerBuffer::resourceForClient(struct ::wl_client *client)
+{
+    auto *bufferResource = resourceMap().value(client);
+    if (!bufferResource) {
+        auto integrationResource = m_integration->resourceMap().value(client);
+        if (!integrationResource) {
+            qWarning("LibHybrisEglServerBuffer::resourceForClient: Trying to get resource for ServerBuffer. But client is not bound to the libhybris_egl interface");
+            return 0;
+        }
+        struct ::wl_resource *egl_integration_resource = integrationResource->handle;
+        Resource *resource = add(client, 1);
+        wl_resource *bufRes = wl_resource_create(client, &qt_libhybris_buffer_interface,-1, 0);
+
+        m_integration->send_server_buffer_created(egl_integration_resource, resource->handle, bufRes, m_fds.size(), QByteArray((char *)m_ints.data(), m_ints.size() * sizeof(int32_t)),
+                                    m_name, m_size.width(), m_size.height(), m_stride, m_format);
+
+        for (int i = 0; i < m_fds.size(); ++i) {
+            send_add_fd(resource->handle, m_fds.at(i));
+        }
+
+        return resource->handle;
+    }
+    return bufferResource->handle;
+}
+
+QOpenGLTexture *LibHybrisEglServerBuffer::toOpenGlTexture()
+{
+    return m_texture;
 }
 
 LibHybrisEglServerBufferIntegration::LibHybrisEglServerBufferIntegration()
@@ -134,7 +141,7 @@ void LibHybrisEglServerBufferIntegration::initializeHardware(QWaylandCompositor 
 
     m_egl_display = static_cast<EGLDisplay>(QGuiApplication::platformNativeInterface()->nativeResourceForIntegration("egldisplay"));
     if (!m_egl_display) {
-        qWarning("Cant initialize libhybris egl server buffer integration. Missing egl display from platformplugin");
+        qWarning("Can't initialize libhybris egl server buffer integration. Missing egl display from platform plugin");
         return;
     }
 
@@ -187,9 +194,9 @@ bool LibHybrisEglServerBufferIntegration::supportsFormat(QtWayland::ServerBuffer
     }
 }
 
-QtWayland::ServerBuffer *LibHybrisEglServerBufferIntegration::createServerBuffer(const QSize &size, QtWayland::ServerBuffer::Format format)
+QtWayland::ServerBuffer *LibHybrisEglServerBufferIntegration::createServerBufferFromImage(const QImage &qimage, QtWayland::ServerBuffer::Format format)
 {
-    return new LibHybrisEglServerBuffer(this, size, format);
+    return new LibHybrisEglServerBuffer(this, qimage, format);
 }
 
 QT_END_NAMESPACE

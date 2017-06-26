@@ -40,12 +40,14 @@
 #include "drmeglserverbufferintegration.h"
 
 #include <QtGui/QOpenGLContext>
+#include <QtGui/QOpenGLTexture>
 
 QT_BEGIN_NAMESPACE
 
-DrmEglServerBuffer::DrmEglServerBuffer(DrmEglServerBufferIntegration *integration, const QSize &size, QtWayland::ServerBuffer::Format format)
-    : QtWayland::ServerBuffer(size,format)
+DrmEglServerBuffer::DrmEglServerBuffer(DrmEglServerBufferIntegration *integration, const QImage &qimage, QtWayland::ServerBuffer::Format format)
+    : QtWayland::ServerBuffer(qimage.size(),format)
     , m_integration(integration)
+    , m_texture(nullptr)
 {
     m_format = format;
 
@@ -82,38 +84,42 @@ DrmEglServerBuffer::DrmEglServerBuffer(DrmEglServerBufferIntegration *integratio
         qWarning("DrmEglServerBuffer: Failed to export egl image");
     }
 
+    m_texture = new QOpenGLTexture(QOpenGLTexture::Target2D);
+    m_texture->create();
+    m_texture->bind();
+
+    m_integration->glEGLImageTargetTexture2DOES(GL_TEXTURE_2D, m_image);
+
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, qimage.width(), qimage.height(), GL_RGBA, GL_UNSIGNED_BYTE, qimage.constBits());
+
+    m_texture->release();
+    m_texture->setSize(m_size.width(), m_size.height());
 }
 
 struct ::wl_resource *DrmEglServerBuffer::resourceForClient(struct ::wl_client *client)
 {
-    QMultiMap<struct ::wl_client *, Resource *>::iterator it = resourceMap().find(client);
-    if (it == resourceMap().end()) {
-        QMultiMap<struct ::wl_client *, QtWaylandServer::qt_drm_egl_server_buffer::Resource *>::iterator drm_egl_it = m_integration->resourceMap().find(client);
-        if (drm_egl_it == m_integration->resourceMap().end()) {
+    auto *bufferResource = resourceMap().value(client);
+    if (!bufferResource) {
+        auto integrationResource = m_integration->resourceMap().value(client);
+        if (!integrationResource) {
             qWarning("DrmEglServerBuffer::resourceForClient: Trying to get resource for ServerBuffer. But client is not bound to the drm_egl interface");
             return 0;
         }
-        struct ::wl_resource *drm_egl_resource = (*drm_egl_it)->handle;
-        Resource *resource = add(client, 1, 1);
-        m_integration->send_server_buffer_created(drm_egl_resource, resource->handle, m_name, m_size.width(), m_size.height(), m_stride, m_drm_format);
+        struct ::wl_resource *drm_egl_integration_resource = integrationResource->handle;
+        Resource *resource = add(client, 1);
+        m_integration->send_server_buffer_created(drm_egl_integration_resource, resource->handle, m_name, m_size.width(), m_size.height(), m_stride, m_drm_format);
         return resource->handle;
     }
-    return (*it)->handle;
+    return bufferResource->handle;
 }
 
-void DrmEglServerBuffer::bindTextureToBuffer()
+
+QOpenGLTexture *DrmEglServerBuffer::toOpenGlTexture()
 {
-    if (!QOpenGLContext::currentContext()) {
-        qWarning("DrmEglServerBuffer: No current context when creating buffer. Texture loading will fail");
-        return;
+    if (!m_texture) {
+        qWarning("DrmEglServerBuffer::toOpenGlTexture: no texture defined");
     }
-
-    m_integration->glEGLImageTargetTexture2DOES(GL_TEXTURE_2D, m_image);
-
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    return m_texture;
 }
 
 DrmEglServerBufferIntegration::DrmEglServerBufferIntegration()
@@ -130,7 +136,7 @@ void DrmEglServerBufferIntegration::initializeHardware(QWaylandCompositor *compo
 
     m_egl_display = static_cast<EGLDisplay>(QGuiApplication::platformNativeInterface()->nativeResourceForIntegration("egldisplay"));
     if (!m_egl_display) {
-        qWarning("Cant initialize drm egl server buffer integration. Missing egl display from platformplugin");
+        qWarning("Can't initialize drm egl server buffer integration. Missing egl display from platform plugin");
         return;
     }
 
@@ -183,9 +189,9 @@ bool DrmEglServerBufferIntegration::supportsFormat(QtWayland::ServerBuffer::Form
     }
 }
 
-QtWayland::ServerBuffer *DrmEglServerBufferIntegration::createServerBuffer(const QSize &size, QtWayland::ServerBuffer::Format format)
+QtWayland::ServerBuffer *DrmEglServerBufferIntegration::createServerBufferFromImage(const QImage &qimage, QtWayland::ServerBuffer::Format format)
 {
-    return new DrmEglServerBuffer(this, size, format);
+    return new DrmEglServerBuffer(this, qimage, format);
 }
 
 QT_END_NAMESPACE

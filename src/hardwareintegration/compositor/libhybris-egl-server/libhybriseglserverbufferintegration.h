@@ -78,10 +78,10 @@ class LibHybrisEglServerBufferIntegration;
 class LibHybrisEglServerBuffer : public QtWayland::ServerBuffer, public QtWaylandServer::qt_libhybris_buffer
 {
 public:
-    LibHybrisEglServerBuffer(LibHybrisEglServerBufferIntegration *integration, const QSize &size, QtWayland::ServerBuffer::Format format);
+    LibHybrisEglServerBuffer(LibHybrisEglServerBufferIntegration *integration, const QImage &qimage, QtWayland::ServerBuffer::Format format);
 
     struct ::wl_resource *resourceForClient(struct ::wl_client *) override;
-    void bindTextureToBuffer() override;
+    QOpenGLTexture *toOpenGlTexture() override;
 
 private:
     LibHybrisEglServerBufferIntegration *m_integration;
@@ -91,10 +91,10 @@ private:
 
     int32_t m_name;
     int32_t m_stride;
+    QOpenGLTexture *m_texture;
     QtWaylandServer::qt_libhybris_egl_server_buffer::format m_hybris_format;
     QVector<int32_t> m_ints;
     QVector<int32_t> m_fds;
-    QHash<Resource *, wl_resource *> m_qtbuffers;
 };
 
 class LibHybrisEglServerBufferIntegration :
@@ -108,7 +108,7 @@ public:
     void initializeHardware(QWaylandCompositor *);
 
     bool supportsFormat(QtWayland::ServerBuffer::Format format) const override;
-    QtWayland::ServerBuffer *createServerBuffer(const QSize &size, QtWayland::ServerBuffer::Format format) override;
+    QtWayland::ServerBuffer *createServerBufferFromImage(const QImage &qimage, QtWayland::ServerBuffer::Format format) override;
 
     EGLDisplay display() const { return m_egl_display; }
 

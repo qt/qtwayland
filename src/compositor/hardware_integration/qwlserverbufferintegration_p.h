@@ -64,6 +64,8 @@ QT_BEGIN_NAMESPACE
 
 class QWaylandCompositor;
 class QOpenGLContext;
+class QOpenGLTexture;
+class QImage;
 
 namespace QtWayland {
 class Display;
@@ -81,7 +83,7 @@ public:
 
     virtual struct ::wl_resource *resourceForClient(struct ::wl_client *) = 0;
 
-    virtual void bindTextureToBuffer() = 0;
+    virtual QOpenGLTexture *toOpenGlTexture() = 0;
 
     virtual bool isYInverted() const;
 
@@ -101,7 +103,7 @@ public:
     virtual void initializeHardware(QWaylandCompositor *);
 
     virtual bool supportsFormat(ServerBuffer::Format format) const = 0;
-    virtual ServerBuffer *createServerBuffer(const QSize &size, ServerBuffer::Format format) = 0;
+    virtual ServerBuffer *createServerBufferFromImage(const QImage &qimage, ServerBuffer::Format format) = 0;
 };
 
 }

@@ -72,14 +72,15 @@ typedef EGLBoolean (EGLAPIENTRYP PFNEGLEXPORTDRMIMAGEMESAPROC) (EGLDisplay dpy, 
 QT_BEGIN_NAMESPACE
 
 class DrmEglServerBufferIntegration;
+class QImage;
 
 class DrmEglServerBuffer : public QtWayland::ServerBuffer, public QtWaylandServer::qt_server_buffer
 {
 public:
-    DrmEglServerBuffer(DrmEglServerBufferIntegration *integration, const QSize &size, QtWayland::ServerBuffer::Format format);
+    DrmEglServerBuffer(DrmEglServerBufferIntegration *integration, const QImage &qimage, QtWayland::ServerBuffer::Format format);
 
     struct ::wl_resource *resourceForClient(struct ::wl_client *) override;
-    void bindTextureToBuffer() override;
+    QOpenGLTexture *toOpenGlTexture() override;
 
 private:
     DrmEglServerBufferIntegration *m_integration;
@@ -88,6 +89,7 @@ private:
 
     int32_t m_name;
     int32_t m_stride;
+    QOpenGLTexture *m_texture;
     QtWaylandServer::qt_drm_egl_server_buffer::format m_drm_format;
 };
 
@@ -102,7 +104,7 @@ public:
     void initializeHardware(QWaylandCompositor *) override;
 
     bool supportsFormat(QtWayland::ServerBuffer::Format format) const override;
-    QtWayland::ServerBuffer *createServerBuffer(const QSize &size, QtWayland::ServerBuffer::Format format) override;
+    QtWayland::ServerBuffer *createServerBufferFromImage(const QImage &qimage, QtWayland::ServerBuffer::Format format) override;
 
     EGLDisplay display() const { return m_egl_display; }
 

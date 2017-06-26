@@ -75,7 +75,7 @@ class LibHybrisServerBuffer : public QWaylandServerBuffer, public QtWayland::qt_
 public:
     LibHybrisServerBuffer(LibHybrisEglServerBufferIntegration *integration, int32_t numFds, wl_array *ints, int32_t name, int32_t width, int32_t height, int32_t stride, int32_t format);
     ~LibHybrisServerBuffer();
-    void bindTextureToBuffer() override;
+    QOpenGLTexture* toOpenGlTexture() override;
 
 protected:
     void libhybris_buffer_add_fd(int32_t fd) override;
@@ -83,6 +83,7 @@ protected:
 private:
     LibHybrisEglServerBufferIntegration *m_integration;
     EGLImageKHR m_image;
+    QOpenGLTexture *m_texture;
     int m_numFds;
     QVector<int32_t> m_ints;
     QVector<int32_t> m_fds;
@@ -92,7 +93,6 @@ private:
 
 class LibHybrisEglServerBufferIntegration
     : public QWaylandServerBufferIntegration
-    , public QtWayland::wl_registry
     , public QtWayland::qt_libhybris_egl_server_buffer
 {
 public:
@@ -106,19 +106,27 @@ public:
     inline EGLBoolean eglHybrisCreateRemoteBuffer(EGLint width, EGLint height, EGLint usage, EGLint format, EGLint stride, int num_ints, int *ints, int num_fds, int *fds, EGLClientBuffer *buffer);
 
 protected:
-    void registry_global(uint32_t name, const QString &interface, uint32_t version) override;
     void libhybris_egl_server_buffer_server_buffer_created(struct ::qt_libhybris_buffer *id, struct ::qt_server_buffer *qid,
                                                            int32_t numFds, wl_array *ints, int32_t name, int32_t width, int32_t height, int32_t stride, int32_t format) override;
 private:
+    static void wlDisplayHandleGlobal(void *data, struct ::wl_registry *registry, uint32_t id,
+                                      const QString &interface, uint32_t version);
+    void initializeEgl();
+
     PFNEGLCREATEIMAGEKHRPROC m_egl_create_image;
     PFNEGLDESTROYIMAGEKHRPROC m_egl_destroy_image;
     PFNGLEGLIMAGETARGETTEXTURE2DOESPROC m_gl_egl_image_target_texture;
     PFNEGLHYBRISCREATEREMOTEBUFFERPROC m_egl_create_buffer;
+    QWaylandDisplay *m_display = nullptr;
     EGLDisplay m_egl_display;
+    bool m_egl_initialized = false;
 };
 
 EGLImageKHR LibHybrisEglServerBufferIntegration::eglCreateImageKHR(EGLContext ctx, EGLenum target, EGLClientBuffer buffer, const EGLint *attrib_list)
 {
+    if (!m_egl_initialized)
+        initializeEgl();
+
     if (!m_egl_create_image) {
         qWarning("LibHybrisEglServerBufferIntegration: Trying to used unresolved function eglCreateImageKHR");
         return EGL_NO_IMAGE_KHR;

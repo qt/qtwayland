@@ -71,15 +71,15 @@ class DrmServerBuffer : public QWaylandServerBuffer
 public:
     DrmServerBuffer(DrmEglServerBufferIntegration *integration, int32_t name, int32_t width, int32_t height, int32_t stride, int32_t format);
     ~DrmServerBuffer();
-    void bindTextureToBuffer() override;
+    QOpenGLTexture* toOpenGlTexture() override;
 private:
     DrmEglServerBufferIntegration *m_integration;
     EGLImageKHR m_image;
+    QOpenGLTexture *m_texture = nullptr;
 };
 
 class DrmEglServerBufferIntegration
     : public QWaylandServerBufferIntegration
-    , public QtWayland::wl_registry
     , public QtWayland::qt_drm_egl_server_buffer
 {
 public:
@@ -91,17 +91,24 @@ public:
     inline EGLBoolean eglDestroyImageKHR (EGLImageKHR image);
     inline void glEGLImageTargetTexture2DOES (GLenum target, GLeglImageOES image);
 protected:
-    void registry_global(uint32_t name, const QString &interface, uint32_t version) override;
     void drm_egl_server_buffer_server_buffer_created(struct ::qt_server_buffer *id, int32_t name, int32_t width, int32_t height, int32_t stride, int32_t format) override;
 private:
+    static void wlDisplayHandleGlobal(void *data, struct ::wl_registry *registry, uint32_t id,
+                                      const QString &interface, uint32_t version);
+    void initializeEgl();
+
     PFNEGLCREATEIMAGEKHRPROC m_egl_create_image;
     PFNEGLDESTROYIMAGEKHRPROC m_egl_destroy_image;
     PFNGLEGLIMAGETARGETTEXTURE2DOESPROC m_gl_egl_image_target_texture;
+    QWaylandDisplay *m_display = nullptr;
     EGLDisplay m_egl_display;
+    bool m_egl_initialized = false;
 };
 
 EGLImageKHR DrmEglServerBufferIntegration::eglCreateImageKHR(EGLContext ctx, EGLenum target, EGLClientBuffer buffer, const EGLint *attrib_list)
 {
+    if (!m_egl_initialized)
+        initializeEgl();
     if (!m_egl_create_image) {
         qWarning("DrmEglServerBufferIntegration: Trying to used unresolved function eglCreateImageKHR");
         return EGL_NO_IMAGE_KHR;

@@ -41,6 +41,7 @@
 #include <QtWaylandClient/private/qwaylanddisplay_p.h>
 #include <QDebug>
 #include <QtGui/QOpenGLContext>
+#include <QtGui/QOpenGLTexture>
 
 #include <EGL/egl.h>
 
@@ -98,23 +99,35 @@ DrmServerBuffer::~DrmServerBuffer()
     m_integration->eglDestroyImageKHR(m_image);
 }
 
-void DrmServerBuffer::bindTextureToBuffer()
+QOpenGLTexture *DrmServerBuffer::toOpenGlTexture()
 {
     if (!QOpenGLContext::currentContext())
         qWarning("DrmServerBuffer: creating texture with no current context");
 
-    m_integration->glEGLImageTargetTexture2DOES(GL_TEXTURE_2D, m_image);
+    if (!m_texture) {
+        m_texture = new QOpenGLTexture(QOpenGLTexture::Target2D);
+        m_texture->create();
+    }
 
+    m_texture->bind();
+    m_integration->glEGLImageTargetTexture2DOES(GL_TEXTURE_2D, m_image);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    m_texture->release();
+    m_texture->setSize(m_size.width(), m_size.height());
+    return m_texture;
 }
 
-void DrmEglServerBufferIntegration::initialize(QWaylandDisplay *display)
+void DrmEglServerBufferIntegration::initializeEgl()
 {
-    m_egl_display = eglGetDisplay((EGLNativeDisplayType) display->wl_display());
-    if (EGL_NO_DISPLAY) {
+    if (m_egl_initialized)
+        return;
+    m_egl_initialized = true;
+
+    m_egl_display = eglGetDisplay((EGLNativeDisplayType) m_display->wl_display());
+    if (m_egl_display == EGL_NO_DISPLAY) {
         qWarning("Failed to initialize drm egl server buffer integration. Could not get egl display from wl_display.");
         return;
     }
@@ -136,8 +149,13 @@ void DrmEglServerBufferIntegration::initialize(QWaylandDisplay *display)
         qWarning("Failed to initialize drm egl server buffer integration. Could not resolve glEGLImageTargetTexture2DOES");
         return;
     }
+    m_egl_initialized = true;
+}
 
-    QtWayland::wl_registry::init(wl_display_get_registry(display->wl_display()));
+void DrmEglServerBufferIntegration::initialize(QWaylandDisplay *display)
+{
+    m_display = display;
+    display->addRegistryListener(&wlDisplayHandleGlobal, this);
 }
 
 QWaylandServerBuffer *DrmEglServerBufferIntegration::serverBuffer(struct qt_server_buffer *buffer)
@@ -145,12 +163,12 @@ QWaylandServerBuffer *DrmEglServerBufferIntegration::serverBuffer(struct qt_serv
     return static_cast<QWaylandServerBuffer *>(qt_server_buffer_get_user_data(buffer));
 }
 
-void DrmEglServerBufferIntegration::registry_global(uint32_t name, const QString &interface, uint32_t version)
+void DrmEglServerBufferIntegration::wlDisplayHandleGlobal(void *data, ::wl_registry *registry, uint32_t id, const QString &interface, uint32_t version)
 {
     Q_UNUSED(version);
     if (interface == QStringLiteral("qt_drm_egl_server_buffer")) {
-        struct ::wl_registry *registry = QtWayland::wl_registry::object();
-        QtWayland::qt_drm_egl_server_buffer::init(registry, name, 1);
+        auto *integration = static_cast<DrmEglServerBufferIntegration *>(data);
+        integration->QtWayland::qt_drm_egl_server_buffer::init(registry, id, 1);
     }
 }
 

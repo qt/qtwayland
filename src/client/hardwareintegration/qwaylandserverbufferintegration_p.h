@@ -59,6 +59,8 @@
 
 QT_BEGIN_NAMESPACE
 
+class QOpenGLTexture;
+
 namespace QtWaylandClient {
 
 class QWaylandDisplay;
@@ -74,7 +76,7 @@ public:
     QWaylandServerBuffer();
     virtual ~QWaylandServerBuffer();
 
-    virtual void bindTextureToBuffer() = 0;
+    virtual QOpenGLTexture *toOpenGlTexture() = 0;
 
     Format format() const;
     QSize size() const;

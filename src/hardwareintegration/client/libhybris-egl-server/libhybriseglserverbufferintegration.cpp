@@ -41,6 +41,7 @@
 #include <QtWaylandClient/private/qwaylanddisplay_p.h>
 #include <QDebug>
 #include <QtGui/QOpenGLContext>
+#include <QtGui/QOpenGLTexture>
 #include <hybris/eglplatformcommon/hybris_nativebufferext.h>
 
 #include <EGL/egl.h>
@@ -59,6 +60,7 @@ LibHybrisServerBuffer::LibHybrisServerBuffer(LibHybrisEglServerBufferIntegration
                                             , int32_t format)
     : QWaylandServerBuffer()
     , m_integration(integration)
+    , m_texture(nullptr)
     , m_stride(stride)
     , m_hybrisFormat(format)
 {
@@ -76,18 +78,28 @@ LibHybrisServerBuffer::~LibHybrisServerBuffer()
     m_integration->eglDestroyImageKHR(m_image);
 }
 
-void LibHybrisServerBuffer::bindTextureToBuffer()
+QOpenGLTexture * LibHybrisServerBuffer::toOpenGlTexture()
 {
     if (!QOpenGLContext::currentContext()) {
         qWarning("LibHybrisServerBuffer: creating texture with no current context");
     }
 
+    if (!m_texture) {
+        m_texture = new QOpenGLTexture(QOpenGLTexture::Target2D);
+        m_texture->create();
+    }
+
+    m_texture->bind();
     m_integration->glEGLImageTargetTexture2DOES(GL_TEXTURE_2D, m_image);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    m_texture->release();
+    m_texture->setSize(m_size.width(), m_size.height());
+
+    return m_texture;
 }
 
 void LibHybrisServerBuffer::libhybris_buffer_add_fd(int32_t fd)
@@ -114,10 +126,14 @@ void LibHybrisServerBuffer::libhybris_buffer_add_fd(int32_t fd)
     }
 }
 
-void LibHybrisEglServerBufferIntegration::initialize(QWaylandDisplay *display)
+void LibHybrisEglServerBufferIntegration::initializeEgl()
 {
-    m_egl_display = eglGetDisplay((EGLNativeDisplayType) display->wl_display());
-    if (EGL_NO_DISPLAY) {
+    if (m_egl_initialized)
+        return;
+    m_egl_initialized = true;
+
+    m_egl_display = eglGetDisplay((EGLNativeDisplayType) m_display->wl_display());
+    if (m_egl_display == EGL_NO_DISPLAY) {
         qWarning("Failed to initialize libhybris egl server buffer integration. Could not get egl display from wl_display.");
         return;
     }
@@ -145,8 +161,13 @@ void LibHybrisEglServerBufferIntegration::initialize(QWaylandDisplay *display)
         qWarning("Failed to initialize libhybris egl server buffer integration. Could not resolve eglHybrisCreateRemoteBuffer");
         return;
     }
+    m_egl_initialized = true;
+}
 
-    QtWayland::wl_registry::init(wl_display_get_registry(display->wl_display()));
+void LibHybrisEglServerBufferIntegration::initialize(QWaylandDisplay *display)
+{
+    m_display = display;
+    display->addRegistryListener(&wlDisplayHandleGlobal, this);
 }
 
 QWaylandServerBuffer *LibHybrisEglServerBufferIntegration::serverBuffer(struct qt_server_buffer *buffer)
@@ -154,12 +175,12 @@ QWaylandServerBuffer *LibHybrisEglServerBufferIntegration::serverBuffer(struct q
     return static_cast<QWaylandServerBuffer *>(qt_server_buffer_get_user_data(buffer));
 }
 
-void LibHybrisEglServerBufferIntegration::registry_global(uint32_t name, const QString &interface, uint32_t version)
+void LibHybrisEglServerBufferIntegration::wlDisplayHandleGlobal(void *data, ::wl_registry *registry, uint32_t id, const QString &interface, uint32_t version)
 {
     Q_UNUSED(version);
     if (interface == QStringLiteral("qt_libhybris_egl_server_buffer")) {
-        struct ::wl_registry *registry = QtWayland::wl_registry::object();
-        QtWayland::qt_libhybris_egl_server_buffer::init(registry, name, 1);
+        auto *integration = static_cast<LibHybrisEglServerBufferIntegration *>(data);
+        integration->QtWayland::qt_libhybris_egl_server_buffer::init(registry, id, 1);
     }
 }
 

@@ -12,6 +12,8 @@ qwayland-server-*.h
 *-protocol.c
 *-client-protocol.h
 *-server-protocol.h
+qtwayland*-config.*
+qtwayland*-config_p.h
 .qmake.cache
 config.log
 config.tests/egl/egl
@@ -23,6 +25,9 @@ config.tests/xkbcommon/xkbcommon
 config.tests/wayland/wayland
 config.tests/drm_egl_server/drm_egl_server
 config.tests/wayland_scanner/wayland_scanner
+config.cache
+config.opt
+config.summary
 qrc_*.cpp
 moc_*.cpp
 .obj/

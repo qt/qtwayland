@@ -84,10 +84,10 @@ ClientBufferIntegration *ClientBufferIntegrationFactory::create(const QString &n
     // Try loading the plugin from platformPluginPath first:
     if (!pluginPath.isEmpty()) {
         QCoreApplication::addLibraryPath(pluginPath);
-        if (ClientBufferIntegration *ret = qLoadPlugin1<ClientBufferIntegration, ClientBufferIntegrationPlugin>(directLoader(), name, args))
+        if (ClientBufferIntegration *ret = qLoadPlugin<ClientBufferIntegration, ClientBufferIntegrationPlugin>(directLoader(), name, args))
             return ret;
     }
-    if (ClientBufferIntegration *ret = qLoadPlugin1<ClientBufferIntegration, ClientBufferIntegrationPlugin>(loader(), name, args))
+    if (ClientBufferIntegration *ret = qLoadPlugin<ClientBufferIntegration, ClientBufferIntegrationPlugin>(loader(), name, args))
         return ret;
 #endif
     return 0;

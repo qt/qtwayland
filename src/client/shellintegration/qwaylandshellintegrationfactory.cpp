@@ -84,10 +84,10 @@ QWaylandShellIntegration *QWaylandShellIntegrationFactory::create(const QString 
     // Try loading the plugin from platformPluginPath first:
     if (!pluginPath.isEmpty()) {
         QCoreApplication::addLibraryPath(pluginPath);
-        if (QWaylandShellIntegration *ret = qLoadPlugin1<QWaylandShellIntegration, QWaylandShellIntegrationPlugin>(directLoader(), name, args))
+        if (QWaylandShellIntegration *ret = qLoadPlugin<QWaylandShellIntegration, QWaylandShellIntegrationPlugin>(directLoader(), name, args))
             return ret;
     }
-    if (QWaylandShellIntegration *ret = qLoadPlugin1<QWaylandShellIntegration, QWaylandShellIntegrationPlugin>(loader(), name, args))
+    if (QWaylandShellIntegration *ret = qLoadPlugin<QWaylandShellIntegration, QWaylandShellIntegrationPlugin>(loader(), name, args))
         return ret;
 #endif
     return Q_NULLPTR;

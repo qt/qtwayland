@@ -84,10 +84,10 @@ QWaylandInputDeviceIntegration *QWaylandInputDeviceIntegrationFactory::create(co
     // Try loading the plugin from platformPluginPath first:
     if (!pluginPath.isEmpty()) {
         QCoreApplication::addLibraryPath(pluginPath);
-        if (QWaylandInputDeviceIntegration *ret = qLoadPlugin1<QWaylandInputDeviceIntegration, QWaylandInputDeviceIntegrationPlugin>(directLoader(), name, args))
+        if (QWaylandInputDeviceIntegration *ret = qLoadPlugin<QWaylandInputDeviceIntegration, QWaylandInputDeviceIntegrationPlugin>(directLoader(), name, args))
             return ret;
     }
-    if (QWaylandInputDeviceIntegration *ret = qLoadPlugin1<QWaylandInputDeviceIntegration, QWaylandInputDeviceIntegrationPlugin>(loader(), name, args))
+    if (QWaylandInputDeviceIntegration *ret = qLoadPlugin<QWaylandInputDeviceIntegration, QWaylandInputDeviceIntegrationPlugin>(loader(), name, args))
         return ret;
 #endif
     return Q_NULLPTR;

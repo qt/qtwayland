@@ -91,6 +91,7 @@ public:
     {
         wl_array_release(&m_array);
         wl_buffer_destroy(mBuffer);
+        mBuffer = nullptr;
     }
 
     QSize size() const { return m_size; }

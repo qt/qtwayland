@@ -272,6 +272,8 @@ void DataDeviceManager::comp_destroy(wl_client *, wl_resource *)
 {
 }
 
+QT_WARNING_DISABLE_GCC("-Wmissing-field-initializers")
+
 const struct wl_data_offer_interface DataDeviceManager::compositor_offer_interface = {
     DataDeviceManager::comp_accept,
     DataDeviceManager::comp_receive,

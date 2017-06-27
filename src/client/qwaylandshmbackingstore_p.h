@@ -94,7 +94,7 @@ public:
     void flush(QWindow *window, const QRegion &region, const QPoint &offset) override;
     void resize(const QSize &size, const QRegion &staticContents) override;
     void resize(const QSize &size);
-    void beginPaint(const QRegion &) override;
+    void beginPaint(const QRegion &region) override;
     void endPaint() override;
 
     QWaylandAbstractDecoration *windowDecoration() const;

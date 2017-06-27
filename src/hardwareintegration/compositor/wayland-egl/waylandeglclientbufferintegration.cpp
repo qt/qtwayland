@@ -456,6 +456,17 @@ static QWaylandBufferRef::BufferFormatEgl formatFromEglFormat(EGLint format) {
     return QWaylandBufferRef::BufferFormatEgl_RGBA;
 }
 
+static QOpenGLTexture::TextureFormat openGLFormatFromEglFormat(EGLint format) {
+    switch (format) {
+    case EGL_TEXTURE_RGB:
+        return QOpenGLTexture::RGBFormat;
+    case EGL_TEXTURE_RGBA:
+        return QOpenGLTexture::RGBAFormat;
+    default:
+        return QOpenGLTexture::NoFormat;
+    }
+}
+
 QWaylandBufferRef::BufferFormatEgl WaylandEglClientBuffer::bufferFormatEgl() const
 {
     return formatFromEglFormat(d->egl_format);
@@ -472,6 +483,8 @@ QOpenGLTexture *WaylandEglClientBuffer::toOpenGlTexture(int plane)
                                                                         : GL_TEXTURE_2D);
     if (!texture) {
         texture = new QOpenGLTexture(target);
+        texture->setFormat(openGLFormatFromEglFormat(d->egl_format));
+        texture->setSize(d->size.width(), d->size.height());
         texture->create();
         d->textures[plane] = texture;
     }

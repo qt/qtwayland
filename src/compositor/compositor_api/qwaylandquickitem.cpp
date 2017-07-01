@@ -222,9 +222,11 @@ void QWaylandBufferMaterial::bind()
     case 3:
         if (m_textures[2])
             m_textures[2]->bind(GL_TEXTURE2);
+        Q_FALLTHROUGH();
     case 2:
         if (m_textures[1])
             m_textures[1]->bind(GL_TEXTURE1);
+        Q_FALLTHROUGH();
     case 1:
         if (m_textures[0])
             m_textures[0]->bind(GL_TEXTURE0);

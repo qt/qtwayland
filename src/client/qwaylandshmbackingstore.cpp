@@ -55,6 +55,13 @@
 
 #include <unistd.h>
 #include <sys/mman.h>
+
+#ifdef Q_OS_LINUX
+#  include <sys/syscall.h>
+// from linux/memfd.h:
+#  define MFD_CLOEXEC       0x0001U
+#endif
+
 QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
@@ -71,15 +78,29 @@ QWaylandShmBuffer::QWaylandShmBuffer(QWaylandDisplay *display,
 {
     int stride = size.width() * 4;
     int alloc = stride * size.height();
-    int fd;
+    int fd = -1;
 
-    QTemporaryFile tmp(QStandardPaths::writableLocation(QStandardPaths::RuntimeLocation) +
-                       QLatin1String("/wayland-shm-XXXXXX"));
-    if (!tmp.open() || !tmp.resize(alloc)) {
-        qWarning("QWaylandShmBuffer: failed: %s", qUtf8Printable(tmp.errorString()));
+#ifdef SYS_memfd_create
+    fd = syscall(SYS_memfd_create, "wayland-shm", MFD_CLOEXEC);
+#endif
+
+    QScopedPointer<QFile> filePointer;
+
+    if (fd == -1) {
+        auto tmpFile = new QTemporaryFile (QStandardPaths::writableLocation(QStandardPaths::RuntimeLocation) +
+                                       QLatin1String("/wayland-shm-XXXXXX"));
+        tmpFile->open();
+        filePointer.reset(tmpFile);
+    } else {
+        auto file = new QFile;
+        file->open(fd, QIODevice::ReadWrite | QIODevice::Unbuffered, QFile::AutoCloseHandle);
+        filePointer.reset(file);
+    }
+    if (!filePointer->isOpen() || !filePointer->resize(alloc)) {
+        qWarning("QWaylandShmBuffer: failed: %s", qUtf8Printable(filePointer->errorString()));
         return;
     }
-    fd = tmp.handle();
+    fd = filePointer->handle();
 
     // map ourselves: QFile::map() will unmap when the object is destroyed,
     // but we want this mapping to persist (unmapping in destructor)

@@ -163,8 +163,8 @@ void QWaylandXdgSurfaceV6::setAppId(const QString &appId)
 
 void QWaylandXdgSurfaceV6::setType(Qt::WindowType type, QWaylandWindow *transientParent)
 {
-    if (type == Qt::Popup && transientParent) {
-        setPopup(transientParent, m_window->display()->lastInputDevice(), m_window->display()->lastInputSerial());
+    if ((type == Qt::Popup || type == Qt::ToolTip) && transientParent) {
+        setPopup(transientParent, m_window->display()->lastInputDevice(), m_window->display()->lastInputSerial(), type == Qt::Popup);
     } else {
         setToplevel();
         if (transientParent) {
@@ -189,7 +189,7 @@ void QWaylandXdgSurfaceV6::setToplevel()
     m_toplevel = new Toplevel(this);
 }
 
-void QWaylandXdgSurfaceV6::setPopup(QWaylandWindow *parent, QWaylandInputDevice *device, int serial)
+void QWaylandXdgSurfaceV6::setPopup(QWaylandWindow *parent, QWaylandInputDevice *device, int serial, bool grab)
 {
     Q_ASSERT(!m_toplevel && !m_popup);
 
@@ -209,7 +209,9 @@ void QWaylandXdgSurfaceV6::setPopup(QWaylandWindow *parent, QWaylandInputDevice 
     m_popup = new Popup(this, parentXdgSurface, positioner);
     positioner->destroy();
     delete positioner;
-    m_popup->grab(device->wl_seat(), serial);
+    if (grab) {
+        m_popup->grab(device->wl_seat(), serial);
+    }
 }
 
 void QWaylandXdgSurfaceV6::zxdg_surface_v6_configure(uint32_t serial)

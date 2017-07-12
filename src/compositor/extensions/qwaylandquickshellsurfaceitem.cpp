@@ -47,6 +47,7 @@ QT_BEGIN_NAMESPACE
 
 /*!
  * \qmltype ShellSurfaceItem
+ * \inherits WaylandQuickItem
  * \inqmlmodule QtWayland.Compositor
  * \since 5.8
  * \brief A Qt Quick item type representing a WlShellSurface.

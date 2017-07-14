@@ -541,8 +541,10 @@ void QWaylandInputContext::setFocusObject(QObject *)
     if (window && window->handle() && inputMethodAccepted()) {
         if (mCurrentWindow.data() != window) {
             struct ::wl_surface *surface = static_cast<QWaylandWindow *>(window->handle())->object();
-            textInput()->enable(surface);
-            mCurrentWindow = window;
+            if (surface) {
+                textInput()->enable(surface);
+                mCurrentWindow = window;
+            }
         }
         textInput()->updateState(Qt::ImQueryAll, QtWayland::zwp_text_input_v2::update_state_enter);
     }

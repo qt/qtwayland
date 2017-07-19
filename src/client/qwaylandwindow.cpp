@@ -249,8 +249,10 @@ void QWaylandWindow::reset()
     if (isInitialized())
         destroy();
 
-    if (mFrameCallback)
+    if (mFrameCallback) {
         wl_callback_destroy(mFrameCallback);
+        mFrameCallback = nullptr;
+    }
 }
 
 QWaylandWindow *QWaylandWindow::fromWlSurface(::wl_surface *surface)

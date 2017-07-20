@@ -87,8 +87,6 @@ protected:
     void pointer_destroy_resource(Resource *resource) override;
 
 private:
-    void focusDestroyed(void *data);
-
     QWaylandSeat *seat;
     QWaylandOutput *output;
 

@@ -253,6 +253,7 @@ private:
     bool shouldCreateSubSurface() const;
     void reset();
     void sendExposeEvent(const QRect &rect);
+    static void closePopups(QWaylandWindow *parent);
 
     void handleMouseEventWithDecoration(QWaylandInputDevice *inputDevice, const QWaylandPointerEvent &e);
 

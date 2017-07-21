@@ -341,9 +341,26 @@ void QWaylandWindow::sendExposeEvent(const QRect &rect)
         QWindowSystemInterface::handleExposeEvent(window(), rect);
 }
 
+
+static QVector<QPointer<QWaylandWindow>> activePopups;
+
+void QWaylandWindow::closePopups(QWaylandWindow *parent)
+{
+    while (!activePopups.isEmpty()) {
+        auto popup = activePopups.takeLast();
+        if (popup.isNull())
+            continue;
+        if (popup.data() == parent)
+            return;
+        popup->reset();
+    }
+}
+
 void QWaylandWindow::setVisible(bool visible)
 {
     if (visible) {
+        if (window()->type() == Qt::Popup)
+            activePopups << this;
         initWindow();
         mDisplay->flushRequests();
 
@@ -357,6 +374,8 @@ void QWaylandWindow::setVisible(bool visible)
         // case 'this' will be deleted. When that happens, we must abort right away.
         QPointer<QWaylandWindow> deleteGuard(this);
         QWindowSystemInterface::flushWindowSystemEvents();
+        if (!deleteGuard.isNull() && window()->type() == Qt::Popup)
+            closePopups(this);
         if (!deleteGuard.isNull())
             reset();
     }

@@ -28,7 +28,8 @@
             "test": "wayland_egl",
             "sources": [
                 { "type": "pkgConfig", "args": "wayland-egl" },
-                "-lwayland-egl"
+                "-lwayland-egl",
+                "-lEGL"
             ]
         },
         "xcomposite": {

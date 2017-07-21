@@ -84,17 +84,19 @@ public:
 protected:
     void pointer_set_cursor(Resource *resource, uint32_t serial, wl_resource *surface, int32_t hotspot_x, int32_t hotspot_y) override;
     void pointer_release(Resource *resource) override;
-    void pointer_destroy_resource(Resource *resource) override;
 
 private:
+    const QList<Resource *> pointerResourcesForFocusedSurface() const;
+    uint sendButton(Qt::MouseButton button, uint32_t state);
+
     QWaylandSeat *seat;
     QWaylandOutput *output;
 
     QPointF localPosition;
     QPointF spacePosition;
 
-    struct ::wl_resource *focusResource;
     bool hasSentEnter;
+    uint enterSerial;
 
     int buttonCount;
 

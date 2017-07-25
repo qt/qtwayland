@@ -95,7 +95,7 @@ public:
 
 #if QT_CONFIG(cursor)
     QPlatformCursor *cursor() const override;
-    QWaylandCursor *waylandCursor() const { return mWaylandCursor; };
+    QWaylandCursor *waylandCursor() const { return mWaylandCursor; }
 #endif
 
     uint32_t outputId() const { return m_outputId; }

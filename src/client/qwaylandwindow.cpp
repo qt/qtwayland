@@ -720,6 +720,8 @@ QWaylandWindow *QWaylandWindow::transientParent() const
     // events.
     if (auto transientParent = window()->transientParent())
         return static_cast<QWaylandWindow *>(topLevelWindow(transientParent)->handle());
+    else if (QGuiApplication::focusWindow() && (window()->type() == Qt::ToolTip || window()->type() == Qt::Popup))
+        return static_cast<QWaylandWindow *>(topLevelWindow(QGuiApplication::focusWindow())->handle());
 
     return nullptr;
 }

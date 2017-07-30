@@ -7,6 +7,7 @@ SUBDIRS += \
     iviapplication \
     output \
     seatv4 \
+    seatv5 \
     surface \
     wl_connect \
     xdgoutput \

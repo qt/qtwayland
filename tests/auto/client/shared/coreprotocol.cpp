@@ -312,6 +312,39 @@ void Pointer::sendAxis(wl_client *client, axis axis, qreal value)
         send_axis(r->handle, time, axis, val);
 }
 
+void Pointer::sendAxisDiscrete(wl_client *client, QtWaylandServer::wl_pointer::axis axis, int discrete)
+{
+    // TODO: assert v5 or newer
+    const auto pointerResources = resourceMap().values(client);
+    for (auto *r : pointerResources)
+        send_axis_discrete(r->handle, axis, discrete);
+}
+
+void Pointer::sendAxisSource(wl_client *client, QtWaylandServer::wl_pointer::axis_source source)
+{
+    // TODO: assert v5 or newer
+    const auto pointerResources = resourceMap().values(client);
+    for (auto *r : pointerResources)
+        send_axis_source(r->handle, source);
+}
+
+void Pointer::sendAxisStop(wl_client *client, QtWaylandServer::wl_pointer::axis axis)
+{
+    // TODO: assert v5 or newer
+    auto time = m_seat->m_compositor->currentTimeMilliseconds();
+    const auto pointerResources = resourceMap().values(client);
+    for (auto *r : pointerResources)
+        send_axis_stop(r->handle, time, axis);
+}
+
+void Pointer::sendFrame(wl_client *client)
+{
+    //TODO: assert version 5 or newer?
+    const auto pointerResources = resourceMap().values(client);
+    for (auto *r : pointerResources)
+        send_frame(r->handle);
+}
+
 void Pointer::pointer_set_cursor(Resource *resource, uint32_t serial, wl_resource *surface, int32_t hotspot_x, int32_t hotspot_y)
 {
     Q_UNUSED(resource);

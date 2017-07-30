@@ -78,6 +78,8 @@ QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
 
+Q_LOGGING_CATEGORY(lcQpaWaylandInput, "qt.qpa.wayland.input");
+
 QWaylandInputDevice::Keyboard::Keyboard(QWaylandInputDevice *p)
     : mParent(p)
 {
@@ -200,10 +202,10 @@ QWaylandInputDevice::Touch::~Touch()
 }
 
 QWaylandInputDevice::QWaylandInputDevice(QWaylandDisplay *display, int version, uint32_t id)
-    : QtWayland::wl_seat(display->wl_registry(), id, qMin(version, 4))
+    : QtWayland::wl_seat(display->wl_registry(), id, qMin(version, 5))
     , mQDisplay(display)
     , mDisplay(display->wl_display())
-    , mVersion(qMin(version, 4))
+    , mVersion(qMin(version, 5))
 {
 #if QT_CONFIG(wayland_datadevice)
     if (mQDisplay->dndSelectionHandler()) {
@@ -446,8 +448,9 @@ void QWaylandInputDevice::setCursor(const QSharedPointer<QWaylandBuffer> &buffer
 class EnterEvent : public QWaylandPointerEvent
 {
 public:
-    EnterEvent(const QPointF &l, const QPointF &g)
-        : QWaylandPointerEvent(QWaylandPointerEvent::Enter, 0, l, g, nullptr, Qt::NoModifier)
+    EnterEvent(QWaylandWindow *surface, const QPointF &local, const QPointF &global)
+        : QWaylandPointerEvent(QWaylandPointerEvent::Enter, Qt::NoScrollPhase, surface, 0,
+                               local, global, nullptr, Qt::NoModifier)
     {}
 };
 
@@ -471,11 +474,18 @@ void QWaylandInputDevice::Pointer::pointer_enter(uint32_t serial, struct wl_surf
 #endif
 
     QWaylandWindow *grab = QWaylandWindow::mouseGrab();
-    if (!grab) {
-        EnterEvent evt(mSurfacePos, mGlobalPos);
-        window->handleMouse(mParent, evt);
-    }
+    if (!grab)
+        setFrameEvent(new EnterEvent(window, mSurfacePos, mGlobalPos));
 }
+
+class LeaveEvent : public QWaylandPointerEvent
+{
+public:
+    LeaveEvent(QWaylandWindow *surface, const QPointF &localPos, const QPointF &globalPos)
+        : QWaylandPointerEvent(QWaylandPointerEvent::Leave, Qt::NoScrollPhase, surface, 0,
+                               localPos, globalPos, nullptr, Qt::NoModifier)
+    {}
+};
 
 void QWaylandInputDevice::Pointer::pointer_leave(uint32_t time, struct wl_surface *surface)
 {
@@ -486,7 +496,7 @@ void QWaylandInputDevice::Pointer::pointer_leave(uint32_t time, struct wl_surfac
 
     if (!QWaylandWindow::mouseGrab()) {
         QWaylandWindow *window = QWaylandWindow::fromWlSurface(surface);
-        window->handleMouseLeave(mParent);
+        setFrameEvent(new LeaveEvent(window, mSurfacePos, mGlobalPos));
     }
     mFocus = nullptr;
     mButtons = Qt::NoButton;
@@ -497,8 +507,10 @@ void QWaylandInputDevice::Pointer::pointer_leave(uint32_t time, struct wl_surfac
 class MotionEvent : public QWaylandPointerEvent
 {
 public:
-    MotionEvent(ulong t, const QPointF &l, const QPointF &g, Qt::MouseButtons b, Qt::KeyboardModifiers m)
-        : QWaylandPointerEvent(QWaylandPointerEvent::Motion, t, l, g, b, m)
+    MotionEvent(QWaylandWindow *surface, ulong timestamp, const QPointF &localPos,
+                const QPointF &globalPos, Qt::MouseButtons buttons, Qt::KeyboardModifiers modifiers)
+        : QWaylandPointerEvent(QWaylandPointerEvent::Motion, Qt::NoScrollPhase, surface,
+                               timestamp, localPos, globalPos, buttons, modifiers)
     {
     }
 };
@@ -527,13 +539,32 @@ void QWaylandInputDevice::Pointer::pointer_motion(uint32_t time, wl_fixed_t surf
         // so we just set it outside of the window boundaries.
         pos = QPointF(-1, -1);
         global = grab->window()->mapToGlobal(pos.toPoint());
-        MotionEvent e(time, pos, global, mButtons, mParent->modifiers());
-        grab->handleMouse(mParent, e);
-    } else {
-        MotionEvent e(time, mSurfacePos, mGlobalPos, mButtons, mParent->modifiers());
-        window->handleMouse(mParent, e);
+        window = grab;
     }
+    setFrameEvent(new MotionEvent(window, time, pos, global, mButtons, mParent->modifiers()));
 }
+
+class PressEvent : public QWaylandPointerEvent
+{
+public:
+    PressEvent(QWaylandWindow *surface, ulong timestamp, const QPointF &localPos,
+               const QPointF &globalPos, Qt::MouseButtons buttons, Qt::KeyboardModifiers modifiers)
+        : QWaylandPointerEvent(QWaylandPointerEvent::Press, Qt::NoScrollPhase, surface,
+                               timestamp, localPos, globalPos, buttons, modifiers)
+    {
+    }
+};
+
+class ReleaseEvent : public QWaylandPointerEvent
+{
+public:
+    ReleaseEvent(QWaylandWindow *surface, ulong timestamp, const QPointF &localPos,
+                 const QPointF &globalPos, Qt::MouseButtons buttons, Qt::KeyboardModifiers modifiers)
+        : QWaylandPointerEvent(QWaylandPointerEvent::Release, Qt::NoScrollPhase, surface,
+                               timestamp, localPos, globalPos, buttons, modifiers)
+    {
+    }
+};
 
 void QWaylandInputDevice::Pointer::pointer_button(uint32_t serial, uint32_t time,
                                                   uint32_t button, uint32_t state)
@@ -580,21 +611,26 @@ void QWaylandInputDevice::Pointer::pointer_button(uint32_t serial, uint32_t time
         mParent->mQDisplay->setLastInputDevice(mParent, serial, window);
 
     QWaylandWindow *grab = QWaylandWindow::mouseGrab();
+
+    QPointF pos = mSurfacePos;
+    QPointF global = mGlobalPos;
     if (grab && grab != mFocus) {
-        QPointF pos = QPointF(-1, -1);
-        QPointF global = grab->window()->mapToGlobal(pos.toPoint());
-        MotionEvent e(time, pos, global, mButtons, mParent->modifiers());
-        grab->handleMouse(mParent, e);
-    } else if (window) {
-        MotionEvent e(time, mSurfacePos, mGlobalPos, mButtons, mParent->modifiers());
-        window->handleMouse(mParent, e);
+        pos = QPointF(-1, -1);
+        global = grab->window()->mapToGlobal(pos.toPoint());
+
+        window = grab;
     }
+
+    if (state)
+        setFrameEvent(new PressEvent(window, time, pos, global, mButtons, mParent->modifiers()));
+    else
+        setFrameEvent(new ReleaseEvent(window, time, pos, global, mButtons, mParent->modifiers()));
 }
 
 void QWaylandInputDevice::Pointer::releaseButtons()
 {
     mButtons = Qt::NoButton;
-    MotionEvent e(mParent->mTime, mSurfacePos, mGlobalPos, mButtons, mParent->modifiers());
+    MotionEvent e(mFocus, mParent->mTime, mSurfacePos, mGlobalPos, mButtons, mParent->modifiers());
     if (mFocus)
         mFocus->handleMouse(mParent, e);
 }
@@ -602,8 +638,11 @@ void QWaylandInputDevice::Pointer::releaseButtons()
 class WheelEvent : public QWaylandPointerEvent
 {
 public:
-    WheelEvent(ulong t, const QPointF &l, const QPointF &g, const QPoint &pd, const QPoint &ad, Qt::KeyboardModifiers m)
-        : QWaylandPointerEvent(QWaylandPointerEvent::Wheel, t, l, g, pd, ad, m)
+    WheelEvent(QWaylandWindow *surface, Qt::ScrollPhase phase, ulong timestamp, const QPointF &local,
+               const QPointF &global, const QPoint &pixelDelta, const QPoint &angleDelta,
+               Qt::MouseEventSource source, Qt::KeyboardModifiers modifiers)
+        : QWaylandPointerEvent(QWaylandPointerEvent::Wheel, phase, surface, timestamp,
+                               local, global, pixelDelta, angleDelta, source, modifiers)
     {
     }
 };
@@ -611,28 +650,247 @@ public:
 void QWaylandInputDevice::Pointer::pointer_axis(uint32_t time, uint32_t axis, int32_t value)
 {
     QWaylandWindow *window = mFocus;
+
     if (!window) {
         // We destroyed the pointer focus surface, but the server didn't get the message yet...
         // or the server didn't send an enter event first. In either case, ignore the event.
         return;
     }
 
-    QPoint pixelDelta;
-    QPoint angleDelta;
-
-    //normalize value and inverse axis
-    int valueDelta = wl_fixed_to_int(value) * -12;
-
-    if (axis == WL_POINTER_AXIS_HORIZONTAL_SCROLL) {
-        pixelDelta = QPoint();
-        angleDelta.setX(valueDelta);
-    } else {
-        pixelDelta = QPoint();
-        angleDelta.setY(valueDelta);
+    // Get the delta and convert it into the expected range
+    switch (axis) {
+    case WL_POINTER_AXIS_VERTICAL_SCROLL:
+        mFrameData.delta.ry() += wl_fixed_to_double(value);
+        qCDebug(lcQpaWaylandInput) << "wl_pointer.axis vertical:" << mFrameData.delta.y();
+        break;
+    case WL_POINTER_AXIS_HORIZONTAL_SCROLL:
+        mFrameData.delta.rx() += wl_fixed_to_double(value);
+        qCDebug(lcQpaWaylandInput) << "wl_pointer.axis horizontal:" << mFrameData.delta.x();
+        break;
+    default:
+        //TODO: is this really needed?
+        qCWarning(lcQpaWaylandInput) << "wl_pointer.axis: Unknown axis:" << axis;
+        return;
     }
 
-    WheelEvent e(time, mSurfacePos, mGlobalPos, pixelDelta, angleDelta, mParent->modifiers());
-    window->handleMouse(mParent, e);
+    mParent->mTime = time;
+
+    if (mParent->mVersion < WL_POINTER_FRAME_SINCE_VERSION) {
+        qCDebug(lcQpaWaylandInput) << "Flushing new event; no frame event in this version";
+        flushFrameEvent();
+    }
+}
+
+void QWaylandInputDevice::Pointer::pointer_frame()
+{
+    flushFrameEvent();
+}
+
+void QWaylandInputDevice::Pointer::pointer_axis_source(uint32_t source)
+{
+    switch (source) {
+    case axis_source_wheel:
+        qCDebug(lcQpaWaylandInput) << "Axis source wheel";
+        break;
+    case axis_source_finger:
+        qCDebug(lcQpaWaylandInput) << "Axis source finger";
+        break;
+    case axis_source_continuous:
+        qCDebug(lcQpaWaylandInput) << "Axis source continuous";
+        break;
+    }
+    mFrameData.axisSource = axis_source(source);
+}
+
+void QWaylandInputDevice::Pointer::pointer_axis_stop(uint32_t time, uint32_t axis)
+{
+    QWaylandWindow *window = mFocus;
+    if (window == nullptr)
+        return;
+
+    mParent->mTime = time;
+    switch (axis) {
+    case axis_vertical_scroll:
+        qCDebug(lcQpaWaylandInput) << "Received vertical wl_pointer.axis_stop";
+        mFrameData.delta.setY(0); //TODO: what's the point of doing this?
+        break;
+    case axis_horizontal_scroll:
+        qCDebug(lcQpaWaylandInput) << "Received horizontal wl_pointer.axis_stop";
+        mFrameData.delta.setX(0);
+        break;
+    default:
+        qCWarning(lcQpaWaylandInput) << "wl_pointer.axis_stop: Unknown axis: " << axis
+                                     << "This is most likely a compositor bug";
+        return;
+    }
+
+    // May receive axis_stop for events we haven't sent a ScrollBegin for because
+    // most axis_sources do not mandate an axis_stop event to be sent.
+    if (!mScrollBeginSent) {
+        // TODO: For now, we just ignore these events, but we could perhaps take this as an
+        // indication that this compositor will in fact send axis_stop events for these sources
+        // and send a ScrollBegin the next time an axis_source event with this type is encountered.
+        return;
+    }
+
+    QWaylandWindow *target = QWaylandWindow::mouseGrab();
+    if (!target)
+        target = mFocus;
+    Qt::KeyboardModifiers mods = mParent->modifiers();
+    WheelEvent wheelEvent(mFocus, Qt::ScrollEnd, mParent->mTime, mSurfacePos, mGlobalPos,
+                          QPoint(), QPoint(), Qt::MouseEventNotSynthesized, mods);
+    target->handleMouse(mParent, wheelEvent);
+    mScrollBeginSent = false;
+    mScrollDeltaRemainder = QPointF();
+}
+
+void QWaylandInputDevice::Pointer::pointer_axis_discrete(uint32_t axis, int32_t value)
+{
+    QWaylandWindow *window = mFocus;
+    if (window == nullptr)
+        return;
+
+    switch (axis) {
+    case axis_vertical_scroll:
+        qCDebug(lcQpaWaylandInput) << "wl_pointer.axis_discrete vertical:" << value;
+        mFrameData.discreteDelta.ry() += value;
+        break;
+    case axis_horizontal_scroll:
+        qCDebug(lcQpaWaylandInput) << "wl_pointer.axis_discrete horizontal:" << value;
+        mFrameData.discreteDelta.rx() += value;
+        break;
+    default:
+        //TODO: is this really needed?
+        qCWarning(lcQpaWaylandInput) << "wl_pointer.axis_discrete: Unknown axis:" << axis;
+        return;
+    }
+}
+
+void QWaylandInputDevice::Pointer::setFrameEvent(QWaylandPointerEvent *event)
+{
+    qCDebug(lcQpaWaylandInput) << "Setting frame event " << event->type;
+    if (mFrameData.event && mFrameData.event->type != event->type) {
+        qCDebug(lcQpaWaylandInput) << "Flushing; previous was " << mFrameData.event->type;
+        flushFrameEvent();
+    }
+
+    mFrameData.event = event;
+
+    if (mParent->mVersion < WL_POINTER_FRAME_SINCE_VERSION) {
+        qCDebug(lcQpaWaylandInput) << "Flushing new event; no frame event in this version";
+        flushFrameEvent();
+    }
+}
+
+void QWaylandInputDevice::Pointer::FrameData::resetScrollData()
+{
+    discreteDelta = QPoint();
+    delta = QPointF();
+    axisSource = axis_source_wheel;
+}
+
+bool QWaylandInputDevice::Pointer::FrameData::hasPixelDelta() const
+{
+    switch (axisSource) {
+    case axis_source_wheel_tilt: // sideways tilt of the wheel
+    case axis_source_wheel:
+        // In the case of wheel events, a pixel delta doesn't really make sense,
+        // and will make Qt think this is a continuous scroll event when it isn't,
+        // so just ignore it.
+        return false;
+    case axis_source_finger:
+    case axis_source_continuous:
+        return !delta.isNull();
+    }
+}
+
+QPoint QWaylandInputDevice::Pointer::FrameData::pixelDeltaAndError(QPointF *accumulatedError) const
+{
+    if (!hasPixelDelta())
+        return QPoint();
+
+    Q_ASSERT(accumulatedError);
+    // Add accumulated rounding error before rounding again
+    QPoint pixelDelta = (delta + *accumulatedError).toPoint();
+    *accumulatedError += delta - pixelDelta;
+    Q_ASSERT(qAbs(accumulatedError->x()) < 1.0);
+    Q_ASSERT(qAbs(accumulatedError->y()) < 1.0);
+    return pixelDelta;
+}
+
+QPoint QWaylandInputDevice::Pointer::FrameData::angleDelta() const
+{
+    if (discreteDelta.isNull()) {
+        // If we didn't get any discrete events, then we need to fall back to
+        // the continuous information.
+        return (delta * -12).toPoint(); //TODO: why multiply by 12?
+    }
+
+    // The angle delta is in eights of degrees, and our docs says most mice have
+    // 1 click = 15 degrees. It's also in the opposite direction of surface space.
+    return -discreteDelta * 15 * 8;
+}
+
+Qt::MouseEventSource QWaylandInputDevice::Pointer::FrameData::wheelEventSource() const
+{
+    switch (axisSource) {
+    case axis_source_wheel_tilt: // sideways tilt of the wheel
+    case axis_source_wheel:
+        return Qt::MouseEventNotSynthesized;
+    case axis_source_finger:
+    case axis_source_continuous:
+    default: // Whatever other sources might be added are probably not mouse wheels
+        return Qt::MouseEventSynthesizedBySystem;
+    }
+}
+
+void QWaylandInputDevice::Pointer::flushScrollEvent()
+{
+    QPoint angleDelta = mFrameData.angleDelta();
+
+    // Angle delta is required for Qt wheel events, so don't try to send events if it's zero
+    if (!angleDelta.isNull()) {
+        QWaylandWindow *target = QWaylandWindow::mouseGrab();
+        if (!target)
+            target = mFocus;
+
+        if (isDefinitelyTerminated(mFrameData.axisSource) && !mScrollBeginSent) {
+            qCDebug(lcQpaWaylandInput) << "Flushing scroll event sending ScrollBegin";
+            target->handleMouse(mParent, WheelEvent(mFocus, Qt::ScrollBegin, mParent->mTime,
+                                                    mSurfacePos, mGlobalPos, QPoint(), QPoint(),
+                                                    Qt::MouseEventNotSynthesized,
+                                                    mParent->modifiers()));
+            mScrollBeginSent = true;
+            mScrollDeltaRemainder = QPointF();
+        }
+
+        Qt::ScrollPhase phase = mScrollBeginSent ? Qt::ScrollUpdate : Qt::NoScrollPhase;
+        QPoint pixelDelta = mFrameData.pixelDeltaAndError(&mScrollDeltaRemainder);
+        Qt::MouseEventSource source = mFrameData.wheelEventSource();
+
+        qCDebug(lcQpaWaylandInput) << "Flushing scroll event" << phase << pixelDelta << angleDelta;
+        target->handleMouse(mParent, WheelEvent(mFocus, phase, mParent->mTime, mSurfacePos, mGlobalPos,
+                                                pixelDelta, angleDelta, source, mParent->modifiers()));
+    }
+
+    mFrameData.resetScrollData();
+}
+
+void QWaylandInputDevice::Pointer::flushFrameEvent()
+{
+    if (mFrameData.event) {
+        mFrameData.event->surface->handleMouse(mParent, *mFrameData.event);
+        delete mFrameData.event;
+        mFrameData.event = nullptr;
+    }
+
+    //TODO: do modifiers get passed correctly here?
+    flushScrollEvent();
+}
+
+bool QWaylandInputDevice::Pointer::isDefinitelyTerminated(QtWayland::wl_pointer::axis_source source) const
+{
+    return source == axis_source_finger;
 }
 
 void QWaylandInputDevice::Keyboard::keyboard_keymap(uint32_t format, int32_t fd, uint32_t size)

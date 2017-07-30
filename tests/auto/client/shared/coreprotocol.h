@@ -282,6 +282,10 @@ public:
     void sendMotion(wl_client *client, const QPointF &position);
     uint sendButton(wl_client *client, uint button, uint state);
     void sendAxis(wl_client *client, axis axis, qreal value);
+    void sendAxisDiscrete(wl_client *client, axis axis, int discrete);
+    void sendAxisSource(wl_client *client, axis_source source);
+    void sendAxisStop(wl_client *client, axis axis);
+    void sendFrame(wl_client *client);
 
     Seat *m_seat = nullptr;
     uint m_enterSerial = 0;

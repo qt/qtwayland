@@ -8,8 +8,8 @@
 
         "Description": "Wayland is a protocol for a compositor to talk to its clients.",
         "Homepage": "https://wayland.freedesktop.org",
-        "Version": "1.6.1",
-        "DownloadLocation": "https://cgit.freedesktop.org/wayland/wayland/tag/?id=1.6.1",
+        "Version": "1.10.0",
+        "DownloadLocation": "https://cgit.freedesktop.org/wayland/wayland/tag/?id=1.10.0",
         "LicenseId": "HPND",
         "License": "HPND License",
         "LicenseFile": "HPND_LICENSE.txt",

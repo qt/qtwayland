@@ -42,6 +42,7 @@ SOURCES += \
     extensions/qwaylandtextinputmanager.cpp \
     extensions/qwaylandqtwindowmanager.cpp \
     extensions/qwaylandxdgshellv5.cpp \
+    extensions/qwaylandshellsurface.cpp \
     extensions/qwaylandiviapplication.cpp \
     extensions/qwaylandivisurface.cpp \
 

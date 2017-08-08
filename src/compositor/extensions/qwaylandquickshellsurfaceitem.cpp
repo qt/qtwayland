@@ -89,18 +89,17 @@ QWaylandQuickShellSurfaceItem::QWaylandQuickShellSurfaceItem(QWaylandQuickShellS
 /*!
  * \qmlproperty object QtWaylandCompositor::ShellSurfaceItem::shellSurface
  *
- * This property holds the shell surface rendered by this ShellSurfaceItem.
- * It may either be an XdgSurface or a WlShellSurface depending on which
- * shell protocol is in use.
+ * This property holds the ShellSurface rendered by this ShellSurfaceItem.
+ * It may either be an XdgSurfaceV5, WlShellSurface or IviSurface depending on which shell protocol
+ * is in use.
  */
 
 /*!
  * \property QWaylandQuickShellSurfaceItem::shellSurface
  *
- * This property holds the shell surface rendered by this
- * QWaylandQuickShellSurfaceItem. It may either be a QWaylandXdgSurface or a
- * QWaylandWlShellSurface depending on which shell protocol is in use.
- *
+ * This property holds the QWaylandShellSurface rendered by this QWaylandQuickShellSurfaceItem.
+ * It may either be a QWaylandXdgSurfaceV5, QWaylandWlShellSurface or QWaylandIviSurface depending
+ * on which shell protocol is in use.
  */
 QWaylandShellSurface *QWaylandQuickShellSurfaceItem::shellSurface() const
 {

@@ -432,7 +432,7 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath, const QByteArr
             printf("        class Resource\n");
             printf("        {\n");
             printf("        public:\n");
-            printf("            Resource() : %s_object(0), handle(0) {}\n", interfaceNameStripped);
+            printf("            Resource() : %s_object(nullptr), handle(nullptr) {}\n", interfaceNameStripped);
             printf("            virtual ~Resource() {}\n");
             printf("\n");
             printf("            %s *%s_object;\n", interfaceName, interfaceNameStripped);
@@ -458,8 +458,8 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath, const QByteArr
             printf("        QMultiMap<struct ::wl_client*, Resource*> resourceMap() { return m_resource_map; }\n");
             printf("        const QMultiMap<struct ::wl_client*, Resource*> resourceMap() const { return m_resource_map; }\n");
             printf("\n");
-            printf("        bool isGlobal() const { return m_global != 0; }\n");
-            printf("        bool isResource() const { return m_resource != 0; }\n");
+            printf("        bool isGlobal() const { return m_global != nullptr; }\n");
+            printf("        bool isResource() const { return m_resource != nullptr; }\n");
             printf("\n");
             printf("        static const struct ::wl_interface *interface();\n");
             printf("        static QByteArray interfaceName() { return interface()->name; }\n");
@@ -572,8 +572,8 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath, const QByteArr
 
             printf("    %s::%s(struct ::wl_client *client, int id, int version)\n", interfaceName, interfaceName);
             printf("        : m_resource_map()\n");
-            printf("        , m_resource(0)\n");
-            printf("        , m_global(0)\n");
+            printf("        , m_resource(nullptr)\n");
+            printf("        , m_global(nullptr)\n");
             printf("    {\n");
             printf("        init(client, id, version);\n");
             printf("    }\n");
@@ -581,8 +581,8 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath, const QByteArr
 
             printf("    %s::%s(struct ::wl_display *display, int version)\n", interfaceName, interfaceName);
             printf("        : m_resource_map()\n");
-            printf("        , m_resource(0)\n");
-            printf("        , m_global(0)\n");
+            printf("        , m_resource(nullptr)\n");
+            printf("        , m_global(nullptr)\n");
             printf("    {\n");
             printf("        init(display, version);\n");
             printf("    }\n");
@@ -590,8 +590,8 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath, const QByteArr
 
             printf("    %s::%s(struct ::wl_resource *resource)\n", interfaceName, interfaceName);
             printf("        : m_resource_map()\n");
-            printf("        , m_resource(0)\n");
-            printf("        , m_global(0)\n");
+            printf("        , m_resource(nullptr)\n");
+            printf("        , m_global(nullptr)\n");
             printf("    {\n");
             printf("        init(resource);\n");
             printf("    }\n");
@@ -599,8 +599,8 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath, const QByteArr
 
             printf("    %s::%s()\n", interfaceName, interfaceName);
             printf("        : m_resource_map()\n");
-            printf("        , m_resource(0)\n");
-            printf("        , m_global(0)\n");
+            printf("        , m_resource(nullptr)\n");
+            printf("        , m_global(nullptr)\n");
             printf("    {\n");
             printf("    }\n");
             printf("\n");
@@ -689,7 +689,7 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath, const QByteArr
 
             bool hasRequests = !interface.requests.isEmpty();
 
-            QByteArray interfaceMember = hasRequests ? "&m_" + interface.name + "_interface" : QByteArray("0");
+            QByteArray interfaceMember = hasRequests ? "&m_" + interface.name + "_interface" : QByteArray("nullptr");
 
             //We should consider changing bind so that it doesn't special case id == 0
             //and use function overloading instead. Jan do you have a lot of code dependent on this behavior?
@@ -717,7 +717,7 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath, const QByteArr
             printf("    {\n");
             printf("        if (wl_resource_instance_of(resource, &::%s_interface, %s))\n",  interfaceName, interfaceMember.constData());
             printf("            return static_cast<Resource *>(resource->data);\n");
-            printf("        return 0;\n");
+            printf("        return nullptr;\n");
             printf("    }\n");
 
             if (hasRequests) {
@@ -993,7 +993,7 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath, const QByteArr
             printf("\n");
 
             printf("    %s::%s()\n", interfaceName, interfaceName);
-            printf("        : m_%s(0)\n", interfaceName);
+            printf("        : m_%s(nullptr)\n", interfaceName);
             printf("    {\n");
             printf("    }\n");
             printf("\n");
@@ -1021,7 +1021,7 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath, const QByteArr
 
             printf("    bool %s::isInitialized() const\n", interfaceName);
             printf("    {\n");
-            printf("        return m_%s != 0;\n", interfaceName);
+            printf("        return m_%s != nullptr;\n", interfaceName);
             printf("    }\n");
             printf("\n");
 
@@ -1087,7 +1087,7 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath, const QByteArr
                 }
                 printf(");\n");
                 if (e.type == "destructor")
-                    printf("        m_%s = 0;\n", interfaceName);
+                    printf("        m_%s = nullptr;\n", interfaceName);
                 printf("    }\n");
             }
 

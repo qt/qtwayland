@@ -356,7 +356,12 @@ void QWaylandXdgSurfaceV6Private::zxdg_surface_v6_get_popup(QtWaylandServer::zxd
     }
 
     QWaylandXdgPositionerV6 *positioner = QWaylandXdgPositionerV6::fromResource(positionerResource);
-    if (!positioner || !positioner->m_data.isComplete()) {
+    if (!positioner) {
+        wl_resource_post_error(resource->handle, ZXDG_SHELL_V6_ERROR_INVALID_POSITIONER,
+                               "zxdg_surface_v6.get_popup without positioner");
+        return;
+    }
+    if (!positioner->m_data.isComplete()) {
         QWaylandXdgPositionerV6Data p = positioner->m_data;
         wl_resource_post_error(resource->handle, ZXDG_SHELL_V6_ERROR_INVALID_POSITIONER,
                                "zxdg_surface_v6.get_popup with invalid positioner (size: %dx%d, anchorRect: %dx%d)",

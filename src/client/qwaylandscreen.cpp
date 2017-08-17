@@ -175,6 +175,12 @@ QWaylandScreen * QWaylandScreen::waylandScreenFromWindow(QWindow *window)
     return static_cast<QWaylandScreen *>(platformScreen);
 }
 
+QWaylandScreen *QWaylandScreen::fromWlOutput(::wl_output *output)
+{
+    auto wlOutput = static_cast<QtWayland::wl_output *>(wl_output_get_user_data(output));
+    return static_cast<QWaylandScreen *>(wlOutput);
+}
+
 void QWaylandScreen::output_mode(uint32_t flags, int width, int height, int refresh)
 {
     if (!(flags & WL_OUTPUT_MODE_CURRENT))

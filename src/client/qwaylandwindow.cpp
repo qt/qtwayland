@@ -69,6 +69,8 @@
 
 #include <QtCore/QDebug>
 
+#include <wayland-client-core.h>
+
 QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
@@ -78,8 +80,7 @@ QWaylandWindow *QWaylandWindow::mMouseGrab = 0;
 QWaylandWindow::QWaylandWindow(QWindow *window)
     : QObject()
     , QPlatformWindow(window)
-    , mScreen(QWaylandScreen::waylandScreenFromWindow(window))
-    , mDisplay(mScreen->display())
+    , mDisplay(screen()->display())
     , mShellSurface(0)
     , mSubSurfaceWindow(0)
     , mWindowDecoration(0)
@@ -99,6 +100,7 @@ QWaylandWindow::QWaylandWindow(QWindow *window)
 {
     static WId id = 1;
     mWindowId = id++;
+    connect(qApp, &QGuiApplication::screenRemoved, this, &QWaylandWindow::handleScreenRemoved);
     initializeWlSurface();
 }
 
@@ -356,6 +358,11 @@ void QWaylandWindow::closePopups(QWaylandWindow *parent)
     }
 }
 
+QWaylandScreen *QWaylandWindow::calculateScreenFromSurfaceEvents() const
+{
+    return mScreens.isEmpty() ? screen() : mScreens.first();
+}
+
 void QWaylandWindow::setVisible(bool visible)
 {
     if (visible) {
@@ -491,6 +498,53 @@ void QWaylandWindow::requestResize()
     QWindowSystemInterface::flushWindowSystemEvents();
 }
 
+void QWaylandWindow::surface_enter(wl_output *output)
+{
+    QWaylandScreen *oldScreen = calculateScreenFromSurfaceEvents();
+    auto addedScreen = QWaylandScreen::fromWlOutput(output);
+
+    if (mScreens.contains(addedScreen)) {
+        qWarning() << "Unexpected wl_surface.enter received for output with id:"
+                   << wl_proxy_get_id(reinterpret_cast<wl_proxy *>(output))
+                   << "screen name:" << addedScreen->name() << "screen model:" << addedScreen->model();
+        return;
+    }
+
+    mScreens.append(addedScreen);
+
+    QWaylandScreen *newScreen = calculateScreenFromSurfaceEvents();
+    if (oldScreen != newScreen) //currently this will only happen if the first wl_surface.enter is for a non-primary screen
+        QWindowSystemInterface::handleWindowScreenChanged(window(), newScreen->QPlatformScreen::screen());
+}
+
+void QWaylandWindow::surface_leave(wl_output *output)
+{
+    QWaylandScreen *oldScreen = calculateScreenFromSurfaceEvents();
+    auto *removedScreen = QWaylandScreen::fromWlOutput(output);
+    bool wasRemoved = mScreens.removeOne(removedScreen);
+    if (!wasRemoved) {
+        qWarning() << "Unexpected wl_surface.leave received for output with id:"
+                   << wl_proxy_get_id(reinterpret_cast<wl_proxy *>(output))
+                   << "screen name:" << removedScreen->name() << "screen model:" << removedScreen->model();
+        return;
+    }
+
+    QWaylandScreen *newScreen = calculateScreenFromSurfaceEvents();
+    if (oldScreen != newScreen)
+        QWindowSystemInterface::handleWindowScreenChanged(window(), newScreen->QPlatformScreen::screen());
+}
+
+void QWaylandWindow::handleScreenRemoved(QScreen *qScreen)
+{
+    QWaylandScreen *oldScreen = calculateScreenFromSurfaceEvents();
+    bool wasRemoved = mScreens.removeOne(static_cast<QWaylandScreen *>(qScreen->handle()));
+    if (wasRemoved) {
+        QWaylandScreen *newScreen = calculateScreenFromSurfaceEvents();
+        if (oldScreen != newScreen)
+            QWindowSystemInterface::handleWindowScreenChanged(window(), newScreen->QPlatformScreen::screen());
+    }
+}
+
 void QWaylandWindow::attach(QWaylandBuffer *buffer, int x, int y)
 {
     if (mFrameCallback) {
@@ -577,6 +631,11 @@ QWaylandShellSurface *QWaylandWindow::shellSurface() const
 QWaylandSubSurface *QWaylandWindow::subSurfaceWindow() const
 {
     return mSubSurfaceWindow;
+}
+
+QWaylandScreen *QWaylandWindow::screen() const
+{
+    return static_cast<QWaylandScreen *>(QPlatformWindow::screen());
 }
 
 void QWaylandWindow::handleContentOrientationChange(Qt::ScreenOrientation orientation)
@@ -843,7 +902,7 @@ void QWaylandWindow::handleMouseEventWithDecoration(QWaylandInputDevice *inputDe
 #if QT_CONFIG(cursor)
 void QWaylandWindow::setMouseCursor(QWaylandInputDevice *device, const QCursor &cursor)
 {
-    device->setCursor(cursor, mScreen);
+    device->setCursor(cursor, screen());
 }
 
 void QWaylandWindow::restoreMouseCursor(QWaylandInputDevice *device)

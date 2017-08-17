@@ -142,7 +142,7 @@ public:
     QWaylandDisplay *display() const { return mDisplay; }
     QWaylandShellSurface *shellSurface() const;
     QWaylandSubSurface *subSurfaceWindow() const;
-    QWaylandScreen *screen() const { return mScreen; }
+    QWaylandScreen *screen() const;
 
     void handleContentOrientationChange(Qt::ScreenOrientation orientation) override;
     void setOrientationMask(Qt::ScreenOrientations mask);
@@ -209,7 +209,10 @@ public slots:
     void requestResize();
 
 protected:
-    QWaylandScreen *mScreen;
+    void surface_enter(struct ::wl_output *output) override;
+    void surface_leave(struct ::wl_output *output) override;
+
+    QVector<QWaylandScreen *> mScreens; //As seen by wl_surface.enter/leave events. Chronological order.
     QWaylandDisplay *mDisplay;
     QWaylandShellSurface *mShellSurface;
     QWaylandSubSurface *mSubSurfaceWindow;
@@ -244,6 +247,9 @@ protected:
 
     QWaylandShmBackingStore *mBackingStore;
 
+private slots:
+    void handleScreenRemoved(QScreen *qScreen);
+
 private:
     bool setWindowStateInternal(Qt::WindowState flags);
     void setGeometry_helper(const QRect &rect);
@@ -254,6 +260,7 @@ private:
     void reset();
     void sendExposeEvent(const QRect &rect);
     static void closePopups(QWaylandWindow *parent);
+    QWaylandScreen *calculateScreenFromSurfaceEvents() const;
 
     void handleMouseEventWithDecoration(QWaylandInputDevice *inputDevice, const QWaylandPointerEvent &e);
 

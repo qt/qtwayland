@@ -99,6 +99,7 @@ public:
     ::wl_output *output() { return object(); }
 
     static QWaylandScreen *waylandScreenFromWindow(QWindow *window);
+    static QWaylandScreen *fromWlOutput(::wl_output *output);
 
 private:
     void output_mode(uint32_t flags, int width, int height, int refresh) override;

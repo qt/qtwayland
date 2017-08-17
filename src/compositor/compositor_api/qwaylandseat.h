@@ -97,7 +97,6 @@ public:
     void sendKeyReleaseEvent(uint code);
 
     void sendFullKeyEvent(QKeyEvent *event);
-    void sendFullKeyEvent(QWaylandSurface *surface, QKeyEvent *event);
 
     uint sendTouchPointEvent(QWaylandSurface *surface, int id, const QPointF &point, Qt::TouchPointState state);
     void sendTouchFrameEvent(QWaylandClient *client);

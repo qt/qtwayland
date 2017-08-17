@@ -256,8 +256,10 @@ void QWaylandWindow::reset(bool sendDestroyEvent)
     if (isInitialized())
         destroy();
 
-    if (mFrameCallback)
+    if (mFrameCallback) {
         wl_callback_destroy(mFrameCallback);
+        mFrameCallback = nullptr;
+    }
 }
 
 QWaylandWindow *QWaylandWindow::fromWlSurface(::wl_surface *surface)
@@ -725,6 +727,8 @@ QWaylandWindow *QWaylandWindow::transientParent() const
     // events.
     if (auto transientParent = window()->transientParent())
         return static_cast<QWaylandWindow *>(topLevelWindow(transientParent)->handle());
+    else if (QGuiApplication::focusWindow() && (window()->type() == Qt::ToolTip || window()->type() == Qt::Popup))
+        return static_cast<QWaylandWindow *>(topLevelWindow(QGuiApplication::focusWindow())->handle());
 
     return nullptr;
 }

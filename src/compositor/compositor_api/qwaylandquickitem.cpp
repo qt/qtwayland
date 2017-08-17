@@ -742,7 +742,7 @@ void QWaylandQuickItem::handleSubsurfaceAdded(QWaylandSurface *childSurface)
 
 
 /*!
-  \qmlproperty bool QtWaylandCompositor::WaylandQuickItem::subsurfaceHandler
+  \qmlproperty object QtWaylandCompositor::WaylandQuickItem::subsurfaceHandler
 
   This property provides a way to override the default subsurface behavior.
 

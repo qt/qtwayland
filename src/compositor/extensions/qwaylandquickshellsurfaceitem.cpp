@@ -47,6 +47,7 @@ QT_BEGIN_NAMESPACE
 
 /*!
  * \qmltype ShellSurfaceItem
+ * \inherits WaylandQuickItem
  * \inqmlmodule QtWayland.Compositor
  * \since 5.8
  * \brief A Qt Quick item type representing a WlShellSurface.
@@ -133,9 +134,19 @@ void QWaylandQuickShellSurfaceItem::setShellSurface(QWaylandShellSurface *shellS
 }
 
 /*!
+ * \qmlproperty Item QtWaylandCompositor::ShellSurfaceItem::moveItem
+ *
+ * This property holds the move item for this ShellSurfaceItem. This is the item that will be moved
+ * when the clients request the ShellSurface to be moved, maximized, resized etc. This property is
+ * useful when implementing server-side decorations.
+ */
+
+/*!
  * \property QWaylandQuickShellSurfaceItem::moveItem
  *
- * This property holds the move item for this QWaylandQuickShellSurfaceItem.
+ * This property holds the move item for this QWaylandQuickShellSurfaceItem. This is the item that
+ * will be moved when the clients request the QWaylandShellSurface to be moved, maximized, resized
+ * etc. This property is useful when implementing server-side decorations.
  */
 QQuickItem *QWaylandQuickShellSurfaceItem::moveItem() const
 {

@@ -27,9 +27,38 @@
 ****************************************************************************/
 
 #include "mocksurface.h"
+#include "mockoutput.h"
 #include "mockcompositor.h"
 
 namespace Impl {
+
+void Compositor::sendSurfaceEnter(void *data, const QList<QVariant> &parameters)
+{
+    Q_UNUSED(data);
+    Surface *surface = resolveSurface(parameters.at(0));
+    Output *output = resolveOutput(parameters.at(1));
+    Q_ASSERT(surface && surface->resource());
+    Q_ASSERT(output);
+    auto outputResources = output->resourceMap().values(surface->resource()->client());
+    Q_ASSERT(!outputResources.isEmpty());
+
+    for (auto outputResource : outputResources)
+        surface->send_enter(outputResource->handle);
+}
+
+void Compositor::sendSurfaceLeave(void *data, const QList<QVariant> &parameters)
+{
+    Q_UNUSED(data);
+    Surface *surface = resolveSurface(parameters.at(0));
+    Output *output = resolveOutput(parameters.at(1));
+    Q_ASSERT(surface && surface->resource());
+    Q_ASSERT(output);
+    auto outputResources = output->resourceMap().values(surface->resource()->client());
+    Q_ASSERT(!outputResources.isEmpty());
+
+    for (auto outputResource : outputResources)
+        surface->send_leave(outputResource->handle);
+}
 
 Surface::Surface(wl_client *client, uint32_t id, int v, Compositor *compositor)
     : QtWaylandServer::wl_surface(client, id, v)

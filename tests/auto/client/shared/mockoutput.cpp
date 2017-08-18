@@ -27,41 +27,76 @@
 ****************************************************************************/
 
 #include "mockcompositor.h"
+#include "mockoutput.h"
+
+#include <QDebug>
 
 namespace Impl {
 
-void Compositor::bindOutput(wl_client *client, void *compositorData, uint32_t version, uint32_t id)
+void Compositor::sendAddOutput(void *data, const QList<QVariant> &parameters) {
+    Q_UNUSED(parameters);
+    Compositor *compositor = static_cast<Compositor *>(data);
+    auto output = new Output(compositor->m_display, QSize(1920, 1200), QPoint(0, 0));
+    compositor->m_outputs.append(output);
+
+    // Wait for the client to bind to the output
+    while (output->resourceMap().isEmpty())
+        compositor->dispatchEvents();
+}
+
+void Compositor::setOutputMode(void *data, const QList<QVariant> &parameters)
 {
-    wl_resource *resource = wl_resource_create(client, &wl_output_interface, static_cast<int>(version), id);
-
-    Compositor *compositor = static_cast<Compositor *>(compositorData);
-    registerResource(&compositor->m_outputResources, resource);
-
-    compositor->sendOutputGeometry(resource);
-    compositor->sendOutputMode(resource);
+    Compositor *compositor = static_cast<Compositor *>(data);
+    QSize size = parameters.first().toSize();
+    Output *output = compositor->m_outputs.first();
+    Q_ASSERT(output);
+    output->setCurrentMode(size);
 }
 
-void Compositor::sendOutputGeometry(wl_resource *resource)
+Output::Output(wl_display *display, const QSize &resolution, const QPoint &position)
+    : wl_output(display, 2)
+    , m_size(resolution)
+    , m_position(position)
+    , m_physicalSize(520, 320)
+    , m_mockOutput(new MockOutput(this))
 {
-    const QRect &r = m_outputGeometry;
-    wl_output_send_geometry(resource, r.x(), r.y(), r.width(), r.height(), 0, "", "",0);
 }
 
-void Compositor::sendOutputMode(wl_resource *resource)
+void Output::setCurrentMode(const QSize &size)
 {
-    const QRect &r = m_outputGeometry;
-    wl_output_send_mode(resource, WL_OUTPUT_MODE_CURRENT | WL_OUTPUT_MODE_PREFERRED, r.width(), r.height(), 60);
+    qDebug() << Q_FUNC_INFO << size;
+    m_size = size;
+    for (Resource *resource : resourceMap())
+        sendCurrentMode(resource);
 }
 
-void Compositor::setOutputGeometry(void *c, const QList<QVariant> &parameters)
+void Output::output_bind_resource(QtWaylandServer::wl_output::Resource *resource)
 {
-    Compositor *compositor = static_cast<Compositor *>(c);
-    compositor->m_outputGeometry = parameters.first().toRect();
-
-    wl_resource *resource;
-    wl_list_for_each(resource, &compositor->m_outputResources, link)
-        compositor->sendOutputGeometry(resource);
+    sendGeometry(resource);
+    sendCurrentMode(resource);
 }
 
+void Output::sendGeometry(Resource *resource)
+{
+    const int subPixel = 0;
+    const int transform = 0;
+
+    send_geometry(resource->handle,
+                  m_position.x(), m_position.y(),
+                  m_physicalSize.width(), m_physicalSize.height(),
+                  subPixel, "", "", transform );
 }
 
+void Output::sendCurrentMode(Resource *resource)
+{
+    send_mode(resource->handle,
+              WL_OUTPUT_MODE_CURRENT | WL_OUTPUT_MODE_PREFERRED,
+              m_size.width(), m_size.height(), 60000);
+}
+
+} // Impl
+
+MockOutput::MockOutput(Impl::Output *output)
+    : m_output(output)
+{
+}

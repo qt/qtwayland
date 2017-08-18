@@ -32,12 +32,6 @@
 
 namespace Impl {
 
-static Surface *resolveSurface(const QVariant &v)
-{
-    QSharedPointer<MockSurface> mockSurface = v.value<QSharedPointer<MockSurface> >();
-    return mockSurface ? mockSurface->handle() : 0;
-}
-
 void Compositor::setKeyboardFocus(void *data, const QList<QVariant> &parameters)
 {
     Compositor *compositor = static_cast<Compositor *>(data);

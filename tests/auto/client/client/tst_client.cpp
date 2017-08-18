@@ -137,7 +137,8 @@ public slots:
     }
 
 private slots:
-    void screen();
+    void primaryScreen();
+    void windowScreens();
     void createDestroyWindow();
     void events();
     void backingStore();
@@ -151,9 +152,47 @@ private:
     MockCompositor *compositor;
 };
 
-void tst_WaylandClient::screen()
+void tst_WaylandClient::primaryScreen()
 {
+    compositor->setOutputMode(screenSize);
     QTRY_COMPARE(QGuiApplication::primaryScreen()->size(), screenSize);
+}
+
+void tst_WaylandClient::windowScreens()
+{
+    QSharedPointer<MockOutput> firstOutput;
+    QTRY_VERIFY(firstOutput = compositor->output());
+
+    TestWindow window;
+    window.show();
+
+    QSharedPointer<MockSurface> surface;
+    QTRY_VERIFY(surface = compositor->surface());
+    QTRY_COMPARE(QGuiApplication::screens().size(), 1);
+    QScreen *primaryScreen = QGuiApplication::screens().first();
+    QCOMPARE(window.screen(), primaryScreen);
+
+    compositor->sendAddOutput();
+
+    QTRY_COMPARE(QGuiApplication::screens().size(), 2);
+    QScreen *secondaryScreen = QGuiApplication::screens().at(1);
+    QVERIFY(secondaryScreen);
+
+    window.setScreen(secondaryScreen);
+    QCOMPARE(window.screen(), secondaryScreen);
+
+    QSharedPointer<MockOutput> secondOutput;
+    QTRY_VERIFY(secondOutput = compositor->output(1));
+    compositor->sendSurfaceEnter(surface, firstOutput);
+
+    compositor->sendSurfaceEnter(surface, secondOutput);
+    QTRY_COMPARE(window.screen(), primaryScreen);
+
+    compositor->sendSurfaceLeave(surface, firstOutput);
+    QTRY_COMPARE(window.screen(), secondaryScreen);
+
+    window.destroy();
+    QTRY_VERIFY(!compositor->surface());
 }
 
 void tst_WaylandClient::createDestroyWindow()
@@ -417,7 +456,7 @@ int main(int argc, char **argv)
     setenv("QT_WAYLAND_DISABLE_WINDOWDECORATION", "1", 1);
 
     MockCompositor compositor;
-    compositor.setOutputGeometry(QRect(QPoint(), screenSize));
+    compositor.setOutputMode(screenSize);
 
     QGuiApplication app(argc, argv);
     compositor.applicationInitialized();

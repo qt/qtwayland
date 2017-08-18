@@ -21,4 +21,5 @@ SOURCES += \
 HEADERS += \
     ../shared/mockcompositor.h \
     ../shared/mockinput.h \
-    ../shared/mocksurface.h
+    ../shared/mocksurface.h \
+    ../shared/mockoutput.h

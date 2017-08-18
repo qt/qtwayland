@@ -28,6 +28,7 @@
 
 #include "mockcompositor.h"
 #include "mockinput.h"
+#include "mockoutput.h"
 #include "mocksurface.h"
 
 #include <wayland-xdg-shell-unstable-v6-server-protocol.h>
@@ -77,10 +78,10 @@ void MockCompositor::processWaylandEvents()
     m_waitCondition.wakeOne();
 }
 
-void MockCompositor::setOutputGeometry(const QRect &rect)
+void MockCompositor::setOutputMode(const QSize &size)
 {
-    Command command = makeCommand(Impl::Compositor::setOutputGeometry, m_compositor);
-    command.parameters << rect;
+    Command command = makeCommand(Impl::Compositor::setOutputMode, m_compositor);
+    command.parameters << size;
     processCommand(command);
 }
 
@@ -182,6 +183,28 @@ void MockCompositor::sendDataDeviceLeave(const QSharedPointer<MockSurface> &surf
     processCommand(command);
 }
 
+void MockCompositor::sendAddOutput()
+{
+    Command command = makeCommand(Impl::Compositor::sendAddOutput, m_compositor);
+    processCommand(command);
+}
+
+void MockCompositor::sendSurfaceEnter(const QSharedPointer<MockSurface> &surface, QSharedPointer<MockOutput> &output)
+{
+    Command command = makeCommand(Impl::Compositor::sendSurfaceEnter, m_compositor);
+    command.parameters << QVariant::fromValue(surface);
+    command.parameters << QVariant::fromValue(output);
+    processCommand(command);
+}
+
+void MockCompositor::sendSurfaceLeave(const QSharedPointer<MockSurface> &surface, QSharedPointer<MockOutput> &output)
+{
+    Command command = makeCommand(Impl::Compositor::sendSurfaceLeave, m_compositor);
+    command.parameters << QVariant::fromValue(surface);
+    command.parameters << QVariant::fromValue(output);
+    processCommand(command);
+}
+
 void MockCompositor::waitForStartDrag()
 {
     Command command = makeCommand(Impl::Compositor::waitForStartDrag, m_compositor);
@@ -200,6 +223,15 @@ QSharedPointer<MockSurface> MockCompositor::surface()
             break;
         }
     }
+    unlock();
+    return result;
+}
+
+QSharedPointer<MockOutput> MockCompositor::output(int index)
+{
+    QSharedPointer<MockOutput> result;
+    lock();
+    result = m_compositor->outputs().at(index)->mockOutput();
     unlock();
     return result;
 }
@@ -267,8 +299,6 @@ namespace Impl {
 Compositor::Compositor()
     : m_display(wl_display_create())
 {
-    wl_list_init(&m_outputResources);
-
     if (wl_display_add_socket(m_display, 0)) {
         fprintf(stderr, "Fatal: Failed to open server socket\n");
         exit(EXIT_FAILURE);
@@ -285,7 +315,7 @@ Compositor::Compositor()
     m_keyboard = m_seat->keyboard();
     m_touch = m_seat->touch();
 
-    wl_global_create(m_display, &wl_output_interface, 1, this, bindOutput);
+    m_outputs.append(new Output(m_display, QSize(1920, 1080), QPoint(0, 0)));
     wl_global_create(m_display, &wl_shell_interface, 1, this, bindShell);
     wl_global_create(m_display, &zxdg_shell_v6_interface, 1, this, bindXdgShellV6);
 
@@ -350,6 +380,11 @@ QVector<Surface *> Compositor::surfaces() const
     return m_surfaces;
 }
 
+QVector<Output *> Compositor::outputs() const
+{
+    return m_outputs;
+}
+
 uint32_t Compositor::nextSerial()
 {
     return wl_display_next_serial(m_display);
@@ -365,6 +400,18 @@ void Compositor::removeSurface(Surface *surface)
     m_surfaces.removeOne(surface);
     m_keyboard->handleSurfaceDestroyed(surface);
     m_pointer->handleSurfaceDestroyed(surface);
+}
+
+Surface *Compositor::resolveSurface(const QVariant &v)
+{
+    QSharedPointer<MockSurface> mockSurface = v.value<QSharedPointer<MockSurface> >();
+    return mockSurface ? mockSurface->handle() : nullptr;
+}
+
+Output *Compositor::resolveOutput(const QVariant &v)
+{
+    QSharedPointer<MockOutput> mockOutput = v.value<QSharedPointer<MockOutput> >();
+    return mockOutput ? mockOutput->handle() : nullptr;
 }
 
 }

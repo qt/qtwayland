@@ -108,7 +108,7 @@ int main(int argc, char **argv)
     setenv("QT_WAYLAND_DISABLE_WINDOWDECORATION", "1", 1);
 
     MockCompositor compositor;
-    compositor.setOutputGeometry(QRect(QPoint(), screenSize));
+    compositor.setOutputMode(screenSize);
 
     QGuiApplication app(argc, argv);
     compositor.applicationInitialized();

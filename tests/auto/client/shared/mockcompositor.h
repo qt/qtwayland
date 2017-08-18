@@ -51,6 +51,7 @@ class Touch;
 class Seat;
 class DataDeviceManager;
 class Surface;
+class Output;
 
 class Compositor
 {
@@ -64,9 +65,8 @@ public:
     uint32_t nextSerial();
     uint32_t time() { return ++m_time; }
 
-    static void setOutputGeometry(void *compositor, const QList<QVariant> &parameters);
-
     QVector<Surface *> surfaces() const;
+    QVector<Output *> outputs() const;
 
     void addSurface(Surface *surface);
     void removeSurface(Surface *surface);
@@ -86,20 +86,22 @@ public:
     static void sendDataDeviceDrop(void *data, const QList<QVariant> &parameters);
     static void sendDataDeviceLeave(void *data, const QList<QVariant> &parameters);
     static void waitForStartDrag(void *data, const QList<QVariant> &parameters);
+    static void setOutputMode(void *compositor, const QList<QVariant> &parameters);
+    static void sendAddOutput(void *data, const QList<QVariant> &parameters);
+    static void sendSurfaceEnter(void *data, const QList<QVariant> &parameters);
+    static void sendSurfaceLeave(void *data, const QList<QVariant> &parameters);
 
 public:
     bool m_startDragSeen = false;
 
 private:
     static void bindCompositor(wl_client *client, void *data, uint32_t version, uint32_t id);
-    static void bindOutput(wl_client *client, void *data, uint32_t version, uint32_t id);
     static void bindShell(wl_client *client, void *data, uint32_t version, uint32_t id);
     static void bindXdgShellV6(wl_client *client, void *compositorData, uint32_t version, uint32_t id);
+    static Surface *resolveSurface(const QVariant &v);
+    static Output *resolveOutput(const QVariant &v);
 
     void initShm();
-
-    void sendOutputGeometry(wl_resource *resource);
-    void sendOutputMode(wl_resource *resource);
 
     QRect m_outputGeometry;
 
@@ -108,7 +110,6 @@ private:
     wl_shm *m_shm = nullptr;
     int m_fd = -1;
 
-    wl_list m_outputResources;
     uint32_t m_time = 0;
 
     QScopedPointer<Seat> m_seat;
@@ -117,6 +118,7 @@ private:
     Touch *m_touch = nullptr;
     QScopedPointer<DataDeviceManager> m_data_device_manager;
     QVector<Surface *> m_surfaces;
+    QVector<Output *> m_outputs;
 };
 
 void registerResource(wl_list *list, wl_resource *resource);
@@ -140,6 +142,16 @@ private:
 
 Q_DECLARE_METATYPE(QSharedPointer<MockSurface>)
 
+class MockOutput {
+public:
+    Impl::Output *handle() const { return m_output; }
+    MockOutput(Impl::Output *output);
+private:
+    Impl::Output *m_output;
+};
+
+Q_DECLARE_METATYPE(QSharedPointer<MockOutput>)
+
 class MockCompositor
 {
 public:
@@ -151,7 +163,7 @@ public:
     int waylandFileDescriptor() const;
     void processWaylandEvents();
 
-    void setOutputGeometry(const QRect &rect);
+    void setOutputMode(const QSize &size);
     void setKeyboardFocus(const QSharedPointer<MockSurface> &surface);
     void sendMousePress(const QSharedPointer<MockSurface> &surface, const QPoint &pos);
     void sendMouseRelease(const QSharedPointer<MockSurface> &surface);
@@ -166,9 +178,13 @@ public:
     void sendDataDeviceMotion(const QPoint &position);
     void sendDataDeviceDrop(const QSharedPointer<MockSurface> &surface);
     void sendDataDeviceLeave(const QSharedPointer<MockSurface> &surface);
+    void sendAddOutput();
+    void sendSurfaceEnter(const QSharedPointer<MockSurface> &surface, QSharedPointer<MockOutput> &output);
+    void sendSurfaceLeave(const QSharedPointer<MockSurface> &surface, QSharedPointer<MockOutput> &output);
     void waitForStartDrag();
 
     QSharedPointer<MockSurface> surface();
+    QSharedPointer<MockOutput> output(int index = 0);
 
     void lock();
     void unlock();

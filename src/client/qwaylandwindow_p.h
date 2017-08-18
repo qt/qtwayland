@@ -110,6 +110,7 @@ public:
     ~QWaylandWindow();
 
     virtual WindowType windowType() const = 0;
+    virtual void ensureSize();
     WId winId() const override;
     void setVisible(bool visible) override;
     void setParent(const QPlatformWindow *parent) override;
@@ -263,6 +264,7 @@ private:
     QWaylandScreen *calculateScreenFromSurfaceEvents() const;
 
     void handleMouseEventWithDecoration(QWaylandInputDevice *inputDevice, const QWaylandPointerEvent &e);
+    void handleScreenChanged();
 
     bool mUpdateRequested;
 

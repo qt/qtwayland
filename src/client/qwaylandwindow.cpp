@@ -128,6 +128,12 @@ QWaylandWindow::~QWaylandWindow()
     }
 }
 
+void QWaylandWindow::ensureSize()
+{
+    if (mBackingStore)
+        mBackingStore->ensureSize();
+}
+
 void QWaylandWindow::initWindow()
 {
     if (window()->type() == Qt::Desktop)
@@ -199,7 +205,6 @@ void QWaylandWindow::initWindow()
     // Enable high-dpi rendering. Scale() returns the screen scale factor and will
     // typically be integer 1 (normal-dpi) or 2 (high-dpi). Call set_buffer_scale()
     // to inform the compositor that high-resolution buffers will be provided.
-    //FIXME this needs to be changed when the screen changes along with a resized backing store
     if (mDisplay->compositorVersion() >= 3)
         set_buffer_scale(scale());
 
@@ -523,7 +528,7 @@ void QWaylandWindow::surface_enter(wl_output *output)
 
     QWaylandScreen *newScreen = calculateScreenFromSurfaceEvents();
     if (oldScreen != newScreen) //currently this will only happen if the first wl_surface.enter is for a non-primary screen
-        QWindowSystemInterface::handleWindowScreenChanged(window(), newScreen->QPlatformScreen::screen());
+        handleScreenChanged();
 }
 
 void QWaylandWindow::surface_leave(wl_output *output)
@@ -540,7 +545,7 @@ void QWaylandWindow::surface_leave(wl_output *output)
 
     QWaylandScreen *newScreen = calculateScreenFromSurfaceEvents();
     if (oldScreen != newScreen)
-        QWindowSystemInterface::handleWindowScreenChanged(window(), newScreen->QPlatformScreen::screen());
+        handleScreenChanged();
 }
 
 void QWaylandWindow::handleScreenRemoved(QScreen *qScreen)
@@ -550,7 +555,7 @@ void QWaylandWindow::handleScreenRemoved(QScreen *qScreen)
     if (wasRemoved) {
         QWaylandScreen *newScreen = calculateScreenFromSurfaceEvents();
         if (oldScreen != newScreen)
-            QWindowSystemInterface::handleWindowScreenChanged(window(), newScreen->QPlatformScreen::screen());
+            handleScreenChanged();
     }
 }
 
@@ -911,6 +916,20 @@ void QWaylandWindow::handleMouseEventWithDecoration(QWaylandInputDevice *inputDe
             QWindowSystemInterface::handleLeaveEvent(window());
             mMouseEventsInContentArea = false;
         }
+    }
+}
+
+void QWaylandWindow::handleScreenChanged()
+{
+    QWaylandScreen *newScreen = calculateScreenFromSurfaceEvents();
+    QWindowSystemInterface::handleWindowScreenChanged(window(), newScreen->QPlatformScreen::screen());
+
+    int scale = newScreen->scale();
+    if (scale != mScale) {
+        mScale = scale;
+        if (isInitialized() && mDisplay->compositorVersion() >= 3)
+            set_buffer_scale(mScale);
+        ensureSize();
     }
 }
 

@@ -92,6 +92,11 @@ QWaylandWindow::WindowType QWaylandEglWindow::windowType() const
     return QWaylandWindow::Egl;
 }
 
+void QWaylandEglWindow::ensureSize()
+{
+    updateSurface(false);
+}
+
 void QWaylandEglWindow::setGeometry(const QRect &rect)
 {
     QWaylandWindow::setGeometry(rect);

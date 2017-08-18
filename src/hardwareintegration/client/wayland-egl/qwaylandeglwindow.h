@@ -59,6 +59,7 @@ public:
     QWaylandEglWindow(QWindow *window);
     ~QWaylandEglWindow();
     WindowType windowType() const override;
+    void ensureSize() override;
 
     void updateSurface(bool create);
     virtual void setGeometry(const QRect &rect) override;

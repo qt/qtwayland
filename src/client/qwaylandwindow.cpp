@@ -254,6 +254,8 @@ void QWaylandWindow::reset()
         wl_callback_destroy(mFrameCallback);
         mFrameCallback = nullptr;
     }
+
+    mMask = QRegion();
 }
 
 QWaylandWindow *QWaylandWindow::fromWlSurface(::wl_surface *surface)

@@ -138,6 +138,7 @@ public slots:
 
 private slots:
     void primaryScreen();
+    void screens();
     void windowScreens();
     void createDestroyWindow();
     void events();
@@ -156,6 +157,17 @@ void tst_WaylandClient::primaryScreen()
 {
     compositor->setOutputMode(screenSize);
     QTRY_COMPARE(QGuiApplication::primaryScreen()->size(), screenSize);
+}
+
+void tst_WaylandClient::screens()
+{
+    QTRY_COMPARE(QGuiApplication::screens().size(), 1);
+    compositor->sendAddOutput();
+    QTRY_COMPARE(QGuiApplication::screens().size(), 2);
+    QSharedPointer<MockOutput> secondOutput;
+    QTRY_VERIFY(secondOutput = compositor->output(1));
+    compositor->sendRemoveOutput(secondOutput);
+    QTRY_COMPARE(QGuiApplication::screens().size(), 1);
 }
 
 void tst_WaylandClient::windowScreens()
@@ -190,6 +202,10 @@ void tst_WaylandClient::windowScreens()
 
     compositor->sendSurfaceLeave(surface, firstOutput);
     QTRY_COMPARE(window.screen(), secondaryScreen);
+
+    compositor->sendRemoveOutput(secondOutput);
+    QTRY_COMPARE(QGuiApplication::screens().size(), 1);
+    QCOMPARE(window.screen(), primaryScreen);
 
     window.destroy();
     QTRY_VERIFY(!compositor->surface());

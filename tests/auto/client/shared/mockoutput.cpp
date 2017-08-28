@@ -44,6 +44,16 @@ void Compositor::sendAddOutput(void *data, const QList<QVariant> &parameters) {
         compositor->dispatchEvents();
 }
 
+void Compositor::sendRemoveOutput(void *data, const QList<QVariant> &parameters) {
+    Compositor *compositor = static_cast<Compositor *>(data);
+    Q_ASSERT(compositor);
+    Output *output = resolveOutput(parameters.first());
+    Q_ASSERT(output);
+    bool wasRemoved = compositor->m_outputs.removeOne(output);
+    Q_ASSERT(wasRemoved);
+    delete output;
+}
+
 void Compositor::setOutputMode(void *data, const QList<QVariant> &parameters)
 {
     Compositor *compositor = static_cast<Compositor *>(data);

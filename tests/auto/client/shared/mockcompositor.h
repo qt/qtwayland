@@ -88,6 +88,7 @@ public:
     static void waitForStartDrag(void *data, const QList<QVariant> &parameters);
     static void setOutputMode(void *compositor, const QList<QVariant> &parameters);
     static void sendAddOutput(void *data, const QList<QVariant> &parameters);
+    static void sendRemoveOutput(void *data, const QList<QVariant> &parameters);
     static void sendSurfaceEnter(void *data, const QList<QVariant> &parameters);
     static void sendSurfaceLeave(void *data, const QList<QVariant> &parameters);
 
@@ -179,6 +180,7 @@ public:
     void sendDataDeviceDrop(const QSharedPointer<MockSurface> &surface);
     void sendDataDeviceLeave(const QSharedPointer<MockSurface> &surface);
     void sendAddOutput();
+    void sendRemoveOutput(const QSharedPointer<MockOutput> &output);
     void sendSurfaceEnter(const QSharedPointer<MockSurface> &surface, QSharedPointer<MockOutput> &output);
     void sendSurfaceLeave(const QSharedPointer<MockSurface> &surface, QSharedPointer<MockOutput> &output);
     void waitForStartDrag();

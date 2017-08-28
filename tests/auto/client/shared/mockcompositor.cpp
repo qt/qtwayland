@@ -189,6 +189,13 @@ void MockCompositor::sendAddOutput()
     processCommand(command);
 }
 
+void MockCompositor::sendRemoveOutput(const QSharedPointer<MockOutput> &output)
+{
+    Command command = makeCommand(Impl::Compositor::sendRemoveOutput, m_compositor);
+    command.parameters << QVariant::fromValue(output);
+    processCommand(command);
+}
+
 void MockCompositor::sendSurfaceEnter(const QSharedPointer<MockSurface> &surface, QSharedPointer<MockOutput> &output)
 {
     Command command = makeCommand(Impl::Compositor::sendSurfaceEnter, m_compositor);

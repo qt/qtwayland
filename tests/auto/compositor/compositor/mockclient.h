@@ -64,7 +64,7 @@ public:
 
     wl_display *display;
     wl_compositor *compositor;
-    wl_output *output;
+    QVector<wl_output *> m_outputs;
     wl_shm *shm;
     wl_registry *registry;
     wl_shell *wlshell;
@@ -96,6 +96,7 @@ private:
     static MockClient *resolve(void *data) { return static_cast<MockClient *>(data); }
     static const struct wl_registry_listener registryListener;
     static void handleGlobal(void *data, struct wl_registry *registry, uint32_t id, const char *interface, uint32_t version);
+    static void handleGlobalRemove(void *data, struct wl_registry *wl_registry, uint32_t id);
     static int sourceUpdate(uint32_t mask, void *data);
 
     static void outputGeometryEvent(void *data,
@@ -117,6 +118,7 @@ private:
     static void outputScale(void *data, wl_output *output, int factor);
 
     void handleGlobal(uint32_t id, const QByteArray &interface);
+    void handleGlobalRemove(uint32_t id);
 
     static const wl_output_listener outputListener;
 };

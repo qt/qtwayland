@@ -40,9 +40,9 @@
 
     <interface name="qt_example_extension" version="1">
 
-      <description summary="example extension for surfaces">
-        This example shows how to add extra functionality to the Wayland
-        through an extension.
+      <description summary="Example Wayland extension">
+        This example shows how to add extra functionality to Wayland
+        through an extension. This is the global object of the extension.
       </description>
 
       <request name="register_surface">
@@ -85,23 +85,52 @@
         <arg name="pixel_size" type="uint"/>
       </event>
 
+      <enum name="decoration_state">
+        <description summary="window decoration state">
+          Describes whether window decorations should be shown.
+        </description>
+        <entry name="hidden" value="0" summary="Decorations are not shown"/>
+        <entry name="shown" value="1" summary="Decorations are shown"/>
+      </enum>
+
       <event name="set_window_decoration">
         <description summary="turn window decoration on/off">
           Ask the client to turn window decoration on/off on all surfaces.
         </description>
 
-        <enum name="decoration_state">
-          <description summary="window decoration state">
-            Describes whether window decorations should be shown.
-          </description>
-          <entry name="hidden" value="0" summary="Decorations are not shown"/>
-          <entry name="shown" value="1" summary="Decorations are shown"/>
-        </enum>
-
         <arg name="state" type="uint"/>
       </event>
 
+      <request name="create_local_object">
+        <description summary="Create a sily object">
+          Create a new object that should be visualized by the compositor
+        </description>
+        <arg name="id" type="new_id" interface="qt_example_local_object"/>
+        <arg name="color" type = "string"/>
+        <arg name="text" type = "string"/>
+      </request>
     </interface>
 
+    <interface name="qt_example_local_object" version="1">
+      <description summary="An object created on the client side">
+        This object should have a visual representation in the compositor.
+      </description>
+
+      <request name="set_text">
+        <description summary="Change the text">
+          Tell the compositor that the object's text is changed
+        </description>
+        <arg name="text" type="string"/>
+      </request>
+
+      <event name="clicked">
+        <description summary="The object was clicked">
+          Notification to the client that the user clicked the representation of
+          the object in the compositor.
+        </description>
+
+      </event>
+
+    </interface>
 
 </protocol>

@@ -58,6 +58,8 @@
 
 QT_BEGIN_NAMESPACE
 
+class CustomExtensionObject;
+
 class CustomExtension : public QWaylandClientExtensionTemplate<CustomExtension>
         , public QtWayland::qt_example_extension
 {
@@ -65,6 +67,8 @@ class CustomExtension : public QWaylandClientExtensionTemplate<CustomExtension>
 public:
     CustomExtension();
     Q_INVOKABLE void registerWindow(QWindow *window);
+
+    CustomExtensionObject *createCustomObject(const QString &color, const QString &text);
 
 public slots:
     void sendBounce(QWindow *window, uint ms);
@@ -91,6 +95,36 @@ private:
     QList<QWindow *> m_windows;
     bool m_activated;
 };
+
+class CustomExtensionObject : public QWaylandClientExtensionTemplate<CustomExtensionObject>
+        , public QtWayland::qt_example_local_object
+{
+    Q_OBJECT
+    Q_PROPERTY(QString text READ text WRITE setText NOTIFY textChanged)
+public:
+    CustomExtensionObject(struct ::qt_example_local_object *wl_object, const QString &text);
+
+    QString text() const
+    {
+        return m_text;
+    }
+
+protected:
+    void example_local_object_clicked() override;
+
+public slots:
+    void setText(const QString &text);
+
+
+signals:
+    void textChanged(const QString &text);
+    void clicked();
+
+private:
+    QString m_text;
+};
+
+
 
 QT_END_NAMESPACE
 

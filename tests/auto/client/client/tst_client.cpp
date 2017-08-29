@@ -140,6 +140,7 @@ private slots:
     void primaryScreen();
     void screens();
     void windowScreens();
+    void removePrimaryScreen();
     void createDestroyWindow();
     void events();
     void backingStore();
@@ -206,6 +207,38 @@ void tst_WaylandClient::windowScreens()
     compositor->sendRemoveOutput(secondOutput);
     QTRY_COMPARE(QGuiApplication::screens().size(), 1);
     QCOMPARE(window.screen(), primaryScreen);
+
+    window.destroy();
+    QTRY_VERIFY(!compositor->surface());
+}
+
+void tst_WaylandClient::removePrimaryScreen()
+{
+    QSharedPointer<MockOutput> firstOutput;
+    QTRY_VERIFY(firstOutput = compositor->output());
+
+    TestWindow window;
+    window.show();
+
+    QSharedPointer<MockSurface> surface;
+    QTRY_VERIFY(surface = compositor->surface());
+    QTRY_COMPARE(QGuiApplication::screens().size(), 1);
+    QScreen *primaryScreen = QGuiApplication::screens().first();
+    QCOMPARE(window.screen(), primaryScreen);
+
+    compositor->sendAddOutput();
+
+    QTRY_COMPARE(QGuiApplication::screens().size(), 2);
+    QScreen *secondaryScreen = QGuiApplication::screens().at(1);
+    QVERIFY(secondaryScreen);
+
+    compositor->sendRemoveOutput(firstOutput);
+    QTRY_COMPARE(QGuiApplication::screens().size(), 1);
+
+    compositor->sendMousePress(surface, QPoint(10, 10));
+    QTRY_COMPARE(window.mousePressEventCount, 1);
+    compositor->sendMouseRelease(surface);
+    QTRY_COMPARE(window.mouseReleaseEventCount, 1);
 
     window.destroy();
     QTRY_VERIFY(!compositor->surface());

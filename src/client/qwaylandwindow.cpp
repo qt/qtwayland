@@ -86,7 +86,6 @@ QWaylandWindow::QWaylandWindow(QWindow *window)
     , mMouseEventsInContentArea(false)
     , mMousePressedInContentArea(Qt::NoButton)
     , mWaitingForFrameSync(false)
-    , mFrameCallback(nullptr)
     , mRequestResizeSent(false)
     , mCanResize(true)
     , mResizeDirty(false)
@@ -475,12 +474,14 @@ void QWaylandWindow::requestResize()
 
 void QWaylandWindow::attach(QWaylandBuffer *buffer, int x, int y)
 {
-    mFrameCallback = nullptr;
+    if (mFrameCallback) {
+        wl_callback_destroy(mFrameCallback);
+        mFrameCallback = nullptr;
+    }
 
     if (buffer) {
-        auto callback = frame();
-        wl_callback_add_listener(callback, &QWaylandWindow::callbackListener, this);
-        mFrameCallback = callback;
+        mFrameCallback = frame();
+        wl_callback_add_listener(mFrameCallback, &QWaylandWindow::callbackListener, this);
         mWaitingForFrameSync = true;
         buffer->setBusy();
 
@@ -523,8 +524,6 @@ void QWaylandWindow::frameCallback(void *data, struct wl_callback *callback, uin
     QWaylandWindow *self = static_cast<QWaylandWindow*>(data);
 
     self->mWaitingForFrameSync = false;
-    wl_callback_destroy(callback);
-    self->mFrameCallback.testAndSetRelaxed(callback, nullptr);
     if (self->mUpdateRequested) {
         QWindowPrivate *w = QWindowPrivate::get(self->window());
         self->mUpdateRequested = false;

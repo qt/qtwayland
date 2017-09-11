@@ -199,6 +199,7 @@ void QWaylandCompositorPrivate::init()
         if (!autoSocketName)
             qFatal("Fatal: Failed to open server socket\n");
         socket_name = autoSocketName;
+        emit q->socketNameChanged(socket_name);
     }
 
     loop = wl_display_get_event_loop(display);

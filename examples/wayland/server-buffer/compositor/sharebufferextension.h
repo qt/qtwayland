@@ -64,6 +64,8 @@
 
 #include "qwayland-server-share-buffer.h"
 
+QT_BEGIN_NAMESPACE
+
 namespace QtWayland
 {
     class ServerBufferIntegration;
@@ -92,5 +94,7 @@ private:
 };
 
 Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CLASS(ShareBufferExtension)
+
+QT_END_NAMESPACE
 
 #endif // SHAREBUFFEREXTENSION_H

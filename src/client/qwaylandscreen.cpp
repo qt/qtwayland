@@ -147,7 +147,7 @@ void QWaylandScreen::setOrientationUpdateMask(Qt::ScreenOrientations mask)
 {
     foreach (QWindow *window, QGuiApplication::allWindows()) {
         QWaylandWindow *w = static_cast<QWaylandWindow *>(window->handle());
-        if (w && w->screen() == this)
+        if (w && w->waylandScreen() == this)
             w->setOrientationMask(mask);
     }
 }

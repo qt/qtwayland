@@ -143,7 +143,7 @@ public:
     QWaylandDisplay *display() const { return mDisplay; }
     QWaylandShellSurface *shellSurface() const;
     QWaylandSubSurface *subSurfaceWindow() const;
-    QWaylandScreen *screen() const { return mScreen; }
+    QWaylandScreen *waylandScreen() const { return mScreen; }
 
     void handleContentOrientationChange(Qt::ScreenOrientation orientation) override;
     void setOrientationMask(Qt::ScreenOrientations mask);

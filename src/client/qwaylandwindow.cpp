@@ -193,7 +193,7 @@ void QWaylandWindow::initWindow()
         }
     }
 
-    mScale = screen()->scale();
+    mScale = waylandScreen()->scale();
 
     // Enable high-dpi rendering. Scale() returns the screen scale factor and will
     // typically be integer 1 (normal-dpi) or 2 (high-dpi). Call set_buffer_scale()

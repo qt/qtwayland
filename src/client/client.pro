@@ -18,6 +18,9 @@ CONFIG += link_pkgconfig wayland-scanner
 qtConfig(xkbcommon-evdev): \
     QMAKE_USE_PRIVATE += xkbcommon_evdev
 
+qtHaveModule(linuxaccessibility_support_private): \
+    QT += linuxaccessibility_support_private
+
 QMAKE_USE += wayland-client
 
 INCLUDEPATH += $$PWD/../shared

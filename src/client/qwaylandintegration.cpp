@@ -86,6 +86,10 @@
 #include "qwaylandinputdeviceintegration_p.h"
 #include "qwaylandinputdeviceintegrationfactory_p.h"
 
+#ifndef QT_NO_ACCESSIBILITY_ATSPI_BRIDGE
+#include <QtLinuxAccessibilitySupport/private/bridge_p.h>
+#endif
+
 QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
@@ -129,9 +133,6 @@ QWaylandIntegration::QWaylandIntegration()
     : mFontDb(new QGenericUnixFontDatabase())
 #endif
     , mNativeInterface(new QWaylandNativeInterface(this))
-#if QT_CONFIG(accessibility)
-    , mAccessibility(new QPlatformAccessibility())
-#endif
 {
     initializeInputDeviceIntegration();
     mDisplay.reset(new QWaylandDisplay(this));
@@ -277,6 +278,15 @@ QVariant QWaylandIntegration::styleHint(StyleHint hint) const
 #if QT_CONFIG(accessibility)
 QPlatformAccessibility *QWaylandIntegration::accessibility() const
 {
+    if (!mAccessibility) {
+#ifndef QT_NO_ACCESSIBILITY_ATSPI_BRIDGE
+        Q_ASSERT_X(QCoreApplication::eventDispatcher(), "QXcbIntegration",
+            "Initializing accessibility without event-dispatcher!");
+        mAccessibility.reset(new QSpiAccessibleBridge());
+#else
+        mAccessibility.reset(new QPlatformAccessibility());
+#endif
+    }
     return mAccessibility.data();
 }
 #endif

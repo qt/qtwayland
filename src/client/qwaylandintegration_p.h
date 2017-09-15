@@ -145,7 +145,7 @@ private:
     QScopedPointer<QPlatformNativeInterface> mNativeInterface;
     QScopedPointer<QPlatformInputContext> mInputContext;
 #if QT_CONFIG(accessibility)
-    QScopedPointer<QPlatformAccessibility> mAccessibility;
+    mutable QScopedPointer<QPlatformAccessibility> mAccessibility;
 #endif
     bool mFailed = false;
     bool mClientBufferIntegrationInitialized = false;

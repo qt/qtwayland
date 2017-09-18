@@ -134,7 +134,10 @@ public:
 Q_SIGNALS:
     void mouseFocusChanged(QWaylandView *newFocus, QWaylandView *oldFocus);
     void keyboardFocusChanged(QWaylandSurface *newFocus, QWaylandSurface *oldFocus);
+#if QT_DEPRECATED_SINCE(6, 1)
     void cursorSurfaceRequest(QWaylandSurface *surface, int hotspotX, int hotspotY);
+#endif
+    void cursorSurfaceRequested(QWaylandSurface *surface, int hotspotX, int hotspotY, QWaylandClient *client);
 
 private:
     void handleMouseFocusDestroyed();

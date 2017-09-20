@@ -53,7 +53,6 @@
 
 #include <QtCore/QWaitCondition>
 #include <QtCore/QMutex>
-#include <QtCore/QAtomicPointer>
 #include <QtGui/QIcon>
 #include <QtCore/QVariant>
 
@@ -143,7 +142,7 @@ public:
     QWaylandDisplay *display() const { return mDisplay; }
     QWaylandShellSurface *shellSurface() const;
     QWaylandSubSurface *subSurfaceWindow() const;
-    QWaylandScreen *screen() const { return mScreen; }
+    QWaylandScreen *screen() const;
 
     void handleContentOrientationChange(Qt::ScreenOrientation orientation) override;
     void setOrientationMask(Qt::ScreenOrientations mask);
@@ -210,7 +209,10 @@ public slots:
     void requestResize();
 
 protected:
-    QWaylandScreen *mScreen;
+    void surface_enter(struct ::wl_output *output) override;
+    void surface_leave(struct ::wl_output *output) override;
+
+    QVector<QWaylandScreen *> mScreens; //As seen by wl_surface.enter/leave events. Chronological order.
     QWaylandDisplay *mDisplay;
     QWaylandShellSurface *mShellSurface;
     QWaylandSubSurface *mSubSurfaceWindow;
@@ -222,7 +224,7 @@ protected:
 
     WId mWindowId;
     bool mWaitingForFrameSync;
-    QAtomicPointer<struct wl_callback> mFrameCallback;
+    struct ::wl_callback *mFrameCallback = nullptr;
     QWaitCondition mFrameSyncWait;
 
     QMutex mResizeLock;
@@ -245,6 +247,9 @@ protected:
 
     QWaylandShmBackingStore *mBackingStore;
 
+private slots:
+    void handleScreenRemoved(QScreen *qScreen);
+
 private:
     bool setWindowStateInternal(Qt::WindowStates flags);
     void setGeometry_helper(const QRect &rect);
@@ -254,6 +259,8 @@ private:
     bool shouldCreateSubSurface() const;
     void reset(bool sendDestroyEvent = true);
     void sendExposeEvent(const QRect &rect);
+    static void closePopups(QWaylandWindow *parent);
+    QWaylandScreen *calculateScreenFromSurfaceEvents() const;
 
     void handleMouseEventWithDecoration(QWaylandInputDevice *inputDevice, const QWaylandPointerEvent &e);
 

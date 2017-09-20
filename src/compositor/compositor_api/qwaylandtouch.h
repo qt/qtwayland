@@ -72,9 +72,6 @@ public:
     virtual void sendFullTouchEvent(QWaylandSurface *surface, QTouchEvent *event);
 
     virtual void addClient(QWaylandClient *client, uint32_t id, uint32_t version);
-
-private:
-    void focusDestroyed(void *data);
 };
 
 QT_END_NAMESPACE

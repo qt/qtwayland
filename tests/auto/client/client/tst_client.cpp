@@ -142,6 +142,7 @@ private slots:
     void backingStore();
     void touchDrag();
     void mouseDrag();
+    void dontCrashOnMultipleCommits();
 
 private:
     MockCompositor *compositor;
@@ -331,6 +332,32 @@ void tst_WaylandClient::mouseDrag()
     compositor->sendDataDeviceDrop(surface);
     compositor->sendDataDeviceLeave(surface);
     QTRY_VERIFY(window.dragStarted);
+}
+
+void tst_WaylandClient::dontCrashOnMultipleCommits()
+{
+    auto window = new TestWindow();
+    window->show();
+
+    QRect rect(QPoint(), window->size());
+
+    QBackingStore backingStore(window);
+    backingStore.resize(rect.size());
+    backingStore.beginPaint(rect);
+    QPainter p(backingStore.paintDevice());
+    p.fillRect(rect, Qt::magenta);
+    p.end();
+    backingStore.endPaint();
+
+    backingStore.flush(rect);
+    backingStore.flush(rect);
+    backingStore.flush(rect);
+
+    compositor->processWaylandEvents();
+
+    delete window;
+
+    QTRY_VERIFY(!compositor->surface());
 }
 
 int main(int argc, char **argv)

@@ -85,7 +85,8 @@ void Window::paintGL()
     functions->glClearColor(.4f, .7f, .1f, 0.5f);
     functions->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    m_textureBlitter.bind();
+    GLenum currentTarget = GL_TEXTURE_2D;
+    m_textureBlitter.bind(currentTarget);
     functions->glEnable(GL_BLEND);
     functions->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -97,6 +98,10 @@ void Window::paintGL()
         auto texture = view->getTexture();
         if (!texture)
             continue;
+        if (texture->target() != currentTarget) {
+            currentTarget = texture->target();
+            m_textureBlitter.bind(currentTarget);
+        }
         GLuint textureId = texture->textureId();
         QWaylandSurface *surface = view->surface();
         if (surface && surface->hasContent()) {

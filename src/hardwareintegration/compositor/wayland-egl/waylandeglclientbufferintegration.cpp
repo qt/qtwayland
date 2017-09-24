@@ -214,7 +214,7 @@ WaylandEglClientBufferIntegrationPrivate::WaylandEglClientBufferIntegrationPriva
     , egl_create_image(0)
     , egl_destroy_image(0)
     , gl_egl_image_target_texture_2d(0)
-    , funcs(Q_NULLPTR)
+    , funcs(nullptr)
 {
 }
 

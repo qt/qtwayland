@@ -64,7 +64,7 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandCompositorExtensionPrivate : public QO
 public:
     QWaylandCompositorExtensionPrivate()
         : QObjectPrivate()
-        , extension_container(Q_NULLPTR)
+        , extension_container(nullptr)
         , initialized(false)
     {
     }

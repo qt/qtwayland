@@ -384,7 +384,7 @@ QWaylandQuickItem::~QWaylandQuickItem()
 QWaylandCompositor *QWaylandQuickItem::compositor() const
 {
     Q_D(const QWaylandQuickItem);
-    return d->view->surface() ? d->view->surface()->compositor() : Q_NULLPTR;
+    return d->view->surface() ? d->view->surface()->compositor() : nullptr;
 }
 
 /*!
@@ -595,7 +595,7 @@ void QWaylandQuickItem::hoverLeaveEvent(QHoverEvent *event)
     Q_D(QWaylandQuickItem);
     if (d->shouldSendInputEvents()) {
         QWaylandSeat *seat = compositor()->seatFor(event);
-        seat->setMouseFocus(Q_NULLPTR);
+        seat->setMouseFocus(nullptr);
     } else {
         event->ignore();
     }

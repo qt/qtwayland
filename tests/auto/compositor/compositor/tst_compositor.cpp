@@ -198,7 +198,7 @@ void tst_WaylandCompositor::keyboardGrab()
     QTRY_COMPARE(grabKeyReleaseSpy.count(), 2);
 
     // Stop grabbing
-    seat->setKeyboardFocus(Q_NULLPTR);
+    seat->setKeyboardFocus(nullptr);
     seat->sendFullKeyEvent(&ke);
     seat->sendFullKeyEvent(&ke1);
     QTRY_COMPARE(grabKeyPressSpy.count(), 2);

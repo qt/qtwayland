@@ -42,7 +42,7 @@ TestCompositor::TestCompositor(bool createInputDev)
 
 void TestCompositor::create()
 {
-    new QWaylandOutput(this, Q_NULLPTR);
+    new QWaylandOutput(this, nullptr);
     QWaylandCompositor::create();
 
     connect(this, &QWaylandCompositor::surfaceCreated, this, &TestCompositor::onSurfaceCreated);

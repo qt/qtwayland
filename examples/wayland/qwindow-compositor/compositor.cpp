@@ -275,7 +275,7 @@ View * Compositor::findView(const QWaylandSurface *s) const
         if (view->surface() == s)
             return view;
     }
-    return Q_NULLPTR;
+    return nullptr;
 }
 
 void Compositor::onWlShellSurfaceCreated(QWaylandWlShellSurface *wlShellSurface)

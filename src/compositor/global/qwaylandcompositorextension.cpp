@@ -146,7 +146,7 @@ QWaylandObject::QWaylandObject(QObjectPrivate &d, QObject *parent)
 QWaylandObject::~QWaylandObject()
 {
     foreach (QWaylandCompositorExtension *extension, extension_vector)
-        QWaylandCompositorExtensionPrivate::get(extension)->extension_container = Q_NULLPTR;
+        QWaylandCompositorExtensionPrivate::get(extension)->extension_container = nullptr;
 }
 
 QWaylandCompositorExtension *QWaylandObject::extension(const QByteArray &name)
@@ -155,7 +155,7 @@ QWaylandCompositorExtension *QWaylandObject::extension(const QByteArray &name)
         if (extension_vector.at(i)->extensionInterface()->name == name)
             return extension_vector.at(i);
     }
-    return Q_NULLPTR;
+    return nullptr;
 }
 
 QWaylandCompositorExtension *QWaylandObject::extension(const wl_interface *interface)
@@ -164,7 +164,7 @@ QWaylandCompositorExtension *QWaylandObject::extension(const wl_interface *inter
         if (extension_vector.at(i)->extensionInterface() == interface)
             return extension_vector.at(i);
     }
-    return Q_NULLPTR;
+    return nullptr;
 }
 
 QList<QWaylandCompositorExtension *> QWaylandObject::extensions() const

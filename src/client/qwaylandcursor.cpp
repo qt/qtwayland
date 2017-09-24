@@ -92,7 +92,7 @@ struct wl_cursor_image *QWaylandCursor::cursorImage(Qt::CursorShape newShape)
         waylandCursor = requestCursor((WaylandCursor)newShape);
     } else if (newShape == Qt::BitmapCursor) {
         // cannot create a wl_cursor_image for a CursorShape
-        return Q_NULLPTR;
+        return nullptr;
     } else {
         //TODO: Custom cursor logic (for resize arrows)
     }

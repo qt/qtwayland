@@ -61,7 +61,7 @@ QWaylandXdgSurface::QWaylandXdgSurface(QWaylandXdgShell *shell, QWaylandWindow *
     , m_minimized(false)
     , m_fullscreen(false)
     , m_active(false)
-    , m_extendedWindow(Q_NULLPTR)
+    , m_extendedWindow(nullptr)
 {
     if (window->display()->windowExtension())
         m_extendedWindow = new QWaylandExtendedSurface(window);
@@ -105,7 +105,7 @@ void QWaylandXdgSurface::setMaximized()
 void QWaylandXdgSurface::setFullscreen()
 {
     if (!m_fullscreen)
-        set_fullscreen(Q_NULLPTR);
+        set_fullscreen(nullptr);
 }
 
 void QWaylandXdgSurface::setNormal()

@@ -122,7 +122,7 @@ public:
 
 QWaylandIntegration::QWaylandIntegration()
     : mClientBufferIntegration(0)
-    , mInputDeviceIntegration(Q_NULLPTR)
+    , mInputDeviceIntegration(nullptr)
     , mFontDb(new QGenericUnixFontDatabase())
     , mNativeInterface(new QWaylandNativeInterface(this))
 #if QT_CONFIG(accessibility)

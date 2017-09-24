@@ -97,7 +97,7 @@ void QWaylandDataDevice::setSelectionSource(QWaylandDataSource *source)
 {
     if (source)
         connect(source, &QWaylandDataSource::cancelled, this, &QWaylandDataDevice::selectionSourceCancelled);
-    set_selection(source ? source->object() : Q_NULLPTR, m_inputDevice->serial());
+    set_selection(source ? source->object() : nullptr, m_inputDevice->serial());
     m_selectionSource.reset(source);
 }
 
@@ -160,7 +160,7 @@ void QWaylandDataDevice::data_device_enter(uint32_t serial, wl_surface *surface,
     m_dragWindow = QWaylandWindow::fromWlSurface(surface)->window();
     m_dragPoint = calculateDragPosition(x, y, m_dragWindow);
 
-    QMimeData *dragData = Q_NULLPTR;
+    QMimeData *dragData = nullptr;
     Qt::DropActions supportedActions;
 
     m_dragOffer.reset(static_cast<QWaylandDataOffer *>(wl_data_offer_get_user_data(id)));

@@ -55,7 +55,7 @@ void QWaylandViewPrivate::markSurfaceAsDestroyed(QWaylandSurface *surface)
     Q_Q(QWaylandView);
     Q_ASSERT(surface == this->surface);
 
-    q->setSurface(Q_NULLPTR);
+    q->setSurface(nullptr);
     emit q->surfaceDestroyed();
 }
 
@@ -101,7 +101,7 @@ QWaylandView::~QWaylandView()
             QWaylandOutputPrivate::get(d->output)->removeView(this, d->surface);
         QWaylandSeat *i = d->surface->compositor()->defaultSeat();
         if (i->mouseFocus() == this)
-            i->setMouseFocus(Q_NULLPTR);
+            i->setMouseFocus(nullptr);
 
         QWaylandSurfacePrivate::get(d->surface)->derefView(this);
     }
@@ -377,7 +377,7 @@ struct wl_resource *QWaylandView::surfaceResource() const
 {
     Q_D(const QWaylandView);
     if (!d->surface)
-        return Q_NULLPTR;
+        return nullptr;
     return d->surface->resource();
 }
 

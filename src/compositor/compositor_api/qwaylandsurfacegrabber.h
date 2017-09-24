@@ -60,7 +60,7 @@ public:
         RendererNotReady,
     };
     Q_ENUM(Error)
-    explicit QWaylandSurfaceGrabber(QWaylandSurface *surface, QObject *parent = Q_NULLPTR);
+    explicit QWaylandSurfaceGrabber(QWaylandSurface *surface, QObject *parent = nullptr);
 
     QWaylandSurface *surface() const;
     void grab();

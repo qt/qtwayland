@@ -171,7 +171,7 @@ QWaylandShmBackingStore::QWaylandShmBackingStore(QWindow *window)
 QWaylandShmBackingStore::~QWaylandShmBackingStore()
 {
     if (QWaylandWindow *w = waylandWindow())
-        w->setBackingStore(Q_NULLPTR);
+        w->setBackingStore(nullptr);
 
 //    if (mFrontBuffer == waylandWindow()->attached())
 //        waylandWindow()->attach(0);

@@ -90,7 +90,7 @@ QWaylandShellIntegration *QWaylandShellIntegrationFactory::create(const QString 
     if (QWaylandShellIntegration *ret = qLoadPlugin<QWaylandShellIntegration, QWaylandShellIntegrationPlugin>(loader(), name, args))
         return ret;
 #endif
-    return Q_NULLPTR;
+    return nullptr;
 }
 
 }

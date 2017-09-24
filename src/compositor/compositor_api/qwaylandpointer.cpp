@@ -75,7 +75,7 @@ void QWaylandPointerPrivate::pointer_set_cursor(wl_pointer::Resource *resource, 
     Q_UNUSED(serial);
 
     if (!surface) {
-        seat->cursorSurfaceRequest(Q_NULLPTR, 0, 0);
+        seat->cursorSurfaceRequest(nullptr, 0, 0);
         return;
     }
 
@@ -203,7 +203,7 @@ void QWaylandPointer::sendMouseMoveEvent(QWaylandView *view, const QPointF &loca
 {
     Q_D(QWaylandPointer);
     if (view && (!view->surface() || view->surface()->isCursorSurface()))
-        view = Q_NULLPTR;
+        view = nullptr;
     d->seat->setMouseFocus(view);
     d->localPosition = localPos;
     d->spacePosition = outputSpacePos;
@@ -314,7 +314,7 @@ struct wl_resource *QWaylandPointer::focusResource() const
 {
     Q_D(const QWaylandPointer);
     if (!d->focusResource)
-        return Q_NULLPTR;
+        return nullptr;
 
     return d->focusResource;
 }
@@ -371,7 +371,7 @@ void QWaylandPointer::focusDestroyed(void *data)
     Q_UNUSED(data)
     d->focusDestroyListener.reset();
 
-    d->seat->setMouseFocus(Q_NULLPTR);
+    d->seat->setMouseFocus(nullptr);
     d->focusResource = 0;
     d->buttonCount = 0;
 }

@@ -656,7 +656,7 @@ QWaylandOutput *QWaylandCompositor::outputFor(QWindow *window) const
             return output;
     }
 
-    return Q_NULLPTR;
+    return nullptr;
 }
 
 /*!
@@ -822,7 +822,7 @@ QWaylandSeat *QWaylandCompositor::defaultSeat() const
     Q_D(const QWaylandCompositor);
     if (d->seats.size())
         return d->seats.first();
-    return Q_NULLPTR;
+    return nullptr;
 }
 
 /*!

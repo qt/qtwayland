@@ -55,7 +55,7 @@ QWaylandWlShellIntegration *QWaylandWlShellIntegration::create(QWaylandDisplay *
 }
 
 QWaylandWlShellIntegration::QWaylandWlShellIntegration(QWaylandDisplay *display)
-    : m_wlShell(Q_NULLPTR)
+    : m_wlShell(nullptr)
 {
     Q_FOREACH (QWaylandDisplay::RegistryGlobal global, display->globals()) {
         if (global.interface == QLatin1String("wl_shell")) {

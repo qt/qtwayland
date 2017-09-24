@@ -122,7 +122,7 @@ void QWaylandKeyboardPrivate::sendEnter(QWaylandSurface *surface, Resource *keyb
 void QWaylandKeyboardPrivate::focused(QWaylandSurface *surface)
 {
     if (surface && surface->isCursorSurface())
-        surface = Q_NULLPTR;
+        surface = nullptr;
     if (focus != surface) {
         if (focusResource) {
             uint32_t serial = compositor()->nextSerial();
@@ -466,7 +466,7 @@ QWaylandClient *QWaylandKeyboard::focusClient() const
 {
     Q_D(const QWaylandKeyboard);
     if (!d->focusResource)
-        return Q_NULLPTR;
+        return nullptr;
     return QWaylandClient::fromWlClient(compositor(), d->focusResource->client());
 }
 

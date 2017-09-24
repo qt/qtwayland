@@ -65,7 +65,7 @@ QWaylandSeatPrivate::QWaylandSeatPrivate(QWaylandSeat *seat)
     , QtWaylandServer::wl_seat()
     , isInitialized(false)
     , compositor(nullptr)
-    , mouseFocus(Q_NULLPTR)
+    , mouseFocus(nullptr)
     , keyboardFocus(nullptr)
     , capabilities()
 #if QT_CONFIG(wayland_datadevice)
@@ -370,7 +370,7 @@ QWaylandSurface *QWaylandSeat::keyboardFocus() const
 {
     Q_D(const QWaylandSeat);
     if (d->keyboard.isNull() || !d->keyboard->focus())
-        return Q_NULLPTR;
+        return nullptr;
 
     return d->keyboard->focus();
 }

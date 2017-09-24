@@ -95,7 +95,7 @@ QWaylandWindow::QWaylandWindow(QWindow *window)
     , mScale(1)
     , mState(Qt::WindowNoState)
     , mMask()
-    , mBackingStore(Q_NULLPTR)
+    , mBackingStore(nullptr)
     , mUpdateRequested(false)
 {
     static WId id = 1;
@@ -240,7 +240,7 @@ bool QWaylandWindow::shouldCreateShellSurface() const
 
 bool QWaylandWindow::shouldCreateSubSurface() const
 {
-    return QPlatformWindow::parent() != Q_NULLPTR;
+    return QPlatformWindow::parent() != nullptr;
 }
 
 void QWaylandWindow::reset(bool sendDestroyEvent)

@@ -109,9 +109,9 @@ class QWaylandQuickItemPrivate : public QQuickItemPrivate
 public:
     QWaylandQuickItemPrivate()
         : QQuickItemPrivate()
-        , view(Q_NULLPTR)
-        , oldSurface(Q_NULLPTR)
-        , provider(Q_NULLPTR)
+        , view(nullptr)
+        , oldSurface(nullptr)
+        , provider(nullptr)
         , paintEnabled(true)
         , touchEventsEnabled(true)
         , inputEventsEnabled(true)
@@ -119,7 +119,7 @@ public:
         , newTexture(false)
         , focusOnClick(true)
         , sizeFollowsSurface(true)
-        , connectedWindow(Q_NULLPTR)
+        , connectedWindow(nullptr)
         , origin(QWaylandSurface::OriginTopLeft)
     {
     }

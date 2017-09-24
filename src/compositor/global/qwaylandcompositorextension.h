@@ -114,7 +114,7 @@ public:
 
     static T *findIn(QWaylandObject *container)
     {
-        if (!container) return Q_NULLPTR;
+        if (!container) return nullptr;
         return qobject_cast<T *>(container->extension(T::interfaceName()));
     }
 

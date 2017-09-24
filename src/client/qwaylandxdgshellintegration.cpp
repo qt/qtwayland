@@ -57,7 +57,7 @@ QWaylandXdgShellIntegration *QWaylandXdgShellIntegration::create(QWaylandDisplay
 }
 
 QWaylandXdgShellIntegration::QWaylandXdgShellIntegration(QWaylandDisplay *display)
-    : m_xdgShell(Q_NULLPTR)
+    : m_xdgShell(nullptr)
 {
     Q_FOREACH (QWaylandDisplay::RegistryGlobal global, display->globals()) {
         if (global.interface == QLatin1String("xdg_shell")) {

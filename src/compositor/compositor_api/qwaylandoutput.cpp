@@ -104,8 +104,8 @@ static QtWaylandServer::wl_output::transform toWlTransform(const QWaylandOutput:
 
 QWaylandOutputPrivate::QWaylandOutputPrivate()
     : QtWaylandServer::wl_output()
-    , compositor(Q_NULLPTR)
-    , window(Q_NULLPTR)
+    , compositor(nullptr)
+    , window(nullptr)
     , currentMode(-1)
     , preferredMode(-1)
     , subpixel(QWaylandOutput::SubpixelUnknown)
@@ -319,7 +319,7 @@ struct ::wl_resource *QWaylandOutput::resourceForClient(QWaylandClient *client) 
     if (r)
         return r->handle;
 
-    return Q_NULLPTR;
+    return nullptr;
 }
 
 /*!
@@ -989,7 +989,7 @@ void QWaylandOutput::handleSetHeight(int newHeight)
 void QWaylandOutput::handleWindowDestroyed()
 {
     Q_D(QWaylandOutput);
-    d->window = Q_NULLPTR;
+    d->window = nullptr;
     emit windowDestroyed();
 }
 

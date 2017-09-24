@@ -87,7 +87,7 @@ struct QWaylandSurfaceViewMapper
             if (surface && surface->primaryView() == views.at(i))
                 return views.at(i);
         }
-        return Q_NULLPTR;
+        return nullptr;
     }
 
     QWaylandSurface *surface;

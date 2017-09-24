@@ -90,7 +90,7 @@ QWaylandInputDeviceIntegration *QWaylandInputDeviceIntegrationFactory::create(co
     if (QWaylandInputDeviceIntegration *ret = qLoadPlugin<QWaylandInputDeviceIntegration, QWaylandInputDeviceIntegrationPlugin>(loader(), name, args))
         return ret;
 #endif
-    return Q_NULLPTR;
+    return nullptr;
 }
 
 }

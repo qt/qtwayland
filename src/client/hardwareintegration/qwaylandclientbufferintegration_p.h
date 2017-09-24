@@ -86,8 +86,8 @@ public:
         EglConfig,
         EglContext
     };
-    virtual void *nativeResource(NativeResource /*resource*/) { return Q_NULLPTR; }
-    virtual void *nativeResourceForContext(NativeResource /*resource*/, QPlatformOpenGLContext */*context*/) { return Q_NULLPTR; }
+    virtual void *nativeResource(NativeResource /*resource*/) { return nullptr; }
+    virtual void *nativeResourceForContext(NativeResource /*resource*/, QPlatformOpenGLContext */*context*/) { return nullptr; }
 };
 
 }

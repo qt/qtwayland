@@ -58,7 +58,7 @@ QWaylandWlShellSurface::QWaylandWlShellSurface(struct ::wl_shell_surface *shell_
     , m_window(window)
     , m_maximized(false)
     , m_fullscreen(false)
-    , m_extendedWindow(Q_NULLPTR)
+    , m_extendedWindow(nullptr)
 {
     if (window->display()->windowExtension())
         m_extendedWindow = new QWaylandExtendedSurface(window);

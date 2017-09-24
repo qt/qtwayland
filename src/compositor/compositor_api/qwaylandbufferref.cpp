@@ -185,7 +185,7 @@ bool QWaylandBufferRef::isDestroyed() const
  */
 struct ::wl_resource *QWaylandBufferRef::wl_buffer() const
 {
-    return d->buffer ? d->buffer->waylandBufferHandle() : Q_NULLPTR;
+    return d->buffer ? d->buffer->waylandBufferHandle() : nullptr;
 }
 
 /*!

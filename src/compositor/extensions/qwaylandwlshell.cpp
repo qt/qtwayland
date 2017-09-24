@@ -104,8 +104,8 @@ void QWaylandWlShellPrivate::unregisterShellSurface(QWaylandWlShellSurface *shel
 QWaylandWlShellSurfacePrivate::QWaylandWlShellSurfacePrivate()
     : QWaylandCompositorExtensionPrivate()
     , wl_shell_surface()
-    , m_shell(Q_NULLPTR)
-    , m_surface(Q_NULLPTR)
+    , m_shell(nullptr)
+    , m_surface(nullptr)
     , m_windowType(Qt::WindowType::Window)
 {
 }
@@ -195,7 +195,7 @@ void QWaylandWlShellSurfacePrivate::shell_surface_set_fullscreen(Resource *resou
     Q_Q(QWaylandWlShellSurface);
     QWaylandOutput *output = output_resource
             ? QWaylandOutput::fromResource(output_resource)
-            : Q_NULLPTR;
+            : nullptr;
     setWindowType(Qt::WindowType::Window);
     emit q->setFullScreen(QWaylandWlShellSurface::FullScreenMethod(method), framerate, output);
 }
@@ -220,7 +220,7 @@ void QWaylandWlShellSurfacePrivate::shell_surface_set_maximized(Resource *resour
     Q_Q(QWaylandWlShellSurface);
     QWaylandOutput *output = output_resource
             ? QWaylandOutput::fromResource(output_resource)
-            : Q_NULLPTR;
+            : nullptr;
     setWindowType(Qt::WindowType::Window);
     emit q->setMaximized(output);
 }

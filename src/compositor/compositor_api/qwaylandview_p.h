@@ -69,9 +69,9 @@ public:
     static QWaylandViewPrivate *get(QWaylandView *view) { return view->d_func(); }
 
     QWaylandViewPrivate()
-        : renderObject(Q_NULLPTR)
-        , surface(Q_NULLPTR)
-        , output(Q_NULLPTR)
+        : renderObject(nullptr)
+        , surface(nullptr)
+        , output(nullptr)
         , nextBufferCommitted(false)
         , bufferLocked(false)
         , broadcastRequestedPositionChanged(false)

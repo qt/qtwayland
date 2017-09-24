@@ -146,7 +146,7 @@ QWaylandClient *QWaylandClient::fromWlClient(QWaylandCompositor *compositor, wl_
     if (!wlClient)
         return 0;
 
-    QWaylandClient *client = Q_NULLPTR;
+    QWaylandClient *client = nullptr;
 
     wl_listener *l = wl_client_get_destroy_listener(wlClient,
         QWaylandClientPrivate::client_destroy_callback);

@@ -55,8 +55,8 @@ QT_BEGIN_NAMESPACE
 namespace QtWaylandClient {
 
 QWaylandIviShellIntegration::QWaylandIviShellIntegration()
-    : m_iviApplication(Q_NULLPTR)
-    , m_iviController(Q_NULLPTR)
+    : m_iviApplication(nullptr)
+    , m_iviController(nullptr)
     , m_lastSurfaceId(0)
     , m_surfaceNumber(0)
     , m_useEnvSurfaceId(false)
@@ -129,11 +129,11 @@ uint32_t QWaylandIviShellIntegration::getNextUniqueSurfaceId()
 QWaylandShellSurface *QWaylandIviShellIntegration::createShellSurface(QWaylandWindow *window)
 {
     if (!m_iviApplication)
-        return Q_NULLPTR;
+        return nullptr;
 
     uint32_t surfaceId = getNextUniqueSurfaceId();
     if (surfaceId == 0)
-        return Q_NULLPTR;
+        return nullptr;
 
     struct ivi_surface *surface = m_iviApplication->surface_create(surfaceId, window->object());
     if (!m_iviController)

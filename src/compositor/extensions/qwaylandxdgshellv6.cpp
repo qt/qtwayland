@@ -146,6 +146,45 @@ void QWaylandXdgShellV6Private::zxdg_shell_v6_pong(Resource *resource, uint32_t 
 }
 
 /*!
+ * \qmltype XdgShellV6
+ * \inqmlmodule QtWayland.Compositor
+ * \since 5.10
+ * \brief Provides an extension for desktop-style user interfaces.
+ *
+ * The XdgShellV6 extension provides a way to associate a XdgToplevelV6 or XdgPopupV6
+ * with a regular Wayland surface. Using the XdgToplevelV6 interface, the client
+ * can request that the surface is resized, moved, and so on.
+ *
+ * XdgShellV6 corresponds to the Wayland interface, \c zxdg_shell_v6.
+ *
+ * To provide the functionality of the shell extension in a compositor, create
+ * an instance of the XdgShellV6 component and add it to the list of extensions
+ * supported by the compositor:
+ * \code
+ * import QtWayland.Compositor 1.1
+ *
+ * WaylandCompositor {
+ *     XdgShellV6 {
+ *         // ...
+ *     }
+ * }
+ * \endcode
+ */
+
+/*!
+ * \class QWaylandXdgShellV6
+ * \inmodule QtWaylandCompositor
+ * \since 5.10
+ * \brief The QWaylandXdgShellV6 class is an extension for desktop-style user interfaces.
+ *
+ * The QWaylandXdgShellV6 extension provides a way to associate a QWaylandXdgToplevelV6 or
+ * QWaylandXdgPopupV6 with a regular Wayland surface. Using the QWaylandXdgToplevelV6 interface,
+ * the client can request that the surface is resized, moved, and so on.
+ *
+ * QWaylandXdgShellV6 corresponds to the Wayland interface, \c zxdg_shell_v6.
+ */
+
+/*!
  * Constructs a QWaylandXdgShellV6 object.
  */
 QWaylandXdgShellV6::QWaylandXdgShellV6()

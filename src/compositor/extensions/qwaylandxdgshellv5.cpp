@@ -760,6 +760,134 @@ void QWaylandXdgSurfaceV5::initialize(QWaylandXdgShellV5 *xdgShell, QWaylandSurf
 }
 
 /*!
+ * \qmlsignal void QtWaylandCompositor::XdgSurfaceV5::showWindowMenu(WaylandSeat seat, point localSurfacePosition)
+ *
+ * This signal is emitted when the client wants to show a context menu at \a localSurfacePosition,
+ * using the Wayland seat \a seat. It's typically emitted in response to the user right-clicking
+ * the window decorations.
+ */
+
+/*!
+ * \fn void QWaylandXdgSurfaceV5::showWindowMenu(QWaylandSeat *seat, const QPoint &localSurfacePosition)
+ *
+ * This signal is emitted when the client wants to show a context menu at \a localSurfacePosition,
+ * using the Wayland seat \a seat. It's typically emitted in response to the user right-clicking
+ * the window decorations.
+ */
+
+/*!
+ * \qmlsignal void QtWaylandCompositor::XdgSurfaceV5::startMove(WaylandSeat seat)
+ *
+ * This signal is emitted when the client wants to start an interactive move of the XdgSurfaceV5,
+ * typically in response to the window decorations being dragged by \a seat.
+ */
+
+/*!
+ * \fn void QWaylandXdgSurfaceV5::startMove(QWaylandSeat *seat)
+ *
+ * This signal is emitted when the client wants to start an interactive move of the
+ * QWaylandXdgSurfaceV5, typically in response to the window decorations being dragged by \a seat.
+ */
+
+/*!
+ * \qmlsignal void QtWaylandCompositor::XdgSurfaceV5::startResize(WaylandSeat seat, enumeration edges)
+ *
+ * This signal is emitted when the client wants to start an interactive resize of the XdgSurfaceV5,
+ * typically in response to the window decorations being dragged by \a seat on the window borders
+ * given by \a edges.
+ *
+ * \sa QWaylandXdgSurfaceV5::ResizeEdges
+ */
+
+/*!
+ * \fn void QWaylandXdgSurfaceV5::startResize(QWaylandSeat *seat, ResizeEdges edges)
+ *
+ * This signal is emitted when the client wants to start an interactive resize of the
+ * QWaylandXdgSurfaceV5, typically in response to the window decorations being dragged by
+ * \a seat on the window borders given by \a edges.
+ */
+
+/*!
+ * \qmlsignal void QtWaylandCompositor::XdgSurfaceV5::setMaximized()
+ *
+ * This signal is emitted when the client wants the \c xdg_surface to be maximized.
+ */
+
+/*!
+ * \fn void QWaylandXdgSurfaceV5::setMaximized()
+ *
+ * This signal is emitted when the client wants the \c xdg_surface to be maximized.
+ */
+
+/*!
+ * \qmlsignal void QtWaylandCompositor::XdgSurfaceV5::unsetMaximized()
+ *
+ * This signal is emitted when the client doesn't want the \c xdg_surface to be maximized anymore.
+ */
+
+/*!
+ * \fn void QWaylandXdgSurfaceV5::unsetMaximized()
+ *
+ * This signal is emitted when the client doesn't want the \c xdg_surface to be maximized anymore.
+ */
+
+/*!
+ * \qmlsignal void QtWaylandCompositor::XdgSurfaceV5::setFullscreen(WaylandOutput output)
+ *
+ * This signal is emitted when the client wants the \c xdg_surface to be in full screen mode.
+ * The client may specify an \a output it wishes the \c xdg_surface to be shown on.
+ */
+
+/*!
+ * \fn void QWaylandXdgSurfaceV5::setFullscreen(QWaylandOutput *output)
+ *
+ * This signal is emitted when the client wants the \c xdg_surface to be in full screen mode.
+ * The client may specify an \a output it wishes the \c xdg_surface to be shown on.
+ */
+
+/*!
+ * \qmlsignal void QtWaylandCompositor::XdgSurfaceV5::unsetFullscreen()
+ *
+ * This signal is emitted when the client doesn't want the \c xdg_surface to be in full screen mode
+ * anymore.
+ */
+
+/*!
+ * \fn void QWaylandXdgSurfaceV5::unsetFullscreen()
+ *
+ * This signal is emitted when the client doesn't want the \c xdg_surface to be in full screen mode
+ * anymore.
+ */
+
+/*!
+ * \qmlsignal void QtWaylandCompositor::XdgSurfaceV5::setMinimized()
+ *
+ * This signal is emitted when the client wants the \c xdg_surface to be minimized.
+ */
+
+/*!
+ * \fn void QWaylandXdgSurfaceV5::setMinimized()
+ *
+ * This signal is emitted when the client wants the \c xdg_surface to be minimized.
+ */
+
+/*!
+ * \qmlsignal void QtWaylandCompositor::XdgSurfaceV5::ackConfigure(int serial)
+ *
+ * This signal is emitted when the client has received configure events up to and including the
+ * configure event with serial \a serial and will draw its surface accordingly in the next committed
+ * buffer.
+ */
+
+/*!
+ * \fn void QWaylandXdgSurfaceV5::ackConfigure(uint serial)
+ *
+ * This signal is emitted when the client has received configure events up to and including the
+ * configure event with serial \a serial and will draw its surface accordingly in the next committed
+ * buffer.
+ */
+
+/*!
  * \internal
  */
 void QWaylandXdgSurfaceV5::initialize()
@@ -823,7 +951,7 @@ QWaylandSurface *QWaylandXdgSurfaceV5::surface() const
 }
 
 /*!
- * \qmlproperty enum QtWaylandCompositor::XdgSurfaceV5::windowType
+ * \qmlproperty enumeration QtWaylandCompositor::XdgSurfaceV5::windowType
  *
  * This property holds the window type of the XdgSurfaceV5.
  */

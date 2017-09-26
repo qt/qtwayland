@@ -608,7 +608,7 @@ QByteArray QWaylandXdgShellV5::interfaceName()
 }
 
 /*!
- * \qmlmethod void QtWaylandCompositor::XdgSurface::ping()
+ * \qmlmethod void QtWaylandCompositor::XdgShellV5::ping()
  *
  * Sends a ping event to the \a client. If the client replies to the event, the
  * pong signal will be emitted.

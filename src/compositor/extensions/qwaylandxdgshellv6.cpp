@@ -556,7 +556,7 @@ void QWaylandXdgSurfaceV6::handleBufferScaleChanged()
 }
 
 /*!
- * \qmlproperty object QtWaylandCompositor::XdgSurfaceV6::shell
+ * \qmlproperty XdgShellV6 QtWaylandCompositor::XdgSurfaceV6::shell
  *
  * This property holds the shell associated with this XdgSurface.
  */
@@ -573,7 +573,7 @@ QWaylandXdgShellV6 *QWaylandXdgSurfaceV6::shell() const
 }
 
 /*!
- * \qmlproperty object QtWaylandCompositor::XdgSurfaceV6::surface
+ * \qmlproperty WaylandSurface QtWaylandCompositor::XdgSurfaceV6::surface
  *
  * This property holds the surface associated with this XdgSurface.
  */
@@ -680,7 +680,7 @@ QWaylandXdgToplevelV6::QWaylandXdgToplevelV6(QWaylandXdgSurfaceV6 *xdgSurface, Q
 }
 
 /*!
- * \qmlproperty object QtWaylandCompositor::XdgToplevelV6::parentToplevel
+ * \qmlproperty XdgToplevelV6 QtWaylandCompositor::XdgToplevelV6::parentToplevel
  *
  * This property holds the XdgToplevelV6 parent of this XdgToplevelV6.
  */
@@ -1348,7 +1348,7 @@ QWaylandXdgPopupV6::QWaylandXdgPopupV6(QWaylandXdgSurfaceV6 *xdgSurface, QWaylan
 }
 
 /*!
- * \qmlproperty object QtWaylandCompositor::XdgPopupV6::xdgSurface
+ * \qmlproperty XdgSurfaceV6 QtWaylandCompositor::XdgPopupV6::xdgSurface
  *
  * This property holds the XdgSurfaceV6 associated with this XdgPopupV6.
  */
@@ -1365,13 +1365,13 @@ QWaylandXdgSurfaceV6 *QWaylandXdgPopupV6::xdgSurface() const
 }
 
 /*!
- * \qmlproperty object QtWaylandCompositor::XdgPopupV6::xdgSurface
+ * \qmlproperty XdgSurfaceV6 QtWaylandCompositor::XdgPopupV6::parentXdgSurface
  *
  * This property holds the XdgSurfaceV6 associated with the parent of this XdgPopupV6.
  */
 
 /*!
- * \property QWaylandXdgPopupV6::xdgSurface
+ * \property QWaylandXdgPopupV6::parentXdgSurface
  *
  * This property holds the QWaylandXdgSurfaceV6 associated with the parent of this
  * QWaylandXdgPopupV6.

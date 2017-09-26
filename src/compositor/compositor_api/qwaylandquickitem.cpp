@@ -1156,6 +1156,32 @@ void QWaylandQuickItem::updateInputMethod(Qt::InputMethodQueries queries)
 }
 #endif
 
+/*!
+ * \qmlsignal void QtWaylandCompositor::WaylandQuickItem::surfaceDestroyed()
+ *
+ * This signal is emitted when the client has destroyed the \c wl_surface associated
+ * with the WaylandQuickItem. The handler for this signal is expected to either destroy the
+ * WaylandQuickItem immediately or start a close animation and then destroy the Item.
+ *
+ * If an animation is started, bufferLocked should be set to ensure the item keeps its content
+ * until the animation finishes
+ *
+ * \sa bufferLocked
+ */
+
+/*!
+ * \fn void QWaylandQuickItem::surfaceDestroyed()
+ *
+ * This signal is emitted when the client has destroyed the \c wl_surface associated
+ * with the QWaylandQuickItem. The handler for this signal is expected to either destroy the
+ * QWaylandQuickItem immediately or start a close animation and then destroy the Item.
+ *
+ * If an animation is started, bufferLocked should be set to ensure the item keeps its content
+ * until the animation finishes
+ *
+ * \sa QWaylandQuickkItem::bufferLocked
+ */
+
 QSGNode *QWaylandQuickItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *)
 {
     Q_D(QWaylandQuickItem);

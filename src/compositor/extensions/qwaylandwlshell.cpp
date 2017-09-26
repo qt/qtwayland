@@ -384,18 +384,37 @@ const struct wl_interface *QWaylandWlShell::interface()
 }
 
 /*!
- * \qmlsignal void QtWaylandCompositor::WlShell::wlShellSurfaceRequested(object surface, object client, int id)
+ * \qmlsignal void QtWaylandCompositor::WlShell::wlShellSurfaceRequested(WaylandSurface surface, WaylandResource resource)
  *
- * This signal is emitted when the \a client has requested a \c wl_shell_surface to be associated
- * with \a surface, which is identified by \a id. The handler for this signal is
- * expected to create the shell surface and initialize it within the scope of the
- * signal emission.
+ * This signal is emitted when the client has requested a \c wl_shell_surface to be associated with
+ * \a surface. The handler for this signal may create a shell surface for \a resource and initialize
+ * it within the scope of the signal emission. Otherwise a WlShellSurface will be created
+ * automatically.
  */
 
 /*!
  * \fn void QWaylandWlShell::wlShellSurfaceRequested(QWaylandSurface *surface, const QWaylandResource &resource)
  *
- * Constructs a QWaylandSurface, assigns it to \a surface and initializes it with the given \a resource.
+ * This signal is emitted when the client has requested a \c wl_shell_surface to be associated with
+ * \a surface. The handler for this signal may create a shell surface for \a resource and initialize
+ * it within the scope of the signal emission. Otherwise a QWaylandWlShellSurface will be created
+ * automatically.
+ */
+
+/*!
+ * \qmlsignal void QtWaylandCompositor::WlShell::wlShellSurfaceCreated(WlShellSurface shellSurface)
+ *
+ * This signal is emitted when the client has created a \c wl_shell_surface.
+ * A common use case is to let the handler of this signal instantiate a ShellSurfaceItem or
+ * WaylandQuickItem for displaying \a shellSurface in a QtQuick scene.
+ */
+
+/*!
+ * \fn void QWaylandWlShell::wlShellSurfaceCreated(QWaylandWlShellSurface *shellSurface)
+ *
+ * This signal is emitted when the client has created a \c wl_shell_surface.
+ * A common use case is to let the handler of this signal instantiate a QWaylandShellSurfaceItem or
+ * QWaylandQuickItem for displaying \a shellSurface in a QtQuick scene.
  */
 
 /*!

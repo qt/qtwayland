@@ -256,4 +256,4 @@ private:
 
 QT_END_NAMESPACE
 
-#endif  /*QWAYLANDXDGSHELL_H*/
+#endif  /*QWAYLANDXDGSHELLV5_H*/

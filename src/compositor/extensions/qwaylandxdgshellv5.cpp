@@ -701,14 +701,14 @@ void QWaylandXdgShellV5::handleFocusChanged(QWaylandSurface *newSurface, QWaylan
  */
 
 /*!
- * \qmlsignal QtWaylandCompositor::XdgSurface::setTopLevel()
+ * \qmlsignal QtWaylandCompositor::XdgSurfaceV5::setTopLevel()
  *
  * This signal is emitted when the parent surface is unset, effectively
  * making the window top level.
  */
 
 /*!
- * \qmlsignal QtWaylandCompositor::XdgSurface::setTransient()
+ * \qmlsignal QtWaylandCompositor::XdgSurfaceV5::setTransient()
  *
  * This signal is emitted when the parent surface is set, effectively
  * making the window transient.
@@ -733,9 +733,9 @@ QWaylandXdgSurfaceV5::QWaylandXdgSurfaceV5(QWaylandXdgShellV5 *xdgShell, QWaylan
 }
 
 /*!
- * \qmlmethod void QtWaylandCompositor::XdgSurface::initialize(object surface, object client, int id)
+ * \qmlmethod void QtWaylandCompositor::XdgSurfaceV5::initialize(object surface, object client, int id)
  *
- * Initializes the XdgSurface, associating it with the given \a surface,
+ * Initializes the XdgSurfaceV5, associating it with the given \a surface,
  * \a client, and \a id.
  */
 
@@ -789,9 +789,9 @@ void QWaylandXdgSurfaceV5::handleBufferScaleChanged()
 }
 
 /*!
- * \qmlproperty object QtWaylandCompositor::XdgSurface::shell
+ * \qmlproperty object QtWaylandCompositor::XdgSurfaceV5::shell
  *
- * This property holds the shell associated with this XdgSurface.
+ * This property holds the shell associated with this XdgSurfaceV5.
  */
 
 /*!
@@ -806,9 +806,9 @@ QWaylandXdgShellV5 *QWaylandXdgSurfaceV5::shell() const
 }
 
 /*!
- * \qmlproperty object QtWaylandCompositor::XdgSurface::surface
+ * \qmlproperty object QtWaylandCompositor::XdgSurfaceV5::surface
  *
- * This property holds the surface associated with this XdgSurface.
+ * This property holds the surface associated with this XdgSurfaceV5.
  */
 
 /*!
@@ -840,20 +840,20 @@ Qt::WindowType QWaylandXdgSurfaceV5::windowType() const
 }
 
 /*!
- * \qmlproperty object QtWaylandCompositor::XdgSurface::parentSurface
+ * \qmlproperty object QtWaylandCompositor::XdgSurfaceV5::parentSurface
  *
- * This property holds the XdgSurface parent of this XdgSurface.
+ * This property holds the XdgSurfaceV5 parent of this XdgSurfaceV5.
  * When a parent surface is set, the parentSurfaceChanged() signal
  * is guaranteed to be emitted before setTopLevel() and setTransient().
  *
- * \sa QtWaylandCompositor::XdgSurface::setTopLevel()
- * \sa QtWaylandCompositor::XdgSurface::setTransient()
+ * \sa QtWaylandCompositor::XdgSurfaceV5::setTopLevel()
+ * \sa QtWaylandCompositor::XdgSurfaceV5::setTransient()
  */
 
 /*!
  * \property QWaylandXdgSurfaceV5::parentSurface
  *
- * This property holds the XdgSurface parent of this XdgSurface.
+ * This property holds the XdgSurfaceV5 parent of this XdgSurfaceV5.
  * When a parent surface is set, the parentSurfaceChanged() signal
  * is guaranteed to be emitted before setTopLevel() and setTransient().
  *
@@ -867,9 +867,9 @@ QWaylandXdgSurfaceV5 *QWaylandXdgSurfaceV5::parentSurface() const
 }
 
 /*!
- * \qmlproperty string QtWaylandCompositor::XdgSurface::title
+ * \qmlproperty string QtWaylandCompositor::XdgSurfaceV5::title
  *
- * This property holds the title of the XdgSurface.
+ * This property holds the title of the XdgSurfaceV5.
  */
 
 /*!
@@ -995,10 +995,10 @@ QSize QWaylandXdgSurfaceV5::sizeForResize(const QSizeF &size, const QPointF &del
 }
 
 /*!
- * \qmlmethod int QtWaylandCompositor::XdgSurface::sendConfigure(size size, list<uint> states)
+ * \qmlmethod int QtWaylandCompositor::XdgSurfaceV5::sendConfigure(size size, list<uint> states)
  *
  * Sends a configure event to the client. \a size contains the pixel size of the surface.
- * Known \a states are enumerated in XdgSurface::State.
+ * Known \a states are enumerated in XdgSurfaceV5::State.
  */
 
 /*!
@@ -1029,7 +1029,7 @@ uint QWaylandXdgSurfaceV5::sendConfigure(const QSize &size, const QVector<QWayla
 }
 
 /*!
- * \qmlmethod void QtWaylandCompositor::XdgSurface::sendClose()
+ * \qmlmethod void QtWaylandCompositor::XdgSurfaceV5::sendClose()
  *
  * Sends a close event to the client.
  */
@@ -1147,7 +1147,7 @@ QWaylandXdgPopupV5::QWaylandXdgPopupV5(QWaylandXdgShellV5 *xdgShell, QWaylandSur
 }
 
 /*!
- * \qmlmethod void QtWaylandCompositor::XdgPopup::initialize(object surface, object parentSurface, object resource)
+ * \qmlmethod void QtWaylandCompositor::XdgPopupV5::initialize(object surface, object parentSurface, object resource)
  *
  * Initializes the xdg popup, associating it with the given \a shell, \a surface,
  * \a parentSurface and \a resource.
@@ -1175,9 +1175,9 @@ void QWaylandXdgPopupV5::initialize(QWaylandXdgShellV5 *shell, QWaylandSurface *
 }
 
 /*!
- * \qmlproperty object QtWaylandCompositor::XdgPopup::shell
+ * \qmlproperty object QtWaylandCompositor::XdgPopupV5::shell
  *
- * This property holds the shell associated with this XdgPopup.
+ * This property holds the shell associated with this XdgPopupV5.
  */
 
 /*!
@@ -1192,9 +1192,9 @@ QWaylandXdgShellV5 *QWaylandXdgPopupV5::shell() const
 }
 
 /*!
- * \qmlproperty object QtWaylandCompositor::XdgPopup::surface
+ * \qmlproperty object QtWaylandCompositor::XdgPopupV5::surface
  *
- * This property holds the surface associated with this XdgPopup.
+ * This property holds the surface associated with this XdgPopupV5.
  */
 
 /*!
@@ -1209,9 +1209,9 @@ QWaylandSurface *QWaylandXdgPopupV5::surface() const
 }
 
 /*!
- * \qmlproperty object QtWaylandCompositor::XdgPopup::parentSurface
+ * \qmlproperty object QtWaylandCompositor::XdgPopupV5::parentSurface
  *
- * This property holds the surface associated with the parent of this XdgPopup.
+ * This property holds the surface associated with the parent of this XdgPopupV5.
  */
 
 /*!
@@ -1228,7 +1228,7 @@ QWaylandSurface *QWaylandXdgPopupV5::parentSurface() const
 
 
 /*!
- * \qmlproperty object QtWaylandCompositor::XdgPopup::position
+ * \qmlproperty object QtWaylandCompositor::XdgPopupV5::position
  *
  * This property holds the location of the upper left corner of the surface
  * relative to the upper left corner of the parent surface, in surface local

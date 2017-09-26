@@ -117,8 +117,9 @@ QObject *QWaylandView::renderObject() const
     Q_D(const QWaylandView);
     return d->renderObject;
 }
+
 /*!
- * \qmlproperty object QtWaylandCompositor::WaylandView::surface
+ * \qmlproperty WaylandSurface QtWaylandCompositor::WaylandView::surface
  *
  * This property holds the surface viewed by this WaylandView.
  */
@@ -169,7 +170,7 @@ void QWaylandView::setSurface(QWaylandSurface *newSurface)
 }
 
 /*!
- * \qmlproperty object QtWaylandCompositor::WaylandView::output
+ * \qmlproperty WaylandOutput QtWaylandCompositor::WaylandView::output
  *
  * This property holds the output on which this view displays its surface.
  */

@@ -369,7 +369,7 @@ QWaylandQuickItem::~QWaylandQuickItem()
 }
 
 /*!
- * \qmlproperty object QtWaylandCompositor::WaylandQuickItem::compositor
+ * \qmlproperty WaylandCompositor QtWaylandCompositor::WaylandQuickItem::compositor
  *
  * This property holds the compositor for the surface rendered by this WaylandQuickItem.
  */
@@ -386,7 +386,7 @@ QWaylandCompositor *QWaylandQuickItem::compositor() const
 }
 
 /*!
- * \qmlproperty object QtWaylandCompositor::WaylandQuickItem::view
+ * \qmlproperty WaylandView QtWaylandCompositor::WaylandQuickItem::view
  *
  * This property holds the view rendered by this WaylandQuickItem.
  */
@@ -403,7 +403,7 @@ QWaylandView *QWaylandQuickItem::view() const
 }
 
 /*!
- * \qmlproperty object QtWaylandCompositor::WaylandQuickItem::surface
+ * \qmlproperty WaylandSurface QtWaylandCompositor::WaylandQuickItem::surface
  *
  * This property holds the surface rendered by this WaylandQuickItem.
  */

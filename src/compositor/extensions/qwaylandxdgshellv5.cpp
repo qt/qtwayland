@@ -789,7 +789,7 @@ void QWaylandXdgSurfaceV5::handleBufferScaleChanged()
 }
 
 /*!
- * \qmlproperty object QtWaylandCompositor::XdgSurfaceV5::shell
+ * \qmlproperty XdgShellV5 QtWaylandCompositor::XdgSurfaceV5::shell
  *
  * This property holds the shell associated with this XdgSurfaceV5.
  */
@@ -806,7 +806,7 @@ QWaylandXdgShellV5 *QWaylandXdgSurfaceV5::shell() const
 }
 
 /*!
- * \qmlproperty object QtWaylandCompositor::XdgSurfaceV5::surface
+ * \qmlproperty WaylandSurface QtWaylandCompositor::XdgSurfaceV5::surface
  *
  * This property holds the surface associated with this XdgSurfaceV5.
  */
@@ -840,7 +840,7 @@ Qt::WindowType QWaylandXdgSurfaceV5::windowType() const
 }
 
 /*!
- * \qmlproperty object QtWaylandCompositor::XdgSurfaceV5::parentSurface
+ * \qmlproperty XdgSurfaceV5 QtWaylandCompositor::XdgSurfaceV5::parentSurface
  *
  * This property holds the XdgSurfaceV5 parent of this XdgSurfaceV5.
  * When a parent surface is set, the parentSurfaceChanged() signal
@@ -1175,7 +1175,7 @@ void QWaylandXdgPopupV5::initialize(QWaylandXdgShellV5 *shell, QWaylandSurface *
 }
 
 /*!
- * \qmlproperty object QtWaylandCompositor::XdgPopupV5::shell
+ * \qmlproperty XdgShellV5 QtWaylandCompositor::XdgPopupV5::shell
  *
  * This property holds the shell associated with this XdgPopupV5.
  */
@@ -1192,7 +1192,7 @@ QWaylandXdgShellV5 *QWaylandXdgPopupV5::shell() const
 }
 
 /*!
- * \qmlproperty object QtWaylandCompositor::XdgPopupV5::surface
+ * \qmlproperty WaylandSurface QtWaylandCompositor::XdgPopupV5::surface
  *
  * This property holds the surface associated with this XdgPopupV5.
  */
@@ -1209,7 +1209,7 @@ QWaylandSurface *QWaylandXdgPopupV5::surface() const
 }
 
 /*!
- * \qmlproperty object QtWaylandCompositor::XdgPopupV5::parentSurface
+ * \qmlproperty WaylandSurface QtWaylandCompositor::XdgPopupV5::parentSurface
  *
  * This property holds the surface associated with the parent of this XdgPopupV5.
  */
@@ -1228,7 +1228,7 @@ QWaylandSurface *QWaylandXdgPopupV5::parentSurface() const
 
 
 /*!
- * \qmlproperty object QtWaylandCompositor::XdgPopupV5::position
+ * \qmlproperty point QtWaylandCompositor::XdgPopupV5::position
  *
  * This property holds the location of the upper left corner of the surface
  * relative to the upper left corner of the parent surface, in surface local

@@ -575,7 +575,7 @@ QWaylandQuickShellIntegration *QWaylandWlShellSurface::createIntegration(QWaylan
 #endif
 
 /*!
- * \qmlproperty object QtWaylandCompositor::WlShellSurface::surface
+ * \qmlproperty WaylandSurface QtWaylandCompositor::WlShellSurface::surface
  *
  * This property holds the \c wl_surface associated with this WlShellSurface.
  */
@@ -592,7 +592,7 @@ QWaylandSurface *QWaylandWlShellSurface::surface() const
 }
 
 /*!
- * \qmlproperty object QtWaylandCompositor::WlShellSurface::shell
+ * \qmlproperty WlShell QtWaylandCompositor::WlShellSurface::shell
  *
  * This property holds the shell associated with this WlShellSurface.
  */

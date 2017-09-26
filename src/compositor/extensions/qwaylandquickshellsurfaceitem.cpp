@@ -87,7 +87,7 @@ QWaylandQuickShellSurfaceItem::QWaylandQuickShellSurfaceItem(QWaylandQuickShellS
 }
 
 /*!
- * \qmlproperty object QtWaylandCompositor::ShellSurfaceItem::shellSurface
+ * \qmlproperty ShellSurface QtWaylandCompositor::ShellSurfaceItem::shellSurface
  *
  * This property holds the ShellSurface rendered by this ShellSurfaceItem.
  * It may either be an XdgSurfaceV5, WlShellSurface or IviSurface depending on which shell protocol

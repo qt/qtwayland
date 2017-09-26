@@ -646,6 +646,98 @@ void QWaylandXdgShellV5::closeAllPopups()
     }
 }
 
+/*!
+ * \qmlsignal void QtWaylandCompositor::XdgShellV5::xdgSurfaceRequested(WaylandSurface surface, WaylandResource resource)
+ *
+ * This signal is emitted when the client has requested an \c xdg_surface to be associated
+ * with \a surface. The handler for this signal may create the shell surface for \a resource
+ * and initialize it within the scope of the signal emission. Otherwise an XdgSurfaceV5 will
+ * be created automatically.
+ */
+
+/*!
+ * \fn void QWaylandXdgShellV5::xdgSurfaceRequested(QWaylandSurface *surface, const QWaylandResource &resource)
+ *
+ * This signal is emitted when the client has requested an \c xdg_surface to be associated
+ * with \a surface. The handler for this signal may create the shell surface for \a resource
+ * and initialize it within the scope of the signal emission. Otherwise a QWaylandXdgSurfaceV5
+ * will be created automatically.
+ */
+
+/*!
+ * \qmlsignal void QtWaylandCompositor::XdgShellV5::xdgSurfaceCreated(XdgSurfaceV5 xdgSurface)
+ *
+ * This signal is emitted when the client has created an \c xdg_surface.
+ * A common use case is to let the handler of this signal instantiate a ShellSurfaceItem or
+ * WaylandQuickItem for displaying \a xdgSurface in a QtQuick scene.
+ */
+
+/*!
+ * \fn void QWaylandXdgShellV5::xdgSurfaceCreated(QWaylandXdgSurfaceV5 *xdgSurface)
+ *
+ * This signal is emitted when the client has created an \c xdg_surface.
+ * A common use case is to let the handler of this signal instantiate a QWaylandShellSurfaceItem or
+ * QWaylandQuickItem for displaying \a xdgSurface in a QtQuick scene.
+ */
+
+/*!
+ * \qmlsignal void QtWaylandCompositor::XdgShellV5::xdgPopupRequested(WaylandSurface surface, WaylandSurface parent, WaylandSeat seat, point position, WaylandResource resource)
+ *
+ * This signal is emitted when the client has requested an \c xdg_popup to be associated
+ * with \a surface. The handler for this signal may create the xdg popup for \a resource and
+ * initialize it within the scope of the signal emission. Otherwise an XdgPopupV5 will be
+ * created automatically.
+ *
+ * The \a seat is the \c wl_seat that caused the popup to be opened.
+ *
+ * \a position is the desired position of the popup, relative to the \a parent.
+ */
+
+/*!
+ * \fn void QWaylandXdgShellV5::xdgPopupRequested(QWaylandSurface *surface, QWaylandSurface *parent, QWaylandSeat *seat, const QPoint &position, const QWaylandResource &resource)
+ *
+ * This signal is emitted when the client has requested an \c xdg_surface to be associated
+ * with \a surface. The handler for this signal may create the xdg poup for \a resource and
+ * initialize it within the scope of the signal emission. Otherwise a QWaylandXdgPopupV5 will be
+ * created automatically.
+ *
+ * The \a seat is the \c wl_seat that caused the popup to be opened.
+ *
+ * \a position is the desired position of the popup, relative to the \a parent.
+ */
+
+/*!
+ * \qmlsignal void QtWaylandCompositor::XdgShellV5::xdgPopupCreated(XdgPopupV5 xdgPopup)
+ *
+ * This signal is emitted when the client has created an \c xdg_popup.
+ * A common use case is to let the handler of this signal instantiate a ShellSurfaceItem or
+ * WaylandQuickItem for displaying \a xdgPopup in a QtQuick scene.
+ */
+
+/*!
+ * \fn void QWaylandXdgShellV5::xdgPopupCreated(QWaylandXdgPopupV5 *xdgPopup)
+ *
+ * This signal is emitted when the client has created an \c xdg_popup.
+ * A common use case is to let the handler of this signal instantiate a QWaylandShellSurfaceItem or
+ * QWaylandQuickItem for displaying \a xdgPopup in a QtQuick scene.
+ */
+
+/*!
+ * \qmlsignal void QtWaylandCompositor::XdgShellV5::pong(int serial)
+ *
+ * This signal is emitted when the client has responded to a ping event with serial \a serial.
+ *
+ * \sa QtWaylandCompositor::XdgShellV5::ping()
+ */
+
+/*!
+ * \fn void QWaylandXdgShellV5::pong(uint serial)
+ *
+ * This signal is emitted when the client has responded to a ping event with serial \a serial.
+ *
+ * \sa QWaylandXdgShellV5::ping()
+ */
+
 void QWaylandXdgShellV5::handleSeatChanged(QWaylandSeat *newSeat, QWaylandSeat *oldSeat)
 {
     if (oldSeat != nullptr) {

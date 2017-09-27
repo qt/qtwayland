@@ -298,7 +298,93 @@ uint QWaylandSeat::sendTouchPointEvent(QWaylandSurface *surface, int id, const Q
 }
 
 /*!
- * Sends a frame event to the touch device of a \a client.
+ * \qmlmethod uint QtWaylandCompositor::WaylandSeat::sendTouchPointPressed(WaylandSurface surface, int id, point position)
+ *
+ * Sends a touch pressed event for the touch point \a id on \a surface with
+ * position \a position.
+ *
+ * \note You need to send a touch frame event when you are done sending touch
+ * events.
+ *
+ * Returns the serial for the touch down event.
+ */
+
+/*!
+ * Sends a touch pressed event for the touch point \a id on \a surface with
+ * position \a position.
+ *
+ * \note You need to send a touch frame event when you are done sending touch
+ * events.
+ *
+ * Returns the serial for the touch down event.
+ */
+uint QWaylandSeat::sendTouchPointPressed(QWaylandSurface *surface, int id, const QPointF &position)
+{
+    return sendTouchPointEvent(surface, id, position, Qt::TouchPointPressed);
+}
+
+/*!
+ * \qmlmethod void QtWaylandCompositor::WaylandSeat::sendTouchPointReleased(WaylandSurface surface, int id, point position)
+ *
+ * Sends a touch released event for the touch point \a id on \a surface with
+ * position \a position.
+ *
+ * \note You need to send a touch frame event when you are done sending touch
+ * events.
+ *
+ * Returns the serial for the touch up event.
+ */
+
+/*!
+ * Sends a touch released event for the touch point \a id on \a surface with
+ * position \a position.
+ *
+ * \note You need to send a touch frame event when you are done sending touch
+ * events.
+ *
+ * Returns the serial for the touch up event.
+ */
+uint QWaylandSeat::sendTouchPointReleased(QWaylandSurface *surface, int id, const QPointF &position)
+{
+    return sendTouchPointEvent(surface, id, position, Qt::TouchPointReleased);
+}
+
+/*!
+ * \qmlmethod void QtWaylandCompositor::WaylandSeat::sendTouchPointMoved(WaylandSurface surface, int id, point position)
+ *
+ * Sends a touch moved event for the touch point \a id on \a surface with
+ * position \a position.
+ *
+ * \note You need to send a touch frame event when you are done sending touch
+ * events.
+ *
+ * Returns the serial for the touch motion event.
+ */
+
+/*!
+ * Sends a touch moved event for the touch point \a id on \a surface with
+ * position \a position.
+ *
+ * \note You need to send a touch frame event when you are done sending touch
+ * events.
+ *
+ * Returns the serial for the touch motion event.
+ */
+uint QWaylandSeat::sendTouchPointMoved(QWaylandSurface *surface, int id, const QPointF &position)
+{
+    return sendTouchPointEvent(surface, id, position, Qt::TouchPointMoved);
+}
+
+/*!
+ * \qmlmethod void QtWaylandCompositor::WaylandSeat::sendFrameEvent(WaylandClient client)
+ *
+ * Sends a frame event to the touch device of a \a client to indicate the end
+ * of a series of touch up, down, and motion events.
+ */
+
+/*!
+ * Sends a frame event to the touch device of a \a client to indicate the end
+ * of a series of touch up, down, and motion events.
  */
 void QWaylandSeat::sendTouchFrameEvent(QWaylandClient *client)
 {
@@ -306,6 +392,12 @@ void QWaylandSeat::sendTouchFrameEvent(QWaylandClient *client)
     if (!d->touch.isNull())
         d->touch->sendFrameEvent(client);
 }
+
+/*!
+ * \qmlmethod void QtWaylandCompositor::WaylandSeat::sendCancelEvent(WaylandClient client)
+ *
+ * Sends a cancel event to the touch device of a \a client.
+ */
 
 /*!
  * Sends a cancel event to the touch device of a \a client.

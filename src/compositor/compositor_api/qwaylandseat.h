@@ -99,8 +99,11 @@ public:
     void sendFullKeyEvent(QKeyEvent *event);
 
     uint sendTouchPointEvent(QWaylandSurface *surface, int id, const QPointF &point, Qt::TouchPointState state);
-    void sendTouchFrameEvent(QWaylandClient *client);
-    void sendTouchCancelEvent(QWaylandClient *client);
+    Q_INVOKABLE uint sendTouchPointPressed(QWaylandSurface *surface, int id, const QPointF &position);
+    Q_INVOKABLE uint sendTouchPointReleased(QWaylandSurface *surface, int id, const QPointF &position);
+    Q_INVOKABLE uint sendTouchPointMoved(QWaylandSurface *surface, int id, const QPointF &position);
+    Q_INVOKABLE void sendTouchFrameEvent(QWaylandClient *client);
+    Q_INVOKABLE void sendTouchCancelEvent(QWaylandClient *client);
 
     void sendFullTouchEvent(QWaylandSurface *surface, QTouchEvent *event);
 

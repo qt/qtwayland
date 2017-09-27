@@ -666,7 +666,11 @@ bool QWaylandSurface::isDestroyed() const
 void QWaylandSurface::markAsCursorSurface(bool cursorSurface)
 {
     Q_D(QWaylandSurface);
+    if (d->isCursorSurface == cursorSurface)
+        return;
+
     d->isCursorSurface = cursorSurface;
+    emit cursorSurfaceChanged();
 }
 
 bool QWaylandSurface::isCursorSurface() const

@@ -99,9 +99,6 @@ QWaylandView::~QWaylandView()
     if (d->surface) {
         if (d->output)
             QWaylandOutputPrivate::get(d->output)->removeView(this, d->surface);
-        QWaylandSeat *i = d->surface->compositor()->defaultSeat();
-        if (i->mouseFocus() == this)
-            i->setMouseFocus(Q_NULLPTR);
 
         QWaylandSurfacePrivate::get(d->surface)->derefView(this);
     }

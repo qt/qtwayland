@@ -456,6 +456,12 @@ void QWaylandSeat::setMouseFocus(QWaylandView *view)
 
     QWaylandView *oldFocus = d->mouseFocus;
     d->mouseFocus = view;
+
+    if (oldFocus)
+        disconnect(oldFocus, &QObject::destroyed, this, &QWaylandSeat::handleMouseFocusDestroyed);
+    if (d->mouseFocus)
+        connect(d->mouseFocus, &QObject::destroyed, this, &QWaylandSeat::handleMouseFocusDestroyed);
+
     emit mouseFocusChanged(d->mouseFocus, oldFocus);
 }
 
@@ -511,5 +517,16 @@ QWaylandSeat *QWaylandSeat::fromSeatResource(struct ::wl_resource *resource)
  *
  * This signal is emitted when the mouse focus has changed from \a oldFocus to \a newFocus.
  */
+
+void QWaylandSeat::handleMouseFocusDestroyed()
+{
+    // This is triggered when the QWaylandView is destroyed, NOT the surface.
+    // ... so this is for the rare case when the view that currently holds the mouse focus is
+    // destroyed before its surface
+    Q_D(QWaylandSeat);
+    d->mouseFocus = nullptr;
+    QWaylandView *oldFocus = nullptr; // we have to send nullptr because the old focus is already destroyed at this point
+    emit mouseFocusChanged(d->mouseFocus, oldFocus);
+}
 
 QT_END_NAMESPACE

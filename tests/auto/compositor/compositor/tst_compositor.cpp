@@ -27,6 +27,8 @@
 ****************************************************************************/
 
 #include "mockclient.h"
+#include "mockseat.h"
+#include "mockpointer.h"
 #include "testcompositor.h"
 #include "testkeyboardgrabber.h"
 #include "testseat.h"
@@ -56,6 +58,7 @@ private slots:
     void keyboardGrab();
     void seatCreation();
     void seatKeyboardFocus();
+    void seatMouseFocus();
     void singleClient();
     void multipleClients();
     void geometry();
@@ -436,6 +439,59 @@ void tst_WaylandCompositor::seatKeyboardFocus()
     QTRY_VERIFY(compositor.surfaces.size() == 0);
 
     QTRY_VERIFY(!compositor.defaultSeat()->keyboardFocus());
+}
+
+void tst_WaylandCompositor::seatMouseFocus()
+{
+    TestCompositor compositor(true);
+    compositor.create();
+
+    // Create client after all the seats have been set up as the mock client
+    // does not dynamically listen to new seats
+    MockClient client;
+    wl_surface *surface = client.createSurface();
+    QTRY_COMPARE(compositor.surfaces.size(), 1);
+
+    QWaylandSurface *waylandSurface = compositor.surfaces.at(0);
+    auto view = new QWaylandView;
+    view->setSurface(waylandSurface);
+
+    QWaylandSeat* seat = compositor.defaultSeat();
+    seat->setMouseFocus(view);
+    seat->sendMouseMoveEvent(view, QPointF(10, 10), QPointF(100, 100));
+
+    compositor.flushClients();
+
+    QTRY_VERIFY(seat->mouseFocus());
+    QTRY_VERIFY(seat->pointer());
+    QTRY_COMPARE(seat->mouseFocus()->surface(), waylandSurface);
+
+    QTRY_COMPARE(client.m_seats.size(), 1);
+    MockPointer *mockPointer = client.m_seats.first()->pointer();
+    QVERIFY(mockPointer);
+    QTRY_COMPARE(mockPointer->m_enteredSurface, surface);
+
+    delete view;
+
+    compositor.flushClients();
+
+    QTRY_COMPARE(mockPointer->m_enteredSurface, nullptr);
+    QTRY_VERIFY(!compositor.defaultSeat()->mouseFocus());
+
+    view = new QWaylandView;
+    view->setSurface(waylandSurface);
+    seat->sendMouseMoveEvent(view, QPointF(10, 10), QPointF(100, 100));
+    QTRY_COMPARE(compositor.defaultSeat()->mouseFocus(), view);
+
+    compositor.flushClients();
+
+    QTRY_COMPARE(mockPointer->m_enteredSurface, surface);
+
+    wl_surface_destroy(surface);
+    QTRY_VERIFY(compositor.surfaces.size() == 0);
+    QTRY_VERIFY(!compositor.defaultSeat()->mouseFocus());
+
+    delete view;
 }
 
 class XdgTestCompositor: public TestCompositor {

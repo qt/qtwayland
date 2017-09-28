@@ -86,11 +86,15 @@ protected:
     void pointer_release(Resource *resource) override;
 
 private:
-    const QList<Resource *> pointerResourcesForFocusedSurface() const;
     uint sendButton(Qt::MouseButton button, uint32_t state);
+    void sendMotion();
+    void sendEnter(QWaylandSurface *surface);
+    void sendLeave();
+    void ensureEntered(QWaylandSurface *surface);
 
     QWaylandSeat *seat;
     QWaylandOutput *output;
+    QPointer<QWaylandSurface> enteredSurface;
 
     QPointF localPosition;
     QPointF spacePosition;
@@ -100,7 +104,7 @@ private:
 
     int buttonCount;
 
-    QWaylandDestroyListener focusDestroyListener;
+    QWaylandDestroyListener enteredSurfaceDestroyListener;
 
     static QWaylandSurfaceRole s_role;
 };

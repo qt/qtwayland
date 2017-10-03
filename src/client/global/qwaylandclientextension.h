@@ -95,7 +95,7 @@ public:
         return T::interface();
     }
 
-    void bind(struct ::wl_registry *registry, int id, int ver)
+    void bind(struct ::wl_registry *registry, int id, int ver) override
     {
         T* instance = static_cast<T *>(this);
         // Make sure lowest version is used of the supplied version from the

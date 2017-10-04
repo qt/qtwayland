@@ -249,7 +249,7 @@ ShmBuffer::ShmBuffer(const QSize &size, wl_shm *shm)
 
 ShmBuffer::~ShmBuffer()
 {
-    munmap(image.bits(), image.byteCount());
+    munmap(image.bits(), image.sizeInBytes());
     wl_buffer_destroy(handle);
     wl_shm_pool_destroy(shm_pool);
 }

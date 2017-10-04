@@ -119,7 +119,7 @@ QSharedPointer<QWaylandBuffer> QWaylandCursor::cursorBitmapImage(const QCursor *
 
     const QImage &img = cursor->pixmap().toImage();
     QSharedPointer<QWaylandShmBuffer> buffer(new QWaylandShmBuffer(mDisplay, img.size(), img.format()));
-    memcpy(buffer->image()->bits(), img.bits(), img.byteCount());
+    memcpy(buffer->image()->bits(), img.bits(), img.sizeInBytes());
     return buffer;
 }
 

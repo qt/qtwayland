@@ -601,6 +601,7 @@ const wl_callback_listener QWaylandWindow::callbackListener = {
 void QWaylandWindow::frameCallback(void *data, struct wl_callback *callback, uint32_t time)
 {
     Q_UNUSED(time);
+    Q_UNUSED(callback);
     QWaylandWindow *self = static_cast<QWaylandWindow*>(data);
 
     self->mWaitingForFrameSync = false;

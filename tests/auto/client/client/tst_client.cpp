@@ -93,6 +93,7 @@ public:
 
     void touchEvent(QTouchEvent *event) override
     {
+        Q_UNUSED(event);
         ++touchEventCount;
     }
 
@@ -272,6 +273,7 @@ public:
 protected:
     void mousePressEvent(QMouseEvent *event) override
     {
+        Q_UNUSED(event);
         if (dragStarted)
             return;
         dragStarted = true;

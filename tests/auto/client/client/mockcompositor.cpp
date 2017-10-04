@@ -264,8 +264,6 @@ namespace Impl {
 
 Compositor::Compositor()
     : m_display(wl_display_create())
-    , m_startDragSeen(false)
-    , m_time(0)
 {
     wl_list_init(&m_outputResources);
 

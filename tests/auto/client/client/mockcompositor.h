@@ -88,7 +88,7 @@ public:
     static void waitForStartDrag(void *data, const QList<QVariant> &parameters);
 
 public:
-    bool m_startDragSeen;
+    bool m_startDragSeen = false;
 
 private:
     static void bindCompositor(wl_client *client, void *data, uint32_t version, uint32_t id);
@@ -102,18 +102,18 @@ private:
 
     QRect m_outputGeometry;
 
-    wl_display *m_display;
-    wl_event_loop *m_loop;
-    wl_shm *m_shm;
-    int m_fd;
+    wl_display *m_display = nullptr;
+    wl_event_loop *m_loop = nullptr;
+    wl_shm *m_shm = nullptr;
+    int m_fd = -1;
 
     wl_list m_outputResources;
-    uint32_t m_time;
+    uint32_t m_time = 0;
 
     QScopedPointer<Seat> m_seat;
-    Pointer *m_pointer;
-    Keyboard *m_keyboard;
-    Touch *m_touch;
+    Pointer *m_pointer = nullptr;
+    Keyboard *m_keyboard = nullptr;
+    Touch *m_touch = nullptr;
     QScopedPointer<DataDeviceManager> m_data_device_manager;
     QVector<Surface *> m_surfaces;
 };

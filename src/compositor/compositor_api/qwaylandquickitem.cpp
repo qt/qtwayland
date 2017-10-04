@@ -957,9 +957,14 @@ void QWaylandQuickItem::parentChanged(QWaylandSurface *newParent, QWaylandSurfac
 void QWaylandQuickItem::updateSize()
 {
     Q_D(QWaylandQuickItem);
-    if (d->sizeFollowsSurface && surface()) {
-        setSize(surface()->size() * (d->scaleFactor() / surface()->bufferScale()));
-    }
+
+    QSize size(0, 0);
+    if (surface())
+        size = surface()->size() * (d->scaleFactor() / surface()->bufferScale());
+
+    setImplicitSize(size.width(), size.height());
+    if (d->sizeFollowsSurface)
+        setSize(size);
 }
 
 /*!
@@ -1040,6 +1045,9 @@ bool QWaylandQuickItem::sizeFollowsSurface() const
     return d->sizeFollowsSurface;
 }
 
+//TODO: sizeFollowsSurface became obsolete when we added an implementation for
+//implicit size. The property is here for compatibility reasons only and should
+//be removed or at least default to false in Qt 6.
 void QWaylandQuickItem::setSizeFollowsSurface(bool sizeFollowsSurface)
 {
     Q_D(QWaylandQuickItem);

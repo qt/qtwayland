@@ -41,7 +41,8 @@
 #include <sys/mman.h>
 
 const struct wl_registry_listener MockClient::registryListener = {
-    MockClient::handleGlobal
+    MockClient::handleGlobal,
+    nullptr
 };
 
 MockClient::MockClient()

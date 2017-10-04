@@ -118,10 +118,11 @@ QObject *QWaylandView::renderObject() const
     return d->renderObject;
 }
 /*!
-* \qmlproperty object QtWaylandCompositor::WaylandView::surface
-*
-* This property holds the surface viewed by this WaylandView.
-*/
+ * \qmlproperty object QtWaylandCompositor::WaylandView::surface
+ *
+ * This property holds the surface viewed by this WaylandView.
+ */
+
 /*!
  * \property QWaylandView::surface
  *

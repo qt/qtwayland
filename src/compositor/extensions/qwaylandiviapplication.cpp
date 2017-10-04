@@ -48,6 +48,49 @@
 QT_BEGIN_NAMESPACE
 
 /*!
+ * \qmltype IviApplication
+ * \inqmlmodule QtWayland.Compositor
+ * \since 5.8
+ * \brief Provides a shell extension for embedded-style user interfaces.
+ *
+ * The IviApplication extension provides a way to associate an IviSurface
+ * with a regular Wayland surface. Using the IviSurface interface, the client can identify
+ * itself by giving an ivi id, and the compositor can ask the client to resize.
+ *
+ * IviApplication corresponds to the Wayland \c ivi_application interface.
+ *
+ * To provide the functionality of the shell extension in a compositor, create
+ * an instance of the IviApplication component and add it to the list of extensions
+ * supported by the compositor:
+ * \code
+ * import QtWayland.Compositor 1.0
+ *
+ * WaylandCompositor {
+ *     IviApplication {
+ *         onIviSurfaceCreated: {
+ *             if (iviSurface.iviId === navigationIviId) {
+ *                 // ...
+ *             }
+ *         }
+ *     }
+ * }
+ * \endcode
+ */
+
+/*!
+ * \class QWaylandIviApplication
+ * \inmodule QtWaylandCompositor
+ * \since 5.8
+ * \brief The QWaylandIviApplication class is an extension for embedded-style user interfaces.
+ *
+ * The QWaylandIviApplication extension provides a way to associate an QWaylandIviSurface
+ * with a regular Wayland surface. Using the QWaylandIviSurface interface, the client can identify
+ * itself by giving an ivi id, and the compositor can ask the client to resize.
+ *
+ * QWaylandIviApplication corresponds to the Wayland \c ivi_application interface.
+ */
+
+/*!
  * Constructs a QWaylandIviApplication object.
  */
 QWaylandIviApplication::QWaylandIviApplication()

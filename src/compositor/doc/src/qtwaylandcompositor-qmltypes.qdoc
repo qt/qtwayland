@@ -26,7 +26,7 @@
 ****************************************************************************/
 
 /*!
-  \qmlmodule QtWayland.Compositor 1.0
+  \qmlmodule QtWayland.Compositor 1.1
   \title Qt Wayland Compositor QML Types
   \ingroup qmlmodules
   \brief Provides QML types for writing custom Wayland display servers.
@@ -38,7 +38,7 @@
   import statement:
 
   \code
-  import QtWayland.Compositor 1.0
+  import QtWayland.Compositor 1.1
   \endcode
 
   To link against the module, add this line to your \l qmake \c .pro file:

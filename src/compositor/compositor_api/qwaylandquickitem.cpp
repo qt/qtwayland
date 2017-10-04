@@ -1019,7 +1019,13 @@ bool QWaylandQuickItem::inputRegionContains(const QPointF &localPosition)
 QPointF QWaylandQuickItem::mapToSurface(const QPointF &point) const
 {
     Q_D(const QWaylandQuickItem);
-    return point / d->scaleFactor();
+    if (!surface() || surface()->size().isEmpty())
+        return point / d->scaleFactor();
+
+    qreal xScale = width() / surface()->size().width();
+    qreal yScale = height() / surface()->size().height();
+
+    return QPointF(point.x() / xScale, point.y() / yScale);
 }
 
 /*!

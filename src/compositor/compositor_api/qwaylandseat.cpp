@@ -154,6 +154,17 @@ void QWaylandSeatPrivate::seat_get_touch(wl_seat::Resource *resource, uint32_t i
 }
 
 /*!
+ * \qmltype WaylandSeat
+ * \inqmlmodule QtWayland.Compositor
+ * \since 5.8
+ * \brief Provides access to keyboard, mouse, and touch input.
+ *
+ * The WaylandSeat type provides access to different types of user input and maintains
+ * a keyboard focus and a mouse pointer. It corresponds to the wl_seat interface in the Wayland
+ * protocol.
+ */
+
+/*!
  * \class QWaylandSeat
  * \inmodule QtWaylandCompositor
  * \since 5.8

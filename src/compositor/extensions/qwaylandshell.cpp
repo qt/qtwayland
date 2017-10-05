@@ -58,12 +58,6 @@ QWaylandShell::QWaylandShell(QWaylandObject *waylandObject)
 }
 
 /*!
- * \qmlproperty enum QtWaylandCompositor::Shell::focusPolicy
- *
- * This property holds the focus policy of the Shell.
- */
-
-/*!
  * \enum QWaylandShell::FocusPolicy
  *
  * This enum type is used to specify the focus policy for shell surfaces.
@@ -73,7 +67,7 @@ QWaylandShell::QWaylandShell(QWaylandObject *waylandObject)
  */
 
 /*!
- * \qmlproperty object QtWaylandCompositor::Shell::focusPolicy
+ * \qmlproperty enumeration QtWaylandCompositor::Shell::focusPolicy
  *
  * This property holds the focus policy of the Shell.
  */

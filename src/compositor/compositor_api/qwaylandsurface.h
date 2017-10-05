@@ -86,7 +86,7 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandSurface : public QWaylandObject
     Q_PROPERTY(Qt::ScreenOrientation contentOrientation READ contentOrientation NOTIFY contentOrientationChanged)
     Q_PROPERTY(QWaylandSurface::Origin origin READ origin NOTIFY originChanged)
     Q_PROPERTY(bool hasContent READ hasContent NOTIFY hasContentChanged)
-    Q_PROPERTY(bool cursorSurface READ isCursorSurface WRITE markAsCursorSurface)
+    Q_PROPERTY(bool cursorSurface READ isCursorSurface WRITE markAsCursorSurface NOTIFY cursorSurfaceChanged)
 
 public:
     enum Origin {
@@ -165,6 +165,7 @@ Q_SIGNALS:
     void subsurfacePlaceAbove(QWaylandSurface *sibling);
     void subsurfacePlaceBelow(QWaylandSurface *sibling);
     void dragStarted(QWaylandDrag *drag);
+    void cursorSurfaceChanged();
 
     void configure(bool hasBuffer);
     void redraw();

@@ -51,16 +51,27 @@ QT_BEGIN_NAMESPACE
 QWaylandSurfaceRole QWaylandIviSurfacePrivate::s_role("ivi_surface");
 
 /*!
+ * \qmltype IviSurface
+ * \inqmlmodule QtWayland.Compositor
+ * \since 5.8
+ * \brief Provides a simple way to identify and resize a surface.
+ *
+ * This type is part of the \l{IviApplication} extension and provides a way to extend
+ * the functionality of an existing WaylandSurface with a way to resize and identify it.
+ *
+ * It corresponds to the Wayland \c ivi_surface interface.
+ */
+
+/*!
  * \class QWaylandIviSurface
  * \inmodule QtWaylandCompositor
  * \since 5.8
  * \brief The QWaylandIviSurface class provides a simple way to identify and resize a surface.
  *
  * This class is part of the QWaylandIviApplication extension and provides a way to
- * extend the functionality of an existing QWaylandSurface with features a way to
- * resize and identify it.
+ * extend the functionality of an existing QWaylandSurface with a way to resize and identify it.
  *
- * It corresponds to the Wayland interface ivi_surface.
+ * It corresponds to the Wayland \c ivi_surface interface.
  */
 
 /*!

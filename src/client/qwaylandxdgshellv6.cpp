@@ -169,7 +169,8 @@ void QWaylandXdgSurfaceV6::setType(Qt::WindowType type, QWaylandWindow *transien
         setToplevel();
         if (transientParent) {
             auto parentXdgSurface = static_cast<QWaylandXdgSurfaceV6 *>(transientParent->shellSurface());
-            m_toplevel->set_parent(parentXdgSurface->m_toplevel->object());
+            if (parentXdgSurface)
+                m_toplevel->set_parent(parentXdgSurface->m_toplevel->object());
         }
     }
 }

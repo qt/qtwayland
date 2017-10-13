@@ -60,32 +60,31 @@ WaylandCompositor {
             width: 1024
             height: 768
             visible: true
-            Rectangle {
-                id: surfaceArea
-                color: "#1337af"
-                anchors.fill: parent
+            Repeater {
+                model: shellSurfaces
+                // ShellSurfaceItem handles displaying a shell surface.
+                // It has implementations for things like interactive
+                // resize/move, and forwarding of mouse and keyboard
+                // events to the client process.
+                ShellSurfaceItem {
+                    shellSurface: modelData
+                    onSurfaceDestroyed: shellSurfaces.remove(index)
+                }
             }
-        }
-    }
-    // The chrome defines the window look and behavior.
-    // Here we use the built-in ShellSurfaceItem.
-    Component {
-        id: chromeComponent
-        ShellSurfaceItem {
-            onSurfaceDestroyed: destroy()
         }
     }
     // Extensions are additions to the core Wayland
     // protocol. We choose to support two different
     // shells (window management protocols). When the
-    // client creates a new window, we instantiate a
-    // chromeComponent on the output.
+    // client creates a new shell surface (i.e. a window)
+    // we append it to our list of shellSurfaces.
     WlShell {
         onWlShellSurfaceCreated:
-            chromeComponent.createObject(surfaceArea, { "shellSurface": shellSurface } );
+            shellSurfaces.append({shellSurface: shellSurface});
     }
-    XdgShellV5 {
-        onXdgSurfaceCreated:
-            chromeComponent.createObject(surfaceArea, { "shellSurface": xdgSurface } );
+    XdgShellV6 {
+        onToplevelCreated:
+            shellSurfaces.append({shellSurface: toplevel});
     }
+    ListModel { id: shellSurfaces }
 }

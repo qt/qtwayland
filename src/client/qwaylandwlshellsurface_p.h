@@ -102,7 +102,7 @@ private:
 
     void setTopLevel();
     void updateTransientParent(QWindow *parent);
-    void setPopup(QWaylandWindow *parent, QWaylandInputDevice *device, int serial);
+    void setPopup(QWaylandWindow *parent, QWaylandInputDevice *device, uint serial);
 
     QWaylandWindow *m_window;
     bool m_maximized;

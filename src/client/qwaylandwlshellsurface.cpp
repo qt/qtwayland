@@ -192,7 +192,7 @@ void QWaylandWlShellSurface::updateTransientParent(QWindow *parent)
                   flags);
 }
 
-void QWaylandWlShellSurface::setPopup(QWaylandWindow *parent, QWaylandInputDevice *device, int serial)
+void QWaylandWlShellSurface::setPopup(QWaylandWindow *parent, QWaylandInputDevice *device, uint serial)
 {
     QWaylandWindow *parent_wayland_window = parent;
     if (!parent_wayland_window) {

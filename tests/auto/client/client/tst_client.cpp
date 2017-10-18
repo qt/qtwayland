@@ -143,6 +143,8 @@ private slots:
     void touchDrag();
     void mouseDrag();
     void dontCrashOnMultipleCommits();
+    void hiddenTransientParent();
+    void hiddenPopupParent();
 
 private:
     MockCompositor *compositor;
@@ -358,6 +360,48 @@ void tst_WaylandClient::dontCrashOnMultipleCommits()
     delete window;
 
     QTRY_VERIFY(!compositor->surface());
+}
+
+void tst_WaylandClient::hiddenTransientParent()
+{
+    QWindow parent;
+    QWindow transient;
+
+    transient.setTransientParent(&parent);
+
+    parent.show();
+    QTRY_VERIFY(compositor->surface());
+
+    parent.hide();
+    QTRY_VERIFY(!compositor->surface());
+
+    transient.show();
+    QTRY_VERIFY(compositor->surface());
+}
+
+void tst_WaylandClient::hiddenPopupParent()
+{
+    TestWindow toplevel;
+    toplevel.show();
+
+    // wl_shell relies on a mouse event in order to send a serial and seat
+    // with the set_popup request.
+    QSharedPointer<MockSurface> surface;
+    QTRY_VERIFY(surface = compositor->surface());
+    QPoint mousePressPos(16, 16);
+    QCOMPARE(toplevel.mousePressEventCount, 0);
+    compositor->sendMousePress(surface, mousePressPos);
+    QTRY_COMPARE(toplevel.mousePressEventCount, 1);
+
+    QWindow popup;
+    popup.setTransientParent(&toplevel);
+    popup.setFlag(Qt::Popup, true);
+
+    toplevel.hide();
+    QTRY_VERIFY(!compositor->surface());
+
+    popup.show();
+    QTRY_VERIFY(compositor->surface());
 }
 
 int main(int argc, char **argv)

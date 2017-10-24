@@ -376,7 +376,7 @@ uint QWaylandSeat::sendTouchPointMoved(QWaylandSurface *surface, int id, const Q
 }
 
 /*!
- * \qmlmethod void QtWaylandCompositor::WaylandSeat::sendFrameEvent(WaylandClient client)
+ * \qmlmethod void QtWaylandCompositor::WaylandSeat::sendTouchFrameEvent(WaylandClient client)
  *
  * Sends a frame event to the touch device of a \a client to indicate the end
  * of a series of touch up, down, and motion events.
@@ -394,7 +394,7 @@ void QWaylandSeat::sendTouchFrameEvent(QWaylandClient *client)
 }
 
 /*!
- * \qmlmethod void QtWaylandCompositor::WaylandSeat::sendCancelEvent(WaylandClient client)
+ * \qmlmethod void QtWaylandCompositor::WaylandSeat::sendTouchCancelEvent(WaylandClient client)
  *
  * Sends a cancel event to the touch device of a \a client.
  */

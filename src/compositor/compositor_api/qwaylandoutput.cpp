@@ -990,6 +990,7 @@ void QWaylandOutput::handleWindowDestroyed()
 {
     Q_D(QWaylandOutput);
     d->window = Q_NULLPTR;
+    emit windowChanged();
     emit windowDestroyed();
 }
 

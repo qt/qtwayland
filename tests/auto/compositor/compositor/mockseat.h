@@ -28,6 +28,8 @@
 #ifndef MOCKSEAT
 #define MOCKSEAT
 
+#include "mockpointer.h"
+
 #include <QObject>
 #include <wayland-client.h>
 
@@ -38,8 +40,13 @@ class MockSeat : public QObject
 public:
     MockSeat(wl_seat *seat);
     ~MockSeat();
+    MockPointer *pointer() const { return m_pointer.data(); }
 
     wl_seat *m_seat;
     wl_keyboard *m_keyboard;
+
+private:
+    QScopedPointer<MockPointer> m_pointer;
 };
+
 #endif

@@ -336,7 +336,7 @@ void QWaylandOutput::update()
 }
 
 /*!
- * \qmlproperty object QtWaylandCompositor::WaylandOutput::compositor
+ * \qmlproperty WaylandCompositor QtWaylandCompositor::WaylandOutput::compositor
  *
  * This property holds the compositor displaying content on this WaylandOutput.
  *
@@ -990,6 +990,7 @@ void QWaylandOutput::handleWindowDestroyed()
 {
     Q_D(QWaylandOutput);
     d->window = Q_NULLPTR;
+    emit windowChanged();
     emit windowDestroyed();
 }
 

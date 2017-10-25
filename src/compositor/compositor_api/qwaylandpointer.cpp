@@ -51,29 +51,75 @@ QWaylandPointerPrivate::QWaylandPointerPrivate(QWaylandPointer *pointer, QWaylan
     , wl_pointer()
     , seat(seat)
     , output()
-    , hasSentEnter(false)
     , enterSerial(0)
     , buttonCount()
 {
     Q_UNUSED(pointer);
 }
 
-const QList<QtWaylandServer::wl_pointer::Resource *> QWaylandPointerPrivate::pointerResourcesForFocusedSurface() const
-{
-    if (!seat->mouseFocus())
-        return {};
-
-    return resourceMap().values(seat->mouseFocus()->surfaceResource()->client);
-}
-
 uint QWaylandPointerPrivate::sendButton(Qt::MouseButton button, uint32_t state)
 {
     Q_Q(QWaylandPointer);
+    if (!q->mouseFocus() || !q->mouseFocus()->surface())
+        return 0;
+
+    wl_client *client = q->mouseFocus()->surface()->waylandClient();
     uint32_t time = compositor()->currentTimeMsecs();
     uint32_t serial = compositor()->nextSerial();
-    for (auto resource : pointerResourcesForFocusedSurface())
+    for (auto resource : resourceMap().values(client))
         send_button(resource->handle, serial, time, q->toWaylandButton(button), state);
     return serial;
+}
+
+void QWaylandPointerPrivate::sendMotion()
+{
+    Q_ASSERT(enteredSurface);
+    uint32_t time = compositor()->currentTimeMsecs();
+    wl_fixed_t x = wl_fixed_from_double(localPosition.x());
+    wl_fixed_t y = wl_fixed_from_double(localPosition.y());
+    for (auto resource : resourceMap().values(enteredSurface->waylandClient()))
+        wl_pointer_send_motion(resource->handle, time, x, y);
+}
+
+void QWaylandPointerPrivate::sendEnter(QWaylandSurface *surface)
+{
+    Q_ASSERT(surface && !enteredSurface);
+    enterSerial = compositor()->nextSerial();
+
+    QWaylandKeyboard *keyboard = seat->keyboard();
+    if (keyboard)
+        keyboard->sendKeyModifiers(surface->client(), enterSerial);
+
+    wl_fixed_t x = wl_fixed_from_double(localPosition.x());
+    wl_fixed_t y = wl_fixed_from_double(localPosition.y());
+    for (auto resource : resourceMap().values(surface->waylandClient()))
+        send_enter(resource->handle, enterSerial, surface->resource(), x, y);
+
+    enteredSurface = surface;
+    enteredSurfaceDestroyListener.listenForDestruction(surface->resource());
+}
+
+void QWaylandPointerPrivate::sendLeave()
+{
+    Q_ASSERT(enteredSurface);
+    uint32_t serial = compositor()->nextSerial();
+    for (auto resource : resourceMap().values(enteredSurface->waylandClient()))
+        send_leave(resource->handle, serial, enteredSurface->resource());
+    enteredSurface = nullptr;
+    localPosition = QPointF();
+    enteredSurfaceDestroyListener.reset();
+}
+
+void QWaylandPointerPrivate::ensureEntered(QWaylandSurface *surface)
+{
+    if (enteredSurface == surface)
+        return;
+
+    if (enteredSurface)
+        sendLeave();
+
+    if (surface)
+        sendEnter(surface);
 }
 
 void QWaylandPointerPrivate::pointer_release(wl_pointer::Resource *resource)
@@ -122,7 +168,7 @@ void QWaylandPointerPrivate::pointer_set_cursor(wl_pointer::Resource *resource, 
 QWaylandPointer::QWaylandPointer(QWaylandSeat *seat, QObject *parent)
     : QWaylandObject(* new QWaylandPointerPrivate(this, seat), parent)
 {
-    connect(&d_func()->focusDestroyListener, &QWaylandDestroyListener::fired, this, &QWaylandPointer::focusDestroyed);
+    connect(&d_func()->enteredSurfaceDestroyListener, &QWaylandDestroyListener::fired, this, &QWaylandPointer::enteredSurfaceDestroyed);
     connect(seat, &QWaylandSeat::mouseFocusChanged, this, &QWaylandPointer::pointerFocusChanged);
 }
 
@@ -173,16 +219,11 @@ uint QWaylandPointer::sendMousePressEvent(Qt::MouseButton button)
 {
     Q_D(QWaylandPointer);
     d->buttonCount++;
-    uint serial = 0;
 
-    if (d->seat->mouseFocus())
-         serial = d->sendButton(button, WL_POINTER_BUTTON_STATE_PRESSED);
-
-    if (d->buttonCount == 1) {
+    if (d->buttonCount == 1)
         emit buttonPressedChanged();
-    }
 
-    return serial;
+    return d->sendButton(button, WL_POINTER_BUTTON_STATE_PRESSED);
 }
 
 /*!
@@ -194,15 +235,11 @@ uint QWaylandPointer::sendMouseReleaseEvent(Qt::MouseButton button)
 {
     Q_D(QWaylandPointer);
     d->buttonCount--;
-    uint serial = 0;
-
-    if (d->seat->mouseFocus())
-         serial = d->sendButton(button, WL_POINTER_BUTTON_STATE_RELEASED);
 
     if (d->buttonCount == 0)
         emit buttonPressedChanged();
 
-    return serial;
+    return d->sendButton(button, WL_POINTER_BUTTON_STATE_RELEASED);
 }
 
 /*!
@@ -218,41 +255,20 @@ void QWaylandPointer::sendMouseMoveEvent(QWaylandView *view, const QPointF &loca
     d->localPosition = localPos;
     d->spacePosition = outputSpacePos;
 
-    //we adjust if the mouse position is on the edge
-    //to work around Qt's event propagation
-    if (view && view->surface()) {
+    if (view) {
+        // We adjust if the mouse position is on the edge
+        // to work around Qt's event propagation
         QSizeF size(view->surface()->size());
-        if (d->localPosition.x() ==  size.width())
+        if (d->localPosition.x() == size.width())
             d->localPosition.rx() -= 0.01;
-
         if (d->localPosition.y() == size.height())
             d->localPosition.ry() -= 0.01;
-    }
 
-    if (!d->hasSentEnter) {
-        d->enterSerial = d->compositor()->nextSerial();
-        QWaylandKeyboard *keyboard = d->seat->keyboard();
-        if (keyboard)
-            keyboard->sendKeyModifiers(view->surface()->client(), d->enterSerial);
-        for (auto resource : d->pointerResourcesForFocusedSurface()) {
-            d->send_enter(resource->handle, d->enterSerial, view->surface()->resource(),
-                          wl_fixed_from_double(d->localPosition.x()),
-                          wl_fixed_from_double(d->localPosition.y()));
-        }
-        d->focusDestroyListener.listenForDestruction(view->surface()->resource());
-        d->hasSentEnter = true;
-    }
+        d->ensureEntered(view->surface());
+        d->sendMotion();
 
-    if (view && view->output())
-        setOutput(view->output());
-
-    uint32_t time = d->compositor()->currentTimeMsecs();
-
-    if (d->seat->mouseFocus()) {
-        wl_fixed_t x = wl_fixed_from_double(currentLocalPosition().x());
-        wl_fixed_t y = wl_fixed_from_double(currentLocalPosition().y());
-        for (auto resource : d->pointerResourcesForFocusedSurface())
-            wl_pointer_send_motion(resource->handle, time, x, y);
+        if (view->output())
+            setOutput(view->output());
     }
 }
 
@@ -262,14 +278,14 @@ void QWaylandPointer::sendMouseMoveEvent(QWaylandView *view, const QPointF &loca
 void QWaylandPointer::sendMouseWheelEvent(Qt::Orientation orientation, int delta)
 {
     Q_D(QWaylandPointer);
-    if (!d->seat->mouseFocus())
+    if (!d->enteredSurface)
         return;
 
     uint32_t time = d->compositor()->currentTimeMsecs();
     uint32_t axis = orientation == Qt::Horizontal ? WL_POINTER_AXIS_HORIZONTAL_SCROLL
                                                   : WL_POINTER_AXIS_VERTICAL_SCROLL;
 
-    for (auto resource : d->pointerResourcesForFocusedSurface())
+    for (auto resource : d->resourceMap().values(d->enteredSurface->waylandClient()))
         d->send_axis(resource->handle, time, axis, wl_fixed_from_int(-delta / 12));
 }
 
@@ -316,9 +332,8 @@ void QWaylandPointer::addClient(QWaylandClient *client, uint32_t id, uint32_t ve
 {
     Q_D(QWaylandPointer);
     wl_resource *resource = d->add(client->client(), id, qMin<uint32_t>(QtWaylandServer::wl_pointer::interfaceVersion(), version))->handle;
-    QWaylandView *focus = d->seat->mouseFocus();
-    if (focus && client == focus->surface()->client()) {
-        d->send_enter(resource, d->enterSerial, focus->surfaceResource(),
+    if (d->enteredSurface && client == d->enteredSurface->client()) {
+        d->send_enter(resource, d->enterSerial, d->enteredSurface->resource(),
                       wl_fixed_from_double(d->localPosition.x()),
                       wl_fixed_from_double(d->localPosition.y()));
     }
@@ -389,14 +404,19 @@ uint32_t QWaylandPointer::toWaylandButton(Qt::MouseButton button)
 /*!
  * \internal
  */
-void QWaylandPointer::focusDestroyed(void *data)
+void QWaylandPointer::enteredSurfaceDestroyed(void *data)
 {
     Q_D(QWaylandPointer);
     Q_UNUSED(data)
-    d->focusDestroyListener.reset();
+    d->enteredSurfaceDestroyListener.reset();
+    d->enteredSurface = nullptr;
 
-    d->seat->setMouseFocus(Q_NULLPTR);
-    d->buttonCount = 0;
+    d->seat->setMouseFocus(nullptr);
+
+    if (d->buttonCount != 0) {
+        d->buttonCount = 0;
+        emit buttonPressedChanged();
+    }
 }
 
 /*!
@@ -404,16 +424,11 @@ void QWaylandPointer::focusDestroyed(void *data)
  */
 void QWaylandPointer::pointerFocusChanged(QWaylandView *newFocus, QWaylandView *oldFocus)
 {
-    Q_UNUSED(newFocus);
     Q_D(QWaylandPointer);
-    d->localPosition = QPointF();
-    d->hasSentEnter = false;
-    if (oldFocus) {
-        uint32_t serial = d->compositor()->nextSerial();
-        for (auto resource : d->resourceMap().values(oldFocus->surfaceResource()->client))
-            d->send_leave(resource->handle, serial, oldFocus->surfaceResource());
-        d->focusDestroyListener.reset();
-    }
+    Q_UNUSED(oldFocus);
+    bool wasSameSurface = newFocus && newFocus->surface() == d->enteredSurface;
+    if (d->enteredSurface && !wasSameSurface)
+        d->sendLeave();
 }
 
 QT_END_NAMESPACE

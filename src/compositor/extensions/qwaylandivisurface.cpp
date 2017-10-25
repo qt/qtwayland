@@ -121,7 +121,7 @@ void QWaylandIviSurface::initialize(QWaylandIviApplication *iviApplication, QWay
 }
 
 /*!
- * \qmlproperty object QtWaylandCompositor::IviSurface::surface
+ * \qmlproperty WaylandSurface QtWaylandCompositor::IviSurface::surface
  *
  * This property holds the surface associated with this IviSurface.
  */

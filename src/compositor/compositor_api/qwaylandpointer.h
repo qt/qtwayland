@@ -89,7 +89,7 @@ Q_SIGNALS:
     void buttonPressedChanged();
 
 private:
-    void focusDestroyed(void *data);
+    void enteredSurfaceDestroyed(void *data);
     void pointerFocusChanged(QWaylandView *newFocus, QWaylandView *oldFocus);
 };
 

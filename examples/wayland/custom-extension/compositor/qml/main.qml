@@ -139,6 +139,40 @@ WaylandCompositor {
         }
     }
 
+
+    Component {
+        id: customObjectComponent
+        Rectangle {
+            id: customItem
+            property QtObject obj
+            property alias text: label.text
+
+            width: 100
+            height: 100
+            radius: width/2
+            x: Math.random() * (defaultOutput.surfaceArea.width - 100)
+            y: Math.random() * (defaultOutput.surfaceArea.height - 100)
+
+            Text {
+                id: label
+                anchors.centerIn: parent
+                text: "?"
+            }
+
+            MouseArea {
+                anchors.fill: parent
+                onClicked: obj.sendClicked()
+            }
+
+            Connections {
+                target: obj
+                onResourceDestroyed: {
+                    customItem.destroy()
+                }
+            }
+        }
+    }
+
     WlShell {
         id: defaultShell
         onWlShellSurfaceCreated: {
@@ -167,6 +201,9 @@ WaylandCompositor {
         onSpin: {
             var item = itemForSurface(surface)
             item.doSpin(ms)
+        }
+        onCustomObjectCreated: {
+            var item = customObjectComponent.createObject(defaultOutput.surfaceArea, { "color": obj.color, "text": obj.text, "obj": obj } );
         }
     }
 

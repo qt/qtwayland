@@ -20,11 +20,13 @@ SOURCES += \
     testkeyboardgrabber.cpp \
     mockclient.cpp \
     mockseat.cpp \
-    testseat.cpp
+    testseat.cpp \
+    mockpointer.cpp
 
 HEADERS += \
     testcompositor.h \
     testkeyboardgrabber.h \
     mockclient.h \
     mockseat.h \
-    testseat.h
+    testseat.h \
+    mockpointer.h

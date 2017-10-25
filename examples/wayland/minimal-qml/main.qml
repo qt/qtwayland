@@ -50,7 +50,7 @@
 
 import QtQuick 2.6
 import QtQuick.Window 2.2
-import QtWayland.Compositor 1.0
+import QtWayland.Compositor 1.1
 
 WaylandCompositor {
     // The output defines the screen.
@@ -84,7 +84,7 @@ WaylandCompositor {
     }
     XdgShellV6 {
         onToplevelCreated:
-            shellSurfaces.append({shellSurface: toplevel});
+            shellSurfaces.append({shellSurface: xdgSurface});
     }
     ListModel { id: shellSurfaces }
 }

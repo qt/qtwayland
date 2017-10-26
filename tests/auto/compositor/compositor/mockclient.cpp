@@ -167,6 +167,7 @@ void MockClient::handleGlobal(void *data, wl_registry *registry, uint32_t id, co
 
 void MockClient::handleGlobalRemove(void *data, wl_registry *wl_registry, uint32_t id)
 {
+    Q_UNUSED(wl_registry);
     resolve(data)->handleGlobalRemove(id);
 }
 
@@ -176,7 +177,7 @@ void MockClient::handleGlobal(uint32_t id, const QByteArray &interface)
         compositor = static_cast<wl_compositor *>(wl_registry_bind(registry, id, &wl_compositor_interface, 1));
     } else if (interface == "wl_output") {
         auto output = static_cast<wl_output *>(wl_registry_bind(registry, id, &wl_output_interface, 2));
-        m_outputs.append(output);
+        m_outputs.insert(id, output);
         wl_output_add_listener(output, &outputListener, this);
     } else if (interface == "wl_shm") {
         shm = static_cast<wl_shm *>(wl_registry_bind(registry, id, &wl_shm_interface, 1));
@@ -194,11 +195,7 @@ void MockClient::handleGlobal(uint32_t id, const QByteArray &interface)
 
 void MockClient::handleGlobalRemove(uint32_t id)
 {
-    for (auto output : m_outputs) {
-        auto outputId = wl_proxy_get_id(reinterpret_cast<wl_proxy *>(output));
-        if (outputId == id)
-            m_outputs.removeAll(output);
-    }
+    m_outputs.remove(id);
 }
 
 wl_surface *MockClient::createSurface()

@@ -64,7 +64,7 @@ public:
 
     wl_display *display;
     wl_compositor *compositor;
-    QVector<wl_output *> m_outputs;
+    QMap<uint, wl_output *> m_outputs;
     wl_shm *shm;
     wl_registry *registry;
     wl_shell *wlshell;

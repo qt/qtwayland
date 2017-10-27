@@ -109,6 +109,12 @@ void CustomExtension::registerWindow(QWindow *window)
         sendWindowRegistration(window);
 }
 
+CustomExtensionObject *CustomExtension::createCustomObject(const QString &color, const QString &text)
+{
+    auto *obj = create_local_object(color, text);
+    return new CustomExtensionObject(obj, text);
+}
+
 void CustomExtension::sendBounce(QWindow *window, uint ms)
 {
     QtWayland::qt_example_extension::bounce(getWlSurface(window), ms);
@@ -150,6 +156,26 @@ void CustomExtension::example_extension_set_window_decoration(uint32_t state)
             f |= Qt::FramelessWindowHint;
         w->setFlags(f);
     }
+}
+
+CustomExtensionObject::CustomExtensionObject(struct ::qt_example_local_object *wl_object, const QString &text)
+    : QWaylandClientExtensionTemplate<CustomExtensionObject>(1)
+    , QtWayland::qt_example_local_object(wl_object)
+    , m_text(text)
+{
+
+}
+
+void CustomExtensionObject::example_local_object_clicked()
+{
+    qDebug() << "Object clicked:" << m_text;
+    emit clicked();
+}
+
+void CustomExtensionObject::setText(const QString &text)
+{
+    m_text = text;
+    set_text(text);
 }
 
 QT_END_NAMESPACE

@@ -660,7 +660,7 @@ QWaylandOutput *QWaylandCompositor::outputFor(QWindow *window) const
 }
 
 /*!
- * \qmlproperty object QtWaylandCompositor::WaylandCompositor::defaultOutput
+ * \qmlproperty WaylandOutput QtWaylandCompositor::WaylandCompositor::defaultOutput
  *
  * This property contains the first in the list of outputs added to the
  * WaylandCompositor, or null if no outputs have been added.
@@ -805,7 +805,7 @@ void QWaylandCompositor::overrideSelection(const QMimeData *data)
 }
 
 /*!
- * \qmlproperty object QtWaylandCompositor::WaylandCompositor::defaultSeat
+ * \qmlproperty WaylandSeat QtWaylandCompositor::WaylandCompositor::defaultSeat
  *
  * This property contains the default seat for this
  * WaylandCompositor.

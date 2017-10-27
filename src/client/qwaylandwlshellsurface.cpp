@@ -185,6 +185,7 @@ void QWaylandWlShellSurface::updateTransientParent(QWindow *parent)
             || testShowWithoutActivating(m_window->window()))
         flags |= WL_SHELL_SURFACE_TRANSIENT_INACTIVE;
 
+    Q_ASSERT(parent_wayland_window->object());
     set_transient(parent_wayland_window->object(),
                   transientPos.x(),
                   transientPos.y(),
@@ -211,15 +212,16 @@ void QWaylandWlShellSurface::setPopup(QWaylandWindow *parent, QWaylandInputDevic
         transientPos.setY(transientPos.y() + parent_wayland_window->decoration()->margins().top());
     }
 
+    Q_ASSERT(parent_wayland_window->object());
     set_popup(device->wl_seat(), serial, parent_wayland_window->object(),
               transientPos.x(), transientPos.y(), 0);
 }
 
 void QWaylandWlShellSurface::setType(Qt::WindowType type, QWaylandWindow *transientParent)
 {
-    if (type == Qt::Popup && transientParent)
+    if (type == Qt::Popup && transientParent && transientParent->object())
         setPopup(transientParent, m_window->display()->lastInputDevice(), m_window->display()->lastInputSerial());
-    else if (transientParent)
+    else if (transientParent && transientParent->object())
         updateTransientParent(transientParent->window());
     else
         setTopLevel();

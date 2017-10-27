@@ -99,9 +99,6 @@ QWaylandView::~QWaylandView()
     if (d->surface) {
         if (d->output)
             QWaylandOutputPrivate::get(d->output)->removeView(this, d->surface);
-        QWaylandSeat *i = d->surface->compositor()->defaultSeat();
-        if (i->mouseFocus() == this)
-            i->setMouseFocus(nullptr);
 
         QWaylandSurfacePrivate::get(d->surface)->derefView(this);
     }
@@ -117,8 +114,9 @@ QObject *QWaylandView::renderObject() const
     Q_D(const QWaylandView);
     return d->renderObject;
 }
+
 /*!
- * \qmlproperty object QtWaylandCompositor::WaylandView::surface
+ * \qmlproperty WaylandSurface QtWaylandCompositor::WaylandView::surface
  *
  * This property holds the surface viewed by this WaylandView.
  */
@@ -169,7 +167,7 @@ void QWaylandView::setSurface(QWaylandSurface *newSurface)
 }
 
 /*!
- * \qmlproperty object QtWaylandCompositor::WaylandView::output
+ * \qmlproperty WaylandOutput QtWaylandCompositor::WaylandView::output
  *
  * This property holds the output on which this view displays its surface.
  */

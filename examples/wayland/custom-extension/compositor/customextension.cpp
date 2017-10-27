@@ -123,3 +123,39 @@ void CustomExtension::example_extension_register_surface(QtWaylandServer::qt_exa
     qDebug() << "server received new surface" << surface;
     emit surfaceAdded(surface);
 }
+
+
+void CustomExtension::example_extension_create_local_object(Resource *resource, uint32_t id, const QString &color, const QString &text)
+{
+    auto *obj = new CustomExtensionObject(color, text, resource->client(), id, 1);
+    qDebug() << "Object created" << text << color;
+    emit customObjectCreated(obj);
+}
+
+CustomExtensionObject::CustomExtensionObject(const QString &color, const QString &text, wl_client *client, int id, int version)
+    : QtWaylandServer::qt_example_local_object(client, id, version)
+    , m_color(color)
+    , m_text(text)
+{
+
+}
+
+void CustomExtensionObject::sendClicked()
+{
+    send_clicked();
+}
+
+void CustomExtensionObject::example_local_object_destroy_resource(QtWaylandServer::qt_example_local_object::Resource *resource)
+{
+    Q_UNUSED(resource);
+    qDebug() << "Object destroyed" << m_text << m_color;
+    emit resourceDestroyed();
+}
+
+
+void CustomExtensionObject::example_local_object_set_text(QtWaylandServer::qt_example_local_object::Resource *resource, const QString &text)
+{
+    Q_UNUSED(resource);
+    qDebug() << "Client changed text from" << m_text << "to" << text;
+    setText(text);
+}

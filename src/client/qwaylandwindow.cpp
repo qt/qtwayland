@@ -261,6 +261,8 @@ void QWaylandWindow::reset(bool sendDestroyEvent)
         wl_callback_destroy(mFrameCallback);
         mFrameCallback = nullptr;
     }
+
+    mMask = QRegion();
 }
 
 QWaylandWindow *QWaylandWindow::fromWlSurface(::wl_surface *surface)
@@ -791,22 +793,27 @@ QWaylandAbstractDecoration *QWaylandWindow::decoration() const
     return mWindowDecoration;
 }
 
-static QWindow *topLevelWindow(QWindow *window)
+static QWaylandWindow *closestShellSurfaceWindow(QWindow *window)
 {
-    while (QWindow *parent = window->parent())
-        window = parent;
-    return window;
+    while (window) {
+        auto w = static_cast<QWaylandWindow *>(window->handle());
+        if (w->shellSurface())
+            return w;
+        window = window->transientParent() ? window->transientParent() : window->parent();
+    }
+    return nullptr;
 }
 
 QWaylandWindow *QWaylandWindow::transientParent() const
 {
-    // Take the top level window here, since the transient parent may be a QWidgetWindow
-    // or some other window without a shell surface, which is then not able to get mouse
-    // events.
-    if (auto transientParent = window()->transientParent())
-        return static_cast<QWaylandWindow *>(topLevelWindow(transientParent)->handle());
-    else if (QGuiApplication::focusWindow() && (window()->type() == Qt::ToolTip || window()->type() == Qt::Popup))
-        return static_cast<QWaylandWindow *>(topLevelWindow(QGuiApplication::focusWindow())->handle());
+    // Take the closest window with a shell surface, since the transient parent may be a
+    // QWidgetWindow or some other window without a shell surface, which is then not able to
+    // get mouse events.
+    if (auto transientParent = closestShellSurfaceWindow(window()->transientParent()))
+        return transientParent;
+
+    if (QGuiApplication::focusWindow() && (window()->type() == Qt::ToolTip || window()->type() == Qt::Popup))
+        return closestShellSurfaceWindow(QGuiApplication::focusWindow());
 
     return nullptr;
 }

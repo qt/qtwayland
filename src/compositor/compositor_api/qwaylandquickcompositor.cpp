@@ -90,9 +90,9 @@ QWaylandQuickCompositor::QWaylandQuickCompositor(QObject *parent)
  * import QtWayland.Compositor 1.0
  *
  * WaylandCompositor {
- *     extensions: [ WlShell {
+ *     WlShell {
  *         // ...
- *     } ]
+ *     }
  * }
  * \endcode
  */

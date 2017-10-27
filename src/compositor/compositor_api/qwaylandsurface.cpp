@@ -445,7 +445,7 @@ bool QWaylandSurface::isInitialized() const
 }
 
 /*!
- * \qmlproperty object QtWaylandCompositor::WaylandSurface::client
+ * \qmlproperty WaylandClient QtWaylandCompositor::WaylandSurface::client
  *
  * This property holds the client using this WaylandSurface.
  */

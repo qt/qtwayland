@@ -12,8 +12,7 @@ SOURCES += \
 
 COMPOSITOR_QML_FILES += \
     WaylandOutputWindow.qml \
-    WaylandCursorItem.qml \
-    qmldir
+    WaylandCursorItem.qml
 
 DEFINES += QT_WAYLAND_COMPOSITOR_QUICK
 

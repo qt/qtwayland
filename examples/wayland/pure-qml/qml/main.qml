@@ -104,9 +104,8 @@ WaylandCompositor {
         }
         onPopupCreated: {
             var parentView = viewsBySurface[popup.parentXdgSurface.surface];
-            var item = chromeComponent.createObject(defaultOutput.surfaceArea, { "shellSurface": xdgSurface } );
+            var item = chromeComponent.createObject(parentView, { "shellSurface": xdgSurface } );
             viewsBySurface[xdgSurface.surface] = item;
-            //TODO: set popup position
         }
     }
 

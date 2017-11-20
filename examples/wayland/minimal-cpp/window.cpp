@@ -75,7 +75,7 @@ static int sillyrandom(int range)
 {
     if (range <= 0)
         range = 200;
-    return QRandomGenerator::bounded(range);
+    return QRandomGenerator::global()->bounded(range);
 }
 
 void Window::paintGL()

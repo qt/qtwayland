@@ -529,6 +529,8 @@ void QWaylandOutput::setCurrentMode(const QWaylandOutputMode &mode)
 
     Q_EMIT currentModeChanged();
     Q_EMIT geometryChanged();
+    if (!d->availableGeometry.isValid())
+        emit availableGeometryChanged();
 
     d->sendModesInfo();
 }
@@ -938,6 +940,9 @@ void QWaylandOutput::handleSetWidth(int newWidth)
             QWaylandOutputMode mode = d->modes.at(d->currentMode);
             mode.setWidth(newWidth * d->window->devicePixelRatio());
             d->modes.replace(d->currentMode, mode);
+            emit geometryChanged();
+            if (!d->availableGeometry.isValid())
+                emit availableGeometryChanged();
             d->sendModesInfo();
         } else {
             // We didn't add a mode during the initialization because the window
@@ -968,6 +973,9 @@ void QWaylandOutput::handleSetHeight(int newHeight)
             QWaylandOutputMode mode = d->modes.at(d->currentMode);
             mode.setHeight(newHeight * d->window->devicePixelRatio());
             d->modes.replace(d->currentMode, mode);
+            emit geometryChanged();
+            if (!d->availableGeometry.isValid())
+                emit availableGeometryChanged();
             d->sendModesInfo();
         } else {
             // We didn't add a mode during the initialization because the window

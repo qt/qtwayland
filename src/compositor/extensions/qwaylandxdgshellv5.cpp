@@ -825,10 +825,10 @@ QWaylandXdgSurfaceV5::QWaylandXdgSurfaceV5(QWaylandXdgShellV5 *xdgShell, QWaylan
 }
 
 /*!
- * \qmlmethod void QtWaylandCompositor::XdgSurfaceV5::initialize(object surface, object client, int id)
+ * \qmlmethod void QtWaylandCompositor::XdgSurfaceV5::initialize(XdgShellV5 xdgShell, WaylandSurface surface, WaylandResource resource)
  *
- * Initializes the XdgSurfaceV5, associating it with the given \a surface,
- * \a client, and \a id.
+ * Initializes the XdgSurfaceV5, associating it with the given \a xdgShell, \a surface,
+ * and \a resource.
  */
 
 /*!
@@ -1367,10 +1367,10 @@ QWaylandXdgPopupV5::QWaylandXdgPopupV5(QWaylandXdgShellV5 *xdgShell, QWaylandSur
 }
 
 /*!
- * \qmlmethod void QtWaylandCompositor::XdgPopupV5::initialize(object surface, object parentSurface, object resource)
+ * \qmlmethod void QtWaylandCompositor::XdgPopupV5::initialize(XdgShellV5 shell, WaylandSurface surface, WaylandSurface parentSurface, point position, WaylandResource resource)
  *
  * Initializes the xdg popup, associating it with the given \a shell, \a surface,
- * \a parentSurface and \a resource.
+ * \a parentSurface, \a position and \a resource.
  */
 
 /*!

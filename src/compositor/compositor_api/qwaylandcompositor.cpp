@@ -284,7 +284,7 @@ void QWaylandCompositorPrivate::addPolishObject(QObject *object)
 }
 
 /*!
-  \qmlsignal void QtWaylandCompositor::WaylandCompositor::createSurface(object client, int id, int version)
+  \qmlsignal void QtWaylandCompositor::WaylandCompositor::createSurface(WaylandClient client, int id, int version)
 
   This signal is emitted when a client has created a surface.
   The slot connecting to this signal may create and initialize

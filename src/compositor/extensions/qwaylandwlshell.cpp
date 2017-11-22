@@ -475,9 +475,9 @@ QWaylandWlShellSurface::~QWaylandWlShellSurface()
 }
 
 /*!
- * \qmlmethod void QtWaylandCompositor::WlShellSurface::initialize(object shell, object surface, object client, int id)
+ * \qmlmethod void QtWaylandCompositor::WlShellSurface::initialize(WlShell shell, WaylandSurface surface, WaylandResource resource)
  *
- * Initializes the WlShellSurface with \a id and associates it with the given \a shell, \a surface, and \a client.
+ * Initializes the WlShellSurface and associates it with the given \a shell, \a surface, and \a resource.
  */
 
 /*!

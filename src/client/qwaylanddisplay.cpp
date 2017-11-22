@@ -343,6 +343,15 @@ sync_callback(void *data, struct wl_callback *callback, uint32_t serial)
     bool *done = static_cast<bool *>(data);
 
     *done = true;
+
+    // If the wl_callback done event is received after the condition check in the while loop in
+    // forceRoundTrip(), but before the call to processEvents, the call to processEvents may block
+    // forever if no more events are posted (eventhough the callback is handled in response to the
+    // aboutToBlock signal). Hence, we wake up the event dispatcher so forceRoundTrip may return.
+    // (QTBUG-64696)
+    if (auto *dispatcher = QThread::currentThread()->eventDispatcher())
+        dispatcher->wakeUp();
+
     wl_callback_destroy(callback);
 }
 

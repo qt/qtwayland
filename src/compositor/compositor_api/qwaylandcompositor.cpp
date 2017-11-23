@@ -283,39 +283,6 @@ void QWaylandCompositorPrivate::addPolishObject(QObject *object)
     }
 }
 
-/*!
-  \qmlsignal void QtWaylandCompositor::WaylandCompositor::createSurface(WaylandClient client, int id, int version)
-
-  This signal is emitted when a client has created a surface.
-  The slot connecting to this signal may create and initialize
-  a WaylandSurface instance in the scope of the slot.
-  Otherwise a default surface is created.
-*/
-
-/*!
-  \fn void QWaylandCompositor::createSurface(QWaylandClient *client, uint id, int version)
-
-  This signal is emitted when a client has created a surface.
-  The slot connecting to this signal may create and initialize
-  a QWaylandSurface instance in the scope of the slot.
-  Otherwise a default surface is created.
-
-  Connections to this signal must be of Qt::DirectConnection connection type.
-*/
-
-/*
-  \qmlsignal void surfaceCreated(QWaylandSurface *surface)
-
-  This signal is emitted when a new WaylandSurface instance has been created.
-*/
-
-/*
-  \fn void surfaceCreated(QWaylandSurface *surface)
-
-  This signal is emitted when a new QWaylandSurface instance has been created.
-*/
-
-
 void QWaylandCompositorPrivate::compositor_create_surface(wl_compositor::Resource *resource, uint32_t id)
 {
     Q_Q(QWaylandCompositor);
@@ -462,6 +429,38 @@ void QWaylandCompositorPrivate::loadServerBufferIntegration()
 
    Normally, a compositor application will have a single WaylandCompositor
    instance, which can have several outputs as children.
+*/
+
+/*!
+  \qmlsignal void QtWaylandCompositor::WaylandCompositor::surfaceRequested(WaylandClient client, int id, int version)
+
+  This signal is emitted when a client has created a surface.
+  The slot connecting to this signal may create and initialize
+  a WaylandSurface instance in the scope of the slot.
+  Otherwise a default surface is created.
+*/
+
+/*!
+  \fn void QWaylandCompositor::surfaceRequested(QWaylandClient *client, uint id, int version)
+
+  This signal is emitted when a client has created a surface.
+  The slot connecting to this signal may create and initialize
+  a QWaylandSurface instance in the scope of the slot.
+  Otherwise a default surface is created.
+
+  Connections to this signal must be of Qt::DirectConnection connection type.
+*/
+
+/*!
+  \qmlsignal void QtWaylandCompositor::WaylandCompositor::surfaceCreated(QWaylandSurface *surface)
+
+  This signal is emitted when a new WaylandSurface instance has been created.
+*/
+
+/*!
+  \fn void QWaylandCompositor::surfaceCreated(QWaylandSurface *surface)
+
+  This signal is emitted when a new QWaylandSurface instance has been created.
 */
 
 /*!

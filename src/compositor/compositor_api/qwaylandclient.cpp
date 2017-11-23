@@ -221,7 +221,7 @@ qint64 QWaylandClient::userId() const
  */
 
 /*!
- * \property int QWaylandClient::groupId
+ * \property QWaylandClient::groupId
  *
  * This property holds the group id of this QWaylandClient.
  */

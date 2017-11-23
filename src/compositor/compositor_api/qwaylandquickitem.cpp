@@ -386,15 +386,7 @@ QWaylandCompositor *QWaylandQuickItem::compositor() const
 }
 
 /*!
- * \qmlproperty WaylandView QtWaylandCompositor::WaylandQuickItem::view
- *
- * This property holds the view rendered by this WaylandQuickItem.
- */
-
-/*!
- * \property QWaylandQuickItem::view
- *
- * This property holds the view rendered by this QWaylandQuickItem.
+ * Returns the view rendered by this QWaylandQuickItem.
  */
 QWaylandView *QWaylandQuickItem::view() const
 {
@@ -815,7 +807,7 @@ void QWaylandQuickItem::setBufferLocked(bool locked)
 }
 
 /*!
- * \property bool QWaylandQuickItem::allowDiscardFrontBuffer
+ * \property QWaylandQuickItem::allowDiscardFrontBuffer
  *
  * By default, the item locks the current buffer until a new buffer is available
  * and updatePaintNode() is called. Set this property to true to allow Qt to release the buffer

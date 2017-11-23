@@ -633,11 +633,6 @@ QWaylandWlShell *QWaylandWlShellSurface::shell() const
  * This property holds the window type of the WlShellSurface.
  */
 
-/*!
- * \property QWaylandWlShellSurface::windowType
- *
- * This property holds the window type of the QWaylandWlShellSurface.
- */
 Qt::WindowType QWaylandWlShellSurface::windowType() const
 {
     Q_D(const QWaylandWlShellSurface);

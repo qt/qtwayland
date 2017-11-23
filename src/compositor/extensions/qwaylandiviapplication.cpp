@@ -146,7 +146,7 @@ QByteArray QWaylandIviApplication::interfaceName()
  */
 
 /*!
- * \fn void QWaylandWlShell::iviSurfaceRequested(QWaylandSurface *surface, uint iviId, const QWaylandResource &resource)
+ * \fn void QWaylandIviApplication::iviSurfaceRequested(QWaylandSurface *surface, uint iviId, const QWaylandResource &resource)
  *
  * This signal is emitted when the client has requested an \c ivi_surface to be associated
  * with \a surface, which is identified by \a id. The handler for this signal is
@@ -162,9 +162,9 @@ QByteArray QWaylandIviApplication::interfaceName()
  */
 
 /*!
- * \fn void QtWaylandCompositor::IviApplication::iviSurfaceCreated(QWaylandIviSurface *iviSurface)
+ * \fn void QWaylandIviApplication::iviSurfaceCreated(QWaylandIviSurface *iviSurface)
  *
- * This signal is emitted when an IviSurface has been created.
+ * This signal is emitted when an IviSurface, \a iviSurface, has been created.
  */
 
 QWaylandIviApplicationPrivate::QWaylandIviApplicationPrivate()

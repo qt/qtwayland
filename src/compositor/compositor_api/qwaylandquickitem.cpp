@@ -221,13 +221,13 @@ void QWaylandBufferMaterial::bind()
     switch (m_textures.size()) {
     case 3:
         if (m_textures[2])
-            m_textures[2]->bind(GL_TEXTURE2);
+            m_textures[2]->bind(2);
     case 2:
         if (m_textures[1])
-            m_textures[1]->bind(GL_TEXTURE1);
+            m_textures[1]->bind(1);
     case 1:
         if (m_textures[0])
-            m_textures[0]->bind(GL_TEXTURE0);
+            m_textures[0]->bind(0);
     }
 }
 

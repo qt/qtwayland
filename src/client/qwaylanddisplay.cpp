@@ -97,7 +97,7 @@ struct ::wl_region *QWaylandDisplay::createRegion(const QRegion &qregion)
 {
     struct ::wl_region *region = mCompositor.create_region();
 
-    Q_FOREACH (const QRect &rect, qregion.rects())
+    for (const QRect &rect : qregion)
         wl_region_add(region, rect.x(), rect.y(), rect.width(), rect.height());
 
     return region;

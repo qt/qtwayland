@@ -595,8 +595,7 @@ void QWaylandWindow::commit(QWaylandBuffer *buffer, const QRegion &damage)
         return;
 
     attachOffset(buffer);
-    const QVector<QRect> rects = damage.rects();
-    for (const QRect &rect: rects)
+    for (const QRect &rect: damage)
         wl_surface::damage(rect.x(), rect.y(), rect.width(), rect.height());
     wl_surface::commit();
 }

@@ -147,27 +147,27 @@ private:
     struct wl_display *mDisplay;
 
     int mVersion;
-    uint32_t mCaps;
+    uint32_t mCaps = 0;
 
     struct wl_surface *pointerSurface;
 
 #if QT_CONFIG(wayland_datadevice)
-    QWaylandDataDevice *mDataDevice;
+    QWaylandDataDevice *mDataDevice = nullptr;
 #endif
 
-    Keyboard *mKeyboard;
-    Pointer *mPointer;
-    Touch *mTouch;
+    Keyboard *mKeyboard = nullptr;
+    Pointer *mPointer = nullptr;
+    Touch *mTouch = nullptr;
 
-    QWaylandTextInput *mTextInput;
+    QWaylandTextInput *mTextInput = nullptr;
 
-    uint32_t mTime;
-    uint32_t mSerial;
+    uint32_t mTime = 0;
+    uint32_t mSerial = 0;
 
     void seat_capabilities(uint32_t caps) override;
     void handleTouchPoint(int id, double x, double y, Qt::TouchPointState state);
 
-    QTouchDevice *mTouchDevice;
+    QTouchDevice *mTouchDevice = nullptr;
 
     QSharedPointer<QWaylandBuffer> mPixmapCursor;
 
@@ -210,13 +210,13 @@ public:
     QWaylandInputDevice *mParent;
     QPointer<QWaylandWindow> mFocus;
 #if QT_CONFIG(xkbcommon_evdev)
-    xkb_context *mXkbContext;
-    xkb_keymap *mXkbMap;
-    xkb_state *mXkbState;
+    xkb_context *mXkbContext = nullptr;
+    xkb_keymap *mXkbMap = nullptr;
+    xkb_state *mXkbState = nullptr;
     xkb_compose_table *mXkbComposeTable = nullptr;
     xkb_compose_state *mXkbComposeState = nullptr;
 #endif
-    uint32_t mNativeModifiers;
+    uint32_t mNativeModifiers = 0;
 
     int mRepeatKey;
     uint32_t mRepeatCode;
@@ -264,16 +264,16 @@ public:
 
     QWaylandInputDevice *mParent;
     QPointer<QWaylandWindow> mFocus;
-    uint32_t mEnterSerial;
+    uint32_t mEnterSerial = 0;
 #if QT_CONFIG(cursor)
-    uint32_t mCursorSerial;
+    uint32_t mCursorSerial = 0;
 #endif
     QPointF mSurfacePos;
     QPointF mGlobalPos;
-    Qt::MouseButtons mButtons;
+    Qt::MouseButtons mButtons = Qt::NoButton;
 #if QT_CONFIG(cursor)
-    wl_buffer *mCursorBuffer;
-    Qt::CursorShape mCursorShape;
+    wl_buffer *mCursorBuffer = nullptr;
+    Qt::CursorShape mCursorShape = Qt::BitmapCursor;
 #endif
 };
 

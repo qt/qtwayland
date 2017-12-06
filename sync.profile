@@ -78,5 +78,9 @@
         "^wayland-xdg-shell-unstable-v5-server-protocol.h",
         "^wayland-xdg-shell-unstable-v6-server-protocol.h",
     ],
+    "$basedir/src/plugins/hardwareintegration/compositor/linux-dmabuf-unstable-v1" => [
+        "^qwayland-server-linux-dmabuf-unstable-v1.h",
+        "^wayland-linux-dmabuf-unstable-v1-server-protocol.h",
+    ],
 );
 @private_headers = ( qr/^qwayland-.*\.h/, qr/^wayland-.*-protocol\.h/ );

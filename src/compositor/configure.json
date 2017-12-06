@@ -79,6 +79,12 @@
             "type": "compile",
             "test": "dmabuf_server_buffer",
             "use": "egl"
+        },
+        "dmabuf-client-buffer": {
+            "label": "Linux Client dma-buf Buffer Sharing",
+            "type": "compile",
+            "test": "dmabuf_client_buffer",
+            "use": "egl"
         }
     },
 
@@ -125,6 +131,11 @@
         "wayland-dmabuf-server-buffer": {
             "label": "Linux dma-buf server buffer integration",
             "condition": "features.wayland-server && features.opengl && features.egl && tests.dmabuf-server-buffer",
+            "output": [ "privateFeature" ]
+        },
+        "wayland-dmabuf-client-buffer": {
+            "label": "Linux dma-buf client buffer integration",
+            "condition": "features.wayland-server && features.opengl && features.egl && tests.dmabuf-client-buffer",
             "output": [ "privateFeature" ]
         },
         "wayland-shm-emulation-server-buffer": {

@@ -73,14 +73,14 @@ public:
     virtual QSize size() const = 0;
     virtual int scale() const { return 1; }
 
-    void setBusy() { mBusy++; }
-    bool busy() const { return mBusy > 0; }
+    void setBusy() { mBusy = true; }
+    bool busy() const { return mBusy; }
 
 protected:
     struct wl_buffer *mBuffer;
 
 private:
-    int mBusy;
+    bool mBusy;
 
     static void release(void *data, wl_buffer *);
     static const wl_buffer_listener listener;

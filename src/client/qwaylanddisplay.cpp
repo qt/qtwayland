@@ -157,6 +157,9 @@ QWaylandDisplay::QWaylandDisplay(QWaylandIntegration *waylandIntegration)
 
 QWaylandDisplay::~QWaylandDisplay(void)
 {
+    if (mSyncCallback)
+        wl_callback_destroy(mSyncCallback);
+
     qDeleteAll(mInputDevices);
     mInputDevices.clear();
 

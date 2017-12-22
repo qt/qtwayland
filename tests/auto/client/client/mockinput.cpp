@@ -365,7 +365,9 @@ void Touch::sendDown(Surface *surface, const QPoint &position, int id)
     Q_ASSERT(surface);
     Resource *resource = resourceMap().value(surface->resource()->client());
     Q_ASSERT(resource);
-    wl_touch_send_down(resource->handle, serial, time, surface->resource()->handle, id, position.x(), position.y());
+    auto x = wl_fixed_from_int(position.x());
+    auto y = wl_fixed_from_int(position.y());
+    wl_touch_send_down(resource->handle, serial, time, surface->resource()->handle, id, x, y);
 }
 
 void Touch::sendUp(Surface *surface, int id)
@@ -378,7 +380,9 @@ void Touch::sendMotion(Surface *surface, const QPoint &position, int id)
 {
     Resource *resource = resourceMap().value(surface->resource()->client());
     uint32_t time = m_compositor->time();
-    wl_touch_send_motion(resource->handle, time, id, position.x(), position.y());
+    auto x = wl_fixed_from_int(position.x());
+    auto y = wl_fixed_from_int(position.y());
+    wl_touch_send_motion(resource->handle, time, id, x, y);
 }
 
 void Touch::sendFrame(Surface *surface)

@@ -33,23 +33,40 @@
 
 namespace Impl {
 
+class XdgSurfaceV6;
+
 class XdgToplevelV6 : public QtWaylandServer::zxdg_toplevel_v6
 {
 public:
-    XdgToplevelV6(wl_client *client, uint32_t id, int version)
+    XdgToplevelV6(XdgSurfaceV6 *xdgSurface, wl_client *client, uint32_t id, int version)
         : QtWaylandServer::zxdg_toplevel_v6(client, id, version)
+        , m_xdgSurface(xdgSurface)
     {}
-    void zxdg_toplevel_v6_destroy_resource(Resource *resource) override { delete this; }
+    void zxdg_toplevel_v6_destroy_resource(Resource *) override { delete this; }
+    void zxdg_toplevel_v6_destroy(Resource *resource) override;
+    XdgSurfaceV6 *m_xdgSurface = nullptr;
 };
 
 class XdgSurfaceV6 : public QtWaylandServer::zxdg_surface_v6
 {
 public:
     XdgSurfaceV6(wl_client *client, uint32_t id, int version, Surface *surface);
-    void zxdg_surface_v6_destroy_resource(Resource *resource) override { delete this; }
+    void zxdg_surface_v6_destroy_resource(Resource *) override { delete this; }
     void zxdg_surface_v6_get_toplevel(Resource *resource, uint32_t id) override;
+    void zxdg_surface_v6_destroy(Resource *resource) override
+    {
+        Q_ASSERT(!m_toplevel);
+        wl_resource_destroy(resource->handle);
+    }
     Surface *m_surface = nullptr;
+    XdgToplevelV6 *m_toplevel = nullptr;
 };
+
+void XdgToplevelV6::zxdg_toplevel_v6_destroy(QtWaylandServer::zxdg_toplevel_v6::Resource *resource)
+{
+    m_xdgSurface->m_toplevel = nullptr;
+    wl_resource_destroy(resource->handle);
+}
 
 XdgSurfaceV6::XdgSurfaceV6(wl_client *client, uint32_t id, int version, Surface *surface)
     : QtWaylandServer::zxdg_surface_v6(client, id, version)
@@ -60,7 +77,7 @@ XdgSurfaceV6::XdgSurfaceV6(wl_client *client, uint32_t id, int version, Surface 
 void XdgSurfaceV6::zxdg_surface_v6_get_toplevel(QtWaylandServer::zxdg_surface_v6::Resource *resource, uint32_t id)
 {
     int version = wl_resource_get_version(resource->handle);
-    new XdgToplevelV6(resource->client(), id, version);
+    m_toplevel = new XdgToplevelV6(this, resource->client(), id, version);
     m_surface->map();
 }
 

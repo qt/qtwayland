@@ -221,15 +221,15 @@ void QWaylandBufferMaterial::bind()
     switch (m_textures.size()) {
     case 3:
         if (m_textures[2])
-            m_textures[2]->bind(GL_TEXTURE2);
+            m_textures[2]->bind(2);
         Q_FALLTHROUGH();
     case 2:
         if (m_textures[1])
-            m_textures[1]->bind(GL_TEXTURE1);
+            m_textures[1]->bind(1);
         Q_FALLTHROUGH();
     case 1:
         if (m_textures[0])
-            m_textures[0]->bind(GL_TEXTURE0);
+            m_textures[0]->bind(0);
     }
 }
 
@@ -388,15 +388,7 @@ QWaylandCompositor *QWaylandQuickItem::compositor() const
 }
 
 /*!
- * \qmlproperty WaylandView QtWaylandCompositor::WaylandQuickItem::view
- *
- * This property holds the view rendered by this WaylandQuickItem.
- */
-
-/*!
- * \property QWaylandQuickItem::view
- *
- * This property holds the view rendered by this QWaylandQuickItem.
+ * Returns the view rendered by this QWaylandQuickItem.
  */
 QWaylandView *QWaylandQuickItem::view() const
 {
@@ -817,7 +809,7 @@ void QWaylandQuickItem::setBufferLocked(bool locked)
 }
 
 /*!
- * \property bool QWaylandQuickItem::allowDiscardFrontBuffer
+ * \property QWaylandQuickItem::allowDiscardFrontBuffer
  *
  * By default, the item locks the current buffer until a new buffer is available
  * and updatePaintNode() is called. Set this property to true to allow Qt to release the buffer
@@ -1157,6 +1149,32 @@ void QWaylandQuickItem::updateInputMethod(Qt::InputMethodQueries queries)
     QQuickItem::updateInputMethod(queries | Qt::ImEnabled);
 }
 #endif
+
+/*!
+ * \qmlsignal void QtWaylandCompositor::WaylandQuickItem::surfaceDestroyed()
+ *
+ * This signal is emitted when the client has destroyed the \c wl_surface associated
+ * with the WaylandQuickItem. The handler for this signal is expected to either destroy the
+ * WaylandQuickItem immediately or start a close animation and then destroy the Item.
+ *
+ * If an animation is started, bufferLocked should be set to ensure the item keeps its content
+ * until the animation finishes
+ *
+ * \sa bufferLocked
+ */
+
+/*!
+ * \fn void QWaylandQuickItem::surfaceDestroyed()
+ *
+ * This signal is emitted when the client has destroyed the \c wl_surface associated
+ * with the QWaylandQuickItem. The handler for this signal is expected to either destroy the
+ * QWaylandQuickItem immediately or start a close animation and then destroy the Item.
+ *
+ * If an animation is started, bufferLocked should be set to ensure the item keeps its content
+ * until the animation finishes
+ *
+ * \sa QWaylandQuickkItem::bufferLocked
+ */
 
 QSGNode *QWaylandQuickItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *)
 {

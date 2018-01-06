@@ -198,9 +198,13 @@ public:
 
     QEGLStreamConvenience *funcs;
     static WaylandEglClientBufferIntegrationPrivate *get(WaylandEglClientBufferIntegration *integration) {
-        return integration->d_ptr.data();
+        return shuttingDown ? nullptr : integration->d_ptr.data();
     }
+
+    static bool shuttingDown;
 };
+
+bool WaylandEglClientBufferIntegrationPrivate::shuttingDown = false;
 
 BufferState::BufferState()
     : egl_format(EGL_TEXTURE_RGBA)
@@ -395,6 +399,11 @@ WaylandEglClientBufferIntegration::WaylandEglClientBufferIntegration()
 {
 }
 
+WaylandEglClientBufferIntegration::~WaylandEglClientBufferIntegration()
+{
+    WaylandEglClientBufferIntegrationPrivate::shuttingDown = true;
+}
+
 void WaylandEglClientBufferIntegration::initializeHardware(struct wl_display *display)
 {
     Q_D(WaylandEglClientBufferIntegration);
@@ -478,6 +487,24 @@ WaylandEglClientBuffer::WaylandEglClientBuffer(WaylandEglClientBufferIntegration
 
         p->initBuffer(this);
     }
+}
+
+
+WaylandEglClientBuffer::~WaylandEglClientBuffer()
+{
+    auto *p = WaylandEglClientBufferIntegrationPrivate::get(m_integration);
+
+    if (p) {
+        for (auto image : d->egl_images)
+            p->egl_destroy_image(p->egl_display, image);
+
+        if (d->egl_stream)
+            p->funcs->destroy_stream(p->egl_display, d->egl_stream);
+
+        for (auto *texture : d->textures)
+            delete texture;
+    }
+    delete d;
 }
 
 static QWaylandBufferRef::BufferFormatEgl formatFromEglFormat(EGLint format) {

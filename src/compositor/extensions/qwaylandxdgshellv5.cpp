@@ -825,10 +825,10 @@ QWaylandXdgSurfaceV5::QWaylandXdgSurfaceV5(QWaylandXdgShellV5 *xdgShell, QWaylan
 }
 
 /*!
- * \qmlmethod void QtWaylandCompositor::XdgSurfaceV5::initialize(object surface, object client, int id)
+ * \qmlmethod void QtWaylandCompositor::XdgSurfaceV5::initialize(XdgShellV5 xdgShell, WaylandSurface surface, WaylandResource resource)
  *
- * Initializes the XdgSurfaceV5, associating it with the given \a surface,
- * \a client, and \a id.
+ * Initializes the XdgSurfaceV5, associating it with the given \a xdgShell, \a surface,
+ * and \a resource.
  */
 
 /*!
@@ -888,11 +888,11 @@ void QWaylandXdgSurfaceV5::initialize(QWaylandXdgShellV5 *xdgShell, QWaylandSurf
  * typically in response to the window decorations being dragged by \a seat on the window borders
  * given by \a edges.
  *
- * \sa QWaylandXdgSurfaceV5::ResizeEdges
+ * \sa QWaylandXdgSurfaceV5::ResizeEdge
  */
 
 /*!
- * \fn void QWaylandXdgSurfaceV5::startResize(QWaylandSeat *seat, ResizeEdges edges)
+ * \fn void QWaylandXdgSurfaceV5::startResize(QWaylandSeat *seat, ResizeEdge edges)
  *
  * This signal is emitted when the client wants to start an interactive resize of the
  * QWaylandXdgSurfaceV5, typically in response to the window decorations being dragged by
@@ -1048,11 +1048,6 @@ QWaylandSurface *QWaylandXdgSurfaceV5::surface() const
  * This property holds the window type of the XdgSurfaceV5.
  */
 
-/*!
- * \property QWaylandXdgSurfaceV5::windowType
- *
- * This property holds the window type of the QWaylandXdgSurfaceV5.
- */
 Qt::WindowType QWaylandXdgSurfaceV5::windowType() const
 {
     Q_D(const QWaylandXdgSurfaceV5);
@@ -1367,10 +1362,10 @@ QWaylandXdgPopupV5::QWaylandXdgPopupV5(QWaylandXdgShellV5 *xdgShell, QWaylandSur
 }
 
 /*!
- * \qmlmethod void QtWaylandCompositor::XdgPopupV5::initialize(object surface, object parentSurface, object resource)
+ * \qmlmethod void QtWaylandCompositor::XdgPopupV5::initialize(XdgShellV5 shell, WaylandSurface surface, WaylandSurface parentSurface, point position, WaylandResource resource)
  *
  * Initializes the xdg popup, associating it with the given \a shell, \a surface,
- * \a parentSurface and \a resource.
+ * \a parentSurface, \a position and \a resource.
  */
 
 /*!

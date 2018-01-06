@@ -410,7 +410,7 @@ QWaylandSurface::~QWaylandSurface()
 }
 
 /*!
- * \qmlmethod void QtWaylandCompositor::WaylandSurface::initialize(object compositor, object client, int id, int version)
+ * \qmlmethod void QtWaylandCompositor::WaylandSurface::initialize(WaylandCompositor compositor, WaylandClient client, int id, int version)
  *
  * Initializes the WaylandSurface with the given \a compositor and \a client, and with the given \a id
  * and \a version.
@@ -888,7 +888,7 @@ void QWaylandSurfacePrivate::Subsurface::subsurface_set_desync(wl_subsurface::Re
 }
 
 /*!
- * \qmlsignal void QtWaylandCompositor::WaylandSurface::dragStarted(object drag)
+ * \qmlsignal void QtWaylandCompositor::WaylandSurface::dragStarted(WaylandDrag drag)
  *
  * This signal is emitted when a \a drag has started from this surface.
  */

@@ -53,6 +53,7 @@ class WaylandEglClientBufferIntegration : public QtWayland::ClientBufferIntegrat
     Q_DECLARE_PRIVATE(WaylandEglClientBufferIntegration)
 public:
     WaylandEglClientBufferIntegration();
+    ~WaylandEglClientBufferIntegration();
 
     void initializeHardware(struct ::wl_display *display) override;
 
@@ -68,6 +69,8 @@ struct BufferState;
 class WaylandEglClientBuffer : public QtWayland::ClientBuffer
 {
 public:
+    ~WaylandEglClientBuffer();
+
     QWaylandBufferRef::BufferFormatEgl bufferFormatEgl() const override;
     QSize size() const override;
     QWaylandSurface::Origin origin() const override;

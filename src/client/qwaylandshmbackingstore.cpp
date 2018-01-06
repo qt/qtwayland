@@ -287,7 +287,7 @@ void QWaylandShmBackingStore::resize(const QSize &size)
         buffer = getBuffer(sizeWithMargins);
     }
 
-    qssize_t oldSize = mBackBuffer ? mBackBuffer->image()->sizeInBytes() : 0;
+    qsizetype oldSize = mBackBuffer ? mBackBuffer->image()->sizeInBytes() : 0;
     // mBackBuffer may have been deleted here but if so it means its size was different so we wouldn't copy it anyway
     if (mBackBuffer != buffer && oldSize == buffer->image()->sizeInBytes()) {
         memcpy(buffer->image()->bits(), mBackBuffer->image()->constBits(), buffer->image()->sizeInBytes());

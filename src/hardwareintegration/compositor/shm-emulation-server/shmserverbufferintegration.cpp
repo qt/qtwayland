@@ -70,7 +70,7 @@ ShmServerBuffer::ShmServerBuffer(ShmServerBufferIntegration *integration, const 
 
     QString key = "qt_shm_emulation_" + QString::number(qimage.cacheKey());
     m_shm = new QSharedMemory(key);
-    qssize_t shm_size = qimage.sizeInBytes();
+    qsizetype shm_size = qimage.sizeInBytes();
     bool ok = m_shm->create(shm_size) && m_shm->lock();
     if (ok) {
         memcpy(m_shm->data(), qimage.constBits(), shm_size);

@@ -1029,7 +1029,7 @@ QVariant QWaylandWindow::property(const QString &name, const QVariant &defaultVa
 
 void QWaylandWindow::requestUpdate()
 {
-    if (!mFrameCallback)
+    if (!mWaitingForFrameSync)
         QPlatformWindow::requestUpdate();
     else
         mUpdateRequested = true;

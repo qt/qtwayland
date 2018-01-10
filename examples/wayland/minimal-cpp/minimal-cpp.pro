@@ -1,4 +1,4 @@
-QT += gui gui-private core-private waylandcompositor waylandcompositor-private
+QT += gui waylandcompositor
 
 LIBS += -L ../../lib
 

@@ -287,8 +287,8 @@ inline QPoint QWaylandWindow::attachOffset() const
     return mOffset;
 }
 
-QT_END_NAMESPACE
-
 }
+
+QT_END_NAMESPACE
 
 #endif // QWAYLANDWINDOW_H

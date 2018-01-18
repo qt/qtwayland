@@ -35,6 +35,8 @@
 #include <QMimeData>
 #include <QPixmap>
 #include <QDrag>
+#include <QWindow>
+#include <QOpenGLWindow>
 
 #include <QtTest/QtTest>
 #include <QtWaylandClient/private/qwaylandintegration_p.h>
@@ -112,6 +114,25 @@ public:
     QPoint mousePressPos;
 };
 
+class TestGlWindow : public QOpenGLWindow
+{
+    Q_OBJECT
+
+public:
+    TestGlWindow();
+
+protected:
+    void paintGL() override;
+};
+
+TestGlWindow::TestGlWindow()
+{}
+
+void TestGlWindow::paintGL()
+{
+    glClear(GL_COLOR_BUFFER_BIT);
+}
+
 class tst_WaylandClient : public QObject
 {
     Q_OBJECT
@@ -149,6 +170,7 @@ private slots:
     void dontCrashOnMultipleCommits();
     void hiddenTransientParent();
     void hiddenPopupParent();
+    void glWindow();
 
 private:
     MockCompositor *compositor;
@@ -407,6 +429,21 @@ void tst_WaylandClient::hiddenPopupParent()
 
     popup.show();
     QTRY_VERIFY(compositor->surface());
+}
+
+void tst_WaylandClient::glWindow()
+{
+    QSKIP("Skipping GL tests, as not supported by all CI systems: See https://bugreports.qt.io/browse/QTBUG-65802");
+
+    QScopedPointer<TestGlWindow> testWindow(new TestGlWindow);
+    testWindow->show();
+    QSharedPointer<MockSurface> surface;
+    QTRY_VERIFY(surface = compositor->surface());
+
+    //confirm we don't crash when we delete an already hidden GL window
+    //QTBUG-65553
+    testWindow->setVisible(false);
+    QTRY_VERIFY(!compositor->surface());
 }
 
 int main(int argc, char **argv)

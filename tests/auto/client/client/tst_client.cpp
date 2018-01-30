@@ -35,8 +35,12 @@
 #include <QMimeData>
 #include <QPixmap>
 #include <QDrag>
+#include <QWindow>
+#include <QOpenGLWindow>
 
 #include <QtTest/QtTest>
+#include <QtWaylandClient/private/qwaylandintegration_p.h>
+#include <QtGui/private/qguiapplication_p.h>
 
 static const QSize screenSize(1600, 1200);
 
@@ -97,6 +101,8 @@ public:
         ++touchEventCount;
     }
 
+    QPoint frameOffset() const { return QPoint(frameMargins().left(), frameMargins().top()); }
+
     int focusInEventCount;
     int focusOutEventCount;
     int keyPressEventCount;
@@ -108,6 +114,25 @@ public:
     uint keyCode;
     QPoint mousePressPos;
 };
+
+class TestGlWindow : public QOpenGLWindow
+{
+    Q_OBJECT
+
+public:
+    TestGlWindow();
+
+protected:
+    void paintGL() override;
+};
+
+TestGlWindow::TestGlWindow()
+{}
+
+void TestGlWindow::paintGL()
+{
+    glClear(GL_COLOR_BUFFER_BIT);
+}
 
 class tst_WaylandClient : public QObject
 {
@@ -149,6 +174,7 @@ private slots:
     void dontCrashOnMultipleCommits();
     void hiddenTransientParent();
     void hiddenPopupParent();
+    void glWindow();
 
 private:
     MockCompositor *compositor;
@@ -235,7 +261,7 @@ void tst_WaylandClient::removePrimaryScreen()
     compositor->sendRemoveOutput(firstOutput);
     QTRY_COMPARE(QGuiApplication::screens().size(), 1);
 
-    compositor->sendMousePress(surface, QPoint(10, 10));
+    compositor->sendMousePress(surface, window.frameOffset() + QPoint(10, 10));
     QTRY_COMPARE(window.mousePressEventCount, 1);
     compositor->sendMouseRelease(surface);
     QTRY_COMPARE(window.mouseReleaseEventCount, 1);
@@ -290,7 +316,7 @@ void tst_WaylandClient::events()
 
     QPoint mousePressPos(16, 16);
     QCOMPARE(window.mousePressEventCount, 0);
-    compositor->sendMousePress(surface, mousePressPos);
+    compositor->sendMousePress(surface, window.frameOffset() + mousePressPos);
     QTRY_COMPARE(window.mousePressEventCount, 1);
     QTRY_COMPARE(window.mousePressPos, mousePressPos);
 
@@ -299,7 +325,7 @@ void tst_WaylandClient::events()
     QTRY_COMPARE(window.mouseReleaseEventCount, 1);
 
     const int touchId = 0;
-    compositor->sendTouchDown(surface, QPoint(10, 10), touchId);
+    compositor->sendTouchDown(surface, window.frameOffset() + QPoint(10, 10), touchId);
     compositor->sendTouchFrame(surface);
     QTRY_COMPARE(window.touchEventCount, 1);
 
@@ -358,6 +384,7 @@ public:
         m_dragIcon = QPixmap::fromImage(cursorImage);
     }
     ~DndWindow(){}
+    QPoint frameOffset() const { return QPoint(frameMargins().left(), frameMargins().top()); }
     bool dragStarted;
 
 protected:
@@ -392,14 +419,14 @@ void tst_WaylandClient::touchDrag()
     QTRY_COMPARE(QGuiApplication::focusWindow(), &window);
 
     const int id = 0;
-    compositor->sendTouchDown(surface, QPoint(10, 10), id);
+    compositor->sendTouchDown(surface, window.frameOffset() + QPoint(10, 10), id);
     compositor->sendTouchFrame(surface);
-    compositor->sendTouchMotion(surface, QPoint(20, 20), id);
+    compositor->sendTouchMotion(surface, window.frameOffset() + QPoint(20, 20), id);
     compositor->sendTouchFrame(surface);
     compositor->waitForStartDrag();
     compositor->sendDataDeviceDataOffer(surface);
-    compositor->sendDataDeviceEnter(surface, QPoint(20, 20));
-    compositor->sendDataDeviceMotion( QPoint(21, 21));
+    compositor->sendDataDeviceEnter(surface, window.frameOffset() + QPoint(20, 20));
+    compositor->sendDataDeviceMotion(window.frameOffset() + QPoint(21, 21));
     compositor->sendDataDeviceDrop(surface);
     compositor->sendDataDeviceLeave(surface);
     QTRY_VERIFY(window.dragStarted);
@@ -416,10 +443,10 @@ void tst_WaylandClient::mouseDrag()
     compositor->setKeyboardFocus(surface);
     QTRY_COMPARE(QGuiApplication::focusWindow(), &window);
 
-    compositor->sendMousePress(surface, QPoint(10, 10));
+    compositor->sendMousePress(surface, window.frameOffset() + QPoint(10, 10));
     compositor->sendDataDeviceDataOffer(surface);
-    compositor->sendDataDeviceEnter(surface, QPoint(20, 20));
-    compositor->sendDataDeviceMotion( QPoint(21, 21));
+    compositor->sendDataDeviceEnter(surface, window.frameOffset() + QPoint(20, 20));
+    compositor->sendDataDeviceMotion(window.frameOffset() + QPoint(21, 21));
     compositor->waitForStartDrag();
     compositor->sendDataDeviceDrop(surface);
     compositor->sendDataDeviceLeave(surface);
@@ -480,7 +507,7 @@ void tst_WaylandClient::hiddenPopupParent()
     QTRY_VERIFY(surface = compositor->surface());
     QPoint mousePressPos(16, 16);
     QCOMPARE(toplevel.mousePressEventCount, 0);
-    compositor->sendMousePress(surface, mousePressPos);
+    compositor->sendMousePress(surface, toplevel.frameOffset() + mousePressPos);
     QTRY_COMPARE(toplevel.mousePressEventCount, 1);
 
     QWindow popup;
@@ -494,20 +521,37 @@ void tst_WaylandClient::hiddenPopupParent()
     QTRY_VERIFY(compositor->surface());
 }
 
+void tst_WaylandClient::glWindow()
+{
+    QSKIP("Skipping GL tests, as not supported by all CI systems: See https://bugreports.qt.io/browse/QTBUG-65802");
+
+    QScopedPointer<TestGlWindow> testWindow(new TestGlWindow);
+    testWindow->show();
+    QSharedPointer<MockSurface> surface;
+    QTRY_VERIFY(surface = compositor->surface());
+
+    //confirm we don't crash when we delete an already hidden GL window
+    //QTBUG-65553
+    testWindow->setVisible(false);
+    QTRY_VERIFY(!compositor->surface());
+}
+
 int main(int argc, char **argv)
 {
     setenv("XDG_RUNTIME_DIR", ".", 1);
     setenv("QT_QPA_PLATFORM", "wayland", 1); // force QGuiApplication to use wayland plugin
 
-    // wayland-egl hangs in the test setup when we try to initialize. Until it gets
-    // figured out, avoid clientBufferIntegration() from being called in
-    // QWaylandWindow::createDecorations().
-    setenv("QT_WAYLAND_DISABLE_WINDOWDECORATION", "1", 1);
-
     MockCompositor compositor;
     compositor.setOutputMode(screenSize);
 
     QGuiApplication app(argc, argv);
+
+    // Initializing some client buffer integrations (i.e. eglInitialize) may block while waiting
+    // for a wayland sync. So we call clientBufferIntegration prior to applicationInitialized
+    // (while the compositor processes events without waiting) in order to avoid hanging later.
+    auto *waylandIntegration = static_cast<QtWaylandClient::QWaylandIntegration *>(QGuiApplicationPrivate::platformIntegration());
+    waylandIntegration->clientBufferIntegration();
+
     compositor.applicationInitialized();
 
     tst_WaylandClient tc(&compositor);

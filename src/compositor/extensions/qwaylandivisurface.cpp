@@ -93,10 +93,10 @@ QWaylandIviSurface::QWaylandIviSurface(QWaylandIviApplication *application, QWay
 }
 
 /*!
- * \qmlmethod void QtWaylandCompositor::IviSurface::initialize(object iviApplication, object surface, int iviId, object resource)
+ * \qmlmethod void QtWaylandCompositor::IviSurface::initialize(IviApplication iviApplication, WaylandSurface surface, int iviId, WaylandResource resource)
  *
  * Initializes the IviSurface, associating it with the given \a iviApplication, \a surface,
- * \a client, \a iviId, and \a resource.
+ * \a iviId, and \a resource.
  */
 
 /*!

@@ -125,6 +125,8 @@ QWaylandXdgSurfaceV6::QWaylandXdgSurfaceV6(QWaylandXdgShellV6 *shell, ::zxdg_sur
 
 QWaylandXdgSurfaceV6::~QWaylandXdgSurfaceV6()
 {
+    if (m_toplevel)
+        zxdg_toplevel_v6_destroy(m_toplevel->object());
     if (m_popup)
         zxdg_popup_v6_destroy(m_popup->object());
     destroy();
@@ -169,7 +171,8 @@ void QWaylandXdgSurfaceV6::setType(Qt::WindowType type, QWaylandWindow *transien
         setToplevel();
         if (transientParent) {
             auto parentXdgSurface = static_cast<QWaylandXdgSurfaceV6 *>(transientParent->shellSurface());
-            m_toplevel->set_parent(parentXdgSurface->m_toplevel->object());
+            if (parentXdgSurface)
+                m_toplevel->set_parent(parentXdgSurface->m_toplevel->object());
         }
     }
 }

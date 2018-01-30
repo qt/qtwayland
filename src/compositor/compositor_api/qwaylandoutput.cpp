@@ -838,7 +838,7 @@ void QWaylandOutput::setSizeFollowsWindow(bool follow)
 }
 
 /*!
- * \qmlproperty object QtWaylandCompositor::WaylandOutput::window
+ * \qmlproperty Window QtWaylandCompositor::WaylandOutput::window
  *
  * This property holds the Window for this WaylandOutput.
  *

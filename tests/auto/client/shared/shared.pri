@@ -1,5 +1,6 @@
 CONFIG += testcase link_pkgconfig
 QT += testlib
+QT += core-private gui-private waylandclient-private
 
 QMAKE_USE += wayland-client wayland-server
 

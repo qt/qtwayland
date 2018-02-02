@@ -46,6 +46,7 @@ SOURCES += \
     extensions/qwaylandqtwindowmanager.cpp \
     extensions/qwaylandxdgshellv5.cpp \
     extensions/qwaylandxdgshellv6.cpp \
+    extensions/qwaylandshellsurface.cpp \
     extensions/qwaylandiviapplication.cpp \
     extensions/qwaylandivisurface.cpp \
 

@@ -78,7 +78,7 @@ public:
     virtual void resize(QWaylandInputDevice * /*inputDevice*/, enum wl_shell_surface_resize /*edges*/)
     {}
 
-    virtual void move(QWaylandInputDevice * /*inputDevice*/) {}
+    virtual bool move(QWaylandInputDevice *) { return false; }
     virtual void setTitle(const QString & /*title*/) {}
     virtual void setAppId(const QString & /*appId*/) {}
 

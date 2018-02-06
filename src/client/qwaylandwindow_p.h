@@ -201,6 +201,8 @@ public:
     void propagateSizeHints() override { }
     void addAttachOffset(const QPoint point);
 
+    bool startSystemMove(const QPoint &pos) override;
+
     void requestUpdate() override;
 
 public slots:

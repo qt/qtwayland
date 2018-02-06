@@ -79,7 +79,7 @@ public:
 
     void resize(QWaylandInputDevice *inputDevice, enum zxdg_toplevel_v6_resize_edge edges);
     void resize(QWaylandInputDevice *inputDevice, enum wl_shell_surface_resize edges) override;
-    void move(QWaylandInputDevice *inputDevice) override;
+    bool move(QWaylandInputDevice *inputDevice) override;
     void setTitle(const QString &title) override;
     void setAppId(const QString &appId) override;
 

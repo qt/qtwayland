@@ -1045,6 +1045,14 @@ void QWaylandWindow::addAttachOffset(const QPoint point)
     mOffset += point;
 }
 
+bool QtWaylandClient::QWaylandWindow::startSystemMove(const QPoint &pos)
+{
+    Q_UNUSED(pos);
+    if (auto seat = display()->lastInputDevice())
+        return mShellSurface && mShellSurface->move(seat);
+    return false;
+}
+
 }
 
 QT_END_NAMESPACE

@@ -85,10 +85,11 @@ void QWaylandXdgSurface::resize(QWaylandInputDevice *inputDevice, enum resize_ed
            edges);
 }
 
-void QWaylandXdgSurface::move(QWaylandInputDevice *inputDevice)
+bool QWaylandXdgSurface::move(QWaylandInputDevice *inputDevice)
 {
     move(inputDevice->wl_seat(),
          inputDevice->serial());
+    return true;
 }
 
 void QWaylandXdgSurface::setMaximized()

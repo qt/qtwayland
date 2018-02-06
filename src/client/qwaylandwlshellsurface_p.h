@@ -81,7 +81,7 @@ public:
     void resize(QWaylandInputDevice *inputDevice, enum wl_shell_surface_resize edges) override;
 
     using QtWayland::wl_shell_surface::move;
-    void move(QWaylandInputDevice *inputDevice) override;
+    bool move(QWaylandInputDevice *inputDevice) override;
 
     void setTitle(const QString & title) override;
     void setAppId(const QString &appId) override;

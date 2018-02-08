@@ -196,6 +196,14 @@ void MockCompositor::sendRemoveOutput(const QSharedPointer<MockOutput> &output)
     processCommand(command);
 }
 
+void MockCompositor::sendOutputGeometry(const QSharedPointer<MockOutput> &output, const QRect &geometry)
+{
+    Command command = makeCommand(Impl::Compositor::sendOutputGeometry, m_compositor);
+    command.parameters << QVariant::fromValue(output);
+    command.parameters << QVariant::fromValue(geometry);
+    processCommand(command);
+}
+
 void MockCompositor::sendSurfaceEnter(const QSharedPointer<MockSurface> &surface, QSharedPointer<MockOutput> &output)
 {
     Command command = makeCommand(Impl::Compositor::sendSurfaceEnter, m_compositor);

@@ -54,6 +54,16 @@ void Compositor::sendRemoveOutput(void *data, const QList<QVariant> &parameters)
     delete output;
 }
 
+void Compositor::sendOutputGeometry(void *data, const QList<QVariant> &parameters)
+{
+    Compositor *compositor = static_cast<Compositor *>(data);
+    Q_ASSERT(compositor);
+    Output *output = resolveOutput(parameters.first());
+    Q_ASSERT(output);
+    QRect geometry = parameters.at(1).toRect();
+    output->sendGeometryAndMode(geometry);
+}
+
 void Compositor::setOutputMode(void *data, const QList<QVariant> &parameters)
 {
     Compositor *compositor = static_cast<Compositor *>(data);
@@ -74,16 +84,29 @@ Output::Output(wl_display *display, const QSize &resolution, const QPoint &posit
 
 void Output::setCurrentMode(const QSize &size)
 {
-    qDebug() << Q_FUNC_INFO << size;
     m_size = size;
-    for (Resource *resource : resourceMap())
+    for (Resource *resource : resourceMap()) {
         sendCurrentMode(resource);
+        send_done(resource->handle);
+    }
+}
+
+void Output::sendGeometryAndMode(const QRect &geometry)
+{
+    m_size = geometry.size();
+    m_position = geometry.topLeft();
+    for (Resource *resource : resourceMap()) {
+        sendGeometry(resource);
+        sendCurrentMode(resource);
+        send_done(resource->handle);
+    }
 }
 
 void Output::output_bind_resource(QtWaylandServer::wl_output::Resource *resource)
 {
     sendGeometry(resource);
     sendCurrentMode(resource);
+    send_done(resource->handle);
 }
 
 void Output::sendGeometry(Resource *resource)

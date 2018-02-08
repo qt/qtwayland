@@ -164,6 +164,7 @@ public slots:
 private slots:
     void primaryScreen();
     void screens();
+    void addScreenWithGeometryChange();
     void windowScreens();
     void removePrimaryScreen();
     void createDestroyWindow();
@@ -195,6 +196,29 @@ void tst_WaylandClient::screens()
     QTRY_VERIFY(secondOutput = compositor->output(1));
     compositor->sendRemoveOutput(secondOutput);
     QTRY_COMPARE(QGuiApplication::screens().size(), 1);
+}
+
+//QTBUG-62044
+void tst_WaylandClient::addScreenWithGeometryChange()
+{
+    QTRY_COMPARE(QGuiApplication::screens().size(), 1);
+    const QRect oldGeometry = QGuiApplication::primaryScreen()->geometry();
+    compositor->sendAddOutput();
+
+    // Move the primary screen to the right
+    const QRect newGeometry(QPoint(screenSize.width(), 0), screenSize);
+    Q_ASSERT(oldGeometry != newGeometry);
+    compositor->sendOutputGeometry(compositor->output(0), newGeometry);
+
+    QTRY_COMPARE(QGuiApplication::screens().size(), 2);
+    QTRY_COMPARE(QGuiApplication::primaryScreen()->geometry(), newGeometry);
+
+    compositor->sendRemoveOutput(compositor->output(1));
+    QTRY_COMPARE(QGuiApplication::screens().size(), 1);
+
+    // Move the screen back
+    compositor->sendOutputGeometry(compositor->output(0), oldGeometry);
+    QTRY_COMPARE(QGuiApplication::primaryScreen()->geometry(), oldGeometry);
 }
 
 void tst_WaylandClient::windowScreens()
@@ -255,6 +279,7 @@ void tst_WaylandClient::removePrimaryScreen()
     compositor->sendAddOutput();
 
     QTRY_COMPARE(QGuiApplication::screens().size(), 2);
+    QTRY_COMPARE(QGuiApplication::primaryScreen()->virtualSiblings().size(), 2);
     QScreen *secondaryScreen = QGuiApplication::screens().at(1);
     QVERIFY(secondaryScreen);
 

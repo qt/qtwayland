@@ -128,8 +128,10 @@ QList<QPlatformScreen *> QWaylandScreen::virtualSiblings() const
     QList<QPlatformScreen *> list;
     const QList<QWaylandScreen*> screens = mWaylandDisplay->screens();
     list.reserve(screens.count());
-    foreach (QWaylandScreen *screen, screens)
-        list << screen;
+    for (QWaylandScreen *screen : qAsConst(screens)) {
+        if (screen->screen())
+            list << screen;
+    }
     return list;
 }
 

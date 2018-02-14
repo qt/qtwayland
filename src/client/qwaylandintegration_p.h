@@ -73,6 +73,8 @@ public:
     QWaylandIntegration();
     ~QWaylandIntegration();
 
+    bool hasFailed() { return mFailed; }
+
     bool hasCapability(QPlatformIntegration::Capability cap) const override;
     QPlatformWindow *createPlatformWindow(QWindow *window) const override;
 #if QT_CONFIG(opengl)
@@ -144,6 +146,7 @@ private:
 #if QT_CONFIG(accessibility)
     QScopedPointer<QPlatformAccessibility> mAccessibility;
 #endif
+    bool mFailed = false;
     bool mClientBufferIntegrationInitialized;
     bool mServerBufferIntegrationInitialized;
     bool mShellIntegrationInitialized;

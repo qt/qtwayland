@@ -142,9 +142,9 @@ QWaylandDisplay::QWaylandDisplay(QWaylandIntegration *waylandIntegration)
     qRegisterMetaType<uint32_t>("uint32_t");
 
     mDisplay = wl_display_connect(nullptr);
-    if (mDisplay == nullptr) {
-        qErrnoWarning(errno, "Failed to create display");
-        ::exit(1);
+    if (!mDisplay) {
+        qErrnoWarning(errno, "Failed to create wl_display");
+        return;
     }
 
     struct ::wl_registry *registry = wl_display_get_registry(mDisplay);
@@ -170,7 +170,8 @@ QWaylandDisplay::~QWaylandDisplay(void)
 #if QT_CONFIG(wayland_datadevice)
     delete mDndSelectionHandler.take();
 #endif
-    wl_display_disconnect(mDisplay);
+    if (mDisplay)
+        wl_display_disconnect(mDisplay);
 }
 
 void QWaylandDisplay::checkError() const

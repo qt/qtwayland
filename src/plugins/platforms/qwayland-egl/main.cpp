@@ -56,7 +56,14 @@ QPlatformIntegration *QWaylandEglPlatformIntegrationPlugin::create(const QString
 {
     Q_UNUSED(paramList);
     Q_UNUSED(system);
-    return new QWaylandEglPlatformIntegration();
+    auto *integration = new QWaylandEglPlatformIntegration();
+
+    if (integration->hasFailed()) {
+        delete integration;
+        integration = nullptr;
+    }
+
+    return integration;
 }
 
 }

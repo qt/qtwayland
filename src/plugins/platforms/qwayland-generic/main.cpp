@@ -56,7 +56,14 @@ QPlatformIntegration *QWaylandIntegrationPlugin::create(const QString& system, c
 {
     Q_UNUSED(paramList);
     Q_UNUSED(system);
-    return new QWaylandIntegration();
+    auto *integration =  new QWaylandIntegration();
+
+    if (integration->hasFailed()) {
+        delete integration;
+        integration = nullptr;
+    }
+
+    return integration;
 }
 
 }

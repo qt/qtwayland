@@ -134,6 +134,10 @@ QWaylandIntegration::QWaylandIntegration()
 {
     initializeInputDeviceIntegration();
     mDisplay.reset(new QWaylandDisplay(this));
+    if (!mDisplay->isInitialized()) {
+        mFailed = true;
+        return;
+    }
 #if QT_CONFIG(clipboard)
     mClipboard.reset(new QWaylandClipboard(mDisplay.data()));
 #endif

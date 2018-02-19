@@ -30,6 +30,8 @@
 #include "mockinput.h"
 #include "mockoutput.h"
 #include "mocksurface.h"
+#include "mockwlshell.h"
+#include "mockxdgshellv6.h"
 
 #include <wayland-xdg-shell-unstable-v6-server-protocol.h>
 
@@ -331,8 +333,8 @@ Compositor::Compositor()
     m_touch = m_seat->touch();
 
     m_outputs.append(new Output(m_display, QSize(1920, 1080), QPoint(0, 0)));
-    wl_global_create(m_display, &wl_shell_interface, 1, this, bindShell);
-    wl_global_create(m_display, &zxdg_shell_v6_interface, 1, this, bindXdgShellV6);
+    m_wlShell.reset(new WlShell(m_display));
+    m_xdgShellV6.reset(new XdgShellV6(m_display));
 
     m_loop = wl_display_get_event_loop(m_display);
     m_fd = wl_event_loop_get_fd(m_loop);

@@ -52,6 +52,8 @@ class Seat;
 class DataDeviceManager;
 class Surface;
 class Output;
+class WlShell;
+class XdgShellV6;
 
 class Compositor
 {
@@ -98,8 +100,6 @@ public:
 
 private:
     static void bindCompositor(wl_client *client, void *data, uint32_t version, uint32_t id);
-    static void bindShell(wl_client *client, void *data, uint32_t version, uint32_t id);
-    static void bindXdgShellV6(wl_client *client, void *compositorData, uint32_t version, uint32_t id);
     static Surface *resolveSurface(const QVariant &v);
     static Output *resolveOutput(const QVariant &v);
 
@@ -121,6 +121,8 @@ private:
     QScopedPointer<DataDeviceManager> m_data_device_manager;
     QVector<Surface *> m_surfaces;
     QVector<Output *> m_outputs;
+    QScopedPointer<WlShell> m_wlShell;
+    QScopedPointer<XdgShellV6> m_xdgShellV6;
 };
 
 void registerResource(wl_list *list, wl_resource *resource);

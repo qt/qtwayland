@@ -65,7 +65,7 @@ QWaylandScreen::QWaylandScreen(QWaylandDisplay *waylandDisplay, int version, uin
     , mOutputName(QStringLiteral("Screen%1").arg(id))
     , m_orientation(Qt::PrimaryOrientation)
 #if QT_CONFIG(cursor)
-    , mWaylandCursor(0)
+    , mWaylandCursor(nullptr)
 #endif
 {
 }

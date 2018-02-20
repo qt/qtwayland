@@ -81,7 +81,7 @@ public:
         res->data = this;
         res->destroy = destroyCallback;
 #else
-        wl_resource_set_implementation(res, 0, this, destroyCallback);
+        wl_resource_set_implementation(res, nullptr, this, destroyCallback);
 #endif
     }
     ~FrameCallback()
@@ -129,7 +129,7 @@ QWaylandSurfacePrivate::QWaylandSurfacePrivate()
     , compositor(nullptr)
     , refCount(1)
     , client(nullptr)
-    , role(0)
+    , role(nullptr)
     , inputRegion(infiniteRegion())
     , bufferScale(1)
     , isCursorSurface(false)
@@ -140,7 +140,7 @@ QWaylandSurfacePrivate::QWaylandSurfacePrivate()
 #if QT_CONFIG(im)
     , inputMethodControl(nullptr)
 #endif
-    , subsurface(0)
+    , subsurface(nullptr)
 {
     pending.buffer = QWaylandBufferRef();
     pending.newlyAttached = false;
@@ -843,7 +843,7 @@ void QWaylandSurfacePrivate::derefView(QWaylandView *view)
 void QWaylandSurfacePrivate::initSubsurface(QWaylandSurface *parent, wl_client *client, int id, int version)
 {
     Q_Q(QWaylandSurface);
-    QWaylandSurface *oldParent = 0; // TODO: implement support for switching parents
+    QWaylandSurface *oldParent = nullptr; // TODO: implement support for switching parents
 
     subsurface = new Subsurface(this);
     subsurface->init(client, id, version);

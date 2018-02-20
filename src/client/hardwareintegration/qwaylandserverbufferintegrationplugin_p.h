@@ -69,7 +69,7 @@ class Q_WAYLAND_CLIENT_EXPORT QWaylandServerBufferIntegrationPlugin : public QOb
 {
     Q_OBJECT
 public:
-    explicit QWaylandServerBufferIntegrationPlugin(QObject *parent = 0);
+    explicit QWaylandServerBufferIntegrationPlugin(QObject *parent = nullptr);
     ~QWaylandServerBufferIntegrationPlugin();
 
     virtual QWaylandServerBufferIntegration *create(const QString &key, const QStringList &paramList) = 0;

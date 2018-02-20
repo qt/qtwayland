@@ -704,7 +704,7 @@ QWaylandWlShellSurface *QWaylandWlShellSurface::fromResource(wl_resource *resour
     QWaylandWlShellSurfacePrivate::Resource *res = QWaylandWlShellSurfacePrivate::Resource::fromResource(resource);
     if (res)
         return static_cast<QWaylandWlShellSurfacePrivate *>(res->shell_surface_object)->q_func();
-    return 0;
+    return nullptr;
 }
 
 QT_END_NAMESPACE

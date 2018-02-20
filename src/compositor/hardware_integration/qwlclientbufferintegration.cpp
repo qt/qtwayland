@@ -44,7 +44,7 @@ QT_BEGIN_NAMESPACE
 namespace QtWayland {
 
 ClientBufferIntegration::ClientBufferIntegration()
-    : m_compositor(0)
+    : m_compositor(nullptr)
 {
 }
 

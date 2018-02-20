@@ -75,15 +75,15 @@ QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
 
-QWaylandWindow *QWaylandWindow::mMouseGrab = 0;
+QWaylandWindow *QWaylandWindow::mMouseGrab = nullptr;
 
 QWaylandWindow::QWaylandWindow(QWindow *window)
     : QObject()
     , QPlatformWindow(window)
     , mDisplay(waylandScreen()->display())
-    , mShellSurface(0)
-    , mSubSurfaceWindow(0)
-    , mWindowDecoration(0)
+    , mShellSurface(nullptr)
+    , mSubSurfaceWindow(nullptr)
+    , mWindowDecoration(nullptr)
     , mMouseEventsInContentArea(false)
     , mMousePressedInContentArea(Qt::NoButton)
     , mWaitingForFrameSync(false)
@@ -124,7 +124,7 @@ QWaylandWindow::~QWaylandWindow()
     }
 
     if (mMouseGrab == this) {
-        mMouseGrab = 0;
+        mMouseGrab = nullptr;
     }
 }
 
@@ -256,9 +256,9 @@ void QWaylandWindow::reset(bool sendDestroyEvent)
         QGuiApplication::sendEvent(window(), &e);
     }
     delete mShellSurface;
-    mShellSurface = 0;
+    mShellSurface = nullptr;
     delete mSubSurfaceWindow;
-    mSubSurfaceWindow = 0;
+    mSubSurfaceWindow = nullptr;
     if (isInitialized())
         destroy();
 
@@ -285,7 +285,7 @@ void QWaylandWindow::setParent(const QPlatformWindow *parent)
     if (!window()->isVisible())
         return;
 
-    QWaylandWindow *oldparent = mSubSurfaceWindow ? mSubSurfaceWindow->parent() : 0;
+    QWaylandWindow *oldparent = mSubSurfaceWindow ? mSubSurfaceWindow->parent() : nullptr;
     if (oldparent == parent)
         return;
 
@@ -574,7 +574,7 @@ void QWaylandWindow::attach(QWaylandBuffer *buffer, int x, int y)
 
         attach(buffer->buffer(), x, y);
     } else {
-        QtWayland::wl_surface::attach(0, 0, 0);
+        QtWayland::wl_surface::attach(nullptr, 0, 0);
     }
 }
 
@@ -777,7 +777,7 @@ bool QWaylandWindow::createDecoration()
         }
     } else {
         delete mWindowDecoration;
-        mWindowDecoration = 0;
+        mWindowDecoration = nullptr;
     }
 
     if (hadDecoration != (bool)mWindowDecoration) {
@@ -984,7 +984,7 @@ bool QWaylandWindow::setMouseGrabEnabled(bool grab)
         return false;
     }
 
-    mMouseGrab = grab ? this : 0;
+    mMouseGrab = grab ? this : nullptr;
     return true;
 }
 

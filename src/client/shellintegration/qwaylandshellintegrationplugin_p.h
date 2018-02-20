@@ -69,7 +69,7 @@ class Q_WAYLAND_CLIENT_EXPORT QWaylandShellIntegrationPlugin : public QObject
 {
     Q_OBJECT
 public:
-    explicit QWaylandShellIntegrationPlugin(QObject *parent = 0);
+    explicit QWaylandShellIntegrationPlugin(QObject *parent = nullptr);
     ~QWaylandShellIntegrationPlugin();
 
     virtual QWaylandShellIntegration *create(const QString &key, const QStringList &paramList) = 0;

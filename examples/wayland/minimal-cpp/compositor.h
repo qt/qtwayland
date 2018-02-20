@@ -64,7 +64,7 @@ class View : public QWaylandView
 {
     Q_OBJECT
 public:
-    View() : m_texture(0) {}
+    View() : m_texture(nullptr) {}
     QOpenGLTexture *getTexture();
     bool isCursor() const;
 private:

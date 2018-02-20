@@ -70,7 +70,7 @@ QT_BEGIN_NAMESPACE
 struct QWaylandSurfaceViewMapper
 {
     QWaylandSurfaceViewMapper()
-        : surface(0)
+        : surface(nullptr)
         , views()
         , has_entered(false)
     {}

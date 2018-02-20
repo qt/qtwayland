@@ -403,7 +403,7 @@ QWaylandInputContext::~QWaylandInputContext()
 
 bool QWaylandInputContext::isValid() const
 {
-    return mDisplay->textInputManager() != 0;
+    return mDisplay->textInputManager() != nullptr;
 }
 
 void QWaylandInputContext::reset()

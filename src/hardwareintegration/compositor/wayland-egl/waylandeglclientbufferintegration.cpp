@@ -217,12 +217,12 @@ WaylandEglClientBufferIntegrationPrivate::WaylandEglClientBufferIntegrationPriva
     : egl_display(EGL_NO_DISPLAY)
     , valid(false)
     , display_bound(false)
-    , egl_bind_wayland_display(0)
-    , egl_unbind_wayland_display(0)
-    , egl_query_wayland_buffer(0)
-    , egl_create_image(0)
-    , egl_destroy_image(0)
-    , gl_egl_image_target_texture_2d(0)
+    , egl_bind_wayland_display(nullptr)
+    , egl_unbind_wayland_display(nullptr)
+    , egl_query_wayland_buffer(nullptr)
+    , egl_create_image(nullptr)
+    , egl_destroy_image(nullptr)
+    , gl_egl_image_target_texture_2d(nullptr)
     , funcs(nullptr)
 {
 }
@@ -593,7 +593,7 @@ quintptr WaylandEglClientBuffer::lockNativeBuffer()
 
     EGLImageKHR image = p->egl_create_image(p->egl_display, EGL_NO_CONTEXT,
                                           EGL_WAYLAND_BUFFER_WL,
-                                          m_buffer, NULL);
+                                          m_buffer, nullptr);
     return reinterpret_cast<quintptr>(image);
 }
 

@@ -52,8 +52,8 @@ namespace QtWayland {
 DataSource::DataSource(struct wl_client *client, uint32_t id, uint32_t time)
     : QtWaylandServer::wl_data_source(client, id, 1)
     , m_time(time)
-    , m_device(0)
-    , m_manager(0)
+    , m_device(nullptr)
+    , m_manager(nullptr)
 {
 }
 

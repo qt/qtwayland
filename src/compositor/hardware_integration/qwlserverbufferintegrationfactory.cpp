@@ -90,7 +90,7 @@ ServerBufferIntegration *ServerBufferIntegrationFactory::create(const QString &n
     if (ServerBufferIntegration *ret = qLoadPlugin<ServerBufferIntegration, ServerBufferIntegrationPlugin>(loader(), name, args))
         return ret;
 #endif
-    return 0;
+    return nullptr;
 }
 
 }

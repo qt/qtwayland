@@ -58,7 +58,7 @@
 #include <QRandomGenerator>
 
 Window::Window()
-    : m_compositor(0)
+    : m_compositor(nullptr)
 {
 }
 

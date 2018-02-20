@@ -121,7 +121,7 @@ public:
 };
 
 QWaylandIntegration::QWaylandIntegration()
-    : mClientBufferIntegration(0)
+    : mClientBufferIntegration(nullptr)
     , mInputDeviceIntegration(nullptr)
     , mFontDb(new QGenericUnixFontDatabase())
     , mNativeInterface(new QWaylandNativeInterface(this))
@@ -198,7 +198,7 @@ QPlatformOpenGLContext *QWaylandIntegration::createPlatformOpenGLContext(QOpenGL
 {
     if (mDisplay->clientBufferIntegration())
         return mDisplay->clientBufferIntegration()->createPlatformOpenGLContext(context->format(), context->shareHandle());
-    return 0;
+    return nullptr;
 }
 #endif  // opengl
 

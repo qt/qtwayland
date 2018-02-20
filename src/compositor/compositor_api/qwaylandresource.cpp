@@ -42,7 +42,7 @@
 QT_BEGIN_NAMESPACE
 
 QWaylandResource::QWaylandResource()
-                : m_resource(0)
+                : m_resource(nullptr)
 {
 }
 

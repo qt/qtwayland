@@ -59,11 +59,11 @@ QT_BEGIN_NAMESPACE
 namespace QtWayland {
 
 DataDeviceManager::DataDeviceManager(QWaylandCompositor *compositor)
-    : QObject(0)
+    : QObject(nullptr)
     , wl_data_device_manager(compositor->display(), 1)
     , m_compositor(compositor)
-    , m_current_selection_source(0)
-    , m_retainedReadNotifier(0)
+    , m_current_selection_source(nullptr)
+    , m_retainedReadNotifier(nullptr)
     , m_compositorOwnsSelection(false)
 {
 }
@@ -137,7 +137,7 @@ void DataDeviceManager::finishReadFromClient(bool exhausted)
             // or else clients may SIGPIPE.
             m_obsoleteRetainedReadNotifiers.append(m_retainedReadNotifier);
         }
-        m_retainedReadNotifier = 0;
+        m_retainedReadNotifier = nullptr;
     }
 }
 
@@ -219,7 +219,7 @@ bool DataDeviceManager::offerFromCompositorToClient(wl_resource *clientDataDevic
 
     struct wl_resource *selectionOffer =
              wl_resource_create(client, &wl_data_offer_interface, -1, 0);
-    wl_resource_set_implementation(selectionOffer, &compositor_offer_interface, this, 0);
+    wl_resource_set_implementation(selectionOffer, &compositor_offer_interface, this, nullptr);
     wl_data_device_send_data_offer(clientDataDeviceResource, selectionOffer);
     foreach (const QString &format, m_retainedData.formats()) {
         QByteArray ba = format.toLatin1();

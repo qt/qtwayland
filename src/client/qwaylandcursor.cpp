@@ -79,13 +79,13 @@ QWaylandCursor::~QWaylandCursor()
 
 struct wl_cursor_image *QWaylandCursor::cursorImage(Qt::CursorShape newShape)
 {
-    struct wl_cursor *waylandCursor = 0;
+    struct wl_cursor *waylandCursor = nullptr;
 
     /* Hide cursor */
     if (newShape == Qt::BlankCursor)
     {
-        mDisplay->setCursor(NULL, NULL);
-        return NULL;
+        mDisplay->setCursor(nullptr, nullptr);
+        return nullptr;
     }
 
     if (newShape < Qt::BitmapCursor) {
@@ -99,14 +99,14 @@ struct wl_cursor_image *QWaylandCursor::cursorImage(Qt::CursorShape newShape)
 
     if (!waylandCursor) {
         qDebug("Could not find cursor for shape %d", newShape);
-        return NULL;
+        return nullptr;
     }
 
     struct wl_cursor_image *image = waylandCursor->images[0];
     struct wl_buffer *buffer = wl_cursor_image_get_buffer(image);
     if (!buffer) {
         qDebug("Could not find buffer for cursor");
-        return NULL;
+        return nullptr;
     }
 
     return image;
@@ -166,7 +166,7 @@ wl_cursor *QWaylandCursor::requestCursor(WaylandCursor shape)
     //If the cursor has not been loaded already, load it
     if (!cursor) {
         if (!mCursorTheme)
-            return NULL;
+            return nullptr;
 
         QList<QByteArray> cursorNames = mCursorNamesMap.values(shape);
         foreach (const QByteArray &name, cursorNames) {

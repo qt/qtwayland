@@ -295,9 +295,9 @@ void tst_WaylandClient::events()
     QTRY_COMPARE(QGuiApplication::focusWindow(), &window);
 
     QCOMPARE(window.focusOutEventCount, 0);
-    compositor->setKeyboardFocus(QSharedPointer<MockSurface>(0));
+    compositor->setKeyboardFocus(QSharedPointer<MockSurface>(nullptr));
     QTRY_COMPARE(window.focusOutEventCount, 1);
-    QTRY_COMPARE(QGuiApplication::focusWindow(), static_cast<QWindow *>(0));
+    QTRY_COMPARE(QGuiApplication::focusWindow(), static_cast<QWindow *>(nullptr));
 
     compositor->setKeyboardFocus(surface);
     QTRY_COMPARE(window.focusInEventCount, 2);
@@ -375,7 +375,7 @@ class DndWindow : public QWindow
     Q_OBJECT
 
 public:
-    DndWindow(QWindow *parent = 0)
+    DndWindow(QWindow *parent = nullptr)
         : QWindow(parent)
         , dragStarted(false)
     {

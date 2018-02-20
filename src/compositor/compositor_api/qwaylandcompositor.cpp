@@ -148,11 +148,11 @@ public:
 } // namespace
 
 QWaylandCompositorPrivate::QWaylandCompositorPrivate(QWaylandCompositor *compositor)
-    : display(0)
+    : display(nullptr)
 #if QT_CONFIG(opengl)
     , use_hw_integration_extension(true)
-    , client_buffer_integration(0)
-    , server_buffer_integration(0)
+    , client_buffer_integration(nullptr)
+    , server_buffer_integration(nullptr)
 #endif
     , retainSelection(false)
     , preInitialized(false)
@@ -834,7 +834,7 @@ QWaylandSeat *QWaylandCompositor::defaultSeat() const
 QWaylandSeat *QWaylandCompositor::seatFor(QInputEvent *inputEvent)
 {
     Q_D(QWaylandCompositor);
-    QWaylandSeat *dev = NULL;
+    QWaylandSeat *dev = nullptr;
     for (int i = 0; i < d->seats.size(); i++) {
         QWaylandSeat *candidate = d->seats.at(i);
         if (candidate->isOwner(inputEvent)) {

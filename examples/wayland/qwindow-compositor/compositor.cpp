@@ -69,7 +69,7 @@
 View::View(Compositor *compositor)
     : m_compositor(compositor)
     , m_textureTarget(GL_TEXTURE_2D)
-    , m_texture(0)
+    , m_texture(nullptr)
     , m_wlShellSurface(nullptr)
     , m_xdgSurface(nullptr)
     , m_xdgPopup(nullptr)
@@ -502,7 +502,7 @@ void Compositor::startDrag()
 void Compositor::handleDrag(View *target, QMouseEvent *me)
 {
     QPointF pos = me->localPos();
-    QWaylandSurface *surface = 0;
+    QWaylandSurface *surface = nullptr;
     if (target) {
         pos -= target->position();
         surface = target->surface();

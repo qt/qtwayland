@@ -89,7 +89,7 @@ struct wl_surface *QWaylandDisplay::createSurface(void *handle)
 QWaylandShellSurface *QWaylandDisplay::createShellSurface(QWaylandWindow *window)
 {
     if (!mWaylandIntegration->shellIntegration())
-        return 0;
+        return nullptr;
     return mWaylandIntegration->shellIntegration()->createShellSurface(window);
 }
 
@@ -106,7 +106,7 @@ struct ::wl_region *QWaylandDisplay::createRegion(const QRegion &qregion)
 ::wl_subsurface *QWaylandDisplay::createSubSurface(QWaylandWindow *window, QWaylandWindow *parent)
 {
     if (!mSubCompositor) {
-        return NULL;
+        return nullptr;
     }
 
     return mSubCompositor->get_subsurface(window->object(), parent->object());
@@ -125,24 +125,24 @@ QWaylandWindowManagerIntegration *QWaylandDisplay::windowManagerIntegration() co
 QWaylandDisplay::QWaylandDisplay(QWaylandIntegration *waylandIntegration)
     : mWaylandIntegration(waylandIntegration)
 #if QT_CONFIG(wayland_datadevice)
-    , mDndSelectionHandler(0)
+    , mDndSelectionHandler(nullptr)
 #endif
-    , mWindowExtension(0)
-    , mSubCompositor(0)
-    , mTouchExtension(0)
-    , mQtKeyExtension(0)
-    , mTextInputManager(0)
-    , mHardwareIntegration(0)
+    , mWindowExtension(nullptr)
+    , mSubCompositor(nullptr)
+    , mTouchExtension(nullptr)
+    , mQtKeyExtension(nullptr)
+    , mTextInputManager(nullptr)
+    , mHardwareIntegration(nullptr)
     , mLastInputSerial(0)
-    , mLastInputDevice(0)
-    , mLastInputWindow(0)
+    , mLastInputDevice(nullptr)
+    , mLastInputWindow(nullptr)
     , mLastKeyboardFocus(nullptr)
     , mSyncCallback(nullptr)
 {
     qRegisterMetaType<uint32_t>("uint32_t");
 
-    mDisplay = wl_display_connect(NULL);
-    if (mDisplay == NULL) {
+    mDisplay = wl_display_connect(nullptr);
+    if (mDisplay == nullptr) {
         qErrnoWarning(errno, "Failed to create display");
         ::exit(1);
     }
@@ -219,7 +219,7 @@ QWaylandScreen *QWaylandDisplay::screenForOutput(struct wl_output *output) const
         if (screen->output() == output)
             return screen;
     }
-    return 0;
+    return nullptr;
 }
 
 void QWaylandDisplay::waitForScreens()
@@ -333,7 +333,7 @@ uint32_t QWaylandDisplay::currentTimeMillisec()
 {
     //### we throw away the time information
     struct timeval tv;
-    int ret = gettimeofday(&tv, 0);
+    int ret = gettimeofday(&tv, nullptr);
     if (ret == 0)
         return tv.tv_sec*1000 + tv.tv_usec/1000;
     return 0;

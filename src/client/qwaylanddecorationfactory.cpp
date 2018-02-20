@@ -91,7 +91,7 @@ QWaylandAbstractDecoration *QWaylandDecorationFactory::create(const QString &nam
         return ret;
 #endif
 
-    return 0;
+    return nullptr;
 }
 
 }

@@ -70,10 +70,10 @@ public:
 };
 
 QWaylandAbstractDecorationPrivate::QWaylandAbstractDecorationPrivate()
-    : m_window(0)
-    , m_wayland_window(0)
+    : m_window(nullptr)
+    , m_wayland_window(nullptr)
     , m_isDirty(true)
-    , m_decorationContentImage(0)
+    , m_decorationContentImage(nullptr)
     , m_mouseButtons(Qt::NoButton)
 {
 }

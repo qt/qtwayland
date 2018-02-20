@@ -103,7 +103,7 @@ struct ::wl_resource *DrmEglServerBuffer::resourceForClient(struct ::wl_client *
         auto integrationResource = m_integration->resourceMap().value(client);
         if (!integrationResource) {
             qWarning("DrmEglServerBuffer::resourceForClient: Trying to get resource for ServerBuffer. But client is not bound to the drm_egl interface");
-            return 0;
+            return nullptr;
         }
         struct ::wl_resource *drm_egl_integration_resource = integrationResource->handle;
         Resource *resource = add(client, 1);

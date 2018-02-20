@@ -90,7 +90,7 @@ QWaylandServerBufferIntegration *QWaylandServerBufferIntegrationFactory::create(
     if (QWaylandServerBufferIntegration *ret = qLoadPlugin<QWaylandServerBufferIntegration, QWaylandServerBufferIntegrationPlugin>(loader(), name, args))
         return ret;
 #endif
-    return 0;
+    return nullptr;
 }
 
 }

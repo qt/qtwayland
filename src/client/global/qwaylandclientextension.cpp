@@ -50,7 +50,7 @@ QT_BEGIN_NAMESPACE
 
 QWaylandClientExtensionPrivate::QWaylandClientExtensionPrivate()
     : QObjectPrivate()
-    , waylandIntegration(NULL)
+    , waylandIntegration(nullptr)
     , version(-1)
     , active(false)
 {

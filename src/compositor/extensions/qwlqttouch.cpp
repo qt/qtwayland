@@ -52,7 +52,7 @@ TouchExtensionGlobal::TouchExtensionGlobal(QWaylandCompositor *compositor)
     : QWaylandCompositorExtensionTemplate(compositor)
     , QtWaylandServer::qt_touch_extension(compositor->display(), 1)
     , m_compositor(compositor)
-    , m_flags(0)
+    , m_flags(BehaviorFlag::None)
     , m_resources()
     , m_posData(maxRawPos * 2)
 {

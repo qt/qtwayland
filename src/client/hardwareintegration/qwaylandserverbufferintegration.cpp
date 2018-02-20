@@ -44,7 +44,7 @@ QT_BEGIN_NAMESPACE
 namespace QtWaylandClient {
 
 QWaylandServerBuffer::QWaylandServerBuffer()
-    : m_user_data(0)
+    : m_user_data(nullptr)
 {
 }
 

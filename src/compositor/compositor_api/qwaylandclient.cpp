@@ -69,7 +69,7 @@ public:
         Q_UNUSED(data);
 
         QWaylandClient *client = reinterpret_cast<Listener *>(listener)->parent;
-        Q_ASSERT(client != 0);
+        Q_ASSERT(client != nullptr);
         delete client;
     }
 
@@ -144,7 +144,7 @@ QWaylandClient::~QWaylandClient()
 QWaylandClient *QWaylandClient::fromWlClient(QWaylandCompositor *compositor, wl_client *wlClient)
 {
     if (!wlClient)
-        return 0;
+        return nullptr;
 
     QWaylandClient *client = nullptr;
 
@@ -152,7 +152,7 @@ QWaylandClient *QWaylandClient::fromWlClient(QWaylandCompositor *compositor, wl_
         QWaylandClientPrivate::client_destroy_callback);
     if (l)
         client = reinterpret_cast<QWaylandClientPrivate::Listener *>(
-            wl_container_of(l, (QWaylandClientPrivate::Listener *)0, listener))->parent;
+            wl_container_of(l, (QWaylandClientPrivate::Listener *)nullptr, listener))->parent;
 
     if (!client) {
         // The original idea was to create QWaylandClient instances when

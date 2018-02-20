@@ -83,7 +83,7 @@ QWaylandSurface *QWaylandDrag::icon() const
 
     const QtWayland::DataDevice *dataDevice = d->dataDevice();
     if (!dataDevice)
-        return 0;
+        return nullptr;
 
     return dataDevice->dragIcon();
 }
@@ -110,7 +110,7 @@ bool QWaylandDrag::visible() const
     if (!dataDevice)
         return false;
 
-    return dataDevice->dragIcon() != 0;
+    return dataDevice->dragIcon() != nullptr;
 }
 
 void QWaylandDrag::dragMove(QWaylandSurface *target, const QPointF &pos)

@@ -69,7 +69,7 @@ QVector<EGLint> eglbuildSpec()
 
 XCompositeEglClientBufferIntegration::XCompositeEglClientBufferIntegration()
     : QtWayland::ClientBufferIntegration()
-    , mDisplay(0)
+    , mDisplay(nullptr)
 {
 
 }

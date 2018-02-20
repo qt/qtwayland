@@ -163,7 +163,7 @@ void QWaylandBufferMaterialShader::updateState(const QSGMaterialShader::RenderSt
 
 const char * const *QWaylandBufferMaterialShader::attributeNames() const
 {
-    static char const *const attr[] = { "qt_VertexPosition", "qt_VertexTexCoord", 0 };
+    static char const *const attr[] = { "qt_VertexPosition", "qt_VertexTexCoord", nullptr };
     return attr;
 }
 
@@ -261,14 +261,14 @@ void QWaylandBufferMaterial::ensureTextures(int count)
     }
 }
 
-QMutex *QWaylandQuickItemPrivate::mutex = 0;
+QMutex *QWaylandQuickItemPrivate::mutex = nullptr;
 
 class QWaylandSurfaceTextureProvider : public QSGTextureProvider
 {
 public:
     QWaylandSurfaceTextureProvider()
         : m_smooth(false)
-        , m_sgTex(0)
+        , m_sgTex(nullptr)
     {
     }
 
@@ -283,7 +283,7 @@ public:
         Q_ASSERT(QThread::currentThread() == thread());
         m_ref = buffer;
         delete m_sgTex;
-        m_sgTex = 0;
+        m_sgTex = nullptr;
         if (m_ref.hasBuffer()) {
             if (buffer.isSharedMemory()) {
                 m_sgTex = surfaceItem->window()->createTextureFromImage(buffer.image());

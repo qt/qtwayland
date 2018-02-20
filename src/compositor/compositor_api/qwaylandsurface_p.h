@@ -92,7 +92,7 @@ public:
     static QWaylandSurfacePrivate *get(QWaylandSurface *surface);
 
     QWaylandSurfacePrivate();
-    ~QWaylandSurfacePrivate();
+    ~QWaylandSurfacePrivate() override;
 
     void ref();
     void deref();
@@ -185,11 +185,11 @@ public: //member variables
         QWaylandSurfacePrivate *surfaceFromResource();
 
     protected:
-        void subsurface_set_position(wl_subsurface::Resource *resource, int32_t x, int32_t y);
-        void subsurface_place_above(wl_subsurface::Resource *resource, struct wl_resource *sibling);
-        void subsurface_place_below(wl_subsurface::Resource *resource, struct wl_resource *sibling);
-        void subsurface_set_sync(wl_subsurface::Resource *resource);
-        void subsurface_set_desync(wl_subsurface::Resource *resource);
+        void subsurface_set_position(wl_subsurface::Resource *resource, int32_t x, int32_t y) override;
+        void subsurface_place_above(wl_subsurface::Resource *resource, struct wl_resource *sibling) override;
+        void subsurface_place_below(wl_subsurface::Resource *resource, struct wl_resource *sibling) override;
+        void subsurface_set_sync(wl_subsurface::Resource *resource) override;
+        void subsurface_set_desync(wl_subsurface::Resource *resource) override;
 
     private:
         friend class QWaylandSurfacePrivate;

@@ -75,7 +75,7 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQuickItem : public QQuickItem
     Q_PROPERTY(bool allowDiscardFrontBuffer READ allowDiscardFrontBuffer WRITE setAllowDiscardFrontBuffer NOTIFY allowDiscardFrontBufferChanged)
 public:
     QWaylandQuickItem(QQuickItem *parent = nullptr);
-    ~QWaylandQuickItem();
+    ~QWaylandQuickItem() override;
 
     QWaylandCompositor *compositor() const;
     QWaylandView *view() const;

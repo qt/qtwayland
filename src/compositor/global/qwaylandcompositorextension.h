@@ -57,7 +57,7 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandObject : public QObject
 {
     Q_OBJECT
 public:
-    virtual ~QWaylandObject();
+    ~QWaylandObject() override;
 
     QWaylandCompositorExtension *extension(const QByteArray &name);
     QWaylandCompositorExtension *extension(const wl_interface *interface);
@@ -78,7 +78,7 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandCompositorExtension : public QWaylandO
 public:
     QWaylandCompositorExtension();
     QWaylandCompositorExtension(QWaylandObject *container);
-    virtual ~QWaylandCompositorExtension();
+    ~QWaylandCompositorExtension() override;
 
     QWaylandObject *extensionContainer() const;
     void setExtensionContainer(QWaylandObject *container);

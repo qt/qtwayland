@@ -74,7 +74,7 @@ class Q_WAYLAND_CLIENT_EXPORT QWaylandShellSurface : public QObject
     Q_OBJECT
 public:
     explicit QWaylandShellSurface(QWaylandWindow *window);
-    virtual ~QWaylandShellSurface() {}
+    ~QWaylandShellSurface() override {}
     virtual void resize(QWaylandInputDevice * /*inputDevice*/, enum wl_shell_surface_resize /*edges*/)
     {}
 

@@ -70,7 +70,7 @@ class Q_WAYLAND_CLIENT_EXPORT QWaylandClipboard : public QPlatformClipboard
 public:
     QWaylandClipboard(QWaylandDisplay *display);
 
-    ~QWaylandClipboard();
+    ~QWaylandClipboard() override;
 
     QMimeData *mimeData(QClipboard::Mode mode = QClipboard::Clipboard) override;
     void setMimeData(QMimeData *data, QClipboard::Mode mode = QClipboard::Clipboard) override;

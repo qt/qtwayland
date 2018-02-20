@@ -56,7 +56,7 @@ class XCompositeGLXClientBufferIntegration : public QtWayland::ClientBufferInteg
 {
 public:
     XCompositeGLXClientBufferIntegration();
-    ~XCompositeGLXClientBufferIntegration();
+    ~XCompositeGLXClientBufferIntegration() override;
 
     void initializeHardware(struct ::wl_display *display) override;
     QtWayland::ClientBuffer *createBufferFor(wl_resource *buffer) override;
@@ -78,8 +78,8 @@ class XCompositeGLXClientBuffer : public QtWayland::ClientBuffer
 public:
     XCompositeGLXClientBuffer(XCompositeGLXClientBufferIntegration *integration, wl_resource *bufferResource);
 
-    QSize size() const;
-    QWaylandSurface::Origin origin() const;
+    QSize size() const override;
+    QWaylandSurface::Origin origin() const override;
     QOpenGLTexture *toOpenGlTexture(int plane) override;
     QWaylandBufferRef::BufferFormatEgl bufferFormatEgl() const override {
         return QWaylandBufferRef::BufferFormatEgl_RGBA;

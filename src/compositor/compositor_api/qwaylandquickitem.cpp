@@ -268,7 +268,7 @@ public:
     {
     }
 
-    ~QWaylandSurfaceTextureProvider()
+    ~QWaylandSurfaceTextureProvider() override
     {
         if (m_sgTex)
             m_sgTex->deleteLater();

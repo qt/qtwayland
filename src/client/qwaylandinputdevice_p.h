@@ -102,7 +102,7 @@ public:
     class Touch;
 
     QWaylandInputDevice(QWaylandDisplay *display, int version, uint32_t id);
-    ~QWaylandInputDevice();
+    ~QWaylandInputDevice() override;
 
     uint32_t capabilities() const { return mCaps; }
 
@@ -187,7 +187,7 @@ class Q_WAYLAND_CLIENT_EXPORT QWaylandInputDevice::Keyboard : public QObject, pu
 
 public:
     Keyboard(QWaylandInputDevice *p);
-    virtual ~Keyboard();
+    ~Keyboard() override;
 
     void stopRepeat();
 
@@ -247,7 +247,7 @@ class Q_WAYLAND_CLIENT_EXPORT QWaylandInputDevice::Pointer : public QtWayland::w
 
 public:
     Pointer(QWaylandInputDevice *p);
-    virtual ~Pointer();
+    ~Pointer() override;
 
     void pointer_enter(uint32_t serial, struct wl_surface *surface,
                        wl_fixed_t sx, wl_fixed_t sy) override;
@@ -281,7 +281,7 @@ class Q_WAYLAND_CLIENT_EXPORT QWaylandInputDevice::Touch : public QtWayland::wl_
 {
 public:
     Touch(QWaylandInputDevice *p);
-    virtual ~Touch();
+    ~Touch() override;
 
     void touch_down(uint32_t serial,
                     uint32_t time,

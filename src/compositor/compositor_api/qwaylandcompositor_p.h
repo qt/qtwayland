@@ -79,7 +79,7 @@ public:
     static QWaylandCompositorPrivate *get(QWaylandCompositor *compositor) { return compositor->d_func(); }
 
     QWaylandCompositorPrivate(QWaylandCompositor *compositor);
-    ~QWaylandCompositorPrivate();
+    ~QWaylandCompositorPrivate() override;
 
     void preInit();
     void init();

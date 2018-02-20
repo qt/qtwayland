@@ -91,7 +91,7 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandWlShellSurfacePrivate
     Q_DECLARE_PUBLIC(QWaylandWlShellSurface)
 public:
     QWaylandWlShellSurfacePrivate();
-    ~QWaylandWlShellSurfacePrivate();
+    ~QWaylandWlShellSurfacePrivate() override;
 
     static QWaylandWlShellSurfacePrivate *get(QWaylandWlShellSurface *surface) { return surface->d_func(); }
 

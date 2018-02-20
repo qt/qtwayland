@@ -60,7 +60,7 @@ public:
         wl_client_get_credentials(client, &pid, &uid, &gid);
     }
 
-    ~QWaylandClientPrivate()
+    ~QWaylandClientPrivate() override
     {
     }
 

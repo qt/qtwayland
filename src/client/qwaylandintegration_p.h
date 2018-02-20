@@ -71,7 +71,7 @@ class Q_WAYLAND_CLIENT_EXPORT QWaylandIntegration : public QPlatformIntegration
 {
 public:
     QWaylandIntegration();
-    ~QWaylandIntegration();
+    ~QWaylandIntegration() override;
 
     bool hasFailed() { return mFailed; }
 

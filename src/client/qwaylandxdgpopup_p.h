@@ -72,7 +72,7 @@ class Q_WAYLAND_CLIENT_EXPORT QWaylandXdgPopup : public QWaylandShellSurface
     Q_OBJECT
 public:
     QWaylandXdgPopup(struct ::xdg_popup *popup, QWaylandWindow *window);
-    virtual ~QWaylandXdgPopup();
+    ~QWaylandXdgPopup() override;
 
     void setType(Qt::WindowType type, QWaylandWindow *transientParent) override;
 

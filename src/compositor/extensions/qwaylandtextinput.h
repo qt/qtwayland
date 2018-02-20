@@ -58,7 +58,7 @@ class QWaylandTextInput : public QWaylandCompositorExtensionTemplate<QWaylandTex
     Q_DECLARE_PRIVATE(QWaylandTextInput)
 public:
     explicit QWaylandTextInput(QWaylandObject *container, QWaylandCompositor *compositor);
-    ~QWaylandTextInput();
+    ~QWaylandTextInput() override;
 
     void sendInputMethodEvent(QInputMethodEvent *event);
     void sendKeyEvent(QKeyEvent *event);

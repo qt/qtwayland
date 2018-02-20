@@ -59,7 +59,7 @@ public:
     {
     }
 
-    ~QWaylandQuickSurfacePrivate()
+    ~QWaylandQuickSurfacePrivate() override
     {
     }
 

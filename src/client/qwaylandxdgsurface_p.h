@@ -77,7 +77,7 @@ class Q_WAYLAND_CLIENT_EXPORT QWaylandXdgSurface : public QWaylandShellSurface
     Q_OBJECT
 public:
     QWaylandXdgSurface(QWaylandXdgShell *shell, QWaylandWindow *window);
-    virtual ~QWaylandXdgSurface();
+    ~QWaylandXdgSurface() override;
 
     using QtWayland::xdg_surface::resize;
     void resize(QWaylandInputDevice *inputDevice, enum resize_edge edges);

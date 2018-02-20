@@ -55,7 +55,7 @@ class MockClient : public QObject
 
 public:
     MockClient();
-    ~MockClient();
+    ~MockClient() override;
 
     wl_surface *createSurface();
     wl_shell_surface *createShellSurface(wl_surface *surface);

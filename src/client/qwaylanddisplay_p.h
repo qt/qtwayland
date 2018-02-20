@@ -109,7 +109,7 @@ class Q_WAYLAND_CLIENT_EXPORT QWaylandDisplay : public QObject, public QtWayland
 
 public:
     QWaylandDisplay(QWaylandIntegration *waylandIntegration);
-    ~QWaylandDisplay(void);
+    ~QWaylandDisplay(void) override;
 
     QList<QWaylandScreen *> screens() const { return mScreens; }
 

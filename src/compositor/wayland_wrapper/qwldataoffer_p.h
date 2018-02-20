@@ -68,7 +68,7 @@ class DataOffer : public QtWaylandServer::wl_data_offer
 {
 public:
     DataOffer(DataSource *data_source, QtWaylandServer::wl_data_device::Resource *target);
-    ~DataOffer();
+    ~DataOffer() override;
 
 protected:
     void data_offer_accept(Resource *resource, uint32_t serial, const QString &mime_type) override;

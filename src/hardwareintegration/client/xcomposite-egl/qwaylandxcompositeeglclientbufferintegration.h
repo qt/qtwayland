@@ -73,7 +73,7 @@ class QWaylandXCompositeEGLClientBufferIntegration : public QWaylandClientBuffer
 {
 public:
     QWaylandXCompositeEGLClientBufferIntegration();
-    ~QWaylandXCompositeEGLClientBufferIntegration();
+    ~QWaylandXCompositeEGLClientBufferIntegration() override;
 
     void initialize(QWaylandDisplay *dispaly) override;
 

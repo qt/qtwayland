@@ -57,7 +57,7 @@ public:
         m_client_buffer_integration->initialize(display());
     }
 
-    QWaylandEglClientBufferIntegration *clientBufferIntegration() const
+    QWaylandEglClientBufferIntegration *clientBufferIntegration() const override
     { return m_client_buffer_integration; }
 
 private:

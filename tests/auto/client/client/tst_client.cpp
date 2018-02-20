@@ -54,35 +54,35 @@ public:
         create();
     }
 
-    void focusInEvent(QFocusEvent *)
+    void focusInEvent(QFocusEvent *) override
     {
         ++focusInEventCount;
     }
 
-    void focusOutEvent(QFocusEvent *)
+    void focusOutEvent(QFocusEvent *) override
     {
         ++focusOutEventCount;
     }
 
-    void keyPressEvent(QKeyEvent *event)
+    void keyPressEvent(QKeyEvent *event) override
     {
         ++keyPressEventCount;
         keyCode = event->nativeScanCode();
     }
 
-    void keyReleaseEvent(QKeyEvent *event)
+    void keyReleaseEvent(QKeyEvent *event) override
     {
         ++keyReleaseEventCount;
         keyCode = event->nativeScanCode();
     }
 
-    void mousePressEvent(QMouseEvent *event)
+    void mousePressEvent(QMouseEvent *event) override
     {
         ++mousePressEventCount;
         mousePressPos = event->pos();
     }
 
-    void mouseReleaseEvent(QMouseEvent *)
+    void mouseReleaseEvent(QMouseEvent *) override
     {
         ++mouseReleaseEventCount;
     }
@@ -401,7 +401,7 @@ public:
         cursorImage.fill(Qt::blue);
         m_dragIcon = QPixmap::fromImage(cursorImage);
     }
-    ~DndWindow(){}
+    ~DndWindow() override{}
     QPoint frameOffset() const { return QPoint(frameMargins().left(), frameMargins().top()); }
     bool dragStarted = false;
 

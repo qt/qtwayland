@@ -104,7 +104,7 @@ public:
     };
 
     QWaylandWindow(QWindow *window);
-    ~QWaylandWindow();
+    ~QWaylandWindow() override;
 
     virtual WindowType windowType() const = 0;
     virtual void ensureSize();

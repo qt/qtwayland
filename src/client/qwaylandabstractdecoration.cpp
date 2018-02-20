@@ -58,7 +58,7 @@ class QWaylandAbstractDecorationPrivate : public QObjectPrivate
 
 public:
     QWaylandAbstractDecorationPrivate();
-    ~QWaylandAbstractDecorationPrivate();
+    ~QWaylandAbstractDecorationPrivate() override;
 
     QWindow *m_window = nullptr;
     QWaylandWindow *m_wayland_window = nullptr;

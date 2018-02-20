@@ -96,7 +96,7 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandOutputPrivate : public QObjectPrivate,
 public:
     QWaylandOutputPrivate();
 
-    ~QWaylandOutputPrivate();
+    ~QWaylandOutputPrivate() override;
     static QWaylandOutputPrivate *get(QWaylandOutput *output) { return output->d_func(); }
 
     void addView(QWaylandView *view, QWaylandSurface *surface);

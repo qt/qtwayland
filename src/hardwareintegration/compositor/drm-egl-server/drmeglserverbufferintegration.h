@@ -99,7 +99,7 @@ class DrmEglServerBufferIntegration :
 {
 public:
     DrmEglServerBufferIntegration();
-    ~DrmEglServerBufferIntegration();
+    ~DrmEglServerBufferIntegration() override;
 
     void initializeHardware(QWaylandCompositor *) override;
 

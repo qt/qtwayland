@@ -64,7 +64,7 @@ class WlShellIntegration : public QWaylandQuickShellIntegration
     Q_OBJECT
 public:
     WlShellIntegration(QWaylandQuickShellSurfaceItem *item);
-    ~WlShellIntegration();
+    ~WlShellIntegration() override;
     bool mouseMoveEvent(QMouseEvent *event) override;
     bool mouseReleaseEvent(QMouseEvent *event) override;
 

@@ -116,7 +116,7 @@ public:
 
     QWaylandWlShellSurface();
     QWaylandWlShellSurface(QWaylandWlShell *shell, QWaylandSurface *surface, const QWaylandResource &resource);
-    virtual ~QWaylandWlShellSurface();
+    ~QWaylandWlShellSurface() override;
 
     Q_INVOKABLE void initialize(QWaylandWlShell *shell, QWaylandSurface *surface, const QWaylandResource &resource);
 

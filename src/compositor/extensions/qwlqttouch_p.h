@@ -78,7 +78,7 @@ public:
     Q_DECLARE_FLAGS(BehaviorFlags, BehaviorFlag)
 
     TouchExtensionGlobal(QWaylandCompositor *compositor);
-    ~TouchExtensionGlobal();
+    ~TouchExtensionGlobal() override;
 
     bool postTouchEvent(QTouchEvent *event, QWaylandSurface *surface);
 

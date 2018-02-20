@@ -69,7 +69,7 @@ class Q_WAYLAND_CLIENT_EXPORT QWaylandDataDeviceManager : public QtWayland::wl_d
 {
 public:
     QWaylandDataDeviceManager(QWaylandDisplay *display, uint32_t id);
-    ~QWaylandDataDeviceManager();
+    ~QWaylandDataDeviceManager() override;
 
     QWaylandDataDevice *getDataDevice(QWaylandInputDevice *inputDevice);
 

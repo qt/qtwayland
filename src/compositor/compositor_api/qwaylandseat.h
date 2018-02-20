@@ -84,7 +84,7 @@ public:
     Q_ENUM(CapabilityFlags)
 
     QWaylandSeat(QWaylandCompositor *compositor, CapabilityFlags capabilityFlags = DefaultCapabilities);
-    virtual ~QWaylandSeat();
+    ~QWaylandSeat() override;
     virtual void initialize();
     bool isInitialized() const;
 

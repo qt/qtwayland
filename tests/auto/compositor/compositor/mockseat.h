@@ -39,7 +39,7 @@ class MockSeat : public QObject
 
 public:
     MockSeat(wl_seat *seat);
-    ~MockSeat();
+    ~MockSeat() override;
     MockPointer *pointer() const { return m_pointer.data(); }
 
     wl_seat *m_seat = nullptr;

@@ -73,7 +73,7 @@ class Q_WAYLAND_CLIENT_EXPORT QWaylandCursor : public QPlatformCursor
 {
 public:
     QWaylandCursor(QWaylandScreen *screen);
-    ~QWaylandCursor();
+    ~QWaylandCursor() override;
 
     void changeCursor(QCursor *cursor, QWindow *window) override;
     void pointerEvent(const QMouseEvent &event) override;

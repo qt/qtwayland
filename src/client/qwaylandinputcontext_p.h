@@ -74,7 +74,7 @@ class QWaylandTextInput : public QtWayland::zwp_text_input_v2
 {
 public:
     QWaylandTextInput(QWaylandDisplay *display, struct ::zwp_text_input_v2 *text_input);
-    ~QWaylandTextInput();
+    ~QWaylandTextInput() override;
 
     void reset();
     void commit();
@@ -132,7 +132,7 @@ class QWaylandInputContext : public QPlatformInputContext
     Q_OBJECT
 public:
     explicit QWaylandInputContext(QWaylandDisplay *display);
-    ~QWaylandInputContext();
+    ~QWaylandInputContext() override;
 
     bool isValid() const override;
 

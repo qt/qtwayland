@@ -72,7 +72,7 @@ class Q_WAYLAND_CLIENT_EXPORT QWaylandDataSource : public QObject, public QtWayl
     Q_OBJECT
 public:
     QWaylandDataSource(QWaylandDataDeviceManager *dataDeviceManager, QMimeData *mimeData);
-    ~QWaylandDataSource();
+    ~QWaylandDataSource() override;
 
     QMimeData *mimeData() const;
 

@@ -69,7 +69,7 @@ class Q_WAYLAND_CLIENT_EXPORT QWaylandShm : public QtWayland::wl_shm
 public:
 
     QWaylandShm(QWaylandDisplay *display, int version, uint32_t id);
-    ~QWaylandShm();
+    ~QWaylandShm() override;
 
     bool formatSupported(wl_shm_format format) const;
     bool formatSupported(QImage::Format format) const;
@@ -78,7 +78,7 @@ public:
     static QImage::Format formatFrom(wl_shm_format format);
 
 protected:
-    virtual void shm_format(uint32_t format);
+    void shm_format(uint32_t format) override;
 
 private:
     QVector<uint32_t> m_formats;

@@ -70,7 +70,7 @@ class Q_WAYLAND_CLIENT_EXPORT QWaylandExtendedSurface : public QtWayland::qt_ext
 {
 public:
     QWaylandExtendedSurface(QWaylandWindow *window);
-    ~QWaylandExtendedSurface();
+    ~QWaylandExtendedSurface() override;
 
     void setContentOrientationMask(Qt::ScreenOrientations mask);
 

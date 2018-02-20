@@ -92,7 +92,7 @@ signals:
     void animationDone();
 
 protected:
-    void timerEvent(QTimerEvent *event);
+    void timerEvent(QTimerEvent *event) override;
 
 private:
     friend class Compositor;
@@ -127,7 +127,7 @@ class Compositor : public QWaylandCompositor
     Q_OBJECT
 public:
     Compositor(QWindow *window);
-    ~Compositor();
+    ~Compositor() override;
     void create() override;
 
     void startRender();

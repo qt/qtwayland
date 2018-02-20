@@ -69,7 +69,7 @@ class Q_WAYLAND_COMPOSITOR_EXPORT ServerBufferIntegrationPlugin : public QObject
     Q_OBJECT
 public:
     explicit ServerBufferIntegrationPlugin(QObject *parent = nullptr);
-    ~ServerBufferIntegrationPlugin();
+    ~ServerBufferIntegrationPlugin() override;
 
     virtual ServerBufferIntegration *create(const QString &key, const QStringList &paramList) = 0;
 };

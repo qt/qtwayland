@@ -71,7 +71,7 @@ class Q_WAYLAND_CLIENT_EXPORT QWaylandShmBuffer : public QWaylandBuffer {
 public:
     QWaylandShmBuffer(QWaylandDisplay *display,
            const QSize &size, QImage::Format format, int scale = 1);
-    ~QWaylandShmBuffer();
+    ~QWaylandShmBuffer() override;
     QSize size() const override { return mImage.size(); }
     int scale() const override { return int(mImage.devicePixelRatio()); }
     QImage *image() { return &mImage; }
@@ -88,7 +88,7 @@ class Q_WAYLAND_CLIENT_EXPORT QWaylandShmBackingStore : public QPlatformBackingS
 {
 public:
     QWaylandShmBackingStore(QWindow *window);
-    ~QWaylandShmBackingStore();
+    ~QWaylandShmBackingStore() override;
 
     QPaintDevice *paintDevice() override;
     void flush(QWindow *window, const QRegion &region, const QPoint &offset) override;

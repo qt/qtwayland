@@ -61,7 +61,7 @@ class ShmServerBuffer : public QtWayland::ServerBuffer, public QtWaylandServer::
 {
 public:
     ShmServerBuffer(ShmServerBufferIntegration *integration, const QImage &qimage, QtWayland::ServerBuffer::Format format);
-    ~ShmServerBuffer();
+    ~ShmServerBuffer() override;
 
     struct ::wl_resource *resourceForClient(struct ::wl_client *) override;
     QOpenGLTexture *toOpenGlTexture() override;
@@ -83,7 +83,7 @@ class ShmServerBufferIntegration :
 {
 public:
     ShmServerBufferIntegration();
-    ~ShmServerBufferIntegration();
+    ~ShmServerBufferIntegration() override;
 
     void initializeHardware(QWaylandCompositor *) override;
 

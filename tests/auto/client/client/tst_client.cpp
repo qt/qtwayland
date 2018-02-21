@@ -314,6 +314,17 @@ void tst_WaylandClient::events()
     QTRY_COMPARE(window.keyReleaseEventCount, 1);
     QCOMPARE(window.keyCode, keyCode);
 
+    const int touchId = 0;
+    compositor->sendTouchDown(surface, window.frameOffset() + QPoint(10, 10), touchId);
+    // Note: wl_touch.frame should not be the last event in a test until QTBUG-66563 is fixed.
+    // See also: QTBUG-66537
+    compositor->sendTouchFrame(surface);
+    QTRY_COMPARE(window.touchEventCount, 1);
+
+    compositor->sendTouchUp(surface, touchId);
+    compositor->sendTouchFrame(surface);
+    QTRY_COMPARE(window.touchEventCount, 2);
+
     QPoint mousePressPos(16, 16);
     QCOMPARE(window.mousePressEventCount, 0);
     compositor->sendMousePress(surface, window.frameOffset() + mousePressPos);
@@ -323,15 +334,6 @@ void tst_WaylandClient::events()
     QCOMPARE(window.mouseReleaseEventCount, 0);
     compositor->sendMouseRelease(surface);
     QTRY_COMPARE(window.mouseReleaseEventCount, 1);
-
-    const int touchId = 0;
-    compositor->sendTouchDown(surface, window.frameOffset() + QPoint(10, 10), touchId);
-    compositor->sendTouchFrame(surface);
-    QTRY_COMPARE(window.touchEventCount, 1);
-
-    compositor->sendTouchUp(surface, touchId);
-    compositor->sendTouchFrame(surface);
-    QTRY_COMPARE(window.touchEventCount, 2);
 }
 
 void tst_WaylandClient::backingStore()

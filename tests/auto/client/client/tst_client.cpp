@@ -487,19 +487,21 @@ void tst_WaylandClient::dontCrashOnMultipleCommits()
 
     QRect rect(QPoint(), window->size());
 
-    QBackingStore backingStore(window);
-    backingStore.resize(rect.size());
-    backingStore.beginPaint(rect);
-    QPainter p(backingStore.paintDevice());
-    p.fillRect(rect, Qt::magenta);
-    p.end();
-    backingStore.endPaint();
+    {
+        QBackingStore backingStore(window);
+        backingStore.resize(rect.size());
+        backingStore.beginPaint(rect);
+        QPainter p(backingStore.paintDevice());
+        p.fillRect(rect, Qt::magenta);
+        p.end();
+        backingStore.endPaint();
 
-    backingStore.flush(rect);
-    backingStore.flush(rect);
-    backingStore.flush(rect);
+        backingStore.flush(rect);
+        backingStore.flush(rect);
+        backingStore.flush(rect);
 
-    compositor->processWaylandEvents();
+        compositor->processWaylandEvents();
+    }
 
     delete window;
 

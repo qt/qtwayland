@@ -219,6 +219,14 @@ void MockCompositor::sendSurfaceLeave(const QSharedPointer<MockSurface> &surface
     processCommand(command);
 }
 
+void MockCompositor::sendXdgToplevelV6Configure(const QSharedPointer<MockXdgToplevelV6> toplevel, const QSize &size)
+{
+    Command command = makeCommand(Impl::Compositor::sendXdgToplevelV6Configure, m_compositor);
+    command.parameters << QVariant::fromValue(toplevel);
+    command.parameters << QVariant::fromValue(size);
+    processCommand(command);
+}
+
 void MockCompositor::waitForStartDrag()
 {
     Command command = makeCommand(Impl::Compositor::waitForStartDrag, m_compositor);
@@ -247,6 +255,16 @@ QSharedPointer<MockOutput> MockCompositor::output(int index)
     lock();
     if (Impl::Output *output = m_compositor->outputs().value(index, nullptr))
         result = output->mockOutput();
+    unlock();
+    return result;
+}
+
+QSharedPointer<MockXdgToplevelV6> MockCompositor::xdgToplevelV6(int index)
+{
+    QSharedPointer<MockXdgToplevelV6> result;
+    lock();
+    if (Impl::XdgToplevelV6 *toplevel = m_compositor->xdgShellV6()->toplevels().value(index, nullptr))
+        result = toplevel->mockToplevel();
     unlock();
     return result;
 }
@@ -400,6 +418,11 @@ QVector<Output *> Compositor::outputs() const
     return m_outputs;
 }
 
+XdgShellV6 *Compositor::xdgShellV6() const
+{
+    return m_xdgShellV6.data();
+}
+
 uint32_t Compositor::nextSerial()
 {
     return wl_display_next_serial(m_display);
@@ -429,5 +452,10 @@ Output *Compositor::resolveOutput(const QVariant &v)
     return mockOutput ? mockOutput->handle() : nullptr;
 }
 
+XdgToplevelV6 *Compositor::resolveToplevel(const QVariant &v)
+{
+    QSharedPointer<MockXdgToplevelV6> mockToplevel = v.value<QSharedPointer<MockXdgToplevelV6>>();
+    return mockToplevel ? mockToplevel->handle() : nullptr;
 }
 
+}

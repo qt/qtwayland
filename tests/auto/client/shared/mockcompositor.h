@@ -29,6 +29,8 @@
 #ifndef MOCKCOMPOSITOR_H
 #define MOCKCOMPOSITOR_H
 
+#include "mockxdgshellv6.h"
+
 #include <pthread.h>
 #include <qglobal.h>
 #include <wayland-server.h>
@@ -70,6 +72,8 @@ public:
     QVector<Surface *> surfaces() const;
     QVector<Output *> outputs() const;
 
+    XdgShellV6 *xdgShellV6() const;
+
     void addSurface(Surface *surface);
     void removeSurface(Surface *surface);
 
@@ -93,6 +97,7 @@ public:
     static void sendRemoveOutput(void *data, const QList<QVariant> &parameters);
     static void sendOutputGeometry(void *data, const QList<QVariant> &parameters);
     static void sendSurfaceEnter(void *data, const QList<QVariant> &parameters);
+    static void sendXdgToplevelV6Configure(void *data, const QList<QVariant> &parameters);
     static void sendSurfaceLeave(void *data, const QList<QVariant> &parameters);
 
 public:
@@ -102,6 +107,7 @@ private:
     static void bindCompositor(wl_client *client, void *data, uint32_t version, uint32_t id);
     static Surface *resolveSurface(const QVariant &v);
     static Output *resolveOutput(const QVariant &v);
+    static XdgToplevelV6 *resolveToplevel(const QVariant &v);
 
     void initShm();
 
@@ -146,6 +152,22 @@ private:
 
 Q_DECLARE_METATYPE(QSharedPointer<MockSurface>)
 
+class MockXdgToplevelV6
+{
+public:
+    Impl::XdgToplevelV6 *handle() const { return m_toplevel; }
+
+    void sendConfigure(const QSharedPointer<MockXdgToplevelV6> toplevel);
+private:
+    MockXdgToplevelV6(Impl::XdgToplevelV6 *toplevel) : m_toplevel(toplevel) {}
+    friend class Impl::Compositor;
+    friend class Impl::XdgToplevelV6;
+
+    Impl::XdgToplevelV6 *m_toplevel;
+};
+
+Q_DECLARE_METATYPE(QSharedPointer<MockXdgToplevelV6>)
+
 class MockOutput {
 public:
     Impl::Output *handle() const { return m_output; }
@@ -187,10 +209,12 @@ public:
     void sendOutputGeometry(const QSharedPointer<MockOutput> &output, const QRect &geometry);
     void sendSurfaceEnter(const QSharedPointer<MockSurface> &surface, QSharedPointer<MockOutput> &output);
     void sendSurfaceLeave(const QSharedPointer<MockSurface> &surface, QSharedPointer<MockOutput> &output);
+    void sendXdgToplevelV6Configure(const QSharedPointer<MockXdgToplevelV6> toplevel, const QSize &size);
     void waitForStartDrag();
 
     QSharedPointer<MockSurface> surface();
     QSharedPointer<MockOutput> output(int index = 0);
+    QSharedPointer<MockXdgToplevelV6> xdgToplevelV6(int index = 0);
 
     void lock();
     void unlock();

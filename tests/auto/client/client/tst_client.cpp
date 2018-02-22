@@ -153,6 +153,7 @@ public slots:
         // make sure the surfaces from the last test are properly cleaned up
         // and don't show up as false positives in the next test
         QTRY_VERIFY(!compositor->surface());
+        QTRY_VERIFY(!compositor->xdgToplevelV6());
     }
 
 private slots:

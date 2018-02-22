@@ -28,16 +28,72 @@
 
 #include <qwayland-server-xdg-shell-unstable-v6.h>
 
+#include <QSharedPointer>
+#include <QVector>
+
 #ifndef MOCKXDGSHELLV6_H
 #define MOCKXDGSHELLV6_H
 
+class MockXdgToplevelV6;
+
 namespace Impl {
+
+class XdgToplevelV6;
+class XdgShellV6;
+class Surface;
+
+class XdgSurfaceV6 : public QtWaylandServer::zxdg_surface_v6
+{
+public:
+    XdgSurfaceV6(XdgShellV6 *shell, Surface *surface, wl_client *client, uint32_t id);
+    XdgShellV6 *shell() const { return m_shell; }
+
+protected:
+    void zxdg_surface_v6_destroy_resource(Resource *) override { delete this; }
+    void zxdg_surface_v6_get_toplevel(Resource *resource, uint32_t id) override;
+    void zxdg_surface_v6_destroy(Resource *resource) override;
+
+private:
+    Surface *m_surface = nullptr;
+    XdgToplevelV6 *m_toplevel = nullptr;
+    XdgShellV6 *m_shell = nullptr;
+
+    friend class XdgToplevelV6;
+};
+
+class XdgToplevelV6 : public QtWaylandServer::zxdg_toplevel_v6
+{
+public:
+    XdgToplevelV6(XdgSurfaceV6 *xdgSurface, wl_client *client, uint32_t id, int version);
+    ~XdgToplevelV6() override;
+    XdgSurfaceV6 *xdgSurface() const { return m_xdgSurface; }
+
+    QSharedPointer<MockXdgToplevelV6> mockToplevel() const { return m_mockToplevel; }
+
+protected:
+    void zxdg_toplevel_v6_destroy_resource(Resource *) override { delete this; }
+    void zxdg_toplevel_v6_destroy(Resource *resource) override;
+
+private:
+    XdgSurfaceV6 *m_xdgSurface = nullptr;
+    QSharedPointer<MockXdgToplevelV6> m_mockToplevel;
+};
 
 class XdgShellV6 : public QtWaylandServer::zxdg_shell_v6
 {
 public:
     explicit XdgShellV6(::wl_display *display) : zxdg_shell_v6(display, 1) {}
+    QVector<XdgToplevelV6 *> toplevels() const { return m_toplevels; }
+
+protected:
     void zxdg_shell_v6_get_xdg_surface(Resource *resource, uint32_t id, ::wl_resource *surface) override;
+
+private:
+    void addToplevel(XdgToplevelV6 *toplevel) { m_toplevels.append(toplevel); }
+    void removeToplevel(XdgToplevelV6 *toplevel) { m_toplevels.removeOne(toplevel); }
+    QVector<XdgToplevelV6 *> m_toplevels;
+
+    friend class XdgToplevelV6;
 };
 
 } // namespace Impl

@@ -76,10 +76,12 @@ public slots:
         // make sure the surfaces from the last test are properly cleaned up
         // and don't show up as false positives in the next test
         QTRY_VERIFY(!m_compositor->surface());
+        QTRY_VERIFY(!m_compositor->xdgToplevelV6());
     }
 
 private slots:
     void createDestroyWindow();
+    void configure();
 
 private:
     MockCompositor *m_compositor = nullptr;
@@ -94,6 +96,32 @@ void tst_WaylandClientXdgShellV6::createDestroyWindow()
 
     window.destroy();
     QTRY_VERIFY(!m_compositor->surface());
+}
+
+void tst_WaylandClientXdgShellV6::configure()
+{
+    QSharedPointer<MockOutput> output;
+    QTRY_VERIFY(output = m_compositor->output());
+
+    TestWindow window;
+    window.show();
+
+    QSharedPointer<MockSurface> surface;
+    QTRY_VERIFY(surface = m_compositor->surface());
+
+    m_compositor->processWaylandEvents();
+    QTRY_VERIFY(window.isVisible());
+    QTRY_VERIFY(!window.isExposed()); //Window should not be exposed before the first configure event
+
+    //TODO: according to xdg-shell protocol, a buffer should not be attached to a the surface
+    //until it's configured. Ensure this in the test!
+
+    QSharedPointer<MockXdgToplevelV6> toplevel;
+    QTRY_VERIFY(toplevel = m_compositor->xdgToplevelV6());
+    const QSize newSize(123, 456);
+    m_compositor->sendXdgToplevelV6Configure(toplevel, newSize);
+    QTRY_VERIFY(window.isExposed());
+    QTRY_COMPARE(window.frameGeometry(), QRect(QPoint(), newSize));
 }
 
 int main(int argc, char **argv)

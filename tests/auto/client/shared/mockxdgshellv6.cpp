@@ -28,47 +28,26 @@
 
 #include "mockxdgshellv6.h"
 #include "mocksurface.h"
+#include "mockcompositor.h"
 
 namespace Impl {
 
-class XdgSurfaceV6;
-
-class XdgToplevelV6 : public QtWaylandServer::zxdg_toplevel_v6
+void Compositor::sendXdgToplevelV6Configure(void *data, const QList<QVariant> &parameters)
 {
-public:
-    XdgToplevelV6(XdgSurfaceV6 *xdgSurface, wl_client *client, uint32_t id, int version)
-        : QtWaylandServer::zxdg_toplevel_v6(client, id, version)
-        , m_xdgSurface(xdgSurface)
-    {}
-    void zxdg_toplevel_v6_destroy_resource(Resource *) override { delete this; }
-    void zxdg_toplevel_v6_destroy(Resource *resource) override;
-    XdgSurfaceV6 *m_xdgSurface = nullptr;
-};
-
-class XdgSurfaceV6 : public QtWaylandServer::zxdg_surface_v6
-{
-public:
-    XdgSurfaceV6(wl_client *client, uint32_t id, Surface *surface);
-    void zxdg_surface_v6_destroy_resource(Resource *) override { delete this; }
-    void zxdg_surface_v6_get_toplevel(Resource *resource, uint32_t id) override;
-    void zxdg_surface_v6_destroy(Resource *resource) override
-    {
-        Q_ASSERT(!m_toplevel);
-        wl_resource_destroy(resource->handle);
-    }
-    Surface *m_surface = nullptr;
-    XdgToplevelV6 *m_toplevel = nullptr;
-};
-
-void XdgToplevelV6::zxdg_toplevel_v6_destroy(QtWaylandServer::zxdg_toplevel_v6::Resource *resource)
-{
-    m_xdgSurface->m_toplevel = nullptr;
-    wl_resource_destroy(resource->handle);
+    Compositor *compositor = static_cast<Compositor *>(data);
+    XdgToplevelV6 *toplevel = resolveToplevel(parameters.at(0));
+    Q_ASSERT(toplevel && toplevel->resource());
+    QSize size = parameters.at(1).toSize();
+    Q_ASSERT(size.isValid());
+    QByteArray states;
+    toplevel->send_configure(size.width(), size.height(), states);
+    toplevel->xdgSurface()->send_configure(compositor->nextSerial());
 }
 
-XdgSurfaceV6::XdgSurfaceV6(wl_client *client, uint32_t id, Surface *surface)
+XdgSurfaceV6::XdgSurfaceV6(XdgShellV6 *shell, Surface *surface, wl_client *client, uint32_t id)
     : QtWaylandServer::zxdg_surface_v6(client, id, 1)
     , m_surface(surface)
+    , m_shell(shell)
 {
 }
 
@@ -79,9 +58,35 @@ void XdgSurfaceV6::zxdg_surface_v6_get_toplevel(QtWaylandServer::zxdg_surface_v6
     m_surface->map();
 }
 
+void XdgSurfaceV6::zxdg_surface_v6_destroy(QtWaylandServer::zxdg_surface_v6::Resource *resource)
+{
+    Q_ASSERT(!m_toplevel);
+    wl_resource_destroy(resource->handle);
+}
+
+XdgToplevelV6::XdgToplevelV6(XdgSurfaceV6 *xdgSurface, wl_client *client, uint32_t id, int version)
+    : QtWaylandServer::zxdg_toplevel_v6(client, id, version)
+    , m_xdgSurface(xdgSurface)
+    , m_mockToplevel(new MockXdgToplevelV6(this))
+{
+    m_xdgSurface->shell()->addToplevel(this);
+}
+
+XdgToplevelV6::~XdgToplevelV6()
+{
+    m_xdgSurface->shell()->removeToplevel(this);
+    m_mockToplevel->m_toplevel = nullptr;
+}
+
+void XdgToplevelV6::zxdg_toplevel_v6_destroy(QtWaylandServer::zxdg_toplevel_v6::Resource *resource)
+{
+    m_xdgSurface->m_toplevel = nullptr;
+    wl_resource_destroy(resource->handle);
+}
+
 void Impl::XdgShellV6::zxdg_shell_v6_get_xdg_surface(QtWaylandServer::zxdg_shell_v6::Resource *resource, uint32_t id, wl_resource *surface)
 {
-    new XdgSurfaceV6(resource->client(), id, Surface::fromResource(surface));
+    new XdgSurfaceV6(this, Surface::fromResource(surface), resource->client(), id);
 }
 
 } // namespace Impl

@@ -124,6 +124,33 @@ EGLDisplay QWaylandBrcmEglIntegration::eglDisplay() const
     return m_eglDisplay;
 }
 
+void *QWaylandBrcmEglIntegration::nativeResource(NativeResource resource)
+{
+    switch (resource) {
+    case EglDisplay:
+        return m_eglDisplay;
+    default:
+        break;
+    }
+    return nullptr;
+}
+
+void *QWaylandBrcmEglIntegration::nativeResourceForContext(NativeResource resource, QPlatformOpenGLContext *context)
+{
+    Q_ASSERT(context);
+    switch (resource) {
+    case EglConfig:
+        return static_cast<QWaylandBrcmGLContext *>(context)->eglConfig();
+    case EglContext:
+        return static_cast<QWaylandBrcmGLContext *>(context)->eglContext();
+    case EglDisplay:
+        return m_eglDisplay;
+    default:
+        break;
+    }
+    return nullptr;
+}
+
 }
 
 QT_END_NAMESPACE

@@ -82,6 +82,9 @@ public:
     PFNEGLCREATEGLOBALIMAGEBRCMPROC eglCreateGlobalImageBRCM;
     PFNEGLDESTROYGLOBALIMAGEBRCMPROC eglDestroyGlobalImageBRCM;
 
+    void *nativeResource(NativeResource resource) override;
+    void *nativeResourceForContext(NativeResource resource, QPlatformOpenGLContext *context) override;
+
 private:
     static void wlDisplayHandleGlobal(void *data, struct wl_registry *registry, uint32_t id, const QString &interface, uint32_t version);
 

@@ -55,7 +55,6 @@ void XdgSurfaceV6::zxdg_surface_v6_get_toplevel(QtWaylandServer::zxdg_surface_v6
 {
     int version = wl_resource_get_version(resource->handle);
     m_toplevel = new XdgToplevelV6(this, resource->client(), id, version);
-    m_surface->map();
 }
 
 void XdgSurfaceV6::zxdg_surface_v6_destroy(QtWaylandServer::zxdg_surface_v6::Resource *resource)
@@ -69,12 +68,16 @@ XdgToplevelV6::XdgToplevelV6(XdgSurfaceV6 *xdgSurface, wl_client *client, uint32
     , m_xdgSurface(xdgSurface)
     , m_mockToplevel(new MockXdgToplevelV6(this))
 {
+    auto *surface = m_xdgSurface->surface();
+    surface->m_xdgToplevelV6 = this;
     m_xdgSurface->shell()->addToplevel(this);
+    surface->map();
 }
 
 XdgToplevelV6::~XdgToplevelV6()
 {
     m_xdgSurface->shell()->removeToplevel(this);
+    m_xdgSurface->surface()->m_xdgToplevelV6 = nullptr;
     m_mockToplevel->m_toplevel = nullptr;
 }
 

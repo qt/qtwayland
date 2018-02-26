@@ -97,8 +97,9 @@ public:
     static void sendRemoveOutput(void *data, const QList<QVariant> &parameters);
     static void sendOutputGeometry(void *data, const QList<QVariant> &parameters);
     static void sendSurfaceEnter(void *data, const QList<QVariant> &parameters);
-    static void sendXdgToplevelV6Configure(void *data, const QList<QVariant> &parameters);
     static void sendSurfaceLeave(void *data, const QList<QVariant> &parameters);
+    static void sendShellSurfaceConfigure(void *data, const QList<QVariant> &parameters);
+    static void sendXdgToplevelV6Configure(void *data, const QList<QVariant> &parameters);
 
 public:
     bool m_startDragSeen = false;
@@ -209,7 +210,8 @@ public:
     void sendOutputGeometry(const QSharedPointer<MockOutput> &output, const QRect &geometry);
     void sendSurfaceEnter(const QSharedPointer<MockSurface> &surface, QSharedPointer<MockOutput> &output);
     void sendSurfaceLeave(const QSharedPointer<MockSurface> &surface, QSharedPointer<MockOutput> &output);
-    void sendXdgToplevelV6Configure(const QSharedPointer<MockXdgToplevelV6> toplevel, const QSize &size);
+    void sendShellSurfaceConfigure(const QSharedPointer<MockSurface> surface, const QSize &size = QSize(0, 0));
+    void sendXdgToplevelV6Configure(const QSharedPointer<MockXdgToplevelV6> toplevel, const QSize &size = QSize(0, 0));
     void waitForStartDrag();
 
     QSharedPointer<MockSurface> surface();

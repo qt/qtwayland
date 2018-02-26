@@ -219,6 +219,14 @@ void MockCompositor::sendSurfaceLeave(const QSharedPointer<MockSurface> &surface
     processCommand(command);
 }
 
+void MockCompositor::sendShellSurfaceConfigure(const QSharedPointer<MockSurface> surface, const QSize &size)
+{
+    Command command = makeCommand(Impl::Compositor::sendShellSurfaceConfigure, m_compositor);
+    command.parameters << QVariant::fromValue(surface);
+    command.parameters << QVariant::fromValue(size);
+    processCommand(command);
+}
+
 void MockCompositor::sendXdgToplevelV6Configure(const QSharedPointer<MockXdgToplevelV6> toplevel, const QSize &size)
 {
     Command command = makeCommand(Impl::Compositor::sendXdgToplevelV6Configure, m_compositor);

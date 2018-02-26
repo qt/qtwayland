@@ -33,6 +33,19 @@
 
 namespace Impl {
 
+class Surface;
+
+class WlShellSurface : public QtWaylandServer::wl_shell_surface
+{
+public:
+    explicit WlShellSurface(::wl_client *client, int id, Surface *surface);
+    ~WlShellSurface() override;
+    void shell_surface_destroy_resource(Resource *) override { delete this; }
+
+private:
+    Surface *m_surface = nullptr;
+};
+
 class WlShell : public QtWaylandServer::wl_shell
 {
 public:

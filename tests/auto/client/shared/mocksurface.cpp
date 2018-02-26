@@ -29,6 +29,9 @@
 #include "mocksurface.h"
 #include "mockoutput.h"
 #include "mockcompositor.h"
+#include "mockwlshell.h"
+
+#include <QDebug>
 
 namespace Impl {
 
@@ -58,6 +61,23 @@ void Compositor::sendSurfaceLeave(void *data, const QList<QVariant> &parameters)
 
     for (auto outputResource : outputResources)
         surface->send_leave(outputResource->handle);
+}
+
+void Compositor::sendShellSurfaceConfigure(void *data, const QList<QVariant> &parameters)
+{
+    Compositor *compositor = static_cast<Compositor *>(data);
+    Surface *surface = resolveSurface(parameters.at(0));
+    QSize size = parameters.at(1).toSize();
+    Q_ASSERT(size.isValid());
+    if (auto toplevel = surface->xdgToplevelV6()) {
+        toplevel->send_configure(size.width(), size.height(), QByteArray());
+        toplevel->xdgSurface()->send_configure(compositor->nextSerial());
+    } else if (auto wlShellSurface = surface->wlShellSurface()) {
+        const uint edges = 0;
+        wlShellSurface->send_configure(edges, size.width(), size.height());
+    } else {
+        qWarning() << "The mocking framework doesn't know how to send a configure event for this surface";
+    }
 }
 
 Surface::Surface(wl_client *client, uint32_t id, int v, Compositor *compositor)

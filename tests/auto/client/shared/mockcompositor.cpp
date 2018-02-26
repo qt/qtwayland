@@ -245,7 +245,8 @@ QSharedPointer<MockOutput> MockCompositor::output(int index)
 {
     QSharedPointer<MockOutput> result;
     lock();
-    result = m_compositor->outputs().at(index)->mockOutput();
+    if (Impl::Output *output = m_compositor->outputs().value(index, nullptr))
+        result = output->mockOutput();
     unlock();
     return result;
 }

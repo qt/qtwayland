@@ -76,7 +76,7 @@ public:
     QWaylandDisplay *display() const;
 
 private:
-    QWaylandDisplay *m_display;
+    QWaylandDisplay *m_display = nullptr;
 };
 
 }

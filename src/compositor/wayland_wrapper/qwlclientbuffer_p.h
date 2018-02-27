@@ -73,7 +73,7 @@ namespace QtWayland {
 struct surface_buffer_destroy_listener
 {
     struct wl_listener listener;
-    class ClientBuffer *surfaceBuffer;
+    class ClientBuffer *surfaceBuffer = nullptr;
 };
 
 class Q_WAYLAND_COMPOSITOR_EXPORT ClientBuffer
@@ -112,7 +112,7 @@ protected:
     void sendRelease();
     void setDestroyed();
 
-    struct ::wl_resource *m_buffer;
+    struct ::wl_resource *m_buffer = nullptr;
     QRegion m_damage;
     bool m_textureDirty = false;
 

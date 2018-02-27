@@ -84,18 +84,18 @@ private:
         Resize,
         Move
     };
-    QWaylandQuickShellSurfaceItem *m_item;
-    QWaylandXdgSurfaceV5 *m_xdgSurface;
+    QWaylandQuickShellSurfaceItem *m_item = nullptr;
+    QWaylandXdgSurfaceV5 *m_xdgSurface = nullptr;
 
     GrabberState grabberState;
     struct {
-        QWaylandSeat *seat;
+        QWaylandSeat *seat = nullptr;
         QPointF initialOffset;
         bool initialized;
     } moveState;
 
     struct {
-        QWaylandSeat *seat;
+        QWaylandSeat *seat = nullptr;
         QWaylandXdgSurfaceV5::ResizeEdge resizeEdges;
         QSizeF initialWindowSize;
         QPointF initialMousePos;
@@ -121,9 +121,9 @@ private Q_SLOTS:
     void handlePopupDestroyed();
 
 private:
-    QWaylandQuickShellSurfaceItem *m_item;
-    QWaylandXdgPopupV5 *m_xdgPopup;
-    QWaylandXdgShellV5 *m_xdgShell;
+    QWaylandQuickShellSurfaceItem *m_item = nullptr;
+    QWaylandXdgPopupV5 *m_xdgPopup = nullptr;
+    QWaylandXdgShellV5 *m_xdgShell = nullptr;
 };
 
 }

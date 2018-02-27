@@ -106,7 +106,7 @@ private:
             QVarLengthArray<uint32_t> states;
         } m_configureState;
 
-        QWaylandXdgSurfaceV6 *m_xdgSurface;
+        QWaylandXdgSurfaceV6 *m_xdgSurface = nullptr;
     };
 
     class Popup : public QtWayland::zxdg_popup_v6 {
@@ -117,14 +117,14 @@ private:
         void applyConfigure();
         void zxdg_popup_v6_popup_done() override;
 
-        QWaylandXdgSurfaceV6 *m_xdgSurface;
+        QWaylandXdgSurfaceV6 *m_xdgSurface = nullptr;
     };
 
     void setToplevel();
     void setPopup(QWaylandWindow *parent, QWaylandInputDevice *device, int serial, bool grab);
 
-    QWaylandXdgShellV6 *m_shell;
-    QWaylandWindow *m_window;
+    QWaylandXdgShellV6 *m_shell = nullptr;
+    QWaylandWindow *m_window = nullptr;
     Toplevel *m_toplevel = nullptr;
     Popup *m_popup = nullptr;
     bool m_configured = false;

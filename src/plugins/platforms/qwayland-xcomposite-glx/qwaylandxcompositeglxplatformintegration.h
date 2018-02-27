@@ -62,7 +62,7 @@ public:
     { return m_client_buffer_integration; }
 
 private:
-    QWaylandClientBufferIntegration *m_client_buffer_integration;
+    QWaylandClientBufferIntegration *m_client_buffer_integration = nullptr;
 };
 
 }

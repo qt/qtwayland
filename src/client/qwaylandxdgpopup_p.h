@@ -81,7 +81,7 @@ protected:
 
 private:
     QWaylandExtendedSurface *m_extendedWindow = nullptr;
-    QWaylandWindow *m_window;
+    QWaylandWindow *m_window = nullptr;
 };
 
 QT_END_NAMESPACE

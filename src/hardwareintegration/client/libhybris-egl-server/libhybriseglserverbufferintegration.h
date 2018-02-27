@@ -81,7 +81,7 @@ protected:
     void libhybris_buffer_add_fd(int32_t fd) override;
 
 private:
-    LibHybrisEglServerBufferIntegration *m_integration;
+    LibHybrisEglServerBufferIntegration *m_integration = nullptr;
     EGLImageKHR m_image;
     QOpenGLTexture *m_texture = nullptr;
     int m_numFds;

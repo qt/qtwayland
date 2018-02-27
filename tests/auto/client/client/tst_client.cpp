@@ -170,7 +170,7 @@ private slots:
     void glWindow();
 
 private:
-    MockCompositor *compositor;
+    MockCompositor *compositor = nullptr;
 };
 
 void tst_WaylandClient::primaryScreen()

@@ -149,7 +149,7 @@ public:
         uint32_t id;
         QString interface;
         uint32_t version;
-        struct ::wl_registry *registry;
+        struct ::wl_registry *registry = nullptr;
         RegistryGlobal(uint32_t id_, const QString &interface_, uint32_t version_, struct ::wl_registry *registry_)
             : id(id_), interface(interface_), version(version_), registry(registry_) { }
     };
@@ -191,17 +191,17 @@ private:
     void requestWaylandSync();
 
     struct Listener {
-        RegistryListener listener;
-        void *data;
+        RegistryListener listener = nullptr;
+        void *data = nullptr;
     };
 
-    struct wl_display *mDisplay;
+    struct wl_display *mDisplay = nullptr;
     QtWayland::wl_compositor mCompositor;
     QScopedPointer<QWaylandShm> mShm;
     QList<QWaylandScreen *> mScreens;
     QList<QWaylandInputDevice *> mInputDevices;
     QList<Listener> mRegistryListeners;
-    QWaylandIntegration *mWaylandIntegration;
+    QWaylandIntegration *mWaylandIntegration = nullptr;
 #if QT_CONFIG(wayland_datadevice)
     QScopedPointer<QWaylandDataDeviceManager> mDndSelectionHandler;
 #endif
@@ -212,7 +212,7 @@ private:
     QScopedPointer<QWaylandWindowManagerIntegration> mWindowManagerIntegration;
     QScopedPointer<QtWayland::zwp_text_input_manager_v2> mTextInputManager;
     QScopedPointer<QWaylandHardwareIntegration> mHardwareIntegration;
-    QSocketNotifier *mReadNotifier;
+    QSocketNotifier *mReadNotifier = nullptr;
     int mFd;
     int mWritableNotificationFd;
     QList<RegistryGlobal> mGlobals;

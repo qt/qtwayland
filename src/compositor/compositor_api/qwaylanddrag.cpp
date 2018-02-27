@@ -69,7 +69,7 @@ public:
         return QWaylandSeatPrivate::get(seat)->dataDevice();
     }
 
-    QWaylandSeat *seat;
+    QWaylandSeat *seat = nullptr;
 };
 
 QWaylandDrag::QWaylandDrag(QWaylandSeat *seat)

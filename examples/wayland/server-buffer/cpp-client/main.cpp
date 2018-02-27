@@ -116,7 +116,7 @@ protected:
 
 private:
 
-    QOpenGLTextureBlitter *m_blitter;
+    QOpenGLTextureBlitter *m_blitter = nullptr;
     ShareBufferExtension *m_extension = nullptr;
     QList<QtWaylandClient::QWaylandServerBuffer*> m_buffers;
 

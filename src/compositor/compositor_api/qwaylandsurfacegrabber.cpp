@@ -73,7 +73,7 @@ class QWaylandSurfaceGrabberPrivate : public QObjectPrivate
 {
     Q_DECLARE_PUBLIC(QWaylandSurfaceGrabber)
 
-    QWaylandSurface *surface;
+    QWaylandSurface *surface = nullptr;
 };
 
 /*!

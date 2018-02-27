@@ -69,7 +69,7 @@ private:
     virtual void ivi_surface_configure(int32_t width, int32_t height) override;
     void ivi_controller_surface_visibility(int32_t visibility) override;
 
-    QWaylandWindow *m_window;
+    QWaylandWindow *m_window = nullptr;
     QWaylandExtendedSurface *m_extendedWindow = nullptr;
 };
 

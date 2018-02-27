@@ -83,7 +83,7 @@ private:
     void extended_surface_set_generic_property(const QString &name, wl_array *value) override;
     void extended_surface_close() override;
 
-    QWaylandWindow *m_window;
+    QWaylandWindow *m_window = nullptr;
     QVariantMap m_properties;
 };
 

@@ -92,7 +92,7 @@ private slots:
 
     void viewSurfaceDestroyed();
 private:
-    Window *m_window;
+    Window *m_window = nullptr;
     QList<View*> m_views;
 };
 

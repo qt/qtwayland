@@ -92,16 +92,16 @@ private:
     void handlePopupRemoved();
     qreal devicePixelRatio() const;
 
-    QWaylandQuickShellSurfaceItem *m_item;
+    QWaylandQuickShellSurfaceItem *m_item = nullptr;
     QPointer<QWaylandWlShellSurface> m_shellSurface;
     GrabberState grabberState = GrabberState::Default;
     struct {
-        QWaylandSeat *seat;
+        QWaylandSeat *seat = nullptr;
         QPointF initialOffset;
         bool initialized;
     } moveState;
     struct {
-        QWaylandSeat *seat;
+        QWaylandSeat *seat = nullptr;
         QWaylandWlShellSurface::ResizeEdge resizeEdges;
         QSizeF initialSize;
         QPointF initialMousePos;

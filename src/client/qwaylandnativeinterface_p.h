@@ -85,7 +85,7 @@ public:
     QFunctionPointer platformFunction(const QByteArray &resource) const override;
 
 private:
-    QWaylandIntegration *m_integration;
+    QWaylandIntegration *m_integration = nullptr;
     QHash<QPlatformWindow*, QVariantMap> m_windowProperties;
 
     static void setSync(QWindow *window);

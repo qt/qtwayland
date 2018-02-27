@@ -141,7 +141,7 @@ private:
     friend class Impl::Compositor;
     friend class Impl::Surface;
 
-    Impl::Surface *m_surface;
+    Impl::Surface *m_surface = nullptr;
 };
 
 Q_DECLARE_METATYPE(QSharedPointer<MockSurface>)
@@ -151,7 +151,7 @@ public:
     Impl::Output *handle() const { return m_output; }
     MockOutput(Impl::Output *output);
 private:
-    Impl::Output *m_output;
+    Impl::Output *m_output = nullptr;
 };
 
 Q_DECLARE_METATYPE(QSharedPointer<MockOutput>)
@@ -201,7 +201,7 @@ private:
         typedef void (*Callback)(void *target, const QList<QVariant> &parameters);
 
         Callback callback;
-        void *target;
+        void *target = nullptr;
         QList<QVariant> parameters;
     };
 

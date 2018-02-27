@@ -42,8 +42,8 @@ public:
     ~MockSeat();
     MockPointer *pointer() const { return m_pointer.data(); }
 
-    wl_seat *m_seat;
-    wl_keyboard *m_keyboard;
+    wl_seat *m_seat = nullptr;
+    wl_keyboard *m_keyboard = nullptr;
 
 private:
     QScopedPointer<MockPointer> m_pointer;

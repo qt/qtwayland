@@ -67,9 +67,9 @@ public:
     QOpenGLTexture *toOpenGlTexture() override;
 
 private:
-    ShmServerBufferIntegration *m_integration;
+    ShmServerBufferIntegration *m_integration = nullptr;
 
-    QSharedMemory *m_shm;
+    QSharedMemory *m_shm = nullptr;
     int m_width;
     int m_height;
     int m_bpl;

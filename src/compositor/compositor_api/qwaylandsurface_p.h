@@ -193,8 +193,8 @@ public: //member variables
 
     private:
         friend class QWaylandSurfacePrivate;
-        QWaylandSurfacePrivate *surface;
-        QWaylandSurfacePrivate *parentSurface;
+        QWaylandSurfacePrivate *surface = nullptr;
+        QWaylandSurfacePrivate *parentSurface = nullptr;
         QPoint position;
     };
 

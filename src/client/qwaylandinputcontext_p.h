@@ -107,7 +107,7 @@ protected:
 private:
     Qt::KeyboardModifiers modifiersToQtModifiers(uint32_t modifiers);
 
-    QWaylandDisplay *m_display;
+    QWaylandDisplay *m_display = nullptr;
     QWaylandInputMethodEventBuilder m_builder;
 
     QVector<Qt::KeyboardModifier> m_modifiersMap;
@@ -155,7 +155,7 @@ public:
 private:
     QWaylandTextInput *textInput() const;
 
-    QWaylandDisplay *mDisplay;
+    QWaylandDisplay *mDisplay = nullptr;
     QPointer<QWindow> mCurrentWindow;
 };
 

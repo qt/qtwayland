@@ -104,7 +104,7 @@ protected:
     virtual void setMinimized() {}
 
 private:
-    QWaylandWindow *m_window;
+    QWaylandWindow *m_window = nullptr;
     friend class QWaylandWindow;
 };
 

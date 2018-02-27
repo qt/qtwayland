@@ -98,8 +98,8 @@ protected:
 private:
     int readData(int fd, QByteArray &data) const;
 
-    mutable QWaylandDataOffer *m_dataOffer;
-    QWaylandDisplay *m_display;
+    mutable QWaylandDataOffer *m_dataOffer = nullptr;
+    QWaylandDisplay *m_display = nullptr;
     mutable QStringList m_types;
     mutable QHash<QString, QByteArray> m_data;
 };

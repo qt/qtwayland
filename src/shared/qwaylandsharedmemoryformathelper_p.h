@@ -63,7 +63,7 @@ private:
             , data(data)
         { }
         const size_t size;
-        const wl_shm_format *data;
+        const wl_shm_format *data = nullptr;
     };
 
     static const Array getData()

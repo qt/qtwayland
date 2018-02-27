@@ -142,7 +142,7 @@ public:
         return true;
     }
 
-    QWaylandCompositor *compositor;
+    QWaylandCompositor *compositor = nullptr;
 };
 
 } // namespace
@@ -284,7 +284,7 @@ void QWaylandCompositorPrivate::compositor_create_surface(wl_compositor::Resourc
 #endif
     struct wl_resource *surfResource = wl_client_get_object(client->client(), id);
 
-    QWaylandSurface *surface;
+    QWaylandSurface *surface = nullptr;
     if (surfResource) {
         surface = QWaylandSurface::fromResource(surfResource);
     } else {

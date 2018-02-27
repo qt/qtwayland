@@ -55,7 +55,7 @@ public:
     XCompositeHandler(QWaylandCompositor *compositor, Display *display);
 
 private:
-    QWindow *mFakeRootWindow;
+    QWindow *mFakeRootWindow = nullptr;
 
     QString mDisplayString;
 

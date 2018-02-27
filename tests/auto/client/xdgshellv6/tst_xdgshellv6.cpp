@@ -82,7 +82,7 @@ private slots:
     void createDestroyWindow();
 
 private:
-    MockCompositor *m_compositor;
+    MockCompositor *m_compositor = nullptr;
 };
 
 void tst_WaylandClientXdgShellV6::createDestroyWindow()

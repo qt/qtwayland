@@ -87,7 +87,7 @@ public:
 
 private:
     QOpenGLTexture *m_texture = nullptr;
-    XCompositeGLXClientBufferIntegration *m_integration;
+    XCompositeGLXClientBufferIntegration *m_integration = nullptr;
     GLXPixmap m_glxPixmap = 0;
 };
 

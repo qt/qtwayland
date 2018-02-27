@@ -65,7 +65,7 @@ protected:
 private:
     wl_resource *m_buffer = nullptr;
 
-    Compositor *m_compositor;
+    Compositor *m_compositor = nullptr;
     QSharedPointer<MockSurface> m_mockSurface;
     QList<wl_resource *> m_frameCallbackList;
     bool m_mapped = false;

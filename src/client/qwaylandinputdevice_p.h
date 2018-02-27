@@ -143,13 +143,13 @@ public:
 private:
     void setCursor(Qt::CursorShape cursor, QWaylandScreen *screen);
 
-    QWaylandDisplay *mQDisplay;
-    struct wl_display *mDisplay;
+    QWaylandDisplay *mQDisplay = nullptr;
+    struct wl_display *mDisplay = nullptr;
 
     int mVersion;
     uint32_t mCaps = 0;
 
-    struct wl_surface *pointerSurface;
+    struct wl_surface *pointerSurface = nullptr;
 
 #if QT_CONFIG(wayland_datadevice)
     QWaylandDataDevice *mDataDevice = nullptr;
@@ -207,7 +207,7 @@ public:
                             uint32_t mods_locked,
                             uint32_t group) override;
 
-    QWaylandInputDevice *mParent;
+    QWaylandInputDevice *mParent = nullptr;
     QPointer<QWaylandWindow> mFocus;
 #if QT_CONFIG(xkbcommon_evdev)
     xkb_context *mXkbContext = nullptr;
@@ -262,7 +262,7 @@ public:
 
     void releaseButtons();
 
-    QWaylandInputDevice *mParent;
+    QWaylandInputDevice *mParent = nullptr;
     QPointer<QWaylandWindow> mFocus;
     uint32_t mEnterSerial = 0;
 #if QT_CONFIG(cursor)
@@ -302,7 +302,7 @@ public:
     bool allTouchPointsReleased();
     void releasePoints();
 
-    QWaylandInputDevice *mParent;
+    QWaylandInputDevice *mParent = nullptr;
     QPointer<QWaylandWindow> mFocus;
     QList<QWindowSystemInterface::TouchPoint> mTouchPoints;
     QList<QWindowSystemInterface::TouchPoint> mPrevTouchPoints;

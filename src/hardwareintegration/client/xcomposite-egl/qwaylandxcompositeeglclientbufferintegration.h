@@ -93,7 +93,7 @@ public:
 
 private:
     QWaylandDisplay *mWaylandDisplay = nullptr;
-    struct qt_xcomposite *mWaylandComposite;
+    struct qt_xcomposite *mWaylandComposite = nullptr;
 
     Display *mDisplay = nullptr;
     EGLDisplay mEglDisplay;

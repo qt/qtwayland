@@ -68,7 +68,7 @@ public:
     QWaylandQtKeyExtension(QWaylandDisplay *display, uint32_t id);
 
 private:
-    QWaylandDisplay *m_display;
+    QWaylandDisplay *m_display = nullptr;
 
     void key_extension_qtkey(struct wl_surface *surface,
                              uint32_t time,

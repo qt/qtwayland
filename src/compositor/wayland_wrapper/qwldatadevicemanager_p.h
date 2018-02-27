@@ -101,7 +101,7 @@ private:
     void retain();
     void finishReadFromClient(bool exhausted = false);
 
-    QWaylandCompositor *m_compositor;
+    QWaylandCompositor *m_compositor = nullptr;
     QList<DataDevice *> m_data_device_list;
 
     DataSource *m_current_selection_source = nullptr;

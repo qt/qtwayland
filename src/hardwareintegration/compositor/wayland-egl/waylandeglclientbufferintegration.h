@@ -85,8 +85,8 @@ private:
 
     WaylandEglClientBuffer(WaylandEglClientBufferIntegration* integration, wl_resource *bufferResource);
 
-    BufferState *d;
-    WaylandEglClientBufferIntegration *m_integration;
+    BufferState *d = nullptr;
+    WaylandEglClientBufferIntegration *m_integration = nullptr;
 };
 
 QT_END_NAMESPACE

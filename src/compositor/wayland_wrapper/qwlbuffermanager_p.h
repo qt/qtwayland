@@ -71,7 +71,7 @@ private:
     static void destroy_listener_callback(wl_listener *listener, void *data);
 
     QHash<struct ::wl_resource *, ClientBuffer*> m_buffers;
-    QWaylandCompositor *m_compositor;
+    QWaylandCompositor *m_compositor = nullptr;
 };
 
 }

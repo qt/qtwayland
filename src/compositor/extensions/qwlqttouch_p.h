@@ -93,7 +93,7 @@ protected:
     void touch_extension_destroy_resource(Resource *resource) override;
 
 private:
-    QWaylandCompositor *m_compositor;
+    QWaylandCompositor *m_compositor = nullptr;
     BehaviorFlags m_flags = BehaviorFlag::None;
     QList<Resource *> m_resources;
     QVector<float> m_posData;

@@ -110,8 +110,8 @@ private:
     void updateTransientParent(QWaylandWindow *parent);
 
 private:
-    QWaylandWindow *m_window;
-    QWaylandXdgShell* m_shell;
+    QWaylandWindow *m_window = nullptr;
+    QWaylandXdgShell* m_shell = nullptr;
     bool m_maximized = false;
     bool m_minimized = false;
     bool m_fullscreen = false;

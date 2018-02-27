@@ -78,7 +78,7 @@ public:
     bool ownsMode(QClipboard::Mode mode) const override;
 
 private:
-    QWaylandDisplay *mDisplay;
+    QWaylandDisplay *mDisplay = nullptr;
     QMimeData m_emptyData;
 };
 

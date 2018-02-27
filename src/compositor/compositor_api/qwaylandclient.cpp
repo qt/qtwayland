@@ -73,8 +73,8 @@ public:
         delete client;
     }
 
-    QWaylandCompositor *compositor;
-    wl_client *client;
+    QWaylandCompositor *compositor = nullptr;
+    wl_client *client = nullptr;
 
     uid_t uid;
     gid_t gid;
@@ -82,7 +82,7 @@ public:
 
     struct Listener {
         wl_listener listener;
-        QWaylandClient *parent;
+        QWaylandClient *parent = nullptr;
     };
     Listener listener;
 };

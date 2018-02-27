@@ -79,7 +79,7 @@ public:
 
 private:
     QOpenGLTexture *m_texture = nullptr;
-    XCompositeEglClientBufferIntegration *m_integration;
+    XCompositeEglClientBufferIntegration *m_integration = nullptr;
 };
 
 QT_END_NAMESPACE

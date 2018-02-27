@@ -73,7 +73,7 @@ public:
     ~DrmServerBuffer();
     QOpenGLTexture* toOpenGlTexture() override;
 private:
-    DrmEglServerBufferIntegration *m_integration;
+    DrmEglServerBufferIntegration *m_integration = nullptr;
     EGLImageKHR m_image;
     QOpenGLTexture *m_texture = nullptr;
 };

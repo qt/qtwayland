@@ -219,8 +219,8 @@ public:
         m_blitProgram->disableAttributeArray(1);
     }
 
-    QOpenGLShaderProgram *m_blitProgram;
-    QWaylandGLContext *m_context;
+    QOpenGLShaderProgram *m_blitProgram = nullptr;
+    QWaylandGLContext *m_context = nullptr;
 };
 
 
@@ -512,7 +512,7 @@ private:
         GLint stride;
         GLenum type;
         bool normalized;
-        void *pointer;
+        void *pointer = nullptr;
     } m_vertexAttribs[STATE_GUARD_VERTEX_ATTRIB_COUNT];
     GLenum m_minFilter;
     GLenum m_magFilter;

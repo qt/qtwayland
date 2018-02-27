@@ -136,13 +136,13 @@ protected:
     QList<QWaylandSurface *> all_surfaces;
 
 #if QT_CONFIG(wayland_datadevice)
-    QtWayland::DataDeviceManager *data_device_manager;
+    QtWayland::DataDeviceManager *data_device_manager = nullptr;
 #endif
-    QtWayland::BufferManager *buffer_manager;
+    QtWayland::BufferManager *buffer_manager = nullptr;
 
     QElapsedTimer timer;
 
-    wl_event_loop *loop;
+    wl_event_loop *loop = nullptr;
 
     QList<QWaylandClient *> clients;
 

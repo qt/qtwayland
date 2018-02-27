@@ -168,7 +168,7 @@ protected:
     void zxdg_toplevel_v6_set_minimized(Resource *resource) override;
 
 public:
-    QWaylandXdgSurfaceV6 *m_xdgSurface;
+    QWaylandXdgSurfaceV6 *m_xdgSurface = nullptr;
     QWaylandXdgToplevelV6 *m_parentToplevel = nullptr;
     QList<ConfigureEvent> m_pendingConfigures;
     ConfigureEvent m_lastAckedConfigure;
@@ -206,8 +206,8 @@ protected:
     void zxdg_popup_v6_grab(Resource *resource, struct ::wl_resource *seat, uint32_t serial) override;
 
 private:
-    QWaylandXdgSurfaceV6 *m_xdgSurface;
-    QWaylandXdgSurfaceV6 *m_parentXdgSurface;
+    QWaylandXdgSurfaceV6 *m_xdgSurface = nullptr;
+    QWaylandXdgSurfaceV6 *m_parentXdgSurface = nullptr;
     QWaylandXdgPositionerV6Data m_positionerData;
     QRect m_geometry;
     QList<ConfigureEvent> m_pendingConfigures;

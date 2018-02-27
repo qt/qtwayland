@@ -104,7 +104,7 @@ private:
     void updateTransientParent(QWindow *parent);
     void setPopup(QWaylandWindow *parent, QWaylandInputDevice *device, uint serial);
 
-    QWaylandWindow *m_window;
+    QWaylandWindow *m_window = nullptr;
     bool m_maximized = false;
     bool m_fullscreen = false;
     QSize m_size;

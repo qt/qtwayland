@@ -180,10 +180,10 @@ private slots:
     void viewAnimationDone();
 private:
     View *findView(const QWaylandSurface *s) const;
-    QWindow *m_window;
+    QWindow *m_window = nullptr;
     QList<View*> m_views;
-    QWaylandWlShell *m_wlShell;
-    QWaylandXdgShellV5 *m_xdgShell;
+    QWaylandWlShell *m_wlShell = nullptr;
+    QWaylandXdgShellV5 *m_xdgShell = nullptr;
     QWaylandView m_cursorView;
     int m_cursorHotspotX;
     int m_cursorHotspotY;

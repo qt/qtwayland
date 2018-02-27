@@ -120,7 +120,12 @@ void QWaylandWindow::initWindow()
     init(mDisplay->createSurface(static_cast<QtWayland::wl_surface *>(this)));
 
     if (shouldCreateSubSurface()) {
-        QWaylandWindow *p = static_cast<QWaylandWindow *>(QPlatformWindow::parent());
+        QWaylandWindow *p = NULL;
+        if (window()->type() == Qt::Popup) {
+            p = static_cast<QWaylandWindow *>(transientParent());
+        } else {
+            p = static_cast<QWaylandWindow *>(QPlatformWindow::parent());
+        }
         if (::wl_subsurface *ss = mDisplay->createSubSurface(this, p)) {
             mSubSurfaceWindow = new QWaylandSubSurface(this, p, ss);
         }
@@ -194,6 +199,10 @@ bool QWaylandWindow::shouldCreateShellSurface() const
 
 bool QWaylandWindow::shouldCreateSubSurface() const
 {
+    if (window()->type() == Qt::Popup) {
+        return window()->transientParent() != Q_NULLPTR;
+    }
+
     return QPlatformWindow::parent() != Q_NULLPTR;
 }
 
@@ -260,9 +269,21 @@ void QWaylandWindow::setGeometry_helper(const QRect &rect)
                 qBound(window()->minimumHeight(), rect.height(), window()->maximumHeight())));
 
     if (mSubSurfaceWindow) {
-        QMargins m = QPlatformWindow::parent()->frameMargins();
-        mSubSurfaceWindow->set_position(rect.x() + m.left(), rect.y() + m.top());
-        mSubSurfaceWindow->parent()->window()->requestUpdate();
+        QMargins m;
+        // sub_surface_point use to set position(x,y) with respect to transientParent
+        QPoint sub_surface_point ;
+        if (window()->type() == Qt::Popup) {
+            m = window()->transientParent()->frameMargins();
+            sub_surface_point.setX(rect.x() - window()->transientParent()->geometry().x());
+            sub_surface_point.setY(rect.y() - window()->transientParent()->geometry().y());
+	    mSubSurfaceWindow->transientParent()->window()->requestUpdate();
+        } else {
+            m = QPlatformWindow::parent()->frameMargins();
+            sub_surface_point.setX(rect.x());
+            sub_surface_point.setY(rect.y());
+            mSubSurfaceWindow->parent()->window()->requestUpdate();
+        }
+        mSubSurfaceWindow->set_position(sub_surface_point.x() + m.left(), sub_surface_point.y() + m.top());
     } else if (shellSurface() && window()->transientParent() && window()->type() != Qt::Popup)
         shellSurface()->updateTransientParent(window()->transientParent());
 }

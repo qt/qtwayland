@@ -48,14 +48,6 @@ class TestWindow : public QWindow
 {
 public:
     TestWindow()
-        : focusInEventCount(0)
-        , focusOutEventCount(0)
-        , keyPressEventCount(0)
-        , keyReleaseEventCount(0)
-        , mousePressEventCount(0)
-        , mouseReleaseEventCount(0)
-        , touchEventCount(0)
-        , keyCode(0)
     {
         setSurfaceType(QSurface::RasterSurface);
         setGeometry(0, 0, 32, 32);
@@ -103,15 +95,15 @@ public:
 
     QPoint frameOffset() const { return QPoint(frameMargins().left(), frameMargins().top()); }
 
-    int focusInEventCount;
-    int focusOutEventCount;
-    int keyPressEventCount;
-    int keyReleaseEventCount;
-    int mousePressEventCount;
-    int mouseReleaseEventCount;
-    int touchEventCount;
+    int focusInEventCount = 0;
+    int focusOutEventCount = 0;
+    int keyPressEventCount = 0;
+    int keyReleaseEventCount = 0;
+    int mousePressEventCount = 0;
+    int mouseReleaseEventCount = 0;
+    int touchEventCount = 0;
 
-    uint keyCode;
+    uint keyCode = 0;
     QPoint mousePressPos;
 };
 
@@ -164,6 +156,7 @@ public slots:
 private slots:
     void primaryScreen();
     void screens();
+    void addScreenWithGeometryChange();
     void windowScreens();
     void removePrimaryScreen();
     void createDestroyWindow();
@@ -195,6 +188,29 @@ void tst_WaylandClient::screens()
     QTRY_VERIFY(secondOutput = compositor->output(1));
     compositor->sendRemoveOutput(secondOutput);
     QTRY_COMPARE(QGuiApplication::screens().size(), 1);
+}
+
+//QTBUG-62044
+void tst_WaylandClient::addScreenWithGeometryChange()
+{
+    QTRY_COMPARE(QGuiApplication::screens().size(), 1);
+    const QRect oldGeometry = QGuiApplication::primaryScreen()->geometry();
+    compositor->sendAddOutput();
+
+    // Move the primary screen to the right
+    const QRect newGeometry(QPoint(screenSize.width(), 0), screenSize);
+    Q_ASSERT(oldGeometry != newGeometry);
+    compositor->sendOutputGeometry(compositor->output(0), newGeometry);
+
+    QTRY_COMPARE(QGuiApplication::screens().size(), 2);
+    QTRY_COMPARE(QGuiApplication::primaryScreen()->geometry(), newGeometry);
+
+    compositor->sendRemoveOutput(compositor->output(1));
+    QTRY_COMPARE(QGuiApplication::screens().size(), 1);
+
+    // Move the screen back
+    compositor->sendOutputGeometry(compositor->output(0), oldGeometry);
+    QTRY_COMPARE(QGuiApplication::primaryScreen()->geometry(), oldGeometry);
 }
 
 void tst_WaylandClient::windowScreens()
@@ -255,6 +271,7 @@ void tst_WaylandClient::removePrimaryScreen()
     compositor->sendAddOutput();
 
     QTRY_COMPARE(QGuiApplication::screens().size(), 2);
+    QTRY_COMPARE(QGuiApplication::primaryScreen()->virtualSiblings().size(), 2);
     QScreen *secondaryScreen = QGuiApplication::screens().at(1);
     QVERIFY(secondaryScreen);
 
@@ -295,9 +312,9 @@ void tst_WaylandClient::events()
     QTRY_COMPARE(QGuiApplication::focusWindow(), &window);
 
     QCOMPARE(window.focusOutEventCount, 0);
-    compositor->setKeyboardFocus(QSharedPointer<MockSurface>(0));
+    compositor->setKeyboardFocus(QSharedPointer<MockSurface>(nullptr));
     QTRY_COMPARE(window.focusOutEventCount, 1);
-    QTRY_COMPARE(QGuiApplication::focusWindow(), static_cast<QWindow *>(0));
+    QTRY_COMPARE(QGuiApplication::focusWindow(), static_cast<QWindow *>(nullptr));
 
     compositor->setKeyboardFocus(surface);
     QTRY_COMPARE(window.focusInEventCount, 2);
@@ -314,6 +331,17 @@ void tst_WaylandClient::events()
     QTRY_COMPARE(window.keyReleaseEventCount, 1);
     QCOMPARE(window.keyCode, keyCode);
 
+    const int touchId = 0;
+    compositor->sendTouchDown(surface, window.frameOffset() + QPoint(10, 10), touchId);
+    // Note: wl_touch.frame should not be the last event in a test until QTBUG-66563 is fixed.
+    // See also: QTBUG-66537
+    compositor->sendTouchFrame(surface);
+    QTRY_COMPARE(window.touchEventCount, 1);
+
+    compositor->sendTouchUp(surface, touchId);
+    compositor->sendTouchFrame(surface);
+    QTRY_COMPARE(window.touchEventCount, 2);
+
     QPoint mousePressPos(16, 16);
     QCOMPARE(window.mousePressEventCount, 0);
     compositor->sendMousePress(surface, window.frameOffset() + mousePressPos);
@@ -323,15 +351,6 @@ void tst_WaylandClient::events()
     QCOMPARE(window.mouseReleaseEventCount, 0);
     compositor->sendMouseRelease(surface);
     QTRY_COMPARE(window.mouseReleaseEventCount, 1);
-
-    const int touchId = 0;
-    compositor->sendTouchDown(surface, window.frameOffset() + QPoint(10, 10), touchId);
-    compositor->sendTouchFrame(surface);
-    QTRY_COMPARE(window.touchEventCount, 1);
-
-    compositor->sendTouchUp(surface, touchId);
-    compositor->sendTouchFrame(surface);
-    QTRY_COMPARE(window.touchEventCount, 2);
 }
 
 void tst_WaylandClient::backingStore()
@@ -375,9 +394,8 @@ class DndWindow : public QWindow
     Q_OBJECT
 
 public:
-    DndWindow(QWindow *parent = 0)
+    DndWindow(QWindow *parent = nullptr)
         : QWindow(parent)
-        , dragStarted(false)
     {
         QImage cursorImage(64,64,QImage::Format_ARGB32);
         cursorImage.fill(Qt::blue);
@@ -385,7 +403,7 @@ public:
     }
     ~DndWindow(){}
     QPoint frameOffset() const { return QPoint(frameMargins().left(), frameMargins().top()); }
-    bool dragStarted;
+    bool dragStarted = false;
 
 protected:
     void mousePressEvent(QMouseEvent *event) override
@@ -460,19 +478,21 @@ void tst_WaylandClient::dontCrashOnMultipleCommits()
 
     QRect rect(QPoint(), window->size());
 
-    QBackingStore backingStore(window);
-    backingStore.resize(rect.size());
-    backingStore.beginPaint(rect);
-    QPainter p(backingStore.paintDevice());
-    p.fillRect(rect, Qt::magenta);
-    p.end();
-    backingStore.endPaint();
+    {
+        QBackingStore backingStore(window);
+        backingStore.resize(rect.size());
+        backingStore.beginPaint(rect);
+        QPainter p(backingStore.paintDevice());
+        p.fillRect(rect, Qt::magenta);
+        p.end();
+        backingStore.endPaint();
 
-    backingStore.flush(rect);
-    backingStore.flush(rect);
-    backingStore.flush(rect);
+        backingStore.flush(rect);
+        backingStore.flush(rect);
+        backingStore.flush(rect);
 
-    compositor->processWaylandEvents();
+        compositor->processWaylandEvents();
+    }
 
     delete window;
 

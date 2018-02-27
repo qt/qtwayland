@@ -64,12 +64,12 @@ class View : public QWaylandView
 {
     Q_OBJECT
 public:
-    View() : m_texture(0) {}
+    View() {}
     QOpenGLTexture *getTexture();
     bool isCursor() const;
 private:
     friend class Compositor;
-    QOpenGLTexture *m_texture;
+    QOpenGLTexture *m_texture = nullptr;
 };
 
 class Compositor : public QWaylandCompositor

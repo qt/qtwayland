@@ -54,13 +54,6 @@
 QT_BEGIN_NAMESPACE
 
 QWaylandTextInputClientState::QWaylandTextInputClientState()
-    : hints(0)
-    , cursorRectangle()
-    , surroundingText()
-    , cursorPosition(0)
-    , anchorPosition(0)
-    , preferredLanguage()
-    , changedState()
 {
 }
 
@@ -121,17 +114,9 @@ Qt::InputMethodQueries QWaylandTextInputClientState::mergeChanged(const QWayland
 }
 
 QWaylandTextInputPrivate::QWaylandTextInputPrivate(QWaylandCompositor *compositor)
-    : QWaylandCompositorExtensionPrivate()
-    , QtWaylandServer::zwp_text_input_v2()
-    , compositor(compositor)
-    , focus(nullptr)
-    , focusResource(nullptr)
-    , focusDestroyListener()
-    , inputPanelVisible(false)
+    : compositor(compositor)
     , currentState(new QWaylandTextInputClientState)
     , pendingState(new QWaylandTextInputClientState)
-    , serial(0)
-    , enabledSurfaces()
 {
 }
 
@@ -339,7 +324,7 @@ void QWaylandTextInputPrivate::zwp_text_input_v2_bind_resource(Resource *resourc
 void QWaylandTextInputPrivate::zwp_text_input_v2_destroy_resource(Resource *resource)
 {
     if (focusResource == resource)
-        focusResource = 0;
+        focusResource = nullptr;
 }
 
 void QWaylandTextInputPrivate::zwp_text_input_v2_destroy(Resource *resource)
@@ -426,7 +411,7 @@ void QWaylandTextInputPrivate::zwp_text_input_v2_set_content_type(Resource *reso
     if (resource != focusResource)
         return;
 
-    pendingState->hints = 0;
+    pendingState->hints = Qt::ImhNone;
 
     if ((hint & content_hint_auto_completion) == 0
         && (hint & content_hint_auto_correction) == 0)

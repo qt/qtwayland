@@ -71,9 +71,6 @@ QVector<int> qglx_buildSpec()
 
 
 XCompositeGLXClientBufferIntegration::XCompositeGLXClientBufferIntegration()
-    : QtWayland::ClientBufferIntegration()
-    , mDisplay(0)
-    , mHandler(0)
 {
     qDebug() << "Loading GLX integration";
 }
@@ -122,9 +119,7 @@ QtWayland::ClientBuffer *XCompositeGLXClientBufferIntegration::createBufferFor(w
 
 XCompositeGLXClientBuffer::XCompositeGLXClientBuffer(XCompositeGLXClientBufferIntegration *integration, wl_resource *bufferResource)
     : QtWayland::ClientBuffer(bufferResource)
-    , m_texture(nullptr)
     , m_integration(integration)
-    , m_glxPixmap(0)
 {
 }
 
@@ -162,7 +157,7 @@ QOpenGLTexture *XCompositeGLXClientBuffer::toOpenGlTexture(int plane)
     }
     tex->bind();
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    m_integration->m_glxBindTexImageEXT(m_integration->xDisplay(),m_glxPixmap,GLX_FRONT_EXT, 0);
+    m_integration->m_glxBindTexImageEXT(m_integration->xDisplay(),m_glxPixmap,GLX_FRONT_EXT, nullptr);
 
     // TODO: release in the destructor?
     // m_glxReleaseTexImageEXT(mDisplay,glxPixmap,GLX_FRONT_EXT);

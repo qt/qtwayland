@@ -217,12 +217,12 @@ private:
     int mWritableNotificationFd;
     QList<RegistryGlobal> mGlobals;
     int mCompositorVersion;
-    uint32_t mLastInputSerial;
-    QWaylandInputDevice *mLastInputDevice;
+    uint32_t mLastInputSerial = 0;
+    QWaylandInputDevice *mLastInputDevice = nullptr;
     QPointer<QWaylandWindow> mLastInputWindow;
     QPointer<QWaylandWindow> mLastKeyboardFocus;
     QVector<QWaylandWindow *> mActiveWindows;
-    struct wl_callback *mSyncCallback;
+    struct wl_callback *mSyncCallback = nullptr;
     static const wl_callback_listener syncCallbackListener;
 
     void registry_global(uint32_t id, const QString &interface, uint32_t version) override;

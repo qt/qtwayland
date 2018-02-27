@@ -44,7 +44,7 @@ public:
     ShmBuffer(const QSize &size, wl_shm *shm);
     ~ShmBuffer();
 
-    struct wl_buffer *handle;
+    struct wl_buffer *handle = nullptr;
     struct wl_shm_pool *shm_pool;
     QImage image;
 };
@@ -63,29 +63,29 @@ public:
     ivi_surface *createIviSurface(wl_surface *surface, uint iviId);
 
     wl_display *display;
-    wl_compositor *compositor;
+    wl_compositor *compositor = nullptr;
     QMap<uint, wl_output *> m_outputs;
     wl_shm *shm;
-    wl_registry *registry;
-    wl_shell *wlshell;
-    xdg_shell *xdgShell;
-    ivi_application *iviApplication;
+    wl_registry *registry = nullptr;
+    wl_shell *wlshell = nullptr;
+    xdg_shell *xdgShell = nullptr;
+    ivi_application *iviApplication = nullptr;
 
     QList<MockSeat *> m_seats;
 
     QRect geometry;
     QSize resolution;
-    int refreshRate;
+    int refreshRate = -1;
     QWaylandOutputMode currentMode;
     QWaylandOutputMode preferredMode;
     QList<QWaylandOutputMode> modes;
 
     int fd;
-    int error;
+    int error = 0 /* means no error according to spec */;
     struct {
-        uint id;
-        uint code;
-        const wl_interface *interface;
+        uint id = 0;
+        uint code = 0;
+        const wl_interface *interface = nullptr;
     } protocolError;
 
 private slots:

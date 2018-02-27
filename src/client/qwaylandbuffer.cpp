@@ -47,8 +47,6 @@ QT_BEGIN_NAMESPACE
 namespace QtWaylandClient {
 
 QWaylandBuffer::QWaylandBuffer()
-              : mBuffer(0)
-              , mBusy(false)
 {
 }
 

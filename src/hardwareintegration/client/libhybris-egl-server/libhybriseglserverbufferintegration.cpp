@@ -60,7 +60,6 @@ LibHybrisServerBuffer::LibHybrisServerBuffer(LibHybrisEglServerBufferIntegration
                                             , int32_t format)
     : QWaylandServerBuffer()
     , m_integration(integration)
-    , m_texture(nullptr)
     , m_stride(stride)
     , m_hybrisFormat(format)
 {

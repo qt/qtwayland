@@ -58,7 +58,14 @@ QPlatformIntegration *QWaylandXCompositeGlxPlatformIntegrationPlugin::create(con
 {
     Q_UNUSED(paramList);
     Q_UNUSED(system);
-    return new QWaylandXCompositeGlxPlatformIntegration();
+    auto *integration = new QWaylandXCompositeGlxPlatformIntegration();
+
+    if (integration->hasFailed()) {
+        delete integration;
+        integration = nullptr;
+    }
+
+    return integration;
 }
 
 }

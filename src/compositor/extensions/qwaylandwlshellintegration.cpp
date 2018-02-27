@@ -52,10 +52,6 @@ WlShellIntegration::WlShellIntegration(QWaylandQuickShellSurfaceItem *item)
     : QWaylandQuickShellIntegration(item)
     , m_item(item)
     , m_shellSurface(qobject_cast<QWaylandWlShellSurface *>(item->shellSurface()))
-    , grabberState(GrabberState::Default)
-    , isPopup(false)
-    , currentState(State::Windowed)
-    , nextState(State::Windowed)
 {
     m_item->setSurface(m_shellSurface->surface());
     connect(m_shellSurface.data(), &QWaylandWlShellSurface::startMove, this, &WlShellIntegration::handleStartMove);

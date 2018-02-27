@@ -54,13 +54,11 @@ namespace QtWaylandClient {
 
 QWaylandXdgShell::QWaylandXdgShell(struct ::xdg_shell *shell)
     : QtWayland::xdg_shell(shell)
-    , m_popupSerial(0)
 {
 }
 
 QWaylandXdgShell::QWaylandXdgShell(struct ::wl_registry *registry, uint32_t id)
     : QtWayland::xdg_shell(registry, id, 1)
-    , m_popupSerial(0)
 {
     use_unstable_version(QtWayland::xdg_shell::version_current);
 }

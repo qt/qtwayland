@@ -57,13 +57,12 @@ BufferManager::BufferManager(QWaylandCompositor *compositor)
 struct buffer_manager_destroy_listener : wl_listener
 {
     buffer_manager_destroy_listener()
-        : d(0)
     {
         notify = BufferManager::destroy_listener_callback;
         wl_list_init(&this->link);
     }
 
-    BufferManager *d;
+    BufferManager *d = nullptr;
 };
 
 ClientBuffer *BufferManager::getBuffer(wl_resource *buffer_resource)

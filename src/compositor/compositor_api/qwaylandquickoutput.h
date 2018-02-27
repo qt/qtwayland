@@ -79,8 +79,8 @@ protected:
 private:
     void doFrameCallbacks();
 
-    bool m_updateScheduled;
-    bool m_automaticFrameCallback;
+    bool m_updateScheduled = false;
+    bool m_automaticFrameCallback = true;
 };
 
 QT_END_NAMESPACE

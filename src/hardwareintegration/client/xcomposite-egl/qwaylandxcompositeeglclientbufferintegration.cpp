@@ -54,8 +54,6 @@ namespace QtWaylandClient {
 
 QWaylandXCompositeEGLClientBufferIntegration::QWaylandXCompositeEGLClientBufferIntegration()
     : QWaylandClientBufferIntegration()
-    , mWaylandDisplay(0)
-    , mDisplay(0)
 {
     qDebug() << "Using XComposite-EGL";
 }

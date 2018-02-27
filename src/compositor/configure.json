@@ -22,6 +22,26 @@
                 "-lEGL"
             ]
         },
+        "wayland-kms": {
+            "label": "wayland-kms",
+            "test": {
+                "tail": [
+                    "extern \"C\" {",
+                    "#define private priv",
+                    "#include <wayland-kms.h>",
+                    "#undef private",
+                    "}"
+                ],
+                "main": [
+                    "struct wl_resource *buffer = nullptr;",
+                    "struct wl_kms_buffer *kmsBuffer = wayland_kms_buffer_get(buffer);"
+                ]
+            },
+            "sources": [
+                { "type": "pkgConfig", "args": "wayland-kms" },
+                "-lwayland-kms"
+            ]
+        },
         "xcomposite": {
             "test": "xcomposite",
             "sources": [
@@ -95,10 +115,22 @@
             "label": "libhybris EGL",
             "condition": "features.wayland-server && features.opengl && features.egl && tests.libhybris-egl-server",
             "output": [ "privateFeature" ]
+        },
+        "wayland-layer-integration-vsp2": {
+            "label": "VSP2 hardware layer integration",
+            "condition": "features.wayland-server && features.eglfs_vsp2 && libs.wayland-kms",
+            "output": [ "privateFeature" ]
         }
     },
 
     "summary": [
-        "wayland-server"
+        "wayland-server",
+        {
+            "section": "Qt Wayland Compositor Layer Plugins",
+            "condition": "features.wayland-server",
+            "entries": [
+                "wayland-layer-integration-vsp2"
+            ]
+        }
     ]
 }

@@ -60,15 +60,12 @@ QT_BEGIN_NAMESPACE
 class BrcmEglIntegrationPrivate
 {
 public:
-    BrcmEglIntegrationPrivate()
-        : egl_display(EGL_NO_DISPLAY)
-        , valid(false)
-    { }
+    BrcmEglIntegrationPrivate() = default;
 
     static BrcmEglIntegrationPrivate *get(BrcmEglIntegration *integration);
 
-    EGLDisplay egl_display;
-    bool valid;
+    EGLDisplay egl_display = EGL_NO_DISPLAY;
+    bool valid = false;
     PFNEGLQUERYGLOBALIMAGEBRCMPROC eglQueryGlobalImageBRCM;
     PFNGLEGLIMAGETARGETTEXTURE2DOESPROC glEGLImageTargetTexture2DOES;
     PFNEGLCREATEIMAGEKHRPROC eglCreateImageKHR;
@@ -76,9 +73,7 @@ public:
 };
 
 BrcmEglIntegration::BrcmEglIntegration()
-    : QtWayland::ClientBufferIntegration()
-    , QtWaylandServer::qt_brcm()
-    , d_ptr(new BrcmEglIntegrationPrivate)
+    : d_ptr(new BrcmEglIntegrationPrivate)
 {
 }
 
@@ -188,7 +183,6 @@ void BrcmEglIntegration::brcm_create_buffer(Resource *resource, uint32_t id, int
 BrcmEglClientBuffer::BrcmEglClientBuffer(BrcmEglIntegration *integration, wl_resource *buffer)
     : ClientBuffer(buffer)
     , m_integration(integration)
-    , m_texture(nullptr)
 {
 }
 

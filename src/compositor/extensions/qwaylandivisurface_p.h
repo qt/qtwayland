@@ -75,9 +75,9 @@ protected:
     void ivi_surface_destroy(Resource *resource) override;
 
 private:
-    QWaylandIviApplication *m_iviApplication;
-    QWaylandSurface *m_surface;
-    uint m_iviId;
+    QWaylandIviApplication *m_iviApplication = nullptr;
+    QWaylandSurface *m_surface = nullptr;
+    uint m_iviId = UINT_MAX;
 
     static QWaylandSurfaceRole s_role;
 };

@@ -71,15 +71,6 @@ const Qt::InputMethodQueries supportedQueries = Qt::ImEnabled |
 QWaylandTextInput::QWaylandTextInput(QWaylandDisplay *display, struct ::zwp_text_input_v2 *text_input)
     : QtWayland::zwp_text_input_v2(text_input)
     , m_display(display)
-    , m_builder()
-    , m_serial(0)
-    , m_surface(nullptr)
-    , m_preeditCommit()
-    , m_inputPanelVisible(false)
-    , m_keyboardRectangle()
-    , m_locale()
-    , m_inputDirection(Qt::LayoutDirectionAuto)
-    , m_resetCallback(nullptr)
 {
 }
 
@@ -391,9 +382,7 @@ Qt::KeyboardModifiers QWaylandTextInput::modifiersToQtModifiers(uint32_t modifie
 }
 
 QWaylandInputContext::QWaylandInputContext(QWaylandDisplay *display)
-    : QPlatformInputContext()
-    , mDisplay(display)
-    , mCurrentWindow()
+    : mDisplay(display)
 {
 }
 
@@ -403,7 +392,7 @@ QWaylandInputContext::~QWaylandInputContext()
 
 bool QWaylandInputContext::isValid() const
 {
-    return mDisplay->textInputManager() != 0;
+    return mDisplay->textInputManager() != nullptr;
 }
 
 void QWaylandInputContext::reset()

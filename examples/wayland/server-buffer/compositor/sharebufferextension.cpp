@@ -61,8 +61,6 @@
 
 ShareBufferExtension::ShareBufferExtension(QWaylandCompositor *compositor)
     : QWaylandCompositorExtensionTemplate(compositor)
-    , m_server_buffer_integration(nullptr)
-    , m_server_buffers_created(false)
 {
 }
 

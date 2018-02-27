@@ -47,7 +47,6 @@ QT_BEGIN_NAMESPACE
 DrmEglServerBuffer::DrmEglServerBuffer(DrmEglServerBufferIntegration *integration, const QImage &qimage, QtWayland::ServerBuffer::Format format)
     : QtWayland::ServerBuffer(qimage.size(),format)
     , m_integration(integration)
-    , m_texture(nullptr)
 {
     m_format = format;
 
@@ -103,7 +102,7 @@ struct ::wl_resource *DrmEglServerBuffer::resourceForClient(struct ::wl_client *
         auto integrationResource = m_integration->resourceMap().value(client);
         if (!integrationResource) {
             qWarning("DrmEglServerBuffer::resourceForClient: Trying to get resource for ServerBuffer. But client is not bound to the drm_egl interface");
-            return 0;
+            return nullptr;
         }
         struct ::wl_resource *drm_egl_integration_resource = integrationResource->handle;
         Resource *resource = add(client, 1);

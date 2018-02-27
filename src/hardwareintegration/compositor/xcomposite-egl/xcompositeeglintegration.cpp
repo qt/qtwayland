@@ -68,8 +68,6 @@ QVector<EGLint> eglbuildSpec()
 }
 
 XCompositeEglClientBufferIntegration::XCompositeEglClientBufferIntegration()
-    : QtWayland::ClientBufferIntegration()
-    , mDisplay(0)
 {
 
 }
@@ -100,7 +98,6 @@ QtWayland::ClientBuffer *XCompositeEglClientBufferIntegration::createBufferFor(w
 
 XCompositeEglClientBuffer::XCompositeEglClientBuffer(XCompositeEglClientBufferIntegration *integration, wl_resource *bufferResource)
     : QtWayland::ClientBuffer(bufferResource)
-    , m_texture(nullptr)
     , m_integration(integration)
 {
 }
@@ -129,7 +126,7 @@ QOpenGLTexture *XCompositeEglClientBuffer::toOpenGlTexture(int plane)
     attribList.append(EGL_TEXTURE_2D);
     attribList.append(EGL_NONE);
 
-    EGLSurface surface = eglCreatePixmapSurface(m_integration->eglDisplay(),config,pixmap,attribList.constData());
+    EGLSurface surface = eglCreatePixmapSurface(m_integration->eglDisplay(), config, reinterpret_cast<EGLNativePixmapType>(pixmap), attribList.constData());
     if (surface == EGL_NO_SURFACE) {
         qDebug() << "Failed to create eglsurface" << pixmap << compositorBuffer->window();
     }

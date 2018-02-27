@@ -66,8 +66,7 @@ bool View::isCursor() const
 }
 
 Compositor::Compositor(Window *window)
-    : QWaylandCompositor()
-    , m_window(window)
+    : m_window(window)
 {
 }
 

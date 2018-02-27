@@ -65,16 +65,15 @@ public:
     static void handleRegistryGlobal(void *data, ::wl_registry *registry, uint32_t id,
                                      const QString &interface, uint32_t version);
 
-    QtWaylandClient::QWaylandIntegration *waylandIntegration;
-    int version;
-    bool active;
+    QtWaylandClient::QWaylandIntegration *waylandIntegration = nullptr;
+    int version = -1;
+    bool active = false;
 };
 
 class Q_WAYLAND_CLIENT_EXPORT QWaylandClientExtensionTemplatePrivate : public QWaylandClientExtensionPrivate
 {
 public:
     QWaylandClientExtensionTemplatePrivate()
-        : QWaylandClientExtensionPrivate()
     { }
 };
 

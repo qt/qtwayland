@@ -90,7 +90,7 @@ void QWaylandClipboard::setMimeData(QMimeData *data, QClipboard::Mode mode)
     static const QString utf8 = QStringLiteral("text/plain;charset=utf-8");
     if (data && data->hasFormat(plain) && !data->hasFormat(utf8))
         data->setData(utf8, data->data(plain));
-    inputDevice->dataDevice()->setSelectionSource(data ? new QWaylandDataSource(mDisplay->dndSelectionHandler(), data) : 0);
+    inputDevice->dataDevice()->setSelectionSource(data ? new QWaylandDataSource(mDisplay->dndSelectionHandler(), data) : nullptr);
 
     emitChanged(mode);
 }
@@ -109,7 +109,7 @@ bool QWaylandClipboard::ownsMode(QClipboard::Mode mode) const
     if (!inputDevice || !inputDevice->dataDevice())
         return false;
 
-    return inputDevice->dataDevice()->selectionSource() != 0;
+    return inputDevice->dataDevice()->selectionSource() != nullptr;
 }
 
 }

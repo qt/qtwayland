@@ -93,7 +93,7 @@ private:
     void sendWindowRegistration(QWindow *);
 
     QList<QWindow *> m_windows;
-    bool m_activated;
+    bool m_activated = false;
 };
 
 class CustomExtensionObject : public QWaylandClientExtensionTemplate<CustomExtensionObject>

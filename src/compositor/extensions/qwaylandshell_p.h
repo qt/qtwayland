@@ -62,7 +62,7 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandShellPrivate : public QWaylandComposit
 public:
     QWaylandShellPrivate();
 
-    QWaylandShell::FocusPolicy focusPolicy;
+    QWaylandShell::FocusPolicy focusPolicy = QWaylandShell::AutomaticFocus;
 };
 
 QT_END_NAMESPACE

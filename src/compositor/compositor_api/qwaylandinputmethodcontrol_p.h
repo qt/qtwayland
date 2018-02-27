@@ -72,10 +72,10 @@ public:
 
     QWaylandTextInput *textInput() const;
 
-    QWaylandCompositor *compositor;
-    QWaylandSeat *seat;
-    QWaylandSurface *surface;
-    bool enabled;
+    QWaylandCompositor *compositor = nullptr;
+    QWaylandSeat *seat = nullptr;
+    QWaylandSurface *surface = nullptr;
+    bool enabled = false;
 };
 
 QT_END_NAMESPACE

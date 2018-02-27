@@ -56,9 +56,6 @@ QWaylandWlShellSurface::QWaylandWlShellSurface(struct ::wl_shell_surface *shell_
     : QWaylandShellSurface(window)
     , QtWayland::wl_shell_surface(shell_surface)
     , m_window(window)
-    , m_maximized(false)
-    , m_fullscreen(false)
-    , m_extendedWindow(nullptr)
 {
     if (window->display()->windowExtension())
         m_extendedWindow = new QWaylandExtendedSurface(window);
@@ -127,14 +124,14 @@ void QWaylandWlShellSurface::setMaximized()
 {
     m_maximized = true;
     m_size = m_window->window()->geometry().size();
-    set_maximized(0);
+    set_maximized(nullptr);
 }
 
 void QWaylandWlShellSurface::setFullscreen()
 {
     m_fullscreen = true;
     m_size = m_window->window()->geometry().size();
-    set_fullscreen(WL_SHELL_SURFACE_FULLSCREEN_METHOD_DEFAULT, 0, 0);
+    set_fullscreen(WL_SHELL_SURFACE_FULLSCREEN_METHOD_DEFAULT, 0, nullptr);
 }
 
 void QWaylandWlShellSurface::setNormal()

@@ -121,19 +121,18 @@ public:
 };
 
 QWaylandIntegration::QWaylandIntegration()
-    : mClientBufferIntegration(0)
-    , mInputDeviceIntegration(nullptr)
-    , mFontDb(new QGenericUnixFontDatabase())
+    : mFontDb(new QGenericUnixFontDatabase())
     , mNativeInterface(new QWaylandNativeInterface(this))
 #if QT_CONFIG(accessibility)
     , mAccessibility(new QPlatformAccessibility())
 #endif
-    , mClientBufferIntegrationInitialized(false)
-    , mServerBufferIntegrationInitialized(false)
-    , mShellIntegrationInitialized(false)
 {
     initializeInputDeviceIntegration();
     mDisplay.reset(new QWaylandDisplay(this));
+    if (!mDisplay->isInitialized()) {
+        mFailed = true;
+        return;
+    }
 #if QT_CONFIG(clipboard)
     mClipboard.reset(new QWaylandClipboard(mDisplay.data()));
 #endif
@@ -198,7 +197,7 @@ QPlatformOpenGLContext *QWaylandIntegration::createPlatformOpenGLContext(QOpenGL
 {
     if (mDisplay->clientBufferIntegration())
         return mDisplay->clientBufferIntegration()->createPlatformOpenGLContext(context->format(), context->shareHandle());
-    return 0;
+    return nullptr;
 }
 #endif  // opengl
 

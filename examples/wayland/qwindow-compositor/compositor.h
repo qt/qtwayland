@@ -96,18 +96,18 @@ protected:
 
 private:
     friend class Compositor;
-    Compositor *m_compositor;
-    GLenum m_textureTarget;
-    QOpenGLTexture *m_texture;
+    Compositor *m_compositor = nullptr;
+    GLenum m_textureTarget = GL_TEXTURE_2D;
+    QOpenGLTexture *m_texture = nullptr;
     QOpenGLTextureBlitter::Origin m_origin;
     QPointF m_position;
     QSize m_size;
-    QWaylandWlShellSurface *m_wlShellSurface;
-    QWaylandXdgSurfaceV5 *m_xdgSurface;
-    QWaylandXdgPopupV5 *m_xdgPopup;
-    View *m_parentView;
+    QWaylandWlShellSurface *m_wlShellSurface = nullptr;
+    QWaylandXdgSurfaceV5 *m_xdgSurface = nullptr;
+    QWaylandXdgPopupV5 *m_xdgPopup = nullptr;
+    View *m_parentView = nullptr;
     QPoint m_offset;
-    qreal m_animationFactor;
+    qreal m_animationFactor = 1.0;
     QBasicTimer m_animationTimer;
     bool m_animationCountUp;
 

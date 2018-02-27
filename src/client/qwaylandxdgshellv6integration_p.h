@@ -71,7 +71,7 @@ public:
 private:
     QWaylandXdgShellV6Integration(QWaylandDisplay *display);
 
-    QWaylandXdgShellV6 *m_xdgShell;
+    QWaylandXdgShellV6 *m_xdgShell = nullptr;
 };
 
 }

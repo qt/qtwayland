@@ -55,12 +55,6 @@ QT_BEGIN_NAMESPACE
 namespace QtWaylandClient {
 
 QWaylandIviShellIntegration::QWaylandIviShellIntegration()
-    : m_iviApplication(nullptr)
-    , m_iviController(nullptr)
-    , m_lastSurfaceId(0)
-    , m_surfaceNumber(0)
-    , m_useEnvSurfaceId(false)
-    , m_mutex(QMutex::Recursive)
 {
 }
 

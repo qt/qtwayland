@@ -65,14 +65,10 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQuickShellSurfaceItemPrivate : public 
 {
 public:
     QWaylandQuickShellSurfaceItemPrivate()
-        : QWaylandQuickItemPrivate()
-        , m_shellIntegration(nullptr)
-        , m_shellSurface(nullptr)
-        , m_moveItem(nullptr)
     {}
-    QWaylandQuickShellIntegration *m_shellIntegration;
-    QWaylandShellSurface *m_shellSurface;
-    QQuickItem *m_moveItem;
+    QWaylandQuickShellIntegration *m_shellIntegration = nullptr;
+    QWaylandShellSurface *m_shellSurface = nullptr;
+    QQuickItem *m_moveItem = nullptr;
 };
 
 class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQuickShellIntegration : public QObject
@@ -100,10 +96,10 @@ private:
 
     QWaylandQuickShellEventFilter(QObject *parent = nullptr);
     bool eventFilter(QObject *, QEvent *) override;
-    bool eventFilterInstalled;
-    bool waitForRelease;
+    bool eventFilterInstalled = false;
+    bool waitForRelease = false;
     QPointer<QWaylandClient> client;
-    CallbackFunction closePopups;
+    CallbackFunction closePopups = nullptr;
     QBasicTimer mousePressTimeout;
     static QWaylandQuickShellEventFilter *self;
 };

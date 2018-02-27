@@ -86,12 +86,12 @@ public:
     bool supportsWindowDecoration() const override { return false; }
 
 private:
-    QWaylandDisplay *mWaylandDisplay;
-    struct qt_xcomposite *mWaylandComposite;
+    QWaylandDisplay *mWaylandDisplay = nullptr;
+    struct qt_xcomposite *mWaylandComposite = nullptr;
 
-    Display *mDisplay;
-    int mScreen;
-    Window mRootWindow;
+    Display *mDisplay = nullptr;
+    int mScreen = 0;
+    Window mRootWindow = 0;
 
     static void wlDisplayHandleGlobal(void *data, struct wl_registry *registry, uint32_t id,
                                       const QString &interface, uint32_t version);

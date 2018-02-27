@@ -47,14 +47,6 @@ const struct wl_registry_listener MockClient::registryListener = {
 
 MockClient::MockClient()
     : display(wl_display_connect("wayland-qt-test-0"))
-    , compositor(0)
-    , registry(0)
-    , wlshell(0)
-    , xdgShell(nullptr)
-    , iviApplication(nullptr)
-    , refreshRate(-1)
-    , error(0 /* means no error according to spec */)
-    , protocolError({0, 0, nullptr})
 {
     if (!display)
         qFatal("MockClient(): wl_display_connect() failed");
@@ -223,7 +215,6 @@ ivi_surface *MockClient::createIviSurface(wl_surface *surface, uint iviId)
 }
 
 ShmBuffer::ShmBuffer(const QSize &size, wl_shm *shm)
-    : handle(0)
 {
     int stride = size.width() * 4;
     int alloc = stride * size.height();
@@ -242,7 +233,7 @@ ShmBuffer::ShmBuffer(const QSize &size, wl_shm *shm)
         return;
     }
 
-    void *data = mmap(0, alloc, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+    void *data = mmap(nullptr, alloc, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
     unlink(filename);
 
     if (data == MAP_FAILED) {

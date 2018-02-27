@@ -71,7 +71,7 @@ public:
 QWaylandBufferRef::QWaylandBufferRef()
                  : d(new QWaylandBufferRefPrivate)
 {
-    d->buffer = 0;
+    d->buffer = nullptr;
 }
 
 /*!

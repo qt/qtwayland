@@ -70,7 +70,7 @@ private:
     void ivi_controller_surface_visibility(int32_t visibility) override;
 
     QWaylandWindow *m_window;
-    QWaylandExtendedSurface *m_extendedWindow;
+    QWaylandExtendedSurface *m_extendedWindow = nullptr;
 };
 
 }

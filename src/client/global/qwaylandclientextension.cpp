@@ -49,10 +49,6 @@
 QT_BEGIN_NAMESPACE
 
 QWaylandClientExtensionPrivate::QWaylandClientExtensionPrivate()
-    : QObjectPrivate()
-    , waylandIntegration(NULL)
-    , version(-1)
-    , active(false)
 {
     // Keep the possibility to use a custom waylandIntegration as a plugin,
     // but also add the possibility to run it as a QML component.

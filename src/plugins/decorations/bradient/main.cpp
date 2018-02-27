@@ -153,14 +153,12 @@ private:
     QColor m_foregroundColor;
     QColor m_backgroundColor;
     QStaticText m_windowTitle;
-    Button m_clicking;
+    Button m_clicking = None;
 };
 
 
 
 QWaylandBradientDecoration::QWaylandBradientDecoration()
-    : QWaylandAbstractDecoration()
-    , m_clicking(None)
 {
     QPalette palette;
     m_foregroundColor = palette.color(QPalette::Active, QPalette::HighlightedText);

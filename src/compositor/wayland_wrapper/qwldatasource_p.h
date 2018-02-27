@@ -92,8 +92,8 @@ private:
     uint32_t m_time;
     QList<QString> m_mimeTypes;
 
-    DataDevice *m_device;
-    DataDeviceManager *m_manager;
+    DataDevice *m_device = nullptr;
+    DataDeviceManager *m_manager = nullptr;
 };
 
 }

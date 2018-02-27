@@ -89,9 +89,7 @@ static QOpenGLTexture *createTextureFromShm(const QString &key, int w, int h, in
 
 namespace QtWaylandClient {
 ShmServerBuffer::ShmServerBuffer(ShmServerBufferIntegration *integration, const QString &key, int32_t width, int32_t height, int32_t bytes_per_line, int32_t format)
-    : QWaylandServerBuffer()
-    , m_integration(integration)
-    , m_texture(nullptr)
+    : m_integration(integration)
     , m_key(key)
     , m_bpl(bytes_per_line)
     , m_format(format)

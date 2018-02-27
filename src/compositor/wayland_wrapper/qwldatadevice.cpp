@@ -61,18 +61,8 @@ QT_BEGIN_NAMESPACE
 namespace QtWayland {
 
 DataDevice::DataDevice(QWaylandSeat *seat)
-    : wl_data_device()
-    , m_compositor(seat->compositor())
+    : m_compositor(seat->compositor())
     , m_seat(seat)
-    , m_selectionSource(0)
-#if QT_CONFIG(draganddrop)
-    , m_dragClient(0)
-    , m_dragDataSource(0)
-    , m_dragFocus(0)
-    , m_dragFocusResource(0)
-    , m_dragIcon(0)
-    , m_dragOrigin(nullptr)
-#endif
 {
 }
 
@@ -95,7 +85,7 @@ void DataDevice::setFocus(QWaylandClient *focusClient)
 void DataDevice::sourceDestroyed(DataSource *source)
 {
     if (m_selectionSource == source)
-        m_selectionSource = 0;
+        m_selectionSource = nullptr;
 }
 
 #if QT_CONFIG(draganddrop)
@@ -103,8 +93,8 @@ void DataDevice::setDragFocus(QWaylandSurface *focus, const QPointF &localPositi
 {
     if (m_dragFocusResource) {
         send_leave(m_dragFocusResource->handle);
-        m_dragFocus = 0;
-        m_dragFocusResource = 0;
+        m_dragFocus = nullptr;
+        m_dragFocusResource = nullptr;
     }
 
     if (!focus)
@@ -120,7 +110,7 @@ void DataDevice::setDragFocus(QWaylandSurface *focus, const QPointF &localPositi
 
     uint32_t serial = m_compositor->nextSerial();
 
-    DataOffer *offer = m_dragDataSource ? new DataOffer(m_dragDataSource, resource) : 0;
+    DataOffer *offer = m_dragDataSource ? new DataOffer(m_dragDataSource, resource) : nullptr;
 
     if (m_dragDataSource && !offer)
         return;
@@ -174,7 +164,7 @@ void DataDevice::cancelDrag()
 void DataDevice::data_device_start_drag(Resource *resource, struct ::wl_resource *source, struct ::wl_resource *origin, struct ::wl_resource *icon, uint32_t serial)
 {
     m_dragClient = resource->client();
-    m_dragDataSource = source ? DataSource::fromResource(source) : 0;
+    m_dragDataSource = source ? DataSource::fromResource(source) : nullptr;
     m_dragOrigin = QWaylandSurface::fromResource(origin);
     QWaylandDrag *drag = m_seat->drag();
     setDragIcon(icon ? QWaylandSurface::fromResource(icon) : nullptr);
@@ -198,7 +188,7 @@ void DataDevice::data_device_set_selection(Resource *, struct ::wl_resource *sou
 {
     Q_UNUSED(serial);
 
-    DataSource *dataSource = source ? DataSource::fromResource(source) : 0;
+    DataSource *dataSource = source ? DataSource::fromResource(source) : nullptr;
 
     if (m_selectionSource)
         m_selectionSource->cancel();
@@ -215,7 +205,7 @@ void DataDevice::data_device_set_selection(Resource *, struct ::wl_resource *sou
         DataOffer *offer = new DataOffer(m_selectionSource, resource);
         send_selection(resource->handle, offer->resource()->handle);
     } else if (resource) {
-        send_selection(resource->handle, 0);
+        send_selection(resource->handle, nullptr);
     }
 }
 

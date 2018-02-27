@@ -44,6 +44,7 @@ public:
 
     QSharedPointer<MockOutput> mockOutput() const { return m_mockOutput; }
     void setCurrentMode(const QSize &size);
+    void sendGeometryAndMode(const QRect &geometry);
 
 protected:
     void output_bind_resource(Resource *resource) override;

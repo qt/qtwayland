@@ -47,7 +47,7 @@ QT_BEGIN_NAMESPACE
 class QWaylandInputMethodEventBuilder
 {
 public:
-    QWaylandInputMethodEventBuilder();
+    QWaylandInputMethodEventBuilder() = default;
     ~QWaylandInputMethodEventBuilder();
 
     void reset();
@@ -66,12 +66,12 @@ public:
 private:
     QPair<int, int> replacementForDeleteSurrounding();
 
-    int32_t m_anchor;
-    int32_t m_cursor;
-    uint32_t m_deleteBefore;
-    uint32_t m_deleteAfter;
+    int32_t m_anchor = 0;
+    int32_t m_cursor = 0;
+    uint32_t m_deleteBefore = 0;
+    uint32_t m_deleteAfter = 0;
 
-    int32_t m_preeditCursor;
+    int32_t m_preeditCursor = 0;
     QList<QInputMethodEvent::Attribute> m_preeditStyles;
 };
 

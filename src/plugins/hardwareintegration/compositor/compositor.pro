@@ -16,3 +16,5 @@ qtConfig(libhybris-egl-server): \
 
 ### TODO: make shm-emulation configurable
 SUBDIRS += shm-emulation-server
+
+SUBDIRS += hardwarelayer

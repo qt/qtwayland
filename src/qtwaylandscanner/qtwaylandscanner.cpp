@@ -228,7 +228,7 @@ const WaylandArgument *newIdArgument(const QList<WaylandArgument> &arguments)
         if (arguments.at(i).type == "new_id")
             return &arguments.at(i);
     }
-    return 0;
+    return nullptr;
 }
 
 void printEvent(const WaylandEvent &e, bool omitNames = false, bool withResource = false)

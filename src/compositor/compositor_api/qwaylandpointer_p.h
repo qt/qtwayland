@@ -92,17 +92,17 @@ private:
     void sendLeave();
     void ensureEntered(QWaylandSurface *surface);
 
-    QWaylandSeat *seat;
-    QWaylandOutput *output;
+    QWaylandSeat *seat = nullptr;
+    QWaylandOutput *output = nullptr;
     QPointer<QWaylandSurface> enteredSurface;
 
     QPointF localPosition;
     QPointF spacePosition;
 
-    bool hasSentEnter;
-    uint enterSerial;
+    bool hasSentEnter = false;
+    uint enterSerial = 0;
 
-    int buttonCount;
+    int buttonCount = 0;
 
     QWaylandDestroyListener enteredSurfaceDestroyListener;
 

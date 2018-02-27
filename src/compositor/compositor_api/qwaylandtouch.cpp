@@ -50,8 +50,7 @@
 QT_BEGIN_NAMESPACE
 
 QWaylandTouchPrivate::QWaylandTouchPrivate(QWaylandTouch *touch, QWaylandSeat *seat)
-    : wl_touch()
-    , seat(seat)
+    : seat(seat)
 {
     Q_UNUSED(touch);
 }

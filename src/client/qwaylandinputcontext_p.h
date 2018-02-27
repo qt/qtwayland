@@ -112,17 +112,17 @@ private:
 
     QVector<Qt::KeyboardModifier> m_modifiersMap;
 
-    uint32_t m_serial;
-    struct ::wl_surface *m_surface;
+    uint32_t m_serial = 0;
+    struct ::wl_surface *m_surface = nullptr;
 
     QString m_preeditCommit;
 
-    bool m_inputPanelVisible;
+    bool m_inputPanelVisible = false;
     QRectF m_keyboardRectangle;
     QLocale m_locale;
-    Qt::LayoutDirection m_inputDirection;
+    Qt::LayoutDirection m_inputDirection = Qt::LayoutDirectionAuto;
 
-    struct ::wl_callback *m_resetCallback;
+    struct ::wl_callback *m_resetCallback = nullptr;
     static const wl_callback_listener callbackListener;
     static void resetCallback(void *data, struct wl_callback *wl_callback, uint32_t time);
 };

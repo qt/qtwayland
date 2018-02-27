@@ -106,7 +106,7 @@ void tst_WaylandCompositor::singleClient()
     QWaylandClient *cb = compositor.surfaces.at(1)->client();
 
     QCOMPARE(ca, cb);
-    QVERIFY(ca != 0);
+    QVERIFY(ca != nullptr);
 
     QList<QWaylandSurface *> surfaces = compositor.surfacesForClient(ca);
     QCOMPARE(surfaces.size(), 2);
@@ -142,7 +142,7 @@ void tst_WaylandCompositor::multipleClients()
     QVERIFY(ca != cb);
     QVERIFY(ca != cc);
     QVERIFY(cb != cc);
-    QVERIFY(ca != 0);
+    QVERIFY(ca != nullptr);
 
     QCOMPARE(compositor.surfacesForClient(ca).size(), 1);
     QCOMPARE(compositor.surfacesForClient(ca).at(0), compositor.surfaces.at(0));

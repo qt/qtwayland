@@ -69,9 +69,9 @@ private:
 
     QWaylandXCompositeGLXIntegration *m_glxIntegration;
 
-    Window m_xWindow;
+    Window m_xWindow = 0;
     GLXFBConfig m_config;
-    QWaylandBuffer *mBuffer;
+    QWaylandBuffer *mBuffer = nullptr;
 };
 
 }

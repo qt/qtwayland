@@ -50,7 +50,6 @@ namespace QtWaylandClient {
 QWaylandXdgPopup::QWaylandXdgPopup(struct ::xdg_popup *popup, QWaylandWindow *window)
     : QWaylandShellSurface(window)
     , QtWayland::xdg_popup(popup)
-    , m_extendedWindow(nullptr)
     , m_window(window)
 {
     if (window->display()->windowExtension())

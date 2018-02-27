@@ -64,9 +64,6 @@ static const char *qwaylandegl_threadedgl_blacklist_vendor[] = {
 };
 
 QWaylandEglClientBufferIntegration::QWaylandEglClientBufferIntegration()
-    : m_display(0)
-    , m_eglDisplay(EGL_NO_DISPLAY)
-    , m_supportsThreading(false)
 {
     qDebug() << "Using Wayland-EGL";
 }

@@ -94,7 +94,7 @@ protected:
 
 private:
     QWaylandCompositor *m_compositor;
-    BehaviorFlags m_flags;
+    BehaviorFlags m_flags = BehaviorFlag::None;
     QList<Resource *> m_resources;
     QVector<float> m_posData;
 };

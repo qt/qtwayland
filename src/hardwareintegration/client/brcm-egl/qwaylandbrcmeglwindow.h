@@ -77,7 +77,7 @@ private:
 
     const QWaylandWindow *m_parentWindow;
 
-    EGLConfig m_eglConfig;
+    EGLConfig m_eglConfig = 0;
 
     EGLint m_globalImages[3*5];
     EGLSurface m_eglSurfaces[3];
@@ -87,8 +87,8 @@ private:
 
     struct wl_event_queue *m_eventQueue;
 
-    int m_current;
-    int m_count;
+    int m_current = 0;
+    int m_count = 0;
 };
 
 }

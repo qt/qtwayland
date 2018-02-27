@@ -14,7 +14,7 @@ INCLUDEPATH += ../shared
 SOURCES += \
     ../shared/mockcompositor.cpp \
     ../shared/mockinput.cpp \
-    ../shared/mockshell.cpp \
+    ../shared/mockwlshell.cpp \
     ../shared/mockxdgshellv6.cpp \
     ../shared/mocksurface.cpp \
     ../shared/mockoutput.cpp
@@ -22,5 +22,7 @@ SOURCES += \
 HEADERS += \
     ../shared/mockcompositor.h \
     ../shared/mockinput.h \
+    ../shared/mockwlshell.h \
+    ../shared/mockxdgshellv6.h \
     ../shared/mocksurface.h \
     ../shared/mockoutput.h

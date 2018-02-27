@@ -79,8 +79,8 @@ public:
     QWaylandSurface::Origin origin() const override;
     QOpenGLTexture *toOpenGlTexture(int plane) override;
 private:
-    BrcmEglIntegration *m_integration;
-    QOpenGLTexture *m_texture;
+    BrcmEglIntegration *m_integration = nullptr;
+    QOpenGLTexture *m_texture = nullptr;
 };
 
 

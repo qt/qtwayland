@@ -72,10 +72,10 @@ public:
     EGLDisplay eglDisplay() const;
 
 private:
-    QWaylandDisplay *m_display;
+    QWaylandDisplay *m_display = nullptr;
 
-    EGLDisplay m_eglDisplay;
-    bool m_supportsThreading;
+    EGLDisplay m_eglDisplay = EGL_NO_DISPLAY;
+    bool m_supportsThreading = false;
 };
 
 QT_END_NAMESPACE

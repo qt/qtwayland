@@ -72,9 +72,6 @@ Q_LOGGING_CATEGORY(logCategory, "qt.qpa.wayland.backingstore")
 
 QWaylandShmBuffer::QWaylandShmBuffer(QWaylandDisplay *display,
                      const QSize &size, QImage::Format format, int scale)
-    : QWaylandBuffer()
-    , mShmPool(0)
-    , mMarginsImage(0)
 {
     int stride = size.width() * 4;
     int alloc = stride * size.height();
@@ -105,7 +102,7 @@ QWaylandShmBuffer::QWaylandShmBuffer(QWaylandDisplay *display,
     // map ourselves: QFile::map() will unmap when the object is destroyed,
     // but we want this mapping to persist (unmapping in destructor)
     uchar *data = (uchar *)
-            mmap(NULL, alloc, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+            mmap(nullptr, alloc, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
     if (data == (uchar *) MAP_FAILED) {
         qErrnoWarning("QWaylandShmBuffer: mmap failed");
         return;
@@ -147,7 +144,7 @@ QImage *QWaylandShmBuffer::imageInsideMargins(const QMargins &marginsIn)
     }
     if (margins.isNull()) {
         delete mMarginsImage;
-        mMarginsImage = 0;
+        mMarginsImage = nullptr;
     }
 
     mMargins = margins;
@@ -161,9 +158,6 @@ QImage *QWaylandShmBuffer::imageInsideMargins(const QMargins &marginsIn)
 QWaylandShmBackingStore::QWaylandShmBackingStore(QWindow *window)
     : QPlatformBackingStore(window)
     , mDisplay(QWaylandScreen::waylandScreenFromWindow(window)->display())
-    , mFrontBuffer(0)
-    , mBackBuffer(0)
-    , mPainting(false)
 {
 
 }
@@ -249,7 +243,7 @@ QWaylandShmBuffer *QWaylandShmBackingStore::getBuffer(const QSize &size)
             } else {
                 mBuffers.removeOne(b);
                 if (mBackBuffer == b)
-                    mBackBuffer = 0;
+                    mBackBuffer = nullptr;
                 delete b;
             }
         }
@@ -262,7 +256,7 @@ QWaylandShmBuffer *QWaylandShmBackingStore::getBuffer(const QSize &size)
         mBuffers.prepend(b);
         return b;
     }
-    return 0;
+    return nullptr;
 }
 
 void QWaylandShmBackingStore::resize(const QSize &size)

@@ -77,10 +77,10 @@ public:
     bool busy() const { return mBusy; }
 
 protected:
-    struct wl_buffer *mBuffer;
+    struct wl_buffer *mBuffer = nullptr;
 
 private:
-    bool mBusy;
+    bool mBusy = false;
 
     static void release(void *data, wl_buffer *);
     static const wl_buffer_listener listener;

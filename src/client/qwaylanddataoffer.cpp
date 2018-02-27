@@ -87,8 +87,7 @@ void QWaylandDataOffer::data_offer_offer(const QString &mime_type)
 }
 
 QWaylandMimeData::QWaylandMimeData(QWaylandDataOffer *dataOffer, QWaylandDisplay *display)
-    : QInternalMimeData()
-    , m_dataOffer(dataOffer)
+    : m_dataOffer(dataOffer)
     , m_display(display)
 {
 }

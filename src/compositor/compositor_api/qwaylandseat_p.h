@@ -114,10 +114,10 @@ protected:
     void seat_destroy_resource(wl_seat::Resource *resource) override;
 
 private:
-    bool isInitialized;
-    QWaylandCompositor *compositor;
-    QWaylandView *mouseFocus;
-    QWaylandSurface *keyboardFocus;
+    bool isInitialized = false;
+    QWaylandCompositor *compositor = nullptr;
+    QWaylandView *mouseFocus = nullptr;
+    QWaylandSurface *keyboardFocus = nullptr;
     QWaylandSeat::CapabilityFlags capabilities;
 
     QScopedPointer<QWaylandPointer> pointer;

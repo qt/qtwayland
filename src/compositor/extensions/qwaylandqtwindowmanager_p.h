@@ -74,7 +74,7 @@ protected:
     void windowmanager_open_url(Resource *resource, uint32_t remaining, const QString &url) override;
 
 private:
-    bool showIsFullScreen;
+    bool showIsFullScreen = false;
     QMap<Resource*, QString> urls;
 };
 

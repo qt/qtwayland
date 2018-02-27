@@ -62,7 +62,7 @@ public:
     QOpenGLTexture* toOpenGlTexture() override;
 private:
     ShmServerBufferIntegration *m_integration;
-    QOpenGLTexture *m_texture;
+    QOpenGLTexture *m_texture = nullptr;
     QString m_key;
     int m_bpl;
     int m_format;

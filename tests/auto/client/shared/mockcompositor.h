@@ -52,6 +52,8 @@ class Seat;
 class DataDeviceManager;
 class Surface;
 class Output;
+class WlShell;
+class XdgShellV6;
 
 class Compositor
 {
@@ -89,6 +91,7 @@ public:
     static void setOutputMode(void *compositor, const QList<QVariant> &parameters);
     static void sendAddOutput(void *data, const QList<QVariant> &parameters);
     static void sendRemoveOutput(void *data, const QList<QVariant> &parameters);
+    static void sendOutputGeometry(void *data, const QList<QVariant> &parameters);
     static void sendSurfaceEnter(void *data, const QList<QVariant> &parameters);
     static void sendSurfaceLeave(void *data, const QList<QVariant> &parameters);
 
@@ -97,8 +100,6 @@ public:
 
 private:
     static void bindCompositor(wl_client *client, void *data, uint32_t version, uint32_t id);
-    static void bindShell(wl_client *client, void *data, uint32_t version, uint32_t id);
-    static void bindXdgShellV6(wl_client *client, void *compositorData, uint32_t version, uint32_t id);
     static Surface *resolveSurface(const QVariant &v);
     static Output *resolveOutput(const QVariant &v);
 
@@ -120,6 +121,8 @@ private:
     QScopedPointer<DataDeviceManager> m_data_device_manager;
     QVector<Surface *> m_surfaces;
     QVector<Output *> m_outputs;
+    QScopedPointer<WlShell> m_wlShell;
+    QScopedPointer<XdgShellV6> m_xdgShellV6;
 };
 
 void registerResource(wl_list *list, wl_resource *resource);
@@ -181,6 +184,7 @@ public:
     void sendDataDeviceLeave(const QSharedPointer<MockSurface> &surface);
     void sendAddOutput();
     void sendRemoveOutput(const QSharedPointer<MockOutput> &output);
+    void sendOutputGeometry(const QSharedPointer<MockOutput> &output, const QRect &geometry);
     void sendSurfaceEnter(const QSharedPointer<MockSurface> &surface, QSharedPointer<MockOutput> &output);
     void sendSurfaceLeave(const QSharedPointer<MockSurface> &surface, QSharedPointer<MockOutput> &output);
     void waitForStartDrag();
@@ -208,13 +212,13 @@ private:
 
     static void *run(void *data);
 
-    bool m_alive;
-    bool m_ready;
+    bool m_alive = true;
+    bool m_ready = false;
     pthread_t m_thread;
     QMutex m_mutex;
     QWaitCondition m_waitCondition;
 
-    Impl::Compositor *m_compositor;
+    Impl::Compositor *m_compositor = nullptr;
 
     QList<Command> m_commandQueue;
 };

@@ -82,14 +82,14 @@ private Q_SLOTS:
 
 private:
     QWaylandEglClientBufferIntegration *m_clientBufferIntegration;
-    struct wl_egl_window *m_waylandEglWindow;
+    struct wl_egl_window *m_waylandEglWindow = nullptr;
 
     const QWaylandWindow *m_parentWindow;
 
-    EGLSurface m_eglSurface;
+    EGLSurface m_eglSurface = EGL_NO_SURFACE;
     EGLConfig m_eglConfig;
-    mutable QOpenGLFramebufferObject *m_contentFBO;
-    mutable bool m_resize;
+    mutable bool m_resize = false;
+    mutable QOpenGLFramebufferObject *m_contentFBO = nullptr;
 
     QSurfaceFormat m_format;
 };

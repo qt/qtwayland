@@ -138,7 +138,7 @@ void QWaylandInputMethodControl::defaultSeatChanged()
 {
     Q_D(QWaylandInputMethodControl);
 
-    disconnect(d->textInput(), 0, this, 0);
+    disconnect(d->textInput(), nullptr, this, nullptr);
 
     d->seat = d->compositor->defaultSeat();
     QWaylandTextInput *textInput = d->textInput();
@@ -150,11 +150,9 @@ void QWaylandInputMethodControl::defaultSeatChanged()
 }
 
 QWaylandInputMethodControlPrivate::QWaylandInputMethodControlPrivate(QWaylandSurface *surface)
-    : QObjectPrivate()
-    , compositor(surface->compositor())
+    : compositor(surface->compositor())
     , seat(compositor->defaultSeat())
     , surface(surface)
-    , enabled(false)
 {
 }
 

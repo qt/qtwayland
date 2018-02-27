@@ -140,8 +140,7 @@ static const struct {
 };
 
 QWaylandBufferMaterialShader::QWaylandBufferMaterialShader(QWaylandBufferRef::BufferFormatEgl format)
-    : QSGMaterialShader()
-    , m_format(format)
+    : m_format(format)
 {
     setShaderSourceFile(QOpenGLShader::Vertex, QString::fromLatin1(bufferTypes[format].vertexShaderSourceFile));
     setShaderSourceFile(QOpenGLShader::Fragment, QString::fromLatin1(bufferTypes[format].fragmentShaderSourceFile));
@@ -163,7 +162,7 @@ void QWaylandBufferMaterialShader::updateState(const QSGMaterialShader::RenderSt
 
 const char * const *QWaylandBufferMaterialShader::attributeNames() const
 {
-    static char const *const attr[] = { "qt_VertexPosition", "qt_VertexTexCoord", 0 };
+    static char const *const attr[] = { "qt_VertexPosition", "qt_VertexTexCoord", nullptr };
     return attr;
 }
 
@@ -183,8 +182,7 @@ void QWaylandBufferMaterialShader::initialize()
 }
 
 QWaylandBufferMaterial::QWaylandBufferMaterial(QWaylandBufferRef::BufferFormatEgl format)
-    : QSGMaterial()
-    , m_format(format)
+    : m_format(format)
 {
     QOpenGLFunctions *gl = QOpenGLContext::currentContext()->functions();
 
@@ -261,14 +259,12 @@ void QWaylandBufferMaterial::ensureTextures(int count)
     }
 }
 
-QMutex *QWaylandQuickItemPrivate::mutex = 0;
+QMutex *QWaylandQuickItemPrivate::mutex = nullptr;
 
 class QWaylandSurfaceTextureProvider : public QSGTextureProvider
 {
 public:
     QWaylandSurfaceTextureProvider()
-        : m_smooth(false)
-        , m_sgTex(0)
     {
     }
 
@@ -283,7 +279,7 @@ public:
         Q_ASSERT(QThread::currentThread() == thread());
         m_ref = buffer;
         delete m_sgTex;
-        m_sgTex = 0;
+        m_sgTex = nullptr;
         if (m_ref.hasBuffer()) {
             if (buffer.isSharedMemory()) {
                 m_sgTex = surfaceItem->window()->createTextureFromImage(buffer.image());
@@ -313,8 +309,8 @@ public:
 
     void setSmooth(bool smooth) { m_smooth = smooth; }
 private:
-    bool m_smooth;
-    QSGTexture *m_sgTex;
+    bool m_smooth = false;
+    QSGTexture *m_sgTex = nullptr;
     QWaylandBufferRef m_ref;
 };
 
@@ -1080,14 +1076,14 @@ QVariant QWaylandQuickItem::inputMethodQuery(Qt::InputMethodQuery query, QVarian
 
     Returns true if the item is hidden, though the texture
     is still updated. As opposed to hiding the item by
-    setting \l{Item::visible}{visible} to \c false, setting this property to \c true
+    setting \l{Item::visible}{visible} to \c false, setting this property to \c false
     will not prevent mouse or keyboard input from reaching item.
 */
 
 /*!
     Returns true if the item is hidden, though the texture
     is still updated. As opposed to hiding the item by
-    setting \l{Item::visible}{visible} to \c false, setting this property to \c true
+    setting \l{Item::visible}{visible} to \c false, setting this property to \c false
     will not prevent mouse or keyboard input from reaching item.
 */
 bool QWaylandQuickItem::paintEnabled() const
@@ -1190,9 +1186,10 @@ void QWaylandQuickItem::updateInputMethod(Qt::InputMethodQueries queries)
  * \sa QWaylandQuickkItem::bufferLocked
  */
 
-QSGNode *QWaylandQuickItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *)
+QSGNode *QWaylandQuickItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *data)
 {
     Q_D(QWaylandQuickItem);
+    d->lastMatrix = data->transformNode->combinedMatrix();
     const bool bufferHasContent = d->view->currentBuffer().hasContent();
 
     if (d->view->isBufferLocked() && !bufferHasContent && d->paintEnabled)
@@ -1200,7 +1197,7 @@ QSGNode *QWaylandQuickItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeDat
 
     if (!bufferHasContent || !d->paintEnabled) {
         delete oldNode;
-        return 0;
+        return nullptr;
     }
 
     QWaylandBufferRef ref = d->view->currentBuffer();

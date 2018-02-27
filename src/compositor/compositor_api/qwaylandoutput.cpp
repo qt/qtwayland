@@ -46,6 +46,7 @@
 
 #include <QtWaylandCompositor/private/qwaylandsurface_p.h>
 #include <QtWaylandCompositor/private/qwaylandcompositor_p.h>
+#include <QtWaylandCompositor/private/qwaylandview_p.h>
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QtMath>
@@ -103,16 +104,6 @@ static QtWaylandServer::wl_output::transform toWlTransform(const QWaylandOutput:
 }
 
 QWaylandOutputPrivate::QWaylandOutputPrivate()
-    : QtWaylandServer::wl_output()
-    , compositor(nullptr)
-    , window(nullptr)
-    , currentMode(-1)
-    , preferredMode(-1)
-    , subpixel(QWaylandOutput::SubpixelUnknown)
-    , transform(QWaylandOutput::TransformNormal)
-    , scaleFactor(1)
-    , sizeFollowsWindow(false)
-    , initialized(false)
 {
 }
 
@@ -895,8 +886,10 @@ void QWaylandOutput::sendFrameCallbacks()
                 surfaceEnter(surfacemapper.surface);
                 d->surfaceViews[i].has_entered = true;
             }
-            if (surfacemapper.maybePrimaryView())
-                surfacemapper.surface->sendFrameCallbacks();
+            if (auto primaryView = surfacemapper.maybePrimaryView()) {
+                if (!QWaylandViewPrivate::get(primaryView)->independentFrameCallback)
+                    surfacemapper.surface->sendFrameCallbacks();
+            }
         }
     }
     wl_display_flush_clients(d->compositor->display());

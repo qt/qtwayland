@@ -117,9 +117,6 @@ QWaylandXdgSurfaceV6::QWaylandXdgSurfaceV6(QWaylandXdgShellV6 *shell, ::zxdg_sur
                     , zxdg_surface_v6(surface)
                     , m_shell(shell)
                     , m_window(window)
-                    , m_toplevel(nullptr)
-                    , m_popup(nullptr)
-                    , m_configured(false)
 {
 }
 

@@ -69,7 +69,7 @@ class Q_WAYLAND_CLIENT_EXPORT QWaylandInputDeviceIntegrationPlugin : public QObj
 {
     Q_OBJECT
 public:
-    explicit QWaylandInputDeviceIntegrationPlugin(QObject *parent = 0);
+    explicit QWaylandInputDeviceIntegrationPlugin(QObject *parent = nullptr);
     ~QWaylandInputDeviceIntegrationPlugin();
 
     virtual QWaylandInputDeviceIntegration *create(const QString &key, const QStringList &paramList) = 0;

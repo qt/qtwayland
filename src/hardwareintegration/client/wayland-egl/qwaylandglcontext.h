@@ -89,10 +89,10 @@ private:
     EGLContext m_shareEGLContext;
     EGLConfig m_config;
     QSurfaceFormat m_format;
-    DecorationsBlitter *m_blitter;
-    bool mUseNativeDefaultFbo;
+    DecorationsBlitter *m_blitter = nullptr;
+    bool mUseNativeDefaultFbo = false;
     uint m_api;
-    bool mSupportNonBlockingSwap;
+    bool mSupportNonBlockingSwap = true;
 
     friend class DecorationsBlitter;
 };

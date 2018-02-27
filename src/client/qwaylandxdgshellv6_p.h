@@ -125,9 +125,9 @@ private:
 
     QWaylandXdgShellV6 *m_shell;
     QWaylandWindow *m_window;
-    Toplevel *m_toplevel;
-    Popup *m_popup;
-    bool m_configured;
+    Toplevel *m_toplevel = nullptr;
+    Popup *m_popup = nullptr;
+    bool m_configured = false;
     QRegion m_exposeRegion;
 };
 

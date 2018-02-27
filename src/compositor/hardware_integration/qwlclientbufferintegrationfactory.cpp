@@ -90,7 +90,7 @@ ClientBufferIntegration *ClientBufferIntegrationFactory::create(const QString &n
     if (ClientBufferIntegration *ret = qLoadPlugin<ClientBufferIntegration, ClientBufferIntegrationPlugin>(loader(), name, args))
         return ret;
 #endif
-    return 0;
+    return nullptr;
 }
 
 }

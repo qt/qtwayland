@@ -51,7 +51,6 @@ QWaylandSubSurface::QWaylandSubSurface(QWaylandWindow *window, QWaylandWindow *p
     : QtWayland::wl_subsurface(sub_surface)
     , m_window(window)
     , m_parent(parent)
-    , m_synchronized(false)
 {
     m_parent->mChildren << this;
     setDeSync();

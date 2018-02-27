@@ -57,7 +57,7 @@ public:
     wl_resource *resource() const { return m_resource; }
 
 private:
-    wl_resource *m_resource;
+    wl_resource *m_resource = nullptr;
 };
 
 QT_END_NAMESPACE

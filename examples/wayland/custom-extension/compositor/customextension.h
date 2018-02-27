@@ -65,7 +65,7 @@ class CustomExtension  : public QWaylandCompositorExtensionTemplate<CustomExtens
 {
     Q_OBJECT
 public:
-    CustomExtension(QWaylandCompositor *compositor = 0);
+    CustomExtension(QWaylandCompositor *compositor = nullptr);
     void initialize() override;
 
 signals:

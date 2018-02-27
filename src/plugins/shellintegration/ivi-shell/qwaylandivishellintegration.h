@@ -68,12 +68,12 @@ private:
     uint32_t getNextUniqueSurfaceId();
 
 private:
-    QtWayland::ivi_application *m_iviApplication;
-    QtWayland::ivi_controller *m_iviController;
-    uint32_t m_lastSurfaceId;
-    uint32_t m_surfaceNumber;
-    bool m_useEnvSurfaceId;
-    QMutex m_mutex;
+    QtWayland::ivi_application *m_iviApplication = nullptr;
+    QtWayland::ivi_controller *m_iviController = nullptr;
+    uint32_t m_lastSurfaceId = 0;
+    uint32_t m_surfaceNumber = 0;
+    bool m_useEnvSurfaceId = false;
+    QMutex m_mutex{QMutex::Recursive};
 };
 
 }

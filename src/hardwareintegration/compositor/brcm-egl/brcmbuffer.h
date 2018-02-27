@@ -70,7 +70,7 @@ protected:
 
 private:
     QVector<EGLint> m_handle;
-    bool m_invertedY;
+    bool m_invertedY = false;
     QSize m_size;
 };
 

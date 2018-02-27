@@ -105,10 +105,10 @@ private:
     void setPopup(QWaylandWindow *parent, QWaylandInputDevice *device, uint serial);
 
     QWaylandWindow *m_window;
-    bool m_maximized;
-    bool m_fullscreen;
+    bool m_maximized = false;
+    bool m_fullscreen = false;
     QSize m_size;
-    QWaylandExtendedSurface *m_extendedWindow;
+    QWaylandExtendedSurface *m_extendedWindow = nullptr;
 
     void shell_surface_ping(uint32_t serial) override;
     void shell_surface_configure(uint32_t edges,

@@ -68,9 +68,9 @@ public:
     PFNGLXRELEASETEXIMAGEEXTPROC m_glxReleaseTexImageEXT;
 
 private:
-    Display *mDisplay;
+    Display *mDisplay = nullptr;
     int mScreen;
-    XCompositeHandler *mHandler;
+    XCompositeHandler *mHandler = nullptr;
 };
 
 class XCompositeGLXClientBuffer : public QtWayland::ClientBuffer
@@ -86,9 +86,9 @@ public:
     }
 
 private:
-    QOpenGLTexture *m_texture;
+    QOpenGLTexture *m_texture = nullptr;
     XCompositeGLXClientBufferIntegration *m_integration;
-    GLXPixmap m_glxPixmap;
+    GLXPixmap m_glxPixmap = 0;
 };
 
 QT_END_NAMESPACE

@@ -117,9 +117,9 @@ private:
     QPoint calculateDragPosition(int x, int y, QWindow *wnd) const;
 #endif
 
-    QWaylandDisplay *m_display;
-    QWaylandInputDevice *m_inputDevice;
-    uint32_t m_enterSerial;
+    QWaylandDisplay *m_display = nullptr;
+    QWaylandInputDevice *m_inputDevice = nullptr;
+    uint32_t m_enterSerial = 0;
     QPointer<QWindow> m_dragWindow;
     QPoint m_dragPoint;
     QScopedPointer<QWaylandDataOffer> m_dragOffer;

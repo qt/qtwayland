@@ -59,22 +59,7 @@
 QT_BEGIN_NAMESPACE
 
 QWaylandKeyboardPrivate::QWaylandKeyboardPrivate(QWaylandSeat *seat)
-    : QtWaylandServer::wl_keyboard()
-    , seat(seat)
-    , focus()
-    , focusResource()
-    , keys()
-    , modsDepressed()
-    , modsLatched()
-    , modsLocked()
-    , group()
-    , pendingKeymap(false)
-#if QT_CONFIG(xkbcommon_evdev)
-    , keymap_fd(-1)
-    , xkb_state(0)
-#endif
-    , repeatRate(40)
-    , repeatDelay(400)
+    : seat(seat)
 {
 }
 
@@ -168,7 +153,7 @@ void QWaylandKeyboardPrivate::keyboard_bind_resource(wl_keyboard::Resource *reso
 void QWaylandKeyboardPrivate::keyboard_destroy_resource(wl_keyboard::Resource *resource)
 {
     if (focusResource == resource)
-        focusResource = 0;
+        focusResource = nullptr;
 }
 
 void QWaylandKeyboardPrivate::keyboard_release(wl_keyboard::Resource *resource)
@@ -333,7 +318,7 @@ void QWaylandKeyboardPrivate::createXKBState(xkb_keymap *keymap)
         return;
     }
 
-    keymap_area = static_cast<char *>(mmap(0, keymap_size, PROT_READ | PROT_WRITE, MAP_SHARED, keymap_fd, 0));
+    keymap_area = static_cast<char *>(mmap(nullptr, keymap_size, PROT_READ | PROT_WRITE, MAP_SHARED, keymap_fd, 0));
     if (keymap_area == MAP_FAILED) {
         close(keymap_fd);
         keymap_fd = -1;
@@ -448,8 +433,8 @@ void QWaylandKeyboard::focusDestroyed(void *data)
     Q_D(QWaylandKeyboard);
     d->focusDestroyListener.reset();
 
-    d->focus = 0;
-    d->focusResource = 0;
+    d->focus = nullptr;
+    d->focusResource = nullptr;
 }
 
 void QWaylandKeyboard::updateKeymap()

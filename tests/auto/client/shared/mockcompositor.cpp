@@ -30,14 +30,13 @@
 #include "mockinput.h"
 #include "mockoutput.h"
 #include "mocksurface.h"
+#include "mockwlshell.h"
+#include "mockxdgshellv6.h"
 
 #include <wayland-xdg-shell-unstable-v6-server-protocol.h>
 
 #include <stdio.h>
 MockCompositor::MockCompositor()
-    : m_alive(true)
-    , m_ready(false)
-    , m_compositor(0)
 {
     pthread_create(&m_thread, 0, run, this);
 
@@ -196,6 +195,14 @@ void MockCompositor::sendRemoveOutput(const QSharedPointer<MockOutput> &output)
     processCommand(command);
 }
 
+void MockCompositor::sendOutputGeometry(const QSharedPointer<MockOutput> &output, const QRect &geometry)
+{
+    Command command = makeCommand(Impl::Compositor::sendOutputGeometry, m_compositor);
+    command.parameters << QVariant::fromValue(output);
+    command.parameters << QVariant::fromValue(geometry);
+    processCommand(command);
+}
+
 void MockCompositor::sendSurfaceEnter(const QSharedPointer<MockSurface> &surface, QSharedPointer<MockOutput> &output)
 {
     Command command = makeCommand(Impl::Compositor::sendSurfaceEnter, m_compositor);
@@ -323,8 +330,8 @@ Compositor::Compositor()
     m_touch = m_seat->touch();
 
     m_outputs.append(new Output(m_display, QSize(1920, 1080), QPoint(0, 0)));
-    wl_global_create(m_display, &wl_shell_interface, 1, this, bindShell);
-    wl_global_create(m_display, &zxdg_shell_v6_interface, 1, this, bindXdgShellV6);
+    m_wlShell.reset(new WlShell(m_display));
+    m_xdgShellV6.reset(new XdgShellV6(m_display));
 
     m_loop = wl_display_get_event_loop(m_display);
     m_fd = wl_event_loop_get_fd(m_loop);

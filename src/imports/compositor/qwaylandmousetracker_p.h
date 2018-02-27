@@ -58,7 +58,7 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandMouseTracker : public QQuickItem
 
     Q_PROPERTY(bool windowSystemCursorEnabled READ windowSystemCursorEnabled WRITE setWindowSystemCursorEnabled NOTIFY windowSystemCursorEnabledChanged)
 public:
-    QWaylandMouseTracker(QQuickItem *parent = 0);
+    QWaylandMouseTracker(QQuickItem *parent = nullptr);
 
     qreal mouseX() const;
     qreal mouseY() const;

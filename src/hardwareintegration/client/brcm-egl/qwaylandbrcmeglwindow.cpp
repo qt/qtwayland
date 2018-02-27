@@ -67,7 +67,6 @@ public:
                        int count,
                        struct wl_event_queue *eventQueue)
         : m_size(size)
-        , m_released(true)
         , m_display(display)
         , m_eventQueue(eventQueue)
     {
@@ -119,7 +118,7 @@ public:
 private:
 
     QSize m_size;
-    bool m_released;
+    bool m_released = true;
     wl_array m_array;
     EGLint *m_data;
     QWaylandDisplay *m_display;
@@ -129,11 +128,8 @@ private:
 QWaylandBrcmEglWindow::QWaylandBrcmEglWindow(QWindow *window)
     : QWaylandWindow(window)
     , m_eglIntegration(static_cast<QWaylandBrcmEglIntegration *>(mDisplay->clientBufferIntegration()))
-    , m_eglConfig(0)
     , m_format(window->format())
     , m_eventQueue(wl_display_create_queue(mDisplay->wl_display()))
-    , m_current(0)
-    , m_count(0)
 {
 }
 

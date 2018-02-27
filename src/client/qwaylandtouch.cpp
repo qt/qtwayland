@@ -48,11 +48,11 @@ namespace QtWaylandClient {
 QWaylandTouchExtension::QWaylandTouchExtension(QWaylandDisplay *display, uint32_t id)
     : QtWayland::qt_touch_extension(display->wl_registry(), id, 1),
       mDisplay(display),
-      mTouchDevice(0),
+      mTouchDevice(nullptr),
       mPointsLeft(0),
       mFlags(0),
       mMouseSourceId(-1),
-      mInputDevice(0)
+      mInputDevice(nullptr)
 {
 }
 

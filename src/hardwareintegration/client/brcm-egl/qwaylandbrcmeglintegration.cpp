@@ -53,7 +53,6 @@ QT_BEGIN_NAMESPACE
 namespace QtWaylandClient {
 
 QWaylandBrcmEglIntegration::QWaylandBrcmEglIntegration()
-    : m_waylandDisplay(0)
 {
     qDebug() << "Using Brcm-EGL";
 }

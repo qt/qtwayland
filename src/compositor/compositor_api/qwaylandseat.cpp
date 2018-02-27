@@ -60,21 +60,11 @@
 
 QT_BEGIN_NAMESPACE
 
-QWaylandSeatPrivate::QWaylandSeatPrivate(QWaylandSeat *seat)
-    : QObjectPrivate()
-    , QtWaylandServer::wl_seat()
-    , isInitialized(false)
-    , compositor(nullptr)
-    , mouseFocus(nullptr)
-    , keyboardFocus(nullptr)
-    , capabilities()
+QWaylandSeatPrivate::QWaylandSeatPrivate(QWaylandSeat *seat) :
 #if QT_CONFIG(wayland_datadevice)
-    , data_device()
+    drag_handle(new QWaylandDrag(seat)),
 #endif
-#if QT_CONFIG(draganddrop)
-    , drag_handle(new QWaylandDrag(seat))
-#endif
-    , keymap(new QWaylandKeymap())
+    keymap(new QWaylandKeymap())
 {
 }
 
@@ -89,15 +79,15 @@ void QWaylandSeatPrivate::setCapabilities(QWaylandSeat::CapabilityFlags caps)
         QWaylandSeat::CapabilityFlags changed = caps ^ capabilities;
 
         if (changed & QWaylandSeat::Pointer) {
-            pointer.reset(pointer.isNull() ? QWaylandCompositorPrivate::get(compositor)->callCreatePointerDevice(q) : 0);
+            pointer.reset(pointer.isNull() ? QWaylandCompositorPrivate::get(compositor)->callCreatePointerDevice(q) : nullptr);
         }
 
         if (changed & QWaylandSeat::Keyboard) {
-            keyboard.reset(keyboard.isNull() ? QWaylandCompositorPrivate::get(compositor)->callCreateKeyboardDevice(q) : 0);
+            keyboard.reset(keyboard.isNull() ? QWaylandCompositorPrivate::get(compositor)->callCreateKeyboardDevice(q) : nullptr);
         }
 
         if (changed & QWaylandSeat::Touch) {
-            touch.reset(touch.isNull() ? QWaylandCompositorPrivate::get(compositor)->callCreateTouchDevice(q) : 0);
+            touch.reset(touch.isNull() ? QWaylandCompositorPrivate::get(compositor)->callCreateTouchDevice(q) : nullptr);
         }
 
         capabilities = caps;

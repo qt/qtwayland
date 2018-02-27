@@ -60,9 +60,9 @@ QT_BEGIN_NAMESPACE
 struct Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgPositionerV6Data {
     QSize size;
     QRect anchorRect;
-    Qt::Edges anchorEdges;
-    Qt::Edges gravityEdges;
-    uint constraintAdjustments;
+    Qt::Edges anchorEdges = 0;
+    Qt::Edges gravityEdges = 0;
+    uint constraintAdjustments = ZXDG_POSITIONER_V6_CONSTRAINT_ADJUSTMENT_NONE;
     QPoint offset;
     QWaylandXdgPositionerV6Data();
     bool isComplete() const;
@@ -112,15 +112,15 @@ public:
     void updateFallbackWindowGeometry();
 
 private:
-    QWaylandXdgShellV6 *m_xdgShell;
-    QWaylandSurface *m_surface;
+    QWaylandXdgShellV6 *m_xdgShell = nullptr;
+    QWaylandSurface *m_surface = nullptr;
 
-    QWaylandXdgToplevelV6 *m_toplevel;
-    QWaylandXdgPopupV6 *m_popup;
+    QWaylandXdgToplevelV6 *m_toplevel = nullptr;
+    QWaylandXdgPopupV6 *m_popup = nullptr;
     QRect m_windowGeometry;
-    bool m_unsetWindowGeometry;
+    bool m_unsetWindowGeometry = true;
     QMargins m_windowMargins;
-    Qt::WindowType m_windowType;
+    Qt::WindowType m_windowType = Qt::WindowType::Window;
 
     void zxdg_surface_v6_destroy_resource(Resource *resource) override;
     void zxdg_surface_v6_destroy(Resource *resource) override;
@@ -136,8 +136,8 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgToplevelV6Private : public QObjectP
 public:
     struct ConfigureEvent {
         QVector<QWaylandXdgToplevelV6::State> states;
-        QSize size;
-        uint serial;
+        QSize size = {0, 0};
+        uint serial = 0;
     };
 
     QWaylandXdgToplevelV6Private(QWaylandXdgSurfaceV6 *xdgSurface, const QWaylandResource& resource);
@@ -169,7 +169,7 @@ protected:
 
 public:
     QWaylandXdgSurfaceV6 *m_xdgSurface;
-    QWaylandXdgToplevelV6 *m_parentToplevel;
+    QWaylandXdgToplevelV6 *m_parentToplevel = nullptr;
     QList<ConfigureEvent> m_pendingConfigures;
     ConfigureEvent m_lastAckedConfigure;
     QString m_title;

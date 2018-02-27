@@ -94,7 +94,7 @@ private:
 
     QWaylandQuickShellSurfaceItem *m_item;
     QPointer<QWaylandWlShellSurface> m_shellSurface;
-    GrabberState grabberState;
+    GrabberState grabberState = GrabberState::Default;
     struct {
         QWaylandSeat *seat;
         QPointF initialOffset;
@@ -108,7 +108,7 @@ private:
         bool initialized;
     } resizeState;
 
-    bool isPopup;
+    bool isPopup = false;
 
     enum class State {
         Windowed,
@@ -116,8 +116,8 @@ private:
         FullScreen
     };
 
-    State currentState;
-    State nextState;
+    State currentState = State::Windowed;
+    State nextState = State::Windowed;
     QPointF normalPosition;
     QPointF finalPosition;
 };

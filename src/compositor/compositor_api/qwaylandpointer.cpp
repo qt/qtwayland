@@ -47,12 +47,7 @@ QT_BEGIN_NAMESPACE
 QWaylandSurfaceRole QWaylandPointerPrivate::s_role("wl_pointer");
 
 QWaylandPointerPrivate::QWaylandPointerPrivate(QWaylandPointer *pointer, QWaylandSeat *seat)
-    : QObjectPrivate()
-    , wl_pointer()
-    , seat(seat)
-    , output()
-    , enterSerial(0)
-    , buttonCount()
+    : seat(seat)
 {
     Q_UNUSED(pointer);
 }

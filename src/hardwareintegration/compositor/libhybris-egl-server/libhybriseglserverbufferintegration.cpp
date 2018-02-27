@@ -48,7 +48,6 @@ QT_BEGIN_NAMESPACE
 LibHybrisEglServerBuffer::LibHybrisEglServerBuffer(LibHybrisEglServerBufferIntegration *integration, const QImage &qimage, QtWayland::ServerBuffer::Format format)
     : QtWayland::ServerBuffer(qimage.size(),format)
     , m_integration(integration)
-    , m_texture(nullptr)
 {
     m_format = format;
 

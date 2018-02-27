@@ -70,7 +70,7 @@ public:
 private:
     QWaylandWlShellIntegration(QWaylandDisplay* display);
 
-    QtWayland::wl_shell *m_wlShell;
+    QtWayland::wl_shell *m_wlShell = nullptr;
 };
 
 }

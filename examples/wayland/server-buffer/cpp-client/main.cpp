@@ -73,7 +73,6 @@ class TestWindow : public QOpenGLWindow
 
 public:
     TestWindow()
-        : m_extension(nullptr)
     {
         m_extension = new ShareBufferExtension;
         connect(m_extension, SIGNAL(bufferReceived(QtWaylandClient::QWaylandServerBuffer*)), this, SLOT(receiveBuffer(QtWaylandClient::QWaylandServerBuffer*)));
@@ -118,7 +117,7 @@ protected:
 private:
 
     QOpenGLTextureBlitter *m_blitter;
-    ShareBufferExtension *m_extension;
+    ShareBufferExtension *m_extension = nullptr;
     QList<QtWaylandClient::QWaylandServerBuffer*> m_buffers;
 
 };

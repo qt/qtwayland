@@ -68,13 +68,6 @@
 
 View::View(Compositor *compositor)
     : m_compositor(compositor)
-    , m_textureTarget(GL_TEXTURE_2D)
-    , m_texture(nullptr)
-    , m_wlShellSurface(nullptr)
-    , m_xdgSurface(nullptr)
-    , m_xdgPopup(nullptr)
-    , m_parentView(nullptr)
-    , m_animationFactor(1.0)
 {}
 
 QOpenGLTexture *View::getTexture()
@@ -190,8 +183,7 @@ void View::onXdgUnsetFullscreen()
 }
 
 Compositor::Compositor(QWindow *window)
-    : QWaylandCompositor()
-    , m_window(window)
+    : m_window(window)
     , m_wlShell(new QWaylandWlShell(this))
     , m_xdgShell(new QWaylandXdgShellV5(this))
 {

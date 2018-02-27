@@ -53,8 +53,7 @@ class QWaylandXCompositeGlxPlatformIntegration : public QWaylandIntegration
 {
 public:
     QWaylandXCompositeGlxPlatformIntegration()
-        : QWaylandIntegration()
-        , m_client_buffer_integration(new QWaylandXCompositeGLXIntegration())
+        : m_client_buffer_integration(new QWaylandXCompositeGLXIntegration())
     {
         m_client_buffer_integration->initialize(display());
     }

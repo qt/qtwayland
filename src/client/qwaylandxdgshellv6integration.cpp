@@ -51,7 +51,6 @@ QT_BEGIN_NAMESPACE
 namespace QtWaylandClient {
 
 QWaylandXdgShellV6Integration::QWaylandXdgShellV6Integration(QWaylandDisplay *display)
-    : m_xdgShell(nullptr)
 {
     for (QWaylandDisplay::RegistryGlobal global : display->globals()) {
         if (global.interface == QLatin1String("zxdg_shell_v6")) {

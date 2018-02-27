@@ -78,25 +78,9 @@ namespace QtWaylandClient {
 QWaylandWindow *QWaylandWindow::mMouseGrab = nullptr;
 
 QWaylandWindow::QWaylandWindow(QWindow *window)
-    : QObject()
-    , QPlatformWindow(window)
+    : QPlatformWindow(window)
     , mDisplay(waylandScreen()->display())
-    , mShellSurface(nullptr)
-    , mSubSurfaceWindow(nullptr)
-    , mWindowDecoration(nullptr)
-    , mMouseEventsInContentArea(false)
-    , mMousePressedInContentArea(Qt::NoButton)
-    , mWaitingForFrameSync(false)
-    , mRequestResizeSent(false)
-    , mCanResize(true)
-    , mResizeDirty(false)
     , mResizeAfterSwap(qEnvironmentVariableIsSet("QT_WAYLAND_RESIZE_AFTER_SWAP"))
-    , mSentInitialResize(false)
-    , mScale(1)
-    , mState(Qt::WindowNoState)
-    , mMask()
-    , mBackingStore(nullptr)
-    , mUpdateRequested(false)
 {
     static WId id = 1;
     mWindowId = id++;

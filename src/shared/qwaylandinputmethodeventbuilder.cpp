@@ -50,16 +50,6 @@
 
 QT_BEGIN_NAMESPACE
 
-QWaylandInputMethodEventBuilder::QWaylandInputMethodEventBuilder()
-    : m_anchor(0)
-    , m_cursor(0)
-    , m_deleteBefore(0)
-    , m_deleteAfter(0)
-    , m_preeditCursor(0)
-    , m_preeditStyles()
-{
-}
-
 QWaylandInputMethodEventBuilder::~QWaylandInputMethodEventBuilder()
 {
 }

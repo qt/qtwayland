@@ -58,8 +58,6 @@ QT_BEGIN_NAMESPACE
 QWaylandSurfaceRole QWaylandWlShellSurfacePrivate::s_role("wl_shell_surface");
 
 QWaylandWlShellPrivate::QWaylandWlShellPrivate()
-    : QWaylandCompositorExtensionPrivate()
-    , wl_shell()
 {
 }
 
@@ -102,11 +100,6 @@ void QWaylandWlShellPrivate::unregisterShellSurface(QWaylandWlShellSurface *shel
 }
 
 QWaylandWlShellSurfacePrivate::QWaylandWlShellSurfacePrivate()
-    : QWaylandCompositorExtensionPrivate()
-    , wl_shell_surface()
-    , m_shell(nullptr)
-    , m_surface(nullptr)
-    , m_windowType(Qt::WindowType::Window)
 {
 }
 

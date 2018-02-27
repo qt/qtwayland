@@ -213,7 +213,7 @@ void QWaylandQuickShellEventFilter::stopFilter()
 QWaylandQuickShellEventFilter *QWaylandQuickShellEventFilter::self = nullptr;
 
 QWaylandQuickShellEventFilter::QWaylandQuickShellEventFilter(QObject *parent)
-    : QObject(parent), eventFilterInstalled(false), waitForRelease(false), closePopups(nullptr)
+    : QObject(parent)
 {
 }
 

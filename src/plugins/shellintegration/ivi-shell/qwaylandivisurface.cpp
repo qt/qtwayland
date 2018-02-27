@@ -52,7 +52,6 @@ QWaylandIviSurface::QWaylandIviSurface(struct ::ivi_surface *ivi_surface, QWayla
     : QtWayland::ivi_surface(ivi_surface)
     , QWaylandShellSurface(window)
     , m_window(window)
-    , m_extendedWindow(nullptr)
 {
     createExtendedSurface(window);
 }
@@ -63,7 +62,6 @@ QWaylandIviSurface::QWaylandIviSurface(struct ::ivi_surface *ivi_surface, QWayla
     , QWaylandShellSurface(window)
     , QtWayland::ivi_controller_surface(iviControllerSurface)
     , m_window(window)
-    , m_extendedWindow(nullptr)
 {
     createExtendedSurface(window);
 }

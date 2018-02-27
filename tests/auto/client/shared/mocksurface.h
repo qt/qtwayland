@@ -63,12 +63,12 @@ protected:
                        uint32_t callback) override;
     void surface_commit(Resource *resource) override;
 private:
-    wl_resource *m_buffer;
+    wl_resource *m_buffer = nullptr;
 
     Compositor *m_compositor;
     QSharedPointer<MockSurface> m_mockSurface;
     QList<wl_resource *> m_frameCallbackList;
-    bool m_mapped;
+    bool m_mapped = false;
 };
 
 }

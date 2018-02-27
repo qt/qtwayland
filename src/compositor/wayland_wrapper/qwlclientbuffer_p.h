@@ -114,11 +114,11 @@ protected:
 
     struct ::wl_resource *m_buffer;
     QRegion m_damage;
-    bool m_textureDirty;
+    bool m_textureDirty = false;
 
 private:
-    bool m_committed;
-    bool m_destroyed;
+    bool m_committed = false;
+    bool m_destroyed = false;
 
     QAtomicInt m_refCount;
 
@@ -139,7 +139,7 @@ public:
     QOpenGLTexture *toOpenGlTexture(int plane = 0) override;
 
 private:
-    QOpenGLTexture *m_shmTexture;
+    QOpenGLTexture *m_shmTexture = nullptr;
 #endif
 };
 

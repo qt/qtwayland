@@ -60,10 +60,6 @@
 #include <QtWaylandCompositor/qwaylandseat.h>
 
 Window::Window()
-    : m_backgroundTexture(nullptr)
-    , m_compositor(nullptr)
-    , m_grabState(NoGrab)
-    , m_dragIconView(nullptr)
 {
 }
 

@@ -71,9 +71,6 @@ QVector<int> qglx_buildSpec()
 
 
 XCompositeGLXClientBufferIntegration::XCompositeGLXClientBufferIntegration()
-    : QtWayland::ClientBufferIntegration()
-    , mDisplay(nullptr)
-    , mHandler(nullptr)
 {
     qDebug() << "Loading GLX integration";
 }
@@ -122,9 +119,7 @@ QtWayland::ClientBuffer *XCompositeGLXClientBufferIntegration::createBufferFor(w
 
 XCompositeGLXClientBuffer::XCompositeGLXClientBuffer(XCompositeGLXClientBufferIntegration *integration, wl_resource *bufferResource)
     : QtWayland::ClientBuffer(bufferResource)
-    , m_texture(nullptr)
     , m_integration(integration)
-    , m_glxPixmap(0)
 {
 }
 

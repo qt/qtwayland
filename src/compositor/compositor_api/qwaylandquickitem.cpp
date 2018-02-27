@@ -140,8 +140,7 @@ static const struct {
 };
 
 QWaylandBufferMaterialShader::QWaylandBufferMaterialShader(QWaylandBufferRef::BufferFormatEgl format)
-    : QSGMaterialShader()
-    , m_format(format)
+    : m_format(format)
 {
     setShaderSourceFile(QOpenGLShader::Vertex, QString::fromLatin1(bufferTypes[format].vertexShaderSourceFile));
     setShaderSourceFile(QOpenGLShader::Fragment, QString::fromLatin1(bufferTypes[format].fragmentShaderSourceFile));
@@ -183,8 +182,7 @@ void QWaylandBufferMaterialShader::initialize()
 }
 
 QWaylandBufferMaterial::QWaylandBufferMaterial(QWaylandBufferRef::BufferFormatEgl format)
-    : QSGMaterial()
-    , m_format(format)
+    : m_format(format)
 {
     QOpenGLFunctions *gl = QOpenGLContext::currentContext()->functions();
 
@@ -267,8 +265,6 @@ class QWaylandSurfaceTextureProvider : public QSGTextureProvider
 {
 public:
     QWaylandSurfaceTextureProvider()
-        : m_smooth(false)
-        , m_sgTex(nullptr)
     {
     }
 
@@ -313,8 +309,8 @@ public:
 
     void setSmooth(bool smooth) { m_smooth = smooth; }
 private:
-    bool m_smooth;
-    QSGTexture *m_sgTex;
+    bool m_smooth = false;
+    QSGTexture *m_sgTex = nullptr;
     QWaylandBufferRef m_ref;
 };
 

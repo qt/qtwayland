@@ -212,13 +212,13 @@ private:
 
     static void *run(void *data);
 
-    bool m_alive;
-    bool m_ready;
+    bool m_alive = true;
+    bool m_ready = false;
     pthread_t m_thread;
     QMutex m_mutex;
     QWaitCondition m_waitCondition;
 
-    Impl::Compositor *m_compositor;
+    Impl::Compositor *m_compositor = nullptr;
 
     QList<Command> m_commandQueue;
 };

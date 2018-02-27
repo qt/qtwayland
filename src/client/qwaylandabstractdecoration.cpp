@@ -60,21 +60,17 @@ public:
     QWaylandAbstractDecorationPrivate();
     ~QWaylandAbstractDecorationPrivate();
 
-    QWindow *m_window;
-    QWaylandWindow *m_wayland_window;
+    QWindow *m_window = nullptr;
+    QWaylandWindow *m_wayland_window = nullptr;
 
-    bool m_isDirty;
+    bool m_isDirty = true;
     QImage m_decorationContentImage;
 
-    Qt::MouseButtons m_mouseButtons;
+    Qt::MouseButtons m_mouseButtons = Qt::NoButton;
 };
 
 QWaylandAbstractDecorationPrivate::QWaylandAbstractDecorationPrivate()
-    : m_window(nullptr)
-    , m_wayland_window(nullptr)
-    , m_isDirty(true)
-    , m_decorationContentImage(nullptr)
-    , m_mouseButtons(Qt::NoButton)
+    : m_decorationContentImage(nullptr)
 {
 }
 

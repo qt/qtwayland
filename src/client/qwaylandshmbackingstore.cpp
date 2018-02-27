@@ -72,9 +72,6 @@ Q_LOGGING_CATEGORY(logCategory, "qt.qpa.wayland.backingstore")
 
 QWaylandShmBuffer::QWaylandShmBuffer(QWaylandDisplay *display,
                      const QSize &size, QImage::Format format, int scale)
-    : QWaylandBuffer()
-    , mShmPool(nullptr)
-    , mMarginsImage(nullptr)
 {
     int stride = size.width() * 4;
     int alloc = stride * size.height();
@@ -161,9 +158,6 @@ QImage *QWaylandShmBuffer::imageInsideMargins(const QMargins &marginsIn)
 QWaylandShmBackingStore::QWaylandShmBackingStore(QWindow *window)
     : QPlatformBackingStore(window)
     , mDisplay(QWaylandScreen::waylandScreenFromWindow(window)->display())
-    , mFrontBuffer(nullptr)
-    , mBackBuffer(nullptr)
-    , mPainting(false)
 {
 
 }

@@ -80,7 +80,7 @@ protected:
     void xdg_popup_popup_done() override;
 
 private:
-    QWaylandExtendedSurface *m_extendedWindow;
+    QWaylandExtendedSurface *m_extendedWindow = nullptr;
     QWaylandWindow *m_window;
 };
 

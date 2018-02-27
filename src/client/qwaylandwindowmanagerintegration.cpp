@@ -60,16 +60,14 @@ namespace QtWaylandClient {
 class QWaylandWindowManagerIntegrationPrivate {
 public:
     QWaylandWindowManagerIntegrationPrivate(QWaylandDisplay *waylandDisplay);
-    bool m_blockPropertyUpdates;
+    bool m_blockPropertyUpdates = false;
     QWaylandDisplay *m_waylandDisplay;
     QHash<QWindow*, QVariantMap> m_queuedProperties;
-    bool m_showIsFullScreen;
+    bool m_showIsFullScreen = false;
 };
 
 QWaylandWindowManagerIntegrationPrivate::QWaylandWindowManagerIntegrationPrivate(QWaylandDisplay *waylandDisplay)
-    : m_blockPropertyUpdates(false)
-    , m_waylandDisplay(waylandDisplay)
-    , m_showIsFullScreen(false)
+    : m_waylandDisplay(waylandDisplay)
 {
 
 }

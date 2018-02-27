@@ -124,20 +124,6 @@ QWaylandWindowManagerIntegration *QWaylandDisplay::windowManagerIntegration() co
 
 QWaylandDisplay::QWaylandDisplay(QWaylandIntegration *waylandIntegration)
     : mWaylandIntegration(waylandIntegration)
-#if QT_CONFIG(wayland_datadevice)
-    , mDndSelectionHandler(nullptr)
-#endif
-    , mWindowExtension(nullptr)
-    , mSubCompositor(nullptr)
-    , mTouchExtension(nullptr)
-    , mQtKeyExtension(nullptr)
-    , mTextInputManager(nullptr)
-    , mHardwareIntegration(nullptr)
-    , mLastInputSerial(0)
-    , mLastInputDevice(nullptr)
-    , mLastInputWindow(nullptr)
-    , mLastKeyboardFocus(nullptr)
-    , mSyncCallback(nullptr)
 {
     qRegisterMetaType<uint32_t>("uint32_t");
 

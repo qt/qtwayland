@@ -89,8 +89,8 @@ protected:
 private:
     void createServerBuffers();
     QList<QtWayland::ServerBuffer *> m_server_buffers;
-    QtWayland::ServerBufferIntegration *m_server_buffer_integration;
-    bool m_server_buffers_created;
+    QtWayland::ServerBufferIntegration *m_server_buffer_integration = nullptr;
+    bool m_server_buffers_created = false;
 };
 
 Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CLASS(ShareBufferExtension)

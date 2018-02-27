@@ -81,9 +81,6 @@ class Q_WAYLAND_CLIENT_EXPORT QWaylandWindowConfigure
 {
 public:
     QWaylandWindowConfigure()
-        : width(0)
-        , height(0)
-        , edges(0)
     { }
 
     void clear()
@@ -92,9 +89,9 @@ public:
     bool isEmpty() const
     { return !height || !width; }
 
-    int width;
-    int height;
-    uint32_t edges;
+    int width = 0;
+    int height = 0;
+    uint32_t edges = 0;
 };
 
 class Q_WAYLAND_CLIENT_EXPORT QWaylandWindow : public QObject, public QPlatformWindow, public QtWayland::wl_surface
@@ -214,39 +211,39 @@ protected:
     void surface_leave(struct ::wl_output *output) override;
 
     QVector<QWaylandScreen *> mScreens; //As seen by wl_surface.enter/leave events. Chronological order.
-    QWaylandDisplay *mDisplay;
-    QWaylandShellSurface *mShellSurface;
-    QWaylandSubSurface *mSubSurfaceWindow;
+    QWaylandDisplay *mDisplay = nullptr;
+    QWaylandShellSurface *mShellSurface = nullptr;
+    QWaylandSubSurface *mSubSurfaceWindow = nullptr;
     QVector<QWaylandSubSurface *> mChildren;
 
-    QWaylandAbstractDecoration *mWindowDecoration;
-    bool mMouseEventsInContentArea;
-    Qt::MouseButtons mMousePressedInContentArea;
+    QWaylandAbstractDecoration *mWindowDecoration = nullptr;
+    bool mMouseEventsInContentArea = false;
+    Qt::MouseButtons mMousePressedInContentArea = Qt::NoButton;
 
     WId mWindowId;
-    bool mWaitingForFrameSync;
+    bool mWaitingForFrameSync = false;
     struct ::wl_callback *mFrameCallback = nullptr;
     QWaitCondition mFrameSyncWait;
 
     QMutex mResizeLock;
     QWaylandWindowConfigure mConfigure;
-    bool mRequestResizeSent;
-    bool mCanResize;
-    bool mResizeDirty;
+    bool mRequestResizeSent = false;
+    bool mCanResize = true;
+    bool mResizeDirty = false;
     bool mResizeAfterSwap;
     QVariantMap m_properties;
 
-    bool mSentInitialResize;
+    bool mSentInitialResize = false;
     QPoint mOffset;
-    int mScale;
+    int mScale = 1;
 
     QIcon mWindowIcon;
 
-    Qt::WindowStates mState;
+    Qt::WindowStates mState = Qt::WindowNoState;
     Qt::WindowFlags mFlags;
     QRegion mMask;
 
-    QWaylandShmBackingStore *mBackingStore;
+    QWaylandShmBackingStore *mBackingStore = nullptr;
 
 private slots:
     void handleScreenRemoved(QScreen *qScreen);
@@ -266,7 +263,7 @@ private:
     void handleMouseEventWithDecoration(QWaylandInputDevice *inputDevice, const QWaylandPointerEvent &e);
     void handleScreenChanged();
 
-    bool mUpdateRequested;
+    bool mUpdateRequested = false;
 
     static const wl_callback_listener callbackListener;
     static void frameCallback(void *data, struct wl_callback *wl_callback, uint32_t time);

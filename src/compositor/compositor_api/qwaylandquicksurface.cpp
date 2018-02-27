@@ -56,9 +56,6 @@ class QWaylandQuickSurfacePrivate : public QWaylandSurfacePrivate
     Q_DECLARE_PUBLIC(QWaylandQuickSurface)
 public:
     QWaylandQuickSurfacePrivate()
-        : QWaylandSurfacePrivate()
-        , useTextureAlpha(true)
-        , clientRenderingEnabled(true)
     {
     }
 
@@ -66,8 +63,8 @@ public:
     {
     }
 
-    bool useTextureAlpha;
-    bool clientRenderingEnabled;
+    bool useTextureAlpha = true;
+    bool clientRenderingEnabled = true;
 };
 
 QWaylandQuickSurface::QWaylandQuickSurface()

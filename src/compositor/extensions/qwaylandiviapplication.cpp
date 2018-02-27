@@ -168,8 +168,6 @@ QByteArray QWaylandIviApplication::interfaceName()
  */
 
 QWaylandIviApplicationPrivate::QWaylandIviApplicationPrivate()
-    : QWaylandCompositorExtensionPrivate()
-    , ivi_application()
 {
 }
 

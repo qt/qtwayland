@@ -70,7 +70,7 @@ protected:
 
 private:
     QOpenGLTextureBlitter m_textureBlitter;
-    Compositor *m_compositor;
+    Compositor *m_compositor = nullptr;
 };
 
 QT_END_NAMESPACE

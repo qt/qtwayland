@@ -218,11 +218,6 @@ void QWaylandIviSurface::initialize()
 }
 
 QWaylandIviSurfacePrivate::QWaylandIviSurfacePrivate()
-    : QWaylandCompositorExtensionPrivate()
-    , ivi_surface()
-    , m_iviApplication(nullptr)
-    , m_surface(nullptr)
-    , m_iviId(UINT_MAX)
 {
 }
 

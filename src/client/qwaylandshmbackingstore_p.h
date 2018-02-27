@@ -79,9 +79,9 @@ public:
     QImage *imageInsideMargins(const QMargins &margins);
 private:
     QImage mImage;
-    struct wl_shm_pool *mShmPool;
+    struct wl_shm_pool *mShmPool = nullptr;
     QMargins mMargins;
-    QImage *mMarginsImage;
+    QImage *mMarginsImage = nullptr;
 };
 
 class Q_WAYLAND_CLIENT_EXPORT QWaylandShmBackingStore : public QPlatformBackingStore
@@ -115,11 +115,11 @@ private:
     void updateDecorations();
     QWaylandShmBuffer *getBuffer(const QSize &size);
 
-    QWaylandDisplay *mDisplay;
+    QWaylandDisplay *mDisplay = nullptr;
     QLinkedList<QWaylandShmBuffer *> mBuffers;
-    QWaylandShmBuffer *mFrontBuffer;
-    QWaylandShmBuffer *mBackBuffer;
-    bool mPainting;
+    QWaylandShmBuffer *mFrontBuffer = nullptr;
+    QWaylandShmBuffer *mBackBuffer = nullptr;
+    bool mPainting = false;
     QMutex mMutex;
 
     QSize mRequestedSize;

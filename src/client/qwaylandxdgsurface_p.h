@@ -112,13 +112,13 @@ private:
 private:
     QWaylandWindow *m_window;
     QWaylandXdgShell* m_shell;
-    bool m_maximized;
-    bool m_minimized;
-    bool m_fullscreen;
-    bool m_active;
+    bool m_maximized = false;
+    bool m_minimized = false;
+    bool m_fullscreen = false;
+    bool m_active = false;
     QSize m_normalSize;
     QMargins m_margins;
-    QWaylandExtendedSurface *m_extendedWindow;
+    QWaylandExtendedSurface *m_extendedWindow = nullptr;
 
     void xdg_surface_configure(int32_t width,
                                int32_t height,

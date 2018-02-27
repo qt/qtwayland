@@ -48,14 +48,6 @@ class TestWindow : public QWindow
 {
 public:
     TestWindow()
-        : focusInEventCount(0)
-        , focusOutEventCount(0)
-        , keyPressEventCount(0)
-        , keyReleaseEventCount(0)
-        , mousePressEventCount(0)
-        , mouseReleaseEventCount(0)
-        , touchEventCount(0)
-        , keyCode(0)
     {
         setSurfaceType(QSurface::RasterSurface);
         setGeometry(0, 0, 32, 32);
@@ -103,15 +95,15 @@ public:
 
     QPoint frameOffset() const { return QPoint(frameMargins().left(), frameMargins().top()); }
 
-    int focusInEventCount;
-    int focusOutEventCount;
-    int keyPressEventCount;
-    int keyReleaseEventCount;
-    int mousePressEventCount;
-    int mouseReleaseEventCount;
-    int touchEventCount;
+    int focusInEventCount = 0;
+    int focusOutEventCount = 0;
+    int keyPressEventCount = 0;
+    int keyReleaseEventCount = 0;
+    int mousePressEventCount = 0;
+    int mouseReleaseEventCount = 0;
+    int touchEventCount = 0;
 
-    uint keyCode;
+    uint keyCode = 0;
     QPoint mousePressPos;
 };
 
@@ -404,7 +396,6 @@ class DndWindow : public QWindow
 public:
     DndWindow(QWindow *parent = nullptr)
         : QWindow(parent)
-        , dragStarted(false)
     {
         QImage cursorImage(64,64,QImage::Format_ARGB32);
         cursorImage.fill(Qt::blue);
@@ -412,7 +403,7 @@ public:
     }
     ~DndWindow(){}
     QPoint frameOffset() const { return QPoint(frameMargins().left(), frameMargins().top()); }
-    bool dragStarted;
+    bool dragStarted = false;
 
 protected:
     void mousePressEvent(QMouseEvent *event) override

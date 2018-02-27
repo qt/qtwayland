@@ -88,7 +88,7 @@ private:
     void set_desync();
     QWaylandWindow *m_window;
     QWaylandWindow *m_parent;
-    bool m_synchronized;
+    bool m_synchronized = false;
     QMutex m_syncLock;
 
 };

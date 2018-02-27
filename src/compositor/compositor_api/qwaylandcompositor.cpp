@@ -148,15 +148,6 @@ public:
 } // namespace
 
 QWaylandCompositorPrivate::QWaylandCompositorPrivate(QWaylandCompositor *compositor)
-    : display(nullptr)
-#if QT_CONFIG(opengl)
-    , use_hw_integration_extension(true)
-    , client_buffer_integration(nullptr)
-    , server_buffer_integration(nullptr)
-#endif
-    , retainSelection(false)
-    , preInitialized(false)
-    , initialized(false)
 {
     if (QGuiApplication::platformNativeInterface())
         display = static_cast<wl_display*>(QGuiApplication::platformNativeInterface()->nativeResourceForIntegration("server_wl_display"));

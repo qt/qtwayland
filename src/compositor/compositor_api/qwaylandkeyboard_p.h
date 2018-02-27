@@ -114,29 +114,29 @@ private:
 
     void sendRepeatInfo();
 
-    QWaylandSeat *seat;
+    QWaylandSeat *seat = nullptr;
 
-    QWaylandSurface *focus;
-    Resource *focusResource;
+    QWaylandSurface *focus = nullptr;
+    Resource *focusResource = nullptr;
     QWaylandDestroyListener focusDestroyListener;
 
     QVector<uint32_t> keys;
-    uint32_t modsDepressed;
-    uint32_t modsLatched;
-    uint32_t modsLocked;
-    uint32_t group;
+    uint32_t modsDepressed = 0;
+    uint32_t modsLatched = 0;
+    uint32_t modsLocked = 0;
+    uint32_t group = 0;
 
-    bool pendingKeymap;
+    bool pendingKeymap = false;
 #if QT_CONFIG(xkbcommon_evdev)
     size_t keymap_size;
-    int keymap_fd;
-    char *keymap_area;
-    struct xkb_context *xkb_context;
-    struct xkb_state *xkb_state;
+    int keymap_fd = -1;
+    char *keymap_area = nullptr;
+    struct xkb_context *xkb_context = nullptr;
+    struct xkb_state *xkb_state = nullptr;
 #endif
 
-    quint32 repeatRate;
-    quint32 repeatDelay;
+    quint32 repeatRate = 40;
+    quint32 repeatDelay = 400;
 };
 
 QT_END_NAMESPACE

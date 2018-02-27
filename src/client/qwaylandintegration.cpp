@@ -121,16 +121,11 @@ public:
 };
 
 QWaylandIntegration::QWaylandIntegration()
-    : mClientBufferIntegration(nullptr)
-    , mInputDeviceIntegration(nullptr)
-    , mFontDb(new QGenericUnixFontDatabase())
+    : mFontDb(new QGenericUnixFontDatabase())
     , mNativeInterface(new QWaylandNativeInterface(this))
 #if QT_CONFIG(accessibility)
     , mAccessibility(new QPlatformAccessibility())
 #endif
-    , mClientBufferIntegrationInitialized(false)
-    , mServerBufferIntegrationInitialized(false)
-    , mShellIntegrationInitialized(false)
 {
     initializeInputDeviceIntegration();
     mDisplay.reset(new QWaylandDisplay(this));

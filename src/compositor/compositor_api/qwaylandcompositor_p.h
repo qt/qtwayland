@@ -128,7 +128,7 @@ protected:
     void loadServerBufferIntegration();
 
     QByteArray socket_name;
-    struct wl_display *display;
+    struct wl_display *display = nullptr;
 
     QList<QWaylandSeat *> seats;
     QList<QWaylandOutput *> outputs;
@@ -147,7 +147,7 @@ protected:
     QList<QWaylandClient *> clients;
 
 #if QT_CONFIG(opengl)
-    bool use_hw_integration_extension;
+    bool use_hw_integration_extension = true;
     QScopedPointer<QtWayland::HardwareIntegration> hw_integration;
     QScopedPointer<QtWayland::ClientBufferIntegration> client_buffer_integration;
     QScopedPointer<QtWayland::ServerBufferIntegration> server_buffer_integration;
@@ -155,9 +155,9 @@ protected:
 
     QScopedPointer<QWindowSystemEventHandler> eventHandler;
 
-    bool retainSelection;
-    bool preInitialized;
-    bool initialized;
+    bool retainSelection = false;
+    bool preInitialized = false;
+    bool initialized = false;
     QList<QPointer<QObject> > polish_objects;
 
     Q_DECLARE_PUBLIC(QWaylandCompositor)

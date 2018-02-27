@@ -61,18 +61,8 @@ QT_BEGIN_NAMESPACE
 namespace QtWayland {
 
 DataDevice::DataDevice(QWaylandSeat *seat)
-    : wl_data_device()
-    , m_compositor(seat->compositor())
+    : m_compositor(seat->compositor())
     , m_seat(seat)
-    , m_selectionSource(nullptr)
-#if QT_CONFIG(draganddrop)
-    , m_dragClient(nullptr)
-    , m_dragDataSource(nullptr)
-    , m_dragFocus(nullptr)
-    , m_dragFocusResource(nullptr)
-    , m_dragIcon(nullptr)
-    , m_dragOrigin(nullptr)
-#endif
 {
 }
 

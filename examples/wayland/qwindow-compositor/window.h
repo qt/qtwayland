@@ -96,17 +96,17 @@ private:
 
     QOpenGLTextureBlitter m_textureBlitter;
     QSize m_backgroundImageSize;
-    QOpenGLTexture *m_backgroundTexture;
-    Compositor *m_compositor;
+    QOpenGLTexture *m_backgroundTexture = nullptr;
+    Compositor *m_compositor = nullptr;
     QPointer<View> m_mouseView;
-    GrabState m_grabState;
+    GrabState m_grabState = NoGrab;
     QSize m_initialSize;
     int m_resizeEdge;
     bool m_resizeAnchored;
     QPointF m_resizeAnchorPosition;
     QPointF m_mouseOffset;
     QPointF m_initialMousePos;
-    View *m_dragIconView;
+    View *m_dragIconView = nullptr;
 };
 
 QT_END_NAMESPACE

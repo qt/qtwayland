@@ -43,12 +43,10 @@
 QT_BEGIN_NAMESPACE
 
 QWaylandShellPrivate::QWaylandShellPrivate()
-    : focusPolicy(QWaylandShell::AutomaticFocus)
 {
 }
 
 QWaylandShell::QWaylandShell()
-    : QWaylandCompositorExtension()
 {
 }
 

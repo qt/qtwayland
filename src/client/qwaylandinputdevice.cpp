@@ -200,8 +200,7 @@ QWaylandInputDevice::Touch::~Touch()
 }
 
 QWaylandInputDevice::QWaylandInputDevice(QWaylandDisplay *display, int version, uint32_t id)
-    : QObject()
-    , QtWayland::wl_seat(display->wl_registry(), id, qMin(version, 4))
+    : QtWayland::wl_seat(display->wl_registry(), id, qMin(version, 4))
     , mQDisplay(display)
     , mDisplay(display->wl_display())
     , mVersion(qMin(version, 4))

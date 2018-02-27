@@ -75,7 +75,6 @@ public:
     FrameCallback(QWaylandSurface *surf, wl_resource *res)
         : surface(surf)
         , resource(res)
-        , canSend(false)
     {
 #if WAYLAND_VERSION_MAJOR < 1 || (WAYLAND_VERSION_MAJOR == 1 && WAYLAND_VERSION_MINOR <= 2)
         res->data = this;
@@ -112,7 +111,7 @@ public:
     }
     QWaylandSurface *surface;
     wl_resource *resource;
-    bool canSend;
+    bool canSend = false;
 };
 }
 static QRegion infiniteRegion() {
@@ -125,22 +124,7 @@ QList<QWaylandSurfacePrivate *> QWaylandSurfacePrivate::uninitializedSurfaces;
 #endif
 
 QWaylandSurfacePrivate::QWaylandSurfacePrivate()
-    : QtWaylandServer::wl_surface()
-    , compositor(nullptr)
-    , refCount(1)
-    , client(nullptr)
-    , role(nullptr)
-    , inputRegion(infiniteRegion())
-    , bufferScale(1)
-    , isCursorSurface(false)
-    , destroyed(false)
-    , hasContent(false)
-    , isInitialized(false)
-    , contentOrientation(Qt::PrimaryOrientation)
-#if QT_CONFIG(im)
-    , inputMethodControl(nullptr)
-#endif
-    , subsurface(nullptr)
+    : inputRegion(infiniteRegion())
 {
     pending.buffer = QWaylandBufferRef();
     pending.newlyAttached = false;

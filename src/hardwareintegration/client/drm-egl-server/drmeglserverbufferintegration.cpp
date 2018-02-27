@@ -55,8 +55,7 @@ DrmServerBuffer::DrmServerBuffer(DrmEglServerBufferIntegration *integration
                                 , int32_t height
                                 , int32_t stride
                                 , int32_t format)
-    : QWaylandServerBuffer()
-    , m_integration(integration)
+    : m_integration(integration)
 {
     m_size = QSize(width, height);
     EGLint egl_format;

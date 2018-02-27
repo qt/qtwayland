@@ -76,11 +76,11 @@ public:
     Qt::InputMethodQueries updatedQueries(const QWaylandTextInputClientState &other) const;
     Qt::InputMethodQueries mergeChanged(const QWaylandTextInputClientState &other);
 
-    Qt::InputMethodHints hints;
+    Qt::InputMethodHints hints = Qt::ImhNone;
     QRect cursorRectangle;
     QString surroundingText;
-    int cursorPosition;
-    int anchorPosition;
+    int cursorPosition = 0;
+    int anchorPosition = 0;
     QString preferredLanguage;
 
     Qt::InputMethodQueries changedState;
@@ -102,18 +102,18 @@ public:
 
     void setFocus(QWaylandSurface *surface);
 
-    QWaylandCompositor *compositor;
+    QWaylandCompositor *compositor = nullptr;
 
-    QWaylandSurface *focus;
-    Resource *focusResource;
+    QWaylandSurface *focus = nullptr;
+    Resource *focusResource = nullptr;
     QWaylandDestroyListener focusDestroyListener;
 
-    bool inputPanelVisible;
+    bool inputPanelVisible = false;
 
     QScopedPointer<QWaylandTextInputClientState> currentState;
     QScopedPointer<QWaylandTextInputClientState> pendingState;
 
-    uint32_t serial;
+    uint32_t serial = 0;
 
     QHash<Resource *, QWaylandSurface*> enabledSurfaces;
 

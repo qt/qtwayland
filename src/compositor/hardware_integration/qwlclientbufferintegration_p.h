@@ -79,7 +79,7 @@ public:
     virtual ClientBuffer *createBufferFor(struct ::wl_resource *buffer) = 0;
 
 protected:
-    QWaylandCompositor *m_compositor;
+    QWaylandCompositor *m_compositor = nullptr;
 };
 
 }

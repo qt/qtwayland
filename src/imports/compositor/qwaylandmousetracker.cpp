@@ -48,8 +48,6 @@ class QWaylandMouseTrackerPrivate : public QQuickItemPrivate
     Q_DECLARE_PUBLIC(QWaylandMouseTracker)
 public:
     QWaylandMouseTrackerPrivate()
-        : windowSystemCursorEnabled(false)
-        , hovered(false)
     {
         QImage cursorImage(64,64,QImage::Format_ARGB32);
         cursorImage.fill(Qt::transparent);
@@ -79,9 +77,9 @@ public:
     }
 
     QPointF mousePos;
-    bool windowSystemCursorEnabled;
+    bool windowSystemCursorEnabled = false;
     QPixmap cursorPixmap;
-    bool hovered;
+    bool hovered = false;
 };
 
 QWaylandMouseTracker::QWaylandMouseTracker(QQuickItem *parent)

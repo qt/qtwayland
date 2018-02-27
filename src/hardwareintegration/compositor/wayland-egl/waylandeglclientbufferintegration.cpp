@@ -151,7 +151,7 @@ egl_error_string(EGLint code)
 
 struct BufferState
 {
-    BufferState();
+    BufferState() = default;
 
     enum EglMode {
         ModeUninitialized,
@@ -159,14 +159,14 @@ struct BufferState
         ModeEGLStream
     };
 
-    EGLint egl_format;
+    EGLint egl_format = EGL_TEXTURE_RGBA;
     QVarLengthArray<EGLImageKHR, 3> egl_images;
     QOpenGLTexture *textures[3] = {};
-    EGLStreamKHR egl_stream;
+    EGLStreamKHR egl_stream = EGL_NO_STREAM_KHR;
 
-    bool isYInverted;
+    bool isYInverted = true;
     QSize size;
-    EglMode eglMode;
+    EglMode eglMode = ModeUninitialized;
 };
 
 class WaylandEglClientBufferIntegrationPrivate
@@ -181,22 +181,22 @@ public:
     void handleEglstreamTexture(WaylandEglClientBuffer *buffer, wl_resource *bufferHandle);
     void registerBuffer(struct ::wl_resource *buffer, BufferState state);
 
-    EGLDisplay egl_display;
-    bool valid;
-    bool display_bound;
+    EGLDisplay egl_display = EGL_NO_DISPLAY;
+    bool valid = false;
+    bool display_bound = false;
     QOffscreenSurface *offscreenSurface = nullptr;
     QOpenGLContext *localContext = nullptr;
 
-    PFNEGLBINDWAYLANDDISPLAYWL egl_bind_wayland_display;
-    PFNEGLUNBINDWAYLANDDISPLAYWL egl_unbind_wayland_display;
-    PFNEGLQUERYWAYLANDBUFFERWL_compat egl_query_wayland_buffer;
+    PFNEGLBINDWAYLANDDISPLAYWL egl_bind_wayland_display = nullptr;
+    PFNEGLUNBINDWAYLANDDISPLAYWL egl_unbind_wayland_display = nullptr;
+    PFNEGLQUERYWAYLANDBUFFERWL_compat egl_query_wayland_buffer = nullptr;
 
-    PFNEGLCREATEIMAGEKHRPROC egl_create_image;
-    PFNEGLDESTROYIMAGEKHRPROC egl_destroy_image;
+    PFNEGLCREATEIMAGEKHRPROC egl_create_image = nullptr;
+    PFNEGLDESTROYIMAGEKHRPROC egl_destroy_image = nullptr;
 
-    PFNGLEGLIMAGETARGETTEXTURE2DOESPROC gl_egl_image_target_texture_2d;
+    PFNGLEGLIMAGETARGETTEXTURE2DOESPROC gl_egl_image_target_texture_2d = nullptr;
 
-    QEGLStreamConvenience *funcs;
+    QEGLStreamConvenience *funcs = nullptr;
     static WaylandEglClientBufferIntegrationPrivate *get(WaylandEglClientBufferIntegration *integration) {
         return shuttingDown ? nullptr : integration->d_ptr.data();
     }
@@ -206,24 +206,7 @@ public:
 
 bool WaylandEglClientBufferIntegrationPrivate::shuttingDown = false;
 
-BufferState::BufferState()
-    : egl_format(EGL_TEXTURE_RGBA)
-    , egl_stream(EGL_NO_STREAM_KHR)
-    , isYInverted(true)
-    , eglMode(ModeUninitialized)
-{}
-
 WaylandEglClientBufferIntegrationPrivate::WaylandEglClientBufferIntegrationPrivate()
-    : egl_display(EGL_NO_DISPLAY)
-    , valid(false)
-    , display_bound(false)
-    , egl_bind_wayland_display(nullptr)
-    , egl_unbind_wayland_display(nullptr)
-    , egl_query_wayland_buffer(nullptr)
-    , egl_create_image(nullptr)
-    , egl_destroy_image(nullptr)
-    , gl_egl_image_target_texture_2d(nullptr)
-    , funcs(nullptr)
 {
 }
 
@@ -394,8 +377,7 @@ void WaylandEglClientBufferIntegrationPrivate::handleEglstreamTexture(WaylandEgl
 }
 
 WaylandEglClientBufferIntegration::WaylandEglClientBufferIntegration()
-    : QtWayland::ClientBufferIntegration()
-    , d_ptr(new WaylandEglClientBufferIntegrationPrivate)
+    : d_ptr(new WaylandEglClientBufferIntegrationPrivate)
 {
 }
 

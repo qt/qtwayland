@@ -71,32 +71,24 @@ public:
     static QWaylandViewPrivate *get(QWaylandView *view) { return view->d_func(); }
 
     QWaylandViewPrivate()
-        : renderObject(nullptr)
-        , surface(nullptr)
-        , output(nullptr)
-        , nextBufferCommitted(false)
-        , bufferLocked(false)
-        , broadcastRequestedPositionChanged(false)
-        , forceAdvanceSucceed(false)
-        , allowDiscardFrontBuffer(false)
     { }
 
     void markSurfaceAsDestroyed(QWaylandSurface *surface);
 
-    QObject *renderObject;
-    QWaylandSurface *surface;
-    QWaylandOutput *output;
+    QObject *renderObject = nullptr;
+    QWaylandSurface *surface = nullptr;
+    QWaylandOutput *output = nullptr;
     QPointF requestedPos;
     QMutex bufferMutex;
     QWaylandBufferRef currentBuffer;
     QRegion currentDamage;
     QWaylandBufferRef nextBuffer;
     QRegion nextDamage;
-    bool nextBufferCommitted;
-    bool bufferLocked;
-    bool broadcastRequestedPositionChanged;
-    bool forceAdvanceSucceed;
-    bool allowDiscardFrontBuffer;
+    bool nextBufferCommitted = false;
+    bool bufferLocked = false;
+    bool broadcastRequestedPositionChanged = false;
+    bool forceAdvanceSucceed = false;
+    bool allowDiscardFrontBuffer = false;
     bool independentFrameCallback = false; //If frame callbacks are independent of the main quick scene graph
 };
 

@@ -50,9 +50,6 @@
 QT_BEGIN_NAMESPACE
 
 QWaylandQtWindowManagerPrivate::QWaylandQtWindowManagerPrivate()
-    : QWaylandCompositorExtensionPrivate()
-    , qt_windowmanager()
-    , showIsFullScreen(false)
 {
 }
 

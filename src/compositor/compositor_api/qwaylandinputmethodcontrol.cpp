@@ -150,11 +150,9 @@ void QWaylandInputMethodControl::defaultSeatChanged()
 }
 
 QWaylandInputMethodControlPrivate::QWaylandInputMethodControlPrivate(QWaylandSurface *surface)
-    : QObjectPrivate()
-    , compositor(surface->compositor())
+    : compositor(surface->compositor())
     , seat(compositor->defaultSeat())
     , surface(surface)
-    , enabled(false)
 {
 }
 

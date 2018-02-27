@@ -116,21 +116,21 @@ private:
     void output_done() override;
 
     int m_outputId;
-    QWaylandDisplay *mWaylandDisplay;
+    QWaylandDisplay *mWaylandDisplay = nullptr;
     QString mManufacturer;
     QString mModel;
     QRect mGeometry;
-    int mScale;
-    int mDepth;
-    int mRefreshRate;
-    int mTransform;
-    QImage::Format mFormat;
+    int mScale = 1;
+    int mDepth = 32;
+    int mRefreshRate = 60000;
+    int mTransform = -1;
+    QImage::Format mFormat = QImage::Format_ARGB32_Premultiplied;
     QSize mPhysicalSize;
     QString mOutputName;
-    Qt::ScreenOrientation m_orientation;
+    Qt::ScreenOrientation m_orientation = Qt::PrimaryOrientation;
 
 #if QT_CONFIG(cursor)
-    QWaylandCursor *mWaylandCursor;
+    QWaylandCursor *mWaylandCursor = nullptr;
 #endif
 };
 

@@ -59,22 +59,7 @@
 QT_BEGIN_NAMESPACE
 
 QWaylandKeyboardPrivate::QWaylandKeyboardPrivate(QWaylandSeat *seat)
-    : QtWaylandServer::wl_keyboard()
-    , seat(seat)
-    , focus()
-    , focusResource()
-    , keys()
-    , modsDepressed()
-    , modsLatched()
-    , modsLocked()
-    , group()
-    , pendingKeymap(false)
-#if QT_CONFIG(xkbcommon_evdev)
-    , keymap_fd(-1)
-    , xkb_state(nullptr)
-#endif
-    , repeatRate(40)
-    , repeatDelay(400)
+    : seat(seat)
 {
 }
 

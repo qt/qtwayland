@@ -85,8 +85,8 @@ protected:
 private:
     Compositor *m_compositor;
 
-    Resource *m_focusResource;
-    Surface *m_focus;
+    Resource *m_focusResource = nullptr;
+    Surface *m_focus = nullptr;
 };
 
 class Pointer : public QtWaylandServer::wl_pointer
@@ -108,8 +108,8 @@ protected:
 private:
     Compositor *m_compositor;
 
-    Resource *m_focusResource;
-    Surface *m_focus;
+    Resource *m_focusResource = nullptr;
+    Surface *m_focus = nullptr;
 };
 
 class Touch : public QtWaylandServer::wl_touch
@@ -146,8 +146,8 @@ protected:
 
 private:
     Compositor *m_compositor;
-    QtWaylandServer::wl_data_offer *m_dataOffer;
-    Surface* m_focus;
+    QtWaylandServer::wl_data_offer *m_dataOffer = nullptr;
+    Surface* m_focus = nullptr;
 };
 
 class DataDeviceManager : public QtWaylandServer::wl_data_device_manager

@@ -54,13 +54,6 @@
 QT_BEGIN_NAMESPACE
 
 QWaylandTextInputClientState::QWaylandTextInputClientState()
-    : hints(Qt::ImhNone)
-    , cursorRectangle()
-    , surroundingText()
-    , cursorPosition(0)
-    , anchorPosition(0)
-    , preferredLanguage()
-    , changedState()
 {
 }
 
@@ -121,17 +114,9 @@ Qt::InputMethodQueries QWaylandTextInputClientState::mergeChanged(const QWayland
 }
 
 QWaylandTextInputPrivate::QWaylandTextInputPrivate(QWaylandCompositor *compositor)
-    : QWaylandCompositorExtensionPrivate()
-    , QtWaylandServer::zwp_text_input_v2()
-    , compositor(compositor)
-    , focus(nullptr)
-    , focusResource(nullptr)
-    , focusDestroyListener()
-    , inputPanelVisible(false)
+    : compositor(compositor)
     , currentState(new QWaylandTextInputClientState)
     , pendingState(new QWaylandTextInputClientState)
-    , serial(0)
-    , enabledSurfaces()
 {
 }
 

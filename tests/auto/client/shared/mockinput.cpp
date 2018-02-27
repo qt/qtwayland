@@ -232,10 +232,7 @@ void Seat::seat_get_touch(Resource *resource, uint32_t id)
 }
 
 Keyboard::Keyboard(Compositor *compositor)
-    : wl_keyboard()
-    , m_compositor(compositor)
-    , m_focusResource(nullptr)
-    , m_focus(nullptr)
+    : m_compositor(compositor)
 {
 }
 
@@ -286,10 +283,7 @@ void Keyboard::keyboard_destroy_resource(wl_keyboard::Resource *resource)
 }
 
 Pointer::Pointer(Compositor *compositor)
-    : wl_pointer()
-    , m_compositor(compositor)
-    , m_focusResource(nullptr)
-    , m_focus(nullptr)
+    : m_compositor(compositor)
 {
 }
 
@@ -393,10 +387,7 @@ DataOffer::DataOffer()
 }
 
 DataDevice::DataDevice(Compositor *compositor)
-    : wl_data_device()
-    , m_compositor(compositor)
-    , m_dataOffer(nullptr)
-    , m_focus(nullptr)
+    : m_compositor(compositor)
 {
 
 }

@@ -83,7 +83,7 @@ protected:
 private:
     LibHybrisEglServerBufferIntegration *m_integration;
     EGLImageKHR m_image;
-    QOpenGLTexture *m_texture;
+    QOpenGLTexture *m_texture = nullptr;
     int m_numFds;
     QVector<int32_t> m_ints;
     QVector<int32_t> m_fds;

@@ -229,9 +229,6 @@ QWaylandGLContext::QWaylandGLContext(EGLDisplay eglDisplay, QWaylandDisplay *dis
     : QPlatformOpenGLContext()
     , m_eglDisplay(eglDisplay)
     , m_display(display)
-    , m_blitter(0)
-    , mUseNativeDefaultFbo(false)
-    , mSupportNonBlockingSwap(true)
 {
     QSurfaceFormat fmt = format;
     if (static_cast<QWaylandIntegration *>(QGuiApplicationPrivate::platformIntegration())->display()->supportsWindowDecoration())

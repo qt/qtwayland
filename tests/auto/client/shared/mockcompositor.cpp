@@ -37,9 +37,6 @@
 
 #include <stdio.h>
 MockCompositor::MockCompositor()
-    : m_alive(true)
-    , m_ready(false)
-    , m_compositor(0)
 {
     pthread_create(&m_thread, 0, run, this);
 

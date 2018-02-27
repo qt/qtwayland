@@ -68,8 +68,6 @@ QVector<EGLint> eglbuildSpec()
 }
 
 XCompositeEglClientBufferIntegration::XCompositeEglClientBufferIntegration()
-    : QtWayland::ClientBufferIntegration()
-    , mDisplay(nullptr)
 {
 
 }
@@ -100,7 +98,6 @@ QtWayland::ClientBuffer *XCompositeEglClientBufferIntegration::createBufferFor(w
 
 XCompositeEglClientBuffer::XCompositeEglClientBuffer(XCompositeEglClientBufferIntegration *integration, wl_resource *bufferResource)
     : QtWayland::ClientBuffer(bufferResource)
-    , m_texture(nullptr)
     , m_integration(integration)
 {
 }

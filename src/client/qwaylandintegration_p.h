@@ -147,9 +147,9 @@ private:
     QScopedPointer<QPlatformAccessibility> mAccessibility;
 #endif
     bool mFailed = false;
-    bool mClientBufferIntegrationInitialized;
-    bool mServerBufferIntegrationInitialized;
-    bool mShellIntegrationInitialized;
+    bool mClientBufferIntegrationInitialized = false;
+    bool mServerBufferIntegrationInitialized = false;
+    bool mShellIntegrationInitialized = false;
 
     friend class QWaylandDisplay;
 };

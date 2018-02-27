@@ -66,11 +66,6 @@ QWaylandDataDevice::QWaylandDataDevice(QWaylandDataDeviceManager *manager, QWayl
     : QtWayland::wl_data_device(manager->get_data_device(inputDevice->wl_seat()))
     , m_display(manager->display())
     , m_inputDevice(inputDevice)
-    , m_enterSerial(0)
-    , m_dragWindow(nullptr)
-    , m_dragPoint()
-    , m_dragOffer()
-    , m_selectionOffer()
 {
 }
 

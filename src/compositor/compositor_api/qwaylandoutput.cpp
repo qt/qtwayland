@@ -104,16 +104,6 @@ static QtWaylandServer::wl_output::transform toWlTransform(const QWaylandOutput:
 }
 
 QWaylandOutputPrivate::QWaylandOutputPrivate()
-    : QtWaylandServer::wl_output()
-    , compositor(nullptr)
-    , window(nullptr)
-    , currentMode(-1)
-    , preferredMode(-1)
-    , subpixel(QWaylandOutput::SubpixelUnknown)
-    , transform(QWaylandOutput::TransformNormal)
-    , scaleFactor(1)
-    , sizeFollowsWindow(false)
-    , initialized(false)
 {
 }
 

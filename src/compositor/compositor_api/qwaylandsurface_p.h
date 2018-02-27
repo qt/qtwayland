@@ -140,13 +140,13 @@ protected:
     QtWayland::ClientBuffer *getBuffer(struct ::wl_resource *buffer);
 
 public: //member variables
-    QWaylandCompositor *compositor;
-    int refCount;
-    QWaylandClient *client;
+    QWaylandCompositor *compositor = nullptr;
+    int refCount = 1;
+    QWaylandClient *client = nullptr;
     QList<QWaylandView *> views;
     QRegion damage;
     QWaylandBufferRef bufferRef;
-    QWaylandSurfaceRole *role;
+    QWaylandSurfaceRole *role = nullptr;
 
     struct {
         QWaylandBufferRef buffer;
@@ -167,15 +167,15 @@ public: //member variables
     QRegion opaqueRegion;
 
     QSize size;
-    int bufferScale;
-    bool isCursorSurface;
-    bool destroyed;
-    bool hasContent;
-    bool isInitialized;
-    Qt::ScreenOrientation contentOrientation;
+    int bufferScale = 1;
+    bool isCursorSurface = false;
+    bool destroyed = false;
+    bool hasContent = false;
+    bool isInitialized = false;
+    Qt::ScreenOrientation contentOrientation = Qt::PrimaryOrientation;
     QWindow::Visibility visibility;
 #if QT_CONFIG(im)
-    QWaylandInputMethodControl *inputMethodControl;
+    QWaylandInputMethodControl *inputMethodControl = nullptr;
 #endif
 
     class Subsurface : public QtWaylandServer::wl_subsurface
@@ -198,7 +198,7 @@ public: //member variables
         QPoint position;
     };
 
-    Subsurface *subsurface;
+    Subsurface *subsurface = nullptr;
 
 #ifndef QT_NO_DEBUG
     static QList<QWaylandSurfacePrivate *> uninitializedSurfaces;

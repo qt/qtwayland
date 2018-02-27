@@ -60,21 +60,11 @@
 
 QT_BEGIN_NAMESPACE
 
-QWaylandSeatPrivate::QWaylandSeatPrivate(QWaylandSeat *seat)
-    : QObjectPrivate()
-    , QtWaylandServer::wl_seat()
-    , isInitialized(false)
-    , compositor(nullptr)
-    , mouseFocus(nullptr)
-    , keyboardFocus(nullptr)
-    , capabilities()
+QWaylandSeatPrivate::QWaylandSeatPrivate(QWaylandSeat *seat) :
 #if QT_CONFIG(wayland_datadevice)
-    , data_device()
+    drag_handle(new QWaylandDrag(seat)),
 #endif
-#if QT_CONFIG(draganddrop)
-    , drag_handle(new QWaylandDrag(seat))
-#endif
-    , keymap(new QWaylandKeymap())
+    keymap(new QWaylandKeymap())
 {
 }
 

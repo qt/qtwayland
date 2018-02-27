@@ -92,10 +92,10 @@ public:
     bool supportsWindowDecoration() const override { return false; }
 
 private:
-    QWaylandDisplay *mWaylandDisplay;
+    QWaylandDisplay *mWaylandDisplay = nullptr;
     struct qt_xcomposite *mWaylandComposite;
 
-    Display *mDisplay;
+    Display *mDisplay = nullptr;
     EGLDisplay mEglDisplay;
     int mScreen;
     Window mRootWindow;

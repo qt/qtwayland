@@ -53,20 +53,10 @@ QT_BEGIN_NAMESPACE
 namespace QtWaylandClient {
 
 QWaylandScreen::QWaylandScreen(QWaylandDisplay *waylandDisplay, int version, uint32_t id)
-    : QPlatformScreen()
-    , QtWayland::wl_output(waylandDisplay->wl_registry(), id, qMin(version, 2))
+    : QtWayland::wl_output(waylandDisplay->wl_registry(), id, qMin(version, 2))
     , m_outputId(id)
     , mWaylandDisplay(waylandDisplay)
-    , mScale(1)
-    , mDepth(32)
-    , mRefreshRate(60000)
-    , mTransform(-1)
-    , mFormat(QImage::Format_ARGB32_Premultiplied)
     , mOutputName(QStringLiteral("Screen%1").arg(id))
-    , m_orientation(Qt::PrimaryOrientation)
-#if QT_CONFIG(cursor)
-    , mWaylandCursor(nullptr)
-#endif
 {
 }
 

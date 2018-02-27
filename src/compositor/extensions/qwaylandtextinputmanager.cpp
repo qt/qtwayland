@@ -48,8 +48,6 @@
 QT_BEGIN_NAMESPACE
 
 QWaylandTextInputManagerPrivate::QWaylandTextInputManagerPrivate()
-    : QWaylandCompositorExtensionPrivate()
-    , QtWaylandServer::zwp_text_input_manager_v2()
 {
 }
 

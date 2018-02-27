@@ -54,8 +54,6 @@
 QT_BEGIN_NAMESPACE
 
 QWaylandXdgShellV6Private::QWaylandXdgShellV6Private()
-    : QWaylandCompositorExtensionPrivate()
-    , zxdg_shell_v6()
 {
 }
 
@@ -288,14 +286,6 @@ void QWaylandXdgShellV6::handleFocusChanged(QWaylandSurface *newSurface, QWaylan
 }
 
 QWaylandXdgSurfaceV6Private::QWaylandXdgSurfaceV6Private()
-    : QWaylandCompositorExtensionPrivate()
-    , zxdg_surface_v6()
-    , m_xdgShell(nullptr)
-    , m_surface(nullptr)
-    , m_toplevel(nullptr)
-    , m_popup(nullptr)
-    , m_unsetWindowGeometry(true)
-    , m_windowType(Qt::WindowType::Window)
 {
 }
 
@@ -1097,8 +1087,6 @@ QWaylandSurfaceRole QWaylandXdgToplevelV6Private::s_role("zxdg_toplevel_v6");
 
 QWaylandXdgToplevelV6Private::QWaylandXdgToplevelV6Private(QWaylandXdgSurfaceV6 *xdgSurface, const QWaylandResource &resource)
     : m_xdgSurface(xdgSurface)
-    , m_parentToplevel(nullptr)
-    , m_lastAckedConfigure({{}, QSize(0, 0), 0})
 {
     init(resource.resource());
 }
@@ -1756,10 +1744,7 @@ void QWaylandXdgPopupV6Private::zxdg_popup_v6_grab(QtWaylandServer::zxdg_popup_v
 QWaylandSurfaceRole QWaylandXdgPopupV6Private::s_role("zxdg_popup_v6");
 
 QWaylandXdgPositionerV6Data::QWaylandXdgPositionerV6Data()
-    : anchorEdges(0)
-    , gravityEdges(0)
-    , constraintAdjustments(ZXDG_POSITIONER_V6_CONSTRAINT_ADJUSTMENT_NONE)
-    , offset(0, 0)
+    : offset(0, 0)
 {}
 
 bool QWaylandXdgPositionerV6Data::isComplete() const

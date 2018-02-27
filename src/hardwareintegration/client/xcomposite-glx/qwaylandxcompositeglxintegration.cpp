@@ -52,11 +52,6 @@ QT_BEGIN_NAMESPACE
 namespace QtWaylandClient {
 
 QWaylandXCompositeGLXIntegration::QWaylandXCompositeGLXIntegration()
-    : mWaylandDisplay(0)
-    , mWaylandComposite(0)
-    , mDisplay(0)
-    , mScreen(0)
-    , mRootWindow(0)
 {
     qDebug() << "Using XComposite-GLX";
 }

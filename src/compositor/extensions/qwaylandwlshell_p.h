@@ -100,14 +100,14 @@ public:
     void setWindowType(Qt::WindowType windowType);
 
 private:
-    QWaylandWlShell *m_shell;
+    QWaylandWlShell *m_shell = nullptr;
     QPointer<QWaylandSurface> m_surface;
 
     QSet<uint32_t> m_pings;
 
     QString m_title;
     QString m_className;
-    Qt::WindowType m_windowType;
+    Qt::WindowType m_windowType = Qt::WindowType::Window;
 
     void shell_surface_destroy_resource(Resource *resource) override;
 

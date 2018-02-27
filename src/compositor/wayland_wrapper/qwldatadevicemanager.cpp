@@ -59,12 +59,8 @@ QT_BEGIN_NAMESPACE
 namespace QtWayland {
 
 DataDeviceManager::DataDeviceManager(QWaylandCompositor *compositor)
-    : QObject(nullptr)
-    , wl_data_device_manager(compositor->display(), 1)
+    : wl_data_device_manager(compositor->display(), 1)
     , m_compositor(compositor)
-    , m_current_selection_source(nullptr)
-    , m_retainedReadNotifier(nullptr)
-    , m_compositorOwnsSelection(false)
 {
 }
 

@@ -52,8 +52,7 @@ class QWaylandEglPlatformIntegration : public QWaylandIntegration
 {
 public:
     QWaylandEglPlatformIntegration()
-        : QWaylandIntegration()
-        , m_client_buffer_integration(new QWaylandEglClientBufferIntegration())
+        : m_client_buffer_integration(new QWaylandEglClientBufferIntegration())
     {
         m_client_buffer_integration->initialize(display());
     }

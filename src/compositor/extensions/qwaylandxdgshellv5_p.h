@@ -116,16 +116,16 @@ public:
     void setWindowType(Qt::WindowType windowType);
 
 private:
-    QWaylandXdgShellV5 *m_xdgShell;
-    QWaylandSurface *m_surface;
-    QWaylandXdgSurfaceV5 *m_parentSurface;
+    QWaylandXdgShellV5 *m_xdgShell = nullptr;
+    QWaylandSurface *m_surface = nullptr;
+    QWaylandXdgSurfaceV5 *m_parentSurface = nullptr;
 
-    Qt::WindowType m_windowType;
+    Qt::WindowType m_windowType = Qt::WindowType::Window;
 
     QString m_title;
     QString m_appId;
     QRect m_windowGeometry;
-    bool m_unsetWindowGeometry;
+    bool m_unsetWindowGeometry = true;
 
     QList<ConfigureEvent> m_pendingConfigures;
     ConfigureEvent m_lastAckedConfigure;
@@ -166,9 +166,9 @@ public:
     QWaylandXdgPopupV5Private();
     static QWaylandXdgPopupV5Private *get(QWaylandXdgPopupV5 *xdgPopup) { return xdgPopup->d_func(); }
 
-    QWaylandSurface *m_surface;
-    QWaylandSurface *m_parentSurface;
-    QWaylandXdgShellV5 *m_xdgShell;
+    QWaylandSurface *m_surface = nullptr;
+    QWaylandSurface *m_parentSurface = nullptr;
+    QWaylandXdgShellV5 *m_xdgShell = nullptr;
     QPoint m_position;
 
     void xdg_popup_destroy_resource(Resource *resource) override;

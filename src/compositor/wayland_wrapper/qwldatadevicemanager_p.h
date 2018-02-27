@@ -104,15 +104,15 @@ private:
     QWaylandCompositor *m_compositor;
     QList<DataDevice *> m_data_device_list;
 
-    DataSource *m_current_selection_source;
+    DataSource *m_current_selection_source = nullptr;
 
     QMimeData m_retainedData;
-    QSocketNotifier *m_retainedReadNotifier;
+    QSocketNotifier *m_retainedReadNotifier = nullptr;
     QList<QSocketNotifier *> m_obsoleteRetainedReadNotifiers;
     int m_retainedReadIndex;
     QByteArray m_retainedReadBuf;
 
-    bool m_compositorOwnsSelection;
+    bool m_compositorOwnsSelection = false;
 
 
     static void comp_accept(struct wl_client *client,

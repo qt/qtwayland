@@ -113,6 +113,7 @@ class TestGlWindow : public QOpenGLWindow
 
 public:
     TestGlWindow();
+    uint paintGLCalled = 0;
 
 protected:
     void paintGL() override;
@@ -124,6 +125,7 @@ TestGlWindow::TestGlWindow()
 void TestGlWindow::paintGL()
 {
     glClear(GL_COLOR_BUFFER_BIT);
+    ++paintGLCalled;
 }
 
 class tst_WaylandClient : public QObject
@@ -549,6 +551,8 @@ void tst_WaylandClient::glWindow()
     testWindow->show();
     QSharedPointer<MockSurface> surface;
     QTRY_VERIFY(surface = compositor->surface());
+
+    QTRY_VERIFY(testWindow->paintGLCalled);
 
     //confirm we don't crash when we delete an already hidden GL window
     //QTBUG-65553

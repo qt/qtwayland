@@ -159,12 +159,6 @@ void QWaylandEglWindow::setVisible(bool visible)
 {
     QWaylandWindow::setVisible(visible);
     if (!visible)
-        QMetaObject::invokeMethod(this, "doInvalidateSurface", Qt::QueuedConnection);
-}
-
-void QWaylandEglWindow::doInvalidateSurface()
-{
-    if (!window()->isVisible())
         invalidateSurface();
 }
 

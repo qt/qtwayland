@@ -76,9 +76,6 @@ public:
     void invalidateSurface() override;
     void setVisible(bool visible) override;
 
-private Q_SLOTS:
-    void doInvalidateSurface();
-
 private:
     QWaylandEglClientBufferIntegration *m_clientBufferIntegration;
     struct wl_egl_window *m_waylandEglWindow;

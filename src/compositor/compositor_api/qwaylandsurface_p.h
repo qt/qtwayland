@@ -151,9 +151,9 @@ public: //member variables
         QWaylandBufferRef buffer;
         QRegion damage;
         QPoint offset;
-        bool newlyAttached;
+        bool newlyAttached = false;
         QRegion inputRegion;
-        int bufferScale;
+        int bufferScale = 1;
         QRectF sourceGeometry;
         QSize destinationSize;
         QRegion opaqueRegion;

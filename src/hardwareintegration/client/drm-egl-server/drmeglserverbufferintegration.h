@@ -101,7 +101,7 @@ private:
     PFNEGLDESTROYIMAGEKHRPROC m_egl_destroy_image;
     PFNGLEGLIMAGETARGETTEXTURE2DOESPROC m_gl_egl_image_target_texture;
     QWaylandDisplay *m_display = nullptr;
-    EGLDisplay m_egl_display;
+    EGLDisplay m_egl_display = EGL_NO_DISPLAY;
     bool m_egl_initialized = false;
 };
 

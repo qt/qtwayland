@@ -91,7 +91,7 @@ private:
     struct {
         QWaylandSeat *seat = nullptr;
         QPointF initialOffset;
-        bool initialized;
+        bool initialized = false;
     } moveState;
 
     struct {
@@ -101,7 +101,7 @@ private:
         QPointF initialMousePos;
         QPointF initialPosition;
         QSize initialSurfaceSize;
-        bool initialized;
+        bool initialized = false;
     } resizeState;
 
     struct {

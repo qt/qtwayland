@@ -91,7 +91,7 @@ private:
     struct wl_display *m_waylandDisplay = nullptr;
     struct qt_brcm *m_waylandBrcm = nullptr;
 
-    EGLDisplay m_eglDisplay;
+    EGLDisplay m_eglDisplay = EGL_NO_DISPLAY;
 };
 
 }

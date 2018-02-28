@@ -224,10 +224,10 @@ private:
     QScopedPointer<QWaylandHardwareIntegration> mHardwareIntegration;
     QScopedPointer<QtWayland::zxdg_output_manager_v1> mXdgOutputManager;
     QSocketNotifier *mReadNotifier = nullptr;
-    int mFd;
-    int mWritableNotificationFd;
+    int mFd = -1;
+    int mWritableNotificationFd = -1;
     QList<RegistryGlobal> mGlobals;
-    int mCompositorVersion;
+    int mCompositorVersion = -1;
     uint32_t mLastInputSerial = 0;
     QWaylandInputDevice *mLastInputDevice = nullptr;
     QPointer<QWaylandWindow> mLastInputWindow;

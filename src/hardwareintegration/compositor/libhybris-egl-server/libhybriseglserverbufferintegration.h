@@ -121,7 +121,7 @@ public:
     inline void eglHybrisSerializeNativeBuffer(EGLClientBuffer buffer, int *ints, int *fds);
 
 private:
-    EGLDisplay m_egl_display;
+    EGLDisplay m_egl_display = EGL_NO_DISPLAY;
     PFNGLEGLIMAGETARGETTEXTURE2DOESPROC m_gl_egl_image_target_texture_2d;
 
     PFNEGLHYBRISCREATENATIVEBUFFERPROC m_egl_create_buffer;

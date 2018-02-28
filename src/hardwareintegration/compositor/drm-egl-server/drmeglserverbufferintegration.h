@@ -116,7 +116,7 @@ public:
     inline void glEGLImageTargetTexture2DOES (GLenum target, GLeglImageOES image);
 
 private:
-    EGLDisplay m_egl_display;
+    EGLDisplay m_egl_display = EGL_NO_DISPLAY;
     PFNEGLCREATEDRMIMAGEMESAPROC m_egl_create_drm_image;
     PFNEGLEXPORTDRMIMAGEMESAPROC m_egl_export_drm_image;
     PFNGLEGLIMAGETARGETTEXTURE2DOESPROC m_gl_egl_image_target_texture_2d;

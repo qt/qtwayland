@@ -62,7 +62,7 @@ public:
 
 private:
     Display *mDisplay = nullptr;
-    EGLDisplay mEglDisplay;
+    EGLDisplay mEglDisplay = EGL_NO_DISPLAY;
 };
 
 class XCompositeEglClientBuffer : public QtWayland::ClientBuffer

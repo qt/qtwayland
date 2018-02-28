@@ -85,7 +85,7 @@ public:
     void *userData() const;
 
 protected:
-    Format m_format;
+    Format m_format = RGBA32;
     QSize m_size;
 
 private:

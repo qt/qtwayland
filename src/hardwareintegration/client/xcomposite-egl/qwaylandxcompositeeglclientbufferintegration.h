@@ -97,9 +97,9 @@ private:
     struct qt_xcomposite *mWaylandComposite = nullptr;
 
     Display *mDisplay = nullptr;
-    EGLDisplay mEglDisplay;
-    int mScreen;
-    Window mRootWindow;
+    EGLDisplay mEglDisplay = EGL_NO_DISPLAY;
+    int mScreen = 0;
+    Window mRootWindow = -1;
 
     static void wlDisplayHandleGlobal(void *data, struct ::wl_registry *registry, uint32_t id,
                                       const QString &interface, uint32_t version);

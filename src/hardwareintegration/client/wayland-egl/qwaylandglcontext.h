@@ -83,7 +83,7 @@ public:
 private:
     void updateGLFormat();
 
-    EGLDisplay m_eglDisplay;
+    EGLDisplay m_eglDisplay = EGL_NO_DISPLAY;
     QWaylandDisplay *m_display = nullptr;
     EGLContext m_context;
     EGLContext m_shareEGLContext;

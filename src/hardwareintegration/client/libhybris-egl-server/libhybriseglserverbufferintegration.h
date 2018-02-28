@@ -118,7 +118,7 @@ private:
     PFNGLEGLIMAGETARGETTEXTURE2DOESPROC m_gl_egl_image_target_texture;
     PFNEGLHYBRISCREATEREMOTEBUFFERPROC m_egl_create_buffer;
     QWaylandDisplay *m_display = nullptr;
-    EGLDisplay m_egl_display;
+    EGLDisplay m_egl_display = EGL_NO_DISPLAY;
     bool m_egl_initialized = false;
 };
 

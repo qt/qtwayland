@@ -71,7 +71,7 @@ public:
     EGLContext eglContext() const { return m_context; }
 
 private:
-    EGLDisplay m_eglDisplay;
+    EGLDisplay m_eglDisplay = EGL_NO_DISPLAY;
 
     EGLContext m_context;
     EGLConfig m_config;

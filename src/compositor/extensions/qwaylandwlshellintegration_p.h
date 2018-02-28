@@ -100,14 +100,14 @@ private:
     struct {
         QWaylandSeat *seat = nullptr;
         QPointF initialOffset;
-        bool initialized;
+        bool initialized = false;
     } moveState;
     struct {
         QWaylandSeat *seat = nullptr;
         QWaylandWlShellSurface::ResizeEdge resizeEdges;
         QSizeF initialSize;
         QPointF initialMousePos;
-        bool initialized;
+        bool initialized = false;
     } resizeState;
 
     bool isPopup = false;

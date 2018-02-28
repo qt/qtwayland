@@ -113,7 +113,10 @@ class TestGlWindow : public QOpenGLWindow
 
 public:
     TestGlWindow();
-    uint paintGLCalled = 0;
+    int paintGLCalled = 0;
+
+public slots:
+    void hideShow();
 
 protected:
     void paintGL() override;
@@ -121,6 +124,12 @@ protected:
 
 TestGlWindow::TestGlWindow()
 {}
+
+void TestGlWindow::hideShow()
+{
+    setVisible(false);
+    setVisible(true);
+}
 
 void TestGlWindow::paintGL()
 {
@@ -564,7 +573,15 @@ void tst_WaylandClient::glWindow()
     QTRY_VERIFY(surface = compositor->surface());
     compositor->sendShellSurfaceConfigure(surface);
 
-    QTRY_VERIFY(testWindow->paintGLCalled);
+    QTRY_COMPARE(testWindow->paintGLCalled, 1);
+
+    //QTBUG-63411
+    QMetaObject::invokeMethod(testWindow.data(), "hideShow", Qt::QueuedConnection);
+    testWindow->requestUpdate();
+    QTRY_COMPARE(testWindow->paintGLCalled, 2);
+
+    testWindow->requestUpdate();
+    QTRY_COMPARE(testWindow->paintGLCalled, 3);
 
     //confirm we don't crash when we delete an already hidden GL window
     //QTBUG-65553

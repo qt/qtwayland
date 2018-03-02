@@ -930,8 +930,7 @@ void QWaylandWindow::restoreMouseCursor(QWaylandInputDevice *device)
 
 void QWaylandWindow::requestActivateWindow()
 {
-    // no-op. Wayland does not have activation protocol,
-    // we rely on compositor setting keyboard focus based on window stacking.
+    qCWarning(lcQpaWayland) << "Wayland does not support QWindow::requestActivate()";
 }
 
 void QWaylandWindow::unfocus()

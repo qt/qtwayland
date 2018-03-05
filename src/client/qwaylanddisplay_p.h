@@ -57,6 +57,7 @@
 #include <QtCore/QVector>
 
 #include <QtCore/QWaitCondition>
+#include <QtCore/QLoggingCategory>
 
 #include <wayland-client.h>
 
@@ -82,6 +83,8 @@ namespace QtWayland {
 }
 
 namespace QtWaylandClient {
+
+Q_DECLARE_LOGGING_CATEGORY(lcQpaWayland);
 
 class QWaylandInputDevice;
 class QWaylandBuffer;

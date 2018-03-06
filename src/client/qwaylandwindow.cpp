@@ -200,11 +200,8 @@ void QWaylandWindow::initWindow()
     else
         setGeometry_helper(window()->geometry());
     setMask(window()->mask());
-    // setWindowStateInternal is a no-op if the argument is equal to mState,
-    // but since we're creating the shellsurface only now we reset mState to
-    // make sure the state gets sent out to the compositor
-    mState = Qt::WindowNoState;
-    setWindowStateInternal(window()->windowStates());
+    if (mShellSurface)
+        mShellSurface->requestWindowStates(window()->windowStates());
     handleContentOrientationChange(window()->contentOrientation());
     mFlags = window()->flags();
 }
@@ -333,7 +330,16 @@ void QWaylandWindow::setGeometry(const QRect &rect)
     sendExposeEvent(QRect(QPoint(), geometry().size()));
 }
 
+void QWaylandWindow::resizeFromApplyConfigure(const QSize &sizeWithMargins, const QPoint &offset)
+{
+    QMargins margins = frameMargins();
+    int widthWithoutMargins = qMax(sizeWithMargins.width() - (margins.left()+margins.right()), 1);
+    int heightWithoutMargins = qMax(sizeWithMargins.height() - (margins.top()+margins.bottom()), 1);
+    QRect geometry(QPoint(), QSize(widthWithoutMargins, heightWithoutMargins));
 
+    mOffset += offset;
+    setGeometry(geometry);
+}
 
 void QWaylandWindow::sendExposeEvent(const QRect &rect)
 {
@@ -421,46 +427,24 @@ void QWaylandWindow::setMask(const QRegion &mask)
     wl_surface::commit();
 }
 
-void QWaylandWindow::configure(uint32_t edges, int32_t width, int32_t height)
+void QWaylandWindow::applyConfigureWhenPossible()
 {
     QMutexLocker resizeLocker(&mResizeLock);
-    mConfigure.edges |= edges;
-    mConfigure.width = width;
-    mConfigure.height = height;
-
-    if (!mRequestResizeSent && !mConfigure.isEmpty()) {
-        mRequestResizeSent= true;
-        QMetaObject::invokeMethod(this, "requestResize", Qt::QueuedConnection);
+    if (!mWaitingToApplyConfigure) {
+        mWaitingToApplyConfigure = true;
+        QMetaObject::invokeMethod(this, "applyConfigure", Qt::QueuedConnection);
     }
 }
 
-void QWaylandWindow::doResize()
+void QWaylandWindow::doApplyConfigure()
 {
-    if (mConfigure.isEmpty()) {
+    if (!mWaitingToApplyConfigure)
         return;
-    }
 
-    int widthWithoutMargins = qMax(mConfigure.width-(frameMargins().left() +frameMargins().right()),1);
-    int heightWithoutMargins = qMax(mConfigure.height-(frameMargins().top()+frameMargins().bottom()),1);
+    if (mShellSurface)
+        mShellSurface->applyConfigure();
 
-    widthWithoutMargins = qMax(widthWithoutMargins, window()->minimumSize().width());
-    heightWithoutMargins = qMax(heightWithoutMargins, window()->minimumSize().height());
-    QRect geometry = QRect(0,0, widthWithoutMargins, heightWithoutMargins);
-
-    int x = 0;
-    int y = 0;
-    QSize size = this->geometry().size();
-    if (mConfigure.edges & WL_SHELL_SURFACE_RESIZE_LEFT) {
-        x = size.width() - geometry.width();
-    }
-    if (mConfigure.edges & WL_SHELL_SURFACE_RESIZE_TOP) {
-        y = size.height() - geometry.height();
-    }
-    mOffset += QPoint(x, y);
-
-    setGeometry(geometry);
-
-    mConfigure.clear();
+    mWaitingToApplyConfigure = false;
 }
 
 void QWaylandWindow::setCanResize(bool canResize)
@@ -472,8 +456,8 @@ void QWaylandWindow::setCanResize(bool canResize)
         if (mResizeDirty) {
             QWindowSystemInterface::handleGeometryChange(window(), geometry());
         }
-        if (!mConfigure.isEmpty()) {
-            doResize();
+        if (mWaitingToApplyConfigure) {
+            doApplyConfigure();
             sendExposeEvent(QRect(QPoint(), geometry().size()));
         } else if (mResizeDirty) {
             mResizeDirty = false;
@@ -482,15 +466,13 @@ void QWaylandWindow::setCanResize(bool canResize)
     }
 }
 
-void QWaylandWindow::requestResize()
+void QWaylandWindow::applyConfigure()
 {
     QMutexLocker lock(&mResizeLock);
 
-    if (mCanResize || !mSentInitialResize) {
-        doResize();
-    }
+    if (mCanResize || !mSentInitialResize)
+        doApplyConfigure();
 
-    mRequestResizeSent = false;
     lock.unlock();
     sendExposeEvent(QRect(QPoint(), geometry().size()));
     QWindowSystemInterface::flushWindowSystemEvents();
@@ -672,10 +654,10 @@ void QWaylandWindow::setOrientationMask(Qt::ScreenOrientations mask)
         mShellSurface->setContentOrientationMask(mask);
 }
 
-void QWaylandWindow::setWindowState(Qt::WindowStates state)
+void QWaylandWindow::setWindowState(Qt::WindowStates states)
 {
-    if (setWindowStateInternal(state))
-        QWindowSystemInterface::flushWindowSystemEvents(); // Required for oldState to work on WindowStateChanged
+    if (mShellSurface)
+        mShellSurface->requestWindowStates(states);
 }
 
 void QWaylandWindow::setWindowFlags(Qt::WindowFlags flags)
@@ -689,20 +671,6 @@ void QWaylandWindow::setWindowFlags(Qt::WindowFlags flags)
 
 bool QWaylandWindow::createDecoration()
 {
-    // so far only xdg-shell support this "unminimize" trick, may be moved elsewhere
-    if (mState & Qt::WindowMinimized) {
-        QWaylandXdgSurface *xdgSurface = qobject_cast<QWaylandXdgSurface *>(mShellSurface);
-        if ( xdgSurface ) {
-            Qt::WindowStates states;
-            if (xdgSurface->isFullscreen())
-                states |= Qt::WindowFullScreen;
-            if (xdgSurface->isMaximized())
-                states |= Qt::WindowMaximized;
-
-            setWindowStateInternal(states);
-        }
-    }
-
     if (!mDisplay->supportsWindowDecoration())
         return false;
 
@@ -719,11 +687,13 @@ bool QWaylandWindow::createDecoration()
         default:
             break;
     }
-    if (mFlags & Qt::FramelessWindowHint || isFullscreen())
+    if (mFlags & Qt::FramelessWindowHint)
         decoration = false;
     if (mFlags & Qt::BypassWindowManagerHint)
         decoration = false;
     if (mSubSurfaceWindow)
+        decoration = false;
+    if (mShellSurface && !mShellSurface->wantsDecorations())
         decoration = false;
 
     bool hadDecoration = mWindowDecoration;
@@ -970,31 +940,11 @@ bool QWaylandWindow::setMouseGrabEnabled(bool grab)
     return true;
 }
 
-bool QWaylandWindow::setWindowStateInternal(Qt::WindowStates state)
+void QWaylandWindow::handleWindowStatesChanged(Qt::WindowStates states)
 {
-    if (mState == state) {
-        return false;
-    }
-
-    // As of february 2013 QWindow::setWindowState sets the new state value after
-    // QPlatformWindow::setWindowState returns, so we cannot rely on QWindow::windowState
-    // here. We use then this mState variable.
-    mState = state;
-
-    if (mShellSurface) {
-        createDecoration();
-        if (state & Qt::WindowMaximized)
-            mShellSurface->setMaximized();
-        if (state & Qt::WindowFullScreen)
-            mShellSurface->setFullscreen();
-        if (state & Qt::WindowMinimized)
-            mShellSurface->setMinimized();
-        if (!state)
-            mShellSurface->setNormal();
-    }
-
-    QWindowSystemInterface::handleWindowStateChanged(window(), mState);
-    return true;
+    createDecoration();
+    QWindowSystemInterface::handleWindowStateChanged(window(), states, mLastReportedWindowStates);
+    mLastReportedWindowStates = states;
 }
 
 void QWaylandWindow::sendProperty(const QString &name, const QVariant &value)

@@ -74,6 +74,11 @@ public:
 protected:
     void zxdg_toplevel_v6_destroy_resource(Resource *) override { delete this; }
     void zxdg_toplevel_v6_destroy(Resource *resource) override;
+    void zxdg_toplevel_v6_set_minimized(Resource *resource) override;
+    void zxdg_toplevel_v6_set_maximized(Resource *resource) override;
+    void zxdg_toplevel_v6_unset_maximized(Resource *resource) override;
+    void zxdg_toplevel_v6_set_fullscreen(Resource *resource, struct ::wl_resource *output) override;
+    void zxdg_toplevel_v6_unset_fullscreen(Resource *resource) override;
 
 private:
     XdgSurfaceV6 *m_xdgSurface = nullptr;

@@ -96,12 +96,9 @@ public:
     inline QWaylandWindow *window() { return m_window; }
 
     virtual void setType(Qt::WindowType type, QWaylandWindow *transientParent) = 0;
-
-protected:
-    virtual void setMaximized() {}
-    virtual void setFullscreen() {}
-    virtual void setNormal() {}
-    virtual void setMinimized() {}
+    virtual void applyConfigure() {}
+    virtual void requestWindowStates(Qt::WindowStates states) {Q_UNUSED(states);}
+    virtual bool wantsDecorations() const { return false; }
 
 private:
     QWaylandWindow *m_window = nullptr;

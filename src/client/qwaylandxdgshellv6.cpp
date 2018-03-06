@@ -46,8 +46,6 @@
 #include "qwaylandscreen_p.h"
 #include "qwaylandabstractdecoration_p.h"
 
-#include <QtCore/QDebug>
-
 QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
@@ -56,37 +54,96 @@ QWaylandXdgSurfaceV6::Toplevel::Toplevel(QWaylandXdgSurfaceV6 *xdgSurface)
     : QtWayland::zxdg_toplevel_v6(xdgSurface->get_toplevel())
     , m_xdgSurface(xdgSurface)
 {
+    requestWindowStates(xdgSurface->window()->window()->windowStates());
 }
 
 QWaylandXdgSurfaceV6::Toplevel::~Toplevel()
 {
+    if (m_applied.states & Qt::WindowActive) {
+        QWaylandWindow *window = m_xdgSurface->window();
+        window->display()->handleWindowDeactivated(window);
+    }
     if (isInitialized())
         destroy();
 }
 
 void QWaylandXdgSurfaceV6::Toplevel::applyConfigure()
 {
-    //TODO: resize, activate etc
-    m_xdgSurface->m_window->configure(0, m_configureState.width, m_configureState.height);
+    if (!(m_applied.states & (Qt::WindowMaximized|Qt::WindowFullScreen)))
+        m_normalSize = m_xdgSurface->m_window->window()->frameGeometry().size();
+
+    if (m_pending.size.isEmpty() && !m_normalSize.isEmpty())
+        m_pending.size = m_normalSize;
+
+    if ((m_pending.states & Qt::WindowActive) && !(m_applied.states & Qt::WindowActive))
+        m_xdgSurface->m_window->display()->handleWindowActivated(m_xdgSurface->m_window);
+
+    if (!(m_pending.states & Qt::WindowActive) && (m_applied.states & Qt::WindowActive))
+        m_xdgSurface->m_window->display()->handleWindowDeactivated(m_xdgSurface->m_window);
+
+    // TODO: none of the other plugins send WindowActive either, but is it on purpose?
+    Qt::WindowStates statesWithoutActive = m_pending.states & ~Qt::WindowActive;
+
+    m_xdgSurface->m_window->handleWindowStatesChanged(statesWithoutActive);
+    m_xdgSurface->m_window->resizeFromApplyConfigure(m_pending.size);
+    m_applied = m_pending;
 }
 
 void QWaylandXdgSurfaceV6::Toplevel::zxdg_toplevel_v6_configure(int32_t width, int32_t height, wl_array *states)
 {
-    m_configureState.width = width;
-    m_configureState.height = height;
+    m_pending.size = QSize(width, height);
 
-    uint32_t *state = reinterpret_cast<uint32_t *>(states->data);
+    auto *xdgStates = static_cast<uint32_t *>(states->data);
     size_t numStates = states->size / sizeof(uint32_t);
-    m_configureState.states.reserve(numStates);
-    m_configureState.states.clear();
 
-    for (size_t i = 0; i < numStates; i++)
-        m_configureState.states << state[i];
+    m_pending.states = Qt::WindowNoState;
+
+    for (size_t i = 0; i < numStates; i++) {
+        switch (xdgStates[i]) {
+        case ZXDG_TOPLEVEL_V6_STATE_ACTIVATED:
+            m_pending.states |= Qt::WindowActive;
+            break;
+        case ZXDG_TOPLEVEL_V6_STATE_MAXIMIZED:
+            m_pending.states |= Qt::WindowMaximized;
+            break;
+        case ZXDG_TOPLEVEL_V6_STATE_FULLSCREEN:
+            m_pending.states |= Qt::WindowFullScreen;
+            break;
+        default:
+            break;
+        }
+    }
 }
 
 void QWaylandXdgSurfaceV6::Toplevel::zxdg_toplevel_v6_close()
 {
     m_xdgSurface->m_window->window()->close();
+}
+
+void QWaylandXdgSurfaceV6::Toplevel::requestWindowStates(Qt::WindowStates states)
+{
+    // Re-send what's different from the applied state
+    Qt::WindowStates changedStates = m_applied.states ^ states;
+
+    if (changedStates & Qt::WindowMaximized) {
+        if (states & Qt::WindowMaximized)
+            set_maximized();
+        else
+            unset_maximized();
+    }
+
+    if (changedStates & Qt::WindowFullScreen) {
+        if (states & Qt::WindowFullScreen)
+            set_fullscreen(nullptr);
+        else
+            unset_fullscreen();
+    }
+
+    // Minimized state is not reported by the protocol, so always send it
+    if (states & Qt::WindowMinimized) {
+        set_minimized();
+        m_xdgSurface->window()->handleWindowStatesChanged(states & ~Qt::WindowMinimized);
+    }
 }
 
 QWaylandXdgSurfaceV6::Popup::Popup(QWaylandXdgSurfaceV6 *xdgSurface, QWaylandXdgSurfaceV6 *parent,
@@ -104,7 +161,6 @@ QWaylandXdgSurfaceV6::Popup::~Popup()
 
 void QWaylandXdgSurfaceV6::Popup::applyConfigure()
 {
-
 }
 
 void QWaylandXdgSurfaceV6::Popup::zxdg_popup_v6_popup_done()
@@ -187,6 +243,34 @@ bool QWaylandXdgSurfaceV6::handleExpose(const QRegion &region)
     return false;
 }
 
+void QWaylandXdgSurfaceV6::applyConfigure()
+{
+    Q_ASSERT(m_pendingConfigureSerial != 0);
+
+    if (m_toplevel)
+        m_toplevel->applyConfigure();
+    if (m_popup)
+        m_popup->applyConfigure();
+
+    m_configured = true;
+    ack_configure(m_pendingConfigureSerial);
+
+    m_pendingConfigureSerial = 0;
+}
+
+bool QWaylandXdgSurfaceV6::wantsDecorations() const
+{
+    return m_toplevel && !(m_toplevel->m_pending.states & Qt::WindowFullScreen);
+}
+
+void QWaylandXdgSurfaceV6::requestWindowStates(Qt::WindowStates states)
+{
+    if (m_toplevel)
+        m_toplevel->requestWindowStates(states);
+    else
+        qCWarning(lcQpaWayland) << "Non-toplevel surfaces can't request window states";
+}
+
 void QWaylandXdgSurfaceV6::setToplevel()
 {
     Q_ASSERT(!m_toplevel && !m_popup);
@@ -220,20 +304,13 @@ void QWaylandXdgSurfaceV6::setPopup(QWaylandWindow *parent, QWaylandInputDevice 
 
 void QWaylandXdgSurfaceV6::zxdg_surface_v6_configure(uint32_t serial)
 {
-    m_configured = true;
-    if (m_toplevel)
-        m_toplevel->applyConfigure();
-    else if (m_popup)
-        m_popup->applyConfigure();
-
+    m_window->applyConfigureWhenPossible();
+    m_pendingConfigureSerial = serial;
     if (!m_exposeRegion.isEmpty()) {
         QWindowSystemInterface::handleExposeEvent(m_window->window(), m_exposeRegion);
         m_exposeRegion = QRegion();
     }
-    ack_configure(serial);
 }
-
-
 
 QWaylandXdgShellV6::QWaylandXdgShellV6(struct ::wl_registry *registry, uint32_t id, uint32_t availableVersion)
                   : QtWayland::zxdg_shell_v6(registry, id, qMin(availableVersion, 1u))

@@ -96,26 +96,23 @@ public:
     void setWindowFlags(Qt::WindowFlags flags) override;
     void sendProperty(const QString &name, const QVariant &value) override;
 
-    bool isFullscreen() const { return m_fullscreen; }
-    bool isMaximized() const { return m_maximized; }
-
     void setType(Qt::WindowType type, QWaylandWindow *transientParent) override;
+    void applyConfigure() override;
+    void requestWindowStates(Qt::WindowStates states) override;
+    bool wantsDecorations() const override;
 
 private:
-    void setMaximized() override;
-    void setFullscreen() override;
-    void setNormal() override;
-    void setMinimized() override;
-
     void updateTransientParent(QWaylandWindow *parent);
 
 private:
     QWaylandWindow *m_window = nullptr;
     QWaylandXdgShell* m_shell = nullptr;
-    bool m_maximized = false;
-    bool m_minimized = false;
-    bool m_fullscreen = false;
-    bool m_active = false;
+    struct {
+        Qt::WindowStates states = Qt::WindowNoState;
+        bool isResizing = false;
+        QSize size = {0, 0};
+        uint serial = 0;
+    } m_acked, m_pending;
     QSize m_normalSize;
     QMargins m_margins;
     QWaylandExtendedSurface *m_extendedWindow = nullptr;

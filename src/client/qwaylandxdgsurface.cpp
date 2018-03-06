@@ -64,7 +64,7 @@ QWaylandXdgSurface::QWaylandXdgSurface(QWaylandXdgShell *shell, QWaylandWindow *
 
 QWaylandXdgSurface::~QWaylandXdgSurface()
 {
-    if (m_active)
+    if (m_acked.states & Qt::WindowActive)
         window()->display()->handleWindowDeactivated(m_window);
 
     xdg_surface_destroy(object());
@@ -90,38 +90,6 @@ bool QWaylandXdgSurface::move(QWaylandInputDevice *inputDevice)
     move(inputDevice->wl_seat(),
          inputDevice->serial());
     return true;
-}
-
-void QWaylandXdgSurface::setMaximized()
-{
-    if (!m_maximized)
-        set_maximized();
-}
-
-void QWaylandXdgSurface::setFullscreen()
-{
-    if (!m_fullscreen)
-        set_fullscreen(nullptr);
-}
-
-void QWaylandXdgSurface::setNormal()
-{
-    if (m_fullscreen || m_maximized  || m_minimized) {
-        if (m_maximized) {
-            unset_maximized();
-        }
-        if (m_fullscreen) {
-            unset_fullscreen();
-        }
-
-        m_fullscreen = m_maximized = m_minimized = false;
-    }
-}
-
-void QWaylandXdgSurface::setMinimized()
-{
-    m_minimized = true;
-    set_minimized();
 }
 
 void QWaylandXdgSurface::updateTransientParent(QWaylandWindow *parent)
@@ -180,71 +148,88 @@ void QWaylandXdgSurface::setType(Qt::WindowType type, QWaylandWindow *transientP
         updateTransientParent(transientParent);
 }
 
+void QWaylandXdgSurface::applyConfigure()
+{
+    if (m_pending.isResizing)
+        m_normalSize = m_pending.size;
+    else if (!(m_acked.states & (Qt::WindowMaximized|Qt::WindowFullScreen)))
+        m_normalSize = m_window->window()->frameGeometry().size();
+
+    if ((m_pending.states & Qt::WindowActive) && !(m_acked.states & Qt::WindowActive))
+        m_window->display()->handleWindowActivated(m_window);
+
+    if (!(m_pending.states & Qt::WindowActive) && (m_acked.states & Qt::WindowActive))
+        m_window->display()->handleWindowDeactivated(m_window);
+
+    // TODO: none of the other plugins send WindowActive either, but is it on purpose?
+    Qt::WindowStates statesWithoutActive = m_pending.states & ~Qt::WindowActive;
+
+    m_window->handleWindowStatesChanged(statesWithoutActive);
+    if (!m_pending.size.isEmpty())
+        m_window->resizeFromApplyConfigure(m_pending.size);
+    else if (!m_normalSize.isEmpty())
+        m_window->resizeFromApplyConfigure(m_normalSize);
+    ack_configure(m_pending.serial);
+    m_acked = m_pending;
+}
+
+void QWaylandXdgSurface::requestWindowStates(Qt::WindowStates states)
+{
+    Qt::WindowStates changedStates = m_acked.states ^ states;
+
+    if (changedStates & Qt::WindowMaximized) {
+        if (states & Qt::WindowMaximized)
+            set_maximized();
+        else
+            unset_maximized();
+    }
+
+    if (changedStates & Qt::WindowFullScreen) {
+        if (states & Qt::WindowFullScreen)
+            set_fullscreen(nullptr);
+        else
+            unset_fullscreen();
+    }
+
+    // Minimized state is not reported by the protocol, so always send it
+    if (states & Qt::WindowMinimized) {
+        set_minimized();
+        window()->handleWindowStatesChanged(states & ~Qt::WindowMinimized);
+    }
+}
+
+bool QWaylandXdgSurface::wantsDecorations() const
+{
+    return !(m_pending.states & Qt::WindowFullScreen);
+}
+
 void QWaylandXdgSurface::xdg_surface_configure(int32_t width, int32_t height, struct wl_array *states,uint32_t serial)
 {
-    uint32_t *state = reinterpret_cast<uint32_t*>(states->data);
+    uint32_t *xdgStates = reinterpret_cast<uint32_t*>(states->data);
     size_t numStates = states->size / sizeof(uint32_t);
-    bool aboutToMaximize = false;
-    bool aboutToFullScreen = false;
-    bool aboutToActivate = false;
-
+    m_pending.serial = serial;
+    m_pending.size = QSize(width, height);
+    m_pending.isResizing = false;
+    m_pending.states = Qt::WindowNoState;
     for (size_t i = 0; i < numStates; i++) {
-        switch (state[i]) {
+        switch (xdgStates[i]) {
         case XDG_SURFACE_STATE_MAXIMIZED:
-            aboutToMaximize = ((width > 0) && (height > 0));
+            m_pending.states |= Qt::WindowMaximized;
             break;
         case XDG_SURFACE_STATE_FULLSCREEN:
-            aboutToFullScreen = true;
+            m_pending.states |= Qt::WindowFullScreen;
             break;
         case XDG_SURFACE_STATE_RESIZING:
-            m_normalSize = QSize(width, height);
+            m_pending.isResizing = true;
             break;
         case XDG_SURFACE_STATE_ACTIVATED:
-            aboutToActivate = true;
+            m_pending.states |= Qt::WindowActive;
             break;
         default:
             break;
         }
     }
-
-    if (!m_active && aboutToActivate) {
-        m_active = true;
-        window()->display()->handleWindowActivated(m_window);
-    } else if (m_active && !aboutToActivate) {
-        m_active = false;
-        window()->display()->handleWindowDeactivated(m_window);
-    }
-
-    if (!m_fullscreen && aboutToFullScreen) {
-        if (!m_maximized)
-            m_normalSize = m_window->window()->frameGeometry().size();
-        m_fullscreen = true;
-        m_window->window()->showFullScreen();
-    } else if (m_fullscreen && !aboutToFullScreen) {
-        m_fullscreen = false;
-        if ( m_maximized ) {
-            m_window->window()->showMaximized();
-        } else {
-            m_window->window()->showNormal();
-        }
-    } else if (!m_maximized && aboutToMaximize) {
-        if (!m_fullscreen)
-            m_normalSize = m_window->window()->frameGeometry().size();
-        m_maximized = true;
-        m_window->window()->showMaximized();
-    } else if (m_maximized && !aboutToMaximize) {
-        m_maximized = false;
-        m_window->window()->showNormal();
-    }
-
-    if (width <= 0 || height <= 0) {
-        if (!m_normalSize.isEmpty())
-            m_window->configure(0, m_normalSize.width(), m_normalSize.height());
-    } else {
-        m_window->configure(0, width, height);
-    }
-
-    ack_configure(serial);
+    m_window->applyConfigureWhenPossible();
 }
 
 void QWaylandXdgSurface::xdg_surface_close()

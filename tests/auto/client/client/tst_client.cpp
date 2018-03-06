@@ -172,6 +172,7 @@ private slots:
     void windowScreens();
     void removePrimaryScreen();
     void createDestroyWindow();
+    void activeWindowFollowsKeyboardFocus();
     void events();
     void backingStore();
     void touchDrag();
@@ -313,6 +314,31 @@ void tst_WaylandClient::createDestroyWindow()
     QTRY_VERIFY(!compositor->surface());
 }
 
+void tst_WaylandClient::activeWindowFollowsKeyboardFocus()
+{
+    TestWindow window;
+    window.show();
+
+    QSharedPointer<MockSurface> surface;
+    QTRY_VERIFY(surface = compositor->surface());
+    compositor->sendShellSurfaceConfigure(surface);
+
+    QTRY_VERIFY(window.isExposed());
+
+    if (compositor->xdgToplevelV6())
+        QSKIP("On xdg-shell v6 focus is handled by configure events");
+
+    QCOMPARE(window.focusInEventCount, 0);
+    compositor->setKeyboardFocus(surface);
+    QTRY_COMPARE(window.focusInEventCount, 1);
+    QTRY_COMPARE(QGuiApplication::focusWindow(), &window);
+
+    QCOMPARE(window.focusOutEventCount, 0);
+    compositor->setKeyboardFocus(QSharedPointer<MockSurface>(nullptr));
+    QTRY_COMPARE(window.focusOutEventCount, 1);
+    QTRY_COMPARE(QGuiApplication::focusWindow(), static_cast<QWindow *>(nullptr));
+}
+
 void tst_WaylandClient::events()
 {
     TestWindow window;
@@ -324,18 +350,8 @@ void tst_WaylandClient::events()
 
     QTRY_VERIFY(window.isExposed());
 
-    QCOMPARE(window.focusInEventCount, 0);
     compositor->setKeyboardFocus(surface);
     QTRY_COMPARE(window.focusInEventCount, 1);
-    QTRY_COMPARE(QGuiApplication::focusWindow(), &window);
-
-    QCOMPARE(window.focusOutEventCount, 0);
-    compositor->setKeyboardFocus(QSharedPointer<MockSurface>(nullptr));
-    QTRY_COMPARE(window.focusOutEventCount, 1);
-    QTRY_COMPARE(QGuiApplication::focusWindow(), static_cast<QWindow *>(nullptr));
-
-    compositor->setKeyboardFocus(surface);
-    QTRY_COMPARE(window.focusInEventCount, 2);
     QTRY_COMPARE(QGuiApplication::focusWindow(), &window);
 
     uint keyCode = 80; // arbitrarily chosen

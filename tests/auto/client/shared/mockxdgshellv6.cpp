@@ -39,8 +39,8 @@ void Compositor::sendXdgToplevelV6Configure(void *data, const QList<QVariant> &p
     Q_ASSERT(toplevel && toplevel->resource());
     QSize size = parameters.at(1).toSize();
     Q_ASSERT(size.isValid());
-    QByteArray states;
-    toplevel->send_configure(size.width(), size.height(), states);
+    auto statesBytes = parameters.at(2).toByteArray();
+    toplevel->send_configure(size.width(), size.height(), statesBytes);
     toplevel->xdgSurface()->send_configure(compositor->nextSerial());
 }
 
@@ -85,6 +85,37 @@ void XdgToplevelV6::zxdg_toplevel_v6_destroy(QtWaylandServer::zxdg_toplevel_v6::
 {
     m_xdgSurface->m_toplevel = nullptr;
     wl_resource_destroy(resource->handle);
+}
+
+void XdgToplevelV6::zxdg_toplevel_v6_set_minimized(QtWaylandServer::zxdg_toplevel_v6::Resource *resource)
+{
+    Q_UNUSED(resource);
+    emit m_mockToplevel->setMinimizedRequested();
+}
+
+void XdgToplevelV6::zxdg_toplevel_v6_set_maximized(QtWaylandServer::zxdg_toplevel_v6::Resource *resource)
+{
+    Q_UNUSED(resource);
+    emit m_mockToplevel->setMaximizedRequested();
+}
+
+void XdgToplevelV6::zxdg_toplevel_v6_unset_maximized(QtWaylandServer::zxdg_toplevel_v6::Resource *resource)
+{
+    Q_UNUSED(resource);
+    emit m_mockToplevel->unsetMaximizedRequested();
+}
+
+void XdgToplevelV6::zxdg_toplevel_v6_set_fullscreen(QtWaylandServer::zxdg_toplevel_v6::Resource *resource, wl_resource *output)
+{
+    Q_UNUSED(resource);
+    Q_UNUSED(output);
+    emit m_mockToplevel->setFullscreenRequested();
+}
+
+void XdgToplevelV6::zxdg_toplevel_v6_unset_fullscreen(QtWaylandServer::zxdg_toplevel_v6::Resource *resource)
+{
+    Q_UNUSED(resource);
+    emit m_mockToplevel->unsetFullscreenRequested();
 }
 
 void Impl::XdgShellV6::zxdg_shell_v6_get_xdg_surface(QtWaylandServer::zxdg_shell_v6::Resource *resource, uint32_t id, wl_resource *surface)

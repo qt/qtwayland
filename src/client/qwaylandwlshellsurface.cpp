@@ -121,34 +121,69 @@ void QWaylandWlShellSurface::sendProperty(const QString &name, const QVariant &v
         m_extendedWindow->updateGenericProperty(name, value);
 }
 
-void QWaylandWlShellSurface::setMaximized()
+void QWaylandWlShellSurface::applyConfigure()
 {
-    m_maximized = true;
-    m_size = m_window->window()->geometry().size();
-    set_maximized(nullptr);
-}
-
-void QWaylandWlShellSurface::setFullscreen()
-{
-    m_fullscreen = true;
-    m_size = m_window->window()->geometry().size();
-    set_fullscreen(WL_SHELL_SURFACE_FULLSCREEN_METHOD_DEFAULT, 0, nullptr);
-}
-
-void QWaylandWlShellSurface::setNormal()
-{
-    if (m_fullscreen || m_maximized) {
-        m_fullscreen = m_maximized = false;
-        setTopLevel();
-        QMargins m = m_window->frameMargins();
-        m_window->configure(0, m_size.width() + m.left() + m.right(), m_size.height() + m.top() + m.bottom());
+    if ((m_pending.states & (Qt::WindowMaximized|Qt::WindowFullScreen))
+            && !(m_applied.states & (Qt::WindowMaximized|Qt::WindowFullScreen))) {
+        m_normalSize = m_window->window()->frameGeometry().size();
     }
+
+    if (m_pending.states != m_applied.states)
+        m_window->handleWindowStatesChanged(m_pending.states);
+
+    if (!m_pending.size.isEmpty()) {
+        int x = 0;
+        int y = 0;
+        if (m_pending.edges & resize_left)
+            x = m_applied.size.width() - m_pending.size.width();
+        if (m_pending.edges & resize_top)
+            y = m_applied.size.height() - m_pending.size.height();
+        QPoint offset(x, y);
+        m_window->resizeFromApplyConfigure(m_pending.size, offset);
+    } else if (m_pending.size.isValid() && !m_normalSize.isEmpty()) {
+        m_window->resizeFromApplyConfigure(m_normalSize);
+    }
+
+    m_applied = m_pending;
 }
 
-void QWaylandWlShellSurface::setMinimized()
+bool QWaylandWlShellSurface::wantsDecorations() const
 {
-    qCWarning(lcQpaWayland) << "Minimization is not supported on wl-shell. Consider using xdg-shell instead.";
+    return !(m_pending.states & Qt::WindowFullScreen);
 }
+
+void QWaylandWlShellSurface::requestWindowStates(Qt::WindowStates states)
+{
+    // On wl-shell the client is in charge of states, so diff from the pending state
+    Qt::WindowStates changedStates = m_pending.states ^ states;
+    Qt::WindowStates addedStates = changedStates & states;
+
+    if (addedStates & Qt::WindowMinimized)
+        qCWarning(lcQpaWayland) << "Minimizing is not supported on wl-shell. Consider using xdg-shell instead.";
+
+    if (addedStates & Qt::WindowMaximized) {
+        set_maximized(nullptr);
+        m_window->applyConfigureWhenPossible();
+    }
+
+    if (addedStates & Qt::WindowFullScreen) {
+        set_fullscreen(WL_SHELL_SURFACE_FULLSCREEN_METHOD_DEFAULT, 0, nullptr);
+        m_window->applyConfigureWhenPossible();
+    }
+
+    bool isNormal = ~states & (Qt::WindowMaximized | Qt::WindowFullScreen);
+    if (isNormal && (changedStates & (Qt::WindowMaximized | Qt::WindowFullScreen))) {
+        setTopLevel(); // set normal window
+        // There's usually no configure event after this, so just clear the rest of the pending
+        // configure here and queue the applyConfigure call
+        m_pending.size = {0, 0};
+        m_pending.edges = resize_none;
+        m_window->applyConfigureWhenPossible();
+    }
+
+    m_pending.states = states & ~Qt::WindowMinimized;
+}
+
 
 void QWaylandWlShellSurface::setTopLevel()
 {
@@ -230,11 +265,13 @@ void QWaylandWlShellSurface::shell_surface_ping(uint32_t serial)
     pong(serial);
 }
 
-void QWaylandWlShellSurface::shell_surface_configure(uint32_t edges,
-                                                     int32_t width,
-                                                     int32_t height)
+void QWaylandWlShellSurface::shell_surface_configure(uint32_t edges, int32_t width, int32_t height)
 {
-    m_window->configure(edges, width, height);
+    m_pending.size = QSize(width, height);
+    m_pending.edges = static_cast<enum resize>(edges);
+    if (m_pending.edges && !m_pending.size.isEmpty())
+        m_normalSize = m_pending.size;
+    m_window->applyConfigureWhenPossible();
 }
 
 void QWaylandWlShellSurface::shell_surface_popup_done()

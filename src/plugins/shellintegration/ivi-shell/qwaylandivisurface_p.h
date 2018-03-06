@@ -63,6 +63,7 @@ public:
     ~QWaylandIviSurface() override;
 
     void setType(Qt::WindowType type, QWaylandWindow *transientParent) override;
+    void applyConfigure() override;
 
 private:
     void createExtendedSurface(QWaylandWindow *window);
@@ -71,6 +72,7 @@ private:
 
     QWaylandWindow *m_window = nullptr;
     QWaylandExtendedSurface *m_extendedWindow = nullptr;
+    QSize m_pendingSize = {0, 0};
 };
 
 }

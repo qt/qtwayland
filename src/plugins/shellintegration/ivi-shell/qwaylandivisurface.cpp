@@ -82,6 +82,11 @@ void QWaylandIviSurface::setType(Qt::WindowType type, QWaylandWindow *transientP
     Q_UNUSED(transientParent)
 }
 
+void QWaylandIviSurface::applyConfigure()
+{
+    m_window->resizeFromApplyConfigure(m_pendingSize);
+}
+
 void QWaylandIviSurface::createExtendedSurface(QWaylandWindow *window)
 {
     if (window->display()->windowExtension())
@@ -90,7 +95,8 @@ void QWaylandIviSurface::createExtendedSurface(QWaylandWindow *window)
 
 void QWaylandIviSurface::ivi_surface_configure(int32_t width, int32_t height)
 {
-    this->m_window->configure(0, width, height);
+    m_pendingSize = {width, height};
+    m_window->applyConfigureWhenPossible();
 }
 
 void QWaylandIviSurface::ivi_controller_surface_visibility(int32_t visibility)

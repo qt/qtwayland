@@ -236,11 +236,14 @@ void MockCompositor::sendIviSurfaceConfigure(const QSharedPointer<MockIviSurface
     processCommand(command);
 }
 
-void MockCompositor::sendXdgToplevelV6Configure(const QSharedPointer<MockXdgToplevelV6> toplevel, const QSize &size)
+void MockCompositor::sendXdgToplevelV6Configure(const QSharedPointer<MockXdgToplevelV6> toplevel, const QSize &size, const QVector<uint> &states)
 {
     Command command = makeCommand(Impl::Compositor::sendXdgToplevelV6Configure, m_compositor);
     command.parameters << QVariant::fromValue(toplevel);
     command.parameters << QVariant::fromValue(size);
+    auto statesBytes = QByteArray::fromRawData(reinterpret_cast<const char *>(states.data()),
+                                               states.size() * static_cast<int>(sizeof(uint)));
+    command.parameters << statesBytes;
     processCommand(command);
 }
 

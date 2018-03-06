@@ -78,6 +78,20 @@ QWaylandShellSurface *QWaylandXdgShellV6Integration::createShellSurface(QWayland
     return m_xdgShell->getXdgSurface(window);
 }
 
+void QWaylandXdgShellV6Integration::handleKeyboardFocusChanged(QWaylandWindow *newFocus, QWaylandWindow *oldFocus)
+{
+    if (newFocus) {
+        auto *xdgSurface = qobject_cast<QWaylandXdgSurfaceV6 *>(newFocus->shellSurface());
+        if (xdgSurface && xdgSurface->handlesActiveState())
+            m_display->handleWindowActivated(newFocus);
+    }
+    if (oldFocus && qobject_cast<QWaylandXdgPopup *>(oldFocus->shellSurface())) {
+        auto *xdgSurface = qobject_cast<QWaylandXdgSurfaceV6 *>(oldFocus->shellSurface());
+        if (xdgSurface && xdgSurface->handlesActiveState())
+            m_display->handleWindowDeactivated(oldFocus);
+    }
+}
+
 }
 
 QT_END_NAMESPACE

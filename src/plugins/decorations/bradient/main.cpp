@@ -270,8 +270,7 @@ void QWaylandBradientDecoration::paint(QPaintDevice *device)
     p.drawPixmap(closeButtonRect(), closePixmap, closePixmap.rect());
 
     // Maximize button
-    QPixmap maximizePixmap(waylandWindow()->isMaximized()
-                           ? qt_normalizeup_xpm : qt_maximize_xpm);
+    QPixmap maximizePixmap((window()->windowStates() & Qt::WindowMaximized) ? qt_normalizeup_xpm : qt_maximize_xpm);
     p.drawPixmap(maximizeButtonRect(), maximizePixmap, maximizePixmap.rect());
 
     // Minimize button
@@ -356,7 +355,7 @@ bool QWaylandBradientDecoration::handleMouse(QWaylandInputDevice *inputDevice, c
             QWindowSystemInterface::handleCloseEvent(window());
     } else if (maximizeButtonRect().contains(local)) {
         if (clickButton(b, Maximize))
-            window()->setWindowState(waylandWindow()->isMaximized() ? Qt::WindowNoState : Qt::WindowMaximized);
+            window()->setWindowStates(window()->windowStates() ^ Qt::WindowMaximized);
     } else if (minimizeButtonRect().contains(local)) {
         if (clickButton(b, Minimize))
             window()->setWindowState(Qt::WindowMinimized);
@@ -390,7 +389,7 @@ bool QWaylandBradientDecoration::handleTouch(QWaylandInputDevice *inputDevice, c
         if (closeButtonRect().contains(local))
             QWindowSystemInterface::handleCloseEvent(window());
         else if (maximizeButtonRect().contains(local))
-            window()->setWindowState(waylandWindow()->isMaximized() ? Qt::WindowNoState : Qt::WindowMaximized);
+            window()->setWindowStates(window()->windowStates() ^ Qt::WindowMaximized);
         else if (minimizeButtonRect().contains(local))
             window()->setWindowState(Qt::WindowMinimized);
         else if (local.y() <= margins().top())

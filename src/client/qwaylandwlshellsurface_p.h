@@ -93,21 +93,26 @@ public:
     void sendProperty(const QString &name, const QVariant &value) override;
 
     void setType(Qt::WindowType type, QWaylandWindow *transientParent) override;
+    void applyConfigure() override;
+    bool wantsDecorations() const override;
+
+protected:
+    void requestWindowStates(Qt::WindowStates states) override;
 
 private:
-    void setMaximized() override;
-    void setFullscreen() override;
-    void setNormal() override;
-    void setMinimized() override;
-
     void setTopLevel();
     void updateTransientParent(QWindow *parent);
     void setPopup(QWaylandWindow *parent, QWaylandInputDevice *device, uint serial);
 
     QWaylandWindow *m_window = nullptr;
-    bool m_maximized = false;
-    bool m_fullscreen = false;
-    QSize m_size;
+    struct {
+        Qt::WindowStates states = Qt::WindowNoState;
+        QSize size;
+        enum resize edges = resize_none;
+    } m_applied, m_pending;
+    QSize m_normalSize;
+    // There's really no need to have pending and applied state on wl-shell, but we do it just to
+    // keep the different shell implementations more similar.
     QWaylandExtendedSurface *m_extendedWindow = nullptr;
 
     void shell_surface_ping(uint32_t serial) override;

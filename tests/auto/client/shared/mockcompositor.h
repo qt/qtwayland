@@ -175,12 +175,21 @@ private:
 
 Q_DECLARE_METATYPE(QSharedPointer<MockIviSurface>)
 
-class MockXdgToplevelV6
+class MockXdgToplevelV6 : public QObject
 {
+    Q_OBJECT
 public:
     Impl::XdgToplevelV6 *handle() const { return m_toplevel; }
 
     void sendConfigure(const QSharedPointer<MockXdgToplevelV6> toplevel);
+
+signals:
+    uint setMinimizedRequested();
+    uint setMaximizedRequested();
+    uint unsetMaximizedRequested();
+    uint setFullscreenRequested();
+    uint unsetFullscreenRequested();
+
 private:
     MockXdgToplevelV6(Impl::XdgToplevelV6 *toplevel) : m_toplevel(toplevel) {}
     friend class Impl::Compositor;
@@ -234,7 +243,8 @@ public:
     void sendSurfaceLeave(const QSharedPointer<MockSurface> &surface, QSharedPointer<MockOutput> &output);
     void sendShellSurfaceConfigure(const QSharedPointer<MockSurface> surface, const QSize &size = QSize(0, 0));
     void sendIviSurfaceConfigure(const QSharedPointer<MockIviSurface> iviSurface, const QSize &size);
-    void sendXdgToplevelV6Configure(const QSharedPointer<MockXdgToplevelV6> toplevel, const QSize &size = QSize(0, 0));
+    void sendXdgToplevelV6Configure(const QSharedPointer<MockXdgToplevelV6> toplevel, const QSize &size = QSize(0, 0),
+                                    const QVector<uint> &states = { ZXDG_TOPLEVEL_V6_STATE_ACTIVATED });
     void waitForStartDrag();
 
     QSharedPointer<MockSurface> surface();

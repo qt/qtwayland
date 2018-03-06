@@ -73,6 +73,7 @@ class QWaylandXdgShellV6;
 
 class Q_WAYLAND_CLIENT_EXPORT QWaylandXdgSurfaceV6 : public QWaylandShellSurface, public QtWayland::zxdg_surface_v6
 {
+    Q_OBJECT
 public:
     QWaylandXdgSurfaceV6(QWaylandXdgShellV6 *shell, ::zxdg_surface_v6 *surface, QWaylandWindow *window);
     ~QWaylandXdgSurfaceV6() override;
@@ -85,8 +86,12 @@ public:
 
     void setType(Qt::WindowType type, QWaylandWindow *transientParent) override;
     bool handleExpose(const QRegion &) override;
+    bool handlesActiveState() const { return m_toplevel; }
+    void applyConfigure() override;
+    bool wantsDecorations() const override;
 
 protected:
+    void requestWindowStates(Qt::WindowStates states) override;
     void zxdg_surface_v6_configure(uint32_t serial) override;
 
 private:
@@ -101,10 +106,12 @@ private:
         void zxdg_toplevel_v6_configure(int32_t width, int32_t height, wl_array *states) override;
         void zxdg_toplevel_v6_close() override;
 
+        void requestWindowStates(Qt::WindowStates states);
         struct {
-            int32_t width, height;
-            QVarLengthArray<uint32_t> states;
-        } m_configureState;
+            QSize size = {0, 0};
+            Qt::WindowStates states = Qt::WindowNoState;
+        }  m_pending, m_applied;
+        QSize m_normalSize;
 
         QWaylandXdgSurfaceV6 *m_xdgSurface = nullptr;
     };
@@ -129,6 +136,7 @@ private:
     Popup *m_popup = nullptr;
     bool m_configured = false;
     QRegion m_exposeRegion;
+    uint m_pendingConfigureSerial = 0;
 };
 
 class Q_WAYLAND_CLIENT_EXPORT QWaylandXdgShellV6 : public QtWayland::zxdg_shell_v6

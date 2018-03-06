@@ -86,7 +86,7 @@ private:
     static void wlDisplayHandleGlobal(void *data, struct wl_registry *registry, uint32_t id, const QString &interface, uint32_t version);
 
     struct wl_display *m_waylandDisplay = nullptr;
-    struct qt_brcm *m_waylandBrcm;
+    struct qt_brcm *m_waylandBrcm = nullptr;
 
     EGLDisplay m_eglDisplay;
 };

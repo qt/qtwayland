@@ -148,7 +148,7 @@ protected:
     }
 
 private:
-    CustomExtension *m_extension;
+    CustomExtension *m_extension = nullptr;
     QRect rect1;
     QRect rect2;
     QRect rect3;

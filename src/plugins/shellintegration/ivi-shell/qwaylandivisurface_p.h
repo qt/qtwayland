@@ -60,16 +60,16 @@ public:
     QWaylandIviSurface(struct ::ivi_surface *shell_surface, QWaylandWindow *window);
     QWaylandIviSurface(struct ::ivi_surface *shell_surface, QWaylandWindow *window,
                        struct ::ivi_controller_surface *iviControllerSurface);
-    virtual ~QWaylandIviSurface();
+    ~QWaylandIviSurface() override;
 
     void setType(Qt::WindowType type, QWaylandWindow *transientParent) override;
 
 private:
     void createExtendedSurface(QWaylandWindow *window);
-    virtual void ivi_surface_configure(int32_t width, int32_t height) override;
+    void ivi_surface_configure(int32_t width, int32_t height) override;
     void ivi_controller_surface_visibility(int32_t visibility) override;
 
-    QWaylandWindow *m_window;
+    QWaylandWindow *m_window = nullptr;
     QWaylandExtendedSurface *m_extendedWindow = nullptr;
 };
 

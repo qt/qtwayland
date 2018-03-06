@@ -74,7 +74,7 @@ class QWaylandTextInput : public QtWayland::zwp_text_input_v2
 {
 public:
     QWaylandTextInput(QWaylandDisplay *display, struct ::zwp_text_input_v2 *text_input);
-    ~QWaylandTextInput();
+    ~QWaylandTextInput() override;
 
     void reset();
     void commit();
@@ -107,7 +107,7 @@ protected:
 private:
     Qt::KeyboardModifiers modifiersToQtModifiers(uint32_t modifiers);
 
-    QWaylandDisplay *m_display;
+    QWaylandDisplay *m_display = nullptr;
     QWaylandInputMethodEventBuilder m_builder;
 
     QVector<Qt::KeyboardModifier> m_modifiersMap;
@@ -132,7 +132,7 @@ class QWaylandInputContext : public QPlatformInputContext
     Q_OBJECT
 public:
     explicit QWaylandInputContext(QWaylandDisplay *display);
-    ~QWaylandInputContext();
+    ~QWaylandInputContext() override;
 
     bool isValid() const override;
 
@@ -155,7 +155,7 @@ public:
 private:
     QWaylandTextInput *textInput() const;
 
-    QWaylandDisplay *mDisplay;
+    QWaylandDisplay *mDisplay = nullptr;
     QPointer<QWindow> mCurrentWindow;
 };
 

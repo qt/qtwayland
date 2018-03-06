@@ -72,7 +72,7 @@ class Q_WAYLAND_CLIENT_EXPORT QWaylandDataSource : public QObject, public QtWayl
     Q_OBJECT
 public:
     QWaylandDataSource(QWaylandDataDeviceManager *dataDeviceManager, QMimeData *mimeData);
-    ~QWaylandDataSource();
+    ~QWaylandDataSource() override;
 
     QMimeData *mimeData() const;
 
@@ -86,8 +86,8 @@ protected:
     void data_source_target(const QString &mime_type) override;
 
 private:
-    QWaylandDisplay *m_display;
-    QMimeData *m_mime_data;
+    QWaylandDisplay *m_display = nullptr;
+    QMimeData *m_mime_data = nullptr;
 };
 
 }

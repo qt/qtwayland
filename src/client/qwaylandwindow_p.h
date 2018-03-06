@@ -104,7 +104,7 @@ public:
     };
 
     QWaylandWindow(QWindow *window);
-    ~QWaylandWindow();
+    ~QWaylandWindow() override;
 
     virtual WindowType windowType() const = 0;
     virtual void ensureSize();
@@ -200,6 +200,8 @@ public:
     bool setKeyboardGrabEnabled(bool) override { return false; }
     void propagateSizeHints() override { }
     void addAttachOffset(const QPoint point);
+
+    bool startSystemMove(const QPoint &pos) override;
 
     void requestUpdate() override;
 

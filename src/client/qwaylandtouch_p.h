@@ -73,7 +73,7 @@ public:
 private:
     void registerDevice(int caps);
 
-    QWaylandDisplay *mDisplay;
+    QWaylandDisplay *mDisplay = nullptr;
 
     void touch_extension_touch(uint32_t time,
                                uint32_t id,
@@ -95,15 +95,15 @@ private:
 
     QList<QWindowSystemInterface::TouchPoint> mTouchPoints;
     QList<QWindowSystemInterface::TouchPoint> mPrevTouchPoints;
-    QTouchDevice *mTouchDevice;
+    QTouchDevice *mTouchDevice = nullptr;
     uint32_t mTimestamp;
     int mPointsLeft;
     uint32_t mFlags;
     int mMouseSourceId;
     QPointF mLastMouseLocal;
     QPointF mLastMouseGlobal;
-    QWindow *mTargetWindow;
-    QWaylandInputDevice *mInputDevice;
+    QWindow *mTargetWindow = nullptr;
+    QWaylandInputDevice *mInputDevice = nullptr;
 };
 
 }

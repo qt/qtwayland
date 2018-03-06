@@ -135,7 +135,7 @@ void QWaylandQuickCompositor::grabSurface(QWaylandSurfaceGrabber *grabber, const
     class GrabState : public QRunnable
     {
     public:
-        QWaylandSurfaceGrabber *grabber;
+        QWaylandSurfaceGrabber *grabber = nullptr;
         QWaylandBufferRef buffer;
 
         void run() override

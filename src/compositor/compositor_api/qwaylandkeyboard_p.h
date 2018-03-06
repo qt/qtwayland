@@ -78,7 +78,7 @@ public:
     static QWaylandKeyboardPrivate *get(QWaylandKeyboard *keyboard);
 
     QWaylandKeyboardPrivate(QWaylandSeat *seat);
-    ~QWaylandKeyboardPrivate();
+    ~QWaylandKeyboardPrivate() override;
 
     QWaylandCompositor *compositor() const { return seat->compositor(); }
 

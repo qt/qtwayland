@@ -73,7 +73,7 @@ class QWaylandXCompositeEGLClientBufferIntegration : public QWaylandClientBuffer
 {
 public:
     QWaylandXCompositeEGLClientBufferIntegration();
-    ~QWaylandXCompositeEGLClientBufferIntegration();
+    ~QWaylandXCompositeEGLClientBufferIntegration() override;
 
     void initialize(QWaylandDisplay *dispaly) override;
 
@@ -93,7 +93,7 @@ public:
 
 private:
     QWaylandDisplay *mWaylandDisplay = nullptr;
-    struct qt_xcomposite *mWaylandComposite;
+    struct qt_xcomposite *mWaylandComposite = nullptr;
 
     Display *mDisplay = nullptr;
     EGLDisplay mEglDisplay;

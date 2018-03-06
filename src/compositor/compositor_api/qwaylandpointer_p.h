@@ -99,7 +99,6 @@ private:
     QPointF localPosition;
     QPointF spacePosition;
 
-    bool hasSentEnter = false;
     uint enterSerial = 0;
 
     int buttonCount = 0;

@@ -142,10 +142,13 @@ void QWaylandXdgSurfaceV6::resize(QWaylandInputDevice *inputDevice, enum wl_shel
 }
 
 
-void QWaylandXdgSurfaceV6::move(QWaylandInputDevice *inputDevice)
+bool QWaylandXdgSurfaceV6::move(QWaylandInputDevice *inputDevice)
 {
-    Q_ASSERT(m_toplevel && m_toplevel->isInitialized());
-    m_toplevel->move(inputDevice->wl_seat(), inputDevice->serial());
+    if (m_toplevel && m_toplevel->isInitialized()) {
+        m_toplevel->move(inputDevice->wl_seat(), inputDevice->serial());
+        return true;
+    }
+    return false;
 }
 
 void QWaylandXdgSurfaceV6::setTitle(const QString &title)

@@ -73,7 +73,7 @@ public:
     bool postQtKeyEvent(QKeyEvent *event, QWaylandSurface *surface);
 
 private:
-    QWaylandCompositor *m_compositor;
+    QWaylandCompositor *m_compositor = nullptr;
 };
 
 }

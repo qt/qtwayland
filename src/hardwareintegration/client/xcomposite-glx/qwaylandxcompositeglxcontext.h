@@ -69,7 +69,7 @@ public:
 private:
     GLXContext m_context;
 
-    Display *m_display;
+    Display *m_display = nullptr;
     QSurfaceFormat m_format;
 };
 

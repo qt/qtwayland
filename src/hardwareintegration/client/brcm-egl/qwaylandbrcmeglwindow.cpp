@@ -120,9 +120,9 @@ private:
     QSize m_size;
     bool m_released = true;
     wl_array m_array;
-    EGLint *m_data;
-    QWaylandDisplay *m_display;
-    struct wl_event_queue *m_eventQueue;
+    EGLint *m_data = nullptr;
+    QWaylandDisplay *m_display = nullptr;
+    struct wl_event_queue *m_eventQueue = nullptr;
 };
 
 QWaylandBrcmEglWindow::QWaylandBrcmEglWindow(QWindow *window)

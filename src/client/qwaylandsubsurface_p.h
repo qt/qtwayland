@@ -70,7 +70,7 @@ class Q_WAYLAND_CLIENT_EXPORT QWaylandSubSurface : public QtWayland::wl_subsurfa
 {
 public:
     QWaylandSubSurface(QWaylandWindow *window, QWaylandWindow *parent, ::wl_subsurface *subsurface);
-    ~QWaylandSubSurface();
+    ~QWaylandSubSurface() override;
 
     QWaylandWindow *window() const { return m_window; }
     QWaylandWindow *parent() const { return m_parent; }
@@ -86,8 +86,8 @@ private:
     // to keep track of the sync state
     void set_sync();
     void set_desync();
-    QWaylandWindow *m_window;
-    QWaylandWindow *m_parent;
+    QWaylandWindow *m_window = nullptr;
+    QWaylandWindow *m_parent = nullptr;
     bool m_synchronized = false;
     QMutex m_syncLock;
 

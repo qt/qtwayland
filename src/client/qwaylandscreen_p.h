@@ -67,7 +67,7 @@ class Q_WAYLAND_CLIENT_EXPORT QWaylandScreen : public QPlatformScreen, QtWayland
 {
 public:
     QWaylandScreen(QWaylandDisplay *waylandDisplay, int version, uint32_t id);
-    ~QWaylandScreen();
+    ~QWaylandScreen() override;
 
     void init();
     QWaylandDisplay *display() const;

@@ -86,7 +86,7 @@ class QWaylandBufferMaterial : public QSGMaterial
 {
 public:
     QWaylandBufferMaterial(QWaylandBufferRef::BufferFormatEgl format);
-    ~QWaylandBufferMaterial();
+    ~QWaylandBufferMaterial() override;
 
     void setTextureForPlane(int plane, QOpenGLTexture *texture);
 

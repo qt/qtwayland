@@ -45,7 +45,7 @@ public:
     ~ShmBuffer();
 
     struct wl_buffer *handle = nullptr;
-    struct wl_shm_pool *shm_pool;
+    struct wl_shm_pool *shm_pool = nullptr;
     QImage image;
 };
 
@@ -55,17 +55,17 @@ class MockClient : public QObject
 
 public:
     MockClient();
-    ~MockClient();
+    ~MockClient() override;
 
     wl_surface *createSurface();
     wl_shell_surface *createShellSurface(wl_surface *surface);
     xdg_surface *createXdgSurface(wl_surface *surface);
     ivi_surface *createIviSurface(wl_surface *surface, uint iviId);
 
-    wl_display *display;
+    wl_display *display = nullptr;
     wl_compositor *compositor = nullptr;
     QMap<uint, wl_output *> m_outputs;
-    wl_shm *shm;
+    wl_shm *shm = nullptr;
     wl_registry *registry = nullptr;
     wl_shell *wlshell = nullptr;
     xdg_shell *xdgShell = nullptr;

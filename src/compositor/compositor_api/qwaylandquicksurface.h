@@ -58,7 +58,7 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQuickSurface : public QWaylandSurface
 public:
     QWaylandQuickSurface();
     QWaylandQuickSurface(QWaylandCompositor *compositor, QWaylandClient *client, quint32 id, int version);
-    ~QWaylandQuickSurface();
+    ~QWaylandQuickSurface() override;
 
     bool useTextureAlpha() const;
     void setUseTextureAlpha(bool useTextureAlpha);

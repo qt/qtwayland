@@ -81,10 +81,10 @@ private Q_SLOTS:
     void doInvalidateSurface();
 
 private:
-    QWaylandEglClientBufferIntegration *m_clientBufferIntegration;
+    QWaylandEglClientBufferIntegration *m_clientBufferIntegration = nullptr;
     struct wl_egl_window *m_waylandEglWindow = nullptr;
 
-    const QWaylandWindow *m_parentWindow;
+    const QWaylandWindow *m_parentWindow = nullptr;
 
     EGLSurface m_eglSurface = EGL_NO_SURFACE;
     EGLConfig m_eglConfig;

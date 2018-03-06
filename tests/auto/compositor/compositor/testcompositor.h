@@ -35,7 +35,7 @@ class TestCompositor : public QWaylandCompositor
     Q_OBJECT
 public:
     TestCompositor(bool createInputDev = false);
-    void create();
+    void create() override;
     void flushClients();
 
 public slots:

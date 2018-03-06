@@ -85,7 +85,7 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandCompositor : public QWaylandObject
 
 public:
     QWaylandCompositor(QObject *parent = nullptr);
-    virtual ~QWaylandCompositor();
+    ~QWaylandCompositor() override;
 
     virtual void create();
     bool isCreated() const;

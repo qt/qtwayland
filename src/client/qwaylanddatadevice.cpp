@@ -203,7 +203,7 @@ void QWaylandDataDevice::data_device_motion(uint32_t time, wl_fixed_t x, wl_fixe
 
     m_dragPoint = calculateDragPosition(x, y, m_dragWindow);
 
-    QMimeData *dragData;
+    QMimeData *dragData = nullptr;
     Qt::DropActions supportedActions;
     if (drag) {
         dragData = drag->mimeData();

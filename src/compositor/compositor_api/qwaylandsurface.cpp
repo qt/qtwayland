@@ -109,8 +109,8 @@ public:
             QWaylandSurfacePrivate::get(_this->surface)->removeFrameCallback(_this);
         delete _this;
     }
-    QWaylandSurface *surface;
-    wl_resource *resource;
+    QWaylandSurface *surface = nullptr;
+    wl_resource *resource = nullptr;
     bool canSend = false;
 };
 }

@@ -81,7 +81,7 @@ public:
 private:
     void touch_release(Resource *resource) override;
 
-    QWaylandSeat *seat;
+    QWaylandSeat *seat = nullptr;
 };
 
 QT_END_NAMESPACE

@@ -90,7 +90,7 @@ public:
     Q_DECLARE_PUBLIC(QWaylandSeat)
 
     QWaylandSeatPrivate(QWaylandSeat *seat);
-    ~QWaylandSeatPrivate();
+    ~QWaylandSeatPrivate() override;
 
     void setCapabilities(QWaylandSeat::CapabilityFlags caps);
 

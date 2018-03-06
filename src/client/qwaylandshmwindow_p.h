@@ -62,7 +62,7 @@ class Q_WAYLAND_CLIENT_EXPORT QWaylandShmWindow : public QWaylandWindow
 {
 public:
     QWaylandShmWindow(QWindow *window);
-    ~QWaylandShmWindow();
+    ~QWaylandShmWindow() override;
 
     WindowType windowType() const override;
     QSurfaceFormat format() const override { return QSurfaceFormat(); }

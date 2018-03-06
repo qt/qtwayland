@@ -68,7 +68,7 @@ class QWaylandXCompositeGLXIntegration : public QWaylandClientBufferIntegration
 {
 public:
     QWaylandXCompositeGLXIntegration();
-    ~QWaylandXCompositeGLXIntegration();
+    ~QWaylandXCompositeGLXIntegration() override;
 
     void initialize(QWaylandDisplay *display) override;
 

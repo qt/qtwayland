@@ -63,7 +63,7 @@ class XdgShellV5Integration : public QWaylandQuickShellIntegration
     Q_OBJECT
 public:
     XdgShellV5Integration(QWaylandQuickShellSurfaceItem *item);
-    ~XdgShellV5Integration();
+    ~XdgShellV5Integration() override;
     bool mouseMoveEvent(QMouseEvent *event) override;
     bool mouseReleaseEvent(QMouseEvent *event) override;
 
@@ -84,18 +84,18 @@ private:
         Resize,
         Move
     };
-    QWaylandQuickShellSurfaceItem *m_item;
-    QWaylandXdgSurfaceV5 *m_xdgSurface;
+    QWaylandQuickShellSurfaceItem *m_item = nullptr;
+    QWaylandXdgSurfaceV5 *m_xdgSurface = nullptr;
 
     GrabberState grabberState;
     struct {
-        QWaylandSeat *seat;
+        QWaylandSeat *seat = nullptr;
         QPointF initialOffset;
         bool initialized;
     } moveState;
 
     struct {
-        QWaylandSeat *seat;
+        QWaylandSeat *seat = nullptr;
         QWaylandXdgSurfaceV5::ResizeEdge resizeEdges;
         QSizeF initialWindowSize;
         QPointF initialMousePos;
@@ -115,15 +115,15 @@ class XdgPopupV5Integration : public QWaylandQuickShellIntegration
     Q_OBJECT
 public:
     XdgPopupV5Integration(QWaylandQuickShellSurfaceItem *item);
-    ~XdgPopupV5Integration();
+    ~XdgPopupV5Integration() override;
 
 private Q_SLOTS:
     void handlePopupDestroyed();
 
 private:
-    QWaylandQuickShellSurfaceItem *m_item;
-    QWaylandXdgPopupV5 *m_xdgPopup;
-    QWaylandXdgShellV5 *m_xdgShell;
+    QWaylandQuickShellSurfaceItem *m_item = nullptr;
+    QWaylandXdgPopupV5 *m_xdgPopup = nullptr;
+    QWaylandXdgShellV5 *m_xdgShell = nullptr;
 };
 
 }

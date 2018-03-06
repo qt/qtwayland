@@ -76,9 +76,9 @@ private Q_SLOTS:
     void handleSurfaceSizeChanged();
 
 private:
-    QWaylandQuickShellSurfaceItem *m_item;
-    QWaylandXdgSurfaceV6 *m_xdgSurface;
-    QWaylandXdgToplevelV6 *m_toplevel;
+    QWaylandQuickShellSurfaceItem *m_item = nullptr;
+    QWaylandXdgSurfaceV6 *m_xdgSurface = nullptr;
+    QWaylandXdgToplevelV6 *m_toplevel = nullptr;
 
     enum class GrabberState {
         Default,
@@ -88,13 +88,13 @@ private:
     GrabberState grabberState;
 
     struct {
-        QWaylandSeat *seat;
+        QWaylandSeat *seat = nullptr;
         QPointF initialOffset;
         bool initialized;
     } moveState;
 
     struct {
-        QWaylandSeat *seat;
+        QWaylandSeat *seat = nullptr;
         Qt::Edges resizeEdges;
         QSizeF initialWindowSize;
         QPointF initialMousePos;
@@ -119,9 +119,9 @@ private Q_SLOTS:
     void handleGeometryChanged();
 
 private:
-    QWaylandQuickShellSurfaceItem *m_item;
-    QWaylandXdgSurfaceV6 *m_xdgSurface;
-    QWaylandXdgPopupV6 *m_popup;
+    QWaylandQuickShellSurfaceItem *m_item = nullptr;
+    QWaylandXdgSurfaceV6 *m_xdgSurface = nullptr;
+    QWaylandXdgPopupV6 *m_popup = nullptr;
 };
 
 }

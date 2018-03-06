@@ -85,7 +85,7 @@ class Q_WAYLAND_CLIENT_EXPORT QWaylandAbstractDecoration : public QObject
     Q_DECLARE_PRIVATE(QWaylandAbstractDecoration)
 public:
     QWaylandAbstractDecoration();
-    virtual ~QWaylandAbstractDecoration();
+    ~QWaylandAbstractDecoration() override;
 
     void setWaylandWindow(QWaylandWindow *window);
     QWaylandWindow *waylandWindow() const;

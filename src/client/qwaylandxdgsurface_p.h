@@ -77,7 +77,7 @@ class Q_WAYLAND_CLIENT_EXPORT QWaylandXdgSurface : public QWaylandShellSurface
     Q_OBJECT
 public:
     QWaylandXdgSurface(QWaylandXdgShell *shell, QWaylandWindow *window);
-    virtual ~QWaylandXdgSurface();
+    ~QWaylandXdgSurface() override;
 
     using QtWayland::xdg_surface::resize;
     void resize(QWaylandInputDevice *inputDevice, enum resize_edge edges);
@@ -85,7 +85,7 @@ public:
     void resize(QWaylandInputDevice *inputDevice, enum wl_shell_surface_resize edges) override;
 
     using QtWayland::xdg_surface::move;
-    void move(QWaylandInputDevice *inputDevice) override;
+    bool move(QWaylandInputDevice *inputDevice) override;
 
     void setTitle(const QString &title) override;
     void setAppId(const QString &appId) override;
@@ -110,8 +110,8 @@ private:
     void updateTransientParent(QWaylandWindow *parent);
 
 private:
-    QWaylandWindow *m_window;
-    QWaylandXdgShell* m_shell;
+    QWaylandWindow *m_window = nullptr;
+    QWaylandXdgShell* m_shell = nullptr;
     bool m_maximized = false;
     bool m_minimized = false;
     bool m_fullscreen = false;

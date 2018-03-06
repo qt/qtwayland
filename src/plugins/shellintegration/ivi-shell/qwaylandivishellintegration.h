@@ -58,9 +58,9 @@ class Q_WAYLAND_CLIENT_EXPORT QWaylandIviShellIntegration : public QWaylandShell
 {
 public:
     QWaylandIviShellIntegration();
-    ~QWaylandIviShellIntegration();
+    ~QWaylandIviShellIntegration() override;
     bool initialize(QWaylandDisplay *display) override;
-    virtual QWaylandShellSurface *createShellSurface(QWaylandWindow *window) override;
+    QWaylandShellSurface *createShellSurface(QWaylandWindow *window) override;
 
 private:
     static void registryIvi(void *data, struct wl_registry *registry,

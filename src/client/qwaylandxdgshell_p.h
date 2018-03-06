@@ -76,7 +76,7 @@ class Q_WAYLAND_CLIENT_EXPORT QWaylandXdgShell : public QtWayland::xdg_shell
 public:
     QWaylandXdgShell(struct ::xdg_shell *shell);
     QWaylandXdgShell(struct ::wl_registry *registry, uint32_t id);
-    virtual ~QWaylandXdgShell();
+    ~QWaylandXdgShell() override;
 
     QWaylandXdgSurface *createXdgSurface(QWaylandWindow *window);
     QWaylandXdgPopup *createXdgPopup(QWaylandWindow *window);

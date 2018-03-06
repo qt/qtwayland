@@ -74,11 +74,11 @@ class Q_WAYLAND_CLIENT_EXPORT QWaylandShellSurface : public QObject
     Q_OBJECT
 public:
     explicit QWaylandShellSurface(QWaylandWindow *window);
-    virtual ~QWaylandShellSurface() {}
+    ~QWaylandShellSurface() override {}
     virtual void resize(QWaylandInputDevice * /*inputDevice*/, enum wl_shell_surface_resize /*edges*/)
     {}
 
-    virtual void move(QWaylandInputDevice * /*inputDevice*/) {}
+    virtual bool move(QWaylandInputDevice *) { return false; }
     virtual void setTitle(const QString & /*title*/) {}
     virtual void setAppId(const QString & /*appId*/) {}
 
@@ -104,7 +104,7 @@ protected:
     virtual void setMinimized() {}
 
 private:
-    QWaylandWindow *m_window;
+    QWaylandWindow *m_window = nullptr;
     friend class QWaylandWindow;
 };
 

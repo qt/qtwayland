@@ -38,7 +38,7 @@ class MockPointer : public QObject
 
 public:
     MockPointer(wl_seat *seat);
-    ~MockPointer();
+    ~MockPointer() override;
 
     wl_pointer *m_pointer = nullptr;
     wl_surface *m_enteredSurface = nullptr;

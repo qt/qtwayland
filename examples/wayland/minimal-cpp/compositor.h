@@ -77,7 +77,7 @@ class Compositor : public QWaylandCompositor
     Q_OBJECT
 public:
     Compositor(Window *window);
-    ~Compositor();
+    ~Compositor() override;
     void create() override;
 
     QList<View*> views() const { return m_views; }
@@ -92,7 +92,7 @@ private slots:
 
     void viewSurfaceDestroyed();
 private:
-    Window *m_window;
+    Window *m_window = nullptr;
     QList<View*> m_views;
 };
 

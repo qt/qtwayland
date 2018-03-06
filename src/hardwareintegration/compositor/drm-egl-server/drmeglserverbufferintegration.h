@@ -83,7 +83,7 @@ public:
     QOpenGLTexture *toOpenGlTexture() override;
 
 private:
-    DrmEglServerBufferIntegration *m_integration;
+    DrmEglServerBufferIntegration *m_integration = nullptr;
 
     EGLImageKHR m_image;
 
@@ -99,7 +99,7 @@ class DrmEglServerBufferIntegration :
 {
 public:
     DrmEglServerBufferIntegration();
-    ~DrmEglServerBufferIntegration();
+    ~DrmEglServerBufferIntegration() override;
 
     void initializeHardware(QWaylandCompositor *) override;
 

@@ -75,7 +75,7 @@ class Q_WAYLAND_CLIENT_EXPORT QWaylandWindowManagerIntegration : public QObject,
     Q_DECLARE_PRIVATE(QWaylandWindowManagerIntegration)
 public:
     explicit QWaylandWindowManagerIntegration(QWaylandDisplay *waylandDisplay);
-    virtual ~QWaylandWindowManagerIntegration();
+    ~QWaylandWindowManagerIntegration() override;
 
     bool openUrl(const QUrl &url) override;
     bool openDocument(const QUrl &url) override;

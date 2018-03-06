@@ -104,7 +104,7 @@ public:
 
     QWaylandOutput();
     QWaylandOutput(QWaylandCompositor *compositor, QWindow *window);
-    ~QWaylandOutput();
+    ~QWaylandOutput() override;
 
     static QWaylandOutput *fromResource(wl_resource *resource);
     struct ::wl_resource *resourceForClient(QWaylandClient *client) const;

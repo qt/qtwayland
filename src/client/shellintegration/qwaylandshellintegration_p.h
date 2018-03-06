@@ -81,7 +81,7 @@ public:
     }
 
 protected:
-    QWaylandDisplay *m_display;
+    QWaylandDisplay *m_display = nullptr;
 };
 
 }

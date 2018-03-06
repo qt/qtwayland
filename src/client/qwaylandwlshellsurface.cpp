@@ -74,10 +74,11 @@ void QWaylandWlShellSurface::resize(QWaylandInputDevice *inputDevice, enum wl_sh
            edges);
 }
 
-void QWaylandWlShellSurface::move(QWaylandInputDevice *inputDevice)
+bool QWaylandWlShellSurface::move(QWaylandInputDevice *inputDevice)
 {
     move(inputDevice->wl_seat(),
          inputDevice->serial());
+    return true;
 }
 
 void QWaylandWlShellSurface::setTitle(const QString & title)

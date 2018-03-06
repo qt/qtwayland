@@ -69,7 +69,7 @@ class Q_WAYLAND_CLIENT_EXPORT QWaylandDataOffer : public QtWayland::wl_data_offe
 {
 public:
     explicit QWaylandDataOffer(QWaylandDisplay *display, struct ::wl_data_offer *offer);
-    ~QWaylandDataOffer();
+    ~QWaylandDataOffer() override;
 
     QString firstFormat() const;
 
@@ -86,7 +86,7 @@ private:
 class QWaylandMimeData : public QInternalMimeData {
 public:
     explicit QWaylandMimeData(QWaylandDataOffer *dataOffer, QWaylandDisplay *display);
-    ~QWaylandMimeData();
+    ~QWaylandMimeData() override;
 
     void appendFormat(const QString &mimeType);
 
@@ -98,8 +98,8 @@ protected:
 private:
     int readData(int fd, QByteArray &data) const;
 
-    mutable QWaylandDataOffer *m_dataOffer;
-    QWaylandDisplay *m_display;
+    mutable QWaylandDataOffer *m_dataOffer = nullptr;
+    QWaylandDisplay *m_display = nullptr;
     mutable QStringList m_types;
     mutable QHash<QString, QByteArray> m_data;
 };

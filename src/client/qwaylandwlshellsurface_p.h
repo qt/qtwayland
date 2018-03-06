@@ -75,13 +75,13 @@ class Q_WAYLAND_CLIENT_EXPORT QWaylandWlShellSurface : public QWaylandShellSurfa
     Q_OBJECT
 public:
     QWaylandWlShellSurface(struct ::wl_shell_surface *shell_surface, QWaylandWindow *window);
-    virtual ~QWaylandWlShellSurface();
+    ~QWaylandWlShellSurface() override;
 
     using QtWayland::wl_shell_surface::resize;
     void resize(QWaylandInputDevice *inputDevice, enum wl_shell_surface_resize edges) override;
 
     using QtWayland::wl_shell_surface::move;
-    void move(QWaylandInputDevice *inputDevice) override;
+    bool move(QWaylandInputDevice *inputDevice) override;
 
     void setTitle(const QString & title) override;
     void setAppId(const QString &appId) override;
@@ -104,7 +104,7 @@ private:
     void updateTransientParent(QWindow *parent);
     void setPopup(QWaylandWindow *parent, QWaylandInputDevice *device, uint serial);
 
-    QWaylandWindow *m_window;
+    QWaylandWindow *m_window = nullptr;
     bool m_maximized = false;
     bool m_fullscreen = false;
     QSize m_size;

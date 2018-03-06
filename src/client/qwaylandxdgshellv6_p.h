@@ -75,11 +75,11 @@ class Q_WAYLAND_CLIENT_EXPORT QWaylandXdgSurfaceV6 : public QWaylandShellSurface
 {
 public:
     QWaylandXdgSurfaceV6(QWaylandXdgShellV6 *shell, ::zxdg_surface_v6 *surface, QWaylandWindow *window);
-    ~QWaylandXdgSurfaceV6();
+    ~QWaylandXdgSurfaceV6() override;
 
     void resize(QWaylandInputDevice *inputDevice, enum zxdg_toplevel_v6_resize_edge edges);
     void resize(QWaylandInputDevice *inputDevice, enum wl_shell_surface_resize edges) override;
-    void move(QWaylandInputDevice *inputDevice) override;
+    bool move(QWaylandInputDevice *inputDevice) override;
     void setTitle(const QString &title) override;
     void setAppId(const QString &appId) override;
 
@@ -94,7 +94,7 @@ private:
     {
     public:
         Toplevel(QWaylandXdgSurfaceV6 *xdgSurface);
-        ~Toplevel();
+        ~Toplevel() override;
 
         void applyConfigure();
 
@@ -106,25 +106,25 @@ private:
             QVarLengthArray<uint32_t> states;
         } m_configureState;
 
-        QWaylandXdgSurfaceV6 *m_xdgSurface;
+        QWaylandXdgSurfaceV6 *m_xdgSurface = nullptr;
     };
 
     class Popup : public QtWayland::zxdg_popup_v6 {
     public:
         Popup(QWaylandXdgSurfaceV6 *xdgSurface, QWaylandXdgSurfaceV6 *parent, QtWayland::zxdg_positioner_v6 *positioner);
-        ~Popup();
+        ~Popup() override;
 
         void applyConfigure();
         void zxdg_popup_v6_popup_done() override;
 
-        QWaylandXdgSurfaceV6 *m_xdgSurface;
+        QWaylandXdgSurfaceV6 *m_xdgSurface = nullptr;
     };
 
     void setToplevel();
     void setPopup(QWaylandWindow *parent, QWaylandInputDevice *device, int serial, bool grab);
 
-    QWaylandXdgShellV6 *m_shell;
-    QWaylandWindow *m_window;
+    QWaylandXdgShellV6 *m_shell = nullptr;
+    QWaylandWindow *m_window = nullptr;
     Toplevel *m_toplevel = nullptr;
     Popup *m_popup = nullptr;
     bool m_configured = false;
@@ -138,7 +138,7 @@ public:
 
     QWaylandXdgSurfaceV6 *getXdgSurface(QWaylandWindow *window);
 
-    virtual ~QWaylandXdgShellV6();
+    ~QWaylandXdgShellV6() override;
 
 private:
     void zxdg_shell_v6_ping(uint32_t serial) override;

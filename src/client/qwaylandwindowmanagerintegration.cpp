@@ -61,7 +61,7 @@ class QWaylandWindowManagerIntegrationPrivate {
 public:
     QWaylandWindowManagerIntegrationPrivate(QWaylandDisplay *waylandDisplay);
     bool m_blockPropertyUpdates = false;
-    QWaylandDisplay *m_waylandDisplay;
+    QWaylandDisplay *m_waylandDisplay = nullptr;
     QHash<QWindow*, QVariantMap> m_queuedProperties;
     bool m_showIsFullScreen = false;
 };

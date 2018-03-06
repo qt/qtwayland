@@ -63,7 +63,7 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandView : public QObject
     Q_PROPERTY(bool allowDiscardFrontBuffer READ allowDiscardFrontBuffer WRITE setAllowDiscardFrontBuffer NOTIFY allowDiscardFrontBufferChanged)
 public:
     QWaylandView(QObject *renderObject = nullptr, QObject *parent = nullptr);
-    virtual ~QWaylandView();
+    ~QWaylandView() override;
 
     QObject *renderObject() const;
 

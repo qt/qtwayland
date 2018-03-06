@@ -64,14 +64,14 @@ class IviSurfaceIntegration : public QWaylandQuickShellIntegration
     Q_OBJECT
 public:
     IviSurfaceIntegration(QWaylandQuickShellSurfaceItem *item);
-    ~IviSurfaceIntegration();
+    ~IviSurfaceIntegration() override;
 
 private Q_SLOTS:
     void handleIviSurfaceDestroyed();
 
 private:
-    QWaylandQuickShellSurfaceItem *m_item;
-    QWaylandIviSurface *m_shellSurface;
+    QWaylandQuickShellSurfaceItem *m_item = nullptr;
+    QWaylandIviSurface *m_shellSurface = nullptr;
 };
 
 }

@@ -65,7 +65,7 @@ public:
 private:
     void createEglSurface();
 
-    QWaylandXCompositeEGLClientBufferIntegration *m_glxIntegration;
+    QWaylandXCompositeEGLClientBufferIntegration *m_glxIntegration = nullptr;
     QWaylandBuffer *m_buffer = nullptr;
 
     Window m_xWindow = 0;

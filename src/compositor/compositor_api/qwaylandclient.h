@@ -63,7 +63,7 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandClient : public QObject
     Q_PROPERTY(qint64 groupId READ groupId CONSTANT)
     Q_PROPERTY(qint64 processId READ processId CONSTANT)
 public:
-    ~QWaylandClient();
+    ~QWaylandClient() override;
 
     static QWaylandClient *fromWlClient(QWaylandCompositor *compositor, wl_client *wlClient);
 

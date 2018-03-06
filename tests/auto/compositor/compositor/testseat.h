@@ -40,7 +40,7 @@ class TestSeat : public QWaylandSeat
 public:
 
     TestSeat(QWaylandCompositor *compositor, QWaylandSeat::CapabilityFlags caps);
-    ~TestSeat();
+    ~TestSeat() override;
 
     bool isOwner(QInputEvent *inputEvent) const override;
 

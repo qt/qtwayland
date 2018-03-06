@@ -72,7 +72,7 @@ public:
     void setServerBufferIntegration(const QString &name);
 
 protected:
-    void hardware_integration_bind_resource(Resource *resource);
+    void hardware_integration_bind_resource(Resource *resource) override;
 
 private:
     QString m_client_buffer_integration;

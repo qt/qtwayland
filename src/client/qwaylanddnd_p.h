@@ -69,7 +69,7 @@ class Q_WAYLAND_CLIENT_EXPORT QWaylandDrag : public QBasicDrag
 {
 public:
     QWaylandDrag(QWaylandDisplay *display);
-    ~QWaylandDrag();
+    ~QWaylandDrag() override;
 
     void updateTarget(const QString &mimeType);
     void setResponse(const QPlatformDragQtResponse &response);
@@ -84,7 +84,7 @@ protected:
 
 
 private:
-    QWaylandDisplay *m_display;
+    QWaylandDisplay *m_display = nullptr;
 };
 #endif
 }

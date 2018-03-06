@@ -70,7 +70,7 @@ class DataSource : public QObject, public QtWaylandServer::wl_data_source
 {
 public:
     DataSource(struct wl_client *client, uint32_t id, uint32_t time);
-    ~DataSource();
+    ~DataSource() override;
     uint32_t time() const;
     QList<QString> mimeTypes() const;
 

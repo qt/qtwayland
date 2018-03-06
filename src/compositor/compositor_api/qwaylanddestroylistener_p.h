@@ -70,7 +70,7 @@ public:
 
     struct Listener {
         wl_listener listener;
-        QWaylandDestroyListenerPrivate *parent;
+        QWaylandDestroyListenerPrivate *parent = nullptr;
     };
     Listener listener;
 };

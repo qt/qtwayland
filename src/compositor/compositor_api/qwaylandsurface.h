@@ -97,7 +97,7 @@ public:
 
     QWaylandSurface();
     QWaylandSurface(QWaylandCompositor *compositor, QWaylandClient *client, uint id, int version);
-    virtual ~QWaylandSurface();
+    ~QWaylandSurface() override;
 
     Q_INVOKABLE void initialize(QWaylandCompositor *compositor, QWaylandClient *client, uint id, int version);
     bool isInitialized() const;

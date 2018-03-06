@@ -70,10 +70,10 @@ class DrmServerBuffer : public QWaylandServerBuffer
 {
 public:
     DrmServerBuffer(DrmEglServerBufferIntegration *integration, int32_t name, int32_t width, int32_t height, int32_t stride, int32_t format);
-    ~DrmServerBuffer();
+    ~DrmServerBuffer() override;
     QOpenGLTexture* toOpenGlTexture() override;
 private:
-    DrmEglServerBufferIntegration *m_integration;
+    DrmEglServerBufferIntegration *m_integration = nullptr;
     EGLImageKHR m_image;
     QOpenGLTexture *m_texture = nullptr;
 };
@@ -85,7 +85,7 @@ class DrmEglServerBufferIntegration
 public:
     void initialize(QWaylandDisplay *display) override;
 
-    virtual QWaylandServerBuffer *serverBuffer(struct qt_server_buffer *buffer) override;
+    QWaylandServerBuffer *serverBuffer(struct qt_server_buffer *buffer) override;
 
     inline EGLImageKHR eglCreateImageKHR(EGLContext ctx, EGLenum target, EGLClientBuffer buffer, const EGLint *attrib_list);
     inline EGLBoolean eglDestroyImageKHR (EGLImageKHR image);

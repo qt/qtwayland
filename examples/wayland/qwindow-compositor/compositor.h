@@ -92,7 +92,7 @@ signals:
     void animationDone();
 
 protected:
-    void timerEvent(QTimerEvent *event);
+    void timerEvent(QTimerEvent *event) override;
 
 private:
     friend class Compositor;
@@ -127,7 +127,7 @@ class Compositor : public QWaylandCompositor
     Q_OBJECT
 public:
     Compositor(QWindow *window);
-    ~Compositor();
+    ~Compositor() override;
     void create() override;
 
     void startRender();
@@ -180,10 +180,10 @@ private slots:
     void viewAnimationDone();
 private:
     View *findView(const QWaylandSurface *s) const;
-    QWindow *m_window;
+    QWindow *m_window = nullptr;
     QList<View*> m_views;
-    QWaylandWlShell *m_wlShell;
-    QWaylandXdgShellV5 *m_xdgShell;
+    QWaylandWlShell *m_wlShell = nullptr;
+    QWaylandXdgShellV5 *m_xdgShell = nullptr;
     QWaylandView m_cursorView;
     int m_cursorHotspotX;
     int m_cursorHotspotY;

@@ -75,7 +75,7 @@ signals:
 
 private:
     void share_buffer_cross_buffer(struct ::qt_server_buffer *buffer) override;
-    QtWaylandClient::QWaylandServerBufferIntegration *m_server_buffer_integration;
+    QtWaylandClient::QWaylandServerBufferIntegration *m_server_buffer_integration = nullptr;
 };
 
 QT_END_NAMESPACE

@@ -84,7 +84,7 @@ public:
     QOpenGLTexture *toOpenGlTexture() override;
 
 private:
-    LibHybrisEglServerBufferIntegration *m_integration;
+    LibHybrisEglServerBufferIntegration *m_integration = nullptr;
 
     EGLImageKHR m_image;
     EGLClientBuffer m_buffer;

@@ -54,35 +54,35 @@ public:
         create();
     }
 
-    void focusInEvent(QFocusEvent *)
+    void focusInEvent(QFocusEvent *) override
     {
         ++focusInEventCount;
     }
 
-    void focusOutEvent(QFocusEvent *)
+    void focusOutEvent(QFocusEvent *) override
     {
         ++focusOutEventCount;
     }
 
-    void keyPressEvent(QKeyEvent *event)
+    void keyPressEvent(QKeyEvent *event) override
     {
         ++keyPressEventCount;
         keyCode = event->nativeScanCode();
     }
 
-    void keyReleaseEvent(QKeyEvent *event)
+    void keyReleaseEvent(QKeyEvent *event) override
     {
         ++keyReleaseEventCount;
         keyCode = event->nativeScanCode();
     }
 
-    void mousePressEvent(QMouseEvent *event)
+    void mousePressEvent(QMouseEvent *event) override
     {
         ++mousePressEventCount;
         mousePressPos = event->pos();
     }
 
-    void mouseReleaseEvent(QMouseEvent *)
+    void mouseReleaseEvent(QMouseEvent *) override
     {
         ++mouseReleaseEventCount;
     }
@@ -113,6 +113,7 @@ class TestGlWindow : public QOpenGLWindow
 
 public:
     TestGlWindow();
+    uint paintGLCalled = 0;
 
 protected:
     void paintGL() override;
@@ -124,6 +125,7 @@ TestGlWindow::TestGlWindow()
 void TestGlWindow::paintGL()
 {
     glClear(GL_COLOR_BUFFER_BIT);
+    ++paintGLCalled;
 }
 
 class tst_WaylandClient : public QObject
@@ -170,7 +172,7 @@ private slots:
     void glWindow();
 
 private:
-    MockCompositor *compositor;
+    MockCompositor *compositor = nullptr;
 };
 
 void tst_WaylandClient::primaryScreen()
@@ -401,7 +403,7 @@ public:
         cursorImage.fill(Qt::blue);
         m_dragIcon = QPixmap::fromImage(cursorImage);
     }
-    ~DndWindow(){}
+    ~DndWindow() override{}
     QPoint frameOffset() const { return QPoint(frameMargins().left(), frameMargins().top()); }
     bool dragStarted = false;
 
@@ -549,6 +551,8 @@ void tst_WaylandClient::glWindow()
     testWindow->show();
     QSharedPointer<MockSurface> surface;
     QTRY_VERIFY(surface = compositor->surface());
+
+    QTRY_VERIFY(testWindow->paintGLCalled);
 
     //confirm we don't crash when we delete an already hidden GL window
     //QTBUG-65553

@@ -48,7 +48,7 @@ QT_BEGIN_NAMESPACE
 class QWaylandBufferRefPrivate
 {
 public:
-    QtWayland::ClientBuffer *buffer;
+    QtWayland::ClientBuffer *buffer = nullptr;
 
     bool nullOrDestroyed() {
         return !buffer || buffer->isDestroyed();

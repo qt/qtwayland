@@ -96,8 +96,8 @@ private:
     void setDragIcon(QWaylandSurface *icon);
 #endif
 
-    QWaylandCompositor *m_compositor;
-    QWaylandSeat *m_seat;
+    QWaylandCompositor *m_compositor = nullptr;
+    QWaylandSeat *m_seat = nullptr;
 
     DataSource *m_selectionSource = nullptr;
 

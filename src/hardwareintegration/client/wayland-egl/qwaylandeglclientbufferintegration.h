@@ -56,7 +56,7 @@ class QWaylandEglClientBufferIntegration : public QWaylandClientBufferIntegratio
 {
 public:
     QWaylandEglClientBufferIntegration();
-    ~QWaylandEglClientBufferIntegration();
+    ~QWaylandEglClientBufferIntegration() override;
 
     void initialize(QWaylandDisplay *display) override;
     bool isValid() const override;

@@ -102,7 +102,7 @@ public:
     class Touch;
 
     QWaylandInputDevice(QWaylandDisplay *display, int version, uint32_t id);
-    ~QWaylandInputDevice();
+    ~QWaylandInputDevice() override;
 
     uint32_t capabilities() const { return mCaps; }
 
@@ -143,13 +143,13 @@ public:
 private:
     void setCursor(Qt::CursorShape cursor, QWaylandScreen *screen);
 
-    QWaylandDisplay *mQDisplay;
-    struct wl_display *mDisplay;
+    QWaylandDisplay *mQDisplay = nullptr;
+    struct wl_display *mDisplay = nullptr;
 
     int mVersion;
     uint32_t mCaps = 0;
 
-    struct wl_surface *pointerSurface;
+    struct wl_surface *pointerSurface = nullptr;
 
 #if QT_CONFIG(wayland_datadevice)
     QWaylandDataDevice *mDataDevice = nullptr;
@@ -187,7 +187,7 @@ class Q_WAYLAND_CLIENT_EXPORT QWaylandInputDevice::Keyboard : public QObject, pu
 
 public:
     Keyboard(QWaylandInputDevice *p);
-    virtual ~Keyboard();
+    ~Keyboard() override;
 
     void stopRepeat();
 
@@ -207,7 +207,7 @@ public:
                             uint32_t mods_locked,
                             uint32_t group) override;
 
-    QWaylandInputDevice *mParent;
+    QWaylandInputDevice *mParent = nullptr;
     QPointer<QWaylandWindow> mFocus;
 #if QT_CONFIG(xkbcommon_evdev)
     xkb_context *mXkbContext = nullptr;
@@ -247,7 +247,7 @@ class Q_WAYLAND_CLIENT_EXPORT QWaylandInputDevice::Pointer : public QtWayland::w
 
 public:
     Pointer(QWaylandInputDevice *p);
-    virtual ~Pointer();
+    ~Pointer() override;
 
     void pointer_enter(uint32_t serial, struct wl_surface *surface,
                        wl_fixed_t sx, wl_fixed_t sy) override;
@@ -262,7 +262,7 @@ public:
 
     void releaseButtons();
 
-    QWaylandInputDevice *mParent;
+    QWaylandInputDevice *mParent = nullptr;
     QPointer<QWaylandWindow> mFocus;
     uint32_t mEnterSerial = 0;
 #if QT_CONFIG(cursor)
@@ -281,7 +281,7 @@ class Q_WAYLAND_CLIENT_EXPORT QWaylandInputDevice::Touch : public QtWayland::wl_
 {
 public:
     Touch(QWaylandInputDevice *p);
-    virtual ~Touch();
+    ~Touch() override;
 
     void touch_down(uint32_t serial,
                     uint32_t time,
@@ -302,7 +302,7 @@ public:
     bool allTouchPointsReleased();
     void releasePoints();
 
-    QWaylandInputDevice *mParent;
+    QWaylandInputDevice *mParent = nullptr;
     QPointer<QWaylandWindow> mFocus;
     QList<QWindowSystemInterface::TouchPoint> mTouchPoints;
     QList<QWindowSystemInterface::TouchPoint> mPrevTouchPoints;

@@ -80,7 +80,7 @@ class QWaylandDataDevice : public QObject, public QtWayland::wl_data_device
     Q_OBJECT
 public:
     QWaylandDataDevice(QWaylandDataDeviceManager *manager, QWaylandInputDevice *inputDevice);
-    ~QWaylandDataDevice();
+    ~QWaylandDataDevice() override;
 
     QWaylandDataOffer *selectionOffer() const;
     void invalidateSelectionOffer();

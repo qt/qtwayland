@@ -523,7 +523,8 @@ QSize QWaylandWlShellSurface::sizeForResize(const QSizeF &size, const QPointF &d
     else if (edge & BottomEdge)
         height += delta.y();
 
-    return QSizeF(width, height).toSize();
+    QSizeF newSize(qMax(width, 1.0), qMax(height, 1.0));
+    return newSize.toSize();
 }
 
 /*!

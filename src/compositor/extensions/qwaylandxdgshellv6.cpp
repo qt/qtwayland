@@ -906,7 +906,9 @@ QSize QWaylandXdgToplevelV6::sizeForResize(const QSizeF &size, const QPointF &de
     else if (edges & Qt::BottomEdge)
         height += delta.y();
 
-    return QSizeF(width, height).toSize();
+    //TODO: use minSize given by the client here instead
+    QSizeF newSize(qMax(width, 1.0), qMax(height, 1.0));
+    return newSize.toSize();
 }
 
 /*!

@@ -918,6 +918,10 @@ QSize QWaylandXdgToplevelV6::sizeForResize(const QSizeF &size, const QPointF &de
  */
 uint QWaylandXdgToplevelV6::sendConfigure(const QSize &size, const QVector<QWaylandXdgToplevelV6::State> &states)
 {
+    if (!size.isValid()) {
+        qWarning() << "Can't configure zxdg_toplevel_v6 with an invalid size" << size;
+        return 0;
+    }
     Q_D(QWaylandXdgToplevelV6);
     auto statesBytes = QByteArray::fromRawData(reinterpret_cast<const char *>(states.data()),
                                                states.size() * static_cast<int>(sizeof(State)));

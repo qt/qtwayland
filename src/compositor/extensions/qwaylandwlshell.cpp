@@ -560,6 +560,10 @@ QSize QWaylandWlShellSurface::sizeForResize(const QSizeF &size, const QPointF &d
 void QWaylandWlShellSurface::sendConfigure(const QSize &size, ResizeEdge edges)
 {
     Q_D(QWaylandWlShellSurface);
+    if (!size.isValid()) {
+        qWarning() << "Can't configure wl_shell_surface with an invalid size" << size;
+        return;
+    }
     d->send_configure(edges, size.width(), size.height());
 }
 

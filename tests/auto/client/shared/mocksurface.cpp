@@ -115,6 +115,10 @@ void Surface::surface_destroy_resource(Resource *)
 
 void Surface::surface_destroy(Resource *resource)
 {
+    if (m_wlShellSurface) // on wl-shell the shell surface is automatically destroyed with the surface
+        wl_resource_destroy(m_wlShellSurface->resource()->handle);
+    Q_ASSERT(!m_wlShellSurface);
+    Q_ASSERT(!m_xdgToplevelV6);
     wl_resource_destroy(resource->handle);
 }
 

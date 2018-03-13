@@ -32,6 +32,7 @@
 #include "mocksurface.h"
 #include "mockwlshell.h"
 #include "mockxdgshellv6.h"
+#include "mockiviapplication.h"
 
 #include <wayland-xdg-shell-unstable-v6-server-protocol.h>
 
@@ -219,6 +220,30 @@ void MockCompositor::sendSurfaceLeave(const QSharedPointer<MockSurface> &surface
     processCommand(command);
 }
 
+void MockCompositor::sendShellSurfaceConfigure(const QSharedPointer<MockSurface> surface, const QSize &size)
+{
+    Command command = makeCommand(Impl::Compositor::sendShellSurfaceConfigure, m_compositor);
+    command.parameters << QVariant::fromValue(surface);
+    command.parameters << QVariant::fromValue(size);
+    processCommand(command);
+}
+
+void MockCompositor::sendIviSurfaceConfigure(const QSharedPointer<MockIviSurface> iviSurface, const QSize &size)
+{
+    Command command = makeCommand(Impl::Compositor::sendIviSurfaceConfigure, m_compositor);
+    command.parameters << QVariant::fromValue(iviSurface);
+    command.parameters << QVariant::fromValue(size);
+    processCommand(command);
+}
+
+void MockCompositor::sendXdgToplevelV6Configure(const QSharedPointer<MockXdgToplevelV6> toplevel, const QSize &size)
+{
+    Command command = makeCommand(Impl::Compositor::sendXdgToplevelV6Configure, m_compositor);
+    command.parameters << QVariant::fromValue(toplevel);
+    command.parameters << QVariant::fromValue(size);
+    processCommand(command);
+}
+
 void MockCompositor::waitForStartDrag()
 {
     Command command = makeCommand(Impl::Compositor::waitForStartDrag, m_compositor);
@@ -245,7 +270,28 @@ QSharedPointer<MockOutput> MockCompositor::output(int index)
 {
     QSharedPointer<MockOutput> result;
     lock();
-    result = m_compositor->outputs().at(index)->mockOutput();
+    if (Impl::Output *output = m_compositor->outputs().value(index, nullptr))
+        result = output->mockOutput();
+    unlock();
+    return result;
+}
+
+QSharedPointer<MockIviSurface> MockCompositor::iviSurface(int index)
+{
+    QSharedPointer<MockIviSurface> result;
+    lock();
+    if (Impl::IviSurface *toplevel = m_compositor->iviApplication()->iviSurfaces().value(index, nullptr))
+        result = toplevel->mockIviSurface();
+    unlock();
+    return result;
+}
+
+QSharedPointer<MockXdgToplevelV6> MockCompositor::xdgToplevelV6(int index)
+{
+    QSharedPointer<MockXdgToplevelV6> result;
+    lock();
+    if (Impl::XdgToplevelV6 *toplevel = m_compositor->xdgShellV6()->toplevels().value(index, nullptr))
+        result = toplevel->mockToplevel();
     unlock();
     return result;
 }
@@ -330,6 +376,7 @@ Compositor::Compositor()
     m_touch = m_seat->touch();
 
     m_outputs.append(new Output(m_display, QSize(1920, 1080), QPoint(0, 0)));
+    m_iviApplication.reset(new IviApplication(m_display));
     m_wlShell.reset(new WlShell(m_display));
     m_xdgShellV6.reset(new XdgShellV6(m_display));
 
@@ -399,6 +446,16 @@ QVector<Output *> Compositor::outputs() const
     return m_outputs;
 }
 
+IviApplication *Compositor::iviApplication() const
+{
+    return m_iviApplication.data();
+}
+
+XdgShellV6 *Compositor::xdgShellV6() const
+{
+    return m_xdgShellV6.data();
+}
+
 uint32_t Compositor::nextSerial()
 {
     return wl_display_next_serial(m_display);
@@ -428,5 +485,16 @@ Output *Compositor::resolveOutput(const QVariant &v)
     return mockOutput ? mockOutput->handle() : nullptr;
 }
 
+IviSurface *Compositor::resolveIviSurface(const QVariant &v)
+{
+    QSharedPointer<MockIviSurface> mockIviSurface = v.value<QSharedPointer<MockIviSurface>>();
+    return mockIviSurface ? mockIviSurface->handle() : nullptr;
 }
 
+XdgToplevelV6 *Compositor::resolveToplevel(const QVariant &v)
+{
+    QSharedPointer<MockXdgToplevelV6> mockToplevel = v.value<QSharedPointer<MockXdgToplevelV6>>();
+    return mockToplevel ? mockToplevel->handle() : nullptr;
+}
+
+}

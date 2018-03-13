@@ -147,7 +147,7 @@ void QWaylandWlShellSurface::setNormal()
 
 void QWaylandWlShellSurface::setMinimized()
 {
-    // TODO: There's no wl_shell_surface API for this
+    qCWarning(lcQpaWayland) << "Minimization is not supported on wl-shell. Consider using xdg-shell instead.";
 }
 
 void QWaylandWlShellSurface::setTopLevel()

@@ -153,6 +153,7 @@ public slots:
         // make sure the surfaces from the last test are properly cleaned up
         // and don't show up as false positives in the next test
         QTRY_VERIFY(!compositor->surface());
+        QTRY_VERIFY(!compositor->xdgToplevelV6());
     }
 
 private slots:
@@ -225,6 +226,8 @@ void tst_WaylandClient::windowScreens()
 
     QSharedPointer<MockSurface> surface;
     QTRY_VERIFY(surface = compositor->surface());
+    compositor->sendShellSurfaceConfigure(surface);
+
     QTRY_COMPARE(QGuiApplication::screens().size(), 1);
     QScreen *primaryScreen = QGuiApplication::screens().first();
     QCOMPARE(window.screen(), primaryScreen);
@@ -266,6 +269,7 @@ void tst_WaylandClient::removePrimaryScreen()
 
     QSharedPointer<MockSurface> surface;
     QTRY_VERIFY(surface = compositor->surface());
+    compositor->sendShellSurfaceConfigure(surface);
     QTRY_COMPARE(QGuiApplication::screens().size(), 1);
     QScreen *primaryScreen = QGuiApplication::screens().first();
     QCOMPARE(window.screen(), primaryScreen);
@@ -307,6 +311,9 @@ void tst_WaylandClient::events()
 
     QSharedPointer<MockSurface> surface;
     QTRY_VERIFY(surface = compositor->surface());
+    compositor->sendShellSurfaceConfigure(surface);
+
+    QTRY_VERIFY(window.isExposed());
 
     QCOMPARE(window.focusInEventCount, 0);
     compositor->setKeyboardFocus(surface);
@@ -362,6 +369,7 @@ void tst_WaylandClient::backingStore()
 
     QSharedPointer<MockSurface> surface;
     QTRY_VERIFY(surface = compositor->surface());
+    compositor->sendShellSurfaceConfigure(surface);
 
     QRect rect(QPoint(), window.size());
 
@@ -434,6 +442,7 @@ void tst_WaylandClient::touchDrag()
 
     QSharedPointer<MockSurface> surface;
     QTRY_VERIFY(surface = compositor->surface());
+    compositor->sendShellSurfaceConfigure(surface);
 
     compositor->setKeyboardFocus(surface);
     QTRY_COMPARE(QGuiApplication::focusWindow(), &window);
@@ -459,6 +468,7 @@ void tst_WaylandClient::mouseDrag()
 
     QSharedPointer<MockSurface> surface;
     QTRY_VERIFY(surface = compositor->surface());
+    compositor->sendShellSurfaceConfigure(surface);
 
     compositor->setKeyboardFocus(surface);
     QTRY_COMPARE(QGuiApplication::focusWindow(), &window);
@@ -527,6 +537,7 @@ void tst_WaylandClient::hiddenPopupParent()
     // with the set_popup request.
     QSharedPointer<MockSurface> surface;
     QTRY_VERIFY(surface = compositor->surface());
+    compositor->sendShellSurfaceConfigure(surface);
     QPoint mousePressPos(16, 16);
     QCOMPARE(toplevel.mousePressEventCount, 0);
     compositor->sendMousePress(surface, toplevel.frameOffset() + mousePressPos);
@@ -551,6 +562,7 @@ void tst_WaylandClient::glWindow()
     testWindow->show();
     QSharedPointer<MockSurface> surface;
     QTRY_VERIFY(surface = compositor->surface());
+    compositor->sendShellSurfaceConfigure(surface);
 
     QTRY_VERIFY(testWindow->paintGLCalled);
 

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the test suite of the Qt Toolkit.
@@ -28,13 +28,7 @@
 
 #include "mockcompositor.h"
 
-#include <QBackingStore>
-#include <QPainter>
-#include <QScreen>
 #include <QWindow>
-#include <QMimeData>
-#include <QPixmap>
-#include <QDrag>
 
 #include <QtTest/QtTest>
 
@@ -51,18 +45,18 @@ public:
     }
 };
 
-class tst_WaylandClientXdgShellV6 : public QObject
+class tst_WaylandClientIviApplication : public QObject
 {
     Q_OBJECT
 public:
-    tst_WaylandClientXdgShellV6(MockCompositor *c)
+    tst_WaylandClientIviApplication(MockCompositor *c)
         : m_compositor(c)
     {
         QSocketNotifier *notifier = new QSocketNotifier(m_compositor->waylandFileDescriptor(), QSocketNotifier::Read, this);
-        connect(notifier, &QSocketNotifier::activated, this, &tst_WaylandClientXdgShellV6::processWaylandEvents);
+        connect(notifier, &QSocketNotifier::activated, this, &tst_WaylandClientIviApplication::processWaylandEvents);
         // connect to the event dispatcher to make sure to flush out the outgoing message queue
-        connect(QCoreApplication::eventDispatcher(), &QAbstractEventDispatcher::awake, this, &tst_WaylandClientXdgShellV6::processWaylandEvents);
-        connect(QCoreApplication::eventDispatcher(), &QAbstractEventDispatcher::aboutToBlock, this, &tst_WaylandClientXdgShellV6::processWaylandEvents);
+        connect(QCoreApplication::eventDispatcher(), &QAbstractEventDispatcher::awake, this, &tst_WaylandClientIviApplication::processWaylandEvents);
+        connect(QCoreApplication::eventDispatcher(), &QAbstractEventDispatcher::aboutToBlock, this, &tst_WaylandClientIviApplication::processWaylandEvents);
     }
 
 public slots:
@@ -76,64 +70,64 @@ public slots:
         // make sure the surfaces from the last test are properly cleaned up
         // and don't show up as false positives in the next test
         QTRY_VERIFY(!m_compositor->surface());
-        QTRY_VERIFY(!m_compositor->xdgToplevelV6());
+        QTRY_VERIFY(!m_compositor->iviSurface());
     }
 
 private slots:
     void createDestroyWindow();
     void configure();
+    void uniqueIviIds();
 
 private:
     MockCompositor *m_compositor = nullptr;
 };
 
-void tst_WaylandClientXdgShellV6::createDestroyWindow()
+void tst_WaylandClientIviApplication::createDestroyWindow()
 {
     TestWindow window;
     window.show();
 
     QTRY_VERIFY(m_compositor->surface());
+    QTRY_VERIFY(m_compositor->iviSurface());
 
     window.destroy();
     QTRY_VERIFY(!m_compositor->surface());
+    QTRY_VERIFY(!m_compositor->iviSurface());
 }
 
-void tst_WaylandClientXdgShellV6::configure()
+void tst_WaylandClientIviApplication::configure()
 {
-    QSharedPointer<MockOutput> output;
-    QTRY_VERIFY(output = m_compositor->output());
-
     TestWindow window;
     window.show();
 
-    QSharedPointer<MockSurface> surface;
-    QTRY_VERIFY(surface = m_compositor->surface());
+    QSharedPointer<MockIviSurface> iviSurface;
+    QTRY_VERIFY(iviSurface = m_compositor->iviSurface());
 
-    m_compositor->processWaylandEvents();
-    QTRY_VERIFY(window.isVisible());
-    QTRY_VERIFY(!window.isExposed()); //Window should not be exposed before the first configure event
+    // Unconfigured ivi surfaces decide their own size
+    QTRY_COMPARE(window.frameGeometry(), QRect(QPoint(), QSize(32, 32)));
 
-    //TODO: according to xdg-shell protocol, a buffer should not be attached to a the surface
-    //until it's configured. Ensure this in the test!
+    m_compositor->sendIviSurfaceConfigure(iviSurface, {123, 456});
+    QTRY_COMPARE(window.frameGeometry(), QRect(QPoint(), QSize(123, 456)));
+}
 
-    QSharedPointer<MockXdgToplevelV6> toplevel;
-    QTRY_VERIFY(toplevel = m_compositor->xdgToplevelV6());
-    const QSize newSize(123, 456);
-    m_compositor->sendXdgToplevelV6Configure(toplevel, newSize);
-    QTRY_VERIFY(window.isExposed());
-    QTRY_COMPARE(window.frameGeometry(), QRect(QPoint(), newSize));
+void tst_WaylandClientIviApplication::uniqueIviIds()
+{
+    TestWindow windowA, windowB;
+    windowA.show();
+    windowB.show();
+
+    QSharedPointer<MockIviSurface> iviSurface0, iviSurface1;
+    QTRY_VERIFY(iviSurface0 = m_compositor->iviSurface(0));
+    QTRY_VERIFY(iviSurface1 = m_compositor->iviSurface(1));
+    QTRY_VERIFY(iviSurface0->iviId != iviSurface1->iviId);
 }
 
 int main(int argc, char **argv)
 {
     setenv("XDG_RUNTIME_DIR", ".", 1);
     setenv("QT_QPA_PLATFORM", "wayland", 1); // force QGuiApplication to use wayland plugin
-    setenv("QT_WAYLAND_SHELL_INTEGRATION", "xdg-shell-v6", 1);
-
-    // wayland-egl hangs in the test setup when we try to initialize. Until it gets
-    // figured out, avoid clientBufferIntegration() from being called in
-    // QWaylandWindow::createDecorations().
-    setenv("QT_WAYLAND_DISABLE_WINDOWDECORATION", "1", 1);
+    setenv("QT_WAYLAND_SHELL_INTEGRATION", "ivi-shell", 1);
+    setenv("QT_WAYLAND_DISABLE_WINDOWDECORATION", "1", 1); // window decorations don't make much sense on ivi-application
 
     MockCompositor compositor;
     compositor.setOutputMode(screenSize);
@@ -141,8 +135,8 @@ int main(int argc, char **argv)
     QGuiApplication app(argc, argv);
     compositor.applicationInitialized();
 
-    tst_WaylandClientXdgShellV6 tc(&compositor);
+    tst_WaylandClientIviApplication tc(&compositor);
     return QTest::qExec(&tc, argc, argv);
 }
 
-#include <tst_xdgshellv6.moc>
+#include <tst_iviapplication.moc>

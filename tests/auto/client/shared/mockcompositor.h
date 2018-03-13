@@ -29,6 +29,9 @@
 #ifndef MOCKCOMPOSITOR_H
 #define MOCKCOMPOSITOR_H
 
+#include "mockxdgshellv6.h"
+#include "mockiviapplication.h"
+
 #include <pthread.h>
 #include <qglobal.h>
 #include <wayland-server.h>
@@ -52,6 +55,7 @@ class Seat;
 class DataDeviceManager;
 class Surface;
 class Output;
+class IviApplication;
 class WlShell;
 class XdgShellV6;
 
@@ -69,6 +73,9 @@ public:
 
     QVector<Surface *> surfaces() const;
     QVector<Output *> outputs() const;
+
+    IviApplication *iviApplication() const;
+    XdgShellV6 *xdgShellV6() const;
 
     void addSurface(Surface *surface);
     void removeSurface(Surface *surface);
@@ -94,6 +101,9 @@ public:
     static void sendOutputGeometry(void *data, const QList<QVariant> &parameters);
     static void sendSurfaceEnter(void *data, const QList<QVariant> &parameters);
     static void sendSurfaceLeave(void *data, const QList<QVariant> &parameters);
+    static void sendShellSurfaceConfigure(void *data, const QList<QVariant> &parameters);
+    static void sendIviSurfaceConfigure(void *data, const QList<QVariant> &parameters);
+    static void sendXdgToplevelV6Configure(void *data, const QList<QVariant> &parameters);
 
 public:
     bool m_startDragSeen = false;
@@ -102,6 +112,8 @@ private:
     static void bindCompositor(wl_client *client, void *data, uint32_t version, uint32_t id);
     static Surface *resolveSurface(const QVariant &v);
     static Output *resolveOutput(const QVariant &v);
+    static IviSurface *resolveIviSurface(const QVariant &v);
+    static XdgToplevelV6 *resolveToplevel(const QVariant &v);
 
     void initShm();
 
@@ -121,6 +133,7 @@ private:
     QScopedPointer<DataDeviceManager> m_data_device_manager;
     QVector<Surface *> m_surfaces;
     QVector<Output *> m_outputs;
+    QScopedPointer<IviApplication> m_iviApplication;
     QScopedPointer<WlShell> m_wlShell;
     QScopedPointer<XdgShellV6> m_xdgShellV6;
 };
@@ -145,6 +158,38 @@ private:
 };
 
 Q_DECLARE_METATYPE(QSharedPointer<MockSurface>)
+
+class MockIviSurface
+{
+public:
+    Impl::IviSurface *handle() const { return m_iviSurface; }
+    const uint iviId;
+
+private:
+    MockIviSurface(Impl::IviSurface *iviSurface) : iviId(iviSurface->iviId()), m_iviSurface(iviSurface) {}
+    friend class Impl::Compositor;
+    friend class Impl::IviSurface;
+
+    Impl::IviSurface *m_iviSurface;
+};
+
+Q_DECLARE_METATYPE(QSharedPointer<MockIviSurface>)
+
+class MockXdgToplevelV6
+{
+public:
+    Impl::XdgToplevelV6 *handle() const { return m_toplevel; }
+
+    void sendConfigure(const QSharedPointer<MockXdgToplevelV6> toplevel);
+private:
+    MockXdgToplevelV6(Impl::XdgToplevelV6 *toplevel) : m_toplevel(toplevel) {}
+    friend class Impl::Compositor;
+    friend class Impl::XdgToplevelV6;
+
+    Impl::XdgToplevelV6 *m_toplevel;
+};
+
+Q_DECLARE_METATYPE(QSharedPointer<MockXdgToplevelV6>)
 
 class MockOutput {
 public:
@@ -187,10 +232,15 @@ public:
     void sendOutputGeometry(const QSharedPointer<MockOutput> &output, const QRect &geometry);
     void sendSurfaceEnter(const QSharedPointer<MockSurface> &surface, QSharedPointer<MockOutput> &output);
     void sendSurfaceLeave(const QSharedPointer<MockSurface> &surface, QSharedPointer<MockOutput> &output);
+    void sendShellSurfaceConfigure(const QSharedPointer<MockSurface> surface, const QSize &size = QSize(0, 0));
+    void sendIviSurfaceConfigure(const QSharedPointer<MockIviSurface> iviSurface, const QSize &size);
+    void sendXdgToplevelV6Configure(const QSharedPointer<MockXdgToplevelV6> toplevel, const QSize &size = QSize(0, 0));
     void waitForStartDrag();
 
     QSharedPointer<MockSurface> surface();
     QSharedPointer<MockOutput> output(int index = 0);
+    QSharedPointer<MockIviSurface> iviSurface(int index = 0);
+    QSharedPointer<MockXdgToplevelV6> xdgToplevelV6(int index = 0);
 
     void lock();
     void unlock();

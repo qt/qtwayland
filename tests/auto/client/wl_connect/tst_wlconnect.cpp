@@ -26,33 +26,33 @@
 **
 ****************************************************************************/
 
-#include <qwayland-server-wayland.h>
+#include <QtTest/QtTest>
+#include <QGuiApplication>
+#include <qpa/qplatformintegrationfactory_p.h>
 
-#ifndef MOCKWLSHELL_H
-#define MOCKWLSHELL_H
-
-namespace Impl {
-
-class Surface;
-
-class WlShellSurface : public QtWaylandServer::wl_shell_surface
+class tst_WlConnect : public QObject
 {
-public:
-    explicit WlShellSurface(::wl_client *client, int id, Surface *surface);
-    ~WlShellSurface() override;
-    void shell_surface_destroy_resource(Resource *) override { delete this; }
+    Q_OBJECT
+private slots:
+    void failsGracefully()
+    {
+        // This tests whether the Wayland platform integration will fail gracefully when it's
+        // unable to connect to a compositor
 
-private:
-    Surface *m_surface = nullptr;
+        // Make sure the connection actually fails
+        setenv("XDG_RUNTIME_DIR", "/dev/null", 1); // a place where there are no Wayland sockets
+        setenv("WAYLAND_DISPLAY", "qt_invalid_socket", 1); // just to be sure
+
+        QStringList arguments;
+        QString platformPluginPath;
+        int argc = 0;
+        char **argv = nullptr; //It's not currently used by the wayland plugin
+        auto *platformIntegration = QPlatformIntegrationFactory::create("wayland", arguments, argc, argv, platformPluginPath);
+
+        // The factory method should return nullptr to signify it failed gracefully
+        Q_ASSERT(!platformIntegration);
+    }
 };
 
-class WlShell : public QtWaylandServer::wl_shell
-{
-public:
-    explicit WlShell(::wl_display *display) : wl_shell(display, 1) {}
-    void shell_get_shell_surface(Resource *resource, uint32_t id, ::wl_resource *surface) override;
-};
-
-} // namespace Impl
-
-#endif // MOCKWLSHELL_H
+QTEST_APPLESS_MAIN(tst_WlConnect)
+#include <tst_wlconnect.moc>

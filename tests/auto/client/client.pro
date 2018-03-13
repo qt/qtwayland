@@ -2,4 +2,6 @@ TEMPLATE=subdirs
 
 SUBDIRS += \
     client \
-    xdgshellv6
+    iviapplication \
+    xdgshellv6 \
+    wl_connect

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the test suite of the Qt Toolkit.
@@ -26,27 +26,47 @@
 **
 ****************************************************************************/
 
-#include "mockwlshell.h"
+#include "mockiviapplication.h"
 #include "mocksurface.h"
+#include "mockcompositor.h"
 
 namespace Impl {
 
-WlShellSurface::WlShellSurface(wl_client *client, int id, Surface *surface)
-    : QtWaylandServer::wl_shell_surface(client, id, 1)
-    , m_surface(surface)
+void Compositor::sendIviSurfaceConfigure(void *data, const QList<QVariant> &parameters)
 {
-    surface->m_wlShellSurface = this;
+    Q_UNUSED(data);
+    IviSurface *iviSurface = resolveIviSurface(parameters.at(0));
+    Q_ASSERT(iviSurface && iviSurface->resource());
+    QSize size = parameters.at(1).toSize();
+    Q_ASSERT(!size.isEmpty());
+    iviSurface->send_configure(size.width(), size.height());
+}
+
+IviSurface::IviSurface(IviApplication *iviApplication, Surface *surface, uint iviId, wl_client *client, uint32_t id)
+    : QtWaylandServer::ivi_surface(client, id, 1)
+    , m_surface(surface)
+    , m_iviApplication(iviApplication)
+    , m_iviId(iviId)
+    , m_mockIviSurface(new MockIviSurface(this))
+{
+    iviApplication->addIviSurface(this);
     surface->map();
 }
 
-WlShellSurface::~WlShellSurface()
+IviSurface::~IviSurface()
 {
-    m_surface->m_wlShellSurface = nullptr;
+    m_iviApplication->removeIviSurface(this);
+    m_mockIviSurface->m_iviSurface = nullptr;
 }
 
-void WlShell::shell_get_shell_surface(QtWaylandServer::wl_shell::Resource *resource, uint32_t id, wl_resource *surface)
+void IviSurface::ivi_surface_destroy(Resource *resource)
 {
-    new WlShellSurface(resource->client(), id, Surface::fromResource(surface));
+    wl_resource_destroy(resource->handle);
+}
+
+void IviApplication::ivi_application_surface_create(Resource *resource, uint32_t ivi_id, ::wl_resource *surface, uint32_t id)
+{
+    new IviSurface(this, Surface::fromResource(surface), ivi_id, resource->client(), id);
 }
 
 } // namespace Impl

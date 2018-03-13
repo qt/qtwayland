@@ -29,6 +29,9 @@
 #include "mocksurface.h"
 #include "mockoutput.h"
 #include "mockcompositor.h"
+#include "mockwlshell.h"
+
+#include <QDebug>
 
 namespace Impl {
 
@@ -58,6 +61,23 @@ void Compositor::sendSurfaceLeave(void *data, const QList<QVariant> &parameters)
 
     for (auto outputResource : outputResources)
         surface->send_leave(outputResource->handle);
+}
+
+void Compositor::sendShellSurfaceConfigure(void *data, const QList<QVariant> &parameters)
+{
+    Compositor *compositor = static_cast<Compositor *>(data);
+    Surface *surface = resolveSurface(parameters.at(0));
+    QSize size = parameters.at(1).toSize();
+    Q_ASSERT(size.isValid());
+    if (auto toplevel = surface->xdgToplevelV6()) {
+        toplevel->send_configure(size.width(), size.height(), QByteArray());
+        toplevel->xdgSurface()->send_configure(compositor->nextSerial());
+    } else if (auto wlShellSurface = surface->wlShellSurface()) {
+        const uint edges = 0;
+        wlShellSurface->send_configure(edges, size.width(), size.height());
+    } else {
+        qWarning() << "The mocking framework doesn't know how to send a configure event for this surface";
+    }
 }
 
 Surface::Surface(wl_client *client, uint32_t id, int v, Compositor *compositor)
@@ -95,6 +115,10 @@ void Surface::surface_destroy_resource(Resource *)
 
 void Surface::surface_destroy(Resource *resource)
 {
+    if (m_wlShellSurface) // on wl-shell the shell surface is automatically destroyed with the surface
+        wl_resource_destroy(m_wlShellSurface->resource()->handle);
+    Q_ASSERT(!m_wlShellSurface);
+    Q_ASSERT(!m_xdgToplevelV6);
     wl_resource_destroy(resource->handle);
 }
 

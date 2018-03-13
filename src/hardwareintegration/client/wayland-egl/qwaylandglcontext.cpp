@@ -259,10 +259,18 @@ QWaylandGLContext::QWaylandGLContext(EGLDisplay eglDisplay, QWaylandDisplay *dis
         }
         // Profiles are OpenGL only and mandatory in 3.2+. The value is silently ignored for < 3.2.
         if (m_format.renderableType() == QSurfaceFormat::OpenGL) {
-            eglContextAttrs.append(EGL_CONTEXT_OPENGL_PROFILE_MASK_KHR);
-            eglContextAttrs.append(format.profile() == QSurfaceFormat::CoreProfile
-                                ? EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT_KHR
-                                : EGL_CONTEXT_OPENGL_COMPATIBILITY_PROFILE_BIT_KHR);
+            switch (format.profile()) {
+            case QSurfaceFormat::NoProfile:
+                break;
+            case QSurfaceFormat::CoreProfile:
+                eglContextAttrs.append(EGL_CONTEXT_OPENGL_PROFILE_MASK_KHR);
+                eglContextAttrs.append(EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT_KHR);
+                break;
+            case QSurfaceFormat::CompatibilityProfile:
+                eglContextAttrs.append(EGL_CONTEXT_OPENGL_PROFILE_MASK_KHR);
+                eglContextAttrs.append(EGL_CONTEXT_OPENGL_COMPATIBILITY_PROFILE_BIT_KHR);
+                break;
+            }
         }
     }
     eglContextAttrs.append(EGL_NONE);

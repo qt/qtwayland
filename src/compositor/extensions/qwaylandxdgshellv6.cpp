@@ -1078,6 +1078,83 @@ QWaylandSurfaceRole *QWaylandXdgToplevelV6::role()
     return &QWaylandXdgToplevelV6Private::s_role;
 }
 
+
+/*!
+ * \qmlsignal QtWaylandCompositor::XdgShellV6::xdgSurfaceCreated(XdgSurfaceV6 xdgSurface)
+ *
+ * This signal is emitted when the client has created a \c zxdg_surface_v6.
+ * Note that \a xdgSurface is not mapped, i.e. according to the \c xdg-shell
+ * protocol it should not be displayed, until it has received a role object.
+ *
+ * \sa toplevelCreated(), popupCreated()
+ */
+
+/*!
+ * \fn void QWaylandXdgShellV6::xdgSurfaceCreated(QWaylandXdgSurfaceV6 *xdgSurface)
+ *
+ * This signal is emitted when the client has created a \c zxdg_surface_v6.
+ * Note that \a xdgSurface is not mapped, i.e. according to the \c xdg-shell
+ * protocol it should not be displayed, until it has received a role object.
+ *
+ * \sa toplevelCreated(), popupCreated()
+ */
+
+/*!
+ * \qmlsignal QtWaylandCompositor::XdgShellV6::toplevelCreated(XdgToplevelV6 toplevel, XdgSurfaceV6 xdgSurface)
+ *
+ * This signal is emitted when the client has created a \c zxdg_toplevel_v6.
+ * A common use case is to let the handler of this signal instantiate a ShellSurfaceItem or
+ * WaylandQuickItem for displaying \a toplevel in a QtQuick scene.
+ *
+ * \a xdgSurface is the XdgSurfaceV6 \a toplevel is the role object for.
+ */
+
+/*!
+ * \fn void QWaylandXdgShellV6::toplevelCreated(QWaylandXdgToplevelV6 *toplevel, QWaylandXdgSurfaceV6 *xdgSurface)
+ *
+ * This signal is emitted when the client has created a \c zxdg_toplevel_v6.
+ * A common use case is to let the handler of this signal instantiate a QWaylandShellSurfaceItem or
+ * QWaylandQuickItem for displaying \a toplevel in a QtQuick scene.
+ *
+ * \a xdgSurface is the XdgSurfaceV6 \a toplevel is the role object for.
+ */
+
+/*!
+ * \qmlsignal QtWaylandCompositor::XdgShellV6::popupCreated(XdgPopupV6 popup, XdgSurfaceV6 xdgSurface)
+ *
+ * This signal is emitted when the client has created a \c zxdg_popup_v6.
+ * A common use case is to let the handler of this signal instantiate a ShellSurfaceItem or
+ * WaylandQuickItem for displaying \a popup in a QtQuick scene.
+ *
+ * \a xdgSurface is the XdgSurfaceV6 \a popup is the role object for.
+ */
+
+/*!
+ * \fn void QWaylandXdgShellV6::popupCreated(QWaylandXdgPopupV6 *popup, QWaylandXdgSurfaceV6 *xdgSurface)
+ *
+ * This signal is emitted when the client has created a \c zxdg_popup_v6.
+ * A common use case is to let the handler of this signal instantiate a QWaylandShellSurfaceItem or
+ * QWaylandQuickItem for displaying \a popup in a QtQuick scene.
+ *
+ * \a xdgSurface is the XdgSurfaceV6 \a popup is the role object for.
+ */
+
+/*!
+ * \qmlsignal QtWaylandCompositor::XdgShellV6::pong(int serial)
+ *
+ * This signal is emitted when the client has responded to a ping event with serial, \a serial.
+ *
+ * \sa ping()
+ */
+
+/*!
+ * \fn void QWaylandXdgShellV6::pong(uint serial)
+ *
+ * This signal is emitted when the client has responded to a ping event with serial, \a serial.
+ *
+ * \sa QWaylandXdgShellV6::ping()
+ */
+
 QList<int> QWaylandXdgToplevelV6::statesAsInts() const
 {
    QList<int> list;

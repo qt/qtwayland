@@ -612,12 +612,46 @@ QWaylandSurface *QWaylandXdgSurfaceV6::surface() const
     return d->m_surface;
 }
 
+/*!
+ * \qmlproperty WaylandSurface QtWaylandCompositor::XdgSurfaceV6::toplevel
+ *
+ * This property holds the properties and methods that are specific to the
+ * toplevel XdgSurfaceV6.
+ *
+ * \sa popup, XdgShellV6::toplevelCreated
+ */
+
+/*!
+ * \property QWaylandXdgSurfaceV6::toplevel
+ *
+ * This property holds the properties and methods that are specific to the
+ * toplevel QWaylandXdgSurfaceV6.
+ *
+ * \sa QWaylandXdgSurfaceV6::popup, QWaylandXdgShellV6::toplevelCreated
+ */
 QWaylandXdgToplevelV6 *QWaylandXdgSurfaceV6::toplevel() const
 {
     Q_D(const QWaylandXdgSurfaceV6);
     return d->m_toplevel;
 }
 
+/*!
+ * \qmlproperty WaylandSurface QtWaylandCompositor::XdgSurfaceV6::popup
+ *
+ * This property holds the properties and methods that are specific to the
+ * popup XdgSurfaceV6.
+ *
+ * \sa toplevel, XdgShellV6::popupCreated
+ */
+
+/*!
+ * \property QWaylandXdgSurfaceV6::popup
+ *
+ * This property holds the properties and methods that are specific to the
+ * popup QWaylandXdgSurfaceV6.
+ *
+ * \sa QWaylandXdgSurfaceV6::toplevel, QWaylandXdgShellV6::popupCreated
+ */
 QWaylandXdgPopupV6 *QWaylandXdgSurfaceV6::popup() const
 {
     Q_D(const QWaylandXdgSurfaceV6);

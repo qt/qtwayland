@@ -79,7 +79,7 @@ public:
     virtual ~QWaylandXdgShell();
 
     QWaylandXdgSurface *createXdgSurface(QWaylandWindow *window);
-    QWaylandXdgPopup *createXdgPopup(QWaylandWindow *window);
+    QWaylandXdgPopup *createXdgPopup(QWaylandWindow *window, QWaylandInputDevice *inputDevice);
 
 private:
     void xdg_shell_ping(uint32_t serial) override;

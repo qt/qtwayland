@@ -75,8 +75,9 @@ bool QWaylandXdgShellIntegration::initialize(QWaylandDisplay *display)
 
 QWaylandShellSurface *QWaylandXdgShellIntegration::createShellSurface(QWaylandWindow *window)
 {
-    if (window->window()->type() == Qt::WindowType::Popup)
-        return m_xdgShell->createXdgPopup(window);
+    QWaylandInputDevice *inputDevice = window->display()->lastInputDevice();
+    if (window->window()->type() == Qt::WindowType::Popup && inputDevice)
+        return m_xdgShell->createXdgPopup(window, inputDevice);
     else
         return m_xdgShell->createXdgSurface(window);
 }

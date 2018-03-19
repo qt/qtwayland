@@ -75,12 +75,11 @@ QWaylandXdgSurface *QWaylandXdgShell::createXdgSurface(QWaylandWindow *window)
     return new QWaylandXdgSurface(this, window);
 }
 
-QWaylandXdgPopup *QWaylandXdgShell::createXdgPopup(QWaylandWindow *window)
+QWaylandXdgPopup *QWaylandXdgShell::createXdgPopup(QWaylandWindow *window, QWaylandInputDevice *inputDevice)
 {
     QWaylandWindow *parentWindow = m_popups.empty() ? window->transientParent() : m_popups.last();
     ::wl_surface *parentSurface = parentWindow->object();
 
-    QWaylandInputDevice *inputDevice = window->display()->lastInputDevice();
     if (m_popupSerial == 0)
         m_popupSerial = inputDevice->serial();
     ::wl_seat *seat = inputDevice->wl_seat();

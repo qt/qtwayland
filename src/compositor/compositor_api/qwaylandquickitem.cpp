@@ -618,7 +618,10 @@ void QWaylandQuickItem::keyPressEvent(QKeyEvent *event)
     Q_D(QWaylandQuickItem);
     if (d->shouldSendInputEvents()) {
         QWaylandSeat *seat = compositor()->seatFor(event);
-        seat->sendFullKeyEvent(event);
+        if (seat->setKeyboardFocus(d->view->surface()))
+            seat->sendFullKeyEvent(event);
+        else
+            qWarning() << "Unable to set keyboard focus, cannot send key press event";
     } else {
         event->ignore();
     }

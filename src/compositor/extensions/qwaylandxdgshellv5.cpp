@@ -1192,7 +1192,8 @@ QSize QWaylandXdgSurfaceV5::sizeForResize(const QSizeF &size, const QPointF &del
     else if (edge & BottomEdge)
         height += delta.y();
 
-    return QSizeF(width, height).toSize();
+    QSizeF newSize(qMax(width, 1.0), qMax(height, 1.0));
+    return newSize.toSize();
 }
 
 /*!
@@ -1208,6 +1209,10 @@ QSize QWaylandXdgSurfaceV5::sizeForResize(const QSizeF &size, const QPointF &del
  */
 uint QWaylandXdgSurfaceV5::sendConfigure(const QSize &size, const QVector<uint> &states)
 {
+    if (!size.isValid()) {
+        qWarning() << "Can't configure xdg surface (v5) with an invalid size" << size;
+        return 0;
+    }
     Q_D(QWaylandXdgSurfaceV5);
     auto statesBytes = QByteArray::fromRawData((char *)states.data(), states.size() * sizeof(State));
     QWaylandSurface *surface = qobject_cast<QWaylandSurface *>(extensionContainer());

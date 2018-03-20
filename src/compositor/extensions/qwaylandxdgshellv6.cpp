@@ -232,15 +232,15 @@ QByteArray QWaylandXdgShellV6::interfaceName()
 }
 
 /*!
- * \qmlmethod void QtWaylandCompositor::XdgShellV6::ping()
+ * \qmlmethod void QtWaylandCompositor::XdgShellV6::ping(WaylandClient client)
  *
- * Sends a ping event to the client. If the client replies to the event the
- * \a pong signal will be emitted.
+ * Sends a ping event to \a client. If the client replies to the event the
+ * \l pong signal will be emitted.
  */
 
 /*!
- * Sends a ping event to the client. If the client replies to the event the
- * \a pong signal will be emitted.
+ * Sends a ping event to \a client. If the client replies to the event the
+ * \l pong signal will be emitted.
  */
 uint QWaylandXdgShellV6::ping(QWaylandClient *client)
 {
@@ -527,12 +527,6 @@ void QWaylandXdgSurfaceV6::initialize(QWaylandXdgShellV6 *xdgShell, QWaylandSurf
  *
  * This property holds the window type of the XdgSurfaceV6.
  */
-
-/*!
- * \property QWaylandXdgSurfaceV6::windowType
- *
- * This property holds the window type of the QWaylandXdgSurfaceV6.
- */
 Qt::WindowType QWaylandXdgSurfaceV6::windowType() const
 {
     Q_D(const QWaylandXdgSurfaceV6);
@@ -604,7 +598,7 @@ QWaylandXdgShellV6 *QWaylandXdgSurfaceV6::shell() const
 /*!
  * \qmlproperty WaylandSurface QtWaylandCompositor::XdgSurfaceV6::surface
  *
- * This property holds the surface associated with this XdgSurface.
+ * This property holds the surface associated with this XdgSurfaceV6.
  */
 
 /*!
@@ -679,7 +673,7 @@ QWaylandQuickShellIntegration *QWaylandXdgSurfaceV6::createIntegration(QWaylandQ
  * \brief XdgToplevelV6 represents the toplevel window specific parts of an xdg surface
  *
  * This type is part of the \l{XdgShellV6} extension and provides a way to
- * extend the functionality of an QWaylandXdgSurfaceV6 with features
+ * extend the functionality of an XdgSurfaceV6 with features
  * specific to desktop-style windows.
  *
  * It corresponds to the Wayland interface \c zxdg_toplevel_v6.
@@ -699,7 +693,7 @@ QWaylandQuickShellIntegration *QWaylandXdgSurfaceV6::createIntegration(QWaylandQ
  */
 
 /*!
- * Constructs a QWaylandXdgToplevelV6.
+ * Constructs a QWaylandXdgToplevelV6 for the given \a xdgSurface and \a resource.
  */
 QWaylandXdgToplevelV6::QWaylandXdgToplevelV6(QWaylandXdgSurfaceV6 *xdgSurface, QWaylandResource &resource)
     : QObject(*new QWaylandXdgToplevelV6Private(xdgSurface, resource))
@@ -715,7 +709,7 @@ QWaylandXdgToplevelV6::QWaylandXdgToplevelV6(QWaylandXdgSurfaceV6 *xdgSurface, Q
  */
 
 /*!
- * \property QWaylandXdgSurfaceV6::parentToplevel
+ * \property QWaylandXdgToplevelV6::parentToplevel
  *
  * This property holds the XdgToplevelV6 parent of this XdgToplevelV6.
  *
@@ -906,7 +900,9 @@ QSize QWaylandXdgToplevelV6::sizeForResize(const QSizeF &size, const QPointF &de
     else if (edges & Qt::BottomEdge)
         height += delta.y();
 
-    return QSizeF(width, height).toSize();
+    //TODO: use minSize given by the client here instead
+    QSizeF newSize(qMax(width, 1.0), qMax(height, 1.0));
+    return newSize.toSize();
 }
 
 /*!
@@ -916,6 +912,10 @@ QSize QWaylandXdgToplevelV6::sizeForResize(const QSizeF &size, const QPointF &de
  */
 uint QWaylandXdgToplevelV6::sendConfigure(const QSize &size, const QVector<QWaylandXdgToplevelV6::State> &states)
 {
+    if (!size.isValid()) {
+        qWarning() << "Can't configure zxdg_toplevel_v6 with an invalid size" << size;
+        return 0;
+    }
     Q_D(QWaylandXdgToplevelV6);
     auto statesBytes = QByteArray::fromRawData(reinterpret_cast<const char *>(states.data()),
                                                states.size() * static_cast<int>(sizeof(State)));
@@ -957,15 +957,19 @@ void QWaylandXdgToplevelV6::sendClose()
 }
 
 /*!
- * \qmlmethod void QtWaylandCompositor::XdgToplevelV6::sendMaximized()
+ * \qmlmethod void QtWaylandCompositor::XdgToplevelV6::sendMaximized(size size)
  *
  * Convenience for sending a configure event with the maximized state set, and
  * fullscreen and resizing removed. The activated state is left in its current state.
+ *
+ * \a size is the new size of the window.
  */
 
 /*!
  * Convenience for sending a configure event with the maximized state set, and
  * fullscreen and resizing removed. The activated state is left in its current state.
+ *
+ * \a size is the new size of the window.
  */
 uint QWaylandXdgToplevelV6::sendMaximized(const QSize &size)
 {
@@ -981,7 +985,7 @@ uint QWaylandXdgToplevelV6::sendMaximized(const QSize &size)
 }
 
 /*!
- * \qmlmethod void QtWaylandCompositor::XdgToplevelV6::sendUnmaximized()
+ * \qmlmethod void QtWaylandCompositor::XdgToplevelV6::sendUnmaximized(size size)
  *
  * Convenience for sending a configure event with the maximized, fullscreen and
  * resizing states removed, and fullscreen and resizing removed. The activated
@@ -1011,7 +1015,7 @@ uint QWaylandXdgToplevelV6::sendUnmaximized(const QSize &size)
 }
 
 /*!
- * \qmlmethod void QtWaylandCompositor::XdgToplevelV6::sendFullscreen()
+ * \qmlmethod void QtWaylandCompositor::XdgToplevelV6::sendFullscreen(size size)
  *
  * Convenience for sending a configure event with the fullscreen state set, and
  * maximized and resizing removed. The activated state is left in its current state.
@@ -1039,19 +1043,19 @@ uint QWaylandXdgToplevelV6::sendFullscreen(const QSize &size)
 }
 
 /*!
- * \qmlmethod void QtWaylandCompositor::XdgToplevelV6::sendResizing()
+ * \qmlmethod void QtWaylandCompositor::XdgToplevelV6::sendResizing(size maxSize)
  *
  * Convenience for sending a configure event with the resizing state set, and
  * maximized and fullscreen removed. The activated state is left in its current state.
  *
- * \a size is the new size of the window.
+ * \a maxSize is the new size of the window.
  */
 
 /*!
  * Convenience for sending a configure event with the resizing state set, and
  * maximized and fullscreen removed. The activated state is left in its current state.
  *
- * \a size is the new size of the window.
+ * \a maxSize is the new size of the window.
  */
 uint QWaylandXdgToplevelV6::sendResizing(const QSize &maxSize)
 {
@@ -1510,7 +1514,7 @@ Qt::Edges QWaylandXdgPopupV6::gravityEdges() const
  */
 
 /*!
- * \property QWaylandXdgPopup::slideConstraints
+ * \property QWaylandXdgPopupV6::slideConstraints
  *
  * This property holds the orientations in which the child should slide to fit within the screen.
  */
@@ -1540,7 +1544,7 @@ Qt::Orientations QWaylandXdgPopupV6::slideConstraints() const
  */
 
 /*!
- * \property QWaylandXdgPopup::flipConstraints
+ * \property QWaylandXdgPopupV6::flipConstraints
  *
  * This property holds the orientations in which the child should flip to fit within the screen.
  */
@@ -1570,7 +1574,7 @@ Qt::Orientations QWaylandXdgPopupV6::flipConstraints() const
  */
 
 /*!
- * \property QWaylandXdgPopup::resizeConstraints
+ * \property QWaylandXdgPopupV6::resizeConstraints
  *
  * This property holds the orientations in which the child should resize to fit within the screen.
  */
@@ -1597,7 +1601,7 @@ Qt::Orientations QWaylandXdgPopupV6::resizeConstraints() const
  */
 
 /*!
- * \property QWaylandXdgPopup::offset
+ * \property QWaylandXdgPopupV6::offset
  *
  * Returns the surface position relative to the position of the anchor on the anchor
  * rectangle and the anchor on the surface.
@@ -1615,7 +1619,7 @@ QPoint QWaylandXdgPopupV6::offset() const
  */
 
 /*!
- * \property QWaylandXdgPopup::positionerSize
+ * \property QWaylandXdgPopupV6::positionerSize
  *
  * Returns the size requested for the window geometry by the positioner object.
  */
@@ -1633,7 +1637,7 @@ QSize QWaylandXdgPopupV6::positionerSize() const
  */
 
 /*!
- * \property QWaylandXdgPopup::unconstrainedPosition
+ * \property QWaylandXdgPopupV6::unconstrainedPosition
  *
  * The position of the surface relative to the parent window geometry if the surface
  * is not constrained. I.e. when not moved to fit inside the screen or similar.

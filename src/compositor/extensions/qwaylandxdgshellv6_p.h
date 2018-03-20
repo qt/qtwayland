@@ -141,7 +141,7 @@ public:
     };
 
     QWaylandXdgToplevelV6Private(QWaylandXdgSurfaceV6 *xdgSurface, const QWaylandResource& resource);
-    ConfigureEvent lastSentConfigure() const { return m_pendingConfigures.empty() ? m_lastAckedConfigure : m_pendingConfigures.first(); }
+    ConfigureEvent lastSentConfigure() const { return m_pendingConfigures.empty() ? m_lastAckedConfigure : m_pendingConfigures.last(); }
     void handleAckConfigure(uint serial); //TODO: move?
     void handleFocusLost();
     void handleFocusReceived();

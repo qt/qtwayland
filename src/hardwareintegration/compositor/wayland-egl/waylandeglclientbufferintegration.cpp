@@ -180,12 +180,15 @@ public:
     bool initEglStream(WaylandEglClientBuffer *buffer, struct ::wl_resource *bufferHandle);
     void handleEglstreamTexture(WaylandEglClientBuffer *buffer, wl_resource *bufferHandle);
     void registerBuffer(struct ::wl_resource *buffer, BufferState state);
+    void deleteGLTextureWhenPossible(QOpenGLTexture *texture) { orphanedTextures << texture; }
+    void deleteOrphanedTextures();
 
     EGLDisplay egl_display = EGL_NO_DISPLAY;
     bool valid = false;
     bool display_bound = false;
     QOffscreenSurface *offscreenSurface = nullptr;
     QOpenGLContext *localContext = nullptr;
+    QVector<QOpenGLTexture *> orphanedTextures;
 
     PFNEGLBINDWAYLANDDISPLAYWL egl_bind_wayland_display = nullptr;
     PFNEGLUNBINDWAYLANDDISPLAYWL egl_unbind_wayland_display = nullptr;
@@ -376,6 +379,13 @@ void WaylandEglClientBufferIntegrationPrivate::handleEglstreamTexture(WaylandEgl
         localContext->doneCurrent();
 }
 
+void WaylandEglClientBufferIntegrationPrivate::deleteOrphanedTextures()
+{
+    Q_ASSERT(QOpenGLContext::currentContext());
+    qDeleteAll(orphanedTextures);
+    orphanedTextures.clear();
+}
+
 WaylandEglClientBufferIntegration::WaylandEglClientBufferIntegration()
     : d_ptr(new WaylandEglClientBufferIntegrationPrivate)
 {
@@ -484,7 +494,7 @@ WaylandEglClientBuffer::~WaylandEglClientBuffer()
             p->funcs->destroy_stream(p->egl_display, d->egl_stream);
 
         for (auto *texture : d->textures)
-            delete texture;
+            p->deleteGLTextureWhenPossible(texture);
     }
     delete d;
 }
@@ -526,6 +536,10 @@ QWaylandBufferRef::BufferFormatEgl WaylandEglClientBuffer::bufferFormatEgl() con
 
 QOpenGLTexture *WaylandEglClientBuffer::toOpenGlTexture(int plane)
 {
+    auto *p = WaylandEglClientBufferIntegrationPrivate::get(m_integration);
+    // At this point we should have a valid OpenGL context, so it's safe to destroy textures
+    p->deleteOrphanedTextures();
+
     if (!m_buffer)
         return nullptr;
 
@@ -533,7 +547,6 @@ QOpenGLTexture *WaylandEglClientBuffer::toOpenGlTexture(int plane)
     if (d->eglMode == BufferState::ModeEGLStream)
         return texture; // EGLStreams texture is maintained by handle_eglstream_texture()
 
-    auto *p = WaylandEglClientBufferIntegrationPrivate::get(m_integration);
     const auto target = static_cast<QOpenGLTexture::Target>(d->egl_format == EGL_TEXTURE_EXTERNAL_WL ? GL_TEXTURE_EXTERNAL_OES
                                                                         : GL_TEXTURE_2D);
     if (!texture) {

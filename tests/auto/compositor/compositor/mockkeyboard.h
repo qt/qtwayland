@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 LG Electronics Ltd., author: <mikko.levonmaa@lge.com>
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the test suite of the Qt Toolkit.
@@ -26,16 +26,25 @@
 **
 ****************************************************************************/
 
-#include "mockseat.h"
+#ifndef MOCKKEYBOARD_H
+#define MOCKKEYBOARD_H
 
-MockSeat::MockSeat(wl_seat *seat)
-    : m_seat(seat)
-    , m_pointer(new MockPointer(seat))
-    , m_keyboard(new MockKeyboard(seat))
-{
-}
+#include <QObject>
+#include <wayland-client.h>
 
-MockSeat::~MockSeat()
+class MockKeyboard : public QObject
 {
-    wl_seat_destroy(m_seat);
-}
+    Q_OBJECT
+
+public:
+    explicit MockKeyboard(wl_seat *seat);
+    ~MockKeyboard() override;
+
+    wl_keyboard *m_keyboard = nullptr;
+    wl_surface *m_enteredSurface = nullptr;
+    uint m_lastKeyCode = 0;
+    uint m_lastKeyState = 0;
+    uint m_group = 0;
+};
+
+#endif // MOCKKEYBOARD_H

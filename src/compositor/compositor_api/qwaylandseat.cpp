@@ -440,10 +440,50 @@ void QWaylandSeat::sendFullKeyEvent(QKeyEvent *event)
         return;
 
     if (!d->keyboard.isNull() && !event->isAutoRepeat()) {
+
+        uint scanCode = event->nativeScanCode();
+        if (scanCode == 0)
+            scanCode = d->keyboard->toScanCode(event->key());
+
+        if (scanCode == 0) {
+            qWarning() << "Can't send Wayland key event: Unable to get a valid scan code";
+            return;
+        }
+
         if (event->type() == QEvent::KeyPress)
-            d->keyboard->sendKeyPressEvent(event->nativeScanCode());
+            d->keyboard->sendKeyPressEvent(scanCode);
         else if (event->type() == QEvent::KeyRelease)
-            d->keyboard->sendKeyReleaseEvent(event->nativeScanCode());
+            d->keyboard->sendKeyReleaseEvent(scanCode);
+    }
+}
+
+/*!
+ * \qmlmethod void QtWaylandCompositor::WaylandSeat::sendKeyEvent(int qtKey, bool pressed)
+ * \since 5.12
+ *
+ * Sends a key press or release to the keyboard device.
+ */
+
+/*!
+ * Sends a key press or release to the keyboard device.
+ *
+ * \since 5.12
+ */
+void QWaylandSeat::sendKeyEvent(int qtKey, bool pressed)
+{
+    Q_D(QWaylandSeat);
+    if (!keyboardFocus()) {
+        qWarning("Cannot send Wayland key event, no keyboard focus, fix the compositor");
+        return;
+    }
+
+    if (auto scanCode = d->keyboard->toScanCode(qtKey)) {
+        if (pressed)
+            d->keyboard->sendKeyPressEvent(scanCode);
+        else
+            d->keyboard->sendKeyReleaseEvent(scanCode);
+    } else {
+        qWarning() << "Can't send Wayland key event: Unable to get scan code for" << Qt::Key(qtKey);
     }
 }
 

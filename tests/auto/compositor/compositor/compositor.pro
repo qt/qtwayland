@@ -21,6 +21,7 @@ SOURCES += \
     mockclient.cpp \
     mockseat.cpp \
     testseat.cpp \
+    mockkeyboard.cpp \
     mockpointer.cpp
 
 HEADERS += \
@@ -29,4 +30,5 @@ HEADERS += \
     mockclient.h \
     mockseat.h \
     testseat.h \
+    mockkeyboard.h \
     mockpointer.h

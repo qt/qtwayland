@@ -40,10 +40,12 @@
 #include <QtGui/QScreen>
 #include <QtWaylandCompositor/QWaylandXdgShellV5>
 #include <QtWaylandCompositor/private/qwaylandxdgshellv6_p.h>
+#include <QtWaylandCompositor/private/qwaylandkeyboard_p.h>
 #include <QtWaylandCompositor/QWaylandIviApplication>
 #include <QtWaylandCompositor/QWaylandIviSurface>
 #include <QtWaylandCompositor/QWaylandSurface>
 #include <QtWaylandCompositor/QWaylandResource>
+#include <QtWaylandCompositor/QWaylandKeymap>
 #include <qwayland-xdg-shell.h>
 #include <qwayland-ivi-application.h>
 
@@ -56,6 +58,11 @@ class tst_WaylandCompositor : public QObject
 private slots:
     void init();
     void seatCapabilities();
+#if QT_CONFIG(xkbcommon_evdev)
+    void simpleKeyboard();
+    void keyboardKeymaps();
+    void keyboardLayoutSwitching();
+#endif
     void keyboardGrab();
     void seatCreation();
     void seatKeyboardFocus();
@@ -159,6 +166,121 @@ void tst_WaylandCompositor::multipleClients()
 
     QTRY_COMPARE(compositor.surfaces.size(), 0);
 }
+
+#if QT_CONFIG(xkbcommon_evdev)
+
+void tst_WaylandCompositor::simpleKeyboard()
+{
+    TestCompositor compositor;
+    compositor.create();
+
+    QWaylandSeat* seat = compositor.defaultSeat();
+    seat->keymap()->setLayout("us");
+
+    MockClient client;
+
+    QTRY_COMPARE(client.m_seats.size(), 1);
+    MockKeyboard *mockKeyboard = client.m_seats.at(0)->keyboard();
+
+    wl_surface *mockSurface = client.createSurface();
+    QTRY_COMPARE(compositor.surfaces.size(), 1);
+    seat->setKeyboardFocus(compositor.surfaces.at(0));
+
+    compositor.flushClients();
+    QTRY_COMPARE(mockKeyboard->m_enteredSurface, mockSurface);
+
+    seat->sendKeyEvent(Qt::Key_A, true);
+    compositor.flushClients();
+    QTRY_COMPARE(mockKeyboard->m_lastKeyState, 1u);
+    QTRY_COMPARE(mockKeyboard->m_lastKeyCode, 30u); // 30 is the scan code for A on us keyboard layouts
+
+    seat->sendKeyEvent(Qt::Key_A, false);
+    compositor.flushClients();
+    QTRY_COMPARE(mockKeyboard->m_lastKeyState, 0u);
+    QTRY_COMPARE(mockKeyboard->m_lastKeyCode, 30u);
+
+    seat->sendKeyEvent(Qt::Key_Super_L, true);
+    seat->sendKeyEvent(Qt::Key_Super_L, false);
+    compositor.flushClients();
+    QTRY_COMPARE(mockKeyboard->m_lastKeyCode, 125u);
+}
+
+void tst_WaylandCompositor::keyboardKeymaps()
+{
+    TestCompositor compositor;
+    compositor.create();
+    QWaylandSeat* seat = compositor.defaultSeat();
+    MockClient client;
+    QTRY_COMPARE(client.m_seats.size(), 1);
+    MockKeyboard *mockKeyboard = client.m_seats.at(0)->keyboard();
+    client.createSurface();
+    QTRY_COMPARE(compositor.surfaces.size(), 1);
+    seat->setKeyboardFocus(compositor.surfaces.at(0));
+
+    seat->keymap()->setLayout("us");
+
+    seat->sendKeyEvent(Qt::Key_Y, true);
+    seat->sendKeyEvent(Qt::Key_Y, false);
+    compositor.flushClients();
+    QTRY_COMPARE(mockKeyboard->m_lastKeyCode, 21u);
+
+    seat->sendKeyEvent(Qt::Key_Z, true);
+    seat->sendKeyEvent(Qt::Key_Z, false);
+    compositor.flushClients();
+    QTRY_COMPARE(mockKeyboard->m_lastKeyCode, 44u);
+
+    seat->keymap()->setLayout("de"); // In the German layout y and z have changed places
+
+    seat->sendKeyEvent(Qt::Key_Y, true);
+    seat->sendKeyEvent(Qt::Key_Y, false);
+    compositor.flushClients();
+    QTRY_COMPARE(mockKeyboard->m_lastKeyCode, 44u);
+
+    seat->sendKeyEvent(Qt::Key_Z, true);
+    seat->sendKeyEvent(Qt::Key_Z, false);
+    compositor.flushClients();
+    QTRY_COMPARE(mockKeyboard->m_lastKeyCode, 21u);
+}
+
+void tst_WaylandCompositor::keyboardLayoutSwitching()
+{
+    TestCompositor compositor;
+    compositor.create();
+    QWaylandSeat* seat = compositor.defaultSeat();
+    MockClient client;
+    QTRY_COMPARE(client.m_seats.size(), 1);
+    MockKeyboard *mockKeyboard = client.m_seats.at(0)->keyboard();
+    client.createSurface();
+    QTRY_COMPARE(compositor.surfaces.size(), 1);
+    seat->setKeyboardFocus(compositor.surfaces.at(0));
+
+    seat->keymap()->setLayout("us,de");
+    seat->keymap()->setOptions("grp:lalt_toggle"); //toggle keyboard layout with left alt
+
+    compositor.flushClients();
+    QTRY_COMPARE(mockKeyboard->m_group, 0u);
+
+    seat->sendKeyEvent(Qt::Key_Y, true);
+    seat->sendKeyEvent(Qt::Key_Y, false);
+    compositor.flushClients();
+    QTRY_COMPARE(mockKeyboard->m_lastKeyCode, 21u);
+
+    // It's not currently possible to switch layouts programmatically with the public APIs
+    // We will just fake it with the private APIs here.
+    auto keyboardPrivate = QWaylandKeyboardPrivate::get(seat->keyboard());
+    const uint leftAltCode = 64;
+    keyboardPrivate->updateModifierState(leftAltCode, WL_KEYBOARD_KEY_STATE_PRESSED);
+    keyboardPrivate->updateModifierState(leftAltCode, WL_KEYBOARD_KEY_STATE_RELEASED);
+    compositor.flushClients();
+    QTRY_COMPARE(mockKeyboard->m_group, 1u);
+
+    seat->sendKeyEvent(Qt::Key_Y, true);
+    seat->sendKeyEvent(Qt::Key_Y, false);
+    compositor.flushClients();
+    QTRY_COMPARE(mockKeyboard->m_lastKeyCode, 44u);
+}
+
+#endif // QT_CONFIG(xkbcommon_evdev)
 
 void tst_WaylandCompositor::keyboardGrab()
 {
@@ -448,13 +570,24 @@ void tst_WaylandCompositor::seatKeyboardFocus()
     // Create client after all the input devices have been set up as the mock client
     // does not dynamically listen to new seats
     MockClient client;
+
+    QTRY_COMPARE(client.m_seats.size(), 1);
+    MockKeyboard *mockKeyboard = client.m_seats.first()->keyboard();
+    QVERIFY(mockKeyboard);
+    QCOMPARE(mockKeyboard->m_enteredSurface, nullptr);
+
     wl_surface *surface = client.createSurface();
     QTRY_COMPARE(compositor.surfaces.size(), 1);
 
     QWaylandSurface *waylandSurface = compositor.surfaces.at(0);
-    QWaylandSeat* dev = compositor.defaultSeat();
-    dev->setKeyboardFocus(waylandSurface);
-    QTRY_COMPARE(compositor.defaultSeat()->keyboardFocus(), waylandSurface);
+    QWaylandSeat* seat = compositor.defaultSeat();
+    QVERIFY(seat->setKeyboardFocus(waylandSurface));
+    QCOMPARE(compositor.defaultSeat()->keyboardFocus(), waylandSurface);
+
+    compositor.flushClients();
+
+    qDebug() << mockKeyboard->m_enteredSurface;
+    QTRY_COMPARE(mockKeyboard->m_enteredSurface, surface);
 
     wl_surface_destroy(surface);
     QTRY_VERIFY(compositor.surfaces.size() == 0);

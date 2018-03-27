@@ -54,6 +54,7 @@
 #if QT_CONFIG(xkbcommon_evdev)
 #include <sys/mman.h>
 #include <sys/types.h>
+#include <qwaylandxkb_p.h>
 #endif
 
 QT_BEGIN_NAMESPACE
@@ -195,6 +196,32 @@ void QWaylandKeyboardPrivate::modifiers(uint32_t serial, uint32_t mods_depressed
         send_modifiers(focusResource->handle, serial, mods_depressed, mods_latched, mods_locked, group);
     }
 }
+
+#if QT_CONFIG(xkbcommon_evdev)
+void QWaylandKeyboardPrivate::maybeUpdateXkbScanCodeTable()
+{
+    if (!scanCodesByQtKey.isEmpty() || !xkbState())
+        return;
+
+    if (xkb_keymap *keymap = xkb_state_get_keymap(xkb_state)) {
+        xkb_keymap_key_for_each(keymap, [](xkb_keymap *keymap, xkb_keycode_t keycode, void *d){
+            auto *scanCodesByQtKey = static_cast<QMap<ScanCodeKey, uint>*>(d);
+            uint numLayouts = xkb_keymap_num_layouts_for_key(keymap, keycode);
+            for (uint layout = 0; layout < numLayouts; ++layout) {
+                const xkb_keysym_t *syms = nullptr;
+                xkb_keymap_key_get_syms_by_level(keymap, keycode, layout, 0, &syms);
+                if (!syms)
+                    continue;
+
+                Qt::KeyboardModifiers mods = {};
+                int qtKey = QWaylandXkb::keysymToQtKey(syms[0], mods).first;
+                if (qtKey != 0)
+                    scanCodesByQtKey->insert({layout, qtKey}, keycode);
+            }
+        }, &scanCodesByQtKey);
+    }
+}
+#endif
 
 void QWaylandKeyboardPrivate::updateModifierState(uint code, uint32_t state)
 {
@@ -355,6 +382,7 @@ void QWaylandKeyboardPrivate::createXKBKeymap()
     struct xkb_keymap *xkbKeymap = xkb_keymap_new_from_names(xkb_context, &rule_names, static_cast<xkb_keymap_compile_flags>(0));
 
     if (xkbKeymap) {
+        scanCodesByQtKey.clear();
         createXKBState(xkbKeymap);
         xkb_keymap_unref(xkbKeymap);
     } else {
@@ -559,6 +587,19 @@ void QWaylandKeyboard::addClient(QWaylandClient *client, uint32_t id, uint32_t v
 {
     Q_D(QWaylandKeyboard);
     d->add(client->client(), id, qMin<uint32_t>(QtWaylandServer::wl_keyboard::interfaceVersion(), version));
+}
+
+uint QWaylandKeyboard::toScanCode(int qtKey) const
+{
+    uint scanCode = 0;
+#if QT_CONFIG(xkbcommon_evdev)
+    Q_D(const QWaylandKeyboard);
+    const_cast<QWaylandKeyboardPrivate *>(d)->maybeUpdateXkbScanCodeTable();
+    scanCode = d->scanCodesByQtKey.value({d->group, qtKey}, 0);
+#else
+    Q_UNUSED(qtKey);
+#endif
+    return scanCode;
 }
 
 QT_END_NAMESPACE

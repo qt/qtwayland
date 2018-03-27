@@ -97,6 +97,7 @@ public:
     void sendKeyReleaseEvent(uint code);
 
     void sendFullKeyEvent(QKeyEvent *event);
+    Q_INVOKABLE void sendKeyEvent(int qtKey, bool pressed);
 
     uint sendTouchPointEvent(QWaylandSurface *surface, int id, const QPointF &point, Qt::TouchPointState state);
     Q_INVOKABLE uint sendTouchPointPressed(QWaylandSurface *surface, int id, const QPointF &position);

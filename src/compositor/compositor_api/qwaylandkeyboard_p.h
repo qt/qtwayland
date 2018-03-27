@@ -89,6 +89,7 @@ public:
 #if QT_CONFIG(xkbcommon_evdev)
     struct xkb_state *xkbState() const { return xkb_state; }
     uint32_t xkbModsMask() const { return modsDepressed | modsLatched | modsLocked; }
+    void maybeUpdateXkbScanCodeTable();
 #endif
 
     void keyEvent(uint code, uint32_t state);
@@ -131,6 +132,8 @@ private:
     size_t keymap_size;
     int keymap_fd = -1;
     char *keymap_area = nullptr;
+    using ScanCodeKey = std::pair<uint,int>; // group/layout and QtKey
+    QMap<ScanCodeKey, uint> scanCodesByQtKey;
     struct xkb_context *xkb_context = nullptr;
     struct xkb_state *xkb_state = nullptr;
 #endif

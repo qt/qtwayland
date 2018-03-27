@@ -70,11 +70,12 @@ void Window::initializeGL()
     m_textureBlitter.create();
 }
 
-static int sillyrandom(int range)
+static QPoint sillyrandom(int seed, QSize screenSize, QSize surfaceSize)
 {
-    if (range <= 0)
-        range = 200;
-    return QRandomGenerator::global()->bounded(range);
+    QRandomGenerator rand(seed);
+    int xrange = qMax(screenSize.width() - surfaceSize.width(), 200);
+    int yrange = qMax(screenSize.height() - surfaceSize.height(), 200);
+    return QPoint(rand.bounded(xrange), rand.bounded(yrange));
 }
 
 void Window::paintGL()
@@ -91,8 +92,6 @@ void Window::paintGL()
     functions->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     Q_FOREACH (View *view, m_compositor->views()) {
-        if (view->isCursor())
-            continue;
         auto texture = view->getTexture();
         if (!texture)
             continue;
@@ -104,7 +103,7 @@ void Window::paintGL()
         QWaylandSurface *surface = view->surface();
         if (surface && surface->hasContent()) {
             QSize s = surface->size();
-            QPointF pos(sillyrandom(width() - s.width()), sillyrandom(height() - s.height()));
+            QPointF pos = sillyrandom(view->iviId(), size(), s);
             QRectF surfaceGeometry(pos, s);
             QOpenGLTextureBlitter::Origin surfaceOrigin =
                     view->currentBuffer().origin() == QWaylandSurface::OriginTopLeft

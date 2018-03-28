@@ -168,8 +168,8 @@ QOpenGLTexture *SharedMemoryBuffer::toOpenGlTexture(int plane)
             m_textureDirty = false;
             m_shmTexture->bind();
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-			// Next 2 settings will handle the case when texture is npot (non power of two)
-			// and extension OES_texture_npot is not present
+            // Next 2 settings will handle the case when texture is npot (non power of two)
+            // and extension OES_texture_npot is not present
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
             // TODO: partial texture upload

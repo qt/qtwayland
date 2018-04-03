@@ -871,6 +871,31 @@ void QWaylandSurfacePrivate::Subsurface::subsurface_set_desync(wl_subsurface::Re
 }
 
 /*!
+ * \qmlsignal QtWaylandCompositor::WaylandSurface::childAdded(WaylandSurface child)
+ *
+ * This signal is emitted when a wl_subsurface, \a child, has been added to the surface.
+ */
+
+/*!
+ * \fn void QWaylandSurface::childAdded(QWaylandSurface *child)
+ *
+ * This signal is emitted when a wl_subsurface, \a child, has been added to the surface.
+ */
+
+    void surfaceDestroyed();
+/*!
+ * \qmlsignal QtWaylandCompositor::WaylandSurface::surfaceDestroyed()
+ *
+ * This signal is emitted when the corresponding wl_surface is destroyed.
+ */
+
+/*!
+ * \fn void QWaylandSurface::surfaceDestroyed()
+ *
+ * This signal is emitted when the corresponing wl_surface is destroyed.
+ */
+
+/*!
  * \qmlsignal void QtWaylandCompositor::WaylandSurface::dragStarted(WaylandDrag drag)
  *
  * This signal is emitted when a \a drag has started from this surface.

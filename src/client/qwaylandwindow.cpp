@@ -596,9 +596,8 @@ void QWaylandWindow::frameCallback(void *data, struct wl_callback *callback, uin
 
     self->mWaitingForFrameSync = false;
     if (self->mUpdateRequested) {
-        QWindowPrivate *w = QWindowPrivate::get(self->window());
         self->mUpdateRequested = false;
-        w->deliverUpdateRequest();
+        self->deliverUpdateRequest();
     }
 }
 

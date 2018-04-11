@@ -7,7 +7,7 @@ version                                                     = $QT_VERSION
 qhp.projects                                                = QtWaylandCompositor
 
 qhp.QtWaylandCompositor.file                                = qtwaylandcompositor.qhp
-qhp.QtWaylandCompositor.namespace                           = org.qtproject.qtwaylandcompositor.$QT_VERSION_TAG
+qhp.QtWaylandCompositor.namespace                           = org.qt-project.qtwaylandcompositor.$QT_VERSION_TAG
 qhp.QtWaylandCompositor.virtualFolder                       = qtwaylandcompositor
 qhp.QtWaylandCompositor.indexTitle                          = Qt Wayland Compositor
 qhp.QtWaylandCompositor.indexRoot                           =

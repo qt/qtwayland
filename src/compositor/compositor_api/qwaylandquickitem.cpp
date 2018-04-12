@@ -1315,6 +1315,19 @@ void QWaylandQuickItem::raise()
         stackAfter(top);
 }
 
+void QWaylandQuickItem::sendMouseMoveEvent(const QPointF &position, QWaylandSeat *seat)
+{
+    if (seat == nullptr)
+        seat = compositor()->defaultSeat();
+
+    if (!seat) {
+        qWarning() << "No seat, can't send mouse event";
+        return;
+    }
+
+    seat->sendMouseMoveEvent(view(), position);
+}
+
 /*!
  * \internal
  *

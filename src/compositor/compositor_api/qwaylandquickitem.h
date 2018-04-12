@@ -151,6 +151,7 @@ public Q_SLOTS:
     void setPaintEnabled(bool paintEnabled);
     void raise();
     void lower();
+    void sendMouseMoveEvent(const QPointF &position, QWaylandSeat *seat = nullptr);
 
 private Q_SLOTS:
     void surfaceMappedChanged();

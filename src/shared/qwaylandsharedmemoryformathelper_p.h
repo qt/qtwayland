@@ -89,7 +89,7 @@ private:
             WL_SHM_FORMAT_ABGR8888,    //Format_RGBA8888,
             WL_SHM_FORMAT_ABGR8888,    //Format_RGBA8888_Premultiplied,
             WL_SHM_FORMAT_XBGR2101010, //Format_BGR30,
-            WL_SHM_FORMAT_ARGB2101010, //Format_A2BGR30_Premultiplied,
+            WL_SHM_FORMAT_ABGR2101010, //Format_A2BGR30_Premultiplied,
             WL_SHM_FORMAT_XRGB2101010, //Format_RGB30,
             WL_SHM_FORMAT_ARGB2101010, //Format_A2RGB30_Premultiplied,
             WL_SHM_FORMAT_C8,          //Format_Alpha8,

@@ -1,5 +1,5 @@
 TEMPLATE = app
-QT += qml quick waylandclient-private
+QT += qml quick waylandclient gui-private
 CONFIG += wayland-scanner
 
 WAYLANDCLIENTSOURCES += ../protocol/custom.xml

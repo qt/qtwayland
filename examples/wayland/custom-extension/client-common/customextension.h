@@ -51,9 +51,8 @@
 #ifndef CUSTOMEXTENSION_H
 #define CUSTOMEXTENSION_H
 
-#include <qpa/qwindowsysteminterface.h>
-#include <QtWaylandClient/private/qwayland-wayland.h>
-#include <QtWaylandClient/qwaylandclientextension.h>
+#include <QtWaylandClient/QWaylandClientExtension>
+#include <QtGui/QWindow>
 #include "qwayland-custom.h"
 
 QT_BEGIN_NAMESPACE

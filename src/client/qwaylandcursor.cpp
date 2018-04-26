@@ -60,11 +60,14 @@ QWaylandCursor::QWaylandCursor(QWaylandScreen *screen)
     QByteArray cursorTheme = qgetenv("XCURSOR_THEME");
     if (cursorTheme.isEmpty())
         cursorTheme = QByteArray("default");
-    QByteArray cursorSizeFromEnv = qgetenv("XCURSOR_SIZE");
-    bool hasCursorSize = false;
-    int cursorSize = cursorSizeFromEnv.toInt(&hasCursorSize);
-    if (!hasCursorSize || cursorSize <= 0)
+    int cursorSize = qEnvironmentVariableIntValue("XCURSOR_SIZE");
+    if (cursorSize <= 0)
         cursorSize = 32;
+
+    // wl_surface.set_buffer_scale is not supported on earlier versions
+    if (mDisplay->compositorVersion() >= 3)
+        cursorSize *= screen->devicePixelRatio();
+
     mCursorTheme = wl_cursor_theme_load(cursorTheme, cursorSize, mDisplay->shm()->object());
     if (!mCursorTheme)
         qDebug() << "Could not load theme" << cursorTheme;
@@ -84,7 +87,7 @@ struct wl_cursor_image *QWaylandCursor::cursorImage(Qt::CursorShape newShape)
     /* Hide cursor */
     if (newShape == Qt::BlankCursor)
     {
-        mDisplay->setCursor(nullptr, nullptr);
+        mDisplay->setCursor(nullptr, nullptr, 1);
         return nullptr;
     }
 
@@ -125,12 +128,10 @@ QSharedPointer<QWaylandBuffer> QWaylandCursor::cursorBitmapImage(const QCursor *
 
 void QWaylandCursor::changeCursor(QCursor *cursor, QWindow *window)
 {
-    Q_UNUSED(window)
-
     const Qt::CursorShape newShape = cursor ? cursor->shape() : Qt::ArrowCursor;
 
     if (newShape == Qt::BitmapCursor) {
-        mDisplay->setCursor(cursorBitmapImage(cursor), cursor->hotSpot());
+        mDisplay->setCursor(cursorBitmapImage(cursor), cursor->hotSpot(), window->screen()->devicePixelRatio());
         return;
     }
 
@@ -140,7 +141,7 @@ void QWaylandCursor::changeCursor(QCursor *cursor, QWindow *window)
     }
 
     struct wl_buffer *buffer = wl_cursor_image_get_buffer(image);
-    mDisplay->setCursor(buffer, image);
+    mDisplay->setCursor(buffer, image, window->screen()->devicePixelRatio());
 }
 
 void QWaylandCursor::pointerEvent(const QMouseEvent &event)

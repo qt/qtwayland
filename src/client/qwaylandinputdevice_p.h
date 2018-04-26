@@ -110,9 +110,9 @@ public:
 
 #if QT_CONFIG(cursor)
     void setCursor(const QCursor &cursor, QWaylandScreen *screen);
-    void setCursor(struct wl_buffer *buffer, struct ::wl_cursor_image *image);
-    void setCursor(struct wl_buffer *buffer, const QPoint &hotSpot, const QSize &size);
-    void setCursor(const QSharedPointer<QWaylandBuffer> &buffer, const QPoint &hotSpot);
+    void setCursor(struct wl_buffer *buffer, struct ::wl_cursor_image *image, int bufferScale);
+    void setCursor(struct wl_buffer *buffer, const QPoint &hotSpot, const QSize &size, int bufferScale);
+    void setCursor(const QSharedPointer<QWaylandBuffer> &buffer, const QPoint &hotSpot, int bufferScale);
 #endif
     void handleWindowDestroyed(QWaylandWindow *window);
     void handleEndDrag();

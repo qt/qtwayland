@@ -121,8 +121,8 @@ public:
 
     QWaylandWindowManagerIntegration *windowManagerIntegration() const;
 #if QT_CONFIG(cursor)
-    void setCursor(struct wl_buffer *buffer, struct wl_cursor_image *image);
-    void setCursor(const QSharedPointer<QWaylandBuffer> &buffer, const QPoint &hotSpot);
+    void setCursor(struct wl_buffer *buffer, struct wl_cursor_image *image, qreal dpr);
+    void setCursor(const QSharedPointer<QWaylandBuffer> &buffer, const QPoint &hotSpot, qreal dpr);
 #endif
     struct wl_display *wl_display() const { return mDisplay; }
     struct ::wl_registry *wl_registry() { return object(); }

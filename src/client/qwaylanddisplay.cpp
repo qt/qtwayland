@@ -474,23 +474,23 @@ QWaylandInputDevice *QWaylandDisplay::defaultInputDevice() const
 }
 
 #if QT_CONFIG(cursor)
-void QWaylandDisplay::setCursor(struct wl_buffer *buffer, struct wl_cursor_image *image)
+void QWaylandDisplay::setCursor(struct wl_buffer *buffer, struct wl_cursor_image *image, qreal dpr)
 {
     /* Qt doesn't tell us which input device we should set the cursor
      * for, so set it for all devices. */
     for (int i = 0; i < mInputDevices.count(); i++) {
         QWaylandInputDevice *inputDevice = mInputDevices.at(i);
-        inputDevice->setCursor(buffer, image);
+        inputDevice->setCursor(buffer, image, dpr);
     }
 }
 
-void QWaylandDisplay::setCursor(const QSharedPointer<QWaylandBuffer> &buffer, const QPoint &hotSpot)
+void QWaylandDisplay::setCursor(const QSharedPointer<QWaylandBuffer> &buffer, const QPoint &hotSpot, qreal dpr)
 {
     /* Qt doesn't tell us which input device we should set the cursor
      * for, so set it for all devices. */
     for (int i = 0; i < mInputDevices.count(); i++) {
         QWaylandInputDevice *inputDevice = mInputDevices.at(i);
-        inputDevice->setCursor(buffer, hotSpot);
+        inputDevice->setCursor(buffer, hotSpot, dpr);
     }
 }
 #endif // QT_CONFIG(cursor)

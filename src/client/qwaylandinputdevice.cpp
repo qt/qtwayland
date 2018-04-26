@@ -371,7 +371,7 @@ void QWaylandInputDevice::setCursor(Qt::CursorShape newShape, QWaylandScreen *sc
     }
 
     struct wl_buffer *buffer = wl_cursor_image_get_buffer(image);
-    setCursor(buffer, image);
+    setCursor(buffer, image, screen->devicePixelRatio());
 }
 
 void QWaylandInputDevice::setCursor(const QCursor &cursor, QWaylandScreen *screen)
@@ -381,20 +381,20 @@ void QWaylandInputDevice::setCursor(const QCursor &cursor, QWaylandScreen *scree
 
     mPointer->mCursorShape = cursor.shape();
     if (cursor.shape() == Qt::BitmapCursor) {
-        setCursor(screen->waylandCursor()->cursorBitmapImage(&cursor), cursor.hotSpot());
+        setCursor(screen->waylandCursor()->cursorBitmapImage(&cursor), cursor.hotSpot(), screen->devicePixelRatio());
         return;
     }
     setCursor(cursor.shape(), screen);
 }
 
-void QWaylandInputDevice::setCursor(struct wl_buffer *buffer, struct wl_cursor_image *image)
+void QWaylandInputDevice::setCursor(struct wl_buffer *buffer, struct wl_cursor_image *image, int bufferScale)
 {
     setCursor(buffer,
               image ? QPoint(image->hotspot_x, image->hotspot_y) : QPoint(),
-              image ? QSize(image->width, image->height) : QSize());
+              image ? QSize(image->width, image->height) : QSize(), bufferScale);
 }
 
-void QWaylandInputDevice::setCursor(struct wl_buffer *buffer, const QPoint &hotSpot, const QSize &size)
+void QWaylandInputDevice::setCursor(struct wl_buffer *buffer, const QPoint &hotSpot, const QSize &size, int bufferScale)
 {
     if (mCaps & WL_SEAT_CAPABILITY_POINTER) {
         bool force = mPointer->mEnterSerial > mPointer->mCursorSerial;
@@ -417,14 +417,16 @@ void QWaylandInputDevice::setCursor(struct wl_buffer *buffer, const QPoint &hotS
         mPointer->set_cursor(mPointer->mEnterSerial, pointerSurface,
                              hotSpot.x(), hotSpot.y());
         wl_surface_attach(pointerSurface, buffer, 0, 0);
+        if (mQDisplay->compositorVersion() >= 3)
+            wl_surface_set_buffer_scale(pointerSurface, bufferScale);
         wl_surface_damage(pointerSurface, 0, 0, size.width(), size.height());
         wl_surface_commit(pointerSurface);
     }
 }
 
-void QWaylandInputDevice::setCursor(const QSharedPointer<QWaylandBuffer> &buffer, const QPoint &hotSpot)
+void QWaylandInputDevice::setCursor(const QSharedPointer<QWaylandBuffer> &buffer, const QPoint &hotSpot, int bufferScale)
 {
-    setCursor(buffer->buffer(), hotSpot, buffer->size());
+    setCursor(buffer->buffer(), hotSpot, buffer->size(), bufferScale);
     mPixmapCursor = buffer;
 }
 #endif

@@ -1,4 +1,4 @@
-QT += waylandclient-private gui-private
+QT += waylandclient gui-private
 CONFIG += wayland-scanner
 
 WAYLANDCLIENTSOURCES += ../protocol/custom.xml

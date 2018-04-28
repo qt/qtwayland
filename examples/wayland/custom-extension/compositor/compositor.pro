@@ -1,6 +1,6 @@
 QT += core gui qml
 
-QT += waylandcompositor-private
+QT += waylandcompositor
 
 CONFIG += wayland-scanner
 CONFIG += c++11

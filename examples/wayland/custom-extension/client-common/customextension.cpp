@@ -49,8 +49,6 @@
 ****************************************************************************/
 
 #include "customextension.h"
-#include <QtWaylandClient/private/qwaylanddisplay_p.h>
-#include <QtWaylandClient/private/qwaylandintegration_p.h>
 #include <QtGui/QGuiApplication>
 #include <QtGui/QWindow>
 #include <QtGui/QPlatformSurfaceEvent>

@@ -263,9 +263,6 @@ void tst_WaylandClient::windowScreens()
     compositor->sendRemoveOutput(secondOutput);
     QTRY_COMPARE(QGuiApplication::screens().size(), 1);
     QCOMPARE(window.screen(), primaryScreen);
-
-    window.destroy();
-    QTRY_VERIFY(!compositor->surface());
 }
 
 void tst_WaylandClient::removePrimaryScreen()
@@ -297,9 +294,6 @@ void tst_WaylandClient::removePrimaryScreen()
     QTRY_COMPARE(window.mousePressEventCount, 1);
     compositor->sendMouseRelease(surface);
     QTRY_COMPARE(window.mouseReleaseEventCount, 1);
-
-    window.destroy();
-    QTRY_VERIFY(!compositor->surface());
 }
 
 void tst_WaylandClient::createDestroyWindow()
@@ -516,8 +510,6 @@ void tst_WaylandClient::dontCrashOnMultipleCommits()
     }
 
     delete window;
-
-    QTRY_VERIFY(!compositor->surface());
 }
 
 void tst_WaylandClient::hiddenTransientParent()

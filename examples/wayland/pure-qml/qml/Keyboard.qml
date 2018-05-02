@@ -52,9 +52,8 @@ import QtQuick 2.5
 import QtQuick.VirtualKeyboard 2.1
 
 InputPanel {
-    id: inputPanel
     visible: active
-    y: active ? parent.height - inputPanel.height : parent.height
+    y: active ? parent.height - height : parent.height
     anchors.left: parent.left
     anchors.right: parent.right
 }

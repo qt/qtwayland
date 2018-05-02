@@ -52,54 +52,21 @@ import QtQuick 2.0
 import QtWayland.Compositor 1.1
 
 WaylandCompositor {
-    id: comp
+    id: waylandCompositor
 
-    property var primarySurfacesArea: null
+    Screen { id: screen; compositor: waylandCompositor }
 
-    Screen {
-        compositor: comp
-    }
-
-    Component {
-        id: chromeComponent
-        Chrome {
-        }
-    }
-
-    Component {
-        id: surfaceComponent
-        WaylandSurface {
-        }
-    }
-
-    QtWindowManager {
-        id: qtWindowManager
-        onShowIsFullScreenChanged: console.debug("Show is fullscreen hint for Qt applications:", showIsFullScreen)
-    }
-
-    WlShell {
-        onWlShellSurfaceCreated: {
-            chromeComponent.createObject(defaultOutput.surfaceArea, { "shellSurface": shellSurface } );
-        }
-    }
-
-    XdgShellV5 {
-        onXdgSurfaceCreated: {
-            chromeComponent.createObject(defaultOutput.surfaceArea, { "shellSurface": xdgSurface } );
-        }
-    }
-
+    // Shell surface extension. Needed to provide a window concept for Wayland clients.
+    // I.e. requests and events for maximization, minimization, resizing, closing etc.
     XdgShellV6 {
-        onToplevelCreated: {
-            chromeComponent.createObject(defaultOutput.surfaceArea, { "shellSurface": xdgSurface } );
-        }
+        onToplevelCreated: screen.handleShellSurface(xdgSurface)
     }
 
-    TextInputManager {
+    // Deprecated shell extension, still used by some clients
+    WlShell {
+        onWlShellSurfaceCreated: screen.handleShellSurface(shellSurface)
     }
 
-    onSurfaceRequested: {
-        var surface = surfaceComponent.createObject(comp, { } );
-        surface.initialize(comp, client, id, version);
-    }
+    // Extension for Virtual keyboard support
+    TextInputManager {}
 }

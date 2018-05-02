@@ -52,15 +52,27 @@ import QtQuick 2.0
 import QtWayland.Compositor 1.0
 
 ShellSurfaceItem {
-    id: rootChrome
-    autoCreatePopupItems: true
+    id: chrome
 
     property bool isChild: parent.shellSurface !== undefined
+
+    signal destroyAnimationFinished
+
+    // If the client asks to show popups on this surface, automatically create child ShellSurfaceItems
+    autoCreatePopupItems: true
 
     onSurfaceDestroyed: {
         bufferLocked = true;
         destroyAnimation.start();
     }
+
+    transform: [
+        Scale {
+            id: scaleTransform
+            origin.x: chrome.width / 2
+            origin.y: chrome.height / 2
+        }
+    ]
 
     Connections {
         target: shellSurface
@@ -77,17 +89,19 @@ ShellSurfaceItem {
 
     SequentialAnimation {
         id: destroyAnimation
+
         ParallelAnimation {
             NumberAnimation { target: scaleTransform; property: "yScale"; to: 2/height; duration: 150 }
             NumberAnimation { target: scaleTransform; property: "xScale"; to: 0.4; duration: 150 }
-            NumberAnimation { target: rootChrome; property: "opacity"; to: rootChrome.isChild ? 0 : 1; duration: 150 }
+            NumberAnimation { target: chrome; property: "opacity"; to: chrome.isChild ? 0 : 1; duration: 150 }
         }
         NumberAnimation { target: scaleTransform; property: "xScale"; to: 0; duration: 150 }
-        ScriptAction { script: { rootChrome.destroy(); } }
+        ScriptAction { script: destroyAnimationFinished() }
     }
 
     SequentialAnimation {
         id: receivedFocusAnimation
+
         ParallelAnimation {
             NumberAnimation { target: scaleTransform; property: "yScale"; to: 1.02; duration: 100; easing.type: Easing.OutQuad }
             NumberAnimation { target: scaleTransform; property: "xScale"; to: 1.02; duration: 100; easing.type: Easing.OutQuad }
@@ -97,12 +111,4 @@ ShellSurfaceItem {
             NumberAnimation { target: scaleTransform; property: "xScale"; to: 1; duration: 100; easing.type: Easing.InOutQuad }
         }
     }
-
-    transform: [
-        Scale {
-            id:scaleTransform
-            origin.x: rootChrome.width / 2
-            origin.y: rootChrome.height / 2
-        }
-    ]
 }

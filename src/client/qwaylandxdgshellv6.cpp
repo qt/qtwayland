@@ -93,6 +93,7 @@ QWaylandXdgSurfaceV6::Popup::Popup(QWaylandXdgSurfaceV6 *xdgSurface, QWaylandXdg
                                    QtWayland::zxdg_positioner_v6 *positioner)
     : zxdg_popup_v6(xdgSurface->get_popup(parent->object(), positioner->object()))
     , m_xdgSurface(xdgSurface)
+    , m_parent(parent)
 {
 }
 
@@ -100,11 +101,24 @@ QWaylandXdgSurfaceV6::Popup::~Popup()
 {
     if (isInitialized())
         destroy();
+
+    if (m_grabbing) {
+        auto *shell = m_xdgSurface->m_shell;
+        Q_ASSERT(shell->m_topmostPopup == this);
+        shell->m_topmostPopup = m_parent->m_popup;
+    }
 }
 
 void QWaylandXdgSurfaceV6::Popup::applyConfigure()
 {
 
+}
+
+void QWaylandXdgSurfaceV6::Popup::grab(QWaylandInputDevice *seat, uint serial)
+{
+    m_xdgSurface->m_shell->m_topmostPopup = this;
+    zxdg_popup_v6::grab(seat->wl_seat(), serial);
+    m_grabbing = true;
 }
 
 void QWaylandXdgSurfaceV6::Popup::zxdg_popup_v6_popup_done()
@@ -124,8 +138,10 @@ QWaylandXdgSurfaceV6::~QWaylandXdgSurfaceV6()
 {
     if (m_toplevel)
         zxdg_toplevel_v6_destroy(m_toplevel->object());
-    if (m_popup)
-        zxdg_popup_v6_destroy(m_popup->object());
+    if (m_popup) {
+        delete m_popup;
+        m_popup = nullptr;
+    }
     destroy();
 }
 
@@ -198,6 +214,14 @@ void QWaylandXdgSurfaceV6::setPopup(QWaylandWindow *parent, QWaylandInputDevice 
     Q_ASSERT(!m_toplevel && !m_popup);
 
     auto parentXdgSurface = static_cast<QWaylandXdgSurfaceV6 *>(parent->shellSurface());
+
+    auto *top = m_shell->m_topmostPopup;
+    if (grab && top && top->m_xdgSurface != parentXdgSurface) {
+        qCWarning(lcQpaWayland) << "setPopup called for a surface that was not the topmost popup, positions might be off.";
+        parentXdgSurface = top->m_xdgSurface;
+        parent = top->m_xdgSurface->m_window;
+    }
+
     auto positioner = new QtWayland::zxdg_positioner_v6(m_shell->create_positioner());
     // set_popup expects a position relative to the parent
     QPoint transientPos = m_window->geometry().topLeft(); // this is absolute
@@ -213,9 +237,8 @@ void QWaylandXdgSurfaceV6::setPopup(QWaylandWindow *parent, QWaylandInputDevice 
     m_popup = new Popup(this, parentXdgSurface, positioner);
     positioner->destroy();
     delete positioner;
-    if (grab) {
-        m_popup->grab(device->wl_seat(), serial);
-    }
+    if (grab)
+        m_popup->grab(device, serial);
 }
 
 void QWaylandXdgSurfaceV6::zxdg_surface_v6_configure(uint32_t serial)

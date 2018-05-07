@@ -78,8 +78,8 @@ public:
 protected:
     void startDrag() override;
     void cancel() override;
-    void move(const QPoint &globalPos) override;
-    void drop(const QPoint &globalPos) override;
+    void move(const QPoint &globalPos, Qt::MouseButtons b, Qt::KeyboardModifiers mods) override;
+    void drop(const QPoint &globalPos, Qt::MouseButtons b, Qt::KeyboardModifiers mods) override;
     void endDrag() override;
 
 

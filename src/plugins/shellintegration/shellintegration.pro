@@ -1,3 +1,5 @@
 TEMPLATE = subdirs
 
-SUBDIRS += ivi-shell
+SUBDIRS += \
+    ivi-shell \
+    xdg-shell-v5

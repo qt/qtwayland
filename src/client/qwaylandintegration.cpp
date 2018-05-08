@@ -77,7 +77,6 @@
 
 #include "qwaylandshellintegration_p.h"
 #include "qwaylandshellintegrationfactory_p.h"
-#include "qwaylandxdgshellintegration_p.h"
 #include "qwaylandwlshellintegration_p.h"
 #include "qwaylandxdgshellv6integration_p.h"
 
@@ -409,9 +408,9 @@ void QWaylandIntegration::initializeShellIntegration()
         }
     }
 
-    if (!mShellIntegration || !mShellIntegration->initialize(mDisplay.data())) {
-        mShellIntegration.reset();
-        qWarning("Failed to load shell integration %s", qPrintable(targetKey));
+    if (!mShellIntegration) {
+        qCWarning(lcQpaWayland) << "Loading shell integration failed.";
+        qCWarning(lcQpaWayland) << "Attempted to load the following shells" << preferredShells;
     }
 }
 
@@ -445,13 +444,12 @@ QWaylandShellIntegration *QWaylandIntegration::createShellIntegration(const QStr
 {
     if (integrationName == QLatin1Literal("wl-shell")) {
         return QWaylandWlShellIntegration::create(mDisplay.data());
-    } else if (integrationName == QLatin1Literal("xdg-shell-v5")) {
-        return QWaylandXdgShellIntegration::create(mDisplay.data());
     } else if (integrationName == QLatin1Literal("xdg-shell-v6")) {
         return QWaylandXdgShellV6Integration::create(mDisplay.data());
     } else if (QWaylandShellIntegrationFactory::keys().contains(integrationName)) {
-        return QWaylandShellIntegrationFactory::create(integrationName, QStringList());
+        return QWaylandShellIntegrationFactory::create(integrationName, mDisplay.data());
     } else {
+        qCWarning(lcQpaWayland) << "No shell integration named" << integrationName << "found";
         return nullptr;
     }
 }

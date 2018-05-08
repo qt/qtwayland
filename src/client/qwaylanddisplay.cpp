@@ -51,8 +51,6 @@
 #include "qwaylanddatadevicemanager_p.h"
 #endif
 #include "qwaylandhardwareintegration_p.h"
-#include "qwaylandxdgshell_p.h"
-#include "qwaylandxdgsurface_p.h"
 #include "qwaylandwlshellsurface_p.h"
 #include "qwaylandinputcontext_p.h"
 
@@ -66,7 +64,6 @@
 #include "qwaylandqtkey_p.h"
 
 #include <QtWaylandClient/private/qwayland-text-input-unstable-v2.h>
-#include <QtWaylandClient/private/qwayland-xdg-shell.h>
 
 #include <QtCore/QAbstractEventDispatcher>
 #include <QtGui/private/qguiapplication_p.h>

@@ -78,19 +78,24 @@ QStringList QWaylandShellIntegrationFactory::keys(const QString &pluginPath)
 #endif
 }
 
-QWaylandShellIntegration *QWaylandShellIntegrationFactory::create(const QString &name, const QStringList &args, const QString &pluginPath)
+QWaylandShellIntegration *QWaylandShellIntegrationFactory::create(const QString &name, QWaylandDisplay *display, const QStringList &args, const QString &pluginPath)
 {
 #if QT_CONFIG(library)
+    QScopedPointer<QWaylandShellIntegration> integration;
+
     // Try loading the plugin from platformPluginPath first:
     if (!pluginPath.isEmpty()) {
         QCoreApplication::addLibraryPath(pluginPath);
-        if (QWaylandShellIntegration *ret = qLoadPlugin<QWaylandShellIntegration, QWaylandShellIntegrationPlugin>(directLoader(), name, args))
-            return ret;
+        integration.reset(qLoadPlugin<QWaylandShellIntegration, QWaylandShellIntegrationPlugin>(directLoader(), name, args));
     }
-    if (QWaylandShellIntegration *ret = qLoadPlugin<QWaylandShellIntegration, QWaylandShellIntegrationPlugin>(loader(), name, args))
-        return ret;
+    if (!integration)
+        integration.reset(qLoadPlugin<QWaylandShellIntegration, QWaylandShellIntegrationPlugin>(loader(), name, args));
 #endif
-    return nullptr;
+
+    if (integration && !integration->initialize(display))
+        return nullptr;
+
+    return integration.take();
 }
 
 }

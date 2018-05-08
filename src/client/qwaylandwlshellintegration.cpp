@@ -49,9 +49,15 @@ namespace QtWaylandClient {
 
 QWaylandWlShellIntegration *QWaylandWlShellIntegration::create(QWaylandDisplay *display)
 {
-    if (display->hasRegistryGlobal(QLatin1String("wl_shell")))
-        return new QWaylandWlShellIntegration(display);
-    return nullptr;
+    if (!display->hasRegistryGlobal(QLatin1String("wl_shell")))
+        return nullptr;
+
+    QScopedPointer<QWaylandWlShellIntegration> integration;
+    integration.reset(new QWaylandWlShellIntegration(display));
+    if (integration && !integration->initialize(display))
+        return nullptr;
+
+    return integration.take();
 }
 
 QWaylandWlShellIntegration::QWaylandWlShellIntegration(QWaylandDisplay *display)

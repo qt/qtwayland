@@ -38,15 +38,15 @@
 ****************************************************************************/
 
 #include "qwaylandxdgshell_p.h"
-
-#include "qwaylanddisplay_p.h"
-#include "qwaylandwindow_p.h"
-#include "qwaylandinputdevice_p.h"
-#include "qwaylandscreen_p.h"
 #include "qwaylandxdgpopup_p.h"
 #include "qwaylandxdgsurface_p.h"
 
 #include <QtCore/QDebug>
+
+#include <QtWaylandClient/private/qwaylanddisplay_p.h>
+#include <QtWaylandClient/private/qwaylandwindow_p.h>
+#include <QtWaylandClient/private/qwaylandinputdevice_p.h>
+#include <QtWaylandClient/private/qwaylandscreen_p.h>
 
 QT_BEGIN_NAMESPACE
 

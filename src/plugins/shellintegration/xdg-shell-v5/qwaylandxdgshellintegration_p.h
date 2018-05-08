@@ -51,7 +51,7 @@
 // We mean it.
 //
 
-#include <wayland-client.h>
+#include "qwaylandxdgshell_p.h"
 
 #include <QtWaylandClient/private/qwaylandshellintegration_p.h>
 
@@ -64,15 +64,13 @@ class QWaylandXdgShell;
 class Q_WAYLAND_CLIENT_EXPORT QWaylandXdgShellIntegration : public QWaylandShellIntegration
 {
 public:
-    static QWaylandXdgShellIntegration *create(QWaylandDisplay* display);
+    QWaylandXdgShellIntegration() {qDebug() << Q_FUNC_INFO;}
     bool initialize(QWaylandDisplay *display) override;
     QWaylandShellSurface *createShellSurface(QWaylandWindow *window) override;
     void handleKeyboardFocusChanged(QWaylandWindow *newFocus, QWaylandWindow *oldFocus) override;
 
 private:
-    QWaylandXdgShellIntegration(QWaylandDisplay *display);
-
-    QWaylandXdgShell *m_xdgShell = nullptr;
+    QScopedPointer<QWaylandXdgShell> m_xdgShell;
 };
 
 }

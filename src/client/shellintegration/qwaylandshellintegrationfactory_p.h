@@ -51,7 +51,10 @@
 // We mean it.
 //
 
+#include <QtWaylandClient/private/qwaylanddisplay_p.h>
+
 #include <QtWaylandClient/qtwaylandclientglobal.h>
+
 #include <QtCore/QStringList>
 
 QT_BEGIN_NAMESPACE
@@ -64,7 +67,7 @@ class Q_WAYLAND_CLIENT_EXPORT QWaylandShellIntegrationFactory
 {
 public:
     static QStringList keys(const QString &pluginPath = QString());
-    static QWaylandShellIntegration *create(const QString &name, const QStringList &args, const QString &pluginPath = QString());
+    static QWaylandShellIntegration *create(const QString &name, QWaylandDisplay *display, const QStringList &args = QStringList(), const QString &pluginPath = QString());
 };
 
 }

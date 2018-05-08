@@ -28,7 +28,6 @@ WAYLANDCLIENTSOURCES += \
             ../extensions/qtkey-extension.xml \
             ../extensions/qt-windowmanager.xml \
             ../3rdparty/protocol/text-input-unstable-v2.xml \
-            ../3rdparty/protocol/xdg-shell.xml \
             ../3rdparty/protocol/xdg-shell-unstable-v6.xml \
 
 WAYLANDCLIENTSOURCES_SYSTEM += \
@@ -45,10 +44,6 @@ SOURCES +=  qwaylandintegration.cpp \
             qwaylandshellsurface.cpp \
             qwaylandwlshellsurface.cpp \
             qwaylandwlshellintegration.cpp \
-            qwaylandxdgshell.cpp \
-            qwaylandxdgsurface.cpp \
-            qwaylandxdgpopup.cpp \
-            qwaylandxdgshellintegration.cpp \
             qwaylandxdgshellv6.cpp \
             qwaylandxdgshellv6integration.cpp \
             qwaylandextendedsurface.cpp \
@@ -78,10 +73,6 @@ HEADERS +=  qwaylandintegration_p.h \
             qwaylandshellsurface_p.h \
             qwaylandwlshellsurface_p.h \
             qwaylandwlshellintegration_p.h \
-            qwaylandxdgshell_p.h \
-            qwaylandxdgsurface_p.h \
-            qwaylandxdgpopup_p.h \
-            qwaylandxdgshellintegration_p.h \
             qwaylandxdgshellv6_p.h \
             qwaylandxdgshellv6integration_p.h \
             qwaylandextendedsurface_p.h \

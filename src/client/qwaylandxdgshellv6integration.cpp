@@ -59,9 +59,15 @@ QWaylandXdgShellV6Integration::QWaylandXdgShellV6Integration(QWaylandDisplay *di
 
 QWaylandXdgShellV6Integration *QWaylandXdgShellV6Integration::create(QWaylandDisplay *display)
 {
-    if (display->hasRegistryGlobal(QLatin1String("zxdg_shell_v6")))
-        return new QWaylandXdgShellV6Integration(display);
-    return nullptr;
+    if (!display->hasRegistryGlobal(QLatin1String("zxdg_shell_v6")))
+        return nullptr;
+
+    QScopedPointer<QWaylandXdgShellV6Integration> integration;
+    integration.reset(new QWaylandXdgShellV6Integration(display));
+    if (integration && !integration->initialize(display))
+        return nullptr;
+
+    return integration.take();
 }
 
 bool QWaylandXdgShellV6Integration::initialize(QWaylandDisplay *display)

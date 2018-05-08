@@ -39,9 +39,9 @@
 
 #include "qwaylandxdgpopup_p.h"
 
-#include "qwaylandwindow_p.h"
-#include "qwaylanddisplay_p.h"
-#include "qwaylandextendedsurface_p.h"
+#include <QtWaylandClient/private/qwaylanddisplay_p.h>
+#include <QtWaylandClient/private/qwaylandwindow_p.h>
+#include <QtWaylandClient/private/qwaylandextendedsurface_p.h>
 
 QT_BEGIN_NAMESPACE
 

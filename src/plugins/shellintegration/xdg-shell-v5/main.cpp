@@ -1,9 +1,10 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2017 ITAGE Corporation, author: <yusuke.binsaki@itage.co.jp>
 ** Contact: https://www.qt.io/licensing/
 **
-** This file is part of the config.tests of the Qt Toolkit.
+** This file is part of the plugins of the Qt Toolkit.
 **
 ** $QT_BEGIN_LICENSE:LGPL$
 ** Commercial License Usage
@@ -37,55 +38,33 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDXDGPOPUP_P_H
-#define QWAYLANDXDGPOPUP_P_H
+#include "qwaylandxdgshellintegration_p.h"
 
-//
-//  W A R N I N G
-//  -------------
-//
-// This file is not part of the Qt API.  It exists purely as an
-// implementation detail.  This header file may change from version to
-// version without notice, or even be removed.
-//
-// We mean it.
-//
-
-#include <wayland-client.h>
-
-#include <QtWaylandClient/qtwaylandclientglobal.h>
-#include <QtWaylandClient/private/qwayland-xdg-shell.h>
-#include <QtWaylandClient/private/qwaylandshellsurface_p.h>
+#include <QtWaylandClient/private/qwaylandshellintegrationplugin_p.h>
 
 QT_BEGIN_NAMESPACE
 
-class QWindow;
-
 namespace QtWaylandClient {
 
-class QWaylandWindow;
-class QWaylandExtendedSurface;
-
-class Q_WAYLAND_CLIENT_EXPORT QWaylandXdgPopup : public QWaylandShellSurface
-        , public QtWayland::xdg_popup
+class QWaylandXdgShellV5IntegrationPlugin : public QWaylandShellIntegrationPlugin
 {
     Q_OBJECT
+    Q_PLUGIN_METADATA(IID QWaylandShellIntegrationFactoryInterface_iid FILE "xdg-shell-v5.json")
+
 public:
-    QWaylandXdgPopup(struct ::xdg_popup *popup, QWaylandWindow *window);
-    ~QWaylandXdgPopup() override;
-
-    void setType(Qt::WindowType type, QWaylandWindow *transientParent) override;
-
-protected:
-    void xdg_popup_popup_done() override;
-
-private:
-    QWaylandExtendedSurface *m_extendedWindow = nullptr;
-    QWaylandWindow *m_window = nullptr;
+    QWaylandShellIntegration *create(const QString &key, const QStringList &paramList) override;
 };
 
-QT_END_NAMESPACE
+QWaylandShellIntegration *QWaylandXdgShellV5IntegrationPlugin::create(const QString &key, const QStringList &paramList)
+{
+    qDebug() << Q_FUNC_INFO;
+    Q_UNUSED(key);
+    Q_UNUSED(paramList);
+    return new QWaylandXdgShellIntegration();
+}
 
 }
 
-#endif // QWAYLANDXDGPOPUP_P_H
+QT_END_NAMESPACE
+
+#include "main.moc"

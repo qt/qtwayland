@@ -41,9 +41,6 @@
 
 #include <QtWaylandClient/private/qwaylandwindow_p.h>
 #include <QtWaylandClient/private/qwaylanddisplay_p.h>
-#include <QtWaylandClient/private/qwaylandxdgsurface_p.h>
-#include <QtWaylandClient/private/qwaylandxdgpopup_p.h>
-#include <QtWaylandClient/private/qwaylandxdgshell_p.h>
 #include <QtWaylandClient/private/qwaylandxdgshellv6_p.h>
 
 QT_BEGIN_NAMESPACE
@@ -82,12 +79,12 @@ void QWaylandXdgShellV6Integration::handleKeyboardFocusChanged(QWaylandWindow *n
 {
     if (newFocus) {
         auto *xdgSurface = qobject_cast<QWaylandXdgSurfaceV6 *>(newFocus->shellSurface());
-        if (xdgSurface && xdgSurface->handlesActiveState())
+        if (xdgSurface && !xdgSurface->handlesActiveState())
             m_display->handleWindowActivated(newFocus);
     }
-    if (oldFocus && qobject_cast<QWaylandXdgPopup *>(oldFocus->shellSurface())) {
+    if (oldFocus && qobject_cast<QWaylandXdgSurfaceV6 *>(oldFocus->shellSurface())) {
         auto *xdgSurface = qobject_cast<QWaylandXdgSurfaceV6 *>(oldFocus->shellSurface());
-        if (xdgSurface && xdgSurface->handlesActiveState())
+        if (xdgSurface && !xdgSurface->handlesActiveState())
             m_display->handleWindowDeactivated(oldFocus);
     }
 }

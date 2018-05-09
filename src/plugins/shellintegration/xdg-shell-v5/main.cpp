@@ -57,7 +57,6 @@ public:
 
 QWaylandShellIntegration *QWaylandXdgShellV5IntegrationPlugin::create(const QString &key, const QStringList &paramList)
 {
-    qDebug() << Q_FUNC_INFO;
     Q_UNUSED(key);
     Q_UNUSED(paramList);
     return new QWaylandXdgShellV5Integration();

@@ -124,7 +124,8 @@ bool QWaylandCompositorExtension::event(QEvent *event)
 {
     switch(event->type()) {
     case QEvent::Polish:
-        initialize();
+        if (!isInitialized())
+            initialize();
         break;
     default:
         break;

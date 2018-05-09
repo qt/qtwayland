@@ -10,17 +10,17 @@ WAYLANDCLIENTSOURCES += \
     ../../../3rdparty/protocol/xdg-shell-unstable-v5.xml
 
 HEADERS += \
-    qwaylandxdgpopup_p.h \
-    qwaylandxdgshell_p.h \
-    qwaylandxdgshellintegration_p.h \
-    qwaylandxdgsurface_p.h \
+    qwaylandxdgpopupv5_p.h \
+    qwaylandxdgshellv5_p.h \
+    qwaylandxdgshellv5integration_p.h \
+    qwaylandxdgsurfacev5_p.h \
 
 SOURCES += \
     main.cpp \
-    qwaylandxdgpopup.cpp \
-    qwaylandxdgshell.cpp \
-    qwaylandxdgshellintegration.cpp \
-    qwaylandxdgsurface.cpp \
+    qwaylandxdgpopupv5.cpp \
+    qwaylandxdgshellv5.cpp \
+    qwaylandxdgshellv5integration.cpp \
+    qwaylandxdgsurfacev5.cpp \
 
 OTHER_FILES += \
     xdg-shell-v5.json

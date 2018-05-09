@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2016 Eurogiciel, author: <philippe.coval@eurogiciel.fr>
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the config.tests of the Qt Toolkit.
@@ -37,8 +37,8 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDXDGPOPUP_P_H
-#define QWAYLANDXDGPOPUP_P_H
+#ifndef QWAYLANDXDGSHELLV5_H
+#define QWAYLANDXDGSHELLV5_H
 
 //
 //  W A R N I N G
@@ -53,6 +53,9 @@
 
 #include "qwayland-xdg-shell-unstable-v5.h"
 
+#include <QtCore/QSize>
+#include <QtCore/QVector>
+
 #include <wayland-client.h>
 
 #include <QtWaylandClient/qtwaylandclientglobal.h>
@@ -65,28 +68,29 @@ class QWindow;
 namespace QtWaylandClient {
 
 class QWaylandWindow;
-class QWaylandExtendedSurface;
+class QWaylandInputDevice;
+class QWaylandXdgSurfaceV5;
+class QWaylandXdgPopupV5;
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandXdgPopup : public QWaylandShellSurface
-        , public QtWayland::xdg_popup
+class Q_WAYLAND_CLIENT_EXPORT QWaylandXdgShellV5 : public QtWayland::xdg_shell
 {
-    Q_OBJECT
 public:
-    QWaylandXdgPopup(struct ::xdg_popup *popup, QWaylandWindow *window);
-    ~QWaylandXdgPopup() override;
+    QWaylandXdgShellV5(struct ::xdg_shell *shell);
+    QWaylandXdgShellV5(struct ::wl_registry *registry, uint32_t id);
+    ~QWaylandXdgShellV5() override;
 
-    void setType(Qt::WindowType type, QWaylandWindow *transientParent) override;
-
-protected:
-    void xdg_popup_popup_done() override;
+    QWaylandXdgSurfaceV5 *createXdgSurface(QWaylandWindow *window);
+    QWaylandXdgPopupV5 *createXdgPopup(QWaylandWindow *window, QWaylandInputDevice *inputDevice);
 
 private:
-    QWaylandExtendedSurface *m_extendedWindow = nullptr;
-    QWaylandWindow *m_window = nullptr;
+    void xdg_shell_ping(uint32_t serial) override;
+
+    QVector<QWaylandWindow *> m_popups;
+    uint m_popupSerial = 0;
 };
 
 QT_END_NAMESPACE
 
 }
 
-#endif // QWAYLANDXDGPOPUP_P_H
+#endif // QWAYLANDXDGSHELLV5_H

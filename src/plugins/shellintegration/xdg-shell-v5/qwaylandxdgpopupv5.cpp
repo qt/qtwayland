@@ -37,49 +37,40 @@
 **
 ****************************************************************************/
 
-#include "qwaylandxdgshellintegration_p.h"
-#include "qwaylandxdgsurface_p.h"
-#include "qwaylandxdgpopup_p.h"
-#include "qwaylandxdgshell_p.h"
+#include "qwaylandxdgpopupv5_p.h"
 
-#include <QtWaylandClient/private/qwaylandwindow_p.h>
 #include <QtWaylandClient/private/qwaylanddisplay_p.h>
+#include <QtWaylandClient/private/qwaylandwindow_p.h>
+#include <QtWaylandClient/private/qwaylandextendedsurface_p.h>
 
 QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
 
-bool QWaylandXdgShellIntegration::initialize(QWaylandDisplay *display)
+QWaylandXdgPopupV5::QWaylandXdgPopupV5(struct ::xdg_popup *popup, QWaylandWindow *window)
+    : QWaylandShellSurface(window)
+    , QtWayland::xdg_popup(popup)
+    , m_window(window)
 {
-    Q_FOREACH (QWaylandDisplay::RegistryGlobal global, display->globals()) {
-        if (global.interface == QLatin1String("xdg_shell")) {
-            m_xdgShell.reset(new QWaylandXdgShell(display->wl_registry(), global.id));
-            break;
-        }
-    }
-
-    if (!m_xdgShell) {
-        qWarning() << "Couldn't find global xdg_shell for xdg-shell unstable v5";
-        return false;
-    }
-
-    return QWaylandShellIntegration::initialize(display);
+    if (window->display()->windowExtension())
+        m_extendedWindow = new QWaylandExtendedSurface(window);
 }
 
-QWaylandShellSurface *QWaylandXdgShellIntegration::createShellSurface(QWaylandWindow *window)
+QWaylandXdgPopupV5::~QWaylandXdgPopupV5()
 {
-    QWaylandInputDevice *inputDevice = window->display()->lastInputDevice();
-    if (window->window()->type() == Qt::WindowType::Popup && inputDevice)
-        return m_xdgShell->createXdgPopup(window, inputDevice);
-    else
-        return m_xdgShell->createXdgSurface(window);
+    xdg_popup_destroy(object());
+    delete m_extendedWindow;
 }
 
-void QWaylandXdgShellIntegration::handleKeyboardFocusChanged(QWaylandWindow *newFocus, QWaylandWindow *oldFocus) {
-    if (newFocus && qobject_cast<QWaylandXdgPopup *>(newFocus->shellSurface()))
-        m_display->handleWindowActivated(newFocus);
-    if (oldFocus && qobject_cast<QWaylandXdgPopup *>(oldFocus->shellSurface()))
-        m_display->handleWindowDeactivated(oldFocus);
+void QWaylandXdgPopupV5::setType(Qt::WindowType type, QWaylandWindow *transientParent)
+{
+    Q_UNUSED(type);
+    Q_UNUSED(transientParent);
+}
+
+void QWaylandXdgPopupV5::xdg_popup_popup_done()
+{
+    m_window->window()->close();
 }
 
 }

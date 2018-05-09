@@ -38,7 +38,7 @@
 **
 ****************************************************************************/
 
-#include "qwaylandxdgshellintegration_p.h"
+#include "qwaylandxdgshellv5integration_p.h"
 
 #include <QtWaylandClient/private/qwaylandshellintegrationplugin_p.h>
 
@@ -60,7 +60,7 @@ QWaylandShellIntegration *QWaylandXdgShellV5IntegrationPlugin::create(const QStr
     qDebug() << Q_FUNC_INFO;
     Q_UNUSED(key);
     Q_UNUSED(paramList);
-    return new QWaylandXdgShellIntegration();
+    return new QWaylandXdgShellV5Integration();
 }
 
 }

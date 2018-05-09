@@ -37,40 +37,49 @@
 **
 ****************************************************************************/
 
-#include "qwaylandxdgpopup_p.h"
+#include "qwaylandxdgshellv5integration_p.h"
+#include "qwaylandxdgsurfacev5_p.h"
+#include "qwaylandxdgpopupv5_p.h"
+#include "qwaylandxdgshellv5_p.h"
 
-#include <QtWaylandClient/private/qwaylanddisplay_p.h>
 #include <QtWaylandClient/private/qwaylandwindow_p.h>
-#include <QtWaylandClient/private/qwaylandextendedsurface_p.h>
+#include <QtWaylandClient/private/qwaylanddisplay_p.h>
 
 QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
 
-QWaylandXdgPopup::QWaylandXdgPopup(struct ::xdg_popup *popup, QWaylandWindow *window)
-    : QWaylandShellSurface(window)
-    , QtWayland::xdg_popup(popup)
-    , m_window(window)
+bool QWaylandXdgShellV5Integration::initialize(QWaylandDisplay *display)
 {
-    if (window->display()->windowExtension())
-        m_extendedWindow = new QWaylandExtendedSurface(window);
+    Q_FOREACH (QWaylandDisplay::RegistryGlobal global, display->globals()) {
+        if (global.interface == QLatin1String("xdg_shell")) {
+            m_xdgShell.reset(new QWaylandXdgShellV5(display->wl_registry(), global.id));
+            break;
+        }
+    }
+
+    if (!m_xdgShell) {
+        qWarning() << "Couldn't find global xdg_shell for xdg-shell unstable v5";
+        return false;
+    }
+
+    return QWaylandShellIntegration::initialize(display);
 }
 
-QWaylandXdgPopup::~QWaylandXdgPopup()
+QWaylandShellSurface *QWaylandXdgShellV5Integration::createShellSurface(QWaylandWindow *window)
 {
-    xdg_popup_destroy(object());
-    delete m_extendedWindow;
+    QWaylandInputDevice *inputDevice = window->display()->lastInputDevice();
+    if (window->window()->type() == Qt::WindowType::Popup && inputDevice)
+        return m_xdgShell->createXdgPopup(window, inputDevice);
+    else
+        return m_xdgShell->createXdgSurface(window);
 }
 
-void QWaylandXdgPopup::setType(Qt::WindowType type, QWaylandWindow *transientParent)
-{
-    Q_UNUSED(type);
-    Q_UNUSED(transientParent);
-}
-
-void QWaylandXdgPopup::xdg_popup_popup_done()
-{
-    m_window->window()->close();
+void QWaylandXdgShellV5Integration::handleKeyboardFocusChanged(QWaylandWindow *newFocus, QWaylandWindow *oldFocus) {
+    if (newFocus && qobject_cast<QWaylandXdgPopupV5 *>(newFocus->shellSurface()))
+        m_display->handleWindowActivated(newFocus);
+    if (oldFocus && qobject_cast<QWaylandXdgPopupV5 *>(oldFocus->shellSurface()))
+        m_display->handleWindowDeactivated(oldFocus);
 }
 
 }

@@ -46,7 +46,7 @@
 #include <QtWaylandCompositor/QWaylandSurface>
 #include <QtWaylandCompositor/QWaylandResource>
 #include <QtWaylandCompositor/QWaylandKeymap>
-#include <qwayland-xdg-shell.h>
+#include <qwayland-xdg-shell-unstable-v5.h>
 #include <qwayland-ivi-application.h>
 
 #include <QtTest/QtTest>

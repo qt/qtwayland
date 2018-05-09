@@ -11,7 +11,7 @@ qtConfig(xkbcommon-evdev): \
     QMAKE_USE += xkbcommon_evdev
 
 WAYLANDCLIENTSOURCES += \
-            ../../../../src/3rdparty/protocol/xdg-shell.xml \
+            ../../../../src/3rdparty/protocol/xdg-shell-unstable-v5.xml \
             ../../../../src/3rdparty/protocol/ivi-application.xml \
 
 SOURCES += \

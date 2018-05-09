@@ -51,7 +51,7 @@
 // We mean it.
 //
 
-#include "qwayland-xdg-shell.h"
+#include "qwayland-xdg-shell-unstable-v5.h"
 
 #include <QtCore/QSize>
 #include <QtCore/QVector>

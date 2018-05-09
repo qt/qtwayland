@@ -41,7 +41,7 @@
 #define QWAYLANDXDGSHELLV5_P_H
 
 #include <QtWaylandCompositor/private/qwaylandcompositorextension_p.h>
-#include <QtWaylandCompositor/private/qwayland-server-xdg-shell.h>
+#include <QtWaylandCompositor/private/qwayland-server-xdg-shell-unstable-v5.h>
 
 #include <QtWaylandCompositor/QWaylandXdgShellV5>
 

@@ -27,7 +27,7 @@
 ****************************************************************************/
 
 #include <wayland-client.h>
-#include <wayland-xdg-shell-client-protocol.h>
+#include <qwayland-xdg-shell-unstable-v5.h>
 #include <wayland-ivi-application-client-protocol.h>
 
 #include <QObject>

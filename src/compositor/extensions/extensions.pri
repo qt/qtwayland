@@ -6,7 +6,7 @@ WAYLANDSERVERSOURCES += \
     ../extensions/qtkey-extension.xml \
     ../extensions/qt-windowmanager.xml \
     ../3rdparty/protocol/text-input-unstable-v2.xml \
-    ../3rdparty/protocol/xdg-shell.xml \
+    ../3rdparty/protocol/xdg-shell-unstable-v5.xml \
     ../3rdparty/protocol/xdg-shell-unstable-v6.xml \
     ../3rdparty/protocol/ivi-application.xml \
 

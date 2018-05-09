@@ -7,7 +7,7 @@ qtConfig(xkbcommon-evdev): \
     QMAKE_USE += xkbcommon_evdev
 
 WAYLANDCLIENTSOURCES += \
-    ../../../3rdparty/protocol/xdg-shell.xml
+    ../../../3rdparty/protocol/xdg-shell-unstable-v5.xml
 
 HEADERS += \
     qwaylandxdgpopup_p.h \

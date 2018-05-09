@@ -74,11 +74,8 @@ class QSocketNotifier;
 class QPlatformScreen;
 
 namespace QtWayland {
-    class qt_shell;
-    class qt_sub_surface_extension;
     class qt_surface_extension;
     class zwp_text_input_manager_v2;
-    class xdg_shell;
 }
 
 namespace QtWaylandClient {
@@ -94,10 +91,8 @@ class QWaylandDataDeviceManager;
 class QWaylandTouchExtension;
 class QWaylandQtKeyExtension;
 class QWaylandWindow;
-class QWaylandEventThread;
 class QWaylandIntegration;
 class QWaylandHardwareIntegration;
-class QWaylandXdgShell;
 class QWaylandShellSurface;
 
 typedef void (*RegistryListener)(void *data,

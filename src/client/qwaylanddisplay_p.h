@@ -80,7 +80,7 @@ namespace QtWayland {
 
 namespace QtWaylandClient {
 
-Q_DECLARE_LOGGING_CATEGORY(lcQpaWayland);
+Q_WAYLAND_CLIENT_EXPORT Q_DECLARE_LOGGING_CATEGORY(lcQpaWayland);
 
 class QWaylandInputDevice;
 class QWaylandBuffer;

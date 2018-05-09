@@ -77,7 +77,6 @@
 
 #include "qwaylandshellintegration_p.h"
 #include "qwaylandshellintegrationfactory_p.h"
-#include "qwaylandwlshellintegration_p.h"
 #include "qwaylandxdgshellv6integration_p.h"
 
 #include "qwaylandinputdeviceintegration_p.h"
@@ -442,9 +441,7 @@ void QWaylandIntegration::initializeInputDeviceIntegration()
 
 QWaylandShellIntegration *QWaylandIntegration::createShellIntegration(const QString &integrationName)
 {
-    if (integrationName == QLatin1Literal("wl-shell")) {
-        return QWaylandWlShellIntegration::create(mDisplay.data());
-    } else if (integrationName == QLatin1Literal("xdg-shell-v6")) {
+    if (integrationName == QLatin1Literal("xdg-shell-v6")) {
         return QWaylandXdgShellV6Integration::create(mDisplay.data());
     } else if (QWaylandShellIntegrationFactory::keys().contains(integrationName)) {
         return QWaylandShellIntegrationFactory::create(integrationName, mDisplay.data());

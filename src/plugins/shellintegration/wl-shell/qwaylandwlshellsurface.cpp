@@ -39,12 +39,12 @@
 
 #include "qwaylandwlshellsurface_p.h"
 
-#include "qwaylanddisplay_p.h"
-#include "qwaylandwindow_p.h"
-#include "qwaylandinputdevice_p.h"
-#include "qwaylandabstractdecoration_p.h"
-#include "qwaylandscreen_p.h"
-#include "qwaylandextendedsurface_p.h"
+#include <QtWaylandClient/private/qwaylanddisplay_p.h>
+#include <QtWaylandClient/private/qwaylandwindow_p.h>
+#include <QtWaylandClient/private/qwaylandinputdevice_p.h>
+#include <QtWaylandClient/private/qwaylandabstractdecoration_p.h>
+#include <QtWaylandClient/private/qwaylandscreen_p.h>
+#include <QtWaylandClient/private/qwaylandextendedsurface_p.h>
 
 #include <QtCore/QDebug>
 
@@ -229,11 +229,11 @@ void QWaylandWlShellSurface::setPopup(QWaylandWindow *parent, QWaylandInputDevic
 {
     QWaylandWindow *parent_wayland_window = parent;
     if (!parent_wayland_window) {
-        qWarning("setPopup called without parent window");
+        qCWarning(lcQpaWayland) << "setPopup called without a parent window";
         return;
     }
     if (!device) {
-        qWarning("setPopup called without input device");
+        qCWarning(lcQpaWayland) << "setPopup called without an input device";
         return;
     }
 

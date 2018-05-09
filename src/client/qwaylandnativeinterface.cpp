@@ -40,13 +40,13 @@
 #include "qwaylandnativeinterface_p.h"
 #include "qwaylanddisplay_p.h"
 #include "qwaylandwindow_p.h"
+#include "qwaylandshellintegration_p.h"
 #include "qwaylandsubsurface_p.h"
 #include "qwaylandextendedsurface_p.h"
 #include "qwaylandintegration_p.h"
 #include "qwaylanddisplay_p.h"
 #include "qwaylandwindowmanagerintegration_p.h"
 #include "qwaylandscreen_p.h"
-#include "qwaylandwlshellsurface_p.h"
 #include <QtGui/private/qguiapplication_p.h>
 #include <QtGui/QScreen>
 #include <QtWaylandClient/private/qwaylandclientbufferintegration_p.h>
@@ -91,17 +91,12 @@ void *QWaylandNativeInterface::nativeResourceForWindow(const QByteArray &resourc
         QWaylandWindow *w = static_cast<QWaylandWindow*>(window->handle());
         return w ? w->object() : nullptr;
     }
-    if (lowerCaseResource == "wl_shell_surface") {
-        QWaylandWindow *w = static_cast<QWaylandWindow*>(window->handle());
-        if (!w)
-            return nullptr;
-        QWaylandWlShellSurface *s = qobject_cast<QWaylandWlShellSurface *>(w->shellSurface());
-        if (!s)
-            return nullptr;
-        return s->object();
-    }
+
     if (lowerCaseResource == "egldisplay" && m_integration->clientBufferIntegration())
         return m_integration->clientBufferIntegration()->nativeResource(QWaylandClientBufferIntegration::EglDisplay);
+
+    if (auto shellIntegration = m_integration->shellIntegration())
+        return shellIntegration->nativeResourceForWindow(resourceString, window);
 
     return nullptr;
 }

@@ -1,6 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2017 ITAGE Corporation, author: <yusuke.binsaki@itage.co.jp>
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the plugins of the Qt Toolkit.
@@ -39,48 +40,30 @@
 
 #include "qwaylandwlshellintegration_p.h"
 
-#include <QtWaylandClient/private/qwaylandwindow_p.h>
-#include <QtWaylandClient/private/qwaylanddisplay_p.h>
-#include <QtWaylandClient/private/qwaylandwlshellsurface_p.h>
+#include <QtWaylandClient/private/qwaylandshellintegrationplugin_p.h>
 
 QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
 
-QWaylandWlShellIntegration *QWaylandWlShellIntegration::create(QWaylandDisplay *display)
+class QWaylandWlShellIntegrationPlugin : public QWaylandShellIntegrationPlugin
 {
-    if (!display->hasRegistryGlobal(QLatin1String("wl_shell")))
-        return nullptr;
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID QWaylandShellIntegrationFactoryInterface_iid FILE "wl-shell.json")
 
-    QScopedPointer<QWaylandWlShellIntegration> integration;
-    integration.reset(new QWaylandWlShellIntegration(display));
-    if (integration && !integration->initialize(display))
-        return nullptr;
-
-    return integration.take();
-}
-
-QWaylandWlShellIntegration::QWaylandWlShellIntegration(QWaylandDisplay *display)
-{
-    Q_FOREACH (QWaylandDisplay::RegistryGlobal global, display->globals()) {
-        if (global.interface == QLatin1String("wl_shell")) {
-            m_wlShell = new QtWayland::wl_shell(display->wl_registry(), global.id, 1);
-            break;
-        }
-    }
-}
-
-bool QWaylandWlShellIntegration::initialize(QWaylandDisplay *display)
-{
-    QWaylandShellIntegration::initialize(display);
-    return m_wlShell != nullptr;
+public:
+    QWaylandShellIntegration *create(const QString &key, const QStringList &paramList) override;
 };
 
-QWaylandShellSurface *QWaylandWlShellIntegration::createShellSurface(QWaylandWindow *window)
+QWaylandShellIntegration *QWaylandWlShellIntegrationPlugin::create(const QString &key, const QStringList &paramList)
 {
-    return new QWaylandWlShellSurface(m_wlShell->get_shell_surface(window->object()), window);
+    Q_UNUSED(key);
+    Q_UNUSED(paramList);
+    return new QWaylandWlShellIntegration();
 }
 
 }
 
 QT_END_NAMESPACE
+
+#include "main.moc"

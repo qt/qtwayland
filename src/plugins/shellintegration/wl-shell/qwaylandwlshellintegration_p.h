@@ -63,13 +63,12 @@ namespace QtWaylandClient {
 class Q_WAYLAND_CLIENT_EXPORT QWaylandWlShellIntegration : public QWaylandShellIntegration
 {
 public:
-    static QWaylandWlShellIntegration *create(QWaylandDisplay* display);
+    QWaylandWlShellIntegration() {}
     bool initialize(QWaylandDisplay *) override;
     QWaylandShellSurface *createShellSurface(QWaylandWindow *window) override;
+    void *nativeResourceForWindow(const QByteArray &resource, QWindow *window) override;
 
 private:
-    QWaylandWlShellIntegration(QWaylandDisplay* display);
-
     QtWayland::wl_shell *m_wlShell = nullptr;
 };
 

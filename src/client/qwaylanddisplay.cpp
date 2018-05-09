@@ -51,7 +51,6 @@
 #include "qwaylanddatadevicemanager_p.h"
 #endif
 #include "qwaylandhardwareintegration_p.h"
-#include "qwaylandwlshellsurface_p.h"
 #include "qwaylandinputcontext_p.h"
 
 #include "qwaylandwindowmanagerintegration_p.h"

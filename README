@@ -70,8 +70,8 @@ the generic wl_shell or xdg_shell extensions that target desktop systems.
 Custom shell protocols are added through shell integration plugins.
 
 Which shell integration to use is determined by the QT_WAYLAND_SHELL_INTEGRATION
-environment variable. If no shell is specified, the default is to first try
-xdg-shell-v6 and then wl-shell.
+environment variable. If no shell is specified, the default is to try shells in
+the following order: xdg-shell-v6, wl-shell and then ivi-shell.
 
 Example Usage:
 

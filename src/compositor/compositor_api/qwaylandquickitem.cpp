@@ -1013,8 +1013,8 @@ QPointF QWaylandQuickItem::mapToSurface(const QPointF &point) const
     if (!surface() || surface()->size().isEmpty())
         return point / d->scaleFactor();
 
-    qreal xScale = width() / surface()->size().width();
-    qreal yScale = height() / surface()->size().height();
+    qreal xScale = width() / surface()->size().width() * surface()->bufferScale();
+    qreal yScale = height() / surface()->size().height() * surface()->bufferScale();
 
     return QPointF(point.x() / xScale, point.y() / yScale);
 }

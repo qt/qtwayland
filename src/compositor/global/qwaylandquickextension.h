@@ -60,7 +60,7 @@ QT_BEGIN_NAMESPACE
             return QQmlListProperty<QObject>(this, m_objects); \
         } \
         void classBegin() override {} \
-        void componentComplete() override { initialize(); } \
+        void componentComplete() override { if (!isInitialized()) initialize(); } \
     private: \
         QList<QObject *> m_objects; \
     };

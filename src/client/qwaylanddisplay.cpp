@@ -50,6 +50,9 @@
 #if QT_CONFIG(wayland_datadevice)
 #include "qwaylanddatadevicemanager_p.h"
 #endif
+#if QT_CONFIG(cursor)
+#include <wayland-cursor.h>
+#endif
 #include "qwaylandhardwareintegration_p.h"
 #include "qwaylandinputcontext_p.h"
 
@@ -151,8 +154,14 @@ QWaylandDisplay::~QWaylandDisplay(void)
         mWaylandIntegration->destroyScreen(screen);
     }
     mScreens.clear();
+
 #if QT_CONFIG(wayland_datadevice)
     delete mDndSelectionHandler.take();
+#endif
+#if QT_CONFIG(cursor)
+    for (auto *cursorTheme : mCursorThemesBySize)
+        wl_cursor_theme_destroy(cursorTheme);
+    mCursorThemesBySize.clear();
 #endif
     if (mDisplay)
         wl_display_disconnect(mDisplay);
@@ -472,6 +481,7 @@ QWaylandInputDevice *QWaylandDisplay::defaultInputDevice() const
 }
 
 #if QT_CONFIG(cursor)
+
 void QWaylandDisplay::setCursor(struct wl_buffer *buffer, struct wl_cursor_image *image, qreal dpr)
 {
     /* Qt doesn't tell us which input device we should set the cursor
@@ -491,6 +501,31 @@ void QWaylandDisplay::setCursor(const QSharedPointer<QWaylandBuffer> &buffer, co
         inputDevice->setCursor(buffer, hotSpot, dpr);
     }
 }
+
+struct ::wl_cursor_theme *QWaylandDisplay::loadCursorTheme(qreal devicePixelRatio)
+{
+    QByteArray themeName = qgetenv("XCURSOR_THEME");
+    if (themeName.isEmpty())
+        themeName = QByteArray("default");
+
+    int cursorSize = qEnvironmentVariableIntValue("XCURSOR_SIZE");
+    if (cursorSize <= 0)
+        cursorSize = 32;
+    if (compositorVersion() >= 3) // set_buffer_scale is not supported on earlier versions
+        cursorSize *= devicePixelRatio;
+
+    if (auto *theme = mCursorThemesBySize.value(cursorSize, nullptr))
+        return theme;
+
+    struct ::wl_cursor_theme *theme = wl_cursor_theme_load(themeName, cursorSize, shm()->object());
+
+    if (!theme)
+        qCWarning(lcQpaWayland) << "Could not load cursor theme" << themeName;
+
+    mCursorThemesBySize[cursorSize] = theme;
+    return theme;
+}
+
 #endif // QT_CONFIG(cursor)
 
 }

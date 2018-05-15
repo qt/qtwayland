@@ -55,29 +55,9 @@ namespace QtWaylandClient {
 
 QWaylandCursor::QWaylandCursor(QWaylandScreen *screen)
     : mDisplay(screen->display())
+    , mCursorTheme(mDisplay->loadCursorTheme(screen->devicePixelRatio()))
 {
-    //TODO: Make wl_cursor_theme_load arguments configurable here
-    QByteArray cursorTheme = qgetenv("XCURSOR_THEME");
-    if (cursorTheme.isEmpty())
-        cursorTheme = QByteArray("default");
-    int cursorSize = qEnvironmentVariableIntValue("XCURSOR_SIZE");
-    if (cursorSize <= 0)
-        cursorSize = 32;
-
-    // wl_surface.set_buffer_scale is not supported on earlier versions
-    if (mDisplay->compositorVersion() >= 3)
-        cursorSize *= screen->devicePixelRatio();
-
-    mCursorTheme = wl_cursor_theme_load(cursorTheme, cursorSize, mDisplay->shm()->object());
-    if (!mCursorTheme)
-        qDebug() << "Could not load theme" << cursorTheme;
     initCursorMap();
-}
-
-QWaylandCursor::~QWaylandCursor()
-{
-    if (mCursorTheme)
-        wl_cursor_theme_destroy(mCursorTheme);
 }
 
 struct wl_cursor_image *QWaylandCursor::cursorImage(Qt::CursorShape newShape)

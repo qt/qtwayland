@@ -68,19 +68,15 @@ namespace QtWaylandClient {
 class QWaylandBuffer;
 class QWaylandDisplay;
 class QWaylandScreen;
+class QWaylandShm;
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandCursor : public QPlatformCursor
+class Q_WAYLAND_CLIENT_EXPORT QWaylandCursorTheme
 {
 public:
-    QWaylandCursor(QWaylandScreen *screen);
-
-    void changeCursor(QCursor *cursor, QWindow *window) override;
-    void pointerEvent(const QMouseEvent &event) override;
-    QPoint pos() const override;
-    void setPos(const QPoint &pos) override;
-
+    static QWaylandCursorTheme *create(QWaylandShm *shm, int size);
+    static QWaylandCursorTheme *create(QWaylandShm *shm, int size, const QString &themeName);
+    ~QWaylandCursorTheme();
     struct wl_cursor_image *cursorImage(Qt::CursorShape shape);
-    QSharedPointer<QWaylandBuffer> cursorBitmapImage(const QCursor *cursor);
 
 private:
     enum WaylandCursor {
@@ -106,6 +102,7 @@ private:
         DragCopyCursor,
         DragMoveCursor,
         DragLinkCursor,
+        // The following are used for cursors that don't have equivalents in Qt
         ResizeNorthCursor = Qt::CustomCursor + 1,
         ResizeSouthCursor,
         ResizeEastCursor,
@@ -116,13 +113,29 @@ private:
         ResizeSouthWestCursor
     };
 
-    struct wl_cursor* requestCursor(WaylandCursor shape);
-    void initCursorMap();
+    explicit QWaylandCursorTheme(struct ::wl_cursor_theme *theme) : m_theme(theme) {}
+    struct ::wl_cursor *requestCursor(WaylandCursor shape);
+    struct ::wl_cursor_theme *m_theme = nullptr;
+    QMap<WaylandCursor, wl_cursor *> m_cursors;
+};
+
+class Q_WAYLAND_CLIENT_EXPORT QWaylandCursor : public QPlatformCursor
+{
+public:
+    QWaylandCursor(QWaylandScreen *screen);
+
+    void changeCursor(QCursor *cursor, QWindow *window) override;
+    void pointerEvent(const QMouseEvent &event) override;
+    QPoint pos() const override;
+    void setPos(const QPoint &pos) override;
+
+    QSharedPointer<QWaylandBuffer> cursorBitmapImage(const QCursor *cursor);
+    struct wl_cursor_image *cursorImage(Qt::CursorShape shape);
+
+private:
     QWaylandDisplay *mDisplay = nullptr;
-    struct wl_cursor_theme *mCursorTheme = nullptr;
+    QWaylandCursorTheme *mCursorTheme = nullptr;
     QPoint mLastPos;
-    QMap<WaylandCursor, wl_cursor *> mCursors;
-    QMultiMap<WaylandCursor, QByteArray> mCursorNamesMap;
 };
 
 }

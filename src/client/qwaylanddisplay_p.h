@@ -66,7 +66,6 @@
 #include <QtWaylandClient/private/qwaylandshm_p.h>
 
 struct wl_cursor_image;
-struct wl_cursor_theme;
 
 QT_BEGIN_NAMESPACE
 
@@ -95,6 +94,7 @@ class QWaylandWindow;
 class QWaylandIntegration;
 class QWaylandHardwareIntegration;
 class QWaylandShellSurface;
+class QWaylandCursorTheme;
 
 typedef void (*RegistryListener)(void *data,
                                  struct wl_registry *registry,
@@ -124,7 +124,7 @@ public:
 #if QT_CONFIG(cursor)
     void setCursor(struct wl_buffer *buffer, struct wl_cursor_image *image, qreal dpr);
     void setCursor(const QSharedPointer<QWaylandBuffer> &buffer, const QPoint &hotSpot, qreal dpr);
-    struct ::wl_cursor_theme *loadCursorTheme(qreal devicePixelRatio);
+    QWaylandCursorTheme *loadCursorTheme(qreal devicePixelRatio);
 #endif
     struct wl_display *wl_display() const { return mDisplay; }
     struct ::wl_registry *wl_registry() { return object(); }
@@ -202,7 +202,7 @@ private:
     QList<Listener> mRegistryListeners;
     QWaylandIntegration *mWaylandIntegration = nullptr;
 #if QT_CONFIG(cursor)
-    QMap<int, struct wl_cursor_theme*> mCursorThemesBySize;
+    QMap<int, QWaylandCursorTheme *> mCursorThemesBySize;
 #endif
 #if QT_CONFIG(wayland_datadevice)
     QScopedPointer<QWaylandDataDeviceManager> mDndSelectionHandler;

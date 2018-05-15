@@ -159,9 +159,7 @@ QWaylandDisplay::~QWaylandDisplay(void)
     delete mDndSelectionHandler.take();
 #endif
 #if QT_CONFIG(cursor)
-    for (auto *cursorTheme : mCursorThemesBySize)
-        wl_cursor_theme_destroy(cursorTheme);
-    mCursorThemesBySize.clear();
+    qDeleteAll(mCursorThemesBySize);
 #endif
     if (mDisplay)
         wl_display_disconnect(mDisplay);
@@ -502,13 +500,9 @@ void QWaylandDisplay::setCursor(const QSharedPointer<QWaylandBuffer> &buffer, co
     }
 }
 
-struct ::wl_cursor_theme *QWaylandDisplay::loadCursorTheme(qreal devicePixelRatio)
+QWaylandCursorTheme *QWaylandDisplay::loadCursorTheme(qreal devicePixelRatio)
 {
-    QByteArray themeName = qgetenv("XCURSOR_THEME");
-    if (themeName.isEmpty())
-        themeName = QByteArray("default");
-
-    int cursorSize = qEnvironmentVariableIntValue("XCURSOR_SIZE");
+    static int cursorSize = qEnvironmentVariableIntValue("XCURSOR_SIZE");
     if (cursorSize <= 0)
         cursorSize = 32;
     if (compositorVersion() >= 3) // set_buffer_scale is not supported on earlier versions
@@ -517,13 +511,12 @@ struct ::wl_cursor_theme *QWaylandDisplay::loadCursorTheme(qreal devicePixelRati
     if (auto *theme = mCursorThemesBySize.value(cursorSize, nullptr))
         return theme;
 
-    struct ::wl_cursor_theme *theme = wl_cursor_theme_load(themeName, cursorSize, shm()->object());
+    if (auto *theme = QWaylandCursorTheme::create(shm(), cursorSize)) {
+        mCursorThemesBySize[cursorSize] = theme;
+        return theme;
+    }
 
-    if (!theme)
-        qCWarning(lcQpaWayland) << "Could not load cursor theme" << themeName;
-
-    mCursorThemesBySize[cursorSize] = theme;
-    return theme;
+    return nullptr;
 }
 
 #endif // QT_CONFIG(cursor)

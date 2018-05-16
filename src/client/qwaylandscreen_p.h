@@ -67,9 +67,7 @@ class Q_WAYLAND_CLIENT_EXPORT QWaylandScreen : public QPlatformScreen, QtWayland
 {
 public:
     QWaylandScreen(QWaylandDisplay *waylandDisplay, int version, uint32_t id);
-    ~QWaylandScreen() override;
 
-    void init();
     QWaylandDisplay *display() const;
 
     QString manufacturer() const override;
@@ -95,7 +93,7 @@ public:
 
 #if QT_CONFIG(cursor)
     QPlatformCursor *cursor() const override;
-    QWaylandCursor *waylandCursor() const { return mWaylandCursor; }
+    QWaylandCursor *waylandCursor();
 #endif
 
     uint32_t outputId() const { return m_outputId; }
@@ -130,7 +128,7 @@ private:
     Qt::ScreenOrientation m_orientation = Qt::PrimaryOrientation;
 
 #if QT_CONFIG(cursor)
-    QWaylandCursor *mWaylandCursor = nullptr;
+    QScopedPointer<QWaylandCursor> mWaylandCursor;
 #endif
 };
 

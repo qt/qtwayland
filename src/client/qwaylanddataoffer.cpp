@@ -135,7 +135,7 @@ QVariant QWaylandMimeData::retrieveData_sys(const QString &mimeType, QVariant::T
     }
 
     int pipefd[2];
-    if (::pipe2(pipefd, O_CLOEXEC|O_NONBLOCK) == -1) {
+    if (qt_safe_pipe(pipefd, O_NONBLOCK) == -1) {
         qWarning("QWaylandMimeData: pipe2() failed");
         return QVariant();
     }

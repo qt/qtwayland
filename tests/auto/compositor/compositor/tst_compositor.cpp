@@ -383,7 +383,9 @@ void tst_WaylandCompositor::sizeFollowsWindow()
 
     compositor.create();
 
-    QWaylandOutputMode mode(window.size(), qFloor(window.screen()->refreshRate() * 1000));
+    // window.size() is not in pixels
+    auto pixelSize = window.size() * window.devicePixelRatio();
+    QWaylandOutputMode mode(pixelSize, qFloor(window.screen()->refreshRate() * 1000));
 
     MockClient client;
 

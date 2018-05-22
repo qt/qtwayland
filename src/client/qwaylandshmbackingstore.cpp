@@ -59,7 +59,9 @@
 #ifdef Q_OS_LINUX
 #  include <sys/syscall.h>
 // from linux/memfd.h:
-#  define MFD_CLOEXEC       0x0001U
+#  ifndef MFD_CLOEXEC
+#    define MFD_CLOEXEC     0x0001U
+#  endif
 #endif
 
 QT_BEGIN_NAMESPACE

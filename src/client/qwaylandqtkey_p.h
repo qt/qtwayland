@@ -54,7 +54,7 @@
 #include <qpa/qwindowsysteminterface.h>
 
 #include <QtWaylandClient/qtwaylandclientglobal.h>
-#include <QtWaylandClient/private/qwayland-qtkey-extension.h>
+#include <QtWaylandClient/private/qwayland-qt-key-unstable-v1.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -62,7 +62,7 @@ namespace QtWaylandClient {
 
 class QWaylandDisplay;
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandQtKeyExtension : public QtWayland::qt_key_extension
+class Q_WAYLAND_CLIENT_EXPORT QWaylandQtKeyExtension : public QtWayland::zqt_key_v1
 {
 public:
     QWaylandQtKeyExtension(QWaylandDisplay *display, uint32_t id);
@@ -70,17 +70,17 @@ public:
 private:
     QWaylandDisplay *m_display = nullptr;
 
-    void key_extension_qtkey(struct wl_surface *surface,
-                             uint32_t time,
-                             uint32_t type,
-                             uint32_t key,
-                             uint32_t modifiers,
-                             uint32_t nativeScanCode,
-                             uint32_t nativeVirtualKey,
-                             uint32_t nativeModifiers,
-                             const QString &text,
-                             uint32_t autorep,
-                             uint32_t count) override;
+    void zqt_key_v1_key(struct wl_surface *surface,
+                        uint32_t time,
+                        uint32_t type,
+                        uint32_t key,
+                        uint32_t modifiers,
+                        uint32_t nativeScanCode,
+                        uint32_t nativeVirtualKey,
+                        uint32_t nativeModifiers,
+                        const QString &text,
+                        uint32_t autorep,
+                        uint32_t count) override;
 
 };
 

@@ -256,7 +256,7 @@ void QWaylandDisplay::registry_global(uint32_t id, const QString &interface, uin
         mSubCompositor.reset(new QtWayland::wl_subcompositor(registry, id, 1));
     } else if (interface == QStringLiteral("qt_touch_extension")) {
         mTouchExtension.reset(new QWaylandTouchExtension(this, id));
-    } else if (interface == QStringLiteral("qt_key_extension")) {
+    } else if (interface == QStringLiteral("zqt_key_v1")) {
         mQtKeyExtension.reset(new QWaylandQtKeyExtension(this, id));
     } else if (interface == QStringLiteral("zwp_text_input_manager_v2")) {
         mTextInputManager.reset(new QtWayland::zwp_text_input_manager_v2(registry, id, 1));

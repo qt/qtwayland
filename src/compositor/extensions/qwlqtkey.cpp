@@ -48,7 +48,7 @@ namespace QtWayland {
 
 QtKeyExtensionGlobal::QtKeyExtensionGlobal(QWaylandCompositor *compositor)
     : QWaylandCompositorExtensionTemplate(compositor)
-    , QtWaylandServer::qt_key_extension(compositor->display(), 2)
+    , QtWaylandServer::zqt_key_v1(compositor->display(), 1)
     , m_compositor(compositor)
 {
 }
@@ -60,15 +60,15 @@ bool QtKeyExtensionGlobal::postQtKeyEvent(QKeyEvent *event, QWaylandSurface *sur
     Resource *target = surface ? resourceMap().value(surface->waylandClient()) : 0;
 
     if (target) {
-        send_qtkey(target->handle,
-                   surface ? surface->resource() : nullptr,
-                   time, event->type(), event->key(), event->modifiers(),
-                   event->nativeScanCode(),
-                   event->nativeVirtualKey(),
-                   event->nativeModifiers(),
-                   event->text(),
-                   event->isAutoRepeat(),
-                   event->count());
+        send_key(target->handle,
+                 surface ? surface->resource() : nullptr,
+                 time, event->type(), event->key(), event->modifiers(),
+                 event->nativeScanCode(),
+                 event->nativeVirtualKey(),
+                 event->nativeModifiers(),
+                 event->text(),
+                 event->isAutoRepeat(),
+                 event->count());
 
         return true;
     }

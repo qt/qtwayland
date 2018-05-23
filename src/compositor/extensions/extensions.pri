@@ -3,7 +3,7 @@ CONFIG += generated_privates
 
 WAYLANDSERVERSOURCES += \
     ../extensions/touch-extension.xml \
-    ../extensions/qtkey-extension.xml \
+    ../extensions/qt-key-unstable-v1.xml \
     ../extensions/qt-windowmanager.xml \
     ../3rdparty/protocol/text-input-unstable-v2.xml \
     ../3rdparty/protocol/xdg-shell-unstable-v5.xml \

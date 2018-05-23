@@ -53,7 +53,7 @@
 
 #include <QtWaylandCompositor/QWaylandCompositorExtensionTemplate>
 #include <QtWaylandCompositor/QWaylandCompositor>
-#include <QtWaylandCompositor/private/qwayland-server-qtkey-extension.h>
+#include <QtWaylandCompositor/private/qwayland-server-qt-key-unstable-v1.h>
 
 #include <wayland-util.h>
 
@@ -64,7 +64,7 @@ class QKeyEvent;
 
 namespace QtWayland {
 
-class QtKeyExtensionGlobal : public QWaylandCompositorExtensionTemplate<QtKeyExtensionGlobal>, public QtWaylandServer::qt_key_extension
+class QtKeyExtensionGlobal : public QWaylandCompositorExtensionTemplate<QtKeyExtensionGlobal>, public QtWaylandServer::zqt_key_v1
 {
     Q_OBJECT
 public:

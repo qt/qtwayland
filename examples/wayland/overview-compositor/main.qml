@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the examples of the Qt Toolkit.
@@ -49,8 +49,8 @@
 ****************************************************************************/
 
 import QtQuick 2.7
-import QtWayland.Compositor 1.0
-import QtQuick.Window 2.0
+import QtWayland.Compositor 1.1
+import QtQuick.Window 2.3
 import QtQuick.Controls 2.0
 
 WaylandCompositor {
@@ -58,18 +58,24 @@ WaylandCompositor {
         sizeFollowsWindow: true
         window: Window {
             id: win
+
+            property int pixelWidth: width * screen.devicePixelRatio
+            property int pixelHeight: height * screen.devicePixelRatio
+
             visible: true
             width: 1280
             height: 720
+
             Grid {
                 id: grid
-                anchors.fill: parent
-                columns: Math.ceil(Math.sqrt(shellSurfaces.count))
+
                 property bool overview: true
                 property int selected: 0
                 property int selectedColumn: selected % columns
                 property int selectedRow: selected / columns
 
+                anchors.fill: parent
+                columns: Math.ceil(Math.sqrt(toplevels.count))
                 transform: [
                     Scale {
                         xScale: grid.overview ? (1.0/grid.columns) : 1
@@ -86,15 +92,16 @@ WaylandCompositor {
                 ]
 
                 Repeater {
-                    model: shellSurfaces
+                    model: toplevels
                     Item {
                         width: win.width
                         height: win.height
-                        WaylandQuickItem {
+                        ShellSurfaceItem {
                             anchors.fill: parent
+                            shellSurface: xdgSurface
+                            autoCreatePopupItems: true
                             sizeFollowsSurface: false
-                            surface: modelData.surface
-                            onSurfaceDestroyed: shellSurfaces.remove(index)
+                            onSurfaceDestroyed: toplevels.remove(index)
                         }
                         MouseArea {
                             enabled: grid.overview
@@ -116,19 +123,19 @@ WaylandCompositor {
             }
 
             Shortcut { sequence: "space"; onActivated: grid.overview = !grid.overview }
-            Shortcut { sequence: "right"; onActivated: grid.selected = Math.min(grid.selected+1, shellSurfaces.count-1) }
+            Shortcut { sequence: "right"; onActivated: grid.selected = Math.min(grid.selected+1, toplevels.count-1) }
             Shortcut { sequence: "left"; onActivated: grid.selected = Math.max(grid.selected-1, 0) }
             Shortcut { sequence: "up"; onActivated: grid.selected = Math.max(grid.selected-grid.columns, 0) }
-            Shortcut { sequence: "down"; onActivated: grid.selected = Math.min(grid.selected+grid.columns, shellSurfaces.count-1) }
+            Shortcut { sequence: "down"; onActivated: grid.selected = Math.min(grid.selected+grid.columns, toplevels.count-1) }
         }
     }
 
-    ListModel { id: shellSurfaces }
+    ListModel { id: toplevels }
 
-    WlShell {
-        onWlShellSurfaceCreated: {
-            shellSurfaces.append({shellSurface: shellSurface});
-            shellSurface.sendConfigure(Qt.size(win.width, win.height), WlShellSurface.NoneEdge);
+    XdgShellV6 {
+        onToplevelCreated: {
+            toplevels.append({xdgSurface});
+            toplevel.sendFullscreen(Qt.size(win.pixelWidth, win.pixelHeight));
         }
     }
 }

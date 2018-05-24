@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the examples of the Qt Toolkit.
@@ -50,20 +50,22 @@
 
 import QtQuick 2.6
 import QtQuick.Window 2.3
-import QtWayland.Compositor 1.0
+import QtWayland.Compositor 1.1
 
 WaylandCompositor {
-    id: wlcompositor
-
     WaylandOutput {
-        compositor: wlcompositor
         sizeFollowsWindow: true
         window: Window {
             id: topSurfaceArea
+
+            property int pixelHeight: screen.devicePixelRatio * height
+            property int pixelWidth: screen.devicePixelRatio * width
+
             width: 1024
             height: 768
             visible: true
             color: "#1337af"
+
             Text { text: "Top screen" }
 
             // Enable the following to make the output target an actual screen,
@@ -74,14 +76,18 @@ WaylandCompositor {
     }
 
     WaylandOutput {
-        compositor: wlcompositor
         sizeFollowsWindow: true
         window: Window {
             id: bottomSurfaceArea
+
+            property int pixelHeight: screen.devicePixelRatio * height
+            property int pixelWidth: screen.devicePixelRatio * width
+
             width: 1024
             height: 768
             visible: true
             color: "#1abacc"
+
             Text { text: "Bottom screen" }
 
             // Enable the following to make the output target an actual screen,
@@ -93,56 +99,29 @@ WaylandCompositor {
 
     Component {
         id: chromeComponent
-        WaylandQuickItem {
-            onSurfaceDestroyed: destroy()
-        }
-    }
-
-    Component {
-        id: xdgPopupComponent
         ShellSurfaceItem {
+            autoCreatePopupItems: true
             onSurfaceDestroyed: destroy()
         }
     }
 
-    WlShell {
-        onWlShellSurfaceCreated: handleShellSurfaceCreated(shellSurface)
-    }
+    XdgShellV6 {
+        onToplevelCreated: {
+            const shellSurface = xdgSurface;
 
-    property variant viewsBySurface: ({})
+            const topItem = chromeComponent.createObject(topSurfaceArea, {
+                shellSurface
+            });
 
-    XdgShellV5 {
-        onXdgSurfaceCreated: handleShellSurfaceCreated(xdgSurface)
-        onXdgPopupCreated: {
-            var parentViews = viewsBySurface[xdgPopup.parentSurface];
-            xdgPopupComponent.createObject(parentViews.top, { "shellSurface": xdgPopup } );
-            xdgPopupComponent.createObject(parentViews.bottom, { "shellSurface": xdgPopup } );
-        }
-    }
+            const bottomItem = chromeComponent.createObject(bottomSurfaceArea, {
+                shellSurface,
+                y: Qt.binding(function() { return -topSurfaceArea.height;})
+            });
 
-    function handleShellSurfaceCreated(shellSurface) {
-        var topItem = chromeComponent.createObject(topSurfaceArea, {
-            "surface": shellSurface.surface
-        });
-
-        var bottomItem = chromeComponent.createObject(bottomSurfaceArea, {
-            "surface": shellSurface.surface,
-            "y": Qt.binding(function() { return -topSurfaceArea.height;})
-        });
-
-        viewsBySurface[shellSurface.surface] = {
-            top: topItem,
-            bottom: bottomItem
-        };
-
-        var height = bottomSurfaceArea.height + topSurfaceArea.height;
-        var width = Math.max(bottomSurfaceArea.width, topSurfaceArea.width);
-        var size = Qt.size(width, height);
-
-        if (shellSurface.sendFullscreen) {
-            shellSurface.sendFullscreen(size);
-        } else if (shellSurface.sendConfigure) {
-            shellSurface.sendConfigure(size, WlShellSurface.NoneEdge);
+            const height = topSurfaceArea.pixelHeight + bottomSurfaceArea.pixelHeight;
+            const width = Math.max(bottomSurfaceArea.pixelWidth, topSurfaceArea.pixelWidth);
+            const size = Qt.size(width, height);
+            toplevel.sendFullscreen(size);
         }
     }
 }

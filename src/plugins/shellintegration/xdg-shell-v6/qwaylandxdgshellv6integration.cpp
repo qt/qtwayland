@@ -41,39 +41,26 @@
 
 #include <QtWaylandClient/private/qwaylandwindow_p.h>
 #include <QtWaylandClient/private/qwaylanddisplay_p.h>
-#include <QtWaylandClient/private/qwaylandxdgshellv6_p.h>
 
 QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
 
-QWaylandXdgShellV6Integration::QWaylandXdgShellV6Integration(QWaylandDisplay *display)
+bool QWaylandXdgShellV6Integration::initialize(QWaylandDisplay *display)
 {
     for (QWaylandDisplay::RegistryGlobal global : display->globals()) {
         if (global.interface == QLatin1String("zxdg_shell_v6")) {
-            m_xdgShell = new QWaylandXdgShellV6(display->wl_registry(), global.id, global.version);
+            m_xdgShell.reset(new QWaylandXdgShellV6(display->wl_registry(), global.id, global.version));
             break;
         }
     }
-}
 
-QWaylandXdgShellV6Integration *QWaylandXdgShellV6Integration::create(QWaylandDisplay *display)
-{
-    if (!display->hasRegistryGlobal(QLatin1String("zxdg_shell_v6")))
-        return nullptr;
+    if (!m_xdgShell) {
+        qCDebug(lcQpaWayland) << "Couldn't find global zxdg_shell_v6 for xdg-shell unstable v6";
+        return false;
+    }
 
-    QScopedPointer<QWaylandXdgShellV6Integration> integration;
-    integration.reset(new QWaylandXdgShellV6Integration(display));
-    if (integration && !integration->initialize(display))
-        return nullptr;
-
-    return integration.take();
-}
-
-bool QWaylandXdgShellV6Integration::initialize(QWaylandDisplay *display)
-{
-    QWaylandShellIntegration::initialize(display);
-    return m_xdgShell != nullptr;
+    return QWaylandShellIntegration::initialize(display);
 }
 
 QWaylandShellSurface *QWaylandXdgShellV6Integration::createShellSurface(QWaylandWindow *window)

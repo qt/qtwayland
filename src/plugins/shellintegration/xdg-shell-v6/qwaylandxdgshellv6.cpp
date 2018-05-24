@@ -40,11 +40,11 @@
 
 #include "qwaylandxdgshellv6_p.h"
 
-#include "qwaylanddisplay_p.h"
-#include "qwaylandwindow_p.h"
-#include "qwaylandinputdevice_p.h"
-#include "qwaylandscreen_p.h"
-#include "qwaylandabstractdecoration_p.h"
+#include <QtWaylandClient/private/qwaylanddisplay_p.h>
+#include <QtWaylandClient/private/qwaylandwindow_p.h>
+#include <QtWaylandClient/private/qwaylandinputdevice_p.h>
+#include <QtWaylandClient/private/qwaylandscreen_p.h>
+#include <QtWaylandClient/private/qwaylandabstractdecoration_p.h>
 
 QT_BEGIN_NAMESPACE
 

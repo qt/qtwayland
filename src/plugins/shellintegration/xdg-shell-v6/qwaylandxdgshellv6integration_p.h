@@ -51,7 +51,7 @@
 // We mean it.
 //
 
-#include <wayland-client.h>
+#include "qwaylandxdgshellv6_p.h"
 
 #include <QtWaylandClient/private/qwaylandshellintegration_p.h>
 
@@ -59,20 +59,16 @@ QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
 
-class QWaylandXdgShellV6;
-
 class Q_WAYLAND_CLIENT_EXPORT QWaylandXdgShellV6Integration : public QWaylandShellIntegration
 {
 public:
-    static QWaylandXdgShellV6Integration *create(QWaylandDisplay* display);
+    QWaylandXdgShellV6Integration() {}
     bool initialize(QWaylandDisplay *display) override;
     QWaylandShellSurface *createShellSurface(QWaylandWindow *window) override;
     void handleKeyboardFocusChanged(QWaylandWindow *newFocus, QWaylandWindow *oldFocus) override;
 
 private:
-    QWaylandXdgShellV6Integration(QWaylandDisplay *display);
-
-    QWaylandXdgShellV6 *m_xdgShell = nullptr;
+    QScopedPointer<QWaylandXdgShellV6> m_xdgShell;
 };
 
 }

@@ -52,14 +52,15 @@
 // We mean it.
 //
 
+#include "qwayland-xdg-shell-unstable-v6.h"
+
+#include <QtWaylandClient/qtwaylandclientglobal.h>
+#include <QtWaylandClient/private/qwaylandshellsurface_p.h>
+
 #include <QtCore/QSize>
 #include <QtGui/QRegion>
 
 #include <wayland-client.h>
-
-#include <QtWaylandClient/private/qwayland-xdg-shell-unstable-v6.h>
-#include <QtWaylandClient/qtwaylandclientglobal.h>
-#include "qwaylandshellsurface_p.h"
 
 QT_BEGIN_NAMESPACE
 

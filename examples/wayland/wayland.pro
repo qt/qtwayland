@@ -12,6 +12,7 @@ qtHaveModule(quick) {
     SUBDIRS += pure-qml
     SUBDIRS += multi-output
     SUBDIRS += multi-screen
+    SUBDIRS += overview-compositor
     SUBDIRS += ivi-compositor
     qtHaveModule(waylandclient) {
         SUBDIRS += \

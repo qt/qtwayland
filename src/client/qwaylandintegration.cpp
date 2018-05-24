@@ -388,6 +388,7 @@ void QWaylandIntegration::initializeShellIntegration()
     if (!targetKey.isEmpty()) {
         preferredShells << targetKey;
     } else {
+        preferredShells << QLatin1String("xdg-shell");
         preferredShells << QLatin1String("xdg-shell-v6");
         QString useXdgShell = QString::fromLocal8Bit(qgetenv("QT_WAYLAND_USE_XDG_SHELL"));
         if (!useXdgShell.isEmpty() && useXdgShell != QLatin1String("0")) {

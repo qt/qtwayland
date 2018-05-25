@@ -51,7 +51,7 @@
 // We mean it.
 //
 
-#include <QtGui/private/qdnd_p.h>
+#include <QtGui/private/qinternalmimedata_p.h>
 
 #include <QtWaylandClient/private/qtwaylandclientglobal_p.h>
 #include <QtWaylandClient/private/qwayland-wayland.h>

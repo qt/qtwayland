@@ -86,6 +86,7 @@ public:
     void setAppId(const QString &appId) override;
 
     void setType(Qt::WindowType type, QWaylandWindow *transientParent) override;
+    bool isExposed() const override { return m_configured; }
     bool handleExpose(const QRegion &) override;
     bool handlesActiveState() const { return m_toplevel; }
     void applyConfigure() override;

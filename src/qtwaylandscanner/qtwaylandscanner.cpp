@@ -394,6 +394,7 @@ void process(QXmlStreamReader &xml, const QByteArray &headerPath, const QByteArr
         printf("QT_BEGIN_NAMESPACE\n");
         printf("QT_WARNING_PUSH\n");
         printf("QT_WARNING_DISABLE_GCC(\"-Wmissing-field-initializers\")\n");
+        printf("QT_WARNING_DISABLE_CLANG(\"-Wmissing-field-initializers\")\n");
         QByteArray serverExport;
         if (headerPath.size()) {
             serverExport = QByteArray("Q_WAYLAND_SERVER_") + preProcessorProtocolName + "_EXPORT";

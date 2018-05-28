@@ -241,8 +241,8 @@ void MockCompositor::sendXdgToplevelV6Configure(const QSharedPointer<MockXdgTopl
     Command command = makeCommand(Impl::Compositor::sendXdgToplevelV6Configure, m_compositor);
     command.parameters << QVariant::fromValue(toplevel);
     command.parameters << QVariant::fromValue(size);
-    auto statesBytes = QByteArray::fromRawData(reinterpret_cast<const char *>(states.data()),
-                                               states.size() * static_cast<int>(sizeof(uint)));
+    QByteArray statesBytes(reinterpret_cast<const char *>(states.data()),
+                           states.size() * static_cast<int>(sizeof(uint)));
     command.parameters << statesBytes;
     processCommand(command);
 }

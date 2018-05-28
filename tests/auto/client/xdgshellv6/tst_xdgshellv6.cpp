@@ -169,6 +169,10 @@ void tst_WaylandClientXdgShellV6::showMinimized()
     window.showMinimized();
     QCOMPARE(window.windowStates(), Qt::WindowMinimized);   // should return minimized until
     QTRY_COMPARE(window.windowStates(), Qt::WindowNoState); // rejected by handleWindowStateChanged
+
+    // Make sure the window on the compositor side is/was created here, and not after the test
+    // finishes, as that may mess up for later tests.
+    QTRY_VERIFY(m_compositor->xdgToplevelV6());
 }
 
 void tst_WaylandClientXdgShellV6::setMinimized()

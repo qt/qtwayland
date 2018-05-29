@@ -58,18 +58,16 @@ class Q_WAYLAND_CLIENT_EXPORT QWaylandIviShellIntegration : public QWaylandShell
 {
 public:
     QWaylandIviShellIntegration();
-    ~QWaylandIviShellIntegration() override;
+
     bool initialize(QWaylandDisplay *display) override;
     QWaylandShellSurface *createShellSurface(QWaylandWindow *window) override;
 
 private:
-    static void registryIvi(void *data, struct wl_registry *registry,
-                            uint32_t id, const QString &interface, uint32_t version);
     uint32_t getNextUniqueSurfaceId();
 
 private:
-    QtWayland::ivi_application *m_iviApplication = nullptr;
-    QtWayland::ivi_controller *m_iviController = nullptr;
+    QScopedPointer<QtWayland::ivi_application> m_iviApplication;
+    QScopedPointer<QtWayland::ivi_controller> m_iviController;
     uint32_t m_lastSurfaceId = 0;
     uint32_t m_surfaceNumber = 0;
     bool m_useEnvSurfaceId = false;

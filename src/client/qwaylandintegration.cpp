@@ -381,12 +381,12 @@ void QWaylandIntegration::initializeShellIntegration()
 {
     mShellIntegrationInitialized = true;
 
-    QByteArray integrationName = qgetenv("QT_WAYLAND_SHELL_INTEGRATION");
-    QString targetKey = QString::fromLocal8Bit(integrationName);
+    QByteArray integrationNames = qgetenv("QT_WAYLAND_SHELL_INTEGRATION");
+    QString targetKeys = QString::fromLocal8Bit(integrationNames);
 
     QStringList preferredShells;
-    if (!targetKey.isEmpty()) {
-        preferredShells << targetKey;
+    if (!targetKeys.isEmpty()) {
+        preferredShells = targetKeys.split(QLatin1Char(';'));
     } else {
         preferredShells << QLatin1String("xdg-shell");
         preferredShells << QLatin1String("xdg-shell-v6");

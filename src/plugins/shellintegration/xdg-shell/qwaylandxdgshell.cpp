@@ -86,6 +86,8 @@ void QWaylandXdgSurface::Toplevel::applyConfigure()
 
     m_xdgSurface->m_window->handleWindowStatesChanged(statesWithoutActive);
     m_xdgSurface->m_window->resizeFromApplyConfigure(m_pending.size);
+    QSize windowGeometrySize = m_xdgSurface->m_window->window()->frameGeometry().size();
+    m_xdgSurface->set_window_geometry(0, 0, windowGeometrySize.width(), windowGeometrySize.height());
     m_applied = m_pending;
 }
 

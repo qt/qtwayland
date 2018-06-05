@@ -52,6 +52,7 @@ public:
 protected:
     void zxdg_surface_v6_destroy_resource(Resource *) override { delete this; }
     void zxdg_surface_v6_get_toplevel(Resource *resource, uint32_t id) override;
+    void zxdg_surface_v6_set_window_geometry(Resource *resource, int32_t x, int32_t y, int32_t width, int32_t height) override;
     void zxdg_surface_v6_destroy(Resource *resource) override;
 
 private:

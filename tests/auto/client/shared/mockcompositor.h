@@ -189,6 +189,7 @@ signals:
     uint unsetMaximizedRequested();
     uint setFullscreenRequested();
     uint unsetFullscreenRequested();
+    void windowGeometryRequested(QRect geometry); // NOTE: This is really an xdg surface event
 
 private:
     MockXdgToplevelV6(Impl::XdgToplevelV6 *toplevel) : m_toplevel(toplevel) {}

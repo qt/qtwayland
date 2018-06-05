@@ -99,6 +99,8 @@ private slots:
     void unsetMaximized();
     void focusWindowFollowsConfigure();
     void windowStateChangedEvents();
+    void windowGeometrySimple();
+    void windowGeometryFixed();
 
 private:
     MockCompositor *m_compositor = nullptr;
@@ -315,6 +317,47 @@ void tst_WaylandClientXdgShellV6::windowStateChangedEvents()
         uint newState = signalSpy.takeFirst().at(0).toUInt();
         QCOMPARE(newState, Qt::WindowNoState);
     }
+}
+
+void tst_WaylandClientXdgShellV6::windowGeometrySimple()
+{
+    QWindow window;
+    window.show();
+
+    QSharedPointer<MockXdgToplevelV6> toplevel;
+    QTRY_VERIFY(toplevel = m_compositor->xdgToplevelV6());
+    QSignalSpy geometrySpy(toplevel.data(), SIGNAL(windowGeometryRequested(QRect)));
+
+    m_compositor->sendXdgToplevelV6Configure(toplevel);
+    QTRY_COMPARE(geometrySpy.count(), 1);
+    QCOMPARE(geometrySpy.takeFirst().at(0).toRect().size(), window.frameGeometry().size());
+
+    m_compositor->sendXdgToplevelV6Configure(toplevel, QSize(123, 456));
+    QTRY_COMPARE(geometrySpy.count(), 1);
+    QCOMPARE(geometrySpy.takeFirst().at(0).toRect().size(), QSize(123, 456));
+}
+
+void tst_WaylandClientXdgShellV6::windowGeometryFixed()
+{
+    QWindow window;
+    window.resize(QSize(1337, 137));
+    window.setMaximumSize(window.size());
+    window.setMinimumSize(window.size());
+    window.show();
+
+    QSharedPointer<MockXdgToplevelV6> toplevel;
+    QTRY_VERIFY(toplevel = m_compositor->xdgToplevelV6());
+    QSignalSpy geometrySpy(toplevel.data(), SIGNAL(windowGeometryRequested(QRect)));
+
+    m_compositor->sendXdgToplevelV6Configure(toplevel);
+    QTRY_COMPARE(geometrySpy.count(), 1);
+    QRect initialWindowGeometry = geometrySpy.takeFirst().at(0).toRect();
+    QCOMPARE(initialWindowGeometry.size(), window.frameGeometry().size());
+
+    m_compositor->sendXdgToplevelV6Configure(toplevel, QSize(123, 456));
+    QTRY_COMPARE(geometrySpy.count(), 1);
+    // Configuring the window should not change the window geometry
+    QCOMPARE(geometrySpy.takeFirst().at(0).toRect().size(), initialWindowGeometry.size());
 }
 
 int main(int argc, char **argv)

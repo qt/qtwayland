@@ -57,6 +57,14 @@ void XdgSurfaceV6::zxdg_surface_v6_get_toplevel(QtWaylandServer::zxdg_surface_v6
     m_toplevel = new XdgToplevelV6(this, resource->client(), id, version);
 }
 
+void XdgSurfaceV6::zxdg_surface_v6_set_window_geometry(QtWaylandServer::zxdg_surface_v6::Resource *resource, int32_t x, int32_t y, int32_t width, int32_t height)
+{
+    if (m_toplevel) {
+        QRect geometry(x, y, width, height);
+        emit m_toplevel->mockToplevel()->windowGeometryRequested(geometry);
+    }
+}
+
 void XdgSurfaceV6::zxdg_surface_v6_destroy(QtWaylandServer::zxdg_surface_v6::Resource *resource)
 {
     Q_ASSERT(!m_toplevel);

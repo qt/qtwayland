@@ -161,10 +161,6 @@ QWaylandXdgSurface::Popup::~Popup()
         destroy();
 }
 
-void QWaylandXdgSurface::Popup::applyConfigure()
-{
-}
-
 void QWaylandXdgSurface::Popup::xdg_popup_popup_done()
 {
     m_xdgSurface->m_window->window()->close();
@@ -251,8 +247,6 @@ void QWaylandXdgSurface::applyConfigure()
 
     if (m_toplevel)
         m_toplevel->applyConfigure();
-    if (m_popup)
-        m_popup->applyConfigure();
 
     m_configured = true;
     ack_configure(m_pendingConfigureSerial);

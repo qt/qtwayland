@@ -123,7 +123,6 @@ private:
         Popup(QWaylandXdgSurfaceV6 *xdgSurface, QWaylandXdgSurfaceV6 *parent, QtWayland::zxdg_positioner_v6 *positioner);
         ~Popup() override;
 
-        void applyConfigure();
         void zxdg_popup_v6_popup_done() override;
 
         QWaylandXdgSurfaceV6 *m_xdgSurface = nullptr;

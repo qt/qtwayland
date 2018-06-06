@@ -267,6 +267,10 @@ void QWaylandOutput::initialize()
     Q_ASSERT(d->compositor);
     Q_ASSERT(d->compositor->isCreated());
 
+    if (!d->window && d->sizeFollowsWindow) {
+        qWarning("Setting QWaylandOutput::sizeFollowsWindow without a window has no effect");
+    }
+
     // Replace modes with one that follows the window size and refresh rate,
     // but only if window size is valid
     if (d->window && d->sizeFollowsWindow) {
@@ -816,11 +820,6 @@ bool QWaylandOutput::sizeFollowsWindow() const
 void QWaylandOutput::setSizeFollowsWindow(bool follow)
 {
     Q_D(QWaylandOutput);
-
-    if (!d->window) {
-        qWarning("Setting QWaylandOutput::sizeFollowsWindow without a window has no effect");
-        return;
-    }
 
     if (follow != d->sizeFollowsWindow) {
         d->sizeFollowsWindow = follow;

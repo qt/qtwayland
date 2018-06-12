@@ -66,6 +66,9 @@ XdgToplevelV6Integration::XdgToplevelV6Integration(QWaylandQuickShellSurfaceItem
     connect(m_toplevel, &QWaylandXdgToplevelV6::setMaximized, this, &XdgToplevelV6Integration::handleSetMaximized);
     connect(m_toplevel, &QWaylandXdgToplevelV6::unsetMaximized, this, &XdgToplevelV6Integration::handleUnsetMaximized);
     connect(m_toplevel, &QWaylandXdgToplevelV6::maximizedChanged, this, &XdgToplevelV6Integration::handleMaximizedChanged);
+    connect(m_toplevel, &QWaylandXdgToplevelV6::setFullscreen, this, &XdgToplevelV6Integration::handleSetFullscreen);
+    connect(m_toplevel, &QWaylandXdgToplevelV6::unsetFullscreen, this, &XdgToplevelV6Integration::handleUnsetFullscreen);
+    connect(m_toplevel, &QWaylandXdgToplevelV6::fullscreenChanged, this, &XdgToplevelV6Integration::handleFullscreenChanged);
     connect(m_toplevel, &QWaylandXdgToplevelV6::activatedChanged, this, &XdgToplevelV6Integration::handleActivatedChanged);
     connect(m_xdgSurface->shell(), &QWaylandXdgShellV6::popupCreated, this, [item](QWaylandXdgPopupV6 *popup, QWaylandXdgSurfaceV6 *){
         handlePopupCreated(item, popup);
@@ -135,8 +138,12 @@ void XdgToplevelV6Integration::handleSetMaximized()
     if (!m_item->view()->isPrimary())
         return;
 
-    maximizeState.initialWindowSize = m_xdgSurface->windowGeometry().size();
-    maximizeState.initialPosition = m_item->moveItem()->position();
+    QVector<QWaylandXdgToplevelV6::State> states = m_toplevel->states();
+
+    if (!states.contains(QWaylandXdgToplevelV6::State::FullscreenState) && !states.contains(QWaylandXdgToplevelV6::State::MaximizedState)) {
+        windowedGeometry.initialWindowSize = m_xdgSurface->windowGeometry().size();
+        windowedGeometry.initialPosition = m_item->moveItem()->position();
+    }
 
     QWaylandOutput *output = m_item->view()->output();
     m_toplevel->sendMaximized(output->availableGeometry().size() / output->scaleFactor());
@@ -147,7 +154,7 @@ void XdgToplevelV6Integration::handleUnsetMaximized()
     if (!m_item->view()->isPrimary())
         return;
 
-    m_toplevel->sendUnmaximized(maximizeState.initialWindowSize);
+    m_toplevel->sendUnmaximized(windowedGeometry.initialWindowSize);
 }
 
 void XdgToplevelV6Integration::handleMaximizedChanged()
@@ -156,7 +163,41 @@ void XdgToplevelV6Integration::handleMaximizedChanged()
         QWaylandOutput *output = m_item->view()->output();
         m_item->moveItem()->setPosition(output->position() + output->availableGeometry().topLeft());
     } else {
-        m_item->moveItem()->setPosition(maximizeState.initialPosition);
+        m_item->moveItem()->setPosition(windowedGeometry.initialPosition);
+    }
+}
+
+void XdgToplevelV6Integration::handleSetFullscreen()
+{
+    if (!m_item->view()->isPrimary())
+        return;
+
+    QVector<QWaylandXdgToplevelV6::State> states = m_toplevel->states();
+
+    if (!states.contains(QWaylandXdgToplevelV6::State::FullscreenState) && !states.contains(QWaylandXdgToplevelV6::State::MaximizedState)) {
+        windowedGeometry.initialWindowSize = m_xdgSurface->windowGeometry().size();
+        windowedGeometry.initialPosition = m_item->moveItem()->position();
+    }
+
+    QWaylandOutput *output = m_item->view()->output();
+    m_toplevel->sendFullscreen(output->geometry().size() / output->scaleFactor());
+}
+
+void XdgToplevelV6Integration::handleUnsetFullscreen()
+{
+    if (!m_item->view()->isPrimary())
+        return;
+
+    m_toplevel->sendUnmaximized(windowedGeometry.initialWindowSize);
+}
+
+void XdgToplevelV6Integration::handleFullscreenChanged()
+{
+    if (m_toplevel->fullscreen()) {
+        QWaylandOutput *output = m_item->view()->output();
+        m_item->moveItem()->setPosition(output->position() + output->geometry().topLeft());
+    } else {
+        m_item->moveItem()->setPosition(windowedGeometry.initialPosition);
     }
 }
 

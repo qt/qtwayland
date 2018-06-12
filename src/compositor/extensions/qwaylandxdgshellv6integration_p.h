@@ -72,6 +72,9 @@ private Q_SLOTS:
     void handleSetMaximized();
     void handleUnsetMaximized();
     void handleMaximizedChanged();
+    void handleSetFullscreen();
+    void handleUnsetFullscreen();
+    void handleFullscreenChanged();
     void handleActivatedChanged();
     void handleSurfaceSizeChanged();
 
@@ -106,7 +109,7 @@ private:
     struct {
         QSize initialWindowSize;
         QPointF initialPosition;
-    } maximizeState;
+    } windowedGeometry;
 };
 
 class XdgPopupV6Integration : public QWaylandQuickShellIntegration

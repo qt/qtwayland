@@ -1054,12 +1054,16 @@ uint QWaylandXdgToplevelV6::sendUnmaximized(const QSize &size)
  * Convenience for sending a configure event with the fullscreen state set, and
  * maximized and resizing removed. The activated state is left in its current state.
  *
+ * \sa sendUnmaximized
+ *
  * \a size is the new size of the window.
  */
 
 /*!
  * Convenience for sending a configure event with the fullscreen state set, and
  * maximized and resizing removed. The activated state is left in its current state.
+ *
+ * \sa sendUnmaximized
  *
  * \a size is the new size of the window.
  */

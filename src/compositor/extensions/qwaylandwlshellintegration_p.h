@@ -80,6 +80,8 @@ private Q_SLOTS:
     void handleSurfaceHasContentChanged();
     void handleRedraw();
     void adjustOffsetForNextFrame(const QPointF &offset);
+    void handleFullScreenSizeChanged();
+    void handleMaximizedSizeChanged();
 
 private:
     enum class GrabberState {
@@ -118,6 +120,14 @@ private:
 
     State currentState = State::Windowed;
     State nextState = State::Windowed;
+
+    struct {
+        QWaylandOutput *output = nullptr;
+        QMetaObject::Connection sizeChangedConnection; // Depending on whether maximized or fullscreen,
+                                                       // will be hooked to geometry-changed or available-
+                                                       // geometry-changed.
+    } nonwindowedState;
+
     QPointF normalPosition;
     QPointF finalPosition;
 };

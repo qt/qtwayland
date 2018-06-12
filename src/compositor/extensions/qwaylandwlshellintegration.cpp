@@ -99,6 +99,12 @@ void WlShellIntegration::handleSetDefaultTopLevel()
     // so we need to unset the flags here but we save the previous state and move
     // to the initial position when redrawing
     nextState = State::Windowed;
+
+    // Any handlers for making maximized or fullscreen state track the size of
+    // the designated output, are unneeded now that we're going to windowed
+    // state.
+    nonwindowedState.output = nullptr;
+    disconnect(nonwindowedState.sizeChangedConnection);
 }
 
 void WlShellIntegration::handleSetTransient(QWaylandSurface *parentSurface, const QPoint &relativeToParent, bool inactive)
@@ -129,8 +135,23 @@ void WlShellIntegration::handleSetMaximized(QWaylandOutput *output)
     nextState = State::Maximized;
     finalPosition = designatedOutput->position() + designatedOutput->availableGeometry().topLeft();
 
-    auto scaleFactor = m_item->view()->output()->scaleFactor();
-    m_shellSurface->sendConfigure(designatedOutput->availableGeometry().size() / scaleFactor, QWaylandWlShellSurface::NoneEdge);
+    // Any prior output-resize handlers are irrelevant at this point
+    disconnect(nonwindowedState.sizeChangedConnection);
+    nonwindowedState.output = designatedOutput;
+    nonwindowedState.sizeChangedConnection = connect(designatedOutput, &QWaylandOutput::availableGeometryChanged, this, &WlShellIntegration::handleMaximizedSizeChanged);
+    handleMaximizedSizeChanged();
+}
+
+void WlShellIntegration::handleMaximizedSizeChanged()
+{
+    if (!m_shellSurface)
+        return;
+
+    if (nextState == State::Maximized) {
+        QWaylandOutput *designatedOutput = nonwindowedState.output;
+        auto scaleFactor = designatedOutput->scaleFactor();
+        m_shellSurface->sendConfigure(designatedOutput->availableGeometry().size() / scaleFactor, QWaylandWlShellSurface::NoneEdge);
+    }
 }
 
 void WlShellIntegration::handleSetFullScreen(QWaylandWlShellSurface::FullScreenMethod method, uint framerate, QWaylandOutput *output)
@@ -154,7 +175,22 @@ void WlShellIntegration::handleSetFullScreen(QWaylandWlShellSurface::FullScreenM
     nextState = State::FullScreen;
     finalPosition = designatedOutput->position();
 
-    m_shellSurface->sendConfigure(designatedOutput->geometry().size(), QWaylandWlShellSurface::NoneEdge);
+    // Any prior output-resize handlers are irrelevant at this point
+    disconnect(nonwindowedState.sizeChangedConnection);
+    nonwindowedState.output = designatedOutput;
+    nonwindowedState.sizeChangedConnection = connect(designatedOutput, &QWaylandOutput::geometryChanged, this, &WlShellIntegration::handleFullScreenSizeChanged);
+    handleFullScreenSizeChanged();
+}
+
+void WlShellIntegration::handleFullScreenSizeChanged()
+{
+    if (!m_shellSurface)
+        return;
+
+    if (nextState == State::FullScreen) {
+        QWaylandOutput *designatedOutput = nonwindowedState.output;
+        m_shellSurface->sendConfigure(designatedOutput->geometry().size(), QWaylandWlShellSurface::NoneEdge);
+    }
 }
 
 void WlShellIntegration::handleSetPopup(QWaylandSeat *seat, QWaylandSurface *parent, const QPoint &relativeToParent)
@@ -221,6 +257,11 @@ void WlShellIntegration::handleShellSurfaceDestroyed()
 {
     if (isPopup)
         handlePopupRemoved();
+
+    // Disarm any handlers that might fire and attempt to use the now-stale pointer
+    nonwindowedState.output = nullptr;
+    disconnect(nonwindowedState.sizeChangedConnection);
+
     m_shellSurface = nullptr;
 }
 

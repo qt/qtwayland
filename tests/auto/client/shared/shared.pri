@@ -8,12 +8,14 @@ CONFIG += wayland-scanner
 WAYLANDSERVERSOURCES += \
     ../../../../src/3rdparty/protocol/ivi-application.xml \
     ../../../../src/3rdparty/protocol/wayland.xml \
-    ../../../../src/3rdparty/protocol/xdg-shell-unstable-v6.xml
+    ../../../../src/3rdparty/protocol/xdg-shell-unstable-v6.xml \
+    ../../../../src/3rdparty/protocol/fullscreen-shell-unstable-v1.xml
 
 INCLUDEPATH += ../shared
 
 SOURCES += \
     ../shared/mockcompositor.cpp \
+    ../shared/mockfullscreenshellv1.cpp \
     ../shared/mockinput.cpp \
     ../shared/mockiviapplication.cpp \
     ../shared/mockwlshell.cpp \
@@ -23,6 +25,7 @@ SOURCES += \
 
 HEADERS += \
     ../shared/mockcompositor.h \
+    ../shared/mockfullscreenshellv1.h \
     ../shared/mockinput.h \
     ../shared/mockiviapplication.h \
     ../shared/mockwlshell.h \

@@ -87,6 +87,11 @@
             "condition": "features.draganddrop || features.clipboard",
             "output": [ "privateFeature" ]
         },
+        "wayland-client-fullscreen-shell-v1": {
+            "label": "fullscreen-shell-v1",
+            "condition": "features.wayland-client",
+            "output": [ "privateFeature" ]
+        },
         "wayland-client-ivi-shell": {
             "label": "ivi-shell",
             "condition": "features.wayland-client",

@@ -31,6 +31,7 @@
 
 #include "mockxdgshellv6.h"
 #include "mockiviapplication.h"
+#include "mockfullscreenshellv1.h"
 
 #include <pthread.h>
 #include <qglobal.h>
@@ -76,6 +77,7 @@ public:
 
     IviApplication *iviApplication() const;
     XdgShellV6 *xdgShellV6() const;
+    FullScreenShellV1 *fullScreenShellV1() const;
 
     void addSurface(Surface *surface);
     void removeSurface(Surface *surface);
@@ -135,6 +137,7 @@ private:
     QScopedPointer<IviApplication> m_iviApplication;
     QScopedPointer<WlShell> m_wlShell;
     QScopedPointer<XdgShellV6> m_xdgShellV6;
+    QScopedPointer<FullScreenShellV1> m_fullScreenShellV1;
 };
 
 void registerResource(wl_list *list, wl_resource *resource);
@@ -251,6 +254,7 @@ public:
     QSharedPointer<MockOutput> output(int index = 0);
     QSharedPointer<MockIviSurface> iviSurface(int index = 0);
     QSharedPointer<MockXdgToplevelV6> xdgToplevelV6(int index = 0);
+    QSharedPointer<MockSurface> fullScreenShellV1Surface(int index = 0);
 
     void lock();
     void unlock();

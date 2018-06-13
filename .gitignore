@@ -65,8 +65,11 @@ src/plugins/shellintegration/ivi-shell/qwayland-ivi-application.h
 src/plugins/shellintegration/ivi-shell/qwayland-ivi-application.cpp
 src/plugins/shellintegration/ivi-shell/qwayland-ivi-controller.h
 src/plugins/shellintegration/ivi-shell/qwayland-ivi-controller.cpp
+src/plugins/shellintegration/fullscreen-shell-v1/qwayland-fullscreen-shell-unstable-v1.cpp
+src/plugins/shellintegration/fullscreen-shell-v1/qwayland-fullscreen-shell-unstable-v1.h
 src/imports/compositor/compositor.qrc
 tests/auto/client/client/tst_client
+tests/auto/client/fullscreenshellv1/tst_client_fullscreenshell1
 tests/auto/compositor/compositor/tst_compositor
 tests/auto/compositor/compositor/qwayland-*.cpp
 tests/auto/compositor/compositor/qwayland-*.h

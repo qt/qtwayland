@@ -299,6 +299,16 @@ QSharedPointer<MockXdgToplevelV6> MockCompositor::xdgToplevelV6(int index)
     return result;
 }
 
+QSharedPointer<MockSurface> MockCompositor::fullScreenShellV1Surface(int index)
+{
+    QSharedPointer<MockSurface> result;
+    lock();
+    if (Impl::Surface *surface = m_compositor->fullScreenShellV1()->surfaces().value(index, nullptr))
+        result = surface->mockSurface();
+    unlock();
+    return result;
+}
+
 MockCompositor::Command MockCompositor::makeCommand(Command::Callback callback, void *target)
 {
     Command command;
@@ -382,6 +392,7 @@ Compositor::Compositor()
     m_iviApplication.reset(new IviApplication(m_display));
     m_wlShell.reset(new WlShell(m_display));
     m_xdgShellV6.reset(new XdgShellV6(m_display));
+    m_fullScreenShellV1.reset(new FullScreenShellV1(m_display));
 
     m_loop = wl_display_get_event_loop(m_display);
     m_fd = wl_event_loop_get_fd(m_loop);
@@ -459,6 +470,11 @@ XdgShellV6 *Compositor::xdgShellV6() const
     return m_xdgShellV6.data();
 }
 
+FullScreenShellV1 *Compositor::fullScreenShellV1() const
+{
+    return m_fullScreenShellV1.data();
+}
+
 uint32_t Compositor::nextSerial()
 {
     return wl_display_next_serial(m_display);
@@ -474,6 +490,7 @@ void Compositor::removeSurface(Surface *surface)
     m_surfaces.removeOne(surface);
     m_keyboard->handleSurfaceDestroyed(surface);
     m_pointer->handleSurfaceDestroyed(surface);
+    m_fullScreenShellV1->removeSurface(surface);
 }
 
 Surface *Compositor::resolveSurface(const QVariant &v)

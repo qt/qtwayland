@@ -62,7 +62,7 @@ QWaylandEglWindow::QWaylandEglWindow(QWindow *window)
     if (mDisplay->supportsWindowDecoration())
         fmt.setAlphaBufferSize(8);
     m_eglConfig = q_configFromGLFormat(m_clientBufferIntegration->eglDisplay(), fmt);
-    m_format = q_glFormatFromConfig(m_clientBufferIntegration->eglDisplay(), m_eglConfig);
+    m_format = q_glFormatFromConfig(m_clientBufferIntegration->eglDisplay(), m_eglConfig, fmt);
 
     // Do not create anything from here. This platform window may belong to a
     // RasterGLSurface window which may have pure raster content.  In this case, where the

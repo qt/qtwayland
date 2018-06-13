@@ -74,6 +74,7 @@ XdgToplevelV6Integration::XdgToplevelV6Integration(QWaylandQuickShellSurfaceItem
         handlePopupCreated(item, popup);
     });
     connect(m_xdgSurface->surface(), &QWaylandSurface::sizeChanged, this, &XdgToplevelV6Integration::handleSurfaceSizeChanged);
+    connect(m_toplevel, &QObject::destroyed, this, &XdgToplevelV6Integration::handleToplevelDestroyed);
 }
 
 bool XdgToplevelV6Integration::mouseMoveEvent(QMouseEvent *event)
@@ -145,8 +146,21 @@ void XdgToplevelV6Integration::handleSetMaximized()
         windowedGeometry.initialPosition = m_item->moveItem()->position();
     }
 
-    QWaylandOutput *output = m_item->view()->output();
-    m_toplevel->sendMaximized(output->availableGeometry().size() / output->scaleFactor());
+    // Any prior output-resize handlers are irrelevant at this point.
+    disconnect(nonwindowedState.sizeChangedConnection);
+    nonwindowedState.output = m_item->view()->output();
+    nonwindowedState.sizeChangedConnection = connect(nonwindowedState.output, &QWaylandOutput::availableGeometryChanged, this, &XdgToplevelV6Integration::handleMaximizedSizeChanged);
+    handleMaximizedSizeChanged();
+}
+
+void XdgToplevelV6Integration::handleMaximizedSizeChanged()
+{
+    // Insurance against handleToplevelDestroyed() not managing to disconnect this
+    // handler in time.
+    if (m_toplevel == nullptr)
+        return;
+
+    m_toplevel->sendMaximized(nonwindowedState.output->availableGeometry().size() / nonwindowedState.output->scaleFactor());
 }
 
 void XdgToplevelV6Integration::handleUnsetMaximized()
@@ -179,8 +193,21 @@ void XdgToplevelV6Integration::handleSetFullscreen()
         windowedGeometry.initialPosition = m_item->moveItem()->position();
     }
 
-    QWaylandOutput *output = m_item->view()->output();
-    m_toplevel->sendFullscreen(output->geometry().size() / output->scaleFactor());
+    // Any prior output-resize handlers are irrelevant at this point.
+    disconnect(nonwindowedState.sizeChangedConnection);
+    nonwindowedState.output = m_item->view()->output();
+    nonwindowedState.sizeChangedConnection = connect(nonwindowedState.output, &QWaylandOutput::geometryChanged, this, &XdgToplevelV6Integration::handleFullscreenSizeChanged);
+    handleFullscreenSizeChanged();
+}
+
+void XdgToplevelV6Integration::handleFullscreenSizeChanged()
+{
+    // Insurance against handleToplevelDestroyed() not managing to disconnect this
+    // handler in time.
+    if (m_toplevel == nullptr)
+        return;
+
+    m_toplevel->sendFullscreen(nonwindowedState.output->geometry().size() / nonwindowedState.output->scaleFactor());
 }
 
 void XdgToplevelV6Integration::handleUnsetFullscreen()
@@ -219,6 +246,13 @@ void XdgToplevelV6Integration::handleSurfaceSizeChanged()
             x += resizeState.initialSurfaceSize.width() - m_item->surface()->size().width();
         m_item->moveItem()->setPosition(QPointF(x, y));
     }
+}
+
+void XdgToplevelV6Integration::handleToplevelDestroyed()
+{
+    // Disarm any handlers that might fire on the now-stale toplevel pointer
+    nonwindowedState.output = nullptr;
+    disconnect(nonwindowedState.sizeChangedConnection);
 }
 
 XdgPopupV6Integration::XdgPopupV6Integration(QWaylandQuickShellSurfaceItem *item)

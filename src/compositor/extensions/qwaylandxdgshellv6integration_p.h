@@ -77,6 +77,9 @@ private Q_SLOTS:
     void handleFullscreenChanged();
     void handleActivatedChanged();
     void handleSurfaceSizeChanged();
+    void handleToplevelDestroyed();
+    void handleMaximizedSizeChanged();
+    void handleFullscreenSizeChanged();
 
 private:
     QWaylandQuickShellSurfaceItem *m_item = nullptr;
@@ -110,6 +113,13 @@ private:
         QSize initialWindowSize;
         QPointF initialPosition;
     } windowedGeometry;
+
+    struct {
+        QWaylandOutput *output = nullptr;
+        QMetaObject::Connection sizeChangedConnection; // Depending on whether maximized or fullscreen,
+                                                       // will be hooked to geometry-changed or available-
+                                                       // geometry-changed.
+    } nonwindowedState;
 };
 
 class XdgPopupV6Integration : public QWaylandQuickShellIntegration

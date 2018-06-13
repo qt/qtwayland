@@ -282,7 +282,18 @@ void QWaylandWindow::setWindowTitle(const QString &title)
 {
     if (mShellSurface) {
         const QString separator = QString::fromUtf8(" \xe2\x80\x94 "); // unicode character U+2014, EM DASH
-        mShellSurface->setTitle(formatWindowTitle(title, separator));
+        const QString formatted = formatWindowTitle(title, separator);
+
+        const int libwaylandMaxBufferSize = 4096;
+        // Some parts of the buffer is used for metadata, so subtract 100 to be on the safe side
+        const int maxLength = libwaylandMaxBufferSize - 100;
+
+        auto truncated = QStringRef(&formatted).left(maxLength);
+        if (truncated.length() < formatted.length()) {
+            qCWarning(lcQpaWayland) << "Window titles longer than" << maxLength << "characters are not supported."
+                                    << "Truncating window title (from" << formatted.length() << "chars)";
+        }
+        mShellSurface->setTitle(truncated.toString());
     }
 
     if (mWindowDecoration && window()->isVisible())

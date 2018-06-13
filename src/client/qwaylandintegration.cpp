@@ -52,7 +52,12 @@
 #include "qwaylandwindowmanagerintegration_p.h"
 #include "qwaylandscreen_p.h"
 
-#include <QtFontDatabaseSupport/private/qgenericunixfontdatabase_p.h>
+#if defined(Q_OS_MACOS)
+#  include <QtFontDatabaseSupport/private/qcoretextfontdatabase_p.h>
+#  include <QtFontDatabaseSupport/private/qfontengine_coretext_p.h>
+#else
+#  include <QtFontDatabaseSupport/private/qgenericunixfontdatabase_p.h>
+#endif
 #include <QtEventDispatcherSupport/private/qgenericunixeventdispatcher_p.h>
 #include <QtThemeSupport/private/qgenericunixthemes_p.h>
 
@@ -118,7 +123,11 @@ public:
 };
 
 QWaylandIntegration::QWaylandIntegration()
+#if defined(Q_OS_MACOS)
+    : mFontDb(new QCoreTextFontDatabaseEngineFactory<QCoreTextFontEngine>)
+#else
     : mFontDb(new QGenericUnixFontDatabase())
+#endif
     , mNativeInterface(new QWaylandNativeInterface(this))
 #if QT_CONFIG(accessibility)
     , mAccessibility(new QPlatformAccessibility())

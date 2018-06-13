@@ -350,12 +350,17 @@ void QWaylandView::setAllowDiscardFrontBuffer(bool discard)
 /*!
  * Makes this QWaylandView the primary view for the surface.
  *
+ * It has no effect if this QWaylandView is not holding any QWaylandSurface
+ *
  * \sa QWaylandSurface::primaryView
  */
 void QWaylandView::setPrimary()
 {
     Q_D(QWaylandView);
-    d->surface->setPrimaryView(this);
+    if (d->surface)
+        d->surface->setPrimaryView(this);
+    else
+        qWarning("Calling setPrimary() on a QWaylandView without a surface has no effect.");
 }
 
 /*!
@@ -366,7 +371,7 @@ void QWaylandView::setPrimary()
 bool QWaylandView::isPrimary() const
 {
     Q_D(const QWaylandView);
-    return d->surface->primaryView() == this;
+    return d->surface && d->surface->primaryView() == this;
 }
 
 /*!

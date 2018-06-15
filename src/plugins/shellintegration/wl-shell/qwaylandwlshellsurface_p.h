@@ -92,7 +92,6 @@ public:
     void setWindowFlags(Qt::WindowFlags flags) override;
     void sendProperty(const QString &name, const QVariant &value) override;
 
-    void setType(Qt::WindowType type, QWaylandWindow *transientParent) override;
     void applyConfigure() override;
     bool wantsDecorations() const override;
 

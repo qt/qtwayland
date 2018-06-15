@@ -75,8 +75,6 @@ public:
     QWaylandXdgPopupV5(struct ::xdg_popup *popup, QWaylandWindow *window);
     ~QWaylandXdgPopupV5() override;
 
-    void setType(Qt::WindowType type, QWaylandWindow *transientParent) override;
-
 protected:
     void xdg_popup_popup_done() override;
 

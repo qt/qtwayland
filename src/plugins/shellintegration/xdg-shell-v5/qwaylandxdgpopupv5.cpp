@@ -62,12 +62,6 @@ QWaylandXdgPopupV5::~QWaylandXdgPopupV5()
     delete m_extendedWindow;
 }
 
-void QWaylandXdgPopupV5::setType(Qt::WindowType type, QWaylandWindow *transientParent)
-{
-    Q_UNUSED(type);
-    Q_UNUSED(transientParent);
-}
-
 void QWaylandXdgPopupV5::xdg_popup_popup_done()
 {
     m_window->window()->close();

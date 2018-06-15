@@ -172,6 +172,20 @@ QWaylandXdgSurfaceV6::QWaylandXdgSurfaceV6(QWaylandXdgShellV6 *shell, ::zxdg_sur
                     , m_shell(shell)
                     , m_window(window)
 {
+    QWaylandDisplay *display = window->display();
+    Qt::WindowType type = window->window()->type();
+    auto *transientParent = window->transientParent();
+
+    if ((type == Qt::Popup || type == Qt::ToolTip) && transientParent && display->lastInputDevice()) {
+        setPopup(transientParent, display->lastInputDevice(), display->lastInputSerial(), type == Qt::Popup);
+    } else {
+        setToplevel();
+        if (transientParent) {
+            auto parentXdgSurface = static_cast<QWaylandXdgSurfaceV6 *>(transientParent->shellSurface());
+            if (parentXdgSurface)
+                m_toplevel->set_parent(parentXdgSurface->m_toplevel->object());
+        }
+    }
 }
 
 QWaylandXdgSurfaceV6::~QWaylandXdgSurfaceV6()
@@ -215,21 +229,6 @@ void QWaylandXdgSurfaceV6::setAppId(const QString &appId)
 {
     if (m_toplevel)
         m_toplevel->set_app_id(appId);
-}
-
-void QWaylandXdgSurfaceV6::setType(Qt::WindowType type, QWaylandWindow *transientParent)
-{
-    QWaylandDisplay *display = m_window->display();
-    if ((type == Qt::Popup || type == Qt::ToolTip) && transientParent && display->lastInputDevice()) {
-        setPopup(transientParent, display->lastInputDevice(), display->lastInputSerial(), type == Qt::Popup);
-    } else {
-        setToplevel();
-        if (transientParent) {
-            auto parentXdgSurface = static_cast<QWaylandXdgSurfaceV6 *>(transientParent->shellSurface());
-            if (parentXdgSurface)
-                m_toplevel->set_parent(parentXdgSurface->m_toplevel->object());
-        }
-    }
 }
 
 bool QWaylandXdgSurfaceV6::handleExpose(const QRegion &region)

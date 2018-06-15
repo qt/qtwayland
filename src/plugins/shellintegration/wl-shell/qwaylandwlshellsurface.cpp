@@ -59,6 +59,15 @@ QWaylandWlShellSurface::QWaylandWlShellSurface(struct ::wl_shell_surface *shell_
 {
     if (window->display()->windowExtension())
         m_extendedWindow = new QWaylandExtendedSurface(window);
+
+    Qt::WindowType type = window->window()->type();
+    auto *transientParent = window->transientParent();
+    if (type == Qt::Popup && transientParent && transientParent->object())
+        setPopup(transientParent, m_window->display()->lastInputDevice(), m_window->display()->lastInputSerial());
+    else if (transientParent && transientParent->object())
+        updateTransientParent(transientParent->window());
+    else
+        setTopLevel();
 }
 
 QWaylandWlShellSurface::~QWaylandWlShellSurface()
@@ -248,16 +257,6 @@ void QWaylandWlShellSurface::setPopup(QWaylandWindow *parent, QWaylandInputDevic
     Q_ASSERT(parent_wayland_window->object());
     set_popup(device->wl_seat(), serial, parent_wayland_window->object(),
               transientPos.x(), transientPos.y(), 0);
-}
-
-void QWaylandWlShellSurface::setType(Qt::WindowType type, QWaylandWindow *transientParent)
-{
-    if (type == Qt::Popup && transientParent && transientParent->object())
-        setPopup(transientParent, m_window->display()->lastInputDevice(), m_window->display()->lastInputSerial());
-    else if (transientParent && transientParent->object())
-        updateTransientParent(transientParent->window());
-    else
-        setTopLevel();
 }
 
 void QWaylandWlShellSurface::shell_surface_ping(uint32_t serial)

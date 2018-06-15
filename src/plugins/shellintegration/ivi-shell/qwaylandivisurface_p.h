@@ -62,7 +62,6 @@ public:
                        struct ::ivi_controller_surface *iviControllerSurface);
     ~QWaylandIviSurface() override;
 
-    void setType(Qt::WindowType type, QWaylandWindow *transientParent) override;
     void applyConfigure() override;
 
 private:

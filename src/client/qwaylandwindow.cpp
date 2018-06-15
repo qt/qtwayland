@@ -139,8 +139,6 @@ void QWaylandWindow::initWindow()
 
         mShellSurface = mDisplay->createShellSurface(this);
         if (mShellSurface) {
-            mShellSurface->setType(window()->type(), transientParent());
-
             // Set initial surface title
             setWindowTitle(window()->title());
 

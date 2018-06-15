@@ -95,7 +95,6 @@ public:
 
     inline QWaylandWindow *window() { return m_window; }
 
-    virtual void setType(Qt::WindowType type, QWaylandWindow *transientParent) = 0;
     virtual void applyConfigure() {}
     virtual void requestWindowStates(Qt::WindowStates states) {Q_UNUSED(states);}
     virtual bool wantsDecorations() const { return false; }

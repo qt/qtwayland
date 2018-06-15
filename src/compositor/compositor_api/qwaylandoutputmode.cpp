@@ -128,15 +128,7 @@ int QWaylandOutputMode::refreshRate() const
 /*!
  * \internal
  */
-void QWaylandOutputMode::setWidth(int width)
+void QWaylandOutputMode::setSize(const QSize &size)
 {
-    d->size.setWidth(width);
-}
-
-/*!
- * \internal
- */
-void QWaylandOutputMode::setHeight(int height)
-{
-    d->size.setHeight(height);
+    d->size = size;
 }

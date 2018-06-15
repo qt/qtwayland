@@ -165,6 +165,33 @@ void QWaylandOutputPrivate::sendModesInfo()
     }
 }
 
+void QWaylandOutputPrivate::handleWindowPixelSizeChanged()
+{
+    Q_Q(QWaylandOutput);
+    Q_ASSERT(window);
+    if (sizeFollowsWindow && currentMode <= modes.size() - 1) {
+        if (currentMode >= 0) {
+            QWaylandOutputMode mode = modes.at(currentMode);
+            mode.setSize(windowPixelSize);
+            modes.replace(currentMode, mode);
+            emit q->geometryChanged();
+            if (!availableGeometry.isValid())
+                emit q->availableGeometryChanged();
+            sendModesInfo();
+        } else {
+            // We didn't add a mode during the initialization because the window
+            // size was invalid, let's add it now
+            int mHzRefreshRate = qFloor(window->screen()->refreshRate() * 1000);
+            QWaylandOutputMode mode(windowPixelSize, mHzRefreshRate);
+            if (mode.isValid()) {
+                modes.clear();
+                q->addMode(mode, true);
+                q->setCurrentMode(mode);
+            }
+        }
+    }
+}
+
 void QWaylandOutputPrivate::addView(QWaylandView *view, QWaylandSurface *surface)
 {
     for (int i = 0; i < surfaceViews.size(); i++) {
@@ -286,8 +313,9 @@ void QWaylandOutput::initialize()
     QWaylandCompositorPrivate::get(d->compositor)->addOutput(this);
 
     if (d->window) {
-        QObject::connect(d->window, &QWindow::widthChanged, this, &QWaylandOutput::handleSetWidth);
-        QObject::connect(d->window, &QWindow::heightChanged, this, &QWaylandOutput::handleSetHeight);
+        QObject::connect(d->window, &QWindow::widthChanged, this, &QWaylandOutput::handleMaybeWindowPixelSizeChanged);
+        QObject::connect(d->window, &QWindow::heightChanged, this, &QWaylandOutput::handleMaybeWindowPixelSizeChanged);
+        QObject::connect(d->window, &QWindow::screenChanged, this, &QWaylandOutput::handleMaybeWindowPixelSizeChanged);
         QObject::connect(d->window, &QObject::destroyed, this, &QWaylandOutput::handleWindowDestroyed);
     }
 
@@ -920,66 +948,18 @@ void QWaylandOutput::surfaceLeave(QWaylandSurface *surface)
 /*!
  * \internal
  */
-void QWaylandOutput::handleSetWidth(int newWidth)
+void QWaylandOutput::handleMaybeWindowPixelSizeChanged()
 {
     Q_D(QWaylandOutput);
 
-    if (!d->window || !d->sizeFollowsWindow)
+    if (!d->window)
         return;
 
-    if (d->currentMode <= d->modes.size() - 1) {
-        if (d->currentMode >= 0) {
-            QWaylandOutputMode mode = d->modes.at(d->currentMode);
-            mode.setWidth(newWidth * d->window->devicePixelRatio());
-            d->modes.replace(d->currentMode, mode);
-            emit geometryChanged();
-            if (!d->availableGeometry.isValid())
-                emit availableGeometryChanged();
-            d->sendModesInfo();
-        } else {
-            // We didn't add a mode during the initialization because the window
-            // size was invalid, let's add it now
-            QWaylandOutputMode mode(d->window->size() * d->window->devicePixelRatio(),
-                                    qFloor(d->window->screen()->refreshRate() * 1000));
-            if (mode.isValid()) {
-                d->modes.clear();
-                addMode(mode, true);
-                setCurrentMode(mode);
-            }
-        }
-    }
-}
+    const QSize pixelSize = d->window->size() * d->window->devicePixelRatio();
 
-/*!
- * \internal
- */
-void QWaylandOutput::handleSetHeight(int newHeight)
-{
-    Q_D(QWaylandOutput);
-
-    if (!d->window || !d->sizeFollowsWindow)
-        return;
-
-    if (d->currentMode <= d->modes.size() - 1) {
-        if (d->currentMode >= 0) {
-            QWaylandOutputMode mode = d->modes.at(d->currentMode);
-            mode.setHeight(newHeight * d->window->devicePixelRatio());
-            d->modes.replace(d->currentMode, mode);
-            emit geometryChanged();
-            if (!d->availableGeometry.isValid())
-                emit availableGeometryChanged();
-            d->sendModesInfo();
-        } else {
-            // We didn't add a mode during the initialization because the window
-            // size was invalid, let's add it now
-            QWaylandOutputMode mode(d->window->size() * d->window->devicePixelRatio(),
-                                    qFloor(d->window->screen()->refreshRate() * 1000));
-            if (mode.isValid()) {
-                d->modes.clear();
-                addMode(mode, true);
-                setCurrentMode(mode);
-            }
-        }
+    if (pixelSize != d->windowPixelSize) {
+        d->windowPixelSize = pixelSize;
+        d->handleWindowPixelSizeChanged();
     }
 }
 

@@ -64,10 +64,9 @@ public:
 
 private:
     class QWaylandOutputModePrivate *const d;
-    friend class QWaylandOutput;
+    friend class QWaylandOutputPrivate;
 
-    void setWidth(int width);
-    void setHeight(int height);
+    void setSize(const QSize &size);
 };
 Q_DECLARE_TYPEINFO(QWaylandOutputMode, Q_MOVABLE_TYPE);
 

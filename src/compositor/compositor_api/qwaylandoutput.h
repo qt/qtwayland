@@ -181,8 +181,7 @@ Q_SIGNALS:
     void windowDestroyed();
 
 private Q_SLOTS:
-    void handleSetWidth(int newWidth);
-    void handleSetHeight(int newHeight);
+    void handleMaybeWindowPixelSizeChanged();
     void handleWindowDestroyed();
 
 protected:

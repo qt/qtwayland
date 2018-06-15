@@ -108,6 +108,8 @@ public:
     void sendMode(const Resource *resource, const QWaylandOutputMode &mode);
     void sendModesInfo();
 
+    void handleWindowPixelSizeChanged();
+
 protected:
     void output_bind_resource(Resource *resource) override;
 
@@ -128,6 +130,7 @@ private:
     int scaleFactor = 1;
     bool sizeFollowsWindow = false;
     bool initialized = false;
+    QSize windowPixelSize;
 
     Q_DECLARE_PUBLIC(QWaylandOutput)
     Q_DISABLE_COPY(QWaylandOutputPrivate)

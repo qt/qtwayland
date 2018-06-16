@@ -41,6 +41,7 @@
 
 #include "qwaylandintegration_p.h"
 #include "qwaylandwindow_p.h"
+#include "qwaylandabstractdecoration_p.h"
 #include "qwaylandscreen_p.h"
 #include "qwaylandcursor_p.h"
 #include "qwaylandinputdevice_p.h"
@@ -407,6 +408,9 @@ void QWaylandDisplay::handleWindowActivated(QWaylandWindow *window)
 
     mActiveWindows.append(window);
     requestWaylandSync();
+
+    if (auto *decoration = window->decoration())
+        decoration->update();
 }
 
 void QWaylandDisplay::handleWindowDeactivated(QWaylandWindow *window)
@@ -417,6 +421,9 @@ void QWaylandDisplay::handleWindowDeactivated(QWaylandWindow *window)
         requestWaylandSync();
 
     mActiveWindows.removeOne(window);
+
+    if (auto *decoration = window->decoration())
+        decoration->update();
 }
 
 void QWaylandDisplay::handleKeyboardFocusChanged(QWaylandInputDevice *inputDevice)

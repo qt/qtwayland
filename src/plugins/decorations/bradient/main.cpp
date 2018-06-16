@@ -87,6 +87,7 @@ private:
     QRectF minimizeButtonRect() const;
 
     QColor m_foregroundColor;
+    QColor m_foregroundInactiveColor;
     QColor m_backgroundColor;
     QStaticText m_windowTitle;
     Button m_clicking = None;
@@ -99,6 +100,7 @@ QWaylandBradientDecoration::QWaylandBradientDecoration()
     QPalette palette;
     m_foregroundColor = palette.color(QPalette::Active, QPalette::WindowText);
     m_backgroundColor = palette.color(QPalette::Active, QPalette::Window);
+    m_foregroundInactiveColor = palette.color(QPalette::Disabled, QPalette::WindowText);
 
     QTextOption option(Qt::AlignHCenter | Qt::AlignVCenter);
     option.setWrapMode(QTextOption::NoWrap);
@@ -181,7 +183,7 @@ void QWaylandBradientDecoration::paint(QPaintDevice *device)
 
         p.save();
         p.setClipRect(titleBar);
-        p.setPen(m_foregroundColor);
+        p.setPen(window()->isActive() ? m_foregroundColor : m_foregroundInactiveColor);
         QSizeF size = m_windowTitle.size();
         int dx = (top.width() - size.width()) /2;
         int dy = (top.height()- size.height()) /2;
@@ -197,7 +199,7 @@ void QWaylandBradientDecoration::paint(QPaintDevice *device)
     QRectF rect;
 
     // Default pen
-    QPen pen(m_foregroundColor);
+    QPen pen(window()->isActive() ? m_foregroundColor : m_foregroundInactiveColor);
     p.setPen(pen);
 
     // Close button

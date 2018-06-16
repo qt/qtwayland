@@ -804,8 +804,13 @@ void QWaylandWindow::handleMouse(QWaylandInputDevice *inputDevice, const QWaylan
     }
 
 #if QT_CONFIG(cursor)
-    if (e.type == QWaylandPointerEvent::Enter)
-        restoreMouseCursor(inputDevice);
+    if (e.type == QWaylandPointerEvent::Enter) {
+        QRect windowGeometry = window()->frameGeometry();
+        windowGeometry.moveTopLeft({0, 0}); // convert to wayland surface coordinates
+        QRect contentGeometry = windowGeometry.marginsRemoved(frameMargins());
+        if (contentGeometry.contains(e.local.toPoint()))
+            restoreMouseCursor(inputDevice);
+    }
 #endif
 }
 

@@ -205,7 +205,7 @@ void QWaylandXdgSurfaceV6::resize(QWaylandInputDevice *inputDevice, zxdg_topleve
 
 void QWaylandXdgSurfaceV6::resize(QWaylandInputDevice *inputDevice, enum wl_shell_surface_resize edges)
 {
-    auto xdgEdges = reinterpret_cast<enum zxdg_toplevel_v6_resize_edge const * const>(&edges);
+    auto xdgEdges = reinterpret_cast<enum zxdg_toplevel_v6_resize_edge const *>(&edges);
     resize(inputDevice, *xdgEdges);
 }
 

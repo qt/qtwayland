@@ -305,7 +305,7 @@ void QWaylandBradientDecoration::paint(QPaintDevice *device)
     p.save();
     p.drawRect(maximizeButtonRect());
     rect = maximizeButtonRect().adjusted(5, 5, -5, -5);
-    if (waylandWindow()->isMaximized()) {
+    if ((window()->windowStates() & Qt::WindowMaximized)) {
         QRectF rect1 = rect.adjusted(rect.width() / 3, 0, 0, -rect.height() / 3);
         QRectF rect2 = rect.adjusted(0, rect.height() / 4, -rect.width() / 4, 0);
         p.drawRect(rect1);

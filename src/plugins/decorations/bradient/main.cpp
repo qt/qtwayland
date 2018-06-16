@@ -55,72 +55,8 @@ QT_BEGIN_NAMESPACE
 namespace QtWaylandClient {
 
 #define BUTTON_SPACING 5
-
-#if QT_CONFIG(imageformat_xpm)
-#  define BUTTON_WIDTH 10
-
-static const char * const qt_close_xpm[] = {
-"10 10 2 1",
-"# c #000000",
-". c None",
-"..........",
-".##....##.",
-"..##..##..",
-"...####...",
-"....##....",
-"...####...",
-"..##..##..",
-".##....##.",
-"..........",
-".........."};
-
-static const char * const qt_maximize_xpm[]={
-"10 10 2 1",
-"# c #000000",
-". c None",
-"#########.",
-"#########.",
-"#.......#.",
-"#.......#.",
-"#.......#.",
-"#.......#.",
-"#.......#.",
-"#.......#.",
-"#########.",
-".........."};
-
-static const char * const qt_minimize_xpm[] = {
-"10 10 2 1",
-"# c #000000",
-". c None",
-"..........",
-"..........",
-"..........",
-"..........",
-"..........",
-"..........",
-"..........",
-".#######..",
-".#######..",
-".........."};
-
-static const char * const qt_normalizeup_xpm[] = {
-"10 10 2 1",
-"# c #000000",
-". c None",
-"...######.",
-"...######.",
-"...#....#.",
-".######.#.",
-".######.#.",
-".#....###.",
-".#....#...",
-".#....#...",
-".######...",
-".........."};
-#else
-#  define BUTTON_WIDTH 22
-#endif
+#define BUTTON_WIDTH 18
+#define BUTTONS_RIGHT_MARGIN 8
 
 enum Button
 {
@@ -161,8 +97,8 @@ private:
 QWaylandBradientDecoration::QWaylandBradientDecoration()
 {
     QPalette palette;
-    m_foregroundColor = palette.color(QPalette::Active, QPalette::HighlightedText);
-    m_backgroundColor = palette.color(QPalette::Active, QPalette::Highlight);
+    m_foregroundColor = palette.color(QPalette::Active, QPalette::WindowText);
+    m_backgroundColor = palette.color(QPalette::Active, QPalette::Window);
 
     QTextOption option(Qt::AlignHCenter | Qt::AlignVCenter);
     option.setWrapMode(QTextOption::NoWrap);
@@ -171,19 +107,19 @@ QWaylandBradientDecoration::QWaylandBradientDecoration()
 
 QRectF QWaylandBradientDecoration::closeButtonRect() const
 {
-    return QRectF(window()->frameGeometry().width() - BUTTON_WIDTH - BUTTON_SPACING * 2,
+    return QRectF(window()->frameGeometry().width() - BUTTON_WIDTH - BUTTON_SPACING * 0 - BUTTONS_RIGHT_MARGIN,
                   (margins().top() - BUTTON_WIDTH) / 2, BUTTON_WIDTH, BUTTON_WIDTH);
 }
 
 QRectF QWaylandBradientDecoration::maximizeButtonRect() const
 {
-    return QRectF(window()->frameGeometry().width() - BUTTON_WIDTH * 2 - BUTTON_SPACING * 3,
+    return QRectF(window()->frameGeometry().width() - BUTTON_WIDTH * 2 - BUTTON_SPACING * 1 - BUTTONS_RIGHT_MARGIN,
                   (margins().top() - BUTTON_WIDTH) / 2, BUTTON_WIDTH, BUTTON_WIDTH);
 }
 
 QRectF QWaylandBradientDecoration::minimizeButtonRect() const
 {
-    return QRectF(window()->frameGeometry().width() - BUTTON_WIDTH * 3 - BUTTON_SPACING * 4,
+    return QRectF(window()->frameGeometry().width() - BUTTON_WIDTH * 3 - BUTTON_SPACING * 2 - BUTTONS_RIGHT_MARGIN,
                   (margins().top() - BUTTON_WIDTH) / 2, BUTTON_WIDTH, BUTTON_WIDTH);
 }
 
@@ -209,16 +145,12 @@ void QWaylandBradientDecoration::paint(QPaintDevice *device)
     p.setRenderHint(QPainter::Antialiasing);
 
     // Title bar
-    QLinearGradient grad(top.topLeft(), top.bottomLeft());
-    QColor base(m_backgroundColor);
-    grad.setColorAt(0, base.lighter(100));
-    grad.setColorAt(1, base.darker(180));
     QPainterPath roundedRect;
-    roundedRect.addRoundedRect(surfaceRect, 6, 6);
+    roundedRect.addRoundedRect(surfaceRect, 3, 3);
     for (int i = 0; i < 4; ++i) {
         p.save();
         p.setClipRect(clips[i]);
-        p.fillPath(roundedRect, grad);
+        p.fillPath(roundedRect, m_backgroundColor);
         p.restore();
     }
 
@@ -254,34 +186,13 @@ void QWaylandBradientDecoration::paint(QPaintDevice *device)
         int dx = (top.width() - size.width()) /2;
         int dy = (top.height()- size.height()) /2;
         QFont font = p.font();
-        font.setBold(true);
-        font.setPixelSize(12);
+        font.setPixelSize(14);
         p.setFont(font);
         QPoint windowTitlePoint(top.topLeft().x() + dx,
                  top.topLeft().y() + dy);
         p.drawStaticText(windowTitlePoint, m_windowTitle);
         p.restore();
     }
-
-#if QT_CONFIG(imageformat_xpm)
-    p.save();
-
-    // Close button
-    QPixmap closePixmap(qt_close_xpm);
-    p.drawPixmap(closeButtonRect(), closePixmap, closePixmap.rect());
-
-    // Maximize button
-    QPixmap maximizePixmap((window()->windowStates() & Qt::WindowMaximized) ? qt_normalizeup_xpm : qt_maximize_xpm);
-    p.drawPixmap(maximizeButtonRect(), maximizePixmap, maximizePixmap.rect());
-
-    // Minimize button
-    QPixmap minimizePixmap(qt_minimize_xpm);
-    p.drawPixmap(minimizeButtonRect(), minimizePixmap, minimizePixmap.rect());
-
-    p.restore();
-#else
-    // We don't need antialiasing from now on
-    p.setRenderHint(QPainter::Antialiasing, false);
 
     QRectF rect;
 
@@ -292,8 +203,7 @@ void QWaylandBradientDecoration::paint(QPaintDevice *device)
     // Close button
     p.save();
     rect = closeButtonRect();
-    p.drawRect(rect);
-    qreal crossSize = rect.height() / 2;
+    qreal crossSize = rect.height() / 2.3;
     QPointF crossCenter(rect.center());
     QRectF crossRect(crossCenter.x() - crossSize / 2, crossCenter.y() - crossSize / 2, crossSize, crossSize);
     pen.setWidth(2);
@@ -304,15 +214,16 @@ void QWaylandBradientDecoration::paint(QPaintDevice *device)
 
     // Maximize button
     p.save();
-    p.drawRect(maximizeButtonRect());
-    rect = maximizeButtonRect().adjusted(5, 5, -5, -5);
+    p.setRenderHint(QPainter::Antialiasing, false);
+    rect = maximizeButtonRect().adjusted(4, 5, -4, -5);
     if ((window()->windowStates() & Qt::WindowMaximized)) {
-        QRectF rect1 = rect.adjusted(rect.width() / 3, 0, 0, -rect.height() / 3);
-        QRectF rect2 = rect.adjusted(0, rect.height() / 4, -rect.width() / 4, 0);
+        qreal inset = 2;
+        QRectF rect1 = rect.adjusted(inset, 0, 0, -inset);
+        QRectF rect2 = rect.adjusted(0, inset, -inset, 0);
         p.drawRect(rect1);
+        p.setBrush(m_backgroundColor); // need to cover up some lines from the other rect
         p.drawRect(rect2);
     } else {
-        p.setPen(m_foregroundColor);
         p.drawRect(rect);
         p.drawLine(rect.left(), rect.top() + 1, rect.right(), rect.top() + 1);
     }
@@ -320,13 +231,12 @@ void QWaylandBradientDecoration::paint(QPaintDevice *device)
 
     // Minimize button
     p.save();
-    p.drawRect(minimizeButtonRect());
+    p.setRenderHint(QPainter::Antialiasing, false);
     rect = minimizeButtonRect().adjusted(5, 5, -5, -5);
     pen.setWidth(2);
     p.setPen(pen);
     p.drawLine(rect.bottomLeft(), rect.bottomRight());
     p.restore();
-#endif
 }
 
 bool QWaylandBradientDecoration::clickButton(Qt::MouseButtons b, Button btn)

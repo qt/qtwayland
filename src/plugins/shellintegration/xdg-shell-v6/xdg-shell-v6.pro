@@ -2,6 +2,8 @@ QT += gui-private waylandclient-private
 CONFIG += wayland-scanner
 
 QMAKE_USE += wayland-client
+qtConfig(xkbcommon-evdev): \
+    QMAKE_USE_PRIVATE += xkbcommon_evdev
 
 WAYLANDCLIENTSOURCES += \
     ../../../3rdparty/protocol/xdg-shell-unstable-v6.xml

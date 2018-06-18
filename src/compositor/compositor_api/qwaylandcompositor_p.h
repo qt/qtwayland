@@ -112,6 +112,11 @@ public:
 
     inline void addOutput(QWaylandOutput *output);
     inline void removeOutput(QWaylandOutput *output);
+
+#if WAYLAND_VERSION_MAJOR >= 1 && (WAYLAND_VERSION_MAJOR != 1 || WAYLAND_VERSION_MINOR >= 10)
+    void connectToExternalSockets();
+#endif
+
 protected:
     void compositor_create_surface(wl_compositor::Resource *resource, uint32_t id) override;
     void compositor_create_region(wl_compositor::Resource *resource, uint32_t id) override;
@@ -128,6 +133,9 @@ protected:
     void loadServerBufferIntegration();
 
     QByteArray socket_name;
+#if WAYLAND_VERSION_MAJOR >= 1 && (WAYLAND_VERSION_MAJOR != 1 || WAYLAND_VERSION_MINOR >= 10)
+    QList<int> externally_added_socket_fds;
+#endif
     struct wl_display *display = nullptr;
 
     QList<QWaylandSeat *> seats;

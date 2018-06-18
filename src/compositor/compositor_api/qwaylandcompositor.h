@@ -93,6 +93,8 @@ public:
     void setSocketName(const QByteArray &name);
     QByteArray socketName() const;
 
+    Q_INVOKABLE void addSocketFd(int fd);
+
     ::wl_display *display() const;
     uint32_t nextSerial();
 

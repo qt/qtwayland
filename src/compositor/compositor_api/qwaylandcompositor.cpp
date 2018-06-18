@@ -193,6 +193,10 @@ void QWaylandCompositorPrivate::init()
         emit q->socketNameChanged(socket_name);
     }
 
+#if WAYLAND_VERSION_MAJOR >= 1 && (WAYLAND_VERSION_MAJOR != 1 || WAYLAND_VERSION_MINOR >= 10)
+    connectToExternalSockets();
+#endif
+
     loop = wl_display_get_event_loop(display);
 
     int fd = wl_event_loop_get_fd(loop);
@@ -273,6 +277,18 @@ void QWaylandCompositorPrivate::addPolishObject(QObject *object)
         polish_objects.append(object);
     }
 }
+
+#if WAYLAND_VERSION_MAJOR >= 1 && (WAYLAND_VERSION_MAJOR != 1 || WAYLAND_VERSION_MINOR >= 10)
+void QWaylandCompositorPrivate::connectToExternalSockets()
+{
+    // Clear out any backlog of user-supplied external socket descriptors
+    for (int fd : qAsConst(externally_added_socket_fds)) {
+        if (wl_display_add_socket_fd(display, fd) != 0)
+            qWarning() << "Failed to integrate user-supplied socket fd into the Wayland event loop";
+    }
+    externally_added_socket_fds.clear();
+}
+#endif
 
 void QWaylandCompositorPrivate::compositor_create_surface(wl_compositor::Resource *resource, uint32_t id)
 {
@@ -549,6 +565,46 @@ QByteArray QWaylandCompositor::socketName() const
 {
     Q_D(const QWaylandCompositor);
     return d->socket_name;
+}
+
+/*!
+ * \qmlmethod QtWaylandCompositor::WaylandCompositor::addSocketFd(fd)
+ * \since 5.12
+ *
+ * Listen for client connections on a file descriptor referring to a
+ * server socket already bound and listening.
+ *
+ * Does not take ownership of the file descriptor; it must be closed
+ * explicitly if needed.
+ *
+ * \note This method is only available with libwayland 1.10.0 or
+ * newer. If built against an earlier libwayland runtime, this
+ * method is a noop.
+ */
+
+/*!
+ * Listen for client connections on a file descriptor referring to a
+ * server socket already bound and listening.
+ *
+ * Does not take ownership of the file descriptor; it must be closed
+ * explicitly if needed.
+ *
+ * \note This method is only available with libwayland 1.10.0 or
+ * newer. If built against an earlier libwayland runtime, this
+ * method is a noop.
+ *
+ * \since 5.12
+ */
+void QWaylandCompositor::addSocketFd(int fd)
+{
+#if WAYLAND_VERSION_MAJOR >= 1 && (WAYLAND_VERSION_MAJOR != 1 || WAYLAND_VERSION_MINOR >= 10)
+    Q_D(QWaylandCompositor);
+    d->externally_added_socket_fds.append(fd);
+    if (isCreated())
+        d->connectToExternalSockets();
+#else
+    qWarning() << "QWaylandCompositor::addSocketFd() does nothing on libwayland versions prior to 1.10.0";
+#endif
 }
 
 /*!

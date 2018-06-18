@@ -28,6 +28,7 @@
 /*!
  * \title Qt Wayland Compositor Examples - Overview Compositor
  * \example overview-compositor
- * \brief Overview Compositor shows how to switch between clients in a grid
+ * \brief Overview Compositor shows how to switch between clients in a grid.
+ *
  * \ingroup qtwaylandcompositor-examples
  */

@@ -87,7 +87,7 @@ QtWayland::HardwareLayerIntegration *QWaylandQuickHardwareLayerPrivate::layerInt
  * \qmltype WaylandHardwareLayer
  * \inqmlmodule QtWayland.Compositor
  * \preliminary
- * \brief Makes a parent WaylandQuickItem use hardware layers for rendering
+ * \brief Makes a parent WaylandQuickItem use hardware layers for rendering.
  *
  * This item needs to be a descendant of a WaylandQuickItem or a derivative,
  * (i.e. ShellSurfaceItem or similar)

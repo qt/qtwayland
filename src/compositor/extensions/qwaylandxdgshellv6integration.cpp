@@ -168,7 +168,12 @@ void XdgToplevelV6Integration::handleUnsetMaximized()
     if (!m_item->view()->isPrimary())
         return;
 
-    m_toplevel->sendUnmaximized(windowedGeometry.initialWindowSize);
+    // If no prior windowed size was recorded, send a 0x0 configure event
+    // to allow the client to choose its preferred size.
+    if (windowedGeometry.initialWindowSize.isValid())
+        m_toplevel->sendUnmaximized(windowedGeometry.initialWindowSize);
+    else
+        m_toplevel->sendUnmaximized();
 }
 
 void XdgToplevelV6Integration::handleMaximizedChanged()
@@ -215,7 +220,12 @@ void XdgToplevelV6Integration::handleUnsetFullscreen()
     if (!m_item->view()->isPrimary())
         return;
 
-    m_toplevel->sendUnmaximized(windowedGeometry.initialWindowSize);
+    // If no prior windowed size was recorded, send a 0x0 configure event
+    // to allow the client to choose its preferred size.
+    if (windowedGeometry.initialWindowSize.isValid())
+        m_toplevel->sendUnmaximized(windowedGeometry.initialWindowSize);
+    else
+        m_toplevel->sendUnmaximized();
 }
 
 void XdgToplevelV6Integration::handleFullscreenChanged()

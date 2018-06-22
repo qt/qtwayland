@@ -68,9 +68,9 @@ QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
 
-Q_DECLARE_LOGGING_CATEGORY(logCategory)
+Q_DECLARE_LOGGING_CATEGORY(lcWaylandBackingstore)
 
-Q_LOGGING_CATEGORY(logCategory, "qt.qpa.wayland.backingstore")
+Q_LOGGING_CATEGORY(lcWaylandBackingstore, "qt.qpa.wayland.backingstore")
 
 QWaylandShmBuffer::QWaylandShmBuffer(QWaylandDisplay *display,
                      const QSize &size, QImage::Format format, int scale)
@@ -277,7 +277,7 @@ void QWaylandShmBackingStore::resize(const QSize &size)
     // run single buffered, while with the pixman renderer we have to use two.
     QWaylandShmBuffer *buffer = getBuffer(sizeWithMargins);
     while (!buffer) {
-        qCDebug(logCategory, "QWaylandShmBackingStore: stalling waiting for a buffer to be released from the compositor...");
+        qCDebug(lcWaylandBackingstore, "QWaylandShmBackingStore: stalling waiting for a buffer to be released from the compositor...");
 
         mDisplay->blockingReadEvents();
         buffer = getBuffer(sizeWithMargins);

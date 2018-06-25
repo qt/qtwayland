@@ -389,11 +389,17 @@ void QWaylandInputDevice::setCursor(const QCursor &cursor, QWaylandScreen *scree
 
 void QWaylandInputDevice::setCursor(struct wl_buffer *buffer, struct wl_cursor_image *image, int bufferScale)
 {
-    setCursor(buffer,
-              image ? QPoint(image->hotspot_x, image->hotspot_y) : QPoint(),
-              image ? QSize(image->width, image->height) : QSize(), bufferScale);
+    if (image) {
+        // Convert from pixel coordinates to surface coordinates
+        QPoint hotspot = QPoint(image->hotspot_x, image->hotspot_y) / bufferScale;
+        QSize size = QSize(image->width, image->height) / bufferScale;
+        setCursor(buffer, hotspot, size, bufferScale);
+    } else {
+        setCursor(buffer, QPoint(), QSize(), bufferScale);
+    }
 }
 
+// size and hotspot are in surface coordinates
 void QWaylandInputDevice::setCursor(struct wl_buffer *buffer, const QPoint &hotSpot, const QSize &size, int bufferScale)
 {
     if (mCaps & WL_SEAT_CAPABILITY_POINTER) {

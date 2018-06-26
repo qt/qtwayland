@@ -55,6 +55,8 @@
 #include <QtWaylandClient/qtwaylandclientglobal.h>
 
 #include <QtWaylandClient/private/qwayland-wayland.h>
+#include <QtWaylandClient/private/qwayland-xdg-output-unstable-v1.h>
+
 
 QT_BEGIN_NAMESPACE
 
@@ -63,10 +65,13 @@ namespace QtWaylandClient {
 class QWaylandDisplay;
 class QWaylandCursor;
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandScreen : public QPlatformScreen, QtWayland::wl_output
+class Q_WAYLAND_CLIENT_EXPORT QWaylandScreen : public QPlatformScreen, QtWayland::wl_output, QtWayland::zxdg_output_v1
 {
 public:
     QWaylandScreen(QWaylandDisplay *waylandDisplay, int version, uint32_t id);
+    ~QWaylandScreen() override;
+
+    void initXdgOutput(QtWayland::zxdg_output_manager_v1 *xdgOutputManager);
 
     QWaylandDisplay *display() const;
 
@@ -97,7 +102,7 @@ public:
 #endif
 
     uint32_t outputId() const { return m_outputId; }
-    ::wl_output *output() { return object(); }
+    ::wl_output *output() { return QtWayland::wl_output::object(); }
 
     static QWaylandScreen *waylandScreenFromWindow(QWindow *window);
     static QWaylandScreen *fromWlOutput(::wl_output *output);
@@ -113,11 +118,17 @@ private:
     void output_scale(int32_t factor) override;
     void output_done() override;
 
+    // XdgOutput
+    void zxdg_output_v1_logical_position(int32_t x, int32_t y) override;
+    void zxdg_output_v1_logical_size(int32_t width, int32_t height) override;
+    void zxdg_output_v1_done() override;
+
     int m_outputId;
     QWaylandDisplay *mWaylandDisplay = nullptr;
     QString mManufacturer;
     QString mModel;
     QRect mGeometry;
+    QRect mXdgGeometry;
     int mScale = 1;
     int mDepth = 32;
     int mRefreshRate = 60000;

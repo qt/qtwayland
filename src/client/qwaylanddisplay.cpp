@@ -276,6 +276,11 @@ void QWaylandDisplay::registry_global(uint32_t id, const QString &interface, uin
         // make a roundtrip here since we need to receive the events sent by
         // qt_hardware_integration before creating windows
         forceRoundTrip();
+    } else if (interface == QLatin1String("zxdg_output_manager_v1")) {
+        mXdgOutputManager.reset(new QtWayland::zxdg_output_manager_v1(registry, id, 1));
+        for (auto *screen : qAsConst(mScreens))
+            screen->initXdgOutput(xdgOutputManager());
+        forceRoundTrip();
     }
 
     mGlobals.append(RegistryGlobal(id, interface, version, registry));

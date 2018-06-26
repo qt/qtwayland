@@ -58,6 +58,23 @@ QWaylandScreen::QWaylandScreen(QWaylandDisplay *waylandDisplay, int version, uin
     , mWaylandDisplay(waylandDisplay)
     , mOutputName(QStringLiteral("Screen%1").arg(id))
 {
+    if (auto *xdgOutputManager = waylandDisplay->xdgOutputManager())
+        initXdgOutput(xdgOutputManager);
+}
+
+QWaylandScreen::~QWaylandScreen()
+{
+    if (zxdg_output_v1::isInitialized())
+        zxdg_output_v1::destroy();
+}
+
+void QWaylandScreen::initXdgOutput(QtWayland::zxdg_output_manager_v1 *xdgOutputManager)
+{
+    Q_ASSERT(xdgOutputManager);
+    if (zxdg_output_v1::isInitialized())
+        return;
+
+    zxdg_output_v1::init(xdgOutputManager->get_xdg_output(wl_output::object()));
 }
 
 QWaylandDisplay * QWaylandScreen::display() const
@@ -77,9 +94,13 @@ QString QWaylandScreen::model() const
 
 QRect QWaylandScreen::geometry() const
 {
-    // Scale geometry for QScreen. This makes window and screen
-    // geometry be in the same coordinate system.
-    return QRect(mGeometry.topLeft(), mGeometry.size() / mScale);
+    if (zxdg_output_v1::isInitialized()) {
+        return mXdgGeometry;
+    } else {
+        // Scale geometry for QScreen. This makes window and screen
+        // geometry be in the same coordinate system.
+        return QRect(mGeometry.topLeft(), mGeometry.size() / mScale);
+    }
 }
 
 int QWaylandScreen::depth() const
@@ -184,7 +205,6 @@ void QWaylandScreen::output_mode(uint32_t flags, int width, int height, int refr
         return;
 
     QSize size(width, height);
-
     if (size != mGeometry.size())
         mGeometry.setSize(size);
 
@@ -247,8 +267,25 @@ void QWaylandScreen::output_done()
         QWindowSystemInterface::handleScreenOrientationChange(screen(), m_orientation);
         mTransform = -1;
     }
-    QWindowSystemInterface::handleScreenGeometryChange(screen(), geometry(), geometry());
     QWindowSystemInterface::handleScreenRefreshRateChange(screen(), refreshRate());
+    if (!zxdg_output_v1::isInitialized())
+        QWindowSystemInterface::handleScreenGeometryChange(screen(), geometry(), geometry());
+}
+
+
+void QWaylandScreen::zxdg_output_v1_logical_position(int32_t x, int32_t y)
+{
+    mXdgGeometry.moveTopLeft(QPoint(x, y));
+}
+
+void QWaylandScreen::zxdg_output_v1_logical_size(int32_t width, int32_t height)
+{
+    mXdgGeometry.setSize(QSize(width, height));
+}
+
+void QWaylandScreen::zxdg_output_v1_done()
+{
+    QWindowSystemInterface::handleScreenGeometryChange(screen(), geometry(), geometry());
 }
 
 }

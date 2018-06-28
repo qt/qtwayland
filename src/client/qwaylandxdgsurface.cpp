@@ -249,6 +249,7 @@ void QWaylandXdgSurface::xdg_surface_configure(int32_t width, int32_t height, st
 
 void QWaylandXdgSurface::xdg_surface_close()
 {
+    m_window->window()->close();
 }
 
 }

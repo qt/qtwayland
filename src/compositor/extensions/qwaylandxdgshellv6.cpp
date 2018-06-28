@@ -704,7 +704,7 @@ QWaylandQuickShellIntegration *QWaylandXdgSurfaceV6::createIntegration(QWaylandQ
  * \qmltype XdgToplevelV6
  * \inqmlmodule QtWayland.Compositor
  * \since 5.10
- * \brief XdgToplevelV6 represents the toplevel window specific parts of an xdg surface
+ * \brief XdgToplevelV6 represents the toplevel window specific parts of an xdg surface.
  *
  * This type is part of the \l{XdgShellV6} extension and provides a way to
  * extend the functionality of an XdgSurfaceV6 with features
@@ -717,7 +717,7 @@ QWaylandQuickShellIntegration *QWaylandXdgSurfaceV6::createIntegration(QWaylandQ
  * \class QWaylandXdgToplevelV6
  * \inmodule QtWaylandCompositor
  * \since 5.10
- * \brief The QWaylandXdgToplevelV6 class represents the toplevel window specific parts of an xdg surface
+ * \brief The QWaylandXdgToplevelV6 class represents the toplevel window specific parts of an xdg surface.
  *
  * This class is part of the QWaylandXdgShellV6 extension and provides a way to
  * extend the functionality of an QWaylandXdgSurfaceV6 with features
@@ -1462,7 +1462,7 @@ void QWaylandXdgToplevelV6Private::zxdg_toplevel_v6_set_minimized(QtWaylandServe
  * \qmltype XdgPopupV6
  * \inqmlmodule QtWayland.Compositor
  * \since 5.10
- * \brief XdgPopupV6 represents the popup specific parts of and xdg surface
+ * \brief XdgPopupV6 represents the popup specific parts of and xdg surface.
  *
  * This type is part of the \l{XdgShellV6} extension and provides a way to extend
  * extend the functionality of an \l{XdgSurfaceV6} with features
@@ -1475,7 +1475,7 @@ void QWaylandXdgToplevelV6Private::zxdg_toplevel_v6_set_minimized(QtWaylandServe
  * \class QWaylandXdgPopupV6
  * \inmodule QtWaylandCompositor
  * \since 5.10
- * \brief The QWaylandXdgPopupV6 class represents the popup specific parts of an xdg surface
+ * \brief The QWaylandXdgPopupV6 class represents the popup specific parts of an xdg surface.
  *
  * This class is part of the QWaylandXdgShellV6 extension and provides a way to
  * extend the functionality of a QWaylandXdgSurfaceV6 with features

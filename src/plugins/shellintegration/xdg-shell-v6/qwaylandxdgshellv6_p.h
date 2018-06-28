@@ -122,9 +122,12 @@ private:
         Popup(QWaylandXdgSurfaceV6 *xdgSurface, QWaylandXdgSurfaceV6 *parent, QtWayland::zxdg_positioner_v6 *positioner);
         ~Popup() override;
 
+        void grab(QWaylandInputDevice *seat, uint serial);
         void zxdg_popup_v6_popup_done() override;
 
         QWaylandXdgSurfaceV6 *m_xdgSurface = nullptr;
+        QWaylandXdgSurfaceV6 *m_parent = nullptr;
+        bool m_grabbing = false;
     };
 
     void setToplevel();
@@ -137,6 +140,8 @@ private:
     bool m_configured = false;
     QRegion m_exposeRegion;
     uint m_pendingConfigureSerial = 0;
+
+    friend class QWaylandXdgShellV6;
 };
 
 class Q_WAYLAND_CLIENT_EXPORT QWaylandXdgShellV6 : public QtWayland::zxdg_shell_v6
@@ -150,6 +155,9 @@ public:
 
 private:
     void zxdg_shell_v6_ping(uint32_t serial) override;
+    QWaylandXdgSurfaceV6::Popup *m_topmostPopup = nullptr;
+
+    friend class QWaylandXdgSurfaceV6;
 };
 
 QT_END_NAMESPACE

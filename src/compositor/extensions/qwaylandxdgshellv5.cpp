@@ -1324,7 +1324,7 @@ QWaylandQuickShellIntegration *QWaylandXdgSurfaceV5::createIntegration(QWaylandQ
  * \class QWaylandXdgPopupV5
  * \inmodule QtWaylandCompositor
  * \since 5.8
- * \brief The QWaylandXdgPopupV5 class provides menus for an xdg surface
+ * \brief The QWaylandXdgPopupV5 class provides menus for an xdg surface.
  *
  * This class is part of the QWaylandXdgShellV5 extension and provides a way to
  * extend the functionality of an existing QWaylandSurface with features

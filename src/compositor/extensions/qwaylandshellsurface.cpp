@@ -43,7 +43,7 @@
  * \qmltype ShellSurface
  * \inqmlmodule QtWayland.Compositor
  * \since 5.8
- * \brief Provides a common interface for surface roles specified by shell extensions
+ * \brief Provides a common interface for surface roles specified by shell extensions.
  *
  * This interface represents a Wayland surface role given by a Wayland protocol extension that
  * defines how the WaylandSurface should map onto the screen.
@@ -61,7 +61,7 @@
  * \class QWaylandShellSurface
  * \inmodule QtWaylandCompositor
  * \since 5.8
- * \brief The QWaylandShellSurface class is a common interface for surface roles specified by shell extensions
+ * \brief The QWaylandShellSurface class is a common interface for surface roles specified by shell extensions.
  *
  * This interface represents a Wayland surface role given by a Wayland protocol extension that
  * defines how the QWaylandSurface should map onto the screen.

@@ -74,6 +74,8 @@ public:
     { }
 
     void markSurfaceAsDestroyed(QWaylandSurface *surface);
+    void setSurface(QWaylandSurface *newSurface);
+    void clearFrontBuffer();
 
     QObject *renderObject = nullptr;
     QWaylandSurface *surface = nullptr;

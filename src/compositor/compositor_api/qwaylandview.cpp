@@ -55,8 +55,9 @@ void QWaylandViewPrivate::markSurfaceAsDestroyed(QWaylandSurface *surface)
     Q_Q(QWaylandView);
     Q_ASSERT(surface == this->surface);
 
-    q->setSurface(nullptr);
+    setSurface(nullptr);
     emit q->surfaceDestroyed();
+    clearFrontBuffer();
 }
 
 /*!
@@ -132,38 +133,46 @@ QWaylandSurface *QWaylandView::surface() const
     return d->surface;
 }
 
+
+void QWaylandViewPrivate::setSurface(QWaylandSurface *newSurface)
+{
+    Q_Q(QWaylandView);
+    if (surface) {
+        QWaylandSurfacePrivate::get(surface)->derefView(q);
+        if (output)
+            QWaylandOutputPrivate::get(output)->removeView(q, surface);
+    }
+
+    surface = newSurface;
+
+    nextBuffer = QWaylandBufferRef();
+    nextBufferCommitted = false;
+    nextDamage = QRegion();
+
+    if (surface) {
+        QWaylandSurfacePrivate::get(surface)->refView(q);
+        if (output)
+            QWaylandOutputPrivate::get(output)->addView(q, surface);
+    }
+}
+
+void QWaylandViewPrivate::clearFrontBuffer()
+{
+    if (!bufferLocked) {
+        currentBuffer = QWaylandBufferRef();
+        currentDamage = QRegion();
+    }
+}
+
 void QWaylandView::setSurface(QWaylandSurface *newSurface)
 {
     Q_D(QWaylandView);
     if (d->surface == newSurface)
         return;
 
-
-    if (d->surface) {
-        QWaylandSurfacePrivate::get(d->surface)->derefView(this);
-        if (d->output)
-            QWaylandOutputPrivate::get(d->output)->removeView(this, d->surface);
-    }
-
-    d->surface = newSurface;
-
-    if (!d->bufferLocked) {
-        d->currentBuffer = QWaylandBufferRef();
-        d->currentDamage = QRegion();
-    }
-
-    d->nextBuffer = QWaylandBufferRef();
-    d->nextBufferCommitted = false;
-    d->nextDamage = QRegion();
-
-    if (d->surface) {
-        QWaylandSurfacePrivate::get(d->surface)->refView(this);
-        if (d->output)
-            QWaylandOutputPrivate::get(d->output)->addView(this, d->surface);
-    }
-
+    d->setSurface(newSurface);
+    d->clearFrontBuffer();
     emit surfaceChanged();
-
 }
 
 /*!

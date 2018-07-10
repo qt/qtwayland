@@ -100,6 +100,16 @@ void QWaylandAbstractDecoration::setWaylandWindow(QWaylandWindow *window)
     d->m_wayland_window = window;
 }
 
+static QRegion marginsRegion(const QSize &size, const QMargins &margins)
+{
+    QRegion r;
+    r += QRect(0, 0, size.width(), margins.top()); // top
+    r += QRect(0, size.height()+margins.top(), size.width(), margins.bottom()); //bottom
+    r += QRect(0, 0, margins.left(), size.height()); //left
+    r += QRect(size.width()+margins.left(), 0, margins.right(), size.height()); // right
+    return r;
+}
+
 const QImage &QWaylandAbstractDecoration::contentImage()
 {
     Q_D(QWaylandAbstractDecoration);
@@ -112,6 +122,10 @@ const QImage &QWaylandAbstractDecoration::contentImage()
         d->m_decorationContentImage.setDevicePixelRatio(scale);
         d->m_decorationContentImage.fill(Qt::transparent);
         this->paint(&d->m_decorationContentImage);
+
+        QRegion damage = marginsRegion(window()->frameGeometry().size(), window()->frameMargins());
+        for (QRect r : damage)
+            waylandWindow()->damage(r);
 
         d->m_isDirty = false;
     }

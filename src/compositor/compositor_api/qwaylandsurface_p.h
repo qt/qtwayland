@@ -163,6 +163,8 @@ public: //member variables
     QList<QtWayland::FrameCallback *> pendingFrameCallbacks;
     QList<QtWayland::FrameCallback *> frameCallbacks;
 
+    QList<QPointer<QWaylandSurface>> subsurfaceChildren;
+
     QRegion inputRegion;
     QRegion opaqueRegion;
 

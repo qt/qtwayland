@@ -54,7 +54,6 @@
 #include <QtWaylandCompositor/qtwaylandcompositorglobal.h>
 
 #include <QObject>
-#include <QQmlParserStatus>
 
 QT_BEGIN_NAMESPACE
 

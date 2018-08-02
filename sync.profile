@@ -40,7 +40,9 @@
     ],
     "$basedir/src/plugins/shellintegration/xdg-shell" => [
         "^qwayland-xdg-shell.h",
+        "^qwayland-xdg-decoration-unstable-v1.h",
         "^wayland-xdg-shell-client-protocol.h",
+        "^wayland-xdg-decoration-unstable-v1-client-protocol.h",
     ],
     "$basedir/src/plugins/shellintegration/xdg-shell-v5" => [
         "^qwayland-xdg-shell-unstable-v5.h",

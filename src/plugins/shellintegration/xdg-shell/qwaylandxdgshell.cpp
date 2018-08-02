@@ -54,7 +54,12 @@ QWaylandXdgSurface::Toplevel::Toplevel(QWaylandXdgSurface *xdgSurface)
     : QtWayland::xdg_toplevel(xdgSurface->get_toplevel())
     , m_xdgSurface(xdgSurface)
 {
-    requestWindowStates(xdgSurface->window()->window()->windowStates());
+    if (auto *decorationManager = m_xdgSurface->m_shell->decorationManager())
+        m_decoration = decorationManager->createToplevelDecoration(object());
+
+    QWindow *window = xdgSurface->window()->window();
+    requestWindowStates(window->windowStates());
+    requestWindowFlags(window->flags());
 }
 
 QWaylandXdgSurface::Toplevel::~Toplevel()
@@ -63,6 +68,11 @@ QWaylandXdgSurface::Toplevel::~Toplevel()
         QWaylandWindow *window = m_xdgSurface->window();
         window->display()->handleWindowDeactivated(window);
     }
+
+    // The protocol spec requires that the decoration object is deleted before xdg_toplevel.
+    delete m_decoration;
+    m_decoration = nullptr;
+
     if (isInitialized())
         destroy();
 }
@@ -89,6 +99,14 @@ void QWaylandXdgSurface::Toplevel::applyConfigure()
     QSize windowGeometrySize = m_xdgSurface->m_window->window()->frameGeometry().size();
     m_xdgSurface->set_window_geometry(0, 0, windowGeometrySize.width(), windowGeometrySize.height());
     m_applied = m_pending;
+}
+
+bool QWaylandXdgSurface::Toplevel::wantsDecorations()
+{
+    if (m_decoration && m_decoration->pending() == QWaylandXdgToplevelDecorationV1::mode_server_side)
+        return false;
+
+    return !(m_pending.states & Qt::WindowFullScreen);
 }
 
 void QWaylandXdgSurface::Toplevel::xdg_toplevel_configure(int32_t width, int32_t height, wl_array *states)
@@ -122,6 +140,16 @@ void QWaylandXdgSurface::Toplevel::xdg_toplevel_configure(int32_t width, int32_t
 void QWaylandXdgSurface::Toplevel::xdg_toplevel_close()
 {
     m_xdgSurface->m_window->window()->close();
+}
+
+void QWaylandXdgSurface::Toplevel::requestWindowFlags(Qt::WindowFlags flags)
+{
+    if (m_decoration) {
+        if (flags & Qt::FramelessWindowHint)
+            m_decoration->requestMode(QWaylandXdgToplevelDecorationV1::mode_client_side);
+        else
+            m_decoration->unsetMode();
+    }
 }
 
 void QWaylandXdgSurface::Toplevel::requestWindowStates(Qt::WindowStates states)
@@ -237,6 +265,12 @@ void QWaylandXdgSurface::setAppId(const QString &appId)
         m_toplevel->set_app_id(appId);
 }
 
+void QWaylandXdgSurface::setWindowFlags(Qt::WindowFlags flags)
+{
+    if (m_toplevel)
+        m_toplevel->requestWindowFlags(flags);
+}
+
 bool QWaylandXdgSurface::handleExpose(const QRegion &region)
 {
     if (!m_configured && !region.isEmpty()) {
@@ -261,7 +295,7 @@ void QWaylandXdgSurface::applyConfigure()
 
 bool QWaylandXdgSurface::wantsDecorations() const
 {
-    return m_toplevel && !(m_toplevel->m_pending.states & Qt::WindowFullScreen);
+    return m_toplevel && m_toplevel->wantsDecorations();
 }
 
 void QWaylandXdgSurface::requestWindowStates(Qt::WindowStates states)
@@ -313,13 +347,16 @@ void QWaylandXdgSurface::xdg_surface_configure(uint32_t serial)
     }
 }
 
-QWaylandXdgShell::QWaylandXdgShell(struct ::wl_registry *registry, uint32_t id, uint32_t availableVersion)
-    : QtWayland::xdg_wm_base(registry, id, qMin(availableVersion, 1u))
+QWaylandXdgShell::QWaylandXdgShell(QWaylandDisplay *display, uint32_t id, uint32_t availableVersion)
+    : QtWayland::xdg_wm_base(display->wl_registry(), id, qMin(availableVersion, 1u))
+    , m_display(display)
 {
+    display->addRegistryListener(&QWaylandXdgShell::handleRegistryGlobal, this);
 }
 
 QWaylandXdgShell::~QWaylandXdgShell()
 {
+    m_display->removeListener(&QWaylandXdgShell::handleRegistryGlobal, this);
     destroy();
 }
 
@@ -331,6 +368,14 @@ QWaylandXdgSurface *QWaylandXdgShell::getXdgSurface(QWaylandWindow *window)
 void QWaylandXdgShell::xdg_wm_base_ping(uint32_t serial)
 {
     pong(serial);
+}
+
+void QWaylandXdgShell::handleRegistryGlobal(void *data, wl_registry *registry, uint id,
+                                            const QString &interface, uint version)
+{
+    QWaylandXdgShell *xdgShell = static_cast<QWaylandXdgShell *>(data);
+    if (interface == QLatin1String(QWaylandXdgDecorationManagerV1::interface()->name))
+        xdgShell->m_xdgDecorationManager.reset(new QWaylandXdgDecorationManagerV1(registry, id, version));
 }
 
 }

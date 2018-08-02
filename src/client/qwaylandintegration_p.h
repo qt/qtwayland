@@ -117,7 +117,8 @@ public:
     virtual QWaylandShellIntegration *shellIntegration() const;
 
 private:
-    // NOTE: mDisplay *must* be destructed after mDrag and mClientBufferIntegration.
+    // NOTE: mDisplay *must* be destructed after mDrag and mClientBufferIntegration
+    // and mShellIntegration.
     // Do not move this definition into the private section at the bottom.
     QScopedPointer<QWaylandDisplay> mDisplay;
 

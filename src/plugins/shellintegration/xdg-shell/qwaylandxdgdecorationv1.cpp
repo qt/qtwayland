@@ -1,9 +1,9 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
-** This file is part of the plugins of the Qt Toolkit.
+** This file is part of the config.tests of the Qt Toolkit.
 **
 ** $QT_BEGIN_LICENSE:LGPL$
 ** Commercial License Usage
@@ -37,50 +37,67 @@
 **
 ****************************************************************************/
 
-#include "qwaylandxdgshellintegration_p.h"
 #include "qwaylandxdgdecorationv1_p.h"
-
-#include <QtWaylandClient/private/qwaylandwindow_p.h>
-#include <QtWaylandClient/private/qwaylanddisplay_p.h>
+#include "qwaylandxdgshell_p.h"
 
 QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
 
-bool QWaylandXdgShellIntegration::initialize(QWaylandDisplay *display)
+QWaylandXdgDecorationManagerV1::QWaylandXdgDecorationManagerV1(wl_registry *registry, uint32_t id, uint32_t availableVersion)
+    : QtWayland::zxdg_decoration_manager_v1(registry, id, qMin(availableVersion, 1u))
 {
-    for (QWaylandDisplay::RegistryGlobal global : display->globals()) {
-        if (global.interface == QLatin1String("xdg_wm_base")) {
-            m_xdgShell.reset(new QWaylandXdgShell(display, global.id, global.version));
-            break;
-        }
-    }
-
-    if (!m_xdgShell) {
-        qCDebug(lcQpaWayland) << "Couldn't find global xdg_wm_base for xdg-shell stable";
-        return false;
-    }
-
-    return QWaylandShellIntegration::initialize(display);
 }
 
-QWaylandShellSurface *QWaylandXdgShellIntegration::createShellSurface(QWaylandWindow *window)
+QWaylandXdgDecorationManagerV1::~QWaylandXdgDecorationManagerV1()
 {
-    return m_xdgShell->getXdgSurface(window);
+    Q_ASSERT(isInitialized());
+    destroy();
 }
 
-void QWaylandXdgShellIntegration::handleKeyboardFocusChanged(QWaylandWindow *newFocus, QWaylandWindow *oldFocus)
+QWaylandXdgToplevelDecorationV1 *QWaylandXdgDecorationManagerV1::createToplevelDecoration(::xdg_toplevel *toplevel)
 {
-    if (newFocus) {
-        auto *xdgSurface = qobject_cast<QWaylandXdgSurface *>(newFocus->shellSurface());
-        if (xdgSurface && !xdgSurface->handlesActiveState())
-            m_display->handleWindowActivated(newFocus);
-    }
-    if (oldFocus && qobject_cast<QWaylandXdgSurface *>(oldFocus->shellSurface())) {
-        auto *xdgSurface = qobject_cast<QWaylandXdgSurface *>(oldFocus->shellSurface());
-        if (xdgSurface && !xdgSurface->handlesActiveState())
-            m_display->handleWindowDeactivated(oldFocus);
-    }
+    Q_ASSERT(toplevel);
+    return new QWaylandXdgToplevelDecorationV1(get_toplevel_decoration(toplevel));
+}
+
+QWaylandXdgToplevelDecorationV1::QWaylandXdgToplevelDecorationV1(::zxdg_toplevel_decoration_v1 *decoration)
+    : QtWayland::zxdg_toplevel_decoration_v1(decoration)
+{
+}
+
+QWaylandXdgToplevelDecorationV1::~QWaylandXdgToplevelDecorationV1()
+{
+    Q_ASSERT(isInitialized());
+    destroy();
+}
+
+void QWaylandXdgToplevelDecorationV1::requestMode(QtWayland::zxdg_toplevel_decoration_v1::mode mode)
+{
+    // According to the spec the client is responsible for not requesting a mode repeatedly.
+    if (m_modeSet && m_requested == mode)
+        return;
+
+    set_mode(mode);
+    m_requested = mode;
+    m_modeSet = true;
+}
+
+void QWaylandXdgToplevelDecorationV1::unsetMode()
+{
+    unset_mode();
+    m_modeSet = false;
+    m_requested = mode_client_side;
+}
+
+QWaylandXdgToplevelDecorationV1::mode QWaylandXdgToplevelDecorationV1::pending() const
+{
+    return m_pending;
+}
+
+void QtWaylandClient::QWaylandXdgToplevelDecorationV1::zxdg_toplevel_decoration_v1_configure(uint32_t mode)
+{
+    m_pending = zxdg_toplevel_decoration_v1::mode(mode);
 }
 
 }

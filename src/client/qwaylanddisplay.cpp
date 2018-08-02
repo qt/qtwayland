@@ -326,6 +326,13 @@ void QWaylandDisplay::addRegistryListener(RegistryListener listener, void *data)
         (*l.listener)(l.data, mGlobals[i].registry, mGlobals[i].id, mGlobals[i].interface, mGlobals[i].version);
 }
 
+void QWaylandDisplay::removeListener(RegistryListener listener, void *data)
+{
+    std::remove_if(mRegistryListeners.begin(), mRegistryListeners.end(), [=](Listener l){
+        return (l.listener == listener && l.data == data);
+    });
+}
+
 uint32_t QWaylandDisplay::currentTimeMillisec()
 {
     //### we throw away the time information

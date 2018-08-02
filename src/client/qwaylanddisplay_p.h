@@ -161,6 +161,7 @@ public:
     /* wl_registry_add_listener does not add but rather sets a listener, so this function is used
      * to enable many listeners at once. */
     void addRegistryListener(RegistryListener listener, void *data);
+    void removeListener(RegistryListener listener, void *data);
 
     QWaylandShm *shm() const { return mShm.data(); }
 

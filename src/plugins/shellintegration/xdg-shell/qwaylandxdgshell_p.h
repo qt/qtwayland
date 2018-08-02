@@ -54,6 +54,8 @@
 
 #include "qwayland-xdg-shell.h"
 
+#include "qwaylandxdgdecorationv1_p.h"
+
 #include <QtWaylandClient/qtwaylandclientglobal.h>
 #include <QtWaylandClient/private/qwaylandshellsurface_p.h>
 
@@ -68,6 +70,7 @@ class QWindow;
 
 namespace QtWaylandClient {
 
+class QWaylandDisplay;
 class QWaylandWindow;
 class QWaylandInputDevice;
 class QWaylandXdgShell;
@@ -84,6 +87,7 @@ public:
     bool move(QWaylandInputDevice *inputDevice) override;
     void setTitle(const QString &title) override;
     void setAppId(const QString &appId) override;
+    void setWindowFlags(Qt::WindowFlags flags) override;
 
     bool isExposed() const override { return m_configured; }
     bool handleExpose(const QRegion &) override;
@@ -103,10 +107,12 @@ private:
         ~Toplevel() override;
 
         void applyConfigure();
+        bool wantsDecorations();
 
         void xdg_toplevel_configure(int32_t width, int32_t height, wl_array *states) override;
         void xdg_toplevel_close() override;
 
+        void requestWindowFlags(Qt::WindowFlags flags);
         void requestWindowStates(Qt::WindowStates states);
         struct {
             QSize size = {0, 0};
@@ -115,6 +121,7 @@ private:
         QSize m_normalSize;
 
         QWaylandXdgSurface *m_xdgSurface = nullptr;
+        QWaylandXdgToplevelDecorationV1 *m_decoration = nullptr;
     };
 
     class Popup : public QtWayland::xdg_popup {
@@ -142,14 +149,21 @@ private:
 class Q_WAYLAND_CLIENT_EXPORT QWaylandXdgShell : public QtWayland::xdg_wm_base
 {
 public:
-    QWaylandXdgShell(struct ::wl_registry *registry, uint32_t id, uint32_t availableVersion);
-
-    QWaylandXdgSurface *getXdgSurface(QWaylandWindow *window);
-
+    QWaylandXdgShell(QWaylandDisplay *display, uint32_t id, uint32_t availableVersion);
     ~QWaylandXdgShell() override;
 
-private:
+    QWaylandXdgDecorationManagerV1 *decorationManager() { return m_xdgDecorationManager.data(); }
+    QWaylandXdgSurface *getXdgSurface(QWaylandWindow *window);
+
+protected:
     void xdg_wm_base_ping(uint32_t serial) override;
+
+private:
+    static void handleRegistryGlobal(void *data, ::wl_registry *registry, uint id,
+                                     const QString &interface, uint version);
+
+    QWaylandDisplay *m_display = nullptr;
+    QScopedPointer<QWaylandXdgDecorationManagerV1> m_xdgDecorationManager;
 };
 
 QT_END_NAMESPACE

@@ -190,10 +190,14 @@ QWaylandXdgSurface::QWaylandXdgSurface(QWaylandXdgShell *shell, ::xdg_surface *s
 
 QWaylandXdgSurface::~QWaylandXdgSurface()
 {
-    if (m_toplevel)
-        xdg_toplevel_destroy(m_toplevel->object());
-    if (m_popup)
-        xdg_popup_destroy(m_popup->object());
+    if (m_toplevel) {
+        delete m_toplevel;
+        m_toplevel = nullptr;
+    }
+    if (m_popup) {
+        delete m_popup;
+        m_popup = nullptr;
+    }
     destroy();
 }
 

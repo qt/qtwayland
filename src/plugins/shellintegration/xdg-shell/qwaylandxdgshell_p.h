@@ -129,9 +129,12 @@ private:
         Popup(QWaylandXdgSurface *xdgSurface, QWaylandXdgSurface *parent, QtWayland::xdg_positioner *positioner);
         ~Popup() override;
 
+        void grab(QWaylandInputDevice *seat, uint serial);
         void xdg_popup_popup_done() override;
 
         QWaylandXdgSurface *m_xdgSurface = nullptr;
+        QWaylandXdgSurface *m_parent = nullptr;
+        bool m_grabbing = false;
     };
 
     void setToplevel();
@@ -144,6 +147,8 @@ private:
     bool m_configured = false;
     QRegion m_exposeRegion;
     uint m_pendingConfigureSerial = 0;
+
+    friend class QWaylandXdgShell;
 };
 
 class Q_WAYLAND_CLIENT_EXPORT QWaylandXdgShell : public QtWayland::xdg_wm_base
@@ -164,6 +169,9 @@ private:
 
     QWaylandDisplay *m_display = nullptr;
     QScopedPointer<QWaylandXdgDecorationManagerV1> m_xdgDecorationManager;
+    QWaylandXdgSurface::Popup *m_topmostPopup = nullptr;
+
+    friend class QWaylandXdgSurface;
 };
 
 QT_END_NAMESPACE

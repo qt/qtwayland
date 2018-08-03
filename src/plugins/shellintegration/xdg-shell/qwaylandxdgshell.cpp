@@ -182,6 +182,7 @@ QWaylandXdgSurface::Popup::Popup(QWaylandXdgSurface *xdgSurface, QWaylandXdgSurf
                                  QtWayland::xdg_positioner *positioner)
     : xdg_popup(xdgSurface->get_popup(parent->object(), positioner->object()))
     , m_xdgSurface(xdgSurface)
+    , m_parent(parent)
 {
 }
 
@@ -189,6 +190,19 @@ QWaylandXdgSurface::Popup::~Popup()
 {
     if (isInitialized())
         destroy();
+
+    if (m_grabbing) {
+        auto *shell = m_xdgSurface->m_shell;
+        Q_ASSERT(shell->m_topmostPopup == this);
+        shell->m_topmostPopup = m_parent->m_popup;
+    }
+}
+
+void QWaylandXdgSurface::Popup::grab(QWaylandInputDevice *seat, uint serial)
+{
+    m_xdgSurface->m_shell->m_topmostPopup = this;
+    xdg_popup::grab(seat->wl_seat(), serial);
+    m_grabbing = true;
 }
 
 void QWaylandXdgSurface::Popup::xdg_popup_popup_done()
@@ -317,6 +331,14 @@ void QWaylandXdgSurface::setPopup(QWaylandWindow *parent, QWaylandInputDevice *d
     Q_ASSERT(!m_toplevel && !m_popup);
 
     auto parentXdgSurface = static_cast<QWaylandXdgSurface *>(parent->shellSurface());
+
+    auto *top = m_shell->m_topmostPopup;
+    if (grab && top && top->m_xdgSurface != parentXdgSurface) {
+        qCWarning(lcQpaWayland) << "setPopup called for a surface that was not the topmost popup, positions might be off.";
+        parentXdgSurface = top->m_xdgSurface;
+        parent = top->m_xdgSurface->m_window;
+    }
+
     auto positioner = new QtWayland::xdg_positioner(m_shell->create_positioner());
     // set_popup expects a position relative to the parent
     QPoint transientPos = m_window->geometry().topLeft(); // this is absolute
@@ -332,9 +354,8 @@ void QWaylandXdgSurface::setPopup(QWaylandWindow *parent, QWaylandInputDevice *d
     m_popup = new Popup(this, parentXdgSurface, positioner);
     positioner->destroy();
     delete positioner;
-    if (grab) {
-        m_popup->grab(device->wl_seat(), serial);
-    }
+    if (grab)
+        m_popup->grab(device, serial);
 }
 
 void QWaylandXdgSurface::xdg_surface_configure(uint32_t serial)

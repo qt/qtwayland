@@ -72,8 +72,11 @@ View::View(Compositor *compositor)
 
 QOpenGLTexture *View::getTexture()
 {
-    if (advance()) {
-        QWaylandBufferRef buf = currentBuffer();
+    bool newContent = advance();
+    QWaylandBufferRef buf = currentBuffer();
+    if (!buf.hasContent())
+        m_texture = nullptr;
+    if (newContent) {
         m_texture = buf.toOpenGLTexture();
         if (surface()) {
             m_size = surface()->size();

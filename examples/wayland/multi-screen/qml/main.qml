@@ -52,7 +52,7 @@
 import QtQml 2.2
 import QtQuick 2.0
 import QtQuick.Window 2.3 as Window
-import QtWayland.Compositor 1.0
+import QtWayland.Compositor 1.1
 import QtQml.Models 2.1
 
 WaylandCompositor {
@@ -100,9 +100,8 @@ WaylandCompositor {
         onWlShellSurfaceCreated: handleShellSurfaceCreated(shellSurface)
     }
 
-    XdgShellV5 {
-        onXdgSurfaceCreated: handleShellSurfaceCreated(xdgSurface)
-        onXdgPopupCreated: handleShellSurfaceCreated(xdgPopup)
+    XdgShellV6 {
+        onToplevelCreated: handleShellSurfaceCreated(xdgSurface)
     }
 
     function createShellSurfaceItem(shellSurface, moveItem, output) {

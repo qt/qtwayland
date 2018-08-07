@@ -63,6 +63,7 @@ Item {
 
     ShellSurfaceItem {
         id: surfaceItem
+        autoCreatePopupItems: true
         onSurfaceDestroyed: chrome.destroy();
     }
 

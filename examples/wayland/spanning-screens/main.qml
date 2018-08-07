@@ -50,7 +50,7 @@
 
 import QtQuick 2.6
 import QtQuick.Window 2.3
-import QtWayland.Compositor 1.1
+import QtWayland.Compositor 1.3
 
 WaylandCompositor {
     WaylandOutput {
@@ -105,7 +105,7 @@ WaylandCompositor {
         }
     }
 
-    XdgShellV6 {
+    XdgShell {
         onToplevelCreated: {
             const shellSurface = xdgSurface;
 

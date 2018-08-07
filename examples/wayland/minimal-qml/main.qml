@@ -50,7 +50,7 @@
 
 import QtQuick 2.6
 import QtQuick.Window 2.2
-import QtWayland.Compositor 1.1
+import QtWayland.Compositor 1.3
 
 WaylandCompositor {
     // The output defines the screen.
@@ -75,7 +75,7 @@ WaylandCompositor {
         }
     }
     // Extensions are additions to the core Wayland
-    // protocol. We choose to support two different
+    // protocol. We choose to support three different
     // shells (window management protocols). When the
     // client creates a new shell surface (i.e. a window)
     // we append it to our list of shellSurfaces.
@@ -84,6 +84,10 @@ WaylandCompositor {
             shellSurfaces.append({shellSurface: shellSurface});
     }
     XdgShellV6 {
+        onToplevelCreated:
+            shellSurfaces.append({shellSurface: xdgSurface});
+    }
+    XdgShell {
         onToplevelCreated:
             shellSurfaces.append({shellSurface: xdgSurface});
     }

@@ -49,7 +49,7 @@
 ****************************************************************************/
 
 import QtQuick 2.7
-import QtWayland.Compositor 1.1
+import QtWayland.Compositor 1.3
 import QtQuick.Window 2.3
 import QtQuick.Controls 2.0
 
@@ -132,7 +132,7 @@ WaylandCompositor {
 
     ListModel { id: toplevels }
 
-    XdgShellV6 {
+    XdgShell {
         onToplevelCreated: {
             toplevels.append({xdgSurface});
             toplevel.sendFullscreen(Qt.size(win.pixelWidth, win.pixelHeight));

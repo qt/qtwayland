@@ -521,6 +521,8 @@ void QWaylandXdgPopupV5Private::xdg_popup_destroy(Resource *resource)
  *     }
  * }
  * \endcode
+ *
+ * \deprecated
  */
 
 /*!
@@ -534,6 +536,8 @@ void QWaylandXdgPopupV5Private::xdg_popup_destroy(Resource *resource)
  * can request that the surface is resized, moved, and so on.
  *
  * QWaylandXdgShellV5 corresponds to the Wayland interface \c xdg_shell.
+ *
+ * \deprecated
  */
 
 /*!
@@ -762,6 +766,8 @@ void QWaylandXdgShellV5::handleFocusChanged(QWaylandSurface *newSurface, QWaylan
  * compositors, such as resizing and moving the surface.
  *
  * It corresponds to the Wayland interface \c xdg_surface for the unstable xdg-shell protocol v5.
+ *
+ * \deprecated
  */
 
 /*!
@@ -776,6 +782,8 @@ void QWaylandXdgShellV5::handleFocusChanged(QWaylandSurface *newSurface, QWaylan
  * surface.
  *
  * It corresponds to the Wayland interface xdg_surface.
+ *
+ * \deprecated
  */
 
 /*!
@@ -1318,6 +1326,8 @@ QWaylandQuickShellIntegration *QWaylandXdgSurfaceV5::createIntegration(QWaylandQ
  * using xdg-shell.
  *
  * It corresponds to the Wayland interface \c xdg_popup for the unstable xdg-shell protocol v5.
+ *
+ * \deprecated
  */
 
 /*!
@@ -1331,6 +1341,8 @@ QWaylandQuickShellIntegration *QWaylandXdgSurfaceV5::createIntegration(QWaylandQ
  * specific to desktop-style menus for an xdg surface.
  *
  * It corresponds to the Wayland interface xdg_popup.
+ *
+ * \deprecated
  */
 
 /*!

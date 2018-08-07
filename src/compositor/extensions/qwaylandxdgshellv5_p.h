@@ -41,7 +41,7 @@
 #define QWAYLANDXDGSHELLV5_P_H
 
 #include <QtWaylandCompositor/private/qwaylandcompositorextension_p.h>
-#include <QtWaylandCompositor/private/qwayland-server-xdg-shell-unstable-v5.h>
+#include <QtWaylandCompositor/private/qwayland-server-xdg-shell-unstable-v5_p.h>
 
 #include <QtWaylandCompositor/QWaylandXdgShellV5>
 
@@ -62,7 +62,7 @@ QT_BEGIN_NAMESPACE
 
 class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgShellV5Private
         : public QWaylandCompositorExtensionPrivate
-        , public QtWaylandServer::xdg_shell
+        , public QtWaylandServer::xdg_shell_v5
 {
     Q_DECLARE_PUBLIC(QWaylandXdgShellV5)
 public:
@@ -95,7 +95,7 @@ protected:
 
 class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgSurfaceV5Private
         : public QWaylandCompositorExtensionPrivate
-        , public QtWaylandServer::xdg_surface
+        , public QtWaylandServer::xdg_surface_v5
 {
     Q_DECLARE_PUBLIC(QWaylandXdgSurfaceV5)
 public:
@@ -158,7 +158,7 @@ private:
 
 class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgPopupV5Private
         : public QWaylandCompositorExtensionPrivate
-        , public QtWaylandServer::xdg_popup
+        , public QtWaylandServer::xdg_popup_v5
 {
     Q_DECLARE_PUBLIC(QWaylandXdgPopupV5)
 
@@ -172,7 +172,7 @@ public:
     QPoint m_position;
 
     void xdg_popup_destroy_resource(Resource *resource) override;
-    void xdg_popup_destroy(xdg_popup::Resource *resource) override;
+    void xdg_popup_destroy(xdg_popup_v5::Resource *resource) override;
 
     static QWaylandSurfaceRole s_role;
 };

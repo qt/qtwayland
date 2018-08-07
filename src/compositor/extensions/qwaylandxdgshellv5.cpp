@@ -148,7 +148,7 @@ void QWaylandXdgShellV5Private::xdg_shell_get_xdg_surface(Resource *resource, ui
     if (!surface->setRole(QWaylandXdgSurfaceV5::role(), resource->handle, XDG_SHELL_ERROR_ROLE))
         return;
 
-    QWaylandResource xdgSurfaceResource(wl_resource_create(resource->client(), &xdg_surface_interface,
+    QWaylandResource xdgSurfaceResource(wl_resource_create(resource->client(), &xdg_surface_v5_interface,
                                                            wl_resource_get_version(resource->handle), id));
 
     emit q->xdgSurfaceRequested(surface, xdgSurfaceResource);
@@ -166,10 +166,10 @@ void QWaylandXdgShellV5Private::xdg_shell_get_xdg_surface(Resource *resource, ui
 
 void QWaylandXdgShellV5Private::xdg_shell_use_unstable_version(Resource *resource, int32_t version)
 {
-    if (xdg_shell::version_current != version) {
+    if (xdg_shell_v5::version_current != version) {
         wl_resource_post_error(resource->handle, WL_DISPLAY_ERROR_INVALID_OBJECT,
                                "incompatible version, server is %d, but client wants %d",
-                               xdg_shell::version_current, version);
+                               xdg_shell_v5::version_current, version);
     }
 }
 
@@ -193,7 +193,7 @@ void QWaylandXdgShellV5Private::xdg_shell_get_xdg_popup(Resource *resource, uint
         return;
     }
 
-    QWaylandResource xdgPopupResource (wl_resource_create(resource->client(), &xdg_popup_interface,
+    QWaylandResource xdgPopupResource (wl_resource_create(resource->client(), &xdg_popup_v5_interface,
                                                           wl_resource_get_version(resource->handle), id));
     QWaylandSeat *seat = QWaylandSeat::fromSeatResource(seatResource);
     QPoint position(x, y);

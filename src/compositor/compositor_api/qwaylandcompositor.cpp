@@ -107,39 +107,48 @@ public:
     bool sendEvent(QWindowSystemInterfacePrivate::WindowSystemEvent *e) override
     {
         if (e->type == QWindowSystemInterfacePrivate::Key) {
-            QWindowSystemInterfacePrivate::KeyEvent *ke = static_cast<QWindowSystemInterfacePrivate::KeyEvent *>(e);
-            QWaylandKeyboardPrivate *keyb = QWaylandKeyboardPrivate::get(compositor->defaultSeat()->keyboard());
-
-            uint32_t code = ke->nativeScanCode;
-            bool isDown = ke->keyType == QEvent::KeyPress;
-
-#if QT_CONFIG(xkbcommon_evdev)
-            QString text;
-            Qt::KeyboardModifiers modifiers = QWaylandXkb::modifiers(keyb->xkbState());
-
-            const xkb_keysym_t sym = xkb_state_key_get_one_sym(keyb->xkbState(), code);
-            int qtkey;
-            std::tie(qtkey, text) = QWaylandXkb::keysymToQtKey(sym, modifiers);
-
-            ke->key = qtkey;
-            ke->modifiers = modifiers;
-            ke->nativeVirtualKey = sym;
-            ke->nativeModifiers = keyb->xkbModsMask();
-            ke->unicode = text;
-#endif
-            if (!ke->repeat)
-                keyb->keyEvent(code, isDown ? WL_KEYBOARD_KEY_STATE_PRESSED : WL_KEYBOARD_KEY_STATE_RELEASED);
-
-            QWindowSystemEventHandler::sendEvent(e);
-
-            if (!ke->repeat) {
-                keyb->maybeUpdateKeymap();
-                keyb->updateModifierState(code, isDown ? WL_KEYBOARD_KEY_STATE_PRESSED : WL_KEYBOARD_KEY_STATE_RELEASED);
-            }
+            QWindowSystemInterfacePrivate::KeyEvent *keyEvent = static_cast<QWindowSystemInterfacePrivate::KeyEvent *>(e);
+            handleKeyEvent(keyEvent);
         } else {
             QWindowSystemEventHandler::sendEvent(e);
         }
         return true;
+    }
+
+    void handleKeyEvent(QWindowSystemInterfacePrivate::KeyEvent *ke)
+    {
+        auto *seat = compositor->defaultSeat();
+        if (!seat)
+            return;
+
+        QWaylandKeyboardPrivate *keyb = QWaylandKeyboardPrivate::get(seat->keyboard());
+
+        uint32_t code = ke->nativeScanCode;
+        bool isDown = ke->keyType == QEvent::KeyPress;
+
+#if QT_CONFIG(xkbcommon_evdev)
+        QString text;
+        Qt::KeyboardModifiers modifiers = QWaylandXkb::modifiers(keyb->xkbState());
+
+        const xkb_keysym_t sym = xkb_state_key_get_one_sym(keyb->xkbState(), code);
+        int qtkey;
+        std::tie(qtkey, text) = QWaylandXkb::keysymToQtKey(sym, modifiers);
+
+        ke->key = qtkey;
+        ke->modifiers = modifiers;
+        ke->nativeVirtualKey = sym;
+        ke->nativeModifiers = keyb->xkbModsMask();
+        ke->unicode = text;
+#endif
+        if (!ke->repeat)
+            keyb->keyEvent(code, isDown ? WL_KEYBOARD_KEY_STATE_PRESSED : WL_KEYBOARD_KEY_STATE_RELEASED);
+
+        QWindowSystemEventHandler::sendEvent(ke);
+
+        if (!ke->repeat) {
+            keyb->maybeUpdateKeymap();
+            keyb->updateModifierState(code, isDown ? WL_KEYBOARD_KEY_STATE_PRESSED : WL_KEYBOARD_KEY_STATE_RELEASED);
+        }
     }
 
     QWaylandCompositor *compositor = nullptr;

@@ -443,25 +443,25 @@ void Compositor::handleMouseEvent(QWaylandView *target, QMouseEvent *me)
         closePopups();
     }
 
-    QWaylandSeat *input = defaultSeat();
+    QWaylandSeat *seat = defaultSeat();
     QWaylandSurface *surface = target ? target->surface() : nullptr;
     switch (me->type()) {
         case QEvent::MouseButtonPress:
-            input->sendMousePressEvent(me->button());
-            if (surface != input->keyboardFocus()) {
+            seat->sendMousePressEvent(me->button());
+            if (surface != seat->keyboardFocus()) {
                 if (surface == nullptr
                         || surface->role() == QWaylandWlShellSurface::role()
                         || surface->role() == QWaylandXdgSurfaceV5::role()
                         || surface->role() == QWaylandXdgPopupV5::role()) {
-                    input->setKeyboardFocus(surface);
+                    seat->setKeyboardFocus(surface);
                 }
             }
             break;
     case QEvent::MouseButtonRelease:
-         input->sendMouseReleaseEvent(me->button());
+         seat->sendMouseReleaseEvent(me->button());
          break;
     case QEvent::MouseMove:
-        input->sendMouseMoveEvent(target, me->localPos(), me->globalPos());
+        seat->sendMouseMoveEvent(target, me->localPos(), me->globalPos());
     default:
         break;
     }

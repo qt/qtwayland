@@ -115,6 +115,8 @@ void QWaylandXdgSurface::Toplevel::xdg_toplevel_configure(int32_t width, int32_t
             break;
         }
     }
+    qCDebug(lcQpaWayland) << "Received xdg_toplevel.configure with" << m_pending.size
+                          << "and" << m_pending.states;
 }
 
 void QWaylandXdgSurface::Toplevel::xdg_toplevel_close()

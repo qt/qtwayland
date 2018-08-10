@@ -613,7 +613,7 @@ QWaylandSurface *QWaylandXdgSurfaceV6::surface() const
 }
 
 /*!
- * \qmlproperty WaylandSurface QtWaylandCompositor::XdgSurfaceV6::toplevel
+ * \qmlproperty XdgToplevelV6 QtWaylandCompositor::XdgSurfaceV6::toplevel
  *
  * This property holds the properties and methods that are specific to the
  * toplevel XdgSurfaceV6.
@@ -636,7 +636,7 @@ QWaylandXdgToplevelV6 *QWaylandXdgSurfaceV6::toplevel() const
 }
 
 /*!
- * \qmlproperty WaylandSurface QtWaylandCompositor::XdgSurfaceV6::popup
+ * \qmlproperty XdgPopupV6 QtWaylandCompositor::XdgSurfaceV6::popup
  *
  * This property holds the properties and methods that are specific to the
  * popup XdgSurfaceV6.

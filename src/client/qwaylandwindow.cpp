@@ -837,8 +837,10 @@ void QWaylandWindow::handleMouseEventWithDecoration(QWaylandInputDevice *inputDe
 {
     if (mMousePressedInContentArea == Qt::NoButton &&
         mWindowDecoration->handleMouse(inputDevice, e.local, e.global, e.buttons, e.modifiers)) {
-        if (mMouseEventsInContentArea)
+        if (mMouseEventsInContentArea) {
             QWindowSystemInterface::handleLeaveEvent(window());
+            mMouseEventsInContentArea = false;
+        }
         return;
     }
 

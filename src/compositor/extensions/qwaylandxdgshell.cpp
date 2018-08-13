@@ -904,6 +904,12 @@ bool QWaylandXdgToplevel::activated() const
     return d->m_lastAckedConfigure.states.contains(QWaylandXdgToplevel::State::ActivatedState);
 }
 
+QWaylandXdgToplevel::DecorationMode QWaylandXdgToplevel::decorationMode() const
+{
+    Q_D(const QWaylandXdgToplevel);
+    return d->m_decoration ? d->m_decoration->configuredMode() : DecorationMode::ClientSideDecoration;
+}
+
 /*!
  * \qmlmethod size QtWaylandCompositor::XdgToplevel::sizeForResize(size size, point delta, uint edges)
  *

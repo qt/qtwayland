@@ -64,6 +64,7 @@
 #include <QtWaylandCompositor/QWaylandXdgShellV5>
 #include <QtWaylandCompositor/QWaylandXdgShellV6>
 #include <QtWaylandCompositor/QWaylandXdgShell>
+#include <QtWaylandCompositor/QWaylandXdgDecorationManagerV1>
 #include <QtWaylandCompositor/QWaylandIviApplication>
 #include <QtWaylandCompositor/QWaylandIviSurface>
 
@@ -88,6 +89,7 @@ Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CLASS(QWaylandXdgShellV6)
 Q_COMPOSITOR_DECLARE_QUICK_PARENT_CLASS(QWaylandXdgSurfaceV6)
 Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CLASS(QWaylandXdgShell)
 Q_COMPOSITOR_DECLARE_QUICK_PARENT_CLASS(QWaylandXdgSurface)
+Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CLASS(QWaylandXdgDecorationManagerV1)
 Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CLASS(QWaylandTextInputManager)
 
 class QmlUrlResolver
@@ -178,6 +180,8 @@ public:
         qmlRegisterType<QWaylandXdgSurfaceQuickParent>(uri, 1, 3, "XdgSurface");
         qmlRegisterUncreatableType<QWaylandXdgToplevel>(uri, 1, 3, "XdgToplevel", QObject::tr("Cannot create instance of XdgShellToplevel"));
         qmlRegisterUncreatableType<QWaylandXdgPopup>(uri, 1, 3, "XdgPopup", QObject::tr("Cannot create instance of XdgShellPopup"));
+
+        qmlRegisterType<QWaylandXdgDecorationManagerV1QuickExtension>(uri, 1, 3, "XdgDecorationManagerV1");
     }
 };
 //![class decl]

@@ -150,6 +150,7 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgToplevel : public QObject
     Q_PROPERTY(bool fullscreen READ fullscreen NOTIFY fullscreenChanged)
     Q_PROPERTY(bool resizing READ resizing NOTIFY resizingChanged)
     Q_PROPERTY(bool activated READ activated NOTIFY activatedChanged)
+    Q_PROPERTY(enum DecorationMode decorationMode READ decorationMode NOTIFY decorationModeChanged)
 public:
     enum State : uint {
         MaximizedState  = 1,
@@ -158,6 +159,13 @@ public:
         ActivatedState  = 4
     };
     Q_ENUM(State)
+
+    enum DecorationMode {
+        DefaultDecorationMode,
+        ClientSideDecoration,
+        ServerSideDecoration,
+    };
+    Q_ENUM(DecorationMode)
 
     QWaylandXdgToplevel(QWaylandXdgSurface *xdgSurface, QWaylandResource &resource);
 
@@ -172,6 +180,7 @@ public:
     bool fullscreen() const;
     bool resizing() const;
     bool activated() const;
+    DecorationMode decorationMode() const;
 
     Q_INVOKABLE QSize sizeForResize(const QSizeF &size, const QPointF &delta, Qt::Edges edges) const;
     uint sendConfigure(const QSize &size, const QVector<State> &states);
@@ -205,6 +214,8 @@ Q_SIGNALS:
     void setFullscreen(QWaylandOutput *output);
     void unsetFullscreen();
     void setMinimized();
+
+    void decorationModeChanged();
 
 private:
     QList<int> statesAsInts() const;

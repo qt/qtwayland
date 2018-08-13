@@ -11,6 +11,7 @@ WAYLANDSERVERSOURCES += \
     ../3rdparty/protocol/text-input-unstable-v2.xml \
     ../3rdparty/protocol/xdg-shell-unstable-v6.xml \
     ../3rdparty/protocol/xdg-shell.xml \
+    ../3rdparty/protocol/xdg-decoration-unstable-v1.xml \
     ../3rdparty/protocol/ivi-application.xml \
 
 HEADERS += \
@@ -32,6 +33,8 @@ HEADERS += \
     extensions/qwaylandxdgshellv6_p.h \
     extensions/qwaylandxdgshell.h \
     extensions/qwaylandxdgshell_p.h \
+    extensions/qwaylandxdgdecorationv1.h \
+    extensions/qwaylandxdgdecorationv1_p.h \
     extensions/qwaylandshellsurface.h \
     extensions/qwaylandiviapplication.h \
     extensions/qwaylandiviapplication_p.h \
@@ -49,6 +52,7 @@ SOURCES += \
     extensions/qwaylandxdgshellv5.cpp \
     extensions/qwaylandxdgshellv6.cpp \
     extensions/qwaylandxdgshell.cpp \
+    extensions/qwaylandxdgdecorationv1.cpp \
     extensions/qwaylandshellsurface.cpp \
     extensions/qwaylandiviapplication.cpp \
     extensions/qwaylandivisurface.cpp \

@@ -40,7 +40,7 @@ Copyright (c) 2013 BMW Car IT GmbH"
         "Id": "wayland-xdg-decoration-protocol",
         "Name": "Wayland xdg-decoration Protocol",
         "QDocModule": "qtwaylandcompositor",
-        "QtUsage": "Used in the Qt Wayland platform plugin.",
+        "QtUsage": "Used in the Qt Wayland Compositor API, and the Qt Wayland platform plugin.",
         "Files": "xdg-decoration-unstable-v1.xml",
 
         "Description": "The xdg-decoration protocol allows a compositor to announce support for server-side decorations.",

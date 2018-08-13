@@ -42,6 +42,8 @@
 
 #include <QtWaylandCompositor/QWaylandXdgShell>
 
+#include <QtWaylandCompositor/private/qwaylandxdgdecorationv1_p.h>
+
 #include <QtCore/QSet>
 
 //
@@ -176,6 +178,7 @@ public:
     QString m_appId;
     QSize m_maxSize;
     QSize m_minSize;
+    QScopedPointer<QWaylandXdgToplevelDecorationV1> m_decoration;
 
     static QWaylandSurfaceRole s_role;
 };

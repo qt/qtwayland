@@ -1928,8 +1928,6 @@ void QWaylandXdgPositionerV6::zxdg_positioner_v6_destroy(QtWaylandServer::zxdg_p
 
 void QWaylandXdgPositionerV6::zxdg_positioner_v6_set_size(QtWaylandServer::zxdg_positioner_v6::Resource *resource, int32_t width, int32_t height)
 {
-    Q_UNUSED(resource);
-
     if (width <= 0 || height <= 0) {
         wl_resource_post_error(resource->handle, ZXDG_POSITIONER_V6_ERROR_INVALID_INPUT,
                                "zxdg_positioner_v6.set_size requested with non-positive dimensions");
@@ -1942,8 +1940,6 @@ void QWaylandXdgPositionerV6::zxdg_positioner_v6_set_size(QtWaylandServer::zxdg_
 
 void QWaylandXdgPositionerV6::zxdg_positioner_v6_set_anchor_rect(QtWaylandServer::zxdg_positioner_v6::Resource *resource, int32_t x, int32_t y, int32_t width, int32_t height)
 {
-    Q_UNUSED(resource);
-
     if (width <= 0 || height <= 0) {
         wl_resource_post_error(resource->handle, ZXDG_POSITIONER_V6_ERROR_INVALID_INPUT,
                                "zxdg_positioner_v6.set_anchor_rect requested with non-positive dimensions");
@@ -1956,8 +1952,6 @@ void QWaylandXdgPositionerV6::zxdg_positioner_v6_set_anchor_rect(QtWaylandServer
 
 void QWaylandXdgPositionerV6::zxdg_positioner_v6_set_anchor(QtWaylandServer::zxdg_positioner_v6::Resource *resource, uint32_t anchor)
 {
-    Q_UNUSED(resource);
-
     Qt::Edges anchorEdges = QWaylandXdgShellV6Private::convertToEdges(anchor);
 
     if ((anchorEdges & Qt::BottomEdge && anchorEdges & Qt::TopEdge) ||
@@ -1972,7 +1966,6 @@ void QWaylandXdgPositionerV6::zxdg_positioner_v6_set_anchor(QtWaylandServer::zxd
 
 void QWaylandXdgPositionerV6::zxdg_positioner_v6_set_gravity(QtWaylandServer::zxdg_positioner_v6::Resource *resource, uint32_t gravity)
 {
-    Q_UNUSED(resource);
     Qt::Edges gravityEdges = QWaylandXdgShellV6Private::convertToEdges(gravity);
 
     if ((gravityEdges & Qt::BottomEdge && gravityEdges & Qt::TopEdge) ||

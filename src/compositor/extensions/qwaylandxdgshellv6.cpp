@@ -467,7 +467,7 @@ void QWaylandXdgSurfaceV6Private::zxdg_surface_v6_set_window_geometry(QtWaylandS
 /*!
  * \class QWaylandXdgSurfaceV6
  * \inmodule QtWaylandCompositor
- * \since 5.8
+ * \since 5.10
  * \brief The QWaylandXdgSurfaceV6 class provides desktop-style compositor-specific features to an xdg surface.
  *
  * This class is part of the QWaylandXdgShellV6 extension and provides a way to

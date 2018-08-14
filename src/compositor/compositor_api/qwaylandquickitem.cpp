@@ -731,7 +731,39 @@ void QWaylandQuickItem::handleSubsurfaceAdded(QWaylandSurface *childSurface)
     }
 }
 
+void QWaylandQuickItem::handlePlaceAbove(QWaylandSurface *referenceSurface)
+{
+    Q_D(QWaylandQuickItem);
+    auto *parent = qobject_cast<QWaylandQuickItem*>(parentItem());
+    if (!parent)
+        return;
 
+    if (parent->surface() == referenceSurface) {
+        d->placeAboveParent();
+    } else if (auto *sibling = d->findSibling(referenceSurface)) {
+        d->placeAboveSibling(sibling);
+    } else {
+        qWarning() << "Couldn't find QWaylandQuickItem for surface" << referenceSurface
+                   << "when handling wl_subsurface.place_above";
+    }
+}
+
+void QWaylandQuickItem::handlePlaceBelow(QWaylandSurface *referenceSurface)
+{
+    Q_D(QWaylandQuickItem);
+    QWaylandQuickItem *parent = qobject_cast<QWaylandQuickItem*>(parentItem());
+    if (!parent)
+        return;
+
+    if (parent->surface() == referenceSurface) {
+        d->placeBelowParent();
+    } else if (auto *sibling = d->findSibling(referenceSurface)) {
+        d->placeBelowSibling(sibling);
+    } else {
+        qWarning() << "Couldn't find QWaylandQuickItem for surface" << referenceSurface
+                   << "when handling wl_subsurface.place_below";
+    }
+}
 
 /*!
   \qmlproperty object QtWaylandCompositor::WaylandQuickItem::subsurfaceHandler
@@ -859,6 +891,8 @@ void QWaylandQuickItem::handleSurfaceChanged()
         disconnect(d->oldSurface, &QWaylandSurface::configure, this, &QWaylandQuickItem::updateBuffer);
         disconnect(d->oldSurface, &QWaylandSurface::redraw, this, &QQuickItem::update);
         disconnect(d->oldSurface, &QWaylandSurface::childAdded, this, &QWaylandQuickItem::handleSubsurfaceAdded);
+        disconnect(d->oldSurface, &QWaylandSurface::subsurfacePlaceAbove, this, &QWaylandQuickItem::handlePlaceAbove);
+        disconnect(d->oldSurface, &QWaylandSurface::subsurfacePlaceBelow, this, &QWaylandQuickItem::handlePlaceBelow);
 #if QT_CONFIG(draganddrop)
         disconnect(d->oldSurface, &QWaylandSurface::dragStarted, this, &QWaylandQuickItem::handleDragStarted);
 #endif
@@ -874,6 +908,8 @@ void QWaylandQuickItem::handleSurfaceChanged()
         connect(newSurface, &QWaylandSurface::configure, this, &QWaylandQuickItem::updateBuffer);
         connect(newSurface, &QWaylandSurface::redraw, this, &QQuickItem::update);
         connect(newSurface, &QWaylandSurface::childAdded, this, &QWaylandQuickItem::handleSubsurfaceAdded);
+        connect(newSurface, &QWaylandSurface::subsurfacePlaceAbove, this, &QWaylandQuickItem::handlePlaceAbove);
+        connect(newSurface, &QWaylandSurface::subsurfacePlaceBelow, this, &QWaylandQuickItem::handlePlaceBelow);
 #if QT_CONFIG(draganddrop)
         connect(newSurface, &QWaylandSurface::dragStarted, this, &QWaylandQuickItem::handleDragStarted);
 #endif
@@ -1362,6 +1398,88 @@ qreal QWaylandQuickItemPrivate::scaleFactor() const
         f /= window->devicePixelRatio();
 #endif
     return f;
+}
+
+QWaylandQuickItem *QWaylandQuickItemPrivate::findSibling(QWaylandSurface *surface) const
+{
+    Q_Q(const QWaylandQuickItem);
+    auto *parent = q->parentItem();
+    if (!parent)
+        return nullptr;
+
+    const auto siblings = q->parentItem()->childItems();
+    for (auto *sibling : siblings) {
+        auto *waylandItem = qobject_cast<QWaylandQuickItem *>(sibling);
+        if (waylandItem && waylandItem->surface() == surface)
+            return waylandItem;
+    }
+    return nullptr;
+}
+
+void QWaylandQuickItemPrivate::placeAboveSibling(QWaylandQuickItem *sibling)
+{
+    Q_Q(QWaylandQuickItem);
+    q->stackAfter(sibling);
+    q->setZ(sibling->z());
+    belowParent = sibling->d_func()->belowParent;
+}
+
+void QWaylandQuickItemPrivate::placeBelowSibling(QWaylandQuickItem *sibling)
+{
+    Q_Q(QWaylandQuickItem);
+    q->stackBefore(sibling);
+    q->setZ(sibling->z());
+    belowParent = sibling->d_func()->belowParent;
+}
+
+//### does not handle changes in z value if parent is a subsurface
+void QWaylandQuickItemPrivate::placeAboveParent()
+{
+    Q_Q(QWaylandQuickItem);
+    const auto siblings = q->parentItem()->childItems();
+
+    // Stack below first (bottom) sibling above parent
+    bool foundSibling = false;
+    for (auto it = siblings.cbegin(); it != siblings.cend(); ++it) {
+        QWaylandQuickItem *sibling = qobject_cast<QWaylandQuickItem*>(*it);
+        if (sibling && !sibling->d_func()->belowParent) {
+            q->stackBefore(sibling);
+            foundSibling = true;
+            break;
+        }
+    }
+
+    // No other subsurfaces above parent
+    if (!foundSibling && siblings.last() != q)
+        q->stackAfter(siblings.last());
+
+    q->setZ(q->parentItem()->z());
+    belowParent = false;
+}
+
+//### does not handle changes in z value if parent is a subsurface
+void QWaylandQuickItemPrivate::placeBelowParent()
+{
+    Q_Q(QWaylandQuickItem);
+    const auto siblings = q->parentItem()->childItems();
+
+    // Stack above last (top) sibling below parent
+    bool foundSibling = false;
+    for (auto it = siblings.crbegin(); it != siblings.crend(); ++it) {
+        QWaylandQuickItem *sibling = qobject_cast<QWaylandQuickItem*>(*it);
+        if (sibling && sibling->d_func()->belowParent) {
+            q->stackAfter(sibling);
+            foundSibling = true;
+            break;
+        }
+    }
+
+    // No other subsurfaces below parent
+    if (!foundSibling && siblings.first() != q)
+        q->stackBefore(siblings.first());
+
+    q->setZ(q->parentItem()->z() - 1.0);
+    belowParent = true;
 }
 
 QT_END_NAMESPACE

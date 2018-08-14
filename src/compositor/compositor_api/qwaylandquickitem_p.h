@@ -151,6 +151,12 @@ public:
     bool shouldSendInputEvents() const { return view->surface() && inputEventsEnabled; }
     qreal scaleFactor() const;
 
+    QWaylandQuickItem *findSibling(QWaylandSurface *surface) const;
+    void placeAboveSibling(QWaylandQuickItem *sibling);
+    void placeBelowSibling(QWaylandQuickItem *sibling);
+    void placeAboveParent();
+    void placeBelowParent();
+
     static QMutex *mutex;
 
     QScopedPointer<QWaylandView> view;
@@ -163,6 +169,7 @@ public:
     bool newTexture = false;
     bool focusOnClick = true;
     bool sizeFollowsSurface = true;
+    bool belowParent = false;
     QPoint hoverPos;
     QMatrix4x4 lastMatrix;
 

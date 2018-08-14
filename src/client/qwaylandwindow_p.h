@@ -55,6 +55,7 @@
 #include <QtCore/QMutex>
 #include <QtGui/QIcon>
 #include <QtCore/QVariant>
+#include <QtCore/QLoggingCategory>
 
 #include <qpa/qplatformwindow.h>
 
@@ -66,6 +67,8 @@ struct wl_egl_window;
 QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
+
+Q_DECLARE_LOGGING_CATEGORY(lcWaylandBackingstore)
 
 class QWaylandDisplay;
 class QWaylandBuffer;

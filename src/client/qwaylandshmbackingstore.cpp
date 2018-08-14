@@ -48,7 +48,6 @@
 #include <QtCore/qtemporaryfile.h>
 #include <QtGui/QPainter>
 #include <QMutexLocker>
-#include <QLoggingCategory>
 
 #include <wayland-client.h>
 #include <wayland-client-protocol.h>
@@ -67,10 +66,6 @@
 QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
-
-Q_DECLARE_LOGGING_CATEGORY(lcWaylandBackingstore)
-
-Q_LOGGING_CATEGORY(lcWaylandBackingstore, "qt.qpa.wayland.backingstore")
 
 QWaylandShmBuffer::QWaylandShmBuffer(QWaylandDisplay *display,
                      const QSize &size, QImage::Format format, int scale)
@@ -199,6 +194,8 @@ void QWaylandShmBackingStore::beginPaint(const QRegion &region)
 void QWaylandShmBackingStore::endPaint()
 {
     mPainting = false;
+    if (mPendingFlush)
+        flush(window(), mPendingRegion, QPoint());
     waylandWindow()->setCanResize(true);
 }
 
@@ -218,8 +215,18 @@ void QWaylandShmBackingStore::flush(QWindow *window, const QRegion &region, cons
     // called instead. The default implementation from QPlatformBackingStore is sufficient
     // however so no need to reimplement that.
 
+
     Q_UNUSED(window);
     Q_UNUSED(offset);
+
+    if (mPainting) {
+        mPendingRegion |= region;
+        mPendingFlush = true;
+        return;
+    }
+
+    mPendingFlush = false;
+    mPendingRegion = QRegion();
 
     if (windowDecoration() && windowDecoration()->isDirty())
         updateDecorations();

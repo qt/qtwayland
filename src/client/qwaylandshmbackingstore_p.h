@@ -120,6 +120,8 @@ private:
     QWaylandShmBuffer *mFrontBuffer = nullptr;
     QWaylandShmBuffer *mBackBuffer = nullptr;
     bool mPainting = false;
+    bool mPendingFlush = false;
+    QRegion mPendingRegion;
     QMutex mMutex;
 
     QSize mRequestedSize;

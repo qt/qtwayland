@@ -206,8 +206,10 @@ QWaylandXdgSurfaceV6::QWaylandXdgSurfaceV6(QWaylandXdgShellV6 *shell, ::zxdg_sur
 
 QWaylandXdgSurfaceV6::~QWaylandXdgSurfaceV6()
 {
-    if (m_toplevel)
-        zxdg_toplevel_v6_destroy(m_toplevel->object());
+    if (m_toplevel) {
+        delete m_toplevel;
+        m_toplevel = nullptr;
+    }
     if (m_popup) {
         delete m_popup;
         m_popup = nullptr;

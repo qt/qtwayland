@@ -50,6 +50,7 @@
 #include <QtWaylandCompositor/QWaylandDrag>
 #endif
 #include <QtWaylandCompositor/private/qwlclientbufferintegration_p.h>
+#include <QtWaylandCompositor/private/qwaylandsurface_p.h>
 
 #include <QtGui/QKeyEvent>
 #include <QtGui/QGuiApplication>
@@ -887,6 +888,10 @@ void QWaylandQuickItem::handleSurfaceChanged()
         if (window()) {
             QWaylandOutput *output = newSurface->compositor()->outputFor(window());
             d->view->setOutput(output);
+        }
+        for (auto subsurface : QWaylandSurfacePrivate::get(newSurface)->subsurfaceChildren) {
+            if (!subsurface.isNull())
+                handleSubsurfaceAdded(subsurface.data());
         }
 
         updateSize();

@@ -73,6 +73,8 @@ QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
 
+Q_LOGGING_CATEGORY(lcWaylandBackingstore, "qt.qpa.wayland.backingstore")
+
 QWaylandWindow *QWaylandWindow::mMouseGrab = nullptr;
 
 QWaylandWindow::QWaylandWindow(QWindow *window)
@@ -534,6 +536,7 @@ void QWaylandWindow::handleScreenRemoved(QScreen *qScreen)
 
 void QWaylandWindow::attach(QWaylandBuffer *buffer, int x, int y)
 {
+    Q_ASSERT(!buffer->committed());
     if (mFrameCallback) {
         wl_callback_destroy(mFrameCallback);
         mFrameCallback = nullptr;
@@ -564,12 +567,18 @@ void QWaylandWindow::damage(const QRect &rect)
 
 void QWaylandWindow::commit(QWaylandBuffer *buffer, const QRegion &damage)
 {
+    if (buffer->committed()) {
+        qCDebug(lcWaylandBackingstore) << "Buffer already committed, ignoring.";
+        return;
+    }
     if (!isInitialized())
         return;
 
     attachOffset(buffer);
     for (const QRect &rect: damage)
         wl_surface::damage(rect.x(), rect.y(), rect.width(), rect.height());
+    Q_ASSERT(!buffer->committed());
+    buffer->setCommitted();
     wl_surface::commit();
 }
 

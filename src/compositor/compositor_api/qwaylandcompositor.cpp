@@ -332,6 +332,7 @@ void QWaylandCompositorPrivate::subcompositor_get_subsurface(wl_subcompositor::R
     QWaylandSurface *childSurface = QWaylandSurface::fromResource(surface);
     QWaylandSurface *parentSurface = QWaylandSurface::fromResource(parent);
     QWaylandSurfacePrivate::get(childSurface)->initSubsurface(parentSurface, resource->client(), id, 1);
+    QWaylandSurfacePrivate::get(parentSurface)->subsurfaceChildren.append(childSurface);
     emit q->subsurfaceChanged(childSurface, parentSurface);
 }
 

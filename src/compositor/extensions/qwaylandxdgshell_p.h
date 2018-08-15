@@ -81,7 +81,6 @@ public:
     void registerXdgSurface(QWaylandXdgSurface *xdgSurface);
     void unregisterXdgSurface(QWaylandXdgSurface *xdgSurface);
     static QWaylandXdgShellPrivate *get(QWaylandXdgShell *xdgShell) { return xdgShell->d_func(); }
-    static Qt::Edges convertToEdges(uint xdgEdges);
 
     QSet<uint32_t> m_pings;
     QMultiMap<struct wl_client *, QWaylandXdgSurface *> m_xdgSurfaces;
@@ -147,6 +146,7 @@ public:
     void handleFocusReceived();
 
     static QWaylandXdgToplevelPrivate *get(QWaylandXdgToplevel *toplevel) { return toplevel->d_func(); }
+    static Qt::Edges convertToEdges(resize_edge edge);
 
 protected:
 
@@ -218,6 +218,8 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgPositioner : public QtWaylandServer
 public:
     QWaylandXdgPositioner(const QWaylandResource& resource);
     static QWaylandXdgPositioner *fromResource(wl_resource *resource);
+    static Qt::Edges convertToEdges(anchor anchor);
+    static Qt::Edges convertToEdges(gravity gravity);
 
 protected:
     void xdg_positioner_destroy_resource(Resource *resource) override; //TODO: do something special here?

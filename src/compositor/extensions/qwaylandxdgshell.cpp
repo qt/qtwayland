@@ -75,33 +75,6 @@ void QWaylandXdgShellPrivate::unregisterXdgSurface(QWaylandXdgSurface *xdgSurfac
         qWarning("%s Unexpected state. Can't find registered xdg surface\n", Q_FUNC_INFO);
 }
 
-Qt::Edges QWaylandXdgShellPrivate::convertToEdges(uint xdgEdges)
-{
-    switch (xdgEdges) {
-    case XDG_POSITIONER_ANCHOR_NONE:
-        return Qt::Edges();
-    case XDG_POSITIONER_ANCHOR_TOP:
-        return Qt::TopEdge;
-    case XDG_POSITIONER_ANCHOR_BOTTOM:
-        return Qt::BottomEdge;
-    case XDG_POSITIONER_ANCHOR_LEFT:
-        return Qt::LeftEdge;
-    case XDG_POSITIONER_ANCHOR_RIGHT:
-        return Qt::RightEdge;
-    case XDG_POSITIONER_ANCHOR_TOP_LEFT:
-        return Qt::TopEdge | Qt::LeftEdge;
-    case XDG_POSITIONER_ANCHOR_BOTTOM_LEFT:
-        return Qt::BottomEdge | Qt::LeftEdge;
-    case XDG_POSITIONER_ANCHOR_TOP_RIGHT:
-        return Qt::TopEdge | Qt::RightEdge;
-    case XDG_POSITIONER_ANCHOR_BOTTOM_RIGHT:
-        return Qt::BottomEdge | Qt::RightEdge;
-    default:
-        qWarning() << "Unknown Wayland xdg edge" << xdgEdges;
-        return Qt::Edges();
-    }
-}
-
 QWaylandXdgSurface *QWaylandXdgShellPrivate::xdgSurfaceFromSurface(QWaylandSurface *surface)
 {
     for (QWaylandXdgSurface *xdgSurface : qAsConst(m_xdgSurfaces)) {
@@ -1296,6 +1269,11 @@ void QWaylandXdgToplevelPrivate::handleFocusReceived()
     }
 }
 
+Qt::Edges QWaylandXdgToplevelPrivate::convertToEdges(resize_edge edge)
+{
+    return Qt::Edges(((edge & 0b1100) >> 1) | ((edge & 0b0010) << 2) | (edge & 0b0001));
+}
+
 void QWaylandXdgToplevelPrivate::xdg_toplevel_destroy_resource(QtWaylandServer::xdg_toplevel::Resource *resource)
 {
     Q_UNUSED(resource);
@@ -1379,7 +1357,7 @@ void QWaylandXdgToplevelPrivate::xdg_toplevel_resize(QtWaylandServer::xdg_toplev
     Q_UNUSED(serial);
     Q_Q(QWaylandXdgToplevel);
     QWaylandSeat *seat = QWaylandSeat::fromSeatResource(seatResource);
-    emit q->startResize(seat, QWaylandXdgShellPrivate::convertToEdges(edges));
+    emit q->startResize(seat, convertToEdges(resize_edge(edges)));
 }
 
 void QWaylandXdgToplevelPrivate::xdg_toplevel_set_max_size(QtWaylandServer::xdg_toplevel::Resource *resource, int32_t width, int32_t height)
@@ -1974,7 +1952,7 @@ void QWaylandXdgPositioner::xdg_positioner_set_anchor_rect(QtWaylandServer::xdg_
 
 void QWaylandXdgPositioner::xdg_positioner_set_anchor(QtWaylandServer::xdg_positioner::Resource *resource, uint32_t anchor)
 {
-    Qt::Edges anchorEdges = QWaylandXdgShellPrivate::convertToEdges(anchor);
+    Qt::Edges anchorEdges = convertToEdges(xdg_positioner::anchor(anchor));
 
     if ((anchorEdges & Qt::BottomEdge && anchorEdges & Qt::TopEdge) ||
             (anchorEdges & Qt::LeftEdge && anchorEdges & Qt::RightEdge)) {
@@ -1988,7 +1966,7 @@ void QWaylandXdgPositioner::xdg_positioner_set_anchor(QtWaylandServer::xdg_posit
 
 void QWaylandXdgPositioner::xdg_positioner_set_gravity(QtWaylandServer::xdg_positioner::Resource *resource, uint32_t gravity)
 {
-    Qt::Edges gravityEdges = QWaylandXdgShellPrivate::convertToEdges(gravity);
+    Qt::Edges gravityEdges = convertToEdges(xdg_positioner::gravity(gravity));
 
     if ((gravityEdges & Qt::BottomEdge && gravityEdges & Qt::TopEdge) ||
             (gravityEdges & Qt::LeftEdge && gravityEdges & Qt::RightEdge)) {
@@ -2016,5 +1994,38 @@ QWaylandXdgPositioner *QWaylandXdgPositioner::fromResource(wl_resource *resource
 {
     return static_cast<QWaylandXdgPositioner *>(Resource::fromResource(resource)->xdg_positioner_object);
 }
+
+Qt::Edges QWaylandXdgPositioner::convertToEdges(anchor anchor)
+{
+    switch (anchor) {
+    case anchor_none:
+        return Qt::Edges();
+    case anchor_top:
+        return Qt::TopEdge;
+    case anchor_bottom:
+        return Qt::BottomEdge;
+    case anchor_left:
+        return Qt::LeftEdge;
+    case anchor_right:
+        return Qt::RightEdge;
+    case anchor_top_left:
+        return Qt::TopEdge | Qt::LeftEdge;
+    case anchor_bottom_left:
+        return Qt::BottomEdge | Qt::LeftEdge;
+    case anchor_top_right:
+        return Qt::TopEdge | Qt::RightEdge;
+    case anchor_bottom_right:
+        return Qt::BottomEdge | Qt::RightEdge;
+    default:
+        qWarning() << "Unknown Wayland xdg edge" << anchor;
+        return Qt::Edges();
+    }
+}
+
+Qt::Edges QWaylandXdgPositioner::convertToEdges(QWaylandXdgPositioner::gravity gravity)
+{
+    return convertToEdges(anchor(gravity));
+}
+
 
 QT_END_NAMESPACE

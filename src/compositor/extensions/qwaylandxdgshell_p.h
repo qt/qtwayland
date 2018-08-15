@@ -177,7 +177,7 @@ public:
     QString m_title;
     QString m_appId;
     QSize m_maxSize;
-    QSize m_minSize;
+    QSize m_minSize = {0, 0};
     QScopedPointer<QWaylandXdgToplevelDecorationV1> m_decoration;
 
     static QWaylandSurfaceRole s_role;

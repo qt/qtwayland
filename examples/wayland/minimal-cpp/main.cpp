@@ -57,10 +57,9 @@ int main(int argc, char *argv[])
     QGuiApplication app(argc, argv);
 
     Window window;
-    Compositor compositor(&window);
-    window.setCompositor(&compositor);
-    compositor.create();
     window.resize(800,600);
+    Compositor compositor(&window);
+    compositor.create();
     window.show();
 
     return app.exec();

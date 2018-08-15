@@ -55,7 +55,7 @@
 #include <QMatrix4x4>
 #include <QOpenGLFunctions>
 #include <QOpenGLTexture>
-#include <QRandomGenerator>
+#include <QMouseEvent>
 
 Window::Window()
 {
@@ -68,14 +68,6 @@ void Window::setCompositor(Compositor *comp) {
 void Window::initializeGL()
 {
     m_textureBlitter.create();
-}
-
-static QPoint sillyrandom(int seed, QSize screenSize, QSize surfaceSize)
-{
-    QRandomGenerator rand(seed);
-    int xrange = qMax(screenSize.width() - surfaceSize.width(), 200);
-    int yrange = qMax(screenSize.height() - surfaceSize.height(), 200);
-    return QPoint(rand.bounded(xrange), rand.bounded(yrange));
 }
 
 void Window::paintGL()
@@ -91,7 +83,8 @@ void Window::paintGL()
     functions->glEnable(GL_BLEND);
     functions->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    Q_FOREACH (View *view, m_compositor->views()) {
+    const auto views = m_compositor->views();
+    for (View *view : views) {
         auto texture = view->getTexture();
         if (!texture)
             continue;
@@ -103,7 +96,8 @@ void Window::paintGL()
         QWaylandSurface *surface = view->surface();
         if (surface && surface->hasContent()) {
             QSize s = surface->size();
-            QPointF pos = sillyrandom(view->iviId(), size(), s);
+            view->initPosition(size(), s);
+            QPointF pos = view->globalPosition();
             QRectF surfaceGeometry(pos, s);
             QOpenGLTextureBlitter::Origin surfaceOrigin =
                     view->currentBuffer().origin() == QWaylandSurface::OriginTopLeft
@@ -115,4 +109,34 @@ void Window::paintGL()
     }
     m_textureBlitter.release();
     m_compositor->endRender();
+}
+
+void Window::mousePressEvent(QMouseEvent *event)
+{
+    m_compositor->handleMousePress(event->localPos().toPoint(), event->button());
+}
+
+void Window::mouseReleaseEvent(QMouseEvent *event)
+{
+    m_compositor->handleMouseRelease(event->localPos().toPoint(), event->button(), event->buttons());
+}
+
+void Window::mouseMoveEvent(QMouseEvent *event)
+{
+    m_compositor->handleMouseMove(event->localPos().toPoint());
+}
+
+void Window::wheelEvent(QWheelEvent *event)
+{
+    m_compositor->handleMouseWheel(event->orientation(), event->delta());
+}
+
+void Window::keyPressEvent(QKeyEvent *e)
+{
+    m_compositor->handleKeyPress(e->nativeScanCode());
+}
+
+void Window::keyReleaseEvent(QKeyEvent *e)
+{
+    m_compositor->handleKeyRelease(e->nativeScanCode());
 }

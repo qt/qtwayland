@@ -54,6 +54,7 @@
 #include <QtWaylandCompositor/QWaylandCompositor>
 #include <QtWaylandCompositor/QWaylandSurface>
 #include <QtWaylandCompositor/QWaylandView>
+#include <QtCore/QPointer>
 
 QT_BEGIN_NAMESPACE
 
@@ -66,12 +67,23 @@ class View : public QWaylandView
 {
     Q_OBJECT
 public:
-    View(int iviId) : m_iviId(iviId) {}
+    explicit View(int iviId) : m_iviId(iviId) {}
     QOpenGLTexture *getTexture();
     int iviId() const { return m_iviId; }
+
+    QRect globalGeometry() const { return QRect(globalPosition(), surface()->size()); }
+    void setGlobalPosition(const QPoint &globalPos) { m_pos = globalPos; m_positionSet = true; }
+    QPoint globalPosition() const { return m_pos; }
+    QPoint mapToLocal(const QPoint &globalPos) const;
+    QSize size() const { return surface() ? surface()->size() : QSize(); }
+
+    void initPosition(const QSize &screenSize, const QSize &surfaceSize);
+
 private:
     friend class Compositor;
     QOpenGLTexture *m_texture = nullptr;
+    bool m_positionSet = false;
+    QPoint m_pos;
     int m_iviId;
 };
 
@@ -84,6 +96,16 @@ public:
     void create() override;
 
     QList<View*> views() const { return m_views; }
+    View *viewAt(const QPoint &position);
+    void raise(View *view);
+
+    void handleMousePress(const QPoint &position, Qt::MouseButton button);
+    void handleMouseRelease(const QPoint &position, Qt::MouseButton button, Qt::MouseButtons buttons);
+    void handleMouseMove(const QPoint &position);
+    void handleMouseWheel(Qt::Orientation orientation, int delta);
+
+    void handleKeyPress(quint32 nativeScanCode);
+    void handleKeyRelease(quint32 nativeScanCode);
 
     void startRender();
     void endRender();
@@ -98,6 +120,7 @@ private:
     Window *m_window = nullptr;
     QWaylandIviApplication *m_iviApplication = nullptr;
     QList<View*> m_views;
+    QPointer<View> m_mouseView;
 };
 
 QT_END_NAMESPACE

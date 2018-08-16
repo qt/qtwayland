@@ -386,12 +386,24 @@ void QWaylandXdgSurfacePrivate::xdg_surface_get_popup(QtWaylandServer::xdg_surfa
                                "xdg_surface.get_popup without positioner");
         return;
     }
+
     if (!positioner->m_data.isComplete()) {
         QWaylandXdgPositionerData p = positioner->m_data;
         wl_resource_post_error(resource->handle, XDG_WM_BASE_ERROR_INVALID_POSITIONER,
                                "xdg_surface.get_popup with invalid positioner (size: %dx%d, anchorRect: %dx%d)",
                                p.size.width(), p.size.height(), p.anchorRect.width(), p.anchorRect.height());
         return;
+    }
+
+    QRect anchorBounds(QPoint(0, 0), parent->windowGeometry().size());
+    if (!anchorBounds.contains(positioner->m_data.anchorRect)) {
+        // TODO: this is a protocol error and should ideally be handled like this:
+        //wl_resource_post_error(resource->handle, XDG_WM_BASE_ERROR_INVALID_POSITIONER,
+        //                       "xdg_positioner anchor rect extends beyound its parent's window geometry");
+        //return;
+        // However, our own clients currently do this, so we'll settle for a gentle warning instead.
+        qCWarning(qLcWaylandCompositor) << "Ignoring client protocol error: xdg_positioner anchor"
+                                        << "rect extends beyond its parent's window geometry";
     }
 
     if (!m_surface->setRole(QWaylandXdgPopup::role(), resource->handle, XDG_WM_BASE_ERROR_ROLE))
@@ -1869,16 +1881,13 @@ QWaylandXdgPopupPrivate::QWaylandXdgPopupPrivate(QWaylandXdgSurface *xdgSurface,
                                                  QWaylandXdgPositioner *positioner, const QWaylandResource &resource)
     : m_xdgSurface(xdgSurface)
     , m_parentXdgSurface(parentXdgSurface)
+    , m_positionerData(positioner->m_data)
 {
+    Q_ASSERT(m_positionerData.isComplete());
     init(resource.resource());
-    m_positionerData = positioner->m_data;
-
-    if (!m_positionerData.isComplete())
-        qWarning() << "Trying to create xdg popup with incomplete positioner";
 
     QWaylandXdgSurfacePrivate::get(m_xdgSurface)->setWindowType(Qt::WindowType::Popup);
 
-    //TODO: positioner rect may not extend parent's window geometry, enforce this?
     //TODO: Need an API for sending a different initial configure
     sendConfigure(QRect(m_positionerData.unconstrainedPosition(), m_positionerData.size));
 }

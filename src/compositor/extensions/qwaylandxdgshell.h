@@ -67,8 +67,8 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgShell : public QWaylandShellTemplat
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandXdgShell)
 public:
-    QWaylandXdgShell();
-    QWaylandXdgShell(QWaylandCompositor *compositor);
+    explicit QWaylandXdgShell();
+    explicit QWaylandXdgShell(QWaylandCompositor *compositor);
 
     void initialize() override;
 
@@ -100,8 +100,8 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgSurface : public QWaylandShellSurfa
     Q_PROPERTY(QRect windowGeometry READ windowGeometry NOTIFY windowGeometryChanged)
 
 public:
-    QWaylandXdgSurface();
-    QWaylandXdgSurface(QWaylandXdgShell* xdgShell, QWaylandSurface *surface, const QWaylandResource &resource);
+    explicit QWaylandXdgSurface();
+    explicit QWaylandXdgSurface(QWaylandXdgShell* xdgShell, QWaylandSurface *surface, const QWaylandResource &resource);
 
     Q_INVOKABLE void initialize(QWaylandXdgShell* xdgShell, QWaylandSurface *surface, const QWaylandResource &resource);
 
@@ -167,7 +167,7 @@ public:
     };
     Q_ENUM(DecorationMode)
 
-    QWaylandXdgToplevel(QWaylandXdgSurface *xdgSurface, QWaylandResource &resource);
+    explicit QWaylandXdgToplevel(QWaylandXdgSurface *xdgSurface, QWaylandResource &resource);
 
     QWaylandXdgToplevel *parentToplevel() const;
 
@@ -263,8 +263,8 @@ Q_SIGNALS:
     void configuredGeometryChanged();
 
 private:
-    QWaylandXdgPopup(QWaylandXdgSurface *xdgSurface, QWaylandXdgSurface *parentXdgSurface,
-                     QWaylandXdgPositioner *positioner, QWaylandResource &resource);
+    explicit QWaylandXdgPopup(QWaylandXdgSurface *xdgSurface, QWaylandXdgSurface *parentXdgSurface,
+                              QWaylandXdgPositioner *positioner, QWaylandResource &resource);
     friend class QWaylandXdgSurfacePrivate;
 };
 

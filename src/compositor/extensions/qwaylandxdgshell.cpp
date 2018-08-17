@@ -1111,6 +1111,13 @@ QWaylandSurfaceRole *QWaylandXdgToplevel::role()
     return &QWaylandXdgToplevelPrivate::s_role;
 }
 
+/*!
+ * Returns the QWaylandXdgToplevel corresponding to the \a resource.
+ */
+QWaylandXdgToplevel *QWaylandXdgToplevel::fromResource(wl_resource *resource)
+{
+    return static_cast<QWaylandXdgToplevelPrivate *>(QWaylandXdgToplevelPrivate::Resource::fromResource(resource)->xdg_toplevel_object)->q_func();
+}
 
 /*!
  * \qmlsignal QtWaylandCompositor::XdgShell::xdgSurfaceCreated(XdgSurface xdgSurface)
@@ -1290,11 +1297,7 @@ void QWaylandXdgToplevelPrivate::xdg_toplevel_destroy(QtWaylandServer::xdg_tople
 void QWaylandXdgToplevelPrivate::xdg_toplevel_set_parent(QtWaylandServer::xdg_toplevel::Resource *resource, wl_resource *parent)
 {
     Q_UNUSED(resource);
-    QWaylandXdgToplevel *parentToplevel = nullptr;
-    if (parent) {
-        parentToplevel = static_cast<QWaylandXdgToplevelPrivate *>(
-                    QWaylandXdgToplevelPrivate::Resource::fromResource(parent)->xdg_toplevel_object)->q_func();
-    }
+    QWaylandXdgToplevel *parentToplevel = QWaylandXdgToplevel::fromResource(parent);
 
     Q_Q(QWaylandXdgToplevel);
 

@@ -183,6 +183,7 @@ public:
     Q_INVOKABLE uint sendResizing(const QSize &maxSize);
 
     static QWaylandSurfaceRole *role();
+    static QWaylandXdgToplevel *fromResource(::wl_resource *resource);
 
 Q_SIGNALS:
     void parentToplevelChanged();

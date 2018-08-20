@@ -329,16 +329,13 @@ void QWaylandIntegration::initializeClientBufferIntegration()
 {
     mClientBufferIntegrationInitialized = true;
 
-    QString targetKey;
-    bool disableHardwareIntegration = qEnvironmentVariableIsSet("QT_WAYLAND_DISABLE_HW_INTEGRATION");
-    disableHardwareIntegration = disableHardwareIntegration || !mDisplay->hardwareIntegration();
-    if (disableHardwareIntegration) {
-        QByteArray clientBufferIntegrationName = qgetenv("QT_WAYLAND_CLIENT_BUFFER_INTEGRATION");
-        if (clientBufferIntegrationName.isEmpty())
-            clientBufferIntegrationName = QByteArrayLiteral("wayland-egl");
-        targetKey = QString::fromLocal8Bit(clientBufferIntegrationName);
-    } else {
-        targetKey = mDisplay->hardwareIntegration()->clientBufferIntegration();
+    QString targetKey = QString::fromLocal8Bit(qgetenv("QT_WAYLAND_CLIENT_BUFFER_INTEGRATION"));
+
+    if (targetKey.isEmpty()) {
+        if (mDisplay->hardwareIntegration())
+            targetKey = mDisplay->hardwareIntegration()->clientBufferIntegration();
+        else
+            targetKey = QLatin1Literal("wayland-egl");
     }
 
     if (targetKey.isEmpty()) {
@@ -347,29 +344,28 @@ void QWaylandIntegration::initializeClientBufferIntegration()
     }
 
     QStringList keys = QWaylandClientBufferIntegrationFactory::keys();
-    if (keys.contains(targetKey)) {
+    qCDebug(lcQpaWayland) << "Available client buffer integrations:" << keys;
+
+    if (keys.contains(targetKey))
         mClientBufferIntegration.reset(QWaylandClientBufferIntegrationFactory::create(targetKey, QStringList()));
-    }
-    if (mClientBufferIntegration)
+
+    if (mClientBufferIntegration) {
+        qCDebug(lcQpaWayland) << "Initializing client buffer integration" << targetKey;
         mClientBufferIntegration->initialize(mDisplay.data());
-    else
-        qWarning("Failed to load client buffer integration: %s\n", qPrintable(targetKey));
+    } else {
+        qCWarning(lcQpaWayland) << "Failed to load client buffer integration:" << targetKey;
+        qCWarning(lcQpaWayland) << "Available client buffer integrations:" << keys;
+    }
 }
 
 void QWaylandIntegration::initializeServerBufferIntegration()
 {
     mServerBufferIntegrationInitialized = true;
 
-    QString targetKey;
+    QString targetKey = QString::fromLocal8Bit(qgetenv("QT_WAYLAND_SERVER_BUFFER_INTEGRATION"));
 
-    bool disableHardwareIntegration = qEnvironmentVariableIsSet("QT_WAYLAND_DISABLE_HW_INTEGRATION");
-    disableHardwareIntegration = disableHardwareIntegration || !mDisplay->hardwareIntegration();
-    if (disableHardwareIntegration) {
-        QByteArray serverBufferIntegrationName = qgetenv("QT_WAYLAND_SERVER_BUFFER_INTEGRATION");
-        targetKey = QString::fromLocal8Bit(serverBufferIntegrationName);
-    } else {
+    if (targetKey.isEmpty() && mDisplay->hardwareIntegration())
         targetKey = mDisplay->hardwareIntegration()->serverBufferIntegration();
-    }
 
     if (targetKey.isEmpty()) {
         qWarning("Failed to determine what server buffer integration to use");
@@ -377,13 +373,18 @@ void QWaylandIntegration::initializeServerBufferIntegration()
     }
 
     QStringList keys = QWaylandServerBufferIntegrationFactory::keys();
-    if (keys.contains(targetKey)) {
+    qCDebug(lcQpaWayland) << "Available server buffer integrations:" << keys;
+
+    if (keys.contains(targetKey))
         mServerBufferIntegration.reset(QWaylandServerBufferIntegrationFactory::create(targetKey, QStringList()));
-    }
-    if (mServerBufferIntegration)
+
+    if (mServerBufferIntegration) {
+        qCDebug(lcQpaWayland) << "Initializing server buffer integration" << targetKey;
         mServerBufferIntegration->initialize(mDisplay.data());
-    else
-        qWarning("Failed to load server buffer integration %s\n", qPrintable(targetKey));
+    } else {
+        qCWarning(lcQpaWayland) << "Failed to load server buffer integration: " <<  targetKey;
+        qCWarning(lcQpaWayland) << "Available server buffer integrations:" << keys;
+    }
 }
 
 void QWaylandIntegration::initializeShellIntegration()

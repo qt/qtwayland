@@ -272,10 +272,13 @@ void QWaylandDisplay::registry_global(uint32_t id, const QString &interface, uin
             inputDevice->setTextInput(new QWaylandTextInput(this, mTextInputManager->get_text_input(inputDevice->wl_seat())));
         }
     } else if (interface == QStringLiteral("qt_hardware_integration")) {
-        mHardwareIntegration.reset(new QWaylandHardwareIntegration(registry, id));
-        // make a roundtrip here since we need to receive the events sent by
-        // qt_hardware_integration before creating windows
-        forceRoundTrip();
+        bool disableHardwareIntegration = qEnvironmentVariableIntValue("QT_WAYLAND_DISABLE_HW_INTEGRATION");
+        if (!disableHardwareIntegration) {
+            mHardwareIntegration.reset(new QWaylandHardwareIntegration(registry, id));
+            // make a roundtrip here since we need to receive the events sent by
+            // qt_hardware_integration before creating windows
+            forceRoundTrip();
+        }
     } else if (interface == QLatin1String("zxdg_output_manager_v1")) {
         mXdgOutputManager.reset(new QtWayland::zxdg_output_manager_v1(registry, id, 1));
         for (auto *screen : qAsConst(mScreens))

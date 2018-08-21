@@ -240,6 +240,7 @@ void QWaylandWindow::reset(bool sendDestroyEvent)
     mSubSurfaceWindow = nullptr;
     if (isInitialized())
         destroy();
+    mScreens.clear();
 
     if (mFrameCallback) {
         wl_callback_destroy(mFrameCallback);

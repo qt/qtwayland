@@ -41,6 +41,7 @@
 #define QWAYLANDIVISURFACE_H
 
 #include <QtWaylandCompositor/QWaylandShellSurface>
+#include <QtWaylandCompositor/qwaylandquickchildren.h>
 
 struct wl_resource;
 
@@ -56,6 +57,7 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandIviSurface : public QWaylandShellSurfa
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandIviSurface)
+    Q_WAYLAND_COMPOSITOR_DECLARE_QUICK_CHILDREN(QWaylandIviSurface)
     Q_PROPERTY(QWaylandSurface *surface READ surface NOTIFY surfaceChanged)
     Q_PROPERTY(uint iviId READ iviId NOTIFY iviIdChanged)
 

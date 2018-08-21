@@ -27,6 +27,7 @@ HEADERS += \
     compositor_api/qwaylandresource.h \
     compositor_api/qwaylandsurfacegrabber.h \
     compositor_api/qwaylandoutputmode_p.h \
+    compositor_api/qwaylandquickchildren.h
 
 SOURCES += \
     compositor_api/qwaylandcompositor.cpp \

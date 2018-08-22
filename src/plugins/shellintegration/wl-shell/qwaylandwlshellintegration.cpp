@@ -49,6 +49,10 @@ namespace QtWaylandClient {
 
 bool QWaylandWlShellIntegration::initialize(QWaylandDisplay *display)
 {
+    qCWarning(lcQpaWayland) << "\"wl-shell\" is a deprecated shell extension, prefer using"
+                            << "\"xdg-shell-v6\" or \"xdg-shell\" if supported by the compositor"
+                            << "by setting the environment variable QT_WAYLAND_SHELL_INTEGRATION";
+
     Q_FOREACH (QWaylandDisplay::RegistryGlobal global, display->globals()) {
         if (global.interface == QLatin1String("wl_shell")) {
             m_wlShell = new QtWayland::wl_shell(display->wl_registry(), global.id, 1);

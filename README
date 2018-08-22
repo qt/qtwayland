@@ -83,10 +83,10 @@ with ivi-shell integration:
 Available Shell Integrations:
 
     * ivi-shell
-    * wl-shell
-    * xdg-shell-v5
+    * wl-shell (deprecated)
+    * xdg-shell
+    * xdg-shell-v5 (deprecated)
     * xdg-shell-v6
-
 
 We hang out at #qt-labs and #qt-lighthouse on freenode if you have any questions
 

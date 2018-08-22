@@ -39,17 +39,24 @@
 
 import QtQuick 2.0
 import QtWayland.Compositor 1.0
+import QtQuick.Window 2.11
 
 WaylandQuickItem {
     id: cursorItem
     property QtObject seat
     property int hotspotX: 0
     property int hotspotY: 0
+    // If we've set an output scale factor different from the device pixel ratio
+    // then the item will be rendered scaled, so we need to shift the hotspot accordingly
+    property real scaleCorrection: output ? output.scaleFactor / Screen.devicePixelRatio : 1
 
     visible: cursorItem.surface != null
     inputEventsEnabled: false
     enabled: false
-    transform: Translate { x: -hotspotX; y: -hotspotY }
+    transform: Translate {
+        x: -hotspotX * scaleCorrection
+        y: -hotspotY * scaleCorrection
+    }
 
     Connections {
         target: seat

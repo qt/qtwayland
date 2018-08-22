@@ -52,11 +52,6 @@ QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
 
-QWaylandXdgShellV5::QWaylandXdgShellV5(struct ::xdg_shell_v5 *shell)
-    : QtWayland::xdg_shell_v5(shell)
-{
-}
-
 QWaylandXdgShellV5::QWaylandXdgShellV5(struct ::wl_registry *registry, uint32_t id)
     : QtWayland::xdg_shell_v5(registry, id, 1)
 {

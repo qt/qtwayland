@@ -75,7 +75,6 @@ class QWaylandXdgPopupV5;
 class Q_WAYLAND_CLIENT_EXPORT QWaylandXdgShellV5 : public QtWayland::xdg_shell_v5
 {
 public:
-    QWaylandXdgShellV5(struct ::xdg_shell_v5 *shell);
     QWaylandXdgShellV5(struct ::wl_registry *registry, uint32_t id);
     ~QWaylandXdgShellV5() override;
 

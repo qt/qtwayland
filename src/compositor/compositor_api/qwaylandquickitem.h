@@ -160,6 +160,7 @@ private Q_SLOTS:
     void updateSize();
     void updateBuffer(bool hasBuffer);
     void updateWindow();
+    void updateOutput();
     void beforeSync();
     void handleSubsurfaceAdded(QWaylandSurface *childSurface);
     void handleSubsurfacePosition(const QPoint &pos);

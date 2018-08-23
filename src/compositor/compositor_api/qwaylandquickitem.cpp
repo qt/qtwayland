@@ -1169,12 +1169,14 @@ void QWaylandQuickItem::updateWindow()
 
     if (d->connectedWindow) {
         disconnect(d->connectedWindow, &QQuickWindow::beforeSynchronizing, this, &QWaylandQuickItem::beforeSync);
+        disconnect(d->connectedWindow, &QQuickWindow::screenChanged, this, &QWaylandQuickItem::updateSize);
     }
 
     d->connectedWindow = newWindow;
 
     if (d->connectedWindow) {
         connect(d->connectedWindow, &QQuickWindow::beforeSynchronizing, this, &QWaylandQuickItem::beforeSync, Qt::DirectConnection);
+        connect(d->connectedWindow, &QQuickWindow::screenChanged, this, &QWaylandQuickItem::updateSize); // new screen may have new dpr
     }
 
     if (compositor() && d->connectedWindow) {
@@ -1182,6 +1184,25 @@ void QWaylandQuickItem::updateWindow()
         Q_ASSERT(output);
         d->view->setOutput(output);
     }
+
+    updateSize(); // because scaleFactor depends on devicePixelRatio, which may be different for the new window
+}
+
+void QWaylandQuickItem::updateOutput()
+{
+    Q_D(QWaylandQuickItem);
+    if (d->view->output() == d->connectedOutput)
+        return;
+
+    if (d->connectedOutput)
+        disconnect(d->connectedOutput, &QWaylandOutput::scaleFactorChanged, this, &QWaylandQuickItem::updateSize);
+
+    d->connectedOutput = d->view->output();
+
+    if (d->connectedOutput)
+        connect(d->connectedOutput, &QWaylandOutput::scaleFactorChanged, this, &QWaylandQuickItem::updateSize);
+
+    updateSize();
 }
 
 void QWaylandQuickItem::beforeSync()

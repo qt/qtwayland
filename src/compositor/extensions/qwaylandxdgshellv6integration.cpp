@@ -95,7 +95,7 @@ bool XdgToplevelV6Integration::mouseReleaseEvent(QMouseEvent *event)
 {
     Q_UNUSED(event);
 
-    if (grabberState == GrabberState::Move) {
+    if (grabberState != GrabberState::Default) {
         grabberState = GrabberState::Default;
         return true;
     }

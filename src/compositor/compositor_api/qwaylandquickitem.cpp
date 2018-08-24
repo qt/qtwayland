@@ -288,7 +288,7 @@ public:
                     m_sgTex->bind();
                 }
             } else {
-                QQuickWindow::CreateTextureOptions opt = QQuickWindow::TextureOwnsGLTexture;
+                QQuickWindow::CreateTextureOptions opt;
                 QWaylandQuickSurface *surface = qobject_cast<QWaylandQuickSurface *>(surfaceItem->surface());
                 if (surface && surface->useTextureAlpha()) {
                     opt |= QQuickWindow::TextureHasAlphaChannel;

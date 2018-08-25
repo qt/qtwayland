@@ -467,7 +467,7 @@ void QWaylandXdgSurfaceV6Private::zxdg_surface_v6_set_window_geometry(QtWaylandS
 /*!
  * \class QWaylandXdgSurfaceV6
  * \inmodule QtWaylandCompositor
- * \since 5.8
+ * \since 5.10
  * \brief The QWaylandXdgSurfaceV6 class provides desktop-style compositor-specific features to an xdg surface.
  *
  * This class is part of the QWaylandXdgShellV6 extension and provides a way to
@@ -613,7 +613,7 @@ QWaylandSurface *QWaylandXdgSurfaceV6::surface() const
 }
 
 /*!
- * \qmlproperty WaylandSurface QtWaylandCompositor::XdgSurfaceV6::toplevel
+ * \qmlproperty XdgToplevelV6 QtWaylandCompositor::XdgSurfaceV6::toplevel
  *
  * This property holds the properties and methods that are specific to the
  * toplevel XdgSurfaceV6.
@@ -636,7 +636,7 @@ QWaylandXdgToplevelV6 *QWaylandXdgSurfaceV6::toplevel() const
 }
 
 /*!
- * \qmlproperty WaylandSurface QtWaylandCompositor::XdgSurfaceV6::popup
+ * \qmlproperty XdgPopupV6 QtWaylandCompositor::XdgSurfaceV6::popup
  *
  * This property holds the properties and methods that are specific to the
  * popup XdgSurfaceV6.

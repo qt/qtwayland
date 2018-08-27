@@ -413,6 +413,11 @@ void QWaylandDisplay::setLastInputDevice(QWaylandInputDevice *device, uint32_t s
     mLastInputWindow = win;
 }
 
+bool QWaylandDisplay::isWindowActivated(const QWaylandWindow *window)
+{
+    return mActiveWindows.contains(const_cast<QWaylandWindow *>(window));
+}
+
 void QWaylandDisplay::handleWindowActivated(QWaylandWindow *window)
 {
     if (mActiveWindows.contains(window))

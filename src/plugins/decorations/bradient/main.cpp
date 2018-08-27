@@ -132,6 +132,7 @@ QMargins QWaylandBradientDecoration::margins() const
 
 void QWaylandBradientDecoration::paint(QPaintDevice *device)
 {
+    bool active = window()->handle()->isActive();
     QRect surfaceRect(QPoint(), window()->frameGeometry().size());
     QRect clips[] =
     {
@@ -183,7 +184,7 @@ void QWaylandBradientDecoration::paint(QPaintDevice *device)
 
         p.save();
         p.setClipRect(titleBar);
-        p.setPen(window()->isActive() ? m_foregroundColor : m_foregroundInactiveColor);
+        p.setPen(active ? m_foregroundColor : m_foregroundInactiveColor);
         QSizeF size = m_windowTitle.size();
         int dx = (top.width() - size.width()) /2;
         int dy = (top.height()- size.height()) /2;
@@ -199,7 +200,7 @@ void QWaylandBradientDecoration::paint(QPaintDevice *device)
     QRectF rect;
 
     // Default pen
-    QPen pen(window()->isActive() ? m_foregroundColor : m_foregroundInactiveColor);
+    QPen pen(active ? m_foregroundColor : m_foregroundInactiveColor);
     p.setPen(pen);
 
     // Close button

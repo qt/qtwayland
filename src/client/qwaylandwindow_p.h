@@ -146,6 +146,7 @@ public:
 
     void requestActivateWindow() override;
     bool isExposed() const override;
+    bool isActive() const override;
     void unfocus();
 
     QWaylandAbstractDecoration *decoration() const;

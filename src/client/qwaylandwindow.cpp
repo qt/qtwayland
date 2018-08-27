@@ -943,6 +943,11 @@ bool QWaylandWindow::isExposed() const
     return QPlatformWindow::isExposed();
 }
 
+bool QWaylandWindow::isActive() const
+{
+    return mDisplay->isWindowActivated(this);
+}
+
 int QWaylandWindow::scale() const
 {
     return mScale;

@@ -414,7 +414,11 @@ QWaylandSurface *QWaylandQuickItem::surface() const
 void QWaylandQuickItem::setSurface(QWaylandSurface *surface)
 {
     Q_D(QWaylandQuickItem);
+    QWaylandCompositor *oldComp = d->view->surface() ? d->view->surface()->compositor() : nullptr;
     d->view->setSurface(surface);
+    QWaylandCompositor *newComp = d->view->surface() ? d->view->surface()->compositor() : nullptr;
+    if (oldComp != newComp)
+        emit compositorChanged();
     update();
 }
 

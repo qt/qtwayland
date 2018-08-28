@@ -61,7 +61,7 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQuickItem : public QQuickItem
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandQuickItem)
-    Q_PROPERTY(QWaylandCompositor *compositor READ compositor)
+    Q_PROPERTY(QWaylandCompositor *compositor READ compositor NOTIFY compositorChanged)
     Q_PROPERTY(QWaylandSurface *surface READ surface WRITE setSurface NOTIFY surfaceChanged)
     Q_PROPERTY(bool paintEnabled READ paintEnabled WRITE setPaintEnabled)
     Q_PROPERTY(bool touchEventsEnabled READ touchEventsEnabled WRITE setTouchEventsEnabled NOTIFY touchEventsEnabledChanged)
@@ -177,6 +177,7 @@ private Q_SLOTS:
 
 Q_SIGNALS:
     void surfaceChanged();
+    void compositorChanged();
     void touchEventsEnabledChanged();
     void originChanged();
     void surfaceDestroyed();

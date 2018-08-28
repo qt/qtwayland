@@ -48,7 +48,7 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.6
+import QtQuick 2.12
 import QtQuick.Window 2.2
 import QtQuick.Layouts 1.3
 import QtWayland.Compositor 1.3
@@ -61,29 +61,40 @@ WaylandCompositor {
             width: 1024
             height: 768
             visible: true
+            Rectangle {
+                anchors.fill: parent
+                gradient: "MorpheusDen"
+            }
+
             Repeater {
                 model: shellSurfaces
                 Column {
+                    id: chrome
+                    width: shellSurfaceItem.implicitWidth
                     Rectangle {
                         visible: modelData.toplevel.decorationMode === XdgToplevel.ServerSideDecoration
                         width: parent.width
                         height: 30
                         gradient: "HeavyRain";
-                        RowLayout {
-                            anchors.fill: parent
-                            Text {
-                                text: modelData.toplevel.title
-                                Layout.fillWidth: true
+                        Text {
+                            text: modelData.toplevel.title
+                            anchors.centerIn: parent
+                        }
+                        Item {
+                            anchors.right: parent.right
+                            width: 30
+                            height: 30
+                            Text { text: "X"; anchors.centerIn: parent }
+                            TapHandler {
+                                onTapped: modelData.toplevel.sendClose()
                             }
-                            MouseArea {
-                                width: 30
-                                height: 30
-                                Text { text: "X"; anchors.centerIn: parent }
-                                onClicked: modelData.toplevel.sendClose()
-                            }
+                        }
+                        DragHandler {
+                            target: chrome
                         }
                     }
                     ShellSurfaceItem {
+                        id: shellSurfaceItem
                         moveItem: parent
                         autoCreatePopupItems: true
                         shellSurface: modelData

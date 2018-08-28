@@ -51,16 +51,13 @@ WaylandQuickItem {
     enabled: false
     transform: Translate { x: -hotspotX; y: -hotspotY }
 
-    onSeatChanged: {
-        if (!seat)
-            return;
-        seat.cursorSurfaceRequest.connect(setCursorSurface);
-    }
-
-    function setCursorSurface(surface, hotspotX, hotspotY) {
-        cursorItem.surface = surface;
-        cursorItem.hotspotX = hotspotX;
-        cursorItem.hotspotY = hotspotY;
+    Connections {
+        target: seat
+        onCursorSurfaceRequest: {
+            cursorItem.surface = surface;
+            cursorItem.hotspotX = hotspotX;
+            cursorItem.hotspotY = hotspotY;
+        }
     }
 
     WaylandQuickItem {

@@ -806,6 +806,8 @@ bool Scanner::process()
 
             printf("    %s::Resource *%s::Resource::fromResource(struct ::wl_resource *resource)\n", interfaceName, interfaceName);
             printf("    {\n");
+            printf("        if (Q_UNLIKELY(!resource))\n");
+            printf("            return nullptr;\n");
             printf("        if (wl_resource_instance_of(resource, &::%s_interface, %s))\n",  interfaceName, interfaceMember.constData());
             printf("            return static_cast<Resource *>(resource->data);\n");
             printf("        return nullptr;\n");

@@ -329,7 +329,9 @@ void QWaylandOutput::initialize()
  */
 QWaylandOutput *QWaylandOutput::fromResource(wl_resource *resource)
 {
-    return static_cast<QWaylandOutputPrivate *>(QWaylandOutputPrivate::Resource::fromResource(resource)->output_object)->q_func();
+    if (auto *r = QWaylandOutputPrivate::Resource::fromResource(resource))
+        return static_cast<QWaylandOutputPrivate *>(r->output_object)->q_func();
+    return nullptr;
 }
 
 /*!

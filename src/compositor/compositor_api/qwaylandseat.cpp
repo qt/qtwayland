@@ -631,7 +631,9 @@ bool QWaylandSeat::isOwner(QInputEvent *inputEvent) const
  */
 QWaylandSeat *QWaylandSeat::fromSeatResource(struct ::wl_resource *resource)
 {
-    return static_cast<QWaylandSeatPrivate *>(QWaylandSeatPrivate::Resource::fromResource(resource)->seat_object)->q_func();
+    if (auto *r = QWaylandSeatPrivate::Resource::fromResource(resource))
+        return static_cast<QWaylandSeatPrivate *>(r->seat_object)->q_func();
+    return nullptr;
 }
 
 /*!

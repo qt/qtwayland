@@ -1997,7 +1997,9 @@ void QWaylandXdgPositionerV6::zxdg_positioner_v6_set_offset(QtWaylandServer::zxd
 
 QWaylandXdgPositionerV6 *QWaylandXdgPositionerV6::fromResource(wl_resource *resource)
 {
-    return static_cast<QWaylandXdgPositionerV6 *>(Resource::fromResource(resource)->zxdg_positioner_v6_object);
+    if (auto *r = Resource::fromResource(resource))
+        return static_cast<QWaylandXdgPositionerV6 *>(r->zxdg_positioner_v6_object);
+    return nullptr;
 }
 
 QT_END_NAMESPACE

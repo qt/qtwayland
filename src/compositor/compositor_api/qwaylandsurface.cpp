@@ -748,7 +748,9 @@ QList<QWaylandView *> QWaylandSurface::views() const
  */
 QWaylandSurface *QWaylandSurface::fromResource(::wl_resource *res)
 {
-    return static_cast<QWaylandSurfacePrivate *>(QWaylandSurfacePrivate::Resource::fromResource(res)->surface_object)->q_func();
+    if (auto *r = QWaylandSurfacePrivate::Resource::fromResource(res))
+        return static_cast<QWaylandSurfacePrivate *>(r->surface_object)->q_func();
+    return nullptr;
 }
 
 /*!

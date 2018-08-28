@@ -107,7 +107,9 @@ bool Surface::isMapped() const
 
 Surface *Surface::fromResource(struct ::wl_resource *resource)
 {
-    return static_cast<Surface *>(Resource::fromResource(resource)->surface_object);
+    if (auto *r = Resource::fromResource(resource))
+        return static_cast<Surface *>(r->surface_object);
+    return nullptr;
 }
 
 void Surface::surface_destroy_resource(Resource *)

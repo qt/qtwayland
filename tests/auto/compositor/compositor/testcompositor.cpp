@@ -41,7 +41,9 @@ TestCompositor::TestCompositor(bool createInputDev)
 
 void TestCompositor::create()
 {
-    new QWaylandOutput(this, nullptr);
+    auto output = new QWaylandOutput(this, nullptr);
+    setDefaultOutput(output);
+
     QWaylandCompositor::create();
 
     connect(this, &QWaylandCompositor::surfaceCreated, this, &TestCompositor::onSurfaceCreated);

@@ -79,7 +79,7 @@ private slots:
     void mapSurface();
     void mapSurfaceHiDpi();
     void frameCallback();
-    void removeOutput();
+    void outputs();
     void customSurface();
 
     void advertisesXdgShellSupport();
@@ -622,18 +622,33 @@ void tst_WaylandCompositor::frameCallback()
     wl_surface_destroy(surface);
 }
 
-void tst_WaylandCompositor::removeOutput()
+void tst_WaylandCompositor::outputs()
 {
     TestCompositor compositor;
-    QWindow window;
-    window.resize(800, 600);
-    auto output = new QWaylandOutput(&compositor, &window);
+
+    QSignalSpy defaultOutputSpy(&compositor, SIGNAL(defaultOutputChanged()));
 
     compositor.create();
+
+    QSignalSpy outputAddedSpy(&compositor, SIGNAL(outputAdded(QWaylandOutput*)));
+    QSignalSpy outputRemovedSpy(&compositor, SIGNAL(outputRemoved(QWaylandOutput*)));
+
+    QWindow window;
+    window.resize(800, 600);
+
+    auto output = new QWaylandOutput(&compositor, &window);
+    QTRY_COMPARE(outputAddedSpy.count(), 1);
+
+    compositor.setDefaultOutput(output);
+    QTRY_COMPARE(defaultOutputSpy.count(), 2);
+
     MockClient client;
     QTRY_COMPARE(client.m_outputs.size(), 2);
 
     delete output;
+    QTRY_COMPARE(outputRemovedSpy.count(), 1);
+    QEXPECT_FAIL("", "FIXME: defaultOutputChanged() is not emitted when the default output is removed", Continue);
+    QTRY_COMPARE(defaultOutputSpy.count(), 3);
     compositor.flushClients();
     QTRY_COMPARE(client.m_outputs.size(), 1);
 }

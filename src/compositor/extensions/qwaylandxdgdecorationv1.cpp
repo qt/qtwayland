@@ -235,12 +235,14 @@ void QWaylandXdgToplevelDecorationV1::zxdg_toplevel_decoration_v1_destroy(Resour
 
 void QWaylandXdgToplevelDecorationV1::zxdg_toplevel_decoration_v1_set_mode(Resource *resource, uint32_t mode)
 {
+    Q_UNUSED(resource);
     m_clientPreferredMode = mode;
     handleClientPreferredModeChanged();
 }
 
 void QWaylandXdgToplevelDecorationV1::zxdg_toplevel_decoration_v1_unset_mode(Resource *resource)
 {
+    Q_UNUSED(resource);
     m_clientPreferredMode = 0;
     handleClientPreferredModeChanged();
 }

@@ -412,7 +412,7 @@ bool QWaylandGLContext::makeCurrent(QPlatformSurface *surface)
         window->createDecoration();
 
     if (eglSurface == EGL_NO_SURFACE) {
-        window->updateSurface(window->isExposed());
+        window->updateSurface(true);
         eglSurface = window->eglSurface();
     }
 

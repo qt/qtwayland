@@ -47,9 +47,9 @@ QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
 
-QWaylandXdgPopupV5::QWaylandXdgPopupV5(struct ::xdg_popup *popup, QWaylandWindow *window)
+QWaylandXdgPopupV5::QWaylandXdgPopupV5(struct ::xdg_popup_v5 *popup, QWaylandWindow *window)
     : QWaylandShellSurface(window)
-    , QtWayland::xdg_popup(popup)
+    , QtWayland::xdg_popup_v5(popup)
     , m_window(window)
 {
     if (window->display()->windowExtension())

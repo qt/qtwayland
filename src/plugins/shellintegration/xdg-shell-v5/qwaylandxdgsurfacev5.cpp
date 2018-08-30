@@ -54,7 +54,7 @@ namespace QtWaylandClient {
 
 QWaylandXdgSurfaceV5::QWaylandXdgSurfaceV5(QWaylandXdgShellV5 *shell, QWaylandWindow *window)
     : QWaylandShellSurface(window)
-    , QtWayland::xdg_surface(shell->get_xdg_surface(window->object()))
+    , QtWayland::xdg_surface_v5(shell->get_xdg_surface(window->object()))
     , m_window(window)
     , m_shell(shell)
 {
@@ -105,12 +105,12 @@ void QWaylandXdgSurfaceV5::updateTransientParent(QWaylandWindow *parent)
 
 void QWaylandXdgSurfaceV5::setTitle(const QString & title)
 {
-    return QtWayland::xdg_surface::set_title(title);
+    return QtWayland::xdg_surface_v5::set_title(title);
 }
 
 void QWaylandXdgSurfaceV5::setAppId(const QString & appId)
 {
-    return QtWayland::xdg_surface::set_app_id(appId);
+    return QtWayland::xdg_surface_v5::set_app_id(appId);
 }
 
 void QWaylandXdgSurfaceV5::raise()

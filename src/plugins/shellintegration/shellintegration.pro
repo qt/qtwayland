@@ -1,9 +1,8 @@
 TEMPLATE = subdirs
+QT_FOR_CONFIG += waylandclient-private
 
-SUBDIRS += \
-    ivi-shell \
-    xdg-shell \
-    xdg-shell-v5 \
-    xdg-shell-v6 \
-    wl-shell \
-
+qtConfig(wayland-client-ivi-shell): SUBDIRS += ivi-shell
+qtConfig(wayland-client-wl-shell): SUBDIRS += wl-shell
+qtConfig(wayland-client-xdg-shell): SUBDIRS += xdg-shell
+qtConfig(wayland-client-xdg-shell-v5): SUBDIRS += xdg-shell-v5
+qtConfig(wayland-client-xdg-shell-v6): SUBDIRS += xdg-shell-v6

@@ -65,17 +65,17 @@ void QWaylandXdgDecorationManagerV1::initialize()
 QWaylandXdgToplevel::DecorationMode QWaylandXdgDecorationManagerV1::preferredMode() const
 {
     Q_D(const QWaylandXdgDecorationManagerV1);
-    return d->m_defaultMode;
+    return d->m_preferredMode;
 }
 
-void QWaylandXdgDecorationManagerV1::setPreferredMode(QWaylandXdgToplevel::DecorationMode defaultMode)
+void QWaylandXdgDecorationManagerV1::setPreferredMode(QWaylandXdgToplevel::DecorationMode preferredMode)
 {
     Q_D(QWaylandXdgDecorationManagerV1);
-    if (d->m_defaultMode == defaultMode)
+    if (d->m_preferredMode == preferredMode)
         return;
 
-    d->m_defaultMode = defaultMode;
-    emit defaultModeChanged();
+    d->m_preferredMode = preferredMode;
+    emit preferredModeChanged();
 }
 
 const wl_interface *QWaylandXdgDecorationManagerV1::interface()

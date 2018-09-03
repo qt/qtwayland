@@ -904,6 +904,34 @@ bool QWaylandXdgToplevel::activated() const
     return d->m_lastAckedConfigure.states.contains(QWaylandXdgToplevel::State::ActivatedState);
 }
 
+/*!
+ * \enum QWaylandXdgToplevel::DecorationMode
+ *
+ * This enum type is used to specify the window decoration mode for toplevel windows.
+ *
+ * \value ServerSideDecoration The compositor should draw window decorations.
+ * \value ClientSideDecoration The client should draw window decorations.
+ */
+
+/*!
+ * \qmlproperty enumeration QtWaylandCompositor::XdgToplevel::decorationMode
+ *
+ * This property holds the current window decoration mode for this toplevel.
+ *
+ * The possible values are:
+ * \value XdgToplevel.ServerSideDecoration The compositor should draw window decorations.
+ * \value XdgToplevel.ClientSideDecoration The client should draw window decorations.
+ *
+ * \sa XdgDecorationManagerV1
+ */
+
+/*!
+ * \property QWaylandXdgToplevel::decorationMode
+ *
+ * This property holds the current window decoration mode for this toplevel.
+ *
+ * \sa QWaylandXdgDecorationManagerV1
+ */
 QWaylandXdgToplevel::DecorationMode QWaylandXdgToplevel::decorationMode() const
 {
     Q_D(const QWaylandXdgToplevel);

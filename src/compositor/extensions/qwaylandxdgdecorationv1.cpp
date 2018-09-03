@@ -44,11 +44,66 @@
 
 QT_BEGIN_NAMESPACE
 
+/*!
+    \qmltype XdgDecorationManagerV1
+    \inqmlmodule QtWayland.Compositor
+    \since 5.12
+    \brief Provides an extension for negotiation of server-side and client-side window decorations
+
+    The XdgDecorationManagerV1 extension provides a way for a compositor to announce support for
+    server-side window decorations, and for xdg-shell clients to communicate whether they prefer
+    client-side or server-side decorations.
+
+    XdgDecorationManagerV1 corresponds to the Wayland interface, \c zxdg_decoration_manager_v1.
+
+    To provide the functionality of the extension in a compositor, create an instance of the
+    XdgDecorationManagerV1 component and add it to the list of extensions supported by the compositor:
+
+    \code
+    import QtWayland.Compositor 1.3
+
+    WaylandCompositor {
+        // Xdg decoration manager assumes xdg-shell is being used
+        XdgShell {
+            onToplevelCreated: // ...
+        }
+        XdgDecorationManagerV1 {
+            // Provide a hint to clients that support the extension they should use server-side
+            // decorations.
+            preferredMode: XdgToplevel.ServerSideDecoration
+        }
+    }
+    \endcode
+
+    \sa XdgToplevel::decorationMode
+*/
+
+/*!
+    \class QWaylandXdgDecorationManagerV1
+    \inmodule QtWaylandCompositor
+    \since 5.12
+    \brief Provides an extension for negotiation of server-side and client-side window decorations
+
+    The QWaylandXdgDecorationManagerV1 extension provides a way for a compositor to announce support
+    for server-side window decorations, and for xdg-shell clients to communicate whether they prefer
+    client-side or server-side decorations.
+
+    QWaylandXdgDecorationManagerV1 corresponds to the Wayland interface, \c zxdg_decoration_manager_v1.
+
+    \sa QWaylandXdgToplevel::decorationMode
+*/
+
+/*!
+    Constructs a QWaylandXdgDecorationManagerV1 object.
+*/
 QWaylandXdgDecorationManagerV1::QWaylandXdgDecorationManagerV1()
     : QWaylandCompositorExtensionTemplate<QWaylandXdgDecorationManagerV1>(*new QWaylandXdgDecorationManagerV1Private)
 {
 }
 
+/*!
+    Initializes the extension.
+*/
 void QWaylandXdgDecorationManagerV1::initialize()
 {
     Q_D(QWaylandXdgDecorationManagerV1);
@@ -62,6 +117,22 @@ void QWaylandXdgDecorationManagerV1::initialize()
     d->init(compositor->display(), 1);
 }
 
+/*!
+    \qmlproperty string QtWaylandCompositor::XdgDecorationManagerV1::preferredMode
+
+    This property holds the decoration mode the compositor prefers.
+
+    This is the mode used for clients that don't indicate a preference for server-side or
+    client-side decorations.
+*/
+/*!
+    \property QWaylandXdgDecorationManagerV1::preferredMode
+
+    This property holds the decoration mode the compositor prefers.
+
+    This is the mode used for clients that don't indicate a preference for server-side or
+    client-side decorations.
+*/
 QWaylandXdgToplevel::DecorationMode QWaylandXdgDecorationManagerV1::preferredMode() const
 {
     Q_D(const QWaylandXdgDecorationManagerV1);
@@ -78,6 +149,9 @@ void QWaylandXdgDecorationManagerV1::setPreferredMode(QWaylandXdgToplevel::Decor
     emit preferredModeChanged();
 }
 
+/*!
+    Returns the Wayland interface for the QWaylandXdgDecorationManagerV1.
+*/
 const wl_interface *QWaylandXdgDecorationManagerV1::interface()
 {
     return QWaylandXdgDecorationManagerV1Private::interface();

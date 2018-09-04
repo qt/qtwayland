@@ -163,9 +163,8 @@ public:
     Q_ENUM(State)
 
     enum DecorationMode {
-        DefaultDecorationMode,
-        ClientSideDecoration,
-        ServerSideDecoration,
+        ClientSideDecoration = 1,
+        ServerSideDecoration = 2,
     };
     Q_ENUM(DecorationMode)
 

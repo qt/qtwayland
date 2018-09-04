@@ -85,7 +85,7 @@ public:
                                              wl_client *client, int id);
     ~QWaylandXdgToplevelDecorationV1() override;
 
-    DecorationMode configuredMode() const { return m_configuredMode; }
+    DecorationMode configuredMode() const { return DecorationMode(m_configuredMode); }
     void sendConfigure(DecorationMode mode);
 
 protected:
@@ -99,8 +99,8 @@ private:
 
     QWaylandXdgToplevel *m_toplevel = nullptr;
     QWaylandXdgDecorationManagerV1 *m_manager = nullptr;
-    DecorationMode m_configuredMode = DecorationMode::DefaultDecorationMode;
-    DecorationMode m_clientPreferredMode = DecorationMode::DefaultDecorationMode;
+    uint m_configuredMode = 0;
+    uint m_clientPreferredMode = 0;
 };
 
 QT_END_NAMESPACE

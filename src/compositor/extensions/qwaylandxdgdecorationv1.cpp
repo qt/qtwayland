@@ -235,23 +235,23 @@ void QWaylandXdgToplevelDecorationV1::zxdg_toplevel_decoration_v1_destroy(Resour
 
 void QWaylandXdgToplevelDecorationV1::zxdg_toplevel_decoration_v1_set_mode(Resource *resource, uint32_t mode)
 {
-    m_clientPreferredMode = DecorationMode(mode);
+    m_clientPreferredMode = mode;
     handleClientPreferredModeChanged();
 }
 
 void QWaylandXdgToplevelDecorationV1::zxdg_toplevel_decoration_v1_unset_mode(Resource *resource)
 {
-    m_clientPreferredMode = DecorationMode::DefaultDecorationMode;
+    m_clientPreferredMode = 0;
     handleClientPreferredModeChanged();
 }
 
 void QWaylandXdgToplevelDecorationV1::handleClientPreferredModeChanged()
 {
     if (m_clientPreferredMode != m_configuredMode) {
-        if (m_clientPreferredMode == DecorationMode::DefaultDecorationMode)
+        if (m_clientPreferredMode == 0)
             sendConfigure(m_manager->preferredMode());
         else
-            sendConfigure(m_clientPreferredMode);
+            sendConfigure(DecorationMode(m_clientPreferredMode));
     }
 }
 

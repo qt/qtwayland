@@ -731,6 +731,16 @@ QWaylandXdgToplevel::QWaylandXdgToplevel(QWaylandXdgSurface *xdgSurface, QWaylan
     sendConfigure({0, 0}, states);
 }
 
+QWaylandXdgToplevel::~QWaylandXdgToplevel()
+{
+    Q_D(QWaylandXdgToplevel);
+    // Usually, the decoration is destroyed by the client (according to the protocol),
+    // but if the client misbehaves, or is shut down, we need to clean up here.
+    if (Q_UNLIKELY(d->m_decoration))
+        wl_resource_destroy(d->m_decoration->resource()->handle);
+    Q_ASSERT(!d->m_decoration);
+}
+
 /*!
  * \qmlproperty XdgToplevel QtWaylandCompositor::XdgToplevel::parentToplevel
  *
@@ -1331,6 +1341,9 @@ void QWaylandXdgToplevelPrivate::xdg_toplevel_destroy_resource(QtWaylandServer::
 
 void QWaylandXdgToplevelPrivate::xdg_toplevel_destroy(QtWaylandServer::xdg_toplevel::Resource *resource)
 {
+    if (Q_UNLIKELY(m_decoration))
+        qWarning() << "Client error: xdg_toplevel destroyed before its decoration object";
+
     wl_resource_destroy(resource->handle);
     //TODO: Should the xdg surface be desroyed as well? Or is it allowed to recreate a new toplevel for it?
 }

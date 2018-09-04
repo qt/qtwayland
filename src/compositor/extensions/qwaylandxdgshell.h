@@ -170,6 +170,7 @@ public:
     Q_ENUM(DecorationMode)
 
     explicit QWaylandXdgToplevel(QWaylandXdgSurface *xdgSurface, QWaylandResource &resource);
+    ~QWaylandXdgToplevel() override;
 
     QWaylandXdgToplevel *parentToplevel() const;
 

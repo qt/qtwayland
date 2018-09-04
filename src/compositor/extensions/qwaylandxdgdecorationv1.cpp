@@ -192,8 +192,13 @@ QWaylandXdgToplevelDecorationV1::QWaylandXdgToplevelDecorationV1(QWaylandXdgTopl
     Q_ASSERT(toplevel);
     auto *toplevelPrivate = QWaylandXdgToplevelPrivate::get(toplevel);
     Q_ASSERT(!toplevelPrivate->m_decoration);
-    toplevelPrivate->m_decoration.reset(this);
+    toplevelPrivate->m_decoration = this;
     sendConfigure(manager->preferredMode());
+}
+
+QWaylandXdgToplevelDecorationV1::~QWaylandXdgToplevelDecorationV1()
+{
+    QWaylandXdgToplevelPrivate::get(m_toplevel)->m_decoration = nullptr;
 }
 
 void QWaylandXdgToplevelDecorationV1::sendConfigure(QWaylandXdgToplevelDecorationV1::DecorationMode mode)
@@ -220,8 +225,7 @@ void QWaylandXdgToplevelDecorationV1::sendConfigure(QWaylandXdgToplevelDecoratio
 void QWaylandXdgToplevelDecorationV1::zxdg_toplevel_decoration_v1_destroy_resource(Resource *resource)
 {
     Q_UNUSED(resource);
-    auto *toplevelPrivate = QWaylandXdgToplevelPrivate::get(m_toplevel);
-    toplevelPrivate->m_decoration.reset();
+    delete this;
 }
 
 void QWaylandXdgToplevelDecorationV1::zxdg_toplevel_decoration_v1_destroy(Resource *resource)

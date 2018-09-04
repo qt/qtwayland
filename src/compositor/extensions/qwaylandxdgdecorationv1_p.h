@@ -83,6 +83,7 @@ public:
     explicit QWaylandXdgToplevelDecorationV1(QWaylandXdgToplevel *toplevel,
                                              QWaylandXdgDecorationManagerV1 *manager,
                                              wl_client *client, int id);
+    ~QWaylandXdgToplevelDecorationV1() override;
 
     DecorationMode configuredMode() const { return m_configuredMode; }
     void sendConfigure(DecorationMode mode);

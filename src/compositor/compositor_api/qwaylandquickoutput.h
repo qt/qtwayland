@@ -43,6 +43,7 @@
 
 #include <QtQuick/QQuickWindow>
 #include <QtWaylandCompositor/qwaylandoutput.h>
+#include <QtWaylandCompositor/qwaylandquickchildren.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -53,6 +54,7 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQuickOutput : public QWaylandOutput, p
 {
     Q_INTERFACES(QQmlParserStatus)
     Q_OBJECT
+    Q_WAYLAND_COMPOSITOR_DECLARE_QUICK_CHILDREN(QWaylandQuickOutput)
     Q_PROPERTY(bool automaticFrameCallback READ automaticFrameCallback WRITE setAutomaticFrameCallback NOTIFY automaticFrameCallbackChanged)
 public:
     QWaylandQuickOutput();

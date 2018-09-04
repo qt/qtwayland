@@ -1127,7 +1127,9 @@ QWaylandSurfaceRole *QWaylandXdgToplevel::role()
  */
 QWaylandXdgToplevel *QWaylandXdgToplevel::fromResource(wl_resource *resource)
 {
-    return static_cast<QWaylandXdgToplevelPrivate *>(QWaylandXdgToplevelPrivate::Resource::fromResource(resource)->xdg_toplevel_object)->q_func();
+    if (auto *r = QWaylandXdgToplevelPrivate::Resource::fromResource(resource))
+        return static_cast<QWaylandXdgToplevelPrivate *>(r->xdg_toplevel_object)->q_func();
+    return nullptr;
 }
 
 /*!
@@ -2006,7 +2008,9 @@ void QWaylandXdgPositioner::xdg_positioner_set_offset(QtWaylandServer::xdg_posit
 
 QWaylandXdgPositioner *QWaylandXdgPositioner::fromResource(wl_resource *resource)
 {
-    return static_cast<QWaylandXdgPositioner *>(Resource::fromResource(resource)->xdg_positioner_object);
+    if (auto *r = Resource::fromResource(resource))
+        return static_cast<QWaylandXdgPositioner *>(r->xdg_positioner_object);
+    return nullptr;
 }
 
 Qt::Edges QWaylandXdgPositioner::convertToEdges(anchor anchor)

@@ -42,6 +42,7 @@
 
 #include <QtCore/QObject>
 #include <QtWaylandCompositor/qtwaylandcompositorglobal.h>
+#include <QtWaylandCompositor/qwaylandquickchildren.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -51,6 +52,7 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandKeymap : public QObject
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandKeymap)
+    Q_WAYLAND_COMPOSITOR_DECLARE_QUICK_CHILDREN(QWaylandKeymap)
     Q_PROPERTY(QString layout READ layout WRITE setLayout NOTIFY layoutChanged)
     Q_PROPERTY(QString variant READ variant WRITE setVariant NOTIFY variantChanged)
     Q_PROPERTY(QString options READ options WRITE setOptions NOTIFY optionsChanged)

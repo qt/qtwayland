@@ -176,6 +176,7 @@ public:
     QWaylandWindow *lastInputWindow() const;
     void setLastInputDevice(QWaylandInputDevice *device, uint32_t serial, QWaylandWindow *window);
 
+    bool isWindowActivated(const QWaylandWindow *window);
     void handleWindowActivated(QWaylandWindow *window);
     void handleWindowDeactivated(QWaylandWindow *window);
     void handleKeyboardFocusChanged(QWaylandInputDevice *inputDevice);

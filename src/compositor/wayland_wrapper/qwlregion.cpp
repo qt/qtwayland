@@ -54,7 +54,9 @@ Region::~Region()
 
 Region *Region::fromResource(struct ::wl_resource *resource)
 {
-    return static_cast<Region *>(Resource::fromResource(resource)->region_object);
+    if (auto *r = Resource::fromResource(resource))
+        return static_cast<Region *>(r->region_object);
+    return nullptr;
 }
 
 void Region::region_destroy_resource(Resource *)

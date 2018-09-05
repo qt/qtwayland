@@ -56,6 +56,8 @@
 #include <QtCore/QVector>
 #endif
 
+#include <QtCore/qglobal.h>
+
 QT_BEGIN_NAMESPACE
 
 #ifdef QT_WAYLAND_COMPOSITOR_QUICK

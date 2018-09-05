@@ -116,6 +116,11 @@
             "condition": "features.wayland-server && features.opengl && features.egl && tests.libhybris-egl-server",
             "output": [ "privateFeature" ]
         },
+        "wayland-shm-emulation-server-buffer": {
+            "label": "Shm emulation server buffer",
+            "condition": "features.wayland-server && features.opengl",
+            "output": [ "privateFeature" ]
+        },
         "wayland-layer-integration-vsp2": {
             "label": "VSP2 hardware layer integration",
             "condition": "features.wayland-server && features.eglfs_vsp2 && libs.wayland-kms",

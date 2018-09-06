@@ -944,7 +944,10 @@ void QWaylandOutput::surfaceLeave(QWaylandSurface *surface)
 {
     if (!surface || !surface->client())
         return;
-    QWaylandSurfacePrivate::get(surface)->send_leave(resourceForClient(surface->client()));
+
+    auto *clientResource = resourceForClient(surface->client());
+    if (clientResource)
+        QWaylandSurfacePrivate::get(surface)->send_leave(clientResource);
 }
 
 /*!

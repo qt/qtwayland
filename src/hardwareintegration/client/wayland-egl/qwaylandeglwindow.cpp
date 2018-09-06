@@ -142,7 +142,7 @@ void QWaylandEglWindow::updateSurface(bool create)
             EGLNativeWindowType eglw = (EGLNativeWindowType) m_waylandEglWindow;
             m_eglSurface = eglCreateWindowSurface(m_clientBufferIntegration->eglDisplay(), m_eglConfig, eglw, 0);
             if (Q_UNLIKELY(m_eglSurface == EGL_NO_SURFACE))
-                qCWarning(lcQpaWayland, "Could not create EGL surface (EGL error 0x%x)\n", eglGetError);
+                qCWarning(lcQpaWayland, "Could not create EGL surface (EGL error 0x%x)\n", eglGetError());
         }
     }
 }

@@ -742,6 +742,23 @@ QWaylandXdgToplevel::~QWaylandXdgToplevel()
 }
 
 /*!
+ * \qmlproperty XdgSurface QtWaylandCompositor::XdgToplevel::xdgSurface
+ *
+ * This property holds the XdgSurface for this XdgToplevel.
+ */
+
+/*!
+ * \property QWaylandXdgToplevel::xdgSurface
+ *
+ * This property holds the QWaylandXdgSurface for this QWaylandXdgToplevel.
+ */
+QWaylandXdgSurface *QWaylandXdgToplevel::xdgSurface() const
+{
+    Q_D(const QWaylandXdgToplevel);
+    return d->m_xdgSurface;
+}
+
+/*!
  * \qmlproperty XdgToplevel QtWaylandCompositor::XdgToplevel::parentToplevel
  *
  * This property holds the XdgToplevel parent of this XdgToplevel.

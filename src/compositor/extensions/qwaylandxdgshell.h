@@ -142,6 +142,7 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgToplevel : public QObject
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandXdgToplevel)
+    Q_PROPERTY(QWaylandXdgSurface *xdgSurface READ xdgSurface CONSTANT)
     Q_PROPERTY(QWaylandXdgToplevel *parentToplevel READ parentToplevel NOTIFY parentToplevelChanged)
     Q_PROPERTY(QString title READ title NOTIFY titleChanged)
     Q_PROPERTY(QString appId READ appId NOTIFY appIdChanged)
@@ -171,6 +172,7 @@ public:
     explicit QWaylandXdgToplevel(QWaylandXdgSurface *xdgSurface, QWaylandResource &resource);
     ~QWaylandXdgToplevel() override;
 
+    QWaylandXdgSurface *xdgSurface() const;
     QWaylandXdgToplevel *parentToplevel() const;
 
     QString title() const;

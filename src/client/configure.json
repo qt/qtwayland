@@ -101,12 +101,12 @@
             "condition": "features.wayland-client && features.opengl && !features.opengles2 && features.xlib && libs.xcomposite && libs.glx",
             "output": [ "privateFeature" ]
         },
-        "drm-egl-server": {
+        "wayland-drm-egl-server-buffer": {
             "label": "DRM EGL",
             "condition": "features.wayland-client && features.opengl && features.egl && tests.drm-egl-server",
             "output": [ "privateFeature" ]
         },
-        "libhybris-egl-server": {
+        "wayland-libhybris-egl-server-buffer": {
             "label": "libhybris EGL",
             "condition": "features.wayland-client && features.opengl && features.egl && tests.libhybris-egl-server",
             "output": [ "privateFeature" ]
@@ -130,8 +130,8 @@
                 "wayland-brcm",
                 "xcomposite-egl",
                 "xcomposite-glx",
-                "drm-egl-server",
-                "libhybris-egl-server"
+                "wayland-drm-egl-server-buffer",
+                "wayland-libhybris-egl-server-buffer"
             ]
         },
         "wayland-client"

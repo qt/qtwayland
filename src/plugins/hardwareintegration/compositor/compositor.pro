@@ -9,9 +9,9 @@ qtConfig(xcomposite-egl): \
     SUBDIRS += xcomposite-egl
 qtConfig(xcomposite-glx): \
     SUBDIRS += xcomposite-glx
-qtConfig(drm-egl-server): \
+qtConfig(wayland-drm-egl-server-buffer): \
     SUBDIRS += drm-egl-server
-qtConfig(libhybris-egl-server): \
+qtConfig(wayland-libhybris-egl-server-buffer): \
     SUBDIRS += libhybris-egl-server
 
 ### TODO: make shm-emulation configurable

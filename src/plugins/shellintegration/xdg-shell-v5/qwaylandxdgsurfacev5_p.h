@@ -51,7 +51,7 @@
 // We mean it.
 //
 
-#include "qwayland-xdg-shell-unstable-v5.h"
+#include "qwayland-xdg-shell-unstable-v5_p.h"
 
 #include <QtWaylandClient/qtwaylandclientglobal.h>
 #include <QtWaylandClient/private/qwaylandshellsurface_p.h>
@@ -73,19 +73,19 @@ class QWaylandExtendedSurface;
 class QWaylandXdgShellV5;
 
 class Q_WAYLAND_CLIENT_EXPORT QWaylandXdgSurfaceV5 : public QWaylandShellSurface
-        , public QtWayland::xdg_surface
+        , public QtWayland::xdg_surface_v5
 {
     Q_OBJECT
 public:
     QWaylandXdgSurfaceV5(QWaylandXdgShellV5 *shell, QWaylandWindow *window);
     ~QWaylandXdgSurfaceV5() override;
 
-    using QtWayland::xdg_surface::resize;
+    using QtWayland::xdg_surface_v5::resize;
     void resize(QWaylandInputDevice *inputDevice, enum resize_edge edges);
 
     void resize(QWaylandInputDevice *inputDevice, enum wl_shell_surface_resize edges) override;
 
-    using QtWayland::xdg_surface::move;
+    using QtWayland::xdg_surface_v5::move;
     bool move(QWaylandInputDevice *inputDevice) override;
 
     void setTitle(const QString &title) override;

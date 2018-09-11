@@ -731,6 +731,33 @@ QWaylandXdgToplevel::QWaylandXdgToplevel(QWaylandXdgSurface *xdgSurface, QWaylan
     sendConfigure({0, 0}, states);
 }
 
+QWaylandXdgToplevel::~QWaylandXdgToplevel()
+{
+    Q_D(QWaylandXdgToplevel);
+    // Usually, the decoration is destroyed by the client (according to the protocol),
+    // but if the client misbehaves, or is shut down, we need to clean up here.
+    if (Q_UNLIKELY(d->m_decoration))
+        wl_resource_destroy(d->m_decoration->resource()->handle);
+    Q_ASSERT(!d->m_decoration);
+}
+
+/*!
+ * \qmlproperty XdgSurface QtWaylandCompositor::XdgToplevel::xdgSurface
+ *
+ * This property holds the XdgSurface for this XdgToplevel.
+ */
+
+/*!
+ * \property QWaylandXdgToplevel::xdgSurface
+ *
+ * This property holds the QWaylandXdgSurface for this QWaylandXdgToplevel.
+ */
+QWaylandXdgSurface *QWaylandXdgToplevel::xdgSurface() const
+{
+    Q_D(const QWaylandXdgToplevel);
+    return d->m_xdgSurface;
+}
+
 /*!
  * \qmlproperty XdgToplevel QtWaylandCompositor::XdgToplevel::parentToplevel
  *
@@ -904,6 +931,34 @@ bool QWaylandXdgToplevel::activated() const
     return d->m_lastAckedConfigure.states.contains(QWaylandXdgToplevel::State::ActivatedState);
 }
 
+/*!
+ * \enum QWaylandXdgToplevel::DecorationMode
+ *
+ * This enum type is used to specify the window decoration mode for toplevel windows.
+ *
+ * \value ServerSideDecoration The compositor should draw window decorations.
+ * \value ClientSideDecoration The client should draw window decorations.
+ */
+
+/*!
+ * \qmlproperty enumeration QtWaylandCompositor::XdgToplevel::decorationMode
+ *
+ * This property holds the current window decoration mode for this toplevel.
+ *
+ * The possible values are:
+ * \value XdgToplevel.ServerSideDecoration The compositor should draw window decorations.
+ * \value XdgToplevel.ClientSideDecoration The client should draw window decorations.
+ *
+ * \sa XdgDecorationManagerV1
+ */
+
+/*!
+ * \property QWaylandXdgToplevel::decorationMode
+ *
+ * This property holds the current window decoration mode for this toplevel.
+ *
+ * \sa QWaylandXdgDecorationManagerV1
+ */
 QWaylandXdgToplevel::DecorationMode QWaylandXdgToplevel::decorationMode() const
 {
     Q_D(const QWaylandXdgToplevel);
@@ -1303,6 +1358,9 @@ void QWaylandXdgToplevelPrivate::xdg_toplevel_destroy_resource(QtWaylandServer::
 
 void QWaylandXdgToplevelPrivate::xdg_toplevel_destroy(QtWaylandServer::xdg_toplevel::Resource *resource)
 {
+    if (Q_UNLIKELY(m_decoration))
+        qWarning() << "Client error: xdg_toplevel destroyed before its decoration object";
+
     wl_resource_destroy(resource->handle);
     //TODO: Should the xdg surface be desroyed as well? Or is it allowed to recreate a new toplevel for it?
 }

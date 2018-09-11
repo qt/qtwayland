@@ -51,7 +51,7 @@
 // We mean it.
 //
 
-#include "qwayland-xdg-shell-unstable-v5.h"
+#include "qwayland-xdg-shell-unstable-v5_p.h"
 
 #include <wayland-client.h>
 
@@ -68,11 +68,11 @@ class QWaylandWindow;
 class QWaylandExtendedSurface;
 
 class Q_WAYLAND_CLIENT_EXPORT QWaylandXdgPopupV5 : public QWaylandShellSurface
-        , public QtWayland::xdg_popup
+        , public QtWayland::xdg_popup_v5
 {
     Q_OBJECT
 public:
-    QWaylandXdgPopupV5(struct ::xdg_popup *popup, QWaylandWindow *window);
+    QWaylandXdgPopupV5(struct ::xdg_popup_v5 *popup, QWaylandWindow *window);
     ~QWaylandXdgPopupV5() override;
 
 protected:

@@ -51,7 +51,7 @@
 // We mean it.
 //
 
-#include "qwayland-xdg-shell-unstable-v5.h"
+#include "qwayland-xdg-shell-unstable-v5_p.h"
 
 #include <QtCore/QSize>
 #include <QtCore/QVector>
@@ -72,10 +72,9 @@ class QWaylandInputDevice;
 class QWaylandXdgSurfaceV5;
 class QWaylandXdgPopupV5;
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandXdgShellV5 : public QtWayland::xdg_shell
+class Q_WAYLAND_CLIENT_EXPORT QWaylandXdgShellV5 : public QtWayland::xdg_shell_v5
 {
 public:
-    QWaylandXdgShellV5(struct ::xdg_shell *shell);
     QWaylandXdgShellV5(struct ::wl_registry *registry, uint32_t id);
     ~QWaylandXdgShellV5() override;
 

@@ -48,7 +48,7 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgDecorationManagerV1 : public QWayla
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandXdgDecorationManagerV1)
-    Q_PROPERTY(QWaylandXdgToplevel::DecorationMode preferredMode READ preferredMode WRITE setPreferredMode NOTIFY defaultModeChanged)
+    Q_PROPERTY(QWaylandXdgToplevel::DecorationMode preferredMode READ preferredMode WRITE setPreferredMode NOTIFY preferredModeChanged)
 
 public:
     explicit QWaylandXdgDecorationManagerV1();
@@ -61,7 +61,7 @@ public:
     static const struct wl_interface *interface();
 
 Q_SIGNALS:
-    void defaultModeChanged();
+    void preferredModeChanged();
 };
 
 QT_END_NAMESPACE

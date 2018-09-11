@@ -52,15 +52,10 @@ QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
 
-QWaylandXdgShellV5::QWaylandXdgShellV5(struct ::xdg_shell *shell)
-    : QtWayland::xdg_shell(shell)
-{
-}
-
 QWaylandXdgShellV5::QWaylandXdgShellV5(struct ::wl_registry *registry, uint32_t id)
-    : QtWayland::xdg_shell(registry, id, 1)
+    : QtWayland::xdg_shell_v5(registry, id, 1)
 {
-    use_unstable_version(QtWayland::xdg_shell::version_current);
+    use_unstable_version(QtWayland::xdg_shell_v5::version_current);
 }
 
 QWaylandXdgShellV5::~QWaylandXdgShellV5()

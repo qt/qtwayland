@@ -68,6 +68,12 @@
             "type": "compile",
             "test": "libhybris_egl_server",
             "use": "egl"
+        },
+        "dmabuf-server-buffer": {
+            "label": "Linux dma-buf Buffer Sharing",
+            "type": "compile",
+            "test": "dmabuf_server_buffer",
+            "use": "egl"
         }
     },
 
@@ -109,6 +115,11 @@
         "wayland-libhybris-egl-server-buffer": {
             "label": "libhybris EGL",
             "condition": "features.wayland-client && features.opengl && features.egl && tests.libhybris-egl-server",
+            "output": [ "privateFeature" ]
+        },
+        "wayland-dmabuf-server-buffer": {
+            "label": "Linux dma-buf server buffer integration",
+            "condition": "features.wayland-client && features.opengl && features.egl && tests.dmabuf-server-buffer",
             "output": [ "privateFeature" ]
         },
         "wayland-shm-emulation-server-buffer": {

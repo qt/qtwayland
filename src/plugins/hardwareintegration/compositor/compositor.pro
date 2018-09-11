@@ -16,5 +16,7 @@ qtConfig(wayland-libhybris-egl-server-buffer): \
     SUBDIRS += libhybris-egl-server
 qtConfig(wayland-shm-emulation-server-buffer): \
     SUBDIRS += shm-emulation-server
+qtConfig(wayland-dmabuf-server-buffer): \
+    SUBDIRS += dmabuf-server
 
 SUBDIRS += hardwarelayer

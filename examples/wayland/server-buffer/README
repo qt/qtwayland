@@ -2,10 +2,10 @@ This is the example to demonstrate the server buffer interfaces
 
 Compile up both compositor and client.
 
-If you have the drm-egl-server buffer integration (and you are running Mesa)
+If you have the dmabuf-server buffer integration (and you are running Mesa)
 then start the compositor with:
 
-$ QT_WAYLAND_SERVER_BUFFER_INTEGRATION=drm-egl-server ./compositor
+$ QT_WAYLAND_SERVER_BUFFER_INTEGRATION=dmabuf-server ./compositor
 
 
 Note: if you are running a compositor on an X11 desktop, you also need to

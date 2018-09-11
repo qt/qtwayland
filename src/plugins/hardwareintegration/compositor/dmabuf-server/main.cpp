@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the plugins of the Qt Toolkit.
@@ -37,26 +37,24 @@
 **
 ****************************************************************************/
 
-#include <QtWaylandClient/private/qwaylandclientbufferintegrationplugin_p.h>
-#include "qwaylandeglclientbufferintegration.h"
+#include <QtWaylandCompositor/private/qwlserverbufferintegrationplugin_p.h>
+#include "dmabufserverbufferintegration.h"
 
 QT_BEGIN_NAMESPACE
 
-namespace QtWaylandClient {
-
-class QWaylandEglClientBufferPlugin : public QWaylandClientBufferIntegrationPlugin
+class DmaBufServerBufferIntegrationPlugin : public QtWayland::ServerBufferIntegrationPlugin
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID QWaylandClientBufferIntegrationFactoryInterface_iid FILE "wayland-egl.json")
+    Q_PLUGIN_METADATA(IID QtWaylandServerBufferIntegrationFactoryInterface_iid FILE "dmabuf-server.json")
 public:
-    QWaylandClientBufferIntegration *create(const QString&, const QStringList&) override;
+    QtWayland::ServerBufferIntegration *create(const QString&, const QStringList&) override;
 };
 
-QWaylandClientBufferIntegration *QWaylandEglClientBufferPlugin::create(const QString&, const QStringList&)
+QtWayland::ServerBufferIntegration *DmaBufServerBufferIntegrationPlugin::create(const QString& system, const QStringList& paramList)
 {
-    return new QWaylandEglClientBufferIntegration();
-}
-
+    Q_UNUSED(paramList);
+    Q_UNUSED(system);
+    return new DmaBufServerBufferIntegration();
 }
 
 QT_END_NAMESPACE

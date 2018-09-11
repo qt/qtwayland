@@ -82,6 +82,7 @@ public:
     virtual ~ServerBuffer();
 
     virtual struct ::wl_resource *resourceForClient(struct ::wl_client *) = 0;
+    virtual bool bufferInUse() { return true; }
 
     virtual QOpenGLTexture *toOpenGlTexture() = 0;
 

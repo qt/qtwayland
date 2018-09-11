@@ -121,6 +121,11 @@ QOpenGLTexture *DrmEglServerBuffer::toOpenGlTexture()
     return m_texture;
 }
 
+bool DrmEglServerBuffer::bufferInUse()
+{
+    return resourceMap().count() > 0;
+}
+
 DrmEglServerBufferIntegration::DrmEglServerBufferIntegration()
 {
 }

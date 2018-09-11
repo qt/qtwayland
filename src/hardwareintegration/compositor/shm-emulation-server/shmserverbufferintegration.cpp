@@ -102,6 +102,10 @@ struct ::wl_resource *ShmServerBuffer::resourceForClient(struct ::wl_client *cli
     return bufferResource->handle;
 }
 
+bool ShmServerBuffer::bufferInUse()
+{
+    return resourceMap().count() > 0;
+}
 
 QOpenGLTexture *ShmServerBuffer::toOpenGlTexture()
 {

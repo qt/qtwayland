@@ -80,6 +80,7 @@ public:
     DrmEglServerBuffer(DrmEglServerBufferIntegration *integration, const QImage &qimage, QtWayland::ServerBuffer::Format format);
 
     struct ::wl_resource *resourceForClient(struct ::wl_client *) override;
+    bool bufferInUse() override;
     QOpenGLTexture *toOpenGlTexture() override;
 
 private:

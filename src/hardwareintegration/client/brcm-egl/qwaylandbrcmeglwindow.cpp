@@ -50,7 +50,6 @@
 
 #include <EGL/eglext_brcm.h>
 
-#include <wayland-client.h>
 #include "wayland-brcm-client-protocol.h"
 
 QT_BEGIN_NAMESPACE

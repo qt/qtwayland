@@ -31,6 +31,8 @@
 #include <QByteArray>
 #include <QString>
 
+struct wl_registry;
+
 QT_BEGIN_NAMESPACE
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_GCC("-Wmissing-field-initializers")

@@ -62,6 +62,9 @@
 #include <QtWaylandClient/private/qwayland-text-input-unstable-v2.h>
 #include <qwaylandinputmethodeventbuilder_p.h>
 
+struct wl_callback;
+struct wl_callback_listener;
+
 QT_BEGIN_NAMESPACE
 
 Q_DECLARE_LOGGING_CATEGORY(qLcQpaInputMethods)

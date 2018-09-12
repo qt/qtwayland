@@ -55,7 +55,7 @@
 
 #include <QtCore/private/qobject_p.h>
 
-#include <wayland-server.h>
+#include <wayland-server-core.h>
 
 QT_BEGIN_NAMESPACE
 

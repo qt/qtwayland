@@ -59,8 +59,6 @@
 #include <QtCore/QWaitCondition>
 #include <QtCore/QLoggingCategory>
 
-#include <wayland-client.h>
-
 #include <QtWaylandClient/private/qwayland-wayland.h>
 #include <QtWaylandClient/private/qtwaylandclientglobal_p.h>
 #include <QtWaylandClient/private/qwaylandshm_p.h>

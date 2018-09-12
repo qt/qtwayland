@@ -47,7 +47,7 @@
 
 #include <QtCore/QDebug>
 
-#include <wayland-server-protocol.h>
+#include <QtWaylandCompositor/private/wayland-wayland-server-protocol.h>
 #include "qwaylandsharedmemoryformathelper_p.h"
 
 #include <QtWaylandCompositor/private/qwaylandcompositor_p.h>

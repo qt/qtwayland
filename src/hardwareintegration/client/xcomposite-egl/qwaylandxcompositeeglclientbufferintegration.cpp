@@ -118,7 +118,7 @@ const struct qt_xcomposite_listener QWaylandXCompositeEGLClientBufferIntegration
     QWaylandXCompositeEGLClientBufferIntegration::rootInformation
 };
 
-void QWaylandXCompositeEGLClientBufferIntegration::wlDisplayHandleGlobal(void *data, wl_registry *registry, uint32_t id, const QString &interface, uint32_t version)
+void QWaylandXCompositeEGLClientBufferIntegration::wlDisplayHandleGlobal(void *data, ::wl_registry *registry, uint32_t id, const QString &interface, uint32_t version)
 {
     Q_UNUSED(version);
     if (interface == "qt_xcomposite") {

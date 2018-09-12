@@ -51,8 +51,6 @@
 // We mean it.
 //
 
-#include <wayland-client.h>
-
 #include <QtCore/qglobal.h>
 #include <QtCore/qmutex.h>
 

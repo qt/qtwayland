@@ -54,8 +54,6 @@
 #include <QtCore/QSize>
 #include <QObject>
 
-#include <wayland-client.h>
-
 #include <QtWaylandClient/private/qwayland-wayland.h>
 #include <QtWaylandClient/qtwaylandclientglobal.h>
 

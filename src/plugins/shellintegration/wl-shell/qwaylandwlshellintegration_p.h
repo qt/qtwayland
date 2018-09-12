@@ -51,7 +51,6 @@
 // We mean it.
 //
 
-#include <wayland-client.h>
 #include <private/qwayland-wayland.h>
 
 #include <QtWaylandClient/private/qwaylandshellintegration_p.h>

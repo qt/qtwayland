@@ -42,7 +42,7 @@
 #include <QtGui/QOpenGLContext>
 #include <QtGui/QOpenGLTexture>
 #include <hybris/eglplatformcommon/hybris_nativebufferext.h>
-#include <wayland-server.h>
+#include <wayland-server-core.h>
 
 QT_BEGIN_NAMESPACE
 LibHybrisEglServerBuffer::LibHybrisEglServerBuffer(LibHybrisEglServerBufferIntegration *integration, const QImage &qimage, QtWayland::ServerBuffer::Format format)

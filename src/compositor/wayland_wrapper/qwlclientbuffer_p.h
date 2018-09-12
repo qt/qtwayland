@@ -59,7 +59,7 @@
 #include <QtWaylandCompositor/QWaylandSurface>
 #include <QtWaylandCompositor/QWaylandBufferRef>
 
-#include <wayland-server.h>
+#include <wayland-server-core.h>
 
 QT_BEGIN_NAMESPACE
 

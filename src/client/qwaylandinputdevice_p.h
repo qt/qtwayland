@@ -61,8 +61,6 @@
 #include <qpa/qplatformscreen.h>
 #include <qpa/qwindowsysteminterface.h>
 
-#include <wayland-client.h>
-
 #include <QtWaylandClient/private/qwayland-wayland.h>
 
 #if QT_CONFIG(xkbcommon_evdev)

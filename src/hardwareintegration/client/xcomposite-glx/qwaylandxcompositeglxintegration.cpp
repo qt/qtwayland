@@ -109,7 +109,7 @@ const struct qt_xcomposite_listener QWaylandXCompositeGLXIntegration::xcomposite
     QWaylandXCompositeGLXIntegration::rootInformation
 };
 
-void QWaylandXCompositeGLXIntegration::wlDisplayHandleGlobal(void *data, wl_registry *registry, uint32_t id, const QString &interface, uint32_t version)
+void QWaylandXCompositeGLXIntegration::wlDisplayHandleGlobal(void *data, ::wl_registry *registry, uint32_t id, const QString &interface, uint32_t version)
 {
     Q_UNUSED(version);
     if (interface == "qt_xcomposite") {

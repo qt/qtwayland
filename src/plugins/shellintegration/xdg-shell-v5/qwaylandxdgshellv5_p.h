@@ -56,8 +56,6 @@
 #include <QtCore/QSize>
 #include <QtCore/QVector>
 
-#include <wayland-client.h>
-
 #include <QtWaylandClient/qtwaylandclientglobal.h>
 #include <QtWaylandClient/private/qwaylandshellsurface_p.h>
 

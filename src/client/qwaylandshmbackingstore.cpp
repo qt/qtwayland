@@ -49,8 +49,7 @@
 #include <QtGui/QPainter>
 #include <QMutexLocker>
 
-#include <wayland-client.h>
-#include <wayland-client-protocol.h>
+#include <QtWaylandClient/private/wayland-wayland-client-protocol.h>
 
 #include <unistd.h>
 #include <sys/mman.h>

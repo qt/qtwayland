@@ -39,7 +39,6 @@
 
 #include "qwaylandxcompositebuffer.h"
 
-#include <wayland-client.h>
 #include "wayland-xcomposite-client-protocol.h"
 
 QT_BEGIN_NAMESPACE

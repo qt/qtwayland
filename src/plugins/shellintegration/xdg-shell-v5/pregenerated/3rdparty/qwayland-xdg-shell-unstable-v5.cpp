@@ -25,6 +25,7 @@
  * DEALINGS IN THE SOFTWARE.
  */
 #include "qwayland-xdg-shell-unstable-v5_p.h"
+#include <QtWaylandClient/private/wayland-wayland-client-protocol.h>
 
 QT_BEGIN_NAMESPACE
 QT_WARNING_PUSH

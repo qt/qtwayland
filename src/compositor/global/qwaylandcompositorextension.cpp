@@ -44,7 +44,7 @@
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDebug>
 
-#include <wayland-server.h>
+#include <wayland-server-core.h>
 
 QT_BEGIN_NAMESPACE
 

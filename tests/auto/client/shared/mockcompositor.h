@@ -34,7 +34,7 @@
 
 #include <pthread.h>
 #include <qglobal.h>
-#include <wayland-server.h>
+#include <wayland-server-core.h>
 
 #include <QImage>
 #include <QMutex>
@@ -121,7 +121,6 @@ private:
 
     wl_display *m_display = nullptr;
     wl_event_loop *m_loop = nullptr;
-    wl_shm *m_shm = nullptr;
     int m_fd = -1;
 
     uint32_t m_time = 0;

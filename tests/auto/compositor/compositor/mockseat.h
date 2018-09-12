@@ -32,7 +32,7 @@
 #include "mockkeyboard.h"
 
 #include <QObject>
-#include <wayland-client.h>
+#include "wayland-wayland-client-protocol.h"
 
 class MockSeat : public QObject
 {

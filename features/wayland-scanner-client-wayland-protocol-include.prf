@@ -1,0 +1,53 @@
+# Special version of WAYLANDCLIENTSOURCES to be used with protocols that
+# have requests that create objects with interfaces defined in the core
+# wayland protocol.
+#
+# E.g. the xcomposite protocol has a request which creates a wl_buffer. With
+# the regular wayland-scanner.prf compilation would fail because
+# wl_buffer_interface is not defined.
+#
+# This version solves the problem by prepending
+# #include <QtWaylandClient/private/wayland-wayland-client-protocol.h>
+# to the wayland-scanner generated files.
+
+isEmpty(QMAKE_WAYLAND_SCANNER):error("QMAKE_WAYLAND_SCANNER not defined for this mkspec")
+
+!isEmpty(MODULE_INCNAME) {
+    WAYLAND_INCLUDE_DIR = $$MODULE_INCNAME/private
+}
+
+wayland_client_header.name = wayland ${QMAKE_FILE_BASE}
+wayland_client_header.input = WAYLANDCLIENTSOURCES
+wayland_client_header.variable_out = HEADERS
+wayland_client_header.output = wayland-${QMAKE_FILE_BASE}-client-protocol$${first(QMAKE_EXT_H)}
+# XXX: Prepend the necessary include in the generated header
+wayland_client_header.commands = echo \"$${LITERAL_HASH}include <QtWaylandClient/private/wayland-wayland-client-protocol.h>\" > ${QMAKE_FILE_OUT} && $$QMAKE_WAYLAND_SCANNER --include-core-only client-header < ${QMAKE_FILE_IN} >> ${QMAKE_FILE_OUT}
+QMAKE_EXTRA_COMPILERS += wayland_client_header
+
+wayland_code.name = wayland ${QMAKE_FILE_BASE}
+wayland_code.input = WAYLANDCLIENTSOURCES
+wayland_code.variable_out = SOURCES
+wayland_code.output = wayland-${QMAKE_FILE_BASE}-protocol.c
+wayland_code.commands = $$QMAKE_WAYLAND_SCANNER --include-core-only code < ${QMAKE_FILE_IN} > ${QMAKE_FILE_OUT}
+silent:wayland_code.commands = @echo Wayland code header ${QMAKE_FILE_IN} && $$wayland_code.commands
+QMAKE_EXTRA_COMPILERS += wayland_code
+
+qtPrepareTool(QMAKE_QTWAYLANDSCANNER, qtwaylandscanner)
+
+qtwayland_client_header.name = qtwayland ${QMAKE_FILE_BASE}
+qtwayland_client_header.input = WAYLANDCLIENTSOURCES
+qtwayland_client_header.variable_out = HEADERS
+qtwayland_client_header.depends += $$QMAKE_QTWAYLANDSCANNER_EXE wayland-${QMAKE_FILE_BASE}-client-protocol$${first(QMAKE_EXT_H)}
+qtwayland_client_header.output = qwayland-${QMAKE_FILE_BASE}$${first(QMAKE_EXT_H)}
+qtwayland_client_header.commands = $$QMAKE_QTWAYLANDSCANNER client-header ${QMAKE_FILE_IN} $$WAYLAND_INCLUDE_DIR > ${QMAKE_FILE_OUT}
+silent:qtwayland_client_header.commands = @echo QtWayland client header ${QMAKE_FILE_IN} && $$qtwayland_client_header.commands
+QMAKE_EXTRA_COMPILERS += qtwayland_client_header
+
+qtwayland_client_code.name = qtwayland ${QMAKE_FILE_BASE}
+qtwayland_client_code.input = WAYLANDCLIENTSOURCES
+qtwayland_client_code.variable_out = SOURCES
+qtwayland_client_code.depends += $$QMAKE_QTWAYLANDSCANNER_EXE qwayland-${QMAKE_FILE_BASE}$${first(QMAKE_EXT_H)}
+qtwayland_client_code.output = qwayland-${QMAKE_FILE_BASE}.cpp
+qtwayland_client_code.commands = $$QMAKE_QTWAYLANDSCANNER client-code ${QMAKE_FILE_IN} $$WAYLAND_INCLUDE_DIR > ${QMAKE_FILE_OUT}
+silent:qtwayland_client_code.commands = @echo QtWayland client code ${QMAKE_FILE_IN} && $$qtwayland_client_code.commands
+QMAKE_EXTRA_COMPILERS += qtwayland_client_code

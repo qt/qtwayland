@@ -64,7 +64,7 @@
 #include <QtCore/QMutexLocker>
 #include <QtCore/QMutex>
 
-#include <wayland-server.h>
+#include <wayland-server-core.h>
 #include <QThread>
 
 #ifndef GL_TEXTURE_EXTERNAL_OES

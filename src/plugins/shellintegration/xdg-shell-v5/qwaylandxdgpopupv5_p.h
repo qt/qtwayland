@@ -53,8 +53,6 @@
 
 #include "qwayland-xdg-shell-unstable-v5_p.h"
 
-#include <wayland-client.h>
-
 #include <QtWaylandClient/qtwaylandclientglobal.h>
 #include <QtWaylandClient/private/qwaylandshellsurface_p.h>
 

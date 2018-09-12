@@ -30,7 +30,7 @@
 #define MOCKPOINTER_H
 
 #include <QObject>
-#include <wayland-client.h>
+#include "wayland-wayland-client-protocol.h"
 
 class MockPointer : public QObject
 {

@@ -30,7 +30,7 @@
 #define MOCKKEYBOARD_H
 
 #include <QObject>
-#include <wayland-client.h>
+#include "wayland-wayland-client-protocol.h"
 
 class MockKeyboard : public QObject
 {

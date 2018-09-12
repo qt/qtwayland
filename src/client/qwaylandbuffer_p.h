@@ -56,8 +56,7 @@
 #include <QtCore/QSize>
 #include <QtCore/QRect>
 
-#include <wayland-client.h>
-#include <wayland-client-protocol.h>
+#include <QtWaylandClient/private/wayland-wayland-client-protocol.h>
 
 QT_BEGIN_NAMESPACE
 

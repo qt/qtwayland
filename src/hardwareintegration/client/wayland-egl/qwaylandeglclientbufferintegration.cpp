@@ -42,7 +42,7 @@
 #include "qwaylandeglwindow.h"
 #include "qwaylandglcontext.h"
 
-#include <wayland-client.h>
+#include <wayland-client-core.h>
 
 #include <QtCore/QDebug>
 #include <private/qeglconvenience_p.h>

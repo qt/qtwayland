@@ -59,8 +59,6 @@
 #include <QtCore/QSize>
 #include <QtCore/QMargins>
 
-#include <wayland-client.h>
-
 QT_BEGIN_NAMESPACE
 
 class QWindow;

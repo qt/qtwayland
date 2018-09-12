@@ -61,8 +61,6 @@
 #include <QtGui/QImage>
 #include <QtWaylandClient/qtwaylandclientglobal.h>
 
-#include <wayland-client.h>
-
 #include <QtCore/QDebug>
 
 QT_BEGIN_NAMESPACE

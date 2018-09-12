@@ -29,9 +29,7 @@ WAYLANDCLIENTSOURCES += \
             ../extensions/qt-windowmanager.xml \
             ../3rdparty/protocol/text-input-unstable-v2.xml \
             ../3rdparty/protocol/xdg-output-unstable-v1.xml \
-
-WAYLANDCLIENTSOURCES_SYSTEM += \
-            ../3rdparty/protocol/wayland.xml \
+            ../3rdparty/protocol/wayland.xml
 
 SOURCES +=  qwaylandintegration.cpp \
             qwaylandnativeinterface.cpp \

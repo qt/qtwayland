@@ -150,6 +150,15 @@ void QWaylandXdgSurfaceV6::Toplevel::requestWindowStates(Qt::WindowStates states
     }
 }
 
+QtWayland::zxdg_toplevel_v6::resize_edge QWaylandXdgSurfaceV6::Toplevel::convertToResizeEdges(Qt::Edges edges)
+{
+    return static_cast<enum resize_edge>(
+                ((edges & Qt::TopEdge) ? resize_edge_top : 0)
+                | ((edges & Qt::BottomEdge) ? resize_edge_bottom : 0)
+                | ((edges & Qt::LeftEdge) ? resize_edge_left : 0)
+                | ((edges & Qt::RightEdge) ? resize_edge_right : 0));
+}
+
 QWaylandXdgSurfaceV6::Popup::Popup(QWaylandXdgSurfaceV6 *xdgSurface, QWaylandXdgSurfaceV6 *parent,
                                    QtWayland::zxdg_positioner_v6 *positioner)
     : zxdg_popup_v6(xdgSurface->get_popup(parent->object(), positioner->object()))
@@ -217,18 +226,12 @@ QWaylandXdgSurfaceV6::~QWaylandXdgSurfaceV6()
     destroy();
 }
 
-void QWaylandXdgSurfaceV6::resize(QWaylandInputDevice *inputDevice, zxdg_toplevel_v6_resize_edge edges)
+void QWaylandXdgSurfaceV6::resize(QWaylandInputDevice *inputDevice, Qt::Edges edges)
 {
     Q_ASSERT(m_toplevel && m_toplevel->isInitialized());
-    m_toplevel->resize(inputDevice->wl_seat(), inputDevice->serial(), edges);
+    auto resizeEdges = Toplevel::convertToResizeEdges(edges);
+    m_toplevel->resize(inputDevice->wl_seat(), inputDevice->serial(), resizeEdges);
 }
-
-void QWaylandXdgSurfaceV6::resize(QWaylandInputDevice *inputDevice, enum wl_shell_surface_resize edges)
-{
-    auto xdgEdges = reinterpret_cast<enum zxdg_toplevel_v6_resize_edge const *>(&edges);
-    resize(inputDevice, *xdgEdges);
-}
-
 
 bool QWaylandXdgSurfaceV6::move(QWaylandInputDevice *inputDevice)
 {

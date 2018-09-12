@@ -78,7 +78,7 @@ public:
     ~QWaylandWlShellSurface() override;
 
     using QtWayland::wl_shell_surface::resize;
-    void resize(QWaylandInputDevice *inputDevice, enum wl_shell_surface_resize edges) override;
+    void resize(QWaylandInputDevice *inputDevice, Qt::Edges edges) override;
 
     using QtWayland::wl_shell_surface::move;
     bool move(QWaylandInputDevice *inputDevice) override;
@@ -99,6 +99,7 @@ protected:
     void requestWindowStates(Qt::WindowStates states) override;
 
 private:
+    static enum resize convertToResizeEdges(Qt::Edges edges);
     void setTopLevel();
     void updateTransientParent(QWindow *parent);
     void setPopup(QWaylandWindow *parent, QWaylandInputDevice *device, uint serial);

@@ -82,8 +82,7 @@ public:
     QWaylandXdgSurface(QWaylandXdgShell *shell, ::xdg_surface *surface, QWaylandWindow *window);
     ~QWaylandXdgSurface() override;
 
-    void resize(QWaylandInputDevice *inputDevice, enum xdg_toplevel_resize_edge edges);
-    void resize(QWaylandInputDevice *inputDevice, enum wl_shell_surface_resize edges) override;
+    void resize(QWaylandInputDevice *inputDevice, Qt::Edges edges) override;
     bool move(QWaylandInputDevice *inputDevice) override;
     void setTitle(const QString &title) override;
     void setAppId(const QString &appId) override;
@@ -114,6 +113,9 @@ private:
 
         void requestWindowFlags(Qt::WindowFlags flags);
         void requestWindowStates(Qt::WindowStates states);
+
+        static resize_edge convertToResizeEdges(Qt::Edges edges);
+
         struct {
             QSize size = {0, 0};
             Qt::WindowStates states = Qt::WindowNoState;

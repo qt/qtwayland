@@ -145,11 +145,11 @@ void QWaylandAbstractDecoration::setMouseButtons(Qt::MouseButtons mb)
     d->m_mouseButtons = mb;
 }
 
-void QWaylandAbstractDecoration::startResize(QWaylandInputDevice *inputDevice, enum wl_shell_surface_resize resize, Qt::MouseButtons buttons)
+void QWaylandAbstractDecoration::startResize(QWaylandInputDevice *inputDevice, Qt::Edges edges, Qt::MouseButtons buttons)
 {
     Q_D(QWaylandAbstractDecoration);
     if (isLeftClicked(buttons) && d->m_wayland_window->shellSurface()) {
-        d->m_wayland_window->shellSurface()->resize(inputDevice, resize);
+        d->m_wayland_window->shellSurface()->resize(inputDevice, edges);
         inputDevice->removeMouseButtonFromState(Qt::LeftButton);
     }
 }

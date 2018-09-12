@@ -105,7 +105,7 @@ protected:
 
     void setMouseButtons(Qt::MouseButtons mb);
 
-    void startResize(QWaylandInputDevice *inputDevice,enum wl_shell_surface_resize resize, Qt::MouseButtons buttons);
+    void startResize(QWaylandInputDevice *inputDevice, Qt::Edges edges, Qt::MouseButtons buttons);
     void startMove(QWaylandInputDevice *inputDevice, Qt::MouseButtons buttons);
 
     bool isLeftClicked(Qt::MouseButtons newMouseButtonState);

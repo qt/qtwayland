@@ -75,8 +75,7 @@ class Q_WAYLAND_CLIENT_EXPORT QWaylandShellSurface : public QObject
 public:
     explicit QWaylandShellSurface(QWaylandWindow *window);
     ~QWaylandShellSurface() override {}
-    virtual void resize(QWaylandInputDevice * /*inputDevice*/, enum wl_shell_surface_resize /*edges*/)
-    {}
+    virtual void resize(QWaylandInputDevice * /*inputDevice*/, Qt::Edges /*edges*/) {}
 
     virtual bool move(QWaylandInputDevice *) { return false; }
     virtual void setTitle(const QString & /*title*/) {}

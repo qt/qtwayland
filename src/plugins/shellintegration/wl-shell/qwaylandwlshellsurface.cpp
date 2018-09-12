@@ -76,11 +76,10 @@ QWaylandWlShellSurface::~QWaylandWlShellSurface()
     delete m_extendedWindow;
 }
 
-void QWaylandWlShellSurface::resize(QWaylandInputDevice *inputDevice, enum wl_shell_surface_resize edges)
+void QWaylandWlShellSurface::resize(QWaylandInputDevice *inputDevice, Qt::Edges edges)
 {
-    resize(inputDevice->wl_seat(),
-           inputDevice->serial(),
-           edges);
+    enum resize resizeEdges = convertToResizeEdges(edges);
+    resize(inputDevice->wl_seat(), inputDevice->serial(), resizeEdges);
 }
 
 bool QWaylandWlShellSurface::move(QWaylandInputDevice *inputDevice)
@@ -193,6 +192,14 @@ void QWaylandWlShellSurface::requestWindowStates(Qt::WindowStates states)
     m_pending.states = states & ~Qt::WindowMinimized;
 }
 
+enum QWaylandWlShellSurface::resize QWaylandWlShellSurface::convertToResizeEdges(Qt::Edges edges)
+{
+    return static_cast<enum resize>(
+                ((edges & Qt::TopEdge) ? resize_top : 0)
+                | ((edges & Qt::BottomEdge) ? resize_bottom : 0)
+                | ((edges & Qt::LeftEdge) ? resize_left : 0)
+                | ((edges & Qt::RightEdge) ? resize_right : 0));
+}
 
 void QWaylandWlShellSurface::setTopLevel()
 {

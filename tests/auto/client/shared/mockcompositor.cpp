@@ -400,7 +400,7 @@ void Compositor::dispatchEvents(int timeout)
 
 static void compositor_create_surface(wl_client *client, wl_resource *compositorResource, uint32_t id)
 {
-    Compositor *compositor = static_cast<Compositor *>(compositorResource->data);
+    Compositor *compositor = static_cast<Compositor *>(wl_resource_get_user_data(compositorResource));
     compositor->addSurface(new Surface(client, id, wl_resource_get_version(compositorResource), compositor));
 }
 
@@ -425,18 +425,18 @@ void Compositor::bindCompositor(wl_client *client, void *compositorData, uint32_
 static void unregisterResourceCallback(wl_listener *listener, void *data)
 {
     struct wl_resource *resource = reinterpret_cast<struct wl_resource *>(data);
-    wl_list_remove(&resource->link);
+    wl_list_remove(wl_resource_get_link(resource));
     delete listener;
 }
 
 void registerResource(wl_list *list, wl_resource *resource)
 {
-    wl_list_insert(list, &resource->link);
+    wl_list_insert(list, wl_resource_get_link(resource));
 
     wl_listener *listener = new wl_listener;
     listener->notify = unregisterResourceCallback;
 
-    wl_signal_add(&resource->destroy_signal, listener);
+    wl_resource_add_destroy_listener(resource, listener);
 }
 
 QVector<Surface *> Compositor::surfaces() const

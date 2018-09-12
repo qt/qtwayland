@@ -184,7 +184,7 @@ wl_kms_buffer *Vsp2Layer::nextKmsBuffer()
     struct wl_kms_buffer *kmsBuffer = wayland_kms_buffer_get(wlBuffer);
 
     if (!kmsBuffer)
-        qWarning() << "Failed to get wl_kms_buffer for wl_buffer:" << wlBuffer->object.id;
+        qWarning() << "Failed to get wl_kms_buffer for wl_buffer:" << wl_resource_get_id(wlBuffer);
 
     return kmsBuffer;
 }

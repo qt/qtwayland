@@ -126,7 +126,7 @@ void ShareBufferExtension::share_buffer_bind_resource(Resource *resource)
 
     for (auto *buffer : qAsConst(m_server_buffers)) {
         qDebug() << "sending" << buffer << "to client";
-        struct ::wl_client *client = resource->handle->client;
+        struct ::wl_client *client = wl_resource_get_client(resource->handle);
         struct ::wl_resource *buffer_resource = buffer->resourceForClient(client);
         send_cross_buffer(resource->handle, buffer_resource);
     }

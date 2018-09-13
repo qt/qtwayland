@@ -97,6 +97,7 @@
 QT_BEGIN_NAMESPACE
 
 Q_LOGGING_CATEGORY(qLcWaylandCompositor, "qt.waylandcompositor")
+Q_LOGGING_CATEGORY(qLcWaylandCompositorHardwareIntegration, "qt.waylandcompositor.hardwareintegration")
 Q_LOGGING_CATEGORY(qLcWaylandCompositorInputMethods, "qt.waylandcompositor.inputmethods")
 
 namespace QtWayland {

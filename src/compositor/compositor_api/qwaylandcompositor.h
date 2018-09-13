@@ -71,6 +71,7 @@ class QWaylandSurfaceGrabber;
 class QWaylandBufferRef;
 
 Q_WAYLAND_COMPOSITOR_EXPORT Q_DECLARE_LOGGING_CATEGORY(qLcWaylandCompositor)
+Q_WAYLAND_COMPOSITOR_EXPORT Q_DECLARE_LOGGING_CATEGORY(qLcWaylandCompositorHardwareIntegration)
 Q_DECLARE_LOGGING_CATEGORY(qLcWaylandCompositorInputMethods)
 
 class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandCompositor : public QWaylandObject

@@ -613,6 +613,7 @@ void QWaylandCompositor::addSocketFd(int fd)
     if (isCreated())
         d->connectToExternalSockets();
 #else
+    Q_UNUSED(fd);
     qWarning() << "QWaylandCompositor::addSocketFd() does nothing on libwayland versions prior to 1.10.0";
 #endif
 }

@@ -589,7 +589,7 @@ void QWaylandKeyboard::addClient(QWaylandClient *client, uint32_t id, uint32_t v
     d->add(client->client(), id, qMin<uint32_t>(QtWaylandServer::wl_keyboard::interfaceVersion(), version));
 }
 
-uint QWaylandKeyboard::toScanCode(int qtKey) const
+uint QWaylandKeyboard::keyToScanCode(int qtKey) const
 {
     uint scanCode = 0;
 #if QT_CONFIG(xkbcommon_evdev)

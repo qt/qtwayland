@@ -114,6 +114,9 @@ protected:
     void output_bind_resource(Resource *resource) override;
 
 private:
+    void _q_handleMaybeWindowPixelSizeChanged();
+    void _q_handleWindowDestroyed();
+
     QWaylandCompositor *compositor = nullptr;
     QWindow *window = nullptr;
     QString manufacturer;

@@ -144,9 +144,6 @@ namespace QtWaylandServer {
         that->m_resource_map.remove(resource->client(), resource);
         that->xdg_shell_destroy_resource(resource);
         delete resource;
-#if !WAYLAND_VERSION_CHECK(1, 2, 0)
-        free(client_resource);
-#endif
     }
 
     xdg_shell_v5::Resource *xdg_shell_v5::bind(struct ::wl_client *client, uint32_t id, int version)
@@ -402,9 +399,6 @@ namespace QtWaylandServer {
         that->m_resource_map.remove(resource->client(), resource);
         that->xdg_surface_destroy_resource(resource);
         delete resource;
-#if !WAYLAND_VERSION_CHECK(1, 2, 0)
-        free(client_resource);
-#endif
     }
 
     xdg_surface_v5::Resource *xdg_surface_v5::bind(struct ::wl_client *client, uint32_t id, int version)
@@ -833,9 +827,6 @@ namespace QtWaylandServer {
         that->m_resource_map.remove(resource->client(), resource);
         that->xdg_popup_destroy_resource(resource);
         delete resource;
-#if !WAYLAND_VERSION_CHECK(1, 2, 0)
-        free(client_resource);
-#endif
     }
 
     xdg_popup_v5::Resource *xdg_popup_v5::bind(struct ::wl_client *client, uint32_t id, int version)

@@ -234,7 +234,6 @@
         This request must be used in response to some sort of user action
         like a button press, key press, or touch down event.
       </description>
-
       <arg name="seat" type="object" interface="wl_seat" summary="the wl_seat of the user event"/>
       <arg name="serial" type="uint" summary="the serial of the user event"/>
       <arg name="x" type="int" summary="the x position to pop up the window menu at"/>
@@ -338,25 +337,34 @@
 
         0x0000 - 0x0FFF: xdg-shell core values, documented below.
         0x1000 - 0x1FFF: GNOME
+        0x2000 - 0x2FFF: EFL
       </description>
       <entry name="maximized" value="1" summary="the surface is maximized">
-        The surface is maximized. The window geometry specified in the configure
-        event must be obeyed by the client.
+	<description summary="the surface is maximized">
+	  The surface is maximized. The window geometry specified in the configure
+	  event must be obeyed by the client.
+	</description>
       </entry>
       <entry name="fullscreen" value="2" summary="the surface is fullscreen">
-        The surface is fullscreen. The window geometry specified in the configure
-        event must be obeyed by the client.
+	<description summary="the surface is fullscreen">
+	  The surface is fullscreen. The window geometry specified in the configure
+	  event must be obeyed by the client.
+	</description>
       </entry>
-      <entry name="resizing" value="3">
-        The surface is being resized. The window geometry specified in the
-        configure event is a maximum; the client cannot resize beyond it.
-        Clients that have aspect ratio or cell sizing configuration can use
-        a smaller size, however.
+      <entry name="resizing" value="3" summary="the surface is being resized">
+	<description summary="the surface is being resized">
+	  The surface is being resized. The window geometry specified in the
+	  configure event is a maximum; the client cannot resize beyond it.
+	  Clients that have aspect ratio or cell sizing configuration can use
+	  a smaller size, however.
+	</description>
       </entry>
-      <entry name="activated" value="4">
-        Client window decorations should be painted as if the window is
-        active. Do not assume this means that the window actually has
-        keyboard or pointer focus.
+      <entry name="activated" value="4" summary="the surface is now activated">
+	<description summary="the surface is now activated">
+	  Client window decorations should be painted as if the window is
+	  active. Do not assume this means that the window actually has
+	  keyboard or pointer focus.
+	</description>
       </entry>
     </enum>
 
@@ -387,7 +395,6 @@
         can respond to one, it is free to discard all but the last
         event it received.
       </description>
-
       <arg name="width" type="int"/>
       <arg name="height" type="int"/>
       <arg name="states" type="array"/>
@@ -398,8 +405,8 @@
       <description summary="ack a configure event">
         When a configure event is received, if a client commits the
         surface in response to the configure event, then the client
-        must make a ack_configure request before the commit request,
-        passing along the serial of the configure event.
+        must make an ack_configure request sometime before the commit
+        request, passing along the serial of the configure event.
 
         For instance, the compositor might use this information to move
         a surface to the top left only when the client has drawn itself
@@ -407,6 +414,14 @@
 
         If the client receives multiple configure events before it
         can respond to one, it only has to ack the last configure event.
+
+        A client is not required to commit immediately after sending
+        an ack_configure request - it may even ack_configure several times
+        before its next surface commit.
+
+        The compositor expects that the most recently received
+        ack_configure request at the time of a commit indicates which
+        configure event the client is responding to.
       </description>
       <arg name="serial" type="uint" summary="the serial from the configure event"/>
     </request>

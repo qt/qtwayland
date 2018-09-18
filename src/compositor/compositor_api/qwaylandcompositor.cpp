@@ -578,7 +578,7 @@ QByteArray QWaylandCompositor::socketName() const
 }
 
 /*!
- * \qmlmethod QtWaylandCompositor::WaylandCompositor::addSocketFd(fd)
+ * \qmlmethod QtWaylandCompositor::WaylandCompositor::addSocketDescriptor(fd)
  * \since 5.12
  *
  * Listen for client connections on a file descriptor referring to a
@@ -605,7 +605,7 @@ QByteArray QWaylandCompositor::socketName() const
  *
  * \since 5.12
  */
-void QWaylandCompositor::addSocketFd(int fd)
+void QWaylandCompositor::addSocketDescriptor(int fd)
 {
 #if WAYLAND_VERSION_MAJOR >= 1 && (WAYLAND_VERSION_MAJOR != 1 || WAYLAND_VERSION_MINOR >= 10)
     Q_D(QWaylandCompositor);
@@ -613,7 +613,8 @@ void QWaylandCompositor::addSocketFd(int fd)
     if (isCreated())
         d->connectToExternalSockets();
 #else
-    qWarning() << "QWaylandCompositor::addSocketFd() does nothing on libwayland versions prior to 1.10.0";
+    Q_UNUSED(fd);
+    qWarning() << "QWaylandCompositor::addSocketDescriptor() does nothing on libwayland versions prior to 1.10.0";
 #endif
 }
 

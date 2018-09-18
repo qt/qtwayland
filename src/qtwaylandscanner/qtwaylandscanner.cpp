@@ -772,9 +772,6 @@ bool Scanner::process()
             printf("        that->m_resource_map.remove(resource->client(), resource);\n");
             printf("        that->%s_destroy_resource(resource);\n", interfaceNameStripped);
             printf("        delete resource;\n");
-            printf("#if !WAYLAND_VERSION_CHECK(1, 2, 0)\n");
-            printf("        free(client_resource);\n");
-            printf("#endif\n");
             printf("    }\n");
             printf("\n");
 

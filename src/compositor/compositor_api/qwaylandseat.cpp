@@ -443,7 +443,7 @@ void QWaylandSeat::sendFullKeyEvent(QKeyEvent *event)
 
         uint scanCode = event->nativeScanCode();
         if (scanCode == 0)
-            scanCode = d->keyboard->toScanCode(event->key());
+            scanCode = d->keyboard->keyToScanCode(event->key());
 
         if (scanCode == 0) {
             qWarning() << "Can't send Wayland key event: Unable to get a valid scan code";
@@ -477,7 +477,7 @@ void QWaylandSeat::sendKeyEvent(int qtKey, bool pressed)
         return;
     }
 
-    if (auto scanCode = d->keyboard->toScanCode(qtKey)) {
+    if (auto scanCode = d->keyboard->keyToScanCode(qtKey)) {
         if (pressed)
             d->keyboard->sendKeyPressEvent(scanCode);
         else

@@ -1458,8 +1458,7 @@ void QWaylandXdgToplevelPrivate::xdg_toplevel_set_max_size(QtWaylandServer::xdg_
         return;
     }
 
-    else
-        m_maxSize = maxSize;
+    m_maxSize = maxSize;
 
     Q_Q(QWaylandXdgToplevel);
     emit q->maxSizeChanged();
@@ -1489,8 +1488,7 @@ void QWaylandXdgToplevelPrivate::xdg_toplevel_set_min_size(QtWaylandServer::xdg_
         return;
     }
 
-    else
-        m_minSize = minSize;
+    m_minSize = minSize;
 
     Q_Q(QWaylandXdgToplevel);
     emit q->minSizeChanged();

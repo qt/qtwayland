@@ -76,12 +76,7 @@ public:
         : surface(surf)
         , resource(res)
     {
-#if WAYLAND_VERSION_MAJOR < 1 || (WAYLAND_VERSION_MAJOR == 1 && WAYLAND_VERSION_MINOR <= 2)
-        res->data = this;
-        res->destroy = destroyCallback;
-#else
         wl_resource_set_implementation(res, nullptr, this, destroyCallback);
-#endif
     }
     ~FrameCallback()
     {
@@ -100,11 +95,7 @@ public:
     }
     static void destroyCallback(wl_resource *res)
     {
-#if WAYLAND_VERSION_MAJOR < 1 || (WAYLAND_VERSION_MAJOR == 1 && WAYLAND_VERSION_MINOR <= 2)
-        FrameCallback *_this = static_cast<FrameCallback *>(res->data);
-#else
         FrameCallback *_this = static_cast<FrameCallback *>(wl_resource_get_user_data(res));
-#endif
         if (_this->surface)
             QWaylandSurfacePrivate::get(_this->surface)->removeFrameCallback(_this);
         delete _this;

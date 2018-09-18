@@ -124,6 +124,27 @@ void QWaylandOutputPrivate::output_bind_resource(Resource *resource)
     }
 }
 
+void QWaylandOutputPrivate::_q_handleMaybeWindowPixelSizeChanged()
+{
+    if (!window)
+        return;
+
+    const QSize pixelSize = window->size() * window->devicePixelRatio();
+
+    if (pixelSize != windowPixelSize) {
+        windowPixelSize = pixelSize;
+        handleWindowPixelSizeChanged();
+    }
+}
+
+void QWaylandOutputPrivate::_q_handleWindowDestroyed()
+{
+    Q_Q(QWaylandOutput);
+    window = nullptr;
+    emit q->windowChanged();
+    emit q->windowDestroyed();
+}
+
 void QWaylandOutputPrivate::sendGeometry(const Resource *resource)
 {
     send_geometry(resource->handle,
@@ -313,10 +334,10 @@ void QWaylandOutput::initialize()
     QWaylandCompositorPrivate::get(d->compositor)->addOutput(this);
 
     if (d->window) {
-        QObject::connect(d->window, &QWindow::widthChanged, this, &QWaylandOutput::handleMaybeWindowPixelSizeChanged);
-        QObject::connect(d->window, &QWindow::heightChanged, this, &QWaylandOutput::handleMaybeWindowPixelSizeChanged);
-        QObject::connect(d->window, &QWindow::screenChanged, this, &QWaylandOutput::handleMaybeWindowPixelSizeChanged);
-        QObject::connect(d->window, &QObject::destroyed, this, &QWaylandOutput::handleWindowDestroyed);
+        QObjectPrivate::connect(d->window, &QWindow::widthChanged, d, &QWaylandOutputPrivate::_q_handleMaybeWindowPixelSizeChanged);
+        QObjectPrivate::connect(d->window, &QWindow::heightChanged, d, &QWaylandOutputPrivate::_q_handleMaybeWindowPixelSizeChanged);
+        QObjectPrivate::connect(d->window, &QWindow::screenChanged, d, &QWaylandOutputPrivate::_q_handleMaybeWindowPixelSizeChanged);
+        QObjectPrivate::connect(d->window, &QObject::destroyed, d, &QWaylandOutputPrivate::_q_handleWindowDestroyed);
     }
 
     d->init(d->compositor->display(), 2);
@@ -953,35 +974,6 @@ void QWaylandOutput::surfaceLeave(QWaylandSurface *surface)
 /*!
  * \internal
  */
-void QWaylandOutput::handleMaybeWindowPixelSizeChanged()
-{
-    Q_D(QWaylandOutput);
-
-    if (!d->window)
-        return;
-
-    const QSize pixelSize = d->window->size() * d->window->devicePixelRatio();
-
-    if (pixelSize != d->windowPixelSize) {
-        d->windowPixelSize = pixelSize;
-        d->handleWindowPixelSizeChanged();
-    }
-}
-
-/*!
- * \internal
- */
-void QWaylandOutput::handleWindowDestroyed()
-{
-    Q_D(QWaylandOutput);
-    d->window = nullptr;
-    emit windowChanged();
-    emit windowDestroyed();
-}
-
-/*!
- * \internal
- */
 bool QWaylandOutput::event(QEvent *event)
 {
     if (event->type() == QEvent::Polish)
@@ -990,3 +982,5 @@ bool QWaylandOutput::event(QEvent *event)
 }
 
 QT_END_NAMESPACE
+
+#include "moc_qwaylandoutput.cpp"

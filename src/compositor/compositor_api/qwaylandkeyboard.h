@@ -82,7 +82,7 @@ public:
 
     virtual void addClient(QWaylandClient *client, uint32_t id, uint32_t version);
 
-    uint toScanCode(int qtKey) const;
+    uint keyToScanCode(int qtKey) const;
 
 Q_SIGNALS:
     void focusChanged(QWaylandSurface *surface);

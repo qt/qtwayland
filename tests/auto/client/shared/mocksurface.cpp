@@ -161,14 +161,7 @@ void Surface::surface_commit(Resource *resource)
     Q_UNUSED(resource);
 
     if (m_buffer) {
-#if WAYLAND_VERSION_CHECK(1, 2, 0)
         struct ::wl_shm_buffer *shm_buffer = wl_shm_buffer_get(m_buffer);
-#else
-        struct ::wl_buffer *shm_buffer = 0;
-        if (wl_buffer_is_shm(static_cast<struct ::wl_buffer*>(m_buffer->data)))
-            shm_buffer = static_cast<struct ::wl_buffer*>(m_buffer->data);
-#endif
-
         if (shm_buffer) {
             int stride = wl_shm_buffer_get_stride(shm_buffer);
             uint format = wl_shm_buffer_get_format(shm_buffer);

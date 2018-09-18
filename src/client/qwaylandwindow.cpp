@@ -67,7 +67,7 @@
 
 #include <QtCore/QDebug>
 
-#include <wayland-client-core.h>
+#include <wayland-client.h>
 
 QT_BEGIN_NAMESPACE
 

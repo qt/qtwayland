@@ -180,14 +180,14 @@ Q_SIGNALS:
     void modelChanged();
     void windowDestroyed();
 
-private Q_SLOTS:
-    void handleMaybeWindowPixelSizeChanged();
-    void handleWindowDestroyed();
-
 protected:
     bool event(QEvent *event) override;
 
     virtual void initialize();
+
+private:
+    Q_PRIVATE_SLOT(d_func(), void _q_handleMaybeWindowPixelSizeChanged())
+    Q_PRIVATE_SLOT(d_func(), void _q_handleWindowDestroyed())
 };
 
 QT_END_NAMESPACE

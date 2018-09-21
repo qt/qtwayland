@@ -285,11 +285,11 @@ void XdgPopupIntegration::handleGeometryChanged()
 {
     if (m_item->view()->output()) {
         const QPoint windowOffset = m_popup->parentXdgSurface()->windowGeometry().topLeft();
-        const QPoint position = m_popup->unconstrainedPosition() + windowOffset;
+        const QPoint surfacePosition = m_popup->unconstrainedPosition() + windowOffset;
+        const QPoint itemPosition = m_item->mapFromSurface(surfacePosition).toPoint();
         //TODO: positioner size or other size...?
-        const float scaleFactor = m_item->view()->output()->scaleFactor();
         //TODO check positioner constraints etc... sliding, flipping
-        m_item->moveItem()->setPosition(position * scaleFactor);
+        m_item->moveItem()->setPosition(itemPosition);
     } else {
         qWarning() << "XdgPopupIntegration popup item without output" << m_item;
     }

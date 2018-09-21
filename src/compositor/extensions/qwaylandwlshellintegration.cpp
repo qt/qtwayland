@@ -217,9 +217,7 @@ void WlShellIntegration::handleSetPopup(QWaylandSeat *seat, QWaylandSurface *par
         t.clear(&t);
         m_item->setRotation(0);
         m_item->setScale(1.0);
-        auto scaleFactor = m_item->output()->scaleFactor() / devicePixelRatio();
-        m_item->setX(relativeToParent.x() * scaleFactor);
-        m_item->setY(relativeToParent.y() * scaleFactor);
+        m_item->setPosition(m_item->mapFromSurface(relativeToParent));
         m_item->setParentItem(parentItem);
     }
 

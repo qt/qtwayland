@@ -212,10 +212,12 @@ XdgPopupV5Integration::XdgPopupV5Integration(QWaylandQuickShellSurfaceItem *item
     , m_xdgShell(QWaylandXdgPopupV5Private::get(m_xdgPopup)->m_xdgShell)
 {
     item->setSurface(m_xdgPopup->surface());
-    if (item->view()->output())
-        item->moveItem()->setPosition(QPointF(m_xdgPopup->position() * item->view()->output()->scaleFactor()));
-    else
+    if (item->view()->output()) {
+        QPoint position = item->mapFromSurface(m_xdgPopup->position()).toPoint();
+        item->moveItem()->setPosition(position);
+    } else {
         qWarning() << "XdgPopupV5Integration popup item without output" << item;
+    }
 
     QWaylandClient *client = m_xdgPopup->surface()->client();
     auto shell = m_xdgShell;

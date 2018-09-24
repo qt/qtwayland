@@ -101,6 +101,7 @@ private slots:
     void windowStateChangedEvents();
     void windowGeometrySimple();
     void windowGeometryFixed();
+    void flushUnconfiguredXdgSurface();
 
 private:
     MockCompositor *m_compositor = nullptr;
@@ -358,6 +359,40 @@ void tst_WaylandClientXdgShellV6::windowGeometryFixed()
     QTRY_COMPARE(geometrySpy.count(), 1);
     // Configuring the window should not change the window geometry
     QCOMPARE(geometrySpy.takeFirst().at(0).toRect().size(), initialWindowGeometry.size());
+}
+
+void tst_WaylandClientXdgShellV6::flushUnconfiguredXdgSurface()
+{
+    TestWindow window;
+    window.show();
+
+    QSharedPointer<MockSurface> surface;
+    QTRY_VERIFY(surface = m_compositor->surface());
+
+    // Paint and flush some magenta
+    QBackingStore backingStore(&window);
+    QRect rect(QPoint(), window.size());
+    backingStore.resize(rect.size());
+    backingStore.beginPaint(rect);
+    QColor color = Qt::magenta;
+    QPainter p(backingStore.paintDevice());
+    p.fillRect(rect, color);
+    p.end();
+    backingStore.endPaint();
+    backingStore.flush(rect);
+
+    // We're not allowed to send buffer on this surface since it isn't yet configured.
+    // So, from the compositor's point of view there should be no buffer data yet.
+    m_compositor->processWaylandEvents();
+    QVERIFY(surface->image.isNull());
+    QVERIFY(!window.isExposed());
+
+    // Finally sending the configure should trigger an attach and commit with the
+    // right buffer.
+    m_compositor->sendShellSurfaceConfigure(surface);
+    QTRY_COMPARE(surface->image.size(), window.frameGeometry().size());
+    QTRY_COMPARE(surface->image.pixel(window.frameMargins().left(), window.frameMargins().top()), color.rgba());
+    QVERIFY(window.isExposed());
 }
 
 int main(int argc, char **argv)

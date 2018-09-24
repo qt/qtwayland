@@ -50,7 +50,8 @@ public:
     static Surface *fromResource(struct ::wl_resource *resource);
     void map();
     bool isMapped() const;
-    XdgToplevelV6 *xdgToplevelV6() const { return m_xdgToplevelV6; }
+    XdgSurfaceV6 *xdgSurfaceV6() const { return m_xdgSurfaceV6; }
+    XdgToplevelV6 *xdgToplevelV6() const { return m_xdgSurfaceV6 ? m_xdgSurfaceV6->toplevel() : nullptr; }
     WlShellSurface *wlShellSurface() const { return m_wlShellSurface; }
 
     QSharedPointer<MockSurface> mockSurface() const { return m_mockSurface; }
@@ -69,7 +70,7 @@ protected:
     void surface_commit(Resource *resource) override;
 private:
     wl_resource *m_buffer = nullptr;
-    XdgToplevelV6 *m_xdgToplevelV6 = nullptr;
+    XdgSurfaceV6 *m_xdgSurfaceV6 = nullptr;
     WlShellSurface *m_wlShellSurface = nullptr;
 
     Compositor *m_compositor = nullptr;
@@ -77,7 +78,7 @@ private:
     QList<wl_resource *> m_frameCallbackList;
     bool m_mapped = false;
 
-    friend class XdgToplevelV6;
+    friend class XdgSurfaceV6;
     friend class WlShellSurface;
 };
 

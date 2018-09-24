@@ -46,8 +46,13 @@ class XdgSurfaceV6 : public QtWaylandServer::zxdg_surface_v6
 {
 public:
     XdgSurfaceV6(XdgShellV6 *shell, Surface *surface, wl_client *client, uint32_t id);
+    ~XdgSurfaceV6() override;
     XdgShellV6 *shell() const { return m_shell; }
     Surface *surface() const { return m_surface; }
+    XdgToplevelV6 *toplevel() const { return m_toplevel; }
+
+    void sendConfigure(uint32_t serial);
+    bool configureSent() const { return m_configureSent; }
 
 protected:
     void zxdg_surface_v6_destroy_resource(Resource *) override { delete this; }
@@ -59,6 +64,7 @@ private:
     Surface *m_surface = nullptr;
     XdgToplevelV6 *m_toplevel = nullptr;
     XdgShellV6 *m_shell = nullptr;
+    bool m_configureSent = false;
 
     friend class XdgToplevelV6;
 };

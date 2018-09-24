@@ -116,6 +116,8 @@ public:
     using QtWayland::wl_surface::damage;
     void damage(const QRect &rect);
 
+    void safeCommit(QWaylandBuffer *buffer, const QRegion &damage);
+    void handleExpose(const QRegion &region);
     void commit(QWaylandBuffer *buffer, const QRegion &damage);
 
     void waitForFrameSync();
@@ -231,6 +233,8 @@ protected:
     Qt::WindowStates mLastReportedWindowStates = Qt::WindowNoState;
 
     QWaylandShmBackingStore *mBackingStore = nullptr;
+    QWaylandBuffer *mQueuedBuffer = nullptr;
+    QRegion mQueuedBufferDamage;
 
 private slots:
     void handleScreenRemoved(QScreen *qScreen);

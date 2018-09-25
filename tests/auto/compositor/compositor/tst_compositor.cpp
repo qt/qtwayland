@@ -67,6 +67,7 @@ private slots:
     void seatCreation();
     void seatKeyboardFocus();
     void seatMouseFocus();
+    void inputRegion();
     void singleClient();
     void multipleClients();
     void geometry();
@@ -648,6 +649,40 @@ void tst_WaylandCompositor::seatMouseFocus()
     QTRY_VERIFY(!compositor.defaultSeat()->mouseFocus());
 
     delete view;
+}
+
+void tst_WaylandCompositor::inputRegion()
+{
+    TestCompositor compositor(true);
+    compositor.create();
+
+    // Create client after all the seats have been set up as the mock client
+    // does not dynamically listen to new seats
+    MockClient client;
+    wl_surface *surface = client.createSurface();
+
+    // We need to attach a buffer, since QWaylandSurface::inputRegionContains will will return
+    // false for coordinates outside the buffer (so don't let it be 0x0).
+    QSize size(16, 16);
+    ShmBuffer buffer(size, client.shm);
+    wl_surface_attach(surface, buffer.handle, 0, 0);
+    wl_surface_damage(surface, 0, 0, size.width(), size.height());
+    wl_surface_commit(surface);
+
+    // Set the input region
+    wl_region *region = wl_compositor_create_region(client.compositor);
+    wl_region_add(region, 1, 2, 3, 4);
+    wl_surface_set_input_region(surface, region);
+    wl_surface_commit(surface);
+
+    QTRY_COMPARE(compositor.surfaces.size(), 1);
+    QWaylandSurface *waylandSurface = compositor.surfaces.at(0);
+
+    QVERIFY(waylandSurface->inputRegionContains(QPoint(1, 2)));
+    QVERIFY(waylandSurface->inputRegionContains(QPoint(3, 5)));
+    QVERIFY(!waylandSurface->inputRegionContains(QPoint(0, 0)));
+    QVERIFY(!waylandSurface->inputRegionContains(QPoint(1, 6)));
+    QVERIFY(!waylandSurface->inputRegionContains(QPoint(4, 2)));
 }
 
 class XdgTestCompositor: public TestCompositor {

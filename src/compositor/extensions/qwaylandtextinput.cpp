@@ -190,7 +190,7 @@ void QWaylandTextInputPrivate::sendInputMethodEvent(QInputMethodEvent *event)
     currentState->anchorPosition = afterCommit.anchorPosition;
 
     if (queries) {
-        qCDebug(qLcCompositorInputMethods) << "QInputMethod::update() after QInputMethodEvent" << queries;
+        qCDebug(qLcWaylandCompositorInputMethods) << "QInputMethod::update() after QInputMethodEvent" << queries;
 
         emit q->updateInputMethod(queries);
     }
@@ -377,13 +377,13 @@ void QWaylandTextInputPrivate::zwp_text_input_v2_update_state(Resource *resource
 {
     Q_Q(QWaylandTextInput);
 
-    qCDebug(qLcCompositorInputMethods) << "update_state" << serial << flags;
+    qCDebug(qLcWaylandCompositorInputMethods) << "update_state" << serial << flags;
 
     if (resource != focusResource)
         return;
 
     if (flags == update_state_reset || flags == update_state_enter) {
-        qCDebug(qLcCompositorInputMethods) << "QInputMethod::reset()";
+        qCDebug(qLcWaylandCompositorInputMethods) << "QInputMethod::reset()";
         qApp->inputMethod()->reset();
     }
 
@@ -400,7 +400,7 @@ void QWaylandTextInputPrivate::zwp_text_input_v2_update_state(Resource *resource
     pendingState.reset(new QWaylandTextInputClientState);
 
     if (queries) {
-        qCDebug(qLcCompositorInputMethods) << "QInputMethod::update()" << queries;
+        qCDebug(qLcWaylandCompositorInputMethods) << "QInputMethod::update()" << queries;
 
         emit q->updateInputMethod(queries);
     }

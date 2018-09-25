@@ -64,6 +64,7 @@ public:
     ~ShmServerBuffer() override;
 
     struct ::wl_resource *resourceForClient(struct ::wl_client *) override;
+    bool bufferInUse() override;
     QOpenGLTexture *toOpenGlTexture() override;
 
 private:

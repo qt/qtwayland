@@ -506,7 +506,7 @@ bool Scanner::process()
             printf("            %s *%s_object;\n", interfaceName, interfaceNameStripped);
             printf("            struct ::wl_resource *handle;\n");
             printf("\n");
-            printf("            struct ::wl_client *client() const { return handle->client; }\n");
+            printf("            struct ::wl_client *client() const { return wl_resource_get_client(handle); }\n");
             printf("            int version() const { return wl_resource_get_version(handle); }\n");
             printf("\n");
             printf("            static Resource *fromResource(struct ::wl_resource *resource);\n");
@@ -806,7 +806,7 @@ bool Scanner::process()
             printf("        if (Q_UNLIKELY(!resource))\n");
             printf("            return nullptr;\n");
             printf("        if (wl_resource_instance_of(resource, &::%s_interface, %s))\n",  interfaceName, interfaceMember.constData());
-            printf("            return static_cast<Resource *>(resource->data);\n");
+            printf("            return static_cast<Resource *>(wl_resource_get_user_data(resource));\n");
             printf("        return nullptr;\n");
             printf("    }\n");
 

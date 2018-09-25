@@ -84,7 +84,7 @@ ClientBuffer *BufferManager::getBuffer(wl_resource *buffer_resource)
 
     auto *destroy_listener = new buffer_manager_destroy_listener;
     destroy_listener->d = this;
-    wl_signal_add(&buffer_resource->destroy_signal, destroy_listener);
+    wl_resource_add_destroy_listener(buffer_resource, destroy_listener);
     return newBuffer;
 }
 

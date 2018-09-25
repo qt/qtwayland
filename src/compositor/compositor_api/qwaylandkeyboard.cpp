@@ -92,7 +92,7 @@ void QWaylandKeyboardPrivate::checkFocusResource(Resource *keyboardResource)
         return;
 
     // check if new wl_keyboard resource is from the client owning the focus surface
-    if (focus->resource()->client == keyboardResource->client()) {
+    if (wl_resource_get_client(focus->resource()) == keyboardResource->client()) {
         sendEnter(focus, keyboardResource);
         focusResource = keyboardResource;
     }

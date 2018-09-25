@@ -70,7 +70,7 @@ public:
 
     static Region *fromResource(struct ::wl_resource *resource);
 
-    uint id() const { return resource()->handle->object.id; }
+    uint id() const { return wl_resource_get_id(resource()->handle); }
 
     QRegion region() const { return m_region; }
 

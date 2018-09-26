@@ -667,12 +667,13 @@ void tst_WaylandCompositor::inputRegion()
     ShmBuffer buffer(size, client.shm);
     wl_surface_attach(surface, buffer.handle, 0, 0);
     wl_surface_damage(surface, 0, 0, size.width(), size.height());
-    wl_surface_commit(surface);
 
     // Set the input region
     wl_region *region = wl_compositor_create_region(client.compositor);
     wl_region_add(region, 1, 2, 3, 4);
     wl_surface_set_input_region(surface, region);
+
+    // Commit everything
     wl_surface_commit(surface);
 
     QTRY_COMPARE(compositor.surfaces.size(), 1);
@@ -683,6 +684,26 @@ void tst_WaylandCompositor::inputRegion()
     QVERIFY(!waylandSurface->inputRegionContains(QPoint(0, 0)));
     QVERIFY(!waylandSurface->inputRegionContains(QPoint(1, 6)));
     QVERIFY(!waylandSurface->inputRegionContains(QPoint(4, 2)));
+
+    // Setting a nullptr input region means we want all events
+    wl_surface_set_input_region(surface, nullptr);
+    wl_surface_commit(surface);
+
+    QTRY_VERIFY(waylandSurface->inputRegionContains(QPoint(0, 0)));
+    QVERIFY(waylandSurface->inputRegionContains(QPoint(1, 6)));
+    QVERIFY(waylandSurface->inputRegionContains(QPoint(4, 2)));
+
+    // But points outside the buffer should still return false
+    QVERIFY(!waylandSurface->inputRegionContains(QPoint(-1, -1)));
+    QVERIFY(!waylandSurface->inputRegionContains(QPoint(16, 16)));
+
+    // Setting an empty region means we want no events
+    wl_region *emptyRegion = wl_compositor_create_region(client.compositor);
+    wl_surface_set_input_region(surface, emptyRegion);
+    wl_surface_commit(surface);
+
+    QTRY_VERIFY(!waylandSurface->inputRegionContains(QPoint(0, 0)));
+    QVERIFY(!waylandSurface->inputRegionContains(QPoint(1, 2)));
 }
 
 class XdgTestCompositor: public TestCompositor {

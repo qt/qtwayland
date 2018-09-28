@@ -161,7 +161,7 @@ public:
     static QMutex *mutex;
 
     QScopedPointer<QWaylandView> view;
-    QWaylandSurface *oldSurface = nullptr;
+    QPointer<QWaylandSurface> oldSurface;
     mutable QWaylandSurfaceTextureProvider *provider = nullptr;
     bool paintEnabled = true;
     bool touchEventsEnabled = true;

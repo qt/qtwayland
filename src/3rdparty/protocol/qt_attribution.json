@@ -27,14 +27,14 @@ Copyright © 2015 Jonas Ådahl"
 
         "Description": "Wayland is a protocol for a compositor to talk to its clients.",
         "Homepage": "https://wayland.freedesktop.org",
-        "Version": "1.6.1",
-        "DownloadLocation": "https://cgit.freedesktop.org/wayland/wayland/tag/?id=1.6.1",
-        "LicenseId": "HPND",
-        "License": "HPND License",
-        "LicenseFile": "HPND_LICENSE.txt",
+        "Version": "1.16.0",
+        "DownloadLocation": "https://gitlab.freedesktop.org/wayland/wayland/raw/1.16.0/protocol/wayland.xml",
+        "LicenseId": "MIT",
+        "License": "MIT License",
+        "LicenseFile": "MIT_LICENSE.txt",
         "Copyright": "Copyright © 2008-2011 Kristian Høgsberg
-    Copyright © 2010-2011 Intel Corporation
-    Copyright © 2012-2013 Collabora, Ltd."
+Copyright © 2010-2011 Intel Corporation
+Copyright © 2012-2013 Collabora, Ltd."
     },
 
     {

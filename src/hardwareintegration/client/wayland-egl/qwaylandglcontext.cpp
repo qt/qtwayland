@@ -402,7 +402,8 @@ bool QWaylandGLContext::makeCurrent(QPlatformSurface *surface)
     if (!window->needToUpdateContentFBO() && (eglSurface != EGL_NO_SURFACE && eglGetCurrentContext() == m_context && eglGetCurrentSurface(EGL_DRAW) == eglSurface))
         return true;
 
-    window->setCanResize(false);
+    if (window->isExposed())
+        window->setCanResize(false);
     // Core profiles mandate the use of VAOs when rendering. We would then need to use one
     // in DecorationsBlitter, but for that we would need a QOpenGLFunctions_3_2_Core instead
     // of the QOpenGLFunctions we use, but that would break when using a lower version context.

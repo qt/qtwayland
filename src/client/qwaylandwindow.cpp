@@ -67,8 +67,6 @@
 
 #include <QtCore/QDebug>
 
-#include <wayland-client.h>
-
 QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {

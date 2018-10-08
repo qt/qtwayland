@@ -88,13 +88,13 @@ static QOpenGLTexture *createTextureFromShm(const QString &key, int w, int h, in
 
 
 namespace QtWaylandClient {
-ShmServerBuffer::ShmServerBuffer(ShmServerBufferIntegration *integration, const QString &key, int32_t width, int32_t height, int32_t bytes_per_line, int32_t format)
-    : m_integration(integration)
-    , m_key(key)
-    , m_bpl(bytes_per_line)
-    , m_format(format)
+
+ShmServerBuffer::ShmServerBuffer(const QString &key, const QSize& size, int bytesPerLine, QWaylandServerBuffer::Format format)
+    : m_key(key)
+    , m_bpl(bytesPerLine)
 {
-    m_size = QSize(width, height);
+    m_format = format;
+    m_size = size;
 }
 
 ShmServerBuffer::~ShmServerBuffer()
@@ -132,7 +132,9 @@ void ShmServerBufferIntegration::wlDisplayHandleGlobal(void *data, ::wl_registry
 
 void QtWaylandClient::ShmServerBufferIntegration::shm_emulation_server_buffer_server_buffer_created(qt_server_buffer *id, const QString &key, int32_t width, int32_t height, int32_t bytes_per_line, int32_t format)
 {
-    auto *server_buffer = new ShmServerBuffer(this, key, width, height, bytes_per_line, format);
+    QSize size(width, height);
+    auto fmt = QWaylandServerBuffer::Format(format);
+    auto *server_buffer = new ShmServerBuffer(key, size, bytes_per_line, fmt);
     qt_server_buffer_set_user_data(id, server_buffer);
 }
 

@@ -57,15 +57,13 @@ class ShmServerBufferIntegration;
 class ShmServerBuffer : public QWaylandServerBuffer
 {
 public:
-    ShmServerBuffer(ShmServerBufferIntegration *integration, const QString &key, int32_t width, int32_t height, int32_t bytes_per_line, int32_t format);
+    ShmServerBuffer(const QString &key, const QSize &size, int bytesPerLine, QWaylandServerBuffer::Format format);
     ~ShmServerBuffer() override;
     QOpenGLTexture* toOpenGlTexture() override;
 private:
-    ShmServerBufferIntegration *m_integration = nullptr;
     QOpenGLTexture *m_texture = nullptr;
     QString m_key;
     int m_bpl;
-    int m_format;
 };
 
 class ShmServerBufferIntegration

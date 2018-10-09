@@ -198,6 +198,10 @@ QWaylandIviSurface *QWaylandIviSurface::fromResource(wl_resource *resource)
  */
 void QWaylandIviSurface::sendConfigure(const QSize &size)
 {
+    if (!size.isValid()) {
+        qWarning() << "Can't configure ivi_surface with an invalid size" << size;
+        return;
+    }
     Q_D(QWaylandIviSurface);
     d->send_configure(size.width(), size.height());
 }

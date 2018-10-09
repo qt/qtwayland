@@ -529,9 +529,10 @@ void QWaylandDisplay::setCursor(const QSharedPointer<QWaylandBuffer> &buffer, co
 
 QWaylandCursorTheme *QWaylandDisplay::loadCursorTheme(qreal devicePixelRatio)
 {
-    static int cursorSize = qEnvironmentVariableIntValue("XCURSOR_SIZE");
-    if (cursorSize <= 0)
-        cursorSize = 32;
+    constexpr int defaultCursorSize = 32;
+    static const int xCursorSize = qEnvironmentVariableIntValue("XCURSOR_SIZE");
+    int cursorSize = xCursorSize > 0 ? xCursorSize : defaultCursorSize;
+
     if (compositorVersion() >= 3) // set_buffer_scale is not supported on earlier versions
         cursorSize *= devicePixelRatio;
 

@@ -343,7 +343,7 @@ void QWaylandWindow::resizeFromApplyConfigure(const QSize &sizeWithMargins, cons
     QMargins margins = frameMargins();
     int widthWithoutMargins = qMax(sizeWithMargins.width() - (margins.left()+margins.right()), 1);
     int heightWithoutMargins = qMax(sizeWithMargins.height() - (margins.top()+margins.bottom()), 1);
-    QRect geometry(QPoint(), QSize(widthWithoutMargins, heightWithoutMargins));
+    QRect geometry(windowGeometry().topLeft(), QSize(widthWithoutMargins, heightWithoutMargins));
 
     mOffset += offset;
     setGeometry(geometry);

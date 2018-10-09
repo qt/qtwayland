@@ -297,7 +297,6 @@ void QWaylandInputDevice::setDataDevice(QWaylandDataDevice *device)
 
 QWaylandDataDevice *QWaylandInputDevice::dataDevice() const
 {
-    Q_ASSERT(mDataDevice);
     return mDataDevice;
 }
 #endif

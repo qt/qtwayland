@@ -72,9 +72,6 @@ void QWaylandXdgSurfaceV6::Toplevel::applyConfigure()
     if (!(m_applied.states & (Qt::WindowMaximized|Qt::WindowFullScreen)))
         m_normalSize = m_xdgSurface->m_window->window()->frameGeometry().size();
 
-    if (m_pending.size.isEmpty() && !m_normalSize.isEmpty())
-        m_pending.size = m_normalSize;
-
     if ((m_pending.states & Qt::WindowActive) && !(m_applied.states & Qt::WindowActive))
         m_xdgSurface->m_window->display()->handleWindowActivated(m_xdgSurface->m_window);
 
@@ -85,10 +82,20 @@ void QWaylandXdgSurfaceV6::Toplevel::applyConfigure()
     Qt::WindowStates statesWithoutActive = m_pending.states & ~Qt::WindowActive;
 
     m_xdgSurface->m_window->handleWindowStatesChanged(statesWithoutActive);
-    m_xdgSurface->m_window->resizeFromApplyConfigure(m_pending.size);
+
+    if (m_pending.size.isEmpty()) {
+        // An empty size in the configure means it's up to the client to choose the size
+        bool normalPending = !(m_pending.states & (Qt::WindowMaximized|Qt::WindowFullScreen));
+        if (normalPending && !m_normalSize.isEmpty())
+            m_xdgSurface->m_window->resizeFromApplyConfigure(m_normalSize);
+    } else {
+        m_xdgSurface->m_window->resizeFromApplyConfigure(m_pending.size);
+    }
+
     QSize windowGeometrySize = m_xdgSurface->m_window->window()->frameGeometry().size();
     m_xdgSurface->set_window_geometry(0, 0, windowGeometrySize.width(), windowGeometrySize.height());
     m_applied = m_pending;
+    qCDebug(lcQpaWayland) << "Applied pending zxdg_toplevel_v6 configure event:" << m_applied.size << m_applied.states;
 }
 
 void QWaylandXdgSurfaceV6::Toplevel::zxdg_toplevel_v6_configure(int32_t width, int32_t height, wl_array *states)

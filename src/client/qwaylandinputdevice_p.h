@@ -204,6 +204,7 @@ public:
                             uint32_t mods_latched,
                             uint32_t mods_locked,
                             uint32_t group) override;
+    void keyboard_repeat_info(int32_t rate, int32_t delay) override;
 
     QWaylandInputDevice *mParent = nullptr;
     QPointer<QWaylandWindow> mFocus;
@@ -219,6 +220,8 @@ public:
     int mRepeatKey;
     uint32_t mRepeatCode;
     uint32_t mRepeatTime;
+    int mRepeatRate = 25;
+    int mRepeatDelay = 400;
     QString mRepeatText;
 #if QT_CONFIG(xkbcommon_evdev)
     xkb_keysym_t mRepeatSym;

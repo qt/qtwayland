@@ -254,6 +254,7 @@ private:
     void handleScreenChanged();
 
     bool mUpdateRequested = false;
+    QRect mLastExposeGeometry;
 
     static const wl_callback_listener callbackListener;
     static void frameCallback(void *data, struct wl_callback *wl_callback, uint32_t time);

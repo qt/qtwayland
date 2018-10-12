@@ -58,6 +58,14 @@ public:
         return QWindow::event(event);
     }
 
+    void exposeEvent(QExposeEvent *event) override
+    {
+        ++exposeEventCount;
+        QWindow::exposeEvent(event);
+    }
+
+    int exposeEventCount = 0;
+
 signals:
     void windowStateChangeEventReceived(uint oldState);
 };
@@ -102,6 +110,7 @@ private slots:
     void windowGeometrySimple();
     void windowGeometryFixed();
     void flushUnconfiguredXdgSurface();
+    void dontSpamExposeEvents();
 
 private:
     MockCompositor *m_compositor = nullptr;
@@ -393,6 +402,20 @@ void tst_WaylandClientXdgShellV6::flushUnconfiguredXdgSurface()
     QTRY_COMPARE(surface->image.size(), window.frameGeometry().size());
     QTRY_COMPARE(surface->image.pixel(window.frameMargins().left(), window.frameMargins().top()), color.rgba());
     QVERIFY(window.isExposed());
+}
+
+void tst_WaylandClientXdgShellV6::dontSpamExposeEvents()
+{
+    TestWindow window;
+    window.show();
+
+    QSharedPointer<MockSurface> surface;
+    QTRY_VERIFY(surface = m_compositor->surface());
+    QTRY_VERIFY(window.exposeEventCount == 0);
+
+    m_compositor->sendShellSurfaceConfigure(surface);
+    QTRY_VERIFY(window.isExposed());
+    QTRY_VERIFY(window.exposeEventCount == 1);
 }
 
 int main(int argc, char **argv)

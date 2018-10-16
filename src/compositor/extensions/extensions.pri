@@ -9,6 +9,7 @@ WAYLANDSERVERSOURCES += \
     ../extensions/qt-key-unstable-v1.xml \
     ../extensions/qt-windowmanager.xml \
     ../3rdparty/protocol/text-input-unstable-v2.xml \
+    ../3rdparty/protocol/viewporter.xml \
     ../3rdparty/protocol/xdg-shell-unstable-v6.xml \
     ../3rdparty/protocol/xdg-shell.xml \
     ../3rdparty/protocol/xdg-decoration-unstable-v1.xml \
@@ -27,6 +28,8 @@ HEADERS += \
     extensions/qwaylandtextinputmanager_p.h \
     extensions/qwaylandqtwindowmanager.h \
     extensions/qwaylandqtwindowmanager_p.h \
+    extensions/qwaylandviewporter.h \
+    extensions/qwaylandviewporter_p.h \
     extensions/qwaylandxdgshellv5.h \
     extensions/qwaylandxdgshellv5_p.h \
     extensions/qwaylandxdgshellv6.h \
@@ -49,6 +52,7 @@ SOURCES += \
     extensions/qwaylandtextinput.cpp \
     extensions/qwaylandtextinputmanager.cpp \
     extensions/qwaylandqtwindowmanager.cpp \
+    extensions/qwaylandviewporter.cpp \
     extensions/qwaylandxdgshellv5.cpp \
     extensions/qwaylandxdgshellv6.cpp \
     extensions/qwaylandxdgshell.cpp \

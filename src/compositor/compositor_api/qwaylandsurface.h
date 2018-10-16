@@ -81,6 +81,7 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandSurface : public QWaylandObject
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandSurface)
     Q_PROPERTY(QWaylandClient *client READ client CONSTANT)
+    Q_PROPERTY(QRectF sourceGeometry READ sourceGeometry NOTIFY sourceGeometryChanged)
     Q_PROPERTY(QSize destinationSize READ destinationSize NOTIFY destinationSizeChanged)
 #if QT_DEPRECATED_SINCE(5, 13)
     Q_PROPERTY(QSize size READ size NOTIFY sizeChanged) // Qt 6: Remove
@@ -113,6 +114,7 @@ public:
 
     bool hasContent() const;
 
+    QRectF sourceGeometry() const;
     QSize destinationSize() const;
 #if QT_DEPRECATED_SINCE(5, 13)
     QT_DEPRECATED QSize size() const;
@@ -162,6 +164,7 @@ Q_SIGNALS:
     void damaged(const QRegion &rect);
     void parentChanged(QWaylandSurface *newParent, QWaylandSurface *oldParent);
     void childAdded(QWaylandSurface *child);
+    void sourceGeometryChanged();
     void destinationSizeChanged();
 #if QT_DEPRECATED_SINCE(5, 13)
     QT_DEPRECATED void sizeChanged();

@@ -46,6 +46,7 @@
 #include <QtWaylandCompositor/QWaylandSurface>
 #include <QtWaylandCompositor/QWaylandResource>
 #include <QtWaylandCompositor/QWaylandKeymap>
+#include <QtWaylandCompositor/QWaylandViewporter>
 #include <qwayland-xdg-shell-unstable-v5.h>
 #include <qwayland-ivi-application.h>
 
@@ -95,6 +96,20 @@ private slots:
 
     void convertsXdgEdgesToQtEdges();
     void xdgShellV6Positioner();
+
+    void viewporterGlobal();
+    void viewportDestination();
+    void viewportSource();
+    void viewportSourceAndDestination();
+    void viewportDestruction();
+    void viewportProtocolErrors_data();
+    void viewportProtocolErrors();
+    void viewportClearDestination();
+    void viewportClearSource();
+    void viewportExistsError();
+    void viewportDestinationNoSurfaceError();
+    void viewportSourceNoSurfaceError();
+    void viewportHiDpi();
 };
 
 void tst_WaylandCompositor::init() {
@@ -435,7 +450,7 @@ void tst_WaylandCompositor::mapSurface()
 
     QSignalSpy hasContentSpy(waylandSurface, SIGNAL(hasContentChanged()));
 
-    QCOMPARE(waylandSurface->size(), QSize());
+    QCOMPARE(waylandSurface->bufferSize(), QSize());
     QCOMPARE(waylandSurface->destinationSize(), QSize());
     QCOMPARE(waylandSurface->hasContent(), false);
 
@@ -450,7 +465,7 @@ void tst_WaylandCompositor::mapSurface()
 
     QTRY_COMPARE(hasContentSpy.count(), 1);
     QCOMPARE(waylandSurface->hasContent(), true);
-    QCOMPARE(waylandSurface->size(), size);
+    QCOMPARE(waylandSurface->bufferSize(), size);
     QCOMPARE(waylandSurface->destinationSize(), size);
 
     wl_surface_destroy(surface);
@@ -481,7 +496,7 @@ void tst_WaylandCompositor::mapSurfaceHiDpi()
     wl_surface_damage(surface, 0, 0, surfaceSize.width(), surfaceSize.height());
 
     auto verifyComittedState = [=]() {
-        QCOMPARE(waylandSurface->size(), bufferSize);
+        QCOMPARE(waylandSurface->bufferSize(), bufferSize);
         QCOMPARE(waylandSurface->destinationSize(), surfaceSize);
         QCOMPARE(waylandSurface->bufferScale(), bufferScale);
         QCOMPARE(waylandSurface->hasContent(), true);
@@ -514,7 +529,7 @@ void tst_WaylandCompositor::mapSurfaceHiDpi()
     QSignalSpy offsetSpy(waylandSurface, SIGNAL(offsetForNextFrame(const QPoint &)));
 
     // No state should be applied before the commit
-    QCOMPARE(waylandSurface->size(), QSize());
+    QCOMPARE(waylandSurface->bufferSize(), QSize());
     QCOMPARE(waylandSurface->destinationSize(), QSize());
     QCOMPARE(waylandSurface->hasContent(), false);
     QCOMPARE(waylandSurface->bufferScale(), 1);
@@ -1245,6 +1260,407 @@ void tst_WaylandCompositor::xdgShellV6Positioner()
 
     p.offset = QPoint(4, 8);
     QCOMPARE(p.unconstrainedPosition(), QPoint(1 + 800 - 100 / 2 + 4, 2 + 600 / 2 - 50 + 8));
+}
+
+class ViewporterTestCompositor: public TestCompositor {
+    Q_OBJECT
+public:
+    ViewporterTestCompositor() : viewporter(this) {}
+    QWaylandViewporter viewporter;
+};
+
+void tst_WaylandCompositor::viewporterGlobal()
+{
+    ViewporterTestCompositor compositor;
+    compositor.create();
+    MockClient client;
+    QTRY_VERIFY(client.viewporter);
+}
+
+void tst_WaylandCompositor::viewportDestination()
+{
+    ViewporterTestCompositor compositor;
+    compositor.create();
+    MockClient client;
+    QTRY_VERIFY(client.viewporter);
+
+    wl_surface *surface = client.createSurface();
+    QTRY_COMPARE(compositor.surfaces.size(), 1);
+    QWaylandSurface *waylandSurface = compositor.surfaces.at(0);
+
+    QCOMPARE(waylandSurface->destinationSize(), QSize());
+    QCOMPARE(waylandSurface->sourceGeometry(), QRect());
+
+    const QSize bufferSize(64, 64);
+    ShmBuffer buffer(bufferSize, client.shm);
+    wl_surface_attach(surface, buffer.handle, 0, 0);
+    wl_surface_damage(surface, 0, 0, bufferSize.width(), bufferSize.height());
+    wp_viewport *viewport = wp_viewporter_get_viewport(client.viewporter, surface);
+    const QSize destinationSize(128, 123);
+    wp_viewport_set_destination(viewport, destinationSize.width(), destinationSize.height());
+    wl_surface_commit(surface);
+
+    QTRY_COMPARE(waylandSurface->bufferSize(), bufferSize);
+    QCOMPARE(waylandSurface->destinationSize(), QSize(128, 123));
+    QCOMPARE(waylandSurface->sourceGeometry(), QRect(QPoint(), bufferSize));
+
+    wp_viewport_destroy(viewport);
+    wl_surface_destroy(surface);
+    QCOMPARE(client.error, 0);
+}
+
+void tst_WaylandCompositor::viewportSource()
+{
+    ViewporterTestCompositor compositor;
+    compositor.create();
+    MockClient client;
+    QTRY_VERIFY(client.viewporter);
+
+    wl_surface *surface = client.createSurface();
+    QTRY_COMPARE(compositor.surfaces.size(), 1);
+    QWaylandSurface *waylandSurface = compositor.surfaces.at(0);
+
+    QCOMPARE(waylandSurface->destinationSize(), QSize());
+    QCOMPARE(waylandSurface->sourceGeometry(), QRect());
+
+    const QSize bufferSize(64, 64);
+    ShmBuffer buffer(bufferSize, client.shm);
+    wl_surface_attach(surface, buffer.handle, 0, 0);
+    wl_surface_damage(surface, 0, 0, bufferSize.width(), bufferSize.height());
+    wp_viewport *viewport = wp_viewporter_get_viewport(client.viewporter, surface);
+    const QRectF sourceGeometry(QPointF(10.5, 20.5), QSizeF(30, 40));
+    wp_viewport_set_source(viewport,
+                           wl_fixed_from_double(sourceGeometry.x()),
+                           wl_fixed_from_double(sourceGeometry.y()),
+                           wl_fixed_from_double(sourceGeometry.width()),
+                           wl_fixed_from_double(sourceGeometry.height()));
+    wl_surface_commit(surface);
+
+    QTRY_COMPARE(waylandSurface->bufferSize(), bufferSize);
+    QCOMPARE(waylandSurface->destinationSize(), sourceGeometry.size().toSize());
+    QCOMPARE(waylandSurface->sourceGeometry(), sourceGeometry);
+
+    wp_viewport_destroy(viewport);
+    wl_surface_destroy(surface);
+    QCOMPARE(client.error, 0);
+}
+
+void tst_WaylandCompositor::viewportSourceAndDestination()
+{
+    ViewporterTestCompositor compositor;
+    compositor.create();
+    MockClient client;
+    QTRY_VERIFY(client.viewporter);
+
+    wl_surface *surface = client.createSurface();
+    QTRY_COMPARE(compositor.surfaces.size(), 1);
+    QWaylandSurface *waylandSurface = compositor.surfaces.at(0);
+
+    QCOMPARE(waylandSurface->destinationSize(), QSize());
+    QCOMPARE(waylandSurface->sourceGeometry(), QRect());
+
+    const QSize bufferSize(64, 64);
+    ShmBuffer buffer(bufferSize, client.shm);
+    wl_surface_attach(surface, buffer.handle, 0, 0);
+    wl_surface_damage(surface, 0, 0, bufferSize.width(), bufferSize.height());
+
+    wp_viewport *viewport = wp_viewporter_get_viewport(client.viewporter, surface);
+
+    const QSize destinationSize(128, 123);
+    wp_viewport_set_destination(viewport, destinationSize.width(), destinationSize.height());
+
+    const QRectF sourceGeometry(QPointF(10, 20), QSizeF(30, 40));
+    wp_viewport_set_source(viewport,
+                           wl_fixed_from_double(sourceGeometry.x()),
+                           wl_fixed_from_double(sourceGeometry.y()),
+                           wl_fixed_from_double(sourceGeometry.width()),
+                           wl_fixed_from_double(sourceGeometry.height()));
+
+    wl_surface_commit(surface);
+
+    QTRY_COMPARE(waylandSurface->bufferSize(), bufferSize);
+    QCOMPARE(waylandSurface->destinationSize(), destinationSize);
+    QCOMPARE(waylandSurface->sourceGeometry(), sourceGeometry);
+
+    wp_viewport_destroy(viewport);
+    wl_surface_destroy(surface);
+    QCOMPARE(client.error, 0);
+}
+
+void tst_WaylandCompositor::viewportDestruction()
+{
+    ViewporterTestCompositor compositor;
+    compositor.create();
+    MockClient client;
+    QTRY_VERIFY(client.viewporter);
+
+    wl_surface *surface = client.createSurface();
+    QTRY_COMPARE(compositor.surfaces.size(), 1);
+    QWaylandSurface *waylandSurface = compositor.surfaces.at(0);
+
+    QCOMPARE(waylandSurface->destinationSize(), QSize());
+    QCOMPARE(waylandSurface->sourceGeometry(), QRect());
+
+    const QSize bufferSize(64, 64);
+    ShmBuffer buffer(bufferSize, client.shm);
+    wl_surface_attach(surface, buffer.handle, 0, 0);
+    wl_surface_damage(surface, 0, 0, bufferSize.width(), bufferSize.height());
+
+    wp_viewport *viewport = wp_viewporter_get_viewport(client.viewporter, surface);
+
+    const QSize destinationSize(128, 123);
+    wp_viewport_set_destination(viewport, destinationSize.width(), destinationSize.height());
+
+    const QRectF sourceGeometry(QPointF(10, 20), QSizeF(30, 40));
+    wp_viewport_set_source(viewport,
+                           wl_fixed_from_double(sourceGeometry.x()),
+                           wl_fixed_from_double(sourceGeometry.y()),
+                           wl_fixed_from_double(sourceGeometry.width()),
+                           wl_fixed_from_double(sourceGeometry.height()));
+
+    wl_surface_commit(surface);
+
+    QTRY_COMPARE(waylandSurface->bufferSize(), bufferSize);
+    QCOMPARE(waylandSurface->destinationSize(), destinationSize);
+    QCOMPARE(waylandSurface->sourceGeometry(), sourceGeometry);
+
+    wp_viewport_destroy(viewport);
+    wl_surface_commit(surface);
+
+    QTRY_COMPARE(waylandSurface->destinationSize(), bufferSize);
+    QCOMPARE(waylandSurface->sourceGeometry(), QRectF(QPoint(), bufferSize));
+
+    wl_surface_destroy(surface);
+    QCOMPARE(client.error, 0);
+}
+
+void tst_WaylandCompositor::viewportProtocolErrors_data()
+{
+    QTest::addColumn<QRectF>("source");
+    QTest::addColumn<QSize>("destination");
+    QTest::addColumn<uint>("error");
+
+    QTest::newRow("invalid source position") << QRectF(-1, 0, 16, 16) << QSize(64, 64) << uint(WP_VIEWPORT_ERROR_BAD_VALUE);
+    QTest::newRow("invalid source size") << QRectF(0, 0, -1, 16) << QSize(64, 64) << uint(WP_VIEWPORT_ERROR_BAD_VALUE);
+    QTest::newRow("invalid destination size") << QRectF(0, 0, 16, 16) << QSize(-16, 64) << uint(WP_VIEWPORT_ERROR_BAD_VALUE);
+    QTest::newRow("invalid non-integer source with unset size") << QRectF(0, 0, 15.5, 15.5) << QSize(-1, -1) << uint(WP_VIEWPORT_ERROR_BAD_SIZE);
+    QTest::newRow("bigger source than buffer") << QRectF(0, 0, 13337, 13337) << QSize(-1, -1) << uint(WP_VIEWPORT_ERROR_OUT_OF_BUFFER);
+}
+
+void tst_WaylandCompositor::viewportProtocolErrors()
+{
+    QFETCH(QRectF, source);
+    QFETCH(QSize, destination);
+    QFETCH(uint, error);
+
+    ViewporterTestCompositor compositor;
+    compositor.create();
+    MockClient client;
+    QTRY_VERIFY(client.viewporter);
+
+    wl_surface *surface = client.createSurface();
+
+    const QSize bufferSize(64, 64);
+    ShmBuffer buffer(bufferSize, client.shm);
+    wl_surface_attach(surface, buffer.handle, 0, 0);
+    wl_surface_damage(surface, 0, 0, bufferSize.width(), bufferSize.height());
+    wp_viewport *viewport = wp_viewporter_get_viewport(client.viewporter, surface);
+    wp_viewport_set_source(viewport,
+                           wl_fixed_from_double(source.x()),
+                           wl_fixed_from_double(source.y()),
+                           wl_fixed_from_double(source.width()),
+                           wl_fixed_from_double(source.height()));
+    wp_viewport_set_destination(viewport, destination.width(), destination.height());
+    wl_surface_commit(surface);
+
+    QTRY_COMPARE(client.error, EPROTO);
+    QCOMPARE(client.protocolError.interface, &wp_viewport_interface);
+    QCOMPARE(static_cast<wp_viewport_error>(client.protocolError.code), error);
+}
+
+void tst_WaylandCompositor::viewportClearDestination()
+{
+    ViewporterTestCompositor compositor;
+    compositor.create();
+    MockClient client;
+    QTRY_VERIFY(client.viewporter);
+
+    wl_surface *surface = client.createSurface();
+    QTRY_COMPARE(compositor.surfaces.size(), 1);
+    QWaylandSurface *waylandSurface = compositor.surfaces.at(0);
+
+    QCOMPARE(waylandSurface->destinationSize(), QSize());
+    QCOMPARE(waylandSurface->sourceGeometry(), QRect());
+
+    const QSize bufferSize(64, 64);
+    ShmBuffer buffer(bufferSize, client.shm);
+    wl_surface_attach(surface, buffer.handle, 0, 0);
+    wl_surface_damage(surface, 0, 0, bufferSize.width(), bufferSize.height());
+
+    wp_viewport *viewport = wp_viewporter_get_viewport(client.viewporter, surface);
+
+    const QSize destinationSize(128, 123);
+    wp_viewport_set_destination(viewport, destinationSize.width(), destinationSize.height());
+    wl_surface_commit(surface);
+
+    QTRY_COMPARE(waylandSurface->bufferSize(), bufferSize);
+    QCOMPARE(waylandSurface->destinationSize(), destinationSize);
+
+    wp_viewport_set_destination(viewport, -1, -1);
+    wl_surface_commit(surface);
+
+    QTRY_COMPARE(waylandSurface->destinationSize(), bufferSize);
+    QCOMPARE(waylandSurface->sourceGeometry(), QRectF(QPoint(), bufferSize));
+
+    wp_viewport_destroy(viewport);
+    wl_surface_destroy(surface);
+    QCOMPARE(client.error, 0);
+}
+
+void tst_WaylandCompositor::viewportClearSource()
+{
+    ViewporterTestCompositor compositor;
+    compositor.create();
+    MockClient client;
+    QTRY_VERIFY(client.viewporter);
+
+    wl_surface *surface = client.createSurface();
+    QTRY_COMPARE(compositor.surfaces.size(), 1);
+    QWaylandSurface *waylandSurface = compositor.surfaces.at(0);
+
+    QCOMPARE(waylandSurface->destinationSize(), QSize());
+    QCOMPARE(waylandSurface->sourceGeometry(), QRect());
+
+    const QSize bufferSize(64, 64);
+    ShmBuffer buffer(bufferSize, client.shm);
+    wl_surface_attach(surface, buffer.handle, 0, 0);
+    wl_surface_damage(surface, 0, 0, bufferSize.width(), bufferSize.height());
+
+    wp_viewport *viewport = wp_viewporter_get_viewport(client.viewporter, surface);
+    QRectF source(10, 20, 30, 40);
+    wp_viewport_set_source(viewport,
+                           wl_fixed_from_double(source.x()),
+                           wl_fixed_from_double(source.y()),
+                           wl_fixed_from_double(source.width()),
+                           wl_fixed_from_double(source.height()));
+    wl_surface_commit(surface);
+
+    QTRY_COMPARE(waylandSurface->sourceGeometry(), source);
+
+    wp_viewport_set_source(viewport,
+                           wl_fixed_from_double(-1),
+                           wl_fixed_from_double(-1),
+                           wl_fixed_from_double(-1),
+                           wl_fixed_from_double(-1));
+    wl_surface_commit(surface);
+
+    QTRY_COMPARE(waylandSurface->sourceGeometry(), QRectF(QPoint(), bufferSize));
+
+    wp_viewport_destroy(viewport);
+    wl_surface_destroy(surface);
+    QCOMPARE(client.error, 0);
+}
+
+void tst_WaylandCompositor::viewportExistsError()
+{
+    ViewporterTestCompositor compositor;
+    compositor.create();
+    MockClient client;
+    QTRY_VERIFY(client.viewporter);
+
+    wl_surface *surface = client.createSurface();
+    wp_viewporter_get_viewport(client.viewporter, surface);
+    wp_viewporter_get_viewport(client.viewporter, surface);
+
+    QTRY_COMPARE(client.error, EPROTO);
+    QCOMPARE(client.protocolError.interface, &wp_viewporter_interface);
+    QCOMPARE(static_cast<wp_viewporter_error>(client.protocolError.code), WP_VIEWPORTER_ERROR_VIEWPORT_EXISTS);
+}
+
+void tst_WaylandCompositor::viewportDestinationNoSurfaceError()
+{
+    ViewporterTestCompositor compositor;
+    compositor.create();
+    MockClient client;
+    QTRY_VERIFY(client.viewporter);
+
+    wl_surface *surface = client.createSurface();
+    wp_viewport *viewport = wp_viewporter_get_viewport(client.viewporter, surface);
+    wl_surface_destroy(surface);
+    wp_viewport_set_destination(viewport, 32, 32);
+
+    QTRY_COMPARE(client.error, EPROTO);
+    QCOMPARE(client.protocolError.interface, &wp_viewport_interface);
+    QCOMPARE(static_cast<wp_viewport_error>(client.protocolError.code), WP_VIEWPORT_ERROR_NO_SURFACE);
+}
+
+void tst_WaylandCompositor::viewportSourceNoSurfaceError()
+{
+    ViewporterTestCompositor compositor;
+    compositor.create();
+    MockClient client;
+    QTRY_VERIFY(client.viewporter);
+
+    wl_surface *surface = client.createSurface();
+    wp_viewport *viewport = wp_viewporter_get_viewport(client.viewporter, surface);
+    wl_surface_destroy(surface);
+    wp_viewport_set_source(viewport,
+                           wl_fixed_from_double(0),
+                           wl_fixed_from_double(0),
+                           wl_fixed_from_double(1),
+                           wl_fixed_from_double(1));
+
+    QTRY_COMPARE(client.error, EPROTO);
+    QCOMPARE(client.protocolError.interface, &wp_viewport_interface);
+    QCOMPARE(static_cast<wp_viewport_error>(client.protocolError.code), WP_VIEWPORT_ERROR_NO_SURFACE);
+}
+
+void tst_WaylandCompositor::viewportHiDpi()
+{
+    ViewporterTestCompositor compositor;
+    compositor.create();
+    MockClient client;
+    QTRY_VERIFY(client.viewporter);
+
+    wl_surface *surface = client.createSurface();
+    QTRY_COMPARE(compositor.surfaces.size(), 1);
+    QWaylandSurface *waylandSurface = compositor.surfaces.at(0);
+
+    const QSize bufferSize(128, 128);
+    ShmBuffer buffer(bufferSize, client.shm);
+    wl_surface_attach(surface, buffer.handle, 0, 0);
+    wl_surface_damage(surface, 0, 0, bufferSize.width(), bufferSize.height());
+    constexpr int bufferScale = 2;
+    wl_surface_set_buffer_scale(surface, bufferScale);
+
+    wl_surface_commit(surface);
+    QTRY_COMPARE(waylandSurface->destinationSize(), bufferSize / bufferScale);
+
+    wp_viewport *viewport = wp_viewporter_get_viewport(client.viewporter, surface);
+    const QRectF sourceGeometry(QPointF(10, 20), QSizeF(30, 40));
+    wp_viewport_set_source(viewport,
+                           wl_fixed_from_double(sourceGeometry.x()),
+                           wl_fixed_from_double(sourceGeometry.y()),
+                           wl_fixed_from_double(sourceGeometry.width()),
+                           wl_fixed_from_double(sourceGeometry.height()));
+    wl_surface_commit(surface);
+
+    QTRY_COMPARE(waylandSurface->destinationSize(), sourceGeometry.size());
+    QCOMPARE(waylandSurface->sourceGeometry(), sourceGeometry);
+    QCOMPARE(waylandSurface->bufferSize(), bufferSize);
+
+    const QSize destinationSize(128, 123);
+    wp_viewport_set_destination(viewport, destinationSize.width(), destinationSize.height());
+    wl_surface_commit(surface);
+
+    QTRY_COMPARE(waylandSurface->destinationSize(), destinationSize);
+    QCOMPARE(waylandSurface->sourceGeometry(), sourceGeometry);
+    QCOMPARE(waylandSurface->bufferSize(), bufferSize);
+
+    QCOMPARE(client.error, 0);
+
+    wp_viewport_destroy(viewport);
+    wl_surface_destroy(surface);
 }
 
 #include <tst_compositor.moc>

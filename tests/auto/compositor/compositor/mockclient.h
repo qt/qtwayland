@@ -29,6 +29,7 @@
 #include "wayland-wayland-client-protocol.h"
 #include <qwayland-xdg-shell-unstable-v5.h>
 #include <wayland-ivi-application-client-protocol.h>
+#include "wayland-viewporter-client-protocol.h"
 
 #include <QObject>
 #include <QImage>
@@ -69,6 +70,7 @@ public:
     wl_registry *registry = nullptr;
     wl_shell *wlshell = nullptr;
     xdg_shell *xdgShell = nullptr;
+    wp_viewporter *viewporter = nullptr;
     ivi_application *iviApplication = nullptr;
 
     QList<MockSeat *> m_seats;

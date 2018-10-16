@@ -1317,6 +1317,10 @@ QSGNode *QWaylandQuickItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeDat
         d->provider->setSmooth(smooth());
         node->setRect(rect);
 
+        qreal scale = surface()->bufferScale();
+        QRectF source = surface()->sourceGeometry();
+        node->setSourceRect(QRectF(source.topLeft() * scale, source.size() * scale));
+
         return node;
     } else {
         Q_ASSERT(!d->provider);

@@ -235,6 +235,7 @@ void QWaylandSurfacePrivate::surface_commit(Resource *)
 
     // Needed in order to know whether we want to emit signals later
     QSize oldBufferSize = bufferSize;
+    QRectF oldSourceGeometry = sourceGeometry;
     QSize oldDestinationSize = destinationSize;
     bool oldHasContent = hasContent;
     int oldBufferScale = bufferScale;
@@ -244,13 +245,18 @@ void QWaylandSurfacePrivate::surface_commit(Resource *)
         bufferRef = pending.buffer;
     bufferScale = pending.bufferScale;
     bufferSize = bufferRef.size();
-    destinationSize = pending.destinationSize.isEmpty() ? bufferSize / bufferScale : pending.destinationSize;
+    QSize surfaceSize = bufferSize / bufferScale;
+    sourceGeometry = !pending.sourceGeometry.isValid() ? QRect(QPoint(), surfaceSize) : pending.sourceGeometry;
+    destinationSize = pending.destinationSize.isEmpty() ? sourceGeometry.size().toSize() : pending.destinationSize;
     damage = pending.damage.intersected(QRect(QPoint(), destinationSize));
     hasContent = bufferRef.hasContent();
     frameCallbacks << pendingFrameCallbacks;
     inputRegion = pending.inputRegion.intersected(QRect(QPoint(), destinationSize));
     opaqueRegion = pending.opaqueRegion.intersected(QRect(QPoint(), destinationSize));
     QPoint offsetForNextFrame = pending.offset;
+
+    if (viewport)
+        viewport->checkCommittedState();
 
     // Clear per-commit state
     pending.buffer = QWaylandBufferRef();
@@ -283,6 +289,9 @@ void QWaylandSurfacePrivate::surface_commit(Resource *)
 
     if (oldDestinationSize != destinationSize)
         emit q->destinationSizeChanged();
+
+    if (oldSourceGeometry != sourceGeometry)
+        emit q->sourceGeometryChanged();
 
     if (oldHasContent != hasContent)
         emit q->hasContentChanged();
@@ -468,6 +477,35 @@ bool QWaylandSurface::hasContent() const
 {
     Q_D(const QWaylandSurface);
     return d->hasContent;
+}
+
+/*!
+ * \qmlproperty rect QtWaylandCompositor::WaylandSurface::sourceGeometry
+ *
+ * This property describes the portion of the attached Wayland buffer that should
+ * be drawn on the screen. The coordinates are from the corner of the buffer and are
+ * scaled by \l bufferScale.
+ *
+ * \sa bufferScale
+ * \sa bufferSize
+ * \sa destinationSize
+ */
+
+/*!
+ * \property QWaylandSurface::sourceGeometry
+ *
+ * This property describes the portion of the attached QWaylandBuffer that should
+ * be drawn on the screen. The coordinates are from the corner of the buffer and are
+ * scaled by \l bufferScale.
+ *
+ * \sa bufferScale
+ * \sa bufferSize
+ * \sa destinationSize
+ */
+QRectF QWaylandSurface::sourceGeometry() const
+{
+    Q_D(const QWaylandSurface);
+    return d->sourceGeometry;
 }
 
 /*!

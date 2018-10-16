@@ -73,6 +73,7 @@
 #include <wayland-util.h>
 
 #include <QtWaylandCompositor/private/qwayland-server-wayland.h>
+#include <QtWaylandCompositor/private/qwaylandviewporter_p.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -144,6 +145,7 @@ public: //member variables
     QRegion damage;
     QWaylandBufferRef bufferRef;
     QWaylandSurfaceRole *role = nullptr;
+    QWaylandViewporterPrivate::Viewport *viewport = nullptr;
 
     struct {
         QWaylandBufferRef buffer;
@@ -152,6 +154,7 @@ public: //member variables
         bool newlyAttached;
         QRegion inputRegion;
         int bufferScale;
+        QRectF sourceGeometry;
         QSize destinationSize;
         QRegion opaqueRegion;
     } pending;
@@ -167,6 +170,7 @@ public: //member variables
     QRegion inputRegion;
     QRegion opaqueRegion;
 
+    QRectF sourceGeometry;
     QSize destinationSize;
     QSize bufferSize;
     int bufferScale = 1;

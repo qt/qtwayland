@@ -53,6 +53,7 @@
 #include "qwaylandquickitem.h"
 #include "qwaylandoutput.h"
 #include <QtWaylandCompositor/private/qwaylandcompositor_p.h>
+#include <QtWaylandCompositor/QWaylandViewporter>
 #include "qwaylandsurfacegrabber.h"
 
 QT_BEGIN_NAMESPACE
@@ -60,8 +61,9 @@ QT_BEGIN_NAMESPACE
 class QWaylandQuickCompositorPrivate : public QWaylandCompositorPrivate
 {
 public:
-    QWaylandQuickCompositorPrivate(QWaylandCompositor *compositor)
+    explicit QWaylandQuickCompositorPrivate(QWaylandCompositor *compositor)
         : QWaylandCompositorPrivate(compositor)
+        , m_viewporter(new QWaylandViewporter(compositor))
     {
     }
 protected:
@@ -69,6 +71,8 @@ protected:
     {
         return new QWaylandQuickSurface();
     }
+private:
+    QScopedPointer<QWaylandViewporter> m_viewporter;
 };
 
 QWaylandQuickCompositor::QWaylandQuickCompositor(QObject *parent)

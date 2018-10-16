@@ -173,6 +173,8 @@ void MockClient::handleGlobal(uint32_t id, const QByteArray &interface)
         wl_output_add_listener(output, &outputListener, this);
     } else if (interface == "wl_shm") {
         shm = static_cast<wl_shm *>(wl_registry_bind(registry, id, &wl_shm_interface, 1));
+    } else if (interface == "wp_viewporter") {
+        viewporter = static_cast<wp_viewporter *>(wl_registry_bind(registry, id, &wp_viewporter_interface, 1));
     } else if (interface == "wl_shell") {
         wlshell = static_cast<wl_shell *>(wl_registry_bind(registry, id, &wl_shell_interface, 1));
     } else if (interface == "xdg_shell") {

@@ -126,8 +126,12 @@ void QWaylandEglWindow::updateSurface(bool create)
     } else {
         if (m_waylandEglWindow) {
             int current_width, current_height;
-            wl_egl_window_get_attached_size(m_waylandEglWindow,&current_width,&current_height);
-            if (current_width != sizeWithMargins.width() || current_height != sizeWithMargins.height()) {
+            static bool disableResizeCheck = qgetenv("QT_WAYLAND_DISABLE_RESIZECHECK").toInt();
+
+            if (!disableResizeCheck) {
+                wl_egl_window_get_attached_size(m_waylandEglWindow, &current_width, &current_height);
+            }
+            if (disableResizeCheck || (current_width != sizeWithMargins.width() || current_height != sizeWithMargins.height())) {
                 wl_egl_window_resize(m_waylandEglWindow, sizeWithMargins.width(), sizeWithMargins.height(), mOffset.x(), mOffset.y());
                 mOffset = QPoint();
 

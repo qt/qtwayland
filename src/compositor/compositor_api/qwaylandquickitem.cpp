@@ -1036,11 +1036,21 @@ void QWaylandQuickItem::setFocusOnClick(bool focus)
  * Returns \c true if the input region of this item's surface contains the
  * position given by \a localPosition.
  */
-bool QWaylandQuickItem::inputRegionContains(const QPointF &localPosition)
+bool QWaylandQuickItem::inputRegionContains(const QPointF &localPosition) const
 {
     if (QWaylandSurface *s = surface())
         return s->inputRegionContains(mapToSurface(localPosition).toPoint());
     return false;
+}
+
+// Qt 6: Remove the non-const version
+/*!
+ * Returns \c true if the input region of this item's surface contains the
+ * position given by \a localPosition.
+ */
+bool QWaylandQuickItem::inputRegionContains(const QPointF &localPosition)
+{
+    return const_cast<const QWaylandQuickItem *>(this)->inputRegionContains(localPosition);
 }
 
 /*!

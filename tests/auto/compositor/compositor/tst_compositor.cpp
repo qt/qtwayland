@@ -74,6 +74,7 @@ private slots:
     void modes();
     void sizeFollowsWindow();
     void mapSurface();
+    void mapSurfaceHiDpi();
     void frameCallback();
     void removeOutput();
 
@@ -421,9 +422,78 @@ void tst_WaylandCompositor::mapSurface()
     wl_surface_damage(surface, 0, 0, size.width(), size.height());
     wl_surface_commit(surface);
 
-    QTRY_COMPARE(waylandSurface->size(), size);
-    QTRY_COMPARE(waylandSurface->hasContent(), true);
     QTRY_COMPARE(hasContentSpy.count(), 1);
+    QCOMPARE(waylandSurface->hasContent(), true);
+    QCOMPARE(waylandSurface->size(), size);
+
+    wl_surface_destroy(surface);
+}
+
+void tst_WaylandCompositor::mapSurfaceHiDpi()
+{
+    TestCompositor compositor;
+    compositor.create();
+
+    MockClient client;
+
+    wl_surface *surface = client.createSurface();
+    QTRY_COMPARE(compositor.surfaces.size(), 1);
+
+    QWaylandSurface *waylandSurface = compositor.surfaces.at(0);
+
+    constexpr int bufferScale = 2;
+    const QSize surfaceSize(128, 128);
+    const QSize bufferSize = surfaceSize * bufferScale;
+    const QPoint attachOffset(1, 2); // in surface-local coordinates
+
+    client.createShellSurface(surface);
+    ShmBuffer buffer(bufferSize, client.shm);
+    wl_surface_attach(surface, buffer.handle, attachOffset.x(), attachOffset.y());
+    wl_surface_set_buffer_scale(surface, bufferScale);
+    // wl_surface_damage is given in surface coordinates
+    wl_surface_damage(surface, 0, 0, surfaceSize.width(), surfaceSize.height());
+
+    auto verifyComittedState = [=]() {
+        QCOMPARE(waylandSurface->size(), bufferSize);
+        QCOMPARE(waylandSurface->bufferScale(), bufferScale);
+        QCOMPARE(waylandSurface->hasContent(), true);
+    };
+
+    QObject::connect(waylandSurface, &QWaylandSurface::damaged, [=] (const QRegion &damage) {
+        // Currently, QWaylandSurface::size returns the size in pixels.
+        // Should be fixed or removed for Qt 6.
+        QCOMPARE(damage, QRect(QPoint(), surfaceSize));
+        verifyComittedState();
+    });
+    QSignalSpy damagedSpy(waylandSurface, SIGNAL(damaged(const QRegion &)));
+
+    QObject::connect(waylandSurface, &QWaylandSurface::hasContentChanged, verifyComittedState);
+    QSignalSpy hasContentSpy(waylandSurface, SIGNAL(hasContentChanged()));
+
+    QObject::connect(waylandSurface, &QWaylandSurface::sizeChanged, verifyComittedState);
+    QSignalSpy sizeSpy(waylandSurface, SIGNAL(sizeChanged()));
+
+    QObject::connect(waylandSurface, &QWaylandSurface::bufferScaleChanged, verifyComittedState);
+    QSignalSpy bufferScaleSpy(waylandSurface, SIGNAL(bufferScaleChanged()));
+
+    QObject::connect(waylandSurface, &QWaylandSurface::offsetForNextFrame, [=](const QPoint &offset) {
+        QCOMPARE(offset, attachOffset);
+        verifyComittedState();
+    });
+    QSignalSpy offsetSpy(waylandSurface, SIGNAL(offsetForNextFrame(const QPoint &)));
+
+    // No state should be applied before the commit
+    QCOMPARE(waylandSurface->size(), QSize());
+    QCOMPARE(waylandSurface->hasContent(), false);
+    QCOMPARE(waylandSurface->bufferScale(), 1);
+    QCOMPARE(offsetSpy.count(), 0);
+
+    wl_surface_commit(surface);
+
+    QTRY_COMPARE(hasContentSpy.count(), 1);
+    QTRY_COMPARE(sizeSpy.count(), 1);
+    QTRY_COMPARE(bufferScaleSpy.count(), 1);
+    QTRY_COMPARE(offsetSpy.count(), 1);
 
     wl_surface_destroy(surface);
 }

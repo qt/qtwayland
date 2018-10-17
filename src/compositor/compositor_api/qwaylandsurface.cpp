@@ -141,25 +141,6 @@ QWaylandSurfacePrivate::~QWaylandSurfacePrivate()
         c->destroy();
 }
 
-void QWaylandSurfacePrivate::setSize(const QSize &s)
-{
-    Q_Q(QWaylandSurface);
-    if (size != s) {
-        opaqueRegion = QRegion();
-        size = s;
-        q->sizeChanged();
-    }
-}
-
-void QWaylandSurfacePrivate::setBufferScale(int scale)
-{
-    Q_Q(QWaylandSurface);
-    if (scale == bufferScale)
-        return;
-    bufferScale = scale;
-    emit q->bufferScaleChanged();
-}
-
 void QWaylandSurfacePrivate::removeFrameCallback(QtWayland::FrameCallback *callback)
 {
     pendingFrameCallbacks.removeOne(callback);
@@ -235,7 +216,7 @@ void QWaylandSurfacePrivate::surface_frame(Resource *resource, uint32_t callback
 
 void QWaylandSurfacePrivate::surface_set_opaque_region(Resource *, struct wl_resource *region)
 {
-    opaqueRegion = region ? QtWayland::Region::fromResource(region)->region() : QRegion();
+    pending.opaqueRegion = region ? QtWayland::Region::fromResource(region)->region() : QRegion();
 }
 
 void QWaylandSurfacePrivate::surface_set_input_region(Resource *, struct wl_resource *region)
@@ -251,42 +232,53 @@ void QWaylandSurfacePrivate::surface_commit(Resource *)
 {
     Q_Q(QWaylandSurface);
 
+    // Needed in order to know whether we want to emit signals later
+    QSize oldBufferSize = bufferSize;
+    bool oldHasContent = hasContent;
+    int oldBufferScale = bufferScale;
+
+    // Update all internal state
     if (pending.buffer.hasBuffer() || pending.newlyAttached)
         bufferRef = pending.buffer;
-
-    auto buffer = bufferRef.buffer();
-    if (buffer)
-        buffer->setCommitted(pending.damage);
-
-    setSize(bufferRef.size());
-    damage = pending.damage.intersected(QRect(QPoint(), size));
-
-    for (int i = 0; i < views.size(); i++) {
-        views.at(i)->bufferCommitted(bufferRef, damage);
-    }
-
-    emit q->damaged(damage);
-
-    bool oldHasContent = hasContent;
+    bufferSize = bufferRef.size();
+    damage = pending.damage.intersected(QRect(QPoint(), bufferSize));
     hasContent = bufferRef.hasContent();
-    if (oldHasContent != hasContent)
-        emit q->hasContentChanged();
+    bufferScale = pending.bufferScale;
+    frameCallbacks << pendingFrameCallbacks;
+    inputRegion = pending.inputRegion.intersected(QRect(QPoint(), bufferSize));
+    opaqueRegion = pending.opaqueRegion.intersected(QRect(QPoint(), bufferSize));
+    QPoint offsetForNextFrame = pending.offset;
 
-    if (!pending.offset.isNull())
-        emit q->offsetForNextFrame(pending.offset);
-
-    setBufferScale(pending.bufferScale);
-
-
+    // Clear per-commit state
     pending.buffer = QWaylandBufferRef();
     pending.offset = QPoint();
     pending.newlyAttached = false;
     pending.damage = QRegion();
-
-    frameCallbacks << pendingFrameCallbacks;
     pendingFrameCallbacks.clear();
 
-    inputRegion = pending.inputRegion.intersected(QRect(QPoint(), size));
+    // Notify buffers and views
+    if (auto *buffer = bufferRef.buffer())
+        buffer->setCommitted(damage);
+    for (auto *view : qAsConst(views))
+        view->bufferCommitted(bufferRef, damage);
+
+    // Now all double-buffered state has been applied so it's safe to emit general signals
+    // i.e. we won't have inconsistensies such as mismatched surface size and buffer scale in
+    // signal handlers.
+
+    emit q->damaged(damage);
+
+    if (oldBufferSize != bufferSize)
+        emit q->sizeChanged();
+
+    if (oldBufferScale != bufferScale)
+        emit q->bufferScaleChanged();
+
+    if (oldHasContent != hasContent)
+        emit q->hasContentChanged();
+
+    if (!offsetForNextFrame.isNull())
+        emit q->offsetForNextFrame(offsetForNextFrame);
 
     emit q->redraw();
 }
@@ -469,7 +461,7 @@ bool QWaylandSurface::hasContent() const
 QSize QWaylandSurface::size() const
 {
     Q_D(const QWaylandSurface);
-    return d->size;
+    return d->bufferSize;
 }
 
 /*!

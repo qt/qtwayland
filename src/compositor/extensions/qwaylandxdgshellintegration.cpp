@@ -73,7 +73,7 @@ XdgToplevelIntegration::XdgToplevelIntegration(QWaylandQuickShellSurfaceItem *it
     connect(m_xdgSurface->shell(), &QWaylandXdgShell::popupCreated, this, [item](QWaylandXdgPopup *popup, QWaylandXdgSurface *){
         handlePopupCreated(item, popup);
     });
-    connect(m_xdgSurface->surface(), &QWaylandSurface::sizeChanged, this, &XdgToplevelIntegration::handleSurfaceSizeChanged);
+    connect(m_xdgSurface->surface(), &QWaylandSurface::destinationSizeChanged, this, &XdgToplevelIntegration::handleSurfaceSizeChanged);
     connect(m_toplevel, &QObject::destroyed, this, &XdgToplevelIntegration::handleToplevelDestroyed);
 }
 
@@ -130,7 +130,7 @@ void XdgToplevelIntegration::handleStartResize(QWaylandSeat *seat, Qt::Edges edg
     resizeState.resizeEdges = edges;
     resizeState.initialWindowSize = m_xdgSurface->windowGeometry().size();
     resizeState.initialPosition = m_item->moveItem()->position();
-    resizeState.initialSurfaceSize = m_item->surface()->size();
+    resizeState.initialSurfaceSize = m_item->surface()->destinationSize();
     resizeState.initialized = false;
 }
 
@@ -247,14 +247,14 @@ void XdgToplevelIntegration::handleActivatedChanged()
 void XdgToplevelIntegration::handleSurfaceSizeChanged()
 {
     if (grabberState == GrabberState::Resize) {
-        qreal x = resizeState.initialPosition.x();
-        qreal y = resizeState.initialPosition.y();
+        qreal dx = 0;
+        qreal dy = 0;
         if (resizeState.resizeEdges & Qt::TopEdge)
-            y += resizeState.initialSurfaceSize.height() - m_item->surface()->size().height();
-
+            dy = resizeState.initialSurfaceSize.height() - m_item->surface()->destinationSize().height();
         if (resizeState.resizeEdges & Qt::LeftEdge)
-            x += resizeState.initialSurfaceSize.width() - m_item->surface()->size().width();
-        m_item->moveItem()->setPosition(QPointF(x, y));
+            dx = resizeState.initialSurfaceSize.width() - m_item->surface()->destinationSize().width();
+        QPointF offset = m_item->mapFromSurface({dx, dy});
+        m_item->moveItem()->setPosition(resizeState.initialPosition + offset);
     }
 }
 

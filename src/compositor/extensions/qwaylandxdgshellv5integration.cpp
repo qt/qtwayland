@@ -71,7 +71,7 @@ XdgShellV5Integration::XdgShellV5Integration(QWaylandQuickShellSurfaceItem *item
     connect(m_xdgSurface, &QWaylandXdgSurfaceV5::unsetMaximized, this, &XdgShellV5Integration::handleUnsetMaximized);
     connect(m_xdgSurface, &QWaylandXdgSurfaceV5::maximizedChanged, this, &XdgShellV5Integration::handleMaximizedChanged);
     connect(m_xdgSurface, &QWaylandXdgSurfaceV5::activatedChanged, this, &XdgShellV5Integration::handleActivatedChanged);
-    connect(m_xdgSurface->surface(), &QWaylandSurface::sizeChanged, this, &XdgShellV5Integration::handleSurfaceSizeChanged);
+    connect(m_xdgSurface->surface(), &QWaylandSurface::destinationSizeChanged, this, &XdgShellV5Integration::handleSurfaceSizeChanged);
     connect(m_xdgSurface->shell(), &QWaylandXdgShellV5::xdgPopupCreated, this, [item](QWaylandXdgPopupV5 *popup){
         handlePopupCreated(item, popup);
     });
@@ -139,7 +139,7 @@ void XdgShellV5Integration::handleStartResize(QWaylandSeat *seat, QWaylandXdgSur
     resizeState.resizeEdges = edges;
     resizeState.initialWindowSize = m_xdgSurface->windowGeometry().size();
     resizeState.initialPosition = m_item->moveItem()->position();
-    resizeState.initialSurfaceSize = m_item->surface()->size();
+    resizeState.initialSurfaceSize = m_item->surface()->destinationSize();
     resizeState.initialized = false;
 }
 
@@ -194,14 +194,14 @@ void XdgShellV5Integration::handleActivatedChanged()
 void XdgShellV5Integration::handleSurfaceSizeChanged()
 {
     if (grabberState == GrabberState::Resize) {
-        qreal x = resizeState.initialPosition.x();
-        qreal y = resizeState.initialPosition.y();
+        qreal dx = 0;
+        qreal dy = 0;
         if (resizeState.resizeEdges & QWaylandXdgSurfaceV5::ResizeEdge::TopEdge)
-            y += resizeState.initialSurfaceSize.height() - m_item->surface()->size().height();
-
+            dy = resizeState.initialSurfaceSize.height() - m_item->surface()->destinationSize().height();
         if (resizeState.resizeEdges & QWaylandXdgSurfaceV5::ResizeEdge::LeftEdge)
-            x += resizeState.initialSurfaceSize.width() - m_item->surface()->size().width();
-        m_item->moveItem()->setPosition(QPointF(x, y));
+            dx = resizeState.initialSurfaceSize.width() - m_item->surface()->destinationSize().width();
+        QPointF offset = m_item->mapFromSurface({dx, dy});
+        m_item->moveItem()->setPosition(resizeState.initialPosition + offset);
     }
 }
 

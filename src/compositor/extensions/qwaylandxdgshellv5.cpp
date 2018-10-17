@@ -249,7 +249,7 @@ QRect QWaylandXdgSurfaceV5Private::calculateFallbackWindowGeometry() const
 {
     // TODO: The unset window geometry should include subsurfaces as well, so this solution
     // won't work too well on those kinds of clients.
-    return QRect(QPoint(0, 0), m_surface->size() / m_surface->bufferScale());
+    return QRect(QPoint(), m_surface->destinationSize());
 }
 
 void QWaylandXdgSurfaceV5Private::updateFallbackWindowGeometry()
@@ -837,7 +837,7 @@ void QWaylandXdgSurfaceV5::initialize(QWaylandXdgShellV5 *xdgShell, QWaylandSurf
     d->init(resource.resource());
     setExtensionContainer(surface);
     d->m_windowGeometry = d->calculateFallbackWindowGeometry();
-    connect(surface, &QWaylandSurface::sizeChanged, this, &QWaylandXdgSurfaceV5::handleSurfaceSizeChanged);
+    connect(surface, &QWaylandSurface::destinationSizeChanged, this, &QWaylandXdgSurfaceV5::handleSurfaceSizeChanged);
     connect(surface, &QWaylandSurface::bufferScaleChanged, this, &QWaylandXdgSurfaceV5::handleBufferScaleChanged);
     emit shellChanged();
     emit surfaceChanged();

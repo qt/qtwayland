@@ -234,19 +234,21 @@ void QWaylandSurfacePrivate::surface_commit(Resource *)
 
     // Needed in order to know whether we want to emit signals later
     QSize oldBufferSize = bufferSize;
+    QSize oldDestinationSize = destinationSize;
     bool oldHasContent = hasContent;
     int oldBufferScale = bufferScale;
 
     // Update all internal state
     if (pending.buffer.hasBuffer() || pending.newlyAttached)
         bufferRef = pending.buffer;
-    bufferSize = bufferRef.size();
-    damage = pending.damage.intersected(QRect(QPoint(), bufferSize));
-    hasContent = bufferRef.hasContent();
     bufferScale = pending.bufferScale;
+    bufferSize = bufferRef.size();
+    destinationSize = pending.destinationSize.isEmpty() ? bufferSize / bufferScale : pending.destinationSize;
+    damage = pending.damage.intersected(QRect(QPoint(), destinationSize));
+    hasContent = bufferRef.hasContent();
     frameCallbacks << pendingFrameCallbacks;
-    inputRegion = pending.inputRegion.intersected(QRect(QPoint(), bufferSize));
-    opaqueRegion = pending.opaqueRegion.intersected(QRect(QPoint(), bufferSize));
+    inputRegion = pending.inputRegion.intersected(QRect(QPoint(), destinationSize));
+    opaqueRegion = pending.opaqueRegion.intersected(QRect(QPoint(), destinationSize));
     QPoint offsetForNextFrame = pending.offset;
 
     // Clear per-commit state
@@ -273,6 +275,9 @@ void QWaylandSurfacePrivate::surface_commit(Resource *)
 
     if (oldBufferScale != bufferScale)
         emit q->bufferScaleChanged();
+
+    if (oldDestinationSize != destinationSize)
+        emit q->destinationSizeChanged();
 
     if (oldHasContent != hasContent)
         emit q->hasContentChanged();
@@ -448,15 +453,46 @@ bool QWaylandSurface::hasContent() const
 }
 
 /*!
+ * \qmlproperty size QtWaylandCompositor::WaylandSurface::destinationSize
+ *
+ * This property holds the size of this WaylandSurface in surface coordinates.
+ *
+ * If you want the size in pixels, multiply this size with \l bufferScale.
+ *
+ * \sa bufferScale
+ */
+
+/*!
+ * \property QWaylandSurface::destinationSize
+ *
+ * This property holds the size of this WaylandSurface in surface coordinates.
+ *
+ * If you want the size in pixels, multiply this size with \l bufferScale.
+ *
+ * \sa bufferScale
+ */
+QSize QWaylandSurface::destinationSize() const
+{
+    Q_D(const QWaylandSurface);
+    return d->destinationSize;
+}
+
+/*!
  * \qmlproperty size QtWaylandCompositor::WaylandSurface::size
  *
- * This property holds the WaylandSurface's size in pixels.
+ * This property holds the size of the current buffer of this WaylandSurface in pixels,
+ * not in surface coordinates.
+ *
+ * For the size in surface coordinates, use \l destinationSize instead.
  */
 
 /*!
  * \property QWaylandSurface::size
  *
- * This property holds the QWaylandSurface's size in pixels.
+ * This property holds the size of the current buffer of this QWaylandSurface in pixels,
+ * not in surface coordinates.
+ *
+ * For the size in surface coordinates, use \l destinationSize instead.
  */
 QSize QWaylandSurface::size() const
 {

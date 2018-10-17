@@ -79,7 +79,7 @@ QOpenGLTexture *View::getTexture()
     if (newContent) {
         m_texture = buf.toOpenGLTexture();
         if (surface()) {
-            m_size = surface()->size();
+            m_size = surface()->destinationSize();
             m_origin = buf.origin() == QWaylandSurface::OriginTopLeft
                     ? QOpenGLTextureBlitter::OriginTopLeft
                     : QOpenGLTextureBlitter::OriginBottomLeft;
@@ -96,7 +96,7 @@ QOpenGLTextureBlitter::Origin View::textureOrigin() const
 
 QSize View::size() const
 {
-    return surface() ? surface()->size() : m_size;
+    return surface() ? surface()->destinationSize() : m_size;
 }
 
 bool View::isCursor() const

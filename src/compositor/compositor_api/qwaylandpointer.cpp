@@ -239,7 +239,7 @@ uint QWaylandPointer::sendMouseReleaseEvent(Qt::MouseButton button)
 
 /*!
  * Sets the current mouse focus to \a view and sends a mouse move event to it with the
- * local position \a localPos and output space position \a outputSpacePos.
+ * local position \a localPos in surface coordinates and output space position \a outputSpacePos.
  */
 void QWaylandPointer::sendMouseMoveEvent(QWaylandView *view, const QPointF &localPos, const QPointF &outputSpacePos)
 {
@@ -253,7 +253,7 @@ void QWaylandPointer::sendMouseMoveEvent(QWaylandView *view, const QPointF &loca
     if (view) {
         // We adjust if the mouse position is on the edge
         // to work around Qt's event propagation
-        QSizeF size(view->surface()->size());
+        QSizeF size(view->surface()->destinationSize());
         if (d->localPosition.x() == size.width())
             d->localPosition.rx() -= 0.01;
         if (d->localPosition.y() == size.height())
@@ -294,7 +294,7 @@ QWaylandView *QWaylandPointer::mouseFocus() const
 }
 
 /*!
- * Returns the current local position of the QWaylandPointer.
+ * Returns the current local position of the QWaylandPointer in surface coordinates.
  */
 QPointF QWaylandPointer::currentLocalPosition() const
 {

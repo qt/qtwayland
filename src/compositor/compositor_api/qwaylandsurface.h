@@ -81,7 +81,8 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandSurface : public QWaylandObject
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandSurface)
     Q_PROPERTY(QWaylandClient *client READ client CONSTANT)
-    Q_PROPERTY(QSize size READ size NOTIFY sizeChanged)
+    Q_PROPERTY(QSize destinationSize READ destinationSize NOTIFY destinationSizeChanged)
+    Q_PROPERTY(QSize size READ size NOTIFY sizeChanged) // Qt 6: Remove or replace with destinationSize
     Q_PROPERTY(int bufferScale READ bufferScale NOTIFY bufferScaleChanged)
     Q_PROPERTY(Qt::ScreenOrientation contentOrientation READ contentOrientation NOTIFY contentOrientationChanged)
     Q_PROPERTY(QWaylandSurface::Origin origin READ origin NOTIFY originChanged)
@@ -110,6 +111,7 @@ public:
 
     bool hasContent() const;
 
+    QSize destinationSize() const;
     QSize size() const;
     int bufferScale() const;
 
@@ -155,6 +157,7 @@ Q_SIGNALS:
     void damaged(const QRegion &rect);
     void parentChanged(QWaylandSurface *newParent, QWaylandSurface *oldParent);
     void childAdded(QWaylandSurface *child);
+    void destinationSizeChanged();
     void sizeChanged();
     void bufferScaleChanged();
     void offsetForNextFrame(const QPoint &offset);

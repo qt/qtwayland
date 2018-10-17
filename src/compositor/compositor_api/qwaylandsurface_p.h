@@ -152,6 +152,7 @@ public: //member variables
         bool newlyAttached;
         QRegion inputRegion;
         int bufferScale;
+        QSize destinationSize;
         QRegion opaqueRegion;
     } pending;
 
@@ -166,6 +167,7 @@ public: //member variables
     QRegion inputRegion;
     QRegion opaqueRegion;
 
+    QSize destinationSize;
     QSize bufferSize;
     int bufferScale = 1;
     bool isCursorSurface = false;

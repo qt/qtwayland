@@ -180,7 +180,7 @@ void Window::startResize(int edge, bool anchored)
     m_grabState = ResizeGrab;
     m_resizeEdge = edge;
     m_resizeAnchored = anchored;
-    m_resizeAnchorPosition = getAnchorPosition(m_mouseView->position(), edge, m_mouseView->surface()->size());
+    m_resizeAnchorPosition = getAnchorPosition(m_mouseView->position(), edge, m_mouseView->surface()->destinationSize());
 }
 
 void Window::startDrag(View *dragIcon)

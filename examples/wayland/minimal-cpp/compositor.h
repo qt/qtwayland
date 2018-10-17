@@ -71,11 +71,11 @@ public:
     QOpenGLTexture *getTexture();
     int iviId() const { return m_iviId; }
 
-    QRect globalGeometry() const { return QRect(globalPosition(), surface()->size()); }
+    QRect globalGeometry() const { return QRect(globalPosition(), surface()->destinationSize()); }
     void setGlobalPosition(const QPoint &globalPos) { m_pos = globalPos; m_positionSet = true; }
     QPoint globalPosition() const { return m_pos; }
     QPoint mapToLocal(const QPoint &globalPos) const;
-    QSize size() const { return surface() ? surface()->size() : QSize(); }
+    QSize size() const { return surface() ? surface()->destinationSize() : QSize(); }
 
     void initPosition(const QSize &screenSize, const QSize &surfaceSize);
 

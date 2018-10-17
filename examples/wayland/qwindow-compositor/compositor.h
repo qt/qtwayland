@@ -82,7 +82,7 @@ public:
     void setParentView(View *parent) { m_parentView = parent; }
     View *parentView() const { return m_parentView; }
     QPointF parentPosition() const { return m_parentView ? (m_parentView->position() + m_parentView->parentPosition()) : QPointF(); }
-    QSize windowSize() { return m_xdgSurface ? m_xdgSurface->windowGeometry().size() :  surface() ? surface()->size() : m_size; }
+    QSize windowSize() { return m_xdgSurface ? m_xdgSurface->windowGeometry().size() : surface() ? surface()->destinationSize() : m_size; }
     QPoint offset() const { return m_offset; }
 
     qreal animationFactor() const {return m_animationFactor; }

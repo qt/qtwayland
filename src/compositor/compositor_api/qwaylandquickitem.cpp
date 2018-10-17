@@ -886,7 +886,7 @@ void QWaylandQuickItem::handleSurfaceChanged()
     if (d->oldSurface) {
         disconnect(d->oldSurface, &QWaylandSurface::hasContentChanged, this, &QWaylandQuickItem::surfaceMappedChanged);
         disconnect(d->oldSurface, &QWaylandSurface::parentChanged, this, &QWaylandQuickItem::parentChanged);
-        disconnect(d->oldSurface, &QWaylandSurface::sizeChanged, this, &QWaylandQuickItem::updateSize);
+        disconnect(d->oldSurface, &QWaylandSurface::destinationSizeChanged, this, &QWaylandQuickItem::updateSize);
         disconnect(d->oldSurface, &QWaylandSurface::bufferScaleChanged, this, &QWaylandQuickItem::updateSize);
         disconnect(d->oldSurface, &QWaylandSurface::configure, this, &QWaylandQuickItem::updateBuffer);
         disconnect(d->oldSurface, &QWaylandSurface::redraw, this, &QQuickItem::update);
@@ -903,7 +903,7 @@ void QWaylandQuickItem::handleSurfaceChanged()
     if (QWaylandSurface *newSurface = d->view->surface()) {
         connect(newSurface, &QWaylandSurface::hasContentChanged, this, &QWaylandQuickItem::surfaceMappedChanged);
         connect(newSurface, &QWaylandSurface::parentChanged, this, &QWaylandQuickItem::parentChanged);
-        connect(newSurface, &QWaylandSurface::sizeChanged, this, &QWaylandQuickItem::updateSize);
+        connect(newSurface, &QWaylandSurface::destinationSizeChanged, this, &QWaylandQuickItem::updateSize);
         connect(newSurface, &QWaylandSurface::bufferScaleChanged, this, &QWaylandQuickItem::updateSize);
         connect(newSurface, &QWaylandSurface::configure, this, &QWaylandQuickItem::updateBuffer);
         connect(newSurface, &QWaylandSurface::redraw, this, &QQuickItem::update);
@@ -992,7 +992,7 @@ void QWaylandQuickItem::updateSize()
 
     QSize size(0, 0);
     if (surface())
-        size = surface()->size() * (d->scaleFactor() / surface()->bufferScale());
+        size = surface()->destinationSize() * d->scaleFactor();
 
     setImplicitSize(size.width(), size.height());
     if (d->sizeFollowsSurface)
@@ -1061,11 +1061,11 @@ bool QWaylandQuickItem::inputRegionContains(const QPointF &localPosition)
 QPointF QWaylandQuickItem::mapToSurface(const QPointF &point) const
 {
     Q_D(const QWaylandQuickItem);
-    if (!surface() || surface()->size().isEmpty())
+    if (!surface() || surface()->destinationSize().isEmpty())
         return point / d->scaleFactor();
 
-    qreal xScale = width() / surface()->size().width() * surface()->bufferScale();
-    qreal yScale = height() / surface()->size().height() * surface()->bufferScale();
+    qreal xScale = width() / surface()->destinationSize().width();
+    qreal yScale = height() / surface()->destinationSize().height();
 
     return QPointF(point.x() / xScale, point.y() / yScale);
 }
@@ -1077,11 +1077,11 @@ QPointF QWaylandQuickItem::mapToSurface(const QPointF &point) const
 QPointF QWaylandQuickItem::mapFromSurface(const QPointF &point) const
 {
     Q_D(const QWaylandQuickItem);
-    if (!surface() || surface()->size().isEmpty())
+    if (!surface() || surface()->destinationSize().isEmpty())
         return point * d->scaleFactor();
 
-    qreal xScale = width() / surface()->size().width() * surface()->bufferScale();
-    qreal yScale = height() / surface()->size().height() * surface()->bufferScale();
+    qreal xScale = width() / surface()->destinationSize().width();
+    qreal yScale = height() / surface()->destinationSize().height();
 
     return QPointF(point.x() * xScale, point.y() * yScale);
 }

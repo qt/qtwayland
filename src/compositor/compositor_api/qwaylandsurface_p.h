@@ -102,9 +102,6 @@ public:
 
     using QtWaylandServer::wl_surface::resource;
 
-    void setSize(const QSize &size);
-    void setBufferScale(int bufferScale);
-
     void removeFrameCallback(QtWayland::FrameCallback *callback);
 
     void notifyViewsAboutDestruction();
@@ -155,6 +152,7 @@ public: //member variables
         bool newlyAttached;
         QRegion inputRegion;
         int bufferScale;
+        QRegion opaqueRegion;
     } pending;
 
     QPoint lastLocalMousePos;
@@ -168,7 +166,7 @@ public: //member variables
     QRegion inputRegion;
     QRegion opaqueRegion;
 
-    QSize size;
+    QSize bufferSize;
     int bufferScale = 1;
     bool isCursorSurface = false;
     bool destroyed = false;

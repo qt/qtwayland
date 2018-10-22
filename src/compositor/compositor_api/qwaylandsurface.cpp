@@ -270,8 +270,12 @@ void QWaylandSurfacePrivate::surface_commit(Resource *)
 
     emit q->damaged(damage);
 
-    if (oldBufferSize != bufferSize)
+    if (oldBufferSize != bufferSize) {
+        emit q->bufferSizeChanged();
+#if QT_DEPRECATED_SINCE(5, 13)
         emit q->sizeChanged();
+#endif
+    }
 
     if (oldBufferScale != bufferScale)
         emit q->bufferScaleChanged();
@@ -457,9 +461,8 @@ bool QWaylandSurface::hasContent() const
  *
  * This property holds the size of this WaylandSurface in surface coordinates.
  *
- * If you want the size in pixels, multiply this size with \l bufferScale.
- *
  * \sa bufferScale
+ * \sa bufferSize
  */
 
 /*!
@@ -467,9 +470,8 @@ bool QWaylandSurface::hasContent() const
  *
  * This property holds the size of this WaylandSurface in surface coordinates.
  *
- * If you want the size in pixels, multiply this size with \l bufferScale.
- *
  * \sa bufferScale
+ * \sa bufferSize
  */
 QSize QWaylandSurface::destinationSize() const
 {
@@ -478,27 +480,53 @@ QSize QWaylandSurface::destinationSize() const
 }
 
 /*!
- * \qmlproperty size QtWaylandCompositor::WaylandSurface::size
+ * \qmlproperty size QtWaylandCompositor::WaylandSurface::bufferSize
  *
  * This property holds the size of the current buffer of this WaylandSurface in pixels,
  * not in surface coordinates.
  *
  * For the size in surface coordinates, use \l destinationSize instead.
+ *
+ * \sa destinationSize
+ * \sa bufferScale
  */
 
 /*!
- * \property QWaylandSurface::size
+ * \property QWaylandSurface::bufferSize
  *
  * This property holds the size of the current buffer of this QWaylandSurface in pixels,
  * not in surface coordinates.
  *
  * For the size in surface coordinates, use \l destinationSize instead.
+ *
+ * \sa destinationSize
+ * \sa bufferScale
  */
-QSize QWaylandSurface::size() const
+QSize QWaylandSurface::bufferSize() const
 {
     Q_D(const QWaylandSurface);
     return d->bufferSize;
 }
+
+#if QT_DEPRECATED_SINCE(5, 13)
+/*!
+ * \qmlproperty size QtWaylandCompositor::WaylandSurface::size
+ * \obsolete use bufferSize or destinationSize instead
+ *
+ * This property has been deprecated, use \l bufferSize or \l destinationSize instead.
+ */
+
+/*!
+ * \property QWaylandSurface::size
+ * \obsolete use bufferSize or destinationSize instead
+ *
+ * This property has been deprecated, use \l bufferSize or \l destinationSize instead.
+ */
+QSize QWaylandSurface::size() const
+{
+    return bufferSize();
+}
+#endif
 
 /*!
  * \qmlproperty size QtWaylandCompositor::WaylandSurface::bufferScale

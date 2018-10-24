@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the test suite of the Qt Toolkit.
@@ -29,262 +29,55 @@
 #ifndef MOCKCOMPOSITOR_H
 #define MOCKCOMPOSITOR_H
 
-#include "mockxdgshellv6.h"
-#include "mockiviapplication.h"
-#include "mockfullscreenshellv1.h"
+#include "corecompositor.h"
+#include "coreprotocol.h"
+#include "xdgshell.h"
 
-#include <pthread.h>
-#include <qglobal.h>
-#include <wayland-server-core.h>
+#include <QtGui/QGuiApplication>
 
-#include <QImage>
-#include <QMutex>
-#include <QRect>
-#include <QSharedPointer>
-#include <QVariant>
-#include <QVector>
-#include <QWaitCondition>
+#ifndef BTN_LEFT
+// As defined in linux/input-event-codes.h
+#define BTN_LEFT 0x110
+#endif
 
-namespace Impl {
+namespace MockCompositor {
 
-typedef void (**Implementation)(void);
-
-class Keyboard;
-class Pointer;
-class Touch;
-class Seat;
-class DataDeviceManager;
-class Surface;
-class Output;
-class IviApplication;
-class WlShell;
-class XdgShellV6;
-
-class Compositor
+class DefaultCompositor : public CoreCompositor
 {
 public:
-    Compositor();
-    ~Compositor();
-
-    int fileDescriptor() const { return m_fd; }
-    void dispatchEvents(int timeout = 0);
-
-    uint32_t nextSerial();
-    uint32_t time() { return ++m_time; }
-
-    QVector<Surface *> surfaces() const;
-    QVector<Output *> outputs() const;
-
-    IviApplication *iviApplication() const;
-    XdgShellV6 *xdgShellV6() const;
-    FullScreenShellV1 *fullScreenShellV1() const;
-
-    void addSurface(Surface *surface);
-    void removeSurface(Surface *surface);
-
-    static void setKeyboardFocus(void *data, const QList<QVariant> &parameters);
-    static void sendMousePress(void *data, const QList<QVariant> &parameters);
-    static void sendMouseRelease(void *data, const QList<QVariant> &parameters);
-    static void sendKeyPress(void *data, const QList<QVariant> &parameters);
-    static void sendKeyRelease(void *data, const QList<QVariant> &parameters);
-    static void sendTouchDown(void *data, const QList<QVariant> &parameters);
-    static void sendTouchUp(void *data, const QList<QVariant> &parameters);
-    static void sendTouchMotion(void *data, const QList<QVariant> &parameters);
-    static void sendTouchFrame(void *data, const QList<QVariant> &parameters);
-    static void sendDataDeviceDataOffer(void *data, const QList<QVariant> &parameters);
-    static void sendDataDeviceEnter(void *data, const QList<QVariant> &parameters);
-    static void sendDataDeviceMotion(void *data, const QList<QVariant> &parameters);
-    static void sendDataDeviceDrop(void *data, const QList<QVariant> &parameters);
-    static void sendDataDeviceLeave(void *data, const QList<QVariant> &parameters);
-    static void waitForStartDrag(void *data, const QList<QVariant> &parameters);
-    static void setOutputMode(void *compositor, const QList<QVariant> &parameters);
-    static void sendAddOutput(void *data, const QList<QVariant> &parameters);
-    static void sendRemoveOutput(void *data, const QList<QVariant> &parameters);
-    static void sendOutputGeometry(void *data, const QList<QVariant> &parameters);
-    static void sendSurfaceEnter(void *data, const QList<QVariant> &parameters);
-    static void sendSurfaceLeave(void *data, const QList<QVariant> &parameters);
-    static void sendShellSurfaceConfigure(void *data, const QList<QVariant> &parameters);
-    static void sendIviSurfaceConfigure(void *data, const QList<QVariant> &parameters);
-    static void sendXdgToplevelV6Configure(void *data, const QList<QVariant> &parameters);
-
-public:
-    bool m_startDragSeen = false;
-
-private:
-    static void bindCompositor(wl_client *client, void *data, uint32_t version, uint32_t id);
-    static Surface *resolveSurface(const QVariant &v);
-    static Output *resolveOutput(const QVariant &v);
-    static IviSurface *resolveIviSurface(const QVariant &v);
-    static XdgToplevelV6 *resolveToplevel(const QVariant &v);
-
-    void initShm();
-
-    QRect m_outputGeometry;
-
-    wl_display *m_display = nullptr;
-    wl_event_loop *m_loop = nullptr;
-    int m_fd = -1;
-
-    uint32_t m_time = 0;
-
-    QScopedPointer<Seat> m_seat;
-    Pointer *m_pointer = nullptr;
-    Keyboard *m_keyboard = nullptr;
-    Touch *m_touch = nullptr;
-    QScopedPointer<DataDeviceManager> m_data_device_manager;
-    QVector<Surface *> m_surfaces;
-    QVector<Output *> m_outputs;
-    QScopedPointer<IviApplication> m_iviApplication;
-    QScopedPointer<WlShell> m_wlShell;
-    QScopedPointer<XdgShellV6> m_xdgShellV6;
-    QScopedPointer<FullScreenShellV1> m_fullScreenShellV1;
+    explicit DefaultCompositor();
+    // Convenience functions
+    Surface *surface(int i = 0) { return get<WlCompositor>()->m_surfaces.value(i, nullptr); }
+    XdgSurface *xdgSurface(int i = 0) { return get<XdgWmBase>()->m_xdgSurfaces.value(i, nullptr); }
+    XdgToplevel *xdgToplevel(int i = 0) { return get<XdgWmBase>()->toplevel(i); }
+    XdgPopup *xdgPopup(int i = 0) { return get<XdgWmBase>()->popup(i); }
+    Pointer *pointer() { auto *seat = get<Seat>(); Q_ASSERT(seat); return seat->m_pointer; }
+    uint sendXdgShellPing();
+    void xdgPingAndWaitForPong();
+    // Things that can be changed run-time without confusing the client (i.e. don't require separate tests)
+    struct Config {
+        bool autoEnter = true;
+        bool autoRelease = true;
+        bool autoConfigure = false;
+    } m_config;
+    void resetConfig() { exec([&] { m_config = Config{}; }); }
 };
 
-void registerResource(wl_list *list, wl_resource *resource);
+} // namespace MockCompositor
 
-}
+#define QCOMPOSITOR_VERIFY(expr) QVERIFY(exec([&]{ return expr; }))
+#define QCOMPOSITOR_TRY_VERIFY(expr) QTRY_VERIFY(exec([&]{ return expr; }))
+#define QCOMPOSITOR_COMPARE(expr, expr2) QCOMPARE(exec([&]{ return expr; }), expr2)
+#define QCOMPOSITOR_TRY_COMPARE(expr, expr2) QTRY_COMPARE(exec([&]{ return expr; }), expr2)
 
-class MockSurface
-{
-public:
-    Impl::Surface *handle() const { return m_surface; }
-
-    QImage image;
-
-private:
-    MockSurface(Impl::Surface *surface);
-    friend class Impl::Compositor;
-    friend class Impl::Surface;
-
-    Impl::Surface *m_surface = nullptr;
-};
-
-Q_DECLARE_METATYPE(QSharedPointer<MockSurface>)
-
-class MockIviSurface
-{
-public:
-    Impl::IviSurface *handle() const { return m_iviSurface; }
-    const uint iviId;
-
-private:
-    MockIviSurface(Impl::IviSurface *iviSurface) : iviId(iviSurface->iviId()), m_iviSurface(iviSurface) {}
-    friend class Impl::Compositor;
-    friend class Impl::IviSurface;
-
-    Impl::IviSurface *m_iviSurface;
-};
-
-Q_DECLARE_METATYPE(QSharedPointer<MockIviSurface>)
-
-class MockXdgToplevelV6 : public QObject
-{
-    Q_OBJECT
-public:
-    Impl::XdgToplevelV6 *handle() const { return m_toplevel; }
-
-    void sendConfigure(const QSharedPointer<MockXdgToplevelV6> toplevel);
-
-signals:
-    uint setMinimizedRequested();
-    uint setMaximizedRequested();
-    uint unsetMaximizedRequested();
-    uint setFullscreenRequested();
-    uint unsetFullscreenRequested();
-    void windowGeometryRequested(QRect geometry); // NOTE: This is really an xdg surface event
-
-private:
-    MockXdgToplevelV6(Impl::XdgToplevelV6 *toplevel) : m_toplevel(toplevel) {}
-    friend class Impl::Compositor;
-    friend class Impl::XdgToplevelV6;
-
-    Impl::XdgToplevelV6 *m_toplevel;
-};
-
-Q_DECLARE_METATYPE(QSharedPointer<MockXdgToplevelV6>)
-
-class MockOutput {
-public:
-    Impl::Output *handle() const { return m_output; }
-    MockOutput(Impl::Output *output);
-private:
-    Impl::Output *m_output = nullptr;
-};
-
-Q_DECLARE_METATYPE(QSharedPointer<MockOutput>)
-
-class MockCompositor
-{
-public:
-    MockCompositor();
-    ~MockCompositor();
-
-    void applicationInitialized();
-
-    int waylandFileDescriptor() const;
-    void processWaylandEvents();
-
-    void setOutputMode(const QSize &size);
-    void setKeyboardFocus(const QSharedPointer<MockSurface> &surface);
-    void sendMousePress(const QSharedPointer<MockSurface> &surface, const QPoint &pos);
-    void sendMouseRelease(const QSharedPointer<MockSurface> &surface);
-    void sendKeyPress(const QSharedPointer<MockSurface> &surface, uint code);
-    void sendKeyRelease(const QSharedPointer<MockSurface> &surface, uint code);
-    void sendTouchDown(const QSharedPointer<MockSurface> &surface, const QPoint &position, int id);
-    void sendTouchMotion(const QSharedPointer<MockSurface> &surface, const QPoint &position, int id);
-    void sendTouchUp(const QSharedPointer<MockSurface> &surface, int id);
-    void sendTouchFrame(const QSharedPointer<MockSurface> &surface);
-    void sendDataDeviceDataOffer(const QSharedPointer<MockSurface> &surface);
-    void sendDataDeviceEnter(const QSharedPointer<MockSurface> &surface, const QPoint &position);
-    void sendDataDeviceMotion(const QPoint &position);
-    void sendDataDeviceDrop(const QSharedPointer<MockSurface> &surface);
-    void sendDataDeviceLeave(const QSharedPointer<MockSurface> &surface);
-    void sendAddOutput();
-    void sendRemoveOutput(const QSharedPointer<MockOutput> &output);
-    void sendOutputGeometry(const QSharedPointer<MockOutput> &output, const QRect &geometry);
-    void sendSurfaceEnter(const QSharedPointer<MockSurface> &surface, QSharedPointer<MockOutput> &output);
-    void sendSurfaceLeave(const QSharedPointer<MockSurface> &surface, QSharedPointer<MockOutput> &output);
-    void sendShellSurfaceConfigure(const QSharedPointer<MockSurface> surface, const QSize &size = QSize(0, 0));
-    void sendIviSurfaceConfigure(const QSharedPointer<MockIviSurface> iviSurface, const QSize &size);
-    void sendXdgToplevelV6Configure(const QSharedPointer<MockXdgToplevelV6> toplevel, const QSize &size = QSize(0, 0),
-                                    const QVector<uint> &states = { ZXDG_TOPLEVEL_V6_STATE_ACTIVATED });
-    void waitForStartDrag();
-
-    QSharedPointer<MockSurface> surface();
-    QSharedPointer<MockOutput> output(int index = 0);
-    QSharedPointer<MockIviSurface> iviSurface(int index = 0);
-    QSharedPointer<MockXdgToplevelV6> xdgToplevelV6(int index = 0);
-    QSharedPointer<MockSurface> fullScreenShellV1Surface(int index = 0);
-
-    void lock();
-    void unlock();
-
-private:
-    struct Command
-    {
-        typedef void (*Callback)(void *target, const QList<QVariant> &parameters);
-
-        Callback callback;
-        void *target = nullptr;
-        QList<QVariant> parameters;
-    };
-
-    static Command makeCommand(Command::Callback callback, void *target);
-
-    void processCommand(const Command &command);
-    void dispatchCommands();
-
-    static void *run(void *data);
-
-    bool m_alive = true;
-    bool m_ready = false;
-    pthread_t m_thread;
-    QMutex m_mutex;
-    QWaitCondition m_waitCondition;
-
-    Impl::Compositor *m_compositor = nullptr;
-
-    QList<Command> m_commandQueue;
-};
+#define QCOMPOSITOR_TEST_MAIN(test) \
+int main(int argc, char **argv) \
+{ \
+    setenv("XDG_RUNTIME_DIR", ".", 1); \
+    setenv("QT_QPA_PLATFORM", "wayland", 1); \
+    test tc; \
+    QGuiApplication app(argc, argv); \
+    return QTest::qExec(&tc, argc, argv); \
+} \
 
 #endif

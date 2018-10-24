@@ -4,5 +4,8 @@ SUBDIRS += \
     client \
     fullscreenshellv1 \
     iviapplication \
-    xdgshellv6 \
-    wl_connect
+    seatv4 \
+    surface \
+    wl_connect \
+    xdgshell \
+    xdgshellv6

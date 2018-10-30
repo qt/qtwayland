@@ -261,9 +261,14 @@ void QWaylandXdgSurfaceV6::setAppId(const QString &appId)
         m_toplevel->set_app_id(appId);
 }
 
+bool QWaylandXdgSurfaceV6::isExposed() const
+{
+    return m_configured || m_pendingConfigureSerial;
+}
+
 bool QWaylandXdgSurfaceV6::handleExpose(const QRegion &region)
 {
-    if (!m_configured && !region.isEmpty()) {
+    if (!isExposed() && !region.isEmpty()) {
         m_exposeRegion = region;
         return true;
     }
@@ -336,10 +341,18 @@ void QWaylandXdgSurfaceV6::setPopup(QWaylandWindow *parent, QWaylandInputDevice 
 
 void QWaylandXdgSurfaceV6::zxdg_surface_v6_configure(uint32_t serial)
 {
-    m_window->applyConfigureWhenPossible();
     m_pendingConfigureSerial = serial;
+    if (!m_configured) {
+        // We have to do the initial applyConfigure() immediately, since that is the expose.
+        applyConfigure();
+    } else {
+        // Later configures are probably resizes, so we have to queue them up for a time when we
+        // are not painting to the window.
+        m_window->applyConfigureWhenPossible();
+    }
+
     if (!m_exposeRegion.isEmpty()) {
-        QWindowSystemInterface::handleExposeEvent(m_window->window(), m_exposeRegion);
+        m_window->handleExpose(m_exposeRegion);
         m_exposeRegion = QRegion();
     }
 }

@@ -99,6 +99,7 @@ public:
     bool focusOnClick() const;
     void setFocusOnClick(bool focus);
 
+    bool inputRegionContains(const QPointF &localPosition) const;
     bool inputRegionContains(const QPointF &localPosition);
     Q_INVOKABLE QPointF mapToSurface(const QPointF &point) const;
     Q_INVOKABLE QPointF mapFromSurface(const QPointF &point) const;

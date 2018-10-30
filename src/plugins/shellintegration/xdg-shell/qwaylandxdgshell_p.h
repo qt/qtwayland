@@ -86,7 +86,7 @@ public:
     void setAppId(const QString &appId) override;
     void setWindowFlags(Qt::WindowFlags flags) override;
 
-    bool isExposed() const override { return m_configured; }
+    bool isExposed() const override;
     bool handleExpose(const QRegion &) override;
     bool handlesActiveState() const { return m_toplevel; }
     void applyConfigure() override;

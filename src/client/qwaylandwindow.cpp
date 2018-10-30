@@ -246,6 +246,7 @@ void QWaylandWindow::reset(bool sendDestroyEvent)
     }
 
     mMask = QRegion();
+    mQueuedBuffer = nullptr;
 }
 
 QWaylandWindow *QWaylandWindow::fromWlSurface(::wl_surface *surface)
@@ -335,7 +336,9 @@ void QWaylandWindow::setGeometry(const QRect &rect)
 
         mSentInitialResize = true;
     }
-    sendExposeEvent(QRect(QPoint(), geometry().size()));
+    QRect exposeGeometry(QPoint(), geometry().size());
+    if (exposeGeometry != mLastExposeGeometry)
+        sendExposeEvent(exposeGeometry);
 }
 
 void QWaylandWindow::resizeFromApplyConfigure(const QSize &sizeWithMargins, const QPoint &offset)
@@ -353,6 +356,7 @@ void QWaylandWindow::sendExposeEvent(const QRect &rect)
 {
     if (!(mShellSurface && mShellSurface->handleExpose(rect)))
         QWindowSystemInterface::handleExposeEvent(window(), rect);
+    mLastExposeGeometry = rect;
 }
 
 
@@ -564,8 +568,29 @@ void QWaylandWindow::damage(const QRect &rect)
     damage(rect.x(), rect.y(), rect.width(), rect.height());
 }
 
+void QWaylandWindow::safeCommit(QWaylandBuffer *buffer, const QRegion &damage)
+{
+    if (isExposed()) {
+        commit(buffer, damage);
+    } else {
+        mQueuedBuffer = buffer;
+        mQueuedBufferDamage = damage;
+    }
+}
+
+void QWaylandWindow::handleExpose(const QRegion &region)
+{
+    QWindowSystemInterface::handleExposeEvent(window(), region);
+    if (mQueuedBuffer) {
+        commit(mQueuedBuffer, mQueuedBufferDamage);
+        mQueuedBuffer = nullptr;
+        mQueuedBufferDamage = QRegion();
+    }
+}
+
 void QWaylandWindow::commit(QWaylandBuffer *buffer, const QRegion &damage)
 {
+    Q_ASSERT(isExposed());
     if (buffer->committed()) {
         qCDebug(lcWaylandBackingstore) << "Buffer already committed, ignoring.";
         return;

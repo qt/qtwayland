@@ -179,7 +179,7 @@ void QWaylandWlShellSurface::requestWindowStates(Qt::WindowStates states)
         m_window->applyConfigureWhenPossible();
     }
 
-    bool isNormal = ~states & (Qt::WindowMaximized | Qt::WindowFullScreen);
+    bool isNormal = !(states & Qt::WindowMaximized) && !(states & Qt::WindowFullScreen);
     if (isNormal && (changedStates & (Qt::WindowMaximized | Qt::WindowFullScreen))) {
         setTopLevel(); // set normal window
         // There's usually no configure event after this, so just clear the rest of the pending

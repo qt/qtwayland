@@ -768,6 +768,7 @@ bool Scanner::process()
             printf("    void %s::destroy_func(struct ::wl_resource *client_resource)\n", interfaceName);
             printf("    {\n");
             printf("        Resource *resource = Resource::fromResource(client_resource);\n");
+            printf("        Q_ASSERT(resource);\n");
             printf("        %s *that = resource->%s_object;\n", interfaceName, interfaceNameStripped);
             printf("        that->m_resource_map.remove(resource->client(), resource);\n");
             printf("        that->%s_destroy_resource(resource);\n", interfaceNameStripped);

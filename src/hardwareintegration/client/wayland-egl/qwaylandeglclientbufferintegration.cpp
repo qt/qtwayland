@@ -65,7 +65,7 @@ static const char *qwaylandegl_threadedgl_blacklist_vendor[] = {
 
 QWaylandEglClientBufferIntegration::QWaylandEglClientBufferIntegration()
 {
-    qDebug() << "Using Wayland-EGL";
+    qCDebug(lcQpaWayland) << "Using Wayland-EGL";
 }
 
 
@@ -87,7 +87,7 @@ void QWaylandEglClientBufferIntegration::initialize(QWaylandDisplay *display)
 
             m_eglDisplay = eglGetPlatformDisplay(EGL_PLATFORM_WAYLAND_KHR, display->wl_display(), nullptr);
         } else {
-            qWarning("The EGL implementation does not support the Wayland platform");
+            qCWarning(lcQpaWayland) << "The EGL implementation does not support the Wayland platform";
             return;
         }
     } else {
@@ -102,13 +102,13 @@ void QWaylandEglClientBufferIntegration::initialize(QWaylandDisplay *display)
     m_display = display;
 
     if (m_eglDisplay == EGL_NO_DISPLAY) {
-        qWarning("EGL not available");
+        qCWarning(lcQpaWayland) << "EGL not available";
         return;
     }
 
     EGLint major,minor;
     if (!eglInitialize(m_eglDisplay, &major, &minor)) {
-        qWarning("failed to initialize EGL display");
+        qCWarning(lcQpaWayland) <<  "Failed to initialize EGL display" << hex << eglGetError();
         m_eglDisplay = EGL_NO_DISPLAY;
         return;
     }

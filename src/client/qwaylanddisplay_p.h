@@ -94,7 +94,7 @@ class QWaylandQtKeyExtension;
 class QWaylandWindow;
 class QWaylandIntegration;
 class QWaylandHardwareIntegration;
-class QWaylandShellSurface;
+class QWaylandShellIntegration;
 class QWaylandCursorTheme;
 
 typedef void (*RegistryListener)(void *data,
@@ -115,13 +115,13 @@ public:
     QWaylandScreen *screenForOutput(struct wl_output *output) const;
 
     struct wl_surface *createSurface(void *handle);
-    QWaylandShellSurface *createShellSurface(QWaylandWindow *window);
     struct ::wl_region *createRegion(const QRegion &qregion);
     struct ::wl_subsurface *createSubSurface(QWaylandWindow *window, QWaylandWindow *parent);
 
+    QWaylandShellIntegration *shellIntegration() const;
     QWaylandClientBufferIntegration *clientBufferIntegration() const;
-
     QWaylandWindowManagerIntegration *windowManagerIntegration() const;
+
 #if QT_CONFIG(cursor)
     void setCursor(struct wl_buffer *buffer, struct wl_cursor_image *image, qreal dpr);
     void setCursor(const QSharedPointer<QWaylandBuffer> &buffer, const QPoint &hotSpot, qreal dpr);

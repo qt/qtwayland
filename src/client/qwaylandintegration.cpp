@@ -422,7 +422,7 @@ void QWaylandIntegration::initializeShellIntegration()
     Q_FOREACH (QString preferredShell, preferredShells) {
         mShellIntegration.reset(createShellIntegration(preferredShell));
         if (mShellIntegration) {
-            qDebug("Using the '%s' shell integration", qPrintable(preferredShell));
+            qCDebug(lcQpaWayland, "Using the '%s' shell integration", qPrintable(preferredShell));
             break;
         }
     }

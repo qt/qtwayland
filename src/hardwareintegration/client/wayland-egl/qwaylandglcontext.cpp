@@ -399,8 +399,13 @@ bool QWaylandGLContext::makeCurrent(QPlatformSurface *surface)
     QWaylandEglWindow *window = static_cast<QWaylandEglWindow *>(surface);
     EGLSurface eglSurface = window->eglSurface();
 
-    if (!window->needToUpdateContentFBO() && (eglSurface != EGL_NO_SURFACE && eglGetCurrentContext() == m_context && eglGetCurrentSurface(EGL_DRAW) == eglSurface))
+    if (!window->needToUpdateContentFBO() && (eglSurface != EGL_NO_SURFACE)) {
+        if (!eglMakeCurrent(m_eglDisplay, eglSurface, eglSurface, m_context)) {
+            qWarning("QWaylandGLContext::makeCurrent: eglError: %x, this: %p \n", eglGetError(), this);
+            return false;
+        }
         return true;
+    }
 
     if (window->isExposed())
         window->setCanResize(false);

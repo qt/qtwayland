@@ -56,8 +56,10 @@ void QWaylandViewPrivate::markSurfaceAsDestroyed(QWaylandSurface *surface)
     Q_ASSERT(surface == this->surface);
 
     setSurface(nullptr);
+    QPointer<QWaylandView> deleteGuard(q);
     emit q->surfaceDestroyed();
-    clearFrontBuffer();
+    if (!deleteGuard.isNull())
+        clearFrontBuffer();
 }
 
 /*!

@@ -138,7 +138,8 @@ private:
     };
 
     void setToplevel();
-    void setPopup(QWaylandWindow *parent, QWaylandInputDevice *device, int serial, bool grab);
+    void setPopup(QWaylandWindow *parent);
+    void setGrabPopup(QWaylandWindow *parent, QWaylandInputDevice *device, int serial);
 
     QWaylandXdgShell *m_shell = nullptr;
     QWaylandWindow *m_window = nullptr;

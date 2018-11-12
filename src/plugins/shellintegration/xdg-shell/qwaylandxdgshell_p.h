@@ -170,7 +170,7 @@ private:
 
     QWaylandDisplay *m_display = nullptr;
     QScopedPointer<QWaylandXdgDecorationManagerV1> m_xdgDecorationManager;
-    QWaylandXdgSurface::Popup *m_topmostPopup = nullptr;
+    QWaylandXdgSurface::Popup *m_topmostGrabbingPopup = nullptr;
 
     friend class QWaylandXdgSurface;
 };

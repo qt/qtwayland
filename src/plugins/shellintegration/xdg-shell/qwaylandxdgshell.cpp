@@ -200,14 +200,14 @@ QWaylandXdgSurface::Popup::~Popup()
 
     if (m_grabbing) {
         auto *shell = m_xdgSurface->m_shell;
-        Q_ASSERT(shell->m_topmostPopup == this);
-        shell->m_topmostPopup = m_parent->m_popup;
+        Q_ASSERT(shell->m_topmostGrabbingPopup == this);
+        shell->m_topmostGrabbingPopup = m_parent->m_popup;
     }
 }
 
 void QWaylandXdgSurface::Popup::grab(QWaylandInputDevice *seat, uint serial)
 {
-    m_xdgSurface->m_shell->m_topmostPopup = this;
+    m_xdgSurface->m_shell->m_topmostGrabbingPopup = this;
     xdg_popup::grab(seat->wl_seat(), serial);
     m_grabbing = true;
 }
@@ -366,7 +366,7 @@ void QWaylandXdgSurface::setPopup(QWaylandWindow *parent)
 void QWaylandXdgSurface::setGrabPopup(QWaylandWindow *parent, QWaylandInputDevice *device, int serial)
 {
     auto parentXdgSurface = static_cast<QWaylandXdgSurface *>(parent->shellSurface());
-    auto *top = m_shell->m_topmostPopup;
+    auto *top = m_shell->m_topmostGrabbingPopup;
 
     if (top && top->m_xdgSurface != parentXdgSurface) {
         qCWarning(lcQpaWayland) << "setGrabPopup called for a surface that was not the topmost popup, positions might be off.";

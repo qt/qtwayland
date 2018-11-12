@@ -156,7 +156,7 @@ public:
 
 private:
     void zxdg_shell_v6_ping(uint32_t serial) override;
-    QWaylandXdgSurfaceV6::Popup *m_topmostPopup = nullptr;
+    QWaylandXdgSurfaceV6::Popup *m_topmostGrabbingPopup = nullptr;
 
     friend class QWaylandXdgSurfaceV6;
 };

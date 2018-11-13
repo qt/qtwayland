@@ -93,6 +93,11 @@
             "condition": "features.draganddrop || features.clipboard",
             "output": [ "privateFeature" ]
         },
+        "wayland-client-primary-selection": {
+            "label": "primary-selection clipboard",
+            "condition": "features.clipboard",
+            "output": [ "privateFeature" ]
+        },
         "wayland-client-fullscreen-shell-v1": {
             "label": "fullscreen-shell-v1",
             "condition": "features.wayland-client",

@@ -52,7 +52,10 @@
 #if QT_CONFIG(wayland_datadevice)
 #include "qwaylanddatadevicemanager_p.h"
 #include "qwaylanddatadevice_p.h"
-#endif
+#endif // QT_CONFIG(wayland_datadevice)
+#if QT_CONFIG(wayland_client_primary_selection)
+#include "qwaylandprimaryselectionv1_p.h"
+#endif // QT_CONFIG(wayland_client_primary_selection)
 #if QT_CONFIG(cursor)
 #include <wayland-cursor.h>
 #endif
@@ -69,6 +72,7 @@
 #include "qwaylandqtkey_p.h"
 
 #include <QtWaylandClient/private/qwayland-text-input-unstable-v2.h>
+#include <QtWaylandClient/private/qwayland-wp-primary-selection-unstable-v1.h>
 
 #include <QtCore/private/qcore_unix_p.h>
 
@@ -318,6 +322,10 @@ void QWaylandDisplay::registry_global(uint32_t id, const QString &interface, uin
         mTouchExtension.reset(new QWaylandTouchExtension(this, id));
     } else if (interface == QStringLiteral("zqt_key_v1")) {
         mQtKeyExtension.reset(new QWaylandQtKeyExtension(this, id));
+#if QT_CONFIG(wayland_client_primary_selection)
+    } else if (interface == QStringLiteral("zwp_primary_selection_device_manager_v1")) {
+        mPrimarySelectionManager.reset(new QWaylandPrimarySelectionDeviceManagerV1(this, id, 1));
+#endif
     } else if (interface == QStringLiteral("zwp_text_input_manager_v2") && !mClientSideInputContextRequested) {
         mTextInputManager.reset(new QtWayland::zwp_text_input_manager_v2(registry, id, 1));
         for (QWaylandInputDevice *inputDevice : qAsConst(mInputDevices))

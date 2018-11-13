@@ -125,6 +125,23 @@ public:
     }
 
     /*!
+     * \brief Returns the nth global with the given type, if any
+     */
+    template<typename global_type>
+    global_type *get(int index)
+    {
+        warnIfNotLockedByThread(Q_FUNC_INFO);
+        for (auto *global : qAsConst(m_globals)) {
+            if (auto *casted = qobject_cast<global_type *>(global)) {
+                if (index--)
+                    continue;
+                return casted;
+            }
+        }
+        return nullptr;
+    }
+
+    /*!
      * \brief Returns all globals with the given type, if any
      */
     template<typename global_type>

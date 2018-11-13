@@ -31,6 +31,7 @@ WAYLANDCLIENTSOURCES += \
             ../extensions/touch-extension.xml \
             ../extensions/qt-key-unstable-v1.xml \
             ../extensions/qt-windowmanager.xml \
+            ../3rdparty/protocol/wp-primary-selection-unstable-v1.xml \
             ../3rdparty/protocol/text-input-unstable-v2.xml \
             ../3rdparty/protocol/xdg-output-unstable-v1.xml \
             ../3rdparty/protocol/wayland.xml
@@ -116,6 +117,11 @@ qtConfig(wayland-datadevice) {
         qwaylanddatadevicemanager.cpp \
         qwaylanddataoffer.cpp \
         qwaylanddatasource.cpp
+}
+
+qtConfig(wayland-client-primary-selection) {
+    HEADERS += qwaylandprimaryselectionv1_p.h
+    SOURCES += qwaylandprimaryselectionv1.cpp
 }
 
 qtConfig(draganddrop) {

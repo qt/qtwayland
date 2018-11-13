@@ -6,6 +6,7 @@ SUBDIRS += \
     fullscreenshellv1 \
     iviapplication \
     output \
+    primaryselectionv1 \
     seatv4 \
     seatv5 \
     surface \

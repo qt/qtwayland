@@ -27,6 +27,7 @@
         "^qwayland-text-input-unstable-v2.h",
         "^qwayland-touch-extension.h",
         "^qwayland-wayland.h",
+        "^qwayland-wp-primary-selection-unstable-v1.h",
         "^qwayland-xdg-output-unstable-v1.h",
         "^wayland-hardware-integration-client-protocol.h",
         "^wayland-qt-windowmanager-client-protocol.h",
@@ -36,6 +37,7 @@
         "^wayland-text-input-unstable-v2-client-protocol.h",
         "^wayland-touch-extension-client-protocol.h",
         "^wayland-wayland-client-protocol.h",
+        "^wayland-wp-primary-selection-unstable-v1-client-protocol.h",
         "^wayland-xdg-output-unstable-v1-client-protocol.h",
     ],
     "$basedir/src/plugins/shellintegration/xdg-shell" => [

@@ -65,27 +65,40 @@ namespace QtWaylandClient {
 class QWaylandDisplay;
 class QWaylandMimeData;
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandDataOffer : public QtWayland::wl_data_offer
+class QWaylandAbstractDataOffer
+{
+public:
+    virtual void startReceiving(const QString &mimeType, int fd) = 0;
+    virtual QMimeData *mimeData() = 0;
+
+    virtual ~QWaylandAbstractDataOffer() = default;
+};
+
+class Q_WAYLAND_CLIENT_EXPORT QWaylandDataOffer
+        : public QtWayland::wl_data_offer // needs to be the first because we do static casts from the user pointer to the wrapper
+        , public QWaylandAbstractDataOffer
 {
 public:
     explicit QWaylandDataOffer(QWaylandDisplay *display, struct ::wl_data_offer *offer);
     ~QWaylandDataOffer() override;
+    QMimeData *mimeData() override;
 
     QString firstFormat() const;
 
-    QMimeData *mimeData();
+    void startReceiving(const QString &mimeType, int fd) override;
 
 protected:
     void data_offer_offer(const QString &mime_type) override;
 
 private:
+    QWaylandDisplay *m_display = nullptr;
     QScopedPointer<QWaylandMimeData> m_mimeData;
 };
 
 
 class QWaylandMimeData : public QInternalMimeData {
 public:
-    explicit QWaylandMimeData(QWaylandDataOffer *dataOffer, QWaylandDisplay *display);
+    explicit QWaylandMimeData(QWaylandAbstractDataOffer *dataOffer);
     ~QWaylandMimeData() override;
 
     void appendFormat(const QString &mimeType);
@@ -98,13 +111,12 @@ protected:
 private:
     int readData(int fd, QByteArray &data) const;
 
-    mutable QWaylandDataOffer *m_dataOffer = nullptr;
-    QWaylandDisplay *m_display = nullptr;
+    QWaylandAbstractDataOffer *m_dataOffer = nullptr;
     mutable QStringList m_types;
     mutable QHash<QString, QByteArray> m_data;
 };
 
-}
+} // namespace QtWaylandClient
 
 QT_END_NAMESPACE
 #endif

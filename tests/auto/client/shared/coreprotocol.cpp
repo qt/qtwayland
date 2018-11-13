@@ -378,6 +378,7 @@ uint Keyboard::sendEnter(Surface *surface)
     const auto pointerResources = resourceMap().values(client);
     for (auto *r : pointerResources)
         send_enter(r->handle, serial, surface->resource()->handle, QByteArray());
+    m_enteredSurface = surface;
     return serial;
 }
 
@@ -388,6 +389,7 @@ uint Keyboard::sendLeave(Surface *surface)
     const auto pointerResources = resourceMap().values(client);
     for (auto *r : pointerResources)
         send_leave(r->handle, serial, surface->resource()->handle);
+    m_enteredSurface = nullptr;
     return serial;
 }
 

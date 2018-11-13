@@ -93,6 +93,9 @@ class QWaylandScreen;
 class QWaylandClientBufferIntegration;
 class QWaylandWindowManagerIntegration;
 class QWaylandDataDeviceManager;
+#if QT_CONFIG(wayland_client_primary_selection)
+class QWaylandPrimarySelectionDeviceManagerV1;
+#endif
 class QWaylandTouchExtension;
 class QWaylandQtKeyExtension;
 class QWaylandWindow;
@@ -149,6 +152,9 @@ public:
     QWaylandInputDevice *currentInputDevice() const { return defaultInputDevice(); }
 #if QT_CONFIG(wayland_datadevice)
     QWaylandDataDeviceManager *dndSelectionHandler() const { return mDndSelectionHandler.data(); }
+#endif
+#if QT_CONFIG(wayland_client_primary_selection)
+    QWaylandPrimarySelectionDeviceManagerV1 *primarySelectionManager() const { return mPrimarySelectionManager.data(); }
 #endif
     QtWayland::qt_surface_extension *windowExtension() const { return mWindowExtension.data(); }
     QWaylandTouchExtension *touchExtension() const { return mTouchExtension.data(); }
@@ -238,6 +244,9 @@ private:
     QScopedPointer<QWaylandTouchExtension> mTouchExtension;
     QScopedPointer<QWaylandQtKeyExtension> mQtKeyExtension;
     QScopedPointer<QWaylandWindowManagerIntegration> mWindowManagerIntegration;
+#if QT_CONFIG(wayland_client_primary_selection)
+    QScopedPointer<QWaylandPrimarySelectionDeviceManagerV1> mPrimarySelectionManager;
+#endif
     QScopedPointer<QtWayland::zwp_text_input_manager_v2> mTextInputManager;
     QScopedPointer<QWaylandHardwareIntegration> mHardwareIntegration;
     QScopedPointer<QtWayland::zxdg_output_manager_v1> mXdgOutputManager;

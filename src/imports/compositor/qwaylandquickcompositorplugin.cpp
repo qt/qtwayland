@@ -59,6 +59,7 @@
 #include <QtWaylandCompositor/QWaylandResource>
 
 #include <QtWaylandCompositor/QWaylandQtWindowManager>
+#include <QtWaylandCompositor/QWaylandWlScaler>
 #include <QtWaylandCompositor/QWaylandWlShell>
 #include <QtWaylandCompositor/QWaylandTextInputManager>
 #include <QtWaylandCompositor/QWaylandXdgShellV5>
@@ -76,6 +77,7 @@ QT_BEGIN_NAMESPACE
 Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CONTAINER_CLASS(QWaylandQuickCompositor)
 Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CLASS(QWaylandQtWindowManager)
 Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CLASS(QWaylandIviApplication)
+Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CLASS(QWaylandWlScaler)
 Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CLASS(QWaylandWlShell)
 Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CLASS(QWaylandXdgShellV5)
 Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CLASS(QWaylandXdgShellV6)
@@ -173,6 +175,8 @@ public:
         qmlRegisterUncreatableType<QWaylandXdgPopup>(uri, 1, 3, "XdgPopup", QObject::tr("Cannot create instance of XdgShellPopup"));
 
         qmlRegisterType<QWaylandXdgDecorationManagerV1QuickExtension>(uri, 1, 3, "XdgDecorationManagerV1");
+
+        qmlRegisterType<QWaylandWlScalerQuickExtension>(uri, 1, 13, "WlScaler");
     }
 };
 //![class decl]

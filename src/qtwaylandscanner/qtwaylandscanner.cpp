@@ -504,6 +504,7 @@ bool Scanner::process()
             printf("            virtual ~Resource() {}\n");
             printf("\n");
             printf("            %s *%s_object;\n", interfaceName, interfaceNameStripped);
+            printf("            %s *object() { return %s_object; } \n", interfaceName, interfaceNameStripped);
             printf("            struct ::wl_resource *handle;\n");
             printf("\n");
             printf("            struct ::wl_client *client() const { return wl_resource_get_client(handle); }\n");

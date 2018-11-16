@@ -46,6 +46,8 @@
 
 #include <QtWaylandCompositor/QWaylandResource>
 
+#include <QtWaylandCompositor/private/qwaylandutils_p.h>
+
 QT_BEGIN_NAMESPACE
 
 QWaylandSurfaceRole QWaylandIviSurfacePrivate::s_role("ivi_surface");
@@ -181,10 +183,9 @@ QWaylandSurfaceRole *QWaylandIviSurface::role()
  */
 QWaylandIviSurface *QWaylandIviSurface::fromResource(wl_resource *resource)
 {
-    auto iviSurfaceResource = QWaylandIviSurfacePrivate::Resource::fromResource(resource);
-    if (!iviSurfaceResource)
-        return nullptr;
-    return static_cast<QWaylandIviSurfacePrivate *>(iviSurfaceResource->ivi_surface_object)->q_func();
+    if (auto p = QtWayland::fromResource<QWaylandIviSurfacePrivate *>(resource))
+        return p->q_func();
+    return nullptr;
 }
 
 /*!

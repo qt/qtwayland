@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the QtWaylandCompositor module of the Qt Toolkit.
@@ -37,48 +37,37 @@
 **
 ****************************************************************************/
 
-#include "qwlregion_p.h"
+#ifndef QWAYLANDUTILS_P_H
+#define QWAYLANDUTILS_P_H
 
-#include <QtWaylandCompositor/private/qwaylandutils_p.h>
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists purely as an
+// implementation detail.  This header file may change from version to
+// version without notice, or even be removed.
+//
+// We mean it.
+//
+
+#include <QtCore/qglobal.h>
+
+struct wl_resource;
 
 QT_BEGIN_NAMESPACE
 
 namespace QtWayland {
 
-Region::Region(struct wl_client *client, uint32_t id)
-    : QtWaylandServer::wl_region(client, id, 1)
-{
+template<typename return_type>
+return_type fromResource(struct ::wl_resource *resource) {
+    if (auto *r = std::remove_pointer<return_type>::type::Resource::fromResource(resource))
+        return static_cast<return_type>(r->object());
+    return nullptr;
 }
 
-Region::~Region()
-{
-}
-
-Region *Region::fromResource(struct ::wl_resource *resource)
-{
-    return QtWayland::fromResource<Region *>(resource);
-}
-
-void Region::region_destroy_resource(Resource *)
-{
-    delete this;
-}
-
-void Region::region_destroy(Resource *resource)
-{
-    wl_resource_destroy(resource->handle);
-}
-
-void Region::region_add(Resource *, int32_t x, int32_t y, int32_t w, int32_t h)
-{
-    m_region += QRect(x, y, w, h);
-}
-
-void Region::region_subtract(Resource *, int32_t x, int32_t y, int32_t w, int32_t h)
-{
-    m_region -= QRect(x, y, w, h);
-}
-
-}
+} // namespace QtWayland
 
 QT_END_NAMESPACE
+
+#endif // QWAYLANDUTILS_P_H

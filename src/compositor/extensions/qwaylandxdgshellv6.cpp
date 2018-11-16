@@ -40,6 +40,7 @@
 #ifdef QT_WAYLAND_COMPOSITOR_QUICK
 #include "qwaylandxdgshellv6integration_p.h"
 #endif
+#include <QtWaylandCompositor/private/qwaylandutils_p.h>
 
 #include <QtWaylandCompositor/QWaylandCompositor>
 #include <QtWaylandCompositor/QWaylandSeat>
@@ -679,10 +680,9 @@ QByteArray QWaylandXdgSurfaceV6::interfaceName()
  */
 QWaylandXdgSurfaceV6 *QWaylandXdgSurfaceV6::fromResource(wl_resource *resource)
 {
-    auto xsResource = QWaylandXdgSurfaceV6Private::Resource::fromResource(resource);
-    if (!xsResource)
-        return nullptr;
-    return static_cast<QWaylandXdgSurfaceV6Private *>(xsResource->zxdg_surface_v6_object)->q_func();
+    if (auto p = QtWayland::fromResource<QWaylandXdgSurfaceV6Private *>(resource))
+        return p->q_func();
+    return nullptr;
 }
 
 #ifdef QT_WAYLAND_COMPOSITOR_QUICK
@@ -1995,9 +1995,7 @@ void QWaylandXdgPositionerV6::zxdg_positioner_v6_set_offset(QtWaylandServer::zxd
 
 QWaylandXdgPositionerV6 *QWaylandXdgPositionerV6::fromResource(wl_resource *resource)
 {
-    if (auto *r = Resource::fromResource(resource))
-        return static_cast<QWaylandXdgPositionerV6 *>(r->zxdg_positioner_v6_object);
-    return nullptr;
+    return QtWayland::fromResource<QWaylandXdgPositionerV6 *>(resource);
 }
 
 QT_END_NAMESPACE

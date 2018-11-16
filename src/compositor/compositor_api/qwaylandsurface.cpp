@@ -59,6 +59,7 @@
 #include <QtWaylandCompositor/private/qwaylandcompositor_p.h>
 #include <QtWaylandCompositor/private/qwaylandview_p.h>
 #include <QtWaylandCompositor/private/qwaylandseat_p.h>
+#include <QtWaylandCompositor/private/qwaylandutils_p.h>
 
 #include <QtCore/private/qobject_p.h>
 
@@ -793,10 +794,10 @@ QList<QWaylandView *> QWaylandSurface::views() const
 /*!
  * Returns the QWaylandSurface corresponding to the Wayland resource \a res.
  */
-QWaylandSurface *QWaylandSurface::fromResource(::wl_resource *res)
+QWaylandSurface *QWaylandSurface::fromResource(::wl_resource *resource)
 {
-    if (auto *r = QWaylandSurfacePrivate::Resource::fromResource(res))
-        return static_cast<QWaylandSurfacePrivate *>(r->surface_object)->q_func();
+    if (auto p = QtWayland::fromResource<QWaylandSurfacePrivate *>(resource))
+        return p->q_func();
     return nullptr;
 }
 

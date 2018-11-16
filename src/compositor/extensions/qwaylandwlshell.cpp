@@ -44,6 +44,7 @@
 #ifdef QT_WAYLAND_COMPOSITOR_QUICK
 #include "qwaylandwlshellintegration_p.h"
 #endif
+#include <QtWaylandCompositor/private/qwaylandutils_p.h>
 
 #include <QtWaylandCompositor/QWaylandCompositor>
 #include <QtWaylandCompositor/QWaylandView>
@@ -699,9 +700,8 @@ void QWaylandWlShellSurface::ping()
  */
 QWaylandWlShellSurface *QWaylandWlShellSurface::fromResource(wl_resource *resource)
 {
-    QWaylandWlShellSurfacePrivate::Resource *res = QWaylandWlShellSurfacePrivate::Resource::fromResource(resource);
-    if (res)
-        return static_cast<QWaylandWlShellSurfacePrivate *>(res->shell_surface_object)->q_func();
+    if (auto p = QtWayland::fromResource<QWaylandWlShellSurfacePrivate *>(resource))
+        return p->q_func();
     return nullptr;
 }
 

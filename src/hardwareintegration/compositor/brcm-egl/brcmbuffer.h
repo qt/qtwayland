@@ -41,6 +41,7 @@
 #define BRCMBUFFER_H
 
 #include <QtWaylandCompositor/private/qwayland-server-wayland.h>
+#include <QtWaylandCompositor/private/qwaylandutils_p.h>
 
 #include <QtCore/QSize>
 #include <QtCore/QVector>
@@ -62,7 +63,7 @@ public:
 
     QSize size() { return m_size; }
 
-    static BrcmBuffer *fromResource(struct ::wl_resource *resource) { return static_cast<BrcmBuffer*>(Resource::fromResource(resource)->buffer_object); }
+    static BrcmBuffer *fromResource(struct ::wl_resource *resource) { return QtWayland::fromResource<BrcmBuffer *>(resource); }
 
 protected:
     void buffer_destroy_resource(Resource *resource) override;

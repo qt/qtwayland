@@ -54,6 +54,7 @@
 #if QT_CONFIG(wayland_datadevice)
 #include <QtWaylandCompositor/private/qwldatadevice_p.h>
 #endif
+#include <QtWaylandCompositor/private/qwaylandutils_p.h>
 
 #include "extensions/qwlqtkey_p.h"
 #include "extensions/qwaylandtextinput.h"
@@ -631,8 +632,8 @@ bool QWaylandSeat::isOwner(QInputEvent *inputEvent) const
  */
 QWaylandSeat *QWaylandSeat::fromSeatResource(struct ::wl_resource *resource)
 {
-    if (auto *r = QWaylandSeatPrivate::Resource::fromResource(resource))
-        return static_cast<QWaylandSeatPrivate *>(r->seat_object)->q_func();
+    if (auto p = QtWayland::fromResource<QWaylandSeatPrivate *>(resource))
+        return p->q_func();
     return nullptr;
 }
 

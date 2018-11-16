@@ -41,6 +41,9 @@
 #define XCOMPOSITEBUFFER_H
 
 #include <qwayland-server-wayland.h>
+
+#include <QtWaylandCompositor/private/qwaylandutils_p.h>
+
 #include <QtWaylandCompositor/QWaylandSurface>
 #include <QtWaylandCompositor/QWaylandCompositor>
 
@@ -68,7 +71,7 @@ public:
 
     QSize size() const { return mSize; }
 
-    static XCompositeBuffer *fromResource(struct ::wl_resource *resource) { return static_cast<XCompositeBuffer*>(Resource::fromResource(resource)->buffer_object); }
+    static XCompositeBuffer *fromResource(struct ::wl_resource *resource) { return QtWayland::fromResource<XCompositeBuffer *>(resource); }
 
 protected:
     void buffer_destroy_resource(Resource *) override;

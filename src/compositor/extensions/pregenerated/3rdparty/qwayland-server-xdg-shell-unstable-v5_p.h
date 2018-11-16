@@ -71,6 +71,7 @@ namespace QtWaylandServer {
             virtual ~Resource() {}
 
             xdg_shell_v5 *xdg_shell_object;
+            xdg_shell_v5 *object() { return xdg_shell_object; }
             struct ::wl_resource *handle;
 
             struct ::wl_client *client() const { return wl_resource_get_client(handle); }
@@ -191,6 +192,7 @@ namespace QtWaylandServer {
             virtual ~Resource() {}
 
             xdg_surface_v5 *xdg_surface_object;
+            xdg_surface_v5 *object() { return xdg_surface_object; }
             struct ::wl_resource *handle;
 
             struct ::wl_client *client() const { return wl_resource_get_client(handle); }
@@ -364,6 +366,7 @@ namespace QtWaylandServer {
             virtual ~Resource() {}
 
             xdg_popup_v5 *xdg_popup_object;
+            xdg_popup_v5 *object() { return xdg_popup_object; }
             struct ::wl_resource *handle;
 
             struct ::wl_client *client() const { return wl_resource_get_client(handle); }

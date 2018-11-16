@@ -40,6 +40,7 @@
 #ifdef QT_WAYLAND_COMPOSITOR_QUICK
 #include "qwaylandxdgshellintegration_p.h"
 #endif
+#include <QtWaylandCompositor/private/qwaylandutils_p.h>
 
 #include <QtWaylandCompositor/QWaylandCompositor>
 #include <QtWaylandCompositor/QWaylandSeat>
@@ -674,10 +675,9 @@ QByteArray QWaylandXdgSurface::interfaceName()
  */
 QWaylandXdgSurface *QWaylandXdgSurface::fromResource(wl_resource *resource)
 {
-    auto xsResource = QWaylandXdgSurfacePrivate::Resource::fromResource(resource);
-    if (!xsResource)
-        return nullptr;
-    return static_cast<QWaylandXdgSurfacePrivate *>(xsResource->xdg_surface_object)->q_func();
+    if (auto p = QtWayland::fromResource<QWaylandXdgSurfacePrivate *>(resource))
+        return p->q_func();
+    return nullptr;
 }
 
 #ifdef QT_WAYLAND_COMPOSITOR_QUICK
@@ -1182,8 +1182,8 @@ QWaylandSurfaceRole *QWaylandXdgToplevel::role()
  */
 QWaylandXdgToplevel *QWaylandXdgToplevel::fromResource(wl_resource *resource)
 {
-    if (auto *r = QWaylandXdgToplevelPrivate::Resource::fromResource(resource))
-        return static_cast<QWaylandXdgToplevelPrivate *>(r->xdg_toplevel_object)->q_func();
+    if (auto p = QtWayland::fromResource<QWaylandXdgToplevelPrivate *>(resource))
+        return p->q_func();
     return nullptr;
 }
 
@@ -2064,9 +2064,7 @@ void QWaylandXdgPositioner::xdg_positioner_set_offset(QtWaylandServer::xdg_posit
 
 QWaylandXdgPositioner *QWaylandXdgPositioner::fromResource(wl_resource *resource)
 {
-    if (auto *r = Resource::fromResource(resource))
-        return static_cast<QWaylandXdgPositioner *>(r->xdg_positioner_object);
-    return nullptr;
+    return QtWayland::fromResource<QWaylandXdgPositioner *>(resource);
 }
 
 Qt::Edges QWaylandXdgPositioner::convertToEdges(anchor anchor)

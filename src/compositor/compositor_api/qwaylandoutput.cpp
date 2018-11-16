@@ -47,6 +47,7 @@
 #include <QtWaylandCompositor/private/qwaylandsurface_p.h>
 #include <QtWaylandCompositor/private/qwaylandcompositor_p.h>
 #include <QtWaylandCompositor/private/qwaylandview_p.h>
+#include <QtWaylandCompositor/private/qwaylandutils_p.h>
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QtMath>
@@ -350,8 +351,8 @@ void QWaylandOutput::initialize()
  */
 QWaylandOutput *QWaylandOutput::fromResource(wl_resource *resource)
 {
-    if (auto *r = QWaylandOutputPrivate::Resource::fromResource(resource))
-        return static_cast<QWaylandOutputPrivate *>(r->output_object)->q_func();
+    if (auto p = QtWayland::fromResource<QWaylandOutputPrivate *>(resource))
+        return p->q_func();
     return nullptr;
 }
 

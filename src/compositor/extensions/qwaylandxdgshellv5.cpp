@@ -43,6 +43,7 @@
 #ifdef QT_WAYLAND_COMPOSITOR_QUICK
 #include "qwaylandxdgshellv5integration_p.h"
 #endif
+#include <QtWaylandCompositor/private/qwaylandutils_p.h>
 
 #include <QtWaylandCompositor/QWaylandCompositor>
 #include <QtWaylandCompositor/QWaylandSurface>
@@ -1179,10 +1180,9 @@ QWaylandSurfaceRole *QWaylandXdgSurfaceV5::role()
  */
 QWaylandXdgSurfaceV5 *QWaylandXdgSurfaceV5::fromResource(wl_resource *resource)
 {
-    auto xsResource = QWaylandXdgSurfaceV5Private::Resource::fromResource(resource);
-    if (!xsResource)
-        return nullptr;
-    return static_cast<QWaylandXdgSurfaceV5Private *>(xsResource->xdg_surface_object)->q_func();
+    if (auto p = QtWayland::fromResource<QWaylandXdgSurfaceV5Private *>(resource))
+        return p->q_func();
+    return nullptr;
 }
 
 QSize QWaylandXdgSurfaceV5::sizeForResize(const QSizeF &size, const QPointF &delta,
@@ -1497,10 +1497,9 @@ QWaylandSurfaceRole *QWaylandXdgPopupV5::role()
 
 QWaylandXdgPopupV5 *QWaylandXdgPopupV5::fromResource(wl_resource *resource)
 {
-    auto popupResource = QWaylandXdgPopupV5Private::Resource::fromResource(resource);
-    if (!popupResource)
-        return nullptr;
-    return static_cast<QWaylandXdgPopupV5Private *>(popupResource->xdg_popup_object)->q_func();
+    if (auto p = QtWayland::fromResource<QWaylandXdgPopupV5Private *>(resource))
+        return p->q_func();
+    return nullptr;
 }
 
 void QWaylandXdgPopupV5::sendPopupDone()

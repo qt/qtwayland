@@ -138,7 +138,8 @@ private:
     };
 
     void setToplevel();
-    void setPopup(QWaylandWindow *parent, QWaylandInputDevice *device, int serial, bool grab);
+    void setPopup(QWaylandWindow *parent);
+    void setGrabPopup(QWaylandWindow *parent, QWaylandInputDevice *device, int serial);
 
     QWaylandXdgShell *m_shell = nullptr;
     QWaylandWindow *m_window = nullptr;
@@ -169,7 +170,7 @@ private:
 
     QWaylandDisplay *m_display = nullptr;
     QScopedPointer<QWaylandXdgDecorationManagerV1> m_xdgDecorationManager;
-    QWaylandXdgSurface::Popup *m_topmostPopup = nullptr;
+    QWaylandXdgSurface::Popup *m_topmostGrabbingPopup = nullptr;
 
     friend class QWaylandXdgSurface;
 };

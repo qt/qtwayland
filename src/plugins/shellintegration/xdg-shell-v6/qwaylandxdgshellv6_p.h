@@ -131,7 +131,8 @@ private:
     };
 
     void setToplevel();
-    void setPopup(QWaylandWindow *parent, QWaylandInputDevice *device, int serial, bool grab);
+    void setPopup(QWaylandWindow *parent);
+    void setGrabPopup(QWaylandWindow *parent, QWaylandInputDevice *device, int serial);
 
     QWaylandXdgShellV6 *m_shell = nullptr;
     QWaylandWindow *m_window = nullptr;
@@ -155,7 +156,7 @@ public:
 
 private:
     void zxdg_shell_v6_ping(uint32_t serial) override;
-    QWaylandXdgSurfaceV6::Popup *m_topmostPopup = nullptr;
+    QWaylandXdgSurfaceV6::Popup *m_topmostGrabbingPopup = nullptr;
 
     friend class QWaylandXdgSurfaceV6;
 };

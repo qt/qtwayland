@@ -51,7 +51,7 @@
 
 #include <fcntl.h>
 #include <unistd.h>
-#if QT_CONFIG(xkbcommon_evdev)
+#if QT_CONFIG(xkbcommon)
 #include <sys/mman.h>
 #include <sys/types.h>
 #include <qwaylandxkb_p.h>
@@ -66,7 +66,7 @@ QWaylandKeyboardPrivate::QWaylandKeyboardPrivate(QWaylandSeat *seat)
 
 QWaylandKeyboardPrivate::~QWaylandKeyboardPrivate()
 {
-#if QT_CONFIG(xkbcommon_evdev)
+#if QT_CONFIG(xkbcommon)
     if (xkb_context) {
         if (keymap_area)
             munmap(keymap_area, keymap_size);
@@ -136,7 +136,7 @@ void QWaylandKeyboardPrivate::keyboard_bind_resource(wl_keyboard::Resource *reso
     if (resource->version() >= WL_KEYBOARD_REPEAT_INFO_SINCE_VERSION)
         send_repeat_info(resource->handle, repeatRate, repeatDelay);
 
-#if QT_CONFIG(xkbcommon_evdev)
+#if QT_CONFIG(xkbcommon)
     if (xkb_context) {
         send_keymap(resource->handle, WL_KEYBOARD_KEYMAP_FORMAT_XKB_V1,
                     keymap_fd, keymap_size);
@@ -164,7 +164,7 @@ void QWaylandKeyboardPrivate::keyboard_release(wl_keyboard::Resource *resource)
 
 void QWaylandKeyboardPrivate::keyEvent(uint code, uint32_t state)
 {
-#if QT_CONFIG(xkbcommon_evdev)
+#if QT_CONFIG(xkbcommon)
     uint key = toWaylandXkbV1Key(code);
 #else
     uint key = code;
@@ -180,7 +180,7 @@ void QWaylandKeyboardPrivate::sendKeyEvent(uint code, uint32_t state)
 {
     uint32_t time = compositor()->currentTimeMsecs();
     uint32_t serial = compositor()->nextSerial();
-#if QT_CONFIG(xkbcommon_evdev)
+#if QT_CONFIG(xkbcommon)
     uint key = toWaylandXkbV1Key(code);
 #else
     uint key = code;
@@ -197,7 +197,7 @@ void QWaylandKeyboardPrivate::modifiers(uint32_t serial, uint32_t mods_depressed
     }
 }
 
-#if QT_CONFIG(xkbcommon_evdev)
+#if QT_CONFIG(xkbcommon)
 void QWaylandKeyboardPrivate::maybeUpdateXkbScanCodeTable()
 {
     if (!scanCodesByQtKey.isEmpty() || !xkbState())
@@ -225,7 +225,7 @@ void QWaylandKeyboardPrivate::maybeUpdateXkbScanCodeTable()
 
 void QWaylandKeyboardPrivate::updateModifierState(uint code, uint32_t state)
 {
-#if QT_CONFIG(xkbcommon_evdev)
+#if QT_CONFIG(xkbcommon)
     if (!xkb_context)
         return;
 
@@ -265,7 +265,7 @@ void QWaylandKeyboardPrivate::maybeUpdateKeymap()
         return;
 
     pendingKeymap = false;
-#if QT_CONFIG(xkbcommon_evdev)
+#if QT_CONFIG(xkbcommon)
     if (!xkb_context)
         return;
 
@@ -285,7 +285,7 @@ void QWaylandKeyboardPrivate::maybeUpdateKeymap()
 #endif
 }
 
-#if QT_CONFIG(xkbcommon_evdev)
+#if QT_CONFIG(xkbcommon)
 static int createAnonymousFile(size_t size)
 {
     QString path = QStandardPaths::writableLocation(QStandardPaths::RuntimeLocation);
@@ -429,7 +429,7 @@ QWaylandKeyboard::QWaylandKeyboard(QWaylandSeat *seat, QObject *parent)
     connect(keymap, &QWaylandKeymap::optionsChanged, this, &QWaylandKeyboard::updateKeymap);
     connect(keymap, &QWaylandKeymap::rulesChanged, this, &QWaylandKeyboard::updateKeymap);
     connect(keymap, &QWaylandKeymap::modelChanged, this, &QWaylandKeyboard::updateKeymap);
-#if QT_CONFIG(xkbcommon_evdev)
+#if QT_CONFIG(xkbcommon)
     d->initXKB();
 #endif
 }
@@ -592,7 +592,7 @@ void QWaylandKeyboard::addClient(QWaylandClient *client, uint32_t id, uint32_t v
 uint QWaylandKeyboard::keyToScanCode(int qtKey) const
 {
     uint scanCode = 0;
-#if QT_CONFIG(xkbcommon_evdev)
+#if QT_CONFIG(xkbcommon)
     Q_D(const QWaylandKeyboard);
     const_cast<QWaylandKeyboardPrivate *>(d)->maybeUpdateXkbScanCodeTable();
     scanCode = d->scanCodesByQtKey.value({d->group, qtKey}, 0);

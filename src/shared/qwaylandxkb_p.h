@@ -45,7 +45,7 @@
 #include <Qt>
 #include <QEvent>
 
-#if QT_CONFIG(xkbcommon_evdev)
+#if QT_CONFIG(xkbcommon)
 #include <xkbcommon/xkbcommon.h>
 #else
 typedef quint32 xkb_keysym_t;

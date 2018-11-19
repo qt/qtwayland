@@ -15,8 +15,8 @@ use_gold_linker: CONFIG += no_linker_version_script
 CONFIG -= precompile_header
 CONFIG += link_pkgconfig wayland-scanner
 
-qtConfig(xkbcommon-evdev): \
-    QMAKE_USE_PRIVATE += xkbcommon_evdev
+qtConfig(xkbcommon): \
+    QMAKE_USE_PRIVATE += xkbcommon
 
 QMAKE_USE += wayland-client
 

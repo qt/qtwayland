@@ -7,8 +7,8 @@ QT += core-private gui-private waylandcompositor waylandcompositor-private
 
 QMAKE_USE += wayland-client wayland-server
 
-qtConfig(xkbcommon-evdev): \
-    QMAKE_USE += xkbcommon_evdev
+qtConfig(xkbcommon): \
+    QMAKE_USE += xkbcommon
 
 WAYLANDCLIENTSOURCES += \
             ../../../../src/3rdparty/protocol/xdg-shell-unstable-v5.xml \

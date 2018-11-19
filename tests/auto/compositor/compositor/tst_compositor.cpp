@@ -58,7 +58,7 @@ class tst_WaylandCompositor : public QObject
 private slots:
     void init();
     void seatCapabilities();
-#if QT_CONFIG(xkbcommon_evdev)
+#if QT_CONFIG(xkbcommon)
     void simpleKeyboard();
     void keyboardKeymaps();
     void keyboardLayoutSwitching();
@@ -169,7 +169,7 @@ void tst_WaylandCompositor::multipleClients()
     QTRY_COMPARE(compositor.surfaces.size(), 0);
 }
 
-#if QT_CONFIG(xkbcommon_evdev)
+#if QT_CONFIG(xkbcommon)
 
 void tst_WaylandCompositor::simpleKeyboard()
 {
@@ -282,7 +282,7 @@ void tst_WaylandCompositor::keyboardLayoutSwitching()
     QTRY_COMPARE(mockKeyboard->m_lastKeyCode, 44u);
 }
 
-#endif // QT_CONFIG(xkbcommon_evdev)
+#endif // QT_CONFIG(xkbcommon)
 
 void tst_WaylandCompositor::keyboardGrab()
 {

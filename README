@@ -9,8 +9,8 @@ QtWaylandCompositor API:
     Enables the creation of Wayland compositors using Qt and QtQuick.
 
 To build the QtWayland module you need the external dependencies:
-xkbcommon 0.2.0 - http://xkbcommon.org/
-wayland 1.6.0 - http://wayland.freedesktop.org/
+xkbcommon - http://xkbcommon.org/
+wayland - http://wayland.freedesktop.org/
 
 QtWaylandCompositor supports loading client buffer integrations that don't use
 the wayland-egl interfaces. These client buffer integrations are picked up by

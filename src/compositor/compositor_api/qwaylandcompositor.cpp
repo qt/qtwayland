@@ -128,7 +128,7 @@ public:
         uint32_t code = ke->nativeScanCode;
         bool isDown = ke->keyType == QEvent::KeyPress;
 
-#if QT_CONFIG(xkbcommon_evdev)
+#if QT_CONFIG(xkbcommon)
         QString text;
         Qt::KeyboardModifiers modifiers = QWaylandXkb::modifiers(keyb->xkbState());
 

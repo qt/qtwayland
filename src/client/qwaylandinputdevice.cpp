@@ -451,16 +451,17 @@ void QWaylandInputDevice::Pointer::pointer_enter(uint32_t serial, struct wl_surf
         return;
 
     QWaylandWindow *window = QWaylandWindow::fromWlSurface(surface);
-#if QT_CONFIG(cursor)
-    window->window()->setCursor(window->window()->cursor());
-#endif
-
     mFocus = window;
     mSurfacePos = QPointF(wl_fixed_to_double(sx), wl_fixed_to_double(sy));
     mGlobalPos = window->window()->mapToGlobal(mSurfacePos.toPoint());
 
     mParent->mSerial = serial;
     mEnterSerial = serial;
+
+#if QT_CONFIG(cursor)
+    // Depends on mEnterSerial being updated
+    window->window()->setCursor(window->window()->cursor());
+#endif
 
     QWaylandWindow *grab = QWaylandWindow::mouseGrab();
     if (!grab) {

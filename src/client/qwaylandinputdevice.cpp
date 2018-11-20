@@ -238,7 +238,6 @@ void QWaylandInputDevice::seat_capabilities(uint32_t caps)
     if (caps & WL_SEAT_CAPABILITY_POINTER && !mPointer) {
         mPointer = createPointer(this);
         mPointer->init(get_pointer());
-        pointerSurface = mQDisplay->createSurface(this);
     } else if (!(caps & WL_SEAT_CAPABILITY_POINTER) && mPointer) {
         delete mPointer;
         mPointer = nullptr;
@@ -418,6 +417,9 @@ void QWaylandInputDevice::setCursor(struct wl_buffer *buffer, const QPoint &hotS
             mPointer->set_cursor(mPointer->mEnterSerial, nullptr, 0, 0);
             return;
         }
+
+        if (!pointerSurface)
+            pointerSurface = mQDisplay->createSurface(this);
 
         mPointer->set_cursor(mPointer->mEnterSerial, pointerSurface,
                              hotSpot.x(), hotSpot.y());

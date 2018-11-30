@@ -45,6 +45,7 @@
 #endif
 
 #include <QtWaylandCompositor/QWaylandResource>
+#include <QDebug>
 
 QT_BEGIN_NAMESPACE
 

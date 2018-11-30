@@ -126,7 +126,7 @@ private:
 
 bool Scanner::parseArguments(int argc, char **argv)
 {
-    QByteArray m_scannerName = argv[0];
+    m_scannerName = argv[0];
 
     if (argc <= 2 || !parseOption(argv[1]))
         return false;
@@ -1200,8 +1200,6 @@ bool Scanner::process()
                     for (int i = 0; i < e.arguments.size(); ++i) {
                         printf("\n");
                         const WaylandArgument &a = e.arguments.at(i);
-                        QByteArray cType = waylandToCType(a.type, a.interface);
-                        QByteArray qtType = waylandToQtType(a.type, a.interface, e.request);
                         const char *argumentName = a.name.constData();
                         if (a.type == "string")
                             printf("            QString::fromUtf8(%s)", argumentName);

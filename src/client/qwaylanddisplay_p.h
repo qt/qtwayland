@@ -195,6 +195,11 @@ private:
     void requestWaylandSync();
 
     struct Listener {
+        Listener() = default;
+        Listener(RegistryListener incomingListener,
+                 void* incomingData)
+        : listener(incomingListener), data(incomingData)
+        {}
         RegistryListener listener = nullptr;
         void *data = nullptr;
     };

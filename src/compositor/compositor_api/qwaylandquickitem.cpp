@@ -884,17 +884,17 @@ void QWaylandQuickItem::handleSurfaceChanged()
 {
     Q_D(QWaylandQuickItem);
     if (d->oldSurface) {
-        disconnect(d->oldSurface, &QWaylandSurface::hasContentChanged, this, &QWaylandQuickItem::surfaceMappedChanged);
-        disconnect(d->oldSurface, &QWaylandSurface::parentChanged, this, &QWaylandQuickItem::parentChanged);
-        disconnect(d->oldSurface, &QWaylandSurface::sizeChanged, this, &QWaylandQuickItem::updateSize);
-        disconnect(d->oldSurface, &QWaylandSurface::bufferScaleChanged, this, &QWaylandQuickItem::updateSize);
-        disconnect(d->oldSurface, &QWaylandSurface::configure, this, &QWaylandQuickItem::updateBuffer);
-        disconnect(d->oldSurface, &QWaylandSurface::redraw, this, &QQuickItem::update);
-        disconnect(d->oldSurface, &QWaylandSurface::childAdded, this, &QWaylandQuickItem::handleSubsurfaceAdded);
-        disconnect(d->oldSurface, &QWaylandSurface::subsurfacePlaceAbove, this, &QWaylandQuickItem::handlePlaceAbove);
-        disconnect(d->oldSurface, &QWaylandSurface::subsurfacePlaceBelow, this, &QWaylandQuickItem::handlePlaceBelow);
+        disconnect(d->oldSurface.data(), &QWaylandSurface::hasContentChanged, this, &QWaylandQuickItem::surfaceMappedChanged);
+        disconnect(d->oldSurface.data(), &QWaylandSurface::parentChanged, this, &QWaylandQuickItem::parentChanged);
+        disconnect(d->oldSurface.data(), &QWaylandSurface::sizeChanged, this, &QWaylandQuickItem::updateSize);
+        disconnect(d->oldSurface.data(), &QWaylandSurface::bufferScaleChanged, this, &QWaylandQuickItem::updateSize);
+        disconnect(d->oldSurface.data(), &QWaylandSurface::configure, this, &QWaylandQuickItem::updateBuffer);
+        disconnect(d->oldSurface.data(), &QWaylandSurface::redraw, this, &QQuickItem::update);
+        disconnect(d->oldSurface.data(), &QWaylandSurface::childAdded, this, &QWaylandQuickItem::handleSubsurfaceAdded);
+        disconnect(d->oldSurface.data(), &QWaylandSurface::subsurfacePlaceAbove, this, &QWaylandQuickItem::handlePlaceAbove);
+        disconnect(d->oldSurface.data(), &QWaylandSurface::subsurfacePlaceBelow, this, &QWaylandQuickItem::handlePlaceBelow);
 #if QT_CONFIG(draganddrop)
-        disconnect(d->oldSurface, &QWaylandSurface::dragStarted, this, &QWaylandQuickItem::handleDragStarted);
+        disconnect(d->oldSurface.data(), &QWaylandSurface::dragStarted, this, &QWaylandQuickItem::handleDragStarted);
 #endif
 #if QT_CONFIG(im)
         disconnect(d->oldSurface->inputMethodControl(), &QWaylandInputMethodControl::updateInputMethod, this, &QWaylandQuickItem::updateInputMethod);

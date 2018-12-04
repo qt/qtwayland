@@ -45,6 +45,7 @@
 #endif
 
 #include <QtWaylandCompositor/QWaylandResource>
+#include <QDebug>
 
 #include <QtWaylandCompositor/private/qwaylandutils_p.h>
 

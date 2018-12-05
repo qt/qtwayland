@@ -40,6 +40,7 @@
 #include <QCoreApplication>
 #include <QFile>
 #include <QXmlStreamReader>
+#include <QtCore/QList>
 
 class Scanner
 {

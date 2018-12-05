@@ -51,10 +51,6 @@ namespace QtWaylandClient {
 
 bool QWaylandXdgShellV5Integration::initialize(QWaylandDisplay *display)
 {
-    qCWarning(lcQpaWayland) << "\"xdg-shell-v5\" is a deprecated shell extension, prefer using"
-                            << "\"xdg-shell-v6\" or \"xdg-shell\" if supported by the compositor"
-                            << "by setting the environment variable QT_WAYLAND_SHELL_INTEGRATION";
-
     Q_FOREACH (QWaylandDisplay::RegistryGlobal global, display->globals()) {
         if (global.interface == QLatin1String("xdg_shell")) {
             m_xdgShell.reset(new QWaylandXdgShellV5(display->wl_registry(), global.id));
@@ -66,6 +62,10 @@ bool QWaylandXdgShellV5Integration::initialize(QWaylandDisplay *display)
         qWarning() << "Couldn't find global xdg_shell for xdg-shell unstable v5";
         return false;
     }
+
+    qCWarning(lcQpaWayland) << "\"xdg-shell-v5\" is a deprecated shell extension, prefer using"
+                            << "\"xdg-shell-v6\" or \"xdg-shell\" if supported by the compositor"
+                            << "by setting the environment variable QT_WAYLAND_SHELL_INTEGRATION";
 
     return QWaylandShellIntegration::initialize(display);
 }

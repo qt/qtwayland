@@ -72,6 +72,7 @@ private slots:
     void multipleClients();
     void geometry();
     void modes();
+    void comparingModes();
     void sizeFollowsWindow();
     void mapSurface();
     void mapSurfaceHiDpi();
@@ -371,6 +372,28 @@ void tst_WaylandCompositor::modes()
     QTRY_COMPARE(client.currentMode, mode3);
     QTRY_COMPARE(client.preferredMode, mode4);
     QTRY_COMPARE(client.geometry, QRect(QPoint(0, 0), QSize(1920, 1080)));
+}
+
+void tst_WaylandCompositor::comparingModes()
+{
+    QWaylandOutputMode mode1(QSize(800, 600), 120000);
+    QWaylandOutputMode mode2(QSize(1024, 768), 100000);
+    QWaylandOutputMode mode3(QSize(1024, 768), 120000);
+    QWaylandOutputMode mode4(QSize(800, 600), 100000);
+
+    QCOMPARE(mode1, mode1);
+    QCOMPARE(mode2, mode2);
+    QCOMPARE(mode3, mode3);
+    QCOMPARE(mode4, mode4);
+
+    for (auto mode: {mode2, mode3, mode4})
+       QVERIFY(mode1 != mode);
+    for (auto mode: {mode1, mode3, mode4})
+       QVERIFY(mode2 != mode);
+    for (auto mode: {mode1, mode2, mode4})
+       QVERIFY(mode3 != mode);
+    for (auto mode: {mode1, mode2, mode2})
+       QVERIFY(mode4 != mode);
 }
 
 void tst_WaylandCompositor::sizeFollowsWindow()

@@ -89,7 +89,7 @@ QWaylandOutputMode &QWaylandOutputMode::operator=(const QWaylandOutputMode &othe
 */
 bool QWaylandOutputMode::operator==(const QWaylandOutputMode &other) const
 {
-    return size() == other.size() && refreshRate() == refreshRate();
+    return size() == other.size() && refreshRate() == other.refreshRate();
 }
 
 /*!
@@ -98,7 +98,7 @@ bool QWaylandOutputMode::operator==(const QWaylandOutputMode &other) const
 */
 bool QWaylandOutputMode::operator!=(const QWaylandOutputMode &other) const
 {
-    return size() != other.size() || refreshRate() != refreshRate();
+    return size() != other.size() || refreshRate() != other.refreshRate();
 }
 
 /*!

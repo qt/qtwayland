@@ -284,7 +284,8 @@ public:
     void sendAxis(wl_client *client, axis axis, qreal value);
 
     Seat *m_seat = nullptr;
-    uint m_enterSerial = 0;
+    QVector<uint> m_enterSerials;
+    QPoint m_hotspot;
 
 signals:
     void setCursor(uint serial); //TODO: add arguments?

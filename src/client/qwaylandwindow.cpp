@@ -962,7 +962,8 @@ void QWaylandWindow::handleScreenChanged()
 #if QT_CONFIG(cursor)
 void QWaylandWindow::setMouseCursor(QWaylandInputDevice *device, const QCursor &cursor)
 {
-    device->setCursor(cursor, waylandScreen());
+    int fallbackBufferScale = int(devicePixelRatio());
+    device->setCursor(&cursor, {}, fallbackBufferScale);
 }
 
 void QWaylandWindow::restoreMouseCursor(QWaylandInputDevice *device)

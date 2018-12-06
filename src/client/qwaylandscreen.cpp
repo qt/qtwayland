@@ -176,19 +176,10 @@ qreal QWaylandScreen::refreshRate() const
 }
 
 #if QT_CONFIG(cursor)
-
 QPlatformCursor *QWaylandScreen::cursor() const
 {
-    return const_cast<QWaylandScreen *>(this)->waylandCursor();
+    return mWaylandDisplay->waylandCursor();
 }
-
-QWaylandCursor *QWaylandScreen::waylandCursor()
-{
-    if (!mWaylandCursor)
-        mWaylandCursor.reset(new QWaylandCursor(this));
-    return mWaylandCursor.data();
-}
-
 #endif // QT_CONFIG(cursor)
 
 QWaylandScreen * QWaylandScreen::waylandScreenFromWindow(QWindow *window)

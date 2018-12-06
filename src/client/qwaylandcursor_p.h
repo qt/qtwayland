@@ -73,7 +73,6 @@ class QWaylandShm;
 class Q_WAYLAND_CLIENT_EXPORT QWaylandCursorTheme
 {
 public:
-    static QWaylandCursorTheme *create(QWaylandShm *shm, int size);
     static QWaylandCursorTheme *create(QWaylandShm *shm, int size, const QString &themeName);
     ~QWaylandCursorTheme();
     struct wl_cursor_image *cursorImage(Qt::CursorShape shape);
@@ -122,19 +121,18 @@ private:
 class Q_WAYLAND_CLIENT_EXPORT QWaylandCursor : public QPlatformCursor
 {
 public:
-    QWaylandCursor(QWaylandScreen *screen);
+    explicit QWaylandCursor(QWaylandDisplay *display);
 
     void changeCursor(QCursor *cursor, QWindow *window) override;
     void pointerEvent(const QMouseEvent &event) override;
     QPoint pos() const override;
     void setPos(const QPoint &pos) override;
 
-    QSharedPointer<QWaylandBuffer> cursorBitmapImage(const QCursor *cursor);
+    static QSharedPointer<QWaylandBuffer> cursorBitmapBuffer(QWaylandDisplay *display, const QCursor *cursor);
     struct wl_cursor_image *cursorImage(Qt::CursorShape shape);
 
 private:
     QWaylandDisplay *mDisplay = nullptr;
-    QWaylandCursorTheme *mCursorTheme = nullptr;
     QPoint mLastPos;
 };
 

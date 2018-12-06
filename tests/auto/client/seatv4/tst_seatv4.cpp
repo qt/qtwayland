@@ -30,6 +30,12 @@
 
 #include <QtGui/QRasterWindow>
 #include <QtGui/QOpenGLWindow>
+#if QT_CONFIG(cursor)
+#include <wayland-cursor.h>
+#include <QtGui/private/qguiapplication_p.h>
+#include <QtWaylandClient/private/qwaylanddisplay_p.h>
+#include <QtWaylandClient/private/qwaylandintegration_p.h>
+#endif
 
 using namespace MockCompositor;
 
@@ -59,6 +65,8 @@ class tst_seatv4 : public QObject, private SeatV4Compositor
 private slots:
     void cleanup();
     void bindsToSeat();
+    void keyboardKeyPress();
+#if QT_CONFIG(cursor)
     void createsPointer();
     void setsCursorOnEnter();
     void usesEnterSerial();
@@ -67,8 +75,10 @@ private slots:
     void simpleAxis();
     void invalidPointerEvents();
     void scaledCursor();
-
-    void keyboardKeyPress();
+    void bitmapCursor();
+    void hidpiBitmapCursor();
+    void hidpiBitmapCursorNonInt();
+#endif
 };
 
 void tst_seatv4::cleanup()
@@ -82,6 +92,31 @@ void tst_seatv4::bindsToSeat()
     QCOMPOSITOR_COMPARE(get<Seat>()->resourceMap().size(), 1);
     QCOMPOSITOR_COMPARE(get<Seat>()->resourceMap().first()->version(), 4);
 }
+
+void tst_seatv4::keyboardKeyPress()
+{
+    class Window : public QRasterWindow {
+    public:
+        void keyPressEvent(QKeyEvent *) override { m_pressed = true; }
+        bool m_pressed = false;
+    };
+
+    Window window;
+    window.resize(64, 64);
+    window.show();
+    QCOMPOSITOR_TRY_VERIFY(xdgSurface() && xdgSurface()->m_committedConfigureSerial);
+
+    uint keyCode = 80; // arbitrarily chosen
+    exec([&] {
+        auto *surface = xdgSurface()->m_surface;
+        keyboard()->sendEnter(surface);
+        keyboard()->sendKey(client(), keyCode, Keyboard::key_state_pressed);
+        keyboard()->sendKey(client(), keyCode, Keyboard::key_state_released);
+    });
+    QTRY_VERIFY(window.m_pressed);
+}
+
+#if QT_CONFIG(cursor)
 
 void tst_seatv4::createsPointer()
 {
@@ -253,9 +288,36 @@ void tst_seatv4::invalidPointerEvents()
     xdgPingAndWaitForPong();
 }
 
+static bool supportsCursorSize(uint size, wl_shm *shm)
+{
+    auto *theme = wl_cursor_theme_load(nullptr, size, shm);
+    if (!theme)
+        return false;
+
+    constexpr std::array<const char *, 4> names{"left_ptr", "default", "left_arrow", "top_left_arrow"};
+    for (const char *name : names) {
+        if (auto *cursor = wl_cursor_theme_get_cursor(theme, name)) {
+            auto *image = cursor->images[0];
+            return image->width == image->height && image->width == size;
+        }
+    }
+    return false;
+}
+
+static bool supportsCursorSizes(const QVector<uint> &sizes)
+{
+    auto *waylandIntegration = static_cast<QtWaylandClient::QWaylandIntegration *>(QGuiApplicationPrivate::platformIntegration());
+    wl_shm *shm = waylandIntegration->display()->shm()->object();
+    return std::all_of(sizes.begin(), sizes.end(), [=](uint size) {
+        return supportsCursorSize(size, shm);
+    });
+}
+
 void tst_seatv4::scaledCursor()
 {
-    QSKIP("Currently broken and should be fixed");
+    if (!supportsCursorSizes({32, 64}))
+        QSKIP("Cursor themes with sizes 32 and 64 not found.");
+
     // Add a highdpi output
     exec([&] {
         OutputData d;
@@ -289,28 +351,122 @@ void tst_seatv4::scaledCursor()
     exec([&] { remove(output(1)); });
 }
 
-void tst_seatv4::keyboardKeyPress()
+void tst_seatv4::bitmapCursor()
 {
-    class Window : public QRasterWindow {
-    public:
-        void keyPressEvent(QKeyEvent *) override { m_pressed = true; }
-        bool m_pressed = false;
-    };
+    // Add a highdpi output
+    exec([&] {
+        OutputData d;
+        d.scale = 2;
+        d.position = {1920, 0};
+        add<Output>(d);
+    });
 
-    Window window;
+    QRasterWindow window;
     window.resize(64, 64);
+
+    QPixmap pixmap(24, 24);
+    pixmap.setDevicePixelRatio(1);
+    QPoint hotspot(12, 12); // In device pixel coordinates
+    QCursor cursor(pixmap, hotspot.x(), hotspot.y());
+    window.setCursor(cursor);
+
     window.show();
     QCOMPOSITOR_TRY_VERIFY(xdgSurface() && xdgSurface()->m_committedConfigureSerial);
 
-    uint keyCode = 80; // arbitrarily chosen
-    exec([&] {
-        auto *surface = xdgSurface()->m_surface;
-        keyboard()->sendEnter(surface);
-        keyboard()->sendKey(client(), keyCode, Keyboard::key_state_pressed);
-        keyboard()->sendKey(client(), keyCode, Keyboard::key_state_released);
+    exec([=] { pointer()->sendEnter(xdgSurface()->m_surface, {32, 32}); });
+    QCOMPOSITOR_TRY_VERIFY(pointer()->cursorSurface());
+    QCOMPOSITOR_TRY_VERIFY(pointer()->cursorSurface()->m_committed.buffer);
+    QCOMPOSITOR_COMPARE(pointer()->cursorSurface()->m_committed.buffer->size(), QSize(24, 24));
+    QCOMPOSITOR_COMPARE(pointer()->cursorSurface()->m_committed.bufferScale, 1);
+    QCOMPOSITOR_COMPARE(pointer()->m_hotspot, QPoint(12, 12));
+
+    exec([=] {
+        auto *surface = pointer()->cursorSurface();
+        surface->sendEnter(getAll<Output>()[1]);
+        surface->sendLeave(getAll<Output>()[0]);
     });
-    QTRY_VERIFY(window.m_pressed);
+
+    xdgPingAndWaitForPong();
+
+    // Everything should remain the same, the cursor still has dpr 1
+    QCOMPOSITOR_COMPARE(pointer()->cursorSurface()->m_committed.bufferScale, 1);
+    QCOMPOSITOR_COMPARE(pointer()->cursorSurface()->m_committed.buffer->size(), QSize(24, 24));
+    QCOMPOSITOR_COMPARE(pointer()->m_hotspot, QPoint(12, 12));
+
+    // Remove the extra output to clean up for the next test
+    exec([&] { remove(getAll<Output>()[1]); });
 }
+
+void tst_seatv4::hidpiBitmapCursor()
+{
+    // Add a highdpi output
+    exec([&] {
+        OutputData d;
+        d.scale = 2;
+        d.position = {1920, 0};
+        add<Output>(d);
+    });
+
+    QRasterWindow window;
+    window.resize(64, 64);
+
+    QPixmap pixmap(48, 48);
+    pixmap.setDevicePixelRatio(2);
+    QPoint hotspot(12, 12); // In device pixel coordinates
+    QCursor cursor(pixmap, hotspot.x(), hotspot.y());
+    window.setCursor(cursor);
+
+    window.show();
+    QCOMPOSITOR_TRY_VERIFY(xdgSurface() && xdgSurface()->m_committedConfigureSerial);
+
+    exec([=] { pointer()->sendEnter(xdgSurface()->m_surface, {32, 32}); });
+    QCOMPOSITOR_TRY_VERIFY(pointer()->cursorSurface());
+    QCOMPOSITOR_TRY_VERIFY(pointer()->cursorSurface()->m_committed.buffer);
+    QCOMPOSITOR_COMPARE(pointer()->cursorSurface()->m_committed.buffer->size(), QSize(48, 48));
+    QCOMPOSITOR_COMPARE(pointer()->cursorSurface()->m_committed.bufferScale, 2);
+    QCOMPOSITOR_COMPARE(pointer()->m_hotspot, QPoint(12, 12));
+
+    exec([=] {
+        auto *surface = pointer()->cursorSurface();
+        surface->sendEnter(getAll<Output>()[1]);
+        surface->sendLeave(getAll<Output>()[0]);
+    });
+
+    xdgPingAndWaitForPong();
+
+    QCOMPOSITOR_COMPARE(pointer()->cursorSurface()->m_committed.bufferScale, 2);
+    QCOMPOSITOR_COMPARE(pointer()->cursorSurface()->m_committed.buffer->size(), QSize(48, 48));
+    QCOMPOSITOR_COMPARE(pointer()->m_hotspot, QPoint(12, 12));
+
+    // Remove the extra output to clean up for the next test
+    exec([&] { remove(getAll<Output>()[1]); });
+}
+
+void tst_seatv4::hidpiBitmapCursorNonInt()
+{
+    QRasterWindow window;
+    window.resize(64, 64);
+
+    QPixmap pixmap(100, 100);
+    pixmap.setDevicePixelRatio(2.5); // dpr width is now 100 / 2.5 = 40
+    QPoint hotspot(20, 20); // In device pixel coordinates (middle of buffer)
+    QCursor cursor(pixmap, hotspot.x(), hotspot.y());
+    window.setCursor(cursor);
+
+    window.show();
+    QCOMPOSITOR_TRY_VERIFY(xdgSurface() && xdgSurface()->m_committedConfigureSerial);
+
+    exec([=] { pointer()->sendEnter(xdgSurface()->m_surface, {32, 32}); });
+    QCOMPOSITOR_TRY_VERIFY(pointer()->cursorSurface());
+    QCOMPOSITOR_TRY_VERIFY(pointer()->cursorSurface()->m_committed.buffer);
+    QCOMPOSITOR_COMPARE(pointer()->cursorSurface()->m_committed.buffer->size(), QSize(100, 100));
+    QCOMPOSITOR_COMPARE(pointer()->cursorSurface()->m_committed.bufferScale, 2);
+    // Verify that the hotspot was scaled correctly
+    // Surface size is now 100 / 2 = 50, so the middle should be at 25 in surface coordinates
+    QCOMPOSITOR_COMPARE(pointer()->m_hotspot, QPoint(25, 25));
+}
+
+#endif // QT_CONFIG(cursor)
 
 QCOMPOSITOR_TEST_MAIN(tst_seatv4)
 #include "tst_seatv4.moc"

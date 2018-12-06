@@ -173,8 +173,8 @@ void QWaylandInputDevice::Keyboard::stopRepeat()
     mRepeatTimer.stop();
 }
 
-QWaylandInputDevice::Pointer::Pointer(QWaylandInputDevice *p)
-    : mParent(p)
+QWaylandInputDevice::Pointer::Pointer(QWaylandInputDevice *seat)
+    : mParent(seat)
 {
 }
 
@@ -185,6 +185,153 @@ QWaylandInputDevice::Pointer::~Pointer()
     else
         wl_pointer_destroy(object());
 }
+
+#if QT_CONFIG(cursor)
+
+class CursorSurface : public QtWayland::wl_surface {
+public:
+    explicit CursorSurface(QWaylandInputDevice::Pointer *pointer, QWaylandDisplay *display)
+        : m_pointer(pointer)
+    {
+        init(display->createSurface(this));
+        //TODO: When we upgrade to libwayland 1.10, use wl_surface_get_version instead.
+        m_version = display->compositorVersion();
+    }
+
+    void hide()
+    {
+        m_pointer->set_cursor(m_pointer->mEnterSerial, nullptr, 0, 0);
+        m_setSerial = 0;
+    }
+
+    // Size and hotspot are in surface coordinates
+    void update(wl_buffer *buffer, const QPoint &hotspot, const QSize &size, int bufferScale)
+    {
+        // Calling code needs to ensure buffer scale is supported if != 1
+        Q_ASSERT(bufferScale == 1 || m_version >= 3);
+
+        auto enterSerial = m_pointer->mEnterSerial;
+        if (m_setSerial < enterSerial || m_hotspot != hotspot) {
+            m_pointer->set_cursor(m_pointer->mEnterSerial, object(), hotspot.x(), hotspot.y());
+            m_setSerial = enterSerial;
+            m_hotspot = hotspot;
+        }
+
+        if (m_version >= 3)
+            set_buffer_scale(bufferScale);
+
+        attach(buffer, 0, 0);
+        damage(0, 0, size.width(), size.height());
+        commit();
+    }
+
+    int outputScale() const { return m_outputScale; }
+
+protected:
+    void surface_enter(struct ::wl_output *output) override
+    {
+        //TODO: Can be improved to keep track of all entered screens
+        int scale = QWaylandScreen::fromWlOutput(output)->scale();
+        if (scale == m_outputScale)
+            return;
+
+        m_outputScale = scale;
+        m_pointer->updateCursor();
+    }
+
+private:
+    QWaylandInputDevice::Pointer *m_pointer = nullptr;
+    uint m_version = 0;
+    uint m_setSerial = 0;
+    QPoint m_hotspot;
+    int m_outputScale = 0;
+};
+
+QString QWaylandInputDevice::Pointer::cursorThemeName() const
+{
+    static QString themeName = qEnvironmentVariable("XCURSOR_THEME", QStringLiteral("default"));
+    return themeName;
+}
+
+int QWaylandInputDevice::Pointer::cursorSize() const
+{
+    constexpr int defaultCursorSize = 32;
+    static const int xCursorSize = qEnvironmentVariableIntValue("XCURSOR_SIZE");
+    return xCursorSize > 0 ? xCursorSize : defaultCursorSize;
+}
+
+int QWaylandInputDevice::Pointer::idealCursorScale() const
+{
+    // set_buffer_scale is not supported on earlier versions
+    if (seat()->mQDisplay->compositorVersion() < 3)
+        return 1;
+
+    if (auto *s = mCursor.surface.data()) {
+        if (s->outputScale() > 0)
+            return s->outputScale();
+    }
+
+    return seat()->mCursor.fallbackOutputScale;
+}
+
+void QWaylandInputDevice::Pointer::updateCursorTheme()
+{
+    int scale = idealCursorScale();
+    int pixelSize = cursorSize() * scale;
+    auto *display = seat()->mQDisplay;
+    mCursor.theme = display->loadCursorTheme(cursorThemeName(), pixelSize);
+    mCursor.themeBufferScale = scale;
+}
+
+void QWaylandInputDevice::Pointer::updateCursor()
+{
+    if (mEnterSerial == 0)
+        return;
+
+    auto shape = seat()->mCursor.shape;
+
+    if (shape == Qt::BlankCursor) {
+        if (mCursor.surface)
+            mCursor.surface->hide();
+        return;
+    }
+
+    if (shape == Qt::BitmapCursor) {
+        auto buffer = seat()->mCursor.bitmapBuffer;
+        if (!buffer) {
+            qCWarning(lcQpaWayland) << "No buffer for bitmap cursor, can't set cursor";
+            return;
+        }
+        auto hotspot = seat()->mCursor.hotspot;
+        int bufferScale = seat()->mCursor.bitmapScale;
+        getOrCreateCursorSurface()->update(buffer->buffer(), hotspot, buffer->size(), bufferScale);
+        return;
+    }
+
+    if (!mCursor.theme || idealCursorScale() != mCursor.themeBufferScale)
+        updateCursorTheme();
+
+    // Set from shape using theme
+    if (struct ::wl_cursor_image *image = mCursor.theme->cursorImage(shape)) {
+        struct wl_buffer *buffer = wl_cursor_image_get_buffer(image);
+        int bufferScale = mCursor.themeBufferScale;
+        QPoint hotspot = QPoint(image->hotspot_x, image->hotspot_y) / bufferScale;
+        QSize size = QSize(image->width, image->height) / bufferScale;
+        getOrCreateCursorSurface()->update(buffer, hotspot, size, bufferScale);
+        return;
+    }
+
+    qCWarning(lcQpaWayland) << "Unable to change to cursor" << shape;
+}
+
+CursorSurface *QWaylandInputDevice::Pointer::getOrCreateCursorSurface()
+{
+    if (!mCursor.surface)
+        mCursor.surface.reset(new CursorSurface(this, seat()->mQDisplay));
+    return mCursor.surface.get();
+}
+
+#endif // QT_CONFIG(cursor)
 
 QWaylandInputDevice::Touch::Touch(QWaylandInputDevice *p)
     : mParent(p)
@@ -359,87 +506,33 @@ Qt::KeyboardModifiers QWaylandInputDevice::Keyboard::modifiers() const
 }
 
 #if QT_CONFIG(cursor)
-uint32_t QWaylandInputDevice::cursorSerial() const
+void QWaylandInputDevice::setCursor(const QCursor *cursor, const QSharedPointer<QWaylandBuffer> &cachedBuffer, int fallbackOutputScale)
 {
+    CursorState oldCursor = mCursor;
+    mCursor = CursorState(); // Clear any previous state
+    mCursor.shape = cursor ? cursor->shape() : Qt::ArrowCursor;
+    mCursor.hotspot = cursor ? cursor->hotSpot() : QPoint();
+    mCursor.fallbackOutputScale = fallbackOutputScale;
+
+    if (mCursor.shape == Qt::BitmapCursor) {
+        mCursor.bitmapBuffer = cachedBuffer ? cachedBuffer : QWaylandCursor::cursorBitmapBuffer(mQDisplay, cursor);
+        qreal dpr = cursor->pixmap().devicePixelRatio();
+        mCursor.bitmapScale = int(dpr); // Wayland doesn't support fractional buffer scale
+        // If there was a fractional part of the dpr, we need to scale the hotspot accordingly
+        if (mCursor.bitmapScale < dpr)
+            mCursor.hotspot *= dpr / mCursor.bitmapScale;
+    }
+
+    // Return early if setCursor was called redundantly (mostly happens from decorations)
+    if (mCursor.shape != Qt::BitmapCursor
+            && mCursor.shape == oldCursor.shape
+            && mCursor.hotspot == oldCursor.hotspot
+            && mCursor.fallbackOutputScale == oldCursor.fallbackOutputScale) {
+        return;
+    }
+
     if (mPointer)
-        return mPointer->mCursorSerial;
-    return 0;
-}
-
-void QWaylandInputDevice::setCursor(Qt::CursorShape newShape, QWaylandScreen *screen)
-{
-    struct wl_cursor_image *image = screen->waylandCursor()->cursorImage(newShape);
-    if (!image) {
-        return;
-    }
-
-    struct wl_buffer *buffer = wl_cursor_image_get_buffer(image);
-    setCursor(buffer, image, screen->devicePixelRatio());
-}
-
-void QWaylandInputDevice::setCursor(const QCursor &cursor, QWaylandScreen *screen)
-{
-    if (mPointer->mCursorSerial >= mPointer->mEnterSerial && (cursor.shape() != Qt::BitmapCursor && cursor.shape() == mPointer->mCursorShape))
-        return;
-
-    mPointer->mCursorShape = cursor.shape();
-    if (cursor.shape() == Qt::BitmapCursor) {
-        setCursor(screen->waylandCursor()->cursorBitmapImage(&cursor), cursor.hotSpot(), screen->devicePixelRatio());
-        return;
-    }
-    setCursor(cursor.shape(), screen);
-}
-
-void QWaylandInputDevice::setCursor(struct wl_buffer *buffer, struct wl_cursor_image *image, int bufferScale)
-{
-    if (image) {
-        // Convert from pixel coordinates to surface coordinates
-        QPoint hotspot = QPoint(image->hotspot_x, image->hotspot_y) / bufferScale;
-        QSize size = QSize(image->width, image->height) / bufferScale;
-        setCursor(buffer, hotspot, size, bufferScale);
-    } else {
-        setCursor(buffer, QPoint(), QSize(), bufferScale);
-    }
-}
-
-// size and hotspot are in surface coordinates
-void QWaylandInputDevice::setCursor(struct wl_buffer *buffer, const QPoint &hotSpot, const QSize &size, int bufferScale)
-{
-    if (mCaps & WL_SEAT_CAPABILITY_POINTER) {
-        bool force = mPointer->mEnterSerial > mPointer->mCursorSerial;
-
-        if (!force && mPointer->mCursorBuffer == buffer)
-            return;
-
-        mPixmapCursor.clear();
-        mPointer->mCursorSerial = mPointer->mEnterSerial;
-
-        mPointer->mCursorBuffer = buffer;
-
-        /* Hide cursor */
-        if (!buffer)
-        {
-            mPointer->set_cursor(mPointer->mEnterSerial, nullptr, 0, 0);
-            return;
-        }
-
-        if (!pointerSurface)
-            pointerSurface = mQDisplay->createSurface(this);
-
-        mPointer->set_cursor(mPointer->mEnterSerial, pointerSurface,
-                             hotSpot.x(), hotSpot.y());
-        wl_surface_attach(pointerSurface, buffer, 0, 0);
-        if (mQDisplay->compositorVersion() >= 3)
-            wl_surface_set_buffer_scale(pointerSurface, bufferScale);
-        wl_surface_damage(pointerSurface, 0, 0, size.width(), size.height());
-        wl_surface_commit(pointerSurface);
-    }
-}
-
-void QWaylandInputDevice::setCursor(const QSharedPointer<QWaylandBuffer> &buffer, const QPoint &hotSpot, int bufferScale)
-{
-    setCursor(buffer->buffer(), hotSpot, buffer->size(), bufferScale);
-    mPixmapCursor = buffer;
+        mPointer->updateCursor();
 }
 #endif
 
@@ -467,7 +560,7 @@ void QWaylandInputDevice::Pointer::pointer_enter(uint32_t serial, struct wl_surf
 
 #if QT_CONFIG(cursor)
     // Depends on mEnterSerial being updated
-    window->window()->setCursor(window->window()->cursor());
+    updateCursor();
 #endif
 
     QWaylandWindow *grab = QWaylandWindow::mouseGrab();

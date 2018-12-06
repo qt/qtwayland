@@ -160,7 +160,7 @@ QWaylandDisplay::~QWaylandDisplay(void)
     delete mDndSelectionHandler.take();
 #endif
 #if QT_CONFIG(cursor)
-    qDeleteAll(mCursorThemesBySize);
+    qDeleteAll(mCursorThemes);
 #endif
     if (mDisplay)
         wl_display_disconnect(mDisplay);
@@ -505,40 +505,20 @@ QWaylandInputDevice *QWaylandDisplay::defaultInputDevice() const
 
 #if QT_CONFIG(cursor)
 
-void QWaylandDisplay::setCursor(struct wl_buffer *buffer, struct wl_cursor_image *image, qreal dpr)
+QWaylandCursor *QWaylandDisplay::waylandCursor()
 {
-    /* Qt doesn't tell us which input device we should set the cursor
-     * for, so set it for all devices. */
-    for (int i = 0; i < mInputDevices.count(); i++) {
-        QWaylandInputDevice *inputDevice = mInputDevices.at(i);
-        inputDevice->setCursor(buffer, image, dpr);
-    }
+    if (!mCursor)
+        mCursor.reset(new QWaylandCursor(this));
+    return mCursor.data();
 }
 
-void QWaylandDisplay::setCursor(const QSharedPointer<QWaylandBuffer> &buffer, const QPoint &hotSpot, qreal dpr)
+QWaylandCursorTheme *QWaylandDisplay::loadCursorTheme(const QString &name, int pixelSize)
 {
-    /* Qt doesn't tell us which input device we should set the cursor
-     * for, so set it for all devices. */
-    for (int i = 0; i < mInputDevices.count(); i++) {
-        QWaylandInputDevice *inputDevice = mInputDevices.at(i);
-        inputDevice->setCursor(buffer, hotSpot, dpr);
-    }
-}
-
-QWaylandCursorTheme *QWaylandDisplay::loadCursorTheme(qreal devicePixelRatio)
-{
-    constexpr int defaultCursorSize = 32;
-    static const int xCursorSize = qEnvironmentVariableIntValue("XCURSOR_SIZE");
-    int cursorSize = xCursorSize > 0 ? xCursorSize : defaultCursorSize;
-
-    if (compositorVersion() >= 3) // set_buffer_scale is not supported on earlier versions
-        cursorSize *= devicePixelRatio;
-
-    if (auto *theme = mCursorThemesBySize.value(cursorSize, nullptr))
+    if (auto *theme = mCursorThemes.value({name, pixelSize}, nullptr))
         return theme;
 
-    if (auto *theme = QWaylandCursorTheme::create(shm(), cursorSize)) {
-        mCursorThemesBySize[cursorSize] = theme;
+    if (auto *theme = QWaylandCursorTheme::create(shm(), pixelSize, name)) {
+        mCursorThemes[{name, pixelSize}] = theme;
         return theme;
     }
 
@@ -547,6 +527,6 @@ QWaylandCursorTheme *QWaylandDisplay::loadCursorTheme(qreal devicePixelRatio)
 
 #endif // QT_CONFIG(cursor)
 
-}
+} // namespace QtWaylandClient
 
 QT_END_NAMESPACE

@@ -392,7 +392,7 @@ void tst_WaylandCompositor::comparingModes()
        QVERIFY(mode2 != mode);
     for (auto mode: {mode1, mode2, mode4})
        QVERIFY(mode3 != mode);
-    for (auto mode: {mode1, mode2, mode2})
+    for (auto mode: {mode1, mode2, mode3})
        QVERIFY(mode4 != mode);
 }
 

@@ -109,7 +109,7 @@ private:
     QMimeData m_retainedData;
     QSocketNotifier *m_retainedReadNotifier = nullptr;
     QList<QSocketNotifier *> m_obsoleteRetainedReadNotifiers;
-    int m_retainedReadIndex;
+    int m_retainedReadIndex = 0;
     QByteArray m_retainedReadBuf;
 
     bool m_compositorOwnsSelection = false;

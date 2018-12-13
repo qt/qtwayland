@@ -11,11 +11,13 @@ INCLUDEPATH += ../shared
 HEADERS += \
     $$PWD/corecompositor.h \
     $$PWD/coreprotocol.h \
+    $$PWD/datadevice.h \
     $$PWD/mockcompositor.h \
     $$PWD/xdgshell.h
 
 SOURCES += \
     $$PWD/corecompositor.cpp \
     $$PWD/coreprotocol.cpp \
+    $$PWD/datadevice.cpp \
     $$PWD/mockcompositor.cpp \
     $$PWD/xdgshell.cpp

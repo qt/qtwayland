@@ -31,6 +31,7 @@
 
 #include "corecompositor.h"
 #include "coreprotocol.h"
+#include "datadevice.h"
 #include "xdgshell.h"
 
 #include <QtGui/QGuiApplication>

@@ -27,6 +27,7 @@
 ****************************************************************************/
 
 #include "coreprotocol.h"
+#include "datadevice.h"
 
 namespace MockCompositor {
 

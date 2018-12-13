@@ -42,6 +42,7 @@ class Keyboard;
 class CursorRole;
 class ShmPool;
 class ShmBuffer;
+class DataDevice;
 
 class Buffer : public QObject, public QtWaylandServer::wl_buffer
 {
@@ -248,6 +249,9 @@ public:
 
     Keyboard* m_keyboard = nullptr;
     QVector<Keyboard *> m_oldKeyboards;
+
+    DataDevice *dataDevice() { return m_dataDevice.data(); }
+    QScopedPointer<DataDevice> m_dataDevice;
 
     uint m_capabilities = 0;
 

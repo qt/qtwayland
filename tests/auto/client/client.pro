@@ -2,6 +2,7 @@ TEMPLATE=subdirs
 
 SUBDIRS += \
     client \
+    datadevicev1 \
     fullscreenshellv1 \
     iviapplication \
     output \

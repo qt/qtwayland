@@ -57,6 +57,7 @@ private slots:
     void cleanup() { QTRY_VERIFY2(isClean(), qPrintable(dirtyMessage())); }
     void initTestCase();
     void pasteAscii();
+    void pasteUtf8();
 };
 
 void tst_datadevicev1::initTestCase()
@@ -105,6 +106,43 @@ void tst_datadevicev1::pasteAscii()
         pointer()->sendButton(client(), BTN_LEFT, 0);
     });
     QTRY_COMPARE(window.m_text, "normal ascii");
+}
+
+void tst_datadevicev1::pasteUtf8()
+{
+    class Window : public QRasterWindow {
+    public:
+        void mousePressEvent(QMouseEvent *) override { m_text = QGuiApplication::clipboard()->text(); }
+        QString m_text;
+    };
+
+    Window window;
+    window.resize(64, 64);
+    window.show();
+
+    QCOMPOSITOR_TRY_VERIFY(xdgSurface() && xdgSurface()->m_committedConfigureSerial);
+    exec([&] {
+        auto *offer = new DataOffer(client(), dataDeviceVersion); // Cleaned up by destroy_resource
+        connect(offer, &DataOffer::receive, [](QString mimeType, int fd) {
+            QFile file;
+            file.open(fd, QIODevice::WriteOnly, QFile::FileHandleFlag::AutoCloseHandle);
+            QCOMPARE(mimeType, "text/plain;charset=utf-8");
+            file.write(QByteArray("face with tears of joy: 😂"));
+            file.close();
+        });
+        dataDevice()->sendDataOffer(offer);
+        offer->send_offer("text/plain");
+        offer->send_offer("text/plain;charset=utf-8");
+        dataDevice()->sendSelection(offer);
+
+        auto *surface = xdgSurface()->m_surface;
+        keyboard()->sendEnter(surface); // Need to set keyboard focus according to protocol
+
+        pointer()->sendEnter(surface, {32, 32});
+        pointer()->sendButton(client(), BTN_LEFT, 1);
+        pointer()->sendButton(client(), BTN_LEFT, 0);
+    });
+    QTRY_COMPARE(window.m_text, "face with tears of joy: 😂");
 }
 
 QCOMPOSITOR_TEST_MAIN(tst_datadevicev1)

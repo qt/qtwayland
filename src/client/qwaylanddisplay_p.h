@@ -63,6 +63,8 @@
 #include <QtWaylandClient/private/qtwaylandclientglobal_p.h>
 #include <QtWaylandClient/private/qwaylandshm_p.h>
 
+#include <qpa/qplatforminputcontextfactory_p.h>
+
 struct wl_cursor_image;
 
 QT_BEGIN_NAMESPACE
@@ -144,6 +146,7 @@ public:
     QWaylandHardwareIntegration *hardwareIntegration() const { return mHardwareIntegration.data(); }
     QtWayland::zxdg_output_manager_v1 *xdgOutputManager() const { return mXdgOutputManager.data(); }
 
+    bool usingInputContextFromCompositor() const { return mUsingInputContextFromCompositor; }
 
     struct RegistryGlobal {
         uint32_t id;
@@ -237,8 +240,13 @@ private:
     struct wl_callback *mSyncCallback = nullptr;
     static const wl_callback_listener syncCallbackListener;
 
+    bool mClientSideInputContextRequested = !QPlatformInputContextFactory::requested().isNull();
+    bool mUsingInputContextFromCompositor = false;
+
     void registry_global(uint32_t id, const QString &interface, uint32_t version) override;
     void registry_global_remove(uint32_t id) override;
+
+    friend class QWaylandIntegration;
 };
 
 }

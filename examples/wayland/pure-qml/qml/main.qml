@@ -72,6 +72,6 @@ WaylandCompositor {
         onWlShellSurfaceCreated: screen.handleShellSurface(shellSurface)
     }
 
-    // Extension for Virtual keyboard support
+    // Extension for Input Method (QT_IM_MODULE) support at compositor-side
     TextInputManager {}
 }

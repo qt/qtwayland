@@ -12,3 +12,5 @@ SUBDIRS += \
     xdgoutput \
     xdgshell \
     xdgshellv6
+
+qtConfig(im): SUBDIRS += inputcontext

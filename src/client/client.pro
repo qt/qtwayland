@@ -15,8 +15,9 @@ use_gold_linker: CONFIG += no_linker_version_script
 CONFIG -= precompile_header
 CONFIG += link_pkgconfig wayland-scanner
 
-qtConfig(xkbcommon): \
-    QMAKE_USE_PRIVATE += xkbcommon
+qtConfig(xkbcommon) {
+    QT_PRIVATE += xkbcommon_support-private
+}
 
 qtHaveModule(linuxaccessibility_support_private): \
     QT += linuxaccessibility_support_private

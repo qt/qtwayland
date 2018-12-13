@@ -266,11 +266,11 @@ void QWaylandDisplay::registry_global(uint32_t id, const QString &interface, uin
         mTouchExtension.reset(new QWaylandTouchExtension(this, id));
     } else if (interface == QStringLiteral("zqt_key_v1")) {
         mQtKeyExtension.reset(new QWaylandQtKeyExtension(this, id));
-    } else if (interface == QStringLiteral("zwp_text_input_manager_v2")) {
+    } else if (interface == QStringLiteral("zwp_text_input_manager_v2") && !mClientSideInputContextRequested) {
         mTextInputManager.reset(new QtWayland::zwp_text_input_manager_v2(registry, id, 1));
-        foreach (QWaylandInputDevice *inputDevice, mInputDevices) {
+        for (QWaylandInputDevice *inputDevice : qAsConst(mInputDevices))
             inputDevice->setTextInput(new QWaylandTextInput(this, mTextInputManager->get_text_input(inputDevice->wl_seat())));
-        }
+        mWaylandIntegration->reconfigureInputContext();
     } else if (interface == QStringLiteral("qt_hardware_integration")) {
         bool disableHardwareIntegration = qEnvironmentVariableIntValue("QT_WAYLAND_DISABLE_HW_INTEGRATION");
         if (!disableHardwareIntegration) {
@@ -305,6 +305,12 @@ void QWaylandDisplay::registry_global_remove(uint32_t id)
                         break;
                     }
                 }
+            }
+            if (global.interface == QStringLiteral("zwp_text_input_manager_v2")) {
+                mTextInputManager.reset();
+                for (QWaylandInputDevice *inputDevice : qAsConst(mInputDevices))
+                    inputDevice->setTextInput(nullptr);
+                mWaylandIntegration->reconfigureInputContext();
             }
             mGlobals.removeAt(i);
             break;

@@ -54,6 +54,7 @@
 #include <QtWaylandClient/private/qtwaylandclientglobal_p.h>
 #include <QtWaylandClient/private/qwaylandwindow_p.h>
 
+#include <QtCore/QScopedPointer>
 #include <QSocketNotifier>
 #include <QObject>
 #include <QTimer>
@@ -73,11 +74,6 @@
 
 #if QT_CONFIG(cursor)
 struct wl_cursor_image;
-#endif
-
-#if QT_CONFIG(xkbcommon)
-struct xkb_compose_state;
-struct xkb_compose_table;
 #endif
 
 QT_BEGIN_NAMESPACE
@@ -164,7 +160,7 @@ private:
     Pointer *mPointer = nullptr;
     Touch *mTouch = nullptr;
 
-    QWaylandTextInput *mTextInput = nullptr;
+    QScopedPointer<QWaylandTextInput> mTextInput;
 
     uint32_t mTime = 0;
     uint32_t mSerial = 0;
@@ -217,8 +213,6 @@ public:
     xkb_context *mXkbContext = nullptr;
     xkb_keymap *mXkbMap = nullptr;
     xkb_state *mXkbState = nullptr;
-    xkb_compose_table *mXkbComposeTable = nullptr;
-    xkb_compose_state *mXkbComposeState = nullptr;
 #endif
     uint32_t mNativeModifiers = 0;
 
@@ -244,10 +238,10 @@ private:
 #if QT_CONFIG(xkbcommon)
     bool createDefaultKeyMap();
     void releaseKeyMap();
-    void createComposeState();
-    void releaseComposeState();
 #endif
-
+    void sendKey(QWindow *tlw, ulong timestamp, QEvent::Type type, int key, Qt::KeyboardModifiers modifiers,
+                 quint32 nativeScanCode, quint32 nativeVirtualKey, quint32 nativeModifiers,
+                 const QString& text = QString(), bool autorep = false, ushort count = 1);
 };
 
 class Q_WAYLAND_CLIENT_EXPORT QWaylandInputDevice::Pointer : public QObject, public QtWayland::wl_pointer

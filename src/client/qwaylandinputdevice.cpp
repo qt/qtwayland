@@ -71,7 +71,7 @@
 #include <QtGui/QGuiApplication>
 
 #if QT_CONFIG(xkbcommon)
-#include <xkbcommon/xkbcommon-compose.h>
+#include <xkbcommon/xkbcommon.h>
 #endif
 
 QT_BEGIN_NAMESPACE
@@ -110,7 +110,7 @@ bool QWaylandInputDevice::Keyboard::createDefaultKeyMap()
         qWarning() << "xkb_map_new_from_names failed, no key input";
         return false;
     }
-    createComposeState();
+
     return true;
 }
 
@@ -123,41 +123,11 @@ void QWaylandInputDevice::Keyboard::releaseKeyMap()
     if (mXkbContext)
         xkb_context_unref(mXkbContext);
 }
-
-void QWaylandInputDevice::Keyboard::createComposeState()
-{
-    static const char *locale = nullptr;
-    if (!locale) {
-        locale = getenv("LC_ALL");
-        if (!locale)
-            locale = getenv("LC_CTYPE");
-        if (!locale)
-            locale = getenv("LANG");
-        if (!locale)
-            locale = "C";
-    }
-
-    mXkbComposeTable = xkb_compose_table_new_from_locale(mXkbContext, locale, XKB_COMPOSE_COMPILE_NO_FLAGS);
-    if (mXkbComposeTable)
-        mXkbComposeState = xkb_compose_state_new(mXkbComposeTable, XKB_COMPOSE_STATE_NO_FLAGS);
-}
-
-void QWaylandInputDevice::Keyboard::releaseComposeState()
-{
-    if (mXkbComposeState)
-        xkb_compose_state_unref(mXkbComposeState);
-    if (mXkbComposeTable)
-        xkb_compose_table_unref(mXkbComposeTable);
-    mXkbComposeState = nullptr;
-    mXkbComposeTable = nullptr;
-}
-
 #endif
 
 QWaylandInputDevice::Keyboard::~Keyboard()
 {
 #if QT_CONFIG(xkbcommon)
-    releaseComposeState();
     releaseKeyMap();
 #endif
     if (mFocus)
@@ -396,9 +366,9 @@ QWaylandInputDevice::QWaylandInputDevice(QWaylandDisplay *display, int version, 
     }
 #endif
 
-    if (mQDisplay->textInputManager()) {
-        mTextInput = new QWaylandTextInput(mQDisplay, mQDisplay->textInputManager()->get_text_input(wl_seat()));
-    }
+    if (mQDisplay->textInputManager())
+        mTextInput.reset(new QWaylandTextInput(mQDisplay, mQDisplay->textInputManager()->get_text_input(wl_seat())));
+
 }
 
 QWaylandInputDevice::~QWaylandInputDevice()
@@ -481,12 +451,12 @@ QWaylandDataDevice *QWaylandInputDevice::dataDevice() const
 
 void QWaylandInputDevice::setTextInput(QWaylandTextInput *textInput)
 {
-    mTextInput = textInput;
+    mTextInput.reset(textInput);
 }
 
 QWaylandTextInput *QWaylandInputDevice::textInput() const
 {
-    return mTextInput;
+    return mTextInput.data();
 }
 
 void QWaylandInputDevice::removeMouseButtonFromState(Qt::MouseButton button)
@@ -793,7 +763,6 @@ void QWaylandInputDevice::Keyboard::keyboard_keymap(uint32_t format, int32_t fd,
 
     // Release the old keymap resources in the case they were already created in
     // the key event or when the compositor issues a new map
-    releaseComposeState();
     releaseKeyMap();
 
     mXkbContext = xkb_context_new(XKB_CONTEXT_NO_FLAGS);
@@ -802,8 +771,6 @@ void QWaylandInputDevice::Keyboard::keyboard_keymap(uint32_t format, int32_t fd,
     close(fd);
 
     mXkbState = xkb_state_new(mXkbMap);
-    createComposeState();
-
 #else
     Q_UNUSED(format);
     Q_UNUSED(fd);
@@ -852,16 +819,17 @@ void QWaylandInputDevice::Keyboard::keyboard_leave(uint32_t time, struct wl_surf
     handleFocusLost();
 }
 
-static void sendKey(QWindow *tlw, ulong timestamp, QEvent::Type type, int key, Qt::KeyboardModifiers modifiers,
-                    quint32 nativeScanCode, quint32 nativeVirtualKey, quint32 nativeModifiers,
-                    const QString& text = QString(), bool autorep = false, ushort count = 1)
+void QWaylandInputDevice::Keyboard::sendKey(QWindow *tlw, ulong timestamp, QEvent::Type type, int key,
+                                            Qt::KeyboardModifiers modifiers, quint32 nativeScanCode,
+                                            quint32 nativeVirtualKey, quint32 nativeModifiers,
+                                            const QString& text, bool autorep, ushort count)
 {
     QPlatformInputContext *inputContext = QGuiApplicationPrivate::platformIntegration()->inputContext();
     bool filtered = false;
 
-    if (inputContext) {
-        QKeyEvent event(type, key, modifiers, nativeScanCode, nativeVirtualKey, nativeModifiers,
-                        text, autorep, count);
+    if (inputContext && !mParent->mQDisplay->usingInputContextFromCompositor()) {
+        QKeyEvent event(type, key, modifiers, nativeScanCode, nativeVirtualKey,
+                        nativeModifiers, text, autorep, count);
         event.setTimestamp(timestamp);
         filtered = inputContext->filterEvent(&event);
     }
@@ -896,36 +864,11 @@ void QWaylandInputDevice::Keyboard::keyboard_key(uint32_t serial, uint32_t time,
         return;
     }
 
-    QString composedText;
     xkb_keysym_t sym = xkb_state_key_get_one_sym(mXkbState, code);
-    if (mXkbComposeState) {
-        if (isDown)
-            xkb_compose_state_feed(mXkbComposeState, sym);
-        xkb_compose_status status = xkb_compose_state_get_status(mXkbComposeState);
-
-        switch (status) {
-            case XKB_COMPOSE_COMPOSED: {
-                int size = xkb_compose_state_get_utf8(mXkbComposeState, nullptr, 0);
-                QVarLengthArray<char, 32> buffer(size + 1);
-                xkb_compose_state_get_utf8(mXkbComposeState, buffer.data(), buffer.size());
-                composedText = QString::fromUtf8(buffer.constData());
-                sym = xkb_compose_state_get_one_sym(mXkbComposeState);
-                xkb_compose_state_reset(mXkbComposeState);
-            } break;
-            case XKB_COMPOSE_COMPOSING:
-            case XKB_COMPOSE_CANCELLED:
-                return;
-            case XKB_COMPOSE_NOTHING:
-                break;
-        }
-    }
 
     Qt::KeyboardModifiers modifiers = mParent->modifiers();
 
     std::tie(qtkey, text) = QWaylandXkb::keysymToQtKey(sym, modifiers);
-
-    if (!composedText.isNull())
-        text = composedText;
 
     sendKey(window->window(), time, type, qtkey, modifiers, code, sym, mNativeModifiers, text);
 #else

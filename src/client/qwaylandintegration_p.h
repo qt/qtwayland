@@ -116,6 +116,8 @@ public:
     virtual QWaylandServerBufferIntegration *serverBufferIntegration() const;
     virtual QWaylandShellIntegration *shellIntegration() const;
 
+    void reconfigureInputContext();
+
 private:
     // NOTE: mDisplay *must* be destructed after mDrag and mClientBufferIntegration
     // and mShellIntegration.

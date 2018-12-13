@@ -65,6 +65,10 @@
 
 #include <qpa/qplatforminputcontextfactory_p.h>
 
+#if QT_CONFIG(xkbcommon)
+#include <QtXkbCommonSupport/private/qxkbcommon_p.h>
+#endif
+
 struct wl_cursor_image;
 
 QT_BEGIN_NAMESPACE
@@ -110,6 +114,10 @@ class Q_WAYLAND_CLIENT_EXPORT QWaylandDisplay : public QObject, public QtWayland
 public:
     QWaylandDisplay(QWaylandIntegration *waylandIntegration);
     ~QWaylandDisplay(void) override;
+
+#if QT_CONFIG(xkbcommon)
+    struct xkb_context *xkbContext() const { return mXkbContext.get(); }
+#endif
 
     QList<QWaylandScreen *> screens() const { return mScreens; }
 
@@ -245,6 +253,10 @@ private:
 
     void registry_global(uint32_t id, const QString &interface, uint32_t version) override;
     void registry_global_remove(uint32_t id) override;
+
+#if QT_CONFIG(xkbcommon)
+    QXkbCommon::ScopedXKBContext mXkbContext;
+#endif
 
     friend class QWaylandIntegration;
 };

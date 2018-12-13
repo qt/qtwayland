@@ -65,8 +65,7 @@
 #include <QtWaylandClient/private/qwayland-wayland.h>
 
 #if QT_CONFIG(xkbcommon)
-#include <xkbcommon/xkbcommon.h>
-#include <xkbcommon/xkbcommon-keysyms.h>
+#include <QtXkbCommonSupport/private/qxkbcommon_p.h>
 #endif
 
 #include <QtCore/QDebug>
@@ -209,11 +208,7 @@ public:
 
     QWaylandInputDevice *mParent = nullptr;
     ::wl_surface *mFocus = nullptr;
-#if QT_CONFIG(xkbcommon)
-    xkb_context *mXkbContext = nullptr;
-    xkb_keymap *mXkbMap = nullptr;
-    xkb_state *mXkbState = nullptr;
-#endif
+
     uint32_t mNativeModifiers = 0;
 
     int mRepeatKey;
@@ -222,9 +217,6 @@ public:
     int mRepeatRate = 25;
     int mRepeatDelay = 400;
     QString mRepeatText;
-#if QT_CONFIG(xkbcommon)
-    xkb_keysym_t mRepeatSym;
-#endif
     QTimer mRepeatTimer;
 
     Qt::KeyboardModifiers modifiers() const;
@@ -236,12 +228,17 @@ private slots:
 
 private:
 #if QT_CONFIG(xkbcommon)
-    bool createDefaultKeyMap();
-    void releaseKeyMap();
+    bool createDefaultKeymap();
 #endif
     void sendKey(QWindow *tlw, ulong timestamp, QEvent::Type type, int key, Qt::KeyboardModifiers modifiers,
                  quint32 nativeScanCode, quint32 nativeVirtualKey, quint32 nativeModifiers,
                  const QString& text = QString(), bool autorep = false, ushort count = 1);
+
+#if QT_CONFIG(xkbcommon)
+    xkb_keysym_t mRepeatSym = XKB_KEY_NoSymbol;
+    QXkbCommon::ScopedXKBKeymap mXkbKeymap;
+    QXkbCommon::ScopedXKBState mXkbState;
+#endif
 };
 
 class Q_WAYLAND_CLIENT_EXPORT QWaylandInputDevice::Pointer : public QObject, public QtWayland::wl_pointer

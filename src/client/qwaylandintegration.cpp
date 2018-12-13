@@ -479,7 +479,7 @@ void QWaylandIntegration::reconfigureInputContext()
         mInputContext.reset(QPlatformInputContextFactory::create(defaultInputContext));
 
 #if QT_CONFIG(xkbcommon)
-    QXkbCommon::setXkbContext(mInputContext.data(), xkb_context_new(XKB_CONTEXT_NO_FLAGS));
+    QXkbCommon::setXkbContext(mInputContext.data(), mDisplay->xkbContext());
 #endif
 
     // Even if compositor-side input context handling has been requested, we fallback to

@@ -70,10 +70,6 @@
 
 #include <QtGui/QGuiApplication>
 
-#if QT_CONFIG(xkbcommon)
-#include <xkbcommon/xkbcommon.h>
-#endif
-
 QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
@@ -85,51 +81,34 @@ QWaylandInputDevice::Keyboard::Keyboard(QWaylandInputDevice *p)
 }
 
 #if QT_CONFIG(xkbcommon)
-bool QWaylandInputDevice::Keyboard::createDefaultKeyMap()
+bool QWaylandInputDevice::Keyboard::createDefaultKeymap()
 {
-    if (mXkbContext && mXkbMap && mXkbState) {
-        return true;
-    }
+    struct xkb_context *ctx = mParent->mQDisplay->xkbContext();
+    if (!ctx)
+        return false;
 
-    xkb_rule_names names;
-    names.rules = strdup("evdev");
-    names.model = strdup("pc105");
-    names.layout = strdup("us");
-    names.variant = strdup("");
-    names.options = strdup("");
+    struct xkb_rule_names names;
+    names.rules = "evdev";
+    names.model = "pc105";
+    names.layout = "us";
+    names.variant = "";
+    names.options = "";
 
-    mXkbContext = xkb_context_new(xkb_context_flags(0));
-    if (mXkbContext) {
-        mXkbMap = xkb_map_new_from_names(mXkbContext, &names, xkb_map_compile_flags(0));
-        if (mXkbMap) {
-            mXkbState = xkb_state_new(mXkbMap);
-        }
-    }
+    mXkbKeymap.reset(xkb_keymap_new_from_names(ctx, &names, XKB_KEYMAP_COMPILE_NO_FLAGS));
+    if (mXkbKeymap)
+        mXkbState.reset(xkb_state_new(mXkbKeymap.get()));
 
-    if (!mXkbContext || !mXkbMap || !mXkbState) {
-        qWarning() << "xkb_map_new_from_names failed, no key input";
+    if (!mXkbKeymap || !mXkbState) {
+        qCWarning(lcQpaWayland, "failed to create default keymap");
         return false;
     }
 
     return true;
 }
-
-void QWaylandInputDevice::Keyboard::releaseKeyMap()
-{
-    if (mXkbState)
-        xkb_state_unref(mXkbState);
-    if (mXkbMap)
-        xkb_map_unref(mXkbMap);
-    if (mXkbContext)
-        xkb_context_unref(mXkbContext);
-}
 #endif
 
 QWaylandInputDevice::Keyboard::~Keyboard()
 {
-#if QT_CONFIG(xkbcommon)
-    releaseKeyMap();
-#endif
     if (mFocus)
         QWindowSystemInterface::handleWindowActivated(nullptr);
     if (mParent->mVersion >= 3)
@@ -501,7 +480,7 @@ Qt::KeyboardModifiers QWaylandInputDevice::Keyboard::modifiers() const
     if (!mXkbState)
         return ret;
 
-    ret = QWaylandXkb::modifiers(mXkbState);
+    ret = QWaylandXkb::modifiers(mXkbState.get());
 #endif
 
     return ret;
@@ -761,16 +740,16 @@ void QWaylandInputDevice::Keyboard::keyboard_keymap(uint32_t format, int32_t fd,
         return;
     }
 
-    // Release the old keymap resources in the case they were already created in
-    // the key event or when the compositor issues a new map
-    releaseKeyMap();
-
-    mXkbContext = xkb_context_new(XKB_CONTEXT_NO_FLAGS);
-    mXkbMap = xkb_map_new_from_string(mXkbContext, map_str, XKB_KEYMAP_FORMAT_TEXT_V1, XKB_KEYMAP_COMPILE_NO_FLAGS);
+    mXkbKeymap.reset(xkb_keymap_new_from_string(mParent->mQDisplay->xkbContext(), map_str,
+                                                XKB_KEYMAP_FORMAT_TEXT_V1,
+                                                XKB_KEYMAP_COMPILE_NO_FLAGS));
     munmap(map_str, size);
     close(fd);
 
-    mXkbState = xkb_state_new(mXkbMap);
+    if (mXkbKeymap)
+        mXkbState.reset(xkb_state_new(mXkbKeymap.get()));
+    else
+        mXkbState.reset(nullptr);
 #else
     Q_UNUSED(format);
     Q_UNUSED(fd);
@@ -860,11 +839,10 @@ void QWaylandInputDevice::Keyboard::keyboard_key(uint32_t serial, uint32_t time,
         mParent->mQDisplay->setLastInputDevice(mParent, serial, window);
 
 #if QT_CONFIG(xkbcommon)
-    if (!createDefaultKeyMap()) {
+    if ((!mXkbKeymap || !mXkbState) && !createDefaultKeymap())
         return;
-    }
 
-    xkb_keysym_t sym = xkb_state_key_get_one_sym(mXkbState, code);
+    xkb_keysym_t sym = xkb_state_key_get_one_sym(mXkbState.get(), code);
 
     Qt::KeyboardModifiers modifiers = mParent->modifiers();
 
@@ -878,7 +856,7 @@ void QWaylandInputDevice::Keyboard::keyboard_key(uint32_t serial, uint32_t time,
 
     if (state == WL_KEYBOARD_KEY_STATE_PRESSED
 #if QT_CONFIG(xkbcommon)
-        && xkb_keymap_key_repeats(mXkbMap, code)
+        && xkb_keymap_key_repeats(mXkbKeymap.get(), code)
 #endif
         ) {
         mRepeatKey = qtkey;
@@ -952,7 +930,7 @@ void QWaylandInputDevice::Keyboard::keyboard_modifiers(uint32_t serial,
     Q_UNUSED(serial);
 #if QT_CONFIG(xkbcommon)
     if (mXkbState)
-        xkb_state_update_mask(mXkbState,
+        xkb_state_update_mask(mXkbState.get(),
                               mods_depressed, mods_latched, mods_locked,
                               0, 0, group);
     mNativeModifiers = mods_depressed | mods_latched | mods_locked;

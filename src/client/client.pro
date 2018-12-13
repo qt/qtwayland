@@ -16,7 +16,7 @@ CONFIG -= precompile_header
 CONFIG += link_pkgconfig wayland-scanner
 
 qtConfig(xkbcommon) {
-    QT_PRIVATE += xkbcommon_support-private
+    QT_FOR_PRIVATE += xkbcommon_support-private
 }
 
 qtHaveModule(linuxaccessibility_support_private): \

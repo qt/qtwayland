@@ -142,6 +142,12 @@ QWaylandDisplay::QWaylandDisplay(QWaylandIntegration *waylandIntegration)
 
     mWindowManagerIntegration.reset(new QWaylandWindowManagerIntegration(this));
 
+#if QT_CONFIG(xkbcommon)
+    mXkbContext.reset(xkb_context_new(XKB_CONTEXT_NO_FLAGS));
+    if (!mXkbContext)
+        qCWarning(lcQpaWayland, "failed to create xkb context");
+#endif
+
     forceRoundTrip();
 }
 

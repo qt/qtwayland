@@ -41,7 +41,7 @@ DefaultCompositor::DefaultCompositor()
         add<SubCompositor>();
         auto *output = add<Output>();
         output->m_data.physicalSize = output->m_data.mode.physicalSizeForDpi(96);
-        add<Seat>(Seat::capability_pointer);
+        add<Seat>(Seat::capability_pointer | Seat::capability_keyboard);
         add<XdgWmBase>();
         add<Shm>();
         // TODO: other shells, viewporter, xdgoutput etc

@@ -193,8 +193,8 @@ Seat::~Seat()
 }
 
 void Seat::setCapabilities(uint capabilities) {
-    // TODO: Add support for touch and keyboard
-    Q_ASSERT(capabilities == 0 || capabilities == capability_pointer);
+    // TODO: Add support for touch
+    Q_ASSERT(~capabilities & capability_touch);
 
     m_capabilities = capabilities;
 
@@ -204,6 +204,14 @@ void Seat::setCapabilities(uint capabilities) {
     } else if (m_pointer) {
         m_oldPointers << m_pointer;
         m_pointer = nullptr;
+    }
+
+    if (m_capabilities & capability_keyboard) {
+        if (!m_keyboard)
+            m_keyboard = (new Keyboard(this));
+    } else if (m_keyboard) {
+        m_oldKeyboards << m_keyboard;
+        m_keyboard = nullptr;
     }
 
     for (auto *resource : resourceMap())
@@ -223,6 +231,21 @@ void Seat::seat_get_pointer(Resource *resource, uint32_t id)
         return;
     }
     m_pointer->add(resource->client(), id, resource->version());
+}
+
+void Seat::seat_get_keyboard(QtWaylandServer::wl_seat::Resource *resource, uint32_t id)
+{
+    if (~m_capabilities & capability_pointer) {
+        qWarning() << "Client requested a wl_keyboard without the capability being available."
+                   << "This Could be a race condition when hotunplugging,"
+                   << "but is most likely a client error";
+        Keyboard *keyboard = new Keyboard(this);
+        keyboard->add(resource->client(), id, resource->version());
+        // TODO: mark as destroyed
+        m_oldKeyboards << keyboard;
+        return;
+    }
+    m_keyboard->add(resource->client(), id, resource->version());
 }
 
 Surface *Pointer::cursorSurface()
@@ -294,6 +317,37 @@ void Pointer::pointer_set_cursor(Resource *resource, uint32_t serial, wl_resourc
     }
 //    QCOMPARE(serial, m_enterSerial); //TODO: uncomment when this bug is fixed
     emit setCursor(serial);
+}
+
+uint Keyboard::sendEnter(Surface *surface)
+{
+    auto serial = m_seat->m_compositor->nextSerial();
+    wl_client *client = surface->resource()->client();
+    const auto pointerResources = resourceMap().values(client);
+    for (auto *r : pointerResources)
+        send_enter(r->handle, serial, surface->resource()->handle, QByteArray());
+    return serial;
+}
+
+uint Keyboard::sendLeave(Surface *surface)
+{
+    auto serial = m_seat->m_compositor->nextSerial();
+    wl_client *client = surface->resource()->client();
+    const auto pointerResources = resourceMap().values(client);
+    for (auto *r : pointerResources)
+        send_leave(r->handle, serial, surface->resource()->handle);
+    return serial;
+}
+
+uint Keyboard::sendKey(wl_client *client, uint key, uint state)
+{
+    Q_ASSERT(state == key_state_pressed || state == key_state_released);
+    auto time = m_seat->m_compositor->currentTimeMilliseconds();
+    uint serial = m_seat->m_compositor->nextSerial();
+    const auto pointerResources = resourceMap().values(client);
+    for (auto *r : pointerResources)
+        send_key(r->handle, serial, time, key, state);
+    return serial;
 }
 
 // Shm implementation

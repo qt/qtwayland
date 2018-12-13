@@ -46,7 +46,7 @@ public:
 
             removeAll<Seat>();
 
-            uint capabilities = MockCompositor::Seat::capability_pointer;
+            uint capabilities = Seat::capability_pointer | Seat::capability_keyboard;
             int version = 4;
             add<Seat>(capabilities, version);
         });
@@ -67,6 +67,8 @@ private slots:
     void simpleAxis();
     void invalidPointerEvents();
     void scaledCursor();
+
+    void keyboardKeyPress();
 };
 
 void tst_seatv4::cleanup()
@@ -285,6 +287,29 @@ void tst_seatv4::scaledCursor()
 
     // Remove the extra output to clean up for the next test
     exec([&] { remove(output(1)); });
+}
+
+void tst_seatv4::keyboardKeyPress()
+{
+    class Window : public QRasterWindow {
+    public:
+        void keyPressEvent(QKeyEvent *) override { m_pressed = true; }
+        bool m_pressed = false;
+    };
+
+    Window window;
+    window.resize(64, 64);
+    window.show();
+    QCOMPOSITOR_TRY_VERIFY(xdgSurface() && xdgSurface()->m_committedConfigureSerial);
+
+    uint keyCode = 80; // arbitrarily chosen
+    exec([&] {
+        auto *surface = xdgSurface()->m_surface;
+        keyboard()->sendEnter(surface);
+        keyboard()->sendKey(client(), keyCode, Keyboard::key_state_pressed);
+        keyboard()->sendKey(client(), keyCode, Keyboard::key_state_released);
+    });
+    QTRY_VERIFY(window.m_pressed);
 }
 
 QCOMPOSITOR_TEST_MAIN(tst_seatv4)

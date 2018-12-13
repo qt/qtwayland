@@ -38,6 +38,7 @@ namespace MockCompositor {
 class WlCompositor;
 class Output;
 class Pointer;
+class Keyboard;
 class CursorRole;
 class ShmPool;
 class ShmBuffer;
@@ -245,6 +246,9 @@ public:
     Pointer* m_pointer = nullptr;
     QVector<Pointer *> m_oldPointers;
 
+    Keyboard* m_keyboard = nullptr;
+    QVector<Keyboard *> m_oldKeyboards;
+
     uint m_capabilities = 0;
 
 protected:
@@ -254,7 +258,7 @@ protected:
     }
 
     void seat_get_pointer(Resource *resource, uint32_t id) override;
-//    void seat_get_keyboard(Resource *resource, uint32_t id) override;
+    void seat_get_keyboard(Resource *resource, uint32_t id) override;
 //    void seat_get_touch(Resource *resource, uint32_t id) override;
 
 //    void seat_release(Resource *resource) override;
@@ -292,6 +296,18 @@ public:
     }
     static CursorRole *fromSurface(Surface *surface) { return qobject_cast<CursorRole *>(surface->m_role); }
     Surface *m_surface = nullptr;
+};
+
+class Keyboard : public QObject, public QtWaylandServer::wl_keyboard
+{
+    Q_OBJECT
+public:
+    explicit Keyboard(Seat *seat) : m_seat(seat) {}
+    //TODO: Keymap event
+    uint sendEnter(Surface *surface);
+    uint sendLeave(Surface *surface);
+    uint sendKey(wl_client *client, uint key, uint state);
+    Seat *m_seat = nullptr;
 };
 
 class Shm : public Global, public QtWaylandServer::wl_shm

@@ -342,15 +342,13 @@ Qt::KeyboardModifiers QWaylandXkb::modifiers(struct xkb_state *state)
 #if QT_CONFIG(xkbcommon)
     Qt::KeyboardModifiers modifiers = Qt::NoModifier;
 
-    xkb_state_component cstate = static_cast<xkb_state_component>(XKB_STATE_DEPRESSED | XKB_STATE_LATCHED | XKB_STATE_LOCKED);
-
-    if (xkb_state_mod_name_is_active(state, XKB_MOD_NAME_SHIFT, cstate))
+    if (xkb_state_mod_name_is_active(state, XKB_MOD_NAME_SHIFT, XKB_STATE_MODS_EFFECTIVE))
         modifiers |= Qt::ShiftModifier;
-    if (xkb_state_mod_name_is_active(state, XKB_MOD_NAME_CTRL, cstate))
+    if (xkb_state_mod_name_is_active(state, XKB_MOD_NAME_CTRL, XKB_STATE_MODS_EFFECTIVE))
         modifiers |= Qt::ControlModifier;
-    if (xkb_state_mod_name_is_active(state, XKB_MOD_NAME_ALT, cstate))
+    if (xkb_state_mod_name_is_active(state, XKB_MOD_NAME_ALT, XKB_STATE_MODS_EFFECTIVE))
         modifiers |= Qt::AltModifier;
-    if (xkb_state_mod_name_is_active(state, XKB_MOD_NAME_LOGO, cstate))
+    if (xkb_state_mod_name_is_active(state, XKB_MOD_NAME_LOGO, XKB_STATE_MODS_EFFECTIVE))
         modifiers |= Qt::MetaModifier;
 
     return modifiers;

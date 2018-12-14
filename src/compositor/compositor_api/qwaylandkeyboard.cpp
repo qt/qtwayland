@@ -230,10 +230,10 @@ void QWaylandKeyboardPrivate::updateModifierState(uint code, uint32_t state)
 
     xkb_state_update_key(xkbState(), code, state == WL_KEYBOARD_KEY_STATE_PRESSED ? XKB_KEY_DOWN : XKB_KEY_UP);
 
-    uint32_t modsDepressed = xkb_state_serialize_mods(xkbState(), (xkb_state_component)XKB_STATE_DEPRESSED);
-    uint32_t modsLatched = xkb_state_serialize_mods(xkbState(), (xkb_state_component)XKB_STATE_LATCHED);
-    uint32_t modsLocked = xkb_state_serialize_mods(xkbState(), (xkb_state_component)XKB_STATE_LOCKED);
-    uint32_t group = xkb_state_serialize_group(xkbState(), (xkb_state_component)XKB_STATE_EFFECTIVE);
+    uint32_t modsDepressed = xkb_state_serialize_mods(xkbState(), XKB_STATE_MODS_DEPRESSED);
+    uint32_t modsLatched = xkb_state_serialize_mods(xkbState(), XKB_STATE_MODS_LATCHED);
+    uint32_t modsLocked = xkb_state_serialize_mods(xkbState(), XKB_STATE_MODS_LOCKED);
+    uint32_t group = xkb_state_serialize_layout(xkbState(), XKB_STATE_LAYOUT_EFFECTIVE);
 
     if (this->modsDepressed == modsDepressed
             && this->modsLatched == modsLatched

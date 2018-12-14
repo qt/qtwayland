@@ -51,6 +51,7 @@
 //
 // We mean it.
 //
+#include <QtWaylandCompositor/private/qwaylandcompositor_p.h>
 
 #include <QtWaylandCompositor/private/qtwaylandcompositorglobal_p.h>
 #include <QtWaylandCompositor/qwaylandseat.h>
@@ -64,6 +65,7 @@
 
 #if QT_CONFIG(xkbcommon)
 #include <xkbcommon/xkbcommon.h>
+#include <QtXkbCommonSupport/private/qxkbcommon_p.h>
 #endif
 
 
@@ -87,7 +89,10 @@ public:
                    uint32_t mods_latched, uint32_t mods_locked, uint32_t group);
 
 #if QT_CONFIG(xkbcommon)
-    struct xkb_state *xkbState() const { return xkb_state; }
+    struct xkb_state *xkbState() const { return mXkbState.get(); }
+    struct xkb_context *xkbContext() const {
+        return QWaylandCompositorPrivate::get(seat->compositor())->xkbContext();
+    }
     uint32_t xkbModsMask() const { return modsDepressed | modsLatched | modsLocked; }
     void maybeUpdateXkbScanCodeTable();
 #endif
@@ -107,7 +112,6 @@ protected:
 
 private:
 #if QT_CONFIG(xkbcommon)
-    void initXKB();
     void createXKBKeymap();
     void createXKBState(xkb_keymap *keymap);
 #endif
@@ -134,8 +138,7 @@ private:
     char *keymap_area = nullptr;
     using ScanCodeKey = std::pair<uint,int>; // group/layout and QtKey
     QMap<ScanCodeKey, uint> scanCodesByQtKey;
-    struct xkb_context *xkb_context = nullptr;
-    struct xkb_state *xkb_state = nullptr;
+    QXkbCommon::ScopedXKBState mXkbState;
 #endif
 
     quint32 repeatRate = 40;

@@ -172,6 +172,14 @@ QWaylandCompositorPrivate::QWaylandCompositorPrivate(QWaylandCompositor *composi
     timer.start();
 
     QWindowSystemInterfacePrivate::installWindowSystemEventHandler(eventHandler.data());
+
+#if QT_CONFIG(xkbcommon)
+    mXkbContext.reset(xkb_context_new(XKB_CONTEXT_NO_FLAGS));
+    if (!mXkbContext) {
+        qWarning("Failed to create a XKB context: keymap will not be supported");
+        return;
+    }
+#endif
 }
 
 void QWaylandCompositorPrivate::init()

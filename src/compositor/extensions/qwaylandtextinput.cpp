@@ -45,11 +45,14 @@
 
 #include "qwaylandsurface.h"
 #include "qwaylandview.h"
-#include "qwaylandxkb_p.h"
 #include "qwaylandinputmethodeventbuilder_p.h"
 
 #include <QGuiApplication>
 #include <QInputMethodEvent>
+
+#if QT_CONFIG(xkbcommon)
+#include <QtXkbCommonSupport/private/qxkbcommon_p.h>
+#endif
 
 QT_BEGIN_NAMESPACE
 
@@ -203,11 +206,15 @@ void QWaylandTextInputPrivate::sendKeyEvent(QKeyEvent *event)
 
     // TODO add support for modifiers
 
-    foreach (xkb_keysym_t keysym, QWaylandXkb::toKeysym(event)) {
+#if QT_CONFIG(xkbcommon)
+    for (xkb_keysym_t keysym : QXkbCommon::toKeysym(event)) {
         send_keysym(focusResource->handle, event->timestamp(), keysym,
                     event->type() == QEvent::KeyPress ? WL_KEYBOARD_KEY_STATE_PRESSED : WL_KEYBOARD_KEY_STATE_RELEASED,
                     0);
     }
+#else
+    Q_UNUSED(event);
+#endif
 }
 
 void QWaylandTextInputPrivate::sendInputPanelState()

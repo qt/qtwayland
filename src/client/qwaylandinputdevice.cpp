@@ -51,7 +51,6 @@
 #include "qwaylandcursor_p.h"
 #include "qwaylanddisplay_p.h"
 #include "qwaylandshmbackingstore_p.h"
-#include "../shared/qwaylandxkb_p.h"
 #include "qwaylandinputcontext_p.h"
 
 #include <QtGui/private/qpixmap_raster_p.h>
@@ -493,7 +492,7 @@ Qt::KeyboardModifiers QWaylandInputDevice::Keyboard::modifiers() const
     if (!mXkbState)
         return ret;
 
-    ret = QWaylandXkb::modifiers(mXkbState.get());
+    ret = QXkbCommon::modifiers(mXkbState.get());
 #endif
 
     return ret;
@@ -758,6 +757,8 @@ void QWaylandInputDevice::Keyboard::keyboard_keymap(uint32_t format, int32_t fd,
     mXkbKeymap.reset(xkb_keymap_new_from_string(mParent->mQDisplay->xkbContext(), map_str,
                                                 XKB_KEYMAP_FORMAT_TEXT_V1,
                                                 XKB_KEYMAP_COMPILE_NO_FLAGS));
+    QXkbCommon::verifyHasLatinLayout(mXkbKeymap.get());
+
     munmap(map_str, size);
     close(fd);
 
@@ -864,9 +865,8 @@ void QWaylandInputDevice::Keyboard::keyboard_key(uint32_t serial, uint32_t time,
 
         Qt::KeyboardModifiers modifiers = mParent->modifiers();
 
-        int qtkey = 0;
-        QString text;
-        std::tie(qtkey, text) = QWaylandXkb::keysymToQtKey(sym, modifiers);
+        int qtkey = QXkbCommon::keysymToQtKey(sym, modifiers, mXkbState.get(), code);
+        QString text = QXkbCommon::lookupString(mXkbState.get(), code);
 
         QEvent::Type type = isDown ? QEvent::KeyPress : QEvent::KeyRelease;
         handleKey(time, type, qtkey, modifiers, code, sym, mNativeModifiers, text);

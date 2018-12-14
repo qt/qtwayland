@@ -49,7 +49,6 @@ SOURCES +=  qwaylandintegration.cpp \
             qwaylandtouch.cpp \
             qwaylandqtkey.cpp \
             ../shared/qwaylandmimehelper.cpp \
-            ../shared/qwaylandxkb.cpp \
             ../shared/qwaylandinputmethodeventbuilder.cpp \
             qwaylandabstractdecoration.cpp \
             qwaylanddecorationfactory.cpp \
@@ -83,7 +82,6 @@ HEADERS +=  qwaylandintegration_p.h \
             qtwaylandclientglobal_p.h \
             ../shared/qwaylandinputmethodeventbuilder_p.h \
             ../shared/qwaylandmimehelper_p.h \
-            ../shared/qwaylandxkb_p.h \
             ../shared/qwaylandsharedmemoryformathelper_p.h \
 
 qtConfig(clipboard) {

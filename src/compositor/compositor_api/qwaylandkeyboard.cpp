@@ -54,7 +54,6 @@
 #if QT_CONFIG(xkbcommon)
 #include <sys/mman.h>
 #include <sys/types.h>
-#include <qwaylandxkb_p.h>
 #endif
 
 QT_BEGIN_NAMESPACE
@@ -206,7 +205,7 @@ void QWaylandKeyboardPrivate::maybeUpdateXkbScanCodeTable()
                     continue;
 
                 Qt::KeyboardModifiers mods = {};
-                int qtKey = QWaylandXkb::keysymToQtKey(syms[0], mods).first;
+                int qtKey = QXkbCommon::keysymToQtKey(syms[0], mods);
                 if (qtKey != 0)
                     scanCodesByQtKey->insert({layout, qtKey}, keycode);
             }

@@ -236,8 +236,6 @@ void QWaylandDisplay::waitForScreens()
 
 void QWaylandDisplay::registry_global(uint32_t id, const QString &interface, uint32_t version)
 {
-    Q_UNUSED(version);
-
     struct ::wl_registry *registry = object();
 
     if (interface == QStringLiteral("wl_output")) {

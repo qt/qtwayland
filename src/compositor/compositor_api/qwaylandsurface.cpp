@@ -431,6 +431,19 @@ QWaylandClient *QWaylandSurface::client() const
 }
 
 /*!
+ * \property QWaylandSurface::waylandClient
+ *
+ * This property holds the \c wl_client using this QWaylandSurface.
+ */
+::wl_client *QWaylandSurface::waylandClient() const
+{
+    if (auto *c = client())
+        return c->client();
+
+    return nullptr;
+}
+
+/*!
  * \qmlproperty bool QtWaylandCompositor::WaylandSurface::hasContent
  *
  * This property holds whether the WaylandSurface has content.

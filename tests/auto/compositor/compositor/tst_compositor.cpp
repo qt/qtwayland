@@ -78,6 +78,7 @@ private slots:
     void mapSurfaceHiDpi();
     void frameCallback();
     void removeOutput();
+    void customSurface();
 
     void advertisesXdgShellSupport();
     void createsXdgSurfaces();
@@ -611,6 +612,32 @@ void tst_WaylandCompositor::removeOutput()
     delete output;
     compositor.flushClients();
     QTRY_COMPARE(client.m_outputs.size(), 1);
+}
+
+class CustomSurface : public QWaylandSurface {
+    Q_OBJECT
+public:
+    explicit CustomSurface() = default;
+};
+
+void tst_WaylandCompositor::customSurface()
+{
+    TestCompositor compositor;
+    QObject::connect(&compositor, &TestCompositor::surfaceRequested, this, [&compositor] (QWaylandClient *client, uint id, int version) {
+        auto *s = new CustomSurface();
+        QCOMPARE(s->waylandClient(), nullptr);
+        s->initialize(&compositor, client, id, version);
+        QCOMPARE(s->waylandClient(), client->client());
+    });
+    QObject::connect(&compositor, &TestCompositor::surfaceCreated, this, [] (QWaylandSurface *surface) {
+        auto *custom = qobject_cast<CustomSurface *>(surface);
+        QVERIFY(custom != nullptr);
+    });
+    compositor.create();
+
+    MockClient client;
+    wl_surface *surface = client.createSurface();
+    QTRY_COMPARE(compositor.surfaces.size(), 1);
 }
 
 void tst_WaylandCompositor::seatCapabilities()

@@ -120,11 +120,11 @@ void XdgSurface::xdg_surface_get_toplevel(Resource *resource, uint32_t id)
 
 void XdgSurface::xdg_surface_get_popup(Resource *resource, uint32_t id, wl_resource *parent, wl_resource *positioner)
 {
-    Q_UNUSED(parent);
     Q_UNUSED(positioner);
     QVERIFY(!m_toplevel);
     QVERIFY(!m_popup);
-    m_popup = new XdgPopup(this, id, resource->version());
+    auto *p = fromResource<XdgSurface>(parent);
+    m_popup = new XdgPopup(this, p, id, resource->version());
 }
 
 void XdgSurface::xdg_surface_destroy_resource(Resource *resource)
@@ -133,6 +133,12 @@ void XdgSurface::xdg_surface_destroy_resource(Resource *resource)
     bool removed = m_xdgWmBase->m_xdgSurfaces.removeOne(this);
     Q_ASSERT(removed);
     delete this;
+}
+
+void XdgSurface::xdg_surface_destroy(QtWaylandServer::xdg_surface::Resource *resource)
+{
+    QVERIFY(m_popups.empty());
+    wl_resource_destroy(resource->handle);
 }
 
 void XdgSurface::xdg_surface_set_window_geometry(Resource *resource, int32_t x, int32_t y, int32_t width, int32_t height)
@@ -189,10 +195,14 @@ void XdgToplevel::xdg_toplevel_set_min_size(Resource *resource, int32_t width, i
     m_pending.minSize = size;
 }
 
-XdgPopup::XdgPopup(XdgSurface *xdgSurface, int id, int version)
+XdgPopup::XdgPopup(XdgSurface *xdgSurface, XdgSurface *parent, int id, int version)
     : QtWaylandServer::xdg_popup(xdgSurface->resource()->client(), id, version)
     , m_xdgSurface(xdgSurface)
+    , m_parentXdgSurface(parent)
 {
+    Q_ASSERT(m_xdgSurface);
+    Q_ASSERT(m_parentXdgSurface);
+    m_parentXdgSurface->m_popups << this;
 }
 
 void XdgPopup::sendConfigure(const QRect &geometry)
@@ -200,14 +210,32 @@ void XdgPopup::sendConfigure(const QRect &geometry)
     send_configure(geometry.x(), geometry.y(), geometry.width(), geometry.height());
 }
 
+uint XdgPopup::sendCompleteConfigure(const QRect &geometry)
+{
+    sendConfigure(geometry);
+    return m_xdgSurface->sendConfigure();
+}
+
 void XdgPopup::xdg_popup_grab(QtWaylandServer::xdg_popup::Resource *resource, wl_resource *seat, uint32_t serial)
 {
     Q_UNUSED(resource);
     Q_UNUSED(seat); // TODO: verify correct seat as well
-    //TODO: verify no other popup has grabbed
     QVERIFY(!m_grabbed);
+    QVERIFY(m_parentXdgSurface->isValidPopupGrabParent());
+    m_xdgSurface->m_xdgWmBase->m_topmostGrabbingPopup = this;
     m_grabbed = true;
     m_grabSerial = serial;
+}
+
+void XdgPopup::xdg_popup_destroy(Resource *resource) {
+    Q_UNUSED(resource);
+    if (m_grabbed) {
+        auto *base = m_xdgSurface->m_xdgWmBase;
+        QCOMPARE(base->m_topmostGrabbingPopup, this);
+        base->m_topmostGrabbingPopup = this->m_parentXdgSurface->m_popup;
+    }
+    m_xdgSurface->m_popup = nullptr;
+    m_parentXdgSurface->m_popups.removeAll(this);
 }
 
 } // namespace MockCompositor

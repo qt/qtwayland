@@ -58,7 +58,7 @@ class tst_WaylandCompositor : public QObject
 private slots:
     void init();
     void seatCapabilities();
-#if QT_CONFIG(xkbcommon_evdev)
+#if QT_CONFIG(xkbcommon)
     void simpleKeyboard();
     void keyboardKeymaps();
     void keyboardLayoutSwitching();
@@ -73,11 +73,13 @@ private slots:
     void multipleClients();
     void geometry();
     void modes();
+    void comparingModes();
     void sizeFollowsWindow();
     void mapSurface();
     void mapSurfaceHiDpi();
     void frameCallback();
     void removeOutput();
+    void customSurface();
 
     void advertisesXdgShellSupport();
     void createsXdgSurfaces();
@@ -170,7 +172,7 @@ void tst_WaylandCompositor::multipleClients()
     QTRY_COMPARE(compositor.surfaces.size(), 0);
 }
 
-#if QT_CONFIG(xkbcommon_evdev)
+#if QT_CONFIG(xkbcommon)
 
 void tst_WaylandCompositor::simpleKeyboard()
 {
@@ -283,7 +285,7 @@ void tst_WaylandCompositor::keyboardLayoutSwitching()
     QTRY_COMPARE(mockKeyboard->m_lastKeyCode, 44u);
 }
 
-#endif // QT_CONFIG(xkbcommon_evdev)
+#endif // QT_CONFIG(xkbcommon)
 
 void tst_WaylandCompositor::keyboardGrab()
 {
@@ -372,6 +374,28 @@ void tst_WaylandCompositor::modes()
     QTRY_COMPARE(client.currentMode, mode3);
     QTRY_COMPARE(client.preferredMode, mode4);
     QTRY_COMPARE(client.geometry, QRect(QPoint(0, 0), QSize(1920, 1080)));
+}
+
+void tst_WaylandCompositor::comparingModes()
+{
+    QWaylandOutputMode mode1(QSize(800, 600), 120000);
+    QWaylandOutputMode mode2(QSize(1024, 768), 100000);
+    QWaylandOutputMode mode3(QSize(1024, 768), 120000);
+    QWaylandOutputMode mode4(QSize(800, 600), 100000);
+
+    QCOMPARE(mode1, mode1);
+    QCOMPARE(mode2, mode2);
+    QCOMPARE(mode3, mode3);
+    QCOMPARE(mode4, mode4);
+
+    for (auto mode: {mode2, mode3, mode4})
+       QVERIFY(mode1 != mode);
+    for (auto mode: {mode1, mode3, mode4})
+       QVERIFY(mode2 != mode);
+    for (auto mode: {mode1, mode2, mode4})
+       QVERIFY(mode3 != mode);
+    for (auto mode: {mode1, mode2, mode3})
+       QVERIFY(mode4 != mode);
 }
 
 void tst_WaylandCompositor::sizeFollowsWindow()
@@ -597,6 +621,32 @@ void tst_WaylandCompositor::removeOutput()
     delete output;
     compositor.flushClients();
     QTRY_COMPARE(client.m_outputs.size(), 1);
+}
+
+class CustomSurface : public QWaylandSurface {
+    Q_OBJECT
+public:
+    explicit CustomSurface() = default;
+};
+
+void tst_WaylandCompositor::customSurface()
+{
+    TestCompositor compositor;
+    QObject::connect(&compositor, &TestCompositor::surfaceRequested, this, [&compositor] (QWaylandClient *client, uint id, int version) {
+        auto *s = new CustomSurface();
+        QCOMPARE(s->waylandClient(), nullptr);
+        s->initialize(&compositor, client, id, version);
+        QCOMPARE(s->waylandClient(), client->client());
+    });
+    QObject::connect(&compositor, &TestCompositor::surfaceCreated, this, [] (QWaylandSurface *surface) {
+        auto *custom = qobject_cast<CustomSurface *>(surface);
+        QVERIFY(custom != nullptr);
+    });
+    compositor.create();
+
+    MockClient client;
+    wl_surface *surface = client.createSurface();
+    QTRY_COMPARE(compositor.surfaces.size(), 1);
 }
 
 void tst_WaylandCompositor::seatCapabilities()

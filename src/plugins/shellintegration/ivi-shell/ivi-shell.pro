@@ -3,8 +3,8 @@ CONFIG += wayland-scanner
 
 QMAKE_USE += wayland-client
 
-qtConfig(xkbcommon-evdev): \
-    QMAKE_USE += xkbcommon_evdev
+qtConfig(xkbcommon): \
+    QMAKE_USE += xkbcommon
 
 WAYLANDCLIENTSOURCES += \
     ../../../3rdparty/protocol/ivi-application.xml \

@@ -43,13 +43,13 @@
 #include <QKeyEvent>
 #include <QString>
 
-#if QT_CONFIG(xkbcommon_evdev)
+#if QT_CONFIG(xkbcommon)
 #include <xkbcommon/xkbcommon-keysyms.h>
 #endif
 
 QT_BEGIN_NAMESPACE
 
-#if QT_CONFIG(xkbcommon_evdev)
+#if QT_CONFIG(xkbcommon)
 static const uint32_t KeyTbl[] = {
     XKB_KEY_Escape,                  Qt::Key_Escape,
     XKB_KEY_Tab,                     Qt::Key_Tab,
@@ -297,7 +297,7 @@ static xkb_keysym_t toKeysymFromTable(uint32_t key)
 
 std::pair<int, QString> QWaylandXkb::keysymToQtKey(xkb_keysym_t keysym, Qt::KeyboardModifiers &modifiers)
 {
-#if QT_CONFIG(xkbcommon_evdev)
+#if QT_CONFIG(xkbcommon)
     QString text;
     uint utf32 = xkb_keysym_to_utf32(keysym);
     if (utf32)
@@ -339,7 +339,7 @@ std::pair<int, QString> QWaylandXkb::keysymToQtKey(xkb_keysym_t keysym, Qt::Keyb
 
 Qt::KeyboardModifiers QWaylandXkb::modifiers(struct xkb_state *state)
 {
-#if QT_CONFIG(xkbcommon_evdev)
+#if QT_CONFIG(xkbcommon)
     Qt::KeyboardModifiers modifiers = Qt::NoModifier;
 
     xkb_state_component cstate = static_cast<xkb_state_component>(XKB_STATE_DEPRESSED | XKB_STATE_LATCHED | XKB_STATE_LOCKED);
@@ -367,7 +367,7 @@ QEvent::Type QWaylandXkb::toQtEventType(uint32_t state)
 
 QVector<xkb_keysym_t> QWaylandXkb::toKeysym(QKeyEvent *event)
 {
-#if QT_CONFIG(xkbcommon_evdev)
+#if QT_CONFIG(xkbcommon)
     QVector<xkb_keysym_t> keysyms;
     if (event->key() >= Qt::Key_F1 && event->key() <= Qt::Key_F35) {
         keysyms.append(XKB_KEY_F1 + (event->key() - Qt::Key_F1));

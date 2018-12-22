@@ -63,7 +63,7 @@
 
 #include <QtWaylandClient/private/qwayland-wayland.h>
 
-#if QT_CONFIG(xkbcommon_evdev)
+#if QT_CONFIG(xkbcommon)
 #include <xkbcommon/xkbcommon.h>
 #include <xkbcommon/xkbcommon-keysyms.h>
 #endif
@@ -75,7 +75,7 @@
 struct wl_cursor_image;
 #endif
 
-#if QT_CONFIG(xkbcommon_evdev)
+#if QT_CONFIG(xkbcommon)
 struct xkb_compose_state;
 struct xkb_compose_table;
 #endif
@@ -208,7 +208,7 @@ public:
 
     QWaylandInputDevice *mParent = nullptr;
     QPointer<QWaylandWindow> mFocus;
-#if QT_CONFIG(xkbcommon_evdev)
+#if QT_CONFIG(xkbcommon)
     xkb_context *mXkbContext = nullptr;
     xkb_keymap *mXkbMap = nullptr;
     xkb_state *mXkbState = nullptr;
@@ -223,7 +223,7 @@ public:
     int mRepeatRate = 25;
     int mRepeatDelay = 400;
     QString mRepeatText;
-#if QT_CONFIG(xkbcommon_evdev)
+#if QT_CONFIG(xkbcommon)
     xkb_keysym_t mRepeatSym;
 #endif
     QTimer mRepeatTimer;
@@ -234,7 +234,7 @@ private slots:
     void repeatKey();
 
 private:
-#if QT_CONFIG(xkbcommon_evdev)
+#if QT_CONFIG(xkbcommon)
     bool createDefaultKeyMap();
     void releaseKeyMap();
     void createComposeState();

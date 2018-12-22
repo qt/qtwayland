@@ -62,7 +62,7 @@
 
 #include <QtCore/QVector>
 
-#if QT_CONFIG(xkbcommon_evdev)
+#if QT_CONFIG(xkbcommon)
 #include <xkbcommon/xkbcommon.h>
 #endif
 
@@ -86,7 +86,7 @@ public:
     void modifiers(uint32_t serial, uint32_t mods_depressed,
                    uint32_t mods_latched, uint32_t mods_locked, uint32_t group);
 
-#if QT_CONFIG(xkbcommon_evdev)
+#if QT_CONFIG(xkbcommon)
     struct xkb_state *xkbState() const { return xkb_state; }
     uint32_t xkbModsMask() const { return modsDepressed | modsLatched | modsLocked; }
     void maybeUpdateXkbScanCodeTable();
@@ -106,7 +106,7 @@ protected:
     void keyboard_release(Resource *resource) override;
 
 private:
-#if QT_CONFIG(xkbcommon_evdev)
+#if QT_CONFIG(xkbcommon)
     void initXKB();
     void createXKBKeymap();
     void createXKBState(xkb_keymap *keymap);
@@ -128,7 +128,7 @@ private:
     uint32_t group = 0;
 
     bool pendingKeymap = false;
-#if QT_CONFIG(xkbcommon_evdev)
+#if QT_CONFIG(xkbcommon)
     size_t keymap_size;
     int keymap_fd = -1;
     char *keymap_area = nullptr;

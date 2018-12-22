@@ -30,5 +30,5 @@ qtConfig(wayland-datadevice) {
 
 INCLUDEPATH += wayland_wrapper
 
-qtConfig(xkbcommon-evdev): \
-    QMAKE_USE += xkbcommon_evdev
+qtConfig(xkbcommon): \
+    QMAKE_USE += xkbcommon

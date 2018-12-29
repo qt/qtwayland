@@ -37,70 +37,40 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDQUICKSHELLSURFACEITEM_P_H
-#define QWAYLANDQUICKSHELLSURFACEITEM_P_H
+#ifndef QWAYLANDQUICKSHELLINTEGRATION_H
+#define QWAYLANDQUICKSHELLINTEGRATION_H
 
-#include <QtWaylandCompositor/QWaylandQuickShellSurfaceItem>
-#include <QtWaylandCompositor/QWaylandQuickShellIntegration>
-#include <QtWaylandCompositor/private/qwaylandquickitem_p.h>
-#include <QtCore/QBasicTimer>
-
-#include <functional>
+#include <QtCore/QObject>
+#include <QtGui/QMouseEvent>
+#include <QtWaylandCompositor/qtwaylandcompositorglobal.h>
 
 QT_BEGIN_NAMESPACE
 
-//
-//  W A R N I N G
-//  -------------
-//
-// This file is not part of the Qt API.  It exists purely as an
-// implementation detail.  This header file may change from version to
-// version without notice, or even be removed.
-//
-// We mean it.
-//
-
-class QWaylandShellSurface;
-class QWaylandQuickShellSurfaceItem;
-
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQuickShellSurfaceItemPrivate : public QWaylandQuickItemPrivate
-{
-    Q_DECLARE_PUBLIC(QWaylandQuickShellSurfaceItem)
-public:
-    QWaylandQuickShellSurfaceItemPrivate() {}
-    QWaylandQuickShellSurfaceItem *maybeCreateAutoPopup(QWaylandShellSurface* shellSurface);
-    static QWaylandQuickShellSurfaceItemPrivate *get(QWaylandQuickShellSurfaceItem *item) { return item->d_func(); }
-
-    QWaylandQuickShellIntegration *m_shellIntegration = nullptr;
-    QWaylandShellSurface *m_shellSurface = nullptr;
-    QQuickItem *m_moveItem = nullptr;
-    bool m_autoCreatePopupItems = false;
-};
-
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQuickShellEventFilter : public QObject
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQuickShellIntegration : public QObject
 {
     Q_OBJECT
 public:
-    typedef std::function<void()> CallbackFunction;
-    static void startFilter(QWaylandClient *client, CallbackFunction closePopupCallback);
-    static void cancelFilter();
+    explicit QWaylandQuickShellIntegration(QObject *parent = nullptr);
 
-protected:
-    void timerEvent(QTimerEvent *event) override;
+    virtual bool touchEvent(QTouchEvent *event);
 
-private:
-    void stopFilter();
+    virtual bool hoverEnterEvent(QHoverEvent *event);
+    virtual bool hoverLeaveEvent(QHoverEvent *event);
+    virtual bool hoverMoveEvent(QHoverEvent *event);
 
-    QWaylandQuickShellEventFilter(QObject *parent = nullptr);
-    bool eventFilter(QObject *, QEvent *) override;
-    bool eventFilterInstalled = false;
-    bool waitForRelease = false;
-    QPointer<QWaylandClient> client;
-    CallbackFunction closePopups = nullptr;
-    QBasicTimer mousePressTimeout;
-    static QWaylandQuickShellEventFilter *self;
+    virtual bool keyPressEvent(QKeyEvent *event);
+    virtual bool keyReleaseEvent(QKeyEvent *event);
+
+    virtual bool mouseDoubleClickEvent(QMouseEvent *event);
+    virtual bool mouseMoveEvent(QMouseEvent *event);
+    virtual bool mousePressEvent(QMouseEvent *event);
+    virtual bool mouseReleaseEvent(QMouseEvent *event);
+
+#if QT_CONFIG(wheelevent)
+    virtual bool wheelEvent(QWheelEvent *event);
+#endif
 };
 
 QT_END_NAMESPACE
 
-#endif // QWAYLANDQUICKSHELLSURFACEITEM_P_H
+#endif // QWAYLANDQUICKSHELLINTEGRATION_H

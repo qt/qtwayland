@@ -67,6 +67,7 @@ SOURCES += \
 
 qtHaveModule(quick) {
     HEADERS += \
+        extensions/qwaylandquickshellintegration.h \
         extensions/qwaylandquickshellsurfaceitem.h \
         extensions/qwaylandquickshellsurfaceitem_p.h \
         extensions/qwaylandivisurfaceintegration_p.h \
@@ -76,6 +77,7 @@ qtHaveModule(quick) {
         extensions/qwaylandxdgshellintegration_p.h \
 
     SOURCES += \
+        extensions/qwaylandquickshellintegration.cpp \
         extensions/qwaylandquickshellsurfaceitem.cpp \
         extensions/qwaylandivisurfaceintegration.cpp \
         extensions/qwaylandwlshellintegration.cpp \

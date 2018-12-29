@@ -208,11 +208,68 @@ void QWaylandQuickShellSurfaceItem::setAutoCreatePopupItems(bool enabled)
     emit autoCreatePopupItemsChanged();
 }
 
+void QWaylandQuickShellSurfaceItem::touchEvent(QTouchEvent *event)
+{
+    Q_D(QWaylandQuickShellSurfaceItem);
+    if (!d->m_shellIntegration->touchEvent(event))
+        QWaylandQuickItem::touchEvent(event);
+}
+
+void QWaylandQuickShellSurfaceItem::hoverEnterEvent(QHoverEvent *event)
+{
+    Q_D(QWaylandQuickShellSurfaceItem);
+    if (!d->m_shellIntegration->hoverEnterEvent(event))
+        QWaylandQuickItem::hoverEnterEvent(event);
+}
+
+void QWaylandQuickShellSurfaceItem::hoverLeaveEvent(QHoverEvent *event)
+{
+    Q_D(QWaylandQuickShellSurfaceItem);
+    if (!d->m_shellIntegration->hoverLeaveEvent(event))
+        QWaylandQuickItem::hoverLeaveEvent(event);
+}
+
+void QWaylandQuickShellSurfaceItem::hoverMoveEvent(QHoverEvent *event)
+{
+    Q_D(QWaylandQuickShellSurfaceItem);
+    if (!d->m_shellIntegration->hoverMoveEvent(event))
+        QWaylandQuickItem::hoverMoveEvent(event);
+}
+
+
+void QWaylandQuickShellSurfaceItem::keyPressEvent(QKeyEvent *event)
+{
+    Q_D(QWaylandQuickShellSurfaceItem);
+    if (!d->m_shellIntegration->keyPressEvent(event))
+        QWaylandQuickItem::keyPressEvent(event);
+}
+
+void QWaylandQuickShellSurfaceItem::keyReleaseEvent(QKeyEvent *event)
+{
+    Q_D(QWaylandQuickShellSurfaceItem);
+    if (!d->m_shellIntegration->keyReleaseEvent(event))
+        QWaylandQuickItem::keyReleaseEvent(event);
+}
+
+void QWaylandQuickShellSurfaceItem::mouseDoubleClickEvent(QMouseEvent *event)
+{
+    Q_D(QWaylandQuickShellSurfaceItem);
+    if (!d->m_shellIntegration->mouseDoubleClickEvent(event))
+        QWaylandQuickItem::mouseDoubleClickEvent(event);
+}
+
 void QWaylandQuickShellSurfaceItem::mouseMoveEvent(QMouseEvent *event)
 {
     Q_D(QWaylandQuickShellSurfaceItem);
     if (!d->m_shellIntegration->mouseMoveEvent(event))
         QWaylandQuickItem::mouseMoveEvent(event);
+}
+
+void QWaylandQuickShellSurfaceItem::mousePressEvent(QMouseEvent *event)
+{
+    Q_D(QWaylandQuickShellSurfaceItem);
+    if (!d->m_shellIntegration->mousePressEvent(event))
+        QWaylandQuickItem::mousePressEvent(event);
 }
 
 void QWaylandQuickShellSurfaceItem::mouseReleaseEvent(QMouseEvent *event)
@@ -221,6 +278,15 @@ void QWaylandQuickShellSurfaceItem::mouseReleaseEvent(QMouseEvent *event)
     if (!d->m_shellIntegration->mouseReleaseEvent(event))
         QWaylandQuickItem::mouseReleaseEvent(event);
 }
+
+#if QT_CONFIG(wheelevent)
+void QWaylandQuickShellSurfaceItem::wheelEvent(QWheelEvent *event)
+{
+    Q_D(QWaylandQuickShellSurfaceItem);
+    if (!d->m_shellIntegration->wheelEvent(event))
+        QWaylandQuickItem::wheelEvent(event);
+}
+#endif
 
 /*!
 \class QWaylandQuickShellEventFilter

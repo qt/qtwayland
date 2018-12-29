@@ -1,0 +1,3 @@
+!qwayland-*.cpp
+!qwayland-*.h
+!wayland-*-protocol.c

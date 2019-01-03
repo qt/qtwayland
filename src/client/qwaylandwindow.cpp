@@ -384,7 +384,7 @@ QWaylandScreen *QWaylandWindow::calculateScreenFromSurfaceEvents() const
 void QWaylandWindow::setVisible(bool visible)
 {
     if (visible) {
-        if (window()->type() == Qt::Popup)
+        if (window()->type() & (Qt::Popup | Qt::ToolTip))
             activePopups << this;
         initWindow();
         mDisplay->flushRequests();

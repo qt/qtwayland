@@ -100,6 +100,7 @@ void QWaylandAbstractDecoration::setWaylandWindow(QWaylandWindow *window)
     d->m_wayland_window = window;
 }
 
+// \a size is without margins
 static QRegion marginsRegion(const QSize &size, const QMargins &margins)
 {
     QRegion r;
@@ -123,7 +124,7 @@ const QImage &QWaylandAbstractDecoration::contentImage()
         d->m_decorationContentImage.fill(Qt::transparent);
         this->paint(&d->m_decorationContentImage);
 
-        QRegion damage = marginsRegion(window()->frameGeometry().size(), window()->frameMargins());
+        QRegion damage = marginsRegion(window()->geometry().size(), window()->frameMargins());
         for (QRect r : damage)
             waylandWindow()->damage(r);
 

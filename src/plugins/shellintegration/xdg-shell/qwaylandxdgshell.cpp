@@ -46,6 +46,8 @@
 #include <QtWaylandClient/private/qwaylandscreen_p.h>
 #include <QtWaylandClient/private/qwaylandabstractdecoration_p.h>
 
+#include <QtGui/private/qwindow_p.h>
+
 QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
@@ -104,6 +106,9 @@ void QWaylandXdgSurface::Toplevel::applyConfigure()
 
     QSize windowGeometrySize = m_xdgSurface->m_window->window()->frameGeometry().size();
     m_xdgSurface->set_window_geometry(0, 0, windowGeometrySize.width(), windowGeometrySize.height());
+
+    m_xdgSurface->setSizeHints();
+
     m_applied = m_pending;
     qCDebug(lcQpaWayland) << "Applied pending xdg_toplevel configure event:" << m_applied.size << m_applied.states;
 }
@@ -337,6 +342,31 @@ void QWaylandXdgSurface::applyConfigure()
 bool QWaylandXdgSurface::wantsDecorations() const
 {
     return m_toplevel && m_toplevel->wantsDecorations();
+}
+
+void QWaylandXdgSurface::propagateSizeHints()
+{
+    setSizeHints();
+
+    if (m_toplevel && m_window)
+        m_window->commit();
+}
+
+void QWaylandXdgSurface::setSizeHints()
+{
+    if (m_toplevel && m_window) {
+        const int minWidth = qMax(0, m_window->windowMinimumSize().width());
+        const int minHeight = qMax(0, m_window->windowMinimumSize().height());
+        m_toplevel->set_min_size(minWidth, minHeight);
+
+        int maxWidth = qMax(0, m_window->windowMaximumSize().width());
+        if (maxWidth == QWINDOWSIZE_MAX)
+            maxWidth = 0;
+        int maxHeight = qMax(0, m_window->windowMaximumSize().height());
+        if (maxHeight == QWINDOWSIZE_MAX)
+            maxHeight = 0;
+        m_toplevel->set_max_size(maxWidth, maxHeight);
+    }
 }
 
 void QWaylandXdgSurface::requestWindowStates(Qt::WindowStates states)

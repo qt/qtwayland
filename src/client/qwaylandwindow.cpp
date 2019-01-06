@@ -605,6 +605,11 @@ void QWaylandWindow::commit(QWaylandBuffer *buffer, const QRegion &damage)
     wl_surface::commit();
 }
 
+void QWaylandWindow::commit()
+{
+    wl_surface::commit();
+}
+
 const wl_callback_listener QWaylandWindow::callbackListener = {
     QWaylandWindow::frameCallback
 };
@@ -1116,6 +1121,12 @@ void QWaylandWindow::deliverUpdateRequest()
 void QWaylandWindow::addAttachOffset(const QPoint point)
 {
     mOffset += point;
+}
+
+void QWaylandWindow::propagateSizeHints()
+{
+    if (mShellSurface)
+        mShellSurface->propagateSizeHints();
 }
 
 bool QtWaylandClient::QWaylandWindow::startSystemMove(const QPoint &pos)

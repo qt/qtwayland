@@ -97,6 +97,8 @@ public:
     virtual void requestWindowStates(Qt::WindowStates states) {Q_UNUSED(states);}
     virtual bool wantsDecorations() const { return false; }
 
+    virtual void propagateSizeHints() {}
+
 private:
     QWaylandWindow *m_window = nullptr;
     friend class QWaylandWindow;

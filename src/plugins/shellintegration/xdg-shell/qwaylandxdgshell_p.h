@@ -92,6 +92,9 @@ public:
     bool handlesActiveState() const { return m_toplevel; }
     void applyConfigure() override;
     bool wantsDecorations() const override;
+    void propagateSizeHints() override;
+
+    void setSizeHints();
 
 protected:
     void requestWindowStates(Qt::WindowStates states) override;

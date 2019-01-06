@@ -120,6 +120,8 @@ public:
     void handleExpose(const QRegion &region);
     void commit(QWaylandBuffer *buffer, const QRegion &damage);
 
+    void commit();
+
     void waitForFrameSync();
 
     QMargins frameMargins() const override;
@@ -186,7 +188,7 @@ public:
     QWaylandShmBackingStore *backingStore() const { return mBackingStore; }
 
     bool setKeyboardGrabEnabled(bool) override { return false; }
-    void propagateSizeHints() override { }
+    void propagateSizeHints() override;
     void addAttachOffset(const QPoint point);
 
     bool startSystemMove(const QPoint &pos) override;

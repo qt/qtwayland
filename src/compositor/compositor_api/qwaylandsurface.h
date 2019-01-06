@@ -92,6 +92,7 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandSurface : public QWaylandObject
     Q_PROPERTY(QWaylandSurface::Origin origin READ origin NOTIFY originChanged)
     Q_PROPERTY(bool hasContent READ hasContent NOTIFY hasContentChanged)
     Q_PROPERTY(bool cursorSurface READ isCursorSurface WRITE markAsCursorSurface NOTIFY cursorSurfaceChanged)
+    Q_PROPERTY(bool inhibitsIdle READ inhibitsIdle NOTIFY inhibitsIdleChanged)
 
 public:
     enum Origin {
@@ -148,6 +149,8 @@ public:
     void markAsCursorSurface(bool cursorSurface);
     bool isCursorSurface() const;
 
+    bool inhibitsIdle() const;
+
 #if QT_CONFIG(im)
     QWaylandInputMethodControl *inputMethodControl() const;
 #endif
@@ -181,6 +184,7 @@ Q_SIGNALS:
     void subsurfacePlaceBelow(QWaylandSurface *sibling);
     void dragStarted(QWaylandDrag *drag);
     void cursorSurfaceChanged();
+    void inhibitsIdleChanged();
 
     void configure(bool hasBuffer);
     void redraw();

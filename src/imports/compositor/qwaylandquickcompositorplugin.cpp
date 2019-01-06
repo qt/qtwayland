@@ -66,6 +66,7 @@
 #include <QtWaylandCompositor/QWaylandXdgShellV6>
 #include <QtWaylandCompositor/QWaylandXdgShell>
 #include <QtWaylandCompositor/QWaylandXdgDecorationManagerV1>
+#include <QtWaylandCompositor/QWaylandIdleInhibitManagerV1>
 #include <QtWaylandCompositor/QWaylandIviApplication>
 #include <QtWaylandCompositor/QWaylandIviSurface>
 
@@ -76,6 +77,7 @@ QT_BEGIN_NAMESPACE
 
 Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CONTAINER_CLASS(QWaylandQuickCompositor)
 Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CLASS(QWaylandQtWindowManager)
+Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CLASS(QWaylandIdleInhibitManagerV1)
 Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CLASS(QWaylandIviApplication)
 Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CLASS(QWaylandWlScaler)
 Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CLASS(QWaylandWlShell)
@@ -185,6 +187,8 @@ public:
         qmlRegisterType<QWaylandXdgDecorationManagerV1QuickExtension>(uri, 1, 3, "XdgDecorationManagerV1");
 
         qmlRegisterType<QWaylandWlScalerQuickExtension>(uri, 1, 13, "WlScaler");
+
+        qmlRegisterType<QWaylandIdleInhibitManagerV1QuickExtension>(uri, 1, 14, "IdleInhibitManagerV1");
     }
 };
 //![class decl]

@@ -14,7 +14,8 @@ WAYLANDCLIENTSOURCES += \
             ../../../../src/3rdparty/protocol/ivi-application.xml \
             ../../../../src/3rdparty/protocol/wayland.xml \
             ../../../../src/3rdparty/protocol/xdg-shell.xml \
-            ../../../../src/3rdparty/protocol/viewporter.xml
+            ../../../../src/3rdparty/protocol/viewporter.xml \
+            ../../../../src/3rdparty/protocol/idle-inhibit-unstable-v1.xml
 
 SOURCES += \
     tst_compositor.cpp \

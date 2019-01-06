@@ -47,8 +47,10 @@
 #include <QtWaylandCompositor/QWaylandResource>
 #include <QtWaylandCompositor/QWaylandKeymap>
 #include <QtWaylandCompositor/QWaylandViewporter>
+#include <QtWaylandCompositor/QWaylandIdleInhibitManagerV1>
 #include <qwayland-xdg-shell.h>
 #include <qwayland-ivi-application.h>
+#include <QtWaylandCompositor/private/qwaylandsurface_p.h>
 
 #include <QtTest/QtTest>
 
@@ -111,6 +113,8 @@ private slots:
     void viewportDestinationNoSurfaceError();
     void viewportSourceNoSurfaceError();
     void viewportHiDpi();
+
+    void idleInhibit();
 };
 
 void tst_WaylandCompositor::init() {
@@ -1714,6 +1718,41 @@ void tst_WaylandCompositor::viewportHiDpi()
 
     wp_viewport_destroy(viewport);
     wl_surface_destroy(surface);
+}
+
+class IdleInhibitCompositor : public TestCompositor
+{
+    Q_OBJECT
+public:
+    IdleInhibitCompositor() : idleInhibitManager(this) {}
+    QWaylandIdleInhibitManagerV1 idleInhibitManager;
+};
+
+void tst_WaylandCompositor::idleInhibit()
+{
+    IdleInhibitCompositor compositor;
+    compositor.create();
+    MockClient client;
+    QTRY_VERIFY(client.idleInhibitManager);
+
+    auto *surface = client.createSurface();
+    QVERIFY(surface);
+    QTRY_COMPARE(compositor.surfaces.size(), 1);
+
+    QWaylandSurface *waylandSurface = compositor.surfaces.at(0);
+    auto *waylandSurfacePrivate =
+            QWaylandSurfacePrivate::get(waylandSurface);
+    QVERIFY(waylandSurfacePrivate);
+
+    QSignalSpy changedSpy(waylandSurface, SIGNAL(inhibitsIdleChanged()));
+
+    QCOMPARE(waylandSurface->inhibitsIdle(), false);
+
+    auto *idleInhibitor = client.createIdleInhibitor(surface);
+    QVERIFY(idleInhibitor);
+    QTRY_COMPARE(waylandSurfacePrivate->idleInhibitors.size(), 1);
+    QCOMPARE(waylandSurface->inhibitsIdle(), true);
+    QTRY_COMPARE(changedSpy.count(), 1);
 }
 
 #include <tst_compositor.moc>

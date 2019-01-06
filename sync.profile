@@ -57,6 +57,7 @@
     "$basedir/src/compositor" => [
         "^qwayland-server-wayland.h",
         "^qwayland-server-hardware-integration.h",
+        "^qwayland-server-idle-inhibit-unstable-v1.h",
         "^qwayland-server-ivi-application.h",
         "^qwayland-server-qt-windowmanager.h",
         "^qwayland-server-qt-key-unstable-v1.h",
@@ -70,6 +71,7 @@
         "^qwayland-server-xdg-shell-unstable-v6.h",
         "^qwayland-server-xdg-shell.h",
         "^wayland-hardware-integration-server-protocol.h",
+        "^wayland-idle-inhibit-unstable-v1-server-protocol.h",
         "^wayland-ivi-application-server-protocol.h",
         "^wayland-qt-windowmanager-server-protocol.h",
         "^wayland-qt-key-unstable-v1-server-protocol.h",

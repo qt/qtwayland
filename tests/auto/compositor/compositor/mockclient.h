@@ -30,6 +30,7 @@
 #include <qwayland-xdg-shell.h>
 #include <wayland-ivi-application-client-protocol.h>
 #include "wayland-viewporter-client-protocol.h"
+#include "wayland-idle-inhibit-unstable-v1-client-protocol.h"
 
 #include <QObject>
 #include <QImage>
@@ -63,6 +64,7 @@ public:
     xdg_surface *createXdgSurface(wl_surface *surface);
     xdg_toplevel *createXdgToplevel(xdg_surface *xdgSurface);
     ivi_surface *createIviSurface(wl_surface *surface, uint iviId);
+    zwp_idle_inhibitor_v1 *createIdleInhibitor(wl_surface *surface);
 
     wl_display *display = nullptr;
     wl_compositor *compositor = nullptr;
@@ -73,6 +75,7 @@ public:
     xdg_wm_base *xdgWmBase = nullptr;
     wp_viewporter *viewporter = nullptr;
     ivi_application *iviApplication = nullptr;
+    zwp_idle_inhibit_manager_v1 *idleInhibitManager = nullptr;
 
     QList<MockSeat *> m_seats;
 

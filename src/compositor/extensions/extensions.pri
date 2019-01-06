@@ -15,6 +15,7 @@ WAYLANDSERVERSOURCES += \
     ../3rdparty/protocol/xdg-shell.xml \
     ../3rdparty/protocol/xdg-decoration-unstable-v1.xml \
     ../3rdparty/protocol/ivi-application.xml \
+    ../3rdparty/protocol/idle-inhibit-unstable-v1.xml \
 
 HEADERS += \
     extensions/qwlqttouch_p.h \
@@ -42,6 +43,8 @@ HEADERS += \
     extensions/qwaylandxdgdecorationv1.h \
     extensions/qwaylandxdgdecorationv1_p.h \
     extensions/qwaylandshellsurface.h \
+    extensions/qwaylandidleinhibitv1.h \
+    extensions/qwaylandidleinhibitv1_p.h \
     extensions/qwaylandiviapplication.h \
     extensions/qwaylandiviapplication_p.h \
     extensions/qwaylandivisurface.h \
@@ -62,6 +65,7 @@ SOURCES += \
     extensions/qwaylandxdgshell.cpp \
     extensions/qwaylandxdgdecorationv1.cpp \
     extensions/qwaylandshellsurface.cpp \
+    extensions/qwaylandidleinhibitv1.cpp \
     extensions/qwaylandiviapplication.cpp \
     extensions/qwaylandivisurface.cpp \
 

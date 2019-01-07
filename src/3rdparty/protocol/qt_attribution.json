@@ -103,5 +103,20 @@ Copyright © 2010-2013 Intel Corporation"
         "LicenseFile": "HPND_LICENSE.txt",
         "Copyright": "Copyright © 2012, 2013 Intel Corporation
 Copyright © 2015, 2016 Jan Arne Petersen"
-    }
+    },
+
+    {
+        "Id": "wayland-eglstream-controller",
+        "Name": "Wayland EGLStream Controller Protocol",
+        "QDocModule": "qtwaylandcompositor",
+        "QtUsage": "Used in the Qt Wayland Compositor",
+        "Files": "wayland-eglstream-controller.xml",
+
+        "Description": "Allows clients to request that the compositor creates its EGLStream.",
+        "Homepage": "https://github.com/NVIDIA/egl-wayland",
+        "LicenseId": "MIT",
+        "License": "MIT License",
+        "LicenseFile": "MIT_LICENSE.txt",
+        "Copyright": "Copyright (c) 2017, NVIDIA CORPORATION. All rights reserved."
+     }
 ]

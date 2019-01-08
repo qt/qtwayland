@@ -78,6 +78,7 @@ void Window::initializeGL()
     m_backgroundTexture->setMinificationFilter(QOpenGLTexture::Nearest);
     m_backgroundImageSize = backgroundImage.size();
     m_textureBlitter.create();
+    m_compositor->create(); // the compositor's hardware integration may depend on GL
 }
 
 void Window::drawBackground()

@@ -88,6 +88,7 @@ Compositor::Compositor(Window *window)
     : m_window(window)
 {
     window->setCompositor(this);
+    connect(window, &Window::glReady, this, [this] { create(); });
 }
 
 Compositor::~Compositor()

@@ -60,9 +60,13 @@ class Compositor;
 
 class Window : public QOpenGLWindow
 {
+    Q_OBJECT
 public:
     Window();
     void setCompositor(Compositor *comp);
+
+signals:
+    void glReady();
 
 protected:
     void initializeGL() override;

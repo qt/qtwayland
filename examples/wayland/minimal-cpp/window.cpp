@@ -68,6 +68,7 @@ void Window::setCompositor(Compositor *comp) {
 void Window::initializeGL()
 {
     m_textureBlitter.create();
+    emit glReady();
 }
 
 void Window::paintGL()

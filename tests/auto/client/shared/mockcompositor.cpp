@@ -39,7 +39,8 @@ DefaultCompositor::DefaultCompositor()
         // Legacy versions can override in separate tests by removing and adding.
         add<WlCompositor>();
         add<SubCompositor>();
-        add<Output>();
+        auto *output = add<Output>();
+        output->m_data.physicalSize = output->m_data.mode.physicalSizeForDpi(96);
         add<Seat>(Seat::capability_pointer);
         add<XdgWmBase>();
         add<Shm>();

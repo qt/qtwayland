@@ -171,20 +171,59 @@ public:
     // TODO
 };
 
+struct OutputMode {
+    explicit OutputMode() = default;
+    explicit OutputMode(const QSize &resolution, int refreshRate = 60000)
+        : resolution(resolution), refreshRate(refreshRate)
+    {}
+    QSize resolution = QSize(1920, 1080);
+    int refreshRate = 60000; // In mHz
+    //TODO: flags (they're currently hard-coded)
+
+    // in mm
+    QSize physicalSizeForDpi(int dpi) { return (QSizeF(resolution) * 25.4 / dpi).toSize(); }
+};
+
+struct OutputData {
+    using Subpixel = QtWaylandServer::wl_output::subpixel;
+    using Transform = QtWaylandServer::wl_output::transform;
+    explicit OutputData() = default;
+
+    // for geometry event
+    QPoint position;
+    QSize physicalSize = QSize(0, 0); // means unknown physical size
+    QString make = "Make";
+    QString model = "Model";
+    Subpixel subpixel = Subpixel::subpixel_unknown;
+    Transform transform = Transform::transform_normal;
+
+    int scale = 1; // for scale event
+    OutputMode mode; // for mode event
+};
+
 class Output : public Global, public QtWaylandServer::wl_output
 {
     Q_OBJECT
 public:
-    explicit Output(CoreCompositor *compositor, int scale = 1, int version = 2)
+    explicit Output(CoreCompositor *compositor, OutputData data = OutputData(), int version = 2)
         : QtWaylandServer::wl_output(compositor->m_display, version)
-        , m_scale(scale)
+        , m_data(std::move(data))
         , m_version(version)
     {}
-    void sendScale(int factor);
+
+    void send_geometry() = delete;
+    void sendGeometry();
+    void sendGeometry(Resource *resource); // Sends to only one client
+
     void send_scale(int32_t factor) = delete;
-    void send_scale(struct ::wl_resource *resource, int32_t factor) = delete;
+    void sendScale(int factor);
+    void sendScale(Resource *resource); // Sends current scale to only one client
+
     void sendDone();
-    int m_scale = 1;
+
+    int scale() const { return m_data.scale; }
+
+    OutputData m_data;
     int m_version = 1; // TODO: remove on libwayland upgrade
 
 protected:

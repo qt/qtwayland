@@ -167,11 +167,6 @@ public slots:
     }
 
 private slots:
-    void primaryScreen();
-    void screens();
-    void addScreenWithGeometryChange();
-    void windowScreens();
-    void removePrimaryScreen();
     void createDestroyWindow();
     void activeWindowFollowsKeyboardFocus();
     void events();
@@ -187,117 +182,6 @@ private slots:
 private:
     MockCompositor *compositor = nullptr;
 };
-
-void tst_WaylandClient::primaryScreen()
-{
-    compositor->setOutputMode(screenSize);
-    QTRY_COMPARE(QGuiApplication::primaryScreen()->size(), screenSize);
-}
-
-void tst_WaylandClient::screens()
-{
-    QTRY_COMPARE(QGuiApplication::screens().size(), 1);
-    compositor->sendAddOutput();
-    QTRY_COMPARE(QGuiApplication::screens().size(), 2);
-    QSharedPointer<MockOutput> secondOutput;
-    QTRY_VERIFY(secondOutput = compositor->output(1));
-    compositor->sendRemoveOutput(secondOutput);
-    QTRY_COMPARE(QGuiApplication::screens().size(), 1);
-}
-
-//QTBUG-62044
-void tst_WaylandClient::addScreenWithGeometryChange()
-{
-    QTRY_COMPARE(QGuiApplication::screens().size(), 1);
-    const QRect oldGeometry = QGuiApplication::primaryScreen()->geometry();
-    compositor->sendAddOutput();
-
-    // Move the primary screen to the right
-    const QRect newGeometry(QPoint(screenSize.width(), 0), screenSize);
-    Q_ASSERT(oldGeometry != newGeometry);
-    compositor->sendOutputGeometry(compositor->output(0), newGeometry);
-
-    QTRY_COMPARE(QGuiApplication::screens().size(), 2);
-    QTRY_COMPARE(QGuiApplication::primaryScreen()->geometry(), newGeometry);
-
-    compositor->sendRemoveOutput(compositor->output(1));
-    QTRY_COMPARE(QGuiApplication::screens().size(), 1);
-
-    // Move the screen back
-    compositor->sendOutputGeometry(compositor->output(0), oldGeometry);
-    QTRY_COMPARE(QGuiApplication::primaryScreen()->geometry(), oldGeometry);
-}
-
-void tst_WaylandClient::windowScreens()
-{
-    QSharedPointer<MockOutput> firstOutput;
-    QTRY_VERIFY(firstOutput = compositor->output());
-
-    TestWindow window;
-    window.show();
-
-    QSharedPointer<MockSurface> surface;
-    QTRY_VERIFY(surface = compositor->surface());
-    compositor->sendShellSurfaceConfigure(surface);
-
-    QTRY_COMPARE(QGuiApplication::screens().size(), 1);
-    QScreen *primaryScreen = QGuiApplication::screens().first();
-    QCOMPARE(window.screen(), primaryScreen);
-
-    compositor->sendAddOutput();
-
-    QTRY_COMPARE(QGuiApplication::screens().size(), 2);
-    QScreen *secondaryScreen = QGuiApplication::screens().at(1);
-    QVERIFY(secondaryScreen);
-
-    window.setScreen(secondaryScreen);
-    QCOMPARE(window.screen(), secondaryScreen);
-
-    QSharedPointer<MockOutput> secondOutput;
-    QTRY_VERIFY(secondOutput = compositor->output(1));
-    compositor->sendSurfaceEnter(surface, firstOutput);
-
-    compositor->sendSurfaceEnter(surface, secondOutput);
-    QTRY_COMPARE(window.screen(), primaryScreen);
-
-    compositor->sendSurfaceLeave(surface, firstOutput);
-    QTRY_COMPARE(window.screen(), secondaryScreen);
-
-    compositor->sendRemoveOutput(secondOutput);
-    QTRY_COMPARE(QGuiApplication::screens().size(), 1);
-    QCOMPARE(window.screen(), primaryScreen);
-}
-
-void tst_WaylandClient::removePrimaryScreen()
-{
-    QSharedPointer<MockOutput> firstOutput;
-    QTRY_VERIFY(firstOutput = compositor->output());
-
-    TestWindow window;
-    window.show();
-
-    QSharedPointer<MockSurface> surface;
-    QTRY_VERIFY(surface = compositor->surface());
-    compositor->sendShellSurfaceConfigure(surface);
-    QTRY_COMPARE(QGuiApplication::screens().size(), 1);
-    QScreen *primaryScreen = QGuiApplication::screens().first();
-    QCOMPARE(window.screen(), primaryScreen);
-
-    compositor->sendAddOutput();
-
-    QTRY_COMPARE(QGuiApplication::screens().size(), 2);
-    QTRY_COMPARE(QGuiApplication::primaryScreen()->virtualSiblings().size(), 2);
-    QScreen *secondaryScreen = QGuiApplication::screens().at(1);
-    QVERIFY(secondaryScreen);
-
-    compositor->sendRemoveOutput(firstOutput);
-    QTRY_COMPARE(QGuiApplication::screens().size(), 1);
-
-    compositor->sendMousePress(surface, window.frameOffset() + QPoint(10, 10));
-    QTRY_COMPARE(window.mousePressEventCount, 1);
-    compositor->sendMouseRelease(surface);
-    QTRY_COMPARE(window.mouseReleaseEventCount, 1);
-}
 
 void tst_WaylandClient::createDestroyWindow()
 {

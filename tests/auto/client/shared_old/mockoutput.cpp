@@ -33,37 +33,6 @@
 
 namespace Impl {
 
-void Compositor::sendAddOutput(void *data, const QList<QVariant> &parameters) {
-    Q_UNUSED(parameters);
-    Compositor *compositor = static_cast<Compositor *>(data);
-    auto output = new Output(compositor->m_display, QSize(1920, 1200), QPoint(0, 0));
-    compositor->m_outputs.append(output);
-
-    // Wait for the client to bind to the output
-    while (output->resourceMap().isEmpty())
-        compositor->dispatchEvents();
-}
-
-void Compositor::sendRemoveOutput(void *data, const QList<QVariant> &parameters) {
-    Compositor *compositor = static_cast<Compositor *>(data);
-    Q_ASSERT(compositor);
-    Output *output = resolveOutput(parameters.first());
-    Q_ASSERT(output);
-    bool wasRemoved = compositor->m_outputs.removeOne(output);
-    Q_ASSERT(wasRemoved);
-    delete output;
-}
-
-void Compositor::sendOutputGeometry(void *data, const QList<QVariant> &parameters)
-{
-    Compositor *compositor = static_cast<Compositor *>(data);
-    Q_ASSERT(compositor);
-    Output *output = resolveOutput(parameters.first());
-    Q_ASSERT(output);
-    QRect geometry = parameters.at(1).toRect();
-    output->sendGeometryAndMode(geometry);
-}
-
 void Compositor::setOutputMode(void *data, const QList<QVariant> &parameters)
 {
     Compositor *compositor = static_cast<Compositor *>(data);
@@ -86,17 +55,6 @@ void Output::setCurrentMode(const QSize &size)
 {
     m_size = size;
     for (Resource *resource : resourceMap()) {
-        sendCurrentMode(resource);
-        send_done(resource->handle);
-    }
-}
-
-void Output::sendGeometryAndMode(const QRect &geometry)
-{
-    m_size = geometry.size();
-    m_position = geometry.topLeft();
-    for (Resource *resource : resourceMap()) {
-        sendGeometry(resource);
         sendCurrentMode(resource);
         send_done(resource->handle);
     }

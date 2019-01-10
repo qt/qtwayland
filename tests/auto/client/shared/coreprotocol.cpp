@@ -125,28 +125,55 @@ QString WlCompositor::dirtyMessage()
     return "Dirty, surfaces left:\n\t" + messages.join("\n\t");
 }
 
+void Output::sendGeometry()
+{
+    const auto resources = resourceMap().values();
+    for (auto r : resources)
+        sendGeometry(r);
+}
+
+void Output::sendGeometry(Resource *resource)
+{
+    // TODO: check resource version as well?
+    wl_output::send_geometry(resource->handle,
+                             m_data.position.x(), m_data.position.y(),
+                             m_data.physicalSize.width(), m_data.physicalSize.height(),
+                             m_data.subpixel, m_data.make, m_data.model, m_data.transform);
+}
+
 void Output::sendScale(int factor)
 {
     Q_ASSERT(m_version >= WL_OUTPUT_SCALE_SINCE_VERSION);
-    m_scale = factor;
+    m_data.scale = factor;
     const auto resources = resourceMap().values();
-    for (auto r: resources)
-        wl_output::send_scale(r->handle, factor);
+    for (auto r : resources)
+        sendScale(r);
+}
+
+void Output::sendScale(Resource *resource)
+{
+    Q_ASSERT(m_version >= WL_OUTPUT_SCALE_SINCE_VERSION);
+    // TODO: check resource version as well?
+    wl_output::send_scale(resource->handle, m_data.scale);
 }
 
 void Output::sendDone()
 {
     Q_ASSERT(m_version >= WL_OUTPUT_DONE_SINCE_VERSION);
+    // TODO: check resource version as well?
     const auto resources = resourceMap().values();
-    for (auto r: resources)
+    for (auto r : resources)
         wl_output::send_done(r->handle);
 }
 
 void Output::output_bind_resource(QtWaylandServer::wl_output::Resource *resource)
 {
+    sendGeometry(resource);
+    send_mode(resource->handle, mode_preferred | mode_current,
+              m_data.mode.resolution.width(), m_data.mode.resolution.height(), m_data.mode.refreshRate);
     if (m_version >= WL_OUTPUT_SCALE_SINCE_VERSION)
-        wl_output::send_scale(resource->handle, m_scale);
-    //TODO: send other required stuff as well
+        sendScale(resource);
+
     if (m_version >= WL_OUTPUT_DONE_SINCE_VERSION)
         wl_output::send_done(resource->handle);
 }

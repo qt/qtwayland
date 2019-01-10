@@ -97,8 +97,8 @@ void CoreCompositor::add(Global *global)
 void CoreCompositor::remove(Global *global)
 {
     warnIfNotLockedByThread(Q_FUNC_INFO);
-    //TODO: Need to delete global as well!
     m_globals.removeAll(global);
+    delete global;
 }
 
 uint CoreCompositor::nextSerial()

@@ -183,43 +183,6 @@ void MockCompositor::sendDataDeviceLeave(const QSharedPointer<MockSurface> &surf
     processCommand(command);
 }
 
-void MockCompositor::sendAddOutput()
-{
-    Command command = makeCommand(Impl::Compositor::sendAddOutput, m_compositor);
-    processCommand(command);
-}
-
-void MockCompositor::sendRemoveOutput(const QSharedPointer<MockOutput> &output)
-{
-    Command command = makeCommand(Impl::Compositor::sendRemoveOutput, m_compositor);
-    command.parameters << QVariant::fromValue(output);
-    processCommand(command);
-}
-
-void MockCompositor::sendOutputGeometry(const QSharedPointer<MockOutput> &output, const QRect &geometry)
-{
-    Command command = makeCommand(Impl::Compositor::sendOutputGeometry, m_compositor);
-    command.parameters << QVariant::fromValue(output);
-    command.parameters << QVariant::fromValue(geometry);
-    processCommand(command);
-}
-
-void MockCompositor::sendSurfaceEnter(const QSharedPointer<MockSurface> &surface, QSharedPointer<MockOutput> &output)
-{
-    Command command = makeCommand(Impl::Compositor::sendSurfaceEnter, m_compositor);
-    command.parameters << QVariant::fromValue(surface);
-    command.parameters << QVariant::fromValue(output);
-    processCommand(command);
-}
-
-void MockCompositor::sendSurfaceLeave(const QSharedPointer<MockSurface> &surface, QSharedPointer<MockOutput> &output)
-{
-    Command command = makeCommand(Impl::Compositor::sendSurfaceLeave, m_compositor);
-    command.parameters << QVariant::fromValue(surface);
-    command.parameters << QVariant::fromValue(output);
-    processCommand(command);
-}
-
 void MockCompositor::sendShellSurfaceConfigure(const QSharedPointer<MockSurface> surface, const QSize &size)
 {
     Command command = makeCommand(Impl::Compositor::sendShellSurfaceConfigure, m_compositor);

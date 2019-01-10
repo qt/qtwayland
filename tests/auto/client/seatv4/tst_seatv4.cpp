@@ -256,8 +256,10 @@ void tst_seatv4::scaledCursor()
     QSKIP("Currently broken and should be fixed");
     // Add a highdpi output
     exec([&] {
-        int scale = 2;
-        add<Output>(scale);
+        OutputData d;
+        d.scale = 2;
+        d.position = {1920, 0};
+        add<Output>(d);
     });
 
     QRasterWindow window;
@@ -282,7 +284,7 @@ void tst_seatv4::scaledCursor()
     QCOMPOSITOR_TRY_COMPARE(pointer()->cursorSurface()->m_committed.buffer->size(), unscaledPixelSize * 2);
 
     // Remove the extra output to clean up for the next test
-    exec([&] { remove(getAll<Output>()[1]); });
+    exec([&] { remove(output(1)); });
 }
 
 QCOMPOSITOR_TEST_MAIN(tst_seatv4)

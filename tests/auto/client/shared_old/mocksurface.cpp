@@ -35,34 +35,6 @@
 
 namespace Impl {
 
-void Compositor::sendSurfaceEnter(void *data, const QList<QVariant> &parameters)
-{
-    Q_UNUSED(data);
-    Surface *surface = resolveSurface(parameters.at(0));
-    Output *output = resolveOutput(parameters.at(1));
-    Q_ASSERT(surface && surface->resource());
-    Q_ASSERT(output);
-    auto outputResources = output->resourceMap().values(surface->resource()->client());
-    Q_ASSERT(!outputResources.isEmpty());
-
-    for (auto outputResource : outputResources)
-        surface->send_enter(outputResource->handle);
-}
-
-void Compositor::sendSurfaceLeave(void *data, const QList<QVariant> &parameters)
-{
-    Q_UNUSED(data);
-    Surface *surface = resolveSurface(parameters.at(0));
-    Output *output = resolveOutput(parameters.at(1));
-    Q_ASSERT(surface && surface->resource());
-    Q_ASSERT(output);
-    auto outputResources = output->resourceMap().values(surface->resource()->client());
-    Q_ASSERT(!outputResources.isEmpty());
-
-    for (auto outputResource : outputResources)
-        surface->send_leave(outputResource->handle);
-}
-
 void Compositor::sendShellSurfaceConfigure(void *data, const QList<QVariant> &parameters)
 {
     Compositor *compositor = static_cast<Compositor *>(data);

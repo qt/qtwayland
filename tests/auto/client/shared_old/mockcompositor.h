@@ -98,11 +98,6 @@ public:
     static void sendDataDeviceLeave(void *data, const QList<QVariant> &parameters);
     static void waitForStartDrag(void *data, const QList<QVariant> &parameters);
     static void setOutputMode(void *compositor, const QList<QVariant> &parameters);
-    static void sendAddOutput(void *data, const QList<QVariant> &parameters);
-    static void sendRemoveOutput(void *data, const QList<QVariant> &parameters);
-    static void sendOutputGeometry(void *data, const QList<QVariant> &parameters);
-    static void sendSurfaceEnter(void *data, const QList<QVariant> &parameters);
-    static void sendSurfaceLeave(void *data, const QList<QVariant> &parameters);
     static void sendShellSurfaceConfigure(void *data, const QList<QVariant> &parameters);
     static void sendIviSurfaceConfigure(void *data, const QList<QVariant> &parameters);
     static void sendXdgToplevelV6Configure(void *data, const QList<QVariant> &parameters);
@@ -239,9 +234,6 @@ public:
     void sendDataDeviceMotion(const QPoint &position);
     void sendDataDeviceDrop(const QSharedPointer<MockSurface> &surface);
     void sendDataDeviceLeave(const QSharedPointer<MockSurface> &surface);
-    void sendAddOutput();
-    void sendRemoveOutput(const QSharedPointer<MockOutput> &output);
-    void sendOutputGeometry(const QSharedPointer<MockOutput> &output, const QRect &geometry);
     void sendSurfaceEnter(const QSharedPointer<MockSurface> &surface, QSharedPointer<MockOutput> &output);
     void sendSurfaceLeave(const QSharedPointer<MockSurface> &surface, QSharedPointer<MockOutput> &output);
     void sendShellSurfaceConfigure(const QSharedPointer<MockSurface> surface, const QSize &size = QSize(0, 0));

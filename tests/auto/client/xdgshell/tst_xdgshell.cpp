@@ -43,6 +43,7 @@ private slots:
     void configureStates();
     void popup();
     void pongs();
+    void minMaxSize();
 };
 
 void tst_xdgshell::showMinimized()
@@ -263,6 +264,27 @@ void tst_xdgshell::pongs()
     });
     QTRY_COMPARE(pongSpy.count(), 1);
     QCOMPARE(pongSpy.first().at(0).toUInt(), serial);
+}
+
+void tst_xdgshell::minMaxSize()
+{
+    QRasterWindow window;
+    window.setMinimumSize(QSize(100, 100));
+    window.setMaximumSize(QSize(1000, 1000));
+    window.resize(400, 320);
+    window.show();
+    QCOMPOSITOR_TRY_VERIFY(xdgToplevel());
+
+    exec([=] { xdgToplevel()->sendCompleteConfigure(); });
+
+    QCOMPOSITOR_TRY_COMPARE(xdgToplevel()->m_committed.minSize, QSize(100, 100));
+    QCOMPOSITOR_TRY_COMPARE(xdgToplevel()->m_committed.maxSize, QSize(1000, 1000));
+
+    window.setMaximumSize(QSize(500, 400));
+    QCOMPOSITOR_TRY_COMPARE(xdgToplevel()->m_committed.maxSize, QSize(500, 400));
+
+    window.setMinimumSize(QSize(50, 40));
+    QCOMPOSITOR_TRY_COMPARE(xdgToplevel()->m_committed.minSize, QSize(50, 40));
 }
 
 QCOMPOSITOR_TEST_MAIN(tst_xdgshell)

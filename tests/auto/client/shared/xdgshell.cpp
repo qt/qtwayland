@@ -149,6 +149,7 @@ XdgToplevel::XdgToplevel(XdgSurface *xdgSurface, int id, int version)
     : QtWaylandServer::xdg_toplevel(xdgSurface->resource()->client(), id, version)
     , m_xdgSurface(xdgSurface)
 {
+    connect(surface(), &Surface::commit, this, [this] { m_committed = m_pending; });
 }
 
 void XdgToplevel::sendConfigure(const QSize &size, const QVector<uint> &states)
@@ -160,6 +161,22 @@ uint XdgToplevel::sendCompleteConfigure(const QSize &size, const QVector<uint> &
 {
     sendConfigure(size, states);
     return m_xdgSurface->sendConfigure();
+}
+
+void XdgToplevel::xdg_toplevel_set_max_size(Resource *resource, int32_t width, int32_t height)
+{
+    Q_UNUSED(resource);
+    QSize size(width, height);
+    QVERIFY(size.isValid());
+    m_pending.maxSize = size;
+}
+
+void XdgToplevel::xdg_toplevel_set_min_size(Resource *resource, int32_t width, int32_t height)
+{
+    Q_UNUSED(resource);
+    QSize size(width, height);
+    QVERIFY(size.isValid());
+    m_pending.minSize = size;
 }
 
 XdgPopup::XdgPopup(XdgSurface *xdgSurface, int id, int version)

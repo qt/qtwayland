@@ -99,14 +99,24 @@ protected:
     void xdg_surface_ack_configure(Resource *resource, uint32_t serial) override;
 };
 
-class XdgToplevel : public QtWaylandServer::xdg_toplevel
+class XdgToplevel : public QObject, public QtWaylandServer::xdg_toplevel
 {
+    Q_OBJECT
 public:
     explicit XdgToplevel(XdgSurface *xdgSurface, int id, int version = 1);
     void sendConfigure(const QSize &size = {0, 0}, const QVector<uint> &states = {});
     uint sendCompleteConfigure(const QSize &size = {0, 0}, const QVector<uint> &states = {});
     Surface *surface() { return m_xdgSurface->m_surface; }
+
     XdgSurface *m_xdgSurface = nullptr;
+    struct DoubleBufferedState {
+        QSize minSize = {0, 0};
+        QSize maxSize = {0, 0};
+    } m_pending, m_committed;
+
+protected:
+    void xdg_toplevel_set_max_size(Resource *resource, int32_t width, int32_t height) override;
+    void xdg_toplevel_set_min_size(Resource *resource, int32_t width, int32_t height) override;
 };
 
 class XdgPopup : public QtWaylandServer::xdg_popup

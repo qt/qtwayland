@@ -82,6 +82,7 @@ public:
 
     void resize(QWaylandInputDevice *inputDevice, Qt::Edges edges) override;
     bool move(QWaylandInputDevice *inputDevice) override;
+    bool showWindowMenu(QWaylandInputDevice *seat) override;
     void setTitle(const QString &title) override;
     void setAppId(const QString &appId) override;
     void setWindowFlags(Qt::WindowFlags flags) override;

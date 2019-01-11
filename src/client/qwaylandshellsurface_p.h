@@ -76,6 +76,7 @@ public:
     virtual void resize(QWaylandInputDevice * /*inputDevice*/, Qt::Edges /*edges*/) {}
 
     virtual bool move(QWaylandInputDevice *) { return false; }
+    virtual bool showWindowMenu(QWaylandInputDevice *seat) { Q_UNUSED(seat); return false; }
     virtual void setTitle(const QString & /*title*/) {}
     virtual void setAppId(const QString & /*appId*/) {}
 

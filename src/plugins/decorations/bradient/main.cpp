@@ -333,6 +333,8 @@ void QWaylandBradientDecoration::processMouseTop(QWaylandInputDevice *inputDevic
         processMouseLeft(inputDevice, local, b, mods);
     } else if (local.x() > window()->width() + margins().left()) {
         processMouseRight(inputDevice, local, b, mods);
+    } else if (isRightClicked(b)) {
+        showWindowMenu(inputDevice);
     } else if (closeButtonRect().contains(local)) {
         if (clickButton(b, Close))
             QWindowSystemInterface::handleCloseEvent(window());

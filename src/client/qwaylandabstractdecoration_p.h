@@ -105,8 +105,10 @@ protected:
 
     void startResize(QWaylandInputDevice *inputDevice, Qt::Edges edges, Qt::MouseButtons buttons);
     void startMove(QWaylandInputDevice *inputDevice, Qt::MouseButtons buttons);
+    void showWindowMenu(QWaylandInputDevice *inputDevice);
 
     bool isLeftClicked(Qt::MouseButtons newMouseButtonState);
+    bool isRightClicked(Qt::MouseButtons newMouseButtonState);
     bool isLeftReleased(Qt::MouseButtons newMouseButtonState);
 };
 

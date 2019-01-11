@@ -331,6 +331,11 @@ QWaylandWindow *QWaylandInputDevice::touchFocus() const
     return mTouch ? mTouch->mFocus : nullptr;
 }
 
+QPointF QWaylandInputDevice::pointerSurfacePosition() const
+{
+    return mPointer ? mPointer->mSurfacePos : QPointF();
+}
+
 Qt::KeyboardModifiers QWaylandInputDevice::modifiers() const
 {
     if (!mKeyboard)

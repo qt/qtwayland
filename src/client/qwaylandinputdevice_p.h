@@ -129,6 +129,8 @@ public:
     QWaylandWindow *keyboardFocus() const;
     QWaylandWindow *touchFocus() const;
 
+    QPointF pointerSurfacePosition() const;
+
     Qt::KeyboardModifiers modifiers() const;
 
     uint32_t serial() const;

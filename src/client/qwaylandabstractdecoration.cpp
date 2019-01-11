@@ -164,20 +164,29 @@ void QWaylandAbstractDecoration::startMove(QWaylandInputDevice *inputDevice, Qt:
     }
 }
 
+void QWaylandAbstractDecoration::showWindowMenu(QWaylandInputDevice *inputDevice)
+{
+    Q_D(QWaylandAbstractDecoration);
+    if (auto *s = d->m_wayland_window->shellSurface())
+        s->showWindowMenu(inputDevice);
+}
+
 bool QWaylandAbstractDecoration::isLeftClicked(Qt::MouseButtons newMouseButtonState)
 {
     Q_D(QWaylandAbstractDecoration);
-    if (!(d->m_mouseButtons & Qt::LeftButton) && (newMouseButtonState & Qt::LeftButton))
-        return true;
-    return false;
+    return !(d->m_mouseButtons & Qt::LeftButton) && (newMouseButtonState & Qt::LeftButton);
+}
+
+bool QWaylandAbstractDecoration::isRightClicked(Qt::MouseButtons newMouseButtonState)
+{
+    Q_D(QWaylandAbstractDecoration);
+    return !(d->m_mouseButtons & Qt::RightButton) && (newMouseButtonState & Qt::RightButton);
 }
 
 bool QWaylandAbstractDecoration::isLeftReleased(Qt::MouseButtons newMouseButtonState)
 {
     Q_D(QWaylandAbstractDecoration);
-    if ((d->m_mouseButtons & Qt::LeftButton) && !(newMouseButtonState & Qt::LeftButton))
-        return true;
-    return false;
+    return (d->m_mouseButtons & Qt::LeftButton) && !(newMouseButtonState & Qt::LeftButton);
 }
 
 bool QWaylandAbstractDecoration::isDirty() const

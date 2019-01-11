@@ -95,6 +95,13 @@ bool QWaylandXdgSurfaceV5::move(QWaylandInputDevice *inputDevice)
     return true;
 }
 
+bool QWaylandXdgSurfaceV5::showWindowMenu(QWaylandInputDevice *seat)
+{
+    QPoint position = seat->pointerSurfacePosition().toPoint();
+    show_window_menu(seat->wl_seat(), seat->serial(), position.x(), position.y());
+    return true;
+}
+
 void QWaylandXdgSurfaceV5::updateTransientParent(QWaylandWindow *parent)
 {
     if (!parent)

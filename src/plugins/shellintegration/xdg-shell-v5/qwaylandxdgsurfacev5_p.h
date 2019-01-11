@@ -84,6 +84,7 @@ public:
 
     using QtWayland::xdg_surface_v5::move;
     bool move(QWaylandInputDevice *inputDevice) override;
+    bool showWindowMenu(QWaylandInputDevice *seat) override;
 
     void setTitle(const QString &title) override;
     void setAppId(const QString &appId) override;

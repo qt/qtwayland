@@ -251,6 +251,16 @@ bool QWaylandXdgSurfaceV6::move(QWaylandInputDevice *inputDevice)
     return false;
 }
 
+bool QWaylandXdgSurfaceV6::showWindowMenu(QWaylandInputDevice *seat)
+{
+    if (m_toplevel && m_toplevel->isInitialized()) {
+        QPoint position = seat->pointerSurfacePosition().toPoint();
+        m_toplevel->show_window_menu(seat->wl_seat(), seat->serial(), position.x(), position.y());
+        return true;
+    }
+    return false;
+}
+
 void QWaylandXdgSurfaceV6::setTitle(const QString &title)
 {
     if (m_toplevel)

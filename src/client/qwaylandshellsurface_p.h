@@ -99,6 +99,8 @@ public:
 
     virtual void propagateSizeHints() {}
 
+    virtual void setWindowGeometry(const QRect &rect) { Q_UNUSED(rect); }
+
 private:
     QWaylandWindow *m_window = nullptr;
     friend class QWaylandWindow;

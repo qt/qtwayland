@@ -93,6 +93,7 @@ public:
     void applyConfigure() override;
     bool wantsDecorations() const override;
     void propagateSizeHints() override;
+    void setWindowGeometry(const QRect &rect) override;
 
     void setSizeHints();
 

@@ -104,9 +104,6 @@ void QWaylandXdgSurface::Toplevel::applyConfigure()
         m_xdgSurface->m_window->resizeFromApplyConfigure(m_pending.size);
     }
 
-    QSize windowGeometrySize = m_xdgSurface->m_window->window()->frameGeometry().size();
-    m_xdgSurface->set_window_geometry(0, 0, windowGeometrySize.width(), windowGeometrySize.height());
-
     m_xdgSurface->setSizeHints();
 
     m_applied = m_pending;
@@ -350,6 +347,11 @@ void QWaylandXdgSurface::propagateSizeHints()
 
     if (m_toplevel && m_window)
         m_window->commit();
+}
+
+void QWaylandXdgSurface::setWindowGeometry(const QRect &rect)
+{
+    set_window_geometry(rect.x(), rect.y(), rect.width(), rect.height());
 }
 
 void QWaylandXdgSurface::setSizeHints()

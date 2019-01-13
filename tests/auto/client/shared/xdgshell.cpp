@@ -86,6 +86,8 @@ XdgSurface::XdgSurface(XdgWmBase *xdgWmBase, Surface *surface, wl_client *client
     connect(this, &XdgSurface::toplevelCreated, xdgWmBase, &XdgWmBase::toplevelCreated);
     connect(surface, &Surface::attach, this, &XdgSurface::verifyConfigured);
     connect(surface, &Surface::commit, this, [this] {
+        m_committed = m_pending;
+
         if (m_ackedConfigureSerial != m_committedConfigureSerial) {
             m_committedConfigureSerial = m_ackedConfigureSerial;
             emit configureCommitted(m_committedConfigureSerial);
@@ -131,6 +133,14 @@ void XdgSurface::xdg_surface_destroy_resource(Resource *resource)
     bool removed = m_xdgWmBase->m_xdgSurfaces.removeOne(this);
     Q_ASSERT(removed);
     delete this;
+}
+
+void XdgSurface::xdg_surface_set_window_geometry(Resource *resource, int32_t x, int32_t y, int32_t width, int32_t height)
+{
+    Q_UNUSED(resource);
+    QRect rect(x, y, width, height);
+    QVERIFY(rect.isValid());
+    m_pending.windowGeometry = rect;
 }
 
 void XdgSurface::xdg_surface_ack_configure(Resource *resource, uint32_t serial)

@@ -44,6 +44,7 @@ private slots:
     void popup();
     void pongs();
     void minMaxSize();
+    void windowGeometry();
 };
 
 void tst_xdgshell::showMinimized()
@@ -285,6 +286,21 @@ void tst_xdgshell::minMaxSize()
 
     window.setMinimumSize(QSize(50, 40));
     QCOMPOSITOR_TRY_COMPARE(xdgToplevel()->m_committed.minSize, QSize(50, 40));
+}
+
+void tst_xdgshell::windowGeometry()
+{
+    QRasterWindow window;
+    window.resize(400, 320);
+    window.show();
+    QCOMPOSITOR_TRY_VERIFY(xdgToplevel());
+
+    exec([=] { xdgToplevel()->sendCompleteConfigure(); });
+
+    QCOMPOSITOR_TRY_COMPARE(xdgSurface()->m_committed.windowGeometry, QRect(QPoint(0, 0), window.frameGeometry().size()));
+
+    window.resize(800, 600);
+    QCOMPOSITOR_TRY_COMPARE(xdgSurface()->m_committed.windowGeometry, QRect(QPoint(0, 0), window.frameGeometry().size()));
 }
 
 QCOMPOSITOR_TEST_MAIN(tst_xdgshell)

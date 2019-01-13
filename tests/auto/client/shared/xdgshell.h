@@ -83,6 +83,9 @@ public:
     QVector<uint> m_pendingConfigureSerials;
     uint m_ackedConfigureSerial = 0;
     uint m_committedConfigureSerial = 0;
+    struct DoubleBufferedState {
+        QRect windowGeometry = {0, 0, 0, 0};
+    } m_pending, m_committed;
 
 public slots:
     void verifyConfigured() { QVERIFY(m_configureSent); }
@@ -96,6 +99,7 @@ protected:
     void xdg_surface_get_popup(Resource *resource, uint32_t id, ::wl_resource *parent, ::wl_resource *positioner) override;
     void xdg_surface_destroy_resource(Resource *resource) override;
     void xdg_surface_destroy(Resource *resource) override { wl_resource_destroy(resource->handle); }
+    void xdg_surface_set_window_geometry(Resource *resource, int32_t x, int32_t y, int32_t width, int32_t height) override;
     void xdg_surface_ack_configure(Resource *resource, uint32_t serial) override;
 };
 

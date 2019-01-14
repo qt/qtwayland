@@ -76,7 +76,7 @@ public:
     ~QWaylandWlShellSurface() override;
 
     using QtWayland::wl_shell_surface::resize;
-    void resize(QWaylandInputDevice *inputDevice, Qt::Edges edges) override;
+    bool resize(QWaylandInputDevice *inputDevice, Qt::Edges edges) override;
 
     using QtWayland::wl_shell_surface::move;
     bool move(QWaylandInputDevice *inputDevice) override;

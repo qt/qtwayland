@@ -1185,6 +1185,13 @@ void QWaylandWindow::propagateSizeHints()
         mShellSurface->propagateSizeHints();
 }
 
+bool QWaylandWindow::startSystemResize(Qt::Edges edges)
+{
+    if (auto *seat = display()->lastInputDevice())
+        return mShellSurface && mShellSurface->resize(seat, edges);
+    return false;
+}
+
 bool QtWaylandClient::QWaylandWindow::startSystemMove()
 {
     if (auto seat = display()->lastInputDevice())

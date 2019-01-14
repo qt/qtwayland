@@ -196,6 +196,7 @@ public:
     void propagateSizeHints() override;
     void addAttachOffset(const QPoint point);
 
+    bool startSystemResize(Qt::Edges edges) override;
     bool startSystemMove() override;
 
     void timerEvent(QTimerEvent *event) override;

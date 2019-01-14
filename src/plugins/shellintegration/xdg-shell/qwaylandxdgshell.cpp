@@ -266,11 +266,14 @@ QWaylandXdgSurface::~QWaylandXdgSurface()
     destroy();
 }
 
-void QWaylandXdgSurface::resize(QWaylandInputDevice *inputDevice, Qt::Edges edges)
+bool QWaylandXdgSurface::resize(QWaylandInputDevice *inputDevice, Qt::Edges edges)
 {
-    Q_ASSERT(m_toplevel && m_toplevel->isInitialized());
+    if (!m_toplevel || !m_toplevel->isInitialized())
+        return false;
+
     auto resizeEdges = Toplevel::convertToResizeEdges(edges);
     m_toplevel->resize(inputDevice->wl_seat(), inputDevice->serial(), resizeEdges);
+    return true;
 }
 
 bool QWaylandXdgSurface::move(QWaylandInputDevice *inputDevice)

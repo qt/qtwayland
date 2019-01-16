@@ -115,7 +115,7 @@ private:
     void createXKBKeymap();
     void createXKBState(xkb_keymap *keymap);
 #endif
-    static uint toWaylandXkbV1Key(const uint nativeScanCode);
+    static uint toWaylandKey(const uint nativeScanCode);
 
     void sendRepeatInfo();
 

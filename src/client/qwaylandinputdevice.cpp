@@ -77,7 +77,20 @@ namespace QtWaylandClient {
 QWaylandInputDevice::Keyboard::Keyboard(QWaylandInputDevice *p)
     : mParent(p)
 {
-    connect(&mRepeatTimer, SIGNAL(timeout()), this, SLOT(repeatKey()));
+    mRepeatTimer.callOnTimeout([&]() {
+        if (!focusWindow()) {
+            // We destroyed the keyboard focus surface, but the server didn't get the message yet...
+            // or the server didn't send an enter event first.
+            return;
+        }
+        mRepeatTimer.setInterval(mRepeatRate);
+        handleKey(mRepeatKey.time, QEvent::KeyRelease, mRepeatKey.key, mRepeatKey.modifiers,
+                  mRepeatKey.code, mRepeatKey.nativeVirtualKey, mRepeatKey.nativeModifiers,
+                  mRepeatKey.text, true);
+        handleKey(mRepeatKey.time, QEvent::KeyPress, mRepeatKey.key, mRepeatKey.modifiers,
+                  mRepeatKey.code, mRepeatKey.nativeVirtualKey, mRepeatKey.nativeModifiers,
+                  mRepeatKey.text, true);
+    });
 }
 
 #if QT_CONFIG(xkbcommon)
@@ -728,8 +741,10 @@ void QWaylandInputDevice::Pointer::pointer_axis(uint32_t time, uint32_t axis, in
 
 void QWaylandInputDevice::Keyboard::keyboard_keymap(uint32_t format, int32_t fd, uint32_t size)
 {
+    mKeymapFormat = format;
 #if QT_CONFIG(xkbcommon)
     if (format != WL_KEYBOARD_KEYMAP_FORMAT_XKB_V1) {
+        qCWarning(lcQpaWayland) << "unknown keymap format:" << format;
         close(fd);
         return;
     }
@@ -751,7 +766,6 @@ void QWaylandInputDevice::Keyboard::keyboard_keymap(uint32_t format, int32_t fd,
     else
         mXkbState.reset(nullptr);
 #else
-    Q_UNUSED(format);
     Q_UNUSED(fd);
     Q_UNUSED(size);
 #endif
@@ -798,29 +812,34 @@ void QWaylandInputDevice::Keyboard::keyboard_leave(uint32_t time, struct wl_surf
     handleFocusLost();
 }
 
-void QWaylandInputDevice::Keyboard::sendKey(QWindow *tlw, ulong timestamp, QEvent::Type type, int key,
-                                            Qt::KeyboardModifiers modifiers, quint32 nativeScanCode,
-                                            quint32 nativeVirtualKey, quint32 nativeModifiers,
-                                            const QString& text, bool autorep, ushort count)
+void QWaylandInputDevice::Keyboard::handleKey(ulong timestamp, QEvent::Type type, int key,
+                                              Qt::KeyboardModifiers modifiers, quint32 nativeScanCode,
+                                              quint32 nativeVirtualKey, quint32 nativeModifiers,
+                                              const QString &text, bool autorepeat, ushort count)
 {
     QPlatformInputContext *inputContext = QGuiApplicationPrivate::platformIntegration()->inputContext();
     bool filtered = false;
 
     if (inputContext && !mParent->mQDisplay->usingInputContextFromCompositor()) {
         QKeyEvent event(type, key, modifiers, nativeScanCode, nativeVirtualKey,
-                        nativeModifiers, text, autorep, count);
+                        nativeModifiers, text, autorepeat, count);
         event.setTimestamp(timestamp);
         filtered = inputContext->filterEvent(&event);
     }
 
     if (!filtered) {
-        QWindowSystemInterface::handleExtendedKeyEvent(tlw, timestamp, type, key, modifiers,
-                nativeScanCode, nativeVirtualKey, nativeModifiers, text, autorep, count);
+        QWindowSystemInterface::handleExtendedKeyEvent(focusWindow()->window(), timestamp, type, key, modifiers,
+                nativeScanCode, nativeVirtualKey, nativeModifiers, text, autorepeat, count);
     }
 }
 
 void QWaylandInputDevice::Keyboard::keyboard_key(uint32_t serial, uint32_t time, uint32_t key, uint32_t state)
 {
+    if (mKeymapFormat != WL_KEYBOARD_KEYMAP_FORMAT_XKB_V1 && mKeymapFormat != WL_KEYBOARD_KEYMAP_FORMAT_NO_KEYMAP) {
+        qCWarning(lcQpaWayland) << Q_FUNC_INFO << "unknown keymap format:" << mKeymapFormat;
+        return;
+    }
+
     auto *window = focusWindow();
     if (!window) {
         // We destroyed the keyboard focus surface, but the server didn't get the message yet...
@@ -828,76 +847,53 @@ void QWaylandInputDevice::Keyboard::keyboard_key(uint32_t serial, uint32_t time,
         return;
     }
 
-    uint32_t code = key + 8;
-    bool isDown = state != WL_KEYBOARD_KEY_STATE_RELEASED;
-    QEvent::Type type = isDown ? QEvent::KeyPress : QEvent::KeyRelease;
-    QString text;
-    int qtkey = key + 8;  // qt-compositor substracts 8 for some reason
     mParent->mSerial = serial;
 
+    const bool isDown = state != WL_KEYBOARD_KEY_STATE_RELEASED;
     if (isDown)
         mParent->mQDisplay->setLastInputDevice(mParent, serial, window);
 
+    if (mKeymapFormat == WL_KEYBOARD_KEYMAP_FORMAT_XKB_V1) {
 #if QT_CONFIG(xkbcommon)
-    if ((!mXkbKeymap || !mXkbState) && !createDefaultKeymap())
-        return;
+        if ((!mXkbKeymap || !mXkbState) && !createDefaultKeymap())
+            return;
 
-    xkb_keysym_t sym = xkb_state_key_get_one_sym(mXkbState.get(), code);
+        auto code = key + 8; // map to wl_keyboard::keymap_format::keymap_format_xkb_v1
 
-    Qt::KeyboardModifiers modifiers = mParent->modifiers();
+        xkb_keysym_t sym = xkb_state_key_get_one_sym(mXkbState.get(), code);
 
-    std::tie(qtkey, text) = QWaylandXkb::keysymToQtKey(sym, modifiers);
+        Qt::KeyboardModifiers modifiers = mParent->modifiers();
 
-    sendKey(window->window(), time, type, qtkey, modifiers, code, sym, mNativeModifiers, text);
+        int qtkey = 0;
+        QString text;
+        std::tie(qtkey, text) = QWaylandXkb::keysymToQtKey(sym, modifiers);
+
+        QEvent::Type type = isDown ? QEvent::KeyPress : QEvent::KeyRelease;
+        handleKey(time, type, qtkey, modifiers, code, sym, mNativeModifiers, text);
+
+        if (state == WL_KEYBOARD_KEY_STATE_PRESSED && xkb_keymap_key_repeats(mXkbKeymap.get(), code)) {
+            mRepeatKey.key = qtkey;
+            mRepeatKey.code = code;
+            mRepeatKey.time = time;
+            mRepeatKey.text = text;
+            mRepeatKey.modifiers = modifiers;
+            mRepeatKey.nativeModifiers = mNativeModifiers;
+            mRepeatKey.nativeVirtualKey = sym;
+            mRepeatTimer.setInterval(mRepeatDelay);
+            mRepeatTimer.start();
+        } else if (mRepeatKey.code == code) {
+            mRepeatTimer.stop();
+        }
 #else
-    // Generic fallback for single hard keys: Assume 'key' is a Qt key code.
-    sendKey(window->window(), time, type, qtkey, Qt::NoModifier, code, 0, 0);
+        Q_UNUSED(time);
+        Q_UNUSED(key);
+        qCWarning(lcQpaWayland, "xkbcommon not available on this build, not performing key mapping");
+        return;
 #endif
-
-    if (state == WL_KEYBOARD_KEY_STATE_PRESSED
-#if QT_CONFIG(xkbcommon)
-        && xkb_keymap_key_repeats(mXkbKeymap.get(), code)
-#endif
-        ) {
-        mRepeatKey = qtkey;
-        mRepeatCode = code;
-        mRepeatTime = time;
-        mRepeatText = text;
-#if QT_CONFIG(xkbcommon)
-        mRepeatSym = sym;
-#endif
-        mRepeatTimer.setInterval(mRepeatDelay);
-        mRepeatTimer.start();
-    } else if (mRepeatCode == code) {
-        mRepeatTimer.stop();
-    }
-}
-
-void QWaylandInputDevice::Keyboard::repeatKey()
-{
-    auto *window = focusWindow();
-    if (!window) {
-        // We destroyed the keyboard focus surface, but the server didn't get the message yet...
-        // or the server didn't send an enter event first.
+    } else if (mKeymapFormat == WL_KEYBOARD_KEYMAP_FORMAT_NO_KEYMAP) {
+        // raw scan code
         return;
     }
-
-    mRepeatTimer.setInterval(mRepeatRate);
-    sendKey(window->window(), mRepeatTime, QEvent::KeyRelease, mRepeatKey, modifiers(), mRepeatCode,
-#if QT_CONFIG(xkbcommon)
-            mRepeatSym, mNativeModifiers,
-#else
-            0, 0,
-#endif
-            mRepeatText, true);
-
-    sendKey(window->window(), mRepeatTime, QEvent::KeyPress, mRepeatKey, modifiers(), mRepeatCode,
-#if QT_CONFIG(xkbcommon)
-            mRepeatSym, mNativeModifiers,
-#else
-            0, 0,
-#endif
-            mRepeatText, true);
 }
 
 void QWaylandInputDevice::Keyboard::handleFocusDestroyed()
@@ -935,7 +931,6 @@ void QWaylandInputDevice::Keyboard::keyboard_modifiers(uint32_t serial,
                               0, 0, group);
     mNativeModifiers = mods_depressed | mods_latched | mods_locked;
 #else
-    Q_UNUSED(serial);
     Q_UNUSED(mods_depressed);
     Q_UNUSED(mods_latched);
     Q_UNUSED(mods_locked);

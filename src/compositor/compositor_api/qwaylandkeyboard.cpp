@@ -143,7 +143,7 @@ void QWaylandKeyboardPrivate::keyboard_bind_resource(wl_keyboard::Resource *reso
 #endif
     {
         int null_fd = open("/dev/null", O_RDONLY);
-        send_keymap(resource->handle, 0 /* WL_KEYBOARD_KEYMAP_FORMAT_NO_KEYMAP */,
+        send_keymap(resource->handle, WL_KEYBOARD_KEYMAP_FORMAT_NO_KEYMAP,
                     null_fd, 0);
         close(null_fd);
     }
@@ -163,11 +163,8 @@ void QWaylandKeyboardPrivate::keyboard_release(wl_keyboard::Resource *resource)
 
 void QWaylandKeyboardPrivate::keyEvent(uint code, uint32_t state)
 {
-#if QT_CONFIG(xkbcommon)
-    uint key = toWaylandXkbV1Key(code);
-#else
-    uint key = code;
-#endif
+    uint key = toWaylandKey(code);
+
     if (state == WL_KEYBOARD_KEY_STATE_PRESSED) {
         keys << key;
     } else {
@@ -179,11 +176,7 @@ void QWaylandKeyboardPrivate::sendKeyEvent(uint code, uint32_t state)
 {
     uint32_t time = compositor()->currentTimeMsecs();
     uint32_t serial = compositor()->nextSerial();
-#if QT_CONFIG(xkbcommon)
-    uint key = toWaylandXkbV1Key(code);
-#else
-    uint key = code;
-#endif
+    uint key = toWaylandKey(code);
     if (focusResource)
         send_key(focusResource->handle, serial, time, key, state);
 }
@@ -284,6 +277,24 @@ void QWaylandKeyboardPrivate::maybeUpdateKeymap()
 #endif
 }
 
+uint QWaylandKeyboardPrivate::toWaylandKey(const uint nativeScanCode)
+{
+#if QT_CONFIG(xkbcommon)
+    // In all current XKB keymaps there's a constant offset of 8 (for historical
+    // reasons) from hardware/evdev scancodes to XKB keycodes. On X11, we pass
+    // XKB keycodes (as sent by X server) via QKeyEvent::nativeScanCode. eglfs+evdev
+    // adds 8 for consistency, see qtbase/05c07c7636012ebb4131ca099ca4ea093af76410.
+    // eglfs+libinput also adds 8, for the same reason. Wayland protocol uses
+    // hardware/evdev scancodes, thus we need to minus 8 before sending the event
+    // out.
+    const uint offset = 8;
+    Q_ASSERT(nativeScanCode >= offset);
+    return nativeScanCode - offset;
+#else
+    return nativeScanCode;
+#endif
+}
+
 #if QT_CONFIG(xkbcommon)
 static int createAnonymousFile(size_t size)
 {
@@ -346,13 +357,6 @@ void QWaylandKeyboardPrivate::createXKBState(xkb_keymap *keymap)
     mXkbState.reset(xkb_state_new(keymap));
     if (!mXkbState)
         qWarning("Failed to create XKB state");
-}
-
-uint QWaylandKeyboardPrivate::toWaylandXkbV1Key(const uint nativeScanCode)
-{
-    const uint offset = 8;
-    Q_ASSERT(nativeScanCode >= offset);
-    return nativeScanCode - offset;
 }
 
 void QWaylandKeyboardPrivate::createXKBKeymap()

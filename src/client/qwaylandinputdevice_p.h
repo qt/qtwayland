@@ -211,18 +211,25 @@ public:
 
     uint32_t mNativeModifiers = 0;
 
-    int mRepeatKey;
-    uint32_t mRepeatCode;
-    uint32_t mRepeatTime;
+    struct repeatKey {
+        int key;
+        uint32_t code;
+        uint32_t time;
+        QString text;
+        Qt::KeyboardModifiers modifiers;
+        uint32_t nativeVirtualKey;
+        uint32_t nativeModifiers;
+    } mRepeatKey;
+
+    QTimer mRepeatTimer;
     int mRepeatRate = 25;
     int mRepeatDelay = 400;
-    QString mRepeatText;
-    QTimer mRepeatTimer;
+
+    uint32_t mKeymapFormat = WL_KEYBOARD_KEYMAP_FORMAT_XKB_V1;
 
     Qt::KeyboardModifiers modifiers() const;
 
 private slots:
-    void repeatKey();
     void handleFocusDestroyed();
     void handleFocusLost();
 
@@ -230,12 +237,11 @@ private:
 #if QT_CONFIG(xkbcommon)
     bool createDefaultKeymap();
 #endif
-    void sendKey(QWindow *tlw, ulong timestamp, QEvent::Type type, int key, Qt::KeyboardModifiers modifiers,
-                 quint32 nativeScanCode, quint32 nativeVirtualKey, quint32 nativeModifiers,
-                 const QString& text = QString(), bool autorep = false, ushort count = 1);
+    void handleKey(ulong timestamp, QEvent::Type type, int key, Qt::KeyboardModifiers modifiers,
+                   quint32 nativeScanCode, quint32 nativeVirtualKey, quint32 nativeModifiers,
+                   const QString &text, bool autorepeat = false, ushort count = 1);
 
 #if QT_CONFIG(xkbcommon)
-    xkb_keysym_t mRepeatSym = XKB_KEY_NoSymbol;
     QXkbCommon::ScopedXKBKeymap mXkbKeymap;
     QXkbCommon::ScopedXKBState mXkbState;
 #endif

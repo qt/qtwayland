@@ -100,6 +100,7 @@ public:
             add<XdgOutputManagerV1>(version);
         });
     }
+    XdgOutputV1 *xdgOutput(int i = 0) { return get<XdgOutputManagerV1>()->getXdgOutput(output(i)); }
 };
 
 class tst_xdgoutput : public QObject, private XdgOutputV1Compositor
@@ -121,9 +122,14 @@ void tst_xdgoutput::primaryScreen()
 {
     // Verify that the client has bound to the global
     QCOMPOSITOR_TRY_COMPARE(get<XdgOutputManagerV1>()->resourceMap().size(), 1);
+    exec([=] {
+        auto *resource = xdgOutput()->resourceMap().value(client());
+        QCOMPARE(resource->version(), 2);
+    });
     auto *s = QGuiApplication::primaryScreen();
     QTRY_COMPARE(s->size(), QSize(1920, 1080));
     QTRY_COMPARE(s->geometry().topLeft(), QPoint(0, 0));
+    QTRY_COMPARE(s->name(), QString("WL-1"));
 }
 
 void tst_xdgoutput::overrideGeometry()

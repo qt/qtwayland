@@ -292,6 +292,11 @@ void QWaylandScreen::zxdg_output_v1_done()
     QWindowSystemInterface::handleScreenGeometryChange(screen(), geometry(), geometry());
 }
 
+void QWaylandScreen::zxdg_output_v1_name(const QString &name)
+{
+    mOutputName = name;
 }
+
+} // namespace QtWaylandClient
 
 QT_END_NAMESPACE

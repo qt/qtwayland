@@ -122,6 +122,7 @@ private:
     void zxdg_output_v1_logical_position(int32_t x, int32_t y) override;
     void zxdg_output_v1_logical_size(int32_t width, int32_t height) override;
     void zxdg_output_v1_done() override;
+    void zxdg_output_v1_name(const QString &name) override;
 
     int m_outputId;
     QWaylandDisplay *mWaylandDisplay = nullptr;

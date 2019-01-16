@@ -71,6 +71,8 @@ public:
     QWaylandScreen(QWaylandDisplay *waylandDisplay, int version, uint32_t id);
     ~QWaylandScreen() override;
 
+    void maybeInitialize();
+
     void initXdgOutput(QtWayland::zxdg_output_manager_v1 *xdgOutputManager);
 
     QWaylandDisplay *display() const;
@@ -116,12 +118,14 @@ private:
                          int32_t transform) override;
     void output_scale(int32_t factor) override;
     void output_done() override;
+    void updateOutputProperties();
 
     // XdgOutput
     void zxdg_output_v1_logical_position(int32_t x, int32_t y) override;
     void zxdg_output_v1_logical_size(int32_t width, int32_t height) override;
     void zxdg_output_v1_done() override;
     void zxdg_output_v1_name(const QString &name) override;
+    void updateXdgOutputProperties();
 
     int m_outputId;
     QWaylandDisplay *mWaylandDisplay = nullptr;
@@ -137,6 +141,9 @@ private:
     QSize mPhysicalSize;
     QString mOutputName;
     Qt::ScreenOrientation m_orientation = Qt::PrimaryOrientation;
+    bool mOutputDone = false;
+    bool mXdgOutputDone = false;
+    bool mInitialized = false;
 
 #if QT_CONFIG(cursor)
     QScopedPointer<QWaylandCursor> mWaylandCursor;

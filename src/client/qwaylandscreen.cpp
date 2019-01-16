@@ -40,6 +40,7 @@
 #include "qwaylandscreen_p.h"
 
 #include "qwaylanddisplay_p.h"
+#include "qwaylandintegration_p.h"
 #include "qwaylandcursor_p.h"
 #include "qwaylandwindow_p.h"
 
@@ -60,12 +61,38 @@ QWaylandScreen::QWaylandScreen(QWaylandDisplay *waylandDisplay, int version, uin
 {
     if (auto *xdgOutputManager = waylandDisplay->xdgOutputManager())
         initXdgOutput(xdgOutputManager);
+
+    if (version < WL_OUTPUT_DONE_SINCE_VERSION) {
+        qCWarning(lcQpaWayland) << "wl_output done event not supported by compositor,"
+                                << "QScreen may not work correctly";
+        mWaylandDisplay->forceRoundTrip(); // Give the compositor a chance to send geometry etc.
+        mOutputDone = true; // Fake the done event
+        maybeInitialize();
+    }
 }
 
 QWaylandScreen::~QWaylandScreen()
 {
     if (zxdg_output_v1::isInitialized())
         zxdg_output_v1::destroy();
+}
+
+void QWaylandScreen::maybeInitialize()
+{
+    Q_ASSERT(!mInitialized);
+
+    if (!mOutputDone)
+        return;
+
+    if (mWaylandDisplay->xdgOutputManager() && !mXdgOutputDone)
+        return;
+
+    mInitialized = true;
+    mWaylandDisplay->handleScreenInitialized(this);
+
+    updateOutputProperties();
+    if (zxdg_output_v1::isInitialized())
+        updateXdgOutputProperties();
 }
 
 void QWaylandScreen::initXdgOutput(QtWayland::zxdg_output_manager_v1 *xdgOutputManager)
@@ -232,10 +259,15 @@ void QWaylandScreen::output_scale(int32_t factor)
 
 void QWaylandScreen::output_done()
 {
-    // the done event is sent after all the geometry and the mode events are sent,
-    // and the last mode event to be sent is the active one, so we can trust the
-    // values of mGeometry and mRefreshRate here
+    mOutputDone = true;
+    if (mInitialized)
+        updateOutputProperties();
+    else
+        maybeInitialize();
+}
 
+void QWaylandScreen::updateOutputProperties()
+{
     if (mTransform >= 0) {
         bool isPortrait = mGeometry.height() > mGeometry.width();
         switch (mTransform) {
@@ -262,7 +294,9 @@ void QWaylandScreen::output_done()
         QWindowSystemInterface::handleScreenOrientationChange(screen(), m_orientation);
         mTransform = -1;
     }
+
     QWindowSystemInterface::handleScreenRefreshRateChange(screen(), refreshRate());
+
     if (!zxdg_output_v1::isInitialized())
         QWindowSystemInterface::handleScreenGeometryChange(screen(), geometry(), geometry());
 }
@@ -280,12 +314,22 @@ void QWaylandScreen::zxdg_output_v1_logical_size(int32_t width, int32_t height)
 
 void QWaylandScreen::zxdg_output_v1_done()
 {
-    QWindowSystemInterface::handleScreenGeometryChange(screen(), geometry(), geometry());
+    mXdgOutputDone = true;
+    if (mInitialized)
+        updateXdgOutputProperties();
+    else
+        maybeInitialize();
 }
 
 void QWaylandScreen::zxdg_output_v1_name(const QString &name)
 {
     mOutputName = name;
+}
+
+void QWaylandScreen::updateXdgOutputProperties()
+{
+    Q_ASSERT(zxdg_output_v1::isInitialized());
+    QWindowSystemInterface::handleScreenGeometryChange(screen(), geometry(), geometry());
 }
 
 } // namespace QtWaylandClient

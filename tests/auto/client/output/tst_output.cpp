@@ -215,10 +215,7 @@ void tst_output::screenOrder()
     QTRY_COMPARE(QGuiApplication::screens().size(), 3);
     const auto screens = QGuiApplication::screens();
 
-    QEXPECT_FAIL(nullptr, "TODO: fix screen order", Continue);
     QCOMPARE(screens[1]->model(), "Screen 1");
-
-    QEXPECT_FAIL(nullptr, "TODO: fix screen order", Continue);
     QCOMPARE(screens[2]->model(), "Screen 2");
 
     exec([=] {

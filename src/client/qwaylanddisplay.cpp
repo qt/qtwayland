@@ -146,6 +146,11 @@ QWaylandDisplay::QWaylandDisplay(QWaylandIntegration *waylandIntegration)
     mWindowManagerIntegration.reset(new QWaylandWindowManagerIntegration(this));
 
     forceRoundTrip();
+
+    if (!mWaitingScreens.isEmpty()) {
+        // Give wl_output.done and zxdg_output_v1.done events a chance to arrive
+        forceRoundTrip();
+    }
 }
 
 QWaylandDisplay::~QWaylandDisplay(void)
@@ -160,6 +165,7 @@ QWaylandDisplay::~QWaylandDisplay(void)
         mWaylandIntegration->destroyScreen(screen);
     }
     mScreens.clear();
+    qDeleteAll(mWaitingScreens);
 
 #if QT_CONFIG(wayland_datadevice)
     delete mDndSelectionHandler.take();
@@ -244,6 +250,14 @@ QWaylandScreen *QWaylandDisplay::screenForOutput(struct wl_output *output) const
     return nullptr;
 }
 
+void QWaylandDisplay::handleScreenInitialized(QWaylandScreen *screen)
+{
+    if (!mWaitingScreens.removeOne(screen))
+        return;
+    mScreens.append(screen);
+    QWindowSystemInterface::handleScreenAdded(screen);
+}
+
 void QWaylandDisplay::waitForScreens()
 {
     flushRequests();
@@ -270,11 +284,7 @@ void QWaylandDisplay::registry_global(uint32_t id, const QString &interface, uin
     struct ::wl_registry *registry = object();
 
     if (interface == QStringLiteral("wl_output")) {
-        QWaylandScreen *screen = new QWaylandScreen(this, version, id);
-        mScreens.append(screen);
-        // We need to get the output events before creating surfaces
-        forceRoundTrip();
-        mWaylandIntegration->screenAdded(screen);
+        mWaitingScreens << new QWaylandScreen(this, version, id);
     } else if (interface == QStringLiteral("wl_compositor")) {
         mCompositorVersion = qMin((int)version, 3);
         mCompositor.init(registry, id, mCompositorVersion);
@@ -307,7 +317,7 @@ void QWaylandDisplay::registry_global(uint32_t id, const QString &interface, uin
         forceRoundTrip();
     } else if (interface == QLatin1String("zxdg_output_manager_v1")) {
         mXdgOutputManager.reset(new QtWayland::zxdg_output_manager_v1(registry, id, 1));
-        for (auto *screen : qAsConst(mScreens))
+        for (auto *screen : qAsConst(mWaitingScreens))
             screen->initXdgOutput(xdgOutputManager());
         forceRoundTrip();
     }
@@ -324,6 +334,14 @@ void QWaylandDisplay::registry_global_remove(uint32_t id)
         RegistryGlobal &global = mGlobals[i];
         if (global.id == id) {
             if (global.interface == QStringLiteral("wl_output")) {
+                for (auto *screen : mWaitingScreens) {
+                    if (screen->outputId() == id) {
+                        mWaitingScreens.removeOne(screen);
+                        delete screen;
+                        break;
+                    }
+                }
+
                 foreach (QWaylandScreen *screen, mScreens) {
                     if (screen->outputId() == id) {
                         mScreens.removeOne(screen);

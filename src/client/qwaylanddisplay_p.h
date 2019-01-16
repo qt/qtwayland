@@ -113,6 +113,7 @@ public:
     QList<QWaylandScreen *> screens() const { return mScreens; }
 
     QWaylandScreen *screenForOutput(struct wl_output *output) const;
+    void handleScreenInitialized(QWaylandScreen *screen);
 
     struct wl_surface *createSurface(void *handle);
     struct ::wl_region *createRegion(const QRegion &qregion);
@@ -209,6 +210,7 @@ private:
     struct wl_display *mDisplay = nullptr;
     QtWayland::wl_compositor mCompositor;
     QScopedPointer<QWaylandShm> mShm;
+    QList<QWaylandScreen *> mWaitingScreens;
     QList<QWaylandScreen *> mScreens;
     QList<QWaylandInputDevice *> mInputDevices;
     QList<Listener> mRegistryListeners;

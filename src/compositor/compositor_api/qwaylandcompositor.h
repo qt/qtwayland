@@ -121,8 +121,6 @@ public:
 
     QWaylandSeat *defaultSeat() const;
 
-    QWaylandView *createSurfaceView(QWaylandSurface *surface);
-
     QWaylandSeat *seatFor(QInputEvent *inputEvent);
 
     bool useHardwareIntegrationExtension() const;

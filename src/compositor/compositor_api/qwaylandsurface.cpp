@@ -880,7 +880,6 @@ void QWaylandSurfacePrivate::Subsurface::subsurface_set_desync(wl_subsurface::Re
  * This signal is emitted when a wl_subsurface, \a child, has been added to the surface.
  */
 
-    void surfaceDestroyed();
 /*!
  * \qmlsignal QtWaylandCompositor::WaylandSurface::surfaceDestroyed()
  *

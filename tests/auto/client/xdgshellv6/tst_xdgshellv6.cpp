@@ -331,6 +331,7 @@ void tst_WaylandClientXdgShellV6::windowStateChangedEvents()
 
 void tst_WaylandClientXdgShellV6::windowGeometrySimple()
 {
+    QSKIP("TODO: This test is flaky, figure out why.");
     QWindow window;
     window.show();
 
@@ -349,6 +350,7 @@ void tst_WaylandClientXdgShellV6::windowGeometrySimple()
 
 void tst_WaylandClientXdgShellV6::windowGeometryFixed()
 {
+    QSKIP("TODO: This test is flaky, figure out why.");
     QWindow window;
     window.resize(QSize(1337, 137));
     window.setMaximumSize(window.size());

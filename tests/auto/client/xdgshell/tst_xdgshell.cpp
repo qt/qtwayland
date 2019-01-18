@@ -476,10 +476,14 @@ void tst_xdgshell::windowGeometry()
 
     exec([=] { xdgToplevel()->sendCompleteConfigure(); });
 
-    QCOMPOSITOR_TRY_COMPARE(xdgSurface()->m_committed.windowGeometry, QRect(QPoint(0, 0), window.frameGeometry().size()));
+    QSize marginsSize;
+    marginsSize.setWidth(window.frameMargins().left() + window.frameMargins().right());
+    marginsSize.setHeight(window.frameMargins().top() + window.frameMargins().bottom());
+
+    QCOMPOSITOR_TRY_COMPARE(xdgSurface()->m_committed.windowGeometry, QRect(QPoint(0, 0), QSize(400, 320) + marginsSize));
 
     window.resize(800, 600);
-    QCOMPOSITOR_TRY_COMPARE(xdgSurface()->m_committed.windowGeometry, QRect(QPoint(0, 0), window.frameGeometry().size()));
+    QCOMPOSITOR_TRY_COMPARE(xdgSurface()->m_committed.windowGeometry, QRect(QPoint(0, 0), QSize(800, 600) + marginsSize));
 }
 
 void tst_xdgshell::foreignSurface()

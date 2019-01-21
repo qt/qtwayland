@@ -1,9 +1,9 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
-** This file is part of the plugins of the Qt Toolkit.
+** This file is part of the QtWaylandClient module of the Qt Toolkit.
 **
 ** $QT_BEGIN_LICENSE:LGPL$
 ** Commercial License Usage
@@ -37,75 +37,61 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDSERVERBUFFERINTEGRATION_H
-#define QWAYLANDSERVERBUFFERINTEGRATION_H
+#include <QtQml/qqmlextensionplugin.h>
+#include <QtQml/qqmlengine.h>
 
-//
-//  W A R N I N G
-//  -------------
-//
-// This file is not part of the Qt API.  It exists purely as an
-// implementation detail.  This header file may change from version to
-// version without notice, or even be removed.
-//
-// We mean it.
-//
+#include "sharedtextureprovider.h"
 
-#include <QtCore/QSize>
-#include <QtGui/qopengl.h>
+/*!
+    \qmlmodule QtWayland.Client.TextureSharing 1
+    \title Qt Wayland Shared Texture Provider
+    \ingroup qmlmodules
+    \brief Adds an image provider which utilizes shared GPU memory
 
-#include <QtWaylandClient/private/qwayland-server-buffer-extension.h>
-#include <QtWaylandClient/qtwaylandclientglobal.h>
+    \section2 Summary
+
+    This module allows Qt Wayland clients to use graphical resources exported
+    by the compositor, without allocating any graphics memory in the client.
+    \section2 Usage
+
+    To use this module, import it like this:
+    \code
+    import QtWayland.Client.TextureSharing 1.0
+    \endcode
+
+    The sharing functionality is provided through a QQuickImageProvider. Use
+    the "image:" scheme for the URL source of the image, followed by the
+    identifier \e wlshared, followed by the image file path. For example:
+
+    \code
+    Image { source: "image://wlshared/wallpapers/mybackground.jpg" }
+    \endcode
+
+    The shared texture module does not provide any directly usable QML types.
+*/
 
 QT_BEGIN_NAMESPACE
 
-class QOpenGLTexture;
-
-namespace QtWaylandClient {
-
-class QWaylandDisplay;
-
-class Q_WAYLAND_CLIENT_EXPORT QWaylandServerBuffer
+class QWaylandTextureSharingPlugin : public QQmlExtensionPlugin
 {
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID QQmlExtensionInterface_iid)
 public:
-    enum Format {
-        RGBA32,
-        A8,
-        Custom
-    };
+    QWaylandTextureSharingPlugin(QObject *parent = nullptr) : QQmlExtensionPlugin(parent) {}
 
-    QWaylandServerBuffer();
-    virtual ~QWaylandServerBuffer();
+    void registerTypes(const char *uri) override
+    {
+        Q_ASSERT(uri == QStringLiteral("QtWayland.Client.TextureSharing"));
+        qmlRegisterModule(uri, 1, 0);
+    }
 
-    virtual QOpenGLTexture *toOpenGlTexture() = 0;
-
-    Format format() const;
-    QSize size() const;
-
-    void setUserData(void *userData);
-    void *userData() const;
-
-protected:
-    Format m_format;
-    QSize m_size;
-
-private:
-    void *m_user_data = nullptr;
+    void initializeEngine(QQmlEngine *engine, const char *uri) override
+    {
+        Q_UNUSED(uri);
+        engine->addImageProvider("wlshared", new SharedTextureProvider);
+    }
 };
-
-class Q_WAYLAND_CLIENT_EXPORT QWaylandServerBufferIntegration
-{
-public:
-    QWaylandServerBufferIntegration();
-    virtual ~QWaylandServerBufferIntegration();
-
-    virtual void initialize(QWaylandDisplay *display) = 0;
-
-    virtual QWaylandServerBuffer *serverBuffer(struct qt_server_buffer *buffer) = 0;
-};
-
-}
 
 QT_END_NAMESPACE
 
-#endif
+#include "plugin.moc"

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the plugins of the Qt Toolkit.
@@ -37,75 +37,82 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDSERVERBUFFERINTEGRATION_H
-#define QWAYLANDSERVERBUFFERINTEGRATION_H
+#ifndef SHAREDTEXTUREPROVIDER_H
+#define SHAREDTEXTUREPROVIDER_H
 
-//
-//  W A R N I N G
-//  -------------
-//
-// This file is not part of the Qt API.  It exists purely as an
-// implementation detail.  This header file may change from version to
-// version without notice, or even be removed.
-//
-// We mean it.
-//
+#include <QOpenGLFunctions>
+#include <QQuickImageProvider>
+#include <QtQuick/QSGTexture>
+#include <QScopedPointer>
+#include <QHash>
 
-#include <QtCore/QSize>
-#include <QtGui/qopengl.h>
-
-#include <QtWaylandClient/private/qwayland-server-buffer-extension.h>
-#include <QtWaylandClient/qtwaylandclientglobal.h>
+#include <QtWaylandClient/private/qwaylandserverbufferintegration_p.h>
 
 QT_BEGIN_NAMESPACE
 
-class QOpenGLTexture;
+class TextureSharingExtension;
 
-namespace QtWaylandClient {
-
-class QWaylandDisplay;
-
-class Q_WAYLAND_CLIENT_EXPORT QWaylandServerBuffer
+class SharedTextureRegistry : public QObject
 {
+    Q_OBJECT
 public:
-    enum Format {
-        RGBA32,
-        A8,
-        Custom
-    };
+    SharedTextureRegistry();
+    ~SharedTextureRegistry() override;
 
-    QWaylandServerBuffer();
-    virtual ~QWaylandServerBuffer();
+    const QtWaylandClient::QWaylandServerBuffer *bufferForId(const QString &id) const;
+    void requestBuffer(const QString &id);
+    void abandonBuffer(const QString &id);
 
-    virtual QOpenGLTexture *toOpenGlTexture() = 0;
+    static bool preinitialize();
 
-    Format format() const;
-    QSize size() const;
+public slots:
+    void receiveBuffer(QtWaylandClient::QWaylandServerBuffer *buffer, const QString &id);
 
-    void setUserData(void *userData);
-    void *userData() const;
+signals:
+    void replyReceived(const QString &id);
 
-protected:
-    Format m_format;
-    QSize m_size;
+private slots:
+    void handleExtensionActive();
 
 private:
-    void *m_user_data = nullptr;
+    TextureSharingExtension *m_extension = nullptr;
+    QHash<QString, QtWaylandClient::QWaylandServerBuffer *> m_buffers;
+    QStringList m_pendingBuffers;
 };
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandServerBufferIntegration
+class SharedTextureProvider : public QQuickAsyncImageProvider
 {
 public:
-    QWaylandServerBufferIntegration();
-    virtual ~QWaylandServerBufferIntegration();
+    SharedTextureProvider();
+    ~SharedTextureProvider() override;
 
-    virtual void initialize(QWaylandDisplay *display) = 0;
+    QQuickImageResponse *requestImageResponse(const QString &id, const QSize &requestedSize) override;
 
-    virtual QWaylandServerBuffer *serverBuffer(struct qt_server_buffer *buffer) = 0;
+private:
+    SharedTextureRegistry *m_registry = nullptr;
+    bool m_sharingAvailable = false;
 };
 
-}
+class SharedTexture : public QSGTexture
+{
+    Q_OBJECT
+public:
+    SharedTexture(QtWaylandClient::QWaylandServerBuffer *buffer);
+
+    int textureId() const override;
+    QSize textureSize() const override;
+    bool hasAlphaChannel() const override;
+    bool hasMipmaps() const override;
+
+    void bind() override;
+
+private:
+    void updateGLTexture() const;
+    QtWaylandClient::QWaylandServerBuffer *m_buffer = nullptr;
+    mutable QOpenGLTexture *m_tex = nullptr;
+};
+
 
 QT_END_NAMESPACE
 
-#endif
+#endif // SHAREDTEXTUREPROVIDER_H

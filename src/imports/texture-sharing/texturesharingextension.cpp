@@ -1,6 +1,7 @@
+
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the plugins of the Qt Toolkit.
@@ -37,75 +38,49 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDSERVERBUFFERINTEGRATION_H
-#define QWAYLANDSERVERBUFFERINTEGRATION_H
-
-//
-//  W A R N I N G
-//  -------------
-//
-// This file is not part of the Qt API.  It exists purely as an
-// implementation detail.  This header file may change from version to
-// version without notice, or even be removed.
-//
-// We mean it.
-//
-
-#include <QtCore/QSize>
-#include <QtGui/qopengl.h>
-
-#include <QtWaylandClient/private/qwayland-server-buffer-extension.h>
-#include <QtWaylandClient/qtwaylandclientglobal.h>
+#include "texturesharingextension.h"
+#include <QtWaylandClient/private/qwaylanddisplay_p.h>
+#include <QtWaylandClient/private/qwaylandintegration_p.h>
+#include <QtWaylandClient/private/qwaylandserverbufferintegration_p.h>
+#include <QtGui/QGuiApplication>
+#include <QtGui/private/qguiapplication_p.h>
+#include <QtGui/QWindow>
+#include <QtGui/QPlatformSurfaceEvent>
+#include <QtGui/qpa/qplatformnativeinterface.h>
+#include <QDebug>
 
 QT_BEGIN_NAMESPACE
 
-class QOpenGLTexture;
-
-namespace QtWaylandClient {
-
-class QWaylandDisplay;
-
-class Q_WAYLAND_CLIENT_EXPORT QWaylandServerBuffer
+TextureSharingExtension::TextureSharingExtension()
+    : QWaylandClientExtensionTemplate(/* Supported protocol version */ 1 )
 {
-public:
-    enum Format {
-        RGBA32,
-        A8,
-        Custom
-    };
+        auto *wayland_integration = static_cast<QtWaylandClient::QWaylandIntegration *>(QGuiApplicationPrivate::platformIntegration());
+        m_server_buffer_integration = wayland_integration->serverBufferIntegration();
+        if (!m_server_buffer_integration) {
+            qCritical() << "This application requires a working serverBufferIntegration";
+            QGuiApplication::quit();
+        }
+}
 
-    QWaylandServerBuffer();
-    virtual ~QWaylandServerBuffer();
-
-    virtual QOpenGLTexture *toOpenGlTexture() = 0;
-
-    Format format() const;
-    QSize size() const;
-
-    void setUserData(void *userData);
-    void *userData() const;
-
-protected:
-    Format m_format;
-    QSize m_size;
-
-private:
-    void *m_user_data = nullptr;
-};
-
-class Q_WAYLAND_CLIENT_EXPORT QWaylandServerBufferIntegration
+void TextureSharingExtension::zqt_texture_sharing_v1_provide_buffer(struct ::qt_server_buffer *buffer, const QString &key)
 {
-public:
-    QWaylandServerBufferIntegration();
-    virtual ~QWaylandServerBufferIntegration();
+    QtWaylandClient::QWaylandServerBuffer *serverBuffer = m_server_buffer_integration->serverBuffer(buffer);
+    emit bufferReceived(serverBuffer, key);
+}
 
-    virtual void initialize(QWaylandDisplay *display) = 0;
+void TextureSharingExtension::zqt_texture_sharing_v1_image_failed(const QString &key, const QString &message)
+{
+    qWarning() << "TextureSharingExtension" << key << "not found" << message;
+    emit bufferReceived(nullptr, key);
+}
+void TextureSharingExtension::requestImage(const QString &key)
+{
+    request_image(key);
+}
 
-    virtual QWaylandServerBuffer *serverBuffer(struct qt_server_buffer *buffer) = 0;
-};
-
+void TextureSharingExtension::abandonImage(const QString &key)
+{
+    abandon_image(key);
 }
 
 QT_END_NAMESPACE
-
-#endif

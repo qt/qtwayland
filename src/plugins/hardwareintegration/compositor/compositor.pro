@@ -19,4 +19,8 @@ qtConfig(wayland-shm-emulation-server-buffer): \
 qtConfig(wayland-dmabuf-server-buffer): \
     SUBDIRS += dmabuf-server
 
+qtConfig(wayland-egl): \
+    SUBDIRS += wayland-eglstream-controller
+
+
 SUBDIRS += hardwarelayer

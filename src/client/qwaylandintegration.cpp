@@ -339,6 +339,8 @@ void QWaylandIntegration::initializeClientBufferIntegration()
         targetKey = QString::fromLocal8Bit(clientBufferIntegrationName);
     } else {
         targetKey = mDisplay->hardwareIntegration()->clientBufferIntegration();
+        if (targetKey == QLatin1String("wayland-eglstream-controller"))
+            targetKey = QLatin1String("wayland-egl");
     }
 
     if (targetKey.isEmpty()) {

@@ -13,6 +13,14 @@ qtConfig(wayland-client) {
     sub_client.target = sub-client
     SUBDIRS += sub_client
 
+    sub_plugins.subdir = plugins
+    sub_plugins.depends += sub-qtwaylandscanner sub-client
+    qtConfig(wayland-server) {
+        sub_plugins.depends += sub-compositor
+    }
+    sub_plugins.target = sub-plugins
+    SUBDIRS += sub_plugins
+
     qtConfig(wayland-server) {
         sub_compositor.subdir = compositor
         sub_compositor.depends = sub-qtwaylandscanner
@@ -23,11 +31,5 @@ qtConfig(wayland-client) {
         sub_imports.depends += sub-compositor
         sub_imports.target = sub-imports
         SUBDIRS += sub_imports
-
-        sub_plugins.subdir = plugins
-        sub_plugins.depends = sub-qtwaylandscanner sub-client sub-compositor
-        sub_plugins.target = sub-plugins
-        SUBDIRS += sub_plugins
     }
 }
-

@@ -85,6 +85,11 @@
             "type": "compile",
             "test": "dmabuf_client_buffer",
             "use": "egl"
+        },
+        "vulkan-server-buffer": {
+            "label": "Vulkan Buffer Sharing",
+            "type": "compile",
+            "test": "vulkan_server_buffer"
         }
     },
 
@@ -136,6 +141,11 @@
         "wayland-dmabuf-client-buffer": {
             "label": "Linux dma-buf client buffer integration",
             "condition": "features.wayland-server && features.opengl && features.egl && tests.dmabuf-client-buffer",
+            "output": [ "privateFeature" ]
+        },
+        "wayland-vulkan-server-buffer": {
+            "label": "Vulkan-based server buffer integration",
+            "condition": "features.wayland-server && features.opengl && features.egl && tests.vulkan-server-buffer",
             "output": [ "privateFeature" ]
         },
         "wayland-shm-emulation-server-buffer": {

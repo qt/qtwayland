@@ -177,8 +177,8 @@ void MockClient::handleGlobal(uint32_t id, const QByteArray &interface)
         viewporter = static_cast<wp_viewporter *>(wl_registry_bind(registry, id, &wp_viewporter_interface, 1));
     } else if (interface == "wl_shell") {
         wlshell = static_cast<wl_shell *>(wl_registry_bind(registry, id, &wl_shell_interface, 1));
-    } else if (interface == "xdg_shell") {
-        xdgShell = static_cast<xdg_shell *>(wl_registry_bind(registry, id, &xdg_shell_interface, 1));
+    } else if (interface == "xdg_wm_base") {
+        xdgWmBase = static_cast<xdg_wm_base *>(wl_registry_bind(registry, id, &xdg_wm_base_interface, 1));
     } else if (interface == "ivi_application") {
         iviApplication = static_cast<ivi_application *>(wl_registry_bind(registry, id, &ivi_application_interface, 1));
     } else if (interface == "wl_seat") {
@@ -207,7 +207,13 @@ wl_shell_surface *MockClient::createShellSurface(wl_surface *surface)
 xdg_surface *MockClient::createXdgSurface(wl_surface *surface)
 {
     flushDisplay();
-    return xdg_shell_get_xdg_surface(xdgShell, surface);
+    return xdg_wm_base_get_xdg_surface(xdgWmBase, surface);
+}
+
+xdg_toplevel *MockClient::createXdgToplevel(xdg_surface *xdgSurface)
+{
+    flushDisplay();
+    return xdg_surface_get_toplevel(xdgSurface);
 }
 
 ivi_surface *MockClient::createIviSurface(wl_surface *surface, uint iviId)

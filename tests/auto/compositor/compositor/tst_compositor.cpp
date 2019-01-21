@@ -38,7 +38,7 @@
 #include "qwaylandseat.h"
 
 #include <QtGui/QScreen>
-#include <QtWaylandCompositor/QWaylandXdgShellV5>
+#include <QtWaylandCompositor/QWaylandXdgShell>
 #include <QtWaylandCompositor/private/qwaylandxdgshellv6_p.h>
 #include <QtWaylandCompositor/private/qwaylandkeyboard_p.h>
 #include <QtWaylandCompositor/QWaylandIviApplication>
@@ -47,7 +47,7 @@
 #include <QtWaylandCompositor/QWaylandResource>
 #include <QtWaylandCompositor/QWaylandKeymap>
 #include <QtWaylandCompositor/QWaylandViewporter>
-#include <qwayland-xdg-shell-unstable-v5.h>
+#include <qwayland-xdg-shell.h>
 #include <qwayland-ivi-application.h>
 
 #include <QtTest/QtTest>
@@ -898,7 +898,7 @@ class XdgTestCompositor: public TestCompositor {
     Q_OBJECT
 public:
     XdgTestCompositor() : xdgShell(this) {}
-    QWaylandXdgShellV5 xdgShell;
+    QWaylandXdgShell xdgShell;
 };
 
 void tst_WaylandCompositor::advertisesXdgShellSupport()
@@ -907,7 +907,7 @@ void tst_WaylandCompositor::advertisesXdgShellSupport()
     compositor.create();
 
     MockClient client;
-    QTRY_VERIFY(client.xdgShell);
+    QTRY_VERIFY(client.xdgWmBase);
 }
 
 void tst_WaylandCompositor::createsXdgSurfaces()
@@ -916,19 +916,22 @@ void tst_WaylandCompositor::createsXdgSurfaces()
     compositor.create();
 
     MockClient client;
-    QTRY_VERIFY(client.xdgShell);
+    QTRY_VERIFY(client.xdgWmBase);
 
-    QSignalSpy xdgSurfaceCreatedSpy(&compositor.xdgShell, &QWaylandXdgShellV5::xdgSurfaceCreated);
-    QWaylandXdgSurfaceV5 *xdgSurface = nullptr;
-    QObject::connect(&compositor.xdgShell, &QWaylandXdgShellV5::xdgSurfaceCreated, [&](QWaylandXdgSurfaceV5 *s) {
+    QSignalSpy xdgSurfaceCreatedSpy(&compositor.xdgShell, &QWaylandXdgShell::xdgSurfaceCreated);
+    QWaylandXdgSurface *xdgSurface = nullptr;
+    QObject::connect(&compositor.xdgShell, &QWaylandXdgShell::xdgSurfaceCreated, [&](QWaylandXdgSurface *s) {
         xdgSurface = s;
     });
 
     wl_surface *surface = client.createSurface();
-    client.createXdgSurface(surface);
+    xdg_surface *clientXdgSurface = client.createXdgSurface(surface);
     QTRY_COMPARE(xdgSurfaceCreatedSpy.count(), 1);
     QTRY_VERIFY(xdgSurface);
     QTRY_VERIFY(xdgSurface->surface());
+
+    xdg_surface_destroy(clientXdgSurface);
+    wl_surface_destroy(surface);
 }
 
 void tst_WaylandCompositor::reportsXdgSurfaceWindowGeometry()
@@ -936,27 +939,36 @@ void tst_WaylandCompositor::reportsXdgSurfaceWindowGeometry()
     XdgTestCompositor compositor;
     compositor.create();
 
-    QWaylandXdgSurfaceV5 *xdgSurface = nullptr;
-    QObject::connect(&compositor.xdgShell, &QWaylandXdgShellV5::xdgSurfaceCreated, [&](QWaylandXdgSurfaceV5 *s) {
+    QWaylandXdgSurface *xdgSurface = nullptr;
+    QObject::connect(&compositor.xdgShell, &QWaylandXdgShell::xdgSurfaceCreated, [&](QWaylandXdgSurface *s) {
         xdgSurface = s;
     });
 
     MockClient client;
     wl_surface *surface = client.createSurface();
     xdg_surface *clientXdgSurface = client.createXdgSurface(surface);
+    xdg_toplevel *clientToplevel = client.createXdgToplevel(clientXdgSurface);
+
     QSize size(256, 256);
     ShmBuffer buffer(size, client.shm);
+
+    QTRY_VERIFY(xdgSurface);
+    //TODO: Here we should ideally be acking the configure, we're techically making a protocol error
+
     wl_surface_attach(surface, buffer.handle, 0, 0);
     wl_surface_damage(surface, 0, 0, size.width(), size.height());
     wl_surface_commit(surface);
 
-    QTRY_VERIFY(xdgSurface);
     QTRY_COMPARE(xdgSurface->windowGeometry(), QRect(QPoint(0, 0), QSize(256, 256)));
 
     xdg_surface_set_window_geometry(clientXdgSurface, 10, 20, 100, 50);
     wl_surface_commit(surface);
 
     QTRY_COMPARE(xdgSurface->windowGeometry(), QRect(QPoint(10, 20), QSize(100, 50)));
+
+    xdg_toplevel_destroy(clientToplevel);
+    xdg_surface_destroy(clientXdgSurface);
+    wl_surface_destroy(surface);
 }
 
 void tst_WaylandCompositor::setsXdgAppId()
@@ -964,19 +976,20 @@ void tst_WaylandCompositor::setsXdgAppId()
     XdgTestCompositor compositor;
     compositor.create();
 
-    QWaylandXdgSurfaceV5 *xdgSurface = nullptr;
-    QObject::connect(&compositor.xdgShell, &QWaylandXdgShellV5::xdgSurfaceCreated, [&](QWaylandXdgSurfaceV5 *s) {
-        xdgSurface = s;
+    QWaylandXdgToplevel *toplevel = nullptr;
+    QObject::connect(&compositor.xdgShell, &QWaylandXdgShell::toplevelCreated, [&](QWaylandXdgToplevel *t) {
+        toplevel = t;
     });
 
     MockClient client;
     wl_surface *surface = client.createSurface();
     xdg_surface *clientXdgSurface = client.createXdgSurface(surface);
+    xdg_toplevel *clientToplevel = client.createXdgToplevel(clientXdgSurface);
 
-    xdg_surface_set_app_id(clientXdgSurface, "org.foo.bar");
+    xdg_toplevel_set_app_id(clientToplevel, "org.foo.bar");
 
-    QTRY_VERIFY(xdgSurface);
-    QTRY_COMPARE(xdgSurface->appId(), QString("org.foo.bar"));
+    QTRY_VERIFY(toplevel);
+    QTRY_COMPARE(toplevel->appId(), QString("org.foo.bar"));
 }
 
 void tst_WaylandCompositor::sendsXdgConfigure()
@@ -984,111 +997,118 @@ void tst_WaylandCompositor::sendsXdgConfigure()
     class MockXdgSurface : public QtWayland::xdg_surface
     {
     public:
-        MockXdgSurface(::xdg_surface *xdgSurface) : QtWayland::xdg_surface(xdgSurface) {}
-        void xdg_surface_configure(int32_t width, int32_t height, wl_array *rawStates, uint32_t serial) override
+        explicit MockXdgSurface(::xdg_surface *xdgSurface) : QtWayland::xdg_surface(xdgSurface) {}
+        void xdg_surface_configure(uint32_t serial) override { configureSerial = serial; }
+        uint configureSerial = 0;
+    };
+
+    class MockXdgToplevel : public QtWayland::xdg_toplevel
+    {
+    public:
+        explicit MockXdgToplevel(::xdg_toplevel *toplevel) : QtWayland::xdg_toplevel(toplevel) {}
+        void xdg_toplevel_configure(int32_t width, int32_t height, wl_array *rawStates) override
         {
             configureSize = QSize(width, height);
-            configureSerial = serial;
-
             uint *states = reinterpret_cast<uint*>(rawStates->data);
             configureStates.clear();
             size_t numStates = rawStates->size / sizeof(uint);
-            for (size_t i = 0; i < numStates; ++i) {
+            for (size_t i = 0; i < numStates; ++i)
                 configureStates.push_back(states[i]);
-            }
         }
-
         QList<uint> configureStates;
         QSize configureSize;
-        uint configureSerial;
     };
 
     XdgTestCompositor compositor;
     compositor.create();
 
-    QWaylandXdgSurfaceV5 *xdgSurface = nullptr;
-    QObject::connect(&compositor.xdgShell, &QWaylandXdgShellV5::xdgSurfaceCreated, [&](QWaylandXdgSurfaceV5 *s) {
-        xdgSurface = s;
+    QWaylandXdgToplevel *toplevel = nullptr;
+    QObject::connect(&compositor.xdgShell, &QWaylandXdgShell::toplevelCreated, [&](QWaylandXdgToplevel *t) {
+        toplevel = t;
     });
 
     MockClient client;
     wl_surface *surface = client.createSurface();
+
     xdg_surface *clientXdgSurface = client.createXdgSurface(surface);
     MockXdgSurface mockXdgSurface(clientXdgSurface);
 
-    QTRY_VERIFY(xdgSurface);
-    QTRY_VERIFY(!xdgSurface->activated());
-    QTRY_VERIFY(!xdgSurface->maximized());
-    QTRY_VERIFY(!xdgSurface->fullscreen());
-    QTRY_VERIFY(!xdgSurface->resizing());
+    xdg_toplevel *clientToplevel = client.createXdgToplevel(clientXdgSurface);
+    MockXdgToplevel mockToplevel(clientToplevel);
 
-    xdgSurface->sendConfigure(QSize(10, 20), QVector<QWaylandXdgSurfaceV5::State>{QWaylandXdgSurfaceV5::State::ActivatedState});
-    compositor.flushClients();
-    QTRY_COMPARE(mockXdgSurface.configureStates, QList<uint>{QWaylandXdgSurfaceV5::State::ActivatedState});
-    QTRY_COMPARE(mockXdgSurface.configureSize, QSize(10, 20));
+    QTRY_VERIFY(toplevel);
+    QTRY_VERIFY(!toplevel->activated());
+    QTRY_VERIFY(!toplevel->maximized());
+    QTRY_VERIFY(!toplevel->fullscreen());
+    QTRY_VERIFY(!toplevel->resizing());
 
-    xdgSurface->sendMaximized(QSize(800, 600));
+    toplevel->sendConfigure(QSize(10, 20), QVector<QWaylandXdgToplevel::State>{QWaylandXdgToplevel::State::ActivatedState});
     compositor.flushClients();
-    QTRY_VERIFY(mockXdgSurface.configureStates.contains(QWaylandXdgSurfaceV5::State::MaximizedState));
-    QTRY_VERIFY(mockXdgSurface.configureStates.contains(QWaylandXdgSurfaceV5::State::ActivatedState));
-    QTRY_COMPARE(mockXdgSurface.configureSize, QSize(800, 600));
+    QTRY_COMPARE(mockToplevel.configureStates, QList<uint>{QWaylandXdgToplevel::State::ActivatedState});
+    QTRY_COMPARE(mockToplevel.configureSize, QSize(10, 20));
+
+    toplevel->sendMaximized(QSize(800, 600));
+    compositor.flushClients();
+    QTRY_VERIFY(mockToplevel.configureStates.contains(QWaylandXdgToplevel::State::MaximizedState));
+    QTRY_VERIFY(mockToplevel.configureStates.contains(QWaylandXdgToplevel::State::ActivatedState));
+    QTRY_COMPARE(mockToplevel.configureSize, QSize(800, 600));
 
     // There hasn't been any ack_configures, so state should still be unchanged
-    QTRY_VERIFY(!xdgSurface->activated());
-    QTRY_VERIFY(!xdgSurface->maximized());
+    QTRY_VERIFY(!toplevel->activated());
+    QTRY_VERIFY(!toplevel->maximized());
     xdg_surface_ack_configure(clientXdgSurface, mockXdgSurface.configureSerial);
     wl_display_dispatch_pending(client.display);
     wl_display_flush(client.display);
-    QTRY_VERIFY(xdgSurface->activated());
-    QTRY_VERIFY(xdgSurface->maximized());
+    QTRY_VERIFY(toplevel->activated());
+    QTRY_VERIFY(toplevel->maximized());
 
-    xdgSurface->sendUnmaximized();
+    toplevel->sendUnmaximized();
     compositor.flushClients();
-    QTRY_VERIFY(!mockXdgSurface.configureStates.contains(QWaylandXdgSurfaceV5::State::MaximizedState));
-    QTRY_VERIFY(mockXdgSurface.configureStates.contains(QWaylandXdgSurfaceV5::State::ActivatedState));
-    QTRY_COMPARE(mockXdgSurface.configureSize, QSize(0, 0));
+    QTRY_VERIFY(!mockToplevel.configureStates.contains(QWaylandXdgToplevel::State::MaximizedState));
+    QTRY_VERIFY(mockToplevel.configureStates.contains(QWaylandXdgToplevel::State::ActivatedState));
+    QTRY_COMPARE(mockToplevel.configureSize, QSize(0, 0));
 
     // The unmaximized configure hasn't been acked, so maximized should still be true
-    QTRY_VERIFY(xdgSurface->maximized());
-    QTRY_VERIFY(xdgSurface->activated());
+    QTRY_VERIFY(toplevel->maximized());
+    QTRY_VERIFY(toplevel->activated());
 
-    xdgSurface->sendResizing(QSize(800, 600));
+    toplevel->sendResizing(QSize(800, 600));
     compositor.flushClients();
-    QTRY_VERIFY(mockXdgSurface.configureStates.contains(QWaylandXdgSurfaceV5::State::ResizingState));
-    QTRY_COMPARE(mockXdgSurface.configureSize, QSize(800, 600));
+    QTRY_VERIFY(mockToplevel.configureStates.contains(QWaylandXdgToplevel::State::ResizingState));
+    QTRY_COMPARE(mockToplevel.configureSize, QSize(800, 600));
 
-    xdgSurface->sendFullscreen(QSize(1024, 768));
+    toplevel->sendFullscreen(QSize(1024, 768));
     compositor.flushClients();
-    QTRY_VERIFY(mockXdgSurface.configureStates.contains(QWaylandXdgSurfaceV5::State::ActivatedState));
-    QTRY_VERIFY(mockXdgSurface.configureStates.contains(QWaylandXdgSurfaceV5::State::FullscreenState));
-    QTRY_COMPARE(mockXdgSurface.configureSize, QSize(1024, 768));
+    QTRY_VERIFY(mockToplevel.configureStates.contains(QWaylandXdgToplevel::State::ActivatedState));
+    QTRY_VERIFY(mockToplevel.configureStates.contains(QWaylandXdgToplevel::State::FullscreenState));
+    QTRY_COMPARE(mockToplevel.configureSize, QSize(1024, 768));
     uint fullscreenSerial = mockXdgSurface.configureSerial;
 
-    xdgSurface->sendUnmaximized();
+    toplevel->sendUnmaximized();
     compositor.flushClients();
-    QTRY_VERIFY(mockXdgSurface.configureStates.contains(QWaylandXdgSurfaceV5::State::ActivatedState));
-    QTRY_VERIFY(!mockXdgSurface.configureStates.contains(QWaylandXdgSurfaceV5::State::FullscreenState));
+    QTRY_VERIFY(mockToplevel.configureStates.contains(QWaylandXdgToplevel::State::ActivatedState));
+    QTRY_VERIFY(!mockToplevel.configureStates.contains(QWaylandXdgToplevel::State::FullscreenState));
 
-    xdgSurface->sendConfigure(QSize(0, 0), QVector<QWaylandXdgSurfaceV5::State>{});
+    toplevel->sendConfigure(QSize(0, 0), QVector<QWaylandXdgToplevel::State>{});
     compositor.flushClients();
-    QTRY_VERIFY(!mockXdgSurface.configureStates.contains(QWaylandXdgSurfaceV5::State::ActivatedState));
+    QTRY_VERIFY(!mockToplevel.configureStates.contains(QWaylandXdgToplevel::State::ActivatedState));
 
-    xdgSurface->sendMaximized(QSize(800, 600));
+    toplevel->sendMaximized(QSize(800, 600));
     compositor.flushClients();
-    QTRY_VERIFY(!mockXdgSurface.configureStates.contains(QWaylandXdgSurfaceV5::State::ActivatedState));
+    QTRY_VERIFY(!mockToplevel.configureStates.contains(QWaylandXdgToplevel::State::ActivatedState));
 
-    xdgSurface->sendFullscreen(QSize(800, 600));
+    toplevel->sendFullscreen(QSize(800, 600));
     compositor.flushClients();
-    QTRY_VERIFY(!mockXdgSurface.configureStates.contains(QWaylandXdgSurfaceV5::State::MaximizedState));
+    QTRY_VERIFY(!mockToplevel.configureStates.contains(QWaylandXdgToplevel::State::MaximizedState));
 
     // Verify that acking a configure that's not the most recently sent works
     xdg_surface_ack_configure(clientXdgSurface, fullscreenSerial);
     wl_display_dispatch_pending(client.display);
     wl_display_flush(client.display);
-    QTRY_VERIFY(xdgSurface->fullscreen());
-    QTRY_VERIFY(xdgSurface->activated());
-    QTRY_VERIFY(!xdgSurface->maximized());
-    QTRY_VERIFY(!xdgSurface->resizing());
+    QTRY_VERIFY(toplevel->fullscreen());
+    QTRY_VERIFY(toplevel->activated());
+    QTRY_VERIFY(!toplevel->maximized());
+    QTRY_VERIFY(!toplevel->resizing());
 }
 
 class IviTestCompositor: public TestCompositor {

@@ -11,9 +11,9 @@ qtConfig(xkbcommon): \
     QMAKE_USE += xkbcommon
 
 WAYLANDCLIENTSOURCES += \
-            ../../../../src/3rdparty/protocol/xdg-shell-unstable-v5.xml \
             ../../../../src/3rdparty/protocol/ivi-application.xml \
             ../../../../src/3rdparty/protocol/wayland.xml \
+            ../../../../src/3rdparty/protocol/xdg-shell.xml \
             ../../../../src/3rdparty/protocol/viewporter.xml
 
 SOURCES += \

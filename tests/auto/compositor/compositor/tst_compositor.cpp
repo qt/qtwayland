@@ -677,6 +677,8 @@ void tst_WaylandCompositor::customSurface()
     MockClient client;
     wl_surface *surface = client.createSurface();
     QTRY_COMPARE(compositor.surfaces.size(), 1);
+    wl_surface_destroy(surface);
+    QTRY_COMPARE(compositor.surfaces.size(), 0);
 }
 
 void tst_WaylandCompositor::seatCapabilities()

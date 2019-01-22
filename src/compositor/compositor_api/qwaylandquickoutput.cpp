@@ -66,7 +66,7 @@ void QWaylandQuickOutput::initialize()
             this, &QWaylandQuickOutput::updateStarted,
             Qt::DirectConnection);
 
-    connect(quickWindow, &QQuickWindow::beforeRendering,
+    connect(quickWindow, &QQuickWindow::afterRendering,
             this, &QWaylandQuickOutput::doFrameCallbacks);
 }
 

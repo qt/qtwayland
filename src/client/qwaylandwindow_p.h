@@ -193,10 +193,7 @@ public:
 
     bool startSystemMove(const QPoint &pos) override;
 
-    void timerEvent(QTimerEvent *event) override;
     void requestUpdate() override;
-    void handleUpdate();
-    void deliverUpdateRequest() override;
 
 public slots:
     void applyConfigure();
@@ -216,13 +213,9 @@ protected:
     Qt::MouseButtons mMousePressedInContentArea = Qt::NoButton;
 
     WId mWindowId;
-    bool mWaitingForFrameCallback = false;
+    bool mWaitingForFrameSync = false;
     struct ::wl_callback *mFrameCallback = nullptr;
     QWaitCondition mFrameSyncWait;
-
-    // True when we have called deliverRequestUpdate, but the client has not yet attached a new buffer
-    bool mWaitingForUpdate = false;
-    int mFallbackUpdateTimerId = -1;
 
     QMutex mResizeLock;
     bool mWaitingToApplyConfigure = false;

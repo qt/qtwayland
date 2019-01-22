@@ -147,9 +147,9 @@ public:
     {
         QOpenGLTextureCache *cache = QOpenGLTextureCache::cacheForContext(m_context->context());
 
-        QRect windowRect = window->window()->frameGeometry();
+        QSize surfaceSize = window->surfaceSize();
         int scale = window->scale() ;
-        glViewport(0, 0, windowRect.width() * scale, windowRect.height() * scale);
+        glViewport(0, 0, surfaceSize.width() * scale, surfaceSize.height() * scale);
 
         glDisable(GL_DEPTH_TEST);
         glDisable(GL_BLEND);

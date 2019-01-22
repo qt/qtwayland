@@ -125,6 +125,8 @@ public:
     void waitForFrameSync();
 
     QMargins frameMargins() const override;
+    QSize surfaceSize() const;
+    QRect windowGeometry() const;
 
     static QWaylandWindow *fromWlSurface(::wl_surface *surface);
 

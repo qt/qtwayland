@@ -341,7 +341,7 @@ void QWaylandWindow::setGeometry(const QRect &rect)
         sendExposeEvent(exposeGeometry);
 
     if (mShellSurface)
-        mShellSurface->setWindowGeometry(QRect(QPoint(0, 0), window()->frameGeometry().size()));
+        mShellSurface->setWindowGeometry(windowGeometry());
 }
 
 void QWaylandWindow::resizeFromApplyConfigure(const QSize &sizeWithMargins, const QPoint &offset)
@@ -654,6 +654,23 @@ QMargins QWaylandWindow::frameMargins() const
     return QPlatformWindow::frameMargins();
 }
 
+/*!
+ * Size, with decorations (including including eventual shadows) in wl_surface coordinates
+ */
+QSize QWaylandWindow::surfaceSize() const
+{
+    return geometry().marginsAdded(frameMargins()).size();
+}
+
+/*!
+ * Window geometry as defined by the xdg-shell spec (in wl_surface coordinates)
+ * topLeft is where the shadow stops and the decorations border start.
+ */
+QRect QWaylandWindow::windowGeometry() const
+{
+    return QRect(QPoint(), surfaceSize());
+}
+
 QWaylandShellSurface *QWaylandWindow::shellSurface() const
 {
     return mShellSurface;
@@ -848,9 +865,7 @@ void QWaylandWindow::handleMouse(QWaylandInputDevice *inputDevice, const QWaylan
 
 #if QT_CONFIG(cursor)
     if (e.type == QWaylandPointerEvent::Enter) {
-        QRect windowGeometry = window()->frameGeometry();
-        windowGeometry.moveTopLeft({0, 0}); // convert to wayland surface coordinates
-        QRect contentGeometry = windowGeometry.marginsRemoved(frameMargins());
+        QRect contentGeometry = windowGeometry().marginsRemoved(frameMargins());
         if (contentGeometry.contains(e.local.toPoint()))
             restoreMouseCursor(inputDevice);
     }

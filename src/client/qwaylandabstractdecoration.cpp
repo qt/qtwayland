@@ -115,16 +115,17 @@ const QImage &QWaylandAbstractDecoration::contentImage()
 {
     Q_D(QWaylandAbstractDecoration);
     if (d->m_isDirty) {
-        //Update the decoration backingstore
+        // Update the decoration backingstore
 
-        const int scale = waylandWindow()->scale();
-        const QSize imageSize = window()->frameGeometry().size() * scale;
+        const int bufferScale = waylandWindow()->scale();
+        const QSize imageSize = waylandWindow()->surfaceSize() * bufferScale;
         d->m_decorationContentImage = QImage(imageSize, QImage::Format_ARGB32_Premultiplied);
-        d->m_decorationContentImage.setDevicePixelRatio(scale);
+        // Only scale by buffer scale, not QT_SCALE_FACTOR etc.
+        d->m_decorationContentImage.setDevicePixelRatio(bufferScale);
         d->m_decorationContentImage.fill(Qt::transparent);
         this->paint(&d->m_decorationContentImage);
 
-        QRegion damage = marginsRegion(window()->geometry().size(), window()->frameMargins());
+        QRegion damage = marginsRegion(waylandWindow()->surfaceSize(), waylandWindow()->frameMargins());
         for (QRect r : damage)
             waylandWindow()->damage(r);
 

@@ -75,6 +75,7 @@ private slots:
     void simpleAxis();
     void invalidPointerEvents();
     void scaledCursor();
+    void unscaledFallbackCursor();
     void bitmapCursor();
     void hidpiBitmapCursor();
     void hidpiBitmapCursorNonInt();
@@ -290,7 +291,7 @@ void tst_seatv4::invalidPointerEvents()
 
 static bool supportsCursorSize(uint size, wl_shm *shm)
 {
-    auto *theme = wl_cursor_theme_load(nullptr, size, shm);
+    auto *theme = wl_cursor_theme_load(qgetenv("XCURSOR_THEME"), size, shm);
     if (!theme)
         return false;
 
@@ -313,10 +314,16 @@ static bool supportsCursorSizes(const QVector<uint> &sizes)
     });
 }
 
+static uint defaultCursorSize() {
+    const int xCursorSize = qEnvironmentVariableIntValue("XCURSOR_SIZE");
+    return xCursorSize > 0 ? uint(xCursorSize) : 32;
+}
+
 void tst_seatv4::scaledCursor()
 {
-    if (!supportsCursorSizes({32, 64}))
-        QSKIP("Cursor themes with sizes 32 and 64 not found.");
+    const uint defaultSize = defaultCursorSize();
+    if (!supportsCursorSizes({defaultSize, defaultSize * 2}))
+        QSKIP("Cursor themes with default size and 2x default size not found.");
 
     // Add a highdpi output
     exec([&] {
@@ -349,6 +356,55 @@ void tst_seatv4::scaledCursor()
 
     // Remove the extra output to clean up for the next test
     exec([&] { remove(output(1)); });
+}
+
+void tst_seatv4::unscaledFallbackCursor()
+{
+    const uint defaultSize = defaultCursorSize();
+    if (!supportsCursorSizes({defaultSize}))
+        QSKIP("Default cursor size not supported");
+
+    const int screens = 4; // with scales 1, 2, 4, 8
+
+    exec([=] {
+        for (int i = 1; i < screens; ++i) {
+            OutputData d;
+            d.scale = int(qPow(2, i));
+            d.position = {1920 * i, 0};
+            add<Output>(d);
+        }
+    });
+
+    QRasterWindow window;
+    window.resize(64, 64);
+    window.show();
+    QCOMPOSITOR_TRY_VERIFY(xdgSurface() && xdgSurface()->m_committedConfigureSerial);
+    exec([=] { pointer()->sendEnter(xdgSurface()->m_surface, {32, 32}); });
+    QCOMPOSITOR_TRY_VERIFY(pointer()->cursorSurface());
+    QCOMPOSITOR_TRY_VERIFY(pointer()->cursorSurface()->m_committed.buffer);
+    QCOMPOSITOR_TRY_COMPARE(pointer()->cursorSurface()->m_committed.bufferScale, 1);
+    QSize unscaledPixelSize = exec([=] {
+        return pointer()->cursorSurface()->m_committed.buffer->size();
+    });
+
+    QCOMPARE(unscaledPixelSize.width(), int(defaultSize));
+    QCOMPARE(unscaledPixelSize.height(), int(defaultSize));
+
+    for (int i = 1; i < screens; ++i) {
+        exec([=] {
+            auto *surface = pointer()->cursorSurface();
+            surface->sendEnter(getAll<Output>()[i]);
+            surface->sendLeave(getAll<Output>()[i-1]);
+        });
+
+        xdgPingAndWaitForPong(); // Give the client a chance to mess up
+
+        // Surface size (buffer size / scale) should stay constant
+        QCOMPOSITOR_TRY_COMPARE(pointer()->cursorSurface()->m_committed.buffer->size() / pointer()->cursorSurface()->m_committed.bufferScale, unscaledPixelSize);
+    }
+
+    // Remove the extra outputs to clean up for the next test
+    exec([&] { while (auto *o = output(1)) remove(o); });
 }
 
 void tst_seatv4::bitmapCursor()

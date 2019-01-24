@@ -188,7 +188,8 @@ QWaylandInputDevice::Pointer::~Pointer()
 
 #if QT_CONFIG(cursor)
 
-class CursorSurface : public QtWayland::wl_surface {
+class CursorSurface : public QObject, public QtWayland::wl_surface
+{
 public:
     explicit CursorSurface(QWaylandInputDevice::Pointer *pointer, QWaylandDisplay *display)
         : m_pointer(pointer)
@@ -196,6 +197,14 @@ public:
         init(display->createSurface(this));
         //TODO: When we upgrade to libwayland 1.10, use wl_surface_get_version instead.
         m_version = display->compositorVersion();
+        connect(qApp, &QGuiApplication::screenRemoved, this, [this](QScreen *screen) {
+            int oldScale = outputScale();
+            if (!m_screens.removeOne(static_cast<QWaylandScreen *>(screen->handle())))
+                return;
+
+            if (outputScale() != oldScale)
+                m_pointer->updateCursor();
+        });
     }
 
     void hide()
@@ -225,18 +234,38 @@ public:
         commit();
     }
 
-    int outputScale() const { return m_outputScale; }
+    int outputScale() const
+    {
+        int scale = 0;
+        for (auto *screen : m_screens)
+            scale = qMax(scale, screen->scale());
+        return scale;
+    }
 
 protected:
     void surface_enter(struct ::wl_output *output) override
     {
-        //TODO: Can be improved to keep track of all entered screens
-        int scale = QWaylandScreen::fromWlOutput(output)->scale();
-        if (scale == m_outputScale)
+        int oldScale = outputScale();
+        auto *screen = QWaylandScreen::fromWlOutput(output);
+        if (m_screens.contains(screen))
             return;
 
-        m_outputScale = scale;
-        m_pointer->updateCursor();
+        m_screens.append(screen);
+
+        if (outputScale() != oldScale)
+            m_pointer->updateCursor();
+    }
+
+    void surface_leave(struct ::wl_output *output) override
+    {
+        int oldScale = outputScale();
+        auto *screen = QWaylandScreen::fromWlOutput(output);
+
+        if (!m_screens.removeOne(screen))
+            return;
+
+        if (outputScale() != oldScale)
+            m_pointer->updateCursor();
     }
 
 private:
@@ -244,7 +273,7 @@ private:
     uint m_version = 0;
     uint m_setSerial = 0;
     QPoint m_hotspot;
-    int m_outputScale = 0;
+    QVector<QWaylandScreen *> m_screens;
 };
 
 QString QWaylandInputDevice::Pointer::cursorThemeName() const
@@ -280,6 +309,13 @@ void QWaylandInputDevice::Pointer::updateCursorTheme()
     int pixelSize = cursorSize() * scale;
     auto *display = seat()->mQDisplay;
     mCursor.theme = display->loadCursorTheme(cursorThemeName(), pixelSize);
+    if (auto *arrow = mCursor.theme->cursorImage(Qt::ArrowCursor)) {
+        int arrowPixelSize = qMax(arrow->width, arrow->height); // Not all cursor themes are square
+        while (scale > 1 && arrowPixelSize / scale < cursorSize())
+            --scale;
+    } else {
+        qWarning(lcQpaWayland) << "Cursor theme does not support the arrow cursor";
+    }
     mCursor.themeBufferScale = scale;
 }
 

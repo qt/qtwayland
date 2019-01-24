@@ -85,8 +85,6 @@ public:
     QWaylandCompositor *compositor() const { return seat->compositor(); }
 
     void focused(QWaylandSurface* surface);
-    void modifiers(uint32_t serial, uint32_t mods_depressed,
-                   uint32_t mods_latched, uint32_t mods_locked, uint32_t group);
 
 #if QT_CONFIG(xkbcommon)
     struct xkb_state *xkbState() const { return mXkbState.get(); }

@@ -180,14 +180,6 @@ void QWaylandKeyboardPrivate::sendKeyEvent(uint code, uint32_t state)
         send_key(focusResource->handle, serial, time, key, state);
 }
 
-void QWaylandKeyboardPrivate::modifiers(uint32_t serial, uint32_t mods_depressed,
-                         uint32_t mods_latched, uint32_t mods_locked, uint32_t group)
-{
-    if (focusResource) {
-        send_modifiers(focusResource->handle, serial, mods_depressed, mods_latched, mods_locked, group);
-    }
-}
-
 #if QT_CONFIG(xkbcommon)
 void QWaylandKeyboardPrivate::maybeUpdateXkbScanCodeTable()
 {
@@ -238,7 +230,10 @@ void QWaylandKeyboardPrivate::updateModifierState(uint code, uint32_t state)
     this->modsLocked = modsLocked;
     this->group = group;
 
-    modifiers(compositor()->nextSerial(), modsDepressed, modsLatched, modsLocked, group);
+    if (focusResource) {
+        send_modifiers(focusResource->handle, compositor()->nextSerial(), modsDepressed,
+                       modsLatched, modsLocked, group);
+    }
 #else
     Q_UNUSED(code);
     Q_UNUSED(state);

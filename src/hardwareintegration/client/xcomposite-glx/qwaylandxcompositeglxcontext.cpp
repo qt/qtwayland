@@ -93,7 +93,7 @@ void QWaylandXCompositeGLXContext::swapBuffers(QPlatformSurface *surface)
     glXSwapBuffers(m_display, w->xWindow());
 
     w->commit(w->buffer(), QRegion(0, 0, size.width(), size.height()));
-    w->waitForFrameSync();
+    w->waitForFrameSync(100);
 }
 
 QFunctionPointer QWaylandXCompositeGLXContext::getProcAddress(const char *procName)

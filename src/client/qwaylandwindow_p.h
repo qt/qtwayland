@@ -120,7 +120,7 @@ public:
     void handleExpose(const QRegion &region);
     void commit(QWaylandBuffer *buffer, const QRegion &damage);
 
-    void waitForFrameSync();
+    bool waitForFrameSync(int timeout);
 
     QMargins frameMargins() const override;
 
@@ -191,7 +191,10 @@ public:
 
     bool startSystemMove(const QPoint &pos) override;
 
+    void timerEvent(QTimerEvent *event) override;
     void requestUpdate() override;
+    void handleUpdate();
+    void deliverUpdateRequest() override;
 
 public slots:
     void applyConfigure();
@@ -211,9 +214,16 @@ protected:
     Qt::MouseButtons mMousePressedInContentArea = Qt::NoButton;
 
     WId mWindowId;
-    bool mWaitingForFrameSync = false;
+    bool mWaitingForFrameCallback = false;
+    bool mFrameCallbackTimedOut = false; // Whether the frame callback has timed out
+    int mFrameCallbackTimerId = -1; // Started on commit, reset on frame callback
     struct ::wl_callback *mFrameCallback = nullptr;
+    struct ::wl_event_queue *mFrameQueue = nullptr;
     QWaitCondition mFrameSyncWait;
+
+    // True when we have called deliverRequestUpdate, but the client has not yet attached a new buffer
+    bool mWaitingForUpdate = false;
+    int mFallbackUpdateTimerId = -1; // Started when waiting for app to commit
 
     QMutex mResizeLock;
     bool mWaitingToApplyConfigure = false;
@@ -253,11 +263,10 @@ private:
     void handleMouseEventWithDecoration(QWaylandInputDevice *inputDevice, const QWaylandPointerEvent &e);
     void handleScreenChanged();
 
-    bool mUpdateRequested = false;
     QRect mLastExposeGeometry;
 
     static const wl_callback_listener callbackListener;
-    static void frameCallback(void *data, struct wl_callback *wl_callback, uint32_t time);
+    void handleFrameCallback();
 
     static QMutex mFrameSyncMutex;
     static QWaylandWindow *mMouseGrab;

@@ -182,6 +182,9 @@ public:
     void handleKeyboardFocusChanged(QWaylandInputDevice *inputDevice);
     void handleWindowDestroyed(QWaylandWindow *window);
 
+    wl_event_queue *createEventQueue();
+    void dispatchQueueWhile(wl_event_queue *queue, std::function<bool()> condition, int timeout = -1);
+
 public slots:
     void blockingReadEvents();
     void flushRequests();

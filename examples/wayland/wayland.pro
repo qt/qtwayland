@@ -18,7 +18,8 @@ qtHaveModule(quick) {
     qtHaveModule(waylandclient) {
         SUBDIRS += \
             custom-extension \
-            server-buffer
+            server-buffer \
+            texture-sharing
     }
     SUBDIRS += hwlayer-compositor
 }

@@ -8,6 +8,7 @@ WAYLANDSERVERSOURCES += \
     ../extensions/touch-extension.xml \
     ../extensions/qt-key-unstable-v1.xml \
     ../extensions/qt-windowmanager.xml \
+    ../extensions/qt-texture-sharing-unstable-v1.xml \
     ../3rdparty/protocol/text-input-unstable-v2.xml \
     ../3rdparty/protocol/xdg-shell-unstable-v6.xml \
     ../3rdparty/protocol/xdg-shell.xml \
@@ -65,7 +66,8 @@ qtHaveModule(quick):contains(QT_CONFIG, opengl) {
         extensions/qwaylandwlshellintegration_p.h \
         extensions/qwaylandxdgshellv5integration_p.h \
         extensions/qwaylandxdgshellv6integration_p.h \
-        extensions/qwaylandxdgshellintegration_p.h
+        extensions/qwaylandxdgshellintegration_p.h \
+        extensions/qwltexturesharingextension_p.h
 
     SOURCES += \
         extensions/qwaylandquickshellsurfaceitem.cpp \
@@ -73,8 +75,8 @@ qtHaveModule(quick):contains(QT_CONFIG, opengl) {
         extensions/qwaylandwlshellintegration.cpp \
         extensions/qwaylandxdgshellv5integration.cpp \
         extensions/qwaylandxdgshellv6integration.cpp \
-        extensions/qwaylandxdgshellintegration.cpp
-
+        extensions/qwaylandxdgshellintegration.cpp \
+        extensions/qwltexturesharingextension.cpp
 }
 
 include ($$PWD/pregenerated/xdg-shell-v5.pri)

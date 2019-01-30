@@ -56,6 +56,8 @@
 
 #include <QDebug>
 
+QT_BEGIN_NAMESPACE
+
 static constexpr bool extraDebug = false;
 
 #define DECL_VK_FUNCTION(name) \
@@ -727,3 +729,5 @@ void VulkanWrapper::freeTextureImage(VulkanImageWrapper *imageWrapper)
 {
     d_ptr->freeTextureImage(imageWrapper);
 }
+
+QT_END_NAMESPACE

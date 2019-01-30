@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/">
+        <file>images/background.png</file>
+        <file>images/qt_logo.png</file>
+        <file>images/qt4.astc</file>
+        <file>images/car.ktx</file>
+        <file>qml/main.qml</file>
+    </qresource>
+</RCC>

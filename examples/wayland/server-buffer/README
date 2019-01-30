@@ -1,4 +1,7 @@
-This is the example to demonstrate the server buffer interfaces
+This example shows how to use the low-level server buffer extension. This
+version of Qt also provides a texture sharing extension that provides more
+functionality and convenience for sharing graphical assets with Qt Quick
+clients: see the texture-sharing example.
 
 Compile up both compositor and client.
 

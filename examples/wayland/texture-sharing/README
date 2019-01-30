@@ -1,0 +1,27 @@
+This example shows how to use the texture sharing extension, allowing
+multiple clients to share the same copy of an image in graphics memory.
+
+The texture sharing extension uses the server buffer extension to transport
+graphics buffers. There are different server buffer plugins for different
+graphics hardware. This is specified by setting an environment variable for
+the compositor process.
+
+-On a device with Mesa and Intel integrated graphics, set:
+
+  QT_WAYLAND_SERVER_BUFFER_INTEGRATION=dmabuf-server
+
+-On a device with NVIDIA graphics, set:
+
+  QT_WAYLAND_SERVER_BUFFER_INTEGRATION=vulkan-server
+
+'custom-compositor' shows how to write a server that creates shared textures
+programmatically.
+
+The file 'minimal-compositor.qml' shows how to add texture sharing to an
+existing compositor, using only QML. It is based on the minimal-qml example,
+and can be executed with qmlscene.
+
+'qml-client' shows how to use shared textures in a Qt Quick client.
+The compositor uses the hardware integration extension to broadcast
+the name of the server buffer integration to all clients, so qml-client
+can be started like any normal wayland client.

@@ -821,7 +821,7 @@ void QWaylandQuickItem::setOutput(QWaylandOutput *output)
 }
 
 /*!
- * \property QWaylandQuickItem::bufferLocked
+ * \property QWaylandQuickItem::isBufferLocked
  *
  * This property holds whether the item's buffer is currently locked. As long as
  * the buffer is locked, it will not be released and returned to the client.
@@ -1245,7 +1245,7 @@ void QWaylandQuickItem::updateInputMethod(Qt::InputMethodQueries queries)
  * If an animation is started, bufferLocked should be set to ensure the item keeps its content
  * until the animation finishes
  *
- * \sa bufferLocked
+ * \sa isBufferLocked
  */
 
 /*!

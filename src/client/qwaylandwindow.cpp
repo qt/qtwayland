@@ -395,14 +395,9 @@ void QWaylandWindow::setVisible(bool visible)
         // QWaylandShmBackingStore::beginPaint().
     } else {
         sendExposeEvent(QRect());
-        // when flushing the event queue, it could contain a close event, in which
-        // case 'this' will be deleted. When that happens, we must abort right away.
-        QPointer<QWaylandWindow> deleteGuard(this);
-        QWindowSystemInterface::flushWindowSystemEvents();
-        if (!deleteGuard.isNull() && window()->type() == Qt::Popup)
+        if (window()->type() == Qt::Popup)
             closePopups(this);
-        if (!deleteGuard.isNull())
-            reset();
+        reset();
     }
 }
 

@@ -335,7 +335,14 @@ void QWaylandXdgSurfaceV6::setGrabPopup(QWaylandWindow *parent, QWaylandInputDev
     auto *top = m_shell->m_topmostGrabbingPopup;
 
     if (top && top->m_xdgSurface != parentXdgSurface) {
-        qCWarning(lcQpaWayland) << "setGrabPopup called for a surface that was not the topmost popup, positions might be off.";
+        qCWarning(lcQpaWayland) << "setGrabPopup called with a parent," << parentXdgSurface
+                                << "which does not match the current topmost grabbing popup,"
+                                << top->m_xdgSurface << "According to the xdg-shell-v6 protocol, this"
+                                << "is not allowed. The wayland QPA plugin is currently handling"
+                                << "it by setting the parent to the topmost grabbing popup."
+                                << "Note, however, that this may cause positioning errors and"
+                                << "popups closing unxpectedly because xdg-shell-v6 mandate that child"
+                                << "popups close before parents";
         parent = top->m_xdgSurface->m_window;
     }
     setPopup(parent);

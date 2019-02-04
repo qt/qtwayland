@@ -145,6 +145,7 @@ public:
     }
     void blit(QWaylandEglWindow *window)
     {
+        Q_ASSERT(window->wl_surface::isInitialized());
         QOpenGLTextureCache *cache = QOpenGLTextureCache::cacheForContext(m_context->context());
 
         QRect windowRect = window->window()->frameGeometry();

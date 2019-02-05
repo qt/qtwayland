@@ -43,6 +43,7 @@ private slots:
     void configureStates();
     void popup();
     void tooltipOnPopup();
+    void switchPopups();
     void pongs();
     void minMaxSize();
     void windowGeometry();
@@ -330,6 +331,94 @@ void tst_xdgshell::tooltipOnPopup()
 
     QCOMPOSITOR_TRY_COMPARE(xdgPopup(1), nullptr);
     QCOMPOSITOR_TRY_COMPARE(xdgPopup(0), nullptr);
+}
+
+// QTBUG-65680
+void tst_xdgshell::switchPopups()
+{
+    class Popup : public QRasterWindow {
+    public:
+        explicit Popup(QWindow *parent) {
+            setTransientParent(parent);
+            setFlags(Qt::Popup);
+            resize(10, 10);
+            show();
+        }
+    };
+
+    class Window : public QRasterWindow {
+    public:
+        void mousePressEvent(QMouseEvent *event) override {
+            QRasterWindow::mousePressEvent(event);
+            if (!m_popups.empty())
+                m_popups.last()->setVisible(false);
+        }
+        // The bug this checks for, is the case where there is a flushWindowSystemEvents() call
+        // somewhere within setVisible(false) before the grab has been released.
+        // This leads to the the release event below—including its show() call—to be handled
+        // At a time where there is still an active grab, making it illegal for the new popup to
+        // grab.
+        void mouseReleaseEvent(QMouseEvent *event) override {
+            QRasterWindow::mouseReleaseEvent(event);
+            m_popups << new Popup(this);
+        }
+        ~Window() override { qDeleteAll(m_popups); }
+        QVector<Popup *> m_popups;
+    };
+
+    Window window;
+    window.resize(200, 200);
+    window.show();
+
+    QCOMPOSITOR_TRY_VERIFY(xdgToplevel());
+    exec([=] { xdgToplevel()->sendCompleteConfigure(); });
+    QCOMPOSITOR_TRY_VERIFY(xdgToplevel()->m_xdgSurface->m_committedConfigureSerial);
+
+    exec([=] {
+        auto *surface = xdgToplevel()->surface();
+        auto *p = pointer();
+        p->sendEnter(surface, {100, 100});
+//        p->sendFrame(); //TODO: uncomment when we support seat v5
+        p->sendButton(client(), BTN_LEFT, Pointer::button_state_pressed);
+        p->sendButton(client(), BTN_LEFT, Pointer::button_state_released);
+//        p->sendFrame();
+        p->sendLeave(surface);
+//        p->sendFrame();
+    });
+
+    QCOMPOSITOR_TRY_VERIFY(xdgPopup());
+    exec([=] { xdgPopup()->sendCompleteConfigure(QRect(100, 100, 100, 100)); });
+    QCOMPOSITOR_TRY_VERIFY(xdgPopup()->m_xdgSurface->m_committedConfigureSerial);
+    QCOMPOSITOR_TRY_VERIFY(xdgPopup()->m_grabbed);
+
+    QSignalSpy firstDestroyed(exec([=] { return xdgPopup(); }), &XdgPopup::destroyRequested);
+
+    exec([=] {
+        auto *surface = xdgToplevel()->surface();
+        auto *p = pointer();
+        p->sendEnter(surface, {100, 100});
+//        p->sendFrame();
+        p->sendButton(client(), BTN_LEFT, Pointer::button_state_pressed);
+        p->sendButton(client(), BTN_LEFT, Pointer::button_state_released);
+//        p->sendFrame();
+    });
+
+    // The client will now hide one popup and then show another
+    firstDestroyed.wait();
+
+    QCOMPOSITOR_TRY_VERIFY(xdgPopup());
+    QCOMPOSITOR_TRY_VERIFY(!xdgPopup(1));
+
+    // Verify we still grabbed in case the client has checks to avoid illegal grabs
+    QCOMPOSITOR_TRY_VERIFY(xdgPopup()->m_grabbed);
+
+    // Sometimes the popup will select another parent if one is illegal at the time it tries to
+    // grab. So we verify we got the intended parent on the compositor side.
+    QCOMPOSITOR_TRY_VERIFY(xdgPopup()->m_parentXdgSurface == xdgToplevel()->m_xdgSurface);
+
+    // For good measure just check that configuring works as usual
+    exec([=] { xdgPopup()->sendCompleteConfigure(QRect(100, 100, 100, 100)); });
+    QCOMPOSITOR_TRY_VERIFY(xdgPopup()->m_xdgSurface->m_committedConfigureSerial);
 }
 
 void tst_xdgshell::pongs()

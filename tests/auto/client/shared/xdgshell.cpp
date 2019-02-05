@@ -236,6 +236,7 @@ void XdgPopup::xdg_popup_destroy(Resource *resource) {
     }
     m_xdgSurface->m_popup = nullptr;
     m_parentXdgSurface->m_popups.removeAll(this);
+    emit destroyRequested();
 }
 
 } // namespace MockCompositor

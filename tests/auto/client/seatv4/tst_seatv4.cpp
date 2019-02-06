@@ -133,7 +133,7 @@ void tst_seatv4::setsCursorOnEnter()
     QCOMPOSITOR_TRY_VERIFY(xdgSurface() && xdgSurface()->m_committedConfigureSerial);
 
     exec([=] { pointer()->sendEnter(xdgSurface()->m_surface, {32, 32}); });
-    QCOMPOSITOR_TRY_VERIFY(pointer()->cursorSurface());
+    QCOMPOSITOR_TRY_VERIFY(cursorSurface());
 }
 
 void tst_seatv4::usesEnterSerial()
@@ -339,20 +339,20 @@ void tst_seatv4::scaledCursor()
     QCOMPOSITOR_TRY_VERIFY(xdgSurface() && xdgSurface()->m_committedConfigureSerial);
 
     exec([=] { pointer()->sendEnter(xdgSurface()->m_surface, {32, 32}); });
-    QCOMPOSITOR_TRY_VERIFY(pointer()->cursorSurface());
-    QCOMPOSITOR_TRY_VERIFY(pointer()->cursorSurface()->m_committed.buffer);
-    QCOMPOSITOR_TRY_COMPARE(pointer()->cursorSurface()->m_committed.bufferScale, 1);
+    QCOMPOSITOR_TRY_VERIFY(cursorSurface());
+    QCOMPOSITOR_TRY_VERIFY(cursorSurface()->m_committed.buffer);
+    QCOMPOSITOR_TRY_COMPARE(cursorSurface()->m_committed.bufferScale, 1);
     QSize unscaledPixelSize = exec([=] {
-        return pointer()->cursorSurface()->m_committed.buffer->size();
+        return cursorSurface()->m_committed.buffer->size();
     });
 
     exec([=] {
-        auto *surface = pointer()->cursorSurface();
+        auto *surface = cursorSurface();
         surface->sendEnter(getAll<Output>()[1]);
         surface->sendLeave(getAll<Output>()[0]);
     });
 
-    QCOMPOSITOR_TRY_COMPARE(pointer()->cursorSurface()->m_committed.buffer->size(), unscaledPixelSize * 2);
+    QCOMPOSITOR_TRY_COMPARE(cursorSurface()->m_committed.buffer->size(), unscaledPixelSize * 2);
 
     // Remove the extra output to clean up for the next test
     exec([&] { remove(output(1)); });
@@ -380,11 +380,11 @@ void tst_seatv4::unscaledFallbackCursor()
     window.show();
     QCOMPOSITOR_TRY_VERIFY(xdgSurface() && xdgSurface()->m_committedConfigureSerial);
     exec([=] { pointer()->sendEnter(xdgSurface()->m_surface, {32, 32}); });
-    QCOMPOSITOR_TRY_VERIFY(pointer()->cursorSurface());
-    QCOMPOSITOR_TRY_VERIFY(pointer()->cursorSurface()->m_committed.buffer);
-    QCOMPOSITOR_TRY_COMPARE(pointer()->cursorSurface()->m_committed.bufferScale, 1);
+    QCOMPOSITOR_TRY_VERIFY(cursorSurface());
+    QCOMPOSITOR_TRY_VERIFY(cursorSurface()->m_committed.buffer);
+    QCOMPOSITOR_TRY_COMPARE(cursorSurface()->m_committed.bufferScale, 1);
     QSize unscaledPixelSize = exec([=] {
-        return pointer()->cursorSurface()->m_committed.buffer->size();
+        return cursorSurface()->m_committed.buffer->size();
     });
 
     QCOMPARE(unscaledPixelSize.width(), int(defaultSize));
@@ -392,7 +392,7 @@ void tst_seatv4::unscaledFallbackCursor()
 
     for (int i = 1; i < screens; ++i) {
         exec([=] {
-            auto *surface = pointer()->cursorSurface();
+            auto *surface = cursorSurface();
             surface->sendEnter(getAll<Output>()[i]);
             surface->sendLeave(getAll<Output>()[i-1]);
         });
@@ -400,7 +400,7 @@ void tst_seatv4::unscaledFallbackCursor()
         xdgPingAndWaitForPong(); // Give the client a chance to mess up
 
         // Surface size (buffer size / scale) should stay constant
-        QCOMPOSITOR_TRY_COMPARE(pointer()->cursorSurface()->m_committed.buffer->size() / pointer()->cursorSurface()->m_committed.bufferScale, unscaledPixelSize);
+        QCOMPOSITOR_TRY_COMPARE(cursorSurface()->m_committed.buffer->size() / cursorSurface()->m_committed.bufferScale, unscaledPixelSize);
     }
 
     // Remove the extra outputs to clean up for the next test
@@ -430,14 +430,14 @@ void tst_seatv4::bitmapCursor()
     QCOMPOSITOR_TRY_VERIFY(xdgSurface() && xdgSurface()->m_committedConfigureSerial);
 
     exec([=] { pointer()->sendEnter(xdgSurface()->m_surface, {32, 32}); });
-    QCOMPOSITOR_TRY_VERIFY(pointer()->cursorSurface());
-    QCOMPOSITOR_TRY_VERIFY(pointer()->cursorSurface()->m_committed.buffer);
-    QCOMPOSITOR_COMPARE(pointer()->cursorSurface()->m_committed.buffer->size(), QSize(24, 24));
-    QCOMPOSITOR_COMPARE(pointer()->cursorSurface()->m_committed.bufferScale, 1);
+    QCOMPOSITOR_TRY_VERIFY(cursorSurface());
+    QCOMPOSITOR_TRY_VERIFY(cursorSurface()->m_committed.buffer);
+    QCOMPOSITOR_COMPARE(cursorSurface()->m_committed.buffer->size(), QSize(24, 24));
+    QCOMPOSITOR_COMPARE(cursorSurface()->m_committed.bufferScale, 1);
     QCOMPOSITOR_COMPARE(pointer()->m_hotspot, QPoint(12, 12));
 
     exec([=] {
-        auto *surface = pointer()->cursorSurface();
+        auto *surface = cursorSurface();
         surface->sendEnter(getAll<Output>()[1]);
         surface->sendLeave(getAll<Output>()[0]);
     });
@@ -445,8 +445,8 @@ void tst_seatv4::bitmapCursor()
     xdgPingAndWaitForPong();
 
     // Everything should remain the same, the cursor still has dpr 1
-    QCOMPOSITOR_COMPARE(pointer()->cursorSurface()->m_committed.bufferScale, 1);
-    QCOMPOSITOR_COMPARE(pointer()->cursorSurface()->m_committed.buffer->size(), QSize(24, 24));
+    QCOMPOSITOR_COMPARE(cursorSurface()->m_committed.bufferScale, 1);
+    QCOMPOSITOR_COMPARE(cursorSurface()->m_committed.buffer->size(), QSize(24, 24));
     QCOMPOSITOR_COMPARE(pointer()->m_hotspot, QPoint(12, 12));
 
     // Remove the extra output to clean up for the next test
@@ -476,22 +476,22 @@ void tst_seatv4::hidpiBitmapCursor()
     QCOMPOSITOR_TRY_VERIFY(xdgSurface() && xdgSurface()->m_committedConfigureSerial);
 
     exec([=] { pointer()->sendEnter(xdgSurface()->m_surface, {32, 32}); });
-    QCOMPOSITOR_TRY_VERIFY(pointer()->cursorSurface());
-    QCOMPOSITOR_TRY_VERIFY(pointer()->cursorSurface()->m_committed.buffer);
-    QCOMPOSITOR_COMPARE(pointer()->cursorSurface()->m_committed.buffer->size(), QSize(48, 48));
-    QCOMPOSITOR_COMPARE(pointer()->cursorSurface()->m_committed.bufferScale, 2);
+    QCOMPOSITOR_TRY_VERIFY(cursorSurface());
+    QCOMPOSITOR_TRY_VERIFY(cursorSurface()->m_committed.buffer);
+    QCOMPOSITOR_COMPARE(cursorSurface()->m_committed.buffer->size(), QSize(48, 48));
+    QCOMPOSITOR_COMPARE(cursorSurface()->m_committed.bufferScale, 2);
     QCOMPOSITOR_COMPARE(pointer()->m_hotspot, QPoint(12, 12));
 
     exec([=] {
-        auto *surface = pointer()->cursorSurface();
+        auto *surface = cursorSurface();
         surface->sendEnter(getAll<Output>()[1]);
         surface->sendLeave(getAll<Output>()[0]);
     });
 
     xdgPingAndWaitForPong();
 
-    QCOMPOSITOR_COMPARE(pointer()->cursorSurface()->m_committed.bufferScale, 2);
-    QCOMPOSITOR_COMPARE(pointer()->cursorSurface()->m_committed.buffer->size(), QSize(48, 48));
+    QCOMPOSITOR_COMPARE(cursorSurface()->m_committed.bufferScale, 2);
+    QCOMPOSITOR_COMPARE(cursorSurface()->m_committed.buffer->size(), QSize(48, 48));
     QCOMPOSITOR_COMPARE(pointer()->m_hotspot, QPoint(12, 12));
 
     // Remove the extra output to clean up for the next test
@@ -513,10 +513,10 @@ void tst_seatv4::hidpiBitmapCursorNonInt()
     QCOMPOSITOR_TRY_VERIFY(xdgSurface() && xdgSurface()->m_committedConfigureSerial);
 
     exec([=] { pointer()->sendEnter(xdgSurface()->m_surface, {32, 32}); });
-    QCOMPOSITOR_TRY_VERIFY(pointer()->cursorSurface());
-    QCOMPOSITOR_TRY_VERIFY(pointer()->cursorSurface()->m_committed.buffer);
-    QCOMPOSITOR_COMPARE(pointer()->cursorSurface()->m_committed.buffer->size(), QSize(100, 100));
-    QCOMPOSITOR_COMPARE(pointer()->cursorSurface()->m_committed.bufferScale, 2);
+    QCOMPOSITOR_TRY_VERIFY(cursorSurface());
+    QCOMPOSITOR_TRY_VERIFY(cursorSurface()->m_committed.buffer);
+    QCOMPOSITOR_COMPARE(cursorSurface()->m_committed.buffer->size(), QSize(100, 100));
+    QCOMPOSITOR_COMPARE(cursorSurface()->m_committed.bufferScale, 2);
     // Verify that the hotspot was scaled correctly
     // Surface size is now 100 / 2 = 50, so the middle should be at 25 in surface coordinates
     QCOMPOSITOR_COMPARE(pointer()->m_hotspot, QPoint(25, 25));

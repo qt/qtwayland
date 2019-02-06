@@ -70,6 +70,7 @@ private slots:
     void createsPointer();
     void setsCursorOnEnter();
     void usesEnterSerial();
+    void focusDestruction();
     void mousePress();
     void simpleAxis_data();
     void simpleAxis();
@@ -147,10 +148,41 @@ void tst_seatv4::usesEnterSerial()
     uint enterSerial = exec([=] {
         return pointer()->sendEnter(xdgSurface()->m_surface, {32, 32});
     });
-    QCOMPOSITOR_TRY_VERIFY(pointer()->cursorSurface());
+    QCOMPOSITOR_TRY_VERIFY(cursorSurface());
 
     QTRY_COMPARE(setCursorSpy.count(), 1);
     QCOMPARE(setCursorSpy.takeFirst().at(0).toUInt(), enterSerial);
+}
+
+void tst_seatv4::focusDestruction()
+{
+    QSignalSpy setCursorSpy(exec([=] { return pointer(); }), &Pointer::setCursor);
+    QRasterWindow window;
+    window.resize(64, 64);
+    window.show();
+    QCOMPOSITOR_TRY_VERIFY(xdgSurface() && xdgSurface()->m_committedConfigureSerial);
+    // Setting a cursor now is not allowed since there has been no enter event
+    QCOMPARE(setCursorSpy.count(), 0);
+
+    uint enterSerial = exec([=] {
+        return pointer()->sendEnter(xdgSurface()->m_surface, {32, 32});
+    });
+    QCOMPOSITOR_TRY_VERIFY(cursorSurface());
+    QTRY_COMPARE(setCursorSpy.count(), 1);
+    QCOMPARE(setCursorSpy.takeFirst().at(0).toUInt(), enterSerial);
+
+    // Destroy the focus
+    window.close();
+
+    QRasterWindow window2;
+    window2.resize(64, 64);
+    window2.show();
+    window2.setCursor(Qt::WaitCursor);
+    QCOMPOSITOR_TRY_VERIFY(xdgSurface() && xdgSurface()->m_committedConfigureSerial);
+
+    // Setting a cursor now is not allowed since there has been no enter event
+    xdgPingAndWaitForPong();
+    QCOMPARE(setCursorSpy.count(), 0);
 }
 
 void tst_seatv4::mousePress()

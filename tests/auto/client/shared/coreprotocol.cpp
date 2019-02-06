@@ -261,6 +261,7 @@ uint Pointer::sendEnter(Surface *surface, const QPointF &position)
 
     uint serial = m_seat->m_compositor->nextSerial();
     m_enterSerials << serial;
+    m_cursorRole = nullptr; // According to the protocol, the pointer image is undefined after enter
 
     wl_client *client = surface->resource()->client();
     const auto pointerResources = resourceMap().values(client);
@@ -320,9 +321,8 @@ void Pointer::pointer_set_cursor(Resource *resource, uint32_t serial, wl_resourc
     QVERIFY(s);
 
     if (s->m_role) {
-        auto *cursorRole = CursorRole::fromSurface(s);
-        QVERIFY(cursorRole);
-        QVERIFY(cursorRole == m_cursorRole);
+        m_cursorRole = CursorRole::fromSurface(s);
+        QVERIFY(m_cursorRole);
     } else {
         m_cursorRole = new CursorRole(s); //TODO: make sure we don't leak CursorRole
         s->m_role = m_cursorRole;

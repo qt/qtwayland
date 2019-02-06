@@ -209,7 +209,9 @@ public:
 
     void hide()
     {
-        m_pointer->set_cursor(m_pointer->mEnterSerial, nullptr, 0, 0);
+        uint serial = m_pointer->mEnterSerial;
+        Q_ASSERT(serial);
+        m_pointer->set_cursor(serial, nullptr, 0, 0);
         m_setSerial = 0;
     }
 
@@ -581,7 +583,16 @@ void QWaylandInputDevice::Pointer::pointer_enter(uint32_t serial, struct wl_surf
         return;
 
     QWaylandWindow *window = QWaylandWindow::fromWlSurface(surface);
+
+    if (mFocus) {
+        qWarning(lcQpaWayland) << "The compositor sent a wl_pointer.enter event before sending a"
+                               << "leave event first, this is not allowed by the wayland protocol"
+                               << "attempting to work around it by invalidating the current focus";
+        invalidateFocus();
+    }
     mFocus = window;
+    connect(mFocus, &QWaylandWindow::wlSurfaceDestroyed, this, &Pointer::handleFocusDestroyed);
+
     mSurfacePos = QPointF(wl_fixed_to_double(sx), wl_fixed_to_double(sy));
     mGlobalPos = window->window()->mapToGlobal(mSurfacePos.toPoint());
 
@@ -611,7 +622,8 @@ void QWaylandInputDevice::Pointer::pointer_leave(uint32_t time, struct wl_surfac
         QWaylandWindow *window = QWaylandWindow::fromWlSurface(surface);
         window->handleMouseLeave(mParent);
     }
-    mFocus = nullptr;
+
+    invalidateFocus();
     mButtons = Qt::NoButton;
 
     mParent->mTime = time;
@@ -712,6 +724,13 @@ void QWaylandInputDevice::Pointer::pointer_button(uint32_t serial, uint32_t time
         MotionEvent e(time, mSurfacePos, mGlobalPos, mButtons, mParent->modifiers());
         window->handleMouse(mParent, e);
     }
+}
+
+void QWaylandInputDevice::Pointer::invalidateFocus()
+{
+    disconnect(mFocus, &QWaylandWindow::wlSurfaceDestroyed, this, &Pointer::handleFocusDestroyed);
+    mFocus = nullptr;
+    mEnterSerial = 0;
 }
 
 void QWaylandInputDevice::Pointer::releaseButtons()

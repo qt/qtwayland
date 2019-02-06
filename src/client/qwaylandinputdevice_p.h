@@ -250,8 +250,9 @@ private:
 
 };
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandInputDevice::Pointer : public QtWayland::wl_pointer
+class Q_WAYLAND_CLIENT_EXPORT QWaylandInputDevice::Pointer : public QObject, public QtWayland::wl_pointer
 {
+    Q_OBJECT
 public:
     explicit Pointer(QWaylandInputDevice *seat);
     ~Pointer() override;
@@ -277,6 +278,12 @@ protected:
                       uint32_t axis,
                       wl_fixed_t value) override;
 
+private slots:
+    void handleFocusDestroyed() { invalidateFocus(); }
+
+private:
+    void invalidateFocus();
+
 public:
     void releaseButtons();
 
@@ -285,7 +292,6 @@ public:
     uint32_t mEnterSerial = 0;
 #if QT_CONFIG(cursor)
     struct {
-        uint32_t serial = 0;
         QWaylandCursorTheme *theme = nullptr;
         int themeBufferScale = 0;
         QScopedPointer<CursorSurface> surface;

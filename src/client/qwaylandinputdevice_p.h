@@ -69,7 +69,8 @@
 #endif
 
 #include <QtCore/QDebug>
-#include <QPointer>
+#include <QtCore/QElapsedTimer>
+#include <QtCore/QPointer>
 
 #if QT_CONFIG(cursor)
 struct wl_cursor_image;
@@ -153,6 +154,7 @@ private:
         Qt::CursorShape shape = Qt::ArrowCursor;
         int fallbackOutputScale = 1;
         QPoint hotspot;
+        QElapsedTimer animationTimer;
     } mCursor;
 #endif
 

@@ -80,6 +80,7 @@ private slots:
     void bitmapCursor();
     void hidpiBitmapCursor();
     void hidpiBitmapCursorNonInt();
+    void animatedCursor();
 #endif
 };
 
@@ -552,6 +553,36 @@ void tst_seatv4::hidpiBitmapCursorNonInt()
     // Verify that the hotspot was scaled correctly
     // Surface size is now 100 / 2 = 50, so the middle should be at 25 in surface coordinates
     QCOMPOSITOR_COMPARE(pointer()->m_hotspot, QPoint(25, 25));
+}
+
+void tst_seatv4::animatedCursor()
+{
+    QRasterWindow window;
+    window.resize(64, 64);
+    window.setCursor(Qt::WaitCursor); // TODO: verify that the theme has an animated wait cursor or skip test
+    window.show();
+    QCOMPOSITOR_TRY_VERIFY(xdgSurface() && xdgSurface()->m_committedConfigureSerial);
+
+    exec([=] { pointer()->sendEnter(xdgSurface()->m_surface, {32, 32}); });
+    QCOMPOSITOR_TRY_VERIFY(cursorSurface());
+
+    // We should get the first buffer without waiting for a frame callback
+    QCOMPOSITOR_TRY_VERIFY(cursorSurface()->m_committed.buffer);
+    QSignalSpy bufferSpy(exec([=] { return cursorSurface(); }), &Surface::bufferCommitted);
+
+    exec([&] {
+        // Make sure no extra buffers have arrived
+        QVERIFY(bufferSpy.empty());
+
+        // The client should send a frame request in order to time animations correctly
+        QVERIFY(!cursorSurface()->m_waitingFrameCallbacks.empty());
+
+        // Tell the client it's time to animate
+        cursorSurface()->sendFrameCallbacks();
+    });
+
+    // Verify that we get a new cursor buffer
+    QTRY_COMPARE(bufferSpy.count(), 1);
 }
 
 #endif // QT_CONFIG(cursor)

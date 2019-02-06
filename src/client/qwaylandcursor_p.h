@@ -75,7 +75,7 @@ class Q_WAYLAND_CLIENT_EXPORT QWaylandCursorTheme
 public:
     static QWaylandCursorTheme *create(QWaylandShm *shm, int size, const QString &themeName);
     ~QWaylandCursorTheme();
-    struct wl_cursor_image *cursorImage(Qt::CursorShape shape);
+    ::wl_cursor_image *cursorImage(Qt::CursorShape shape, uint millisecondsIntoAnimation = 0);
 
 private:
     enum WaylandCursor {

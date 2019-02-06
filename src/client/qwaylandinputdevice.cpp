@@ -191,6 +191,27 @@ QWaylandInputDevice::Pointer::~Pointer()
 
 #if QT_CONFIG(cursor)
 
+class WlCallback : public QtWayland::wl_callback {
+public:
+    explicit WlCallback(::wl_callback *callback, std::function<void(uint32_t)> fn, bool autoDelete = false)
+        : QtWayland::wl_callback(callback)
+        , m_fn(fn)
+        , m_autoDelete(autoDelete)
+    {}
+    ~WlCallback() override { wl_callback_destroy(object()); }
+    bool done() const { return m_done; }
+    void callback_done(uint32_t callback_data) override {
+        m_done = true;
+        m_fn(callback_data);
+        if (m_autoDelete)
+            delete this;
+    }
+private:
+    bool m_done = false;
+    std::function<void(uint32_t)> m_fn;
+    bool m_autoDelete = false;
+};
+
 class CursorSurface : public QWaylandSurface
 {
 public:
@@ -213,7 +234,7 @@ public:
     }
 
     // Size and hotspot are in surface coordinates
-    void update(wl_buffer *buffer, const QPoint &hotspot, const QSize &size, int bufferScale)
+    void update(wl_buffer *buffer, const QPoint &hotspot, const QSize &size, int bufferScale, bool animated = false)
     {
         // Calling code needs to ensure buffer scale is supported if != 1
         Q_ASSERT(bufferScale == 1 || m_version >= 3);
@@ -230,6 +251,13 @@ public:
 
         attach(buffer, 0, 0);
         damage(0, 0, size.width(), size.height());
+        m_frameCallback.reset();
+        if (animated) {
+            m_frameCallback.reset(new WlCallback(frame(), [this](uint32_t time){
+               Q_UNUSED(time);
+               m_pointer->updateCursor();
+            }));
+        }
         commit();
     }
 
@@ -242,6 +270,7 @@ public:
     }
 
 private:
+    QScopedPointer<WlCallback> m_frameCallback;
     QWaylandInputDevice::Pointer *m_pointer = nullptr;
     uint m_version = 0;
     uint m_setSerial = 0;
@@ -320,12 +349,14 @@ void QWaylandInputDevice::Pointer::updateCursor()
         updateCursorTheme();
 
     // Set from shape using theme
-    if (struct ::wl_cursor_image *image = mCursor.theme->cursorImage(shape)) {
+    uint time = seat()->mCursor.animationTimer.elapsed();
+    if (struct ::wl_cursor_image *image = mCursor.theme->cursorImage(shape, time)) {
         struct wl_buffer *buffer = wl_cursor_image_get_buffer(image);
         int bufferScale = mCursor.themeBufferScale;
         QPoint hotspot = QPoint(image->hotspot_x, image->hotspot_y) / bufferScale;
         QSize size = QSize(image->width, image->height) / bufferScale;
-        getOrCreateCursorSurface()->update(buffer, hotspot, size, bufferScale);
+        bool animated = image->delay > 0;
+        getOrCreateCursorSurface()->update(buffer, hotspot, size, bufferScale, animated);
         return;
     }
 
@@ -515,6 +546,7 @@ void QWaylandInputDevice::setCursor(const QCursor *cursor, const QSharedPointer<
     mCursor.shape = cursor ? cursor->shape() : Qt::ArrowCursor;
     mCursor.hotspot = cursor ? cursor->hotSpot() : QPoint();
     mCursor.fallbackOutputScale = fallbackOutputScale;
+    mCursor.animationTimer.start();
 
     if (mCursor.shape == Qt::BitmapCursor) {
         mCursor.bitmapBuffer = cachedBuffer ? cachedBuffer : QWaylandCursor::cursorBitmapBuffer(mQDisplay, cursor);

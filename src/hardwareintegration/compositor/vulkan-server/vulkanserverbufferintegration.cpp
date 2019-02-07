@@ -43,11 +43,14 @@
 
 #include <QtGui/QOpenGLContext>
 #include <QtGui/QOpenGLTexture>
-#include <QOffscreenSurface>
+#include <QtGui/QOffscreenSurface>
+#include <QtGui/qopengl.h>
 
 #include <QtCore/QDebug>
 
 QT_BEGIN_NAMESPACE
+
+static constexpr bool extraDebug = false;
 
 VulkanServerBuffer::VulkanServerBuffer(VulkanServerBufferIntegration *integration, const QImage &qimage, QtWayland::ServerBuffer::Format format)
     : QtWayland::ServerBuffer(qimage.size(),format)
@@ -73,6 +76,18 @@ VulkanServerBuffer::VulkanServerBuffer(VulkanServerBufferIntegration *integratio
     m_vImage = vulkanWrapper->createTextureImage(qimage);
     if (m_vImage)
         m_fd = vulkanWrapper->getImageInfo(m_vImage, &m_memorySize);
+}
+
+VulkanServerBuffer::VulkanServerBuffer(VulkanServerBufferIntegration *integration, VulkanImageWrapper *vImage, uint glInternalFormat, const QSize &size)
+    : QtWayland::ServerBuffer(size, QtWayland::ServerBuffer::Custom)
+    , m_integration(integration)
+    , m_width(size.width())
+    , m_height(size.height())
+    , m_vImage(vImage)
+    , m_glInternalFormat(glInternalFormat)
+{
+    auto vulkanWrapper = m_integration->vulkanWrapper();
+    m_fd = vulkanWrapper->getImageInfo(m_vImage, &m_memorySize);
 }
 
 VulkanServerBuffer::~VulkanServerBuffer()
@@ -140,7 +155,7 @@ bool VulkanServerBufferIntegration::supportsFormat(QtWayland::ServerBuffer::Form
         case QtWayland::ServerBuffer::RGBA32:
             return true;
         case QtWayland::ServerBuffer::A8:
-            return false; // TODO: add more formats
+            return false;
         default:
             return false;
     }
@@ -188,6 +203,22 @@ QtWayland::ServerBuffer *VulkanServerBufferIntegration::createServerBufferFromIm
         m_vulkanWrapper = new VulkanWrapper(current.context());
     }
     return new VulkanServerBuffer(this, qimage, format);
+}
+
+QtWayland::ServerBuffer *VulkanServerBufferIntegration::createServerBufferFromData(const QByteArray &data, const QSize &size, uint glInternalFormat)
+{
+    if (!m_vulkanWrapper) {
+        CurrentContext current;
+        m_vulkanWrapper = new VulkanWrapper(current.context());
+    }
+
+    auto *vImage = m_vulkanWrapper->createTextureImageFromData(reinterpret_cast<const uchar*>(data.constData()), data.size(), size, glInternalFormat);
+
+    if (vImage)
+        return new VulkanServerBuffer(this, vImage, glInternalFormat, size);
+
+    qCWarning(qLcWaylandCompositorHardwareIntegration) << "could not load compressed texture";
+    return nullptr;
 }
 
 QT_END_NAMESPACE

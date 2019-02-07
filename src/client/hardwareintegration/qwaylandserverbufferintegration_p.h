@@ -70,7 +70,8 @@ class Q_WAYLAND_CLIENT_EXPORT QWaylandServerBuffer
 public:
     enum Format {
         RGBA32,
-        A8
+        A8,
+        Custom
     };
 
     QWaylandServerBuffer();

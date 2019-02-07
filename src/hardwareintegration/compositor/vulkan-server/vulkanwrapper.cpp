@@ -51,6 +51,7 @@
 #include <set>
 
 #include <unistd.h>
+#include "vk_format.h"
 
 #include <QDebug>
 
@@ -80,6 +81,8 @@ public:
     explicit VulkanWrapperPrivate(QOpenGLContext *glContext);
 
     VulkanImageWrapper *createTextureImage(const QImage &img);
+    VulkanImageWrapper *createTextureImageFromData(const uchar *pixels, uint bufferSize, const QSize &size, VkFormat vkFormat);
+
     void freeTextureImage(VulkanImageWrapper *imageWrapper);
 
 private:
@@ -160,6 +163,7 @@ private:
     }
 
     int findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
+
     VulkanImageWrapper *createImage(VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, const QSize &size, int memSize);
     bool transitionImageLayout(VkImage image, VkFormat /*format*/, VkImageLayout oldLayout, VkImageLayout newLayout);
     bool createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
@@ -501,14 +505,17 @@ bool VulkanWrapperPrivate::createLogicalDevice()
 
 VulkanImageWrapper *VulkanWrapperPrivate::createTextureImage(const QImage &img)
 {
+    return createTextureImageFromData(img.constBits(), img.sizeInBytes(), img.size(), VK_FORMAT_R8G8B8A8_UNORM);
+}
+
+VulkanImageWrapper *VulkanWrapperPrivate::createTextureImageFromData(const uchar *pixels, uint bufferSize, const QSize &size, VkFormat vkFormat)
+{
     if (m_initFailed)
         return nullptr;
 
-    int texWidth = img.width();
-    int texHeight = img.height();
+    int texWidth = size.width();
+    int texHeight = size.height();
     bool ok;
-    const auto *pixels = img.constBits();
-    VkDeviceSize imageSize = img.sizeInBytes();
     if (extraDebug) qDebug("image load %p %dx%d", pixels, texWidth, texHeight);
     if (!pixels) {
         qCritical("VulkanWrapper: failed to load texture image!");
@@ -517,20 +524,20 @@ VulkanImageWrapper *VulkanWrapperPrivate::createTextureImage(const QImage &img)
 
     VkBuffer stagingBuffer;
     VkDeviceMemory stagingBufferMemory;
-    ok = createBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+    ok = createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
 
     if (!ok)
         return nullptr;
 
     void* data;
-    vkMapMemory(m_device, stagingBufferMemory, 0, imageSize, 0, &data);
-    if (extraDebug) qDebug() << "mapped" << data << imageSize;
-    memcpy(data, pixels, static_cast<size_t>(imageSize));
+    vkMapMemory(m_device, stagingBufferMemory, 0, bufferSize, 0, &data);
+    if (extraDebug) qDebug() << "mapped" << data << bufferSize;
+    memcpy(data, pixels, static_cast<size_t>(bufferSize));
     vkUnmapMemory(m_device, stagingBufferMemory);
 
     if (extraDebug) qDebug() << "creating image...";
 
-    QScopedPointer<VulkanImageWrapper> imageWrapper(createImage(VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, img.size(), imageSize));
+    QScopedPointer<VulkanImageWrapper> imageWrapper(createImage(vkFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, size, bufferSize));
     if (imageWrapper.isNull())
         return nullptr;
 
@@ -538,14 +545,14 @@ VulkanImageWrapper *VulkanWrapperPrivate::createTextureImage(const QImage &img)
 
     const VkImage textureImage = imageWrapper->textureImage;
 
-    ok = transitionImageLayout(textureImage, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+    ok = transitionImageLayout(textureImage, vkFormat, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 
     if (!ok)
         return nullptr;
 
     if (extraDebug) qDebug() << "copyBufferToImage...";
     copyBufferToImage(stagingBuffer, textureImage, static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight));
-    transitionImageLayout(textureImage, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+    transitionImageLayout(textureImage, vkFormat, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
     vkDestroyBuffer(m_device, stagingBuffer, nullptr);
     vkFreeMemory(m_device, stagingBufferMemory, nullptr);
@@ -674,8 +681,7 @@ VulkanWrapperPrivate::VulkanWrapperPrivate(QOpenGLContext *glContext)
 #ifdef VULKAN_SERVER_BUFFER_EXTRA_DEBUG
     qDebug() << "GPU memory type:" << gpuMemoryType << "heap:" << memProps.memoryTypes[gpuMemoryType].heapIndex;
 
-//  for (int f = 0; f <= VK_FORMAT_A8B8G8R8_SRGB_PACK32; f++)
-    int f = VK_FORMAT_R8G8B8A8_UNORM;
+    for (int f = 0; f <= VK_FORMAT_ASTC_12x12_SRGB_BLOCK; f++)
     {
         VkFormatProperties formatProps;
         vkGetPhysicalDeviceFormatProperties(dev[0], VkFormat(f), &formatProps);
@@ -694,6 +700,15 @@ VulkanWrapper::VulkanWrapper(QOpenGLContext *glContext)
 VulkanImageWrapper *VulkanWrapper::createTextureImage(const QImage &img)
 {
     return d_ptr->createTextureImage(img);
+}
+
+VulkanImageWrapper *VulkanWrapper::createTextureImageFromData(const uchar *pixels, uint bufferSize, const QSize &size, uint glInternalFormat)
+{
+    VkFormat vkFormat = VkFormat(vkGetFormatFromOpenGLInternalFormat(glInternalFormat));
+    if (vkFormat == VK_FORMAT_UNDEFINED)
+        return nullptr;
+
+    return d_ptr->createTextureImageFromData(pixels, bufferSize, size, vkFormat);
 }
 
 int VulkanWrapper::getImageInfo(const VulkanImageWrapper *imgWrapper, int *memSize, int *w, int *h)

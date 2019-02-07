@@ -57,6 +57,7 @@ public:
     VulkanWrapper(QOpenGLContext *glContext);
 
     VulkanImageWrapper *createTextureImage(const QImage &img);
+    VulkanImageWrapper *createTextureImageFromData(const uchar *pixels, uint bufferSize, const QSize &size, uint glInternalFormat);
     int getImageInfo(const VulkanImageWrapper *imgWrapper, int *memSize, int *w = nullptr, int *h = nullptr);
     void freeTextureImage(VulkanImageWrapper *imageWrapper);
 

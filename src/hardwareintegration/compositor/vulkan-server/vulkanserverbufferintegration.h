@@ -62,6 +62,7 @@ class VulkanServerBuffer : public QtWayland::ServerBuffer, public QtWaylandServe
 {
 public:
     VulkanServerBuffer(VulkanServerBufferIntegration *integration, const QImage &qimage, QtWayland::ServerBuffer::Format format);
+    VulkanServerBuffer(VulkanServerBufferIntegration *integration, VulkanImageWrapper *vImage, uint glInternalFormat, const QSize &size);
     ~VulkanServerBuffer() override;
 
     struct ::wl_resource *resourceForClient(struct ::wl_client *) override;
@@ -97,6 +98,8 @@ public:
 
     bool supportsFormat(QtWayland::ServerBuffer::Format format) const override;
     QtWayland::ServerBuffer *createServerBufferFromImage(const QImage &qimage, QtWayland::ServerBuffer::Format format) override;
+    QtWayland::ServerBuffer *createServerBufferFromData(const QByteArray &data, const QSize &size, uint glInternalFormat) override;
+
 private:
     VulkanWrapper *m_vulkanWrapper = nullptr;
 };

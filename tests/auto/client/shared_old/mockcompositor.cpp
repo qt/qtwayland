@@ -220,12 +220,14 @@ QSharedPointer<MockSurface> MockCompositor::surface()
 {
     QSharedPointer<MockSurface> result;
     lock();
-    QVector<Impl::Surface *> surfaces = m_compositor->surfaces();
-    foreach (Impl::Surface *surface, surfaces) {
-        // we don't want to mistake the cursor surface for a window surface
-        if (surface->isMapped()) {
-            result = surface->mockSurface();
-            break;
+    {
+        QVector<Impl::Surface *> surfaces = m_compositor->surfaces();
+        foreach (Impl::Surface *surface, surfaces) {
+            // we don't want to mistake the cursor surface for a window surface
+            if (surface->isMapped()) {
+                result = surface->mockSurface();
+                break;
+            }
         }
     }
     unlock();
@@ -307,7 +309,7 @@ void *MockCompositor::run(void *data)
 {
     MockCompositor *controller = static_cast<MockCompositor *>(data);
 
-    Impl::Compositor compositor;
+    Impl::Compositor compositor(controller);
 
     controller->m_compositor = &compositor;
     controller->m_waitCondition.wakeOne();
@@ -332,8 +334,8 @@ void *MockCompositor::run(void *data)
 
 namespace Impl {
 
-Compositor::Compositor()
-    : m_display(wl_display_create())
+Compositor::Compositor(MockCompositor *mockCompositor)
+    : m_mockCompositor(mockCompositor), m_display(wl_display_create())
 {
     if (wl_display_add_socket(m_display, 0)) {
         fprintf(stderr, "Fatal: Failed to open server socket\n");
@@ -445,15 +447,19 @@ uint32_t Compositor::nextSerial()
 
 void Compositor::addSurface(Surface *surface)
 {
+    m_mockCompositor->lock();
     m_surfaces << surface;
+    m_mockCompositor->unlock();
 }
 
 void Compositor::removeSurface(Surface *surface)
 {
+    m_mockCompositor->lock();
     m_surfaces.removeOne(surface);
     m_keyboard->handleSurfaceDestroyed(surface);
     m_pointer->handleSurfaceDestroyed(surface);
     m_fullScreenShellV1->removeSurface(surface);
+    m_mockCompositor->unlock();
 }
 
 Surface *Compositor::resolveSurface(const QVariant &v)

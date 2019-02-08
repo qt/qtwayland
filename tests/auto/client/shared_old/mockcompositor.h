@@ -45,6 +45,8 @@
 #include <QVector>
 #include <QWaitCondition>
 
+class MockCompositor;
+
 namespace Impl {
 
 typedef void (**Implementation)(void);
@@ -63,7 +65,7 @@ class XdgShellV6;
 class Compositor
 {
 public:
-    Compositor();
+    Compositor(MockCompositor *mockCompositor);
     ~Compositor();
 
     int fileDescriptor() const { return m_fd; }
@@ -114,6 +116,7 @@ private:
 
     void initShm();
 
+    MockCompositor *m_mockCompositor = nullptr;
     QRect m_outputGeometry;
 
     wl_display *m_display = nullptr;

@@ -42,6 +42,7 @@ private slots:
     void configureSize();
     void configureStates();
     void popup();
+    void tooltipOnPopup();
     void pongs();
     void minMaxSize();
     void windowGeometry();
@@ -250,6 +251,85 @@ void tst_xdgshell::popup()
         QVERIFY(buffer);
         QCOMPARE(buffer->size(), popup->frameGeometry().size());
     });
+}
+
+void tst_xdgshell::tooltipOnPopup()
+{
+    class Popup : public QRasterWindow {
+    public:
+        explicit Popup(QWindow *parent) {
+            setTransientParent(parent);
+            setFlags(Qt::Popup);
+            resize(100, 100);
+            show();
+        }
+        void mousePressEvent(QMouseEvent *event) override {
+            QRasterWindow::mousePressEvent(event);
+            m_tooltip = new QRasterWindow;
+            m_tooltip->setTransientParent(this);
+            m_tooltip->setFlags(Qt::ToolTip);
+            m_tooltip->resize(100, 100);
+            m_tooltip->show();
+        }
+        QWindow *m_tooltip = nullptr;
+    };
+
+    class Window : public QRasterWindow {
+    public:
+        void mousePressEvent(QMouseEvent *event) override {
+            QRasterWindow::mousePressEvent(event);
+            m_popup = new Popup(this);
+        }
+        Popup *m_popup = nullptr;
+    };
+
+    Window window;
+    window.resize(200, 200);
+    window.show();
+
+    QCOMPOSITOR_TRY_VERIFY(xdgToplevel());
+    exec([=] { xdgToplevel()->sendCompleteConfigure(); });
+    QCOMPOSITOR_TRY_VERIFY(xdgToplevel()->m_xdgSurface->m_committedConfigureSerial);
+
+    exec([=] {
+        auto *surface = xdgToplevel()->surface();
+        auto *p = pointer();
+        p->sendEnter(surface, {100, 100});
+//        p->sendFrame(); //TODO: uncomment when we support seat v5
+        p->sendButton(client(), BTN_LEFT, Pointer::button_state_pressed);
+        p->sendButton(client(), BTN_LEFT, Pointer::button_state_released);
+//        p->sendFrame();
+        p->sendLeave(surface);
+//        p->sendFrame();
+    });
+
+    QCOMPOSITOR_TRY_VERIFY(xdgPopup());
+    exec([=] { xdgPopup()->sendCompleteConfigure(QRect(100, 100, 100, 100)); });
+    QCOMPOSITOR_TRY_VERIFY(xdgPopup()->m_xdgSurface->m_committedConfigureSerial);
+    QCOMPOSITOR_TRY_VERIFY(xdgPopup()->m_grabbed);
+
+    exec([=] {
+        auto *surface = xdgPopup()->surface();
+        auto *p = pointer();
+        p->sendEnter(surface, {100, 100});
+//        p->sendFrame();
+        p->sendButton(client(), BTN_LEFT, Pointer::button_state_pressed);
+        p->sendButton(client(), BTN_LEFT, Pointer::button_state_released);
+//        p->sendFrame();
+    });
+
+    QCOMPOSITOR_TRY_VERIFY(xdgPopup(1));
+    exec([=] { xdgPopup(1)->sendCompleteConfigure(QRect(100, 100, 100, 100)); });
+    QCOMPOSITOR_TRY_VERIFY(xdgPopup(1)->m_xdgSurface->m_committedConfigureSerial);
+    QCOMPOSITOR_TRY_VERIFY(!xdgPopup(1)->m_grabbed);
+
+    // Close the middle popup (according protocol this should also destroy any nested popups)
+    window.m_popup->close();
+
+    // Close order is verified in XdgSurface::xdg_surface_destroy
+
+    QCOMPOSITOR_TRY_COMPARE(xdgPopup(1), nullptr);
+    QCOMPOSITOR_TRY_COMPARE(xdgPopup(0), nullptr);
 }
 
 void tst_xdgshell::pongs()

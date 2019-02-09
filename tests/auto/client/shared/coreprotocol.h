@@ -275,7 +275,10 @@ public:
     explicit Pointer(Seat *seat) : m_seat(seat) {}
     Surface *cursorSurface();
     CursorRole* m_cursorRole = nullptr; //TODO: cleanup
+    void send_enter() = delete;
     uint sendEnter(Surface *surface, const QPointF &position);
+    void send_leave() = delete;
+    uint sendLeave(Surface *surface);
     void sendMotion(wl_client *client, const QPointF &position);
     uint sendButton(wl_client *client, uint button, uint state);
     void sendAxis(wl_client *client, axis axis, qreal value);

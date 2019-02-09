@@ -263,8 +263,20 @@ uint Pointer::sendEnter(Surface *surface, const QPointF &position)
     wl_client *client = surface->resource()->client();
     const auto pointerResources = resourceMap().values(client);
     for (auto *r : pointerResources)
-        send_enter(r->handle, m_enterSerial, surface->resource()->handle, x ,y);
+        wl_pointer::send_enter(r->handle, m_enterSerial, surface->resource()->handle, x ,y);
     return m_enterSerial;
+}
+
+uint Pointer::sendLeave(Surface *surface)
+{
+    m_enterSerial = 0;
+    uint serial = m_seat->m_compositor->nextSerial();
+
+    wl_client *client = surface->resource()->client();
+    const auto pointerResources = resourceMap().values(client);
+    for (auto *r : pointerResources)
+        wl_pointer::send_leave(r->handle, serial, surface->resource()->handle);
+    return serial;
 }
 
 // Make sure you call enter, frame etc. first

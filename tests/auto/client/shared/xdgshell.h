@@ -51,6 +51,7 @@ public:
     QVector<XdgSurface *> m_xdgSurfaces;
     XdgToplevel *toplevel(int i = 0);
     XdgPopup *popup(int i = 0);
+    XdgPopup *m_topmostGrabbingPopup = nullptr;
     CoreCompositor *m_compositor = nullptr;
 
 signals:
@@ -75,8 +76,13 @@ public:
     void send_configure(uint serial) = delete; // Use the one below instead, as it tracks state
     void sendConfigure(uint serial);
     uint sendConfigure();
+    bool isTopmostGrabbingPopup() const { return m_popup && m_xdgWmBase->m_topmostGrabbingPopup == m_popup; }
+    bool isValidPopupGrabParent() const { return isTopmostGrabbingPopup() || (m_toplevel && !m_xdgWmBase->m_topmostGrabbingPopup); }
+
+    // Role objects
     XdgToplevel *m_toplevel = nullptr;
     XdgPopup *m_popup = nullptr;
+
     XdgWmBase *m_xdgWmBase = nullptr;
     Surface *m_surface = nullptr;
     bool m_configureSent = false;
@@ -86,6 +92,7 @@ public:
     struct DoubleBufferedState {
         QRect windowGeometry = {0, 0, 0, 0};
     } m_pending, m_committed;
+    QVector<XdgPopup *> m_popups;
 
 public slots:
     void verifyConfigured() { QVERIFY(m_configureSent); }
@@ -98,7 +105,7 @@ protected:
     void xdg_surface_get_toplevel(Resource *resource, uint32_t id) override;
     void xdg_surface_get_popup(Resource *resource, uint32_t id, ::wl_resource *parent, ::wl_resource *positioner) override;
     void xdg_surface_destroy_resource(Resource *resource) override;
-    void xdg_surface_destroy(Resource *resource) override { wl_resource_destroy(resource->handle); }
+    void xdg_surface_destroy(Resource *resource) override;
     void xdg_surface_set_window_geometry(Resource *resource, int32_t x, int32_t y, int32_t width, int32_t height) override;
     void xdg_surface_ack_configure(Resource *resource, uint32_t serial) override;
 };
@@ -126,14 +133,17 @@ protected:
 class XdgPopup : public QtWaylandServer::xdg_popup
 {
 public:
-    explicit XdgPopup(XdgSurface *xdgSurface, int id, int version = 1);
+    explicit XdgPopup(XdgSurface *xdgSurface, XdgSurface *parent, int id, int version = 1);
     void sendConfigure(const QRect &geometry);
+    uint sendCompleteConfigure(const QRect &geometry);
     Surface *surface() { return m_xdgSurface->m_surface; }
     XdgSurface *m_xdgSurface = nullptr;
+    XdgSurface *m_parentXdgSurface = nullptr;
     bool m_grabbed = false;
     uint m_grabSerial = 0;
 protected:
     void xdg_popup_grab(Resource *resource, ::wl_resource *seat, uint32_t serial) override;
+    void xdg_popup_destroy(Resource *resource) override;
 };
 
 } // namespace MockCompositor

@@ -293,6 +293,13 @@ QWaylandDisplay *QWaylandIntegration::display() const
     return mDisplay.data();
 }
 
+QList<int> QWaylandIntegration::possibleKeys(const QKeyEvent *event) const
+{
+    if (auto *seat = mDisplay->currentInputDevice())
+        return seat->possibleKeys(event);
+    return {};
+}
+
 QStringList QWaylandIntegration::themeNames() const
 {
     return GenericWaylandTheme::themeNames();

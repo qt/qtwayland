@@ -106,6 +106,8 @@ public:
 
     QWaylandDisplay *display() const;
 
+    QList<int> possibleKeys(const QKeyEvent *event) const override;
+
     QStringList themeNames() const override;
 
     QPlatformTheme *createPlatformTheme(const QString &name) const override;

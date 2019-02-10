@@ -476,6 +476,17 @@ QPointF QWaylandInputDevice::pointerSurfacePosition() const
     return mPointer ? mPointer->mSurfacePos : QPointF();
 }
 
+QList<int> QWaylandInputDevice::possibleKeys(const QKeyEvent *event) const
+{
+#if QT_CONFIG(xkbcommon)
+    if (mKeyboard && mKeyboard->mXkbState)
+        return QXkbCommon::possibleKeys(mKeyboard->mXkbState.get(), event);
+#else
+    Q_UNUSED(event);
+#endif
+    return {};
+}
+
 Qt::KeyboardModifiers QWaylandInputDevice::modifiers() const
 {
     if (!mKeyboard)

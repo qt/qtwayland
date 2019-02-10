@@ -124,6 +124,8 @@ public:
     QWaylandWindow *keyboardFocus() const;
     QWaylandWindow *touchFocus() const;
 
+    QList<int> possibleKeys(const QKeyEvent *event) const;
+
     QPointF pointerSurfacePosition() const;
 
     Qt::KeyboardModifiers modifiers() const;
@@ -245,6 +247,7 @@ private:
     QXkbCommon::ScopedXKBKeymap mXkbKeymap;
     QXkbCommon::ScopedXKBState mXkbState;
 #endif
+    friend class QWaylandInputDevice;
 };
 
 class Q_WAYLAND_CLIENT_EXPORT QWaylandInputDevice::Pointer : public QObject, public QtWayland::wl_pointer

@@ -366,6 +366,13 @@ void QWaylandKeyboardPrivate::createXKBKeymap()
     QByteArray variant = keymap->variant().toLocal8Bit();
     QByteArray options = keymap->options().toLocal8Bit();
 
+    if (!layout.isEmpty() && !layout.contains("us")) {
+        // This is needed for shortucts like "ctrl+c" to function even when
+        // user has selected only non-latin keyboard layouts, e.g. 'ru'.
+        layout.append(",us");
+        variant.append(",");
+    }
+
     struct xkb_rule_names rule_names = {
         rules.constData(),
         model.constData(),

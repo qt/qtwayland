@@ -50,6 +50,7 @@
 #endif
 #if QT_CONFIG(wayland_datadevice)
 #include "qwaylanddatadevicemanager_p.h"
+#include "qwaylanddatadevice_p.h"
 #endif
 #if QT_CONFIG(cursor)
 #include <wayland-cursor.h>

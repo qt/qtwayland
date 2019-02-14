@@ -168,9 +168,9 @@ QWaylandInputDevice::Keyboard::~Keyboard()
         wl_keyboard_destroy(object());
 }
 
-void QWaylandInputDevice::Keyboard::stopRepeat()
+QWaylandWindow *QWaylandInputDevice::Keyboard::focusWindow() const
 {
-    mRepeatTimer.stop();
+    return mFocus ? QWaylandWindow::fromWlSurface(mFocus) : nullptr;
 }
 
 QWaylandInputDevice::Pointer::Pointer(QWaylandInputDevice *seat)
@@ -421,12 +421,6 @@ QWaylandInputDevice::Touch *QWaylandInputDevice::createTouch(QWaylandInputDevice
     return new Touch(device);
 }
 
-void QWaylandInputDevice::handleWindowDestroyed(QWaylandWindow *window)
-{
-    if (mKeyboard && window == mKeyboard->mFocus)
-        mKeyboard->stopRepeat();
-}
-
 void QWaylandInputDevice::handleEndDrag()
 {
     if (mTouch)
@@ -470,7 +464,7 @@ QWaylandWindow *QWaylandInputDevice::pointerFocus() const
 
 QWaylandWindow *QWaylandInputDevice::keyboardFocus() const
 {
-    return mKeyboard ? mKeyboard->mFocus : nullptr;
+    return mKeyboard ? mKeyboard->focusWindow() : nullptr;
 }
 
 QWaylandWindow *QWaylandInputDevice::touchFocus() const
@@ -767,12 +761,19 @@ void QWaylandInputDevice::Keyboard::keyboard_enter(uint32_t time, struct wl_surf
     Q_UNUSED(time);
     Q_UNUSED(keys);
 
-    if (!surface)
+    if (!surface) {
+        // Ignoring wl_keyboard.enter event with null surface. This is either a compositor bug,
+        // or it's a race with a wl_surface.destroy request. In either case, ignore the event.
         return;
+    }
 
+    if (mFocus) {
+        qCWarning(lcQpaWayland()) << "Unexpected wl_keyboard.enter event. Keyboard already has focus";
+        disconnect(focusWindow(), &QWaylandWindow::wlSurfaceDestroyed, this, &Keyboard::handleFocusDestroyed);
+    }
 
-    QWaylandWindow *window = QWaylandWindow::fromWlSurface(surface);
-    mFocus = window;
+    mFocus = surface;
+    connect(focusWindow(), &QWaylandWindow::wlSurfaceDestroyed, this, &Keyboard::handleFocusDestroyed);
 
     mParent->mQDisplay->handleKeyboardFocusChanged(mParent);
 }
@@ -780,18 +781,20 @@ void QWaylandInputDevice::Keyboard::keyboard_enter(uint32_t time, struct wl_surf
 void QWaylandInputDevice::Keyboard::keyboard_leave(uint32_t time, struct wl_surface *surface)
 {
     Q_UNUSED(time);
-    Q_UNUSED(surface);
 
-    if (surface) {
-        QWaylandWindow *window = QWaylandWindow::fromWlSurface(surface);
-        window->unfocus();
+    if (!surface) {
+        // Either a compositor bug, or a race condition with wl_surface.destroy, ignore the event.
+        return;
     }
 
-    mFocus = nullptr;
-
-    mParent->mQDisplay->handleKeyboardFocusChanged(mParent);
-
-    mRepeatTimer.stop();
+    if (surface != mFocus) {
+        qCWarning(lcQpaWayland) << "Ignoring unexpected wl_keyboard.leave event."
+                                << "wl_surface argument does not match the current focus"
+                                << "This is most likely a compositor bug";
+        return;
+    }
+    disconnect(focusWindow(), &QWaylandWindow::wlSurfaceDestroyed, this, &Keyboard::handleFocusDestroyed);
+    handleFocusLost();
 }
 
 static void sendKey(QWindow *tlw, ulong timestamp, QEvent::Type type, int key, Qt::KeyboardModifiers modifiers,
@@ -816,7 +819,7 @@ static void sendKey(QWindow *tlw, ulong timestamp, QEvent::Type type, int key, Q
 
 void QWaylandInputDevice::Keyboard::keyboard_key(uint32_t serial, uint32_t time, uint32_t key, uint32_t state)
 {
-    QWaylandWindow *window = mFocus;
+    auto *window = focusWindow();
     if (!window) {
         // We destroyed the keyboard focus surface, but the server didn't get the message yet...
         // or the server didn't send an enter event first. In either case, ignore the event.
@@ -896,14 +899,15 @@ void QWaylandInputDevice::Keyboard::keyboard_key(uint32_t serial, uint32_t time,
 
 void QWaylandInputDevice::Keyboard::repeatKey()
 {
-    if (!mFocus) {
+    auto *window = focusWindow();
+    if (!window) {
         // We destroyed the keyboard focus surface, but the server didn't get the message yet...
         // or the server didn't send an enter event first.
         return;
     }
 
     mRepeatTimer.setInterval(mRepeatRate);
-    sendKey(mFocus->window(), mRepeatTime, QEvent::KeyRelease, mRepeatKey, modifiers(), mRepeatCode,
+    sendKey(window->window(), mRepeatTime, QEvent::KeyRelease, mRepeatKey, modifiers(), mRepeatCode,
 #if QT_CONFIG(xkbcommon)
             mRepeatSym, mNativeModifiers,
 #else
@@ -911,13 +915,34 @@ void QWaylandInputDevice::Keyboard::repeatKey()
 #endif
             mRepeatText, true);
 
-    sendKey(mFocus->window(), mRepeatTime, QEvent::KeyPress, mRepeatKey, modifiers(), mRepeatCode,
+    sendKey(window->window(), mRepeatTime, QEvent::KeyPress, mRepeatKey, modifiers(), mRepeatCode,
 #if QT_CONFIG(xkbcommon)
             mRepeatSym, mNativeModifiers,
 #else
             0, 0,
 #endif
             mRepeatText, true);
+}
+
+void QWaylandInputDevice::Keyboard::handleFocusDestroyed()
+{
+    // The signal is emitted by QWaylandWindow, which is not necessarily destroyed along with the
+    // surface, so we still need to disconnect the signal
+    auto *window = qobject_cast<QWaylandWindow *>(sender());
+    disconnect(window, &QWaylandWindow::wlSurfaceDestroyed, this, &Keyboard::handleFocusDestroyed);
+    Q_ASSERT(window->object() == mFocus);
+    handleFocusLost();
+}
+
+void QWaylandInputDevice::Keyboard::handleFocusLost()
+{
+    mFocus = nullptr;
+#if QT_CONFIG(clipboard)
+    if (auto *dataDevice = mParent->dataDevice())
+        dataDevice->invalidateSelectionOffer();
+#endif
+    mParent->mQDisplay->handleKeyboardFocusChanged(mParent);
+    mRepeatTimer.stop();
 }
 
 void QWaylandInputDevice::Keyboard::keyboard_modifiers(uint32_t serial,
@@ -1021,7 +1046,7 @@ void QWaylandInputDevice::handleTouchPoint(int id, double x, double y, Qt::Touch
         if (!win && mPointer)
             win = mPointer->mFocus;
         if (!win && mKeyboard)
-            win = mKeyboard->mFocus;
+            win = mKeyboard->focusWindow();
         if (!win || !win->window())
             return;
 

@@ -113,7 +113,6 @@ public:
 #if QT_CONFIG(cursor)
     void setCursor(const QCursor *cursor, const QSharedPointer<QWaylandBuffer> &cachedBuffer = {}, int fallbackOutputScale = 1);
 #endif
-    void handleWindowDestroyed(QWaylandWindow *window);
     void handleEndDrag();
 
 #if QT_CONFIG(wayland_datadevice)
@@ -193,7 +192,7 @@ public:
     Keyboard(QWaylandInputDevice *p);
     ~Keyboard() override;
 
-    void stopRepeat();
+    QWaylandWindow *focusWindow() const;
 
     void keyboard_keymap(uint32_t format,
                          int32_t fd,
@@ -213,7 +212,7 @@ public:
     void keyboard_repeat_info(int32_t rate, int32_t delay) override;
 
     QWaylandInputDevice *mParent = nullptr;
-    QPointer<QWaylandWindow> mFocus;
+    ::wl_surface *mFocus = nullptr;
 #if QT_CONFIG(xkbcommon)
     xkb_context *mXkbContext = nullptr;
     xkb_keymap *mXkbMap = nullptr;
@@ -238,6 +237,8 @@ public:
 
 private slots:
     void repeatKey();
+    void handleFocusDestroyed();
+    void handleFocusLost();
 
 private:
 #if QT_CONFIG(xkbcommon)

@@ -153,7 +153,6 @@ public:
     void requestActivateWindow() override;
     bool isExposed() const override;
     bool isActive() const override;
-    void unfocus();
 
     QWaylandAbstractDecoration *decoration() const;
 
@@ -199,6 +198,9 @@ public:
 
 public slots:
     void applyConfigure();
+
+signals:
+    void wlSurfaceDestroyed();
 
 protected:
     void surface_enter(struct ::wl_output *output) override;

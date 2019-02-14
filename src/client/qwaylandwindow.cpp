@@ -51,11 +51,6 @@
 #include "qwaylanddecorationfactory_p.h"
 #include "qwaylandshmbackingstore_p.h"
 
-#if QT_CONFIG(wayland_datadevice)
-#include "qwaylanddatadevice_p.h"
-#endif
-
-
 #include <QtCore/QFileInfo>
 #include <QtCore/QPointer>
 #include <QtCore/QRegularExpression>
@@ -94,10 +89,6 @@ QWaylandWindow::~QWaylandWindow()
 
     if (isInitialized())
         reset(false);
-
-    QList<QWaylandInputDevice *> inputDevices = mDisplay->inputDevices();
-    for (int i = 0; i < inputDevices.size(); ++i)
-        inputDevices.at(i)->handleWindowDestroyed(this);
 
     const QWindow *parent = window();
     foreach (QWindow *w, QGuiApplication::topLevelWindows()) {
@@ -236,8 +227,10 @@ void QWaylandWindow::reset(bool sendDestroyEvent)
     mShellSurface = nullptr;
     delete mSubSurfaceWindow;
     mSubSurfaceWindow = nullptr;
-    if (isInitialized())
+    if (isInitialized()) {
+        emit wlSurfaceDestroyed();
         destroy();
+    }
     mScreens.clear();
 
     if (mFrameCallback) {
@@ -970,16 +963,6 @@ void QWaylandWindow::restoreMouseCursor(QWaylandInputDevice *device)
 void QWaylandWindow::requestActivateWindow()
 {
     qCWarning(lcQpaWayland) << "Wayland does not support QWindow::requestActivate()";
-}
-
-void QWaylandWindow::unfocus()
-{
-#if QT_CONFIG(clipboard)
-    QWaylandInputDevice *inputDevice = mDisplay->currentInputDevice();
-    if (inputDevice && inputDevice->dataDevice()) {
-        inputDevice->dataDevice()->invalidateSelectionOffer();
-    }
-#endif
 }
 
 bool QWaylandWindow::isExposed() const

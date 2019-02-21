@@ -86,6 +86,7 @@ public:
     virtual bool bufferInUse() { return true; }
 
     virtual QOpenGLTexture *toOpenGlTexture() = 0;
+    virtual void releaseOpenGlTexture() {}
 
     virtual bool isYInverted() const;
 

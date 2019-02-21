@@ -68,6 +68,7 @@ public:
     struct ::wl_resource *resourceForClient(struct ::wl_client *) override;
     bool bufferInUse() override;
     QOpenGLTexture *toOpenGlTexture() override;
+    void releaseOpenGlTexture() override;
 
 protected:
     void server_buffer_release(Resource *resource) override;
@@ -82,6 +83,7 @@ private:
     VulkanImageWrapper *m_vImage = nullptr;
     QOpenGLTexture *m_texture = nullptr;
     uint m_glInternalFormat;
+    GLuint m_memoryObject;
 };
 
 class VulkanServerBufferIntegration :

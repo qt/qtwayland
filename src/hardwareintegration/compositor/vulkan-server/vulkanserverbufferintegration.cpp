@@ -49,8 +49,95 @@
 #include <QtCore/QDebug>
 
 QT_BEGIN_NAMESPACE
-
 static constexpr bool extraDebug = false;
+
+#define DECL_GL_FUNCTION(name, type) \
+    type name
+
+#define FIND_GL_FUNCTION(name, type) \
+    do { \
+        name = reinterpret_cast<type>(glContext->getProcAddress(#name)); \
+        if (!name) {                                                    \
+            qWarning() << "ERROR in GL proc lookup. Could not find " #name; \
+            return false;                                               \
+        } \
+    } while (0)
+
+struct VulkanServerBufferGlFunctions
+{
+    DECL_GL_FUNCTION(glCreateMemoryObjectsEXT, PFNGLCREATEMEMORYOBJECTSEXTPROC);
+    DECL_GL_FUNCTION(glImportMemoryFdEXT, PFNGLIMPORTMEMORYFDEXTPROC);
+    //DECL_GL_FUNCTION(glTextureStorageMem2DEXT, PFNGLTEXTURESTORAGEMEM2DEXTPROC);
+    DECL_GL_FUNCTION(glTexStorageMem2DEXT, PFNGLTEXSTORAGEMEM2DEXTPROC);
+    DECL_GL_FUNCTION(glDeleteMemoryObjectsEXT, PFNGLDELETEMEMORYOBJECTSEXTPROC);
+
+    bool init(QOpenGLContext *glContext)
+    {
+        FIND_GL_FUNCTION(glCreateMemoryObjectsEXT, PFNGLCREATEMEMORYOBJECTSEXTPROC);
+        FIND_GL_FUNCTION(glImportMemoryFdEXT, PFNGLIMPORTMEMORYFDEXTPROC);
+        //FIND_GL_FUNCTION(glTextureStorageMem2DEXT, PFNGLTEXTURESTORAGEMEM2DEXTPROC);
+        FIND_GL_FUNCTION(glTexStorageMem2DEXT, PFNGLTEXSTORAGEMEM2DEXTPROC);
+        FIND_GL_FUNCTION(glDeleteMemoryObjectsEXT, PFNGLDELETEMEMORYOBJECTSEXTPROC);
+
+        return true;
+    }
+    static bool create(QOpenGLContext *glContext);
+};
+
+static VulkanServerBufferGlFunctions *funcs = nullptr;
+
+//RAII
+class CurrentContext
+{
+public:
+    CurrentContext()
+    {
+        if (!QOpenGLContext::currentContext()) {
+            if (QOpenGLContext::globalShareContext()) {
+                if (!localContext) {
+                    localContext = new QOpenGLContext;
+                    localContext->setShareContext(QOpenGLContext::globalShareContext());
+                    localContext->create();
+                }
+                if (!offscreenSurface) {
+                    offscreenSurface = new QOffscreenSurface;
+                    offscreenSurface->setFormat(localContext->format());
+                    offscreenSurface->create();
+                }
+                localContext->makeCurrent(offscreenSurface);
+                localContextInUse = true;
+            } else {
+                qCritical("VulkanServerBufferIntegration: no globalShareContext");
+            }
+        }
+    }
+    ~CurrentContext()
+    {
+        if (localContextInUse)
+            localContext->doneCurrent();
+    }
+    QOpenGLContext *context() { return localContextInUse ? localContext : QOpenGLContext::currentContext(); }
+private:
+    static QOpenGLContext *localContext;
+    static QOffscreenSurface *offscreenSurface;
+    bool localContextInUse = false;
+};
+
+QOpenGLContext *CurrentContext::localContext = nullptr;
+QOffscreenSurface *CurrentContext::offscreenSurface = nullptr;
+
+bool VulkanServerBufferGlFunctions::create(QOpenGLContext *glContext)
+{
+    if (funcs)
+        return true;
+    funcs = new VulkanServerBufferGlFunctions;
+    if (!funcs->init(glContext)) {
+        delete funcs;
+        funcs = nullptr;
+        return false;
+    }
+    return true;
+}
 
 VulkanServerBuffer::VulkanServerBuffer(VulkanServerBufferIntegration *integration, const QImage &qimage, QtWayland::ServerBuffer::Format format)
     : QtWayland::ServerBuffer(qimage.size(),format)
@@ -116,16 +203,51 @@ struct ::wl_resource *VulkanServerBuffer::resourceForClient(struct ::wl_client *
 
 QOpenGLTexture *VulkanServerBuffer::toOpenGlTexture()
 {
-    if (!m_texture) {
-        //server-side texture support not implemented
-        qWarning("VulkanServerBuffer::toOpenGlTexture not supported.");
-    }
+    if (m_texture && m_texture->isCreated())
+        return m_texture;
+
+    CurrentContext current;
+
+    if (!funcs && !VulkanServerBufferGlFunctions::create(current.context()))
+        return nullptr;
+
+    funcs->glCreateMemoryObjectsEXT(1, &m_memoryObject);
+    if (extraDebug) qDebug() << "glCreateMemoryObjectsEXT" << hex << glGetError();
+    funcs->glImportMemoryFdEXT(m_memoryObject, m_memorySize, GL_HANDLE_TYPE_OPAQUE_FD_EXT, m_fd);
+    if (extraDebug) qDebug() << "glImportMemoryFdEXT" << hex << glGetError();
+
+
+    if (!m_texture)
+        m_texture = new QOpenGLTexture(QOpenGLTexture::Target2D);
+    m_texture->create();
+
+    GLuint texId = m_texture->textureId();
+    if (extraDebug) qDebug() << "created texture" << texId << hex << glGetError();
+
+    m_texture->bind();
+    if (extraDebug) qDebug() << "bound texture" << texId << hex << glGetError();
+    funcs->glTexStorageMem2DEXT(GL_TEXTURE_2D, 1, m_glInternalFormat, m_size.width(), m_size.height(), m_memoryObject, 0 );
+    if (extraDebug) qDebug() << "glTexStorageMem2DEXT" << hex << glGetError();
+    if (extraDebug) qDebug() << "format" << hex  << m_glInternalFormat << GL_RGBA8;
+
+
     return m_texture;
 }
 
+void VulkanServerBuffer::releaseOpenGlTexture()
+{
+    if (!m_texture || !m_texture->isCreated())
+        return;
+
+    CurrentContext current;
+    m_texture->destroy();
+    funcs->glDeleteMemoryObjectsEXT(1, &m_memoryObject);
+}
+
+
 bool VulkanServerBuffer::bufferInUse()
 {
-    return resourceMap().count() > 0;
+    return (m_texture && m_texture->isCreated()) || resourceMap().count() > 0;
 }
 
 void VulkanServerBuffer::server_buffer_release(Resource *resource)
@@ -160,41 +282,6 @@ bool VulkanServerBufferIntegration::supportsFormat(QtWayland::ServerBuffer::Form
             return false;
     }
 }
-
-//RAII
-class CurrentContext
-{
-public:
-    CurrentContext()
-    {
-        if (!QOpenGLContext::currentContext()) {
-            if (QOpenGLContext::globalShareContext()) {
-                localContext = new QOpenGLContext;
-                localContext->setShareContext(QOpenGLContext::globalShareContext());
-                localContext->create();
-
-                offscreenSurface = new QOffscreenSurface;
-                offscreenSurface->setFormat(localContext->format());
-                offscreenSurface->create();
-                localContext->makeCurrent(offscreenSurface);
-            } else {
-                qCritical("VulkanServerBufferIntegration: no globalShareContext");
-            }
-        }
-    }
-    ~CurrentContext()
-    {
-        if (localContext) {
-            localContext->doneCurrent();
-            delete localContext;
-            delete offscreenSurface;
-        }
-    }
-    QOpenGLContext *context() { return localContext ? localContext : QOpenGLContext::currentContext(); }
-private:
-    QOpenGLContext *localContext = nullptr;
-    QOffscreenSurface *offscreenSurface = nullptr;
-};
 
 QtWayland::ServerBuffer *VulkanServerBufferIntegration::createServerBufferFromImage(const QImage &qimage, QtWayland::ServerBuffer::Format format)
 {

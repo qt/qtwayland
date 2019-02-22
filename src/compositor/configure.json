@@ -1,5 +1,6 @@
 {
     "module": "waylandcompositor",
+    "condition": "module.gui",
     "depends": [
         "gui-private"
     ],

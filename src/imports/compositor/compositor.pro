@@ -1,7 +1,7 @@
 CXX_MODULE = qml
 TARGET  = qwaylandcompositorplugin
 TARGETPATH = QtWayland/Compositor
-IMPORT_VERSION = 1.3
+IMPORT_VERSION = 1.$$QT_MINOR_VERSION
 
 HEADERS += \
     qwaylandmousetracker_p.h
@@ -43,4 +43,5 @@ CONFIG(debug, debug|release): QML_FILES += $$COMPOSITOR_QML_FILES
 
 QT += quick-private qml-private gui-private core-private waylandcompositor waylandcompositor-private
 
+QMAKE_QMLPLUGINDUMP_FLAGS = -defaultplatform
 load(qml_plugin)

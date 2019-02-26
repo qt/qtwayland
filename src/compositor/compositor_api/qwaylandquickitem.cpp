@@ -1058,6 +1058,14 @@ bool QWaylandQuickItem::inputRegionContains(const QPointF &localPosition)
 }
 
 /*!
+ * \qmlmethod point WaylandQuickItem::mapToSurface(point point)
+ *
+ * Maps the given \a point in this item's coordinate system to the equivalent
+ * point within the Wayland surface's coordinate system, and returns the mapped
+ * coordinate.
+ */
+
+/*!
  * Maps the given \a point in this item's coordinate system to the equivalent
  * point within the Wayland surface's coordinate system, and returns the mapped
  * coordinate.
@@ -1075,8 +1083,18 @@ QPointF QWaylandQuickItem::mapToSurface(const QPointF &point) const
 }
 
 /*!
+ * \qmlmethod point WaylandQuickItem::mapFromSurface(point point)
+ * \since 5.13
+ *
  * Maps the given \a point in the Wayland surfaces's coordinate system to the equivalent
  * point within this item's coordinate system, and returns the mapped coordinate.
+ */
+
+/*!
+ * Maps the given \a point in the Wayland surfaces's coordinate system to the equivalent
+ * point within this item's coordinate system, and returns the mapped coordinate.
+ *
+ * \since 5.13
  */
 QPointF QWaylandQuickItem::mapFromSurface(const QPointF &point) const
 {

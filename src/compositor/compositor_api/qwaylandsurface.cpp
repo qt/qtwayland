@@ -481,6 +481,7 @@ bool QWaylandSurface::hasContent() const
 
 /*!
  * \qmlproperty rect QtWaylandCompositor::WaylandSurface::sourceGeometry
+ * \since 5.13
  *
  * This property describes the portion of the attached Wayland buffer that should
  * be drawn on the screen. The coordinates are from the corner of the buffer and are
@@ -493,6 +494,7 @@ bool QWaylandSurface::hasContent() const
 
 /*!
  * \property QWaylandSurface::sourceGeometry
+ * \since 5.13
  *
  * This property describes the portion of the attached QWaylandBuffer that should
  * be drawn on the screen. The coordinates are from the corner of the buffer and are
@@ -510,6 +512,7 @@ QRectF QWaylandSurface::sourceGeometry() const
 
 /*!
  * \qmlproperty size QtWaylandCompositor::WaylandSurface::destinationSize
+ * \since 5.13
  *
  * This property holds the size of this WaylandSurface in surface coordinates.
  *
@@ -519,6 +522,7 @@ QRectF QWaylandSurface::sourceGeometry() const
 
 /*!
  * \property QWaylandSurface::destinationSize
+ * \since 5.13
  *
  * This property holds the size of this WaylandSurface in surface coordinates.
  *

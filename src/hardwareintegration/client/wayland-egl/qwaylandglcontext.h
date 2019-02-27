@@ -87,14 +87,12 @@ private:
     QWaylandDisplay *m_display = nullptr;
     EGLContext m_context;
     EGLContext m_shareEGLContext;
+    EGLContext m_decorationsContext;
     EGLConfig m_config;
     QSurfaceFormat m_format;
     DecorationsBlitter *m_blitter = nullptr;
-    bool mUseNativeDefaultFbo = false;
     uint m_api;
     bool mSupportNonBlockingSwap = true;
-
-    friend class DecorationsBlitter;
 };
 
 }

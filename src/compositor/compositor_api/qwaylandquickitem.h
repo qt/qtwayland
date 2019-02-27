@@ -102,7 +102,7 @@ public:
     bool inputRegionContains(const QPointF &localPosition) const;
     bool inputRegionContains(const QPointF &localPosition);
     Q_INVOKABLE QPointF mapToSurface(const QPointF &point) const;
-    Q_INVOKABLE QPointF mapFromSurface(const QPointF &point) const;
+    Q_REVISION(13) Q_INVOKABLE QPointF mapFromSurface(const QPointF &point) const;
 
     bool sizeFollowsSurface() const;
     void setSizeFollowsSurface(bool sizeFollowsSurface);

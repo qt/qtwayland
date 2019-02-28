@@ -833,7 +833,6 @@ void QWaylandQuickItem::setOutput(QWaylandOutput *output)
  *
  * The default is false.
  */
-
 /*!
  * \property QWaylandQuickItem::bufferLocked
  *

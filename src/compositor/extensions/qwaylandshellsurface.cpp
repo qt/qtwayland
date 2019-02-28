@@ -87,7 +87,7 @@
  */
 
 /*!
- * \property QWaylandWlShellSurface::windowType
+ * \property QWaylandShellSurface::windowType
  *
  * This property holds the window type of the QWaylandShellSurface.
  */

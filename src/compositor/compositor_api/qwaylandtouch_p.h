@@ -80,8 +80,10 @@ public:
 
 private:
     void touch_release(Resource *resource) override;
+    int toSequentialWaylandId(int touchId);
 
     QWaylandSeat *seat = nullptr;
+    QVarLengthArray<int, 10> ids;
 };
 
 QT_END_NAMESPACE

@@ -276,6 +276,10 @@ void QWaylandSeat::sendKeyReleaseEvent(uint code)
  * Sends a touch point event to the \a surface on a touch device with the given
  * \a id, \a point and \a state.
  *
+ * \warning This API should not be used in combination with forwarding of touch
+ * events using \l QWaylandQuickItem::touchEventsEnabled or \l sendFullTouchEvent,
+ * as it might lead to conflicting touch ids.
+ *
  * Returns the serial for the touch up or touch down event.
  */
 uint QWaylandSeat::sendTouchPointEvent(QWaylandSurface *surface, int id, const QPointF &point, Qt::TouchPointState state)
@@ -297,6 +301,10 @@ uint QWaylandSeat::sendTouchPointEvent(QWaylandSurface *surface, int id, const Q
  * \note You need to send a touch frame event when you are done sending touch
  * events.
  *
+ * \warning This API should not be used in combination with forwarding of touch
+ * events using \l WaylandQuickItem::touchEventsEnabled, as it might lead to
+ * conflicting touch ids.
+ *
  * Returns the serial for the touch down event.
  */
 
@@ -306,6 +314,10 @@ uint QWaylandSeat::sendTouchPointEvent(QWaylandSurface *surface, int id, const Q
  *
  * \note You need to send a touch frame event when you are done sending touch
  * events.
+ *
+ * \warning This API should not be used in combination with forwarding of touch
+ * events using \l QWaylandQuickItem::touchEventsEnabled or \l sendFullTouchEvent,
+ * as it might lead to conflicting touch ids.
  *
  * Returns the serial for the touch down event.
  */
@@ -323,6 +335,10 @@ uint QWaylandSeat::sendTouchPointPressed(QWaylandSurface *surface, int id, const
  * \note You need to send a touch frame event when you are done sending touch
  * events.
  *
+ * \warning This API should not be used in combination with forwarding of touch
+ * events using \l WaylandQuickItem::touchEventsEnabled, as it might lead to
+ * conflicting touch ids.
+ *
  * Returns the serial for the touch up event.
  */
 
@@ -332,6 +348,10 @@ uint QWaylandSeat::sendTouchPointPressed(QWaylandSurface *surface, int id, const
  *
  * \note You need to send a touch frame event when you are done sending touch
  * events.
+ *
+ * \warning This API should not be used in combination with forwarding of touch
+ * events using \l QWaylandQuickItem::touchEventsEnabled or \l sendFullTouchEvent,
+ * as it might lead to conflicting touch ids.
  *
  * Returns the serial for the touch up event.
  */
@@ -349,6 +369,10 @@ uint QWaylandSeat::sendTouchPointReleased(QWaylandSurface *surface, int id, cons
  * \note You need to send a touch frame event when you are done sending touch
  * events.
  *
+ * \warning This API should not be used in combination with forwarding of touch
+ * events using \l WaylandQuickItem::touchEventsEnabled, as it might lead to
+ * conflicting touch ids.
+ *
  * Returns the serial for the touch motion event.
  */
 
@@ -358,6 +382,10 @@ uint QWaylandSeat::sendTouchPointReleased(QWaylandSurface *surface, int id, cons
  *
  * \note You need to send a touch frame event when you are done sending touch
  * events.
+ *
+ * \warning This API should not be used in combination with forwarding of touch
+ * events using \l QWaylandQuickItem::touchEventsEnabled or \l sendFullTouchEvent,
+ * as it might lead to conflicting touch ids.
  *
  * Returns the serial for the touch motion event.
  */
@@ -402,6 +430,11 @@ void QWaylandSeat::sendTouchCancelEvent(QWaylandClient *client)
 
 /*!
  * Sends the \a event to the specified \a surface on the touch device.
+ *
+ * \warning This API will automatically map \l QTouchEvent::TouchPoint::id to a
+ * sequential id before sending it to the client. It should therefore not be
+ * used in combination with the other API using explicit ids, as collisions
+ * might occur.
  */
 void QWaylandSeat::sendFullTouchEvent(QWaylandSurface *surface, QTouchEvent *event)
 {

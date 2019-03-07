@@ -83,6 +83,7 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandSurface : public QWaylandObject
     Q_PROPERTY(QWaylandClient *client READ client CONSTANT)
     Q_PROPERTY(QRectF sourceGeometry READ sourceGeometry NOTIFY sourceGeometryChanged REVISION 13)
     Q_PROPERTY(QSize destinationSize READ destinationSize NOTIFY destinationSizeChanged REVISION 13)
+    Q_PROPERTY(QSize bufferSize READ bufferSize NOTIFY bufferSizeChanged REVISION 13)
 #if QT_DEPRECATED_SINCE(5, 13)
     Q_PROPERTY(QSize size READ size NOTIFY sizeChanged) // Qt 6: Remove
 #endif
@@ -169,7 +170,7 @@ Q_SIGNALS:
 #if QT_DEPRECATED_SINCE(5, 13)
     QT_DEPRECATED void sizeChanged();
 #endif
-    void bufferSizeChanged();
+    Q_REVISION(13) void bufferSizeChanged();
     void bufferScaleChanged();
     void offsetForNextFrame(const QPoint &offset);
     void contentOrientationChanged();

@@ -111,7 +111,7 @@ struct ::wl_region *QWaylandDisplay::createRegion(const QRegion &qregion)
         return nullptr;
     }
 
-    return mSubCompositor->get_subsurface(window->object(), parent->object());
+    return mSubCompositor->get_subsurface(window->wlSurface(), parent->wlSurface());
 }
 
 QWaylandClientBufferIntegration * QWaylandDisplay::clientBufferIntegration() const

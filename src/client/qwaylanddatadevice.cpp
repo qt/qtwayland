@@ -111,7 +111,7 @@ void QWaylandDataDevice::startDrag(QMimeData *mimeData, QWaylandWindow *icon)
     if (!origin)
         origin = m_display->currentInputDevice()->touchFocus();
 
-    start_drag(m_dragSource->object(), origin->object(), icon->object(), m_display->currentInputDevice()->serial());
+    start_drag(m_dragSource->object(), origin->wlSurface(), icon->wlSurface(), m_display->currentInputDevice()->serial());
 }
 
 void QWaylandDataDevice::cancelDrag()

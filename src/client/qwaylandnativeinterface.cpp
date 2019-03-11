@@ -89,7 +89,7 @@ void *QWaylandNativeInterface::nativeResourceForWindow(const QByteArray &resourc
         return const_cast<wl_compositor *>(m_integration->display()->wl_compositor());
     if (lowerCaseResource == "surface") {
         QWaylandWindow *w = static_cast<QWaylandWindow*>(window->handle());
-        return w ? w->object() : nullptr;
+        return w ? w->wlSurface() : nullptr;
     }
 
     if (lowerCaseResource == "egldisplay" && m_integration->clientBufferIntegration())

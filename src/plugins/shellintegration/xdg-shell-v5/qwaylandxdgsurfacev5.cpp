@@ -54,7 +54,7 @@ namespace QtWaylandClient {
 
 QWaylandXdgSurfaceV5::QWaylandXdgSurfaceV5(QWaylandXdgShellV5 *shell, QWaylandWindow *window)
     : QWaylandShellSurface(window)
-    , QtWayland::xdg_surface_v5(shell->get_xdg_surface(window->object()))
+    , QtWayland::xdg_surface_v5(shell->get_xdg_surface(window->wlSurface()))
     , m_window(window)
     , m_shell(shell)
 {

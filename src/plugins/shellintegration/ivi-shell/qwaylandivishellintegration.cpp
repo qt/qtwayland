@@ -132,7 +132,7 @@ QWaylandShellSurface *QWaylandIviShellIntegration::createShellSurface(QWaylandWi
     if (surfaceId == 0)
         return nullptr;
 
-    struct ivi_surface *surface = m_iviApplication->surface_create(surfaceId, window->object());
+    struct ivi_surface *surface = m_iviApplication->surface_create(surfaceId, window->wlSurface());
     if (!m_iviController)
         return new QWaylandIviSurface(surface, window);
 

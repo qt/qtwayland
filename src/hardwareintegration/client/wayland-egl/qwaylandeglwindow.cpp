@@ -137,9 +137,8 @@ void QWaylandEglWindow::updateSurface(bool create)
 
                 m_resize = true;
             }
-        } else if (create && wl_surface::isInitialized()) {
-            ::wl_surface *wlSurface = wl_surface::object();
-            m_waylandEglWindow = wl_egl_window_create(wlSurface, sizeWithMargins.width(), sizeWithMargins.height());
+        } else if (create && wlSurface()) {
+            m_waylandEglWindow = wl_egl_window_create(wlSurface(), sizeWithMargins.width(), sizeWithMargins.height());
         }
 
         if (!m_eglSurface && m_waylandEglWindow && create) {

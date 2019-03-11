@@ -80,7 +80,7 @@ class QWaylandScreen;
 class QWaylandShmBackingStore;
 class QWaylandPointerEvent;
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandWindow : public QObject, public QPlatformWindow, public QtWayland::wl_surface
+class Q_WAYLAND_CLIENT_EXPORT QWaylandWindow : public QObject, public QPlatformWindow, private QtWayland::wl_surface
 {
     Q_OBJECT
 public:
@@ -128,6 +128,7 @@ public:
     QSize surfaceSize() const;
     QRect windowGeometry() const;
 
+    ::wl_surface *wlSurface() { return object(); }
     static QWaylandWindow *fromWlSurface(::wl_surface *surface);
 
     QWaylandDisplay *display() const { return mDisplay; }

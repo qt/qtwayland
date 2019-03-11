@@ -54,7 +54,7 @@ QT_BEGIN_NAMESPACE
 namespace QtWaylandClient {
 
 QWaylandExtendedSurface::QWaylandExtendedSurface(QWaylandWindow *window)
-    : QtWayland::qt_extended_surface(window->display()->windowExtension()->get_extended_surface(window->object()))
+    : QtWayland::qt_extended_surface(window->display()->windowExtension()->get_extended_surface(window->wlSurface()))
     , m_window(window)
 {
 }

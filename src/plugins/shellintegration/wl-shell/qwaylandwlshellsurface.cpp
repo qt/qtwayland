@@ -62,9 +62,9 @@ QWaylandWlShellSurface::QWaylandWlShellSurface(struct ::wl_shell_surface *shell_
 
     Qt::WindowType type = window->window()->type();
     auto *transientParent = window->transientParent();
-    if (type == Qt::Popup && transientParent && transientParent->object())
+    if (type == Qt::Popup && transientParent && transientParent->wlSurface())
         setPopup(transientParent, m_window->display()->lastInputDevice(), m_window->display()->lastInputSerial());
-    else if (transientParent && transientParent->object())
+    else if (transientParent && transientParent->wlSurface())
         updateTransientParent(transientParent->window());
     else
         setTopLevel();
@@ -234,11 +234,9 @@ void QWaylandWlShellSurface::updateTransientParent(QWindow *parent)
             || testShowWithoutActivating(m_window->window()))
         flags |= WL_SHELL_SURFACE_TRANSIENT_INACTIVE;
 
-    Q_ASSERT(parent_wayland_window->object());
-    set_transient(parent_wayland_window->object(),
-                  transientPos.x(),
-                  transientPos.y(),
-                  flags);
+    auto *parentSurface = parent_wayland_window->wlSurface();
+    Q_ASSERT(parentSurface);
+    set_transient(parentSurface, transientPos.x(), transientPos.y(), flags);
 }
 
 void QWaylandWlShellSurface::setPopup(QWaylandWindow *parent, QWaylandInputDevice *device, uint serial)
@@ -261,9 +259,10 @@ void QWaylandWlShellSurface::setPopup(QWaylandWindow *parent, QWaylandInputDevic
         transientPos.setY(transientPos.y() + parent_wayland_window->decoration()->margins().top());
     }
 
-    Q_ASSERT(parent_wayland_window->object());
-    set_popup(device->wl_seat(), serial, parent_wayland_window->object(),
-              transientPos.x(), transientPos.y(), 0);
+    auto *parentSurface = parent_wayland_window->wlSurface();
+    Q_ASSERT(parentSurface);
+    uint flags = 0;
+    set_popup(device->wl_seat(), serial, parentSurface, transientPos.x(), transientPos.y(), flags);
 }
 
 void QWaylandWlShellSurface::shell_surface_ping(uint32_t serial)

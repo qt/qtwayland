@@ -71,7 +71,7 @@ QWaylandXdgSurfaceV5 *QWaylandXdgShellV5::createXdgSurface(QWaylandWindow *windo
 QWaylandXdgPopupV5 *QWaylandXdgShellV5::createXdgPopup(QWaylandWindow *window, QWaylandInputDevice *inputDevice)
 {
     QWaylandWindow *parentWindow = m_popups.empty() ? window->transientParent() : m_popups.last();
-    ::wl_surface *parentSurface = parentWindow->object();
+    ::wl_surface *parentSurface = parentWindow->wlSurface();
 
     if (m_popupSerial == 0)
         m_popupSerial = inputDevice->serial();
@@ -81,7 +81,7 @@ QWaylandXdgPopupV5 *QWaylandXdgShellV5::createXdgPopup(QWaylandWindow *window, Q
     int x = position.x() + parentWindow->frameMargins().left();
     int y = position.y() + parentWindow->frameMargins().top();
 
-    auto popup = new QWaylandXdgPopupV5(get_xdg_popup(window->object(), parentSurface, seat, m_popupSerial, x, y), window);
+    auto popup = new QWaylandXdgPopupV5(get_xdg_popup(window->wlSurface(), parentSurface, seat, m_popupSerial, x, y), window);
     m_popups.append(window);
     QObject::connect(popup, &QWaylandXdgPopupV5::destroyed, [this, window](){
         m_popups.removeOne(window);

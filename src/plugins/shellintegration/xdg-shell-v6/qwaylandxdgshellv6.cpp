@@ -418,7 +418,7 @@ QWaylandXdgShellV6::~QWaylandXdgShellV6()
 
 QWaylandXdgSurfaceV6 *QWaylandXdgShellV6::getXdgSurface(QWaylandWindow *window)
 {
-    return new QWaylandXdgSurfaceV6(this, get_xdg_surface(window->object()), window);
+    return new QWaylandXdgSurfaceV6(this, get_xdg_surface(window->wlSurface()), window);
 }
 
 void QWaylandXdgShellV6::zxdg_shell_v6_ping(uint32_t serial)

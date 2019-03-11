@@ -51,7 +51,7 @@ QWaylandFullScreenShellV1Surface::QWaylandFullScreenShellV1Surface(QtWayland::zw
     , m_window(window)
 {
     auto screen = static_cast<QWaylandScreen *>(m_window->screen());
-    m_shell->present_surface(m_window->object(),
+    m_shell->present_surface(m_window->wlSurface(),
                              QtWayland::zwp_fullscreen_shell_v1::present_method_default,
                              screen->output());
 }

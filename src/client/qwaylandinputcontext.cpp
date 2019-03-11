@@ -120,7 +120,7 @@ void QWaylandTextInput::updateState(Qt::InputMethodQueries queries, uint32_t fla
     if (!QGuiApplication::focusWindow() || !QGuiApplication::focusWindow()->handle())
         return;
 
-    struct ::wl_surface *surface = static_cast<QWaylandWindow *>(QGuiApplication::focusWindow()->handle())->object();
+    auto *surface = static_cast<QWaylandWindow *>(QGuiApplication::focusWindow()->handle())->wlSurface();
     if (!surface || (surface != m_surface))
         return;
 
@@ -423,7 +423,7 @@ static ::wl_surface *surfaceForWindow(QWindow *window)
         return nullptr;
 
     auto *waylandWindow = static_cast<QWaylandWindow *>(window->handle());
-    return waylandWindow->wl_surface::object();
+    return waylandWindow->wlSurface();
 }
 
 void QWaylandInputContext::update(Qt::InputMethodQueries queries)
@@ -529,7 +529,7 @@ void QWaylandInputContext::setFocusObject(QObject *)
 
     if (mCurrentWindow && mCurrentWindow->handle()) {
         if (mCurrentWindow.data() != window || !inputMethodAccepted()) {
-            struct ::wl_surface *surface = static_cast<QWaylandWindow *>(mCurrentWindow->handle())->object();
+            auto *surface = static_cast<QWaylandWindow *>(mCurrentWindow->handle())->wlSurface();
             if (surface)
                 textInput()->disable(surface);
             mCurrentWindow.clear();
@@ -538,7 +538,7 @@ void QWaylandInputContext::setFocusObject(QObject *)
 
     if (window && window->handle() && inputMethodAccepted()) {
         if (mCurrentWindow.data() != window) {
-            struct ::wl_surface *surface = static_cast<QWaylandWindow *>(window->handle())->object();
+            auto *surface = static_cast<QWaylandWindow *>(window->handle())->wlSurface();
             if (surface) {
                 textInput()->enable(surface);
                 mCurrentWindow = window;

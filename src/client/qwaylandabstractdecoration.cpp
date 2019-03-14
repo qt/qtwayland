@@ -100,14 +100,19 @@ void QWaylandAbstractDecoration::setWaylandWindow(QWaylandWindow *window)
     d->m_wayland_window = window;
 }
 
-// \a size is without margins
+// Creates regions like this on the outside of a rectangle with inner size \a size
+// -----
+// |   |
+// -----
+// I.e. the top and bottom extends into the corners
 static QRegion marginsRegion(const QSize &size, const QMargins &margins)
 {
     QRegion r;
-    r += QRect(0, 0, size.width(), margins.top()); // top
-    r += QRect(0, size.height()+margins.top(), size.width(), margins.bottom()); //bottom
-    r += QRect(0, 0, margins.left(), size.height()); //left
-    r += QRect(size.width()+margins.left(), 0, margins.right(), size.height()); // right
+    const int widthWithMargins = margins.left() + size.width() + margins.right();
+    r += QRect(0, 0, widthWithMargins, margins.top()); // top
+    r += QRect(0, size.height()+margins.top(), widthWithMargins, margins.bottom()); //bottom
+    r += QRect(0, margins.top(), margins.left(), size.height()); //left
+    r += QRect(size.width()+margins.left(), margins.top(), margins.right(), size.height()); // right
     return r;
 }
 

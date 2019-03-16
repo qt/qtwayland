@@ -41,6 +41,7 @@
 #define QWAYLANDXDGSHELLV5_P_H
 
 #include <QtWaylandCompositor/private/qwaylandcompositorextension_p.h>
+#include <QtWaylandCompositor/private/qwaylandshell_p.h>
 #include <QtWaylandCompositor/private/qwayland-server-xdg-shell-unstable-v5_p.h>
 
 #include <QtWaylandCompositor/QWaylandXdgShellV5>
@@ -61,7 +62,7 @@
 QT_BEGIN_NAMESPACE
 
 class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgShellV5Private
-        : public QWaylandCompositorExtensionPrivate
+        : public QWaylandShellPrivate
         , public QtWaylandServer::xdg_shell_v5
 {
     Q_DECLARE_PUBLIC(QWaylandXdgShellV5)

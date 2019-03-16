@@ -96,11 +96,11 @@ public:
     }
 
 protected:
-    QWaylandShellTemplate(QWaylandCompositorExtensionPrivate &dd)
+    QWaylandShellTemplate(QWaylandShellPrivate &dd)
         : QWaylandShell(dd)
     { }
 
-    QWaylandShellTemplate(QWaylandObject *container, QWaylandCompositorExtensionPrivate &dd)
+    QWaylandShellTemplate(QWaylandObject *container, QWaylandShellPrivate &dd)
         : QWaylandShell(container,dd)
     { }
 };

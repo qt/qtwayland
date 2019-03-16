@@ -243,6 +243,9 @@ QWaylandCompositorPrivate::~QWaylandCompositorPrivate()
     delete data_device_manager;
 #endif
 
+    // Some client buffer integrations need to clean up before the destroying the wl_display
+    client_buffer_integration.reset();
+
     wl_display_destroy(display);
 }
 

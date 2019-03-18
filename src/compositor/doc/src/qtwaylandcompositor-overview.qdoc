@@ -28,65 +28,53 @@
 /*!
   \page qtwaylandcompositor-index.html
   \title Qt Wayland Compositor
-  \brief An API to develop display servers supporting the Wayland protocol
+  \brief An API to develop display servers that support the Wayland protocol.
 
-  \l {https://wayland.freedesktop.org/} {Wayland} is a display server
-  protocol to help in creating multi-process systems, where multiple client
-  applications may render content on the same display, by going via
-  a compositor process.
+  The Qt Wayland Compositor is a module that provides convenient and powerful
+  QML and C++ APIs for developing custom display servers based on the
+  \l {https://wayland.freedesktop.org/}{Wayland} protocol. The display server,
+  often called a compositor, displays content from client applications that
+  support the Wayland protocol.
 
-  Compared to a system with a single-process design, a multi-process system
-  gives several benefits:
+  Wayland's design philosophy is to keep the core protocol simple and minimal.
+  Developers can then expand on this core protocol with use-case-specific
+  extensions. Qt Wayland Compositor supports many common extensions by default,
+  and also has APIs to enable the creation of new, custom extensions.
 
-  \list
-  \li Easier resource management, through the regular operating system mechanisms.
-  \li Better security, as each application can run with its own permissions or
-      sandbox.
-  \li Clearer separation of application UI and compositor UI, so each
-      can be modified independently.
-  \endlist
+  Typically, a compositor written with Qt Wayland Compositor becomes a
+  subsystem inside a larger application manager process. Qt Wayland Compositor
+  provides the APIs to communicate with clients and display their content on
+  the screen. The QML APIs contain high-level APIs that easily integrate with
+  the rest of Qt, enabling convenient animations, effects, and UI through
+  Qt Quick. There are also C++ APIs available - if you need more low-level
+  access.
 
-  In a typical Wayland-based system, multiple client processes will render their
-  own contents to off-screen buffers. The information about these buffers will
-  then be passed to a display server process by using the Wayland protocol.
-  Finally, the display server process will composite and position the contents
-  on a physical display.
+  An application manager would typically implement additional features such as
+  application life cycle, virtual keyboard input, security, and Inter-Process
+  Communication (IPC). Qt provides the APIs that can be used to develop the
+  remaining parts of an application manager in other modules. The
+  \l {https://www.qt.io/qt-automotive-suite/}{Qt Automotive Suite} provides
+  \l{Qt Application Manager}, which is a complete application manager that
+  includes a compositor developed using Qt Wayland Compositor.
 
-  Qt Wayland Compositor is a module that provides convenient and powerful
-  QML and C++ APIs for developing custom display servers based on this protocol.
-  The server displays content from client applications that support the Wayland
-  protocol. The design philosophy of Wayland is to keep the core protocol simple
-  and minimal, and to expand on this with use-case-specific extensions. Qt Wayland
-  Compositor supports many common extensions by default, and also has APIs that
-  enables the creation of new, custom extensions.
-
-  In one typical use case, a display server written with Qt Wayland Compositor will
-  be a subsystem inside a larger application manager process. Qt Wayland Compositor
-  provides the APIs to communicate with clients and display their contents on screen,
-  using C++ for low-level access and the full set of Qt Quick effects, animations and
-  convenience when using the QML APIs. A typical application manager would, in addition
-  to this, implement features such as application life cycle, virtual keyboard input,
-  security and IPC. Qt provides APIs that can be used to develop the remaining parts
-  of an application manager in other modules. The \l {https://www.qt.io/qt-automotive-suite/}
-  {Qt Automotive Suite} provides a complete application manager which includes a
-  display server developed using Qt Wayland Compositor.
+  For more information on Wayland, see \l{Wayland and Qt}.
 
   \section1 Features of Qt Wayland Compositor
 
-  The Qt Wayland Compositor API includes features needed to create a display server.
+  The Qt Wayland Compositor includes features necessary to create a compositor:
 
   \list
-  \li A QML API that can be used to display and manipulate client content, fully
-      integrated with all the features in Qt Quick.
-  \li A C++ API for low-level access and control.
-  \li Support for common extensions, including XDG Shell and IVI Application.
-  \li APIs to easily expand support to include custom extensions.
+    \li A QML API to display and manipulate client content, fully integrated
+        with all the features in Qt Quick.
+    \li A C++ API for low-level access and control.
+    \li Support for common extensions, including XDG Shell and IVI Application.
+    \li APIs to easily expand the support for custom extensions.
   \endlist
 
   \section1 Environment Variables and Command-line Arguments
 
-  The Qt Wayland Compositor API recognizes some environment variables and
-  command-line arguments that can be used to customize its behavior.
+  The Qt Wayland Compositor recognizes the following environment variables and
+  command-line arguments:
 
   \list
   \li Environment variables:
@@ -107,8 +95,17 @@
 
   \section1 Examples
 
-  Take a look at the \l{Qt Wayland Compositor Examples} for a demonstration on
-  how the APIs can be used to write custom display servers.
+  Take a look at the \l{Qt Wayland Compositor Examples} to learn how these APIs
+  can be used to write custom compositors.
+
+  \section1 API Reference
+
+  The Qt Wayland Compositor can be used from C++ or QML:
+
+  \list
+    \li \l{Qt Wayland Compositor QML Types}
+    \li \l{Qt Wayland Compositor C++ Classes}
+  \endlist
 
   \section1 Licenses and Attributions
 
@@ -123,14 +120,5 @@
   use protocol definitions under following permissive licenses:
 
   \generatelist{groupsbymodule attributions-qtwaylandcompositor}
-
-  \section1 API Reference
-
-  The Qt Wayland Compositor API can be used from C++ or QML.
-
-  \list
-  \li \l{Qt Wayland Compositor QML Types}
-  \li \l{Qt Wayland Compositor C++ Classes}
-  \endlist
 
 */

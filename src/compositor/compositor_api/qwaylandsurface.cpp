@@ -847,7 +847,7 @@ QList<QWaylandView *> QWaylandSurface::views() const
 }
 
 /*!
- * Returns the QWaylandSurface corresponding to the Wayland resource \a res.
+ * Returns the QWaylandSurface corresponding to the Wayland resource \a resource.
  */
 QWaylandSurface *QWaylandSurface::fromResource(::wl_resource *resource)
 {
@@ -866,11 +866,12 @@ struct wl_resource *QWaylandSurface::resource() const
 }
 
 /*!
- * Sets a \a role on the surface. A role defines how a surface will be mapped on screen, without a role
- * a surface is supposed to be hidden. Only one role at all times can be set on a surface. Although
+ * Sets a \a role on the surface. A role defines how a surface will be mapped on screen; without a role
+ * a surface is supposed to be hidden. Only one role can be set on a surface, at all times. Although
  * setting the same role many times is allowed, attempting to change the role of a surface will trigger
  * a protocol error to the \a errorResource and send an \a errorCode to the client.
  *
+ * Returns true if a role can be assigned; false otherwise.
  */
 bool QWaylandSurface::setRole(QWaylandSurfaceRole *role, wl_resource *errorResource, uint32_t errorCode)
 {

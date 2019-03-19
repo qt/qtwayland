@@ -140,7 +140,7 @@ QByteArray QWaylandIviApplication::interfaceName()
  * \qmlsignal void QtWaylandCompositor::IviApplication::iviSurfaceRequested(WaylandSurface surface, int iviId, WaylandResource resource)
  *
  * This signal is emitted when the client has requested an \c ivi_surface to be associated
- * with \a surface, which is identified by \a id. The handler for this signal is
+ * with \a surface, which is identified by \a iviId. The handler for this signal is
  * expected to create the ivi surface and initialize it within the scope of the
  * signal emission. If no ivi surface is created, a default one will be created instead.
  */
@@ -149,7 +149,7 @@ QByteArray QWaylandIviApplication::interfaceName()
  * \fn void QWaylandIviApplication::iviSurfaceRequested(QWaylandSurface *surface, uint iviId, const QWaylandResource &resource)
  *
  * This signal is emitted when the client has requested an \c ivi_surface to be associated
- * with \a surface, which is identified by \a id. The handler for this signal is
+ * with \a surface, which is identified by \a iviId. The handler for this signal is
  * expected to create the ivi surface and initialize it within the scope of the
  * signal emission. If no ivi surface is created, a default one will be created instead.
  */

@@ -57,7 +57,7 @@ QWaylandBrcmEglIntegration::QWaylandBrcmEglIntegration()
     qDebug() << "Using Brcm-EGL";
 }
 
-void QWaylandBrcmEglIntegration::wlDisplayHandleGlobal(void *data, struct wl_registry *registry, uint32_t id, const QString &interface, uint32_t version)
+void QWaylandBrcmEglIntegration::wlDisplayHandleGlobal(void *data, struct ::wl_registry *registry, uint32_t id, const QString &interface, uint32_t version)
 {
     Q_UNUSED(version);
     if (interface == "qt_brcm") {

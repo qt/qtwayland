@@ -1306,7 +1306,7 @@ void QWaylandQuickItem::updateInputMethod(Qt::InputMethodQueries queries)
  * If an animation is started, bufferLocked should be set to ensure the item keeps its content
  * until the animation finishes
  *
- * \sa QWaylandQuickkItem::bufferLocked
+ * \sa QWaylandQuickItem::bufferLocked
  */
 
 QSGNode *QWaylandQuickItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *data)

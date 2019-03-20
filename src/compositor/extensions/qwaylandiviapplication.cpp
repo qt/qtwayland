@@ -131,6 +131,9 @@ const struct wl_interface *QWaylandIviApplication::interface()
     return QWaylandIviApplicationPrivate::interface();
 }
 
+/*!
+ * \internal
+ */
 QByteArray QWaylandIviApplication::interfaceName()
 {
     return QWaylandIviApplicationPrivate::interfaceName();
@@ -141,8 +144,9 @@ QByteArray QWaylandIviApplication::interfaceName()
  *
  * This signal is emitted when the client has requested an \c ivi_surface to be associated
  * with \a surface, which is identified by \a iviId. The handler for this signal is
- * expected to create the ivi surface and initialize it within the scope of the
+ * expected to create the ivi surface for \a resource and initialize it within the scope of the
  * signal emission. If no ivi surface is created, a default one will be created instead.
+ *
  */
 
 /*!

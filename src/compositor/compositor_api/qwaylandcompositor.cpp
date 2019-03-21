@@ -243,6 +243,9 @@ QWaylandCompositorPrivate::~QWaylandCompositorPrivate()
     delete data_device_manager;
 #endif
 
+    // Some client buffer integrations need to clean up before the destroying the wl_display
+    client_buffer_integration.reset();
+
     wl_display_destroy(display);
 }
 
@@ -583,7 +586,7 @@ QByteArray QWaylandCompositor::socketName() const
  * \qmlmethod QtWaylandCompositor::WaylandCompositor::addSocketDescriptor(fd)
  * \since 5.12
  *
- * Listen for client connections on a file descriptor referring to a
+ * Listen for client connections on a file descriptor, \a fd, referring to a
  * server socket already bound and listening.
  *
  * Does not take ownership of the file descriptor; it must be closed
@@ -595,7 +598,7 @@ QByteArray QWaylandCompositor::socketName() const
  */
 
 /*!
- * Listen for client connections on a file descriptor referring to a
+ * Listen for client connections on a file descriptor, \a fd, referring to a
  * server socket already bound and listening.
  *
  * Does not take ownership of the file descriptor; it must be closed

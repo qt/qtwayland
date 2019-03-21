@@ -54,6 +54,7 @@ public:
     XdgToplevel *xdgToplevel(int i = 0) { return get<XdgWmBase>()->toplevel(i); }
     XdgPopup *xdgPopup(int i = 0) { return get<XdgWmBase>()->popup(i); }
     Pointer *pointer() { auto *seat = get<Seat>(); Q_ASSERT(seat); return seat->m_pointer; }
+    Surface *cursorSurface() { auto *p = pointer(); return p ? p->cursorSurface() : nullptr; }
     Keyboard *keyboard() { auto *seat = get<Seat>(); Q_ASSERT(seat); return seat->m_keyboard; }
     uint sendXdgShellPing();
     void xdgPingAndWaitForPong();

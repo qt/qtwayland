@@ -42,8 +42,14 @@ class DataDeviceManager : public Global, public QtWaylandServer::wl_data_device_
 public:
     explicit DataDeviceManager(CoreCompositor *compositor, int version = 1)
         : QtWaylandServer::wl_data_device_manager(compositor->m_display, version)
+        , m_version(version)
     {}
-    QVector<DataDevice *> m_dataDevices;
+    ~DataDeviceManager() override { qDeleteAll(m_dataDevices); }
+    bool isClean() override;
+    DataDevice *deviceFor(Seat *seat);
+
+    int m_version = 1; // TODO: remove on libwayland upgrade
+    QMap<Seat *, DataDevice *> m_dataDevices;
 
 protected:
     void data_device_manager_get_data_device(Resource *resource, uint32_t id, ::wl_resource *seatResource) override;
@@ -52,23 +58,41 @@ protected:
 class DataDevice : public QtWaylandServer::wl_data_device
 {
 public:
-    explicit DataDevice(::wl_client *client, int id, int version)
-        : QtWaylandServer::wl_data_device(client, id, version)
+    explicit DataDevice(DataDeviceManager *manager, Seat *seat)
+        : m_manager(manager)
+        , m_seat(seat)
     {}
     ~DataDevice() override;
     void send_data_offer(::wl_resource *resource) = delete;
-    void sendDataOffer(DataOffer *offer);
+    DataOffer *sendDataOffer(::wl_client *client, const QStringList &mimeTypes = {});
+    DataOffer *sendDataOffer(const QStringList &mimeTypes = {});
+
     void send_selection(::wl_resource *resource) = delete;
     void sendSelection(DataOffer *offer);
+
+    DataDeviceManager *m_manager = nullptr;
+    Seat *m_seat = nullptr;
+    QVector<DataOffer *> m_sentSelectionOffers;
+
+protected:
+    void data_device_release(Resource *resource) override
+    {
+        int removed = m_manager->m_dataDevices.remove(m_seat);
+        QVERIFY(removed);
+        wl_resource_destroy(resource->handle);
+    }
 };
 
 class DataOffer : public QObject, public QtWaylandServer::wl_data_offer
 {
     Q_OBJECT
 public:
-    explicit DataOffer(::wl_client *client, int version)
+    explicit DataOffer(DataDevice *dataDevice, ::wl_client *client, int version)
         : QtWaylandServer::wl_data_offer (client, 0, version)
+        , m_dataDevice(dataDevice)
     {}
+
+    DataDevice *m_dataDevice = nullptr;
 
 signals:
     void receive(QString mimeType, int fd);
@@ -77,7 +101,7 @@ protected:
     void data_offer_destroy_resource(Resource *resource) override;
     void data_offer_receive(Resource *resource, const QString &mime_type, int32_t fd) override;
 //    void data_offer_accept(Resource *resource, uint32_t serial, const QString &mime_type) override;
-//    void data_offer_destroy(Resource *resource) override;
+    void data_offer_destroy(Resource *resource) override;
 };
 
 } // namespace MockCompositor

@@ -258,18 +258,20 @@ uint Pointer::sendEnter(Surface *surface, const QPointF &position)
 {
     wl_fixed_t x = wl_fixed_from_double(position.x());
     wl_fixed_t y = wl_fixed_from_double(position.y());
-    m_enterSerial = m_seat->m_compositor->nextSerial();
+
+    uint serial = m_seat->m_compositor->nextSerial();
+    m_enterSerials << serial;
+    m_cursorRole = nullptr; // According to the protocol, the pointer image is undefined after enter
 
     wl_client *client = surface->resource()->client();
     const auto pointerResources = resourceMap().values(client);
     for (auto *r : pointerResources)
-        wl_pointer::send_enter(r->handle, m_enterSerial, surface->resource()->handle, x ,y);
-    return m_enterSerial;
+        wl_pointer::send_enter(r->handle, serial, surface->resource()->handle, x ,y);
+    return serial;
 }
 
 uint Pointer::sendLeave(Surface *surface)
 {
-    m_enterSerial = 0;
     uint serial = m_seat->m_compositor->nextSerial();
 
     wl_client *client = surface->resource()->client();
@@ -348,20 +350,24 @@ void Pointer::sendFrame(wl_client *client)
 void Pointer::pointer_set_cursor(Resource *resource, uint32_t serial, wl_resource *surface, int32_t hotspot_x, int32_t hotspot_y)
 {
     Q_UNUSED(resource);
-    Q_UNUSED(hotspot_x);
-    Q_UNUSED(hotspot_y);
     auto *s = fromResource<Surface>(surface);
     QVERIFY(s);
 
     if (s->m_role) {
-        auto *cursorRole = CursorRole::fromSurface(s);
-        QVERIFY(cursorRole);
-        QVERIFY(cursorRole == m_cursorRole);
+        m_cursorRole = CursorRole::fromSurface(s);
+        QVERIFY(m_cursorRole);
     } else {
         m_cursorRole = new CursorRole(s); //TODO: make sure we don't leak CursorRole
         s->m_role = m_cursorRole;
     }
-//    QCOMPARE(serial, m_enterSerial); //TODO: uncomment when this bug is fixed
+
+    // Directly checking the last serial would be racy, we may just have sent leaves/enters which
+    // the client hasn't yet seen. Instead just check if the serial matches an enter serial since
+    // the last time the client sent a set_cursor request.
+    QVERIFY(m_enterSerials.contains(serial));
+    while (m_enterSerials.first() < serial) { m_enterSerials.removeFirst(); }
+
+    m_hotspot = QPoint(hotspot_x, hotspot_y);
     emit setCursor(serial);
 }
 

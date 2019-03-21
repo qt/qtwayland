@@ -145,6 +145,7 @@ public:
     }
     void blit(QWaylandEglWindow *window)
     {
+        Q_ASSERT(window->wlSurface());
         QOpenGLTextureCache *cache = QOpenGLTextureCache::cacheForContext(m_context->context());
 
         QSize surfaceSize = window->surfaceSize();

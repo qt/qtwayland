@@ -48,7 +48,7 @@ QT_BEGIN_NAMESPACE
     \qmltype XdgDecorationManagerV1
     \inqmlmodule QtWayland.Compositor
     \since 5.12
-    \brief Provides an extension for negotiation of server-side and client-side window decorations
+    \brief Provides an extension for negotiation of server-side and client-side window decorations.
 
     The XdgDecorationManagerV1 extension provides a way for a compositor to announce support for
     server-side window decorations, and for xdg-shell clients to communicate whether they prefer
@@ -82,7 +82,7 @@ QT_BEGIN_NAMESPACE
     \class QWaylandXdgDecorationManagerV1
     \inmodule QtWaylandCompositor
     \since 5.12
-    \brief Provides an extension for negotiation of server-side and client-side window decorations
+    \brief Provides an extension for negotiation of server-side and client-side window decorations.
 
     The QWaylandXdgDecorationManagerV1 extension provides a way for a compositor to announce support
     for server-side window decorations, and for xdg-shell clients to communicate whether they prefer

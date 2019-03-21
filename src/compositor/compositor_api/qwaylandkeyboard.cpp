@@ -486,7 +486,7 @@ QWaylandClient *QWaylandKeyboard::focusClient() const
 /*!
  * Sends the current key modifiers to \a client with the given \a serial.
  */
-void QWaylandKeyboard::sendKeyModifiers(QWaylandClient *client, uint serial)
+void QWaylandKeyboard::sendKeyModifiers(QWaylandClient *client, uint32_t serial)
 {
     Q_D(QWaylandKeyboard);
     QtWaylandServer::wl_keyboard::Resource *resource = d->resourceMap().value(client->client());

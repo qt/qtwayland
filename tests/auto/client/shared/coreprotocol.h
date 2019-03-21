@@ -250,9 +250,6 @@ public:
     Keyboard* m_keyboard = nullptr;
     QVector<Keyboard *> m_oldKeyboards;
 
-    DataDevice *dataDevice() { return m_dataDevice.data(); }
-    QScopedPointer<DataDevice> m_dataDevice;
-
     uint m_capabilities = 0;
 
 protected:
@@ -288,7 +285,8 @@ public:
     void sendFrame(wl_client *client);
 
     Seat *m_seat = nullptr;
-    uint m_enterSerial = 0;
+    QVector<uint> m_enterSerials;
+    QPoint m_hotspot;
 
 signals:
     void setCursor(uint serial); //TODO: add arguments?

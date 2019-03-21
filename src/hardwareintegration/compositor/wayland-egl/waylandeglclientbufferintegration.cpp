@@ -186,6 +186,7 @@ public:
     EGLDisplay egl_display = EGL_NO_DISPLAY;
     bool valid = false;
     bool display_bound = false;
+    ::wl_display *wlDisplay = nullptr;
     QOffscreenSurface *offscreenSurface = nullptr;
     QOpenGLContext *localContext = nullptr;
     QVector<QOpenGLTexture *> orphanedTextures;
@@ -394,6 +395,12 @@ WaylandEglClientBufferIntegration::WaylandEglClientBufferIntegration()
 WaylandEglClientBufferIntegration::~WaylandEglClientBufferIntegration()
 {
     WaylandEglClientBufferIntegrationPrivate::shuttingDown = true;
+    Q_D(WaylandEglClientBufferIntegration);
+    if (d->egl_unbind_wayland_display && d->display_bound) {
+        Q_ASSERT(d->wlDisplay);
+        if (!d->egl_unbind_wayland_display(d->egl_display, d->wlDisplay))
+            qWarning() << "Qt Wayland Compositor: eglUnbindWaylandDisplayWL failed";
+    }
 }
 
 void WaylandEglClientBufferIntegration::initializeHardware(struct wl_display *display)
@@ -450,6 +457,7 @@ void WaylandEglClientBufferIntegration::initializeHardware(struct wl_display *di
                 qWarning("QtCompositor: Could not bind Wayland display. Ignoring.");
             }
         }
+        d->wlDisplay = display;
     }
 
     d->funcs = new QEGLStreamConvenience;

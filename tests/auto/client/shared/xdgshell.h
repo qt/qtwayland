@@ -130,8 +130,9 @@ protected:
     void xdg_toplevel_set_min_size(Resource *resource, int32_t width, int32_t height) override;
 };
 
-class XdgPopup : public QtWaylandServer::xdg_popup
+class XdgPopup : public QObject, public QtWaylandServer::xdg_popup
 {
+    Q_OBJECT
 public:
     explicit XdgPopup(XdgSurface *xdgSurface, XdgSurface *parent, int id, int version = 1);
     void sendConfigure(const QRect &geometry);
@@ -141,6 +142,8 @@ public:
     XdgSurface *m_parentXdgSurface = nullptr;
     bool m_grabbed = false;
     uint m_grabSerial = 0;
+signals:
+    void destroyRequested();
 protected:
     void xdg_popup_grab(Resource *resource, ::wl_resource *seat, uint32_t serial) override;
     void xdg_popup_destroy(Resource *resource) override;

@@ -41,7 +41,6 @@
 
 #include "qwaylanddisplay_p.h"
 #include "qwaylandinputdevice_p.h"
-#include "qwaylandscreen_p.h"
 #include "qwaylandshmbackingstore_p.h"
 
 #include <QtGui/QImageReader>
@@ -52,12 +51,6 @@
 QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
-
-QWaylandCursorTheme *QWaylandCursorTheme::create(QWaylandShm *shm, int size)
-{
-    static QString themeName = qEnvironmentVariable("XCURSOR_THEME", QStringLiteral("default"));
-    return create(shm, size, themeName);
-}
 
 QWaylandCursorTheme *QWaylandCursorTheme::create(QWaylandShm *shm, int size, const QString &themeName)
 {
@@ -244,56 +237,32 @@ struct wl_cursor_image *QWaylandCursorTheme::cursorImage(Qt::CursorShape shape)
     return image;
 }
 
-QWaylandCursor::QWaylandCursor(QWaylandScreen *screen)
-    : mDisplay(screen->display())
-    , mCursorTheme(mDisplay->loadCursorTheme(screen->devicePixelRatio()))
+QWaylandCursor::QWaylandCursor(QWaylandDisplay *display)
+    : mDisplay(display)
 {
 }
 
-QSharedPointer<QWaylandBuffer> QWaylandCursor::cursorBitmapImage(const QCursor *cursor)
+QSharedPointer<QWaylandBuffer> QWaylandCursor::cursorBitmapBuffer(QWaylandDisplay *display, const QCursor *cursor)
 {
-    if (cursor->shape() != Qt::BitmapCursor)
-        return QSharedPointer<QWaylandShmBuffer>();
-
+    Q_ASSERT(cursor->shape() == Qt::BitmapCursor);
     const QImage &img = cursor->pixmap().toImage();
-    QSharedPointer<QWaylandShmBuffer> buffer(new QWaylandShmBuffer(mDisplay, img.size(), img.format()));
-    memcpy(buffer->image()->bits(), img.bits(), img.sizeInBytes());
-    return buffer;
-}
-
-struct wl_cursor_image *QWaylandCursor::cursorImage(Qt::CursorShape shape)
-{
-    if (!mCursorTheme)
-        return nullptr;
-    return mCursorTheme->cursorImage(shape);
+    QSharedPointer<QWaylandShmBuffer> buffer(new QWaylandShmBuffer(display, img.size(), img.format()));
+    memcpy(buffer->image()->bits(), img.bits(), size_t(img.sizeInBytes()));
+    return std::move(buffer);
 }
 
 void QWaylandCursor::changeCursor(QCursor *cursor, QWindow *window)
 {
-    const Qt::CursorShape newShape = cursor ? cursor->shape() : Qt::ArrowCursor;
+    Q_UNUSED(window);
+    // Create the buffer here so we don't have to create one per input device
+    QSharedPointer<QWaylandBuffer> bitmapBuffer;
+    if (cursor && cursor->shape() == Qt::BitmapCursor)
+        bitmapBuffer = cursorBitmapBuffer(mDisplay, cursor);
 
-    if (newShape == Qt::BlankCursor) {
-        mDisplay->setCursor(nullptr, nullptr, 1);
-        return;
-    }
-
-    if (newShape == Qt::BitmapCursor) {
-        mDisplay->setCursor(cursorBitmapImage(cursor), cursor->hotSpot(), window->screen()->devicePixelRatio());
-        return;
-    }
-
-    if (!mCursorTheme) {
-        qCWarning(lcQpaWayland) << "Can't set cursor from shape with no cursor theme";
-        return;
-    }
-
-    if (struct ::wl_cursor_image *image = mCursorTheme->cursorImage(newShape)) {
-        struct wl_buffer *buffer = wl_cursor_image_get_buffer(image);
-        mDisplay->setCursor(buffer, image, window->screen()->devicePixelRatio());
-        return;
-    }
-
-    qCWarning(lcQpaWayland) << "Unable to change to cursor" << cursor;
+    int fallbackOutputScale = int(window->devicePixelRatio());
+    const auto seats = mDisplay->inputDevices();
+    for (auto *seat : seats)
+        seat->setCursor(cursor, bitmapBuffer, fallbackOutputScale);
 }
 
 void QWaylandCursor::pointerEvent(const QMouseEvent &event)
@@ -312,6 +281,6 @@ void QWaylandCursor::setPos(const QPoint &pos)
     qCWarning(lcQpaWayland) << "Setting cursor position is not possible on wayland";
 }
 
-}
+} // namespace QtWaylandClient
 
 QT_END_NAMESPACE

@@ -481,6 +481,7 @@ bool QWaylandSurface::hasContent() const
 
 /*!
  * \qmlproperty rect QtWaylandCompositor::WaylandSurface::sourceGeometry
+ * \since 5.13
  *
  * This property describes the portion of the attached Wayland buffer that should
  * be drawn on the screen. The coordinates are from the corner of the buffer and are
@@ -493,6 +494,7 @@ bool QWaylandSurface::hasContent() const
 
 /*!
  * \property QWaylandSurface::sourceGeometry
+ * \since 5.13
  *
  * This property describes the portion of the attached QWaylandBuffer that should
  * be drawn on the screen. The coordinates are from the corner of the buffer and are
@@ -510,6 +512,7 @@ QRectF QWaylandSurface::sourceGeometry() const
 
 /*!
  * \qmlproperty size QtWaylandCompositor::WaylandSurface::destinationSize
+ * \since 5.13
  *
  * This property holds the size of this WaylandSurface in surface coordinates.
  *
@@ -519,6 +522,7 @@ QRectF QWaylandSurface::sourceGeometry() const
 
 /*!
  * \property QWaylandSurface::destinationSize
+ * \since 5.13
  *
  * This property holds the size of this WaylandSurface in surface coordinates.
  *
@@ -843,7 +847,7 @@ QList<QWaylandView *> QWaylandSurface::views() const
 }
 
 /*!
- * Returns the QWaylandSurface corresponding to the Wayland resource \a res.
+ * Returns the QWaylandSurface corresponding to the Wayland resource \a resource.
  */
 QWaylandSurface *QWaylandSurface::fromResource(::wl_resource *resource)
 {
@@ -862,11 +866,12 @@ struct wl_resource *QWaylandSurface::resource() const
 }
 
 /*!
- * Sets a \a role on the surface. A role defines how a surface will be mapped on screen, without a role
- * a surface is supposed to be hidden. Only one role at all times can be set on a surface. Although
+ * Sets a \a role on the surface. A role defines how a surface will be mapped on screen; without a role
+ * a surface is supposed to be hidden. Only one role can be set on a surface, at all times. Although
  * setting the same role many times is allowed, attempting to change the role of a surface will trigger
  * a protocol error to the \a errorResource and send an \a errorCode to the client.
  *
+ * Returns true if a role can be assigned; false otherwise.
  */
 bool QWaylandSurface::setRole(QWaylandSurfaceRole *role, wl_resource *errorResource, uint32_t errorCode)
 {

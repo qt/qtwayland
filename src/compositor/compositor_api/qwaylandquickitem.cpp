@@ -295,7 +295,8 @@ public:
                 }
 
                 auto texture = buffer.toOpenGLTexture();
-                m_sgTex = surfaceItem->window()->createTextureFromId(texture->textureId() , QSize(surfaceItem->width(), surfaceItem->height()), opt);
+                auto size = surface->bufferSize();
+                m_sgTex = surfaceItem->window()->createTextureFromId(texture->textureId(), size, opt);
             }
         }
         emit textureChanged();
@@ -825,6 +826,15 @@ void QWaylandQuickItem::setOutput(QWaylandOutput *output)
 }
 
 /*!
+ * \qmlproperty bool QtWaylandCompositor::WaylandQuickItem::bufferLocked
+ *
+ * This property holds whether the item's buffer is currently locked. As long as
+ * the buffer is locked, it will not be released and returned to the client.
+ *
+ * The default is false.
+ */
+
+/*!
  * \property QWaylandQuickItem::bufferLocked
  *
  * This property holds whether the item's buffer is currently locked. As long as
@@ -1058,6 +1068,14 @@ bool QWaylandQuickItem::inputRegionContains(const QPointF &localPosition)
 }
 
 /*!
+ * \qmlmethod point WaylandQuickItem::mapToSurface(point point)
+ *
+ * Maps the given \a point in this item's coordinate system to the equivalent
+ * point within the Wayland surface's coordinate system, and returns the mapped
+ * coordinate.
+ */
+
+/*!
  * Maps the given \a point in this item's coordinate system to the equivalent
  * point within the Wayland surface's coordinate system, and returns the mapped
  * coordinate.
@@ -1075,8 +1093,18 @@ QPointF QWaylandQuickItem::mapToSurface(const QPointF &point) const
 }
 
 /*!
+ * \qmlmethod point WaylandQuickItem::mapFromSurface(point point)
+ * \since 5.13
+ *
  * Maps the given \a point in the Wayland surfaces's coordinate system to the equivalent
  * point within this item's coordinate system, and returns the mapped coordinate.
+ */
+
+/*!
+ * Maps the given \a point in the Wayland surfaces's coordinate system to the equivalent
+ * point within this item's coordinate system, and returns the mapped coordinate.
+ *
+ * \since 5.13
  */
 QPointF QWaylandQuickItem::mapFromSurface(const QPointF &point) const
 {

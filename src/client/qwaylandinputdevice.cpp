@@ -316,7 +316,7 @@ void QWaylandInputDevice::Pointer::updateCursorTheme()
         while (scale > 1 && arrowPixelSize / scale < cursorSize())
             --scale;
     } else {
-        qWarning(lcQpaWayland) << "Cursor theme does not support the arrow cursor";
+        qCWarning(lcQpaWayland) << "Cursor theme does not support the arrow cursor";
     }
     mCursor.themeBufferScale = scale;
 }
@@ -585,9 +585,9 @@ void QWaylandInputDevice::Pointer::pointer_enter(uint32_t serial, struct wl_surf
     QWaylandWindow *window = QWaylandWindow::fromWlSurface(surface);
 
     if (mFocus) {
-        qWarning(lcQpaWayland) << "The compositor sent a wl_pointer.enter event before sending a"
-                               << "leave event first, this is not allowed by the wayland protocol"
-                               << "attempting to work around it by invalidating the current focus";
+        qCWarning(lcQpaWayland) << "The compositor sent a wl_pointer.enter event before sending a"
+                                << "leave event first, this is not allowed by the wayland protocol"
+                                << "attempting to work around it by invalidating the current focus";
         invalidateFocus();
     }
     mFocus = window;

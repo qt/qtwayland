@@ -487,11 +487,11 @@ void QWaylandWindow::surface_enter(wl_output *output)
     auto addedScreen = QWaylandScreen::fromWlOutput(output);
 
     if (mScreens.contains(addedScreen)) {
-        qWarning(lcQpaWayland) << "Ignoring unexpected wl_surface.enter received for output with id:"
-                               << wl_proxy_get_id(reinterpret_cast<wl_proxy *>(output))
-                               << "screen name:" << addedScreen->name()
-                               << "screen model:" << addedScreen->model()
-                               << "This is most likely a bug in the compositor.";
+        qCWarning(lcQpaWayland)
+                << "Ignoring unexpected wl_surface.enter received for output with id:"
+                << wl_proxy_get_id(reinterpret_cast<wl_proxy *>(output))
+                << "screen name:" << addedScreen->name() << "screen model:" << addedScreen->model()
+                << "This is most likely a bug in the compositor.";
         return;
     }
 
@@ -508,11 +508,12 @@ void QWaylandWindow::surface_leave(wl_output *output)
     auto *removedScreen = QWaylandScreen::fromWlOutput(output);
     bool wasRemoved = mScreens.removeOne(removedScreen);
     if (!wasRemoved) {
-        qWarning(lcQpaWayland) << "Ignoring unexpected wl_surface.leave received for output with id:"
-                               << wl_proxy_get_id(reinterpret_cast<wl_proxy *>(output))
-                               << "screen name:" << removedScreen->name()
-                               << "screen model:" << removedScreen->model()
-                               << "This is most likely a bug in the compositor.";
+        qCWarning(lcQpaWayland)
+                << "Ignoring unexpected wl_surface.leave received for output with id:"
+                << wl_proxy_get_id(reinterpret_cast<wl_proxy *>(output))
+                << "screen name:" << removedScreen->name()
+                << "screen model:" << removedScreen->model()
+                << "This is most likely a bug in the compositor.";
         return;
     }
 

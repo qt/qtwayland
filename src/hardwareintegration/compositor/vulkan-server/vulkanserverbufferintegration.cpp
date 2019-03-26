@@ -46,6 +46,9 @@
 #include <QtGui/QOffscreenSurface>
 #include <QtGui/qopengl.h>
 
+#include <unistd.h>
+#include <fcntl.h>
+
 #include <QtCore/QDebug>
 
 QT_BEGIN_NAMESPACE
@@ -213,7 +216,15 @@ QOpenGLTexture *VulkanServerBuffer::toOpenGlTexture()
 
     funcs->glCreateMemoryObjectsEXT(1, &m_memoryObject);
     if (extraDebug) qDebug() << "glCreateMemoryObjectsEXT" << hex << glGetError();
-    funcs->glImportMemoryFdEXT(m_memoryObject, m_memorySize, GL_HANDLE_TYPE_OPAQUE_FD_EXT, m_fd);
+
+
+    int dupfd = fcntl(m_fd, F_DUPFD_CLOEXEC, 0);
+    if (dupfd < 0) {
+        perror("VulkanServerBuffer::toOpenGlTexture() Could not dup fd:");
+        return nullptr;
+    }
+
+    funcs->glImportMemoryFdEXT(m_memoryObject, m_memorySize, GL_HANDLE_TYPE_OPAQUE_FD_EXT, dupfd);
     if (extraDebug) qDebug() << "glImportMemoryFdEXT" << hex << glGetError();
 
 

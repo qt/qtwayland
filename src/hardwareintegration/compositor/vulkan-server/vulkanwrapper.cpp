@@ -40,12 +40,13 @@
 // NOTE: Some of the code below is adapted from the public domain code at https://vulkan-tutorial.com/
 
 #define  GL_GLEXT_PROTOTYPES
+#include <GLES2/gl2.h>
+#include <GLES2/gl2ext.h>
 
 #include "vulkanwrapper.h"
 
 #include <QImage>
 #include <QOpenGLContext>
-#include <QtGui/qopengl.h>
 
 #include <vulkan/vulkan.h>
 #include <set>

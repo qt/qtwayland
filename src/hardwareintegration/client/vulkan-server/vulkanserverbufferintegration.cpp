@@ -37,12 +37,15 @@
 **
 ****************************************************************************/
 
+#define  GL_GLEXT_PROTOTYPES
+#include <GLES2/gl2.h>
+#include <GLES2/gl2ext.h>
+
 #include "vulkanserverbufferintegration.h"
 #include <QtWaylandClient/private/qwaylanddisplay_p.h>
 #include <QDebug>
 #include <QtGui/QOpenGLContext>
 #include <QtGui/QOpenGLTexture>
-#include <QtGui/qopengl.h>
 #include <QtGui/QImage>
 #include <QtCore/QCoreApplication>
 

@@ -37,6 +37,10 @@
 **
 ****************************************************************************/
 
+#define  GL_GLEXT_PROTOTYPES
+#include <GLES2/gl2.h>
+#include <GLES2/gl2ext.h>
+
 #include "vulkanserverbufferintegration.h"
 
 #include "vulkanwrapper.h"
@@ -44,7 +48,6 @@
 #include <QtGui/QOpenGLContext>
 #include <QtGui/QOpenGLTexture>
 #include <QtGui/QOffscreenSurface>
-#include <QtGui/qopengl.h>
 
 #include <unistd.h>
 #include <fcntl.h>

@@ -177,7 +177,7 @@ void QWaylandSeatPrivate::seat_get_touch(wl_seat::Resource *resource, uint32_t i
  */
 
 /*!
- * Constructs a QWaylandSeat for the given \a compositor and with the given \a capabilityFlags.
+ * Constructs a QWaylandSeat for the given \a compositor and \a capabilityFlags.
  */
 QWaylandSeat::QWaylandSeat(QWaylandCompositor *compositor, CapabilityFlags capabilityFlags)
     : QWaylandObject(*new QWaylandSeatPrivate(this))
@@ -196,6 +196,14 @@ QWaylandSeat::~QWaylandSeat()
 {
 }
 
+/*!
+ * Initializes parts of the seat corresponding to the capabilities set in the constructor, or
+ * through setCapabilities().
+ *
+ * \note Normally, this function is called automatically after the seat and compositor have been
+ * created, so calling it manually is usually unnecessary.
+ */
+
 void QWaylandSeat::initialize()
 {
     Q_D(QWaylandSeat);
@@ -211,6 +219,11 @@ void QWaylandSeat::initialize()
     d->isInitialized = true;
 }
 
+/*!
+ * Returns true if the QWaylandSeat is initialized; false otherwise.
+ *
+ * The value \c true indicates that it's now possible for clients to start using the seat.
+ */
 bool QWaylandSeat::isInitialized() const
 {
     Q_D(const QWaylandSeat);
@@ -568,6 +581,11 @@ bool QWaylandSeat::setKeyboardFocus(QWaylandSurface *surface)
     return true;
 }
 
+
+/*!
+ * Returns the keymap object for this QWaylandSeat.
+ */
+
 QWaylandKeymap *QWaylandSeat::keymap()
 {
     Q_D(const QWaylandSeat);
@@ -686,5 +704,66 @@ void QWaylandSeat::handleMouseFocusDestroyed()
     QWaylandView *oldFocus = nullptr; // we have to send nullptr because the old focus is already destroyed at this point
     emit mouseFocusChanged(d->mouseFocus, oldFocus);
 }
+
+
+/*! \qmlsignal void QtWaylandCompositor::QWaylandSeat::keyboardFocusChanged(QWaylandSurface newFocus, QWaylandSurface oldFocus)
+ *
+ * This signal is emitted when setKeyboardFocus() is called or when a WaylandQuickItem has focus
+ * and the user starts pressing keys.
+ *
+ * \a newFocus has the surface that received keyboard focus; or \c nullptr if no surface has
+ * focus.
+ * \a oldFocus has the surface that lost keyboard focus; or \c nullptr if no surface had focus.
+ */
+
+/*!
+ * \fn void QWaylandSeat::keyboardFocusChanged(QWaylandSurface *newFocus, QWaylandSurface *oldFocus)
+ *
+ * This signal is emitted when setKeyboardFocus() is called.
+ *
+ * \a newFocus has the surface that received keyboard focus; or \c nullptr if no surface has
+ * focus.
+ * \a oldFocus has the surface that lost keyboard focus; or \c nullptr if no surface had focus.
+ */
+
+/*! \qmlsignal void QtWaylandCompositor::QWaylandSeat::cursorSurfaceRequest(QWaylandSurface surface, int hotspotX, int hotspotY)
+ *
+ * This signal is emitted when the client has requested for a specific \a surface to be the mouse
+ * cursor. For example, when the user hovers over a particular surface, and you want the cursor
+ * to change into a resize arrow.
+ *
+ * Both \a hotspotX and \a hotspotY are offsets from the top-left of a pointer surface, where a
+ * click should happen. For example, if the requested cursor surface is an arrow, the parameters
+ * indicate where the arrow's tip is, on that surface.
+ */
+
+
+/*!
+ * \fn void QWaylandSeat::cursorSurfaceRequest(QWaylandSurface *surface, int hotspotX, int hotspotY)
+ *
+ * This signal is emitted when the client has requested for a specific \a surface to be the mouse
+ * cursor. For example, when the user hovers over a particular surface, and you want the cursor
+ * to change into a resize arrow.
+ */
+
+/*!
+ * \property QWaylandSeat::drag
+ *
+ * This property holds the drag and drop operations and sends signals when they start and end.
+ * The property stores details like what image should be under the mouse cursor when the user
+ * drags it.
+ */
+
+/*!
+ * \property QWaylandSeat::keymap
+ * This property holds the keymap object.
+ *
+ * A keymap provides a way to translate actual key scan codes into a meaningful value.
+ * For example, if you use a keymap with a Norwegian layout, the key to the right of
+ * the letter L produces an Ø.
+ *
+ * Keymaps can also be used to customize key functions, such as to specify whether
+ * Control and CAPS lock should be swapped, and so on.
+ */
 
 QT_END_NAMESPACE

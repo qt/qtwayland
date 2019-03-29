@@ -41,6 +41,7 @@
 #define QWAYLANDBRCMEGLINTEGRATION_H
 
 #include <QtWaylandClient/private/qwaylandclientbufferintegration_p.h>
+#include <QtWaylandClient/private/wayland-wayland-client-protocol.h>
 #include <wayland-client-core.h>
 
 #include <EGL/egl.h>
@@ -86,7 +87,7 @@ public:
     void *nativeResourceForContext(NativeResource resource, QPlatformOpenGLContext *context) override;
 
 private:
-    static void wlDisplayHandleGlobal(void *data, struct wl_registry *registry, uint32_t id, const QString &interface, uint32_t version);
+    static void wlDisplayHandleGlobal(void *data, struct ::wl_registry *registry, uint32_t id, const QString &interface, uint32_t version);
 
     struct wl_display *m_waylandDisplay = nullptr;
     struct qt_brcm *m_waylandBrcm = nullptr;

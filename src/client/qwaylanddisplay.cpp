@@ -70,6 +70,7 @@
 #include <QtWaylandClient/private/qwayland-text-input-unstable-v2.h>
 
 #include <QtCore/QAbstractEventDispatcher>
+#include <QtGui/qpa/qwindowsysteminterface.h>
 #include <QtGui/private/qguiapplication_p.h>
 
 #include <QtCore/QDebug>
@@ -153,7 +154,7 @@ QWaylandDisplay::~QWaylandDisplay(void)
     mInputDevices.clear();
 
     foreach (QWaylandScreen *screen, mScreens) {
-        mWaylandIntegration->destroyScreen(screen);
+        QWindowSystemInterface::handleScreenRemoved(screen);
     }
     mScreens.clear();
 
@@ -244,7 +245,7 @@ void QWaylandDisplay::registry_global(uint32_t id, const QString &interface, uin
         mScreens.append(screen);
         // We need to get the output events before creating surfaces
         forceRoundTrip();
-        mWaylandIntegration->screenAdded(screen);
+        QWindowSystemInterface::handleScreenAdded(screen);
     } else if (interface == QStringLiteral("wl_compositor")) {
         mCompositorVersion = qMin((int)version, 3);
         mCompositor.init(registry, id, mCompositorVersion);
@@ -300,7 +301,7 @@ void QWaylandDisplay::registry_global_remove(uint32_t id)
                 foreach (QWaylandScreen *screen, mScreens) {
                     if (screen->outputId() == id) {
                         mScreens.removeOne(screen);
-                        mWaylandIntegration->destroyScreen(screen);
+                        QWindowSystemInterface::handleScreenRemoved(screen);
                         break;
                     }
                 }

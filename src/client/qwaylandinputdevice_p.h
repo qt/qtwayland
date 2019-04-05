@@ -258,6 +258,7 @@ class Q_WAYLAND_CLIENT_EXPORT QWaylandInputDevice::Pointer : public QObject, pub
 public:
     explicit Pointer(QWaylandInputDevice *seat);
     ~Pointer() override;
+    QWaylandWindow *focusWindow() const;
 #if QT_CONFIG(cursor)
     QString cursorThemeName() const;
     int cursorSize() const; // in surface coordinates
@@ -294,7 +295,7 @@ public:
     void releaseButtons();
 
     QWaylandInputDevice *mParent = nullptr;
-    QPointer<QWaylandWindow> mFocus;
+    QPointer<QWaylandSurface> mFocus;
     uint32_t mEnterSerial = 0;
 #if QT_CONFIG(cursor)
     struct {

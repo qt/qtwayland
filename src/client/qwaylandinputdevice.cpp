@@ -189,6 +189,11 @@ QWaylandInputDevice::Pointer::~Pointer()
         wl_pointer_destroy(object());
 }
 
+QWaylandWindow *QWaylandInputDevice::Pointer::focusWindow() const
+{
+    return mFocus ? mFocus->waylandWindow() : nullptr;
+}
+
 #if QT_CONFIG(cursor)
 
 class WlCallback : public QtWayland::wl_callback {
@@ -498,7 +503,7 @@ void QWaylandInputDevice::removeMouseButtonFromState(Qt::MouseButton button)
 
 QWaylandWindow *QWaylandInputDevice::pointerFocus() const
 {
-    return mPointer ? mPointer->mFocus : nullptr;
+    return mPointer ? mPointer->focusWindow() : nullptr;
 }
 
 QWaylandWindow *QWaylandInputDevice::keyboardFocus() const
@@ -596,8 +601,8 @@ void QWaylandInputDevice::Pointer::pointer_enter(uint32_t serial, struct wl_surf
                                 << "attempting to work around it by invalidating the current focus";
         invalidateFocus();
     }
-    mFocus = window;
-    connect(mFocus, &QWaylandWindow::wlSurfaceDestroyed, this, &Pointer::handleFocusDestroyed);
+    mFocus = window->waylandSurface();
+    connect(mFocus, &QObject::destroyed, this, &Pointer::handleFocusDestroyed);
 
     mSurfacePos = QPointF(wl_fixed_to_double(sx), wl_fixed_to_double(sy));
     mGlobalPos = window->window()->mapToGlobal(mSurfacePos.toPoint());
@@ -657,7 +662,7 @@ public:
 
 void QWaylandInputDevice::Pointer::pointer_motion(uint32_t time, wl_fixed_t surface_x, wl_fixed_t surface_y)
 {
-    QWaylandWindow *window = mFocus;
+    QWaylandWindow *window = focusWindow();
     if (!window) {
         // We destroyed the pointer focus surface, but the server didn't get the message yet...
         // or the server didn't send an enter event first. In either case, ignore the event.
@@ -709,7 +714,7 @@ public:
 void QWaylandInputDevice::Pointer::pointer_button(uint32_t serial, uint32_t time,
                                                   uint32_t button, uint32_t state)
 {
-    QWaylandWindow *window = mFocus;
+    QWaylandWindow *window = focusWindow();
     if (!window) {
         // We destroyed the pointer focus surface, but the server didn't get the message yet...
         // or the server didn't send an enter event first. In either case, ignore the event.
@@ -754,7 +759,7 @@ void QWaylandInputDevice::Pointer::pointer_button(uint32_t serial, uint32_t time
 
     QPointF pos = mSurfacePos;
     QPointF global = mGlobalPos;
-    if (grab && grab != mFocus) {
+    if (grab && grab != focusWindow()) {
         pos = QPointF(-1, -1);
         global = grab->window()->mapToGlobal(pos.toPoint());
 
@@ -769,7 +774,7 @@ void QWaylandInputDevice::Pointer::pointer_button(uint32_t serial, uint32_t time
 
 void QWaylandInputDevice::Pointer::invalidateFocus()
 {
-    disconnect(mFocus, &QWaylandWindow::wlSurfaceDestroyed, this, &Pointer::handleFocusDestroyed);
+    disconnect(mFocus, &QObject::destroyed, this, &Pointer::handleFocusDestroyed);
     mFocus = nullptr;
     mEnterSerial = 0;
 }
@@ -777,9 +782,11 @@ void QWaylandInputDevice::Pointer::invalidateFocus()
 void QWaylandInputDevice::Pointer::releaseButtons()
 {
     mButtons = Qt::NoButton;
-    MotionEvent e(mFocus, mParent->mTime, mSurfacePos, mGlobalPos, mButtons, mParent->modifiers());
-    if (mFocus)
-        mFocus->handleMouse(mParent, e);
+
+    if (auto *window = focusWindow()) {
+        MotionEvent e(focusWindow(), mParent->mTime, mSurfacePos, mGlobalPos, mButtons, mParent->modifiers());
+        window->handleMouse(mParent, e);
+    }
 }
 
 class WheelEvent : public QWaylandPointerEvent
@@ -796,9 +803,7 @@ public:
 
 void QWaylandInputDevice::Pointer::pointer_axis(uint32_t time, uint32_t axis, int32_t value)
 {
-    QWaylandWindow *window = mFocus;
-
-    if (!window) {
+    if (!focusWindow()) {
         // We destroyed the pointer focus surface, but the server didn't get the message yet...
         // or the server didn't send an enter event first. In either case, ignore the event.
         return;
@@ -851,8 +856,7 @@ void QWaylandInputDevice::Pointer::pointer_axis_source(uint32_t source)
 
 void QWaylandInputDevice::Pointer::pointer_axis_stop(uint32_t time, uint32_t axis)
 {
-    QWaylandWindow *window = mFocus;
-    if (window == nullptr)
+    if (!focusWindow())
         return;
 
     mParent->mTime = time;
@@ -882,9 +886,9 @@ void QWaylandInputDevice::Pointer::pointer_axis_stop(uint32_t time, uint32_t axi
 
     QWaylandWindow *target = QWaylandWindow::mouseGrab();
     if (!target)
-        target = mFocus;
+        target = focusWindow();
     Qt::KeyboardModifiers mods = mParent->modifiers();
-    WheelEvent wheelEvent(mFocus, Qt::ScrollEnd, mParent->mTime, mSurfacePos, mGlobalPos,
+    WheelEvent wheelEvent(focusWindow(), Qt::ScrollEnd, mParent->mTime, mSurfacePos, mGlobalPos,
                           QPoint(), QPoint(), Qt::MouseEventNotSynthesized, mods);
     target->handleMouse(mParent, wheelEvent);
     mScrollBeginSent = false;
@@ -893,8 +897,7 @@ void QWaylandInputDevice::Pointer::pointer_axis_stop(uint32_t time, uint32_t axi
 
 void QWaylandInputDevice::Pointer::pointer_axis_discrete(uint32_t axis, int32_t value)
 {
-    QWaylandWindow *window = mFocus;
-    if (window == nullptr)
+    if (!focusWindow())
         return;
 
     switch (axis) {
@@ -999,11 +1002,11 @@ void QWaylandInputDevice::Pointer::flushScrollEvent()
     if (!angleDelta.isNull()) {
         QWaylandWindow *target = QWaylandWindow::mouseGrab();
         if (!target)
-            target = mFocus;
+            target = focusWindow();
 
         if (isDefinitelyTerminated(mFrameData.axisSource) && !mScrollBeginSent) {
             qCDebug(lcQpaWaylandInput) << "Flushing scroll event sending ScrollBegin";
-            target->handleMouse(mParent, WheelEvent(mFocus, Qt::ScrollBegin, mParent->mTime,
+            target->handleMouse(mParent, WheelEvent(focusWindow(), Qt::ScrollBegin, mParent->mTime,
                                                     mSurfacePos, mGlobalPos, QPoint(), QPoint(),
                                                     Qt::MouseEventNotSynthesized,
                                                     mParent->modifiers()));
@@ -1016,7 +1019,7 @@ void QWaylandInputDevice::Pointer::flushScrollEvent()
         Qt::MouseEventSource source = mFrameData.wheelEventSource();
 
         qCDebug(lcQpaWaylandInput) << "Flushing scroll event" << phase << pixelDelta << angleDelta;
-        target->handleMouse(mParent, WheelEvent(mFocus, phase, mParent->mTime, mSurfacePos, mGlobalPos,
+        target->handleMouse(mParent, WheelEvent(focusWindow(), phase, mParent->mTime, mSurfacePos, mGlobalPos,
                                                 pixelDelta, angleDelta, source, mParent->modifiers()));
     }
 
@@ -1366,7 +1369,7 @@ void QWaylandInputDevice::handleTouchPoint(int id, double x, double y, Qt::Touch
 
         //is it possible that mTouchFocus is null;
         if (!win && mPointer)
-            win = mPointer->mFocus;
+            win = mPointer->focusWindow();
         if (!win && mKeyboard)
             win = mKeyboard->focusWindow();
         if (!win || !win->window())

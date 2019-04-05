@@ -70,6 +70,7 @@ public:
     explicit QWaylandSurface(QWaylandDisplay *display);
     ~QWaylandSurface() override;
     QWaylandScreen *oldestEnteredScreen();
+    QWaylandWindow *waylandWindow() const { return m_window; }
 
     static QWaylandSurface *fromWlSurface(::wl_surface *surface);
 

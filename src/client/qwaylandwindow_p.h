@@ -127,6 +127,7 @@ public:
     QSize surfaceSize() const;
     QRect windowGeometry() const;
 
+    QWaylandSurface *waylandSurface() const { return mSurface.data(); }
     ::wl_surface *wlSurface();
     static QWaylandWindow *fromWlSurface(::wl_surface *surface);
 

@@ -41,6 +41,7 @@
 
 #include "qwaylandintegration_p.h"
 #include "qwaylandwindow_p.h"
+#include "qwaylandsurface_p.h"
 #include "qwaylandabstractdecoration_p.h"
 #include "qwaylandscreen_p.h"
 #include "qwaylandcursor_p.h"

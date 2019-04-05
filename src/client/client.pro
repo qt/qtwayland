@@ -45,6 +45,7 @@ SOURCES +=  qwaylandintegration.cpp \
             qwaylandshellsurface.cpp \
             qwaylandextendedsurface.cpp \
             qwaylandsubsurface.cpp \
+            qwaylandsurface.cpp \
             qwaylandtouch.cpp \
             qwaylandqtkey.cpp \
             ../shared/qwaylandmimehelper.cpp \
@@ -70,6 +71,7 @@ HEADERS +=  qwaylandintegration_p.h \
             qwaylandshellsurface_p.h \
             qwaylandextendedsurface_p.h \
             qwaylandsubsurface_p.h \
+            qwaylandsurface_p.h \
             qwaylandtouch_p.h \
             qwaylandqtkey_p.h \
             qwaylandabstractdecoration_p.h \

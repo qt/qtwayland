@@ -93,6 +93,7 @@ class QWaylandWindow;
 class QWaylandIntegration;
 class QWaylandHardwareIntegration;
 class QWaylandShellSurface;
+class QWaylandSurface;
 class QWaylandCursor;
 class QWaylandCursorTheme;
 

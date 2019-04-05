@@ -79,8 +79,9 @@ class QWaylandInputDevice;
 class QWaylandScreen;
 class QWaylandShmBackingStore;
 class QWaylandPointerEvent;
+class QWaylandSurface;
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandWindow : public QObject, public QPlatformWindow, private QtWayland::wl_surface
+class Q_WAYLAND_CLIENT_EXPORT QWaylandWindow : public QObject, public QPlatformWindow
 {
     Q_OBJECT
 public:
@@ -108,12 +109,10 @@ public:
 
     void applyConfigureWhenPossible(); //rename to possible?
 
-    using QtWayland::wl_surface::attach;
     void attach(QWaylandBuffer *buffer, int x, int y);
     void attachOffset(QWaylandBuffer *buffer);
     QPoint attachOffset() const;
 
-    using QtWayland::wl_surface::damage;
     void damage(const QRect &rect);
 
     void safeCommit(QWaylandBuffer *buffer, const QRegion &damage);
@@ -128,7 +127,7 @@ public:
     QSize surfaceSize() const;
     QRect windowGeometry() const;
 
-    ::wl_surface *wlSurface() { return object(); }
+    ::wl_surface *wlSurface();
     static QWaylandWindow *fromWlSurface(::wl_surface *surface);
 
     QWaylandDisplay *display() const { return mDisplay; }
@@ -203,11 +202,8 @@ signals:
     void wlSurfaceDestroyed();
 
 protected:
-    void surface_enter(struct ::wl_output *output) override;
-    void surface_leave(struct ::wl_output *output) override;
-
-    QVector<QWaylandScreen *> mScreens; //As seen by wl_surface.enter/leave events. Chronological order.
     QWaylandDisplay *mDisplay = nullptr;
+    QScopedPointer<QWaylandSurface> mSurface;
     QWaylandShellSurface *mShellSurface = nullptr;
     QWaylandSubSurface *mSubSurfaceWindow = nullptr;
     QVector<QWaylandSubSurface *> mChildren;
@@ -231,6 +227,7 @@ protected:
     bool mSentInitialResize = false;
     QPoint mOffset;
     int mScale = 1;
+    QWaylandScreen *mLastReportedScreen = nullptr;
 
     QIcon mWindowIcon;
 
@@ -241,9 +238,6 @@ protected:
     QWaylandShmBackingStore *mBackingStore = nullptr;
     QWaylandBuffer *mQueuedBuffer = nullptr;
     QRegion mQueuedBufferDamage;
-
-private slots:
-    void handleScreenRemoved(QScreen *qScreen);
 
 private:
     void setGeometry_helper(const QRect &rect);
@@ -257,7 +251,7 @@ private:
     QWaylandScreen *calculateScreenFromSurfaceEvents() const;
 
     void handleMouseEventWithDecoration(QWaylandInputDevice *inputDevice, const QWaylandPointerEvent &e);
-    void handleScreenChanged();
+    void handleScreensChanged();
 
     bool mUpdateRequested = false;
     QRect mLastExposeGeometry;

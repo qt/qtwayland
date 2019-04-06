@@ -73,6 +73,7 @@ private slots:
     void singleClient();
     void multipleClients();
     void geometry();
+    void availableGeometry();
     void modes();
     void comparingModes();
     void sizeFollowsWindow();
@@ -365,6 +366,22 @@ void tst_WaylandCompositor::geometry()
     QTRY_COMPARE(client.geometry, QRect(QPoint(1024, 0), QSize(4096, 3072)));
     QTRY_COMPARE(client.resolution, QSize(4096, 3072));
     QTRY_COMPARE(client.refreshRate, 60000);
+}
+
+void tst_WaylandCompositor::availableGeometry()
+{
+    TestCompositor compositor;
+    compositor.create();
+
+    QWaylandOutputMode mode(QSize(1024, 768), 60000);
+    compositor.defaultOutput()->addMode(mode, true);
+    compositor.defaultOutput()->setCurrentMode(mode);
+
+    MockClient client;
+
+    QRect availableGeometry(50, 100, 850, 600);
+    compositor.defaultOutput()->setAvailableGeometry(availableGeometry);
+    QCOMPARE(compositor.defaultOutput()->availableGeometry(), availableGeometry);
 }
 
 void tst_WaylandCompositor::modes()

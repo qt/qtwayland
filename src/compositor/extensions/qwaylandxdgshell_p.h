@@ -38,6 +38,7 @@
 #define QWAYLANDXDGSHELL_P_H
 
 #include <QtWaylandCompositor/private/qwaylandcompositorextension_p.h>
+#include <QtWaylandCompositor/private/qwaylandshell_p.h>
 #include <QtWaylandCompositor/private/qwayland-server-xdg-shell.h>
 
 #include <QtWaylandCompositor/QWaylandXdgShell>
@@ -73,7 +74,7 @@ struct Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgPositionerData {
 };
 
 class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgShellPrivate
-        : public QWaylandCompositorExtensionPrivate
+        : public QWaylandShellPrivate
         , public QtWaylandServer::xdg_wm_base
 {
     Q_DECLARE_PUBLIC(QWaylandXdgShell)

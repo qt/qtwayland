@@ -65,7 +65,9 @@ QWaylandScreen *QWaylandSurface::oldestEnteredScreen()
 
 QWaylandSurface *QWaylandSurface::fromWlSurface(::wl_surface *surface)
 {
-    return static_cast<QWaylandSurface *>(static_cast<QtWayland::wl_surface *>(wl_surface_get_user_data(surface)));
+    if (auto *s = QtWayland::wl_surface::fromObject(surface))
+        return static_cast<QWaylandSurface *>(s);
+    return nullptr;
 }
 
 void QWaylandSurface::handleScreenRemoved(QScreen *qScreen)
@@ -78,6 +80,9 @@ void QWaylandSurface::handleScreenRemoved(QScreen *qScreen)
 void QWaylandSurface::surface_enter(wl_output *output)
 {
     auto addedScreen = QWaylandScreen::fromWlOutput(output);
+
+    if (!addedScreen)
+        return;
 
     if (m_screens.contains(addedScreen)) {
         qCWarning(lcQpaWayland)
@@ -95,6 +100,10 @@ void QWaylandSurface::surface_enter(wl_output *output)
 void QWaylandSurface::surface_leave(wl_output *output)
 {
     auto *removedScreen = QWaylandScreen::fromWlOutput(output);
+
+    if (!removedScreen)
+        return;
+
     bool wasRemoved = m_screens.removeOne(removedScreen);
     if (!wasRemoved) {
         qCWarning(lcQpaWayland)

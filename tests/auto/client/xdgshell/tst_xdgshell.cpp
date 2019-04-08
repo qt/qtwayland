@@ -29,6 +29,8 @@
 #include "mockcompositor.h"
 #include <QtGui/QRasterWindow>
 #include <QtGui/QOpenGLWindow>
+#include <QtGui/qpa/qplatformnativeinterface.h>
+#include <QtWaylandClient/private/wayland-wayland-client-protocol.h>
 
 using namespace MockCompositor;
 
@@ -47,6 +49,7 @@ private slots:
     void pongs();
     void minMaxSize();
     void windowGeometry();
+    void foreignSurface();
 };
 
 void tst_xdgshell::showMinimized()
@@ -470,6 +473,33 @@ void tst_xdgshell::windowGeometry()
 
     window.resize(800, 600);
     QCOMPOSITOR_TRY_COMPARE(xdgSurface()->m_committed.windowGeometry, QRect(QPoint(0, 0), window.frameGeometry().size()));
+}
+
+void tst_xdgshell::foreignSurface()
+{
+    auto *ni = QGuiApplication::platformNativeInterface();
+    auto *compositor = static_cast<::wl_compositor *>(ni->nativeResourceForIntegration("compositor"));
+    ::wl_surface *foreignSurface = wl_compositor_create_surface(compositor);
+
+    // There *could* be cursor surfaces lying around, we don't want to confuse those with
+    // the foreign surface we will be creating.
+    const int newSurfaceIndex = exec([&]{
+        return get<WlCompositor>()->m_surfaces.size();
+    });
+
+    QCOMPOSITOR_TRY_VERIFY(surface(newSurfaceIndex));
+    exec([&] {
+        pointer()->sendEnter(surface(newSurfaceIndex), {32, 32});
+        pointer()->sendLeave(surface(newSurfaceIndex));
+    });
+
+    // Just do something to make sure we don't destroy the surface before
+    // the pointer events above are handled.
+    QSignalSpy spy(exec([=] { return surface(newSurfaceIndex); }), &Surface::commit);
+    wl_surface_commit(foreignSurface);
+    QTRY_COMPARE(spy.count(), 1);
+
+    wl_surface_destroy(foreignSurface);
 }
 
 QCOMPOSITOR_TEST_MAIN(tst_xdgshell)

@@ -451,6 +451,9 @@ void QWaylandInputDevice::Pointer::pointer_enter(uint32_t serial, struct wl_surf
         return;
 
     QWaylandWindow *window = QWaylandWindow::fromWlSurface(surface);
+    if (!window)
+        return; // Ignore foreign surfaces
+
     mFocus = window;
     mSurfacePos = QPointF(wl_fixed_to_double(sx), wl_fixed_to_double(sy));
     mGlobalPos = window->window()->mapToGlobal(mSurfacePos.toPoint());
@@ -476,6 +479,10 @@ void QWaylandInputDevice::Pointer::pointer_leave(uint32_t time, struct wl_surfac
     // a null surface.
     if (!surface)
         return;
+
+    auto *window = QWaylandWindow::fromWlSurface(surface);
+    if (!window)
+        return; // Ignore foreign surfaces
 
     if (!QWaylandWindow::mouseGrab()) {
         QWaylandWindow *window = QWaylandWindow::fromWlSurface(surface);
@@ -852,9 +859,13 @@ void QWaylandInputDevice::Touch::touch_down(uint32_t serial,
     if (!surface)
         return;
 
+    auto *window = QWaylandWindow::fromWlSurface(surface);
+    if (!window)
+        return; // Ignore foreign surfaces
+
     mParent->mTime = time;
     mParent->mSerial = serial;
-    mFocus = QWaylandWindow::fromWlSurface(surface);
+    mFocus = window;
     mParent->mQDisplay->setLastInputDevice(mParent, serial, mFocus);
     mParent->handleTouchPoint(id, wl_fixed_to_double(x), wl_fixed_to_double(y), Qt::TouchPointPressed);
 }

@@ -62,7 +62,7 @@ void tst_xdgshell::showMinimized()
 
     // Make sure the window on the compositor side is/was created here, and not after the test
     // finishes, as that may mess up for later tests.
-    QCOMPOSITOR_TRY_VERIFY(surface());
+    QCOMPOSITOR_TRY_VERIFY(xdgSurface());
     QVERIFY(!window.isExposed());
 }
 

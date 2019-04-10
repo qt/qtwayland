@@ -56,6 +56,7 @@
 #include <QtGui/QSurfaceFormat>
 #include <QtGui/QOpenGLShaderProgram>
 #include <QtGui/QOpenGLFunctions>
+#include <QOpenGLBuffer>
 
 #include <QtCore/qmutex.h>
 
@@ -138,6 +139,52 @@ public:
             qDebug() << "Shader Program link failed.";
             qDebug() << m_blitProgram->log();
         }
+
+        m_blitProgram->bind();
+        m_blitProgram->enableAttributeArray(0);
+        m_blitProgram->enableAttributeArray(1);
+
+        glDisable(GL_DEPTH_TEST);
+        glDisable(GL_BLEND);
+        glDisable(GL_CULL_FACE);
+        glDisable(GL_SCISSOR_TEST);
+        glDepthMask(GL_FALSE);
+        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+
+        m_buffer.create();
+        m_buffer.bind();
+
+        static const GLfloat squareVertices[] = {
+            -1.f, -1.f,
+            1.0f, -1.f,
+            -1.f,  1.0f,
+            1.0f,  1.0f
+        };
+        static const GLfloat inverseSquareVertices[] = {
+            -1.f, 1.f,
+            1.f, 1.f,
+            -1.f, -1.f,
+            1.f, -1.f
+        };
+        static const GLfloat textureVertices[] = {
+            0.0f,  0.0f,
+            1.0f,  0.0f,
+            0.0f,  1.0f,
+            1.0f,  1.0f,
+        };
+
+        m_squareVerticesOffset = 0;
+        m_inverseSquareVerticesOffset = sizeof(squareVertices);
+        m_textureVerticesOffset = sizeof(squareVertices) + sizeof(textureVertices);
+
+        m_buffer.allocate(sizeof(squareVertices) + sizeof(inverseSquareVertices) + sizeof(textureVertices));
+        m_buffer.write(m_squareVerticesOffset, squareVertices, sizeof(squareVertices));
+        m_buffer.write(m_inverseSquareVerticesOffset, inverseSquareVertices, sizeof(inverseSquareVertices));
+        m_buffer.write(m_textureVerticesOffset, textureVertices, sizeof(textureVertices));
+
+        m_blitProgram->setAttributeBuffer(1, GL_FLOAT, m_textureVerticesOffset, 2);
+
+        m_textureWrap = m_context->context()->functions()->hasOpenGLFeature(QOpenGLFunctions::NPOTTextureRepeat) ? GL_REPEAT : GL_CLAMP_TO_EDGE;
     }
     ~DecorationsBlitter()
     {
@@ -152,76 +199,31 @@ public:
         int scale = window->scale() ;
         glViewport(0, 0, surfaceSize.width() * scale, surfaceSize.height() * scale);
 
-        glDisable(GL_DEPTH_TEST);
-        glDisable(GL_BLEND);
-        glDisable(GL_CULL_FACE);
-        glDisable(GL_SCISSOR_TEST);
-        glDepthMask(GL_FALSE);
-        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-
-        m_context->mUseNativeDefaultFbo = true;
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        m_context->mUseNativeDefaultFbo = false;
-
-        static const GLfloat squareVertices[] = {
-            -1.f, -1.f,
-            1.0f, -1.f,
-            -1.f,  1.0f,
-            1.0f,  1.0f
-        };
-
-        static const GLfloat inverseSquareVertices[] = {
-            -1.f, 1.f,
-            1.f, 1.f,
-            -1.f, -1.f,
-            1.f, -1.f
-        };
-
-        static const GLfloat textureVertices[] = {
-            0.0f,  0.0f,
-            1.0f,  0.0f,
-            0.0f,  1.0f,
-            1.0f,  1.0f,
-        };
-
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        m_blitProgram->bind();
-
-        m_blitProgram->enableAttributeArray(0);
-        m_blitProgram->enableAttributeArray(1);
-        m_blitProgram->setAttributeArray(1, textureVertices, 2);
-
-        glActiveTexture(GL_TEXTURE0);
-
         //Draw Decoration
-        m_blitProgram->setAttributeArray(0, inverseSquareVertices, 2);
+        m_blitProgram->setAttributeBuffer(0, GL_FLOAT, m_inverseSquareVerticesOffset, 2);
         QImage decorationImage = window->decoration()->contentImage();
         cache->bindTexture(m_context->context(), decorationImage);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        if (m_context->context()->functions()->hasOpenGLFeature(QOpenGLFunctions::NPOTTextureRepeat)) {
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        } else {
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        }
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, m_textureWrap);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, m_textureWrap);
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
         //Draw Content
-        m_blitProgram->setAttributeArray(0, squareVertices, 2);
+        m_blitProgram->setAttributeBuffer(0, GL_FLOAT, m_squareVerticesOffset, 2);
         glBindTexture(GL_TEXTURE_2D, window->contentTexture());
         QRect r = window->contentsRect();
         glViewport(r.x() * scale, r.y() * scale, r.width() * scale, r.height() * scale);
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-
-        //Cleanup
-        m_blitProgram->disableAttributeArray(0);
-        m_blitProgram->disableAttributeArray(1);
     }
 
     QOpenGLShaderProgram *m_blitProgram = nullptr;
     QWaylandGLContext *m_context = nullptr;
+    QOpenGLBuffer m_buffer;
+    int m_squareVerticesOffset;
+    int m_inverseSquareVerticesOffset;
+    int m_textureVerticesOffset;
+    int m_textureWrap;
 };
 
 
@@ -307,6 +309,13 @@ QWaylandGLContext::QWaylandGLContext(EGLDisplay eglDisplay, QWaylandDisplay *dis
         qWarning("QWaylandGLContext: failed to create EGLContext, error=%x", error);
         return;
     }
+
+    // Create an EGL context for the decorations blitter. By using a dedicated context we don't need to make sure to not
+    // change the context state and we also use OpenGL ES 2 API independently to what the app is using to draw.
+    QVector<EGLint> eglDecorationsContextAttrs = { EGL_CONTEXT_CLIENT_VERSION, 1, EGL_NONE };
+    m_decorationsContext = eglCreateContext(m_eglDisplay, m_config, m_context, eglDecorationsContextAttrs.constData());
+    if (m_decorationsContext == EGL_NO_CONTEXT)
+        qWarning("QWaylandGLContext: Failed to create the decorations EGLContext. Decorations will not be drawn.");
 
     EGLint a = EGL_MIN_SWAP_INTERVAL;
     EGLint b = EGL_MAX_SWAP_INTERVAL;
@@ -410,12 +419,7 @@ bool QWaylandGLContext::makeCurrent(QPlatformSurface *surface)
 
     if (window->isExposed())
         window->setCanResize(false);
-    // Core profiles mandate the use of VAOs when rendering. We would then need to use one
-    // in DecorationsBlitter, but for that we would need a QOpenGLFunctions_3_2_Core instead
-    // of the QOpenGLFunctions we use, but that would break when using a lower version context.
-    // Instead of going crazy, just disable decorations for core profiles until we use
-    // subsurfaces for them.
-    if (m_format.profile() != QSurfaceFormat::CoreProfile && !window->decoration())
+    if (m_decorationsContext != EGL_NO_CONTEXT && !window->decoration())
         window->createDecoration();
 
     if (eglSurface == EGL_NO_SURFACE) {
@@ -442,102 +446,6 @@ void QWaylandGLContext::doneCurrent()
     eglMakeCurrent(m_eglDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
 }
 
-#define STATE_GUARD_VERTEX_ATTRIB_COUNT 2
-
-class StateGuard
-{
-public:
-    StateGuard() {
-        QOpenGLFunctions glFuncs(QOpenGLContext::currentContext());
-
-        glGetIntegerv(GL_CURRENT_PROGRAM, (GLint *) &m_program);
-        glGetIntegerv(GL_ACTIVE_TEXTURE, (GLint *) &m_activeTextureUnit);
-        glGetIntegerv(GL_TEXTURE_BINDING_2D, (GLint *) &m_texture);
-        glGetIntegerv(GL_FRAMEBUFFER_BINDING, (GLint *) &m_fbo);
-        glGetIntegerv(GL_VIEWPORT, m_viewport);
-        glGetIntegerv(GL_DEPTH_WRITEMASK, &m_depthWriteMask);
-        glGetIntegerv(GL_COLOR_WRITEMASK, m_colorWriteMask);
-        m_blend = glIsEnabled(GL_BLEND);
-        m_depth = glIsEnabled(GL_DEPTH_TEST);
-        m_cull = glIsEnabled(GL_CULL_FACE);
-        m_scissor = glIsEnabled(GL_SCISSOR_TEST);
-        for (int i = 0; i < STATE_GUARD_VERTEX_ATTRIB_COUNT; ++i) {
-            glFuncs.glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_ENABLED, (GLint *) &m_vertexAttribs[i].enabled);
-            glFuncs.glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_BUFFER_BINDING, (GLint *) &m_vertexAttribs[i].arrayBuffer);
-            glFuncs.glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_SIZE, &m_vertexAttribs[i].size);
-            glFuncs.glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_STRIDE, &m_vertexAttribs[i].stride);
-            glFuncs.glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_TYPE, (GLint *) &m_vertexAttribs[i].type);
-            glFuncs.glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_NORMALIZED, (GLint *) &m_vertexAttribs[i].normalized);
-            glFuncs.glGetVertexAttribPointerv(i, GL_VERTEX_ATTRIB_ARRAY_POINTER, &m_vertexAttribs[i].pointer);
-        }
-        glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, (GLint *) &m_minFilter);
-        glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, (GLint *) &m_magFilter);
-        glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, (GLint *) &m_wrapS);
-        glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, (GLint *) &m_wrapT);
-    }
-
-    ~StateGuard() {
-        QOpenGLFunctions glFuncs(QOpenGLContext::currentContext());
-
-        glFuncs.glUseProgram(m_program);
-        glActiveTexture(m_activeTextureUnit);
-        glBindTexture(GL_TEXTURE_2D, m_texture);
-        glFuncs.glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
-        glViewport(m_viewport[0], m_viewport[1], m_viewport[2], m_viewport[3]);
-        glDepthMask(m_depthWriteMask);
-        glColorMask(m_colorWriteMask[0], m_colorWriteMask[1], m_colorWriteMask[2], m_colorWriteMask[3]);
-        if (m_blend)
-            glEnable(GL_BLEND);
-        if (m_depth)
-            glEnable(GL_DEPTH_TEST);
-        if (m_cull)
-            glEnable(GL_CULL_FACE);
-        if (m_scissor)
-            glEnable(GL_SCISSOR_TEST);
-        for (int i = 0; i < STATE_GUARD_VERTEX_ATTRIB_COUNT; ++i) {
-            if (m_vertexAttribs[i].enabled)
-                glFuncs.glEnableVertexAttribArray(i);
-            GLuint prevBuf;
-            glGetIntegerv(GL_ARRAY_BUFFER_BINDING, (GLint *) &prevBuf);
-            glFuncs.glBindBuffer(GL_ARRAY_BUFFER, m_vertexAttribs[i].arrayBuffer);
-            glFuncs.glVertexAttribPointer(i, m_vertexAttribs[i].size, m_vertexAttribs[i].type,
-                                          m_vertexAttribs[i].normalized, m_vertexAttribs[i].stride,
-                                          m_vertexAttribs[i].pointer);
-            glFuncs.glBindBuffer(GL_ARRAY_BUFFER, prevBuf);
-        }
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, m_minFilter);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, m_magFilter);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, m_wrapS);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, m_wrapT);
-    }
-
-private:
-    GLuint m_program;
-    GLenum m_activeTextureUnit;
-    GLuint m_texture;
-    GLuint m_fbo;
-    GLint m_depthWriteMask;
-    GLint m_colorWriteMask[4];
-    GLboolean m_blend;
-    GLboolean m_depth;
-    GLboolean m_cull;
-    GLboolean m_scissor;
-    GLint m_viewport[4];
-    struct VertexAttrib {
-        bool enabled;
-        GLuint arrayBuffer;
-        GLint size;
-        GLint stride;
-        GLenum type;
-        bool normalized;
-        void *pointer = nullptr;
-    } m_vertexAttribs[STATE_GUARD_VERTEX_ATTRIB_COUNT];
-    GLenum m_minFilter;
-    GLenum m_magFilter;
-    GLenum m_wrapS;
-    GLenum m_wrapT;
-};
-
 void QWaylandGLContext::swapBuffers(QPlatformSurface *surface)
 {
     QWaylandEglWindow *window = static_cast<QWaylandEglWindow *>(surface);
@@ -545,15 +453,23 @@ void QWaylandGLContext::swapBuffers(QPlatformSurface *surface)
     EGLSurface eglSurface = window->eglSurface();
 
     if (window->decoration()) {
-        makeCurrent(surface);
+        if (m_api != EGL_OPENGL_ES_API)
+            eglBindAPI(EGL_OPENGL_ES_API);
 
-        // Must save & restore all state. Applications are usually not prepared
-        // for random context state changes in a swapBuffers() call.
-        StateGuard stateGuard;
+        // save the current EGL content and surface to set it again after the blitter is done
+        EGLDisplay currentDisplay = eglGetCurrentDisplay();
+        EGLContext currentContext = eglGetCurrentContext();
+        EGLSurface currentSurfaceDraw = eglGetCurrentSurface(EGL_DRAW);
+        EGLSurface currentSurfaceRead = eglGetCurrentSurface(EGL_READ);
+        eglMakeCurrent(m_eglDisplay, eglSurface, eglSurface, m_decorationsContext);
 
         if (!m_blitter)
             m_blitter = new DecorationsBlitter(this);
         m_blitter->blit(window);
+
+        if (m_api != EGL_OPENGL_ES_API)
+            eglBindAPI(m_api);
+        eglMakeCurrent(currentDisplay, currentSurfaceDraw, currentSurfaceRead, currentContext);
     }
 
 
@@ -576,9 +492,6 @@ void QWaylandGLContext::swapBuffers(QPlatformSurface *surface)
 
 GLuint QWaylandGLContext::defaultFramebufferObject(QPlatformSurface *surface) const
 {
-    if (mUseNativeDefaultFbo)
-        return 0;
-
     return static_cast<QWaylandEglWindow *>(surface)->contentFBO();
 }
 

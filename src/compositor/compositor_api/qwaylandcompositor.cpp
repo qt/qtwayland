@@ -162,8 +162,12 @@ QWaylandCompositorPrivate::QWaylandCompositorPrivate(QWaylandCompositor *composi
 {
     if (QGuiApplication::platformNativeInterface())
         display = static_cast<wl_display*>(QGuiApplication::platformNativeInterface()->nativeResourceForIntegration("server_wl_display"));
-    if (!display)
+
+    if (!display) {
         display = wl_display_create();
+        ownsDisplay = true;
+    }
+
     eventHandler.reset(new QtWayland::WindowSystemEventHandler(compositor));
     timer.start();
 
@@ -248,7 +252,8 @@ QWaylandCompositorPrivate::~QWaylandCompositorPrivate()
     client_buffer_integration.reset();
 #endif
 
-    wl_display_destroy(display);
+    if (ownsDisplay)
+        wl_display_destroy(display);
 }
 
 void QWaylandCompositorPrivate::preInit()

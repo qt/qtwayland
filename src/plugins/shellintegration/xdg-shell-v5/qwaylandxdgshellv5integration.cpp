@@ -73,10 +73,15 @@ bool QWaylandXdgShellV5Integration::initialize(QWaylandDisplay *display)
 QWaylandShellSurface *QWaylandXdgShellV5Integration::createShellSurface(QWaylandWindow *window)
 {
     QWaylandInputDevice *inputDevice = window->display()->lastInputDevice();
-    if (window->window()->type() == Qt::WindowType::Popup && inputDevice)
-        return m_xdgShell->createXdgPopup(window, inputDevice);
-    else
-        return m_xdgShell->createXdgSurface(window);
+    if (window->window()->type() == Qt::WindowType::Popup && inputDevice) {
+        if (auto *popup = m_xdgShell->createXdgPopup(window, inputDevice))
+            return popup;
+
+        qWarning(lcQpaWayland) << "Failed to create xdg-popup v5 for window" << window->window()
+                               << "falling back to creating an xdg-surface";
+    }
+
+    return m_xdgShell->createXdgSurface(window);
 }
 
 void QWaylandXdgShellV5Integration::handleKeyboardFocusChanged(QWaylandWindow *newFocus, QWaylandWindow *oldFocus) {

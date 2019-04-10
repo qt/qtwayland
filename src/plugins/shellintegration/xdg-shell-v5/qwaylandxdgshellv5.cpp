@@ -71,6 +71,9 @@ QWaylandXdgSurfaceV5 *QWaylandXdgShellV5::createXdgSurface(QWaylandWindow *windo
 QWaylandXdgPopupV5 *QWaylandXdgShellV5::createXdgPopup(QWaylandWindow *window, QWaylandInputDevice *inputDevice)
 {
     QWaylandWindow *parentWindow = m_popups.empty() ? window->transientParent() : m_popups.last();
+    if (!parentWindow)
+        return nullptr;
+
     ::wl_surface *parentSurface = parentWindow->wlSurface();
 
     if (m_popupSerial == 0)

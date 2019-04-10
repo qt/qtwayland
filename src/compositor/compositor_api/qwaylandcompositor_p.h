@@ -137,6 +137,7 @@ protected:
     QList<int> externally_added_socket_fds;
 #endif
     struct wl_display *display = nullptr;
+    bool ownsDisplay = false;
 
     QList<QWaylandSeat *> seats;
     QList<QWaylandOutput *> outputs;

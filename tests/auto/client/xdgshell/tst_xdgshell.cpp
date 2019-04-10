@@ -423,9 +423,16 @@ void tst_xdgshell::switchPopups()
 
 void tst_xdgshell::pongs()
 {
-    QSignalSpy pongSpy(exec([=] { return get<XdgWmBase>(); }), &XdgWmBase::pong);
+    // Create and show a window to trigger shell integration initialzation,
+    // otherwise we don't have anything to send ping events to.
+    QRasterWindow window;
+    window.resize(200, 200);
+    window.show();
+
     // Verify that the client has bound to the global
     QCOMPOSITOR_TRY_COMPARE(get<XdgWmBase>()->resourceMap().size(), 1);
+
+    QSignalSpy pongSpy(exec([=] { return get<XdgWmBase>(); }), &XdgWmBase::pong);
     const uint serial = exec([=] { return nextSerial(); });
     exec([=] {
         auto *base = get<XdgWmBase>();

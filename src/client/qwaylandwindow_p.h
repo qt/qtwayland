@@ -126,7 +126,7 @@ public:
 
     QMargins frameMargins() const override;
     QSize surfaceSize() const;
-    QRect windowGeometry() const;
+    QRect windowContentGeometry() const;
 
     static QWaylandWindow *fromWlSurface(::wl_surface *surface);
 

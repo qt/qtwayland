@@ -110,7 +110,7 @@ Copyright © 2015, 2016 Jan Arne Petersen"
         "Name": "Wayland EGLStream Controller Protocol",
         "QDocModule": "qtwaylandcompositor",
         "QtUsage": "Used in the Qt Wayland Compositor",
-        "Files": "wayland-eglstream-controller.xml",
+        "Files": "wl-eglstream-controller.xml",
 
         "Description": "Allows clients to request that the compositor creates its EGLStream.",
         "Homepage": "https://github.com/NVIDIA/egl-wayland",

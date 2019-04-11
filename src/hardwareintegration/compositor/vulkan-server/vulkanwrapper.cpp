@@ -46,12 +46,11 @@
 #include <QImage>
 #include <QOpenGLContext>
 #include <QtGui/qopengl.h>
+#include <QtVulkanSupport/private/qvkconvenience_p.h>
 
-#include <vulkan/vulkan.h>
 #include <set>
 
 #include <unistd.h>
-#include "vk_format.h"
 
 #include <QDebug>
 
@@ -706,7 +705,7 @@ VulkanImageWrapper *VulkanWrapper::createTextureImage(const QImage &img)
 
 VulkanImageWrapper *VulkanWrapper::createTextureImageFromData(const uchar *pixels, uint bufferSize, const QSize &size, uint glInternalFormat)
 {
-    VkFormat vkFormat = VkFormat(vkGetFormatFromOpenGLInternalFormat(glInternalFormat));
+    VkFormat vkFormat = VkFormat(QVkConvenience::vkFormatFromGlFormat(glInternalFormat));
     if (vkFormat == VK_FORMAT_UNDEFINED)
         return nullptr;
 

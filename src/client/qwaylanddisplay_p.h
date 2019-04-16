@@ -98,7 +98,7 @@ class QWaylandQtKeyExtension;
 class QWaylandWindow;
 class QWaylandIntegration;
 class QWaylandHardwareIntegration;
-class QWaylandShellSurface;
+class QWaylandShellIntegration;
 class QWaylandCursor;
 class QWaylandCursorTheme;
 
@@ -124,13 +124,13 @@ public:
     QWaylandScreen *screenForOutput(struct wl_output *output) const;
 
     struct wl_surface *createSurface(void *handle);
-    QWaylandShellSurface *createShellSurface(QWaylandWindow *window);
     struct ::wl_region *createRegion(const QRegion &qregion);
     struct ::wl_subsurface *createSubSurface(QWaylandWindow *window, QWaylandWindow *parent);
 
+    QWaylandShellIntegration *shellIntegration() const;
     QWaylandClientBufferIntegration *clientBufferIntegration() const;
-
     QWaylandWindowManagerIntegration *windowManagerIntegration() const;
+
 #if QT_CONFIG(cursor)
     QWaylandCursor *waylandCursor();
     QWaylandCursorTheme *loadCursorTheme(const QString &name, int pixelSize);

@@ -50,6 +50,7 @@
 #include "qwaylandnativeinterface_p.h"
 #include "qwaylanddecorationfactory_p.h"
 #include "qwaylandshmbackingstore_p.h"
+#include "qwaylandshellintegration_p.h"
 
 #include <QtCore/QFileInfo>
 #include <QtCore/QPointer>
@@ -127,8 +128,9 @@ void QWaylandWindow::initWindow()
         }
     } else if (shouldCreateShellSurface()) {
         Q_ASSERT(!mShellSurface);
+        Q_ASSERT(mDisplay->shellIntegration());
 
-        mShellSurface = mDisplay->createShellSurface(this);
+        mShellSurface = mDisplay->shellIntegration()->createShellSurface(this);
         if (mShellSurface) {
             // Set initial surface title
             setWindowTitle(window()->title());
@@ -200,6 +202,9 @@ void QWaylandWindow::initializeWlSurface()
 
 bool QWaylandWindow::shouldCreateShellSurface() const
 {
+    if (!mDisplay->shellIntegration())
+        return false;
+
     if (shouldCreateSubSurface())
         return false;
 
@@ -968,9 +973,16 @@ void QWaylandWindow::requestActivateWindow()
 
 bool QWaylandWindow::isExposed() const
 {
+    if (!window()->isVisible())
+        return false;
+
     if (mShellSurface)
-        return window()->isVisible() && mShellSurface->isExposed();
-    return QPlatformWindow::isExposed();
+        return mShellSurface->isExposed();
+
+    if (mSubSurfaceWindow)
+        return mSubSurfaceWindow->parent()->isExposed();
+
+    return !(shouldCreateShellSurface() || shouldCreateSubSurface());
 }
 
 bool QWaylandWindow::isActive() const

@@ -90,13 +90,6 @@ struct wl_surface *QWaylandDisplay::createSurface(void *handle)
     return surface;
 }
 
-QWaylandShellSurface *QWaylandDisplay::createShellSurface(QWaylandWindow *window)
-{
-    if (!mWaylandIntegration->shellIntegration())
-        return nullptr;
-    return mWaylandIntegration->shellIntegration()->createShellSurface(window);
-}
-
 struct ::wl_region *QWaylandDisplay::createRegion(const QRegion &qregion)
 {
     struct ::wl_region *region = mCompositor.create_region();
@@ -110,10 +103,16 @@ struct ::wl_region *QWaylandDisplay::createRegion(const QRegion &qregion)
 ::wl_subsurface *QWaylandDisplay::createSubSurface(QWaylandWindow *window, QWaylandWindow *parent)
 {
     if (!mSubCompositor) {
+        qCWarning(lcQpaWayland) << "Can't create subsurface, not supported by the compositor.";
         return nullptr;
     }
 
     return mSubCompositor->get_subsurface(window->object(), parent->object());
+}
+
+QWaylandShellIntegration *QWaylandDisplay::shellIntegration() const
+{
+    return mWaylandIntegration->shellIntegration();
 }
 
 QWaylandClientBufferIntegration * QWaylandDisplay::clientBufferIntegration() const

@@ -353,7 +353,7 @@ void QWaylandWindow::setGeometry(const QRect &rect)
         mSentInitialResize = true;
     }
     QRect exposeGeometry(QPoint(), geometry().size());
-    if (exposeGeometry != mLastExposeGeometry)
+    if (isExposed() && !mInResizeFromApplyConfigure && exposeGeometry != mLastExposeGeometry)
         sendExposeEvent(exposeGeometry);
 }
 
@@ -365,7 +365,9 @@ void QWaylandWindow::resizeFromApplyConfigure(const QSize &sizeWithMargins, cons
     QRect geometry(windowGeometry().topLeft(), QSize(widthWithoutMargins, heightWithoutMargins));
 
     mOffset += offset;
+    mInResizeFromApplyConfigure = true;
     setGeometry(geometry);
+    mInResizeFromApplyConfigure = false;
 }
 
 void QWaylandWindow::sendExposeEvent(const QRect &rect)

@@ -59,8 +59,8 @@ QT_BEGIN_NAMESPACE
     To provide the functionality of the extension in a compositor, create an instance of the
     XdgDecorationManagerV1 component and add it to the list of extensions supported by the compositor:
 
-    \code
-    import QtWayland.Compositor 1.3
+    \qml \QtMinorVersion
+    import QtWayland.Compositor 1.\1
 
     WaylandCompositor {
         // Xdg decoration manager assumes xdg-shell is being used
@@ -73,7 +73,7 @@ QT_BEGIN_NAMESPACE
             preferredMode: XdgToplevel.ServerSideDecoration
         }
     }
-    \endcode
+    \endqml
 
     \sa XdgToplevel::decorationMode
 */

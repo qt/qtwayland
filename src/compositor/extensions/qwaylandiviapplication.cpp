@@ -62,8 +62,9 @@ QT_BEGIN_NAMESPACE
  * To provide the functionality of the shell extension in a compositor, create
  * an instance of the IviApplication component and add it to the list of extensions
  * supported by the compositor:
- * \code
- * import QtWayland.Compositor 1.0
+ *
+ * \qml \QtMinorVersion
+ * import QtWayland.Compositor 1.\1
  *
  * WaylandCompositor {
  *     IviApplication {
@@ -74,7 +75,7 @@ QT_BEGIN_NAMESPACE
  *         }
  *     }
  * }
- * \endcode
+ * \endqml
  */
 
 /*!

@@ -130,6 +130,10 @@ public:
 
     static void defineModule(const char *uri)
     {
+        // This is needed so to guarantee that the import is available with the current
+        // Qt minor version even if no new types have been added since the last release.
+        qmlRegisterModule(uri, 1, QT_VERSION_MINOR);
+
         qmlRegisterType<QWaylandQuickCompositorQuickExtensionContainer>(uri, 1, 0, "WaylandCompositor");
         qmlRegisterType<QWaylandQuickItem>(uri, 1, 0, "WaylandQuickItem");
         qmlRegisterType<QWaylandQuickItem, 13>(uri, 1, 13, "WaylandQuickItem");

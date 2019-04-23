@@ -17,6 +17,7 @@ HEADERS += \
     compositor_api/qwaylandtouch.h \
     compositor_api/qwaylandtouch_p.h \
     compositor_api/qwaylandoutput.h \
+    compositor_api/qwaylandoutput_p.h \
     compositor_api/qwaylandoutputmode.h \
     compositor_api/qwaylandoutputmode_p.h \
     compositor_api/qwaylandbufferref.h \

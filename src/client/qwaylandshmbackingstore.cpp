@@ -288,12 +288,15 @@ void QWaylandShmBackingStore::resize(const QSize &size)
         buffer = getBuffer(sizeWithMargins);
     }
 
-    qsizetype oldSize = mBackBuffer ? mBackBuffer->image()->sizeInBytes() : 0;
+    qsizetype oldSizeInBytes = mBackBuffer ? mBackBuffer->image()->sizeInBytes() : 0;
+    qsizetype newSizeInBytes = buffer->image()->sizeInBytes();
+
     // mBackBuffer may have been deleted here but if so it means its size was different so we wouldn't copy it anyway
-    if (mBackBuffer != buffer && oldSize == buffer->image()->sizeInBytes()) {
-        memcpy(buffer->image()->bits(), mBackBuffer->image()->constBits(), buffer->image()->sizeInBytes());
-    }
+    if (mBackBuffer != buffer && oldSizeInBytes == newSizeInBytes)
+        memcpy(buffer->image()->bits(), mBackBuffer->image()->constBits(), newSizeInBytes);
+
     mBackBuffer = buffer;
+
     // ensure the new buffer is at the beginning of the list so next time getBuffer() will pick
     // it if possible
     if (mBuffers.first() != buffer) {
@@ -301,7 +304,7 @@ void QWaylandShmBackingStore::resize(const QSize &size)
         mBuffers.prepend(buffer);
     }
 
-    if (windowDecoration() && window()->isVisible())
+    if (windowDecoration() && window()->isVisible() && oldSizeInBytes != newSizeInBytes)
         windowDecoration()->update();
 }
 

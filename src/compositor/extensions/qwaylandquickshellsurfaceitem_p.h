@@ -74,7 +74,13 @@ public:
     QWaylandQuickShellIntegration *m_shellIntegration = nullptr;
     QWaylandShellSurface *m_shellSurface = nullptr;
     QQuickItem *m_moveItem = nullptr;
-    bool m_autoCreatePopupItems = false;
+    bool m_autoCreatePopupItems =
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+            true;
+#else
+            false;
+#endif
+
 };
 
 class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQuickShellEventFilter : public QObject

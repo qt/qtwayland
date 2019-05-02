@@ -65,7 +65,7 @@ void QWaylandXCompositeEGLContext::swapBuffers(QPlatformSurface *surface)
     QSize size = w->geometry().size();
 
     w->commit(w->buffer(), QRegion(0, 0, size.width(), size.height()));
-    w->waitForFrameSync();
+    w->waitForFrameSync(100);
 }
 
 EGLSurface QWaylandXCompositeEGLContext::eglSurfaceForPlatformSurface(QPlatformSurface *surface)

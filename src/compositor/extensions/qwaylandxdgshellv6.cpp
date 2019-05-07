@@ -159,15 +159,16 @@ void QWaylandXdgShellV6Private::zxdg_shell_v6_pong(Resource *resource, uint32_t 
  * To provide the functionality of the shell extension in a compositor, create
  * an instance of the XdgShellV6 component and add it to the list of extensions
  * supported by the compositor:
- * \code
- * import QtWayland.Compositor 1.1
+ *
+ * \qml \QtMinorVersion
+ * import QtWayland.Compositor 1.\1
  *
  * WaylandCompositor {
  *     XdgShellV6 {
  *         // ...
  *     }
  * }
- * \endcode
+ * \endqml
  */
 
 /*!

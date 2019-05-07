@@ -63,6 +63,12 @@
 #include <QtWaylandClient/private/qtwaylandclientglobal_p.h>
 #include <QtWaylandClient/private/qwaylandshm_p.h>
 
+#include <qpa/qplatforminputcontextfactory_p.h>
+
+#if QT_CONFIG(xkbcommon)
+#include <QtXkbCommonSupport/private/qxkbcommon_p.h>
+#endif
+
 struct wl_cursor_image;
 
 QT_BEGIN_NAMESPACE
@@ -92,8 +98,8 @@ class QWaylandQtKeyExtension;
 class QWaylandWindow;
 class QWaylandIntegration;
 class QWaylandHardwareIntegration;
-class QWaylandShellSurface;
 class QWaylandSurface;
+class QWaylandShellIntegration;
 class QWaylandCursor;
 class QWaylandCursorTheme;
 
@@ -110,18 +116,23 @@ public:
     QWaylandDisplay(QWaylandIntegration *waylandIntegration);
     ~QWaylandDisplay(void) override;
 
+#if QT_CONFIG(xkbcommon)
+    struct xkb_context *xkbContext() const { return mXkbContext.get(); }
+#endif
+
     QList<QWaylandScreen *> screens() const { return mScreens; }
 
     QWaylandScreen *screenForOutput(struct wl_output *output) const;
+    void handleScreenInitialized(QWaylandScreen *screen);
 
     struct wl_surface *createSurface(void *handle);
-    QWaylandShellSurface *createShellSurface(QWaylandWindow *window);
     struct ::wl_region *createRegion(const QRegion &qregion);
     struct ::wl_subsurface *createSubSurface(QWaylandWindow *window, QWaylandWindow *parent);
 
+    QWaylandShellIntegration *shellIntegration() const;
     QWaylandClientBufferIntegration *clientBufferIntegration() const;
-
     QWaylandWindowManagerIntegration *windowManagerIntegration() const;
+
 #if QT_CONFIG(cursor)
     QWaylandCursor *waylandCursor();
     QWaylandCursorTheme *loadCursorTheme(const QString &name, int pixelSize);
@@ -145,6 +156,7 @@ public:
     QWaylandHardwareIntegration *hardwareIntegration() const { return mHardwareIntegration.data(); }
     QtWayland::zxdg_output_manager_v1 *xdgOutputManager() const { return mXdgOutputManager.data(); }
 
+    bool usingInputContextFromCompositor() const { return mUsingInputContextFromCompositor; }
 
     struct RegistryGlobal {
         uint32_t id;
@@ -181,6 +193,9 @@ public:
     void handleKeyboardFocusChanged(QWaylandInputDevice *inputDevice);
     void handleWindowDestroyed(QWaylandWindow *window);
 
+    wl_event_queue *createEventQueue();
+    void dispatchQueueWhile(wl_event_queue *queue, std::function<bool()> condition, int timeout = -1);
+
 public slots:
     void blockingReadEvents();
     void flushRequests();
@@ -206,6 +221,7 @@ private:
     struct wl_display *mDisplay = nullptr;
     QtWayland::wl_compositor mCompositor;
     QScopedPointer<QWaylandShm> mShm;
+    QList<QWaylandScreen *> mWaitingScreens;
     QList<QWaylandScreen *> mScreens;
     QList<QWaylandInputDevice *> mInputDevices;
     QList<Listener> mRegistryListeners;
@@ -238,8 +254,17 @@ private:
     struct wl_callback *mSyncCallback = nullptr;
     static const wl_callback_listener syncCallbackListener;
 
+    bool mClientSideInputContextRequested = !QPlatformInputContextFactory::requested().isNull();
+    bool mUsingInputContextFromCompositor = false;
+
     void registry_global(uint32_t id, const QString &interface, uint32_t version) override;
     void registry_global_remove(uint32_t id) override;
+
+#if QT_CONFIG(xkbcommon)
+    QXkbCommon::ScopedXKBContext mXkbContext;
+#endif
+
+    friend class QWaylandIntegration;
 };
 
 }

@@ -513,15 +513,17 @@ void QWaylandXdgPopupV5Private::xdg_popup_destroy(Resource *resource)
  *
  * To provide the functionality of the shell extension in a compositor, create
  * an instance of the XdgShellV5 component and add it as a child of the
- * compositor: \code
- * import QtWayland.Compositor 1.0
+ * compositor:
+ *
+ * \qml \QtMinorVersion
+ * import QtWayland.Compositor 1.\1
  *
  * WaylandCompositor {
  *     XdgShellV5 {
  *         // ...
  *     }
  * }
- * \endcode
+ * \endqml
  *
  * \deprecated
  */

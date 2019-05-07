@@ -1,6 +1,6 @@
 INCLUDEPATH += $$PWD
 
-QMAKE_USE_PRIVATE += egl wayland-server wayland-egl
+QMAKE_USE_PRIVATE += egl wayland-server
 
 CONFIG += wayland-scanner
 WAYLANDSERVERSOURCES += $$PWD/../../../3rdparty/protocol/linux-dmabuf-unstable-v1.xml

@@ -90,15 +90,15 @@ QWaylandQuickCompositor::QWaylandQuickCompositor(QObject *parent)
  * For instance, the following code would allow the clients to request \c wl_shell
  * surfaces in the compositor using the \c wl_shell interface.
  *
- * \code
- * import QtWayland.Compositor 1.0
+ * \qml \QtMinorVersion
+ * import QtWayland.Compositor 1.\1
  *
  * WaylandCompositor {
  *     WlShell {
  *         // ...
  *     }
  * }
- * \endcode
+ * \endqml
  */
 
 void QWaylandQuickCompositor::create()

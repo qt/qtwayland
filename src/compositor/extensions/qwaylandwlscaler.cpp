@@ -61,14 +61,14 @@ QT_BEGIN_NAMESPACE
     To provide the functionality of the extension in a compositor, create an instance of the
     WlScaler component and add it to the list of extensions supported by the compositor:
 
-    \code
-    import QtWayland.Compositor 1.13
+    \qml \QtMinorVersion
+    import QtWayland.Compositor 1.\1
 
     WaylandCompositor {
         // ...
         WlScaler {}
     }
-    \endcode
+    \endqml
 
     \deprecated
 */

@@ -68,8 +68,12 @@ Q_SIGNALS:
     void focusPolicyChanged();
 
 protected:
-    QWaylandShell(QWaylandCompositorExtensionPrivate &dd) : QWaylandCompositorExtension(dd) {}
-    QWaylandShell(QWaylandObject *container, QWaylandCompositorExtensionPrivate &dd) : QWaylandCompositorExtension(container, dd) {}
+    explicit QWaylandShell(QWaylandShellPrivate &dd);
+    explicit QWaylandShell(QWaylandObject *container, QWaylandShellPrivate &dd);
+
+    //Qt 6: remove
+    Q_DECL_DEPRECATED QWaylandShell(QWaylandCompositorExtensionPrivate &dd);
+    Q_DECL_DEPRECATED QWaylandShell(QWaylandObject *container, QWaylandCompositorExtensionPrivate &dd);
 };
 
 template <typename T>

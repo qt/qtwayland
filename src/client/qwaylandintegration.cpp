@@ -90,6 +90,10 @@
 #include <QtLinuxAccessibilitySupport/private/bridge_p.h>
 #endif
 
+#if QT_CONFIG(xkbcommon)
+#include <QtXkbCommonSupport/private/qxkbcommon_p.h>
+#endif
+
 QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
@@ -146,20 +150,8 @@ QWaylandIntegration::QWaylandIntegration()
 #if QT_CONFIG(draganddrop)
     mDrag.reset(new QWaylandDrag(mDisplay.data()));
 #endif
-    QString icStr = QPlatformInputContextFactory::requested();
-    if (!icStr.isNull()) {
-        mInputContext.reset(QPlatformInputContextFactory::create(icStr));
-    } else {
-        //try to use the input context using the wl_text_input interface
-        QPlatformInputContext *ctx = new QWaylandInputContext(mDisplay.data());
-        mInputContext.reset(ctx);
 
-        //use the traditional way for on screen keyboards for now
-        if (!mInputContext.data()->isValid()) {
-            ctx = QPlatformInputContextFactory::create();
-            mInputContext.reset(ctx);
-        }
-    }
+    reconfigureInputContext();
 }
 
 QWaylandIntegration::~QWaylandIntegration()
@@ -299,6 +291,13 @@ QPlatformServices *QWaylandIntegration::services() const
 QWaylandDisplay *QWaylandIntegration::display() const
 {
     return mDisplay.data();
+}
+
+QList<int> QWaylandIntegration::possibleKeys(const QKeyEvent *event) const
+{
+    if (auto *seat = mDisplay->currentInputDevice())
+        return seat->possibleKeys(event);
+    return {};
 }
 
 QStringList QWaylandIntegration::themeNames() const
@@ -460,6 +459,42 @@ void QWaylandIntegration::initializeInputDeviceIntegration()
     } else {
         qWarning("Wayland inputdevice integration '%s' not found, using default", qPrintable(targetKey));
     }
+}
+
+void QWaylandIntegration::reconfigureInputContext()
+{
+    if (!mDisplay) {
+        // This function can be called from QWaylandDisplay::registry_global() when we
+        // are in process of constructing QWaylandDisplay. Configuring input context
+        // in that case is done by calling reconfigureInputContext() from QWaylandIntegration
+        // constructor, after QWaylandDisplay has been constructed.
+        return;
+    }
+
+    const QString &requested = QPlatformInputContextFactory::requested();
+    if (requested == QLatin1String("qtvirtualkeyboard"))
+        qCWarning(lcQpaWayland) << "qtvirtualkeyboard currently is not supported at client-side,"
+                                   " use QT_IM_MODULE=qtvirtualkeyboard at compositor-side.";
+
+    if (requested.isNull())
+        mInputContext.reset(new QWaylandInputContext(mDisplay.data()));
+    else
+        mInputContext.reset(QPlatformInputContextFactory::create(requested));
+
+    const QString defaultInputContext(QStringLiteral("compose"));
+    if ((!mInputContext || !mInputContext->isValid()) && requested != defaultInputContext)
+        mInputContext.reset(QPlatformInputContextFactory::create(defaultInputContext));
+
+#if QT_CONFIG(xkbcommon)
+    QXkbCommon::setXkbContext(mInputContext.data(), mDisplay->xkbContext());
+#endif
+
+    // Even if compositor-side input context handling has been requested, we fallback to
+    // client-side handling if compositor does not provide the text-input extension. This
+    // is why we need to check here which input context actually is being used.
+    mDisplay->mUsingInputContextFromCompositor = qobject_cast<QWaylandInputContext *>(mInputContext.data());
+
+    qCDebug(lcQpaWayland) << "using input method:" << inputContext()->metaObject()->className();
 }
 
 QWaylandShellIntegration *QWaylandIntegration::createShellIntegration(const QString &integrationName)

@@ -54,6 +54,7 @@
 #include <QtWaylandClient/private/qtwaylandclientglobal_p.h>
 #include <QtWaylandClient/private/qwaylandwindow_p.h>
 
+#include <QtCore/QScopedPointer>
 #include <QSocketNotifier>
 #include <QObject>
 #include <QTimer>
@@ -64,8 +65,7 @@
 #include <QtWaylandClient/private/qwayland-wayland.h>
 
 #if QT_CONFIG(xkbcommon)
-#include <xkbcommon/xkbcommon.h>
-#include <xkbcommon/xkbcommon-keysyms.h>
+#include <QtXkbCommonSupport/private/qxkbcommon_p.h>
 #endif
 
 #include <QtCore/QDebug>
@@ -74,11 +74,6 @@
 
 #if QT_CONFIG(cursor)
 struct wl_cursor_image;
-#endif
-
-#if QT_CONFIG(xkbcommon)
-struct xkb_compose_state;
-struct xkb_compose_table;
 #endif
 
 QT_BEGIN_NAMESPACE
@@ -130,6 +125,8 @@ public:
     QWaylandWindow *keyboardFocus() const;
     QWaylandWindow *touchFocus() const;
 
+    QList<int> possibleKeys(const QKeyEvent *event) const;
+
     QPointF pointerSurfacePosition() const;
 
     Qt::KeyboardModifiers modifiers() const;
@@ -166,7 +163,7 @@ private:
     Pointer *mPointer = nullptr;
     Touch *mTouch = nullptr;
 
-    QWaylandTextInput *mTextInput = nullptr;
+    QScopedPointer<QWaylandTextInput> mTextInput;
 
     uint32_t mTime = 0;
     uint32_t mSerial = 0;
@@ -215,41 +212,44 @@ public:
 
     QWaylandInputDevice *mParent = nullptr;
     ::wl_surface *mFocus = nullptr;
-#if QT_CONFIG(xkbcommon)
-    xkb_context *mXkbContext = nullptr;
-    xkb_keymap *mXkbMap = nullptr;
-    xkb_state *mXkbState = nullptr;
-    xkb_compose_table *mXkbComposeTable = nullptr;
-    xkb_compose_state *mXkbComposeState = nullptr;
-#endif
+
     uint32_t mNativeModifiers = 0;
 
-    int mRepeatKey;
-    uint32_t mRepeatCode;
-    uint32_t mRepeatTime;
+    struct repeatKey {
+        int key;
+        uint32_t code;
+        uint32_t time;
+        QString text;
+        Qt::KeyboardModifiers modifiers;
+        uint32_t nativeVirtualKey;
+        uint32_t nativeModifiers;
+    } mRepeatKey;
+
+    QTimer mRepeatTimer;
     int mRepeatRate = 25;
     int mRepeatDelay = 400;
-    QString mRepeatText;
-#if QT_CONFIG(xkbcommon)
-    xkb_keysym_t mRepeatSym;
-#endif
-    QTimer mRepeatTimer;
+
+    uint32_t mKeymapFormat = WL_KEYBOARD_KEYMAP_FORMAT_XKB_V1;
 
     Qt::KeyboardModifiers modifiers() const;
 
 private slots:
-    void repeatKey();
     void handleFocusDestroyed();
     void handleFocusLost();
 
 private:
 #if QT_CONFIG(xkbcommon)
-    bool createDefaultKeyMap();
-    void releaseKeyMap();
-    void createComposeState();
-    void releaseComposeState();
+    bool createDefaultKeymap();
 #endif
+    void handleKey(ulong timestamp, QEvent::Type type, int key, Qt::KeyboardModifiers modifiers,
+                   quint32 nativeScanCode, quint32 nativeVirtualKey, quint32 nativeModifiers,
+                   const QString &text, bool autorepeat = false, ushort count = 1);
 
+#if QT_CONFIG(xkbcommon)
+    QXkbCommon::ScopedXKBKeymap mXkbKeymap;
+    QXkbCommon::ScopedXKBState mXkbState;
+#endif
+    friend class QWaylandInputDevice;
 };
 
 class Q_WAYLAND_CLIENT_EXPORT QWaylandInputDevice::Pointer : public QObject, public QtWayland::wl_pointer

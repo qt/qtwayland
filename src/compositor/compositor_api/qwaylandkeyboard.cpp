@@ -54,7 +54,6 @@
 #if QT_CONFIG(xkbcommon)
 #include <sys/mman.h>
 #include <sys/types.h>
-#include <qwaylandxkb_p.h>
 #endif
 
 QT_BEGIN_NAMESPACE
@@ -67,12 +66,11 @@ QWaylandKeyboardPrivate::QWaylandKeyboardPrivate(QWaylandSeat *seat)
 QWaylandKeyboardPrivate::~QWaylandKeyboardPrivate()
 {
 #if QT_CONFIG(xkbcommon)
-    if (xkb_context) {
+    if (xkbContext()) {
         if (keymap_area)
             munmap(keymap_area, keymap_size);
-        close(keymap_fd);
-        xkb_context_unref(xkb_context);
-        xkb_state_unref(xkb_state);
+        if (keymap_fd >= 0)
+            close(keymap_fd);
     }
 #endif
 }
@@ -137,14 +135,14 @@ void QWaylandKeyboardPrivate::keyboard_bind_resource(wl_keyboard::Resource *reso
         send_repeat_info(resource->handle, repeatRate, repeatDelay);
 
 #if QT_CONFIG(xkbcommon)
-    if (xkb_context) {
+    if (xkbContext()) {
         send_keymap(resource->handle, WL_KEYBOARD_KEYMAP_FORMAT_XKB_V1,
                     keymap_fd, keymap_size);
     } else
 #endif
     {
         int null_fd = open("/dev/null", O_RDONLY);
-        send_keymap(resource->handle, 0 /* WL_KEYBOARD_KEYMAP_FORMAT_NO_KEYMAP */,
+        send_keymap(resource->handle, WL_KEYBOARD_KEYMAP_FORMAT_NO_KEYMAP,
                     null_fd, 0);
         close(null_fd);
     }
@@ -164,11 +162,8 @@ void QWaylandKeyboardPrivate::keyboard_release(wl_keyboard::Resource *resource)
 
 void QWaylandKeyboardPrivate::keyEvent(uint code, uint32_t state)
 {
-#if QT_CONFIG(xkbcommon)
-    uint key = toWaylandXkbV1Key(code);
-#else
-    uint key = code;
-#endif
+    uint key = toWaylandKey(code);
+
     if (state == WL_KEYBOARD_KEY_STATE_PRESSED) {
         keys << key;
     } else {
@@ -180,21 +175,9 @@ void QWaylandKeyboardPrivate::sendKeyEvent(uint code, uint32_t state)
 {
     uint32_t time = compositor()->currentTimeMsecs();
     uint32_t serial = compositor()->nextSerial();
-#if QT_CONFIG(xkbcommon)
-    uint key = toWaylandXkbV1Key(code);
-#else
-    uint key = code;
-#endif
+    uint key = toWaylandKey(code);
     if (focusResource)
         send_key(focusResource->handle, serial, time, key, state);
-}
-
-void QWaylandKeyboardPrivate::modifiers(uint32_t serial, uint32_t mods_depressed,
-                         uint32_t mods_latched, uint32_t mods_locked, uint32_t group)
-{
-    if (focusResource) {
-        send_modifiers(focusResource->handle, serial, mods_depressed, mods_latched, mods_locked, group);
-    }
 }
 
 #if QT_CONFIG(xkbcommon)
@@ -203,7 +186,7 @@ void QWaylandKeyboardPrivate::maybeUpdateXkbScanCodeTable()
     if (!scanCodesByQtKey.isEmpty() || !xkbState())
         return;
 
-    if (xkb_keymap *keymap = xkb_state_get_keymap(xkb_state)) {
+    if (xkb_keymap *keymap = xkb_state_get_keymap(xkbState())) {
         xkb_keymap_key_for_each(keymap, [](xkb_keymap *keymap, xkb_keycode_t keycode, void *d){
             auto *scanCodesByQtKey = static_cast<QMap<ScanCodeKey, uint>*>(d);
             uint numLayouts = xkb_keymap_num_layouts_for_key(keymap, keycode);
@@ -214,7 +197,7 @@ void QWaylandKeyboardPrivate::maybeUpdateXkbScanCodeTable()
                     continue;
 
                 Qt::KeyboardModifiers mods = {};
-                int qtKey = QWaylandXkb::keysymToQtKey(syms[0], mods).first;
+                int qtKey = QXkbCommon::keysymToQtKey(syms[0], mods);
                 if (qtKey != 0)
                     scanCodesByQtKey->insert({layout, qtKey}, keycode);
             }
@@ -226,15 +209,15 @@ void QWaylandKeyboardPrivate::maybeUpdateXkbScanCodeTable()
 void QWaylandKeyboardPrivate::updateModifierState(uint code, uint32_t state)
 {
 #if QT_CONFIG(xkbcommon)
-    if (!xkb_context)
+    if (!xkbContext())
         return;
 
-    xkb_state_update_key(xkb_state, code, state == WL_KEYBOARD_KEY_STATE_PRESSED ? XKB_KEY_DOWN : XKB_KEY_UP);
+    xkb_state_update_key(xkbState(), code, state == WL_KEYBOARD_KEY_STATE_PRESSED ? XKB_KEY_DOWN : XKB_KEY_UP);
 
-    uint32_t modsDepressed = xkb_state_serialize_mods(xkb_state, (xkb_state_component)XKB_STATE_DEPRESSED);
-    uint32_t modsLatched = xkb_state_serialize_mods(xkb_state, (xkb_state_component)XKB_STATE_LATCHED);
-    uint32_t modsLocked = xkb_state_serialize_mods(xkb_state, (xkb_state_component)XKB_STATE_LOCKED);
-    uint32_t group = xkb_state_serialize_group(xkb_state, (xkb_state_component)XKB_STATE_EFFECTIVE);
+    uint32_t modsDepressed = xkb_state_serialize_mods(xkbState(), XKB_STATE_MODS_DEPRESSED);
+    uint32_t modsLatched = xkb_state_serialize_mods(xkbState(), XKB_STATE_MODS_LATCHED);
+    uint32_t modsLocked = xkb_state_serialize_mods(xkbState(), XKB_STATE_MODS_LOCKED);
+    uint32_t group = xkb_state_serialize_layout(xkbState(), XKB_STATE_LAYOUT_EFFECTIVE);
 
     if (this->modsDepressed == modsDepressed
             && this->modsLatched == modsLatched
@@ -247,7 +230,10 @@ void QWaylandKeyboardPrivate::updateModifierState(uint code, uint32_t state)
     this->modsLocked = modsLocked;
     this->group = group;
 
-    modifiers(compositor()->nextSerial(), modsDepressed, modsLatched, modsLocked, group);
+    if (focusResource) {
+        send_modifiers(focusResource->handle, compositor()->nextSerial(), modsDepressed,
+                       modsLatched, modsLocked, group);
+    }
 #else
     Q_UNUSED(code);
     Q_UNUSED(state);
@@ -266,7 +252,7 @@ void QWaylandKeyboardPrivate::maybeUpdateKeymap()
 
     pendingKeymap = false;
 #if QT_CONFIG(xkbcommon)
-    if (!xkb_context)
+    if (!xkbContext())
         return;
 
     createXKBKeymap();
@@ -274,7 +260,7 @@ void QWaylandKeyboardPrivate::maybeUpdateKeymap()
         send_keymap(res->handle, WL_KEYBOARD_KEYMAP_FORMAT_XKB_V1, keymap_fd, keymap_size);
     }
 
-    xkb_state_update_mask(xkb_state, 0, modsLatched, modsLocked, 0, 0, 0);
+    xkb_state_update_mask(xkbState(), 0, modsLatched, modsLocked, 0, 0, 0);
     if (focusResource)
         send_modifiers(focusResource->handle,
                        compositor()->nextSerial(),
@@ -282,6 +268,24 @@ void QWaylandKeyboardPrivate::maybeUpdateKeymap()
                        modsLatched,
                        modsLocked,
                        group);
+#endif
+}
+
+uint QWaylandKeyboardPrivate::toWaylandKey(const uint nativeScanCode)
+{
+#if QT_CONFIG(xkbcommon)
+    // In all current XKB keymaps there's a constant offset of 8 (for historical
+    // reasons) from hardware/evdev scancodes to XKB keycodes. On X11, we pass
+    // XKB keycodes (as sent by X server) via QKeyEvent::nativeScanCode. eglfs+evdev
+    // adds 8 for consistency, see qtbase/05c07c7636012ebb4131ca099ca4ea093af76410.
+    // eglfs+libinput also adds 8, for the same reason. Wayland protocol uses
+    // hardware/evdev scancodes, thus we need to minus 8 before sending the event
+    // out.
+    const uint offset = 8;
+    Q_ASSERT(nativeScanCode >= offset);
+    return nativeScanCode - offset;
+#else
+    return nativeScanCode;
 #endif
 }
 
@@ -316,18 +320,6 @@ static int createAnonymousFile(size_t size)
     return fd;
 }
 
-void QWaylandKeyboardPrivate::initXKB()
-{
-    xkb_context = xkb_context_new(static_cast<xkb_context_flags>(0));
-    if (!xkb_context) {
-        qWarning("Failed to create a XKB context: keymap will not be supported");
-        return;
-    }
-
-    createXKBKeymap();
-}
-
-
 void QWaylandKeyboardPrivate::createXKBState(xkb_keymap *keymap)
 {
     char *keymap_str = xkb_keymap_get_as_string(keymap, XKB_KEYMAP_FORMAT_TEXT_V1);
@@ -356,46 +348,41 @@ void QWaylandKeyboardPrivate::createXKBState(xkb_keymap *keymap)
     strcpy(keymap_area, keymap_str);
     free(keymap_str);
 
-    if (xkb_state)
-        xkb_state_unref(xkb_state);
-    xkb_state = xkb_state_new(keymap);
-}
-
-uint QWaylandKeyboardPrivate::toWaylandXkbV1Key(const uint nativeScanCode)
-{
-    const uint offset = 8;
-    Q_ASSERT(nativeScanCode >= offset);
-    return nativeScanCode - offset;
+    mXkbState.reset(xkb_state_new(keymap));
+    if (!mXkbState)
+        qWarning("Failed to create XKB state");
 }
 
 void QWaylandKeyboardPrivate::createXKBKeymap()
 {
-    if (!xkb_context)
+    if (!xkbContext())
         return;
 
-    auto keymap = seat->keymap();
-    struct xkb_rule_names rule_names = { strdup(qPrintable(keymap->rules())),
-                                         strdup(qPrintable(keymap->model())),
-                                         strdup(qPrintable(keymap->layout())),
-                                         strdup(qPrintable(keymap->variant())),
-                                         strdup(qPrintable(keymap->options())) };
-    struct xkb_keymap *xkbKeymap = xkb_keymap_new_from_names(xkb_context, &rule_names, static_cast<xkb_keymap_compile_flags>(0));
+    QWaylandKeymap *keymap = seat->keymap();
+    QByteArray rules = keymap->rules().toLocal8Bit();
+    QByteArray model = keymap->model().toLocal8Bit();
+    QByteArray layout = keymap->layout().toLocal8Bit();
+    QByteArray variant = keymap->variant().toLocal8Bit();
+    QByteArray options = keymap->options().toLocal8Bit();
 
+    struct xkb_rule_names rule_names = {
+        rules.constData(),
+        model.constData(),
+        layout.constData(),
+        variant.constData(),
+        options.constData()
+    };
+
+    QXkbCommon::ScopedXKBKeymap xkbKeymap(xkb_keymap_new_from_names(xkbContext(), &rule_names,
+                                                                    XKB_KEYMAP_COMPILE_NO_FLAGS));
     if (xkbKeymap) {
         scanCodesByQtKey.clear();
-        createXKBState(xkbKeymap);
-        xkb_keymap_unref(xkbKeymap);
+        createXKBState(xkbKeymap.get());
     } else {
         qWarning("Failed to load the '%s' XKB keymap.", qPrintable(keymap->layout()));
     }
-
-    free((char *)rule_names.rules);
-    free((char *)rule_names.model);
-    free((char *)rule_names.layout);
-    free((char *)rule_names.variant);
-    free((char *)rule_names.options);
 }
-#endif
+#endif // QT_CONFIG(xkbcommon)
 
 void QWaylandKeyboardPrivate::sendRepeatInfo()
 {
@@ -430,7 +417,7 @@ QWaylandKeyboard::QWaylandKeyboard(QWaylandSeat *seat, QObject *parent)
     connect(keymap, &QWaylandKeymap::rulesChanged, this, &QWaylandKeyboard::updateKeymap);
     connect(keymap, &QWaylandKeymap::modelChanged, this, &QWaylandKeyboard::updateKeymap);
 #if QT_CONFIG(xkbcommon)
-    d->initXKB();
+    d->createXKBKeymap();
 #endif
 }
 

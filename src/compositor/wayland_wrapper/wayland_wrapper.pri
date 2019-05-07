@@ -5,14 +5,12 @@ WAYLANDSERVERSOURCES += \
 HEADERS += \
     wayland_wrapper/qwlbuffermanager_p.h \
     wayland_wrapper/qwlclientbuffer_p.h \
-    wayland_wrapper/qwlregion_p.h \
-    ../shared/qwaylandxkb_p.h \
+    wayland_wrapper/qwlregion_p.h
 
 SOURCES += \
     wayland_wrapper/qwlbuffermanager.cpp \
     wayland_wrapper/qwlclientbuffer.cpp \
-    wayland_wrapper/qwlregion.cpp \
-    ../shared/qwaylandxkb.cpp \
+    wayland_wrapper/qwlregion.cpp
 
 qtConfig(wayland-datadevice) {
     HEADERS += \

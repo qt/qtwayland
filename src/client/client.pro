@@ -15,8 +15,9 @@ use_gold_linker: CONFIG += no_linker_version_script
 CONFIG -= precompile_header
 CONFIG += link_pkgconfig wayland-scanner
 
-qtConfig(xkbcommon): \
-    QMAKE_USE_PRIVATE += xkbcommon
+qtConfig(xkbcommon) {
+    QT_FOR_PRIVATE += xkbcommon_support-private
+}
 
 qtHaveModule(linuxaccessibility_support_private): \
     QT += linuxaccessibility_support_private
@@ -49,7 +50,6 @@ SOURCES +=  qwaylandintegration.cpp \
             qwaylandtouch.cpp \
             qwaylandqtkey.cpp \
             ../shared/qwaylandmimehelper.cpp \
-            ../shared/qwaylandxkb.cpp \
             ../shared/qwaylandinputmethodeventbuilder.cpp \
             qwaylandabstractdecoration.cpp \
             qwaylanddecorationfactory.cpp \
@@ -84,7 +84,6 @@ HEADERS +=  qwaylandintegration_p.h \
             qtwaylandclientglobal_p.h \
             ../shared/qwaylandinputmethodeventbuilder_p.h \
             ../shared/qwaylandmimehelper_p.h \
-            ../shared/qwaylandxkb_p.h \
             ../shared/qwaylandsharedmemoryformathelper_p.h \
 
 qtConfig(clipboard) {

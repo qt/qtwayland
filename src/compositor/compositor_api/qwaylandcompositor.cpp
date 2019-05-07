@@ -72,7 +72,6 @@
 
 #include "extensions/qwaylandqtwindowmanager.h"
 
-#include "qwaylandxkb_p.h"
 #include "qwaylandsharedmemoryformathelper_p.h"
 
 #include <QtCore/QCoreApplication>
@@ -129,12 +128,12 @@ public:
         bool isDown = ke->keyType == QEvent::KeyPress;
 
 #if QT_CONFIG(xkbcommon)
-        QString text;
-        Qt::KeyboardModifiers modifiers = QWaylandXkb::modifiers(keyb->xkbState());
+        xkb_state *xkbState = keyb->xkbState();
+        Qt::KeyboardModifiers modifiers = QXkbCommon::modifiers(xkbState);
 
-        const xkb_keysym_t sym = xkb_state_key_get_one_sym(keyb->xkbState(), code);
-        int qtkey;
-        std::tie(qtkey, text) = QWaylandXkb::keysymToQtKey(sym, modifiers);
+        const xkb_keysym_t sym = xkb_state_key_get_one_sym(xkbState, code);
+        int qtkey = QXkbCommon::keysymToQtKey(sym, modifiers, xkbState, code);
+        QString text = QXkbCommon::lookupString(xkbState, code);
 
         ke->key = qtkey;
         ke->modifiers = modifiers;
@@ -172,6 +171,14 @@ QWaylandCompositorPrivate::QWaylandCompositorPrivate(QWaylandCompositor *composi
     timer.start();
 
     QWindowSystemInterfacePrivate::installWindowSystemEventHandler(eventHandler.data());
+
+#if QT_CONFIG(xkbcommon)
+    mXkbContext.reset(xkb_context_new(XKB_CONTEXT_NO_FLAGS));
+    if (!mXkbContext) {
+        qWarning("Failed to create a XKB context: keymap will not be supported");
+        return;
+    }
+#endif
 }
 
 void QWaylandCompositorPrivate::init()

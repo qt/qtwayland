@@ -1871,6 +1871,26 @@ uint QWaylandXdgPopup::sendConfigure(const QRect &geometry)
 }
 
 /*!
+ * \qmlmethod void QtWaylandCompositor::XdgPopup::sendPopupDone()
+ * \since 5.14
+ *
+ * Dismiss the popup. According to the \c xdg-shell protocol this should make the
+ * client destroy the popup.
+ */
+
+/*!
+ * \since 5.14
+ *
+ * Dismiss the popup. According to the \c xdg-shell protocol this should make the
+ * client destroy the popup.
+ */
+void QWaylandXdgPopup::sendPopupDone()
+{
+    Q_D(QWaylandXdgPopup);
+    d->send_popup_done();
+}
+
+/*!
  * Returns the surface role for the QWaylandPopup.
  */
 QWaylandSurfaceRole *QWaylandXdgPopup::role()

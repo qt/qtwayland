@@ -413,11 +413,11 @@ void tst_WaylandClientXdgShellV6::dontSpamExposeEvents()
 
     QSharedPointer<MockSurface> surface;
     QTRY_VERIFY(surface = m_compositor->surface());
-    QTRY_VERIFY(window.exposeEventCount == 0);
+    QTRY_COMPARE(window.exposeEventCount, 0);
 
     m_compositor->sendShellSurfaceConfigure(surface);
     QTRY_VERIFY(window.isExposed());
-    QTRY_VERIFY(window.exposeEventCount == 1);
+    QTRY_COMPARE(window.exposeEventCount, 1);
 }
 
 int main(int argc, char **argv)

@@ -149,11 +149,10 @@ void Surface::surface_commit(Resource *resource)
         }
     }
 
-    foreach (wl_resource *frameCallback, m_frameCallbackList) {
+    for (wl_resource *frameCallback : qExchange(m_frameCallbackList, {})) {
         wl_callback_send_done(frameCallback, m_compositor->time());
         wl_resource_destroy(frameCallback);
     }
-    m_frameCallbackList.clear();
 }
 
 }

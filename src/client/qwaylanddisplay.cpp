@@ -167,13 +167,11 @@ QWaylandDisplay::~QWaylandDisplay(void)
     if (mSyncCallback)
         wl_callback_destroy(mSyncCallback);
 
-    qDeleteAll(mInputDevices);
-    mInputDevices.clear();
+    qDeleteAll(qExchange(mInputDevices, {}));
 
-    foreach (QWaylandScreen *screen, mScreens) {
+    for (QWaylandScreen *screen : qExchange(mScreens, {})) {
         QWindowSystemInterface::handleScreenRemoved(screen);
     }
-    mScreens.clear();
     qDeleteAll(mWaitingScreens);
 
 #if QT_CONFIG(wayland_datadevice)

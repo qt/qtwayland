@@ -234,7 +234,7 @@ void QWaylandCompositorPrivate::init()
 
     initialized = true;
 
-    Q_FOREACH (QPointer<QObject> object, polish_objects) {
+    for (const QPointer<QObject> &object : qExchange(polish_objects, {})) {
         if (object) {
             QEvent polishEvent(QEvent::Polish);
             QCoreApplication::sendEvent(object.data(), &polishEvent);

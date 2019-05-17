@@ -346,7 +346,8 @@ void QWaylandDisplay::registry_global(uint32_t id, const QString &interface, uin
 
     mGlobals.append(RegistryGlobal(id, interface, version, registry));
 
-    foreach (Listener l, mRegistryListeners)
+    const auto copy = mRegistryListeners; // be prepared for listeners unregistering on notification
+    for (Listener l : copy)
         (*l.listener)(l.data, registry, id, interface, version);
 }
 

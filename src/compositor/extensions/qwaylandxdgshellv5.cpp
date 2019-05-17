@@ -627,15 +627,19 @@ uint QWaylandXdgShellV5::ping(QWaylandClient *client)
     return serial;
 }
 
+// ### remove once QMap has rbegin()/rend()
+template <typename Iterator>
+std::reverse_iterator<Iterator> make_reverse(Iterator it)
+{
+    return std::reverse_iterator<Iterator>(std::move(it));
+}
+
 void QWaylandXdgShellV5::closeAllPopups()
 {
     Q_D(QWaylandXdgShellV5);
-    Q_FOREACH (struct wl_client *client, d->m_xdgPopups.keys()) {
-        QList<QWaylandXdgPopupV5 *> popups = d->m_xdgPopups.values(client);
-        std::reverse(popups.begin(), popups.end());
-        Q_FOREACH (QWaylandXdgPopupV5 *currentTopmostPopup, popups) {
-            currentTopmostPopup->sendPopupDone();
-        }
+    // Close pop-ups from top-most to bottom-most, lest we get protocol errors:
+    for (auto rit = make_reverse(d->m_xdgPopups.end()), rend = make_reverse(d->m_xdgPopups.begin()); rit != rend; ++rit) {
+        (*rit)->sendPopupDone();
     }
 }
 

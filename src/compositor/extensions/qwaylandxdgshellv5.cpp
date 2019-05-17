@@ -115,9 +115,9 @@ QWaylandXdgPopupV5 *QWaylandXdgShellV5Private::topmostPopupForClient(wl_client *
     return clientPopups.empty() ? nullptr : clientPopups.last();
 }
 
-QWaylandXdgSurfaceV5 *QWaylandXdgShellV5Private::xdgSurfaceFromSurface(QWaylandSurface *surface)
+QWaylandXdgSurfaceV5 *QWaylandXdgShellV5Private::xdgSurfaceFromSurface(QWaylandSurface *surface) const
 {
-    Q_FOREACH (QWaylandXdgSurfaceV5 *xdgSurface, m_xdgSurfaces) {
+    for (QWaylandXdgSurfaceV5 *xdgSurface : m_xdgSurfaces) {
         if (surface == xdgSurface->surface())
             return xdgSurface;
     }

@@ -81,7 +81,7 @@ public:
     QMultiMap<struct wl_client *, QWaylandXdgSurfaceV5 *> m_xdgSurfaces;
     QMultiMap<struct wl_client *, QWaylandXdgPopupV5 *> m_xdgPopups;
 
-    QWaylandXdgSurfaceV5 *xdgSurfaceFromSurface(QWaylandSurface *surface);
+    QWaylandXdgSurfaceV5 *xdgSurfaceFromSurface(QWaylandSurface *surface) const;
 
 protected:
     void xdg_shell_destroy(Resource *resource) override;

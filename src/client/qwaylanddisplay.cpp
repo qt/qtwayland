@@ -386,9 +386,9 @@ void QWaylandDisplay::registry_global_remove(uint32_t id)
     }
 }
 
-bool QWaylandDisplay::hasRegistryGlobal(const QString &interfaceName)
+bool QWaylandDisplay::hasRegistryGlobal(QStringView interfaceName) const
 {
-    Q_FOREACH (const RegistryGlobal &global, mGlobals)
+    for (const RegistryGlobal &global : mGlobals)
         if (global.interface == interfaceName)
             return true;
 

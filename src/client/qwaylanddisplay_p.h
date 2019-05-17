@@ -173,7 +173,7 @@ public:
             : id(id_), interface(interface_), version(version_), registry(registry_) { }
     };
     QList<RegistryGlobal> globals() const { return mGlobals; }
-    bool hasRegistryGlobal(const QString &interfaceName);
+    bool hasRegistryGlobal(QStringView interfaceName) const;
 
     /* wl_registry_add_listener does not add but rather sets a listener, so this function is used
      * to enable many listeners at once. */

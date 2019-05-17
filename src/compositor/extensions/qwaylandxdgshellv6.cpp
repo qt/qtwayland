@@ -1214,7 +1214,9 @@ QWaylandSurfaceRole *QWaylandXdgToplevelV6::role()
 QList<int> QWaylandXdgToplevelV6::statesAsInts() const
 {
    QList<int> list;
-   Q_FOREACH (uint state, states()) {
+   const auto s = states();
+   list.reserve(s.size());
+   for (auto state : s) {
        list << static_cast<int>(state);
    }
    return list;

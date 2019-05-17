@@ -1349,7 +1349,7 @@ bool QWaylandInputDevice::Touch::allTouchPointsReleased()
 
 void QWaylandInputDevice::Touch::releasePoints()
 {
-    Q_FOREACH (const QWindowSystemInterface::TouchPoint &previousPoint, mPrevTouchPoints) {
+    for (const QWindowSystemInterface::TouchPoint &previousPoint : qAsConst(mPrevTouchPoints)) {
         QWindowSystemInterface::TouchPoint tp = previousPoint;
         tp.state = Qt::TouchPointReleased;
         mTouchPoints.append(tp);

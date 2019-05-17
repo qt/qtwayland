@@ -125,7 +125,8 @@ void Window::paintGL()
     functions->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     GLenum currentTarget = GL_TEXTURE_2D;
-    Q_FOREACH (View *view, m_compositor->views()) {
+    const auto views = m_compositor->views();
+    for (View *view : views) {
         if (view->isCursor())
             continue;
         auto texture = view->getTexture();
@@ -160,7 +161,8 @@ void Window::paintGL()
 View *Window::viewAt(const QPointF &point)
 {
     View *ret = nullptr;
-    Q_FOREACH (View *view, m_compositor->views()) {
+    const auto views = m_compositor->views();
+    for (View *view : views) {
         if (view == m_dragIconView)
             continue;
         QRectF geom(view->position(), view->size());

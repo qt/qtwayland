@@ -715,9 +715,8 @@ void tst_WaylandCompositor::seatCreation()
     // The compositor will create the default input device
     QTRY_VERIFY(seat->isInitialized());
 
-    QList<QMouseEvent *> allEvents;
-    allEvents += seat->createMouseEvents(5);
-    foreach (QMouseEvent *me, allEvents) {
+    const QList<QMouseEvent *> allEvents = seat->createMouseEvents(5);
+    for (QMouseEvent *me : allEvents) {
         compositor.seatFor(me);
     }
 

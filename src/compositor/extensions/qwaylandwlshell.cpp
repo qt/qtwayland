@@ -332,7 +332,7 @@ QList<QWaylandWlShellSurface *> QWaylandWlShell::shellSurfacesForClient(QWayland
 {
     Q_D(const QWaylandWlShell);
     QList<QWaylandWlShellSurface *> surfsForClient;
-    Q_FOREACH (QWaylandWlShellSurface *shellSurface, d->m_shellSurfaces) {
+    for (QWaylandWlShellSurface *shellSurface : d->m_shellSurfaces) {
         if (shellSurface->surface() && shellSurface->surface()->client() == client)
             surfsForClient.append(shellSurface);
     }
@@ -343,7 +343,7 @@ QList<QWaylandWlShellSurface *> QWaylandWlShell::mappedPopups() const
 {
     Q_D(const QWaylandWlShell);
     QList<QWaylandWlShellSurface *> popupSurfaces;
-    Q_FOREACH (QWaylandWlShellSurface *shellSurface, d->m_shellSurfaces) {
+    for (QWaylandWlShellSurface *shellSurface : d->m_shellSurfaces) {
         if (shellSurface->windowType() == Qt::WindowType::Popup
                 && shellSurface->surface() && shellSurface->surface()->hasContent()) {
             popupSurfaces.append(shellSurface);
@@ -355,7 +355,7 @@ QList<QWaylandWlShellSurface *> QWaylandWlShell::mappedPopups() const
 QWaylandClient *QWaylandWlShell::popupClient() const
 {
     Q_D(const QWaylandWlShell);
-    Q_FOREACH (QWaylandWlShellSurface *shellSurface, d->m_shellSurfaces) {
+    for (QWaylandWlShellSurface *shellSurface : d->m_shellSurfaces) {
         if (shellSurface->windowType() == Qt::WindowType::Popup
                 && shellSurface->surface() && shellSurface->surface()->hasContent()) {
             return shellSurface->surface()->client();
@@ -366,7 +366,8 @@ QWaylandClient *QWaylandWlShell::popupClient() const
 
 void QWaylandWlShell::closeAllPopups()
 {
-    Q_FOREACH (QWaylandWlShellSurface* shellSurface, mappedPopups())
+    const auto mapped = mappedPopups();
+    for (QWaylandWlShellSurface *shellSurface : mapped)
         shellSurface->sendPopupDone();
 }
 

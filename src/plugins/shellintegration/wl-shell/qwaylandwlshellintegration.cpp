@@ -49,7 +49,8 @@ namespace QtWaylandClient {
 
 bool QWaylandWlShellIntegration::initialize(QWaylandDisplay *display)
 {
-    Q_FOREACH (QWaylandDisplay::RegistryGlobal global, display->globals()) {
+    const auto globals = display->globals();
+    for (QWaylandDisplay::RegistryGlobal global : globals) {
         if (global.interface == QLatin1String("wl_shell")) {
             m_wlShell = new QtWayland::wl_shell(display->wl_registry(), global.id, 1);
             break;

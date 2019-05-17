@@ -831,7 +831,8 @@ void QWaylandOutput::setScaleFactor(int scale)
 
     d->scaleFactor = scale;
 
-    Q_FOREACH (QWaylandOutputPrivate::Resource *resource, d->resourceMap().values()) {
+    const auto resMap = d->resourceMap();
+    for (QWaylandOutputPrivate::Resource *resource : resMap) {
         if (resource->version() >= 2) {
             d->send_scale(resource->handle, scale);
             d->send_done(resource->handle);

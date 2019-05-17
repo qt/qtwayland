@@ -246,7 +246,8 @@ bool QWaylandView::advance()
         return false;
 
     if (d->surface && d->surface->primaryView() == this) {
-        Q_FOREACH (QWaylandView *view, d->surface->views()) {
+        const auto views = d->surface->views();
+        for (QWaylandView *view : views) {
             if (view != this && view->allowDiscardFrontBuffer() && view->d_func()->currentBuffer == d->currentBuffer)
                 view->discardCurrentBuffer();
         }

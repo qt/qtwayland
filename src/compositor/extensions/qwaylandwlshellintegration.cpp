@@ -198,7 +198,8 @@ void WlShellIntegration::handleSetPopup(QWaylandSeat *seat, QWaylandSurface *par
 
     // Find the parent item on the same output
     QWaylandQuickShellSurfaceItem *parentItem = nullptr;
-    Q_FOREACH (QWaylandView *view, parent->views()) {
+    const auto views = parent->views();
+    for (QWaylandView *view : views) {
         if (view->output() == m_item->view()->output()) {
             QWaylandQuickShellSurfaceItem *item = qobject_cast<QWaylandQuickShellSurfaceItem*>(view->renderObject());
             if (item) {

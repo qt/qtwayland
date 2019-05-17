@@ -60,7 +60,8 @@ QWaylandDataSource::QWaylandDataSource(QWaylandDataDeviceManager *dataDeviceMana
 {
     if (!mimeData)
         return;
-    Q_FOREACH (const QString &format, mimeData->formats()) {
+    const auto formats = mimeData->formats();
+    for (const QString &format : formats) {
         offer(format);
     }
 }

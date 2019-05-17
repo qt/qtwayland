@@ -542,7 +542,7 @@ bool Scanner::process()
 
             if (hasEvents) {
                 printf("\n");
-                foreach (const WaylandEvent &e, interface.events) {
+                for (const WaylandEvent &e : interface.events) {
                     printf("        void send_");
                     printEvent(e);
                     printf(";\n");
@@ -563,7 +563,7 @@ bool Scanner::process()
 
             if (hasRequests) {
                 printf("\n");
-                foreach (const WaylandEvent &e, interface.requests) {
+                for (const WaylandEvent &e : interface.requests) {
                     printf("        virtual void %s_", interfaceNameStripped);
                     printEvent(e);
                     printf(";\n");
@@ -826,7 +826,7 @@ bool Scanner::process()
                 printf("\n");
                 printf("    };\n");
 
-                foreach (const WaylandEvent &e, interface.requests) {
+                for (const WaylandEvent &e : interface.requests) {
                     printf("\n");
                     printf("    void %s::%s_", interfaceName, interfaceNameStripped);
                     printEvent(e, true);
@@ -996,7 +996,7 @@ bool Scanner::process()
 
             if (!interface.requests.isEmpty()) {
                 printf("\n");
-                foreach (const WaylandEvent &e, interface.requests) {
+                for (const WaylandEvent &e : interface.requests) {
                     const WaylandArgument *new_id = newIdArgument(e.arguments);
                     QByteArray new_id_str = "void ";
                     if (new_id) {
@@ -1016,7 +1016,7 @@ bool Scanner::process()
             if (hasEvents) {
                 printf("\n");
                 printf("    protected:\n");
-                foreach (const WaylandEvent &e, interface.events) {
+                for (const WaylandEvent &e : interface.events) {
                     printf("        virtual void %s_", interfaceNameStripped);
                     printEvent(e);
                     printf(";\n");

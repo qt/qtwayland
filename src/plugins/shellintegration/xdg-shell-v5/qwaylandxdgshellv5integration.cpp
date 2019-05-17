@@ -51,7 +51,8 @@ namespace QtWaylandClient {
 
 bool QWaylandXdgShellV5Integration::initialize(QWaylandDisplay *display)
 {
-    Q_FOREACH (QWaylandDisplay::RegistryGlobal global, display->globals()) {
+    const auto globals = display->globals();
+    for (QWaylandDisplay::RegistryGlobal global : globals) {
         if (global.interface == QLatin1String("xdg_shell")) {
             m_xdgShell.reset(new QWaylandXdgShellV5(display->wl_registry(), global.id));
             break;

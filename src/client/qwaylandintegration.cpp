@@ -421,7 +421,7 @@ void QWaylandIntegration::initializeShellIntegration()
         preferredShells << QLatin1String("wl-shell") << QLatin1String("ivi-shell");
     }
 
-    Q_FOREACH (QString preferredShell, preferredShells) {
+    for (const QString &preferredShell : qAsConst(preferredShells)) {
         mShellIntegration.reset(createShellIntegration(preferredShell));
         if (mShellIntegration) {
             qCDebug(lcQpaWayland, "Using the '%s' shell integration", qPrintable(preferredShell));

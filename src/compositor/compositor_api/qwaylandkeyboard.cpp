@@ -256,7 +256,8 @@ void QWaylandKeyboardPrivate::maybeUpdateKeymap()
         return;
 
     createXKBKeymap();
-    foreach (Resource *res, resourceMap()) {
+    const auto resMap = resourceMap();
+    for (Resource *res : resMap) {
         send_keymap(res->handle, WL_KEYBOARD_KEYMAP_FORMAT_XKB_V1, keymap_fd, keymap_size);
     }
 
@@ -386,7 +387,8 @@ void QWaylandKeyboardPrivate::createXKBKeymap()
 
 void QWaylandKeyboardPrivate::sendRepeatInfo()
 {
-    Q_FOREACH (Resource *resource, resourceMap()) {
+    const auto resMap = resourceMap();
+    for (Resource *resource : resMap) {
         if (resource->version() >= WL_KEYBOARD_REPEAT_INFO_SINCE_VERSION)
             send_repeat_info(resource->handle, repeatRate, repeatDelay);
     }

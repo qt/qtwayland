@@ -243,7 +243,8 @@ void QWaylandShmBackingStore::resize(const QSize &size, const QRegion &)
 
 QWaylandShmBuffer *QWaylandShmBackingStore::getBuffer(const QSize &size)
 {
-    foreach (QWaylandShmBuffer *b, mBuffers) {
+    const auto copy = mBuffers; // remove when ported to vector<unique_ptr> + remove_if
+    for (QWaylandShmBuffer *b : copy) {
         if (!b->busy()) {
             if (b->size() == size) {
                 return b;

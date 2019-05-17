@@ -162,7 +162,7 @@ void QWaylandTextInputPrivate::sendInputMethodEvent(QInputMethodEvent *event)
     afterCommit.cursorPosition += event->commitString().length();
     afterCommit.anchorPosition = afterCommit.cursorPosition;
 
-    foreach (const QInputMethodEvent::Attribute &attribute, event->attributes()) {
+    for (const QInputMethodEvent::Attribute &attribute : event->attributes()) {
         if (attribute.type == QInputMethodEvent::Selection) {
             afterCommit.cursorPosition = attribute.start;
             afterCommit.anchorPosition = attribute.length;
@@ -174,7 +174,7 @@ void QWaylandTextInputPrivate::sendInputMethodEvent(QInputMethodEvent *event)
         }
     }
     send_commit_string(focusResource->handle, event->commitString());
-    foreach (const QInputMethodEvent::Attribute &attribute, event->attributes()) {
+    for (const QInputMethodEvent::Attribute &attribute : event->attributes()) {
         if (attribute.type == QInputMethodEvent::Cursor) {
             int index = QWaylandInputMethodEventBuilder::indexToWayland(event->preeditString(), attribute.start);
             send_preedit_cursor(focusResource->handle, index);

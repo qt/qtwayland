@@ -94,7 +94,8 @@ QWaylandWindow::~QWaylandWindow()
         reset(false);
 
     const QWindow *parent = window();
-    foreach (QWindow *w, QGuiApplication::topLevelWindows()) {
+    const auto tlw = QGuiApplication::topLevelWindows();
+    for (QWindow *w : tlw) {
         if (w->transientParent() == parent)
             QWindowSystemInterface::handleCloseEvent(w);
     }
@@ -786,7 +787,7 @@ bool QWaylandWindow::createDecoration()
     }
 
     if (hadDecoration != (bool)mWindowDecoration) {
-        foreach (QWaylandSubSurface *subsurf, mChildren) {
+        for (QWaylandSubSurface *subsurf : qAsConst(mChildren)) {
             QPoint pos = subsurf->window()->geometry().topLeft();
             QMargins m = frameMargins();
             subsurf->set_position(pos.x() + m.left(), pos.y() + m.top());

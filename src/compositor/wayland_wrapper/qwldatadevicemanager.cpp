@@ -186,12 +186,12 @@ struct wl_display *DataDeviceManager::display() const
 
 void DataDeviceManager::overrideSelection(const QMimeData &mimeData)
 {
-    QStringList formats = mimeData.formats();
+    const QStringList formats = mimeData.formats();
     if (formats.isEmpty())
         return;
 
     m_retainedData.clear();
-    foreach (const QString &format, formats)
+    for (const QString &format : formats)
         m_retainedData.setData(format, mimeData.data(format));
 
     QWaylandCompositorPrivate::get(m_compositor)->feedRetainedSelectionData(&m_retainedData);
@@ -217,7 +217,8 @@ bool DataDeviceManager::offerFromCompositorToClient(wl_resource *clientDataDevic
              wl_resource_create(client, &wl_data_offer_interface, -1, 0);
     wl_resource_set_implementation(selectionOffer, &compositor_offer_interface, this, nullptr);
     wl_data_device_send_data_offer(clientDataDeviceResource, selectionOffer);
-    foreach (const QString &format, m_retainedData.formats()) {
+    const auto formats = m_retainedData.formats();
+    for (const QString &format : formats) {
         QByteArray ba = format.toLatin1();
         wl_data_offer_send_offer(selectionOffer, ba.constData());
     }

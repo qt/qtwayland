@@ -414,7 +414,7 @@ void QWaylandXdgSurfaceV5Private::xdg_surface_ack_configure(Resource *resource, 
             break;
     }
 
-    QVector<uint> changedStates;
+    std::vector<uint> changedStates;
     std::set_symmetric_difference(
                 m_lastAckedConfigure.states.begin(), m_lastAckedConfigure.states.end(),
                 config.states.begin(), config.states.end(),
@@ -423,7 +423,7 @@ void QWaylandXdgSurfaceV5Private::xdg_surface_ack_configure(Resource *resource, 
     m_lastAckedConfigure = config;
 
     if (!changedStates.empty()) {
-        Q_FOREACH (uint state, changedStates) {
+        for (uint state : changedStates) {
             switch (state) {
             case QWaylandXdgSurfaceV5::State::MaximizedState:
                 emit q->maximizedChanged();
@@ -580,7 +580,7 @@ void QWaylandXdgShellV5::initialize()
 QWaylandClient *QWaylandXdgShellV5::popupClient() const
 {
     Q_D(const QWaylandXdgShellV5);
-    Q_FOREACH (QWaylandXdgPopupV5 *popup, d->m_xdgPopups) {
+    for (QWaylandXdgPopupV5 *popup : d->m_xdgPopups) {
         if (popup->surface()->hasContent())
             return popup->surface()->client();
     }
@@ -987,7 +987,9 @@ void QWaylandXdgSurfaceV5::initialize()
 QList<int> QWaylandXdgSurfaceV5::statesAsInts() const
 {
    QList<int> list;
-   Q_FOREACH (uint state, states()) {
+   const auto s = states();
+   list.reserve(s.size());
+   for (auto state : s) {
        list << static_cast<int>(state);
    }
    return list;
@@ -1238,7 +1240,8 @@ uint QWaylandXdgSurfaceV5::sendConfigure(const QSize &size, const QVector<uint> 
 uint QWaylandXdgSurfaceV5::sendConfigure(const QSize &size, const QVector<QWaylandXdgSurfaceV5::State> &states)
 {
     QVector<uint> asUints;
-    Q_FOREACH (QWaylandXdgSurfaceV5::State state, states) {
+    asUints.reserve(states.size());
+    for (QWaylandXdgSurfaceV5::State state : states) {
         asUints << state;
     }
     return sendConfigure(size, asUints);

@@ -109,7 +109,8 @@ void QWaylandQtWindowManager::setShowIsFullScreen(bool value)
         return;
 
     d->showIsFullScreen = value;
-    Q_FOREACH (QWaylandQtWindowManagerPrivate::Resource *resource, d->resourceMap().values()) {
+    const auto resMap = d->resourceMap();
+    for (QWaylandQtWindowManagerPrivate::Resource *resource : resMap) {
         d->send_hints(resource->handle, static_cast<int32_t>(d->showIsFullScreen));
     }
     Q_EMIT showIsFullScreenChanged();

@@ -221,11 +221,11 @@ void QWaylandTextInput::zwp_text_input_v2_leave(uint32_t serial, ::wl_surface *s
 
 void QWaylandTextInput::zwp_text_input_v2_modifiers_map(wl_array *map)
 {
-    QList<QByteArray> modifiersMap = QByteArray::fromRawData(static_cast<const char*>(map->data), map->size).split('\0');
+    const QList<QByteArray> modifiersMap = QByteArray::fromRawData(static_cast<const char*>(map->data), map->size).split('\0');
 
     m_modifiersMap.clear();
 
-    Q_FOREACH (const QByteArray &modifier, modifiersMap) {
+    for (const QByteArray &modifier : modifiersMap) {
         if (modifier == "Shift")
             m_modifiersMap.append(Qt::ShiftModifier);
         else if (modifier == "Control")

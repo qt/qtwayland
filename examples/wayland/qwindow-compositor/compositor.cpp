@@ -266,7 +266,7 @@ void Compositor::viewAnimationDone()
 
 View * Compositor::findView(const QWaylandSurface *s) const
 {
-    Q_FOREACH (View* view, m_views) {
+    for (View* view : m_views) {
         if (view->surface() == s)
             return view;
     }

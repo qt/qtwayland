@@ -136,9 +136,9 @@ QWaylandSurfacePrivate::~QWaylandSurfacePrivate()
 
     bufferRef = QWaylandBufferRef();
 
-    foreach (QtWayland::FrameCallback *c, pendingFrameCallbacks)
+    for (QtWayland::FrameCallback *c : qAsConst(pendingFrameCallbacks))
         c->destroy();
-    foreach (QtWayland::FrameCallback *c, frameCallbacks)
+    for (QtWayland::FrameCallback *c : qAsConst(frameCallbacks))
         c->destroy();
 }
 
@@ -151,7 +151,7 @@ void QWaylandSurfacePrivate::removeFrameCallback(QtWayland::FrameCallback *callb
 void QWaylandSurfacePrivate::notifyViewsAboutDestruction()
 {
     Q_Q(QWaylandSurface);
-    foreach (QWaylandView *view, views) {
+    for (QWaylandView *view : qAsConst(views)) {
         QWaylandViewPrivate::get(view)->markSurfaceAsDestroyed(q);
     }
     if (hasContent) {
@@ -673,7 +673,7 @@ QWaylandCompositor *QWaylandSurface::compositor() const
 void QWaylandSurface::frameStarted()
 {
     Q_D(QWaylandSurface);
-    foreach (QtWayland::FrameCallback *c, d->frameCallbacks)
+    for (QtWayland::FrameCallback *c : qAsConst(d->frameCallbacks))
         c->canSend = true;
 }
 

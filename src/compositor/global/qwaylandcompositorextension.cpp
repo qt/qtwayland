@@ -146,7 +146,7 @@ QWaylandObject::QWaylandObject(QObjectPrivate &d, QObject *parent)
 
 QWaylandObject::~QWaylandObject()
 {
-    foreach (QWaylandCompositorExtension *extension, extension_vector)
+    for (QWaylandCompositorExtension *extension : qAsConst(extension_vector))
         QWaylandCompositorExtensionPrivate::get(extension)->extension_container = nullptr;
 }
 

@@ -366,7 +366,7 @@ void QWaylandDisplay::registry_global_remove(uint32_t id)
                     }
                 }
 
-                foreach (QWaylandScreen *screen, mScreens) {
+                for (QWaylandScreen *screen : qAsConst(mScreens)) {
                     if (screen->outputId() == id) {
                         mScreens.removeOne(screen);
                         QWindowSystemInterface::handleScreenRemoved(screen);

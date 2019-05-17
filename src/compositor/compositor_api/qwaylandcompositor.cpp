@@ -200,8 +200,8 @@ void QWaylandCompositorPrivate::init()
     buffer_manager = new QtWayland::BufferManager(q);
 
     wl_display_init_shm(display);
-    QVector<wl_shm_format> formats = QWaylandSharedMemoryFormatHelper::supportedWaylandFormats();
-    foreach (wl_shm_format format, formats)
+    const QVector<wl_shm_format> formats = QWaylandSharedMemoryFormatHelper::supportedWaylandFormats();
+    for (wl_shm_format format : formats)
         wl_display_add_shm_format(display, format);
 
     if (!socket_name.isEmpty()) {
@@ -706,7 +706,7 @@ QList<QWaylandSurface *> QWaylandCompositor::surfacesForClient(QWaylandClient* c
 {
     Q_D(const QWaylandCompositor);
     QList<QWaylandSurface *> surfs;
-    foreach (QWaylandSurface *surface, d->all_surfaces) {
+    for (QWaylandSurface *surface : d->all_surfaces) {
         if (surface->client() == client)
             surfs.append(surface);
     }
@@ -728,7 +728,7 @@ QList<QWaylandSurface *> QWaylandCompositor::surfaces() const
 QWaylandOutput *QWaylandCompositor::outputFor(QWindow *window) const
 {
     Q_D(const QWaylandCompositor);
-    foreach (QWaylandOutput *output, d->outputs) {
+    for (QWaylandOutput *output : d->outputs) {
         if (output->window() == window)
             return output;
     }

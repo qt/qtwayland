@@ -272,6 +272,10 @@ void QWaylandInputDevice::Pointer::updateCursorTheme()
     int pixelSize = cursorSize() * scale;
     auto *display = seat()->mQDisplay;
     mCursor.theme = display->loadCursorTheme(cursorThemeName(), pixelSize);
+
+    if (!mCursor.theme)
+        return; // A warning has already been printed in loadCursorTheme
+
     if (auto *arrow = mCursor.theme->cursorImage(Qt::ArrowCursor)) {
         int arrowPixelSize = qMax(arrow->width, arrow->height); // Not all cursor themes are square
         while (scale > 1 && arrowPixelSize / scale < cursorSize())
@@ -309,6 +313,9 @@ void QWaylandInputDevice::Pointer::updateCursor()
 
     if (!mCursor.theme || idealCursorScale() != mCursor.themeBufferScale)
         updateCursorTheme();
+
+    if (!mCursor.theme)
+        return;
 
     // Set from shape using theme
     if (struct ::wl_cursor_image *image = mCursor.theme->cursorImage(shape)) {

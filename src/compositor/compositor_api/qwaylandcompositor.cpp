@@ -475,6 +475,19 @@ void QWaylandCompositorPrivate::loadServerBufferIntegration()
 #endif
 }
 
+QWaylandSeat *QWaylandCompositorPrivate::seatFor(QInputEvent *inputEvent)
+{
+    QWaylandSeat *dev = nullptr;
+    for (int i = 0; i < seats.size(); i++) {
+        QWaylandSeat *candidate = seats.at(i);
+        if (candidate->isOwner(inputEvent)) {
+            dev = candidate;
+            break;
+        }
+    }
+    return dev;
+}
+
 /*!
   \qmltype WaylandCompositor
   \inqmlmodule QtWayland.Compositor
@@ -942,23 +955,14 @@ QWaylandSeat *QWaylandCompositor::defaultSeat() const
 }
 
 /*!
- * \internal
- *
- * Currently, Qt only supports a single seat, so this exists for
- * future proofing the APIs.
+ * Select the seat for a given input event.
+ * Currently, Qt only supports a single seat, but you can reimplement
+ * QWaylandCompositorPrivate::seatFor for a custom seat selection.
  */
 QWaylandSeat *QWaylandCompositor::seatFor(QInputEvent *inputEvent)
 {
     Q_D(QWaylandCompositor);
-    QWaylandSeat *dev = nullptr;
-    for (int i = 0; i < d->seats.size(); i++) {
-        QWaylandSeat *candidate = d->seats.at(i);
-        if (candidate->isOwner(inputEvent)) {
-            dev = candidate;
-            break;
-        }
-    }
-    return dev;
+    return d->seatFor(inputEvent);
 }
 
 /*!

@@ -115,6 +115,8 @@ public:
 
     void connectToExternalSockets();
 
+    virtual QWaylandSeat *seatFor(QInputEvent *inputEvent);
+
 protected:
     void compositor_create_surface(wl_compositor::Resource *resource, uint32_t id) override;
     void compositor_create_region(wl_compositor::Resource *resource, uint32_t id) override;

@@ -112,7 +112,8 @@ void QWaylandXdgSurface::Toplevel::applyConfigure()
 
 bool QWaylandXdgSurface::Toplevel::wantsDecorations()
 {
-    if (m_decoration && m_decoration->pending() == QWaylandXdgToplevelDecorationV1::mode_server_side)
+    if (m_decoration && (m_decoration->pending() == QWaylandXdgToplevelDecorationV1::mode_server_side
+                         || !m_decoration->isConfigured()))
         return false;
 
     return !(m_pending.states & Qt::WindowFullScreen);

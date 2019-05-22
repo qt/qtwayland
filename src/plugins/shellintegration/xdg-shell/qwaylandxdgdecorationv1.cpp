@@ -95,9 +95,15 @@ QWaylandXdgToplevelDecorationV1::mode QWaylandXdgToplevelDecorationV1::pending()
     return m_pending;
 }
 
+bool QWaylandXdgToplevelDecorationV1::isConfigured() const
+{
+    return m_configured;
+}
+
 void QtWaylandClient::QWaylandXdgToplevelDecorationV1::zxdg_toplevel_decoration_v1_configure(uint32_t mode)
 {
     m_pending = zxdg_toplevel_decoration_v1::mode(mode);
+    m_configured = true;
 }
 
 }

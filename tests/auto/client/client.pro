@@ -9,6 +9,7 @@ SUBDIRS += \
     seatv4 \
     surface \
     wl_connect \
+    xdgdecorationv1 \
     xdgoutput \
     xdgshell \
     xdgshellv6

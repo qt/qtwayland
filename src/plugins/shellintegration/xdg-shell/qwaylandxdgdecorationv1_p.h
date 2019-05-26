@@ -80,6 +80,7 @@ public:
     void requestMode(mode mode);
     void unsetMode();
     mode pending() const;
+    bool isConfigured() const;
 
 protected:
     void zxdg_toplevel_decoration_v1_configure(uint32_t mode) override;
@@ -88,6 +89,7 @@ private:
     mode m_pending = mode_client_side;
     mode m_requested = mode_client_side;
     bool m_modeSet = false;
+    bool m_configured = false;
 };
 
 QT_END_NAMESPACE

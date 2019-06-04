@@ -129,7 +129,7 @@ public:
 
     ~SharedTextureFactory() override
     {
-        if (m_buffer)
+        if (m_buffer && !QCoreApplication::closingDown())
             const_cast<QtWayland::ServerBuffer*>(m_buffer)->releaseOpenGlTexture();
     }
 

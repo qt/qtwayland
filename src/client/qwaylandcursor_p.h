@@ -57,6 +57,8 @@
 
 #if QT_CONFIG(cursor)
 
+#include <memory>
+
 struct wl_cursor;
 struct wl_cursor_image;
 struct wl_cursor_theme;
@@ -73,7 +75,7 @@ class QWaylandShm;
 class Q_WAYLAND_CLIENT_EXPORT QWaylandCursorTheme
 {
 public:
-    static QWaylandCursorTheme *create(QWaylandShm *shm, int size, const QString &themeName);
+    static std::unique_ptr<QWaylandCursorTheme> create(QWaylandShm *shm, int size, const QString &themeName);
     ~QWaylandCursorTheme();
     ::wl_cursor *cursor(Qt::CursorShape shape);
 

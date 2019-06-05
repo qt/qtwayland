@@ -85,6 +85,8 @@
 
 #include <errno.h>
 
+#include <tuple> // for std::tie
+
 QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
@@ -183,7 +185,7 @@ QWaylandDisplay::~QWaylandDisplay(void)
     delete mDndSelectionHandler.take();
 #endif
 #if QT_CONFIG(cursor)
-    qDeleteAll(mCursorThemes);
+    mCursorThemes.clear();
 #endif
     if (mDisplay)
         wl_display_disconnect(mDisplay);
@@ -602,15 +604,30 @@ QWaylandCursor *QWaylandDisplay::waylandCursor()
     return mCursor.data();
 }
 
+auto QWaylandDisplay::findExistingCursorTheme(const QString &name, int pixelSize) const noexcept
+    -> FindExistingCursorThemeResult
+{
+    const auto byNameAndSize = [](const WaylandCursorTheme &lhs, const WaylandCursorTheme &rhs) {
+        return std::tie(lhs.pixelSize, lhs.name) < std::tie(rhs.pixelSize, rhs.name);
+    };
+
+    const WaylandCursorTheme prototype = {name, pixelSize, nullptr};
+
+    const auto it = std::lower_bound(mCursorThemes.cbegin(), mCursorThemes.cend(), prototype, byNameAndSize);
+    if (it != mCursorThemes.cend() && it->name == name && it->pixelSize == pixelSize)
+        return {it, true};
+    else
+        return {it, false};
+}
+
 QWaylandCursorTheme *QWaylandDisplay::loadCursorTheme(const QString &name, int pixelSize)
 {
-    if (auto *theme = mCursorThemes.value({name, pixelSize}, nullptr))
-        return theme;
+    const auto result = findExistingCursorTheme(name, pixelSize);
+    if (result.found)
+        return result.theme();
 
-    if (auto *theme = QWaylandCursorTheme::create(shm(), pixelSize, name)) {
-        mCursorThemes[{name, pixelSize}] = theme;
-        return theme;
-    }
+    if (auto theme = QWaylandCursorTheme::create(shm(), pixelSize, name))
+        return mCursorThemes.insert(result.position, {name, pixelSize, std::move(theme)})->theme.get();
 
     return nullptr;
 }

@@ -54,7 +54,7 @@ QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
 
-QWaylandCursorTheme *QWaylandCursorTheme::create(QWaylandShm *shm, int size, const QString &themeName)
+std::unique_ptr<QWaylandCursorTheme> QWaylandCursorTheme::create(QWaylandShm *shm, int size, const QString &themeName)
 {
     QByteArray nameBytes = themeName.toLocal8Bit();
     struct ::wl_cursor_theme *theme = wl_cursor_theme_load(nameBytes.constData(), size, shm->object());
@@ -64,7 +64,7 @@ QWaylandCursorTheme *QWaylandCursorTheme::create(QWaylandShm *shm, int size, con
         return nullptr;
     }
 
-    return new QWaylandCursorTheme(theme);
+    return std::unique_ptr<QWaylandCursorTheme>{new QWaylandCursorTheme(theme)};
 }
 
 QWaylandCursorTheme::~QWaylandCursorTheme()

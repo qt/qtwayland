@@ -238,7 +238,22 @@ private:
     QList<Listener> mRegistryListeners;
     QWaylandIntegration *mWaylandIntegration = nullptr;
 #if QT_CONFIG(cursor)
-    QMap<std::pair<QString, int>, QWaylandCursorTheme *> mCursorThemes; // theme name and size
+    struct WaylandCursorTheme {
+        QString name;
+        int pixelSize;
+        std::unique_ptr<QWaylandCursorTheme> theme;
+    };
+    std::vector<WaylandCursorTheme> mCursorThemes;
+
+    struct FindExistingCursorThemeResult {
+        std::vector<WaylandCursorTheme>::const_iterator position;
+        bool found;
+
+        QWaylandCursorTheme *theme() const noexcept
+        { return found ? position->theme.get() : nullptr; }
+    };
+    FindExistingCursorThemeResult findExistingCursorTheme(const QString &name, int pixelSize) const;
+
     QScopedPointer<QWaylandCursor> mCursor;
 #endif
 #if QT_CONFIG(wayland_datadevice)

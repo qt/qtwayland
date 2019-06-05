@@ -316,7 +316,9 @@ QWaylandGLContext::QWaylandGLContext(EGLDisplay eglDisplay, QWaylandDisplay *dis
        mSupportNonBlockingSwap = false;
     }
     if (!mSupportNonBlockingSwap) {
-        qWarning() << "Non-blocking swap buffers not supported. Subsurface rendering can be affected.";
+        qWarning(lcQpaWayland) << "Non-blocking swap buffers not supported."
+                               << "Subsurface rendering can be affected."
+                               << "It may also cause the event loop to freeze in some situations";
     }
 
     updateGLFormat();
@@ -556,20 +558,15 @@ void QWaylandGLContext::swapBuffers(QPlatformSurface *surface)
         m_blitter->blit(window);
     }
 
-
-    QWaylandSubSurface *sub = window->subSurfaceWindow();
-    if (sub) {
-        QMutexLocker l(sub->syncMutex());
-
-        int si = (sub->isSync() && mSupportNonBlockingSwap) ? 0 : m_format.swapInterval();
-
-        eglSwapInterval(m_eglDisplay, si);
-        eglSwapBuffers(m_eglDisplay, eglSurface);
-    } else {
-        eglSwapInterval(m_eglDisplay, m_format.swapInterval());
-        eglSwapBuffers(m_eglDisplay, eglSurface);
+    int swapInterval = mSupportNonBlockingSwap ? 0 : m_format.swapInterval();
+    eglSwapInterval(m_eglDisplay, swapInterval);
+    if (swapInterval == 0 && m_format.swapInterval() > 0) {
+        // Emulating a blocking swap
+        glFlush(); // Flush before waiting so we can swap more quickly when the frame event arrives
+        window->waitForFrameSync(100);
     }
-
+    window->handleUpdate();
+    eglSwapBuffers(m_eglDisplay, eglSurface);
 
     window->setCanResize(true);
 }

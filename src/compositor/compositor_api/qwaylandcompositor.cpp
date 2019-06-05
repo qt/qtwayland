@@ -302,7 +302,7 @@ void QWaylandCompositorPrivate::addPolishObject(QObject *object)
     if (initialized) {
         QCoreApplication::postEvent(object, new QEvent(QEvent::Polish));
     } else {
-        polish_objects.append(object);
+        polish_objects.push_back(object);
     }
 }
 

@@ -109,3 +109,4 @@ information about a particular change.
    QScreen::name(), will now typically return "VGA-1", "WL-1", "DP-2",
    "HDMI-A-1" and similar instead of "Screen25", "Screen26", "Screen27"
    etc. (on supported compositors).
+ - Fixed a crash when closing multiple popups at once.

@@ -1317,7 +1317,7 @@ QSGNode *QWaylandQuickItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeDat
     if (d->view->isBufferLocked() && !bufferHasContent && d->paintEnabled)
         return oldNode;
 
-    if (!bufferHasContent || !d->paintEnabled) {
+    if (!bufferHasContent || !d->paintEnabled || !surface()) {
         delete oldNode;
         return nullptr;
     }

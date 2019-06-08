@@ -254,8 +254,10 @@ QWaylandCompositorPrivate::~QWaylandCompositorPrivate()
     delete data_device_manager;
 #endif
 
+#if QT_CONFIG(opengl)
     // Some client buffer integrations need to clean up before the destroying the wl_display
     client_buffer_integration.reset();
+#endif
 
     if (ownsDisplay)
         wl_display_destroy(display);

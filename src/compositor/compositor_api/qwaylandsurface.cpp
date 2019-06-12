@@ -151,7 +151,8 @@ void QWaylandSurfacePrivate::removeFrameCallback(QtWayland::FrameCallback *callb
 void QWaylandSurfacePrivate::notifyViewsAboutDestruction()
 {
     Q_Q(QWaylandSurface);
-    for (QWaylandView *view : qAsConst(views)) {
+    const auto viewsCopy = views; // Views will be removed from the list when marked as destroyed
+    for (QWaylandView *view : viewsCopy) {
         QWaylandViewPrivate::get(view)->markSurfaceAsDestroyed(q);
     }
     if (hasContent) {

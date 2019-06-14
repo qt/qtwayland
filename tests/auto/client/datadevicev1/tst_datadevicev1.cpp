@@ -30,9 +30,8 @@
 
 #include <QtGui/QRasterWindow>
 #include <QtGui/QOpenGLWindow>
-
-//TODO: move?
 #include <QtGui/QClipboard>
+#include <QtGui/QDrag>
 
 using namespace MockCompositor;
 
@@ -60,6 +59,7 @@ private slots:
     void pasteUtf8();
     void destroysPreviousSelection();
     void destroysSelectionWithSurface();
+    void dragWithoutFocus();
 };
 
 void tst_datadevicev1::initTestCase()
@@ -207,6 +207,23 @@ void tst_datadevicev1::destroysSelectionWithSurface()
     window->destroy();
 
     QCOMPOSITOR_TRY_COMPARE(dataDevice()->m_sentSelectionOffers.size(), 0);
+}
+
+// The application should not crash if it attempts to start a drag operation
+// when it doesn't have input focus (QTBUG-76368)
+void tst_datadevicev1::dragWithoutFocus()
+{
+    QRasterWindow window;
+    window.resize(64, 64);
+    window.show();
+    QCOMPOSITOR_TRY_VERIFY(xdgSurface() && xdgSurface()->m_committedConfigureSerial);
+
+    auto *mimeData = new QMimeData;
+    const QByteArray data("testData");
+    mimeData->setData("text/plain", data);
+    QDrag drag(&window);
+    drag.setMimeData(mimeData);
+    drag.exec();
 }
 
 QCOMPOSITOR_TEST_MAIN(tst_datadevicev1)

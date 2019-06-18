@@ -63,7 +63,6 @@
         "^qwayland-server-text-input-unstable-v2.h",
         "^qwayland-server-touch-extension.h",
         "^qwayland-server-xdg-decoration-unstable-v1.h",
-        "^qwayland-server-xdg-shell-unstable-v5.h",
         "^qwayland-server-xdg-shell-unstable-v6.h",
         "^qwayland-server-xdg-shell.h",
         "^wayland-hardware-integration-server-protocol.h",
@@ -77,7 +76,6 @@
         "^wayland-wayland-server-protocol.h",
         "^wayland-xdg-decoration-unstable-v1-server-protocol.h",
         "^wayland-xdg-shell-server-protocol.h",
-        "^wayland-xdg-shell-unstable-v5-server-protocol.h",
         "^wayland-xdg-shell-unstable-v6-server-protocol.h",
     ],
 );

@@ -80,7 +80,7 @@ qtHaveModule(quick) {
         compositor_api/qwaylandquickitem.h \
         compositor_api/qwaylandquickitem_p.h
 
-    qtHaveModule(opengl) {
+    qtConfig(opengl) {
         SOURCES += \
             compositor_api/qwaylandquickhardwarelayer.cpp
         HEADERS += \

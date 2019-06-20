@@ -85,7 +85,7 @@ qtHaveModule(quick) {
         extensions/qwaylandxdgshellv6integration.cpp \
         extensions/qwaylandxdgshellintegration.cpp \
 
-    qtHaveModule(opengl) {
+    qtConfig(opengl) {
         WAYLANDSERVERSOURCES += \
             ../extensions/qt-texture-sharing-unstable-v1.xml
 

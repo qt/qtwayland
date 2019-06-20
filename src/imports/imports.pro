@@ -4,7 +4,7 @@ qtHaveModule(quick): {
     SUBDIRS += \
         compositor
 
-    qtHaveModule(opengl): {
+    qtConfig(opengl): {
         SUBDIRS += \
             texture-sharing \
             texture-sharing-extension

@@ -1,7 +1,7 @@
 requires(qtHaveModule(waylandcompositor))
 TEMPLATE=subdirs
 
-qtHaveModule(opengl) {
+qtConfig(opengl) {
     SUBDIRS += \
         qwindow-compositor \
         minimal-cpp
@@ -20,7 +20,7 @@ qtHaveModule(quick) {
         SUBDIRS += \
             custom-extension
 
-            qtHaveModule(opengl) {
+            qtConfig(opengl) {
                 SUBDIRS += \
                     server-buffer \
                     texture-sharing

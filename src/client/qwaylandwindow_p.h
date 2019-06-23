@@ -260,7 +260,7 @@ private:
     void initializeWlSurface();
     bool shouldCreateShellSurface() const;
     bool shouldCreateSubSurface() const;
-    void reset(bool sendDestroyEvent = true);
+    void reset();
     void sendExposeEvent(const QRect &rect);
     static void closePopups(QWaylandWindow *parent);
     QPlatformScreen *calculateScreenFromSurfaceEvents() const;

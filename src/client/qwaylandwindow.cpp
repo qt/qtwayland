@@ -98,7 +98,7 @@ QWaylandWindow::~QWaylandWindow()
     delete mWindowDecoration;
 
     if (mSurface)
-        reset(false);
+        reset();
 
     const QWindow *parent = window();
     const auto tlw = QGuiApplication::topLevelWindows();
@@ -125,8 +125,6 @@ void QWaylandWindow::initWindow()
 
     if (!mSurface) {
         initializeWlSurface();
-        QPlatformSurfaceEvent e(QPlatformSurfaceEvent::SurfaceCreated);
-        QGuiApplication::sendEvent(window(), &e);
     }
 
     if (shouldCreateSubSurface()) {
@@ -241,12 +239,8 @@ bool QWaylandWindow::shouldCreateSubSurface() const
     return QPlatformWindow::parent() != nullptr;
 }
 
-void QWaylandWindow::reset(bool sendDestroyEvent)
+void QWaylandWindow::reset()
 {
-    if (mSurface && sendDestroyEvent) {
-        QPlatformSurfaceEvent e(QPlatformSurfaceEvent::SurfaceAboutToBeDestroyed);
-        QGuiApplication::sendEvent(window(), &e);
-    }
     delete mShellSurface;
     mShellSurface = nullptr;
     delete mSubSurfaceWindow;

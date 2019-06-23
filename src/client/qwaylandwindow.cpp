@@ -210,6 +210,8 @@ void QWaylandWindow::initWindow()
 
 void QWaylandWindow::initializeWlSurface()
 {
+    Q_ASSERT(!isInitialized());
+    QWriteLocker lock(&mSurfaceLock);
     init(mDisplay->createSurface(static_cast<QtWayland::wl_surface *>(this)));
 }
 
@@ -245,8 +247,10 @@ void QWaylandWindow::reset(bool sendDestroyEvent)
     mShellSurface = nullptr;
     delete mSubSurfaceWindow;
     mSubSurfaceWindow = nullptr;
-    if (isInitialized())
+    if (isInitialized()) {
+        QWriteLocker lock(&mSurfaceLock);
         destroy();
+    }
     mScreens.clear();
 
     if (mFrameCallback) {
@@ -1147,6 +1151,9 @@ void QWaylandWindow::requestUpdate()
 void QWaylandWindow::handleUpdate()
 {
     // TODO: Should sync subsurfaces avoid requesting frame callbacks?
+    QReadLocker lock(&mSurfaceLock);
+    if (!isInitialized())
+        return;
 
     if (mFrameCallback) {
         wl_callback_destroy(mFrameCallback);

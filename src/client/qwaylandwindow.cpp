@@ -254,6 +254,13 @@ void QWaylandWindow::reset(bool sendDestroyEvent)
         mFrameCallback = nullptr;
     }
 
+    int timerId  = mFrameCallbackTimerId.fetchAndStoreOrdered(-1);
+    if (timerId != -1) {
+        killTimer(timerId);
+    }
+    mWaitingForFrameCallback = false;
+    mFrameCallbackTimedOut = false;
+
     mMask = QRegion();
     mQueuedBuffer = nullptr;
 }

@@ -346,7 +346,7 @@ void QWaylandIntegration::initializeClientBufferIntegration()
                 && mDisplay->hardwareIntegration()->clientBufferIntegration() != QLatin1String("linux-dmabuf-unstable-v1")) {
             targetKey = mDisplay->hardwareIntegration()->clientBufferIntegration();
         } else {
-            targetKey = QLatin1Literal("wayland-egl");
+            targetKey = QLatin1String("wayland-egl");
         }
     }
 

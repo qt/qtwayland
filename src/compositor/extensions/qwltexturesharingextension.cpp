@@ -177,7 +177,7 @@ public:
             return new SharedTextureFactory(m_buffer);
         }
 //        qDebug() << "Shared buffer NOT found for" << m_id;
-        m_errorString = QLatin1Literal("Shared buffer not found");
+        m_errorString = QLatin1String("Shared buffer not found");
         return nullptr;
     }
 
@@ -282,7 +282,7 @@ void QWaylandTextureSharingExtension::initialize()
         setImageSearchPath(image_search_path);
 
     if (m_image_dirs.isEmpty())
-        m_image_dirs << QLatin1Literal(":/") << QLatin1Literal("./");
+        m_image_dirs << QLatin1String(":/") << QLatin1String("./");
 
     auto suffixes = QTextureFileReader::supportedFileFormats();
     suffixes.append(QImageReader::supportedImageFormats());
@@ -295,7 +295,7 @@ void QWaylandTextureSharingExtension::initialize()
     if (ctx) {
         QQmlEngine *engine = ctx->engine();
         if (engine) {
-            auto *provider = static_cast<QWaylandSharedTextureProvider*>(engine->imageProvider(QLatin1Literal("wlshared")));
+            auto *provider = static_cast<QWaylandSharedTextureProvider*>(engine->imageProvider(QLatin1String("wlshared")));
             if (provider)
                 provider->setExtensionReady(this);
         }
@@ -308,7 +308,7 @@ QString QWaylandTextureSharingExtension::getExistingFilePath(const QString &key)
     // paths containing '../'. We handle that here, at the price of also blocking directory
     // names ending with two or more dots.
 
-    if (key.contains(QLatin1Literal("../")))
+    if (key.contains(QLatin1String("../")))
         return QString();
 
     for (auto dir : m_image_dirs) {

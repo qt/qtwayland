@@ -210,7 +210,9 @@ void QWaylandWindow::initWindow()
 
 void QWaylandWindow::initializeWlSurface()
 {
+    Q_ASSERT(!isInitialized());
     init(mDisplay->createSurface(static_cast<QtWayland::wl_surface *>(this)));
+    emit wlSurfaceCreated();
 }
 
 bool QWaylandWindow::shouldCreateShellSurface() const
@@ -245,8 +247,10 @@ void QWaylandWindow::reset(bool sendDestroyEvent)
     mShellSurface = nullptr;
     delete mSubSurfaceWindow;
     mSubSurfaceWindow = nullptr;
-    if (isInitialized())
+    if (isInitialized()) {
+        emit wlSurfaceDestroyed();
         destroy();
+    }
     mScreens.clear();
 
     if (mFrameCallback) {

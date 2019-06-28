@@ -71,7 +71,7 @@ private:
     uint32_t m_lastSurfaceId = 0;
     uint32_t m_surfaceNumber = 0;
     bool m_useEnvSurfaceId = false;
-    QMutex m_mutex{QMutex::Recursive};
+    QRecursiveMutex m_mutex;
 };
 
 }

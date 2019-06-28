@@ -48,6 +48,8 @@
 
 #include "qwaylandivisurface_p.h"
 
+#include <mutex>
+
 #include <unistd.h>
 
 QT_BEGIN_NAMESPACE
@@ -95,7 +97,7 @@ uint32_t QWaylandIviShellIntegration::getNextUniqueSurfaceId()
 {
     const uint32_t PID_MAX_EXPONENTIATION = 22; // 22 bit shift operation
     const uint32_t ID_LIMIT = 1 << (32 - PID_MAX_EXPONENTIATION); // 10 bit is unique id
-    QMutexLocker locker(&m_mutex);
+    const std::lock_guard<QRecursiveMutex> locker(m_mutex);
 
     if (m_lastSurfaceId == 0) {
         QByteArray env = qgetenv("QT_IVI_SURFACE_ID");

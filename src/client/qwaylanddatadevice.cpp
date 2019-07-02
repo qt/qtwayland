@@ -113,7 +113,10 @@ void QWaylandDataDevice::startDrag(QMimeData *mimeData, QWaylandWindow *icon)
     if (!origin)
         origin = seat->touchFocus();
 
-    start_drag(m_dragSource->object(), origin->wlSurface(), icon->wlSurface(), m_display->currentInputDevice()->serial());
+    if (origin)
+        start_drag(m_dragSource->object(), origin->wlSurface(), icon->wlSurface(), m_display->currentInputDevice()->serial());
+    else
+        qCDebug(lcQpaWayland) << "Couldn't start a drag because the origin window could not be found.";
 }
 
 void QWaylandDataDevice::cancelDrag()

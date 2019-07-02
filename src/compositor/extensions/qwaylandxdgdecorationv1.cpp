@@ -75,7 +75,7 @@ QT_BEGIN_NAMESPACE
     }
     \endqml
 
-    \sa XdgToplevel::decorationMode
+    \sa QWaylandXdgToplevel::decorationMode
 */
 
 /*!

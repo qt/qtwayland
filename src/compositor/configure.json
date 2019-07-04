@@ -28,6 +28,7 @@
             "test": {
                 "tail": [
                     "extern \"C\" {",
+                    "#include <math.h> /* may fail because of 'private:' in c++ type_traits.h */",
                     "#define private priv",
                     "#include <wayland-kms.h>",
                     "#undef private",

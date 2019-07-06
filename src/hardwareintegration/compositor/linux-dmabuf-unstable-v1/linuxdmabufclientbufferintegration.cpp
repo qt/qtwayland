@@ -263,7 +263,7 @@ LinuxDmabufClientBufferIntegration::LinuxDmabufClientBufferIntegration()
                         YuvFormatConversion {
                             .inputPlanes = 1,
                             .outputPlanes = 2,
-                            {{
+                            .plane = {{
                                  .format = DRM_FORMAT_GR88,
                                  .widthDivisor = 1,
                                  .heightDivisor = 1,

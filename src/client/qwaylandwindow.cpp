@@ -670,7 +670,7 @@ bool QWaylandWindow::waitForFrameSync(int timeout)
     // started by other writes
     int fcbId = mFrameCallbackTimerId.fetchAndStoreOrdered(-1);
     if (fcbId != -1)
-        QMetaObject::invokeMethod(this, [=] { killTimer(fcbId); }, Qt::QueuedConnection);
+        QMetaObject::invokeMethod(this, [this, fcbId] { killTimer(fcbId); }, Qt::QueuedConnection);
 
     return !mWaitingForFrameCallback;
 }
@@ -1157,7 +1157,7 @@ void QWaylandWindow::handleUpdate()
         // ignore it if it times out before it's cleaned up by the invokeMethod call.
         int id = mFallbackUpdateTimerId;
         mFallbackUpdateTimerId = -1;
-        QMetaObject::invokeMethod(this, [=] { killTimer(id); }, Qt::QueuedConnection);
+        QMetaObject::invokeMethod(this, [this, id] { killTimer(id); }, Qt::QueuedConnection);
     }
 
     mFrameCallback = frame();
@@ -1168,10 +1168,10 @@ void QWaylandWindow::handleUpdate()
     // Stop current frame timer if any, can't use killTimer directly, see comment above.
     int fcbId = mFrameCallbackTimerId.fetchAndStoreOrdered(-1);
     if (fcbId != -1)
-        QMetaObject::invokeMethod(this, [=] { killTimer(fcbId); }, Qt::QueuedConnection);
+        QMetaObject::invokeMethod(this, [this, fcbId] { killTimer(fcbId); }, Qt::QueuedConnection);
 
     // Start a timer for handling the case when the compositor stops sending frame callbacks.
-    QMetaObject::invokeMethod(this, [=] { // Again; can't do it directly
+    QMetaObject::invokeMethod(this, [this] { // Again; can't do it directly
         if (mWaitingForFrameCallback)
             mFrameCallbackTimerId = startTimer(100);
     }, Qt::QueuedConnection);

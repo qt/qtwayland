@@ -222,7 +222,7 @@ protected:
     WId mWindowId;
     bool mWaitingForFrameCallback = false;
     bool mFrameCallbackTimedOut = false; // Whether the frame callback has timed out
-    int mFrameCallbackTimerId = -1; // Started on commit, reset on frame callback
+    QAtomicInt mFrameCallbackTimerId = -1; // Started on commit, reset on frame callback
     struct ::wl_callback *mFrameCallback = nullptr;
     struct ::wl_event_queue *mFrameQueue = nullptr;
     QWaitCondition mFrameSyncWait;

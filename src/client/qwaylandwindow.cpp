@@ -245,6 +245,13 @@ void QWaylandWindow::reset(bool sendDestroyEvent)
         mFrameCallback = nullptr;
     }
 
+    int timerId  = mFrameCallbackTimerId.fetchAndStoreOrdered(-1);
+    if (timerId != -1) {
+        killTimer(timerId);
+    }
+    mWaitingForFrameCallback = false;
+    mFrameCallbackTimedOut = false;
+
     mMask = QRegion();
     mQueuedBuffer = nullptr;
 }
@@ -614,29 +621,34 @@ const wl_callback_listener QWaylandWindow::callbackListener = {
         Q_UNUSED(callback);
         Q_UNUSED(time);
         auto *window = static_cast<QWaylandWindow*>(data);
-        if (window->thread() != QThread::currentThread())
-            QMetaObject::invokeMethod(window, [=] { window->handleFrameCallback(); }, Qt::QueuedConnection);
-        else
-            window->handleFrameCallback();
+        window->handleFrameCallback();
     }
 };
 
 void QWaylandWindow::handleFrameCallback()
 {
-    bool wasExposed = isExposed();
-
-    if (mFrameCallbackTimerId != -1) {
-        killTimer(mFrameCallbackTimerId);
-        mFrameCallbackTimerId = -1;
-    }
-
+    // Stop the timer and stop waiting immediately
+    int timerId = mFrameCallbackTimerId.fetchAndStoreOrdered(-1);
     mWaitingForFrameCallback = false;
-    mFrameCallbackTimedOut = false;
 
-    if (!wasExposed && isExposed())
-        sendExposeEvent(QRect(QPoint(), geometry().size()));
-    if (wasExposed && hasPendingUpdateRequest())
-        deliverUpdateRequest();
+    // The rest can wait until we can run it on the correct thread
+    auto doHandleExpose = [this, timerId]() {
+        if (timerId != -1)
+            killTimer(timerId);
+
+        bool wasExposed = isExposed();
+        mFrameCallbackTimedOut = false;
+        if (!wasExposed && isExposed()) // Did setting mFrameCallbackTimedOut make the window exposed?
+            sendExposeEvent(QRect(QPoint(), geometry().size()));
+        if (wasExposed && hasPendingUpdateRequest())
+            deliverUpdateRequest();
+    };
+
+    if (thread() != QThread::currentThread()) {
+        QMetaObject::invokeMethod(this, doHandleExpose);
+    } else {
+        doHandleExpose();
+    }
 }
 
 QMutex QWaylandWindow::mFrameSyncMutex;
@@ -658,11 +670,11 @@ bool QWaylandWindow::waitForFrameSync(int timeout)
     }
 
     // Stop current frame timer if any, can't use killTimer directly, because we might be on a diffent thread
-    if (mFrameCallbackTimerId != -1) {
-        int id = mFrameCallbackTimerId;
-        mFrameCallbackTimerId = -1;
-        QMetaObject::invokeMethod(this, [=] { killTimer(id); }, Qt::QueuedConnection);
-    }
+    // Ordered semantics is needed to avoid stopping the timer twice and not miss it when it's
+    // started by other writes
+    int fcbId = mFrameCallbackTimerId.fetchAndStoreOrdered(-1);
+    if (fcbId != -1)
+        QMetaObject::invokeMethod(this, [this, fcbId] { killTimer(fcbId); }, Qt::QueuedConnection);
 
     return !mWaitingForFrameCallback;
 }
@@ -1100,9 +1112,9 @@ void QWaylandWindow::timerEvent(QTimerEvent *event)
         }
     }
 
-    if (event->timerId() == mFrameCallbackTimerId) {
-        killTimer(mFrameCallbackTimerId);
-        mFrameCallbackTimerId = -1;
+
+    if (mFrameCallbackTimerId.testAndSetOrdered(event->timerId(), -1)) {
+        killTimer(event->timerId());
         qCDebug(lcWaylandBackingstore) << "Didn't receive frame callback in time, window should now be inexposed";
         mFrameCallbackTimedOut = true;
         mWaitingForUpdate = false;
@@ -1155,7 +1167,7 @@ void QWaylandWindow::handleUpdate()
         // ignore it if it times out before it's cleaned up by the invokeMethod call.
         int id = mFallbackUpdateTimerId;
         mFallbackUpdateTimerId = -1;
-        QMetaObject::invokeMethod(this, [=] { killTimer(id); }, Qt::QueuedConnection);
+        QMetaObject::invokeMethod(this, [this, id] { killTimer(id); }, Qt::QueuedConnection);
     }
 
     mFrameCallback = frame();
@@ -1164,14 +1176,12 @@ void QWaylandWindow::handleUpdate()
     mWaitingForUpdate = false;
 
     // Stop current frame timer if any, can't use killTimer directly, see comment above.
-    if (mFrameCallbackTimerId != -1) {
-        int id = mFrameCallbackTimerId;
-        mFrameCallbackTimerId = -1;
-        QMetaObject::invokeMethod(this, [=] { killTimer(id); }, Qt::QueuedConnection);
-    }
+    int fcbId = mFrameCallbackTimerId.fetchAndStoreOrdered(-1);
+    if (fcbId != -1)
+        QMetaObject::invokeMethod(this, [this, fcbId] { killTimer(fcbId); }, Qt::QueuedConnection);
 
     // Start a timer for handling the case when the compositor stops sending frame callbacks.
-    QMetaObject::invokeMethod(this, [=] { // Again; can't do it directly
+    QMetaObject::invokeMethod(this, [this] { // Again; can't do it directly
         if (mWaitingForFrameCallback)
             mFrameCallbackTimerId = startTimer(100);
     }, Qt::QueuedConnection);

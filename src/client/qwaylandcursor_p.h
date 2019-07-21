@@ -109,13 +109,15 @@ private:
         ResizeNorthWestCursor,
         ResizeSouthEastCursor,
         ResizeNorthEastCursor,
-        ResizeSouthWestCursor
+        ResizeSouthWestCursor,
+
+        NumWaylandCursors
     };
 
     explicit QWaylandCursorTheme(struct ::wl_cursor_theme *theme) : m_theme(theme) {}
     struct ::wl_cursor *requestCursor(WaylandCursor shape);
     struct ::wl_cursor_theme *m_theme = nullptr;
-    QMap<WaylandCursor, wl_cursor *> m_cursors;
+    wl_cursor *m_cursors[NumWaylandCursors] = {};
 };
 
 class Q_WAYLAND_CLIENT_EXPORT QWaylandCursor : public QPlatformCursor

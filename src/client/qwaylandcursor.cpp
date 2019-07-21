@@ -74,7 +74,7 @@ QWaylandCursorTheme::~QWaylandCursorTheme()
 
 wl_cursor *QWaylandCursorTheme::requestCursor(WaylandCursor shape)
 {
-    if (struct wl_cursor *cursor = m_cursors.value(shape, nullptr))
+    if (struct wl_cursor *cursor = m_cursors[shape])
         return cursor;
 
     static Q_CONSTEXPR struct ShapeAndName {
@@ -206,7 +206,7 @@ wl_cursor *QWaylandCursorTheme::requestCursor(WaylandCursor shape)
                                     ShapeAndName{shape, ""}, byShape);
     for (auto it = p.first; it != p.second; ++it) {
         if (wl_cursor *cursor = wl_cursor_theme_get_cursor(m_theme, it->name)) {
-            m_cursors.insert(shape, cursor);
+            m_cursors[shape] = cursor;
             return cursor;
         }
     }

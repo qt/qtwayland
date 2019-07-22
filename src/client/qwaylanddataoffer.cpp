@@ -135,7 +135,7 @@ QVariant QWaylandMimeData::retrieveData_sys(const QString &mimeType, QVariant::T
     }
 
     int pipefd[2];
-    if (qt_safe_pipe(pipefd, O_NONBLOCK) == -1) {
+    if (qt_safe_pipe(pipefd) == -1) {
         qWarning("QWaylandMimeData: pipe2() failed");
         return QVariant();
     }
@@ -158,23 +158,32 @@ QVariant QWaylandMimeData::retrieveData_sys(const QString &mimeType, QVariant::T
 
 int QWaylandMimeData::readData(int fd, QByteArray &data) const
 {
-    char buf[4096];
-    int retryCount = 0;
-    int n;
-    while (true) {
-        n = QT_READ(fd, buf, sizeof buf);
-        if (n == -1 && (errno == EAGAIN || errno == EWOULDBLOCK) && ++retryCount < 1000)
-            usleep(1000);
-        else
-            break;
-    }
-    if (retryCount >= 1000)
+    fd_set readset;
+    FD_ZERO(&readset);
+    FD_SET(fd, &readset);
+    struct timeval timeout;
+    timeout.tv_sec = 1;
+    timeout.tv_usec = 0;
+
+    int ready = select(FD_SETSIZE, &readset, nullptr, nullptr, &timeout);
+    if (ready < 0) {
+        qWarning() << "QWaylandDataOffer: select() failed";
+        return -1;
+    } else if (ready == 0) {
         qWarning("QWaylandDataOffer: timeout reading from pipe");
-    if (n > 0) {
-        data.append(buf, n);
-        n = readData(fd, data);
+        return -1;
+    } else {
+        char buf[4096];
+        int n = QT_READ(fd, buf, sizeof buf);
+
+        if (n > 0) {
+            data.append(buf, n);
+            n = readData(fd, data);
+        } else if (n < 0) {
+            qWarning("QWaylandDataOffer: read() failed");
+        }
+        return n;
     }
-    return n;
 }
 
 }

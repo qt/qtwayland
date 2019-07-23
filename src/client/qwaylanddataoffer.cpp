@@ -170,24 +170,27 @@ int QWaylandMimeData::readData(int fd, QByteArray &data) const
     timeout.tv_sec = 1;
     timeout.tv_usec = 0;
 
-    int ready = select(FD_SETSIZE, &readset, nullptr, nullptr, &timeout);
-    if (ready < 0) {
-        qWarning() << "QWaylandDataOffer: select() failed";
-        return -1;
-    } else if (ready == 0) {
-        qWarning("QWaylandDataOffer: timeout reading from pipe");
-        return -1;
-    } else {
-        char buf[4096];
-        int n = QT_READ(fd, buf, sizeof buf);
+    Q_FOREVER {
+        int ready = select(FD_SETSIZE, &readset, nullptr, nullptr, &timeout);
+        if (ready < 0) {
+            qWarning() << "QWaylandDataOffer: select() failed";
+            return -1;
+        } else if (ready == 0) {
+            qWarning("QWaylandDataOffer: timeout reading from pipe");
+            return -1;
+        } else {
+            char buf[4096];
+            int n = QT_READ(fd, buf, sizeof buf);
 
-        if (n > 0) {
-            data.append(buf, n);
-            n = readData(fd, data);
-        } else if (n < 0) {
-            qWarning("QWaylandDataOffer: read() failed");
+            if (n < 0) {
+                qWarning("QWaylandDataOffer: read() failed");
+                return -1;
+            } else if (n == 0) {
+                return 0;
+            } else if (n > 0) {
+                data.append(buf, n);
+            }
         }
-        return n;
     }
 }
 

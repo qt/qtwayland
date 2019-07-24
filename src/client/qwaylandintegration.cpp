@@ -272,7 +272,7 @@ QPlatformAccessibility *QWaylandIntegration::accessibility() const
 {
     if (!mAccessibility) {
 #ifndef QT_NO_ACCESSIBILITY_ATSPI_BRIDGE
-        Q_ASSERT_X(QCoreApplication::eventDispatcher(), "QXcbIntegration",
+        Q_ASSERT_X(QCoreApplication::eventDispatcher(), "QWaylandIntegration",
             "Initializing accessibility without event-dispatcher!");
         mAccessibility.reset(new QSpiAccessibleBridge());
 #else

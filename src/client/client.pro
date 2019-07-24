@@ -20,7 +20,7 @@ qtConfig(xkbcommon) {
 }
 
 qtHaveModule(linuxaccessibility_support_private): \
-    QT += linuxaccessibility_support_private
+    QT_PRIVATE += linuxaccessibility_support_private
 
 QMAKE_USE += wayland-client
 

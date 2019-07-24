@@ -368,9 +368,7 @@ void Scanner::printEnums(const QList<WaylandEnum> &enums)
         printf("        enum %s {\n", e.name.constData());
         for (int i = 0; i < e.entries.size(); ++i) {
             const WaylandEnumEntry &entry = e.entries.at(i);
-            printf("            %s_%s = %s", e.name.constData(), entry.name.constData(), entry.value.constData());
-            if (i < e.entries.size() - 1)
-                printf(",");
+            printf("            %s_%s = %s,", e.name.constData(), entry.name.constData(), entry.value.constData());
             if (!entry.summary.isNull())
                 printf(" // %s", entry.summary.constData());
             printf("\n");
@@ -1249,7 +1247,7 @@ bool Scanner::process()
                 printf("    const struct %s_listener %s::m_%s_listener = {\n", interfaceName, interfaceName, interfaceName);
                 for (int i = 0; i < interface.events.size(); ++i) {
                     const WaylandEvent &e = interface.events.at(i);
-                    printf("        %s::handle_%s%s\n", interfaceName, e.name.constData(), i < interface.events.size() - 1 ? "," : "");
+                    printf("        %s::handle_%s,\n", interfaceName, e.name.constData());
                 }
                 printf("    };\n");
                 printf("\n");

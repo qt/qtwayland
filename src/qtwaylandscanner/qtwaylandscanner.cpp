@@ -40,7 +40,8 @@
 #include <QCoreApplication>
 #include <QFile>
 #include <QXmlStreamReader>
-#include <QtCore/QList>
+
+#include <vector>
 
 class Scanner
 {
@@ -63,7 +64,7 @@ private:
     struct WaylandEnum {
         QByteArray name;
 
-        QList<WaylandEnumEntry> entries;
+        std::vector<WaylandEnumEntry> entries;
     };
 
     struct WaylandArgument {
@@ -78,16 +79,16 @@ private:
         bool request;
         QByteArray name;
         QByteArray type;
-        QList<WaylandArgument> arguments;
+        std::vector<WaylandArgument> arguments;
     };
 
     struct WaylandInterface {
         QByteArray name;
         int version;
 
-        QList<WaylandEnum> enums;
-        QList<WaylandEvent> events;
-        QList<WaylandEvent> requests;
+        std::vector<WaylandEnum> enums;
+        std::vector<WaylandEvent> events;
+        std::vector<WaylandEvent> requests;
     };
 
     bool isServerSide();
@@ -101,11 +102,11 @@ private:
     Scanner::WaylandInterface readInterface(QXmlStreamReader &xml);
     QByteArray waylandToCType(const QByteArray &waylandType, const QByteArray &interface);
     QByteArray waylandToQtType(const QByteArray &waylandType, const QByteArray &interface, bool cStyleArray);
-    const Scanner::WaylandArgument *newIdArgument(const QList<WaylandArgument> &arguments);
+    const Scanner::WaylandArgument *newIdArgument(const std::vector<WaylandArgument> &arguments);
 
     void printEvent(const WaylandEvent &e, bool omitNames = false, bool withResource = false);
     void printEventHandlerSignature(const WaylandEvent &e, const char *interfaceName, bool deepIndent = true);
-    void printEnums(const QList<WaylandEnum> &enums);
+    void printEnums(const std::vector<WaylandEnum> &enums);
 
     QByteArray stripInterfaceName(const QByteArray &name);
     bool ignoreInterface(const QByteArray &name);
@@ -204,7 +205,7 @@ Scanner::WaylandEvent Scanner::readEvent(QXmlStreamReader &xml, bool request)
                 .summary   = byteArrayValue(xml, "summary"),
                 .allowNull = boolValue(xml, "allowNull"),
             };
-            event.arguments << argument;
+            event.arguments.push_back(std::move(argument));
         }
 
         xml.skipCurrentElement();
@@ -226,7 +227,7 @@ Scanner::WaylandEnum Scanner::readEnum(QXmlStreamReader &xml)
                 .value   = byteArrayValue(xml, "value"),
                 .summary = byteArrayValue(xml, "summary"),
             };
-            result.entries << entry;
+            result.entries.push_back(std::move(entry));
         }
 
         xml.skipCurrentElement();
@@ -247,11 +248,11 @@ Scanner::WaylandInterface Scanner::readInterface(QXmlStreamReader &xml)
 
     while (xml.readNextStartElement()) {
         if (xml.name() == "event")
-            interface.events << readEvent(xml, false);
+            interface.events.push_back(readEvent(xml, false));
         else if (xml.name() == "request")
-            interface.requests << readEvent(xml, true);
+            interface.requests.push_back(readEvent(xml, true));
         else if (xml.name() == "enum")
-            interface.enums << readEnum(xml);
+            interface.enums.push_back(readEnum(xml));
         else
             xml.skipCurrentElement();
     }
@@ -293,7 +294,7 @@ QByteArray Scanner::waylandToQtType(const QByteArray &waylandType, const QByteAr
         return waylandToCType(waylandType, interface);
 }
 
-const Scanner::WaylandArgument *Scanner::newIdArgument(const QList<WaylandArgument> &arguments)
+const Scanner::WaylandArgument *Scanner::newIdArgument(const std::vector<WaylandArgument> &arguments)
 {
     for (const WaylandArgument &a : arguments) {
         if (a.type == "new_id")
@@ -368,7 +369,7 @@ void Scanner::printEventHandlerSignature(const WaylandEvent &e, const char *inte
     printf(")");
 }
 
-void Scanner::printEnums(const QList<WaylandEnum> &enums)
+void Scanner::printEnums(const std::vector<WaylandEnum> &enums)
 {
     for (const WaylandEnum &e : enums) {
         printf("\n");
@@ -428,11 +429,11 @@ bool Scanner::process()
     //QByteArray preProcessorProtocolName = QByteArray(m_protocolName).replace('-', '_').toUpper();
     QByteArray preProcessorProtocolName = QByteArray(m_protocolName).toUpper();
 
-    QList<WaylandInterface> interfaces;
+    std::vector<WaylandInterface> interfaces;
 
     while (m_xml->readNextStartElement()) {
         if (m_xml->name() == "interface")
-            interfaces << readInterface(*m_xml);
+            interfaces.push_back(readInterface(*m_xml));
         else
             m_xml->skipCurrentElement();
     }
@@ -546,7 +547,7 @@ bool Scanner::process()
 
             printEnums(interface.enums);
 
-            bool hasEvents = !interface.events.isEmpty();
+            bool hasEvents = !interface.events.empty();
 
             if (hasEvents) {
                 printf("\n");
@@ -567,7 +568,7 @@ bool Scanner::process()
             printf("        virtual void %s_bind_resource(Resource *resource);\n", interfaceNameStripped);
             printf("        virtual void %s_destroy_resource(Resource *resource);\n", interfaceNameStripped);
 
-            bool hasRequests = !interface.requests.isEmpty();
+            bool hasRequests = !interface.requests.empty();
 
             if (hasRequests) {
                 printf("\n");
@@ -781,7 +782,7 @@ bool Scanner::process()
             printf("    }\n");
             printf("\n");
 
-            bool hasRequests = !interface.requests.isEmpty();
+            bool hasRequests = !interface.requests.empty();
 
             QByteArray interfaceMember = hasRequests ? "&m_" + interface.name + "_interface" : QByteArray("nullptr");
 
@@ -997,7 +998,7 @@ bool Scanner::process()
 
             printEnums(interface.enums);
 
-            if (!interface.requests.isEmpty()) {
+            if (!interface.requests.empty()) {
                 printf("\n");
                 for (const WaylandEvent &e : interface.requests) {
                     const WaylandArgument *new_id = newIdArgument(e.arguments);
@@ -1014,7 +1015,7 @@ bool Scanner::process()
                 }
             }
 
-            bool hasEvents = !interface.events.isEmpty();
+            bool hasEvents = !interface.events.empty();
 
             if (hasEvents) {
                 printf("\n");
@@ -1092,7 +1093,7 @@ bool Scanner::process()
             QByteArray stripped = stripInterfaceName(interface.name);
             const char *interfaceNameStripped = stripped.constData();
 
-            bool hasEvents = !interface.events.isEmpty();
+            bool hasEvents = !interface.events.empty();
 
             printf("    %s::%s(struct ::wl_registry *registry, int id, int version)\n", interfaceName, interfaceName);
             printf("    {\n");
@@ -1182,7 +1183,7 @@ bool Scanner::process()
                     printf("        %s.alloc = 0;\n", arrayName);
                     printf("\n");
                 }
-                int actualArgumentCount = new_id ? e.arguments.size() - 1 : e.arguments.size();
+                int actualArgumentCount = new_id ? int(e.arguments.size()) - 1 : int(e.arguments.size());
                 printf("        %s%s_%s(\n", new_id ? "return " : "", interfaceName, e.name.constData());
                 printf("            m_%s%s", interfaceName, actualArgumentCount > 0 ? "," : "");
                 bool needsComma = false;

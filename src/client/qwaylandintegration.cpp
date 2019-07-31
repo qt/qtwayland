@@ -98,38 +98,6 @@ QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
 
-class GenericWaylandTheme: public QGenericUnixTheme
-{
-public:
-    static QStringList themeNames()
-    {
-        QStringList result;
-
-        if (QGuiApplication::desktopSettingsAware()) {
-            const QByteArray desktopEnvironment = QGuiApplicationPrivate::platformIntegration()->services()->desktopEnvironment();
-
-            if (desktopEnvironment == QByteArrayLiteral("KDE")) {
-#if QT_CONFIG(settings)
-                result.push_back(QStringLiteral("kde"));
-#endif
-            } else if (!desktopEnvironment.isEmpty() &&
-                desktopEnvironment != QByteArrayLiteral("UNKNOWN") &&
-                desktopEnvironment != QByteArrayLiteral("GNOME") &&
-                desktopEnvironment != QByteArrayLiteral("UNITY") &&
-                desktopEnvironment != QByteArrayLiteral("MATE") &&
-                desktopEnvironment != QByteArrayLiteral("XFCE") &&
-                desktopEnvironment != QByteArrayLiteral("LXDE"))
-                // Ignore X11 desktop environments
-                result.push_back(QString::fromLocal8Bit(desktopEnvironment.toLower()));
-        }
-
-        if (result.isEmpty())
-            result.push_back(QLatin1String(QGenericUnixTheme::name));
-
-        return result;
-    }
-};
-
 QWaylandIntegration::QWaylandIntegration()
 #if defined(Q_OS_MACOS)
     : mFontDb(new QCoreTextFontDatabaseEngineFactory<QCoreTextFontEngine>)
@@ -302,12 +270,12 @@ QList<int> QWaylandIntegration::possibleKeys(const QKeyEvent *event) const
 
 QStringList QWaylandIntegration::themeNames() const
 {
-    return GenericWaylandTheme::themeNames();
+    return QGenericUnixTheme::themeNames();
 }
 
 QPlatformTheme *QWaylandIntegration::createPlatformTheme(const QString &name) const
 {
-    return GenericWaylandTheme::createUnixTheme(name);
+    return QGenericUnixTheme::createUnixTheme(name);
 }
 
 // May be called from non-GUI threads

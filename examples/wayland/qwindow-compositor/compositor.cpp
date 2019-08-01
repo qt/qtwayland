@@ -545,6 +545,6 @@ void Compositor::raise(View *view)
         int source = endPos + 1 + i;
         int dest = startPos + i;
         for (int j = source; j > dest; j--)
-            m_views.swap(j, j-1);
+            m_views.swapItemsAt(j, j-1);
     }
 }

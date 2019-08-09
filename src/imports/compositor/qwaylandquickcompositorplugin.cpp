@@ -79,7 +79,9 @@ Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CONTAINER_CLASS(QWaylandQuickCompositor)
 Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CLASS(QWaylandQtWindowManager)
 Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CLASS(QWaylandIdleInhibitManagerV1)
 Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CLASS(QWaylandIviApplication)
+#if QT_DEPRECATED_SINCE(5, 13)
 Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CLASS(QWaylandWlScaler)
+#endif
 Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CLASS(QWaylandWlShell)
 Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CLASS(QWaylandXdgShellV5)
 Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CLASS(QWaylandXdgShellV6)
@@ -186,7 +188,9 @@ public:
 
         qmlRegisterType<QWaylandXdgDecorationManagerV1QuickExtension>(uri, 1, 3, "XdgDecorationManagerV1");
 
+#if QT_DEPRECATED_SINCE(5, 13)
         qmlRegisterType<QWaylandWlScalerQuickExtension>(uri, 1, 13, "WlScaler");
+#endif
 
         qmlRegisterType<QWaylandIdleInhibitManagerV1QuickExtension>(uri, 1, 14, "IdleInhibitManagerV1");
     }

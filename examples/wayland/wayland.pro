@@ -1,6 +1,10 @@
-requires(qtHaveModule(waylandcompositor))
-requires(qtConfig(opengl))
 TEMPLATE=subdirs
+
+!qtHaveModule(waylandcompositor): \
+    return()
+
+!qtConfig(opengl): \
+    return()
 
 SUBDIRS += \
     qwindow-compositor \

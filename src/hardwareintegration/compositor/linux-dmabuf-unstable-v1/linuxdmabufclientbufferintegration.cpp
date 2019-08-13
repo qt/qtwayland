@@ -259,22 +259,25 @@ bool LinuxDmabufClientBufferIntegration::initYuvTexture(LinuxDmabufWlBuffer *dma
 
 LinuxDmabufClientBufferIntegration::LinuxDmabufClientBufferIntegration()
 {
-    m_yuvFormats.insert(DRM_FORMAT_YUYV,
-                        YuvFormatConversion {
-                            .inputPlanes = 1,
-                            .outputPlanes = 2,
-                            .plane = {{
-                                 .format = DRM_FORMAT_GR88,
-                                 .widthDivisor = 1,
-                                 .heightDivisor = 1,
-                                 .planeIndex = 0
-                            }, {
-                                 .format = DRM_FORMAT_ARGB8888,
-                                 .widthDivisor = 2,
-                                 .heightDivisor = 1,
-                                 .planeIndex = 0
-                            }}
-                        });
+    YuvPlaneConversion firstPlane;
+    firstPlane.format = DRM_FORMAT_GR88;
+    firstPlane.widthDivisor = 1;
+    firstPlane.heightDivisor = 1;
+    firstPlane.planeIndex = 0;
+
+    YuvPlaneConversion secondPlane;
+    secondPlane.format = DRM_FORMAT_ARGB8888;
+    secondPlane.widthDivisor = 2;
+    secondPlane.heightDivisor = 1;
+    secondPlane.planeIndex = 0;
+
+    YuvFormatConversion formatConversion;
+    formatConversion.inputPlanes = 1;
+    formatConversion.outputPlanes = 2;
+    formatConversion.plane[0] = firstPlane;
+    formatConversion.plane[1] = secondPlane;
+
+    m_yuvFormats.insert(DRM_FORMAT_YUYV, formatConversion);
 }
 
 LinuxDmabufClientBufferIntegration::~LinuxDmabufClientBufferIntegration()

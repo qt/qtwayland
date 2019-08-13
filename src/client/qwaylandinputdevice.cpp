@@ -602,7 +602,7 @@ void QWaylandInputDevice::Pointer::pointer_enter(uint32_t serial, struct wl_surf
         invalidateFocus();
     }
     mFocus = window->waylandSurface();
-    connect(mFocus, &QObject::destroyed, this, &Pointer::handleFocusDestroyed);
+    connect(mFocus.data(), &QObject::destroyed, this, &Pointer::handleFocusDestroyed);
 
     mSurfacePos = QPointF(wl_fixed_to_double(sx), wl_fixed_to_double(sy));
     mGlobalPos = window->window()->mapToGlobal(mSurfacePos.toPoint());
@@ -774,7 +774,7 @@ void QWaylandInputDevice::Pointer::pointer_button(uint32_t serial, uint32_t time
 
 void QWaylandInputDevice::Pointer::invalidateFocus()
 {
-    disconnect(mFocus, &QObject::destroyed, this, &Pointer::handleFocusDestroyed);
+    disconnect(mFocus.data(), &QObject::destroyed, this, &Pointer::handleFocusDestroyed);
     mFocus = nullptr;
     mEnterSerial = 0;
 }

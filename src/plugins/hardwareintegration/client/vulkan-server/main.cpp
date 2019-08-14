@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the plugins of the Qt Toolkit.
@@ -37,75 +37,30 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDSERVERBUFFERINTEGRATION_H
-#define QWAYLANDSERVERBUFFERINTEGRATION_H
-
-//
-//  W A R N I N G
-//  -------------
-//
-// This file is not part of the Qt API.  It exists purely as an
-// implementation detail.  This header file may change from version to
-// version without notice, or even be removed.
-//
-// We mean it.
-//
-
-#include <QtCore/QSize>
-#include <QtGui/qopengl.h>
-
-#include <QtWaylandClient/private/qwayland-server-buffer-extension.h>
-#include <QtWaylandClient/qtwaylandclientglobal.h>
+#include <QtWaylandClient/private/qwaylandserverbufferintegrationplugin_p.h>
+#include "vulkanserverbufferintegration.h"
 
 QT_BEGIN_NAMESPACE
 
-class QOpenGLTexture;
-
 namespace QtWaylandClient {
 
-class QWaylandDisplay;
-
-class Q_WAYLAND_CLIENT_EXPORT QWaylandServerBuffer
+class VulkanServerBufferPlugin : public QWaylandServerBufferIntegrationPlugin
 {
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID QWaylandServerBufferIntegrationFactoryInterface_iid FILE "vulkan-server.json")
 public:
-    enum Format {
-        RGBA32,
-        A8,
-        Custom
-    };
-
-    QWaylandServerBuffer();
-    virtual ~QWaylandServerBuffer();
-
-    virtual QOpenGLTexture *toOpenGlTexture() = 0;
-
-    Format format() const;
-    QSize size() const;
-
-    void setUserData(void *userData);
-    void *userData() const;
-
-protected:
-    Format m_format = RGBA32;
-    QSize m_size;
-
-private:
-    void *m_user_data = nullptr;
+    QWaylandServerBufferIntegration *create(const QString&, const QStringList&) override;
 };
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandServerBufferIntegration
+QWaylandServerBufferIntegration *VulkanServerBufferPlugin::create(const QString& key, const QStringList& paramList)
 {
-public:
-    QWaylandServerBufferIntegration();
-    virtual ~QWaylandServerBufferIntegration();
-
-    virtual void initialize(QWaylandDisplay *display) = 0;
-
-    virtual QWaylandServerBuffer *serverBuffer(struct qt_server_buffer *buffer) = 0;
-};
+    Q_UNUSED(paramList);
+    Q_UNUSED(key);
+    return new VulkanServerBufferIntegration();
+}
 
 }
 
 QT_END_NAMESPACE
 
-#endif
+#include "main.moc"

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the plugins of the Qt Toolkit.
@@ -37,71 +37,62 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDSERVERBUFFERINTEGRATION_H
-#define QWAYLANDSERVERBUFFERINTEGRATION_H
+#ifndef VULKANSERVERBUFFERINTEGRATION_H
+#define VULKANSERVERBUFFERINTEGRATION_H
 
-//
-//  W A R N I N G
-//  -------------
-//
-// This file is not part of the Qt API.  It exists purely as an
-// implementation detail.  This header file may change from version to
-// version without notice, or even be removed.
-//
-// We mean it.
-//
+#include <QtWaylandClient/private/qwayland-wayland.h>
+#include "qwayland-qt-vulkan-server-buffer-unstable-v1.h"
+#include <QtWaylandClient/private/qwaylandserverbufferintegration_p.h>
 
-#include <QtCore/QSize>
-#include <QtGui/qopengl.h>
-
-#include <QtWaylandClient/private/qwayland-server-buffer-extension.h>
-#include <QtWaylandClient/qtwaylandclientglobal.h>
+#include "vulkanserverbufferintegration.h"
+#include <QtWaylandClient/private/qwaylanddisplay_p.h>
+#include <QtCore/QTextStream>
 
 QT_BEGIN_NAMESPACE
 
-class QOpenGLTexture;
-
 namespace QtWaylandClient {
 
-class QWaylandDisplay;
+class VulkanServerBufferIntegration;
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandServerBuffer
+class VulkanServerBuffer : public QWaylandServerBuffer
 {
 public:
-    enum Format {
-        RGBA32,
-        A8,
-        Custom
-    };
-
-    QWaylandServerBuffer();
-    virtual ~QWaylandServerBuffer();
-
-    virtual QOpenGLTexture *toOpenGlTexture() = 0;
-
-    Format format() const;
-    QSize size() const;
-
-    void setUserData(void *userData);
-    void *userData() const;
-
-protected:
-    Format m_format = RGBA32;
-    QSize m_size;
+    VulkanServerBuffer(VulkanServerBufferIntegration *integration, struct ::qt_server_buffer *id, int32_t fd, uint32_t width, uint32_t height, uint32_t memory_size, uint32_t format);
+    ~VulkanServerBuffer() override;
+    QOpenGLTexture* toOpenGlTexture() override;
 
 private:
-    void *m_user_data = nullptr;
+    void import();
+
+    VulkanServerBufferIntegration *m_integration = nullptr;
+    struct ::qt_server_buffer *m_server_buffer = nullptr;
+    QOpenGLTexture *m_texture = nullptr;
+    int m_fd = -1;
+    uint m_memorySize = 0;
+    uint m_internalFormat = 0;
+    GLuint m_memoryObject = 0;
 };
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandServerBufferIntegration
+class VulkanServerBufferIntegration
+    : public QWaylandServerBufferIntegration
+    , public QtWayland::zqt_vulkan_server_buffer_v1
 {
 public:
-    QWaylandServerBufferIntegration();
-    virtual ~QWaylandServerBufferIntegration();
+    void initialize(QWaylandDisplay *display) override;
 
-    virtual void initialize(QWaylandDisplay *display) = 0;
+    QWaylandServerBuffer *serverBuffer(struct qt_server_buffer *buffer) override;
 
-    virtual QWaylandServerBuffer *serverBuffer(struct qt_server_buffer *buffer) = 0;
+    void deleteGLTextureWhenPossible(QOpenGLTexture *texture) { orphanedTextures << texture; }
+    void deleteOrphanedTextures();
+
+protected:
+    void zqt_vulkan_server_buffer_v1_server_buffer_created(qt_server_buffer *id, int32_t fd, uint32_t width, uint32_t height, uint32_t memory_size, uint32_t format) override;
+
+private:
+    static void wlDisplayHandleGlobal(void *data, struct ::wl_registry *registry, uint32_t id,
+                                      const QString &interface, uint32_t version);
+    QWaylandDisplay *m_display = nullptr;
+    QVector<QOpenGLTexture *> orphanedTextures;
 };
 
 }

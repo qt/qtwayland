@@ -269,6 +269,7 @@ private:
     void handleMouseEventWithDecoration(QWaylandInputDevice *inputDevice, const QWaylandPointerEvent &e);
     void handleScreenChanged();
 
+    bool mInResizeFromApplyConfigure = false;
     QRect mLastExposeGeometry;
 
     static const wl_callback_listener callbackListener;

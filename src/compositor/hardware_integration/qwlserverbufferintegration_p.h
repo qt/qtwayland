@@ -55,8 +55,7 @@
 #include <QtCore/QSize>
 #include <QtGui/qopengl.h>
 
-#include <QtWaylandCompositor/qtwaylandcompositorglobal.h>
-
+#include <QtWaylandCompositor/private/qtwaylandcompositorglobal_p.h>
 struct wl_client;
 struct wl_resource;
 
@@ -75,7 +74,8 @@ class Q_WAYLAND_COMPOSITOR_EXPORT ServerBuffer
 public:
     enum Format {
         RGBA32,
-        A8
+        A8,
+        Custom
     };
 
     ServerBuffer(const QSize &size, ServerBuffer::Format format);
@@ -85,7 +85,9 @@ public:
     virtual bool bufferInUse() { return true; }
 
     virtual QOpenGLTexture *toOpenGlTexture() = 0;
-
+#if QT_CONFIG(wayland_compositor_texture_sharing_experimental)
+    virtual void releaseOpenGlTexture() {}
+#endif
     virtual bool isYInverted() const;
 
     QSize size() const;
@@ -105,6 +107,15 @@ public:
 
     virtual bool supportsFormat(ServerBuffer::Format format) const = 0;
     virtual ServerBuffer *createServerBufferFromImage(const QImage &qimage, ServerBuffer::Format format) = 0;
+#if QT_CONFIG(wayland_compositor_texture_sharing_experimental)
+    virtual ServerBuffer *createServerBufferFromData(const QByteArray &data, const QSize &size, uint glInternalFormat)
+    {
+        Q_UNUSED(data);
+        Q_UNUSED(size);
+        Q_UNUSED(glInternalFormat);
+        return nullptr;
+    }
+#endif
 };
 
 }

@@ -1,9 +1,9 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
-** This file is part of the plugins of the Qt Toolkit.
+** This file is part of the QtWaylandCompositor module of the Qt Toolkit.
 **
 ** $QT_BEGIN_LICENSE:LGPL$
 ** Commercial License Usage
@@ -37,75 +37,34 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDSERVERBUFFERINTEGRATION_H
-#define QWAYLANDSERVERBUFFERINTEGRATION_H
+#ifndef VULKANWRAPPER_H
+#define VULKANWRAPPER_H
 
-//
-//  W A R N I N G
-//  -------------
-//
-// This file is not part of the Qt API.  It exists purely as an
-// implementation detail.  This header file may change from version to
-// version without notice, or even be removed.
-//
-// We mean it.
-//
-
-#include <QtCore/QSize>
-#include <QtGui/qopengl.h>
-
-#include <QtWaylandClient/private/qwayland-server-buffer-extension.h>
-#include <QtWaylandClient/qtwaylandclientglobal.h>
+#include <QOpenGLContext>
 
 QT_BEGIN_NAMESPACE
 
-class QOpenGLTexture;
+class VulkanWrapper;
+struct VulkanImageWrapper;
+class VulkanWrapperPrivate;
 
-namespace QtWaylandClient {
+class QOpenGLContext;
+class QImage;
 
-class QWaylandDisplay;
-
-class Q_WAYLAND_CLIENT_EXPORT QWaylandServerBuffer
+class VulkanWrapper
 {
 public:
-    enum Format {
-        RGBA32,
-        A8,
-        Custom
-    };
+    VulkanWrapper(QOpenGLContext *glContext);
 
-    QWaylandServerBuffer();
-    virtual ~QWaylandServerBuffer();
-
-    virtual QOpenGLTexture *toOpenGlTexture() = 0;
-
-    Format format() const;
-    QSize size() const;
-
-    void setUserData(void *userData);
-    void *userData() const;
-
-protected:
-    Format m_format = RGBA32;
-    QSize m_size;
+    VulkanImageWrapper *createTextureImage(const QImage &img);
+    VulkanImageWrapper *createTextureImageFromData(const uchar *pixels, uint bufferSize, const QSize &size, uint glInternalFormat);
+    int getImageInfo(const VulkanImageWrapper *imgWrapper, int *memSize, int *w = nullptr, int *h = nullptr);
+    void freeTextureImage(VulkanImageWrapper *imageWrapper);
 
 private:
-    void *m_user_data = nullptr;
+    VulkanWrapperPrivate *d_ptr;
 };
-
-class Q_WAYLAND_CLIENT_EXPORT QWaylandServerBufferIntegration
-{
-public:
-    QWaylandServerBufferIntegration();
-    virtual ~QWaylandServerBufferIntegration();
-
-    virtual void initialize(QWaylandDisplay *display) = 0;
-
-    virtual QWaylandServerBuffer *serverBuffer(struct qt_server_buffer *buffer) = 0;
-};
-
-}
 
 QT_END_NAMESPACE
 
-#endif
+#endif // VULKANWRAPPER_H

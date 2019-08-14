@@ -28,7 +28,7 @@ qtConfig(wayland-client) {
         SUBDIRS += sub_compositor
 
         sub_imports.subdir = imports
-        sub_imports.depends += sub-compositor
+        sub_imports.depends += sub-compositor sub-client
         sub_imports.target = sub-imports
         SUBDIRS += sub_imports
     }

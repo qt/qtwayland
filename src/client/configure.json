@@ -75,6 +75,11 @@
             "type": "compile",
             "test": "dmabuf_server_buffer",
             "use": "egl"
+        },
+        "vulkan-server-buffer": {
+            "label": "Vulkan Buffer Sharing",
+            "type": "compile",
+            "test": "vulkan_server_buffer"
         }
     },
 
@@ -153,6 +158,16 @@
             "condition": "features.wayland-client && features.opengl && features.egl && tests.dmabuf-server-buffer",
             "output": [ "privateFeature" ]
         },
+        "wayland-client-texture-sharing-experimental" : {
+            "label": "Texture sharing (experimental)",
+            "autoDetect": "false",
+            "output": [ "privateFeature" ]
+        },
+        "wayland-vulkan-server-buffer": {
+            "label": "Vulkan-based server buffer integration",
+            "condition": "features.wayland-client && features.opengl && features.egl && tests.vulkan-server-buffer && features.wayland-client-texture-sharing-experimental",
+            "output": [ "privateFeature" ]
+        },
         "wayland-shm-emulation-server-buffer": {
             "label": "Shm emulation server buffer integration",
             "condition": "features.wayland-client && features.opengl",
@@ -179,6 +194,8 @@
                 "xcomposite-glx",
                 "wayland-drm-egl-server-buffer",
                 "wayland-libhybris-egl-server-buffer",
+                "wayland-dmabuf-server-buffer",
+                "wayland-vulkan-server-buffer",
                 "wayland-shm-emulation-server-buffer"
             ]
         },

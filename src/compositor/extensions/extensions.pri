@@ -83,6 +83,11 @@ qtHaveModule(quick):contains(QT_CONFIG, opengl) {
         extensions/qwaylandxdgshellv6integration.cpp \
         extensions/qwaylandxdgshellintegration.cpp
 
+    qtConfig(wayland-compositor-texture-sharing-experimental) {
+        HEADERS += extensions/qwltexturesharingextension_p.h
+        SOURCES += extensions/qwltexturesharingextension.cpp
+        WAYLANDSERVERSOURCES += ../extensions/qt-texture-sharing-unstable-v1.xml
+    }
 }
 
 include ($$PWD/pregenerated/xdg-shell-v5.pri)

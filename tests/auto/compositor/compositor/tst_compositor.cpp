@@ -82,6 +82,7 @@ private slots:
     void mapSurface();
     void mapSurfaceHiDpi();
     void frameCallback();
+    void pixelFormats();
     void outputs();
     void customSurface();
 
@@ -582,27 +583,27 @@ static void registerFrameCallback(wl_surface *surface, int *counter)
     wl_callback_add_listener(wl_surface_frame(surface), &frameCallbackListener, counter);
 }
 
+class BufferView : public QWaylandView
+{
+public:
+    void bufferCommitted(const QWaylandBufferRef &ref, const QRegion &damage) override
+    {
+        Q_UNUSED(damage);
+        bufferRef = ref;
+    }
+
+    QImage image() const
+    {
+        if (bufferRef.isNull() || !bufferRef.isSharedMemory())
+            return QImage();
+        return bufferRef.image();
+    }
+
+    QWaylandBufferRef bufferRef;
+};
+
 void tst_WaylandCompositor::frameCallback()
 {
-    class BufferView : public QWaylandView
-    {
-    public:
-        void bufferCommitted(const QWaylandBufferRef &ref, const QRegion &damage) override
-        {
-            Q_UNUSED(damage);
-            bufferRef = ref;
-        }
-
-        QImage image() const
-        {
-            if (bufferRef.isNull() || !bufferRef.isSharedMemory())
-                return QImage();
-            return bufferRef.image();
-        }
-
-        QWaylandBufferRef bufferRef;
-    };
-
     TestCompositor compositor;
     compositor.create();
 
@@ -639,6 +640,35 @@ void tst_WaylandCompositor::frameCallback()
 
         QTRY_COMPARE(frameCounter, i + 1);
     }
+
+    wl_surface_destroy(surface);
+}
+
+void tst_WaylandCompositor::pixelFormats()
+{
+    TestCompositor compositor;
+    compositor.create();
+
+    MockClient client;
+
+    wl_surface *surface = client.createSurface();
+    QTRY_COMPARE(compositor.surfaces.size(), 1);
+    QWaylandSurface *waylandSurface = compositor.surfaces.at(0);
+    BufferView* view = new BufferView;
+    view->setSurface(waylandSurface);
+    view->setOutput(compositor.defaultOutput());
+
+    QSize size(32, 32);
+    ShmBuffer buffer(size, client.shm); // Will be WL_SHM_FORMAT_ARGB8888;
+    wl_surface_attach(surface, buffer.handle, 0, 0);
+    wl_surface_damage(surface, 0, 0, size.width(), size.height());
+    wl_surface_commit(surface);
+
+    QTRY_COMPARE(waylandSurface->hasContent(), true);
+
+    // According to https://lists.freedesktop.org/archives/wayland-devel/2017-August/034791.html
+    // all RGB formats with alpha are premultiplied. Verify it here:
+    QCOMPARE(view->image().format(), QImage::Format_ARGB32_Premultiplied);
 
     wl_surface_destroy(surface);
 }

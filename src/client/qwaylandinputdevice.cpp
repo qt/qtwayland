@@ -442,6 +442,21 @@ QWaylandInputDevice::Touch *QWaylandInputDevice::createTouch(QWaylandInputDevice
     return new Touch(device);
 }
 
+QWaylandInputDevice::Keyboard *QWaylandInputDevice::keyboard() const
+{
+    return mKeyboard;
+}
+
+QWaylandInputDevice::Pointer *QWaylandInputDevice::pointer() const
+{
+    return mPointer;
+}
+
+QWaylandInputDevice::Touch *QWaylandInputDevice::touch() const
+{
+    return mTouch;
+}
+
 void QWaylandInputDevice::handleEndDrag()
 {
     if (mTouch)

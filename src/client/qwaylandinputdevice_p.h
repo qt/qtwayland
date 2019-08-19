@@ -304,8 +304,7 @@ public:
 
     QWaylandInputDevice *mParent = nullptr;
     QPointer<QWaylandWindow> mFocus;
-    QList<QWindowSystemInterface::TouchPoint> mTouchPoints;
-    QList<QWindowSystemInterface::TouchPoint> mPrevTouchPoints;
+    QList<QWindowSystemInterface::TouchPoint> mPendingTouchPoints;
 };
 
 class QWaylandPointerEvent

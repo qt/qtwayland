@@ -789,8 +789,10 @@ void QWaylandInputDevice::Pointer::pointer_button(uint32_t serial, uint32_t time
 
 void QWaylandInputDevice::Pointer::invalidateFocus()
 {
-    disconnect(mFocus.data(), &QObject::destroyed, this, &Pointer::handleFocusDestroyed);
-    mFocus = nullptr;
+    if (mFocus) {
+        disconnect(mFocus.data(), &QObject::destroyed, this, &Pointer::handleFocusDestroyed);
+        mFocus = nullptr;
+    }
     mEnterSerial = 0;
 }
 

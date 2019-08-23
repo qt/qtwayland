@@ -301,11 +301,14 @@ QPlatformTheme *QWaylandIntegration::createPlatformTheme(const QString &name) co
     return GenericWaylandTheme::createUnixTheme(name);
 }
 
+// May be called from non-GUI threads
 QWaylandClientBufferIntegration *QWaylandIntegration::clientBufferIntegration() const
 {
-    if (!mClientBufferIntegrationInitialized)
+    // Do an inexpensive check first to avoid locking whenever possible
+    if (Q_UNLIKELY(!mClientBufferIntegrationInitialized))
         const_cast<QWaylandIntegration *>(this)->initializeClientBufferIntegration();
 
+    Q_ASSERT(mClientBufferIntegrationInitialized);
     return mClientBufferIntegration && mClientBufferIntegration->isValid() ? mClientBufferIntegration.data() : nullptr;
 }
 
@@ -325,9 +328,12 @@ QWaylandShellIntegration *QWaylandIntegration::shellIntegration() const
     return mShellIntegration.data();
 }
 
+// May be called from non-GUI threads
 void QWaylandIntegration::initializeClientBufferIntegration()
 {
-    mClientBufferIntegrationInitialized = true;
+    QMutexLocker lock(&mClientBufferInitLock);
+    if (mClientBufferIntegrationInitialized)
+        return;
 
     QString targetKey;
     bool disableHardwareIntegration = qEnvironmentVariableIsSet("QT_WAYLAND_DISABLE_HW_INTEGRATION");
@@ -345,17 +351,20 @@ void QWaylandIntegration::initializeClientBufferIntegration()
 
     if (targetKey.isEmpty()) {
         qWarning("Failed to determine what client buffer integration to use");
-        return;
+    } else {
+        QStringList keys = QWaylandClientBufferIntegrationFactory::keys();
+        if (keys.contains(targetKey)) {
+            mClientBufferIntegration.reset(QWaylandClientBufferIntegrationFactory::create(targetKey, QStringList()));
+        }
+        if (mClientBufferIntegration)
+            mClientBufferIntegration->initialize(mDisplay.data());
+        else
+            qWarning("Failed to load client buffer integration: %s\n", qPrintable(targetKey));
     }
 
-    QStringList keys = QWaylandClientBufferIntegrationFactory::keys();
-    if (keys.contains(targetKey)) {
-        mClientBufferIntegration.reset(QWaylandClientBufferIntegrationFactory::create(targetKey, QStringList()));
-    }
-    if (mClientBufferIntegration)
-        mClientBufferIntegration->initialize(mDisplay.data());
-    else
-        qWarning("Failed to load client buffer integration: %s\n", qPrintable(targetKey));
+    // This must be set last to make sure other threads don't use the
+    // integration before initialization is complete.
+    mClientBufferIntegrationInitialized = true;
 }
 
 void QWaylandIntegration::initializeServerBufferIntegration()

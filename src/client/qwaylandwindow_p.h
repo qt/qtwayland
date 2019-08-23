@@ -201,6 +201,10 @@ public:
 public slots:
     void applyConfigure();
 
+signals:
+    void wlSurfaceCreated();
+    void wlSurfaceDestroyed();
+
 protected:
     void surface_enter(struct ::wl_output *output) override;
     void surface_leave(struct ::wl_output *output) override;

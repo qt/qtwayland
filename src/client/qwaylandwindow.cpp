@@ -211,8 +211,11 @@ void QWaylandWindow::initWindow()
 void QWaylandWindow::initializeWlSurface()
 {
     Q_ASSERT(!isInitialized());
-    QWriteLocker lock(&mSurfaceLock);
-    init(mDisplay->createSurface(static_cast<QtWayland::wl_surface *>(this)));
+    {
+        QWriteLocker lock(&mSurfaceLock);
+        init(mDisplay->createSurface(static_cast<QtWayland::wl_surface *>(this)));
+    }
+    emit wlSurfaceCreated();
 }
 
 bool QWaylandWindow::shouldCreateShellSurface() const
@@ -248,6 +251,7 @@ void QWaylandWindow::reset(bool sendDestroyEvent)
     delete mSubSurfaceWindow;
     mSubSurfaceWindow = nullptr;
     if (isInitialized()) {
+        emit wlSurfaceDestroyed();
         QWriteLocker lock(&mSurfaceLock);
         destroy();
     }

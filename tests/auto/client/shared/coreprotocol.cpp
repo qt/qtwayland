@@ -424,6 +424,18 @@ uint Touch::sendUp(wl_client *client, int id)
     return serial;
 }
 
+void Touch::sendMotion(wl_client *client, const QPointF &position, int id)
+{
+    wl_fixed_t x = wl_fixed_from_double(position.x());
+    wl_fixed_t y = wl_fixed_from_double(position.y());
+
+    auto time = m_seat->m_compositor->currentTimeMilliseconds();
+
+    const auto touchResources = resourceMap().values(client);
+    for (auto *r : touchResources)
+        wl_touch::send_motion(r->handle, time, id, x, y);
+}
+
 void Touch::sendFrame(wl_client *client)
 {
     const auto touchResources = resourceMap().values(client);

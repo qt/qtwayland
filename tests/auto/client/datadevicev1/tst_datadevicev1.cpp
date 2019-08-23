@@ -66,7 +66,7 @@ void tst_datadevicev1::initTestCase()
 {
     QCOMPOSITOR_TRY_VERIFY(pointer());
     QCOMPOSITOR_TRY_VERIFY(!pointer()->resourceMap().empty());
-    QCOMPOSITOR_TRY_COMPARE(pointer()->resourceMap().first()->version(), 4);
+    QCOMPOSITOR_TRY_COMPARE(pointer()->resourceMap().first()->version(), 5);
 
     QCOMPOSITOR_TRY_VERIFY(keyboard());
 
@@ -104,8 +104,11 @@ void tst_datadevicev1::pasteAscii()
         keyboard()->sendEnter(surface); // Need to set keyboard focus according to protocol
 
         pointer()->sendEnter(surface, {32, 32});
+        pointer()->sendFrame(client);
         pointer()->sendButton(client, BTN_LEFT, 1);
+        pointer()->sendFrame(client);
         pointer()->sendButton(client, BTN_LEFT, 0);
+        pointer()->sendFrame(client);
     });
     QTRY_COMPARE(window.m_text, "normal ascii");
 }
@@ -139,8 +142,11 @@ void tst_datadevicev1::pasteUtf8()
         keyboard()->sendEnter(surface); // Need to set keyboard focus according to protocol
 
         pointer()->sendEnter(surface, {32, 32});
+        pointer()->sendFrame(client);
         pointer()->sendButton(client, BTN_LEFT, 1);
+        pointer()->sendFrame(client);
         pointer()->sendButton(client, BTN_LEFT, 0);
+        pointer()->sendFrame(client);
     });
     QTRY_COMPARE(window.m_text, "face with tears of joy: 😂");
 }

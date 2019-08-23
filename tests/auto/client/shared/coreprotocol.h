@@ -236,7 +236,7 @@ class Seat : public Global, public QtWaylandServer::wl_seat
 {
     Q_OBJECT
 public:
-    explicit Seat(CoreCompositor *compositor, uint capabilities = Seat::capability_pointer | Seat::capability_keyboard, int version = 4);
+    explicit Seat(CoreCompositor *compositor, uint capabilities = Seat::capability_pointer | Seat::capability_keyboard, int version = 5);
     ~Seat() override;
     void send_capabilities(Resource *resource, uint capabilities) = delete; // Use wrapper instead
     void send_capabilities(uint capabilities) = delete; // Use wrapper instead

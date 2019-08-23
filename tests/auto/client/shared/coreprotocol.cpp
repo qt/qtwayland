@@ -239,7 +239,7 @@ void Seat::seat_get_pointer(Resource *resource, uint32_t id)
 
 void Seat::seat_get_keyboard(QtWaylandServer::wl_seat::Resource *resource, uint32_t id)
 {
-    if (~m_capabilities & capability_pointer) {
+    if (~m_capabilities & capability_keyboard) {
         qWarning() << "Client requested a wl_keyboard without the capability being available."
                    << "This Could be a race condition when hotunplugging,"
                    << "but is most likely a client error";

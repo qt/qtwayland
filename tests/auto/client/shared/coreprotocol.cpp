@@ -191,6 +191,9 @@ Seat::~Seat()
 {
     qDeleteAll(m_oldPointers);
     delete m_pointer;
+
+    qDeleteAll(m_oldKeyboards);
+    delete m_keyboard;
 }
 
 void Seat::setCapabilities(uint capabilities) {

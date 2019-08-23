@@ -376,7 +376,7 @@ QVector<xkb_keysym_t> QWaylandXkb::toKeysym(QKeyEvent *event)
             keysyms.append(XKB_KEY_KP_0 + (event->key() - Qt::Key_0));
         else
             keysyms.append(toKeysymFromTable(event->key()));
-    } else if (!event->text().isEmpty()) {
+    } else if (!event->text().isEmpty() && event->key() != Qt::Key_Return) {
         // From libxkbcommon keysym-utf.c:
         // "We allow to represent any UCS character in the range U-00000000 to
         // U-00FFFFFF by a keysym value in the range 0x01000000 to 0x01ffffff."

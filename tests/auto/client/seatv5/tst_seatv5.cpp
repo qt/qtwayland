@@ -41,7 +41,7 @@ public:
 
             removeAll<Seat>();
 
-            uint capabilities = MockCompositor::Seat::capability_pointer;
+            uint capabilities = MockCompositor::Seat::capability_pointer | MockCompositor::Seat::capability_touch;
             int version = 5;
             add<Seat>(capabilities, version);
         });
@@ -54,6 +54,8 @@ class tst_seatv5 : public QObject, private SeatV5Compositor
 private slots:
     void cleanup() { QTRY_VERIFY2(isClean(), qPrintable(dirtyMessage())); }
     void bindsToSeat();
+
+    // Pointer tests
     void createsPointer();
     void setsCursorOnEnter();
     void usesEnterSerial();
@@ -62,6 +64,9 @@ private slots:
     void fingerScroll();
     void fingerScrollSlow();
     void wheelDiscreteScroll();
+
+    // Touch tests
+    void createsTouch();
 };
 
 void tst_seatv5::bindsToSeat()
@@ -374,6 +379,12 @@ void tst_seatv5::wheelDiscreteScroll()
         // Click scrolls are not continuous and should not have a pixel delta
         QCOMPARE(e.pixelDelta, QPoint(0, 0));
     }
+}
+
+void tst_seatv5::createsTouch()
+{
+    QCOMPOSITOR_TRY_COMPARE(touch()->resourceMap().size(), 1);
+    QCOMPOSITOR_TRY_COMPARE(touch()->resourceMap().first()->version(), 5);
 }
 
 QCOMPOSITOR_TEST_MAIN(tst_seatv5)

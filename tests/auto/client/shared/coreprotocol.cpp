@@ -192,14 +192,14 @@ Seat::~Seat()
     qDeleteAll(m_oldPointers);
     delete m_pointer;
 
+    qDeleteAll(m_oldTouchs);
+    delete m_touch;
+
     qDeleteAll(m_oldKeyboards);
     delete m_keyboard;
 }
 
 void Seat::setCapabilities(uint capabilities) {
-    // TODO: Add support for touch
-    Q_ASSERT(~capabilities & capability_touch);
-
     m_capabilities = capabilities;
 
     if (m_capabilities & capability_pointer) {
@@ -208,6 +208,14 @@ void Seat::setCapabilities(uint capabilities) {
     } else if (m_pointer) {
         m_oldPointers << m_pointer;
         m_pointer = nullptr;
+    }
+
+    if (m_capabilities & capability_touch) {
+        if (!m_touch)
+            m_touch = (new Touch(this));
+    } else if (m_touch) {
+        m_oldTouchs << m_touch;
+        m_touch = nullptr;
     }
 
     if (m_capabilities & capability_keyboard) {
@@ -235,6 +243,21 @@ void Seat::seat_get_pointer(Resource *resource, uint32_t id)
         return;
     }
     m_pointer->add(resource->client(), id, resource->version());
+}
+
+void Seat::seat_get_touch(QtWaylandServer::wl_seat::Resource *resource, uint32_t id)
+{
+    if (~m_capabilities & capability_touch) {
+        qWarning() << "Client requested a wl_touch without the capability being available."
+                   << "This Could be a race condition when hotunplugging,"
+                   << "but is most likely a client error";
+        Touch *touch = new Touch(this);
+        touch->add(resource->client(), id, resource->version());
+        // TODO: mark as destroyed
+        m_oldTouchs << touch;
+        return;
+    }
+    m_touch->add(resource->client(), id, resource->version());
 }
 
 void Seat::seat_get_keyboard(QtWaylandServer::wl_seat::Resource *resource, uint32_t id)

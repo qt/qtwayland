@@ -397,6 +397,40 @@ void Pointer::pointer_set_cursor(Resource *resource, uint32_t serial, wl_resourc
     emit setCursor(serial);
 }
 
+uint Touch::sendDown(Surface *surface, const QPointF &position, int id)
+{
+    wl_fixed_t x = wl_fixed_from_double(position.x());
+    wl_fixed_t y = wl_fixed_from_double(position.y());
+    uint serial = m_seat->m_compositor->nextSerial();
+    auto time = m_seat->m_compositor->currentTimeMilliseconds();
+    wl_client *client = surface->resource()->client();
+
+    const auto touchResources = resourceMap().values(client);
+    for (auto *r : touchResources)
+        wl_touch::send_down(r->handle, serial, time, surface->resource()->handle, id, x, y);
+
+    return serial;
+}
+
+uint Touch::sendUp(wl_client *client, int id)
+{
+    uint serial = m_seat->m_compositor->nextSerial();
+    auto time = m_seat->m_compositor->currentTimeMilliseconds();
+
+    const auto touchResources = resourceMap().values(client);
+    for (auto *r : touchResources)
+        wl_touch::send_up(r->handle, serial, time, id);
+
+    return serial;
+}
+
+void Touch::sendFrame(wl_client *client)
+{
+    const auto touchResources = resourceMap().values(client);
+    for (auto *r : touchResources)
+        send_frame(r->handle);
+}
+
 uint Keyboard::sendEnter(Surface *surface)
 {
     auto serial = m_seat->m_compositor->nextSerial();

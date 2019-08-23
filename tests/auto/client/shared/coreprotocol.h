@@ -316,6 +316,10 @@ class Touch : public QObject, public QtWaylandServer::wl_touch
     Q_OBJECT
 public:
     explicit Touch(Seat *seat) : m_seat(seat) {}
+    uint sendDown(Surface *surface, const QPointF &position, int id);
+    uint sendUp(wl_client *client, int id);
+    void sendFrame(wl_client *client);
+
     Seat *m_seat = nullptr;
 };
 

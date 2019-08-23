@@ -67,6 +67,7 @@ private slots:
 
     // Touch tests
     void createsTouch();
+    void singleTap();
 };
 
 void tst_seatv5::bindsToSeat()
@@ -385,6 +386,65 @@ void tst_seatv5::createsTouch()
 {
     QCOMPOSITOR_TRY_COMPARE(touch()->resourceMap().size(), 1);
     QCOMPOSITOR_TRY_COMPARE(touch()->resourceMap().first()->version(), 5);
+}
+
+class TouchWindow : public QRasterWindow {
+public:
+    TouchWindow()
+    {
+        resize(64, 64);
+        show();
+    }
+    void touchEvent(QTouchEvent *event) override
+    {
+        QRasterWindow::touchEvent(event);
+        m_events.append(Event{event});
+    }
+    struct Event // Because I didn't find a convenient way to copy it entirely
+    {
+        explicit Event() = default;
+        explicit Event(const QTouchEvent *event)
+            : type(event->type())
+            , touchPointStates(event->touchPointStates())
+            , touchPoints(event->touchPoints())
+        {
+        }
+        const QEvent::Type type{};
+        const Qt::TouchPointStates touchPointStates{};
+        const QList<QTouchEvent::TouchPoint> touchPoints;
+    };
+    QVector<Event> m_events;
+};
+
+void tst_seatv5::singleTap()
+{
+    TouchWindow window;
+    QCOMPOSITOR_TRY_VERIFY(xdgSurface() && xdgSurface()->m_committedConfigureSerial);
+
+    exec([=] {
+        auto *t = touch();
+        auto *c = client();
+        t->sendDown(xdgToplevel()->surface(), {32, 32}, 1);
+        t->sendFrame(c);
+        t->sendUp(c, 1);
+        t->sendFrame(c);
+    });
+
+    QTRY_VERIFY(!window.m_events.empty());
+    {
+        auto e = window.m_events.takeFirst();
+        QCOMPARE(e.type, QEvent::TouchBegin);
+        QCOMPARE(e.touchPointStates, Qt::TouchPointState::TouchPointPressed);
+        QCOMPARE(e.touchPoints.length(), 1);
+        QCOMPARE(e.touchPoints.first().pos(), QPointF(32-window.frameMargins().left(), 32-window.frameMargins().top()));
+    }
+    {
+        auto e = window.m_events.takeFirst();
+        QCOMPARE(e.type, QEvent::TouchEnd);
+        QCOMPARE(e.touchPointStates, Qt::TouchPointState::TouchPointReleased);
+        QCOMPARE(e.touchPoints.length(), 1);
+        QCOMPARE(e.touchPoints.first().pos(), QPointF(32-window.frameMargins().left(), 32-window.frameMargins().top()));
+    }
 }
 
 QCOMPOSITOR_TEST_MAIN(tst_seatv5)

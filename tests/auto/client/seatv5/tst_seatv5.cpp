@@ -46,13 +46,6 @@ public:
             add<Seat>(capabilities, version);
         });
     }
-
-    Pointer *pointer()
-    {
-        auto *seat = get<Seat>();
-        Q_ASSERT(seat);
-        return seat->m_pointer;
-    }
 };
 
 class tst_seatv5 : public QObject, private SeatV5Compositor

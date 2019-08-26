@@ -70,6 +70,7 @@ private slots:
     void singleTap();
     void singleTapFloat();
     void multiTouch();
+    void multiTouchUpAndMotionFrame();
 };
 
 void tst_seatv5::bindsToSeat()
@@ -534,6 +535,55 @@ void tst_seatv5::multiTouch()
         QCOMPARE(e.touchPoints[0].state(), Qt::TouchPointState::TouchPointReleased);
         QCOMPARE(e.touchPoints[0].pos(), QPointF(49-window.frameMargins().left(), 48-window.frameMargins().top()));
     }
+}
+
+void tst_seatv5::multiTouchUpAndMotionFrame()
+{
+    TouchWindow window;
+    QCOMPOSITOR_TRY_VERIFY(xdgSurface() && xdgSurface()->m_committedConfigureSerial);
+
+    exec([=] {
+        auto *t = touch();
+        auto *c = client();
+
+        t->sendDown(xdgToplevel()->surface(), {32, 32}, 0);
+        t->sendDown(xdgToplevel()->surface(), {48, 48}, 1);
+        t->sendFrame(c);
+
+        // Sending an up event after a frame event, before any motion or down events used to
+        // unnecessarily trigger a workaround for a bug in an old version of Weston. The workaround
+        // would prematurely insert a fake frame event splitting the touch event up into two events.
+        // However, this should only be needed on the up event for the very last touch point. So in
+        // this test we verify that it doesn't unncecessarily break up the events.
+        t->sendUp(c, 0);
+        t->sendMotion(c, {49, 48}, 1);
+        t->sendFrame(c);
+
+        t->sendUp(c, 1);
+        t->sendFrame(c);
+    });
+
+    QTRY_VERIFY(!window.m_events.empty());
+    {
+        auto e = window.m_events.takeFirst();
+        QCOMPARE(e.type, QEvent::TouchBegin);
+        QCOMPARE(e.touchPoints[0].state(), Qt::TouchPointState::TouchPointPressed);
+        QCOMPARE(e.touchPoints[1].state(), Qt::TouchPointState::TouchPointPressed);
+    }
+    {
+        auto e = window.m_events.takeFirst();
+        QCOMPARE(e.type, QEvent::TouchUpdate);
+        QCOMPARE(e.touchPoints.length(), 2);
+        QCOMPARE(e.touchPoints[0].state(), Qt::TouchPointState::TouchPointReleased);
+        QCOMPARE(e.touchPoints[1].state(), Qt::TouchPointState::TouchPointMoved);
+    }
+    {
+        auto e = window.m_events.takeFirst();
+        QCOMPARE(e.type, QEvent::TouchEnd);
+        QCOMPARE(e.touchPoints.length(), 1);
+        QCOMPARE(e.touchPoints[0].state(), Qt::TouchPointState::TouchPointReleased);
+    }
+    QVERIFY(window.m_events.empty());
 }
 
 QCOMPOSITOR_TEST_MAIN(tst_seatv5)

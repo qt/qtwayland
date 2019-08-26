@@ -127,12 +127,8 @@ public:
         QRasterWindow::wheelEvent(event);
 //        qDebug() << event << "angleDelta" << event->angleDelta() << "pixelDelta" << event->pixelDelta();
 
-        if (event->phase() == Qt::ScrollUpdate || event->phase() == Qt::NoScrollPhase) {
-            // Angle delta should always be provided (says docs, but QPA sends compatibility events
-            // for Qt4 with zero angleDelta, and with a delta)
-            QVERIFY(!event->angleDelta().isNull() || event->delta());
-        } else {
-            // Shouldn't have deltas in the other phases
+        if (event->phase() != Qt::ScrollUpdate && event->phase() != Qt::NoScrollPhase) {
+            // Shouldn't have deltas in the these phases
             QCOMPARE(event->angleDelta(), QPoint(0, 0));
             QCOMPARE(event->pixelDelta(), QPoint(0, 0));
         }
@@ -144,13 +140,6 @@ public:
         // We didn't press any buttons
         QCOMPARE(event->buttons(), Qt::NoButton);
 
-        if (!event->angleDelta().isNull()) {
-            if (event->orientation() == Qt::Horizontal)
-                QCOMPARE(event->delta(), event->angleDelta().x());
-            else
-                QCOMPARE(event->delta(), event->angleDelta().y());
-        }
-
         m_events.append(Event{event});
     }
     struct Event // Because I didn't find a convenient way to copy it entirely
@@ -160,14 +149,12 @@ public:
             : phase(event->phase())
             , pixelDelta(event->pixelDelta())
             , angleDelta(event->angleDelta())
-            , orientation(event->orientation())
             , source(event->source())
         {
         }
         const Qt::ScrollPhase phase{};
         const QPoint pixelDelta;
         const QPoint angleDelta; // eights of a degree, positive is upwards, left
-        const Qt::Orientation orientation{};
         const Qt::MouseEventSource source{};
     };
     QVector<Event> m_events;
@@ -177,22 +164,20 @@ void tst_seatv5::simpleAxis_data()
 {
     QTest::addColumn<uint>("axis");
     QTest::addColumn<qreal>("value");
-    QTest::addColumn<Qt::Orientation>("orientation");
     QTest::addColumn<QPoint>("angleDelta");
 
     // Directions in regular windows/linux terms (no "natural" scrolling)
-    QTest::newRow("down") << uint(Pointer::axis_vertical_scroll) << 1.0 << Qt::Vertical << QPoint{0, -12};
-    QTest::newRow("up") << uint(Pointer::axis_vertical_scroll) << -1.0 << Qt::Vertical << QPoint{0, 12};
-    QTest::newRow("left") << uint(Pointer::axis_horizontal_scroll) << 1.0 << Qt::Horizontal << QPoint{-12, 0};
-    QTest::newRow("right") << uint(Pointer::axis_horizontal_scroll) << -1.0 << Qt::Horizontal << QPoint{12, 0};
-    QTest::newRow("up big") << uint(Pointer::axis_vertical_scroll) << -10.0 << Qt::Vertical << QPoint{0, 120};
+    QTest::newRow("down") << uint(Pointer::axis_vertical_scroll) << 1.0 << QPoint{0, -12};
+    QTest::newRow("up") << uint(Pointer::axis_vertical_scroll) << -1.0 << QPoint{0, 12};
+    QTest::newRow("left") << uint(Pointer::axis_horizontal_scroll) << 1.0 << QPoint{-12, 0};
+    QTest::newRow("right") << uint(Pointer::axis_horizontal_scroll) << -1.0 << QPoint{12, 0};
+    QTest::newRow("up big") << uint(Pointer::axis_vertical_scroll) << -10.0 << QPoint{0, 120};
 }
 
 void tst_seatv5::simpleAxis()
 {
     QFETCH(uint, axis);
     QFETCH(qreal, value);
-    QFETCH(Qt::Orientation, orientation);
     QFETCH(QPoint, angleDelta);
 
     WheelWindow window;
@@ -219,7 +204,6 @@ void tst_seatv5::simpleAxis()
         // There has been no information about what created the event.
         // Documentation says not synthesized is appropriate in such cases
         QCOMPARE(e.source, Qt::MouseEventNotSynthesized);
-        QCOMPARE(e.orientation, orientation);
         QCOMPARE(e.angleDelta, angleDelta);
     }
 
@@ -262,7 +246,7 @@ void tst_seatv5::fingerScroll()
     {
         auto e = window.m_events.takeFirst();
         QCOMPARE(e.phase, Qt::ScrollUpdate);
-        QCOMPARE(e.orientation, Qt::Vertical);
+        QVERIFY(qAbs(e.angleDelta.x()) <= qAbs(e.angleDelta.y())); // Vertical scroll
 //        QCOMPARE(e.angleDelta, angleDelta); // TODO: what should this be?
         QCOMPARE(e.pixelDelta, QPoint(0, 10));
         QCOMPARE(e.source, Qt::MouseEventSynthesizedBySystem); // A finger is not a wheel
@@ -280,7 +264,7 @@ void tst_seatv5::fingerScroll()
     {
         auto e = window.m_events.takeFirst();
         QCOMPARE(e.phase, Qt::ScrollUpdate);
-        QCOMPARE(e.orientation, Qt::Horizontal);
+        QVERIFY(qAbs(e.angleDelta.x()) > qAbs(e.angleDelta.y())); // Horizontal scroll
         QCOMPARE(e.pixelDelta, QPoint(10, 0));
         QCOMPARE(e.source, Qt::MouseEventSynthesizedBySystem); // A finger is not a wheel
     }
@@ -372,7 +356,7 @@ void tst_seatv5::wheelDiscreteScroll()
     {
         auto e = window.m_events.takeFirst();
         QCOMPARE(e.phase, Qt::NoScrollPhase);
-        QCOMPARE(e.orientation, Qt::Vertical);
+        QVERIFY(qAbs(e.angleDelta.x()) <= qAbs(e.angleDelta.y())); // Vertical scroll
         // According to the docs the angle delta is in eights of a degree and most mice have
         // 1 click = 15 degrees. The angle delta should therefore be:
         // 15 degrees / (1/8 eights per degrees) = 120 eights of degrees.

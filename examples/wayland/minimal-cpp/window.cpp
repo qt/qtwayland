@@ -129,7 +129,7 @@ void Window::mouseMoveEvent(QMouseEvent *event)
 
 void Window::wheelEvent(QWheelEvent *event)
 {
-    m_compositor->handleMouseWheel(event->orientation(), event->delta());
+    m_compositor->handleMouseWheel(event->angleDelta());
 }
 
 void Window::keyPressEvent(QKeyEvent *e)

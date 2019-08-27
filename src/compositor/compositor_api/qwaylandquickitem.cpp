@@ -610,7 +610,7 @@ void QWaylandQuickItem::wheelEvent(QWheelEvent *event)
 {
     Q_D(QWaylandQuickItem);
     if (d->shouldSendInputEvents()) {
-        if (!inputRegionContains(event->pos())) {
+        if (!inputRegionContains(event->position())) {
             event->ignore();
             return;
         }

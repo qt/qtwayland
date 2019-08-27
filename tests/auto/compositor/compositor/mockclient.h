@@ -38,6 +38,8 @@
 #include <QList>
 #include <QWaylandOutputMode>
 
+#include "mockxdgoutputv1.h"
+
 class MockSeat;
 
 class ShmBuffer
@@ -65,10 +67,12 @@ public:
     xdg_toplevel *createXdgToplevel(xdg_surface *xdgSurface);
     ivi_surface *createIviSurface(wl_surface *surface, uint iviId);
     zwp_idle_inhibitor_v1 *createIdleInhibitor(wl_surface *surface);
+    MockXdgOutputV1 *createXdgOutput(wl_output *output);
 
     wl_display *display = nullptr;
     wl_compositor *compositor = nullptr;
     QMap<uint, wl_output *> m_outputs;
+    QMap<wl_output *, MockXdgOutputV1 *> m_xdgOutputs;
     wl_shm *shm = nullptr;
     wl_registry *registry = nullptr;
     wl_shell *wlshell = nullptr;
@@ -76,6 +80,7 @@ public:
     wp_viewporter *viewporter = nullptr;
     ivi_application *iviApplication = nullptr;
     zwp_idle_inhibit_manager_v1 *idleInhibitManager = nullptr;
+    QtWayland::zxdg_output_manager_v1 *xdgOutputManager = nullptr;
 
     QList<MockSeat *> m_seats;
 

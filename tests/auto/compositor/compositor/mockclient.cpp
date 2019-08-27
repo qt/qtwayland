@@ -186,11 +186,17 @@ void MockClient::handleGlobal(uint32_t id, const QByteArray &interface)
         m_seats << new MockSeat(s);
     } else if (interface == "zwp_idle_inhibit_manager_v1") {
         idleInhibitManager = static_cast<zwp_idle_inhibit_manager_v1 *>(wl_registry_bind(registry, id, &zwp_idle_inhibit_manager_v1_interface, 1));
+    } else if (interface == "zxdg_output_manager_v1") {
+        xdgOutputManager = new QtWayland::zxdg_output_manager_v1(registry, id, 2);
     }
 }
 
 void MockClient::handleGlobalRemove(uint32_t id)
 {
+    auto *output = m_outputs[id];
+    if (m_xdgOutputs.contains(output))
+        delete m_xdgOutputs.take(output);
+
     m_outputs.remove(id);
 }
 
@@ -232,6 +238,13 @@ zwp_idle_inhibitor_v1 *MockClient::createIdleInhibitor(wl_surface *surface)
                 idleInhibitManager, surface);
     zwp_idle_inhibitor_v1_set_user_data(idleInhibitor, this);
     return idleInhibitor;
+}
+
+MockXdgOutputV1 *MockClient::createXdgOutput(wl_output *output)
+{
+    auto *xdgOutput = new MockXdgOutputV1(xdgOutputManager->get_xdg_output(output));
+    m_xdgOutputs[output] = xdgOutput;
+    return xdgOutput;
 }
 
 ShmBuffer::ShmBuffer(const QSize &size, wl_shm *shm)

@@ -57,6 +57,7 @@
 #include <QtWaylandCompositor/QWaylandOutput>
 #include <QtWaylandCompositor/QWaylandClient>
 #include <QtWaylandCompositor/QWaylandSurface>
+#include <QtWaylandCompositor/QWaylandXdgOutputV1>
 
 #include <QtWaylandCompositor/private/qwayland-server-wayland.h>
 
@@ -110,6 +111,8 @@ public:
 
     void handleWindowPixelSizeChanged();
 
+    QPointer<QWaylandXdgOutputV1> xdgOutput;
+
 protected:
     void output_bind_resource(Resource *resource) override;
 
@@ -137,6 +140,8 @@ private:
 
     Q_DECLARE_PUBLIC(QWaylandOutput)
     Q_DISABLE_COPY(QWaylandOutputPrivate)
+
+    friend class QWaylandXdgOutputManagerV1Private;
 };
 
 

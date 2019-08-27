@@ -29,6 +29,7 @@
 #include "mockclient.h"
 #include "mockseat.h"
 #include "mockpointer.h"
+#include "mockxdgoutputv1.h"
 #include "testcompositor.h"
 #include "testkeyboardgrabber.h"
 #include "testseat.h"
@@ -48,8 +49,10 @@
 #include <QtWaylandCompositor/QWaylandKeymap>
 #include <QtWaylandCompositor/QWaylandViewporter>
 #include <QtWaylandCompositor/QWaylandIdleInhibitManagerV1>
+#include <QtWaylandCompositor/QWaylandXdgOutputManagerV1>
 #include <qwayland-xdg-shell.h>
 #include <qwayland-ivi-application.h>
+#include <QtWaylandCompositor/private/qwaylandoutput_p.h>
 #include <QtWaylandCompositor/private/qwaylandsurface_p.h>
 
 #include <QtTest/QtTest>
@@ -116,6 +119,8 @@ private slots:
     void viewportHiDpi();
 
     void idleInhibit();
+
+    void xdgOutput();
 };
 
 void tst_WaylandCompositor::init() {
@@ -535,8 +540,13 @@ void tst_WaylandCompositor::mapSurfaceHiDpi()
     QObject::connect(waylandSurface, &QWaylandSurface::hasContentChanged, verifyComittedState);
     QSignalSpy hasContentSpy(waylandSurface, SIGNAL(hasContentChanged()));
 
+#if QT_DEPRECATED_SINCE(5, 13)
     QObject::connect(waylandSurface, &QWaylandSurface::sizeChanged, verifyComittedState);
     QSignalSpy sizeSpy(waylandSurface, SIGNAL(sizeChanged()));
+#endif
+
+    QObject::connect(waylandSurface, &QWaylandSurface::bufferSizeChanged, verifyComittedState);
+    QSignalSpy bufferSizeSpy(waylandSurface, SIGNAL(bufferSizeChanged()));
 
     QObject::connect(waylandSurface, &QWaylandSurface::destinationSizeChanged, verifyComittedState);
     QSignalSpy destinationSizeSpy(waylandSurface, SIGNAL(destinationSizeChanged()));
@@ -560,7 +570,10 @@ void tst_WaylandCompositor::mapSurfaceHiDpi()
     wl_surface_commit(surface);
 
     QTRY_COMPARE(hasContentSpy.count(), 1);
+#if QT_DEPRECATED_SINCE(5, 13)
     QTRY_COMPARE(sizeSpy.count(), 1);
+#endif
+    QTRY_COMPARE(bufferSizeSpy.count(), 1);
     QTRY_COMPARE(destinationSizeSpy.count(), 1);
     QTRY_COMPARE(bufferScaleSpy.count(), 1);
     QTRY_COMPARE(offsetSpy.count(), 1);
@@ -1783,6 +1796,69 @@ void tst_WaylandCompositor::idleInhibit()
     QTRY_COMPARE(waylandSurfacePrivate->idleInhibitors.size(), 1);
     QCOMPARE(waylandSurface->inhibitsIdle(), true);
     QTRY_COMPARE(changedSpy.count(), 1);
+}
+
+class XdgOutputCompositor : public TestCompositor
+{
+    Q_OBJECT
+public:
+    XdgOutputCompositor() : xdgOutputManager(this) {}
+    QWaylandXdgOutputManagerV1 xdgOutputManager;
+};
+
+void tst_WaylandCompositor::xdgOutput()
+{
+    XdgOutputCompositor compositor;
+    compositor.create();
+
+    QWaylandOutputMode mode(QSize(1024, 768), 60000);
+    compositor.defaultOutput()->addMode(mode, true);
+    compositor.defaultOutput()->setCurrentMode(mode);
+
+    MockClient client;
+    QTRY_VERIFY(client.xdgOutputManager);
+    QTRY_COMPARE(client.m_outputs.size(), 1);
+
+    auto *wlOutput = client.m_outputs.first();
+    QVERIFY(wlOutput);
+
+    // Output is not associated yet
+    QCOMPARE(QWaylandOutputPrivate::get(compositor.defaultOutput())->xdgOutput.isNull(), true);
+
+    // Create xdg-output on the server
+    auto *xdgOutputServer = new QWaylandXdgOutputV1(compositor.defaultOutput(), &compositor.xdgOutputManager);
+    QVERIFY(xdgOutputServer);
+    xdgOutputServer->setName(QStringLiteral("OUTPUT1"));
+    xdgOutputServer->setDescription(QStringLiteral("This is a test output"));
+
+    // Create it on the client
+    auto *xdgOutput = client.createXdgOutput(wlOutput);
+    QVERIFY(xdgOutput);
+    QVERIFY(client.m_xdgOutputs.contains(wlOutput));
+
+    // Now it should be associated
+    QCOMPARE(QWaylandOutputPrivate::get(compositor.defaultOutput())->xdgOutput.isNull(), false);
+
+    // Verify initial values
+    QTRY_COMPARE(xdgOutput->name, "OUTPUT1");
+    QTRY_COMPARE(xdgOutput->logicalPosition, QPoint());
+    QTRY_COMPARE(xdgOutput->logicalSize, QSize());
+
+    // Change properties
+    xdgOutputServer->setName(QStringLiteral("OUTPUT2"));
+    xdgOutputServer->setDescription(QStringLiteral("New description"));
+    xdgOutputServer->setLogicalPosition(QPoint(100, 100));
+    xdgOutputServer->setLogicalSize(QSize(1000, 1000));
+    compositor.flushClients();
+
+    // Name and description can't be changed after initialization,
+    // so we expect them to be the same
+    // TODO: With protocol version 3 the description will be allowed to change,
+    // but we implement version 2 now
+    QTRY_COMPARE(xdgOutput->name, "OUTPUT1");
+    QTRY_COMPARE(xdgOutput->description, "This is a test output");
+    QTRY_COMPARE(xdgOutput->logicalPosition, QPoint(100, 100));
+    QTRY_COMPARE(xdgOutput->logicalSize, QSize(1000, 1000));
 }
 
 #include <tst_compositor.moc>

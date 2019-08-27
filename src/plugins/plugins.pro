@@ -1,6 +1,11 @@
 TEMPLATE=subdirs
+
+qtHaveModule(waylandclient) {
+    SUBDIRS += \
+        platforms \
+        decorations \
+        shellintegration
+}
+
 SUBDIRS += \
-    platforms \
-    hardwareintegration \
-    decorations \
-    shellintegration
+    hardwareintegration

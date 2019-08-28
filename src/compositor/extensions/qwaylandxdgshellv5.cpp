@@ -40,7 +40,7 @@
 #include "qwaylandxdgshellv5.h"
 #include "qwaylandxdgshellv5_p.h"
 
-#ifdef QT_WAYLAND_COMPOSITOR_QUICK
+#if QT_CONFIG(wayland_compositor_quick)
 #include "qwaylandxdgshellv5integration_p.h"
 #endif
 
@@ -1308,7 +1308,7 @@ uint QWaylandXdgSurfaceV5::sendResizing(const QSize &maxSize)
     return sendConfigure(maxSize, conf.states);
 }
 
-#ifdef QT_WAYLAND_COMPOSITOR_QUICK
+#if QT_CONFIG(wayland_compositor_quick)
 QWaylandQuickShellIntegration *QWaylandXdgSurfaceV5::createIntegration(QWaylandQuickShellSurfaceItem *item)
 {
     return new QtWayland::XdgShellV5Integration(item);
@@ -1509,7 +1509,7 @@ void QWaylandXdgPopupV5::sendPopupDone()
     d->send_popup_done();
 }
 
-#ifdef QT_WAYLAND_COMPOSITOR_QUICK
+#if QT_CONFIG(wayland_compositor_quick)
 QWaylandQuickShellIntegration *QWaylandXdgPopupV5::createIntegration(QWaylandQuickShellSurfaceItem *item)
 {
     return new QtWayland::XdgPopupV5Integration(item);

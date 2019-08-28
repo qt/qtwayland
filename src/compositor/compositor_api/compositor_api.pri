@@ -64,9 +64,7 @@ qtConfig(draganddrop) {
         compositor_api/qwaylanddrag.cpp
 }
 
-qtHaveModule(quick):qtConfig(opengl) {
-    DEFINES += QT_WAYLAND_COMPOSITOR_QUICK
-
+qtConfig(wayland-compositor-quick) {
     SOURCES += \
         compositor_api/qwaylandquickcompositor.cpp \
         compositor_api/qwaylandquicksurface.cpp \

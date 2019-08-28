@@ -47,6 +47,7 @@
 #include "qwaylanddisplay_p.h"
 #include "qwaylandwindowmanagerintegration_p.h"
 #include "qwaylandscreen_p.h"
+#include "qwaylandinputdevice_p.h"
 #include <QtGui/private/qguiapplication_p.h>
 #include <QtGui/QScreen>
 #include <QtWaylandClient/private/qwaylandclientbufferintegration_p.h>
@@ -75,6 +76,27 @@ void *QWaylandNativeInterface::nativeResourceForIntegration(const QByteArray &re
 
     if (lowerCaseResource == "egldisplay" && m_integration->clientBufferIntegration())
         return m_integration->clientBufferIntegration()->nativeResource(QWaylandClientBufferIntegration::EglDisplay);
+
+    if (lowerCaseResource == "wl_seat")
+        return m_integration->display()->defaultInputDevice()->wl_seat();
+    if (lowerCaseResource == "wl_keyboard") {
+        auto *keyboard = m_integration->display()->defaultInputDevice()->keyboard();
+        if (keyboard)
+            return keyboard->wl_keyboard();
+        return nullptr;
+    }
+    if (lowerCaseResource == "wl_pointer") {
+        auto *pointer = m_integration->display()->defaultInputDevice()->pointer();
+        if (pointer)
+            return pointer->wl_pointer();
+        return nullptr;
+    }
+    if (lowerCaseResource == "wl_touch") {
+        auto *touch = m_integration->display()->defaultInputDevice()->touch();
+        if (touch)
+            return touch->wl_touch();
+        return nullptr;
+    }
 
     return nullptr;
 }

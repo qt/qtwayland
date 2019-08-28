@@ -78,6 +78,7 @@ public:
 int main(int argc, char **argv) \
 { \
     setenv("XDG_RUNTIME_DIR", ".", 1); \
+    setenv("XDG_CURRENT_DESKTOP", "qtwaylandtests", 1); \
     setenv("QT_QPA_PLATFORM", "wayland", 1); \
     test tc; \
     QGuiApplication app(argc, argv); \

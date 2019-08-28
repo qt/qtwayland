@@ -562,6 +562,8 @@ void QWaylandInputDevice::Pointer::pointer_enter(uint32_t serial, struct wl_surf
         return;
 
     QWaylandWindow *window = QWaylandWindow::fromWlSurface(surface);
+    if (!window)
+        return; // Ignore foreign surfaces
 
     if (mFocus) {
         qCWarning(lcQpaWayland) << "The compositor sent a wl_pointer.enter event before sending a"
@@ -569,6 +571,7 @@ void QWaylandInputDevice::Pointer::pointer_enter(uint32_t serial, struct wl_surf
                                 << "attempting to work around it by invalidating the current focus";
         invalidateFocus();
     }
+
     mFocus = window;
     connect(mFocus.data(), &QWaylandWindow::wlSurfaceDestroyed, this, &Pointer::handleFocusDestroyed);
 
@@ -596,6 +599,10 @@ void QWaylandInputDevice::Pointer::pointer_leave(uint32_t time, struct wl_surfac
     // a null surface.
     if (!surface)
         return;
+
+    auto *window = QWaylandWindow::fromWlSurface(surface);
+    if (!window)
+        return; // Ignore foreign surfaces
 
     if (!QWaylandWindow::mouseGrab()) {
         QWaylandWindow *window = QWaylandWindow::fromWlSurface(surface);
@@ -972,9 +979,13 @@ void QWaylandInputDevice::Touch::touch_down(uint32_t serial,
     if (!surface)
         return;
 
+    auto *window = QWaylandWindow::fromWlSurface(surface);
+    if (!window)
+        return; // Ignore foreign surfaces
+
     mParent->mTime = time;
     mParent->mSerial = serial;
-    mFocus = QWaylandWindow::fromWlSurface(surface);
+    mFocus = window;
     mParent->mQDisplay->setLastInputDevice(mParent, serial, mFocus);
     mParent->handleTouchPoint(id, wl_fixed_to_double(x), wl_fixed_to_double(y), Qt::TouchPointPressed);
 }

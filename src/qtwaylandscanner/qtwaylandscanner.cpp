@@ -986,6 +986,7 @@ bool Scanner::process()
             printf("\n");
             printf("        struct ::%s *object() { return m_%s; }\n", interfaceName, interfaceName);
             printf("        const struct ::%s *object() const { return m_%s; }\n", interfaceName, interfaceName);
+            printf("        static %s *fromObject(struct ::%s *object);\n", interfaceName, interfaceName);
             printf("\n");
             printf("        bool isInitialized() const;\n");
             printf("\n");
@@ -1127,6 +1128,16 @@ bool Scanner::process()
             printf("        m_%s = obj;\n", interfaceName);
             if (hasEvents)
                 printf("        init_listener();\n");
+            printf("    }\n");
+            printf("\n");
+
+            printf("    %s *%s::fromObject(struct ::%s *object)\n", interfaceName, interfaceName, interfaceName);
+            printf("    {\n");
+            if (hasEvents) {
+                printf("        if (wl_proxy_get_listener((struct ::wl_proxy *)object) != (void *)&m_%s_listener)\n", interfaceName);
+                printf("            return nullptr;\n");
+            }
+            printf("        return static_cast<%s *>(%s_get_user_data(object));\n", interfaceName, interfaceName);
             printf("    }\n");
             printf("\n");
 

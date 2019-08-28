@@ -442,6 +442,21 @@ QWaylandInputDevice::Touch *QWaylandInputDevice::createTouch(QWaylandInputDevice
     return new Touch(device);
 }
 
+QWaylandInputDevice::Keyboard *QWaylandInputDevice::keyboard() const
+{
+    return mKeyboard;
+}
+
+QWaylandInputDevice::Pointer *QWaylandInputDevice::pointer() const
+{
+    return mPointer;
+}
+
+QWaylandInputDevice::Touch *QWaylandInputDevice::touch() const
+{
+    return mTouch;
+}
+
 void QWaylandInputDevice::handleEndDrag()
 {
     if (mTouch)
@@ -774,8 +789,10 @@ void QWaylandInputDevice::Pointer::pointer_button(uint32_t serial, uint32_t time
 
 void QWaylandInputDevice::Pointer::invalidateFocus()
 {
-    disconnect(mFocus.data(), &QObject::destroyed, this, &Pointer::handleFocusDestroyed);
-    mFocus = nullptr;
+    if (mFocus) {
+        disconnect(mFocus.data(), &QObject::destroyed, this, &Pointer::handleFocusDestroyed);
+        mFocus = nullptr;
+    }
     mEnterSerial = 0;
 }
 

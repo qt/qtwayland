@@ -196,8 +196,11 @@ void tst_output::removePrimaryScreen()
     exec([&] {
         auto *surface = xdgToplevel()->surface();
         pointer()->sendEnter(surface, {32, 32});
+        pointer()->sendFrame(client());
         pointer()->sendButton(client(), BTN_LEFT, 1);
+        pointer()->sendFrame(client());
         pointer()->sendButton(client(), BTN_LEFT, 0);
+        pointer()->sendFrame(client());
     });
 
     // Wait to make sure mouse events dont't cause a crash now that the screen has changed

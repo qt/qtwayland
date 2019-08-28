@@ -310,11 +310,14 @@ QPlatformTheme *QWaylandIntegration::createPlatformTheme(const QString &name) co
     return GenericWaylandTheme::createUnixTheme(name);
 }
 
+// May be called from non-GUI threads
 QWaylandClientBufferIntegration *QWaylandIntegration::clientBufferIntegration() const
 {
-    if (!mClientBufferIntegrationInitialized)
+    // Do an inexpensive check first to avoid locking whenever possible
+    if (Q_UNLIKELY(!mClientBufferIntegrationInitialized))
         const_cast<QWaylandIntegration *>(this)->initializeClientBufferIntegration();
 
+    Q_ASSERT(mClientBufferIntegrationInitialized);
     return mClientBufferIntegration && mClientBufferIntegration->isValid() ? mClientBufferIntegration.data() : nullptr;
 }
 
@@ -334,9 +337,12 @@ QWaylandShellIntegration *QWaylandIntegration::shellIntegration() const
     return mShellIntegration.data();
 }
 
+// May be called from non-GUI threads
 void QWaylandIntegration::initializeClientBufferIntegration()
 {
-    mClientBufferIntegrationInitialized = true;
+    QMutexLocker lock(&mClientBufferInitLock);
+    if (mClientBufferIntegrationInitialized)
+        return;
 
     QString targetKey = QString::fromLocal8Bit(qgetenv("QT_WAYLAND_CLIENT_BUFFER_INTEGRATION"));
 
@@ -352,22 +358,25 @@ void QWaylandIntegration::initializeClientBufferIntegration()
 
     if (targetKey.isEmpty()) {
         qWarning("Failed to determine what client buffer integration to use");
-        return;
-    }
-
-    QStringList keys = QWaylandClientBufferIntegrationFactory::keys();
-    qCDebug(lcQpaWayland) << "Available client buffer integrations:" << keys;
-
-    if (keys.contains(targetKey))
-        mClientBufferIntegration.reset(QWaylandClientBufferIntegrationFactory::create(targetKey, QStringList()));
-
-    if (mClientBufferIntegration) {
-        qCDebug(lcQpaWayland) << "Initializing client buffer integration" << targetKey;
-        mClientBufferIntegration->initialize(mDisplay.data());
     } else {
-        qCWarning(lcQpaWayland) << "Failed to load client buffer integration:" << targetKey;
-        qCWarning(lcQpaWayland) << "Available client buffer integrations:" << keys;
+        QStringList keys = QWaylandClientBufferIntegrationFactory::keys();
+        qCDebug(lcQpaWayland) << "Available client buffer integrations:" << keys;
+
+        if (keys.contains(targetKey))
+            mClientBufferIntegration.reset(QWaylandClientBufferIntegrationFactory::create(targetKey, QStringList()));
+
+        if (mClientBufferIntegration) {
+            qCDebug(lcQpaWayland) << "Initializing client buffer integration" << targetKey;
+            mClientBufferIntegration->initialize(mDisplay.data());
+        } else {
+            qCWarning(lcQpaWayland) << "Failed to load client buffer integration:" << targetKey;
+            qCWarning(lcQpaWayland) << "Available client buffer integrations:" << keys;
+        }
     }
+
+    // This must be set last to make sure other threads don't use the
+    // integration before initialization is complete.
+    mClientBufferIntegrationInitialized = true;
 }
 
 void QWaylandIntegration::initializeServerBufferIntegration()

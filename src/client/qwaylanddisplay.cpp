@@ -186,9 +186,9 @@ void QWaylandDisplay::checkError() const
     int ecode = wl_display_get_error(mDisplay);
     if ((ecode == EPIPE || ecode == ECONNRESET)) {
         // special case this to provide a nicer error
-        qWarning("The Wayland connection broke. Did the Wayland compositor die?");
+        qFatal("The Wayland connection broke. Did the Wayland compositor die?");
     } else {
-        qErrnoWarning(ecode, "The Wayland connection experienced a fatal error");
+        qFatal("The Wayland connection experienced a fatal error: %s", strerror(ecode));
     }
 }
 
@@ -198,25 +198,16 @@ void QWaylandDisplay::flushRequests()
         wl_display_read_events(mDisplay);
     }
 
-    if (wl_display_dispatch_pending(mDisplay) < 0) {
+    if (wl_display_dispatch_pending(mDisplay) < 0)
         checkError();
-        exitWithError();
-    }
 
     wl_display_flush(mDisplay);
 }
 
 void QWaylandDisplay::blockingReadEvents()
 {
-    if (wl_display_dispatch(mDisplay) < 0) {
+    if (wl_display_dispatch(mDisplay) < 0)
         checkError();
-        exitWithError();
-    }
-}
-
-void QWaylandDisplay::exitWithError()
-{
-    ::exit(1);
 }
 
 wl_event_queue *QWaylandDisplay::createEventQueue()
@@ -245,10 +236,9 @@ void QWaylandDisplay::dispatchQueueWhile(wl_event_queue *queue, std::function<bo
         else
             wl_display_cancel_read(mDisplay);
 
-        if (wl_display_dispatch_queue_pending(mDisplay, queue) < 0) {
+        if (wl_display_dispatch_queue_pending(mDisplay, queue) < 0)
             checkError();
-            exitWithError();
-        }
+
         if (!condition())
             break;
     }

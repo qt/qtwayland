@@ -201,7 +201,6 @@ public slots:
 
 private:
     void waitForScreens();
-    void exitWithError();
     void checkError() const;
 
     void handleWaylandSync();

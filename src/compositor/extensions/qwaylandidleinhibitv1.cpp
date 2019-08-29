@@ -101,6 +101,11 @@ QWaylandIdleInhibitManagerV1::QWaylandIdleInhibitManagerV1(QWaylandCompositor *c
 }
 
 /*!
+    Destructs a QWaylandIdleInhibitManagerV1 object.
+*/
+QWaylandIdleInhibitManagerV1::~QWaylandIdleInhibitManagerV1() = default;
+
+/*!
     Initializes the extension.
 */
 void QWaylandIdleInhibitManagerV1::initialize()

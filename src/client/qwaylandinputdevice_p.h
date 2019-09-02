@@ -446,7 +446,7 @@ public:
     QPoint pixelDelta;
     QPoint angleDelta;
     Qt::MouseEventSource source = Qt::MouseEventNotSynthesized;
-    QWaylandWindow *surface = nullptr;
+    QPointer<QWaylandWindow> surface;
 };
 
 }

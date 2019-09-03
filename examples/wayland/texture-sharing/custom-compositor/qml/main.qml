@@ -95,7 +95,6 @@ WaylandCompositor {
             Repeater {
                 model: shellSurfaces
                 ShellSurfaceItem {
-                    autoCreatePopupItems: true
                     shellSurface: modelData
                     onSurfaceDestroyed: shellSurfaces.remove(index)
                 }

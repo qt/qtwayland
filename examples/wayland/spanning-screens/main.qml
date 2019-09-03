@@ -100,7 +100,6 @@ WaylandCompositor {
     Component {
         id: chromeComponent
         ShellSurfaceItem {
-            autoCreatePopupItems: true
             onSurfaceDestroyed: destroy()
         }
     }

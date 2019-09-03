@@ -377,7 +377,7 @@ void QWaylandXdgSurface::requestWindowStates(Qt::WindowStates states)
     if (m_toplevel)
         m_toplevel->requestWindowStates(states);
     else
-        qCWarning(lcQpaWayland) << "Non-toplevel surfaces can't request window states";
+        qCDebug(lcQpaWayland) << "Ignoring window states requested by non-toplevel zxdg_surface_v6.";
 }
 
 void QWaylandXdgSurface::setToplevel()

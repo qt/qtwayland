@@ -1019,8 +1019,6 @@ void QWaylandQuickItem::updateSize()
         size = surface()->destinationSize() * d->scaleFactor();
 
     setImplicitSize(size.width(), size.height());
-    if (d->sizeFollowsSurface)
-        setSize(size);
 }
 
 /*!
@@ -1116,41 +1114,6 @@ QPointF QWaylandQuickItem::mapFromSurface(const QPointF &point) const
     qreal yScale = height() / surface()->destinationSize().height();
 
     return QPointF(point.x() * xScale, point.y() * yScale);
-}
-
-/*!
- * \qmlproperty bool QtWaylandCompositor::WaylandQuickItem::sizeFollowsSurface
- *
- * This property specifies whether the size of the item should always match
- * the size of its surface.
- *
- * The default is \c true.
- */
-
-/*!
- * \property QWaylandQuickItem::sizeFollowsSurface
- *
- * This property specifies whether the size of the item should always match
- * the size of its surface.
- *
- * The default is \c true.
- */
-bool QWaylandQuickItem::sizeFollowsSurface() const
-{
-    Q_D(const QWaylandQuickItem);
-    return d->sizeFollowsSurface;
-}
-
-//TODO: sizeFollowsSurface became obsolete when we added an implementation for
-//implicit size. The property is here for compatibility reasons only and should
-//be removed or at least default to false in Qt 6.
-void QWaylandQuickItem::setSizeFollowsSurface(bool sizeFollowsSurface)
-{
-    Q_D(QWaylandQuickItem);
-    if (d->sizeFollowsSurface == sizeFollowsSurface)
-        return;
-    d->sizeFollowsSurface = sizeFollowsSurface;
-    emit sizeFollowsSurfaceChanged();
 }
 
 #if QT_CONFIG(im)

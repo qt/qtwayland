@@ -82,7 +82,6 @@ WaylandOutput {
                     surface: gridSurface
                     width: gridView.cellWidth
                     height: gridView.cellHeight
-                    sizeFollowsSurface: false
                     inputEventsEnabled: false
                     allowDiscardFrontBuffer: true
                     MouseArea {

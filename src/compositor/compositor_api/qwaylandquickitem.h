@@ -68,7 +68,6 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQuickItem : public QQuickItem
     Q_PROPERTY(QWaylandSurface::Origin origin READ origin NOTIFY originChanged)
     Q_PROPERTY(bool inputEventsEnabled READ inputEventsEnabled WRITE setInputEventsEnabled NOTIFY inputEventsEnabledChanged)
     Q_PROPERTY(bool focusOnClick READ focusOnClick WRITE setFocusOnClick NOTIFY focusOnClickChanged)
-    Q_PROPERTY(bool sizeFollowsSurface READ sizeFollowsSurface WRITE setSizeFollowsSurface NOTIFY sizeFollowsSurfaceChanged)
     Q_PROPERTY(QObject *subsurfaceHandler READ subsurfaceHandler WRITE setSubsurfaceHandler NOTIFY subsurfaceHandlerChanged)
     Q_PROPERTY(QWaylandOutput *output READ output WRITE setOutput NOTIFY outputChanged)
     Q_PROPERTY(bool bufferLocked READ isBufferLocked WRITE setBufferLocked NOTIFY bufferLockedChanged)
@@ -102,9 +101,6 @@ public:
     bool inputRegionContains(const QPointF &localPosition) const;
     Q_INVOKABLE QPointF mapToSurface(const QPointF &point) const;
     Q_REVISION(13) Q_INVOKABLE QPointF mapFromSurface(const QPointF &point) const;
-
-    bool sizeFollowsSurface() const;
-    void setSizeFollowsSurface(bool sizeFollowsSurface);
 
 #if QT_CONFIG(im)
     QVariant inputMethodQuery(Qt::InputMethodQuery query) const override;
@@ -184,7 +180,6 @@ Q_SIGNALS:
     void focusOnClickChanged();
     void mouseMove(const QPointF &windowPosition);
     void mouseRelease();
-    void sizeFollowsSurfaceChanged();
     void subsurfaceHandlerChanged();
     void outputChanged();
     void bufferLockedChanged();

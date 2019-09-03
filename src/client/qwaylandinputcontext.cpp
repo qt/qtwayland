@@ -119,7 +119,8 @@ void QWaylandTextInput::updateState(Qt::InputMethodQueries queries, uint32_t fla
     if (!QGuiApplication::focusWindow() || !QGuiApplication::focusWindow()->handle())
         return;
 
-    struct ::wl_surface *surface = static_cast<QWaylandWindow *>(QGuiApplication::focusWindow()->handle())->object();
+    auto *window = static_cast<QWaylandWindow *>(QGuiApplication::focusWindow()->handle());
+    auto *surface = window->object();
     if (!surface || (surface != m_surface))
         return;
 
@@ -157,8 +158,10 @@ void QWaylandTextInput::updateState(Qt::InputMethodQueries queries, uint32_t fla
 
     if (queries & Qt::ImCursorRectangle) {
         const QRect &cRect = event.value(Qt::ImCursorRectangle).toRect();
-        const QRect &tRect = QGuiApplication::inputMethod()->inputItemTransform().mapRect(cRect);
-        set_cursor_rectangle(tRect.x(), tRect.y(), tRect.width(), tRect.height());
+        const QRect &windowRect = QGuiApplication::inputMethod()->inputItemTransform().mapRect(cRect);
+        const QMargins margins = window->frameMargins();
+        const QRect &surfaceRect = windowRect.translated(margins.left(), margins.top());
+        set_cursor_rectangle(surfaceRect.x(), surfaceRect.y(), surfaceRect.width(), surfaceRect.height());
     }
 
     if (queries & Qt::ImPreferredLanguage) {

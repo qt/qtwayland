@@ -1067,16 +1067,6 @@ bool QWaylandQuickItem::inputRegionContains(const QPointF &localPosition) const
     return false;
 }
 
-// Qt 6: Remove the non-const version
-/*!
- * Returns \c true if the input region of this item's surface contains the
- * position given by \a localPosition.
- */
-bool QWaylandQuickItem::inputRegionContains(const QPointF &localPosition)
-{
-    return const_cast<const QWaylandQuickItem *>(this)->inputRegionContains(localPosition);
-}
-
 /*!
  * \qmlmethod point WaylandQuickItem::mapToSurface(point point)
  *

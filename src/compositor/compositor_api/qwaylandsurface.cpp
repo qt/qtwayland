@@ -279,12 +279,8 @@ void QWaylandSurfacePrivate::surface_commit(Resource *)
 
     emit q->damaged(damage);
 
-    if (oldBufferSize != bufferSize) {
+    if (oldBufferSize != bufferSize)
         emit q->bufferSizeChanged();
-#if QT_DEPRECATED_SINCE(5, 13)
-        emit q->sizeChanged();
-#endif
-    }
 
     if (oldBufferScale != bufferScale)
         emit q->bufferScaleChanged();
@@ -563,26 +559,6 @@ QSize QWaylandSurface::bufferSize() const
     Q_D(const QWaylandSurface);
     return d->bufferSize;
 }
-
-#if QT_DEPRECATED_SINCE(5, 13)
-/*!
- * \qmlproperty size QtWaylandCompositor::WaylandSurface::size
- * \obsolete use bufferSize or destinationSize instead
- *
- * This property has been deprecated, use \l bufferSize or \l destinationSize instead.
- */
-
-/*!
- * \property QWaylandSurface::size
- * \obsolete use bufferSize or destinationSize instead
- *
- * This property has been deprecated, use \l bufferSize or \l destinationSize instead.
- */
-QSize QWaylandSurface::size() const
-{
-    return bufferSize();
-}
-#endif
 
 /*!
  * \qmlproperty size QtWaylandCompositor::WaylandSurface::bufferScale

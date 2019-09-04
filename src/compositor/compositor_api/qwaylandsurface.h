@@ -130,6 +130,13 @@ public:
     QWaylandCompositor *compositor() const;
 
     bool inputRegionContains(const QPoint &p) const;
+private:
+    // TODO: Making this private now since it's added in a patch release, and we want to ensure
+    // compatibility with older patch releases.
+    // This should simply be made public (and the friend removed) in the next minor release.
+    friend class QWaylandQuickItem;
+    bool inputRegionContains(const QPointF &position) const;
+public:
 
     Q_INVOKABLE void destroy();
     Q_INVOKABLE bool isDestroyed() const;

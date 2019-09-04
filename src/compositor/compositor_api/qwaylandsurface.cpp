@@ -67,6 +67,7 @@
 #include <QtGui/QScreen>
 
 #include <QtCore/QDebug>
+#include <QtCore/QtMath>
 
 QT_BEGIN_NAMESPACE
 
@@ -704,6 +705,23 @@ bool QWaylandSurface::inputRegionContains(const QPoint &p) const
 {
     Q_D(const QWaylandSurface);
     return d->inputRegion.contains(p);
+}
+
+//TODO: Add appropriate \since version when this is made public.
+/*!
+ * Returns \c true if the QWaylandSurface's input region contains the point \a position.
+ * Otherwise returns \c false.
+ */
+bool QWaylandSurface::inputRegionContains(const QPointF &position) const
+{
+    Q_D(const QWaylandSurface);
+    // QRegion::contains operates in integers. If a region has a rect (0,0,10,10), (0,0) is
+    // inside while (10,10) is outside. Therefore, we can't use QPoint::toPoint(), which will
+    // round upwards, meaning the point (-0.25,-0.25) would be rounded to (0,0) and count as
+    // being inside the region, and similarly, a point (9.75,9.75) inside the region would be
+    // rounded upwards and count as being outside the region.
+    const QPoint floored(qFloor(position.x()), qFloor(position.y()));
+    return d->inputRegion.contains(floored);
 }
 
 /*!

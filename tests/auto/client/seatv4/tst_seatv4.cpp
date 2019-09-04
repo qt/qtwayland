@@ -72,6 +72,7 @@ private slots:
     void usesEnterSerial();
     void focusDestruction();
     void mousePress();
+    void mousePressFloat();
     void simpleAxis_data();
     void simpleAxis();
     void invalidPointerEvents();
@@ -205,6 +206,30 @@ void tst_seatv4::mousePress()
         pointer()->sendButton(client(), BTN_LEFT, 0);
     });
     QTRY_VERIFY(window.m_pressed);
+}
+
+void tst_seatv4::mousePressFloat()
+{
+    class Window : public QRasterWindow {
+    public:
+        void mousePressEvent(QMouseEvent *e) override { m_position = e->localPos(); }
+        QPointF m_position;
+    };
+
+    Window window;
+    window.resize(64, 64);
+    window.show();
+    QCOMPOSITOR_TRY_VERIFY(xdgSurface() && xdgSurface()->m_committedConfigureSerial);
+
+    exec([&] {
+        auto *surface = xdgSurface()->m_surface;
+        pointer()->sendEnter(surface, {32.75, 32.25});
+        pointer()->sendButton(client(), BTN_LEFT, 1);
+        pointer()->sendButton(client(), BTN_LEFT, 0);
+    });
+    QMargins m = window.frameMargins();
+    QPointF pressedPosition(32.75 -m.left(), 32.25 - m.top());
+    QTRY_COMPARE(window.m_position, pressedPosition);
 }
 
 void tst_seatv4::simpleAxis_data()

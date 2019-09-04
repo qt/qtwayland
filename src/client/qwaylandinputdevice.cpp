@@ -987,14 +987,15 @@ void QWaylandInputDevice::Touch::touch_down(uint32_t serial,
     mParent->mSerial = serial;
     mFocus = window;
     mParent->mQDisplay->setLastInputDevice(mParent, serial, mFocus);
-    mParent->handleTouchPoint(id, wl_fixed_to_double(x), wl_fixed_to_double(y), Qt::TouchPointPressed);
+    QPointF position(wl_fixed_to_double(x), wl_fixed_to_double(y));
+    mParent->handleTouchPoint(id, Qt::TouchPointPressed, position);
 }
 
 void QWaylandInputDevice::Touch::touch_up(uint32_t serial, uint32_t time, int32_t id)
 {
     Q_UNUSED(serial);
     Q_UNUSED(time);
-    mParent->handleTouchPoint(id, 0, 0, Qt::TouchPointReleased);
+    mParent->handleTouchPoint(id, Qt::TouchPointReleased);
 
     if (allTouchPointsReleased()) {
         mFocus = nullptr;
@@ -1013,7 +1014,8 @@ void QWaylandInputDevice::Touch::touch_up(uint32_t serial, uint32_t time, int32_
 void QWaylandInputDevice::Touch::touch_motion(uint32_t time, int32_t id, wl_fixed_t x, wl_fixed_t y)
 {
     Q_UNUSED(time);
-    mParent->handleTouchPoint(id, wl_fixed_to_double(x), wl_fixed_to_double(y), Qt::TouchPointMoved);
+    QPointF position(wl_fixed_to_double(x), wl_fixed_to_double(y));
+    mParent->handleTouchPoint(id, Qt::TouchPointMoved, position);
 }
 
 void QWaylandInputDevice::Touch::touch_cancel()
@@ -1027,7 +1029,7 @@ void QWaylandInputDevice::Touch::touch_cancel()
     QWindowSystemInterface::handleTouchCancelEvent(nullptr, mParent->mTouchDevice);
 }
 
-void QWaylandInputDevice::handleTouchPoint(int id, double x, double y, Qt::TouchPointState state)
+void QWaylandInputDevice::handleTouchPoint(int id, Qt::TouchPointState state, const QPointF &surfacePosition)
 {
     auto end = mTouch->mPendingTouchPoints.end();
     auto it = std::find_if(mTouch->mPendingTouchPoints.begin(), end, [id](auto tp){ return tp.id == id; });
@@ -1039,7 +1041,6 @@ void QWaylandInputDevice::handleTouchPoint(int id, double x, double y, Qt::Touch
 
     // Only moved and pressed needs to update/set position
     if (state == Qt::TouchPointMoved || state == Qt::TouchPointPressed) {
-        // x and y are surface relative.
         // We need a global (screen) position.
         QWaylandWindow *win = mTouch->mFocus;
 
@@ -1053,7 +1054,12 @@ void QWaylandInputDevice::handleTouchPoint(int id, double x, double y, Qt::Touch
 
         tp.area = QRectF(0, 0, 8, 8);
         QMargins margins = win->frameMargins();
-        tp.area.moveCenter(win->window()->mapToGlobal(QPoint(x - margins.left(), y - margins.top())));
+        QPointF localPosition = surfacePosition - QPointF(margins.left(), margins.top());
+        // TODO: This doesn't account for high dpi scaling for the delta, but at least it matches
+        // what we have for mouse input.
+        QPointF delta = localPosition - localPosition.toPoint();
+        QPointF globalPosition = win->window()->mapToGlobal(localPosition.toPoint()) + delta;
+        tp.area.moveCenter(globalPosition);
     }
 
     tp.state = state;

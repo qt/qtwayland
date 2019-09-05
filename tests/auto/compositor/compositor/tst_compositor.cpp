@@ -909,6 +909,11 @@ void tst_WaylandCompositor::inputRegion()
     QVERIFY(!waylandSurface->inputRegionContains(QPoint(1, 6)));
     QVERIFY(!waylandSurface->inputRegionContains(QPoint(4, 2)));
 
+    QVERIFY(!waylandSurface->inputRegionContains(QPointF(0.99, 1.99)));
+    QVERIFY(waylandSurface->inputRegionContains(QPointF(1, 2)));
+    QVERIFY(waylandSurface->inputRegionContains(QPointF(3.99, 4.99)));
+    QVERIFY(!waylandSurface->inputRegionContains(QPointF(4, 5)));
+
     // Setting a nullptr input region means we want all events
     wl_surface_set_input_region(surface, nullptr);
     wl_surface_commit(surface);

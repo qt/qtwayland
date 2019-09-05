@@ -708,10 +708,11 @@ bool QWaylandSurface::inputRegionContains(const QPoint &p) const
     return d->inputRegion.contains(p);
 }
 
-//TODO: Add appropriate \since version when this is made public.
 /*!
  * Returns \c true if the QWaylandSurface's input region contains the point \a position.
  * Otherwise returns \c false.
+ *
+ * \since 5.14
  */
 bool QWaylandSurface::inputRegionContains(const QPointF &position) const
 {

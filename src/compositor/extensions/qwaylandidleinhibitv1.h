@@ -48,8 +48,9 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandIdleInhibitManagerV1 : public QWayland
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandIdleInhibitManagerV1)
 public:
-    explicit QWaylandIdleInhibitManagerV1();
-    QWaylandIdleInhibitManagerV1(QWaylandCompositor *compositor);
+    QWaylandIdleInhibitManagerV1();
+    explicit QWaylandIdleInhibitManagerV1(QWaylandCompositor *compositor);
+    ~QWaylandIdleInhibitManagerV1();
 
     void initialize() override;
 

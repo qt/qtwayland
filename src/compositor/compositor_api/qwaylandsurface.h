@@ -92,7 +92,7 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandSurface : public QWaylandObject
     Q_PROPERTY(QWaylandSurface::Origin origin READ origin NOTIFY originChanged)
     Q_PROPERTY(bool hasContent READ hasContent NOTIFY hasContentChanged)
     Q_PROPERTY(bool cursorSurface READ isCursorSurface WRITE markAsCursorSurface NOTIFY cursorSurfaceChanged)
-    Q_PROPERTY(bool inhibitsIdle READ inhibitsIdle NOTIFY inhibitsIdleChanged)
+    Q_PROPERTY(bool inhibitsIdle READ inhibitsIdle NOTIFY inhibitsIdleChanged REVISION 14)
 
 public:
     enum Origin {

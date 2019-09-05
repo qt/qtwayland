@@ -442,6 +442,21 @@ QWaylandInputDevice::Touch *QWaylandInputDevice::createTouch(QWaylandInputDevice
     return new Touch(device);
 }
 
+QWaylandInputDevice::Keyboard *QWaylandInputDevice::keyboard() const
+{
+    return mKeyboard;
+}
+
+QWaylandInputDevice::Pointer *QWaylandInputDevice::pointer() const
+{
+    return mPointer;
+}
+
+QWaylandInputDevice::Touch *QWaylandInputDevice::touch() const
+{
+    return mTouch;
+}
+
 void QWaylandInputDevice::handleEndDrag()
 {
     if (mTouch)
@@ -774,8 +789,10 @@ void QWaylandInputDevice::Pointer::pointer_button(uint32_t serial, uint32_t time
 
 void QWaylandInputDevice::Pointer::invalidateFocus()
 {
-    disconnect(mFocus.data(), &QObject::destroyed, this, &Pointer::handleFocusDestroyed);
-    mFocus = nullptr;
+    if (mFocus) {
+        disconnect(mFocus.data(), &QObject::destroyed, this, &Pointer::handleFocusDestroyed);
+        mFocus = nullptr;
+    }
     mEnterSerial = 0;
 }
 
@@ -1028,8 +1045,15 @@ void QWaylandInputDevice::Pointer::flushScrollEvent()
 
 void QWaylandInputDevice::Pointer::flushFrameEvent()
 {
-    if (mFrameData.event) {
-        mFrameData.event->surface->handleMouse(mParent, *mFrameData.event);
+    if (auto *event = mFrameData.event) {
+        if (auto window = event->surface) {
+            window->handleMouse(mParent, *event);
+        } else if (mFrameData.event->type == QWaylandPointerEvent::Type::Release) {
+            // If the window has been destroyed, we still need to report an up event, but it can't
+            // be handled by the destroyed window (obviously), so send the event here instead.
+            QWindowSystemInterface::handleMouseEvent(nullptr, event->timestamp, event->local,
+                                                     event->global, event->buttons, event->modifiers);
+        }
         delete mFrameData.event;
         mFrameData.event = nullptr;
     }

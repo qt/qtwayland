@@ -60,6 +60,7 @@ public:
     XdgToplevel *xdgToplevel(int i = 0) { return get<XdgWmBase>()->toplevel(i); }
     XdgPopup *xdgPopup(int i = 0) { return get<XdgWmBase>()->popup(i); }
     Pointer *pointer() { auto *seat = get<Seat>(); Q_ASSERT(seat); return seat->m_pointer; }
+    Touch *touch() { auto *seat = get<Seat>(); Q_ASSERT(seat); return seat->m_touch; }
     Surface *cursorSurface() { auto *p = pointer(); return p ? p->cursorSurface() : nullptr; }
     Keyboard *keyboard() { auto *seat = get<Seat>(); Q_ASSERT(seat); return seat->m_keyboard; }
     uint sendXdgShellPing();
@@ -84,6 +85,7 @@ public:
 int main(int argc, char **argv) \
 { \
     setenv("XDG_RUNTIME_DIR", ".", 1); \
+    setenv("XDG_CURRENT_DESKTOP", "qtwaylandtests", 1); \
     setenv("QT_QPA_PLATFORM", "wayland", 1); \
     test tc; \
     QGuiApplication app(argc, argv); \

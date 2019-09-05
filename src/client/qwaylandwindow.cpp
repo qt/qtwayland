@@ -205,6 +205,7 @@ void QWaylandWindow::initializeWlSurface()
     connect(mSurface.data(), &QWaylandSurface::screensChanged,
             this, &QWaylandWindow::handleScreensChanged);
     mSurface->m_window = this;
+    emit wlSurfaceCreated();
 }
 
 bool QWaylandWindow::shouldCreateShellSurface() const

@@ -616,7 +616,11 @@ void QWaylandQuickItem::wheelEvent(QWheelEvent *event)
         }
 
         QWaylandSeat *seat = compositor()->seatFor(event);
-        seat->sendMouseWheelEvent(event->orientation(), event->delta());
+        // TODO: fix this to send a single event, when diagonal scrolling is supported
+        if (event->angleDelta().x() != 0)
+            seat->sendMouseWheelEvent(Qt::Horizontal, event->angleDelta().x());
+        if (event->angleDelta().y() != 0)
+            seat->sendMouseWheelEvent(Qt::Vertical, event->angleDelta().y());
     } else {
         event->ignore();
     }

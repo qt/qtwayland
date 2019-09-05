@@ -102,7 +102,7 @@ public:
     void handleMousePress(const QPoint &position, Qt::MouseButton button);
     void handleMouseRelease(const QPoint &position, Qt::MouseButton button, Qt::MouseButtons buttons);
     void handleMouseMove(const QPoint &position);
-    void handleMouseWheel(Qt::Orientation orientation, int delta);
+    void handleMouseWheel(const QPoint &angleDelta);
 
     void handleKeyPress(quint32 nativeScanCode);
     void handleKeyRelease(quint32 nativeScanCode);

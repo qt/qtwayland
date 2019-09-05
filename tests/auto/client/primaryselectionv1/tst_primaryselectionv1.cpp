@@ -268,7 +268,7 @@ void tst_primaryselectionv1::initTestCase()
 {
     QCOMPOSITOR_TRY_VERIFY(pointer());
     QCOMPOSITOR_TRY_VERIFY(!pointer()->resourceMap().empty());
-    QCOMPOSITOR_TRY_COMPARE(pointer()->resourceMap().first()->version(), 4);
+    QCOMPOSITOR_TRY_COMPARE(pointer()->resourceMap().first()->version(), 5);
 
     QCOMPOSITOR_TRY_VERIFY(keyboard());
 }
@@ -329,8 +329,11 @@ void tst_primaryselectionv1::pasteAscii()
         device->sendSelection(offer);
 
         pointer()->sendEnter(surface, {32, 32});
+        pointer()->sendFrame(client());
         pointer()->sendButton(client(), BTN_MIDDLE, 1);
+        pointer()->sendFrame(client());
         pointer()->sendButton(client(), BTN_MIDDLE, 0);
+        pointer()->sendFrame(client());
     });
     QTRY_COMPARE(window.m_formats, QStringList{"text/plain"});
     QTRY_COMPARE(window.m_text, "normal ascii");
@@ -372,8 +375,11 @@ void tst_primaryselectionv1::pasteUtf8()
         device->sendSelection(offer);
 
         pointer()->sendEnter(surface, {32, 32});
+        pointer()->sendFrame(client());
         pointer()->sendButton(client(), BTN_MIDDLE, 1);
+        pointer()->sendFrame(client());
         pointer()->sendButton(client(), BTN_MIDDLE, 0);
+        pointer()->sendFrame(client());
     });
     QTRY_COMPARE(window.m_formats, QStringList({"text/plain", "text/plain;charset=utf-8"}));
     QTRY_COMPARE(window.m_text, "face with tears of joy: 😂");
@@ -428,8 +434,11 @@ void tst_primaryselectionv1::copy()
         auto *surface = xdgSurface()->m_surface;
         keyboard()->sendEnter(surface); // Need to set keyboard focus according to protocol
         pointer()->sendEnter(surface, {32, 32});
+        pointer()->sendFrame(client());
         mouseSerials << pointer()->sendButton(client(), BTN_MIDDLE, 1);
+        pointer()->sendFrame(client());
         mouseSerials << pointer()->sendButton(client(), BTN_MIDDLE, 0);
+        pointer()->sendFrame(client());
     });
     QCOMPOSITOR_TRY_VERIFY(primarySelectionDevice()->m_selectionSource);
     QCOMPOSITOR_TRY_VERIFY(mouseSerials.contains(primarySelectionDevice()->m_serial));

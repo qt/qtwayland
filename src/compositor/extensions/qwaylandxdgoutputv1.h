@@ -38,7 +38,7 @@
 #define QWAYLANDXDGOUTPUTV1_H
 
 #include <QRect>
-#include <QWaylandCompositorExtension>
+#include <QtWaylandCompositor/QWaylandCompositorExtension>
 #include <QtWaylandCompositor/qwaylandquickchildren.h>
 
 QT_BEGIN_NAMESPACE

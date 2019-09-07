@@ -896,7 +896,7 @@ void QWaylandInputDevice::Keyboard::keyboard_key(uint32_t serial, uint32_t time,
         QEvent::Type type = isDown ? QEvent::KeyPress : QEvent::KeyRelease;
         handleKey(time, type, qtkey, modifiers, code, sym, mNativeModifiers, text);
 
-        if (state == WL_KEYBOARD_KEY_STATE_PRESSED && xkb_keymap_key_repeats(mXkbKeymap.get(), code)) {
+        if (state == WL_KEYBOARD_KEY_STATE_PRESSED && xkb_keymap_key_repeats(mXkbKeymap.get(), code) && mRepeatRate > 0) {
             mRepeatKey.key = qtkey;
             mRepeatKey.code = code;
             mRepeatKey.time = time;

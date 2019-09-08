@@ -69,7 +69,7 @@
  * \sa QWaylandSurface, QWaylandWlShellSurface, QWaylandXdgSurfaceV5, QWaylandIviSurface
  */
 
-#ifdef QT_WAYLAND_COMPOSITOR_QUICK
+#if QT_CONFIG(wayland_compositor_quick)
 /*!
  * \fn QWaylandQuickShellIntegration *QWaylandShellSurface::createIntegration(QWaylandQuickShellSurfaceItem *item)
  *

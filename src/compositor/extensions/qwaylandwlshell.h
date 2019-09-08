@@ -140,7 +140,7 @@ public:
     Q_INVOKABLE void sendConfigure(const QSize &size, ResizeEdge edges);
     Q_INVOKABLE void sendPopupDone();
 
-#ifdef QT_WAYLAND_COMPOSITOR_QUICK
+#if QT_CONFIG(wayland_compositor_quick)
     QWaylandQuickShellIntegration *createIntegration(QWaylandQuickShellSurfaceItem *item) override;
 #endif
 

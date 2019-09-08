@@ -40,7 +40,7 @@
 #include "qwaylandivisurface.h"
 #include "qwaylandivisurface_p.h"
 #include "qwaylandiviapplication_p.h"
-#ifdef QT_WAYLAND_COMPOSITOR_QUICK
+#if QT_CONFIG(wayland_compositor_quick)
 #include "qwaylandivisurfaceintegration_p.h"
 #endif
 
@@ -208,7 +208,7 @@ void QWaylandIviSurface::sendConfigure(const QSize &size)
     d->send_configure(size.width(), size.height());
 }
 
-#ifdef QT_WAYLAND_COMPOSITOR_QUICK
+#if QT_CONFIG(wayland_compositor_quick)
 QWaylandQuickShellIntegration *QWaylandIviSurface::createIntegration(QWaylandQuickShellSurfaceItem *item)
 {
     return new QtWayland::IviSurfaceIntegration(item);

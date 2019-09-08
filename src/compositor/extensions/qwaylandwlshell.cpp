@@ -41,7 +41,7 @@
 #include "qwaylandwlshell.h"
 #include "qwaylandwlshell_p.h"
 
-#ifdef QT_WAYLAND_COMPOSITOR_QUICK
+#if QT_CONFIG(wayland_compositor_quick)
 #include "qwaylandwlshellintegration_p.h"
 #endif
 #include <QtWaylandCompositor/private/qwaylandutils_p.h>
@@ -586,7 +586,7 @@ void QWaylandWlShellSurface::sendPopupDone()
     d->send_popup_done();
 }
 
-#ifdef QT_WAYLAND_COMPOSITOR_QUICK
+#if QT_CONFIG(wayland_compositor_quick)
 QWaylandQuickShellIntegration *QWaylandWlShellSurface::createIntegration(QWaylandQuickShellSurfaceItem *item)
 {
     return new QtWayland::WlShellIntegration(item);

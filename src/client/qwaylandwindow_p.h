@@ -53,6 +53,8 @@
 
 #include <QtCore/QWaitCondition>
 #include <QtCore/QMutex>
+#include <QtCore/QReadWriteLock>
+
 #include <QtGui/QIcon>
 #include <QtCore/QVariant>
 #include <QtCore/QLoggingCategory>
@@ -278,6 +280,8 @@ private:
 
     static QMutex mFrameSyncMutex;
     static QWaylandWindow *mMouseGrab;
+
+    QReadWriteLock mSurfaceLock;
 
     friend class QWaylandSubSurface;
 };

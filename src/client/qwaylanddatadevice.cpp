@@ -102,19 +102,22 @@ QWaylandDataOffer *QWaylandDataDevice::dragOffer() const
     return m_dragOffer.data();
 }
 
-void QWaylandDataDevice::startDrag(QMimeData *mimeData, QWaylandWindow *icon)
+bool QWaylandDataDevice::startDrag(QMimeData *mimeData, QWaylandWindow *icon)
 {
-    m_dragSource.reset(new QWaylandDataSource(m_display->dndSelectionHandler(), mimeData));
-    connect(m_dragSource.data(), &QWaylandDataSource::cancelled, this, &QWaylandDataDevice::dragSourceCancelled);
-
     QWaylandWindow *origin = m_display->currentInputDevice()->pointerFocus();
     if (!origin)
         origin = m_display->currentInputDevice()->touchFocus();
 
-    if (origin)
-        start_drag(m_dragSource->object(), origin->object(), icon->object(), m_display->currentInputDevice()->serial());
-    else
+    if (!origin) {
         qCDebug(lcQpaWayland) << "Couldn't start a drag because the origin window could not be found.";
+        return false;
+    }
+
+    m_dragSource.reset(new QWaylandDataSource(m_display->dndSelectionHandler(), mimeData));
+    connect(m_dragSource.data(), &QWaylandDataSource::cancelled, this, &QWaylandDataDevice::dragSourceCancelled);
+
+    start_drag(m_dragSource->object(), origin->object(), icon->object(), m_display->currentInputDevice()->serial());
+    return true;
 }
 
 void QWaylandDataDevice::cancelDrag()

@@ -135,7 +135,7 @@
         },
         "xcomposite-egl": {
             "label": "XComposite EGL",
-            "condition": "features.wayland-client && features.opengl && features.egl && features.xlib && libs.xcomposite",
+            "condition": "features.wayland-client && features.opengl && features.egl && features.xlib && libs.xcomposite && features.egl_x11",
             "output": [ "privateFeature" ]
         },
         "xcomposite-glx": {

@@ -44,10 +44,6 @@
         "^wayland-xdg-shell-client-protocol.h",
         "^wayland-xdg-decoration-unstable-v1-client-protocol.h",
     ],
-    "$basedir/src/plugins/shellintegration/xdg-shell-v5" => [
-        "^qwayland-xdg-shell-unstable-v5.h",
-        "^wayland-xdg-shell-unstable-v5-client-protocol.h",
-    ],
     "$basedir/src/plugins/shellintegration/xdg-shell-v6" => [
         "^qwayland-xdg-shell-unstable-v6.h",
         "^wayland-xdg-shell-unstable-v6-client-protocol.h",

@@ -766,6 +766,7 @@ bool QWaylandSurface::isCursorSurface() const
 
 /*!
  * \qmlproperty bool QtWaylandCompositor::WaylandSurface::inhibitsIdle
+ * \since 5.14
  *
  * This property holds whether this surface is intended to inhibit the idle
  * behavior of the compositor such as screen blanking, locking and screen saving.
@@ -775,6 +776,7 @@ bool QWaylandSurface::isCursorSurface() const
 
 /*!
  * \property QWaylandSurface::inhibitsIdle
+ * \since 5.14
  *
  * This property holds whether this surface is intended to inhibit the idle
  * behavior of the compositor such as screen blanking, locking and screen saving.

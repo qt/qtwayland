@@ -1200,7 +1200,7 @@ void QWaylandInputDevice::Keyboard::keyboard_key(uint32_t serial, uint32_t time,
         QEvent::Type type = isDown ? QEvent::KeyPress : QEvent::KeyRelease;
         handleKey(time, type, qtkey, modifiers, code, sym, mNativeModifiers, text);
 
-        if (state == WL_KEYBOARD_KEY_STATE_PRESSED && xkb_keymap_key_repeats(mXkbKeymap.get(), code)) {
+        if (state == WL_KEYBOARD_KEY_STATE_PRESSED && xkb_keymap_key_repeats(mXkbKeymap.get(), code) && mRepeatRate > 0) {
             mRepeatKey.key = qtkey;
             mRepeatKey.code = code;
             mRepeatKey.time = time;
@@ -1295,34 +1295,40 @@ void QWaylandInputDevice::Touch::touch_down(uint32_t serial,
     mParent->mSerial = serial;
     mFocus = window;
     mParent->mQDisplay->setLastInputDevice(mParent, serial, mFocus);
-    mParent->handleTouchPoint(id, wl_fixed_to_double(x), wl_fixed_to_double(y), Qt::TouchPointPressed);
+    QPointF position(wl_fixed_to_double(x), wl_fixed_to_double(y));
+    mParent->handleTouchPoint(id, Qt::TouchPointPressed, position);
 }
 
 void QWaylandInputDevice::Touch::touch_up(uint32_t serial, uint32_t time, int32_t id)
 {
     Q_UNUSED(serial);
     Q_UNUSED(time);
-    mFocus = nullptr;
-    mParent->handleTouchPoint(id, 0, 0, Qt::TouchPointReleased);
+    mParent->handleTouchPoint(id, Qt::TouchPointReleased);
 
-    // As of Weston 1.5.90 there is no touch_frame after the last touch_up
-    // (i.e. when the last finger is released). To accommodate for this, issue a
-    // touch_frame. This cannot hurt since it is safe to call the touch_frame
-    // handler multiple times when there are no points left.
-    if (allTouchPointsReleased())
+    if (allTouchPointsReleased()) {
+        mFocus = nullptr;
+
+        // As of Weston 7.0.0 there is no touch_frame after the last touch_up
+        // (i.e. when the last finger is released). To accommodate for this, issue a
+        // touch_frame. This cannot hurt since it is safe to call the touch_frame
+        // handler multiple times when there are no points left.
+        // See: https://gitlab.freedesktop.org/wayland/weston/issues/44
+        // TODO: change logging category to lcQpaWaylandInput in newer versions.
+        qCDebug(lcQpaWayland, "Generating fake frame event to work around Weston bug");
         touch_frame();
+    }
 }
 
 void QWaylandInputDevice::Touch::touch_motion(uint32_t time, int32_t id, wl_fixed_t x, wl_fixed_t y)
 {
     Q_UNUSED(time);
-    mParent->handleTouchPoint(id, wl_fixed_to_double(x), wl_fixed_to_double(y), Qt::TouchPointMoved);
+    QPointF position(wl_fixed_to_double(x), wl_fixed_to_double(y));
+    mParent->handleTouchPoint(id, Qt::TouchPointMoved, position);
 }
 
 void QWaylandInputDevice::Touch::touch_cancel()
 {
-    mPrevTouchPoints.clear();
-    mTouchPoints.clear();
+    mPendingTouchPoints.clear();
 
     QWaylandTouchExtension *touchExt = mParent->mQDisplay->touchExtension();
     if (touchExt)
@@ -1331,22 +1337,18 @@ void QWaylandInputDevice::Touch::touch_cancel()
     QWindowSystemInterface::handleTouchCancelEvent(nullptr, mParent->mTouchDevice);
 }
 
-void QWaylandInputDevice::handleTouchPoint(int id, double x, double y, Qt::TouchPointState state)
+void QWaylandInputDevice::handleTouchPoint(int id, Qt::TouchPointState state, const QPointF &surfacePosition)
 {
-    QWindowSystemInterface::TouchPoint tp;
+    auto end = mTouch->mPendingTouchPoints.end();
+    auto it = std::find_if(mTouch->mPendingTouchPoints.begin(), end, [id](auto tp){ return tp.id == id; });
+    if (it == end) {
+        it = mTouch->mPendingTouchPoints.insert(end, QWindowSystemInterface::TouchPoint());
+        it->id = id;
+    }
+    QWindowSystemInterface::TouchPoint &tp = *it;
 
-    // Find out the coordinates for Released events.
-    bool coordsOk = false;
-    if (state == Qt::TouchPointReleased)
-        for (int i = 0; i < mTouch->mPrevTouchPoints.count(); ++i)
-            if (mTouch->mPrevTouchPoints.at(i).id == id) {
-                tp.area = mTouch->mPrevTouchPoints.at(i).area;
-                coordsOk = true;
-                break;
-            }
-
-    if (!coordsOk) {
-        // x and y are surface relative.
+    // Only moved and pressed needs to update/set position
+    if (state == Qt::TouchPointMoved || state == Qt::TouchPointPressed) {
         // We need a global (screen) position.
         QWaylandWindow *win = mTouch->mFocus;
 
@@ -1360,63 +1362,46 @@ void QWaylandInputDevice::handleTouchPoint(int id, double x, double y, Qt::Touch
 
         tp.area = QRectF(0, 0, 8, 8);
         QMargins margins = win->frameMargins();
-        tp.area.moveCenter(win->window()->mapToGlobal(QPoint(x - margins.left(), y - margins.top())));
+        QPointF localPosition = surfacePosition - QPointF(margins.left(), margins.top());
+        // TODO: This doesn't account for high dpi scaling for the delta, but at least it matches
+        // what we have for mouse input.
+        QPointF delta = localPosition - localPosition.toPoint();
+        QPointF globalPosition = win->window()->mapToGlobal(localPosition.toPoint()) + delta;
+        tp.area.moveCenter(globalPosition);
     }
 
     tp.state = state;
-    tp.id = id;
     tp.pressure = tp.state == Qt::TouchPointReleased ? 0 : 1;
-    mTouch->mTouchPoints.append(tp);
 }
 
 bool QWaylandInputDevice::Touch::allTouchPointsReleased()
 {
-    for (int i = 0; i < mTouchPoints.count(); ++i)
-        if (mTouchPoints.at(i).state != Qt::TouchPointReleased)
+    for (const auto &tp : qAsConst(mPendingTouchPoints)) {
+        if (tp.state != Qt::TouchPointReleased)
             return false;
-
+    }
     return true;
 }
 
 void QWaylandInputDevice::Touch::releasePoints()
 {
-    for (const QWindowSystemInterface::TouchPoint &previousPoint : qAsConst(mPrevTouchPoints)) {
-        QWindowSystemInterface::TouchPoint tp = previousPoint;
+    if (mPendingTouchPoints.empty())
+        return;
+
+    for (QWindowSystemInterface::TouchPoint &tp : mPendingTouchPoints)
         tp.state = Qt::TouchPointReleased;
-        mTouchPoints.append(tp);
-    }
+
     touch_frame();
 }
 
 void QWaylandInputDevice::Touch::touch_frame()
 {
-    // Copy all points, that are in the previous but not in the current list, as stationary.
-    for (int i = 0; i < mPrevTouchPoints.count(); ++i) {
-        const QWindowSystemInterface::TouchPoint &prevPoint(mPrevTouchPoints.at(i));
-        if (prevPoint.state == Qt::TouchPointReleased)
-            continue;
-        bool found = false;
-        for (int j = 0; j < mTouchPoints.count(); ++j)
-            if (mTouchPoints.at(j).id == prevPoint.id) {
-                found = true;
-                break;
-            }
-        if (!found) {
-            QWindowSystemInterface::TouchPoint p = prevPoint;
-            p.state = Qt::TouchPointStationary;
-            mTouchPoints.append(p);
-        }
-    }
-
-    if (mTouchPoints.isEmpty()) {
-        mPrevTouchPoints.clear();
-        return;
-    }
+    // TODO: early return if no events?
 
     QWindow *window = mFocus ? mFocus->window() : nullptr;
 
     if (mFocus) {
-        const QWindowSystemInterface::TouchPoint &tp = mTouchPoints.last();
+        const QWindowSystemInterface::TouchPoint &tp = mPendingTouchPoints.last();
         // When the touch event is received, the global pos is calculated with the margins
         // in mind. Now we need to adjust again to get the correct local pos back.
         QMargins margins = window->frameMargins();
@@ -1425,14 +1410,21 @@ void QWaylandInputDevice::Touch::touch_frame()
         if (mFocus->touchDragDecoration(mParent, localPos, tp.area.center(), tp.state, mParent->modifiers()))
             return;
     }
-    QWindowSystemInterface::handleTouchEvent(window, mParent->mTouchDevice, mTouchPoints);
 
-    if (allTouchPointsReleased())
-        mPrevTouchPoints.clear();
-    else
-        mPrevTouchPoints = mTouchPoints;
+    QWindowSystemInterface::handleTouchEvent(window, mParent->mTouchDevice, mPendingTouchPoints);
 
-    mTouchPoints.clear();
+    // Prepare state for next frame
+    const auto prevTouchPoints = mPendingTouchPoints;
+    mPendingTouchPoints.clear();
+    for (const auto &prevPoint: prevTouchPoints) {
+        // All non-released touch points should be part of the next touch event
+        if (prevPoint.state != Qt::TouchPointReleased) {
+            QWindowSystemInterface::TouchPoint tp = prevPoint;
+            tp.state = Qt::TouchPointStationary; // ... as stationary (unless proven otherwise)
+            mPendingTouchPoints.append(tp);
+        }
+    }
+
 }
 
 }

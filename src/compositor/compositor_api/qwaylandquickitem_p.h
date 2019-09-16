@@ -173,7 +173,7 @@ public:
     bool focusOnClick = true;
     bool sizeFollowsSurface = true;
     bool belowParent = false;
-    QPoint hoverPos;
+    QPointF hoverPos;
     QMatrix4x4 lastMatrix;
 
     QQuickWindow *connectedWindow = nullptr;

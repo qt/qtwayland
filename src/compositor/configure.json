@@ -28,6 +28,7 @@
             "test": {
                 "tail": [
                     "extern \"C\" {",
+                    "#include <math.h> /* may fail because of 'private:' in c++ type_traits.h */",
                     "#define private priv",
                     "#include <wayland-kms.h>",
                     "#undef private",
@@ -158,6 +159,12 @@
             "label": "VSP2 hardware layer integration",
             "condition": "features.wayland-server && features.eglfs_vsp2 && libs.wayland-kms",
             "output": [ "privateFeature" ]
+        },
+        "wayland-compositor-quick": {
+            "label": "QtQuick integration for wayland compositor",
+            "purpose": "Allows QtWayland compositor types to be used with QtQuick",
+            "condition": "features.wayland-server && module.quick && features.opengl",
+            "output": [ "publicFeature" ]
         }
     },
 

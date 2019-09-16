@@ -89,7 +89,7 @@ public:
 
 #if QT_CONFIG(draganddrop)
     QWaylandDataOffer *dragOffer() const;
-    void startDrag(QMimeData *mimeData, QWaylandWindow *icon);
+    bool startDrag(QMimeData *mimeData, QWaylandWindow *icon);
     void cancelDrag();
 #endif
 

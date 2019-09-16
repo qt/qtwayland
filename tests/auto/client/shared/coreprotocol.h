@@ -38,6 +38,7 @@ namespace MockCompositor {
 class WlCompositor;
 class Output;
 class Pointer;
+class Touch;
 class Keyboard;
 class CursorRole;
 class ShmPool;
@@ -236,7 +237,7 @@ class Seat : public Global, public QtWaylandServer::wl_seat
 {
     Q_OBJECT
 public:
-    explicit Seat(CoreCompositor *compositor, uint capabilities = Seat::capability_pointer | Seat::capability_keyboard, int version = 4);
+    explicit Seat(CoreCompositor *compositor, uint capabilities = Seat::capability_pointer | Seat::capability_keyboard | Seat::capability_touch, int version = 5);
     ~Seat() override;
     void send_capabilities(Resource *resource, uint capabilities) = delete; // Use wrapper instead
     void send_capabilities(uint capabilities) = delete; // Use wrapper instead
@@ -246,6 +247,9 @@ public:
 
     Pointer* m_pointer = nullptr;
     QVector<Pointer *> m_oldPointers;
+
+    Touch* m_touch = nullptr;
+    QVector<Touch *> m_oldTouchs;
 
     Keyboard* m_keyboard = nullptr;
     QVector<Keyboard *> m_oldKeyboards;
@@ -259,8 +263,8 @@ protected:
     }
 
     void seat_get_pointer(Resource *resource, uint32_t id) override;
+    void seat_get_touch(Resource *resource, uint32_t id) override;
     void seat_get_keyboard(Resource *resource, uint32_t id) override;
-//    void seat_get_touch(Resource *resource, uint32_t id) override;
 
 //    void seat_release(Resource *resource) override;
 };
@@ -305,6 +309,18 @@ public:
     }
     static CursorRole *fromSurface(Surface *surface) { return qobject_cast<CursorRole *>(surface->m_role); }
     Surface *m_surface = nullptr;
+};
+
+class Touch : public QObject, public QtWaylandServer::wl_touch
+{
+    Q_OBJECT
+public:
+    explicit Touch(Seat *seat) : m_seat(seat) {}
+    uint sendDown(Surface *surface, const QPointF &position, int id);
+    uint sendUp(wl_client *client, int id);
+    void sendFrame(wl_client *client);
+
+    Seat *m_seat = nullptr;
 };
 
 class Keyboard : public QObject, public QtWaylandServer::wl_keyboard

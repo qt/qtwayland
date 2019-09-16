@@ -14,7 +14,9 @@ WAYLANDSERVERSOURCES += \
     ../3rdparty/protocol/xdg-shell-unstable-v6.xml \
     ../3rdparty/protocol/xdg-shell.xml \
     ../3rdparty/protocol/xdg-decoration-unstable-v1.xml \
+    ../3rdparty/protocol/xdg-output-unstable-v1.xml \
     ../3rdparty/protocol/ivi-application.xml \
+    ../3rdparty/protocol/idle-inhibit-unstable-v1.xml \
 
 HEADERS += \
     extensions/qwlqttouch_p.h \
@@ -41,7 +43,11 @@ HEADERS += \
     extensions/qwaylandxdgshell_p.h \
     extensions/qwaylandxdgdecorationv1.h \
     extensions/qwaylandxdgdecorationv1_p.h \
+    extensions/qwaylandxdgoutputv1.h \
+    extensions/qwaylandxdgoutputv1_p.h \
     extensions/qwaylandshellsurface.h \
+    extensions/qwaylandidleinhibitv1.h \
+    extensions/qwaylandidleinhibitv1_p.h \
     extensions/qwaylandiviapplication.h \
     extensions/qwaylandiviapplication_p.h \
     extensions/qwaylandivisurface.h \
@@ -61,7 +67,9 @@ SOURCES += \
     extensions/qwaylandxdgshellv6.cpp \
     extensions/qwaylandxdgshell.cpp \
     extensions/qwaylandxdgdecorationv1.cpp \
+    extensions/qwaylandxdgoutputv1.cpp \
     extensions/qwaylandshellsurface.cpp \
+    extensions/qwaylandidleinhibitv1.cpp \
     extensions/qwaylandiviapplication.cpp \
     extensions/qwaylandivisurface.cpp \
 
@@ -72,6 +80,7 @@ qtHaveModule(quick) {
         extensions/qwaylandquickshellsurfaceitem_p.h \
         extensions/qwaylandivisurfaceintegration_p.h \
         extensions/qwaylandwlshellintegration_p.h \
+        extensions/qwaylandquickxdgoutputv1.h \
         extensions/qwaylandxdgshellv5integration_p.h \
         extensions/qwaylandxdgshellv6integration_p.h \
         extensions/qwaylandxdgshellintegration_p.h \
@@ -81,6 +90,7 @@ qtHaveModule(quick) {
         extensions/qwaylandquickshellsurfaceitem.cpp \
         extensions/qwaylandivisurfaceintegration.cpp \
         extensions/qwaylandwlshellintegration.cpp \
+        extensions/qwaylandquickxdgoutputv1.cpp \
         extensions/qwaylandxdgshellv5integration.cpp \
         extensions/qwaylandxdgshellv6integration.cpp \
         extensions/qwaylandxdgshellintegration.cpp \

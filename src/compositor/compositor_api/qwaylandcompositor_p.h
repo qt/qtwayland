@@ -60,6 +60,8 @@
 
 #include <QtWaylandCompositor/private/qwayland-server-wayland.h>
 
+#include <vector>
+
 #if QT_CONFIG(xkbcommon)
 #include <QtXkbCommonSupport/private/qxkbcommon_p.h>
 #endif
@@ -175,7 +177,7 @@ protected:
     bool retainSelection = false;
     bool preInitialized = false;
     bool initialized = false;
-    QList<QPointer<QObject> > polish_objects;
+    std::vector<QPointer<QObject> > polish_objects;
 
 #if QT_CONFIG(xkbcommon)
     QXkbCommon::ScopedXKBContext mXkbContext;

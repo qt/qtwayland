@@ -148,6 +148,10 @@ public:
     virtual Pointer *createPointer(QWaylandInputDevice *device);
     virtual Touch *createTouch(QWaylandInputDevice *device);
 
+    Keyboard *keyboard() const;
+    Pointer *pointer() const;
+    Touch *touch() const;
+
 private:
     QWaylandDisplay *mQDisplay = nullptr;
     struct wl_display *mDisplay = nullptr;
@@ -248,6 +252,8 @@ public:
 
     Qt::KeyboardModifiers modifiers() const;
 
+    struct ::wl_keyboard *wl_keyboard() { return QtWayland::wl_keyboard::object(); }
+
 private slots:
     void handleFocusDestroyed();
     void handleFocusLost();
@@ -283,6 +289,8 @@ public:
     CursorSurface *getOrCreateCursorSurface();
 #endif
     QWaylandInputDevice *seat() const { return mParent; }
+
+    struct ::wl_pointer *wl_pointer() { return QtWayland::wl_pointer::object(); }
 
 protected:
     void pointer_enter(uint32_t serial, struct wl_surface *surface,
@@ -376,6 +384,8 @@ public:
 
     bool allTouchPointsReleased();
     void releasePoints();
+
+    struct ::wl_touch *wl_touch() { return QtWayland::wl_touch::object(); }
 
     QWaylandInputDevice *mParent = nullptr;
     QPointer<QWaylandWindow> mFocus;

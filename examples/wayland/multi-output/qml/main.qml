@@ -49,7 +49,7 @@
 ****************************************************************************/
 
 import QtQuick 2.0
-import QtWayland.Compositor 1.0
+import QtWayland.Compositor 1.14
 
 WaylandCompositor {
     id: comp
@@ -90,6 +90,8 @@ WaylandCompositor {
             }
         }
     }
+
+    XdgOutputManagerV1 {}
 
     WlShell {
         id: defaultShell

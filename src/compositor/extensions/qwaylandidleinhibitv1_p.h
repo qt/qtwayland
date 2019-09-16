@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2019 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
 ** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the QtWaylandCompositor module of the Qt Toolkit.
@@ -34,13 +34,13 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDWLSCALER_P_H
-#define QWAYLANDWLSCALER_P_H
+#ifndef QWAYLANDIDLEINHIBITV1_P_H
+#define QWAYLANDIDLEINHIBITV1_P_H
 
-#include "qwaylandwlscaler.h"
-
+#include <QtWaylandCompositor/QWaylandSurface>
+#include <QtWaylandCompositor/QWaylandIdleInhibitManagerV1>
 #include <QtWaylandCompositor/private/qwaylandcompositorextension_p.h>
-#include <QtWaylandCompositor/private/qwayland-server-scaler.h>
+#include <QtWaylandCompositor/private/qwayland-server-idle-inhibit-unstable-v1.h>
 
 //
 //  W A R N I N G
@@ -55,41 +55,34 @@
 
 QT_BEGIN_NAMESPACE
 
-#if QT_DEPRECATED_SINCE(5, 13)
-class QWaylandSurface;
-
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandWlScalerPrivate
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandIdleInhibitManagerV1Private
         : public QWaylandCompositorExtensionPrivate
-        , public QtWaylandServer::wl_scaler
+        , public QtWaylandServer::zwp_idle_inhibit_manager_v1
 {
-    Q_DECLARE_PUBLIC(QWaylandWlScaler)
+    Q_DECLARE_PUBLIC(QWaylandIdleInhibitManagerV1)
 public:
-    explicit QWaylandWlScalerPrivate() = default;
+    explicit QWaylandIdleInhibitManagerV1Private() = default;
 
-protected:
-    void scaler_destroy(Resource *resource) override;
-    void scaler_get_viewport(Resource *resource, uint32_t id, wl_resource *surface) override;
-
-private:
-    class Viewport : public QtWaylandServer::wl_viewport
+    class Q_WAYLAND_COMPOSITOR_EXPORT Inhibitor
+            : public QtWaylandServer::zwp_idle_inhibitor_v1
     {
     public:
-        explicit Viewport(QWaylandSurface *surface, wl_client *client, int id, int version);
-        void checkCommittedState();
+        explicit Inhibitor(QWaylandSurface *surface, wl_client *client, quint32 id, quint32 version);
 
     protected:
-        void viewport_destroy_resource(Resource *resource) override;
-        void viewport_destroy(Resource *resource) override;
-        void viewport_set(Resource *resource, wl_fixed_t src_x, wl_fixed_t src_y, wl_fixed_t src_width, wl_fixed_t src_height, int32_t dst_width, int32_t dst_height) override;
-        void viewport_set_source(Resource *resource, wl_fixed_t x, wl_fixed_t y, wl_fixed_t width, wl_fixed_t height) override;
-        void viewport_set_destination(Resource *resource, int32_t width, int32_t height) override;
+        void zwp_idle_inhibitor_v1_destroy_resource(Resource *resource) override;
+        void zwp_idle_inhibitor_v1_destroy(Resource *resource) override;
 
     private:
-        QPointer<QWaylandSurface> m_surface = nullptr;
+        QPointer<QWaylandSurface> m_surface;
     };
+
+    static QWaylandIdleInhibitManagerV1Private *get(QWaylandIdleInhibitManagerV1 *manager) { return manager ? manager->d_func() : nullptr; }
+
+protected:
+    void zwp_idle_inhibit_manager_v1_create_inhibitor(Resource *resource, uint32_t id, wl_resource *surfaceResource) override;
 };
-#endif
 
 QT_END_NAMESPACE
 
-#endif // QWAYLANDWLSCALER_P_H
+#endif // QWAYLANDIDLEINHIBITV1_P_H

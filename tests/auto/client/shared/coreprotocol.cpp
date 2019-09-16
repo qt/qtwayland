@@ -191,12 +191,15 @@ Seat::~Seat()
 {
     qDeleteAll(m_oldPointers);
     delete m_pointer;
+
+    qDeleteAll(m_oldTouchs);
+    delete m_touch;
+
+    qDeleteAll(m_oldKeyboards);
+    delete m_keyboard;
 }
 
 void Seat::setCapabilities(uint capabilities) {
-    // TODO: Add support for touch
-    Q_ASSERT(~capabilities & capability_touch);
-
     m_capabilities = capabilities;
 
     if (m_capabilities & capability_pointer) {
@@ -205,6 +208,14 @@ void Seat::setCapabilities(uint capabilities) {
     } else if (m_pointer) {
         m_oldPointers << m_pointer;
         m_pointer = nullptr;
+    }
+
+    if (m_capabilities & capability_touch) {
+        if (!m_touch)
+            m_touch = (new Touch(this));
+    } else if (m_touch) {
+        m_oldTouchs << m_touch;
+        m_touch = nullptr;
     }
 
     if (m_capabilities & capability_keyboard) {
@@ -234,9 +245,24 @@ void Seat::seat_get_pointer(Resource *resource, uint32_t id)
     m_pointer->add(resource->client(), id, resource->version());
 }
 
+void Seat::seat_get_touch(QtWaylandServer::wl_seat::Resource *resource, uint32_t id)
+{
+    if (~m_capabilities & capability_touch) {
+        qWarning() << "Client requested a wl_touch without the capability being available."
+                   << "This Could be a race condition when hotunplugging,"
+                   << "but is most likely a client error";
+        Touch *touch = new Touch(this);
+        touch->add(resource->client(), id, resource->version());
+        // TODO: mark as destroyed
+        m_oldTouchs << touch;
+        return;
+    }
+    m_touch->add(resource->client(), id, resource->version());
+}
+
 void Seat::seat_get_keyboard(QtWaylandServer::wl_seat::Resource *resource, uint32_t id)
 {
-    if (~m_capabilities & capability_pointer) {
+    if (~m_capabilities & capability_keyboard) {
         qWarning() << "Client requested a wl_keyboard without the capability being available."
                    << "This Could be a race condition when hotunplugging,"
                    << "but is most likely a client error";
@@ -369,6 +395,40 @@ void Pointer::pointer_set_cursor(Resource *resource, uint32_t serial, wl_resourc
 
     m_hotspot = QPoint(hotspot_x, hotspot_y);
     emit setCursor(serial);
+}
+
+uint Touch::sendDown(Surface *surface, const QPointF &position, int id)
+{
+    wl_fixed_t x = wl_fixed_from_double(position.x());
+    wl_fixed_t y = wl_fixed_from_double(position.y());
+    uint serial = m_seat->m_compositor->nextSerial();
+    auto time = m_seat->m_compositor->currentTimeMilliseconds();
+    wl_client *client = surface->resource()->client();
+
+    const auto touchResources = resourceMap().values(client);
+    for (auto *r : touchResources)
+        wl_touch::send_down(r->handle, serial, time, surface->resource()->handle, id, x, y);
+
+    return serial;
+}
+
+uint Touch::sendUp(wl_client *client, int id)
+{
+    uint serial = m_seat->m_compositor->nextSerial();
+    auto time = m_seat->m_compositor->currentTimeMilliseconds();
+
+    const auto touchResources = resourceMap().values(client);
+    for (auto *r : touchResources)
+        wl_touch::send_up(r->handle, serial, time, id);
+
+    return serial;
+}
+
+void Touch::sendFrame(wl_client *client)
+{
+    const auto touchResources = resourceMap().values(client);
+    for (auto *r : touchResources)
+        send_frame(r->handle);
 }
 
 uint Keyboard::sendEnter(Surface *surface)

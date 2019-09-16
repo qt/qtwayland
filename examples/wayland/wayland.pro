@@ -1,5 +1,7 @@
-requires(qtHaveModule(waylandcompositor))
 TEMPLATE=subdirs
+
+!qtHaveModule(waylandcompositor): \
+    return()
 
 qtConfig(opengl) {
     SUBDIRS += \

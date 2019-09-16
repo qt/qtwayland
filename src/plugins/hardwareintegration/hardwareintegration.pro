@@ -1,4 +1,4 @@
 TEMPLATE=subdirs
 
-SUBDIRS += client
+qtHaveModule(waylandclient): SUBDIRS += client
 qtHaveModule(waylandcompositor): SUBDIRS += compositor

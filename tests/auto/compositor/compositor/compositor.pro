@@ -14,7 +14,9 @@ WAYLANDCLIENTSOURCES += \
             ../../../../src/3rdparty/protocol/ivi-application.xml \
             ../../../../src/3rdparty/protocol/wayland.xml \
             ../../../../src/3rdparty/protocol/xdg-shell.xml \
-            ../../../../src/3rdparty/protocol/viewporter.xml
+            ../../../../src/3rdparty/protocol/viewporter.xml \
+            ../../../../src/3rdparty/protocol/idle-inhibit-unstable-v1.xml \
+            ../../../../src/3rdparty/protocol/xdg-output-unstable-v1.xml
 
 SOURCES += \
     tst_compositor.cpp \
@@ -24,7 +26,8 @@ SOURCES += \
     mockseat.cpp \
     testseat.cpp \
     mockkeyboard.cpp \
-    mockpointer.cpp
+    mockpointer.cpp \
+    mockxdgoutputv1.cpp
 
 HEADERS += \
     testcompositor.h \
@@ -33,4 +36,5 @@ HEADERS += \
     mockseat.h \
     testseat.h \
     mockkeyboard.h \
-    mockpointer.h
+    mockpointer.h \
+    mockxdgoutputv1.h

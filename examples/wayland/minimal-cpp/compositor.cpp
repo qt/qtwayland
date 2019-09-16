@@ -163,9 +163,13 @@ void Compositor::handleMouseMove(const QPoint &position)
     defaultSeat()->sendMouseMoveEvent(view, mapToView(view, position));
 }
 
-void Compositor::handleMouseWheel(Qt::Orientation orientation, int delta)
+void Compositor::handleMouseWheel(const QPoint &angleDelta)
 {
-    defaultSeat()->sendMouseWheelEvent(orientation, delta);
+    // TODO: fix this to send a single event, when diagonal scrolling is supported
+    if (angleDelta.x() != 0)
+        defaultSeat()->sendMouseWheelEvent(Qt::Horizontal, angleDelta.x());
+    if (angleDelta.y() != 0)
+        defaultSeat()->sendMouseWheelEvent(Qt::Vertical, angleDelta.y());
 }
 
 void Compositor::handleKeyPress(quint32 nativeScanCode)

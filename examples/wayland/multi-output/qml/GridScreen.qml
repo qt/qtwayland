@@ -50,7 +50,7 @@
 
 import QtQuick 2.0
 import QtQuick.Window 2.2
-import QtWayland.Compositor 1.0
+import QtWayland.Compositor 1.14
 
 WaylandOutput {
     id: output
@@ -92,5 +92,13 @@ WaylandOutput {
                 }
             }
         }
+    }
+
+    XdgOutputV1 {
+        name: "WL-2"
+        description: "Overview screen"
+        logicalPosition: output.position
+        logicalSize: Qt.size(output.geometry.width / output.scaleFactor,
+                             output.geometry.height / output.scaleFactor)
     }
 }

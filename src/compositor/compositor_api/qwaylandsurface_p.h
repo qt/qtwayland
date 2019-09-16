@@ -74,6 +74,7 @@
 
 #include <QtWaylandCompositor/private/qwayland-server-wayland.h>
 #include <QtWaylandCompositor/private/qwaylandviewporter_p.h>
+#include <QtWaylandCompositor/private/qwaylandidleinhibitv1_p.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -166,6 +167,8 @@ public: //member variables
     QList<QtWayland::FrameCallback *> frameCallbacks;
 
     QList<QPointer<QWaylandSurface>> subsurfaceChildren;
+
+    QVector<QWaylandIdleInhibitManagerV1Private::Inhibitor *> idleInhibitors;
 
     QRegion inputRegion;
     QRegion opaqueRegion;

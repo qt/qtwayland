@@ -30,12 +30,15 @@
 #include <qwayland-xdg-shell.h>
 #include <wayland-ivi-application-client-protocol.h>
 #include "wayland-viewporter-client-protocol.h"
+#include "wayland-idle-inhibit-unstable-v1-client-protocol.h"
 
 #include <QObject>
 #include <QImage>
 #include <QRect>
 #include <QList>
 #include <QWaylandOutputMode>
+
+#include "mockxdgoutputv1.h"
 
 class MockSeat;
 
@@ -63,16 +66,21 @@ public:
     xdg_surface *createXdgSurface(wl_surface *surface);
     xdg_toplevel *createXdgToplevel(xdg_surface *xdgSurface);
     ivi_surface *createIviSurface(wl_surface *surface, uint iviId);
+    zwp_idle_inhibitor_v1 *createIdleInhibitor(wl_surface *surface);
+    MockXdgOutputV1 *createXdgOutput(wl_output *output);
 
     wl_display *display = nullptr;
     wl_compositor *compositor = nullptr;
     QMap<uint, wl_output *> m_outputs;
+    QMap<wl_output *, MockXdgOutputV1 *> m_xdgOutputs;
     wl_shm *shm = nullptr;
     wl_registry *registry = nullptr;
     wl_shell *wlshell = nullptr;
     xdg_wm_base *xdgWmBase = nullptr;
     wp_viewporter *viewporter = nullptr;
     ivi_application *iviApplication = nullptr;
+    zwp_idle_inhibit_manager_v1 *idleInhibitManager = nullptr;
+    QtWayland::zxdg_output_manager_v1 *xdgOutputManager = nullptr;
 
     QList<MockSeat *> m_seats;
 

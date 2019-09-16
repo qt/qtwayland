@@ -1,10 +1,10 @@
 TEMPLATE=subdirs
 QT_FOR_CONFIG += waylandclient-private
 
-qtConfig(wayland-client): \
+qtHaveModule(waylandclient): \
     SUBDIRS += client
 
-qtConfig(wayland-client):qtHaveModule(waylandcompositor): \
+qtHaveModule(waylandclient):qtHaveModule(waylandcompositor): \
     SUBDIRS += cmake
 
 qtHaveModule(waylandcompositor): \

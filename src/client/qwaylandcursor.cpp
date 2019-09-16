@@ -48,6 +48,8 @@
 
 #include <wayland-cursor.h>
 
+#include <algorithm>
+
 QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
@@ -75,7 +77,10 @@ wl_cursor *QWaylandCursorTheme::requestCursor(WaylandCursor shape)
     if (struct wl_cursor *cursor = m_cursors.value(shape, nullptr))
         return cursor;
 
-    static const QMultiMap<WaylandCursor, QByteArray>cursorNamesMap {
+    static Q_CONSTEXPR struct ShapeAndName {
+        WaylandCursor shape;
+        const char name[33];
+    } cursorNamesMap[] = {
         {ArrowCursor, "left_ptr"},
         {ArrowCursor, "default"},
         {ArrowCursor, "top_left_arrow"},
@@ -193,9 +198,14 @@ wl_cursor *QWaylandCursorTheme::requestCursor(WaylandCursor shape)
         {ResizeSouthWestCursor, "bottom_left_corner"},
     };
 
-    QList<QByteArray> cursorNames = cursorNamesMap.values(shape);
-    for (auto &name : qAsConst(cursorNames)) {
-        if (wl_cursor *cursor = wl_cursor_theme_get_cursor(m_theme, name.constData())) {
+    const auto byShape = [](ShapeAndName lhs, ShapeAndName rhs) {
+        return lhs.shape < rhs.shape;
+    };
+    Q_ASSERT(std::is_sorted(std::begin(cursorNamesMap), std::end(cursorNamesMap), byShape));
+    const auto p = std::equal_range(std::begin(cursorNamesMap), std::end(cursorNamesMap),
+                                    ShapeAndName{shape, ""}, byShape);
+    for (auto it = p.first; it != p.second; ++it) {
+        if (wl_cursor *cursor = wl_cursor_theme_get_cursor(m_theme, it->name)) {
             m_cursors.insert(shape, cursor);
             return cursor;
         }

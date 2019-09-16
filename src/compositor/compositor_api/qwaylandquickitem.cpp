@@ -610,13 +610,17 @@ void QWaylandQuickItem::wheelEvent(QWheelEvent *event)
 {
     Q_D(QWaylandQuickItem);
     if (d->shouldSendInputEvents()) {
-        if (!inputRegionContains(event->pos())) {
+        if (!inputRegionContains(event->position())) {
             event->ignore();
             return;
         }
 
         QWaylandSeat *seat = compositor()->seatFor(event);
-        seat->sendMouseWheelEvent(event->orientation(), event->delta());
+        // TODO: fix this to send a single event, when diagonal scrolling is supported
+        if (event->angleDelta().x() != 0)
+            seat->sendMouseWheelEvent(Qt::Horizontal, event->angleDelta().x());
+        if (event->angleDelta().y() != 0)
+            seat->sendMouseWheelEvent(Qt::Vertical, event->angleDelta().y());
     } else {
         event->ignore();
     }
@@ -1324,7 +1328,7 @@ QSGNode *QWaylandQuickItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeDat
     if (d->view->isBufferLocked() && !bufferHasContent && d->paintEnabled)
         return oldNode;
 
-    if (!bufferHasContent || !d->paintEnabled) {
+    if (!bufferHasContent || !d->paintEnabled || !surface()) {
         delete oldNode;
         return nullptr;
     }

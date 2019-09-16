@@ -81,7 +81,7 @@ void ClientBuffer::setDestroyed()
     m_committed = false;
     m_buffer = nullptr;
 
-    if (!m_refCount)
+    if (!m_refCount.loadAcquire())
         delete this;
 }
 

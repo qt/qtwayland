@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2019 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
 ** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the QtWaylandCompositor module of the Qt Toolkit.
@@ -34,13 +34,13 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDWLSCALER_P_H
-#define QWAYLANDWLSCALER_P_H
+#ifndef QWAYLANDXDGOUTPUTV1_P_H
+#define QWAYLANDXDGOUTPUTV1_P_H
 
-#include "qwaylandwlscaler.h"
-
+#include <QWaylandOutput>
+#include <QWaylandXdgOutputV1>
 #include <QtWaylandCompositor/private/qwaylandcompositorextension_p.h>
-#include <QtWaylandCompositor/private/qwayland-server-scaler.h>
+#include <QtWaylandCompositor/private/qwayland-server-xdg-output-unstable-v1.h>
 
 //
 //  W A R N I N G
@@ -55,41 +55,58 @@
 
 QT_BEGIN_NAMESPACE
 
-#if QT_DEPRECATED_SINCE(5, 13)
-class QWaylandSurface;
-
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandWlScalerPrivate
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgOutputManagerV1Private
         : public QWaylandCompositorExtensionPrivate
-        , public QtWaylandServer::wl_scaler
+        , public QtWaylandServer::zxdg_output_manager_v1
 {
-    Q_DECLARE_PUBLIC(QWaylandWlScaler)
+    Q_DECLARE_PUBLIC(QWaylandXdgOutputManagerV1)
 public:
-    explicit QWaylandWlScalerPrivate() = default;
+    explicit QWaylandXdgOutputManagerV1Private() = default;
+
+    void registerXdgOutput(QWaylandOutput *output, QWaylandXdgOutputV1 *xdgOutput);
+    void unregisterXdgOutput(QWaylandOutput *output);
+
+    static QWaylandXdgOutputManagerV1Private *get(QWaylandXdgOutputManagerV1 *manager) { return manager ? manager->d_func() : nullptr; }
 
 protected:
-    void scaler_destroy(Resource *resource) override;
-    void scaler_get_viewport(Resource *resource, uint32_t id, wl_resource *surface) override;
+    void zxdg_output_manager_v1_get_xdg_output(Resource *resource, uint32_t id,
+                                               wl_resource *outputResource) override;
 
 private:
-    class Viewport : public QtWaylandServer::wl_viewport
-    {
-    public:
-        explicit Viewport(QWaylandSurface *surface, wl_client *client, int id, int version);
-        void checkCommittedState();
-
-    protected:
-        void viewport_destroy_resource(Resource *resource) override;
-        void viewport_destroy(Resource *resource) override;
-        void viewport_set(Resource *resource, wl_fixed_t src_x, wl_fixed_t src_y, wl_fixed_t src_width, wl_fixed_t src_height, int32_t dst_width, int32_t dst_height) override;
-        void viewport_set_source(Resource *resource, wl_fixed_t x, wl_fixed_t y, wl_fixed_t width, wl_fixed_t height) override;
-        void viewport_set_destination(Resource *resource, int32_t width, int32_t height) override;
-
-    private:
-        QPointer<QWaylandSurface> m_surface = nullptr;
-    };
+    QHash<QWaylandOutput *, QWaylandXdgOutputV1 *> xdgOutputs;
 };
-#endif
+
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgOutputV1Private
+        : public QObjectPrivate
+        , public QtWaylandServer::zxdg_output_v1
+{
+    Q_DECLARE_PUBLIC(QWaylandXdgOutputV1)
+public:
+    explicit QWaylandXdgOutputV1Private() = default;
+
+    void sendLogicalPosition(const QPoint &position);
+    void sendLogicalSize(const QSize &size);
+    void sendDone();
+
+    void setManager(QWaylandXdgOutputManagerV1 *manager);
+    void setOutput(QWaylandOutput *output);
+
+    static QWaylandXdgOutputV1Private *get(QWaylandXdgOutputV1 *xdgOutput) { return xdgOutput ? xdgOutput->d_func() : nullptr; }
+
+    bool initialized = false;
+    QWaylandOutput *output = nullptr;
+    QWaylandXdgOutputManagerV1 *manager = nullptr;
+    QPoint logicalPos;
+    QSize logicalSize;
+    QString name;
+    QString description;
+    bool needToSendDone = false;
+
+protected:
+    void zxdg_output_v1_bind_resource(Resource *resource) override;
+    void zxdg_output_v1_destroy(Resource *resource) override;
+};
 
 QT_END_NAMESPACE
 
-#endif // QWAYLANDWLSCALER_P_H
+#endif // QWAYLANDXDGOUTPUTV1_P_H

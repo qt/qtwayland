@@ -214,12 +214,13 @@ void tst_xdgshell::popup()
     uint clickSerial = exec([=] {
         auto *surface = xdgToplevel()->surface();
         auto *p = pointer();
+        auto *c = client();
         p->sendEnter(surface, {100, 100});
-//        p->sendFrame(); //TODO: uncomment when we support seat v5
+        p->sendFrame(c);
         uint serial = p->sendButton(client(), BTN_LEFT, Pointer::button_state_pressed);
-        p->sendButton(client(), BTN_LEFT, Pointer::button_state_released);
+        p->sendButton(c, BTN_LEFT, Pointer::button_state_released);
         return serial;
-//        p->sendFrame(); //TODO: uncomment when we support seat v5
+        p->sendFrame(c);
     });
 
     QTRY_VERIFY(window.m_popup);
@@ -298,13 +299,14 @@ void tst_xdgshell::tooltipOnPopup()
     exec([=] {
         auto *surface = xdgToplevel()->surface();
         auto *p = pointer();
+        auto *c = client();
         p->sendEnter(surface, {100, 100});
-//        p->sendFrame(); //TODO: uncomment when we support seat v5
+        p->sendFrame(c);
         p->sendButton(client(), BTN_LEFT, Pointer::button_state_pressed);
         p->sendButton(client(), BTN_LEFT, Pointer::button_state_released);
-//        p->sendFrame();
+        p->sendFrame(c);
         p->sendLeave(surface);
-//        p->sendFrame();
+        p->sendFrame(c);
     });
 
     QCOMPOSITOR_TRY_VERIFY(xdgPopup());
@@ -315,11 +317,12 @@ void tst_xdgshell::tooltipOnPopup()
     exec([=] {
         auto *surface = xdgPopup()->surface();
         auto *p = pointer();
+        auto *c = client();
         p->sendEnter(surface, {100, 100});
-//        p->sendFrame();
+        p->sendFrame(c);
         p->sendButton(client(), BTN_LEFT, Pointer::button_state_pressed);
         p->sendButton(client(), BTN_LEFT, Pointer::button_state_released);
-//        p->sendFrame();
+        p->sendFrame(c);
     });
 
     QCOMPOSITOR_TRY_VERIFY(xdgPopup(1));
@@ -380,13 +383,14 @@ void tst_xdgshell::switchPopups()
     exec([=] {
         auto *surface = xdgToplevel()->surface();
         auto *p = pointer();
+        auto *c = client();
         p->sendEnter(surface, {100, 100});
-//        p->sendFrame(); //TODO: uncomment when we support seat v5
-        p->sendButton(client(), BTN_LEFT, Pointer::button_state_pressed);
-        p->sendButton(client(), BTN_LEFT, Pointer::button_state_released);
-//        p->sendFrame();
+        p->sendFrame(c);
+        p->sendButton(c, BTN_LEFT, Pointer::button_state_pressed);
+        p->sendButton(c, BTN_LEFT, Pointer::button_state_released);
+        p->sendFrame(c);
         p->sendLeave(surface);
-//        p->sendFrame();
+        p->sendFrame(c);
     });
 
     QCOMPOSITOR_TRY_VERIFY(xdgPopup());
@@ -399,11 +403,12 @@ void tst_xdgshell::switchPopups()
     exec([=] {
         auto *surface = xdgToplevel()->surface();
         auto *p = pointer();
+        auto *c = client();
         p->sendEnter(surface, {100, 100});
-//        p->sendFrame();
-        p->sendButton(client(), BTN_LEFT, Pointer::button_state_pressed);
-        p->sendButton(client(), BTN_LEFT, Pointer::button_state_released);
-//        p->sendFrame();
+        p->sendFrame(c);
+        p->sendButton(c, BTN_LEFT, Pointer::button_state_pressed);
+        p->sendButton(c, BTN_LEFT, Pointer::button_state_released);
+        p->sendFrame(c);
     });
 
     // The client will now hide one popup and then show another
@@ -476,10 +481,14 @@ void tst_xdgshell::windowGeometry()
 
     exec([=] { xdgToplevel()->sendCompleteConfigure(); });
 
-    QCOMPOSITOR_TRY_COMPARE(xdgSurface()->m_committed.windowGeometry, QRect(QPoint(0, 0), window.frameGeometry().size()));
+    QSize marginsSize;
+    marginsSize.setWidth(window.frameMargins().left() + window.frameMargins().right());
+    marginsSize.setHeight(window.frameMargins().top() + window.frameMargins().bottom());
+
+    QCOMPOSITOR_TRY_COMPARE(xdgSurface()->m_committed.windowGeometry, QRect(QPoint(0, 0), QSize(400, 320) + marginsSize));
 
     window.resize(800, 600);
-    QCOMPOSITOR_TRY_COMPARE(xdgSurface()->m_committed.windowGeometry, QRect(QPoint(0, 0), window.frameGeometry().size()));
+    QCOMPOSITOR_TRY_COMPARE(xdgSurface()->m_committed.windowGeometry, QRect(QPoint(0, 0), QSize(800, 600) + marginsSize));
 }
 
 void tst_xdgshell::foreignSurface()

@@ -51,16 +51,15 @@
 // We mean it.
 //
 
-#ifdef QT_WAYLAND_COMPOSITOR_QUICK
+#include <QtWaylandCompositor/qtwaylandcompositorglobal.h>
+#if QT_CONFIG(wayland_compositor_quick)
 #include <QtQml/QQmlListProperty>
 #include <QtCore/QVector>
 #endif
 
-#include <QtCore/qglobal.h>
-
 QT_BEGIN_NAMESPACE
 
-#ifdef QT_WAYLAND_COMPOSITOR_QUICK
+#if QT_CONFIG(wayland_compositor_quick)
 #define Q_WAYLAND_COMPOSITOR_DECLARE_QUICK_CHILDREN(className) \
         Q_PROPERTY(QQmlListProperty<QObject> data READ data DESIGNABLE false) \
         Q_CLASSINFO("DefaultProperty", "data") \

@@ -96,7 +96,11 @@ QWaylandQuickShellSurfaceItem::QWaylandQuickShellSurfaceItem(QQuickItem *parent)
 QWaylandQuickShellSurfaceItem::~QWaylandQuickShellSurfaceItem()
 {
     Q_D(QWaylandQuickShellSurfaceItem);
-    delete d->m_shellIntegration;
+
+    if (d->m_shellIntegration) {
+        removeEventFilter(d->m_shellIntegration);
+        delete d->m_shellIntegration;
+    }
 }
 
 /*!
@@ -137,12 +141,15 @@ void QWaylandQuickShellSurfaceItem::setShellSurface(QWaylandShellSurface *shellS
     d->m_shellSurface = shellSurface;
 
     if (d->m_shellIntegration) {
+        removeEventFilter(d->m_shellIntegration);
         delete d->m_shellIntegration;
         d->m_shellIntegration = nullptr;
     }
 
-    if (shellSurface)
+    if (shellSurface) {
         d->m_shellIntegration = shellSurface->createIntegration(this);
+        installEventFilter(d->m_shellIntegration);
+    }
 
     emit shellSurfaceChanged();
 }
@@ -207,86 +214,6 @@ void QWaylandQuickShellSurfaceItem::setAutoCreatePopupItems(bool enabled)
     d->m_autoCreatePopupItems = enabled;
     emit autoCreatePopupItemsChanged();
 }
-
-void QWaylandQuickShellSurfaceItem::touchEvent(QTouchEvent *event)
-{
-    Q_D(QWaylandQuickShellSurfaceItem);
-    if (!d->m_shellIntegration->touchEvent(event))
-        QWaylandQuickItem::touchEvent(event);
-}
-
-void QWaylandQuickShellSurfaceItem::hoverEnterEvent(QHoverEvent *event)
-{
-    Q_D(QWaylandQuickShellSurfaceItem);
-    if (!d->m_shellIntegration->hoverEnterEvent(event))
-        QWaylandQuickItem::hoverEnterEvent(event);
-}
-
-void QWaylandQuickShellSurfaceItem::hoverLeaveEvent(QHoverEvent *event)
-{
-    Q_D(QWaylandQuickShellSurfaceItem);
-    if (!d->m_shellIntegration->hoverLeaveEvent(event))
-        QWaylandQuickItem::hoverLeaveEvent(event);
-}
-
-void QWaylandQuickShellSurfaceItem::hoverMoveEvent(QHoverEvent *event)
-{
-    Q_D(QWaylandQuickShellSurfaceItem);
-    if (!d->m_shellIntegration->hoverMoveEvent(event))
-        QWaylandQuickItem::hoverMoveEvent(event);
-}
-
-
-void QWaylandQuickShellSurfaceItem::keyPressEvent(QKeyEvent *event)
-{
-    Q_D(QWaylandQuickShellSurfaceItem);
-    if (!d->m_shellIntegration->keyPressEvent(event))
-        QWaylandQuickItem::keyPressEvent(event);
-}
-
-void QWaylandQuickShellSurfaceItem::keyReleaseEvent(QKeyEvent *event)
-{
-    Q_D(QWaylandQuickShellSurfaceItem);
-    if (!d->m_shellIntegration->keyReleaseEvent(event))
-        QWaylandQuickItem::keyReleaseEvent(event);
-}
-
-void QWaylandQuickShellSurfaceItem::mouseDoubleClickEvent(QMouseEvent *event)
-{
-    Q_D(QWaylandQuickShellSurfaceItem);
-    if (!d->m_shellIntegration->mouseDoubleClickEvent(event))
-        QWaylandQuickItem::mouseDoubleClickEvent(event);
-}
-
-void QWaylandQuickShellSurfaceItem::mouseMoveEvent(QMouseEvent *event)
-{
-    Q_D(QWaylandQuickShellSurfaceItem);
-    if (!d->m_shellIntegration->mouseMoveEvent(event))
-        QWaylandQuickItem::mouseMoveEvent(event);
-}
-
-void QWaylandQuickShellSurfaceItem::mousePressEvent(QMouseEvent *event)
-{
-    Q_D(QWaylandQuickShellSurfaceItem);
-    if (!d->m_shellIntegration->mousePressEvent(event))
-        QWaylandQuickItem::mousePressEvent(event);
-}
-
-void QWaylandQuickShellSurfaceItem::mouseReleaseEvent(QMouseEvent *event)
-{
-    Q_D(QWaylandQuickShellSurfaceItem);
-    if (!d->m_shellIntegration->mouseReleaseEvent(event))
-        QWaylandQuickItem::mouseReleaseEvent(event);
-}
-
-#if QT_CONFIG(wheelevent)
-void QWaylandQuickShellSurfaceItem::wheelEvent(QWheelEvent *event)
-{
-    Q_D(QWaylandQuickShellSurfaceItem);
-    if (!d->m_shellIntegration->wheelEvent(event))
-        QWaylandQuickItem::wheelEvent(event);
-}
-#endif
 
 /*!
 \class QWaylandQuickShellEventFilter

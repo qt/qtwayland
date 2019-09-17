@@ -133,17 +133,19 @@ QWaylandSurface::Origin SharedMemoryBuffer::origin() const
     return QWaylandSurface::OriginTopLeft;
 }
 
-
-// TODO: support different color formats, and try to avoid QImage::convertToFormat()
-
 QImage SharedMemoryBuffer::image() const
 {
     if (wl_shm_buffer *shmBuffer = wl_shm_buffer_get(m_buffer)) {
         int width = wl_shm_buffer_get_width(shmBuffer);
         int height = wl_shm_buffer_get_height(shmBuffer);
         int bytesPerLine = wl_shm_buffer_get_stride(shmBuffer);
+
+        // TODO: try to avoid QImage::convertToFormat()
+        wl_shm_format shmFormat = wl_shm_format(wl_shm_buffer_get_format(shmBuffer));
+        QImage::Format format = QWaylandSharedMemoryFormatHelper::fromWaylandShmFormat(shmFormat);
+
         uchar *data = static_cast<uchar *>(wl_shm_buffer_get_data(shmBuffer));
-        return QImage(data, width, height, bytesPerLine, QImage::Format_ARGB32_Premultiplied);
+        return QImage(data, width, height, bytesPerLine, format);
     }
 
     return QImage();

@@ -1045,8 +1045,15 @@ void QWaylandInputDevice::Pointer::flushScrollEvent()
 
 void QWaylandInputDevice::Pointer::flushFrameEvent()
 {
-    if (mFrameData.event) {
-        mFrameData.event->surface->handleMouse(mParent, *mFrameData.event);
+    if (auto *event = mFrameData.event) {
+        if (auto window = event->surface) {
+            window->handleMouse(mParent, *event);
+        } else if (mFrameData.event->type == QWaylandPointerEvent::Type::Release) {
+            // If the window has been destroyed, we still need to report an up event, but it can't
+            // be handled by the destroyed window (obviously), so send the event here instead.
+            QWindowSystemInterface::handleMouseEvent(nullptr, event->timestamp, event->local,
+                                                     event->global, event->buttons, event->modifiers);
+        }
         delete mFrameData.event;
         mFrameData.event = nullptr;
     }

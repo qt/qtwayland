@@ -203,6 +203,7 @@ public slots:
     void applyConfigure();
 
 signals:
+    void wlSurfaceCreated();
     void wlSurfaceDestroyed();
 
 protected:

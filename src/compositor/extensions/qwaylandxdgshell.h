@@ -119,7 +119,7 @@ public:
     static QByteArray interfaceName();
     static QWaylandXdgSurface *fromResource(::wl_resource *resource);
 
-#ifdef QT_WAYLAND_COMPOSITOR_QUICK
+#if QT_CONFIG(wayland_compositor_quick)
     QWaylandQuickShellIntegration *createIntegration(QWaylandQuickShellSurfaceItem *item) override;
 #endif
 

@@ -63,8 +63,9 @@ class XdgToplevelV6Integration : public QWaylandQuickShellIntegration
     Q_OBJECT
 public:
     XdgToplevelV6Integration(QWaylandQuickShellSurfaceItem *item);
-    bool mouseMoveEvent(QMouseEvent *event) override;
-    bool mouseReleaseEvent(QMouseEvent *event) override;
+
+protected:
+    bool eventFilter(QObject *object, QEvent *event) override;
 
 private Q_SLOTS:
     void handleStartMove(QWaylandSeat *seat);
@@ -120,6 +121,9 @@ private:
                                                        // will be hooked to geometry-changed or available-
                                                        // geometry-changed.
     } nonwindowedState;
+
+    bool filterMouseMoveEvent(QMouseEvent *event);
+    bool filterMouseReleaseEvent(QMouseEvent *event);
 };
 
 class XdgPopupV6Integration : public QWaylandQuickShellIntegration

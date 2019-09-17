@@ -41,7 +41,6 @@
 #define QWAYLANDQUICKSHELLINTEGRATION_H
 
 #include <QtCore/QObject>
-#include <QtGui/QMouseEvent>
 #include <QtWaylandCompositor/qtwaylandcompositorglobal.h>
 
 QT_BEGIN_NAMESPACE
@@ -50,25 +49,8 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQuickShellIntegration : public QObject
 {
     Q_OBJECT
 public:
-    explicit QWaylandQuickShellIntegration(QObject *parent = nullptr);
-
-    virtual bool touchEvent(QTouchEvent *event);
-
-    virtual bool hoverEnterEvent(QHoverEvent *event);
-    virtual bool hoverLeaveEvent(QHoverEvent *event);
-    virtual bool hoverMoveEvent(QHoverEvent *event);
-
-    virtual bool keyPressEvent(QKeyEvent *event);
-    virtual bool keyReleaseEvent(QKeyEvent *event);
-
-    virtual bool mouseDoubleClickEvent(QMouseEvent *event);
-    virtual bool mouseMoveEvent(QMouseEvent *event);
-    virtual bool mousePressEvent(QMouseEvent *event);
-    virtual bool mouseReleaseEvent(QMouseEvent *event);
-
-#if QT_CONFIG(wheelevent)
-    virtual bool wheelEvent(QWheelEvent *event);
-#endif
+    QWaylandQuickShellIntegration(QObject *parent = nullptr);
+    ~QWaylandQuickShellIntegration() override;
 };
 
 QT_END_NAMESPACE

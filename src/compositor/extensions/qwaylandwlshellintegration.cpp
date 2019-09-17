@@ -289,7 +289,19 @@ void WlShellIntegration::adjustOffsetForNextFrame(const QPointF &offset)
     moveItem->setPosition(moveItem->position() + m_item->mapFromSurface(offset));
 }
 
-bool WlShellIntegration::mouseMoveEvent(QMouseEvent *event)
+bool WlShellIntegration::eventFilter(QObject *object, QEvent *event)
+{
+    if (event->type() == QEvent::MouseMove) {
+        QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
+        return filterMouseMoveEvent(mouseEvent);
+    } else if (event->type() == QEvent::MouseButtonRelease) {
+        QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
+        return filterMouseReleaseEvent(mouseEvent);
+    }
+    return QWaylandQuickShellIntegration::eventFilter(object, event);
+}
+
+bool WlShellIntegration::filterMouseMoveEvent(QMouseEvent *event)
 {
     if (grabberState == GrabberState::Resize) {
         Q_ASSERT(resizeState.seat == m_item->compositor()->seatFor(event));
@@ -318,7 +330,7 @@ bool WlShellIntegration::mouseMoveEvent(QMouseEvent *event)
     return false;
 }
 
-bool WlShellIntegration::mouseReleaseEvent(QMouseEvent *event)
+bool WlShellIntegration::filterMouseReleaseEvent(QMouseEvent *event)
 {
     Q_UNUSED(event);
     if (grabberState != GrabberState::Default) {

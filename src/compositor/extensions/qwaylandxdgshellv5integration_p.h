@@ -64,8 +64,9 @@ class XdgShellV5Integration : public QWaylandQuickShellIntegration
 public:
     XdgShellV5Integration(QWaylandQuickShellSurfaceItem *item);
     ~XdgShellV5Integration() override;
-    bool mouseMoveEvent(QMouseEvent *event) override;
-    bool mouseReleaseEvent(QMouseEvent *event) override;
+
+protected:
+    bool eventFilter(QObject *object, QEvent *event) override;
 
 private Q_SLOTS:
     void handleStartMove(QWaylandSeat *seat);
@@ -108,6 +109,9 @@ private:
         QSize initialWindowSize;
         QPointF initialPosition;
     } maximizeState;
+
+    bool filterMouseMoveEvent(QMouseEvent *event);
+    bool filterMouseReleaseEvent(QMouseEvent *event);
 };
 
 class XdgPopupV5Integration : public QWaylandQuickShellIntegration

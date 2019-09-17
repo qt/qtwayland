@@ -65,8 +65,9 @@ class WlShellIntegration : public QWaylandQuickShellIntegration
 public:
     WlShellIntegration(QWaylandQuickShellSurfaceItem *item);
     ~WlShellIntegration() override;
-    bool mouseMoveEvent(QMouseEvent *event) override;
-    bool mouseReleaseEvent(QMouseEvent *event) override;
+
+protected:
+    bool eventFilter(QObject *object, QEvent *event) override;
 
 private Q_SLOTS:
     void handleStartMove(QWaylandSeat *seat);
@@ -130,6 +131,9 @@ private:
 
     QPointF normalPosition;
     QPointF finalPosition;
+
+    bool filterMouseMoveEvent(QMouseEvent *event);
+    bool filterMouseReleaseEvent(QMouseEvent *event);
 };
 
 }

@@ -68,30 +68,99 @@
         },
         "drm-egl-server": {
             "type": "compile",
-            "test": "drm_egl_server",
+            "test": {
+                "include": [
+                    "EGL/egl.h",
+                    "EGL/eglext.h"
+                ],
+                "main": [
+                    "#ifdef EGL_MESA_drm_image",
+                    "return 0;",
+                    "#else",
+                    "#error Requires EGL_MESA_drm_image to be defined",
+                    "return 1;",
+                    "#endif"
+                ]
+            },
             "use": "egl"
         },
         "libhybris-egl-server": {
             "type": "compile",
-            "test": "libhybris_egl_server",
+            "test": {
+                "include": [
+                    "EGL/egl.h",
+                    "EGL/eglext.h",
+                    "hybris/eglplatformcommon/hybris_nativebufferext.h"
+                ],
+                "main": [
+                    "#ifdef EGL_HYBRIS_native_buffer",
+                    "return 0;",
+                    "#else",
+                    "#error Requires EGL_HYBRIS_native_buffer to be defined",
+                    "return 1;",
+                    "#endif"
+                ]
+            },
             "use": "egl"
         },
         "dmabuf-server-buffer": {
             "label": "Linux dma-buf Buffer Sharing",
             "type": "compile",
-            "test": "dmabuf_server_buffer",
+            "test": {
+                "include": [
+                    "EGL/egl.h",
+                    "EGL/eglext.h",
+                    "drm_fourcc.h"
+                ],
+                "main": [
+                    "#ifdef EGL_LINUX_DMA_BUF_EXT",
+                    "return 0;",
+                    "#else",
+                    "#error Requires EGL_LINUX_DMA_BUF_EXT",
+                    "return 1;",
+                    "#endif"
+                ]
+            },
             "use": "egl"
         },
         "dmabuf-client-buffer": {
             "label": "Linux Client dma-buf Buffer Sharing",
             "type": "compile",
-            "test": "dmabuf_client_buffer",
+            "test": {
+                "include": [
+                    "EGL/egl.h",
+                    "EGL/eglext.h",
+                    "drm_mode.h",
+                    "drm_fourcc.h"
+                ],
+                "main": [
+                    "// test if DMA BUF is supported",
+                    "#ifndef EGL_LINUX_DMA_BUF_EXT",
+                    "#error DMA BUF Extension not available",
+                    "#endif",
+                    "// test if DMA BUF import modifier extension is supported",
+                    "#ifndef EGL_EXT_image_dma_buf_import_modifiers",
+                    "#error DMA BUF Import modifier extension not available",
+                    "#endif",
+                    "return 0;"
+                ]
+            },
             "use": "egl"
         },
         "vulkan-server-buffer": {
             "label": "Vulkan Buffer Sharing",
             "type": "compile",
-            "test": "vulkan_server_buffer"
+            "test": {
+                "include": [
+                    "vulkan/vulkan.h"
+                ],
+                "main": [
+                    "VkExportMemoryAllocateInfoKHR exportAllocInfo = {};",
+                    "exportAllocInfo.sType = VK_STRUCTURE_TYPE_EXPORT_MEMORY_ALLOCATE_INFO_KHR;",
+                    "exportAllocInfo.handleTypes = VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_FD_BIT_KHR;",
+                    "return 0;"
+                ]
+            }
         }
     },
 

@@ -1,0 +1,39 @@
+# Generated from ivi-shell.pro.
+
+#####################################################################
+## ivi-shell Plugin:
+#####################################################################
+
+qt_add_plugin(ivi-shell
+    TYPE wayland-shell-integration
+    CLASS_NAME QWaylandIviShellIntegrationPlugin
+    SOURCES
+        main.cpp
+        qwaylandivishellintegration.cpp qwaylandivishellintegration.h
+        qwaylandivisurface.cpp qwaylandivisurface_p.h
+    LIBRARIES
+        Qt::GuiPrivate
+        Qt::WaylandClientPrivate
+    PUBLIC_LIBRARIES
+        Qt::Core
+        Qt::Gui
+        Qt::WaylandClient
+        Wayland::Client
+)
+
+qt6_generate_wayland_protocol_client_sources(ivi-shell
+    FILES
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../../3rdparty/protocol/ivi-application.xml
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../../3rdparty/protocol/ivi-controller.xml
+)
+
+#### Keys ignored in scope 1:.:.:ivi-shell.pro:<TRUE>:
+# OTHER_FILES = "ivi-shell.json"
+
+## Scopes:
+#####################################################################
+
+qt_extend_target(ivi-shell CONDITION QT_FEATURE_xkbcommon
+    PUBLIC_LIBRARIES
+        XKB::XKB
+)

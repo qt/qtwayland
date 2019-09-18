@@ -1,0 +1,33 @@
+# Generated from xdgdecorationv1.pro.
+
+#####################################################################
+## tst_xdgdecorationv1 Test:
+#####################################################################
+
+qt_add_test(tst_xdgdecorationv1
+    SOURCES
+        ../shared/corecompositor.cpp ../shared/corecompositor.h
+        ../shared/coreprotocol.cpp ../shared/coreprotocol.h
+        ../shared/datadevice.cpp ../shared/datadevice.h
+        ../shared/mockcompositor.cpp ../shared/mockcompositor.h
+        ../shared/textinput.cpp ../shared/textinput.h
+        ../shared/xdgshell.cpp ../shared/xdgshell.h
+        tst_xdgdecorationv1.cpp
+    INCLUDE_DIRECTORIES
+        ../shared
+    LIBRARIES
+        Qt::WaylandClientPrivate
+    PUBLIC_LIBRARIES
+        Qt::Gui
+        Qt::WaylandClient
+        Wayland::Server
+        Threads::Threads # special case
+)
+
+qt6_generate_wayland_protocol_server_sources(tst_xdgdecorationv1
+    FILES
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../../../src/3rdparty/protocol/xdg-decoration-unstable-v1.xml
+        ${CMAKE_CURRENT_SOURCE_DIR}/../shared/../../../../src/3rdparty/protocol/text-input-unstable-v2.xml
+        ${CMAKE_CURRENT_SOURCE_DIR}/../shared/../../../../src/3rdparty/protocol/wayland.xml
+        ${CMAKE_CURRENT_SOURCE_DIR}/../shared/../../../../src/3rdparty/protocol/xdg-shell.xml
+)

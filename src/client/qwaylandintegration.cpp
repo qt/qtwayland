@@ -86,7 +86,7 @@
 #include "qwaylandinputdeviceintegration_p.h"
 #include "qwaylandinputdeviceintegrationfactory_p.h"
 
-#ifndef QT_NO_ACCESSIBILITY_ATSPI_BRIDGE
+#if QT_CONFIG(accessibility_atspi_bridge)
 #include <QtLinuxAccessibilitySupport/private/bridge_p.h>
 #endif
 
@@ -239,7 +239,7 @@ QVariant QWaylandIntegration::styleHint(StyleHint hint) const
 QPlatformAccessibility *QWaylandIntegration::accessibility() const
 {
     if (!mAccessibility) {
-#ifndef QT_NO_ACCESSIBILITY_ATSPI_BRIDGE
+#if QT_CONFIG(accessibility_atspi_bridge)
         Q_ASSERT_X(QCoreApplication::eventDispatcher(), "QWaylandIntegration",
             "Initializing accessibility without event-dispatcher!");
         mAccessibility.reset(new QSpiAccessibleBridge());

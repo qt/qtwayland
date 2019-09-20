@@ -35,6 +35,7 @@
 #include <QImage>
 #include <QRect>
 #include <QList>
+#include <QtCore/QMap>
 #include <QWaylandOutputMode>
 
 class MockSeat;

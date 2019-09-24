@@ -77,7 +77,19 @@ XdgToplevelIntegration::XdgToplevelIntegration(QWaylandQuickShellSurfaceItem *it
     connect(m_toplevel, &QObject::destroyed, this, &XdgToplevelIntegration::handleToplevelDestroyed);
 }
 
-bool XdgToplevelIntegration::mouseMoveEvent(QMouseEvent *event)
+bool XdgToplevelIntegration::eventFilter(QObject *object, QEvent *event)
+{
+    if (event->type() == QEvent::MouseMove) {
+        QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
+        return filterMouseMoveEvent(mouseEvent);
+    } else if (event->type() == QEvent::MouseButtonRelease) {
+        QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
+        return filterMouseReleaseEvent(mouseEvent);
+    }
+    return QWaylandQuickShellIntegration::eventFilter(object, event);
+}
+
+bool XdgToplevelIntegration::filterMouseMoveEvent(QMouseEvent *event)
 {
     if (grabberState == GrabberState::Resize) {
         Q_ASSERT(resizeState.seat == m_item->compositor()->seatFor(event));
@@ -105,7 +117,7 @@ bool XdgToplevelIntegration::mouseMoveEvent(QMouseEvent *event)
     return false;
 }
 
-bool XdgToplevelIntegration::mouseReleaseEvent(QMouseEvent *event)
+bool XdgToplevelIntegration::filterMouseReleaseEvent(QMouseEvent *event)
 {
     Q_UNUSED(event);
 

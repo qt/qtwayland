@@ -68,6 +68,7 @@ private slots:
     // Touch tests
     void createsTouch();
     void singleTap();
+    void singleTapFloat();
 };
 
 void tst_seatv5::bindsToSeat()
@@ -428,6 +429,37 @@ void tst_seatv5::singleTap()
         QCOMPARE(e.touchPointStates, Qt::TouchPointState::TouchPointReleased);
         QCOMPARE(e.touchPoints.length(), 1);
         QCOMPARE(e.touchPoints.first().pos(), QPointF(32-window.frameMargins().left(), 32-window.frameMargins().top()));
+    }
+}
+
+void tst_seatv5::singleTapFloat()
+{
+    TouchWindow window;
+    QCOMPOSITOR_TRY_VERIFY(xdgSurface() && xdgSurface()->m_committedConfigureSerial);
+
+    exec([=] {
+        auto *t = touch();
+        auto *c = client();
+        t->sendDown(xdgToplevel()->surface(), {32.75, 32.25}, 1);
+        t->sendFrame(c);
+        t->sendUp(c, 1);
+        t->sendFrame(c);
+    });
+
+    QTRY_VERIFY(!window.m_events.empty());
+    {
+        auto e = window.m_events.takeFirst();
+        QCOMPARE(e.type, QEvent::TouchBegin);
+        QCOMPARE(e.touchPointStates, Qt::TouchPointState::TouchPointPressed);
+        QCOMPARE(e.touchPoints.length(), 1);
+        QCOMPARE(e.touchPoints.first().pos(), QPointF(32.75-window.frameMargins().left(), 32.25-window.frameMargins().top()));
+    }
+    {
+        auto e = window.m_events.takeFirst();
+        QCOMPARE(e.type, QEvent::TouchEnd);
+        QCOMPARE(e.touchPointStates, Qt::TouchPointState::TouchPointReleased);
+        QCOMPARE(e.touchPoints.length(), 1);
+        QCOMPARE(e.touchPoints.first().pos(), QPointF(32.75-window.frameMargins().left(), 32.25-window.frameMargins().top()));
     }
 }
 

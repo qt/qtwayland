@@ -61,25 +61,76 @@
         "drm-egl-server": {
             "label": "DRM EGL Server",
             "type": "compile",
-            "test": "drm_egl_server",
+            "test": {
+                "include": [
+                    "EGL/egl.h",
+                    "EGL/eglext.h"
+                ],
+                "main": [
+                    "#ifdef EGL_MESA_drm_image",
+                    "return 0;",
+                    "#else",
+                    "#error Requires EGL_MESA_drm_image to be defined",
+                    "return 1;",
+                    "#endif"
+                ]
+            },
             "use": "egl"
         },
         "libhybris-egl-server": {
             "label": "libhybris EGL Server",
             "type": "compile",
-            "test": "libhybris_egl_server",
+            "test": {
+                "include": [
+                    "EGL/egl.h",
+                    "EGL/eglext.h",
+                    "hybris/eglplatformcommon/hybris_nativebufferext.h"
+                ],
+                "main": [
+                    "#ifdef EGL_HYBRIS_native_buffer",
+                    "return 0;",
+                    "#else",
+                    "#error Requires EGL_HYBRIS_native_buffer to be defined",
+                    "return 1;",
+                    "#endif"
+                ]
+            },
             "use": "egl"
         },
         "dmabuf-server-buffer": {
             "label": "Linux dma-buf Buffer Sharing",
             "type": "compile",
-            "test": "dmabuf_server_buffer",
+            "test": {
+                "include": [
+                    "EGL/egl.h",
+                    "EGL/eglext.h",
+                    "drm_fourcc.h"
+                ],
+                "main": [
+                    "#ifdef EGL_LINUX_DMA_BUF_EXT",
+                    "return 0;",
+                    "#else",
+                    "#error Requires EGL_LINUX_DMA_BUF_EXT",
+                    "return 1;",
+                    "#endif"
+                ]
+            },
             "use": "egl"
         },
         "vulkan-server-buffer": {
             "label": "Vulkan Buffer Sharing",
             "type": "compile",
-            "test": "vulkan_server_buffer"
+            "test": {
+                "include": [
+                    "vulkan/vulkan.h"
+                ],
+                "main": [
+                    "VkExportMemoryAllocateInfoKHR exportAllocInfo = {};",
+                    "exportAllocInfo.sType = VK_STRUCTURE_TYPE_EXPORT_MEMORY_ALLOCATE_INFO_KHR;",
+                    "exportAllocInfo.handleTypes = VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_FD_BIT_KHR;",
+                    "return 0;"
+                ]
+            }
         }
     },
 
@@ -140,7 +191,7 @@
         },
         "xcomposite-egl": {
             "label": "XComposite EGL",
-            "condition": "features.wayland-client && features.opengl && features.egl && features.xlib && libs.xcomposite",
+            "condition": "features.wayland-client && features.opengl && features.egl && features.xlib && libs.xcomposite && features.egl_x11",
             "output": [ "privateFeature" ]
         },
         "xcomposite-glx": {

@@ -131,6 +131,7 @@ public:
     QWaylandCompositor *compositor() const;
 
     bool inputRegionContains(const QPoint &p) const;
+    bool inputRegionContains(const QPointF &position) const;
 
     Q_INVOKABLE void destroy();
     Q_INVOKABLE bool isDestroyed() const;
@@ -184,7 +185,7 @@ Q_SIGNALS:
     void subsurfacePlaceBelow(QWaylandSurface *sibling);
     void dragStarted(QWaylandDrag *drag);
     void cursorSurfaceChanged();
-    void inhibitsIdleChanged();
+    Q_REVISION(14) void inhibitsIdleChanged();
 
     void configure(bool hasBuffer);
     void redraw();

@@ -82,7 +82,19 @@ XdgShellV5Integration::~XdgShellV5Integration()
     m_item->setSurface(nullptr);
 }
 
-bool XdgShellV5Integration::mouseMoveEvent(QMouseEvent *event)
+bool XdgShellV5Integration::eventFilter(QObject *object, QEvent *event)
+{
+    if (event->type() == QEvent::MouseMove) {
+        QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
+        return filterMouseMoveEvent(mouseEvent);
+    } else if (event->type() == QEvent::MouseButtonRelease) {
+        QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
+        return filterMouseReleaseEvent(mouseEvent);
+    }
+    return QWaylandQuickShellIntegration::eventFilter(object, event);
+}
+
+bool XdgShellV5Integration::filterMouseMoveEvent(QMouseEvent *event)
 {
     if (grabberState == GrabberState::Resize) {
         Q_ASSERT(resizeState.seat == m_item->compositor()->seatFor(event));
@@ -110,7 +122,7 @@ bool XdgShellV5Integration::mouseMoveEvent(QMouseEvent *event)
     return false;
 }
 
-bool XdgShellV5Integration::mouseReleaseEvent(QMouseEvent *event)
+bool XdgShellV5Integration::filterMouseReleaseEvent(QMouseEvent *event)
 {
     Q_UNUSED(event);
 

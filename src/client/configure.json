@@ -40,14 +40,6 @@
                 { "type": "pkgConfig", "args": "xcomposite" },
                 "-lxcomposite"
             ]
-        },
-        "glx": {
-            "label": "GLX",
-            "test": "glx",
-            "sources": [
-                { "type": "pkgConfig", "args": "x11 gl" },
-                "-lX11 -lGl"
-            ]
         }
     },
 
@@ -145,7 +137,7 @@
         },
         "xcomposite-glx": {
             "label": "XComposite GLX",
-            "condition": "features.wayland-client && features.opengl && !features.opengles2 && features.xlib && libs.xcomposite && libs.glx",
+            "condition": "features.wayland-client && features.opengl && !features.opengles2 && features.xlib && libs.xcomposite",
             "output": [ "privateFeature" ]
         },
         "wayland-drm-egl-server-buffer": {

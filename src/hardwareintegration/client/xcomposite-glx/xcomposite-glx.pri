@@ -1,7 +1,7 @@
 INCLUDEPATH += $$PWD
 include ($$PWD/../xcomposite_share/xcomposite_share.pri)
 
-QMAKE_USE += wayland-client glx libdl
+QMAKE_USE += wayland-client libdl
 
 QT += glx_support-private
 

@@ -477,7 +477,7 @@ void QWaylandQuickItem::mousePressEvent(QMouseEvent *event)
         return;
     }
 
-    if (!inputRegionContains(event->pos())) {
+    if (!inputRegionContains(event->localPos())) {
         event->ignore();
         return;
     }
@@ -489,7 +489,7 @@ void QWaylandQuickItem::mousePressEvent(QMouseEvent *event)
 
     seat->sendMouseMoveEvent(d->view.data(), mapToSurface(event->localPos()), event->windowPos());
     seat->sendMousePressEvent(event->button());
-    d->hoverPos = event->pos();
+    d->hoverPos = event->localPos();
 }
 
 /*!
@@ -515,7 +515,7 @@ void QWaylandQuickItem::mouseMoveEvent(QMouseEvent *event)
 #endif // QT_CONFIG(draganddrop)
         {
             seat->sendMouseMoveEvent(d->view.data(), mapToSurface(event->localPos()), event->windowPos());
-            d->hoverPos = event->pos();
+            d->hoverPos = event->localPos();
         }
     } else {
         emit mouseMove(event->windowPos());
@@ -552,14 +552,14 @@ void QWaylandQuickItem::mouseReleaseEvent(QMouseEvent *event)
 void QWaylandQuickItem::hoverEnterEvent(QHoverEvent *event)
 {
     Q_D(QWaylandQuickItem);
-    if (!inputRegionContains(event->pos())) {
+    if (!inputRegionContains(event->posF())) {
         event->ignore();
         return;
     }
     if (d->shouldSendInputEvents()) {
         QWaylandSeat *seat = compositor()->seatFor(event);
-        seat->sendMouseMoveEvent(d->view.data(), event->pos(), mapToScene(event->pos()));
-        d->hoverPos = event->pos();
+        seat->sendMouseMoveEvent(d->view.data(), event->posF(), mapToScene(event->posF()));
+        d->hoverPos = event->posF();
     } else {
         event->ignore();
     }
@@ -572,16 +572,16 @@ void QWaylandQuickItem::hoverMoveEvent(QHoverEvent *event)
 {
     Q_D(QWaylandQuickItem);
     if (surface()) {
-        if (!inputRegionContains(event->pos())) {
+        if (!inputRegionContains(event->posF())) {
             event->ignore();
             return;
         }
     }
     if (d->shouldSendInputEvents()) {
         QWaylandSeat *seat = compositor()->seatFor(event);
-        if (event->pos() != d->hoverPos) {
-            seat->sendMouseMoveEvent(d->view.data(), mapToSurface(event->pos()), mapToScene(event->pos()));
-            d->hoverPos = event->pos();
+        if (event->posF() != d->hoverPos) {
+            seat->sendMouseMoveEvent(d->view.data(), mapToSurface(event->posF()), mapToScene(event->posF()));
+            d->hoverPos = event->posF();
         }
     } else {
         event->ignore();
@@ -667,10 +667,10 @@ void QWaylandQuickItem::touchEvent(QTouchEvent *event)
     if (d->shouldSendInputEvents() && d->touchEventsEnabled) {
         QWaylandSeat *seat = compositor()->seatFor(event);
 
-        QPoint pointPos;
+        QPointF pointPos;
         const QList<QTouchEvent::TouchPoint> &points = event->touchPoints();
         if (!points.isEmpty())
-            pointPos = points.at(0).pos().toPoint();
+            pointPos = points.at(0).pos();
 
         if (event->type() == QEvent::TouchBegin && !inputRegionContains(pointPos)) {
             event->ignore();
@@ -1063,7 +1063,7 @@ void QWaylandQuickItem::setFocusOnClick(bool focus)
 bool QWaylandQuickItem::inputRegionContains(const QPointF &localPosition) const
 {
     if (QWaylandSurface *s = surface())
-        return s->inputRegionContains(mapToSurface(localPosition).toPoint());
+        return s->inputRegionContains(mapToSurface(localPosition));
     return false;
 }
 

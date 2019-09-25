@@ -14,8 +14,6 @@ COMPOSITOR_QML_FILES += \
     WaylandOutputWindow.qml \
     WaylandCursorItem.qml
 
-DEFINES += QT_WAYLAND_COMPOSITOR_QUICK
-
 # Create the resource file
 GENERATED_RESOURCE_FILE = $$OUT_PWD/compositor.qrc
 

@@ -201,10 +201,14 @@ void QWaylandWindow::initWindow()
 void QWaylandWindow::initializeWlSurface()
 {
     Q_ASSERT(!mSurface);
-    mSurface.reset(new QWaylandSurface(mDisplay));
-    connect(mSurface.data(), &QWaylandSurface::screensChanged,
-            this, &QWaylandWindow::handleScreensChanged);
-    mSurface->m_window = this;
+    {
+        QWriteLocker lock(&mSurfaceLock);
+        mSurface.reset(new QWaylandSurface(mDisplay));
+        connect(mSurface.data(), &QWaylandSurface::screensChanged,
+                this, &QWaylandWindow::handleScreensChanged);
+        mSurface->m_window = this;
+    }
+    emit wlSurfaceCreated();
 }
 
 bool QWaylandWindow::shouldCreateShellSurface() const
@@ -241,6 +245,7 @@ void QWaylandWindow::reset(bool sendDestroyEvent)
     mSubSurfaceWindow = nullptr;
     if (mSurface) {
         emit wlSurfaceDestroyed();
+        QWriteLocker lock(&mSurfaceLock);
         mSurface.reset();
     }
 
@@ -616,9 +621,10 @@ QMutex QWaylandWindow::mFrameSyncMutex;
 
 bool QWaylandWindow::waitForFrameSync(int timeout)
 {
-    QMutexLocker locker(&mFrameSyncMutex);
     if (!mWaitingForFrameCallback)
         return true;
+
+    QMutexLocker locker(&mFrameSyncMutex);
 
     wl_proxy_set_queue(reinterpret_cast<wl_proxy *>(mFrameCallback), mFrameQueue);
     mDisplay->dispatchQueueWhile(mFrameQueue, [&]() { return mWaitingForFrameCallback; }, timeout);
@@ -1134,6 +1140,9 @@ void QWaylandWindow::requestUpdate()
 void QWaylandWindow::handleUpdate()
 {
     // TODO: Should sync subsurfaces avoid requesting frame callbacks?
+    QReadLocker lock(&mSurfaceLock);
+    if (!mSurface)
+        return;
 
     if (mFrameCallback) {
         wl_callback_destroy(mFrameCallback);

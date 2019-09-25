@@ -37,7 +37,7 @@
 #include "qwaylandxdgshell.h"
 #include "qwaylandxdgshell_p.h"
 
-#ifdef QT_WAYLAND_COMPOSITOR_QUICK
+#if QT_CONFIG(wayland_compositor_quick)
 #include "qwaylandxdgshellintegration_p.h"
 #endif
 #include <QtWaylandCompositor/private/qwaylandutils_p.h>
@@ -693,7 +693,7 @@ QWaylandXdgSurface *QWaylandXdgSurface::fromResource(wl_resource *resource)
     return nullptr;
 }
 
-#ifdef QT_WAYLAND_COMPOSITOR_QUICK
+#if QT_CONFIG(wayland_compositor_quick)
 QWaylandQuickShellIntegration *QWaylandXdgSurface::createIntegration(QWaylandQuickShellSurfaceItem *item)
 {
     Q_D(const QWaylandXdgSurface);

@@ -54,6 +54,7 @@
 #include <QtWaylandClient/qtwaylandclientglobal.h>
 #include <qpa/qplatformintegration.h>
 #include <QtCore/QScopedPointer>
+#include <QtCore/QMutex>
 
 QT_BEGIN_NAMESPACE
 
@@ -152,6 +153,7 @@ private:
     mutable QScopedPointer<QPlatformAccessibility> mAccessibility;
 #endif
     bool mFailed = false;
+    QMutex mClientBufferInitLock;
     bool mClientBufferIntegrationInitialized = false;
     bool mServerBufferIntegrationInitialized = false;
     bool mShellIntegrationInitialized = false;

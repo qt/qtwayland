@@ -86,7 +86,7 @@
 #include "qwaylandinputdeviceintegration_p.h"
 #include "qwaylandinputdeviceintegrationfactory_p.h"
 
-#ifndef QT_NO_ACCESSIBILITY_ATSPI_BRIDGE
+#if QT_CONFIG(accessibility_atspi_bridge)
 #include <QtLinuxAccessibilitySupport/private/bridge_p.h>
 #endif
 
@@ -97,38 +97,6 @@
 QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
-
-class GenericWaylandTheme: public QGenericUnixTheme
-{
-public:
-    static QStringList themeNames()
-    {
-        QStringList result;
-
-        if (QGuiApplication::desktopSettingsAware()) {
-            const QByteArray desktopEnvironment = QGuiApplicationPrivate::platformIntegration()->services()->desktopEnvironment();
-
-            if (desktopEnvironment == QByteArrayLiteral("KDE")) {
-#if QT_CONFIG(settings)
-                result.push_back(QStringLiteral("kde"));
-#endif
-            } else if (!desktopEnvironment.isEmpty() &&
-                desktopEnvironment != QByteArrayLiteral("UNKNOWN") &&
-                desktopEnvironment != QByteArrayLiteral("GNOME") &&
-                desktopEnvironment != QByteArrayLiteral("UNITY") &&
-                desktopEnvironment != QByteArrayLiteral("MATE") &&
-                desktopEnvironment != QByteArrayLiteral("XFCE") &&
-                desktopEnvironment != QByteArrayLiteral("LXDE"))
-                // Ignore X11 desktop environments
-                result.push_back(QString::fromLocal8Bit(desktopEnvironment.toLower()));
-        }
-
-        if (result.isEmpty())
-            result.push_back(QLatin1String(QGenericUnixTheme::name));
-
-        return result;
-    }
-};
 
 QWaylandIntegration::QWaylandIntegration()
 #if defined(Q_OS_MACOS)
@@ -271,7 +239,7 @@ QVariant QWaylandIntegration::styleHint(StyleHint hint) const
 QPlatformAccessibility *QWaylandIntegration::accessibility() const
 {
     if (!mAccessibility) {
-#ifndef QT_NO_ACCESSIBILITY_ATSPI_BRIDGE
+#if QT_CONFIG(accessibility_atspi_bridge)
         Q_ASSERT_X(QCoreApplication::eventDispatcher(), "QWaylandIntegration",
             "Initializing accessibility without event-dispatcher!");
         mAccessibility.reset(new QSpiAccessibleBridge());
@@ -302,19 +270,22 @@ QList<int> QWaylandIntegration::possibleKeys(const QKeyEvent *event) const
 
 QStringList QWaylandIntegration::themeNames() const
 {
-    return GenericWaylandTheme::themeNames();
+    return QGenericUnixTheme::themeNames();
 }
 
 QPlatformTheme *QWaylandIntegration::createPlatformTheme(const QString &name) const
 {
-    return GenericWaylandTheme::createUnixTheme(name);
+    return QGenericUnixTheme::createUnixTheme(name);
 }
 
+// May be called from non-GUI threads
 QWaylandClientBufferIntegration *QWaylandIntegration::clientBufferIntegration() const
 {
-    if (!mClientBufferIntegrationInitialized)
+    // Do an inexpensive check first to avoid locking whenever possible
+    if (Q_UNLIKELY(!mClientBufferIntegrationInitialized))
         const_cast<QWaylandIntegration *>(this)->initializeClientBufferIntegration();
 
+    Q_ASSERT(mClientBufferIntegrationInitialized);
     return mClientBufferIntegration && mClientBufferIntegration->isValid() ? mClientBufferIntegration.data() : nullptr;
 }
 
@@ -334,9 +305,12 @@ QWaylandShellIntegration *QWaylandIntegration::shellIntegration() const
     return mShellIntegration.data();
 }
 
+// May be called from non-GUI threads
 void QWaylandIntegration::initializeClientBufferIntegration()
 {
-    mClientBufferIntegrationInitialized = true;
+    QMutexLocker lock(&mClientBufferInitLock);
+    if (mClientBufferIntegrationInitialized)
+        return;
 
     QString targetKey = QString::fromLocal8Bit(qgetenv("QT_WAYLAND_CLIENT_BUFFER_INTEGRATION"));
 
@@ -352,22 +326,25 @@ void QWaylandIntegration::initializeClientBufferIntegration()
 
     if (targetKey.isEmpty()) {
         qWarning("Failed to determine what client buffer integration to use");
-        return;
-    }
-
-    QStringList keys = QWaylandClientBufferIntegrationFactory::keys();
-    qCDebug(lcQpaWayland) << "Available client buffer integrations:" << keys;
-
-    if (keys.contains(targetKey))
-        mClientBufferIntegration.reset(QWaylandClientBufferIntegrationFactory::create(targetKey, QStringList()));
-
-    if (mClientBufferIntegration) {
-        qCDebug(lcQpaWayland) << "Initializing client buffer integration" << targetKey;
-        mClientBufferIntegration->initialize(mDisplay.data());
     } else {
-        qCWarning(lcQpaWayland) << "Failed to load client buffer integration:" << targetKey;
-        qCWarning(lcQpaWayland) << "Available client buffer integrations:" << keys;
+        QStringList keys = QWaylandClientBufferIntegrationFactory::keys();
+        qCDebug(lcQpaWayland) << "Available client buffer integrations:" << keys;
+
+        if (keys.contains(targetKey))
+            mClientBufferIntegration.reset(QWaylandClientBufferIntegrationFactory::create(targetKey, QStringList()));
+
+        if (mClientBufferIntegration) {
+            qCDebug(lcQpaWayland) << "Initializing client buffer integration" << targetKey;
+            mClientBufferIntegration->initialize(mDisplay.data());
+        } else {
+            qCWarning(lcQpaWayland) << "Failed to load client buffer integration:" << targetKey;
+            qCWarning(lcQpaWayland) << "Available client buffer integrations:" << keys;
+        }
     }
+
+    // This must be set last to make sure other threads don't use the
+    // integration before initialization is complete.
+    mClientBufferIntegrationInitialized = true;
 }
 
 void QWaylandIntegration::initializeServerBufferIntegration()

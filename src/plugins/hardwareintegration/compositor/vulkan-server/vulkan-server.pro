@@ -5,6 +5,8 @@ OTHER_FILES += vulkan-server.json
 SOURCES += \
     main.cpp
 
+TARGET = qt-wayland-compositor-vulkan-server
+
 include($PWD/../../../../../hardwareintegration/compositor/vulkan-server/vulkan-server.pri)
 
 PLUGIN_TYPE = wayland-graphics-integration-server

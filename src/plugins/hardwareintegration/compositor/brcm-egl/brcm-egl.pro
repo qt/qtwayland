@@ -5,6 +5,8 @@ OTHER_FILES += brcm-egl.json
 SOURCES += \
     main.cpp
 
+TARGET = qt-wayland-compositor-brcm-egl
+
 include(../../../../hardwareintegration/compositor/brcm-egl/brcm-egl.pri)
 
 PLUGIN_TYPE = wayland-graphics-integration-server

@@ -9,5 +9,7 @@ SOURCES += main.cpp \
 HEADERS += \
     sharebufferextension.h
 
+TARGET = server-buffer-cpp-client
+
 target.path = $$[QT_INSTALL_EXAMPLES]/wayland/server-buffer/cpp-client
 INSTALLS += target

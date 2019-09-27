@@ -10,6 +10,8 @@ SOURCES += main.cpp \
 HEADERS += \
     ../client-common/customextension.h
 
+TARGET = custom-extension-qml-client
+
 RESOURCES += qml.qrc
 
 target.path = $$[QT_INSTALL_EXAMPLES]/wayland/custom-extension/qml-client

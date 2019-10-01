@@ -5,7 +5,9 @@ OTHER_FILES += vulkan-server.json
 SOURCES += \
     main.cpp
 
-include($PWD/../../../../../hardwareintegration/compositor/vulkan-server/vulkan-server.pri)
+TARGET = qt-wayland-compositor-vulkan-server
+
+include(../../../../hardwareintegration/compositor/vulkan-server/vulkan-server.pri)
 
 PLUGIN_TYPE = wayland-graphics-integration-server
 PLUGIN_CLASS_NAME = VulkanServerBufferIntegrationPlugin

@@ -5,7 +5,7 @@ OTHER_FILES += wayland-egl.json
 SOURCES += \
     main.cpp
 
-TARGET = qt-plugin-wayland-egl
+TARGET = qt-wayland-compositor-wayland-egl
 
 include(../../../../hardwareintegration/compositor/wayland-egl/wayland-egl.pri)
 

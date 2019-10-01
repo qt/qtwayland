@@ -5,6 +5,8 @@ OTHER_FILES += wayland-eglstream-controller.json
 SOURCES += \
     main.cpp \
 
+TARGET = qt-wayland-compositor-wayland-eglstream-controller
+
 include(../../../../hardwareintegration/compositor/wayland-eglstream-controller/wayland-eglstream-controller.pri)
 
 PLUGIN_TYPE = wayland-graphics-integration-server

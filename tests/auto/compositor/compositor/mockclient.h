@@ -36,6 +36,7 @@
 #include <QImage>
 #include <QRect>
 #include <QList>
+#include <QtCore/QMap>
 #include <QWaylandOutputMode>
 
 #include "mockxdgoutputv1.h"

@@ -1158,7 +1158,18 @@ void QWaylandInputDevice::Keyboard::handleKey(ulong timestamp, QEvent::Type type
     }
 
     if (!filtered) {
-        QWindowSystemInterface::handleExtendedKeyEvent(focusWindow()->window(), timestamp, type, key, modifiers,
+        auto window = focusWindow()->window();
+
+        if (type == QEvent::KeyPress && key == Qt::Key_Menu) {
+            auto cursor = window->screen()->handle()->cursor();
+            if (cursor) {
+                const QPoint globalPos = cursor->pos();
+                const QPoint pos = window->mapFromGlobal(globalPos);
+                QWindowSystemInterface::handleContextMenuEvent(window, false, pos, globalPos, modifiers);
+            }
+        }
+
+        QWindowSystemInterface::handleExtendedKeyEvent(window, timestamp, type, key, modifiers,
                 nativeScanCode, nativeVirtualKey, nativeModifiers, text, autorepeat, count);
     }
 }

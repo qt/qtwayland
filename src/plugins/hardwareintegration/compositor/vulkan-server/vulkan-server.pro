@@ -7,7 +7,7 @@ SOURCES += \
 
 TARGET = qt-wayland-compositor-vulkan-server
 
-include($PWD/../../../../../hardwareintegration/compositor/vulkan-server/vulkan-server.pri)
+include(../../../../hardwareintegration/compositor/vulkan-server/vulkan-server.pri)
 
 PLUGIN_TYPE = wayland-graphics-integration-server
 PLUGIN_CLASS_NAME = VulkanServerBufferIntegrationPlugin

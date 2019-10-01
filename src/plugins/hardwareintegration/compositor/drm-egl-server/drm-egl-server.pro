@@ -7,7 +7,7 @@ SOURCES += \
 
 TARGET = qt-wayland-compositor-drm-egl-server-buffer
 
-include($PWD/../../../../../hardwareintegration/compositor/drm-egl-server/drm-egl-server.pri)
+include(../../../../hardwareintegration/compositor/drm-egl-server/drm-egl-server.pri)
 
 PLUGIN_TYPE = wayland-graphics-integration-server
 PLUGIN_CLASS_NAME = DrmEglServerBufferIntegrationPlugin

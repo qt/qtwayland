@@ -9,7 +9,7 @@ SOURCES += \
 
 TARGET = qt-wayland-compositor-vsp2
 
-include($PWD/../../../../../../hardwareintegration/compositor/hardwarelayer/vsp2/vsp2.pri)
+include(../../../../../hardwareintegration/compositor/hardwarelayer/vsp2/vsp2.pri)
 
 PLUGIN_TYPE = wayland-hardware-layer-integration
 PLUGIN_CLASS_NAME = Vsp2HardwareLayerIntegrationPlugin

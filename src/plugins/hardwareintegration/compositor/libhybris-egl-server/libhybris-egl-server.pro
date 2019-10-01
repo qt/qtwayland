@@ -7,7 +7,7 @@ SOURCES += \
 
 TARGET = qt-wayland-compositor-libybris-egl-server.json
 
-include($PWD/../../../../../hardwareintegration/compositor/libhybris-egl-server/libhybris-egl-server.pri)
+include(../../../../hardwareintegration/compositor/libhybris-egl-server/libhybris-egl-server.pri)
 
 PLUGIN_TYPE = wayland-graphics-integration-server
 PLUGIN_CLASS_NAME = LibHybrisEglServerBufferIntegrationPlugin

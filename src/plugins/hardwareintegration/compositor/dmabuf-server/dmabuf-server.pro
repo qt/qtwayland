@@ -7,7 +7,7 @@ SOURCES += \
 
 TARGET = qt-wayland-compositor-dmabuf-server-buffer
 
-include($PWD/../../../../../hardwareintegration/compositor/dmabuf-server/dmabuf-server.pri)
+include(../../../../hardwareintegration/compositor/dmabuf-server/dmabuf-server.pri)
 
 PLUGIN_TYPE = wayland-graphics-integration-server
 PLUGIN_CLASS_NAME = DmaBufServerBufferIntegrationPlugin

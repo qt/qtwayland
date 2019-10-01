@@ -5,6 +5,8 @@ OTHER_FILES += drm-egl-server.json
 SOURCES += \
     main.cpp
 
+TARGET = qt-wayland-compositor-drm-egl-server-buffer
+
 include($PWD/../../../../../hardwareintegration/compositor/drm-egl-server/drm-egl-server.pri)
 
 PLUGIN_TYPE = wayland-graphics-integration-server

@@ -7,6 +7,8 @@ OTHER_FILES += vsp2.json
 SOURCES += \
     main.cpp
 
+TARGET = qt-wayland-compositor-vsp2
+
 include($PWD/../../../../../../hardwareintegration/compositor/hardwarelayer/vsp2/vsp2.pri)
 
 PLUGIN_TYPE = wayland-hardware-layer-integration

@@ -5,6 +5,8 @@ OTHER_FILES += xcomposite-glx.json
 SOURCES += \
     main.cpp
 
+TARGET = qt-wayland-compositor-xcomposite-glx
+
 include(../../../../hardwareintegration/compositor/xcomposite-glx/xcomposite-glx.pri)
 
 PLUGIN_TYPE = wayland-graphics-integration-server

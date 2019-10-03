@@ -179,8 +179,12 @@ void XdgToplevelIntegration::handleUnsetMaximized()
 void XdgToplevelIntegration::handleMaximizedChanged()
 {
     if (m_toplevel->maximized()) {
-        QWaylandOutput *output = m_item->view()->output();
-        m_item->moveItem()->setPosition(output->position() + output->availableGeometry().topLeft());
+        if (auto *output = m_item->view()->output()) {
+            m_item->moveItem()->setPosition(output->position() + output->availableGeometry().topLeft());
+        } else {
+            qCWarning(qLcWaylandCompositor) << "The view does not have a corresponding output,"
+                                            << "ignoring maximized state";
+        }
     } else {
         m_item->moveItem()->setPosition(windowedGeometry.initialPosition);
     }
@@ -232,7 +236,12 @@ void XdgToplevelIntegration::handleFullscreenChanged()
 {
     if (m_toplevel->fullscreen()) {
         QWaylandOutput *output = m_item->view()->output();
-        m_item->moveItem()->setPosition(output->position() + output->geometry().topLeft());
+        if (auto *output = m_item->view()->output()) {
+            m_item->moveItem()->setPosition(output->position() + output->geometry().topLeft());
+        } else {
+            qCWarning(qLcWaylandCompositor) << "The view does not have a corresponding output,"
+                                            << "ignoring fullscreen state";
+        }
     } else {
         m_item->moveItem()->setPosition(windowedGeometry.initialPosition);
     }

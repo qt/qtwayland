@@ -89,7 +89,8 @@ class Q_WAYLAND_CLIENT_EXPORT QWaylandWindow : public QObject, public QPlatformW
 public:
     enum WindowType {
         Shm,
-        Egl
+        Egl,
+        Vulkan
     };
 
     QWaylandWindow(QWindow *window);

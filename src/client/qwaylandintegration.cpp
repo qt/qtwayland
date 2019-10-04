@@ -94,6 +94,11 @@
 #include <QtXkbCommonSupport/private/qxkbcommon_p.h>
 #endif
 
+#if QT_CONFIG(vulkan)
+#include "qwaylandvulkaninstance_p.h"
+#include "qwaylandvulkanwindow_p.h"
+#endif
+
 QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
@@ -157,6 +162,11 @@ QPlatformWindow *QWaylandIntegration::createPlatformWindow(QWindow *window) cons
     if ((window->surfaceType() == QWindow::OpenGLSurface || window->surfaceType() == QWindow::RasterGLSurface)
         && mDisplay->clientBufferIntegration())
         return mDisplay->clientBufferIntegration()->createEglWindow(window);
+
+#if QT_CONFIG(vulkan)
+    if (window->surfaceType() == QSurface::VulkanSurface)
+        return new QWaylandVulkanWindow(window);
+#endif // QT_CONFIG(vulkan)
 
     return new QWaylandShmWindow(window);
 }
@@ -277,6 +287,13 @@ QPlatformTheme *QWaylandIntegration::createPlatformTheme(const QString &name) co
 {
     return QGenericUnixTheme::createUnixTheme(name);
 }
+
+#if QT_CONFIG(vulkan)
+QPlatformVulkanInstance *QWaylandIntegration::createPlatformVulkanInstance(QVulkanInstance *instance) const
+{
+    return new QWaylandVulkanInstance(instance);
+}
+#endif // QT_CONFIG(vulkan)
 
 // May be called from non-GUI threads
 QWaylandClientBufferIntegration *QWaylandIntegration::clientBufferIntegration() const

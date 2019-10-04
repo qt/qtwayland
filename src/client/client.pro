@@ -5,6 +5,10 @@ QT += core-private gui-private
 QT_FOR_PRIVATE += service_support-private
 QT_PRIVATE += fontdatabase_support-private eventdispatcher_support-private theme_support-private
 
+qtConfig(vulkan) {
+    QT_PRIVATE += vulkan_support-private
+}
+
 # We have a bunch of C code with casts, so we can't have this option
 QMAKE_CXXFLAGS_WARN_ON -= -Wcast-qual
 
@@ -96,6 +100,16 @@ include(hardwareintegration/hardwareintegration.pri)
 include(shellintegration/shellintegration.pri)
 include(inputdeviceintegration/inputdeviceintegration.pri)
 include(global/global.pri)
+
+qtConfig(vulkan) {
+    HEADERS += \
+        qwaylandvulkaninstance_p.h \
+        qwaylandvulkanwindow_p.h
+
+    SOURCES += \
+        qwaylandvulkaninstance.cpp \
+        qwaylandvulkanwindow.cpp
+}
 
 qtConfig(cursor) {
     QMAKE_USE += wayland-cursor

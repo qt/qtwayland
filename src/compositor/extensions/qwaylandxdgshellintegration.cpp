@@ -235,7 +235,6 @@ void XdgToplevelIntegration::handleUnsetFullscreen()
 void XdgToplevelIntegration::handleFullscreenChanged()
 {
     if (m_toplevel->fullscreen()) {
-        QWaylandOutput *output = m_item->view()->output();
         if (auto *output = m_item->view()->output()) {
             m_item->moveItem()->setPosition(output->position() + output->geometry().topLeft());
         } else {

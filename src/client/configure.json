@@ -9,7 +9,24 @@
     "libraries": {
         "wayland-client": {
             "label": "Wayland client library",
-            "test": "wayland",
+            "headers": "wayland-version.h",
+            "test": {
+                "main": [
+                    "#if WAYLAND_VERSION_MAJOR < 1",
+                    "# error Wayland 1.8.0 or higher required",
+                    "#endif",
+                    "#if WAYLAND_VERSION_MAJOR == 1",
+                    "# if WAYLAND_VERSION_MINOR < 8",
+                    "#  error Wayland 1.8.0 or higher required",
+                    "# endif",
+                    "# if WAYLAND_VERSION_MINOR == 8",
+                    "#  if WAYLAND_VERSION_MICRO < 0",
+                    "#   error Wayland 1.8.0 or higher required",
+                    "#  endif",
+                    "# endif",
+                    "#endif"
+                 ]
+            },
             "sources": [
                 { "type": "pkgConfig", "args": "wayland-client" },
                 "-lwayland-client"
@@ -17,7 +34,10 @@
         },
         "wayland-cursor": {
             "label": "Wayland cursor library",
-            "test": "wayland_cursor",
+            "headers": "wayland-cursor.h",
+            "test": {
+                "main": "struct wl_cursor_image *image = 0;"
+            },
             "use": "wayland-client",
             "sources": [
                 { "type": "pkgConfig", "args": "wayland-cursor" },
@@ -26,7 +46,10 @@
         },
         "wayland-egl": {
             "label": "Wayland EGL library",
-            "test": "wayland_egl",
+            "headers": "wayland-egl.h",
+            "test": {
+                "main": "struct wl_egl_window *window = wl_egl_window_create(0, 100, 100);"
+            },
             "sources": [
                 { "type": "pkgConfig", "args": "wayland-egl" },
                 "-lwayland-egl",
@@ -35,7 +58,11 @@
         },
         "xcomposite": {
             "label": "XComposite",
-            "test": "xcomposite",
+            "headers": "X11/extensions/Xcomposite.h",
+            "test": {
+                "main": "XCompositeRedirectWindow((Display *)0,(Window) 0, CompositeRedirectManual);"
+
+            },
             "sources": [
                 { "type": "pkgConfig", "args": "xcomposite" },
                 "-lxcomposite"
@@ -43,7 +70,14 @@
         },
         "glx": {
             "label": "GLX",
-            "test": "glx",
+            "headers": "GL/glx.h",
+            "test": {
+                "main": [
+                    "Display *dpy = XOpenDisplay(0);",
+                    "int items = 0;",
+                    "GLXFBConfig *fbc = glXChooseFBConfig(dpy, DefaultScreen(dpy), 0 , &items);"
+                ]
+            },
             "sources": [
                 { "type": "pkgConfig", "args": "x11 gl" },
                 "-lX11 -lGl"

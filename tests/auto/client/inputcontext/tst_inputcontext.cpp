@@ -58,8 +58,6 @@ private:
     QByteArray mComposeModule = QByteArray("QComposeInputContext"); // default input context
     QByteArray mIbusModule    = QByteArray("QIBusPlatformInputContext");
     QByteArray mWaylandModule = QByteArray("QtWaylandClient::QWaylandInputContext");
-
-    TextInputManager *mTextInputManager = nullptr;
 };
 
 void tst_inputcontext::initTestCase()

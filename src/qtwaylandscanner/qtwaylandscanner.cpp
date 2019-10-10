@@ -92,7 +92,7 @@ private:
     };
 
     bool isServerSide();
-    bool parseOption(const char *str);
+    bool parseOption(const QByteArray &str);
 
     QByteArray byteArrayValue(const QXmlStreamReader &xml, const char *name);
     int intValue(const QXmlStreamReader &xml, const char *name, int defaultValue = 0);
@@ -123,29 +123,55 @@ private:
     QByteArray m_scannerName;
     QByteArray m_headerPath;
     QByteArray m_prefix;
+    QVector <QByteArray> m_includes;
     QXmlStreamReader *m_xml = nullptr;
 };
 
 bool Scanner::parseArguments(int argc, char **argv)
 {
-    m_scannerName = argv[0];
+    QVector<QByteArray> args;
+    args.reserve(argc);
+    for (int i = 0; i < argc; ++i)
+        args << QByteArray(argv[i]);
 
-    if (argc <= 2 || !parseOption(argv[1]))
+    m_scannerName = args[0];
+
+    if (argc <= 2 || !parseOption(args[1]))
         return false;
 
-    m_protocolFilePath = QByteArray(argv[2]);
+    m_protocolFilePath = args[2];
 
-    if (argc >= 4)
-        m_headerPath = QByteArray(argv[3]);
-    if (argc == 5)
-        m_prefix = QByteArray(argv[4]);
+    if (argc > 3 && !args[3].startsWith('-')) {
+        // legacy positional arguments
+            m_headerPath = args[3];
+        if (argc == 5)
+            m_prefix = args[4];
+    } else {
+        // --header-path=<path> (14 characters)
+        // --prefix=<prefix> (9 characters)
+        // --add-include=<include> (14 characters)
+        for (int pos = 3; pos < argc; pos++) {
+            const QByteArray &option = args[pos];
+            if (option.startsWith("--header-path=")) {
+                m_headerPath = option.mid(14);
+            } else if (option.startsWith("--prefix=")) {
+                m_prefix = option.mid(10);
+            } else if (option.startsWith("--add-include=")) {
+                auto include = option.mid(14);
+                if (!include.isEmpty())
+                    m_includes << include;
+            } else {
+                return false;
+            }
+        }
+    }
 
     return true;
 }
 
 void Scanner::printUsage()
 {
-    fprintf(stderr, "Usage: %s [client-header|server-header|client-code|server-code] specfile [header-path] [prefix]\n", m_scannerName.constData());
+    fprintf(stderr, "Usage: %s [client-header|server-header|client-code|server-code] specfile [--header-path=<path>] [--prefix=<prefix>] [--add-include=<include>]\n", m_scannerName.constData());
 }
 
 bool Scanner::isServerSide()
@@ -153,15 +179,15 @@ bool Scanner::isServerSide()
     return m_option == ServerHeader || m_option == ServerCode;
 }
 
-bool Scanner::parseOption(const char *str)
+bool Scanner::parseOption(const QByteArray &str)
 {
-    if (str == QLatin1String("client-header"))
+    if (str == "client-header")
         m_option = ClientHeader;
-    else if (str == QLatin1String("server-header"))
+    else if (str == "server-header")
         m_option = ServerHeader;
-    else if (str == QLatin1String("client-code"))
+    else if (str == "client-code")
         m_option = ClientCode;
-    else if (str == QLatin1String("server-code"))
+    else if (str == "server-code")
         m_option = ServerCode;
     else
         return false;
@@ -440,6 +466,9 @@ bool Scanner::process()
 
     if (m_xml->hasError())
         return false;
+
+    for (auto b : qAsConst(m_includes))
+        printf("#include %s\n", b.constData());
 
     if (m_option == ServerHeader) {
         QByteArray inclusionGuard = QByteArray("QT_WAYLAND_SERVER_") + preProcessorProtocolName.constData();

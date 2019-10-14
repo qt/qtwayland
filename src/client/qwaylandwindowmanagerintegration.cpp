@@ -110,13 +110,17 @@ void QWaylandWindowManagerIntegration::windowmanager_quit()
 void QWaylandWindowManagerIntegration::openUrl_helper(const QUrl &url)
 {
     Q_ASSERT(isInitialized());
-    QByteArray data = url.toString().toUtf8();
+    QString data = url.toString();
 
     static const int chunkSize = 128;
     while (!data.isEmpty()) {
-        QByteArray chunk = data.left(chunkSize);
+        QString chunk = data.left(chunkSize);
         data = data.mid(chunkSize);
-        open_url(!data.isEmpty(), QString::fromUtf8(chunk));
+        if (chunk.at(chunk.size() - 1).isHighSurrogate() && !data.isEmpty()) {
+            chunk.append(data.at(0));
+            data = data.mid(1);
+        }
+        open_url(!data.isEmpty(), chunk);
     }
 }
 

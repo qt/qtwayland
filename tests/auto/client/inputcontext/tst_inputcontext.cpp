@@ -173,7 +173,8 @@ void tst_inputcontext::inputContextReconfigurationWhenTogglingTextInputExtension
 
 int main(int argc, char *argv[])
 {
-    qputenv("XDG_RUNTIME_DIR", ".");
+    QTemporaryDir tmpRuntimeDir;
+    qputenv("XDG_RUNTIME_DIR", tmpRuntimeDir.path().toLocal8Bit());
     qputenv("QT_QPA_PLATFORM", "wayland");
 
     tst_inputcontext tc;

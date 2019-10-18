@@ -93,8 +93,10 @@ QMimeData *QWaylandClipboard::mimeData(QClipboard::Mode mode)
 void QWaylandClipboard::setMimeData(QMimeData *data, QClipboard::Mode mode)
 {
     auto *seat = mDisplay->currentInputDevice();
-    if (!seat)
+    if (!seat) {
+        qCWarning(lcQpaWayland) << "Can't set clipboard contents with no wl_seats available";
         return;
+    }
 
     static const QString plain = QStringLiteral("text/plain");
     static const QString utf8 = QStringLiteral("text/plain;charset=utf-8");

@@ -206,11 +206,11 @@ void QWaylandCompositorPrivate::init()
 
     if (!socket_name.isEmpty()) {
         if (wl_display_add_socket(display, socket_name.constData()))
-            qFatal("Fatal: Failed to open server socket\n");
+            qFatal("Fatal: Failed to open server socket: \"%s\". XDG_RUNTIME_DIR is: \"%s\"\n", socket_name.constData(), getenv("XDG_RUNTIME_DIR"));
     } else {
         const char *autoSocketName = wl_display_add_socket_auto(display);
         if (!autoSocketName)
-            qFatal("Fatal: Failed to open server socket\n");
+            qFatal("Fatal: Failed to open default server socket. XDG_RUNTIME_DIR is: \"%s\"\n", getenv("XDG_RUNTIME_DIR"));
         socket_name = autoSocketName;
         emit q->socketNameChanged(socket_name);
     }

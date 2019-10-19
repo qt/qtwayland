@@ -184,6 +184,7 @@ private slots:
     void glWindow();
 #endif // QT_CONFIG(opengl)
     void longWindowTitle();
+    void longWindowTitleWithUtf16Characters();
 
 private:
     MockCompositor *compositor = nullptr;
@@ -497,6 +498,16 @@ void tst_WaylandClient::longWindowTitle()
     // See QTBUG-68715
     QWindow window;
     QString absurdlyLongTitle(10000, QLatin1Char('z'));
+    window.setTitle(absurdlyLongTitle);
+    window.show();
+    QTRY_VERIFY(compositor->surface());
+}
+
+void tst_WaylandClient::longWindowTitleWithUtf16Characters()
+{
+    QWindow window;
+    QString absurdlyLongTitle = QString("三").repeated(10000);
+    Q_ASSERT(absurdlyLongTitle.length() == 10000); // just making sure the test isn't broken
     window.setTitle(absurdlyLongTitle);
     window.show();
     QTRY_VERIFY(compositor->surface());
